@@ -14,17 +14,23 @@
    .
 
   \author   Volker Adler
-  \version  $Id: PATTriggerMatchSelector.h,v 1.1.2.2 2009/03/16 20:10:11 vadler Exp $
+  \version  $Id: PATTriggerMatchSelector.h,v 1.3 2009/04/27 13:37:59 vadler Exp $
 */
 //
-// $Id: PATTriggerMatchSelector.h,v 1.1.2.2 2009/03/16 20:10:11 vadler Exp $
+// $Id: PATTriggerMatchSelector.h,v 1.3 2009/04/27 13:37:59 vadler Exp $
 //
 
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+/*  */
+#include <iostream>        
+/*  */
 
 
 namespace pat {
@@ -33,7 +39,8 @@ namespace pat {
   class PATTriggerMatchSelector {
     
       bool                       andOr_;          // AND used if 'false', OR otherwise
-      std::vector< unsigned >    filterIds_;      // special filter related ID as defined in enum 'TriggerObjectType' in DataFormats/HLTReco/interface/TriggerTypeDefs.h
+      std::vector< int >         filterIds_;      // special filter related ID as defined in enum 'TriggerObjectType' in DataFormats/HLTReco/interface/TriggerTypeDefs.h
+      std::vector< std::string > filterIdsEnum_;  // special filter related ID as defined in enum 'TriggerObjectType' in DataFormats/HLTReco/interface/TriggerTypeDefs.h
       std::vector< std::string > filterLabels_;
       std::vector< std::string > pathNames_;
       std::vector< std::string > collectionTags_; // needs full tag strings (as from edm::InputTag::encode()), not only labels
@@ -42,7 +49,8 @@ namespace pat {
     
       PATTriggerMatchSelector( const edm::ParameterSet & iConfig ) :
         andOr_( iConfig.getParameter< bool >( "andOr" ) ),
-        filterIds_( iConfig.getParameter< std::vector< unsigned > >( "filterIds" ) ),
+        filterIds_( iConfig.getParameter< std::vector< int > >( "filterIds" ) ),
+        filterIdsEnum_( iConfig.getParameter< std::vector< std::string > >( "filterIdsEnum" ) ),
         filterLabels_( iConfig.getParameter< std::vector< std::string > >( "filterLabels" ) ),
         pathNames_( iConfig.getParameter< std::vector< std::string > >( "pathNames" ) ),
         collectionTags_( iConfig.getParameter< std::vector< std::string > >( "collectionTags" ) )
@@ -50,6 +58,41 @@ namespace pat {
       }
       
       bool operator()( const T1 & patObj, const T2 & trigObj ) const {
+        std::map< std::string, trigger::TriggerObjectType > filterIdsEnumMap; // FIXME: Should be automated, but  h o w ?
+        // L1
+        filterIdsEnumMap.insert( std::make_pair( "TriggerL1Mu"          , trigger::TriggerL1Mu ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerL1NoIsoEG"     , trigger::TriggerL1NoIsoEG ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerL1IsoEG"       , trigger::TriggerL1IsoEG ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerL1CenJet"      , trigger::TriggerL1CenJet ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerL1ForJet"      , trigger::TriggerL1ForJet ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerL1TauJet"      , trigger::TriggerL1TauJet ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerL1ETM"         , trigger::TriggerL1ETM ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerL1ETT"         , trigger::TriggerL1ETT ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerL1HTT"         , trigger::TriggerL1HTT ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerL1HTM"         , trigger::TriggerL1HTM ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerL1JetCounts"   , trigger::TriggerL1JetCounts ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerL1HfBitCounts" , trigger::TriggerL1HfBitCounts ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerL1HfRingEtSums", trigger::TriggerL1HfRingEtSums ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerL1TechTrig"    , trigger::TriggerL1TechTrig ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerL1Castor"      , trigger::TriggerL1Castor ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerL1BPTX"        , trigger::TriggerL1BPTX ) );
+        // HLT
+        filterIdsEnumMap.insert( std::make_pair( "TriggerPhoton"  , trigger::TriggerPhoton ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerElectron", trigger::TriggerElectron ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerMuon"    , trigger::TriggerMuon ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerTau"     , trigger::TriggerTau ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerJet"     , trigger::TriggerJet ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerBJet"    , trigger::TriggerBJet ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerMET"     , trigger::TriggerMET ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerTET"     , trigger::TriggerTET ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerTHT"     , trigger::TriggerTHT ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerMHT"     , trigger::TriggerMHT ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerTrack"   , trigger::TriggerTrack ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerCluster" , trigger::TriggerCluster ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerMETSig"  , trigger::TriggerMETSig ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerELongit" , trigger::TriggerELongit ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerMHTSig"  , trigger::TriggerMHTSig ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerHLongit" , trigger::TriggerHLongit ) );
         if ( andOr_ ) { // OR
           for ( size_t i = 0; i < filterIds_.size(); ++i ) {
             if ( filterIds_.at( i ) == 0 || trigObj.hasFilterId( filterIds_.at( i ) ) ) return true;
@@ -63,6 +106,11 @@ namespace pat {
           for ( size_t l = 0; l < collectionTags_.size(); ++l ) {
             if ( collectionTags_.at( l ) == "*" || collectionTags_.at( l ) == "@" || collectionTags_.at( l ) == trigObj.collection() ) return true;
           }
+          for ( size_t m = 0; m < filterIdsEnum_.size(); ++m ) {
+            if ( filterIdsEnum_.at( m ) == "*" || filterIdsEnum_.at( m ) == "@" ) return true;
+            std::map< std::string, trigger::TriggerObjectType >::const_iterator iter( filterIdsEnumMap.find( filterIdsEnum_.at( m ) ) );
+            if ( iter != filterIdsEnumMap.end() && trigObj.hasFilterId( iter->second ) ) return true;
+          }
           return false;
         } else { // AND
           for ( size_t i = 0; i < filterIds_.size(); ++i ) {
@@ -73,7 +121,11 @@ namespace pat {
                     if ( pathNames_.at( k ) == "*" || pathNames_.at( k ) == "@" || trigObj.hasPathName( pathNames_.at( k ) ) ) {
                       for ( size_t l = 0; l < collectionTags_.size(); ++l ) {
                         if ( collectionTags_.at( l ) == "*" || collectionTags_.at( l ) == "@" || collectionTags_.at( l ) == trigObj.collection() ) {
-                          return true;
+                          for ( size_t m = 0; m < filterIdsEnum_.size(); ++m ) {
+                            if ( filterIdsEnum_.at( m ) == "*" || filterIdsEnum_.at( m ) == "@" ) return true;
+                            std::map< std::string, trigger::TriggerObjectType >::const_iterator iter( filterIdsEnumMap.find( filterIdsEnum_.at( m ) ) );
+                            if ( iter != filterIdsEnumMap.end() && trigObj.hasFilterId( iter->second ) ) return true;
+                          }
                         }
                       }
                     }

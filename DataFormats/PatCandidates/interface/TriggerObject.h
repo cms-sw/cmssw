@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerObject
 //
-// $Id: TriggerObject.h,v 1.1.2.3 2009/03/27 21:31:05 vadler Exp $
+// $Id: TriggerObject.h,v 1.3 2009/04/01 10:45:51 vadler Exp $
 //
 /**
   \class    pat::TriggerObject TriggerObject.h "DataFormats/PatCandidates/interface/TriggerObject.h"
@@ -20,7 +20,7 @@
    to store the trigger object id from trigger::TriggerObject::id_.
 
   \author   Volker Adler
-  \version  $Id: TriggerObject.h,v 1.1.2.3 2009/03/27 21:31:05 vadler Exp $
+  \version  $Id: TriggerObject.h,v 1.3 2009/04/01 10:45:51 vadler Exp $
 */
 
 
@@ -42,8 +42,8 @@ namespace pat {
   class TriggerObject : public reco::LeafCandidate {
     
       /// data members
-      std::string             collection_;
-      std::vector< unsigned > filterIds_;  // special filter related ID as defined in enum 'TriggerObjectType' in DataFormats/HLTReco/interface/TriggerTypeDefs.h
+      std::string        collection_;
+      std::vector< int > filterIds_;  // special filter related ID as defined in enum 'TriggerObjectType' in DataFormats/HLTReco/interface/TriggerTypeDefs.h
                                            // empty, if object was not used in last active filter
 
     public:
@@ -57,10 +57,10 @@ namespace pat {
       
       /// setters & getters
       void setCollection( const std::string & collection ) { collection_ = collection; };
-      void addFilterId( unsigned filterId )                { filterIds_.push_back( filterId ); };
-      std::string             collection() const { return collection_; };
-      std::vector< unsigned > filterIds() const  { return filterIds_; };
-      bool                    hasFilterId( unsigned filterId ) const;
+      void addFilterId( int filterId )                     { filterIds_.push_back( filterId ); };
+      std::string        collection() const { return collection_; };
+      std::vector< int > filterIds() const  { return filterIds_; };
+      bool               hasFilterId( int filterId ) const;
 
   };
   

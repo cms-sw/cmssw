@@ -1,5 +1,5 @@
 //
-// $Id: TriggerPath.cc,v 1.1.2.10 2009/03/15 11:29:38 vadler Exp $
+// $Id: TriggerPath.cc,v 1.2 2009/03/26 21:49:08 vadler Exp $
 //
 
 
@@ -56,7 +56,7 @@ TriggerPath::TriggerPath( const std::string & name, unsigned index, unsigned pre
 // returns size of modules_ if name unknown and -1 if 'modules_' not filled
 int TriggerPath::indexModule( const std::string & name ) const
 {
-  unsigned i( 0 );
+  size_t i( 0 );
   while ( i < modules().size() ) {
     if ( name == modules().at( i ) ) {
       return ( int )i;

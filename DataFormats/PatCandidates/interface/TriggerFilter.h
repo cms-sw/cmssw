@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerFilter
 //
-// $Id: TriggerFilter.h,v 1.1.2.9 2009/03/13 12:10:35 vadler Exp $
+// $Id: TriggerFilter.h,v 1.2 2009/03/26 21:49:08 vadler Exp $
 //
 /**
   \class    pat::TriggerFilter TriggerFilter.h "DataFormats/PatCandidates/interface/TriggerFilter.h"
@@ -18,7 +18,7 @@
    - [to be filled]
 
   \author   Volker Adler
-  \version  $Id: TriggerFilter.h,v 1.1.2.9 2009/03/13 12:10:35 vadler Exp $
+  \version  $Id: TriggerFilter.h,v 1.2 2009/03/26 21:49:08 vadler Exp $
 */
 
 
@@ -38,7 +38,7 @@ namespace pat {
       std::string             label_;
       std::string             type_;
       std::vector< unsigned > objectKeys_;
-      std::vector< unsigned > objectIds_; // special filter related object ID as defined in enum 'TriggerObjectType' in DataFormats/HLTReco/interface/TriggerTypeDefs.h
+      std::vector< int >      objectIds_; // special filter related object ID as defined in enum 'TriggerObjectType' in DataFormats/HLTReco/interface/TriggerTypeDefs.h
       int                     status_;    // -1: not run, 0: failed, 1: succeeded
 
     public:
@@ -53,15 +53,15 @@ namespace pat {
       void setLabel( const std::string & label ) { label_ = label; };
       void setType( const std::string & type )   { type_  = type; };
       void addObjectKey( unsigned objectKey )    { if ( ! hasObjectKey( objectKey ) ) objectKeys_.push_back( objectKey ); };
-      void addObjectId( unsigned objectId )      { if ( ! hasObjectId( objectId ) )   objectIds_.push_back( objectId ); };
+      void addObjectId( int objectId )           { if ( ! hasObjectId( objectId ) )   objectIds_.push_back( objectId ); };
       bool setStatus( int status ); // only -1,0,1 accepted; returns 'false' (and does not modify the status) otherwise
       std::string             label() const      { return label_; };
       std::string             type() const       { return type_; };
       std::vector< unsigned > objectKeys() const { return objectKeys_; };                 
-      std::vector< unsigned > objectIds() const  { return objectIds_; };                 
+      std::vector< int >      objectIds() const  { return objectIds_; };
       int                     status() const     { return status_; };
       bool                    hasObjectKey( unsigned objectKey ) const;
-      bool                    hasObjectId( unsigned objectId ) const;
+      bool                    hasObjectId( int objectId ) const;
         
   };
   
