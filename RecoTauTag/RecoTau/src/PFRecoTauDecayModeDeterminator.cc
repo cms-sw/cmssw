@@ -286,10 +286,13 @@ void PFRecoTauDecayModeDeterminator::produce(Event& iEvent,const EventSetup& iSe
                                              iGamma != gammaCandidates.end();
                                            ++iGamma)
      {
-        if (setChargedPionMass_) // set mass as pi 0
-           if (iGamma->numberOfDaughters() == 1 || !setMergedPi0Mass_ ) // for merged gamma pairs, check if user wants to keep ECAL mass
+        if (setPi0Mass_) // set mass as pi 0
+        {
+           if (iGamma->numberOfDaughters() == 1) // for merged gamma pairs, check if user wants to keep ECAL mass
               iGamma->setMass(neutralPionMass);
-
+           else if (setMergedPi0Mass_)
+              iGamma->setMass(neutralPionMass);
+        }
         mergedPiZerosToAdd.addDaughter(*iGamma);
      }
 
