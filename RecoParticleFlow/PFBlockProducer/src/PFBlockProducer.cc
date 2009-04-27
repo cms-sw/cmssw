@@ -220,13 +220,12 @@ void PFBlockProducer::produce(Event& iEvent,
   Handle< reco::MuonCollection > recMuons;
 
   // LogDebug("PFBlockProducer")<<"get reco muons"<<endl;
-  if(usePFatHLT_) {
+  if(!usePFatHLT_) {
     found = iEvent.getByLabel(inputTagRecMuons_, recMuons);
   
-  //if(!found )
-  //  LogError("PFBlockProducer")<<" cannot get recmuons: "
-  //			       <<inputTagRecMuons_<<endl;
-
+    //if(!found )
+    //  LogError("PFBlockProducer")<<" cannot get recmuons: "
+    //			 <<inputTagRecMuons_<<endl;
 
   // get PFNuclearInteractions
   }
