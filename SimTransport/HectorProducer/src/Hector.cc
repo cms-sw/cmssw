@@ -57,7 +57,7 @@ Hector::Hector(const edm::ParameterSet & param, bool verbosity, bool FP420Transp
   }
   if ( (rng->getEngine()).name() == "TRandom3" ) {
     rootEngine_ = ( (edm::TRandomAdaptor*) &(rng->getEngine()) )->getRootEngine();
-    std::cout << "LHCTransport seed = " << rootEngine_->GetSeed() << std::endl;
+    LogDebug("Hector") << "LHCTransport seed = " << rootEngine_->GetSeed();
   }
   else {
     edm::LogError("Hector") << "The TRandom3 engine must be used, Random Number Generator Service not correctly initialized!"; 
@@ -119,7 +119,7 @@ Hector::Hector(const edm::ParameterSet & param, bool verbosity, bool FP420Transp
     m_beamlineFP4202->calcMatrix();
   }  
   else{
-    cout << "=== Hector: WARNING: lengthfp420=  " << lengthfp420 << endl;
+    if ( m_verbosity ) cout << "=== Hector: WARNING: lengthfp420=  " << lengthfp420 << endl;
   }
   
   
@@ -158,7 +158,7 @@ Hector::Hector(const edm::ParameterSet & param, bool verbosity, bool FP420Transp
     m_beamlineD12->calcMatrix();
   }  
   else{
-    cout << "=== Hector: WARNING: lengthzdc=  " << lengthzdc << "lengthd1=  " << lengthd1 << endl;
+    if ( m_verbosity ) cout << "=== Hector: WARNING: lengthzdc=  " << lengthzdc << "lengthd1=  " << lengthd1 << endl;
   }
   
   edm::LogInfo ("Hector") << "===================================================================\n";
