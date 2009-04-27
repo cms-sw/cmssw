@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 11 15:20:05 EST 2008
-// $Id: FWEDProductRepresentationChecker.h,v 1.1 2008/11/14 16:29:30 chrjones Exp $
+// $Id: FWEDProductRepresentationChecker.h,v 1.2 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -30,7 +30,7 @@
 class FWEDProductRepresentationChecker : public FWRepresentationCheckerBase {
 
 public:
-   FWEDProductRepresentationChecker(const std::string& iTypeName,
+   FWEDProductRepresentationChecker(const std::string& iTypeidName,
                                     const std::string& iPurpose);
 
    // ---------- const member functions ---------------------
@@ -46,7 +46,7 @@ private:
    const FWEDProductRepresentationChecker& operator=(const FWEDProductRepresentationChecker&); // stop default
 
    // ---------- member data --------------------------------
-   const std::string m_typeName;
+   const std::string m_typeidName;
 };
 
 

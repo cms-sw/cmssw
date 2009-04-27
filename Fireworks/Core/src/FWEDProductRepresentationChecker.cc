@@ -8,10 +8,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 11 15:20:10 EST 2008
-// $Id: FWEDProductRepresentationChecker.cc,v 1.1 2008/11/14 16:29:31 chrjones Exp $
+// $Id: FWEDProductRepresentationChecker.cc,v 1.2 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
+#include "TClass.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWEDProductRepresentationChecker.h"
@@ -28,10 +29,10 @@
 //
 // constructors and destructor
 //
-FWEDProductRepresentationChecker::FWEDProductRepresentationChecker(const std::string& iTypeName,
+FWEDProductRepresentationChecker::FWEDProductRepresentationChecker(const std::string& iTypeidName,
                                                                    const std::string& iPurpose) :
    FWRepresentationCheckerBase(iPurpose),
-   m_typeName(iTypeName)
+   m_typeidName(iTypeidName)
 {
 }
 
@@ -66,7 +67,11 @@ FWEDProductRepresentationChecker::FWEDProductRepresentationChecker(const std::st
 FWRepresentationInfo
 FWEDProductRepresentationChecker::infoFor(const std::string& iTypeName) const
 {
-   if(iTypeName == m_typeName) {
+   TClass* clss = TClass::GetClass(iTypeName.c_str());
+   if(0==clss || clss->GetTypeInfo()==0) {
+      return FWRepresentationInfo();
+   }
+   if(clss->GetTypeInfo()->name() == m_typeidName) {
       return FWRepresentationInfo(purpose(),0);
    }
    return FWRepresentationInfo();

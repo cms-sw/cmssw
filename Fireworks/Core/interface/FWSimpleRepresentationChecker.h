@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 10:54:22 EST 2008
-// $Id: FWSimpleRepresentationChecker.h,v 1.1 2008/11/26 01:52:31 chrjones Exp $
+// $Id: FWSimpleRepresentationChecker.h,v 1.2 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -30,7 +30,7 @@
 class FWSimpleRepresentationChecker : public FWRepresentationCheckerBase {
 
 public:
-   FWSimpleRepresentationChecker(const std::string& iTypeName,
+   FWSimpleRepresentationChecker(const std::string& iTypeidName,
                                  const std::string& iPurpose);
    virtual ~FWSimpleRepresentationChecker();
 
@@ -47,7 +47,7 @@ private:
    const FWSimpleRepresentationChecker& operator=(const FWSimpleRepresentationChecker&); // stop default
 
    // ---------- member data --------------------------------
-   ROOT::Reflex::Type m_type;
+   const std::string m_typeidName;
 };
 
 
