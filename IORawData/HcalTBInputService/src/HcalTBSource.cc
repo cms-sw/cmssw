@@ -93,7 +93,8 @@ void HcalTBSource::openFile(const std::string& filename) {
       if (m_sourceIdRemap.find(b->GetName())==m_sourceIdRemap.end()) {
 	if (m_onlyRemapped) continue;
 	m_sourceIdRemap.insert(std::pair<std::string,int>(b->GetName(),-1));
-	edm::LogInfo("HCAL") << "Also reading branch " << b->GetName();
+	if (!m_quiet)
+	  edm::LogInfo("HCAL") << "Also reading branch " << b->GetName();
       }
       
       m_chunks[n_chunks]=0; // allow ROOT to allocate 
@@ -145,6 +146,8 @@ void HcalTBSource::setRunAndEventInfo() {
 }
 
 bool HcalTBSource::produce(edm::Event& e) {
+
+  if (m_fileCounter>=int(fileNames().size())) return false; // all done!
 
   if (m_tree==0) {
     edm::LogError("HCAL") << "Null TTree";
