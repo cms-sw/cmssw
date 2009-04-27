@@ -41,6 +41,7 @@ private:
   LayerCacheType * theLayerCache;
   float extraHitRZtolerance;
   float extraHitRPhitolerance;
+  double theNSigma;
   bool useMScat;
   bool useBend;
   edm::InputTag theBeamSpotTag;

@@ -7,8 +7,9 @@ PixelTripletNoTipGenerator = cms.PSet(
   useBending = cms.bool(True),
   useMultScattering = cms.bool(True),
 
-  extraHitRPhitolerance = cms.double(0.032),
-  extraHitRZtolerance = cms.double(0.037),
+  extraHitRPhitolerance = cms.double(0.000),
+  extraHitRZtolerance = cms.double(0.030),
+  nSigma = cms.double(3.0),
 
   beamSpot = cms.InputTag("offlineBeamSpot")
 )

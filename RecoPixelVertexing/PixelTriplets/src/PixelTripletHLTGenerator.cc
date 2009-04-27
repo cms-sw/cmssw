@@ -83,8 +83,8 @@ void PixelTripletHLTGenerator::hitTriplets(
 
     for (int il=0; il <=size-1; il++) {
       const DetLayer * layer = theLayers[il].detLayer();
-      bool pixelLayer = (    layer->subDetector() == GeomDetEnumerators::PixelBarrel 
-                          || layer->subDetector() == GeomDetEnumerators::PixelEndcap); 
+//      bool pixelLayer = (    layer->subDetector() == GeomDetEnumerators::PixelBarrel 
+//                          || layer->subDetector() == GeomDetEnumerators::PixelEndcap); 
       bool barrelLayer = (layer->location() == GeomDetEnumerators::barrel);
 
       ThirdHitCorrection correction(es, region.ptMin(), layer, line, point2, useMScat, useBend);

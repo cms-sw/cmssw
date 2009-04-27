@@ -20,8 +20,24 @@ public:
 
   typedef TkRotation<double> Rotation;
   typedef PixelRecoRange<float> Range;
-  ThirdHitPredictionFromInvLine(const GlobalPoint & P1, const GlobalPoint & P2);
-  GlobalPoint center() const;
+
+  ThirdHitPredictionFromInvLine(const GlobalPoint & P1, const GlobalPoint & P2, double errorRPhiP1 = 1., double errorRPhiP2 = 1. );
+
+  int size() const { return nPoints;}
+
+  void add(const GlobalPoint& p, double erroriRPhi =1.);
+
+  void remove(const GlobalPoint& p, double erroriRPhi =1.);
+
+  GlobalPoint crossing(double radius) const;
+
+  double curvature() const { check(); return theCurvatureValue; }
+
+  double errorCurvature() const { check(); return theCurvatureError; }
+
+  double chi2() const {  check(); return theChi2; }
+
+  void print() const;
 private:
 
   template <class T> class MappedPoint {
@@ -50,10 +66,16 @@ private:
   };
 
 private:
-
-  Rotation theRotation;
   typedef MappedPoint<double> PointUV;
-  PointUV p1, p2;
+  void add(const ThirdHitPredictionFromInvLine::PointUV & point, double weight);
+  void check() const;
+
+private:
+  Rotation theRotation;
+  int    nPoints;
+  long double theSum, theSumU, theSumUU, theSumV, theSumUV, theSumVV;
+  mutable bool hasParameters;
+  mutable double theCurvatureValue, theCurvatureError, theChi2; 
 };
 
 
