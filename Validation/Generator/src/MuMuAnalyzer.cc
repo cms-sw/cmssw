@@ -6,7 +6,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: MuMuAnalyzer.cc,v 1.1 2008/05/23 17:02:43 ksmith Exp $
+// $Id: MuMuAnalyzer.cc,v 1.1 2008/05/27 21:52:15 ksmith Exp $
 //
 //
 
@@ -20,12 +20,13 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 
 
-#include <DataFormats/HepMCCandidate/interface/GenParticleCandidate.h>
+//#include <DataFormats/HepMCCandidate/interface/GenParticleCandidate.h>
+#include <DataFormats/HepMCCandidate/interface/GenParticle.h>
 #include <DataFormats/Candidate/interface/Candidate.h>
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+//#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -95,8 +96,10 @@ typedef std::vector<reco::GenJet> GenJetCollection;
  //Handle<GenJetCollection> genJets;
  //iEvent.getByLabel( "iterativeCone5GenJetsNoNuBSM", genJets);
  int elec = 0; 
- Handle<CandidateCollection> genPart;
-  iEvent.getByLabel("genParticleCandidates",genPart);
+ // Handle<CandidateCollection> genPart;
+ //  iEvent.getByLabel("genParticleCandidates",genPart);
+ Handle<GenParticleCollection> genPart;
+ iEvent.getByLabel("genParticles",genPart);
   std::vector<float> elecEta; 
   std::vector<float> elecPhi;
   std::vector<float> elecPx; 

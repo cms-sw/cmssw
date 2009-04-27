@@ -6,7 +6,7 @@
 //
 // Original Author:  Kenneth Smith
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: NewAnalyzer.cc,v 1.3 2008/07/03 21:04:52 ksmith Exp $
+// $Id: NewAnalyzer.cc,v 1.4 2008/12/23 21:09:50 ksmith Exp $
 //
 //
 
@@ -20,13 +20,14 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 
 
-#include <DataFormats/HepMCCandidate/interface/GenParticleCandidate.h>
-#include <DataFormats/HepMCCandidate/interface/GenParticles.h>
+//#include <DataFormats/HepMCCandidate/interface/GenParticleCandidate.h>
+//#include <DataFormats/HepMCCandidate/interface/GenParticle.h>
+//#include <DataFormats/HepMCCandidate/interface/GenParticles.h>
 #include <DataFormats/Candidate/interface/Candidate.h>
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+//#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -38,6 +39,8 @@ NewAnalyzer::NewAnalyzer(const edm::ParameterSet& iConfig)
 { 
   outputFilename=iConfig.getUntrackedParameter<std::string>("OutputFilename","dummy.root");
   Jetmult_histo = new TH1F("Jetmult_histo","Jet multiplicity",5,0,5);
+  ChDauMult_histo = new TH1F("ChDauMult_histo","Charged daughters of tau",7,0,7);
+  ChDaupT_histo = new TH1F("ChDaupT_histo","Charged daughter pT",38,0,220);
   J1Pt_histo = new TH1F("J1pT","J1 pT",38,0,220);
   J2Pt_histo = new TH1F("J2pT","J2 pT",38,0,120);
   JetPt1J = new TH1F("JetpT1J","Jet pT for 1 jet events",38,0,220);
@@ -93,7 +96,7 @@ NewAnalyzer::NewAnalyzer(const edm::ParameterSet& iConfig)
   Z2J_invmass_histo = new TH1F("Z2J_invmass_histo","Z2J_invmass_histo",200,0,200);
   Z3J_invmass_histo = new TH1F("Z3J_invmass_histo","Z3J_invmass_histo",200,0,200);
   Z4J_invmass_histo = new TH1F("Z4J_invmass_histo","Z4J_invmass_histo",200,0,200);
-  int event = 0 ; 
+  int event = 0 ; tau_evt =0;
 }
 
 
@@ -142,8 +145,10 @@ NewAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //Handle<CandidateCollection> genPart;
 //iEvent.getByLabel("genParticleCandidates",genPart);
 
+// Handle<GenParticleCollection> genPart;
+ // iEvent.getByLabel("genParticles",genPart);
  Handle<GenParticleCollection> genPart;
-  iEvent.getByLabel("genParticles",genPart);
+ iEvent.getByLabel("genParticles",genPart);
   //std::cout << "A" << std::endl;
   std::vector<float> elecEta; 
   std::vector<float> elecPhi;
@@ -158,7 +163,7 @@ NewAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   elecPx.clear();
   elecPy.clear();
   elecPz.clear();
-  double ZpT;
+  double ZpT; int taur = 0;
   float ptot, etot;
   double Jet1Pt, Jet2Pt;
   Jet1Pt = 0; 
@@ -179,7 +184,22 @@ NewAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  ZRap_histo->Fill(p.rapidity());
 	  ZpT = p.pt();
 	}
-      if(abs(id) != 11) continue;
+      if(abs(id) != 15) continue;
+      int chd = 0;
+      taur++;
+      //cout << "Checking daughters" << endl;
+      if( p.numberOfDaughters() > 0)
+	{
+	  for(int dau = 0; dau < p.numberOfDaughters(); dau++)
+	    {//cout << "Checking charge" << endl;
+	      if(p.daughter(dau)->charge() != 0)
+		{
+		  ChDaupT_histo -> Fill(p.daughter(dau)->pt());
+		  chd++;
+		}
+	    }
+	  ChDauMult_histo->Fill(chd);
+	}
       for ( size_t moth1=0; moth1<NMoth; moth1++ )
 	{
 	  motherID1 = (p.mother(moth1))->pdgId();
@@ -196,6 +216,11 @@ NewAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    }
 	}
       
+    }
+  if(taur > 2)
+    {
+      cout << "More than 2 taus in event.  Number of taus: " << taur << endl;
+      tau_evt++;
     }
   if (elec > 1) 
     { 
@@ -499,7 +524,10 @@ NewAnalyzer::beginJob(const edm::EventSetup&)
 void 
 NewAnalyzer::endJob() {
   // save histograms into file
-   TFile file("ZJets__MG.root","RECREATE");
+   TFile file("ZTT_final.root","RECREATE");
+   std::cout << tau_evt << " : Number of taus" << std::endl;
+    ChDauMult_histo->Write();
+  ChDaupT_histo->Write();
   J1Pt_histo->Write();
   J2Pt_histo->Write();
   Z_invmass_histo->Write();
