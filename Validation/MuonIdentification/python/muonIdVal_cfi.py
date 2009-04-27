@@ -9,5 +9,5 @@ muonIdVal = cms.EDAnalyzer("MuonIdVal",
     makeEnergyPlots               = cms.untracked.bool(True),
     make2DPlots                   = cms.untracked.bool(False),
     makeAllChamberPlots           = cms.untracked.bool(False),
-    baseFolder                    = cms.untracked.string("Muons/MuonIdVal")
+    baseFolder                    = cms.untracked.string("MuonIdentificationV")
 )
