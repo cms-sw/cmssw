@@ -3,12 +3,10 @@
 
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGenerator.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/CombinedHitTripletGenerator.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include <utility>
 #include <vector>
@@ -31,19 +29,13 @@ public:
   const std::vector<ctfseeding::SeedingLayer> & thirdLayers() const { return theLayers; }
 
 private:
-  bool checkPhiInRange(float phi, float phi1, float phi2) const;
-  std::pair<float,float> mergePhiRanges(
-      const std::pair<float,float> &r1, const std::pair<float,float> &r2) const;
-
-private:
   HitPairGenerator * thePairGenerator;
   std::vector<ctfseeding::SeedingLayer> theLayers;
   LayerCacheType * theLayerCache;
   float extraHitRZtolerance;
   float extraHitRPhitolerance;
+  float extraHitPhiToleranceForPreFiltering;
   double theNSigma;
-  bool useMScat;
-  bool useBend;
-  edm::InputTag theBeamSpotTag;
+  double theChi2Cut;
 };
 #endif

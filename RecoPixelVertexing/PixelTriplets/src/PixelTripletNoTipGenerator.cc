@@ -1,22 +1,19 @@
 #include "RecoPixelVertexing/PixelTriplets/src/PixelTripletNoTipGenerator.h"
-#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "RecoPixelVertexing/PixelTriplets/src/ThirdHitCorrection.h"
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
+#include "RecoPixelVertexing/PixelTriplets/src/ThirdHitCorrection.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromInvLine.h"
 #include "ThirdHitZPrediction.h"
 
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisation.h"
-#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "RecoPixelVertexing/PixelTriplets/src/PixelTripletHLTGenerator.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromInvParabola.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitRZPrediction.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
@@ -42,10 +39,9 @@ PixelTripletNoTipGenerator:: PixelTripletNoTipGenerator(const edm::ParameterSet&
       theLayerCache(0),
       extraHitRZtolerance(cfg.getParameter<double>("extraHitRZtolerance")),
       extraHitRPhitolerance(cfg.getParameter<double>("extraHitRPhitolerance")),
+      extraHitPhiToleranceForPreFiltering(cfg.getParameter<double>("extraHitPhiToleranceForPreFiltering")), 
       theNSigma(cfg.getParameter<double>("nSigma")),
-      useMScat(cfg.getParameter<bool>("useMultScattering")),
-      useBend(cfg.getParameter<bool>("useBending")),
-      theBeamSpotTag(cfg.getParameter<edm::InputTag>("beamSpot"))
+      theChi2Cut(cfg.getParameter<double>("chi2Cut"))
 { }
 
 void PixelTripletNoTipGenerator::init( const HitPairGenerator & pairs,
@@ -64,13 +60,16 @@ void PixelTripletNoTipGenerator::hitTriplets(
     const edm::EventSetup& es)
 {
 
-  edm::Handle<reco::BeamSpot> bsHandle;
-  ev.getByLabel( theBeamSpotTag, bsHandle);
-  if(!bsHandle.isValid()) return;
-  const reco::BeamSpot & bs = *bsHandle;
-  double errorXY = sqrt( sqr(bs.BeamWidthX()) + sqr(bs.BeamWidthY()) );
+//
+//edm::Handle<reco::BeamSpot> bsHandle;
+//ev.getByLabel( theBeamSpotTag, bsHandle);
+//if(!bsHandle.isValid()) return;
+//const reco::BeamSpot & bs = *bsHandle;
+//double errorXY = sqrt( sqr(bs.BeamWidthX()) + sqr(bs.BeamWidthY()) );
+//
 
   GlobalPoint bsPoint = region.origin();
+  double errorXY = region.originRBound();
   GlobalVector shift =   bsPoint - GlobalPoint(0.,0.,0.);
 
   OrderedHitPairs pairs; pairs.reserve(30000);
@@ -150,11 +149,9 @@ void PixelTripletNoTipGenerator::hitTriplets(
       float c2_phi= crossing2.phi(); 
       if (c2_phi < c1_phi) swap(c1_phi,c2_phi); 
       if (c2_phi-c1_phi > M_PI) { c2_phi -= 2*M_PI;  swap(c1_phi,c2_phi); }
-      double extraAngle = (displacment+5*msRPhi3)/rRange.min()+0.3;
+      double extraAngle = (displacment+theNSigma*msRPhi3)/rRange.min()+extraHitPhiToleranceForPreFiltering;
       c1_phi -= extraAngle; 
       c2_phi += extraAngle;
-//      std::cout <<"AFTER: phi1: "<< c1_phi<<" phi2: "<< c2_phi <<" MultScatt: "<<msRPhi3<<" fromBS: "<< sigma3RPhi(region.ptMin(), line.cotLine())<< endl;
-//    vector<Hit> thirdHits = thirdHitMap[il]->hits();
       vector<Hit> thirdHits = thirdHitMap[il]->hits(c1_phi, c2_phi) ;
 
       typedef vector<Hit>::const_iterator IH;
@@ -168,7 +165,7 @@ void PixelTripletNoTipGenerator::hitTriplets(
            
         ThirdHitZPrediction zPrediction( (*ip).inner()->globalPosition(), sqrt(sqr((*ip).inner()->errorGlobalR())+sqr(msRPhi1/cosTheta)), sqrt( sqr((*ip).inner()->errorGlobalZ())+ sqr(msRPhi1/sinTheta)), 
                                          (*ip).outer()->globalPosition(), sqrt(sqr((*ip).outer()->errorGlobalR())+sqr(msRPhi2/cosTheta)), sqrt( sqr((*ip).outer()->errorGlobalZ())+sqr(msRPhi2/sinTheta)), 
-                                          1./curvature, theNSigma);
+                                         curvature, theNSigma);
          ThirdHitZPrediction::Range zRange = zPrediction((*th)->globalPosition(), sqrt(sqr((*th)->errorGlobalR()))+sqr(msRPhi3/cosTheta));
          
          double z3Hit = (*th)->globalPosition().z(); 
@@ -177,44 +174,12 @@ void PixelTripletNoTipGenerator::hitTriplets(
          bool inside = hitZRange.hasIntersection(zRange); 
 
          double curvatureMS = PixelRecoUtilities::curvature(1./region.ptMin(),es);
-         bool ptCut = (predictionRPhi.curvature()-3.*predictionRPhi.errorCurvature() < curvatureMS); 
-         bool chi2Cut = (predictionRPhi.chi2() < 25.);
-         if (inside 
-             && ptCut
-             && chi2Cut
-             ) {
-           result.push_back( OrderedHitTriplet( (*ip).inner(), (*ip).outer(), *th));
-/*
-           double pullCurv = (predictionRPhi.curvature()-curvatureMS)/predictionRPhi.errorCurvature();
-           std::cout <<" curvatureMC: "<<curvatureMS<<" curvature: "<<predictionRPhi.curvature()<<" error: "<<predictionRPhi.errorCurvature()<<endl;
-           
-           static_cast<TH1*>(gHistos.FindObject("h_chi2TMP"))->Fill(chi2);
-           double ptX = 1./PixelRecoUtilities::inversePt(curvature,es);
-           static_cast<TH1*>(gHistos.FindObject("h_PtTMP"))->Fill( (ptMC-ptX)/ptMC);
-           static_cast<TH1*>(gHistos.FindObject("h_PullCurv"))->Fill(pullCurv);
-*/
-         }
+         bool ptCut = (predictionRPhi.curvature()-theNSigma*predictionRPhi.errorCurvature() < curvatureMS); 
+         bool chi2Cut = (predictionRPhi.chi2() < theChi2Cut);
+         if (inside && ptCut && chi2Cut) { result.push_back( OrderedHitTriplet( (*ip).inner(), (*ip).outer(), *th)); }
          predictionRPhi.remove(p3,p3_errorRPhi);
       } 
     }
   }
   delete [] thirdHitMap;
-}
-
-bool PixelTripletNoTipGenerator::checkPhiInRange(float phi, float phi1, float phi2) const
-{
-  while (phi > phi2) phi -=  2*M_PI;
-  while (phi < phi1) phi +=  2*M_PI;
-  return (  (phi1 <= phi) && (phi <= phi2) );
-}
-
-std::pair<float,float> PixelTripletNoTipGenerator::mergePhiRanges(
-    const std::pair<float,float>& r1, const std::pair<float,float>& r2) const
-{
-  float r2_min=r2.first;
-  float r2_max=r2.second;
-  while (r1.first-r2_min > M_PI) { r2_min += 2*M_PI; r2_max += 2*M_PI;}
-  while (r1.first-r2_min < -M_PI) { r2_min -= 2*M_PI;  r2_max -= 2*M_PI; }
-
-  return std::make_pair(min(r1.first,r2_min),max(r1.second,r2_max));
 }
