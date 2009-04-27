@@ -214,7 +214,9 @@ void PFMETBenchmark::calculateQuantities( const reco::PFMETCollection& pfMets,
     if( genParticleList[i].status() == 1 && fabs(genParticleList[i].eta()) < 5.0 ) { 
       if( abs(genParticleList[i].pdgId()) == 12 ||
 	  abs(genParticleList[i].pdgId()) == 14 ||
-	  abs(genParticleList[i].pdgId()) == 16 ) {
+	  abs(genParticleList[i].pdgId()) == 16 || 
+	  abs(genParticleList[i].pdgId()) < 7   || 
+	  abs(genParticleList[i].pdgId()) == 21 ) {
 	trueMEX += genParticleList[i].px();
 	trueMEY += genParticleList[i].py();
       } else {
