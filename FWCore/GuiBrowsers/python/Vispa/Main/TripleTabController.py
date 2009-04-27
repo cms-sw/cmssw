@@ -21,14 +21,13 @@ class TripleTabController(TabController):
         self._treeViewSelection = None
         self._centerViewSelection = None
         
-        #This dict stores the availeable center views
+        #This dict stores the available center views
         #The idea is that it is easy to add center views, and there is a
         #common interface to switch between them
         self._availableCenterViews = {}
         self._centerViewActions = {}
 
-        self.addCenterView('None',None)
-        self._currentCenterView = 'None'
+        self._currentCenterView = None
         
         self._restoreSelectionFlag = False
         
@@ -37,14 +36,14 @@ class TripleTabController(TabController):
 
         self._fillMenu()
   
-    def getCurrentCenterView(self):
+    def currentCenterView(self):
         return self._currentCenterView
 
     def _fillMenu(self):
         """ Fill specific menu.
         """
         self._viewMenu = self.plugin().application().createPluginMenu('&View')
-        self._expandTreeAction = self.plugin().application().createAction('&Expand tree', self._expandTree,"Ctrl+E")
+        self._expandTreeAction = self.plugin().application().createAction('&Expand tree', self._expandTree, "Ctrl+E")
         self._viewMenu.addAction(self._expandTreeAction)
         self._collapseTreeAction = self.plugin().application().createAction('&Collapse tree', self._collapseTree, "Ctrl+L")
         self._viewMenu.addAction(self._collapseTreeAction)
@@ -53,20 +52,22 @@ class TripleTabController(TabController):
         self._viewMenu.addAction(self._boxContentAction)
         self._saveImageAction = self.plugin().application().createAction('&Save image...', self.saveImage, "Ctrl+I")
         self._viewMenu.addAction(self._saveImageAction)
+        self._zoomAction = self.plugin().application().createAction('&Zoom...', self.zoomDialog, "Ctrl+Z")
+        self._viewMenu.addAction(self._zoomAction)
     
-        self._centerViewSelectMenu = self._viewMenu.addMenu('Center View')
+        self._centerViewSelectMenu = self._viewMenu.addMenu('&Center View')
         
 
-    def addCenterView(self,name,function,checked=False):
+    def addCenterView(self, name, function, checked=False, shortcut=None):
       '''add a View for the Center View
       selection: name is the menu entry, function the function to be
       added as action if the menu is selecteds'''
       
       logging.debug(__name__ + ": addCenterView")
-      if self._availableCenterViews.has_key(name):
-        logging.warning(__name__ +": "+name+ " Already have a View of this name! Overwritiong old View!")
+      if self._availableCenterViews.has_key(name) and self._availableCenterViews[name] != None:
+        logging.warning(__name__ + ": " + name + " Already have a View of this name! Overwritiong old View!")
       self._availableCenterViews[name] = function 
-      self._centerViewActions[name] = self.plugin().application().createAction(name, self._switchCenterView)
+      self._centerViewActions[name] = self.plugin().application().createAction(name, self._switchCenterView, shortcut)
       self._centerViewActions[name].setCheckable(True)
       if checked:
         self._centerViewActions[name].setChecked(True)
@@ -91,7 +92,6 @@ class TripleTabController(TabController):
 
       for view in self._availableCenterViews.keys():
         if self._centerViewActions[view].isChecked():
-          print 'View',view,'Checked'
           self._currentCenterView = view
           break
       
@@ -103,7 +103,6 @@ class TripleTabController(TabController):
         
       #reconnect data accessors and stuff
       self.tab().centerView().setDataAccessor(self._dataAccessor)
-      self.tab().centerView().updateContent()
       self.updateAndRestoreSelection() 
       
     def viewMenu(self):
@@ -138,11 +137,6 @@ class TripleTabController(TabController):
         self.tab().centerView().setDataAccessor(self._dataAccessor)
         self.tab().propertyView().setDataAccessor(self._dataAccessor)
 
-        self.tab().treeView().setDataObjects(self._dataAccessor.topLevelObjects())
-        self.tab().treeView().updateContent()
-        # Select first item in TreeView
-        self.tab().treeView().select(self.tab().treeView().itemById("0"))
-    
     def dataAccessor(self):
         return self._dataAccessor
 
@@ -151,7 +145,6 @@ class TripleTabController(TabController):
         """
         logging.debug(__name__ + ": selected()")
         self.plugin().application().showPluginMenu(self._viewMenu)
-        self.tab().mainWindow().application().showZoomToolBar()
         
     def setZoom(self, zoom):
         """  Sets zoom of tab's scroll area.
@@ -169,13 +162,13 @@ class TripleTabController(TabController):
 
     def updateCenterView(self, item):
         """ Fill the center view from an item in the TreeView and update it """
-        self.plugin().application().mainWindow().statusBar().showMessage("Updating center view...")
+        statusMessage = self.plugin().application().startWorking("Updating center view")
         if item != None:
             self.tab().centerView().setDataObjects([item.object])
         else:
             self.tab().centerView().setDataObjects([])
         self.tab().centerView().updateContent()
-        self.plugin().application().mainWindow().statusBar().showMessage("Updating center view...done")
+        self.plugin().application().stopWorking(statusMessage)
 
     def onItemSelected(self, item):
         """ When item is selected in the TreeView update center view and PropertyView.
@@ -184,6 +177,9 @@ class TripleTabController(TabController):
             return False
         logging.debug(__name__ + ": onItemSelected")
         self._treeViewSelection = item.itemId
+        if self.tab().propertyView().dataObject() != item.object:
+            self.tab().propertyView().setDataObject(item.object)
+            self.tab().propertyView().updateContent()
         self.updateCenterView(item)
         # Select first item in DecayTreeView
         self.tab().centerView().select(self.tab().centerView().widgetById("0"))
@@ -195,8 +191,9 @@ class TripleTabController(TabController):
             return False
         logging.debug(__name__ + ": onWidgetSelected")
         self._centerViewSelection = widget.widgetId
-        self.tab().propertyView().setDataObject(widget.object)
-        self.tab().propertyView().updateContent()
+        if self.tab().propertyView().dataObject() != widget.object:
+            self.tab().propertyView().setDataObject(widget.object)
+            self.tab().propertyView().updateContent()
 
     def updateAndRestoreSelection(self):
         """ Updates all three views and restores the selection, e.g. after moving to next event.
@@ -205,18 +202,22 @@ class TripleTabController(TabController):
         self.tab().treeView().setDataObjects(self._dataAccessor.topLevelObjects())
         self.tab().treeView().updateContent()
         if self._treeViewSelection != None:
+            self.tab().propertyView().setDataObject(None)
             selectedItem = self.tab().treeView().itemById(self._treeViewSelection)
             self.tab().treeView().select(selectedItem)
             self.updateCenterView(selectedItem)
-        if self._centerViewSelection != None:
-            selectedWidget = self.tab().centerView().widgetById(self._centerViewSelection)
-            self.tab().centerView().select(selectedWidget)
-            if selectedWidget != None:
-                self.tab().propertyView().setDataObject(selectedWidget.object)
-            else:
-                self.tab().propertyView().setDataObject(None)
+            if selectedItem != None:
+                self.tab().propertyView().setDataObject(selectedItem.object)
+            if self._centerViewSelection != None:
+                selectedWidget = self.tab().centerView().widgetById(self._centerViewSelection)
+                self.tab().centerView().select(selectedWidget)
+                if selectedWidget != None:
+                    self.tab().propertyView().setDataObject(selectedWidget.object)
             self.tab().propertyView().updateContent()
-        self._restoreSelectionFlag = False
+            self._restoreSelectionFlag = False
+        else:
+            self._restoreSelectionFlag = False
+            self.tab().treeView().select(self.tab().treeView().itemById("0"))
         
     def find(self):
         """ Open find dialog and find items.
@@ -266,7 +267,12 @@ class TripleTabController(TabController):
         """
         self.tab().centerView().exportImage(filename)
 
-   
-    
-
- 
+    def zoomDialog(self):
+        if hasattr(QInputDialog, "getInteger"):
+            # Qt 4.3
+            (zoom, ok) = QInputDialog.getInteger(self.tab(), "Zoom...", "Input zoom factor in percent:", self.zoom(), 0)
+        else:
+            # Qt 4.5
+            (zoom, ok) = QInputDialog.getInt(self.tab(), "Zoom...", "Input zoom factor in percent:", self.zoom(), 0)
+        if ok:
+            self.setZoom(zoom)

@@ -31,7 +31,7 @@ class Workspace(ZoomableWidget, ConnectableWidgetOwner):
     def autosizeScrollArea(self):
         """ If this window is widget of a ZoomableScrollArea tell scroll area to autosize.
         """
-        if isinstance(self.parent().parent(), ZoomableScrollArea):
+        if self.parent() and isinstance(self.parent().parent(), ZoomableScrollArea):
             # Why parent().parent()?
             # parent() is QScrollArea.viewport(), basically the QScrollArea without scroll bars
             # parent().parent() is eventually the QScrollArea
@@ -101,11 +101,13 @@ class Workspace(ZoomableWidget, ConnectableWidgetOwner):
         event.accept()
 
     def updateContent(self):
-        raise NotImplementedError
+        pass
 
     def setDataObjects(self, objects):
-        raise NotImplementedError
+        pass
+
+    def setDataAccessor(self, accessor):
+        pass
 
     def setBoxContentScript(self, script):
-        raise NotImplementedError
-        
+        pass

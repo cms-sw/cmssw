@@ -1,6 +1,9 @@
 import logging
 
-from Vispa.Main.BoxDecayTree import *
+from PyQt4.QtCore import Qt
+
+from Vispa.Main.BoxDecayTree import BoxDecayTree
+from Vispa.Main.PortConnection import PortConnection
 
 class ConfigBrowserBoxView(BoxDecayTree):
     """

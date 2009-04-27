@@ -7,20 +7,20 @@ class RunThread(QThread):
         One can check if the thread is still running using isRunning().
         The return value of the command can be accessed using returnValue.
     """
-    def __init__(self,command,*attr):
+    def __init__(self, command, *attr):
         QThread.__init__(self, None)
-        self._command=command
-        self._attr=attr
-        self.returnValue=None
+        self._command = command
+        self._attr = attr
+        self.returnValue = None
         self.start()
         
     def run(self):
-        if len(self._attr)==0:
-            self.returnValue=self._command.__call__()
-        elif len(self._attr)==1:
-            self.returnValue=self._command.__call__(self._attr[0])
-        elif len(self._attr)==2:
-            self.returnValue=self._command.__call__(self._attr[1])
+        if len(self._attr) == 0:
+            self.returnValue = self._command.__call__()
+        elif len(self._attr) == 1:
+            self.returnValue = self._command.__call__(self._attr[0])
+        elif len(self._attr) == 2:
+            self.returnValue = self._command.__call__(self._attr[1])
         else:
             raise NonImplementedError
 
@@ -33,13 +33,17 @@ class ThreadChain(QThread):
     """
     def __init__(self):
         QThread.__init__(self, None)
-        self._commands=[]
+        self._commands = []
         
-    def addCommand(self,command):
-        self._commands+=[command]
+    def addCommand(self, command, attr=None):
+        self._commands += [(command, attr)]
         
     def run(self):
-        self._results=[]
-        while self._commands!=[]:
-            self._results+=[self._commands.pop().__call__()]
-        self.emit(SIGNAL('finishedThreadChain'),self._results)
+        self._results = []
+        while self._commands != []:
+            command, attr = self._commands.pop()
+            if attr != None:
+                self._results += [command.__call__(attr)]
+            else:
+                self._results += [command.__call__()]
+        self.emit(SIGNAL('finishedThreadChain'), self._results)

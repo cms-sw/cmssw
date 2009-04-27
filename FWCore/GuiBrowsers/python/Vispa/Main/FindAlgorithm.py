@@ -1,6 +1,7 @@
 import logging
 
 from Vispa.Main.BasicDataAccessor import *
+from Vispa.Main.Exceptions import exception_traceback
 
 class FindAlgorithm(object):
     """ Searches for label and properties in a list of objects using a BasicDataAccessor.
@@ -32,6 +33,7 @@ class FindAlgorithm(object):
         return self._dataObjects
     
     def findUsingFindDialog(self, dialog):
+        logging.debug(__name__ +': findUsingFindDialog')
         self._message=None
         self._results=[]
         if self._dataAccessor:
@@ -46,6 +48,7 @@ class FindAlgorithm(object):
     def _findIn(self, object,dialog):
         # find Label
         label=self._dataAccessor.label(object)
+        logging.debug(__name__ +': _findIn: ' + label)
         findLabel=dialog.label()
         if not dialog.caseSensitive():
             label=label.lower()
@@ -82,9 +85,9 @@ class FindAlgorithm(object):
             try:
                 foundScripts=(foundScripts and\
                     (findScript=="" or dataAccessorObject.applyScript(findScript)))
-            except Exception:
-                logging.error("Error in script: "+ exception_traceback())
-                self._message="Error in script: "+ exception_traceback()
+            except Exception,e:
+                logging.info("Error in script: "+ exception_traceback())
+                self._message="Error in script: "+ str(e)
 
         # combine the searches
         found=foundLabel and foundProperties and foundScripts

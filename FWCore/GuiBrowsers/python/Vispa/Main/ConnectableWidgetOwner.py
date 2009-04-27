@@ -1,3 +1,7 @@
+from PyQt4.QtCore import QCoreApplication
+from PyQt4.QtCore import QEvent
+from PyQt4.QtGui import QMouseEvent
+
 from Vispa.Main.VispaWidgetOwner import *
 from Vispa.Main.PortConnection import *
 
@@ -106,6 +110,6 @@ class ConnectableWidgetOwner(VispaWidgetOwner):
                     child.grabMouse()
                     child.setFocus()
                     newEvent = QMouseEvent(event.type(), childPos, event.button(), event.buttons(), event.modifiers())
-                    qApp.sendEvent(child, newEvent)
+                    QCoreApplication.instance().sendEvent(child, newEvent)
                     return True
         return False

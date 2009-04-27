@@ -96,7 +96,10 @@ class PortWidget(VispaWidget):
         """ 
         # Port belongs to module
         # Think of better solution. Port shall not create PortConnection.
-        return self.parent().parent()
+        if self.parent():
+            return self.parent().parent()
+        else:
+            return None
     
     def drawTitle(self, painter):
         """ Overwrite VispaWidget.drawTitle()

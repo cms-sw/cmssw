@@ -7,7 +7,7 @@ from Vispa.Main.SplitterTab import *
 from Vispa.Main.TreeView import *
 from Vispa.Main.ZoomableScrollArea import *
 from Vispa.Main.BoxDecayTree import *
-from Vispa.Main.NoneCenterView import *
+from Vispa.Main.Workspace import *
 
 class EventBrowserTab(SplitterTab):
     """ The EventBrowserTab holds a TreeView, a graphical view in the center and a PropertiesView.
@@ -32,18 +32,14 @@ class EventBrowserTab(SplitterTab):
         """ Create the center view.
         """
         self._scrollArea = ZoomableScrollArea(self)
-        
-        self._centerView = NoneCenterView() 
-        
+        self._centerView = Workspace() 
         self._scrollArea.setWidget(self._centerView)
-        #NoneCenterView()
-        #BoxDecayTree()
 
     def setCenterView(self,view):
         """ Create the center view.
         """
-        #self._scrollArea = ZoomableScrollArea(self)
         self._centerView = view
+        self._scrollArea.takeWidget()
         self._scrollArea.setWidget(self._centerView)
 
     def scrollArea(self):
@@ -73,7 +69,3 @@ class EventBrowserTab(SplitterTab):
         """ Returns scroll area of this tab.
         """
         return self._scrollArea
-
-   
- 
-

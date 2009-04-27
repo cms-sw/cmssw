@@ -1,12 +1,12 @@
 import logging
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt4.QtCore import SIGNAL
 
-from Vispa.Main.SplitterTab import *
-from Vispa.Main.TreeView import *
-from Vispa.Main.ZoomableScrollArea import *
-from ConfigBrowserBoxView import *
+from Vispa.Main.SplitterTab import SplitterTab
+from Vispa.Main.TreeView import TreeView
+from Vispa.Main.ZoomableScrollArea import ZoomableScrollArea
+from Vispa.Main.Workspace import Workspace
+from ConfigBrowserBoxView import ConfigBrowserBoxView
 
 class ConfigBrowserTab(SplitterTab):
     """
@@ -30,13 +30,20 @@ class ConfigBrowserTab(SplitterTab):
         """ Create the center view.
         """
         self._scrollArea = ZoomableScrollArea(self)
-        self._centerView = ConfigBrowserBoxView()
+        self._centerView = Workspace() 
         self._scrollArea.setWidget(self._centerView)
-        
-    def setController(self,controller):
+
+    def setCenterView(self, view):
+        """ Create the center view.
+        """
+        self._centerView = view
+        self._scrollArea.takeWidget()
+        self._scrollArea.setWidget(self._centerView)
+
+    def setController(self, controller):
         """ Sets controller for this tab and connects signals etc.
         """
-        SplitterTab.setController(self,controller)
+        SplitterTab.setController(self, controller)
 
         self.connect(self.propertyView(), SIGNAL('valueChanged()'), controller.setModified)
         self.connect(self._scrollArea, SIGNAL('wheelZoom()'), controller.resetZoomButtonPressedBefore)
@@ -54,5 +61,5 @@ class ConfigBrowserTab(SplitterTab):
     def selected(self):
         self.controller().selected()
 
-    def closeEvent(self,event):
+    def closeEvent(self, event):
         self.controller().closeEvent(event)

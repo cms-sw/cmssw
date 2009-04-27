@@ -2,9 +2,10 @@ import sys
 import os.path
 import logging
 
-from Vispa.Main.BasicDataAccessor import *
-from Vispa.Main.RelativeDataAccessor import *
-from Vispa.Main.Exceptions import *
+from Vispa.Main.BasicDataAccessor import BasicDataAccessor
+from Vispa.Main.RelativeDataAccessor import RelativeDataAccessor
+from Vispa.Main.Exceptions import PluginIgnoredException
+from Vispa.Main.Exceptions import exception_traceback
 
 try:
     import ParameterSet_patch
@@ -92,13 +93,13 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             for key, value in self.inputTags(entry1):
                 module = str(value).split(":")[0]
                 product = ".".join(str(value).split(":")[1:])
-                found=False
+                found = False
                 for entry2 in objects:
                     if self._cancelOperationsFlag:
                         break
                     if module == self.label(entry2):
                         connection = (entry2, product, entry1, key)
-                        found=True
+                        found = True
                         if not connection in self._connections:
                             self._connections += [connection]
         ok = not self._cancelOperationsFlag
@@ -446,7 +447,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             except Exception:
                 logging.error(__name__ + ": " + exception_traceback())
         
-        params=self.parameters(object)[:]
+        params = self.parameters(object)[:]
         params.sort(lambda x, y: cmp(x[0].lower(), y[0].lower()))
         for key, value in params:
             keyname = name
@@ -527,17 +528,17 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
 
     def inputEventContent(self):
         # TODO: implement with correct productInstanceLabels!!!
-        content=[]
-        allLabels=[self.label(object) for object in self._allObjects]
+        content = []
+        allLabels = [self.label(object) for object in self._allObjects]
         for entry in self._allObjects:
             for uses in self.uses(entry):
                 if not uses in allLabels and not uses in content:
-                    content+=[uses]
+                    content += [uses]
         return content
 
     def outputEventContent(self):
         # TODO: implement with correct productInstanceLabels and keep drop statements!!!
-        content=[self.label(object) for object in self._allObjects\
+        content = [self.label(object) for object in self._allObjects\
                  if self.type(object) in ["EDProducer", "EDFilter", "EDAnalyzer"]]
         return content
 #        content=[]

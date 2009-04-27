@@ -12,7 +12,7 @@ try:
     import FWCore.ParameterSet.Types as typ
     import FWCore.ParameterSet.Mixins as mix
 except Exception:
-    logging.error(__name__ + ": " + exception_traceback())
+    raise ImportError("cannot import CMSSW: " + exception_traceback())
 
 from Vispa.Plugins.ConfigBrowser.ConfigDataAccessor import *
 from Vispa.Plugins.ConfigBrowser.FileExportPlugin import *

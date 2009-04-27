@@ -7,6 +7,7 @@ class BoxContentDialog(QDialog):
     def __init__(self,parent=None):
         logging.debug(__name__ +': __init__')
         QDialog.__init__(self,parent)
+        self.setWindowFlags(Qt.Window)
         self.setWindowTitle("Set box content...")
 
         self._buttons=[]

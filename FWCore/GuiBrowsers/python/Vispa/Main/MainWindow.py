@@ -1,5 +1,6 @@
 import logging
 import os
+import math
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
@@ -15,6 +16,7 @@ class MainWindow(QMainWindow):
     def __init__(self, application=None, title="VISPA"):
         logging.debug(__name__ + ": __init__")
                 
+        self._justActivated = False
         QMainWindow.__init__(self)
         
         self._application = application
@@ -34,6 +36,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self._tabWidget)
        
         self.setWindowIcon(QIcon(":/resources/vispabutton.png"))
+        
         self._loadIni()
         
     def application(self):
@@ -108,3 +111,20 @@ class MainWindow(QMainWindow):
         ini.set("window", "maximized", str(self.isMaximized()))
         ini.set("window", "fullScreen", str(self.isFullScreen()))
         self._application.writeIni()
+        
+    def event(self, event):
+        """ Emits activated() signal if correct event occures and if correct changeEvent occured before.
+        
+        Also see changeEvent().
+        """
+        QMainWindow.event(self, event)
+        if self._justActivated and event.type() == QEvent.LayoutRequest:
+            self._justActivated = False
+            self.emit(SIGNAL("activated()"))
+        return False
+        
+    def changeEvent(self, event):
+        """ Together with event() this function makes sure tabChanged() is called when the window is activated.
+        """
+        if event.type() == QEvent.ActivationChange and self.isActiveWindow():
+            self._justActivated = True

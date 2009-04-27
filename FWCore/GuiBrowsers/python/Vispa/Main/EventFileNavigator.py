@@ -12,10 +12,11 @@ class EventFileNavigator(QObject):
     Event navigation if performed in a separate thread.
     """
     def __init__(self, application, parent=None):
-        QDialog.__init__(self, parent)
+        QObject.__init__(self, parent)
         logging.debug(__name__ + ": __init__")
         self._application = application
         self._dataAccessor = None
+        self._statusMessage = None
         self._fillEventNavigatorMenu()
         self._threadChain = ThreadChain()
         self.connect(self._threadChain, SIGNAL("finishedThreadChain"), self.finishedThreadChain)
@@ -37,15 +38,17 @@ class EventFileNavigator(QObject):
         """
         self._navigateMenu = self._application.createPluginMenu('&Navigate')
         self._navigateToolBar = self._application.createPluginToolBar('&Navigate')
-        firstAction = self._application.createAction('first', self.first, "Ctrl+Home", "first")
-        previousAction = self._application.createAction('previous', self.previous, "Ctrl+PgUp", "previous")
-        nextAction = self._application.createAction('next', self.next, "Ctrl+PgDown", "next")
-        lastAction = self._application.createAction('last', self.last, "Ctrl+End", "last")
+        firstAction = self._application.createAction('&First', self.first, "Ctrl+Home", "first")
+        previousAction = self._application.createAction('&Previous', self.previous, "Ctrl+PgUp", "previous")
+        nextAction = self._application.createAction('&Next', self.next, "Ctrl+PgDown", "next")
+        lastAction = self._application.createAction('&Last', self.last, "Ctrl+End", "last")
+        gotoAction = self._application.createAction('&Goto...', self.goto, "Ctrl+G")
         self._eventNumberDisplay = QLabel("")
         self._navigateMenu.addAction(firstAction)
         self._navigateMenu.addAction(previousAction)
         self._navigateMenu.addAction(nextAction)
         self._navigateMenu.addAction(lastAction)
+        self._navigateMenu.addAction(gotoAction)
         self._navigateToolBar.addAction(firstAction)
         self._navigateToolBar.addAction(previousAction)
         self._navigateToolBar.addWidget(self._eventNumberDisplay)
@@ -59,7 +62,8 @@ class EventFileNavigator(QObject):
         """ Navigate and to first event.
         """
         logging.debug(__name__ + ": first")
-        self._application.mainWindow().statusBar().showMessage("Navigate in file...")
+        if self._statusMessage != None: 
+            self._statusMessage = self._application.startWorking("Navigate in file")
         self._threadChain.addCommand(self._dataAccessor.first)
         if not self._threadChain.isRunning():
             self._threadChain.start()
@@ -68,7 +72,8 @@ class EventFileNavigator(QObject):
         """ Navigate and to previous event.
         """
         logging.debug(__name__ + ": previous")
-        self._application.mainWindow().statusBar().showMessage("Navigate in file...")
+        if self._statusMessage != None: 
+            self._statusMessage = self._application.startWorking("Navigate in file")
         self._threadChain.addCommand(self._dataAccessor.previous)
         if not self._threadChain.isRunning():
             self._threadChain.start()
@@ -77,7 +82,8 @@ class EventFileNavigator(QObject):
         """ Navigate and to next event.
         """
         logging.debug(__name__ + ": next")
-        self._application.mainWindow().statusBar().showMessage("Navigate in file...")
+        if self._statusMessage != None: 
+            self._statusMessage = self._application.startWorking("Navigate in file")
         self._threadChain.addCommand(self._dataAccessor.next)
         if not self._threadChain.isRunning():
             self._threadChain.start()
@@ -85,10 +91,31 @@ class EventFileNavigator(QObject):
     def last(self):
         """ Navigate and to last event.
         """
-        self._application.mainWindow().statusBar().showMessage("Navigate in file...")
+        if self._statusMessage != None: 
+            self._statusMessage = self._application.startWorking("Navigate in file")
         self._threadChain.addCommand(self._dataAccessor.last)
         if not self._threadChain.isRunning():
             self._threadChain.start()
+
+    def goto(self):
+        """ Ask event number in dialog and navigate and to event.
+        """
+        if self._dataAccessor.numberOfEvents():
+            max = self._dataAccessor.numberOfEvents()
+        else:
+            max = 1000000000
+        if hasattr(QInputDialog, "getInteger"):
+            # Qt 4.3
+            (number, ok) = QInputDialog.getInteger(self._application.mainWindow(), "Goto...", "Enter event number:", self._dataAccessor.eventNumber(), 0, max)
+        else:
+            # Qt 4.5
+            (number, ok) = QInputDialog.getInt(self._application.mainWindow(), "Goto...", "Enter event number:", self._dataAccessor.eventNumber(), 0, max)
+        if ok:
+            if self._statusMessage != None: 
+                self._statusMessage = self._application.startWorking("Navigate in file")
+            self._threadChain.addCommand(self._dataAccessor.goto, number)
+            if not self._threadChain.isRunning():
+                self._threadChain.start()
 
     def _updateEventNumberDisplay(self):
         eventDisplayString = str(self._dataAccessor.eventNumber()) + "/"
@@ -103,10 +130,13 @@ class EventFileNavigator(QObject):
         
         A controller can connect to this signal to update the display.
         """
+        logging.debug(__name__ + ": finishedThreadChain")
         self._updateEventNumberDisplay()
         if True in results:
             self.emit(SIGNAL("update"))
-        self._application.mainWindow().statusBar().showMessage("Navigate in file...done")
+        if self._statusMessage != None:
+            self._application.stopWorking(self._statusMessage)
+        self._statusMessage = None
 
     def isRunning(self):
         """ Navigation threads still running?

@@ -1,5 +1,6 @@
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt4.QtCore import QCoreApplication
+from PyQt4.QtCore import QRect
+from PyQt4.QtGui import QMouseEvent
 
 from Vispa.Main.VispaWidget import *
 from Vispa.Main.PortWidget import *
@@ -146,7 +147,7 @@ class ConnectableWidget(VispaWidget, VispaWidgetOwner):
         if dropAreaPort and dropAreaPort.isDragable():
             dropAreaPort.grabMouse()
             newEvent = QMouseEvent(event.type(), dropAreaPort.mapFromParent(event.pos()), event.button(), event.buttons(), event.modifiers())
-            qApp.sendEvent(dropAreaPort, newEvent)
+            QCoreApplication.instance().sendEvent(dropAreaPort, newEvent)
         else:
             VispaWidgetOwner.mousePressEvent(self, event)
             VispaWidget.mousePressEvent(self, event)

@@ -1,6 +1,8 @@
 import logging
 
-from PyQt4.QtGui import *
+from PyQt4.QtCore import SIGNAL
+from PyQt4.QtCore import QCoreApplication
+from PyQt4.QtGui import QPalette
 
 from ConnectableWidget import *
 from WidgetContainer import *
@@ -230,14 +232,11 @@ class BoxDecayTree(Workspace):
         
         All children of this object are created recursively.
         """
+        # Process application event loop in order to accept user input during time consuming drawing operation
+        QCoreApplication.instance().processEvents()
         # Abort drawing if operationId out of date
         if operationId != self._operationId:
-            #logging.debug(__name__ + ": createBoxRecursive " + id + " aborted")
             return None
-
-        #logging.debug(__name__ + ": createBoxRecursive " + id)
-        # Process application event loop in order to accept user input during time consuming drawing operation
-        qApp.processEvents()
         # create box
         text = ""
         if self._boxContentScript != "":
@@ -279,14 +278,15 @@ class BoxDecayTree(Workspace):
                 i += 1
 
         # resize box
-        if isinstance(widget, WidgetContainer):
+        if operationId == self._operationId and isinstance(widget, WidgetContainer):
             widget.autosize()
             self.connect(widget, SIGNAL("sizeChanged"), self.updateBoxPositions)
 
         # calculate box position
-        self.arrangeBoxPosition(widget)
+        if operationId == self._operationId:
+            self.arrangeBoxPosition(widget)
 
-        # draw box if operationId up to date
+        # draw box
         if operationId == self._operationId:
             widget.show()
             self.autosizeScrollArea() 
@@ -304,6 +304,9 @@ class BoxDecayTree(Workspace):
         sortedObjects = []
         currentObject = unsortedObjects[0]
         while len(unsortedObjects) > 0:
+            # Process application event loop in order to accept user input during time consuming drawing operation
+            QCoreApplication.instance().processEvents()
+            # Abort drawing if operationId out of date
             if operationId != self._operationId:
                 break
             if currentObject in unsortedObjects:
@@ -332,3 +335,7 @@ class BoxDecayTree(Workspace):
                 if len(unsortedObjects) > 0:
                     currentObject = unsortedObjects[0]
         return tuple(sortedObjects)
+
+    def closeEvent(self,event):
+        self.clear()
+        Workspace.closeEvent(self,event)

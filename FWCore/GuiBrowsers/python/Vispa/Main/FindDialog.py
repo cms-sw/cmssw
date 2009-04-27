@@ -3,10 +3,13 @@ import logging
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
+from Vispa.Main.Thread import RunThread
+
 class FindDialog(QDialog):
     def __init__(self,parent=None):
         logging.debug(__name__ +': __init__')
         QDialog.__init__(self,parent)
+        self.setWindowFlags(Qt.Window)
         self.setWindowTitle("Find...")
         
         self._findAlgorithm=None
@@ -165,8 +168,9 @@ class FindDialog(QDialog):
     
     def _edited(self):
         self._findPreviousButton.hide()
-        self._findNumberLabel.hide()
-        self._findNextButton.setText("&Find")
+        if self._findNextButton.isVisible():
+            self._findNumberLabel.hide()
+            self._findNextButton.setText("&Find")
     
     def _updateNumberLabel(self):
         current=self._findAlgorithm.currentNumber()
@@ -188,8 +192,14 @@ class FindDialog(QDialog):
     def findNext(self):
         logging.debug(__name__ +': findNext')
         if not self._findPreviousButton.isVisible():
-            object=self._findAlgorithm.findUsingFindDialog(self)
+            self._findNextButton.setVisible(False)
+            self._findNumberLabel.setText("Searching...")
             self._findNumberLabel.show()
+            thread = RunThread(self._findAlgorithm.findUsingFindDialog, self)
+            while thread.isRunning():
+                QCoreApplication.instance().processEvents()
+            object=thread.returnValue
+            self._findNextButton.setVisible(True)
             if object!=None:
                 self._findPreviousButton.show()
                 self._findNextButton.setText("&Next")

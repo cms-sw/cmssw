@@ -1,6 +1,7 @@
 import os
 import sys
 import logging
+import logging.handlers
 import ConfigParser
 import optparse
 import webbrowser
@@ -55,11 +56,12 @@ class Application(QApplication):
         self.createZoomToolBar()
         self.hidePluginMenus()
         self.hidePluginToolBars()
+        self.createStatusBar()
     
         self._readCommandLineAttributes()
 
         logging.debug('Running with Qt-Version ' + str(qVersion()))
-    
+        
     def commandLineParser(self):
         return self._commandLineParser
         
@@ -82,20 +84,63 @@ class Application(QApplication):
         
         if len(args) > 0:
             self.openFile(args[0])
+        
+    def _checkFile(self, filename):
+        """ Check if logfile is closed correctly
+        """
+        finished = True
+        file = open(filename, "r")
+        for line in file.readlines():
+            if "INFO Start logging" in line:
+                finished = False
+            if "INFO Stop logging" in line:
+                finished = True
+        return finished
 
     def _initLogging(self):
         """ Add logging handlers for a log file as well as stderr.
         """ 
-        logging.root.handlers = []
-        handler = logging.FileHandler(os.path.join(logDirectory, 'log.txt'))
-        formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-        handler.setFormatter(formatter)
-        logging.root.addHandler(handler)
-        handler = logging.StreamHandler(sys.stderr)
-        formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-        handler.setFormatter(formatter)
-        logging.root.addHandler(handler)
+        instance = 0
+        done = False
+        while not done:
+            # iterate name of log file for several instances of vispa
+            instance += 1
+            logfile = os.path.join(logDirectory, "log" + str(instance) + ".txt")
+            # do not create more than 10 files
+            if instance > 10:
+                instance = 1
+                logfile = os.path.join(logDirectory, "log" + str(instance) + ".txt")
+                done = True
+                break
+            if not os.path.exists(logfile):
+                done = True
+                break
+            done = self._checkFile(logfile)
 
+        # clean up old logs
+        nextlogfile = os.path.join(logDirectory, "log" + str(instance + 1) + ".txt")
+        if os.path.exists(nextlogfile):
+            if not self._checkFile(nextlogfile):
+                file = open(nextlogfile, "a")
+                file.write("Cleaning up logfile after abnormal termination: INFO Stop logging\n")
+        
+        handler1 = logging.handlers.RotatingFileHandler(logfile, maxBytes=100000, backupCount=1)
+        formatter1 = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+        handler1.setFormatter(formatter1)
+
+        handler2 = logging.StreamHandler(sys.stderr)
+        formatter2 = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+        handler2.setFormatter(formatter2)
+        
+        logging.root.handlers = []
+        logging.root.addHandler(handler1)
+        logging.root.addHandler(handler2)
+
+        self._infologger = logging.getLogger("info")
+        self._infologger.setLevel(logging.INFO)
+        self._infologger.handlers = []
+        self._infologger.info("Start logging to " + logfile)
+        
     def run(self):
         """ Show the MainWindow and run the application.
         """
@@ -104,23 +149,25 @@ class Application(QApplication):
         self._window.show()
         self.setActiveWindow(self._window)
         self.exec_()
+        self._infologger.info("Stop logging")
 
     def _connectSignals(self):
         """ Connect signal to observe the TabWidget in the MainWindow.
         """
         logging.debug('Application: _connectSignals()')
         self.connect(self._window.tabWidget(), SIGNAL("currentChanged(int)"), self.tabChanged)
+        self.connect(self._window, SIGNAL("activated()"), self.tabChanged)
         
     def _loadPlugins(self):
         """ Search all subfolders of the plugin directory for vispa plugins and registers them.
         """
         logging.debug('Application: _loadPlugins()')
-        dirs = ["Vispa.Plugins."+str(f) for f in os.listdir(pluginDirectory)
+        dirs = ["Vispa.Plugins." + str(f) for f in os.listdir(pluginDirectory)
                 if os.path.isdir(os.path.join(pluginDirectory, f)) and not f.startswith(".")]
         failedToLoad = []
         for di in dirs:
             try:
-                module = __import__(di,globals(),locals(),"Vispa.Plugins")
+                module = __import__(di, globals(), locals(), "Vispa.Plugins")
                 pluginObject = module.plugin(self)
                 self._plugins.append(pluginObject)
                 logging.debug('Application: added plugin ' + di)
@@ -184,6 +231,11 @@ class Application(QApplication):
         self._window.fileMenu().addAction(openFileAction)
         self._window.fileToolBar().addAction(openFileAction)
 
+        # Reload
+        self._fileMenuItems['reloadFileAction'] = self.createAction('&Reload File', self.reloadFile, 'F5', "reload")
+        self._window.fileMenu().addAction(self._fileMenuItems['reloadFileAction'])
+        #self._window.fileToolBar().addAction(self._fileMenuItems['reloadFileAction'])
+        
         # Recent files
         if not hasattr(self, 'recentFilesMenu'):
             self._recentFilesMenu = QMenu('&Recent Files', self._window)
@@ -198,6 +250,7 @@ class Application(QApplication):
             self._recentFilesMenu.addAction(self._fileMenuItems['clearRecentFilesAction'])
                 
         self._window.fileMenu().addMenu(self._recentFilesMenu)
+
         self._window.fileMenu().addSeparator()
         
         # Close
@@ -336,9 +389,14 @@ class Application(QApplication):
     def showZoomToolBar(self):
         """ Makes zoom tool bar visible.
         
-        Should be called from TabController's select() function, if the controller wants to use the tool bar.
+        Should be called from TabController's selected() function, if the controller wants to use the tool bar.
         """
         self.showPluginToolBar(self._zoomToolBar)
+    
+    def hideZoomToolBar(self):
+        """ Makes zoom tool bar invisible.
+        """
+        self._zoomToolBar.hide()
     
     def clearRecentFiles(self):
         """ Empties list of recent files and updates main menu.
@@ -407,6 +465,7 @@ class Application(QApplication):
         
         self._fileMenuItems['saveFileAction'].setEnabled(atLeastOneFlag)
         self._fileMenuItems['saveFileAsAction'].setEnabled(atLeastOneFlag)
+        self._fileMenuItems['reloadFileAction'].setEnabled(atLeastOneFlag)
         self._fileMenuItems['closeFileAction'].setEnabled(atLeastOneFlag)
         
         self._fileMenuItems['saveAllFilesAction'].setEnabled(atLeastTwoFlag)
@@ -493,7 +552,7 @@ class Application(QApplication):
         """ Decides which plugin should handle opening of the given file name.
         """
         logging.debug('Application: openFile()')
-        self._window.statusBar().showMessage("Opening file " + filename + "...")
+        statusMessage = self.startWorking("Opening file " + filename)
         if isinstance(filename, QString):
             filename = str(filename)  # convert QString to Python String
         
@@ -501,7 +560,7 @@ class Application(QApplication):
         for i in range(0, self._window.tabWidget().count()):
             if filename == self._window.tabWidget().widget(i).controller().filename():
                 self._window.tabWidget().setCurrentIndex(i)
-                self._window.statusBar().showMessage('File ' + filename + ' already open...')
+                self.stopWorking(statusMessage, "already open")
                 return
         
         baseName = os.path.basename(filename)
@@ -518,7 +577,6 @@ class Application(QApplication):
                 try:
                     if self._knownExtensionsDictionary[ext].openFile(filename):
                         self.addRecentFile(filename)
-                        self._window.statusBar().showMessage("Opening file " + filename + "... done.")
                     else:
                         self.errorMessage("Failed to open file.")
                 except Exception:
@@ -534,11 +592,24 @@ class Application(QApplication):
         
         # Error messages
         if not errormsg:
-            self._window.statusBar().showMessage("Opening file " + filename + "... done.")
+            self.stopWorking(statusMessage)
         else:
             logging.error(errormsg)
             self.warningMessage(errormsg)
-            self._window.statusBar().showMessage("Opening file " + filename + "... failed.")
+            self.stopWorking(statusMessage, "failed")
+    
+    def reloadFile(self):
+        """ Tells current tab controller to refresh.
+        """
+        logging.debug('Application: reloadFile()')
+        try:
+            if self.currentTabController().filename() and self.currentTabController().allowClose():
+                self.currentTabController().refresh()
+                self.currentTabController().setModified(False)
+        except NoCurrentTabControllerException:
+            pass
+        # call tabChanged instead of updateMenu to be qt 4.3 compatible
+        self.tabChanged()
     
     def closeFile(self):
         """ Tells current tab controller to close.
@@ -708,6 +779,7 @@ class Application(QApplication):
             self.updateMenu()
             try:
                 self.currentTabController().selected()
+                self.currentTabController().checkModificationTimestamp()
             except NoCurrentTabControllerException:
                 pass        
     
@@ -808,7 +880,7 @@ class Application(QApplication):
             elif sys.platform == "darwin":
                 # OS X
                 subprocess.call(("open", filename))
-            elif sys.platform.find('linux') > -1:
+            elif sys.platform.find('linux') > - 1:
                 # Linux
                 try:
                   subprocess.call(("xdg-open", filename))
@@ -821,3 +893,42 @@ class Application(QApplication):
                 logging.error(self.__class__.__name__ + ": doubleClickOnFile() - Unknown platform '" + sys.platform + "'. Cannot open file.")
         except:
             logging.error(self.__class__.__name__ + ": doubleClickOnFile() - Platform '" + sys.platform + "'. Error while opening file: " + str(filename))
+
+    def createStatusBar(self):
+        self._workingMessages = {}
+        
+        self._progressWidget = QLabel()
+        self._window.statusBar().addPermanentWidget(self._progressWidget)
+
+        self._progressTimeLine = QTimeLine(1000, self)
+        self._progressTimeLine.setFrameRange(0, 100)
+        self._progressTimeLine.setLoopCount(0)
+        self.connect(self._progressTimeLine, SIGNAL("frameChanged(int)"), self.setProgress)
+        
+    def setProgress(self, progress):
+        angle = int(progress * 360.0 / 100.0)
+        pixmap = QPixmap(":/resources/vispabutton.png")
+        rotate_matrix = QMatrix()
+        rotate_matrix.rotate(angle)
+        pixmap_rotated = pixmap.transformed(rotate_matrix)
+        pixmap_moved = QPixmap(pixmap.size())
+        pixmap_moved.fill(Qt.transparent)
+        painter = QPainter()
+        painter.begin(pixmap_moved)
+        painter.drawPixmap((pixmap_moved.width() - pixmap_rotated.width()) / 2.0, (pixmap_moved.height() - pixmap_rotated.height()) / 2.0, pixmap_rotated)
+        painter.end()
+        self._progressWidget.setPixmap(pixmap_moved.scaled(15, 15))
+        
+    def startWorking(self, message=""):
+        self._window.statusBar().showMessage(message + "...")
+        id = len(self._workingMessages.keys())
+        self._workingMessages[id] = message
+        if id == 0:
+            self._progressTimeLine.start()
+        return id
+
+    def stopWorking(self, id, end="done"):
+        self._window.statusBar().showMessage(self._workingMessages[id] + "..." + end + ".")
+        del self._workingMessages[id]
+        if len(self._workingMessages.keys()) == 0:
+            self._progressTimeLine.stop()
