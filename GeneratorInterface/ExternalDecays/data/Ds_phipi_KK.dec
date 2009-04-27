@@ -1,0 +1,17 @@
+Alias myD_s+     D_s+
+Alias myD_s-     D_s-
+ChargeConj   myD_s-   myD_s+
+Alias myPhi phi
+#
+Decay myD_s+
+1.000    myPhi   pi+                      SVS;      
+Enddecay
+#
+Decay myD_s-
+1.000    myPhi   pi-                      SVS;
+Enddecay
+#
+Decay myPhi
+1.000 K+      K-                              VSS;
+Enddecay
+End

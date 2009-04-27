@@ -26,17 +26,17 @@ from Configuration.Generator.PythiaUESettings_cfi import *
 
 process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(True),
-    maxEventsToPrint = cms.untracked.int32(2),
+    maxEventsToPrint = cms.untracked.int32(5),
     pythiaPylistVerbosity = cms.untracked.int32(1),
     comEnergy = cms.double(10000.0),
     ExternalDecays = cms.PSet(
         EvtGen = cms.untracked.PSet(
 	     use_default_decay = cms.untracked.bool(False),
-#             decay_table = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/DECAY_NOLONGLIFE.DEC'),
-decay_table = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/DECAY.DEC'),
-             particle_property_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/evt.pdl'),
-#             user_decay_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/Validation.dec'),
-user_decay_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/incl_BtoJpsi_mumu.dec'),
+#             decay_table = cms.FileInPath('GeneratorInterface/ExternalDecays/data/DECAY_NOLONGLIFE.DEC'),
+decay_table = cms.FileInPath('GeneratorInterface/ExternalDecays/data/DECAY.DEC'),
+             particle_property_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/evt.pdl'),
+#             user_decay_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/Validation.dec'),
+user_decay_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/incl_BtoJpsi_mumu.dec'),
              list_forced_decays = cms.vstring('MyB0','Myanti-B0','MyB_s0','Myanti-B_s0'),
              processParameters = cms.vstring('MDCY(134,1) = 0', 
                    'MDCY(137,1) = 0', 

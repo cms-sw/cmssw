@@ -1,0 +1,27 @@
+Alias      MyB+        B+
+Alias      MyB-        B-
+ChargeConj MyB+        MyB-
+Alias      MyJpsi      J/psi
+ChargeConj MyJpsi      MyJpsi
+Alias      MyK*+       K*+
+Alias      MyK*-       K*-
+ChargeConj MyK*+       MyK*-	
+#
+Decay MyB+
+  1.000    MyJpsi      MyK*+             SVV_HELAMP 0.159 1.563 0.775 0.0 0.612 2.712;
+Enddecay
+Decay MyB-
+  1.000    MyJpsi      MyK*-             SVV_HELAMP 0.159 1.563 0.775 0.0 0.612 2.712;
+Enddecay
+#
+Decay MyJpsi
+  1.000         mu+       mu-            PHOTOS VLL;
+Enddecay
+#
+Decay MyK*+
+  1.000        K0        pi+             VSS;
+Enddecay
+Decay MyK*-
+  1.000        K0        pi-             VSS;
+Enddecay
+End
