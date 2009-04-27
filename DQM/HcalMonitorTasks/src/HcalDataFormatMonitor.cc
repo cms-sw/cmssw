@@ -287,21 +287,21 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meDCCErrorAndWarnConditions_->setBinLabel(30, "729", 1);
     meDCCErrorAndWarnConditions_->setBinLabel(31, "730", 1);
     meDCCErrorAndWarnConditions_->setBinLabel(32, "731", 1);
-    meDCCErrorAndWarnConditions_->setBinLabel( 1, "MisM S14", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel( 2, "MisM S13", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel( 3, "MisM S12", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel( 4, "MisM S11", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel( 5, "MisM S10", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel( 6, "MisM S9", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel( 7, "MisM S8", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel( 8, "MisM S7", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel( 9, "MisM S6", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(10, "MisM S5", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(11, "MisM S4", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(12, "MisM S3", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(13, "MisM S2", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(14, "MisM S1", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(15, "MisM S0(top)", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel( 1, "S0  MisM", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel( 2, "S1  MisM", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel( 3, "S2  MisM", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel( 4, "S3  MisM", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel( 5, "S4  MisM", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel( 6, "S5  MisM", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel( 7, "S6  MisM", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel( 8, "S7  MisM", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel( 9, "S8  MisM", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(10, "S9  MisM", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(11, "S10 MisM", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(12, "S11 MisM", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(13, "S12 MisM", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(14, "S13 MisM", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(15, "S14 MisM", 2);
     meDCCErrorAndWarnConditions_->setBinLabel(16, "TTS_OFW", 2);
     meDCCErrorAndWarnConditions_->setBinLabel(17, "TTS_BSY", 2);
     meDCCErrorAndWarnConditions_->setBinLabel(18, "TTS_SYN", 2);
@@ -626,6 +626,13 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
 
   lastEvtN_ = -1;
   lastBCN_ = -1;
+
+  meDCC_DataIntegrityCheck_->Fill(-1,-1,1);
+  meChannSumm_DataIntegrityCheck_->Fill(-1,-1,1);
+  meHalfHTR_DataIntegrityCheck_->Fill(-1,-1,1);
+  for (int f=0; f<NUMDCCS; f++)      
+    meChann_DataIntegrityCheck_[f]->Fill(-1,-1,1);
+
 
   // Loop over all FEDs reporting the event, unpacking if good.
   for (vector<int>::const_iterator i=fedUnpackList_.begin();i!=fedUnpackList_.end(); i++) {
