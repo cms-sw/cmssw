@@ -65,7 +65,6 @@ void SiStripDetVOff::getDetIds(std::vector<uint32_t>& DetIds_) const
   constVoffIterator bitSetIt = v_Voff.begin();
   constVoffIterator bitSetItEnd = v_Voff.end();
   for( ; bitSetIt != bitSetItEnd; ++bitSetIt ) {
-    std::cout << "DetId = " << (*bitSetIt >> bitShift) << std::endl;
     DetIds_.push_back( (*bitSetIt) >> bitShift );
   }
 }
