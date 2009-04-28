@@ -1,10 +1,10 @@
 *----------------------------------------------------------------------
 *
-*  Filename             : HYDJET1_5.F
+*  Filename             : HYDJET1_6.F
 *
-*  Author               : Igor Lokhtin  
-*  Version              : HYDJET1_5.f
-*  Last revision        : 19-DEC--2007 
+*  Author               : Igor Lokhtin  (Igor.Lokhtin@cern.ch)
+*  Version              : HYDJET1_6.f
+*  Last revision        : 19-MAR-2009 
 *
 *======================================================================
 *
@@ -16,33 +16,32 @@
 *
 *======================================================================
 
+********************************* HYINIT ***************************
       SUBROUTINE HYINIT(energy,A,ifb1,bmin,bmax,bfix1,nh1) 
 *     PYTHIA inizialization, calculation of total and hard cross sections and   
-*     # of participants and binary sub-collisions at "reference point" (Pb,b=0)
+*     # of participants and binary sub-collisions at "reference point" (Pb,b=0),
 *     tabulation of nuclear thickness function and nuclear overlap function, 
 *     test of input parametes 
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      IMPLICIT INTEGER(I-N)
-
       double precision numpar,npar0,nbco0 
       external numpar,rhoaa,hfunc3
       common /pyint7/ sigt(0:6,0:6,0:5)
       common /pypars/ mstp(200),parp(200),msti(200),pari(200)
       common /pysubs/ msel,mselpd,msub(500),kfin(2,-40:40),ckin(200) 
-      common /hyjpar/ ptmin,sigin,sigjet,nhsel,ishad,njet 
+      common /hyjpar/ ptmin,sigin,sigjet,nhsel,ishad,njet
       common /hyipar/ bminh,bmaxh,AW,RA,npar0,nbco0,Apb,Rpb,np,init,ipr
       common /hypyin/ ene,rzta,rnta,bfix,ifb,nh
       common /hyflow/ ytfl,ylfl,Tf,fpart
       common /hygeom/ BC
       common /hythic/ BAB(110),TAB(110),TAAB(110)
-      common /hynup1/ bp,x      
-      save /pyint7/,/pypars/,/pysubs/,/hyjpar/,
-     >     /hyipar/,/hypyin/,/hyflow/,/hygeom/,/hythic/    
-
-* start HYDJET initialization             
+      common /hynup1/ bp,x
+      save /pyint7/,/pypars/,/pysubs/,/hyjpar/,/hyipar/,/hypyin/,
+     >     /hyflow/,/hygeom/,/hythic/    
+            
+* start HYDJET initialization 
       init=1
       ipr=1
-
+      
 * set beam paramters
       ene=energy                               ! c.m.s. energy per nucleon
       AW=A                                     ! atomic weight
@@ -58,7 +57,7 @@
 * printout of HYDJET versioning 
       write(6,*) '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
      >%%%%%%%%%%%%%%%%%%%%%%%%'
-      write(6,*) '%%                        This is HYDJET version 1.5  
+      write(6,*) '%%                        This is HYDJET version 1.6  
      >                      %%' 
       write(6,*) '%%         Corresponding author: Igor Lokhtin (Igor.Lo
      >khtin@cern.ch)        %%' 
@@ -66,61 +65,59 @@
      >%%%%%%%%%%%%%%%%%%%%%%%%'
 
 * Pythia inizialization for pp collisions 
-      call pyinit('CMS','p','p',ene)
- 
+      call pyinit('cms','p','p',ene)
+
 * calculation of hard scattering cross section 
       if(nhsel.ne.0) then
  
-         mstp(111)=0 
+       mstp(111)=0 
 * no printout of Pythia initialization information hereinafter 
-         mstp(122)=0  
+       mstp(122)=0  
 * Pythia test pp event run 
-         do i=1,1000
-            call pyevnt 
-         end do
+       do i=1,1000
+        call pyevnt 
+       end do
 * hard scattering pp cross section 
-         sjpp=pari(1)
-
+       sjpp=pari(1)
+       
 * Pythia inizialization for pn collisions 
-         call pyinit('cms','p','n',ene)
+      call pyinit('cms','p','n',ene)
 * Pythia test pn event run 
-         do i=1,1000
-            call pyevnt 
-         end do
+       do i=1,1000
+        call pyevnt 
+       end do
 * hard scattering pn cross section 
-         sjpn=pari(1)       
+       sjpn=pari(1)       
        
 * Pythia inizialization for nn collisions 
-         call pyinit('cms','n','n',ene)
+      call pyinit('cms','n','n',ene)
 * Pythia test nn event run 
-         do i=1,1000
-            call pyevnt 
-         end do
+       do i=1,1000
+        call pyevnt 
+       end do
 * hard scattering nn cross section 
-         sjnn=pari(1)       
+       sjnn=pari(1)       
        
-         sigjet=rzta*rzta*sjpp+rnta*rnta*sjnn+2.d0*rzta*rnta*sjpn
-
+       sigjet=rzta*rzta*sjpp+rnta*rnta*sjnn+2.d0*rzta*rnta*sjpn
+       
       end if 
       
 * total inelastic cross section 
-      if(sigin.lt.10.d0.or.sigin.gt.200.d0) then
-         write(6,*) 'Using total inelastic xsec from PYTHIA!'  
-         sigin=sigt(0,0,0)-sigt(0,0,1)  
-      end if
+      if(sigin.lt.10.d0.or.sigin.gt.200.d0) 
+     >   sigin=sigt(0,0,0)-sigt(0,0,1)  
 
-* # of nucelons-participants & NN sub-collisions at "reference point" (Pb,b=0)  
-      Apb=207.
-      Rpb=1.15*Apb**0.333333  
+* # of nucelons-participants and NN sub-collisions at "reference point" (Pb,b=0)  
+      Apb=207.d0
+      Rpb=1.15d0*Apb**0.333333d0  
       EPS=0.005d0
       Z2=4.d0*Rpb
       Z1=-1.d0*Z2
       H=0.01d0*(Z2-Z1)
       do ib=1,110    
-         BC=3.d0*Rpb*(ib-1)/109.d0
-         CALL SIMPA(Z1,Z2,H,EPS,1.d-8,rhoaa,Z,RES,AIH,AIABS) 
-         BAB(ib)=BC
-         TAB(ib)=Apb*RES
+       BC=3.d0*Rpb*(ib-1)/109.d0
+       CALL SIMPA(Z1,Z2,H,EPS,1.d-8,rhoaa,Z,RES,AIH,AIABS) 
+       BAB(ib)=BC
+       TAB(ib)=Apb*RES
       end do     
       Z1=0.d0
       Z2=6.28318d0 
@@ -128,9 +125,9 @@
       bp=0.d0
       CALL SIMPA(Z1,Z2,H,EPS,1.d-8,HFUNC3,X,TAAPB0,AIH,AIABS)    
       
-      npar0=numpar(0.d0)        ! Npart(Pb,b=0)  
-      nbco0=0.1d0*sigin*TAAPB0  ! Nsub(Pb,b=0) 
-  
+      npar0=numpar(0.d0)                            ! Npart(Pb,b=0)  
+      nbco0=0.1d0*sigin*TAAPB0                      ! Nsub(Pb,b=0) 
+       
       init=0 
 
 * creation of arrays for tabulation of beam/target nuclear thickness function
@@ -138,10 +135,10 @@
       Z1=-1.d0*Z2
       H=0.01d0*(Z2-Z1)
       do ib=1,110    
-         BC=3.d0*RA*(ib-1)/109.d0
-         CALL SIMPA(Z1,Z2,H,EPS,1.d-8,rhoaa,Z,RES,AIH,AIABS)     
-         BAB(ib)=BC
-         TAB(ib)=AW*RES
+       BC=3.d0*RA*(ib-1)/109.d0
+       CALL SIMPA(Z1,Z2,H,EPS,1.d-8,rhoaa,Z,RES,AIH,AIABS)     
+       BAB(ib)=BC
+       TAB(ib)=AW*RES
       end do 
 
 * creation of arrays for tabulation of nuclear overlap function
@@ -149,36 +146,35 @@
       Z2=6.28318d0 
       H=0.01d0*(Z2-Z1)    
       do ib=1,110 
-         bp=BAB(ib)
-         CALL SIMPA(Z1,Z2,H,EPS,1.d-8,HFUNC3,X,RES,AIH,AIABS)
-         TAAB(ib)=RES 
+       bp=BAB(ib)
+       CALL SIMPA(Z1,Z2,H,EPS,1.d-8,HFUNC3,X,RES,AIH,AIABS)
+       TAAB(ib)=RES 
       end do   
      
 * test of centrality selection 
       if(ifb.eq.0) then 
-         if(bfix.lt.0.d0) then    
-            write(6,*) 'Impact parameter less than zero!'  
-            bfix=0.d0 
-         end if  
-         if (bfix.gt.3.d0) then 
-            write(6,*) 'Impact param larger than 3 nuclear radius!'  
-            bfix=3.d0        
-         end if 
+       if(bfix.lt.0.d0) then    
+        write(6,*) 'Impact parameter less than zero!'  
+        bfix=0.d0 
+       end if  
+       if (bfix.gt.3.d0) then 
+        write(6,*) 'Impact parameter larger than three nuclear radius!'  
+        bfix=3.d0        
+       end if 
       else        
-         if(bmin.lt.0.d0) then    
-            write(6,*) 'Impact parameter less than zero!'  
-            bmin=0.d0 
-         end if 
-         if(bmax.gt.3.d0) then    
-            write(6,*) 'Impact param larger than 3 nuclear radius!'
-            bmax=3.d0  
-         end if             
-         bminh=bmin 
-         bmaxh=bmax 
+       if(bmin.lt.0.d0) then    
+        write(6,*) 'Impact parameter less than zero!'  
+        bmin=0.d0 
+       end if 
+       if(bmax.gt.3.d0) then    
+        write(6,*) 'Impact parameter larger than three nuclear radius!'
+        bmax=3.d0  
+       end if             
+       bminh=bmin 
+       bmaxh=bmax 
       end if 
       
-* test of flow parameter selection 
- 
+* test of flow parameter selection  
       if (Tf.lt.0.08d0.or.Tf.gt.0.2d0) Tf=0.1d0       ! freeze-out temperature
       if (ylfl.lt.0.01d0.or.ylfl.gt.7.d0) ylfl=4.d0   ! longitudinal flow rapidity
       if (ytfl.lt.0.01d0.or.ytfl.gt.3.d0) ytfl=1.5d0  ! transverse flow rapidity
@@ -187,216 +183,256 @@
 * test of 'nhsel' selection      
       if(nhsel.ne.1.and.nhsel.ne.2.and.nhsel.ne.3.and.nhsel.ne.4) 
      > nhsel=0 
-      
+  
       return 
       end 
 ****************************** END HYINIT ***************************
-
+   
 ********************************* HYEVNT **************************** 
       SUBROUTINE HYEVNT
 *     generation of single HYDJET event (soft+hard parts) at given parameters 
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      IMPLICIT INTEGER(I-N)
       double precision numpar,npar0,nbco0,npart,nbcol 
       real p,v
+      INTEGER PYK,PYCHGE,PYCOMP
       external hsin,gauss,hftaa,numpar,hyhard,hipsear,pyr,pymass 
       external ludata 
+      common /pyjets/ nhi,npadhi,khi(4000,5),phi(4000,5),vhi(4000,5)
+      COMMON /PYDAT3/ MDCY(500,3),MDME(8000,2),BRAT(8000),KFDP(8000,5)
+*      common /lujets/ n,k(150000,5),p(150000,5),v(150000,5)
       common /hyjets/ nhj,nhp,khj(150000,5),phj(150000,5),vhj(150000,5)
       common /hyipar/ bminh,bmaxh,AW,RA,npar0,nbco0,Apb,Rpb,np,init,ipr
       common /hypyin/ ene,rzta,rnta,bfix,ifb,nh
       common /hyfpar/ bgen,nbcol,npart,npyt,nhyd
       common /hyflow/ ytfl,ylfl,Tf,fpart
-      common /hyjpar/ ptmin,sigin,sigjet,nhsel,ishad,njet  
-      save /hyjets/,/hyipar/,/hypyin/,/hyfpar/,/hyflow/,/hyjpar/
-     
-* reset hyjets arrays before event generation 
+      common /hyjpar/ ptmin,sigin,sigjet,nhsel,ishad,njet
+      save /pyjets/,/pydat3/,/hyjets/,/hyipar/,/hyfpar/,
+     +     /hyflow/,/hyjpar/,/hypyin/
+
+* reset lujets and hyjets arrays before event generation 
+*      n=0 
       nhj=0 
       do ncl=1,150000
-         do j=1,5
-            phj(ncl,j)=0.d0
-            vhj(ncl,j)=0.d0  
-            khj(ncl,j)=0 
-         enddo
+       do j=1,5
+*        p(ncl,j)=0.
+        phj(ncl,j)=0.d0
+*        v(ncl,j)=0. 
+        vhj(ncl,j)=0.d0  
+*        k(ncl,j)=0
+        khj(ncl,j)=0 
+       enddo
       end do 
-
-      pi=3.14159
+* 
+      pi=3.14159d0
       
 * generate impact parameter of A-A collision 
       if(ifb.eq.0) then 
-         b1=bfix*RA
-         bgen=bfix 
+       b1=bfix*RA
+       bgen=bfix 
       else          
-         call hipsear(fmax1,xmin1) 
-         fmax=fmax1 
-         xmin=xmin1 
- 3       bb1=xmin*pyr(0)+bminh*RA  
-         ff1=fmax*pyr(0) 
-         fb=hsin(bb1) 
-         if(ff1.gt.fb) goto 3    
-         b1=bb1       
-         bgen=bb1/RA 
+       call hipsear(fmax1,xmin1) 
+       fmax=fmax1 
+       xmin=xmin1 
+ 3     bb1=xmin*pyr(0)+bminh*RA  
+       ff1=fmax*pyr(0) 
+       fb=hsin(bb1) 
+       if(ff1.gt.fb) goto 3    
+       b1=bb1       
+       bgen=bb1/RA 
+      end if 
+                    
+* calculate # of nucelons-participants and binary NN sub-collisions 
+      npart=numpar(b1)                          ! Npart(b) 
+      nbcol=0.1d0*sigin*hftaa(b1)               ! Nsub(b)        
+    
+* generate soft multiplicity in event, np,  
+* fpart - fraction of soft multiplicity proportional to # of participants, 
+* fbcol=1-fpart - fraction of multiplicity proprtional to # of NN subcollisions 
+      fbcol=1.d0-fpart 
+      rnp=nh*(fpart*npart+fbcol*nbcol)/(fpart*npar0+fbcol*nbco0)
+      np=int(rnp) 
+      sign=dsqrt(rnp)
+ 1    if(nhsel.lt.3.and.np.gt.0) then 
+       np=max(0,int(gauss(rnp,sign))) 
+      else 
+       np=0
+      end if 
+      if(np.gt.150000) then 
+       write(6,*) 'Warning, soft multiplicity too large!'   
+       goto 1 
       end if 
       
-* calculate number of nucleons-participants and binary NN sub-collisions
-      npart=numpar(b1)          ! Npart(b) 
-      nbcol=0.1d0*sigin*hftaa(b1) ! Nsub(b)    
-  
-* generate total multiplicity in event, np,  
-* fpart - fraction of soft multiplicity proportional to # of participants, 
-* fbcol=1-fpart - fraction of multiplicity proportional to # of NN subcollisions 
-      if(nhsel.lt.3.and.nhsel.ge.0)then
-         fbcol=1.d0-fpart 
-         rnp=nh*(fpart*npart+fbcol*nbcol)/(fpart*npar0+fbcol*nbco0)
-         np=int(rnp) 
-         sign=sqrt(rnp)
- 1       if(nhsel.lt.3.and.np.gt.0) then 
-            np=max(0,int(gauss(rnp,sign))) 
-         else 
-            np=0
-         endif
-         if(np.gt.150000) then 
-            write(6,*) 'Warning, soft multiplicity too large!'   
-            goto 1 
-         end if 
-      end if    
-* generate hard parton-parton scattering (Q>ptmin) 'njet' times with PYTHIA       
+* generate hard parton-parton scatterings (Q>ptmin) 'njet' times   
       njet=0 
       if(nhsel.ne.0) then 
-         pjet=sigjet/sigin   
-         do i=1,int(nbcol)
-            if(pyr(0).lt.pjet) njet=njet+1 
-         end do  
-         njetold=njet
-         call hyhard 
-         if(njet.ne.njetold) then
-            write(*,*) 'Warning: could not gen all hard events: ', 
-     &           pjet,' ',njetold,' ',njet
-         end if
+       pjet=sigjet/sigin   
+       do i=1,int(nbcol) 
+        if(pyr(0).lt.pjet) njet=njet+1 
+       end do  
+       call hyhard 
       end if 
+
+* reset pyjets array before soft component generation 
+      nhi=0  
+      do ncl=1,4000
+       do j=1,5
+        phi(ncl,j)=0.d0
+        vhi(ncl,j)=0.d0  
+        khi(ncl,j)=0 
+       enddo
+      end do 
 
       npyt=nhj 
       nhyd=np 
 
+* Offset for separating Hydro as a sub-event. YY
+      ihydoff = njet * 50000
+
       if(nhyd.eq.0) goto 4 
       if(bgen.gt.1.999d0) b1=1.999d0*RA
-*     generate sort of hadrons (pions, kaons, nucleons) in jetset7* format 
-      do ip=npyt+1,npyt+np      !cycle on particles 
-         yy=49.*pyr(0)  
-         if(yy.lt.11.83333333d0) then
-            kf=211
-         elseif(yy.lt.23.66666667d0) then
-            kf=-211
-         elseif(yy.lt.35.5d0) then
-            kf=111
-         elseif(yy.lt.38.375d0) then
-            kf=321
-         elseif(yy.lt.41.25d0) then
-            kf=-321 
-         elseif(yy.lt.44.125d0) then
-            kf=310
-         elseif(yy.lt.47.d0) then
-            kf=130  
-         elseif(yy.lt.47.5d0) then
-            kf=2212  
-         elseif(yy.lt.48.d0) then
-            kf=-2212
-         elseif(yy.lt.48.5d0) then
-            kf=2112 
-         else  
-            kf=-2112
-         end if
-         nhj=nhj+1
-         khj(nhj,1)=1
-         khj(nhj,2)=kf
-         do j=3,5
-            khj(nhj,j)=0
-         end do
-         do j=1,5
-            vhj(nhj,j)=0.d0
-         enddo
-         kfa=iabs(kf)
-         phj(nhj,5)=pymass(kfa) 
-         
+
+* generate sort of hadrons (pions, kaons, nucleons) in jetset/pythia format
+ 5     yy=49.d0*pyr(0)  
+       if(yy.lt.11.83333333d0) then
+        kf=211
+       elseif(yy.lt.23.66666667d0) then
+        kf=-211
+       elseif(yy.lt.35.5d0) then
+        kf=111
+       elseif(yy.lt.38.375d0) then
+        kf=321
+       elseif(yy.lt.41.25d0) then
+        kf=-321 
+       elseif(yy.lt.44.125d0) then
+        kf=310
+       elseif(yy.lt.47.d0) then
+        kf=130  
+       elseif(yy.lt.47.5d0) then
+        kf=2212  
+       elseif(yy.lt.48.d0) then
+        kf=-2212
+       elseif(yy.lt.48.5d0) then
+        kf=2112 
+       else  
+        kf=-2112
+       end if
+       nhj=nhj+1
+       khj(nhj,1)=1
+       khj(nhj,2)=kf
+       do j=3,5
+        khj(nhj,j)=ihydoff
+       end do
+       do j=1,5
+        vhj(nhj,j)=0.d0
+       enddo
+        kfa=iabs(kf)
+        phj(nhj,5)=pymass(kfa) 
+
 * generate uniform distribution in system of a fluid element
  2     ep0=-1.d0*Tf*(dlog(max(1.d-10,pyr(0)))+dlog(max(1.d-10,pyr(0)))
      >   +dlog(max(1.d-10,pyr(0)))) 
        if(ep0.le.phj(nhj,5)) go to 2 
-       pp0=sqrt(abs(ep0**2-abs(phj(nhj,5)**2))) 
+       pp0=dsqrt(abs(ep0**2-abs(phj(nhj,5)**2))) 
        probt=pp0/ep0 
        if(pyr(0).gt.probt) go to 2 
        ctp0=2.d0*pyr(0)-1.d0 
-       stp0=sqrt(abs(1.d0-ctp0**2)) 
+       stp0=dsqrt(abs(1.d0-ctp0**2)) 
        php0=2.d0*pi*pyr(0) 
 
 * generate coordinates of a fluid element
-c       etaf=etmax*(2.*rlu(0)-1.)         ! flat initial eta-spectrum
-       etaf=gauss(0.d0,ylfl)    ! gaussian initial eta-spectrum
+c       etaf=ylfl*(2.d0*pyr(0)-1.d0)         ! flat initial eta-spectrum
+       etaf=gauss(0.d0,ylfl)              ! gaussian initial eta-spectrum
        phif=2.d0*pi*pyr(0) 
-       rm1=sqrt(abs(RA*RA-b1*b1/4.d0*(sin(phif)**2)))+
-     >      b1*cos(phif)/2.d0
-       rm2=sqrt(abs(RA*RA-b1*b1/4.d0*(sin(phif)**2)))-
-     >      b1*cos(phif)/2.d0
+       rm1=dsqrt(abs(RA*RA-b1*b1/4.d0*(dsin(phif)**2)))+
+     >      b1*dcos(phif)/2.d0
+       rm2=dsqrt(abs(RA*RA-b1*b1/4.d0*(dsin(phif)**2)))-
+     >      b1*dcos(phif)/2.d0
        RF=min(rm1,rm2) 
        rrf=RF*RF*pyr(0) 
 
 * generate four-velocity of a fluid element
-       vradf=sinh(ytfl) 
+       vradf=dsinh(ytfl) 
         sb=RA*RA*(pi-2.d0*dasin(b1/RA/2.d0))-
-     >      b1*sqrt(abs(RA*RA-b1*b1/4.d0))
-       reff=sqrt(sqrt(sb/pi)*RA) 
-       urf=vradf*sqrt(abs(rrf))/reff          ! linear transverse profile
+     >      b1*dsqrt(abs(RA*RA-b1*b1/4.d0))
+       reff=dsqrt(dsqrt(sb/pi)*RA) 
+       urf=vradf*dsqrt(abs(rrf))/reff          ! linear transverse profile
 c       urf=vradf*rrf/reff**2                  !square transverse profile 
-       utf=cosh(etaf)*sqrt(abs(1.d0+urf*urf)) 
-       uzf=sinh(etaf)*sqrt(abs(1.d0+urf*urf)) 
+       utf=dcosh(etaf)*dsqrt(abs(1.d0+urf*urf)) 
+       uzf=dsinh(etaf)*dsqrt(abs(1.d0+urf*urf)) 
 
-* boost in the laboratory system
-       uipi=pp0*(urf*stp0*cos(phif-php0)+uzf*ctp0) 
+* boost in the laboratory system 
+       uipi=pp0*(urf*stp0*dcos(phif-php0)+uzf*ctp0) 
        bfac=uipi/(utf+1.d0)+ep0 
-       phj(nhj,1)=pp0*stp0*sin(php0)+urf*sin(phif)*bfac 
-       phj(nhj,2)=pp0*stp0*cos(php0)+urf*cos(phif)*bfac                    
+       phj(nhj,1)=pp0*stp0*dsin(php0)+urf*dsin(phif)*bfac 
+       phj(nhj,2)=pp0*stp0*dcos(php0)+urf*dcos(phif)*bfac                    
        phj(nhj,3)=pp0*ctp0+uzf*bfac
-       phj(nhj,4)=sqrt(phj(nhj,1)**2+phj(nhj,2)**2+phj(nhj,3)**2
+       phj(nhj,4)=dsqrt(phj(nhj,1)**2+phj(nhj,2)**2+phj(nhj,3)**2
      >             +phj(nhj,5)**2) 
-            
-      end do 
- 
+
+* treat hadron decay (if it switched on) with pyexec routine   
+        if(mdcy(pycomp(kf),1).eq.1) then                    
+         nhi=1
+         do j=1,5
+          phi(1,j)=phj(nhj,j)
+          khi(1,j)=khj(nhj,j)
+          vhi(1,j)=vhj(nhj,j)
+         end do
+         call pyexec 
+         do i=1,nhi
+          do j=1,5
+                icor=0 
+                if(j.gt.2.and.khi(i,j).ne.ihydoff) 
+     >               icor=ihydoff + nhj - npyt -1
+           phj(nhj+i-1,j)=phi(i,j)
+           khj(nhj+i-1,j)=khi(i,j)+icor 
+           vhj(nhj+i-1,j)=vhi(i,j)
+          end do 
+         end do
+         nhj=nhj+nhi-1 
+         np=np+nhi-1
+        end if 
+       if(nhj.lt.npyt+np) goto 5
+       nhyd=np  
+       
  4    continue
 
-*      write(*,*) 'NHYD, NPYT, NTOT',nhyd,npyt,nhyd+npyt
+* fill array 'lujets' 
+*      n=nhyd+npyt 
+*      do ih=1,nhj
+*       do jh=1,5
+*        p(ih,jh)=phj(ih,jh)
+*        k(ih,jh)=khj(ih,jh)                  
+*        v(ih,jh)=vhj(ih,jh) 
+*       end do
+*      end do
 
-      n=nhyd+npyt 
-     
-      
       return
       end
-****************************** END HYEVNT **************************   
+****************************** END HYEVNT ************************** 
 
 ********************************* HYHARD ***************************
       SUBROUTINE HYHARD 
 *     generate 'njet' number of hard parton-parton scatterings with PYTHIA 
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      IMPLICIT INTEGER(I-N)
       double precision npar0,nbco0,npart,nbcol
       INTEGER PYK,PYCHGE,PYCOMP
       CHARACTER beam*2,targ*2
       external pydata 
-      external pyp,pyr,pyk,pyquen,shad1  
+      external pyp,pyr,pyk,pyquen,shad1
       common /pyjets/ n,npad,k(4000,5),p(4000,5),v(4000,5)
       common /hyjets/ nhj,nhp,khj(150000,5),phj(150000,5),vhj(150000,5)
-      COMMON /PYDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
-      COMMON /PYDAT2/KCHG(500,4),PMAS(500,4),PARF(2000),VCKM(4,4)
-      COMMON /PYDAT3/MDCY(500,3),MDME(8000,2),BRAT(8000),KFDP(8000,5)
-      COMMON /PYSUBS/MSEL,MSELPD,MSUB(500),KFIN(2,-40:40),CKIN(200)
+      COMMON /PYDAT1/ MSTU(200),PARU(200),MSTJ(200),PARJ(200)
+      COMMON /PYDAT2/ KCHG(500,4),PMAS(500,4),PARF(2000),VCKM(4,4)
+      COMMON /PYDAT3/ MDCY(500,3),MDME(8000,2),BRAT(8000),KFDP(8000,5)
+      COMMON /PYSUBS/ MSEL,MSELPD,MSUB(500),KFIN(2,-40:40),CKIN(200)
       common /pypars/ mstp(200),parp(200),msti(200),pari(200)
       common /parimp/ b1, psib1, rb1, rb2, noquen 
-      common /hyjpar/ ptmin,sigin,sigjet,nhsel,ishad,njet    
+      common /hyjpar/ ptmin,sigin,sigjet,nhsel,ishad,njet
       common /hyipar/ bminh,bmaxh,AW,RA,npar0,nbco0,Apb,Rpb,np,init,ipr
       common /hyfpar/ bgen,nbcol,npart,npyt,nhyd 
       common /hypyin/ ene,rzta,rnta,bfix,ifb,nh
-      common /hcmssw/ nsubs(1500) 
-      save /pyjets/,/hyjets/,/pydat1/,/pydat2/,/pydat3/,
-     +     /pysubs/,/pypars/,/parimp/,/hyjpar/,/hyipar/,/hyfpar/,
-     +     /hypyin/
+      save /pyjets/,/pypars/,/pydat1/,/pydat2/,/pydat3/,/pysubs/,
+     +     /hyjets/,/parimp/,/hyjpar/,/hyipar/,/hyfpar/,/hypyin/
       
 
 * generate 'njet' PYTHIA events and fill arrays for partons and hadrons 
@@ -404,126 +440,107 @@ c       urf=vradf*rrf/reff**2                  !square transverse profile
       noquen=0 
       if(nhsel.eq.1.or.nhsel.eq.3) noquen=1
       if(njet.ge.1) then 
+       ifbp=0                                    ! fix impact parameter 
+       bfixp=RA*bgen 
+       Ap=AW                                     ! atomic weight            
+ 
+       do ihard=1,njet       
+        mstp(111)=0
 
-c       C.L.: commented out the following two lines... (see hydjet.f)
-c       mdcy(pycomp(111),1)=0               ! no pi0 decay 
-c       mdcy(pycomp(310),1)=0               ! no K_S0 decay 
-         
-         ifbp=0                 ! fix impact parameter 
-         bfixp=RA*bgen 
-         Ap=AW                  ! atomic weight            
-         do ihard=1,njet       
-            mstp(111)=0         ! hadronization off
-
-*     generate type of NN sub-collision (pp, pn or nn) 
-            rand1=pyr(0)
-            if(rand1.lt.rzta) then 
-               beam='p'
-            else 
-               beam='n'
-            end if 
-            rand2=pyr(0)
-            if(rand2.lt.rzta) then 
-               targ='p'
-            else 
-               targ='n'
-            end if 
-            call pyinit('cms',beam,targ,ene)
-c           mstj(41)=0                           ! vacuum showering off 
-            call pyevnt                          ! generate hard scattering
-
-            if (ihard.GT.1500) THEN 
-               WRITE(*,*)"hyhard.f: Can not store subevent process id.",
-     &              "Array too small!"
-            ELSE
-               nsubs(ihard) = msti(1)
-            ENDIF
+* generate type of NN sub-collision (pp, pn or nn) 
+        rand1=pyr(0)
+        if(rand1.lt.rzta) then 
+         beam='p'
+        else 
+         beam='n'
+        end if 
+        rand2=pyr(0)
+        if(rand2.lt.rzta) then 
+         targ='p'
+        else 
+         targ='n'
+        end if 
+        call pyinit('cms',beam,targ,ene)
+c        mstj(41)=0                           ! vacuum showering off 
+        call pyevnt                           ! generate hard scattering
 
 * PYQUEN: quenched jets if noquen=0 or non-quenched jets if noquen=1 and ishad=1
         if(ishad.eq.1.or.nhsel.eq.2.or.nhsel.eq.4) 
-     >           call pyquen(Ap,ifbp,bfixp,99,0) 
+     >   call pyquen(Ap,ifbp,bfixp) 
 
 * treatment of "nuclear shadowing" (for Pb, Au, Pd or Ca beams only) 
         if(ishad.eq.1) then
-           kfh1=abs(k(3,2)) 
-           kfh2=abs(k(4,2))
-           xh1=pari(33) 
-           xh2=pari(34)
-           Q2=pari(22)
-           shad=shad1(kfh1,xh1,Q2,rb1)*shad1(kfh2,xh2,Q2,rb2)
-           if(pyr(0).gt.shad) then 
-              nshad=nshad+1 
-              goto 53
-           end if 
+         kfh1=abs(k(3,2)) 
+         kfh2=abs(k(4,2))
+         xh1=pari(33) 
+         xh2=pari(34)
+         Q2=pari(22)
+         shad=shad1(kfh1,xh1,Q2,rb1)*shad1(kfh2,xh2,Q2,rb2)
+         if(pyr(0).gt.shad) then 
+          nshad=nshad+1 
+          goto 53
+         end if 
         end if 
+           
+        call pyexec                         ! hadronization done 
+c        call pyedit(2)                      ! remove partons & leave hadrons 
 
-	call pyexec             ! hadronization done 
-c     
-        nohist=0                ! have full history
-c     
-        nstring=8
-        if(nohist.ne.0) then
-           nstring=8
-           call pyedit(2)       ! remove partons & leave hadrons 
-        end if
 
-c        write(*,*),ihard,' ',n,' ',nhj
-
-* fill array of final particles
+* fill array of final particles                                                                                                       
 #ifndef  __HIROOT_FORTRAN_ONLY__
-         ievoff=(ihard-nshad-1)*10000   ! event offset
+         ievoff=(ihard-nshad-1)*50000   ! event offset                                                                                
 #endif
-        
-        nu=nhj+n 
-        if(nu.gt.150000-np) then 
-           write(6,*) 'Warning, multiplicity too large! Cut hard part.'   
+
+        nu=nhj+n
+        if(nu.gt.150000-np) then
+           write(6,*) 'Warning, multiplicity too large! Cut hard part.'                                                               
            goto 52
-        end if 
-        nhj=nu  
+        end if
+        nhj=nu
         do i=nhj-n+1,nhj
-           ip=i+n-nhj                            
+           ip=i+n-nhj
            do j=1,5
-              phj(i,j)=p(ip,j) 
+              phj(i,j)=p(ip,j)
            end do
            do j=1,5
-              vhj(i,j)=v(ip,j) 
+              vhj(i,j)=v(ip,j)
            end do
            do j=1,5
               khj(i,j)=k(ip,j)
            end do
            do j=3,5
-              kk=k(ip,j) 
+              kk=k(ip,j)
 #ifndef  __HIROOT_FORTRAN_ONLY__
-             khj(i,j)=kk+ievoff
+            khj(i,j)=kk+ievoff
 #else
-      if(kk.gt.0) khj(i,j)=kk+nhj-n 
+      if(kk.gt.0) khj(i,j)=kk+nhj-n
 #endif
            end do
-        end do               
-        
- 53     continue
-      end do 
+        end do
 
-c     write(*,*) ihard," ",nhj      
- 52   njet=ihard-1 
-      end if  
+ 53          continue
+      end do
+
+c     write(*,*) ihard," ",nhj                                                                                                        
+ 52      njet=ihard-1
+      end if
       njet=njet-nshad
 
-      return 
-      end 
+      return
+      end
+
+
 ****************************** END HYHARD **************************      
       
 ********************************* HIPSEAR ***************************
       SUBROUTINE HIPSEAR (fmax,xmin) 
 * find maximum and 'sufficient minimum' of differential inelasic AA cross 
-* section as a function of impact paramater (xm, fm are outputs) 
+* section as a function of impact paramater (xm, fm are outputs)
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      IMPLICIT INTEGER(I-N)
       double precision npar0,nbco0 
       external hsin  
       common /hyipar/ bminh,bmaxh,AW,RA,npar0,nbco0,Apb,Rpb,np,init,ipr
-      save /hyipar/
-     
+      save /hyipar/ 
       xmin=(bmaxh-bminh)*RA 
       fmax=0.d0
       do j=1,1000
@@ -537,21 +554,36 @@ c     write(*,*) ihard," ",nhj
       end
 ****************************** END HIPSEAR **************************
 
-* function to calculate nuclear overlap function at impact parameter b  
-      double precision function hftaa(c)  
+* differential inelastic AA cross section  
+      double precision function hsin(x) 
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      common /hythic/ BAB(110),TAB(110),TAAB(110)
-      save /hythic/ 
-      call parinv(c,BAB,TAAB,110,RES) 
-      hftaa=RES 
+      external hftaa 
+      common /hyjpar/ ptmin,sigin,sigjet,nhsel,ishad,njet   
+      save /hyjpar/ 
+      br=x 
+      hsin=br*(1.d0-dexp(-0.1d0*hftaa(br)*sigin)) 
       return 
-      end  
+      end 
+
+* number of nucleons-participants at impact parameter b 
+      double precision function numpar(c) 
+      IMPLICIT DOUBLE PRECISION(A-H, O-Z)
+      external HFUNC1 
+      common /hynup1/ bp,x    
+      EPS=0.005d0  
+      A=0.d0 
+      B=6.28318d0 
+      H=0.01d0*(B-A)    
+      bp=c    
+      CALL SIMPA(A,B,H,EPS,1.d-8,HFUNC1,X,RES,AIH,AIABS)
+      numpar=2.d0*RES 
+      return 
+      end   
 *
       double precision function HFUNC1(x) 
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      IMPLICIT INTEGER(I-N)
       double precision npar0,nbco0
-      external HFUNC2
+      external HFUNC2 
       common /hyipar/ bminh,bmaxh,AW,RA,npar0,nbco0,Apb,Rpb,np,init,ipr
       common /hynup1/ bp,xx
       save /hyipar/  
@@ -572,23 +604,31 @@ c     write(*,*) ihard," ",nhj
 *      
       double precision function HFUNC2(y) 
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      IMPLICIT INTEGER(I-N)
       double precision npar0,nbco0
       external hythik 
       common /hyipar/ bminh,bmaxh,AW,RA,npar0,nbco0,Apb,Rpb,np,init,ipr
-      common /hyjpar/ ptmin,sigin,sigjet,nhsel,ishad,njet 
+      common /hyjpar/ ptmin,sigin,sigjet,nhsel,ishad,njet
       common /hynup1/ bp,x 
       save /hyipar/,/hyjpar/ 
-      r1=sqrt(abs(y*y+bp*bp/4.d0+y*bp*cos(x))) 
-      r2=sqrt(abs(y*y+bp*bp/4.d0-y*bp*cos(x)))
+      r1=dsqrt(abs(y*y+bp*bp/4.d0+y*bp*dcos(x))) 
+      r2=dsqrt(abs(y*y+bp*bp/4.d0-y*bp*dcos(x)))
       s=1.d0-dexp(-0.1d0*sigin*hythik(r2))
       HFUNC2=y*hythik(r1)*s 
       return 
       end   
 
-      double precision function HFUNC3(x)
+* nuclear overlap function at impact parameter b  
+      double precision function hftaa(c)  
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      IMPLICIT INTEGER(I-N)
+      common /hythic/ BAB(110),TAB(110),TAAB(110)
+      save /hythic/ 
+      call parinv(c,BAB,TAAB,110,RES) 
+      hftaa=RES 
+      return 
+      end   
+*
+      double precision function HFUNC3(x)
+      IMPLICIT DOUBLE PRECISION(A-H, O-Z) 
       double precision npar0,nbco0
       external HFUNC4 
       common /hyipar/ bminh,bmaxh,AW,RA,npar0,nbco0,Apb,Rpb,np,init,ipr
@@ -611,54 +651,27 @@ c     write(*,*) ihard," ",nhj
 *      
       double precision function HFUNC4(y) 
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      IMPLICIT INTEGER(I-N)
       double precision npar0,nbco0
       external hythik 
       common /hyipar/ bminh,bmaxh,AW,RA,npar0,nbco0,Apb,Rpb,np,init,ipr
       common /hyjpar/ ptmin,sigin,sigjet,nhsel,ishad,njet 
       common /hynup1/ bp,x 
       save /hyipar/,/hyjpar/ 
-      r1=sqrt(abs(y*y+bp*bp/4.d0+y*bp*cos(x))) 
-      r2=sqrt(abs(y*y+bp*bp/4.d0-y*bp*cos(x)))
+      r1=dsqrt(abs(y*y+bp*bp/4.d0+y*bp*dcos(x))) 
+      r2=dsqrt(abs(y*y+bp*bp/4.d0-y*bp*dcos(x)))
       HFUNC4=y*hythik(r1)*hythik(r2) 
       return 
       end   
- 
-* function to calculate differential inelastic AA cross section 
-      double precision function hsin(x) 
-      IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      external hftaa 
-      common /hyjpar/ ptmin,sigin,sigjet,nhsel,ishad,njet   
-      save /hyjpar/ 
-      br=x 
-      hsin=br*(1.d0-exp(-0.1d0*hftaa(br)*sigin)) 
-      return 
-      end 
 
-* function to calculate nuclear thikness function 
-      double precision function hythik(r)   
-      IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      common /hythic/ BAB(110),TAB(110),TAAB(110)
-      save /hythic/ 
-      call parinv(r,BAB,TAB,110,RES) 
-      hythik=RES 
-      return
-      end
-
-* function to calculate number of nucleons-participants at im.par.b 
-      double precision function numpar(c) 
-      IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      external HFUNC1 
-      common /hynup1/ bp,x    
-      EPS=0.005d0  
-      A=0.d0 
-      B=6.28318d0 
-      H=0.01d0*(B-A)    
-      bp=c    
-      CALL SIMPA(A,B,H,EPS,1.d-8,HFUNC1,X,RES,AIH,AIABS)
-      numpar=2.d0*RES 
-      return 
-      end   
+* nuclear thickness function 
+       double precision function hythik(r)   
+       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
+       common /hythic/ BAB(110),TAB(110),TAAB(110)
+       save /hythic/ 
+       call parinv(r,BAB,TAB,110,RES) 
+       hythik=RES 
+       return
+       end
 
 * Wood-Saxon nucleon distrubution  
        double precision function rhoaa(z)   
@@ -683,7 +696,6 @@ c     write(*,*) ihard," ",nhj
 * function to calculate nuclear shadowing factor (for Pb, Au, Pd or Ca beams)
       double precision function shad1(kfh,xbjh,Q2h,r)  
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      IMPLICIT INTEGER(I-N)
       double precision npar0,nbco0,nbcol,npart
       external ggshad
       common /hyipar/ bminh,bmaxh,AW,RA,npar0,nbco0,Apb,Rpb,np,init,ipr
@@ -740,7 +752,7 @@ c$$$  gluons and light quarks (u,d,s and their antiquarks).
 c$$$  All Pomeron tree diagrams have been summed (Schwimmer model).
 c$$$  More details about the model in 
 c$$$  K. Tywoniuk, I.C. Arsene, L. Bravina, A. Kaidalov and E. 
-c$$$  Zabrodin,      arXiv:0705.1596
+c$$$  Zabrodin, Phys. Lett. B 657 (2007) 170
 c$$$  
 c$$$  We use FIT B from the H1 parameterization published in 
 c$$$  A. Aktas et al. (H1 Collaboration), Eur. Phys. J C 48 (2006) 715

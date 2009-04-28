@@ -32,15 +32,10 @@
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 
 namespace {
-   int convertStatus(int st){
-
-      if(st<= 0) return 0;
-      if(st<=10) return 1;
-      if(st<=20) return 2;
-      if(st<=30) return 3;
-
-      else return st;
-   }
+  int convertStatus(int pyst){
+    if(pyst > 10) return 2;
+    else return 1;
+  }
 
 }
 
@@ -157,30 +152,29 @@ void HydjetSource::add_heavy_ion_rec(HepMC::GenEvent *evt)
   delete hi;
 }
 
-
-//________________________________________________________________
+//________________________________________________________________                                                                                                           
 HepMC::GenParticle* HydjetSource::build_hyjet(int index, int barcode)
 {
-   // Build particle object corresponding to index in hyjets (soft+hard)
+   // Build particle object corresponding to index in hyjets (soft+hard)                                                                                                     
    double x0 = hyjets.phj[0][index];
    double y0 = hyjets.phj[1][index];
-
+   
    double x = x0*cosphi0_-y0*sinphi0_;
    double y = y0*cosphi0_+x0*sinphi0_;
 
    HepMC::GenParticle* p = new HepMC::GenParticle(
-						  HepMC::FourVector(x,  // px
-								    y,  // py
-								    hyjets.phj[2][index],  // pz
-								    hyjets.phj[3][index]), // E
-						  hyjets.khj[1][index],// id
-						  convertStatus(hyjets.khj[0][index]) // status
-						  );
+                                                  HepMC::FourVector(x,  // px 
+                                                                    y,  // py  
+                                                                    hyjets.phj[2][index],  // pz
+                                                                    hyjets.phj[3][index]), // E
+                                                  hyjets.khj[1][index],// id 
+                                                  convertStatus(hyjets.khj[0][index]) // status 
+                                                  );
+   
    p->suggest_barcode(barcode);
-
+   
    return p;
 }
-
 
 //___________________________________________________________________
 HepMC::GenVertex* HydjetSource::build_hyjet_vertex(int i,int id)
@@ -198,7 +192,6 @@ HepMC::GenVertex* HydjetSource::build_hyjet_vertex(int i,int id)
    return vertex;
 }
 
-
 //______________________________________________________________________
 bool HydjetSource::call_pygive(const std::string& iParm ) 
 {
@@ -213,16 +206,14 @@ bool HydjetSource::call_pygive(const std::string& iParm )
   return pydat1.mstu[26] == numWarn && pydat1.mstu[22] == numErr;   
 }
 
-
 //____________________________________________________________________
 void HydjetSource::clear()
 {
 
 }
 
-
 //_____________________________________________________________________
-bool HydjetSource::get_hard_particles(HepMC::GenEvent *evt, vector<SubEvent>& subs )
+bool HydjetSource::get_particles(HepMC::GenEvent *evt, vector<SubEvent>& subs )
 {
    // Hard particles. The first nhard_ lines from hyjets array.
    // Pythia/Pyquen sub-events (sub-collisions) for a given event
@@ -232,14 +223,18 @@ bool HydjetSource::get_hard_particles(HepMC::GenEvent *evt, vector<SubEvent>& su
    // The SubEvent information is kept by storing indeces of main vertices 
    // of subevents as a vector in GenHIEvent.
 
-   int nhard = nhard_;
-   
+   LogDebug("SubEvent")<< "Number of sub events "<<nsub_;
+   LogDebug("Hydjet")<<"Number of hard events "<<hyjpar.njet;
+   LogDebug("Hydjet")<<"Number of hard particles "<<nhard_;
+   LogDebug("Hydjet")<<"Number of soft particles "<<nsoft_;
+
    vector<HepMC::GenVertex*>  sub_vertices(nsub_); 
 
    int ihy  = 0;   
    for(int isub=0;isub<nsub_;isub++){
+      LogDebug("SubEvent") <<"Sub Event ID : "<<isub;
      
-      int sub_up = (isub+1)*10000; // Upper limit in mother index, determining the range of Sub-Event
+      int sub_up = (isub+1)*50000; // Upper limit in mother index, determining the range of Sub-Event
       vector<HepMC::GenParticle*> particles;
       vector<int>                 mother_ids;
       vector<HepMC::GenVertex*>   prods;
@@ -247,14 +242,13 @@ bool HydjetSource::get_hard_particles(HepMC::GenEvent *evt, vector<SubEvent>& su
       sub_vertices[isub] = new HepMC::GenVertex(HepMC::FourVector(0,0,0,0),isub);
       evt->add_vertex(sub_vertices[isub]);
       if(!evt->signal_process_vertex()) evt->set_signal_process_vertex(sub_vertices[isub]);
-
       subs.push_back(SubEvent(isub));
 
-      while(ihy<nhard && hyjets.khj[2][ihy] < sub_up){
-	
+      while(ihy<nhard_+nsoft_ && (hyjets.khj[2][ihy] < sub_up || ihy > nhard_ )){
 	 particles.push_back(build_hyjet(ihy,ihy+1));
 	 prods.push_back(build_hyjet_vertex(ihy,isub));
 	 mother_ids.push_back(hyjets.khj[2][ihy]);
+	 LogDebug("DecayChain")<<"Mother index : "<<hyjets.khj[2][ihy];
 
 	 ihy++;
       }       
@@ -262,31 +256,39 @@ bool HydjetSource::get_hard_particles(HepMC::GenEvent *evt, vector<SubEvent>& su
       //Produce Vertices and add them to the GenEvent. Remember that GenParticles are adopted by
       //GenVertex and GenVertex is adopted by GenEvent.
 
-      for (unsigned int i = 0; i<particles.size(); i++) {
+      LogDebug("Hydjet")<<"Number of particles in vector "<<particles.size();
 
+      for (unsigned int i = 0; i<particles.size(); i++) {
 	 HepMC::GenParticle* part = particles[i];
 
 	 //The Fortran code is modified to preserve mother id info, by seperating the beginning 
-         //mother indices of successive subevents by 10000.
-	 int mid = mother_ids[i]-isub*10000-1;
+         //mother indices of successive subevents by 50000.
+	 int mid = mother_ids[i]-isub*50000-1;
+	  LogDebug("DecayChain")<<"Particle "<<i;
+	  LogDebug("DecayChain")<<"Mother's ID "<<mid;
+          LogDebug("DecayChain")<<"Particle's PDG ID "<<part->pdg_id();
+
 	 if(mid <= 0){
 	    sub_vertices[isub]->add_particle_out(part);
 	    continue;
 	 }
 
 	 if(mid > 0){
+
 	    HepMC::GenParticle* mother = particles[mid];
+	     LogDebug("DecayChain")<<"Mother's PDG ID "<<mother->pdg_id();
+
 	    HepMC::GenVertex* prod_vertex = mother->end_vertex();
 	    if(!prod_vertex){
 	       prod_vertex = prods[i];
 	       prod_vertex->add_particle_in(mother);
 	       evt->add_vertex(prod_vertex);
                prods[i]=0; // mark to protect deletion
+
 	    }
 	    prod_vertex->add_particle_out(part);
 	 }
       }
-
       // cleanup vertices not assigned to evt
       for (unsigned int i = 0; i<prods.size(); i++) {
          if(prods[i]) delete prods[i];
@@ -295,31 +297,6 @@ bool HydjetSource::get_hard_particles(HepMC::GenEvent *evt, vector<SubEvent>& su
 
   return true;
 }
-
-
-//___________________________________________________________
-bool HydjetSource::get_soft_particles(HepMC::GenEvent *evt, vector<SubEvent>& subs)
-{
-   // Soft particles. The last nsoft_ lines of hyjets
-   // It corresponds to HYDRO-induced, hadrons only
-   // As they have no mothers and no daughters, all are assigned to a single background vertex
-
-   vector<HepMC::GenParticle*> hyj_entries(nsoft_);
-   for (int i1 = 0; i1<nsoft_; i1++) {
-      hyj_entries[i1] = build_hyjet(nhard_+i1, nhard_+i1+1);
-   }
-   HepMC::GenVertex* soft_vertex = new HepMC::GenVertex(HepMC::FourVector(0,0,0,0),nsub_);
-   subs.push_back(SubEvent(nsub_));
-   
-   for ( int i2 = 0; i2<nsoft_; i2++ ) {
-      soft_vertex->add_particle_out( hyj_entries[i2] ) ;
-   } 
-   evt->add_vertex( soft_vertex );
-   evt->set_signal_process_vertex(soft_vertex);
-
-   return true;
-}
-
 
 //______________________________________________________________
 bool HydjetSource::call_hyinit(double energy,double a, int ifb, double bmin,
@@ -487,13 +464,14 @@ bool HydjetSource::produce(Event & e)
   }
   nsub_     = hyjpar.njet;
 
+  if(hyjpar.nhsel < 3) nsub_++;
+
   std::vector<SubEvent> subvector;
 
   // event information
   HepMC::GenEvent *evt = new HepMC::GenEvent();
 
-  if(nhard_>0) get_hard_particles(evt,subvector); 
-  if(nsoft_>0) get_soft_particles(evt,subvector);
+  if(nhard_>0 || nsoft_>0) get_particles(evt,subvector); 
 
   evt->set_signal_process_id(pypars.msti[0]);      // type of the process
   evt->set_event_scale(pypars.pari[16]);           // Q^2
