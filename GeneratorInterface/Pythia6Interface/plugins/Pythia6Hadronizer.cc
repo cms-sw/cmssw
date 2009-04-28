@@ -311,7 +311,7 @@ bool Pythia6Hadronizer::generatePartonsAndHadronize()
    //NPartsBeforeDecays = event()->particles_size();
    flushTmpStorage();
    fillTmpStorage();
-   
+      
    return true;
 }
 
@@ -382,7 +382,7 @@ bool Pythia6Hadronizer::hadronize()
    // NPartsBeforeDecays = event()->particles_size();
    flushTmpStorage();
    fillTmpStorage();
-   
+      
    return true;
 }
 
@@ -624,13 +624,17 @@ bool Pythia6Hadronizer::declareStableParticles( std::vector<int> pdg )
    
    for ( size_t i=0; i<pdg.size(); i++ )
    {
-      int pyCode = pycomp_( pdg[i] );
+      //int PyID = HepPID::translatePDTtoPythia( pdg[i] );
+      int PyID = pdg[i]; 
+      int pyCode = pycomp_( PyID );
       std::ostringstream pyCard ;
       pyCard << "MDCY(" << pyCode << ",1)=0";
-      std::cout << pyCard.str() << std::endl;
+/* this is a test printout...
+      std::cout << pyCard.str() << std::endl; 
+*/
       call_pygive( pyCard.str() );
    }
-   
+      
    return true;
 }
 
