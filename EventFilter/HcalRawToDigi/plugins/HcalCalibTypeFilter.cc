@@ -71,7 +71,7 @@ HcalCalibTypeFilter::HcalCalibTypeFilter(const edm::ParameterSet& iConfig)
   //now do what ever initialization is needed
 
   DataLabel_  = iConfig.getParameter<std::string>("InputLabel") ;
-  Summary_    = iConfig.getParameter<bool>("FilterSummary") ;
+  Summary_    = iConfig.getUntrackedParameter<bool>("FilterSummary",false) ;
   CalibTypes_ = iConfig.getParameter< std::vector<int> >("CalibTypes") ; 
 }
 
@@ -99,22 +99,24 @@ HcalCalibTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(DataLabel_,rawdata);
   
   // checking FEDs for calibration information
-  int calibType = -1 ;
+  int calibType = -1 ; int numEmptyFEDs = 0 ; 
   std::vector<int> calibTypeCounter(8,0) ; 
   for (int i=FEDNumbering::getHcalFEDIds().first; 
        i<=FEDNumbering::getHcalFEDIds().second; i++) {
       const FEDRawData& fedData = rawdata->FEDData(i) ; 
+      if ( fedData.size() < 24 ) numEmptyFEDs++ ; 
       if ( fedData.size() < 24 ) continue ; 
       int value = ((const HcalDCCHeader*)(fedData.data()))->getCalibType() ; 
       calibTypeCounter.at(value)++ ; // increment the counter for this calib type
   }
+  
   int maxCount = 0 ;
   int numberOfFEDIds = FEDNumbering::getHcalFEDIds().second - FEDNumbering::getHcalFEDIds().first + 1 ; 
   for (unsigned int i=0; i<calibTypeCounter.size(); i++) {
       if ( calibTypeCounter.at(i) > maxCount ) { calibType = i ; maxCount = calibTypeCounter.at(i) ; } 
       if ( maxCount == numberOfFEDIds ) break ;
   }
-  if ( maxCount != numberOfFEDIds ) 
+  if ( maxCount != (numberOfFEDIds-numEmptyFEDs) )
       edm::LogWarning("HcalCalibTypeFilter") << "Conflicting calibration types found.  Assigning type " 
                                              << calibType ; 
   LogDebug("HcalCalibTypeFilter") << "Calibration type is: " << calibType ; 
