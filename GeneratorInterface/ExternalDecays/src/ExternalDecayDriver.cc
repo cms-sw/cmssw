@@ -62,14 +62,16 @@ void ExternalDecayDriver::init( const edm::EventSetup& es )
    {
       fTauolaInterface->init( es );
       for ( std::vector<int>::const_iterator i=fTauolaInterface->operatesOnParticles().begin();
-            i != fTauolaInterface->operatesOnParticles().end(); i++ ) 
+            i!=fTauolaInterface->operatesOnParticles().end(); i++ ) 
                fPDGs.push_back( *i );
    }
-   // if ( fEvtGenInterface ) 
-   //{
-   //   fEvtGenInterface->init();
-   //   fPDGs += fEvtGenInterface->operatesOnParticles();
-   //}
+   if ( fEvtGenInterface ) 
+   {
+      fEvtGenInterface->init();
+      for ( std::vector<int>::const_iterator i=fEvtGenInterface->operatesOnParticles().begin();
+            i!=fEvtGenInterface->operatesOnParticles().end(); i++ )
+               fPDGs.push_back( *i );
+   }
    
    return;
 }

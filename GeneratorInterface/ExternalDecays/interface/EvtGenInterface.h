@@ -52,18 +52,23 @@ namespace gen {
       // ctor & dtor
       EvtGenInterface( const edm::ParameterSet& );
       ~EvtGenInterface();
-      
+
+      void init();
+      const std::vector<int>& operatesOnParticles() { return m_PDGs; }      
       HepMC::GenEvent* decay( HepMC::GenEvent* );
       void addToHepMC(HepMC::GenParticle* partHep, EvtId idEvt, HepMC::GenEvent* theEvent, bool del_daug);
       void go_through_daughters(EvtParticle* part);
       void update_candlist( int theIndex, HepMC::GenParticle *thePart );
   
       // from Pythia
-      void call_pygive(const std::string& iParm );
+      // void call_pygive(const std::string& iParm );
 
       private:
       
-      Pythia6Service* fPy6Service;
+      Pythia6Service* m_Py6Service;
+      
+      std::vector<int> m_PDGs;
+      
       CLHEP::RandFlat* m_flat;   
       EvtGen *m_EvtGen;
       std::vector<EvtId> forced_Evt;     // EvtId's of particles with forced decay
@@ -72,7 +77,7 @@ namespace gen {
       int ntotal, npartial, nevent;      // generic counters
       
       int nPythia;
-      std::vector<std::string> pythia_params;  // Pythia stuff
+      // std::vector<std::string> pythia_params;  // Pythia stuff
       
       int nlist; 
       HepMC::GenParticle *listp[10]; 

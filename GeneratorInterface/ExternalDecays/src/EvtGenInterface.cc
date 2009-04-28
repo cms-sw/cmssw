@@ -20,12 +20,12 @@
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
 
 #include "HepMC/GenEvent.h"
-#include "HepMC/PythiaWrapper6_2.h"
+// #include "HepMC/PythiaWrapper6_2.h"
 
-#define PYGIVE pygive_
-extern "C" {
-  void PYGIVE(const char*,int length);
-}
+//#define PYGIVE pygive_
+//extern "C" {
+//  void PYGIVE(const char*,int length);
+//}
 
 using namespace gen;
 using namespace edm;
@@ -63,7 +63,9 @@ EvtGenInterface::EvtGenInterface( const ParameterSet& pset )
   std::string pdt_s = pdt.fullPath();
   std::string user_decay_s = user_decay.fullPath();
 
-  pythia_params = pset.getParameter< std::vector<std::string> >("processParameters");
+  //-->pythia_params = pset.getParameter< std::vector<std::string> >("processParameters");
+  
+  
   // any number of alias names for forced decays can be specified using dynamic std vector of strings 
   std::vector<std::string> forced_names = pset.getParameter< std::vector<std::string> >("list_forced_decays");
     
@@ -95,18 +97,209 @@ EvtGenInterface::EvtGenInterface( const ParameterSet& pset )
       forced_Hep.push_back(EvtPDL::getStdHep(found));   // forced_Hep is the list of stdhep codes
     }
 
-  fPy6Service = new Pythia6Service;
+   // fill up default list of particles to be declared stable in the "master generator"
+   // in general, these are assumed to be PDG ID's, but as of today (04/28/09) they're Py6 
+   // this will be fixed shortly; in Pythia6Hadronizer, the translation will be uncommented
+   //
+   // Note: kc=43, 44, and 84 commented out because they're obsolete (per S.Mrenna)
+   //
+   m_PDGs.push_back( 511 ) ;
+   m_PDGs.push_back( 523 ) ;
+   m_PDGs.push_back( 513 ) ;
+   m_PDGs.push_back( 533 ) ;
+   
+   m_PDGs.push_back( 15 ) ;
+   
+   m_PDGs.push_back( 413 ) ;
+   m_PDGs.push_back( 423 ) ;
+   m_PDGs.push_back( 433 ) ;
+   m_PDGs.push_back( 411 ) ;
+   m_PDGs.push_back( 421 ) ;
+   m_PDGs.push_back( 431 ) ;   
+   m_PDGs.push_back( 10411 );
+   m_PDGs.push_back( 10421 );
+   m_PDGs.push_back( 10413 );
+   m_PDGs.push_back( 10423 );   
+   m_PDGs.push_back( 20413 );
+   m_PDGs.push_back( 20423 );
+   
+   m_PDGs.push_back( 415 );
+   m_PDGs.push_back( 425 );
+   m_PDGs.push_back( 10431 );
+   m_PDGs.push_back( 20433 );
+   m_PDGs.push_back( 10433 );
+   m_PDGs.push_back( 435 );
+   
+   m_PDGs.push_back( 310 );
+   m_PDGs.push_back( 311 );
+   m_PDGs.push_back( 313 );
+   m_PDGs.push_back( 323 );
+   m_PDGs.push_back( 10321 );
+   m_PDGs.push_back( 10311 );
+   m_PDGs.push_back( 10313 );
+   m_PDGs.push_back( 10323 );
+   m_PDGs.push_back( 20323 );
+   m_PDGs.push_back( 20313 );
+   m_PDGs.push_back( 325 );
+   m_PDGs.push_back( 315 );
+   
+   m_PDGs.push_back( 111 );
+   m_PDGs.push_back( 221 );
+   m_PDGs.push_back( 113 );
+   m_PDGs.push_back( 213 );
+   m_PDGs.push_back( 223 );
+   m_PDGs.push_back( 331 );
+   m_PDGs.push_back( 333 );
+   m_PDGs.push_back( 20213 );
+   m_PDGs.push_back( 20113 );
+   m_PDGs.push_back( 215 );
+   m_PDGs.push_back( 115 );
+   m_PDGs.push_back( 10213 );
+   m_PDGs.push_back( 10113 );
+   m_PDGs.push_back( 10111 ); // PDG ID = 9000111
+   m_PDGs.push_back( 10211 ); // PDG ID = 9000211
+   m_PDGs.push_back( 20223 );
+   m_PDGs.push_back( 20333 );
+   m_PDGs.push_back( 225 );
+   m_PDGs.push_back( 335 );
+   m_PDGs.push_back( 10223 );
+   m_PDGs.push_back( 10333 );
+   
+   m_PDGs.push_back( 441 );
+   m_PDGs.push_back( 443 );
+   m_PDGs.push_back( 100443 );
+   m_PDGs.push_back( 10441 );
+   m_PDGs.push_back( 20443 );
+   m_PDGs.push_back( 445 );
+
+   m_PDGs.push_back( 551 );
+   m_PDGs.push_back( 553 );
+   m_PDGs.push_back( 100553 );
+   m_PDGs.push_back( 10551 );
+   m_PDGs.push_back( 20553 );
+   m_PDGs.push_back( 555 );
+   m_PDGs.push_back( 10553 );
+
+   m_PDGs.push_back( 4122 );
+   m_PDGs.push_back( 4132 );
+   // m_PDGs.push_back( 84 ); // obsolete
+   m_PDGs.push_back( 4112 );
+   m_PDGs.push_back( 4212 );
+   m_PDGs.push_back( 4232 );
+   m_PDGs.push_back( 4222 );
+   m_PDGs.push_back( 4322 );
+   m_PDGs.push_back( 4312 );
+   
+   m_PDGs.push_back( 3122 );
+   m_PDGs.push_back( 3222 );
+   m_PDGs.push_back( 2214 );
+   m_PDGs.push_back( 2224 );
+   m_PDGs.push_back( 3324 );
+   m_PDGs.push_back( 2114 );
+   m_PDGs.push_back( 1114 );
+   m_PDGs.push_back( 3112 );
+   m_PDGs.push_back( 3212 );
+   m_PDGs.push_back( 3114 );
+   m_PDGs.push_back( 3224 );
+   m_PDGs.push_back( 3214 );
+   m_PDGs.push_back( 3322 );
+   m_PDGs.push_back( 3312 );
+   m_PDGs.push_back( 3314 );
+   m_PDGs.push_back( 3334 );
+   
+   m_PDGs.push_back( 4114 );
+   m_PDGs.push_back( 4214 );
+   m_PDGs.push_back( 4224 );
+   m_PDGs.push_back( 4314 );
+   m_PDGs.push_back( 4324 );
+   m_PDGs.push_back( 4332 );
+   m_PDGs.push_back( 4334 );
+   //m_PDGs.push_back( 43 ); // obsolete
+   //m_PDGs.push_back( 44 ); // obsolete
+   m_PDGs.push_back( 10443 );
+
+   m_PDGs.push_back( 5122 );
+   m_PDGs.push_back( 5132 );
+   m_PDGs.push_back( 5232 );
+   m_PDGs.push_back( 5332 );
+   m_PDGs.push_back( 5222 );
+   m_PDGs.push_back( 5112 );
+   m_PDGs.push_back( 5212 );
+   m_PDGs.push_back( 541 );
+   m_PDGs.push_back( 5312 );
+   m_PDGs.push_back( 5322 );
+   m_PDGs.push_back( 10521 );
+   m_PDGs.push_back( 20523 );
+   m_PDGs.push_back( 10523 );
+
+   m_PDGs.push_back( 525 );
+   m_PDGs.push_back( 10511 );
+   m_PDGs.push_back( 20513 );
+   m_PDGs.push_back( 10513 );
+   m_PDGs.push_back( 515 );
+   m_PDGs.push_back( 10531 );
+   m_PDGs.push_back( 20533 );
+   m_PDGs.push_back( 10533 );
+   m_PDGs.push_back( 535 );
+   m_PDGs.push_back( 543 );
+   m_PDGs.push_back( 545 );
+   m_PDGs.push_back( 5114 );
+   m_PDGs.push_back( 5224 );
+   m_PDGs.push_back( 5214 );
+   m_PDGs.push_back( 5314 );
+   m_PDGs.push_back( 5324 );
+   m_PDGs.push_back( 5334 );
+   m_PDGs.push_back( 10541 );
+   m_PDGs.push_back( 10543 );
+   m_PDGs.push_back( 20543 );
+   
+   m_PDGs.push_back( 130 );
+   
+   // now check if we need to override default list of particles/IDs
+   if ( pset.exists("operates_on_particles") )
+   {
+      std::vector<int> tmpPIDs = pset.getParameter< std::vector<int> >("operates_on_particles");
+      if ( tmpPIDs.size() > 0 )
+      {
+         if ( tmpPIDs[0] > 0 ) // 0 means default !!!
+	 {
+	    m_PDGs.clear();
+	    m_PDGs = tmpPIDs;
+         }
+      }
+   } 
+   
+  m_Py6Service = new Pythia6Service;
 } 
 
 EvtGenInterface::~EvtGenInterface()
 {
   std::cout << " EvtGenProducer terminating ... " << std::endl; 
-  delete fPy6Service;
+  delete m_Py6Service;
 }
+
+void EvtGenInterface::init()
+{
+
+   Pythia6Service::InstanceWrapper guard(m_Py6Service);	// grab Py6 instance
+   
+   // Do here initialization of EvtPythia then restore original settings
+   EvtPythia::pythiaInit(0);
+   
+// no need - will be done via Pythia6Hadronizer::declareStableParticles
+//
+//    for( std::vector<std::string>::const_iterator itPar = pythia_params.begin(); itPar != pythia_params.end(); ++itPar ) {
+//      call_pygive(*itPar);
+//    }
+
+   return ;
+
+}
+
 
 HepMC::GenEvent* EvtGenInterface::decay( HepMC::GenEvent* evt )
 {
-  Pythia6Service::InstanceWrapper guard(fPy6Service);	// grab Py6 instance
+  Pythia6Service::InstanceWrapper guard(m_Py6Service);	// grab Py6 instance
 
   nevent++;
   npartial = 0;
@@ -118,13 +311,6 @@ HepMC::GenEvent* EvtGenInterface::decay( HepMC::GenEvent* evt )
   nPythia = evt->particles_size();
   HepMC::GenEvent* newEvt = new HepMC::GenEvent( *evt );
 
-  // Do here initialization of EvtPythia then restore original settings
-  if (nevent == 1) {
-    EvtPythia::pythiaInit(0);
-    for( std::vector<std::string>::const_iterator itPar = pythia_params.begin(); itPar != pythia_params.end(); ++itPar ) {
-      call_pygive(*itPar);
-    }
-  } 
 
   // First pass through undecayed Pythia particles to decay particles known to EvtGen left stable by Pythia
   // except candidates to be forced which will be searched later to include EvtGen decay products 
@@ -296,6 +482,7 @@ void EvtGenInterface::addToHepMC(HepMC::GenParticle* partHep, EvtId idEvt, HepMC
     
 }        
 
+/*
 void
 EvtGenInterface::call_pygive(const std::string& iParm ) {
   
@@ -303,6 +490,7 @@ EvtGenInterface::call_pygive(const std::string& iParm ) {
   PYGIVE( iParm.c_str(), iParm.length() );  
  
 }
+*/
 
 void 
 EvtGenInterface::go_through_daughters(EvtParticle* part) {
