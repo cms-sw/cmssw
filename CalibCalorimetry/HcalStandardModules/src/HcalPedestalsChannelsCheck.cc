@@ -3,16 +3,71 @@
 HcalPedestalsChannelsCheck::HcalPedestalsChannelsCheck(edm::ParameterSet const& ps)
 {
    epsilon = .1;
+   runnum = ps.getUntrackedParameter<int>("runNumber",0);
+   difhist[0] = new TH1F("Difference in pedestals HB","Each CapId (HB)",100,-1.5,1.5);
+   difhist[1] = new TH1F("Difference in pedestals HE","Each CapId (HE)",100,-1.5,1.5);
+   difhist[2] = new TH1F("Difference in pedestals HO","Each CapId (HO)",100,-1.5,1.5);
+   difhist[3] = new TH1F("Difference in pedestals HF","Each CapId (HF)",100,-1.5,1.5);
+   etaphi[0] = new TH2F("Average difference per channel d1","Depth 1",89, -44, 44, 72, .5, 72.5);
+   etaphi[1] = new TH2F("Average difference per channel d2","Depth 2",89, -44, 44, 72, .5, 72.5);
+   etaphi[2] = new TH2F("Average difference per channel d3","Depth 3",89, -44, 44, 72, .5, 72.5);
+   etaphi[3] = new TH2F("Average difference per channel d4","Depth 4",89, -44, 44, 72, .5, 72.5);
 }
 
 HcalPedestalsChannelsCheck::~HcalPedestalsChannelsCheck()
 {
+    std::stringstream tempstringout;
+    tempstringout << runnum;
+    std::string name1 = tempstringout.str() + "_peddifplots_1d.png";
+    std::string name2 = tempstringout.str() + "_peddifplots_2d.png";
+    std::string name3 = tempstringout.str() + "_peddifs.root";
+   TFile * theFile = new TFile(name3.c_str(),"RECREATE");
+   for(int n = 0; n != 4; n++) {etaphi[n]->Write(); difhist[n]->Write();}
+
+    TStyle *theStyle = new TStyle("style","null");
+    theStyle->SetPalette(1,0);
+    theStyle->SetCanvasDefH(1200); //Height of canvas
+    theStyle->SetCanvasDefW(1600); //Width of canvas
+
+    gStyle = theStyle;
+
+    TCanvas * c1 = new TCanvas("c1","graph",1);
+    c1->Divide(2,2);
+    c1->cd(1);
+    difhist[0]->Draw();
+    c1->cd(2);
+    difhist[1]->Draw();
+    c1->cd(3);
+    difhist[2]->Draw();
+    c1->cd(4);
+    difhist[3]->Draw();
+    c1->SaveAs(name1.c_str());   
+
+    theStyle->SetOptStat("n");
+    gStyle = theStyle;
+
+    TCanvas * c2 = new TCanvas("c2","graph",1);
+    c2->Divide(2,2);
+    c2->cd(1);
+    etaphi[0]->Draw();
+    etaphi[0]->SetDrawOption("colz");
+    c2->cd(2);
+    etaphi[1]->Draw();
+    etaphi[1]->SetDrawOption("colz");
+    c2->cd(3);
+    etaphi[2]->Draw();
+    etaphi[2]->SetDrawOption("colz");
+    c2->cd(4);
+    etaphi[3]->Draw();
+    etaphi[3]->SetDrawOption("colz");
+    c2->SaveAs(name2.c_str());
+
+   theFile->Close();
 }
 
 void HcalPedestalsChannelsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
 {
    using namespace edm::eventsetup;
- 
    // get fake pedestals from file ("new pedestals")
    edm::ESHandle<HcalPedestals> newPeds;
    es.get<HcalPedestalsRcd>().get("update",newPeds);
@@ -39,7 +94,7 @@ void HcalPedestalsChannelsCheck::analyze(const edm::Event& ev, const edm::EventS
       {
          DetId mydetid = *it;
          HcalDetId hocheck(mydetid);
-         if(hocheck.subdet()==3) continue;
+//         if(hocheck.subdet()==3) continue;
          cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
          if (cell == listNewChan.end())
             {
@@ -49,8 +104,19 @@ void HcalPedestalsChannelsCheck::analyze(const edm::Event& ev, const edm::EventS
             { 
                const float* values = (myNewPeds->getValues( mydetid ))->getValues();
                const float* oldvalue = (myRefPeds->getValues( mydetid ))->getValues();
+               difhist[hocheck.subdet()-1]->Fill((*oldvalue-*values));
+               difhist[hocheck.subdet()-1]->Fill((*oldvalue+1)-(*values+1));
+               difhist[hocheck.subdet()-1]->Fill((*oldvalue+2)-(*values+2));
+               difhist[hocheck.subdet()-1]->Fill((*oldvalue+3)-(*values+3));
+               double avgchange = ( (*oldvalue-*values)
+                                   +((*oldvalue+1)-(*values+1)) 
+                                   +((*oldvalue+2)-(*values+2))
+                                   +((*oldvalue+3)-(*values+3)) ) / 4;
+               etaphi[hocheck.depth()-1]->Fill(hocheck.ieta(),hocheck.iphi(),avgchange);
+               if(hocheck.subdet()==3) continue;
                if( (fabs(*oldvalue-*values)>epsilon) || (fabs(*(oldvalue+1)-*(values+1))>epsilon) || (fabs(*(oldvalue+2)-*(values+2))>epsilon) || (fabs(*(oldvalue+3)-*(values+3))>epsilon) ){
 // 	       throw cms::Exception("DataDoesNotMatch") << "Values differ by more than deltaP";
+               std::cout << HcalGenericDetId(mydetid.rawId()) << std::endl;
                failflag = true;
                const HcalPedestal* item = myNewPeds->getValues(mydetid);
                changedchannels->addValues(*item);
