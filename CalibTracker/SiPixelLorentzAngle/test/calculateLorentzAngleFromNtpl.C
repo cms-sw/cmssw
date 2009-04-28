@@ -1,7 +1,7 @@
 {
 // 	setTDRStyle();
 	
-	TFile *f = new TFile("/localscratch/w/wilke/crab/crab_0_081201_140909/res/lorentzangle.root");
+	TFile *f = new TFile("lorentzangle.root");
 	f->cd();
 	
 	TF1 *f1 = new TF1("f1","[0] + [1]*x",50., 235.); 
@@ -94,7 +94,7 @@
 	LATree->SetBranchAddress("adc", pixinfo_.adc);
 	LATree->SetBranchAddress("xpix", pixinfo_.x);
 	LATree->SetBranchAddress("ypix", pixinfo_.y);
-	LATree->SetBranchAddress("clust", &clust_);
+	LATree->SetBranchAddress("clust", &clust_); // charge is given in 1000 e
 	LATree->SetBranchAddress("rechit", &rechit_);
 	
 	cout << "Running over " << nentries << " hits" << endl;
@@ -108,20 +108,10 @@
 				large_pix = true;	
 			}
 		}
-		// is it one of the problematic half ladders? (needs to be excluded)
-		if( (layer_ == 1 && (ladder_ == 5 || ladder_ == 6 || ladder_ == 15 || ladder_ == 16)) ||
-					 (layer_ == 2 && (ladder_ == 8 || ladder_ == 9 || ladder_ == 24 || ladder_ == 25)) ||
-					 (layer_ == 3 && (ladder_ ==11 || ladder_ == 12 || ladder_ == 33 || ladder_ == 34)) ) {
-			continue;
-		}
+
 		double residual = TMath::Sqrt( (trackhit_.x - rechit_.x) * (trackhit_.x - rechit_.x) + (trackhit_.y - rechit_.y) * (trackhit_.y - rechit_.y) );
-		if( (clust_.size_y >= 2) && (chi2_/ndof_) < 2 && !large_pix && residual < 0.01){
+		if( (clust_.size_y >= 4) && (chi2_/ndof_) < 2 && !large_pix && residual < 0.005 && clust_.charge < 12){
 		for (int j = 0; j <  pixinfo_.npix; j++){
-							// use trackhits
-// 							if (dx > 300){
-// 								cout << "event " << "dx =" << dx<< endl;
-// 								cout << "simhit x: " << simhit_.x << ", trackhit x: " << trackhit_.x << ", chi2_: " << chi2_ << ", ndof: " << ndof_ <<", rechit x " << rechit_.x << " pix x: " << pixinfo_.x[j] << ", pix row " << pixinfo_.row[j]<< ", pix col " << pixinfo_.col[j]<<endl;
-// 							}
 				float dx = (pixinfo_.x[j]  - (trackhit_.x - width_/2. / TMath::Tan(trackhit_.alpha))) * 10000.;
 				float dy = (pixinfo_.y[j]  - (trackhit_.y - width_/2. / TMath::Tan(trackhit_.beta))) * 10000.;
 				float depth = dy * tan(trackhit_.beta);
