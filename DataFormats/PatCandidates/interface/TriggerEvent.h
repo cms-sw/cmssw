@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerEvent
 //
-// $Id: TriggerEvent.h,v 1.1.2.3 2009/03/27 21:31:05 vadler Exp $
+// $Id: TriggerEvent.h,v 1.3 2009/04/01 10:45:51 vadler Exp $
 //
 /**
   \class    pat::TriggerEvent TriggerEvent.h "DataFormats/PatCandidates/interface/TriggerEvent.h"
@@ -18,7 +18,7 @@
    - [to be filled]
 
   \author   Volker Adler
-  \version  $Id: TriggerEvent.h,v 1.1.2.3 2009/03/27 21:31:05 vadler Exp $
+  \version  $Id: TriggerEvent.h,v 1.3 2009/04/01 10:45:51 vadler Exp $
 */
 
 
@@ -29,7 +29,6 @@
 #include <string>
 #include <vector>
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
@@ -113,12 +112,7 @@ namespace pat {
       const TriggerObjectMatchContainer * triggerObjectMatchResults() const { return &objectMatchResults_; };
       // pat::TriggerObjectMatch can contain empty references in case no match for a PAT object was found.
       const TriggerObjectMatch          * triggerObjectMatchResult( const std::string & labelMatcher ) const;                                                              // performs proper "range check" (better than '(*triggerObjectMatchResults())[labelMatcher]'), returns 0 if 'labelMatcher' not found
-      // For retrieving matches for given refs, the event has to be passed as argument due to the usage of edm::AssociativeIterator
-      // PAT objects do not have multiple trigger matches per matcher module
-      TriggerObjectRef                    triggerMatchObject( const reco::CandidateBaseRef & candRef, const std::string & labelMatcher, const edm::Event & iEvent ) const; // transient, returns null-Ref if no match is found
-      TriggerObjectMatchMap               triggerMatchObjects( const reco::CandidateBaseRef & candRef, const edm::Event & iEvent ) const;                                  // transient
-      // trigger objects can have multiple trigger matches per matcher module (resolveAmbiguities=false)
-      reco::CandidateBaseRefVector        triggerMatchCandidates( const TriggerObjectRef & objectRef, const std::string & labelMatcher, const edm::Event & iEvent ) const; // transient
+      // Further methods are provided by the pat::helper::TriggerMatchHelper in PhysicsTools/PatUtils/interface/TriggerHelper.h
       
   };
 

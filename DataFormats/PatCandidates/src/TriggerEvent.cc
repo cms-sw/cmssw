@@ -1,12 +1,11 @@
 //
-// $Id: TriggerEvent.cc,v 1.1.2.4 2009/03/27 21:31:06 vadler Exp $
+// $Id: TriggerEvent.cc,v 1.3 2009/04/01 10:45:51 vadler Exp $
 //
 
 
 #include "DataFormats/PatCandidates/interface/TriggerEvent.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/AssociativeIterator.h"
 
 
 using namespace pat;
@@ -269,49 +268,4 @@ const TriggerObjectMatch * TriggerEvent::triggerObjectMatchResult( const std::st
     return iMatch->second.get();
   }
   return 0;
-}
-
-TriggerObjectRef TriggerEvent::triggerMatchObject( const reco::CandidateBaseRef & candRef, const std::string & labelMatcher, const edm::Event & iEvent ) const
-{
-  const TriggerObjectMatch * matchResult( triggerObjectMatchResult( labelMatcher ) );
-  if ( matchResult ) {
-    edm::AssociativeIterator< reco::CandidateBaseRef, TriggerObjectMatch > it( *matchResult, edm::EdmEventItemGetter< reco::CandidateBaseRef >( iEvent ) ), itEnd( it.end() );
-    while ( it != itEnd ) {
-      if ( it->first.isNonnull() && it->second.isNonnull() && it->second.isAvailable() ) {
-        if ( it->first == candRef ) {
-          return TriggerObjectRef( it->second );
-        }
-      }
-      ++it;
-    }
-  }  
-  return TriggerObjectRef();
-}
-
-TriggerObjectMatchMap TriggerEvent::triggerMatchObjects( const reco::CandidateBaseRef & candRef, const edm::Event & iEvent ) const
-{
-  TriggerObjectMatchMap theContainer;
-  const std::vector< std::string > matchers( triggerMatchers() );
-  for ( size_t iMatch = 0; iMatch < matchers.size(); ++iMatch ) {
-    theContainer[ matchers.at( iMatch ) ] = triggerMatchObject( candRef, matchers.at( iMatch ), iEvent );
-  }
-  return theContainer;
-}
-
-reco::CandidateBaseRefVector TriggerEvent::triggerMatchCandidates( const TriggerObjectRef & objectRef, const std::string & labelMatcher, const edm::Event & iEvent ) const
-{
-  reco::CandidateBaseRefVector theCands;
-  const TriggerObjectMatch * matchResult( triggerObjectMatchResult( labelMatcher ) );
-  if ( matchResult ) {
-    edm::AssociativeIterator< reco::CandidateBaseRef, TriggerObjectMatch > it( *matchResult, edm::EdmEventItemGetter< reco::CandidateBaseRef >( iEvent ) ), itEnd( it.end() );
-    while ( it != itEnd ) {
-      if ( it->first.isNonnull() && it->second.isNonnull() && it->second.isAvailable() ) {
-        if ( it->second == objectRef ) {
-          theCands.push_back( it->first );
-        }
-      }
-      ++it;
-    }
-  }
-  return theCands;
 }
