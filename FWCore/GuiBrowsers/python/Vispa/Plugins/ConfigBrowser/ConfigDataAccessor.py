@@ -21,13 +21,18 @@ imported_configs = {}
 file_dict = {}
 
 class ConfigFolder(object):
-    def __init__(self, label, parent=None):
+    def __init__(self, label, parent=None, parameters=None):
         self._label = label
         self._configChildren = []
+        self._parameters = {}
         if parent != None:
             parent._configChildren += [self]
+        if parameters != None:
+            self._parameters = parameters
     def label_(self):
         return self._label
+    def parameters_(self):
+        return self._parameters
     def _configChildren(self):
         return self._configChildren
     
@@ -127,7 +132,8 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
 
 # import input-config and make list of all imported configs
         for i in imported_configs.iterkeys():
-            del sys.modules[i]
+            if i in sys.modules.keys():
+                del sys.modules[i]
         sys.path.insert(0, config_path)
         common_imports = sys.modules.copy()
 
@@ -137,9 +143,8 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         theFile.close()
         
         imported_configs = sys.modules.copy()
-        if imported_configs != common_imports:
-            for i in common_imports.iterkeys():
-                del imported_configs[i]
+        for i in common_imports.iterkeys():
+            del imported_configs[i]
         
 # make dictionary that connects every cms-object with the file in which it is defined
         for entry in dir(self.process()):
@@ -167,7 +172,9 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         self._topLevelObjects = []
 
         if self.process():
-            process_folder = ConfigFolder("process")
+            parameters = {"name": self.process().process}
+            process_folder = ConfigFolder("process", None, parameters)
+            
             self._allObjects += [process_folder]
             self._topLevelObjects += [process_folder]
 
@@ -432,20 +439,24 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
                     usedby += [self.label(entry)]
         return usedby
 
-    def recursePSetProperties(self, name, object):
+    def recursePSetProperties(self, name, object, readonly=None):
+        logging.debug(__name__ + ": recursePSetProperties: " + name)
         properties = []
         if name != "" and not isinstance(object, typ.PSet):
             try:
                 if isinstance(object, cms.InputTag):
-                    properties += [("String", name, "\"" + str(object.value()) + "\"")]
+                    properties += [("String", name, "\"" + str(object.value()) + "\"", readonly)]
                 elif hasattr(object, "pythonValue"):
-                    properties += [("String", name, str(object.pythonValue()))]
+                    properties += [("String", name, str(object.pythonValue()), readonly)]
                 elif hasattr(object, "value"):
-                    properties += [("Text", name, str(object.value()))]
+                    properties += [("Text", name, str(object.value()), readonly)]
                 else:
-                    properties += [("Text", name, str(object))]
+                    properties += [("Text", name, str(object), readonly)]
             except Exception:
                 logging.error(__name__ + ": " + exception_traceback())
+        
+        if isinstance(object, ConfigFolder):
+            readonly = "readonly"
         
         params = self.parameters(object)[:]
         params.sort(lambda x, y: cmp(x[0].lower(), y[0].lower()))
@@ -454,7 +465,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             if name != "":
                 keyname += "."
             keyname += key
-            properties += self.recursePSetProperties(keyname, value)
+            properties += self.recursePSetProperties(keyname, value, readonly)
         return properties
         
     def properties(self, object):
@@ -527,7 +538,6 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         return True
 
     def inputEventContent(self):
-        # TODO: implement with correct productInstanceLabels!!!
         content = []
         allLabels = [self.label(object) for object in self._allObjects]
         for entry in self._allObjects:
@@ -537,21 +547,41 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         return content
 
     def outputEventContent(self):
-        # TODO: implement with correct productInstanceLabels and keep drop statements!!!
         content = [self.label(object) for object in self._allObjects\
                  if self.type(object) in ["EDProducer", "EDFilter", "EDAnalyzer"]]
         return content
-#        content=[]
-#        # collect all content
-#        for name, object in self.moduleItems_():
-#            content+=[name]
-#            print object.__class__
-#            print object.dumpPython()
-#        # apply drop keep statements
-#        outputCommands=[]
-#        if len(self.outputModules.keys())>0:
-#            outputCommands=self.outputModules.values()[0].outputCommands
-#           DataFormats::Provenance::BranchDescription::productInstanceName
-#           Framework::GroupSelectorRules::applyToAll
-#            print outputCommands
-#        return content
+    
+    def inputCommands(self):
+        inputModules = [object for object in self._allObjects\
+                        if self.type(object) == "Source"]
+        if len(inputModules) > 0 and hasattr(inputModules[0], "inputCommands"):
+            return inputModules[0].inputCommands
+        else:
+            return []
+
+    def outputCommands(self):
+        outputModules = [object for object in self._allObjects\
+                        if self.type(object) == "OutputModule"]
+        if len(outputModules) > 0 and hasattr(outputModules[0], "inputCommands"):
+            return outputModules[0].outputCommands
+        else:
+            return []
+
+    def applyCommands(self, content, outputCommands):
+        keep = {}
+        for object in content:
+            keep[object] = True
+        for o in outputCommands:
+            command, filter = o.split(" ")
+            if len(filter.split("_")) > 1:
+                module = filter.split("_")[1]
+            else:
+                module = filter
+            for object in content:
+                if "*" in module:
+                    match = module.strip("*") in object
+                else:
+                    match = module == object
+                if match:
+                    keep[object] = command == "keep"
+        return [object for object in content if keep[object]]

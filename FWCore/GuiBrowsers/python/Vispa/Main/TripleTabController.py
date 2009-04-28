@@ -59,51 +59,52 @@ class TripleTabController(TabController):
         
 
     def addCenterView(self, name, function, checked=False, shortcut=None):
-      '''add a View for the Center View
-      selection: name is the menu entry, function the function to be
-      added as action if the menu is selecteds'''
+        '''add a View for the Center View
+         selection: name is the menu entry, function the function to be
+         added as action if the menu is selecteds'''
       
-      logging.debug(__name__ + ": addCenterView")
-      if self._availableCenterViews.has_key(name) and self._availableCenterViews[name] != None:
-        logging.warning(__name__ + ": " + name + " Already have a View of this name! Overwritiong old View!")
-      self._availableCenterViews[name] = function 
-      self._centerViewActions[name] = self.plugin().application().createAction(name, self._switchCenterView, shortcut)
-      self._centerViewActions[name].setCheckable(True)
-      if checked:
-        self._centerViewActions[name].setChecked(True)
-        self._currentCenterView = name
-
-
+        logging.debug(__name__ + ": addCenterView")
+        if self._availableCenterViews.has_key(name) and self._availableCenterViews[name] != None:
+            logging.warning(__name__ + ": " + name + " Already have a View of this name! Overwritiong old View!")
+        self._availableCenterViews[name] = function 
+        self._centerViewActions[name] = self.plugin().application().createAction(name, self._switchCenterView, shortcut)
+        self._centerViewActions[name].setCheckable(True)
+        if checked:
+            self._centerViewActions[name].setChecked(True)
+            self._currentCenterView = name
 
     def fillCenterViewSelectMenu(self):
-      logging.debug(__name__ + ": fillCenterViewSelectMenu")
-      for action in self._centerViewActions.values():
-        self._centerViewSelectMenu.addAction(action)
+        logging.debug(__name__ + ": fillCenterViewSelectMenu")
+        for action in self._centerViewActions.values():
+            self._centerViewSelectMenu.addAction(action)
     
     def _switchCenterView(self):
-      '''switches to centerview name - name is the key of
-      availeableCenterViews
-      '''
-      #check if view is checked again
-      if self._centerViewActions[self._currentCenterView].isChecked():
-        self._centerViewActions[self._currentCenterView].setChecked(False)
-      else:
-        self._centerViewActions[self._currentCenterView].setChecked(True)
+        '''switches to centerview name - name is the key of
+        availeableCenterViews
+        '''
+        #check if view is checked again
+        if self._centerViewActions[self._currentCenterView].isChecked():
+            self._centerViewActions[self._currentCenterView].setChecked(False)
+        else:
+            self._centerViewActions[self._currentCenterView].setChecked(True)
 
-      for view in self._availableCenterViews.keys():
-        if self._centerViewActions[view].isChecked():
-          self._currentCenterView = view
-          break
+        for view in self._availableCenterViews.keys():
+            if self._centerViewActions[view].isChecked():
+                self._currentCenterView = view
+                break
       
-      #run function to update center view
-      self._availableCenterViews[self._currentCenterView]()
+        #run function to update center view
+        self._availableCenterViews[self._currentCenterView]()
      
-      #self._boxContentDialog = BoxContentDialog(self.tab())
-      self.connect(self.tab().centerView(), SIGNAL("widgetSelected"), self.onWidgetSelected)
+        self.connect(self.tab().centerView(), SIGNAL("widgetSelected"), self.onWidgetSelected)
         
-      #reconnect data accessors and stuff
-      self.tab().centerView().setDataAccessor(self._dataAccessor)
-      self.updateAndRestoreSelection() 
+        #reconnect data accessors and stuff
+        self.tab().centerView().setDataAccessor(self._dataAccessor)
+        if self._treeViewSelection != None:
+            selectedItem = self.tab().treeView().itemById(self._treeViewSelection)
+        else:
+            selectedItem = None
+        self.updateCenterView(selectedItem)
       
     def viewMenu(self):
         return self._viewMenu
@@ -176,12 +177,15 @@ class TripleTabController(TabController):
         if self._restoreSelectionFlag:
             return False
         logging.debug(__name__ + ": onItemSelected")
-        self._treeViewSelection = item.itemId
-        if self.tab().propertyView().dataObject() != item.object:
-            self.tab().propertyView().setDataObject(item.object)
+        if item != None:
+            self._treeViewSelection = item.itemId
+            select = item.object
+        else:
+            select = None
+        if self.tab().propertyView().dataObject() != select:
+            self.tab().propertyView().setDataObject(select)
             self.tab().propertyView().updateContent()
         self.updateCenterView(item)
-        # Select first item in DecayTreeView
         self.tab().centerView().select(self.tab().centerView().widgetById("0"))
 
     def onWidgetSelected(self, widget):
@@ -190,12 +194,16 @@ class TripleTabController(TabController):
         if self._restoreSelectionFlag:
             return False
         logging.debug(__name__ + ": onWidgetSelected")
-        self._centerViewSelection = widget.widgetId
-        if self.tab().propertyView().dataObject() != widget.object:
-            self.tab().propertyView().setDataObject(widget.object)
+        if widget != None:
+            self._centerViewSelection = widget.widgetId
+            select = widget.object
+        else:
+            select = None
+        if self.tab().propertyView().dataObject() != select:
+            self.tab().propertyView().setDataObject(select)
             self.tab().propertyView().updateContent()
 
-    def updateAndRestoreSelection(self):
+    def updateContent(self):
         """ Updates all three views and restores the selection, e.g. after moving to next event.
         """
         self._restoreSelectionFlag = True
@@ -206,13 +214,11 @@ class TripleTabController(TabController):
             selectedItem = self.tab().treeView().itemById(self._treeViewSelection)
             self.tab().treeView().select(selectedItem)
             self.updateCenterView(selectedItem)
-            if selectedItem != None:
-                self.tab().propertyView().setDataObject(selectedItem.object)
+            self.tab().propertyView().setDataObject(selectedItem.object)
             if self._centerViewSelection != None:
                 selectedWidget = self.tab().centerView().widgetById(self._centerViewSelection)
                 self.tab().centerView().select(selectedWidget)
-                if selectedWidget != None:
-                    self.tab().propertyView().setDataObject(selectedWidget.object)
+                self.tab().propertyView().setDataObject(selectedWidget.object)
             self.tab().propertyView().updateContent()
             self._restoreSelectionFlag = False
         else:
@@ -266,13 +272,3 @@ class TripleTabController(TabController):
         """ Save screenshot of the center view to file.
         """
         self.tab().centerView().exportImage(filename)
-
-    def zoomDialog(self):
-        if hasattr(QInputDialog, "getInteger"):
-            # Qt 4.3
-            (zoom, ok) = QInputDialog.getInteger(self.tab(), "Zoom...", "Input zoom factor in percent:", self.zoom(), 0)
-        else:
-            # Qt 4.5
-            (zoom, ok) = QInputDialog.getInt(self.tab(), "Zoom...", "Input zoom factor in percent:", self.zoom(), 0)
-        if ok:
-            self.setZoom(zoom)

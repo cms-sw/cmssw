@@ -258,31 +258,24 @@ class ConfigBrowserTabController(TripleTabController):
         TripleTabController.setTab(self, tab)
         self._loadIni()
 
-    def refresh(self):
-        statusMessage = self.plugin().application().startWorking("Reopening file")
-        self.readFile(self._filename, False)
-        self.plugin().application().stopWorking(statusMessage)
-            
-    def readFile(self, filename, firstTime=True):
+    def readFile(self, filename):
         """ Reads in the file in a separate thread.
         """
         thread = RunThread(self.dataAccessor().open, filename)
         while thread.isRunning():
             QCoreApplication.instance().processEvents()
         if thread.returnValue:
-            if firstTime:
-                if not self.dataAccessor().process():
-                    self.dumpAction().setEnabled(False)
-                    self.readOnlyAction().setChecked(True)
-                    self.readOnlyAction().setEnabled(False)
-                    self.dotExportAction().setEnabled(False)
-                    self.readOnlyMode()
-                    self.plugin().application().warningMessage("Config does not contain a process and is opened in read-only mode.")
-                if self.plugin().application().commandLineOptions().saveimage:
-                    self.tab().centerView().updateConnections()
-                    self.saveImage(self.plugin().application().commandLineOptions().saveimage)
-                    print "Saved image to", self.plugin().application().commandLineOptions().saveimage, "."
-                    sys.exit(2)
-            self.updateAndRestoreSelection()
+            if not self.dataAccessor().process() and self.dumpAction().isEnabled()==True:
+                self.dumpAction().setEnabled(False)
+                self.readOnlyAction().setChecked(True)
+                self.readOnlyAction().setEnabled(False)
+                self.dotExportAction().setEnabled(False)
+                self.readOnlyMode()
+                self.plugin().application().warningMessage("Config does not contain a process and is opened in read-only mode.")
+            if self.plugin().application().commandLineOptions().saveimage:
+                self.tab().centerView().updateConnections()
+                self.saveImage(self.plugin().application().commandLineOptions().saveimage)
+                print "Saved image to", self.plugin().application().commandLineOptions().saveimage, "."
+                sys.exit(2)
             return True
         return False

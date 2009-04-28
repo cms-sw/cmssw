@@ -22,11 +22,11 @@ class EventBrowserTabController(TripleTabController):
         self.addCenterView("&None", self.switchToNoneView)
         self._noneCenterView = Workspace()
         self.addCenterView("&Decay Tree Graph", self.switchToLineDecayTree, False, "Ctrl+D")
-        self.addCenterView("&Box Decay Tree", self.switchToBoxDecayView, True, "Ctrl+B")
+        self.addCenterView("&Box Decay Tree", self.switchToBoxDecayView, True, "Ctrl+T")
         self._boxDecayTree = BoxDecayTree()
         self.fillCenterViewSelectMenu()
         self._eventFileNavigator = EventFileNavigator(self.plugin().application())
-        self.connect(self._eventFileNavigator, SIGNAL("update"), self.updateAndRestoreSelection)
+        self.connect(self._eventFileNavigator, SIGNAL("update"), self.updateContent)
 
     def closeEvent(self, event):
         """ Wait for EventFileNavigation to finish.
@@ -108,10 +108,8 @@ class EventBrowserTabController(TripleTabController):
         self._loadIni()
 
     def refresh(self):
-        statusMessage = self.plugin().application().startWorking("Reopening file")
         self.dataAccessor().close()
-        self.readFile(self._filename)
-        self.plugin().application().stopWorking(statusMessage)
+        TripleTabController.refresh(self)
             
     def readFile(self, filename):
         """ Reads in the file in a separate thread.
@@ -120,6 +118,6 @@ class EventBrowserTabController(TripleTabController):
         while thread.isRunning():
             QCoreApplication.instance().processEvents()
         if thread.returnValue:
-            self.updateAndRestoreSelection()
+            self._eventFileNavigator.updateEventNumberDisplay()
             return True
         return False

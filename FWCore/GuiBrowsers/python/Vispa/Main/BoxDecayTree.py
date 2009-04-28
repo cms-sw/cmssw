@@ -243,9 +243,9 @@ class BoxDecayTree(Workspace):
             dataAccessorObject = BasicDataAccessorInterface(object, self._accessor)
             try:
                 text = dataAccessorObject.applyScript(self._boxContentScript).replace("None", "")
-            except Exception:
+            except Exception, e:
                 logging.info("Error in script: " + exception_traceback())
-                text = "Error in script: " + exception_traceback()
+                text = "Error in script: " + str(e)
         widget = self.createBox(widgetParent, len(self._accessor.children(object)) > 0, self._accessor.label(object), text)
         self.addWidget(widget, object, id)
 

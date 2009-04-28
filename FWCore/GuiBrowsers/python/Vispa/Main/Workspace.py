@@ -50,6 +50,10 @@ class Workspace(ZoomableWidget, ConnectableWidgetOwner):
         ConnectableWidgetOwner.widgetSelected(self, widget)
         self.emit(SIGNAL("widgetSelected"), widget)
         
+    def deselectAllWidgets(self, exception=None):
+        ConnectableWidgetOwner.deselectAllWidgets(self,exception)
+        self.emit(SIGNAL("widgetSelected"), None)
+
     def select(self, widget):
         """ Mark a widget as selected.
         """

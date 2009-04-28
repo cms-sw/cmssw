@@ -370,6 +370,7 @@ class TextEditWithButtonProperty(Property, QWidget):
         
         self._readOnly = False
         self._multiline = multiline
+        self._value = ""
 
         self.createTextEdit(value)
         self.createButton()
@@ -378,7 +379,8 @@ class TextEditWithButtonProperty(Property, QWidget):
         """ Sets value of text edit.
         """
         if self._textEdit:
-            self._textEdit.setText(value)
+            self._value=value
+            self._textEdit.setText(self._value)
             # TODO: sometimes when changing value the text edit appears to be empty when new text is shorter than old text
             #if not self._multiline:
             #    self._textEdit.setCursorPosition(self._textEdit.displayText().length())
@@ -525,6 +527,11 @@ class TextEditWithButtonProperty(Property, QWidget):
             self._textEdit.setPalette(p)
         else:
             self._textEdit.viewport().setPalette(p)
+    
+    def keyPressEvent(self,event):
+        QWidget.keyPressEvent(self,event)
+        if event.key()==Qt.Key_Escape:
+            self.setValue(self._value)
 
 class StringProperty(TextEditWithButtonProperty):
     """ This property only holds an editable text line. 

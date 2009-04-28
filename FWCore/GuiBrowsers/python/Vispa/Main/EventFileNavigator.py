@@ -28,7 +28,6 @@ class EventFileNavigator(QObject):
         if not isinstance(accessor, EventFileAccessor):
             raise TypeError(__name__ + " requires data accessor of type EventFileAccessor.")
         self._dataAccessor = accessor
-        self._updateEventNumberDisplay()
     
     def dataAccessor(self):
         return self._dataAccessor
@@ -117,7 +116,7 @@ class EventFileNavigator(QObject):
             if not self._threadChain.isRunning():
                 self._threadChain.start()
 
-    def _updateEventNumberDisplay(self):
+    def updateEventNumberDisplay(self):
         eventDisplayString = str(self._dataAccessor.eventNumber()) + "/"
         if self._dataAccessor.numberOfEvents():
             eventDisplayString += str(self._dataAccessor.numberOfEvents())
@@ -131,7 +130,7 @@ class EventFileNavigator(QObject):
         A controller can connect to this signal to update the display.
         """
         logging.debug(__name__ + ": finishedThreadChain")
-        self._updateEventNumberDisplay()
+        self.updateEventNumberDisplay()
         if True in results:
             self.emit(SIGNAL("update"))
         if self._statusMessage != None:

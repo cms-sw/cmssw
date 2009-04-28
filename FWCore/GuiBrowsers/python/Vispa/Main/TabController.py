@@ -161,8 +161,9 @@ class TabController(QObject):
         
         if self.readFile(filename):
             self.setFilename(filename)
-            self.updateLabel()
             self._fileModifcationTimestamp = os.path.getmtime(filename)
+            self.updateLabel()
+            self.updateContent()
             return True
         
         return False
@@ -267,20 +268,12 @@ class TabController(QObject):
             elif msgBox.clickedButton() == reloadButton:            
                 self.refresh()
                 self.setModified(False)
-                self._fileModifcationTimestamp = os.path.getmtime(self._filename)
             elif msgBox.clickedButton() == ignoreButton:
                 self._fileModifcationTimestamp = os.path.getmtime(self._filename)
                 
         else:
             logging.debug(self.__class__.__name__ + ": checkModificationTimestamp() - File was not modified.")
     
-    def refresh(self):
-        """ Reloads file content and refreshes tab.
-        
-        Has to be implemented by inheriting controllers.
-        """
-        raise NotImplementedError
-
     def selected(self):
         """ Called by application when tab is selected in tabWidget.
         
@@ -391,4 +384,31 @@ class TabController(QObject):
                 ratio = widthRatio
         
             self.setZoom(math.floor(ratio))
+    
+    def updateContent(self):
+        """ Called after file is loaded.
         
+        Meant to update to Tab content.
+        """
+        raise NotImplementedError
+
+    def refresh(self):
+        """ Reloads file content and refreshes tab.
+        
+        May be implemented by inheriting controllers.
+        """
+        statusMessage = self.plugin().application().startWorking("Reopening file")
+        self._fileModifcationTimestamp = os.path.getmtime(self._filename)
+        self.readFile(self._filename)
+        self.updateContent()
+        self.plugin().application().stopWorking(statusMessage)
+
+    def zoomDialog(self):
+        if hasattr(QInputDialog, "getInteger"):
+            # Qt 4.3
+            (zoom, ok) = QInputDialog.getInteger(self.tab(), "Zoom...", "Input zoom factor in percent:", self.zoom(), 0)
+        else:
+            # Qt 4.5
+            (zoom, ok) = QInputDialog.getInt(self.tab(), "Zoom...", "Input zoom factor in percent:", self.zoom(), 0)
+        if ok:
+            self.setZoom(zoom)
