@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/27 14:46:12 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/04/07 10:11:28 $
+ *  $Revision: 1.5 $
  *  \author M. Pelliccioni - INFN Torino
  */
 
@@ -186,7 +186,9 @@ void DTChamberEfficiencyClient::endLuminosityBlock(LuminosityBlock const& lumiSe
 
 	}
 
-	double eff_result = meaneff/errorsum;
+	double eff_result = 0;
+        if(errorsum != 0) eff_result = meaneff/errorsum;
+
 	if(nFailingChambers != 0) {
 	  if(sector != 4 && sector != 10) eff_result = eff_result*(4.-nFailingChambers)/4.;
 	  else eff_result = eff_result*(5.-nFailingChambers)/5.;
