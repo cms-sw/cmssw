@@ -19,11 +19,11 @@
  *
  */
 
-//TString dirBase = "/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/DT/DTLocalRecoQualityTest/";
+
 
 
 {
-  TString dirBase = "/data/c/cerminar/scratch/Validation/CMSSW_3_1_0_pre6/src/Validation/DTRecHits/test/";
+  TString dirBase = "/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/DT/DTLocalRecoQualityTest/";
   // Ask for the directory name (only the last part, es: CMSSW_1_2_0)
   TString nameDir;
   cout << "Set the name of the www directory: " << endl;
