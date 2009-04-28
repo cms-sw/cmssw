@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2008/12/08 08:09:21 $
- * $Revision: 1.22 $
+ * $Date: 2009/04/10 08:07:23 $
+ * $Revision: 1.23 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -54,13 +54,15 @@ EESelectiveReadoutTask::EESelectiveReadoutTask(const ParameterSet& ps){
   EESRFlagCollection_ = ps.getParameter<edm::InputTag>("EESRFlagCollection");
   EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
   FEDRawDataCollection_ = ps.getParameter<edm::InputTag>("FEDRawDataCollection");
+  firstFIRSample_ = ps.getParameter<int>("ecalDccZs1stSample");
+
+  configFirWeights(ps.getParameter<vector<double> >("dccWeights"));
 
   // histograms...
-  for(int i = 0; i < 18; i++) {
-    EETowerSize_[i] = 0;
-    EETowerFullReadoutFrequency_[i] = 0;
-  }
   EEDccEventSize_ = 0;
+
+  EETowerSize_[0] = 0;
+  EETowerFullReadoutFrequency_[0] = 0;
   EEReadoutUnitForcedBitMap_[0] = 0;
   EEFullReadoutSRFlagMap_[0] = 0;
   EEHighInterestTriggerTowerFlagMap_[0] = 0;
@@ -68,7 +70,11 @@ EESelectiveReadoutTask::EESelectiveReadoutTask(const ParameterSet& ps){
   EEEventSize_[0] = 0;
   EEHighInterestPayload_[0] = 0;
   EELowInterestPayload_[0] = 0;
+  EEHighInterestZsFIR_[0] = 0;
+  EELowInterestZsFIR_[0] = 0;
 
+  EETowerSize_[1] = 0;
+  EETowerFullReadoutFrequency_[1] = 0;
   EEReadoutUnitForcedBitMap_[1] = 0;
   EEFullReadoutSRFlagMap_[1] = 0;
   EEHighInterestTriggerTowerFlagMap_[1] = 0;
@@ -76,6 +82,8 @@ EESelectiveReadoutTask::EESelectiveReadoutTask(const ParameterSet& ps){
   EEEventSize_[1] = 0;
   EEHighInterestPayload_[1] = 0;
   EELowInterestPayload_[1] = 0;
+  EEHighInterestZsFIR_[1] = 0;
+  EELowInterestZsFIR_[1] = 0;
 
 }
 
@@ -105,20 +113,27 @@ void EESelectiveReadoutTask::setup(void) {
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EESelectiveReadoutTask");
 
-    for (int i = 0; i < 18; i++) {
 
-      sprintf(histo, "EESRT tower event size %s", Numbers::sEE(i+1).c_str());
-      EETowerSize_[i] = dqmStore_->bookProfile(histo, histo, 42, 1., 42., 100, 0., 200, "s");
-      EETowerSize_[i]->setAxisTitle("tower", 1);
-      EETowerSize_[i]->setAxisTitle("tower average event size (bytes)", 2);
+    sprintf(histo, "EESRT tower event size EE -");
+    EETowerSize_[0] = dqmStore_->bookProfile2D(histo, histo, 100, 0., 100., 100, 0., 100., 100, 0., 200., "s");
+    EETowerSize_[0]->setAxisTitle("jx", 1);
+    EETowerSize_[0]->setAxisTitle("jy", 2);
 
-      sprintf(histo, "EESRT full readout frequency %s", Numbers::sEE(i+1).c_str());
-      EETowerFullReadoutFrequency_[i] = dqmStore_->book1D(histo, histo, 42, 1., 42.);
-      EETowerFullReadoutFrequency_[i]->setAxisTitle("tower", 1);
-      EETowerFullReadoutFrequency_[i]->setAxisTitle("fraction of events with full readout", 2);
+    sprintf(histo, "EESRT tower event size EE +");
+    EETowerSize_[1] = dqmStore_->bookProfile2D(histo, histo, 100, 0., 100., 100, 0., 100., 100, 0., 200., "s");
+    EETowerSize_[1]->setAxisTitle("jx", 1);
+    EETowerSize_[1]->setAxisTitle("jy", 2);
+    
+    sprintf(histo, "EESRT full readout frequency EE +");
+    EETowerFullReadoutFrequency_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    EETowerFullReadoutFrequency_[0]->setAxisTitle("jx", 1);
+    EETowerFullReadoutFrequency_[0]->setAxisTitle("jy", 2);
 
-    }
-
+    sprintf(histo, "EESRT full readout frequency EE -");
+    EETowerFullReadoutFrequency_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    EETowerFullReadoutFrequency_[0]->setAxisTitle("jx", 1);
+    EETowerFullReadoutFrequency_[0]->setAxisTitle("jy", 2);
+    
     sprintf(histo, "EESRT DCC event size");
     EEDccEventSize_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 200., "s");
     for (int i = 0; i < 18; i++) {
@@ -189,6 +204,22 @@ void EESelectiveReadoutTask::setup(void) {
     EELowInterestPayload_[1] =  dqmStore_->book1D(histo, histo, 100, 0, 200);
     EELowInterestPayload_[1]->setAxisTitle("event size (kB)",1);
 
+    sprintf(histo, "EESRT high interest ZS filter output EE -");
+    EEHighInterestZsFIR_[0] = dqmStore_->book1D(histo, histo, 60, -30, 30);
+    EEHighInterestZsFIR_[0]->setAxisTitle("ADC counts*4",1);
+
+    sprintf(histo, "EESRT high interest ZS filter output EE +");
+    EEHighInterestZsFIR_[1] = dqmStore_->book1D(histo, histo, 60, -30, 30);
+    EEHighInterestZsFIR_[1]->setAxisTitle("ADC counts*4",1);
+
+    sprintf(histo, "EESRT low interest ZS filter output EE -");
+    EELowInterestZsFIR_[0] = dqmStore_->book1D(histo, histo, 60, -30, 30);
+    EELowInterestZsFIR_[0]->setAxisTitle("ADC counts*4",1);
+
+    sprintf(histo, "EESRT low interest ZS filter output EE +");
+    EELowInterestZsFIR_[1] = dqmStore_->book1D(histo, histo, 60, -30, 30);
+    EELowInterestZsFIR_[1]->setAxisTitle("ADC counts*4",1);
+
   }
 
 }
@@ -200,15 +231,18 @@ void EESelectiveReadoutTask::cleanup(void){
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EESelectiveReadoutTask");
 
-    for (int i = 0; i < 18; i++) {
+    if ( EETowerSize_[0] ) dqmStore_->removeElement( EETowerSize_[0]->getName() );
+    EETowerSize_[0] = 0;
 
-      if ( EETowerSize_[i] ) dqmStore_->removeElement( EETowerSize_[i]->getName() );
-      EETowerSize_[i] = 0;
+    if ( EETowerSize_[1] ) dqmStore_->removeElement( EETowerSize_[1]->getName() );
+    EETowerSize_[1] = 0;
+    
+    if ( EETowerFullReadoutFrequency_[0] ) dqmStore_->removeElement( EETowerFullReadoutFrequency_[0]->getName() );
+    EETowerFullReadoutFrequency_[0] = 0;
 
-      if ( EETowerFullReadoutFrequency_[i] ) dqmStore_->removeElement( EETowerFullReadoutFrequency_[i]->getName() );
-      EETowerFullReadoutFrequency_[i] = 0;
-    }
-
+    if ( EETowerFullReadoutFrequency_[1] ) dqmStore_->removeElement( EETowerFullReadoutFrequency_[1]->getName() );
+    EETowerFullReadoutFrequency_[1] = 0;
+      
     if ( EEDccEventSize_ ) dqmStore_->removeElement( EEDccEventSize_->getName() );
     EEDccEventSize_ = 0;
 
@@ -254,6 +288,18 @@ void EESelectiveReadoutTask::cleanup(void){
     if ( EELowInterestPayload_[1] ) dqmStore_->removeElement( EELowInterestPayload_[1]->getName() );
     EELowInterestPayload_[1] = 0;
 
+    if ( EEHighInterestZsFIR_[0] ) dqmStore_->removeElement( EEHighInterestZsFIR_[0]->getName() );
+    EEHighInterestZsFIR_[0] = 0;
+
+    if ( EEHighInterestZsFIR_[1] ) dqmStore_->removeElement( EEHighInterestZsFIR_[1]->getName() );
+    EEHighInterestZsFIR_[1] = 0;
+
+    if ( EELowInterestZsFIR_[0] ) dqmStore_->removeElement( EELowInterestZsFIR_[0]->getName() );
+    EELowInterestZsFIR_[0] = 0;
+
+    if ( EELowInterestZsFIR_[1] ) dqmStore_->removeElement( EELowInterestZsFIR_[1]->getName() );
+    EELowInterestZsFIR_[1] = 0;
+
   }
 
   init_ = false;
@@ -272,13 +318,6 @@ void EESelectiveReadoutTask::beginRun(const Run& r, const EventSetup& c) {
 
   if ( ! mergeRuns_ ) this->reset();
 
-  for(int ism=1; ism<=18; ism++) {
-    for(int itt=0; itt<42; itt++) {
-      nEvtFullReadout[itt][ism-1] = 0;
-      nEvtAnyReadout[itt][ism-1] = 0;
-    }
-  }
-
 }
 
 void EESelectiveReadoutTask::endRun(const Run& r, const EventSetup& c) {
@@ -287,11 +326,11 @@ void EESelectiveReadoutTask::endRun(const Run& r, const EventSetup& c) {
 
 void EESelectiveReadoutTask::reset(void) {
 
-  for (int i = 0; i < 18; i++) {
-    if ( EETowerSize_[i] ) EETowerSize_[i]->Reset();
-
-    if ( EETowerFullReadoutFrequency_[i] ) EETowerFullReadoutFrequency_[i]->Reset();
-  }
+  if ( EETowerSize_[0] ) EETowerSize_[0]->Reset();
+  if ( EETowerSize_[1] ) EETowerSize_[1]->Reset();
+  
+  if ( EETowerFullReadoutFrequency_[0] ) EETowerFullReadoutFrequency_[0]->Reset();
+  if ( EETowerFullReadoutFrequency_[1] ) EETowerFullReadoutFrequency_[1]->Reset();
 
   if ( EEDccEventSize_ ) EEDccEventSize_->Reset();
 
@@ -315,6 +354,12 @@ void EESelectiveReadoutTask::reset(void) {
 
   if ( EELowInterestPayload_[0] ) EELowInterestPayload_[0]->Reset();
   if ( EELowInterestPayload_[1] ) EELowInterestPayload_[1]->Reset();
+
+  if ( EEHighInterestZsFIR_[0] ) EEHighInterestZsFIR_[0]->Reset();
+  if ( EEHighInterestZsFIR_[1] ) EEHighInterestZsFIR_[1]->Reset();
+
+  if ( EELowInterestZsFIR_[0] ) EELowInterestZsFIR_[0]->Reset();
+  if ( EELowInterestZsFIR_[1] ) EELowInterestZsFIR_[1]->Reset();
 
 }
 
@@ -381,19 +426,22 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       float xix = ix-0.5;
       float xiy = iy-0.5;
 
-      EcalTrigTowerDetId id = it->id();
+      EcalScDetId id = it->id();
 
-      int itt = Numbers::iTT( id );
-      int ism = Numbers::iSM( id );
-
-      nEvtAnyReadout[itt][ism-1]++;
+      std::map<EcalScDetId,int>::const_iterator srfkey = nEvtAnyReadout.find( id );
+      if ( srfkey == nEvtAnyReadout.end() ) {
+        nEvtAnyReadout.insert( make_pair(id,1) );
+        nEvtFullReadout.insert( make_pair(id,1) );
+      } else {
+        nEvtAnyReadout[id]++;
+      }
 
       int flag = it->value() & ~EcalSrFlag::SRF_FORCED_MASK;
 
       if(flag == EcalSrFlag::SRF_FULL){
 	if( zside < 0 ) {
 	  EEFullReadoutSRFlagMap_[0]->Fill(xix,xiy);
-          nEvtFullReadout[itt][ism-1]++;
+          if ( srfkey == nEvtFullReadout.end() ) nEvtFullReadout[id]++;
 	}
 	else {
 	  EEFullReadoutSRFlagMap_[1]->Fill(xix,xiy);
@@ -428,20 +476,54 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     LogWarning("EESelectiveReadoutTask") << EESRFlagCollection_ << " not available";
   }
 
+  map<EcalScDetId,int>::const_iterator tt;
+  for(tt=nEvtAnyReadout.begin(); tt!=nEvtAnyReadout.end(); tt++) {
+
+    EcalScDetId id = tt->first;
+
+    int nAny = nEvtAnyReadout[id];
+    int nFull = nEvtFullReadout[id];
+
+    if( nAny ) {
+
+      float fraction = float(nFull/nAny);
+      float error = sqrt(fraction*(1-fraction)/float(nAny));
+      
+      int ix = id.ix();
+      int iy = id.iy();
+      
+      int zside = id.zside();
+      
+      if ( zside < 0 ) ix = 101 - ix;
+      
+      float xix = ix-0.5;
+      float xiy = iy-0.5;
+
+      TH2F *h2d = 0;
+      if ( zside < 0 ) EETowerFullReadoutFrequency_[0]->getTH2F();
+      else EETowerFullReadoutFrequency_[1]->getTH2F();
+
+      int binx=0, biny=0;
+      
+      if( h2d ) {
+        binx = h2d->GetXaxis()->FindBin(xix);
+        biny = h2d->GetYaxis()->FindBin(xiy);
+      }
+
+      if ( zside < 0 ) {
+        EETowerFullReadoutFrequency_[0]->setBinContent(binx, biny, fraction);
+        EETowerFullReadoutFrequency_[0]->setBinError(binx, biny, error);
+      } else {
+        EETowerFullReadoutFrequency_[1]->setBinContent(binx, biny, fraction);
+        EETowerFullReadoutFrequency_[1]->setBinError(binx, biny, error);
+      }
+
+    }
+  }
+
   for(int iside=0;iside<2;iside++) {
     if( integral01[iside] != 0 ) h01[iside]->Scale( 1.0/integral01[iside] );
     if( integral02[iside] != 0 ) h02[iside]->Scale( 1.0/integral02[iside] );  
-  }
-
-  for(int ism = 1; ism <= 18; ism++ ) {
-    for(int itt = 0; itt < 42; itt++ ) {
-      if(nEvtAnyReadout[itt][ism-1]) {
-        float fraction = float(nEvtFullReadout[itt][ism-1]) / float(nEvtAnyReadout[itt][ism-1]);
-        float error = sqrt(fraction*(1-fraction)/float(nEvtAnyReadout[itt][ism-1]));
-        EETowerFullReadoutFrequency_[ism-1]->setBinContent(itt+1, fraction);
-        EETowerFullReadoutFrequency_[ism-1]->setBinError(itt+1, error);
-      }
-    }
   }
 
   TH2F *h03[2];
@@ -572,11 +654,26 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     EEEventSize_[1]->Fill(aAnyInterest[1]);
 
     //event size by tower:
-    for (int ism = 1; ism <= 18; ism++) {
-      for(int itt = 0; itt < 42; itt++) {
-        double towerSize =  nCryTower[itt][ism-1] * bytesPerCrystal;
-        EETowerSize_[ism-1]->Fill(itt+1,towerSize);
-      }
+    map<EcalScDetId,int>::const_iterator tt;
+    for(tt=nEvtAnyReadout.begin(); tt!=nEvtAnyReadout.end(); tt++) {
+      
+     EcalScDetId id = tt->first;
+     
+     int ix = id.ix();
+     int iy = id.iy();
+
+     int zside = id.zside();
+
+     if ( zside < 0 ) ix = 101 - ix;
+
+     float xix = ix-0.5;
+     float xiy = iy-0.5;
+
+     double towerSize =  nCryTower[id] * bytesPerCrystal;
+     
+     if( zside < 0 ) EETowerSize_[0]->Fill(xix, xiy, towerSize);
+     else EETowerSize_[1]->Fill(xix, xiy, towerSize);
+
     }
     
   } else {
@@ -611,9 +708,6 @@ void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCol
       eeRuActive_[iZ0][iX0/scEdge][iY0/scEdge] = true;
     }
     
-    int itt = Numbers::iTT(ism,EcalEndcap,ix,iy);
-    nCryTower[itt][ism-1]++;
-
   }
 
   EESrFlagCollection::const_iterator srf = srFlagColl.find(readOutUnitOf(id));
@@ -621,6 +715,14 @@ void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCol
   if(srf == srFlagColl.end()){
     return;
   }
+
+  EcalScDetId ttid = srf->id();
+  
+  std::map<EcalScDetId,int>::const_iterator srfkey = nCryTower.find(ttid);
+  if ( srfkey == nCryTower.end() ) nCryTower.insert( make_pair(ttid,0) );
+  else nCryTower.clear();
+
+  nCryTower[ttid]++;
 
   bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
                        == EcalSrFlag::SRF_FULL);
@@ -655,12 +757,6 @@ void EESelectiveReadoutTask::anaDigiInit(){
   bzero(nRuPerDcc_, sizeof(nRuPerDcc_));
   bzero(eeRuActive_, sizeof(eeRuActive_));
   
-  for(int ism=1; ism<=18; ism++) {
-    for(int itt=0; itt<42; itt++) {
-      nCryTower[itt][ism-1] = 0;
-    }
-  }
-
 }
 
 EcalScDetId
@@ -720,5 +816,117 @@ int EESelectiveReadoutTask::dccIndex(int iDet, int i, int j) const {
   //34 DCCs in barrel and 8 in EE-=>in EE+ DCC numbering starts at 45,
   //iDet/2 is 0 for EE- and 1 for EE+:
   return iPhi+iDet/2*45;
+}
+
+//This implementation  assumes that int is coded on at least 28-bits,
+//which in pratice should be always true.
+int
+EESelectiveReadoutTask::dccZsFIR(const EcalDataFrame& frame,
+                                 const std::vector<int>& firWeights,
+                                 int firstFIRSample,
+                                 bool* saturated){
+  const int nFIRTaps = 6;
+  //FIR filter weights:
+  const vector<int>& w = firWeights;
+  
+  //accumulator used to compute weighted sum of samples
+  int acc = 0;
+  bool gain12saturated = false;
+  const int gain12 = 0x01; 
+  const int lastFIRSample = firstFIRSample + nFIRTaps - 1;
+  //LogDebug("DccFir") << "DCC FIR operation: ";
+  int iWeight = 0;
+  for(int iSample=firstFIRSample-1;
+      iSample<lastFIRSample; ++iSample, ++iWeight){
+    if(iSample>=0 && iSample < frame.size()){
+      EcalMGPASample sample(frame[iSample]);
+      if(sample.gainId()!=gain12) gain12saturated = true;
+      LogTrace("DccFir") << (iSample>=firstFIRSample?"+":"") << sample.adc()
+                         << "*(" << w[iWeight] << ")";
+      acc+=sample.adc()*w[iWeight];
+    } else{
+      edm::LogWarning("DccFir") << __FILE__ << ":" << __LINE__ <<
+        ": Not enough samples in data frame or 'ecalDccZs1stSample' module "
+        "parameter is not valid...";
+    }
+  }
+  LogTrace("DccFir") << "\n";
+  //discards the 8 LSBs 
+  //(shift operator cannot be used on negative numbers because
+  // the result depends on compilator implementation)
+  acc = (acc>=0)?(acc >> 8):-(-acc >> 8);
+  //ZS passed if weighted sum acc above ZS threshold or if
+  //one sample has a lower gain than gain 12 (that is gain 12 output
+  //is saturated)
+
+  LogTrace("DccFir") << "acc: " << acc << "\n"
+                     << "saturated: " << (gain12saturated?"yes":"no") << "\n";
+
+  if(saturated){
+    *saturated = gain12saturated;
+  }
+  
+  return gain12saturated?numeric_limits<int>::max():acc;
+}
+
+std::vector<int>
+EESelectiveReadoutTask::getFIRWeights(const std::vector<double>&
+                                      normalizedWeights){
+  const int nFIRTaps = 6;
+  vector<int> firWeights(nFIRTaps, 0); //default weight: 0;
+  const static int maxWeight = 0xEFF; //weights coded on 11+1 signed bits
+  for(unsigned i=0; i < min((size_t)nFIRTaps,normalizedWeights.size()); ++i){ 
+    firWeights[i] = lround(normalizedWeights[i] * (1<<10));
+    if(abs(firWeights[i])>maxWeight){//overflow
+      firWeights[i] = firWeights[i]<0?-maxWeight:maxWeight;
+    }
+  }
+  return firWeights;
+}
+
+void
+EESelectiveReadoutTask::configFirWeights(vector<double> weightsForZsFIR){
+  bool notNormalized  = false;
+  bool notInt = false;
+  for(unsigned i=0; i < weightsForZsFIR.size(); ++i){
+    if(weightsForZsFIR[i] > 1.) notNormalized = true;
+    if((int)weightsForZsFIR[i]!=weightsForZsFIR[i]) notInt = true;
+  }
+  if(notInt && notNormalized){
+    throw cms::Exception("InvalidParameter")
+      << "weigtsForZsFIR paramater values are not valid: they "
+      << "must either be integer and uses the hardware representation "
+      << "of the weights or less or equal than 1 and used the normalized "
+      << "representation.";
+  }
+  LogInfo log("DccFir");
+  if(notNormalized){
+    firWeights_ = vector<int>(weightsForZsFIR.size());
+    for(unsigned i = 0; i< weightsForZsFIR.size(); ++i){
+      firWeights_[i] = (int)weightsForZsFIR[i];
+    }
+  } else{
+    firWeights_ = getFIRWeights(weightsForZsFIR);
+  }
+
+  log << "Input weights for FIR: ";
+  for(unsigned i = 0; i < weightsForZsFIR.size(); ++i){ 
+    log << weightsForZsFIR[i] << "\t";
+  }
+  
+  double s2 = 0.;
+  log << "\nActual FIR weights: ";
+  for(unsigned i = 0; i < firWeights_.size(); ++i){
+    log << firWeights_[i] << "\t";
+    s2 += firWeights_[i]*firWeights_[i];
+  }
+
+  s2 = sqrt(s2);
+  log << "\nNormalized FIR weights after hw representation rounding: ";
+  for(unsigned i = 0; i < firWeights_.size(); ++i){
+    log << firWeights_[i] / (double)(1<<10) << "\t";
+  }
+  
+  log <<"\nFirst FIR sample: " << firstFIRSample_;
 }
 

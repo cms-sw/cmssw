@@ -4,8 +4,8 @@
 /*
  * \file EBSelectiveReadoutTask.h
  *
- * $Date: 2008/12/01 09:29:26 $
- * $Revision: 1.9 $
+ * $Date: 2009/04/10 08:07:20 $
+ * $Revision: 1.10 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -86,13 +86,13 @@ static const int nTtPhi = 72;
 static const int bytesPerCrystal = 24;
 
 ///To store the readout crystals / tower
-int nCryTower[68][36];
+int nCryTower[72][34];
 
 ///To store the events with full readout 
-int nEvtFullReadout[68][36];
+int nEvtFullReadout[72][34];
 
 ///To store the events with any readout
-int nEvtAnyReadout[68][36];
+int nEvtAnyReadout[72][34];
 
 private:
 
@@ -213,6 +213,37 @@ int dccPhiIndex(int i, int j) const {
  */
 int dccIndex(int i, int j) const;
 
+/** Configure DCC ZS FIR weights. Heuristic is used to determine
+ * if input weights are normalized weights or integer weights in
+ * the hardware representation.
+ * @param weightsForZsFIR weights from configuration file
+ */
+void configFirWeights(std::vector<double> weightsForZsFIR);
+
+/** Emulates the DCC zero suppression FIR filter. If one of the time sample
+ * is not in gain 12, numeric_limits<int>::max() is returned.
+ * @param frame data frame
+ * @param firWeights TAP weights
+ * @param firstFIRSample index (starting from 1) of the first time
+ * sample to be used in the filter
+ * @param saturated if not null, *saturated is set to true if all the time
+ * sample are not in gain 12 and set to false otherwise.
+ * @return FIR output or numeric_limits<int>::max().
+ */
+static int dccZsFIR(const EcalDataFrame& frame,
+                    const std::vector<int>& firWeights,
+                    int firstFIRSample,
+                    bool* saturated = 0);
+  
+
+ /** Computes the ZS FIR filter weights from the normalized weights.
+  * @param normalizedWeights the normalized weights
+  * @return the computed ZS filter weights.
+  */
+static std::vector<int> getFIRWeights(const std::vector<double>&
+                                      normalizedWeights);
+
+
 /** ECAL barrel read channel count
  */
 int nEb_;
@@ -237,6 +268,15 @@ int nRuPerDcc_[nECALDcc];
  */
 bool ebRuActive_[nEbEta/ebTtEdge][nEbPhi/ebTtEdge];
 
+/** Weights to be used for the ZS FIR filter
+ */
+std::vector<int> firWeights_;
+
+/** Time position of the first sample to use in zero suppession FIR
+ * filter. Numbering starts at 0.
+ */
+int firstFIRSample_;
+
 int ievt_;
 
 DQMStore* dqmStore_;
@@ -255,8 +295,8 @@ edm::InputTag EcalTrigPrimDigiCollection_;
 edm::InputTag FEDRawDataCollection_;
 
 MonitorElement* EBDccEventSize_;
-MonitorElement* EBTowerSize_[36];
-MonitorElement* EBTowerFullReadoutFrequency_[36];
+MonitorElement* EBTowerSize_;
+MonitorElement* EBTowerFullReadoutFrequency_;
 MonitorElement* EBReadoutUnitForcedBitMap_;
 MonitorElement* EBFullReadoutSRFlagMap_;
 MonitorElement* EBHighInterestTriggerTowerFlagMap_;
@@ -264,6 +304,8 @@ MonitorElement* EBLowInterestTriggerTowerFlagMap_;
 MonitorElement* EBEventSize_;
 MonitorElement* EBHighInterestPayload_;
 MonitorElement* EBLowInterestPayload_;
+MonitorElement* EBHighInterestZsFIR_;
+MonitorElement* EBLowInterestZsFIR_;
 
 bool init_;
 
