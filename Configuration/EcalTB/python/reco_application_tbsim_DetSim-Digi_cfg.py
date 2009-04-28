@@ -85,6 +85,8 @@ process.VtxSmeared = cms.EDFilter("BeamProfileVtxGenerator",
     GaussianProfile = cms.bool(False),
     BinX = cms.int32(50),
     BinY = cms.int32(50),
+    File       = cms.string('beam.profile'),
+    UseFile    = cms.bool(False),
     TimeOffset = cms.double(0.)                      
 )
 
@@ -95,18 +97,19 @@ process.load("SimG4Core.Application.g4SimHits_cfi")
 process.g4SimHits.UseMagneticField = cms.bool(False)
 process.g4SimHits.Physics.DefaultCutValue = 1.
 process.g4SimHits.NonBeamEvent = cms.bool(True)
+process.g4SimHits.Generator.HepMCProductLabel = cms.string('generator')
 process.g4SimHits.Generator.ApplyPCuts = cms.bool(False)
 process.g4SimHits.Generator.ApplyEtaCuts = cms.bool(True)
 process.g4SimHits.Generator.ApplyPhiCuts = cms.bool(False)
 process.g4SimHits.Generator.MaxEtaCut = cms.double(1.5)
 process.g4SimHits.Generator.MinEtaCut = cms.double(0.0)
-process.g4SimHits.CaloSD.CorrectTOFBeam = cms.untracked.bool(True)
-process.g4SimHits.CaloSD.BeamPosition = cms.untracked.double(-26733.5)
+process.g4SimHits.CaloSD.CorrectTOFBeam = cms.bool(True)
+process.g4SimHits.CaloSD.BeamPosition = cms.double(-26733.5)
 process.g4SimHits.CaloTrkProcessing.TestBeam = cms.bool(True)
 process.g4SimHits.StackingAction.MaxTrackTime = cms.double(10000.)
 process.g4SimHits.SteppingAction.MaxTrackTime = cms.double(10000.)
 process.g4SimHits.CaloSD.TmaxHit = cms.double(10000.)
-process.g4SimHits.CaloSD.TmaxHits = cms.vdouble(10000.,10000.,10000.,10000.)
+process.g4SimHits.CaloSD.TmaxHits = cms.vdouble(10000.,10000.,10000.,10000.,10000.)
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     type = cms.string('EcalTBH4Trigger'),
     verbose = cms.untracked.bool(False),
