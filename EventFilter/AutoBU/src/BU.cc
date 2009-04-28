@@ -177,20 +177,6 @@ bool BU::configuring(toolbox::task::WorkLoop* wl)
   try {
     LOG4CPLUS_INFO(log_,"Start configuring ...");
     reset();
-
-    // determine valid fed ids (assumes Playback EP is already configured and hence PBRDP::instance 
-    // not null in case we are playing back)
-    if (0!=PlaybackRawDataProvider::instance()) {
-      for (unsigned int i=0;i<(unsigned int)FEDNumbering::MAXFEDID+1;i++)
-	if (FEDNumbering::inRange(i)) validFedIds_.push_back(i);
-    }
-    else{
-      for (unsigned int i=0;i<(unsigned int)FEDNumbering::MAXFEDID+1;i++)
-	if (FEDNumbering::inRangeNoGT(i)) validFedIds_.push_back(i);
-    }
-
-
-
     LOG4CPLUS_INFO(log_,"Finished configuring!");
     fsm_.fireEvent("ConfigureDone",this);
   }
@@ -209,6 +195,16 @@ bool BU::enabling(toolbox::task::WorkLoop* wl)
   isHalting_=false;
   try {
     LOG4CPLUS_INFO(log_,"Start enabling ...");
+    // determine valid fed ids (assumes Playback EP is already configured hence PBRDP::instance 
+    // not null in case we are playing back)
+    if (0!=PlaybackRawDataProvider::instance()) {
+      for (unsigned int i=0;i<(unsigned int)FEDNumbering::MAXFEDID+1;i++)
+	if (FEDNumbering::inRange(i)) validFedIds_.push_back(i);
+    }
+    else{
+      for (unsigned int i=0;i<(unsigned int)FEDNumbering::MAXFEDID+1;i++)
+	if (FEDNumbering::inRangeNoGT(i)) validFedIds_.push_back(i);
+    }
     if (!isBuilding_) startBuildingWorkLoop();
     if (!isSending_)  startSendingWorkLoop();
     LOG4CPLUS_INFO(log_,"Finished enabling!");
