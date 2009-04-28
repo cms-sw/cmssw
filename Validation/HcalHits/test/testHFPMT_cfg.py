@@ -36,26 +36,28 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
 )
 
-process.source = cms.Source("FlatRandomEGunSource",
-    PGunParameters = cms.untracked.PSet(
-        # you can request more than 1 particle
-        PartID = cms.untracked.vint32(13),
-        MinEta = cms.untracked.double(2.95),
-        MaxEta = cms.untracked.double(3.3),
-        MinPhi = cms.untracked.double(-3.1415926),
-        MaxPhi = cms.untracked.double(3.1415926),
-        MinE = cms.untracked.double(99.99),
-        MaxE = cms.untracked.double(100.01)
+process.source = cms.Source("EmptySource")
+
+process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    PGunParameters = cms.PSet(
+        PartID = cms.vint32(13),
+        MinEta = cms.double(2.95),
+        MaxEta = cms.double(3.30),
+        MinPhi = cms.double(-3.1415926),
+        MaxPhi = cms.double(3.1415926),
+        MinE   = cms.double(99.99),
+        MaxE   = cms.double(100.01)
     ),
-    Verbosity = cms.untracked.int32(0),
-    AddAntiParticle = cms.untracked.bool(False),
-    firstRun = cms.untracked.uint32(1)
+    AddAntiParticle = cms.bool(False),
+    Verbosity       = cms.untracked.int32(0),
+    firstRun        = cms.untracked.uint32(1)
 )
 
 process.Timing = cms.Service("Timing")
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
+        generator = cms.untracked.uint32(456789),
         g4SimHits = cms.untracked.uint32(9876),
         VtxSmeared = cms.untracked.uint32(123456789)
     ),
@@ -67,7 +69,7 @@ process.USER = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('simevent_HFPMT.root')
 )
 
-process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.USER)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP'
 process.g4SimHits.Physics.DefaultCutValue = 0.1

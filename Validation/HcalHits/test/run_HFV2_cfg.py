@@ -57,6 +57,7 @@ process.Timing = cms.Service("Timing")
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
+        generator = cms.untracked.uint32(456789),
         g4SimHits = cms.untracked.uint32(9876),
         VtxSmeared = cms.untracked.uint32(123456789)
     ),
@@ -66,20 +67,22 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
-process.source = cms.Source("FlatRandomEGunSource",
-    PGunParameters = cms.untracked.PSet(
-        # you can request more than 1 particle
-        PartID = cms.untracked.vint32(11),
-        MinEta = cms.untracked.double(3.070),
-        MaxEta = cms.untracked.double(3.071),
-        MinPhi = cms.untracked.double(0.0872),
-        MaxPhi = cms.untracked.double(0.0873),
-        #untracked double MinEta = 3.0
-        #untracked double MaxEta = 4.5
-        MinE = cms.untracked.double(99.9),
-        MaxE = cms.untracked.double(100.1)
+
+process.source = cms.Source("EmptySource")
+
+process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    PGunParameters = cms.PSet(
+        PartID = cms.vint32(11),
+        MinEta = cms.double(3.070),
+        MaxEta = cms.double(3.071),
+        MinPhi = cms.double(0.0872),
+        MaxPhi = cms.double(0.0873),
+        MinE   = cms.double(99.90),
+        MaxE   = cms.double(100.1)
     ),
-    firstRun = cms.untracked.uint32(1)
+    AddAntiParticle = cms.bool(False),
+    Verbosity       = cms.untracked.int32(0),
+    firstRun        = cms.untracked.uint32(1)
 )
 
 process.USER = cms.OutputModule("PoolOutputModule",
@@ -98,7 +101,7 @@ process.DQM = cms.Service("DQM",
     collectorHost = cms.untracked.string('')
 )
 
-process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits*process.hcalHitValid)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.hcalHitValid)
 process.outpath = cms.EndPath(process.USER)
 process.VtxSmeared.SigmaX = 0.00001
 process.VtxSmeared.SigmaY = 0.00001

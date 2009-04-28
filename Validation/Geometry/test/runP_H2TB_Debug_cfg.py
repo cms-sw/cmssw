@@ -13,6 +13,7 @@ process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
+        generator = cms.untracked.uint32(456789),
         g4SimHits = cms.untracked.uint32(9876),
         VtxSmeared = cms.untracked.uint32(123456789)
     ),
@@ -34,39 +35,41 @@ process.MessageLogger = cms.Service("MessageLogger",
     )
 )
 process.common_beam_direction_parameters = cms.PSet(
-    MinEta = cms.untracked.double(1.562),
-    MaxEta = cms.untracked.double(1.562),
-    MinPhi = cms.untracked.double(0.0436),
-    MaxPhi = cms.untracked.double(0.0436),
-    BeamPosition = cms.untracked.double(-800.0)
+    MinEta       = cms.double(1.562),
+    MaxEta       = cms.double(1.562),
+    MinPhi       = cms.double(0.0436),
+    MaxPhi       = cms.double(0.0436),
+    BeamPosition = cms.double(-800.0)
 )
 
-process.source = cms.Source("FlatRandomEGunSource",
-    PGunParameters = cms.untracked.PSet(
+process.source = cms.Source("EmptySource")
+
+process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    PGunParameters = cms.PSet(
         process.common_beam_direction_parameters,
-        PartID = cms.untracked.vint32(14),
-        MinE = cms.untracked.double(9.99),
-        MaxE = cms.untracked.double(10.01)
+        PartID = cms.vint32(14),
+        MinE   = cms.double(9.99),
+        MaxE   = cms.double(10.01)
     ),
-    Verbosity = cms.untracked.int32(0),
-    AddAntiParticle = cms.untracked.bool(False),
-    firstRun = cms.untracked.uint32(1)
+    AddAntiParticle = cms.bool(False),
+    Verbosity       = cms.untracked.int32(0),
+    firstRun        = cms.untracked.uint32(1)
 )
 
 from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
 process.VtxSmeared = cms.EDFilter("BeamProfileVtxGenerator",
     process.common_beam_direction_parameters,
     VtxSmearedCommon,
-    BeamMeanX = cms.untracked.double(0.0),
-    BeamMeanY = cms.untracked.double(0.0),
-    BeamSigmaX = cms.untracked.double(0.0001),
-    BeamSigmaY = cms.untracked.double(0.0001),
-    GaussianProfile = cms.untracked.bool(False),
-    BinX = cms.untracked.int32(50),
-    BinY = cms.untracked.int32(50),
-    File = cms.untracked.string('beam.profile'),
-    UseFile = cms.untracked.bool(False),
-    TimeOffset = cms.double(0.)
+    BeamMeanX       = cms.double(0.0),
+    BeamMeanY       = cms.double(0.0),
+    BeamSigmaX      = cms.double(0.0001),
+    BeamSigmaY      = cms.double(0.0001),
+    GaussianProfile = cms.bool(False),
+    BinX            = cms.int32(50),
+    BinY            = cms.int32(50),
+    File            = cms.string('beam.profile'),
+    UseFile         = cms.bool(False),
+    TimeOffset      = cms.double(0.)
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -77,7 +80,7 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('matbdg_HCAL1.root')
 )
 
-process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
 process.g4SimHits.Generator.HepMCProductLabel = 'source'
 process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
