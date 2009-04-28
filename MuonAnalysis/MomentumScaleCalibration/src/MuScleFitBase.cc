@@ -12,16 +12,16 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
   double minMass = 0.;
   double maxMass = 200.;
   if( MuScleFitUtils::resfind[0] != 1 ) {
-    maxMass = 30.;
+    maxMass = 20.;
   }
   mapHisto_["hRecBestMu"]      = new HParticle ("hRecBestMu", minMass, maxMass);
-  mapHisto_["hRecBestMu_Acc"]  = new HParticle ("hRecBestMu_Acc", minMass, maxMass); 
+  mapHisto_["hRecBestMuVSEta"]      = new HPartVSEta ("hRecBestMuVSEta");
+  //mapHisto_["hRecBestMu_Acc"]  = new HParticle ("hRecBestMu_Acc", minMass, maxMass); 
   mapHisto_["hDeltaRecBestMu"] = new HDelta ("hDeltaRecBestMu");
 
   mapHisto_["hRecBestRes"]     = new HParticle   ("hRecBestRes", minMass, maxMass);
-  mapHisto_["hRecBestRes_Acc"] = new HParticle   ("hRecBestRes_Acc", minMass, maxMass); 
+  //mapHisto_["hRecBestRes_Acc"] = new HParticle   ("hRecBestRes_Acc", minMass, maxMass); 
   // If not finding Z, use a smaller mass window
-  vector<int>::const_iterator resFindIt = MuScleFitUtils::resfind.begin();
   mapHisto_["hRecBestResVSMu"] = new HMassVSPart ("hRecBestResVSMu", minMass, maxMass);
   
   // Likelihood values VS muon variables

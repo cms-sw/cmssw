@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/04/15 15:53:19 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/04/28 10:06:45 $
+ *  $Revision: 1.6 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -258,37 +258,35 @@ pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes( const vector<
       if (((*Muon1).charge()*(*Muon2).charge())>0) {
 	continue; // This also gets rid of Muon1==Muon2...
       }
-      // Accept combinations only if both muons have |eta|<2.4 and pt>3
+      // Accept combinations only if both muons have |eta|<2.4 and pt>3; NOT FOR JPSI!!
       // --------------------------------------------------------------
-      if ((*Muon1).p4().Pt()>3.0 && (*Muon2).p4().Pt()>3.0 &&
-      // Increased to test the problem of low pt resolution
-      // if ((*Muon1).p4().Pt()>8.0 && (*Muon2).p4().Pt()>8.0 &&
-	  abs((*Muon1).p4().Eta())<2.4 && abs((*Muon2).p4().Eta())<2.4) {
-	double mcomb = ((*Muon1).p4()+(*Muon2).p4()).mass();
-	double Y = ((*Muon1).p4()+(*Muon2).p4()).Eta();
-	if (debug>1) {
-	  cout<<"muon1 "<<(*Muon1).p4().Px()<<", "<<(*Muon1).p4().Py()<<", "<<(*Muon1).p4().Pz()<<", "<<(*Muon1).p4().E()<<endl;
-	  cout<<"muon2 "<<(*Muon2).p4().Px()<<", "<<(*Muon2).p4().Py()<<", "<<(*Muon2).p4().Pz()<<", "<<(*Muon2).p4().E()<<endl;
-	  cout<<"mcomb "<<mcomb<<endl;}
-	double massResol = massResolution ((*Muon1).p4(), (*Muon2).p4(), parResol);
-	double prob;
-	for (int ires=0; ires<6; ires++) {
-	  if (resfind[ires]>0) {
-	    prob = massProb (mcomb, Y, ires, massResol);
-	    if (prob>maxprob) {
-	      if ((*Muon1).charge()<0) { // store first the mu minus and then the mu plus
-		recMuFromBestRes.first = (*Muon1).p4();
-		recMuFromBestRes.second = (*Muon2).p4();
-	      } else {
-		recMuFromBestRes.first = (*Muon2).p4();
-		recMuFromBestRes.second = (*Muon1).p4();	   
-	      }
-	      ResFound = true; // NNBB we accept "resonances" even outside mass bounds
-	      maxprob = prob;
+      // if ((*Muon1).p4().Pt()>3.0 && (*Muon2).p4().Pt()>3.0 &&
+      //  abs((*Muon1).p4().Eta())<2.4 && abs((*Muon2).p4().Eta())<2.4) {
+      double mcomb = ((*Muon1).p4()+(*Muon2).p4()).mass();
+      double Y = ((*Muon1).p4()+(*Muon2).p4()).Eta();
+      if (debug>1) {
+	cout<<"muon1 "<<(*Muon1).p4().Px()<<", "<<(*Muon1).p4().Py()<<", "<<(*Muon1).p4().Pz()<<", "<<(*Muon1).p4().E()<<endl;
+	cout<<"muon2 "<<(*Muon2).p4().Px()<<", "<<(*Muon2).p4().Py()<<", "<<(*Muon2).p4().Pz()<<", "<<(*Muon2).p4().E()<<endl;
+	cout<<"mcomb "<<mcomb<<endl;}
+      double massResol = massResolution ((*Muon1).p4(), (*Muon2).p4(), parResol);
+      double prob;
+      for (int ires=0; ires<6; ires++) {
+	if (resfind[ires]>0) {
+	  prob = massProb (mcomb, Y, ires, massResol);
+	  if (prob>maxprob) {
+	    if ((*Muon1).charge()<0) { // store first the mu minus and then the mu plus
+	      recMuFromBestRes.first = (*Muon1).p4();
+	      recMuFromBestRes.second = (*Muon2).p4();
+	    } else {
+	      recMuFromBestRes.first = (*Muon2).p4();
+	      recMuFromBestRes.second = (*Muon1).p4();	   
 	    }
+	    ResFound = true; // NNBB we accept "resonances" even outside mass bounds
+	    maxprob = prob;
 	  }
 	}
       }
+      //}
     }
   }
   return recMuFromBestRes;
