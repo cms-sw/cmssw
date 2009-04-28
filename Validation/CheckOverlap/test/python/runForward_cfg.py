@@ -8,58 +8,54 @@ process.load("Validation.CheckOverlap.forwardGeometry_cfi")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
+    destinations = cms.untracked.vstring('cout'),
+    categories = cms.untracked.vstring('G4cout', 'G4cerr'),
     debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
-        SimG4CoreGeometry = cms.untracked.PSet(
+        threshold = cms.untracked.string('DEBUG'),
+        default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         G4cerr = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        MagneticField = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        threshold = cms.untracked.string('DEBUG'),
         G4cout = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         )
-    ),
-    categories = cms.untracked.vstring('G4cout', 
-        'G4cerr', 
-        'SimG4CoreGeometry', 
-        'MagneticField'),
-    destinations = cms.untracked.vstring('cout')
+    )
 )
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
+        generator = cms.untracked.uint32(456789),
         g4SimHits = cms.untracked.uint32(9876),
         VtxSmeared = cms.untracked.uint32(12345)
     ),
     sourceSeed = cms.untracked.uint32(98765)
 )
 
-process.source = cms.Source("FlatRandomEGunSource",
-    PGunParameters = cms.untracked.PSet(
-        PartID = cms.untracked.vint32(211),
-        MaxEta = cms.untracked.double(3.5),
-        MaxPhi = cms.untracked.double(3.14159265359),
-        MinEta = cms.untracked.double(-3.5),
-        MinE = cms.untracked.double(9.99),
-        MinPhi = cms.untracked.double(-3.14159265359),
-        MaxE = cms.untracked.double(10.01)
+process.source = cms.Source("EmptySource")
+
+process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    PGunParameters = cms.PSet(
+        PartID = cms.vint32(211),
+        MinEta = cms.double(-3.5),
+        MaxEta = cms.double(3.5),
+        MinPhi = cms.double(-3.14159265359),
+        MaxPhi = cms.double(3.14159265359),
+        MinE   = cms.double(9.99),
+        MaxE   = cms.double(10.01)
     ),
-    AddAntiParticle = cms.untracked.bool(False),
-    Verbosity = cms.untracked.int32(0)
+    AddAntiParticle = cms.bool(False),
+    Verbosity       = cms.untracked.int32(0),
+    firstRun        = cms.untracked.uint32(1)
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(0)
 )
-process.p1 = cms.Path(process.g4SimHits)
+
+process.p1 = cms.Path(process.generator*process.g4SimHits)
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
 process.g4SimHits.Physics.DummyEMPhysics = True
