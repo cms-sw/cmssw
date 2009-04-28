@@ -7,15 +7,13 @@
 
 
 FEDHistograms::FEDHistograms():
-  dqm_(0),
-  dqmPath_("")
+  dqm_(0)
 {
 
 }
 
 FEDHistograms::~FEDHistograms()
 {
-
 }
   
 void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
@@ -61,43 +59,109 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
 
 }
 
+void FEDHistograms::fillHistogram(MonitorElement* histogram, double value)
+{
+  if (histogram) histogram->Fill(value);
+  else std::cout << "WARNING: Unknown histogram " << histogram->getName() << std::endl;
+}
 
 
-void FEDHistograms::fillCountersHistogram(const FEDCounters & fedLevelCounters ){
-  fillHistogram("nFEDErrors",fedLevelCounters.nFEDErrors);
-  fillHistogram("nFEDDAQProblems",fedLevelCounters.nDAQProblems);
-  fillHistogram("nFEDsWithFEProblems",fedLevelCounters.nFEDsWithFEProblems);
-  fillHistogram("nFEDCorruptBuffers",fedLevelCounters.nCorruptBuffers);
-  fillHistogram("nFEDsWithFEOverflows",fedLevelCounters.nFEDsWithFEOverflows);
-  fillHistogram("nFEDsWithFEBadMajorityAddresses",fedLevelCounters.nFEDsWithFEBadMajorityAddresses);
-  fillHistogram("nFEDsWithMissingFEs",fedLevelCounters.nFEDsWithMissingFEs);
-  fillHistogram("nBadActiveChannelStatusBits",fedLevelCounters.nBadActiveChannels);
+
+void FEDHistograms::fillCountersHistograms(const FEDErrors::FEDCounters & fedLevelCounters )
+{
+  fillHistogram(nFEDErrors_,fedLevelCounters.nFEDErrors);
+  fillHistogram(nFEDDAQProblems_,fedLevelCounters.nDAQProblems);
+  fillHistogram(nFEDsWithFEProblems_,fedLevelCounters.nFEDsWithFEProblems);
+  fillHistogram(nFEDCorruptBuffers_,fedLevelCounters.nCorruptBuffers);
+  fillHistogram(nFEDsWithFEOverflows_,fedLevelCounters.nFEDsWithFEOverflows);
+  fillHistogram(nFEDsWithFEBadMajorityAddresses_,fedLevelCounters.nFEDsWithFEBadMajorityAddresses);
+  fillHistogram(nFEDsWithMissingFEs_,fedLevelCounters.nFEDsWithMissingFEs);
+  fillHistogram(nBadActiveChannelStatusBits_,fedLevelCounters.nBadActiveChannels);
   
 }
 
-
-void FEDHistograms::fillHistogram(const std::string & histoName, 
-				  const double value,
-				  const int fedId
-				  )
+void FEDHistograms::fillFEDHistograms(FEDErrors & aFedErr, bool lFullDebug)
 {
-  std::string lPath = dqmPath_+"/"+histoName;
-  if (fedId > 0){
-    SiStripFedKey fedKey(fedId,0,0,0);
-    std::stringstream fedIdStream;
-    fedIdStream << fedId;
-    lPath = fedKey.path()+histoName+fedIdStream.str();
+  const FEDErrors::FEDLevelErrors & lFedLevelErrors = aFedErr.getFEDLevelErrors();
+  const unsigned int lFedId = aFedErr.fedID();
+
+  if (lFedLevelErrors.DataPresent) fillHistogram(dataPresent_,lFedId);
+
+  if (lFedLevelErrors.HasCabledChannels && lFedLevelErrors.DataMissing) fillHistogram(dataMissing_,lFedId);
+  
+  if (lFedLevelErrors.InvalidBuffers) fillHistogram(invalidBuffers_,lFedId);
+  else if (lFedLevelErrors.BadFEDCRCs) fillHistogram(badFEDCRCs_,lFedId);
+  else if (lFedLevelErrors.BadDAQCRCs) fillHistogram(badDAQCRCs_,lFedId);
+  else if (lFedLevelErrors.BadIDs) fillHistogram(badIDs_,lFedId);
+  else if (lFedLevelErrors.BadDAQPacket) fillHistogram(badDAQPacket_,lFedId);
+  else if (lFedLevelErrors.CorruptBuffer) fillHistogram(corruptBuffers_,lFedId);
+
+  if (aFedErr.anyFEDErrors()) fillHistogram(anyFEDErrors_,lFedId);
+  if (aFedErr.anyDAQProblems()) fillHistogram(anyDAQProblems_,lFedId);
+  if (aFedErr.anyFEProblems()) fillHistogram(anyFEProblems_,lFedId);
+
+  if (lFedLevelErrors.FEsOverflow) fillHistogram(feOverflows_,lFedId);
+  if (lFedLevelErrors.FEsMissing) fillHistogram(feMissing_,lFedId);
+  if (lFedLevelErrors.FEsBadMajorityAddress) fillHistogram(badMajorityAddresses_,lFedId);
+
+  if (lFedLevelErrors.BadChannelStatusBit) fillHistogram(badChannelStatusBits_,lFedId);
+  if (lFedLevelErrors.BadActiveChannelStatusBit) fillHistogram(badActiveChannelStatusBits_,lFedId);
+
+  std::vector<FEDErrors::FELevelErrors> & lFeVec = aFedErr.getFELevelErrors();
+  for (unsigned int iFe(0); iFe<lFeVec.size(); iFe++){
+    fillFEHistograms(lFedId,lFeVec.at(iFe));
   }
-  MonitorElement *histogram = dqm_->get(lPath);
-  if (histogram) histogram->Fill(value);
-  //else {
-    //std::cerr << "--- Histogram " << histoName << " not found ! " << std::endl;
-    //exit(0);
-  //}
+
+  std::vector<FEDErrors::ChannelLevelErrors> & lChVec = aFedErr.getChannelLevelErrors();
+  for (unsigned int iCh(0); iCh < lChVec.size(); iCh++){
+    fillChannelsHistograms(lFedId,lChVec.at(iCh),lFullDebug);
+  }
+
+  std::vector<FEDErrors::APVLevelErrors> & lAPVVec = aFedErr.getAPVLevelErrors();
+  for (unsigned int iApv(0); iApv < lAPVVec.size(); iApv++){
+    fillAPVsHistograms(lFedId,lAPVVec.at(iApv),lFullDebug);
+  }
+
+
 }
 
-void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm,
-					   const std::string & folderName)
+//fill a histogram if the pointer is not NULL (ie if it has been booked)
+void FEDHistograms::fillFEHistograms(const unsigned int aFedId, const FEDErrors::FELevelErrors & aFeLevelErrors)
+{
+  const unsigned short lFeId = aFeLevelErrors.FeID;
+  bookFEDHistograms(aFedId);
+  if (aFeLevelErrors.Overflow) fillHistogram(feOverflowDetailed_[aFedId],lFeId);
+  else if (aFeLevelErrors.Missing) fillHistogram(feMissingDetailed_[aFedId],lFeId);
+  else if (aFeLevelErrors.BadMajorityAddress) fillHistogram(badMajorityAddressDetailed_[aFedId],lFeId);
+}
+
+//fill a histogram if the pointer is not NULL (ie if it has been booked)
+void FEDHistograms::fillChannelsHistograms(const unsigned int aFedId, const FEDErrors::ChannelLevelErrors & aChErr, bool fullDebug)
+{
+  unsigned int lChId = aChErr.ChannelID;
+  bookFEDHistograms(aFedId,fullDebug);
+  if (aChErr.Unlocked) fillHistogram(unlockedDetailed_[aFedId],lChId);
+  if (aChErr.OutOfSync) fillHistogram(outOfSyncDetailed_[aFedId],lChId);
+}
+
+
+void FEDHistograms::fillAPVsHistograms(const unsigned int aFedId, const FEDErrors::APVLevelErrors & aAPVErr, bool fullDebug)
+{
+  unsigned int lChId = aAPVErr.APVID;
+  bookFEDHistograms(aFedId,fullDebug);
+  if (aAPVErr.APVStatusBit) fillHistogram(badStatusBitsDetailed_[aFedId],lChId);
+  if (aAPVErr.APVError) fillHistogram(apvErrorDetailed_[aFedId],lChId);
+  if (aAPVErr.APVAddressError) fillHistogram(apvAddressErrorDetailed_[aFedId],lChId);
+}
+
+void FEDHistograms::fillTkHistoMap(uint32_t & detid,
+				   float value
+				   ){
+  if (tkmapFED_) tkmapFED_->fill(detid,value);
+}
+
+
+void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 {
   //get FED IDs
   const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
@@ -105,7 +169,6 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm,
 
   //get the pointer to the dqm object
   dqm_ = dqm;
-  dqmPath_ = folderName;
 
   //book FED level histograms
   histosBooked_.resize(siStripFedIdMax+1,false);
@@ -196,6 +259,13 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm,
   nFEDsWithMissingFEs_ = bookHistogram("nFEDsWithMissingFEs","nFEDsWithMissingFEs",
                                        "Number of FEDs with missing FE unit payloads per event","");
 
+
+  //book map after, as it creates a new folder...
+  const std::string dqmPath = dqm_->pwd();
+  tkmapFED_ = new TkHistoMap(dqmPath+"/TkHistoMap","FractionOfBadChannels",0.,0);
+
+
+
 }
 
 void FEDHistograms::bookFEDHistograms(unsigned int fedId,
@@ -203,10 +273,11 @@ void FEDHistograms::bookFEDHistograms(unsigned int fedId,
 				      )
 {
   if (!histosBooked_[fedId]) {
+    //will do that only once
     SiStripFedKey fedKey(fedId,0,0,0);
-    dqm_->setCurrentFolder(fedKey.path());
     std::stringstream fedIdStream;
     fedIdStream << fedId;
+    dqm_->setCurrentFolder(fedKey.path());
     feOverflowDetailed_[fedId] = bookHistogram("FEOverflowsDetailed",
                                                "FEOverflowsForFED"+fedIdStream.str(),
                                                "FE overflows per FE unit for FED ID "+fedIdStream.str(),
@@ -230,10 +301,12 @@ void FEDHistograms::bookFEDHistograms(unsigned int fedId,
      histosBooked_[fedId] = true;
   }
   if (fullDebugMode && !debugHistosBooked_[fedId]) {
+    //will do that only once
     SiStripFedKey fedKey(fedId,0,0,0);
-    dqm_->setCurrentFolder(fedKey.path());
     std::stringstream fedIdStream;
     fedIdStream << fedId;
+    dqm_->setCurrentFolder(fedKey.path());
+
     apvErrorDetailed_[fedId] = bookHistogram("APVErrorBitsDetailed",
                                              "APVErrorBitsForFED"+fedIdStream.str(),
                                              "APV errors for FED ID "+fedIdStream.str(),
@@ -336,4 +409,4 @@ MonitorElement* FEDHistograms::bookHistogram(const std::string& configName,
   return bookHistogram(configName,name,title,histogramConfig_[configName].nBins,histogramConfig_[configName].min,histogramConfig_[configName].max,xAxisTitle);
 
 }
-  
+ 

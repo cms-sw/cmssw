@@ -20,8 +20,12 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DQM/SiStripCommon/interface/TkHistoMap.h"
+
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "DQM/SiStripMonitorHardware/interface/FEDErrors.hh"
 
 class FEDHistograms {
 
@@ -34,23 +38,6 @@ public:
     double max;
   };
   
-  struct FEDCounters {
-    unsigned int nFEDErrors;
-    unsigned int nDAQProblems;
-    unsigned int nFEDsWithFEProblems;
-    unsigned int nCorruptBuffers;
-    unsigned int nBadActiveChannels;
-    unsigned int nFEDsWithFEOverflows;
-    unsigned int nFEDsWithFEBadMajorityAddresses;
-    unsigned int nFEDsWithMissingFEs;
-  };
-
-  struct FECounters {
-    unsigned int nFEOverflows; 
-    unsigned int nFEBadMajorityAddresses; 
-    unsigned int nFEMissing;
-  };
-
 
   FEDHistograms();
 
@@ -61,18 +48,40 @@ public:
 		  std::ostringstream* pDebugStream
 		  );
 
-  void fillCountersHistogram(const FEDCounters & fedLevelCounters );
-
-
   //fill a histogram if the pointer is not NULL (ie if it has been booked)
-  void fillHistogram(const std::string & histoName, 
-		     const double value,
-		     const int fedId = -1
+  void fillHistogram(MonitorElement* histogram, 
+		     double value
 		     );
 
+  void fillCountersHistograms(const FEDErrors::FEDCounters & aFedLevelCounters);
+
+  void fillFEDHistograms(FEDErrors & aFedError, 
+			 bool lFullDebug
+			 );
+
+  void fillFEHistograms(const unsigned int aFedId,
+			const FEDErrors::FELevelErrors & aFeLevelErrors
+			);
+
+  void fillChannelsHistograms(const unsigned int aFedId, 
+			      const FEDErrors::ChannelLevelErrors & aChErr, 
+			      bool fullDebug
+			      );
+
+  void fillAPVsHistograms(const unsigned int aFedId, 
+			  const FEDErrors::APVLevelErrors & aAPVErr, 
+			  bool fullDebug
+			  );
+
+
+
+  //fill tkHistoMap of percentage of bad channels per module
+  void fillTkHistoMap(uint32_t & detid,
+		      float value
+		      );
+ 
   //book the top level histograms
-  void bookTopLevelHistograms(DQMStore* dqm,
-			      const std::string & folderName);
+  void bookTopLevelHistograms(DQMStore* dqm);
 
   //book individual FED histograms or book all FED level histograms at once
   void bookFEDHistograms(unsigned int fedId,
@@ -109,7 +118,6 @@ protected:
 private:
 
   DQMStore* dqm_;
-  std::string dqmPath_;
 
   //config for histograms (enabled? bins)
   std::map<std::string,HistogramConfig> histogramConfig_;
@@ -158,7 +166,7 @@ private:
     debugHistosBooked_;
 
 
-
+  TkHistoMap *tkmapFED_;
 
 
 

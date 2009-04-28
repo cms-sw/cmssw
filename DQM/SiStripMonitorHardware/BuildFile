@@ -3,6 +3,7 @@
 <use name=FWCore/ParameterSet>
 <use name=DQMServices/Core>
 <use name=DataFormats/SiStripCommon>
+<use name=DQM/SiStripCommon>
 <export>
  <lib name=DQMSiStripMonitorHardware>
  <use name=FWCore/MessageLogger>
@@ -10,5 +11,6 @@
  <use name=FWCore/ParameterSet>
  <use name=DQMServices/Core>
  <use name=DataFormats/SiStripCommon>
+ <use name=DQM/SiStripCommon>
 </export>
 

@@ -11,5 +11,6 @@
   <use name=CondFormats/SiStripObjects>
   <use name=FWCore/Utilities>
   <use name=DQM/SiStripMonitorHardware>
+  <use name=DQM/SiStripCommon>
   <flags EDM_PLUGIN=1>
 </library>
