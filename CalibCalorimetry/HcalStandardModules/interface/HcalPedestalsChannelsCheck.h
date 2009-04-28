@@ -39,7 +39,11 @@
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
-
+#include "TH1.h"
+#include "TH2.h"
+#include "TStyle.h"
+#include "TCanvas.h"
+#include "TFile.h"
 class HcalPedestalsChannelsCheck: public edm::EDAnalyzer
 {
  public:
@@ -54,6 +58,9 @@ class HcalPedestalsChannelsCheck: public edm::EDAnalyzer
   std::string dumprefs;
   std::string dumpupdate;
   double epsilon;
+  TH1F * difhist[4];
+  TH2F * etaphi[4];
+  int runnum;
   //  vecDetId getMissingDetIds(std::vector<HcalPedestals> &);
 };
 #endif
