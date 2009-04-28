@@ -1,8 +1,8 @@
 //  \class MuScleFitPlotter
 //  Plotter for simulated,generated and reco info of muons
 //
-//  $Date: 2009/04/28 10:06:45 $
-//  $Revision: 1.2 $
+//  $Date: 2009/04/28 12:48:41 $
+//  $Revision: 1.3 $
 //  \author  C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 // ----------------------------------------------------------------------------------
@@ -151,7 +151,6 @@ void MuScleFitPlotter::fillGen2(Handle<HepMCProduct> evtMC){
  void MuScleFitPlotter::fillSim(Handle<SimTrackContainer> simTracks){
 
    vector<SimTrack> simMuons;
-   int numberOfSimMuonsAcc=0;
 
    //Loop on simulated tracks
    for (SimTrackContainer::const_iterator simTrack=simTracks->begin(); simTrack!=simTracks->end(); ++simTrack) {
@@ -159,14 +158,9 @@ void MuScleFitPlotter::fillGen2(Handle<HepMCProduct> evtMC){
      if (fabs((*simTrack).type())==13) {
        simMuons.push_back(*simTrack);	  
        mapHisto["hSimMu"]->Fill((*simTrack).momentum());
-       if ((fabs((*simTrack).momentum().eta())<2.5) && ((*simTrack).momentum().pt()>2.5)){
-	 mapHisto["hSimMu_Acc"]->Fill((*simTrack).momentum());
-	 numberOfSimMuonsAcc++;
-       }
      }
    }
    mapHisto["hSimMu"]->Fill(simMuons.size());
-   mapHisto["hSimMu_Acc"]->Fill(numberOfSimMuonsAcc);
 
    // Recombine all the possible Z from simulated muons
    if (simMuons.size()>=2) {
@@ -178,10 +172,6 @@ void MuScleFitPlotter::fillGen2(Handle<HepMCProduct> evtMC){
 	 if (((*imu).charge()*(*imu2).charge())<0) {
 	   reco::Particle::LorentzVector Z = (*imu).momentum()+(*imu2).momentum();
 	   mapHisto["hSimMuPMuM"]->Fill(Z); 
-	   if (fabs((*imu).momentum().eta())<2.5 && fabs((*imu2).momentum().eta())<2.5
-	       && (*imu).momentum().pt()>2.5 && (*imu2).momentum().pt()>2.5) {
-	     mapHisto["hSimMuPMuM_Acc"]->Fill(Z);
-	   }
 	 }
        }
      }
@@ -192,7 +182,6 @@ void MuScleFitPlotter::fillGen2(Handle<HepMCProduct> evtMC){
      mapHisto["hSimBestRes"]->Fill(bestSimZ);
      if (fabs(simMuFromBestRes.first.momentum().eta())<2.5 && fabs(simMuFromBestRes.second.momentum().eta())<2.5 &&
 	 simMuFromBestRes.first.momentum().pt()>2.5 && simMuFromBestRes.second.momentum().pt()>2.5) {
-       mapHisto["hSimBestRes_Acc"]->Fill(bestSimZ);
        mapHisto["hSimBestResVSMu"]->Fill (simMuFromBestRes.first.momentum(), bestSimZ, int(simMuFromBestRes.first.charge()));
        mapHisto["hSimBestResVSMu"]->Fill (simMuFromBestRes.second.momentum(),bestSimZ, int(simMuFromBestRes.second.charge()));
     }
@@ -207,10 +196,9 @@ void MuScleFitPlotter::fillGen2(Handle<HepMCProduct> evtMC){
    //Fill resonance info
    reco::Particle::LorentzVector rightSimRes = (simMuFromRes.first)+(simMuFromRes.second);
    mapHisto["hSimRightRes"]->Fill(rightSimRes);
-   if ((fabs(simMuFromRes.first.Eta())<2.5 && fabs(simMuFromRes.second.Eta())<2.5) 
+   /*if ((fabs(simMuFromRes.first.Eta())<2.5 && fabs(simMuFromRes.second.Eta())<2.5) 
        && simMuFromRes.first.Pt()>2.5 && simMuFromRes.second.Pt()>2.5) {
-     mapHisto["hSimRightRes_Acc"]->Fill(rightSimRes);
-   }
+       }*/
  }
 
 
@@ -220,18 +208,11 @@ void MuScleFitPlotter::fillGen2(Handle<HepMCProduct> evtMC){
    for(vector<reco::LeafCandidate>::const_iterator mu1 = muons.begin(); mu1!=muons.end(); mu1++){
      mapHisto["hRecMu"]->Fill(mu1->p4());
      mapHisto["hRecMuVSEta"]->Fill(mu1->p4());
-     /*if (fabs(mu1->p4().eta())<2.5 && (mu1->p4().pt()>3.0)) {
-	mapHisto["hRecMu_Acc"]->Fill(mu1->p4());
-	}*/
      for(vector<reco::LeafCandidate>::const_iterator mu2 = muons.begin(); mu2!=muons.end(); mu2++){  
        if (mu1==mu2) continue;
        reco::Particle::LorentzVector Res (mu1->p4()+mu2->p4());
        mapHisto["hRecMuPMuM"]->Fill(Res);	  
-       /*if (fabs(mu1->p4().eta())<2.5 && (mu1->p4().pt()>2.5) && 
-	   fabs(mu2->p4().eta())<2.5 && (mu2->p4().pt()>2.5)){
-	 mapHisto["hRecMuPMuM_Acc"]->Fill(Res);
-	 }*/
-    } 
+     } 
    }
  }
 
@@ -251,28 +232,21 @@ void MuScleFitPlotter::fillHistoMap() {
 
   // Simulated resonance and muons
   // -----------------------------
-  /*mapHisto["hSimMu"]      = new HParticle ("hSimMu");
-  mapHisto["hSimMu_Acc"]  = new HParticle ("hSimMu_Acc");
+  mapHisto["hSimMu"]      = new HParticle ("hSimMu");
 
   mapHisto["hSimMuPMuM"]      = new HParticle ("hSimMuPMuM");      
-  mapHisto["hSimMuPMuM_Acc"]  = new HParticle ("hSimMuPMuM_Acc"); 
                                                                  
   mapHisto["hSimBestMu"]      = new HParticle ("hSimBestMu");
-  mapHisto["hSimBestMu_Acc"]  = new HParticle ("hSimBestMu_Acc");
   mapHisto["hSimBestRes"]         = new HParticle  ("hSimBestRes");
-  mapHisto["hSimBestRes_Acc"]     = new HParticle  ("hSimBestRes_Acc"); 
   mapHisto["hSimBestResVSMu"]  = new HMassVSPart ("hSimBestResVSMu");
     
   mapHisto["hSimRightRes"]         = new HParticle  ("hSimRightZ");
-  mapHisto["hSimRightRes_Acc"]     = new HParticle  ("hSimRightZ_Acc");*/
  
   // Reconstructed resonance and muons
   // -----------------------------  
   mapHisto["hRecMu"]      = new HParticle ("hRecMu");
   mapHisto["hRecMuVSEta"]      = new HPartVSEta ("hRecMuVSEta");
-  //mapHisto["hRecMu_Acc"]  = new HParticle ("hRecMu_Acc");
   mapHisto["hRecMuPMuM"]         = new HParticle  ("hRecMuPMuM");
-  //mapHisto["hRecMuPMuM_Acc"]     = new HParticle  ("hRecMuPMuM_Acc");
 }  
 
 
