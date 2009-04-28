@@ -2,11 +2,11 @@
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
 // <<<<<<< MuScleFit.cc
-//  $Date: 2009/04/28 12:45:43 $
-//  $Revision: 1.36 $
+//  $Date: 2009/04/28 13:02:24 $
+//  $Revision: 1.37 $
 // =======
-//  $Date: 2009/04/28 12:45:43 $
-//  $Revision: 1.36 $
+//  $Date: 2009/04/28 13:02:24 $
+//  $Revision: 1.37 $
 // >>>>>>> 1.25
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
@@ -403,18 +403,6 @@ edm::EDLooper::Status MuScleFit::endOfLoop (const edm::EventSetup& eventSetup, u
   theFiles_[iLoop]->cd();
   Mass_P->Write();
   Mass_fine_P->Write();
-  PtminvsY->Write();
-  PtmaxvsY->Write();
-  EtamuvsY->Write();
-  Y->Write();
-  MY->Write();
-  MYP->Write();
-  YL->Write();
-  PL->Write();
-  PTL->Write();
-  GM->Write();
-  SM->Write();
-  GSM->Write();
 
   // Likelihood minimization to compute corrections
   // ----------------------------------------------

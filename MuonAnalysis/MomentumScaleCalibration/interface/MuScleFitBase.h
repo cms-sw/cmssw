@@ -57,18 +57,6 @@ protected:
   map<string, Histograms*> mapHisto_;
   TProfile * Mass_P;
   TProfile * Mass_fine_P;
-  TH2D * PtminvsY;
-  TH2D * PtmaxvsY;
-  TH2D * EtamuvsY;
-  TH1D * Y;
-  TH2D * MY;
-  TProfile * MYP;
-  TProfile * YL;
-  TProfile * PL;
-  TProfile * PTL;
-  TH1D * GM;
-  TH1D * SM;
-  TH1D *GSM;
   HCovarianceVSxy * massResolutionVsPtEta_;
 };
 

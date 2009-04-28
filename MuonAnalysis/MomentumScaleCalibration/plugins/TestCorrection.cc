@@ -137,20 +137,6 @@ void TestCorrection::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     //Fill histograms
     //------------------
-    if (recMu1.Pt()>recMu2.Pt()) {
-      PtminvsY->Fill(recMu2.Pt(),bestRecRes.Rapidity());
-      PtmaxvsY->Fill(recMu1.Pt(),bestRecRes.Rapidity());
-      EtamuvsY->Fill(recMu1.Eta(),bestRecRes.Rapidity());
-      EtamuvsY->Fill(recMu2.Eta(),bestRecRes.Rapidity());
-    } else {
-      PtmaxvsY->Fill(recMu2.Pt(),bestRecRes.Rapidity());
-      PtminvsY->Fill(recMu1.Pt(),bestRecRes.Rapidity());
-      EtamuvsY->Fill(recMu1.Eta(),bestRecRes.Rapidity());
-      EtamuvsY->Fill(recMu2.Eta(),bestRecRes.Rapidity());
-    }
-    Y->Fill(fabs(bestRecRes.Rapidity()));
-    MY->Fill(fabs(bestRecRes.Rapidity()),bestRecRes.mass());
-    MYP->Fill(fabs(bestRecRes.Rapidity()),bestRecRes.mass());
     mapHisto_["hRecBestMu"]->Fill(recMu1);
     if ((abs(recMu1.eta())<2.5) && (recMu1.pt()>2.5)) {
       mapHisto_["hRecBestMu_Acc"]->Fill(recMu1);
