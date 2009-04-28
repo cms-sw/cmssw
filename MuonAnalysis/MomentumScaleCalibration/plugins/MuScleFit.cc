@@ -2,11 +2,11 @@
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
 // <<<<<<< MuScleFit.cc
-//  $Date: 2009/04/28 10:06:45 $
-//  $Revision: 1.35 $
+//  $Date: 2009/04/28 12:45:43 $
+//  $Revision: 1.36 $
 // =======
-//  $Date: 2009/04/28 10:06:45 $
-//  $Revision: 1.35 $
+//  $Date: 2009/04/28 12:45:43 $
+//  $Revision: 1.36 $
 // >>>>>>> 1.25
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
@@ -607,20 +607,6 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 
     //Fill histograms
     //------------------
-    if (recMu1.Pt()>recMu2.Pt()) {
-      PtminvsY->Fill(recMu2.Pt(),bestRecRes.Rapidity());
-      PtmaxvsY->Fill(recMu1.Pt(),bestRecRes.Rapidity());
-      EtamuvsY->Fill(recMu1.Eta(),bestRecRes.Rapidity());
-      EtamuvsY->Fill(recMu2.Eta(),bestRecRes.Rapidity());
-    } else {
-      PtmaxvsY->Fill(recMu2.Pt(),bestRecRes.Rapidity());
-      PtminvsY->Fill(recMu1.Pt(),bestRecRes.Rapidity());
-      EtamuvsY->Fill(recMu1.Eta(),bestRecRes.Rapidity());
-      EtamuvsY->Fill(recMu2.Eta(),bestRecRes.Rapidity());
-    }
-    Y->Fill(fabs(bestRecRes.Rapidity()));
-    MY->Fill(fabs(bestRecRes.Rapidity()),bestRecRes.mass());
-    MYP->Fill(fabs(bestRecRes.Rapidity()),bestRecRes.mass());
     mapHisto_["hRecBestMu"]->Fill(recMu1);
     mapHisto_["hRecBestMuVSEta"]->Fill(recMu1);
     /*if ((abs(recMu1.eta())<2.5) && (recMu1.pt()>2.5)) {
@@ -662,7 +648,6 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
       //first is always mu-, second is always mu+
 
       double genmass = (genMu.first+genMu.second).mass();
-      GM->Fill(genmass);
       if(checkDeltaR(genMu.first,recMu1)) {
         fillComparisonHistograms( genMu.first, recMu1, "Gen", -1 );
         // Fill also the resolution histogramsm using the resolution functions:
@@ -684,10 +669,6 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
         pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> simMu = 
           MuScleFitUtils::findSimMuFromRes(evtMC,simTracks);
         //first is always mu-, second is always mu+
-        double simmass = (simMu.first+simMu.second).mass();
-        SM->Fill(simmass);
-        GSM->Fill(genmass-simmass);
-
         if(checkDeltaR(simMu.first,recMu1)){
           fillComparisonHistograms( simMu.first, recMu1, "Sim", -1 );
         }
@@ -730,9 +711,6 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 	mapHisto_["hLikeVSMuPlus"]->Fill (recMu2, deltalike);
 	mapHisto_["hResolMassVSMu"]->Fill (recMu1, massResol, -1);
 	mapHisto_["hResolMassVSMu"]->Fill (recMu2, massResol, +1);
-	YL->Fill(bestRecRes.Rapidity(), deltalike);
-	PL->Fill(bestRecRes.P(), deltalike);
-	PTL->Fill(bestRecRes.Pt(), deltalike);
 
         double recoMass = (recMu1+recMu2).mass();
         if( !MuScleFitUtils::speedup ) {

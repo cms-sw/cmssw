@@ -62,18 +62,7 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
   // ---------------------------
   Mass_P = new TProfile ("Mass_P", "Mass probability", 4000, 0., 200., 0., 1.);
   Mass_fine_P = new TProfile ("Mass_fine_P", "Mass probability", 4000, 0., 20., 0., 1.);
-  PtminvsY = new TH2D ("PtminvsY","PtminvsY",120, 0., 120., 120, 0., 6.);
-  PtmaxvsY = new TH2D ("PtmaxvsY","PtmaxvsY",120, 0., 120., 120, 0., 6.);
-  EtamuvsY = new TH2D ("EtamuvsY","EtamuvsY",120, 0., 3., 120, 0., 6.);
-  Y = new TH1D ("Y","Y", 100, 0., 5. );
-  MY = new TH2D ("MY","MY",100, 0., 5., 100, 0., 200.);
-  MYP = new TProfile ("MYP","MYP",100, 0., 5., 0.,200.);
-  YL = new TProfile("YL","YL", 40, -4., 4., -10000000.,10000000.);
-  PL = new TProfile("PL","PL", 40, 0., 200., -10000000.,10000000.);
-  PTL = new TProfile("PTL","PTL", 40, 0., 100., -10000000., 10000000.);
-  GM = new TH1D ("GM","GM", 120, 61., 121.);
-  SM = new TH1D ("SM","SM", 120, 61., 121.);
-  GSM = new TH1D("GSM","GSM", 100, -2.5, 2.5);
+
 
   double ptMax = 40.;
   // Mass resolution vs (pt, eta) of the muons from MC
