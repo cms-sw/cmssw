@@ -12,24 +12,35 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 # ... this is needed for the PtGun
 process.RandomNumberGeneratorService = cms.Service(
     "RandomNumberGeneratorService",
+    moduleSeeds = cms.PSet(
+        generator = cms.untracked.uint32(123456781)
+    ),
     sourceSeed = cms.untracked.uint32(123456781)
 )
 
+# ... this is needed in CMSSW >= 3_1
+process.source = cms.Source("EmptySource")
+
 # ... just a gun to feed something to the ProtonTaggerFilter
-process.source = cms.Source("FlatRandomPtGunSource",
-    PGunParameters = cms.untracked.PSet(
+process.generator = cms.EDProducer("FlatRandomPtGunProducer",
+    PGunParameters = cms.PSet(
         # you can request more than 1 particle
-        PartID = cms.untracked.vint32(2212),
-        MinEta = cms.untracked.double(10.0),
-        MaxEta = cms.untracked.double(10.4),
-        MinPhi = cms.untracked.double(-3.14159265359), ## it must be in radians
-        MaxPhi = cms.untracked.double(3.14159265359),
-        MinPt = cms.untracked.double(0.4),
-        MaxPt = cms.untracked.double(0.6)
+        PartID = cms.vint32(2212),
+        MinEta = cms.double(10.0),
+        MaxEta = cms.double(10.4),
+        MinPhi = cms.double(-3.14159265359), ## it must be in radians
+        MaxPhi = cms.double(3.14159265359),
+        MinPt = cms.double(0.4),
+        MaxPt = cms.double(0.6)
     ),
+    AddAntiParticle = cms.bool(False), ## back-to-back particles
     firstRun = cms.untracked.uint32(1),
     Verbosity = cms.untracked.int32(0) ## for printouts, set it to 1 (or greater)
 )
+
+# ... put generator in ProductionFilterSequence (for CMSSW >= 3_1)
+process.ProductionFilterSequence = cms.Sequence(process.generator)
+
 
 # ... this is our forward proton filter
 process.forwardProtonFilter = cms.EDFilter(
@@ -59,7 +70,7 @@ process.options = cms.untracked.PSet(
 )
 
 # ... just run the filter
-process.forwardProtons = cms.Path(process.forwardProtonFilter)
+process.forwardProtons = cms.Path(process.ProductionFilterSequence * process.forwardProtonFilter)
 
 # ...  define a root file for the events which pass the filter
 process.out = cms.OutputModule(
