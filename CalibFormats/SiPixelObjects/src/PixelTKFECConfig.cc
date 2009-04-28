@@ -93,14 +93,15 @@ PixelTKFECConfig::PixelTKFECConfig(std::vector<std::vector<std::string> >& table
 PixelTKFECConfig::PixelTKFECConfig(std::string filename):
     PixelConfigBase(" "," "," "){
 
+    std::string mthn ="]\t[PixelTKFECConfig::PixelTKFECConfig()]\t\t\t    " ;
     std::ifstream in(filename.c_str());
 
     if (!in.good()){
-	std::cout << "Could not open:"<<filename<<std::endl;
+	std::cout << __LINE__ << mthn << "Could not open: " << filename << std::endl;
 	assert(0);
     }
     else {
-	std::cout << "Opened:"<<filename<<std::endl;
+	std::cout << __LINE__ << mthn << "Opened: "         << filename << std::endl;
     }
 
     std::string dummy;
