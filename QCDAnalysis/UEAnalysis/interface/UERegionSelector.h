@@ -14,7 +14,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/ServiceRegistry/interface/Service.h>
 #include <PhysicsTools/UtilAlgos/interface/TFileService.h>
-#include <PhysicsTools/Utilities/interface/deltaPhi.h>
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include <vector>
 #include <numeric>
