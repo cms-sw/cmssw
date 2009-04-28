@@ -771,9 +771,74 @@ protected:
   }
 };
 
-// ------------ ATTENTION ------------ //
-// Other functions are not put for now //
-// ----------------------------------- //
+// Resolution Type 9
+template <class T>
+class resolutionFunctionType9 : public resolutionFunctionBase<T> {
+ public:
+  resolutionFunctionType9() { this->parNum_ = 15; }
+  // linear in pt and by points in eta
+  virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
+    return( parval[0] + parval[1]*pt + parval[2]*pt*pt + parval[3]*pt*pt*pt + parval[4]*pt*pt*pt*pt + parval[5]*etaByPoints(eta, parval[6]) );
+  }
+  // 1/pt in pt and quadratic in eta
+  virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
+    return( parval[7]+parval[8]/pt + parval[9]*fabs(eta)+parval[10]*eta*eta );
+  }
+  // 1/pt in pt and quadratic in eta
+  virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
+    return( parval[11]+parval[12]/pt + parval[13]*fabs(eta)+parval[14]*eta*eta );
+  }
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const vector<int> & parResolOrder, const int muonType) {
+
+    double thisStep[] = { 0.0002, 0.000002, 0.0000002, 0.00000002, 0.000000002, 0.02, 0.02,
+                          0.00002, 0.0002, 0.0000002, 0.00002,
+                          0.00002, 0.0002, 0.00000002, 0.000002 };
+    TString thisParName[] = { "Pt res. sc.", "Pt res. Pt sc.", "Pt res. Pt^2 sc.", "Pt res. Pt^3 sc.", "Pt res. Pt^4 sc",
+                              "Pt res. Eta sc.", "Pt res. eta border",
+                              "Cth res. sc.", "Cth res. 1/Pt sc.", "Cth res. Eta sc.", "Cth res. Eta^2 sc.",
+                              "Phi res. sc.", "Phi res. 1/Pt sc.", "Phi res. Eta sc.", "Phi res. Eta^2 sc." };
+    double thisMini[] = {  -0.1, -0.001, -0.001, -0.001, -0.001, 0.4, 0.01,
+                           -0.001, 0.002, -0.0001, -0.0001,
+                           -0.0001, 0.0005, -0.0001, -0.00001 };
+    if( muonType == 1 ) {
+      double thisMaxi[] = { 1., 1., 1., 1., 1., 1., 1.,
+                            1., 1., 1., 0.1,
+                            1., 1., 1., 1. };
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
+    } else {
+      double thisMaxi[] = { 0.1, 0.001, 0.001, 0.001, 0.001, 1.5, 1.,
+                            0.001, 0.005, 0.00004, 0.0007,
+                            0.001, 0.01, -0.0000015, 0.0004 };
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
+    }
+  }
+protected:
+  /**
+   * This is the pt vs eta resolution by points. It uses fabs(eta) assuming symmetry.
+   * The values are derived from 100k events of MuonGun with 5<pt<100 and |eta|<3.
+   */
+  double etaByPoints(const double & inEta, const double & border) {
+    Double_t eta = fabs(inEta);
+    if( 0. <= eta && eta <= 0.2 ) return 0.00942984;
+    else if( 0.2 < eta && eta <= 0.4 ) return 0.0104489;
+    else if( 0.4 < eta && eta <= 0.6 ) return 0.0110521;
+    else if( 0.6 < eta && eta <= 0.8 ) return 0.0117338;
+    else if( 0.8 < eta && eta <= 1.0 ) return 0.0138142;
+    else if( 1.0 < eta && eta <= 1.2 ) return 0.0165826;
+    else if( 1.2 < eta && eta <= 1.4 ) return 0.0183663;
+    else if( 1.4 < eta && eta <= 1.6 ) return 0.0169904;
+    else if( 1.6 < eta && eta <= 1.8 ) return 0.0173289;
+    else if( 1.8 < eta && eta <= 2.0 ) return 0.0205821;
+    else if( 2.0 < eta && eta <= 2.2 ) return 0.0250032;
+    else if( 2.2 < eta && eta <= 2.4 ) return 0.0339477;
+    else if( 2.4 < eta && eta <= 2.6 ) return border;
+    return ( 0. );
+  }
+};
+
+// ------------ ATTENTION ----------- //
+// Other functions are not in for now //
+// ---------------------------------- //
 
 /// Service to build the resolution functor corresponding to the passed identifier
 resolutionFunctionBase<double *> * resolutionFunctionService( const int identifier );
@@ -813,7 +878,7 @@ class backgroundFunctionBase {
  public:
   virtual ~backgroundFunctionBase() {};
   virtual double operator()( const double * parval, const int resTotNum, const int nres, const bool * resConsidered,
-                             const double * ResMass, const double ResHalfWidth[][3], const int MuonType, const double & mass, const int nbins ) = 0;
+                             const double * ResMass, const double ResHalfWidth[], const int MuonType, const double & mass, const int nbins ) = 0;
   virtual int parNum() const { return parNum_; }
   /// This method is used to differentiate parameters among the different functions
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const vector<double> & parBgr, const vector<int> & parBgrOrder, const int muonType) = 0;
@@ -851,7 +916,7 @@ class backgroundFunctionType1 : public backgroundFunctionBase {
    */
   backgroundFunctionType1() { this->parNum_ = 1; }
   virtual double operator()( const double * parval, const int resTotNum, const int nres, const bool * resConsidered,
-                             const double * ResMass, const double ResHalfWidth[][3], const int MuonType, const double & mass, const int nbins ) {
+                             const double * ResMass, const double ResHalfWidth[], const int MuonType, const double & mass, const int nbins ) {
     return( nres/(double)nbins ); 
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const vector<double> & parBgr, const vector<int> & parBgrOrder, const int muonType) {
@@ -879,13 +944,13 @@ class backgroundFunctionType2 : public backgroundFunctionBase {
    */
   backgroundFunctionType2() { this->parNum_ = 2; }
   virtual double operator()( const double * parval, const int resTotNum, const int nres, const bool * resConsidered,
-                             const double * ResMass, const double ResHalfWidth[][3], const int MuonType, const double & mass, const int nbins ) {
+                             const double * ResMass, const double ResHalfWidth[], const int MuonType, const double & mass, const int nbins ) {
     double PB = 0.;
     double Bgrp2 = parval[1];
     for (int ires=0; ires<resTotNum; ires++) {
       if (resConsidered[ires]) {
 
-        PB += Bgrp2*exp(-Bgrp2*mass) * (2*ResHalfWidth[ires][MuonType])/(double)nbins;
+        PB += Bgrp2*exp(-Bgrp2*mass) * (2*ResHalfWidth[ires])/(double)nbins;
 
         // 	if (exp(-Bgrp2*(ResMass[ires]-leftWindowFactor_*ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+rightWindowFactor_*ResHalfWidth[ires][MuonType]))>0) {
         // 	  PB += Bgrp2*exp(-Bgrp2*mass) * 
@@ -926,7 +991,7 @@ class backgroundFunctionType3 : public backgroundFunctionBase {
   // pass parval[shift]
   backgroundFunctionType3() { this->parNum_ = 3; }
   virtual double operator()( const double * parval, const int resTotNum, const int nres, const bool * resConsidered,
-                             const double * ResMass, const double ResHalfWidth[][3], const int MuonType, const double & mass, const int nbins ) {
+                             const double * ResMass, const double ResHalfWidth[], const int MuonType, const double & mass, const int nbins ) {
     double PB = 0.;
     double Bgrp2 = parval[1];
     double Bgrp3 = parval[2];
@@ -936,11 +1001,11 @@ class backgroundFunctionType3 : public backgroundFunctionBase {
       // gets a total of 1, is f = (exp(a-bx)+k)*(B-A)/nbins / (INT)
       // ----------------------------------------------------------------------------------------------
       if (resConsidered[ires]) {
-	if (exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires][MuonType]))>0) {
+	if (exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires]))>0) {
 	  PB += (exp(-Bgrp2*mass)+Bgrp3) *
-	    2*ResHalfWidth[ires][MuonType]/(double)nbins / 
-	    ( (exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires][MuonType])))/
-	      Bgrp2 + Bgrp3*2*ResHalfWidth[ires][MuonType] );
+	    2*ResHalfWidth[ires]/(double)nbins / 
+	    ( (exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires])))/
+	      Bgrp2 + Bgrp3*2*ResHalfWidth[ires] );
 	} else {
 	  cout << "Impossible to compute Background probability! - some fix needed - Bgrp2=" << Bgrp2 << endl;  
 	}

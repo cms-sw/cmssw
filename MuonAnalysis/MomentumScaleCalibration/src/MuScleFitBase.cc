@@ -120,10 +120,12 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
     cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_SM_1000.root file" << endl;
   }
   ProbsFile->cd();
-  for ( int i=0; i<24; i++ ) {
-    char nameh[6];
-    sprintf (nameh,"GLZ%d",i);
-    GLZ[i] = dynamic_cast<TH2D*>(ProbsFile->Get(nameh)); 
+  if( theMuonType_!=2 ) {
+    for ( int i=0; i<24; i++ ) {
+      char nameh[6];
+      sprintf (nameh,"GLZ%d",i);
+      GLZ[i] = dynamic_cast<TH2D*>(ProbsFile->Get(nameh)); 
+    }
   }
   GL[0] = dynamic_cast<TH2D*> (ProbsFile->Get("GL0"));
   GL[1] = dynamic_cast<TH2D*> (ProbsFile->Get("GL1"));
@@ -131,6 +133,28 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
   GL[3] = dynamic_cast<TH2D*> (ProbsFile->Get("GL3"));
   GL[4] = dynamic_cast<TH2D*> (ProbsFile->Get("GL4"));
   GL[5] = dynamic_cast<TH2D*> (ProbsFile->Get("GL5"));
+
+  // Read the limits for M and Sigma axis for each pdf
+  // Note: we assume all the Z histograms to have the same limits
+  // x is mass, y is sigma
+  if( theMuonType_!=2 ) {
+    MuScleFitUtils::ResHalfWidth[0] = (GLZ[0]->GetXaxis()->GetXmax() - GLZ[0]->GetXaxis()->GetXmin())/2;
+    MuScleFitUtils::ResMaxSigma[0] = (GLZ[0]->GetYaxis()->GetXmax() - GLZ[0]->GetYaxis()->GetXmin());
+  }
+  else {
+    MuScleFitUtils::ResHalfWidth[0] = (GL[0]->GetXaxis()->GetXmax() - GL[0]->GetXaxis()->GetXmin())/2;
+    MuScleFitUtils::ResMaxSigma[0] = (GL[0]->GetYaxis()->GetXmax() - GL[0]->GetYaxis()->GetXmin());
+  }
+  for( int i=1; i<6; ++i ) {
+    MuScleFitUtils::ResHalfWidth[i] = (GL[i]->GetXaxis()->GetXmax() - GL[i]->GetXaxis()->GetXmin())/2;
+    MuScleFitUtils::ResMaxSigma[i] = (GL[i]->GetYaxis()->GetXmax() - GL[i]->GetYaxis()->GetXmin());
+  }
+  // if( debug_>2 ) {
+    for( int i=0; i<6; ++i ) {
+      cout << "MuScleFitUtils::ResHalfWidth["<<i<<"] = " << MuScleFitUtils::ResHalfWidth[i] << endl;
+      cout << "MuScleFitUtils::ResMaxSigma["<<i<<"] = " << MuScleFitUtils::ResMaxSigma[i] << endl;
+    }
+  // }
 
   // Extract normalization for mass slice in Y bins of Z
   // ---------------------------------------------------

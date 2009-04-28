@@ -105,7 +105,7 @@ TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebinX, 
   vector<double> Xcenter;
   vector<double> Ex;
 
-  TString fileOutName("fitCompare2");
+  TString fileOutName("fitCompare2"+name);
   fileOutName += append;
   fileOutName += ".root";
   TFile *fileOut=new TFile(fileOutName,"RECREATE");
@@ -282,6 +282,7 @@ TF1* gaussianFit(TH1* histoY, const TString & resonanceType){
   fit->SetParNames("norm","width","mean");
   fit->SetLineWidth(2);
 
+  if( histoY->GetNbinsX() > 1000 ) histoY->Rebin(10);
   histoY->Fit(name,"R0");
 
   return fit;

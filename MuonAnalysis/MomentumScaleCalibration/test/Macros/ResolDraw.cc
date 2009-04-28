@@ -132,15 +132,18 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
           TH2F *h2 = (TH2F*)obj;
 
           int xBins = h2->GetNbinsX();
-          if( xBins > 50 ) {
-            h2->RebinX(4);
-            xBins /= 4;
-          }
-          if( namesIt->Contains("PtGenVSMu_ResoVSPt") ) h2->RebinY(8);
+          // if( xBins > 50 ) {
+          //   h2->RebinX(4);
+          //   xBins /= 4;
+          // }
+          // if( namesIt->Contains("PtGenVSMu_ResoVSPt") ) h2->RebinY(8);
           TH1D * h1 = h2->ProjectionX();
+          TH1D * h1RMS = h2->ProjectionX();
           // h1->Clear();
           h1->Reset();
           h1->SetName(*namesIt+"_resol");
+          h1RMS->Reset();
+          h1RMS->SetName(*namesIt+"_resolRMS");
           TProfile * profile = h2->ProfileX();
 
           // This is used to fit half eta, needed to get the resolution function by value
@@ -158,8 +161,12 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
               TH1D * temp2 = h2->ProjectionY(fitName+fitNum.str(),xBins+1-x,xBins+1-x);
               temp->Add(temp2);
               temp->Fit("gaus");
-              double rms = temp->GetFunction("gaus")->GetParameter(2);
-              double rmsError = temp->GetFunction("gaus")->GetParError(2);
+              double sigma = temp->GetFunction("gaus")->GetParameter(2);
+              double sigmaError = temp->GetFunction("gaus")->GetParError(2);
+              double rms = temp->GetRMS();
+              double rmsError = temp->GetRMSError();
+              cout << "sigma = " << rms << endl;
+              cout << "sigma error = " << rmsError << endl;
               cout << "rms = " << rms << endl;
               cout << "rms error = " << rmsError << endl;
               // Reverse x in the first half to the second half.
@@ -171,10 +178,15 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
               }
               // cout << "x = " << x << ", xToFill = " << xToFill << endl;
               // cout << "rms = " << rms << ", rmsError = " << rmsError << endl;
-              h1->SetBinContent(x, rms);
-              h1->SetBinError(x, rmsError);
+              h1->SetBinContent(x, sigma);
+              h1->SetBinError(x, sigmaError);
               h1->SetBinContent(xBins+1-x, 0);
               h1->SetBinError(xBins+1-x, 0);
+
+              h1RMS->SetBinContent(x, rms);
+              h1RMS->SetBinError(x, rmsError);
+              h1RMS->SetBinContent(xBins+1-x, 0);
+              h1RMS->SetBinError(xBins+1-x, 0);
               // h2->ProjectionY("_px",x,x)->Write();
               fits->cd();
               temp->Write();
@@ -185,6 +197,7 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
             //   cout << "bin["<<i<<"] = " << h1->GetBinContent(i) << endl;
             // }
             h1->Write();
+            h1RMS->Write();
           }
           else {
             for( int x=1; x<=xBins; ++x ) {
@@ -198,18 +211,22 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
               // double rms = temp->GetRMS();
               // double rmsError = temp->GetRMSError();
 
-              double rms = temp->GetFunction("gaus")->GetParameter(2);
-              double rmsError = temp->GetFunction("gaus")->GetParError(2);
-              if( rms != rms ) cout << "value is NaN: rms = " << rms << endl; 
-              if( rms == rms ) {
+              double sigma = temp->GetFunction("gaus")->GetParameter(2);
+              double sigmaError = temp->GetFunction("gaus")->GetParError(2);
+              double rms = temp->GetRMS();
+              double rmsError = temp->GetRMSError();
+              if( sigma != sigma ) cout << "value is NaN: rms = " << rms << endl; 
+              if( sigma == sigma ) {
 
                 cout << "rms = " << rms << endl;
                 cout << "rms error = " << rmsError << endl;
 
                 // NaN is the only value different from itself. Infact NaN is "not a number"
                 // and it is not equal to any value, including itself.
-                h1->SetBinContent(x, rms);
-                h1->SetBinError(x, rmsError);
+                h1->SetBinContent(x, sigma);
+                h1->SetBinError(x, sigmaError);
+                h1RMS->SetBinContent(x, rms);
+                h1RMS->SetBinError(x, rmsError);
               }
               // h2->ProjectionY("_px",x,x)->Write();
               fits->cd();
@@ -218,6 +235,7 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
             target->cd();
             profile->Write();
             h1->Write();
+            h1RMS->Write();
           }
         }
       }

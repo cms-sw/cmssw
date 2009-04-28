@@ -105,10 +105,24 @@ void ResolCompare(const TString & stringNumBefore = "0", const TString & stringN
        "resolution on pt vs pt",
        "pt(GeV)", "#sigmapt/pt",0.05,
        functionResolDirAfter, resolDirAfter );
+  // VS Pt RMS
+  draw("hResolPtGenVSMu_ResoVSPt_resolRMS", resolDirBefore,
+       "hFunctionResolPt_ResoVSPt_prof", functionResolDirBefore,
+       "resolPtVSptRMS", outputFile,
+       "resolution on pt vs pt",
+       "pt(GeV)", "#sigmapt/pt",0.05,
+       functionResolDirAfter, resolDirAfter );
   // VS Eta
   draw("hResolPtGenVSMu_ResoVSEta_resol", resolDirBefore,
        "hFunctionResolPt_ResoVSEta_prof", functionResolDirBefore,
        "resolPtVSeta", outputFile,
+       "resolution on pt vs #eta",
+       "#eta", "#sigmapt/pt",0.05,
+       functionResolDirAfter, resolDirAfter );
+  // VS Eta RMS
+  draw("hResolPtGenVSMu_ResoVSEta_resolRMS", resolDirBefore,
+       "hFunctionResolPt_ResoVSEta_prof", functionResolDirBefore,
+       "resolPtVSetaRMS", outputFile,
        "resolution on pt vs #eta",
        "#eta", "#sigmapt/pt",0.05,
        functionResolDirAfter, resolDirAfter );

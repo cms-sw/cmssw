@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/04/10 09:39:10 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/04/15 15:53:19 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -158,19 +158,22 @@ double MuScleFitUtils::GLZValue[][1001][1001];
 double MuScleFitUtils::GLZNorm[][1001];         
 double MuScleFitUtils::GLValue[][1001][1001];  
 double MuScleFitUtils::GLNorm[][1001];         
-double MuScleFitUtils::ResMaxSigma[][3];
+double MuScleFitUtils::ResMaxSigma[];
 
 // Masses and widths from PDG 2006, half widths to be revised
 // NB in particular, halfwidths have to be made a function of muonType
 // -------------------------------------------------------------------
 const double MuScleFitUtils::mMu2 = 0.011163612;
 const double MuScleFitUtils::muMass = 0.105658;
-double MuScleFitUtils::ResHalfWidth[][3];
+double MuScleFitUtils::ResHalfWidth[];
+double MuScleFitUtils::massWindowHalfWidth[][3];
 int MuScleFitUtils::MuonType;
 
 double MuScleFitUtils::ResGamma[] = {2.4952, 0.0000934, 0.000337, 0.000054, 0.000032, 0.000020};
 double MuScleFitUtils::ResMass[] = {91.1876, 10.3552, 10.0233, 9.4603, 3.68609, 3.0969};
 unsigned int MuScleFitUtils::loopCounter = 5;
+
+const unsigned int MuScleFitUtils::motherPdgIdArray[] = {23, 200553, 100553, 553, 100443, 443};
 
 double MuScleFitUtils::leftWindowFactor = 1.;
 double MuScleFitUtils::rightWindowFactor = 1.;
@@ -258,6 +261,8 @@ pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes( const vector<
       // Accept combinations only if both muons have |eta|<2.4 and pt>3
       // --------------------------------------------------------------
       if ((*Muon1).p4().Pt()>3.0 && (*Muon2).p4().Pt()>3.0 &&
+      // Increased to test the problem of low pt resolution
+      // if ((*Muon1).p4().Pt()>8.0 && (*Muon2).p4().Pt()>8.0 &&
 	  abs((*Muon1).p4().Eta())<2.4 && abs((*Muon2).p4().Eta())<2.4) {
 	double mcomb = ((*Muon1).p4()+(*Muon2).p4()).mass();
 	double Y = ((*Muon1).p4()+(*Muon2).p4()).Eta();
@@ -291,7 +296,7 @@ pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes( const vector<
 
 pair <lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const Handle<HepMCProduct> & evtMC ){
   const HepMC::GenEvent* Evt = evtMC->GetEvent();
-  pair<lorentzVector,lorentzVector> muFromRes; 
+  pair<lorentzVector,lorentzVector> muFromRes;
   //Loop on generated particles
   for (HepMC::GenEvent::particle_const_iterator part=Evt->particles_begin(); 
        part!=Evt->particles_end(); part++) {
@@ -299,10 +304,16 @@ pair <lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const Hand
       bool fromRes = false;
       for (HepMC::GenVertex::particle_iterator mother = (*part)->production_vertex()->particles_begin(HepMC::ancestors);
 	   mother != (*part)->production_vertex()->particles_end(HepMC::ancestors); ++mother) {
-	if ((*mother)->pdg_id()==23  || (*mother)->pdg_id()==443    || (*mother)->pdg_id()==100443 || 
-	    (*mother)->pdg_id()==553 || (*mother)->pdg_id()==100553 || (*mother)->pdg_id()==200553) {
-	  fromRes = true;
-	}
+        unsigned int motherPdgId = (*mother)->pdg_id();
+
+        for( int ires = 0; ires < 6; ++ires ) {
+          if( motherPdgId == motherPdgIdArray[ires] && resfind[ires] ) fromRes = true;
+        }
+
+// 	if ((*mother)->pdg_id()==23  || (*mother)->pdg_id()==443    || (*mother)->pdg_id()==100443 || 
+// 	    (*mother)->pdg_id()==553 || (*mother)->pdg_id()==100553 || (*mother)->pdg_id()==200553) {
+// 	  fromRes = true;
+// 	}
       }
       if(fromRes){
 	if((*part)->pdg_id()==13)
@@ -329,14 +340,25 @@ pair <lorentzVector, lorentzVector> MuScleFitUtils::findSimMuFromRes( const Hand
 
 	for (HepMC::GenVertex::particle_iterator mother = gp->production_vertex()->particles_begin(HepMC::ancestors);
 	     mother!=gp->production_vertex()->particles_end(HepMC::ancestors); ++mother) {
-	  if ((*mother)->pdg_id()==23  || (*mother)->pdg_id()==443    || (*mother)->pdg_id()==100443 || 
-	      (*mother)->pdg_id()==553 || (*mother)->pdg_id()==100553 || (*mother)->pdg_id()==200553) {
+
+          bool fromRes = false;
+          unsigned int motherPdgId = (*mother)->pdg_id();
+          for( int ires = 0; ires < 6; ++ires ) {
+            if( motherPdgId == motherPdgIdArray[ires] && resfind[ires] ) fromRes = true;
+          }
+//  	  if( ((*mother)->pdg_id() == 23     && resfind[0]) ||
+//               ((*mother)->pdg_id() == 443    && resfind[1]) ||
+//               ((*mother)->pdg_id() == 100443 && resfind[2]) || 
+//  	      ((*mother)->pdg_id() == 553    && resfind[3]) ||
+//               ((*mother)->pdg_id() == 100553 && resfind[4]) ||
+//               ((*mother)->pdg_id() == 200553 && resfind[5]) {
+          if( fromRes ) {
 	    if(gp->pdg_id() == 13)
 	      simMuFromRes.first = lorentzVector(simTrack->momentum().px(),simTrack->momentum().py(),
-								 simTrack->momentum().pz(),simTrack->momentum().e());
+                                                 simTrack->momentum().pz(),simTrack->momentum().e());
 	    else
 	      simMuFromRes.second = lorentzVector(simTrack->momentum().px(),simTrack->momentum().py(),
-								 simTrack->momentum().pz(),simTrack->momentum().e()); 
+                                                  simTrack->momentum().pz(),simTrack->momentum().e()); 
 	  }
 	}
       }
@@ -709,8 +731,8 @@ double MuScleFitUtils::massResolution( const lorentzVector& mu1,
   // ----------
   bool didit = false;
   for (int ires=0; ires<6; ires++) {
-    if (!didit && resfind[ires]>0 && fabs(mass-ResMass[ires])<ResHalfWidth[ires][MuonType]) {
-      if (mass_res>ResMaxSigma[ires][MuonType] && counter_resprob<100) {
+    if (!didit && resfind[ires]>0 && fabs(mass-ResMass[ires])<ResHalfWidth[ires]) {
+      if (mass_res>ResMaxSigma[ires] && counter_resprob<100) {
 	counter_resprob++;
 	cout << "RESOLUTION PROBLEM: ires=" << ires << endl;
 // 	cout << "---------------------------" << endl;
@@ -872,19 +894,21 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
   // NB max value of Z rapidity to be considered is 4. here
   // -------------------------------------------------------
 
-  if (resfind[0]>0 && fabs(mass-ResMass[0])<ResHalfWidth[0][MuonType] && fabs(rapidity)<4.) {
+  if (resfind[0]>0 && fabs(mass-ResMass[0])<ResHalfWidth[0] && fabs(rapidity)<4.) {
     int iY = (int)(fabs(rapidity)*10.);
     resConsidered[0] = true;
     nres += 1;
-    
+
     if (MuScleFitUtils::debug>1) cout << "massProb:resFound = 0, rapidity bin =" << iY << endl;
     
     // Interpolate the four values of GLZValue[] in the 
     // grid square within which the (mass,sigma) values lay 
     // ----------------------------------------------------
-    double fracMass = (mass-(ResMass[0]-ResHalfWidth[0][MuonType]))/(2*ResHalfWidth[0][MuonType]);
-    if (debug>1) cout<< setprecision(9)<<"mass ResMass[0] ResHalfWidth[0][MuonType] ResHalfWidth[0][MuonType]"
-		     << mass << " "<<ResMass[0]<<" "<<ResHalfWidth[0][MuonType]<<" "<<ResHalfWidth[0][MuonType]<<endl;
+    // This must be done with respect to the width used in the computation of the probability distribution,
+    // so that the bin 0 really matches the bin 0 of that distribution.
+    double fracMass = (mass-(ResMass[0]-ResHalfWidth[0]))/(2*ResHalfWidth[0]);
+    if (debug>1) cout << setprecision(9)<<"mass ResMass[0] ResHalfWidth[0] ResHalfWidth[0]"
+                      << mass << " "<<ResMass[0]<<" "<<ResHalfWidth[0]<<" "<<ResHalfWidth[0]<<endl;
     int iMassLeft  = (int)(fracMass*(double)nbins);
     int iMassRight = iMassLeft+1;
     double fracMassStep = (double)nbins*(fracMass - (double)iMassLeft/(double)nbins);
@@ -895,19 +919,19 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
     // ---------------------------------------------------------------------------------
     if (iMassLeft<0) {
       cout << "WARNING: fracMass=" << fracMass << ", iMassLeft=" 
-	   << iMassLeft << "; mass = " << mass << " and bounds are " << ResMass[0]-ResHalfWidth[0][MuonType] 
-	   << ":" << ResMass[0]+ResHalfWidth[0][MuonType] << " - iMassLeft set to 0" << endl;
+	   << iMassLeft << "; mass = " << mass << " and bounds are " << ResMass[0]-ResHalfWidth[0] 
+	   << ":" << ResMass[0]+ResHalfWidth[0] << " - iMassLeft set to 0" << endl;
       iMassLeft  = 0;
       iMassRight = 1;
     }
     if (iMassRight>nbins) {
       cout << "WARNING: fracMass=" << fracMass << ", iMassRight=" 
-	   << iMassRight << "; mass = " << mass << " and bounds are " << ResMass[0]-ResHalfWidth[0][MuonType] 
-	   << ":" << ResMass[0]+ResHalfWidth[0][MuonType] << " - iMassRight set to " << nbins-1 << endl;
+	   << iMassRight << "; mass = " << mass << " and bounds are " << ResMass[0]-ResHalfWidth[0] 
+	   << ":" << ResMass[0]+ResHalfWidth[0] << " - iMassRight set to " << nbins-1 << endl;
       iMassLeft  = nbins-1;
       iMassRight = nbins;
     }
-    double fracSigma = (massResol/ResMaxSigma[0][MuonType]);
+    double fracSigma = (massResol/ResMaxSigma[0]);
     int iSigmaLeft = (int)(fracSigma*(double)nbins);
     int iSigmaRight = iSigmaLeft+1;
     double fracSigmaStep = (double)nbins * (fracSigma - (double)iSigmaLeft/(double)nbins);
@@ -918,16 +942,16 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
     // ----------------------------------------------------------------------------------
     if (iSigmaLeft<0) { 
       cout << "WARNING: fracSigma = " << fracSigma << ", iSigmaLeft=" 
-	   << iSigmaLeft << ", with massResol = " << massResol << " and ResMaxSigma[0]["<<MuonType<<"] = "
-           << ResMaxSigma[0][MuonType] << " -  iSigmaLeft set to 0" << endl;
+	   << iSigmaLeft << ", with massResol = " << massResol << " and ResMaxSigma[0] = "
+           << ResMaxSigma[0] << " -  iSigmaLeft set to 0" << endl;
       iSigmaLeft  = 0;
       iSigmaRight = 1;
     }
     if (iSigmaRight>nbins ) { 
       if (counter_resprob<100)
         cout << "WARNING: fracSigma = " << fracSigma << ", iSigmaRight=" 
-             << iSigmaRight << ", with massResol = " << massResol << " and ResMaxSigma[0]["<<MuonType<<"] = "
-             << ResMaxSigma[0][MuonType] << " -  iSigmaRight set to " << nbins-1 << endl;
+             << iSigmaRight << ", with massResol = " << massResol << " and ResMaxSigma[0] = "
+             << ResMaxSigma[0] << " -  iSigmaRight set to " << nbins-1 << endl;
       iSigmaLeft  = nbins-1;
       iSigmaRight = nbins;
     }
@@ -980,9 +1004,9 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
         // Interpolate the four values of GLValue[] in the 
         // grid square within which the (mass,sigma) values lay 
         // ----------------------------------------------------
-        double fracMass = (mass-(ResMass[ires]-ResHalfWidth[ires][MuonType]))/(2*ResHalfWidth[ires][MuonType]);
-        if (debug>1) cout<<setprecision(9)<<"mass ResMass[ires] ResHalfWidth[ires][MuonType] ResHalfWidth[ires][MuonType]"
-                         <<mass<<" "<<ResMass[ires]<<" "<<ResHalfWidth[ires][MuonType]<<" "<<ResHalfWidth[ires][MuonType]<<endl;
+        double fracMass = (mass-(ResMass[ires]-ResHalfWidth[ires]))/(2*ResHalfWidth[ires]);
+        if (debug>1) cout<<setprecision(9)<<"mass ResMass[ires] ResHalfWidth[ires] ResHalfWidth[ires]"
+                         <<mass<<" "<<ResMass[ires]<<" "<<ResHalfWidth[ires]<<" "<<ResHalfWidth[ires]<<endl;
         int iMassLeft  = (int)(fracMass*(double)nbins);
         int iMassRight = iMassLeft+1;
         double fracMassStep = (double)nbins*(fracMass - (double)iMassLeft/(double)nbins);
@@ -993,21 +1017,21 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
         // ---------------------------------------------------------------------------------
         if (iMassLeft<0) {
           cout << "WARNING: fracMass=" << fracMass << ", iMassLeft=" 
-               << iMassLeft << "; mass = " << mass << " and bounds are " << ResMass[ires]-ResHalfWidth[ires][MuonType] 
-               << ":" << ResMass[ires]+ResHalfWidth[ires][MuonType] << " - iMassLeft set to 0" << endl;
+               << iMassLeft << "; mass = " << mass << " and bounds are " << ResMass[ires]-ResHalfWidth[ires] 
+               << ":" << ResMass[ires]+ResHalfWidth[ires] << " - iMassLeft set to 0" << endl;
           iMassLeft  = 0;
           iMassRight = 1;
           insideProbMassWindow = false;
         }
         if (iMassRight>nbins) {
           cout << "WARNING: fracMass=" << fracMass << ", iMassRight=" 
-               << iMassRight << "; mass = " << mass << " and bounds are " << ResMass[ires]-ResHalfWidth[ires][MuonType] 
-               << ":" << ResMass[ires]+ResHalfWidth[ires][MuonType] << " - iMassRight set to " << nbins-1 << endl;
+               << iMassRight << "; mass = " << mass << " and bounds are " << ResMass[ires]-ResHalfWidth[ires] 
+               << ":" << ResMass[ires]+ResHalfWidth[ires] << " - iMassRight set to " << nbins-1 << endl;
           iMassLeft  = nbins-1;
           iMassRight = nbins;
           insideProbMassWindow = false;
         }
-        double fracSigma = (massResol/ResMaxSigma[ires][MuonType]);
+        double fracSigma = (massResol/ResMaxSigma[ires]);
         int iSigmaLeft = (int)(fracSigma*(double)nbins);
         int iSigmaRight = iSigmaLeft+1;
         double fracSigmaStep = (double)nbins * (fracSigma - (double)iSigmaLeft/(double)nbins);
@@ -1018,16 +1042,16 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
         // ----------------------------------------------------------------------------------
         if (iSigmaLeft<0) {
           cout << "WARNING: fracSigma = " << fracSigma << ", iSigmaLeft=" 
-               << iSigmaRight << ", with massResol = " << massResol << " and ResMaxSigma["<<ires<<"]["<<MuonType<<"] = "
-               << ResMaxSigma[ires][MuonType] << " -  iSigmaLeft set to 0" << endl;
+               << iSigmaRight << ", with massResol = " << massResol << " and ResMaxSigma["<<ires<<"] = "
+               << ResMaxSigma[ires] << " -  iSigmaLeft set to 0" << endl;
           iSigmaLeft  = 0;
           iSigmaRight = 1;
         }
         if (iSigmaRight>nbins ) { 
           if (counter_resprob<100)
             cout << "WARNING: fracSigma = " << fracSigma << ", iSigmaRight=" 
-                 << iSigmaRight << ", with massResol = " << massResol << " and ResMaxSigma["<<ires<<"]["<<MuonType<<"] = "
-                 << ResMaxSigma[ires][MuonType] << " -  iSigmaRight set to " << nbins-1 << endl;
+                 << iSigmaRight << ", with massResol = " << massResol << " and ResMaxSigma["<<ires<<"] = "
+                 << ResMaxSigma[ires] << " -  iSigmaRight set to " << nbins-1 << endl;
           iSigmaLeft  = nbins-1;
           iSigmaRight = nbins;
         }
@@ -1089,8 +1113,8 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
 
   double PB = 0.;
   // Uncomment this two lines and comment all the next part (up to PStot excluded) to use the background functions defined in Functions.h
-  // ATTENTION: the functions depend strongly on the second size of the resHalfWidth[][3]. If it is changed, the functions must be changed too.
-  // Cannot call directly passing a double ** because of the declaration of resHalfWidth[][] as 2D array. Workaround needed.
+  // ATTENTION: the functions depend strongly on the second size of the resHalfWidth[]. If it is changed, the functions must be changed too.
+  // Cannot call directly passing a double ** because of the declaration of resHalfWidth[] as 2D array. Workaround needed.
   int resTotNum = 6;
   PB = (*backgroundFunction)( &(parval[shift]), resTotNum, nres, resConsidered, ResMass, ResHalfWidth, MuonType, mass, nbins );
 
@@ -1123,7 +1147,7 @@ bool MuScleFitUtils::checkMassWindow( const double & mass, const int ires )
 {
   // Special conditions for J/Psi and Upsilon: 3*Gamma on the left and Gamma on the right (so as to avoid the Psi1S and Upsilon1S).
   // Separated so that the correct mass window is checked for each resonance.
-//   if (ires == 3 && resfind[3]>0 && ( (mass-ResMass[3]>-leftWindowFactor*ResHalfWidth[3][MuonType]) && (mass-ResMass[3]<rightWindowFactor*ResHalfWidth[3][MuonType]) )) {
+//   if (ires == 3 && resfind[3]>0 && ( (mass-ResMass[3]>-leftWindowFactor*ResHalfWidth[3]) && (mass-ResMass[3]<rightWindowFactor*ResHalfWidth[3][MuonType]) )) {
 //     if( debug>1 ) cout << "Upsilon: ires = " << ires << ", mass = " << mass << ", ResMass[3] = " << ResMass[3]
 //                       << ", ResHalfWidth[3][MuonType] = " << ResHalfWidth[3][MuonType] << endl;
 //     return true;
@@ -1134,8 +1158,8 @@ bool MuScleFitUtils::checkMassWindow( const double & mass, const int ires )
 //     return true;
 //   }
 
-  // return( fabs(mass-ResMass[ires]) < ResHalfWidth[ires][MuonType] );
-  return( mass-ResMass[ires] > -leftWindowFactor*ResHalfWidth[ires][MuonType] && mass-ResMass[ires] < rightWindowFactor*ResHalfWidth[ires][MuonType] );
+  // return( fabs(mass-ResMass[ires]) < massWindowHalfWidth[ires][MuonType] );
+  return( mass-ResMass[ires] > -leftWindowFactor*massWindowHalfWidth[ires][MuonType] && mass-ResMass[ires] < rightWindowFactor*massWindowHalfWidth[ires][MuonType] );
 }
 
 // Function that returns the weight for a muon pair
@@ -1152,7 +1176,7 @@ double MuScleFitUtils::computeWeight( const double & mass )
   // -----------------------------------------------------------------------------------------------
   for (int ires=0; ires<6; ires++) {
     if (resfind[ires]>0 && weight==0.) {
-      // if (abs(mass-ResMass[ires])<ResHalfWidth[ires][MuonType]) {
+      // if (abs(mass-ResMass[ires])<ResHalfWidth[ires]) {
       if( checkMassWindow(mass, ires) ) {
 	weight = 1.0;
       }

@@ -5,8 +5,8 @@
  *  
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2009/03/16 12:42:07 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/04/09 15:42:02 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -109,11 +109,14 @@ public:
   static int debug;       // debug option set by MuScleFit
   static bool ResFound;   // bool flag true if best resonance found (cuts on pt and eta)
 
-  static double ResHalfWidth[6][3]; // parameter set by MuScleFitUtils
+  static double massWindowHalfWidth[6][3]; // parameter set by MuScleFitUtils
   static double ResGamma[6];     // parameter set by MuScleFitUtils
   static double ResMass[6];      // parameter set by MuScleFitUtils
   static const double mMu2;
   static const double muMass;
+
+  // Array of the pdgId of resonances
+  static const unsigned int motherPdgIdArray[6];
 
   static unsigned int loopCounter; // parameter set by MuScleFit
 
@@ -160,7 +163,8 @@ public:
   static double GLZNorm[40][1001];        // normalization values per each sigma
   static double GLValue[6][1001][1001]; // matrix with integral values of Lorentz * Gaussian 
   static double GLNorm[6][1001];        // normalization values per each sigma
-  static double ResMaxSigma[6][3];         // max sigma of matrix
+  static double ResMaxSigma[6];         // max sigma of matrix
+  static double ResHalfWidth[6];        // halfwidth in matrix
   static int nbins;                     // number of bins in matrix
   static int MuonType; // 0, 1, 2 - 0 is GM, 1 is SM, 2 is track
 

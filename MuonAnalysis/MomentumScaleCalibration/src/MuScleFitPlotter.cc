@@ -1,8 +1,8 @@
 //  \class MuScleFitPlotter
 //  Plotter for simulated,generated and reco info of muons
 //
-//  $Date: 2009/01/08 17:03:38 $
-//  $Revision: 1.4 $
+//  $Date: 2009/03/16 12:42:50 $
+//  $Revision: 1.1 $
 //  \author  C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 // ----------------------------------------------------------------------------------
@@ -49,39 +49,46 @@ MuScleFitPlotter::~MuScleFitPlotter(){
 
 // Find and store in histograms the generated resonance and muons
 // --------------------------------------------------------------
-void MuScleFitPlotter::fillGen1(Handle<GenParticleCollection> genParticles){
+void MuScleFitPlotter::fillGen1(Handle<GenParticleCollection> genParticles)
+{
   bool prova = false;
   //Loop on generated particles
-  pair<reco::Particle::LorentzVector,reco::Particle::LorentzVector> muFromRes; 
+  pair<reco::Particle::LorentzVector,reco::Particle::LorentzVector> muFromRes;
+  reco::Particle::LorentzVector genRes;
 
-  for (GenParticleCollection::const_iterator mcIter=genParticles->begin(); mcIter!=genParticles->end(); ++mcIter ){
-   //Check if it's a resonance
-    if (mcIter->status()==2 && 
-	(fabs(mcIter->pdgId())==23  || fabs(mcIter->pdgId())==443    || fabs(mcIter->pdgId())==100443 || 
-	 fabs(mcIter->pdgId())==553 || fabs(mcIter->pdgId())==100553 || fabs(mcIter->pdgId())==200553)){
-      mapHisto["hGenRes"]->Fill(mcIter->p4());
-    }   
+  for( GenParticleCollection::const_iterator mcIter=genParticles->begin(); mcIter!=genParticles->end(); ++mcIter ) {
+    int status = mcIter->status();
+    int pdgId = abs(mcIter->pdgId());
+    //Check if it's a resonance
+    if( status == 2 &&
+        ( pdgId==23  || pdgId==443    || pdgId==100443 ||
+          pdgId==553 || pdgId==100553 || pdgId==200553 ) ) {
+      genRes = mcIter->p4();
+      mapHisto["hGenRes"]->Fill(genRes);
+    }
     //Check if it's a muon from a resonance
-    if(mcIter->status()==1 && fabs(mcIter->pdgId())==13){
+    if( status==1 && pdgId==13 ) {
       int momPdgId = abs(mcIter->mother()->pdgId());
-      if(momPdgId==23  || momPdgId==443    || momPdgId==100443 || 
-	 momPdgId==553 || momPdgId==100553 || momPdgId==200553){
-	mapHisto["hGenMu"]->Fill(mcIter->p4());     
+      if( momPdgId==23  || momPdgId==443    || momPdgId==100443 || 
+          momPdgId==553 || momPdgId==100553 || momPdgId==200553 ) {
+	mapHisto["hGenMu"]->Fill(mcIter->p4());
 	cout<<"genmu "<<mcIter->p4()<<endl;
 	if(mcIter->charge()>0){
 	  muFromRes.first = mcIter->p4();
 	  prova = true;
 	}
-	else
-	  muFromRes.second = mcIter->p4();
+	else muFromRes.second = mcIter->p4();
       }
     }
   }
   if(!prova)
     cout<<"hgenmumu not found"<<endl;
   cout<<"genmumu "<<muFromRes.first+muFromRes.second<<endl;
-  
+
   mapHisto["hGenMuMu"]->Fill(muFromRes.first+muFromRes.second);
+  mapHisto["hGenResVSMu"]->Fill( muFromRes.first, genRes, 1 );
+  mapHisto["hGenResVSMu"]->Fill( muFromRes.second,genRes, -1 );
+  mapHisto["hGenResVsSelf"]->Fill( genRes, genRes, 1 );
 }
 
 // Find and store in histograms the generated resonance and muons
@@ -91,20 +98,24 @@ void MuScleFitPlotter::fillGen2(Handle<HepMCProduct> evtMC){
   //Loop on generated particles
   const HepMC::GenEvent* Evt = evtMC->GetEvent();
   pair<reco::Particle::LorentzVector,reco::Particle::LorentzVector> muFromRes; 
+  reco::Particle::LorentzVector genRes;
 
   for (HepMC::GenEvent::particle_const_iterator part=Evt->particles_begin(); 
        part!=Evt->particles_end(); part++) {
+    int status = (*part)->status();
+    int pdgId = (*part)->pdg_id();
     //cout<<"PDG ID "<< (*part)->pdg_id() <<"    status "<< (*part)->status()
     //	<<"   pt "<<(*part)->momentum().perp()<< "     eta  "<<(*part)->momentum().eta()<<endl    ;
      //Check if it's a resonance	
-    if ((*part)->status()==2 && 
-	((*part)->pdg_id()==23  || (*part)->pdg_id()==443    || (*part)->pdg_id()==100443 ||
-	 (*part)->pdg_id()==553 || (*part)->pdg_id()==100553 || (*part)->pdg_id()==200553)) {
-      mapHisto["hGenRes"]->Fill(reco::Particle::LorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
-							      (*part)->momentum().pz(),(*part)->momentum().e()));
-   }
+    if( status==2 && 
+        ( pdgId==23  || pdgId==443    || pdgId==100443 ||
+          pdgId==553 || pdgId==100553 || pdgId==200553 ) ) {
+      genRes = reco::Particle::LorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
+                                             (*part)->momentum().pz(),(*part)->momentum().e());
+      mapHisto["hGenRes"]->Fill(genRes);
+    }
     //Check if it's a muon from a resonance
-    if (fabs((*part)->pdg_id())==13 && (*part)->status()==1) {      
+    if (pdgId==13 && status==1) {      
       bool fromRes=false;
       for (HepMC::GenVertex::particle_iterator mother = 
 	     (*part)->production_vertex()->particles_begin(HepMC::ancestors);
@@ -127,6 +138,9 @@ void MuScleFitPlotter::fillGen2(Handle<HepMCProduct> evtMC){
     }
   }
   mapHisto["hGenMuMu"]->Fill(muFromRes.first+muFromRes.second);
+  mapHisto["hGenResVSMu"]->Fill( muFromRes.first, genRes, 1 );
+  mapHisto["hGenResVSMu"]->Fill( muFromRes.second,genRes, -1 );
+  mapHisto["hGenResVsSelf"]->Fill( genRes, genRes, 1 );
 }
 
 // Find and store in histograms the simulated resonance and muons
@@ -169,7 +183,7 @@ void MuScleFitPlotter::fillGen2(Handle<HepMCProduct> evtMC){
        }
      }
    
-    // Plots for the best possible simulated resonance
+     // Plots for the best possible simulated resonance
      pair<SimTrack,SimTrack> simMuFromBestRes = MuScleFitUtils::findBestSimuRes(simMuons);
      reco::Particle::LorentzVector bestSimZ = (simMuFromBestRes.first).momentum()+(simMuFromBestRes.second).momentum();
      mapHisto["hSimBestRes"]->Fill(bestSimZ);
@@ -227,6 +241,8 @@ void MuScleFitPlotter::fillHistoMap() {
   mapHisto["hGenRes"]         = new HParticle   ("hGenRes");
   mapHisto["hGenMu"]        = new HParticle   ("hGenMu");
   mapHisto["hGenMuMu"]      = new HParticle   ("hGenMuMu");
+  mapHisto["hGenResVSMu"]   = new HMassVSPart ("hGenResVSMu");
+  mapHisto["hGenResVsSelf"] = new HMassVSPart ("hGenResVsSelf");
 
   // Simulated resonance and muons
   // -----------------------------

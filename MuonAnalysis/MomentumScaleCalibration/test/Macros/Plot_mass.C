@@ -39,9 +39,9 @@ int getXbins(const TH1 * h, const double & xMin, const double & xMax)
   double binWidth = xAxis->GetBinWidth(1);
   int xMinBin = int((xMin - xAxisMin)/binWidth) + 1;
   int xMaxBin = int((xMax - xAxisMin)/binWidth) + 1;
-  cout << "xMinBin = " << xMinBin << endl;
-  cout << "xMaxBin = " << xMaxBin << endl;
-  cout << "binWidth = " << binWidth << endl;
+  // cout << "xMinBin = " << xMinBin << endl;
+  // cout << "xMaxBin = " << xMaxBin << endl;
+  // cout << "binWidth = " << binWidth << endl;
   return( xMaxBin - xMinBin );
 }
 
@@ -77,21 +77,29 @@ void drawMasses(const double ResMass, const double ResHalfWidth, histos & h, con
   massProb->SetAxisRange(ResMass - ResHalfWidth, ResMass + ResHalfWidth);
 
   double massProbIntegral = massProb->Integral("width");
+  // double massProbIntegral = massProb->Integral();
   double normFactor = 1.;
   if( massProbIntegral != 0 ) normFactor = (mass->Integral("width"))/massProbIntegral;
+  // if( massProbIntegral != 0 ) normFactor = (mass->Integral())/massProbIntegral;
 
   massProb->SetLineColor(kBlue);
   massProb->Scale(normFactor);
+  if( ires == 3 ) {
+    cout << "massProbIntegralWidth = " << massProb->Integral("width") << endl;
+    cout << "massIntegralWidth = " << mass->Integral("width") << endl;
+    cout << "massProbIntegral = " << massProb->Integral() << endl;
+    cout << "massIntegral = " << mass->Integral() << endl;
+  }
 
   mass->SetMarkerColor(kRed);
   // ATTENTION: put so that the maximum is correct
   if( (massProb->GetMaximum()) > mass->GetMaximum() ) {
-    massProb->DrawCopy("PE");
-    mass->DrawCopy("PESAMEHISTO");
+    massProb->Draw("PE");
+    mass->Draw("PESAMEHISTO");
   }
   else {
-    mass->DrawCopy("PE");
-    massProb->DrawCopy("PESAMEHISTO");
+    mass->Draw("PE");
+    massProb->Draw("PESAMEHISTO");
   }
 }
 
@@ -110,8 +118,10 @@ void Plot_mass(const TString & fileNameBefore = "0", const TString & fileNameAft
 
   gStyle->SetOptStat ("111111");
   gStyle->SetOptFit (1);
-  
+
   double ResHalfWidth[6] = {20., 0.5, 0.5, 0.5, 0.2, 0.2};
+  // double ResHalfWidth[6] = {20., 0.25, 0.25, 0.25, 0.2, 0.2};
+  // double ResHalfWidth[6] = {20., 0.35, 0.35, 0.35, 0.2, 0.2};
   double ResMass[6] = {90.986, 10.3552, 10.0233, 9.4603, 3.68609, 3.0969};
 
   TFile * inputFile1 = new TFile(fileNameBefore+"_MuScleFit.root", "READ");

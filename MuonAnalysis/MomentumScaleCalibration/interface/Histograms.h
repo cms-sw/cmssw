@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2009/03/26 18:12:44 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/04/09 15:42:02 $
+ *  $Revision: 1.6 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -153,10 +153,11 @@ class HParticle : public Histograms {
   HParticle (const TString & name, const double & minMass = 0., const double & maxMass = 200.) :
     Histograms(name),
     // Kinematical variables
-    hPt(     new TH1F (name+"_Pt", "transverse momentum", 100, 0, 100) ),
-    hEta(    new TH1F (name+"_Eta", "pseudorapidity", 60, -6, 6) ),
-    hPhi(    new TH1F (name+"_Phi", "phi angle", 64, -3.2, 3.2) ),
-    hMass(   new TH1F (name+"_Mass", "mass", 40000, minMass, maxMass) ),
+    hPt(      new TH1F (name+"_Pt",      "transverse momentum", 100, 0, 100) ),
+    hPtVsEta( new TH2F (name+"_PtVsEta", "transverse momentum vs #eta", 100, 0, 100, 100, -3.2, 3.2) ),
+    hEta(     new TH1F (name+"_Eta",     "pseudorapidity", 60, -6, 6) ),
+    hPhi(     new TH1F (name+"_Phi",     "phi angle", 64, -3.2, 3.2) ),
+    hMass(    new TH1F (name+"_Mass",    "mass", 40000, minMass, maxMass) ),
     // hMass_fine = new TH1F (name+"_Mass_fine", "low mass fine binning", 4000, 0., 20. ); //Removed to avoid too many histos (more binning added to hMass)
     hNumber( new TH1F (name+"_Number", "number", 20, -0.5, 19.5) )
   {}
@@ -166,20 +167,22 @@ class HParticle : public Histograms {
     Histograms(outputFile, name)
   {
     // Kinematical variables
-    hPt =     new TH1F (name+"_Pt", "transverse momentum", 100, 0, 100);
-    hEta =    new TH1F (name+"_Eta", "pseudorapidity", 60, -6, 6);
-    hPhi =    new TH1F (name+"_Phi", "phi angle", 64, -3.2, 3.2);
-    hMass =   new TH1F (name+"_Mass", "mass", 40000, minMass, maxMass);
+    hPt =      new TH1F (name+"_Pt", "transverse momentum", 100, 0, 100);
+    hPtVsEta = new TH2F (name+"_PtVsEta", "transverse momentum vs #eta", 100, 0, 100, 100, -3.2, 3.2);
+    hEta =     new TH1F (name+"_Eta", "pseudorapidity", 60, -6, 6);
+    hPhi =     new TH1F (name+"_Phi", "phi angle", 64, -3.2, 3.2);
+    hMass =    new TH1F (name+"_Mass", "mass", 40000, minMass, maxMass);
     // hMass_fine = new TH1F (name+"_Mass_fine", "low mass fine binning", 4000, 0., 20. ); //Removed to avoid too many histos (more binning added to hMass)
     hNumber = new TH1F (name+"_Number", "number", 20, -0.5, 19.5);
   }
   
   HParticle (const TString & name, TFile* file) :
     Histograms(name),
-    hPt(     (TH1F *) file->Get(name_+"_Pt") ),
-    hEta(    (TH1F *) file->Get(name_+"_Eta") ),
-    hPhi(    (TH1F *) file->Get(name_+"_Phi") ),
-    hMass(   (TH1F *) file->Get(name_+"_Mass") ),
+    hPt(      (TH1F *) file->Get(name_+"_Pt") ),
+    hPtVsEta( (TH2F *) file->Get(name_+"_PtVsEta") ),
+    hEta(     (TH1F *) file->Get(name_+"_Eta") ),
+    hPhi(     (TH1F *) file->Get(name_+"_Phi") ),
+    hMass(    (TH1F *) file->Get(name_+"_Mass") ),
     //hMass_fine = (TH1F *) file->Get(name_+"_Mass_fine");
     hNumber( (TH1F *) file->Get(name_+"_Number") )
   {}
@@ -192,6 +195,7 @@ class HParticle : public Histograms {
 
   virtual void Fill (HepLorentzVector momentum) {
     hPt->Fill(momentum.perp());
+    hPtVsEta->Fill(momentum.perp(), momentum.eta());
     hEta->Fill(momentum.eta());
     hPhi->Fill(momentum.phi());
     hMass->Fill(momentum.m());
@@ -206,6 +210,7 @@ class HParticle : public Histograms {
     if(histoDir_ != 0) histoDir_->cd();
 
     hPt->Write();
+    hPtVsEta->Write();
     hEta->Write();    
     hPhi->Write();
     hMass->Write();
@@ -215,6 +220,7 @@ class HParticle : public Histograms {
   
   virtual void Clear() {
     hPt->Clear();
+    hPtVsEta->Clear();
     hEta->Clear();    
     hPhi->Clear();
     hMass->Clear();
@@ -224,12 +230,12 @@ class HParticle : public Histograms {
   
  protected:
   TH1F* hPt;
+  TH2F* hPtVsEta;
   TH1F* hEta;
   TH1F* hPhi;
   TH1F* hMass;
   //TH1F* hMass_fine;
   TH1F* hNumber;
-
 };
 
 // ---------------------------------------------------
@@ -764,13 +770,13 @@ class HResolutionVSPart : public Histograms{
     // Kinematical variables
     hReso           = new TH1F (name+"_Reso", "resolution", 4000, -1, 1);
     hResoVSPtEta    = new TH2F (name+"_ResoVSPtEta", "resolution VS pt and #eta", 200, 0, 200, 60, -3, 3);
-    hResoVSPt       = new TH2F (name+"_ResoVSPt", "resolution VS pt", 200, 0, 200, 4000, -1, 1);
+    hResoVSPt       = new TH2F (name+"_ResoVSPt", "resolution VS pt", 200, 0, 200, 8000, -1, 1);
     //hResoVSPt_prof  = new TProfile (name+"_ResoVSPt_prof", "resolution VS pt", 100, 0, 200, -1, 1);
-    hResoVSEta      = new TH2F (name+"_ResoVSEta", "resolution VS eta", 60, -3, 3, 4000, yMinEta, yMaxEta);
-    hResoVSTheta    = new TH2F (name+"_ResoVSTheta", "resolution VS theta", 30, 0, TMath::Pi(), 4000, -1, 1);
+    hResoVSEta      = new TH2F (name+"_ResoVSEta", "resolution VS eta", 60, -3, 3, 8000, yMinEta, yMaxEta);
+    hResoVSTheta    = new TH2F (name+"_ResoVSTheta", "resolution VS theta", 30, 0, TMath::Pi(), 8000, -1, 1);
     //hResoVSEta_prof = new TProfile (name+"_ResoVSEta_prof", "resolution VS eta", 10, -2.5, 2.5, -1, 1);
-    hResoVSPhiPlus  = new TH2F (name+"_ResoVSPhiPlus", "resolution VS phi mu+", 14, -3.2, 3.2, 4000, -1, 1);
-    hResoVSPhiMinus = new TH2F (name+"_ResoVSPhiMinus", "resolution VS phi mu-", 14, -3.2, 3.2, 4000, -1, 1);
+    hResoVSPhiPlus  = new TH2F (name+"_ResoVSPhiPlus", "resolution VS phi mu+", 14, -3.2, 3.2, 8000, -1, 1);
+    hResoVSPhiMinus = new TH2F (name+"_ResoVSPhiMinus", "resolution VS phi mu-", 14, -3.2, 3.2, 8000, -1, 1);
     //hResoVSPhi_prof = new TProfile (name+"_ResoVSPhi_prof", "resolution VS phi", 14, -3.2, 3.2, -1, 1);
     hAbsReso        = new TH1F (name+"_AbsReso", "resolution", 100, 0, 1);
     hAbsResoVSPt    = new TH2F (name+"_AbsResoVSPt", "Abs resolution VS pt", 200, 0, 500, 100, 0, 1);

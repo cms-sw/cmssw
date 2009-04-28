@@ -2,11 +2,11 @@
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
 // <<<<<<< MuScleFit.cc
-//  $Date: 2009/04/09 15:42:02 $
-//  $Revision: 1.33 $
+//  $Date: 2009/04/15 15:53:18 $
+//  $Revision: 1.34 $
 // =======
-//  $Date: 2009/04/09 15:42:02 $
-//  $Revision: 1.33 $
+//  $Date: 2009/04/15 15:53:18 $
+//  $Revision: 1.34 $
 // >>>>>>> 1.25
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
@@ -205,9 +205,9 @@ MuScleFit::MuScleFit (const ParameterSet& pset) : MuScleFitBase( pset )
   MuScleFitUtils::SmearType = smearType;
   MuScleFitUtils::smearFunction = smearFunctionService( smearType );
 
-  int leftWindowFactor = pset.getParameter<double>("LeftWindowFactor");
+  double leftWindowFactor = pset.getParameter<double>("LeftWindowFactor");
   MuScleFitUtils::leftWindowFactor = leftWindowFactor;
-  int rightWindowFactor = pset.getParameter<double>("RightWindowFactor");
+  double rightWindowFactor = pset.getParameter<double>("RightWindowFactor");
   MuScleFitUtils::leftWindowFactor = rightWindowFactor;
 
   // Fit types
@@ -275,42 +275,36 @@ MuScleFit::MuScleFit (const ParameterSet& pset) : MuScleFitBase( pset )
 
   // Initialize ResMaxSigma And ResHalfWidth - 0 = global, 1 = SM, 2 = tracker
   // -------------------------------------------------------------------------
-  MuScleFitUtils::ResMaxSigma[0][0] = 50.;
-  MuScleFitUtils::ResMaxSigma[1][0] = 5.;
-  MuScleFitUtils::ResMaxSigma[2][0] = 5.;
-  MuScleFitUtils::ResMaxSigma[3][0] = 5.;
-  MuScleFitUtils::ResMaxSigma[4][0] = 2.;
-  MuScleFitUtils::ResMaxSigma[5][0] = 2.;
-  MuScleFitUtils::ResMaxSigma[0][1] = 100.;
-  MuScleFitUtils::ResMaxSigma[1][1] = 10.;
-  MuScleFitUtils::ResMaxSigma[2][1] = 10.;
-  MuScleFitUtils::ResMaxSigma[3][1] = 10.;
-  MuScleFitUtils::ResMaxSigma[4][1] = 5.;
-  MuScleFitUtils::ResMaxSigma[5][1] = 5.;
-  MuScleFitUtils::ResMaxSigma[0][2] = 50.;
-  MuScleFitUtils::ResMaxSigma[1][2] = 5.;
-  MuScleFitUtils::ResMaxSigma[2][2] = 5.;
-  MuScleFitUtils::ResMaxSigma[3][2] = 5.;
-  MuScleFitUtils::ResMaxSigma[4][2] = 2.;
-  MuScleFitUtils::ResMaxSigma[5][2] = 2.;
-  MuScleFitUtils::ResHalfWidth[0][0] =20.;
-  MuScleFitUtils::ResHalfWidth[1][0] = 0.5;
-  MuScleFitUtils::ResHalfWidth[2][0] = 0.5;
-  MuScleFitUtils::ResHalfWidth[3][0] = 0.5;
-  MuScleFitUtils::ResHalfWidth[4][0] = 0.2;
-  MuScleFitUtils::ResHalfWidth[5][0] = 0.2;
-  MuScleFitUtils::ResHalfWidth[0][1] =50.;
-  MuScleFitUtils::ResHalfWidth[1][1] = 2.5;
-  MuScleFitUtils::ResHalfWidth[2][1] = 2.5;
-  MuScleFitUtils::ResHalfWidth[3][1] = 2.5;
-  MuScleFitUtils::ResHalfWidth[4][1] = 1.5;
-  MuScleFitUtils::ResHalfWidth[5][1] = 1.5;
-  MuScleFitUtils::ResHalfWidth[0][2] =20.;
-  MuScleFitUtils::ResHalfWidth[1][2] = 0.5;
-  MuScleFitUtils::ResHalfWidth[2][2] = 0.5;
-  MuScleFitUtils::ResHalfWidth[3][2] = 0.5;
-  MuScleFitUtils::ResHalfWidth[4][2] = 0.2;
-  MuScleFitUtils::ResHalfWidth[5][2] = 0.2;
+//   MuScleFitUtils::ResMaxSigma[0] = 50.;
+//   MuScleFitUtils::ResMaxSigma[1] = 5.;
+//   MuScleFitUtils::ResMaxSigma[2] = 5.;
+//   MuScleFitUtils::ResMaxSigma[3] = 5.;
+//   MuScleFitUtils::ResMaxSigma[4] = 2.;
+//   MuScleFitUtils::ResMaxSigma[5] = 2.;
+//   MuScleFitUtils::ResHalfWidth[0] = 20.;
+//   MuScleFitUtils::ResHalfWidth[1] = 0.5;
+//   MuScleFitUtils::ResHalfWidth[2] = 0.5;
+//   MuScleFitUtils::ResHalfWidth[3] = 0.5;
+//   MuScleFitUtils::ResHalfWidth[4] = 0.2;
+//   MuScleFitUtils::ResHalfWidth[5] = 0.2;
+  MuScleFitUtils::massWindowHalfWidth[0][0] = 20.;
+  MuScleFitUtils::massWindowHalfWidth[1][0] = 0.5;
+  MuScleFitUtils::massWindowHalfWidth[2][0] = 0.5;
+  MuScleFitUtils::massWindowHalfWidth[3][0] = 0.5;
+  MuScleFitUtils::massWindowHalfWidth[4][0] = 0.2;
+  MuScleFitUtils::massWindowHalfWidth[5][0] = 0.2;
+  MuScleFitUtils::massWindowHalfWidth[0][1] = 50.;
+  MuScleFitUtils::massWindowHalfWidth[1][1] = 2.5;
+  MuScleFitUtils::massWindowHalfWidth[2][1] = 2.5;
+  MuScleFitUtils::massWindowHalfWidth[3][1] = 2.5;
+  MuScleFitUtils::massWindowHalfWidth[4][1] = 1.5;
+  MuScleFitUtils::massWindowHalfWidth[5][1] = 1.5;
+  MuScleFitUtils::massWindowHalfWidth[0][2] = 20.;
+  MuScleFitUtils::massWindowHalfWidth[1][2] = 0.5;
+  MuScleFitUtils::massWindowHalfWidth[2][2] = 0.5;
+  MuScleFitUtils::massWindowHalfWidth[3][2] = 0.5;
+  MuScleFitUtils::massWindowHalfWidth[4][2] = 0.2;
+  MuScleFitUtils::massWindowHalfWidth[5][2] = 0.2;
 
   MuScleFitUtils::MuonType = theMuonType_-1;
 
@@ -511,18 +505,16 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     recMu1 = reco::Particle::LorentzVector(0,0,0,0);
     recMu2 = reco::Particle::LorentzVector(0,0,0,0);
     vector<reco::LeafCandidate> muons;
-    if (theMuonType_==1) { // GlobalMuons
+    if (theMuonType_==1) { // Muons
       Handle<reco::MuonCollection> glbMuons;
       event.getByLabel (theMuonLabel_, glbMuons);
       muons = fillMuonCollection(*glbMuons);
     }
-
     else if (theMuonType_==2) { // StandaloneMuons
       Handle<reco::TrackCollection> saMuons;
       event.getByLabel (theMuonLabel_, saMuons);
       muons = fillMuonCollection(*saMuons);
     }
-    
     else if (theMuonType_==3) { // Tracker tracks
       Handle<reco::TrackCollection> tracks;
       event.getByLabel (theMuonLabel_, tracks);
@@ -874,7 +866,8 @@ void MuScleFit::checkParameters() {
       (MuScleFitUtils::ResolFitType==6 && MuScleFitUtils::parResol.size()!=15) ||
       (MuScleFitUtils::ResolFitType==7 && MuScleFitUtils::parResol.size()!=12) ||
       (MuScleFitUtils::ResolFitType==8 && MuScleFitUtils::parResol.size()!=12) ||
-      MuScleFitUtils::ResolFitType<1 || MuScleFitUtils::ResolFitType>8) {
+      (MuScleFitUtils::ResolFitType==9 && MuScleFitUtils::parResol.size()!=15) ||
+      MuScleFitUtils::ResolFitType<1 || MuScleFitUtils::ResolFitType>9) {
     cout << "[MuScleFit-Constructor]: Wrong Resol fit type or number of parameters: aborting!" << endl;
     abort();
   }
