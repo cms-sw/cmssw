@@ -572,7 +572,7 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
   double emeas = 0.;
 
   if(pid == 13) { 
-    std::cout << " We should not be here " << std::endl;
+    //    std::cout << " We should not be here " << std::endl;
     std::pair<double,double> response =
       myHDResponse_->responseHCAL(0, EGen, pathEta, 2); // 2=muon 
     emeas  = response.first;
