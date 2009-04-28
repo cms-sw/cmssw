@@ -36,7 +36,7 @@ source = cms.Source("HydjetSource",
                         qgpInitialTemperature = cms.double(1.),
                         qgpProperTimeFormation = cms.double(0.1),
                     PythiaParameters = cms.PSet(pyquenPythiaDefaultBlock,
-                                                parameterSets = cms.vstring('pythiaDefault','csa08Settings','pythiaJets','pythiaPromptPhotons')
+                                                parameterSets = cms.vstring('pythiaDefault','pythiaJets','pythiaPromptPhotons','pythiaWeakBosons','pythiaCharmoniumNRQCD','pythiaBottomoniumNRQCD'),
                                                 ),
                     cFlag = cms.int32(0),
                     bFixed = cms.double(0),
@@ -47,7 +47,7 @@ source = cms.Source("HydjetSource",
                     )
 
 configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.6 $'),
+    version = cms.untracked.string('$Revision: 1.7 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/GeneratorInterface/HydjetInterface/python/hydjetSourceDefault_cfi.py,v $'),
     annotation = cms.untracked.string('PYTHIA6-MinBias at 10TeV')
     )
