@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/22 14:40:11 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/07/14 14:45:17 $
+ *  $Revision: 1.5 $
  *  \author Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  */
 
@@ -25,6 +25,8 @@ DTChamber::DTChamber(DTChamberId id, const ReferenceCountingPointer<BoundPlane>&
 
 /* Destructor */ 
 DTChamber::~DTChamber() {
+  for (std::vector<const DTSuperLayer*>::const_iterator isl=theSLs.begin();
+       isl!=theSLs.end(); ++isl) delete (*isl);
 }
 
 /* Operations */ 
