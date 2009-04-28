@@ -1,8 +1,8 @@
 /**
  * \file AlignmentParameterStore.cc
  *
- *  $Revision: 1.26 $
- *  $Date: 2009/03/03 12:06:22 $
+ *  $Revision: 1.27 $
+ *  $Date: 2009/04/16 08:26:41 $
  *  (last update by $Author: flucke $)
  */
 
@@ -642,10 +642,12 @@ bool AlignmentParameterStore
   // the intermediate level, e.g. global z for dets and layers is aligned, but not for rods!
   if (!ali || !ali->alignmentParameters()) return false;
 
-  if (ali->alignmentParameters()->type() != AlignmentParametersFactory::kRigidBody
-      && ali->alignmentParameters()->type() != AlignmentParametersFactory::kRigidBody4D) {
+  using namespace AlignmentParametersFactory;
+  const int aliParType = ali->alignmentParameters()->type();
+  if (aliParType != kRigidBody && aliParType != kRigidBody4D) {
     throw cms::Exception("BadConfig") << "AlignmentParameterStore::hierarchyConstraints"
-				      << " requires 'ali' to have rigid body alignment parameters.";
+				      << " requires 'ali' to have rigid body alignment parameters, but is "
+				      << parametersType(aliParType);
   }
 
   const std::vector<bool> &aliSel= ali->alignmentParameters()->selector();
@@ -656,11 +658,12 @@ bool AlignmentParameterStore
   bool firstComp = true;
   for (align::Alignables::const_iterator iComp = aliComps.begin(), iCompE = aliComps.end();
        iComp != iCompE; ++iComp) {
-    if ((*iComp)->alignmentParameters()->type() != AlignmentParametersFactory::kRigidBody
-	|| (*iComp)->alignmentParameters()->type() != AlignmentParametersFactory::kRigidBody4D) {
+    const int compParType = (*iComp)->alignmentParameters()->type();
+    if (compParType != kRigidBody && compParType != kRigidBody4D) {
       throw cms::Exception("BadConfig")
 	<< "AlignmentParameterStore::hierarchyConstraints"
-	<< " requires all 'aliComps' to have rigid body alignment parameters.";
+	<< " requires all 'aliComps' to have rigid body alignment parameters,"
+	<< " but is " << parametersType(compParType);
     }
 
     const AlgebraicMatrix f2fDeriv(f2fDerivMaker.frameToFrameDerivative(*iComp, ali));
