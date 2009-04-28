@@ -15,16 +15,16 @@ HcalPedestalsAnalysis::HcalPedestalsAnalysis(const edm::ParameterSet& ps)
    firstTS = ps.getUntrackedParameter<int>("firstTS", 0);
    lastTS = ps.getUntrackedParameter<int>("lastTS", 9);   
    firsttime = true;
-
-   rawPedsItem = new HcalPedestals(true);
-   rawWidthsItem = new HcalPedestalWidths(true);
-   rawPedsItemfc = new HcalPedestals(false);
-   rawWidthsItemfc = new HcalPedestalWidths(false);
 }
 
 
 HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
 {
+   HcalPedestals* rawPedsItem = new HcalPedestals();
+   HcalPedestalWidths* rawWidthsItem = new HcalPedestalWidths();
+   HcalPedestals* rawPedsItemfc = new HcalPedestals();
+   HcalPedestalWidths* rawWidthsItemfc = new HcalPedestalWidths();
+
    //Calculate pedestal constants
    std::cout << "Calculating Pedestal constants...\n";
    std::vector<NewPedBunch>::iterator bunch_it;
@@ -32,16 +32,18 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
    {
       if(bunch_it->usedflag){
 
-      if(verboseflag) std::cout << "Analyzing channel " << bunch_it->detid << std::endl;
+      if(verboseflag) std::cout << "Analyzing channel phi= " << bunch_it->detid.iphi() 
+        << " eta = " << bunch_it->detid.ieta() << " depth = " << bunch_it->detid.depth()
+        << std::endl;
       //pedestal constant is the mean
-      if(bunch_it->num[0][0]!=0) bunch_it->cap[0] /= bunch_it->num[0][0];
-      if(bunch_it->num[1][1]!=0) bunch_it->cap[1] /= bunch_it->num[1][1];
-      if(bunch_it->num[2][2]!=0) bunch_it->cap[2] /= bunch_it->num[2][2];
-      if(bunch_it->num[3][3]!=0) bunch_it->cap[3] /= bunch_it->num[3][3];
-      if(bunch_it->num[0][0]!=0) bunch_it->capfc[0] /= bunch_it->num[0][0];
-      if(bunch_it->num[1][1]!=0) bunch_it->capfc[1] /= bunch_it->num[1][1];
-      if(bunch_it->num[2][2]!=0) bunch_it->capfc[2] /= bunch_it->num[2][2];
-      if(bunch_it->num[3][3]!=0) bunch_it->capfc[3] /= bunch_it->num[3][3];
+      bunch_it->cap[0] /= bunch_it->num[0][0];
+      bunch_it->cap[1] /= bunch_it->num[1][1];
+      bunch_it->cap[2] /= bunch_it->num[2][2];
+      bunch_it->cap[3] /= bunch_it->num[3][3];
+      bunch_it->capfc[0] /= bunch_it->num[0][0];
+      bunch_it->capfc[1] /= bunch_it->num[1][1];
+      bunch_it->capfc[2] /= bunch_it->num[2][2];
+      bunch_it->capfc[3] /= bunch_it->num[3][3];
       //widths are the covariance matrix--assumed symmetric
       bunch_it->sig[0][0] = (bunch_it->prod[0][0]/bunch_it->num[0][0])-(bunch_it->cap[0])*(bunch_it->cap[0]);
       bunch_it->sig[1][1] = (bunch_it->prod[1][1]/bunch_it->num[1][1])-(bunch_it->cap[1])*(bunch_it->cap[1]);
@@ -49,7 +51,7 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
       bunch_it->sig[3][3] = (bunch_it->prod[3][3]/bunch_it->num[3][3])-(bunch_it->cap[3])*(bunch_it->cap[3]);
       bunch_it->sig[0][1] = (bunch_it->prod[0][1])/(bunch_it->num[0][1])-(bunch_it->cap[0]*bunch_it->cap[1]);
       bunch_it->sig[0][2] = (bunch_it->prod[0][2])/(bunch_it->num[0][2])-(bunch_it->cap[0]*bunch_it->cap[2]);
-      bunch_it->sig[0][3] = (bunch_it->prod[3][0])/(bunch_it->num[3][0])-(bunch_it->cap[0]*bunch_it->cap[3]); // sig03 MISNAMED in object!
+      bunch_it->sig[0][3] = (bunch_it->prod[0][3])/(bunch_it->num[0][3])-(bunch_it->cap[0]*bunch_it->cap[3]);
       bunch_it->sig[1][2] = (bunch_it->prod[1][2])/(bunch_it->num[1][2])-(bunch_it->cap[1]*bunch_it->cap[2]);
       bunch_it->sig[1][3] = (bunch_it->prod[1][3])/(bunch_it->num[1][3])-(bunch_it->cap[1]*bunch_it->cap[3]);
       bunch_it->sig[2][3] = (bunch_it->prod[2][3])/(bunch_it->num[2][3])-(bunch_it->cap[2]*bunch_it->cap[3]);
@@ -60,35 +62,38 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
       bunch_it->sigfc[3][3] = (bunch_it->prodfc[3][3]/bunch_it->num[3][3])-(bunch_it->capfc[3])*(bunch_it->capfc[3]);
       bunch_it->sigfc[0][1] = (bunch_it->prodfc[0][1]/(bunch_it->num[0][1]))-(bunch_it->capfc[0]*bunch_it->capfc[1]);
       bunch_it->sigfc[0][2] = (bunch_it->prodfc[0][2]/(bunch_it->num[0][2]))-(bunch_it->capfc[0]*bunch_it->capfc[2]);
-      bunch_it->sigfc[0][3] = (bunch_it->prodfc[3][0]/(bunch_it->num[3][0]))-(bunch_it->capfc[0]*bunch_it->capfc[3]); //sig03 MISNAMED in object!
+      bunch_it->sigfc[0][3] = (bunch_it->prodfc[0][3]/(bunch_it->num[0][3]))-(bunch_it->capfc[0]*bunch_it->capfc[3]);
       bunch_it->sigfc[1][2] = (bunch_it->prodfc[1][2]/(bunch_it->num[1][2]))-(bunch_it->capfc[1]*bunch_it->capfc[2]);
       bunch_it->sigfc[1][3] = (bunch_it->prodfc[1][3]/(bunch_it->num[1][3]))-(bunch_it->capfc[1]*bunch_it->capfc[3]);
       bunch_it->sigfc[2][3] = (bunch_it->prodfc[2][3]/(bunch_it->num[2][3]))-(bunch_it->capfc[2]*bunch_it->capfc[3]);
 
       if(bunch_it->detid.subdet() == 1){
-         for(int i = 0; i != 4; i++){
+         for(int i = 0; i != 3; i++){
             HBMeans->Fill(bunch_it->cap[i]);
             HBWidths->Fill(bunch_it->sig[i][i]);
          }
       }
       if(bunch_it->detid.subdet() == 2){
-         for(int i = 0; i != 4; i++){
+         for(int i = 0; i != 3; i++){
             HEMeans->Fill(bunch_it->cap[i]);
             HEWidths->Fill(bunch_it->sig[i][i]);
          }
       }
       if(bunch_it->detid.subdet() == 3){
-         for(int i = 0; i != 4; i++){
+         for(int i = 0; i != 3; i++){
             HOMeans->Fill(bunch_it->cap[i]);
             HOWidths->Fill(bunch_it->sig[i][i]);
          }
       }
       if(bunch_it->detid.subdet() == 4){
-         for(int i = 0; i != 4; i++){
+         for(int i = 0; i != 3; i++){
             HFMeans->Fill(bunch_it->cap[i]);
             HFWidths->Fill(bunch_it->sig[i][i]);
          }
       }
+
+      dephist[bunch_it->detid.depth()-1]->Fill(bunch_it->detid.ieta(),bunch_it->detid.iphi(),
+                (bunch_it->cap[0]+bunch_it->cap[1]+bunch_it->cap[2]+bunch_it->cap[3])/4);
 
       const HcalPedestal item(bunch_it->detid, bunch_it->cap[0], bunch_it->cap[1], bunch_it->cap[2], bunch_it->cap[3]);
       rawPedsItem->addValues(item);
@@ -120,6 +125,7 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
       widthspfc.setSigma(2,3,bunch_it->sigfc[2][3]);
       widthspfc.setSigma(3,3,bunch_it->sigfc[3][3]);
       rawWidthsItemfc->addValues(widthspfc);
+
       }
    }
 
@@ -136,7 +142,7 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
 
     if(dumpXML){
        std::ofstream outStream5(XMLfilename.c_str());
-       HcalDbXml::dumpObject (outStream5, runnum, 0, 2147483647, XMLtag, 1, (*rawPedsItem), (*rawWidthsItem)); 
+       HcalDbXmlTwo::dumpObject (outStream5, runnum, 0, 2147483647, XMLtag, 1, (*rawPedsItem), (*rawWidthsItem)); 
     }
 
     if(hiSaveFlag){
@@ -159,15 +165,61 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
        HOMeans->Write();
        HOWidths->Write();
     }
+    theFile->cd();
+    for (int n=0; n!= 4; n++) 
+    {
+         dephist[n]->Write();
+         dephist[n]->SetDrawOption("colz");
+         dephist[n]->GetXaxis()->SetTitle("i#eta");
+         dephist[n]->GetYaxis()->SetTitle("i#phi");
+    }
+
+    std::stringstream tempstringout;
+    tempstringout << runnum;
+    std::string name1 = tempstringout.str() + "_pedplots_1d.png";
+    std::string name2 = tempstringout.str() + "_pedplots_2d.png";
+
+    TStyle *theStyle = new TStyle("style","null");
+    theStyle->SetPalette(1,0);
+    theStyle->SetCanvasDefH(1200); //Height of canvas
+    theStyle->SetCanvasDefW(1600); //Width of canvas
+
+    gStyle = theStyle;
+
+    TCanvas * c1 = new TCanvas("c1","graph",1);
+    c1->Divide(2,2);
+    c1->cd(1);
+    HBMeans->Draw();
+    c1->cd(2);
+    HEMeans->Draw();
+    c1->cd(3);
+    HOMeans->Draw();
+    c1->cd(4);
+    HFMeans->Draw();
+    c1->SaveAs(name1.c_str());   
+
+    theStyle->SetOptStat("n");
+    gStyle = theStyle;
+
+    TCanvas * c2 = new TCanvas("c2","graph",1);
+    c2->Divide(2,2);
+    c2->cd(1);
+    dephist[0]->Draw();
+    dephist[0]->SetDrawOption("colz");
+    c2->cd(2);
+    dephist[1]->Draw();
+    dephist[1]->SetDrawOption("colz");
+    c2->cd(3);
+    dephist[2]->Draw();
+    dephist[2]->SetDrawOption("colz");
+    c2->cd(4);
+    dephist[3]->Draw();
+    dephist[3]->SetDrawOption("colz");
+    c2->SaveAs(name2.c_str());
 
     std::cout << "Writing ROOT file... ";
     theFile->Close();
     std::cout << "ROOT file closed.\n";
-    
-    delete rawPedsItem;
-    delete rawWidthsItem;
-    delete rawPedsItemfc;
-    delete rawWidthsItemfc;   
 }
 
 // ------------ method called to for each event  ------------
@@ -218,6 +270,11 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
       HOMeans = new TH1F("All Ped Means HO","All Ped Means HO", 100, 0, 9);
       HOWidths = new TH1F("All Ped Widths HO","All Ped Widths HO", 100, 0, 3);
 
+      dephist[0] = new TH2F("Pedestals (ADC)","Depth 1",89, -44, 44, 72, .5, 72.5);
+      dephist[1] = new TH2F("Pedestals (ADC)","Depth 2",89, -44, 44, 72, .5, 72.5);
+      dephist[2] = new TH2F("Pedestals (ADC)","Depth 3",89, -44, 44, 72, .5, 72.5);
+      dephist[3] = new TH2F("Pedestals (ADC)","Depth 4",89, -44, 44, 72, .5, 72.5);
+
       edm::ESHandle<HcalElectronicsMap> refEMap;
       iSetup.get<HcalElectronicsMapRcd>().get(refEMap);
       const HcalElectronicsMap* myRefEMap = refEMap.product();
@@ -231,6 +288,11 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
             HcalDetId chanid(mygenid.rawId());
             a.detid = chanid;
             a.usedflag = false;
+            string type;
+            if(chanid.subdet() == 1) type = "HB";
+            if(chanid.subdet() == 2) type = "HE";
+            if(chanid.subdet() == 3) type = "HO";
+            if(chanid.subdet() == 4) type = "HF";
             for(int i = 0; i != 4; i++)
             {
                a.cap[i] = 0;
@@ -260,7 +322,6 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
       bunch_it->usedflag = true;
       for(int ts = firstTS; ts != lastTS+1; ts++)
       {
-         if(digi.sample(ts).adc() > 15) continue;
          const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
          bunch_it->num[digi.sample(ts).capid()][digi.sample(ts).capid()] += 1;
          bunch_it->cap[digi.sample(ts).capid()] += digi.sample(ts).adc();
@@ -269,21 +330,18 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
          bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts).capid()] += (digi.sample(ts).adc() * digi.sample(ts).adc());
          bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts).capid()] += charge1 * charge1;
          if((ts+1 < digi.size()) && (ts+1 < lastTS)){
-            if(digi.sample(ts+1).adc() > 15) continue;
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += digi.sample(ts).adc()*digi.sample(ts+1).adc();
             double charge2 = coder->charge(*shape, digi.sample(ts+1).adc(), digi.sample(ts+1).capid());
             bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += 1;
          }
          if((ts+2 < digi.size()) && (ts+2 < lastTS)){
-            if(digi.sample(ts+2).adc() > 15) continue;
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += digi.sample(ts).adc()*digi.sample(ts+2).adc();
             double charge2 = coder->charge(*shape, digi.sample(ts+2).adc(), digi.sample(ts+2).capid());
             bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += 1;
          }
          if((ts+3 < digi.size()) && (ts+3 < lastTS)){
-            if(digi.sample(ts+3).adc() > 15) continue;
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += digi.sample(ts).adc()*digi.sample(ts+3).adc();
             double charge2 = coder->charge(*shape, digi.sample(ts+3).adc(), digi.sample(ts+3).capid());
             bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += charge1*charge2;
@@ -300,7 +358,6 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
       bunch_it->usedflag = true;
       for(int ts = firstTS; ts <= lastTS; ts++)
       {
-         if(digi.sample(ts).adc() > 15) continue;
          const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
          bunch_it->num[digi.sample(ts).capid()][digi.sample(ts).capid()] += 1;
          bunch_it->cap[digi.sample(ts).capid()] += digi.sample(ts).adc();
@@ -309,21 +366,18 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
          bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts).capid()] += (digi.sample(ts).adc() * digi.sample(ts).adc());
          bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts).capid()] += charge1 * charge1;
          if((ts+1 < digi.size()) && (ts+1 < lastTS)){
-            if(digi.sample(ts+1).adc() > 15) continue;
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += digi.sample(ts).adc()*digi.sample(ts+1).adc();
             double charge2 = coder->charge(*shape, digi.sample(ts+1).adc(), digi.sample(ts+1).capid());
             bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += 1;
          }
          if((ts+2 < digi.size()) && (ts+2 < lastTS)){
-            if(digi.sample(ts+2).adc() > 15) continue;
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += digi.sample(ts).adc()*digi.sample(ts+2).adc();
             double charge2 = coder->charge(*shape, digi.sample(ts+2).adc(), digi.sample(ts+2).capid());
             bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += 1;
          }
          if((ts+3 < digi.size()) && (ts+3 < lastTS)){
-            if(digi.sample(ts+3).adc() > 15) continue;
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += digi.sample(ts).adc()*digi.sample(ts+3).adc();
             double charge2 = coder->charge(*shape, digi.sample(ts+3).adc(), digi.sample(ts+3).capid());
             bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += charge1*charge2;
@@ -340,7 +394,6 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
       bunch_it->usedflag = true;
       for(int ts = firstTS; ts <= lastTS; ts++)
       {
-         if(digi.sample(ts).adc() > 15) continue;
          const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
          bunch_it->num[digi.sample(ts).capid()][digi.sample(ts).capid()] += 1;
          bunch_it->cap[digi.sample(ts).capid()] += digi.sample(ts).adc();
@@ -349,29 +402,60 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
          bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts).capid()] += (digi.sample(ts).adc() * digi.sample(ts).adc());
          bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts).capid()] += charge1 * charge1;
          if((ts+1 < digi.size()) && (ts+1 < lastTS)){
-            if(digi.sample(ts+1).adc() > 15) continue;
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += digi.sample(ts).adc()*digi.sample(ts+1).adc();
             double charge2 = coder->charge(*shape, digi.sample(ts+1).adc(), digi.sample(ts+1).capid());
             bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += 1;
          }
          if((ts+2 < digi.size()) && (ts+2 < lastTS)){
-            if(digi.sample(ts+2).adc() > 15) continue;
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += digi.sample(ts).adc()*digi.sample(ts+2).adc();
             double charge2 = coder->charge(*shape, digi.sample(ts+2).adc(), digi.sample(ts+2).capid());
             bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += 1;
          }
          if((ts+3 < digi.size()) && (ts+3 < lastTS)){
-            if(digi.sample(ts+3).adc() > 15) continue;
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += digi.sample(ts).adc()*digi.sample(ts+3).adc();
             double charge2 = coder->charge(*shape, digi.sample(ts+3).adc(), digi.sample(ts+3).capid());
             bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += 1;
          }
       }
-   }
 
+/* Once I figure out how to unpack Calib digis they go here
+      const HFDataFrame digi = (const HFDataFrame)(*j);
+      for(bunch_it = Bunches.begin(); bunch_it != Bunches.end(); bunch_it++)
+         if(bunch_it->detid.rawId() == digi.id().rawId()) break;
+      bunch_it->usedflag = true;
+      for(int ts = firstTS; ts <= lastTS; ts++)
+      {
+//         const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
+         bunch_it->num[digi.sample(ts).capid()][digi.sample(ts).capid()] += 1;
+         bunch_it->cap[digi.sample(ts).capid()] += digi.sample(ts).adc();
+//         double charge1 = coder->charge(*shape, digi.sample(ts).adc(), digi.sample(ts).capid());
+//         bunch_it->capfc[digi.sample(ts).capid()] += charge1;
+         bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts).capid()] += (digi.sample(ts).adc() * digi.sample(ts).adc());
+//         bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts).capid()] += charge1 * charge1;
+         if((ts+1 < digi.size()) && (ts+1 < lastTS)){
+            bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += digi.sample(ts).adc()*digi.sample(ts+1).adc();
+//            double charge2 = coder->charge(*shape, digi.sample(ts+1).adc(), digi.sample(ts+1).capid());
+//            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += charge1*charge2;
+            bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += 1;
+         }
+         if((ts+2 < digi.size()) && (ts+2 < lastTS)){
+            bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += digi.sample(ts).adc()*digi.sample(ts+2).adc();
+//            double charge2 = coder->charge(*shape, digi.sample(ts+2).adc(), digi.sample(ts+2).capid());
+//            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += charge1*charge2;
+            bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += 1;
+         }
+         if((ts+3 < digi.size()) && (ts+3 < lastTS)){
+            bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += digi.sample(ts).adc()*digi.sample(ts+3).adc();
+//            double charge2 = coder->charge(*shape, digi.sample(ts+3).adc(), digi.sample(ts+3).capid());
+//            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += charge1*charge2;
+            bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += 1;
+         }
+*/
+
+   }
 //this is the last brace
 }
 
