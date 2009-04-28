@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2008/06/10 14:57:51 $
- *  $Revision: 1.21 $
+ *  $Date: 2008/10/08 15:09:40 $
+ *  $Revision: 1.22 $
  *
  * \author Marco Zanetti  - INFN Padova
  *
@@ -70,7 +70,8 @@ private:
   void bookHistos(std::string folder, DTROChainCoding code);
   void bookHistosROS25(DTROChainCoding code);
 
-
+  void channelsInCEROS(int cerosId, int chMask, std::vector<int>& channels);
+  void channelsInROS(int cerosMask, std::vector<int>& channels);
 
   std::string topFolder() const;
 
