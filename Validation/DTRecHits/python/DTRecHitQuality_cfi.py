@@ -46,3 +46,4 @@ seg4dvalidation = cms.EDFilter("DTSegment4DQuality",
 )
 
 dtLocalRecoValidation = cms.Sequence(rechivalidation*seg2dvalidation*seg2dsuperphivalidation*seg4dvalidation)
+dtLocalRecoValidation_no2D = cms.Sequence(rechivalidation*seg2dsuperphivalidation*seg4dvalidation)
