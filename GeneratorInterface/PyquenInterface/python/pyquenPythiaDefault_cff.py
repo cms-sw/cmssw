@@ -111,6 +111,48 @@ pyquenPythiaDefaultBlock = cms.PSet(
                                           'BRAT(1556)=0.644'
                                           ),
     
+    pythiaZtoMuons = cms.vstring("MDME(174,1)=0",          # !Z decay into d dbar,
+                                 "MDME(175,1)=0",          # !Z decay into u ubar,
+                                 "MDME(176,1)=0",          # !Z decay into s sbar,
+                                 "MDME(177,1)=0",          # !Z decay into c cbar,
+                                 "MDME(178,1)=0",          # !Z decay into b bbar,
+                                 "MDME(179,1)=0",          # !Z decay into t tbar,
+                                 "MDME(182,1)=0",          # !Z decay into e- e+,
+                                 "MDME(183,1)=0",          # !Z decay into nu_e nu_ebar,
+                                 "MDME(184,1)=1",          # !Z decay into mu- mu+,
+                                 "MDME(185,1)=0",          # !Z decay into nu_mu nu_mubar,
+                                 "MDME(186,1)=0",          # !Z decay into tau- tau+,
+                                 "MDME(187,1)=0"           # !Z decay into nu_tau nu_taubar
+                                 ),
+
+    pythiaUpsilonToMuons = cms.vstring('BRAT(1034) = 0 ',  # switch off',
+                                       'BRAT(1035) = 1 ',  # switch on',
+                                       'BRAT(1036) = 0 ',  # switch off',
+                                       'BRAT(1037) = 0 ',  # switch off',
+                                       'BRAT(1038) = 0 ',  # switch off',
+                                       'BRAT(1039) = 0 ',  # switch off',
+                                       'BRAT(1040) = 0 ',  # switch off',
+                                       'BRAT(1041) = 0 ',  # switch off',
+                                       'BRAT(1042) = 0 ',  # switch off',
+                                       'MDME(1034,1) = 0 ',  # switch off',
+                                       'MDME(1035,1) = 1 ',  # switch on',
+                                       'MDME(1036,1) = 0 ',  # switch off',
+                                       'MDME(1037,1) = 0 ',  # switch off',
+                                       'MDME(1038,1) = 0 ',  # switch off',
+                                       'MDME(1039,1) = 0 ',  # switch off',
+                                       'MDME(1040,1) = 0 ',  # switch off',
+                                       'MDME(1041,1) = 0 ',  # switch off',
+                                       'MDME(1042,1) = 0 ',  # switch off'
+                                       ),
+
+   pythiaJpsiToMuons = cms.vstring('BRAT(858) = 0 ',  # switch off',
+                                   'BRAT(859) = 1 ',  # switch on',
+                                   'BRAT(860) = 0 ',  # switch off',
+                                   'MDME(858,1) = 0 ',  # switch off',
+                                   'MDME(859,1) = 1 ',  # switch on',
+                                   'MDME(860,1) = 0 ',  # switch off'
+                                   ),
+    
     pythiaMuonCandidates = cms.vstring(
     'CKIN(3)=20',
     'MSTJ(22)=2',
