@@ -103,7 +103,7 @@ muons1Leg.fillIsolation = False
 # Sequences
 
 # Stand Alone Tracking
-STAmuontrackingforcosmics1Leg = cms.Sequence(CosmicMuonSeedBarrelOnly*cosmicMuons1Leg)
+STAmuontrackingforcosmics1Leg = cms.Sequence(CosmicMuonSeed*cosmicMuons1Leg)
 
 # Stand Alone Tracking plus global tracking
 muontrackingforcosmics1Leg = cms.Sequence(STAmuontrackingforcosmics1Leg*globalCosmicMuons1Leg)
@@ -127,7 +127,7 @@ CosmicMuonSeedWitht0Correction.DTRecSegmentLabel = 'dt4DSegmentsT0Seg'
 
 # Stand alone muon track producer
 cosmicMuonsWitht0Correction = cosmicMuons.clone()
-cosmicMuonsWitht0Correction.TrajectoryBuilderParameters.BuildTraversingMuon = True
+cosmicMuonsWitht0Correction.TrajectoryBuilderParameters.BuildTraversingMuon = False
 cosmicMuonsWitht0Correction.MuonSeedCollectionLabel = 'CosmicMuonSeedWitht0Correction'
 cosmicMuonsWitht0Correction.TrajectoryBuilderParameters.DTRecSegmentLabel = 'dt4DSegmentsT0Seg'
 
