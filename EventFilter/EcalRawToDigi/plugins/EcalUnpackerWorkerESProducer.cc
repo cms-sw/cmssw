@@ -3,7 +3,10 @@
 EcalUnpackerWorkerESProducer::EcalUnpackerWorkerESProducer(const edm::ParameterSet& iConfig)
 {
   conf_ = iConfig;
-  setWhatProduced(this);
+  if (conf_.exists("ComponentName"))
+    setWhatProduced(this,conf_.getParameter<std::string>("ComponentName"));
+  else
+    setWhatProduced(this,"");
 }
 
 

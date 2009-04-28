@@ -21,10 +21,12 @@
 
 #include "EventFilter/EcalRawToDigi/interface/MyWatcher.h"
 
+#include "EventFilter/EcalRawToDigi/interface/EcalUnpackerWorkerBase.h"
+
 //forward declaration. just to be friend
 class EcalRawToRecHitByproductProducer;
 
-class EcalUnpackerWorker {
+class EcalUnpackerWorker : public EcalUnpackerWorkerBase {
  public:
 
   EcalUnpackerWorker(const edm::ParameterSet & conf);
@@ -41,6 +43,8 @@ class EcalUnpackerWorker {
 
   void setHandles(const EcalUnpackerWorkerRecord & iRecord);
   void set(const edm::EventSetup & es) const;
+
+  uint maxElementIndex() const { return EcalRegionCabling::maxElementIndex();}
   
  private:
 

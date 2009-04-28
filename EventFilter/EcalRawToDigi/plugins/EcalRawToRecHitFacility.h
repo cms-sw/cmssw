@@ -16,7 +16,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Sat Oct  6 02:26:08 CEST 2007
-// $Id: EcalRawToRecHitFacility.h,v 1.2 2008/02/15 00:25:40 vlimant Exp $
+// $Id: EcalRawToRecHitFacility.h,v 1.3 2008/02/15 02:37:56 vlimant Exp $
 //
 //
 
@@ -65,7 +65,5 @@ private:
   //tools
   std::string workerName_;
   
-  //out
-  bool global_;
 };
 #endif

@@ -3,7 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 EcalRawToRecHitLazyUnpacker::EcalRawToRecHitLazyUnpacker(const EcalRegionCabling & cable,
-							 const EcalUnpackerWorker & worker,
+							 const EcalUnpackerWorkerBase & worker,
 							 const FEDRawDataCollection& fedcollection):
   raw_(&fedcollection), cabling_(&cable), worker_(&worker)
 {

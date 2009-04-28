@@ -42,7 +42,7 @@ EcalRawToRecHitFacility::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 				      << watcher.lap();
     
   //retreive worker
-  edm::ESHandle<EcalUnpackerWorker> worker;
+  edm::ESHandle<EcalUnpackerWorkerBase> worker;
   iSetup.get<EcalUnpackerWorkerRecord>().get(workerName_, worker);
   LogDebug("EcalRawToRecHit|Facility")<<"worker retrieved."
 				      << watcher.lap();
@@ -60,7 +60,9 @@ EcalRawToRecHitFacility::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 				      << watcher.lap();
   
   //store the lazy getter
-  std::auto_ptr<EcalRecHitLazyGetter> collection(new EcalRecHitLazyGetter(EcalRegionCabling::maxElementIndex(),unpacker));
+  //should change EcalRegionCabling::maxElementIndex() to something depending on the worker itself to be able to have Ecal and Es worker separately
+  //  std::auto_ptr<EcalRecHitLazyGetter> collection(new EcalRecHitLazyGetter(EcalRegionCabling::maxElementIndex(),unpacker));
+  std::auto_ptr<EcalRecHitLazyGetter> collection(new EcalRecHitLazyGetter(worker->maxElementIndex(),unpacker));
   LogDebug("EcalRawToRecHit|Facility")<<"lazy getter created."
 				      << watcher.lap();
   
@@ -78,7 +80,7 @@ EcalRawToRecHitFacility::beginJob(const edm::EventSetup& iSetup)
   MyWatcher watcher("Facility");
   LogDebug("EcalRawToRecHit|Facility")<<watcher.lap();
 
-  edm::ESHandle<EcalUnpackerWorker> worker;
+  edm::ESHandle<EcalUnpackerWorkerBase> worker;
   iSetup.get<EcalUnpackerWorkerRecord>().get(workerName_, worker);
   worker->set(iSetup); 
   LogDebug("EcalRawToRecHit|Facility")<<"worker set in beginJob."

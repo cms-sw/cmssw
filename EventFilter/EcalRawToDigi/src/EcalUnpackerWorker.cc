@@ -221,7 +221,3 @@ std::auto_ptr< EcalRecHitCollection > EcalUnpackerWorker::work(const uint32_t & 
 
   return ecalrechits;
 }
-
-										   
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
-EVENTSETUP_DATA_REG(EcalUnpackerWorker);

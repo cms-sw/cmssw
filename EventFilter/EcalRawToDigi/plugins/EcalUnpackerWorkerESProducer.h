@@ -15,7 +15,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Sat Oct  6 04:57:46 CEST 2007
-// $Id$
+// $Id: EcalUnpackerWorkerESProducer.h,v 1.1 2007/12/06 20:01:11 vlimant Exp $
 //
 //
 
@@ -44,7 +44,7 @@ class EcalUnpackerWorkerESProducer : public edm::ESProducer {
       EcalUnpackerWorkerESProducer(const edm::ParameterSet&);
       ~EcalUnpackerWorkerESProducer();
 
-  typedef boost::shared_ptr<EcalUnpackerWorker> ReturnType;
+  typedef boost::shared_ptr<EcalUnpackerWorkerBase> ReturnType;
   
   ReturnType produce(const EcalUnpackerWorkerRecord & );
 private:

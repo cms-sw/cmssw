@@ -15,7 +15,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Sat Oct  6 22:39:47 CEST 2007
-// $Id: EcalRawToRecHitProducer.h,v 1.3 2008/02/15 00:25:40 vlimant Exp $
+// $Id: EcalRawToRecHitProducer.h,v 1.4 2008/02/15 02:37:56 vlimant Exp $
 //
 //
 
@@ -60,20 +60,16 @@ class EcalRawToRecHitProducer : public edm::EDProducer {
   ~EcalRawToRecHitProducer();
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
   
   // ----------member data ---------------------------
   edm::InputTag lsourceTag_;
   edm::InputTag sourceTag_;
-  edm::InputTag fedListTag_;
   
-  bool global_;
   bool splitOutput_;
   std::string EBrechitCollection_;
   std::string EErechitCollection_;
-  
+  std::string rechitCollection_;  
 };
 
 #endif

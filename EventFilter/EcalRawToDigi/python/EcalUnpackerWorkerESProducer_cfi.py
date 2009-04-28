@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 EcalUnpackerWorkerESProducer = cms.ESProducer("EcalUnpackerWorkerESProducer",
+    ComponentName = cms.string(''),                                              
     DCCDataUnpacker = cms.PSet(
         orderedDCCIdList = cms.vint32(1, 2, 3, 4, 5, 
             6, 7, 8, 9, 10, 

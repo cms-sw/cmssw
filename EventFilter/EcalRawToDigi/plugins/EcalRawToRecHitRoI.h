@@ -11,6 +11,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "Geometry/EcalMapping/interface/ESElectronicsMapper.h"
 
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
@@ -58,10 +59,14 @@ public:
 
 	/// input tag for the lazy getter
         edm::InputTag sourceTag_;
+	bool do_es_;
+	edm::InputTag sourceTag_es_;
+	std::string esinstance_;
    
         /// tools
 	const EcalElectronicsMapping* TheMapping;
-     
+	const ESElectronicsMapper *TheESMapping;
+
         /// generic class to drive the job
         class CalUnpackJobPSet {
 	public:

@@ -11,16 +11,18 @@ EcalRawToRecHitProducer::EcalRawToRecHitProducer(const edm::ParameterSet& iConfi
     EErechitCollection_=iConfig.getParameter<std::string>("EErechitCollection");
     produces<EBRecHitCollection>(EBrechitCollection_);
     produces<EERecHitCollection>(EErechitCollection_);
-    LogDebug("EcalRawToRecHit|Producer")<<"ready to create rechits from lazy getter: "<<sourceTag_
-					<<"\n "<<((global_)?" global":"regional")<<" RAW->RecHit"
+    LogDebug("EcalRawToRecHit|Producer")<<"ready to create rechits from lazy getter: "<<lsourceTag_
+					<<"\n using region ref from: "<<sourceTag_
 					<<"\n splitting in two collections"
 					<<"\n EB instance: "<<EBrechitCollection_
 					<<"\n EE instance: "<<EErechitCollection_;
   }
   else{
-    produces<EcalRecHitCollection>();
-    LogDebug("EcalRawToRecHit|Producer")<<"ready to create rechits from lazy getter: "<<sourceTag_
-					<<"\n "<<((global_)?" global":"regional")<<" RAW->RecHit";
+    rechitCollection_=iConfig.getParameter<std::string>("rechitCollection");
+    produces<EcalRecHitCollection>(rechitCollection_);
+    LogDebug("EcalRawToRecHit|Producer")<<"ready to create rechits from lazy getter: "<<lsourceTag_
+					<<"\n using region ref from: "<<sourceTag_
+					<<"\n not splitting the output collection.";
   }
 }
 
@@ -46,13 +48,13 @@ EcalRawToRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   //retrieve a lazygetter
   edm::Handle<EcalRecHitLazyGetter> lgetter;
   iEvent.getByLabel(lsourceTag_, lgetter);
-  LogDebug("EcalRawToRecHit|Producer")<<"lazy getter retreived."
+  LogDebug("EcalRawToRecHit|Producer")<<"lazy getter retreived from: "<<lsourceTag_<<(lgetter.failedToGet()?" not valid ":"valid")
 				      <<watcher.lap();
   
   //retrieve a refgetter
   edm::Handle<EcalRecHitRefGetter> rgetter;
   iEvent.getByLabel(sourceTag_ ,rgetter);
-  LogDebug("EcalRawToRecHit|Producer")<<"ref getter retreived."
+  LogDebug("EcalRawToRecHit|Producer")<<"ref getter retreived from: "<<sourceTag_<<(rgetter.failedToGet()?" not valid ":"valid")
 				      <<watcher.lap();
 
  
@@ -96,31 +98,27 @@ EcalRawToRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     //prepare the output collection
     std::auto_ptr< EcalRecHitCollection > rechits( new EcalRecHitCollection);
     //loop the refgetter
+    uint iR=0;
     EcalRecHitRefGetter::const_iterator iRegion=rgetter->begin();
     EcalRecHitRefGetter::const_iterator iRegionEnd=rgetter->end();
     for (;iRegion!=iRegionEnd;++iRegion){
+      LogDebug("EcalRawToRecHit|Producer")<<"looping over refgetter region: "<<iR<<watcher.lap();
       std::vector<EcalRecHit>::const_iterator iRecHit=lgetter->begin_record()+iRegion->start();
       std::vector<EcalRecHit>::const_iterator iRecHitEnd=lgetter->begin_record()+iRegion->finish();
       for (;iRecHit!=iRecHitEnd;iRecHit++){
+	LogDebug("EcalRawToRecHit|Producer")<<"dereferencing rechit ref.";
+	DetId detid =iRecHit->id();
+	int EcalNum=detid.subdetId(); //1 stands for Barrel, 2 for endcaps
+	LogDebug("EcalRawToRecHit|Producer")<<"subdetId is: "<<EcalNum;
 	rechits->push_back(*iRecHit);
       }//loop over things in region
+      LogDebug("EcalRawToRecHit|Producer")<<"looping over refgetter region: "<<iR++<<" done"<<watcher.lap();
     }//loop over regions
-    LogDebug("EcalRawToRecHit|Producer")<<rechits->size()<<" rechits to be put."
-					<< watcher.lap();
-    iEvent.put(rechits);
+    LogDebug("EcalRawToRecHit|Producer")<<rechits->size()<<" rechits to be put."<< watcher.lap();
+    iEvent.put(rechits,rechitCollection_);
     LogDebug("EcalRawToRecHit|Producer")<<"collections uploaded."
 					<< watcher.lap();
   }
 
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-EcalRawToRecHitProducer::beginJob(const edm::EventSetup&)
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-EcalRawToRecHitProducer::endJob() {
-}

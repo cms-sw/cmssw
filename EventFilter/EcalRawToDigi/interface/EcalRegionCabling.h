@@ -2,6 +2,8 @@
 #define EcalRegionCabling_H
 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "Geometry/EcalMapping/interface/ESElectronicsMapper.h"
+
 #include "DataFormats/Common/interface/LazyGetter.h"
 #include "DataFormats/Common/interface/RefGetter.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -14,24 +16,37 @@ class EcalRegionCabling {
  public:
   EcalRegionCabling(edm::ParameterSet & conf, const EcalElectronicsMapping * m): mapping_(m)
     {
+      if (conf.exists("esMapping")){
+	edm::ParameterSet esMap=conf.getParameter<edm::ParameterSet>("esMapping");
+	es_mapping_ = new ESElectronicsMapper(esMap);
+      }else{
+	edm::LogError("EcalRegionCabling")<<"preshower mapping pointer not initialized. Temporary.";
+	es_mapping_=0;
+      }
     }
   
-  ~EcalRegionCabling();
-  const EcalElectronicsMapping * mapping() const  { return mapping_;} 
+  ~EcalRegionCabling(){
+    // this pointer is own by this object.
+    delete es_mapping_;
+  }
+  const EcalElectronicsMapping * mapping() const  { return mapping_;}
+  const ESElectronicsMapper * es_mapping() const { return es_mapping_;}
 
   template <class T>  void updateEcalRefGetterWithElementIndex(edm::RefGetter<T> & refgetter,
 							       const edm::Handle< edm::LazyGetter<T> >& lazygetter,
 							       const uint32_t index)const;
+
   template <class T>  void updateEcalRefGetterWithFedIndex(edm::RefGetter<T> & refgetter,
 							       const edm::Handle< edm::LazyGetter<T> >& lazygetter,
 							       const int index)const;
-  
+
   template <class T> void updateEcalRefGetterWithEtaPhi(edm::RefGetter<T> & refgetter,
 							const edm::Handle< edm::LazyGetter<T> >& lazygetter,
 							const double eta,
 							const double phi)const;
   
   static uint32_t maxElementIndex() {return (FEDNumbering::MAXECALFEDID - FEDNumbering::MINECALFEDID +1);}
+  static uint32_t maxESElementIndex() { return (FEDNumbering::MAXPreShowerFEDID - FEDNumbering::MINPreShowerFEDID +1);}
 
   static uint32_t elementIndex(const int FEDindex) {
     //do a test for the time being
@@ -42,11 +57,24 @@ class EcalRegionCabling {
       return 0;}
     uint32_t eI = FEDindex - FEDNumbering::MINECALFEDID;
     return eI; }
-  
+
+  static uint32_t esElementIndex(const int FEDindex) {
+    //do a test for the time being
+    if (FEDindex > FEDNumbering::MAXPreShowerFEDID || FEDindex < FEDNumbering::MINPreShowerFEDID) {
+      edm::LogError("EcalRegionCabling")<<"FEDindex: "<< FEDindex
+					<<" is not between: "<<(int) FEDNumbering::MINPreShowerFEDID
+					<<" and "<<(int)FEDNumbering::MAXPreShowerFEDID;
+      return 0;}
+    uint32_t eI = FEDindex - FEDNumbering::MINPreShowerFEDID;
+    return eI; }
+
   static int fedIndex(const uint32_t index){ 
     int fI = index+FEDNumbering::MINECALFEDID; 
     return fI;}
     
+  static int esFedIndex(const uint32_t index){ 
+    int fI = index+FEDNumbering::MINPreShowerFEDID; 
+    return fI;}
 
     
   uint32_t elementIndex(const double eta, const double phi) const{
@@ -55,6 +83,7 @@ class EcalRegionCabling {
 
  private:
   const EcalElectronicsMapping * mapping_;
+  const ESElectronicsMapper * es_mapping_;
 };
 
 

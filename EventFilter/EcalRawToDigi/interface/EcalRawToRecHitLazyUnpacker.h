@@ -4,7 +4,7 @@
 #include "DataFormats/Common/interface/LazyGetter.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "EventFilter/EcalRawToDigi/interface/EcalUnpackerWorker.h"
+#include "EventFilter/EcalRawToDigi/interface/EcalUnpackerWorkerBase.h"
 #include "EventFilter/EcalRawToDigi/interface/EcalRegionCabling.h"
  
 #include "DataFormats/EcalRecHit/interface/EcalRecHitComparison.h"
@@ -16,7 +16,7 @@ class EcalRawToRecHitLazyUnpacker : public edm::LazyUnpacker<EcalRecHit> {
   typedef edm::LazyUnpacker<EcalRecHit> Base;
 
   EcalRawToRecHitLazyUnpacker(const EcalRegionCabling & cable,
-			      const EcalUnpackerWorker & worker,
+			      const EcalUnpackerWorkerBase & worker,
 			      const FEDRawDataCollection& fedcollection);
   
   virtual ~EcalRawToRecHitLazyUnpacker();
@@ -30,7 +30,7 @@ class EcalRawToRecHitLazyUnpacker : public edm::LazyUnpacker<EcalRecHit> {
 
   const EcalRegionCabling* cabling_;
 
-  const EcalUnpackerWorker* worker_;
+  const EcalUnpackerWorkerBase* worker_;
 
   //cache
   std::map<uint32_t, std::auto_ptr<EcalRecHitCollection> > cachedRecHits;
