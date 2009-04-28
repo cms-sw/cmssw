@@ -654,6 +654,7 @@ class Process(object):
             delattr(self, name)
 
     def fillProcessDesc(self, processDesc, processPSet):
+        self.validate()
         processPSet.addString(True, "@process_name", self.name_())
         all_modules = self.producers_().copy()
         all_modules.update(self.filters_())
@@ -670,6 +671,11 @@ class Process(object):
         self._insertPaths(processDesc, processPSet)
         self._insertServices(processDesc, self.services_())
         return processDesc
+
+    def validate(self):
+        # check if there's some input
+        if self.source_() == None and self.looper_() == None:
+            raise RuntimeError("No input source was found for this process")
 
     def prefer(self, esmodule,*args,**kargs):
         """Prefer this ES source or producer.  The argument can
