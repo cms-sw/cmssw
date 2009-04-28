@@ -276,6 +276,11 @@ TF1* gaussianFit(TH1* histoY, const TString & resonanceType){
     fit->SetParLimits(2, 80, 100);
     fit->SetParLimits(1, 0.01, 1);
   }
+  if( resonanceType == "reso" ) {
+    fit = new TF1(name,gaussian,-0.05,0.05,3);
+    fit->SetParLimits(2, -0.5, 0.5);
+    fit->SetParLimits(1, 0, 0.5);
+  }
   fit->SetParameters(histoY->GetMaximum(),histoY->GetRMS(),histoY->GetMean());
   // fit->SetParLimits(1, 0.01, 1);
   //   fit->SetParLimits(1, 40, 60);
