@@ -1,9 +1,18 @@
+
+2009-04-28  Emilio Meschi  <emilio.meschia@cern.ch>
+
+	* tag V00-04-03-01 (branch tag for 22X
+	* added setIndex function to pass L1 PS index
+	* remember to update main trunk for 31X !!!
+	
+
 2009-02-09  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-04-05
 	* add python directory
 	* add python/PrescaleService_cfi.py
 	* adjust test/testPrescaleService_cfg.py to reference above *_cfi.py
+
 
 2008-10-17  Emilio Meschi  <emilio.meschia@cern.ch>
 
