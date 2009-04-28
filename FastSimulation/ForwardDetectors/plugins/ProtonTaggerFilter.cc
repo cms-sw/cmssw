@@ -8,7 +8,7 @@
  * Author: Dmitry Zaborov
  */
 
-// Version: $Id: ProtonTaggerFilter.cc,v 1.2 2008/11/30 15:57:20 beaudett Exp $
+// Version: $Id: ProtonTaggerFilter.cc,v 1.3 2009/03/03 14:02:39 abdullin Exp $
 
 #include "FastSimulation/ForwardDetectors/plugins/ProtonTaggerFilter.h"
 
@@ -101,7 +101,7 @@ void ProtonTaggerFilter::beginJob()
 {
   std::cout << "ProtonTaggerFilter: Getting ready ..." << std::endl;
 
-  edm::FileInPath myDataFile("FastSimulation/ProtonTaggers/data/acceptance_420_220.root");
+  edm::FileInPath myDataFile("FastSimulation/ForwardDetectors/data/acceptance_420_220.root");
   std::string fullPath = myDataFile.fullPath();
 
   std::cout << "Opening " << fullPath << std::endl;
@@ -139,7 +139,7 @@ bool ProtonTaggerFilter::filter(edm::Event & iEvent, const edm::EventSetup & es)
   // ... get generated event
 
   edm::Handle<edm::HepMCProduct> evtSource;
-  iEvent.getByLabel("source",evtSource);
+  iEvent.getByLabel("generator",evtSource);
   const HepMC::GenEvent* genEvent = evtSource->GetEvent();
 
   //std::cout << "event contains " << genEvent->particles_size() << " particles " << std::endl;
