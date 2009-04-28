@@ -11,9 +11,8 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 # process.load("Configuration.StandardSequences.FakeConditions_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
 # check for the correct tag on https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
-process.GlobalTag.globaltag = "STARTUP_V11::All"
+process.GlobalTag.globaltag = "STARTUP_31X::All"
 
 
 process.load("RecoTracker.Configuration.RecoTracker_cff")
@@ -22,7 +21,7 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 process.offlineBeamSpot = offlineBeamSpot
 
 
-process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
+process.load("RecoTracker/TrackProducer/TrackRefitters_cff")
 # put here the tag of the tracks you want to use
 # alcareco samples have special names for the tracks, in normal reco samples generalTracks can be used
 process.TrackRefitter.src = "generalTracks"
@@ -47,17 +46,13 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
 	#put here the sample you want to use
     fileNames = cms.untracked.vstring(
-	   '/store/relval/CMSSW_2_2_9/RelValZMM/GEN-SIM-RECO/STARTUP_V11_v1/0001/FE948375-4D32-DE11-B1DD-001617C3B654.root'
+	   '/store/relval/CMSSW_3_1_0_pre6/RelValZMM/GEN-SIM-RECO/STARTUP_31X_v1/0002/9E2FF737-1833-DE11-95A7-000423D985B0.root'
 	),   
 #   skipEvents = cms.untracked.uint32(100) 
 )
 
 
 process.lorentzAngle = cms.EDAnalyzer("SiPixelLorentzAngle",
-#	TTRHBuilder= cms.string("WithTrackAngle"),
-#	Fitter = cms.string("KFFittingSmoother"),
-#  Propagator = cms.string("PropagatorWithMaterial"),
-#   Propagator = cms.string("RungeKuttaTrackerPropagator"),
 	src = cms.string("TrackRefitter"),
 	fileName = cms.string("lorentzangle.root"),
 	fileNameFit	= cms.string("lorentzFit.txt"),
