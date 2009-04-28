@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorModule.h
  *
- * $Date: 2008/04/08 18:09:43 $
- * $Revision: 1.18 $
+ * $Date: 2008/05/11 09:50:52 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -65,6 +65,8 @@ int evtType_;
 bool fixedRunNumber_;
 
 bool fixedRunType_;
+
+bool isPhysics_;
 
 int ievt_;
 

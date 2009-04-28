@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2008/04/08 18:09:42 $
- * $Revision: 1.56 $
+ * $Date: 2008/05/11 09:50:51 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  *
 */
@@ -65,6 +65,8 @@ int evtType_;
 bool fixedRunNumber_;
 
 bool fixedRunType_;
+
+bool isPhysics_;
 
 int ievt_;
 

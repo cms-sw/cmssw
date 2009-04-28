@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2008/12/03 10:43:36 $
- * $Revision: 1.54 $
+ * $Date: 2008/12/03 12:55:50 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -558,16 +558,6 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
       float xeex = eex - 0.5;
       float xeey = eey - 0.5;
 
-      if ( ism >=1 && ism <= 9 ) {
-        if ( meEEDigiOccupancy_[0] ) meEEDigiOccupancy_[0]->Fill( xeex, xeey );
-        if ( meEEDigiOccupancyProR_[0] ) meEEDigiOccupancyProR_[0]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
-        if ( meEEDigiOccupancyProPhi_[0] ) meEEDigiOccupancyProPhi_[0]->Fill( atan2(xeey-50.,xeex-50.) );
-      } else {
-        if ( meEEDigiOccupancy_[1] ) meEEDigiOccupancy_[1]->Fill( xeex, xeey );
-        if ( meEEDigiOccupancyProR_[1] ) meEEDigiOccupancyProR_[1]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
-        if ( meEEDigiOccupancyProPhi_[1] ) meEEDigiOccupancyProPhi_[1]->Fill( atan2(xeey-50.,xeex-50.) );
-      }
-
       if ( dcchs.isValid() ) {
 
         for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
@@ -575,6 +565,29 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
           if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
 
           if ( Numbers::iSM( *dcchItr, EcalEndcap ) != ism ) continue;
+
+          bool isPhysics = false;
+          
+          if ( dcchItr->getRunType() == EcalDCCHeaderBlock::COSMIC ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::MTCC ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) isPhysics = true;
+
+          if ( isPhysics ) {
+            
+            if ( ism >=1 && ism <= 9 ) {
+              if ( meEEDigiOccupancy_[0] ) meEEDigiOccupancy_[0]->Fill( xeex, xeey );
+              if ( meEEDigiOccupancyProR_[0] ) meEEDigiOccupancyProR_[0]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
+              if ( meEEDigiOccupancyProPhi_[0] ) meEEDigiOccupancyProPhi_[0]->Fill( atan2(xeey-50.,xeex-50.) );
+            } else {
+              if ( meEEDigiOccupancy_[1] ) meEEDigiOccupancy_[1]->Fill( xeex, xeey );
+              if ( meEEDigiOccupancyProR_[1] ) meEEDigiOccupancyProR_[1]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
+              if ( meEEDigiOccupancyProPhi_[1] ) meEEDigiOccupancyProPhi_[1]->Fill( atan2(xeey-50.,xeex-50.) );
+            }
+ 
+          }
 
           if ( dcchItr->getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
                dcchItr->getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) {
@@ -650,11 +663,32 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
       PnId        = PnId - 0.5;
       float st    = 0.0;
 
-      for (int chInStrip = 1; chInStrip <= 5; chInStrip++){
-        if ( meOccupancyMem_[ism-1] ) {
-           st = chInStrip - 0.5;
-           meOccupancyMem_[ism-1]->Fill(PnId, st);
+      if ( dcchs.isValid() ) {
+
+        for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+
+          if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
+
+          if ( Numbers::iSM( *dcchItr, EcalEndcap ) != ism ) continue;
+
+          bool isPhysics = false;
+          
+          if ( dcchItr->getRunType() == EcalDCCHeaderBlock::COSMIC ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::MTCC ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) isPhysics = true;
+          
+          for (int chInStrip = 1; chInStrip <= 5; chInStrip++){
+            if ( meOccupancyMem_[ism-1] ) {
+              st = chInStrip - 0.5;
+              if ( isPhysics ) meOccupancyMem_[ism-1]->Fill(PnId, st);
+            }
+          }
+
         }
+
       }
 
     }
@@ -684,26 +718,51 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
       float xeex = eex - 0.5;
       float xeey = eey - 0.5;
 
-      if ( ism >= 1 && ism <= 9 ) {
-        if ( meEERecHitOccupancy_[0] ) meEERecHitOccupancy_[0]->Fill( xeex, xeey );
-        if ( meEERecHitOccupancyProR_[0] ) meEERecHitOccupancyProR_[0]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
-        if ( meEERecHitOccupancyProPhi_[0] ) meEERecHitOccupancyProPhi_[0]->Fill( atan2(xeey-50.,xeex-50.) );
-      } else {
-        if ( meEERecHitOccupancy_[1] ) meEERecHitOccupancy_[1]->Fill( xeex, xeey );
-        if ( meEERecHitOccupancyProR_[1] ) meEERecHitOccupancyProR_[1]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
-        if ( meEERecHitOccupancyProPhi_[1] ) meEERecHitOccupancyProPhi_[1]->Fill( atan2(xeey-50.,xeex-50.) );
-      }
+      if ( dcchs.isValid() ) {
 
-      if ( rechitItr->energy() > recHitEnergyMin_ ) {
+        for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-        if ( ism >= 1 && ism <= 9 ) {
-          if ( meEERecHitOccupancyThr_[0] ) meEERecHitOccupancyThr_[0]->Fill( xeex, xeey );
-          if ( meEERecHitOccupancyProRThr_[0] ) meEERecHitOccupancyProRThr_[0]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
-          if ( meEERecHitOccupancyProPhiThr_[0] ) meEERecHitOccupancyProPhiThr_[0]->Fill( atan2(xeey-50.,xeex-50.) );
-        } else {
-          if ( meEERecHitOccupancyThr_[1] ) meEERecHitOccupancyThr_[1]->Fill( xeex, xeey );
-          if ( meEERecHitOccupancyProRThr_[1] ) meEERecHitOccupancyProRThr_[1]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
-          if ( meEERecHitOccupancyProPhiThr_[1] ) meEERecHitOccupancyProPhiThr_[1]->Fill( atan2(xeey-50.,xeex-50.) );
+          if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
+
+          if ( Numbers::iSM( *dcchItr, EcalEndcap ) != ism ) continue;
+
+          bool isPhysics = false;
+          
+          if ( dcchItr->getRunType() == EcalDCCHeaderBlock::COSMIC ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::MTCC ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) isPhysics = true;
+          
+          if (isPhysics ) {
+            
+            if ( ism >= 1 && ism <= 9 ) {
+              if ( meEERecHitOccupancy_[0] ) meEERecHitOccupancy_[0]->Fill( xeex, xeey );
+              if ( meEERecHitOccupancyProR_[0] ) meEERecHitOccupancyProR_[0]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
+              if ( meEERecHitOccupancyProPhi_[0] ) meEERecHitOccupancyProPhi_[0]->Fill( atan2(xeey-50.,xeex-50.) );
+            } else {
+              if ( meEERecHitOccupancy_[1] ) meEERecHitOccupancy_[1]->Fill( xeex, xeey );
+              if ( meEERecHitOccupancyProR_[1] ) meEERecHitOccupancyProR_[1]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
+              if ( meEERecHitOccupancyProPhi_[1] ) meEERecHitOccupancyProPhi_[1]->Fill( atan2(xeey-50.,xeex-50.) );
+            }
+
+            if ( rechitItr->energy() > recHitEnergyMin_ ) {
+              
+              if ( ism >= 1 && ism <= 9 ) {
+                if ( meEERecHitOccupancyThr_[0] ) meEERecHitOccupancyThr_[0]->Fill( xeex, xeey );
+                if ( meEERecHitOccupancyProRThr_[0] ) meEERecHitOccupancyProRThr_[0]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
+                if ( meEERecHitOccupancyProPhiThr_[0] ) meEERecHitOccupancyProPhiThr_[0]->Fill( atan2(xeey-50.,xeex-50.) );
+              } else {
+                if ( meEERecHitOccupancyThr_[1] ) meEERecHitOccupancyThr_[1]->Fill( xeex, xeey );
+                if ( meEERecHitOccupancyProRThr_[1] ) meEERecHitOccupancyProRThr_[1]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
+                if ( meEERecHitOccupancyProPhiThr_[1] ) meEERecHitOccupancyProPhiThr_[1]->Fill( atan2(xeey-50.,xeex-50.) );
+              }
+
+            }
+
+          }
+
         }
 
       }
@@ -741,26 +800,51 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
         float xeex = eex - 0.5;
         float xeey = eey - 0.5;
 
-        if ( ismt >= 1 && ismt <= 9 ) {
-          if ( meEETrigPrimDigiOccupancy_[0] ) meEETrigPrimDigiOccupancy_[0]->Fill( xeex, xeey );
-          if ( meEETrigPrimDigiOccupancyProR_[0] ) meEETrigPrimDigiOccupancyProR_[0]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
-          if ( meEETrigPrimDigiOccupancyProPhi_[0] ) meEETrigPrimDigiOccupancyProPhi_[0]->Fill( atan2(xeey-50.,xeex-50.) );
-        } else {
-          if ( meEETrigPrimDigiOccupancy_[1] ) meEETrigPrimDigiOccupancy_[1]->Fill( xeex, xeey );
-          if ( meEETrigPrimDigiOccupancyProR_[1] ) meEETrigPrimDigiOccupancyProR_[1]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
-          if ( meEETrigPrimDigiOccupancyProPhi_[1] ) meEETrigPrimDigiOccupancyProPhi_[1]->Fill( atan2(xeey-50.,xeex-50.) );
-        }
+        if ( dcchs.isValid() ) {
+          
+          for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-        if ( tpdigiItr->compressedEt() > trigPrimEtMin_ ) {
+            if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
+            
+            if ( Numbers::iSM( *dcchItr, EcalEndcap ) != ismt ) continue;
 
-          if ( ismt >= 1 && ismt <= 9 ) {
-            if ( meEETrigPrimDigiOccupancyThr_[0] ) meEETrigPrimDigiOccupancyThr_[0]->Fill( xeex, xeey );
-            if ( meEETrigPrimDigiOccupancyProRThr_[0] ) meEETrigPrimDigiOccupancyProRThr_[0]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
-            if ( meEETrigPrimDigiOccupancyProPhiThr_[0] ) meEETrigPrimDigiOccupancyProPhiThr_[0]->Fill( atan2(xeey-50.,xeex-50.) );
-          } else {
-            if ( meEETrigPrimDigiOccupancyThr_[1] ) meEETrigPrimDigiOccupancyThr_[1]->Fill( xeex, xeey );
-            if ( meEETrigPrimDigiOccupancyProRThr_[1] ) meEETrigPrimDigiOccupancyProRThr_[1]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
-            if ( meEETrigPrimDigiOccupancyProPhiThr_[1] ) meEETrigPrimDigiOccupancyProPhiThr_[1]->Fill( atan2(xeey-50.,xeex-50.) );
+            bool isPhysics = false;
+            
+            if ( dcchItr->getRunType() == EcalDCCHeaderBlock::COSMIC ||
+                 dcchItr->getRunType() == EcalDCCHeaderBlock::MTCC ||
+                 dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+                 dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+                 dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+                 dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) isPhysics = true;
+            
+            if (isPhysics ) {
+              
+              if ( ismt >= 1 && ismt <= 9 ) {
+                if ( meEETrigPrimDigiOccupancy_[0] ) meEETrigPrimDigiOccupancy_[0]->Fill( xeex, xeey );
+                if ( meEETrigPrimDigiOccupancyProR_[0] ) meEETrigPrimDigiOccupancyProR_[0]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
+                if ( meEETrigPrimDigiOccupancyProPhi_[0] ) meEETrigPrimDigiOccupancyProPhi_[0]->Fill( atan2(xeey-50.,xeex-50.) );
+              } else {
+                if ( meEETrigPrimDigiOccupancy_[1] ) meEETrigPrimDigiOccupancy_[1]->Fill( xeex, xeey );
+                if ( meEETrigPrimDigiOccupancyProR_[1] ) meEETrigPrimDigiOccupancyProR_[1]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
+                if ( meEETrigPrimDigiOccupancyProPhi_[1] ) meEETrigPrimDigiOccupancyProPhi_[1]->Fill( atan2(xeey-50.,xeex-50.) );
+              }
+              
+              if ( tpdigiItr->compressedEt() > trigPrimEtMin_ ) {
+                
+                if ( ismt >= 1 && ismt <= 9 ) {
+                  if ( meEETrigPrimDigiOccupancyThr_[0] ) meEETrigPrimDigiOccupancyThr_[0]->Fill( xeex, xeey );
+                  if ( meEETrigPrimDigiOccupancyProRThr_[0] ) meEETrigPrimDigiOccupancyProRThr_[0]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
+                  if ( meEETrigPrimDigiOccupancyProPhiThr_[0] ) meEETrigPrimDigiOccupancyProPhiThr_[0]->Fill( atan2(xeey-50.,xeex-50.) );
+                } else {
+                  if ( meEETrigPrimDigiOccupancyThr_[1] ) meEETrigPrimDigiOccupancyThr_[1]->Fill( xeex, xeey );
+                  if ( meEETrigPrimDigiOccupancyProRThr_[1] ) meEETrigPrimDigiOccupancyProRThr_[1]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
+                  if ( meEETrigPrimDigiOccupancyProPhiThr_[1] ) meEETrigPrimDigiOccupancyProPhiThr_[1]->Fill( atan2(xeey-50.,xeex-50.) );
+                }
+
+              }
+
+            }
+
           }
 
         }

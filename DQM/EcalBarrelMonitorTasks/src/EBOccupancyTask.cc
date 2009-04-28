@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/12/03 10:43:35 $
- * $Revision: 1.69 $
+ * $Date: 2008/12/03 12:55:49 $
+ * $Revision: 1.70 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -375,10 +375,6 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
       float xebeta = ebeta - 0.5*id.zside();
       float xebphi = ebphi - 0.5;
 
-      if ( meEBDigiOccupancy_ ) meEBDigiOccupancy_->Fill( xebphi, xebeta );
-      if ( meEBDigiOccupancyProjEta_ ) meEBDigiOccupancyProjEta_->Fill( xebeta );
-      if ( meEBDigiOccupancyProjPhi_ ) meEBDigiOccupancyProjPhi_->Fill( xebphi );
-
       if ( dcchs.isValid() ) {
 
         for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
@@ -386,6 +382,23 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
           if ( Numbers::subDet( *dcchItr ) != EcalBarrel ) continue;
 
           if ( Numbers::iSM( *dcchItr, EcalBarrel ) != ism ) continue;
+
+          bool isPhysics = false;
+          
+          if ( dcchItr->getRunType() == EcalDCCHeaderBlock::COSMIC ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::MTCC ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) isPhysics = true;
+
+          if ( isPhysics ) {
+
+            if ( meEBDigiOccupancy_ ) meEBDigiOccupancy_->Fill( xebphi, xebeta );
+            if ( meEBDigiOccupancyProjEta_ ) meEBDigiOccupancyProjEta_->Fill( xebeta );
+            if ( meEBDigiOccupancyProjPhi_ ) meEBDigiOccupancyProjPhi_->Fill( xebphi );
+            
+          }
 
           if ( dcchItr->getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
                dcchItr->getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) {
@@ -438,10 +451,29 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
       PnId        = PnId - 0.5;
       float st    = 0.0;
 
-      for (int chInStrip = 1; chInStrip <= 5; chInStrip++){
-        if ( meOccupancyMem_[ism-1] ) {
-           st = chInStrip - 0.5;
-           meOccupancyMem_[ism-1]->Fill(PnId, st);
+      if ( dcchs.isValid() ) {
+
+        for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+
+          if ( Numbers::subDet( *dcchItr ) != EcalBarrel ) continue;
+
+          if ( Numbers::iSM( *dcchItr, EcalBarrel ) != ism ) continue;
+
+          bool isPhysics = false;
+          
+          if ( dcchItr->getRunType() == EcalDCCHeaderBlock::COSMIC ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::MTCC ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) isPhysics = true;
+
+          for (int chInStrip = 1; chInStrip <= 5; chInStrip++){
+            if ( meOccupancyMem_[ism-1] ) {
+              st = chInStrip - 0.5;
+              if ( isPhysics ) meOccupancyMem_[ism-1]->Fill(PnId, st);
+            }
+          }
         }
       }
 
@@ -470,15 +502,42 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
       float xebeta = ebeta - 0.5*id.zside();
       float xebphi = ebphi - 0.5;
 
-      if ( meEBRecHitOccupancy_ ) meEBRecHitOccupancy_->Fill( xebphi, xebeta );
-      if ( meEBRecHitOccupancyProjEta_ ) meEBRecHitOccupancyProjEta_->Fill( xebeta );
-      if ( meEBRecHitOccupancyProjPhi_ ) meEBRecHitOccupancyProjPhi_->Fill( xebphi );
+      int ism = Numbers::iSM( id );
 
-      if ( rechitItr->energy() > recHitEnergyMin_ ) {
+      if ( dcchs.isValid() ) {
 
-        if ( meEBRecHitOccupancyThr_ ) meEBRecHitOccupancyThr_->Fill( xebphi, xebeta );
-        if ( meEBRecHitOccupancyProjEtaThr_ ) meEBRecHitOccupancyProjEtaThr_->Fill( xebeta );
-        if ( meEBRecHitOccupancyProjPhiThr_ ) meEBRecHitOccupancyProjPhiThr_->Fill( xebphi );
+        for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+
+          if ( Numbers::subDet( *dcchItr ) != EcalBarrel ) continue;
+
+          if ( Numbers::iSM( *dcchItr, EcalBarrel ) != ism ) continue;
+          
+          bool isPhysics = false;
+          
+          if ( dcchItr->getRunType() == EcalDCCHeaderBlock::COSMIC ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::MTCC ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) isPhysics = true;
+
+          if ( isPhysics ) {
+
+            if ( meEBRecHitOccupancy_ ) meEBRecHitOccupancy_->Fill( xebphi, xebeta );
+            if ( meEBRecHitOccupancyProjEta_ ) meEBRecHitOccupancyProjEta_->Fill( xebeta );
+            if ( meEBRecHitOccupancyProjPhi_ ) meEBRecHitOccupancyProjPhi_->Fill( xebphi );
+            
+            if ( rechitItr->energy() > recHitEnergyMin_ ) {
+              
+              if ( meEBRecHitOccupancyThr_ ) meEBRecHitOccupancyThr_->Fill( xebphi, xebeta );
+              if ( meEBRecHitOccupancyProjEtaThr_ ) meEBRecHitOccupancyProjEtaThr_->Fill( xebeta );
+              if ( meEBRecHitOccupancyProjPhiThr_ ) meEBRecHitOccupancyProjPhiThr_->Fill( xebphi );
+              
+            }
+
+          }
+
+        }
 
       }
 
@@ -510,15 +569,42 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
       float xebeta = ebeta-0.5*tpdigiItr->id().zside();
       float xebphi = ebphi-0.5;
 
-      if ( meEBTrigPrimDigiOccupancy_ ) meEBTrigPrimDigiOccupancy_->Fill( xebphi, xebeta );
-      if ( meEBTrigPrimDigiOccupancyProjEta_ ) meEBTrigPrimDigiOccupancyProjEta_->Fill( xebeta );
-      if ( meEBTrigPrimDigiOccupancyProjPhi_ ) meEBTrigPrimDigiOccupancyProjPhi_->Fill( xebphi );
+      int ism = Numbers::iSM( tpdigiItr->id() );
 
-      if ( tpdigiItr->compressedEt() > trigPrimEtMin_ ) {
+      if ( dcchs.isValid() ) {
 
-        if ( meEBTrigPrimDigiOccupancyThr_ ) meEBTrigPrimDigiOccupancyThr_->Fill( xebphi, xebeta );
-        if ( meEBTrigPrimDigiOccupancyProjEtaThr_ ) meEBTrigPrimDigiOccupancyProjEtaThr_->Fill( xebeta );
-        if ( meEBTrigPrimDigiOccupancyProjPhiThr_ ) meEBTrigPrimDigiOccupancyProjPhiThr_->Fill( xebphi );
+        for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+
+          if ( Numbers::subDet( *dcchItr ) != EcalBarrel ) continue;
+
+          if ( Numbers::iSM( *dcchItr, EcalBarrel ) != ism ) continue;
+          
+          bool isPhysics = false;
+          
+          if ( dcchItr->getRunType() == EcalDCCHeaderBlock::COSMIC ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::MTCC ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) isPhysics = true;
+
+          if ( isPhysics ) {
+            
+            if ( meEBTrigPrimDigiOccupancy_ ) meEBTrigPrimDigiOccupancy_->Fill( xebphi, xebeta );
+            if ( meEBTrigPrimDigiOccupancyProjEta_ ) meEBTrigPrimDigiOccupancyProjEta_->Fill( xebeta );
+            if ( meEBTrigPrimDigiOccupancyProjPhi_ ) meEBTrigPrimDigiOccupancyProjPhi_->Fill( xebphi );
+            
+            if ( tpdigiItr->compressedEt() > trigPrimEtMin_ ) {
+              
+              if ( meEBTrigPrimDigiOccupancyThr_ ) meEBTrigPrimDigiOccupancyThr_->Fill( xebphi, xebeta );
+              if ( meEBTrigPrimDigiOccupancyProjEtaThr_ ) meEBTrigPrimDigiOccupancyProjEtaThr_->Fill( xebeta );
+              if ( meEBTrigPrimDigiOccupancyProjPhiThr_ ) meEBTrigPrimDigiOccupancyProjPhiThr_->Fill( xebphi );
+              
+            }
+
+          }
+
+        }
 
       }
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2008/12/04 12:50:21 $
- * $Revision: 1.185 $
+ * $Date: 2009/04/06 16:51:05 $
+ * $Revision: 1.186 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -400,7 +400,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       if ( evtType_ < 0 || evtType_ > 22 ) evtType_ = -1;
       if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5, 1./ndccs);
-
+                
     }
 
     LogDebug("EcalBarrelMonitorModule") << "event: " << ievt_ << " DCC headers collection size: " << nebc;
@@ -413,6 +413,14 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     LogWarning("EcalBarrelMonitorModule") << EcalRawDataCollection_ << " not available";
 
   }
+
+  isPhysics_ = false;
+  if ( evtType_ == EcalDCCHeaderBlock::COSMIC ||
+       evtType_ == EcalDCCHeaderBlock::MTCC ||
+       evtType_ == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+       evtType_ == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+       evtType_ == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+       evtType_ == EcalDCCHeaderBlock::PHYSICS_LOCAL ) isPhysics_ = true;
 
   if ( meRunType_ ) meRunType_->Fill(runType_);
 
@@ -437,7 +445,9 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     int nebd = digis->size();
     LogDebug("EcalBarrelMonitorModule") << "event " << ievt_ << " digi collection size " << nebd;
 
-    if ( meEBdigis_[0] ) meEBdigis_[0]->Fill(float(nebd));
+    if ( meEBdigis_[0] ) { 
+      if ( isPhysics_ ) meEBdigis_[0]->Fill(float(nebd));
+    }
 
     for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
@@ -459,8 +469,9 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     for (int i = 0; i < 36; i++) {
 
-      if ( meEBdigis_[1] ) meEBdigis_[1]->Fill(i+1+0.5, counter[i]);
-
+      if ( meEBdigis_[1] ) {
+        if ( isPhysics_ ) meEBdigis_[1]->Fill(i+1+0.5, counter[i]);
+      }
     }
 
   } else {
@@ -476,7 +487,9 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     int nebh = hits->size();
     LogDebug("EcalBarrelMonitorModule") << "event " << ievt_ << " hits collection size " << nebh;
 
-    if ( meEBhits_[0] ) meEBhits_[0]->Fill(float(nebh));
+    if ( meEBhits_[0] ) {
+      if ( isPhysics_ ) meEBhits_[0]->Fill(float(nebh));
+    }
 
     int counter[36] = { 0 };
 
@@ -515,7 +528,9 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     for (int i = 0; i < 36; i++) {
 
-      if ( meEBhits_[1] ) meEBhits_[1]->Fill(i+1+0.5, counter[i]);
+      if ( meEBhits_[1] ) {
+        if ( isPhysics_ ) meEBhits_[1]->Fill(i+1+0.5, counter[i]);
+      }
 
     }
 
@@ -548,11 +563,15 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     }
 
     LogDebug("EcalBarrelMonitorModule") << "event " << ievt_ << " TP digi collection size " << nebtpd;
-    if ( meEBtpdigis_[0] ) meEBtpdigis_[0]->Fill(float(nebtpd));
+    if ( meEBtpdigis_[0] ) {
+      if ( isPhysics_ ) meEBtpdigis_[0]->Fill(float(nebtpd));
+    }
 
     for (int i = 0; i < 36; i++) {
 
-      if ( meEBtpdigis_[1] ) meEBtpdigis_[1]->Fill(i+1+0.5, counter[i]);
+      if ( meEBtpdigis_[1] ) {
+        if ( isPhysics_ ) meEBtpdigis_[1]->Fill(i+1+0.5, counter[i]);
+      }
 
     }
 

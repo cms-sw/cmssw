@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/12/04 12:50:22 $
- * $Revision: 1.62 $
+ * $Date: 2009/04/06 16:51:05 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -414,6 +414,14 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   }
 
+  isPhysics_ = false;
+  if ( evtType_ == EcalDCCHeaderBlock::COSMIC ||
+       evtType_ == EcalDCCHeaderBlock::MTCC ||
+       evtType_ == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+       evtType_ == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+       evtType_ == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+       evtType_ == EcalDCCHeaderBlock::PHYSICS_LOCAL ) isPhysics_ = true;
+
   if ( meRunType_ ) meRunType_->Fill(runType_);
 
   if ( ievt_ == 1 ) {
@@ -437,7 +445,9 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     int counter[18] = { 0 };
 
-    if ( meEEdigis_[0] ) meEEdigis_[0]->Fill(float(need));
+    if ( meEEdigis_[0] ) {
+      if ( isPhysics_ ) meEEdigis_[0]->Fill(float(need));
+    }
 
     for ( EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
@@ -460,7 +470,9 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     for (int i = 0; i < 18; i++) {
 
-      if ( meEEdigis_[1] ) meEEdigis_[1]->Fill(i+1+0.5, counter[i]);
+      if ( meEEdigis_[1] ) {
+        if ( isPhysics_ ) meEEdigis_[1]->Fill(i+1+0.5, counter[i]);
+      }
 
     }
 
@@ -477,7 +489,9 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
     int neeh = hits->size();
     LogDebug("EcalEndcapMonitorModule") << "event " << ievt_ << " hits collection size " << neeh;
 
-    if ( meEEhits_[0] ) meEEhits_[0]->Fill(float(neeh));
+    if ( meEEhits_[0] ) { 
+      if ( isPhysics_ ) meEEhits_[0]->Fill(float(neeh));
+    }
 
     int counter[18] = { 0 };
 
@@ -517,7 +531,9 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     for (int i = 0; i < 18; i++) {
 
-      if ( meEEhits_[1] ) meEEhits_[1]->Fill(i+1+0.5, counter[i]);
+      if ( meEEhits_[1] ) {
+        if ( isPhysics_ ) meEEhits_[1]->Fill(i+1+0.5, counter[i]);
+      }
 
     }
 
@@ -550,11 +566,15 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
     }
 
     LogDebug("EcalEndcapMonitorModule") << "event " << ievt_ << " TP digi collection size " << neetpd;
-    if ( meEEtpdigis_[0] ) meEEtpdigis_[0]->Fill(float(neetpd));
+    if ( meEEtpdigis_[0] ) {
+      if ( isPhysics_ ) meEEtpdigis_[0]->Fill(float(neetpd));
+    }
 
     for (int i = 0; i < 18; i++) {
 
-      if ( meEEtpdigis_[1] ) meEEtpdigis_[1]->Fill(i+1+0.5, counter[i]);
+      if ( meEEtpdigis_[1] ) {
+        if ( isPhysics_ ) meEEtpdigis_[1]->Fill(i+1+0.5, counter[i]);
+      }
 
     }
 
