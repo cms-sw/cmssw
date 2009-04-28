@@ -98,14 +98,20 @@ ElectronSeedMerger::produce(Event& iEvent, const EventSetup& iSetup)
 	TrajectorySeed::const_iterator th_end = TSeed[it].recHits().second;
 	for (;th!=th_end;++th){
 	  if (!th->isValid()) continue;
-	  //CHECK THE HIT COMPATIBILITY
-	  if (eh->sharesInput(&(*th),TrackingRecHit::all)) hitShared++;
+	  //CHECK THE HIT COMPATIBILITY: put back sharesInput 
+	  // as soon Egamma solves the bug on the seed collection
+	  //if (eh->sharesInput(&(*th),TrackingRecHit::all)) Shared = true;
+	  if(eh->geographicalId() == th->geographicalId() &&
+	     (eh->localPosition() - th->localPosition()).mag() < 0.001) Shared=true;
 	}
 	if (Shared) hitShared++;
       }     
       if (hitShared==hitSeed){
 	AlreadyMatched=true;
 	TSeedMatched[it]=true;
+	NewSeed.setCtfTrack(TSeed[it].ctfTrack());
+      }
+      if ( hitShared == (hitSeed-1)){
 	NewSeed.setCtfTrack(TSeed[it].ctfTrack());
       }
     }

@@ -48,6 +48,10 @@ class PFElecTkProducer : public edm::EDProducer {
       bool otherElId(const reco::GsfTrackCollection  & GsfColl, 
 		     reco::GsfTrack GsfTk);
 	
+      bool applySelection(reco::GsfTrack);
+      bool resolveGsfTracks(const reco::GsfTrackCollection  & GsfColl,
+			    unsigned int igsf);
+
       // ----------member data ---------------------------
       reco::GsfPFRecTrack pftrack_;
       edm::ParameterSet conf_;
@@ -60,5 +64,11 @@ class PFElecTkProducer : public edm::EDProducer {
       ///Trajectory of GSfTracks in the event?
       bool trajinev_;
       bool modemomentum_;
+      bool applySel_;
+      bool applyClean_;
+      double SCEne_;
+      double detaGsfSC_;
+      double dphiGsfSC_;
+
 };
 #endif

@@ -49,6 +49,11 @@ PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):
 
   trajinev_ = iConfig.getParameter<bool>("TrajInEvents");
   modemomentum_ = iConfig.getParameter<bool>("ModeMomentum");
+  applySel_ = iConfig.getParameter<bool>("applyEGSelection");
+  applyClean_ = iConfig.getParameter<bool>("applyGsfTrackCleaning");
+  detaGsfSC_ = iConfig.getParameter<double>("MinDEtaGsfSC");
+  dphiGsfSC_ = iConfig.getParameter<double>("MinDPhiGsfSC");
+  SCEne_ = iConfig.getParameter<double>("MinSCEnergy");
 }
 
 
@@ -96,16 +101,16 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
     vector<Trajectory> tjvec= *(TrajectoryCollection.product());
   
     for (uint igsf=0; igsf<gsftracks.size();igsf++) {
- 
+      
       GsfTrackRef trackRef(gsfelectrons, igsf);
       int kf_ind=FindPfRef(PfRTkColl,gsftracks[igsf],false);
-
+      
       if (kf_ind>=0) {
-
+	
 	PFRecTrackRef kf_ref(thePfRecTrackCollection,
 			     kf_ind);
 	
-          
+        
 	pftrack_=GsfPFRecTrack( gsftracks[igsf].charge(), 
 				reco::PFRecTrack::GSF, 
 				igsf, trackRef,
@@ -117,15 +122,20 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 				igsf, trackRef,
 				dummyRef);
       }
+      bool validgsfbrem = pfTransformer_->addPointsAndBrems(pftrack_, 
+							    gsftracks[igsf], 
+							    tjvec[igsf],
+							    modemomentum_);
+      bool passSel = true;
+      bool retainGsf = true;
+      if(applySel_) 
+	passSel = applySelection(gsftracks[igsf]);      
+      if(applyClean_) 
+	retainGsf = resolveGsfTracks(gsftracks,igsf);
 
-       bool validgsfbrem = pfTransformer_->addPointsAndBrems(pftrack_, 
-							     gsftracks[igsf], 
-							     tjvec[igsf],
-							     modemomentum_);
-       
- 
-       if(validgsfbrem)
-	 gsfPFRecTrackCollection->push_back(pftrack_);
+
+      if(validgsfbrem && passSel && retainGsf)
+	gsfPFRecTrackCollection->push_back(pftrack_);
     }
     //OTHER GSF TRACK COLLECTION
     if(conf_.getParameter<bool>("AddGSFTkColl")){
@@ -215,7 +225,7 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
       uint ish=0;
       
       float dph= fabs(pft->trackRef()->phi()-gsftk.phi()); 
-      if (dph>TMath::TwoPi()) dph-= TMath::TwoPi();
+      if (dph>TMath::Pi()) dph-= TMath::TwoPi();
       float det=fabs(pft->trackRef()->eta()-gsftk.eta());
       float dr =sqrt(dph*dph+det*det);  
       
@@ -256,7 +266,7 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
     }
     if (ibest<0) return -1;
     
-    if((ish_max==0) &&(dr_min>0.05))return -1;
+    if((ish_max==0) || (dr_min>0.05))return -1;
     if(otherColl && (ish_max==0)) return -1;
     return ibest;
   }
@@ -306,7 +316,94 @@ PFElecTkProducer::otherElId(const reco::GsfTrackCollection  & GsfColl,
   }
   return ((float(shared)/float(nhits))<0.5);
 }
+// -- method to apply gsf electron selection to EcalDriven seeds
+bool 
+PFElecTkProducer::applySelection(reco::GsfTrack gsftk) {
+  if (&(*gsftk.seedRef())==0) return false;
+  ElectronSeedRef ElSeedRef=gsftk.extra()->seedRef().castTo<ElectronSeedRef>();
 
+  bool passCut = false;
+  if (ElSeedRef->ctfTrack().isNull()){
+    if(ElSeedRef->caloCluster().isNull()) return passCut;
+    SuperClusterRef scRef = ElSeedRef->caloCluster().castTo<SuperClusterRef>();
+    //do this just to know if exist a SC? 
+    if(scRef.isNonnull()) {
+      float caloEne = scRef->energy();
+      float feta = fabs(scRef->eta()-gsftk.etaMode());
+      float fphi = fabs(scRef->phi()-gsftk.phiMode());
+      if (fphi>TMath::Pi()) fphi-= TMath::TwoPi();
+      if(caloEne > SCEne_ && feta < detaGsfSC_ && fphi < dphiGsfSC_)
+	passCut = true;
+    }
+  }
+  else {
+    // get all the gsf found by tracker driven
+    passCut = true;
+  }
+  return passCut;
+}
+bool 
+PFElecTkProducer::resolveGsfTracks(const reco::GsfTrackCollection  & GsfCol, unsigned int ngsf) {
+  if (&(*GsfCol[ngsf].seedRef())==0) return false;    
+  ElectronSeedRef ElSeedRef=GsfCol[ngsf].extra()->seedRef().castTo<ElectronSeedRef>();
+
+  bool  retainGsfTrack = true;
+ 
+  if (ElSeedRef->ctfTrack().isNull() && ElSeedRef->caloCluster().isNonnull()){
+    
+    SuperClusterRef scRef1 = ElSeedRef->caloCluster().castTo<SuperClusterRef>();   
+    if(scRef1.isNull()) {
+      retainGsfTrack = false;
+      return retainGsfTrack;
+    }    
+    
+    uint shared=0;
+    bool shareSC = false;
+    
+    float EP1 = scRef1->energy()/GsfCol[ngsf].pMode();
+    float EP2 = 1000.;
+    
+    for (uint igsf=0; igsf<GsfCol.size();igsf++) {
+      ElectronSeedRef tempSeedRef=GsfCol[igsf].extra()->seedRef().castTo<ElectronSeedRef>();
+      if(tempSeedRef->caloCluster().isNull()) continue;
+      if(igsf != ngsf ) {
+	SuperClusterRef scRef2 = tempSeedRef->caloCluster().castTo<SuperClusterRef>();
+	if(scRef2.isNonnull()) {
+	  if(scRef1 == scRef2) {
+	    shareSC = true;
+	    float tempEP =  scRef2->energy()/GsfCol[igsf].pMode();
+
+	    uint tmp_sh=0;
+	    trackingRecHit_iterator  ghit=GsfCol[igsf].recHitsBegin();
+	    trackingRecHit_iterator  ghit_end=GsfCol[igsf].recHitsEnd();
+	    for (;ghit!=ghit_end;++ghit){
+	      if ((*ghit)->isValid()){
+		trackingRecHit_iterator  hit=GsfCol[ngsf].recHitsBegin();
+		trackingRecHit_iterator  hit_end=GsfCol[ngsf].recHitsEnd();
+		for (;hit!=hit_end;++hit){
+		  if ((*hit)->isValid()) {
+		    if(((*hit)->geographicalId()==(*ghit)->geographicalId())&&
+		       (((*hit)->localPosition()-(*ghit)->localPosition()).mag()<0.01)) tmp_sh++;
+		  }
+		}
+	      }
+	    }
+	    if (tmp_sh>0) {
+	      shared=tmp_sh;
+	      if(fabs(tempEP-1)<fabs(EP2-1)) {
+		EP2 = tempEP;
+	      }
+	    }
+	  }
+	}
+      }
+    }
+    if(shared > 0 && shareSC == true) {
+      if(fabs(EP2-1) < fabs(EP1-1)) retainGsfTrack = false;
+    }
+  }
+  return retainGsfTrack;
+}
 // ------------ method called once each job just before starting event loop  ------------
 void 
 PFElecTkProducer::beginJob(const EventSetup& iSetup)

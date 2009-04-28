@@ -401,9 +401,9 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     //check that the vertex of the brem is in the tracker volume
     if ((v.perp()>110) ||(fabs(v.z())>280)) continue;    
     uint iTrajPoint =  iTrajPos + 2;
+    if(iid%2 == 1) iTrajPoint = 99;
 
     PFBrem brem(DP,SigmaDP,iTrajPoint);
-//     cout << " DP " << DP <<  " Sigma " << SigmaDP << endl;   // Daniele: Remove
 
 
     GlobalVector p_gamma= p*(fabs(DP)/p.mag());   // Direction from the electron (tangent), DP without any sign!;
