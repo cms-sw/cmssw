@@ -2,11 +2,11 @@
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
 // <<<<<<< MuScleFit.cc
-//  $Date: 2009/04/15 15:53:18 $
-//  $Revision: 1.34 $
+//  $Date: 2009/04/28 10:06:45 $
+//  $Revision: 1.35 $
 // =======
-//  $Date: 2009/04/15 15:53:18 $
-//  $Revision: 1.34 $
+//  $Date: 2009/04/28 10:06:45 $
+//  $Revision: 1.35 $
 // >>>>>>> 1.25
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
@@ -327,7 +327,8 @@ void MuScleFit::beginOfJob (const EventSetup& eventSetup) {
   // -------------------------------------------------
   // if( readPdfFromDB ) readProbabilityDistributions( eventSetup );
   // else
-  readProbabilityDistributionsFromFile();
+  if(maxLoopNumber>1)
+    readProbabilityDistributionsFromFile();
 
   if (debug_>0) cout << "[MuScleFit]: beginOfJob" << endl;
   
@@ -508,7 +509,21 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     if (theMuonType_==1) { // Muons
       Handle<reco::MuonCollection> glbMuons;
       event.getByLabel (theMuonLabel_, glbMuons);
-      muons = fillMuonCollection(*glbMuons);
+      vector<reco::Track> glbTracks;
+
+      for (vector<reco::Muon>::const_iterator muon = glbMuons->begin(); muon != glbMuons->end(); ++muon){
+	if(!(muon->isGlobalMuon())){
+	  cout<<"Not global muons but";
+	  if(muon->isStandAloneMuon())
+	    cout<<" standalone muon"<<endl;
+	  if(muon->isTrackerMuon())
+	    cout<<" tracker muon"<<endl;
+	}
+	else
+	  glbTracks.push_back(*(muon->globalTrack()));
+      }
+      
+      muons = fillMuonCollection(glbTracks);
     }
     else if (theMuonType_==2) { // StandaloneMuons
       Handle<reco::TrackCollection> saMuons;
@@ -607,22 +622,24 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     MY->Fill(fabs(bestRecRes.Rapidity()),bestRecRes.mass());
     MYP->Fill(fabs(bestRecRes.Rapidity()),bestRecRes.mass());
     mapHisto_["hRecBestMu"]->Fill(recMu1);
-    if ((abs(recMu1.eta())<2.5) && (recMu1.pt()>2.5)) {
+    mapHisto_["hRecBestMuVSEta"]->Fill(recMu1);
+    /*if ((abs(recMu1.eta())<2.5) && (recMu1.pt()>2.5)) {
       mapHisto_["hRecBestMu_Acc"]->Fill(recMu1);
-    }
+      }*/
     mapHisto_["hRecBestMu"]->Fill(recMu2);
-    if ((abs(recMu2.eta())<2.5) && (recMu2.pt()>2.5)) {
+    mapHisto_["hRecBestMuVSEta"]->Fill(recMu2);
+    /*if ((abs(recMu2.eta())<2.5) && (recMu2.pt()>2.5)) {
       mapHisto_["hRecBestMu_Acc"]->Fill(recMu2);
-    }
+      }*/
     mapHisto_["hDeltaRecBestMu"]->Fill(recMu1, recMu2);
     
     mapHisto_["hRecBestRes"]->Fill(bestRecRes);
-    if ((abs(recMu1.eta())<2.5) && (recMu1.pt()>2.5) && (abs(recMu2.eta())<2.5) &&  (recMu2.pt()>2.5)){
+    /*if ((abs(recMu1.eta())<2.5) && (recMu1.pt()>2.5) && (abs(recMu2.eta())<2.5) &&  (recMu2.pt()>2.5)){
       mapHisto_["hRecBestRes_Acc"]->Fill(bestRecRes);
-      // Fill histogram of Res mass vs muon variable
-      mapHisto_["hRecBestResVSMu"]->Fill (recMu1, bestRecRes, -1);
-      mapHisto_["hRecBestResVSMu"]->Fill (recMu2, bestRecRes, +1);
-    }
+      }*/
+    // Fill histogram of Res mass vs muon variable
+    mapHisto_["hRecBestResVSMu"]->Fill (recMu1, bestRecRes, -1);
+    mapHisto_["hRecBestResVSMu"]->Fill (recMu2, bestRecRes, +1);
 
     vector<double> * parval;
     vector<double> initpar;
