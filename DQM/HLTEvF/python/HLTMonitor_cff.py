@@ -7,5 +7,4 @@ from DQM.HLTEvF.FourVectorHLTOnline_cff import *
 #from DQM.HLTEvF.HLTEventInfoClient_cff import *
 from DQM.HLTEvF.HLTMonJetMET_cff import *
 from DQM.HLTEvF.HLTMonMuonDQM_cff import *
-from DQM.HLTEvF.HLTMonScalers_cff import *
 
