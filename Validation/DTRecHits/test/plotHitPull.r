@@ -6,6 +6,17 @@
  * 
  * G. Cerminara 2004
  */
+#if !defined(__CINT__)||  defined(__MAKECINT__)
+#include "TROOT.h"
+#include "TStyle.h"
+#include "TString.h"
+
+#include "macros.C"
+#include <iostream>
+#endif
+
+using namespace std;
+
 
 // class hRHit;
 class HRes1DHit;
@@ -13,21 +24,21 @@ class HRes2DHit;
 class HRes4DHit;
 
 void plotHitPull();
-void plotWWWHitPull(int dimSwitch = 1, TString nameDir = "");
-void draw(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DRecHit, bool ThreeIn1, int form);
-void plot1DResiduals(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1);
-void plot1DResidualsVsPos(TString name, HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1) ;
-void plot2DResiduals(HRes2DHit * h1);
+void plotWWWHitPull(TString dirBase, int dimSwitch = 1, TString nameDir = TString(""));
+void drawPull(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DRecHit, bool ThreeIn1, int form);
+void plot1DPulls(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1);
+void plot1DPullsVsPos(TString name, HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1) ;
+void plot2DPulls(HRes2DHit * h1);
 
-void plot4DResiduals(HRes4DHit * h1);
+void plot4DPulls(HRes4DHit * h1);
 void plot4DPullVsEta(HRes4DHit * h1);
 void plot4DPullVsPhi(HRes4DHit * h1);
 
-void plot2DAngles(HRes2DHit * h1, bool ThreeIn1);
-void plot4DAngles(HRes4DHit * h1, bool ThreeIn1);
+void plot2DPullAngles(HRes2DHit * h1, bool ThreeIn1);
+void plot4DPullAngles(HRes4DHit * h1, bool ThreeIn1);
 
 // Read user input
-bool setPreferences(bool& do1DRecHit, bool& do2DRecHit, bool& do2DSLPhiRecHit, bool& do4DRecHit, bool& ThreeIn1);
+bool setPullPreferences(bool& do1DRecHit, bool& do2DRecHit, bool& do2DSLPhiRecHit, bool& do4DRecHit, bool& ThreeIn1);
 // 
 
 
@@ -55,7 +66,7 @@ void plotHitPull(){
 
   // Read user input, namely what plots should be produced
 
-  while(!setPreferences(do1DRecHit, do2DRecHit, do2DSLPhiRecHit, do4DRecHit, ThreeIn1));
+  while(!setPullPreferences(do1DRecHit, do2DRecHit, do2DSLPhiRecHit, do4DRecHit, ThreeIn1));
   //   do1DRecHit = true; 
   //   do2DRecHit = true; 
   //   do4DRecHit = true; 
@@ -83,11 +94,11 @@ void plotHitPull(){
   }
   style->cd();                      // Apply style 
 
-  draw(do1DRecHit, do2DRecHit, do2DSLPhiRecHit, do4DRecHit, ThreeIn1, form);
+  drawPull(do1DRecHit, do2DRecHit, do2DSLPhiRecHit, do4DRecHit, ThreeIn1, form);
 
 }
 
-void plotWWWHitPull(int dimSwitch, TString nameDir) {
+void plotWWWHitPull(TString dirBase, int dimSwitch, TString nameDir) {
   // Load needed macros and files
   gROOT->LoadMacro("macros.C");     // Load service macros
   gROOT->LoadMacro("../plugins/Histograms.h"); // Load definition of histograms
@@ -116,7 +127,7 @@ void plotWWWHitPull(int dimSwitch, TString nameDir) {
 
 
 
-  bool ThreeIn1 = true;  // Plot the 3 steps in a single canvas (where appl.)
+  bool ThreeIn1 = false;  // Plot the 3 steps in a single canvas (where appl.)
 
   int form = 2;          // Form factor of the canvases (where applicable)
   //       1. For rectangular shape
@@ -139,7 +150,7 @@ void plotWWWHitPull(int dimSwitch, TString nameDir) {
   style->cd();                      // Apply style 
 
 
-  draw(do1DRecHit, do2DRecHit, do2DSLPhiRecHit, do4DRecHit, ThreeIn1, form);
+  drawPull(do1DRecHit, do2DRecHit, do2DSLPhiRecHit, do4DRecHit, ThreeIn1, form);
   TString nameS;
   if(nameDir == "") {
     cout << "Set the name of the www directory: " << endl;
@@ -148,8 +159,8 @@ void plotWWWHitPull(int dimSwitch, TString nameDir) {
     nameS = nameDir;
   }
   TString pwd = gSystem->WorkingDirectory();
-  gSystem->MakeDirectory("/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/DT/DTLocalRecoQualityTest/"+nameS);
-  gSystem->ChangeDirectory("/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/DT/DTLocalRecoQualityTest/"+nameS);
+  gSystem->MakeDirectory(dirBase+nameS);
+  gSystem->ChangeDirectory(dirBase+nameS);
 
 
   printCanvases(".gif");
@@ -158,50 +169,85 @@ void plotWWWHitPull(int dimSwitch, TString nameDir) {
 }
 
 
-void draw(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DRecHit, bool ThreeIn1, int form) {
+void drawPull(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DRecHit, bool ThreeIn1, int form) {
   // Retrieve histogram sets
   TFile *f = gROOT->GetListOfFiles()->Last();
   cout << "Loading file: " << f->GetName() << endl;
 
+
+
+  HRes1DHit *h1RPhi = 0;
+  HRes1DHit *h2RPhi = 0;
+  HRes1DHit *h3RPhi = 0;
+                      
+  HRes1DHit *h1RZ   = 0;
+  HRes1DHit *h2RZ   = 0;
+  HRes1DHit *h3RZ   = 0;
+                      
+  HRes1DHit *h1RZ_W0= 0;
+  HRes1DHit *h2RZ_W0= 0;
+  HRes1DHit *h3RZ_W0= 0;
+                      
+  HRes1DHit *h1RZ_W1= 0;
+  HRes1DHit *h2RZ_W1= 0;
+  HRes1DHit *h3RZ_W1= 0;
+                      
+  HRes1DHit *h1RZ_W2= 0;
+  HRes1DHit *h2RZ_W2= 0;
+  HRes1DHit *h3RZ_W2= 0;
   if(do1DRecHit) {
-    HRes1DHit *h1RPhi = new HRes1DHit("S1RPhi",f);     // RecHits, 1. step, RPhi
-    HRes1DHit *h2RPhi = new HRes1DHit("S2RPhi",f);     // RecHits, 2. step, RPhi
-    HRes1DHit *h3RPhi = new HRes1DHit("S3RPhi",f);     // RecHits, 3. step, RPhi
+    h1RPhi = new HRes1DHit("S1RPhi",f);     // RecHits, 1. step, RPhi
+    h2RPhi = new HRes1DHit("S2RPhi",f);     // RecHits, 2. step, RPhi
+    h3RPhi = new HRes1DHit("S3RPhi",f);     // RecHits, 3. step, RPhi
 
-    HRes1DHit *h1RZ = new HRes1DHit("S1RZ",f);         // RecHits, 1. step, RZ
-    HRes1DHit *h2RZ = new HRes1DHit("S2RZ",f);	    // RecHits, 2. step, RZ
-    HRes1DHit *h3RZ = new HRes1DHit("S3RZ",f);	    // RecHits, 3. step, RZ
+    h1RZ    = new HRes1DHit("S1RZ",f);         // RecHits, 1. step, RZ
+    h2RZ    = new HRes1DHit("S2RZ",f);	    // RecHits, 2. step, RZ
+    h3RZ    = new HRes1DHit("S3RZ",f);	    // RecHits, 3. step, RZ
 
-    HRes1DHit *h1RZ_W0 = new HRes1DHit("S1RZ_W0",f);   // RecHits, 1. step, RZ, wheel 0
-    HRes1DHit *h2RZ_W0 = new HRes1DHit("S2RZ_W0",f);   // RecHits, 2. step, RZ, wheel 0
-    HRes1DHit *h3RZ_W0 = new HRes1DHit("S3RZ_W0",f);   // RecHits, 3. step, RZ, wheel 0
+    h1RZ_W0 = new HRes1DHit("S1RZ_W0",f);   // RecHits, 1. step, RZ, wheel 0
+    h2RZ_W0 = new HRes1DHit("S2RZ_W0",f);   // RecHits, 2. step, RZ, wheel 0
+    h3RZ_W0 = new HRes1DHit("S3RZ_W0",f);   // RecHits, 3. step, RZ, wheel 0
 
-    HRes1DHit *h1RZ_W1 = new HRes1DHit("S1RZ_W1",f);   // RecHits, 1. step, RZ, wheel +-1
-    HRes1DHit *h2RZ_W1 = new HRes1DHit("S2RZ_W1",f);   // RecHits, 2. step, RZ, wheel +-1
-    HRes1DHit *h3RZ_W1 = new HRes1DHit("S3RZ_W1",f);   // RecHits, 3. step, RZ, wheel +-1
+    h1RZ_W1 = new HRes1DHit("S1RZ_W1",f);   // RecHits, 1. step, RZ, wheel +-1
+    h2RZ_W1 = new HRes1DHit("S2RZ_W1",f);   // RecHits, 2. step, RZ, wheel +-1
+    h3RZ_W1 = new HRes1DHit("S3RZ_W1",f);   // RecHits, 3. step, RZ, wheel +-1
 
-    HRes1DHit *h1RZ_W2 = new HRes1DHit("S1RZ_W2",f);   // RecHits, 1. step, RZ, wheel +-2
-    HRes1DHit *h2RZ_W2 = new HRes1DHit("S2RZ_W2",f);   // RecHits, 2. step, RZ, wheel +-2
-    HRes1DHit *h3RZ_W2 = new HRes1DHit("S3RZ_W2",f);   // RecHits, 3. step, RZ, wheel +-2
+    h1RZ_W2 = new HRes1DHit("S1RZ_W2",f);   // RecHits, 1. step, RZ, wheel +-2
+    h2RZ_W2 = new HRes1DHit("S2RZ_W2",f);   // RecHits, 2. step, RZ, wheel +-2
+    h3RZ_W2 = new HRes1DHit("S3RZ_W2",f);   // RecHits, 3. step, RZ, wheel +-2
 
   }
 
+
+
+  HRes2DHit *h2DHitRPhi = 0;
+  HRes2DHit *h2DHitRZ   = 0;
+  HRes2DHit *h2DHitRZ_W0= 0;
+  HRes2DHit *h2DHitRZ_W1= 0;
+  HRes2DHit *h2DHitRZ_W2= 0;
   if(do2DRecHit) {
-    HRes2DHit *h2DHitRPhi = new HRes2DHit("RPhi",f);
-    HRes2DHit *h2DHitRZ = new HRes2DHit("RZ",f);
-    HRes2DHit *h2DHitRZ_W0 = new HRes2DHit("RZ_W0",f);
-    HRes2DHit *h2DHitRZ_W1 = new HRes2DHit("RZ_W1",f);
-    HRes2DHit *h2DHitRZ_W2 = new HRes2DHit("RZ_W2",f);
+    h2DHitRPhi  = new HRes2DHit("RPhi",f);
+    h2DHitRZ    = new HRes2DHit("RZ",f);
+    h2DHitRZ_W0 = new HRes2DHit("RZ_W0",f);
+    h2DHitRZ_W1 = new HRes2DHit("RZ_W1",f);
+    h2DHitRZ_W2 = new HRes2DHit("RZ_W2",f);
   }
+  
+  HRes2DHit *h2DSLPhiHit = 0;
   if(do2DSLPhiRecHit) {
-    HRes2DHit *h2DSLPhiHit = new HRes2DHit("SuperPhi",f);
+    h2DSLPhiHit = new HRes2DHit("SuperPhi",f);
   }
 
+
+  HRes4DHit *h4DHit   = 0;
+  HRes4DHit *h4DHit_W0= 0;
+  HRes4DHit *h4DHit_W1= 0;
+  HRes4DHit *h4DHit_W2= 0;
   if(do4DRecHit) {
-    HRes4DHit *h4DHit = new HRes4DHit("All", f);
-    HRes4DHit *h4DHit_W0 = new HRes4DHit("W0", f);
-    HRes4DHit *h4DHit_W1 = new HRes4DHit("W1", f);
-    HRes4DHit *h4DHit_W2 = new HRes4DHit("W2", f);
+    h4DHit    = new HRes4DHit("All", f);
+    h4DHit_W0 = new HRes4DHit("W0", f);
+    h4DHit_W1 = new HRes4DHit("W1", f);
+    h4DHit_W2 = new HRes4DHit("W2", f);
   }
 
 
@@ -211,36 +257,36 @@ void draw(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DRecHi
 
   if(do1DRecHit) {
     // Residual, Rphi
-    plot1DResiduals(h1RPhi,h2RPhi,h3RPhi,ThreeIn1);
+    plot1DPulls(h1RPhi,h2RPhi,h3RPhi,ThreeIn1);
 
     // Residual, RZ 
-    plot1DResiduals(h1RZ,h2RZ,h3RZ,ThreeIn1);
+    plot1DPulls(h1RZ,h2RZ,h3RZ,ThreeIn1);
 
     // Residual, RZ, per wheel
-    plot1DResiduals(h1RZ_W0,h2RZ_W0,h3RZ_W0,ThreeIn1);
-    plot1DResiduals(h1RZ_W1,h2RZ_W1,h3RZ_W1,ThreeIn1);
-    plot1DResiduals(h1RZ_W2,h2RZ_W2,h3RZ_W2,ThreeIn1);
+    plot1DPulls(h1RZ_W0,h2RZ_W0,h3RZ_W0,ThreeIn1);
+    plot1DPulls(h1RZ_W1,h2RZ_W1,h3RZ_W1,ThreeIn1);
+    plot1DPulls(h1RZ_W2,h2RZ_W2,h3RZ_W2,ThreeIn1);
   }
 
   if(do2DRecHit) {
     cout << "h2DHitRPhi " << h2DHitRPhi << endl;
-    plot2DResiduals(h2DHitRPhi);
-    plot2DResiduals(h2DHitRZ);
-    // plot2DResiduals(h2DHitRZ_W0);
-    // plot2DResiduals(h2DHitRZ_W1);
-    // plot2DResiduals(h2DHitRZ_W2);
+    plot2DPulls(h2DHitRPhi);
+    plot2DPulls(h2DHitRZ);
+    // plot2DPulls(h2DHitRZ_W0);
+    // plot2DPulls(h2DHitRZ_W1);
+    // plot2DPulls(h2DHitRZ_W2);
   }
 
   if(do2DSLPhiRecHit) {
-    plot2DResiduals(h2DSLPhiHit);
+    plot2DPulls(h2DSLPhiHit);
   }
 
   if(false && do4DRecHit) {
-    plot4DResiduals(h4DHit);
-    plot4DResidualsRZ(h4DHit);
-    // plot4DResiduals(h4DHit_W0);
-    // plot4DResiduals(h4DHit_W1);
-    // plot4DResiduals(h4DHit_W2);
+    plot4DPulls(h4DHit);
+    plot4DPullsRZ(h4DHit);
+    // plot4DPulls(h4DHit_W0);
+    // plot4DPulls(h4DHit_W1);
+    // plot4DPulls(h4DHit_W2);
   }
 
   // Pullvseta:
@@ -300,13 +346,12 @@ void draw(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DRecHi
 
   }
 
-  if(do2DSLPhiRecHit) {
+  if(false && do2DSLPhiRecHit) {
     c1 = newCanvas("c_2D_SuperPhi_hPullPosVsEta",form);
     plotAndProfileXSpread(h2DSLPhiHit->hPullPosVsEta,-5,5);
 
     c1 = newCanvas("c_2D_SuperPhi_hPullAngleVsEta",form);
     plotAndProfileXSpread(h2DSLPhiHit->hPullAngleVsEta,-5,5);
-
   }
 
   if(do4DRecHit) {
@@ -375,7 +420,7 @@ void draw(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DRecHi
 
   }
 
-  if(do2DSLPhiRecHit) {
+  if(false && do2DSLPhiRecHit) {
     c1 = newCanvas("c_2D_SuperPhi_hPullPosVsPhi",form);
     plotAndProfileXSpread(h2DSLPhiHit->hPullPosVsPhi,-5,5);
 
@@ -396,42 +441,42 @@ void draw(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DRecHi
   // Pullvspos:
 
   if(do1DRecHit) {
-    plot1DResidualsVsPos("Rphi", h1RPhi, h2RPhi, h3RPhi, ThreeIn1) ;
-    plot1DResidualsVsPos("RZ", h1RZ, h2RZ, h3RZ, ThreeIn1) ;
-    plot1DResidualsVsPos("RZ_W0", h1RZ_W0, h2RZ_W0, h3RZ_W0, ThreeIn1) ;
-    plot1DResidualsVsPos("RZ_W1", h1RZ_W1, h2RZ_W1, h3RZ_W1, ThreeIn1) ;
-    plot1DResidualsVsPos("RZ_W2", h1RZ_W2, h2RZ_W2, h3RZ_W2, ThreeIn1) ;
+    plot1DPullsVsPos("Rphi", h1RPhi, h2RPhi, h3RPhi, ThreeIn1) ;
+    plot1DPullsVsPos("RZ", h1RZ, h2RZ, h3RZ, ThreeIn1) ;
+    plot1DPullsVsPos("RZ_W0", h1RZ_W0, h2RZ_W0, h3RZ_W0, ThreeIn1) ;
+    plot1DPullsVsPos("RZ_W1", h1RZ_W1, h2RZ_W1, h3RZ_W1, ThreeIn1) ;
+    plot1DPullsVsPos("RZ_W2", h1RZ_W2, h2RZ_W2, h3RZ_W2, ThreeIn1) ;
   }
 
   // Pullvsangle:
 
   if(do1DRecHit) {
-    plot1DResidualsVsAngle("Rphi", h1RPhi, h2RPhi, h3RPhi, ThreeIn1) ;
-    plot1DResidualsVsAngle("RZ", h1RZ, h2RZ, h3RZ, ThreeIn1) ;
-    plot1DResidualsVsAngle("RZ_W0", h1RZ_W0, h2RZ_W0, h3RZ_W0, ThreeIn1) ;
-    plot1DResidualsVsAngle("RZ_W1", h1RZ_W1, h2RZ_W1, h3RZ_W1, ThreeIn1) ;
-    plot1DResidualsVsAngle("RZ_W2", h1RZ_W2, h2RZ_W2, h3RZ_W2, ThreeIn1) ;
+    plot1DPullsVsAngle("Rphi", h1RPhi, h2RPhi, h3RPhi, ThreeIn1) ;
+    plot1DPullsVsAngle("RZ", h1RZ, h2RZ, h3RZ, ThreeIn1) ;
+    plot1DPullsVsAngle("RZ_W0", h1RZ_W0, h2RZ_W0, h3RZ_W0, ThreeIn1) ;
+    plot1DPullsVsAngle("RZ_W1", h1RZ_W1, h2RZ_W1, h3RZ_W1, ThreeIn1) ;
+    plot1DPullsVsAngle("RZ_W2", h1RZ_W2, h2RZ_W2, h3RZ_W2, ThreeIn1) ;
   }
 
 
   // if(do2DRecHit) {
   //   //cout << "h2DHitRPhi: " << (int)h2DHitRPhi << endl;
-  //   plot2DAngles(h2DHitRPhi, ThreeIn1);
-  //   plot2DAngles(h2DHitRZ, ThreeIn1);
-  //   plot2DAngles(h2DHitRZ_W0, ThreeIn1);
-  //   plot2DAngles(h2DHitRZ_W1, ThreeIn1);
-  //   plot2DAngles(h2DHitRZ_W2, ThreeIn1);
+  //   plot2DPullAngles(h2DHitRPhi, ThreeIn1);
+  //   plot2DPullAngles(h2DHitRZ, ThreeIn1);
+  //   plot2DPullAngles(h2DHitRZ_W0, ThreeIn1);
+  //   plot2DPullAngles(h2DHitRZ_W1, ThreeIn1);
+  //   plot2DPullAngles(h2DHitRZ_W2, ThreeIn1);
   // }
 
   // if(do2DSLPhiRecHit) {
-  //   plot2DAngles(h2DSLPhiHit, ThreeIn1);
+  //   plot2DPullAngles(h2DSLPhiHit, ThreeIn1);
   // }
 
   // if(do4DRecHit) {
-  //   plot4DAngles(h4DHit, ThreeIn1);
-  //   plot4DAngles(h4DHit_W0, ThreeIn1);
-  //   plot4DAngles(h4DHit_W1, ThreeIn1);
-  //   plot4DAngles(h4DHit_W2, ThreeIn1);
+  //   plot4DPullAngles(h4DHit, ThreeIn1);
+  //   plot4DPullAngles(h4DHit_W0, ThreeIn1);
+  //   plot4DPullAngles(h4DHit_W1, ThreeIn1);
+  //   plot4DPullAngles(h4DHit_W2, ThreeIn1);
   // }
 
   return;
@@ -439,7 +484,7 @@ void draw(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DRecHi
 }
 
 
-void plot1DResiduals(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1) {
+void plot1DPulls(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1) {
   int i = 2;
 
   if(ThreeIn1)
@@ -466,12 +511,14 @@ void plot1DResiduals(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeI
 
 }
 
-void plot1DResidualsVsPos(TString name, HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1) {
+void plot1DPullsVsPos(TString name, HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1) {
     bool profile = true;
     const float min = -5;
     const float max =  5;
     
     int i = 2;
+    int form = 2;
+
     if (ThreeIn1) c1 = newCanvas("c_1D_S1"+name+"_hPullVsPos",3,1,800,400);
     else newCanvas("c_1D_S1"+name+"_hPullVsPos",form);
     plotAndProfileXSpread(h1->hPullVsPos, min, max, profile);
@@ -485,12 +532,14 @@ void plot1DResidualsVsPos(TString name, HRes1DHit * h1, HRes1DHit * h2, HRes1DHi
     plotAndProfileXSpread(h3->hPullVsPos, min, max, profile);
 }
 
-void plot1DResidualsVsAngle(TString name, HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1) {
+void plot1DPullsVsAngle(TString name, HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1) {
     bool profile = true;
     const float min = -5;
     const float max =  5;
     
     int i = 2;
+    int form = 2;
+
     if (ThreeIn1) c1 = newCanvas("c_1D_S1"+name+"_hPullVsAngle",3,1,800,400);
     else newCanvas("c_1D_S1"+name+"_hPullVsAngle",form);
     plotAndProfileXSpread(h1->hPullVsAngle, min, max, profile);
@@ -504,7 +553,7 @@ void plot1DResidualsVsAngle(TString name, HRes1DHit * h1, HRes1DHit * h2, HRes1D
     plotAndProfileXSpread(h3->hPullVsAngle, min, max, profile);
 }
 
-void plot2DResiduals(HRes2DHit * h1) {
+void plot2DPulls(HRes2DHit * h1) {
   int i = 2;
 
   TString N1 = "c_2D_" + h1->name;
@@ -518,7 +567,7 @@ void plot2DResiduals(HRes2DHit * h1) {
   drawGFit(h1->hPullAngle, -5,5,-5,5);
 }
 
-void plot4DResiduals(HRes4DHit * h1) {
+void plot4DPulls(HRes4DHit * h1) {
   int i = 2;
 
   TString N1 = "c_4D_" + h1->name;
@@ -576,7 +625,7 @@ void plot4DPullVsPhi(HRes4DHit * h1) {
   plotAndProfileXSpread(h1->hPullBetaVsPhi,-5,5);
 }
 
-void plot2DAngles(HRes2DHit * h1, bool ThreeIn1) {
+void plot2DPullAngles(HRes2DHit * h1, bool ThreeIn1) {
   int i = 2;
 
   TString N1 = "c_2D_" + h1->name;
@@ -598,7 +647,7 @@ void plot2DAngles(HRes2DHit * h1, bool ThreeIn1) {
 
 }
 
-void plot4DAngles(HRes4DHit * h1, bool ThreeIn1) {
+void plot4DPullAngles(HRes4DHit * h1, bool ThreeIn1) {
   int i = 2;
 
   TString N1 = "c_4D_" + h1->name;
@@ -632,7 +681,7 @@ void plot4DAngles(HRes4DHit * h1, bool ThreeIn1) {
 
 }
 
-void plot4DResidualsRZ(HRes4DHit * h1) {
+void plot4DPullsRZ(HRes4DHit * h1) {
   int i = 2;
 
   TString N1 = "c_4D_" + h1->name;
@@ -653,10 +702,10 @@ void plot4DPullVsEtaRZ(HRes4DHit * h1) {
 
   int form = 2;
   newCanvas(N1+"_hPullYVsEtaRZ",form);
-  plotAndProfileXSpreadSpread(h1->hPullYVsEtaRZ,-5.,5., true,-2.5,2.5);
+  plotAndProfileXSpread(h1->hPullYVsEtaRZ,-5.,5., true,-2.5,2.5);
 
   newCanvas(N1+"_hPullBetaVsEtaRZ",form);
-  plotAndProfileXSpreadSpread(h1->hPullBetaVsEtaRZ,-5.,5., true,-2.5,2.5);
+  plotAndProfileXSpread(h1->hPullBetaVsEtaRZ,-5.,5., true,-2.5,2.5);
 }
 
 void plot4DPullVsPhiRZ(HRes4DHit * h1) {
@@ -673,7 +722,7 @@ void plot4DPullVsPhiRZ(HRes4DHit * h1) {
 }
 
 
-bool setPreferences(bool& do1DRecHit,
+bool setPullPreferences(bool& do1DRecHit,
     bool& do2DRecHit,
     bool& do2DSLPhiRecHit,
     bool& do4DRecHit,
@@ -719,7 +768,7 @@ bool setPreferences(bool& do1DRecHit,
       {
         cout << "Error: option not Valid, try again!" << endl;
         return false;
-        //setPreferences(do1DRecHit, do2DRecHit, do2DSLPhiRecHit, do4DRecHit, ThreeIn1);
+        //setPullPreferences(do1DRecHit, do2DRecHit, do2DSLPhiRecHit, do4DRecHit, ThreeIn1);
         break;
       }
   }

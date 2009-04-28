@@ -13,6 +13,30 @@
 #include <sstream>
 #include <iomanip>
 
+#if !defined(__CINT__) || defined(__MAKECINT__)
+#include "TProfile.h"
+#include "TLegend.h"
+#include "TROOT.h"
+#include "TVirtualPad.h"
+#include "TLine.h"
+#include "TCanvas.h"
+#include "TPostScript.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TF1.h"
+#include "TAxis.h"
+#include "TMath.h"
+#include "TROOT.h"
+#include "TStyle.h"
+
+#include <iostream>
+
+using namespace std;
+
+#endif
+
+
+
 TString getPitchString(TH1 *histo, int prec = 5);
 
 

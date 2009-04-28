@@ -13,8 +13,8 @@ class HRes2DHit;
 class HRes4DHit;
 
 void plotHitReso();
-void plotWWWHitReso(int dimSwitch = 1, TString nameDir = "");
-void draw(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DRecHit, bool ThreeIn1, int form);
+void plotWWWHitReso(TString dirBase, int dimSwitch = 1, TString nameDir = "");
+void drawReso(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DRecHit, bool ThreeIn1, int form);
 void plot1DResiduals(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1);
 void plot2DResiduals(HRes2DHit * h1);
 
@@ -82,11 +82,11 @@ void plotHitReso(){
   }
   style->cd();                      // Apply style 
 
-  draw(do1DRecHit, do2DRecHit, do2DSLPhiRecHit, do4DRecHit, ThreeIn1, form);
+  drawReso(do1DRecHit, do2DRecHit, do2DSLPhiRecHit, do4DRecHit, ThreeIn1, form);
 
 }
 
-void plotWWWHitReso(int dimSwitch, TString nameDir) {
+void plotWWWHitReso(TString dirBase, int dimSwitch, TString nameDir) {
   // Load needed macros and files
   gROOT->LoadMacro("macros.C");     // Load service macros
   gROOT->LoadMacro("../plugins/Histograms.h"); // Load definition of histograms
@@ -138,7 +138,7 @@ void plotWWWHitReso(int dimSwitch, TString nameDir) {
   style->cd();                      // Apply style 
 
 
-  draw(do1DRecHit, do2DRecHit, do2DSLPhiRecHit, do4DRecHit, ThreeIn1, form);
+  drawReso(do1DRecHit, do2DRecHit, do2DSLPhiRecHit, do4DRecHit, ThreeIn1, form);
   TString nameS;
   if(nameDir == "") {
     cout << "Set the name of the www directory: " << endl;
@@ -147,8 +147,8 @@ void plotWWWHitReso(int dimSwitch, TString nameDir) {
     nameS = nameDir;
   }
   TString pwd = gSystem->WorkingDirectory();
-  gSystem->MakeDirectory("/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/DT/DTLocalRecoQualityTest/"+nameS);
-  gSystem->ChangeDirectory("/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/DT/DTLocalRecoQualityTest/"+nameS);
+  gSystem->MakeDirectory(dirBase+nameS);
+  gSystem->ChangeDirectory(dirBase+nameS);
 
 
   printCanvases(".gif");
@@ -157,50 +157,80 @@ void plotWWWHitReso(int dimSwitch, TString nameDir) {
 }
 
 
-void draw(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DRecHit, bool ThreeIn1, int form) {
+void drawReso(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DRecHit, bool ThreeIn1, int form) {
   // Retrieve histogram sets
   TFile *f = gROOT->GetListOfFiles()->Last();
   cout << "Loading file: " << f->GetName() << endl;
 
+  HRes1DHit *h1RPhi = 0;
+  HRes1DHit *h2RPhi = 0;
+  HRes1DHit *h3RPhi = 0;
+                  
+  HRes1DHit *h1RZ= 0;
+  HRes1DHit *h2RZ = 0;
+  HRes1DHit *h3RZ = 0;
+                  
+  HRes1DHit *h1RZ_W0= 0;
+  HRes1DHit *h2RZ_W0= 0;
+  HRes1DHit *h3RZ_W0= 0;
+                  
+  HRes1DHit *h1RZ_W1= 0;
+  HRes1DHit *h2RZ_W1= 0;
+  HRes1DHit *h3RZ_W1= 0;
+                  
+  HRes1DHit *h1RZ_W2= 0;
+  HRes1DHit *h2RZ_W2= 0;
+  HRes1DHit *h3RZ_W2= 0;
   if(do1DRecHit) {
-    HRes1DHit *h1RPhi = new HRes1DHit("S1RPhi",f);     // RecHits, 1. step, RPhi
-    HRes1DHit *h2RPhi = new HRes1DHit("S2RPhi",f);     // RecHits, 2. step, RPhi
-    HRes1DHit *h3RPhi = new HRes1DHit("S3RPhi",f);     // RecHits, 3. step, RPhi
+    h1RPhi = new HRes1DHit("S1RPhi",f);     // RecHits, 1. step, RPhi
+    h2RPhi = new HRes1DHit("S2RPhi",f);     // RecHits, 2. step, RPhi
+    h3RPhi = new HRes1DHit("S3RPhi",f);     // RecHits, 3. step, RPhi
 
-    HRes1DHit *h1RZ = new HRes1DHit("S1RZ",f);         // RecHits, 1. step, RZ
-    HRes1DHit *h2RZ = new HRes1DHit("S2RZ",f);	    // RecHits, 2. step, RZ
-    HRes1DHit *h3RZ = new HRes1DHit("S3RZ",f);	    // RecHits, 3. step, RZ
+    h1RZ = new HRes1DHit("S1RZ",f);         // RecHits, 1. step, RZ
+    h2RZ = new HRes1DHit("S2RZ",f);	    // RecHits, 2. step, RZ
+    h3RZ = new HRes1DHit("S3RZ",f);	    // RecHits, 3. step, RZ
 
-    HRes1DHit *h1RZ_W0 = new HRes1DHit("S1RZ_W0",f);   // RecHits, 1. step, RZ, wheel 0
-    HRes1DHit *h2RZ_W0 = new HRes1DHit("S2RZ_W0",f);   // RecHits, 2. step, RZ, wheel 0
-    HRes1DHit *h3RZ_W0 = new HRes1DHit("S3RZ_W0",f);   // RecHits, 3. step, RZ, wheel 0
+    h1RZ_W0 = new HRes1DHit("S1RZ_W0",f);   // RecHits, 1. step, RZ, wheel 0
+    h2RZ_W0 = new HRes1DHit("S2RZ_W0",f);   // RecHits, 2. step, RZ, wheel 0
+    h3RZ_W0 = new HRes1DHit("S3RZ_W0",f);   // RecHits, 3. step, RZ, wheel 0
 
-    HRes1DHit *h1RZ_W1 = new HRes1DHit("S1RZ_W1",f);   // RecHits, 1. step, RZ, wheel +-1
-    HRes1DHit *h2RZ_W1 = new HRes1DHit("S2RZ_W1",f);   // RecHits, 2. step, RZ, wheel +-1
-    HRes1DHit *h3RZ_W1 = new HRes1DHit("S3RZ_W1",f);   // RecHits, 3. step, RZ, wheel +-1
+    h1RZ_W1 = new HRes1DHit("S1RZ_W1",f);   // RecHits, 1. step, RZ, wheel +-1
+    h2RZ_W1 = new HRes1DHit("S2RZ_W1",f);   // RecHits, 2. step, RZ, wheel +-1
+    h3RZ_W1 = new HRes1DHit("S3RZ_W1",f);   // RecHits, 3. step, RZ, wheel +-1
 
-    HRes1DHit *h1RZ_W2 = new HRes1DHit("S1RZ_W2",f);   // RecHits, 1. step, RZ, wheel +-2
-    HRes1DHit *h2RZ_W2 = new HRes1DHit("S2RZ_W2",f);   // RecHits, 2. step, RZ, wheel +-2
-    HRes1DHit *h3RZ_W2 = new HRes1DHit("S3RZ_W2",f);   // RecHits, 3. step, RZ, wheel +-2
-
+    h1RZ_W2 = new HRes1DHit("S1RZ_W2",f);   // RecHits, 1. step, RZ, wheel +-2
+    h2RZ_W2 = new HRes1DHit("S2RZ_W2",f);   // RecHits, 2. step, RZ, wheel +-2
+    h3RZ_W2 = new HRes1DHit("S3RZ_W2",f);   // RecHits, 3. step, RZ, wheel +-2
   }
 
+  HRes2DHit *h2DHitRPhi= 0;
+  HRes2DHit *h2DHitRZ= 0;
+  HRes2DHit *h2DHitRZ_W0 = 0;
+  HRes2DHit *h2DHitRZ_W1 = 0;
+  HRes2DHit *h2DHitRZ_W2 = 0;
   if(do2DRecHit) {
-    HRes2DHit *h2DHitRPhi = new HRes2DHit("RPhi",f);
-    HRes2DHit *h2DHitRZ = new HRes2DHit("RZ",f);
-    HRes2DHit *h2DHitRZ_W0 = new HRes2DHit("RZ_W0",f);
-    HRes2DHit *h2DHitRZ_W1 = new HRes2DHit("RZ_W1",f);
-    HRes2DHit *h2DHitRZ_W2 = new HRes2DHit("RZ_W2",f);
-  }
-  if(do2DSLPhiRecHit) {
-    HRes2DHit *h2DSLPhiHit = new HRes2DHit("SuperPhi",f);
+    h2DHitRPhi = new HRes2DHit("RPhi",f);
+    h2DHitRZ = new HRes2DHit("RZ",f);
+    h2DHitRZ_W0 = new HRes2DHit("RZ_W0",f);
+    h2DHitRZ_W1 = new HRes2DHit("RZ_W1",f);
+    h2DHitRZ_W2 = new HRes2DHit("RZ_W2",f);
   }
 
+  HRes2DHit *h2DSLPhiHit= 0;
+  if(do2DSLPhiRecHit) {
+    h2DSLPhiHit = new HRes2DHit("SuperPhi",f);
+  }
+
+
+  HRes4DHit *h4DHit= 0;
+  HRes4DHit *h4DHit_W0= 0;
+  HRes4DHit *h4DHit_W1= 0;
+  HRes4DHit *h4DHit_W2= 0;
   if(do4DRecHit) {
-    HRes4DHit *h4DHit = new HRes4DHit("All", f);
-    HRes4DHit *h4DHit_W0 = new HRes4DHit("W0", f);
-    HRes4DHit *h4DHit_W1 = new HRes4DHit("W1", f);
-    HRes4DHit *h4DHit_W2 = new HRes4DHit("W2", f);
+    h4DHit = new HRes4DHit("All", f);
+    h4DHit_W0 = new HRes4DHit("W0", f);
+    h4DHit_W1 = new HRes4DHit("W1", f);
+    h4DHit_W2 = new HRes4DHit("W2", f);
   }
 
 
