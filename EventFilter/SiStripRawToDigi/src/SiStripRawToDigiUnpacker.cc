@@ -454,7 +454,6 @@ namespace sistrip {
     fedEventDumpFreq_( fed_event_dump_freq ),
     triggerFedId_( trigger_fed_id ),
     useFedKey_( using_fed_key ),
-    buffer_(0),
     event_(0),
     once_(true),
     first_(true),
@@ -572,17 +571,27 @@ namespace sistrip {
 	}
 	continue;
       }
+      
+      // get the cabling connections for this FED
+      const std::vector<FedChannelConnection>& conns = cabling.connections(*ifed);
 
       // construct FEDBuffer
-      try {buffer_ = new sistrip::FEDBuffer(output.data(),output.size());}
+      std::auto_ptr<sistrip::FEDBuffer> buffer;
+      try {buffer.reset(new sistrip::FEDBuffer(output.data(),output.size()));}
       catch (const cms::Exception& e) { 
 	if ( edm::isDebugEnabled() ) {
 	  edm::LogWarning("sistrip::RawToDigiUnpacker") << e.what();
 	}
+        // FED buffer is bad and should not be unpacked. Skip this FED and mark all modules as bad. 
+        std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
+        for ( ; iconn != conns.end(); iconn++ ) {
+          detids.push_back(iconn->detId()); //@@ Possible multiple entries (ok for Giovanni)
+        }
+        continue;
       }
 
       // Check if EventSummary ("trigger FED info") needs updating
-      if ( first_fed && useDaqRegister_ ) { updateEventSummary( *buffer_, summary ); first_fed = false; }
+      if ( first_fed && useDaqRegister_ ) { updateEventSummary( *buffer, summary ); first_fed = false; }
     
       // Check to see if EventSummary info is set
       if ( edm::isDebugEnabled() ) {
@@ -606,7 +615,7 @@ namespace sistrip {
       }
     
       /// extract readout mode
-      sistrip::FEDReadoutMode mode = buffer_->readoutMode(); 
+      sistrip::FEDReadoutMode mode = buffer->readoutMode(); 
 
       // Retrive run type
       sistrip::RunType runType_ = summary.runType();
@@ -616,13 +625,12 @@ namespace sistrip {
       if ( edm::isDebugEnabled() ) {
 	if ( fedEventDumpFreq_ && !(event_%fedEventDumpFreq_) ) {
 	  std::stringstream ss;
-	  buffer_->dump( ss );
+	  buffer->dump( ss );
 	  edm::LogVerbatim(sistrip::mlRawToDigi_) << ss.str();
 	}
       }
     
       // Iterate through FED channels, extract payload and create Digis
-      const std::vector<FedChannelConnection>& conns = cabling.connections(*ifed);
       std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
       for ( ; iconn != conns.end(); iconn++ ) {
 
@@ -633,7 +641,7 @@ namespace sistrip {
 	if ( !iconn->isConnected() ) { continue; }
       
 	// Check FED channel
-	if (!buffer_->channelGood(iconn->fedCh())) {
+	if (!buffer->channelGood(iconn->fedCh())) {
 	  detids.push_back(iconn->detId()); //@@ Possible multiple entries (ok for Giovanni)
 	  continue;
 	}
@@ -656,7 +664,7 @@ namespace sistrip {
 	  Registry regItem(key, 0, zs_work_digis_.size(), 0);
 	
 	  /// create unpacker
-	  sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer_->channel(iconn->fedCh()));
+	  sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(iconn->fedCh()));
 	
 	  /// unpack -> add check to make sure strip < nstrips && strip > last strip......
 
@@ -674,7 +682,7 @@ namespace sistrip {
 	  Registry regItem(key, 0, zs_work_digis_.size(), 0);
 	
 	  /// create unpacker
-	  sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer_->channel(iconn->fedCh()));
+	  sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(iconn->fedCh()));
 	
 	  /// unpack -> add check to make sure strip < nstrips && strip > last strip......
 	  while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()));unpacker++;}
@@ -691,7 +699,7 @@ namespace sistrip {
 	  std::vector<uint16_t> samples; 
 
 	  /// create unpacker
-	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::virginRawModeUnpacker(buffer_->channel(iconn->fedCh()));
+	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::virginRawModeUnpacker(buffer->channel(iconn->fedCh()));
 
 	  /// unpack -> add check to make sure strip < nstrips && strip > last strip......
 	  while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
@@ -715,7 +723,7 @@ namespace sistrip {
 	  std::vector<uint16_t> samples; 
 	
 	  /// create unpacker
-	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::procRawModeUnpacker(buffer_->channel(iconn->fedCh()));
+	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::procRawModeUnpacker(buffer->channel(iconn->fedCh()));
 	
 	  /// unpack -> add check to make sure strip < nstrips && strip > last strip......
 	  while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
@@ -734,7 +742,7 @@ namespace sistrip {
 	  std::vector<uint16_t> samples; 
 	
 	  /// create unpacker
-	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::scopeModeUnpacker(buffer_->channel(iconn->fedCh()));
+	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::scopeModeUnpacker(buffer->channel(iconn->fedCh()));
 
 	  /// unpack -> add check to make sure strip < nstrips && strip > last strip......
 	  while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
@@ -761,7 +769,7 @@ namespace sistrip {
 	  std::vector<uint16_t> samples; 
 	
 	  /// create unpacker
-	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::scopeModeUnpacker(buffer_->channel(iconn->fedCh()));
+	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::scopeModeUnpacker(buffer->channel(iconn->fedCh()));
 	
 	  /// unpack -> add check to make sure strip < nstrips && strip > last strip......
 	  while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
@@ -792,7 +800,6 @@ namespace sistrip {
 	  }
 	} 
       } // channel loop
-      if (buffer_) delete buffer_;
     } // fed loop
 
     // update DetSetVectors

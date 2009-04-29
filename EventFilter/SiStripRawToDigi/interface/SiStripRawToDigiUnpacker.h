@@ -154,7 +154,6 @@ namespace sistrip {
     bool useFedKey_;
     
     /// other values
-    sistrip::FEDBuffer* buffer_;
     uint32_t event_;
     bool once_;
     bool first_;
