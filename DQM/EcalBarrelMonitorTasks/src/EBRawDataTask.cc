@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2008/12/05 07:52:00 $
- * $Revision: 1.20 $
+ * $Date: 2009/04/29 07:46:17 $
+ * $Revision: 1.21 $
  * \author E. Di Marco
  *
 */
@@ -378,7 +378,7 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
   if ( e.getByLabel(FEDRawDataCollection_, allFedRawData) ) {
 
     // GT FED data
-    const FEDRawData& gtFedData = allFedRawData->FEDData(FEDNumbering::MINTriggerGTPFEDID);
+    const FEDRawData& gtFedData = allFedRawData->FEDData(812);
 
     gtFedDataSize = gtFedData.size()/sizeof(uint64_t);
 
