@@ -232,7 +232,7 @@ private:
   HistoryNode              historyGraph_;
 
   void work_();
-  void dumpProcessHistory_(TTree& history);
+  void dumpProcessHistory_();
   void dumpEventFilteringParameterSets_(TTree& history);
   void dumpParameterSetForID_(edm::ParameterSetID const& id);
 };
@@ -310,8 +310,7 @@ ProvenanceDumper::dumpParameterSetForID_(edm::ParameterSetID const& id) {
 }
 
 void
-ProvenanceDumper::dumpProcessHistory_(TTree& history) {
-  dumpEventFilteringParameterSets_(history);
+ProvenanceDumper::dumpProcessHistory_() {
   std::cout << "Processing History:" << std::endl;
   if (1 == phv_.size()) {
     std::cout << *phv_.begin();
@@ -366,7 +365,6 @@ ProvenanceDumper::work_() {
   std::auto_ptr<TFile> f = makeTFile(filename_.c_str());
 
   TTree* history = dynamic_cast<TTree*>(f->Get(edm::poolNames::eventHistoryTreeName().c_str()));
-  assert(0 != history);
 
   TTree* meta = dynamic_cast<TTree*>(f->Get(edm::poolNames::metaDataTreeName().c_str()));
   assert(0 != meta);
@@ -393,6 +391,14 @@ ProvenanceDumper::work_() {
     meta->SetBranchAddress(edm::poolNames::processHistoryMapBranchName().c_str(), &pPhm);
   }
 
+  if (meta->FindBranch(edm::poolNames::moduleDescriptionMapBranchName().c_str()) != 0) {
+    if (meta->GetBranch(edm::poolNames::moduleDescriptionMapBranchName().c_str())->GetSplitLevel() != 0) {
+      meta->SetBranchStatus((edm::poolNames::moduleDescriptionMapBranchName() + ".*").c_str(), 0);
+    } else {
+      meta->SetBranchStatus(edm::poolNames::moduleDescriptionMapBranchName().c_str(), 0);
+    }
+  }
+
   meta->GetEntry(0);
   assert(0 != pReg);
 
@@ -417,9 +423,13 @@ ProvenanceDumper::work_() {
     phc_.erase(std::unique(phc_.begin(), phc_.end()), phc_.end());
   }
 
-  fillProductRegistryTransients(phc_, reg_);
+  fillProductRegistryTransients(phc_, reg_, true);
 
-  dumpProcessHistory_(*history);
+  if (history != 0) {
+    dumpEventFilteringParameterSets_(*history);
+  }
+
+  dumpProcessHistory_();
 
   std::cout << "---------Event---------" << std::endl;
   /*
