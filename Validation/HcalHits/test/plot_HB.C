@@ -1,6 +1,6 @@
 // Commands executed in a GLOBAL scope, e.g. created hitograms aren't erased...
 void plot_HB(TString inputfile="simevent_HB.root",
-	     TString outputfile="HB_histo+es.root",
+	     TString outputfile="HB_histo.root",
 	     Int_t drawmode = 2, 
 	     TString    reffile="../data/HB_ref.root")
 {
@@ -232,7 +232,7 @@ void plot_HB(TString inputfile="simevent_HB.root",
 
   for (int i = 0; i<nent; i++) { 
 
-    // cout << "Ev. " << i << endl;
+    //    cout << "Ev. " << i << endl;
 
     // -- get entries
     branchLayer ->GetEntry(i);
@@ -241,11 +241,15 @@ void plot_HB(TString inputfile="simevent_HB.root",
 
     // -- Leading Jet
     int nJetHits =  infoJets.njethit();
-    //cout << "nJetHits = " << nJetHits << endl; 
 
-    std::vector<float> rJetHits = infoJets.jethitr();
-    std::vector<float> tJetHits = infoJets.jethitt();
-    std::vector<float> eJetHits = infoJets.jethite();
+    //    cout << "Ev. " << i <<  "  " << "  nJetHits " << nJetHits <<  endl;
+
+    std::vector<float> rJetHits(nJetHits);
+    rJetHits = infoJets.jethitr();
+    std::vector<float> tJetHits(nJetHits);
+    tJetHits = infoJets.jethitt(); 
+    std::vector<float> eJetHits(nJetHits);
+    eJetHits = infoJets.jethite();
 
     float ecalJet = infoJets.ecaljet();
     float hcalJet = infoJets.hcaljet();
@@ -281,11 +285,13 @@ void plot_HB(TString inputfile="simevent_HB.root",
     // All Jets 
 
     int                nJets  = infoJets.njet();
-    std::vector<float> jetE   = infoJets.jete();
-    std::vector<float> jetEta = infoJets.jeteta();
-    std::vector<float> jetPhi = infoJets.jetphi();
+    std::vector<float> jetE(nJets);
+    jetE  = infoJets.jete();
+    std::vector<float> jetEta(nJets);
+    jetEta = infoJets.jeteta();
+    std::vector<float> jetPhi(nJets);
+    jetPhi = infoJets.jetphi();
 
-  
     for (int j = 0; j < nJets; j++) {
       h1[10]->Fill(jetE[j]);
       h1[11]->Fill(jetEta[j]);
@@ -318,12 +324,18 @@ void plot_HB(TString inputfile="simevent_HB.root",
     // CaloHits from PHcalValidInfoLayer  
     
     int                    nHits = infoLayer.nHit();
-    std::vector<float>    idHits = infoLayer.idHit();
-    std::vector<float>   phiHits = infoLayer.phiHit();
-    std::vector<float>   etaHits = infoLayer.etaHit();
-    std::vector<float> layerHits = infoLayer.layerHit();
-    std::vector<float>     eHits = infoLayer.eHit();
-    std::vector<float>     tHits = infoLayer.tHit();
+    std::vector<float>    idHits (nHits);
+    idHits = infoLayer.idHit();
+    std::vector<float>   phiHits (nHits);
+    phiHits = infoLayer.phiHit();
+    std::vector<float>   etaHits (nHits);
+    etaHits = infoLayer.etaHit();
+    std::vector<float> layerHits (nHits);
+    layerHits = infoLayer.layerHit();
+    std::vector<float>     eHits (nHits);
+    eHits = infoLayer.eHit();
+    std::vector<float>     tHits (nHits);
+    tHits  = infoLayer.tHit();
 
     int ne = 0, nh = 0; 
     for (int j = 0; j < nHits; j++) {
@@ -362,11 +374,13 @@ void plot_HB(TString inputfile="simevent_HB.root",
     h1[44]->Fill(Float_t(nHits));
 
     // NxN  PHcalValidInfoNxN 
-    //    cout << " nIxI = " << nIxI << endl;
     int                    nIxI = infoNxN.nnxn();
-    std::vector<float>    idIxI = infoNxN.idnxn();
-    std::vector<float>     eIxI = infoNxN.enxn();
-    std::vector<float>     tIxI = infoNxN.tnxn();
+    std::vector<float>    idIxI (nIxI);
+    idIxI = infoNxN.idnxn();
+    std::vector<float>     eIxI (nIxI);
+    eIxI  = infoNxN.enxn();
+    std::vector<float>     tIxI (nIxI);
+    tIxI = infoNxN.tnxn();
  
     for (int j = 0; j < nIxI ; j++) {   // NB !!! j < nIxI
       h1[29]->Fill(eIxI[j]);
@@ -379,8 +393,10 @@ void plot_HB(TString inputfile="simevent_HB.root",
 
     // Layers and depths PHcalValidInfoLayer
     
-    std::vector<float> eLayer = infoLayer.elayer();
-    std::vector<float> eDepth = infoLayer.edepth();
+    std::vector<float> eLayer (nLayersMAX);
+    eLayer = infoLayer.elayer();
+    std::vector<float> eDepth (nDepthsMAX);
+    eDepth = infoLayer.edepth();
     
     float eTot = 0.;
 
@@ -421,15 +437,20 @@ void plot_HB(TString inputfile="simevent_HB.root",
 
   // Transverse size histo integration
     
-
+ 
   h = h1[39];
+
+  //  h->Draw();
+
   if(h->Integral() > 1.e-30 && h->Integral() < 1.e30 ) {
-    
+   
     int size = h->GetNbinsX();                  
     Float_t sum = 0.;
 
     for (int i = 1; i <= size; i++) { 
-      sum += h->GetBinContent(i);
+      Float_t y = h->GetBinContent(i);
+      cout << " 1) h[39] bin " << i << " content = " << y << endl;
+      sum +=  y;
       h->SetBinContent((Int_t)i, (Float_t)sum);
 
     }
@@ -437,7 +458,7 @@ void plot_HB(TString inputfile="simevent_HB.root",
     for (int i = 1; i <= size; i++) { 
       Float_t y = h->GetBinContent(i);
       h->SetBinContent((Int_t)i, y/sum);
-      //      cout << " h[39] bin " << i << " content = " << y/sum << endl;
+      cout << " 2) h[39] bin " << i << " content = " << y/sum << endl;
     }
   }
 

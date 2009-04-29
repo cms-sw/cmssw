@@ -137,9 +137,12 @@ void plot_HF(TString  inputfile="HF_ref.root",
     int nJetHits =  infoJets.njethit();
     //cout << "nJetHits = " << nJetHits << endl; 
 
-    std::vector<float> rJetHits = infoJets.jethitr();
-    std::vector<float> tJetHits = infoJets.jethitt();
-    std::vector<float> eJetHits = infoJets.jethite();
+    std::vector<float> rJetHits(nJetHits);
+    rJetHits = infoJets.jethitr();
+    std::vector<float> tJetHits(nJetHits);
+    tJetHits = infoJets.jethitt();
+    std::vector<float> eJetHits(nJetHits);
+    eJetHits = infoJets.jethite();
 
     float ecalJet = infoJets.ecaljet();
     float hcalJet = infoJets.hcaljet();
@@ -166,26 +169,35 @@ void plot_HF(TString  inputfile="HF_ref.root",
     // All Jets 
 
     int                nJets  = infoJets.njet();
-    std::vector<float> jetE   = infoJets.jete();
-    std::vector<float> jetEta = infoJets.jeteta();
-    std::vector<float> jetPhi = infoJets.jetphi();
-  
+    std::vector<float> jetE(nJets);
+    jetE  = infoJets.jete();
+    std::vector<float> jetEta(nJets);
+    jetEta = infoJets.jeteta();
+    std::vector<float> jetPhi(nJets);
+    jetPhi = infoJets.jetphi();
+
     for (int j = 0; j < nJets; j++) {
       h1[6]->Fill(jetE[j]);
       h1[7]->Fill(jetEta[j]);
       h1[8]->Fill(jetPhi[j]);
     }
-
+ 
   
     // CaloHits from PHcalValidInfoLayer  
     
     int                    nHits = infoLayer.nHit();
-    std::vector<float>    idHits = infoLayer.idHit();
-    std::vector<float>   phiHits = infoLayer.phiHit();
-    std::vector<float>   etaHits = infoLayer.etaHit();
-    std::vector<float> layerHits = infoLayer.layerHit();
-    std::vector<float>     eHits = infoLayer.eHit();
-    std::vector<float>     tHits = infoLayer.tHit();
+    std::vector<float>    idHits (nHits);
+    idHits = infoLayer.idHit();
+    std::vector<float>   phiHits (nHits);
+    phiHits = infoLayer.phiHit();
+    std::vector<float>   etaHits (nHits);
+    etaHits = infoLayer.etaHit();
+    std::vector<float> layerHits (nHits);
+    layerHits = infoLayer.layerHit();
+    std::vector<float>     eHits (nHits);
+    eHits = infoLayer.eHit();
+    std::vector<float>     tHits (nHits);
+    tHits  = infoLayer.tHit();
 
     int ne = 0, nh = 0; 
     for (int j = 0; j < nHits; j++) {
@@ -196,7 +208,7 @@ void plot_HF(TString  inputfile="HF_ref.root",
       else {nh++;}
 
       //      cout << "Hit subdet = " << id  << "  lay = " << layer << endl;
-
+ 
       h1[9]->Fill(etaHits[j]);
       h1[10]->Fill(phiHits[j]);
       h1[11]->Fill(eHits[j]);
