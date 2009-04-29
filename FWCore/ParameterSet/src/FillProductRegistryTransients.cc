@@ -17,7 +17,7 @@
 
 namespace edm {
   void
-  fillProductRegistryTransients(std::vector<ProcessConfiguration> const& pcVec, ProductRegistry& preg) {
+  fillProductRegistryTransients(std::vector<ProcessConfiguration> const& pcVec, ProductRegistry& preg, bool okToRegister) {
     std::string const triggerResults = std::string("TriggerResults");
     std::string const triggerResultsInserter = std::string("TriggerResultsInserter");
     std::string const triggerPaths = std::string("@trigger_paths");
@@ -49,7 +49,13 @@ namespace edm {
         } 
 	if (processParameterSet.existsAs<ParameterSet>(moduleLabel)) {
           ParameterSet const& moduleParameterSet = processParameterSet.getParameterSet(moduleLabel);
-          bd.parameterSetIDs().insert(std::make_pair(pcid, moduleParameterSet.id()));
+	  if (okToRegister && !moduleParameterSet.isRegistered()) {
+            ParameterSet moduleParameterSetCopy = processParameterSet.getParameter<ParameterSet>(moduleLabel);
+	    moduleParameterSetCopy.registerIt();
+            bd.parameterSetIDs().insert(std::make_pair(pcid, moduleParameterSetCopy.id()));
+	  } else {
+            bd.parameterSetIDs().insert(std::make_pair(pcid, moduleParameterSet.id()));
+          }
 	  if (isTriggerResults) {
             bd.moduleNames().insert(std::make_pair(pcid, triggerResultsInserter));
           } else {
