@@ -503,6 +503,13 @@ void SETSeedFinder::estimateMomentum(const MuonRecHitContainer & validSet,
        firstMeasurement = 0;
        lastMeasurement = validSet.size()-1;
     }
+    // because of the ME42 above lastMeasurement could be -1
+    else if(-1==lastMeasurement){
+      lastMeasurement = firstMeasurement;
+    }
+   else if(-1==firstMeasurement){
+     firstMeasurement = lastMeasurement;	
+   }
 
     firstHit = validSet[firstMeasurement];
     secondHit = validSet[lastMeasurement];
