@@ -98,10 +98,10 @@ EvtGenInterface::EvtGenInterface( const ParameterSet& pset )
     }
 
    // fill up default list of particles to be declared stable in the "master generator"
-   // in general, these are assumed to be PDG ID's, but as of today (04/28/09) they're Py6 
-   // this will be fixed shortly; in Pythia6Hadronizer, the translation will be uncommented
+   // these are assumed to be PDG ID's
+   // in case of combo with Pythia6, translation is done in Pythia6Hadronizer
    //
-   // Note: kc=43, 44, and 84 commented out because they're obsolete (per S.Mrenna)
+   // Note: Pythia6's kc=43, 44, and 84 commented out because they're obsolete (per S.Mrenna)
    //
    m_PDGs.push_back( 511 ) ;
    m_PDGs.push_back( 523 ) ;
@@ -156,8 +156,8 @@ EvtGenInterface::EvtGenInterface( const ParameterSet& pset )
    m_PDGs.push_back( 115 );
    m_PDGs.push_back( 10213 );
    m_PDGs.push_back( 10113 );
-   m_PDGs.push_back( 10111 ); // PDG ID = 9000111
-   m_PDGs.push_back( 10211 ); // PDG ID = 9000211
+   m_PDGs.push_back( 9000111 ); // PDG ID = 9000111, Pythia6 ID = 10111
+   m_PDGs.push_back( 9000211 ); // PDG ID = 9000211, Pythia6 ID = 10211
    m_PDGs.push_back( 20223 );
    m_PDGs.push_back( 20333 );
    m_PDGs.push_back( 225 );
@@ -214,8 +214,8 @@ EvtGenInterface::EvtGenInterface( const ParameterSet& pset )
    m_PDGs.push_back( 4324 );
    m_PDGs.push_back( 4332 );
    m_PDGs.push_back( 4334 );
-   //m_PDGs.push_back( 43 ); // obsolete
-   //m_PDGs.push_back( 44 ); // obsolete
+   //m_PDGs.push_back( 43 ); // obsolete (?)
+   //m_PDGs.push_back( 44 ); // obsolete (?)
    m_PDGs.push_back( 10443 );
 
    m_PDGs.push_back( 5122 );
