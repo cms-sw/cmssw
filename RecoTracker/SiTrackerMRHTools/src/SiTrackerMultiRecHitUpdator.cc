@@ -78,9 +78,11 @@ TransientTrackingRecHit::RecHitPointer  SiTrackerMultiRecHitUpdator::update( Tra
       }
       geomdet = (*iter)->det();
       LogTrace("SiTrackerMultiRecHitUpdator") << "Current reference surface located at " << geomdet->surface().position();
+      //  LogTrace("SiTrackerMultiRecHitUpdator")<<  "TSOS position " << tsos.localPosition(); 
     }
     if (&((*iter)->det()->surface())!=&(tsos.surface())){
       TransientTrackingRecHit::RecHitPointer cloned = theHitPropagator->project<GenericProjectedRecHit2D>(*iter, *geomdet, tsos);
+      //      LogTrace("SiTrackerMultiRecHitUpdator") << "hit propagated";
 
       if (cloned->isValid()) updatedcomponents.push_back(cloned);
     } else {
@@ -88,6 +90,7 @@ TransientTrackingRecHit::RecHitPointer  SiTrackerMultiRecHitUpdator::update( Tra
       if (cloned->isValid()) updatedcomponents.push_back(cloned);
     }
   }	
+  //  LogTrace("SiTrackerMultiRecHitUpdator") << "hit cloned";
   int ierr;
   std::vector<std::pair<const TrackingRecHit*, float> > mymap;
   std::vector<std::pair<const TrackingRecHit*, float> > normmap;

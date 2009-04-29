@@ -17,7 +17,6 @@
  using namespace std;
 
 
-
 vector<TrajectoryMeasurement> GroupedDAFHitCollector::recHits(const Trajectory& traj) const{
 
 	//it assumes that the measurements are sorted in the smoothing direction
@@ -33,14 +32,15 @@ vector<TrajectoryMeasurement> GroupedDAFHitCollector::recHits(const Trajectory& 
 
 	vector<pair<const DetLayer*, vector<TrajectoryMeasurement> > > mol = MeasurementByLayerGrouper(getMeasurementTracker()->geometricSearchTracker())(meas);
 
+
 	//TransientTrackingRecHit::ConstRecHitContainer result;
 	vector<TrajectoryMeasurement> result;
 
-	//first layer
-	//  cout<<"DAFHitCollectionFromRecTrack: first layer"<<endl;
-
 	//add a protection if all the measurement are on the same layer
 	if(mol.size()<2)return vector<TrajectoryMeasurement>();
+
+	//first layer
+	//  cout<<"DAFHitCollectionFromRecTrack: first layer"<<endl;
 
 	//it assumes that the measurements are sorted in the smoothing direction
 	//TrajectoryStateOnSurface current = (*(mol.begin()+1)).second.front().updatedState();
@@ -108,7 +108,25 @@ vector<TrajectoryMeasurement> GroupedDAFHitCollector::recHits(const Trajectory& 
 	}
 	LogTrace("MultiRecHitCollector") << "Original Measurement size "  << meas.size() << " GroupedDAFHitCollector returned " << result.size() << " measurements";
 	//results are sorted in the fitting direction
-	return result;	
+
+ //	adding a protection against too few hits and invalid hits (due to failed propagation on the same surface of the original hits)
+        if (result.size()>2)
+          {
+            int hitcounter=0;
+            //check if the vector result has more than 3 valid hits
+            for (vector<TrajectoryMeasurement>::const_iterator iimeas = result.begin(); iimeas != result.end(); ++iimeas)
+              {
+                if(iimeas->recHit()->isValid()) hitcounter++;
+              }
+            
+            if(hitcounter>2) 
+              {return result;} 
+            
+            else return vector<TrajectoryMeasurement>();
+          }
+        
+        else{return vector<TrajectoryMeasurement>();}
+	
 }
 
 void GroupedDAFHitCollector::buildMultiRecHits(const vector<TrajectoryMeasurementGroup>& measgroup, vector<TrajectoryMeasurement>& result) const {
@@ -183,5 +201,4 @@ void GroupedDAFHitCollector::buildMultiRecHits(const vector<TrajectoryMeasuremen
 		} 
 	}
 }
-
 
