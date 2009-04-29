@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoEgamma.EgammaElectronProducers.gsfElectronSequence_cff import *
 #electronSequence = cms.Sequence(gsfElectronSequence)
-electronSequence = gsfElectronSequence
+electronSequence = gsfElectronSequence.copy()
 
 
 #==============================================================================

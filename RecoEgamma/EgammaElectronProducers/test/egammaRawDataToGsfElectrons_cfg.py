@@ -19,7 +19,7 @@ process.load("Configuration.EventContent.EventContent_cff")
 process.source = cms.Source("PoolSource",
     debugVerbosity = cms.untracked.uint32(1),
     debugFlag = cms.untracked.bool(True),
-    fileNames = cms.untracked.vstring('file:'.os.environ['TEST_RAW_FILE'])
+    fileNames = cms.untracked.vstring('file:'+os.environ['TEST_RAW_FILE'])
 )
 
 process.maxEvents = cms.untracked.PSet(
