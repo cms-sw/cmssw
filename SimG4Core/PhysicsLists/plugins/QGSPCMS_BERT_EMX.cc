@@ -1,6 +1,5 @@
-#include "QGSPCMS_BERT_NOLEP1_EML.hh"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics92.h"
-#include "SimG4Core/PhysicsLists/interface/HadronPhysicsQGSP_BERT_NOLEP1.hh"
+#include "QGSPCMS_BERT_EMX.hh"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsLPM.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4DecayPhysics.hh"
@@ -11,9 +10,10 @@
 #include "G4NeutronTrackingCut.hh"
 
 #include "G4DataQuestionaire.hh"
+#include "HadronPhysicsQGSP_BERT.hh"
 
-QGSPCMS_BERT_NOLEP1_EML::QGSPCMS_BERT_NOLEP1_EML(G4LogicalVolumeToDDLogicalPartMap& map,
-						 const edm::ParameterSet & p) : PhysicsList(map, p) {
+QGSPCMS_BERT_EMX::QGSPCMS_BERT_EMX(G4LogicalVolumeToDDLogicalPartMap& map,
+			   const edm::ParameterSet & p) : PhysicsList(map, p) {
 
   G4DataQuestionaire it(photon);
   
@@ -21,13 +21,13 @@ QGSPCMS_BERT_NOLEP1_EML::QGSPCMS_BERT_NOLEP1_EML(G4LogicalVolumeToDDLogicalPartM
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QGSP_BERT_NOLEP1_EML 1.0 with Flags for EM Physics "
+			      << "QGSP_BERT_EMX 3.3 with Flags for EM Physics "
 			      << emPhys << " and for Hadronic Physics "
 			      << hadPhys << "\n";
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics92("standard EM EML",ver));
+    RegisterPhysics( new CMSEmStandardPhysicsLPM("standard EM LPM",ver));
 
     // Synchroton Radiation & GN Physics
     RegisterPhysics( new G4EmExtraPhysics("extra EM"));
@@ -42,7 +42,8 @@ QGSPCMS_BERT_NOLEP1_EML::QGSPCMS_BERT_NOLEP1_EML(G4LogicalVolumeToDDLogicalPartM
 
     // Hadron Physics
     G4bool quasiElastic=true;
-    RegisterPhysics( new HadronPhysicsQGSP_BERT_NOLEP1("hadron",quasiElastic));
+    RegisterPhysics( new HadronPhysicsQGSP_BERT("hadron",quasiElastic));
+    //RegisterPhysics( new HadronPhysicsQGSP_BERT("hadron"));
   
     // Stopping Physics
     RegisterPhysics( new G4QStoppingPhysics("stopping"));

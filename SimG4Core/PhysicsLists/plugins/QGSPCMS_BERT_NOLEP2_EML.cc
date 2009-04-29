@@ -1,5 +1,5 @@
 #include "QGSPCMS_BERT_NOLEP2_EML.hh"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsLPM.h"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics92.h"
 #include "SimG4Core/PhysicsLists/interface/HadronPhysicsQGSP_BERT_NOLEP2.hh"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -27,7 +27,7 @@ QGSPCMS_BERT_NOLEP2_EML::QGSPCMS_BERT_NOLEP2_EML(G4LogicalVolumeToDDLogicalPartM
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysicsLPM("standard EM LPM",ver));
+    RegisterPhysics( new CMSEmStandardPhysics92("standard EM EML",ver));
 
     // Synchroton Radiation & GN Physics
     RegisterPhysics( new G4EmExtraPhysics("extra EM"));

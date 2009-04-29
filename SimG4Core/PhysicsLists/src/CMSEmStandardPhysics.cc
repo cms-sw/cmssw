@@ -11,6 +11,7 @@
 
 #include "G4MultipleScattering.hh"
 #include "G4hMultipleScattering.hh"
+#include "G4eMultipleScattering.hh"
 
 #include "G4eIonisation.hh"
 #include "G4eBremsstrahlung.hh"
@@ -68,10 +69,10 @@ CMSEmStandardPhysics::CMSEmStandardPhysics(const G4String& name, G4int ver) :
 CMSEmStandardPhysics::~CMSEmStandardPhysics() {}
 
 void CMSEmStandardPhysics::ConstructParticle() {
-// gamma
+  // gamma
   G4Gamma::Gamma();
 
-// leptons
+  // leptons
   G4Electron::Electron();
   G4Positron::Positron();
   G4MuonPlus::MuonPlus();
@@ -79,7 +80,7 @@ void CMSEmStandardPhysics::ConstructParticle() {
   G4TauMinus::TauMinusDefinition();
   G4TauPlus::TauPlusDefinition();
 
-// mesons
+  // mesons
   G4PionPlus::PionPlusDefinition();
   G4PionMinus::PionMinusDefinition();
   G4KaonPlus::KaonPlusDefinition();
@@ -89,7 +90,7 @@ void CMSEmStandardPhysics::ConstructParticle() {
   G4BMesonMinus::BMesonMinusDefinition();
   G4BMesonPlus::BMesonPlusDefinition();
 
-// barions
+  // barions
   G4Proton::Proton();
   G4AntiProton::AntiProton();
   G4SigmaMinus::SigmaMinusDefinition();
@@ -105,7 +106,7 @@ void CMSEmStandardPhysics::ConstructParticle() {
   G4XicPlus::XicPlusDefinition();
   G4AntiXicPlus::AntiXicPlusDefinition();
 
-// ions
+  // ions
   G4Deuteron::Deuteron();
   G4Triton::Triton();
   G4He3::He3();
@@ -133,15 +134,15 @@ void CMSEmStandardPhysics::ConstructProcess() {
 
     } else if (particleName == "e-") {
 
-      pmanager->AddProcess(new G4MultipleScattering, -1, 1, 1);
+      pmanager->AddProcess(new G4eMultipleScattering,-1, 1, 1);
       pmanager->AddProcess(new G4eIonisation,        -1, 2, 2);
-      pmanager->AddProcess(new G4eBremsstrahlung(),  -1, 3, 3);
+      pmanager->AddProcess(new G4eBremsstrahlung(),  -1,-3, 3);
 
     } else if (particleName == "e+") {
 
-      pmanager->AddProcess(new G4MultipleScattering, -1, 1, 1);
+      pmanager->AddProcess(new G4eMultipleScattering,-1, 1, 1);
       pmanager->AddProcess(new G4eIonisation,        -1, 2, 2);
-      pmanager->AddProcess(new G4eBremsstrahlung,    -1, 3, 3);
+      pmanager->AddProcess(new G4eBremsstrahlung,    -1,-3, 3);
       pmanager->AddProcess(new G4eplusAnnihilation,   0,-1, 4);
 
     } else if (particleName == "mu+" ||
@@ -149,8 +150,8 @@ void CMSEmStandardPhysics::ConstructProcess() {
 
       pmanager->AddProcess(new G4hMultipleScattering,-1, 1, 1);
       pmanager->AddProcess(new G4MuIonisation,       -1, 2, 2);
-      pmanager->AddProcess(new G4MuBremsstrahlung,   -1, 3, 3);
-      pmanager->AddProcess(new G4MuPairProduction,   -1, 4, 4);
+      pmanager->AddProcess(new G4MuBremsstrahlung,   -1,-3, 3);
+      pmanager->AddProcess(new G4MuPairProduction,   -1,-4, 4);
 
     } else if (particleName == "alpha" ||
                particleName == "He3" ||
@@ -197,8 +198,8 @@ void CMSEmStandardPhysics::ConstructProcess() {
 	  particleName == "kaon-" ||
 	  particleName == "proton" ||
 	  particleName == "pi-" ) {
-	pmanager->AddProcess(new G4hBremsstrahlung(), -1, 3, 3);
-	pmanager->AddProcess(new G4hPairProduction(), -1, 4, 4);
+	pmanager->AddProcess(new G4hBremsstrahlung(), -1,-3, 3);
+	pmanager->AddProcess(new G4hPairProduction(), -1,-4, 4);
       }
 
     }
