@@ -1,6 +1,7 @@
 
 #include "IOPool/Input/src/DuplicateChecker.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -8,6 +9,17 @@
 #include <algorithm>
 
 namespace edm {
+
+namespace {
+  struct IsDupAnEvent {
+    bool operator()(FileIndex::Element const& e) {
+      return e.event_ != 0U;
+    }
+    bool operator()(FileIndex::Element const& first, FileIndex::Element const& next) {
+      return first == next && first.event_ != 0U;
+    }
+  };
+}
 
   DuplicateChecker::DuplicateChecker(ParameterSet const& pset) :
     dataType_(unknown),
@@ -49,7 +61,7 @@ namespace edm {
       std::insert_iterator<std::set<FileIndex::Element> > insertIter(relevantPreviousEvents_, relevantPreviousEvents_.begin());
 
       // Compares the current FileIndex to all the previous ones and saves any duplicates.
-      // One unintended thing, it also saves the duplicate runs and lumis, but this should not cause any problems
+      // One unintended thing, it also saves the duplicate runs and lumis.
       for(std::vector<boost::shared_ptr<FileIndex> >::size_type i = 0; i < currentFileIndex; ++i) {
         if (fileIndexes[i].get() != 0) {
           std::set_intersection(fileIndex.begin(), fileIndex.end(),
@@ -58,8 +70,10 @@ namespace edm {
         }
       }
     }
-    if (relevantPreviousEvents_.empty()) {
-      FileIndex::const_iterator duplicate = std::adjacent_find(fileIndex.begin(), fileIndex.end());
+    // Check if none of the duplicates are events.
+    if (!search_if_in_all(relevantPreviousEvents_, IsDupAnEvent())) {
+      // Check for event duplicates within the new file
+      FileIndex::const_iterator duplicate = std::adjacent_find(fileIndex.begin(), fileIndex.end(), IsDupAnEvent());
       if (duplicate == fileIndex.end()) {
         itIsKnownTheFileHasNoDuplicates_ = true;
       }
