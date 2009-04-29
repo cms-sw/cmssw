@@ -1,12 +1,12 @@
 //
-// $Id: TtSemiEvtSolutionMaker.cc,v 1.40.2.1 2009/01/12 12:24:22 snaumann Exp $
+// $Id: TtSemiEvtSolutionMaker.cc,v 1.41 2009/01/13 12:45:33 snaumann Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "PhysicsTools/Utilities/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include "TopQuarkAnalysis/TopTools/interface/JetPartonMatching.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
