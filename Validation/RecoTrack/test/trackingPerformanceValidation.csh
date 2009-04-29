@@ -27,7 +27,7 @@
 #
 
 ### Configuration ############################################################
-set RefRelease="CMSSW_3_1_0_pre4"
+set RefRelease="CMSSW_3_1_0_pre5"
 set NewRelease="$CMSSW_VERSION"
 
 

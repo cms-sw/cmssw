@@ -11,27 +11,39 @@ import string
 
 #Reference release
 
-RefRelease='CMSSW_3_1_0_pre2'
+RefRelease='CMSSW_3_1_0_pre4'
 
 #Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_3_1_0_pre4'
+NewRelease='CMSSW_3_1_0_pre6'
 
 # startup and ideal sample list
-#startupsamples= ['RelValTTbar', 'RelValMinBias', 'RelValQCD_Pt_3000_3500']
-startupsamples= []
+#This are the standard relvals
+startupsamples= ['RelValTTbar', 'RelValMinBias', 'RelValQCD_Pt_3000_3500']
 
+#This is pileup sample
+#startupsamples= ['RelValTTbar_Tauola']
+
+#tests
+#startupsamples= []
+
+#This are the standard relvals
+#idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValQCD_Pt_3000_3500','RelValMinBias']
 #idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_3000_3500','RelValMinBias']
 
+#This is pileup sample
+#idealsamples= ['RelValZmumuJets_Pt_20_300_GEN']
+
+#Tests
 #idealsamples= [ 'RelValSingleElectronPt35']
 idealsamples= ['RelValTTbar']
 
 
 
 # track algorithm name and quality. Can be a list.
-Algos= ['ootb']
-#Algos= ['ootb', 'ctf','iter2','iter3','iter4','iter5']
-Qualities=['']
-#Qualities=['', 'highPurity']
+#Algos= ['ootb']
+Algos= ['ootb', 'ctf','iter2','iter3','iter4','iter5']
+#Qualities=['']
+Qualities=['', 'highPurity']
 
 #Leave unchanged unless the track collection name changes
 Tracksname=''
@@ -49,12 +61,15 @@ Tracksname=''
 Sequence='harvesting'
 
 # Ideal and Statup tags
-IdealTag='IDEAL_30X'
-StartupTag='STARTUP_30X'
+IdealTag='IDEAL_31X'
+StartupTag='STARTUP_31X'
+
+# PileUp: PU . No PileUp: noPU
+PileUp='noPU'
 
 # Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
-ReferenceSelection='IDEAL_30X_noPU'
-StartupReferenceSelection='STARTUP_30X_noPU'
+ReferenceSelection='IDEAL_30X_'+PileUp
+StartupReferenceSelection='STARTUP_30X_'+PileUp
 
 # Default label is GlobalTag_noPU__Quality_Algo. Change this variable if you want to append an additional string.
 NewSelectionLabel=''
@@ -62,13 +77,13 @@ NewSelectionLabel=''
 
 #Reference and new repository
 RefRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance'
-NewRepository = '.'
+NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance'
 
 #Default Nevents
 defaultNevents ='-1'
 
 #Put here the number of event to be processed for specific samples (numbers must be strings) if not specified is -1:
-Events={ 'RelValQCD_Pt_3000_3500':'5000', 'RelValTTbar':'5', 'RelValQCD_Pt_80_120':'5000', 'RelValBJets_Pt_50_120':'5000'}
+Events={}
 
 # template file names. Usually should not be changed.
 cfg='trackingPerformanceValidation_cfg.py'
@@ -109,7 +124,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
         maxeff='0.1'
         maxfake='0.8'
     #build the New Selection name
-    NewSelection=GlobalTag +'_noPU'
+    NewSelection=GlobalTag + '_' + PileUp
     if( trackquality !=''):
         NewSelection+='_'+trackquality
     if(trackalgorithm!=''and not(trackalgorithm=='ootb' and trackquality !='')):
@@ -139,42 +154,60 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
             	harvestedfile='./DQM_V0001_R000000001__' + GlobalTag+ '__' + sample + '__Validation.root'
 		if(( Sequence=="harvesting" and os.path.isfile(harvestedfile) )==False):
 			#search the primary dataset
-			cmd='./DDSearchCLI.py  --limit -1 --input="find  dataset.createdate, dataset where dataset like *'
+			cmd='dbsql "find  dataset.createdate, dataset where dataset like *'
 		#            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* "'
 			cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* "'
-			cmd+='|grep '+sample+'|grep -v test|sort|tail -1| cut -d "," -f2 '
+			cmd+='|grep '+sample+'|grep -v test|sort|tail -1|cut -f2 '
 			print cmd
-			dataset= os.popen(cmd).readline()
+			dataset= os.popen(cmd).readline().strip()
 			print 'DataSet:  ', dataset, '\n'
 		
 			#Check if a dataset is found
 			if dataset!="":
 		
 				#Find and format the list of files
-				cmd2='./DDSearchCLI.py  --limit -1 --cff --input="find file where dataset like '+ dataset +'"|grep ' + sample 
+				cmd2='dbsql "find file where dataset like '+ dataset +'"|grep ' + sample
 				filenames='import FWCore.ParameterSet.Config as cms\n'
 				filenames+='readFiles = cms.untracked.vstring()\n'
 				filenames+='secFiles = cms.untracked.vstring()\n'
 				filenames+='source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)\n'
 				filenames+='readFiles.extend( [\n'
-				for filename in os.popen(cmd2).readlines():
-					filenames+=filename
+                                first=True
+                                print cmd2
+				for line in os.popen(cmd2).readlines():
+                                    filename=line.strip()
+                                    if first==True:
+                                        filenames+="'"
+                                        filenames+=filename
+                                        filenames+="'"
+                                        first=False
+                                    else :
+                                        filenames+=",\n'"
+                                        filenames+=filename
+                                        filenames+="'"
 				filenames+=']);\n'
 				
 				# if not harvesting find secondary file names
 				if(Sequence!="harvesting"):
-					cmd3='./DDSearchCLI.py  --limit -1 --input="find dataset.parent where dataset like '+ dataset +'"|grep ' + sample
+					cmd3='dbsql  "find dataset.parent where dataset like '+ dataset +'"|grep ' + sample
 					parentdataset=os.popen(cmd3).readline()
 					print 'Parent DataSet:  ', parentdataset, '\n'
 		
 				#Check if a dataset is found
 					if parentdataset!="":
-						cmd4='./DDSearchCLI.py  --limit -1 --cff --input="find file where dataset like '+ parentdataset +'"|grep ' + sample 
+						cmd4='dbsql  "find file where dataset like '+ parentdataset +'"|grep ' + sample 
 						filenames+='secFiles.extend( [\n'
 						first=True
 		
 						for line in os.popen(cmd4).readlines():
-							filenames+=line
+                                                    secfilename=line.strip()
+                                                    if first==True:
+                                                        filenames+="'"
+                                                        first=False
+                                                    else :
+                                                        filenames+=",\n'"
+                                                        filenames+=secfilename
+                                                        filenames+="'"
 						filenames+=']);\n'
 					else :
 						print "No primary dataset found skipping sample: ", sample
@@ -271,21 +304,30 @@ if(NewRelease==''):
         
     except KeyError:
         print >>sys.stderr, 'Error: The environment variable CMSSW_VERSION is not available.'
-        print >>sys.stderr, '       Please run cmsenv or set the variable "NewRelease" '
+        print >>sys.stderr, '       Please run cmsenv'
+        sys.exit()
+else:
+    try:
+        #Get some environment variables to use
+        os.environ["CMSSW_VERSION"]
+        
+    except KeyError:
+        print >>sys.stderr, 'Error: CMSSW environment variables are not available.'
+        print >>sys.stderr, '       Please run cmsenv'
         sys.exit()
 
 
 #print 'Running validation on the following samples: ', samples
 
-if os.path.isfile( 'DDSearchCLI.py')!=True:
-    e =os.system("wget --no-check-certificate https://cmsweb.cern.ch/dbs_discovery/aSearchCLI -O DDSearchCLI.py")
-    if  e != 0:
-        print >>sys.stderr, "Failed to dowload dbs aSearch file (https://cmsweb.cern.ch/dbs_discovery/aSearchCLI)"
-        print >>sys.stderr, "Child was terminated by signal", e
-        os.remove('DDSearchCLI.py')
-        sys.exit()
-    else:
-        os.system('chmod +x DDSearchCLI.py')
+#if os.path.isfile( 'DDSearchCLI.py')!=True:
+#    e =os.system("wget --no-check-certificate https://cmsweb.cern.ch/dbs_discovery/aSearchCLI -O DDSearchCLI.py")
+#    if  e != 0:
+#        print >>sys.stderr, "Failed to dowload dbs aSearch file (https://cmsweb.cern.ch/dbs_discovery/aSearchCLI)"
+#        print >>sys.stderr, "Child was terminated by signal", e
+#        os.remove('DDSearchCLI.py')
+#        sys.exit()
+#    else:
+#        os.system('chmod +x DDSearchCLI.py')
 
 NewSelection=''
 

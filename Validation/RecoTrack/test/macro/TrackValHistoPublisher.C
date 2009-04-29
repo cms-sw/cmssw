@@ -551,7 +551,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    sh6->GetXaxis()->SetRangeUser(0,30.);
 
 
-   canvas = new TCanvas("Tracks7","Tracks: Dxy, Dz, Theta resolution",1000,1400);
+   canvas = new TCanvas("Tracks7b","Tracks: Dxy, Dz, Theta resolution",1000,1400);
 
    plotResolutions(canvas,
 	     sh1,rh1,sh2,rh2,
@@ -640,7 +640,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 		sh1,rh1,sh2,rh2,
 		sh3,rh3,sh4,rh4,
 		sh5,rh5,sh6,rh6,
-		te,"UU",-1);
+		te,"UU",-1, 1, false, false);
 
    canvas->cd();
    //TPaveText* text = new TPaveText(0.25,0.72,0.75,0.77,"prova");
@@ -764,7 +764,7 @@ void plotBuilding(TCanvas *canvas,
 		  TH1F *s3,TH1F *r3, TH1F *s4,TH1F *r4,
 		  TH1F *s5,TH1F *r5,TH1F *s6,TH1F *r6,
 		  TText* te,
-	       char * option, double startingY, double startingX = .1,bool fit = false){
+		  char * option, double startingY, double startingX = .1,bool fit = false, bool logx=true){
   canvas->Divide(2,3);
 
   s1->SetMarkerStyle(20);
@@ -842,13 +842,13 @@ void plotBuilding(TCanvas *canvas,
   s2->Draw("sames");
 
   canvas->cd(3);
-  gPad->SetLogx();
+  if(logx)gPad->SetLogx();
   setStats(r3,s3, -1, 0, false);
   r3->Draw();
   s3->Draw("sames");
 
   canvas->cd(4);
-  gPad->SetLogx();
+  if(logx)gPad->SetLogx();
   setStats(s4,r4, 0.6, 0.65, false);
   r4->Draw();
   s4->Draw("sames");
