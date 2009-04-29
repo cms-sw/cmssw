@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.11 2009/04/22 12:05:41 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.12 2009/04/28 15:22:24 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -228,10 +228,10 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
       }
 
       lFedErrors.getFELevelErrors().clear();
-      lFedErrors.getChannelLevelErrors().clear();
+      lFedErrors.getBadChannels().clear();
 
       assert(lFedErrors.getFELevelErrors().size() == 0);
-      assert(lFedErrors.getChannelLevelErrors().size() == 0);
+      assert(lFedErrors.getBadChannels().size() == 0);
     }
 
     //if missing FEs or BadMajAddresses, fill channels vec with all channels from FE
@@ -387,12 +387,12 @@ bool SiStripFEDMonitorPlugin::analyzeFED(const FEDRawData& rawData,
   if ( !(bufferBase->checkBufferFormat() && bufferBase->checkHeaderType() && bufferBase->checkReadoutMode() && bufferBase->checkAPVEAddressValid()) ) {
     lFedLevelErrors.InvalidBuffers = true;
     //keep running only in debug mode....
-    if (!printDebug_) return false;
+    //if (!printDebug_) return false;
   }
   //FE unit overflows
   if (!bufferBase->checkNoFEOverflows()) { 
     lFedLevelErrors.FEsOverflow = true;
-    if (!printDebug_) return false;
+    //if (!printDebug_) return false;
   }
   
   //need to construct full object to go any further
@@ -404,7 +404,7 @@ bool SiStripFEDMonitorPlugin::analyzeFED(const FEDRawData& rawData,
     //corrupt buffer checks
     if (!buffer->doCorruptBufferChecks()) {
       lFedLevelErrors.CorruptBuffer = true;
-      if (!printDebug_) return false;
+      //if (!printDebug_) return false;
     }
 
     //fe check... 
