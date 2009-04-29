@@ -81,6 +81,30 @@ private:
 	MonitorElement* MinusMe4BeamHaloOccRing2or3;
 	MonitorElement* MinusMe1BeamHaloOccRad;
 	
+	MonitorElement* MinusMe3BeamHaloOccRing2Unfold;
+	MonitorElement* MinusMe2BeamHaloOccRing2Unfold;
+	MonitorElement* PlusMe3BeamHaloOccRing2Unfold;
+	MonitorElement* PlusMe2BeamHaloOccRing2Unfold;
+	MonitorElement* MinusMe3BeamHaloOccRing1Unfold;
+	MonitorElement* MinusMe2BeamHaloOccRing1Unfold;
+	MonitorElement* PlusMe3BeamHaloOccRing1Unfold;
+	MonitorElement* PlusMe2BeamHaloOccRing1Unfold;
+	
+	MonitorElement* PlusEff;
+	MonitorElement* MinusEff;
+	MonitorElement* PlusEffProj3;
+	MonitorElement* MinusEffProj3;
+	MonitorElement* PlusEffNum;
+	MonitorElement* PlusEffDen;
+	MonitorElement* MinusEffNum;
+	MonitorElement* MinusEffDen;
+	
+	float numCountPlus[50];
+	float denCountPlus[50];
+	float numCountMinus[50];
+	float denCountMinus[50];
+	
+	
 	edm::ESHandle<CSCGeometry> m_cscGeometry;
 	edm::InputTag lctProducer, HLTriggerTag, GMTInputTag, cscRecHitLabel;
 	//L1CSCTriggerTag, L1GTRR, trackProducer
