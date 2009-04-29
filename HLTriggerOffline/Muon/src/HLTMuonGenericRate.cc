@@ -3,8 +3,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/02/18 22:27:21 $
- *  $Revision: 1.62 $
+ *  $Date: 2009/02/27 17:57:34 $
+ *  $Revision: 1.63 $
  */
 
 
@@ -591,7 +591,7 @@ void HLTMuonGenericRate::begin()
     dbe_->cd();
     dbe_->setCurrentFolder("HLT/Muon");
 
-    myLabel = "L1Filtered";
+    myLabel = "L1";
 
     newFolder = "HLT/Muon/Distributions/" + theTriggerName;
     dbe_->setCurrentFolder( newFolder.Data() );
@@ -649,14 +649,14 @@ void HLTMuonGenericRate::begin()
     for ( unsigned int i = 0; i < theHltCollectionLabels.size(); i++ ) {
 
       if ( !isIsolatedPath ) {
-        if ( i == 0 ) myLabel = "L2Filtered";
-        if ( i == 1 ) myLabel = "L3Filtered";
+        if ( i == 0 ) myLabel = "L2";
+        if ( i == 1 ) myLabel = "L3";
       }
       else { 
-        if ( i == 0 ) myLabel = "L2PreFiltered";
-        if ( i == 1 ) myLabel = "L2IsoFiltered";
-        if ( i == 2 ) myLabel = "L3PreFiltered";
-        if ( i == 3 ) myLabel = "L3IsoFiltered";
+        if ( i == 0 ) myLabel = "L2";
+        if ( i == 1 ) myLabel = "L2Iso";
+        if ( i == 2 ) myLabel = "L3";
+        if ( i == 3 ) myLabel = "L3Iso";
       }
 
       if ( useMuonFromGenerator ) {
