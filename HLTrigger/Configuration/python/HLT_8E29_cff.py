@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre4/8E29_V80/V2 (CMSSW_3_1_X_2009-04-16-0800_HLT1)
+# /dev/CMSSW_3_1_0/pre4/8E29_V82/V2 (CMSSW_3_1_X_2009-04-16-0800_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre4/8E29_V80/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre4/8E29_V82/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -5070,7 +5070,7 @@ hltHITSeedCombiner8E29 = cms.EDProducer( "SeedCombiner",
 )
 hltHITCkfTrackCandidates8E29 = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltHITSeedCombiner8E29" ),
-    TrajectoryBuilder = cms.string( "GroupedCkfTrajectoryBuilder" ),
+    TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
@@ -5087,8 +5087,8 @@ hltHITCtfWithMaterialTracks8E29 = cms.EDProducer( "TrackProducer",
     useHitsSplitting = cms.bool( False ),
     clusterRemovalInfo = cms.InputTag( "" ),
     alias = cms.untracked.string( "hltHITCtfWithMaterialTracks8E29" ),
-    Fitter = cms.string( "FittingSmootherRK" ),
-    Propagator = cms.string( "RungeKuttaTrackerPropagator" ),
+    Fitter = cms.string( "hltKFFittingSmoother" ),
+    Propagator = cms.string( "PropagatorWithMaterial" ),
     src = cms.InputTag( "hltHITCkfTrackCandidates8E29" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     TTRHBuilder = cms.string( "WithTrackAngle" ),
