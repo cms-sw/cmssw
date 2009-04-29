@@ -67,6 +67,7 @@ process.source = cms.Source("PoolSource",
     noEventSort = cms.untracked.bool(True),
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
     fileNames = cms.untracked.vstring('/store/users/dellaric/data/GlobalAug07.00017123.root')
+#    fileNames = cms.untracked.vstring('/store/users/dellaric/data/GlobalCruzet2.00046798.root')
 )
 
 process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
