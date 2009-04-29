@@ -65,6 +65,7 @@ public:
     ptThreshold(cfg.getUntrackedParameter<double>("ptThreshold")),
     etEcalThreshold(cfg.getUntrackedParameter<double>("etEcalThreshold")),
     etHcalThreshold(cfg.getUntrackedParameter<double>("etHcalThreshold")),
+    dRVetoTrk(cfg.getUntrackedParameter<double>("deltaRVetoTrk")),
     dRTrk(cfg.getUntrackedParameter<double>("deltaRTrk")),
     dREcal(cfg.getUntrackedParameter<double>("deltaREcal")),
     dRHcal(cfg.getUntrackedParameter<double>("deltaRHcal")),
@@ -82,7 +83,7 @@ public:
     Direction dir = Direction(t->eta(), t->phi());
     
     IsoDeposit::AbsVetos vetosTrk;
-    vetosTrk.push_back(new ConeVeto( dir, 0. ));
+    vetosTrk.push_back(new ConeVeto( dir, dRVetoTrk ));
     vetosTrk.push_back(new ThresholdVeto( ptThreshold ));
     
     IsoDeposit::AbsVetos vetosEcal;
