@@ -4,12 +4,14 @@
 # This script iterates over all files in the list of hosts provided and calls
 # injection script with --check option to show a status report.
 #
+# Example to automate cleanup on each SM node for closed files older than 30 days:
+# ./smorphans.sh --clean --closedfiles --age=30 --host=`hostname` --FILES_ALL
 #
 # TODO: Embed DB query code to avoid calling external script for every file,
 # will improve performance dramatically: group all queries in a large one.
 #
 # Have a look at the configuration file
-CFG_FILE=smorphans.cfg 
+CFG_FILE=/opt/smops/smorphans.cfg 
 source $CFG_FILE
 if [ ! -r $HOSTLIST ]
 then
@@ -43,16 +45,18 @@ report() {
     FILES_TRANS_CHECKED=0
     FILES_TRANS_INSERTED=0
     FILES_DELETED=0
-    if [ "$DO_FILE_AGE" > 0 ]; then AGE_QUERY="-mtime +$DO_FILE_AGE"; fi
-    for host in $( cat $HOSTLIST ); do
+    if [[ "$DO_FILE_AGE" -gt 0 ]]; then AGE_QUERY="-mtime +$DO_FILE_AGE"; fi
+#    for host in $( cat $HOSTLIST ); do
+    for host in $( if [[ $DO_HOST ]]; then echo $DO_HOST; else cat $HOSTLIST ; fi ); do
         echo ----- $host -----
-        for file in $( ssh $host "find $1 $AGE_QUERY -name '*.dat' 2> /dev/null" ); do
+#        for file in $( ssh $host "find $1 $AGE_QUERY -name '*.dat' 2> /dev/null" ); do
+        for file in $( ssh $host "find $1 $AGE_QUERY -name '*.dat' " ); do
             basename=`basename $file`
             status=`$CHECK_INJECTION_CMD$basename | cut -d: -f1`
             if [ $DO_FULL_REPORT ]; then
-                filedata=`ssh $host "find $file -printf '%k, %TD' 2> /dev/null"`
-                echo "$host, $file, $filedata, $status"
-                continue
+#                filedata=`ssh $host "find $file -printf '%k, %TD' 2> /dev/null"`
+                filedata=`ssh $host "find $file -printf '%TD, %kK' "`
+                echo "$host, $filedata, $status, $file"
             fi
             case $status in
                 FILES_CREATED*)        FILES_CREATED=`expr $FILES_CREATED + 1`;;
@@ -66,7 +70,8 @@ report() {
             esac
         done
         echo Directory size
-        ssh $host "du -h $1 2> /dev/null"
+#        ssh $host "du -h $1 2> /dev/null"
+        ssh $host "du -h $1 "
 	echo File categories
         echo FILES_CREATED $FILES_CREATED
         echo FILES_INJECTED $FILES_INJECTED
@@ -80,11 +85,12 @@ report() {
 }
 
 clean() {
-    if [ "$DO_FILE_AGE" > 0 ]; then AGE_QUERY="-mtime +$DO_FILE_AGE"; fi
+    if [[ "$DO_FILE_AGE" -gt 0 ]]; then AGE_QUERY="-mtime +$DO_FILE_AGE"; fi
     for host in $( cat $HOSTLIST ); do
-        for file in $( ssh $host "find $1 $AGE_QUERY -name '*.dat' -print0 2> /dev/null" ); do
+#        for file in $( ssh $host "find $1 $AGE_QUERY -name '*.dat' 2> /dev/null" ); do
+        for file in $( ssh $host "find $1 $AGE_QUERY -name '*.dat'" ); do
             basename=`basename $file`
-            status=`$CHECK_INJECTION_CMD$basename | cut -d: -f1`
+            status=`$CHECK_INJECTION_CMD$basename`
             case $status in
                 FILES_CREATED*)
                     if [ $DO_FILES_CREATED ]; then
@@ -125,7 +131,8 @@ clean() {
                         delete_file $host $file
                     fi
                     ;;
-                *)                     echo Internal error: unkown inject status;;
+                *)
+                    echo Internal error: unkown inject status;;
             esac
         done
     done
@@ -135,8 +142,9 @@ delete_file() {
 # TODO: record some flag in DB before delete.
     if [ $DO_FILES_EMU ]; then
        echo ssh $1 "sudo chmod 666 $2; sudo rm -f $2"
+       echo
     else
-       `ssh $1 "sudo chmod 666 $2; sudo rm -f $2`
+       `ssh $1 "sudo chmod 666 $2; sudo rm -f $2"`
     fi
 }
 
@@ -156,6 +164,7 @@ Actions:
 Options:
    --age=X            act only in files older than X days
    --emulate          emulate, do not remove any files
+   --host=hostname    provide hostname to run
 
 File types:
 Actions only applied to selected file type. You must select one file type at least.
@@ -215,6 +224,9 @@ for ARG in "$@"; do
                     shift ;;
                 --age=*)
                     DO_FILE_AGE=$(( `echo $ARG | cut -d= -f2` + 0 ))
+                    shift;;
+                --host=*)
+                    DO_HOST=`echo $ARG | cut -d= -f2`
                     shift;;
                 --FILES_CREATED)
                     DO_FILES=1

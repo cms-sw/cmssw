@@ -1,5 +1,7 @@
 #!/bin/sh
 
+#FileLock Directory
+LockFileDir="/var/lock"
 
 #script to clean up LOOKAREA --- to run on cms-data-lookarea
 #(derived from  cleanupEmu.sh)
@@ -16,15 +18,45 @@ if  test "$ISLOOKNODE" -eq  "0"; then
 fi
 
 
-#check if any previous invocation of this script is still ongoing:    
-inst=`ps ax | grep "/bin/sh $0" | grep -v cron | grep -v grep | wc -l`    
-if test "$inst" != "2"; then
-    echo "Output from ps: "
-    ps ax | grep "/bin/sh $0" | grep -v cron | grep -v grep
-    echo "Another instance running, exiting cleanly."
-    exit 0;
-fi
 
+# create/check lock file
+PID=$$
+if [ ! -e "${LockFileDir}" ] || [ ! -d "${LockFileDir}" ]
+   then
+   echo "ERROR: ${LockFileDir} Does not exist or is not a directory"
+   exit ${ERROR}
+fi
+ER_INTERRUPT=13
+LockFileBaseName="$0"
+DATE=`date +"%F_%H:%M:%S"`
+LockFile=${LockFileDir}/${LockFileBaseName}-${DATE}-${PID}.lock
+echo ${PID} >${LockFile}
+if [ $? != 0 ]
+   then
+   echo "ERROR: creating lockfile ${LockFile}. Probable no permission"
+   exit ${ERROR}
+fi
+trap 'DATE=`date +"%F_%H:%M:%S"`;echo "INFO: Finishing ${0} ${DATE}";rm ${LockFile}' EXIT 1
+trap 'echo "ERROR: USER INTERRUPTED"; exit -1' TERM INT
+echo "INFO: Starting ${DATE}"
+PossibleLockFiles=`ls ${LockFileDir}/${LockFileBaseName}-*.lock|grep -v ${LockFile}`
+if [ ! -z "${PossibleLockFiles}" ]
+   then
+       echo "WARNING: Found lock files: ${PossibleLockFiles}"
+       for file in ${PossibleLockFiles}; do
+           if [ -e "${file}" ]; then
+               processIDToTest=`cat ${file}`
+               FoundProcessMatchesNameAndPID=`ps l -p ${processIDToTest} | grep ${LockFileBaseName}`
+               if [ ! -z "${FoundProcessMatchesNameAndPID}" ]; then
+                   echo "ERROR: Found active ${LockFileBaseName} under PID ${processIDToTest} with lock file ${file}"
+                   exit -1
+               else
+                   echo "WARNING: Deleting lock file ${file}. No process ${LockFileBaseName} running under PID ${processIDToTest}"
+                   rm ${file}
+               fi
+           fi
+       done
+fi
 
 #Path of LOOKAREA---directory to cleanup:
 LOOKDIR="/lookarea_SM"
