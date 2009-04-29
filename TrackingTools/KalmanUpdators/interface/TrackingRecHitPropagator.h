@@ -7,6 +7,9 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/InvalidTransientRecHit.h"
+//#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+
 /* propagates the RecHit position from the original reference frame
    to the reference frame of another detector.
    Useful for algorithms like the DAF or the MTF	
@@ -28,12 +31,17 @@ class TrackingRecHitPropagator {
 	//3) create a LocalTrajectoryError matrix which is 0 except for the local x,y submatrix, which is filled with the hit errors;
 	//4) create a TSOS from the result of 2) and 3) and propagate it to the reference surface;
 	//5) create a new hit with the local x,y subspace of the result of 4)
-	
+	  if (!ts.isValid()) return InvalidTransientRecHit::build(hit->det());
+	  //	  LogTrace("SiTrackerMultiRecHitUpdator") << "the tsos is valid";	  
 		//check if the ts lays or not on the destination surface and in case propagate it
-		TrajectoryStateOnSurface propagated = ts;
+		TrajectoryStateOnSurface propagated =ts;
 		if (hit->surface() != &(ts.surface())) propagated = thePropagator->propagate(ts, *(hit->surface()));
+		if (!propagated.isValid()) return InvalidTransientRecHit::build(hit->det());	
+		//	  LogTrace("SiTrackerMultiRecHitUpdator") << "the propagate tsos is valid";	  
+	
 		//clone the original hit with this state
 		TransientTrackingRecHit::RecHitPointer updatedOriginal = hit->clone(propagated);
+		//	  LogTrace("SiTrackerMultiRecHitUpdator") << "rechit cloned";	  
 		LocalTrajectoryParameters ltp(updatedOriginal->localPosition(), propagated.localMomentum(), propagated.charge());
 		AlgebraicSymMatrix55 ltem;
 		ltem(3,3) = (updatedOriginal->parametersError())(0,0);
@@ -41,14 +49,10 @@ class TrackingRecHitPropagator {
 		ltem(3,4) = (updatedOriginal->parametersError())(0,1);
 		LocalTrajectoryError lte(ltem);
 		TrajectoryStateOnSurface hit_state(ltp, lte, propagated.surface(), propagated.magneticField());
-
 		TrajectoryStateOnSurface projected_hit_state = thePropagator->propagate(hit_state, det.surface());
-
-		if(!projected_hit_state.isValid())return InvalidTransientRecHit::build(updatedOriginal->det());
-		
+		if (!projected_hit_state.isValid()) return InvalidTransientRecHit::build(hit->det());	
 		LocalPoint p = projected_hit_state.localPosition();
 		LocalError e = projected_hit_state.localError().positionError();
-
 		return ResultingHit::build(p, e, &det, updatedOriginal->det(), updatedOriginal, this);
 	}
 	
