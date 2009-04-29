@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.57 2009/04/15 15:33:32 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.58 2009/04/16 19:40:52 charlot Exp $
 //
 //
 
@@ -93,7 +93,7 @@ GsfElectronAlgo::GsfElectronAlgo
    bool applyPreselection, bool applyEtaCorrection, bool applyAmbResolution,
    bool addPflowElectrons,
    double intRadiusTk, double ptMinTk, double maxVtxDistTk, double maxDrbTk,
-   double intRadiusHcal, double etMinHcal, 
+   double intRadiusHcal, double etMinHcal,
    double intRadiusEcalBarrel, double intRadiusEcalEndcaps, double jurassicWidth,
    double etMinBarrel, double eMinBarrel, double etMinEndcaps, double eMinEndcaps,
    bool vetoClustered, bool useNumCrystals)
@@ -270,7 +270,12 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
      { outEle.push_back(**it) ; }
    }
 
-  return;
+  // delete temporary electrons
+  GsfElectronPtrCollection::const_iterator it ;
+  for ( it = tempEle.begin() ; it != tempEle.end() ; it++ )
+   { delete (*it) ; }
+
+  return ;
 }
 
 void GsfElectronAlgo::process(
@@ -315,7 +320,7 @@ void GsfElectronAlgo::process(
   ecalBarrelIsol04.setVetoClustered(vetoClustered_);
   ecalEndcapIsol03.setUseNumCrystals(useNumCrystals_);
   ecalEndcapIsol04.setVetoClustered(vetoClustered_);
-  
+
   // HCAL isolation algo for H/E
   EgammaTowerIsolation towerIso1(hOverEConeSize_,0.,hOverEPtMin_,1,towersH.product()) ;
   EgammaTowerIsolation towerIso2(hOverEConeSize_,0.,hOverEPtMin_,2,towersH.product()) ;
@@ -479,7 +484,7 @@ void GsfElectronAlgo::createElectron
   if (scRef.isNull()) return ;
 
   // Seed info
-  const reco::BasicCluster & seedCluster = *(scRef->seed()) ;
+  const reco::CaloCluster & seedCluster = *(scRef->seed()) ;
   DetId seedXtalId = seedCluster.hitsAndFractions()[0].first ;
 
   // various useful positions and momemtums
