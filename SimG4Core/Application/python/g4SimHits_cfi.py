@@ -10,8 +10,8 @@ common_heavy_suppression = cms.PSet(
 
 common_maximum_time = cms.PSet(
     MaxTrackTime  = cms.double(500.0),
-    MaxTimeNames  = cms.vstring(),
-    MaxTrackTimes = cms.vdouble()
+    MaxTimeNames  = cms.vstring('ZDCRegion','CastorRegion','QuadRegion'),
+    MaxTrackTimes = cms.vdouble(2000.0,0.,0.)
 )
 
 g4SimHits = cms.EDProducer("OscarProducer",
@@ -87,7 +87,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
     Generator = cms.PSet(
         HectorEtaCut,
         # string HepMCProductLabel = "VtxSmeared"
-        HepMCProductLabel = cms.string('generator'),
+        HepMCProductLabel = cms.string('LHCTransport'),
         ApplyPCuts = cms.bool(True),
         MinPCut = cms.double(0.04), ## the pt-cut is in GeV (CMS conventions)
         MaxPCut = cms.double(99999.0), ## the ptmax=99.TeV in this case
@@ -149,9 +149,9 @@ g4SimHits = cms.EDProducer("OscarProducer",
         SuppressHeavy = cms.bool(False),
         EminTrack = cms.double(1.0),
         TmaxHit   = cms.double(1000.0),
-	HCNames   = cms.vstring('EcalHitsEB','EcalHitsEE','EcalHitsES','HcalHits'),
-        EminHits  = cms.vdouble(0.015,0.010,0.0,0.0),
-        TmaxHits  = cms.vdouble(500.0,500.0,500.0,500.0),
+        HCNames   = cms.vstring('EcalHitsEB','EcalHitsEE','EcalHitsES','HcalHits','ZDCHITS'),
+        EminHits  = cms.vdouble(0.015,0.010,0.0,0.0,0.0),
+        TmaxHits  = cms.vdouble(500.0,500.0,500.0,500.0,2000.0),
         BeamPosition   = cms.double(0.0),
         CorrectTOFBeam = cms.bool(False),
         DetailedTiming = cms.untracked.bool(False),
