@@ -27,19 +27,22 @@ class TtSemiLepJetCombMVATrainer : public edm::EDAnalyzer {
   
  private:
   
+  virtual void beginJob(const edm::EventSetup&);
   virtual void analyze(const edm::Event& evt, const edm::EventSetup& setup);
+  virtual void endJob();
 
   edm::InputTag leptons_;
   edm::InputTag jets_;
   edm::InputTag mets_;
   edm::InputTag matching_;
 
-
   unsigned int maxNJets_;
   
   int lepChannel_;
 
   PhysicsTools::MVAComputerCache mvaComputer;
+
+  unsigned int nEvents[5];
 };
 
 #endif

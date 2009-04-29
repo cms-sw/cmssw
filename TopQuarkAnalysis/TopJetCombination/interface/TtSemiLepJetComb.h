@@ -38,7 +38,7 @@ class TtSemiLepJetComb {
   /// emtpy constructor
   TtSemiLepJetComb();
   /// default constructor
-  TtSemiLepJetComb(const std::vector<pat::Jet>&, const std::vector<int>, const math::XYZTLorentzVector&, const pat::MET&);
+  TtSemiLepJetComb(const std::vector<pat::Jet>&, const std::vector<int>&, const math::XYZTLorentzVector&, const pat::MET&);
   /// default destructor
   ~TtSemiLepJetComb();
 

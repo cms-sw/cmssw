@@ -6,6 +6,7 @@
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepJetCombEval.h"
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombMVAComputer.h"
 
+#include "TString.h"
 
 TtSemiLepJetCombMVAComputer::TtSemiLepJetCombMVAComputer(const edm::ParameterSet& cfg):
   leptons_ (cfg.getParameter<edm::InputTag>("leptons")),
@@ -32,13 +33,13 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
 
   mvaComputer.update<TtSemiLepJetCombMVARcd>(setup, "ttSemiLepJetCombMVA");
 
-  // read name of the last processor in the MVA calibration
+  // read name of the processor that provides the MVA discriminator
   // (to be used as meta information)
   edm::ESHandle<PhysicsTools::Calibration::MVAComputerContainer> calibContainer;
   setup.get<TtSemiLepJetCombMVARcd>().get( calibContainer );
   std::vector<PhysicsTools::Calibration::VarProcessor*> processors
     = (calibContainer->find("ttSemiLepJetCombMVA")).getProcessors();
-  *pOutMeth = ( processors[ processors.size()-1 ] )->getInstanceName();
+  *pOutMeth = ( processors[ processors.size()-3 ] )->getInstanceName();
   evt.put(pOutMeth, "Method");
 
   // get lepton, jets and mets
@@ -91,8 +92,13 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
       if(combi[TtSemiLepEvtPartons::LightQ] < combi[TtSemiLepEvtPartons::LightQBar]) {
 
 	TtSemiLepJetComb jetComb(*jets, combi, lepton, *met);
-	// get discriminator here
-	double discrim = evaluateTtSemiLepJetComb(mvaComputer, jetComb);
+
+	// feed MVA input variables into a ValueList
+	PhysicsTools::Variable::ValueList values;
+	evaluateTtSemiLepJetComb(values, jetComb);
+
+	// get discriminator from the MVAComputer
+	double discrim = mvaComputer->eval( values );
 
 	discCombList.push_back( std::make_pair(discrim, combi) );
 

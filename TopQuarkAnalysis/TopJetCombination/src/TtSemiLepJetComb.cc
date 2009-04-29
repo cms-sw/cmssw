@@ -6,18 +6,19 @@ TtSemiLepJetComb::TtSemiLepJetComb()
 {
 }
 
-TtSemiLepJetComb::TtSemiLepJetComb(const std::vector<pat::Jet>& jets, const std::vector<int> cmb, const math::XYZTLorentzVector& lep, const pat::MET& neu)
+TtSemiLepJetComb::TtSemiLepJetComb(const std::vector<pat::Jet>& jets, const std::vector<int>& combination,
+				   const math::XYZTLorentzVector& lepton, const pat::MET& neutrino)
 { 
   // receive right jet association
-  // from jet parton matching 
-  hadQJet_    = jets[cmb[TtSemiLepEvtPartons::LightQ   ]];
-  hadQBarJet_ = jets[cmb[TtSemiLepEvtPartons::LightQBar]];
-  hadBJet_    = jets[cmb[TtSemiLepEvtPartons::HadB     ]];
-  lepBJet_    = jets[cmb[TtSemiLepEvtPartons::LepB     ]]; 
-  lepton_     = lep;
-  neutrino_   = neu;
+  // from jet-parton matching 
+  hadQJet_    = jets[ combination[TtSemiLepEvtPartons::LightQ   ] ];
+  hadQBarJet_ = jets[ combination[TtSemiLepEvtPartons::LightQBar] ];
+  hadBJet_    = jets[ combination[TtSemiLepEvtPartons::HadB     ] ];
+  lepBJet_    = jets[ combination[TtSemiLepEvtPartons::LepB     ] ]; 
+  lepton_     = lepton;
+  neutrino_   = neutrino;
   // create mother candidates from 
-  // final state candidates
+  // final-state candidates
   deduceMothers();
 }
 
@@ -30,7 +31,7 @@ void
 TtSemiLepJetComb::deduceMothers()
 {
   hadW_   = hadQJet_.p4() + hadQBarJet_.p4();
-  lepW_   = lepton_ + neutrino_.p4();
-  hadTop_ = hadW_ + hadBJet_.p4();
-  lepTop_ = lepW_ + lepBJet_.p4();
+  lepW_   = lepton_       + neutrino_  .p4();
+  hadTop_ = hadW_         + hadBJet_   .p4();
+  lepTop_ = lepW_         + lepBJet_   .p4();
 }
