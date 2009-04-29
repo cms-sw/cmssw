@@ -9,7 +9,9 @@ ALCARECOSiStripCalZeroBiasDQM.OutputMEsInRootFile                     = False
 ALCARECOSiStripCalZeroBiasDQM.SelectAllDetectors                      = True 
 ALCARECOSiStripCalZeroBiasDQM.StripQualityLabel                       = 'unbiased'
 
-ALCARECOSiStripCalZeroBiasDQM.TH1ClusterPos.moduleswitchon            = True
+ALCARECOSiStripCalZeroBiasDQM.TH1ClusterDigiPos.moduleswitchon        = True
+ALCARECOSiStripCalZeroBiasDQM.TH1ClusterDigiPos.layerswitchon         = False
+ALCARECOSiStripCalZeroBiasDQM.TH1ClusterPos.moduleswitchon            = False
 ALCARECOSiStripCalZeroBiasDQM.TH1ClusterPos.layerswitchon             = False
 ALCARECOSiStripCalZeroBiasDQM.TH1nClusters.moduleswitchon             = False
 ALCARECOSiStripCalZeroBiasDQM.TH1nClusters.layerswitchon              = False
