@@ -10,7 +10,8 @@ process.load("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
 process.load("Configuration.StandardSequences.DigiToRaw_cff")
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.load("Configuration.StandardSequences.FakeConditions_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = 'IDEAL_V12::All'
 
 # For including Standard Reco + Heavy Ion Objects
 process.load("RecoHI.Configuration.Reconstruction_HI_cff")
@@ -77,7 +78,6 @@ process.output = cms.OutputModule("PoolOutputModule",
 )
 
 process.p = cms.Path(process.mix*process.doAllDigi*process.L1Emulator*process.DigiToRaw*process.RawToDigi*process.reconstruct_PbPb)
-#process.p = cms.Path(process.mix*process.doAllDigi*process.L1Emulator*process.DigiToRaw*process.RawToDigi*process.hiTrackingWithOfflineBeamSpot)
 process.outpath = cms.EndPath(process.output)
 process.output.outputCommands.append('keep *_*_*_RECO')
 
