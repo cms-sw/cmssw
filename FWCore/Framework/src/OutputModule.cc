@@ -19,75 +19,70 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-using std::vector;
-using std::string;
-
-
 namespace edm {
   // This grotesque little function exists just to allow calling of
   // ConstProductRegistry::allBranchDescriptions in the context of
   // OutputModule's initialization list, rather than in the body of
   // the constructor.
 
-  vector<edm::BranchDescription const*>
+  std::vector<edm::BranchDescription const*>
   getAllBranchDescriptions() {
     edm::Service<edm::ConstProductRegistry> reg;
     return reg->allBranchDescriptions();
   }
 
-  vector<std::string> const& getAllTriggerNames() {
+  std::vector<std::string> const& getAllTriggerNames() {
     edm::Service<edm::service::TriggerNamesService> tns;
     return tns->getTrigPaths();
   }
 }
 
 
-namespace
-{
+namespace {
   //--------------------------------------------------------
-  // Remove whitespace (spaces and tabs) from a string.
+  // Remove whitespace (spaces and tabs) from a std::string.
   void remove_whitespace(std::string& s) {
-    s.erase(remove(s.begin(), s.end(), ' '), s.end());
-    s.erase(remove(s.begin(), s.end(), '\t'), s.end());
+    s.erase(std::remove(s.begin(), s.end(), ' '), s.end());
+    s.erase(std::remove(s.begin(), s.end(), '\t'), s.end());
   }
 
   void test_remove_whitespace() {
-    string a("noblanks");
-    string b("\t   no   blanks    \t");
+    std::string a("noblanks");
+    std::string b("\t   no   blanks    \t");
 
     remove_whitespace(b);
     assert(a == b);
   }
 
   //--------------------------------------------------------
-  // Given a path-spec (string of the form "a:b", where the ":b" is
+  // Given a path-spec (std::string of the form "a:b", where the ":b" is
   // optional), return a parsed_path_spec_t containing "a" and "b".
 
-  typedef std::pair<string,string> parsed_path_spec_t;
+  typedef std::pair<std::string, std::string> parsed_path_spec_t;
   void parse_path_spec(std::string const& path_spec, 
 		       parsed_path_spec_t& output) {
-    string trimmed_path_spec(path_spec);
+    std::string trimmed_path_spec(path_spec);
     remove_whitespace(trimmed_path_spec);
     
-    string::size_type colon = trimmed_path_spec.find(":");
-    if (colon == string::npos) {
+    std::string::size_type colon = trimmed_path_spec.find(":");
+    if (colon == std::string::npos) {
 	output.first = trimmed_path_spec;
     } else {
 	output.first  = trimmed_path_spec.substr(0, colon);
-	output.second = trimmed_path_spec.substr(colon+1, 
+	output.second = trimmed_path_spec.substr(colon + 1, 
 						 trimmed_path_spec.size());
     }
   }
 
   void test_parse_path_spec() {
-    vector<std::string> paths;
+    std::vector<std::string> paths;
     paths.push_back("a:p1");
     paths.push_back("b:p2");
     paths.push_back("  c");
     paths.push_back("ddd\t:p3");
     paths.push_back("eee:  p4  ");
     
-    vector<parsed_path_spec_t> parsed(paths.size());
+    std::vector<parsed_path_spec_t> parsed(paths.size());
     for (size_t i = 0; i < paths.size(); ++i)
       parse_path_spec(paths[i], parsed[i]);
 
@@ -103,7 +98,6 @@ namespace
     assert(parsed[4].second == "p4");
   }
 }
-
 
 namespace edm {
   namespace test {
@@ -130,8 +124,8 @@ namespace edm {
     selectors_(),
     selector_config_id_(),
     branchParents_(),
-    branchChildren_()
-  {
+    branchChildren_() {
+
     hasNewlyDroppedBranch_.assign(false);
 
     edm::Service<edm::service::TriggerNamesService> tns;
@@ -151,8 +145,8 @@ namespace edm {
 	return;
     }
 
-    vector<std::string> path_specs = 
-      selectevents.getParameter<vector<std::string> >("SelectEvents");
+    std::vector<std::string> path_specs = 
+      selectevents.getParameter<std::vector<std::string> >("SelectEvents");
 
     if (path_specs.empty()) {
 	wantAllEvents_ = true;
@@ -162,10 +156,10 @@ namespace edm {
 
     // If we get here, we have the possibility of having to deal with
     // path_specs that look at more than one process.
-    vector<parsed_path_spec_t> parsed_paths(path_specs.size());
-    for (size_t i = 0; i < path_specs.size(); ++i)
+    std::vector<parsed_path_spec_t> parsed_paths(path_specs.size());
+    for (size_t i = 0; i < path_specs.size(); ++i) {
       parse_path_spec(path_specs[i], parsed_paths[i]);
-
+    }
     selectors_.setup(parsed_paths, getAllTriggerNames(), process_name_);
   }
 
@@ -235,7 +229,10 @@ namespace edm {
      class  PVSentry {
      public:
        PVSentry (detail::CachedProducts& prods, bool& valid) : p(prods), v(valid) {}
-       ~PVSentry() { p.clear(); v=false; }
+       ~PVSentry() {
+         p.clear();
+         v = false;
+       }
      private:
        detail::CachedProducts& p;
        bool&           v;
@@ -277,9 +274,9 @@ namespace edm {
 //     getTriggerResults(ev);
 //     bool eventAccepted = false;
 
-//     typedef vector<NamedEventSelector>::const_iterator iter;
+//     typedef std::vector<NamedEventSelector>::const_iterator iter;
 //     for (iter i = selectResult_.begin(), e = selectResult_.end();
-// 	 !eventAccepted && i!=e; ++i) 
+// 	 !eventAccepted && i != e; ++i) 
 //       {
 // 	eventAccepted = i->acceptEvent(*prods_);
 //       }
