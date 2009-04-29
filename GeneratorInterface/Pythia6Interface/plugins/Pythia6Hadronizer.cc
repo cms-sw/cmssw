@@ -624,12 +624,12 @@ bool Pythia6Hadronizer::declareStableParticles( std::vector<int> pdg )
    
    for ( size_t i=0; i<pdg.size(); i++ )
    {
-      //int PyID = HepPID::translatePDTtoPythia( pdg[i] );
-      int PyID = pdg[i]; 
+      int PyID = HepPID::translatePDTtoPythia( pdg[i] );
+      // int PyID = pdg[i]; 
       int pyCode = pycomp_( PyID );
       std::ostringstream pyCard ;
       pyCard << "MDCY(" << pyCode << ",1)=0";
-/* this is a test printout...
+/* this is a test printout... 
       std::cout << pyCard.str() << std::endl; 
 */
       call_pygive( pyCard.str() );
