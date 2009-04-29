@@ -100,7 +100,7 @@ foreach sample($samples)
        -e "s/ALGORITHM//g" \
        >! tmp2.py
     endif
-    if ($Quality != '')then 
+    if ($Quality != '') then 
 	cat tmp2.py | sed \
 	-e "s/QUALITY/'$Quality'/g" \
 	>! $sample.py
