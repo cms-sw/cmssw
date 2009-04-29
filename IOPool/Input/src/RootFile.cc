@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/GroupSelector.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/interface/FillProductRegistryTransients.h"
+#include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"

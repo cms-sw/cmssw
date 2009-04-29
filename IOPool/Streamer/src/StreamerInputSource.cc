@@ -7,7 +7,7 @@
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
-#include "FWCore/Framework/interface/FillProductRegistryTransients.h"
+#include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
