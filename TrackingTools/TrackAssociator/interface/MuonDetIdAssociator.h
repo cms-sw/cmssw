@@ -15,7 +15,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: MuonDetIdAssociator.h,v 1.4 2007/10/09 02:38:16 dmytro Exp $
+// $Id: MuonDetIdAssociator.h,v 1.5 2009/04/29 12:15:08 jribnik Exp $
 //
 //
 
@@ -90,7 +90,7 @@ class MuonDetIdAssociator: public DetIdAssociator{
 
    const GlobalTrackingGeometry* geometry_;
 
-   bool includeBadChambers_;
    const CSCBadChambers* cscbadchambers_;
+   bool includeBadChambers_;
 };
 #endif
