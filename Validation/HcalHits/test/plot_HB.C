@@ -449,7 +449,7 @@ void plot_HB(TString inputfile="simevent_HB.root",
 
     for (int i = 1; i <= size; i++) { 
       Float_t y = h->GetBinContent(i);
-      cout << " 1) h[39] bin " << i << " content = " << y << endl;
+      //      cout << " 1) h[39] bin " << i << " content = " << y << endl;
       sum +=  y;
       h->SetBinContent((Int_t)i, (Float_t)sum);
 
@@ -458,7 +458,7 @@ void plot_HB(TString inputfile="simevent_HB.root",
     for (int i = 1; i <= size; i++) { 
       Float_t y = h->GetBinContent(i);
       h->SetBinContent((Int_t)i, y/sum);
-      cout << " 2) h[39] bin " << i << " content = " << y/sum << endl;
+      //      cout << " 2) h[39] bin " << i << " content = " << y/sum << endl;
     }
   }
 
