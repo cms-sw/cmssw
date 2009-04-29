@@ -34,10 +34,10 @@
 #include<algorithm>
 #include<functional>
 
+#include "RecoTracker/CkfPattern/interface/PrintoutHelper.h"
+
 using namespace edm;
 using namespace std;
-
-//#define DBG_CTCMB
 
 namespace cms{
   CkfTrackCandidateMakerBase::CkfTrackCandidateMakerBase(edm::ParameterSet const& conf) : 
@@ -168,9 +168,7 @@ namespace cms{
        
 	// Check if seed hits already used by another track
 	if (theSeedCleaner && !theSeedCleaner->good( &((*collseed)[j])) ) {
-#ifdef DBG_CTCMB
           LogDebug("CkfTrackCandidateMakerBase")<<" Seed cleaning kills seed "<<j;
-#endif
           continue; 
         }
 
@@ -180,35 +178,17 @@ namespace cms{
 	
        
 	LogDebug("CkfPattern") << "======== In-out trajectory building found " << theTmpTrajectories.size()
-			            << " trajectories from seed " << j << " ========"<<endl;
-#ifdef DBG_CTCMB
-        unsigned int jj1 = 0;
-	for(vector<Trajectory>::iterator it=theTmpTrajectories.begin();
-	    it!=theTmpTrajectories.end(); it++){
-	  if( it->isValid() ) {
-            LogTrace("CkfPattern")<<"trajectory "<<jj1++<<" valid: nhits = "<<it->foundHits();
-          }
-        }
-#endif
-
+			            << " trajectories from seed " << j << " ========"<<endl
+			       <<PrintoutHelper::dumpCandidates(theTmpTrajectories);
+	
         if (cleanTrajectoryAfterInOut) {
 
 	  // Select the best trajectory from this seed (declare others invalid)
   	  theTrajectoryCleaner->clean(theTmpTrajectories);
 
-#ifdef DBG_CTCMB
   	  LogDebug("CkfPattern") << "======== In-out trajectory cleaning gave the following valid trajectories from seed " 
-                                 << j << " ========"<<endl;
-
-          unsigned int jj2 = 0;
-          for(vector<Trajectory>::iterator it=theTmpTrajectories.begin();
-	      it!=theTmpTrajectories.end(); it++){
-	    if( it->isValid() ) {
-	      // Only 0 or 1 should be valid
-              LogTrace("CkfPattern")<<"trajectory "<<jj2++<<" valid: nhits = "<<it->foundHits();
-            }
-          }
-#endif
+                                 << j << " ========"<<endl
+				 << PrintoutHelper::dumpCandidates(theTmpTrajectories);
         }
 
 	// Optionally continue building trajectory back through 
@@ -216,34 +196,17 @@ namespace cms{
 	if (doSeedingRegionRebuilding) {
 	  theTrajectoryBuilder->rebuildSeedingRegion((*collseed)[j],theTmpTrajectories);      
 
-#ifdef DBG_CTCMB
   	  LogDebug("CkfPattern") << "======== Out-in trajectory building found " << theTmpTrajectories.size()
-  			              << " valid/invalid trajectories from seed " << j << " ========"<<endl;
-
-          unsigned int jj3 = 0;
-          for(vector<Trajectory>::iterator it=theTmpTrajectories.begin();
-	      it!=theTmpTrajectories.end(); it++){
-	    if( it->isValid() ) {
-              LogTrace("CkfPattern")<<"trajectory "<<jj3++<<" valid: nhits = "<<it->foundHits();
-            }
-          }
-#endif
+  			              << " valid/invalid trajectories from seed " << j << " ========"<<endl
+				 <<PrintoutHelper::dumpCandidates(theTmpTrajectories);
         }
 
         // Select the best trajectory from this seed (after seed region rebuilding, can be more than one)
 	theTrajectoryCleaner->clean(theTmpTrajectories);
 
         LogDebug("CkfPattern") << "======== Trajectory cleaning gave the following valid trajectories from seed " 
-                               << j << " ========"<<endl;
-
-        unsigned int jj4 = 0;
-        for(vector<Trajectory>::iterator it=theTmpTrajectories.begin();
-	    it!=theTmpTrajectories.end(); it++){
-	  if( it->isValid() ) {
-	    // Only 0 or 1 should be valid
-            LogTrace("CkfPattern")<<"trajectory "<<jj4++<<" valid: nhits = "<<it->foundHits();
-          }
-        }
+                               << j << " ========"<<endl
+			       <<PrintoutHelper::dumpCandidates(theTmpTrajectories);
 
 	for(vector<Trajectory>::iterator it=theTmpTrajectories.begin();
 	    it!=theTmpTrajectories.end(); it++){
@@ -271,15 +234,10 @@ namespace cms{
       theTrajectoryCleaner->clean(rawResult);
 
       LogDebug("CkfPattern") << "======== Final cleaning of entire event found " << rawResult.size() 
-                             << " valid/invalid trajectories ======="<<endl;
+                             << " valid/invalid trajectories ======="<<endl
+			     <<PrintoutHelper::dumpCandidates(rawResult);
 
-      unsigned int jj5 = 0;
-      for(vector<Trajectory>::iterator it=rawResult.begin();
-          it!=rawResult.end(); it++){
-        if( it->isValid() ) {
-          LogTrace("CkfPattern")<<"trajectory "<<jj5++<<" valid: nhits = "<<it->foundHits();
-        }
-      }
+      LogDebug("CkfPattern") << "removing invalid trajectories.";
 
       vector<Trajectory> & unsmoothedResult(rawResult);
       unsmoothedResult.erase(std::remove_if(unsmoothedResult.begin(),unsmoothedResult.end(),
@@ -302,16 +260,17 @@ namespace cms{
 	
 	 Trajectory::RecHitContainer thits;
 	 //it->recHitsV(thits);
+	 LogDebug("CkfPattern") << "retrieving "<<(useSplitting?"splitted":"un-splitted")<<" hits from trajectory";
 	 it->recHitsV(thits,useSplitting);
 	 OwnVector<TrackingRecHit> recHits;
 	 recHits.reserve(thits.size());
+	 LogDebug("CkfPattern") << "cloning hits into new collection.";
 	 for (Trajectory::RecHitContainer::const_iterator hitIt = thits.begin();
 	      hitIt != thits.end(); hitIt++) {
 	   recHits.push_back( (**hitIt).hit()->clone());
 	 }
-	
-	 //PTrajectoryStateOnDet state = *(it->seed().startingState().clone());
 
+	 LogDebug("CkfPattern") << "getting initial state.";
 	 std::pair<TrajectoryStateOnSurface, const GeomDet*> initState = 
 	   theInitialState->innerState( *it);
 
@@ -322,7 +281,8 @@ namespace cms{
 	 }
 	 
 	 PTrajectoryStateOnDet* state =0 ;
-	 if(useSplitting && (initState.second != thits.front()->det()) ){	 
+	 if(useSplitting && (initState.second != thits.front()->det()) && thits.front()->det() ){	 
+	   LogDebug("CkfPattern") << "propagating to hit front in case of splitting.";
 	   TrajectoryStateOnSurface propagated = thePropagator->propagate(initState.first,thits.front()->det()->surface());
 	   if (!propagated.isValid()) continue;
 	   state = TrajectoryStateTransform().persistentState(propagated,
@@ -332,48 +292,20 @@ namespace cms{
 	 if(!state) state = TrajectoryStateTransform().persistentState( initState.first,
 									initState.second->geographicalId().rawId());
 	 
+	 LogDebug("CkfPattern") << "pushing a TrackCandidate.";
 	 output->push_back(TrackCandidate(recHits,it->seed(),*state,it->seedRef() ) );
 	 
 	 delete state;
        }
       }//output trackcandidates
-            
-      LogTrace("TrackingRegressionTest") << "========== CkfTrackCandidateMaker Info ==========";
+
       edm::ESHandle<TrackerGeometry> tracker;
-      es.get<TrackerDigiGeometryRecord>().get(tracker);
-      LogTrace("TrackingRegressionTest") << "number of Seed: " << collseed->size();
+      es.get<TrackerDigiGeometryRecord>().get(tracker);            
+      LogTrace("CkfPattern|TrackingRegressionTest") << "========== CkfTrackCandidateMaker Info =========="
+						    << "number of Seed: " << collseed->size()<<endl
+      						    <<PrintoutHelper::regressionTest(*tracker,unsmoothedResult);
+
       
-      /*
-      for(iseed=theSeedColl.begin();iseed!=theSeedColl.end();iseed++){
-	DetId tmpId = DetId( iseed->startingState().detId());
-	const GeomDet* tmpDet  = tracker->idToDet( tmpId );
-	GlobalVector gv = tmpDet->surface().toGlobal( iseed->startingState().parameters().momentum() );
-	
-	LogTrace("TrackingRegressionTest") << "seed perp,phi,eta : " 
-	                                   << gv.perp() << " , " 
-				           << gv.phi() << " , " 
-				           << gv.eta() ;
-      }
-      */
-      
-      LogTrace("TrackingRegressionTest") << "number of finalTrajectories: " << unsmoothedResult.size();
-      for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin();
-	   it != unsmoothedResult.end(); it++) {
-	if (it->lastMeasurement().updatedState().isValid()) {
-	  LogTrace("TrackingRegressionTest") << "candidate's n valid and invalid hit, chi2, pt : " 
-					     << it->foundHits() << " , " 
-					     << it->lostHits() <<" , " 
-					     << it->chiSquared() << " , "
-					     << it->lastMeasurement().updatedState().globalMomentum().perp();
-	} else if (it->lastMeasurement().predictedState().isValid()) {
-	  LogTrace("TrackingRegressionTest") << "candidate's n valid and invalid hit, chi2, pt : " 
-					     << it->foundHits() << " , " 
-					     << it->lostHits() <<" , " 
-					     << it->chiSquared() << " , "
-					     << it->lastMeasurement().predictedState().globalMomentum().perp();
-	} else LogTrace("TrackingRegressionTest") << "candidate with invalid last measurement state!";
-      }
-      LogTrace("TrackingRegressionTest") << "=================================================";
      
       if (theTrajectoryOutput){ outputT->swap(unsmoothedResult);}
 

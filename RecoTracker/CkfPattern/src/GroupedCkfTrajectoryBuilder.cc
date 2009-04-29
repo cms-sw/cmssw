@@ -237,7 +237,7 @@ GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (TempTrajectory& startingT
  	continue;
       }
 
-      LogDebug("CkfPattern")<<"newCand(1): after advanced one layer:\n"<<dumpCandidates(newCand);
+      LogDebug("CkfPattern")<<"newCand(1): after advanced one layer:\n"<<PrintoutHelper::dumpCandidates(newCand);
 
       if ((int)newCand.size() > theMaxCand) {
 	//ShowCand()(newCand);
@@ -245,7 +245,7 @@ GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (TempTrajectory& startingT
  	sort( newCand.begin(), newCand.end(), GroupedTrajCandLess(theLostHitPenalty,theFoundHitBonus));
  	newCand.erase( newCand.begin()+theMaxCand, newCand.end());
       }
-      LogDebug("CkfPattern")<<"newCand(2): after removing extra candidates.\n"<<dumpCandidates(newCand);
+      LogDebug("CkfPattern")<<"newCand(2): after removing extra candidates.\n"<<PrintoutHelper::dumpCandidates(newCand);
     }
 
     LogDebug("CkfPattern") << "newCand.size() at end = " << newCand.size();
@@ -268,9 +268,9 @@ GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (TempTrajectory& startingT
     candidates.swap(newCand);
 
     LogDebug("CkfPattern") <<"candidates(3): "<<result.size()<<" candidates after "<<nIter++<<" groupedCKF iteration: \n"
-      			   <<dumpCandidates(result)
+      			   <<PrintoutHelper::dumpCandidates(result)
 			   <<"\n "<<candidates.size()<<" running candidates are: \n"
-			   <<dumpCandidates(candidates);
+			   <<PrintoutHelper::dumpCandidates(candidates);
   }
 }
 
@@ -679,7 +679,7 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const std::vector<const Tracki
   const bool inOut = false;
   groupedLimitedCandidates(candidate, (const TrajectoryFilter*)0, theBackwardPropagator, inOut, rebuiltTrajectories);
 
-  LogDebug("CkfPattern")<<" After backward building: "<<dumpCandidates(rebuiltTrajectories);
+  LogDebug("CkfPattern")<<" After backward building: "<<PrintoutHelper::dumpCandidates(rebuiltTrajectories);
 
   //
   // Check & count resulting candidates
@@ -723,7 +723,7 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const std::vector<const Tracki
     nrOfTrajectories++;
 
     LogDebug("CkgPattern")<<"New traj direction = " << reversedTrajectory.direction()<<"\n"
-			  <<dumpMeasurements(reversedTrajectory.measurements());
+			  <<PrintoutHelper::dumpMeasurements(reversedTrajectory.measurements());
   }
   return nrOfTrajectories;
 }
@@ -750,7 +750,7 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
 
   LogDebug("CkfPattern")<<"nSeed " << nSeed << endl
 			<< "Old traj direction = " << candidate.direction() << endl
-			<<dumpMeasurements(candidate.measurements());
+			<<PrintoutHelper::dumpMeasurements(candidate.measurements());
 
   //
   // backward fit trajectory.
@@ -844,7 +844,7 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
 				(*im).estimate(),
 				bwdDetLayer[iDetLayer]));
 
-		LogDebug("CkfPattern")<<dumpMeasurement(*im);
+		LogDebug("CkfPattern")<<PrintoutHelper::dumpMeasurement(*im);
 		iDetLayer++;
 	}
 /*

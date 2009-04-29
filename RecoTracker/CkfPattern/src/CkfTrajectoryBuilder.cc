@@ -219,9 +219,9 @@ limitedCandidates( TempTrajectoryContainer &candidates,
     candidates.swap(newCand);
     
     LogDebug("CkfPattern") <<result.size()<<" candidates after "<<nIter++<<" CKF iteration: \n"
-			   <<dumpCandidates(result)
+			   <<PrintoutHelper::dumpCandidates(result)
 			   <<"\n "<<candidates.size()<<" running candidates are: \n"
-			   <<dumpCandidates(candidates);
+			   <<PrintoutHelper::dumpCandidates(candidates);
 
   }
 }
@@ -295,7 +295,7 @@ CkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj,
   LogDebug("CkfPattern")<<"starting from:\n"
 			<<"x: "<<stateAndLayers.first.globalPosition()<<"\n"
 			<<"p: "<<stateAndLayers.first.globalMomentum()<<"\n"
-			<<dumpMeasurements(result);
+			<<PrintoutHelper::dumpMeasurements(result);
 
 #ifdef DEBUG_INVALID
   bool afterInvalid = false;

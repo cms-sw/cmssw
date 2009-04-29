@@ -31,6 +31,7 @@ class TrajectoryMeasurementGroup;
 class TrajectoryCleaner;
 
 #include "TrackingTools/PatternTools/interface/bqueue.h"
+#include "RecoTracker/CkfPattern/interface/PrintoutHelper.h"
 
 /** The component of track reconstruction that, strating from a seed,
  *  reconstructs all possible trajectories.
@@ -127,11 +128,6 @@ public:
   mutable const Propagator*             theForwardPropagator;
   mutable const Propagator*             theBackwardPropagator;
 
-  template< class collection > std::string dumpCandidates( collection & candidates) const;
-  std::string dumpMeasurements(const std::vector<TrajectoryMeasurement> & v) const;
-  std::string dumpMeasurements(const cmsutils::bqueue<TM> & v) const;
-  std::string dumpMeasurement(const TrajectoryMeasurement & tm) const;
-
  private:
   //  int theMaxLostHit;            /**< Maximum number of lost hits per trajectory candidate.*/
   //  int theMaxConsecLostHit;      /**< Maximum number of consecutive lost hits 
@@ -146,39 +142,6 @@ public:
 
 
 };
-
-
-
-template< class collection > 
-std::string BaseCkfTrajectoryBuilder::dumpCandidates( collection & candidates) const{
-  std::stringstream buffer;
-  uint ic=0;
-  typename collection::const_iterator traj=candidates.begin();
-  for (;traj!=candidates.end(); traj++) {  
-    buffer<<ic++<<"] ";
-    if (!traj->measurements().empty()){
-      const TrajectoryMeasurement & last = traj->lastMeasurement();
-
-      buffer<<"with: "<<traj->measurements().size()<<" measurements."<< traj->lostHits() << " lost, " << traj->foundHits()<<" found, chi2="<<traj->chiSquared()<<"\n";
-      if (last.updatedState().isValid()) {
-	const TrajectoryStateOnSurface & tsos = last.updatedState();
-	buffer <<"Last [Updated] state\n x: "<<tsos.globalPosition()<<"\n p: "<<tsos.globalMomentum()<<"\n";
-      } else if(last.forwardPredictedState().isValid()){
-	const TrajectoryStateOnSurface & tsos = last.forwardPredictedState();
-	buffer <<"Last [fwdPredicted] state\n x: "<<tsos.globalPosition()<<"\n p: "<<tsos.globalMomentum()<<"\n";
-      } else if (last.predictedState().isValid()){
-	const TrajectoryStateOnSurface & tsos = last.predictedState();
-	buffer <<"Last [Predicted] state\n x: "<<tsos.globalPosition()<<"\n p: "<<tsos.globalMomentum()<<"\n";
-      }
-      buffer <<" hit is: "<<(last.recHit()->isValid()?"valid":"invalid")<<"\n";
-      if (last.recHit()->isValid())
-	buffer <<"on detId: "<<last.recHit()->geographicalId().rawId()<<"\n";
-    }
-    else{
-      buffer<<" no measurement. \n";}
-  }
-  return buffer.str();
-}
 
 
 #endif
