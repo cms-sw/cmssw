@@ -7,9 +7,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2009/02/03 14:04:23 $
-// $Revision: 1.16 $
+// $Author: bonato $
+// $Date: 2009/04/14 14:07:11 $
+// $Revision: 1.18 $
 //
 
 #include <memory>
@@ -460,6 +460,7 @@ namespace cms
    refTrajs    = e.getRefBeforePut< std::vector<Trajectory> >();
    outputTTAss = std::auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
 
+   if (!hTraj1.failedToGet() && !hTTAss1.failedToGet()){
    for (size_t i = 0, n = hTraj1->size(); i < n; ++i) {
      edm::Ref< std::vector<Trajectory> > trajRef(hTraj1, i);
      TrajTrackAssociationCollection::const_iterator match = hTTAss1->find(trajRef);
@@ -473,7 +474,7 @@ namespace cms
        }
      }
    }
-
+   }
    short offset = current; //save offset into trackRefs
 
    if ( 0<tC2.size() ){
@@ -519,6 +520,7 @@ namespace cms
    edm::Handle< TrajTrackAssociationCollection > hTTAss2;
    e.getByLabel(trackProducer2, hTTAss2);
 
+   if (!hTraj2.failedToGet() && !hTTAss2.failedToGet()){
    for (size_t i = 0, n = hTraj2->size(); i < n; ++i) {
      edm::Ref< std::vector<Trajectory> > trajRef(hTraj2, i);
      TrajTrackAssociationCollection::const_iterator match = hTTAss2->find(trajRef);
@@ -531,7 +533,7 @@ namespace cms
 			       trackRefs[oldKey] ); 
        }
      }
-   }
+   }}
 
     e.put(outputTrks);
     e.put(outputTrkExtras);
