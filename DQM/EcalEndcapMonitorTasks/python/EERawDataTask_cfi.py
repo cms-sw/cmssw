@@ -5,6 +5,5 @@ ecalEndcapRawDataTask = cms.EDAnalyzer("EERawDataTask",
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),
     FEDRawDataCollection = cms.InputTag("source"),
-    EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
-    GTEvmSource = cms.InputTag("l1GtEvmUnpack")
+    EcalRawDataCollection = cms.InputTag("ecalEBunpacker")
 )

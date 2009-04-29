@@ -6,7 +6,6 @@
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/EcalRecHit>
 <use name=DataFormats/EgammaReco>
-<use name=DataFormats/L1GlobalTrigger>
 <use name=DataFormats/Math>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
@@ -27,7 +26,6 @@
   <use name=DataFormats/FEDRawData>
   <use name=DataFormats/EcalRecHit>
   <use name=DataFormats/EgammaReco>
-  <use name=DataFormats/L1GlobalTrigger>
   <use name=DataFormats/Math>
   <use name=FWCore/Framework>
   <use name=FWCore/MessageLogger>

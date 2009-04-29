@@ -4,8 +4,8 @@
 /*
  * \file EBRawDataTask.h
  *
- * $Date: 2008/10/20 16:52:05 $
- * $Revision: 1.4 $
+ * $Date: 2008/12/05 07:52:00 $
+ * $Revision: 1.5 $
  * \author E. Di Marco
  *
 */
@@ -67,7 +67,6 @@ bool mergeRuns_;
 
 edm::InputTag FEDRawDataCollection_;
 edm::InputTag EcalRawDataCollection_;
-edm::InputTag GTEvmSource_;
 
 MonitorElement* meEBCRCErrors_;
 MonitorElement* meEBEventTypePreCalibrationBX_;

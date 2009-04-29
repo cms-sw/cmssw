@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2008/12/03 15:46:39 $
- * $Revision: 1.19 $
+ * $Date: 2008/12/05 07:52:00 $
+ * $Revision: 1.20 $
  * \author E. Di Marco
  *
 */
@@ -23,7 +23,6 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/FEDRawData/src/fed_header.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
 #include <DQM/EcalCommon/interface/Numbers.h>
 
@@ -47,7 +46,6 @@ EBRawDataTask::EBRawDataTask(const ParameterSet& ps) {
 
   FEDRawDataCollection_ = ps.getParameter<edm::InputTag>("FEDRawDataCollection");
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
-  GTEvmSource_ =  ps.getParameter<edm::InputTag>("GTEvmSource");
 
   meEBEventTypePreCalibrationBX_ = 0;
   meEBEventTypeCalibrationBX_ = 0;
@@ -371,7 +369,6 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
   edm::Handle<FEDRawDataCollection> allFedRawData;
 
   int gtFedDataSize = 0;
-  bool GT_OrbitNumber_Present = false;
 
   int ECALDCC_L1A_MostFreqId = -1;
   int ECALDCC_OrbitNumber_MostFreqId = -1;
@@ -381,7 +378,7 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
   if ( e.getByLabel(FEDRawDataCollection_, allFedRawData) ) {
 
     // GT FED data
-    const FEDRawData& gtFedData = allFedRawData->FEDData(812);
+    const FEDRawData& gtFedData = allFedRawData->FEDData(FEDNumbering::MINTriggerGTPFEDID);
 
     gtFedDataSize = gtFedData.size()/sizeof(uint64_t);
 
@@ -390,32 +387,12 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
       FEDHeader header(gtFedData.data());
 
       GT_L1A = header.lvl1ID();
-      GT_BunchCrossing = header.bxID();
-      GT_TriggerType = header.triggerType();
 
-    }
+      GT_OrbitNumber = e.orbitNumber();
+      GT_BunchCrossing = e.bunchCrossing();
+      GT_TriggerType = e.experimentType();
 
-    Handle<L1GlobalTriggerEvmReadoutRecord> GTEvmReadoutRecord;
-
-    if ( e.getByLabel(GTEvmSource_, GTEvmReadoutRecord) ) {
-
-      L1GtfeWord gtfeEvmWord = GTEvmReadoutRecord->gtfeWord();
-      int gtfeEvmActiveBoards = gtfeEvmWord.activeBoards();
-
-      if( gtfeEvmActiveBoards & (1<<TCS) ) { // if TCS present in the record
-
-        GT_OrbitNumber_Present = true;
-
-        L1TcsWord tcsWord = GTEvmReadoutRecord->tcsWord();
-
-        GT_OrbitNumber = tcsWord.orbitNr();
-
-      }
     } else {
-      LogWarning("EBRawDataTask") << GTEvmSource_ << " not available";
-    }
-
-    if ( gtFedDataSize == 0 || !GT_OrbitNumber_Present ) {
 
       // use the most frequent among the ECAL FEDs
 
@@ -537,7 +514,7 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
 
       }
 
-      if ( GT_OrbitNumber_Present ) {
+      if ( gtFedDataSize == 0 ) {
 
         if ( GT_OrbitNumber != ECALDCC_OrbitNumber ) meEBOrbitNumberErrors_->Fill ( xism );
 
@@ -575,7 +552,7 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
 
       if(srpLv1 != ECALDCC_L1A_12bit && srpLv1 != -1) meEBL1ASRPErrors_->Fill( xism );
 
-      if ( GT_OrbitNumber_Present ) {
+      if ( gtFedDataSize == 0 ) {
 
         if ( GT_OrbitNumber != ECALDCC_OrbitNumber ) meEBOrbitNumberErrors_->Fill ( xism );
 
