@@ -137,23 +137,24 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
         if(os.path.isfile(newdir+'/val.'+sample+'.rootytootie' )!=True):    
             
             #search the primary dataset
-            cmd='./DDSearchCLI.py  --limit -1 --input="find  dataset.createdate, dataset where dataset like *'
+            cmd='./DDSearchCLI.py  --limit -1 --input="find dataset where dataset like *'
             #search for correct EventContent (and site)
 #            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* AND site like *cern* "'
             cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* AND site like *cern* "'
-            cmd+='|grep '+sample+'|grep -v FastSim |sort| tail -1 | cut -d "," -f2 '
+            cmd+='|grep '+sample+'|grep -v FastSim |sort| tail -1 | cut -d "," -f1 '
             print cmd
             dataset= os.popen(cmd).readline()
             print 'DataSet:  ', dataset, '\n'
             
             #Check if a dataset is found
             if(dataset!="" or DBS==False):
-                print 'dataset found'
+                print 'dataset found ', dataset[:-1]
                 #Find and format the list of files
-                cmd2='./DDSearchCLI.py  --limit -1 --cff --input="find file where dataset like '+ dataset +'"|grep ' + sample 
+                cmd2='./DDSearchCLI.py  --limit -1 --cff --input="find file where dataset like '+ dataset[:-1] +'"|grep ' + sample 
 
                 thisFile=0
                 for thisFilename in os.popen(cmd2).readlines():
+
                     templatecfgFile = open(cfg, 'r')
                     thisFile=thisFile+1
                     filenames='import FWCore.ParameterSet.Config as cms\n\n'
@@ -164,9 +165,9 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                     if dataset!="":
                         if (OneAtATime==False):
                             for filename in os.popen(cmd2).readlines():
-                                filenames+=filename
+                                filenames+='"'+filename[:-1]+'",'
                         else:
-                            filenames+=thisFilename
+                            filenames+='"'+thisFilename+'",'
                     filenames+=']);\n'
 
                 
