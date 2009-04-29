@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Thu Oct  4 02:28:48 CEST 2007
-// $Id: DetIdAssociatorESProducer.cc,v 1.1.2.1 2007/10/06 05:50:14 jribnik Exp $
+// $Id: DetIdAssociatorESProducer.cc,v 1.2 2007/10/08 13:04:33 dmytro Exp $
 //
 //
 
@@ -85,6 +85,7 @@ DetIdAssociatorESProducer::produce(const DetIdAssociatorRecord& iRecord)
 
    ReturnType dia(DetIdAssociatorFactory::get()->create(cName, pSet));
    dia->setGeometry(iRecord);
+   dia->setConditions(iRecord);
    dia->buildMap();
    return dia;
 }

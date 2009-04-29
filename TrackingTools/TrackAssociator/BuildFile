@@ -1,3 +1,4 @@
+<use name=CondFormats/CSCObjects>
 <use name=DataFormats/CaloTowers>
 <use name=DataFormats/Common>
 <use name=DataFormats/CSCRecHit>
@@ -46,6 +47,7 @@
 
 <export>
     <lib name=TrackingToolsTrackAssociator>
+   <use name=CondFormats/CSCObjects>
    <use name=DataFormats/CaloTowers>
    <use name=DataFormats/Common>
    <use name=DataFormats/CSCRecHit>
