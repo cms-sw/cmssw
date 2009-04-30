@@ -58,7 +58,8 @@ pixelSecoTracks.OrderedHitsFactoryPSet.SeedingLayers = 'SecondLayerTriplets'
 # Secondary seeds
 import RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi
 secoSeeds = RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi.pixelTrackSeeds.clone()
-secoSeeds.tripletList = ['pixelSecoTracks']
+secoSeeds.InputCollection = 'pixelSecoTracks'
+#secoSeeds.tripletList = ['pixelSecoTracks']
 
 #################################
 # Secondary measurement tracker

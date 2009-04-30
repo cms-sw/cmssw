@@ -31,7 +31,8 @@ pixel3PrimTracks.RegionFactoryPSet.RegionPSet.useFoundVertices = True
 # Primary seeds
 import RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi
 primSeeds = RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi.pixelTrackSeeds.clone()
-primSeeds.tripletList = ['pixel3PrimTracks']
+#primSeeds.tripletList = ['pixel3PrimTracks']
+primSeeds.InputCollection = 'pixel3PrimTracks'
 
 ############################
 # Primary track candidates
