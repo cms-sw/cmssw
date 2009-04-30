@@ -59,21 +59,7 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(ClusterShapeTrajectoryFilterESProducer);
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(ClusterShapeHitFilterESProducer);
 
-// HitFilter
-/*
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_SEAL_MODULE();
-
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
-EVENTSETUP_DATA_REG(ClusterShapeHitFilter);
-*/
-
-
-//#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
-//EVENTSETUP_DATA_REG(ClusterShapeHitFilter);
-
-
-//#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilterESProducer.h"
-//DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(ClusterShapeHitFilterESProducer);
+// the seed comparitor to remove seeds on incompatible angle/cluster compatibility
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/LowPtClusterShapeSeedComparitor.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"
+DEFINE_EDM_PLUGIN(SeedComparitorFactory, LowPtClusterShapeSeedComparitor, "LowPtClusterShapeSeedComparitor");
