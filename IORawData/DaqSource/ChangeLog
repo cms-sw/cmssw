@@ -1,11 +1,15 @@
 2009-04-28  Emilio Meschi  <emilio.meschi@cern.ch>
-	* tag V01-06-12-05
+	* tag V01-06-12-05 (on branch)
 	* add missing getter call to obtain prescale index and pass it on
 
 2009-04-09  Emilio Meschi  <emilio.meschi@cern.ch>
-	* tag V01-06-12-04
+	* tag V01-06-12-04 (on branch)
 	* adapt to change in evtn interface
 	* set experimentType and timeStamp from EVM data 
+
+2009-02-11 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-06-14
+	* Use new names for event types (from EventAuxiliary)
 
 2008-11-27  Emilio Meschi  <emilio.meschi@cern.ch>
 	* tag V01-06-12-03
@@ -22,6 +26,22 @@
 	* enable use of gtpe orbit/bx and ls
 	* requires EventFilter/Utilities V00-14-16-01 or later (see changelog)
 	
+2008-10-16 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-06-12
+	* Event source signal must come at correct time
+
+2008-10-08 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-06-11
+	* Use correct exception categories for exceptions.
+
+2008-07-31 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-06-08
+	* One less argument for readEvent_().
+
+2008-07-03 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-06-06
+	* Adapt to modification of constructors of Principal classes (e.g. EventPrincipal)
+
 2008-06-03  Emilio Meschi  <emilio.meschi@cern.ch>
 	* tag V01-06-05
 	* fill orbit and bx id from GT EVM block, needs EventFilter/Utilities V00-14-12	
@@ -30,19 +50,62 @@
 	* tag V01-06-04
 	* added access from xdaq and locks to get hold of hlt counters, and ls,ps id
 
+2008-05-08 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-06-01
+	* get LS id from L1 EVM block (from Emilio)
+
 2008-03-14  Emilio Meschi  <emilio.meschi@cern.ch>
-	* tag V01-05-04
+	* tag V01-05-04 (on branch for 1_8_X)
 	* get LS id from L1 EVM block
 	
+2008-02-29 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-06-01
+	* Add call to reset() to fix bug.
+
+2008-01-31 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-06-00
+	* Adapt to modification of constructors of Principal classes (e.g. EventPrincipal)
+
 2008-01-29  Emilio Meschi  <emilio.meschi@cern.ch>
 	* tag V01-05-02
 	* fix generation of timestamp from gettimeofday
-	* many fixes by Bill not reported here from intermediate tags
-	
+
+2008-01-28 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-05-01
+	* don't add 1 to event number returned by reader
+
+2007-12-31 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-05-00
+	* Add globally unique identifier (GUID) to each event
+
+2007-12-11 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-04-00
+	* Adapt to new Finite State Machine in event processor
+
+2007-12-03 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-03-00
+	* Prepare for new Finite State Machine in event processor
+
+2007-11-28 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-02-03
+	* remove event counting.  It is done in the base class.
+
 2007-10-05  Emilio Meschi  <emilio.meschi@cern.ch>
 	* tag V01-02-02
 	* fix bug in DaqSource::readLuminosityBlock_ causing a crash when run is ended without 
 	* a single event having reached the EP
+
+2007-08-15 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-02-01
+	* tag V00-06-02 (for prior release 1_6_X)
+	* Fix failure to terminate
+	* Fix possible divide by zero FPE
+	* don't call setLumi()
+
+2007-08-14 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-01-00
+	* tag V00-06-00 (for prior release 1_6_X)
+	* Absorb RawInputSource base class into DaqSource
 
 2007-08-06  Emilio Meschi  <emilio.meschi@cern.ch>
 
@@ -57,6 +120,11 @@
 	* corrected handling of exceptions from reader
 	* added plugin factory without pset argument
 	
+2007-04-10 William Tanenbaum <wmtan@fnal.gov> 
+
+	* tag V00-03-06
+	* adapt to new plugin manager
+
 2007-03-07  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-03-03
@@ -68,7 +136,7 @@
 	* src/DaqFakeReader.cc (fillFEDs): include <cmath> and change
 	  log -> std::log and exp -> std::exp for slc4/gcc3.4.5 compliance.
 
-2006-10-23  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+2006-10-23  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-03-00
 	* change interface of DaqBaseReader: pass a pointer reference (not
@@ -79,5 +147,3 @@
 	* adjust DaqSource to the interface change above
 	* [EventFilter/FUReader *is* a DaqBaseReader and is adjusted as
 	well!]
-	
-
