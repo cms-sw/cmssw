@@ -21,6 +21,8 @@ import string
 
 filesToConvert = glob.glob("./*.mvac")
 
+RemoveNumEventsSpecifiers = True
+
 for aFile in filesToConvert:
    xmlFileName = string.replace(aFile, "mvac", "xml")
    if os.path.exists(xmlFileName):
@@ -31,7 +33,10 @@ for aFile in filesToConvert:
    os.system("cat Preamble.xml.fragment >  %s" %         xmlFileName)  
    os.system("cat Inputs.xml.fragment   >> %s" %         xmlFileName)  
    os.system("cat Helpers.xml.fragment  >> %s" %         xmlFileName)  
-   os.system("cat %s                    >> %s" % (aFile, xmlFileName)) 
+   if RemoveNumEventsSpecifiers:
+      os.system("cat %s | sed 's|NSigTest=[0-9]*|NSigTest=0|' | sed 's|NBkgTest=[0-9]*|NBkgTest=0|' | sed 's|NSigTrain=[0-9]*|NSigTrain=0|' | sed 's|NBkgTrain=[0-9]*|NBkgTrain=0|' >> %s" % (aFile, xmlFileName)) 
+   else:
+      os.system("cat %s                    >> %s" % (aFile, xmlFileName)) 
    os.system("cat Finale.xml.fragment   >> %s" %         xmlFileName)  
 
 

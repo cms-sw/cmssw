@@ -14,7 +14,7 @@
               <var source="ChargedOutlierDefault" name="ChargedOutlierAngle2"/>
            </input>
            <config>
-              <method type="MLP" name="MLP">V:NCycles=700:HiddenLayers=11,21:TestRate=10</method>
+              <method type="MLP" name="MLP">V:NCycles=500:HiddenLayers=11,21:TestRate=10</method>
               <setup cuts="" options="NormMode=EqualNumEvents:NSigTrain=150000:NBkgTrain=100000"/>
            </config>
            <output>

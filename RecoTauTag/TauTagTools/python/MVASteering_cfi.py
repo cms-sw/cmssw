@@ -49,6 +49,25 @@ IsolationCutForTraining = "Alt$(ChargedOutlierPt[0], 0) < 1.0 && Alt$(NeutralOut
 #Define the PFRecoTauDecayMode source to use (in the case of more than one separate directories will be created for each training sample)
 myTauAlgorithms = ["shrinkingConePFTauDecayModeProducer"]
 
+# If true, output will be weighted such that the signal and background distributions have the same
+#  Pt-Eta distribution.  To generate the weights file, run python BuildWeights.py
+#UseWeights = True
+UseWeights = True
+
+# If this is true, the weighted pt-eta distributions for each decay mode will be the same.
+#  otherwise, the pt-eta distribution of the entire training sample (post DM preselection)
+#  will be used.
+WeightByIndividualDecayMode = False
+
+# If true, single isolatated charged pions and three prongs
+#  with charge  +-3 will not be included in the training sample
+ExcludePrepassAndPrefail = False
+
+# If greater than zero, require that either the lead track or lead pion have pt greater 
+#  than the value supplied
+RequireLeadPionPt = 5.0
+LeadPionRequirementString = "(MainTrackPt > %f || Alt$(TrackPt[0],0) > %f || Alt$(PiZeroPt[0], 0) > %f)" % (RequireLeadPionPt,RequireLeadPionPt,RequireLeadPionPt)
+
 """
 Example of multiple algorithms
 myTauAlgorithms = ["pfTauDecayModeHighEfficiency",
@@ -68,7 +87,6 @@ BackgroundFileTrainingGlob = "%s/*[012356789].root" % BackgroundRootDir
 
 SignalFileTestingGlob     = "%s/*4.root" % SignalRootDir
 BackgroundFileTestingGlob = "%s/*4.root" % BackgroundRootDir
-
 
 #################################################################
 #####  DO NOT MODIFY BELOW THIS LINE (experts only) #############
