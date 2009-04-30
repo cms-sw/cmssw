@@ -35,11 +35,11 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
                                                       # you can put here the list of particles (PDG IDs)
                                                       # that you want decayed by EvtGen
 	     use_default_decay = cms.untracked.bool(False),
-#             decay_table = cms.FileInPath('GeneratorInterface/ExternalDecays/data/DECAY_NOLONGLIFE.DEC'),
-decay_table = cms.FileInPath('GeneratorInterface/ExternalDecays/data/DECAY.DEC'),
+             decay_table = cms.FileInPath('GeneratorInterface/ExternalDecays/data/DECAY_NOLONGLIFE.DEC'),
+             # decay_table = cms.FileInPath('GeneratorInterface/ExternalDecays/data/DECAY.DEC'),
              particle_property_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/evt.pdl'),
-#             user_decay_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/Validation.dec'),
-user_decay_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/incl_BtoJpsi_mumu.dec'),
+             user_decay_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/Validation.dec'),
+             # user_decay_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/incl_BtoJpsi_mumu.dec'),
              list_forced_decays = cms.vstring('MyB0','Myanti-B0','MyB_s0','Myanti-B_s0'),
              ),
         parameterSets = cms.vstring('EvtGen')

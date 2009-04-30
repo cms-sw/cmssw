@@ -1,4 +1,4 @@
-# $Id: Validation.dec,v 1.2 2009/02/20 10:38:04 covarell Exp $
+# $Id: Validation.dec,v 1.1 2009/04/27 19:06:48 yarba Exp $
 #
 # This is a validation decay file 
 #
@@ -24,31 +24,20 @@ ChargeConj MyB0        Myanti-B0
 Alias      MyK*0       K*0
 Alias      MyK*0bar    anti-K*0
 ChargeConj MyK*0       MyK*0bar
-Alias      MyKs     K_S0
-ChargeConj MyKs     MyKs
 Alias      MyD_s+     D_s+
 Alias      MyD_s-     D_s-
 ChargeConj MyD_s-   MyD_s+
 
-#
-Decay MyD_s+
-1.000    MyPhi   pi+                      SVS;      
-Enddecay
-#
-Decay MyD_s-
-1.000    MyPhi   pi-                      SVS;
-Enddecay
-#
 Decay MyB0
   1.000        MyK*0     mu+     mu-    BTOSLLBALL;
-  1.000        MyKs     MyJ/psi         SSD_CP 0.502e12 0.0 1.0 -0.775 1.0 0. 1.0 0.;
+  1.000        K_S0     MyJ/psi         SSD_CP 0.502e12 0.0 1.0 -0.775 1.0 0. 1.0 0.;
   0.333        D*-    e+   nu_e         PHOTOS  HQET 0.77 1.33 0.92;
   0.333        D*-    mu+  nu_mu        PHOTOS  HQET 0.77 1.33 0.92;
   0.333        D*-    tau+ nu_tau       ISGW2;
 Enddecay
 Decay Myanti-B0
   1.000        MyK*0bar  mu+     mu-    BTOSLLBALL;
-  1.000        MyKs     MyJ/psi         SSD_CP 0.502e12 0.0 1.0 -0.775 1.0 0. 1.0 0.;
+  1.000        K_S0     MyJ/psi         SSD_CP 0.502e12 0.0 1.0 -0.775 1.0 0. 1.0 0.;
   0.333        D*+    e-   anti-nu_e         PHOTOS  HQET 0.77 1.33 0.92;
   0.333        D*+    mu-  anti-nu_mu        PHOTOS  HQET 0.77 1.33 0.92;
   0.333        D*+    tau- anti-nu_tau       ISGW2;
@@ -75,10 +64,6 @@ Enddecay
 #
 Decay MyJ/psi
   1.000         mu+         mu-          PHOTOS VLL;
-Enddecay
-#
-Decay MyKs
-  1.000         pi+       pi-            PHSP;
 Enddecay
 #
 Decay MyPhi
