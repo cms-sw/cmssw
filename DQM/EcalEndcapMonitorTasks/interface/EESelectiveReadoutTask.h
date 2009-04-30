@@ -4,8 +4,8 @@
 /*
  * \file EESelectiveReadoutTask.h
  *
- * $Date: 2009/04/28 13:31:37 $
- * $Revision: 1.9 $
+ * $Date: 2009/04/30 12:56:05 $
+ * $Revision: 1.10 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -109,13 +109,13 @@ static const int nTtPhi = 72;
 static const int bytesPerCrystal = 24;
 
 ///To store the readout crystals / tower
-int nCryTower[100][100][2];
+int nCryTower[20][20][2];
 
 ///To store the events with full readout
-int nEvtFullReadout[100][100][2];
+int nEvtFullReadout[20][20][2];
 
 ///To store the events with any readout
-int nEvtAnyReadout[100][100][2];
+int nEvtAnyReadout[20][20][2];
 
 private:
 
