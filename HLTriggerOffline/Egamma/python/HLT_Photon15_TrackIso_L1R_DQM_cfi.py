@@ -56,7 +56,7 @@ HLT_Photon15_TrackIso_L1R_DQM = cms.EDFilter("EmDQM",
             PlotBounds = cms.vdouble(0.0, 0.0),
             HLTCollectionLabels = cms.InputTag("hltL1sRelaxedSingleEgammaEt10","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
-            theHLTOutputTypes = cms.uint32(83),
+            theHLTOutputTypes = cms.int32(-83),
             HLTCollectionHumanName = cms.untracked.string("Level 1")
         ),
         ##########################################################
@@ -66,7 +66,7 @@ HLT_Photon15_TrackIso_L1R_DQM = cms.EDFilter("EmDQM",
             PlotBounds = cms.vdouble(0.0, 0.0),
             HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEt15HTIL1MatchFilterRegional","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
-            theHLTOutputTypes = cms.uint32(100),
+            theHLTOutputTypes = cms.int32(92),
             HLTCollectionHumanName = cms.untracked.string("L1 Match Filter")
         ),
         ##########################################################
@@ -76,7 +76,7 @@ HLT_Photon15_TrackIso_L1R_DQM = cms.EDFilter("EmDQM",
             PlotBounds = cms.vdouble(0.0, 0.0),
             HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEt15HTIEtFilter","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
-            theHLTOutputTypes = cms.uint32(100),
+            theHLTOutputTypes = cms.int32(92),
             HLTCollectionHumanName = cms.untracked.string("Et Filter")
         ),
         ##########################################################
@@ -86,7 +86,7 @@ HLT_Photon15_TrackIso_L1R_DQM = cms.EDFilter("EmDQM",
 #            PlotBounds = cms.vdouble(0.0, 10.0),
 #            HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEt10EcalIsolFilter","","HLT"),
 #            IsoCollections = cms.VInputTag(cms.InputTag("hltL1IsolatedPhotonEcalIsol","","HLT"), cms.InputTag("hltL1NonIsolatedPhotonEcalIsol","","HLT")),
-#            theHLTOutputTypes = cms.uint32(100),
+#            theHLTOutputTypes = cms.int32(92),
 #            HLTCollectionHumanName = cms.untracked.string("Ecal Iso Filter")
 #        ),
         ##########################################################
@@ -96,7 +96,7 @@ HLT_Photon15_TrackIso_L1R_DQM = cms.EDFilter("EmDQM",
             PlotBounds = cms.vdouble(0.0, 10.0),
             HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEt15HTIHcalIsolFilter","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("hltL1IsolatedPhotonHcalIsol","","HLT"), cms.InputTag("hltL1NonIsolatedPhotonHcalIsol","","HLT")),
-            theHLTOutputTypes = cms.uint32(100),
+            theHLTOutputTypes = cms.int32(92),
             HLTCollectionHumanName = cms.untracked.string("Hcal Iso Filter")
         ),
         ##########################################################
@@ -106,7 +106,7 @@ HLT_Photon15_TrackIso_L1R_DQM = cms.EDFilter("EmDQM",
             PlotBounds = cms.vdouble(0.0, 10.0),
             HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEt15HTITrackIsolFilter","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("hltL1IsoPhotonHollowTrackIsol","","HLT"), cms.InputTag("hltL1NonIsoPhotonHollowTrackIsol","","HLT")),
-            theHLTOutputTypes = cms.uint32(91),
+            theHLTOutputTypes = cms.int32(81),
             HLTCollectionHumanName = cms.untracked.string("Track Iso Filter")
         )
     )

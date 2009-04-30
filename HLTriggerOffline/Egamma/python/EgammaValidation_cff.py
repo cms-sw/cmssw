@@ -25,16 +25,13 @@ samples.num   = [1,
 
 #which triggers for which sample
 
-paths.Wenu = ['HLT_Ele10_LW_L1RDQM']
+paths.Wenu = ['HLT_Ele10_LW_L1RDQM','HLT_Ele15_SW_L1RDQM']
 
 paths.Zee = paths.Wenu + ['HLT_DoubleEle5_SW_L1RDQM']
 
-paths.GammaJet = ['singlePhotonDQM','HLT_Photon15_TrackIso_L1R_DQM']
+paths.GammaJet = ['HLT_Photon15_TrackIso_L1R_DQM']
 
-paths.DiGamma  = paths.GammaJet + ['veryHighEtDQM',
-                                   'highEtDQM',
-                            #       'doublePhotonRelaxedDQM',
-                                   'doublePhotonDQM']
+paths.DiGamma  = paths.GammaJet 
 
 
 ##########################################################
