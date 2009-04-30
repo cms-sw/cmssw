@@ -7,8 +7,8 @@ import FWCore.ParameterSet.Config as cms
 # Give the correct test and reference labels on the plots
 #########################################################
 
-test = cms.string('CMSSW_3_1_0_pre2')
-reference = cms.string('CMSSW_3_1_0_pre1')
+test = cms.string('pre6 on 228')
+reference = cms.string('228 on 228')
 
 ###########################
 # Load Files to be compared
@@ -16,12 +16,13 @@ reference = cms.string('CMSSW_3_1_0_pre1')
 
 loadTau = cms.EDAnalyzer("DQMFileLoader",
   test = cms.PSet(
-    inputFileNames = cms.vstring('/afs/cern.ch/user/v/vasquez/scratch0/removavableTest/CMSSW_3_1_0_pre2/src/Validation/RecoTau/test/CMSSW_3_1_0_pre2_tauGenJets.root'),
+    #inputFileNames = cms.vstring('/afs/cern.ch/user/f/friis/CMSSW/pre6/src/Validation/RecoTau/test/CMSSW_3_1_0_pre6_ZTT.root'),
+    inputFileNames = cms.vstring('/afs/cern.ch/user/f/friis/pre6on228.root'),
     scaleFactor = cms.double(1.),
     dqmDirectory_store = cms.string('test')
   ),
   reference = cms.PSet(
-    inputFileNames = cms.vstring('/afs/cern.ch/user/v/vasquez/scratch0/CMSSW_3_1_0_pre1/src/Validation/RecoTau/test/CMSSW_3_1_0_pre1_tauGenJets.root'),
+    inputFileNames = cms.vstring('/afs/cern.ch/user/f/friis/scratch0/228_Val_ZTT.root'),
     scaleFactor = cms.double(1.),
     dqmDirectory_store = cms.string('reference')
   )
