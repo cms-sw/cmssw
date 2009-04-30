@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/12/10 20:58:08 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/12/11 10:08:55 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
@@ -51,8 +51,10 @@ HLTHighLevel::HLTHighLevel(const edm::ParameterSet& iConfig) :
     if (!HLTPatterns_.empty()) {
       // We do not want double trigger path setting, so throw!
       throw cms::Exception("Configuration")
-	<< " HLTHighLevel [instance: " << *moduleLabel() << " - path: " << *pathName()
-	<< "]\nconfigured with " << HLTPatterns_.size() << " HLTPaths and\n"
+        // moduleLabel() and pathName() return null pointers in constructor... (CMSSW_3_1_0_pre6)
+        << " HLTHighLevel [instance: " << (moduleLabel() ? *moduleLabel() : std::string("unknown"))
+        << " - path: " << (pathName() ? *pathName() : std::string("unknown"))
+	<< "]\n configured with " << HLTPatterns_.size() << " HLTPaths and\n"
 	<< " eventSetupPathsKey " << eventSetupPathsKey_ << ", choose either of them.";
     }
     watchAlCaRecoTriggerBitsRcd_ = new edm::ESWatcher<AlCaRecoTriggerBitsRcd>;
