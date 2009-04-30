@@ -1,4 +1,4 @@
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/TripletGenerator.h"
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/PixelTripletLowPtGenerator.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ThirdHitPrediction.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/TripletFilter.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/HitInfo.h"
@@ -18,7 +18,7 @@ using namespace std;
 using namespace ctfseeding;
 
 /*****************************************************************************/
-void TripletGenerator::init(const HitPairGenerator & pairs,
+void PixelTripletLowPtGenerator::init(const HitPairGenerator & pairs,
       const vector<SeedingLayer> & layers,
       LayerCacheType* layerCache)
 {
@@ -35,7 +35,7 @@ void TripletGenerator::init(const HitPairGenerator & pairs,
 }
 
 /*****************************************************************************/
-void TripletGenerator::getTracker
+void PixelTripletLowPtGenerator::getTracker
   (const edm::EventSetup& es)
 {
   if(theTracker == 0)
@@ -54,7 +54,7 @@ void TripletGenerator::getTracker
 }
 
 /*****************************************************************************/
-GlobalPoint TripletGenerator::getGlobalPosition
+GlobalPoint PixelTripletLowPtGenerator::getGlobalPosition
   (const TrackingRecHit* recHit)
 {
   DetId detId = recHit->geographicalId();
@@ -64,7 +64,7 @@ GlobalPoint TripletGenerator::getGlobalPosition
 }
 
 /*****************************************************************************/
-void TripletGenerator::hitTriplets(
+void PixelTripletLowPtGenerator::hitTriplets(
     const TrackingRegion& region,
     OrderedHitTriplets & result,
     const edm::Event & ev,

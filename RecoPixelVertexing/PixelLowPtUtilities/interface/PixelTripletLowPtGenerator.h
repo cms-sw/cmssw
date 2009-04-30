@@ -1,5 +1,5 @@
-#ifndef _TripletGenerator_h_
-#define _TripletGenerator_h_
+#ifndef _PixelTripletLowPtGenerator_h_
+#define _PixelTripletLowPtGenerator_h_
 
 /** A HitTripletGenerator from HitPairGenerator and vector of
     Layers. The HitPairGenerator provides a set of hit pairs.
@@ -22,17 +22,17 @@ class TripletFilter;
 
 #include <vector>
 
-class   TripletGenerator :
+class   PixelTripletLowPtGenerator :
  public HitTripletGeneratorFromPairAndLayers {
 
  typedef CombinedHitTripletGenerator::LayerCacheType       LayerCacheType;
 
  public:
-   TripletGenerator( const edm::ParameterSet& cfg) 
+   PixelTripletLowPtGenerator( const edm::ParameterSet& cfg) 
     : ps(cfg), thePairGenerator(0), theLayerCache(0)
    { theTracker = 0; theFilter = 0; }
 
-   virtual ~TripletGenerator() { delete thePairGenerator; delete theFilter; }
+   virtual ~PixelTripletLowPtGenerator() { delete thePairGenerator; delete theFilter; }
 
    virtual void init( const HitPairGenerator & pairs,
       const std::vector<ctfseeding::SeedingLayer> & layers, LayerCacheType* layerCache);
