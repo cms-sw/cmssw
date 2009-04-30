@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 #  configuration for producer of converted photons
-#  $Id: conversionTrackCandidates_cfi.py,v 1.17 2008/12/13 11:26:07 nancy Exp $
+#  $Id: conversionTrackCandidates_cfi.py,v 1.18 2009/02/28 15:59:08 dlange Exp $
 #
 # stripCPE
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
@@ -31,7 +31,7 @@ conversionTrackCandidates = cms.EDProducer("ConversionTrackCandidateProducer",
     hbheModule = cms.string('hbhereco'),
     inOutTrackCandidateCollection = cms.string('inOutTracksFromConversions'),
     outInTrackCandidateCollection = cms.string('outInTracksFromConversions'),
-    minSCEt = cms.double(5.0),
+    minSCEt = cms.double(10.0),
     MeasurementTrackerName = cms.string(''),
     InOutRedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
     bcEndcapCollection = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
