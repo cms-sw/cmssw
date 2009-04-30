@@ -4,8 +4,8 @@
 /*
  * \file EEOccupancyTask.h
  *
- * $Date: 2008/04/08 15:32:09 $
- * $Revision: 1.19 $
+ * $Date: 2008/05/11 09:35:11 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
 */
@@ -70,6 +70,8 @@ edm::InputTag EEDigiCollection_;
 edm::InputTag EcalPnDiodeDigiCollection_;
 edm::InputTag EcalRecHitCollection_;
 edm::InputTag EcalTrigPrimDigiCollection_;
+
+enum runClassification { notdata, physics, testpulse, laser, led, pedestal };
 
 MonitorElement* meEvent_[18];
 MonitorElement* meOccupancy_[18];
