@@ -74,6 +74,7 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   
   algoName_ = conf_.getParameter<std::string>( "AlgorithmName" );  
 
+  minSCEt_        = conf_.getParameter<double>("minSCEt");
   recoverOneTrackCase_ = conf_.getParameter<bool>( "recoverOneTrackCase" );  
   dRForConversionRecovery_ = conf_.getParameter<double>("dRForConversionRecovery");
   deltaCotCut_ = conf_.getParameter<double>("deltaCotCut");
@@ -301,6 +302,7 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
   for (unsigned i = 0; i < scHandle->size(); ++i ) {
 
     reco::CaloClusterPtr aClus= scHandle->ptrAt(i);
+    if (aClus->energy()/cosh(aClus->eta()) <= minSCEt_) continue;
 
     std::vector<edm::Ref<reco::TrackCollection> > trackPairRef;
     std::vector<math::XYZVector> trackPin;

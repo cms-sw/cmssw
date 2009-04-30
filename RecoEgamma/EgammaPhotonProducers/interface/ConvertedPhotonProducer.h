@@ -3,9 +3,9 @@
 /** \class ConvertedPhotonProducer
  **  
  **
- **  $Id: ConvertedPhotonProducer.h,v 1.25 2009/03/12 20:03:46 nancy Exp $ 
- **  $Date: 2009/03/12 20:03:46 $ 
- **  $Revision: 1.25 $
+ **  $Id: ConvertedPhotonProducer.h,v 1.27 2009/04/02 11:50:01 nancy Exp $ 
+ **  $Date: 2009/04/02 11:50:01 $ 
+ **  $Revision: 1.27 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -81,7 +81,7 @@ class ConvertedPhotonProducer : public edm::EDProducer {
   ConversionTrackPairFinder*      theTrackPairFinder_;
   ConversionVertexFinder*         theVertexFinder_;
   ConversionTrackEcalImpactPoint* theEcalImpactPositionFinder_;
-
+  double minSCEt_;
   int nEvt_;
   std::string algoName_;
   bool  recoverOneTrackCase_;
