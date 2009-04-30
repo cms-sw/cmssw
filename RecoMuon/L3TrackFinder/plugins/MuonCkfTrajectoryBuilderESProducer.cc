@@ -60,7 +60,7 @@ MuonCkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
   iRecord.getRecord<TrackingComponentsRecord>().get(estimatorName,estimatorHandle);  
   iRecord.getRecord<TransientRecHitRecord>().get(recHitBuilderName,recHitBuilderHandle);  
   iRecord.get(measurementTrackerName, measurementTrackerHandle);  
-  iRecord.getRecord<TrajectoryFilter::Record>().get(filterName,trajectoryFilterHandle);
+  iRecord.get(filterName,trajectoryFilterHandle);
     
   _trajectoryBuilder  = 
     boost::shared_ptr<TrajectoryBuilder>(new MuonCkfTrajectoryBuilder(pset_,

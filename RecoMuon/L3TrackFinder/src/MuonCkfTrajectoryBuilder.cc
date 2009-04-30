@@ -11,6 +11,7 @@
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 
+
 #include <sstream>
 
 MuonCkfTrajectoryBuilder::MuonCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
@@ -33,7 +34,7 @@ MuonCkfTrajectoryBuilder::MuonCkfTrajectoryBuilder(const edm::ParameterSet&     
 MuonCkfTrajectoryBuilder::~MuonCkfTrajectoryBuilder()
 {}
 
-
+/*
 std::string dumpMeasurement(const TrajectoryMeasurement & tm)
 {
   std::stringstream buffer;
@@ -61,7 +62,7 @@ std::string dumpMeasurements(const std::vector<TrajectoryMeasurement> & v)
     buffer<<"\n";}
   return buffer.str();
 }
-
+*/
 
 void MuonCkfTrajectoryBuilder::collectMeasurement(const DetLayer* layer,const std::vector<const DetLayer*>& nl,const TrajectoryStateOnSurface & currentState, std::vector<TM>& result,int& invalidHits, const Propagator * prop) const{
   for (std::vector<const DetLayer*>::const_iterator il = nl.begin();
@@ -103,7 +104,7 @@ void MuonCkfTrajectoryBuilder::collectMeasurement(const DetLayer* layer,const st
   LogDebug("CkfPattern")<<"starting from:\n"
                         <<"x: "<<currentState.globalPosition()<<"\n"
                         <<"p: "<<currentState.globalMomentum()<<"\n"
-                        <<dumpMeasurements(result);
+                        <<PrintoutHelper::dumpMeasurements(result);
 }
  
 
