@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2009/04/10 08:07:23 $
- * $Revision: 1.23 $
+ * $Date: 2009/04/28 13:31:38 $
+ * $Revision: 1.24 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -318,6 +318,15 @@ void EESelectiveReadoutTask::beginRun(const Run& r, const EventSetup& c) {
 
   if ( ! mergeRuns_ ) this->reset();
 
+  for(int ix = 0; ix < 100; ix++ ) {
+    for(int iy = 0; iy < 100; iy++ ) {
+      for(int iz = 0; iz < 2; iz++) {
+        nEvtFullReadout[ix][iy][iz] = 0;
+        nEvtAnyReadout[ix][iy][iz] = 0;
+      }
+    }
+  }
+  
 }
 
 void EESelectiveReadoutTask::endRun(const Run& r, const EventSetup& c) {
@@ -421,27 +430,21 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
       int zside = it->id().zside();
 
+      int iz = ( zside < 0 ) ? 0 : 1;
+
       if ( zside < 0 ) ix = 101 - ix;
 
       float xix = ix-0.5;
       float xiy = iy-0.5;
 
-      EcalScDetId id = it->id();
-
-      std::map<EcalScDetId,int>::const_iterator srfkey = nEvtAnyReadout.find( id );
-      if ( srfkey == nEvtAnyReadout.end() ) {
-        nEvtAnyReadout.insert( make_pair(id,1) );
-        nEvtFullReadout.insert( make_pair(id,1) );
-      } else {
-        nEvtAnyReadout[id]++;
-      }
+      nEvtAnyReadout[ix][iy][iz]++;
 
       int flag = it->value() & ~EcalSrFlag::SRF_FORCED_MASK;
 
       if(flag == EcalSrFlag::SRF_FULL){
 	if( zside < 0 ) {
 	  EEFullReadoutSRFlagMap_[0]->Fill(xix,xiy);
-          if ( srfkey == nEvtFullReadout.end() ) nEvtFullReadout[id]++;
+          nEvtFullReadout[ix][iy][iz]++;
 	}
 	else {
 	  EEFullReadoutSRFlagMap_[1]->Fill(xix,xiy);
@@ -476,48 +479,34 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     LogWarning("EESelectiveReadoutTask") << EESRFlagCollection_ << " not available";
   }
 
-  map<EcalScDetId,int>::const_iterator tt;
-  for(tt=nEvtAnyReadout.begin(); tt!=nEvtAnyReadout.end(); tt++) {
 
-    EcalScDetId id = tt->first;
+  for(int iz = 0; iz < 2; iz++) {
+    for(int ix = 0; ix < 100; ix++ ) {
+      for(int iy = 0; iy < 100; iy++ ) {
 
-    int nAny = nEvtAnyReadout[id];
-    int nFull = nEvtFullReadout[id];
+        if( nEvtAnyReadout[ix][iy][iz] ) {
 
-    if( nAny ) {
-
-      float fraction = float(nFull/nAny);
-      float error = sqrt(fraction*(1-fraction)/float(nAny));
+          float fraction = float(nEvtFullReadout[ix][iy][iz] / nEvtAnyReadout[ix][iy][iz]);
+          float error = sqrt(fraction*(1-fraction)/float(nEvtAnyReadout[ix][iy][iz]));
       
-      int ix = id.ix();
-      int iy = id.iy();
-      
-      int zside = id.zside();
-      
-      if ( zside < 0 ) ix = 101 - ix;
-      
-      float xix = ix-0.5;
-      float xiy = iy-0.5;
+          float xix = ix-0.5;
+          float xiy = iy-0.5;
 
-      TH2F *h2d = 0;
-      if ( zside < 0 ) EETowerFullReadoutFrequency_[0]->getTH2F();
-      else EETowerFullReadoutFrequency_[1]->getTH2F();
+          TH2F *h2d = EETowerFullReadoutFrequency_[iz]->getTH2F();
 
-      int binx=0, biny=0;
-      
-      if( h2d ) {
-        binx = h2d->GetXaxis()->FindBin(xix);
-        biny = h2d->GetYaxis()->FindBin(xiy);
+          int binx=0, biny=0;
+          
+          if( h2d ) {
+            binx = h2d->GetXaxis()->FindBin(xix);
+            biny = h2d->GetYaxis()->FindBin(xiy);
+          }
+          
+          EETowerFullReadoutFrequency_[iz]->setBinContent(binx, biny, fraction);
+          EETowerFullReadoutFrequency_[iz]->setBinError(binx, biny, error);
+
+        }
+
       }
-
-      if ( zside < 0 ) {
-        EETowerFullReadoutFrequency_[0]->setBinContent(binx, biny, fraction);
-        EETowerFullReadoutFrequency_[0]->setBinError(binx, biny, error);
-      } else {
-        EETowerFullReadoutFrequency_[1]->setBinContent(binx, biny, fraction);
-        EETowerFullReadoutFrequency_[1]->setBinError(binx, biny, error);
-      }
-
     }
   }
 
@@ -654,28 +643,21 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     EEEventSize_[1]->Fill(aAnyInterest[1]);
 
     //event size by tower:
-    map<EcalScDetId,int>::const_iterator tt;
-    for(tt=nEvtAnyReadout.begin(); tt!=nEvtAnyReadout.end(); tt++) {
-      
-     EcalScDetId id = tt->first;
+    for(int ix = 0; ix < 100; ix++ ) {
+      for(int iy = 0; iy < 100; iy++ ) {
+        for(int iz = 0; iz < 2; iz++) {
+
+          float xix = ix-0.5;
+          float xiy = iy-0.5;
+
+          double towerSize =  nCryTower[ix][iy][iz] * bytesPerCrystal;
      
-     int ix = id.ix();
-     int iy = id.iy();
+          EETowerSize_[iz]->Fill(xix, xiy, towerSize);
 
-     int zside = id.zside();
-
-     if ( zside < 0 ) ix = 101 - ix;
-
-     float xix = ix-0.5;
-     float xiy = iy-0.5;
-
-     double towerSize =  nCryTower[id] * bytesPerCrystal;
-     
-     if( zside < 0 ) EETowerSize_[0]->Fill(xix, xiy, towerSize);
-     else EETowerSize_[1]->Fill(xix, xiy, towerSize);
-
+        }
+      }
     }
-    
+
   } else {
     LogWarning("EESelectiveReadoutTask") << EEDigiCollection_ << " not available";
   }
@@ -716,13 +698,16 @@ void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCol
     return;
   }
 
-  EcalScDetId ttid = srf->id();
-  
-  std::map<EcalScDetId,int>::const_iterator srfkey = nCryTower.find(ttid);
-  if ( srfkey == nCryTower.end() ) nCryTower.insert( make_pair(ttid,0) );
-  else nCryTower.clear();
+  int ttix = srf->id().ix();
+  int ttiy = srf->id().iy();
 
-  nCryTower[ttid]++;
+  int zside = srf->id().zside();
+
+  int ttiz = ( zside < 0 ) ? 0 : 1;
+
+  if ( zside < 0 ) ttix = 101 - ttix;
+
+  nCryTower[ttix][ttiy][ttiz]++;
 
   bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
                        == EcalSrFlag::SRF_FULL);
@@ -757,6 +742,14 @@ void EESelectiveReadoutTask::anaDigiInit(){
   bzero(nRuPerDcc_, sizeof(nRuPerDcc_));
   bzero(eeRuActive_, sizeof(eeRuActive_));
   
+  for(int iz = 0; iz<2; iz++) {
+    for(int ix = 0; ix < 100; ix++ ) {
+      for(int iy = 0; iy < 100; iy++ ) {
+        nCryTower[ix][iy][iz] = 0;
+      }
+    }
+  }
+
 }
 
 EcalScDetId
