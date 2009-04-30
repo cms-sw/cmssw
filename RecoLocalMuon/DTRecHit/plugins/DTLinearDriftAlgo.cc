@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/19 11:08:17 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/06/20 14:23:41 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -56,6 +56,7 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
   const DTWireId wireId(layerId, digi.wire());
 
   // Get Wire position
+  if(!layer->specificTopology().isWireValid(digi.wire())) return false;
   LocalPoint locWirePos(layer->specificTopology().wirePosition(digi.wire()), 0, 0);
   const GlobalPoint globWirePos = layer->toGlobal(locWirePos);
   
@@ -124,6 +125,7 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
   float drift = driftTime * vd;
 
   // Get Wire position
+  if(!layer->specificTopology().isWireValid(wireId.wire())) return false;
   LocalPoint locWirePos(layer->specificTopology().wirePosition(wireId.wire()), 0, 0);
   //Build the two possible points and the error on the position
   leftPoint  = LocalPoint(locWirePos.x()-drift,

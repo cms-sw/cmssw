@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/06 14:02:05 $
+ *  $Date: 2007/04/19 11:08:17 $
  *  $Revision: 1.1 $
  *  \author Martijn Mulders - CERN (martijn.mulders@cern.ch)
  *  based on DTLinearDriftAlgo
@@ -105,6 +105,7 @@ bool DTNoDriftAlgo::compute(const DTLayer* layer,
   const DTWireId wireId(layerId, digi.wire());
 
   // Get Wire position
+  if(!layer->specificTopology().isWireValid(digi.wire())) return false;
   LocalPoint locWirePos(layer->specificTopology().wirePosition(digi.wire()), 0, 0);
   const GlobalPoint globWirePos = layer->toGlobal(locWirePos);
   
@@ -167,6 +168,7 @@ bool DTNoDriftAlgo::compute(const DTLayer* layer,
   float drift = fixedDrift;
 
   // Get Wire position
+  if(!layer->specificTopology().isWireValid(wireId.wire())) return false;
   LocalPoint locWirePos(layer->specificTopology().wirePosition(wireId.wire()), 0, 0);
   //Build the two possible points and the error on the position
   leftPoint  = LocalPoint(locWirePos.x()-drift,
