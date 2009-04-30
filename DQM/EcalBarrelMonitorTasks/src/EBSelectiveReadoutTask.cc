@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2009/04/10 08:07:20 $
- * $Revision: 1.29 $
+ * $Date: 2009/04/28 13:31:12 $
+ * $Revision: 1.30 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -521,9 +521,9 @@ void EBSelectiveReadoutTask::anaDigiInit(){
   bzero(nRuPerDcc_, sizeof(nRuPerDcc_));
   bzero(ebRuActive_, sizeof(ebRuActive_));
 
-  for(int ism=1; ism<=36; ism++) {
-    for(int itt=0; itt<68; itt++) {
-      nCryTower[itt][ism-1] = 0;
+  for(int ietindex = 0; ietindex < 34; ietindex++ ) {
+    for(int iptindex = 0; iptindex < 72; iptindex++ ) {
+      nCryTower[iptindex][ietindex] = 0;
     }
   }
 
