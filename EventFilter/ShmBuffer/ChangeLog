@@ -1,3 +1,10 @@
+2009-04-30  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-07-02
+	* bug-fix: wait in releaseSharedMemory before returning false
+	* do 10 attempts and check the number of attached processes
+	* this should fix the failures when going ready->halted->ready
+	
 2008-11-03  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-07-01

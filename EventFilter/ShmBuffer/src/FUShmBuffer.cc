@@ -861,9 +861,9 @@ bool FUShmBuffer::releaseSharedMemory()
 {
   // get bookkeeping shared memory segment
   int   size   =sizeof(unsigned int)*7;
-  int   shmidd =shm_get(FUShmBuffer::getShmDescriptorKey(),size);if(shmidd<0)return 0;
+  int   shmidd =shm_get(FUShmBuffer::getShmDescriptorKey(),size); if(shmidd<0) return false;
   void* shmAddr=shm_attach(shmidd); if (0==shmAddr) return false;
-  
+
   unsigned int*p=(unsigned int*)shmAddr;
   bool         segmentationMode=*p++;
   unsigned int nRawCells       =*p++;
@@ -881,14 +881,22 @@ bool FUShmBuffer::releaseSharedMemory()
 			      rawCellSize,recoCellSize,dqmCellSize);
   int shmid=shm_get(FUShmBuffer::getShmKey(),size);if (shmid<0)    return false;
   int semid=sem_get(FUShmBuffer::getSemKey(),9);   if (semid<0)    return false;
-  shmAddr  =shm_attach(shmid);                     if (0==shmAddr) return false;
-  
-  if (shm_nattch(shmid)>1) {
-    cout<<"FUShmBuffer::releaseSharedMemory(): nattch="<<shm_nattch(shmid)
-	<<", don't release shared memory."<<endl;
-    return false;
-  }
-  
+  shmAddr  =shm_attach(shmid);                     if (0==shmAddr) return false; 
+
+  int att = 0;
+  for(; att <10; att++)
+    {
+      if(shm_nattch(shmid)>1) {
+	cout << att << " FUShmBuffer::releaseSharedMemory(): nattch="<<shm_nattch(shmid)
+	     <<", failed attempt to release shared memory."<<endl;
+	::sleep(1);
+      }
+      else
+	break;
+    }
+
+  if(att>=10) return false;
+
   if (segmentationMode) {
     FUShmBuffer* buffer=
       new (shmAddr) FUShmBuffer(segmentationMode,
@@ -909,7 +917,6 @@ bool FUShmBuffer::releaseSharedMemory()
     }
   }
   shmdt(shmAddr);
-
   if (sem_destroy(semid)==-1)  return false;
   if (shm_destroy(shmid)==-1)  return false;
   if (shm_destroy(shmidd)==-1) return false;
