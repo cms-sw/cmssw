@@ -32,6 +32,9 @@
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+
+#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
+
 // Geometry
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -74,7 +77,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/03/23 10:51:05 $ 
+ **  $Date: 2009/04/11 17:22:18 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -183,11 +186,12 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   MonitorElement* p_efficiencyVsEtaHLT_;
   MonitorElement* p_efficiencyVsEtHLT_;
 
+  MonitorElement* h_phoEta_Vertex_;
+  MonitorElement* p_vertexReconstructionEfficiencyVsEta_;
 
-
-
-
-
+  MonitorElement* h_invMassTwoWithTracks_;
+  MonitorElement* h_invMassOneWithTracks_;
+  MonitorElement* h_invMassZeroWithTracks_;
 
 
  ////////2D vectors of histograms
@@ -240,6 +244,11 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<MonitorElement*> h_phoPhi_isol_;
   std::vector<std::vector<MonitorElement*> > h_phoPhi_;
 
+  std::vector<MonitorElement*> h_scEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_scEta_;
+  std::vector<MonitorElement*> h_scPhi_isol_;
+  std::vector<std::vector<MonitorElement*> > h_scPhi_;
+
   std::vector<MonitorElement*> h_phoConvEta_isol_;
   std::vector<std::vector<MonitorElement*> > h_phoConvEta_;
   std::vector<MonitorElement*> h_phoConvPhi_isol_;
@@ -258,6 +267,59 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<MonitorElement*> > h_r9VsEt_;
   std::vector<MonitorElement*> p_r9VsEt_isol_;
   std::vector<std::vector<MonitorElement*> > p_r9VsEt_;
+
+  std::vector<MonitorElement*> h_r9VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_r9VsEta_;
+  std::vector<MonitorElement*> p_r9VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_r9VsEta_;
+
+  std::vector<MonitorElement*> h_e1x5VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > h_e1x5VsEt_;
+  std::vector<MonitorElement*> p_e1x5VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > p_e1x5VsEt_;
+
+  std::vector<MonitorElement*> h_e1x5VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_e1x5VsEta_;
+  std::vector<MonitorElement*> p_e1x5VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_e1x5VsEta_;
+
+  std::vector<MonitorElement*> h_e2x5VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > h_e2x5VsEt_;
+  std::vector<MonitorElement*> p_e2x5VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > p_e2x5VsEt_;
+
+  std::vector<MonitorElement*> h_e2x5VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_e2x5VsEta_;
+  std::vector<MonitorElement*> p_e2x5VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_e2x5VsEta_;
+
+
+  std::vector<MonitorElement*> h_r1x5VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > h_r1x5VsEt_;
+  std::vector<MonitorElement*> p_r1x5VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > p_r1x5VsEt_;
+
+  std::vector<MonitorElement*> h_r1x5VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_r1x5VsEta_;
+  std::vector<MonitorElement*> p_r1x5VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_r1x5VsEta_;
+
+  std::vector<MonitorElement*> h_r2x5VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > h_r2x5VsEt_;
+  std::vector<MonitorElement*> p_r2x5VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > p_r2x5VsEt_;
+
+  std::vector<MonitorElement*> h_r2x5VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_r2x5VsEta_;
+  std::vector<MonitorElement*> p_r2x5VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_r2x5VsEta_;
+
+
+
+
+
+
+
 
   std::vector<MonitorElement*> h_phoSigmaIetaIeta_isol_;
   std::vector<std::vector<MonitorElement*> > h_phoSigmaIetaIeta_;
@@ -279,10 +341,24 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<MonitorElement*> h_tkChi2_isol_;
   std::vector<std::vector<MonitorElement*> > h_tkChi2_;
 
+  std::vector<MonitorElement*> h_vertexChi2_isol_;
+  std::vector<std::vector<MonitorElement*> > h_vertexChi2_;
+
   std::vector<MonitorElement*> h_nHitsVsEta_isol_;
   std::vector<std::vector<MonitorElement*> > h_nHitsVsEta_;
   std::vector<MonitorElement*> p_nHitsVsEta_isol_;
   std::vector<std::vector<MonitorElement*> > p_nHitsVsEta_;
+
+  std::vector<MonitorElement*> h_tkChi2VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_tkChi2VsEta_;
+  std::vector<MonitorElement*> p_tkChi2VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_tkChi2VsEta_;
+
+  std::vector<MonitorElement*> h_dCotTracksVsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_dCotTracksVsEta_;
+  std::vector<MonitorElement*> p_dCotTracksVsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_dCotTracksVsEta_;
+
 
 
   std::vector<MonitorElement*> p_convFractionVsEta_isol_;

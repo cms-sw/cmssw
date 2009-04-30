@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2009/03/23 10:54:20 $ 
+ **  $Date: 2009/03/23 13:13:10 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -57,6 +57,7 @@ void PhotonOfflineClient::endJob()
 void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup)
 {
 
+
   vector<string> types;
   types.push_back("All");
   types.push_back("GoodCandidate");
@@ -69,17 +70,20 @@ void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
   
   currentFolder_.str("");
   currentFolder_ << "Et above 0 GeV/";
-  
+
   dividePlots(dbe_->get(EffPath+"Filters"),dbe_->get(EffPath+"Filters"),dbe_->get(EffPath+ "phoEtHLT")->getTH1F()->GetEntries());
 
   //making efficiency plots
-  
+ 
   dividePlots(dbe_->get(EffPath+"EfficiencyVsEtaLoose"),dbe_->get(EffPath+ "phoEtaLoose"),dbe_->get(AllPath+currentFolder_.str() + "phoEta"));
   dividePlots(dbe_->get(EffPath+"EfficiencyVsEtLoose"),dbe_->get(EffPath+ "phoEtLoose"),dbe_->get(AllPath+currentFolder_.str() + "phoEtAllEcal"));
   dividePlots(dbe_->get(EffPath+"EfficiencyVsEtaTight"),dbe_->get(EffPath+ "phoEtaTight"),dbe_->get(AllPath+currentFolder_.str() + "phoEta"));
   dividePlots(dbe_->get(EffPath+"EfficiencyVsEtTight"),dbe_->get(EffPath+ "phoEtTight"),dbe_->get(AllPath+currentFolder_.str() + "phoEtAllEcal"));
   dividePlots(dbe_->get(EffPath+"EfficiencyVsEtaHLT"),dbe_->get(AllPath+currentFolder_.str() + "phoEta"),dbe_->get(EffPath+ "phoEtaHLT"));
   dividePlots(dbe_->get(EffPath+"EfficiencyVsEtHLT"),dbe_->get(AllPath+currentFolder_.str() + "phoEtAllEcal"),dbe_->get(EffPath+ "phoEtHLT")); 
+
+  dividePlots(dbe_->get(EffPath+"VertexReconstructionEfficiencyVsEta"),dbe_->get(EffPath + "phoEtaVertex"),dbe_->get(AllPath+currentFolder_.str() + "Conversions/phoConvEta"));
+
 
   currentFolder_.str("");
   currentFolder_ << EffPath;
@@ -91,6 +95,7 @@ void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
   dbe_->removeElement("phoEtLoose");
   dbe_->removeElement("phoEtTight"); 
   dbe_->removeElement("phoEtHLT");
+  dbe_->removeElement("phoEtaVertex");
 
   
   for(uint type=0;type!=types.size();++type){
@@ -101,10 +106,11 @@ void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
       currentFolder_ << "Egamma/PhotonAnalyzer/" << types[type] << "Photons/Et above " << cut*cutStep_ << " GeV/";
       
       //making conversion fraction plots
-      
+
       dividePlots(dbe_->get(currentFolder_.str()+"Conversions/convFractionVsEta"),dbe_->get(currentFolder_.str() +  "Conversions/phoConvEta"),dbe_->get(currentFolder_.str() + "phoEta"));
+ 
       dividePlots(dbe_->get(currentFolder_.str()+"Conversions/convFractionVsEt"),dbe_->get(currentFolder_.str() +  "Conversions/phoConvEtAllEcal"),dbe_->get(currentFolder_.str() + "phoEtAllEcal"));
-      
+ 
       //making profiles
       
       doProfileX( dbe_->get(currentFolder_.str()+"nIsoTracksSolidVsEta2D"),dbe_->get(currentFolder_.str()+"nIsoTracksSolidVsEta"));
@@ -117,6 +123,17 @@ void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
       doProfileX( dbe_->get(currentFolder_.str()+"hcalSumVsEta2D"), dbe_->get(currentFolder_.str()+"hcalSumVsEta"));
       
       doProfileX( dbe_->get(currentFolder_.str()+"r9VsEt2D"),dbe_->get(currentFolder_.str()+"r9VsEt"));
+      doProfileX( dbe_->get(currentFolder_.str()+"r9VsEta2D"),dbe_->get(currentFolder_.str()+"r9VsEta"));
+
+      doProfileX( dbe_->get(currentFolder_.str()+"e1x5VsEt2D"),dbe_->get(currentFolder_.str()+"e1x5VsEt"));
+      doProfileX( dbe_->get(currentFolder_.str()+"e1x5VsEta2D"),dbe_->get(currentFolder_.str()+"e1x5VsEta"));
+      doProfileX( dbe_->get(currentFolder_.str()+"e2x5VsEt2D"),dbe_->get(currentFolder_.str()+"e2x5VsEt"));
+      doProfileX( dbe_->get(currentFolder_.str()+"e2x5VsEta2D"),dbe_->get(currentFolder_.str()+"e2x5VsEta"));
+
+      doProfileX( dbe_->get(currentFolder_.str()+"r1x5VsEt2D"),dbe_->get(currentFolder_.str()+"r1x5VsEt"));
+      doProfileX( dbe_->get(currentFolder_.str()+"r1x5VsEta2D"),dbe_->get(currentFolder_.str()+"r1x5VsEta"));
+      doProfileX( dbe_->get(currentFolder_.str()+"r2x5VsEt2D"),dbe_->get(currentFolder_.str()+"r2x5VsEt"));
+      doProfileX( dbe_->get(currentFolder_.str()+"r2x5VsEta2D"),dbe_->get(currentFolder_.str()+"r2x5VsEta"));
       
       doProfileX( dbe_->get(currentFolder_.str()+"sigmaIetaIetaVsEta2D"),dbe_->get(currentFolder_.str()+"sigmaIetaIetaVsEta"));
       doProfileX( dbe_->get(currentFolder_.str()+"sigmaEtaEtaVsEta2D"),dbe_->get(currentFolder_.str()+"sigmaEtaEtaVsEta"));
@@ -132,6 +149,15 @@ void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
       dbe_->removeElement("ecalSumVsEta2D");
       dbe_->removeElement("hcalSumVsEta2D");
       dbe_->removeElement("r9VsEt2D");	
+      dbe_->removeElement("r9VsEta2D");
+      dbe_->removeElement("e1x5VsEt2D");	
+      dbe_->removeElement("e1x5VsEta2D");
+      dbe_->removeElement("e2x5VsEt2D");	
+      dbe_->removeElement("e2x5VsEta2D");
+      dbe_->removeElement("r1x5VsEt2D");	
+      dbe_->removeElement("r1x5VsEta2D");
+      dbe_->removeElement("r2x5VsEt2D");	
+      dbe_->removeElement("r2x5VsEta2D");	
       dbe_->removeElement("sigmaIetaIetaVsEta2D");	
       dbe_->removeElement("sigmaEtaEtaVsEta2D");
       
@@ -139,8 +165,12 @@ void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
       
       currentFolder_ << "Conversions/";
       doProfileX( dbe_->get(currentFolder_.str()+"nHitsVsEta2D"),dbe_->get(currentFolder_.str()+"nHitsVsEta"));
+      doProfileX( dbe_->get(currentFolder_.str()+"tkChi2VsEta2D"),dbe_->get(currentFolder_.str()+"tkChi2VsEta"));
+      doProfileX( dbe_->get(currentFolder_.str()+"dCotTracksVsEta2D"),dbe_->get(currentFolder_.str()+"dCotTracksVsEta"));
       dbe_->setCurrentFolder(currentFolder_.str());
       dbe_->removeElement("nHitsVsEta2D");
+      dbe_->removeElement("tkChi2VsEta2D");
+      dbe_->removeElement("dCotTracksVsEta2D");
       
     }
     

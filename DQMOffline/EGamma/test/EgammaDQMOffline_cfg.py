@@ -29,11 +29,11 @@ piZeroAnalysis.useTriggerFiltering = cms.bool(False)
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-
-          '/store/relval/CMSSW_3_1_0_pre1/RelValGammaJets_Pt_80_120/GEN-SIM-RECO/STARTUP_30X_v1/0001/0CAA1EC0-F7F7-DD11-911D-000423D9970C.root',
-         '/store/relval/CMSSW_3_1_0_pre1/RelValGammaJets_Pt_80_120/GEN-SIM-RECO/STARTUP_30X_v1/0001/58AF1BC2-06F8-DD11-91E3-000423D985B0.root',
-         '/store/relval/CMSSW_3_1_0_pre1/RelValGammaJets_Pt_80_120/GEN-SIM-RECO/STARTUP_30X_v1/0001/DE195AF6-F8F7-DD11-A490-001617E30F56.root',
-          '/store/relval/CMSSW_3_1_0_pre1/RelValGammaJets_Pt_80_120/GEN-SIM-RECO/STARTUP_30X_v1/0001/E4EDF9CD-F7F7-DD11-825B-00304879FA4A.root'
+        '/store/relval/CMSSW_3_1_0_pre6/RelValSingleGammaPt35/GEN-SIM-RECO/IDEAL_31X_v1/0002/C8A1B6A0-1733-DE11-B770-000423D98834.root'
+#        '/store/relval/CMSSW_3_1_0_pre6/RelValGammaJets_Pt_80_120/GEN-SIM-RECO/STARTUP_31X_v1/0002/80FD8D8D-1733-DE11-85C3-000423D6B444.root',
+#        '/store/relval/CMSSW_3_1_0_pre6/RelValGammaJets_Pt_80_120/GEN-SIM-RECO/STARTUP_31X_v1/0002/6AB1F928-DC32-DE11-9BB6-001617C3B5D8.root',
+#        '/store/relval/CMSSW_3_1_0_pre6/RelValGammaJets_Pt_80_120/GEN-SIM-RECO/STARTUP_31X_v1/0002/5AD5356A-DC32-DE11-B4D1-000423D9A212.root',
+#        '/store/relval/CMSSW_3_1_0_pre6/RelValGammaJets_Pt_80_120/GEN-SIM-RECO/STARTUP_31X_v1/0002/0231F05B-DC32-DE11-813B-001617C3B6CC.root'
 
 ))
 

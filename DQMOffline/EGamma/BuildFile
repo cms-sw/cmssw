@@ -12,6 +12,8 @@
 <use name=DQMServices/Core>
 <use name=HLTrigger/HLTcore>
 <use name=clhep>
+<use name=CommonTools/Statistics>
+
 <flags EDM_PLUGIN=1>
 <export>
   <lib name=DQMOfflineEGamma>
