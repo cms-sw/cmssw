@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-cosmicTrackSplitter = cms.EDFilter("CosmicTrackSplitter",
+cosmicTrackSplitter = cms.EDProducer("CosmicTrackSplitter",
                                    stripFrontInvalidHits = cms.bool(True),
                                    stripBackInvalidHits = cms.bool(True),
                                    stripAllInvalidHits = cms.bool(False),

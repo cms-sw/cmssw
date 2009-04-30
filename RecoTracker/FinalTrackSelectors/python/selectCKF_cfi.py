@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-selectCKF = cms.EDFilter("AnalyticalTrackSelector",
+selectCKF = cms.EDProducer("AnalyticalTrackSelector",
     src = cms.InputTag("generalTracks"),
     keepAllTracks = cms.bool(False), ## if set to true tracks failing this filter are kept in the output
     beamspot = cms.InputTag("offlineBeamSpot"),

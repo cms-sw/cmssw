@@ -25,7 +25,7 @@ import FWCore.ParameterSet.Config as cms
 # function:
 #
 # cleans and merges ctf and rs Track lists and put new list back in Event
-ctfrsTIFTrackListMerger = cms.EDFilter("SimpleTrackListMerger",
+ctfrsTIFTrackListMerger = cms.EDProducer("SimpleTrackListMerger",
     # minimum shared fraction to be called duplicate
     ShareFrac = cms.double(0.5),
     # minimum pT in GeV/c

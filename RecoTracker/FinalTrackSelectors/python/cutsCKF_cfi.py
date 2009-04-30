@@ -7,7 +7,7 @@
 # end of cut sets
 import FWCore.ParameterSet.Config as cms
 
-cutsCKF = cms.EDFilter("TrackMultiSelector",
+cutsCKF = cms.EDProducer("TrackMultiSelector",
     src = cms.InputTag("ctfWithMaterialTracks"),
     beamspot = cms.PSet( ## same as RecoTracker/TkTrackingRegions/data/GlobalTrackingRegionFromBeamSpot.cfi
 
