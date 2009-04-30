@@ -3,8 +3,8 @@
  
 /** \class EcalDeadChannelRecoveryAlgos
   *
-  *  $Date: 2009/04/09 13:36:27 $
-  *  $Revision: 1.4 $
+  *  $Date: 2009/04/30 13:14:50 $
+  *  $Revision: 1.5 $
   */
  
 
@@ -36,7 +36,7 @@ using namespace std;
 
 class EcalDeadChannelRecoveryAlgos  {
    public:
-  EcalDeadChannelRecoveryAlgos(const CaloTopology theCaloTopology);
+  EcalDeadChannelRecoveryAlgos(const CaloTopology * theCaloTopology);
   EcalDeadChannelRecoveryAlgos();
   ~EcalDeadChannelRecoveryAlgos();
  
@@ -46,10 +46,8 @@ class EcalDeadChannelRecoveryAlgos  {
  private:
   
   
-  CaloTopology calotopo;
+  const CaloTopology * calotopo;
   double MakeNxNMatrice(EBDetId itID,const EcalRecHitCollection* hit_collection, int *IndDeadChannel, double *MNxN);
-  
-
   
   // ----------member data ---------------------------
   

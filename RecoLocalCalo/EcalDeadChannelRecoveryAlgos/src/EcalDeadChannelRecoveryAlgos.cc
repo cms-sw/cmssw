@@ -13,7 +13,7 @@
 //
 // Original Author:  Georgios Daskalakis
 //         Created:  Thu Apr 12 17:02:06 CEST 2007
-// $Id: EcalDeadChannelRecoveryAlgos.cc,v 1.6 2009/04/30 13:15:00 beaucero Exp $
+// $Id: EcalDeadChannelRecoveryAlgos.cc,v 1.7 2009/04/30 13:35:30 beaucero Exp $
 //
 // May 4th 2007 S. Beauceron : modification of MakeNxNMatrice in order to use vectors
 //
@@ -48,7 +48,7 @@ using namespace cms;
 using namespace std;
 
 
-EcalDeadChannelRecoveryAlgos::EcalDeadChannelRecoveryAlgos(const CaloTopology theCaloTopology)
+EcalDeadChannelRecoveryAlgos::EcalDeadChannelRecoveryAlgos(const CaloTopology  * theCaloTopology)
 //EcalDeadChannelRecoveryAlgos::EcalDeadChannelRecoveryAlgos(const edm::ESHandle<CaloTopology> & theCaloTopology)
 {
   //now do what ever initialization is needed
@@ -117,8 +117,7 @@ double EcalDeadChannelRecoveryAlgos::MakeNxNMatrice(EBDetId itID,const EcalRecHi
 //   cout<<"===================================================================="<<endl;
 //   cout<<" Dead Cell CENTRAL  eta = "<< itID.ieta()<<" ,  phi = "<< itID.iphi()<<endl;
 
-  const CaloSubdetectorTopology* topology=calotopo.getSubdetectorTopology(DetId::Ecal,EcalBarrel);
-  //  cout<<"===================================================================="<<endl;
+  const CaloSubdetectorTopology* topology=calotopo->getSubdetectorTopology(DetId::Ecal,EcalBarrel);
   int size =5;
   std::vector<DetId> NxNaroundDC = topology->getWindow(itID,size,size);
   //  cout<<"===================================================================="<<endl;
