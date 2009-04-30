@@ -232,6 +232,18 @@ public:
   }
 
   /**
+   * Is a supplied LocalPoint inside the strip region?
+   * 
+   * This is a more reliable fiducial cut for CSCs than the 'Bounds' of the GeomDet(Unit)
+   * since those ranges are looser than the sensitive gas region.
+   * There are three versions, to parallel those of the TrapezoidalPlaneBounds which
+   * a naive user might otherwise employ.
+   */
+  bool inside( const Local3DPoint&, const LocalError&, float scale=1.f ) const;
+  bool inside( const Local3DPoint& ) const;
+  bool inside( const Local2DPoint& ) const;
+
+  /**
    * Return estimate of the 2-dim point of intersection of a strip and a cluster of wires.
    *
    * Input arguments: a (float) strip number, and the wires which delimit a cluster of wires.

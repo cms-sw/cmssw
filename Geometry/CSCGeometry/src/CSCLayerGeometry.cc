@@ -259,7 +259,43 @@ LocalError CSCLayerGeometry::localError( int strip, float sigmaStrip, float sigm
           
   return LocalError(dx2, dxy, dy2);
 }
-    
+
+bool CSCLayerGeometry::inside( const Local3DPoint& lp ) const {
+  bool result = false;
+  if ( fabs( lp.z() ) < thickness()/2. ) { // thickness of TPB is that of gas layer
+    std::pair<float, float> ylims = yLimitsOfStripPlane();
+    if ( (lp.y() > ylims.first) && (lp.y() < ylims.second) ) {
+       if ( ( lp.x() > xOfStrip(1, lp.y()) ) && ( lp.x() < xOfStrip( numberOfStrips(), lp.y() ) ) ) result = true;
+    }
+  }
+  return result;
+}
+
+bool CSCLayerGeometry::inside( const Local2DPoint& lp ) const {
+  bool result = false;
+    std::pair<float, float> ylims = yLimitsOfStripPlane();
+    if ( (lp.y() > ylims.first) && (lp.y() < ylims.second) ) {
+       if ( ( lp.x() > xOfStrip(1, lp.y()) ) && ( lp.x() < xOfStrip( numberOfStrips(), lp.y() ) ) ) result = true;
+    }
+  return result;
+}
+
+bool CSCLayerGeometry::inside( const Local3DPoint& lp, const LocalError& le, float scale ) const {
+  bool result = false;
+  // Note that LocalError is 2-dim x,y and doesn't supply a z error
+  // Effectively consider that the LocalError components extend the area which is acceptable.
+
+  if ( fabs( lp.z() ) < thickness()/2. ) { // thickness of TPB is that of gas layer
+    std::pair<float, float> ylims = yLimitsOfStripPlane();
+    if ( (lp.y() > ylims.first-scale*sqrt(le.yy())) && (lp.y() < ylims.second+scale*sqrt(le.yy())) ) {
+      if ( ( lp.x() > xOfStrip(1, lp.y())-scale*sqrt(le.xx()) ) && 
+	   ( lp.x() < xOfStrip(numberOfStrips(), lp.y())-scale*sqrt(le.yy()) ) ) result = true;
+    }
+  }
+  return result;
+
+}
+
 void CSCLayerGeometry::setTopology( CSCStripTopology * newTopology ) {
    delete theStripTopology;
    theStripTopology = newTopology;
