@@ -1,6 +1,8 @@
 #ifndef SISTRIPMODULEHV_SRC_BUILDER_H
 #define SISTRIPMODULEHV_SRC_BUILDER_H
 
+#define USING_NEW_CORAL
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"

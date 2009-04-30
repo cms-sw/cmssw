@@ -169,7 +169,7 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
 	  actualStatus[j] = -1;
 	  dpname[j] = "UNKNOWN";
 	  missing++;
-	  ss << "DP ID = " << dpid[j] << " date = " <<  boost::posix_time::to_iso_extended_string(changeDate[j].time()) << std::endl;
+	  ss << "DP ID = " << dpid[j] << std::endl;
 	}
       }
     } else {
@@ -181,7 +181,7 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
 	} else {
 	  actualStatus[j] = -1;
 	  missing++;
-	  ss << "Channel = " << dpname[j] << " date = " << boost::posix_time::to_iso_extended_string(changeDate[j].time()) << std::endl;
+	  ss << "Channel = " << dpname[j] << std::endl;
 	}
       }
     }
@@ -357,8 +357,13 @@ int SiStripModuleHVBuilder::findSetting(uint32_t id, coral::TimeStamp changeDate
   // NB.  entries ordered by date!
   else {
     for (unsigned int j = 0; j < locations.size(); j++) {
+#ifdef USING_NEW_CORAL
       const boost::posix_time::ptime& testSec = changeDate.time();
       const boost::posix_time::ptime& limitSec = settingDate[(unsigned int)locations[j]].time();
+#else
+      long testSec = changeDate.time().ns();
+      long limitSec = settingDate[(unsigned int)locations[j]].time().ns();
+#endif
       if (testSec >= limitSec) {setting = locations[j];}
     }
   }
@@ -378,8 +383,13 @@ int SiStripModuleHVBuilder::findSetting(std::string dpname, coral::TimeStamp cha
   // NB.  entries ordered by date!
   else {
     for (unsigned int j = 0; j < locations.size(); j++) {
+#ifdef USING_NEW_CORAL
       const boost::posix_time::ptime& testSec = changeDate.time();
       const boost::posix_time::ptime& limitSec = settingDate[(unsigned int)locations[j]].time();
+#else
+      long testSec = changeDate.time().ns();
+      long limitSec = settingDate[(unsigned int)locations[j]].time().ns();
+#endif
       if (testSec >= limitSec) {setting = locations[j];}
     }
   }
@@ -449,7 +459,11 @@ void SiStripModuleHVBuilder::readLastValueFromFile(std::vector<uint32_t> &dpIDs,
 }
 
 cond::Time_t SiStripModuleHVBuilder::getIOVTime(coral::TimeStamp coralTime) {
+#ifdef USING_NEW_CORAL
   unsigned long long coralTimeInNs = coralTime.total_nanoseconds();
+#else
+  unsigned long long coralTimeInNs = coralTime.time().ns();
+#endif
   // total seconds since the Epoch
   unsigned long long iovSec = coralTimeInNs/1000000000;
   // the rest of the elapsed time since the Epoch in micro seconds
@@ -461,7 +475,12 @@ cond::Time_t SiStripModuleHVBuilder::getIOVTime(coral::TimeStamp coralTime) {
 
 coral::TimeStamp SiStripModuleHVBuilder::getCoralTime(cond::Time_t iovTime) {
   unsigned long long iovSec = iovTime >> 32;
+#ifdef USING_NEW_CORAL
   coral::TimeStamp coralTime(boost::posix_time::from_time_t(iovSec));
+#else
+  const seal::Time t(iovSec,0);
+  coral::TimeStamp coralTime(t);
+#endif
   return coralTime;
 }
 
