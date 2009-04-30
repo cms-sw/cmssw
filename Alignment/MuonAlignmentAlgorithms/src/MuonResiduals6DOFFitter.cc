@@ -291,11 +291,27 @@ bool MuonResiduals6DOFFitter::fit(Alignable *ali) {
   std::vector<double> low;
   std::vector<double> high;
 
+  if (fixed(kAlignX)) {
+  num.push_back(kAlignX);         name.push_back(std::string("AlignX"));         start.push_back(0.);              step.push_back(0.1);                      low.push_back(0.);   high.push_back(0.);
+  } else {
   num.push_back(kAlignX);         name.push_back(std::string("AlignX"));         start.push_back(residx_mean);     step.push_back(0.1);                      low.push_back(0.);   high.push_back(0.);
+  }
+  if (fixed(kAlignY)) {
+  num.push_back(kAlignY);         name.push_back(std::string("AlignY"));         start.push_back(0.);              step.push_back(0.1);                      low.push_back(0.);   high.push_back(0.);
+  } else {
   num.push_back(kAlignY);         name.push_back(std::string("AlignY"));         start.push_back(residy_mean);     step.push_back(0.1);                      low.push_back(0.);   high.push_back(0.);
+  }
   num.push_back(kAlignZ);         name.push_back(std::string("AlignZ"));         start.push_back(0.);              step.push_back(0.1);                      low.push_back(0.);   high.push_back(0.);
+  if (fixed(kAlignPhiX)) {
+  num.push_back(kAlignPhiX);      name.push_back(std::string("AlignPhiX"));      start.push_back(0.);              step.push_back(0.001);                    low.push_back(0.);   high.push_back(0.);
+  } else {
   num.push_back(kAlignPhiX);      name.push_back(std::string("AlignPhiX"));      start.push_back(-resslopey_mean); step.push_back(0.001);                    low.push_back(0.);   high.push_back(0.);
+  }
+  if (fixed(kAlignPhiY)) {
+  num.push_back(kAlignPhiY);      name.push_back(std::string("AlignPhiY"));      start.push_back(0.);              step.push_back(0.001);                    low.push_back(0.);   high.push_back(0.);
+  } else {
   num.push_back(kAlignPhiY);      name.push_back(std::string("AlignPhiY"));      start.push_back(resslopex_mean);  step.push_back(0.001);                    low.push_back(0.);   high.push_back(0.);
+  }
   num.push_back(kAlignPhiZ);      name.push_back(std::string("AlignPhiZ"));      start.push_back(0.);              step.push_back(0.001);                    low.push_back(0.);   high.push_back(0.);
   num.push_back(kResidXSigma);    name.push_back(std::string("ResidXSigma"));    start.push_back(residx_stdev);    step.push_back(0.01*residx_stdev);        low.push_back(0.);   high.push_back(0.);
   num.push_back(kResidYSigma);    name.push_back(std::string("ResidYSigma"));    start.push_back(residy_stdev);    step.push_back(0.01*residy_stdev);        low.push_back(0.);   high.push_back(0.);
@@ -356,7 +372,7 @@ double MuonResiduals6DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
 //     ntuple->Fill();
 //   }
 
-  std::stringstream name_x, name_y, name_dxdz, name_dydz, name_alphax, name_alphay;
+  std::stringstream name_x, name_y, name_dxdz, name_dydz, name_x_raw, name_y_raw, name_dxdz_raw, name_dydz_raw, name_x_cut, name_y_cut, name_alphax, name_alphay;
   std::stringstream name_x_trackx, name_y_trackx, name_dxdz_trackx, name_dydz_trackx;
   std::stringstream name_x_tracky, name_y_tracky, name_dxdz_tracky, name_dydz_tracky;
   std::stringstream name_x_trackdxdz, name_y_trackdxdz, name_dxdz_trackdxdz, name_dydz_trackdxdz;
@@ -366,6 +382,12 @@ double MuonResiduals6DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
   name_y << name << "_y";
   name_dxdz << name << "_dxdz";
   name_dydz << name << "_dydz";
+  name_x_raw << name << "_x_raw";
+  name_y_raw << name << "_y_raw";
+  name_dxdz_raw << name << "_dxdz_raw";
+  name_dydz_raw << name << "_dydz_raw";
+  name_x_cut << name << "_x_cut";
+  name_y_cut << name << "_y_cut";
   name_alphax << name << "_alphax";
   name_alphay << name << "_alphay";
   name_x_trackx << name << "_x_trackx";
@@ -400,6 +422,12 @@ double MuonResiduals6DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
   TH1F *hist_y = dir->make<TH1F>(name_y.str().c_str(), "", 100, min_y, max_y);
   TH1F *hist_dxdz = dir->make<TH1F>(name_dxdz.str().c_str(), "", 100, min_dxdz, max_dxdz);
   TH1F *hist_dydz = dir->make<TH1F>(name_dydz.str().c_str(), "", 100, min_dydz, max_dydz);
+  TH1F *hist_x_raw = dir->make<TH1F>(name_x_raw.str().c_str(), "", 100, min_x, max_x);
+  TH1F *hist_y_raw = dir->make<TH1F>(name_y_raw.str().c_str(), "", 100, min_y, max_y);
+  TH1F *hist_dxdz_raw = dir->make<TH1F>(name_dxdz_raw.str().c_str(), "", 100, min_dxdz, max_dxdz);
+  TH1F *hist_dydz_raw = dir->make<TH1F>(name_dydz_raw.str().c_str(), "", 100, min_dydz, max_dydz);
+  TH1F *hist_x_cut = dir->make<TH1F>(name_x_cut.str().c_str(), "", 100, min_x, max_x);
+  TH1F *hist_y_cut = dir->make<TH1F>(name_y_cut.str().c_str(), "", 100, min_y, max_y);
   TH2F *hist_alphax = dir->make<TH2F>(name_alphax.str().c_str(), "", 40, min_dxdz, max_dxdz, 40, -20., 20.);
   TH2F *hist_alphay = dir->make<TH2F>(name_alphay.str().c_str(), "", 40, min_dydz, max_dydz, 40, -100., 100.);
   TProfile *hist_x_trackx = dir->make<TProfile>(name_x_trackx.str().c_str(), "", 100, min_trackx, max_trackx, min_x, max_x);
@@ -742,6 +770,13 @@ double MuonResiduals6DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
       fit_dydz_trackdxdz->Fill(angleX, 1000.*geom_resslopeY, weight);
       fit_dydz_trackdydz->Fill(angleY, 1000.*geom_resslopeY, weight);
     }
+
+    hist_x_raw->Fill(10.*residX);
+    hist_y_raw->Fill(10.*residY);
+    hist_dxdz_raw->Fill(1000.*resslopeX);
+    hist_dydz_raw->Fill(1000.*resslopeY);
+    if (fabs(resslopeX) < 0.005) hist_x_cut->Fill(10.*residX);
+    if (fabs(resslopeY) < 0.030) hist_y_cut->Fill(10.*residY);
   }
 
   double chi2 = 0.;

@@ -113,7 +113,11 @@ bool MuonResiduals1DOFFitter::fit(Alignable *ali) {
   std::vector<double> low;
   std::vector<double> high;
 
+  if (fixed(kAlign)) {
+  num.push_back(kAlign);          name.push_back(std::string("Align"));          start.push_back(0.);              step.push_back(0.01*resid_stdev);    low.push_back(0.);   high.push_back(0.);
+  } else {
   num.push_back(kAlign);          name.push_back(std::string("Align"));          start.push_back(resid_mean);      step.push_back(0.01*resid_stdev);    low.push_back(0.);   high.push_back(0.);
+  }
   num.push_back(kSigma);          name.push_back(std::string("Sigma"));          start.push_back(resid_stdev);     step.push_back(0.01*resid_stdev);    low.push_back(0.);   high.push_back(0.);
   if (residualsModel() != kPureGaussian) {
   num.push_back(kGamma);          name.push_back(std::string("Gamma"));          start.push_back(0.1*resid_stdev); step.push_back(0.01*resid_stdev);    low.push_back(0.);   high.push_back(0.);
@@ -125,11 +129,13 @@ bool MuonResiduals1DOFFitter::fit(Alignable *ali) {
 double MuonResiduals1DOFFitter::plot(std::string name, TFileDirectory *dir, Alignable *ali) {
   sumofweights();
 
-  std::stringstream name_residual;
+  std::stringstream name_residual, name_residual_raw;
   name_residual << name << "_residual";
+  name_residual_raw << name << "_residual_raw";
 
   double min_residual = -100.;     double max_residual = 100.;
   TH1F *hist_residual = dir->make<TH1F>(name_residual.str().c_str(), "", 100, min_residual, max_residual);
+  TH1F *hist_residual_raw = dir->make<TH1F>(name_residual_raw.str().c_str(), "", 100, min_residual, max_residual);
 
   name_residual << "_fit";
   TF1 *fit_residual = NULL;
@@ -158,6 +164,8 @@ double MuonResiduals1DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
     if (TMath::Prob(redchi2*8, 8) < 0.99) {  // no spikes allowed
       hist_residual->Fill(10.*(resid + value(kAlign)), weight);
     }
+
+    hist_residual_raw->Fill(10.*resid);
   }
 
   double chi2 = 0.;

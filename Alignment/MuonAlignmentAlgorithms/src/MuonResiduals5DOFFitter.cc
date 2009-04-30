@@ -192,10 +192,18 @@ bool MuonResiduals5DOFFitter::fit(Alignable *ali) {
   std::vector<double> low;
   std::vector<double> high;
 
+  if (fixed(kAlignX)) {
+  num.push_back(kAlignX);         name.push_back(std::string("AlignX"));         start.push_back(0.);              step.push_back(0.1);                      low.push_back(0.);   high.push_back(0.);
+  } else {
   num.push_back(kAlignX);         name.push_back(std::string("AlignX"));         start.push_back(resid_mean);      step.push_back(0.1);                      low.push_back(0.);   high.push_back(0.);
+  }
   num.push_back(kAlignZ);         name.push_back(std::string("AlignZ"));         start.push_back(0.);              step.push_back(0.1);                      low.push_back(0.);   high.push_back(0.);
   num.push_back(kAlignPhiX);      name.push_back(std::string("AlignPhiX"));      start.push_back(0.);              step.push_back(0.001);                    low.push_back(0.);   high.push_back(0.);
+  if (fixed(kAlignPhiY)) {
+  num.push_back(kAlignPhiY);      name.push_back(std::string("AlignPhiY"));      start.push_back(0.);              step.push_back(0.001);                    low.push_back(0.);   high.push_back(0.);
+  } else {
   num.push_back(kAlignPhiY);      name.push_back(std::string("AlignPhiY"));      start.push_back(resslope_mean);   step.push_back(0.001);                    low.push_back(0.);   high.push_back(0.);
+  }
   num.push_back(kAlignPhiZ);      name.push_back(std::string("AlignPhiZ"));      start.push_back(0.);              step.push_back(0.001);                    low.push_back(0.);   high.push_back(0.);
   num.push_back(kResidSigma);     name.push_back(std::string("ResidSigma"));     start.push_back(resid_stdev);     step.push_back(0.01*resid_stdev);         low.push_back(0.);   high.push_back(0.);
   num.push_back(kResSlopeSigma);  name.push_back(std::string("ResSlopeSigma"));  start.push_back(resslope_stdev);  step.push_back(0.01*resslope_stdev);      low.push_back(0.);   high.push_back(0.);
@@ -211,7 +219,7 @@ bool MuonResiduals5DOFFitter::fit(Alignable *ali) {
 double MuonResiduals5DOFFitter::plot(std::string name, TFileDirectory *dir, Alignable *ali) {
   sumofweights();
 
-  std::stringstream name_residual, name_resslope, name_alpha;
+  std::stringstream name_residual, name_resslope, name_residual_raw, name_resslope_raw, name_residual_cut, name_alpha;
   std::stringstream name_residual_trackx, name_resslope_trackx;
   std::stringstream name_residual_tracky, name_resslope_tracky;
   std::stringstream name_residual_trackdxdz, name_resslope_trackdxdz;
@@ -219,6 +227,9 @@ double MuonResiduals5DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
 
   name_residual << name << "_residual";
   name_resslope << name << "_resslope";
+  name_residual_raw << name << "_residual_raw";
+  name_resslope_raw << name << "_resslope_raw";
+  name_residual_cut << name << "_residual_cut";
   name_alpha << name << "_alpha";
   name_residual_trackx << name << "_residual_trackx";
   name_resslope_trackx << name << "_resslope_trackx";
@@ -240,6 +251,9 @@ double MuonResiduals5DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
 
   TH1F *hist_residual = dir->make<TH1F>(name_residual.str().c_str(), "", 100, min_residual, max_residual);
   TH1F *hist_resslope = dir->make<TH1F>(name_resslope.str().c_str(), "", 100, min_resslope, max_resslope);
+  TH1F *hist_residual_raw = dir->make<TH1F>(name_residual_raw.str().c_str(), "", 100, min_residual, max_residual);
+  TH1F *hist_resslope_raw = dir->make<TH1F>(name_resslope_raw.str().c_str(), "", 100, min_resslope, max_resslope);
+  TH1F *hist_residual_cut = dir->make<TH1F>(name_residual_cut.str().c_str(), "", 100, min_residual, max_residual);
   TH2F *hist_alpha = dir->make<TH2F>(name_alpha.str().c_str(), "", 40, min_resslope, max_resslope, 40, -20., 20.);
   TProfile *hist_residual_trackx = dir->make<TProfile>(name_residual_trackx.str().c_str(), "", 100, min_trackx, max_trackx, min_residual, max_residual);
   TProfile *hist_resslope_trackx = dir->make<TProfile>(name_resslope_trackx.str().c_str(), "", 100, min_trackx, max_trackx, min_resslope, max_resslope);
@@ -443,6 +457,10 @@ double MuonResiduals5DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
       fit_resslope_trackdxdz->Fill(angleX, 1000.*geom_resslope, weight);
       fit_resslope_trackdydz->Fill(angleY, 1000.*geom_resslope, weight);
     }
+
+    hist_residual_raw->Fill(10.*resid);
+    hist_resslope_raw->Fill(1000.*resslope);
+    if (fabs(resslope) < 0.005) hist_residual_cut->Fill(10.*resid);
   }
 
   double chi2 = 0.;
