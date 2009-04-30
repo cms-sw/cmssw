@@ -457,7 +457,8 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
 	  // the miscalibration on the noise will be applied later one; so it is really ICMC here
 	  if(noise_==-1.)
 	    {
-	      noisesigma_[ic]=2.87*agc->getEEValue()*ICMC[ic] ;
+	      // presumably the calib factor should not be counted twice, so remove it
+	      noisesigma_[ic]=2.87*agc->getEEValue()*ICMC[ic] / calibfactor_;
 	      meanNoiseSigmaEt_ += noisesigma_[ic] * sinTheta_[(ic<EEDetId::kEEhalf)? ic : ic-EEDetId::kEEhalf];
 	      EEDetId myDetId(EEDetId::unhashIndex(ic));
 	      //	      std::cout << " BB " <<  myDetId.ix() << " " << myDetId.iy() << " " <<  noisesigma_[ic] * sinTheta_[(ic<EEDetId::kEEhalf)? ic : ic-EEDetId::kEEhalf] << std::endl;;
