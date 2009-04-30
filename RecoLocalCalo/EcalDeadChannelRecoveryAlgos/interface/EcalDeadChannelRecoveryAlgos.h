@@ -3,8 +3,8 @@
  
 /** \class EcalDeadChannelRecoveryAlgos
   *
-  *  $Date: 2007/05/09 14:58:40 $
-  *  $Revision: 1.3 $
+  *  $Date: 2009/04/09 13:36:27 $
+  *  $Revision: 1.4 $
   */
  
 
@@ -47,7 +47,7 @@ class EcalDeadChannelRecoveryAlgos  {
   
   
   CaloTopology calotopo;
-  double MakeNxNMatrice(EBDetId itID,const EcalRecHitCollection* hit_collection, double *MNxN);
+  double MakeNxNMatrice(EBDetId itID,const EcalRecHitCollection* hit_collection, int *IndDeadChannel, double *MNxN);
   
 
   
