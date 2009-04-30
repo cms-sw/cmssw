@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.58 2009/04/16 19:40:52 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.59 2009/04/29 10:55:14 chamont Exp $
 //
 //
 
@@ -765,7 +765,7 @@ void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::
     outEle.push_back(**e1) ;
    }
 
-//   // nex resolve when pflow only SC is found
+//   // next resolve when pflow only SC is found
 //   for( e1 = inEle.begin() ;  e1 != inEle.end() ; ++e1 )
 //    {
 //     SuperClusterRef scRef1 = (*e1)->superCluster();
@@ -817,67 +817,82 @@ pair<TrackRef,float> GsfElectronAlgo::getCtfTrackRef(const GsfTrackRef& gsfTrack
   TrackRef ctfTrackRef = TrackRef() ;
   const TrackCollection * ctfTrackCollection = ctfTracksH.product() ;
 
-  //get the Hit Pattern for the gsfTrack
+  // get the Hit Pattern for the gsfTrack
   const HitPattern& gsfHitPattern = gsfTrackRef->hitPattern();
 
   unsigned int counter ;
   TrackCollection::const_iterator ctfTkIter ;
   for ( ctfTkIter = ctfTrackCollection->begin() , counter = 0 ;
-        ctfTkIter != ctfTrackCollection->end() ; ctfTkIter++, counter++ ) {
+        ctfTkIter != ctfTrackCollection->end() ; ctfTkIter++, counter++ )
+   {
 
     double dEta = gsfTrackRef->eta() - ctfTkIter->eta();
     double dPhi = gsfTrackRef->phi() - ctfTkIter->phi();
     double pi = acos(-1.);
     if(fabs(dPhi) > pi) dPhi = 2*pi - fabs(dPhi);
 
-    //dont want to look at every single track in the event!
+    // dont want to look at every single track in the event!
     if(sqrt(dEta*dEta + dPhi*dPhi) > 0.3) continue;
 
-    unsigned int shared = 0;
-    int gsfHitCounter = 0;
-    int numGsfInnerHits = 0;
-    int numCtfInnerHits = 0;
-    //get the CTF Track Hit Pattern
-    const HitPattern& ctfHitPattern = ctfTkIter->hitPattern();
+    unsigned int shared = 0 ;
+    int gsfHitCounter = 0 ;
+    int numGsfInnerHits = 0 ;
+    int numCtfInnerHits = 0 ;
+    // get the CTF Track Hit Pattern
+    const HitPattern& ctfHitPattern = ctfTkIter->hitPattern() ;
 
-    for(trackingRecHit_iterator elHitsIt = gsfTrackRef->recHitsBegin();
-        elHitsIt != gsfTrackRef->recHitsEnd(); elHitsIt++, gsfHitCounter++) {
+    trackingRecHit_iterator elHitsIt ;
+    for ( elHitsIt = gsfTrackRef->recHitsBegin() ;
+          elHitsIt != gsfTrackRef->recHitsEnd() ;
+          elHitsIt++, gsfHitCounter++ )
+     {
       if(!((**elHitsIt).isValid()))  //count only valid Hits
-	continue;
+       { continue ; }
 
-      //look only in the pixels/TIB/TID
-      uint32_t gsfHit = gsfHitPattern.getHitPattern(gsfHitCounter);
-      if(!(gsfHitPattern.pixelHitFilter(gsfHit) ||
-	   gsfHitPattern.stripTIBHitFilter(gsfHit) ||
-	   gsfHitPattern.stripTIDHitFilter(gsfHit) ) ) continue;
-      numGsfInnerHits++;
+      // look only in the pixels/TIB/TID
+      uint32_t gsfHit = gsfHitPattern.getHitPattern(gsfHitCounter) ;
+      if (!(gsfHitPattern.pixelHitFilter(gsfHit) ||
+	        gsfHitPattern.stripTIBHitFilter(gsfHit) ||
+	        gsfHitPattern.stripTIDHitFilter(gsfHit) ) )
+       { continue ; }
 
-      int ctfHitsCounter = 0;
-      numCtfInnerHits = 0;
-      for(trackingRecHit_iterator ctfHitsIt = ctfTkIter->recHitsBegin();
-          ctfHitsIt != ctfTkIter->recHitsEnd(); ctfHitsIt++, ctfHitsCounter++) {
+      numGsfInnerHits++ ;
+
+      int ctfHitsCounter = 0 ;
+      numCtfInnerHits = 0 ;
+      trackingRecHit_iterator ctfHitsIt ;
+      for ( ctfHitsIt = ctfTkIter->recHitsBegin() ;
+            ctfHitsIt != ctfTkIter->recHitsEnd() ;
+            ctfHitsIt++, ctfHitsCounter++ )
+       {
         if(!((**ctfHitsIt).isValid())) //count only valid Hits!
-	  continue;
+         { continue ; }
 
-	uint32_t ctfHit = ctfHitPattern.getHitPattern(ctfHitsCounter);
-	if( !(ctfHitPattern.pixelHitFilter(ctfHit) ||
-	      ctfHitPattern.stripTIBHitFilter(ctfHit) ||
-	      ctfHitPattern.stripTIDHitFilter(ctfHit) ) ) continue;
-	numCtfInnerHits++;
-        if( (**elHitsIt).sharesInput(&(**ctfHitsIt), TrackingRecHit::all) ) {
-          shared++;
-          break;
-        }
-      }//ctfHits iterator
+	    uint32_t ctfHit = ctfHitPattern.getHitPattern(ctfHitsCounter);
+	    if( !(ctfHitPattern.pixelHitFilter(ctfHit) ||
+	          ctfHitPattern.stripTIBHitFilter(ctfHit) ||
+	          ctfHitPattern.stripTIDHitFilter(ctfHit) ) )
+	     { continue ; }
 
-    }//gsfHits iterator
+	    numCtfInnerHits++ ;
 
-    if ( static_cast<float>(shared)/min(numGsfInnerHits,numCtfInnerHits) > maxFracShared ) {
+        if( (**elHitsIt).sharesInput(&(**ctfHitsIt),TrackingRecHit::all) )
+         {
+          shared++ ;
+          break ;
+         }
+
+       } //ctfHits iterator
+
+     } //gsfHits iterator
+
+    if ( static_cast<float>(shared)/min(numGsfInnerHits,numCtfInnerHits) > maxFracShared )
+     {
       maxFracShared = static_cast<float>(shared)/min(numGsfInnerHits, numCtfInnerHits);
       ctfTrackRef = TrackRef(ctfTracksH,counter);
-    }
+     }
 
-  }//ctfTrack iterator
+   } //ctfTrack iterator
 
-  return make_pair(ctfTrackRef,maxFracShared);
-}
+  return make_pair(ctfTrackRef,maxFracShared) ;
+ }
