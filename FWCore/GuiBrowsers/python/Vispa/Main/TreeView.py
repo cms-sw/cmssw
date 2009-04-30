@@ -79,7 +79,7 @@ class TreeView(QTreeWidget):
     def itemSelectionChanged(self):
         """ Emits signal itemSelected that the TabController can connect to.
         """
-        logging.debug(__name__ + ": itemSelected")
+        logging.debug(__name__ + ": itemSelectionChanged")
         self.emit(SIGNAL("itemSelected"), self.currentItem())
         
     def itemById(self, id):

@@ -90,8 +90,8 @@ def patch_Process_recurseDumpModified_(self, name, object):
             value=getattr(object,key)
             if not isinstance(value,typ.PSet):
                 if hasattr(value,"isModified") and getattr(object,key).isModified():
-                    if isinstance(object, cms.InputTag):
-                        pythonValue = "\""+str(object.value())+"\""
+                    if isinstance(value, cms.InputTag):
+                        pythonValue = "\""+str(value.value())+"\""
                     elif hasattr(value,"pythonValue"):
                         pythonValue=value.pythonValue()
                     elif hasattr(value,"value"):

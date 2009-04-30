@@ -2,6 +2,7 @@ import logging
 
 from Vispa.Main.TabController import *
 from Vispa.Main.FindDialog import *
+from Vispa.Main.FilterDialog import *
 from Vispa.Main.FindAlgorithm import *
 from Vispa.Main.BoxContentDialog import *
 from Vispa.Main.EventFileNavigator import *
@@ -29,10 +30,13 @@ class TripleTabController(TabController):
 
         self._currentCenterView = None
         
-        self._restoreSelectionFlag = False
+        self._restoreTreeViewSelectionFlag = False
+        self._restoreCenterViewSelectionFlag = False
         
         self.setFindEnabled()
+        self._findAlgoritm = None
         self._findDialog = None
+        self._filterDialog = None
 
         self._fillMenu()
   
@@ -50,6 +54,8 @@ class TripleTabController(TabController):
         self._viewMenu.addSeparator()
         self._boxContentAction = self.plugin().application().createAction('&Set box content...', self._showBoxContentDialog, "Ctrl+B")
         self._viewMenu.addAction(self._boxContentAction)
+        self._filterAction = self.plugin().application().createAction('&Apply filter...', self.filter, "Ctrl+P")
+#        self._viewMenu.addAction(self._filterAction)
         self._saveImageAction = self.plugin().application().createAction('&Save image...', self.saveImage, "Ctrl+I")
         self._viewMenu.addAction(self._saveImageAction)
         self._zoomAction = self.plugin().application().createAction('&Zoom...', self.zoomDialog, "Ctrl+Z")
@@ -100,11 +106,7 @@ class TripleTabController(TabController):
         
         #reconnect data accessors and stuff
         self.tab().centerView().setDataAccessor(self._dataAccessor)
-        if self._treeViewSelection != None:
-            selectedItem = self.tab().treeView().itemById(self._treeViewSelection)
-        else:
-            selectedItem = None
-        self.updateCenterView(selectedItem)
+        self.updateCenterView()
       
     def viewMenu(self):
         return self._viewMenu
@@ -161,20 +163,31 @@ class TripleTabController(TabController):
         """
         return self.tab().scrollArea().zoom()
 
-    def updateCenterView(self, item):
+    def updateCenterView(self):
         """ Fill the center view from an item in the TreeView and update it """
+        logging.debug(__name__ + ": updateCenterView")
         statusMessage = self.plugin().application().startWorking("Updating center view")
-        if item != None:
+        if self._treeViewSelection != None:
+            item = self.tab().treeView().itemById(self._treeViewSelection)
             self.tab().centerView().setDataObjects([item.object])
         else:
             self.tab().centerView().setDataObjects([])
-        self.tab().centerView().updateContent()
+        result=self.tab().centerView().updateContent()
+        if result and self._centerViewSelection != None:
+            selectedWidget = self.tab().centerView().widgetById(self._centerViewSelection)
+            self._restoreCenterViewSelectionFlag = True
+            self.tab().centerView().select(selectedWidget)
+            self._restoreCenterViewSelectionFlag = False
+            if selectedWidget!=None and self.tab().propertyView().dataObject() != selectedWidget.object:
+                self.tab().propertyView().setDataObject(selectedWidget.object)
+                self.tab().propertyView().updateContent()
         self.plugin().application().stopWorking(statusMessage)
+        return result
 
     def onItemSelected(self, item):
         """ When item is selected in the TreeView update center view and PropertyView.
         """
-        if self._restoreSelectionFlag:
+        if self._restoreTreeViewSelectionFlag:
             return False
         logging.debug(__name__ + ": onItemSelected")
         if item != None:
@@ -185,19 +198,23 @@ class TripleTabController(TabController):
         if self.tab().propertyView().dataObject() != select:
             self.tab().propertyView().setDataObject(select)
             self.tab().propertyView().updateContent()
-        self.updateCenterView(item)
-        self.tab().centerView().select(self.tab().centerView().widgetById("0"))
+        if self.updateCenterView():
+            # select first widget in center view if possible
+            firstWidget=self.tab().centerView().widgetById("0")
+            if firstWidget != None:
+                self.tab().centerView().select(firstWidget)
 
     def onWidgetSelected(self, widget):
         """ When widget is selected in the center view update PropertyView.
         """
-        if self._restoreSelectionFlag:
+        if self._restoreCenterViewSelectionFlag:
             return False
         logging.debug(__name__ + ": onWidgetSelected")
         if widget != None:
             self._centerViewSelection = widget.widgetId
             select = widget.object
         else:
+            self._centerViewSelection = None
             select = None
         if self.tab().propertyView().dataObject() != select:
             self.tab().propertyView().setDataObject(select)
@@ -206,61 +223,72 @@ class TripleTabController(TabController):
     def updateContent(self):
         """ Updates all three views and restores the selection, e.g. after moving to next event.
         """
-        self._restoreSelectionFlag = True
+        logging.debug(__name__ + ": updateContent")
         self.tab().treeView().setDataObjects(self._dataAccessor.topLevelObjects())
+        self._restoreTreeViewSelectionFlag = True
         self.tab().treeView().updateContent()
+        self._restoreTreeViewSelectionFlag = False
         if self._treeViewSelection != None:
             self.tab().propertyView().setDataObject(None)
             selectedItem = self.tab().treeView().itemById(self._treeViewSelection)
+            self._restoreTreeViewSelectionFlag = True
             self.tab().treeView().select(selectedItem)
-            self.updateCenterView(selectedItem)
+            self._restoreTreeViewSelectionFlag = False
             self.tab().propertyView().setDataObject(selectedItem.object)
-            if self._centerViewSelection != None:
-                selectedWidget = self.tab().centerView().widgetById(self._centerViewSelection)
-                self.tab().centerView().select(selectedWidget)
-                self.tab().propertyView().setDataObject(selectedWidget.object)
             self.tab().propertyView().updateContent()
-            self._restoreSelectionFlag = False
+            self.updateCenterView()
         else:
-            self._restoreSelectionFlag = False
             self.tab().treeView().select(self.tab().treeView().itemById("0"))
         
     def find(self):
         """ Open find dialog and find items.
         """
         logging.debug(__name__ + ": find")
-        if not self._findDialog:
+        if not self._findAlgoritm:
             self._findAlgoritm = FindAlgorithm()
             self._findAlgoritm.setDataAccessor(self._dataAccessor)
             self._findAlgoritm.setDataObjects(self._dataAccessor.topLevelObjects())
+        if not self._findDialog:
             self._findDialog = FindDialog(self.tab())
             self._findDialog.setFindAlgorithm(self._findAlgoritm)
             self.connect(self._findDialog, SIGNAL("found"), self.select)
         self._findDialog.onScreen()
         
+    def filter(self):
+        """ Open filter dialog and filter items.
+        """
+        logging.debug(__name__ + ": filter")
+        if not self._findAlgoritm:
+            self._findAlgoritm = FindAlgorithm()
+            self._findAlgoritm.setDataAccessor(self._dataAccessor)
+            self._findAlgoritm.setDataObjects(self._dataAccessor.topLevelObjects())
+        if not self._filterDialog:
+            self._filterDialog = FilterDialog(self.tab())
+            self._filterDialog.setFindAlgorithm(self._findAlgoritm)
+            self.connect(self._filterDialog, SIGNAL("filtered"), self.filtered)
+        self._filterDialog.onScreen()
+    
+    def filtered(self,returnValue):
+        if returnValue!=None:
+            self.tab().centerView().setFilterObjects(self._findAlgoritm.results())
+            self.updateCenterView()
+        
     def select(self, object):
         """ Select an object in all views.
         """
         logging.debug(__name__ + ": select : " + str(object))
-        self._restoreSelectionFlag = True
         selectedItem = self.tab().treeView().itemByObject(object)
+        self._restoreTreeViewSelectionFlag = True
         self.tab().treeView().select(selectedItem)
+        self._restoreTreeViewSelectionFlag = False
         selectedWidget = self.tab().centerView().widgetByObject(object)
         self.tab().centerView().select(selectedWidget)
-        self.tab().propertyView().setDataObject(object)
-        self.tab().propertyView().updateContent()
-        self._restoreSelectionFlag = False
 
     def scriptChanged(self, script):
         """ Update box content of center view when script is changed.
         """
-        self._restoreSelectionFlag = True
         self.tab().centerView().setBoxContentScript(script)
-        self.tab().centerView().updateContent()
-        if self._centerViewSelection != None:
-            selectedWidget = self.tab().centerView().widgetById(self._centerViewSelection)
-            self.tab().centerView().select(selectedWidget)
-        self._restoreSelectionFlag = False
+        self.updateCenterView()
 
     def closeEvent(self, event):
         event.accept()

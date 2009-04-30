@@ -232,7 +232,7 @@ class Application(QApplication):
         self._window.fileToolBar().addAction(openFileAction)
 
         # Reload
-        self._fileMenuItems['reloadFileAction'] = self.createAction('&Reload File', self.reloadFile, 'F5', "reload")
+        self._fileMenuItems['reloadFileAction'] = self.createAction('&Reload File', self.reloadFile, ['Ctrl+R', 'F5'], "reload")
         self._window.fileMenu().addAction(self._fileMenuItems['reloadFileAction'])
         #self._window.fileToolBar().addAction(self._fileMenuItems['reloadFileAction'])
         
@@ -269,11 +269,11 @@ class Application(QApplication):
         self._window.fileToolBar().addAction(self._fileMenuItems['saveFileAction'])
         
         # Save as
-        self._fileMenuItems['saveFileAsAction'] = self.createAction('Save As...', self.saveFileAsDialog, None, image="filesaveas")      
+        self._fileMenuItems['saveFileAsAction'] = self.createAction('Save As...', self.saveFileAsDialog, 'Ctrl+Shift+S', image="filesaveas")      
         self._window.fileMenu().addAction(self._fileMenuItems['saveFileAsAction'])
    
         # Save all
-        self._fileMenuItems['saveAllFilesAction'] = self.createAction('Save &All', self.saveAllFiles, "Ctrl+Shift+S", "filesaveall")      
+        self._fileMenuItems['saveAllFilesAction'] = self.createAction('Save &All', self.saveAllFiles, "Ctrl+Alt+S", "filesaveall")      
         self._window.fileMenu().addAction(self._fileMenuItems['saveAllFilesAction'])
        
         self._window.fileMenu().addSeparator()
@@ -502,7 +502,10 @@ class Application(QApplication):
         if slot:
             self.connect(action, SIGNAL("triggered()"), slot)
         if shortcut:
-            action.setShortcut(shortcut)
+            if isinstance(shortcut,list):
+                action.setShortcuts(shortcut)
+            else:
+                action.setShortcut(shortcut)
         return action
         
     def exit(self):

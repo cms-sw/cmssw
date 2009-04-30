@@ -63,9 +63,9 @@ class FindDialog(QDialog):
         self._layout4.addStretch()
         self._layout4.addWidget(self._closeButton)
 
-        self.connect(self._findLabelLineEdit, SIGNAL('textChanged(QString)'), self._edited)
-        self.connect(self._caseSensitiveCheckBox, SIGNAL('stateChanged(int)'), self._edited)
-        self.connect(self._exactMatchCheckBox, SIGNAL('stateChanged(int)'), self._edited)
+        self.connect(self._findLabelLineEdit, SIGNAL('textChanged(QString)'), self.edited)
+        self.connect(self._caseSensitiveCheckBox, SIGNAL('stateChanged(int)'), self.edited)
+        self.connect(self._exactMatchCheckBox, SIGNAL('stateChanged(int)'), self.edited)
 
         self.connect(self._addStringPropertyButton, SIGNAL('clicked(bool)'), self._addStringProperty)
         #self.connect(self._removePropertyButton, SIGNAL('clicked(bool)'), self._removeProperty)
@@ -102,8 +102,8 @@ class FindDialog(QDialog):
         layout2.addWidget(findPropertyValueLabel)
         layout2.addWidget(findPropertyValueLineEdit)
 
-        self.connect(findPropertyNameLineEdit, SIGNAL('textChanged(QString)'), self._edited)
-        self.connect(findPropertyValueLineEdit, SIGNAL('textChanged(QString)'), self._edited)
+        self.connect(findPropertyNameLineEdit, SIGNAL('textChanged(QString)'), self.edited)
+        self.connect(findPropertyValueLineEdit, SIGNAL('textChanged(QString)'), self.edited)
 
         self.layout().insertLayout(len(self._properties)+len(self._scripts)+1,layout2)
         
@@ -120,7 +120,7 @@ class FindDialog(QDialog):
         layout2.addWidget(findScriptLabel)
         layout2.addWidget(findScriptLineEdit)
 
-        self.connect(findScriptLineEdit, SIGNAL('textChanged(QString)'), self._edited)
+        self.connect(findScriptLineEdit, SIGNAL('textChanged(QString)'), self.edited)
 
         self.layout().insertLayout(len(self._properties)+len(self._scripts)+1,layout2)
         
@@ -166,7 +166,7 @@ class FindDialog(QDialog):
     def exactMatch(self):
         return self._exactMatchCheckBox.checkState()==Qt.Checked
     
-    def _edited(self):
+    def edited(self):
         self._findPreviousButton.hide()
         if self._findNextButton.isVisible():
             self._findNumberLabel.hide()
@@ -177,7 +177,7 @@ class FindDialog(QDialog):
         total=self._findAlgorithm.numberOfResults()
         message=self._findAlgorithm.message()
         if message:
-            self._findNumberLabel.setText(self._findAlgorithm.message())
+            self._findNumberLabel.setText(message)
         elif total>0:
             self._findNumberLabel.setText(str(current)+"/"+str(total))
         else:

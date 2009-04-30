@@ -87,7 +87,7 @@ class ConfigBrowserTabController(TripleTabController):
         self.tab().setCenterView(self._configBrowserBoxView)
         self._saveIni()
 
-    def updateCenterView(self, item):
+    def updateCenterView(self):
         """ Fill the center view from an item in the TreeView and update it """
         statusMessage = self.plugin().application().startWorking("Updating center view")
         if self._thread != None and self._thread.isRunning():
@@ -95,7 +95,8 @@ class ConfigBrowserTabController(TripleTabController):
             while self._thread.isRunning():
                 QCoreApplication.instance().processEvents()
         objects = []
-        if item != None:
+        if self._treeViewSelection != None:
+            item = self.tab().treeView().itemById(self._treeViewSelection)
             if self.currentCenterView() == "&Connection structure":
                 objects = self.dataAccessor().nonSequenceChildren(item.object)
             else:
@@ -112,8 +113,17 @@ class ConfigBrowserTabController(TripleTabController):
         else:
             if isinstance(self.tab().centerView(), ConfigBrowserBoxView):
                 self.tab().centerView().setConnections([])
-        self.tab().centerView().updateContent()
+        result=self.tab().centerView().updateContent()
+        if result and self._centerViewSelection != None:
+            selectedWidget = self.tab().centerView().widgetById(self._centerViewSelection)
+            self._restoreCenterViewSelectionFlag = True
+            self.tab().centerView().select(selectedWidget)
+            self._restoreCenterViewSelectionFlag = False
+            if selectedWidget!=None and self.tab().propertyView().dataObject() != selectedWidget.object:
+                self.tab().propertyView().setDataObject(selectedWidget.object)
+                self.tab().propertyView().updateContent()
         self.plugin().application().stopWorking(statusMessage)
+        return result
 
     def selected(self):
         """ Shows plugin menus when user selects tab.

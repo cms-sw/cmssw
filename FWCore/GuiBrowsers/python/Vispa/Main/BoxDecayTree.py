@@ -98,6 +98,7 @@ class BoxDecayTree(Workspace):
                     break
                 self.createBoxRecursive(operationId, object, self, str(i))
                 i += 1
+        return operationId == self._operationId
 
     def createBox(self, widgetParent, container, title, text):
         """ Create a WidgetContainer or ConnectableWidget and set its properties.

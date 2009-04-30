@@ -42,5 +42,5 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     app.mainWindow().setWindowTitle("ConfigBrowser")
     app.mainWindow().setWindowIcon(QIcon())
-    app.setVersion("Version 26.04.2009")
+    app.setVersion("Version 30.04.2009")
     app.run()

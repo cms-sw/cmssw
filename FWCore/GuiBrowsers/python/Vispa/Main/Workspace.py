@@ -115,3 +115,6 @@ class Workspace(ZoomableWidget, ConnectableWidgetOwner):
 
     def setBoxContentScript(self, script):
         pass
+
+    def setFilterObjects(self, objects):
+        pass
