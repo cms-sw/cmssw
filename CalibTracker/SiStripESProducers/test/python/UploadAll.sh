@@ -4,12 +4,12 @@ rm dbfile.db
 $CMSSW_RELEASE_BASE/src/CondTools/SiStrip/scripts/CreatingTables.sh sqlite_file:dbfile.db a a
 
 oldDest="sqlite_file:dbfile.db"
-#newDest="sqlite_file:dbfile.db"
-newDest="oracle://cms_orcoff_prep/CMS_COND_STRIP"
+newDest="sqlite_file:dbfile.db"
+#newDest="oracle://cms_orcoff_prep/CMS_COND_STRIP"
 
 oldTag="31X"
-#newTag="31X_v2"
 newTag="31X"
+#newTag="31X_v2"
 
 cat DummyCondDBWriter_SiStripApvGain_cfg.py | sed -e "s@$oldDest@$newDest@" -e "s@$oldTag@$newTag@" > DummyCondDBWriter_tmp_cfg.py
 cmsRun DummyCondDBWriter_tmp_cfg.py
