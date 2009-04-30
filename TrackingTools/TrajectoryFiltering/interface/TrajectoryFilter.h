@@ -18,13 +18,13 @@ class TempTrajectory;
  *  uses TrajectoryFilters as stopping conditions.
  */
 
-class TrackingComponentsRecord;
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 class TrajectoryFilter {
  public:
   
   //a type def while deciding what the record it
-  typedef TrackingComponentsRecord Record;
+  typedef CkfComponentsRecord Record;
 
   static const bool qualityFilterIfNotContributing =true;
   static const bool toBeContinuedIfNotContributing =true;

@@ -61,11 +61,11 @@ GroupedCkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecor
   iRecord.getRecord<TrackingComponentsRecord>().get(estimatorName,estimatorHandle);  
   iRecord.getRecord<TransientRecHitRecord>().get(recHitBuilderName,recHitBuilderHandle);  
   iRecord.get(measurementTrackerName, measurementTrackerHandle);  
-  iRecord.getRecord<TrajectoryFilter::Record>().get(filterName, filterHandle);
+  iRecord.get(filterName, filterHandle);
   if (useSameTrajFilter) {
     inOutFilterHandle = filterHandle;
   } else {
-    iRecord.getRecord<TrajectoryFilter::Record>().get(inOutFilterName, inOutFilterHandle);
+    iRecord.get(inOutFilterName, inOutFilterHandle);
   }
 
   _trajectoryBuilder  = 

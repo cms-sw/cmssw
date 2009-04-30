@@ -17,7 +17,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Fri Sep 28 18:07:52 CEST 2007
-// $Id$
+// $Id: TrajectoryFilterESProducer.h,v 1.1 2007/10/18 01:50:55 vlimant Exp $
 //
 //
 
@@ -34,7 +34,7 @@
 
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 //
 // class decleration
 //

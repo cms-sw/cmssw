@@ -58,7 +58,7 @@ CkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
   iRecord.getRecord<TrackingComponentsRecord>().get(estimatorName,estimatorHandle);  
   iRecord.getRecord<TransientRecHitRecord>().get(recHitBuilderName,recHitBuilderHandle);  
   iRecord.get(measurementTrackerName, measurementTrackerHandle);
-  iRecord.getRecord<TrajectoryFilter::Record>().get(filterName, filterHandle);
+  iRecord.get(filterName, filterHandle);
 
   _trajectoryBuilder  = 
     boost::shared_ptr<TrajectoryBuilder>(new CkfTrajectoryBuilder(pset_,
