@@ -28,7 +28,7 @@
 
 
 HFRecoEcalCandidateProducer::HFRecoEcalCandidateProducer(edm::ParameterSet const& conf):
-  hfclusters_(conf.getUntrackedParameter<edm::InputTag>("hfclusters")),
+  hfclusters_(conf.getParameter<edm::InputTag>("hfclusters")),
   algo_(conf.getParameter<bool>("Correct"),conf.getParameter<double>("e9e25Cut"),conf.getParameter<double>("intercept2DCut")){
 
   produces<reco::RecoEcalCandidateCollection>();
