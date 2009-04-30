@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 from Calibration.EcalAlCaRecoProducers.alCaIsolatedElectrons_cfi import *
+from Calibration.EcalAlCaRecoProducers.electronIsolationSequence_cff import *
 import HLTrigger.HLTfilters.hltHighLevel_cfi 
 
 #
-# The current (as of $Date: 2009/04/06 07:44:37 $) ALCA stream for single and double electron
+# The current (as of $Date: 2009/04/23 13:49:10 $) ALCA stream for single and double electron
 # calibration
 #
 
@@ -72,5 +73,17 @@ goodSuperClusterFilter2 = cms.EDFilter("CandViewCountFilter",
 
 seqALCARECOEcalCalElectronRECO = cms.Sequence(alCaIsolatedElectrons)
 
-seqALCARECOEcalCalElectron = cms.Sequence(isolElectronewkHLTFilter*superClusterMerger*superClusterCands*goodSuperClusters*goodSuperClusterFilter*goodSuperClusters2*goodSuperClusterFilter2*goodElectrons*goodElectronFilter*goodElectrons2*goodElectronFilter2*seqALCARECOEcalCalElectronRECO)
+seqALCARECOEcalCalElectron = cms.Sequence(isolElectronewkHLTFilter*         \
+                                          superClusterMerger*               \
+                                          superClusterCands*                \
+                                          goodSuperClusters*                \
+                                          goodSuperClusterFilter*           \
+                                          goodSuperClusters2*               \
+                                          goodSuperClusterFilter2*          \
+                                          goodElectrons*                    \
+                                          goodElectronFilter*               \
+                                          goodElectrons2*                   \
+                                          goodElectronFilter2*              \
+                                          alcaElectronIsolationSequence*    \
+                                          seqALCARECOEcalCalElectronRECO)
 
