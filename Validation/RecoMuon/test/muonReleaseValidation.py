@@ -172,19 +172,20 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 
                 
                 # if not harvesting find secondary file names
+#                    if(dataset!="" ):
                     if(dataset!="" and Sequence!="harvesting"):
                         print 'Getting secondary files'
-                        cmd3='./DDSearchCLI.py  --limit -1 --input="find dataset.parent where dataset like '+ dataset +'"|grep ' + sample
+                        cmd3='./DDSearchCLI.py  --limit -1 --input="find dataset.parent where dataset like '+ dataset[:-1] +'"|grep ' + sample
                         parentdataset=os.popen(cmd3).readline()
                         print 'Parent DataSet:  ', parentdataset, '\n'
                     
                         #Check if a dataset is found
                         if parentdataset!="":
-                            cmd4='./DDSearchCLI.py  --limit -1 --cff --input="find file where dataset like '+ parentdataset +'"|grep ' + sample 
+                            cmd4='./DDSearchCLI.py  --limit -1 --cff --input="find file where dataset like '+ parentdataset[:-1] +'"|grep ' + sample 
                             filenames+='secFiles.extend( [\n'
                             first=True                        
                             for line in os.popen(cmd4).readlines():
-                                filenames+=line
+                                filenames+='"'+line[:-1]+'",'
                             filenames+=']);\n'
                         else :
                             print "No primary dataset found skipping sample: ", sample
