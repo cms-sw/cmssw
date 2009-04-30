@@ -15,6 +15,10 @@
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
+#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -59,19 +63,8 @@ EcalBarrelRecHitsMaker::EcalBarrelRecHitsMaker(edm::ParameterSet const & p,
   edm::ParameterSet CalibParameters = RecHitsParameters.getParameter<edm::ParameterSet>("ContFact"); 
   double c1=CalibParameters.getParameter<double>("EBs25notContainment"); 
   calibfactor_=1./c1;
-  adcToGeV_= 0.035;
-  minAdc_ = 200;
-  maxAdc_ = 4085;
 
-  geVToAdc1_ = 1./adcToGeV_;
-  geVToAdc2_ = geVToAdc1_/2.;
-  geVToAdc3_ = geVToAdc1_/12.;
-  
-  t1_ = ((int)maxAdc_-(int)minAdc_)*adcToGeV_;
-  t2_ = 2.* t1_ ; 
 
-  // Saturation value. Not needed in the digitization
-  sat_ = 12.*t1_*calibfactor_;
 }
 
 EcalBarrelRecHitsMaker::~EcalBarrelRecHitsMaker()
@@ -361,6 +354,24 @@ void EcalBarrelRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
   //  std::cout << " Initializing EcalBarrelRecHitsMaker " << std::endl;
   doDigis_=doDigis;
   doMisCalib_=doMiscalib;
+
+  edm::ESHandle<EcalADCToGeVConstant> agc;
+  es.get<EcalADCToGeVConstantRcd>().get(agc);
+
+  adcToGeV_= agc->getEBValue();// 0.035 ;
+  minAdc_ = 200;
+  maxAdc_ = 4085;
+
+  geVToAdc1_ = 1./adcToGeV_;
+  geVToAdc2_ = geVToAdc1_/2.;
+  geVToAdc3_ = geVToAdc1_/12.;
+  
+  t1_ = ((int)maxAdc_-(int)minAdc_)*adcToGeV_;
+  t2_ = 2.* t1_ ; 
+
+  // Saturation value. Not needed in the digitization
+  sat_ = 12.*t1_*calibfactor_;
+
   barrelRawId_.resize(EBDetId::kSizeForDenseIndexing);
   if (doMisCalib_) theCalibConstants_.resize(EBDetId::kSizeForDenseIndexing);
   edm::ESHandle<CaloGeometry> pG;
@@ -450,27 +461,47 @@ void EcalBarrelRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
   // Stores the miscalibration constants
   if(doMisCalib_)
     {
-      float rms=0.;
+      double rms=0.;
+      double mean=0.;
       unsigned ncells=0;
-      // Intercalib constants
+      // Intercalib MC constants IC_MC_i
+      edm::ESHandle<EcalIntercalibConstantsMC> pJcal;
+      es.get<EcalIntercalibConstantsMCRcd>().get(pJcal); 
+      const EcalIntercalibConstantsMC* jcal = pJcal.product(); 
+      const std::vector<float>& ICMC = jcal->barrelItems();
+
+      // Intercalib constants IC_i 
+      // IC = IC_MC * (1+delta)
+      // where delta is the miscalib
       edm::ESHandle<EcalIntercalibConstants> pIcal;
       es.get<EcalIntercalibConstantsRcd>().get(pIcal);
       const EcalIntercalibConstants* ical = pIcal.product();
-
-      theCalibConstants_ = ical->barrelItems();
-      std::vector<float>::iterator it=theCalibConstants_.begin();
-      std::vector<float>::iterator itend=theCalibConstants_.end();
+      const std::vector<float> & IC = ical->barrelItems();
       
-      for ( ; it != itend; ++it ) {
-
+      float meanIC=0.;
+      unsigned nic = IC.size();
+      for ( unsigned ic=0; ic <nic ; ++ic ) {
+	// the miscalibration factor is 
+	float factor = IC[ic]/ICMC[ic];
+	meanIC+=(IC[ic]-1.);
 	// Apply Refactor & refactor_mean
-	*it= refactor_mean_+(*it-1.)*refactor_;
-	rms+=(*it-1.)*(*it-1.);
-	++ncells;
+	theCalibConstants_[ic] = refactor_mean_+(factor-1.)*refactor_;
+	
+	rms+=(factor-1.)*(factor-1.);
+	mean+=(factor-1.);
+	++ncells;	
       }
-      rms = std::sqrt(rms) / (float)ncells;
+
+      mean/=(float)ncells;
+      rms/=(float)ncells;
+
+      rms=sqrt(rms-mean*mean);
+      meanIC = 1.+ meanIC/ncells;
       // The following should be on LogInfo
-      //std::cout << " Found " << ncells << " cells in the barrel calibration map. RMS is " << rms << std::endl;
+      //      float NoiseSigma = 1.26 * meanIC * adcToGeV_ ;
+      //      std::cout << " Found " << ncells << 
+      edm::LogInfo("CaloRecHitsProducer") << "Found  " << ncells << " cells in the barrel calibration map. RMS is " << rms << std::endl;
+      //      std::cout << "Found  " << ncells << " cells in the barrel calibration map. RMS is " << rms << std::endl;
     }  
 }
 

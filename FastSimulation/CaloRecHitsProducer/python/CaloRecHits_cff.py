@@ -32,7 +32,7 @@ ecalRecHit = cms.EDProducer("CaloRecHitsProducer",
                                                        ContFact = cms.PSet(ecal_notCont_sim)),
                                                        
                                                        ECALEndcap = cms.PSet(
-                                                       Noise = cms.double(0.15),
+                                                       Noise = cms.double(-1.), 
                                                        Threshold = cms.double(.3),
                                                        SRThreshold = cms.double(1.),
                                                        Refactor = cms.double(1.),

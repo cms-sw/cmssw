@@ -16,6 +16,11 @@
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
+#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 
 #include "CLHEP/GenericFunctions/Erf.hh"
@@ -45,32 +50,13 @@ EcalEndcapRecHitsMaker::EcalEndcapRecHitsMaker(edm::ParameterSet const & p,
   CrystalsinSC_.resize(633);
   sinTheta_.resize(EEDetId::kEEhalf,0.);
 
-  Genfun::Erf myErf; 
-  if(  noise_>0. ) {
-    EEHotFraction_ = 0.5-0.5*myErf(threshold_/noise_/sqrt(2.));
-    myGaussianTailGenerator_ = new GaussianTail(random_, noise_, threshold_);
-  } else {
-    EEHotFraction_ =0.;
-  }
-
-
+  
   noisified_ = (noise_==0.);
   edm::ParameterSet CalibParameters=RecHitsParameters.getParameter<edm::ParameterSet>("ContFact"); 
   double c1 = CalibParameters.getParameter<double>("EEs25notContainment");
   calibfactor_= 1./c1;
 
-  adcToGeV_= 0.060;
-  minAdc_ = 200;
-  maxAdc_ = 4085;
-  
-  geVToAdc1_ = 1./adcToGeV_;
-  geVToAdc2_ = geVToAdc1_/2.;
-  geVToAdc3_ = geVToAdc1_/12.;
-  
-  t1_ = ((int)maxAdc_-(int)minAdc_)*adcToGeV_;
-  t2_ = 2.* t1_ ; 
 
-  sat_ = 12.*t1_*calibfactor_;
 }
   
 
@@ -91,7 +77,7 @@ void EcalEndcapRecHitsMaker::clean()
   noisified_ = (noise_==0.);
 
   size=theFiredTTs_.size();
-  //  std::cout << " Number of barrel TT " << size << std::endl;
+
   for(unsigned itt=0;itt<size;++itt)
     {
       //      std::cout << " TT " << theFiredTTs_[itt] << " " << TTTEnergy_[theFiredTTs_[itt]] << std::endl;
@@ -160,8 +146,9 @@ void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCo
 	    energy=sat_;
 	    theCalorimeterHits_[icell]=sat_;
 	  }
-
-      ecalHits.push_back(EcalRecHit(myDetId,energy,0.));
+      if(energy!=0.)
+	ecalHits.push_back(EcalRecHit(myDetId,energy,0.));
+      //      std::cout << "AA " << myDetId.ix() << " " << myDetId.iy() << " " << energy << std::endl;
     }
   noisified_ = true;
 
@@ -185,7 +172,8 @@ void EcalEndcapRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
       if(theCalorimeterHits_[hashedindex]==0.)
 	{
 	  theFiredCells_.push_back(hashedindex); 
-	  if (!noisified_ )  theCalorimeterHits_[hashedindex] += random_->gaussShoot(0.,noise_); 
+	  float noise=(noise_==-1.) ? noisesigma_[hashedindex] : noise_ ;
+	  if (!noisified_ )  theCalorimeterHits_[hashedindex] += random_->gaussShoot(0.,noise); 
 	}
       // the famous 1/0.97 calibration factor is applied here ! 
       // the miscalibration is applied here:
@@ -252,7 +240,8 @@ void EcalEndcapRecHitsMaker::noisifySuperCrystals(int tthi)
 	  if(theCalorimeterHits_[hashedindex]==0.)
 	    {
 	      float calib = (doMisCalib_) ? calibfactor_*theCalibConstants_[hashedindex]:calibfactor_;
-	      float energy = calib*random_->gaussShoot(0.,noise_);
+	      float noise = (noise_==-1.) ? noisesigma_[hashedindex]:noise_;
+	      float energy = calib*random_->gaussShoot(0.,noise);
 	      theCalorimeterHits_[hashedindex]=energy;
 	      theFiredCells_.push_back(hashedindex);
 	      // the corresponding trigger tower should be updated 
@@ -272,7 +261,10 @@ void EcalEndcapRecHitsMaker::noisifySuperCrystals(int tthi)
 }
 
 // injects high noise fluctuations cells. It is assumed that these cells cannot 
-// make of the tower a high interest one
+// make of the tower a high interest one. 
+// Two different cases:
+// 1) noise flat in energy -> use a GaussianTail generator
+// 2) noise from database (~flat in pT) -> inject noise everywhere
 void EcalEndcapRecHitsMaker::randomNoisifier()
 {
   // first of cells where some noise will be injected
@@ -281,15 +273,32 @@ void EcalEndcapRecHitsMaker::randomNoisifier()
 
   // for debugging
   //  std::vector<int> listofNewTowers;
+  
+  if(noise_==-1.)
+    ncells=EEDetId::kSizeForDenseIndexing;
 
   unsigned icell=0;
   while(icell < ncells)
     {
-      unsigned cellindex= (unsigned)(floor(random_->flatShoot()*EEDetId::kSizeForDenseIndexing));
+      unsigned cellindex= (noise_!=-1.) ? 
+	(unsigned)(floor(random_->flatShoot()*EEDetId::kSizeForDenseIndexing)): icell ;
+      
       if(theCalorimeterHits_[cellindex]==0.)
 	{
-	  double energy=myGaussianTailGenerator_->shoot();
-	  theCalorimeterHits_[cellindex]=energy;
+	  // if noise_>0 the following is really an energy, if -1. it is a transverse energy
+	  double energy=0.;
+	  if(noise_>0.) 
+	    energy=myGaussianTailGenerator_->shoot();
+	  if(noise_==-1.) 
+	    {
+	      // in this case the generated noise might be below the threshold but it 
+	      // does not matter, the threshold will be applied anyway
+	      //	      energy/=sinTheta_[(cellindex<EEDetId::kEEhalf)?cellindex : cellindex-EEDetId::kEEhalf];	 
+	      energy=random_->gaussShoot(0.,noisesigma_[cellindex]); 
+	    }
+	  float calib = (doMisCalib_) ? calibfactor_*theCalibConstants_[cellindex]:calibfactor_;
+	  energy *= calib;
+	  theCalorimeterHits_[cellindex]=energy;	  
 	  theFiredCells_.push_back(cellindex);
 	  EEDetId myDetId(EEDetId::unhashIndex(cellindex));
 	  // now get the TT 	  
@@ -307,7 +316,6 @@ void EcalEndcapRecHitsMaker::randomNoisifier()
 //								 TThashedindex);
 //	      if(itcheck==listofNewTowers.end())
 //		{
-//		  std::cout << " EcalBarrelRecHitsMaker : this tower has already been treated " << TTTEnergy_[TThashedindex] << myDetId << std::endl;
 //		  const std::vector<int> & scxtals=SCofTT_[TThashedindex];
 //		  for(unsigned isc=0;isc<scxtals.size();++isc)
 //		    {
@@ -317,8 +325,11 @@ void EcalEndcapRecHitsMaker::randomNoisifier()
 //		    }
 //		}
 //	    }
-	  ++icell;
+	  if(noise_>0.)
+	    ++icell;
 	}
+      if(noise_==-1.)
+	++icell;
     }
   //  std::cout << " Injected random noise in " << ncells << " cells " << std::endl;
 }
@@ -328,8 +339,28 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
 {
   doDigis_=doDigis;
   doMisCalib_=domiscalib;
-  endcapRawId_.resize(20000);
-  if (doMisCalib_) theCalibConstants_.resize(20000);
+
+  
+  edm::ESHandle<EcalADCToGeVConstant> agc;
+  es.get<EcalADCToGeVConstantRcd>().get(agc);
+
+  adcToGeV_=   agc->getEEValue() ; // ~0.06 
+  minAdc_ = 200;
+  maxAdc_ = 4085;
+  
+  geVToAdc1_ = 1./adcToGeV_;
+  geVToAdc2_ = geVToAdc1_/2.;
+  geVToAdc3_ = geVToAdc1_/12.;
+  
+  t1_ = ((int)maxAdc_-(int)minAdc_)*adcToGeV_;
+  t2_ = 2.* t1_ ; 
+
+  sat_ = 12.*t1_*calibfactor_;
+
+  endcapRawId_.resize(EEDetId::kSizeForDenseIndexing);
+
+  if (doMisCalib_) theCalibConstants_.resize(EEDetId::kSizeForDenseIndexing);
+
   edm::ESHandle<CaloGeometry> pG;
   es.get<CaloGeometryRecord>().get(pG);   
   
@@ -347,7 +378,10 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
       endcapRawId_[cellhashedindex]=vec[ic].rawId();
       // trick to save a bit of memory. sin Theta is identical in EE+/-
       if (cellhashedindex< EEDetId::kEEhalf)
-	sinTheta_[cellhashedindex]=std::sin(myEcalEndcapGeometry->getGeometry(myDetId)->getPosition().theta());
+	{
+	  float sintheta=std::sin(myEcalEndcapGeometry->getGeometry(myDetId)->getPosition().theta());
+	  sinTheta_[cellhashedindex]=sintheta;
+	}
       // a bit of trigger tower and SuperCrystals algebra
       // first get the trigger tower 
       EcalTrigTowerDetId towid1= eTTmap_->towerOf(vec[ic]);
@@ -386,29 +420,72 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
     }
   //  std::cout << " Made the array " << std::endl;
   // Stores the miscalibration constants
-  if(doMisCalib_)
+  if(doMisCalib_||noise_==-1.)
     {
-      float rms=0.;
+      double rms=0.;
+      double mean=0.;
       unsigned ncells=0;
-      // Intercalib constants
+      
+      if(noise_==-1.)
+	noisesigma_.resize(EEDetId::kSizeForDenseIndexing);
+
+      // Intercalib constants IC_MC_i
+      edm::ESHandle<EcalIntercalibConstantsMC> pJcal;
+      es.get<EcalIntercalibConstantsMCRcd>().get(pJcal); 
+      const EcalIntercalibConstantsMC* jcal = pJcal.product(); 
+      const std::vector<float>& ICMC = jcal->endcapItems();
+
+      // Intercalib constants IC_i 
+      // IC = IC_MC * (1+delta)
+      // where delta is the miscalib
       edm::ESHandle<EcalIntercalibConstants> pIcal;
       es.get<EcalIntercalibConstantsRcd>().get(pIcal);
       const EcalIntercalibConstants* ical = pIcal.product();
+      const std::vector<float>& IC = ical->endcapItems();
 
+      unsigned nic = IC.size();
+      meanNoiseSigmaEt_ = 0.;
+      for(unsigned ic=0;ic<nic;++ic)
+	{
+	  // the miscalibration factor is 
+	  float factor = IC[ic]/ICMC[ic];
+	  // Apply Refactor & refactor_mean
+	  if(doMisCalib_) theCalibConstants_[ic] = refactor_mean_+(factor-1.)*refactor_;	  
+	  rms+=(factor-1.)*(factor-1.);
+	  mean+=(factor-1.);
 
-      theCalibConstants_ = ical->endcapItems();
-      std::vector<float>::iterator it=theCalibConstants_.begin();
-      std::vector<float>::iterator itend=theCalibConstants_.end();
-      for ( ; it != itend; ++it ) {	
-	if(!EEDetId::validHashIndex(ncells)) continue;
-	*it= refactor_mean_+(*it-1.)*refactor_;
-	rms+=(*it-1.)*(*it-1.);
-	++ncells;
-      }
-      rms = std::sqrt(rms) / (float)ncells;
-      // The following should be on LogInfo
-      //std::cout << " Found " << ncells << " cells in the endcap calibration map. RMS is " << rms << std::endl;
+	  // the miscalibration on the noise will be applied later one; so it is really ICMC here
+	  if(noise_==-1.)
+	    {
+	      noisesigma_[ic]=2.87*agc->getEEValue()*ICMC[ic] ;
+	      meanNoiseSigmaEt_ += noisesigma_[ic] * sinTheta_[(ic<EEDetId::kEEhalf)? ic : ic-EEDetId::kEEhalf];
+	      EEDetId myDetId(EEDetId::unhashIndex(ic));
+	      //	      std::cout << " BB " <<  myDetId.ix() << " " << myDetId.iy() << " " <<  noisesigma_[ic] * sinTheta_[(ic<EEDetId::kEEhalf)? ic : ic-EEDetId::kEEhalf] << std::endl;;
+	    }
+	  ++ncells;	
+	}
+
+      mean/=(float)ncells;
+      rms/=(float)ncells;
+
+      rms=sqrt(rms-mean*mean);
+
+      meanNoiseSigmaEt_ /=(float)ncells;
+
+      edm::LogInfo("CaloRecHitsProducer") << "Found  " << ncells << " cells in the endcap calibration map. RMS is " << rms << std::endl;
+      //      std::cout << "Found  " << ncells << " cells in the endcap calibration map. RMS is " << rms << std::endl;
     }  
+  
+  // Initialize the Gaussian tail generator
+  // Two options : noise is set by the user (to a positive value). In this case, this value is taken
+  // or the user chose to use the noise from DB. In this case, the noise is flat in pT and not in energy
+  // but the threshold is in energy and not in pT. 
+
+  Genfun::Erf myErf; 
+  if(  noise_>0. ) {
+    EEHotFraction_ = 0.5-0.5*myErf(threshold_/noise_/sqrt(2.));
+    myGaussianTailGenerator_ = new GaussianTail(random_, noise_, threshold_);
+  }
 }
 
 

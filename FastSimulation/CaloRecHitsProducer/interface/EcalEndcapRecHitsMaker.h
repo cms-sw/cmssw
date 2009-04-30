@@ -104,7 +104,11 @@ class EcalEndcapRecHitsMaker
   std::vector<std::vector<int> > CrystalsinSC_;
   // the sin(theta) of the cell
   std::vector<float> sinTheta_;
-  
+
+  // the cell-dependant noise sigma 
+  std::vector<float> noisesigma_;
+  double meanNoiseSigmaEt_ ;
+
   // selective readout threshold
   float SRThreshold_;
 };
