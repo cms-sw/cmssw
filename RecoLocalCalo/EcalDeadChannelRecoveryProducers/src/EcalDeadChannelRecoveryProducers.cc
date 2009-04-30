@@ -13,7 +13,7 @@
 //
 // Original Author:  Georgios Daskalakis
 //         Created:  Thu Apr 12 17:01:03 CEST 2007
-// $Id: EcalDeadChannelRecoveryProducers.cc,v 1.1 2007/05/03 12:42:17 gdaskal Exp $
+// $Id: EcalDeadChannelRecoveryProducers.cc,v 1.2 2007/05/09 14:22:04 beaucero Exp $
 //
 //
 
@@ -157,7 +157,7 @@ EcalDeadChannelRecoveryProducers::beginJob(const edm::EventSetup&)
     ChannelsDeadID.push_back(cell);
     } //end while	    
     fclose(DeadCha);
-  std::cout<<" Read "<<ChannelsDeadID.size()<<" dead channels "<<std::endl;
+    //  std::cout<<" Read "<<ChannelsDeadID.size()<<" dead channels "<<std::endl;
   
 }
 

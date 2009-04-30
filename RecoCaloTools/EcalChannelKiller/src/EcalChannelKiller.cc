@@ -13,7 +13,7 @@
 //
 // Original Author:  Georgios Daskalakis
 //         Created:  Tue Apr 24 17:21:31 CEST 2007
-// $Id: EcalChannelKiller.cc,v 1.1 2007/05/03 12:36:07 gdaskal Exp $
+// $Id: EcalChannelKiller.cc,v 1.2 2007/05/09 14:21:16 beaucero Exp $
 //
 //
 
@@ -82,7 +82,7 @@ EcalChannelKiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(hitProducer_, hitCollection_, rhcHandle);
    if (!(rhcHandle.isValid())) 
      {
-       std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
+       //       std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
        return;
      }
    const EcalRecHitCollection* hit_collection = rhcHandle.product();
@@ -103,7 +103,7 @@ EcalChannelKiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      for(DeadCell=ChannelsDeadID.begin();DeadCell<ChannelsDeadID.end();DeadCell++){
        if(it->detid()==*DeadCell){
 	 DetId itID = it->id();
-	 cout<<" +++++++++++ Old Energy "<<it->energy()<<" eta "<< itID.rawId()<<endl;
+	 //	 cout<<" +++++++++++ Old Energy "<<it->energy()<<" eta "<< itID.rawId()<<endl;
 	 ItIsDead=true;
 	 NewEnergy =0.;
 	 nRed++;
@@ -121,7 +121,7 @@ EcalChannelKiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        redCollection->push_back( NewHit );
      }
    }
-   std::cout << "total # hits: " << nTot << "  #hits with E = " << 0 << " GeV : " << nRed << std::endl;
+   //   std::cout << "total # hits: " << nTot << "  #hits with E = " << 0 << " GeV : " << nRed << std::endl;
    
    iEvent.put(redCollection, reducedHitCollection_);
    
@@ -145,13 +145,13 @@ EcalChannelKiller::beginJob(const edm::EventSetup&)
   int iphi=-10000;
   while(fileStatus != EOF) {
     fileStatus = fscanf(DeadCha,"%d %d\n",&ieta,&iphi);
-    cout<<" ieta "<<ieta<<" iphi "<<iphi<<endl;
-    if(ieta==-10000||iphi==-10000){std::cout << "Problem reading Dead Channels file "<<std::endl;break;}
+    //    cout<<" ieta "<<ieta<<" iphi "<<iphi<<endl;
+    if(ieta==-10000||iphi==-10000){/*std::cout << "Problem reading Dead Channels file "<<std::endl;*/break;}
     EBDetId cell(ieta,iphi);
     ChannelsDeadID.push_back(cell);
   } //end while	    
   fclose(DeadCha);
-  std::cout<<" Read "<<ChannelsDeadID.size()<<" dead channels "<<std::endl;
+  //  std::cout<<" Read "<<ChannelsDeadID.size()<<" dead channels "<<std::endl;
   
 }
 
