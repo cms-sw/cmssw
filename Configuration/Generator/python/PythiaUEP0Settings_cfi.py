@@ -1,0 +1,43 @@
+import FWCore.ParameterSet.Config as cms
+
+pythiaUESettingsBlock = cms.PSet(
+    pythiaUESettings = cms.vstring(
+        'MSTJ(11)=5     ! HAD Choice of the fragmentation function',    
+	'PARJ(21)=0.313 ! HAD', 
+        'PARJ(41)=0.49  ! HAD',                                     
+        'PARJ(42)=1.2   ! HAD',                                     
+        'PARJ(46)=1.0   ! HAD',                                     
+        'PARJ(47)=1.0   ! HAD',                                     
+        'MSTJ(22)=2     ! Decay those unstable particles', 
+        'PARJ(71)=10 .  ! for which ctau  10 mm', 
+        'MSTP(2)=1      ! which order running alphaS', 
+        'MSTP(33)=0     ! no K factors in hard cross sections', 
+        'MSTP(51)=7 ! structure function chosen (internal PDF CTEQ5L)',
+	'MSTP(52)=1     ! work with internal PDF',
+        'MSTP(64)=3     ! ISR',
+        'PARP(64)=1.0   ! ISR',            
+        'MSTP(67)=2     ! ISR',            
+        'PARP(67)=1.0   ! ISR',
+        'MSTP(70)=2     ! ISR',
+        'MSTP(72)=1     ! ISR',
+        'PARJ(81)=0.257 ! FSR',
+        'PARJ(82)=0.8   ! FSR',
+        'PARP(71)=2.0   ! FSR',
+        'MSTP(81)=21    ! MPI 21 is Pythia new MPI default', 
+        'MSTP(82)=5     ! MPI model', 
+        'MSTU(21)=1     ! Check on possible errors during program execution', 
+        'PARP(82)=2.0   ! pt cutoff for multiparton interactions', 
+        'PARP(89)=1800. ! sqrts for which PARP82 is set', 
+        'PARP(83)=1.7   ! MPI matter distrbn parameter', 
+        'PARP(90)=0.26  ! Multiple interactions: rescaling power', 
+        'MSTP(88)=0     ! BR', 
+        'PARP(79)=2.0   ! BR', 
+        'PARP(80)=0.05  ! BR', 
+        'MSTP(91)=1     ! BR', 
+        'PARP(91)=2.0   ! BR kt distribution', 
+        'PARP(93)=10.0  ! BR',
+        'MSTP(95)=6     ! CR',
+        'PARP(77)=0.33  ! BR kt distribution',
+        'PARP(78)=0.9   ! BR kt distribution'
+    )
+)
