@@ -46,8 +46,8 @@ DEFINE_EDM_PLUGIN(PixelFitterFactory, TrackFitter, "TrackFitter");
 DEFINE_EDM_PLUGIN(PixelTrackCleanerFactory, TrackCleaner, "TrackCleaner");
 
 // Seed
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/SeedProducer.h"
-DEFINE_ANOTHER_FWK_MODULE(SeedProducer);
+//#include "RecoPixelVertexing/PixelLowPtUtilities/interface/SeedProducer.h"
+//DEFINE_ANOTHER_FWK_MODULE(SeedProducer);
 
 // TrajectoryFilter
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrajectoryFilterESProducer.h"
