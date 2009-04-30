@@ -83,7 +83,7 @@ EmDQM::EmDQM(const edm::ParameterSet& pset)
   {
 
     theHLTCollectionLabels.push_back(filterconf->getParameter<edm::InputTag>("HLTCollectionLabels"));
-    theHLTOutputTypes.push_back(filterconf->getParameter<unsigned int>("theHLTOutputTypes"));
+    theHLTOutputTypes.push_back(filterconf->getParameter<int>("theHLTOutputTypes"));
     // Grab the human-readable name, if it is not specified, use the Collection Label
     theHLTCollectionHumanNames.push_back(filterconf->getUntrackedParameter<std::string>("HLTCollectionHumanName",theHLTCollectionLabels[i].label()));
 
