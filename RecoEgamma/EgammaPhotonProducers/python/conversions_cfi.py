@@ -6,24 +6,20 @@ import FWCore.ParameterSet.Config as cms
 #
 conversions = cms.EDProducer("ConvertedPhotonProducer",
     scHybridBarrelProducer = cms.InputTag("correctedHybridSuperClusters"),
-   # scHybridBarrelCollection = cms.string(''),
-    convertedPhotonCollection = cms.string(''),
-    inOutTrackSCAssociation = cms.string('inOutTrackSCAssociationCollection'),
-    outInTrackCollection = cms.string(''),
-    conversionIOTrackProducer = cms.string('ckfInOutTracksFromConversions'),
-    inOutTrackCollection = cms.string(''),
     bcEndcapCollection = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
     bcBarrelCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
     scIslandEndcapProducer = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
-    outInTrackSCAssociation = cms.string('outInTrackSCAssociationCollection'),
-  #  scIslandEndcapCollection = cms.string(''),
+    conversionIOTrackProducer = cms.string('ckfInOutTracksFromConversions'),
+    outInTrackCollection = cms.string(''),
     conversionOITrackProducer = cms.string('ckfOutInTracksFromConversions'),
+    inOutTrackCollection = cms.string(''),
+    inOutTrackSCAssociation = cms.string('inOutTrackSCAssociationCollection'),
+    outInTrackSCAssociation = cms.string('outInTrackSCAssociationCollection'),
+    convertedPhotonCollection = cms.string(''),
     AlgorithmName = cms.string('ecalSeeded'),
-    minSCEt = cms.double(10.0),
+    minSCEt = cms.double(10.0),                         
     recoverOneTrackCase = cms.bool(True),
     dRForConversionRecovery = cms.double(0.3),                      
     deltaCotCut = cms.double(0.05),
     minApproachDisCut  = cms.double(0.)                         
 )
-
-
