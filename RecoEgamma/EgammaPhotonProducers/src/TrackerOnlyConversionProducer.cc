@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.11 2009/03/25 13:56:04 hlliu Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.12 2009/04/29 21:34:27 hlliu Exp $
 //
 //
 
@@ -375,6 +375,9 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
     reco::CaloClusterPtr empty_bc;
     trackMatchedBC.assign(allTracks.size(), empty_bc);//TODO find a better way to avoid copy constructor
 
+    std::vector<int> bcHandleId;//the associated BC handle id, -1 invalid, 0 barrel 1 endcap
+    bcHandleId.assign(allTracks.size(), -1);
+
     std::multimap<double, int> trackInnerEta;//Track innermost state Eta map to TrackRef index, to be used in track pair sorting
 
     //2 propagate all tracks into ECAL, record its eta and phi
@@ -397,6 +400,7 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 		if ( getMatchedBC(basicClusterPtrs, ew, closest_bc) ){
 		    trackMatchedBC[ref-allTracks.begin()] = closest_bc;
 		    trackValidECAL[ref-allTracks.begin()] = true;
+		    bcHandleId[ref-allTracks.begin()] = (fabs(closest_bc->position().eta())>1.479)?1:0;
 		}
 	    } else {
 		trackImpactPosition.push_back(ew);
@@ -472,10 +476,12 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 	    std::vector<math::XYZVector> trackPin;
 	    std::vector<math::XYZVector> trackPout;
 
-	    trackPin.push_back((*ll)->innerMomentum());
-	    trackPin.push_back(right->innerMomentum());
-	    trackPout.push_back((*ll)->outerMomentum());
-	    trackPout.push_back(right->outerMomentum());
+	    if ((*ll)->extra().isNonnull() && right->extra().isNonnull()){//only available on TrackExtra
+		trackPin.push_back((*ll)->innerMomentum());
+		trackPin.push_back(right->innerMomentum());
+		trackPout.push_back((*ll)->outerMomentum());
+		trackPout.push_back(right->outerMomentum());
+	    }
 
 	    reco::CaloClusterPtrVector scPtrVec;
 	    reco::Vertex  theConversionVertex;//Dummy vertex, validity false by default
@@ -483,6 +489,9 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 	    std::vector<reco::CaloClusterPtr> matchingBC;
 
 	    if (allowTrackBC_){//TODO find out the BC ptrs if not doing matching, otherwise, leave it empty
+		const int lbc_handle = bcHandleId[ll-allTracks.begin()],
+		      rbc_handle = bcHandleId[right_index];
+
 		trkPositionAtEcal.push_back(trackImpactPosition[ll-allTracks.begin()]);//left track
 		if (trackValidECAL[right_index])//second track ECAL position may be invalid
 		    trkPositionAtEcal.push_back(trackImpactPosition[right_index]);
@@ -491,7 +500,8 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 		scPtrVec.push_back(trackMatchedBC[ll-allTracks.begin()]);//left track
 		if (trackValidECAL[right_index]){//second track ECAL position may be invalid
 		    matchingBC.push_back(trackMatchedBC[right_index]);
-		    if (!(trackMatchedBC[right_index] == trackMatchedBC[ll-allTracks.begin()]))//avoid 1 BC 2 tk
+		    if (!(trackMatchedBC[right_index] == trackMatchedBC[ll-allTracks.begin()])//avoid 1 bc 2 tk
+			    && lbc_handle == rbc_handle )//avoid ptr from different collection
 			scPtrVec.push_back(trackMatchedBC[right_index]);
 		}
 	    }
