@@ -1,6 +1,6 @@
 2009-04-30  Emilio Meschi  <emilio.meschi@cern.ch>
 
-	* tag V00-07-02
+	* tag V00-07-03 (V00-07-02 undocumented compat change by elmer)
 	* bug-fix: wait in releaseSharedMemory before returning false
 	* do 10 attempts and check the number of attached processes
 	* this should fix the failures when going ready->halted->ready
