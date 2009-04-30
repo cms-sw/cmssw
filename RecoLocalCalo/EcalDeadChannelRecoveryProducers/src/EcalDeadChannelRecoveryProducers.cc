@@ -13,7 +13,7 @@
 //
 // Original Author:  Georgios Daskalakis
 //         Created:  Thu Apr 12 17:01:03 CEST 2007
-// $Id: EcalDeadChannelRecoveryProducers.cc,v 1.2 2007/05/09 14:22:04 beaucero Exp $
+// $Id: EcalDeadChannelRecoveryProducers.cc,v 1.3 2009/04/30 13:13:09 beaucero Exp $
 //
 //
 
@@ -105,7 +105,7 @@ EcalDeadChannelRecoveryProducers::produce(edm::Event& evt, const edm::EventSetup
   // create an auto_ptr to a EcalRecHitCollection, copy the RecHits into it and put it in the Event:
   std::auto_ptr< EcalRecHitCollection > redCollection(new EcalRecHitCollection);
   
-  EcalDeadChannelRecoveryAlgos *DeadChannelCorrector = new EcalDeadChannelRecoveryAlgos(*theCaloTopology);
+  EcalDeadChannelRecoveryAlgos *DeadChannelCorrector = new EcalDeadChannelRecoveryAlgos(theCaloTopology.product());
   
   //Dead Cells are read from a text file
   vector<EBDetId>::const_iterator DeadCell;
