@@ -13,7 +13,7 @@
 //
 // Original Author:  Georgios Daskalakis
 //         Created:  Thu Apr 12 17:02:06 CEST 2007
-// $Id: EcalDeadChannelRecoveryAlgos.cc,v 1.5 2009/04/09 13:36:27 ferriff Exp $
+// $Id: EcalDeadChannelRecoveryAlgos.cc,v 1.6 2009/04/30 13:15:00 beaucero Exp $
 //
 // May 4th 2007 S. Beauceron : modification of MakeNxNMatrice in order to use vectors
 //
@@ -195,11 +195,12 @@ double EcalDeadChannelRecoveryAlgos::MakeNxNMatrice(EBDetId itID,const EcalRecHi
 
     
     //We add up the energy in 5x5 around the MaxCont to decide if we will correct for DCs
-    if(theIndex>=36 && theIndex<=40)ESUMis +=  Energy;
-    if(theIndex>=47 && theIndex<=51)ESUMis +=  Energy;
-    if(theIndex>=58 && theIndex<=62)ESUMis +=  Energy;
-    if(theIndex>=69 && theIndex<=73)ESUMis +=  Energy;
-    if(theIndex>=80 && theIndex<=84)ESUMis +=  Energy;
+    //  if(theIndex>=36 && theIndex<=40)ESUMis +=  Energy;
+    //SB: Modify to sum8 only
+    if(theIndex>=48 && theIndex<=50)ESUMis +=  Energy;
+    if(theIndex>=59 && theIndex<=61)ESUMis +=  Energy;
+    if(theIndex>=70 && theIndex<=72)ESUMis +=  Energy;
+    //    if(theIndex>=80 && theIndex<=84)ESUMis +=  Energy;
     theIndex++;
   }
   //  cout<<"Around MaxCont Collected Energy in 5x5 is =  "<< ESUMis  <<endl;
