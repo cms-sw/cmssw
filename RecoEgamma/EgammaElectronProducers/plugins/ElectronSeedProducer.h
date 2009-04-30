@@ -16,7 +16,9 @@
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
-#include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
+//#include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
+#include "RecoCaloTools/Selectors/interface/CaloDualConeSelector.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/EDProduct.h"
@@ -57,10 +59,15 @@ class ElectronSeedProducer : public edm::EDProducer
 
   //for the filter
   edm::ESHandle<CaloGeometry>       theCaloGeom;
-  HoECalculator calc_;
+  EgammaHcalIsolation *hcalIso_;
+  CaloDualConeSelector *doubleConeSel_;
+  HBHERecHitMetaCollection* mhbhe_ ;
 
   // parameters for H/E
   double maxHOverE_;
+  double hOverEConeSize_;
+  double hOverEHBMinE_;
+  double hOverEHFMinE_;
 
   // super cluster Et cut
   double SCEtCut_;
