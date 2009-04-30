@@ -8,5 +8,5 @@ pfElectronTranslator = cms.EDProducer("PFElectronTranslator",
                                       PFSuperClusters = cms.string("pf"),
                                       ElectronMVA = cms.string("pf"),
                                       ElectronSC = cms.string("pf"),
-                                      MVACut = cms.double(-1.)
+                                      MVACut = cms.double(-0.4)
                                       )
