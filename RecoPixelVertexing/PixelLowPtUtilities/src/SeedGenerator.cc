@@ -21,8 +21,8 @@
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-//#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/SeedFromConsecutiveHits.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
+//#include "RecoPixelVertexing/PixelLowPtUtilities/interface/SeedFromConsecutiveHits.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedFromProtoTrack.h"
 
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
@@ -41,9 +41,6 @@ using namespace std;
 /*****************************************************************************/
 SeedGenerator::SeedGenerator(const edm::EventSetup& es)
 {
-  edm::ESHandle<TrackerGeometry> tracker;
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
-  theTracker = tracker.product();
 }
 
 /*****************************************************************************/
@@ -52,27 +49,21 @@ SeedGenerator::~SeedGenerator()
 }
 
 /*****************************************************************************/
-class SortByRadius : public std::binary_function<const TrackingRecHit *,
-                                                 const TrackingRecHit *, bool>
+
+class SortByRadius : public std::binary_function<const TransientTrackingRecHit::ConstRecHitPointer &,
+                                                 const TransientTrackingRecHit::ConstRecHitPointer &, bool>
 {
  public:
-  SortByRadius(const TrackerGeometry* t) : theTracker(t) {}
+  SortByRadius(){}
 
-  bool operator() (const TrackingRecHit * h1,
-                   const TrackingRecHit * h2) const
+  bool operator() (const TransientTrackingRecHit::ConstRecHitPointer & h1,
+                   const TransientTrackingRecHit::ConstRecHitPointer & h2) const
   {
-    GlobalPoint gp1 = 
-      theTracker->idToDetUnit(h1->geographicalId())->toGlobal(
-                              h1->localPosition());
-    GlobalPoint gp2 = 
-      theTracker->idToDetUnit(h2->geographicalId())->toGlobal(
-                              h2->localPosition());
-
+    GlobalPoint gp1 = h1->globalPosition();
+    GlobalPoint gp2 = h2->globalPosition();
     return (gp1.perp2() < gp2.perp2());
   };
 
- private:
-  const TrackerGeometry* theTracker;
 };
 
 /*****************************************************************************/
@@ -80,16 +71,25 @@ TrajectorySeed SeedGenerator::seed
  (const reco::Track& track, const edm::EventSetup& es,
   const edm::ParameterSet& ps)
 {
-  vector<const TrackingRecHit *> hits;
+  
+  // get the transient builder
+  edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
+  std::string builderName = ps.getParameter<std::string>("TTRHBuilder");
+  es.get<TransientRecHitRecord>().get(builderName,theBuilder);
+
+  TransientTrackingRecHit::ConstRecHitContainer thits;
+  
   for (unsigned int iHit = 0, nHits = track.recHitsSize();
-                    iHit < nHits; ++iHit)
+       iHit < nHits; ++iHit)
   {  
     TrackingRecHitRef refHit = track.recHit(iHit);
     if(refHit->isValid())
-      hits.push_back(&(*refHit));
+      thits.push_back( theBuilder.product()->build(&*refHit));
   } 
-
-  sort(hits.begin(), hits.end(), SortByRadius(theTracker));
+  
+  SeedingHitSet hitset(thits);
+  
+  sort(thits.begin(), thits.end(), SortByRadius());
 
   GlobalPoint vtx(track.vertex().x(),
                   track.vertex().y(),
@@ -99,7 +99,7 @@ TrajectorySeed SeedGenerator::seed
   GlobalError vtxerr( originRBound*originRBound, 0, originRBound*originRBound,
                                               0, 0, originZBound*originZBound );
 
-  SeedFromConsecutiveHits seedFromHits(hits, vtx, vtxerr, es,ps);
+  SeedFromConsecutiveHits seedFromHits(hitset, vtx, vtxerr, es, 0.0);
 
   if(seedFromHits.isValid()) 
   {

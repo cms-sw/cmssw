@@ -27,8 +27,6 @@ class SeedGenerator
     ~SeedGenerator();
     TrajectorySeed seed(const reco::Track& recTrack, const edm::EventSetup& es, const edm::ParameterSet& ps);
 
-  private:
-    const TrackerGeometry* theTracker;
 };
 
 #endif
