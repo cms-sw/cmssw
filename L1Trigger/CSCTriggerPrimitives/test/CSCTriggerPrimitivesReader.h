@@ -8,8 +8,8 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2008/08/28 13:53:29 $
- * $Revision: 1.12 $
+ * $Date: 2009/03/26 17:39:42 $
+ * $Revision: 1.13 $
  *
  */
 
@@ -80,6 +80,7 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   // Producer's labels
   std::string   lctProducerData_;
   std::string   lctProducerEmul_;
+  edm::InputTag simHitProducer_;
   edm::InputTag wireDigiProducer_;
   edm::InputTag compDigiProducer_;
 

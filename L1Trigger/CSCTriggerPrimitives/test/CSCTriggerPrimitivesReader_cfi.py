@@ -16,8 +16,10 @@ lctreader = cms.EDFilter("CSCTriggerPrimitivesReader",
     CSCLCTProducerData = cms.untracked.string("cscunpacker"),
     #                                       produced by emulator
     CSCLCTProducerEmul = cms.untracked.string("cscTriggerPrimitiveDigis"),
-    # Labels to retrieve comparator and wire digis.
+    # Labels to retrieve simHits, comparator and wire digis.
     #  (Used only when emulLctsIn = true.)
+    CSCSimHitProducer = cms.InputTag("g4SimHits", "MuonCSCHits"),  # Full sim.
+    #CSCSimHitProducer = cms.InputTag("MuonSimHits", "MuonCSCHits"), # Fast sim.
     CSCComparatorDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi"),
     CSCWireDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
 )
