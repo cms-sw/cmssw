@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.73.8.1 2009/04/24 02:18:41 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.74 2009/04/27 16:53:29 dmytro Exp $
 //
 
 // system include files
@@ -457,7 +457,9 @@ CmsShowMain::setupViewManagers()
    m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWEveLegoViewManager(m_guiManager.get()) ) );
 
    m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWGlimpseViewManager(m_guiManager.get()) ) );
-   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWTableViewManager(m_guiManager.get()) ) );
+   boost::shared_ptr<FWTableViewManager> tableViewManager( new FWTableViewManager(m_guiManager.get()) );
+   m_configurationManager->add(std::string("Tables"), tableViewManager.get());
+   m_viewManager->add( tableViewManager );
 
    boost::shared_ptr<FWViewManagerBase> plain3DViewManager( new FW3DViewManager(m_guiManager.get()) );
    plain3DViewManager->setGeom(&m_detIdToGeo);

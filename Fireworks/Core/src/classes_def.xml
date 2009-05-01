@@ -25,4 +25,6 @@
   <class name="CSGAction"/>
   <class name="CmsShowMainFrame"/>
   <class name="FWGlimpseViewManager"/>
+  <class name="FWViewBase"/>
+  <class name="FWTableView"/>
 </lcgdict>

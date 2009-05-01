@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWTableView.h,v 1.3 2009/04/08 15:07:53 jmuelmen Exp $
+// $Id: FWTableView.h,v 1.4.2.9 2009/04/27 20:47:05 jmuelmen Exp $
 //
 
 // system include files
@@ -36,16 +36,24 @@ class TEveScene;
 class TEveElementList;
 class TEveGeoShape;
 class TGLMatrix;
+class TGTextEntry;
+class FWEventItem;
 class FWTableViewManager;
+class FWTableWidget;
 class FWEveValueScaler;
 class TEveWindowFrame;
 class TEveWindowSlot;
 class FWTableViewManager;
+class FWTableViewTableManager;
+class FWCustomIconsButton;
+class FWGUIValidatingTextEntry;
+class FWExpressionValidator;
 
 class FWTableView : public FWViewBase {
+     friend class FWTableViewTableManager;
 
 public:
-     FWTableView(TEveWindowSlot *, const FWTableViewManager *);
+     FWTableView(TEveWindowSlot *, FWTableViewManager *);
      virtual ~FWTableView();
 
      // ---------- const member functions ---------------------
@@ -61,16 +69,40 @@ public:
      // ---------- member functions ---------------------------
      virtual void setFrom(const FWConfiguration&);
      void setBackgroundColor(Color_t);
+     void resetColors (const class FWColorManager &);
      void updateItems ();
+     void updateEvaluators ();
+     void selectCollection (Int_t);
+     void dataChanged ();
+     const FWEventItem *item () const;
+     void modelSelected(Int_t iRow,Int_t iButton,Int_t iKeyMod);
+     void columnSelected (Int_t iCol, Int_t iButton, Int_t iKeyMod);
+     void toggleShowHide ();
+     void addColumn ();
+     void deleteColumn ();
+     void modifyColumn ();
 
 private:
      FWTableView(const FWTableView&);    // stop default
      const FWTableView& operator=(const FWTableView&);    // stop default
 
+protected:
      // ---------- member data --------------------------------
      TEveWindowFrame *m_frame;
      TGComboBox *m_collection;
-     const FWTableViewManager *m_manager;
+     TGCompositeFrame *m_vert, *m_column_control;
+     int m_iColl;
+     FWTableViewManager *m_manager;
+     FWTableViewTableManager *m_tableManager;
+     FWTableWidget *m_tableWidget;
+     bool m_showColumnUI;
+     FWCustomIconsButton *m_columnUIButton;
+     TGTextEntry *m_column_name_field;
+     FWGUIValidatingTextEntry *m_column_expr_field;
+     FWExpressionValidator *m_validator;
+     TGTextEntry *m_column_prec_field;
+     int m_currentColumn;
+     bool m_useColumnsFromConfig;
 };
 
 

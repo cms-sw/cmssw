@@ -31,6 +31,7 @@
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
 #include "Fireworks/Core/interface/FWGlimpseViewManager.h"
 #include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"
+#include "Fireworks/Core/interface/FWTableView.h"
 
 namespace {
    struct Fireworks_Core {
