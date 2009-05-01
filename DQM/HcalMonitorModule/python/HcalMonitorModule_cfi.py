@@ -203,6 +203,13 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            DataFormatMonitor_checkNevents                 = cms.untracked.int32(1000),
                            dfPrtLvl                                       = cms.untracked.int32(0), # this seems similar to the debug int we have; deprecate this?
 
+                           # ZDC MONITOR
+                           ZDCMonitor                                     = cms.untracked.bool(False),
+                           ZDCMonitor_checkNevents                        = cms.untracked.int32(1000),
+                           ZDCMonitor_deadthresholdrate                   = cms.untracked.double(0.),
+                           
+                           
+
                            # DATA INTEGRITY TASK
                            DataIntegrityTask = cms.untracked.bool(False),
 
@@ -313,6 +320,7 @@ def setHcalTaskValues(process):
     process.PedestalMonitor_checkNevents                  = checkNevents
     process.RecHitMonitor_checkNevents                    = checkNevents
     process.TrigPrimMonitor_checkNevents                  = checkNevents
+    process.ZDCMonitor_checkNevents                       = checkNevents
     
     # set pedestalsInFC
     pedestalsInFC = deepcopy(process.pedestalsInFC)

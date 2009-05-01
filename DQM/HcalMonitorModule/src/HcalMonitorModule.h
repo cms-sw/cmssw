@@ -5,8 +5,8 @@
  * \file HcalMonitorModule.h
  *
 
- * $Date: 2009/04/04 11:34:54 $
- * $Revision: 1.43 $
+ * $Date: 2009/05/01 14:06:12 $
+ * $Revision: 1.44 $
  * \author W. Fisher
  *
 */
@@ -53,6 +53,8 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDeadCellMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalCaloTowerMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalTrigPrimMonitor.h"
+#include "DQM/HcalMonitorTasks/interface/HcalZDCMonitor.h"
+
 #include "DQM/HcalMonitorTasks/interface/HcalTemplateAnalysis.h"
 #include "DQM/HcalMonitorTasks/interface/HcalEEUSMonitor.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBRunData.h"
@@ -217,6 +219,8 @@ public:
   HcalDeadCellMonitor*    deadMon_;
   HcalCaloTowerMonitor*   ctMon_;
   HcalTrigPrimMonitor*    tpMon_;
+  HcalZDCMonitor*         zdcMon_;
+
   HcalTemplateAnalysis*   tempAnalysis_;
   HcalEEUSMonitor*        eeusMon_;
   ////////////////////////////////////////////
