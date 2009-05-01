@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.25 2009/04/09 15:45:06 amraktad Exp $
+// $Id: FWGUISubviewArea.cc,v 1.26 2009/04/09 18:18:56 amraktad Exp $
 //
 
 // system include files
@@ -27,6 +27,7 @@
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include  "Fireworks/Core/interface/FWGUIManager.h"
+#include "Fireworks/Core/src/FWCheckBoxIcon.h"
 
 //
 // constructors and destructor
@@ -210,8 +211,7 @@ FWGUISubviewArea::swapIcon()
       if(0 == cmspath) {
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
-      TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-      s_icon = gClient->GetPicture(coreIcondir+"moveup.png");
+      s_icon = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"moveup.png");
    }
    return s_icon;
 }
@@ -225,8 +225,7 @@ FWGUISubviewArea::swapDisabledIcon()
       if(0 == cmspath) {
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
-      TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-      s_icon = gClient->GetPicture(coreIcondir+"moveup-disabled.png");
+      s_icon = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"moveup-disabled.png");
    }
    return s_icon;
 }
@@ -240,8 +239,7 @@ FWGUISubviewArea::closeIcon()
       if(0 == cmspath) {
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
-      TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-      s_icon = gClient->GetPicture(coreIcondir+"delete.png");
+      s_icon = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"delete.png");
    }
    return s_icon;
 }
@@ -255,8 +253,7 @@ FWGUISubviewArea::closeDisabledIcon()
       if(0 == cmspath) {
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
-      TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-      s_icon = gClient->GetPicture(coreIcondir+"delete-disabled.png");
+      s_icon = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"delete-disabled.png");
    }
    return s_icon;
 }
@@ -271,8 +268,7 @@ FWGUISubviewArea::undockIcon()
       if(0 == cmspath) {
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
-      TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-      s_icon = gClient->GetPicture(coreIcondir+"expand.png");
+      s_icon = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"expand.png");
    }
    return s_icon;
 }
@@ -286,8 +282,7 @@ FWGUISubviewArea::dockIcon()
       if(0 == cmspath) {
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
-      TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-      s_icon = gClient->GetPicture(coreIcondir+"dock.png");
+      s_icon = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"dock.png");
    }
    return s_icon;
 }
@@ -301,8 +296,7 @@ FWGUISubviewArea::undockDisabledIcon()
       if(0 == cmspath) {
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
-      TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-      s_icon = gClient->GetPicture(coreIcondir+"expand-disabled.png");
+      s_icon = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"expand-disabled.png");
    }
    return s_icon;
 }
@@ -316,8 +310,7 @@ FWGUISubviewArea::infoIcon()
       if(0 == cmspath) {
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
-      TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-      s_icon = gClient->GetPicture(coreIcondir+"info.png");
+      s_icon = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"info.png");
    }
    return s_icon;
 }
@@ -331,8 +324,7 @@ FWGUISubviewArea::infoDisabledIcon()
       if(0 == cmspath) {
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
-      TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-      s_icon = gClient->GetPicture(coreIcondir+"info-disabled.png");
+      s_icon = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"info-disabled.png");
    }
    return s_icon;
 }

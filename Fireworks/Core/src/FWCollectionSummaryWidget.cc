@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:32 CST 2009
-// $Id: FWCollectionSummaryWidget.cc,v 1.8 2009/04/14 13:44:30 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.cc,v 1.9 2009/04/15 21:54:50 chrjones Exp $
 //
 
 // system include files
@@ -36,6 +36,7 @@
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
+#include "Fireworks/Core/src/FWCheckBoxIcon.h"
 
 //
 // constants, enums and typedefs
@@ -44,19 +45,15 @@
 //
 // static data member definitions
 //
-static const TString& coreIcondir() {
-   static TString s = Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE"));
-   return s;
-}
 
 static 
 const TGPicture* filtered(bool iBackgroundIsBlack)
 {
    if(iBackgroundIsBlack) {
-      static const TGPicture* s = gClient->GetPicture(coreIcondir()+"filtered-blackbg.png");
+      static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"filtered-blackbg.png");
       return s;
    }
-   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"filtered-whitebg.png");
+   static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"filtered-whitebg.png");
    return s;
    
 }
@@ -65,10 +62,10 @@ static
 const TGPicture* filtered_over(bool iBackgroundIsBlack)
 {
    if(iBackgroundIsBlack) {
-      static const TGPicture* s = gClient->GetPicture(coreIcondir()+"filtered-whitebg-over.png");
+      static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"filtered-whitebg-over.png");
       return s;
    }
-   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"filtered-whitebg-over.png");
+   static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"filtered-whitebg-over.png");
    return s;
 }
 
@@ -76,14 +73,14 @@ const TGPicture* filtered_over(bool iBackgroundIsBlack)
 static 
 const TGPicture* alert_over()
 {
-   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"alert-blackbg-over.png");
+   static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"alert-blackbg-over.png");
    return s;
 }
 
 static 
 const TGPicture* alert()
 {
-   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"alert-blackbg.png");
+   static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"alert-blackbg.png");
    return s;
 }
 */
@@ -91,20 +88,20 @@ static
 const TGPicture* unfiltered(bool iBackgroundIsBlack)
 {
    if(iBackgroundIsBlack) {
-      static const TGPicture* s = gClient->GetPicture(coreIcondir()+"unfiltered-blackbg.png");
+      static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"unfiltered-blackbg.png");
       return s;
    }
-   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"unfiltered-whitebg.png");
+   static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"unfiltered-whitebg.png");
    return s;
 }
 static 
 const TGPicture* unfiltered_over(bool iBackgroundIsBlack)
 {
    if(iBackgroundIsBlack) {
-      static const TGPicture* s = gClient->GetPicture(coreIcondir()+"unfiltered-blackbg-over.png");
+      static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"unfiltered-blackbg-over.png");
       return s;
    }
-   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"unfiltered-whitebg-over.png");
+   static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"unfiltered-whitebg-over.png");
    return s;   
 }
 
@@ -112,10 +109,10 @@ static
 const TGPicture* info(bool iBackgroundIsBlack)
 {
    if(iBackgroundIsBlack) {
-      static const TGPicture* s = gClient->GetPicture(coreIcondir()+"info2-blackbg.png");
+      static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"info2-blackbg.png");
       return s;
    }
-   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"info2-whitebg.png");
+   static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"info2-whitebg.png");
    return s;   
 }
 
@@ -123,10 +120,10 @@ static
 const TGPicture* info_over(bool iBackgroundIsBlack)
 {
    if(iBackgroundIsBlack) {
-      static const TGPicture* s = gClient->GetPicture(coreIcondir()+"info2-blackbg-over.png");
+      static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"info2-blackbg-over.png");
       return s;
    }
-   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"info2-whitebg-over.png");
+   static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"info2-whitebg-over.png");
    return s;
 }
 
@@ -134,10 +131,10 @@ static
 const TGPicture* info_disabled(bool iBackgroundIsBlack)
 {
    if(iBackgroundIsBlack) {
-      static const TGPicture* s = gClient->GetPicture(coreIcondir()+"info2-blackbg-disabled.png");
+      static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"info2-blackbg-disabled.png");
       return s;
    }
-   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"info2-whitebg-disabled.png");
+   static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"info2-whitebg-disabled.png");
    return s;
 }
 
@@ -145,10 +142,10 @@ static
 const TGPicture* arrow_right(bool iBackgroundIsBlack)
 {
    if(iBackgroundIsBlack) {
-      static const TGPicture* s = gClient->GetPicture(coreIcondir()+"arrow-white-right-blackbg.png");
+      static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"arrow-white-right-blackbg.png");
       return s;
    }
-   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"arrow-black-right-whitebg.png");
+   static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"arrow-black-right-whitebg.png");
    return s;
 }
 
@@ -156,10 +153,10 @@ static
 const TGPicture* arrow_right_disabled(bool iBackgroundIsBlack)
 {
    if(iBackgroundIsBlack) {
-      static const TGPicture* s = gClient->GetPicture(coreIcondir()+"arrow-white-right-disabled-blackbg.png");
+      static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"arrow-white-right-disabled-blackbg.png");
       return s;
    }
-   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"arrow-black-right-disabled-whitebg.png");
+   static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"arrow-black-right-disabled-whitebg.png");
    return s;
 }
 
@@ -167,10 +164,10 @@ static
 const TGPicture* arrow_down(bool iBackgroundIsBlack)
 {
    if(iBackgroundIsBlack) {
-      static const TGPicture* s = gClient->GetPicture(coreIcondir()+"arrow-white-down-blackbg.png");
+      static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"arrow-white-down-blackbg.png");
       return s;
    }
-   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"arrow-black-down-whitebg.png");
+   static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"arrow-black-down-whitebg.png");
    return s;
 }
 
@@ -178,10 +175,10 @@ static
 const TGPicture* arrow_down_disabled(bool iBackgroundIsBlack)
 {
    if(iBackgroundIsBlack) {
-      static const TGPicture* s = gClient->GetPicture(coreIcondir()+"arrow-white-down-disabled-blackbg.png");
+      static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"arrow-white-down-disabled-blackbg.png");
       return s;
    }
-   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"arrow-black-down-disabled-whitebg.png");
+   static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"arrow-black-down-disabled-whitebg.png");
    return s;
 }
 

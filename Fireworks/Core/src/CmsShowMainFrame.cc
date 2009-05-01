@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.43 2009/03/28 22:53:28 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.44 2009/04/09 21:21:33 chrjones Exp $
 //
 // hacks
 #define private public
@@ -52,7 +52,7 @@
 #include "Fireworks/Core/interface/FWCustomIconsButton.h"
 
 #include "Fireworks/Core/interface/FWIntValueListener.h"
-
+#include "Fireworks/Core/src/FWCheckBoxIcon.h"
 //
 // constants, enums and typedefs
 //
@@ -196,9 +196,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
       title->SetTextColor(textColor);
 
    AddFrame(menuBar, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
-
-   TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-
+   
    TGHorizontalFrame *fullbar = new TGHorizontalFrame(this, this->GetWidth(), 30,0,backgroundColor);
    m_statBar = new TGStatusBar(this, this->GetWidth(), 12);
    AddFrame(m_statBar, new TGLayoutHints(kLHintsBottom | kLHintsExpandX));
@@ -211,49 +209,49 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    TGCompositeFrame* controlFrame = new TGVerticalFrame(fullbar, 10, 20, 0, backgroundColor);
 
    TGCompositeFrame* buttonFrame = new TGHorizontalFrame(controlFrame, 10, 10, 0, backgroundColor);
-   TImage *imgBtn  = TImage::Open(coreIcondir+"slider-bg-up.png");
+   TImage *imgBtn  = TImage::Open(FWCheckBoxIcon::coreIcondir()+"slider-bg-up.png");
    buttonFrame->SetBackgroundPixmap(imgBtn->GetPixmap());
 
 
    goToFirst->createCustomIconsButton(buttonFrame,
-                                      fClient->GetPicture(coreIcondir+"button-gotofirst.png"),
-                                      fClient->GetPicture(coreIcondir+"button-gotofirst-over.png"),
-                                      fClient->GetPicture(coreIcondir+"button-gotofirst-disabled.png"),
+                                      fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"button-gotofirst.png"),
+                                      fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"button-gotofirst-over.png"),
+                                      fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"button-gotofirst-disabled.png"),
                                       new TGLayoutHints(kLHintsCenterY| kLHintsLeft, 4, 3, 10, 0));
 
    playEventsBack->createCustomIconsButton(buttonFrame,
-                                           fClient->GetPicture(coreIcondir+"button-backward.png"),
-                                           fClient->GetPicture(coreIcondir+"button-backward-over.png"),
-                                           fClient->GetPicture(coreIcondir+"button-backward-disabled.png"),
-                                           fClient->GetPicture(coreIcondir+"button-pause.png"),
-                                           fClient->GetPicture(coreIcondir+"button-pause-over.png"),
+                                           fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"button-backward.png"),
+                                           fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"button-backward-over.png"),
+                                           fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"button-backward-disabled.png"),
+                                           fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"button-pause.png"),
+                                           fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"button-pause-over.png"),
                                            new TGLayoutHints(kLHintsCenterY| kLHintsLeft, 2, 3, 10, 0));
 
    previousEvent->createCustomIconsButton(buttonFrame,
-                                          fClient->GetPicture(coreIcondir+"button-stepback.png"),
-                                          fClient->GetPicture(coreIcondir+"button-stepback-over.png"),
-                                          fClient->GetPicture(coreIcondir+"button-stepback-disabled.png"),
+                                          fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"button-stepback.png"),
+                                          fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"button-stepback-over.png"),
+                                          fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"button-stepback-disabled.png"),
                                           new TGLayoutHints(kLHintsCenterY| kLHintsLeft, 2, 3, 10, 0));
 
    nextEvent->createCustomIconsButton(buttonFrame,
-                                      fClient->GetPicture(coreIcondir+"button-stepforward.png"),
-                                      fClient->GetPicture(coreIcondir+"button-stepforward-over.png"),
-                                      fClient->GetPicture(coreIcondir+"button-stepforward-disabled.png"),
+                                      fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"button-stepforward.png"),
+                                      fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"button-stepforward-over.png"),
+                                      fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"button-stepforward-disabled.png"),
                                       new TGLayoutHints(kLHintsCenterY| kLHintsLeft, 2, 3, 10, 0));
 
 
    playEvents->createCustomIconsButton(buttonFrame,
-                                       fClient->GetPicture(coreIcondir+"button-forward.png"),
-                                       fClient->GetPicture(coreIcondir+"button-forward-over.png"),
-                                       fClient->GetPicture(coreIcondir+"button-forward-disabled.png"),
-                                       fClient->GetPicture(coreIcondir+"button-pause.png"),
-                                       fClient->GetPicture(coreIcondir+"button-pause-over.png"),
+                                       fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"button-forward.png"),
+                                       fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"button-forward-over.png"),
+                                       fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"button-forward-disabled.png"),
+                                       fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"button-pause.png"),
+                                       fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"button-pause-over.png"),
                                        new TGLayoutHints(kLHintsCenterY| kLHintsLeft, 2, 3, 10, 0));
 
    goToLast->createCustomIconsButton(buttonFrame,
-                                     fClient->GetPicture(coreIcondir+"button-gotolast.png"),
-                                     fClient->GetPicture(coreIcondir+"button-gotolast-over.png"),
-                                     fClient->GetPicture(coreIcondir+"button-gotolast-disabled.png"),
+                                     fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"button-gotolast.png"),
+                                     fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"button-gotolast-over.png"),
+                                     fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"button-gotolast-disabled.png"),
                                      new TGLayoutHints(kLHintsCenterY| kLHintsLeft, 2, 3, 10, 0));
 
 
@@ -263,9 +261,9 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    /**************************************************************************/
 
    TGHorizontalFrame* sliderFrame = new TGHorizontalFrame(controlFrame, 10, 10, 0, backgroundColor);
-   TImage *imgSld  = TImage::Open(coreIcondir+"slider-bg-down.png");
+   TImage *imgSld  = TImage::Open(FWCheckBoxIcon::coreIcondir()+"slider-bg-down.png");
    sliderFrame->SetBackgroundPixmap(imgSld->GetPixmap());
-   TString sldBtn = coreIcondir +"slider-button.png";
+   TString sldBtn = FWCheckBoxIcon::coreIcondir() +"slider-button.png";
 
    m_delaySlider = new TGHSlider(sliderFrame, 109, kSlider1 | kScaleNo);
    sliderFrame->AddFrame(m_delaySlider, new TGLayoutHints(kLHintsTop | kLHintsLeft, 39, 8, 1, 3));
@@ -353,7 +351,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    //  logo
    TGVerticalFrame* logoFrame = new TGVerticalFrame(fullbar, 140, 48, kFixedSize);
 
-   TImage *logoImg  = TImage::Open(coreIcondir+"logo-fireworks.png");
+   TImage *logoImg  = TImage::Open(FWCheckBoxIcon::coreIcondir()+"logo-fireworks.png");
    logoFrame->SetBackgroundPixmap(logoImg->GetPixmap());
    fullbar->AddFrame(logoFrame, new TGLayoutHints(kLHintsRight | kLHintsCenterY, 0, 5, 0, 0));
 

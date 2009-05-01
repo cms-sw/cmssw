@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 19 16:25:17 CST 2009
-// $Id$
+// $Id: FWCheckBoxIcon.cc,v 1.1 2009/03/04 16:40:50 chrjones Exp $
 //
 
 // system include files
@@ -31,9 +31,7 @@
 static
 const TGPicture* checkImage()
 {
-   static TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-
-   static const TGPicture* s_picture=gClient->GetPicture(coreIcondir+"check-mark-blackbg.png");
+   static const TGPicture* s_picture=gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"check-mark-blackbg.png");
    return s_picture;
 }
 
@@ -87,3 +85,12 @@ FWCheckBoxIcon::drawInsideBox(Drawable_t iID, GContext_t iContext, int iX, int i
 //
 // static member functions
 //
+const TString& FWCheckBoxIcon::coreIcondir() {
+   static TString path = Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE"));
+   if ( gSystem->AccessPathName(path.Data()) ){ // cannot find directory
+      assert(gSystem->Getenv("CMSSW_RELEASE_BASE"));
+      path = Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_RELEASE_BASE"));
+   }
+
+   return path;
+}

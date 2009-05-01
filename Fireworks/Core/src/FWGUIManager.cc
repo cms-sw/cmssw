@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.114 2009/04/14 11:03:02 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.115 2009/04/20 18:22:31 chrjones Exp $
 //
 
 // system include files
@@ -89,6 +89,7 @@
 
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
 #include "Fireworks/Core/interface/FWIntValueListener.h"
+#include "Fireworks/Core/src/FWCheckBoxIcon.h"
 
 //
 // constants, enums and typedefs
@@ -502,17 +503,15 @@ FWGUIManager::createList(TGSplitFrame *p)
 {
    TGVerticalFrame *listFrame = new TGVerticalFrame(p, p->GetWidth(), p->GetHeight());
 
-   TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-
    TGHorizontalFrame* addFrame = new TGHorizontalFrame(p,p->GetWidth(), 10);
    TGLabel* addLabel = new TGLabel(addFrame,"Summary View");
    addLabel->SetTextJustify(kTextLeft);
 
    addFrame->AddFrame(addLabel, new TGLayoutHints(kLHintsCenterY|kLHintsLeft|kLHintsExpandX,2,2,2,2));
    FWCustomIconsButton* addDataButton = new FWCustomIconsButton(addFrame,
-                                                                gClient->GetPicture(coreIcondir+"plus-sign.png"),
-                                                                gClient->GetPicture(coreIcondir+"plus-sign-over.png"),
-                                                                gClient->GetPicture(coreIcondir+"plus-sign-disabled.png"));
+                                                                gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"plus-sign.png"),
+                                                                gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"plus-sign-over.png"),
+                                                                gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"plus-sign-disabled.png"));
    addDataButton->SetToolTipText("Show additional collections");
    addDataButton->Connect("Clicked()", "FWGUIManager", this, "addData()");
    addFrame->AddFrame(addDataButton, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,2,2,2,2));

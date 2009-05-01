@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 19 16:25:14 CST 2009
-// $Id$
+// $Id: FWCheckBoxIcon.h,v 1.1 2009/03/04 16:40:51 chrjones Exp $
 //
 
 // system include files
@@ -36,7 +36,8 @@ public:
    bool isChecked() const { return m_checked;}
    
    // ---------- static member functions --------------------
-   
+   static const TString& coreIcondir();
+
    // ---------- member functions ---------------------------
    void setChecked(bool iChecked) {
       m_checked = iChecked;
