@@ -10,8 +10,8 @@
 
 /** \class HcalPedestalMonitor
   *  
-  * $Date: 2009/03/28 13:58:18 $
-  * $Revision: 1.20.2.2 $
+  * $Date: 2009/04/13 14:20:29 $
+  * $Revision: 1.24.2.1 $
   * \author W. Fisher - FNAL
   */
 
@@ -26,7 +26,7 @@ public:
   void processEvent(const HBHEDigiCollection& hbhe,
 		    const HODigiCollection& ho,
 		    const HFDigiCollection& hf,
-		    // const ZDCDigiCollection& zdc,
+		    const ZDCDigiCollection& zdc,
 		    const HcalDbService& cond);
   void done();
   void reset();
@@ -159,6 +159,10 @@ private:
   float fC_pedsum2_bycapid[ETABINS][PHIBINS][6][4];
 
 
+  // ZDC pedestals
+  std::vector<MonitorElement*> zdc_pedestals;
+  float zdc_ADC_peds[2][2][5][26]; // zside, section, channel, 
+  float zdc_ADC_count[2][2][5];
 
 };
 

@@ -574,14 +574,14 @@ void HcalRecHitMonitor::fillNevents(void)
 	      iphi=phi+1;
 	      for (int mydepth=0;mydepth<6;++mydepth)
 		{
-		  OccupancyByDepth[mydepth]->setBinContent(ieta+2,iphi+2,occupancy_[eta][phi][mydepth]);
-		  OccupancyThreshByDepth[mydepth]->setBinContent(ieta+2,iphi+2,occupancy_thresh_[eta][phi][mydepth]);
+		  OccupancyByDepth[mydepth]->setBinContent(eta+2,phi+2,occupancy_[eta][phi][mydepth]);
+		  OccupancyThreshByDepth[mydepth]->setBinContent(eta+2,phi+2,occupancy_thresh_[eta][phi][mydepth]);
 		  OccupancyByDepth[mydepth]->setBinContent(0,0,ievt_);
 		  OccupancyThreshByDepth[mydepth]->setBinContent(0,0,ievt_);
-		  SumEnergyByDepth[mydepth]->setBinContent(ieta+2,iphi+2,energy_[eta][phi][mydepth]);
-		  SumEnergyThreshByDepth[mydepth]->setBinContent(ieta+2,iphi+2,energy_thresh_[eta][phi][mydepth]);
-		  SumTimeByDepth[mydepth]->setBinContent(ieta+2,iphi+2,time_[eta][phi][mydepth]);
-		  SumTimeThreshByDepth[mydepth]->setBinContent(ieta+2,iphi+2,time_thresh_[eta][phi][mydepth]);
+		  SumEnergyByDepth[mydepth]->setBinContent(eta+2,phi+2,energy_[eta][phi][mydepth]);
+		  SumEnergyThreshByDepth[mydepth]->setBinContent(eta+2,phi+2,energy_thresh_[eta][phi][mydepth]);
+		  SumTimeByDepth[mydepth]->setBinContent(eta+2,phi+2,time_[eta][phi][mydepth]);
+		  SumTimeThreshByDepth[mydepth]->setBinContent(eta+2,phi+2,time_thresh_[eta][phi][mydepth]);
 
 		  // This won't work with offline DQM, since tasks get split
 		  if (occupancy_[eta][phi][mydepth]>0)

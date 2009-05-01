@@ -14,11 +14,12 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2009/03/28 13:58:18 $
-  * $Revision: 1.24.2.1 $
+  * $Date: 2009/04/28 06:54:32 $
+  * $Revision: 1.26.2.2 $
   * \author J. Temple - Univ. of Maryland
   */
 
+// neighboring-cell test not currently used
 struct neighborParams{
   int DeltaIphi;
   int DeltaIeta;
@@ -41,8 +42,6 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   void done(std::map<HcalDetId, unsigned int>& myqual); // overrides base class function
   void clearME(); // overrides base class function
   void reset();
-
-  void createMaps(const HcalDbService& cond);
   
   void processEvent(const HBHERecHitCollection& hbHits,
                     const HORecHitCollection& hoHits,
@@ -50,53 +49,41 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
 		    //const ZDCRecHitCollection& zdcHits,
 		    const HBHEDigiCollection& hbhedigi,
                     const HODigiCollection& hodigi,
-                    const HFDigiCollection& hfdigi,
+                    const HFDigiCollection& hfdigi
 		    //const ZDCDigiCollection& zdcdigi, 
-		    const HcalDbService& cond
 		    );
 
-  void processEvent_digi(const HBHEDigiCollection& hbhedigi,
-			 const HODigiCollection& hodigi,
-			 const HFDigiCollection& hfdigi,
-			 //const ZDCDigiCollection& zdcdigi, 
-			 const HcalDbService& cond
-			 );
 
-  void processEvent_rechitenergy( const HBHERecHitCollection& hbheHits,
-				  const HORecHitCollection& hoHits,
-				  const HFRecHitCollection& hfHits);
-
-  void processEvent_rechitneighbors( const HBHERecHitCollection& hbheHits,
-				     const HORecHitCollection& hoHits,
-				     const HFRecHitCollection& hfHits);
   void fillDeadHistosAtEndRun();
+  
  private:
+  void zeroCounters(bool resetpresent=false);
 
+  void processEvent_HBHEdigi(HBHEDigiCollection::const_iterator j);
+  void processEvent_HOdigi(HODigiCollection::const_iterator j);
+  void processEvent_HFdigi(HFDigiCollection::const_iterator j);
+  void processEvent_ZDCdigi(ZDCDigiCollection::const_iterator j);
+  void processEvent_HBHERecHit(HBHERecHitCollection::const_iterator j);
+  void processEvent_HORecHit(HORecHitCollection::const_iterator j);
+  void processEvent_HFRecHit(HFRecHitCollection::const_iterator j);
+  void processEvent_ZDCRecHit(ZDCRecHitCollection::const_iterator j);
+
+  void fillNevents_neverpresent();
   void fillNevents_occupancy();
-  void fillNevents_pedestal();
-  void fillNevents_neighbor();
   void fillNevents_energy();
 
   void fillNevents_problemCells();
 
-  bool doFCpeds_; //specify whether pedestals are in fC (if not, assume ADC)
+  int deadmon_checkNevents_;  // specify how often to check is cell is dead
+  int deadmon_neverpresent_prescale_;
   bool deadmon_makeDiagnostics_;
 
   // Booleans to control which of the three dead cell checking routines are used
+  bool deadmon_test_neverpresent_;
   bool deadmon_test_occupancy_;
-  bool deadmon_test_pedestal_;
-  bool deadmon_test_neighbor_;
   bool deadmon_test_energy_;
-  bool deadmon_test_rechit_occupancy_;
 
-  int deadmon_checkNevents_;  // specify how often to check is cell is dead
-  // Let each test have its own checkNevents value
-  int deadmon_checkNevents_occupancy_;
-  int deadmon_checkNevents_pedestal_;
-  int deadmon_checkNevents_neighbor_;
-  int deadmon_checkNevents_energy_;
-  int deadmon_checkNevents_rechit_occupancy_;
-
+  // specify minimum energy threshold for energy test
   double energyThreshold_;
   double HBenergyThreshold_;
   double HEenergyThreshold_;
@@ -108,54 +95,50 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   int ievt_;
 
   double deadmon_minErrorFlag_; // minimum error rate needed to dump out bad bin info 
+
   // Problem Histograms
   MonitorElement* ProblemDeadCells;
   std::vector<MonitorElement*> ProblemDeadCellsByDepth;
 
   std::vector<MonitorElement*>UnoccupiedDeadCellsByDepth;
-  std::vector<MonitorElement*>UnoccupiedRecHitsByDepth;
-  std::vector<MonitorElement*>BelowPedestalDeadCellsByDepth;
-  double nsigma_;
-  double HBnsigma_, HEnsigma_, HOnsigma_, HFnsigma_, ZDCnsigma_;
-  std::vector<MonitorElement*>BelowNeighborsDeadCellsByDepth;
+  std::vector<MonitorElement*>DigisNeverPresentByDepth;
   std::vector<MonitorElement*>BelowEnergyThresholdCellsByDepth;
 
+  MonitorElement* NumberOfDeadCells;
+  MonitorElement* NumberOfDeadCellsHB;
+  MonitorElement* NumberOfDeadCellsHE;
+  MonitorElement* NumberOfDeadCellsHO;
+  MonitorElement* NumberOfDeadCellsHF;
+  MonitorElement* NumberOfDeadCellsZDC;
 
-  // map of pedestals from database (in ADC)
-  std::map<HcalDetId, float> pedestals_;
-  std::map<HcalDetId, float> widths_;
-  std::map<HcalDetId, float> pedestal_thresholds_;
-  std::map<HcalDetId, double> rechitEnergies_;
-  
+  MonitorElement* NumberOfNeverPresentCells;
+  MonitorElement* NumberOfNeverPresentCellsHB;
+  MonitorElement* NumberOfNeverPresentCellsHE;
+  MonitorElement* NumberOfNeverPresentCellsHO;
+  MonitorElement* NumberOfNeverPresentCellsHF;
+  MonitorElement* NumberOfNeverPresentCellsZDC;
 
-  unsigned int occupancy[ETABINS][PHIBINS][6]; // will get filled when an occupied digi is found
-  unsigned int rechit_occupancy[ETABINS][PHIBINS][6]; // filled when rechit is present
-  unsigned int abovepedestal[ETABINS][PHIBINS][6]; // filled when digi is below pedestal+nsigma
-  unsigned int belowneighbors[ETABINS][PHIBINS][6];
+  MonitorElement* NumberOfUnoccupiedCells;
+  MonitorElement* NumberOfUnoccupiedCellsHB;
+  MonitorElement* NumberOfUnoccupiedCellsHE;
+  MonitorElement* NumberOfUnoccupiedCellsHO;
+  MonitorElement* NumberOfUnoccupiedCellsHF;
+  MonitorElement* NumberOfUnoccupiedCellsZDC;
+
+  MonitorElement* NumberOfBelowEnergyCells;
+  MonitorElement* NumberOfBelowEnergyCellsHB;
+  MonitorElement* NumberOfBelowEnergyCellsHE;
+  MonitorElement* NumberOfBelowEnergyCellsHO;
+  MonitorElement* NumberOfBelowEnergyCellsHF;
+  MonitorElement* NumberOfBelowEnergyCellsZDC;
+
+  bool present[ETABINS][PHIBINS][6]; // filled when a digi is present
+  unsigned int occupancy[ETABINS][PHIBINS][6]; // will get filled when an occupied digi is found; resent on checkNevents
   unsigned int aboveenergy[ETABINS][PHIBINS][6];
 
-  // Diagnostic plots
-  MonitorElement* d_HBnormped;
-  MonitorElement* d_HEnormped;
-  MonitorElement* d_HOnormped;
-  MonitorElement* d_HFnormped;
-  MonitorElement* d_ZDCnormped;
+  bool HBpresent_, HEpresent_, HOpresent_, HFpresent_, ZDCpresent_;
 
-  MonitorElement* d_HBrechitenergy;
-  MonitorElement* d_HErechitenergy;
-  MonitorElement* d_HOrechitenergy;
-  MonitorElement* d_HFrechitenergy;
-  MonitorElement* d_ZDCrechitenergy;
-
-  MonitorElement* d_HBenergyVsNeighbor;
-  MonitorElement* d_HEenergyVsNeighbor;
-  MonitorElement* d_HOenergyVsNeighbor;
-  MonitorElement* d_HFenergyVsNeighbor;
-  MonitorElement* d_ZDCenergyVsNeighbor;
-
-  bool HBpresent_, HEpresent_, HOpresent_, HFpresent_;
-
-  neighborParams defaultNeighborParams_, HBNeighborParams_, HENeighborParams_, HONeighborParams_, HFNeighborParams_, ZDCNeighborParams_;
+  //neighborParams defaultNeighborParams_, HBNeighborParams_, HENeighborParams_, HONeighborParams_, HFNeighborParams_, ZDCNeighborParams_;
 };
 
 #endif

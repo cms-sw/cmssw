@@ -36,7 +36,7 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   checkHE_ = ps.getUntrackedParameter<bool>("checkHE",true);
   checkHO_ = ps.getUntrackedParameter<bool>("checkHO",true);
   checkHF_ = ps.getUntrackedParameter<bool>("checkHF",true);
-
+  checkZDC_ = ps.getUntrackedParameter<bool>("checkZDC",true);
   checkNevents_ = ps.getUntrackedParameter<int>("checkNevents",100);
 
 

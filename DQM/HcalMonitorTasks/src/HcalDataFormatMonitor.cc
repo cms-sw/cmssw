@@ -630,6 +630,15 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
 
   lastEvtN_ = -1;
   lastBCN_ = -1;
+  
+  // Fill event counters (underflow bins of histograms)
+  // This is the only way we can make these histograms appear in online DQM!
+  // Weird!  -- Jeff, 4/27/09
+  meDCC_DataIntegrityCheck_->Fill(-1,-1,1);
+  meChannSumm_DataIntegrityCheck_->Fill(-1,-1,1);
+  meHalfHTR_DataIntegrityCheck_->Fill(-1,-1,1);
+  for (int f=0; f<NUMDCCS; f++)
+    meChann_DataIntegrityCheck_[f]->Fill(-1,-1,1);
 
   meDCC_DataIntegrityCheck_->Fill(-1,-1,1);
   meChannSumm_DataIntegrityCheck_->Fill(-1,-1,1);

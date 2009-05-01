@@ -35,8 +35,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2008/11/02 16:20:41 $
-  * $Revision: 1.18 $
+  * $Date: 2009/04/13 14:20:29 $
+  * $Revision: 1.19.6.1 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -90,8 +90,8 @@ protected:
   double phiMax_, phiMin_;
   int etaBins_, phiBins_;
   double minErrorFlag_;
-  bool checkHB_, checkHE_, checkHO_, checkHF_;
-
+  bool checkHB_, checkHE_, checkHO_, checkHF_, checkZDC_;
+  
   edm::CPUTimer cpu_timer; // 
     
   bool makeDiagnostics; // controls whether to make diagnostic plots

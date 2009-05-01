@@ -104,6 +104,8 @@ class HcalDataFormatClient : public HcalBaseClient {
 
   TH2F* InvHTRData_;
 
+  TH2F* DCC_DataIntegrityCheck_;
+  TH1F* FEDEntries_;
 };
 
 #endif

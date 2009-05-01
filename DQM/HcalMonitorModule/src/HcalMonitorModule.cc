@@ -4,8 +4,13 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/04/03 10:57:53 $
- * $Revision: 1.111 $
+<<<<<<< HcalMonitorModule.cc
+ * $Date: 2009/04/04 11:33:03 $
+ * $Revision: 1.112 $
+=======
+ * $Date: 2009/04/16 22:26:49 $
+ * $Revision: 1.111.4.2 $
+>>>>>>> 1.111.4.2
  * \author W Fisher
  * \author J Temple
  *
@@ -325,7 +330,7 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
     meHE_ = dbe_->bookInt("HEpresent");
     meHO_ = dbe_->bookInt("HOpresent");
     meHF_ = dbe_->bookInt("HFpresent");
-    
+    meZDC_ = dbe_->bookInt("ZDCpresent");
     meStatus_->Fill(0);
     meRunType_->Fill(-1);
     meEvtMask_->Fill(-1);
@@ -335,6 +340,7 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
     meHE_->Fill(HEpresent_);
     meHO_->Fill(HOpresent_);
     meHF_->Fill(HFpresent_);
+    meZDC_->Fill(ZDCpresent_);
   }
 
   edm::ESHandle<HcalDbService> pSetup;
@@ -408,8 +414,8 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
   // Need to repeat this so many times?  Just do it once? And then we can be smarter about the whole fC/ADC thing?
   if (pedMon_!=NULL)
     pedMon_->fillDBValues(*conditions_);
-  if (deadMon_!=NULL)
-    deadMon_->createMaps(*conditions_);
+  //if (deadMon_!=NULL)
+  //  deadMon_->createMaps(*conditions_);
   if (hotMon_!=NULL)
     hotMon_->createMaps(*conditions_);
 
@@ -429,12 +435,13 @@ void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) 
   HEpresent_ = 0;
   HOpresent_ = 0;
   HFpresent_ = 0;
-
+  ZDCpresent_= 0;
   // Should fill with 0 to start
   meHB_->Fill(HBpresent_);
   meHE_->Fill(HEpresent_);
   meHO_->Fill(HOpresent_);
   meHF_->Fill(HFpresent_);
+  meZDC_->Fill(ZDCpresent_);
   reset();
 }
 
@@ -716,6 +723,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   edm::Handle<HBHEDigiCollection> hbhe_digi;
   edm::Handle<HODigiCollection> ho_digi;
   edm::Handle<HFDigiCollection> hf_digi;
+  edm::Handle<ZDCDigiCollection> zdc_digi;
   edm::Handle<HcalTrigPrimDigiCollection> tp_digi;
   edm::Handle<HcalLaserDigi> laser_digi;
 
@@ -749,6 +757,17 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     digiOK_=false;
   }
   
+  if (!(e.getByLabel(inputLabelDigi_,zdc_digi)))
+    {
+      digiOK_=false;
+      cout <<"COULDN'T GET ZDC DIGI"<<endl;
+      LogWarning("HcalMonitorModule")<< inputLabelDigi_<<" zdc_digi not available";
+    }
+  if (digiOK_&&!zdc_digi.isValid()) {
+    digiOK_=false;
+    cout <<"DIGI OK FAILED FOR ZDC"<<endl;
+  }
+
   // check which Subdetectors are on by seeing which are reading out FED data
   // Assume subdetectors aren't present, unless we explicitly find otherwise
 
@@ -757,9 +776,10 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       if ((checkHB_ && HBpresent_==0) ||
 	  (checkHE_ && HEpresent_==0) ||
 	  (checkHO_ && HOpresent_==0) ||
-	  (checkHF_ && HFpresent_==0))
+	  (checkHF_ && HFpresent_==0) ||
+	  (checkZDC_ && ZDCpresent_==0))
 	
-	CheckSubdetectorStatus(*rawraw,*report,*readoutMap_,*hbhe_digi, *ho_digi, *hf_digi);
+	CheckSubdetectorStatus(*rawraw,*report,*readoutMap_,*hbhe_digi, *ho_digi, *hf_digi, *zdc_digi);
     }
   else
     {
@@ -890,8 +910,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Digi monitor task
   if((digiMon_!=NULL) && (evtMask&DO_HCAL_DIGIMON) && digiOK_) 
     {
-      digiMon_->setSubDetectors(HBpresent_,HEpresent_, HOpresent_, HFpresent_);
-      digiMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,
+      digiMon_->setSubDetectors(HBpresent_,HEpresent_, HOpresent_, HFpresent_, ZDCpresent_);
+      digiMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi, *zdc_digi,
 			     *conditions_,*report);
     }
   if (showTiming_)
@@ -903,7 +923,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Pedestal monitor task
   if((pedMon_!=NULL) && (evtMask&DO_HCAL_PED_CALIBMON) && digiOK_) 
     {
-      pedMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*conditions_);
+      pedMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*zdc_digi,*conditions_);
     }
   if (showTiming_)
     {
@@ -982,7 +1002,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     {
       //deadMon_->setSubDetectors(HBpresent_,HEpresent_, HOpresent_, HFpresent_);
       deadMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,
-			     *hbhe_digi,*ho_digi,*hf_digi,*conditions_); 
+			     *hbhe_digi,*ho_digi,*hf_digi);
+			     //*conditions_); 
     }
   if (showTiming_)
     {
@@ -1117,8 +1138,8 @@ void HcalMonitorModule::CheckSubdetectorStatus(const FEDRawDataCollection& rawra
 					       const HcalElectronicsMap& emap,
 					       const HBHEDigiCollection& hbhedigi,
 					       const HODigiCollection& hodigi,
-					       const HFDigiCollection& hfdigi
-					       //const ZDCDigiCollection& zdcdigi,
+					       const HFDigiCollection& hfdigi,
+					       const ZDCDigiCollection& zdcdigi
 
 					       )
 {
@@ -1130,6 +1151,11 @@ void HcalMonitorModule::CheckSubdetectorStatus(const FEDRawDataCollection& rawra
       fedUnpackList.push_back(i);
     }
   
+  if (ZDCpresent_==0 && zdcdigi.size()>0)
+    {
+      ZDCpresent_=1;
+      meZDC_->Fill(ZDCpresent_);
+    }
   for (vector<int>::const_iterator i=fedUnpackList.begin();
        i!=fedUnpackList.end(); 
        ++i) 

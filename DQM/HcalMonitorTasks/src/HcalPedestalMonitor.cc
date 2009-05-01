@@ -297,6 +297,30 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 	    } // loop over capids
 	} // if (makeDiagnostics)
 
+
+      // setup zdc histograms
+      if (checkZDC_)
+	{
+	  m_dbe->setCurrentFolder(baseFolder_+"/zdc/");
+	  name.str("");
+	  for (int side=0;side<2;++side)
+	    {
+	      for (int section=0;section<2;++section)
+		{
+		  for (int depth=0; depth<5;++depth)
+		    {
+		      if (section==1 && depth==4) continue;
+		      name<<"ZDC Pedestal Side = "<<(side+1)<<" section = "<<(section+1)<<" channel = "<<(depth + 1);
+		      zdc_pedestals.push_back(m_dbe->book1D(name.str().c_str(),
+							    name.str().c_str(),
+							    25,0,25));
+		      name.str("");
+		    }
+		}
+	    }
+	}// if (checkZDC_)
+      for (unsigned int zz=0;zz<zdc_pedestals.size();++zz)
+	zdc_pedestals[zz]->setAxisTitle("ADC counts");
       zeroCounters();
 
     } // if (m_dbe)
@@ -318,7 +342,7 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 				       const HODigiCollection& ho,
 				       const HFDigiCollection& hf,
-				       //const ZDCDigiCollection& zdc, // ZDCs not yet added
+				       const ZDCDigiCollection& zdc, // ZDCs not yet added
 				       const HcalDbService& cond)
 {
   if (showTiming)
@@ -338,6 +362,33 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
   
   CaloSamples tool;  // digi values in ADC will be converted to fC values stored in tool
   float ADC_myval=0;
+
+
+  //ZDC loop
+  for (ZDCDigiCollection::const_iterator j=zdc.begin();
+       j!=zdc.end();++j)
+
+    {
+      const ZDCDataFrame digi = (const ZDCDataFrame)(*j);
+      int zside = digi.id().zside()==1 ? 0 : 1;
+      int section = digi.id().section()-1;
+      int channel = digi.id().channel()-1;
+      for (int k=0;k<digi.size();++k)
+	{
+	  //if (k<startingTimeSlice_ || k>endingTimeSlice_)
+	  //continue;
+
+	  //unsigned int capid=digi.sample(k).capid();
+	  int zdc_myval=digi.sample(k).adc();
+	  //if (zside==0 && section==0 && channel==0)
+	  //  cout <<"000 ZDC val "<<k<<"  = "<<zdc_myval<<endl;
+	  if (zdc_myval>=0 && zdc_myval<=24)
+	    ++zdc_ADC_peds[zside][section][channel][zdc_myval];
+	  else // over/underflow bin
+	    ++zdc_ADC_peds[zside][section][channel][25];
+	  ++zdc_ADC_count[zside][section][channel];
+	}
+    }
 
   // HB/HE Loop
   try
@@ -533,6 +584,24 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
   if (fVerbosity>0) 
     cout <<"<HcalPedestalMonitor::fillPedestalHistos> Entered fillPedestalHistos routine"<<endl;
   
+
+  // fill zdc histograms
+  for (unsigned int zs=0;zs<2;++zs)
+    {
+      for (unsigned int sec=0;sec<2;++sec)
+	{
+	  for (unsigned int ch=0;ch<5;++ch)
+	    {
+	      unsigned int counter=9*zs+5*sec+ch;
+	      if (counter>=zdc_pedestals.size())
+		continue;
+	      for (int a=0;a<25;++a)
+		zdc_pedestals[counter]->setBinContent(a+1,zdc_ADC_peds[zs][sec][ch][a]);
+	    }
+	}
+    }
+
+
   // Set value to be filled in problem histograms to be checkNevents (or remainder of ievt_/pedmon_checkNevents_)
   
   double fillvalue=0;
@@ -875,6 +944,21 @@ void HcalPedestalMonitor::fillDBValues(const HcalDbService& cond)
 
 void HcalPedestalMonitor::zeroCounters(void)
 {
+  for (unsigned int zs=0;zs<2;++zs)
+    {
+      for (unsigned int sec=0;sec<2;++sec)
+	{
+	  for (unsigned int ch=0;ch<5;++ch)
+	    {
+	      zdc_ADC_count[zs][sec][ch]=0;
+	      for (unsigned int tt=0;tt<25;++tt)
+		{
+		  zdc_ADC_peds[zs][sec][ch][tt]=0;
+		} 
+	    }
+	}
+    }
+
   // initialize all counters to 0
   for (unsigned int eta=0;eta<ETABINS;++eta)
     {

@@ -46,18 +46,18 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
   //occThresh_ is used to determine when checking ADC sums of digis
   if (fVerbosity>0)
     {
-      cout << "<HcalDigiMonitor> Digi ADC occupancy threshold set to: >" << occThresh_ << endl;
-      cout <<"<HcalDigiMonitor> Digi shape ADC threshold set to: >" << shapeThresh_ << endl;
+      std::cout << "<HcalDigiMonitor> Digi ADC occupancy threshold set to: >" << occThresh_ << std::endl;
+      std::cout <<"<HcalDigiMonitor> Digi shape ADC threshold set to: >" << shapeThresh_ << std::endl;
     }
   makeDiagnostics = ps.getUntrackedParameter<bool>("DigiMonitor_MakeDiagnosticPlots",false); // not yet used
 
   doPerChannel_ = ps.getUntrackedParameter<bool>("DigiMonitor_DigisPerchannel",false); // not yet used -- never will be?
   if (fVerbosity>1)
-    cout << "<HcalDigiMonitor> Digi phi min/max set to " << phiMin_ << "/" <<phiMax_ << endl;
+    std::cout << "<HcalDigiMonitor> Digi phi min/max set to " << phiMin_ << "/" <<phiMax_ << std::endl;
 
   digi_checkNevents_ = ps.getUntrackedParameter<int>("DigiMonitor_checkNevents",checkNevents_); 
   if (fVerbosity>1)
-    cout <<"<HcalDigiMonitor>  Perform checks and histogram fills every "<<digi_checkNevents_<<" events"<<endl;
+    std::cout <<"<HcalDigiMonitor>  Perform checks and histogram fills every "<<digi_checkNevents_<<" events"<<std::endl;
 
   // Specify which tests to run when looking for problem digis
   digi_checkoccupancy_ = ps.getUntrackedParameter<bool>("DigiMonitor_problems_checkForMissingDigis",false);
@@ -72,21 +72,23 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
   heHists.check=ps.getUntrackedParameter<bool>("checkHE",true);
   hoHists.check=ps.getUntrackedParameter<bool>("checkHO",true);
   hfHists.check=ps.getUntrackedParameter<bool>("checkHF",true);
+  zdcHists.check=ps.getUntrackedParameter<bool>("checkZDC",true);
 
   if (fVerbosity>1)
     {
-      cout <<"<HcalDigiMonitor> Checking for the following problems:"<<endl; 
-      if (digi_checkoccupancy_) cout <<"\tChecking that digi present at least once every "<<digi_checkNevents_<<" events;"<<endl;
-      if (digi_checkcapid_) cout <<"\tChecking that cap ID rotation is correct;"<<endl;
-      if (digi_checkdigisize_) cout <<"\tChecking that digi size is between ["<<mindigisize_<<" - "<<maxdigisize_<<"];"<<endl;
-      if (digi_checkadcsum_) cout <<"\tChecking that ADC sum of digi is greater than 0;"<<endl; 
-      if (digi_checkdverr_) cout <<"\tChecking that data valid bit is true and digi error bit is false;"<<endl;
-      cout <<"\tChecking digis for the following subdetectors:"<<endl;
-      if (hbHists.check) cout <<"\tHB";
-      if (heHists.check) cout <<"\tHE";
-      if (hoHists.check) cout <<"\tHO";
-      if (hfHists.check) cout <<"\tHF";
-      cout <<endl;
+      std::cout <<"<HcalDigiMonitor> Checking for the following problems:"<<std::endl; 
+      if (digi_checkoccupancy_) std::cout <<"\tChecking that digi present at least once every "<<digi_checkNevents_<<" events;"<<std::endl;
+      if (digi_checkcapid_) std::cout <<"\tChecking that cap ID rotation is correct;"<<std::endl;
+      if (digi_checkdigisize_) std::cout <<"\tChecking that digi size is between ["<<mindigisize_<<" - "<<maxdigisize_<<"];"<<std::endl;
+      if (digi_checkadcsum_) std::cout <<"\tChecking that ADC sum of digi is greater than 0;"<<std::endl; 
+      if (digi_checkdverr_) std::cout <<"\tChecking that data valid bit is true and digi error bit is false;"<<std::endl;
+      std::cout <<"\tChecking digis for the following subdetectors:"<<std::endl;
+      if (hbHists.check) std::cout <<"\tHB";
+      if (heHists.check) std::cout <<"\tHE";
+      if (hoHists.check) std::cout <<"\tHO";
+      if (hfHists.check) std::cout <<"\tHF";
+      if (zdcHists.check) std::cout <<"\tZDC";
+      std::cout <<std::endl;
     }
 
   ievt_=0;
@@ -336,10 +338,42 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       hfHists.ADC = m_dbe->book1D("HF ADC count per time slice","HF ADC count per time slice",200,-0.5,199.5);
       hfHists.ADCsum = m_dbe->book1D("HF ADC sum", "HF ADC sum",200,-0.5,199.5);
 
+
+      m_dbe->setCurrentFolder(baseFolder_+"/digi_info/ZDC");
+      zdcHists.shape = m_dbe->book1D("ZDC Digi Shape","ZDC Digi Shape",10,-0.5,9.5);
+      zdcHists.shapeThresh = m_dbe->book1D("ZDC Digi Shape - over thresh",
+					  "ZDC Digi Shape - over thresh",
+					  10,-0.5,9.5);
+      // Create plots of sums of adjacent time slices
+      for (int ts=0;ts<9;++ts)
+	{
+	  name<<"ZDC Plus Time Slices "<<ts<<" and "<<ts+1;
+	  zdcHists.TS_sum_plus.push_back(m_dbe->book1D(name.str().c_str(),name.str().c_str(),50,-5.5,44.5));
+	  name.str("");
+	  name<<"ZDC Minus Time Slices "<<ts<<" and "<<ts+1;
+	  zdcHists.TS_sum_minus.push_back(m_dbe->book1D(name.str().c_str(),name.str().c_str(),50,-5.5,44.5));
+	  name.str("");
+	}
+      zdcHists.shape->setAxisTitle("Time Slice",1);
+      zdcHists.shapeThresh->setAxisTitle("Time Slice",1);
+      zdcHists.presample= m_dbe->book1D("ZDC Digi Presamples","ZDC Digi Presamples",50,-0.5,49.5);
+      zdcHists.BQ = m_dbe->book1D("ZDC Bad Quality Digis","ZDC Bad Quality Digis",DIGI_SUBDET_NUM,-0.5,DIGI_SUBDET_NUM-0.5);
+      zdcHists.BQFrac = m_dbe->book1D("ZDC Bad Quality Digi Fraction","ZDC Bad Quality Digi Fraction",DIGI_BQ_FRAC_NBINS,(0-0.5/(DIGI_BQ_FRAC_NBINS-1)),1+0.5/(DIGI_BQ_FRAC_NBINS-1));
+      zdcHists.DigiFirstCapID = m_dbe->book1D("ZDC Capid 1st Time Slice","ZDC Capid for 1st Time Slice",7,-3.5,3.5);
+      zdcHists.DigiFirstCapID -> setAxisTitle("CapID (T0) - 1st CapId (T0)",1);  
+      zdcHists.DigiFirstCapID -> setAxisTitle("# of Events",2);
+      zdcHists.DVerr = m_dbe->book1D("ZDC Data Valid Err Bits","ZDC QIE Data Valid Err Bits",4,-0.5,3.5);
+      zdcHists.DVerr ->setBinLabel(1,"Err=0, DV=0",1);
+      zdcHists.DVerr ->setBinLabel(2,"Err=0, DV=1",1);
+      zdcHists.DVerr ->setBinLabel(3,"Err=1, DV=0",1);
+      zdcHists.DVerr ->setBinLabel(4,"Err=1, DV=1",1);
+      zdcHists.CapID = m_dbe->book1D("ZDC CapID","ZDC CapID",4,-0.5,3.5);
+      zdcHists.ADC = m_dbe->book1D("ZDC ADC count per time slice","ZDC ADC count per time slice",200,-0.5,199.5);
+      zdcHists.ADCsum = m_dbe->book1D("ZDC ADC sum", "ZDC ADC sum",200,-0.5,199.5);
     } // if (m_dbe) // ends histogram setup
   if (showTiming)
     {
-      cpu_timer.stop();  cout <<"TIMER:: HcalDigiMonitor Setup -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalDigiMonitor Setup -> "<<cpu_timer.cpuTime()<<std::endl;
     }
 
 } // void HcalDigiMonitor::setup(...)
@@ -348,13 +382,14 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 				   const HODigiCollection& ho,
 				   const HFDigiCollection& hf,
+				   const ZDCDigiCollection& zdc,
 				   const HcalDbService& cond,
 				   const HcalUnpackerReport& report)
 { 
   if(!m_dbe) 
     { 
       if(fVerbosity) 
-	cout <<"HcalDigiMonitor::processEvent   DQMStore not instantiated!!!"<<endl; 
+	std::cout <<"HcalDigiMonitor::processEvent   DQMStore not instantiated!!!"<<std::endl; 
       return; 
     }
   
@@ -430,7 +465,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	      {
 		++hbHists.capIDdiff[7];
 		if (fVerbosity > 1)
-		  cout <<"<HcalDigiMonitor> Odd behavior of HB capIDs:  capID diff = "<<capdif<<" = "<<digi.sample(0).capid()<< " - "<<firsthbcap<<endl;
+		  std::cout <<"<HcalDigiMonitor> Odd behavior of HB capIDs:  capID diff = "<<capdif<<" = "<<digi.sample(0).capid()<< " - "<<firsthbcap<<std::endl;
 	      }
 
 	    int last=-1;
@@ -532,7 +567,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	      {
 		++heHists.capIDdiff[7];
 		if (fVerbosity > 1)
-		  cout <<"<HcalDigiMonitor> Odd behavior of HB capIDs:  capID diff = "<<capdif<<" = "<<digi.sample(0).capid()<< " - "<<firsthbcap<<endl;
+		  std::cout <<"<HcalDigiMonitor> Odd behavior of HE capIDs:  capID diff = "<<capdif<<" = "<<digi.sample(0).capid()<< " - "<<firsthbcap<<std::endl;
 	      }
 	    int last=-1;
 	    for (int i=0;i<digi.size();++i)
@@ -615,7 +650,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
   if (showTiming)
     {
-      cpu_timer.stop();  cout <<"TIMER:: HcalDigiMonitor DIGI HBHE -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalDigiMonitor DIGI HBHE -> "<<cpu_timer.cpuTime()<<std::endl;
       cpu_timer.reset(); cpu_timer.start();
     }
 
@@ -662,7 +697,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	    {
 	      ++hoHists.capIDdiff[7];
 	      if (fVerbosity > 1)
-		cout <<"<HcalDigiMonitor> Odd behavior of HB capIDs:  capID diff = "<<capdif<<" = "<<digi.sample(0).capid()<< " - "<<firsthbcap<<endl;
+		std::cout <<"<HcalDigiMonitor> Odd behavior of HO capIDs:  capID diff = "<<capdif<<" = "<<digi.sample(0).capid()<< " - "<<firsthbcap<<std::endl;
 	    }
 	  int last=-1;
 	  for (int i=0;i<digi.size();++i)
@@ -738,7 +773,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
   if (showTiming)
     {
-      cpu_timer.stop();  cout <<"TIMER:: HcalDigiMonitor DIGI HO -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalDigiMonitor DIGI HO -> "<<cpu_timer.cpuTime()<<std::endl;
       cpu_timer.reset(); cpu_timer.start();
     }
 
@@ -780,12 +815,12 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  //capdif = capdif%3 - capdif/3; // unnecessary?
 	  // capdif should run from -3 to +3
 	  if (capdif >-4 && capdif<4)
-	    ++hoHists.capIDdiff[capdif+3];
+	    ++hfHists.capIDdiff[capdif+3];
 	  else
 	    {
-	      ++hoHists.capIDdiff[7];
+	      ++hfHists.capIDdiff[7];
 	      if (fVerbosity > 1)
-		cout <<"<HcalDigiMonitor> Odd behavior of HB capIDs:  capID diff = "<<capdif<<" = "<<digi.sample(0).capid()<< " - "<<firsthbcap<<endl;
+		std::cout <<"<HcalDigiMonitor> Odd behavior of HF capIDs:  capID diff = "<<capdif<<" = "<<digi.sample(0).capid()<< " - "<<firsthbcap<<std::endl;
 	    }
 	  int last=-1;
 	  for (int i=0;i<digi.size();++i)
@@ -858,11 +893,136 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	    ++hfHists.count_BQFrac[static_cast<int>(hfHists.count_bad/hfHists.count_all)*DIGI_BQ_FRAC_NBINS];
 	}
     } // if (hfHists.check)
-
- if (showTiming)
+  
+  if (showTiming)
     {
-      cpu_timer.stop();  cout <<"TIMER:: HcalDigiMonitor DIGI HF -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalDigiMonitor DIGI HF -> "<<cpu_timer.cpuTime()<<std::endl;
     }
+
+ 
+  int zside, zsection, zdepth, zchannel;
+  /////////////////////////////////////// Loop over ZDC collection
+  if (zdcHists.check)
+    {
+      int firstzdccap=-1;
+      for (ZDCDigiCollection::const_iterator j=zdc.begin(); j!=zdc.end(); ++j)
+	{
+	  const ZDCDataFrame digi = (const ZDCDataFrame)(*j);
+	  zside=digi.id().zside();
+	  zsection=digi.id().section();
+	  zdepth=digi.id().depth();
+	  zchannel=digi.id().channel();
+	  err=0x0;
+	  occ=false;
+	  bitUp=false;
+
+	  int ADCcount=0;
+	  ++zdcHists.count_all;
+	  
+	  // Check that digi size is correct
+	  if (digi.size()<mindigisize_ || digi.size()>maxdigisize_)
+	    {
+	      if (digi_checkdigisize_) err|=0x1;
+	      //++baddigisize[static_cast<int>(iEta+(etaBins_-2)/2)][iPhi-1][iDepth-1];
+	    }
+	  // Check digi size; if > 20, increment highest bin of digisize array
+	  if (digi.size()<20)
+	    ++digisize[static_cast<int>(digi.size())][3];
+	  else
+	    ++digisize[19][3];
+	  // loop over time slices of digi to check capID and errors
+	  //++zdcHists.count_presample[digi.presamples()];
+	  
+
+	  // Check CapID rotation
+	  if (firstzdccap==-1) firstzdccap = digi.sample(0).capid();
+	  int capdif = digi.sample(0).capid() - firstzdccap;
+	  //capdif = capdif%3 - capdif/3; // unnecessary?
+	  // capdif should run from -3 to +3
+	  if (capdif >-4 && capdif<4)
+	    ++zdcHists.capIDdiff[capdif+3];
+	  else
+	    {
+	      ++zdcHists.capIDdiff[7];
+	      if (fVerbosity > 1)
+		std::cout <<"<HcalDigiMonitor> Odd behavior of ZDC capIDs:  capID diff = "<<capdif<<" = "<<digi.sample(0).capid()<< " - "<<firsthbcap<<std::endl;
+	    }
+
+	  int last=-1;
+	  for (int i=0;i<digi.size();++i)
+	    {
+	      int thisCapid = digi.sample(i).capid();
+	      if (thisCapid<4) ++zdcHists.capid[thisCapid];
+	      if(bitUpset(last,thisCapid)) bitUp=true;
+	      last = thisCapid;
+	      // Check for digi error bits
+	      if (digi_checkdverr_)
+		{
+		  if(digi.sample(i).er()) err=(err|0x2);
+		  if(!digi.sample(i).dv()) err=(err|0x2);
+		}
+	      //if (digi.sample(i).er() || !digi.sample(i).dv())
+	      //	++digierrorsdverr[static_cast<int>(iEta+(etaBins_-2)/2)][iPhi-1][iDepth-1];
+	      ++zdcHists.dverr[static_cast<int>(2*digi.sample(i).er()+digi.sample(i).dv())];
+	      ADCcount+=digi.sample(i).adc();
+	      if (digi.sample(i).adc()<200) ++zdcHists.adc[digi.sample(i).adc()];
+	      zdcHists.count_shape[i]+=digi.sample(i).adc();
+	      // Calculate ADC sum of adjacent samples
+		if (i==digi.size()-1) continue;
+		tssum= digi.sample(i).adc()+digi.sample(i+1).adc();
+		if (tssum<45 && tssum>=-5)
+		  {
+		    if (zside>0)
+		      ++zdcHists.tssumplus[tssum+5][i];
+		    else
+		      ++zdcHists.tssumminus[tssum+5][i];
+		  }
+	    } // for (int i=0;i<digi.size();++i)
+	  if(ADCcount>occThresh_) occ=true; 
+	  if (ADCcount<200)
+	    ++zdcHists.adcsum[ADCcount];
+	  if (ADCcount>shapeThresh_)
+	    {
+	      for (int i=0;i<digi.size();++i)
+		zdcHists.count_shapeThresh[i]+=digi.sample(i).adc();
+	    }
+	  if(bitUp) 
+	    {
+	      if (digi_checkcapid_) err=(err|0x4);
+	      //++badcapID[static_cast<int>(iEta+(etaBins_-2)/2)][iPhi-1][iDepth-1];
+	    }
+	  
+	  //++occupancyEtaPhi[static_cast<int>(iEta+(etaBins_-2)/2)][iPhi-1][iDepth-1];
+	  //++occupancyEta[static_cast<int>(iEta+(etaBins_-2)/2)];
+	  //++occupancyPhi[iPhi-1];
+	  // htr Slots run from 0-20, incremented by 0.5 for top/bottom
+	  ++occupancyVME[static_cast<int>(2*(digi.elecId().htrSlot()+0.5*digi.elecId().htrTopBottom()))][static_cast<int>(digi.elecId().readoutVMECrateId())];
+	  ++occupancySpigot[static_cast<int>(digi.elecId().spigot())][static_cast<int>(digi.elecId().dccid())];
+	  if (!occ)
+	    {
+	      if (digi_checkadcsum_) err=err|0x8;
+	      //++badADCsum[static_cast<int>(iEta+(etaBins_-2)/2)][iPhi-1][iDepth-1];
+	    }
+	  if (err>0)
+	    {
+	      ++zdcHists.count_bad;
+	      //++problemdigis[static_cast<int>(iEta+(etaBins_-2)/2)][iPhi-1][iDepth-1];
+	      ++errorVME[static_cast<int>(2*(digi.elecId().htrSlot()+0.5*digi.elecId().htrTopBottom()))][static_cast<int>(digi.elecId().readoutVMECrateId())];
+	      ++errorSpigot[static_cast<int>(digi.elecId().spigot())][static_cast<int>(digi.elecId().dccid())];
+	    }
+	} // for (ZDCDigiCollection)
+   
+      if (zdcHists.count_all>0)
+	{
+	  ++zdcHists.count_BQ[static_cast<int>(zdcHists.count_bad)];
+	  // if (zdcHists.count_bad>0)
+	    ++zdcHists.count_BQFrac[static_cast<int>(zdcHists.count_bad/zdcHists.count_all)*DIGI_BQ_FRAC_NBINS];
+	}
+    } // if (zdcHists.check)
+
+
+
+
 
   // This only counts digis that are present but bad somehow; it does not count digis that are missing
   int count_all=hbHists.count_all+heHists.count_all+hoHists.count_all+hfHists.count_all;
@@ -888,7 +1048,7 @@ void HcalDigiMonitor::fill_Nevents()
     }
 
   if (fVerbosity>0)
-    cout <<"<HcalDigiMonitor> Calling fill_Nevents for event # "<<ievt_<<endl;
+    std::cout <<"<HcalDigiMonitor> Calling fill_Nevents for event # "<<ievt_<<std::endl;
   int iPhi, iEta, iDepth;
   double problemvalue=0;
   double problemsum=0;
@@ -908,6 +1068,8 @@ void HcalDigiMonitor::fill_Nevents()
 	  if (hoHists.tssumminus[j][i]>0) hoHists.TS_sum_minus[i]->Fill(j, hoHists.tssumminus[j][i]);
 	  if (hfHists.tssumplus[j][i]>0) hfHists.TS_sum_plus[i]->Fill(j, hfHists.tssumplus[j][i]);
 	  if (hfHists.tssumminus[j][i]>0) hfHists.TS_sum_minus[i]->Fill(j, hfHists.tssumminus[j][i]);
+	  if (zdcHists.tssumplus[j][i]>0) zdcHists.TS_sum_plus[i]->Fill(j, zdcHists.tssumplus[j][i]);
+	  if (zdcHists.tssumminus[j][i]>0) zdcHists.TS_sum_minus[i]->Fill(j, zdcHists.tssumminus[j][i]);
 	}
     } // for (int i=0;i<10;++i)
 
@@ -921,6 +1083,8 @@ void HcalDigiMonitor::fill_Nevents()
       if (heHists.count_BQ[i]>0) heHists.BQ->Fill(i, heHists.count_BQ[i]);
       if (hoHists.count_BQ[i]>0) hoHists.BQ->Fill(i, hoHists.count_BQ[i]);
       if (hfHists.count_BQ[i]>0) hfHists.BQ->Fill(i, hfHists.count_BQ[i]);
+      if (zdcHists.count_BQ[i]>0) zdcHists.BQ->Fill(i, zdcHists.count_BQ[i]);
+
 
     }//for int i=0;i<DIGI_NUM;++i)
 
@@ -931,10 +1095,14 @@ void HcalDigiMonitor::fill_Nevents()
       if (heHists.dverr[i]>0) heHists.DVerr->Fill(i, heHists.dverr[i]);
       if (hoHists.dverr[i]>0) hoHists.DVerr->Fill(i, hoHists.dverr[i]);
       if (hfHists.dverr[i]>0) hfHists.DVerr->Fill(i, hfHists.dverr[i]);
+      if (zdcHists.dverr[i]>0) zdcHists.DVerr->Fill(i, zdcHists.dverr[i]);
+
       if (hbHists.capid[i]>0) hbHists.CapID->Fill(i, hbHists.capid[i]);
       if (heHists.capid[i]>0) heHists.CapID->Fill(i, heHists.capid[i]);
       if (hoHists.capid[i]>0) hoHists.CapID->Fill(i, hoHists.capid[i]);
       if (hfHists.capid[i]>0) hfHists.CapID->Fill(i, hfHists.capid[i]);
+      if (zdcHists.capid[i]>0) zdcHists.CapID->Fill(i, zdcHists.capid[i]);
+
     }
   for (int i=0;i<200;++i)
     {
@@ -942,10 +1110,13 @@ void HcalDigiMonitor::fill_Nevents()
       if (heHists.adc[i]>0) heHists.ADC->Fill(i, heHists.adc[i]);
       if (hoHists.adc[i]>0) hoHists.ADC->Fill(i, hoHists.adc[i]);
       if (hfHists.adc[i]>0) hfHists.ADC->Fill(i, hfHists.adc[i]);
+      if (zdcHists.adc[i]>0) zdcHists.ADC->Fill(i, zdcHists.adc[i]);
       if (hbHists.adcsum[i]>0) hbHists.ADCsum->Fill(i, hbHists.adcsum[i]);
       if (heHists.adcsum[i]>0) heHists.ADCsum->Fill(i, heHists.adcsum[i]);
       if (hoHists.adcsum[i]>0) hoHists.ADCsum->Fill(i, hoHists.adcsum[i]);
       if (hfHists.adcsum[i]>0) hfHists.ADCsum->Fill(i, hfHists.adcsum[i]);
+      if (zdcHists.adcsum[i]>0) zdcHists.ADCsum->Fill(i, zdcHists.adcsum[i]);
+
     }
 
 
@@ -957,6 +1128,7 @@ void HcalDigiMonitor::fill_Nevents()
       if (heHists.count_BQFrac[i]>0) heHists.BQFrac->Fill(i, heHists.count_BQFrac[i]);
       if (hoHists.count_BQFrac[i]>0) hoHists.BQFrac->Fill(i, hoHists.count_BQFrac[i]);
       if (hfHists.count_BQFrac[i]>0) hfHists.BQFrac->Fill(i, hfHists.count_BQFrac[i]);
+      if (zdcHists.count_BQFrac[i]>0) zdcHists.BQFrac->Fill(i, zdcHists.count_BQFrac[i]);
 
     }//for (int i=0;i<DIGI_BQ_FRAC_NBINS;++i)
 
@@ -967,6 +1139,7 @@ void HcalDigiMonitor::fill_Nevents()
       if (heHists.count_presample[i]>0) heHists.presample->Fill(i, heHists.count_presample[i]);
       if (hoHists.count_presample[i]>0) hoHists.presample->Fill(i, hoHists.count_presample[i]);
       if (hfHists.count_presample[i]>0) hfHists.presample->Fill(i, hfHists.count_presample[i]);
+      if (zdcHists.count_presample[i]>0) zdcHists.presample->Fill(i, zdcHists.count_presample[i]);
     } //for (int i=0;i<50;++i)
 
   // Fill shape plots
@@ -980,6 +1153,8 @@ void HcalDigiMonitor::fill_Nevents()
       if (hoHists.count_shapeThresh[i]>0) hoHists.shapeThresh->Fill(i, hoHists.count_shapeThresh[i]);
       if (hfHists.count_shape[i]>0) hfHists.shape->Fill(i, hfHists.count_shape[i]);
       if (hfHists.count_shapeThresh[i]>0) hfHists.shapeThresh->Fill(i, hfHists.count_shapeThresh[i]);
+      if (zdcHists.count_shape[i]>0) zdcHists.shape->Fill(i, zdcHists.count_shape[i]);
+      if (zdcHists.count_shapeThresh[i]>0) zdcHists.shapeThresh->Fill(i, zdcHists.count_shapeThresh[i]);
     }//  for (int i=0;i<10;++i)
 
   // Fill capID difference plots
@@ -989,6 +1164,8 @@ void HcalDigiMonitor::fill_Nevents()
       if (heHists.capIDdiff[i]>0) heHists.DigiFirstCapID->Fill(i, heHists.capIDdiff[i]);
       if (hoHists.capIDdiff[i]>0) hoHists.DigiFirstCapID->Fill(i, hoHists.capIDdiff[i]);
       if (hfHists.capIDdiff[i]>0) hfHists.DigiFirstCapID->Fill(i, hfHists.capIDdiff[i]);
+      if (zdcHists.capIDdiff[i]>0) zdcHists.DigiFirstCapID->Fill(i, zdcHists.capIDdiff[i]);
+
     }
 
 
@@ -1222,18 +1399,18 @@ void HcalDigiMonitor::fill_Nevents()
   zeroCounters();
   if (showTiming)
     {
-      cpu_timer.stop();  cout <<"TIMER:: HcalDigiMonitor DIGI fill_Nevents -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalDigiMonitor DIGI fill_Nevents -> "<<cpu_timer.cpuTime()<<std::endl;
     }
   return;
 } // void HcalDigiMonitor::fill_Nevents()
 
-void HcalDigiMonitor::setSubDetectors(bool hb, bool he, bool ho, bool hf)
+void HcalDigiMonitor::setSubDetectors(bool hb, bool he, bool ho, bool hf, bool zdc)
 {
   hbHists.check&=hb;
   heHists.check&=he;
   hoHists.check&=ho;
   hfHists.check&=hf;
-  
+  zdcHists.check&=zdc;
   return;
 } // void HcalDigiMonitor::setSubDetectors(...)
 

@@ -85,7 +85,7 @@ process.dqmSaver.saveByRun = 1
 #-----------------------------
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.connect = 'frontier://Frontier/CMS_COND_21X_GLOBALTAG'
-process.GlobalTag.globaltag = 'CRAFT_ALL_V8::All'  # update GlobalTag as neceesary
+process.GlobalTag.globaltag = 'CRAFT_ALL_V11::All'  # update GlobalTag as neceesary
 process.prefer("GlobalTag")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -130,11 +130,6 @@ process.hcalMonitor.HcalAnalysis        = False
 setHcalTaskValues(process.hcalMonitor)
 
 # Set individual Task values here (otherwise they will remain set to the values specified for the hcalMonitor.)
-process.hcalMonitor.DeadCellMonitor_pedestal_Nsigma     = 0
-process.hcalMonitor.DeadCellMonitor_makeDiagnosticPlots = True
-process.hcalMonitor.DeadCellMonitor_test_pedestal       = True
-process.hcalMonitor.DeadCellMonitor_test_occupancy      = True
-process.hcalMonitor.DeadCellMonitor_test_neighbor       = False
 
 process.hcalMonitor.HotCellMonitor_makeDiagnosticPlots  = True
 process.hcalMonitor.HotCellMonitor_test_neighbor        = True

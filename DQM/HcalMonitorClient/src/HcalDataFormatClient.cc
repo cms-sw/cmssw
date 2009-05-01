@@ -57,7 +57,8 @@ void HcalDataFormatClient::init(const ParameterSet& ps, DQMStore* dbe, string cl
   ErrCrate15_ = NULL;
   ErrCrate16_ = NULL;
   ErrCrate17_ = NULL;
-  
+ 
+  DCC_DataIntegrityCheck_ = NULL;
 }
 
 HcalDataFormatClient::~HcalDataFormatClient(){
@@ -224,6 +225,12 @@ void HcalDataFormatClient::getHistograms(){
   char name[150];     
   sprintf(name,"DataFormatMonitor/DCC Plots/DCC Error and Warning");
   DCC_Err_Warn_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
+
+  sprintf(name,"DataFormatMonitor/Readout Chain DataIntegrity Check");
+  DCC_DataIntegrityCheck_=getHisto2(name, process_, dbe_, debug_,cloneME_);
+
+  sprintf(name,"DataFormatMonitor/HcalFEDChecking/FEDEntries");
+  FEDEntries_ = getHisto(name, process_, dbe_, debug_,cloneME_);
 
   sprintf(name,"DataFormatMonitor/DCC Plots/DCC Ev Fragment Size Distribution");
   FED_Frag_Sizes_ = getHisto(name, process_, dbe_, debug_,cloneME_);
@@ -458,6 +465,11 @@ void HcalDataFormatClient::resetAllME(){
   sprintf(name,"%sHcal/DataFormatMonitor/ZZ HCal-Wide Expert Plots/Num Bad Quality Digis -DV bit-Err bit-Cap Rotation",process_.c_str());
   resetME(name,dbe_);
 
+  sprintf(name,"%sHcal/DataFormatMonitor/Readout Chain DataIntegrity Check",process_.c_str());
+  resetME(name,dbe_);
+  sprintf(name,"%sHcal/DataFormatMonitor/HcalFEDChecking/FEDEntries",process_.c_str());
+  resetME(name,dbe_);
+
   sprintf(name,"%sHcal/DataFormatMonitor/DCC Plots/Num Event Frags by FED",process_.c_str());
   resetME(name,dbe_);
   
@@ -627,6 +639,21 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
   htmlFile << "cellpadding=\"10\"> " << endl;
 
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
+
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML2(runNo,DCC_Spigot_Err_,"HCAL FED ID"," ", 92, htmlFile,htmlDir);
+  histoHTMLTProfile(runNo,EvFragSize_,"FED ","Ev Frag Size (bytes)", 92, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML(runNo,FEDEntries_,"HCAL FED ID","Events", 23, htmlFile,htmlDir);
+  histoHTML2(runNo,ErrMapbyCrate_,"Crate #"," ", 92, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML2(runNo,DCC_DataIntegrityCheck_,"HCAL FED ID","", 23, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+
   htmlFile << "<tr align=\"left\">" << endl;
   histoHTMLTProfile(runNo,EvFragSize_,"FED ","Ev Frag Size (bytes)", 92, htmlFile,htmlDir);
   histoHTML2       (runNo,EvFragSize2_,"FED ","Ev Frag Size (bytes)",100, htmlFile,htmlDir);
@@ -641,6 +668,7 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
   histoHTML(runNo,BCN_,"Bunch Counter Number","Events", 23, htmlFile,htmlDir);
   histoHTML(runNo,dccBCN_,"Bunch Counter Number","Events", 23, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
+
 
   htmlFile << "<tr align=\"left\">" << endl;
   histoHTML2(runNo,CDF_Violation_,"HCAL FED ID"," ", 92, htmlFile,htmlDir);
@@ -915,6 +943,14 @@ void HcalDataFormatClient::loadHistograms(TFile* infile){
   char name[150]; 
   sprintf(name,"DQMData/Hcal/DataFormatMonitor/ZZ HCal-Wide Expert Plots/Num Bad Quality Digis -DV bit-Err bit-Cap Rotation");
   badDigis_ = (TH1F*)infile->Get(name);
+
+
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/Readout Chain DataIntegrity Check");
+  DCC_DataIntegrityCheck_=(TH2F*)infile->Get(name);
+
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HcalFEDChecking/FEDEntries");
+  FEDEntries_ = (TH1F*)infile->Get(name);
+
 
   sprintf(name,"DQMData/Hcal/DataFormatMonitor/DCC Plots/Num Event Frags by FED");
   Num_Frags_by_FED_ = (TH1F*)infile->Get(name);

@@ -65,44 +65,48 @@ private:
   double minErrorFlag_;  // minimum error rate which causes problem cells to be dumped in client
   bool deadclient_makeDiagnostics_;
 
+  bool deadclient_test_neverpresent_;
   bool deadclient_test_occupancy_;
-  bool deadclient_test_rechit_occupancy_;
-  bool deadclient_test_pedestal_;
-  bool deadclient_test_neighbor_;
   bool deadclient_test_energy_;
   bool dump2database_;
 
   int deadclient_checkNevents_;
-  int deadclient_checkNevents_occupancy_;
-  int deadclient_checkNevents_rechit_occupancy_;
-  int deadclient_checkNevents_pedestal_;
-  int deadclient_checkNevents_neighbor_;
-  int deadclient_checkNevents_energy_;
 
   // Histograms
   TH2F* ProblemDeadCells;
   TH2F* ProblemDeadCellsByDepth[6];
   TH2F* UnoccupiedDeadCellsByDepth[6];
-  TH2F* UnoccupiedRecHitsByDepth[6];
-  TH2F* BelowPedestalDeadCellsByDepth[6];
-  TH2F* BelowNeighborsDeadCellsByDepth[6];
+  TH2F* DigiNeverPresentByDepth[6];
   TH2F* BelowEnergyThresholdCellsByDepth[6];
 
-  // diagnostic histograms
-  TH1F* d_HBnormped;
-  TH1F* d_HEnormped;
-  TH1F* d_HOnormped;
-  TH1F* d_HFnormped;
-  
-  TH1F* d_HBrechitenergy;
-  TH1F* d_HErechitenergy;
-  TH1F* d_HOrechitenergy;
-  TH1F* d_HFrechitenergy;
-  
-  TH2F* d_HBenergyVsNeighbor;
-  TH2F* d_HEenergyVsNeighbor;
-  TH2F* d_HOenergyVsNeighbor;
-  TH2F* d_HFenergyVsNeighbor;
+  TH1F* NumberOfDeadCells;
+  TH1F* NumberOfDeadCellsHB;
+  TH1F* NumberOfDeadCellsHE;
+  TH1F* NumberOfDeadCellsHO;
+  TH1F* NumberOfDeadCellsHF;
+  TH1F* NumberOfDeadCellsZDC;
+
+  TH1F* NumberOfNeverPresentCells;
+  TH1F* NumberOfNeverPresentCellsHB;
+  TH1F* NumberOfNeverPresentCellsHE;
+  TH1F* NumberOfNeverPresentCellsHO;
+  TH1F* NumberOfNeverPresentCellsHF;
+  TH1F* NumberOfNeverPresentCellsZDC;
+
+  TH1F* NumberOfUnoccupiedCells;
+  TH1F* NumberOfUnoccupiedCellsHB;
+  TH1F* NumberOfUnoccupiedCellsHE;
+  TH1F* NumberOfUnoccupiedCellsHO;
+  TH1F* NumberOfUnoccupiedCellsHF;
+  TH1F* NumberOfUnoccupiedCellsZDC;
+
+  TH1F* NumberOfBelowEnergyCells;
+  TH1F* NumberOfBelowEnergyCellsHB;
+  TH1F* NumberOfBelowEnergyCellsHE;
+  TH1F* NumberOfBelowEnergyCellsHO;
+  TH1F* NumberOfBelowEnergyCellsHF;
+  TH1F* NumberOfBelowEnergyCellsZDC;
+
 };
 
 #endif

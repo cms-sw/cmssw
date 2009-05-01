@@ -13,6 +13,7 @@ class SubTaskSummaryStatus
 
   double status[5]; // HB, HE, HO, HF, ZDC;  make private?
   double ALLstatus;
+  std::string baseProblemName; // name for overall error histogram (including its directory)
   std::string problemName; // name for the set of SJ6 problem histograms
   std::string problemDir;
   std::string ievtName;
