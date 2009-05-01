@@ -6,7 +6,7 @@ eleIsoFromDepsTk = cms.EDProducer("CandIsolatorFromDeposits",
         src = cms.InputTag("eleIsoDepositTk"),
         weight = cms.string('1'),
         deltaR = cms.double(0.3),
-        vetos = cms.vstring('0.015','Threshold(1.0)'),
+        vetos = cms.vstring('0.04','Threshold(0.7)'),
         skipDefaultVeto = cms.bool(True)
     ))
 )
@@ -34,7 +34,7 @@ eleIsoFromDepsEcalFromHitsByCrystal = cms.EDProducer("CandIsolatorFromDeposits",
         weight = cms.string('1'),
         deltaR = cms.double(0.4),
         vetos = cms.vstring('NumCrystalVeto(3.0)', 
-                            'NumCrystalEtaPhiVeto(1.0,9999.0)',
+                            'NumCrystalEtaPhiVeto(1.5,9999.0)',
                             'EcalBarrel:AbsThresholdFromTransverse(0.08)',
                             'EcalEndcaps:AbsThreshold(0.100)'),
         skipDefaultVeto = cms.bool(True)

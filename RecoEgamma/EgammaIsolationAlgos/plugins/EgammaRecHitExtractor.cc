@@ -166,7 +166,7 @@ void EgammaRecHitExtractor::collect(reco::IsoDeposit &deposit,
             }  //end if removeClustered
  
 
-            if ( et > etMin_ 
+            if ( fabs(et) > etMin_ 
                     && fabs(energy) > energyMin_  //Changed to fabs
                     && fabs(eta-caloeta) > intStrip_ 
                     && (eta-caloeta)*(eta-caloeta) + phiDiff*phiDiff >r2) {
