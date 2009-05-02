@@ -166,9 +166,10 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }
 
   /* Forward & MultiJet */
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_FwdJet50") == 0) {      
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_FwdJet40") == 0) {      
     if(map_BitOfStandardHLTPath.find("L1_IsoEG10_Jet6_ForJet6")->second == 1) {
-      if(OpenHltFwdJetPassed(50.)>=1) {      
+      cout << "\tJH: L1_IsoEG10_Jet6_ForJet6 passed" << endl;
+      if(OpenHltFwdJetPassed(40.)>=1) {      
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
       }      
     }      
@@ -268,14 +269,14 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }  
   }  
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu11") == 0) {   
-    if (map_L1BitOfStandardHLTPath.find("L1_SingleMu7")->second == 1) {  
+    if (map_BitOfStandardHLTPath.find("L1_SingleMu7")->second == 1) {  
       if(OpenHlt1MuonPassed(7.,9.,11.,2.,0)>=1) {   
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
       }   
     }   
   }   
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu15") == 0) {    
-    if (map_L1BitOfStandardHLTPath.find("L1_SingleMu10")->second == 1) {   
+    if (map_BitOfStandardHLTPath.find("L1_SingleMu10")->second == 1) {   
       if(OpenHlt1MuonPassed(10.,12.,15.,2.,0)>=1) {    
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }    
       }    
@@ -411,7 +412,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }      
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon15_L1R") == 0) {    
     if ( map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 ) {
-      if(OpenHlt1PhotonPassed(15.,0,999.,2.,999.,999.)>=1) { // added track iso!
+      if(OpenHlt1PhotonPassed(15.,0,999.,999.,999.,999.)>=1) { // added track iso!
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
       }     
     }     
@@ -622,12 +623,33 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }      
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_SW_LooseTrackIso_L1R") == 0) {       
+
+    float Et = 15.; 
+    int L1iso = 0;  
+    float Tiso = 8.0;  
+    float Hiso = 9999.;
+    float Tisoratio = 0.5;
+    int rc = 0;
+
     if ( map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 ) {        
-      if(OpenHlt1ElectronPassed(15.,0,0.12,9999.)>=1) {       
+      for (int i=0;i<NohEle;i++) { 
+	if ( ohEleEt[i] > Et) { 
+	  if ( ohEleHiso[i] < Hiso || ohEleHiso[i]/ohEleEt[i] < 0.05) 
+	    if (ohEleNewSC[i]==1) 
+	      if (ohElePixelSeeds[i]>0) 
+		//		if ( (ohEleTiso[i] < Tiso || (ohEleTiso[i]/ohEleEt[i]) < Tisoratio) && ohEleTiso[i] != -999.) 
+		if ( ohEleTiso[i] < 0.12 && ohEleTiso[i] != -999.)
+		  if ( ohEleL1iso[i] >= L1iso )   // L1iso is 0 or 1 
+		    if( ohEleL1Dupl[i] == false) // JH - remove double-counted L1 SCs   
+		      rc++;       
+	} 
+      } 
+      
+      if(rc > 0)
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }       
-      }       
     }       
-  }  
+  }       
+
 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoEle18_L1R") == 0) {       
     if ( map_BitOfStandardHLTPath.find("L1_SingleEG15")->second == 1 ) {        
@@ -689,8 +711,9 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_SC15_SW_LooseTrackIso_L1R") == 0) {        
     float Et = 15.;
     int L1iso = 0; 
-    float Tiso = 0.12; 
+    float Tiso = 8.0; 
     float Hiso = 9999.;
+    float Tisoratio = 0.5; 
     int rc = 0;
 
     if ( map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 ) {         
@@ -699,7 +722,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
 	  if ( ohEleHiso[i] < Hiso || ohEleHiso[i]/ohEleEt[i] < 0.05) {
 	    if (ohEleNewSC[i]==1) {
 	      if (ohElePixelSeeds[i]>0) {
-		if ( ohEleTiso[i] < Tiso && ohEleTiso[i] != -999.) {
+		//                if ( (ohEleTiso[i] < Tiso || (ohEleTiso[i]/ohEleEt[i]) < Tisoratio) && ohEleTiso[i] != -999.) {
+		if ( ohEleTiso[i] < 0.12 && ohEleTiso[i] != -999.) { 
 		  if ( ohEleL1iso[i] >= L1iso ) {  // L1iso is 0 or 1 
 		    for(int j=0;j<NohEle && j != i;j++) {
 		      if(ohEleEt[j] > 15.) {

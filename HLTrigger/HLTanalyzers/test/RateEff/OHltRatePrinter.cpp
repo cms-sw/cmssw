@@ -551,6 +551,13 @@ void OHltRatePrinter::printHltRatesTex(OHltConfig *cfg, OHltMenu *menu) {
 }
 
 /* ********************************************** */ 
+// Print out Hlt rates as text file for spreadsheet entry
+/* ********************************************** */ 
+void OHltRatePrinter::printHltRatesBocci(OHltConfig *cfg, OHltMenu *menu) {
+  
+}
+
+/* ********************************************** */ 
 // Print out prescales as text file 
 /* ********************************************** */ 
 void OHltRatePrinter::printPrescalesCfg(OHltConfig *cfg, OHltMenu *menu) { 

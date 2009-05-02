@@ -509,7 +509,7 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_Jet180", myvec(1,"L1_SingleJet70")));   
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_QuadJet30", myvec(1,"L1_QuadJet15"))); 
   //  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_FwdJet20", myvec(1,"L1_IsoEG10_Jet15_ForJet10"))); 
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_FwdJet50", myvec(1,"L1_IsoEG10_Jet15_ForJet10")));  
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_FwdJet40", myvec(1,"L1_IsoEG10_Jet15_ForJet10")));  
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DiJetAve15U", myvec(1,"L1_SingleJet15"))); 
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DiJetAve30U", myvec(1,"L1_SingleJet30")));  
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DiJetAve50U", myvec(1,"L1_SingleJet50")));   
