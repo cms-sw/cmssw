@@ -68,7 +68,7 @@ void ResolDraw(const TString numString = "0", const bool doHalfEta = false) {
   vecNames.push_back(mainNamePhi + "_ResoVSPhiMinus");
   vecNames.push_back(mainNamePhi + "_ResoVSPhiPlus");
 
-  //gROOT->SetBatch(true);
+  gROOT->SetBatch(true);
 //   gROOT->SetStyle("Plain");
 //   gStyle->SetCanvasColor(kWhite);
 //   gStyle->SetCanvasBorderMode(0);
@@ -132,10 +132,10 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
           TH2F *h2 = (TH2F*)obj;
 
           int xBins = h2->GetNbinsX();
-          // if( xBins > 50 ) {
-          //   h2->RebinX(4);
-          //   xBins /= 4;
-          // }
+          if( xBins > 50 ) {
+            h2->RebinX(2);
+            xBins /= 2;
+          }
           // if( namesIt->Contains("PtGenVSMu_ResoVSPt") ) h2->RebinY(8);
           TH1D * h1 = h2->ProjectionX();
           TH1D * h1RMS = h2->ProjectionX();
@@ -165,10 +165,10 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
               double sigmaError = temp->GetFunction("gaus")->GetParError(2);
               double rms = temp->GetRMS();
               double rmsError = temp->GetRMSError();
-              cout << "sigma = " << rms << endl;
-              cout << "sigma error = " << rmsError << endl;
-              cout << "rms = " << rms << endl;
-              cout << "rms error = " << rmsError << endl;
+              // cout << "sigma = " << rms << endl;
+              // cout << "sigma error = " << rmsError << endl;
+              // cout << "rms = " << rms << endl;
+              // cout << "rms error = " << rmsError << endl;
               // Reverse x in the first half to the second half.
               int xToFill = x;
               // Bin 0 corresponds to bin=binNumber(the last bin, which is also considered in the loop).
@@ -189,6 +189,12 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
               h1RMS->SetBinError(xBins+1-x, 0);
               // h2->ProjectionY("_px",x,x)->Write();
               fits->cd();
+              TCanvas * canvas = new TCanvas(temp->GetName()+TString("_canvas"), temp->GetTitle(), 1000, 800);
+              temp->Draw();
+              TF1 * gaussian = temp->GetFunction("gaus");
+              gaussian->SetLineColor(kRed);
+              gaussian->Draw("same");
+              //canvas->Write();
               temp->Write();
             }
             target->cd();
@@ -230,6 +236,12 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
               }
               // h2->ProjectionY("_px",x,x)->Write();
               fits->cd();
+              TCanvas * canvas = new TCanvas(temp->GetName()+TString("_canvas"), temp->GetTitle(), 1000, 800);
+              temp->Draw();
+              TF1 * gaussian = temp->GetFunction("gaus");
+              gaussian->SetLineColor(kRed);
+              gaussian->Draw("same");
+              // canvas->Write();
               temp->Write();
             }
             target->cd();
