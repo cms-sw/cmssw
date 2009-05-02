@@ -15,7 +15,11 @@ def arguments(comp, resType = "Z", firstFile = "0", secondFile = "1") :
     else :
         print "Error"
         return ""
-    return "\"hRecBestResVSMu_MassVS"+comp+"\", \""+firstFile+"_MuScleFit.root\", \""+secondFile+"_MuScleFit.root\", \"Resonance mass vs "+name+"\", \""+resType+"\", 4, 4, 2, \"filegraph_"+name+".root\""
+    if( resType == "Z" ) :
+        fitType = "2"
+    else :
+        fitType = "1"
+    return "\"hRecBestResVSMu_MassVS"+comp+"\", \""+firstFile+"_MuScleFit.root\", \""+secondFile+"_MuScleFit.root\", \"Resonance mass vs "+name+"\", \""+resType+"\", 4, 4, "+fitType+", \"filegraph_"+name+".root\""
 
 import os
 
