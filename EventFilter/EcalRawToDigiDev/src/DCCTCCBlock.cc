@@ -8,7 +8,7 @@ DCCTCCBlock::DCCTCCBlock ( DCCDataUnpacker  * u, EcalElectronicsMapper * m, DCCE
 DCCDataBlockPrototype(u,m,e,unpack){}
 
  
-int DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd, short tccChId){ 
+int DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd){ 
  
   dwToEnd_    = dwToEnd;  
   datap_      = data;
@@ -38,8 +38,6 @@ int DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd, short tccChId){
     l1_       = ( *data_>>TCC_L1_B ) & TCC_L1_MASK;
     nTTs_     = ( *data_>>TCC_TT_B ) & TCC_TT_MASK;
     nTSamples_= ( *data_>>TCC_TS_B ) & TCC_TS_MASK;
-	
-    event_->setTCCSyncNumbers(l1_,bx_,tccChId);
 
     if ( ! checkTccIdAndNumbTTs() ){
 	  updateEventPointers();

@@ -9,8 +9,8 @@
  *
  * \file DCCEBSRPBlock.h
  *
- * $Date: 2007/07/24 11:39:35 $
- * $Revision: 1.5 $
+ * $Date: 2009/03/11 18:17:05 $
+ * $Revision: 1.7 $
  *
  * \author N. Almeida
  *

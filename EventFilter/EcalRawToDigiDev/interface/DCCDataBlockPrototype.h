@@ -6,8 +6,8 @@
  * Prototype for ECAL data block unpacking
  * \file DCCDataBlockPrototype.h
  *
- * $Date: 2008/11/04 18:09:46 $
- * $Revision: 1.8 $
+ * $Date: 2009/03/11 18:17:05 $
+ * $Revision: 1.11 $
  * \author N. Almeida
  *
 */
@@ -77,7 +77,8 @@ class DCCDataBlockPrototype {
     uint                  * dwToEnd_;
    
    
-	uint blockLength_;
+    
+    uint blockLength_;
     bool unpackInternalData_;
     bool sync_;
 

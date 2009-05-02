@@ -9,8 +9,8 @@
  
  * \file EcalElectronicsMapper.h
  *
- * $Date: 2008/02/24 23:43:41 $
- * $Revision: 1.14 $
+ * $Date: 2009/03/11 18:17:06 $
+ * $Revision: 1.16 $
  * \author N. Almeida
  * \author G. Franzoni
  *

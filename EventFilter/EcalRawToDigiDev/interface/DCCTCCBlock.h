@@ -8,8 +8,8 @@
  *
  * \file DCCTCCBlock.h
  *
- * $Date: 2008/11/04 18:09:46 $
- * $Revision: 1.7 $
+ * $Date: 2009/03/11 18:17:06 $
+ * $Revision: 1.10 $
  *
  * \author N. Almeida
  * 
@@ -45,7 +45,7 @@ class DCCTCCBlock : public DCCDataBlockPrototype {
     /**
       Unpacks TCC data 
      */
-    int unpack(uint64_t ** data, uint * dwToEnd, short tccChId=0);
+    int unpack(uint64_t ** data, uint * dwToEnd);
 	 
     void display(std::ostream & o); 
 	 
