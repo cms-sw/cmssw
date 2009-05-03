@@ -6,7 +6,7 @@
   <flags EDM_PLUGIN=1>
   #<flags CXXFLAGS="-I/afs/cern.ch/cms/sw/slc4_ia32_gcc345/external/lhapdf/5.6.0-cms/include">
   #<flags LDFLAGS="-Wl,-rpath /afs/cern.ch/cms/sw/slc4_ia32_gcc345/external/lhapdf/5.6.0-cms/lib -L/afs/cern.ch/cms/sw/slc4_ia32_gcc345/external/lhapdf/5.6.0-cms/lib -lLHAPDF">
-  <flags CXXFLAGS="-I/usr/local/include">
-  <flags LDFLAGS="-Wl,-rpath /usr/local/lib -L/usr/local/lib -lLHAPDF">
+  #<flags CXXFLAGS="-I/usr/local/include">
+  #<flags LDFLAGS="-Wl,-rpath /usr/local/lib -L/usr/local/lib -lLHAPDF">
   <use name=lhapdf>
 </library> 
