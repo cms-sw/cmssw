@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWJetsRPZProxyBuilder.cc,v 1.3 2009/01/23 21:35:40 amraktad Exp $
+// $Id: FWJetsRPZProxyBuilder.cc,v 1.4 2009/04/16 03:08:11 dmytro Exp $
 //
 
 // include files
@@ -84,10 +84,11 @@ FWJetsRPZProxyBuilder::buildJetRhoPhi(const FWEventItem* iItem,
    TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
    const double r_ecal = 126;
    std::pair<double,double> phiRange = getPhiRange( *jet );
+   
    double min_phi = phiRange.first-M_PI/36/2;
    double max_phi = phiRange.second+M_PI/36/2;
    double phi = jet->phi();
-   if ( fabs(phiRange.first-phiRange.first)<1e-3 ) {
+   if ( fabs(phiRange.first-phiRange.second)<1e-3 ) {
      min_phi = phi-M_PI/36/2;
      max_phi = phi+M_PI/36/2;
    }
