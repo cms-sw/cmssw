@@ -18,7 +18,7 @@ tmp/%.co:   %.c
 tmp/%.cpp:  %.h %_def.xml
 	$(QUIET) echo "generating dictionaries based on $*_def.xml"; \
 	mkdir -p $(dir $@); \
-	$(FWROOTSYS)/bin/genreflex $*.h -s $*_def.xml -o $@ $(INCLUDE) --gccxmlpath=external/gccxml/bin --gccxmlopt="--gccxml-compiler $(CC)" 
+	$(FWROOTSYS)/bin/genreflex $*.h -s $*_def.xml -o $@ $(INCLUDE) --gccxmlpath=external/gccxml/bin --gccxmlopt="--gccxml-cxxflags '-m32' --gccxml-compiler $(CC)" 
 # dictionary creation
 
 # dictionary creation
