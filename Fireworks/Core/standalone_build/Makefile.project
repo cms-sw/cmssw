@@ -36,15 +36,15 @@ ProjectMissingFlags = -lGeom -lGuiHtml
 
 ifeq ($(shell uname), Linux)
         MAKESHAREDLIB := -shared
-        ExecLibs = -lRIO -lNet -L./ -l$(LibProject)
+        ExecLibs =  -lNet -L./ -l$(LibProject)
         ExtraProjectLibs = -L./ -l$(LibCore) 
 else 
    ifeq ($(shell uname), Darwin)
       MAKESHAREDLIB := -dynamiclib
-      ExecLibs = -lEve -lRGL -lCore -lGUI -lRIO -lNet -L./ -l$(LibProject) -l$(LibCore) -lCore
+      ExecLibs = -lEve -lRGL -lCore -lGUI  -lNet -L./ -l$(LibProject) -l$(LibCore) -lCore
       ExtraProjectLibs = -lEve -lGeom -lGeomPainter -lGraf3d \
 		 -lGui -lGpad -lGraf -lHist -lPhysics -lGed -lEG -lTree \
-		-lTreePlayer -lRGL -lFTGL -lNet -lRIO -lRint -lRGL -lGui -lCore \
+		-lTreePlayer -lRGL -lFTGL -lNet  -lRint -lRGL -lGui -lCore \
 		-lCintex -lCint -lReflex -lGenVector -lMathMore -lMathCore \
 		-lboost_filesystem-gcc-mt -lboost_program_options-gcc-mt \
 		-lboost_regex-gcc-mt -lsigc-2.0 -L./ -l$(LibCore)
