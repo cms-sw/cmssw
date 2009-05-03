@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 19 16:25:17 CST 2009
-// $Id: FWCheckBoxIcon.cc,v 1.1 2009/03/04 16:40:50 chrjones Exp $
+// $Id: FWCheckBoxIcon.cc,v 1.2 2009/05/01 02:01:34 dmytro Exp $
 //
 
 // system include files
@@ -16,6 +16,7 @@
 #include "TGPicture.h"
 #include "TGClient.h"
 #include "TSystem.h"
+#include <cassert>
 
 // user include files
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
