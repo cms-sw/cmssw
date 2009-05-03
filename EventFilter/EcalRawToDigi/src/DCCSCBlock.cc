@@ -266,7 +266,7 @@ void DCCSCBlock::fillEcalElectronicsError( std::auto_ptr<EcalElectronicsIdCollec
 
   if ( (NUMB_SM_EE_MIN_MIN <=activeDCC && activeDCC<=NUMB_SM_EE_MIN_MAX) ||
          (NUMB_SM_EE_PLU_MIN <=activeDCC && activeDCC<=NUMB_SM_EE_PLU_MAX) ){
-     EcalElectronicsId  *  eleTp = mapper_->getTTEleIdPointer(activeDCC,expTowerID_);
+     EcalElectronicsId  *  eleTp = mapper_->getSCElectronicsPointer(activeDCC,expTowerID_);
      (*errorColection)->push_back(*eleTp);
   }else{
      if( ! DCCDataUnpacker::silentMode_ ){
