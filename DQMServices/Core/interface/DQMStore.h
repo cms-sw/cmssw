@@ -273,7 +273,7 @@ private:
   bool				reset_;
   bool				collateHistograms_;
   std::string			readSelectedDirectory_;
-  bool				firstTimeInRoot_;
+  bool				outputFileRecreate_;
 
   std::string			pwd_;
   MEMap				data_;

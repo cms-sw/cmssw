@@ -451,7 +451,7 @@ MonitorElement::runQTests(void)
     QCriterion *qc = qr.qcriterion_;
     qr.qvalue_ = &qv;
 
-    if (qc && (dirty || qc->wasModified()))
+    if (qc && (dirty || qc->wasModified())) //FIXME: remove wasModified ?
     {
       assert(qc->getName() == qv.qtname);
       std::string oldMessage = qv.message;

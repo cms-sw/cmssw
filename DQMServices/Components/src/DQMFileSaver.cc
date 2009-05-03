@@ -51,11 +51,11 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
   {
     std::vector<std::string> systems = (dbe_->cd(), dbe_->getSubdirs());
  
+    std::cout << " DQMFileSaver: storing EventInfo folders for Run: " 
+              << irun_ << ", Lumi Section: " << ilumi_ << ", Subsystems: " ;
     for (size_t i = 0, e = systems.size(); i != e; ++i) {
       if (systems[i] != "Reference") {
         dbe_->cd();
-	std::cout << " DQMFileSaver: storing EventInfo folders for Run: " 
-                  << irun_ << ", Lumi Section: " << ilumi_ << ", Subsystems: " ;
         if (dbe_->get(systems[i] + "/EventInfo/processName"))
         {
 	  std::cout << systems[i] << "  " ;
@@ -64,11 +64,10 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
 	     (DQMStore::SaveReferenceTag) DQMStore::SaveWithoutReference,
 	     saveReferenceQMin_);
         }
-	std::cout << "\n";
       }
     }
+    std::cout << "\n";
   }  
-
 }
 
 void

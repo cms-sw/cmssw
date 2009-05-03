@@ -33,7 +33,7 @@
 
 /** @var DQMStore::collateHistograms_ */
 
-/** @var DQMStore::firstTimeInRoot_ */
+/** @var DQMStore::outputFileRecreate_ */
 
 /** @var DQMStore::readSelectedDirectory_
     If non-empty, read from file only selected directory. */
@@ -135,7 +135,7 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
     reset_ (false),
     collateHistograms_ (false),
     readSelectedDirectory_ (""),
-    firstTimeInRoot_ (true),
+    outputFileRecreate_ (true),
     pwd_ ("")
 {
   assert(! s_instance);
@@ -156,10 +156,6 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
   if (! ref.empty())
   {
     std::cout << "DQMStore: using reference file " << ref << std::endl;
-
-    // FIXME: check that file has root extension or rather check that
-    // file has same name as subsystem maybe the subsystem name could
-    // be centralized here
     open(ref, false, "", s_referenceDirName);
   }
 
@@ -1385,13 +1381,23 @@ DQMStore::save(const std::string &filename,
     virtual Int_t SysSync(Int_t) { return 0; }
   };
 
-  TFileNoSync f(filename.c_str(), "RECREATE");
-  TObjString(edm::getReleaseVersion().c_str()).Write(); // Save CMSSW version
-  TObjString(getDQMPatchVersion().c_str()).Write(); // Save DQM patch version
+  // open output file, on 1st save recreate, later update
+  std::string opt = "UPDATE";
+  if (outputFileRecreate_) 
+    opt = "RECREATE";
+
+  TFileNoSync f(filename.c_str(), opt.c_str()); // open file
   if(f.IsZombie())
-    raiseDQMError("DQMStore", "Failed to create file '%s'", filename.c_str());
+    raiseDQMError("DQMStore", "Failed to create/update file '%s'", filename.c_str());
   f.cd();
 
+  if (outputFileRecreate_) // write versions once upon opening
+  {
+    TObjString(edm::getReleaseVersion().c_str()).Write(); // Save CMSSW version
+    TObjString(getDQMPatchVersion().c_str()).Write(); // Save DQM patch version
+    outputFileRecreate_=false;
+  }
+  
   // Construct a regular expression from the pattern string.
   std::auto_ptr<lat::Regexp> rxpat;
   if (! pattern.empty())
@@ -1904,7 +1910,7 @@ DQMStore::runQTests(void)
     if (mi->first.compare(0, s_referenceDirName.size(), s_referenceDirName))
       mi->second.runQTests();
 
-  // Reset "modified" flag on all quality tests.
+  // Reset "modified" flag on all quality tests. // FIXME: remove ?
   QCMap::iterator qi = qtests_.begin();
   QCMap::iterator qe = qtests_.end();
   for ( ; qi != qe; ++qi)
