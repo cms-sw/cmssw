@@ -21,7 +21,7 @@ protected:
   virtual void endJob(void);
 
 private:
-  void saveForOffline(const std::string &workflow, int run);
+  void saveForOffline(const std::string &workflow, int run, int lumi=0);
   void saveForOnline(const std::string &suffix, const std::string &rewrite);
 
   enum Convention

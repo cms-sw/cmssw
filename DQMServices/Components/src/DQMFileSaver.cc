@@ -24,14 +24,17 @@ getAnInt(const edm::ParameterSet &ps, int &value, const std::string &name)
 }
 
 void
-DQMFileSaver::saveForOffline(const std::string &workflow, int run)
+DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
 {
   char suffix[64];
   sprintf(suffix, "R%09d", run);
 
   char rewrite[64];
-  sprintf(rewrite, "\\1Run %d/\\2/Run summary", run);
-
+  if (lumi == 0) // save for run
+    sprintf(rewrite, "\\1Run %d/\\2/Run summary", run);
+  else
+    sprintf(rewrite, "\\1Run %d/\\2/By Lumi Section %d-%d", irun_, ilumi_, ilumi_);
+    
   size_t pos = 0;
   std::string wflow;
   wflow.reserve(workflow.size() + 3);
@@ -39,10 +42,33 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run)
   while ((pos = wflow.find('/', pos)) != std::string::npos)
     wflow.replace(pos++, 1, "__");
 
-  dbe_->save(fileBaseName_ + suffix + wflow + ".root",
+  if (lumi == 0) // save for run
+    dbe_->save(fileBaseName_ + suffix + wflow + ".root",
 	     "", "^(Reference/)?([^/]+)", rewrite,
 	     (DQMStore::SaveReferenceTag) saveReference_,
 	     saveReferenceQMin_);
+  else // save EventInfo folders for luminosity sections
+  {
+    std::vector<std::string> systems = (dbe_->cd(), dbe_->getSubdirs());
+ 
+    for (size_t i = 0, e = systems.size(); i != e; ++i) {
+      if (systems[i] != "Reference") {
+        dbe_->cd();
+	std::cout << " DQMFileSaver: storing EventInfo folders for Run: " 
+                  << irun_ << ", Lumi Section: " << ilumi_ << ", Subsystems: " ;
+        if (dbe_->get(systems[i] + "/EventInfo/processName"))
+        {
+	  std::cout << systems[i] << "  " ;
+          dbe_->save(fileBaseName_ + suffix + wflow + ".root",
+	     systems[i]+"/EventInfo", "^(Reference/)?([^/]+)", rewrite,
+	     (DQMStore::SaveReferenceTag) DQMStore::SaveWithoutReference,
+	     saveReferenceQMin_);
+        }
+	std::cout << "\n";
+      }
+    }
+  }  
+
 }
 
 void
@@ -190,14 +216,16 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
   //   and run number to be overridden (for mc data).
   if (convention_ == Online)
   {
-    getAnInt(ps, saveByLumiSection_, "saveByLumiSection");
     getAnInt(ps, saveByEvent_, "saveByEvent");
     getAnInt(ps, saveByMinute_, "saveByMinute");
     getAnInt(ps, saveByTime_, "saveByTime");
   }
 
   if (convention_ == Online || convention_ == Offline)
+  {
     getAnInt(ps, saveByRun_, "saveByRun");
+    getAnInt(ps, saveByLumiSection_, "saveByLumiSection");
+  }
 
   if (convention_ != Online)
   {
@@ -308,20 +336,26 @@ void DQMFileSaver::analyze(const edm::Event &e, const edm::EventSetup &)
 void
 DQMFileSaver::endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &)
 {
-  if (ilumi_ > 0 && saveByLumiSection_ > 0 && nlumi_ == saveByLumiSection_)
+
+  if (ilumi_ > 0 && saveByLumiSection_ > 0 )
   {
-    if (convention_ != Online)
+    if (convention_ != Online && convention_ != Offline )
       throw cms::Exception("DQMFileSaver")
 	<< "Internal error, can save files at end of lumi block"
-	<< " only in Online mode.";
+	<< " only in Online or Offline mode.";
 
-    char suffix[64];
-    char rewrite[128];
-    sprintf(suffix, "_R%09d_L%06d", irun_, ilumi_);
-    sprintf(rewrite, "\\1Run %d/\\2/By Lumi Section %d-%d", irun_, ilumiprev_, ilumi_);
-    saveForOnline(suffix, rewrite);
-    ilumiprev_ = -1;
-    nlumi_ = 0;
+    if (convention_ == Online && nlumi_ == saveByLumiSection_) // insist on lumi section ordering
+    {
+      char suffix[64];
+      char rewrite[128];
+      sprintf(suffix, "_R%09d_L%06d", irun_, ilumi_);
+      sprintf(rewrite, "\\1Run %d/\\2/By Lumi Section %d-%d", irun_, ilumiprev_, ilumi_);
+      saveForOnline(suffix, rewrite);
+      ilumiprev_ = -1;
+      nlumi_ = 0;
+    }
+    if (convention_ == Offline)
+      saveForOffline(workflow_, irun_, ilumi_);
   }
 }
 
@@ -337,7 +371,7 @@ DQMFileSaver::endRun(const edm::Run &, const edm::EventSetup &)
       saveForOnline(suffix, rewrite);
     }
     else if (convention_ == Offline)
-      saveForOffline(workflow_, irun_);
+      saveForOffline(workflow_, irun_,0);
     else
       throw cms::Exception("DQMFileSaver")
 	<< "Internal error.  Can only save files in endRun()"
