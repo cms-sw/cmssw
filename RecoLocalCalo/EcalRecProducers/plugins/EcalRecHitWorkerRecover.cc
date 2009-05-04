@@ -64,7 +64,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
         if ( flags == 1 ) {
                 // recover as single dead channel
                 const EcalRecHitCollection * hit_collection = &result;
-                EcalDeadChannelRecoveryAlgos deadChannelCorrector(*caloTopology_);
+                EcalDeadChannelRecoveryAlgos deadChannelCorrector(caloTopology_);
                 EcalRecHit hit = deadChannelCorrector.correct( detId, hit_collection, singleRecoveryMethod_, singleRecoveryThreshold_ );
                 hit.setFlags( EcalRecHit::kNeighboursRecovered );
                 result.push_back( hit );
@@ -107,6 +107,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                                 // .. i.e. the total energy of the TTs covering the SC minus 
                                 // .. the energy of the recHits in the TTs but not in the SC
                                 //std::vector<DetId> vid = ecalMapping_->dccTowerConstituents( ecalMapping_->DCCid( ttDetId ), ecalMapping_->iTT( ttDetId ) );
+                                /* --- NOT YET VALIDATED
                                 EcalScDetId sc( detId );
                                 std::vector<DetId> eeC;
                                 for(int dx=1; dx<=5; ++dx){
@@ -160,6 +161,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                                                 // error
                                         }
                                 }
+                                */
                         }
                 } else {
                         // dead channel is in recHit collection ?!?
