@@ -1,27 +1,67 @@
-/** \class HLTHcalCalibTypeFilter
- *
- * See header file for documentation
- *
- *  $Date: 2008/01/09 14:16:15 $
- *  $Revision: 1.3 $
- *
- *  \author Bryan DAHMES
- *
- */
+// -*- C++ -*-
+//
+// Package:    HLTHcalCalibTypeFilter
+// Class:      HLTHcalCalibTypeFilter
+// 
+/**\class HLTHcalCalibTypeFilter HLTHcalCalibTypeFilter.cc filter/HLTHcalCalibTypeFilter/src/HLTHcalCalibTypeFilter.cc
 
-// include files
-#include "HLTrigger/special/interface/HLTHcalCalibTypeFilter.h"
+Description: Filter to select HCAL abort gap events
+
+Implementation:
+<Notes on implementation>
+*/
+//
+// Original Author:  Bryan DAHMES
+//         Created:  Tue Jan 22 13:55:00 CET 2008
+// $Id: HLTHcalCalibTypeFilter.cc,v 1.1 2009/02/13 15:17:45 mansj Exp $
+//
+//
+
+
+// system include files
+#include <memory>
+
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+
+#include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <string>
 #include <iostream>
-#include <memory>
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
+
+//
+// class declaration
+//
+
+class HLTHcalCalibTypeFilter : public HLTFilter {
+public:
+  explicit HLTHcalCalibTypeFilter(const edm::ParameterSet&);
+  virtual ~HLTHcalCalibTypeFilter();
+  
+private:
+  virtual void beginJob(const edm::EventSetup&) ;
+  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
+  
+  // ----------member data ---------------------------
+  
+  std::string DataLabel_ ;
+  bool        Summary_ ;
+  std::vector<int> CalibTypes_ ;   
+  std::vector<int> eventsByType ; 
+
+};
+
 
 //
 // constructors and destructor
@@ -59,11 +99,12 @@ HLTHcalCalibTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   iEvent.getByLabel(DataLabel_,rawdata);
   
   // checking FEDs for calibration information
-  int calibType = -1 ;
+  int calibType = -1 ; int numEmptyFEDs = 0 ; 
   std::vector<int> calibTypeCounter(8,0) ; 
   for (int i=FEDNumbering::getHcalFEDIds().first; 
        i<=FEDNumbering::getHcalFEDIds().second; i++) {
       const FEDRawData& fedData = rawdata->FEDData(i) ; 
+      if ( fedData.size() < 24 ) numEmptyFEDs++ ; 
       if ( fedData.size() < 24 ) continue ; 
       int value = ((const HcalDCCHeader*)(fedData.data()))->getCalibType() ; 
       calibTypeCounter.at(value)++ ; // increment the counter for this calib type
@@ -74,7 +115,7 @@ HLTHcalCalibTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       if ( calibTypeCounter.at(i) > maxCount ) { calibType = i ; maxCount = calibTypeCounter.at(i) ; } 
       if ( maxCount == numberOfFEDIds ) break ;
   }
-  if ( maxCount != numberOfFEDIds ) 
+  if ( maxCount != (numberOfFEDIds-numEmptyFEDs) )
       edm::LogWarning("HLTHcalCalibTypeFilter") << "Conflicting calibration types found.  Assigning type " 
                                              << calibType ; 
   LogDebug("HLTHcalCalibTypeFilter") << "Calibration type is: " << calibType ; 
@@ -104,3 +145,6 @@ HLTHcalCalibTypeFilter::endJob() {
 					   << eventsByType.at(hc_HOHPD) << "(HO/HPD), " 
 					   << eventsByType.at(hc_HFPMT) << "(HF/PMT)" ;  
 }
+
+//define this as a plug-in
+DEFINE_FWK_MODULE(HLTHcalCalibTypeFilter);
