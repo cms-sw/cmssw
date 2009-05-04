@@ -81,12 +81,17 @@ TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup
   if(genEvt->semiLeptonicChannel() == lepChannel_) {
     evt.getByLabel(matching_, matchingHandle);
     matching = *(matchingHandle->begin());
+    if(matching.size() < nPartons) return;
     // skip events that were affected by the outlier 
     // rejection in the jet-parton matching
     for(unsigned int i = 0; i < matching.size(); ++i)
       if(matching[i] < 0 || matching[i] >= (int)jets->size())
 	return;
   }
+  // use dummy for matching if not signal channel
+  else
+    for(unsigned int i = 0; i < nPartons; i++)
+      matching.push_back( -1 );
 
   nEvents[4]++;
 
