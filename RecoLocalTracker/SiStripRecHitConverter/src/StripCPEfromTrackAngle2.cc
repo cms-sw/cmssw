@@ -1,32 +1,20 @@
-#include <memory>
-#include <string>
-#include <iostream>
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTrackAngle2.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
+#include <memory>
+#include <string>
 
 using namespace std;
 
 StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle2::localParameters( const SiStripCluster & cl,const LocalTrajectoryParameters & ltp)const{
 
-  //
-  // get the det from the geometry
-  //
-
-  //cout<<"StripCPEfromTrackAngle2 NEW"<<endl;
-
   StripCPE::Param const & p = param(DetId(cl.geographicalId()));
   
   LocalPoint middlepoint = ltp.position();
-  LocalVector atrackUnit = ltp.momentum()/ltp.momentum().mag();
-
-
+  LocalVector trackDir = ltp.momentum()/ltp.momentum().mag();
   LocalPoint  position = p.topology->localPosition(cl.barycenter());
   
-  
-  LocalVector trackDir = atrackUnit;
-      
   if(p.drift.z() == 0.) {
     edm::LogError("StripCPE") <<"No drift towards anodes !!!";
     LocalError eresult = p.topology->localError(cl.barycenter(),1/12.);
@@ -58,10 +46,9 @@ StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle2::localParame
   float u2 = m2.x();
   float uProj = std::min( float(fabs( u1 - u2)), float(p.nstrips));
 
-  int clusterWidth ;
-  clusterWidth = cl.amplitudes().size();
+  int clusterWidth = cl.amplitudes().size();
 
-  int expectedWidth;
+  int expectedWidth = 1;
   if (u1<u2) expectedWidth = 1 + int(u2) -int(u1);
   if (u1>u2) expectedWidth = 1 + int(u1) -int(u2);
   if (u1==u2) expectedWidth = 1;
