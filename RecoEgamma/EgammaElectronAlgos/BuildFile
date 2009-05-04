@@ -13,7 +13,6 @@
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=Geometry/CaloGeometry>
-<use name=Geometry/CaloEventSetup>
 <use name=RecoTracker/MeasurementDet>
 <use name=RecoTracker/TkSeedGenerator>
 <use name=RecoTracker/TkDetLayers>
@@ -46,7 +45,6 @@
    <use name=Geometry/CommonDetUnit>
    <use name=Geometry/TrackerGeometryBuilder>
    <use name=Geometry/CaloGeometry>
-   <use name=Geometry/CaloEventSetup>
    <use name=RecoTracker/MeasurementDet>
    <use name=RecoTracker/TkSeedGenerator>
    <use name=RecoTracker/TkDetLayers>

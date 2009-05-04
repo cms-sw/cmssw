@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.59 2009/04/29 10:55:14 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.60 2009/04/30 11:39:34 chamont Exp $
 //
 //
 
@@ -112,7 +112,7 @@ GsfElectronAlgo::GsfElectronAlgo
    applyPreselection_(applyPreselection), applyEtaCorrection_(applyEtaCorrection), applyAmbResolution_(applyAmbResolution),
    addPflowElectrons_(addPflowElectrons),
    intRadiusTk_(intRadiusTk), ptMinTk_(ptMinTk),  maxVtxDistTk_(maxVtxDistTk),  maxDrbTk_(maxDrbTk),
-   intRadiusHcal_(intRadiusHcal), etMinHcal_(etMinHcal), intRadiusEcalBarrel_(),  intRadiusEcalEndcaps_(),  jurassicWidth_(),
+   intRadiusHcal_(intRadiusHcal), etMinHcal_(etMinHcal), intRadiusEcalBarrel_(intRadiusEcalBarrel),  intRadiusEcalEndcaps_(intRadiusEcalEndcaps),  jurassicWidth_(jurassicWidth),
    etMinBarrel_(etMinBarrel),  eMinBarrel_(eMinBarrel),  etMinEndcaps_(etMinEndcaps),  eMinEndcaps_(eMinEndcaps),
    vetoClustered_(vetoClustered), useNumCrystals_(useNumCrystals),
    cacheIDGeom_(0),cacheIDTopo_(0),cacheIDTDGeom_(0),cacheIDMagField_(0)
@@ -317,8 +317,12 @@ void GsfElectronAlgo::process(
   EgammaRecHitIsolation ecalEndcapIsol03(egIsoConeSizeOutSmall,egIsoConeSizeInEndcap,egIsoJurassicWidth,egIsoPtMinEndcap,egIsoEMinEndcap,theCaloGeom,&ecalEndcapHits,DetId::Ecal);
   EgammaRecHitIsolation ecalEndcapIsol04(egIsoConeSizeOutLarge,egIsoConeSizeInEndcap,egIsoJurassicWidth,egIsoPtMinEndcap,egIsoEMinEndcap,theCaloGeom,&ecalEndcapHits,DetId::Ecal);
   ecalBarrelIsol03.setUseNumCrystals(useNumCrystals_);
+  ecalBarrelIsol03.setVetoClustered(vetoClustered_);
+  ecalBarrelIsol04.setUseNumCrystals(useNumCrystals_);
   ecalBarrelIsol04.setVetoClustered(vetoClustered_);
   ecalEndcapIsol03.setUseNumCrystals(useNumCrystals_);
+  ecalEndcapIsol03.setVetoClustered(vetoClustered_);
+  ecalEndcapIsol04.setUseNumCrystals(useNumCrystals_);
   ecalEndcapIsol04.setVetoClustered(vetoClustered_);
 
   // HCAL isolation algo for H/E
@@ -362,7 +366,7 @@ void GsfElectronAlgo::process(
 
     createElectron(coreRef,elbcRef,ctfTrackRef,fracShHits,HoE1,HoE2,tkIsolation03,tkIsolation04,
      hadDepth1Isolation03,hadDepth2Isolation03,hadDepth1Isolation04,hadDepth2Isolation04,
-     ecalBarrelIsol03,ecalBarrelIsol04,ecalEndcapIsol03,ecalEndcapIsol04,reducedEBRecHits,
+     ecalBarrelIsol03,ecalEndcapIsol03,ecalBarrelIsol04,ecalEndcapIsol04,reducedEBRecHits,
      reducedEERecHits,mva,outEle) ;
 
      LogInfo("")<<"Constructed new electron with energy  "<< theClus.energy();
