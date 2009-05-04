@@ -1,4 +1,4 @@
-#include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTrackAngle2ESProducer.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/plugins/StripCPEfromTrackAngle2ESProducer.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTrackAngle2.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"

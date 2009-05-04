@@ -4,7 +4,6 @@
 <use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/SiStripCluster>
 <use name=DataFormats/SiStripDetId>
-<use name=DataFormats/Common>
 <use name=Geometry/CommonDetUnit>
 <use name=DataFormats/GeometrySurface>
 <use name=Geometry/Records>

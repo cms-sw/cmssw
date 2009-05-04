@@ -1,4 +1,4 @@
-#include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcherESProducer.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/plugins/SiStripRecHitMatcherESProducer.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"

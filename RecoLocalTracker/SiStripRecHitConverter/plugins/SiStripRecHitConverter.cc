@@ -4,6 +4,8 @@
 // Creation Date:  OGU Aug. 1 2005 Initial version.
 //
 //--------------------------------------------
+#include "RecoLocalTracker/SiStripRecHitConverter/plugins/SiStripRecHitConverter.h"
+
 #include <memory>
 #include <string>
 #include <iostream>
@@ -21,7 +23,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitConverter.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"

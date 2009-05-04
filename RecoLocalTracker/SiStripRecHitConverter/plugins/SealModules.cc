@@ -1,9 +1,9 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
-#include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEESProducer.h"
-#include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTrackAngleESProducer.h"
-#include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTrackAngle2ESProducer.h"
 
-#include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcherESProducer.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/plugins/StripCPEESProducer.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/plugins/StripCPEfromTrackAngleESProducer.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/plugins/StripCPEfromTrackAngle2ESProducer.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/plugins/SiStripRecHitMatcherESProducer.h"
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
