@@ -1,7 +1,7 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.cc,v 1.13 2009/03/27 14:19:50 giordano Exp $
+// $Id: SiStripQuality.cc,v 1.14 2009/03/30 16:43:41 demattia Exp $
 //
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
@@ -100,7 +100,7 @@ void SiStripQuality::add(const SiStripDetVOff *Voff){
 
   for(;iter!=iterEnd;++iter){
     vect.clear();
-    range =  reader->getNumberOfApvsAndStripLength(*iter).second*128.;
+    range = (short) (reader->getNumberOfApvsAndStripLength(*iter).second*128.);
     LogTrace("SiStripQuality") << "[add Voff] add detid " << *iter << std::endl;
     vect.push_back(encode(firstStrip,range));
     SiStripBadStrip::Range Range(vect.begin(),vect.end());
