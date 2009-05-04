@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.28 2009/04/17 14:40:19 biery Exp $
+// $Id: SMProxyServer.cc,v 1.29 2009/04/17 20:09:33 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -144,7 +144,7 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("DQMidleConsumerTimeout",&DQMidleConsumerTimeout_);
   DQMconsumerQueueSize_ = 10;
   ispace->fireItemAvailable("DQMconsumerQueueSize",&DQMconsumerQueueSize_);
-  esSelectedHLTOutputModule_ = "out4DQM";
+  esSelectedHLTOutputModule_ = "hltOutputDQM";
   ispace->fireItemAvailable("esSelectedHLTOutputModule",&esSelectedHLTOutputModule_);
 
   // for performance measurements
