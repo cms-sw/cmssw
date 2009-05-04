@@ -103,20 +103,19 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg)
 
       layer.hitBuilder  = cfgLayer.getParameter<string>("TTRHBuilder");
 
-      layer.useErrorsFromParam = cfgLayer.getUntrackedParameter<bool>("useErrorsFromParam",false);
+      layer.useErrorsFromParam = cfgLayer.exists("useErrorsFromParam") ? cfgLayer.getParameter<bool>("useErrorsFromParam") : false; 
       if(layer.useErrorsFromParam) {
         layer.hitErrorRPhi = cfgLayer.getParameter<double>("hitErrorRPhi");
         layer.hitErrorRZ   = cfgLayer.getParameter<double>("hitErrorRZ");
       }
 
-      layer.useRingSelector = cfgLayer.getUntrackedParameter<bool>("useRingSlector",false);
+      layer.useRingSelector = cfgLayer.exists("useRingSlector") ? cfgLayer.getParameter<bool>("useRingSlector") : false;
       if (layer.useRingSelector) {
         layer.minRing = cfgLayer.getParameter<int>("minRing");
         layer.maxRing = cfgLayer.getParameter<int>("maxRing");
       }
 
-      layer.useSimpleRphiHitsCleaner = cfgLayer.getUntrackedParameter<bool>("useSimpleRphiHitsCleaner",true);
-      //std::cout << "from configuration, useCleaner: " << layer.useSimpleRphiHitsCleaner << std::endl;
+      layer.useSimpleRphiHitsCleaner = cfgLayer.exists("useSimpleRphiHitsCleaner") ? cfgLayer.getParameter<bool>("useSimpleRphiHitsCleaner") : true; 
 
       layersInSet.push_back(layer);
       mapConfig[layer.name]=layer;

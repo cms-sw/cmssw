@@ -26,7 +26,7 @@ mixedlayertriplets = cms.ESProducer("SeedingLayersESProducer",
         TTRHBuilder = cms.string('WithTrackAngle')
     ),
     FPix = cms.PSet(
-        useErrorsFromParam = cms.untracked.bool(True),
+        useErrorsFromParam = cms.bool(True),
         hitErrorRPhi = cms.double(0.0051),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedTriplets'),
         HitProducer = cms.string('siPixelRecHits'),
@@ -37,7 +37,7 @@ mixedlayertriplets = cms.ESProducer("SeedingLayersESProducer",
         TTRHBuilder = cms.string('WithTrackAngle')
     ),
     BPix = cms.PSet(
-        useErrorsFromParam = cms.untracked.bool(True),
+        useErrorsFromParam = cms.bool(True),
         hitErrorRPhi = cms.double(0.0027),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedTriplets'),
         HitProducer = cms.string('siPixelRecHits'),

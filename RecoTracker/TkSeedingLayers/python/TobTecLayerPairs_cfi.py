@@ -40,8 +40,7 @@ tobteclayerpairs = cms.ESProducer("SeedingLayersESProducer",
 
     TEC = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        #    untracked bool useSimpleRphiHitsCleaner = false
-        useRingSlector = cms.untracked.bool(True),
+        useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
         minRing = cms.int32(5),
         maxRing = cms.int32(5)
