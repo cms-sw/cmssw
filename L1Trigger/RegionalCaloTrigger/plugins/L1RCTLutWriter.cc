@@ -288,7 +288,7 @@ L1RCTLutWriter::writeRcLutFile(unsigned short card)
 	}
       else
 	{
-	  iAbsEta = (card/2)*8 + (nLUT%4) + 1;
+	  iAbsEta = (card/2)*8 + (3 - (nLUT%4) ) + 1;
 	}
 
 
