@@ -47,13 +47,13 @@ HLT_Ele10_LW_EleId_L1RDQM = cms.EDFilter("EmDQM",
             theHLTOutputTypes = cms.int32(82)
         ),
         cms.PSet(
-            PlotBounds = cms.vdouble(0.0, 0.1),
+            PlotBounds = cms.vdouble(0.0, 0.01),
             HLTCollectionLabels = cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt10EleIdDetaFilter","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag( 'hltElectronL1IsoLargeWindowDetaDphi','Deta' ),cms.InputTag('hltElectronL1NonIsoLargeWindowDetaDphi','Deta')),
             theHLTOutputTypes = cms.int32(82)
         ),
         cms.PSet(
-            PlotBounds = cms.vdouble(0.0, 0.1),
+            PlotBounds = cms.vdouble(0.0, 0.01),
             HLTCollectionLabels = cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt10EleIdDphiFilter","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag( 'hltElectronL1IsoLargeWindowDetaDphi','Dphi'),cms.InputTag( 'hltElectronL1NonIsoLargeWindowDetaDphi','Dphi')),
             theHLTOutputTypes = cms.int32(82)
