@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+import sys
+import os
+
 """
 arguments [<list-of-processes>]
 description:
@@ -8,11 +11,8 @@ if dbs is set:
  prints number of events found in dataset
  if no argument is provided looks for all available datsets for release
  user can edit multicrab and confirm process list as needed
-nuno.leonardo@cern.ch 0904
+nuno@cern.ch 09.04
 """
-
-import sys
-import os
 
 def print_def():
     print "Usage:", sys.argv[0], "[list_of_processes]"
@@ -45,12 +45,22 @@ def get_name_from_dsetpath(ds):
     return fa
 
 def get_cond_from_dsetpath(ds) :
-    ca = ds.split('/')[2].replace(cmssw_ver+'_','').replace('IDEAL_','').replace('STARTUP_','')
+    ca = ds.split('/')[2].replace(cmssw_ver+'_','').replace('IDEAL_','').replace('STARTUP_','').replace('_FastSim','')
     cb = ca[:ca.find('v')-1]
     if cb[0].find('3') == -1 or len(cb) > 3:
         print "problem extracting condition for", ds, " : ", cb, '(len:',len(cb),')'  
-        return 0
+        if cb.find('31X') != -1:
+            cb = '31X'
+        elif cb.find('30X') != -1:
+            cb = '30X'
+        else:
+            print "skipping", cb
+            return 0
+        print "condition found:", cb
+    else :
+        print "good condition for", ds, " : ", cb, '(len:',len(cb),')'      
     return cb
+
 
 def make_dbs_list(dbslf) :
     if not is_dbs :
@@ -58,8 +68,9 @@ def make_dbs_list(dbslf) :
     flis = open(dbslf,'w')
     for ads in api.listDatasetPaths() :
         if ads.find('RelVal') != -1 \
-               and ads.find(cmssw_ver) != -1 \
-               and ads.find("/GEN-SIM-RECO") != -1 : 
+               or ads.find(cmssw_ver) != -1 \
+               or ads.find("/GEN-SIM") != -1 : 
+#               and ads.find("/GEN-SIM-RECO") != -1 : 
             flis.write(ads + '\n')
     flis.close()
     print 'Generated dataset list', dbslf, 'from dbs.' 
@@ -107,6 +118,40 @@ def check_dset() :
        nSampleEvts.append(check_nevts_dset(s))
    print 'number of events per dataset:', nSampleEvts
 
+def find_dqmref(ds) :
+    if not do_reference :
+        return 'NONE'
+    cp = cmssw_ver[-1:]
+    ip = (int)(cp) - 1
+    ref_ver = cmssw_ver.replace(cp,str(ip))
+    #print "cms:", cmssw_ver, " cp:", cp, " ip:", ip, " new_ver:", ref_ver  
+    ref_dir = "/castor/cern.ch/user/n/nuno/relval/harvest/" + ref_ver + "/"
+    ref_dsf = make_dqmname(ds.replace(cmssw_ver, ref_ver))
+    gls = " | grep root | grep "
+    #to accept crab appended _1.root in file names, nd skip versions/conditions
+    gls += ref_dsf[:-25] 
+    gls += "| awk '{print $9}' "
+    #print "refds:", ref_dsf, " command: rfdir", ref_dir+gls
+    command = "rfcp " + ref_dir  + "`rfdir " + ref_dir + gls + "` ."
+    #print "command:", command
+    os.system(command)
+    tmpfile = "ref.txt"
+    command = "ls -rtl *" + gls + " > " + tmpfile
+    #print "command:", command
+    os.system(command)
+    the_ref = 'NONE'
+    if os.path.exists(tmpfile) :
+        fin = open(tmpfile,'r')
+        ref = fin.readline().replace('\n','')
+        #print "read ref:", ref, "exists?", os.path.exists(ref)
+        fin.close()
+        if os.path.exists(ref) :
+            the_ref = ref
+    else :
+        the_ref = 'NONE'
+    print "Found reference file:", the_ref
+    return the_ref
+
 def create_harvest(ds) :
     raw_cmsdriver = "cmsDriver.py harvest -s HARVESTING:validationHarvesting --mc  --conditions FrontierConditions_GlobalTag,STARTUP_30X::All --harvesting AtJobEnd --no_exec -n -1"
     cmsdriver = raw_cmsdriver
@@ -114,14 +159,19 @@ def create_harvest(ds) :
     if cond == 0 :
         print 'unexpected problem with conditions'
         sys.exit(50)
-    raw_cmsdriver.replace('30X',cond)
+    cmsdriver = cmsdriver.replace('30X',cond)
     fin_name="harvest_HARVESTING_STARTUP.py"
     if ds.find('IDEAL') != -1 :
-        cmsdriver.replace('STARTUP','IDEAL')
-        fin_name.replace('STARTUP','IDEAL')
+        cmsdriver = cmsdriver.replace('STARTUP','IDEAL')
+        fin_name = fin_name.replace('STARTUP','IDEAL')
     if ds.find('FastSim') != -1:
-        cmsdriver.replace('validationHarvesting','validationHarvestingFS')
-    os.system("rm " + fin_name)
+        cmsdriver = cmsdriver.replace('validationHarvesting','validationHarvestingFS')
+    if ds.find('PileUp') != -1:
+        cmsdriver = cmsdriver.replace('validationHarvesting','validationHarvestingPU')
+
+    #print "=>", cmsdriver, " fs?", ds.find('FastSim')
+    if os.path.exists(fin_name) : 
+        os.system("rm " + fin_name)
     print "executing cmsdriver command:\n\t", cmsdriver
     os.system(cmsdriver)
     if not os.path.exists(fin_name) : 
@@ -132,13 +182,18 @@ def create_harvest(ds) :
     os.system('mv ' + fin_name + " " + hf)
     out = open(hf, 'a')
     out.write("\n\n##additions to cmsDriver output \n")
-    out.write("#DQMStore.referenceFileName = ''\n")
     out.write("process.dqmSaver.workflow = '" + ds + "'\n")
     if is_dbs :
         out.write("process.source.fileNames = cms.untracked.vstring(\n")
         for afile in api.listFiles(path=ds):
             out.write("  '%s',\n" % afile['LogicalFileName'])
-        out.write(")")
+        out.write(")\n")
+
+    dqmref = find_dqmref(ds);
+    if not dqmref == 'NONE' : 
+        out.write("process.DQMStore.referenceFileName = '" + dqmref + "'\n")
+        out.write("process.dqmSaver.referenceHandling = 'all'\n")
+
     out.close()
 
 def create_mcrab(set, fcrab, fout):
@@ -169,6 +224,10 @@ def append_sample_mcrab(dsetp, fout):
     fout.write('\nCMSSW.datasetpath=' + dsetp)
     fout.write('\nCMSSW.output_file=' + dqm)
 
+    dqmref = find_dqmref(dsetp);
+    if not dqmref == 'NONE' : 
+        fout.write('\nUSER.additional_input_files=' + dqmref)
+
 def create_crab(ds) :
     dqmout = make_dqmname(ds)
     hf = make_harv_name(ds)
@@ -183,7 +242,6 @@ crab_block = """
 [CRAB]
 jobtype = cmssw
 scheduler = glite
-#server_name = 
 
 [EDG]
 remove_default_blacklist=1
@@ -210,6 +268,7 @@ number_of_jobs=1
 input_type = ''
 argin = ''
 dsfile = ''
+do_reference = False
 if len(sys.argv) > 2 : 
     print_def()
     sys.exit(10) 
