@@ -24,8 +24,8 @@ fixedConePFTauProducer.LeadPFCand_minPt      = cms.double(5.0)  #cut on lead obj
 
 #Signal Cone parameters
 fixedConePFTauProducer.TrackerSignalConeSizeFormula = cms.string('0.07') ## **
-fixedConePFTauProducer.ECALSignalConeSizeFormula    = cms.string('0.07') ## **
-fixedConePFTauProducer.HCALSignalConeSizeFormula    = cms.string('0.07') ## **
+fixedConePFTauProducer.ECALSignalConeSizeFormula    = cms.string('0.15') ## **
+fixedConePFTauProducer.HCALSignalConeSizeFormula    = cms.string('0.10') ## **
 #Isolation Cone parameters
 fixedConePFTauProducer.TrackerIsolConeSizeFormula   = cms.string('0.50') ## **
 fixedConePFTauProducer.ECALIsolConeSizeFormula      = cms.string('0.50') ## **
