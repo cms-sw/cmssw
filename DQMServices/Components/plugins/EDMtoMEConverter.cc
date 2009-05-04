@@ -2,8 +2,8 @@
  *
  *  See header file for description of class
  *
- *  $Date: 2008/09/22 16:01:39 $
- *  $Revision: 1.18 $
+ *  $Date: 2008/09/22 17:26:01 $
+ *  $Revision: 1.19 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -72,9 +72,8 @@ EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
 
 EDMtoMEConverter::~EDMtoMEConverter() {}
 
-void EDMtoMEConverter::beginJob(const edm::EventSetup& iSetup)
+void EDMtoMEConverter::beginJob()
 {
-  return;
 }
 
 void EDMtoMEConverter::endJob()

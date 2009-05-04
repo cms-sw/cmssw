@@ -6,8 +6,8 @@
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2008/08/08 15:29:01 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/09/22 17:26:01 $
+ *  $Revision: 1.12 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -57,7 +57,7 @@ class EDMtoMEConverter : public edm::EDAnalyzer
 
   explicit EDMtoMEConverter(const edm::ParameterSet&);
   virtual ~EDMtoMEConverter();
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void endJob();  
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
