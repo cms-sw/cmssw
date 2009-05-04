@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedProducer.cc,v 1.3 2009/03/06 12:42:10 chamont Exp $
+// $Id: ElectronSeedProducer.cc,v 1.4 2009/04/30 07:33:21 charlot Exp $
 //
 //
 
@@ -41,8 +41,12 @@
 
 using namespace reco;
 
-ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& iConfig) :conf_(iConfig),seedFilter_(0),cacheID_(0)
-{
+ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& iConfig)
+ : conf_(iConfig), seedFilter_(0),
+   hcalIso_(0), doubleConeSel_(0), mhbhe_(0),
+   cacheID_(0)
+
+ {
   edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration");
   initialSeeds_=pset.getParameter<edm::InputTag>("initialSeeds");
   SCEtCut_=pset.getParameter<double>("SCEtCut");
@@ -116,7 +120,7 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 
   // HCAL iso deposits
   delete hcalIso_;
-  hcalIso_ = new EgammaHcalIsolation(hOverEConeSize_,0.,0.,theCaloGeom,mhbhe_) ;  
+  hcalIso_ = new EgammaHcalIsolation(hOverEConeSize_,0.,0.,theCaloGeom,mhbhe_) ;
 
   // loop over barrel + endcap
   for (unsigned int i=0; i<2; i++) {
@@ -161,16 +165,16 @@ void ElectronSeedProducer::filterClusters(const edm::Handle<reco::SuperClusterCo
 
      double HoE = 0.;
      double hcalE = 0.;
-     if (mhbhe_) 
+     if (mhbhe_)
       {
 	 math::XYZPoint theCaloPosition = scl.position();
 	 GlobalPoint pclu (theCaloPosition.x () ,
                 	   theCaloPosition.y () ,
 			   theCaloPosition.z () );
 	 std::auto_ptr<CaloRecHitMetaCollectionV> chosen = doubleConeSel_->select(pclu,*mhbhe_);
-	 for (CaloRecHitMetaCollectionV::const_iterator i = chosen->begin () ; 
-                                                	i!= chosen->end () ; 
-							++i) 
+	 for (CaloRecHitMetaCollectionV::const_iterator i = chosen->begin () ;
+                                                	i!= chosen->end () ;
+							++i)
 	  {
 	    double hcalHit_E = i->energy();
 	    if ( i->detid().subdetId()==HcalBarrel && hcalHit_E > hOverEHBMinE_) hcalE += hcalHit_E; //HB case
@@ -180,9 +184,9 @@ void ElectronSeedProducer::filterClusters(const edm::Handle<reco::SuperClusterCo
 	    if ( i->detid().subdetId()==HcalEndcap && hcalHit_E > hOverEHFMinE_) hcalE += hcalHit_E; //HF case
 	    //if ( i->detid().subdetId()==HcalEndcap) {
 	    //std::cout << "[ElectronSeedProducer] HcalEndcap: hcalHit_E, hOverEHFMinE_ " << hcalHit_E << " " << hOverEHFMinE_ << std::endl;
-	    //}	    
+	    //}
 	  }
-       } 
+       }
       HoE = hcalE/scl.energy();
       //std::cout << "[ElectronSeedProducer] HoE, maxHOverE_ " << HoE << " " << maxHOverE_ << std::endl;
       if (HoE <= maxHOverE_) {

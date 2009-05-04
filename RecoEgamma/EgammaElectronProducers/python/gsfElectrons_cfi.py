@@ -46,7 +46,7 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     isFiducial = cms.bool(False),
     seedFromTEC = cms.bool(True),
     # trackerDriven electrons
-    minMVA = cms.double(-1.),
+    minMVA = cms.double(-0.4),
     
     # Isolation algos configuration
     intRadiusTk = cms.double(0.04), 
@@ -63,7 +63,7 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     etMinEndcaps = cms.double(0.1), 
     eMinEndcaps = cms.double(0.0),  
     vetoClustered  = cms.bool(False),  
-    useNumCrystals = cms.bool(False),  
+    useNumCrystals = cms.bool(True),  
     
     TransientInitialStateEstimatorParameters = cms.PSet(
         propagatorAlongTISE = cms.string('PropagatorWithMaterial'),
