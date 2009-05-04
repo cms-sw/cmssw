@@ -27,50 +27,77 @@
 using namespace std;
 
 EgammaHcalIsolation::EgammaHcalIsolation (double extRadius,
-			    double intRadius,
-			    double etLow,
-			    edm::ESHandle<CaloGeometry> theCaloGeom ,
-			    HBHERecHitMetaCollection*  mhbhe) :
-  extRadius_(extRadius),
-  intRadius_(intRadius),
-  etLow_(etLow),
-  theCaloGeom_(theCaloGeom) ,  
-  mhbhe_(mhbhe)
+        double intRadius,
+        double etLow,
+        edm::ESHandle<CaloGeometry> theCaloGeom ,
+        HBHERecHitMetaCollection*  mhbhe) :
+    extRadius_(extRadius),
+    intRadius_(intRadius),
+    etLow_(etLow),
+    theCaloGeom_(theCaloGeom) ,  
+    mhbhe_(mhbhe)
 {
-  //set up the geometry and selector
-  const CaloGeometry* caloGeom = theCaloGeom_.product();
-  doubleConeSel_ = new CaloDualConeSelector (intRadius_ ,extRadius_, caloGeom, DetId::Hcal);
+    //set up the geometry and selector
+    const CaloGeometry* caloGeom = theCaloGeom_.product();
+    doubleConeSel_ = new CaloDualConeSelector (intRadius_ ,extRadius_, caloGeom, DetId::Hcal);
 }
 
 EgammaHcalIsolation::~EgammaHcalIsolation ()
 {
-  delete doubleConeSel_;
+    delete doubleConeSel_;
 }
 
 double EgammaHcalIsolation::getHcalEtSum (const reco::Candidate* emObject) const
 {
-
-  double hcalEt = 0.;
-  if (mhbhe_) 
-   {
-      //Take the SC position
-     reco::SuperClusterRef sc = emObject->get<reco::SuperClusterRef>();
-     math::XYZPoint theCaloPosition = sc.get()->position();
-     //      math::XYZPoint theCaloPosition = (emObject->get<reco::SuperClusterRef>())->position() ;
-      GlobalPoint pclu (theCaloPosition.x () ,
-                	theCaloPosition.y () ,
-			theCaloPosition.z () );
-      //Compute the HCAL energy behind ECAL
-      std::auto_ptr<CaloRecHitMetaCollectionV> chosen = doubleConeSel_->select(pclu,*mhbhe_);
-      for (CaloRecHitMetaCollectionV::const_iterator i = chosen->begin () ; 
-                                                     i!= chosen->end () ; 
-						     ++i) 
-       {
-	 double hcalHit_eta = theCaloGeom_.product()->getPosition(i->detid()).eta();
-	 double hcalHit_Et = i->energy()*sin(2*atan(exp(-hcalHit_eta)));
-	 if ( hcalHit_Et > etLow_)
-	      hcalEt += hcalHit_Et;
-       }
+    double hcalEt = 0.;
+    if (mhbhe_) 
+    {
+        //Take the SC position
+        reco::SuperClusterRef sc = emObject->get<reco::SuperClusterRef>();
+        math::XYZPoint theCaloPosition = sc.get()->position();
+        //      math::XYZPoint theCaloPosition = (emObject->get<reco::SuperClusterRef>())->position() ;
+        GlobalPoint pclu (theCaloPosition.x () ,
+                theCaloPosition.y () ,
+                theCaloPosition.z () );
+        //Compute the HCAL energy behind ECAL
+        std::auto_ptr<CaloRecHitMetaCollectionV> chosen = doubleConeSel_->select(pclu,*mhbhe_);
+        for (CaloRecHitMetaCollectionV::const_iterator i = chosen->begin () ; 
+                i!= chosen->end () ; 
+                ++i) 
+        {
+            double hcalHit_eta = theCaloGeom_.product()->getPosition(i->detid()).eta();
+            double hcalHit_Et = i->energy()*sin(2*atan(exp(-hcalHit_eta)));
+            if ( hcalHit_Et > etLow_)
+                hcalEt += hcalHit_Et;
+        }
     } 
-  return hcalEt ;
+    return hcalEt ;
 }
+
+double EgammaHcalIsolation::getHcalESum (const reco::Candidate* emObject) const
+{
+    double hcalE = 0.;
+    if (mhbhe_) 
+    {
+        //Take the SC position
+        reco::SuperClusterRef sc = emObject->get<reco::SuperClusterRef>();
+        math::XYZPoint theCaloPosition = sc.get()->position();
+        //      math::XYZPoint theCaloPosition = (emObject->get<reco::SuperClusterRef>())->position() ;
+        GlobalPoint pclu (theCaloPosition.x () ,
+                theCaloPosition.y () ,
+                theCaloPosition.z () );
+        //Compute the HCAL energy behind ECAL
+        std::auto_ptr<CaloRecHitMetaCollectionV> chosen = doubleConeSel_->select(pclu,*mhbhe_);
+        for (CaloRecHitMetaCollectionV::const_iterator i = chosen->begin () ; 
+                i!= chosen->end () ; 
+                ++i) 
+        {
+            double hcalHit_eta = theCaloGeom_.product()->getPosition(i->detid()).eta();
+            double hcalHit_E = i->energy();
+            if ( hcalHit_E*sin(2*atan(exp(-hcalHit_eta))) > etLow_)
+                hcalE += hcalHit_E;
+        }
+    } 
+    return hcalE ;
+}
+

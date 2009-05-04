@@ -31,6 +31,7 @@ class EgammaHcalIsolation {
                 HBHERecHitMetaCollection* ) ;
   
   double getHcalEtSum (const reco::Candidate * ) const ;
+  double getHcalESum (const reco::Candidate * ) const ;
 
   //destructor 
   ~EgammaHcalIsolation() ;
