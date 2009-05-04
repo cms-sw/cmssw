@@ -50,12 +50,9 @@ class SiStripActionExecutor {
  void printShiftHistoParameters(DQMStore * dqm_store,
              std::map<std::string, std::vector<std::string> >&layout_map,std::ostringstream& str_val);
  void printFaultyModuleList(DQMStore * dqm_store, std::ostringstream& str_val);
-
+ void createFaultyModuleMEs(DQMStore *dqm_store);
 
  private:
-
-  bool goToDir(DQMStore * dqm_store, std::string name);
-
 
   std::vector<std::string> tkMapMENames;
 

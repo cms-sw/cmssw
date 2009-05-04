@@ -127,8 +127,8 @@ int SiStripUtility::getMEStatus(MonitorElement* me) {
 void SiStripUtility::getModuleFolderList(DQMStore * dqm_store, vector<string>& mfolders){
   string currDir = dqm_store->pwd();
   if (currDir.find("module_") != string::npos)  {
-    string mId = currDir.substr(currDir.find("module_")+7, 9);
-    mfolders.push_back(mId);
+    //    string mId = currDir.substr(currDir.find("module_")+7, 9);
+    mfolders.push_back(currDir);
   } else {  
     vector<string> subdirs = dqm_store->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin();
@@ -171,5 +171,23 @@ void SiStripUtility::getMEValue(MonitorElement* me, string & val){
     val = me->valueString();
     val = val.substr(val.find("=")+1);
   }
+}
+//
+// -- go to a given Directory
+//
+bool SiStripUtility::goToDir(DQMStore * dqm_store, string name) {
+  string currDir = dqm_store->pwd();
+  string dirName = currDir.substr(currDir.find_last_of("/")+1);
+  if (dirName.find(name) == 0) {
+    return true;
+  }
+  vector<string> subDirVec = dqm_store->getSubdirs();
+  for (vector<string>::const_iterator ic = subDirVec.begin();
+       ic != subDirVec.end(); ic++) {
+    dqm_store->cd(*ic);
+    if (!goToDir(dqm_store, name))  dqm_store->goUp();
+    else return true;
+  }
+  return false;  
 }
 

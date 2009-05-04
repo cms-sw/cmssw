@@ -19,6 +19,7 @@ class SiStripQualityChecker {
 
  public:
 
+
   SiStripQualityChecker(edm::ParameterSet const& ps);
   virtual ~SiStripQualityChecker();
 
@@ -28,9 +29,10 @@ class SiStripQualityChecker {
   void fillDummyStatus();
   void fillStatus(DQMStore* dqm_store);
   void printStatusReport();
-
+  const std::map<uint32_t,uint16_t> & getBadModuleList(DQMStore* dqm_store);
+  void printFaultyModuleList(DQMStore* dqm_store, std::ostringstream& str_val);
+  
  private:
-
 
   struct SubDetMEs{
     MonitorElement* DetFraction;
@@ -55,6 +57,8 @@ class SiStripQualityChecker {
 
   MonitorElement* SummaryReportGlobal;
 
+  std::map<uint32_t,uint16_t> badModuleList;
+ 
   edm::ParameterSet pSet_;
   bool bookedStatus_;
   int globalStatusFilling_;

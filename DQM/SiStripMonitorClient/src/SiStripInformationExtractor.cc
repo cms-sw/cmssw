@@ -763,10 +763,10 @@ void SiStripInformationExtractor::readQTestSummary(DQMStore* dqm_store, string t
       ndet += mids.size();
       for (vector<string>::const_iterator im = mids.begin();
 	   im != mids.end(); im++) {
-	uint32_t detId = atoi((*im).c_str());
-	string subdir_path;
-	folder_organizer.getFolderName(detId, subdir_path);
-	vector<MonitorElement*> meVec = dqm_store->getContents(subdir_path);
+        string det_str = (*im);
+        det_str =  det_str.substr(det_str.find("module_")+7);
+	uint32_t detId = atoi((det_str).c_str());
+	vector<MonitorElement*> meVec = dqm_store->getContents((*im));
 	if (meVec.size() == 0) continue;
 	int err_me = 0;
 	int warn_me = 0;

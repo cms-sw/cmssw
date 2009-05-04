@@ -1,5 +1,6 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripQualityChecker.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
@@ -26,12 +27,13 @@ SiStripQualityChecker::SiStripQualityChecker(edm::ParameterSet const& ps):pSet_(
     " Creating SiStripQualityChecker " << "\n" ;
 
   bookedStatus_ = false;
-  SubDetFolderMap.insert(pair<string, string>("TIB",  "SiStrip/MechanicalView/TIB"));
-  SubDetFolderMap.insert(pair<string, string>("TOB",  "SiStrip/MechanicalView/TOB"));
-  SubDetFolderMap.insert(pair<string, string>("TECF", "SiStrip/MechanicalView/TEC/side_2"));
-  SubDetFolderMap.insert(pair<string, string>("TECB", "SiStrip/MechanicalView/TEC/side_1"));
-  SubDetFolderMap.insert(pair<string, string>("TIDF", "SiStrip/MechanicalView/TID/side_2"));
-  SubDetFolderMap.insert(pair<string, string>("TIDB", "SiStrip/MechanicalView/TID/side_1"));
+  SubDetFolderMap.insert(pair<string, string>("TIB",  "TIB"));
+  SubDetFolderMap.insert(pair<string, string>("TOB",  "TOB"));
+  SubDetFolderMap.insert(pair<string, string>("TECF", "TEC/side_2"));
+  SubDetFolderMap.insert(pair<string, string>("TECB", "TEC/side_1"));
+  SubDetFolderMap.insert(pair<string, string>("TIDF", "TID/side_2"));
+  SubDetFolderMap.insert(pair<string, string>("TIDB", "TID/side_1"));
+  badModuleList.clear();
 }
 //
 // --  Destructor
@@ -92,7 +94,7 @@ void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
       dqm_store->setCurrentFolder("SiStrip/EventInfo/reportSummaryContents");  
       me_name = "SiStrip_SToNFlag_" + det;
       local_mes.SToNFlag    = dqm_store->bookFloat(me_name);
-      SubDetMEsMap.insert(std::make_pair(det, local_mes));
+      SubDetMEsMap.insert(pair<string, SubDetMEs>(det, local_mes));
     }
 
     bookedStatus_ = true;
@@ -150,12 +152,17 @@ void SiStripQualityChecker::fillStatus(DQMStore* dqm_store) {
   fillDummyStatus();  
   unsigned int xbin = 0;
   float global_flag = 0;
+  dqm_store->cd();
+  string mdir = "MechanicalView"; 
+  if (!SiStripUtility::goToDir(dqm_store, mdir)) return;
+  string mechanicalview_dir = dqm_store->pwd();
   for (map<string, SubDetMEs>::const_iterator it = SubDetMEsMap.begin(); 
        it != SubDetMEsMap.end(); it++) {
     string det = it->first;
     map<string, string>::const_iterator cPos = SubDetFolderMap.find(det);
     if (cPos == SubDetFolderMap.end()) continue; 
-    string dname = cPos->second;
+    string dname = mechanicalview_dir + "/" + cPos->second;
+    if (!dqm_store->dirExists(dname)) continue;
     dqm_store->cd(dname);
     SubDetMEs local_mes = it->second;
     xbin++;
@@ -175,13 +182,13 @@ void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store,int& ndet,int& e
   SiStripUtility::getModuleFolderList(dqm_store, mids);
   for (vector<string>::const_iterator im = mids.begin();
        im != mids.end(); im++) {
-    uint32_t detId = atoi((*im).c_str());
+    string det_str = (*im);
+    det_str = det_str.substr(det_str.find("module_")+7);
+    uint32_t detId = atoi((det_str).c_str());
 
     SiStripFolderOrganizer folder_organizer;
-    string subdir_path;
-    folder_organizer.getFolderName(detId, subdir_path);
 
-    vector<MonitorElement*> meVec = dqm_store->getContents(subdir_path);
+    vector<MonitorElement*> meVec = dqm_store->getContents((*im));
     if (meVec.size() == 0) continue;
     ndet++; 
     int err_me = 0;
@@ -193,7 +200,15 @@ void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store,int& ndet,int& e
       int istat =  SiStripUtility::getMEStatus((*it)); 
       if (istat == dqm::qstatus::ERROR)   err_me++;
     }
-    if (err_me > 0) errdet++;
+    if (err_me > 0) {
+      errdet++;
+      map<uint32_t,uint16_t>::iterator iPos = badModuleList.find(detId);
+      if (iPos != badModuleList.end()){    
+	if (errdet > iPos->second) iPos->second = errdet;
+      } else {
+	badModuleList.insert(pair<uint32_t,uint16_t>(detId,err_me));
+      }
+    }
   }
 }
 //
@@ -354,3 +369,105 @@ void SiStripQualityChecker::getModuleStatus(MonitorElement* me, int& ndet,
      th2d->SetBinContent(xbin, ybin, val);
    }
  }
+//
+// -- Get List of Bad Modules
+//
+const std::map<uint32_t,uint16_t> & SiStripQualityChecker::getBadModuleList(DQMStore* dqm_store)  {
+
+  if (badModuleList.size() == 0) fillStatus(dqm_store);
+  return badModuleList;
+}
+//
+// -- Create Moneitor Elements for Modules
+//
+void SiStripQualityChecker::printFaultyModuleList(DQMStore* dqm_store, ostringstream& str_val) {
+  if (badModuleList.size() == 0) return;
+  dqm_store->cd();
+  str_val << endl;
+  string mdir = "MechanicalView"; 
+  if (!SiStripUtility::goToDir(dqm_store, mdir)) return;
+  string mechanicalview_dir = dqm_store->pwd();
+
+  int nDetsTotal  = 0;
+  int nTotalError = 0;
+
+  for (map<string, string>::const_iterator it = SubDetFolderMap.begin(); 
+       it != SubDetFolderMap.end(); it++) {
+    string subdet_folder = it->second;
+    string dname = mechanicalview_dir + "/" + subdet_folder;
+    if (!dqm_store->dirExists(dname)) continue;
+    string bad_module_folder = dname + "/" + "BadModuleList";
+    str_val << "============"<< endl;                                                                          
+    str_val << subdet_folder << endl;                                                    
+    str_val << "============"<< endl;                                                                          
+    str_val << endl;      
+    dqm_store->cd(dname);
+    vector<string> module_folders;
+    SiStripUtility::getModuleFolderList(dqm_store, module_folders);
+    int nDets = module_folders.size();
+    int nDetsWithError = 0;
+    for (map<uint32_t,uint16_t>::const_iterator it =  badModuleList.begin() ; it != badModuleList.end(); it++) {
+      uint32_t detId =  it->first;
+      StripSubdetector subdet(detId);
+      string subdet_tag;
+      
+      switch (subdet.subdetId()) 
+	{
+	case StripSubdetector::TIB:
+	  {
+	    subdet_tag = "TIB";
+	    break;
+	  }
+	case StripSubdetector::TID:
+	  {
+	    TIDDetId tidId(detId);
+	    if (tidId.side() == 2) {
+	      subdet_tag = "TID/side_2";
+	    }  else if (tidId.side() == 1) {
+	      subdet_tag = "TID/side_1";
+	  }
+	    break;       
+	  }
+	case StripSubdetector::TOB:
+	  {
+	    subdet_tag = "TOB";
+	    break;
+	  }
+	case StripSubdetector::TEC:
+	  {
+	    TECDetId tecId(detId);
+	    if (tecId.side() == 2) {
+	      subdet_tag = "TEC/side_2";
+	    }  else if (tecId.side() == 1) {
+	      subdet_tag = "TEC/side_1";	
+	    }
+	    break;       
+	  }
+	}
+      if (subdet_tag == (subdet_folder)) {
+        nDetsWithError++;
+	str_val << " Module Id " << detId << " : Errors " << it->second << endl;         
+        // Check if the ME exists otherwise book it
+	dqm_store->setCurrentFolder(bad_module_folder);
+	ostringstream detid_str;
+	detid_str << detId;
+	string full_path = bad_module_folder + "/" + detid_str.str();
+	MonitorElement* me = dqm_store->get(full_path);
+	if (me) me->Reset();
+	else me = dqm_store->bookInt(detid_str.str());
+	me->Fill(it->second);
+      }
+    }
+    str_val << "--------------------------------------------------------------------"<< endl;                  
+    str_val << " Detectors :  Total "<<   nDets
+            << " with Error " << nDetsWithError<< endl;   
+    str_val << "--------------------------------------------------------------------"<< endl;                  
+    nTotalError += nDetsWithError;
+    nDetsTotal  += nDets;    
+  }
+  str_val << endl;                                                                                             
+  str_val << endl;                                                          
+  str_val << " Total Detectors " << nDetsTotal << endl;                                                        
+  str_val << " # of Detectors with Error " << nTotalError<< endl;                                          
+}
+
