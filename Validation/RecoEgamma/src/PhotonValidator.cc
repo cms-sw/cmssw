@@ -73,8 +73,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/04/27 14:12:02 $ 
- **  $Revision: 1.24 $
+ **  $Date: 2009/05/04 11:49:02 $ 
+ **  $Revision: 1.25 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -527,7 +527,6 @@ void PhotonValidator::initVectors() {
     h_r1_[0][1] = dbe_->book1D(histname+"Barrel"," e1x5/e5x5: Barrel ",r9Bin,r9Min, r9Max) ;
     h_r1_[0][2] = dbe_->book1D(histname+"Endcap"," e1x5/e5x5: Endcap ",r9Bin,r9Min, r9Max) ;
     //
-    std::cout << " Son of a bitch 4" << std::endl;
     histname="R1VsEta";
     h2_r1VsEta_[0] = dbe_->book2D(histname+"All"," All photons e1x5/e5x5 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
     h2_r1VsEta_[1] = dbe_->book2D(histname+"Unconv"," All photons e1x5/e5x5 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
