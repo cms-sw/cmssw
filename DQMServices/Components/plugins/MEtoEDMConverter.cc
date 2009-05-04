@@ -3,8 +3,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/08/08 15:29:01 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/08/09 16:08:21 $
+ *  $Revision: 1.12 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -73,7 +73,7 @@ MEtoEDMConverter::~MEtoEDMConverter()
 } // end destructor
 
 void
-MEtoEDMConverter::beginJob(const edm::EventSetup& iSetup)
+MEtoEDMConverter::beginJob()
 {
 }
 
