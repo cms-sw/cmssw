@@ -1,3 +1,9 @@
+2009-05-04  Kurt Biery <biery@fnal.gov>
+
+	* tag V01-08-12
+	* Changed the default HLT output module for events that will be sent
+	  to online event consumers from "out4DQM" to "hltOutputDQM".
+
 2009-04-17  Kurt Biery <biery@fnal.gov>
 
 	* tag V01-08-11
