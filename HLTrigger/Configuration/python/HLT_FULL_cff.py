@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre4/HLT/V82 (CMSSW_3_1_X_2009-04-16-0800_HLT1)
+# /dev/CMSSW_3_1_0/pre6/HLT/V3 (CMSSW_3_1_0_pre6_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre4/HLT/V82')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre6/HLT/V3')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -74,6 +74,7 @@ EcalRegionCablingESProducer = cms.ESProducer( "EcalRegionCablingESProducer",
   appendToDataLabel = cms.string( "" )
 )
 EcalUnpackerWorkerESProducer = cms.ESProducer( "EcalUnpackerWorkerESProducer",
+  ComponentName = cms.string( "" ),
   appendToDataLabel = cms.string( "" ),
   DCCDataUnpacker = cms.PSet( 
     tccUnpacking = cms.bool( True ),
@@ -1334,7 +1335,7 @@ hltGtDigis = cms.EDProducer( "L1GlobalTriggerRawToDigi",
 hltGctDigis = cms.EDProducer( "GctRawToDigi",
     inputLabel = cms.InputTag( "rawDataCollector" ),
     gctFedId = cms.int32( 745 ),
-    hltMode = cms.bool( False ),
+    hltMode = cms.bool( True ),
     unpackerVersion = cms.uint32( 0 )
 )
 hltL1GtObjectMap = cms.EDProducer( "L1GlobalTrigger",
@@ -1424,6 +1425,8 @@ hltEcalRawToRecHitFacility = cms.EDProducer( "EcalRawToRecHitFacility",
 hltEcalRegionalRestFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
     sourceTag = cms.InputTag( "hltEcalRawToRecHitFacility" ),
     type = cms.string( "all" ),
+    doES = cms.bool( False ),
+    sourceTag_es = cms.InputTag( "NotNeededoESfalse" ),
     MuJobPSet = cms.PSet(  ),
     JetJobPSet = cms.VPSet( 
     ),
@@ -1437,7 +1440,8 @@ hltEcalRecHitAll = cms.EDProducer( "EcalRawToRecHitProducer",
     sourceTag = cms.InputTag( "hltEcalRegionalRestFEDs" ),
     splitOutput = cms.bool( True ),
     EBrechitCollection = cms.string( "EcalRecHitsEB" ),
-    EErechitCollection = cms.string( "EcalRecHitsEE" )
+    EErechitCollection = cms.string( "EcalRecHitsEE" ),
+    rechitCollection = cms.string( "NotNeededsplitOutputTrue" )
 )
 hltEcalPreshowerRecHit = cms.EDProducer( "ESRecHitProducer",
     ESdigiCollection = cms.InputTag( "hltEcalPreshowerDigis" ),
@@ -1676,6 +1680,8 @@ hltPreJet80 = cms.EDFilter( "HLTPrescaler" )
 hltEcalRegionalJetsFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
     sourceTag = cms.InputTag( "hltEcalRawToRecHitFacility" ),
     type = cms.string( "jet" ),
+    doES = cms.bool( False ),
+    sourceTag_es = cms.InputTag( "NotNeededoESfalse" ),
     MuJobPSet = cms.PSet(  ),
     JetJobPSet = cms.VPSet( 
       cms.PSet(  regionEtaMargin = cms.double( 1.0 ),
@@ -1704,7 +1710,8 @@ hltEcalRegionalJetsRecHit = cms.EDProducer( "EcalRawToRecHitProducer",
     sourceTag = cms.InputTag( "hltEcalRegionalJetsFEDs" ),
     splitOutput = cms.bool( True ),
     EBrechitCollection = cms.string( "EcalRecHitsEB" ),
-    EErechitCollection = cms.string( "EcalRecHitsEE" )
+    EErechitCollection = cms.string( "EcalRecHitsEE" ),
+    rechitCollection = cms.string( "NotNeededsplitOutputTrue" )
 )
 hltTowerMakerForJets = cms.EDProducer( "CaloTowersCreator",
     EBThreshold = cms.double( 0.09 ),
@@ -3009,6 +3016,8 @@ hltSingleMuIsoL2PreFiltered3 = cms.EDFilter( "HLTMuonL2PreFilter",
 hltEcalRegionalMuonsFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
     sourceTag = cms.InputTag( "hltEcalRawToRecHitFacility" ),
     type = cms.string( "candidate" ),
+    doES = cms.bool( False ),
+    sourceTag_es = cms.InputTag( "NotNeededoESfalse" ),
     MuJobPSet = cms.PSet( 
       regionEtaMargin = cms.double( 1.0 ),
       regionPhiMargin = cms.double( 1.0 ),
@@ -3036,7 +3045,8 @@ hltEcalRegionalMuonsRecHit = cms.EDProducer( "EcalRawToRecHitProducer",
     sourceTag = cms.InputTag( "hltEcalRegionalMuonsFEDs" ),
     splitOutput = cms.bool( True ),
     EBrechitCollection = cms.string( "EcalRecHitsEB" ),
-    EErechitCollection = cms.string( "EcalRecHitsEE" )
+    EErechitCollection = cms.string( "EcalRecHitsEE" ),
+    rechitCollection = cms.string( "NotNeededsplitOutputTrue" )
 )
 hltTowerMakerForMuons = cms.EDProducer( "CaloTowersCreator",
     EBThreshold = cms.double( 0.09 ),
@@ -4321,6 +4331,8 @@ hltPreEle10LWL1R = cms.EDFilter( "HLTPrescaler" )
 hltEcalRegionalEgammaFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
     sourceTag = cms.InputTag( "hltEcalRawToRecHitFacility" ),
     type = cms.string( "egamma" ),
+    doES = cms.bool( False ),
+    sourceTag_es = cms.InputTag( "NotNeededoESfalse" ),
     MuJobPSet = cms.PSet(  ),
     JetJobPSet = cms.VPSet( 
     ),
@@ -4344,7 +4356,8 @@ hltEcalRegionalEgammaRecHit = cms.EDProducer( "EcalRawToRecHitProducer",
     sourceTag = cms.InputTag( "hltEcalRegionalEgammaFEDs" ),
     splitOutput = cms.bool( True ),
     EBrechitCollection = cms.string( "EcalRecHitsEB" ),
-    EErechitCollection = cms.string( "EcalRecHitsEE" )
+    EErechitCollection = cms.string( "EcalRecHitsEE" ),
+    rechitCollection = cms.string( "NotNeededsplitOutputTrue" )
 )
 hltHybridSuperClustersL1Isolated = cms.EDProducer( "EgammaHLTHybridClusterProducer",
     debugLevel = cms.string( "INFO" ),
@@ -10235,6 +10248,8 @@ hltPreAlCaEcalPi0 = cms.EDFilter( "HLTPrescaler" )
 hltEcalRegionalPi0FEDs = cms.EDProducer( "EcalRawToRecHitRoI",
     sourceTag = cms.InputTag( "hltEcalRawToRecHitFacility" ),
     type = cms.string( "egamma" ),
+    doES = cms.bool( False ),
+    sourceTag_es = cms.InputTag( "NotNeededoESfalse" ),
     MuJobPSet = cms.PSet(  ),
     JetJobPSet = cms.VPSet( 
     ),
@@ -10258,7 +10273,8 @@ hltEcalRegionalPi0RecHit = cms.EDProducer( "EcalRawToRecHitProducer",
     sourceTag = cms.InputTag( "hltEcalRegionalPi0FEDs" ),
     splitOutput = cms.bool( True ),
     EBrechitCollection = cms.string( "EcalRecHitsEB" ),
-    EErechitCollection = cms.string( "EcalRecHitsEE" )
+    EErechitCollection = cms.string( "EcalRecHitsEE" ),
+    rechitCollection = cms.string( "NotNeededsplitOutputTrue" )
 )
 hltAlCaPi0RegRecHits = cms.EDFilter( "HLTPi0RecHitsFilter",
     barrelHits = cms.InputTag( 'hltEcalRegionalPi0RecHit','EcalRecHitsEB' ),
@@ -10381,6 +10397,8 @@ hltPreAlCaEcalEta = cms.EDFilter( "HLTPrescaler" )
 hltEcalRegionalEtaFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
     sourceTag = cms.InputTag( "hltEcalRawToRecHitFacility" ),
     type = cms.string( "egamma" ),
+    doES = cms.bool( False ),
+    sourceTag_es = cms.InputTag( "NotNeededoESfalse" ),
     MuJobPSet = cms.PSet(  ),
     JetJobPSet = cms.VPSet( 
     ),
@@ -10404,7 +10422,8 @@ hltEcalRegionalEtaRecHit = cms.EDProducer( "EcalRawToRecHitProducer",
     sourceTag = cms.InputTag( "hltEcalRegionalEtaFEDs" ),
     splitOutput = cms.bool( True ),
     EBrechitCollection = cms.string( "EcalRecHitsEB" ),
-    EErechitCollection = cms.string( "EcalRecHitsEE" )
+    EErechitCollection = cms.string( "EcalRecHitsEE" ),
+    rechitCollection = cms.string( "NotNeededsplitOutputTrue" )
 )
 hltAlCaEtaRegRecHits = cms.EDFilter( "HLTPi0RecHitsFilter",
     barrelHits = cms.InputTag( 'hltEcalRegionalEtaRecHit','EcalRecHitsEB' ),
