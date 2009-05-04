@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2009/04/22 09:06:43 $
- * $Revision: 1.54 $
+ * $Date: 2009/04/28 12:50:35 $
+ * $Revision: 1.55 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
  */
@@ -816,7 +816,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 	<< " TDC hit rejected in TDC " << (*tdc_it).first << endl;
       
       tdcError_ROSSummary = 19;
-      tdcError_ROSError   = 15;
+      tdcError_ROSError   = 16;
       tdcError_TDCHisto   = 5;
 
     } else {
