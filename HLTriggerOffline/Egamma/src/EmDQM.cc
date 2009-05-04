@@ -476,7 +476,7 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
         if (plotiso[n+1] ){  // only plot if requested in config
           for (unsigned int j =  0 ; j < isoNames[n+1].size() ;j++  ){
             edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap; 
-            iEvent.getByLabel(isoNames[n+1].at(j).label(),depMap);
+            iEvent.getByLabel(isoNames[n+1].at(j),depMap);
 	    if (depMap.isValid()){ //Map may not exist if only one candidate passes a double filter
 	      typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[closestEcalCandIndex]);
               if (mapi!=depMap->end()) {  // found candidate in isolation map! 
@@ -528,7 +528,7 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
       if (plotiso[n+1]) {
 	for (unsigned int j =  0 ; j < isoNames[n+1].size() ;j++  ){
 	  edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap; 
-	  iEvent.getByLabel(isoNames[n+1].at(j).label(),depMap);
+	  iEvent.getByLabel(isoNames[n+1].at(j),depMap);
 	  if (depMap.isValid()){ //Map may not exist if only one candidate passes a double filter
 	    typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[i]);
 	    if (mapi!=depMap->end()){  // found candidate in isolation map! 
@@ -579,7 +579,7 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
       if (plotiso[n+1] ){  // only plot if requested in config
 	for (unsigned int j =  0 ; j < isoNames[n+1].size() ;j++  ){
 	  edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap; 
-	  iEvent.getByLabel(isoNames[n+1].at(j).label(),depMap);
+	  iEvent.getByLabel(isoNames[n+1].at(j),depMap);
 	  if (depMap.isValid()){ //Map may not exist if only one candidate passes a double filter
 	    typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[closest]);
 	    if (mapi!=depMap->end()){  // found candidate in isolation map! 
