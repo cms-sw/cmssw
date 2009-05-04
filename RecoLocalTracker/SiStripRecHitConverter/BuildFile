@@ -1,37 +1,38 @@
 <use name=FWCore/Framework>
-<use name=DataFormats/Common>
 <use name=FWCore/ParameterSet>
+<use name=DataFormats/Common>
 <use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/SiStripCluster>
 <use name=DataFormats/SiStripDetId>
-<use name=Geometry/CommonDetUnit>
 <use name=DataFormats/GeometrySurface>
+<use name=RecoLocalTracker/Records>
+<use name=RecoLocalTracker/ClusterParameterEstimator>
+<use name=Geometry/CommonDetUnit>
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=MagneticField/Records>
 <use name=MagneticField/Engine>
-<use name=RecoLocalTracker/Records>
-<use name=RecoLocalTracker/ClusterParameterEstimator>
 <use name=CondFormats/SiStripObjects>
 <use name=CalibFormats/SiStripObjects>
 <use name=TrackingTools/TransientTrackingRecHit>
+
 <export>
 <lib name=RecoLocalTrackerSiStripRecHitConverter>
-<use name=DataFormats/Common>
-<use name=RecoLocalTracker/ClusterParameterEstimator>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
+<use name=DataFormats/Common>
 <use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/SiStripCluster>
 <use name=DataFormats/SiStripDetId>
-<use name=DataFormats/Common>
-<use name=Geometry/CommonDetUnit>
 <use name=DataFormats/GeometrySurface>
+<use name=RecoLocalTracker/Records>
+<use name=RecoLocalTracker/ClusterParameterEstimator>
+<use name=Geometry/CommonDetUnit>
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=MagneticField/Records>
 <use name=MagneticField/Engine>
-<use name=RecoLocalTracker/Records>
 <use name=CondFormats/SiStripObjects>
 <use name=CalibFormats/SiStripObjects>
+<use name=TrackingTools/TransientTrackingRecHit>
 </export>
