@@ -13,12 +13,14 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalCalibTypeFilter.cc,v 1.1 2009/02/13 15:17:45 mansj Exp $
+// $Id: HLTHcalCalibTypeFilter.cc,v 1.2 2009/05/04 12:35:17 fwyzard Exp $
 //
 //
 
 
 // system include files
+#include <string>
+#include <iostream>
 #include <memory>
 
 // user include files
@@ -30,38 +32,13 @@ Implementation:
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <string>
-#include <iostream>
-
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 
-//
-// class declaration
-//
-
-class HLTHcalCalibTypeFilter : public HLTFilter {
-public:
-  explicit HLTHcalCalibTypeFilter(const edm::ParameterSet&);
-  virtual ~HLTHcalCalibTypeFilter();
-  
-private:
-  virtual void beginJob(const edm::EventSetup&) ;
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-  
-  // ----------member data ---------------------------
-  
-  std::string DataLabel_ ;
-  bool        Summary_ ;
-  std::vector<int> CalibTypes_ ;   
-  std::vector<int> eventsByType ; 
-
-};
-
+#include "HLTrigger/special/interface/HLTHcalCalibTypeFilter.h"
 
 //
 // constructors and destructor
