@@ -8,6 +8,31 @@
 #include "DataFormats/SiStripCommon/interface/ConstantsForCondObjects.h"
 #include <sstream>
 
+/**
+ * Holds the thresholds:<br>
+ * - High threshold <br>
+ * - Low threshold <br>
+ * - Cluster threshold <br>
+ * The values are stored as bitsets, in particular:
+ * - One uint16_t stores the first strip and the high threshold.
+ * - One uint8_t stores the low threshold.
+ * - One uint8_t stores the cluster threshold.
+ * The information are stored in a Data struct, which is also responsible
+ * for the encoding and decoding. <br>
+ * To fill the SiStripThreshold object:
+ * - create and empty vector<Data>: SiStripThreshold::Container theSiStripVector;   
+ * - use the setData method to fill it with the thresholds
+ * - use the put method to save the values in the object.
+ * The put method is used to actually fill the object. It receives the DetId and the vector<Data>
+ * with the threshold values.<br>
+ * Before being saved the vector<Data> is sorted in the FirstStrip and consecutive entries having
+ * all the same thresholds are removed. This way it still stores the same information using less space.<br>
+ * To retrieve the information:
+ * - getDetIds: fills a vector with all detIds for which the thresholds have been stored.
+ * - getDataVectorBegin and getDataVectorEnd: return the begin and end iterators to the vector<Data>.
+ * - getData can be used to get the thresholds for a single strip.
+ */
+
 class SiStripThreshold {
 
  public:
