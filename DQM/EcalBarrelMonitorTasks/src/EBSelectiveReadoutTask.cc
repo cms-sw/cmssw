@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2009/04/28 13:31:12 $
- * $Revision: 1.30 $
+ * $Date: 2009/04/30 10:35:09 $
+ * $Revision: 1.31 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -61,6 +61,7 @@ EBSelectiveReadoutTask::EBSelectiveReadoutTask(const ParameterSet& ps){
   EBTowerSize_ = 0;
   EBTowerFullReadoutFrequency_ = 0;
   EBDccEventSize_ = 0;
+  EBDccEventSizeMap_ = 0;
   EBReadoutUnitForcedBitMap_ = 0;
   EBFullReadoutSRFlagMap_ = 0;
   EBHighInterestTriggerTowerFlagMap_ = 0;
@@ -70,6 +71,13 @@ EBSelectiveReadoutTask::EBSelectiveReadoutTask(const ParameterSet& ps){
   EBLowInterestPayload_ = 0;
   EBHighInterestZsFIR_ = 0;
   EBLowInterestZsFIR_ = 0;
+  
+  // initialize variable binning for DCC size...
+  float ZSthreshold = 0.608; // kBytes of 1 TT fully readout
+  float zeroBinSize = ZSthreshold / 20.;
+  for(int i=0; i<20; i++) xbins[i] = i*zeroBinSize;
+  for(int i=20; i<89; i++) xbins[i] = ZSthreshold * (i-19);
+  for(int i=0; i<=36; i++) ybins[i] = i+1;
   
 }
 
@@ -116,6 +124,13 @@ void EBSelectiveReadoutTask::setup(void) {
       EBDccEventSize_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
     
+    sprintf(histo, "EBSRT event size vs DCC");
+    EBDccEventSizeMap_ = dqmStore_->book2D(histo, histo, 88, xbins, 36, ybins);
+    EBDccEventSizeMap_->setAxisTitle("event size (kB)",1);
+    for (int i = 0; i < 36; i++) {
+      EBDccEventSizeMap_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 2);
+    }
+
     sprintf(histo, "EBSRT readout unit with SR forced");
     EBReadoutUnitForcedBitMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
     EBReadoutUnitForcedBitMap_->setAxisTitle("jphi", 1);
@@ -176,6 +191,9 @@ void EBSelectiveReadoutTask::cleanup(void){
 
     if ( EBDccEventSize_ ) dqmStore_->removeElement( EBDccEventSize_->getName() );
     EBDccEventSize_ = 0;
+
+    if ( EBDccEventSizeMap_ ) dqmStore_->removeElement( EBDccEventSizeMap_->getName() );
+    EBDccEventSizeMap_ = 0;
 
     if ( EBReadoutUnitForcedBitMap_ ) dqmStore_->removeElement( EBReadoutUnitForcedBitMap_->getName() );
     EBReadoutUnitForcedBitMap_ = 0;
@@ -243,6 +261,8 @@ void EBSelectiveReadoutTask::reset(void) {
 
   if ( EBDccEventSize_ ) EBDccEventSize_->Reset();
 
+  if ( EBDccEventSizeMap_ ) EBDccEventSizeMap_->Reset();
+
   if ( EBReadoutUnitForcedBitMap_ ) EBReadoutUnitForcedBitMap_->Reset();
 
   if ( EBFullReadoutSRFlagMap_ ) EBFullReadoutSRFlagMap_->Reset();
@@ -275,7 +295,8 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     for ( int iDcc = 0; iDcc < nEBDcc; ++iDcc ) {
 
       EBDccEventSize_->Fill(iDcc+1, ((double)raw->FEDData(610+iDcc).size())/kByte );
-
+      EBDccEventSizeMap_->Fill(((double)raw->FEDData(610+iDcc).size())/kByte, iDcc+1);
+      
     }
 
   } else {

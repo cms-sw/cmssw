@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2009/04/30 12:56:06 $
- * $Revision: 1.25 $
+ * $Date: 2009/04/30 17:34:23 $
+ * $Revision: 1.26 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -60,6 +60,7 @@ EESelectiveReadoutTask::EESelectiveReadoutTask(const ParameterSet& ps){
 
   // histograms...
   EEDccEventSize_ = 0;
+  EEDccEventSizeMap_ = 0;
 
   EETowerSize_[0] = 0;
   EETowerFullReadoutFrequency_[0] = 0;
@@ -84,6 +85,13 @@ EESelectiveReadoutTask::EESelectiveReadoutTask(const ParameterSet& ps){
   EELowInterestPayload_[1] = 0;
   EEHighInterestZsFIR_[1] = 0;
   EELowInterestZsFIR_[1] = 0;
+
+  // initialize variable binning for DCC size...
+  float ZSthreshold = 0.608; // kBytes of 1 TT fully readout
+  float zeroBinSize = ZSthreshold / 20.;
+  for(int i=0; i<20; i++) xbins[i] = i*zeroBinSize;
+  for(int i=20; i<89; i++) xbins[i] = ZSthreshold * (i-19);
+  for(int i=0; i<=18; i++) ybins[i] = i+1;
 
 }
 
@@ -138,6 +146,13 @@ void EESelectiveReadoutTask::setup(void) {
     EEDccEventSize_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 200., "s");
     for (int i = 0; i < 18; i++) {
       EEDccEventSize_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    }
+
+    sprintf(histo, "EESRT event size vs DCC");
+    EEDccEventSizeMap_ = dqmStore_->book2D(histo, histo, 88, xbins, 18, ybins);
+    EEDccEventSizeMap_->setAxisTitle("event size (kB)",1);
+    for (int i = 0; i < 18; i++) {
+      EEDccEventSizeMap_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 2);
     }
 
     sprintf(histo, "EESRT readout unit with SR forced EE -");
@@ -246,6 +261,9 @@ void EESelectiveReadoutTask::cleanup(void){
     if ( EEDccEventSize_ ) dqmStore_->removeElement( EEDccEventSize_->getName() );
     EEDccEventSize_ = 0;
 
+    if ( EEDccEventSizeMap_ ) dqmStore_->removeElement( EEDccEventSizeMap_->getName() );
+    EEDccEventSizeMap_ = 0;
+
     if ( EEReadoutUnitForcedBitMap_[0] ) dqmStore_->removeElement( EEReadoutUnitForcedBitMap_[0]->getName() );
     EEReadoutUnitForcedBitMap_[0] = 0;
 
@@ -343,6 +361,8 @@ void EESelectiveReadoutTask::reset(void) {
 
   if ( EEDccEventSize_ ) EEDccEventSize_->Reset();
 
+  if ( EEDccEventSizeMap_ ) EEDccEventSizeMap_->Reset();
+
   if ( EEReadoutUnitForcedBitMap_[0] ) EEReadoutUnitForcedBitMap_[0]->Reset();
   if ( EEReadoutUnitForcedBitMap_[1] ) EEReadoutUnitForcedBitMap_[1]->Reset();
 
@@ -395,6 +415,7 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 	else ism = 10+iDcc;
 
 	EEDccEventSize_->Fill(ism, ((double)raw->FEDData(firstFedOnSide+iDcc).size())/kByte );
+	EEDccEventSizeMap_->Fill(((double)raw->FEDData(firstFedOnSide+iDcc).size())/kByte, ism );
 
       }
     }
