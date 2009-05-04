@@ -1,4 +1,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
 
 SiStripRecHit2D::SiStripRecHit2D( const LocalPoint& pos, const LocalError& err,
@@ -31,26 +33,8 @@ SiStripRecHit2D::sharesInput( const TrackingRecHit* other,
   //Protection against invalid hits
   if(! other->isValid()) return false;
 
-  // ProjectedSiStripRecHit2D have different det id so we have to check the type before
-  bool sametype=(typeid(*other)==typeid(SiStripRecHit2D));
-  if (sametype && (geographicalId() != other->geographicalId())) return false;
-
-  if(!sametype){
-    int ncomponents=other->recHits().size();
-    if(ncomponents==0)return false;
-    else if(ncomponents==1)return sharesInput(other->recHits()[0],what);
-    else if (ncomponents>1){
-      if(what == all )return false;
-      else{
-	for(int i=0;i<ncomponents;i++){
-	  if(sharesInput(other->recHits()[i],what))return true;
-	}
-	return false;
-      }
-    }
-    return false;
-  }
-  else{
+  const std::type_info & otherType = typeid(*other);
+  if (otherType == typeid(SiStripRecHit2D)) {
     const SiStripRecHit2D* otherCast = static_cast<const SiStripRecHit2D*>(other);
     // as 'null == null' is true, we can't just "or" the two equality tests: one of the two refs is always null! (gpetrucc)
     if (cluster_.isNonnull()) {
@@ -58,6 +42,32 @@ SiStripRecHit2D::sharesInput( const TrackingRecHit* other,
     } else {
       return (clusterRegional_ == otherCast->cluster_regional());
     }
+  } else if (otherType == typeid(ProjectedSiStripRecHit2D)) {
+    const SiStripRecHit2D* otherCast = & (static_cast<const ProjectedSiStripRecHit2D*>(other)->originalHit());
+    // as 'null == null' is true, we can't just "or" the two equality tests: one of the two refs is always null! (gpetrucc)
+    if (cluster_.isNonnull()) {
+      return (cluster_ == otherCast->cluster());
+    } else {
+      return (clusterRegional_ == otherCast->cluster_regional());
+    }
+  } else if ((otherType == typeid(SiStripMatchedRecHit2D)) && (what == all)) {
+    return false; 
+  } else {
+    // last resort, recur to 'recHits()', even if it returns a vector by value
+    std::vector<const TrackingRecHit*> otherHits = other->recHits();
+    int ncomponents=otherHits.size();
+    if(ncomponents==0)return false;
+    else if(ncomponents==1)return sharesInput(otherHits.front(),what);
+    else if (ncomponents>1){
+      if(what == all )return false;
+      else{
+	for(int i=0;i<ncomponents;i++){
+	  if(sharesInput(otherHits[i],what))return true;
+	}
+	return false;
+      }
+    }
+    return false;
   }
 }
 
