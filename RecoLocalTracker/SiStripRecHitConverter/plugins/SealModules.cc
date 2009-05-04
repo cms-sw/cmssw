@@ -23,4 +23,5 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(StripCPEfromTrackAngle2ESProducer);
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(SiStripRecHitMatcherESProducer);
 using cms::SiStripRecHitConverter;
 DEFINE_ANOTHER_FWK_MODULE(SiStripRecHitConverter);
+EVENTSETUP_DATA_REG(SiStripRecHitMatcher);
 
