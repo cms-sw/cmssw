@@ -5,8 +5,8 @@
 //   Description: DTTF Parameters from OMDS
 //
 //
-//   $Date: 2008/05/14 14:58:02 $
-//   $Revision: 1.1 $
+//   $Date: 2008/05/29 10:15:02 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   J. Troconiz              UAM Madrid
@@ -23,11 +23,16 @@
 // C++ Headers --
 //---------------
 
+#include <iostream>
+#include <ostream>
+#include <iomanip>
+#include <string>
 
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
 
+using namespace std;
 
 // --------------------------------
 //       class L1MuDTTFParameters
@@ -328,4 +333,181 @@ int L1MuDTTFParameters::check(int wh, int sc) const {
 
   if ( wh < 0 ) return wh+3;
   else return wh+2;
+}
+
+void L1MuDTTFParameters::print() const {
+
+  cout << endl;
+  cout << "L1 barrel Track Finder Parameters :" << endl;
+  cout << "===================================" << endl;
+  cout << endl;
+
+  cout << endl;
+  cout << "Disable St.1 :" << endl;
+  cout << "==============" << endl;
+  cout << endl;
+  for( int i=0; i<6; i++ ) {
+    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_inrec_chdis_st1(i,j); }
+    cout << endl; }
+
+  cout << endl;
+  cout << "Disable St.2 :" << endl;
+  cout << "==============" << endl;
+  cout << endl;
+  for( int i=0; i<6; i++ ) {
+    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_inrec_chdis_st2(i,j); }
+    cout << endl; }
+
+  cout << endl;
+  cout << "Disable St.3 :" << endl;
+  cout << "==============" << endl;
+  cout << endl;
+  for( int i=0; i<6; i++ ) {
+    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_inrec_chdis_st3(i,j); }
+    cout << endl; }
+
+  cout << endl;
+  cout << "Disable St.4 :" << endl;
+  cout << "==============" << endl;
+  cout << endl;
+  for( int i=0; i<6; i++ ) {
+    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_inrec_chdis_st4(i,j); }
+    cout << endl; }
+
+  cout << endl;
+  cout << "Quality Cut St.1 :" << endl;
+  cout << "==================" << endl;
+  cout << endl;
+  for( int i=0; i<6; i++ ) {
+    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_inrec_qual_st1(i,j); }
+    cout << endl; }
+
+  cout << endl;
+  cout << "Quality Cut St.2 :" << endl;
+  cout << "==================" << endl;
+  cout << endl;
+  for( int i=0; i<6; i++ ) {
+    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_inrec_qual_st2(i,j); }
+    cout << endl; }
+
+  cout << endl;
+  cout << "Quality Cut St.3 :" << endl;
+  cout << "==================" << endl;
+  cout << endl;
+  for( int i=0; i<6; i++ ) {
+    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_inrec_qual_st3(i,j); }
+    cout << endl; }
+
+  cout << endl;
+  cout << "Quality Cut St.4 :" << endl;
+  cout << "==================" << endl;
+  cout << endl;
+  for( int i=0; i<6; i++ ) {
+    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_inrec_qual_st4(i,j); }
+    cout << endl; }
+
+  cout << endl;
+  cout << "Quality Cut Next Wheel :" << endl;
+  cout << "========================" << endl;
+  cout << endl;
+  for( int i=0; i<6; i++ ) {
+    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_stdis_n(i,j); }
+    cout << endl; }
+
+  cout << endl;
+  cout << "Quality Cut WL :" << endl;
+  cout << "================" << endl;
+  cout << endl;
+  for( int i=0; i<6; i++ ) {
+    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_stdis_wl(i,j); }
+    cout << endl; }
+
+  cout << endl;
+  cout << "Quality Cut WR :" << endl;
+  cout << "================" << endl;
+  cout << endl;
+  for( int i=0; i<6; i++ ) {
+    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_stdis_wr(i,j); }
+    cout << endl; }
+
+  cout << endl;
+  cout << "Quality Cut ZL :" << endl;
+  cout << "================" << endl;
+  cout << endl;
+  for( int i=0; i<6; i++ ) {
+    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_stdis_zl(i,j); }
+    cout << endl; }
+
+  cout << endl;
+  cout << " Quality Cut ZR :" << endl;
+  cout << "=================" << endl;
+  cout << endl;
+  for( int i=0; i<6; i++ ) {
+    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_stdis_zr(i,j); }
+    cout << endl; }
+
+  cout << endl;
+  cout << "Quality Cut SOC St.1 :" << endl;
+  cout << "======================" << endl;
+  cout << endl;
+  for( int i=0; i<6; i++ ) {
+    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_qcut_st1(i,j); }
+    cout << endl; }
+
+  cout << endl;
+  cout << "Quality Cut SOC St.2 :" << endl;
+  cout << "======================" << endl;
+  cout << endl;
+  for( int i=0; i<6; i++ ) {
+    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_qcut_st2(i,j); }
+    cout << endl; }
+
+  cout << endl;
+  cout << "Quality Cut SOC St.4 :" << endl;
+  cout << "======================" << endl;
+  cout << endl;
+  for( int i=0; i<6; i++ ) {
+    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_qcut_st4(i,j); }
+    cout << endl; }
+
+  cout << endl;
+  cout << "CSC Quality Cut :" << endl;
+  cout << "=================" << endl;
+  cout << endl;
+  for( int i=0; i<6; i++ ) {
+    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_qual_csc(i,j); }
+    cout << endl; }
+
+  cout << endl;
+  cout << "Extrapolation 21 :" << endl;
+  cout << "==================" << endl;
+  cout << endl;
+  for( int i=0; i<6; i++ ) {
+    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_run_21(i,j); }
+    cout << endl; }
+
+  cout << endl;
+  cout << "Herbert Scheme :" << endl;
+  cout << "================" << endl;
+  cout << endl;
+  for( int i=0; i<6; i++ ) {
+    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_nbx_del(i,j); }
+    cout << endl; }
+
+  cout << endl;
+  cout << "CSC Eta Cancellation :" << endl;
+  cout << "======================" << endl;
+  cout << endl;
+  for( int i=0; i<6; i++ ) {
+    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_csc_etacanc(i,j); }
+    cout << endl; }
+
+  cout << endl;
+  cout << "Open LUTs :" << endl;
+  cout << "===========" << endl;
+  cout << endl;
+  for( int i=0; i<6; i++ ) {
+    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_openlut_extr(i,j); }
+    cout << endl; }
+
 }

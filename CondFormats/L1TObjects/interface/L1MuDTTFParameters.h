@@ -5,8 +5,8 @@
  *   DTTF Parameters from OMDS
  *
  *
- *   $Date: 2008/04/09 15:34:54 $
- *   $Revision: 1.5 $
+ *   $Date: 2008/05/14 14:58:02 $
+ *   $Revision: 1.1 $
  *
  *   J. Troconiz            UAM Madrid
  */
@@ -94,6 +94,8 @@ class L1MuDTTFParameters {
     bool get_soc_csc_etacanc(int wh, int sc) const;
     void set_soc_openlut_extr(int wh, int sc, const bool val);
     bool get_soc_openlut_extr(int wh, int sc) const;
+
+    void print() const;
 
   private:
 

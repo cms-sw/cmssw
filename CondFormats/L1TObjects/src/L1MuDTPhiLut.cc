@@ -5,8 +5,8 @@
 //   Description: Look-up tables for phi assignment 
 //
 //
-//   $Date: 2008/07/01 04:02:16 $
-//   $Revision: 1.3 $
+//   $Date: 2009/03/18 23:04:47 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -34,7 +34,7 @@
 //-------------------------------
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-// #include "CondFormats/L1TObjects/interface/BitArray.h"
+#include "L1TriggerConfig/DTTrackFinder/interface/BitArray.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerLutFile.h"
 
 using namespace std;
@@ -189,21 +189,21 @@ void L1MuDTPhiLut::print() const {
 
     LUT::const_iterator iter = phi_lut[idx].begin();
     while ( iter != phi_lut[idx].end() ) {
-      // int address = (*iter).first;
-      // int value   = (*iter).second;
+      int address = (*iter).first;
+      int value   = (*iter).second;
 
-//       BitArray<10> b_address(static_cast<unsigned>(abs(address)));
-//       BitArray<12> b_value(static_cast<unsigned>(abs(value)));
+      BitArray<10> b_address(static_cast<unsigned>(abs(address)));
+      BitArray<12> b_value(static_cast<unsigned>(abs(value)));
 
-//       if ( address < 0 ) b_address.twoComplement();
-//       if ( value < 0 ) b_value.twoComplement();
+      if ( address < 0 ) b_address.twoComplement();
+      if ( value < 0 ) b_value.twoComplement();
 
-//       cout.setf(ios::right,ios::adjustfield);
-//       cout << " " << setbase(10) << setw(5) << address << " (";
-//       for ( int i = nbit_phib-1; i >= 0; i-- ) cout << b_address[i];
-//       cout << ")   " << setw(5) << value  << " (";
-//       for ( int i = nbit_phi-1; i >= 0; i-- ) cout << b_value[i];
-//       cout << ")  " << endl;
+      cout.setf(ios::right,ios::adjustfield);
+      cout << " " << setbase(10) << setw(5) << address << " (";
+      for ( int i = nbit_phib-1; i >= 0; i-- ) cout << b_address[i];
+      cout << ")   " << setw(5) << value  << " (";
+      for ( int i = nbit_phi-1; i >= 0; i-- ) cout << b_value[i];
+      cout << ")  " << endl;
 
       iter++;
     }
