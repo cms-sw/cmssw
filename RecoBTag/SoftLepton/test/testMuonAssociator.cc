@@ -33,7 +33,6 @@ class testMuonAssociator : public edm::EDAnalyzer {
 public:
   explicit testMuonAssociator(const edm::ParameterSet& iConfig);
   virtual ~testMuonAssociator();
-  virtual void beginJob(const edm::EventSetup& setup);
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
 
 private:
@@ -204,9 +203,6 @@ testMuonAssociator::testMuonAssociator(edm::ParameterSet const& iConfig) {
 }
 
 testMuonAssociator::~testMuonAssociator() {
-}
-
-void testMuonAssociator::beginJob(const edm::EventSetup & setup) {
 }
 
 void testMuonAssociator::analyze(const edm::Event& event, const edm::EventSetup& setup) {

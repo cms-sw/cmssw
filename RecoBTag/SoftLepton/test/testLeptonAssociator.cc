@@ -35,8 +35,8 @@ class testLeptonAssociator : public edm::EDAnalyzer {
 public:
   explicit testLeptonAssociator(const edm::ParameterSet& iConfig);
   virtual ~testLeptonAssociator();
-  virtual void beginJob(const edm::EventSetup& iSetup);
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  virtual void beginRun(const edm::EventSetup& setup);
+  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& setup);
 
 private:
   edm::InputTag m_recoTracks;
@@ -179,17 +179,17 @@ testLeptonAssociator::testLeptonAssociator(edm::ParameterSet const& iConfig) {
 testLeptonAssociator::~testLeptonAssociator() {
 }
 
-void testLeptonAssociator::beginJob(const edm::EventSetup & iSetup) {
+void testLeptonAssociator::beginRun(const edm::EventSetup & setup) {
   edm::ESHandle<TrackAssociatorBase> associatorByHitsHandle;
-  iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits", associatorByHitsHandle);
+  setup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits", associatorByHitsHandle);
   m_associatorByHits = associatorByHitsHandle.product();
 
   edm::ESHandle<TrackAssociatorBase> associatorByChi2Handle;
-  iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2", associatorByChi2Handle);
+  setup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2", associatorByChi2Handle);
   m_associatorByChi2 = associatorByChi2Handle.product();
 }
 
-void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSetup& setup) {
   
   edm::Handle<edm::View<reco::Track> > recoTrackHandle;
   iEvent.getByLabel(m_recoTracks, recoTrackHandle);
