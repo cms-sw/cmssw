@@ -162,7 +162,7 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
   const StripTopology& topol=(const StripTopology&)stripdet->topology();
 
   // position of the initial and final point of the strip (RPHI cluster) in local strip coordinates
-  double RPHIpointX = topol.measurementPosition(monoRH->localPosition()).x();
+  double RPHIpointX = topol.measurementPosition(monoRH->localPositionFast()).x();
   MeasurementPoint RPHIpointini(RPHIpointX,-0.5);
   MeasurementPoint RPHIpointend(RPHIpointX,0.5);
 
@@ -170,7 +170,7 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
   StripPosition stripmono=StripPosition(topol.localPosition(RPHIpointini),topol.localPosition(RPHIpointend));
 
   if(trackdirection.mag2()<FLT_MIN){// in case of no track hypothesis assume a track from the origin through the center of the strip
-    LocalPoint lcenterofstrip=monoRH->localPosition();
+    LocalPoint lcenterofstrip=monoRH->localPositionFast();
     GlobalPoint gcenterofstrip=(stripdet->surface()).toGlobal(lcenterofstrip);
     GlobalVector gtrackdirection=gcenterofstrip-GlobalPoint(0,0,0);
     trackdirection=(gluedDet->surface()).toLocal(gtrackdirection);
@@ -200,7 +200,6 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
   double sigmap12 = monoRH->sigmaPitch();
   if (sigmap12<0) {
     //AlgebraicSymMatrix tmpMatrix = monoRH->parametersError();
-    HelpertRecHit2DLocalPos helper;
     /*
     std::cout << "DEBUG START" << std::endl;
     std::cout << "APE mono,stereo,glued : " 
@@ -208,11 +207,9 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
 	      << partnerstripdet->alignmentPositionError()->globalError().cxx()  << " , "
 	      << gluedDet->alignmentPositionError()->globalError().cxx()  << std::endl;
     */
-
-    AlgebraicSymMatrix tmpMatrix = helper.parError(monoRH->localPositionError(),*stripdet);
-    //std::cout << "DEBUG END" << std::endl;
-    LocalError tmpError(tmpMatrix[0][0],tmpMatrix[0][1],tmpMatrix[1][1]);  
-    MeasurementError errormonoRH=topol.measurementError(monoRH->localPosition(),tmpError);
+    LocalError tmpError(monoRH->localPositionErrorFast());
+    HelpertRecHit2DLocalPos::updateWithAPE(tmpError,*stripdet);
+    MeasurementError errormonoRH=topol.measurementError(monoRH->localPositionFast(),tmpError);
     /*
     std::cout << "localPosError.xx(), helper.xx(), param.xx(): "
 	 << monoRH->localPositionError().xx() << " , "
@@ -220,7 +217,7 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
 	 << tmpMatrix[0][0] << std::endl;
     */
     //MeasurementError errormonoRH=topol.measurementError(monoRH->localPosition(),monoRH->localPositionError());
-    double pitch=topol.localPitch(monoRH->localPosition());
+    double pitch=topol.localPitch(monoRH->localPositionFast());
     monoRH->setSigmaPitch(sigmap12=errormonoRH.uu()*pitch*pitch);
   }
 
@@ -229,7 +226,7 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
   for(seconditer=begin;seconditer!=end;++seconditer){//iterate on stereo rechits
 
     // position of the initial and final point of the strip (STEREO cluster)
-    double STEREOpointX=partnertopol.measurementPosition((*seconditer)->localPosition()).x();
+    double STEREOpointX=partnertopol.measurementPosition((*seconditer)->localPositionFast()).x();
     MeasurementPoint STEREOpointini(STEREOpointX,-0.5);
     MeasurementPoint STEREOpointend(STEREOpointX,0.5);
 
@@ -245,7 +242,7 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
 
    //perform the matching
    //(x2-x1)(y-y1)=(y2-y1)(x-x1)
-    AlgebraicMatrix22 m; AlgebraicVector2 c;
+    AlgebraicMatrix22 m; AlgebraicVector2 c; // FIXME understand why moving this initializer out of the loop changes the output!
     m(0,0)=m00; 
     m(0,1)=m01;
     m(1,0)=m10;
@@ -294,12 +291,11 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
     double sigmap22 = (*seconditer)->sigmaPitch();
     if (sigmap22<0) {
       //AlgebraicSymMatrix tmpMatrix = (*seconditer)->parametersError();
-      HelpertRecHit2DLocalPos helper;
-      AlgebraicSymMatrix tmpMatrix = helper.parError((*seconditer)->localPositionError(),*partnerstripdet);
-      LocalError tmpError(tmpMatrix[0][0],tmpMatrix[0][1],tmpMatrix[1][1]);
-      MeasurementError errorstereoRH=partnertopol.measurementError((*seconditer)->localPosition(),tmpError);
+      LocalError tmpError((*seconditer)->localPositionErrorFast());
+      HelpertRecHit2DLocalPos::updateWithAPE(tmpError, *partnerstripdet);
+      MeasurementError errorstereoRH=partnertopol.measurementError((*seconditer)->localPositionFast(),tmpError);
       //MeasurementError errorstereoRH=partnertopol.measurementError((*seconditer)->localPosition(),(*seconditer)->localPositionError());
-      double pitch=partnertopol.localPitch((*seconditer)->localPosition());
+      double pitch=partnertopol.localPitch((*seconditer)->localPositionFast());
       (*seconditer)->setSigmaPitch(sigmap22=errorstereoRH.uu()*pitch*pitch);
     }
 
