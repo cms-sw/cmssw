@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.23 2009/02/25 19:32:53 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.24 2009/03/26 08:03:23 dutta Exp $
 //
 //
 
@@ -168,8 +168,12 @@ void SiStripOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
 
   // Fill Global Status
   if (globalStatusFilling_ > 0) {
-    if (!trackerFEDsFound_) actionExecutor_->fillDummyStatus();
-    else actionExecutor_->fillStatus(dqmStore_);
+    if (usedWithEDMtoMEConverter_) {
+      if (trackerFEDsFound_) actionExecutor_->fillStatus(dqmStore_);
+      else actionExecutor_->fillDummyStatus();
+    } else {
+      actionExecutor_->fillStatus(dqmStore_);
+    }
   }
 }
 /** 
@@ -181,16 +185,16 @@ void SiStripOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
 void SiStripOfflineDQM::endJob() {
 
   edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::endJob";
-  // Save Output file
-  if (!usedWithEDMtoMEConverter_) { 
+  if (!usedWithEDMtoMEConverter_) {
+    if (printFaultyModuleList_) {
+      std::ostringstream str_val;
+      actionExecutor_->printFaultyModuleList(dqmStore_, str_val);
+      std::cout << str_val.str() << std::endl;
+    }  
+    // Save Output file
     dqmStore_->cd();
     dqmStore_->save(outputFileName_, "","","");
   }
-  if (!usedWithEDMtoMEConverter_ && printFaultyModuleList_) {
-    std::ostringstream str_val;
-    actionExecutor_->printFaultyModuleList(dqmStore_, str_val);
-    std::cout << str_val.str() << std::endl;
-  }  
 }
 /** 
 * @brief 
