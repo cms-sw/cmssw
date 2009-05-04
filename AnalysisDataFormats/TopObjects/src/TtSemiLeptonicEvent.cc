@@ -9,22 +9,25 @@ TtSemiLeptonicEvent::print()
 
   log << "++++++++++++++++++++++++++++++++++++++++++++++++++ \n";
 
-  // get some information from the genEvent
-  log << " TtGenEvent says: ";
-  if( !this->genEvent()->isTtBar() )            log << "Not TtBar";
-  else if( this->genEvent()->isFullHadronic() ) log << "Fully Hadronic TtBar";
-  else if( this->genEvent()->isFullLeptonic() ) log << "Fully Leptonic TtBar";
-  else if( this->genEvent()->isSemiLeptonic() ) {
-    log << "Semi-leptonic TtBar, ";
-    switch( this->genEvent()->semiLeptonicChannel() ) {
-    case WDecay::kElec : log << "Electron"; break;
-    case WDecay::kMuon : log << "Muon"    ; break;
-    case WDecay::kTau  : log << "Tau"     ; break;
-    default                : log << "Unknown" ; break;
+  // get some information from the genEvent (if available)
+  if( !genEvt_ ) log << " TtGenEvent not available! \n";
+  else {
+    log << " TtGenEvent says: ";
+    if( !this->genEvent()->isTtBar() )            log << "Not TtBar";
+    else if( this->genEvent()->isFullHadronic() ) log << "Fully Hadronic TtBar";
+    else if( this->genEvent()->isFullLeptonic() ) log << "Fully Leptonic TtBar";
+    else if( this->genEvent()->isSemiLeptonic() ) {
+      log << "Semi-leptonic TtBar, ";
+      switch( this->genEvent()->semiLeptonicChannel() ) {
+      case WDecay::kElec : log << "Electron"; break;
+      case WDecay::kMuon : log << "Muon"    ; break;
+      case WDecay::kTau  : log << "Tau"     ; break;
+      default            : log << "Unknown" ; break;
+      }
+      log << " Channel";
     }
-    log << " Channel";
+    log << "\n";
   }
-  log << "\n";
 
   // get number of available hypothesis classes
   log << " Number of available event hypothesis classes: " << this->numberOfAvailableHypoClasses() << " \n";

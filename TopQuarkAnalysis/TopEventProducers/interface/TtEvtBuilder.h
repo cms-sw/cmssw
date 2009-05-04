@@ -114,10 +114,10 @@ TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
   // set leptonic decay channels
   event.setLepDecays( WDecay::LeptonType(decayChnTop1_), WDecay::LeptonType(decayChnTop2_) );
 
-  // set genEvent
+  // set genEvent (if available)
   edm::Handle<TtGenEvent> genEvt;
-  evt.getByLabel(genEvt_, genEvt);
-  event.setGenEvent(genEvt);
+  if( evt.getByLabel(genEvt_, genEvt) )
+    event.setGenEvent(genEvt);
 
   // add event hypotheses for all given 
   // hypothesis classes to the TtEvent
