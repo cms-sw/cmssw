@@ -81,20 +81,22 @@ TopElecAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     // --------------------------------------------------
     // get matched trigger primitives and fill best match
     // --------------------------------------------------
-    int trigIdx =-1 ;
-    double minDR=-1.;
-    const std::vector<pat::TriggerPrimitive> trig = elec->triggerMatches();
-    for(unsigned idx = 0; idx<trig.size(); ++idx){
-      std::cout << "Trigger Match: " << trig[idx].filterName() << std::endl;
-      double dR=deltaR(trig[idx].eta(), trig[idx].phi(), elec->eta(), elec->phi());
-      if( minDR<0 || dR<minDR ){
-	minDR=dR;
-	trigIdx=idx;
-      }
-    }
-    if(trigIdx>=0){
-      trgElec_->Fill((trig[trigIdx].pt()-elec->pt())/elec->pt());
-    }
+    // FIXME BEGIN - remove obsolete trigger code
+    //int trigIdx =-1 ;
+    //double minDR=-1.;
+    //const std::vector<pat::TriggerPrimitive> trig = elec->triggerMatches();
+    //for(unsigned idx = 0; idx<trig.size(); ++idx){
+    //  std::cout << "Trigger Match: " << trig[idx].filterName() << std::endl;
+    //  double dR=deltaR(trig[idx].eta(), trig[idx].phi(), elec->eta(), elec->phi());
+    //  if( minDR<0 || dR<minDR ){
+    //  minDR=dR;
+    //  trigIdx=idx;
+    //  }
+    //}
+    //if(trigIdx>=0){
+    //  trgElec_->Fill((trig[trigIdx].pt()-elec->pt())/elec->pt());
+    //}
+    // FIXME END
     
     // --------------------------------------------------
     // get ElectronId 
