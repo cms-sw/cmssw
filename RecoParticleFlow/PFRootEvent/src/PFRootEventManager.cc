@@ -299,9 +299,10 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("clustering", "posCalc_nCrystal_Ecal", 
                    posCalcNCrystalEcal);
 
-  double posCalcP1Ecal = -1;
-  options_->GetOpt("clustering", "posCalc_p1_Ecal", 
-                   posCalcP1Ecal);
+  double posCalcP1Ecal 
+    = threshEcalBarrel<threshEcalEndcap ? threshEcalBarrel:threshEcalEndcap;
+//   options_->GetOpt("clustering", "posCalc_p1_Ecal", 
+//                    posCalcP1Ecal);
   
 
   clusterAlgoECAL_.setThreshBarrel( threshEcalBarrel );
@@ -376,9 +377,10 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("clustering", "posCalc_nCrystal_Hcal",
                    posCalcNCrystalHcal);
 
-  double posCalcP1Hcal = 1.0;
-  options_->GetOpt("clustering", "posCalc_p1_Hcal", 
-                   posCalcP1Hcal);
+  double posCalcP1Hcal 
+    = threshHcalBarrel<threshHcalEndcap ? threshHcalBarrel:threshHcalEndcap;
+//   options_->GetOpt("clustering", "posCalc_p1_Hcal", 
+//                    posCalcP1Hcal);
 
 
 
@@ -418,9 +420,9 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("clustering", "posCalc_nCrystal_HFEM",
                    posCalcNCrystalHFEM);
 
-  double posCalcP1HFEM = 0.;
-  options_->GetOpt("clustering", "posCalc_p1_HFEM", 
-                   posCalcP1HFEM);
+  double posCalcP1HFEM = threshHFEM;
+//   options_->GetOpt("clustering", "posCalc_p1_HFEM", 
+//                    posCalcP1HFEM);
 
 
   clusterAlgoHFEM_.setThreshEndcap( threshHFEM );
@@ -455,9 +457,9 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("clustering", "posCalc_nCrystal_HFHAD",
                    posCalcNCrystalHFHAD);
 
-  double posCalcP1HFHAD = 0.;
-  options_->GetOpt("clustering", "posCalc_p1_HFHAD", 
-                   posCalcP1HFHAD);
+  double posCalcP1HFHAD = threshHFHAD;
+//   options_->GetOpt("clustering", "posCalc_p1_HFHAD", 
+//                    posCalcP1HFHAD);
 
 
   clusterAlgoHFHAD_.setThreshEndcap( threshHFHAD );
@@ -501,9 +503,9 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("clustering", "posCalc_nCrystal_PS",
                    posCalcNCrystalPS);
 
-  double posCalcP1PS = 0.;
-  options_->GetOpt("clustering", "posCalc_p1_PS", 
-                   posCalcP1PS);
+  double posCalcP1PS = threshPS;
+//   options_->GetOpt("clustering", "posCalc_p1_PS", 
+//                    posCalcP1PS);
 
 
 

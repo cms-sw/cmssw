@@ -23,8 +23,6 @@ particleFlowClusterHFEM = cms.EDProducer("PFClusterProducer",
     showerSigma = cms.double(10.0),
     # n crystals for position calculation in HCAL
     posCalcNCrystal = cms.int32(5), 
-    # p1 for position calculation in HCAL 
-    posCalcP1 = cms.double(0.8),
     #----depth correction
     # depth correction for ECAL clusters:
     #   0: no depth correction

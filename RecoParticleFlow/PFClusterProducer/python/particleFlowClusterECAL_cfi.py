@@ -22,8 +22,6 @@ particleFlowClusterECAL = cms.EDProducer("PFClusterProducer",
     showerSigma = cms.double(5.0),
     # n crystals for position calculation in ECAL
     posCalcNCrystal = cms.int32(9),
-    # p1 for position calculation in ECAL 
-    posCalcP1 = cms.double(-1.0),
     # depth correction for ECAL clusters:
     #   0: no depth correction
     #   1: electrons/photons - depth correction is proportionnal to E

@@ -40,8 +40,8 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   int nNeighbours = 
     iConfig.getParameter<int>("nNeighbours");
 
-  double posCalcP1 = 
-    iConfig.getParameter<double>("posCalcP1");
+//   double posCalcP1 = 
+//     iConfig.getParameter<double>("posCalcP1");
 
   int posCalcNCrystal = 
     iConfig.getParameter<int>("posCalcNCrystal");
@@ -57,6 +57,9 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   clusterAlgo_.setThreshSeedEndcap( threshSeedEndcap );
 
   clusterAlgo_.setNNeighbours( nNeighbours );
+
+  // p1 set to the minimum rechit threshold:
+  double posCalcP1 = threshBarrel<threshEndcap ? threshBarrel:threshEndcap;
   clusterAlgo_.setPosCalcP1( posCalcP1 );
   clusterAlgo_.setPosCalcNCrystal( posCalcNCrystal );
   clusterAlgo_.setShowerSigma( showerSigma );
