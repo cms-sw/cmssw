@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.59 2009/04/09 21:20:50 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.60 2009/04/12 19:55:20 amraktad Exp $
 //
 
 // system include files
@@ -161,6 +161,8 @@ public:
    void loadEvent(const fwlite::Event& event);
    void newFile(const TFile*);
 
+   void decreaseBrightness();
+   void increaseBrightness();
    void changeBackgroundColor();
    CSGAction* getAction(const std::string name);
 

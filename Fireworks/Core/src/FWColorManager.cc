@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.4 2009/04/13 21:22:52 chrjones Exp $
+// $Id: FWColorManager.cc,v 1.5 2009/04/14 15:45:25 chrjones Exp $
 //
 
 // system include files
@@ -18,6 +18,7 @@
 #include "TColor.h"
 #include "TROOT.h"
 #include "TObjArray.h"
+#include "TMath.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWColorManager.h"
@@ -32,6 +33,8 @@
 //
 //static std::vector<Color_t>* s_forWhite=0;
 //static std::vector<Color_t>* s_forBlack=0;
+
+static Float_t m_gammaOff = 0;
 
 enum {
    kFWRed =8,
@@ -167,6 +170,7 @@ static const float s_geomForBlack[][3] ={
 
 static const unsigned int s_geomSize = sizeof(s_geomForBlack)/sizeof(s_geomForBlack[0]);
 
+//==============================================================================
 
 static
 void resetColors(const float(* iColors)[3], unsigned int iSize, unsigned int iStart)
@@ -191,6 +195,12 @@ void resetColors(const float(* iColors)[3], unsigned int iSize, unsigned int iSt
       float red = (*iColors)[0];
       float green = (*iColors)[1];
       float blue = (*iColors)[2];
+     
+      // apply brightness
+      red     =  TMath::Power( red, (2.5 + m_gammaOff)/2.5);
+      green  = TMath::Power(green, (2.5 + m_gammaOff)/2.5);
+     blue    = TMath::Power(blue, (2.5 + m_gammaOff)/2.5);
+
       c->SetRGB(red,green,blue);
    }
 }
@@ -250,7 +260,47 @@ FWColorManager::~FWColorManager()
 
 //
 // member functions
-//
+
+void FWColorManager::updateBrightness()
+{
+
+   if(backgroundColorIndex() == kBlackIndex) {
+      resetColors(s_forBlack,s_size,m_startColorIndex);
+      resetColors(s_geomForBlack, s_geomSize, m_startGeomColorIndex);
+   } else {
+      resetColors(s_forWhite,s_size,m_startColorIndex);
+      resetColors(s_geomForWhite, s_geomSize, m_startGeomColorIndex);
+   }
+   FWChangeSentry sentry(*m_changeManager);
+   colorsHaveChanged_();
+   colorsHaveChangedFinished_();
+}
+
+void
+FWColorManager::decreaseBrightness()
+{
+   Float_t value =  m_gammaOff + 0.1;
+   if (value < -0.5 || value > 0.5)
+   {
+      printf("Warning::Set brightness out of range.  value '%f' out of range [-0.5, 0.5]. \n", value);
+   }
+   
+   m_gammaOff = value;
+   updateBrightness();
+}
+
+void
+FWColorManager::increaseBrightness()
+{
+   Float_t value =  m_gammaOff - 0.1;
+   if (value < -0.5 || value > 0.5)
+   {
+      printf("Warning::Set brightness out of range.  value '%f' out of range [-0.5, 0.5].\n", value);
+   }
+   m_gammaOff = value;
+   updateBrightness();
+}
+
 void 
 FWColorManager::setBackgroundColorIndex(BackgroundColorIndex iIndex)
 {

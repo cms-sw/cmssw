@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:07:58 CET 2009
-// $Id: FWColorManager.h,v 1.3 2009/04/09 21:13:59 chrjones Exp $
+// $Id: FWColorManager.h,v 1.4 2009/04/13 21:22:28 chrjones Exp $
 //
 
 // system include files
@@ -64,8 +64,10 @@ public:
    // ---------- static member functions --------------------
    
    // ---------- member functions ---------------------------
+   void increaseBrightness();
+   void decreaseBrightness();
    void setBackgroundColorIndex(BackgroundColorIndex);
-   
+
    mutable sigc::signal<void> colorsHaveChanged_;
    //called after all the slots attached to colorsHaveChanged_ are done
    mutable sigc::signal<void> colorsHaveChangedFinished_;
@@ -73,8 +75,10 @@ private:
    FWColorManager(const FWColorManager&); // stop default
    
    const FWColorManager& operator=(const FWColorManager&); // stop default
-   
+   void updateBrightness();
+
    // ---------- member data --------------------------------
+
    Color_t m_background;
    Color_t m_foreground;
    FWModelChangeManager* m_changeManager;

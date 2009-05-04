@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.115 2009/04/20 18:22:31 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.116 2009/05/01 02:01:34 dmytro Exp $
 //
 
 // system include files
@@ -190,6 +190,10 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       getAction(cmsshow::sHelp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createHelpPopup));
       assert(getAction(cmsshow::sKeyboardShort) != 0);
       getAction(cmsshow::sKeyboardShort)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createShortcutPopup));
+      // gamma
+      getAction(cmsshow::sDecBrightness )->activated.connect(sigc::mem_fun(*this, &FWGUIManager::decreaseBrightness));
+      getAction(cmsshow::sIncBrightness )->activated.connect(sigc::mem_fun(*this, &FWGUIManager::increaseBrightness));
+
       getAction(cmsshow::sBackgroundColor)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::changeBackgroundColor));
       setBackgroundName(getAction(cmsshow::sBackgroundColor), m_colorManager);
 
@@ -1166,6 +1170,18 @@ void FWGUIManager::eventIdChanged()
 void FWGUIManager::eventFilterChanged()
 {
    changedEventFilter_.emit(m_cmsShowMainFrame->m_filterEntry->GetText());
+}
+
+void 
+FWGUIManager::decreaseBrightness()
+{
+  m_colorManager->decreaseBrightness();
+}
+
+void 
+FWGUIManager::increaseBrightness()
+{
+  m_colorManager->increaseBrightness();
 }
 
 void 
