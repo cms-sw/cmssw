@@ -110,12 +110,23 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
 
     # Set update period of client to checkNevents value of monitor 
 
-    client.diagnosticPrescaleEvt                  = max(100,monitor.checkNevents) # combine checkNevents and diagnosticPrescaleEvt into one?
+    # This doesn't work, because monitor.checkNevents returns 'cms.untracked.bool(...)'
+    #client.diagnosticPrescaleEvt                  = max(100,monitor.checkNevents) # combine checkNevents and diagnosticPrescaleEvt into one?
+    checkN = deepcopy(client.diagnosticPrescaleEvt)
+    # Beam, RecHit checkNevents not used; we could get rid of them
+    client.BeamClient_checkNevents                = checkN
+    client.RecHitClient_checkNevents              = checkN
+    # Hot and Dead cell values only used for labelling
+    client.DeadCellClient_checkNevents            = monitor.DeadCellMonitor_checkNevents
+    client.HotCellClient_checkNevents            = monitor.HotCellMonitor_checkNevents
+    
+
     client.fillUnphysicalIphi                     = monitor.fillUnphysicalIphi 
+
+    
 
     # Beam Client
     client.BeamClient                             = monitor.BeamMonitor
-    client.BeamClient_checkNevents                = monitor.BeamMonitor_checkNevents
     client.BeamClient_minErrorFlag                = monitor.BeamMonitor_minErrorFlag
     client.BeamClient_makeDiagnosticPlots         = monitor.BeamMonitor_makeDiagnosticPlots
     
@@ -152,7 +163,6 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
 
     # Rec Hit Client
     client.RecHitClient                           = monitor.RecHitMonitor
-    client.RecHitClient_checkNevents              = monitor.RecHitMonitor_checkNevents
     client.RecHitClient_minErrorFlag              = monitor.RecHitMonitor_minErrorFlag
     client.RecHitClient_makeDiagnosticPlots       = monitor.RecHitMonitor_makeDiagnosticPlots
 
