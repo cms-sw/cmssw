@@ -110,7 +110,7 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
 
     # Set update period of client to checkNevents value of monitor 
 
-    client.diagnosticPrescaleEvt                  = monitor.checkNevents # combine checkNevents and diagnosticPrescaleEvt into one?
+    client.diagnosticPrescaleEvt                  = max(100,monitor.checkNevents) # combine checkNevents and diagnosticPrescaleEvt into one?
     client.fillUnphysicalIphi                     = monitor.fillUnphysicalIphi 
 
     # Beam Client
