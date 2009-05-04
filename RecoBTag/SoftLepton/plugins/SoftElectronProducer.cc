@@ -80,13 +80,6 @@ SoftElectronProducer::~SoftElectronProducer()
 
 //------------------------------------------------------------------------------
 
-void SoftElectronProducer::beginJob (edm::EventSetup const & theEventSetup)
-{
-
-}
-
-//------------------------------------------------------------------------------
-
 void SoftElectronProducer::produce(edm::Event &iEvent,
                                       const edm::EventSetup &iSetup)
 {
@@ -197,9 +190,8 @@ void SoftElectronProducer::produce(edm::Event &iEvent,
       }
 
       // identify electrons based on cluster properties
-      if(matchedCluster  && distMin < 5.0)
+      if(matchedCluster  && distMin < 10.0)
       {
-
         GlobalPoint position(matchedCluster->x(), matchedCluster->y(), matchedCluster->z());
         auto_ptr<CaloRecHitMetaCollectionV> chosen = selectorRecHit.select(position, metaRecHit);
         hcalEnergy = 0.0;
@@ -229,17 +221,13 @@ void SoftElectronProducer::produce(edm::Event &iEvent,
 
         value = theElecNN->value(0, covEtaEta, covEtaPhi, covPhiPhi,
                                  v1, v2, v3, v4, emFraction, deltaE);
-
         if (value > theDiscriminatorCut)
         {
           const reco::Particle::LorentzVector  p4(0.0, 0.0, 0.0, clusEnergy);
           const reco::Particle::Point vtx(0.0, 0.0, 0.0);
-
           reco::Electron newCandidate(0, p4, vtx);
           reco::TrackRef refTrack(handleTrack, counterTrack);
-  
           newCandidate.setTrack(refTrack);
-
           candidates->push_back(newCandidate);
         }
       }
@@ -250,6 +238,3 @@ void SoftElectronProducer::produce(edm::Event &iEvent,
   iEvent.put(candidates);
 
 }
-
-//------------------------------------------------------------------------------
-

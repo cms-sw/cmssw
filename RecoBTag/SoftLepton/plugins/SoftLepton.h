@@ -16,7 +16,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.h,v 1.6 2009/01/15 16:42:37 fwyzard Exp $
+// $Id: SoftLepton.h,v 1.7 2009/04/01 17:24:38 fwyzard Exp $
 //
 
 // system include files
@@ -79,9 +79,7 @@ protected:
   );
   
 private:
-  virtual void beginJob(const edm::EventSetup & setup);
   virtual void produce(edm::Event & event, const edm::EventSetup & setup);
-  virtual void endJob(void);
 
   // configuration   
   const edm::InputTag m_jets;

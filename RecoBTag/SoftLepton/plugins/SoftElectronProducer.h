@@ -3,9 +3,9 @@
 /** \class SoftElectronProducer
  *
  *
- *  $Id: SoftElectronProducer.h,v 1.1 2007/08/17 23:17:34 fwyzard Exp $
- *  $Date: 2007/08/17 23:17:34 $
- *  $Revision: 1.1 $
+ *  $Id: SoftElectronProducer.h,v 1.2 2008/05/29 07:38:08 arizzi Exp $
+ *  $Date: 2008/05/29 07:38:08 $
+ *  $Revision: 1.2 $
  *
  *  \author P. Demin - UCL, Louvain-la-Neuve - Belgium
  *
@@ -31,7 +31,6 @@ class SoftElectronProducer : public edm::EDProducer
 
  private:
 
-  virtual void beginJob(edm::EventSetup const &iSetup);
   virtual void produce(edm::Event &iEvent, const edm::EventSetup &iSetup);
 
   edm::ParameterSet theConf;

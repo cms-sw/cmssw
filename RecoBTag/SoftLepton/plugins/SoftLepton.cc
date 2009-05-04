@@ -12,7 +12,7 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.27 2009/01/30 01:57:18 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.28 2009/04/01 17:24:38 fwyzard Exp $
 
 
 #include <memory>
@@ -241,16 +241,6 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
     outputCollection->push_back( result );
   }
   event.put( outputCollection );
-}
-
-// ------------ method called once each job just before starting event loop  -------------
-void 
-SoftLepton::beginJob(const edm::EventSetup & setup) {
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-SoftLepton::endJob(void) {
 }
 
 // ---------------------------------------------------------------------------------------
