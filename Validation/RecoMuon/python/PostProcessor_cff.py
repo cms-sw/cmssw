@@ -156,13 +156,6 @@ postProcessorMuonIsolation = cms.EDAnalyzer(
                                           "muonPt",
                                           "avgPt",
                                           "weightedEt",
-                                          "pat_TrackerIso",
-                                          "pat_EcalIso",
-                                          "pat_HcalIso",
-                                          "pat_ParticleIso",
-                                          "pat_ChargedParticleIso",
-                                          "pat_NeutralParticleIso",
-                                          "pat_GammaParticleIso",
                                           "sumPt_cd",
                                           "emEt_cd",
                                           "hadEt_cd",
@@ -175,14 +168,7 @@ postProcessorMuonIsolation = cms.EDAnalyzer(
                                           "hoVetoEt_cd",                                          
                                           "muonPt_cd",
                                           "avgPt_cd",
-                                          "weightedEt_cd",
-                                          "pat_TrackerIso_cd",
-                                          "pat_EcalIso_cd",
-                                          "pat_HcalIso_cd",
-                                          "pat_ParticleIso_cd",
-                                          "pat_ChargedParticleIso_cd",
-                                          "pat_NeutralParticleIso_cd",
-                                          "pat_GammaParticleIso_cd"
+                                          "weightedEt_cd"
                                           ),
     cumulativeDists = cms.untracked.vstring("sumPt_cd",
                                             "emEt_cd",
@@ -196,14 +182,7 @@ postProcessorMuonIsolation = cms.EDAnalyzer(
                                             "hoVetoEt_cd",
                                             "muonPt_cd",
                                             "avgPt_cd",
-                                            "weightedEt_cd",
-                                            "pat_TrackerIso_cd",
-                                            "pat_EcalIso_cd",
-                                            "pat_HcalIso_cd",
-                                            "pat_ParticleIso_cd",
-                                            "pat_ChargedParticleIso_cd",
-                                            "pat_NeutralParticleIso_cd",
-                                            "pat_GammaParticleIso_cd"
+                                            "weightedEt_cd"
                                             ),
     outputFileName = cms.untracked.string("")
 )        
