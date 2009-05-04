@@ -2,8 +2,6 @@
 #define SimDataFormats_SubEvent_h
 
 #include <vector>
-
-#include "FWCore/Framework/interface/Event.h"
 #include "HepMC/GenVertex.h"
 #include "HepMC/GenEvent.h"
 

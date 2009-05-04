@@ -1,6 +1,5 @@
 <use name=rootrflx> 
 <use name=hepmc>
-<use name=FWCore/Framework>
 <use name=DataFormats/Common>
 <use name=DataFormats/HepMCCandidate>
 <use name=SimDataFormats/GeneratorProducts>
