@@ -467,7 +467,7 @@ void HcalLEDClient::analyze(void){
   if ( (updates % 10) == 0 ) {
     if ( debug_ >0 ) cout << "HcalLEDClient: " << updates << " updates" << endl;
   }
-  getHistograms();
+  //getHistograms();
   return;
 }
 
@@ -599,6 +599,7 @@ void HcalLEDClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   
   if (debug_>0) cout << "Preparing HcalLEDClient html output ..." << endl;
   string client = "LEDMonitor";
+  getHistograms();
   htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
 
   ofstream htmlFile;

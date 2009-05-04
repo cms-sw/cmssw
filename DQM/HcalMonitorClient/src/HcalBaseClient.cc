@@ -227,6 +227,9 @@ void HcalBaseClient::getSJ6histos(char* dir, char* name, TH2F* h[6], char* units
   return;
 } // void HcalBaseClient::getSJ6histos(2D)
 
+
+
+
 void HcalBaseClient::getSJ6histos(char* dir, char* name, TH1F* h[6], char* units)
 {
   TH1F* dummy = new TH1F();

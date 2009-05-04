@@ -405,7 +405,7 @@ void HcalDeadCellClient::analyze(void)
     {
       if ( debug_>1 ) std::cout << "<HcalDeadCellClient::analyze>  Running analyze "<<std::endl;
     }
-  getHistograms(); // not needed here?
+  //getHistograms(); // not needed here?
   return;
 } // void HcalDeadCellClient::analyze(void)
 

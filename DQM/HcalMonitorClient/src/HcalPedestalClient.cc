@@ -339,7 +339,7 @@ void HcalPedestalClient::analyze(void)
     {
       if ( debug_ ) std::cout << "<HcalPedestalClient::analyze>  Running analyze "<<std::endl;
     }
-  getHistograms();
+  //getHistograms();
   return;
 } // void HcalPedestalClient::analyze(void)
 

@@ -488,7 +488,7 @@ void HcalRecHitClient::analyze(void)
     {
       if ( debug_>1 ) std::cout << "<HcalRecHitClient::analyze>  Running analyze "<<std::endl;
     }
-  getHistograms();
+  //getHistograms();
   return;
 } // void HcalRecHitClient::analyze(void)
 
@@ -664,7 +664,7 @@ void HcalRecHitClient::htmlOutput(int runNo, string htmlDir, string htmlName)
     }
 
   if (debug_>1) std::cout << "Preparing HcalRecHitClient html output ..." << std::endl;
-
+  getHistograms();
   string client = "RecHitMonitor";
 
   ofstream htmlFile;

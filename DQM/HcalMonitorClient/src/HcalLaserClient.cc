@@ -62,7 +62,8 @@ void HcalLaserClient::beginRun(void){
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void HcalLaserClient::analyze(void) {  
   jevt_++;
-  getHistograms();
+  //getHistograms();
+  return;
 }
 
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -411,6 +412,7 @@ void HcalLaserClient::htmlOutput( int runNo, string htmlDir, string htmlName ) {
   
   cout << "Preparing HcalLaserClient html output ..." << endl;
   string client = "LaserMonitor";
+  getHistograms();
   htmlErrors( runNo, htmlDir, client, process_, dbe_, dqmReportMapErr_, dqmReportMapWarn_, dqmReportMapOther_ );
 
   ofstream htmlFile;

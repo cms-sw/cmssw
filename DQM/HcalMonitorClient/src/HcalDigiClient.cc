@@ -330,7 +330,7 @@ void HcalDigiClient::report(){
       cpu_timer.reset(); cpu_timer.start();
     }
   if ( debug_ ) std::cout << "HcalDigiClient: report" << std::endl;
-  
+  getHistograms();
   ostringstream name;
   name<<process_.c_str()<<"Hcal/DigiMonitor_Hcal/Digi Task Event Number";
   MonitorElement* me = 0;
@@ -363,8 +363,8 @@ void HcalDigiClient::analyze(void){
   if ( updates % 10 == 0 ) {
     if ( debug_ ) std::cout << "HcalDigiClient: " << updates << " updates" << std::endl;
   }
-  report();
-  getHistograms();
+  //report();
+  //getHistograms();
   if (showTiming_)
     {
       cpu_timer.stop();  std::cout <<"TIMER:: HcalDigiClient ANALYZE  -> "<<cpu_timer.cpuTime()<<std::endl;
