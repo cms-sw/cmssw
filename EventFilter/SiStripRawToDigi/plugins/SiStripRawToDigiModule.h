@@ -39,8 +39,7 @@ namespace sistrip {
     void updateCabling( const edm::EventSetup& );
     
     RawToDigiUnpacker* rawToDigi_;
-    std::string label_;
-    std::string instance_;
+    edm::InputTag productLabel_;
     const SiStripFedCabling* cabling_;
     uint32_t cacheId_;
     
@@ -64,8 +63,7 @@ class OldSiStripRawToDigiModule : public edm::EDProducer {
   void updateCabling( const edm::EventSetup& );
   
   OldSiStripRawToDigiUnpacker* rawToDigi_;
-  std::string label_;
-  std::string instance_;
+  edm::InputTag productLabel_;
   const SiStripFedCabling* cabling_;
   uint32_t cacheId_;
 

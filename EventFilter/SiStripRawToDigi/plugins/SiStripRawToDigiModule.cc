@@ -19,8 +19,7 @@ namespace sistrip {
 
   RawToDigiModule::RawToDigiModule( const edm::ParameterSet& pset ) :
     rawToDigi_(0),
-    label_( pset.getUntrackedParameter<std::string>("ProductLabel","source") ),
-    instance_( pset.getUntrackedParameter<std::string>("ProductInstance","") ),
+    productLabel_(pset.getParameter<edm::InputTag>("ProductLabel")),
     cabling_(0),
     cacheId_(0)
   {
@@ -30,13 +29,15 @@ namespace sistrip {
 	<< " Constructing object...";
     }
 
-    int16_t appended_bytes = pset.getUntrackedParameter<int>("AppendedBytes",0);
+    int16_t appended_bytes = pset.getParameter<int>("AppendedBytes");
+    int16_t trigger_fed_id = pset.getParameter<int>("TriggerFedId");
+    bool use_daq_register = pset.getParameter<bool>("UseDaqRegister");
+    bool using_fed_key = pset.getParameter<bool>("UseFedKey");
+
     int16_t fed_buffer_dump_freq = pset.getUntrackedParameter<int>("FedBufferDumpFreq",0);
     int16_t fed_event_dump_freq = pset.getUntrackedParameter<int>("FedEventDumpFreq",0);
-    int16_t trigger_fed_id = pset.getUntrackedParameter<int>("TriggerFedId",0);
-    bool use_daq_register = pset.getUntrackedParameter<bool>("UseDaqRegister",false);
-    bool using_fed_key = pset.getUntrackedParameter<bool>("UseFedKey",false);
     bool quiet = pset.getUntrackedParameter<bool>("Quiet",true);
+
     rawToDigi_ = new sistrip::RawToDigiUnpacker( appended_bytes, fed_buffer_dump_freq, fed_event_dump_freq, trigger_fed_id, using_fed_key );
     rawToDigi_->quiet(quiet);
     rawToDigi_->useDaqRegister( use_daq_register ); 
@@ -81,7 +82,7 @@ namespace sistrip {
   
     // Retrieve FED raw data (by label, which is "source" by default)
     edm::Handle<FEDRawDataCollection> buffers;
-    event.getByLabel( label_, instance_, buffers ); 
+    event.getByLabel( productLabel_, buffers ); 
 
     // Populate SiStripEventSummary object with "trigger FED" info
     std::auto_ptr<SiStripEventSummary> summary( new SiStripEventSummary() );
@@ -150,8 +151,7 @@ namespace sistrip {
 
 OldSiStripRawToDigiModule::OldSiStripRawToDigiModule( const edm::ParameterSet& pset ) :
   rawToDigi_(0),
-  label_( pset.getUntrackedParameter<std::string>("ProductLabel","source") ),
-  instance_( pset.getUntrackedParameter<std::string>("ProductInstance","") ),
+  productLabel_(pset.getParameter<edm::InputTag>("ProductLabel")),
   cabling_(0),
   cacheId_(0)
 {
@@ -209,7 +209,7 @@ void OldSiStripRawToDigiModule::produce( edm::Event& event, const edm::EventSetu
   
   // Retrieve FED raw data (by label, which is "source" by default)
   edm::Handle<FEDRawDataCollection> buffers;
-  event.getByLabel( label_, instance_, buffers ); 
+  event.getByLabel( productLabel_, buffers ); 
 
   // Populate SiStripEventSummary object with "trigger FED" info
   std::auto_ptr<SiStripEventSummary> summary( new SiStripEventSummary() );

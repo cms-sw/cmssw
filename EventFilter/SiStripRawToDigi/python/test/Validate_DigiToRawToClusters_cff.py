@@ -43,7 +43,7 @@ SiStripDigiToRaw = cms.EDProducer(
 # RawToDigi (reference "common")
 siStripDigis = cms.EDProducer(
     "OldSiStripRawToDigiModule",
-    ProductLabel =  cms.untracked.string('SiStripDigiToRaw'),
+    ProductLabel =  cms.InputTag('SiStripDigiToRaw'),
     UseFedKey = cms.untracked.bool(False),
     )
 
