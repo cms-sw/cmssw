@@ -30,7 +30,6 @@ namespace sistrip {
     RawToDigiModule( const edm::ParameterSet& );
     ~RawToDigiModule();
     
-    virtual void beginJob( const edm::EventSetup& );
     virtual void beginRun( edm::Run&, const edm::EventSetup& );
     virtual void produce( edm::Event&, const edm::EventSetup& );
     
@@ -54,7 +53,6 @@ class OldSiStripRawToDigiModule : public edm::EDProducer {
   OldSiStripRawToDigiModule( const edm::ParameterSet& );
   ~OldSiStripRawToDigiModule();
   
-  virtual void beginJob( const edm::EventSetup& );
   virtual void beginRun( edm::Run&, const edm::EventSetup& );
   virtual void produce( edm::Event&, const edm::EventSetup& );
   

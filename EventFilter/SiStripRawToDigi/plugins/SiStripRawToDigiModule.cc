@@ -61,11 +61,6 @@ namespace sistrip {
     }
   }
 
-  void RawToDigiModule::beginJob( const edm::EventSetup& setup ) {
-    //@@ unstable behaviour if uncommented!
-    //updateCabling( setup );
-  }
-
   void RawToDigiModule::beginRun( edm::Run& run, const edm::EventSetup& setup ) {
     updateCabling( setup );
   }  
@@ -186,11 +181,6 @@ OldSiStripRawToDigiModule::~OldSiStripRawToDigiModule() {
       << "[OldSiStripRawToDigiModule::" << __func__ << "]"
       << " Destructing object...";
   }
-}
-
-void OldSiStripRawToDigiModule::beginJob( const edm::EventSetup& setup ) {
-  //@@ unstable behaviour if uncommented!
-  //updateCabling( setup );
 }
 
 void OldSiStripRawToDigiModule::beginRun( edm::Run& run, const edm::EventSetup& setup ) {
