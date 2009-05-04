@@ -1,5 +1,5 @@
 /**
- * This macro takes a file and the name of a histogram and look for
+ * This macro takes a file and the name of a histogram and looks for
  * a histogram of the same name in all the subdirectories.
  * If it finds a match, it returns a pointer to it (but a TObject pointer
  * needs a cast to use it outside), if not returns

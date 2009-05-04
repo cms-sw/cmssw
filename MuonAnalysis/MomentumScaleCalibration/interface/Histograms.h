@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2009/04/09 15:42:02 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/04/28 10:06:45 $
+ *  $Revision: 1.7 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -1365,7 +1365,7 @@ public:
         for( int yBin=0; yBin<totBinsY_; ++yBin ) {
           double covariance = covariances_[xBin][yBin].covariance();
           // Histogram bins start from 1
-          cout << "covariance["<<xBin<<"]["<<yBin<<"] with N = "<<covariances_[xBin][yBin].getN()<<" is: " << covariance << endl;
+          // cout << "covariance["<<xBin<<"]["<<yBin<<"] with N = "<<covariances_[xBin][yBin].getN()<<" is: " << covariance << endl;
           histoCovariance_->SetBinContent(xBin+1, yBin+1, covariance);
         }
       }

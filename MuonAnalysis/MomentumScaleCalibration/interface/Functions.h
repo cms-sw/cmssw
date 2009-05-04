@@ -775,10 +775,43 @@ protected:
 template <class T>
 class resolutionFunctionType9 : public resolutionFunctionBase<T> {
  public:
-  resolutionFunctionType9() { this->parNum_ = 15; }
+  resolutionFunctionType9() { this->parNum_ = 31; }
   // linear in pt and by points in eta
   virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
-    return( parval[0] + parval[1]*pt + parval[2]*pt*pt + parval[3]*pt*pt*pt + parval[4]*pt*pt*pt*pt + parval[5]*etaByPoints(eta, parval[6]) );
+    double ptPart = 0.;
+//     if( pt < 3 ) ptPart = parval[15] + parval[16]*0.01994255;
+//     else if( pt < 4 ) ptPart = parval[15] + parval[16]*0.01453992;
+//     else if( pt < 5 ) ptPart = parval[15] + parval[16]*0.01356919;
+//     else if( pt < 6 ) ptPart = parval[15] + parval[16]*0.0118939;
+//     else if( pt < 7 ) ptPart = parval[15] + parval[16]*0.01213474;
+//     else if( pt < 8 ) ptPart = parval[15] + parval[16]*0.01193847;
+//     else if( pt < 9 ) ptPart = parval[15] + parval[16]*0.01297834;
+//     else if( pt < 10 ) ptPart = parval[15] + parval[16]*0.02229455;
+
+
+    if( pt < 3 ) ptPart = parval[15];
+    else if( pt < 4 ) ptPart = parval[16];
+    else if( pt < 5 ) ptPart = parval[17];
+    else if( pt < 6 ) ptPart = parval[18];
+    else if( pt < 7 ) ptPart = parval[19];
+    else if( pt < 8 ) ptPart = parval[20];
+    else if( pt < 9 ) ptPart = parval[21];
+    else if( pt < 10 ) ptPart = parval[22];
+
+    else ptPart = parval[0] + parval[1]*pt + parval[2]*pt*pt + parval[3]*pt*pt*pt + parval[4]*pt*pt*pt*pt;
+
+    double fabsEta = fabs(eta);
+    double etaCoeff = parval[5];
+    if( fabsEta < 0.1 ) etaCoeff = parval[23];
+    else if( fabsEta < 0.2 ) etaCoeff = parval[24];
+    else if( fabsEta < 0.3 ) etaCoeff = parval[25];
+    else if( fabsEta < 0.4 ) etaCoeff = parval[26];
+    else if( fabsEta < 0.5 ) etaCoeff = parval[27];
+    else if( fabsEta < 0.6 ) etaCoeff = parval[28];
+    else if( fabsEta < 0.7 ) etaCoeff = parval[29];
+    else if( fabsEta < 0.8 ) etaCoeff = parval[30];
+
+    return( ptPart + etaCoeff*etaByPoints(eta, parval[6]) );
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
@@ -792,33 +825,96 @@ class resolutionFunctionType9 : public resolutionFunctionBase<T> {
 
     double thisStep[] = { 0.0002, 0.000002, 0.0000002, 0.00000002, 0.000000002, 0.02, 0.02,
                           0.00002, 0.0002, 0.0000002, 0.00002,
-                          0.00002, 0.0002, 0.00000002, 0.000002 };
+                          0.00002, 0.0002, 0.00000002, 0.000002,
+                          0.001, 0.001, 0.001, 0.001,
+                          0.001, 0.001, 0.001, 0.001,
+                          0.001, 0.001, 0.001, 0.001,
+                          0.001, 0.001, 0.001, 0.001 };
     TString thisParName[] = { "Pt res. sc.", "Pt res. Pt sc.", "Pt res. Pt^2 sc.", "Pt res. Pt^3 sc.", "Pt res. Pt^4 sc",
                               "Pt res. Eta sc.", "Pt res. eta border",
                               "Cth res. sc.", "Cth res. 1/Pt sc.", "Cth res. Eta sc.", "Cth res. Eta^2 sc.",
-                              "Phi res. sc.", "Phi res. 1/Pt sc.", "Phi res. Eta sc.", "Phi res. Eta^2 sc." };
-    double thisMini[] = {  -0.1, -0.001, -0.001, -0.001, -0.001, 0.4, 0.01,
+                              "Phi res. sc.", "Phi res. 1/Pt sc.", "Phi res. Eta sc.", "Phi res. Eta^2 sc.",
+                              "Pt by points sc. 0-3", "Pt by points sc. 3-4", "Pt by points sc. 4-5", "Pt by points sc. 5-6",
+                              "Pt by points sc. 6-7", "Pt by points sc. 7-8", "Pt by points sc. 8-9", "Pt by points sc. 9-10",
+                              "Eta scale for eta < 0.1", "Eta scale for eta < 0.2", "Eta scale for eta < 0.3", "Eta scale for eta < 0.4",
+                              "Eta scale for eta < 0.5", "Eta scale for eta < 0.6", "Eta scale for eta < 0.7", "Eta scale for eta < 0.8" };
+    double thisMini[] = {  -0.1, -0.001, -0.001, -0.001, -0.001, 0.001, 0.0001,
                            -0.001, 0.002, -0.0001, -0.0001,
-                           -0.0001, 0.0005, -0.0001, -0.00001 };
+                           -0.0001, 0.0005, -0.0001, -0.00001,
+                           -1., -1., -1., -1.,
+                           -1., -1., -1., -1.,
+                           -1., -1., -1., -1.,
+                           -1., -1., -1., -1. };
     if( muonType == 1 ) {
       double thisMaxi[] = { 1., 1., 1., 1., 1., 1., 1.,
                             1., 1., 1., 0.1,
-                            1., 1., 1., 1. };
+                            1., 1., 1., 1.,
+                            1., 1., 1., 1.,
+                            1., 1., 1., 1.,
+                            1., 1., 1., 1.,
+                            3., 3., 3., 3. };
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     } else {
       double thisMaxi[] = { 0.1, 0.001, 0.001, 0.001, 0.001, 1.5, 1.,
                             0.001, 0.005, 0.00004, 0.0007,
-                            0.001, 0.01, -0.0000015, 0.0004 };
+                            0.001, 0.01, -0.0000015, 0.0004,
+                            3., 3., 3., 3.,
+                            3., 3., 3., 3.,
+                            3., 3., 3., 3.,
+                            3., 3., 3., 3. };
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
 protected:
   /**
-   * This is the pt vs eta resolution by points. It uses fabs(eta) assuming symmetry.
-   * The values are derived from 100k events of MuonGun with 5<pt<100 and |eta|<3.
+   * This is the pt vs eta resolution by points. It uses fabs(eta) assuming symmetry.<br>
+   * The values are derived from Upsilon2S redigi events.
    */
   double etaByPoints(const double & inEta, const double & border) {
     Double_t eta = fabs(inEta);
+    // More detailed taken from Upsilon2S
+//     if( 0.0 < eta && eta <= 0.1 ) return( (0.006496598 + 0.006713836)/2 );
+//     else if( 0.1 < eta && eta <= 0.2 ) return( (0.006724315 + 0.006787474)/2 );
+//     else if( 0.2 < eta && eta <= 0.3 ) return( (0.007284029 + 0.007293643)/2 );
+//     else if( 0.3 < eta && eta <= 0.4 ) return( (0.008138282 + 0.008187387)/2 );
+//     else if( 0.4 < eta && eta <= 0.5 ) return( (0.008174111 + 0.008030496)/2 );
+//     else if( 0.5 < eta && eta <= 0.6 ) return( (0.008126558 + 0.008100443)/2 );
+//     else if( 0.6 < eta && eta <= 0.7 ) return( (0.008602069 + 0.008626195)/2 );
+//     else if( 0.7 < eta && eta <= 0.8 ) return( (0.009187699 + 0.009090244)/2 );
+//     else if( 0.8 < eta && eta <= 0.9 ) return( (0.009835283 + 0.009875661)/2 );
+//     else if( 0.9 < eta && eta <= 1.0 ) return( (0.01156847 + 0.011774)/2);
+//     else if( 1.0 < eta && eta <= 1.1 ) return( (0.01319311 + 0.01312528)/2 );
+//     else if( 1.1 < eta && eta <= 1.2 ) return( (0.01392963 + 0.01413793)/2 );
+//     else if( 1.2 < eta && eta <= 1.3 ) return( (0.01430238 + 0.01385749)/2 );
+//     else if( 1.3 < eta && eta <= 1.4 ) return( (0.01409375 + 0.01450355)/2 );
+//     else if( 1.4 < eta && eta <= 1.5 ) return( (0.01395235 + 0.01419122)/2 );
+//     else if( 1.5 < eta && eta <= 1.6 ) return( (0.01384032 + 0.01354162)/2 );
+//     else if( 1.6 < eta && eta <= 1.7 ) return( (0.01325593 + 0.01302663)/2 );
+//     else if( 1.7 < eta && eta <= 1.8 ) return( (0.01365382 + 0.01361993)/2 );
+//     else if( 1.8 < eta && eta <= 1.9 ) return( (0.01516075 + 0.01514115)/2 );
+//     else if( 1.9 < eta && eta <= 2.0 ) return( (0.01587837 + 0.01561742)/2 );
+//     else if( 2.0 < eta && eta <= 2.1 ) return( (0.01696865 + 0.01760318)/2 );
+//     else if( 2.1 < eta && eta <= 2.2 ) return( (0.01835451 + 0.01887852)/2 );
+//     else if( 2.2 < eta && eta <= 2.3 ) return( (0.02116863 + 0.02254953)/2 );
+//     else if( 2.3 < eta && eta <= 2.4 ) return( (0.0224906 + 0.02158211)/2 );
+
+    // Less detailed
+//     if( 0.0 < eta && eta <= 0.2 ) return( (0.006496598 + 0.006713836 + 0.006724315 + 0.006787474)/4 );
+//     else if( 0.2 < eta && eta <= 0.4 ) return( (0.007284029 + 0.007293643 + 0.008138282 + 0.008187387)/4 );
+//     else if( 0.4 < eta && eta <= 0.6 ) return( (0.008174111 + 0.008030496 + 0.008126558 + 0.008100443)/4 );
+//     else if( 0.6 < eta && eta <= 0.8 ) return( (0.008602069 + 0.008626195 + 0.009187699 + 0.009090244)/4 );
+//     else if( 0.8 < eta && eta <= 1.0 ) return( (0.009835283 + 0.009875661 + 0.01156847 + 0.011774)/4 );
+//     else if( 1.0 < eta && eta <= 1.2 ) return( (0.01319311 + 0.01312528 + 0.01392963 + 0.01413793)/4 );
+//     else if( 1.2 < eta && eta <= 1.4 ) return( (0.01430238 + 0.01385749 + 0.01409375 + 0.01450355)/4 );
+//     else if( 1.4 < eta && eta <= 1.6 ) return( (0.01395235 + 0.01419122 + 0.01384032 + 0.01354162)/4 );
+//     else if( 1.6 < eta && eta <= 1.8 ) return( (0.01325593 + 0.01302663 + 0.01365382 + 0.01361993)/4 );
+//     else if( 1.8 < eta && eta <= 2.0 ) return( (0.01516075 + 0.01514115 + 0.01587837 + 0.01561742)/4 );
+//     else if( 2.0 < eta && eta <= 2.2 ) return( (0.01696865 + 0.01760318 + 0.01835451 + 0.01887852)/4 );
+//     // else if( 2.2 < eta && eta <= 2.4 ) return( (0.02116863 + 0.02254953 + 0.0224906 + 0.02158211)/4 );
+
+//     return ( border );
+
+    // From MuonGun
     if( 0. <= eta && eta <= 0.2 ) return 0.00942984;
     else if( 0.2 < eta && eta <= 0.4 ) return 0.0104489;
     else if( 0.4 < eta && eta <= 0.6 ) return 0.0110521;
@@ -833,8 +929,68 @@ protected:
     else if( 2.2 < eta && eta <= 2.4 ) return 0.0339477;
     else if( 2.4 < eta && eta <= 2.6 ) return border;
     return ( 0. );
+
   }
 };
+
+/// This is resolution function where sigmaPt/Pt is described by f(Pt) = polynomial(4th grade) and f(Eta) = polynomial(8th grade).
+// Resolution Type 10
+template <class T>
+class resolutionFunctionType10 : public resolutionFunctionBase<T> {
+ public:
+  resolutionFunctionType10() { this->parNum_ = 21; }
+  // linear in pt and by points in eta
+  virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
+    double fabsEta = fabs(eta);
+    return( parval[0] + parval[1]*pt + parval[2]*pt*pt + parval[3]*pt*pt*pt + parval[4]*pt*pt*pt*pt
+            + parval[5]*fabsEta + parval[6]*fabsEta*fabsEta + parval[7]*pow(fabsEta,3) + parval[8]*pow(fabsEta,4)
+            + parval[9]*pow(fabsEta,5) + parval[10]*pow(fabsEta,6) + parval[11]*pow(fabsEta,7) + parval[12]*pow(fabsEta,8) );
+  }
+  // 1/pt in pt and quadratic in eta
+  virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
+    return( parval[13]+parval[14]/pt + parval[15]*fabs(eta)+parval[16]*eta*eta );
+  }
+  // 1/pt in pt and quadratic in eta
+  virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
+    return( parval[17]+parval[18]/pt + parval[19]*fabs(eta)+parval[20]*eta*eta );
+  }
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const vector<int> & parResolOrder, const int muonType) {
+
+    double thisStep[] = { 0.0002,  0.000002, 0.0000002, 0.00000002, 0.000000002,
+                          0.02,    0.02,     0.002,     0.0002,
+                          0.00002, 0.000002, 0.0000002, 0.00000002,
+                          0.00002, 0.0002, 0.0000002, 0.00002,
+                          0.00002, 0.0002, 0.00000002, 0.000002 };
+    TString thisParName[] = { "Pt res. sc.", "Pt res. Pt sc.", "Pt res. Pt^2 sc.", "Pt res. Pt^3 sc.", "Pt res. Pt^4 sc",
+                              "Pt res. Eta sc.", "Pt res. Eta^2 sc." ,"Pt res. Eta^3 sc.", "Pt res. Eta^4 sc.",
+                              "Pt res. Eta^5 sc.", "Pt res. Eta^6 sc.", "Pt res. Eta^7 sc.", "Pt res. Eta^8 sc.",
+                              "Cth res. sc.", "Cth res. 1/Pt sc.", "Cth res. Eta sc.", "Cth res. Eta^2 sc.",
+                              "Phi res. sc.", "Phi res. 1/Pt sc.", "Phi res. Eta sc.", "Phi res. Eta^2 sc." };
+    double thisMini[] = {  -0.1, -0.001, -0.001, -0.001, -0.001,
+                           -2., -1., -0.1, -0.1,
+                           -0.1, -0.1, -0.1, -0.1,
+                           -0.001, 0.002, -0.0001, -0.0001,
+                           -0.0001, 0.0005, -0.0001, -0.00001,
+                           0.};
+    if( muonType == 1 ) {
+      double thisMaxi[] = { 1., 1., 1., 1., 1.,
+                            1., 1., 1., 1.,
+                            1., 1., 1., 1.,
+                            1., 1., 1., 0.1,
+                            1., 1., 1., 1. };
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
+    } else {
+      double thisMaxi[] = { 0.1, 0.001, 0.001, 0.001, 0.001,
+                            2., 1., 0.1, 0.1, 0.1,
+                            0.1, 0.1, 0.1, 0.1, 0.1,
+                            0.001, 0.005, 0.00004, 0.0007,
+                            0.001, 0.01, -0.0000015, 0.0004 };
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
+    }
+  }
+protected:
+};
+
 
 // ------------ ATTENTION ----------- //
 // Other functions are not in for now //

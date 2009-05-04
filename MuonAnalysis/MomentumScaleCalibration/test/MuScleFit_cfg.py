@@ -1,7 +1,116 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
-process.load("MuonAnalysis.MomentumScaleCalibration.Summer08_Upsilon1S_cff")
+#process.load("MuonAnalysis.MomentumScaleCalibration.Summer08_Upsilon1S_cff")
+
+process.source = cms.Source(
+    "PoolSource",
+    fileNames = cms.untracked.vstring(
+    "file:/data2/demattia/Data/Z/Filter_Z_10.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_11.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_12.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_13.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_14.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_15.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_16.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_17.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_18.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_19.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_1.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_20.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_21.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_22.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_23.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_24.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_25.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_26.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_27.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_28.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_29.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_2.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_30.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_31.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_32.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_33.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_34.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_35.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_36.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_37.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_38.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_39.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_3.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_40.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_41.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_42.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_43.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_44.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_45.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_46.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_47.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_48.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_49.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_4.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_50.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_5.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_6.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_7.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_8.root",
+    "file:/data2/demattia/Data/Z/Filter_Z_9.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_10.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_11.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_12.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_13.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_14.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_15.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_16.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_17.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_18.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_19.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_1.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_20.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_21.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_22.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_23.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_24.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_25.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_26.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_27.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_28.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_29.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_2.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_30.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_31.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_32.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_33.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_34.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_35.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_36.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_37.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_38.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_39.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_3.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_40.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_41.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_42.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_43.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_44.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_45.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_46.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_47.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_48.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_49.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_4.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_50.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_5.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_6.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_7.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_8.root",
+    "file:/data2/demattia/Data/Upsilon/Filter_Upsilon_9.root"
+    ),
+    inputCommands = cms.untracked.vstring(
+    "keep *",
+    "drop *_TriggerResults_*_*")
+)
 
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
@@ -34,7 +143,7 @@ process.maxEvents = cms.untracked.PSet(
     # the number of Upsilon1S events.
     # input = cms.untracked.int32(89355)
 
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(10)
 )
 process.looper = cms.Looper(
     "MuScleFit",
@@ -43,9 +152,14 @@ process.looper = cms.Looper(
     # Choose the kind of muons you want to run on
     # -------------------------------------------
 
-    # // global muons //
+    # // all muons //
     MuonLabel = cms.InputTag("muons"),
     MuonType = cms.int32(1),
+    # Defines what type of muons to use:
+    # 0 = globalMuon
+    # 1 = innerTrack
+    # anything else = use all muons
+    UseType = cms.untracked.uint32(1),
 
     # // standalone muons //
     # MuonLabel = cms.InputTag("standAloneMuons:UpdatedAtVtx"),
@@ -55,6 +169,10 @@ process.looper = cms.Looper(
     # MuonLabel = cms.InputTag("generalTracks"), # ctfWithMaterialTracks
     # muonType = cms.int32(3),
 
+    # // global muons (these are still reco::Tracks) //
+    # MuonLabel = cms.InputTag("muons"),
+    # MuonType = cms.int32(3),
+
     # Output settings
     # ---------------
     OutputFileName = cms.untracked.string('MuScleFit.root'),
@@ -62,11 +180,11 @@ process.looper = cms.Looper(
 
     # Likelihood settings
     # -------------------
-    maxLoopNumber = cms.untracked.int32(2),
+    maxLoopNumber = cms.untracked.int32(3),
     # Select which fits to do in which loop (0 = do not, 1 = do)
-    doResolFit =      cms.vint32(1, 0),
-    doScaleFit =      cms.vint32(0, 0),
-    doBackgroundFit = cms.vint32(0, 0),
+    doResolFit =      cms.vint32(0, 1, 0),
+    doScaleFit =      cms.vint32(1, 0, 0),
+    doBackgroundFit = cms.vint32(0, 0, 0),
 
     # Fit parameters and fix flags (1 = use par)
     # ==========================================
@@ -101,21 +219,45 @@ process.looper = cms.Looper(
     # ------------------------- #
 
     # The eleven parResol parameters of resolfittype=8 are respectively:
-    # constant of sigmaPt, Pt dep. of sigmaPt,
-    # scale of the eta dep. made by points with values derived from MuonGun.
+    # constant of sigmaPt, Pt dep. of sigmaPt, Pt^2 dep. of sigmaPt,
+    # scale of the eta dep. made by points with values derived from MuonGun,
+    # border value (higher eta) of etaByPoints;
     # constant of sigmaCotgTheta, 1/Pt dep. of sigmaCotgTheta, Eta dep. of
     # sigmaCotgTheta, Eta^2 dep of sigmaCotgTheta;
-    # constant of sigmaPhi, 1/Pt dep. of sigmaPhi, Eta dep. of sigmaPhi,
+    # onstant of sigmaPhi, 1/Pt dep. of sigmaPhi, Eta dep. of sigmaPhi,
     # Eta^2 dep. of sigmaPhi.
     # ----------------------------------------------------------------
-    ResolFitType = cms.int32(8),
-    parResol = cms.vdouble(-0.003, 0.000205, 1.0, 0.445473,
+    #ResolFitType = cms.int32(8),
+    #parResol = cms.vdouble(-0.003, 0.000205, 1.0, 0.445473,
+    #                       0.00043, 0.0041, 0.0000028, 0.000077,
+    #                       0.00011, 0.0018, -0.00000094, 0.000022),
+    #parResolFix = cms.vint32(0, 0, 0, 0,
+    #                         1, 1, 1, 1,
+    #                         1, 1, 1, 1),
+    #parResolOrder = cms.vint32(0, 0, 0, 0,
+    #                           0, 0, 0, 0,
+    #                           0, 0, 0, 0),
+
+    ResolFitType = cms.int32(9),
+    parResol = cms.vdouble(0.00118247, 0.000365709, -0.00000181061, -0.000000207808, 0.00000000143758, 0.600788, 0.0416943,
                            0.00043, 0.0041, 0.0000028, 0.000077,
-                           0.00011, 0.0018, -0.00000094, 0.000022),
-    parResolFix = cms.vint32(0, 0, 0, 0,
+                           0.00011, 0.0018, -0.00000094, 0.000022,
+                           0.00496148, 0.00496148, 0.00448753, 0.00448753,
+                           0.00468222, 0.00468222, 0.00392335, 0.00392335,
+                           0.296549, 0.296549, 0.360698, 0.360698,
+                           0.452533, 0.452533, 0.419223, 0.419223),
+    parResolFix = cms.vint32(0, 0, 0, 0, 0, 0, 0,
+                             1, 1, 1, 1,
+                             1, 1, 1, 1,
+                             0, 0, 0, 0,
+                             0, 0, 0, 0,
                              0, 0, 0, 0,
                              0, 0, 0, 0),
-    parResolOrder = cms.vint32(0, 0, 0, 0,
+    parResolOrder = cms.vint32(0, 0, 0, 0, 0, 0, 0,
+                               0, 0, 0, 0,
+                               0, 0, 0, 0,
+                               0, 0, 0, 0,
+                               0, 0, 0, 0,
                                0, 0, 0, 0,
                                0, 0, 0, 0),
 
@@ -138,7 +280,7 @@ process.looper = cms.Looper(
                                0,0,0,        # pt up to grade 3
                                0,0,0,0,0,0), # eta up to grade 6
     parScaleFix =   cms.vint32(0,
-                               0,1,1,
+                               0,0,0,
                                0,0,1,1,1,1),
     parScale = cms.vdouble(1.0,
                            -0.000000315315, 0., 0.,
@@ -174,7 +316,7 @@ process.looper = cms.Looper(
     # The resonances are to be specified in this order:
     # Z0, Y(3S), Y(2S), Y(1S), Psi(2S), J/Psi
     # -------------------------------------------------
-    resfind = cms.vint32(0, 0, 0, 1, 0, 0),
+    resfind = cms.vint32(1, 0, 0, 1, 0, 0),
     FitStrategy = cms.int32(2),
 
     speedup = cms.bool(False),
@@ -182,12 +324,21 @@ process.looper = cms.Looper(
     # (Note that this is skipped anyway if speedup == True).
     compareToSimTracks = cms.bool(True),
     # readPdfFromDB = cms.bool(False)
-
 )
 
 # Timing information
-# process.load("FWCore.MessageLogger.MessageLogger_cfi")
+#process.load("FWCore.MessageLogger.MessageLogger_cfi")
+#process.MessageLogger.logMuScleFit = cms.PSet(
+process.MessageLogger = cms.Service(
+    "MessageLogger",
+    destinations = cms.untracked.vstring('logMuScleFit'),
+    #logMuScleFit = cms.untracked.PSet(
+    threshold = cms.untracked.string('INFO'),
+    #default = cms.untracked.PSet(
+    #    limit = cms.untracked.int32(10000000)
+    #    )
+    #)
+)
+
 # TimingLogFile = cms.untracked.string('timing.log')
 # process.Timing = cms.Service("Timing")
-
-

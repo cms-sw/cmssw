@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2009/04/09 15:42:02 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/04/15 15:53:18 $
+ *  $Revision: 1.15 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -21,6 +21,14 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitBase.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+// The following is required in CMSSW v2.0.x (was contained in Muon.h in 1.6.7)
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include <CLHEP/Vector/LorentzVector.h>
 
 namespace edm {
   class ParameterSet;
@@ -40,7 +48,7 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
  public:
   // Constructor
   // -----------
-  MuScleFit (const edm::ParameterSet& pset);
+  MuScleFit( const edm::ParameterSet& pset );
 
   // Destructor
   // ----------
@@ -48,21 +56,23 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
 
   // Operations
   // ----------
-  virtual void beginOfJob (const edm::EventSetup& eventSetup);
+  virtual void beginOfJob( const edm::EventSetup& eventSetup );
   virtual void endOfJob();
 
-  virtual void startingNewLoop (unsigned int iLoop);
-  virtual edm::EDLooper::Status endOfLoop (const edm::EventSetup& eventSetup, unsigned int iLoop);
-  virtual edm::EDLooper::Status duringLoop (const edm::Event & event, const edm::EventSetup& eventSetup);
+  virtual void startingNewLoop( unsigned int iLoop );
+  virtual edm::EDLooper::Status endOfLoop( const edm::EventSetup& eventSetup, unsigned int iLoop );
+  virtual edm::EDLooper::Status duringLoop( const edm::Event & event, const edm::EventSetup& eventSetup );
 
   template<typename T>
-  std::vector<reco::LeafCandidate> fillMuonCollection (const std::vector<T>& tracks); 
+  std::vector<reco::LeafCandidate> fillMuonCollection( const std::vector<T>& tracks ); 
+  /// Additional version used to extract innerTracks or globalMuons from the muons collection. Default is globalMuon.
+  std::vector<reco::LeafCandidate> fillGlobalMuonCollection( const std::vector<reco::Muon>& tracks, const unsigned int useType = 0 ); 
  private:
 
  protected:
 
   /// Check if two lorentzVector are near in deltaR
-  bool checkDeltaR(reco::Particle::LorentzVector& genMu, reco::Particle::LorentzVector& recMu);
+  bool checkDeltaR( reco::Particle::LorentzVector& genMu, reco::Particle::LorentzVector& recMu );
   /// Fill the reco vs gen and reco vs sim comparison histograms
   void fillComparisonHistograms( const reco::Particle::LorentzVector & genMu, const reco::Particle::LorentzVector & recoMu, const string & inputName, const int charge );
 
@@ -112,27 +122,27 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
   bool compareToSimTracks_;
 };
 
-
 template<typename T>
-std::vector<reco::LeafCandidate> MuScleFit::fillMuonCollection (const std::vector<T>& tracks)
+std::vector<reco::LeafCandidate> MuScleFit::fillMuonCollection( const std::vector<T>& tracks )
 {
   std::vector<reco::LeafCandidate> muons;
   typename std::vector<T>::const_iterator track;
-  for (track = tracks.begin(); track != tracks.end(); ++track){
-    reco::Particle::LorentzVector mu(track->px(),track->py(),track->pz(),
-                                     sqrt(track->p()*track->p() + MuScleFitUtils::mMu2));
+  for( track = tracks.begin(); track != tracks.end(); ++track ) {
+    reco::Particle::LorentzVector mu;
+    mu = reco::Particle::LorentzVector(track->px(),track->py(),track->pz(),
+                                       sqrt(track->p()*track->p() + MuScleFitUtils::mMu2));
     // Apply smearing if needed, and then bias
     // ---------------------------------------
     MuScleFitUtils::goodmuon++;
     if (debug_>0) cout <<setprecision(9)<< "Muon #" << MuScleFitUtils::goodmuon 
                        << ": initial value   Pt = " << mu.Pt() << endl;
     if (MuScleFitUtils::SmearType>0) {
-      mu = MuScleFitUtils::applySmearing (mu);
+      mu = MuScleFitUtils::applySmearing( mu );
       if (debug_>0) cout << "Muon #" << MuScleFitUtils::goodmuon 
                          << ": after smearing  Pt = " << mu.Pt() << endl;
     } 
     if (MuScleFitUtils::BiasType>0) {
-      mu = MuScleFitUtils::applyBias (mu, track->charge());
+      mu = MuScleFitUtils::applyBias( mu, track->charge() );
       if (debug_>0) cout << "Muon #" << MuScleFitUtils::goodmuon 
                          << ": after bias      Pt = " << mu.Pt() << endl;
     }

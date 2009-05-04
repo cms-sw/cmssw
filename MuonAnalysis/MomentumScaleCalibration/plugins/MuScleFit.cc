@@ -1,13 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-// <<<<<<< MuScleFit.cc
-//  $Date: 2009/04/28 13:02:24 $
-//  $Revision: 1.37 $
-// =======
-//  $Date: 2009/04/28 13:02:24 $
-//  $Revision: 1.37 $
-// >>>>>>> 1.25
+//  $Date: 2009/04/28 13:16:42 $
+//  $Revision: 1.38 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -123,13 +118,6 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-// The following is required in CMSSW v2.0.x (was contained in Muon.h in 1.6.7)
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-#include <CLHEP/Vector/LorentzVector.h>
 
 #include "TFile.h"
 #include "TTree.h"
@@ -155,7 +143,7 @@ using namespace reco; // For AODSIM MC objects
 
 // Constructor
 // -----------
-MuScleFit::MuScleFit (const ParameterSet& pset) : MuScleFitBase( pset )
+MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset )
 {
   MuScleFitUtils::debug = debug_;
   if (debug_>0) cout << "[MuScleFit]: Constructor" << endl;
@@ -495,23 +483,10 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     recMu2 = reco::Particle::LorentzVector(0,0,0,0);
     vector<reco::LeafCandidate> muons;
     if (theMuonType_==1) { // Muons
-      Handle<reco::MuonCollection> glbMuons;
-      event.getByLabel (theMuonLabel_, glbMuons);
-      vector<reco::Track> glbTracks;
-
-      for (vector<reco::Muon>::const_iterator muon = glbMuons->begin(); muon != glbMuons->end(); ++muon){
-	if(!(muon->isGlobalMuon())){
-	  cout<<"Not global muons but";
-	  if(muon->isStandAloneMuon())
-	    cout<<" standalone muon"<<endl;
-	  if(muon->isTrackerMuon())
-	    cout<<" tracker muon"<<endl;
-	}
-	else
-	  glbTracks.push_back(*(muon->globalTrack()));
-      }
-      
-      muons = fillMuonCollection(glbTracks);
+      Handle<reco::MuonCollection> allMuons;
+      event.getByLabel (theMuonLabel_, allMuons);
+      // muons = fillMuonCollection(*allMuons);
+      muons = fillGlobalMuonCollection(*allMuons, useType_);
     }
     else if (theMuonType_==2) { // StandaloneMuons
       Handle<reco::TrackCollection> saMuons;
@@ -635,7 +610,7 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
       genMu = MuScleFitUtils::findGenMuFromRes(evtMC);
       //first is always mu-, second is always mu+
 
-      double genmass = (genMu.first+genMu.second).mass();
+      // double genmass = (genMu.first+genMu.second).mass();
       if(checkDeltaR(genMu.first,recMu1)) {
         fillComparisonHistograms( genMu.first, recMu1, "Gen", -1 );
         // Fill also the resolution histogramsm using the resolution functions:
@@ -849,8 +824,9 @@ void MuScleFit::checkParameters() {
       (MuScleFitUtils::ResolFitType==6 && MuScleFitUtils::parResol.size()!=15) ||
       (MuScleFitUtils::ResolFitType==7 && MuScleFitUtils::parResol.size()!=12) ||
       (MuScleFitUtils::ResolFitType==8 && MuScleFitUtils::parResol.size()!=12) ||
-      (MuScleFitUtils::ResolFitType==9 && MuScleFitUtils::parResol.size()!=15) ||
-      MuScleFitUtils::ResolFitType<1 || MuScleFitUtils::ResolFitType>9) {
+      (MuScleFitUtils::ResolFitType==9 && MuScleFitUtils::parResol.size()!=31) ||
+      (MuScleFitUtils::ResolFitType==10 && MuScleFitUtils::parResol.size()!=21) ||
+      MuScleFitUtils::ResolFitType<1 || MuScleFitUtils::ResolFitType>10) {
     cout << "[MuScleFit-Constructor]: Wrong Resol fit type or number of parameters: aborting!" << endl;
     abort();
   }
@@ -910,3 +886,74 @@ void MuScleFit::checkParameters() {
     abort();
   }
 }
+
+/**
+ * Specialized version of fillMuonCollection used to take the innerTrack from a globalMuon
+ * or to take the globalMuon from the muons collection.<br>
+ * The templated version is defined in the .h file.
+ *
+ */
+std::vector<reco::LeafCandidate> MuScleFit::fillGlobalMuonCollection( const std::vector<reco::Muon>& tracks, const unsigned int useType )
+{
+  std::vector<reco::LeafCandidate> muons;
+  std::vector<reco::Muon>::const_iterator trackIt;
+  for( trackIt = tracks.begin(); trackIt != tracks.end(); ++trackIt ) {
+    reco::Particle::LorentzVector mu;
+    int charge = 0;
+    // if( trackIt->isGlobalMuon() ) cout << "WARNING: this muon is a globalMuon" << endl;
+    // if( trackIt->isTrackerMuon() ) cout << "WARNING: this muon is a trackerMuon" << endl;
+    // if( trackIt->isStandAloneMuon() ) cout << "WARNING: this muon is a standAloneMuon" << endl;
+    // if( trackIt->isCaloMuon() ) cout << "WARNING: this muon is a caloMuon" << endl;
+    if( useType == 0 ) {
+      LogDebug("MuScleFit") << "Taking globalMuon" << endl;
+      if( trackIt->isGlobalMuon() ) {
+        mu = reco::Particle::LorentzVector(trackIt->px(), trackIt->py(), trackIt->pz(),
+                                           sqrt(trackIt->p()*trackIt->p() + MuScleFitUtils::mMu2));
+        charge = trackIt->charge();
+      }
+      else mu = reco::Particle::LorentzVector(0, 0, 0, 0);
+    }
+    else if( useType == 1 ) {
+      LogDebug("MuScleFit") << "Taking innerTrack" << endl;
+      reco::TrackRef track = trackIt->innerTrack();
+      if( track.isNonnull() ) {
+        mu = reco::Particle::LorentzVector(track->px(), track->py(), track->pz(),
+                                           sqrt(track->p()*track->p() + MuScleFitUtils::mMu2));
+        charge = track->charge();
+      }
+      else mu = reco::Particle::LorentzVector(0, 0, 0, 0);
+    }
+    else {
+      LogDebug("MuScleFit") << "Taking any muon" << endl;
+      mu = reco::Particle::LorentzVector(trackIt->px(),trackIt->py(),trackIt->pz(),
+                                         sqrt(trackIt->p()*trackIt->p() + MuScleFitUtils::mMu2));
+      charge = trackIt->charge();
+    }
+//     fillMuon(track);
+
+//     template<class T>
+//     void fillMuon()
+//       {
+    // Apply smearing if needed, and then bias
+    // ---------------------------------------
+    MuScleFitUtils::goodmuon++;
+    if (debug_>0) cout <<setprecision(9)<< "Muon #" << MuScleFitUtils::goodmuon 
+                       << ": initial value   Pt = " << mu.Pt() << endl;
+    if (MuScleFitUtils::SmearType>0) {
+      mu = MuScleFitUtils::applySmearing (mu);
+      if (debug_>0) cout << "Muon #" << MuScleFitUtils::goodmuon 
+                         << ": after smearing  Pt = " << mu.Pt() << endl;
+    } 
+    if (MuScleFitUtils::BiasType>0) {
+      mu = MuScleFitUtils::applyBias (mu, charge);
+      if (debug_>0) cout << "Muon #" << MuScleFitUtils::goodmuon 
+                         << ": after bias      Pt = " << mu.Pt() << endl;
+    }
+    reco::LeafCandidate muon(charge,mu);
+    // Store modified muon
+    // -------------------
+    muons.push_back (muon);
+  }
+  return muons;
+}
+

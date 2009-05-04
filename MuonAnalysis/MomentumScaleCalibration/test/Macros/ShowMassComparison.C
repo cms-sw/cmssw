@@ -20,13 +20,28 @@ void getHistograms(const TString canvasName, TH1F * & histo1, TProfile * & histo
  */
 void ShowMassComparison(const TString & resonance = "Z")
 {
+  TString canvasName("Allres");
+  if( resonance == "Upsilons" || resonance == "LowPtResonances" || resonance == "AllResonances" ) {
+    canvasName += "Together";
+  }
   TH1F * histo1 = 0;
   TProfile * histo2 = 0;
-  getHistograms("Allres", histo1, histo2, resonance);
+  getHistograms(canvasName, histo1, histo2, resonance);
 
   TH1F * histo3 = 0;
   TProfile * histo4 = 0;
-  getHistograms("Allres2", histo3, histo4, resonance);
+  getHistograms(canvasName+"2", histo3, histo4, resonance);
+
+//   TString option("width");
+//   double integral = histo1->Integral(option);
+//   histo2->Scale(integral/histo2->Integral(option));
+//   histo3->Scale(integral/histo3->Integral(option));
+//   histo4->Scale(integral/histo4->Integral(option));
+
+  histo1->Scale(1./histo1->GetEntries());
+  histo2->Scale(1./histo2->GetEntries());
+  histo3->Scale(1./histo3->GetEntries());
+  histo4->Scale(1./histo4->GetEntries());
 
   map<double, TH1*, greater<double> > histoMap;
   histoMap.insert(make_pair(histo1->GetMaximum(), histo1));
@@ -88,9 +103,14 @@ void getHistograms(const TString canvasName, TH1F * & histo1, TProfile * & histo
   if( resonance == "Psi2S" ) resonanceNum = "_5";
   if( resonance == "JPsi" ) resonanceNum = "_6";
 
+  if( resonance == "Psis" ) resonanceNum = "_1";
+  if( resonance == "Upsilons" ) resonanceNum = "_2";
+  if( resonance == "LowPtResonances" ) resonanceNum = "_3";
+  if( resonance == "AllResonances" ) resonanceNum = "_4";
+
   TPad * pad = (TPad*)canvas->GetPrimitive(canvasName+resonanceNum);
   histo1 = (TH1F*)pad->GetPrimitive("hRecBestRes_Mass");
-  if( resonance == "Z" ) histo2 = (TProfile*)pad->GetPrimitive("Mass_P");
+  if( resonance == "Z" || resonance == "AllResonances" ) histo2 = (TProfile*)pad->GetPrimitive("Mass_P");
   else histo2 = (TProfile*)pad->GetPrimitive("Mass_fine_P");
   // cout << "histo1 = " << histo1 << ", histo2 = " << histo2 << endl;
   // cout << "histo1 = " << histo1->GetEntries() << ", histo2 = " << histo2->GetEntries() << endl;

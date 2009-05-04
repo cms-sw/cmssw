@@ -138,6 +138,21 @@ void Plot_mass(const TString & fileNameBefore = "0", const TString & fileNameAft
     drawMasses(ResMass[ires], ResHalfWidth[ires], histos1, ires);
   }
   Allres->Write();
+  TCanvas * AllresTogether = new TCanvas ("AllresTogether", "All resonances together", 600, 600);
+  AllresTogether->Divide(2,2); 
+  // The J/Psi + Psi2S
+  AllresTogether->cd(1);
+  drawMasses(ResMass[5], 2, histos1, 3);
+ // Draw also the Upsilons
+  AllresTogether->cd(2);
+  drawMasses(ResMass[2], 2, histos1, 3);
+  // All low Pt resonances
+  AllresTogether->cd(3);
+  drawMasses(6., 6, histos1, 3);
+  // All resonances
+  AllresTogether->cd(4);
+  drawMasses(50., 50, histos1, 0);
+  AllresTogether->Write();
 
   TCanvas * Allres2 = new TCanvas ("Allres2", "All resonances", 600, 600);
   Allres2->Divide (2,3);
@@ -146,6 +161,21 @@ void Plot_mass(const TString & fileNameBefore = "0", const TString & fileNameAft
     drawMasses(ResMass[ires], ResHalfWidth[ires], histos2, ires);
   }
   Allres2->Write();
+  TCanvas * AllresTogether2 = new TCanvas ("AllresTogether2", "All resonances together", 600, 600);
+  AllresTogether2->Divide(2,2);
+  // The J/Psi + Psi2S
+  AllresTogether2->cd(1);
+  drawMasses(ResMass[5], 2, histos2, 3);
+  // Draw also the Upsilons
+  AllresTogether2->cd(2);
+  drawMasses(ResMass[2], 2, histos2, 3);
+  // All low Pt resonances
+  AllresTogether2->cd(3);
+  drawMasses(6., 6, histos2, 3);
+  // All resonances
+  AllresTogether2->cd(4);
+  drawMasses(50., 50, histos2, 0);
+  AllresTogether2->Write();
 
   TCanvas * LR = new TCanvas ("LR", "Likelihood and resolution before and after corrections", 600, 600 );
   LR->Divide (2,3);

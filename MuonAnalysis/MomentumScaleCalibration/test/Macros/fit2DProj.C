@@ -363,7 +363,7 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
     x[0]=-3; x[1]=3;       //<------useful for reso VS eta
     xAxisTitle = "#eta";
   }
-  else if ( name.Contains("PhiPlus") || name.Contains("PhiMinus") ){
+  else if( name.Contains("PhiPlus") || name.Contains("PhiMinus") ) {
     x[0] = -3.2; x[1] = 3.2;
     xAxisTitle = "#phi(rad)";
   }

@@ -28,6 +28,7 @@ from ROOT import gROOT
 firstFile = "\"0\""
 secondFile = "\"3\""
 resonanceType = "Z"
+massProbablityName = "Z"
 
 macrosDir = os.popen("echo $CMSSW_BASE", "r").read().strip()
 macrosDir += "/src/MuonAnalysis/MomentumScaleCalibration/test/Macros/"
@@ -56,5 +57,5 @@ gROOT.ProcessLine(".x "+macrosDir+"CompareRecoGenPt.C("+firstFile+", "+secondFil
 
 # Mass vs mass probability
 gROOT.ProcessLine(".x "+macrosDir+"Plot_mass.C+("+firstFile+", "+secondFile+")")
-gROOT.ProcessLine(".x "+macrosDir+"ShowMassComparison.C+(\""+resonanceType+"\")")
+gROOT.ProcessLine(".x "+macrosDir+"ShowMassComparison.C+(\""+massProbablityName+"\")")
 # os.system("root -l "+macrosDir+"ShowMassComparison.C")

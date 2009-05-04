@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/04/28 10:06:45 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/04/28 12:48:34 $
+ *  $Revision: 1.7 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -46,7 +46,7 @@
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 
 // To use callgrind for code profiling uncomment also the following define.
-//#define USE_CALLGRIND
+#define USE_CALLGRIND
 #include "valgrind/callgrind.h"
 
 using namespace std;
@@ -252,7 +252,7 @@ pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes( const vector<
 
     // Choose the best resonance using its mass probability
     // ----------------------------------------------------
-  double maxprob = -0.1; 
+  double maxprob = -0.1;
   for (vector<reco::LeafCandidate>::const_iterator Muon1=muons.begin(); Muon1!=muons.end(); ++Muon1) {  
     for (vector<reco::LeafCandidate>::const_iterator Muon2=Muon1+1; Muon2!=muons.end(); ++Muon2) { 
       if (((*Muon1).charge()*(*Muon2).charge())>0) {
@@ -286,7 +286,7 @@ pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes( const vector<
 	  }
 	}
       }
-      //}
+    // }
     }
   }
   return recMuFromBestRes;
@@ -792,6 +792,105 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
   return massProbability;
 }
 
+double MuScleFitUtils::probability( const double & mass, const double & massResol,
+                                  const double GLvalue[][1001][1001], const double GLnorm[][1001],
+                                  const int iRes, const int iY )
+{
+  double PS = 0.;
+  bool insideProbMassWindow = true;
+  // Interpolate the four values of GLZValue[] in the 
+  // grid square within which the (mass,sigma) values lay 
+  // ----------------------------------------------------
+  // This must be done with respect to the width used in the computation of the probability distribution,
+  // so that the bin 0 really matches the bin 0 of that distribution.
+  double fracMass = (mass-(ResMass[iRes]-ResHalfWidth[iRes]))/(2*ResHalfWidth[iRes]);
+  if (debug>1) cout << setprecision(9)<<"mass ResMass[iRes] ResHalfWidth[iRes] ResHalfWidth[iRes]"
+                    << mass << " "<<ResMass[iRes]<<" "<<ResHalfWidth[iRes]<<" "<<ResHalfWidth[iRes]<<endl;
+  int iMassLeft  = (int)(fracMass*(double)nbins);
+  int iMassRight = iMassLeft+1;
+  double fracMassStep = (double)nbins*(fracMass - (double)iMassLeft/(double)nbins);
+  if (debug>1) cout<<"nbins iMassLeft fracMass "<<nbins<<" "<<iMassLeft<<" "<<fracMass<<endl;
+
+  // Simple protections for the time being: the region where we fit should not include
+  // values outside the boundaries set by ResMass-ResHalfWidth : ResMass+ResHalfWidth
+  // ---------------------------------------------------------------------------------
+  if (iMassLeft<0) {
+    LogInfo("probability") << "WARNING: fracMass=" << fracMass << ", iMassLeft=" 
+    // cout << "WARNING: fracMass=" << fracMass << ", iMassLeft=" 
+         << iMassLeft << "; mass = " << mass << " and bounds are " << ResMass[iRes]-ResHalfWidth[iRes] 
+         << ":" << ResMass[iRes]+ResHalfWidth[iRes] << " - iMassLeft set to 0" << endl;
+    iMassLeft  = 0;
+    iMassRight = 1;
+    insideProbMassWindow = false;
+  }
+  if (iMassRight>nbins) {
+    LogInfo("probability") << "WARNING: fracMass=" << fracMass << ", iMassRight=" 
+    // cout << "WARNING: fracMass=" << fracMass << ", iMassRight=" 
+         << iMassRight << "; mass = " << mass << " and bounds are " << ResMass[iRes]-ResHalfWidth[iRes] 
+         << ":" << ResMass[iRes]+ResHalfWidth[iRes] << " - iMassRight set to " << nbins-1 << endl;
+    iMassLeft  = nbins-1;
+    iMassRight = nbins;
+    insideProbMassWindow = false;
+  }
+  double fracSigma = (massResol/ResMaxSigma[iRes]);
+  int iSigmaLeft = (int)(fracSigma*(double)nbins);
+  int iSigmaRight = iSigmaLeft+1;
+  double fracSigmaStep = (double)nbins * (fracSigma - (double)iSigmaLeft/(double)nbins);
+
+  // Simple protections for the time being: they should not affect convergence, since
+  // ResMaxSigma is set to very large values, and if massResol exceeds them the fit 
+  // should not get any prize for that (for large sigma, the prob. distr. becomes flat)
+  // ----------------------------------------------------------------------------------
+  if (iSigmaLeft<0) { 
+    LogInfo("probability") << "WARNING: fracSigma = " << fracSigma << ", iSigmaLeft=" 
+    // cout << "WARNING: fracSigma = " << fracSigma << ", iSigmaLeft=" 
+         << iSigmaLeft << ", with massResol = " << massResol << " and ResMaxSigma[iRes] = "
+         << ResMaxSigma[iRes] << " -  iSigmaLeft set to 0" << endl;
+    iSigmaLeft  = 0;
+    iSigmaRight = 1;
+  }
+  if (iSigmaRight>nbins ) { 
+    if (counter_resprob<100)
+      LogInfo("probablity") << "WARNING: fracSigma = " << fracSigma << ", iSigmaRight=" 
+      // cout << "WARNING: fracSigma = " << fracSigma << ", iSigmaRight=" 
+           << iSigmaRight << ", with massResol = " << massResol << " and ResMaxSigma[iRes] = "
+           << ResMaxSigma[iRes] << " -  iSigmaRight set to " << nbins-1 << endl;
+    iSigmaLeft  = nbins-1;
+    iSigmaRight = nbins;
+  }
+
+  // If f11,f12,f21,f22 are the values at the four corners, one finds by linear interpolation the
+  // formula below for PS
+  // --------------------------------------------------------------------------------------------
+  if( insideProbMassWindow ) {
+    double f11 = 0.;
+    if (GLnorm[iY][iSigmaLeft]>0) 
+      f11 = GLvalue[iY][iMassLeft][iSigmaLeft] / GLnorm[iY][iSigmaLeft];
+    double f12 = 0.;
+    if (GLnorm[iY][iSigmaRight]>0) 
+      f12 = GLvalue[iY][iMassLeft][iSigmaRight] / GLnorm[iY][iSigmaRight];
+    double f21 = 0.;
+    if (GLnorm[iY][iSigmaLeft]>0) 
+      f21 = GLvalue[iY][iMassRight][iSigmaLeft] / GLnorm[iY][iSigmaLeft];
+    double f22 = 0.;
+    if (GLnorm[iY][iSigmaRight]>0) 
+      f22 = GLvalue[iY][iMassRight][iSigmaRight] / GLnorm[iY][iSigmaRight];
+    PS = f11 + (f12-f11)*fracSigmaStep + (f21-f11)*fracMassStep + 
+      (f22-f21-f12+f11)*fracMassStep*fracSigmaStep;    
+    if (PS>0.1 || debug>1) cout << "iRes = 0 " << " PS=" << PS << " f11,f12,f21,f22=" 
+                                   << f11 << " " << f12 << " " << f21 << " " << f22 << " " 
+                                   << " fSS=" << fracSigmaStep << " fMS=" << fracMassStep << " iSL, iSR=" 
+                                   << iSigmaLeft << " " << iSigmaRight << " GLV,GLN=" 
+                                   << GLvalue[iY][iMassLeft][iSigmaLeft] 
+                                   << " " << GLnorm[iY][iSigmaLeft] << endl;
+  }
+  else {
+    LogInfo("probability") << "outside mass probability window. Setting PS["<<iRes<<"] = 0" << endl;
+    // cout << "outside mass probability window. Setting PS["<<iRes<<"] = 0" << endl;
+  }
+  return PS;
+}
+
 // Mass probability - version with linear background included
 // ----------------------------------------------------------
 double MuScleFitUtils::massProb( const double & mass, const double & rapidity, const double & massResol, double * parval ) {
@@ -892,91 +991,17 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
   // NB max value of Z rapidity to be considered is 4. here
   // -------------------------------------------------------
 
-  if (resfind[0]>0 && fabs(mass-ResMass[0])<ResHalfWidth[0] && fabs(rapidity)<4.) {
+  // if (resfind[0]>0 && fabs(mass-ResMass[0])<ResHalfWidth[0] && fabs(rapidity)<4.) {
+  if( resfind[0]>0 && checkMassWindow( mass, 0 ) && fabs(rapidity)<4 ) {
     int iY = (int)(fabs(rapidity)*10.);
     resConsidered[0] = true;
     nres += 1;
 
     if (MuScleFitUtils::debug>1) cout << "massProb:resFound = 0, rapidity bin =" << iY << endl;
-    
-    // Interpolate the four values of GLZValue[] in the 
-    // grid square within which the (mass,sigma) values lay 
-    // ----------------------------------------------------
-    // This must be done with respect to the width used in the computation of the probability distribution,
-    // so that the bin 0 really matches the bin 0 of that distribution.
-    double fracMass = (mass-(ResMass[0]-ResHalfWidth[0]))/(2*ResHalfWidth[0]);
-    if (debug>1) cout << setprecision(9)<<"mass ResMass[0] ResHalfWidth[0] ResHalfWidth[0]"
-                      << mass << " "<<ResMass[0]<<" "<<ResHalfWidth[0]<<" "<<ResHalfWidth[0]<<endl;
-    int iMassLeft  = (int)(fracMass*(double)nbins);
-    int iMassRight = iMassLeft+1;
-    double fracMassStep = (double)nbins*(fracMass - (double)iMassLeft/(double)nbins);
-    if (debug>1) cout<<"nbins iMassLeft fracMass "<<nbins<<" "<<iMassLeft<<" "<<fracMass<<endl;
-    
-    // Simple protections for the time being: the region where we fit should not include
-    // values outside the boundaries set by ResMass-ResHalfWidth : ResMass+ResHalfWidth
-    // ---------------------------------------------------------------------------------
-    if (iMassLeft<0) {
-      cout << "WARNING: fracMass=" << fracMass << ", iMassLeft=" 
-	   << iMassLeft << "; mass = " << mass << " and bounds are " << ResMass[0]-ResHalfWidth[0] 
-	   << ":" << ResMass[0]+ResHalfWidth[0] << " - iMassLeft set to 0" << endl;
-      iMassLeft  = 0;
-      iMassRight = 1;
-    }
-    if (iMassRight>nbins) {
-      cout << "WARNING: fracMass=" << fracMass << ", iMassRight=" 
-	   << iMassRight << "; mass = " << mass << " and bounds are " << ResMass[0]-ResHalfWidth[0] 
-	   << ":" << ResMass[0]+ResHalfWidth[0] << " - iMassRight set to " << nbins-1 << endl;
-      iMassLeft  = nbins-1;
-      iMassRight = nbins;
-    }
-    double fracSigma = (massResol/ResMaxSigma[0]);
-    int iSigmaLeft = (int)(fracSigma*(double)nbins);
-    int iSigmaRight = iSigmaLeft+1;
-    double fracSigmaStep = (double)nbins * (fracSigma - (double)iSigmaLeft/(double)nbins);
-    
-    // Simple protections for the time being: they should not affect convergence, since
-    // ResMaxSigma is set to very large values, and if massResol exceeds them the fit 
-    // should not get any prize for that (for large sigma, the prob. distr. becomes flat)
-    // ----------------------------------------------------------------------------------
-    if (iSigmaLeft<0) { 
-      cout << "WARNING: fracSigma = " << fracSigma << ", iSigmaLeft=" 
-	   << iSigmaLeft << ", with massResol = " << massResol << " and ResMaxSigma[0] = "
-           << ResMaxSigma[0] << " -  iSigmaLeft set to 0" << endl;
-      iSigmaLeft  = 0;
-      iSigmaRight = 1;
-    }
-    if (iSigmaRight>nbins ) { 
-      if (counter_resprob<100)
-        cout << "WARNING: fracSigma = " << fracSigma << ", iSigmaRight=" 
-             << iSigmaRight << ", with massResol = " << massResol << " and ResMaxSigma[0] = "
-             << ResMaxSigma[0] << " -  iSigmaRight set to " << nbins-1 << endl;
-      iSigmaLeft  = nbins-1;
-      iSigmaRight = nbins;
-    }
-    
-    // If f11,f12,f21,f22 are the values at the four corners, one finds by linear interpolation the
-    // formula below for PS[]
-    // --------------------------------------------------------------------------------------------
-    double f11 = 0.;
-    if (GLZNorm[iY][iSigmaLeft]>0) 
-      f11 = GLZValue[iY][iMassLeft][iSigmaLeft] / GLZNorm[iY][iSigmaLeft];
-    double f12 = 0.;
-    if (GLZNorm[iY][iSigmaRight]>0) 
-      f12 = GLZValue[iY][iMassLeft][iSigmaRight] / GLZNorm[iY][iSigmaRight];
-    double f21 = 0.;
-    if (GLZNorm[iY][iSigmaLeft]>0) 
-      f21 = GLZValue[iY][iMassRight][iSigmaLeft] / GLZNorm[iY][iSigmaLeft];
-    double f22 = 0.;
-    if (GLZNorm[iY][iSigmaRight]>0) 
-      f22 = GLZValue[iY][iMassRight][iSigmaRight] / GLZNorm[iY][iSigmaRight];
-    PS[0] = f11 + (f12-f11)*fracSigmaStep + (f21-f11)*fracMassStep + 
-      (f22-f21-f12+f11)*fracMassStep*fracSigmaStep;    
-    if (PS[0]>0.1 || debug>1) cout << "ires = 0 " << " PS=" << PS[0] << " f11,f12,f21,f22=" 
-				      << f11 << " " << f12 << " " << f21 << " " << f22 << " " 
-				      << " fSS=" << fracSigmaStep << " fMS=" << fracMassStep << " iSL, iSR=" 
-				      << iSigmaLeft << " " << iSigmaRight << " GLV,GLN=" 
-				      << GLZValue[iY][iMassLeft][iSigmaLeft] 
-				      << " " << GLZNorm[iY][iSigmaLeft] << endl;
+
+    // In this case the last value is the rapidity bin
+    PS[0] = probability(mass, massResol, GLZValue, GLZNorm, 0, iY);
+
     // We are inside the current resonance mass window, check if we are also inside any other resonance mass window.
     for( int otherRes = 0; otherRes < 6; ++otherRes ) {
       if( otherRes != 0 ) {
@@ -993,100 +1018,110 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
     if( resfind[ires] > 0 ) {
       if( checkMassWindow(mass, ires) ) {
 
-        bool insideProbMassWindow = true;
+        // bool insideProbMassWindow = true;
         resConsidered[ires] = true;
         nres += 1; 
 
         if (MuScleFitUtils::debug>1) cout << "massProb:resFound = " << ires << endl;
 
-        // Interpolate the four values of GLValue[] in the 
-        // grid square within which the (mass,sigma) values lay 
-        // ----------------------------------------------------
-        double fracMass = (mass-(ResMass[ires]-ResHalfWidth[ires]))/(2*ResHalfWidth[ires]);
-        if (debug>1) cout<<setprecision(9)<<"mass ResMass[ires] ResHalfWidth[ires] ResHalfWidth[ires]"
-                         <<mass<<" "<<ResMass[ires]<<" "<<ResHalfWidth[ires]<<" "<<ResHalfWidth[ires]<<endl;
-        int iMassLeft  = (int)(fracMass*(double)nbins);
-        int iMassRight = iMassLeft+1;
-        double fracMassStep = (double)nbins*(fracMass - (double)iMassLeft/(double)nbins);
-        if (debug>1) cout<<"nbins iMassLeft fracMass "<<nbins<<" "<<iMassLeft<<" "<<fracMass<<endl;
+        // In this case the rapidity value is instead the resonance index again.
+        PS[ires] = probability(mass, massResol, GLValue, GLNorm, ires, ires);
 
-        // Simple protections for the time being: the region where we fit should not include
-        // values outside the boundaries set by ResMass-ResHalfWidth : ResMass+ResHalfWidth
-        // ---------------------------------------------------------------------------------
-        if (iMassLeft<0) {
-          cout << "WARNING: fracMass=" << fracMass << ", iMassLeft=" 
-               << iMassLeft << "; mass = " << mass << " and bounds are " << ResMass[ires]-ResHalfWidth[ires] 
-               << ":" << ResMass[ires]+ResHalfWidth[ires] << " - iMassLeft set to 0" << endl;
-          iMassLeft  = 0;
-          iMassRight = 1;
-          insideProbMassWindow = false;
-        }
-        if (iMassRight>nbins) {
-          cout << "WARNING: fracMass=" << fracMass << ", iMassRight=" 
-               << iMassRight << "; mass = " << mass << " and bounds are " << ResMass[ires]-ResHalfWidth[ires] 
-               << ":" << ResMass[ires]+ResHalfWidth[ires] << " - iMassRight set to " << nbins-1 << endl;
-          iMassLeft  = nbins-1;
-          iMassRight = nbins;
-          insideProbMassWindow = false;
-        }
-        double fracSigma = (massResol/ResMaxSigma[ires]);
-        int iSigmaLeft = (int)(fracSigma*(double)nbins);
-        int iSigmaRight = iSigmaLeft+1;
-        double fracSigmaStep = (double)nbins * (fracSigma - (double)iSigmaLeft/(double)nbins);
 
-        // Simple protections for the time being: they should not affect convergence, since
-        // ResMaxSigma is set to very large values, and if massResol exceeds them the fit 
-        // should not get any prize for that (for large sigma, the prob. distr. becomes flat)
-        // ----------------------------------------------------------------------------------
-        if (iSigmaLeft<0) {
-          cout << "WARNING: fracSigma = " << fracSigma << ", iSigmaLeft=" 
-               << iSigmaRight << ", with massResol = " << massResol << " and ResMaxSigma["<<ires<<"] = "
-               << ResMaxSigma[ires] << " -  iSigmaLeft set to 0" << endl;
-          iSigmaLeft  = 0;
-          iSigmaRight = 1;
-        }
-        if (iSigmaRight>nbins ) { 
-          if (counter_resprob<100)
-            cout << "WARNING: fracSigma = " << fracSigma << ", iSigmaRight=" 
-                 << iSigmaRight << ", with massResol = " << massResol << " and ResMaxSigma["<<ires<<"] = "
-                 << ResMaxSigma[ires] << " -  iSigmaRight set to " << nbins-1 << endl;
-          iSigmaLeft  = nbins-1;
-          iSigmaRight = nbins;
-        }
 
-        // Instead of using the border values outside the probability region, use 0.
-        // When using the probability values infact, the fit takes advantage of this worsening the resolution since the region
-        // outside the defined probability interval will add a constant value. This is not normalized and thus should not be used.
-        if( insideProbMassWindow ) {
+//         // Interpolate the four values of GLValue[] in the 
+//         // grid square within which the (mass,sigma) values lay 
+//         // ----------------------------------------------------
+//         double fracMass = (mass-(ResMass[ires]-ResHalfWidth[ires]))/(2*ResHalfWidth[ires]);
+//         if (debug>1) cout<<setprecision(9)<<"mass ResMass[ires] ResHalfWidth[ires] ResHalfWidth[ires]"
+//                          <<mass<<" "<<ResMass[ires]<<" "<<ResHalfWidth[ires]<<" "<<ResHalfWidth[ires]<<endl;
+//         int iMassLeft  = (int)(fracMass*(double)nbins);
+//         int iMassRight = iMassLeft+1;
+//         double fracMassStep = (double)nbins*(fracMass - (double)iMassLeft/(double)nbins);
+//         if (debug>1) cout<<"nbins iMassLeft fracMass "<<nbins<<" "<<iMassLeft<<" "<<fracMass<<endl;
 
-          // If f11,f12,f21,f22 are the values at the four corners, one finds by linear interpolation the
-          // formula below for PS[]
-          // --------------------------------------------------------------------------------------------
-          double f11 = 0.;
-          double f21 = 0.;
-          if (GLNorm[ires][iSigmaLeft]>0) {
-            f11 = GLValue[ires][iMassLeft][iSigmaLeft] / GLNorm[ires][iSigmaLeft];
-            f21 = GLValue[ires][iMassRight][iSigmaLeft] / GLNorm[ires][iSigmaLeft];
-          }
-          double f12 = 0.;
-          double f22 = 0.;
-          if (GLNorm[ires][iSigmaRight]>0) {
-            f12 = GLValue[ires][iMassLeft][iSigmaRight] / GLNorm[ires][iSigmaRight];
-            f22 = GLValue[ires][iMassRight][iSigmaRight] / GLNorm[ires][iSigmaRight];
-          }
+//         // Simple protections for the time being: the region where we fit should not include
+//         // values outside the boundaries set by ResMass-ResHalfWidth : ResMass+ResHalfWidth
+//         // ---------------------------------------------------------------------------------
+//         if (iMassLeft<0) {
+//           cout << "WARNING: fracMass=" << fracMass << ", iMassLeft=" 
+//                << iMassLeft << "; mass = " << mass << " and bounds are " << ResMass[ires]-ResHalfWidth[ires] 
+//                << ":" << ResMass[ires]+ResHalfWidth[ires] << " - iMassLeft set to 0" << endl;
+//           iMassLeft  = 0;
+//           iMassRight = 1;
+//           insideProbMassWindow = false;
+//         }
+//         if (iMassRight>nbins) {
+//           cout << "WARNING: fracMass=" << fracMass << ", iMassRight=" 
+//                << iMassRight << "; mass = " << mass << " and bounds are " << ResMass[ires]-ResHalfWidth[ires] 
+//                << ":" << ResMass[ires]+ResHalfWidth[ires] << " - iMassRight set to " << nbins-1 << endl;
+//           iMassLeft  = nbins-1;
+//           iMassRight = nbins;
+//           insideProbMassWindow = false;
+//         }
+//         double fracSigma = (massResol/ResMaxSigma[ires]);
+//         int iSigmaLeft = (int)(fracSigma*(double)nbins);
+//         int iSigmaRight = iSigmaLeft+1;
+//         double fracSigmaStep = (double)nbins * (fracSigma - (double)iSigmaLeft/(double)nbins);
 
-          PS[ires] = f11 + (f12-f11)*fracSigmaStep + (f21-f11)*fracMassStep + (f22-f21-f12+f11)*fracMassStep*fracSigmaStep;    
-          if (PS[ires]>0.1 || debug>1) cout << "ires=" << ires << " PS=" << PS[ires] << " f11,f12,f21,f22=" 
-                                            << f11 << " " << f12 << " " << f21 << " " << f22 << " " 
-                                            << " fSS=" << fracSigmaStep << " fMS=" << fracMassStep << " iSL, iSR=" 
-                                            << iSigmaLeft << " " << iSigmaRight << " GLV,GLN=" 
-                                            << GLValue[ires][iMassLeft][iSigmaLeft] 
-                                            << " " << GLNorm[ires][iSigmaLeft] << endl;
-        }
-        else {
-          cout << "outside mass probability window. Setting PS["<<ires<<"] = 0" << endl;
-          PS[ires] = 0;
-        }
+//         // Simple protections for the time being: they should not affect convergence, since
+//         // ResMaxSigma is set to very large values, and if massResol exceeds them the fit 
+//         // should not get any prize for that (for large sigma, the prob. distr. becomes flat)
+//         // ----------------------------------------------------------------------------------
+//         if (iSigmaLeft<0) {
+//           cout << "WARNING: fracSigma = " << fracSigma << ", iSigmaLeft=" 
+//                << iSigmaRight << ", with massResol = " << massResol << " and ResMaxSigma["<<ires<<"] = "
+//                << ResMaxSigma[ires] << " -  iSigmaLeft set to 0" << endl;
+//           iSigmaLeft  = 0;
+//           iSigmaRight = 1;
+//         }
+//         if (iSigmaRight>nbins ) { 
+//           if (counter_resprob<100)
+//             cout << "WARNING: fracSigma = " << fracSigma << ", iSigmaRight=" 
+//                  << iSigmaRight << ", with massResol = " << massResol << " and ResMaxSigma["<<ires<<"] = "
+//                  << ResMaxSigma[ires] << " -  iSigmaRight set to " << nbins-1 << endl;
+//           iSigmaLeft  = nbins-1;
+//           iSigmaRight = nbins;
+//         }
+
+//         // Instead of using the border values outside the probability region, use 0.
+//         // When using the probability values infact, the fit takes advantage of this worsening the resolution since the region
+//         // outside the defined probability interval will add a constant value. This is not normalized and thus should not be used.
+//         if( insideProbMassWindow ) {
+
+//           // If f11,f12,f21,f22 are the values at the four corners, one finds by linear interpolation the
+//           // formula below for PS[]
+//           // --------------------------------------------------------------------------------------------
+//           double f11 = 0.;
+//           double f21 = 0.;
+//           if (GLNorm[ires][iSigmaLeft]>0) {
+//             f11 = GLValue[ires][iMassLeft][iSigmaLeft] / GLNorm[ires][iSigmaLeft];
+//             f21 = GLValue[ires][iMassRight][iSigmaLeft] / GLNorm[ires][iSigmaLeft];
+//           }
+//           double f12 = 0.;
+//           double f22 = 0.;
+//           if (GLNorm[ires][iSigmaRight]>0) {
+//             f12 = GLValue[ires][iMassLeft][iSigmaRight] / GLNorm[ires][iSigmaRight];
+//             f22 = GLValue[ires][iMassRight][iSigmaRight] / GLNorm[ires][iSigmaRight];
+//           }
+
+//           PS[ires] = f11 + (f12-f11)*fracSigmaStep + (f21-f11)*fracMassStep + (f22-f21-f12+f11)*fracMassStep*fracSigmaStep;    
+//           if (PS[ires]>0.1 || debug>1) cout << "ires=" << ires << " PS=" << PS[ires] << " f11,f12,f21,f22=" 
+//                                             << f11 << " " << f12 << " " << f21 << " " << f22 << " " 
+//                                             << " fSS=" << fracSigmaStep << " fMS=" << fracMassStep << " iSL, iSR=" 
+//                                             << iSigmaLeft << " " << iSigmaRight << " GLV,GLN=" 
+//                                             << GLValue[ires][iMassLeft][iSigmaLeft] 
+//                                             << " " << GLNorm[ires][iSigmaLeft] << endl;
+//         }
+//         else {
+//           cout << "outside mass probability window. Setting PS["<<ires<<"] = 0" << endl;
+//           PS[ires] = 0;
+//         }
+
+
+
+
+
         // We are inside the current resonance mass window, check if we are also inside any other resonance mass window.
         for( int otherRes = 0; otherRes < 6; ++otherRes ) {
           if( otherRes != ires ) {
@@ -1141,22 +1176,8 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
 }
 
 // Method to check if the mass value is within the mass window of the i-th resonance.
-bool MuScleFitUtils::checkMassWindow( const double & mass, const int ires )
+inline bool MuScleFitUtils::checkMassWindow( const double & mass, const int ires )
 {
-  // Special conditions for J/Psi and Upsilon: 3*Gamma on the left and Gamma on the right (so as to avoid the Psi1S and Upsilon1S).
-  // Separated so that the correct mass window is checked for each resonance.
-//   if (ires == 3 && resfind[3]>0 && ( (mass-ResMass[3]>-leftWindowFactor*ResHalfWidth[3]) && (mass-ResMass[3]<rightWindowFactor*ResHalfWidth[3][MuonType]) )) {
-//     if( debug>1 ) cout << "Upsilon: ires = " << ires << ", mass = " << mass << ", ResMass[3] = " << ResMass[3]
-//                       << ", ResHalfWidth[3][MuonType] = " << ResHalfWidth[3][MuonType] << endl;
-//     return true;
-//   }
-//   if (ires == 5 && resfind[5]>0 && ( (mass-ResMass[5]>-leftWindowFactor*ResHalfWidth[5][MuonType]) && (mass-ResMass[5]<rightWindowFactor*ResHalfWidth[5][MuonType]) )) {
-//     if( debug>1 ) cout << "J/Psi: ires = " << ires << ", mass = " << mass << ", ResMass[5] = " << ResMass[5]
-//                        << ", ResHalfWidth[5][MuonType] = " << ResHalfWidth[5][MuonType] << endl;
-//     return true;
-//   }
-
-  // return( fabs(mass-ResMass[ires]) < massWindowHalfWidth[ires][MuonType] );
   return( mass-ResMass[ires] > -leftWindowFactor*massWindowHalfWidth[ires][MuonType] && mass-ResMass[ires] < rightWindowFactor*massWindowHalfWidth[ires][MuonType] );
 }
 
@@ -1169,7 +1190,7 @@ double MuScleFitUtils::computeWeight( const double & mass )
   double weight = 0.;
   
   // Take the highest-mass resonance within bounds
-  // NB this must be revised once credible estimates of the relative xs of Y(1S), (2S), and (3S) 
+  // NB this must be revised once credible estimates of the relative xs of Y(1S), (2S), and (3S)
   // are made. Those are priors in the decision of which resonance to assign to an in-between event.
   // -----------------------------------------------------------------------------------------------
   for (int ires=0; ires<6; ires++) {
@@ -1308,14 +1329,18 @@ void MuScleFitUtils::minimizeLikelihood()
   // n_times = number of loops required to unlock all parameters.
 
   int scaleParNum = scaleFunction->parNum();
-  cout << "number of parameters for scaleFunction = " << scaleParNum << endl;
-  cout << "number of parameters for resolutionFunction = " << resParNum << endl;
-  cout << "number of parameters for backgroundFunction = " << backgroundFunction->parNum() << endl;
+  LogInfo("minimizeLikelihood") << "number of parameters for scaleFunction = " << scaleParNum << endl;
+  LogInfo("minimizeLikelihood") << "number of parameters for resolutionFunction = " << resParNum << endl;
+  LogInfo("minimizeLikelihood") << "number of parameters for backgroundFunction = " << backgroundFunction->parNum() << endl;
+  // cout << "number of parameters for scaleFunction = " << scaleParNum << endl;
+  // cout << "number of parameters for resolutionFunction = " << resParNum << endl;
+  // cout << "number of parameters for backgroundFunction = " << backgroundFunction->parNum() << endl;
 
   for (int i=0; i<parnumber; i++) {
     // NB ind[] has been set as parorder[] previously
     if (n_times<ind[i]) {
-      cout << "n_times = " << n_times << ", ind["<<i<<"] = " << ind[i] << ", scaleParNum = " << scaleParNum << ", doScaleFit["<<loopCounter<<"] = " << doScaleFit[loopCounter] << endl;
+      LogInfo("minimizeLikelihood") << "n_times = " << n_times << ", ind["<<i<<"] = " << ind[i] << ", scaleParNum = " << scaleParNum << ", doScaleFit["<<loopCounter<<"] = " << doScaleFit[loopCounter] << endl;
+      // cout << "n_times = " << n_times << ", ind["<<i<<"] = " << ind[i] << ", scaleParNum = " << scaleParNum << ", doScaleFit["<<loopCounter<<"] = " << doScaleFit[loopCounter] << endl;
       // Set the n_times only if we will do the fit
       if ( i<resParNum ) {
         if( doResolFit[loopCounter] ) n_times = ind[i];

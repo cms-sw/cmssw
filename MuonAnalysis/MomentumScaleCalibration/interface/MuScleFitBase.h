@@ -22,7 +22,8 @@ public:
     theMuonType_( iConfig.getParameter<int>( "MuonType" ) ),
     theMuonLabel_( iConfig.getParameter<edm::InputTag>( "MuonLabel" ) ),
     theRootFileName_( iConfig.getUntrackedParameter<string>("OutputFileName") ),
-    debug_( iConfig.getUntrackedParameter<int>("debug",0) )
+    debug_( iConfig.getUntrackedParameter<int>("debug",0) ),
+    useType_( iConfig.getUntrackedParameter<unsigned int>("UseType",0) )
   {}
   virtual ~MuScleFitBase() {}
 protected:
@@ -49,6 +50,8 @@ protected:
   string theRootFileName_;
 
   int debug_;
+
+  unsigned int useType_;
 
   /// The files were the histograms are saved
   std::vector<TFile*> theFiles_;

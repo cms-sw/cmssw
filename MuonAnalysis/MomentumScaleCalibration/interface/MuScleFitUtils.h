@@ -5,8 +5,8 @@
  *  
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2009/04/09 15:42:02 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/04/28 10:06:45 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -16,6 +16,7 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include <DataFormats/FWLite/interface/Handle.h>
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TGraphErrors.h"
 #include "TH2F.h"
 
@@ -183,6 +184,10 @@ protected:
 
   /// Method to check if the mass value is within the mass window of the i-th resonance.
   static bool checkMassWindow( const double & mass, const int ires );
+  /// Computes the probability given the mass, mass resolution and the arrays with the probabilities and the normalizations.
+  static double probability( const double & mass, const double & massResol,
+                             const double GLvalue[][1001][1001], const double GLnorm[][1001],
+                             const int iRes, const int iY );
 
 private:
   
