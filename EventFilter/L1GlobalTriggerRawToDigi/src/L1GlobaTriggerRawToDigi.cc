@@ -145,7 +145,7 @@ L1GlobalTriggerRawToDigi::~L1GlobalTriggerRawToDigi() {
 
 // member functions
 
-void L1GlobalTriggerRawToDigi::beginJob(const edm::EventSetup& evSetup) {
+void L1GlobalTriggerRawToDigi::beginJob() {
     // empty
 }
 
