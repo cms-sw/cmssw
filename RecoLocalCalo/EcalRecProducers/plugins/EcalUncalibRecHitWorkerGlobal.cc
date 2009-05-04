@@ -180,7 +180,6 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                 // === time computation ===
                 // ratio method
                 if (detid.subdetId()==EcalEndcap) {
-                        if ( uncalibRecHit.amplitude() > amplitudeThreshEE_ ) {
                                 ratioMethod_endcap_.init( *itdg, pedVec, gainRatios );
                                 ratioMethod_endcap_.computeTime( EEtimeFitParameters_, EEtimeFitLimits_ );
                                 EcalUncalibRecHitRatioMethodAlgo<EEDataFrame>::CalculatedRecHit crh = ratioMethod_endcap_.getCalculatedRecHit();
@@ -188,13 +187,12 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                                 // FIXME: set the error?
                                 // it time too different from 5, reconstruct the amplitude 
                                 // with the ratioMethod and store it in the RecHit flags
-                                if ( fabs(crh.timeMax-5) > outOfTimeThresh_ ) {
+                                if ( uncalibRecHit.amplitude() > amplitudeThreshEE_
+                                     && fabs(crh.timeMax-5) > outOfTimeThresh_ ) {
                                         uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kOutOfTime );
                                         uncalibRecHit.setOutOfTimeEnergy( crh.amplitudeMax );
                                 }
-                        }
                 } else {
-                        if ( uncalibRecHit.amplitude() > amplitudeThreshEB_ ) {
                                 ratioMethod_barrel_.init( *itdg, pedVec, gainRatios );
                                 ratioMethod_barrel_.computeTime( EBtimeFitParameters_, EBtimeFitLimits_ );
                                 EcalUncalibRecHitRatioMethodAlgo<EBDataFrame>::CalculatedRecHit crh = ratioMethod_barrel_.getCalculatedRecHit();
@@ -202,11 +200,11 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                                 // FIXME: set the error?
                                 // it time too different from 5, reconstruct the amplitude
                                 // with the ratioMethod and store it in the RecHit flags
-                                if ( fabs(crh.timeMax-5) > outOfTimeThresh_ ) {
+                                if ( uncalibRecHit.amplitude() > amplitudeThreshEB_ && 
+                                     fabs(crh.timeMax-5) > outOfTimeThresh_ ) {
                                         uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kOutOfTime );
                                         uncalibRecHit.setOutOfTimeEnergy( crh.amplitudeMax );
                                 }
-                        }
                 }
         }
 
