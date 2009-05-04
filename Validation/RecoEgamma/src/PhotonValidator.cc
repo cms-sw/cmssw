@@ -73,8 +73,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/04/24 09:16:11 $ 
- **  $Revision: 1.23 $
+ **  $Date: 2009/04/27 14:12:02 $ 
+ **  $Revision: 1.24 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -489,6 +489,10 @@ void PhotonValidator::initVectors() {
     h_scE_[0][0] = dbe_->book1D(histname+"All"," SC Energy: All Ecal  ",eBin,eMin, eMax);
     h_scE_[0][1] = dbe_->book1D(histname+"Barrel"," SC Energy: Barrel ",eBin,eMin, eMax);
     h_scE_[0][2] = dbe_->book1D(histname+"Endcap"," SC Energy: Endcap ",eBin,eMin, eMax);
+
+    histname = "psE";
+    h_psE_ = dbe_->book1D(histname+"Endcap"," ES Energy  ",eBin,eMin, 50.);
+
 
     histname = "scEt";
     h_scEt_[0][0] = dbe_->book1D(histname+"All"," SC Et: All Ecal ",etBin,etMin, etMax) ;
@@ -1177,7 +1181,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       h_gamgamMass_[0][0] -> Fill(sqrt( gamgamMass2 ));
       if ( phoIsInBarrel ) h_gamgamMass_[0][1] -> Fill(sqrt( gamgamMass2 ));
       if ( phoIsInEndcap ) h_gamgamMass_[0][2] -> Fill(sqrt( gamgamMass2 ));
-
+      
       if ( iPho->hasConversionTracks() ) {
 	h_gamgamMass_[1][0] -> Fill(sqrt( gamgamMass2 ));
 	if ( phoIsInBarrel ) h_gamgamMass_[1][1] -> Fill(sqrt( gamgamMass2 ));
@@ -1462,6 +1466,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     h_scPhiWidth_[type]->Fill( matchingPho.superCluster()->phiWidth() );
     h_scE_[type][0]->Fill( matchingPho.superCluster()->energy() );
     h_scEt_[type][0]->Fill( matchingPho.superCluster()->energy()/cosh( matchingPho.superCluster()->eta()) );
+    if ( phoIsInEndcap ) h_psE_->Fill( matchingPho.superCluster()->preshowerEnergy() ) ;
     //
     h_r9_[type][0]->Fill( r9 );
     h2_r9VsEta_[0] -> Fill (mcEta_, r9);      

@@ -24,8 +24,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/04/20 12:05:51 $ 
- **  $Revision: 1.15 $
+ **  $Date: 2009/04/22 16:36:35 $ 
+ **  $Revision: 1.16 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -232,6 +232,8 @@ class PhotonValidator : public edm::EDAnalyzer
  
   MonitorElement* h_scE_[2][3];
   MonitorElement* h_scEt_[2][3];
+
+  MonitorElement* h_psE_;
 
   MonitorElement* h_r9_[3][3];  
   MonitorElement* h2_r9VsEta_[3];
