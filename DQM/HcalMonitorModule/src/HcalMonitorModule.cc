@@ -5,11 +5,11 @@
  * \file HcalMonitorModule.cc
  * 
 <<<<<<< HcalMonitorModule.cc
- * $Date: 2009/05/01 14:06:12 $
- * $Revision: 1.113 $
+ * $Date: 2009/05/01 18:46:40 $
+ * $Revision: 1.114 $
 =======
- * $Date: 2009/05/01 14:06:12 $
- * $Revision: 1.113 $
+ * $Date: 2009/05/01 18:46:40 $
+ * $Revision: 1.114 $
 >>>>>>> 1.111.4.2
  * \author W Fisher
  * \author J Temple
@@ -907,7 +907,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   if (zdchitOK_ && digiOK_) // make a separate boolean just for ZDC digis?
     {
-      zdcMon_->processEvent(*zdc_digi,*zdc_hits);
+      if (zdcMon_ !=NULL) zdcMon_->processEvent(*zdc_digi,*zdc_hits);
     }
   if (showTiming_)
     {
