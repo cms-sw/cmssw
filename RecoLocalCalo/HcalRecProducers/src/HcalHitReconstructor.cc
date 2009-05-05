@@ -85,9 +85,9 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 						psdigi.getParameter<int>("HFpulsetimemax"),
 						psdigi.getParameter<double>("HFratio_beforepeak"),
 						psdigi.getParameter<double>("HFratio_afterpeak"),
-						psdigi.getParameter<int>("adcthreshold"));
+						psdigi.getParameter<int>("HFadcthreshold"));
 	hfrechitbit_=new HcalHFStatusBitFromRecHits(psrechit.getParameter<double>("HFlongshortratio"),
-						    psrechit.getParameter<double>("thresholdET"));
+						    psrechit.getParameter<double>("HFthresholdET"));
       }
     produces<HFRecHitCollection>();
   } else if (!strcasecmp(subd.c_str(),"ZDC")) {

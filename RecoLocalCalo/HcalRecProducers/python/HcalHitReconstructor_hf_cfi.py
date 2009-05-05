@@ -21,7 +21,7 @@ hfreco = cms.EDFilter("HcalHitReconstructor",
                         HFpulsetimemax     = cms.int32(10), # min/max time slice values for peak
                         HFratio_beforepeak = cms.double(0.1), # max allowed ratio
                         HFratio_afterpeak  = cms.double(1.0), # max allowed ratio
-                        adcthreshold       = cms.int32(10), # minimum size of peak (in ADC counts, after ped subtraction) to be considered noisy
+                        HFadcthreshold       = cms.int32(10), # minimum size of peak (in ADC counts, after ped subtraction) to be considered noisy
                       ),
                       rechitstat=cms.PSet(
                         HFlongshortratio = cms.double(0.99), # max allowed ratio of (L-S)/(L+S)
