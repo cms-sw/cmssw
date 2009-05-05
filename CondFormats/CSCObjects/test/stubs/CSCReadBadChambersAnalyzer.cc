@@ -24,24 +24,20 @@ namespace edmtest
   class CSCReadBadChambersAnalyzer : public edm::EDAnalyzer
   {
   public:
-    explicit  CSCReadBadChambersAnalyzer(edm::ParameterSet const& ps ) 
+    explicit CSCReadBadChambersAnalyzer(edm::ParameterSet const& ps ) 
       : outputToFile_( ps.getParameter<bool>("outputToFile") ),
 	readBadChambers_(ps.getParameter<bool>("readBadChambers") ),
 	me42installed_( ps.getParameter<bool>("me42installed") ){ }
 
-    explicit  CSCReadBadChambersAnalyzer(int i) 
-    { }
-    virtual ~ CSCReadBadChambersAnalyzer() { }
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    explicit CSCReadBadChambersAnalyzer(int i) { }
 
-    // Test code from CSCConditions
+    virtual ~ CSCReadBadChambersAnalyzer() { }
+
+    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 
     /// did we request reading bad channel info from db?
     bool readBadChambers() const { return readBadChambers_; }
    
-    /// Is CSCDetId layer or chamber in the bad list?
-    bool isInBadChamber( const CSCDetId& id ) const;
-
   private:
 
     bool outputToFile_;
@@ -65,11 +61,9 @@ namespace edmtest
 
     CSCIndexer indexer; // just to build a CSCDetId from chamber index
     
-
-
     std::cout<< "Bad Chambers:" << std::endl;
 
-    int nbad = theBadChambers->numberOfBadChambers;
+    int nbad = theBadChambers->numberOfChambers();
     std::cout << "No. in list = " << nbad << std::endl;
 
     // Iterate over all chambers via their linear index
@@ -87,7 +81,7 @@ namespace edmtest
       counter++;
 
       CSCDetId id = indexer.detIdFromChamberIndex( indexc ); 
-      bool bbad = isInBadChamber( id );
+      bool bbad = theBadChambers->isInBadChamber( id );
       std::string bbads = "no";
       if ( bbad ) {
         bbads = "yes";
@@ -104,51 +98,22 @@ namespace edmtest
     std::cout << "Total number of good chambers = " << countgood << std::endl;
     std::cout << "Total number of bad chambers  = " << countbad << std::endl;
 
-    std::vector<int>::const_iterator itcham;
 
-    /*
-    // Iterate over the list of bad chambers
-
-    for( itcham=theBadChambers->chambers.begin();itcham!=theBadChambers->chambers.end(); ++itcham ){    
-      counter++;
-      int indexc = *itcham; // should be the linear index of a bad chamber
-
-      CSCDetId id = indexer.detIdFromChamberIndex( indexc ); 
-      bool bbad = isInBadChamber( id );
-      std::string bbads = "no";
-      if ( bbad ) bbads = "yes";
-      std::cout << counter << "  " << indexc << " " << id 
-           << " In bad list? " << bbads << std::endl;
-    }
-    */
 
     if ( outputToFile_ ) {
 
       std::ofstream BadChamberFile("dbBadChamber.dat",std::ios::app);
-
+      std::vector<int> theChambers = theBadChambers->chambers();
       counter = 0;
-      for( itcham=theBadChambers->chambers.begin();itcham!=theBadChambers->chambers.end(); ++itcham ){    
+      std::vector<int>::const_iterator itcham;
+  
+      for( itcham=theChambers.begin();itcham!=theChambers.end(); ++itcham ){    
         counter++;
         BadChamberFile << counter << "  " << *itcham << std::endl;
       }
 
     }
 
-  }
-
-  bool CSCReadBadChambersAnalyzer::isInBadChamber( const CSCDetId& id ) const {
-
-    if ( theBadChambers->numberOfBadChambers == 0 ) return false;
-
-    short int iri = id.ring();
-    if ( iri == 4 ) iri = 1; // reset ME1A to ME11
-    CSCIndexer indexer;
-    int ilin = indexer.chamberIndex( id.endcap(), id.station(), iri, id.chamber() );
-    std::vector<int>::const_iterator badbegin = theBadChambers->chambers.begin();
-    std::vector<int>::const_iterator badend = theBadChambers->chambers.end();
-    std::vector<int>::const_iterator it = std::find( badbegin, badend, ilin );
-    if ( it != badend ) return true; // id is in the list of bad chambers
-    else return false;
   }
 
   DEFINE_FWK_MODULE(CSCReadBadChambersAnalyzer);
