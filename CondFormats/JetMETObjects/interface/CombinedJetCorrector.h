@@ -9,6 +9,7 @@
 #include <vector>
 #include <string>
 
+class SimpleL1OffsetCorrector;
 class SimpleL2RelativeCorrector;
 class SimpleL3AbsoluteCorrector;
 class SimpleL3PFAbsoluteCorrector;
@@ -22,10 +23,10 @@ class CombinedJetCorrector
     CombinedJetCorrector();
     CombinedJetCorrector(std::string CorrectionLevels, std::string CorrectionTags);
     CombinedJetCorrector(std::string CorrectionLevels, std::string CorrectionTags, std::string Options);
-    double getCorrection(double pt, double eta);
-    double getCorrection(double pt, double eta, double emf);
-    std::vector<double> getSubCorrections(double pt, double eta);
-    std::vector<double> getSubCorrections(double pt, double eta, double emf);
+    double getCorrection(double pt, double eta, double energy);
+    double getCorrection(double pt, double eta, double energy, double emf);
+    std::vector<double> getSubCorrections(double pt, double eta, double energy);
+    std::vector<double> getSubCorrections(double pt, double eta, double energy, double emf);
     ~CombinedJetCorrector();
        
   private:
@@ -42,6 +43,7 @@ class CombinedJetCorrector
     std::string mL3Option;
     std::vector<std::string> mLevels; 
     
+    SimpleL1OffsetCorrector*     mL1Corrector;
     SimpleL2RelativeCorrector*   mL2Corrector;
     SimpleL3AbsoluteCorrector*   mL3Corrector;
     SimpleL3PFAbsoluteCorrector* mL3PFCorrector; 
