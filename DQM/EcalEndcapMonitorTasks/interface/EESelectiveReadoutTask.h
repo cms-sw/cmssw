@@ -4,8 +4,8 @@
 /*
  * \file EESelectiveReadoutTask.h
  *
- * $Date: 2009/04/30 17:34:23 $
- * $Revision: 1.11 $
+ * $Date: 2009/05/04 17:54:32 $
+ * $Revision: 1.12 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -290,8 +290,8 @@ edm::InputTag EESRFlagCollection_;
 edm::InputTag EcalTrigPrimDigiCollection_;
 edm::InputTag FEDRawDataCollection_;
 
-float xbins[89];
-float ybins[19];
+float xbins[19];
+float ybins[133];
 
 MonitorElement* EEDccEventSize_;
 MonitorElement* EEDccEventSizeMap_;

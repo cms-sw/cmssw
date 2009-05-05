@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2009/04/30 17:34:23 $
- * $Revision: 1.26 $
+ * $Date: 2009/05/04 17:54:39 $
+ * $Revision: 1.27 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -89,9 +89,9 @@ EESelectiveReadoutTask::EESelectiveReadoutTask(const ParameterSet& ps){
   // initialize variable binning for DCC size...
   float ZSthreshold = 0.608; // kBytes of 1 TT fully readout
   float zeroBinSize = ZSthreshold / 20.;
-  for(int i=0; i<20; i++) xbins[i] = i*zeroBinSize;
-  for(int i=20; i<89; i++) xbins[i] = ZSthreshold * (i-19);
-  for(int i=0; i<=18; i++) ybins[i] = i+1;
+  for(int i=0; i<20; i++) ybins[i] = i*zeroBinSize;
+  for(int i=20; i<133; i++) ybins[i] = ZSthreshold * (i-19);
+  for(int i=0; i<=18; i++) xbins[i] = i+1;
 
 }
 
@@ -149,10 +149,10 @@ void EESelectiveReadoutTask::setup(void) {
     }
 
     sprintf(histo, "EESRT event size vs DCC");
-    EEDccEventSizeMap_ = dqmStore_->book2D(histo, histo, 88, xbins, 18, ybins);
-    EEDccEventSizeMap_->setAxisTitle("event size (kB)",1);
+    EEDccEventSizeMap_ = dqmStore_->book2D(histo, histo, 18, xbins, 132, ybins);
+    EEDccEventSizeMap_->setAxisTitle("event size (kB)", 2);
     for (int i = 0; i < 18; i++) {
-      EEDccEventSizeMap_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 2);
+      EEDccEventSizeMap_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
     sprintf(histo, "EESRT readout unit with SR forced EE -");
@@ -414,8 +414,8 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 	if ( zside == 0 ) ism = iDcc+1;
 	else ism = 10+iDcc;
 
-	EEDccEventSize_->Fill(ism, ((double)raw->FEDData(firstFedOnSide+iDcc).size())/kByte );
-	EEDccEventSizeMap_->Fill(((double)raw->FEDData(firstFedOnSide+iDcc).size())/kByte, ism );
+	EEDccEventSize_->Fill( ism, ((double)raw->FEDData(firstFedOnSide+iDcc).size())/kByte );
+	EEDccEventSizeMap_->Fill( ism, ((double)raw->FEDData(firstFedOnSide+iDcc).size())/kByte );
 
       }
     }
