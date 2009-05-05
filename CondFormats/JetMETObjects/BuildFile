@@ -1,4 +1,3 @@
-<use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
 <use name=DataFormats/JetReco>
 <use name=FWCore/Utilities>
