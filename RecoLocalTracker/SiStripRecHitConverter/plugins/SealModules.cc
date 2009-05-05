@@ -14,14 +14,13 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
-#include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitConverter.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/plugins/SiStripRecHitConverter.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(StripCPEESProducer);
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(StripCPEfromTrackAngleESProducer);
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(StripCPEfromTrackAngle2ESProducer);
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(SiStripRecHitMatcherESProducer);
-using cms::SiStripRecHitConverter;
 DEFINE_ANOTHER_FWK_MODULE(SiStripRecHitConverter);
 EVENTSETUP_DATA_REG(SiStripRecHitMatcher);
 
