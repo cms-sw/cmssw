@@ -1,5 +1,5 @@
 
-// $Id: TestMergeResults.cc,v 1.12.4.1 2008/11/20 20:32:05 wmtan Exp $
+// $Id: TestMergeResults.cc,v 1.13 2008/12/18 04:49:04 wmtan Exp $
 //
 // Reads some simple test objects in the event, run, and lumi
 // principals.  Then checks to see if the values in these
@@ -300,6 +300,12 @@ namespace edmtest
 
     if (verbose_) edm::LogInfo("TestMergeResults") << "beginLuminosityBlock";
 
+    edm::InputTag tag0("thingWithMergeProducer", "beginRun", "PROD");
+    checkExpectedRunProducts(index0_, expectedBeginRunProd_, tag0, "beginLumi", lumi.getRun());
+
+    edm::InputTag tag1("thingWithMergeProducer", "beginRun");
+    checkExpectedRunProducts(index4_, expectedBeginRunNew_, tag1, "beginLumi", lumi.getRun());
+
     edm::InputTag tag("thingWithMergeProducer", "beginLumi", "PROD");
     checkExpectedLumiProducts(index2_, expectedBeginLumiProd_, tag, "beginLumi", lumi);
 
@@ -324,6 +330,12 @@ namespace edmtest
     index7_ += 3;
 
     if (verbose_) edm::LogInfo("TestMergeResults") << "endLuminosityBlock";
+
+    edm::InputTag tag0("thingWithMergeProducer", "beginRun", "PROD");
+    checkExpectedRunProducts(index0_, expectedBeginRunProd_, tag0, "endLumi", lumi.getRun());
+
+    edm::InputTag tag1("thingWithMergeProducer", "beginRun");
+    checkExpectedRunProducts(index4_, expectedBeginRunNew_, tag1, "endLumi", lumi.getRun());
 
     edm::InputTag tag("thingWithMergeProducer", "endLumi", "PROD");
     checkExpectedLumiProducts(index3_, expectedEndLumiProd_, tag, "endLumi", lumi);
