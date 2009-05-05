@@ -79,7 +79,8 @@ namespace cms
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
     // Begin Job
-    virtual void beginJob(const edm::EventSetup& c);
+    //virtual void beginJob(const edm::EventSetup& c);
+    virtual void beginJob();
 
     //--- Execute the position estimator algorithm(s).
     //--- New interface with DetSetVector
