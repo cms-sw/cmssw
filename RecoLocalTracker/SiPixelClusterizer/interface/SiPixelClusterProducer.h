@@ -64,7 +64,8 @@ namespace cms
     void setupClusterizer();
 
     // Begin Job
-    virtual void beginJob( const edm::EventSetup& );
+    //virtual void beginJob( const edm::EventSetup& );
+    virtual void beginJob( );
 
     //--- The top-level event method.
     virtual void produce(edm::Event& e, const edm::EventSetup& c);

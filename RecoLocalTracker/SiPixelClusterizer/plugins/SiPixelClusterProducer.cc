@@ -80,11 +80,13 @@ namespace cms
     delete clusterizer_;
   }  
 
-  void SiPixelClusterProducer::beginJob( const edm::EventSetup& es ) {
+  //void SiPixelClusterProducer::beginJob( const edm::EventSetup& es ) 
+  void SiPixelClusterProducer::beginJob( ) 
+  {
     edm::LogInfo("SiPixelClusterizer") << "[SiPixelClusterizer::beginJob]";
     clusterizer_->setSiPixelGainCalibrationService(theSiPixelGainCalibration_);
   }
-
+  
   //---------------------------------------------------------------------------
   //! The "Event" entrypoint: gets called by framework for every event
   //---------------------------------------------------------------------------
