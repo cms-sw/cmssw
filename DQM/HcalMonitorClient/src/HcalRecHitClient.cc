@@ -664,7 +664,7 @@ void HcalRecHitClient::htmlOutput(int runNo, string htmlDir, string htmlName)
     }
 
   if (debug_>1) std::cout << "Preparing HcalRecHitClient html output ..." << std::endl;
-  getHistograms();
+  //getHistograms(); // not needed here; grabbed in report()
   string client = "RecHitMonitor";
 
   ofstream htmlFile;
@@ -911,6 +911,27 @@ void HcalRecHitClient::htmlExpertOutput(int runNo, string htmlDir, string htmlNa
       htmlFile <<"</tr>"<<std::endl;
     }
   htmlFile <<"</table>"<<std::endl;
+
+  htmlFile <<"<br><hr><br>"<<std::endl;
+
+  // 1D Plots
+  htmlFile << "<h2><strong><a name=\"1DENERGY_PLOTS\">1D Energy Plots</strong></h2>"<<std::endl;
+  htmlFile <<"This shows a 1D distribution of average cell energy<br>"<<std::endl;
+  htmlFile <<"<a href= \"#EXPERT_RECHIT_TOP\" > Back to Top</a><br>"<<std::endl;
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
+  htmlFile << "cellpadding=\"10\"> " << std::endl;
+  gStyle->SetPalette(1);
+  htmlFile << "<tr align=\"left\">" << std::endl;
+  htmlAnyHisto(runNo, h_HBEnergy_1D,"Avg. Energy (GeV)","", 92, htmlFile, htmlDir);
+  htmlAnyHisto(runNo, h_HEEnergy_1D,"Avg. Energy (GeV)","", 92, htmlFile, htmlDir);
+  htmlFile <<"</tr>"<<std::endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
+  htmlAnyHisto(runNo, h_HOEnergy_1D,"Avg. Energy (GeV)","", 92, htmlFile, htmlDir);
+  htmlAnyHisto(runNo, h_HFEnergy_1D,"Avg. Energy (GeV)","", 92, htmlFile, htmlDir);
+  htmlFile <<"</tr>"<<std::endl;
+
+  htmlFile <<"</table>"<<std::endl;
+
   if (rechitclient_makeDiagnostics_)
     {
       htmlFile << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
