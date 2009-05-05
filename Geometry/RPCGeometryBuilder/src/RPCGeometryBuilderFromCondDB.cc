@@ -106,8 +106,8 @@ RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
       //Change of axes for the forward
       Basic3DVector<float> newX(1.,0.,0.);
       Basic3DVector<float> newY(0.,0.,1.);
-      if (tran[2] > 0. )
-	newY *= -1;
+      //      if (tran[2] > 0. )
+      newY *= -1;
       Basic3DVector<float> newZ(0.,1.,0.);
       rot.rotateAxes (newX, newY,newZ);	
     }
