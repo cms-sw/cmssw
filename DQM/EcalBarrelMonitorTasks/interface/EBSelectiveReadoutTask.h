@@ -4,8 +4,8 @@
 /*
  * \file EBSelectiveReadoutTask.h
  *
- * $Date: 2009/04/28 13:31:12 $
- * $Revision: 1.11 $
+ * $Date: 2009/05/04 17:54:13 $
+ * $Revision: 1.12 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -294,8 +294,8 @@ edm::InputTag EBSRFlagCollection_;
 edm::InputTag EcalTrigPrimDigiCollection_;
 edm::InputTag FEDRawDataCollection_;
 
-float xbins[89];
-float ybins[37];
+float xbins[37];
+float ybins[89];
 
 MonitorElement* EBDccEventSize_;
 MonitorElement* EBDccEventSizeMap_;
