@@ -103,11 +103,11 @@ namespace edmtest
     if ( outputToFile_ ) {
 
       std::ofstream BadChamberFile("dbBadChamber.dat",std::ios::app);
-      std::vector<int> theChambers = theBadChambers->chambers();
+      std::vector<int> badChambers = theBadChambers->container();
       counter = 0;
       std::vector<int>::const_iterator itcham;
   
-      for( itcham=theChambers.begin();itcham!=theChambers.end(); ++itcham ){    
+      for( itcham=badChambers.begin();itcham!=badChambers.end(); ++itcham ){    
         counter++;
         BadChamberFile << counter << "  " << *itcham << std::endl;
       }
