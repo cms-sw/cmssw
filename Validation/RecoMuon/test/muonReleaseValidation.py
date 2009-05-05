@@ -10,12 +10,11 @@ import string
 ######### User variables
 
 #Reference release
-NewRelease='CMSSW_3_1_0_pre4'
+NewRelease='CMSSW_3_1_0_pre6'
 
 # startup and ideal sample list
-#startupsamples= ['RelValTTbar', 'RelValZMM']
 startupsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
-#startupsamples= ['']
+#startupsamples= ['RelValTTbar', 'RelValZMM']
 
 idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
 #idealsamples= ['RelValTTbar']
@@ -60,8 +59,8 @@ StartupReferenceSelection='STARTUP_30X_noPU'
 # Default label is GlobalTag_noPU__Quality_Algo. Change this variable if you want to append an additional string.
 NewSelectionLabel=''
 
-WorkDirBase = '/tmp/'
-#WorkDirBase = '/tmp/aperrott'
+#WorkDirBase = '/tmp/'
+WorkDirBase = '/tmp/aperrott'
 #WorkDirBase = '/afs/cern.ch/user/a/aeverett/scratch0'
 
 #Reference and new repository
@@ -137,7 +136,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
         if(os.path.isfile(newdir+'/val.'+sample+'.rootytootie' )!=True):    
             
             #search the primary dataset
-            cmd='./DDSearchCLI.py  --limit -1 --input="find dataset where dataset like *'
+            cmd='python $DBSCMD_HOME/dbsCommandLine.py "find dataset where dataset like *'
             #search for correct EventContent (and site)
 #            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* AND site like *cern* "'
             cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* AND site like *cern* "'
@@ -150,8 +149,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
             if(dataset!="" or DBS==False):
                 print 'dataset found ', dataset[:-1]
                 #Find and format the list of files
-                cmd2='./DDSearchCLI.py  --limit -1 --cff --input="find file where dataset like '+ dataset[:-1] +'"|grep ' + sample 
-
+                cmd2='python $DBSCMD_HOME/dbsCommandLine.py "find file where dataset like '+ dataset[:-1] +'"|grep ' + sample 
                 thisFile=0
                 for thisFilename in os.popen(cmd2).readlines():
 
@@ -175,13 +173,13 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 #                    if(dataset!="" ):
                     if(dataset!="" and Sequence!="harvesting"):
                         print 'Getting secondary files'
-                        cmd3='./DDSearchCLI.py  --limit -1 --input="find dataset.parent where dataset like '+ dataset[:-1] +'"|grep ' + sample
+                        cmd3='python $DBSCMD_HOME/dbsCommandLine.py "find dataset.parent where dataset like '+ dataset[:-1] +'"|grep ' + sample
                         parentdataset=os.popen(cmd3).readline()
                         print 'Parent DataSet:  ', parentdataset, '\n'
                     
                         #Check if a dataset is found
                         if parentdataset!="":
-                            cmd4='./DDSearchCLI.py  --limit -1 --cff --input="find file where dataset like '+ parentdataset[:-1] +'"|grep ' + sample 
+                            cmd4='python $DBSCMD_HOME/dbsCommandLine.py "find file where dataset like '+ parentdataset[:-1] +'"|grep ' + sample 
                             filenames+='secFiles.extend( [\n'
                             first=True                        
                             for line in os.popen(cmd4).readlines():
@@ -283,15 +281,17 @@ except KeyError:
 
 #print 'Running validation on the following samples: ', samples
 
-if os.path.isfile( 'DDSearchCLI.py')!=True:
-    e =os.system("wget --no-check-certificate https://cmsweb.cern.ch/dbs_discovery/aSearchCLI -O DDSearchCLI.py")
-    if  e != 0:
-        print >>sys.stderr, "Failed to dowload dbs aSearch file (https://cmsweb.cern.ch/dbs_discovery/aSearchCLI)"
-        print >>sys.stderr, "Child was terminated by signal", e
-        os.remove('DDSearchCLI.py')
-        sys.exit()
-    else:
-        os.system('chmod +x DDSearchCLI.py')
+if os.path.isfile( 'dbsCommandLine.py')!=True:
+    print >>sys.stderr, "Failed to find the file ($DBSCMD_HOME/dbsCommandLine.py)"
+#if os.path.isfile( 'DDSearchCLI.py')!=True:
+#    e =os.system("wget --no-check-certificate https://cmsweb.cern.ch/dbs_discovery/aSearchCLI -O DDSearchCLI.py")
+#    if  e != 0:
+#        print >>sys.stderr, "Failed to dowload dbs aSearch file (https://cmsweb.cern.ch/dbs_discovery/aSearchCLI)"
+#        print >>sys.stderr, "Child was terminated by signal", e
+#        os.remove('DDSearchCLI.py')
+#        sys.exit()
+#    else:
+#        os.system('chmod +x DDSearchCLI.py')
 
 NewSelection=''
 

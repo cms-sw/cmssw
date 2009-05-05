@@ -10,15 +10,15 @@ import string
 ######### User variables
 
 #Reference release
-NewRelease='CMSSW_3_1_0_pre4'
+NewRelease='CMSSW_3_1_0_pre6'
 
 # startup and ideal sample list
 #startupsamples= ['RelValTTbar', 'RelValZMM']
-#startupsamples= [RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
-startupsamples= ['']
+startupsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
+#startupsamples= ['']
 
-#idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
-idealsamples= ['RelValSingleMuPt10']
+idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
+#idealsamples= ['RelValSingleMuPt10']
 
 
 
@@ -71,8 +71,8 @@ NewRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Valida
 defaultNevents ='-1'
 
 #Put here the number of event to be processed for specific samples (numbers must be strings) if not specified is -1:
-#Events={} #{ 'RelValZMM':'5000', 'RelValTTbar':'5000'}
-Events={ 'RelValZMM':'5000', 'RelValTTbar':'5000','RelValSingleMuPt10':'10000',  'RelValSingleMuPt100':'10000'}
+Events={} #{ 'RelValZMM':'5000', 'RelValTTbar':'5000'}
+#Events={ 'RelValZMM':'5000', 'RelValTTbar':'5000','RelValSingleMuPt10':'10000',  'RelValSingleMuPt100':'10000'}
 
 # template file names. Usually should not be changed.
 cfg='muonReleaseValidationFastSim_cfg.py'
@@ -137,7 +137,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
         if(os.path.isfile(newdir+'/val.'+sample+'.rootytootie' )!=True):    
             
             #search the primary dataset
-            cmd='./DDSearchCLI.py  --limit -1 --input="find  dataset.createdate, dataset where dataset like *'
+            cmd='python $DBSCMD_HOME/dbsCommandLine.py "find dataset where dataset like *'
             #search for correct EventContent (and site)
 #            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* AND site like *cern* "'
 #            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* AND site like *cern* "'
@@ -152,7 +152,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
             if(dataset!="" or DBS==False):
                 print 'dataset found'
                 #Find and format the list of files
-                cmd2='./DDSearchCLI.py  --limit -1 --cff --input="find file where dataset like '+ dataset +'"|grep ' + sample 
+                cmd2='python $DBSCMD_HOME/dbsCommandLine.py "find file where dataset like '+ dataset[:-1] +'"|grep ' + sample 
 
                 thisFile=0
                 for thisFilename in os.popen(cmd2).readlines():
@@ -182,7 +182,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                     
                         #Check if a dataset is found
                         if parentdataset!="":
-                            cmd4='./DDSearchCLI.py  --limit -1 --cff --input="find file where dataset like '+ parentdataset +'"|grep ' + sample 
+                            cmd4='python $DBSCMD_HOME/dbsCommandLine.py "find file where dataset like '+ parentdataset[:-1] +'"|grep ' + sample 
                             filenames+='secFiles.extend( [\n'
                             first=True                        
                             for line in os.popen(cmd4).readlines():
@@ -284,15 +284,17 @@ except KeyError:
 
 #print 'Running validation on the following samples: ', samples
 
-if os.path.isfile( 'DDSearchCLI.py')!=True:
-    e =os.system("wget --no-check-certificate https://cmsweb.cern.ch/dbs_discovery/aSearchCLI -O DDSearchCLI.py")
-    if  e != 0:
-        print >>sys.stderr, "Failed to dowload dbs aSearch file (https://cmsweb.cern.ch/dbs_discovery/aSearchCLI)"
-        print >>sys.stderr, "Child was terminated by signal", e
-        os.remove('DDSearchCLI.py')
-        sys.exit()
-    else:
-        os.system('chmod +x DDSearchCLI.py')
+if os.path.isfile( 'dbsCommandLine.py')!=True:
+    print >>sys.stderr, "Failed to find the file ($DBSCMD_HOME/dbsCommandLine.py)"
+#if os.path.isfile( 'DDSearchCLI.py')!=True:
+#    e =os.system("wget --no-check-certificate https://cmsweb.cern.ch/dbs_discovery/aSearchCLI -O DDSearchCLI.py")
+#    if  e != 0:
+#        print >>sys.stderr, "Failed to dowload dbs aSearch file (https://cmsweb.cern.ch/dbs_discovery/aSearchCLI)"
+#        print >>sys.stderr, "Child was terminated by signal", e
+#        os.remove('DDSearchCLI.py')
+#        sys.exit()
+#    else:
+#        os.system('chmod +x DDSearchCLI.py')
 
 NewSelection=''
 
