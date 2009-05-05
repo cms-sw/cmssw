@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2009/04/28 10:35:58 $
- * $Revision: 1.56 $
+ * $Date: 2009/04/30 15:13:03 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -104,8 +104,8 @@ EEOccupancyTask::EEOccupancyTask(const ParameterSet& ps){
   meEEPedestalDigiOccupancy_[0] = 0;
   meEEPedestalDigiOccupancy_[1] = 0;
 
-  recHitEnergyMin_ = 1.;
-  trigPrimEtMin_ = 5.;
+  recHitEnergyMin_ = 1.; // GeV
+  trigPrimEtMin_ = 4.; // 4 ADCs == 1 GeV
 
 }
 
