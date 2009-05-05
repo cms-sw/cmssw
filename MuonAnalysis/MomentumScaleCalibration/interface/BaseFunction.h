@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <vector>
+#include <cstdlib>
 #include "CondFormats/RecoMuonObjects/interface/MuScleFitDBobject.h"
 
 using namespace std;

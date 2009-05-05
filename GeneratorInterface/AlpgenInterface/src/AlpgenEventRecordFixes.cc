@@ -1,4 +1,5 @@
 #include "GeneratorInterface/AlpgenInterface/interface/AlpgenEventRecordFixes.h"
+#include <cstdlib>
 
 // An important peculiarity of this code is that, inside the 
 // HEPEUP, particles are numbered from 1 (a la FORTRAN), but
