@@ -20,6 +20,8 @@
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromRegionHits.h"
 
+#include "RecoTracker/TrackProducer/interface/ClusterRemovalRefSetter.h"
+
 using namespace edm;
 //using namespace reco;
 
@@ -29,6 +31,11 @@ SeedCombiner::SeedCombiner(
     inputCollections_(cfg.getParameter<std::vector<edm::InputTag> >("seedCollections"))
 {
     produces<TrajectorySeedCollection>();
+    reKeing_=false;
+    if (cfg.exists("clusterRemovalInfos")){
+      clusterRemovalInfos_=cfg.getParameter<std::vector<edm::InputTag> >("clusterRemovalInfos");
+      if (clusterRemovalInfos_.size()!=0 && clusterRemovalInfos_.size()==inputCollections_.size()) reKeing_=true;
+    }
 }
 
 
@@ -57,11 +64,31 @@ void SeedCombiner::produce(edm::Event& ev, const edm::EventSetup& es)
     result->reserve( nseeds );
 
     // Write into output collection
-    for (std::vector<Handle<TrajectorySeedCollection > >::const_iterator 
-            it = seedCollections.begin(); 
-            it != seedCollections.end(); 
-            ++it) {
-        result->insert(result->end(), (*it)->begin(), (*it)->end());
+    uint iSC=0,iSC_max=seedCollections.size();
+    for (;iSC!=iSC_max;++iSC){
+      Handle<TrajectorySeedCollection> & collection=seedCollections[iSC];
+      if (reKeing_ && !(clusterRemovalInfos_[iSC]==edm::InputTag(""))){
+	ClusterRemovalRefSetter refSetter(ev, clusterRemovalInfos_[iSC]);
+	
+	for (TrajectorySeedCollection::const_iterator iS=collection->begin();
+	     iS!=collection->end();++iS){
+	  TrajectorySeed::recHitContainer  newRecHitContainer;
+	  newRecHitContainer.reserve(iS->nHits());
+	  TrajectorySeed::const_iterator iH=iS->recHits().first;
+	  TrajectorySeed::const_iterator iH_end=iS->recHits().second;
+	  //loop seed rechits, copy over and rekey.
+	  for (;iH!=iH_end;++iH){
+	    newRecHitContainer.push_back(*iH);
+	    refSetter.reKey(&newRecHitContainer.back());
+	  }
+	  result->push_back(TrajectorySeed(iS->startingState(),
+					   newRecHitContainer,
+					   iS->direction()));
+	}
+      }else{
+	//just insert the new seeds as they are
+	result->insert(result->end(), collection->begin(), collection->end());
+      }
     }
 
     // Save result into the event

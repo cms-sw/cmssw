@@ -20,6 +20,8 @@ public:
 
 private:
   std::vector<edm::InputTag> inputCollections_;
+  bool reKeing_;
+  std::vector<edm::InputTag> clusterRemovalInfos_;
 };
 
 #endif
