@@ -18,12 +18,12 @@ void HcalZDCMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe )
       cpu_timer.reset(); cpu_timer.start();
     }
   if (fVerbosity>0)
-    cout <<"<HcalZDCMonitor::setup>  Setting up histograms"<<endl;
+    std::cout <<"<HcalZDCMonitor::setup>  Setting up histograms"<<std::endl;
 
   baseFolder_ = rootFolder_+"ZDCMonitor_Hcal";
 
   if (fVerbosity>1)
-    cout <<"<HcalZDCMonitor::setup> Getting variable values from cfg files"<<endl;
+    std::cout <<"<HcalZDCMonitor::setup> Getting variable values from cfg files"<<std::endl;
 
   // Specify maximum occupancy rate above which a cell is not considered dead 
   deadthresh_ = ps.getUntrackedParameter<double>("ZDCMonitor_deadthresholdrate",0.);
@@ -36,7 +36,7 @@ void HcalZDCMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe )
   if (m_dbe)
     {
       if (fVerbosity>1)
-	cout <<"<HcalZDCMonitor::setup>  Setting up Histograms"<<endl;
+	std::cout <<"<HcalZDCMonitor::setup>  Setting up Histograms"<<std::endl;
       m_dbe->setCurrentFolder(baseFolder_);
       meEVT_ = m_dbe->bookInt("ZDC Event Number");
       meEVT_->Fill(ievt_);
@@ -133,7 +133,7 @@ void HcalZDCMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe )
 
   if (showTiming)
     {
-      cpu_timer.stop();  cout <<"TIMER:: HcalZDCMonitor SETUP -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalZDCMonitor SETUP -> "<<cpu_timer.cpuTime()<<std::endl;
     }
   return;
 } // void HcalZDCMonitor::setup(...)
@@ -143,7 +143,7 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi,
 				  const ZDCRecHitCollection& rechit)
 {
   if (fVerbosity>0)
-    cout <<"<HcalZDCMonitor::processEvent> Processing Event..."<<endl;
+    std::cout <<"<HcalZDCMonitor::processEvent> Processing Event..."<<std::endl;
   if (showTiming)
     {
       cpu_timer.reset(); cpu_timer.start();
@@ -179,7 +179,7 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi,
 	      WeightedSumM+=(iter->energy())*id.channel();
 	    }
 	} // if (id.section()==1)
-      //cout <<"histindex = "<<histindex<<"\ttime = "<<iter->time()<<"\tenergy = "<<iter->energy()<<endl;
+      //std::cout <<"histindex = "<<histindex<<"\ttime = "<<iter->time()<<"\tenergy = "<<iter->energy()<<std::endl;
       avgoccZDC_->Fill(histindex);
       avgtimeZDC_->Fill(histindex,iter->time());
       avgenergyZDC_->Fill(histindex,iter->energy());
@@ -204,7 +204,7 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi,
 
   if (showTiming)
     {
-      cpu_timer.stop();  cout <<"TIMER:: HcalZDCMonitor PROCESS_EVENT -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalZDCMonitor PROCESS_EVENT -> "<<cpu_timer.cpuTime()<<std::endl;
     }
   
  return;
@@ -214,7 +214,7 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi,
 void HcalZDCMonitor::fillHistos(void)
 {
   if (fVerbosity>0)
-    cout <<"<HcalZDCMonitor::fillHistos> Filling Histograms..."<<endl;
+    std::cout <<"<HcalZDCMonitor::fillHistos> Filling Histograms..."<<std::endl;
 
   if (showTiming)
     {
@@ -234,7 +234,7 @@ void HcalZDCMonitor::fillHistos(void)
 
   if (showTiming)
     {
-      cpu_timer.stop();  cout <<"TIMER:: HcalZDCMonitor FILLHISTOS -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalZDCMonitor FILLHISTOS -> "<<cpu_timer.cpuTime()<<std::endl;
     }
  return;
 } // void HcalZDCMonitor::fillHistos(void)
