@@ -71,9 +71,7 @@ SiPixelRawToDigi::~SiPixelRawToDigi() {
 
 
 // -----------------------------------------------------------------------------
-void SiPixelRawToDigi::beginJob(const edm::EventSetup& c) 
-{
-}
+
 
 // -----------------------------------------------------------------------------
 void SiPixelRawToDigi::produce( edm::Event& ev,

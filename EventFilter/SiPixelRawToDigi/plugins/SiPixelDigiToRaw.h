@@ -20,8 +20,6 @@ public:
   /// dtor
   virtual ~SiPixelDigiToRaw();
 
-  /// initialisation. Retrieves cabling map from EventSetup. 
-  virtual void beginJob( const edm::EventSetup& );
 
   /// dummy end of job 
   virtual void endJob() {}

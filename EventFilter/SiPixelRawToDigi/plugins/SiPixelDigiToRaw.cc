@@ -36,9 +36,6 @@ SiPixelDigiToRaw::~SiPixelDigiToRaw() {
 }
 
 // -----------------------------------------------------------------------------
-void SiPixelDigiToRaw::beginJob(const edm::EventSetup& setup)
-{
-}
 
 // -----------------------------------------------------------------------------
 void SiPixelDigiToRaw::produce( edm::Event& ev,
