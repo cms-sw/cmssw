@@ -15,7 +15,7 @@ Description: Produces reco::PFTauDecayModes corresponding to MonteCarlo objects
 //
 // Original Author:  Evan K. Friis, UC Davis (friis@physics.ucdavis.edu)
 //         Created:  Thu Sep 1 06:19:05 PST 2008
-// $Id: TruthTauDecayModeProducer.cc,v 1.2 2008/10/15 03:18:05 friis Exp $
+// $Id: TruthTauDecayModeProducer.cc,v 1.3 2008/11/29 00:42:19 friis Exp $
 //
 //
 
@@ -51,7 +51,7 @@ class TruthTauDecayModeProducer : public edm::EDProducer {
       ~TruthTauDecayModeProducer();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -210,7 +210,7 @@ TruthTauDecayModeProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 }
 
 void 
-TruthTauDecayModeProducer::beginJob(const edm::EventSetup&)
+TruthTauDecayModeProducer::beginJob()
 {
 }
 

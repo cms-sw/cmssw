@@ -13,7 +13,7 @@ Description: Generates ROOT trees used to train PhysicsTools::MVAComputers
 //
 // Original Author:  Evan K.Friis, UC Davis  (friis@physics.ucdavis.edu)
 //         Created:  Fri Aug 15 11:22:14 PDT 2008
-// $Id: TauMVATrainer.cc,v 1.2 2008/10/16 00:59:17 friis Exp $
+// $Id: TauMVATrainer.cc,v 1.3 2008/10/22 20:49:09 friis Exp $
 //
 //
 
@@ -59,7 +59,7 @@ class TauMVATrainer : public edm::EDAnalyzer {
 
       explicit TauMVATrainer(const edm::ParameterSet&);
       ~TauMVATrainer();
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -221,7 +221,7 @@ TauMVATrainer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TauMVATrainer::beginJob(const edm::EventSetup&)
+TauMVATrainer::beginJob()
 {
 }
 

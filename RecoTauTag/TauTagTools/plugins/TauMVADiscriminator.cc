@@ -13,7 +13,7 @@
 //
 // Original Author:  Evan K. Friis, UC Davis (friis@physics.ucdavis.edu)
 //         Created:  Fri Aug 15 11:22:14 PDT 2008
-// $Id: TauMVADiscriminator.cc,v 1.10 2009/03/28 18:26:58 friis Exp $
+// $Id: TauMVADiscriminator.cc,v 1.11 2009/04/09 14:46:38 friis Exp $
 //
 //
 
@@ -70,7 +70,7 @@ class TauMVADiscriminator : public edm::EDProducer {
       typedef vector<Handle<PFTauDiscriminator> >::const_iterator DiscriminantHandleIterator;
 
       virtual void beginRun( const edm::Run& run, const edm::EventSetup& );
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob();
       InputTag                  pfTauDecayModeSrc_;
@@ -259,7 +259,7 @@ TauMVADiscriminator::beginRun( const edm::Run& run, const edm::EventSetup& iSetu
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TauMVADiscriminator::beginJob(const edm::EventSetup& iSetup)
+TauMVADiscriminator::beginJob()
 {
 }
 

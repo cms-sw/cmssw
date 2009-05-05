@@ -20,7 +20,7 @@
 //
 // Original Author:  Evan K. Friis, UC Davis (friis@physics.ucdavis.edu)
 //         Created:  Thurs, April 16, 2009
-// $Id: PFTauDecayModeCutMultiplexer.cc,v 1.0 $
+// $Id: PFTauDecayModeCutMultiplexer.cc,v 1.1 2009/04/16 14:16:24 friis Exp $
 //
 //
 
@@ -66,7 +66,7 @@ class PFTauDecayModeCutMultiplexer : public edm::EDProducer {
       typedef vector<Handle<PFTauDiscriminator> >::const_iterator DiscriminantHandleIterator;
 
       virtual void beginRun( const edm::Run& run, const edm::EventSetup& );
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob();
       InputTag                  pfTauDecayModeIndexSrc_;
@@ -196,7 +196,7 @@ PFTauDecayModeCutMultiplexer::beginRun( const edm::Run& run, const edm::EventSet
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-PFTauDecayModeCutMultiplexer::beginJob(const edm::EventSetup& iSetup)
+PFTauDecayModeCutMultiplexer::beginJob()
 {
 }
 
