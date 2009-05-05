@@ -5,7 +5,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
-<use name=RecoParticleFlow/PFAlgo>
+<use name=RecoParticleFlow/PFProducer>
 <use name=DataFormats/EgammaTrackReco>
 <flags EDM_PLUGIN=1>
 </library>

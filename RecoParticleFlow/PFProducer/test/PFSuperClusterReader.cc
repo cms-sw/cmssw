@@ -25,7 +25,8 @@ PFSuperClusterReader::PFSuperClusterReader(const edm::ParameterSet& iConfig)
 
 PFSuperClusterReader::~PFSuperClusterReader(){;}
 
-void PFSuperClusterReader::beginRun(edm::Run const&, edm::EventSetup const& ){;}
+void 
+PFSuperClusterReader::beginRun(edm::Run&, edm::EventSetup const& ){;}
 
 void PFSuperClusterReader::analyze(const edm::Event & iEvent,const edm::EventSetup & c)
 {

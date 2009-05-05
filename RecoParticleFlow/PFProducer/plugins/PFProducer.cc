@@ -1,5 +1,5 @@
 #include "RecoParticleFlow/PFProducer/plugins/PFProducer.h"
-#include "RecoParticleFlow/PFAlgo/interface/PFAlgo.h"
+#include "RecoParticleFlow/PFProducer/interface/PFAlgo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h"
@@ -245,11 +245,17 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 PFProducer::~PFProducer() {}
 
 
-void PFProducer::beginJob(const edm::EventSetup & es) {}
+void 
+PFProducer::beginJob() {}
+
+void 
+PFProducer::beginRun(edm::Run & run, 
+		     const edm::EventSetup & es) {}
 
 
-void PFProducer::produce(Event& iEvent, 
-			 const EventSetup& iSetup) {
+void 
+PFProducer::produce(Event& iEvent, 
+		    const EventSetup& iSetup) {
   
   LogDebug("PFProducer")<<"START event: "
 			<<iEvent.id().event()
