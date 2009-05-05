@@ -35,7 +35,7 @@ class InterestingDetIdCollectionProducer : public edm::EDProducer {
       //! ctor
       explicit InterestingDetIdCollectionProducer(const edm::ParameterSet&);
       ~InterestingDetIdCollectionProducer();
-      void beginJob (const edm::EventSetup&);
+      void beginRun (const edm::EventSetup&);
       //! producer
       virtual void produce(edm::Event &, const edm::EventSetup&);
 

@@ -36,7 +36,6 @@ class ReducedRecHitCollectionProducer : public edm::EDProducer {
       //! ctor
       explicit ReducedRecHitCollectionProducer(const edm::ParameterSet&);
       ~ReducedRecHitCollectionProducer();
-      void beginJob (const edm::EventSetup&);
       //! producer
       virtual void produce(edm::Event &, const edm::EventSetup&);
 

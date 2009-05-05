@@ -37,9 +37,6 @@ ReducedRecHitCollectionProducer::ReducedRecHitCollectionProducer(const edm::Para
 ReducedRecHitCollectionProducer::~ReducedRecHitCollectionProducer()
 {}
 
-void ReducedRecHitCollectionProducer::beginJob (const edm::EventSetup& iSetup)  
-{
-}
 
 // ------------ method called to produce the data  ------------
 void

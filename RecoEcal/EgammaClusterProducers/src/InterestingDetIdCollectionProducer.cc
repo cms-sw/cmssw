@@ -41,7 +41,7 @@ InterestingDetIdCollectionProducer::InterestingDetIdCollectionProducer(const edm
 InterestingDetIdCollectionProducer::~InterestingDetIdCollectionProducer()
 {}
 
-void InterestingDetIdCollectionProducer::beginJob (const edm::EventSetup& iSetup)  
+void InterestingDetIdCollectionProducer::beginRun (const edm::EventSetup& iSetup)  
 {
   edm::ESHandle<CaloTopology> theCaloTopology;
   iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
