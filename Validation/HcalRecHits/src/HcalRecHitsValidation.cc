@@ -18,7 +18,7 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
   // get hold of back-end interface
   dbe_ = edm::Service<DQMStore>().operator->();
    
-  Char_t histo[20];
+  Char_t histo[200];
 
   hcalselector_ = conf.getUntrackedParameter<std::string>("hcalselector", "all");
   ecalselector_ = conf.getUntrackedParameter<std::string>("ecalselector", "yes");
