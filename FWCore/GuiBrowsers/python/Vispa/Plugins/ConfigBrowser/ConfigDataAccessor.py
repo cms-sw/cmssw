@@ -1,6 +1,7 @@
 import sys
 import os.path
 import logging
+import re
 
 from Vispa.Main.BasicDataAccessor import BasicDataAccessor
 from Vispa.Main.RelativeDataAccessor import RelativeDataAccessor
@@ -365,6 +366,20 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         """ Get filename """
         text = os.path.splitext(os.path.basename(self.fullFilename(object)))[0]
         return text
+        
+    def pypackage(self,object):
+      match = re.match(r'(?:^|.*?/)([A-Za-z0-9_]*)/([A-Za-z0-9_]*)/(?:test|python)/((?:[A-Za-z0-9_]*/)*)([A-Za-z0-9_]*)\.py$',self.fullFilename(object))
+      if match:
+        return '%s.%s.%s%s' % (match.group(1),match.group(2),match.group(3).replace('/','.'),match.group(4))
+      else:
+        return ''
+
+    def pypath(self,object):
+      match = re.match(r'(?:^|.*?/)([A-Za-z0-9_]*/[A-Za-z0-9_]*/(?:test|python)/(?:[A-Za-z0-9_]*/)*[A-Za-z0-9_]*\.py)$',self.fullFilename(object))
+      if match:
+        return match.group(1)
+      else:
+        return ''
 
     def package(self, object):
         """ Get Package of an object file """
