@@ -40,7 +40,7 @@ PFCandidateAnalyzer::~PFCandidateAnalyzer() { }
 
 
 void 
-PFCandidateAnalyzer::beginRun(edm::Run& run, 
+PFCandidateAnalyzer::beginRun(const edm::Run& run, 
 			      const edm::EventSetup & es) { }
 
 

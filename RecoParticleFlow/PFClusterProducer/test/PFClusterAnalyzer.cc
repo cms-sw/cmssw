@@ -39,7 +39,7 @@ PFClusterAnalyzer::~PFClusterAnalyzer() { }
 
 
 void 
-PFClusterAnalyzer::beginRun(edm::Run& run,
+PFClusterAnalyzer::beginRun(const edm::Run& run,
 			    const edm::EventSetup & es) { }
 
 

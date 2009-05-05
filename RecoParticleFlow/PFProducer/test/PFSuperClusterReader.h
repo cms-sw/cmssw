@@ -17,7 +17,7 @@ class PFSuperClusterReader : public edm::EDAnalyzer
  public:
   explicit PFSuperClusterReader(const edm::ParameterSet&);
   ~PFSuperClusterReader();
-  virtual void beginRun(edm::Run&, edm::EventSetup const& );
+  virtual void beginRun(edm::Run const&, edm::EventSetup const& );
   virtual void analyze(const edm::Event & iEvent,const edm::EventSetup & c);
 
  private:

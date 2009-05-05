@@ -35,7 +35,7 @@ class PFCandidateAnalyzer : public edm::EDAnalyzer {
   
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-  virtual void beginRun(edm::Run & r, const edm::EventSetup & c);
+  virtual void beginRun(const edm::Run & r, const edm::EventSetup & c);
 
  private:
   
