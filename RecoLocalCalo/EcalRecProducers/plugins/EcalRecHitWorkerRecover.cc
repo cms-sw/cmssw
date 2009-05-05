@@ -59,12 +59,12 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
         uint32_t flags = uncalibRH.recoFlag();
 
         // get laser coefficient
-        float lasercalib = laser->getLaserCorrection( detId, evt.time());
+        //float lasercalib = laser->getLaserCorrection( detId, evt.time());
 
         if ( flags == 1 ) {
                 // recover as single dead channel
                 const EcalRecHitCollection * hit_collection = &result;
-                EcalDeadChannelRecoveryAlgos deadChannelCorrector(caloTopology_);
+                EcalDeadChannelRecoveryAlgos deadChannelCorrector(caloTopology_.product());
                 EcalRecHit hit = deadChannelCorrector.correct( detId, hit_collection, singleRecoveryMethod_, singleRecoveryThreshold_ );
                 hit.setFlags( EcalRecHit::kNeighboursRecovered );
                 result.push_back( hit );
