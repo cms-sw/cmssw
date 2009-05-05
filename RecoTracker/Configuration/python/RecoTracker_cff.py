@@ -17,6 +17,11 @@ newCombinedSeeds.seedCollections = cms.VInputTag(
     cms.InputTag('newSeedFromTriplets'),
     cms.InputTag('newSeedFromPairs'),
 )
+import copy
+newCombinedSeeds.clusterRemovalInfos = cms.VInputTag(
+    cms.InputTag(''),
+    preFilterStepOneTracks.clusterRemovalInfo
+    )
 
 #dEdX reconstruction
 from RecoTracker.DeDx.dedxEstimators_cff import *
