@@ -33,7 +33,7 @@ namespace edm {
          //PrincipalCache holds onto the 'newest' version of a RunPrincipal for a given run
          // but our behavior is to keep the 'old' group and merge in the new one because if there
          // is no way to merge we keep the 'old' group
-         swap(*group,*g);
+         edm::swap(*group,*g);
       }
       group->mergeGroup(g.get());
     } else {
@@ -90,5 +90,11 @@ namespace edm {
 
       addOrReplaceGroup(g);
     }
+  }
+
+  void
+  RunPrincipal::swap(RunPrincipal& iOther) {
+    swapBase(iOther);
+    std::swap(aux_,iOther.aux_);
   }
 }

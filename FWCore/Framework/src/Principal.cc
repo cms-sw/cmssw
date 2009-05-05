@@ -26,7 +26,7 @@ namespace edm {
 		       boost::shared_ptr<DelayedReader> rtrv) :
     EDProductGetter(),
     processHistoryPtr_(boost::shared_ptr<ProcessHistory>(new ProcessHistory)),
-    processConfiguration_(pc),
+    processConfiguration_(&pc),
     processHistoryModified_(false),
     groups_(reg->constProductList().size(), SharedGroupPtr()),
     size_(0),
@@ -90,7 +90,7 @@ namespace edm {
   Principal::addToProcessHistory() const {
     if (processHistoryModified_) return;
     ProcessHistory& ph = *processHistoryPtr_;
-    std::string const& processName = processConfiguration_.processName();
+    std::string const& processName = processConfiguration_->processName();
     for (ProcessHistory::const_iterator it = ph.begin(), itEnd = ph.end(); it != itEnd; ++it) {
       if (processName == it->processName()) {
 	throw edm::Exception(errors::Configuration, "Duplicate Process")
@@ -98,7 +98,7 @@ namespace edm {
 	  << "Please modify the configuration file to use a distinct process name.\n";
       }
     }
-    ph.push_back(processConfiguration_);
+    ph.push_back(*processConfiguration_);
     //OPTIMIZATION NOTE:  As of 0_9_0_pre3
     // For very simple Sources (e.g. EmptySource) this routine takes up nearly 50% of the time per event.
     // 96% of the time for this routine is being spent in computing the
@@ -335,7 +335,7 @@ namespace edm {
     // Handle groups for current process, note that we need to
     // look at the current process even if it is not in the processHistory
     // because of potential unscheduled (onDemand) production
-    findGroupsForProcess(processConfiguration_.processName(),
+    findGroupsForProcess(processConfiguration_->processName(),
                          processLookup,
                          selector,
                          results);
@@ -348,7 +348,7 @@ namespace edm {
          ++iproc) {
 
       // We just dealt with the current process before the loop so skip it
-      if (iproc->processName() == processConfiguration_.processName()) continue;
+      if (iproc->processName() == processConfiguration_->processName()) continue;
 
       findGroupsForProcess(iproc->processName(),
                            processLookup,
@@ -506,5 +506,17 @@ namespace edm {
   Principal::getIt(ProductID const& pid) const {
     assert(0);
     return 0;
+  }
+
+  void
+  Principal::swapBase(Principal& iOther) {
+    std::swap(processHistoryPtr_, iOther.processHistoryPtr_);
+    std::swap(processConfiguration_,iOther.processConfiguration_);
+    std::swap(processHistoryModified_,iOther.processHistoryModified_);
+    std::swap(groups_,iOther.groups_);
+    std::swap(size_, iOther.size_);
+    std::swap(preg_, iOther.preg_);
+    std::swap(branchMapperPtr_,iOther.branchMapperPtr_);
+    std::swap(store_,iOther.store_);
   }
 }

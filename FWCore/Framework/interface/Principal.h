@@ -107,7 +107,7 @@ namespace edm {
 
     ProcessHistory const& processHistory() const;    
 
-    ProcessConfiguration const& processConfiguration() const {return processConfiguration_;}
+    ProcessConfiguration const& processConfiguration() const {return *processConfiguration_;}
 
     ProductRegistry const& productRegistry() const {return *preg_;}
 
@@ -153,6 +153,7 @@ namespace edm {
      
     void resolveProvenance(Group const& g) const;
 
+    void swapBase(Principal&);
   private:
     virtual EDProduct const* getIt(ProductID const&) const;
 
@@ -189,7 +190,7 @@ namespace edm {
 
     boost::shared_ptr<ProcessHistory> processHistoryPtr_;
 
-    ProcessConfiguration const& processConfiguration_;
+    ProcessConfiguration const* processConfiguration_;
 
     mutable bool processHistoryModified_;
 

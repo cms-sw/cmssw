@@ -10,7 +10,7 @@ such code sees the Run class, which is a proxy for RunPrincipal.
 The major internal component of the RunPrincipal
 is the DataBlock.
 
-$Id: RunPrincipal.h,v 1.27 2008/12/18 04:49:02 wmtan Exp $
+$Id: RunPrincipal.h,v 1.28 2009/04/15 23:22:30 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -72,6 +72,8 @@ namespace edm {
     void addGroup(boost::shared_ptr<EDProduct> prod, ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
 
     void addGroup(ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
+
+    void swap(RunPrincipal&);
 
   private:
 

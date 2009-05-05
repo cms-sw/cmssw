@@ -10,7 +10,7 @@ such code sees the LuminosityBlock class, which is a proxy for LuminosityBlockPr
 The major internal component of the LuminosityBlockPrincipal
 is the DataBlock.
 
-$Id: LuminosityBlockPrincipal.h,v 1.35 2008/12/18 04:49:01 wmtan Exp $
+$Id: LuminosityBlockPrincipal.h,v 1.36 2009/04/15 23:22:30 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -95,6 +95,8 @@ namespace edm {
     void addGroup(boost::shared_ptr<EDProduct> prod, ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
 
     void addGroup(ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
+
+    void swap(LuminosityBlockPrincipal&);
 
   private:
     virtual void addOrReplaceGroup(std::auto_ptr<Group> g);
