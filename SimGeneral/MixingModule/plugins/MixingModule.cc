@@ -13,7 +13,7 @@
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfo.h"
-#include "FWCore/Utilities/interface/FriendlyName.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "MixingModule.h"
 #include "MixingWorker.h"
 
@@ -53,7 +53,7 @@ namespace edm
             InputTag tag;
 	    if (tags.size()>0) tag=tags[0];
             std::string label;
-            branchesActivate(object,std::string(""),tag,label);
+            branchesActivate(TypeID(typeid(std::vector<SimTrack>)).friendlyClassName(),std::string(""),tag,label);
 	    
 	    workers_.push_back(new MixingWorker<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,maxNbSources_,tag,checktof_));  
 	    produces<CrossingFrame<SimTrack> >(label);
@@ -64,7 +64,7 @@ namespace edm
             InputTag tag;
 	    if (tags.size()>0) tag=tags[0];
             std::string label;
-            branchesActivate(object,std::string(""),tag,label);
+            branchesActivate(TypeID(typeid(std::vector<SimVertex>)).friendlyClassName(),std::string(""),tag,label);
 	    
 	    workers_.push_back(new MixingWorker<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,maxNbSources_,tag,checktof_));  
 	    produces<CrossingFrame<SimVertex> >(label);
@@ -76,7 +76,7 @@ namespace edm
             InputTag tag;
 	    if (tags.size()>0) tag=tags[0];
             std::string label;
-            branchesActivate(object,std::string(""),tag,label);
+            branchesActivate(TypeID(typeid(HepMCProduct)).friendlyClassName(),std::string(""),tag,label);
 	    workers_.push_back(new MixingWorker<HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,maxNbSources_,tag,checktof_));  
 	    produces<CrossingFrame<HepMCProduct> >(label);
 	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
@@ -89,7 +89,7 @@ namespace edm
 	      if (tags.size()==1) tag=tags[0];
               else if(tags.size()>1) tag=tags[ii]; //FIXME: verify sizes
 	      std::string label;
-	      branchesActivate(object,subdets[ii],tag,label);
+	      branchesActivate(TypeID(typeid(std::vector<PCaloHit>)).friendlyClassName(),subdets[ii],tag,label);
 	      workers_.push_back(new MixingWorker<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,maxNbSources_,tag,checktof_));  
 	      produces<CrossingFrame<PCaloHit> > (label);
 	      LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
@@ -103,7 +103,7 @@ namespace edm
 	      if (tags.size()==1) tag=tags[0];
               else if(tags.size()>1) tag=tags[ii]; //FIXME: verify sizes
 	      std::string label;
-              branchesActivate(object,subdets[ii],tag,label);
+              branchesActivate(TypeID(typeid(std::vector<PSimHit>)).friendlyClassName(),subdets[ii],tag,label);
 	      if ((subdets[ii].find("HighTof")==std::string::npos) && (subdets[ii].find("LowTof")==std::string::npos)) {
 		workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,maxNbSources_,tag,checktof_));  
 		LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
@@ -135,10 +135,10 @@ namespace edm
     produces<CrossingFramePlaybackInfo>();
   }
  
-  void MixingModule::branchesActivate(std::string object, std::string subdet, InputTag &tag,std::string &label) {
+  void MixingModule::branchesActivate(const std::string &friendlyName, const std::string &subdet, InputTag &tag, std::string &label) {
        
     label=tag.label()+tag.instance();
-    wantedBranches_.push_back(edm::friendlyname::friendlyName(object) + '_' +
+    wantedBranches_.push_back(friendlyName + '_' +
 			      tag.label() + '_' +
 			      tag.instance());
     
