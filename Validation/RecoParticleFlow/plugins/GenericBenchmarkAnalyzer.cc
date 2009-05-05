@@ -49,6 +49,7 @@ GenericBenchmarkAnalyzer::GenericBenchmarkAnalyzer(const edm::ParameterSet& iCon
   minEta_cut                   = iConfig.getParameter<double>("minEta");
   maxEta_cut                   = iConfig.getParameter<double>("maxEta");
   deltaR_cut                   = iConfig.getParameter<double>("deltaRMax");
+
   minDeltaEt_                   = iConfig.getParameter<double>("minDeltaEt");
   maxDeltaEt_                   = iConfig.getParameter<double>("maxDeltaEt");
   minDeltaPhi_                  = iConfig.getParameter<double>("minDeltaPhi");

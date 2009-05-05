@@ -13,5 +13,9 @@ pfJetBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
     PlotAgainstRecoQuantities = cms.bool(False),
     OnlyTwoJets = cms.bool(True),
     BenchmarkLabel = cms.string( jets ),
-    InputRecoLabel = cms.InputTag( jets )
+    InputRecoLabel = cms.InputTag( jets ),
+    minDeltaEt = cms.double(-200.),
+    maxDeltaEt = cms.double(200.),
+    minDeltaPhi = cms.double(-3.2),
+    maxDeltaPhi = cms.double(3.2)                                       
 )

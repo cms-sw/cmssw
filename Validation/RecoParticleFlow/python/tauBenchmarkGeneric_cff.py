@@ -9,12 +9,18 @@ from PhysicsTools.JetMCAlgos.TauGenJetsDecayModeSelectorAllHadrons_cfi import ta
 from Validation.RecoParticleFlow.GenJetClosestMatchSelector_cfi import genJetClosestMatchSelector
 
 # setting the sources
-
 def changeSource( benchmark, rec, gen ):
     #benchmark.BenchmarkLabel = rec
     benchmark.InputRecoLabel = rec
     benchmark.InputTruthLabel = gen
-    
+
+# same range for the histograms
+def equalRange( bench1, bench2 ):
+    bench2.minDeltaEt  = bench1.minDeltaEt
+    bench2.maxDeltaEt  = bench1.maxDeltaEt
+    bench2.minDeltaPhi = bench1.minDeltaPhi
+    bench2.maxDeltaPhi = bench1.maxDeltaPhi                                
+
 
 fromTaus = True
 
@@ -49,7 +55,7 @@ changeSource(pfTauBenchmarkGeneric,
 changeSource(caloTauBenchmarkGeneric, 
              calosource, 
              gensource)
-
+equalRange( pfTauBenchmarkGeneric, caloTauBenchmarkGeneric )
 
 
 # define barrel and endcap benchmarks for the PF case: 
