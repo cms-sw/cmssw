@@ -16,5 +16,5 @@ oniaMuMuEventContent = cms.PSet(
         'keep recoCandidatesOwned_allStandAloneMuonTracks_*_*')
 )
 AODSIMEventContent.outputCommands.extend(oniaMuMuEventContent.outputCommands)
-AODSIMEventContent.outputCommands.extend(bToMumuEventContent.outputCommands)
+AODSIMEventContent.outputCommands.extend(bToMuMuEventContent.outputCommands)
 
