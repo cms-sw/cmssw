@@ -1,0 +1,16 @@
+
+
+EventFilter/GctRawToDigi test suite :
+
+1. Unpack raw data in RelVal sample, and compare output with original sim digis.  (To verify backwards compatibility with existing MC raw).
+
+test/test_RawToDigi_RelVal.py
+
+2. Run digi2raw-raw2digi on sim digis in RelVal sample, and compare output with original sim digis.  (To verify packer-unpacker compatibility in new version).
+
+test/test_DigiToRaw_RawToDigi_RelVal.py
+
+3. Unpack real data, and run emulator comparison.  (To verify unpacker compatibility with existing raw data).  Should compare results with same job using previous version.
+
+test/test_RawToDigi_Emulator_Data.py
+
