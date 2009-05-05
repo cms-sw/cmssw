@@ -7,7 +7,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/InvalidTransientRecHit.h"
-//#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 /* propagates the RecHit position from the original reference frame
@@ -38,21 +38,30 @@ class TrackingRecHitPropagator {
 		if (hit->surface() != &(ts.surface())) propagated = thePropagator->propagate(ts, *(hit->surface()));
 		if (!propagated.isValid()) return InvalidTransientRecHit::build(hit->det());	
 		//	  LogTrace("SiTrackerMultiRecHitUpdator") << "the propagate tsos is valid";	  
-	
+		//		LogTrace("SiTrackerMultiRecHitUpdator") << "Original: position: "<<hit->parameters()<<" error: "<<hit->parametersError()<<std::endl;
 		//clone the original hit with this state
 		TransientTrackingRecHit::RecHitPointer updatedOriginal = hit->clone(propagated);
+		//		LogTrace("SiTrackerMultiRecHitUpdator") << "New: position: "<<updatedOriginal->parameters()<<" error: "<<updatedOriginal->parametersError()<<std::endl;
+		
 		//	  LogTrace("SiTrackerMultiRecHitUpdator") << "rechit cloned";	  
 		LocalTrajectoryParameters ltp(updatedOriginal->localPosition(), propagated.localMomentum(), propagated.charge());
 		AlgebraicSymMatrix55 ltem;
-		ltem(3,3) = (updatedOriginal->parametersError())(0,0);
-		ltem(4,4) = (updatedOriginal->parametersError())(1,1);
-		ltem(3,4) = (updatedOriginal->parametersError())(0,1);
+		ltem(3,3) = (updatedOriginal->parametersError())(1,1);
+		ltem(4,4) = (updatedOriginal->parametersError())(2,2);
+		ltem(3,4) = (updatedOriginal->parametersError())(1,2);
+		//		LogTrace("SiTrackerMultiRecHitUpdator") <<"The cov matrix: "<<ltem<<std::endl;
 		LocalTrajectoryError lte(ltem);
+		//		LogTrace("SiTrackerMultiRecHitUpdator") <<"Original cov matrix: "<<lte.matrix()<<std::endl;
 		TrajectoryStateOnSurface hit_state(ltp, lte, propagated.surface(), propagated.magneticField());
 		TrajectoryStateOnSurface projected_hit_state = thePropagator->propagate(hit_state, det.surface());
 		if (!projected_hit_state.isValid()) return InvalidTransientRecHit::build(hit->det());	
 		LocalPoint p = projected_hit_state.localPosition();
 		LocalError e = projected_hit_state.localError().positionError();
+		//		LogTrace("SiTrackerMultiRecHitUpdator") << "position: "<<p<<" error: "<<e<<std::endl;
+		AlgebraicSymMatrix55 projm=projected_hit_state.localError().matrix();	  
+		//		for(int i=0;i<5;i++){
+		//		LogTrace("SiTrackerMultiRecHitUpdator") <<"cov matrix: "<<projm<<std::endl;
+		  //		}
 		return ResultingHit::build(p, e, &det, updatedOriginal->det(), updatedOriginal, this);
 	}
 	
