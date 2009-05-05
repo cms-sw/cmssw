@@ -42,7 +42,7 @@ class DotExport(FileExportPlugin):
     'color_schedule':('Schedule Color','color','#00ffff'),
     'url':('Include URLs','boolean',False), #this is only purposeful for png+map mode
     'urlprocess':('Postprocess URL (for client-side imagemaps)','boolean',False), #see processMap documentation; determines whether to treat 'urlbase' as a dictionary for building a more complex imagemap or a simple URL
-    'urlbase':('URL to generate','string',"{'split_x':1,'split_y':2,'scale_x':1.,'scale_y':1.,'cells':[{'top':0,'left':0,'width':1,'height':1,'html_href':'http://cmslxr.fnal.gov/lxr/ident/?i=$classname','html_alt':'LXR','html_class':'LXR'},{'top':1,'left':0,'width':1,'height':1,'html_href':'http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/$pythonpath?view=markup','html_alt':'CVS','html_class':'CVS'}]}") # valid $classname, $pythonfile, $pythonpackage, $pythonpath, $pythonline
+    'urlbase':('URL to generate','string',"{'split_x':1,'split_y':2,'scale_x':1.,'scale_y':1.,'cells':[{'top':0,'left':0,'width':1,'height':1,'html_href':'http://cmslxr.fnal.gov/lxr/ident/?i=$classname','html_alt':'LXR','html_class':'LXR'},{'top':1,'left':0,'width':1,'height':1,'html_href':'http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/$pypath?view=markup#l$pyline','html_alt':'CVS','html_class':'CVS'}]}") #CVS markup view doesn't allow line number links, only annotate view (which doesn't then highlight the code...)
   }
   plugin_name='DOT Export'
   file_types=('bmp','dot','eps','gif','jpg','pdf','png','ps','svg','tif','png+map')
@@ -98,17 +98,15 @@ class DotExport(FileExportPlugin):
       if self.options['class']:
         result += '\\n%s'%data.classname(obj)
       if self.options['file']:
-        result += '\\n%s:%s'%(data.filename(obj),data.lineNumber(obj))
+        result += '\\n%s:%s'%(data.pypath(obj),data.lineNumber(obj))
       return result
     
     #generate an appropriate URL by replacing placeholders in baseurl
     def nodeURL(obj):
       classname = data.classname(obj)
-      pythonfile = data.filename(obj)
-      pythonpath = data.fullFilename(obj)
-      pythonpackage = data.package(obj)
-      pythonline = data.lineNumber(obj)
-      url = self.options['urlbase'].replace('$classname',classname).replace('$pythonfile',pythonfile).replace('$pythonpath',pythonpath).replace('$pythonpackage',pythonpackage).replace('$pythonline',pythonline)
+      pypath = data.pypath(obj)
+      pyline = data.lineNumber(obj)
+      url = self.options['urlbase'].replace('$classname',classname).replace('$pypath',pypath).replace('$py',pyline)
       return url
        
     def makePath(path,endpath=False):
@@ -155,7 +153,7 @@ class DotExport(FileExportPlugin):
       
     #build a dictionary of available top-level objects
     all_toplevel={}
-    for tlo in data.topLevelObjects():
+    for tlo in data.children(data.topLevelObjects()[0]):
       children = data.children(tlo)
       if children:
         all_toplevel[tlo._label]=children
@@ -172,24 +170,25 @@ class DotExport(FileExportPlugin):
     #declare the toplevel graph
     result='digraph configbrowse {\nsubgraph clusterProcess {\nlabel="%s\\n%s"\n' % (data.process().name_(),data._filename)
     
-    if 'Schedule(Paths)' in all_toplevel:
-      for path in [path for path in all_toplevel['Schedule(Paths)'] if not (path in all_toplevel.get('EndPaths',()))]:
-        result += makePath(path)
-    if 'Paths' in all_toplevel:
-      for path in [path for path in all_toplevel['Paths'] if not (path in all_toplevel.get('EndPaths',()))]:
+    #removed
+    #if 'Schedule(Paths)' in all_toplevel:
+    #  for path in [path for path in all_toplevel['Schedule(Paths)'] if not (path in all_toplevel.get('EndPaths',()))]:
+    #    result += makePath(path)
+    if 'paths' in all_toplevel:
+      for path in all_toplevel['paths']:
         result += makePath(path)
     if self.options['endpath']:
-      if 'EndPaths' in all_toplevel:
-        for path in all_toplevel['EndPaths']:
+      if 'endpaths' in all_toplevel:
+        for path in all_toplevel['endpaths']:
           result += makePath(path,True)
     
     #if we are connecting by sequence, connect all path ends to all endpath starts
     if self.options['seqconnect']:
-      if self.options['schedule']:
-        if 'Schedule(Paths)' in all_toplevel:
-          result += 'subgraph clusterSchedule {\nlabel="Schedule"\ncolor="%s"\nfontcolor="%s"\n' % (self.options['color_schedule'],self.options['color_schedule'])
-          result += '->'.join(['start_%s' % data.label(path) for path in all_toplevel['Schedule(Paths)']])+'\n'
-          result += '}\n'
+      #if self.options['schedule']:
+      #  if 'Schedule(Paths)' in all_toplevel:
+      #    result += 'subgraph clusterSchedule {\nlabel="Schedule"\ncolor="%s"\nfontcolor="%s"\n' % (self.options['color_schedule'],self.options['color_schedule'])
+      #    result += '->'.join(['start_%s' % data.label(path) for path in all_toplevel['Schedule(Paths)']])+'\n'
+      #    result += '}\n'
       for p in pathends:
         for p2 in endstarts:
           result+="%s->%s\n" % (p,p2)
@@ -211,14 +210,14 @@ class DotExport(FileExportPlugin):
     #if we are connecting sequences, connect it to all the path starts
     #if we are connecting sequences and have a schedule, connect it to path #0
     if self.options['source']:
-      if 'Source' in all_toplevel:
-        for s in all_toplevel['Source']:
+      if 'source' in all_toplevel:
+        for s in all_toplevel['source']:
           nodes['source']={'obj':s,'n_label':data.classname(s),'n_shape':self.shapes['Source']}
           if self.options['seqconnect']:
-            if 'Schedule(Paths)' in all_toplevel and self.options['schedule']:
-              if all_toplevel['Schedule(Paths)']:
-                result += 'source->%s\n' % (data.label(data.children(all_toplevel['Schedule(Paths)'])[0]))
-            else:
+            #if 'Schedule(Paths)' in all_toplevel and self.options['schedule']:
+            #  if all_toplevel['Schedule(Paths)']:
+            #    result += 'source->%s\n' % (data.label(data.children(all_toplevel['Schedule(Paths)'])[0]))
+            #else:
               for p in pathstarts:
                 result += "source->%s\n" % (p)
         
@@ -227,23 +226,23 @@ class DotExport(FileExportPlugin):
     # this will usually result in thousands and isn't that interesting
     servicenodes=[]
     if self.options['es']:
-      if 'ESSources' in all_toplevel:
-        for e in all_toplevel['ESSources']:
+      if 'essources' in all_toplevel:
+        for e in all_toplevel['essources']:
           servicenodes.append(data.label(e))
           nodes[data.label(e)]={'obj':e,'n_label':nodeLabel(e), 'n_shape':self.shapes['ESSource'],'inpath':False}
-      if 'ESProducers' in all_toplevel:
-        for e in all_toplevel['ESProducers']:
+      if 'esproducers' in all_toplevel:
+        for e in all_toplevel['esproducers']:
           servicenodes.append(data.label(e))
           nodes[data.label(e)]={'obj':e,'n_label':nodeLabel(e), 'n_shape':self.shapes['ESProducer'],'inpath':False}
     if self.options['services']:
-      if 'Services' in all_toplevel:
-        for s in all_toplevel['Services']:
+      if 'services' in all_toplevel:
+        for s in all_toplevel['services']:
           servicenodes.append(data.label(s))
           nodes[data.label(s)]={'obj':s,'n_label':nodeLabel(e), 'n_shape':self.shapes['Service'],'inpath':False}
     
     #find the maximum path and endpath lengths for servicenode layout
-    maxpath=max(max([len(recurseChildren(path)) for path in all_toplevel.get('Paths',(0,))]),max([len(recurseChildren(path)) for path in all_toplevel.get('Schedule(Paths)',(0,))]))
-    maxendpath=max([len(recurseChildren(path)) for path in all_toplevel.get('EndPaths',(0,))])
+    maxpath=max([len(recurseChildren(path)) for path in all_toplevel.get('paths',(0,))])
+    maxendpath=max([len(recurseChildren(path)) for path in all_toplevel.get('endpaths',(0,))])
     
     #add invisible links between service nodes where necessary to ensure they only fill to the same height as the longest path+endpath
     #this constraint should only apply for link view
