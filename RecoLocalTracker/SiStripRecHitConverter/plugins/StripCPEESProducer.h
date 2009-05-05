@@ -13,10 +13,9 @@ class  StripCPEESProducer: public edm::ESProducer {
   boost::shared_ptr<StripClusterParameterEstimator> produce(const TkStripCPERecord&);
  private:
   boost::shared_ptr<StripClusterParameterEstimator> cpe_;
+  std::string name_;
   edm::ParameterSet pset_;
 };
-
-
 #endif
 
 

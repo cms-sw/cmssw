@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-StripCPEfromTrackAngleESProducer = cms.ESProducer("StripCPEfromTrackAngleESProducer",
+StripCPEfromTrackAngleESProducer = cms.ESProducer("StripCPEESProducer",
     ComponentName = cms.string('StripCPEfromTrackAngle')
 )
 
