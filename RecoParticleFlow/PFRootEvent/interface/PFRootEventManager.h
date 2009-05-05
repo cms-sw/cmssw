@@ -48,7 +48,7 @@
 
 #include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
 #include "RecoParticleFlow/PFBlockAlgo/interface/PFBlockAlgo.h"
-#include "RecoParticleFlow/PFAlgo/interface/PFAlgo.h"
+#include "RecoParticleFlow/PFProducer/interface/PFAlgo.h"
 
 #include "RecoParticleFlow/PFRootEvent/interface/PFJetAlgorithm.h"
 #include "RecoParticleFlow/Benchmark/interface/PFJetBenchmark.h"
