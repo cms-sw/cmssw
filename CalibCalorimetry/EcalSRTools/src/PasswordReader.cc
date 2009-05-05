@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 
 #include "FWCore/Utilities/interface/Exception.h"
 
