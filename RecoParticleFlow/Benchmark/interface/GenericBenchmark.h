@@ -25,7 +25,10 @@ class GenericBenchmark{
   GenericBenchmark();
   virtual ~GenericBenchmark();
 
-  void setup(DQMStore *DQM = NULL, bool PlotAgainstReco_=true, float minDeltaEt = -100., float maxDeltaEt = 50., float minDeltaPhi = -0.5, float maxDeltaPhi = 0.5);
+  void setup(DQMStore *DQM = NULL, 
+	     bool PlotAgainstReco_=true, 
+	     float minDeltaEt = -100., float maxDeltaEt = 50., 
+	     float minDeltaPhi = -0.5, float maxDeltaPhi = 0.5);
   //void setup(DQMStore *DQM = NULL, bool PlotAgainstReco_=true, float minDeltaEt = -200., float maxDeltaEt = 200., float minDeltaPhi = -3.2, float maxDeltaPhi = 3.2);
   //void setup(DQMStore *DQM = NULL, bool PlotAgainstReco_=true, float minDeltaEt, float maxDeltaEt, float minDeltaPhi, float maxDeltaPhi);
 
