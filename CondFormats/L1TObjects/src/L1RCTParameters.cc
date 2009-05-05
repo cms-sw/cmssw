@@ -1,7 +1,7 @@
 /**
  * Author: Sridhara Dasu
  * Created: 04 July 2007
- * $Id: L1RCTParameters.cc,v 1.21 2008/11/07 20:06:00 lgray Exp $
+ * $Id: L1RCTParameters.cc,v 1.22 2008/12/08 17:59:15 lgray Exp $
  **/
 
 #include <iostream>
@@ -9,8 +9,10 @@
 #include <cmath>
 
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
+#include <iomanip>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+using namespace std;
 
 L1RCTParameters::L1RCTParameters(double eGammaLSB,
 				 double jetMETLSB,
@@ -284,3 +286,109 @@ float L1RCTParameters::correctedTPGSum(const float& ecal, const float& hcal, con
   return ec + hc + c;
 }
  
+void 
+L1RCTParameters::print(std::ostream& s)  const {
+
+     s << "eGammaLSB = " << eGammaLSB_ << endl ;
+     s << "jetMETLSB = " << jetMETLSB_ << endl ;
+     s << "eMinForFGCut = " << eMinForFGCut_ << endl ;
+     s << "eMaxForFGCut = " << eMaxForFGCut_ << endl ;
+     s << "hOeCut = " << hOeCut_ << endl ;
+     s << "eMinForHoECut = " << eMinForHoECut_ << endl ;
+     s << "eMaxForHoECut = " << eMaxForHoECut_ << endl ;
+     s << "hMinForHoECut = " << hMinForHoECut_ << endl ;
+     s << "eActivityCut = " << eActivityCut_ << endl ;
+     s << "hActivityCut = " << hActivityCut_ << endl ;
+     s << "eicIsolationThreshold = " << eicIsolationThreshold_ << endl ;
+     s << "jscQuietThreshBarrel = " << jscQuietThresholdBarrel_ << endl ;
+     s << "jscQuietThreshEndcap = " << jscQuietThresholdEndcap_ << endl ;
+     s << "noiseVetoHB = " << noiseVetoHB_ << endl ;
+     s << "noiseVetoHEplus = " << noiseVetoHEplus_ << endl ;
+     s << "noiseVetoHEminus = " << noiseVetoHEminus_ << endl ;
+
+     s << "eGammaECal Scale Factors "<<endl;
+     s << "ieta  ScaleFactor" <<endl;
+     for(int i = 0 ; i<28; i++)
+       s<< setw(4)<< i+1 << "  " << eGammaECalScaleFactors_.at(i) <<endl;
+     
+     s << "eGammaHCal Scale Factors "<<endl;
+     s << "ieta  ScaleFactor" <<endl;
+     for(int i = 0 ; i<28; i++)
+       s << setw(4) << i+1 << "  " << eGammaHCalScaleFactors_.at(i) <<endl;
+     
+     s << "jetMETECal Scale Factors "<<endl;
+     s << "ieta  ScaleFactor" <<endl;
+     for(int i = 0 ; i<28; i++)
+       s<< setw(4) << i+1 << "  " << jetMETECalScaleFactors_.at(i) <<endl;
+     
+     s << "jetMETHCal Scale Factors "<<endl;
+     s << "ieta  ScaleFactor" <<endl;
+     for(int i = 0 ; i<28; i++)
+       s << setw(4) <<i+1 << "  " << jetMETHCalScaleFactors_.at(i) <<endl;
+
+
+     if(useCorrections_) {
+       s<< "USING calibration variables " <<endl;
+
+
+       s << "H over E smear low Correction Factors "<<endl;
+       s << "ieta  Correction Factor" <<endl;
+       for(int i = 0 ; i<28; i++)
+         s << setw(4) <<i+1 << "  " << HoverE_smear_low_.at(i) <<endl;
+
+
+       s << "H over E smear high Correction Factors "<<endl;
+       s <<"ieta  Correction Factor" <<endl;
+       for(int i = 0 ; i<28; i++)
+	 s << setw(4) <<i+1 << "  " << HoverE_smear_high_.at(i) <<endl;
+
+       s <<"ecal calibrations "<<endl;
+       s <<"ieta  CorrFactor1  CorrFactor2  CorrFactor3" <<endl;
+       int end =  ecal_calib_[0].size();
+       for(int i = 0 ; i<28; i++) {
+	 s << setw(4) << i;
+	 for(int j = 0; j< end ; j++)
+	   s << setw(11) << setprecision(8) << ecal_calib_[i][j] ;
+	 
+	 s << endl;
+
+       }
+
+       s <<"hcal calibrations "<<endl;
+       s <<"ieta  CorrFactor1  CorrFactor2  CorrFactor3" <<endl;
+       end =  hcal_calib_[0].size();
+       for(int i = 0 ; i<28; i++) {
+	 s << setw(4) << i;
+	 for(int j = 0; j< end ; j++)
+	   s << setw(11) << setprecision(8) << hcal_calib_[i][j] ;
+	 
+	 s << endl;
+
+       }
+       s <<"hcal_high calibrations "<<endl;
+       s <<"ieta  CorrFactor1  CorrFactor2  CorrFactor3" <<endl;
+       end =  hcal_high_calib_[0].size();
+       for(int i = 0 ; i<28; i++) {
+	 s << setw(4) << i;
+	 for(int j = 0; j< end ; j++)
+	   s << setw(11) << setprecision(8) << hcal_high_calib_[i][j] ;
+	 
+	 s << endl;
+
+       }
+       end = cross_terms_[0].size();
+       s <<"cross terms calibrations "<<endl;
+       s <<"ieta  CorrFactor1  CorrFactor2  CorrFactor3  CorrFactor4  CorrFactor5  CorrFactor6" <<endl;
+       for(int i = 0 ; i<28; i++) {
+	 s << setw(4) << i;
+	 for(int j = 0; j< end ; j++)
+	   s << setw(11) << setprecision(8) << cross_terms_[i][j] ;
+	 
+	 s << endl;
+
+       }
+ 
+     } else
+       s<< "NOT USING calibration variables " <<endl;
+
+}

@@ -99,7 +99,7 @@ class L1RCTParameters {
   float JetMETTPGSum(const float& ecal, const float& hcal, const unsigned& iAbsEta) const;
   float EGammaTPGSum(const float& ecal, const float& hcal, const unsigned& iAbsEta) const;
 
-  void print(std::ostream& s) const {return;}
+  void print(std::ostream& s) const;
 
  private:
 
