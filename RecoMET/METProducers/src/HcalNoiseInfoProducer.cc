@@ -236,7 +236,7 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-HcalNoiseInfoProducer::beginJob(const edm::EventSetup&)
+HcalNoiseInfoProducer::beginJob()
 {
   return;
 }
@@ -392,6 +392,13 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
   for(HBHERecHitCollection::const_iterator it=handle->begin(); it!=handle->end(); ++it) {
     const HBHERecHit &rechit=(*it);
 
+    // calculate energy, time
+    float energy=rechit.energy();
+    float time=rechit.time();
+
+    // if the energy is too low, we skip it
+    if(energy<1.5) continue;
+
     // find the hpd that the rechit is in
     HcalNoiseHPD& hpd=(*array.findHPD(rechit));
 
@@ -402,8 +409,6 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
     hpd.refrechitset_.insert(myRef);
 
     // calculate summary objects
-    float energy=rechit.energy();
-    float time=rechit.time();
     if(energy>=10. && summary.min10_>time) summary.min10_=time;
     if(energy>=25. && summary.min25_>time) summary.min25_=time;
     if(energy>=10. && summary.max10_<time) summary.max10_=time;

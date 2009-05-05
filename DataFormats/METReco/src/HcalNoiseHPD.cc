@@ -7,7 +7,6 @@
 //
 //
 
-#include "DataFormats/METReco/interface/HcalHPDRBXMap.h"
 #include "DataFormats/METReco/interface/HcalNoiseHPD.h"
 
 #include "TMath.h"
@@ -34,26 +33,6 @@ HcalNoiseHPD::~HcalNoiseHPD()
 int HcalNoiseHPD::idnumber(void) const
 {
   return idnumber_;
-}
-  
-HcalSubdetector HcalNoiseHPD::subdet(void) const
-{
-  return HcalHPDRBXMap::subdetHPD(idnumber_);
-}
-  
-int HcalNoiseHPD::zside(void) const
-{
-  return HcalHPDRBXMap::zsideHPD(idnumber_);
-}
-  
-int HcalNoiseHPD::iphilo(void) const
-{
-  return HcalHPDRBXMap::iphiloHPD(idnumber_);
-}
-  
-int HcalNoiseHPD::iphihi(void) const
-{
-  return HcalHPDRBXMap::iphihiHPD(idnumber_);
 }
   
 const std::vector<float> HcalNoiseHPD::bigCharge(void) const

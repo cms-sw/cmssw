@@ -26,7 +26,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/METReco/interface/HcalNoiseRBXArray.h"
+#include "RecoMET/METProducers/interface/HcalNoiseRBXArray.h"
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 
 namespace reco {
@@ -49,7 +49,7 @@ namespace reco {
     // Pedestals are uploaded and stored each run
     //
     
-    virtual void beginJob(const edm::EventSetup&) ;
+    virtual void beginJob() ;
     virtual void endJob() ;
     virtual void produce(edm::Event&, const edm::EventSetup&);
     virtual void beginRun(edm::Run&, const edm::EventSetup&);

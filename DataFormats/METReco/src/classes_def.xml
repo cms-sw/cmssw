@@ -54,13 +54,8 @@
   <class name="reco::HcalNoiseRBXCollection"/>
   <class name="edm::Wrapper<reco::HcalNoiseRBXCollection>"/>
 
-  <class name="reco::HcalNoiseRBXArray"/>
-  <class name="edm::Wrapper<reco::HcalNoiseRBXArray>"/>
-
   <class name="HcalNoiseSummary"/>
   <class name="edm::Wrapper<HcalNoiseSummary>"/>
-
-  <class name="HcalHPDRBXMap"/>
 
   <class name="edm::RefProd<std::vector<reco::GenMET> >"/>
   <class name="edm::RefVector<std::vector<reco::GenMET>,reco::GenMET,edm::refhelper::FindUsingAdvance<std::vector<reco::GenMET>,reco::GenMET> >"/>

@@ -14,7 +14,7 @@ using namespace reco;
 
 // default constructor
 HcalNoiseRBX::HcalNoiseRBX() :
-  idnumber_(0), hpds_(HcalHPDRBXMap::NUM_HPDS_PER_RBX),
+  idnumber_(0), hpds_(4),
   allCharge_(HBHEDataFrame::MAXSAMPLES, 0.0)
 {
 }
@@ -28,26 +28,6 @@ HcalNoiseRBX::~HcalNoiseRBX()
 int HcalNoiseRBX::idnumber(void) const
 {
   return idnumber_;
-}
-
-HcalSubdetector HcalNoiseRBX::subdet(void) const
-{
-  return HcalHPDRBXMap::subdetRBX(idnumber_);
-}
-
-int HcalNoiseRBX::zside(void) const
-{
-  return HcalHPDRBXMap::zsideRBX(idnumber_);
-}
-
-int HcalNoiseRBX::iphilo(void) const
-{
-  return HcalHPDRBXMap::iphiloRBX(idnumber_);
-}
-
-int HcalNoiseRBX::iphihi(void) const
-{
-  return HcalHPDRBXMap::iphihiRBX(idnumber_);
 }
 
 const std::vector<HcalNoiseHPD> HcalNoiseRBX::HPDs(void) const

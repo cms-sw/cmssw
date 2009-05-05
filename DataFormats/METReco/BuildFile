@@ -3,7 +3,6 @@
 <use name=DataFormats/CaloTowers>
 <use name=DataFormats/Common>
 <use name=DataFormats/RecoCandidate>
-<use name=Geometry/CaloTopology>
 <use name=FWCore/Utilities>
 <use name=boost>
 <use name=root>
@@ -14,7 +13,6 @@
   <use name=DataFormats/CaloTowers>
   <use name=DataFormats/Common>
   <use name=DataFormats/RecoCandidate>
-  <use name=Geometry/CaloTopology>
   <use name=FWCore/Utilities>
   <lib name=DataFormatsMETReco>
 </export>

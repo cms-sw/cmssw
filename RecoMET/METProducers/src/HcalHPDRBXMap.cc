@@ -6,7 +6,7 @@
 //   author: J.P. Chou, Brown
 //
 
-#include "DataFormats/METReco/interface/HcalHPDRBXMap.h"
+#include "RecoMET/METProducers/interface/HcalHPDRBXMap.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 

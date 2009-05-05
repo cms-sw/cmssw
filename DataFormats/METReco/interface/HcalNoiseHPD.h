@@ -17,7 +17,6 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/METReco/interface/HcalHPDRBXMap.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
@@ -71,16 +70,6 @@ namespace reco {
     // correlates roughly with the detector phi slice
     int idnumber(void) const;
     
-    // subdetector (HB or HE)
-    HcalSubdetector subdet(void) const;
-    
-    // z-side (-1, 1)
-    int zside(void) const;
-    
-    // lowest and highest iPhi coordinate of the HPD
-    int iphilo(void) const;
-    int iphihi(void) const;
-
     //
     // Digi accessors
     //

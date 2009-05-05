@@ -22,8 +22,6 @@
 #include "DataFormats/METReco/interface/CommonMETData.h"
 #include "DataFormats/METReco/interface/HcalNoiseHPD.h"
 #include "DataFormats/METReco/interface/HcalNoiseRBX.h"
-#include "DataFormats/METReco/interface/HcalNoiseRBXArray.h"
-#include "DataFormats/METReco/interface/HcalHPDRBXMap.h"
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -82,18 +80,13 @@ namespace {
     reco::HcalNoiseRBXCollection dummy28;
     edm::Wrapper<reco::HcalNoiseRBXCollection> dummy29;
 
-    reco::HcalNoiseRBXArray dummy30;
-    edm::Wrapper<reco::HcalNoiseRBXArray> dummy31;
+    HcalNoiseSummary dummy30;
+    edm::Wrapper<HcalNoiseSummary> dummy31;
 
-    HcalNoiseSummary dummy32;
-    edm::Wrapper<HcalNoiseSummary> dummy33;
-
-    HcalHPDRBXMap dummy34;
-
-    edm::reftobase::RefHolder<reco::METRef> dummy35;
-    edm::reftobase::RefHolder<reco::CaloMETRef> dummy36;
-    edm::reftobase::RefHolder<reco::GenMETRef> dummy37;
-    edm::reftobase::RefHolder<reco::PFMETRef> dummy38;
+    edm::reftobase::RefHolder<reco::METRef> dummy32;
+    edm::reftobase::RefHolder<reco::CaloMETRef> dummy33;
+    edm::reftobase::RefHolder<reco::GenMETRef> dummy34;
+    edm::reftobase::RefHolder<reco::PFMETRef> dummy35;
     // used for backward compatibility
     std::vector<CommonMETData> bcv1;
   };

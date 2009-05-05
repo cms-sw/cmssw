@@ -1,5 +1,5 @@
-#ifndef _DATAFORMATS_METRECO_HCALNOISERBXARRAY_H_
-#define _DATAFORMATS_METRECO_HCALNOISERBXARRAY_H_
+#ifndef _RECOMET_METPRODUCERS_HCALNOISERBXARRAY_H_
+#define _RECOMET_METPRODUCERS_HCALNOISERBXARRAY_H_
 
 //
 // HcalNoiseRBXArray.h
@@ -20,6 +20,7 @@
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "RecoMET/METProducers/interface/HcalHPDRBXMap.h"
 
 namespace reco {
 

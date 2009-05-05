@@ -16,7 +16,6 @@
 #include "boost/array.hpp"
 
 #include "DataFormats/METReco/interface/HcalNoiseHPD.h"
-#include "DataFormats/METReco/interface/HcalHPDRBXMap.h"
 
 namespace reco {
 
@@ -51,16 +50,6 @@ namespace reco {
     
     // accessors
     int idnumber(void) const;
-    
-    // subdetector (HB or HE)
-    HcalSubdetector subdet(void) const;
-    
-    // z-side (-1, 1)
-    int zside(void) const;
-    
-    // lowest and highest iphi coordinate used by the RBX
-    int iphilo(void) const;
-    int iphihi(void) const;
     
     //
     // other accessors
