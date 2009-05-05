@@ -32,7 +32,7 @@ class PFClusterAnalyzer : public edm::EDAnalyzer {
   
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-  virtual void beginJob(const edm::EventSetup & c);
+  virtual void beginRun(edm::Run & r, const edm::EventSetup & c);
 
  private:
   

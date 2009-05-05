@@ -59,7 +59,7 @@ EFilter::~EFilter() {
 
 bool
 EFilter::filter(edm::Event& iEvent, 
-			     const edm::EventSetup& iSetup) {
+		const edm::EventSetup& iSetup) {
 
 
 
@@ -99,14 +99,19 @@ EFilter::filter(edm::Event& iEvent,
   return true;
 }
 
-void EFilter::beginJob(const edm::EventSetup& es) {
+bool
+EFilter::beginRun(edm::Run& run,
+		  const edm::EventSetup& es) {
   // init Particle data table (from Pythia)
 //   edm::ESHandle < DefaultConfig::ParticleDataTable > pdt;
 //   es.getData(pdt);
 //   if ( !ParticleTable::instance() ) 
 //     ParticleTable::instance(&(*pdt));
 //   mySimEvent->initializePdt(&(*pdt));
+  
+  return true;
+
 }
 
-void EFilter::endJob() {
+void EFilter::endRun() {
 }

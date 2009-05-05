@@ -453,7 +453,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 }
 // ------------ method called once each job just before starting event loop  ------------
 void 
-GoodSeedProducer::beginRun(edm::Run & run,const EventSetup& es)
+GoodSeedProducer::beginRun(edm::Run & run,
+			   const EventSetup& es)
 {
   //Magnetic Field
   ESHandle<MagneticField> magneticField;
@@ -499,7 +500,17 @@ GoodSeedProducer::beginRun(edm::Run & run,const EventSetup& es)
     for (int iy=0;iy<12;iy++) ifsPS >> thrPS[iy];
  
 }
-int GoodSeedProducer::getBin(float pt){
+
+void 
+GoodSeedProducer::endRun() {
+  delete pfTransformer_;
+  delete resMapEtaECAL_;
+  delete resMapPhiECAL_;
+  if(useTmva_) delete reader;
+}
+
+int 
+GoodSeedProducer::getBin(float pt){
 int ip=0;
   if (pt<6) ip=0;
   else {  if (pt<12) ip=1;
@@ -507,7 +518,9 @@ int ip=0;
   }
 return ip;
 }
-int GoodSeedProducer::getBin(float eta, float pt){
+
+int 
+GoodSeedProducer::getBin(float eta, float pt){
   int ie=0;
   int ip=0;
   if (fabs(eta)<1.2) ie=0;
@@ -523,7 +536,8 @@ int GoodSeedProducer::getBin(float eta, float pt){
   return iep;
 }
 
-void GoodSeedProducer::PSforTMVA(XYZTLorentzVector mom,XYZTLorentzVector pos ){
+void 
+GoodSeedProducer::PSforTMVA(XYZTLorentzVector mom,XYZTLorentzVector pos ){
 
   BaseParticlePropagator OutParticle(RawParticle(mom,pos)
 				     ,0.,0.,B_.z()) ;
@@ -582,10 +596,11 @@ void GoodSeedProducer::PSforTMVA(XYZTLorentzVector mom,XYZTLorentzVector pos ){
   }
 }
 
-bool GoodSeedProducer::IsIsolated(float charge, float P,
-				  math::XYZPointF myElecTrkEcalPos,
-                                  const PFClusterCollection &ecalColl,
-                                  const PFClusterCollection &hcalColl){
+bool 
+GoodSeedProducer::IsIsolated(float charge, float P,
+			     math::XYZPointF myElecTrkEcalPos,
+			     const PFClusterCollection &ecalColl,
+			     const PFClusterCollection &hcalColl){
 
 
   double myHCALenergy3x3=0.;

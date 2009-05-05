@@ -384,7 +384,8 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
 
 void 
-ConvBremSeedProducer::beginRun(edm::Run,const EventSetup& iSetup)
+ConvBremSeedProducer::beginRun(edm::Run& run,
+			       const EventSetup& iSetup)
 {
   ESHandle<GeometricSearchTracker> track;
   iSetup.get<TrackerRecoGeometryRecord>().get( track ); 
@@ -419,7 +420,7 @@ ConvBremSeedProducer::beginRun(edm::Run,const EventSetup& iSetup)
 }
 
 void 
-ConvBremSeedProducer::endJob() {
+ConvBremSeedProducer::endRun() {
   delete propagator_;
   delete kfUpdator_;
   delete transformer_;

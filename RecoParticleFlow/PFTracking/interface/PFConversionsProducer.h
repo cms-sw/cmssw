@@ -23,9 +23,9 @@ class PFConversionsProducer : public edm::EDProducer
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
       
-      virtual void beginRun(edm::Run,const edm::EventSetup & c);
+      virtual void beginRun(edm::Run & r,const edm::EventSetup & c);
       
-      virtual void endJob ();
+      virtual void endRun ();
       
       bool isNotUsed(reco::ConversionRef newPf,reco::PFConversionCollection PFC);
       

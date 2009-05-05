@@ -31,9 +31,9 @@ class EFilter : public edm::EDFilter {
   ~EFilter();
 
  private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual bool beginRun(edm::Run&, const edm::EventSetup&) ;
   virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void endRun() ;
   
   // ----------member data ---------------------------
 /*   edm::ParameterSet  vertexGenerator_;  */

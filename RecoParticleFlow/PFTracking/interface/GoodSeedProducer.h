@@ -49,7 +49,7 @@ class GoodSeedProducer : public edm::EDProducer {
    private:
       virtual void beginRun(edm::Run & run,const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob(){}
+      virtual void endRun();
  
       ///Find the bin in pt and eta
       int getBin(float,float);

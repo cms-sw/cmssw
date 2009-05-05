@@ -406,7 +406,8 @@ PFElecTkProducer::resolveGsfTracks(const reco::GsfTrackCollection  & GsfCol, uns
 }
 // ------------ method called once each job just before starting event loop  ------------
 void 
-PFElecTkProducer::beginRun(edm::Run,const EventSetup& iSetup)
+PFElecTkProducer::beginRun(edm::Run& run,
+			   const EventSetup& iSetup)
 {
   ESHandle<MagneticField> magneticField;
   iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
@@ -415,7 +416,8 @@ PFElecTkProducer::beginRun(edm::Run,const EventSetup& iSetup)
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-PFElecTkProducer::endJob() {
+PFElecTkProducer::endRun() {
+  delete pfTransformer_;
 }
 
 //define this as a plug-in

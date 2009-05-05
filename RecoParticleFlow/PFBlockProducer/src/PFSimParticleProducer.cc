@@ -113,7 +113,8 @@ PFSimParticleProducer::~PFSimParticleProducer()
 
 
 void 
-PFSimParticleProducer::beginJob(const edm::EventSetup & es)
+PFSimParticleProducer::beginRun(edm::Run& run,
+				const edm::EventSetup & es)
 {
   
   // init Particle data table (from Pythia)

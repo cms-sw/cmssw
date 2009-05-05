@@ -17,7 +17,7 @@
 //
 // Original Author:  Colin BERNET
 //         Created:  Mon Nov 13 11:06:39 CET 2006
-// $Id: TauHadronDecayFilter.h,v 1.1 2006/11/13 14:08:50 cbern Exp $
+// $Id: TauHadronDecayFilter.h,v 1.1 2007/04/09 09:38:50 cbern Exp $
 //
 //
 
@@ -34,9 +34,9 @@ class TauHadronDecayFilter : public edm::EDFilter {
   ~TauHadronDecayFilter();
 
  private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual bool beginRun(edm::Run&, const edm::EventSetup&) ;
   virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void endRun() ;
   
   // ----------member data ---------------------------
   edm::ParameterSet  vertexGenerator_; 

@@ -1,8 +1,5 @@
 #include "RecoParticleFlow/PFBlockProducer/interface/PFBlockProducer.h"
 
-// #include "RecoParticleFlow/PFAlgo/interface/PFBlock.h"
-// #include "RecoParticleFlow/PFAlgo/interface/PFBlockElement.h"
-
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
 
@@ -182,11 +179,17 @@ PFBlockProducer::~PFBlockProducer() { }
 
 
 
-void PFBlockProducer::beginJob(const edm::EventSetup & es) { }
+void 
+PFBlockProducer::beginJob() { }
+
+void 
+PFBlockProducer::beginRun(edm::Run & run, 
+			  const edm::EventSetup & es) { }
 
 
-void PFBlockProducer::produce(Event& iEvent, 
-			      const EventSetup& iSetup) {
+void 
+PFBlockProducer::produce(Event& iEvent, 
+			 const EventSetup& iSetup) {
   
   LogDebug("PFBlockProducer")<<"START event: "<<iEvent.id().event()
 			     <<" in run "<<iEvent.id().run()<<endl;

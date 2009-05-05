@@ -52,7 +52,9 @@ PFConversionsProducer::~PFConversionsProducer() {
 }
 
 
-void PFConversionsProducer::beginRun(edm::Run, const edm::EventSetup& setup)
+void 
+PFConversionsProducer::beginRun(edm::Run& run, 
+				const edm::EventSetup& setup)
 {
 
   nEvt_=0;
@@ -65,11 +67,15 @@ void PFConversionsProducer::beginRun(edm::Run, const edm::EventSetup& setup)
 }
 
 
+void 
+PFConversionsProducer::endRun()
+{
+  delete pfTransformer_;
+}
 
 
-
-
-void PFConversionsProducer::produce( edm::Event& e, const edm::EventSetup& )
+void 
+PFConversionsProducer::produce( edm::Event& e, const edm::EventSetup& )
 {
   
   
@@ -256,16 +262,17 @@ void PFConversionsProducer::produce( edm::Event& e, const edm::EventSetup& )
 
 
 
-void PFConversionsProducer:: fillPFConversions ( reco::ConversionRef& cpRef, 
-						 const edm::Handle<reco::TrackCollection> & outInTrkHandle,
-						 const edm::Handle<reco::TrackCollection> & inOutTrkHandle, 
-                                                 const edm::Handle<std::vector<Trajectory> > &   outInTrajectoryHandle, 
-						 const edm::Handle<std::vector<Trajectory> > &   inOutTrajectoryHandle,
-                                                 int iPfTk,
-						 reco::PFRecTrackRefProd& pfTrackRefProd,
-						 reco::PFConversionCollection& outputConversionCollection,
-						 reco::PFRecTrackCollection& pfConversionRecTrackCollection ) {
-
+void 
+PFConversionsProducer::fillPFConversions ( reco::ConversionRef& cpRef, 
+					   const edm::Handle<reco::TrackCollection> & outInTrkHandle,
+					   const edm::Handle<reco::TrackCollection> & inOutTrkHandle, 
+					   const edm::Handle<std::vector<Trajectory> > &   outInTrajectoryHandle, 
+					   const edm::Handle<std::vector<Trajectory> > &   inOutTrajectoryHandle,
+					   int iPfTk,
+					   reco::PFRecTrackRefProd& pfTrackRefProd,
+					   reco::PFConversionCollection& outputConversionCollection,
+					   reco::PFRecTrackCollection& pfConversionRecTrackCollection ) {
+  
 
   std::vector<Trajectory> tjOIvec= *(outInTrajectoryHandle.product());
   std::vector<Trajectory> tjIOvec= *(inOutTrajectoryHandle.product());
@@ -341,20 +348,8 @@ void PFConversionsProducer:: fillPFConversions ( reco::ConversionRef& cpRef,
 }
 
 
-
-void PFConversionsProducer::endJob()
-{
-
-
-  
-   edm::LogInfo("PFConversionProducer") << "Analyzed " << nEvt_  << "\n";
-   // std::cout  << "::endJob Analyzed " << nEvt_ << " events " << " with total " << nPho_ << " Photons " << "\n";
-   std::cout  << "PFConversionProducer::endJob Analyzed " << nEvt_ << " events " << "\n";
-   
-   return ;
-}
- 
-bool PFConversionsProducer::isNotUsed(reco::ConversionRef newPf,reco::PFConversionCollection PFC){
+bool 
+PFConversionsProducer::isNotUsed(reco::ConversionRef newPf,reco::PFConversionCollection PFC){
   std::vector<reco::TrackRef> tracks = newPf->tracks();
   if (tracks.size()!=2) return false;
   for (uint ip=0; ip<PFC.size();ip++){
@@ -369,7 +364,8 @@ bool PFConversionsProducer::isNotUsed(reco::ConversionRef newPf,reco::PFConversi
   return true;
 }
 
-bool PFConversionsProducer::SameTrack(reco::TrackRef t1, reco::TrackRef t2){
+bool 
+PFConversionsProducer::SameTrack(reco::TrackRef t1, reco::TrackRef t2){
   float irec=0;
   float isha=0;
   trackingRecHit_iterator i1b= t1->recHitsBegin();

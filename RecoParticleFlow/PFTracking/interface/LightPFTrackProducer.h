@@ -18,8 +18,8 @@ public:
   ~LightPFTrackProducer();
   
 private:
-  virtual void beginRun(edm::Run,const edm::EventSetup&) ;
-  virtual void endJob() ;
+  virtual void beginRun(edm::Run&,const edm::EventSetup&) ;
+  virtual void endRun() ;
   
   ///Produce the PFRecTrack collection
   virtual void produce(edm::Event&, const edm::EventSetup&);

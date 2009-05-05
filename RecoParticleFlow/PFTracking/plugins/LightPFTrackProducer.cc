@@ -64,7 +64,8 @@ LightPFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-LightPFTrackProducer::beginRun(edm::Run,const EventSetup& iSetup)
+LightPFTrackProducer::beginRun(edm::Run& run,
+			       const EventSetup& iSetup)
 {
   ESHandle<MagneticField> magneticField;
   iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
@@ -74,5 +75,6 @@ LightPFTrackProducer::beginRun(edm::Run,const EventSetup& iSetup)
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-LightPFTrackProducer::endJob() {
+LightPFTrackProducer::endRun() {
+  delete pfTransformer_;
 }

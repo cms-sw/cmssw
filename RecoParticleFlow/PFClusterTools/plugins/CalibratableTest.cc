@@ -48,7 +48,7 @@ CalibratableTest::~CalibratableTest() {
 
 }
 
-void CalibratableTest::beginJob(const edm::EventSetup& parameters) {
+void CalibratableTest::beginJob() {
 	if (debug_ > 1)
 		std::cout << __PRETTY_FUNCTION__ << "\n";
 
