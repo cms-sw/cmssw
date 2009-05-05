@@ -42,6 +42,7 @@
 #include "G4Run.hh"
 #include "G4Event.hh"
 #include "G4TransportationManager.hh"
+#include "G4ParticleTable.hh"
 
 #include "SimG4Core/Notification/interface/CurrentG4Track.h"
 
@@ -258,6 +259,11 @@ void RunManager::initG4(const edm::EventSetup & es)
                                          << m_G4Commands[it];
     G4UImanager::GetUIpointer()->ApplyCommand(m_G4Commands[it]);
   }
+
+  // If the Geant4 particle table is needed, decomment the lines below
+  //
+  //  G4cout << "Output of G4ParticleTable DumpTable:" << G4endl;
+  //  G4ParticleTable::GetParticleTable()->DumpTable("ALL");
   
   initializeRun();
   firstRun= false;
