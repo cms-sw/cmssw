@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2009/05/04 17:54:39 $
- * $Revision: 1.27 $
+ * $Date: 2009/05/05 10:04:27 $
+ * $Revision: 1.28 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -138,9 +138,9 @@ void EESelectiveReadoutTask::setup(void) {
     EETowerFullReadoutFrequency_[0]->setAxisTitle("jy", 2);
 
     sprintf(histo, "EESRT full readout frequency EE -");
-    EETowerFullReadoutFrequency_[0] = dqmStore_->book2D(histo, histo, 20, 0., 20., 20, 0., 20.);
-    EETowerFullReadoutFrequency_[0]->setAxisTitle("jx", 1);
-    EETowerFullReadoutFrequency_[0]->setAxisTitle("jy", 2);
+    EETowerFullReadoutFrequency_[1] = dqmStore_->book2D(histo, histo, 20, 0., 20., 20, 0., 20.);
+    EETowerFullReadoutFrequency_[1]->setAxisTitle("jx", 1);
+    EETowerFullReadoutFrequency_[1]->setAxisTitle("jy", 2);
     
     sprintf(histo, "EESRT DCC event size");
     EEDccEventSize_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 200., "s");
