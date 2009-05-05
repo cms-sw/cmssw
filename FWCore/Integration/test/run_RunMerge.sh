@@ -20,6 +20,9 @@ pushd ${LOCAL_TMP_DIR}
   echo ${test}PROD5------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}PROD5_cfg.py || die "cmsRun ${test}PROD5_cfg.py" $?
 
+  echo ${test}PROD6------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}PROD6_cfg.py || die "cmsRun ${test}PROD6_cfg.py" $?
+
   echo ${test}MERGE------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}MERGE_cfg.py || die "cmsRun ${test}MERGE_cfg.py" $?
 
@@ -34,6 +37,9 @@ pushd ${LOCAL_TMP_DIR}
 
   echo ${test}TEST1------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}TEST1_cfg.py || die "cmsRun ${test}TEST1_cfg.py" $?
+
+  echo ${test}TEST2------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}TEST2_cfg.py || die "cmsRun ${test}TEST2_cfg.py" $?
 
   echo ${test}COPY------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}COPY_cfg.py || die "cmsRun ${test}COPY_cfg.py" $?
