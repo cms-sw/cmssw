@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:43:50 EST 2009
-// $Id: FWTextTableCellRenderer.h,v 1.1 2009/02/03 20:33:03 chrjones Exp $
+// $Id: FWTextTableCellRenderer.h,v 1.2 2009/03/04 15:30:02 chrjones Exp $
 //
 
 // system include files
@@ -43,7 +43,7 @@ public:
    };
    
    FWTextTableCellRenderer(const TGGC* iContext=&(getDefaultGC()), 
-                           const TGGC* iContext=&(getHighlightGC()),
+                           const TGGC* iHighlightContext=&(getHighlightGC()),
                            Justify iJustify=kJustifyLeft);
    virtual ~FWTextTableCellRenderer();
    
