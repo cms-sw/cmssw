@@ -33,6 +33,8 @@ DEFINE_JET_CORRECTION_SERVICE (MCJetCorrector, MCJetCorrectionService);
 DEFINE_JET_CORRECTION_SERVICE (MCJetCorrector3D, MCJetCorrectionService3D);
 #include "JetMETCorrections/Algorithms/interface/ZSPJetCorrector.h"
 DEFINE_JET_CORRECTION_SERVICE (ZSPJetCorrector, ZSPJetCorrectionService);
+#include "JetMETCorrections/Algorithms/interface/L1OffsetCorrector.h"
+DEFINE_JET_CORRECTION_SERVICE (L1OffsetCorrector, L1OffsetCorrectionService);
 #include "JetMETCorrections/Algorithms/interface/L2RelativeCorrector.h"
 DEFINE_JET_CORRECTION_SERVICE (L2RelativeCorrector, L2RelativeCorrectionService);
 #include "JetMETCorrections/Algorithms/interface/L3AbsoluteCorrector.h"

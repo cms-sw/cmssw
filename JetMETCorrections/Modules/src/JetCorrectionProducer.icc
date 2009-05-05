@@ -9,7 +9,7 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
-#include "PhysicsTools/Utilities/interface/PtComparator.h"
+#include "CommonTools/Utils/interface/PtComparator.h"
 #include "JetMETCorrections/Modules/src/JetCorrectionProducer.h"
 using namespace std;
 using namespace reco;
