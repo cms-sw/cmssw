@@ -40,13 +40,6 @@ naming = options.naming
 
 verbose('dotbatch starting...')
 
-if options.opts:
-  for o in options.opts.split(','):
-    if ':' in o:
-      opt,val = o.split(':')
-      verbose('Setting option %s=%s' % (opt,val))
-      dot.setOption(opt,eval(val))
-
 if options.preset:
   if options.preset in presets:
     verbose('Setting preset mode: %s'%options.preset)
@@ -54,7 +47,14 @@ if options.preset:
       dot.setOption(opt,val)
   else:
     verbose('Preset mode: %s not found'%options.preset)
-      
+
+if options.opts:
+  for o in options.opts.split(','):
+    if ':' in o:
+      opt,val = o.split(':')
+      verbose('Setting option %s=%s' % (opt,val))
+      dot.setOption(opt,eval(val))
+
 for file in args:
   if not os.path.exists(file):
     verbose('File does not exist: %s'%file)
