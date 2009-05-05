@@ -46,13 +46,14 @@ class JsonExport(FileExportPlugin):
       result={}
       result['label']=data.label(mod)
       result['class']=data.classname(mod)
-      result['file']=data.filename(mod)
+      result['file']=data.pypath(mod)
       result['line']=data.lineNumber(mod)
+      result['package']=data.pypackage(mod)
       result['pset']=pset(mod.parameters_())
       result['type']=data.type(mod)
       if links:
-        result['uses']=[]
-        result['usedby']=[]
+        result['uses']=[data.uses(mod)]
+        result['usedby']=[data.usedBy(mod)]
       result['id']='%s_%s'%(prefix,data.label(mod))
       return result
       
@@ -63,11 +64,12 @@ class JsonExport(FileExportPlugin):
         all[tlo._label]=children
       
     process = {'name':data.process().name_(),'src':data._filename}
-      
-    schedule = []
-    if 'schedule' in all:
-      for s in all['schedule']:
-        schedule.append(data.label(s))
+    
+    #now unavailable  
+    #schedule = []
+    #if 'Schedule' in all:
+    #  for s in all['Schedule']:
+    #    schedule.append(data.label(s))
       
     source={}
     if 'source' in all:
@@ -85,7 +87,7 @@ class JsonExport(FileExportPlugin):
         essources.append(moduledict(e,'esproducer'))
     esprefers=[]
     if 'esprefers' in all:
-      for e in all['epsrefers']:
+      for e in all['esprefers']:
         essources.append(moduledict(e,'esprefers'))
     services=[]
     if 'services' in all:
@@ -98,7 +100,7 @@ class JsonExport(FileExportPlugin):
       children = data.children(p)
       if children:
         children = [jsonPathRecursive(c,prefix) for c in children]
-        return {'type':'Sequence','label':'Sequence %s'%(data.label(p)),'id':'seq_%s' % random.getrandbits(16),'children':children}
+        return {'type':'Sequence','label':'Sequence %s'%(data.label(p)),'id':'seq_%s' % data.label(p),'children':children}
       else:
         return moduledict(p,prefix,True)
         
@@ -130,7 +132,8 @@ class JsonExport(FileExportPlugin):
           path=[]
         endpaths.append({'label':data.label(p),'path':path})
       
-    json={'process':process,'schedule':schedule,'source':source,'essources':essources,'esproducers':esproducers,'esprefers':esprefers,'services':services,'paths':paths,'endpaths':endpaths}
+    #json={'process':process,'schedule':schedule,'source':source,'essources':essources,'esproducers':esproducers,'esprefers':esprefers,'services':services,'paths':paths,'endpaths':endpaths}
+    json={'process':process,'source':source,'essources':essources,'esproducers':esproducers,'esprefers':esprefers,'services':services,'paths':paths,'endpaths':endpaths}
       
     return repr(json)
     
@@ -147,3 +150,4 @@ class JsonExport(FileExportPlugin):
     if filetype=='html':
       #open the HTML template and inject the JSON...
       pass
+      
