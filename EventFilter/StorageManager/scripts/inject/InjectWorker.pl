@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.32 2008/10/29 00:20:13 loizides Exp $
+# $Id: InjectWorker.pl,v 1.33 2009/03/23 13:51:57 jserrano Exp $
 
 use warnings;
 use strict;
@@ -203,7 +203,7 @@ sub inject($$)
     $appversion=$1 if $appversion =~ /\"(.*)\"/;
 
     # redirect setuplabel/streams to different destinations
-    if($setuplabel =~ 'TransferTest' || $stream     =~ 'TransferTest' || $stream eq 'DQM') {
+    if($setuplabel =~ 'TransferTest' || $stream     =~ 'TransferTest') {
 	$destination = 'TransferTest'; # transfer but delete after
     }
 
