@@ -81,6 +81,7 @@ class  PFRecoTauAlgorithm  {
   double   EcalStripSumE_deltaEta_;
   double   EcalStripSumE_deltaPhiOverQ_minValue_;
   double   EcalStripSumE_deltaPhiOverQ_maxValue_;
+  double   maximumForElectrionPreIDOutput_;
 
   TFormula myMatchingConeSizeTFormula,
            myTrackerSignalConeSizeTFormula,

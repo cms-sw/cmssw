@@ -10,18 +10,22 @@ void PFRecoTauDiscriminationAgainstElectron::produce(Event& iEvent,const EventSe
   for(size_t iPFTau=0;iPFTau<thePFTauCollection->size();++iPFTau) {
     PFTauRef thePFTauRef(thePFTauCollection,iPFTau);
 
-    // Check if track goes to Ecal crack
-    TrackRef myleadTk;
-    if((*thePFTauRef).leadPFChargedHadrCand().isNonnull()){
-      myleadTk=(*thePFTauRef).leadPFChargedHadrCand()->trackRef();
-      math::XYZPointF myleadTkEcalPos = (*thePFTauRef).leadPFChargedHadrCand()->positionAtECALEntrance();
+    // ensure tau has at least one charged object
+    if( (*thePFTauRef).leadPFChargedHadrCand().isNull() )
+    {
+       thePFTauDiscriminatorAgainstElectron->setValue(iPFTau,0);
+       continue;
+    } else { // Check if track goes to Ecal crack
+       TrackRef myleadTk;
+       myleadTk=(*thePFTauRef).leadPFChargedHadrCand()->trackRef();
+       math::XYZPointF myleadTkEcalPos = (*thePFTauRef).leadPFChargedHadrCand()->positionAtECALEntrance();
 
-      if(myleadTk.isNonnull()){ 
-	if (applyCut_ecalCrack_ && isInEcalCrack(abs((double)myleadTkEcalPos.eta()))) {
-	  thePFTauDiscriminatorAgainstElectron->setValue(iPFTau,0);
-	  continue;
-	}
-      }
+       if(myleadTk.isNonnull()){ 
+          if (applyCut_ecalCrack_ && isInEcalCrack(abs((double)myleadTkEcalPos.eta()))) {
+             thePFTauDiscriminatorAgainstElectron->setValue(iPFTau,0);
+             continue;
+          }
+       }
     }
     
     bool decision = false;

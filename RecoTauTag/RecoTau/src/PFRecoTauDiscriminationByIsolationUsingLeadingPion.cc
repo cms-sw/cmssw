@@ -74,7 +74,7 @@ void PFRecoTauDiscriminationByIsolationUsingLeadingPion::produce(Event& iEvent,c
     if (ManipulateTracks_insteadofChargedHadrCands_){
        if (!thePFTau.leadTrack()) theleadElementDiscriminator=0.;
     }else{
-       if (!thePFTau.leadPFCand()) {
+       if (!thePFTau.leadPFCand() || (!thePFTau.leadPFChargedHadrCand())) {
           theleadElementDiscriminator=0.;
        }
     }

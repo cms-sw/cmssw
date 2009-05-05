@@ -63,6 +63,7 @@ PFRecoTauAlgorithm::PFRecoTauAlgorithm(const ParameterSet& iConfig) : TransientT
   EcalStripSumE_deltaEta_               = iConfig.getParameter<double>("EcalStripSumE_deltaEta");
   EcalStripSumE_deltaPhiOverQ_minValue_ = iConfig.getParameter<double>("EcalStripSumE_deltaPhiOverQ_minValue");
   EcalStripSumE_deltaPhiOverQ_maxValue_ = iConfig.getParameter<double>("EcalStripSumE_deltaPhiOverQ_maxValue");
+  maximumForElectrionPreIDOutput_       = iConfig.getParameter<double>("maximumForElectrionPreIDOutput");
 
   DataType_ = iConfig.getParameter<string>("DataType");
 
@@ -293,14 +294,15 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
   }
   
   /* For elecron rejection */
-  double myECALenergy             = 0.;
-  double myHCALenergy             = 0.;
-  double myHCALenergy3x3          = 0.;
-  double myMaximumHCALPFClusterE  = 0.;
-  double myMaximumHCALPFClusterEt = 0.;
-  double myStripClusterE          = 0.;
+  double myECALenergy             =  0.;
+  double myHCALenergy             =  0.;
+  double myHCALenergy3x3          =  0.;
+  double myMaximumHCALPFClusterE  =  0.;
+  double myMaximumHCALPFClusterEt =  0.;
+  double myStripClusterE          =  0.;
   double myEmfrac                 = -1.;
-  bool   myElecPreid              = false;
+  double myElectronPreIDOutput    = -1000.;
+  bool   myElecPreid              =  false;
   reco::TrackRef myElecTrk;
   
   typedef std::pair<reco::PFBlockRef, unsigned> ElementInBlock;
@@ -308,11 +310,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 
   //Use the electron rejection only in case there is a charged leading pion
   if(myleadPFChargedCand.isNonnull()){
-    // A continous ore discrete mva depends on if usePFElectrons is set TRUE or FALSE!!!
-    myPFTau.setelectronPreIDOutput(myleadPFChargedCand->mva_e_pi());  // particleFlow.usePFElectrons = cms.bool(True)
-    if (myleadPFChargedCand->mva_e_pi()==1) {                         // particleFlow.usePFElectrons = cms.bool(False)
-      myElecPreid = true;
-    }
+    myElectronPreIDOutput = myleadPFChargedCand->mva_e_pi();
 
     math::XYZPointF myElecTrkEcalPos = myleadPFChargedCand->positionAtECALEntrance();
     myElecTrk = myleadPFChargedCand->trackRef();//Electron candidate
@@ -351,26 +349,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
            }
 	}
 
-	if ((myHCALenergy+myECALenergy)>0.)
-	  myEmfrac = myECALenergy/(myHCALenergy+myECALenergy);
-	myPFTau.setemFraction((float)myEmfrac);
-	
-	myPFTau.setmaximumHCALPFClusterEt(myMaximumHCALPFClusterEt);
-	myPFTau.sethcalMaxOverPLead((float)myMaximumHCALPFClusterE/(float)myElecTrk->p());
-	myPFTau.sethcal3x3OverPLead((float)myHCALenergy3x3/(float)myElecTrk->p());
-	
-	myPFTau.setecalStripSumEOverPLead((float)myStripClusterE/(float)myElecTrk->p());
-	myPFTau.sethcalTotOverPLead((float)myHCALenergy/(float)myElecTrk->p());
-	
-	myPFTau.setelectronPreIDDecision(myElecPreid);
-	if (myElecTrk.isNonnull()) 
-           myPFTau.setelectronPreIDTrack(myElecTrk);
-	
-      // These need to be filled!
-      //myPFTau.setbremsRecoveryEOverPLead(my...);
-      }
-      //From RECO
-      if(DataType_ == "RECO"){
+      } else if(DataType_ == "RECO"){ //From RECO
          // Against double counting of clusters
          std::vector<math::XYZPoint> hcalPosV; hcalPosV.clear();
          std::vector<math::XYZPoint> ecalPosV; ecalPosV.clear();
@@ -415,30 +394,44 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
                         myStripClusterE += en;
                      }
                   }	  
-
                }
-            }
-         }
+            } //end elements in blocks
+         } //end loop over PFcands
+      } //end RECO case       
+    } // end check for null electrk  
+  } // end check for null pfChargedHadrCand
 
-         if ((myHCALenergy+myECALenergy)>0.)
-            myEmfrac = myECALenergy/(myHCALenergy+myECALenergy);
-         myPFTau.setemFraction((float)myEmfrac);
-         myPFTau.sethcalTotOverPLead((float)myHCALenergy/(float)myElecTrk->p());
-         myPFTau.sethcalMaxOverPLead((float)myMaximumHCALPFClusterE/(float)myElecTrk->p());
-         myPFTau.sethcal3x3OverPLead((float)myHCALenergy3x3/(float)myElecTrk->p());
-         myPFTau.setecalStripSumEOverPLead((float)myStripClusterE/(float)myElecTrk->p());
-         myPFTau.setmaximumHCALPFClusterEt(myMaximumHCALPFClusterEt);
-         myPFTau.setelectronPreIDDecision(myElecPreid);
-         if (myElecTrk.isNonnull()) myPFTau.setelectronPreIDTrack(myElecTrk);
+  if ((myHCALenergy+myECALenergy)>0.)
+     myEmfrac = myECALenergy/(myHCALenergy+myECALenergy);
+  myPFTau.setemFraction((float)myEmfrac);
 
-         // These need to be filled!
-         //myPFTau.setbremsRecoveryEOverPLead(my...);
-         //myPFTau.setelectronPreIDOutput(my...);
-      }       
-    }  
+  // scale the appropriate quantities by the momentum of the electron if it exists
+  if (myElecTrk.isNonnull())
+  {
+     float myElectronMomentum = (float)myElecTrk->p();
+     if (myElectronMomentum > 0.)
+     {
+        myHCALenergy            /= myElectronMomentum;
+        myMaximumHCALPFClusterE /= myElectronMomentum;
+        myHCALenergy3x3         /= myElectronMomentum;
+        myStripClusterE         /= myElectronMomentum;
+     }
   }
-  /* End elecron rejection */
+  myPFTau.sethcalTotOverPLead((float)myHCALenergy);
+  myPFTau.sethcalMaxOverPLead((float)myMaximumHCALPFClusterE);
+  myPFTau.sethcal3x3OverPLead((float)myHCALenergy3x3);
+  myPFTau.setecalStripSumEOverPLead((float)myStripClusterE);
+  myPFTau.setmaximumHCALPFClusterEt(myMaximumHCALPFClusterEt);
+  if (myElecTrk.isNonnull()) 
+     myPFTau.setelectronPreIDTrack(myElecTrk);
+  if (myElectronPreIDOutput > maximumForElectrionPreIDOutput_)
+     myElecPreid = true;
+  myPFTau.setelectronPreIDDecision(myElecPreid);
 
+  // These need to be filled!
+  //myPFTau.setbremsRecoveryEOverPLead(my...);
+
+  /* End elecron rejection */
 
   return myPFTau;  
 }
