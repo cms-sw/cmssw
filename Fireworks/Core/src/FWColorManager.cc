@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.5 2009/04/14 15:45:25 chrjones Exp $
+// $Id: FWColorManager.cc,v 1.6 2009/05/04 20:03:32 amraktad Exp $
 //
 
 // system include files
@@ -198,8 +198,8 @@ void resetColors(const float(* iColors)[3], unsigned int iSize, unsigned int iSt
      
       // apply brightness
       red     =  TMath::Power( red, (2.5 + m_gammaOff)/2.5);
-      green  = TMath::Power(green, (2.5 + m_gammaOff)/2.5);
-     blue    = TMath::Power(blue, (2.5 + m_gammaOff)/2.5);
+      green = TMath::Power(green, (2.5 + m_gammaOff)/2.5);
+      blue   = TMath::Power(blue, (2.5 + m_gammaOff)/2.5);
 
       c->SetRGB(red,green,blue);
    }
@@ -280,9 +280,10 @@ void
 FWColorManager::decreaseBrightness()
 {
    Float_t value =  m_gammaOff + 0.1;
-   if (value < -0.5 || value > 0.5)
+   if (value < -2.5 || value > 2.5)
    {
-      printf("Warning::Set brightness out of range.  value '%f' out of range [-0.5, 0.5]. \n", value);
+      printf("Warning::Set brightness out of range.  value '%f' out of range [-2.5, 2.5]. \n", value);
+      return;
    }
    
    m_gammaOff = value;
@@ -293,9 +294,10 @@ void
 FWColorManager::increaseBrightness()
 {
    Float_t value =  m_gammaOff - 0.1;
-   if (value < -0.5 || value > 0.5)
+   if (value < -2.5 || value > 2.5)
    {
-      printf("Warning::Set brightness out of range.  value '%f' out of range [-0.5, 0.5].\n", value);
+      printf("Warning::Set brightness out of range.  value '%f' out of range [-2.5, 2.5].\n", value);
+      return;
    }
    m_gammaOff = value;
    updateBrightness();
