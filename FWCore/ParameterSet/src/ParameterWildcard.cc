@@ -95,7 +95,7 @@ namespace edm {
 
   ParameterWildcard<std::vector<ParameterSetDescription> >::
   ParameterWildcard(std::string const& pattern, WildcardValidationCriteria criteria, bool isTracked) :
-    ParameterWildcardBase(k_PSet, isTracked, criteria),
+    ParameterWildcardBase(k_VPSet, isTracked, criteria),
     vPsetDesc_()
   {
     throwIfInvalidPattern(pattern);
@@ -103,7 +103,7 @@ namespace edm {
 
   ParameterWildcard<std::vector<ParameterSetDescription> >::
   ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria, bool isTracked) :
-    ParameterWildcardBase(k_PSet, isTracked, criteria),
+    ParameterWildcardBase(k_VPSet, isTracked, criteria),
     vPsetDesc_()
   {
     throwIfInvalidPattern(pattern);
@@ -112,7 +112,7 @@ namespace edm {
   ParameterWildcard<std::vector<ParameterSetDescription> >::
   ParameterWildcard(std::string const& pattern, WildcardValidationCriteria criteria, bool isTracked,
                     std::vector<ParameterSetDescription> const& desc) :
-    ParameterWildcardBase(k_PSet, isTracked, criteria),
+    ParameterWildcardBase(k_VPSet, isTracked, criteria),
     vPsetDesc_(new std::vector<ParameterSetDescription>(desc))
   {
     throwIfInvalidPattern(pattern);
@@ -122,7 +122,7 @@ namespace edm {
   ParameterWildcard<std::vector<ParameterSetDescription> >::
   ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria, bool isTracked,
                     std::vector<ParameterSetDescription> const& desc) :
-    ParameterWildcardBase(k_PSet, isTracked, criteria),
+    ParameterWildcardBase(k_VPSet, isTracked, criteria),
     vPsetDesc_(new std::vector<ParameterSetDescription>(desc))
   {
     throwIfInvalidPattern(pattern);

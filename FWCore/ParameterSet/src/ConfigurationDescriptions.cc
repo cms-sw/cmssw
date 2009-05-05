@@ -20,8 +20,8 @@
 
 namespace {
   void matchLabel(std::pair<std::string, edm::ParameterSetDescription> const& thePair,
-                 std::string const& moduleLabel,
-		  edm::ParameterSetDescription const* psetDesc) {
+                  std::string const& moduleLabel,
+                  edm::ParameterSetDescription const*& psetDesc) {
     if (thePair.first == moduleLabel) {
       psetDesc = &thePair.second;
     }
