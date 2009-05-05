@@ -7,17 +7,14 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 #include <boost/shared_ptr.hpp>
 
-class  SiStripRecHitMatcherESProducer: public edm::ESProducer{
+class SiStripRecHitMatcherESProducer: public edm::ESProducer {
  public:
-  SiStripRecHitMatcherESProducer(const edm::ParameterSet & p);
-  virtual ~SiStripRecHitMatcherESProducer(); 
-  boost::shared_ptr<SiStripRecHitMatcher> produce(const TkStripCPERecord &);
+  SiStripRecHitMatcherESProducer(const edm::ParameterSet&);
+  boost::shared_ptr<SiStripRecHitMatcher> produce(const TkStripCPERecord&);
  private:
-  boost::shared_ptr<SiStripRecHitMatcher> _matcher;
+  boost::shared_ptr<SiStripRecHitMatcher> matcher_;
   edm::ParameterSet pset_;
 };
-
-
 #endif
 
 

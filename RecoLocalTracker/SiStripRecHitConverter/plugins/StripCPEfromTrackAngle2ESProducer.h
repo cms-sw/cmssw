@@ -7,17 +7,14 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include <boost/shared_ptr.hpp>
 
-class  StripCPEfromTrackAngle2ESProducer: public edm::ESProducer{
+class  StripCPEfromTrackAngle2ESProducer: public edm::ESProducer {
  public:
-  StripCPEfromTrackAngle2ESProducer(const edm::ParameterSet & p);
-  virtual ~StripCPEfromTrackAngle2ESProducer(); 
-  boost::shared_ptr<StripClusterParameterEstimator> produce(const TkStripCPERecord &);
+  StripCPEfromTrackAngle2ESProducer(const edm::ParameterSet&);
+  boost::shared_ptr<StripClusterParameterEstimator> produce(const TkStripCPERecord&);
  private:
-  boost::shared_ptr<StripClusterParameterEstimator> _cpe;
+  boost::shared_ptr<StripClusterParameterEstimator> cpe_;
   edm::ParameterSet pset_;
 };
-
-
 #endif
 
 
