@@ -35,8 +35,8 @@ class DetId;
 
 /** \class CaloTowersCreationAlgo
   *  
-  * $Date: 2009/02/25 07:41:00 $
-  * $Revision: 1.15 $
+  * $Date: 2009/03/22 20:14:47 $
+  * $Revision: 1.16 $
   * \author R. Wilkinson - Caltech
   */
 
@@ -50,7 +50,12 @@ class CaloTowersCreationAlgo {
 public:
   CaloTowersCreationAlgo();
 
-  CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, double HcalThreshold,
+  CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, 
+
+    bool useEtEBTreshold, bool useEtEETreshold,
+    bool useSymEBTreshold, bool useSymEETreshold,				    
+
+    double HcalThreshold,
     double HBthreshold, double HESthreshold, double HEDthreshold,
     double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
     double HOthresholdPlus2, double HOthresholdMinus2,
@@ -67,7 +72,12 @@ public:
     double momEEDepth
     );
   
-  CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, double HcalThreshold,
+  CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, 
+
+    bool useEtEBTreshold, bool useEtEETreshold,
+    bool useSymEBTreshold, bool useSymEETreshold,
+
+    double HcalThreshold,
     double HBthreshold, double HESthreshold, double HEDthreshold,
     double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
     double HOthresholdPlus2, double HOthresholdMinus2, 
@@ -204,8 +214,14 @@ private:
   
   /// helper method to look up the appropriate threshold & weight
   void getThresholdAndWeight(const DetId & detId, double & threshold, double & weight) const;
+
+  double theEBthreshold, theEEthreshold;
+  bool theUseEtEBTresholdFlag, theUseEtEETresholdFlag;
+  bool theUseSymEBTresholdFlag,theUseSymEETresholdFlag;
   
-  double theEBthreshold, theEEthreshold, theHcalThreshold;
+  
+  double  theHcalThreshold;
+
   double theHBthreshold, theHESthreshold,  theHEDthreshold; 
   double theHOthreshold0, theHOthresholdPlus1, theHOthresholdMinus1;
   double theHOthresholdPlus2, theHOthresholdMinus2, theHF1threshold, theHF2threshold;

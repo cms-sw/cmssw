@@ -5,23 +5,23 @@
 #include "RecoLocalCalo/CaloTowersCreator/interface/ctEScales.h"
 
 CaloTowersReCreator::CaloTowersReCreator(const edm::ParameterSet& conf) : 
-  algo_(0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0., // thresholds cannot be reapplied
-        conf.getUntrackedParameter<std::vector<double> >("EBGrid",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("EBWeights",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("EEGrid",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("EEWeights",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HBGrid",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HBWeights",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HESGrid",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HESWeights",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HEDGrid",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HEDWeights",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HOGrid",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HOWeights",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HF1Grid",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HF1Weights",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HF2Grid",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HF2Weights",std::vector<double>(10,0.)),
+  algo_(0.,0., false, false, false, false, 0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0., // thresholds cannot be reapplied
+        conf.getParameter<std::vector<double> >("EBGrid"),
+        conf.getParameter<std::vector<double> >("EBWeights"),
+        conf.getParameter<std::vector<double> >("EEGrid"),
+        conf.getParameter<std::vector<double> >("EEWeights"),
+        conf.getParameter<std::vector<double> >("HBGrid"),
+        conf.getParameter<std::vector<double> >("HBWeights"),
+        conf.getParameter<std::vector<double> >("HESGrid"),
+        conf.getParameter<std::vector<double> >("HESWeights"),
+        conf.getParameter<std::vector<double> >("HEDGrid"),
+        conf.getParameter<std::vector<double> >("HEDWeights"),
+        conf.getParameter<std::vector<double> >("HOGrid"),
+        conf.getParameter<std::vector<double> >("HOWeights"),
+        conf.getParameter<std::vector<double> >("HF1Grid"),
+        conf.getParameter<std::vector<double> >("HF1Weights"),
+        conf.getParameter<std::vector<double> >("HF2Grid"),
+        conf.getParameter<std::vector<double> >("HF2Weights"),
         conf.getParameter<double>("EBWeight"),
         conf.getParameter<double>("EEWeight"),
         conf.getParameter<double>("HBWeight"),
@@ -43,14 +43,14 @@ CaloTowersReCreator::CaloTowersReCreator(const edm::ParameterSet& conf) :
   caloLabel_(conf.getParameter<edm::InputTag>("caloLabel")),
   allowMissingInputs_(false)
 {
-  EBEScale=conf.getUntrackedParameter<double>("EBEScale",50.);
-  EEEScale=conf.getUntrackedParameter<double>("EEEScale",50.);
-  HBEScale=conf.getUntrackedParameter<double>("HBEScale",50.);
-  HESEScale=conf.getUntrackedParameter<double>("HESEScale",50.);
-  HEDEScale=conf.getUntrackedParameter<double>("HEDEScale",50.);
-  HOEScale=conf.getUntrackedParameter<double>("HOEScale",50.);
-  HF1EScale=conf.getUntrackedParameter<double>("HF1EScale",50.);
-  HF2EScale=conf.getUntrackedParameter<double>("HF2EScale",50.);
+  EBEScale=conf.getParameter<double>("EBEScale");
+  EEEScale=conf.getParameter<double>("EEEScale");
+  HBEScale=conf.getParameter<double>("HBEScale");
+  HESEScale=conf.getParameter<double>("HESEScale");
+  HEDEScale=conf.getParameter<double>("HEDEScale");
+  HOEScale=conf.getParameter<double>("HOEScale");
+  HF1EScale=conf.getParameter<double>("HF1EScale");
+  HF2EScale=conf.getParameter<double>("HF2EScale");
   if (ctEScales.instanceLabel=="") produces<CaloTowerCollection>();
   else produces<CaloTowerCollection>(ctEScales.instanceLabel);
   //  two notes:

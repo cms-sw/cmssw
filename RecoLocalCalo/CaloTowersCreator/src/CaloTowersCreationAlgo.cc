@@ -12,6 +12,13 @@
 CaloTowersCreationAlgo::CaloTowersCreationAlgo()
  : theEBthreshold(-1000.),
    theEEthreshold(-1000.),
+
+   theUseEtEBTresholdFlag(false),
+   theUseEtEETresholdFlag(false),
+   theUseSymEBTresholdFlag(false),
+   theUseSymEETresholdFlag(false),
+
+
    theHcalThreshold(-1000.),
    theHBthreshold(-1000.),
    theHESthreshold(-1000.),
@@ -63,7 +70,14 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo()
 {
 }
 
-CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, double HcalThreshold,
+CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, 
+
+					       bool useEtEBTreshold,
+					       bool useEtEETreshold,
+					       bool useSymEBTreshold,
+					       bool useSymEETreshold,				    
+
+					       double HcalThreshold,
 					       double HBthreshold, double HESthreshold, double  HEDthreshold,
 					       double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
 					       double HOthresholdPlus2, double HOthresholdMinus2, 
@@ -82,6 +96,12 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
 
   : theEBthreshold(EBthreshold),
     theEEthreshold(EEthreshold),
+
+    theUseEtEBTresholdFlag(useEtEBTreshold),
+    theUseEtEETresholdFlag(useEtEETreshold),
+    theUseSymEBTresholdFlag(useSymEBTreshold),
+    theUseSymEETresholdFlag(useSymEETreshold),
+
     theHcalThreshold(HcalThreshold),
     theHBthreshold(HBthreshold),
     theHESthreshold(HESthreshold),
@@ -131,7 +151,14 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
 {
 }
 
-CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, double HcalThreshold,
+CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, 
+
+					       bool useEtEBTreshold,
+					       bool useEtEETreshold,
+					       bool useSymEBTreshold,
+					       bool useSymEETreshold,
+
+					       double HcalThreshold,
 					       double HBthreshold, double HESthreshold, double  HEDthreshold,
 					       double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
 					       double HOthresholdPlus2, double HOthresholdMinus2,  
@@ -158,6 +185,12 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
 
   : theEBthreshold(EBthreshold),
     theEEthreshold(EEthreshold),
+
+    theUseEtEBTresholdFlag(useEtEBTreshold),
+    theUseEtEETresholdFlag(useEtEETreshold),
+    theUseSymEBTresholdFlag(useSymEBTreshold),
+    theUseSymEETresholdFlag(useSymEETreshold),
+
     theHcalThreshold(HcalThreshold),
     theHBthreshold(HBthreshold),
     theHESthreshold(HESthreshold),
@@ -464,9 +497,28 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
       
       uint chStatusForCT = ecalChanStatusForCaloTower(recHit);
       
-      // For ECAL we count all bad channels after for the completed metatower 
+      // For ECAL we count all bad channels after the metatower is complete 
 
-      if (chStatusForCT != CaloTowersCreationAlgo::BadChan && energy >= threshold) {
+      // Include options for symmetric thresholds and cut on Et
+      // for ECAL RecHits
+
+      bool passEmThreshold = false;
+      
+      if (detId.subdetId() == EcalBarrel) {
+	if (theUseEtEBTresholdFlag) energy /= cosh( (theGeometry->getGeometry(detId)->getPosition()).eta() ) ;
+	if (theUseSymEBTresholdFlag) passEmThreshold = (fabs(energy) >= threshold);
+	else  passEmThreshold = (energy >= threshold);
+
+      }
+      else if (detId.subdetId() == EcalEndcap) {
+	if (theUseEtEETresholdFlag) energy /= cosh( (theGeometry->getGeometry(detId)->getPosition()).eta() ) ;
+	if (theUseSymEETresholdFlag) passEmThreshold = (fabs(energy) >= threshold);
+	else  passEmThreshold = (energy >= threshold);
+      }
+
+
+      //      if (chStatusForCT != CaloTowersCreationAlgo::BadChan && energy >= threshold) {
+      if (chStatusForCT != CaloTowersCreationAlgo::BadChan && passEmThreshold) {
         tower.E_em += e;
         tower.E += e;
         
@@ -480,7 +532,8 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
         // change when full status info is available
         // for now use only good channels
         
-        if (chStatusForCT == CaloTowersCreationAlgo::GoodChan) {
+	// add e>0 check (new options allow e<0)
+        if (chStatusForCT == CaloTowersCreationAlgo::GoodChan && e>0 ) {
           tower.emSumTimeTimesE += ( e * recHit->time() );
           tower.emSumEForTime   += e;  // see above
         }
@@ -864,11 +917,12 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
       }
 
     }
-
+    //--------------------------------------------------------------------------------------
 
     retval.setCaloTowerStatus(numBadHcalChan, numBadEcalChan,	 
 			      numRecHcalChan, numRecEcalChan,	 
 			      numProbHcalChan, numProbEcalChan);
+  
 
     std::vector<DetId> contains;
     for (std::vector<std::pair<DetId,double> >::iterator i=metaContains.begin(); i!=metaContains.end(); ++i) 
@@ -1220,6 +1274,7 @@ GlobalPoint CaloTowersCreationAlgo::emShwrLogWeightPos(std::vector<std::pair<Det
 
   std::vector<std::pair<DetId,double> >::iterator mc_it = metaContains.begin();
   for (; mc_it!=metaContains.end(); ++mc_it) {
+    if (mc_it->second < 0) continue;
     if (mc_it->first.det() == DetId::Ecal && mc_it->second > crystalThresh) sumEmE += mc_it->second;
   }
 
