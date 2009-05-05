@@ -132,6 +132,7 @@ namespace edm
     sort_all(wantedBranches_);
     for (unsigned int branch=0;branch<wantedBranches_.size();++branch) LogDebug("MixingModule")<<"Will keep branch "<<wantedBranches_[branch]<<" for mixing ";
   
+    dropUnwantedBranches(wantedBranches_);
     produces<CrossingFramePlaybackInfo>();
   }
  
