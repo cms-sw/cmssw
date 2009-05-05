@@ -50,7 +50,8 @@ PFTester::PFTester(const edm::ParameterSet& iConfig)
 
 PFTester::~PFTester() { }
 
-void PFTester::beginJob(const edm::EventSetup& iSetup)
+void 
+PFTester::beginJob()
 {
 
   // get ahold of back-end interface
@@ -89,7 +90,9 @@ void PFTester::beginJob(const edm::EventSetup& iSetup)
 
 }
 
-void PFTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void 
+PFTester::analyze(const edm::Event& iEvent, 
+		  const edm::EventSetup& iSetup)
 {
   
   // Data to Retrieve from the Event

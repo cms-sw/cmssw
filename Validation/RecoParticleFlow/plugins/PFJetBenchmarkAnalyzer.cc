@@ -14,7 +14,7 @@
 //
 // Original Author:  Michel Della Negra
 //         Created:  Wed Jan 23 10:11:13 CET 2008
-// $Id: PFJetBenchmarkAnalyzer.cc,v 1.4 2008/10/28 15:02:50 pjanot Exp $
+// $Id: PFJetBenchmarkAnalyzer.cc,v 1.1 2009/03/02 16:22:55 cbern Exp $
 // Extensions by Joanna Weng
 //
 
@@ -55,7 +55,7 @@ public:
 
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   // ----------member data ---------------------------
@@ -140,7 +140,8 @@ PFJetBenchmarkAnalyzer::~PFJetBenchmarkAnalyzer()
 
 // ------------ method called to for each event  ------------
 void
-PFJetBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+PFJetBenchmarkAnalyzer::analyze(const edm::Event& iEvent, 
+				const edm::EventSetup& iSetup)
 {
  // get gen jet collection
   Handle<GenJetCollection> genjets;
@@ -164,7 +165,7 @@ PFJetBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-PFJetBenchmarkAnalyzer::beginJob(const edm::EventSetup&)
+PFJetBenchmarkAnalyzer::beginJob()
 {
 
 }

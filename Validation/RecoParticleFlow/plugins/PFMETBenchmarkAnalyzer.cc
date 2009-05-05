@@ -14,7 +14,7 @@
 //
 // Original Author:  Michel Della Negra
 //         Created:  Wed Jan 23 10:11:13 CET 2008
-// $Id: PFMETBenchmarkAnalyzer.cc,v 1.1 2009/03/02 16:22:55 cbern Exp $
+// $Id: PFMETBenchmarkAnalyzer.cc,v 1.2 2009/04/20 13:04:26 pjanot Exp $
 // Extensions by Joanna Weng
 //
 
@@ -57,7 +57,7 @@ public:
 
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   // ----------member data ---------------------------
@@ -171,7 +171,7 @@ PFMETBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-PFMETBenchmarkAnalyzer::beginJob(const edm::EventSetup&)
+PFMETBenchmarkAnalyzer::beginJob()
 {
 
 }

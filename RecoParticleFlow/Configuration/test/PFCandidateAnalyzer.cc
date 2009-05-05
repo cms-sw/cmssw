@@ -39,11 +39,14 @@ PFCandidateAnalyzer::~PFCandidateAnalyzer() { }
 
 
 
-void PFCandidateAnalyzer::beginJob(const edm::EventSetup & es) { }
+void 
+PFCandidateAnalyzer::beginRun(edm::Run& run, 
+			      const edm::EventSetup & es) { }
 
 
-void PFCandidateAnalyzer::analyze(const Event& iEvent, 
-				  const EventSetup& iSetup) {
+void 
+PFCandidateAnalyzer::analyze(const Event& iEvent, 
+			     const EventSetup& iSetup) {
   
   LogDebug("PFCandidateAnalyzer")<<"START event: "<<iEvent.id().event()
 			 <<" in run "<<iEvent.id().run()<<endl;

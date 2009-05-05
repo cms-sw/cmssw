@@ -63,7 +63,8 @@ GenericBenchmarkAnalyzer::GenericBenchmarkAnalyzer(const edm::ParameterSet& iCon
 
 GenericBenchmarkAnalyzer::~GenericBenchmarkAnalyzer() { }
 
-void GenericBenchmarkAnalyzer::beginJob(const edm::EventSetup& iSetup)
+void 
+GenericBenchmarkAnalyzer::beginJob()
 {
 
   // get ahold of back-end interface
@@ -80,7 +81,9 @@ void GenericBenchmarkAnalyzer::beginJob(const edm::EventSetup& iSetup)
 
 }
 
-void GenericBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void 
+GenericBenchmarkAnalyzer::analyze(const edm::Event& iEvent, 
+				  const edm::EventSetup& iSetup)
 {
   
   // Typedefs to use views
