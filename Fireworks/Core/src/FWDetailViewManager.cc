@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.29 2009/03/31 08:43:34 jmuelmen Exp $
+// $Id: FWDetailViewManager.cc,v 1.30 2009/03/31 10:45:25 amraktad Exp $
 //
 
 // system include files
@@ -129,7 +129,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
    m_latex->SetTextSize(fs);
    m_latex->Draw();
    m_latex->DrawLatex(0.02, 0.97 -fs*0.5, Form("index[%d]", id.index()));
-   m_latex->DrawLatex(0.02, 0.97 -fs, Form("item[%d]",  (unsigned int)id.item()));
+   m_latex->DrawLatex(0.02, 0.97 -fs, Form("item[%d]",  (size_t)id.item()));
 
    // viewer 
    TGLEmbeddedViewer* v = new TGLEmbeddedViewer(hf, 0, 0);
