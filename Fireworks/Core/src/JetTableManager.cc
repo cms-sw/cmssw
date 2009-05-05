@@ -1,4 +1,5 @@
 #include "TableManagers.h"
+#include <algorithm>
 
 std::string JetTableManager::titles[] = {
    "Et",

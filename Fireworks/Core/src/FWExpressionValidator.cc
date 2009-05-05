@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 20:42:51 EDT 2008
-// $Id: FWExpressionValidator.cc,v 1.4.8.1 2009/04/24 02:18:41 dmytro Exp $
+// $Id: FWExpressionValidator.cc,v 1.5 2009/04/27 16:53:29 dmytro Exp $
 //
 
 // system include files
@@ -17,7 +17,7 @@
 #include "Reflex/Type.h"
 #include "Reflex/Member.h"
 #include "Reflex/Base.h"
-
+#include <cstring>
 
 // user include files
 #include "Fireworks/Core/src/FWExpressionValidator.h"
