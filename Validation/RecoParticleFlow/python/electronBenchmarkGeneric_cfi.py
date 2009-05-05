@@ -13,5 +13,9 @@ electronBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
     PlotAgainstRecoQuantities = cms.bool(False),
     OnlyTwoJets = cms.bool(False),
     BenchmarkLabel = cms.string( electrons ),
-    InputRecoLabel = cms.InputTag( electrons )
+    InputRecoLabel = cms.InputTag( electrons ),                                   
+    minDeltaEt = cms.double(-100.),
+    maxDeltaEt = cms.double(50.),
+    minDeltaPhi = cms.double(-0.5),
+    maxDeltaPhi = cms.double(0.5)    
 )
