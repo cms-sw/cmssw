@@ -46,8 +46,6 @@ inline CSCBadChambers *  CSCBadChambersConditions::prefillBadChambers()
   //  const int MAX_SIZE = 468;
   //cndbbadchambers = new CSCBadChambers();
 
-  CSCBadChambers * cndbbadchambers = new CSCBadChambers();
-
   int new_chambers;
   std::vector<int> new_badchambers;
 
@@ -65,22 +63,14 @@ inline CSCBadChambers *  CSCBadChambersConditions::prefillBadChambers()
   while(!newdata.eof() ) {
     newdata >> new_chambers;
     new_badchambers.push_back(new_chambers);
-    new_nrlines++;
+    ++new_nrlines;
   }
   newdata.close();
-  
-  cndbbadchambers->numberOfBadChambers = new_nrlines;
+
+  CSCBadChambers * cndbbadchambers = new CSCBadChambers(new_nrlines, new_badchambers);  
+
   //std::cout <<"numberOfBadChambers "<<new_nrlines<<std::endl;
 
-  std::vector<int>& itemvector = cndbbadchambers->chambers;
-  itemvector.resize(new_nrlines);
-  
-  for(int i=0; i<new_nrlines;i++){
-     itemvector[i] =  new_badchambers[i];
-     // std::cout<<"itemvector= "<<i<<"  "<<itemvector[i]<<std::endl;
-  }
- 
- 
    return cndbbadchambers;
 }
 
