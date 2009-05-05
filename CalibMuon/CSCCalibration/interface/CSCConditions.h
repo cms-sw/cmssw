@@ -60,10 +60,10 @@ public:
   const std::bitset<80>& badStripWord( const CSCDetId& id ) const;
   const std::bitset<112>& badWireWord( const CSCDetId& id ) const;
 
-  /// is gven layer/chamber flagged as bad?
-  bool isInBadChamber( const CSCDetId& id ) const;
-
   void print() const;
+
+  /// Is the gven chamber flagged as bad?
+  bool isInBadChamber( const CSCDetId& id ) const;
 
   /// did we request reading bad channel info from db?
   bool readBadChannels() const { return readBadChannels_; }

@@ -141,17 +141,7 @@ void CSCConditions::fillBadWireWords(){
 }
 
 bool CSCConditions::isInBadChamber( const CSCDetId& id ) const {
-
-  if ( !readBadChambers() || ( theBadChambers->numberOfBadChambers == 0 ) ) return false;
-
-  short int iri = id.ring();
-  if ( iri == 4 ) iri = 1; // reset ME1A to ME11
-  CSCIndexer indexer;
-  int ilin = indexer.chamberIndex( id.endcap(), id.station(), iri, id.chamber() );
-  std::vector<int>::const_iterator badbegin = theBadChambers->chambers.begin();
-  std::vector<int>::const_iterator badend = theBadChambers->chambers.end();
-  std::vector<int>::const_iterator it = std::find( badbegin, badend, ilin );
-  if ( it != badend ) return true; // id is in the list of bad chambers
+  if ( readBadChambers() )  return theBadChambers->isInBadChamber( id );
   else return false;
 }
 
