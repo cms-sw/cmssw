@@ -5,7 +5,7 @@
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
-#include "CondTools/Hcal/interface/HcalLogicalMap.h"
+#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class HBHEStatusBitSetter {
