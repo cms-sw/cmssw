@@ -52,7 +52,7 @@ PFConversionsProducer::~PFConversionsProducer() {
 }
 
 
-void PFConversionsProducer::beginJob( const edm::EventSetup& setup)
+void PFConversionsProducer::beginRun(edm::Run, const edm::EventSetup& setup)
 {
 
   nEvt_=0;

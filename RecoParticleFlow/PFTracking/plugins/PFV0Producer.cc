@@ -63,11 +63,7 @@ PFV0Producer::produce(Event& iEvent, const EventSetup& iSetup)
   iEvent.put(pfV0Coll);
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-PFV0Producer::beginJob(const EventSetup& iSetup)
-{
-}
+
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 

@@ -18,7 +18,7 @@ public:
   ~PFNuclearProducer();
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginRun(edm::Run,const edm::EventSetup&) ;
   virtual void endJob() ;
   
   ///Produce the PFRecTrack collection

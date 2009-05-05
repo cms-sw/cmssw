@@ -453,7 +453,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 }
 // ------------ method called once each job just before starting event loop  ------------
 void 
-GoodSeedProducer::beginJob(const EventSetup& es)
+GoodSeedProducer::beginRun(edm::Run & run,const EventSetup& es)
 {
   //Magnetic Field
   ESHandle<MagneticField> magneticField;

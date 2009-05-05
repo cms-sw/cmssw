@@ -23,7 +23,7 @@ class PFConversionsProducer : public edm::EDProducer
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
       
-      virtual void beginJob(const edm::EventSetup & c);
+      virtual void beginRun(edm::Run,const edm::EventSetup & c);
       
       virtual void endJob ();
       

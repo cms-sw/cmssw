@@ -75,7 +75,7 @@ PFNuclearProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-PFNuclearProducer::beginJob(const EventSetup& iSetup)
+PFNuclearProducer::beginRun(edm::Run,const EventSetup& iSetup)
 {
   ESHandle<MagneticField> magneticField;
   iSetup.get<IdealMagneticFieldRecord>().get(magneticField);

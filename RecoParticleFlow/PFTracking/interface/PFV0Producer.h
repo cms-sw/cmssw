@@ -17,7 +17,7 @@ public:
   ~PFV0Producer();
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob(){} ;
   virtual void endJob() ;
   
   ///Produce the PFRecTrack collection

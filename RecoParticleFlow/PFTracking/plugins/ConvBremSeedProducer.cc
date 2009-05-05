@@ -384,7 +384,7 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
 
 void 
-ConvBremSeedProducer::beginJob(const EventSetup& iSetup)
+ConvBremSeedProducer::beginRun(edm::Run,const EventSetup& iSetup)
 {
   ESHandle<GeometricSearchTracker> track;
   iSetup.get<TrackerRecoGeometryRecord>().get( track ); 
