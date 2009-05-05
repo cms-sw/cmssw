@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.13 2009/05/05 03:52:31 hlliu Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.7 2009/05/05 09:42:21 nancy Exp $
 //
 //
 
@@ -612,22 +612,4 @@ TrackerOnlyConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup
 }
 
 
-// ------------ method called once each job just before starting event loop  ------------
-    void
-TrackerOnlyConversionProducer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-TrackerOnlyConversionProducer::endJob() {
-}
-
-void
-TrackerOnlyConversionProducer::beginRun(const edm::Run& run, const edm::EventSetup& iSetup ) {
-}
-
-void
-TrackerOnlyConversionProducer::endRun(const edm::Run & run, const edm::EventSetup & iSetup){
-}
 

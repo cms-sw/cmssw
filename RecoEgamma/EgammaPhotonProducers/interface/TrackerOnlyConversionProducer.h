@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2009/05/05 03:52:31 $
- **  $Revision: 1.3 $
+ **  $Date: 2009/05/05 09:42:17 $
+ **  $Revision: 1.4 $
  **  \author H. Liu, UC of Riverside US
  **
  ***/
@@ -98,11 +98,8 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
 	      reco::CaloClusterPtr& closestBC);
 
    private:
-      virtual void beginJob() ;
+
       virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-      virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
       inline void getCircleCenter(const reco::TrackRef& tk, 
 	      const double r, double& x0, double& y0, 
