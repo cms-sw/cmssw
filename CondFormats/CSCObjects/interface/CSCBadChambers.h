@@ -7,7 +7,8 @@
 
 class CSCBadChambers{
  public:
-  CSCBadChambers() {};
+  CSCBadChambers() : numberOfBadChambers( 0 ), chambers( std::vector<int>() ) {};
+  CSCBadChambers(int nch, std::vector<int> ch ) : numberOfBadChambers( nch ), chambers( ch ) {};
   ~CSCBadChambers(){};
 
   /// How many bad chambers are there>
