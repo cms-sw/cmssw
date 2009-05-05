@@ -31,6 +31,8 @@
  * - getDetIds: fills a vector with all detIds for which the thresholds have been stored.
  * - getDataVectorBegin and getDataVectorEnd: return the begin and end iterators to the vector<Data>.
  * - getData can be used to get the thresholds for a single strip.
+ * The printSummary method prints mean, rms, min and max threshold values for each DetId.
+ * The printDebug method prints all the thresholds for all DetIds.
  */
 
 class SiStripThreshold {
@@ -119,8 +121,10 @@ class SiStripThreshold {
   SiStripThreshold::Data getData (const uint16_t& strip, const Range& range) const;
  
   void  allThresholds(std::vector<float> &lowThs, std::vector<float> &highThs, const Range& range)  const; 
- 
+
+  /// Prints mean, rms, min and max threshold values for each DetId.
   void printSummary(std::stringstream& ss) const;
+  /// Prints all the thresholds for all DetIds. 
   void printDebug(std::stringstream& ss) const;
 
  private:
