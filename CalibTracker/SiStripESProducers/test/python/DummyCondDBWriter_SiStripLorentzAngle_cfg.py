@@ -47,8 +47,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
-process.SiStripLorentzAngleGenerator.TIB_EstimatedValue = cms.double(0.01784)
-process.SiStripLorentzAngleGenerator.TOB_EstimatedValue = cms.double(0.02315)
+process.SiStripLorentzAngleGenerator.TIB_EstimatedValueMinMax = cms.vdouble(0.015, 0.019)
+process.SiStripLorentzAngleGenerator.TOB_EstimatedValueMinMax = cms.vdouble(0.020, 0.025)
 process.SiStripLorentzAngleGenerator.TIB_PerCent_Err=cms.double(0.)
 process.SiStripLorentzAngleGenerator.TOB_PerCent_Err=cms.double(0.)
 
