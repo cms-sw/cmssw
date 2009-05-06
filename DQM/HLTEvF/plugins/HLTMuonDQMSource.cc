@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.19 2009/03/27 21:44:52 hdyoo Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.21 2009/04/22 22:14:44 hdyoo Exp $
 // Modification:  Hwidong Yoo (Purdue University)
 // contact: hdyoo@cern.ch
 //
@@ -116,11 +116,16 @@ HLTMuonDQMSource::HLTMuonDQMSource( const edm::ParameterSet& ps ) :counterEvt_(0
   for(std::vector<edm::ParameterSet>::iterator filterconf = filters.begin() ; filterconf != filters.end() ; filterconf++){
     theHLTCollectionLevel.push_back(filterconf->getParameter<std::string>("HLTCollectionLevel"));
     theHLTCollectionLabels.push_back(filterconf->getParameter<std::string>("HLTCollectionLabels"));
+    theHLTCollectionL1seed.push_back(filterconf->getParameter<edm::InputTag>("HLTCollectionL1seed"));
+    theHLTCollectionL1filter.push_back(filterconf->getParameter<edm::InputTag>("HLTCollectionL1filter"));
+    theHLTCollectionL2filter.push_back(filterconf->getParameter<edm::InputTag>("HLTCollectionL2filter"));
+    theHLTCollectionL2isofilter.push_back(filterconf->getParameter<edm::InputTag>("HLTCollectionL2isofilter"));
+    theHLTCollectionL3filter.push_back(filterconf->getParameter<edm::InputTag>("HLTCollectionL3filter"));
+    theHLTCollectionL3isofilter.push_back(filterconf->getParameter<edm::InputTag>("HLTCollectionL3isofilter"));
   }
   
   // L1PassThrough, L2PassThrough, L3PassThrough
   nTrigs = 3;
-  
 }
 
 
@@ -149,9 +154,37 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
     
     // Efficiency summary histogram
     int nbin = theHLTCollectionLabels.size() - 1;
-    hCountSummary = dbe_->book1D("hCountSummary", "Counticiency Summary", nbin+1, -0.5, 0.5+(double)nbin);
+    dbe_->setCurrentFolder(monitorName_ + "EfficiencySummary/");
+
     hEffSummary = dbe_->book1D("hEffSummary", "Efficiency Summary", nbin, 0.5, 0.5+(double)nbin);
     hEffSummary->setAxisTitle("# of events passing (trig path/"+theHLTCollectionLabels[0]+")", 2);
+
+    int nbin_sub = 5;
+    for( int trig = 0; trig < nbin+1; trig++ ) {
+	// efficiency plots for subfilter
+        hSubFilterEfficiency[trig] = dbe_->book1D("Subfilter Efficiency for "+theHLTCollectionLabels[trig], "Subfilter Efficiency for "+theHLTCollectionLabels[trig], nbin_sub, 0.5, 0.5+(double)nbin_sub);
+	hSubFilterEfficiency[trig]->setBinLabel(1, theHLTCollectionL1filter[trig].label().c_str());
+	hSubFilterEfficiency[trig]->setBinLabel(2, theHLTCollectionL2filter[trig].label().c_str());
+	hSubFilterEfficiency[trig]->setBinLabel(3, theHLTCollectionL2isofilter[trig].label().c_str());
+	hSubFilterEfficiency[trig]->setBinLabel(4, theHLTCollectionL3filter[trig].label().c_str());
+	hSubFilterEfficiency[trig]->setBinLabel(5, theHLTCollectionL3isofilter[trig].label().c_str());
+    }
+    
+    // Count histos for efficiency plots
+    dbe_->setCurrentFolder(monitorName_ + "EfficiencySummary/CountHistos/");
+    hCountSummary = dbe_->book1D("hCountSummary", "Count Summary", nbin+1, -0.5, 0.5+(double)nbin);
+
+    for( int trig = 0; trig < nbin+1; trig++ ) {
+	// count plots for subfilter
+        hSubFilterCount[trig] = dbe_->book1D("Subfilter for "+theHLTCollectionLabels[trig], "Subfilter for "+theHLTCollectionLabels[trig], nbin_sub+1, -0.5, 0.5+(double)nbin_sub);
+	hSubFilterCount[trig]->setBinLabel(1, theHLTCollectionL1seed[trig].label().c_str());
+	hSubFilterCount[trig]->setBinLabel(2, theHLTCollectionL1filter[trig].label().c_str());
+	hSubFilterCount[trig]->setBinLabel(3, theHLTCollectionL2filter[trig].label().c_str());
+	hSubFilterCount[trig]->setBinLabel(4, theHLTCollectionL2isofilter[trig].label().c_str());
+	hSubFilterCount[trig]->setBinLabel(5, theHLTCollectionL3filter[trig].label().c_str());
+	hSubFilterCount[trig]->setBinLabel(6, theHLTCollectionL3isofilter[trig].label().c_str());
+    }
+
     for( int ibin = 0; ibin < nbin; ibin++ ) {
 	hEffSummary->setBinLabel(ibin+1, theHLTCollectionLabels[ibin+1]);
     }
@@ -802,6 +835,78 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
   if( !trigFired ) return;
   nTrig_++;
 
+  edm::Handle<trigger::TriggerEventWithRefs> triggerObj;
+  iEvent.getByLabel("hltTriggerSummaryRAW",triggerObj);
+  if(triggerObj.isValid()) {
+      //SubFilterHistos<l1extra::L1MuonParticleCollection>(triggerObj, iEvent, 0);
+
+      // L1seed
+      std::vector<edm::Ref<l1extra::L1MuonParticleCollection> > l1particlecands;
+      for( unsigned int n = 0; n < (unsigned int)theHLTCollectionL1seed.size(); n++) {
+	  l1particlecands.clear();
+	  if( triggerObj->filterIndex(theHLTCollectionL1seed[n]) < triggerObj->size() ) {
+	      triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionL1seed[n]), trigger::TriggerL1Mu, l1particlecands);
+	  }
+          if( l1particlecands.size() > 0 ) hSubFilterCount[n]->Fill(-0.5);
+      }
+      // L1filter
+      l1particlecands.clear();
+      for( unsigned int n = 0; n < (unsigned int)theHLTCollectionL1filter.size(); n++) {
+	  l1particlecands.clear();
+	  if( triggerObj->filterIndex(theHLTCollectionL1filter[n]) < triggerObj->size() ) {
+	      triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionL1filter[n]), trigger::TriggerL1Mu, l1particlecands);
+	  }
+          if( l1particlecands.size() > 0 ) hSubFilterCount[n]->Fill(0.5);
+      }
+      // L2filter
+      std::vector<edm::Ref<reco::RecoChargedCandidateCollection> > hltparticlecands;
+      for( unsigned int n = 0; n < (unsigned int)theHLTCollectionL2filter.size(); n++) {
+	  hltparticlecands.clear();
+	  if( triggerObj->filterIndex(theHLTCollectionL2filter[n]) < triggerObj->size() ) {
+	      triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionL2filter[n]), trigger::TriggerMuon, hltparticlecands);
+	  }
+          if( hltparticlecands.size() > 0 ) hSubFilterCount[n]->Fill(1.5);
+      }
+      // L2isofilter
+      hltparticlecands.clear();
+      for( unsigned int n = 0; n < (unsigned int)theHLTCollectionL2isofilter.size(); n++) {
+	  hltparticlecands.clear();
+	  if( triggerObj->filterIndex(theHLTCollectionL2isofilter[n]) < triggerObj->size() ) {
+	      triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionL2isofilter[n]), trigger::TriggerMuon, hltparticlecands);
+	  }
+          if( hltparticlecands.size() > 0 ) hSubFilterCount[n]->Fill(2.5);
+      }
+      // L3filter
+      hltparticlecands.clear();
+      for( unsigned int n = 0; n < (unsigned int)theHLTCollectionL3filter.size(); n++) {
+	  hltparticlecands.clear();
+	  if( triggerObj->filterIndex(theHLTCollectionL3filter[n]) < triggerObj->size() ) {
+	      triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionL3filter[n]), trigger::TriggerMuon, hltparticlecands);
+	  }
+          if( hltparticlecands.size() > 0 ) hSubFilterCount[n]->Fill(3.5);
+      }
+      // L3isofilter
+      hltparticlecands.clear();
+      for( unsigned int n = 0; n < (unsigned int)theHLTCollectionL3isofilter.size(); n++) {
+	  hltparticlecands.clear();
+	  if( triggerObj->filterIndex(theHLTCollectionL3isofilter[n]) < triggerObj->size() ) {
+	      triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionL3isofilter[n]), trigger::TriggerMuon, hltparticlecands);
+	  }
+          if( hltparticlecands.size() > 0 ) hSubFilterCount[n]->Fill(4.5);
+      }
+  }
+
+  for( unsigned int n = 0; n < (unsigned int)theHLTCollectionL1seed.size(); n++) {
+      TH1F* refhisto = hSubFilterCount[n]->getTH1F();
+      for( int i = 0; i < 5; i++ ) {
+          double denomerator = refhisto->GetBinContent(1); 
+          double numerator = refhisto->GetBinContent(i+1);
+          double eff = 1.0;
+          if( denomerator != 0 ) eff = numerator/denomerator;
+          hSubFilterEfficiency[n]->setBinContent(i, eff);
+      }
+  }
+
   // efficiency summary
   for( unsigned int i = 0; i < (unsigned int)theHLTCollectionLabels.size(); i++ ) {
       if( trigPathFired[i] ) {
@@ -812,7 +917,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
   for( unsigned int i = 1; i < (unsigned int)theHLTCollectionLabels.size()+1; i++ ) {
       double denomerator = refhisto->GetBinContent(1); // HLT_L1MuOpen usually. If not , the lowest threshold HLT_L1Mu*
       double numerator = refhisto->GetBinContent(i+1);
-      double eff;
+      double eff = 1.0;
       if( denomerator != 0 ) eff = numerator/denomerator;
       hEffSummary->setBinContent(i, eff);
   }
