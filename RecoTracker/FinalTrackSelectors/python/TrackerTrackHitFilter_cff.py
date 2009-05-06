@@ -35,5 +35,9 @@ TrackerTrackHitFilter = cms.EDProducer("TrackerTrackHitFilter",
                               rejectLowAngleHits=cms.bool(False),
                               TrackAngleCut=cms.double(0.25),       ## in radians
                               tagOverlaps=cms.bool(False),
-                              usePixelQualityFlag=cms.bool(False)     
+                              usePixelQualityFlag=cms.bool(False),
+                              PxlTemplateProbXCut=cms.double(0.001), #recommended by experts
+                              PxlTemplateProbYCut=cms.double(0.010), #recommended by experts
+                              PxlTemplateqBinCut =cms.int32(4)         #recommended by experts
+                                       
                              )####end of module 

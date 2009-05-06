@@ -136,6 +136,10 @@ namespace reco { namespace modules {
     double TrackAngleCut_;
     bool checkHitAngle(const TrajectoryMeasurement &meas);
     bool checkPXLQuality_;
+    double pxlTPLProbX_;
+    double pxlTPLProbY_;
+    int pxlTPLqBin_;
+
     edm::ESHandle<TrackerGeometry> theGeometry;
     edm::ESHandle<MagneticField>   theMagField;
 
@@ -149,7 +153,7 @@ namespace reco { namespace modules {
     // bool checkOverlapHit();
 
     TrackCandidate makeCandidate(const reco::Track &tk, std::vector<TrackingRecHit *>::iterator hitsBegin, std::vector<TrackingRecHit *>::iterator hitsEnd) ;
-       const TransientTrackingRecHitBuilder *RHBuilder;
+    //const TransientTrackingRecHitBuilder *RHBuilder;
   }; // class
   
   
@@ -286,7 +290,10 @@ TrackerTrackHitFilter::TrackerTrackHitFilter(const edm::ParameterSet &iConfig) :
     rejectLowAngleHits_( iConfig.getParameter<bool>("rejectLowAngleHits") ),
     TrackAngleCut_( iConfig.getParameter<double>("TrackAngleCut") ),
     tagOverlaps_( iConfig.getParameter<bool>("tagOverlaps") ),
-    checkPXLQuality_(iConfig.getParameter<bool>("usePixelQualityFlag") )
+    checkPXLQuality_(iConfig.getParameter<bool>("usePixelQualityFlag") ),
+    pxlTPLProbX_(iConfig.getParameter<double>("PxlTemplateProbXCut")),
+    pxlTPLProbY_(iConfig.getParameter<double>("PxlTemplateProbYCut")),
+    pxlTPLqBin_(iConfig.getParameter<int32_t>("PxlTemplateqBinCut"))
 {
 
 
@@ -359,8 +366,8 @@ TrackerTrackHitFilter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
   // read from EventSetup
   iSetup.get<TrackerDigiGeometryRecord>().get(theGeometry);
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
-  iSetup.get<TransientRecHitRecord>().get("WithTrackAngle",theBuilder);
-  RHBuilder=   theBuilder.product();
+  //iSetup.get<TransientRecHitRecord>().get("WithTrackAngle",theBuilder);
+  // RHBuilder=   theBuilder.product();
 
 
   // prepare output collection
@@ -468,6 +475,8 @@ TrackerTrackHitFilter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
       hits.clear();
     } // loop on tracks
   }//end else useTracks
+
+  // std::cout<<"OUTPUT SIZE: "<<output->size()<<std::endl;
   
   iEvent.put(output);
 }
@@ -513,7 +522,12 @@ void TrackerTrackHitFilter::produceFromTrack(const edm::EventSetup &iSetup, cons
 
         for (trackingRecHit_iterator ith = itt->recHitsBegin(), edh = itt->recHitsEnd(); ith != edh; ++ith) {
 	  const TrackingRecHit * hit = ith->get(); // ith is an iterator on edm::Ref to rechit
+
 	    DetId detid = hit->geographicalId();
+	  
+	    //check that the hit is a real hit and not a constraint
+	    if(hit->isValid() && hit==0 && detid.rawId()==0) continue;
+
 	    int verdict=checkHit(iSetup,detid,hit);
 	    if (verdict == 0) {
 	      // just copy the hit
@@ -549,12 +563,15 @@ void TrackerTrackHitFilter::produceFromTrajectory(const edm::EventSetup &iSetup,
   int previousLayer(-1);
   ///---OverlapEnd   
 
- 
-  for(std::vector<TrajectoryMeasurement>::const_iterator itTrajMeas = tmColl.begin(); itTrajMeas!=tmColl.end(); itTrajMeas++){
+  int constrhits=0;
 
-    TransientTrackingRecHit::ConstRecHitPointer hitpointer = itTrajMeas->recHit();
+  for(std::vector<TrajectoryMeasurement>::const_iterator itTrajMeas = tmColl.begin(); itTrajMeas!=tmColl.end(); itTrajMeas++){
+     TransientTrackingRecHit::ConstRecHitPointer hitpointer = itTrajMeas->recHit();
+
+     //check that the hit is a real hit and not a constraint
+     if(hitpointer->isValid() && hitpointer->hit()==0){constrhits++; continue;}
+    
     const TrackingRecHit *hit=((*hitpointer).hit());
-  
     DetId detid = hit->geographicalId();
     int verdict=checkHit(iSetup,detid,hit);
   
@@ -624,7 +641,7 @@ void TrackerTrackHitFilter::produceFromTrajectory(const edm::EventSetup &iSetup,
   } // loop on hits
 
   std::reverse(hits.begin(),hits.end());
- 
+  //  std::cout<<"Finished producefromTrajecotries. Nhits in final coll"<<hits.size() <<"   Nconstraints="<<constrhits<<std::endl; 
 } //end TrackerTrackHitFilter::produceFromTrajectories
 
 int TrackerTrackHitFilter::checkHit(const edm::EventSetup &iSetup,const  DetId &detid,  const TrackingRecHit * hit){
@@ -724,7 +741,10 @@ bool TrackerTrackHitFilter::checkStoN(const edm::EventSetup &iSetup, const DetId
 	//	if(haspassed_tplreco)	std::cout<<"  CLUSTPROB=\t"<<xprob<<"\t"<<yprob<<"\t"<<combprob<<"\t"<<qbin<<std::endl;
 	//	else std::cout<<"CLUSTPROBNOTDEF=\t"<<xprob<<"\t"<<yprob<<"\t"<<combprob<<"\t"<<qbin<<std::endl;
 
-	if( haspassed_tplreco && (log10(xprob)<=-3 || log10(yprob)<=-2 ) )keepthishit = false;
+	keepthishit = false;
+	qbin=-1;//deactivated for now...
+	if( haspassed_tplreco && xprob>pxlTPLProbX_ && yprob>pxlTPLProbY_ && qbin<=pxlTPLqBin_ )keepthishit = true;
+
       }
       else {std::cout<<"HIT IN PIXEL ("<<subdet_cnt <<")but PixelRecHit is EMPTY!!!"<<std::endl;}
       }//end if check pixel quality flag
