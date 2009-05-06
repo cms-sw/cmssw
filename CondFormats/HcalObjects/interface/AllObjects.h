@@ -14,5 +14,6 @@
 #include "CondFormats/HcalObjects/interface/HcalZSThresholds.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalL1TriggerObjects.h"
+#include "CondFormats/HcalObjects/interface/HcalTimeCorrs.h"
 
 #endif

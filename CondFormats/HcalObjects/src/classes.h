@@ -11,6 +11,7 @@
 #include "CondFormats/HcalObjects/interface/HcalZSThresholds.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalL1TriggerObjects.h"
+#include "CondFormats/HcalObjects/interface/HcalTimeCorrs.h"
 
 namespace {
   struct dictionary {
@@ -47,6 +48,9 @@ namespace {
  
     HcalL1TriggerObjects myL1trigs;
     std::vector<HcalL1TriggerObject> myL1trigsVec;
+
+    HcalTimeCorrs mytcorrs;
+    std::vector<HcalTimeCorr> mytcorrsVec;
   };
 }
 

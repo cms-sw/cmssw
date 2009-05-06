@@ -50,5 +50,10 @@
  <class name="std::vector<HcalL1TriggerObject>"/>
  <class name="HcalL1TriggerObjects"/>
 
+ <class name="HcalTimeCorr"/>
+ <class name="std::vector<HcalTimeCorr>"/>
+ <class name="HcalTimeCorrs"/>
+
+
  <class pattern="*HcalCondObjectContainer*"/>
 </lcgdict>   
