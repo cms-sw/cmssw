@@ -1,22 +1,35 @@
-<use name=boost>
-<use name=rootmath>
-<use name=root>
-<use name=FWCore/Framework>
-<use name=DataFormats/EgammaCandidates>
-<use name=DataFormats/ParticleFlowReco>
-<use name=DataFormats/ParticleFlowCandidate>
-<use name=DataFormats/Math>
-<use name=DataFormats/GeometrySurface> 
-<use name=RecoParticleFlow/PFClusterTools>
+<use name="DataFormats/CaloRecHit">
+<use name="DataFormats/Common">
+<use name="DataFormats/EgammaCandidates">
+<use name="DataFormats/GeometrySurface">
+<use name="DataFormats/GsfTrackReco">
+<use name="DataFormats/MuonReco">
+<use name="DataFormats/ParticleFlowCandidate">
+<use name="DataFormats/ParticleFlowReco">
+<use name="DataFormats/Provenance">
+<use name="DataFormats/TrackReco">
+<use name="RecoParticleFlow/PFClusterTools">
+<use name="boost">
+<use name="clhep">
+<use name="rootmath">
+<use name="roottmva">
 <flags LDFLAGS="-lTMVA">
 <export>
-  <lib name=RecoParticleFlowPFProducer>
-  <use name=FWCore/Framework>
-  <use name=DataFormats/ParticleFlowReco>
-  <use name=DataFormats/ParticleFlowCandidate>	
-  <use name=DataFormats/Math>
-  <use name=RecoParticleFlow/PFClusterTools>
-  <use name=DataFormats/GeometrySurface> 
+  <use name="DataFormats/CaloRecHit">
+  <use name="DataFormats/Common">
+  <use name="DataFormats/EgammaCandidates">
+  <use name="DataFormats/GeometrySurface">
+  <use name="DataFormats/GsfTrackReco">
+  <use name="DataFormats/MuonReco">
+  <use name="DataFormats/ParticleFlowCandidate">
+  <use name="DataFormats/ParticleFlowReco">
+  <use name="DataFormats/Provenance">
+  <use name="DataFormats/TrackReco">
+  <use name="RecoParticleFlow/PFClusterTools">
+  <use name="boost">
+  <use name="clhep">
+  <use name="rootmath">
+  <use name="roottmva">
+  <lib name="RecoParticleFlowPFProducer">
 </export>
-
 
