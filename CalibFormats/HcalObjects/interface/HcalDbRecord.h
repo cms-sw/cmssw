@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Tue Aug  9 19:10:36 CDT 2005
-// $Id: HcalDbRecord.h,v 1.6 2008/03/03 16:52:17 rofierzy Exp $
+// $Id: HcalDbRecord.h,v 1.7 2008/11/08 21:16:39 rofierzy Exp $
 //
 #include "boost/mpl/vector.hpp"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
@@ -32,13 +32,14 @@
 #include "CondFormats/DataRecord/interface/HcalZSThresholdsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalL1TriggerObjectsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalTimeCorrsRcd.h"
 
 // class HcalDbRecord : public edm::eventsetup::EventSetupRecordImplementation<HcalDbRecord> {};
 
 class HcalDbRecord : public edm::eventsetup::DependentRecordImplementation <HcalDbRecord,  
   boost::mpl::vector<HcalPedestalsRcd, HcalPedestalWidthsRcd, HcalGainsRcd, HcalGainWidthsRcd, 
   HcalQIEDataRcd, HcalChannelQualityRcd, HcalZSThresholdsRcd, HcalRespCorrsRcd, 
-  HcalL1TriggerObjectsRcd, HcalElectronicsMapRcd > > {}; 
+  HcalL1TriggerObjectsRcd, HcalElectronicsMapRcd, HcalTimeCorrsRcd > > {}; 
 
 #endif /* HCALDBPRODUCER_HCALDBRECORD_H */
 

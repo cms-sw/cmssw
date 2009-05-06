@@ -1,7 +1,7 @@
 //
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
-// $Id: HcalDbService.cc,v 1.26 2009/01/14 10:42:34 rofierzy Exp $
+// $Id: HcalDbService.cc,v 1.27 2009/03/24 16:05:21 rofierzy Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
@@ -26,7 +26,8 @@ HcalDbService::HcalDbService (const edm::ParameterSet& cfg)
   mQIEData(0),
   mElectronicsMap(0),
   mRespCorrs(0),
-  mL1TriggerObjects(0)
+  mL1TriggerObjects(0),
+  mTimeCorrs(0)
  {}
 
 bool HcalDbService::makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibrations* fObject, bool pedestalInADC) const {
@@ -34,6 +35,7 @@ bool HcalDbService::makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibr
     const HcalPedestal* pedestal = getPedestal (fId);
     const HcalGain* gain = getGain (fId);
     const HcalRespCorr* respcorr = getHcalRespCorr (fId);
+    const HcalTimeCorr* timecorr = getHcalTimeCorr (fId);
 
     if (pedestalInADC) {
       const HcalQIEShape* shape=getHcalShape();
@@ -49,12 +51,12 @@ bool HcalDbService::makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibr
 	  float y1=coder->charge(*shape,x1,i);
 	  pedTrue[i]=(y2-y1)*(x-x1)+y1;
 	}
-	*fObject = HcalCalibrations (gain->getValues (), pedTrue, respcorr->getValue() );
+	*fObject = HcalCalibrations (gain->getValues (), pedTrue, respcorr->getValue(), timecorr->getValue() );
 	return true; 
       }
     } else {
-      if (pedestal && gain && respcorr) {
-	*fObject = HcalCalibrations (gain->getValues (), pedestal->getValues (), respcorr->getValue() );
+      if (pedestal && gain && respcorr && timecorr) {
+	*fObject = HcalCalibrations (gain->getValues (), pedestal->getValues (), respcorr->getValue(), timecorr->getValue() );
 	return true;
       }
     }
@@ -64,7 +66,7 @@ bool HcalDbService::makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibr
 
 void HcalDbService::buildCalibrations() {
   // we use the set of ids for pedestals as the master list
-  if ((!mPedestals) || (!mGains) || (!mQIEData) || (!mRespCorrs)) return;
+  if ((!mPedestals) || (!mGains) || (!mQIEData) || (!mRespCorrs) || (!mTimeCorrs)) return;
   std::vector<DetId> ids=mPedestals->getAllChannels();
   bool pedsInADC = mPedestals->isADC();
   // clear the calibrations set
@@ -206,5 +208,13 @@ const HcalZSThreshold* HcalDbService::getHcalZSThreshold (const HcalGenericDetId
 {
   return mZSThresholds->getValues (fId);
 }
+
+const HcalTimeCorr* HcalDbService::getHcalTimeCorr (const HcalGenericDetId& fId) const {
+  if (mTimeCorrs) {
+    return mTimeCorrs->getValues (fId);
+  }
+  return 0;
+}
+
 
 EVENTSETUP_DATA_REG(HcalDbService);

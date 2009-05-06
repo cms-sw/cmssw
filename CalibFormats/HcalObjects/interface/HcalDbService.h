@@ -41,6 +41,7 @@ class HcalDbService {
   const HcalQIEShape* getHcalShape () const;
   const HcalElectronicsMap* getHcalMapping () const;
   const HcalRespCorr* getHcalRespCorr (const HcalGenericDetId& fId) const;
+  const HcalTimeCorr* getHcalTimeCorr (const HcalGenericDetId& fId) const;
   const HcalL1TriggerObject* getHcalL1TriggerObject (const HcalGenericDetId& fId) const;
   const HcalChannelStatus* getHcalChannelStatus (const HcalGenericDetId& fId) const;
   const HcalZSThreshold* getHcalZSThreshold (const HcalGenericDetId& fId) const;
@@ -53,6 +54,7 @@ class HcalDbService {
   void setData (const HcalChannelQuality* fItem) {mChannelQuality = fItem;}
   void setData (const HcalElectronicsMap* fItem) {mElectronicsMap = fItem;}
   void setData (const HcalRespCorrs* fItem) {mRespCorrs = fItem; buildCalibrations(); }
+  void setData (const HcalTimeCorrs* fItem) {mTimeCorrs = fItem;  buildCalibrations(); }
   void setData (const HcalZSThresholds* fItem) {mZSThresholds = fItem;}
   void setData (const HcalL1TriggerObjects* fItem) {mL1TriggerObjects = fItem;}
 
@@ -74,6 +76,7 @@ class HcalDbService {
   const HcalRespCorrs* mRespCorrs;
   const HcalZSThresholds* mZSThresholds;
   const HcalL1TriggerObjects* mL1TriggerObjects;
+  const HcalTimeCorrs* mTimeCorrs;
   //  bool mPedestalInADC;
   HcalCalibrationsSet mCalibSet;
   HcalCalibrationWidthsSet mCalibWidthSet;

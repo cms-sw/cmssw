@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.42 2009/03/24 16:11:33 rofierzy Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.43 2009/03/25 14:08:18 rofierzy Exp $
 //
 #include <vector>
 #include <string>
@@ -227,6 +227,10 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalGainWidths& fOb
 
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalRespCorrs* fObject) {return getHcalSingleFloatObject (fInput, fObject, new HcalRespCorr); }
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalRespCorrs& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
+
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalTimeCorrs* fObject) {return getHcalSingleFloatObject (fInput, fObject, new HcalTimeCorr); }
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalTimeCorrs& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
+
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalZSThresholds* fObject) {return getHcalSingleIntObject (fInput, fObject, new HcalZSThreshold); }
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalZSThresholds& fObject) {return dumpHcalSingleIntObject (fOutput, fObject); }
 
