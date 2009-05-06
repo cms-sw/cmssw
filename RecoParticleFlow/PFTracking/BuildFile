@@ -2,7 +2,7 @@
 <use name=TrackingTools/Records>
 <use name=TrackingTools/PatternTools>
 <use name=TrackingTools/TrajectoryState>
-<use name=RecoParticleFlow/PFBlockAlgo>
+<use name=RecoParticleFlow/PFProducer>
 <use name=RecoParticleFlow/PFClusterTools>
 <use name=RecoTracker/TrackProducer>
 <use name=FastSimulation/Particle>

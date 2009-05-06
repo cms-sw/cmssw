@@ -1,7 +1,7 @@
 #ifndef PFTrackTransformer_H
 #define PFTrackTransformer_H
 
-#include "RecoParticleFlow/PFBlockAlgo/interface/PFGeometry.h"
+#include "RecoParticleFlow/PFProducer/interface/PFGeometry.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventSetup.h"
