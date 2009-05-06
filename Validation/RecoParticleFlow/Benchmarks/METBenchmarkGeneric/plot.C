@@ -33,35 +33,34 @@
   SavePlot("legend", outdir.c_str() );
     
   comp.SetAxis(10, -200,200);
-  TCanvas c1a("c1a", "deltaMET");
+  TCanvas c1a("c1a", "DeltaMET");
   FormatPad( &c1a, false ); 
-//comp.DrawSlice("DeltaEtvsEt", ptMin, ptMax, mode);
-  comp.Draw("DeltaEt", mode);
+  comp.DrawSlice("DeltaEtvsEt", 20., 10000., mode);
+//comp.Draw("DeltaEt", mode);
   SavePlot("deltaMET", outdir.c_str() );
   comp.SetAxis(5);
 
-
-    TCanvas c1b("c1b", "MET");
-    FormatPad( &c1b, false );
-    comp.SetAxis(2,0,120);
-    comp.Draw("EtRec", mode);
-    SavePlot("MET", outdir.c_str() );
-
+  TCanvas c1b("c1b", "MET");
+  FormatPad( &c1b, false );
+  comp.SetAxis(2,0,120);
+  comp.Draw("EtRec", mode);
+  SavePlot("MET", outdir.c_str() );
 
   TCanvas c2a("c2a", "MEX");
   FormatPad( &c2a, false );
   comp.Draw("ExRec", mode);
   SavePlot("MEX", outdir.c_str() );
 
-    TCanvas c2b("c2b", "MEY");
-    FormatPad( &c2b, false );
-    comp.Draw("EyRec", mode);
-    SavePlot("MEY", outdir.c_str() );
+  TCanvas c2b("c2b", "MEY");
+  FormatPad( &c2b, false );
+  comp.Draw("EyRec", mode);
+  SavePlot("MEY", outdir.c_str() );
 
   comp.SetAxis(10, -3.2,3.2);
   TCanvas c3a("c3a", "DeltaPhi");
   FormatPad( &c3a, false );
-  comp.Draw("DeltaPhi", mode);
+  comp.DrawSlice("DeltaPhivsEt", 20., 10000., mode);
+//comp.Draw("DeltaPhi", mode);
   SavePlot("deltaPhi", outdir.c_str() );
 
   TCanvas c3b("c3b", "pf vs Gen");
@@ -86,16 +85,40 @@
   SavePlot("genMET", outdir.c_str() );
   comp.SetAxis(1);
 
-  
-//  TCanvas c7("c7", "eta");
-//  FormatPad( &c7, false );
-//  comp.Draw("EtaGen", mode);
-//  SavePlot("etagen", outdir.c_str() );
+  comp.SetAxis(10, -200,200);
+  TCanvas c7("c7", "DeltaMET_20_50");
+  FormatPad( &c7, false );
+  comp.DrawSlice("DeltaEtvsEt", 20., 50., mode);
+  SavePlot("deltaMET_20_50", outdir.c_str() );
 
-//   TCanvas c8("c8", "nGen");
-//   FormatPad( &c8, false );
-//   comp.Draw("NGen", mode);
-//   SavePlot("ngen", outdir.c_str() );
+  comp.SetAxis(10, -200,200);
+  TCanvas c8("c8", "DeltaMET_50_100");
+  FormatPad( &c8, false );
+  comp.DrawSlice("DeltaEtvsEt", 50., 100., mode);
+  SavePlot("deltaMET_50_100", outdir.c_str() );
 
-  
+  comp.SetAxis(10, -200,200);
+  TCanvas c9("c9", "DeltaMET_100_200");
+  FormatPad( &c9, false );
+  comp.DrawSlice("DeltaEtvsEt", 100., 200., mode);
+  SavePlot("deltaMET_100_200", outdir.c_str() );
+
+  comp.SetAxis(10, -200,200);
+  TCanvas c10("c10", "DeltaPhi_20_50");
+  FormatPad( &c10, false );
+  comp.DrawSlice("DeltaPhivsEt", 20., 50., mode);
+  SavePlot("deltaPhi_20_50", outdir.c_str() );
+
+  comp.SetAxis(10, -200,200);
+  TCanvas c11("c11", "DeltaPhi_50_100");
+  FormatPad( &c11, false );
+  comp.DrawSlice("DeltaPhivsEt", 50., 100., mode);
+  SavePlot("deltaPhi_50_100", outdir.c_str() );
+
+  comp.SetAxis(10, -200,200);
+  TCanvas c12("c12", "DeltaPhi_100_200");
+  FormatPad( &c12, false );
+  comp.DrawSlice("DeltaPhivsEt", 100., 200., mode);
+  SavePlot("deltaPhi_100_200", outdir.c_str() );
+
 }
