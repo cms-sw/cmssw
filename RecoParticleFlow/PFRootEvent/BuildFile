@@ -8,7 +8,6 @@
 <use name=DataFormats/Math>
 <use name=DataFormats/MuonReco>
 <use name=RecoParticleFlow/PFClusterAlgo>
-<use name=RecoParticleFlow/PFBlockAlgo>
 <use name=RecoParticleFlow/PFProducer>
 <use name=RecoParticleFlow/Benchmark>
 <use name=RecoParticleFlow/PFClusterTools>
@@ -32,7 +31,6 @@
 <use name=DataFormats/JetReco>
 <use name=RecoJets/JetAlgorithms>
 <use name=RecoParticleFlow/PFClusterAlgo>
-<use name=RecoParticleFlow/PFBlockAlgo> 
 <use name=RecoParticleFlow/PFProducer>
 <use name=RecoParticleFlow/Benchmark>
 </export>

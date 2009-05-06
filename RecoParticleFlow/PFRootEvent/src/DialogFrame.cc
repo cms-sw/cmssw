@@ -2,7 +2,7 @@
 #include <fstream>
 #include <stdlib.h>
 
-#include "RecoParticleFlow/PFBlockAlgo/interface/PFGeometry.h"
+#include "RecoParticleFlow/PFProducer/interface/PFGeometry.h"
 #include "RecoParticleFlow/PFRootEvent/interface/DialogFrame.h"
 #include "RecoParticleFlow/PFRootEvent/interface/DisplayCommon.h"
 

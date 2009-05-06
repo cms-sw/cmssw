@@ -47,7 +47,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
 #include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
-#include "RecoParticleFlow/PFBlockAlgo/interface/PFBlockAlgo.h"
+#include "RecoParticleFlow/PFProducer/interface/PFBlockAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFAlgo.h"
 
 #include "RecoParticleFlow/PFRootEvent/interface/PFJetAlgorithm.h"

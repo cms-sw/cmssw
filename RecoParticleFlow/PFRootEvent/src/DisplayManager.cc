@@ -5,7 +5,7 @@
 #include "RecoParticleFlow/PFRootEvent/interface/IO.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
-#include "RecoParticleFlow/PFBlockAlgo/interface/PFGeometry.h"
+#include "RecoParticleFlow/PFProducer/interface/PFGeometry.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
