@@ -84,9 +84,11 @@ class PythiaFilterEMJetHeep : public edm::EDFilter {
        int Ncharged;
        float ptMaxHadron;
 
-       bool accepted;
+       bool minbias;
 
+       bool accepted;       
+    
        bool debug;
-
+   
 };
 #endif
