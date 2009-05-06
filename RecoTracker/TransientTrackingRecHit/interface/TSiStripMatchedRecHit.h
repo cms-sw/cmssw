@@ -42,6 +42,34 @@ public:
   virtual RecHitPointer clone( const TrajectoryStateOnSurface& ts) const;
   virtual bool canImproveWithTrack() const {return (theMatcher != 0);}
   virtual ConstRecHitContainer 	transientHits () const;
+
+  /// Dummy struct to pass to the constructor to say 'please don't clone the hit'
+  struct DontCloneRecHit {};
+
+  /// Build this hit on the heap, but possibly starting from already allocated memory.
+  /// if 'memory' is not null, it will call the placed delete, and then the placed new to make a new hit 
+  /// if 'memory' is null, it will fill it with a new heap-allocated hit
+  /// both at entry and exit of this method any rechit in 'memory' DOES NOT own it's persistent rechit
+  static void buildInPlace(std::auto_ptr<TSiStripMatchedRecHit> &memory,
+                              const GeomDet * geom, const TrackingRecHit * rh,
+                              const SiStripRecHitMatcher *matcher,
+                              const StripClusterParameterEstimator* cpe=0,
+                              float weight=1., float annealing=1.,
+                              bool computeCoarseLocalPosition=false) {
+        if (memory.get()) {
+            memory->~TSiStripMatchedRecHit(); // call destructor
+            new (memory.get()) TSiStripMatchedRecHit( geom, rh, matcher,cpe,weight, annealing, computeCoarseLocalPosition, DontCloneRecHit());
+        } else {
+            memory.reset(new TSiStripMatchedRecHit( geom, rh, matcher,cpe,weight, annealing, computeCoarseLocalPosition, DontCloneRecHit()));
+        }
+  }
+
+  /// take ownership of the hit, if it wasn't owned (note: if it was owned, this code will leak it)
+  void clonePersistentHit()  { trackingRecHit_ = trackingRecHit_->clone(); }
+  /// drop the pointer to the hit, so that it's not deleted by the destructor.
+  /// you must call this before deleting the TSiStripMatchedRecHit IF AND ONLY IF it doesn't own the rechit
+  void clearPersistentHit() { trackingRecHit_ = 0; }
+
 private:
   const SiStripRecHitMatcher* theMatcher; 
   const StripClusterParameterEstimator* theCPE;
@@ -62,7 +90,17 @@ private:
     GenericTransientTrackingRecHit(geom, rh.release(), weight, annealing), theMatcher(matcher),theCPE(cpe) {
     if (computeCoarseLocalPosition) ComputeCoarseLocalPosition();
   }
-    
+  TSiStripMatchedRecHit (const GeomDet * geom, const TrackingRecHit * rh, 
+			 const SiStripRecHitMatcher *matcher,
+			 const StripClusterParameterEstimator* cpe,
+			 float weight, float annealing,
+			 bool computeCoarseLocalPosition,
+                         const DontCloneRecHit &) : 
+    GenericTransientTrackingRecHit(geom, const_cast<TrackingRecHit *>(rh), weight, annealing), theMatcher(matcher),theCPE(cpe) {
+    if (computeCoarseLocalPosition) ComputeCoarseLocalPosition();
+  }
+
+   
     void ComputeCoarseLocalPosition(){
       if (!theCPE || !theMatcher) return;
       const SiStripMatchedRecHit2D *orig = static_cast<const SiStripMatchedRecHit2D *> (trackingRecHit_);
@@ -116,7 +154,7 @@ private:
 	}
       }
     }
-    
+
   virtual TSiStripMatchedRecHit* clone() const {
     return new TSiStripMatchedRecHit(*this);
   }
