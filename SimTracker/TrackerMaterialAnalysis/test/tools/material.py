@@ -3,6 +3,7 @@ import re
 import bisect
 import copy
 import math
+from python25 import *
 
 class ElementLevel:
   name = ""
@@ -118,16 +119,21 @@ class Element(ElementBase):
 
 
 def parse(source):
-  pattern = re.compile(r'\(([0-9-.]+) *, *([0-9-.]+) *, *([0-9-.]+)\) *(.*)')
+  pattern = re.compile(r'(.*) *\(([0-9-.]+) *, *([0-9-.]+) *, *([0-9-.]+)\)')
   elements = []
   for line in source:
     match = pattern.match(line)
-    r   = float(match.group(1))
-    z   = float(match.group(2))
-    phi = float(match.group(3))
+    if not match:
+      print 'Warning: the following line does not match the parsing rules:'
+      print line
+      print
+      continue
+    r   = float(match.group(2))
+    z   = float(match.group(3))
+    phi = float(match.group(4))
     eta = -math.log(r / (z + math.sqrt(r*r + z*z)))
     position = (0, r, z, abs(z), eta, abs(eta), phi)
-    name = match.group(4)
+    name = match.group(1)
     elements.append(Element(position, name))
   return elements
 
