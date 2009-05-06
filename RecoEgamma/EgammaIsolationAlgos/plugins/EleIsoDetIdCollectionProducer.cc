@@ -39,9 +39,8 @@ EleIsoDetIdCollectionProducer::EleIsoDetIdCollectionProducer(const edm::Paramete
 
 EleIsoDetIdCollectionProducer::~EleIsoDetIdCollectionProducer() {}
 
-void EleIsoDetIdCollectionProducer::beginJob (const edm::EventSetup& iSetup) {
-    
-}
+void EleIsoDetIdCollectionProducer::beginJob () 
+{}
 
 // ------------ method called to produce the data  ------------
     void

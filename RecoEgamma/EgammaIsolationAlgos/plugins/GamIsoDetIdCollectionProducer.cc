@@ -39,9 +39,8 @@ GamIsoDetIdCollectionProducer::GamIsoDetIdCollectionProducer(const edm::Paramete
 
 GamIsoDetIdCollectionProducer::~GamIsoDetIdCollectionProducer() {}
 
-void GamIsoDetIdCollectionProducer::beginJob (const edm::EventSetup& iSetup) {
-    
-}
+void GamIsoDetIdCollectionProducer::beginJob () 
+{}
 
 // ------------ method called to produce the data  ------------
     void

@@ -38,7 +38,7 @@ class EleIsoDetIdCollectionProducer : public edm::EDProducer {
       //! ctor
       explicit EleIsoDetIdCollectionProducer(const edm::ParameterSet&);
       ~EleIsoDetIdCollectionProducer();
-      void beginJob (const edm::EventSetup&);
+      void beginJob ();
       //! producer
       virtual void produce(edm::Event &, const edm::EventSetup&);
 

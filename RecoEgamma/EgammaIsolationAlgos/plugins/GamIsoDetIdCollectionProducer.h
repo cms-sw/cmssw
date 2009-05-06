@@ -38,7 +38,7 @@ class GamIsoDetIdCollectionProducer : public edm::EDProducer {
       //! ctor
       explicit GamIsoDetIdCollectionProducer(const edm::ParameterSet&);
       ~GamIsoDetIdCollectionProducer();
-      void beginJob (const edm::EventSetup&);
+      void beginJob ();
       //! producer
       virtual void produce(edm::Event &, const edm::EventSetup&);
 
