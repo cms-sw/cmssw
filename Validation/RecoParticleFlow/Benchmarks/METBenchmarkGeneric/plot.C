@@ -8,8 +8,8 @@
 
   string dir1 = "DQMData/PFTask/Benchmarks/pfMet/Gen";
   string dir2 = "DQMData/PFTask/Benchmarks/met/Gen";
-  const char* file1 = "metBenchmarkGeneric.root";
-  const char* file2 = "metBenchmarkGeneric.root";
+  const char* file1 = "benchmark.root";
+  const char* file2 = "benchmark.root";
 
   float ptMin = 0;
   float ptMax = 9999;
