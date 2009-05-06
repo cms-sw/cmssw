@@ -35,15 +35,22 @@ def customise(process):
     process.schedule.append(process.generation_step)
     process.schedule.append(process.simulation_step)
 
-    process.ecalWeightUncalibRecHit.EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis")
-    process.ecalWeightUncalibRecHit.EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis")
+    process.ecalGlobalUncalibRecHit.EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis")
+    process.ecalGlobalUncalibRecHit.EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis")
     process.ecalPreshowerRecHit.ESdigiCollection = cms.InputTag("simEcalPreshowerDigis") 
 
     process.hbhereco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
     process.horeco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
     process.hfreco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
+    process.ecalRecHit.recoverEBIsolatedChannels = cms.bool(False)
+    process.ecalRecHit.recoverEEIsolatedChannels = cms.bool(False)
+    process.ecalRecHit.recoverEBFE = cms.bool(False)
+    process.ecalRecHit.recoverEEFE = cms.bool(False)
 
-    process.local_digireco = cms.Path(process.mix * process.calDigi * process.ecalLocalRecoSequence * process.hbhereco * process.hfreco * process.horeco * (process.ecalClusters+process.caloTowersRec) * process.reducedRecHitsSequence )
+
+#    process.local_digireco = cms.Path(process.mix * process.calDigi * process.ecalLocalRecoSequence * process.hbhereco * process.hfreco * process.horeco * (process.ecalClusters+process.caloTowersRec) * process.reducedRecHitsSequence )
+
+    process.local_digireco = cms.Path(process.mix * process.calDigi * process.ecalPacker * process.esDigiToRaw * process.hcalRawData * process.rawDataCollector * process.ecalDigis * process.ecalPreshowerDigis * process.hcalDigis * process.calolocalreco * (process.ecalClusters+process.caloTowersRec) * process.reducedRecHitsSequence )
 
     process.schedule.append(process.local_digireco)
 
