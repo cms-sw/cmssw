@@ -46,6 +46,7 @@ pfRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
       EcalStripSumE_minClusEnergy          = cms.double(0.1),
       EcalStripSumE_deltaEta               = cms.double(0.03),
       ElecPreIDLeadTkMatch_maxDR           = cms.double(0.01),
+      maximumForElectrionPreIDOutput       = cms.double(-0.1),
 
       #Lead track matching cone parameters
       MatchingConeMetric      = cms.string('DR'),

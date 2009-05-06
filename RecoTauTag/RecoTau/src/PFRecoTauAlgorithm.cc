@@ -301,7 +301,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
   double myMaximumHCALPFClusterEt =  0.;
   double myStripClusterE          =  0.;
   double myEmfrac                 = -1.;
-  double myElectronPreIDOutput    = -1000.;
+  double myElectronPreIDOutput    = -1111.;
   bool   myElecPreid              =  false;
   reco::TrackRef myElecTrk;
   
@@ -422,6 +422,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
   myPFTau.sethcal3x3OverPLead((float)myHCALenergy3x3);
   myPFTau.setecalStripSumEOverPLead((float)myStripClusterE);
   myPFTau.setmaximumHCALPFClusterEt(myMaximumHCALPFClusterEt);
+  myPFTau.setelectronPreIDOutput(myElectronPreIDOutput);
   if (myElecTrk.isNonnull()) 
      myPFTau.setelectronPreIDTrack(myElecTrk);
   if (myElectronPreIDOutput > maximumForElectrionPreIDOutput_)
