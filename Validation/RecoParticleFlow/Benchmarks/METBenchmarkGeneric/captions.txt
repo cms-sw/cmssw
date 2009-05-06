@@ -1,6 +1,6 @@
 Plots/legend.png	"Legend, for the following plots"
-Plots/deltaMET.png 	"DeltaMet"	    
-Plots/deltaPhi.png 	"DeltaPhi"     
+Plots/deltaMET.png 	"DeltaMet, 20 GeV < trueMET < 10 TeV"	    
+Plots/deltaPhi.png 	"DeltaPhi, 20 GeV < trueMET < 10 TeV"     
 Plots/genMET.png 	"Generated E_{T} distribution"
 Plots/MET.png           "MET"
 Plots/MEX.png           "MEX"
