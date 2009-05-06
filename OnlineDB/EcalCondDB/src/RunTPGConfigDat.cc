@@ -16,7 +16,7 @@ RunTPGConfigDat::RunTPGConfigDat()
   m_readStmt = NULL;
 
   m_config = "";
-
+  m_version=0;
 }
 
 
@@ -35,9 +35,9 @@ void RunTPGConfigDat::prepareWrite()
   try {
     m_writeStmt = m_conn->createStatement();
     m_writeStmt->setSQL("INSERT INTO run_TPGConfig_dat (iov_id, logic_id, "
-			"Config_tag ) "
+			"Config_tag , version ) "
 			"VALUES (:iov_id, :logic_id, "
-			":Config_tag ) ");
+			":Config_tag , :version ) ");
   } catch (SQLException &e) {
     throw(runtime_error("RunTPGConfigDat::prepareWrite():  "+e.getMessage()));
   }
@@ -61,6 +61,7 @@ void RunTPGConfigDat::writeDB(const EcalLogicID* ecid, const RunTPGConfigDat* it
     m_writeStmt->setInt(1, iovID);
     m_writeStmt->setInt(2, logicID);
     m_writeStmt->setString(3, item->getConfigTag());
+    m_writeStmt->setInt(4, item->getVersion());
 
 
     m_writeStmt->executeUpdate();
@@ -87,7 +88,7 @@ void RunTPGConfigDat::fetchData(map< EcalLogicID, RunTPGConfigDat >* fillMap, Ru
   try {
 
     m_readStmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
-		 "d.Config_tag "
+		 "d.Config_tag d.version "
 		 "FROM channelview cv JOIN run_TPGConfig_dat d "
 		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
 		 "WHERE d.iov_id = :iov_id");
@@ -105,6 +106,7 @@ void RunTPGConfigDat::fetchData(map< EcalLogicID, RunTPGConfigDat >* fillMap, Ru
 			     rset->getString(6));    // maps_to
 
       dat.setConfigTag( rset->getString(7) );
+      dat.setVersion( rset->getInt(8) );
  
 
       p.second = dat;
