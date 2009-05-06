@@ -19,11 +19,11 @@ class FEConfigBadXTDat : public IODConfig {
   inline void setId(int dac) { m_ID = dac; }
   inline int getId() const { return m_ID; }
 
-  inline void setSMId(int dac) { m_sm = dac; }
-  inline int getSMId() const { return m_sm; }
+  inline void setTRId(int dac) { m_sm = dac; }
+  inline int getTRId() const { return m_sm; }
 
-  inline void setFedId(int dac) { m_fed = dac; }
-  inline int getFedId() const { return m_fed; }
+  inline void setTCCId(int dac) { m_fed = dac; }
+  inline int getTCCId() const { return m_fed; }
 
   inline void setTTId(int dac) { m_tt = dac; }
   inline int getTTId() const { return m_tt; }
