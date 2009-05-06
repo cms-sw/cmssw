@@ -16,7 +16,7 @@ persisted across invocations of the program.
 
 namespace edm {
 
-  class TypeID : public TypeIDBase {
+  class TypeID : private TypeIDBase {
   public:
 
     TypeID() : TypeIDBase() {}
@@ -41,6 +41,15 @@ namespace edm {
     std::string friendlyClassName() const;
 
     bool hasDictionary() const;
+    
+    using TypeIDBase::name;
+
+    bool operator<(TypeID const& b) const { return this->TypeIDBase::operator<(b); }
+
+    bool operator==(TypeID const& b) const {return this->TypeIDBase::operator==(b);}
+
+  protected:
+    using TypeIDBase::typeInfo;
 
   private:
     static bool stripTemplate(std::string& theName);
@@ -48,6 +57,14 @@ namespace edm {
     static bool stripNamespace(std::string& theName);
 
   };
+
+  inline bool operator>(TypeID const& a, TypeID const& b) {
+    return b < a;
+  }
+
+  inline bool operator!=(TypeID const& a, TypeID const& b) {
+    return !(a == b);
+  }
 
   std::ostream& operator<<(std::ostream& os, TypeID const& id);
 }
