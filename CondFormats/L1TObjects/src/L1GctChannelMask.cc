@@ -76,3 +76,20 @@ bool L1GctChannelMask::missingHtMask(unsigned ieta) const {
   if (ieta < 22) return mhtMask_[ieta];
   else return true;
 }
+
+std::ostream& operator << (std::ostream& os, const L1GctChannelMask obj) {
+  os << "L1GctChannelMask :" << std::endl;
+//   os << "  EM crate mask    = " << obj.emCrateMask_ << std::endl;
+//   os << "  EtTot mask       = " << obj.tetMask_ << std::endl;
+//   os << "  EtMiss mask      = " << obj.metMask_ << std::endl;
+//   os << "  HtTot mask       = " << obj.htMask_ << std::endl;
+//   os << "  HtMiss mask      = " << obj.mhtMask_ << std::endl;
+  for (unsigned ieta=0; ieta<22; ++ieta) {
+    for (unsigned iphi=0; iphi<18; ++iphi) {
+      if ( obj.regionMask(ieta, iphi) )  {
+	os << "  Region mask      : " << ieta << ", " << iphi << std::endl;
+      }
+    }
+  }
+
+}

@@ -1,6 +1,8 @@
 #ifndef L1TObjects_L1GctChannelMask_h
 #define L1TObjects_L1GctChannelMask_h
 
+#include <ostream>
+
 class L1GctChannelMask {
  public:
   
