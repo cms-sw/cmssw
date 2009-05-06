@@ -120,7 +120,7 @@ process.display = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('display.root')
 )
 
-process.load("RecoParticleFlow.PFBlockProducer.particleFlowSimParticle_cff")
+process.load("RecoParticleFlow.PFProducer.particleFlowSimParticle_cff")
 
 process.p0 = cms.Path(process.pgen)
 process.p1 = cms.Path(process.psim)

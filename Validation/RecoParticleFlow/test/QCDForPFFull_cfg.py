@@ -101,7 +101,7 @@ process.display = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('display.root')
 )
 
-process.load("RecoParticleFlow.PFBlockProducer.particleFlowSimParticle_cff")
+process.load("RecoParticleFlow.PFProducer.particleFlowSimParticle_cff")
 
 #process.electronChi2.MaxChi2 = 100000
 #process.electronChi2.nSigma = 3

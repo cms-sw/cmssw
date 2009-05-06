@@ -57,7 +57,7 @@ process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 # process.famosSimHits.MaterialEffects.MultipleScattering = False
 # process.famosSimHits.MaterialEffects.NuclearInteraction = False
 
-process.load("RecoParticleFlow.PFBlockProducer.particleFlowSimParticle_cff")
+process.load("RecoParticleFlow.PFProducer.particleFlowSimParticle_cff")
 
 
 process.p1 = cms.Path(
