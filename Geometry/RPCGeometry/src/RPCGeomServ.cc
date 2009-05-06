@@ -101,8 +101,7 @@ RPCGeomServ::name()
       
       {
 	std::stringstream os;
-	os <<"R"<<_id->ring()<<"_";
-	os <<"S"<<std::setw(2)<<std::setfill('0')<<_id->sector();
+	os <<"R"<<_id->ring();
 	os <<"_CH"<<std::setw(2)<<std::setfill('0')<<this->segment();
 	buf += os.str();
       } 
@@ -386,8 +385,8 @@ RPCGeomServ::segment(){
     nsub=3;
     nsec=18;
   }
-  seg =_id->subsector()+nsub*(_id->sector()-1)+1;
-  if(seg==nsec+1)seg=1;
+  seg =_id->subsector()+nsub*(_id->sector()-1);//+1;
+  //  if(seg==nsec+1)seg=1;
   return seg;
 }
 
