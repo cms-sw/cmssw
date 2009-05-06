@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: MuonTriggerRateTimeAnalyzer.cc,v 1.10 2008/11/10 20:34:53 klukas Exp $
+// $Id: MuonTriggerRateTimeAnalyzer.cc,v 1.11 2009/01/06 19:22:27 klukas Exp $
 //
 //
 
@@ -60,26 +60,31 @@ using namespace edm;
 
 MuonTriggerRateTimeAnalyzer::MuonTriggerRateTimeAnalyzer(const ParameterSet& pset)
 {
-  vector<string> triggerNames = pset.getParameter< vector<string> >
-                                ("TriggerNames");
+
   string theHltProcessName = pset.getParameter<string>("HltProcessName");
 
   HLTConfigProvider hltConfig;
   hltConfig.init(theHltProcessName);
-  vector<string> validTriggerNames = hltConfig.triggerNames();
+  vector<string> triggerNames = hltConfig.triggerNames();
+  vector<string> muonTriggerNames;
 
   for( size_t i = 0; i < triggerNames.size(); i++) {
-    bool isValidTriggerName = false;
-    for ( size_t j = 0; j < validTriggerNames.size(); j++ )
-      if ( triggerNames[i] == validTriggerNames[j] ) isValidTriggerName = true;
-    if ( !isValidTriggerName ) {}   
-    else {
-      vector<string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
-      HLTMuonGenericRate *analyzer;
-      analyzer = new HLTMuonGenericRate( pset, triggerNames[i], moduleNames );
-      theTriggerAnalyzers.push_back( analyzer );
+    TString triggerName = triggerNames[i];
+    if (triggerName.Contains("Mu")) { 
+      TString triggerNameWithoutPrefix = triggerName(4,triggerName.Length());
+      // Do not accept crossed triggers 
+      if (!triggerNameWithoutPrefix.Contains("_")) 
+	muonTriggerNames.push_back(triggerNames[i]);
     }
   }
+
+  for( size_t i = 0; i < muonTriggerNames.size(); i++) {
+    vector<string> moduleNames = hltConfig.moduleLabels( muonTriggerNames[i] );
+    HLTMuonGenericRate *analyzer;
+    analyzer = new HLTMuonGenericRate( pset, muonTriggerNames[i], moduleNames );
+    theTriggerAnalyzers.push_back( analyzer );
+  }
+
   theOverlapAnalyzer = new HLTMuonOverlap( pset );    
 
   theNumberOfTriggers = theTriggerAnalyzers.size();  
