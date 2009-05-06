@@ -57,14 +57,14 @@ fourthlayerpairs = cms.ESProducer("SeedingLayersESProducer",
     ),
     TID = cms.PSet(
         matchedRecHits = cms.InputTag("fourthStripRecHits","matchedRecHit"),
-        useRingSlector = cms.untracked.bool(True),
+        useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
         minRing = cms.int32(1),
         maxRing = cms.int32(2)
     ),
     TEC = cms.PSet(
         matchedRecHits = cms.InputTag("fourthStripRecHits","matchedRecHit"),
-        useRingSlector = cms.untracked.bool(True),
+        useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
         minRing = cms.int32(1),
         maxRing = cms.int32(2)
