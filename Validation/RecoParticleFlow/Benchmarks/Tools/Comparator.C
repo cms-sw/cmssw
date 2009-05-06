@@ -1,4 +1,3 @@
-
 class Comparator {
 
 public:
@@ -123,10 +122,19 @@ public:
     //std::cout << "binxminc = " << binxminc << std::endl;
     //std::cout << "binxmaxc = " << binxmaxc << std::endl;
 
-
     TH1D* h0_slice = h2->ProjectionY("h0_slice",binxminc, binxmaxc, "");
+    h0_slice->Sumw2();
     y[nbinc]= h0_slice->GetMean(1);
-    ey[nbinc]=0.0;
+
+    // calcul des incertitudes:
+    const double Sum_of_Weights = h0_slice->GetSumOfWeights();
+    const double Sum_of_Squared_Weights = h0_slice->GetSumw2()->GetSum();
+    //std::cout << "Sum_of_Weights = " << Sum_of_Weights << std::endl;
+    //std::cout << "Sum_of_Squared_Weights = " << Sum_of_Squared_Weights << std::endl;
+    const double Neq = pow(Sum_of_Weights,2) / Sum_of_Squared_Weights;
+    const double mean_error = h0_slice->GetRMS() / sqrt(Neq);
+    ey[nbinc]=mean_error;
+    if (nbinc<nbin-1) delete h0_slice; // do not delete the last TH1D because Root is lost without it :D
   }
 
   TGraphErrors *gr = new TGraphErrors(nbin,x,y,ex,ey);
@@ -135,8 +143,8 @@ public:
   gr->SetMarkerStyle(21);
   gr->SetMarkerColor(4);
   gr->SetTitle("Response");
+  gr->GetXaxis()->SetTitle("trueMET");
   gr->Draw("AP");
-
 
     dir = dir0_;
     dir->cd();
@@ -151,9 +159,17 @@ public:
     const double binxminc=binxmin+nbinc*(binxmax-binxmin)/nbin;
     const double binxmaxc=binxminc+(binxmax-binxmin)/nbin;
 
-    TH1D* h0_sliceb = h2b->ProjectionY("h0_slice",binxminc, binxmaxc, "");
+    TH1D* h0_sliceb = h2b->ProjectionY("h0_sliceb",binxminc, binxmaxc, "");
+    h0_sliceb->Sumw2();
     yb[nbinc]= h0_sliceb->GetMean(1);
-    eyb[nbinc]=0.0;
+
+    // calcul des incertitudes:
+    const double Sum_of_Weightsb = h0_sliceb->GetSumOfWeights();
+    const double Sum_of_Squared_Weightsb = h0_sliceb->GetSumw2()->GetSum();
+    const double Neqb = pow(Sum_of_Weightsb,2) / Sum_of_Squared_Weightsb;
+    const double mean_errorb = h0_slice->GetRMS() / sqrt(Neqb);
+    eyb[nbinc]=mean_errorb;
+    if (nbinc<nbin-1) delete h0_sliceb; // do not delete the last TH1D because Root is lost without it :D
   }
 
   TGraphErrors *grb = new TGraphErrors(nbin,x,yb,ex,eyb);
