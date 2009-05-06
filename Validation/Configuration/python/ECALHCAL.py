@@ -22,6 +22,10 @@ def customise(process):
         verbose = cms.untracked.bool(False)
     ))
 
+# use directly the generator output, no Hector
+
+    process.g4SimHits.Generator.HepMCProductLabel = cms.string('generator')
+
 # modify the content
 
     process.output.outputCommands.append("keep *_simHcalUnsuppressedDigis_*_*")
