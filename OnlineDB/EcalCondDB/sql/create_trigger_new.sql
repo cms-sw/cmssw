@@ -13,27 +13,29 @@ sli_conf_id NUMBER NOT NULL, -- (the link to the sliding window table)
 wei_conf_id NUMBER NOT NULL, -- (the link to the weight configuration table)
 bxt_conf_id NUMBER NOT NULL, -- (the link to the bad xt configuration table)
 btt_conf_id NUMBER NOT NULL, -- (the link to the bad tt configuration table)
-tag          VARCHAR2(100), -- (a comment if you want to add it)
+tag         VARCHAR2(100), -- (a comment if you want to add it)
+version NUMBER  NOT NULL, -- (the most important trigger key)
+description VARCHAR2(200)  , -- (just a string )
 db_timestamp		TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL
 );
 
 ALTER TABLE FE_CONFIG_MAIN ADD CONSTRAINT FE_CONFIG_MAIN_PK PRIMARY KEY (CONF_ID);
-ALTER TABLE FE_CONFIG_MAIN ADD CONSTRAINT FE_CONFIG_LINE_UNIQUE_uk UNIQUE (ped_conf_id,lin_conf_id,lut_conf_id,fgr_conf_id,sli_conf_id,wei_conf_id, bxt_conf_id, btt_conf_id);
+ALTER TABLE FE_CONFIG_MAIN ADD CONSTRAINT FE_CONFIG_L1_UNIQUE_uk UNIQUE (ped_conf_id,lin_conf_id,lut_conf_id,fgr_conf_id,sli_conf_id,wei_conf_id, bxt_conf_id, btt_conf_id);
+ALTER TABLE FE_CONFIG_MAIN ADD CONSTRAINT FE_CONFIG_L2_UNIQUE_uk UNIQUE (tag,version);
 
 CREATE SEQUENCE FE_CONFIG_MAIN_SQ INCREMENT BY 1 START WITH 1 nocache;
 
-/*
- *  the conf_id is auto-incremented at each time you insert in the table 
- *  no need to bother about inserting conf_id
- */
 
-CREATE trigger FE_CONFIG_MAIN_TRG
-before insert on FE_CONFIG_MAIN
-for each row
-begin
-select FE_CONFIG_MAIN_SQ.NextVal into :new.conf_id from dual;
+
+CREATE OR REPLACE TRIGGER fe_config_main_auto_ver_tg
+  BEFORE INSERT ON FE_CONFIG_MAIN
+  FOR EACH ROW
+    begin
+  select test_update_tag_and_version('FE_CONFIG_MAIN', :new.tag, :new.version) into :new.version from dual;
 end;
 /
+SHOW ERRORS;
+
 
 
 
@@ -45,6 +47,7 @@ CREATE TABLE FE_CONFIG_PED_INFO (
  db_timestamp  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL	
 );
 ALTER TABLE FE_CONFIG_PED_INFO ADD CONSTRAINT  FE_CONFIG_PED_INFO_PK PRIMARY KEY (ped_conf_id);
+ALTER TABLE FE_CONFIG_PED_INFO ADD CONSTRAINT  FE_CONFIG_PED_UNIQUE_uk UNIQUE (tag,version);
 
 
 CREATE TABLE FE_CONFIG_LIN_INFO (
@@ -55,6 +58,7 @@ CREATE TABLE FE_CONFIG_LIN_INFO (
  db_timestamp  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL	
 );
 ALTER TABLE FE_CONFIG_lin_INFO ADD CONSTRAINT  FE_CONFIG_lin_INFO_PK PRIMARY KEY (lin_conf_id);
+ALTER TABLE FE_CONFIG_lin_INFO ADD CONSTRAINT  FE_CONFIG_lin_UNIQUE_uk UNIQUE (tag,version);
 
 
 
@@ -66,6 +70,9 @@ CREATE TABLE FE_CONFIG_LUT_INFO (
  db_timestamp  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL	
 );
 ALTER TABLE FE_CONFIG_lut_INFO ADD CONSTRAINT  FE_CONFIG_lut_INFO_PK PRIMARY KEY (lut_conf_id);
+ALTER TABLE FE_CONFIG_lut_INFO ADD CONSTRAINT  FE_CONFIG_lut_UNIQUE_uk UNIQUE (tag,version);
+
+
 
 CREATE TABLE FE_CONFIG_fgr_INFO (
  fgr_conf_id NUMBER(10) NOT NULL,
@@ -75,6 +82,9 @@ CREATE TABLE FE_CONFIG_fgr_INFO (
  db_timestamp  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL	
 );
 ALTER TABLE FE_CONFIG_fgr_INFO ADD CONSTRAINT  FE_CONFIG_fgr_INFO_PK PRIMARY KEY (fgr_conf_id);
+ALTER TABLE FE_CONFIG_fgr_INFO ADD CONSTRAINT  FE_CONFIG_fgr_UNIQUE_uk UNIQUE (tag,version);
+
+
 
 CREATE TABLE FE_CONFIG_sliding_INFO (
  sli_conf_id NUMBER(10) NOT NULL,
@@ -84,6 +94,9 @@ CREATE TABLE FE_CONFIG_sliding_INFO (
  db_timestamp  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL	
 );
 ALTER TABLE FE_CONFIG_sliding_INFO ADD CONSTRAINT  FE_CONFIG_SLIDING_INFO_PK PRIMARY KEY (sli_conf_id);
+ALTER TABLE FE_CONFIG_sliding_INFO ADD CONSTRAINT  FE_CONFIG_sliding_UNIQUE_uk UNIQUE (tag,version);
+
+
 
 CREATE TABLE FE_CONFIG_WEIGHT_INFO (
  wei_conf_id NUMBER(10) NOT NULL,
@@ -93,24 +106,114 @@ CREATE TABLE FE_CONFIG_WEIGHT_INFO (
  db_timestamp  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL	
 );
 ALTER TABLE FE_CONFIG_WEIGHT_INFO ADD CONSTRAINT  FE_CONFIG_WEIGHT_INFO_PK PRIMARY KEY (wei_conf_id);
+ALTER TABLE FE_CONFIG_weight_INFO ADD CONSTRAINT  FE_CONFIG_weight_UNIQUE_uk UNIQUE (tag,version);
+
 
 CREATE TABLE FE_CONFIG_BadCrystals_INFO (
- bxt_conf_id NUMBER(10) NOT NULL,
+ rec_id NUMBER(10) NOT NULL,
  TAG VARCHAR2(100),
  version number	,
- iov_id NUMBER(10) , -- references the condition DB table used 
  db_timestamp  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL	
 );
-ALTER TABLE FE_CONFIG_BadCrystals_INFO ADD CONSTRAINT  FE_CONFIG_BadCrystals_INFO_PK PRIMARY KEY (bxt_conf_id);
+ALTER TABLE FE_CONFIG_BadCrystals_INFO ADD CONSTRAINT  FE_CONFIG_Badxt_INFO_PK PRIMARY KEY (rec_id);
+ALTER TABLE FE_CONFIG_badcrystals_INFO ADD CONSTRAINT  FE_CONFIG_badxt_UNIQUE_uk UNIQUE (tag,version);
+
 
 CREATE TABLE FE_CONFIG_BadTT_INFO (
- btt_conf_id NUMBER(10) NOT NULL,
+ rec_id NUMBER(10) NOT NULL,
  TAG VARCHAR2(100),
  version number	,
- iov_id NUMBER(10) , -- references the condition DB table used 
  db_timestamp  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL	
 );
-ALTER TABLE FE_CONFIG_BadTT_INFO ADD CONSTRAINT  FE_CONFIG_BadTT_INFO_PK PRIMARY KEY (btt_conf_id);
+ALTER TABLE FE_CONFIG_BadTT_INFO ADD CONSTRAINT  FE_CONFIG_BadTT_INFO_PK PRIMARY KEY (rec_id);
+ALTER TABLE FE_CONFIG_badtt_INFO ADD CONSTRAINT  FE_CONFIG_badtt_UNIQUE_uk UNIQUE (tag,version);
+
+
+
+
+CREATE OR REPLACE TRIGGER fe_config_ped_info_auto_ver_tg
+  BEFORE INSERT ON FE_CONFIG_ped_info
+  FOR EACH ROW
+    begin
+  select test_update_tag_and_version('FE_CONFIG_PED_INFO', :new.tag, :new.version) into :new.version from dual;
+end;
+/
+SHOW ERRORS;
+
+
+CREATE OR REPLACE TRIGGER fe_config_lin_info_auto_ver_tg
+  BEFORE INSERT ON FE_CONFIG_lin_info
+  FOR EACH ROW
+    begin
+  select test_update_tag_and_version('FE_CONFIG_LIN_INFO', :new.tag, :new.version) into :new.version from dual;
+end;
+/
+SHOW ERRORS;
+
+
+CREATE OR REPLACE TRIGGER fe_config_lut_info_auto_ver_tg
+  BEFORE INSERT ON FE_CONFIG_LUT_INFO
+  FOR EACH ROW
+    begin
+  select test_update_tag_and_version('FE_CONFIG_LUT_INFO', :new.tag, :new.version) into :new.version from dual;
+end;
+/
+SHOW ERRORS;
+
+
+CREATE OR REPLACE TRIGGER fe_config_FGR_info_auto_ver_tg
+  BEFORE INSERT ON FE_CONFIG_FGR_INFO
+  FOR EACH ROW
+    begin
+  select test_update_tag_and_version('FE_CONFIG_FGR_INFO', :new.tag, :new.version) into :new.version from dual;
+end;
+/
+SHOW ERRORS;
+
+
+CREATE OR REPLACE TRIGGER fe_config_WEI_info_auto_ver_tg
+  BEFORE INSERT ON FE_CONFIG_WEIGHT_INFO
+  FOR EACH ROW
+    begin
+  select test_update_tag_and_version('FE_CONFIG_WEIGHT_INFO', :new.tag, :new.version) into :new.version from dual;
+end;
+/
+SHOW ERRORS;
+
+
+CREATE OR REPLACE TRIGGER fe_config_sli_info_auto_ver_tg
+  BEFORE INSERT ON FE_CONFIG_sliding_info
+  FOR EACH ROW
+    begin
+  select test_update_tag_and_version('FE_CONFIG_SLIDING_INFO', :new.tag, :new.version) into :new.version from dual;
+end;
+/
+SHOW ERRORS;
+
+
+CREATE OR REPLACE TRIGGER fe_config_bxt_info_auto_ver_tg
+  BEFORE INSERT ON FE_CONFIG_Badcrystals_INFO
+  FOR EACH ROW
+    begin
+  select test_update_tag_and_version('FE_CONFIG_BADCRYSTALS_INFO', :new.tag, :new.version) into :new.version from dual;
+end;
+/
+SHOW ERRORS;
+
+CREATE OR REPLACE TRIGGER fe_config_btt_info_auto_ver_tg
+  BEFORE INSERT ON FE_CONFIG_BADTT_INFO
+  FOR EACH ROW
+    begin
+  select test_update_tag_and_version('FE_CONFIG_BTT_INFO', :new.tag, :new.version) into :new.version from dual;
+end;
+/
+SHOW ERRORS;
+
+
+
+
+
+
 
 
 
@@ -270,22 +373,28 @@ ALTER TABLE FE_CONFIG_FGR_DAT ADD CONSTRAINT FE_CONFIG_FGR_fk  FOREIGN KEY (fgr_
 
 
 
-
 CREATE TABLE FE_CONFIG_BadCrystals_DAT (
- bxt_conf_id NUMBER(10) NOT NULL,
- logic_id NUMBER(10) not null, 
+rec_id NUMBER(10) NOT NULL,
+tr_id  NUMBER(10),
+tcc_id NUMBER(10),
+tt_id  NUMBER(10),
+cry_id NUMBER(10),
  status NUMBER(10));
 
-ALTER TABLE FE_CONFIG_BadCrystals_DAT ADD CONSTRAINT FE_CONFIG_BXT_pk PRIMARY KEY (bxt_conf_id, logic_id);
-ALTER TABLE FE_CONFIG_BadCrystals_DAT ADD CONSTRAINT FE_CONFIG_BXT_fk FOREIGN KEY (bxt_conf_id) REFERENCES FE_CONFIG_BadCrystals_INFO (bxt_conf_id);
+ALTER TABLE FE_CONFIG_BadCrystals_DAT ADD CONSTRAINT FE_CONFIG_BXT_pk PRIMARY KEY (rec_id,tr_id, tcc_id,tt_id,cry_id);
+/* ALTER TABLE FE_CONFIG_BadCrystals_DAT ADD CONSTRAINT FE_CONFIG_BXT_fk FOREIGN KEY (rec_id) REFERENCES FE_CONFIG_BadCrystals_INFO (rec_id); */
+ALTER TABLE FE_CONFIG_BadCrystals_DAT ADD CONSTRAINT FE_CONFIG_BXT_fk FOREIGN KEY  (REC_ID) REFERENCES COND2CONF_INFO (REC_ID);
 
 CREATE TABLE FE_CONFIG_BadTT_DAT (
- btt_conf_id NUMBER(10) NOT NULL,
- logic_id NUMBER(10) not null, 
+rec_id NUMBER(10) NOT NULL,
+tr_id  NUMBER(10),
+tcc_id NUMBER(10),
+tt_id  NUMBER(10),
  status NUMBER(10));
 
-ALTER TABLE FE_CONFIG_BadTT_DAT ADD CONSTRAINT FE_CONFIG_BTT_pk PRIMARY KEY (btt_conf_id, logic_id);
-ALTER TABLE FE_CONFIG_BadTT_DAT ADD CONSTRAINT FE_CONFIG_BTT_fk FOREIGN KEY (btt_conf_id) REFERENCES FE_CONFIG_BadTT_INFO (btt_conf_id);
+ALTER TABLE FE_CONFIG_BadTT_DAT ADD CONSTRAINT FE_CONFIG_BTT_pk PRIMARY KEY (rec_id,tr_id, tcc_id,tt_id );
+/* ALTER TABLE FE_CONFIG_BadTT_DAT ADD CONSTRAINT FE_CONFIG_BTT_fk FOREIGN KEY (rec_id) REFERENCES FE_CONFIG_BadTT_INFO (rec_id); */
+ALTER TABLE FE_CONFIG_BadTT_DAT ADD CONSTRAINT FE_CONFIG_BTT_fk FOREIGN KEY (rec_id) REFERENCES COND2CONF_INFO (rec_id);
 
 
 
@@ -299,8 +408,8 @@ ALTER TABLE FE_CONFIG_MAIN ADD CONSTRAINT FE_CONFIG_MAIN_to_lut_fk FOREIGN KEY (
 ALTER TABLE FE_CONFIG_MAIN ADD CONSTRAINT FE_CONFIG_MAIN_to_fgr_fk FOREIGN KEY (fgr_conf_id) REFERENCES FE_CONFIG_fgr_INFO (fgr_conf_id);
 ALTER TABLE FE_CONFIG_MAIN ADD CONSTRAINT FE_CONFIG_MAIN_to_sli_fk FOREIGN KEY (sli_conf_id) REFERENCES FE_CONFIG_sliding_INFO (sli_conf_id);
 ALTER TABLE FE_CONFIG_MAIN ADD CONSTRAINT FE_CONFIG_MAIN_to_WEIGHT_fk FOREIGN KEY (wei_conf_id) REFERENCES FE_CONFIG_WEIGHT_INFO (wei_conf_id);
-ALTER TABLE FE_CONFIG_MAIN ADD CONSTRAINT FE_CONFIG_MAIN_to_BXT_fk FOREIGN KEY (bxt_conf_id) REFERENCES FE_CONFIG_BadCrystals_INFO (bxt_conf_id);
-ALTER TABLE FE_CONFIG_MAIN ADD CONSTRAINT FE_CONFIG_MAIN_to_BTT_fk FOREIGN KEY (btt_conf_id) REFERENCES FE_CONFIG_BadTT_INFO (btt_conf_id);
+/*  ALTER TABLE FE_CONFIG_MAIN ADD CONSTRAINT FE_CONFIG_MAIN_to_BXT_fk FOREIGN KEY (bxt_conf_id) REFERENCES FE_CONFIG_BadCrystals_INFO (bxt_conf_id); */
+/* ALTER TABLE FE_CONFIG_MAIN ADD CONSTRAINT FE_CONFIG_MAIN_to_BTT_fk FOREIGN KEY (btt_conf_id) REFERENCES FE_CONFIG_BadTT_INFO (btt_conf_id); */
 
 
 
@@ -319,8 +428,10 @@ CREATE SEQUENCE FE_CONFIG_BTT_SQ INCREMENT BY 1 START WITH 1 nocache;
 
 
 
-create synonym CHANNELVIEW              for cms_ecal_cond.CHANNELVIEW              ;
-create synonym VIEWDESCRIPTION          for cms_ecal_cond.VIEWDESCRIPTION          ;
+/* create synonym CHANNELVIEW              for cms_ecal_cond.CHANNELVIEW              ; */
+/* create synonym VIEWDESCRIPTION          for cms_ecal_cond.VIEWDESCRIPTION          ; */
+
+
 
 
 
