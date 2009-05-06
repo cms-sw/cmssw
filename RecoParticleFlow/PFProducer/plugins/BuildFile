@@ -1,12 +1,33 @@
 <library name="RecoParticleFlowPFProducerPlugins" file="*.cc">
 <use name=DataFormats/Common>
 <use name=DataFormats/ParticleFlowCandidate>
-<use name=RecoParticleFlow/PFClusterTools>
+<use name=DataFormats/GeometrySurface>
+<use name=DataFormats/GeometryVector>
+<use name=DataFormats/ParticleFlowReco>
+<use name=DataFormats/MuonReco>
+<use name=DataFormats/TrackerRecHit2D>
+<use name=DataFormats/EgammaTrackReco>
+<use name=SimDataFormats/CaloHit>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/PluginManager>
+<use name=FWCore/Utilities>
+<use name=FastSimulation/Event>
+<use name=FastSimulation/Particle>
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/Records>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
+<use name=RecoParticleFlow/PFClusterTools>
 <use name=RecoParticleFlow/PFProducer>
-<use name=DataFormats/EgammaTrackReco>
+<use name=RecoTracker/TrackProducer>
+<use name=SimGeneral/HepPDTRecord>
+<use name=TrackingTools/GeomPropagators>
+<use name=TrackingTools/PatternTools>
+<use name=TrackingTools/Records>
+<use name=TrackingTools/TrajectoryState>
 <flags EDM_PLUGIN=1>
 </library>
 

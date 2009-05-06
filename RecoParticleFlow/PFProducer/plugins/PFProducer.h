@@ -1,5 +1,5 @@
-#ifndef RecoParticleFlow_PFProducer_h_
-#define RecoParticleFlow_PFProducer_h_
+#ifndef RecoParticleFlow_PFProducer_PFProducer_h_
+#define RecoParticleFlow_PFProducer_PFProducer_h_
 
 // system include files
 #include <string>

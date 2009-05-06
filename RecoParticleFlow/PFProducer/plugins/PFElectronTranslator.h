@@ -1,5 +1,5 @@
-#ifndef RECOPARTICLEFLOW_PFELECTRONTRANSLATOR_H
-#define RECOPARTICLEFLOW_PFELECTRONTRANSLATOR_H
+#ifndef RecoParticleFlow_PFProducer_PFElectronTranslator_H
+#define RecoParticleFlow_PFProducer_PFElectronTranslator_H
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"

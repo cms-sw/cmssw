@@ -10,7 +10,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
-#include "RecoParticleFlow/PFBlockAlgo/interface/Utils.h"
+#include "RecoParticleFlow/PFProducer/interface/Utils.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
 #include "CLHEP/Units/PhysicalConstants.h"
