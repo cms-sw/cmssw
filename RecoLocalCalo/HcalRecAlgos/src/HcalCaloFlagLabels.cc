@@ -33,12 +33,12 @@ bool HcalCaloFlagTool::hasField(HcalSubdetector sd, const std::string& field) co
   if (standardFormat_) {
     if (major_<3) return false;
   } 
-  return false;
+  return getFieldWidth(sd,field)>0;
 }
 
 bool HcalCaloFlagTool::hasField(HcalSubdetector sd, int bit) const {
   if (standardFormat_) {
     if (major_<3) return false;
   } 
-  return false;
+  return getFieldWidth(sd,bit)>0;
 }
