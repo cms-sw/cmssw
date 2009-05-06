@@ -54,6 +54,8 @@ class L1GctChannelMask {
 
 };
 
+std::ostream& operator << (std::ostream& os, const L1GctChannelMask obj);
+
 #endif
 
 

@@ -81,4 +81,6 @@ class L1CaloEtScale {
 
 };
 
+std::ostream& operator << (std::ostream& os, const L1CaloEtScale onj);
+
 #endif

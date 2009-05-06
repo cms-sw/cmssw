@@ -102,4 +102,15 @@ void L1CaloEtScale::print(ostream& s) const {
   }
 }
 
+std::ostream& operator << (std::ostream& os, const L1CaloEtScale obj) {
+  os << "L1CaloEtScale :" << endl;
+  os << "  Input scale max = " << obj.linScaleMax() << endl;
+  os << "  Input LSB       = " << obj.linearLsb() << " GeV" << endl;
+  os << "  Rank scale max  = " << obj.rankScaleMax() << endl;
+  for (unsigned i=0; i<obj.getThresholds().size(); i++) {
+    os << "  Threshold " << i << " = " << obj.getThresholds().at(i) << " GeV" << endl;
+  }
+}
+
+
 
