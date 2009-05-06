@@ -50,8 +50,8 @@ from RecoJets.Configuration.CaloTowersRec_cff import *
 # Particle Flow
 from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import *
 from RecoParticleFlow.PFTracking.particleFlowTrack_cff import *
-from RecoParticleFlow.PFBlockProducer.particleFlowSimParticle_cff import *
-from RecoParticleFlow.PFBlockProducer.particleFlowBlock_cff import *
+from RecoParticleFlow.PFProducer.particleFlowSimParticle_cff import *
+from RecoParticleFlow.PFProducer.particleFlowBlock_cff import *
 from RecoParticleFlow.PFProducer.particleFlow_cff import *
 from RecoParticleFlow.PFProducer.pfElectronTranslator_cff import *
 from RecoParticleFlow.PFTracking.trackerDrivenElectronSeeds_cff import *
