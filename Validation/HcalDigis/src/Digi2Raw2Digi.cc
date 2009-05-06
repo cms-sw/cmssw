@@ -42,10 +42,17 @@ void Digi2Raw2Digi::compare(const edm::Event& iEvent, const edm::EventSetup& iSe
   iEvent.getByLabel (inputTag1_, digiCollection1);
   iEvent.getByLabel (inputTag2_, digiCollection2);
 
+  int size1 = 0;
+  int size2 = 0;
+
+  for (digiItr2=digiCollection2->begin();digiItr2!=digiCollection2->end();digiItr2++) {
+    size2++;
+  }
   // CYCLE over first DIGI collection ======================================
 
   for (digiItr1=digiCollection1->begin();digiItr1!=digiCollection1->end();digiItr1++) {
-    
+    size1++;    
+
     HcalDetId cell(digiItr1->id()); 
     int depth = cell.depth();
     int iphi  = cell.iphi()-1;
@@ -104,6 +111,13 @@ void Digi2Raw2Digi::compare(const edm::Event& iEvent, const edm::EventSetup& iSe
  		<< std::endl;
 
   } // end of cycle over 1st DIGI collection    
+
+  if (size1 != size2) {
+      std::cout << "===> PROBLEM !!!  Different size of Digi collections : "
+		<< size1  << " and " << size2 
+ 		<< std::endl;
+  }
+
   
 }
 
