@@ -3,6 +3,7 @@
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 
+#include <DataFormats/GeometryVector/interface/Pi.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
@@ -45,21 +46,22 @@ CSCGeometryAsLayers::~CSCGeometryAsLayers()
 void
  CSCGeometryAsLayers::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   const double dPi = 3.14159265358;
-   const double radToDeg = 180. / dPi; //@@ Where to get pi from?
+   const double dPi = Geom::pi();
+   const double radToDeg = 180. / dPi;
 
    std::cout << myName() << ": Analyzer..." << std::endl;
    std::cout << "start " << dashedLine_ << std::endl;
+   std::cout << "pi = " << dPi << ", radToDeg = " << radToDeg << std::endl;
 
-   edm::ESHandle<CSCGeometry> pDD;
-   iSetup.get<MuonGeometryRecord>().get( pDD );     
-   std::cout << " Geometry node for CSCGeom is  " << &(*pDD) << std::endl;   
-   std::cout << " I have "<<pDD->dets().size() << " detectors" << std::endl;
-   std::cout << " I have "<<pDD->detTypes().size() << " types" << "\n" << std::endl;
+   edm::ESHandle<CSCGeometry> pgeom;
+   iSetup.get<MuonGeometryRecord>().get( pgeom );     
+   std::cout << " Geometry node for CSCGeom is  " << &(*pgeom) << std::endl;   
+   std::cout << " I have "<<pgeom->dets().size() << " detectors" << std::endl;
+   std::cout << " I have "<<pgeom->detTypes().size() << " types" << "\n" << std::endl;
 
    std::cout << myName() << ": Begin iteration over geometry..." << std::endl;
 
-   std::vector<CSCLayer*> vl = pDD->layers();
+   std::vector<CSCLayer*> vl = pgeom->layers();
    std::cout << "No. of layers stored = " << vl.size() << std::endl;
 
    std::cout << "\n  #     id(dec)      id(oct)                   "
@@ -71,8 +73,6 @@ void
    int icount = 0;
 
    for( std::vector<CSCLayer*>::const_iterator it = vl.begin(); it != vl.end(); ++it ){
-
-     // Do we really have a CSC layer?
 
       const CSCLayer* layer = *it;
      
@@ -239,7 +239,7 @@ void
   
     }
     else {
-      std::cout << "Could not dynamic_cast to a CSCLayer* " << std::endl;
+      std::cout << "WEIRD ERROR: a null CSCLayer* " << std::endl;
     }
   }	
 
