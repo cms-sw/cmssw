@@ -10,6 +10,7 @@ NonPropagatingDetMeasurements::get( const MeasurementDet& det,
 				    const TrajectoryStateOnSurface& stateOnThisDet,
 				    const MeasurementEstimator& est) const
 {
+  throw cms::Exception("THIS SHOULD NOT BE CALLED");
   std::vector<TrajectoryMeasurement> result;
 
   MeasurementDet::RecHitContainer allHits = det.recHits( stateOnThisDet);
@@ -21,6 +22,7 @@ NonPropagatingDetMeasurements::get( const MeasurementDet& det,
 					       diffEst.second));
     }
   }
+  //GIO// std::cerr << "NonPropagatingDetMeasurements: " << allHits.size() << " => " << result.size() << std::endl;
   if ( result.empty()) {
     // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
     result.push_back( TrajectoryMeasurement( stateOnThisDet, 

@@ -195,6 +195,7 @@ TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
   if (isActive() == false) return result; // GIO
 
   if(!isRegional){//old implemetation with DetSet
+    result.reserve(detSet_.size());
     for ( new_const_iterator ci = detSet_.begin(); ci != detSet_.end(); ++ ci ) {
       if (isMasked(*ci)) continue;
       // for ( ClusterIterator ci=theClusterRange.first; ci != theClusterRange.second; ci++) {
@@ -202,6 +203,7 @@ TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
       result.push_back( buildRecHit( cluster, ts.localParameters()));
     }
   }else{
+    result.reserve(endCluster - beginCluster);
     for (const_iterator ci = beginCluster ; ci != endCluster; ci++) {      
       if (isMasked(*ci)) continue;
       SiStripRegionalClusterRef clusterRef = edm::makeRefToLazyGetter(regionalHandle_,ci-regionalHandle_->begin_record());     
@@ -210,6 +212,40 @@ TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
   }
   return result;
 
+}
+
+template<class ClusterRefT>
+SiStripRecHit2D
+TkStripMeasurementDet::buildSimpleRecHit( const ClusterRefT& cluster,
+				    const LocalTrajectoryParameters& ltp) const
+{
+  const GeomDetUnit& gdu( specificGeomDet());
+  LocalValues lv = theCPE->localParameters( *cluster, gdu, ltp);
+  return SiStripRecHit2D( lv.first, lv.second, geomDet().geographicalId(), cluster);
+}
+
+
+void 
+TkStripMeasurementDet::simpleRecHits( const TrajectoryStateOnSurface& ts, std::vector<SiStripRecHit2D> &result) const
+{
+  if (empty || !isActive()) return;
+
+  if(!isRegional){//old implemetation with DetSet
+    result.reserve(detSet_.size());
+    for ( new_const_iterator ci = detSet_.begin(); ci != detSet_.end(); ++ ci ) {
+      if (isMasked(*ci)) continue;
+      // for ( ClusterIterator ci=theClusterRange.first; ci != theClusterRange.second; ci++) {
+      SiStripClusterRef  cluster = edmNew::makeRefTo( handle_, ci ); 
+      result.push_back( buildSimpleRecHit( cluster, ts.localParameters()));
+    }
+  }else{
+    result.reserve(endCluster - beginCluster);
+    for (const_iterator ci = beginCluster ; ci != endCluster; ci++) {      
+      if (isMasked(*ci)) continue;
+      SiStripRegionalClusterRef clusterRef = edm::makeRefToLazyGetter(regionalHandle_,ci-regionalHandle_->begin_record());     
+      result.push_back( buildSimpleRecHit( clusterRef, ts.localParameters()));
+    }
+  }
 }
 
 

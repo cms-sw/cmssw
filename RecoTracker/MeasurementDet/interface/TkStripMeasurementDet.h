@@ -64,6 +64,7 @@ public:
   void setEmpty(){empty = true; activeThisEvent_ = true; }
   
   virtual RecHitContainer recHits( const TrajectoryStateOnSurface&) const;
+  void simpleRecHits( const TrajectoryStateOnSurface& ts, std::vector<SiStripRecHit2D> &result) const ;
 
   virtual std::vector<TrajectoryMeasurement> 
   fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet, 
@@ -147,6 +148,11 @@ private:
       }
       return false;
   }
+
+  template<class ClusterRefT>
+  SiStripRecHit2D
+  buildSimpleRecHit( const ClusterRefT& cluster, const LocalTrajectoryParameters& ltp) const;
+
 };
 
 #endif

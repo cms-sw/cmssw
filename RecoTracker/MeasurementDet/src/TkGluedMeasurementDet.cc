@@ -15,6 +15,7 @@
 
 #include <typeinfo>
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+#include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 
 using namespace std;
 
@@ -38,73 +39,62 @@ TkGluedMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
 {
 
   RecHitContainer result;
+  HitCollectorForRecHits collector( &geomDet(), theMatcher, result );
+  collectRecHits(ts, collector);
+  return result;
+}
 
+struct take_address { template<typename T> const T * operator()(const T &val) const { return &val; } };
+
+template<typename Collector>
+void
+TkGluedMeasurementDet::collectRecHits( const TrajectoryStateOnSurface& ts, Collector & collector) const
+{
   //------ WARNING: here ts is used as it is on the mono/stereo surface.
   //-----           A further propagation is necessary.
   //-----           To limit the problem, the SimpleCPE should be used
   RecHitContainer monoHits = theMonoDet->recHits( ts);
-  RecHitContainer stereoHits = theStereoDet->recHits( ts);
+  GlobalVector glbDir = (ts.isValid() ? ts.globalParameters().momentum() : position()-GlobalPoint(0,0,0));
 
   //edm::LogWarning("TkGluedMeasurementDet::recHits") << "Query-for-detid-" << theGeomDet->geographicalId().rawId();
 
   //checkProjection(ts, monoHits, stereoHits);
 
-  if (monoHits.empty()) return projectOnGluedDet( stereoHits, ts);
-  else if (stereoHits.empty()) return projectOnGluedDet(monoHits, ts);
-  else {    
-    LocalVector tkDir = (ts.isValid() ? ts.localDirection() : surface().toLocal( position()-GlobalPoint(0,0,0)));
+  if (monoHits.empty()) {
+      // make stereo TTRHs and project them
+      projectOnGluedDet( collector, theStereoDet->recHits(ts), glbDir);
+  } else {
+      // collect simple stereo hits
+      static std::vector<SiStripRecHit2D> simpleSteroHitsByValue;
+      simpleSteroHitsByValue.clear();
+      theStereoDet->simpleRecHits(ts, simpleSteroHitsByValue);
 
-    // convert stereo hits to type expected by matcher
-    SiStripRecHitMatcher::SimpleHitCollection  vsStereoHits;
-    vsStereoHits.reserve(stereoHits.size());
-    for (RecHitContainer::const_iterator stereoHit = stereoHits.begin();
-            stereoHit != stereoHits.end(); ++stereoHit) {
-        const TrackingRecHit* tkhit = (**stereoHit).hit();
-        const SiStripRecHit2D* verySpecificStereoHit =
-            reinterpret_cast<const SiStripRecHit2D*>(tkhit);
-        //dynamic_cast<const SiStripRecHit2D*>(tkhit);
-        //if (verySpecificStereoHit == 0) {
-        //   throw MeasurementDetException("TkGluedMeasurementDet ERROR: stereoHit is not SiStripRecHit2D");
-        //}
-        vsStereoHits.push_back( verySpecificStereoHit );
-    }
+      if (simpleSteroHitsByValue.empty()) {
+          projectOnGluedDet( collector, monoHits, glbDir);
+      } else {
 
-    // auto_ptr in the loop will take care of passing ownership to Transient hit...
-    std::vector<SiStripMatchedRecHit2D*> tmp;
-    tmp.reserve(vsStereoHits.size());
-    // convert mono hits to type expected by matcher
-    for (RecHitContainer::const_iterator monoHit = monoHits.begin();
-            monoHit != monoHits.end(); ++monoHit) {
-        const TrackingRecHit* tkhit = (**monoHit).hit();
-        const SiStripRecHit2D* verySpecificMonoHit =
-            reinterpret_cast<const SiStripRecHit2D*>(tkhit);
-	tmp.clear();
-	theMatcher->match( verySpecificMonoHit, vsStereoHits.begin(), vsStereoHits.end(), 
-			   tmp, &specificGeomDet(), tkDir);
-	
-        if (!tmp.empty()) {
-	  for (std::vector<SiStripMatchedRecHit2D*>::iterator i=tmp.begin(), e = tmp.end();
-	       i != e; ++i) {
-	    result.push_back( 
-			     TSiStripMatchedRecHit::build( &geomDet(), 
-							   std::auto_ptr<TrackingRecHit>(*i), 
-							   theMatcher));
-	  }
-        } else {
-	  //<<<< if projecting 1 rec hit does not produce more than one rec hit ...
-	  //<<<< then the following is "suboptimal"
-	  //  RecHitContainer monoUnmatchedHit;     //better kept here, it is often never used at all in one call to recHits
-	  //  monoUnmatchedHit.push_back(*monoHit);
-	  //  RecHitContainer projectedMonoUnmatchedHit = projectOnGluedDet(monoUnmatchedHit, ts);
-	  //  result.insert(result.end(), projectedMonoUnmatchedHit.begin(), projectedMonoUnmatchedHit.end());
-	  //<<<< and so we use 
-	  TrackingRecHitProjector<ProjectedRecHit2D> proj;
-	  result.push_back( proj.project( **monoHit, geomDet(), ts));
-            //<<<< end of change
-        }
-    } // loop on mono hit
+          LocalVector tkDir = (ts.isValid() ? ts.localDirection() : surface().toLocal( position()-GlobalPoint(0,0,0)));
+          static SiStripRecHitMatcher::SimpleHitCollection vsStereoHits;
+          vsStereoHits.resize(simpleSteroHitsByValue.size());
+          std::transform(simpleSteroHitsByValue.begin(), simpleSteroHitsByValue.end(), vsStereoHits.begin(), take_address()); 
+
+          // convert mono hits to type expected by matcher
+          for (RecHitContainer::const_iterator monoHit = monoHits.begin();
+                  monoHit != monoHits.end(); ++monoHit) {
+              const TrackingRecHit* tkhit = (**monoHit).hit();
+              const SiStripRecHit2D* verySpecificMonoHit = reinterpret_cast<const SiStripRecHit2D*>(tkhit);
+              theMatcher->match( verySpecificMonoHit, vsStereoHits.begin(), vsStereoHits.end(), 
+                      collector.collector(), &specificGeomDet(), tkDir);
+
+              if (collector.hasNewMatchedHits()) {
+                  collector.clearNewMatchedHitsFlag();
+              } else {
+                  collector.addProjected( **monoHit, glbDir );
+              }
+          } // loop on mono hit
+      }
+      //GIO// std::cerr << "TkGluedMeasurementDet hits " << monoHits.size() << "/" << stereoHits.size() << " => " << result.size() << std::endl;
   }
-  return result;
 }
 
 std::vector<TrajectoryMeasurement> 
@@ -113,12 +103,13 @@ TkGluedMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
 					 const Propagator&, 
 					 const MeasurementEstimator& est) const
 {
+   std::vector<TrajectoryMeasurement> result;
    if (theMonoDet->isActive() || theStereoDet->isActive()) {
-      NonPropagatingDetMeasurements realOne;
 
-      std::vector<TrajectoryMeasurement> ret = realOne.get( *this, stateOnThisDet, est);      
-
-      if (!ret[0].recHit()->isValid()) {
+      HitCollectorForFastMeasurements collector( &geomDet(), theMatcher, stateOnThisDet, est, result);
+      collectRecHits(stateOnThisDet, collector);
+     
+      if ( result.empty()) {
           //LogDebug("TkStripMeasurementDet") << "No hit found on TkGlued. Testing strips...  ";
           const BoundPlane &gluedPlane = geomDet().surface();
           if (  // sorry for the big IF, but I want to exploit short-circuiting of logic
@@ -133,27 +124,25 @@ TkGluedMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
                     )
                 ) /*Stereo OK*/ 
               ) {
-	    //LogDebug("TkStripMeasurementDet") << " DetID " << geomDet().geographicalId().rawId() << " (glued) active but no hit found: missing";
-            // no problem, at least one detector has good strips
+              result.push_back( TrajectoryMeasurement( stateOnThisDet, 
+                          InvalidTransientRecHit::build(&geomDet()), 0.F)); 
           } else {
-            //LogDebug("TkStripMeasurementDet") << "Tested strips on TkGlued, returning 'inactive' invalid hit";
-            //LogDebug("TkStripMeasurementDet") << " DetID " << geomDet().geographicalId().rawId() << " (glued) globally active, but no hit found and faulty components: inactive";
-            ret[0] = TrajectoryMeasurement(stateOnThisDet, 
-                         InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 
-                         0.F);
+              result.push_back( TrajectoryMeasurement(stateOnThisDet, 
+                         InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 0.F));
           }
       } else {
-	//LogDebug("TkStripMeasurementDet") << " DetID " << geomDet().geographicalId().rawId() << " (glued) active, valid hit found, all ok";
+          // sort results according to estimator value
+          if ( result.size() > 1) {
+              sort( result.begin(), result.end(), TrajMeasLessEstim());
+          }
       }
-      return ret;
    } else {
      //     LogDebug("TkStripMeasurementDet") << " DetID " << geomDet().geographicalId().rawId() << " (glued) fully inactive";
-      std::vector<TrajectoryMeasurement> result;
       result.push_back( TrajectoryMeasurement( stateOnThisDet, 
                InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 
                0.F));
-      return result;	
    }
+   return result;	
 
 }
 
@@ -170,6 +159,16 @@ TkGluedMeasurementDet::projectOnGluedDet( const RecHitContainer& hits,
   return result;
 }
 
+template<typename Collector>
+void 
+TkGluedMeasurementDet::projectOnGluedDet( Collector& collector,
+                                          const RecHitContainer& hits,
+                                          const GlobalVector & gdir ) const 
+{
+  for ( RecHitContainer::const_iterator ihit = hits.begin(); ihit!=hits.end(); ihit++) {
+    collector.addProjected( **ihit, gdir );
+  }
+}
 
 void TkGluedMeasurementDet::checkProjection(const TrajectoryStateOnSurface& ts, 
 					    const RecHitContainer& monoHits, 
@@ -262,3 +261,69 @@ TkGluedMeasurementDet::testStrips(const TrajectoryStateOnSurface& tsos,
    float uerr  = std::sqrt(topo.measurementError(pos,rotatedError).uu());
    return mdet.testStrips(utraj, uerr);
 } 
+
+#include<boost/bind.hpp>
+TkGluedMeasurementDet::HitCollectorForRecHits::HitCollectorForRecHits(const GeomDet * geomDet, 
+        const SiStripRecHitMatcher * matcher,
+        RecHitContainer & target) :
+    geomDet_(geomDet), matcher_(matcher), target_(target),
+    collector_(boost::bind(&HitCollectorForRecHits::add,boost::ref(*this),_1)),
+    hasNewHits_(false)
+{
+}
+
+void
+TkGluedMeasurementDet::HitCollectorForRecHits::addProjected(const TransientTrackingRecHit& hit,
+                                                            const GlobalVector & gdir)
+{
+    TrackingRecHitProjector<ProjectedRecHit2D> proj;
+    target_.push_back( proj.project( hit, *geomDet_, gdir));
+}
+
+TkGluedMeasurementDet::HitCollectorForFastMeasurements::HitCollectorForFastMeasurements(const GeomDet * geomDet, 
+        const SiStripRecHitMatcher * matcher,
+        const TrajectoryStateOnSurface& stateOnThisDet,
+        const MeasurementEstimator& est,
+        std::vector<TrajectoryMeasurement> & target) :
+    geomDet_(geomDet), matcher_(matcher), stateOnThisDet_(stateOnThisDet), est_(est), target_(target),
+    collector_(boost::bind(&HitCollectorForFastMeasurements::add,boost::ref(*this),_1)),
+    hasNewHits_(false)
+{
+}
+
+void
+TkGluedMeasurementDet::HitCollectorForFastMeasurements::add(SiStripMatchedRecHit2D const& hit2d) 
+{
+    static std::auto_ptr<TSiStripMatchedRecHit> cache;
+    TSiStripMatchedRecHit::buildInPlace( cache, geomDet_, &hit2d, matcher_ );
+    std::pair<bool,double> diffEst = est_.estimate( stateOnThisDet_, *cache);
+    if ( diffEst.first) {
+        cache->clonePersistentHit(); // clone and take ownership of the persistent 2D hit
+        target_.push_back( 
+                TrajectoryMeasurement( stateOnThisDet_, 
+                                       RecHitPointer(cache.release()), 
+                                       diffEst.second)
+                );
+    } else {
+        cache->clearPersistentHit(); // drop ownership
+    } 
+    hasNewHits_ = true; //FIXME: see also what happens moving this within testAndPush
+}
+
+void
+TkGluedMeasurementDet::HitCollectorForFastMeasurements::addProjected(const TransientTrackingRecHit& hit,
+                                                            const GlobalVector & gdir)
+{
+    // here we're ok with some extra casual new's and delete's
+    TrackingRecHitProjector<ProjectedRecHit2D> proj;
+    RecHitPointer phit = proj.project( hit, *geomDet_, gdir );
+    std::pair<bool,double> diffEst = est_.estimate( stateOnThisDet_, *phit);
+    if ( diffEst.first) {
+        target_.push_back( TrajectoryMeasurement( stateOnThisDet_, phit, diffEst.second) );
+    }
+
+}
+
+
+
+
