@@ -1,59 +1,69 @@
-#ifndef FECONFIGMAIN_H
-#define FECONFIGMAIN_H
+#ifndef FECONFIGMAININFO_H
+#define FECONFIGMAININFO_H
+
+#include <stdexcept>
+#include <iostream>
+
 
 #include <map>
 #include <string>
+
 
 #include "OnlineDB/EcalCondDB/interface/IODConfig.h"
 #include "OnlineDB/EcalCondDB/interface/Tm.h"
 #include "OnlineDB/EcalCondDB/interface/DateHandler.h"
 
-class FEConfigMainInfo : public  IODConfig {
+
+
+
+class FEConfigMainInfo : public IODConfig {
  public:
   friend class EcalCondDBInterface;
 
   FEConfigMainInfo();
   ~FEConfigMainInfo();
 
-  // Methods for user data
   inline std::string getTable() { return "FE_CONFIG_MAIN"; }
 
-
+  // Methods for user data
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
-  // for compatibility
-  void setID(int id) {setId(id);} 
-  int getID() { return getId() ;}
-  // the tag is already in IODConfig 
-
-
-  inline void setPedId(int id) { m_ped = id; }
-  inline int getPedId() const { return m_ped ;}
-  inline void setLinId(int id) { m_lin= id; }
-  inline int getLinId() const { return m_lin; }
-  inline void setLutId(int id) { m_lut= id; }
-  inline int getLutId() const { return m_lut; }
-  inline void setFgrId(int id) { m_fgr = id; }
-  inline int getFgrId() const { return m_fgr; }
-  inline void setSliId(int id) { m_sli = id; }
-  inline int getSliId() const { return m_sli; }
-  inline void setWeiId(int id) { m_wei = id; }
-  inline int getWeiId() const { return m_wei; }
-  inline void setBxtId(int id) { m_bxt = id; }
-  inline int getBxtId() const { return m_bxt; }
-  inline void setBttId(int id) { m_btt = id; }
-  inline int getBttId() const { return m_btt; }
-
 
   Tm getDBTime() const{  return m_db_time;}
   void setDBTime(Tm x) { m_db_time=x; } 
 
 
-  // Methods from IUniqueDBObject
-  int fetchID() throw(std::runtime_error);
-  int fetchNextId() throw(std::runtime_error);
-  void setByID(int id) throw(std::runtime_error);
-  void setParameters(std::map<string,string> my_keys_map);
+void setDescription(std::string x) { m_description = x;}
+std::string getDescription() const{  return m_description;}
+//
+void setPedId(int x) { m_ped_id = x;}
+int getPedId() const{  return m_ped_id;}
+//
+void setLinId(int x){ m_lin_id = x;  }
+int getLinId()const {return m_lin_id;  }
+//
+void setLUTId(int x){ m_lut_id = x;  }
+int getLUTId()const {return m_lut_id;  }
+//
+void setFgrId(int x) { m_fgr_id = x;}
+int getFgrId() const{  return m_fgr_id;}
+//
+void setSliId(int x){ m_sli_id = x;  }
+int getSliId()const {return m_sli_id;  }
+//
+void setWeiId(int x) { m_wei_id = x;}
+int getWeiId() const{  return m_wei_id;}
+//
+void setBxtId(int x){ m_bxt_id = x;  }
+int getBxtId()const {return m_bxt_id;  }
+//
+void setBttId(int x){ m_btt_id = x;  }
+int getBttId()const {return m_btt_id;  }
+//
+ inline void setVersion(int id) { m_version = id; }
+ inline int getVersion() const { return m_version; }
+
+
 
   // operators
   inline bool operator==(const FEConfigMainInfo &r) const {  return (m_ID   == r.m_ID ); }
@@ -61,29 +71,34 @@ class FEConfigMainInfo : public  IODConfig {
 
  private:
   // User data for this IOV
-
   int m_ID;
+  int m_ped_id;
+  int m_lin_id;
+  int m_lut_id;
+  int m_sli_id;
+  int m_fgr_id;
+  int m_wei_id;
+  int m_bxt_id;
+  int m_btt_id;
+  int m_version;
   Tm m_db_time;
-
-  int m_ped;
-  int m_lin;
-  int m_lut;
-  int m_fgr;
-  int m_sli;
-  int m_wei;
-  int m_bxt;
-  int m_btt;
-
-
+  std::string m_description;
 
   void prepareWrite()  throw(std::runtime_error);
-  void writeDB() throw(std::runtime_error);
+  void writeDB()       throw(std::runtime_error);
   void clear();
   void fetchData(FEConfigMainInfo * result)     throw(std::runtime_error);
-  void fetchLastData(FEConfigMainInfo * result)     throw(std::runtime_error);
+  void insertConfig() throw(std::runtime_error);
 
+
+  // Methods from IUniqueDBObject
+  int fetchID() throw(std::runtime_error); // fetches 
+  int fetchNextId() throw(std::runtime_error); // fetches 
+  int fetchIDLast() throw(std::runtime_error); // fetches the last one
+  void setByID(int id) throw(std::runtime_error);
 
 };
+
 
 
 #endif

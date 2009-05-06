@@ -1,8 +1,6 @@
 #include <stdexcept>
-#include <string>
-#include <string.h>
 #include "OnlineDB/Oracle/interface/Oracle.h"
-#include <cstdlib>
+
 #include "OnlineDB/EcalCondDB/interface/FEConfigMainInfo.h"
 #include "OnlineDB/EcalCondDB/interface/Tm.h"
 #include "OnlineDB/EcalCondDB/interface/DateHandler.h"
@@ -10,37 +8,40 @@
 using namespace std;
 using namespace oracle::occi;
 
+
 FEConfigMainInfo::FEConfigMainInfo()
 {
   m_env = NULL;
   m_conn = NULL;
   m_writeStmt = NULL;
   m_readStmt = NULL;
-  m_config_tag="";
+
   m_ID=0;
-  clear();   
-}
+  clear();
 
-
-void FEConfigMainInfo::clear(){
-  m_ped=0;
-  m_lin=0;
-  m_lut=0;
-  m_fgr=0;
-  m_sli=0;
-  m_wei=0;
-  m_bxt=0;
-  m_btt=0;
 }
 
 
 
-FEConfigMainInfo::~FEConfigMainInfo()
-{
+FEConfigMainInfo::~FEConfigMainInfo(){}
+
+
+void FEConfigMainInfo::clear() {
+
+  m_description="";
+  m_ped_id=0;
+  m_lin_id=0;
+  m_lut_id=0;
+  m_sli_id=0;
+  m_fgr_id=0;
+  m_wei_id=0;
+  m_bxt_id=0;
+  m_btt_id=0;
+  m_version=0;
+  m_db_time=Tm();
+
+
 }
-
-
-
 int FEConfigMainInfo::fetchNextId()  throw(std::runtime_error) {
 
   int result=0;
@@ -48,12 +49,11 @@ int FEConfigMainInfo::fetchNextId()  throw(std::runtime_error) {
     this->checkConnection();
 
     m_readStmt = m_conn->createStatement(); 
-    m_readStmt->setSQL("select FE_CONFIG_MAIN_SQ.NextVal from DUAL ");
+    m_readStmt->setSQL("select fe_config_main_sq.NextVal from dual");
     ResultSet* rset = m_readStmt->executeQuery();
     while (rset->next ()){
       result= rset->getInt(1);
     }
-    result++;
     m_conn->terminateStatement(m_readStmt);
     return result; 
 
@@ -63,176 +63,33 @@ int FEConfigMainInfo::fetchNextId()  throw(std::runtime_error) {
 
 }
 
-void FEConfigMainInfo::prepareWrite()
+int FEConfigMainInfo::fetchID()
   throw(runtime_error)
-{
-  this->checkConnection();
-
-  int next_id=0;
-  if(getId()==0){
-    next_id=fetchNextId();
-  }
-
-  try {
-    m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO "+getTable()+" (conf_id, ped_conf_id, lin_conf_id, lut_conf_id, fgr_conf_id, sli_conf_id, wei_conf_id, bxt_conf_id, btt_conf_id, tag ) " 
-			" VALUES ( :1, :2, :3 , :4, :5, :6, :7, :8, :9, :10 ) " );
-
-    m_writeStmt->setInt(1, next_id);
-    m_ID=next_id;
-
-  } catch (SQLException &e) {
-    throw(runtime_error("FEConfigMainInfo::prepareWrite():  "+e.getMessage()));
-  }
-
-}
-
-void FEConfigMainInfo::setParameters(std::map<string,string> my_keys_map){
-  
-  // parses the result of the XML parser that is a map of 
-  // string string with variable name variable value 
-  
-  for( std::map<std::string, std::string >::iterator ci=
-	 my_keys_map.begin(); ci!=my_keys_map.end(); ci++ ) {
-    
-    if(ci->first==  "TAG") setConfigTag(ci->second);
-    if(ci->first==  "PED_CONF_ID") setPedId(atoi(ci->second.c_str()) );
-    if(ci->first==  "LIN_CONF_ID") setLinId(atoi(ci->second.c_str()) );
-    if(ci->first==  "LUT_CONF_ID") setLutId(atoi(ci->second.c_str()) );
-    if(ci->first==  "FGR_CONF_ID") setFgrId(atoi(ci->second.c_str()) );
-    if(ci->first==  "SLI_CONF_ID") setSliId(atoi(ci->second.c_str()) );
-    if(ci->first==  "WEI_CONF_ID") setWeiId(atoi(ci->second.c_str()) );
-    if(ci->first==  "BXT_CONF_ID") setBxtId(atoi(ci->second.c_str()) );
-    if(ci->first==  "BTT_CONF_ID") setBttId(atoi(ci->second.c_str()) );
-    
-  }
-  
-}
-
-void FEConfigMainInfo::writeDB()
-  throw(runtime_error)
-{
-  this->checkConnection();
-  this->checkPrepare();
-
-  try {
-
-    // number 1 is the id 
-    m_writeStmt->setInt(2, this->getPedId());
-    m_writeStmt->setInt(3, this->getLinId());
-    m_writeStmt->setInt(4, this->getLutId());
-    m_writeStmt->setInt(5, this->getFgrId());
-    m_writeStmt->setInt(6, this->getSliId());
-    m_writeStmt->setInt(7, this->getWeiId());
-    m_writeStmt->setInt(8, this->getBxtId());
-    m_writeStmt->setInt(9, this->getBttId());
-    m_writeStmt->setString(10, this->getConfigTag());
-
-
-    m_writeStmt->executeUpdate();
-
-
-  } catch (SQLException &e) {
-    throw(runtime_error("FEConfigMainInfo::writeDB():  "+e.getMessage()));
-  }
-  // Now get the ID
-  if (!this->fetchID()) {
-    throw(runtime_error("FEConfigMainInfo::writeDB:  Failed to write"));
-  }
-
-
-}
-
-
-void FEConfigMainInfo::fetchData(FEConfigMainInfo * result)
-  throw(runtime_error)
-{
-  this->checkConnection();
-  result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
-    throw(runtime_error("FEConfigMainInfo::fetchData(): no Id defined for this FEConfigMainInfo "));
-  }
-
-  try {
-    DateHandler dh(m_env, m_conn);
-
-    m_readStmt->setSQL("SELECT * FROM " + getTable() +   
-                       " where ( conf_id= :1 or tag=:2 )" );
-    m_readStmt->setInt(1, result->getId());
-    m_readStmt->setString(2, result->getConfigTag());
-
-    ResultSet* rset = m_readStmt->executeQuery();
-
-    rset->next();
-
-    // 1 is the id and 2 is the config tag and 3 is the version
-
-    result->setId(rset->getInt(1));
-    result->setPedId(rset->getInt(2));
-    result->setLinId(rset->getInt(3));
-    result->setLutId(rset->getInt(4));
-    result->setFgrId(rset->getInt(5));
-    result->setSliId(rset->getInt(6));
-    result->setWeiId(rset->getInt(7));
-    result->setBxtId(rset->getInt(8));
-    result->setBttId(rset->getInt(9));
-    result->setConfigTag(rset->getString(10));
-    Date dbdate = rset->getDate(11);
-    result->setDBTime( dh.dateToTm( dbdate ));
-
-  } catch (SQLException &e) {
-    throw(runtime_error("FEConfigMainInfo::fetchData():  "+e.getMessage()));
-  }
-}
-
-void FEConfigMainInfo::fetchLastData(FEConfigMainInfo * result)
-  throw(runtime_error)
-{
-  this->checkConnection();
-  result->clear();
-  try {
-    DateHandler dh(m_env, m_conn);
-
-    m_readStmt->setSQL("SELECT * FROM " + getTable() +   
-                       " where   db_timestamp = ( select max( db_timestamp) from "+ getTable() +" ) " );
-    ResultSet* rset = m_readStmt->executeQuery();
-
-    rset->next();
-
-    result->setId(rset->getInt(1));
-    result->setPedId(rset->getInt(2));
-    result->setLinId(rset->getInt(3));
-    result->setLutId(rset->getInt(4));
-    result->setFgrId(rset->getInt(5));
-    result->setSliId(rset->getInt(6));
-    result->setWeiId(rset->getInt(7));
-    result->setBxtId(rset->getInt(8));
-    result->setBttId(rset->getInt(9));
-    result->setConfigTag(rset->getString(10));
-    Date dbdate = rset->getDate(11);
-    result->setDBTime( dh.dateToTm( dbdate ));
-
-  } catch (SQLException &e) {
-    throw(runtime_error("FEConfigMainInfo::fetchData():  "+e.getMessage()));
-  }
-}
-
-int FEConfigMainInfo::fetchID()    throw(std::runtime_error)
 {
   // Return from memory if available
-  if (m_ID!=0) {
+  if (m_ID>0) {
     return m_ID;
   }
 
   this->checkConnection();
 
+
+  DateHandler dh(m_env, m_conn);
+
   try {
     Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT conf_id FROM "+ getTable()+
-                 " WHERE  tag=:1 " );
-
-    stmt->setString(1, getConfigTag() );
-
+    if(m_version !=0){
+      stmt->setSQL("SELECT conf_id from FE_CONFIG_MAIN "
+		   "WHERE tag = :tag " 
+		   " and version = :version " );
+      stmt->setString(1, m_config_tag);
+      stmt->setInt(2, m_version);
+    } else {
+      // always select the last inserted one with a given tag
+      stmt->setSQL("SELECT conf_id from FE_CONFIG_MAIN "
+		   "WHERE tag = :tag order by db_timestamp  " );
+      stmt->setString(1, m_config_tag);
+    }
 
     ResultSet* rset = stmt->executeQuery();
 
@@ -245,10 +102,104 @@ int FEConfigMainInfo::fetchID()    throw(std::runtime_error)
   } catch (SQLException &e) {
     throw(runtime_error("FEConfigMainInfo::fetchID:  "+e.getMessage()));
   }
-
+  setByID(m_ID);
   return m_ID;
 }
 
+
+
+
+void FEConfigMainInfo::prepareWrite()
+  throw(runtime_error)
+{
+  this->checkConnection();
+
+
+  int next_id=fetchNextId();
+
+  try {
+    m_writeStmt = m_conn->createStatement();
+    m_writeStmt->setSQL("INSERT INTO fe_config_main (conf_id, ped_conf_id, lin_conf_id, lut_conf_id, fgr_conf_id, sli_conf_id, wei_conf_id, bxt_conf_id, btt_conf_id, tag, version, description) "
+			" VALUES (:1, :2, :3 , :4, :5, :6 ,:7, :8, :9, :10, :11, :12 )");
+
+    m_writeStmt->setInt(1, next_id);
+    m_ID=next_id;
+
+  } catch (SQLException &e) {
+    throw(runtime_error("FEConfigMainInfo::prepareWrite():  "+e.getMessage()));
+  }
+
+}
+
+
+void FEConfigMainInfo::writeDB()
+  throw(runtime_error)
+{
+  this->checkConnection();
+  this->checkPrepare();
+
+  // Validate the data, use infinity-till convention
+  DateHandler dh(m_env, m_conn);
+
+  try {
+
+
+    m_writeStmt->setInt(2, this->getPedId());
+    m_writeStmt->setInt(3, this->getLinId());
+    m_writeStmt->setInt(4, this->getLUTId());
+    m_writeStmt->setInt(5, this->getFgrId());
+    m_writeStmt->setInt(6, this->getSliId());
+    m_writeStmt->setInt(7, this->getWeiId());
+    m_writeStmt->setInt(8, this->getBxtId());
+    m_writeStmt->setInt(9, this->getBttId());
+    m_writeStmt->setString(10, this->getConfigTag());
+    m_writeStmt->setInt(11, this->getVersion());
+    m_writeStmt->setString(12, this->getDescription());
+    m_writeStmt->executeUpdate();
+
+
+  } catch (SQLException &e) {
+    throw(runtime_error("FEConfigMainInfo::writeDB:  "+e.getMessage()));
+  }
+  // Now get the ID
+  if (!this->fetchID()) {
+    throw(runtime_error("FEConfigMainInfo::writeDB:  Failed to write"));
+  }
+  setByID(m_ID);
+
+  cout<< "FEConfigMainInfo::writeDB>> done inserting FEConfigMainInfo with id="<<m_ID<<endl;
+
+}
+
+
+
+
+int FEConfigMainInfo::fetchIDLast()
+  throw(runtime_error)
+{
+
+  this->checkConnection();
+
+  DateHandler dh(m_env, m_conn);
+
+  try {
+    Statement* stmt = m_conn->createStatement();
+    stmt->setSQL("SELECT max(conf_id) FROM fe_config_main ");
+    ResultSet* rset = stmt->executeQuery();
+
+    if (rset->next()) {
+      m_ID = rset->getInt(1);
+    } else {
+      m_ID = 0;
+    }
+    m_conn->terminateStatement(stmt);
+  } catch (SQLException &e) {
+    throw(runtime_error("ODRunConfigInfo::fetchIDLast:  "+e.getMessage()));
+  }
+
+  setByID(m_ID);
+  return m_ID;
+}
 
 
 void FEConfigMainInfo::setByID(int id) 
@@ -258,31 +209,35 @@ void FEConfigMainInfo::setByID(int id)
 
    DateHandler dh(m_env, m_conn);
 
+   cout<< "FEConfigMainInfo::setByID called for id "<<id<<endl;
+
    try {
      Statement* stmt = m_conn->createStatement();
 
-     stmt->setSQL("SELECT * FROM "+ getTable()+" WHERE conf_id = :1");
+     stmt->setSQL("SELECT conf_id, ped_conf_id, lin_conf_id, lut_conf_id, fgr_conf_id, sli_conf_id, wei_conf_id,\
+ bxt_conf_id, btt_conf_id, tag, version, description, db_timestamp FROM FE_CONFIG_MAIN WHERE conf_id = :1 ");
      stmt->setInt(1, id);
      
      ResultSet* rset = stmt->executeQuery();
      if (rset->next()) {
-       this->setId(rset->getInt(1));
-       this->setPedId(rset->getInt(2));
-       this->setLinId(rset->getInt(3));
-       this->setLutId(rset->getInt(4));
-       this->setFgrId(rset->getInt(5));
-       this->setSliId(rset->getInt(6));
-       this->setWeiId(rset->getInt(7));
-       this->setBxtId(rset->getInt(8));
-       this->setBttId(rset->getInt(9));
-       this->setConfigTag(rset->getString(10));
-       Date dbdate = rset->getDate(11);
-       this->setDBTime( dh.dateToTm( dbdate ));
-
+       setId(          rset->getInt(1) );
+       setPedId(       rset->getInt(2) );
+       setLinId(       rset->getInt(3) );
+       setLUTId(       rset->getInt(4) );
+       setFgrId(       rset->getInt(5) );
+       setSliId(       rset->getInt(6) );
+       setWeiId(       rset->getInt(7) );
+       setBxtId(       rset->getInt(8) );
+       setBttId(       rset->getInt(9) );
+       setConfigTag(   rset->getString(10) );
+       setVersion(     rset->getInt(11) );
+       setDescription(      rset->getString(12) );
+       Date dbdate = rset->getDate(13);
+       setDBTime( dh.dateToTm( dbdate ));
+       m_ID = id;
      } else {
-       throw(runtime_error("FEConfigMainInfo::setByID:  Given conf_id is not in the database"));
+       throw(runtime_error("FEConfigMainInfo::setByID:  Given cycle_id is not in the database"));
      }
-     
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
      throw(runtime_error("FEConfigMainInfo::setByID:  "+e.getMessage()));
@@ -290,4 +245,59 @@ void FEConfigMainInfo::setByID(int id)
 }
 
 
+void FEConfigMainInfo::fetchData(FEConfigMainInfo * result)
+  throw(runtime_error)
+{
+  this->checkConnection();
+   DateHandler dh(m_env, m_conn);
+  result->clear();
+  if(result->getId()==0){
+    throw(runtime_error("FEConfigMainInfo::fetchData(): no Id defined for this FEConfigMainInfo "));
+  }
+
+  try {
+    m_readStmt->setSQL("SELECT conf_id, ped_conf_id, lin_conf_id, lut_conf_id, fgr_conf_id, sli_conf_id, wei_conf_id, bxt_conf_id, btt_conf_id, tag, version, description, db_timestamp FROM FE_CONFIG_MAIN WHERE conf_id = :1 ");
+
+    m_readStmt->setInt(1, result->getId());
+    ResultSet* rset = m_readStmt->executeQuery();
+
+    rset->next();
+
+    result->setId(          rset->getInt(1) );
+    result->setPedId(       rset->getInt(2) );
+    result->setLinId(       rset->getInt(3) );
+    result->setLUTId(       rset->getInt(4) );
+    result->setFgrId(       rset->getInt(5) );
+    result->setSliId(       rset->getInt(6) );
+    result->setWeiId(       rset->getInt(7) );
+    result->setBxtId(       rset->getInt(8) );
+    result->setBttId(       rset->getInt(9) );
+    result->setConfigTag(         rset->getString(10) );
+    result->setVersion(     rset->getInt(11) );
+    result->setDescription(      rset->getString(12) );
+    Date dbdate = rset->getDate(13);
+    result->setDBTime( dh.dateToTm( dbdate ));
+ 
+  } catch (SQLException &e) {
+    throw(runtime_error("FEConfigMainInfo::fetchData():  "+e.getMessage()));
+  }
+}
+
+ void FEConfigMainInfo::insertConfig()
+  throw(std::runtime_error)
+{
+  try {
+
+    prepareWrite();
+    writeDB();
+    m_conn->commit();
+    terminateWriteStatement();
+  } catch (std::runtime_error &e) {
+    m_conn->rollback();
+    throw(e);
+  } catch (...) {
+    m_conn->rollback();
+    throw(std::runtime_error("FEConfigMainInfo::insertConfig:  Unknown exception caught"));
+  }
+}
 
