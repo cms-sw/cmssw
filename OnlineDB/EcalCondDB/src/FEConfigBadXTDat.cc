@@ -14,7 +14,7 @@ FEConfigBadXTDat::FEConfigBadXTDat()
   m_writeStmt = NULL;
   m_readStmt = NULL;
 
-  m_sm = 0;
+  m_tcc = 0;
   m_fed = 0;
   m_tt = 0;
   m_xt = 0;
@@ -37,7 +37,7 @@ void FEConfigBadXTDat::prepareWrite()
 
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, tr_id, tcc_id, tt_id, xt_id, status ) "
+    m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, tcc_id,fed_id, tt_id, xt_id, status ) "
 			"VALUES (:1, :2, :3, :4, :5 ,:6 )");
   } catch (SQLException &e) {
     throw(runtime_error("FEConfigBadXTDat::prepareWrite():  "+e.getMessage()));
@@ -53,8 +53,8 @@ void FEConfigBadXTDat::writeDB(const FEConfigBadXTDat* item, FEConfigBadXTInfo* 
 
   try {
     m_writeStmt->setInt(1, item->getId());
-    m_writeStmt->setInt(2, item->getTRId());
-    m_writeStmt->setInt(3, item->getTCCId() );
+    m_writeStmt->setInt(2, item->getTCCId() );
+    m_writeStmt->setInt(3, item->getFedId());
     m_writeStmt->setInt(4, item->getTTId() );
     m_writeStmt->setInt(5, item->getXTId() );
     m_writeStmt->setInt(6, item->getStatus() );
@@ -80,7 +80,7 @@ void FEConfigBadXTDat::fetchData(std::vector< FEConfigBadXTDat >* p, FEConfigBad
   }
 
   try {
-    m_readStmt->setSQL("SELECT * FROM " + getTable() + "WHERE rec_id = :rec_id order by tr_id, tcc_id, tt_id , xt_id ");
+    m_readStmt->setSQL("SELECT * FROM " + getTable() + "WHERE rec_id = :rec_id order by tcc_id, fed_id, tt_id , xt_id ");
     m_readStmt->setInt(1, iovID);
     ResultSet* rset = m_readStmt->executeQuery();
     
@@ -88,8 +88,8 @@ void FEConfigBadXTDat::fetchData(std::vector< FEConfigBadXTDat >* p, FEConfigBad
     FEConfigBadXTDat dat;
     while(rset->next()) {
       // dat.setId( rset->getInt(1) );
-      dat.setTRId( rset->getInt(2) );
-      dat.setTCCId( rset->getInt(3) );
+      dat.setTCCId( rset->getInt(2) );
+      dat.setFedId( rset->getInt(3) );
       dat.setTTId( rset->getInt(4) );
       dat.setXTId( rset->getInt(5) );
       dat.setStatus( rset->getInt(6) );
@@ -137,8 +137,8 @@ void FEConfigBadXTDat::writeArrayDB(const std::vector< FEConfigBadXTDat > data, 
   for (size_t count = 0; count != data.size(); count++) {
     dataitem=data[count];
     ids[count]=iovID;
-    xx[count]=dataitem.getTRId();
-    yy[count]=dataitem.getTCCId();
+    xx[count]=dataitem.getTCCId();
+    yy[count]=dataitem.getFedId();
     zz[count]=dataitem.getTTId();
     z1[count]=dataitem.getXTId();
     st[count]=dataitem.getStatus();

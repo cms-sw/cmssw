@@ -14,7 +14,7 @@ FEConfigBadTTDat::FEConfigBadTTDat()
   m_writeStmt = NULL;
   m_readStmt = NULL;
 
-  m_sm = 0;
+  m_tcc = 0;
   m_fed = 0;
   m_tt = 0;
   m_t1 = 0;
@@ -36,7 +36,7 @@ void FEConfigBadTTDat::prepareWrite()
 
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, tr_id, tcc_id, tt_id, status ) "
+    m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, tcc_id, fed_id, tt_id, status ) "
 			"VALUES (:1, :2, :3, :4, :5 )");
   } catch (SQLException &e) {
     throw(runtime_error("FEConfigBadTTDat::prepareWrite():  "+e.getMessage()));
@@ -52,8 +52,8 @@ void FEConfigBadTTDat::writeDB(const FEConfigBadTTDat* item, FEConfigBadTTInfo* 
 
   try {
     m_writeStmt->setInt(1, item->getId());
-    m_writeStmt->setInt(2, item->getTRId());
-    m_writeStmt->setInt(3, item->getTCCId() );
+    m_writeStmt->setInt(2, item->getTCCId() );
+    m_writeStmt->setInt(3, item->getFedId());
     m_writeStmt->setInt(4, item->getTTId() );
     m_writeStmt->setInt(5, item->getStatus() );
 
@@ -78,7 +78,7 @@ void FEConfigBadTTDat::fetchData(std::vector< FEConfigBadTTDat >* p, FEConfigBad
   }
 
   try {
-    m_readStmt->setSQL("SELECT * FROM " + getTable() + "WHERE rec_id = :rec_id order by tr_id, tcc_id, tt_id ");
+    m_readStmt->setSQL("SELECT * FROM " + getTable() + "WHERE rec_id = :rec_id order by tcc_id, fed_id, tt_id ");
     m_readStmt->setInt(1, iovID);
     ResultSet* rset = m_readStmt->executeQuery();
     
@@ -86,8 +86,8 @@ void FEConfigBadTTDat::fetchData(std::vector< FEConfigBadTTDat >* p, FEConfigBad
     FEConfigBadTTDat dat;
     while(rset->next()) {
       // dat.setId( rset->getInt(1) );
-      dat.setTRId( rset->getInt(2) );
-      dat.setTCCId( rset->getInt(3) );
+      dat.setTCCId( rset->getInt(2) );
+      dat.setFedId( rset->getInt(3) );
       dat.setTTId( rset->getInt(4) );
       dat.setStatus( rset->getInt(5) );
 
@@ -132,8 +132,8 @@ void FEConfigBadTTDat::writeArrayDB(const std::vector< FEConfigBadTTDat > data, 
   for (size_t count = 0; count != data.size(); count++) {
     dataitem=data[count];
     ids[count]=iovID;
-    xx[count]=dataitem.getTRId();
-    yy[count]=dataitem.getTCCId();
+    xx[count]=dataitem.getTCCId();
+    yy[count]=dataitem.getFedId();
     zz[count]=dataitem.getTTId();
     st[count]=dataitem.getStatus();
 
