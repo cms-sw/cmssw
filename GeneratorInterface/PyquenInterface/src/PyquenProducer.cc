@@ -3,7 +3,7 @@
  * Generates PYQUEN HepMC events
  *
  * Original Author: Camelia Mironov
- * $Id: PyquenProducer.cc,v 1.22 2009/02/03 22:02:00 yilmaz Exp $
+ * $Id: PyquenProducer.cc,v 1.6 2009/02/19 02:26:58 yilmaz Exp $
 */
 
 #include <iostream>
@@ -14,7 +14,8 @@
 #include "GeneratorInterface/PyquenInterface/interface/PyquenWrapper.h"
 #include "GeneratorInterface/CommonInterface/interface/PythiaCMS.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -82,7 +83,8 @@ eventNumber_(0)
   call_pyinit("CMS", "p", "p", comenergy);  
   
   produces<HepMCProduct>();
-  produces<GenInfoProduct, edm::InRun>();
+  produces<GenEventInfoProduct, edm::InRun>();
+
 }
 
 
@@ -175,7 +177,7 @@ void PyquenProducer::produce(Event & e, const EventSetup& es)
 	 }
       }
       vtx_ = &(genvtx->position());
-      cout<<"Vertex is at : "<<vtx_->z()<<" cm"<<endl;
+      LogDebug("PyquenVertex")<<"Vertex is at : "<<vtx_->z()<<" mm";
    }
    
    // Generate PYQUEN event
@@ -213,6 +215,9 @@ void PyquenProducer::produce(Event & e, const EventSetup& es)
 
   auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
   bare_product->addHepMCData(evt );
+
+  std::auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct( evt ));
+  e.put(genEventInfo);
 
   if(embedding_) bare_product->applyVtxGen(vtx_);
   e.put(bare_product); 
