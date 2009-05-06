@@ -163,11 +163,11 @@ process.looper = cms.Looper(
 
     # // standalone muons //
     # MuonLabel = cms.InputTag("standAloneMuons:UpdatedAtVtx"),
-    # muonType = cms.int32(2),
+    # MuonType = cms.int32(2),
 
     # // tracker tracks //
     # MuonLabel = cms.InputTag("generalTracks"), # ctfWithMaterialTracks
-    # muonType = cms.int32(3),
+    # MuonType = cms.int32(3),
 
     # // global muons (these are still reco::Tracks) //
     # MuonLabel = cms.InputTag("muons"),
