@@ -1,7 +1,7 @@
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterEMJetHeep.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 //#include "CLHEP/HepMC/GenParticle.h"
-//
+
 #include <iostream>
 #include<list>
 #include<vector>
@@ -32,7 +32,7 @@ struct ParticlePtGreater{
 //}
 
 PythiaFilterEMJetHeep::PythiaFilterEMJetHeep(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
+label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source"))),
 //
 minEventPt(iConfig.getUntrackedParameter<double>("MinEventPt",40.)),
 etaMax(iConfig.getUntrackedParameter<double>("MaxEta", 2.8)),
@@ -44,33 +44,57 @@ drMin(iConfig.getUntrackedParameter<double>("dRMin", 0.4)),
 eventsProcessed(0),
 maxnumberofeventsinrun(iConfig.getUntrackedParameter<int>("MaxEvents",1000)),
 outputFile_(iConfig.getUntrackedParameter("outputFile",std::string("rootOutputFile"))),
+minbias(iConfig.getUntrackedParameter<bool>("Minbias",false)),
 debug(iConfig.getUntrackedParameter<bool>("Debug",true)) { 
 theNumberOfSelected = 0;   
 //  
 }
-
 
 PythiaFilterEMJetHeep::~PythiaFilterEMJetHeep(){}
 
 void PythiaFilterEMJetHeep::beginJob(edm::EventSetup const&) {
 
   // parametarizations of presel. criteria:
+
   ptSeedMin_EB =  6.0 + (minEventPt - 80.) * 0.035;
-  ptSeedMin_EE =  5.0 + (minEventPt - 80.) * 0.033;
+  ptSeedMin_EE =  5.5 + (minEventPt - 80.) * 0.033;
   fracConePtMin_EB = 0.60 - (minEventPt - 80.) * 0.0009;
   fracConePtMin_EE = fracConePtMin_EB;
-  fracEmPtMin_EB = 0.25 + (minEventPt - 80.) * 0.0017;
+  fracEmPtMin_EB = 0.30 + (minEventPt - 80.) * 0.0017;
   if(minEventPt >=225) fracEmPtMin_EB = 0.40 + (minEventPt - 230.) * 0.00063;
-  fracEmPtMin_EE = 0.25 + (minEventPt - 80.) * 0.0033;
+  fracEmPtMin_EE = 0.30 + (minEventPt - 80.) * 0.0033;
   if(minEventPt >=165) fracEmPtMin_EE = 0.55 + (minEventPt - 170.) * 0.0005;
   fracTrkPtMax_EB = 0.80 - (minEventPt - 80.) * 0.001;
   fracTrkPtMax_EE = 0.70 - (minEventPt - 80.) * 0.001;
   isoConeMax_EB = 0.35;
   isoConeMax_EE = 0.40;
+  ptHdMax_EB = 40;
   ptHdMax_EB = 45;
-  ptHdMax_EB = 50;
-  ntrkMax_EB = 5;
-  ntrkMax_EE = 5;
+  ntrkMax_EB = 4;
+  ntrkMax_EE = 4;
+
+  if( minbias ) {
+
+    std::cout <<" ... Minbias preselection ... " << std::endl;
+
+    minEventPt = 1.0;
+    ptSeedMin_EB =  1.5; 
+    ptSeedMin_EE =  1.5; 
+    fracConePtMin_EB = 0.20; 
+    fracConePtMin_EE = fracConePtMin_EB;
+    fracEmPtMin_EB = 0.20; 
+    fracEmPtMin_EE = 0.20; 
+    fracTrkPtMax_EB = 0.80; 
+    fracTrkPtMax_EE = 0.80; 
+    isoConeMax_EB = 1.0;
+    isoConeMax_EE = 1.0;
+    ptHdMax_EB = 7;
+    ptHdMax_EB = 7;
+    ntrkMax_EB = 2;
+    ntrkMax_EE = 2;
+
+  }
+
 
   std::cout <<" minEventPt = " << minEventPt << std::endl;
   std::cout <<" etaMax = " << etaMax << std::endl;
@@ -258,8 +282,10 @@ bool PythiaFilterEMJetHeep::filter(edm::Event& iEvent, const edm::EventSetup& iS
 
 void PythiaFilterEMJetHeep::endJob() {
 
+  std::cout<<"\n *************************\n "<<std::endl;
   std::cout<<" Events processed "<< eventsProcessed <<std::endl;
   std::cout<<" Events preselected "<< theNumberOfSelected <<std::endl;
+  std::cout<<"\n ************************* \n"<<std::endl;
 
 }
 
