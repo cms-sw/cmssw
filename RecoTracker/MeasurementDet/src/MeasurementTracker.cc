@@ -210,7 +210,7 @@ void MeasurementTracker::updatePixels( const edm::Event& event) const
   typedef edmNew::DetSet<SiPixelCluster> PixelDetSet;
 
   bool switchOffPixelsIfEmpty = (!pset_.existsAs<bool>("switchOffPixelsIfEmpty")) ||
-                                (pset_.getParameter<bool>("switchOffPixelsIfEmpty") == false);
+                                (pset_.getParameter<bool>("switchOffPixelsIfEmpty"));
 
   std::vector<uint32_t> rawInactiveDetIds; 
   if (!theInactivePixelDetectorLabels.empty()) {
