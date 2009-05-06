@@ -13,12 +13,13 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 20:09:46 CET 2008
-// $Id: L1CondDBIOVWriter.cc,v 1.11 2009/03/29 00:33:57 wsun Exp $
+// $Id: L1CondDBIOVWriter.cc,v 1.12 2009/04/06 02:14:19 wsun Exp $
 //
 //
 
 
 // system include files
+#include <sstream>
 
 // user include files
 #include "CondTools/L1Trigger/plugins/L1CondDBIOVWriter.h"
@@ -45,7 +46,8 @@
 //
 L1CondDBIOVWriter::L1CondDBIOVWriter(const edm::ParameterSet& iConfig)
    : m_tscKey( iConfig.getParameter<std::string> ("tscKey") ),
-     m_ignoreTriggerKey( iConfig.getParameter<bool> ("ignoreTriggerKey") )
+     m_ignoreTriggerKey( iConfig.getParameter<bool> ("ignoreTriggerKey") ),
+     m_logKeys( iConfig.getParameter<bool>( "logKeys" ) )
 {
    //now do what ever initialization is needed
    typedef std::vector<edm::ParameterSet> ToSave;
@@ -88,6 +90,12 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
    bool triggerKeyIOVUpdated = true ;
 
+   // Start log string, convert run number into string
+   std::stringstream ss ;
+   ss << run ;
+   std::string log = "KEYLOG runNumber=" + ss.str() ;
+   bool logRecords = true ;
+
    if( !m_ignoreTriggerKey )
      {
        if( !m_tscKey.empty() )
@@ -106,10 +114,16 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 	   // Read current L1TriggerKey directly from ORCON using token
 	   L1TriggerKey key ;
-	   // m_writer.readKey( keyToken, key ) ;
 	   m_writer.readObject( keyToken, key ) ;
 
 	   recordTypeToKeyMap = key.recordToKeyMap() ;
+
+           // Replace spaces in key with ?s.  Do reverse substitution when
+           // making L1TriggerKey.
+	   std::string tmpKey = m_tscKey ;
+           replace( tmpKey.begin(), tmpKey.end(), ' ', '?' ) ;
+           log += " tscKey=" + tmpKey ;
+	   logRecords = false ;
 	 }
        else
 	 {
@@ -149,9 +163,22 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
        for( ; itr != end ; ++itr )
 	 {
-	   // Do nothing if object key is null.
 	   std::string recordType = itr->first ;
 	   std::string objectKey = itr->second ;
+
+	   std::string recordName( recordType,
+				   0, recordType.find_first_of("@") ) ;
+
+	   if( logRecords )
+	     {
+	       // Replace spaces in key with ?s.  Do reverse substitution when
+	       // making L1TriggerKey.
+	       std::string tmpKey = objectKey ;
+	       replace( tmpKey.begin(), tmpKey.end(), ' ', '?' ) ;
+	       log += " " + recordName + "Key=" + tmpKey ;
+	     }
+
+	   // Do nothing if object key is null.
 	   if( objectKey == L1TriggerKey::kNullKey )
 	     {
 	       edm::LogVerbatim( "L1-O2O" )
@@ -174,13 +201,16 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		     recordType + ", key " + objectKey );
 		 }
 
-	       std::string recordName( recordType,
-				       0, recordType.find_first_of("@") ) ;
 	       m_writer.updateIOV( recordName,
 				   payloadToken,
 				   run ) ;
 	     }
 	 }
+     }
+
+   if( m_logKeys )
+     {
+       edm::LogVerbatim( "L1-O2O" ) << log ;
      }
 }
 

@@ -13,13 +13,14 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Thu Nov  6 23:00:43 CET 2008
-// $Id: L1O2OTestAnalyzer.cc,v 1.3 2009/04/03 04:10:45 wsun Exp $
+// $Id: L1O2OTestAnalyzer.cc,v 1.4 2009/04/06 02:14:19 wsun Exp $
 //
 //
 
 
 // system include files
 #include <memory>
+#include <sstream>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -202,6 +203,12 @@ L1O2OTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
        ESHandle< L1TriggerKeyList > pList ;
        iSetup.get< L1TriggerKeyListRcd >().get( pList ) ;
 
+       // Start log string, convert run number into string
+       unsigned long long run = iEvent.id().run() ;
+       std::stringstream ss ;
+       ss << run ;
+       std::string log = "runNumber=" + ss.str() ;
+
        l1t::DataWriter writer ;
 
        std::cout << std::endl << "Run Settings keys:" << std::endl ;
@@ -231,7 +238,14 @@ L1O2OTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	       std::cout << " " << payloadToken ;
 	     }
 	   std::cout << std::endl ;
+
+	   // Replace spaces in key with ?s.  Do reverse substitution when
+	   // making L1TriggerKey.
+	   replace( key.begin(), key.end(), ' ', '?' ) ;
+	   log += " " + *iRec + "Key=" + key ;
 	 }
+
+       std::cout << std::endl << log << std::endl ;
      }
 }
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sat Mar  1 01:08:46 CET 2008
-// $Id: L1TriggerKeyDummyProd.cc,v 1.2 2008/09/19 19:26:37 wsun Exp $
+// $Id: L1TriggerKeyDummyProd.cc,v 1.3 2008/10/13 01:48:38 wsun Exp $
 //
 //
 
@@ -76,9 +76,13 @@ L1TriggerKeyDummyProd::L1TriggerKeyDummyProd(const edm::ParameterSet& iConfig)
 	    it != keys.end() ;
 	    ++it )
 	 {
+	   // Replace ?s with spaces.
+	   std::string key = it->getParameter< std::string >( "key" ) ;
+	   replace( key.begin(), key.end(), '?', ' ' ) ;
+
 	   m_key.add( it->getParameter< std::string >( "record" ),
 		      it->getParameter< std::string >( "type" ),
-		      it->getParameter< std::string >( "key" ) ) ;
+		      key ) ;
 	 }
      }
 }

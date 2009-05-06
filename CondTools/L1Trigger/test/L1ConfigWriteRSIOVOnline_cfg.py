@@ -51,6 +51,7 @@ initIOVWriter( process,
                outputDBAuth = options.outputDBAuth,
                tagBase = options.tagBase,
                tscKey = '' )
+process.L1CondDBIOVWriter.logKeys = True
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)

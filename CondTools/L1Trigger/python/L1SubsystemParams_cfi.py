@@ -188,5 +188,13 @@ def initL1Subsystems( tagBase = 'IDEAL',
         )
 
     from CondTools.L1Trigger.L1RSSubsystemParams_cfi import initL1RSSubsystems
-    initL1RSSubsystems( tagBase = tagBase, objectKey = objectKey )
+    initL1RSSubsystems( tagBase,
+                        objectKey,
+                        objectKey,
+                        objectKey,
+                        objectKey,
+                        objectKey,
+                        objectKey,
+                        objectKey,
+                        objectKey )
     initL1Subsystems.params.recordInfo.extend(initL1RSSubsystems.params.recordInfo)

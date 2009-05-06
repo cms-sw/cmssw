@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sun Mar  2 20:10:36 CET 2008
-// $Id: L1CondDBIOVWriter.h,v 1.2 2008/09/27 02:38:19 wsun Exp $
+// $Id: L1CondDBIOVWriter.h,v 1.3 2009/03/18 18:23:48 wsun Exp $
 //
 
 // system include files
@@ -60,6 +60,8 @@ class L1CondDBIOVWriter : public edm::EDAnalyzer {
       // the TSC key.  The IOV for L1TriggerKey is not updated when
       // m_ignoreTriggerKey = true.
       bool m_ignoreTriggerKey ;
+
+      bool m_logKeys ;
 };
 
 
