@@ -100,7 +100,7 @@ void TrackingMaterialAnalyser::saveXml(const char* name)
         << "  </Group>\n" 
         << std::endl;
   }
-  xml << "</Groudp>" << std::endl;
+  xml << "</Groups>" << std::endl;
 }
 
 //-------------------------------------------------------------------------
