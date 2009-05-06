@@ -1,7 +1,7 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHEStatusBitSetter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CondTools/Hcal/interface/HcalLogicalMapGenerator.h"
-#include "CondTools/Hcal/interface/HcalLogicalMap.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
+#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 
 HBHEStatusBitSetter::HBHEStatusBitSetter()
 {
