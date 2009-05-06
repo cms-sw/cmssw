@@ -14,6 +14,7 @@ public:
   virtual void endJob();
   double my_weight(double eta, const std::string mode);
 private:
+  edm::InputTag genParticlesTag_;
   edm::InputTag muonTag_;
   edm::InputTag metTag_;
   edm::InputTag jetTag_;
@@ -65,6 +66,7 @@ using namespace std;
 using namespace reco;
 
 WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
+      genParticlesTag_(cfg.getUntrackedParameter<edm::InputTag> ("GenParticlesTag", edm::InputTag("genParticles"))),
       muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
       metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("met"))),
       jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("iterativeCone5CaloJets"))),
@@ -165,7 +167,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       bool genfound = false;
 
       Handle<GenParticleCollection> genParticles;
-      if (!ev.getByLabel("genParticles", genParticles)) {
+      if (!ev.getByLabel(genParticlesTag_, genParticles)) {
             cout<<"genParticles dont exist!!!"<<endl;
             return false;
       }
@@ -239,21 +241,23 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       for (unsigned int i=0; i<muonCollection->size(); i++) {
             MuonRef mu(muonCollection,i);
             if (useOnlyGlobalMuons_ && !mu->isGlobalMuon()) continue;
+            if (mu->innerTrack().isNull()) continue;
+            TrackRef tk = mu->innerTrack();
             LogTrace("") << "> Processing muon number " << i << "...";
-            double pt = mu->pt();
+            double pt = tk->pt();
             if (pt>ptThrForZCount_) nmuonsForZ++;
             LogTrace("") << "\t... pt= " << pt << " GeV";
   //          if (pt<ptCut_) continue;
-            double eta = mu->eta();
+            double eta = tk->eta();
             LogTrace("") << "\t... eta= " << eta;
 //            if (fabs(eta)>etaCut_) continue;
 
 
-            //if(mu->charge()!=1) continue;
+            //if(tk->charge()!=1) continue;
 
-            if (pt<ptCut_-2*mu->globalTrack()->ptError()) continue;
+            if (pt<ptCut_-2*tk->ptError()) continue;
             //LogTrace("") << "\t... eta= " << eta;
-            if (fabs(eta)>etaCut_+2*mu->globalTrack()->etaError()) continue;
+            if (fabs(eta)>etaCut_+2*tk->etaError()) continue;
             nrec++;
 
             double iso_weight = my_weight(eta,"ISO");
@@ -273,9 +277,9 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             if (!fired) continue;
             nhlt++;
 
-            double w_et = mu->pt() + met_et;
-            double w_px = mu->px() + met_px;
-            double w_py = mu->py() + met_py;
+            double w_et = tk->pt() + met_et;
+            double w_px = tk->px() + met_px;
+            double w_py = tk->py() + met_py;
             double massT = w_et*w_et - w_px*w_px - w_py*w_py;
             massT = (massT>0) ? sqrt(massT) : 0;
             LogTrace("") << "\t... W_et, W_px, W_py= " << w_et << ", " << w_px << ", " << w_py << " GeV";
@@ -288,7 +292,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             LogTrace("") << ">>> Number of jets above " << eJetMin_ << " GeV: " << njets;
             if (njets>nJetMax_) return false;
 
-            Geom::Phi<double> deltaphi(mu->phi()-atan2(met_py,met_px));
+            Geom::Phi<double> deltaphi(tk->phi()-atan2(met_py,met_px));
             double acop = deltaphi.value();
             if (acop<0) acop = - acop;
             acop = M_PI - acop;

@@ -4,21 +4,21 @@
  *  \author M.I. Josa
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-class TFile;
-class TH1F;
-class TH2F;
+#include "TH1D.h"
+#include "TH2D.h"
+#include <map>
+#include <string>
 
-
-class WMuNuAnalyzer : public edm::EDAnalyzer {
+class WMuNuAnalyzer : public edm::EDFilter {
 public:
   WMuNuAnalyzer(const edm::ParameterSet& pset);
   virtual ~WMuNuAnalyzer();
   virtual void beginJob(const edm::EventSetup& eventSetup);
   virtual void endJob();
-  virtual void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  virtual bool filter(edm::Event & event, const edm::EventSetup& eventSetup);
 private:
   edm::InputTag muonTag_;
   edm::InputTag metTag_;
@@ -36,32 +36,9 @@ private:
   int nJetMax_;
 
 // Histograms
-  TH1F *hNMu;
-  TH1F *hPtMu;
-  TH1F *hEtaMu;
-  TH1F *hMET;
-  TH1F *hTMass;
-  TH1F *hAcop;
-  TH1F *hNjets;
-  TH1F *hPtSum;
-  TH1F *hPtSumN;
-  TH2F *hTMass_PtSum;
-
-  TH1F *hNMu_sel;
-  TH1F *hPtMu_sel;
-  TH1F *hEtaMu_sel;
-  TH1F *hMET_sel;
-  TH1F *hTMass_sel;
-  TH1F *hAcop_sel;
-  TH1F *hNjets_sel;
-  TH1F *hPtSum_sel;
-  TH1F *hPtSumN_sel;
-  TH2F *hTMass_PtSum_sel;
-
-  // Root output file
-  std::string theRootFileName;
-  TFile* theRootFile;
-
+  std::map<std::string,TH1D*> h1_;
+  std::map<std::string,TH2D*> h2_;
+  
   unsigned int numberOfEvents;
   unsigned int numberOfMuons;
 };
@@ -70,6 +47,9 @@ private:
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -80,13 +60,6 @@ private:
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/GeometryVector/interface/Phi.h"
-
-#include "TFile.h"
-#include "TH1F.h"
-#include "TH2F.h"
-
-#include <map>
-#include <vector>
 
 using namespace std;
 using namespace edm;
@@ -107,8 +80,7 @@ WMuNuAnalyzer::WMuNuAnalyzer(const ParameterSet& pset) :
       ptThrForZCount_(pset.getUntrackedParameter<double>("PtThrForZCount", 20.)),
       acopCut_(pset.getUntrackedParameter<double>("AcopCut", 999999.)),
       eJetMin_(pset.getUntrackedParameter<double>("EJetMin", 999999.)),
-      nJetMax_(pset.getUntrackedParameter<int>("NJetMax", 999999)),
-      theRootFileName(pset.getUntrackedParameter<string>("rootFileName")) 
+      nJetMax_(pset.getUntrackedParameter<int>("NJetMax", 999999))
 
 {
   LogDebug("WMuNuAnalyzer")<<" WMuNuAnalyzer constructor called";
@@ -121,33 +93,32 @@ WMuNuAnalyzer::~WMuNuAnalyzer(){
 void WMuNuAnalyzer::beginJob(const EventSetup& eventSetup){
   // Create output files
 
-  theRootFile = TFile::Open(theRootFileName.c_str(), "RECREATE");
-  theRootFile->cd();
+  edm::Service<TFileService> fs;
 
   numberOfEvents = 0;
   numberOfMuons = 0;
 
-  hNMu    = new TH1F("NMu","Nb. muons in the event",10,0.,10.);
-  hPtMu   = new TH1F("ptMu","Pt mu",100,0.,100.);
-  hEtaMu  = new TH1F("etaMu","Eta mu",50,-2.5,2.5);
-  hMET    = new TH1F("MET","Missing Transverse Energy (GeV)", 100,0.,200.);
-  hTMass  = new TH1F("TMass","Rec. Transverse Mass (GeV)",150,0.,300.);
-  hAcop   = new TH1F("Acop","Mu-MET acoplanarity",50,0.,M_PI);
-  hNjets  = new TH1F("Njets","njets",25,0.,25.);
-  hPtSum  = new TH1F("ptSum","Sum pT (GeV)",100,0.,50.);
-  hPtSumN = new TH1F("ptSumN","Sum pT/pT",100,0.,50.);
-  hTMass_PtSum = new TH2F("TMass_ptSum","Rec. Transverse Mass (GeV) vs Sum pT (GeV)",100,0.,50.,150,0.,300.);
+  h1_["NMU"]  = fs->make<TH1D>("NMU","Nb. muons in the event",10,0.,10.);
+  h1_["PTMU"] = fs->make<TH1D>("PTMU","Pt mu",100,0.,100.);
+  h1_["ETAMU"] = fs->make<TH1D>("ETAMU","Eta mu",50,-2.5,2.5);
+  h1_["MET"] = fs->make<TH1D>("MET","Missing Transverse Energy (GeV)", 100,0.,200.);
+  h1_["TMASS"] = fs->make<TH1D>("TMASS","Rec. Transverse Mass (GeV)",150,0.,300.);
+  h1_["ACOP"] = fs->make<TH1D>("ACOP","Mu-MET acoplanarity",50,0.,M_PI);
+  h1_["NJETS"] = fs->make<TH1D>("NJETS","njets",25,0.,25.);
+  h1_["PTSUM"] = fs->make<TH1D>("PTSUM","Sum pT (GeV)",100,0.,50.);
+  h1_["PTSUMN"] = fs->make<TH1D>("PTSUMN","Sum pT/pT",100,0.,50.);
+  h2_["TMASS_PTSUM"] = fs->make<TH2D>("TMASS_PTSUM","Rec. Transverse Mass (GeV) vs Sum pT (GeV)",100,0.,50.,150,0.,300.);
 
-  hNMu_sel    = new TH1F("NMu_sel","Nb. selected muons",10,0.,10.);
-  hPtMu_sel   = new TH1F("ptMu_sel","Pt mu",100,0.,100.);
-  hEtaMu_sel  = new TH1F("etaMu_sel","Eta mu",50,-2.5,2.5);
-  hMET_sel    = new TH1F("MET_sel","Missing Transverse Energy (GeV)", 100,0.,200.);
-  hTMass_sel  = new TH1F("TMass_sel","Rec. Transverse Mass (GeV)",150,0.,300.);
-  hAcop_sel   = new TH1F("Acop_sel","Mu-MET acoplanarity",50,0.,M_PI);
-  hNjets_sel  = new TH1F("Njets_sel","njets",25,0.,25.);
-  hPtSum_sel  = new TH1F("ptSum_sel","Sum pT (GeV)",100,0.,50.);
-  hPtSumN_sel = new TH1F("ptSumN_sel","Sum pT/pT ",100,0.,2.5);
-  hTMass_PtSum_sel = new TH2F("TMass_ptSum_sel","Rec. Transverse Mass (GeV) vs Sum pT (GeV)",100,0.,50.,150,0.,300.);
+  h1_["NMU_SEL"] = fs->make<TH1D>("NMU_SEL","Nb. selected muons",10,0.,10.);
+  h1_["PTMU_SEL"] = fs->make<TH1D>("PTMU_SEL","Pt mu",100,0.,100.);
+  h1_["ETAMU_SEL"] = fs->make<TH1D>("ETAMU_SEL","Eta mu",50,-2.5,2.5);
+  h1_["MET_SEL"] = fs->make<TH1D>("MET_SEL","Missing Transverse Energy (GeV)", 100,0.,200.);
+  h1_["TMASS_SEL"] = fs->make<TH1D>("TMASS_SEL","Rec. Transverse Mass (GeV)",150,0.,300.);
+  h1_["ACOP_SEL"] = fs->make<TH1D>("ACOP_SEL","Mu-MET acoplanarity",50,0.,M_PI);
+  h1_["NJETS_SEL"] = fs->make<TH1D>("NJETS_SEL","njets",25,0.,25.);
+  h1_["PTSUM_SEL"] = fs->make<TH1D>("PTSUM_SEL","Sum pT (GeV)",100,0.,50.);
+  h1_["PTSUMN_SEL"] = fs->make<TH1D>("PTSUMN_SEL","Sum pT/pT ",100,0.,2.5);
+  h2_["TMASS_PTSUM_SEL"] = fs->make<TH2D>("TMASS_PTSUM_SEL","Rec. Transverse Mass (GeV) vs Sum pT (GeV)",100,0.,50.,150,0.,300.);
 
 }
 
@@ -156,38 +127,11 @@ void WMuNuAnalyzer::endJob(){
   LogVerbatim("") << "WMuNuAnalyzer>>> Number of analyzed events= " << numberOfEvents;
   LogVerbatim("") << "WMuNuAnalyzer>>> Number of analyzed muons= " << numberOfMuons;
 
-  // Write the histos to file
-  theRootFile->cd();
-
-  hNMu->Write();
-  hPtMu->Write();   
-  hEtaMu->Write();  
-  hMET->Write();
-  hTMass->Write(); 
-  hAcop->Write(); 
-  hNjets->Write(); 
-  hPtSum->Write(); 
-  hPtSumN->Write(); 
-  hTMass_PtSum->Write(); 
-
-  hNMu_sel->Write();
-  hPtMu_sel->Write();   
-  hEtaMu_sel->Write();  
-  hMET_sel->Write();
-  hTMass_sel->Write(); 
-  hAcop_sel->Write(); 
-  hNjets_sel->Write(); 
-  hPtSum_sel->Write(); 
-  hPtSumN_sel->Write(); 
-  hTMass_PtSum_sel->Write(); 
-
-  theRootFile->Close();
-
   LogVerbatim("") << "WMuNuAnalyzer>>> FINAL PRINTOUTS -> END";
 }
  
 
-void WMuNuAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
+bool WMuNuAnalyzer::filter(Event & event, const EventSetup& eventSetup){
   
    numberOfEvents++;
 
@@ -205,12 +149,11 @@ void WMuNuAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
 
   // Get the Muon Track collection from the event
    Handle<reco::MuonCollection> muonCollection;
-   event.getByLabel(muonTag_, muonCollection);
    if (event.getByLabel(muonTag_, muonCollection)) {
       LogTrace("Analyzer")<<"Reconstructed Muon tracks: " << muonCollection->size() << endl;
    } else {
       LogTrace("") << ">>> Muon collection does not exist !!!";
-      return;
+      return false;
    }
 
    numberOfMuons+=muonCollection->size();
@@ -224,9 +167,11 @@ void WMuNuAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
 
   // Get the MET collection from the event
    Handle<CaloMETCollection> metCollection;
-   if (!event.getByLabel(metTag_, metCollection)) {
-      LogTrace("") << ">>> MET collection does not exist !!!";
-      return;
+   if (event.getByLabel(metTag_, metCollection)) {
+      LogTrace("Analyzer")<<"CaloMET collection found" << endl;
+   } else {
+      LogTrace("") << ">>> CaloMET collection does not exist !!!";
+      return false;
    }
 
    CaloMETCollection::const_iterator caloMET = metCollection->begin();
@@ -234,13 +179,15 @@ void WMuNuAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
    met_px += caloMET->px();
    met_py += caloMET->py();
    double met_et = sqrt(met_px*met_px+met_py*met_py);
-   hMET->Fill(met_et);
+   h1_["MET"]->Fill(met_et);
 
   // Get the Jet collection from the event
    Handle<CaloJetCollection> jetCollection;
-   if (!event.getByLabel(jetTag_, jetCollection)) {
+   if (event.getByLabel(jetTag_, jetCollection)) {
+      LogTrace("Analyzer")<<"Reconstructed calojets: " << jetCollection->size() << endl;
+   } else {
       LogTrace("") << ">>> CALOJET collection does not exist !!!";
-      return;
+      return false;
    }
 
    CaloJetCollection::const_iterator jet = jetCollection->begin();
@@ -248,7 +195,7 @@ void WMuNuAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
    for (jet=jetCollection->begin(); jet!=jetCollection->end(); jet++) {
          if (jet->et()>eJetMin_) njets++;
    }
-   hNjets->Fill(njets);
+   h1_["NJETS"]->Fill(njets);
    LogTrace("") << ">>> Number of jets " << jetCollection->size() << "; above " << eJetMin_ << " GeV: " << njets;
    LogTrace("") << ">>> Number of jets above " << eJetMin_ << " GeV: " << njets;
 
@@ -257,9 +204,9 @@ void WMuNuAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
    unsigned int nmuons = 0;
    unsigned int nmuonsForZ = 0;
 
-   hNMu->Fill(muonCollection->size());
+   h1_["NMU"]->Fill(muonCollection->size());
    float max_pt = -9999.;
-   int i_max_pt = 0;
+   int i_max_pt = -1;
    for (unsigned int i=0; i<muonCollection->size(); i++) {
       bool muon_sel = true;
 
@@ -268,14 +215,14 @@ void WMuNuAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
       LogTrace("") << "> Processing (global) muon number " << i << "...";
 // pt
       double pt = mu->pt();
-      hPtMu->Fill(pt);
+      h1_["PTMU"]->Fill(pt);
       LogTrace("") << "\t... pt= " << pt << " GeV";
 
       if (pt>ptThrForZCount_) nmuonsForZ++;
       if (pt<ptCut_) muon_sel = false;
 // eta
       double eta = mu->eta();
-      hEtaMu->Fill(eta);
+      h1_["ETAMU"]->Fill(eta);
       LogTrace("") << "\t... eta= " << eta;
       if (fabs(eta)>etaCut_) muon_sel = false;
 
@@ -284,7 +231,7 @@ void WMuNuAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
       double acop = deltaphi.value();
       if (acop<0) acop = - acop;
       acop = M_PI - acop;
-      hAcop->Fill(acop);
+      h1_["ACOP"]->Fill(acop);
       LogTrace("") << "\t... acop= " << acop;
       if (acop>acopCut_) muon_sel = false;
 
@@ -294,7 +241,7 @@ void WMuNuAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
       double w_py = mu->py() + met_py;
       double massT = w_et*w_et - w_px*w_px - w_py*w_py;
       massT = (massT>0) ? sqrt(massT) : 0;
-      hTMass->Fill(massT);
+      h1_["TMASS"]->Fill(massT);
       LogTrace("") << "\t... W_et, W_px, W_py= " << w_et << ", " << w_px << ", " << w_py << " GeV";
       LogTrace("") << "\t... Invariant transverse mass= " << massT << " GeV";
       if (massT<massTMin_) muon_sel = false;
@@ -302,14 +249,13 @@ void WMuNuAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
 
 // Isolation
       double ptsum = mu->isolationR03().sumPt;
-      hPtSum->Fill(ptsum);
-      hPtSumN->Fill(ptsum/pt);
-      hTMass_PtSum->Fill(ptsum,massT);
+      h1_["PTSUM"]->Fill(ptsum);
+      h1_["PTSUMN"]->Fill(ptsum/pt);
+      h2_["TMASS_PTSUM"]->Fill(ptsum,massT);
       LogTrace("") << "\t... Isol, Track pt= " << mu->pt() << " GeV, " << " ptsum = " << ptsum;
       if (ptsum/pt > isoCut03_) muon_sel = false;
 
-      if (muon_sel) {
-        nmuons++;
+      if (muon_sel && nmuons<5) {
         if (pt > max_pt) {  //and identify the highest pt muon
            max_pt = pt;
            i_max_pt = nmuons;
@@ -320,6 +266,7 @@ void WMuNuAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
         massT_sel[nmuons] = massT;
         iso_sel[nmuons] = ptsum;
         isoN_sel[nmuons] = ptsum/pt;
+        nmuons++;
       }
    }
 
@@ -339,21 +286,22 @@ void WMuNuAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
        LogTrace("") << ">>>> Event SELECTED!!!";
 
 // Fill histograms for selected events
-       hNMu_sel->Fill(nmuons);
-       hMET_sel->Fill(met_et); 
-       hNjets_sel->Fill(njets);
+       h1_["NMU_SEL"]->Fill(nmuons);
+       h1_["MET_SEL"]->Fill(met_et); 
+       h1_["NJETS_SEL"]->Fill(njets);
 
 // only the combination with highest pt
-       hPtMu_sel->Fill(pt_sel[i_max_pt]);
-       hEtaMu_sel->Fill(eta_sel[i_max_pt]);
-       hAcop_sel->Fill(acop_sel[i_max_pt]);
-       hTMass_sel->Fill(massT_sel[i_max_pt]);
-       hPtSum_sel->Fill(iso_sel[i_max_pt]);
-       hPtSumN_sel->Fill(isoN_sel[i_max_pt]);
-       hTMass_PtSum_sel->Fill(iso_sel[i_max_pt],massT_sel[i_max_pt]);
+       h1_["PTMU_SEL"]->Fill(pt_sel[i_max_pt]);
+       h1_["ETAMU_SEL"]->Fill(eta_sel[i_max_pt]);
+       h1_["ACOP_SEL"]->Fill(acop_sel[i_max_pt]);
+       h1_["TMASS_SEL"]->Fill(massT_sel[i_max_pt]);
+       h1_["PTSUM_SEL"]->Fill(iso_sel[i_max_pt]);
+       h1_["PTSUMN_SEL"]->Fill(isoN_sel[i_max_pt]);
+       h2_["TMASS_PTSUM_SEL"]->Fill(iso_sel[i_max_pt],massT_sel[i_max_pt]);
 
       }
 
+      return event_sel;
   
 }
 
