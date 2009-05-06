@@ -80,6 +80,9 @@ namespace HcalSimpleRecAlgoImpl {
     
       if (slewCorrect) time-=HcalTimeSlew::delay(std::max(1.0,fc_ampl),slewFlavor);
     }
+
+    time=time-calibs.timecorr(); // time calibration
+
     return RecHit(digi.id(),ampl,time);    
   }
 }
@@ -146,6 +149,8 @@ HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, const HcalCoder
     if (wpksamp!=0) wpksamp=(maxA + 2.0*t2) / wpksamp; 
     time = (maxI - digi.presamples())*25.0 + timeshift_ns_hf(wpksamp);
   }
+
+  time=time-calibs.timecorr();
 
   return HFRecHit(digi.id(),ampl,time); 
 }
