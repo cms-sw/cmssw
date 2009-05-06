@@ -9,7 +9,7 @@
      \\\author: Michael A. Balazs, Nov 2006
 */
 //
-// $Id: EgammaSuperClusters.h,v 1.10 2009/01/09 10:23:25 saout Exp $
+// $Id: EgammaSuperClusters.h,v 1.11 2009/02/18 14:37:25 benigno Exp $
 //
 #include <string>
 
@@ -156,6 +156,18 @@ class EgammaSuperClusters : public edm::EDAnalyzer
         double hist_min_etaWidth_;
         double hist_max_etaWidth_;
         int    hist_bins_etaWidth_;
+
+      	double hist_min_R_;
+      	double hist_max_R_;
+      	int    hist_bins_R_;
+
+	MonitorElement* hist_EB_CorSC_ET_vs_Eta_;
+	MonitorElement* hist_EB_CorSC_ET_vs_Phi_;
+
+	MonitorElement* hist_EE_CorSC_ET_vs_Eta_;
+	MonitorElement* hist_EE_CorSC_ET_vs_Phi_;
+	MonitorElement* hist_EE_CorSC_ET_vs_R_;
+
 
 	void closestMCParticle(const HepMC::GenEvent *genEvent, const reco::SuperCluster &sc,
  	                              double &dRClosest, double &energyClosest);

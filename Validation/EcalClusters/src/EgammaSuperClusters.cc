@@ -9,7 +9,8 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
-#include "PhysicsTools/Utilities/interface/deltaPhi.h"
+//#include "PhysicsTools/Utilities/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "DataFormats/GeometryVector/interface/Pi.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -68,6 +69,10 @@ EgammaSuperClusters::EgammaSuperClusters( const edm::ParameterSet& ps )
 	hist_bins_preshowerE_ = ps.getParameter<int>("hist_bins_preshowerE");
 	hist_min_preshowerE_ = ps.getParameter<double>("hist_min_preshowerE");
 	hist_max_preshowerE_ = ps.getParameter<double>("hist_max_preshowerE");
+
+	hist_min_R_ = ps.getParameter<double>("hist_min_R");
+	hist_max_R_ = ps.getParameter<double>("hist_max_R");
+	hist_bins_R_ = ps.getParameter<int>   ("hist_bins_R");
 
 	MCTruthCollection_ = ps.getParameter<edm::InputTag>("MCTruthCollection");
 
@@ -286,6 +291,29 @@ void EgammaSuperClusters::beginJob(edm::EventSetup const&)
                 = dbe_->book1D("hist_EE_CorSC_preshowerE_","preshower energy in Corrected Super Clusters with Preshower in Endcap",
                         hist_bins_preshowerE_,hist_min_preshowerE_,hist_max_preshowerE_);
 
+
+	//
+	hist_EB_CorSC_ET_vs_Eta_ = dbe_->book2D( "hist_EB_CorSC_ET_vs_Eta_", "Corr Super Cluster ET versus Eta in Barrel", 
+					      hist_bins_ET_, hist_min_ET_, hist_max_ET_,
+					      hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_ );
+
+	hist_EB_CorSC_ET_vs_Phi_ = dbe_->book2D( "hist_EB_CorSC_ET_vs_Phi_", "Corr Super Cluster ET versus Phi in Barrel", 
+					      hist_bins_ET_, hist_min_ET_, hist_max_ET_,
+					      hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_ );
+
+	hist_EE_CorSC_ET_vs_Eta_ = dbe_->book2D( "hist_EE_CorSC_ET_vs_Eta_", "Corr Super Cluster ET versus Eta in Endcap", 
+					      hist_bins_ET_, hist_min_ET_, hist_max_ET_,
+					      hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_ );
+
+	hist_EE_CorSC_ET_vs_Phi_ = dbe_->book2D( "hist_EE_CorSC_ET_vs_Phi_", "Corr Super Cluster ET versus Phi in Endcap", 
+					      hist_bins_ET_, hist_min_ET_, hist_max_ET_,
+					      hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_ );
+
+	hist_EE_CorSC_ET_vs_R_ = dbe_->book2D( "hist_EE_CorSC_ET_vs_R_", "Corr Super Cluster ET versus Radius in Endcap", 
+					      hist_bins_ET_, hist_min_ET_, hist_max_ET_,
+					      hist_bins_R_,hist_min_R_,hist_max_R_ );
+
+
 }
 
 void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup& es )
@@ -367,6 +395,10 @@ void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup&
                 hist_EB_CorSC_ET_->Fill(aClus->energy()/std::cosh(aClus->position().eta()));
                 hist_EB_CorSC_Eta_->Fill(aClus->position().eta());
                 hist_EB_CorSC_Phi_->Fill(aClus->position().phi());
+
+		hist_EB_CorSC_ET_vs_Eta_->Fill( aClus->energy()/std::cosh(aClus->position().eta()), aClus->eta() );
+		hist_EB_CorSC_ET_vs_Phi_->Fill( aClus->energy()/std::cosh(aClus->position().eta()), aClus->phi() );
+
 
                 // cluster shape
                 const reco::CaloClusterPtr seed = aClus->seed();
@@ -487,6 +519,12 @@ void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup&
                 hist_EE_CorSC_Eta_->Fill(aClus->position().eta());
                 hist_EE_CorSC_Phi_->Fill(aClus->position().phi());
                 hist_EE_CorSC_preshowerE_->Fill(aClus->preshowerEnergy());
+
+		hist_EE_CorSC_ET_vs_Eta_->Fill( aClus->energy()/std::cosh(aClus->position().eta()), aClus->eta() );
+		hist_EE_CorSC_ET_vs_Phi_->Fill( aClus->energy()/std::cosh(aClus->position().eta()), aClus->phi() );
+		hist_EE_CorSC_ET_vs_R_->Fill( aClus->energy()/std::cosh(aClus->position().eta()), 
+					      std::sqrt( std::pow(aClus->x(),2) + std::pow(aClus->y(),2) ) );
+
 
                 // correction variables
                 hist_EE_CorSC_phiWidth_->Fill(aClus->phiWidth());

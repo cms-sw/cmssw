@@ -9,7 +9,7 @@
      \\\author: Michael A. Balazs, Nov 2006
 */
 //
-// $Id: EgammaBasicClusters.h,v 1.5 2008/06/17 12:27:24 ferriff Exp $
+// $Id: EgammaBasicClusters.h,v 1.6 2009/02/18 14:37:25 benigno Exp $
 //
 #include <string>
 
@@ -76,5 +76,18 @@ class EgammaBasicClusters : public edm::EDAnalyzer
       	double hist_min_Phi_;
       	double hist_max_Phi_;
       	int    hist_bins_Phi_;
+
+      	double hist_min_R_;
+      	double hist_max_R_;
+      	int    hist_bins_R_;
+
+	MonitorElement* hist_EB_BC_ET_vs_Eta_;
+	MonitorElement* hist_EB_BC_ET_vs_Phi_;
+
+	MonitorElement* hist_EE_BC_ET_vs_Eta_;
+	MonitorElement* hist_EE_BC_ET_vs_Phi_;
+	MonitorElement* hist_EE_BC_ET_vs_R_;
+
+
 };
 #endif
