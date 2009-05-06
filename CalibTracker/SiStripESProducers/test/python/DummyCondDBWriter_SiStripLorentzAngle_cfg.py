@@ -47,6 +47,10 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
+# Three possible generations:
+# - give two values = (min,max)                     -> uniform distribution
+# - give one value and PerCent_Err != 0             -> gaussian distribution
+# - either give two equal values or a single value  -> fixed value
 process.SiStripLorentzAngleGenerator.TIB_EstimatedValueMinMax = cms.vdouble(0.015, 0.019)
 process.SiStripLorentzAngleGenerator.TOB_EstimatedValueMinMax = cms.vdouble(0.020, 0.025)
 process.SiStripLorentzAngleGenerator.TIB_PerCent_Err=cms.double(0.)
