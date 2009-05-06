@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/03/24 10:13:15 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/04/22 22:15:48 $
+ *  $Revision: 1.14 $
  *  \author  M. Vander Donckt CERN
  *   
  */
@@ -17,6 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 
 //
 // class declaration
@@ -72,6 +73,12 @@ private:
 
   std::vector<std::string> theHLTCollectionLabels;
   std::vector<std::string> theHLTCollectionLevel;
+  std::vector<edm::InputTag> theHLTCollectionL1seed;
+  std::vector<edm::InputTag> theHLTCollectionL1filter;
+  std::vector<edm::InputTag> theHLTCollectionL2filter;
+  std::vector<edm::InputTag> theHLTCollectionL2isofilter;
+  std::vector<edm::InputTag> theHLTCollectionL3filter;
+  std::vector<edm::InputTag> theHLTCollectionL3isofilter;
 
   // ----------member data ---------------------------
   bool verbose_;
@@ -151,11 +158,14 @@ private:
   MonitorElement * hL2muonIsoDR[NTRIG];
   MonitorElement * hEffSummary;
   MonitorElement * hCountSummary;
+  MonitorElement * hSubFilterCount[NTRIG];
+  MonitorElement * hSubFilterEfficiency[NTRIG];
   float XMIN; float XMAX;
 
   TH1D *_hpt1[NTRIG][2], *_hpt2[NTRIG][2];
   TH1D *_heta1[NTRIG][2], *_heta2[NTRIG][2];
   TH1D *_hphi1[NTRIG][2], *_hphi2[NTRIG][2];
+
 };
 
 #endif
