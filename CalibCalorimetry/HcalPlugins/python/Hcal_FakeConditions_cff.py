@@ -41,6 +41,10 @@ es_ascii = cms.ESSource("HcalTextCalibrations",
             file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_respCorr_trivial_HF0.7.txt')
         ), 
         cms.PSet(
+            object = cms.string('TimeCorrs'),
+            file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_timeCorr_mc_v1.txt')
+        ), 
+        cms.PSet(
             object = cms.string('ZSThresholds'),
             file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_ZSthresholds_default.txt')
         ),

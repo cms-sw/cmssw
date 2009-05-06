@@ -37,6 +37,10 @@ es_pool = cms.ESSource("PoolDBESSource",
             tag = cms.string('hcal_respcorr_trivial_v1.01_mc')
         ), 
         cms.PSet(
+            record = cms.string('HcalTimeCorrsRcd'),
+            tag = cms.string('hcal_timecorr_trivial_v1.00_mc')
+        ), 
+        cms.PSet(
             record = cms.string('HcalL1TriggerObjectsRcd'),
             tag = cms.string('hcal_L1TriggerObjects_trivial_mc')
         ), 

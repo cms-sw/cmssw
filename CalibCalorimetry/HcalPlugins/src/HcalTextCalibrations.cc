@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalTextCalibrations.cc,v 1.8 2008/11/08 21:16:34 rofierzy Exp $
+// $Id: HcalTextCalibrations.cc,v 1.10 2008/11/10 13:28:43 rofierzy Exp $
 //
 //
 
@@ -25,7 +25,7 @@
 #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalZSThresholdsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalL1TriggerObjectsRcd.h"
-
+#include "CondFormats/DataRecord/interface/HcalTimeCorrsRcd.h"
 
 #include "HcalTextCalibrations.h"
 //
@@ -76,6 +76,10 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       setWhatProduced (this, &HcalTextCalibrations::produceRespCorrs);
       findingRecord <HcalRespCorrsRcd> ();
     }
+    else if (objectName == "TimeCorrs") {
+      setWhatProduced (this, &HcalTextCalibrations::produceTimeCorrs);
+      findingRecord <HcalTimeCorrsRcd> ();
+    }
     else if (objectName == "L1TriggerObjects") {
       setWhatProduced (this, &HcalTextCalibrations::produceL1TriggerObjects);
       findingRecord <HcalL1TriggerObjectsRcd> ();
@@ -88,7 +92,7 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       std::cerr << "HcalTextCalibrations-> Unknown object name '" << objectName 
 		<< "', known names are: "
 		<< "Pedestals PedestalWidths Gains GainWidths QIEData ChannelQuality ElectronicsMap "
-		<< "ZSThresholds RespCorrs L1TriggerObjects"
+		<< "ZSThresholds RespCorrs TimeCorrs L1TriggerObjects"
 		<< std::endl;
     }
   }
@@ -158,6 +162,10 @@ std::auto_ptr<HcalZSThresholds> HcalTextCalibrations::produceZSThresholds (const
 
 std::auto_ptr<HcalRespCorrs> HcalTextCalibrations::produceRespCorrs (const HcalRespCorrsRcd& rcd) {
   return produce_impl<HcalRespCorrs> (mInputs ["RespCorrs"]);
+}
+
+std::auto_ptr<HcalTimeCorrs> HcalTextCalibrations::produceTimeCorrs (const HcalTimeCorrsRcd& rcd) {
+  return produce_impl<HcalTimeCorrs> (mInputs ["TimeCorrs"]);
 }
 
 std::auto_ptr<HcalL1TriggerObjects> HcalTextCalibrations::produceL1TriggerObjects (const HcalL1TriggerObjectsRcd& rcd) {

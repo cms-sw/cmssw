@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.16 2008/11/08 21:16:30 rofierzy Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.17 2009/03/24 16:11:36 rofierzy Exp $
 //
 //
 
@@ -21,6 +21,7 @@
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 #include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
 #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalTimeCorrsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalZSThresholdsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalL1TriggerObjectsRcd.h"
 
@@ -126,6 +127,10 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
       setWhatProduced (this, &HcalHardcodeCalibrations::produceRespCorrs);
       findingRecord <HcalRespCorrsRcd> ();
     }
+    if ((*objectName == "TimeCorrs") || (*objectName == "TimeCorrection") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceTimeCorrs);
+      findingRecord <HcalTimeCorrsRcd> ();
+    }
     if ((*objectName == "L1TriggerObjects") || (*objectName == "L1Trigger") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceL1TriggerObjects);
       findingRecord <HcalL1TriggerObjectsRcd> ();
@@ -223,6 +228,17 @@ std::auto_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const H
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalRespCorr item(cell->rawId(),1.0);
+    result->addValues(item,h2mode_);
+  }
+  return result;
+}
+
+std::auto_ptr<HcalTimeCorrs> HcalHardcodeCalibrations::produceTimeCorrs (const HcalTimeCorrsRcd& rcd) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceTimeCorrs-> ...";
+  std::auto_ptr<HcalTimeCorrs> result (new HcalTimeCorrs ());
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
+  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+    HcalTimeCorr item(cell->rawId(),0.0);
     result->addValues(item,h2mode_);
   }
   return result;
