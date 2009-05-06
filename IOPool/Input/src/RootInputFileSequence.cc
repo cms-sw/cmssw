@@ -21,6 +21,7 @@
 
 #include "CLHEP/Random/RandFlat.h"
 #include "TFile.h"
+#include "TSystem.h"
 
 #include <ctime>
 
@@ -179,7 +180,7 @@ namespace edm {
       logFileAction("  Initiating request to open file ", fileIter_->fileName());
       std::auto_ptr<InputSource::FileOpenSentry> 
 	sentry((primarySequence_ && primary()) ? new InputSource::FileOpenSentry(input_) : 0);
-      filePtr.reset(TFile::Open(fileIter_->fileName().c_str()));
+      filePtr.reset(TFile::Open(gSystem->ExpandPathName(fileIter_->fileName().c_str())));
     }
     catch (cms::Exception e) {
       if (!skipBadFiles) {
