@@ -3,7 +3,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # process
-process = cms.Process('L1RCTTSCTagTest')
+process = cms.Process('L1RCTGlobalTagTest')
 
 ###################### user choices ######################
 
@@ -27,14 +27,14 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
  
 process.GlobalTag.globaltag = useGlobalTag + '::All'
 
-# take the L1GTParameters from trivial producer instead of default Global Tag
+
 process.load('L1TriggerConfig.RCTConfigProducers.L1RCTConfig_cff')
-process.es_prefer_l1RCTParameters = cms.ESPrefer('L1RCTParametersProducer','l1RCTParameters')
+
 process.l1RCTParametersTest = cms.EDAnalyzer("L1RCTParametersTester")
 process.l1RCTChannelMaskTest = cms.EDAnalyzer("L1RCTChannelMaskTester")
 
 # paths to be run
-#process.l1GtStableParametersTest = cms.EDAnalyzer("L1GtStableParametersTester")
+
 
 process.p = cms.Path(process.l1RCTParametersTest
                      *process.l1RCTChannelMaskTest
