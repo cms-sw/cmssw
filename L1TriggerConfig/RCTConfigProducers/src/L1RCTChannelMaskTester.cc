@@ -13,7 +13,7 @@
 //
 // Original Author:  Sridhara Dasu
 //         Created:  Mon Jul 16 23:48:35 CEST 2007
-// $Id: L1RCTParametersTester.cc,v 1.1 2009/05/05 17:36:37 efron Exp $
+// $Id: L1RCTChannelMaskTester.cc,v 1.1 2009/05/05 17:36:37 efron Exp $
 //
 //
 // user include files
@@ -24,8 +24,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
-#include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
+#include "CondFormats/DataRecord/interface/L1RCTChannelMaskRcd.h"
+#include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
+
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
@@ -37,25 +38,26 @@ using std::endl;
 // class declaration
 //
 
-class L1RCTParametersTester : public edm::EDAnalyzer {
+class L1RCTChannelMaskTester : public edm::EDAnalyzer {
 public:
-  explicit L1RCTParametersTester(const edm::ParameterSet&) {}
-  virtual  ~L1RCTParametersTester() {}
+  explicit L1RCTChannelMaskTester(const edm::ParameterSet&) {}
+  virtual  ~L1RCTChannelMaskTester() {}
       virtual void analyze(const edm::Event&, const edm::EventSetup&);  
 
 };
 
 
 
-void L1RCTParametersTester::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
+void L1RCTChannelMaskTester::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 {
   
 
-  edm::ESHandle< L1RCTParameters > rctParam;
-   evSetup.get< L1RCTParametersRcd >().get( rctParam) ;
+  edm::ESHandle< L1RCTChannelMask > rctChanMask;
+   evSetup.get< L1RCTChannelMaskRcd >().get( rctChanMask) ;
 
 
-   rctParam->print(std::cout);
+   rctChanMask->print(std::cout);
+
 
 }
 
