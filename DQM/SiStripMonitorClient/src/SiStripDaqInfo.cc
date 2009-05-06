@@ -6,6 +6,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQM/SiStripMonitorClient/interface/SiStripDaqInfo.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 
 //Run Info
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
@@ -15,12 +16,6 @@
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 
 #include <iostream>
 #include <iomanip>
@@ -144,43 +139,8 @@ void SiStripDaqInfo::readFedIds(const edm::ESHandle<SiStripFedCabling>& fedcabli
       if (!iconn->isConnected()) continue;
       uint32_t detId = iconn->detId();
       if (detId == 0 || detId == 0xFFFFFFFF)  continue;
-      StripSubdetector subdet(detId);
       std::string subdet_tag;
-      
-      
-      switch (subdet.subdetId()) 
-	{
-	case StripSubdetector::TIB:
-	  {
-	    subdet_tag = "TIB";
-	    break;       
-	  }
-	case StripSubdetector::TID:
-	  {
-	    TIDDetId tidId(detId);
-	    if (tidId.side() == 2) {
-	      subdet_tag = "TIDF";
-	    }  else if (tidId.side() == 1) {
-	      subdet_tag = "TIDB";
-	      }
-	    break;       
-	  }
-	case StripSubdetector::TOB:
-	  {
-	    subdet_tag = "TOB";		
-	    break;       
-	  }
-	case StripSubdetector::TEC:
-	  {
-	    TECDetId tecId(detId);
-	    if (tecId.side() == 2) {
-	      subdet_tag = "TECF";
-	    }  else if (tecId.side() == 1) {
-	      subdet_tag = "TECB";
-	    }
-	    break;       
-	  }
-	}
+      SiStripUtility::getSubDetectorTag(detId,subdet_tag);         
       subDetFedMap[subdet_tag].push_back(*ifed); 
       break;
     }

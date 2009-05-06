@@ -1,6 +1,12 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 using namespace std;
 //
 // Get a list of MEs in a folder
@@ -190,4 +196,43 @@ bool SiStripUtility::goToDir(DQMStore * dqm_store, string name) {
   }
   return false;  
 }
-
+//
+// -- Get Sub Detector tag from DetId
+//
+void SiStripUtility::getSubDetectorTag(uint32_t det_id, string& subdet_tag) {
+  StripSubdetector subdet(det_id);
+  subdet_tag = "";
+  switch (subdet.subdetId()) 
+    {
+    case StripSubdetector::TIB:
+      {
+	subdet_tag = "TIB";
+	break;
+      }
+    case StripSubdetector::TID:
+      {
+	TIDDetId tidId(det_id);
+	if (tidId.side() == 2) {
+	  subdet_tag = "TIDF";
+	}  else if (tidId.side() == 1) {
+	  subdet_tag = "TIDB";
+	}
+	break;       
+      }
+    case StripSubdetector::TOB:
+      {
+	subdet_tag = "TOB";
+	break;
+      }
+    case StripSubdetector::TEC:
+      {
+	TECDetId tecId(det_id);
+	if (tecId.side() == 2) {
+	  subdet_tag = "TECF";
+	}  else if (tecId.side() == 1) {
+	  subdet_tag = "TECB";	
+	}
+	break;       
+      }
+    }
+}

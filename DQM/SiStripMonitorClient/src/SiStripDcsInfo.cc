@@ -6,17 +6,12 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQM/SiStripMonitorClient/interface/SiStripDcsInfo.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 
 #include <iostream>
 #include <iomanip>
@@ -136,7 +131,6 @@ void SiStripDcsInfo::readStatus() {
   edm::LogInfo( "SiStripDcsInfo") << " SiStripDcsInfo::readStatus : "
                                   << " Faulty Detectors " << FaultyDetIds.size();
 
-  string subdet_tag;
   for (std::vector<uint32_t>::const_iterator idetid=SelectedDetIds.begin(); idetid != SelectedDetIds.end(); ++idetid){    
     uint32_t detId = *idetid;
     bool hv_error = false;
@@ -149,41 +143,9 @@ void SiStripDcsInfo::readStatus() {
         break;
       }
     }
-    StripSubdetector subdet(*idetid);
-    
-    switch (subdet.subdetId()) 
-      {
-      case StripSubdetector::TIB:
-	{
-          subdet_tag = "TIB";
-          break;
-	}
-      case StripSubdetector::TID:
-	{
-	  TIDDetId tidId(detId);
-	  if (tidId.side() == 2) {
-            subdet_tag = "TIDF";
-	  }  else if (tidId.side() == 1) {
-	    subdet_tag = "TIDB";
-	  }
-	  break;       
-	}
-      case StripSubdetector::TOB:
-	{
-          subdet_tag = "TOB";
-          break;
-	}
-      case StripSubdetector::TEC:
-	{
-	  TECDetId tecId(detId);
-	  if (tecId.side() == 2) {
-	    subdet_tag = "TECF";
-	  }  else if (tecId.side() == 1) {
-            subdet_tag = "TECB";	
-	  }
-	  break;       
-	}
-      }
+    string subdet_tag;
+    SiStripUtility::getSubDetectorTag(detId,subdet_tag);         
+
     map<string, SubDetMEs>::iterator iPos = SubDetMEsMap.find(subdet_tag);
     if (iPos != SubDetMEsMap.end()){    
       iPos->second.TotalDetectors++;

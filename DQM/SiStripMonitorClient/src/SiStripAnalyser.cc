@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2009/04/26 16:05:19 $
- * $Revision: 1.48 $
+ * $Date: 2009/05/04 19:18:32 $
+ * $Revision: 1.49 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -232,15 +232,14 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
   }
   // Fill Global Status
   if (globalStatusFilling_ > 0 && trackerFEDsFound_) {
-    if (globalStatusFilling_ == 1) actionExecutor_->fillStatus(dqmStore_);
-    if (globalStatusFilling_ == 2) actionExecutor_->fillStatus(dqmStore_);
+    actionExecutor_->fillStatus(dqmStore_);
   }
   // Create Shift Report
   if (shiftReportFrequency_ != -1 && trackerFEDsFound_ && nLumiSecs_%shiftReportFrequency_  == 0) {
     actionExecutor_->createShiftReport(dqmStore_);
   }
   // print list of faulty modules
-  if (printFaultyModuleList_) {
+  if (printFaultyModuleList_ && trackerFEDsFound_) {
     std::ostringstream str_val;
     actionExecutor_->printFaultyModuleList(dqmStore_, str_val);
   }

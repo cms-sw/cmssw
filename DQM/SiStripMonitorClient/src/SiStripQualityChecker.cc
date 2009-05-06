@@ -393,6 +393,7 @@ void SiStripQualityChecker::printFaultyModuleList(DQMStore* dqm_store, ostringst
 
   for (map<string, string>::const_iterator it = SubDetFolderMap.begin(); 
        it != SubDetFolderMap.end(); it++) {
+    string subdet_name   = it->first;
     string subdet_folder = it->second;
     string dname = mechanicalview_dir + "/" + subdet_folder;
     if (!dqm_store->dirExists(dname)) continue;
@@ -408,43 +409,10 @@ void SiStripQualityChecker::printFaultyModuleList(DQMStore* dqm_store, ostringst
     int nDetsWithError = 0;
     for (map<uint32_t,uint16_t>::const_iterator it =  badModuleList.begin() ; it != badModuleList.end(); it++) {
       uint32_t detId =  it->first;
-      StripSubdetector subdet(detId);
       string subdet_tag;
-      
-      switch (subdet.subdetId()) 
-	{
-	case StripSubdetector::TIB:
-	  {
-	    subdet_tag = "TIB";
-	    break;
-	  }
-	case StripSubdetector::TID:
-	  {
-	    TIDDetId tidId(detId);
-	    if (tidId.side() == 2) {
-	      subdet_tag = "TID/side_2";
-	    }  else if (tidId.side() == 1) {
-	      subdet_tag = "TID/side_1";
-	  }
-	    break;       
-	  }
-	case StripSubdetector::TOB:
-	  {
-	    subdet_tag = "TOB";
-	    break;
-	  }
-	case StripSubdetector::TEC:
-	  {
-	    TECDetId tecId(detId);
-	    if (tecId.side() == 2) {
-	      subdet_tag = "TEC/side_2";
-	    }  else if (tecId.side() == 1) {
-	      subdet_tag = "TEC/side_1";	
-	    }
-	    break;       
-	  }
-	}
-      if (subdet_tag == (subdet_folder)) {
+      SiStripUtility::getSubDetectorTag(detId,subdet_tag);
+
+      if (subdet_tag == (subdet_name)) {
         nDetsWithError++;
 	str_val << " Module Id " << detId << " : Errors " << it->second << endl;         
         // Check if the ME exists otherwise book it
