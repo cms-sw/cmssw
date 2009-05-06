@@ -20,8 +20,6 @@
 #include "PhysicsTools/MVAComputer/interface/MVAComputer.h"
 #include "PhysicsTools/MVAComputer/interface/TreeReader.h"
 
-#include "PhysicsTools/MVATrainer/interface/TreeTrainer.h"
-
 using namespace PhysicsTools;
 
 TTree *getTree(const std::string &arg)
