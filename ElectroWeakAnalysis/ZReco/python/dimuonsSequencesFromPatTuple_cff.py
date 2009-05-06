@@ -8,9 +8,9 @@ from RecoMuon.MuonIsolationProducers.muIsolation_cff import *
 
 from PhysicsTools.PatAlgos.recoLayer0.genericTrackCandidates_cff import *
 patAODTrackCands.cut = 'pt > 10.'
-from PhysicsTools.PatAlgos.cleaningLayer0.genericTrackCleaner_cfi import *
-allLayer0TrackCands.removeOverlaps = cms.PSet(
-)
+#from PhysicsTools.PatAlgos.cleaningLayer0.genericTrackCleaner_cfi import *
+#allLayer0TrackCands.removeOverlaps = cms.PSet(
+#)
 
   # add in MC match
 
@@ -62,7 +62,7 @@ from ElectroWeakAnalysis.ZReco.mcTruthForDimuons_cff import *
 
 patLayer0 = cms.Sequence(
     patAODTrackCandSequence*
-    allLayer0TrackCands*
+#    allLayer0TrackCands*
     trackMuMatch*
     patLayer0TrackCandSequence
 )
