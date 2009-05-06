@@ -51,7 +51,7 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
 
 
     ////////////////////////////////////////////////////////
-    // Do ereything twice: once for mc-matched histos,    //
+    // Do everything twice: once for mc-matched histos,   //
     // once for unmatched histos                          //
     ////////////////////////////////////////////////////////
 
@@ -129,27 +129,53 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
       ///////////////////////////////////////////
       // compute per-object efficiencies       //
       ///////////////////////////////////////////
-      MonitorElement *eff,*num,*denom;
-      std::vector<std::string> varnames; varnames.push_back("eta"); varnames.push_back("et");
-      std::string filtername;      
-      std::string filtername2;
-      std::string denomname;
-      std::string numname;
+      MonitorElement *eff, *num, *denom, *genPlot, *effVsGen;
+      std::vector<std::string> varNames; varNames.push_back("eta"); varNames.push_back("et");
+      std::string filterName;
+      std::string filterName2;
+      std::string denomName;
+      std::string numName;
+
+      // Get the gen-level plots
+      std::string genName;
+
       // get the filter names from the bin-labels of the master-histogram
-      for(int filter=1;filter < total->getNbinsX()-2; filter++){
-	filtername = total->getTH1F()->GetXaxis()->GetBinLabel(filter);
-	filtername2= total->getTH1F()->GetXaxis()->GetBinLabel(filter+1);
+      for (int filter=1; filter < total->getNbinsX()-2; filter++) {
+	filterName = total->getTH1F()->GetXaxis()->GetBinLabel(filter);
+	filterName2= total->getTH1F()->GetXaxis()->GetBinLabel(filter+1);
 	
 	//loop over variables (eta/et)
-	for(std::vector<std::string>::iterator var = varnames.begin(); var != varnames.end() ; var++){
-	  numname  = dqm->pwd() + "/"+ filtername2 + *var + *postfix;
-	  denomname= dqm->pwd() + "/"+ filtername + *var + *postfix;
-	  num   =dqm->get(numname);
-	  denom =dqm->get(denomname);
-	  if(!num || !denom) break; // dont try to devide if the histos aren't there
-	  eff = dqm->book1D("efficiency_"+filtername2+"_vs_"+*var +*postfix ,dqm->get(numname)->getTH1F());
-	  if(!dqm) break; // couldnt create new element => don't fill it;
-	  eff->setTitle("efficiency_"+filtername2+"_vs_"+*var + *postfix);
+	for(std::vector<std::string>::iterator var = varNames.begin(); var != varNames.end() ; var++){
+	  numName   = dqm->pwd() + "/" + filterName2 + *var + *postfix;
+	  denomName = dqm->pwd() + "/" + filterName  + *var + *postfix;
+	  num       = dqm->get(numName);
+	  denom     = dqm->get(denomName);
+
+          // Check if histograms actually exist
+	  if(!num || !denom) break; 
+
+	  // Make sure we are able to book new element
+          if (!dqm) break;
+
+	  // Is this the last filter? Book efficiency vs gen level
+          if (filter==total->getNbinsX()-2-1) {
+            genName = dqm->pwd() + "/gen_" + *var;
+            genPlot = dqm->get(genName);
+            effVsGen = dqm->book1D("final_eff_vs_"+*var, dqm->get(genName)->getTH1F());
+            if (!dqm) break;
+            effVsGen->setTitle("Efficiency Compared to Gen vs "+*var);
+	    effVsGen->getTH1F()->SetMaximum(1.2); effVsGen->getTH1F()->SetMinimum(0.0);
+	    effVsGen->getTH1F()->GetXaxis()->SetTitle(var->c_str());
+	    effVsGen->getTH1F()->Divide(num->getTH1F(),genPlot->getTH1F(),1,1,"b" );
+          }
+
+	  eff = dqm->book1D("efficiency_"+filterName2+"_vs_"+*var +*postfix, dqm->get(numName)->getTH1F());
+	  
+          // Make sure we were able to book new element
+          if (!dqm) break;
+
+          // Create the efficiency plot
+	  eff->setTitle("efficiency_"+filterName2+"_vs_"+*var + *postfix);
 	  eff->getTH1F()->SetMaximum(1.2);
 	  eff->getTH1F()->SetMinimum(0);
 	  eff->getTH1F()->GetXaxis()->SetTitle(var->c_str());
