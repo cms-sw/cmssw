@@ -31,34 +31,34 @@ produce(edm::Event& e, const edm::EventSetup& es)
   es.get<TrackerDigiGeometryRecord>().get( pDD );
   const TrackerGeometry &tracker(*pDD);
   
-  std::string cpe = conf_.getParameter<std::string>("StripCPE");
+  edm::ESInputTag cpe = conf_.getParameter<edm::ESInputTag>("StripCPE");
   edm::ESHandle<StripClusterParameterEstimator> parameterestimator;
   es.get<TkStripCPERecord>().get(cpe, parameterestimator); 
   const StripClusterParameterEstimator &stripcpe(*parameterestimator);
   
-  std::string matcher = conf_.getParameter<std::string>("Matcher");
+  edm::ESInputTag matcher= conf_.getParameter<edm::ESInputTag>("Matcher");
   edm::ESHandle<SiStripRecHitMatcher> rechitmatcher;
   es.get<TkStripCPERecord>().get(matcher, rechitmatcher); 
   const SiStripRecHitMatcher &rhmatcher(*rechitmatcher);
   
   //maybe get the SiStripQuality
   const SiStripQuality *ptr_stripQuality = 0;
-  edm::ESHandle<SiStripQuality>   stripQuality;
+  edm::ESHandle<SiStripQuality> stripQuality;
   if (conf_.existsAs<bool>("useSiStripQuality") && conf_.getParameter<bool>("useSiStripQuality")) {
-    std::string qualityLabel = conf_.getParameter<std::string>("siStripQualityLabel");
-    es.get<SiStripQualityRcd>().get(qualityLabel, stripQuality);
+    edm::ESInputTag qualityTag = conf_.getParameter<edm::ESInputTag>("siStripQualityLabel");
+    es.get<SiStripQualityRcd>().get(qualityTag, stripQuality);
     ptr_stripQuality = stripQuality.product();
   }
   
   // Step A: Get Inputs 
-  std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
+  edm::InputTag clusterProducer = conf_.getParameter<edm::InputTag>("ClusterProducer");
   bool regional = conf_.getParameter<bool>("Regional");
   edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
   edm::Handle<edm::RefGetter<SiStripCluster> > refclusters;
   edm::Handle<edm::LazyGetter<SiStripCluster> > lazygetter;
   
   if (regional){
-    std::string lazyGetterProducer=conf_.getParameter<std::string>("LazyGetterProducer");
+    edm::InputTag lazyGetterProducer=conf_.getParameter<edm::InputTag>("LazyGetterProducer");
     e.getByLabel(clusterProducer, refclusters);
     e.getByLabel(lazyGetterProducer, lazygetter);
   }

@@ -10,8 +10,8 @@ class SiStripRecHitConverter : public edm::EDProducer
   
  public:
   
-  explicit SiStripRecHitConverter(const edm::ParameterSet& conf);
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  explicit SiStripRecHitConverter(const edm::ParameterSet&);
+  virtual void produce(edm::Event&, const edm::EventSetup&);
   
  private:
   
