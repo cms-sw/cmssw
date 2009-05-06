@@ -134,22 +134,22 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
 	leafHtmOvf |= (mJet->htmOverFlow);
 	mJet++;
       }
-      if (leafHttSum >= 4096) { leafHttSum -= 4096; }
+      if (leafHttSum >= 4096) { leafHttSum -= 4096; leafHttOvf = true; }
       if (leafHttSum == gct->getJetLeafCards().at(leaf)->getAllOutputHt().at(bx).value()) {
 	htMinusVl += leafHttSum;
-      } else { cout << "Ht sum check leaf " << leaf << endl; testPass = false; }
+      } else { cout << "Ht sum check leaf " << leaf << " bx " << bx << endl; testPass = false; }
       if (leafHtxSum == gct->getJetLeafCards().at(leaf)->getAllOutputHx().at(bx).value()) {
 	hxMinusVl += leafHtxSum;
-      } else { cout << "Hx sum check leaf " << leaf << endl; testPass = false; }
+      } else { cout << "Hx sum check leaf " << leaf << " bx " << bx << endl; testPass = false; }
       if (leafHtySum == gct->getJetLeafCards().at(leaf)->getAllOutputHy().at(bx).value()) {
 	hyMinusVl += leafHtySum;
-      } else { cout << "Hy sum check leaf " << leaf << endl; testPass = false; }
+      } else { cout << "Hy sum check leaf " << leaf << " bx " << bx << endl; testPass = false; }
       if ((gct->getJetLeafCards().at(leaf)->getAllOutputHt().at(bx).overFlow() == leafHttOvf) &&
 	  (gct->getJetLeafCards().at(leaf)->getAllOutputHx().at(bx).overFlow() == leafHtmOvf) &&
 	  (gct->getJetLeafCards().at(leaf)->getAllOutputHy().at(bx).overFlow() == leafHtmOvf)) {
 	httMinusInputOf |= leafHttOvf;
 	htmMinusInputOf |= leafHtmOvf;
-      } else { cout << "Ht minus overflow check leaf " << leaf << endl; testPass = false; }
+      } else { cout << "Ht minus overflow check leaf " << leaf << " bx " << bx << endl; testPass = false; }
     }
 
     // Plus Wheel
@@ -168,13 +168,13 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
 	leafHtmOvf |= (pJet->htmOverFlow);
 	pJet++;
       }
-      if (leafHttSum >= 4096) { leafHttSum -= 4096; }
+      if (leafHttSum >= 4096) { leafHttSum -= 4096; leafHttOvf = true; }
       if (leafHttSum == gct->getJetLeafCards().at(leaf)->getAllOutputHt().at(bx).value()) {
 	htPlusVal += leafHttSum;
-      } else { cout << "Ht sum check leaf " << leaf << endl; testPass = false; }
+      } else { cout << "Ht sum check leaf " << leaf << " bx " << bx << endl; testPass = false; }
       if (leafHtxSum == gct->getJetLeafCards().at(leaf)->getAllOutputHx().at(bx).value()) {
 	hxPlusVal += leafHtxSum;
-      } else { cout << "Hx sum check leaf " << leaf << endl; testPass = false; }
+      } else { cout << "Hx sum check leaf " << leaf << " bx " << bx << endl; testPass = false; }
       if (leafHtySum == gct->getJetLeafCards().at(leaf)->getAllOutputHy().at(bx).value()) {
 	hyPlusVal += leafHtySum;
       } else { cout << "Hy sum check leaf " << leaf << endl; testPass = false; }
@@ -183,7 +183,7 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
 	  (gct->getJetLeafCards().at(leaf)->getAllOutputHy().at(bx).overFlow() == leafHtmOvf)) {
 	httPlusInputOvf |= leafHttOvf;
 	htmPlusInputOvf |= leafHtmOvf;
-      } else { cout << "Ht plus overflow check leaf " << leaf << endl; testPass = false; }
+      } else { cout << "Ht plus overflow check leaf " << leaf << " bx " << bx << endl; testPass = false; }
     }
 
     unsigned htTotal = htMinusVl + htPlusVal;
@@ -208,62 +208,62 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
     //
     if (!myGlobalEnergy->getInputHtVlMinusWheel().at(bx).overFlow() && !httMinusOvrFlow &&
 	(myGlobalEnergy->getInputHtVlMinusWheel().at(bx).value()!=htMinusVl)) { 
-      cout << "ht Minus " << htMinusVl <<endl; 
+      cout << "ht Minus " << htMinusVl << " bx " << bx <<endl; 
       testPass = false; 
     }
 
     if (myGlobalEnergy->getInputHtVlMinusWheel().at(bx).value()!=htMinusVl) { 
-      cout << "ht Minus ovF " << htMinusVl << " found " << myGlobalEnergy->getInputHtVlMinusWheel().at(bx) <<endl; 
+      cout << "ht Minus ovF " << htMinusVl << " found " << myGlobalEnergy->getInputHtVlMinusWheel().at(bx) << " bx " << bx <<endl; 
       testPass = false; 
     }
 
     if (!myGlobalEnergy->getInputHtValPlusWheel().at(bx).overFlow() && !httPlusOverFlow &&
 	(myGlobalEnergy->getInputHtValPlusWheel().at(bx).value()!=htPlusVal)) { 
-      cout << "ht Plus " << htPlusVal <<endl; 
+      cout << "ht Plus " << htPlusVal << " bx " << bx <<endl; 
       testPass = false; 
     }
 
     if (myGlobalEnergy->getInputHtValPlusWheel().at(bx).value()!=htPlusVal) { 
-      cout << "ht Plus ovF " << htPlusVal << " found " << myGlobalEnergy->getInputHtValPlusWheel().at(bx) <<endl; 
+      cout << "ht Plus ovF " << htPlusVal << " found " << myGlobalEnergy->getInputHtValPlusWheel().at(bx) << " bx " << bx <<endl; 
       testPass = false; 
     }
 
     if (myGlobalEnergy->getInputHxVlMinusWheel().at(bx).value()!=hxMinusVl) { 
-      cout << "hx Minus " << hxMinusVl << endl;
+      cout << "hx Minus " << hxMinusVl << " bx " << bx << endl;
       testPass = false;
     }
     if (myGlobalEnergy->getInputHxValPlusWheel().at(bx).value()!=hxPlusVal) {
-      cout << "hx Plus " << hxPlusVal <<endl;
+      cout << "hx Plus " << hxPlusVal << " bx " << bx <<endl;
       testPass = false; }
 
     if (myGlobalEnergy->getInputHyVlMinusWheel().at(bx).value()!=hyMinusVl) { 
-      cout << "hy Minus " << hyMinusVl <<endl;
+      cout << "hy Minus " << hyMinusVl << " bx " << bx <<endl;
       testPass = false;
     }
     if (myGlobalEnergy->getInputHyValPlusWheel().at(bx).value()!=hyPlusVal) {
-      cout << "hy Plus " << hyPlusVal <<endl;
+      cout << "hy Plus " << hyPlusVal << " bx " << bx <<endl;
       testPass = false; 
     }
 
     if ((myGlobalEnergy->getInputHtVlMinusWheel().at(bx).overFlow() == httMinusOvrFlow) &&
 	(myGlobalEnergy->getInputHxVlMinusWheel().at(bx).overFlow() == htmMinusOvrFlow) &&
 	(myGlobalEnergy->getInputHyVlMinusWheel().at(bx).overFlow() == htmMinusOvrFlow)) {
-    } else { cout << "Ht minus overflow check wheel" << endl; testPass = false; }
+    } else { cout << "Ht minus overflow check wheel" << " bx " << bx << endl; testPass = false; }
 
     if ((myGlobalEnergy->getInputHtValPlusWheel().at(bx).overFlow() == httPlusOverFlow) &&
 	(myGlobalEnergy->getInputHxValPlusWheel().at(bx).overFlow() == htmPlusOverFlow) &&
 	(myGlobalEnergy->getInputHyValPlusWheel().at(bx).overFlow() == htmPlusOverFlow)) {
-    } else { cout << "Ht plus overflow check wheel" << endl; testPass = false; }
+    } else { cout << "Ht plus overflow check wheel" << " bx " << bx << endl; testPass = false; }
 
     // Check the output value
     if (!myGlobalEnergy->getEtHadColl().at(bx).overFlow() && !httTotalOvrFlow &&
 	(myGlobalEnergy->getEtHadColl().at(bx).value() != htTotal)) {
-      cout << "Algo etHad" << endl; 
+      cout << "Algo etHad" << " bx " << bx << endl; 
       testPass = false;
     }
 
     if (myGlobalEnergy->getEtHadColl().at(bx).value() != htTotal) {
-      cout << "Algo etHad ovf" << " found " << myGlobalEnergy->getEtHadColl().at(bx) << endl; 
+      cout << "Algo etHad ovf" << " found " << myGlobalEnergy->getEtHadColl().at(bx) << " bx " << bx << endl; 
       testPass = false;
     }
 
@@ -291,7 +291,7 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
       cout << "Missing Ht: expected " << htMiss << " phi " << htMPhi 
 	   << " from x input " << hxTotal << " y input " << hyTotal
 	   << ", found " << myGlobalEnergy->getHtMissColl().at(bx).value()
-	   << " phi " << myGlobalEnergy->getHtMissPhiColl().at(bx).value() << endl;
+	   << " phi " << myGlobalEnergy->getHtMissPhiColl().at(bx).value() << " bx " << bx << endl;
       testPass = false;
     }
 
@@ -304,7 +304,7 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
       }
     }
     if (htFromInternalJets%4096 != htTotal) {
-      cout << "Found ht from jets " << htFromInternalJets << " expected " << htTotal << endl;
+      cout << "Found ht from jets " << htFromInternalJets << " expected " << htTotal << " bx " << bx << endl;
       testPass = false;
     }
 
@@ -337,9 +337,10 @@ gctTestHt::rawJetData gctTestHt::rawJetFinderOutput(const L1GctJetFinderBase* jf
 // 	    << " bx " << jet->bx() << endl;
       jetList.push_back(*jet);
       // Find jet ht using event setup information
-      double etJetGeV = jet->rawsum()*m_jetEtScale->linearLsb();
-      double htJetGeV = m_jfPars->correctedEtGeV(etJetGeV, jet->rctEta(), jet->tauVeto());
-      unsigned htJet  = ( jet->rawsum()==0x3ff ? 0x3ff : m_jfPars->correctedEtGct(htJetGeV));
+//       double etJetGeV = jet->rawsum()*m_jetEtScale->linearLsb();
+//       double htJetGeV = m_jfPars->correctedEtGeV(etJetGeV, jet->rctEta(), jet->tauVeto());
+//       unsigned htJet  = ( jet->rawsum()==0x3ff ? 0x3ff : m_jfPars->correctedEtGct(htJetGeV));
+      unsigned htJet  = ( jet->rawsum()==0x3ff ? 0x3ff : jet->rawsum());
       // Add to total Ht sum
       if (htJet >= m_jfPars->getHtJetEtThresholdGct()) {
 	sumHtt += htJet;

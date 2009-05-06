@@ -112,7 +112,12 @@ uint16_t L1GctJet::rank(const lutPtr lut) const
 
 unsigned L1GctJet::calibratedEt(const lutPtr lut) const
 {
-  return lutValue(lut) & ((1 << L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH) - 1);
+  // !!! bugfix !!!
+  // Hardware doesn't use LUT for jet Et calibration when
+  // calculating HTT and HTM. Just send the raw region Et sum.
+  // return lutValue(lut) & ((1 << L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH) - 1);
+  // !!! bugfix !!!
+  return m_rawsum;
 }
 
 // internal function to find the lut contents for a jet
