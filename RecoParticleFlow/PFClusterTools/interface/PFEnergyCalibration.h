@@ -3,7 +3,6 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
-// #include "RecoParticleFlow/PFBlockAlgo/interface/PFBlockAlgo.h"
 
 class TF1;
 
@@ -30,7 +29,7 @@ class TF1;
 //
 // Original Author:  Christian Veelken
 //         Created:  Tue Aug  8 16:26:18 CDT 2006
-// $Id: PFEnergyCalibration.h,v 1.6 2009/03/25 14:26:48 beaudett Exp $
+// $Id: PFEnergyCalibration.h,v 1.7 2009/04/21 09:30:20 cbern Exp $
 //
 //
 
