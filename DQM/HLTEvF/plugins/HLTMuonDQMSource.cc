@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.21 2009/04/22 22:14:44 hdyoo Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.22 2009/05/06 00:19:52 hdyoo Exp $
 // Modification:  Hwidong Yoo (Purdue University)
 // contact: hdyoo@cern.ch
 //
@@ -923,12 +923,12 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
   }
 
   //get the field
-  edm::ESHandle<MagneticField> magField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magField);
+  //edm::ESHandle<MagneticField> magField;
+  //iSetup.get<IdealMagneticFieldRecord>().get(magField);
 
   //get the geometry
-  edm::ESHandle<GlobalTrackingGeometry> glbTrackingGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(glbTrackingGeometry);
+  //edm::ESHandle<GlobalTrackingGeometry> glbTrackingGeometry;
+  //iSetup.get<GlobalTrackingGeometryRecord>().get(glbTrackingGeometry);
   
   Handle<RecoChargedCandidateCollection> l2mucands, l3mucands;
   iEvent.getByLabel (l2collectionTag_,l2mucands);
@@ -949,6 +949,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
       for (l2seed=l2seeds->begin() ; l2seed != l2seeds->end();++l2seed){
 	PTrajectoryStateOnDet state=l2seed->startingState();
 	// Transform Trajectory State on Det to a TSOS
+	/*
 	TrajectoryStateTransform tsTransform;
 	DetId seedDetId(state.detId());
 	const GeomDet* gdet = glbTrackingGeometry->idToDet( seedDetId );
@@ -957,6 +958,11 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	float eta = tsos.globalPosition().eta();
 	float phi = tsos.globalPosition().phi();
 	hcharge[ntrig][3]->Fill(tsos.charge());
+	*/
+	float pt = 0.0;
+	float eta = 0.0;
+	float phi = 0.0;
+	hcharge[ntrig][3]->Fill(1.0);
 	hpt[ntrig][3]->Fill(pt);
 	hphi[ntrig][3]->Fill(phi);
 	heta[ntrig][3]->Fill(eta);
@@ -1079,6 +1085,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
       for (l3seed=l3seeds->begin() ; l3seed != l3seeds->end();++l3seed){
 	PTrajectoryStateOnDet state=l3seed->startingState();
 	// Transform Trajectory State on Det to a TSOS
+	/*
 	TrajectoryStateTransform tsTransform;
 	DetId seedDetId(state.detId());
 	const GeomDet* gdet = glbTrackingGeometry->idToDet( seedDetId );
@@ -1088,6 +1095,11 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	float eta = tsos.globalPosition().eta();
 	float phi = tsos.globalPosition().phi();
 	hcharge[ntrig][4]->Fill(tsos.charge());
+	*/
+	float pt = 0.0;
+	float eta = 0.0;
+	float phi = 0.0;
+	hcharge[ntrig][4]->Fill(1.0);
 	hpt[ntrig][4]->Fill(pt);
 	hphi[ntrig][4]->Fill(phi);
 	heta[ntrig][4]->Fill(eta);
