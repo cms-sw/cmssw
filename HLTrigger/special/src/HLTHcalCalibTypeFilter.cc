@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalCalibTypeFilter.cc,v 1.2 2009/05/04 12:35:17 fwyzard Exp $
+// $Id: HLTHcalCalibTypeFilter.cc,v 1.3 2009/05/04 13:48:57 fwyzard Exp $
 //
 //
 
@@ -122,6 +122,3 @@ HLTHcalCalibTypeFilter::endJob() {
 					   << eventsByType.at(hc_HOHPD) << "(HO/HPD), " 
 					   << eventsByType.at(hc_HFPMT) << "(HF/PMT)" ;  
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(HLTHcalCalibTypeFilter);
