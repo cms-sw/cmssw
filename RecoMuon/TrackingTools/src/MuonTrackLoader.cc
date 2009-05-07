@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2008/11/30 23:05:56 $
- *  $Revision: 1.75 $
+ *  $Date: 2009/04/03 13:26:32 $
+ *  $Revision: 1.76 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -316,6 +316,9 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
 
     combinedTrajs.push_back((*it)->trajectory());
     if ( thePutTkTrackFlag ) trackerTrajs.push_back((*it)->trackerTrajectory());
+    else {
+      if ((*it)->trackerTrajectory()) delete ((*it)->trackerTrajectory());
+    }
   
     // Create the links between sta and tracker tracks
     reco::MuonTrackLinks links;
