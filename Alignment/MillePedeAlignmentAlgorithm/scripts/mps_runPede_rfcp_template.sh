@@ -1,6 +1,6 @@
 #!/bin/zsh 
 #
-# Run script template for Pede job, copying (rfcp) binary files from mass storage to local disk.
+# Run script template for Pede job, copying binary files from mass storage to local disk.
 #
 # Adjustments might be needed for CMSSW environment.
 
@@ -14,9 +14,17 @@ BATCH_DIR=$(pwd)
 echo "Running at $(date) \n        on $HOST \n        in directory $BATCH_DIR."
 
 # stage and copy the binary file(s), first set castor pool for binary files in $MSSDIR area
-export STAGE_SVCCLASS=$MSSDIRPOOL
-stager_get -M $MSSDIR/milleBinaryISN.dat
-rfcp $MSSDIR/milleBinaryISN.dat $BATCH_DIR
+if [ "$MSSDIRPOOL" != "cmscaf" ]; then
+# Not using cmscaf pool => rfcp command must be used
+  stager_get -M $MSSDIR/milleBinaryISN.dat
+  rfcp $MSSDIR/milleBinaryISN.dat $BATCH_DIR
+else
+# Using cmscaf pool => cmsStageIn command must be used
+  . /afs/cern.ch/cms/caf/setup.sh
+  MSSCAFDIR=`echo $MSSDIR | awk 'sub("/castor/cern.ch/cms","")'`
+  echo "cmsStageIn $MSSCAFDIR/milleBinaryISN.dat milleBinaryISN.dat"
+  cmsStageIn $MSSCAFDIR/milleBinaryISN.dat milleBinaryISN.dat
+fi
 
 # set up the CMS environment
 cd $HOME/cms/CMSSW/CMSSW_3_0_0
