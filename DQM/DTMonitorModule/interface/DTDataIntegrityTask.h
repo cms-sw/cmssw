@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2008/10/08 15:09:40 $
- *  $Revision: 1.22 $
+ *  $Date: 2009/04/28 12:50:35 $
+ *  $Revision: 1.23 $
  *
  * \author Marco Zanetti  - INFN Padova
  *
@@ -66,7 +66,7 @@ public:
 
 private:
 
-  void bookHistos();
+  void bookHistos(const int fedMin, const int fedMax);
   void bookHistos(std::string folder, DTROChainCoding code);
   void bookHistosROS25(DTROChainCoding code);
 
@@ -106,7 +106,8 @@ private:
   MonitorElement* hFEDEntry;
   MonitorElement* hFEDFatal;
   MonitorElement* hFEDNonFatal;
-
+  // one for all FEDS
+  MonitorElement* hTTSSummary;
 
   int neventsDDU;
   int neventsROS25;
@@ -122,10 +123,6 @@ private:
   int myPrevTtsVal;
   int myPrevRosVal;
   int myPrevFifoVal[7];
-  //list of pair<events, values>
-  std::list<std::pair<int,int> > ttsVSTime;
-  std::list<std::pair<int,int> > rosVSTime;
-  std::list<std::pair<int,int*> > fifoVSTime;
  
   // event error flag: true when errors are detected
   // can be used for the selection of the debug stream
@@ -133,6 +130,16 @@ private:
 
   // flag to toggle the creation of only the summaries (for HLT running)
   bool hltMode;
+
+
+
+  std::map<int, std::set<int> > rosBxIdsPerFED;
+  std::set<int> fedBXIds;
+  std::map<int, std::set<int> > rosL1AIdsPerFED;
+
+
+
+
 
 };
 
