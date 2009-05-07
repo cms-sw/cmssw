@@ -11,10 +11,13 @@
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
+#include "DataFormats/HcalDigi/interface/ZDCDataFrame.h"
+#include "DataFormats/HcalDigi/interface/CastorDataFrame.h"
 #include <vector>
 #include <utility>
 #include <ostream>
@@ -30,6 +33,7 @@
 // zsMarkAndPass, zsUnsuppressed etc.
 
 template<class Digi>
+
 
 void Digi2Raw2Digi::compare(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
@@ -74,6 +78,7 @@ void Digi2Raw2Digi::compare(const edm::Event& iEvent, const edm::EventSetup& iSe
   
       if( cell == cell2) {
 	match = 1;
+        int identical = 1; 
 	for (int i=0; i<tsize; i++) {
 	  double adc  =  (*digiItr1)[i].adc();     
 	  int capid   =  (*digiItr1)[i].capid();
@@ -93,29 +98,34 @@ void Digi2Raw2Digi::compare(const edm::Event& iEvent, const edm::EventSetup& iSe
 		      << "     capid2["<< i << "]=" << capid2 
 		      << " adc2["<< i << "]=" << adc2
 		      << std::endl;
+
+            identical = 0;
+            meStatus->Fill(1.); 
             break;
 	  }
-
-
 	} // end of DataFrames array
+
+	if(identical) meStatus->Fill(0.); 
 	break; // matched HcalID  is processed,
               //  go to next (primary collection) cell  
 
       } 
 
     } // end of cycle over 2d DIGI collection 
-    if (!match)
+    if (!match) {
+      meStatus->Fill(2.); 
       std::cout << "===> PROBLEM !!!  subdet=" << sub << "  ieta="
 		<< ieta  << "  inphi=" << iphi << "  depth=" << depth
                 << " HcalID match is not found !!!" 
  		<< std::endl;
-
+    }
   } // end of cycle over 1st DIGI collection    
 
   if (size1 != size2) {
-      std::cout << "===> PROBLEM !!!  Different size of Digi collections : "
-		<< size1  << " and " << size2 
- 		<< std::endl;
+    meStatus->Fill(3.); 
+    std::cout << "===> PROBLEM !!!  Different size of Digi collections : "
+	      << size1  << " and " << size2 
+	      << std::endl;
   }
 
   
@@ -124,8 +134,33 @@ void Digi2Raw2Digi::compare(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 Digi2Raw2Digi::Digi2Raw2Digi(const edm::ParameterSet& iConfig)
   : inputTag1_(iConfig.getParameter<edm::InputTag>("digiLabel1")),
-    inputTag2_(iConfig.getParameter<edm::InputTag>("digiLabel2"))
-{ }
+    inputTag2_(iConfig.getParameter<edm::InputTag>("digiLabel2")),
+    outputFile_(iConfig.getUntrackedParameter<std::string>("outputFile","")),
+    dbe_(0)
+{ 
+
+  // DQM ROOT output
+  if ( outputFile_.size() != 0 ) {
+    edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
+  } else {
+    edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will NOT be saved";
+  }
+
+  // DQM service initialization
+  dbe_ = edm::Service<DQMStore>().operator->();
+   
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("Digi2Raw2DigiV/Digi2Raw2DigiTask");
+  }
+
+  // const char * sub = hcalselector_.c_str();
+  char histo[100];
+  sprintf (histo, "Digi2Raw2Digi_status") ;
+  // bins: 1)full match 2)ID match, not content 3) no match 
+  // 4) number of events with diff number of Digis
+  meStatus    = dbe_->book1D(histo, histo, 5, 0., 5.);
+
+}
 
 
 Digi2Raw2Digi::~Digi2Raw2Digi() { }
@@ -143,6 +178,14 @@ void Digi2Raw2Digi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   //  std::cout << "=== HF ====================" << std::endl; 
   compare<HFDataFrame>(iEvent,iSetup);  
 
+
+  //  std::cout << "=== ZDC ===================" << std::endl; 
+  compare<ZDCDataFrame>(iEvent,iSetup);
+  
+  
+  //  std::cout << "=== CASTOR ================" << std::endl; 
+  compare<CastorDataFrame>(iEvent,iSetup); 
+  
 }
 
 DEFINE_SEAL_MODULE ();
