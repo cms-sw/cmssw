@@ -5,9 +5,9 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 process.source = cms.Source("EmptySource",
-    lastRun = cms.untracked.uint32(1),
+    lastRun = cms.untracked.uint32(85000),
     timetype = cms.string('runnumber'),
-    firstRun = cms.untracked.uint32(1),
+    firstRun = cms.untracked.uint32(85000),
     interval = cms.uint32(1)
 )
 
@@ -38,15 +38,15 @@ process.QualityReader = cms.ESSource("PoolDBESSource",
     timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiPixelQualityRcd'),
-        tag = cms.string('SiPixelBadModule_test')
+        tag = cms.string('SiPixelQuality_v03')
     )),
-    connect = cms.string('sqlite_file:test.db')
+    connect = cms.string('sqlite_file:Quality_v03.db')
 )
 
 process.es_prefer_QualityReader = cms.ESPrefer("PoolDBESSource","QualityReader")
 
 process.BadModuleReader = cms.EDFilter("SiPixelBadModuleReader",
-    printDebug = cms.untracked.uint32(0)
+    printDebug = cms.untracked.uint32(1)
 )
 
 process.p = cms.Path(process.BadModuleReader)

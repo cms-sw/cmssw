@@ -9,9 +9,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.source = cms.Source("EmptyIOVSource",
-    lastValue = cms.uint64(1),
+    lastValue = cms.uint64(84000),
     timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(1),
+    firstValue = cms.uint64(84000),
     interval = cms.uint64(1)
 )
 
@@ -24,10 +24,10 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         authenticationPath = cms.untracked.string('')
     ),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:Quality_v02.db'),
+    connect = cms.string('sqlite_file:Quality_v03.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiPixelQualityRcd'),
-        tag = cms.string('SiPixelQuality_v02')
+        tag = cms.string('SiPixelQuality_v03')
     ))
 )
 
@@ -70,142 +70,6 @@ process.prod = cms.EDFilter("SiPixelBadModuleByHandBuilder",
         ), 
         cms.PSet(
             errortype = cms.string('whole'),
-            detid = cms.uint32(344074500)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344074504)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344074508)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344074512)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344074756)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344074760)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344074764)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344075524)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344075528)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344075532)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344075536)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344075780)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344075784)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344075788)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344076548)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344076552)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344076556)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344076560)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344076804)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344076808)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344076812)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344005128)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344020236)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344020240)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344020488)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344020492)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344019212)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344019216)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344019464)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344019468)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344018188)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344018192)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344018440)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344018444)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
             detid = cms.uint32(344014340)
         ), 
         cms.PSet(
@@ -215,7 +79,19 @@ process.prod = cms.EDFilter("SiPixelBadModuleByHandBuilder",
         cms.PSet(
             errortype = cms.string('whole'),
             detid = cms.uint32(344014348)
-        ),
+        ), 
+        cms.PSet(
+            errortype = cms.string('whole'),
+            detid = cms.uint32(344019460)
+        ), 
+        cms.PSet(
+            errortype = cms.string('whole'),
+            detid = cms.uint32(344019464)
+        ), 
+        cms.PSet(
+            errortype = cms.string('whole'),
+            detid = cms.uint32(344019468)
+        ), 
         cms.PSet(
             errortype = cms.string('none'),
             detid = cms.uint32(302187268),
