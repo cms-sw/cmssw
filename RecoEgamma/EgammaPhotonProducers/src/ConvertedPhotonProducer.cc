@@ -47,7 +47,9 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   conf_(config), 
   theTrackPairFinder_(0), 
   theVertexFinder_(0), 
-  theEcalImpactPositionFinder_(0)
+  theEcalImpactPositionFinder_(0),
+  theLikelihoodCalc_(0)
+
 
 {
 
@@ -79,14 +81,20 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   dRForConversionRecovery_ = conf_.getParameter<double>("dRForConversionRecovery");
   deltaCotCut_ = conf_.getParameter<double>("deltaCotCut");
   minApproachDisCut_ = conf_.getParameter<double>("minApproachDisCut");
-  
-     
+
+  maxNumOfCandidates_        = conf_.getParameter<int>("maxNumOfCandidates");
+  risolveAmbiguity_ = conf_.getParameter<bool>("risolveConversionAmbiguity");  
+  likelihoodWeights_= conf_.getParameter<std::string>("MVA_weights_location");
+  risolveAmbiguity_ = conf_.getParameter<bool>("risolveConversionAmbiguity");
+ 
   // use onfiguration file to setup output collection names
   ConvertedPhotonCollection_     = conf_.getParameter<std::string>("convertedPhotonCollection");
+  CleanedConvertedPhotonCollection_     = conf_.getParameter<std::string>("cleanedConvertedPhotonCollection");
   
   
   // Register the product
   produces< reco::ConversionCollection >(ConvertedPhotonCollection_);
+  produces< reco::ConversionCollection >(CleanedConvertedPhotonCollection_);
   
   // instantiate the Track Pair Finder algorithm
   theTrackPairFinder_ = new ConversionTrackPairFinder ();
@@ -122,13 +130,17 @@ void  ConvertedPhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & th
   // Transform Track into TransientTrack (needed by the Vertex fitter)
   theEventSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theTransientTrackBuilder_);
 
-
+  theLikelihoodCalc_ = new ConversionLikelihoodCalculator();
+  edm::FileInPath path_mvaWeightFile(likelihoodWeights_.c_str() );
+  theLikelihoodCalc_->setWeightsFile(path_mvaWeightFile.fullPath().c_str());
+  
 
 }
 
 
 void  ConvertedPhotonProducer::endRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
   delete theEcalImpactPositionFinder_; 
+  delete theLikelihoodCalc_;
 }
 
 
@@ -155,6 +167,9 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   // Converted photon candidates
   reco::ConversionCollection outputConvPhotonCollection;
   std::auto_ptr<reco::ConversionCollection> outputConvPhotonCollection_p(new reco::ConversionCollection);
+  // Converted photon candidates
+  reco::ConversionCollection cleanedConversionCollection;
+  std::auto_ptr<reco::ConversionCollection> cleanedConversionCollection_p(new reco::ConversionCollection);
 
   
   // Get the Super Cluster collection in the Barrel
@@ -272,11 +287,24 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   // put the product in the event
   outputConvPhotonCollection_p->assign(outputConvPhotonCollection.begin(),outputConvPhotonCollection.end());
   LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Putting in the event    converted photon candidates " << (*outputConvPhotonCollection_p).size() << "\n";  
+  const edm::OrphanHandle<reco::ConversionCollection> conversionHandle= theEvent.put( outputConvPhotonCollection_p, ConvertedPhotonCollection_);
 
 
-  theEvent.put( outputConvPhotonCollection_p, ConvertedPhotonCollection_);
+  // Loop over barrel and endcap SC collections and fill the  photon collection
+  if ( validBarrelSCHandle) cleanCollections(theEvent,
+					     theEventSetup,
+					     scBarrelHandle,
+					     conversionHandle,
+					     cleanedConversionCollection);
+  if ( validEndcapSCHandle) cleanCollections(theEvent,
+					     theEventSetup,
+					     scEndcapHandle,
+					     conversionHandle,
+					     cleanedConversionCollection);
+						
 
-
+  cleanedConversionCollection_p->assign(cleanedConversionCollection.begin(),cleanedConversionCollection.end());   
+  theEvent.put( cleanedConversionCollection_p, CleanedConvertedPhotonCollection_);
 
   
 }
@@ -452,7 +480,7 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 		if ( sqrt (dEta*dEta + dPhi*dPhi) > dRForConversionRecovery_ ) continue; 
 		float theta2 = trRef->innerMomentum().Theta();
 		dCotTheta =  1./tan(theta1) - 1./tan(theta2) ;
-		//    std::cout << "  ConvertedPhotonProducer general transient track charge " << trRef->charge() << " momentum " << trRef->innerMomentum() << " dcotTheta " << fabs(dCotTheta) << std::endl;
+		//	std::cout << "  ConvertedPhotonProducer recovering general transient track charge " << trRef->charge() << " momentum " << trRef->innerMomentum() << " dcotTheta " << fabs(dCotTheta) << std::endl;
 		if ( fabs(dCotTheta) < dCot ) {
 		  dCot = fabs(dCotTheta);
 		  goodRef = trRef;
@@ -550,6 +578,94 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 
 
 }
+
+
+void ConvertedPhotonProducer::cleanCollections(edm::Event& evt,
+					      edm::EventSetup const & es,
+					      const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
+					      const edm::OrphanHandle<reco::ConversionCollection> & conversionHandle,
+					      reco::ConversionCollection & outputConversionCollection) {
+
+
+  reco::Conversion* newCandidate=0;
+  for(unsigned int lSC=0; lSC < scHandle->size(); lSC++) {
+    
+    // get pointer to SC
+    reco::CaloClusterPtr aClus= scHandle->ptrAt(lSC);    
+        
+    // SC energy preselection
+    if (aClus->energy()/cosh(aClus->eta()) <= minSCEt_) continue;
+
+
+    if (  conversionHandle.isValid() ) {
+
+      if ( risolveAmbiguity_ ) {
+	std::vector<reco::ConversionRef> bestRef=solveAmbiguity( conversionHandle , aClus);
+   
+        for ( std::vector<reco::ConversionRef>::iterator iRef=bestRef.begin(); iRef!=bestRef.end(); iRef++ ) {
+          if ( iRef->isNonnull() )  {
+	    newCandidate= (*iRef)->clone();
+	    outputConversionCollection.push_back(*newCandidate);
+
+	  }
+	}
+	
+      } else {
+	
+
+	for( unsigned int icp = 0;  icp < conversionHandle->size(); icp++) {
+	  reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
+	  if (!( aClus.id() == cpRef->caloCluster()[0].id() && aClus.key() == cpRef->caloCluster()[0].key() )) continue; 
+	  if ( !cpRef->isConverted() ) continue;  
+	  newCandidate= (&(*cpRef))->clone();	 
+	  outputConversionCollection.push_back(*newCandidate);
+
+	}	  
+	
+      } // solve or not the ambiguity of many conversion candidates	
+	
+    }     
+
+   
+  }    
+}
+
+
+
+
+std::vector<reco::ConversionRef>  ConvertedPhotonProducer::solveAmbiguity(const edm::OrphanHandle<reco::ConversionCollection> & conversionHandle, reco::CaloClusterPtr& scRef) {
+  std::multimap<double, reco::ConversionRef, std::greater<double> >   convMap;
+
+  for ( unsigned int icp=0; icp< conversionHandle->size(); icp++) {
+
+    reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
+
+    //std::cout << " cpRef " << cpRef->nTracks() << " " <<  cpRef ->caloCluster()[0]->energy() << std::endl;    
+
+    if (!( scRef.id() == cpRef->caloCluster()[0].id() && scRef.key() == cpRef->caloCluster()[0].key() )) continue;    
+    if ( !cpRef->isConverted() ) continue;  
+    double like = theLikelihoodCalc_->calculateLikelihood(cpRef);
+    //    std::cout << " Like " << like << std::endl;
+    convMap.insert ( std::make_pair(like,cpRef) );
+    
+  }		     
+  
+  //  std::cout << " convMap size " << convMap.size() << std::endl;
+
+  std::multimap<double, reco::ConversionRef>::iterator  iMap; 
+  std::vector<reco::ConversionRef> bestRefs;
+  for (iMap=convMap.begin();  iMap!=convMap.end(); iMap++) {
+    //  std::cout << " Like list in the map " <<  iMap->first << " " << (iMap->second)->EoverP() << std::endl;
+    bestRefs.push_back(  iMap->second );
+    if (  int(bestRefs.size()) ==  maxNumOfCandidates_ ) break;   
+  }
+
+
+   return bestRefs;
+  
+  
+} 
+
 
 
 
