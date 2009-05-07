@@ -13,7 +13,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/04/30 15:06:54 $ 
+ **  $Date: 2009/04/30 15:32:15 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -665,17 +665,17 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   TH1 *filters = h_filters_->getTH1();
 
   if(nEvt_ == 1) {
-    filters->GetXaxis()->SetBinLabel(1,"hltL1IsoDoublePhotonTrackIsolFilter");
-    filters->GetXaxis()->SetBinLabel(2,"hltL1IsoSinglePhotonTrackIsolFilter");
-    filters->GetXaxis()->SetBinLabel(3,"hltL1NonIsoDoublePhotonTrackIsolFilter");
-    filters->GetXaxis()->SetBinLabel(4,"hltL1NonIsoHLTIsoSinglePhotonEt15TrackIsolFilter");      
-    filters->GetXaxis()->SetBinLabel(5,"hltL1NonIsoHLTIsoSinglePhotonEt20TrackIsolFilter");
-    filters->GetXaxis()->SetBinLabel(6,"hltL1NonIsoHLTIsoSinglePhotonEt25TrackIsolFilter");
-    filters->GetXaxis()->SetBinLabel(7,"hltL1NonIsoHLTNonIsoSinglePhotonEt15TrackIsolFilter");
-    filters->GetXaxis()->SetBinLabel(8,"hltL1NonIsoHLTNonIsoSinglePhotonEt25TrackIsolFilter");
-    filters->GetXaxis()->SetBinLabel(9,"hltL1NonIsoSinglePhotonEMVeryHighEtEtFilter");
-    filters->GetXaxis()->SetBinLabel(10,"hltL1NonIsoSinglePhotonEt10TrackIsolFilter");
-    filters->GetXaxis()->SetBinLabel(11,"hltL1NonIsoSinglePhotonTrackIsolFilter");
+    filters->GetXaxis()->SetBinLabel(1,"hltL1NonIsoHLTLEITISinglePhotonEt10TrackIsolFilter");
+    filters->GetXaxis()->SetBinLabel(2,"hltL1NonIsoHLTLEITISinglePhotonEt20TrackIsolFilter");
+    filters->GetXaxis()->SetBinLabel(3,"hltL1NonIsoHLTLEITISinglePhotonEt25TrackIsolFilter");
+    filters->GetXaxis()->SetBinLabel(4,"hltL1NonIsoHLTNonIsoDoublePhotonEt10HcalIsolFilter");
+    filters->GetXaxis()->SetBinLabel(5,"hltL1NonIsoHLTNonIsoDoublePhotonEt15HcalIsolFilter");
+    filters->GetXaxis()->SetBinLabel(6,"hltL1NonIsoHLTNonIsoSinglePhotonEt10HcalIsolFilter");
+    filters->GetXaxis()->SetBinLabel(7,"hltL1NonIsoHLTNonIsoSinglePhotonEt15HcalIsolFilter");
+    filters->GetXaxis()->SetBinLabel(8,"hltL1NonIsoHLTNonIsoSinglePhotonEt25HcalIsolFilter");
+    filters->GetXaxis()->SetBinLabel(9,"hltL1NonIsoHLTNonIsoSinglePhotonEt30EtFilterESet70");
+    filters->GetXaxis()->SetBinLabel(10,"hltL1NonIsoHLTNonIsoSinglePhotonEt30HcalIsolFilter");
+    filters->GetXaxis()->SetBinLabel(11,"hltL1NonIsoHLTVLEIDoublePhotonEt15HcalIsolFilter");
   }
 
 
@@ -685,17 +685,17 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
     if(label.find( "Photon" ) != std::string::npos ) {  //get photon-related filters and fill histo
 
-      if (label=="hltL1IsoDoublePhotonTrackIsolFilter")h_filters_->Fill(0);
-      if (label=="hltL1IsoSinglePhotonTrackIsolFilter")h_filters_->Fill(1);
-      if (label=="hltL1NonIsoDoublePhotonTrackIsolFilter")h_filters_->Fill(2);
-      if (label=="hltL1NonIsoHLTIsoSinglePhotonEt15TrackIsolFilter")h_filters_->Fill(3);      
-      if (label=="hltL1NonIsoHLTIsoSinglePhotonEt20TrackIsolFilter")h_filters_->Fill(4);
-      if (label=="hltL1NonIsoHLTIsoSinglePhotonEt25TrackIsolFilter")h_filters_->Fill(5);
-      if (label=="hltL1NonIsoHLTNonIsoSinglePhotonEt15TrackIsolFilter")h_filters_->Fill(6);
-      if (label=="hltL1NonIsoHLTNonIsoSinglePhotonEt25TrackIsolFilter")h_filters_->Fill(7);
-      if (label=="hltL1NonIsoSinglePhotonEMVeryHighEtEtFilter")h_filters_->Fill(8);
-      if (label=="hltL1NonIsoSinglePhotonEt10TrackIsolFilter")h_filters_->Fill(9);
-      if (label=="hltL1NonIsoSinglePhotonTrackIsolFilter")h_filters_->Fill(10);
+      if (label=="hltL1NonIsoHLTLEITISinglePhotonEt10TrackIsolFilter")h_filters_->Fill(0);
+      if (label=="hltL1NonIsoHLTLEITISinglePhotonEt20TrackIsolFilter")h_filters_->Fill(1);
+      if (label=="hltL1NonIsoHLTLEITISinglePhotonEt25TrackIsolFilter")h_filters_->Fill(2);
+      if (label=="hltL1NonIsoHLTNonIsoDoublePhotonEt10HcalIsolFilter")h_filters_->Fill(3);      
+      if (label=="hltL1NonIsoHLTNonIsoDoublePhotonEt15HcalIsolFilter")h_filters_->Fill(4);
+      if (label=="hltL1NonIsoHLTNonIsoSinglePhotonEt10HcalIsolFilter")h_filters_->Fill(5);
+      if (label=="hltL1NonIsoHLTNonIsoSinglePhotonEt15HcalIsolFilter")h_filters_->Fill(6);
+      if (label=="hltL1NonIsoHLTNonIsoSinglePhotonEt25HcalIsolFilter")h_filters_->Fill(7);
+      if (label=="hltL1NonIsoHLTNonIsoSinglePhotonEt30EtFilterESet70")h_filters_->Fill(8);
+      if (label=="hltL1NonIsoHLTNonIsoSinglePhotonEt30HcalIsolFilter")h_filters_->Fill(9);
+      if (label=="hltL1NonIsoHLTVLEIDoublePhotonEt15HcalIsolFilter")h_filters_->Fill(10);
 
       for(uint filterKeyIndex=0;filterKeyIndex<triggerEvent->filterKeys(filterIndex).size();++filterKeyIndex){  //loop over keys to objects passing this filter
 	Keys.push_back(triggerEvent->filterKeys(filterIndex)[filterKeyIndex]);  //add keys to a vector for later reference	
@@ -988,29 +988,33 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 
     //make invariant mass plots
-    for (reco::PhotonCollection::const_iterator iPho2=iPho+1; iPho2!=photonCollection.end(); iPho2++){
-      
-      math::XYZTLorentzVector p12 = iPho->p4()+iPho2->p4();
-      float gamgamMass2 = p12.Dot(p12);
-
-      if((*iPho).hasConversionTracks()){
-
-       	if((*iPho2).hasConversionTracks()) h_invMassTwoWithTracks_ -> Fill(sqrt( gamgamMass2 ));
+    float EtCut = 20.0;
+    if (isTightPhoton && iPho->et()>=EtCut ){
+      //cout << "isTightPhoton: " << isTightPhoton; 
+      for (reco::PhotonCollection::const_iterator iPho2=iPho+1; iPho2!=photonCollection.end(); iPho2++){
 	
-	else h_invMassOneWithTracks_ -> Fill(sqrt( gamgamMass2 ));
-
+	edm::Ref<reco::PhotonCollection> photonref2(photonHandle, photonCounter); //note: correct to use photonCounter and not photonCounter+1 
+	bool  isTightPhoton2 = (*tightPhotonID)[photonref2];                      //since it has already been incremented earlier
+	
+	if(isTightPhoton2 && iPho2->et()>=EtCut){
+	  //cout << "  isTightPhoton2: " << isTightPhoton2; 
+	  math::XYZTLorentzVector p12 = iPho->p4()+iPho2->p4();
+	  float gamgamMass2 = p12.Dot(p12);
+	  
+	  if((*iPho).hasConversionTracks()){
+	    if((*iPho2).hasConversionTracks()) h_invMassTwoWithTracks_ -> Fill(sqrt( gamgamMass2 ));
+	    else h_invMassOneWithTracks_ -> Fill(sqrt( gamgamMass2 ));
+	  }
+	  else if((*iPho2).hasConversionTracks()) h_invMassOneWithTracks_ -> Fill(sqrt( gamgamMass2 ));
+	  else h_invMassZeroWithTracks_ -> Fill(sqrt( gamgamMass2 ));
+	}
+	
       }
-      else if((*iPho2).hasConversionTracks()) h_invMassOneWithTracks_ -> Fill(sqrt( gamgamMass2 ));
-      
-      else h_invMassZeroWithTracks_ -> Fill(sqrt( gamgamMass2 ));
-
+      //cout << endl;
     }
     
-
-
-
-
-
+    
+    
   }/// End loop over Reco photons
     
 
