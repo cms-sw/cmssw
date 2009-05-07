@@ -12,6 +12,7 @@
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
