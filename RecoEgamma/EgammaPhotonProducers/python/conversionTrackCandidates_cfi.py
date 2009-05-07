@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 #  configuration for producer of converted photons
-#  $Id: conversionTrackCandidates_cfi.py,v 1.18 2009/02/28 15:59:08 dlange Exp $
+#  $Id: conversionTrackCandidates_cfi.py,v 1.19 2009/04/30 11:15:04 nancy Exp $
 #
 # stripCPE
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
@@ -39,7 +39,7 @@ conversionTrackCandidates = cms.EDProducer("ConversionTrackCandidateProducer",
     bcBarrelCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
     scIslandEndcapProducer = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
     OutInRedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
-    hOverEConeSize = cms.double(0.1),
+    hOverEConeSize = cms.double(0.15),
     hbheInstance = cms.string(''),
     TrajectoryBuilder = cms.string('TrajectoryBuilderForConversions'),
     TransientInitialStateEstimatorParameters = cms.PSet(
