@@ -3,7 +3,7 @@
 <use name=DataFormats/ParticleFlowReco>
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/Math>
-<use name=RecoParticleFlow/PFClusterAlgo>
+<use name=RecoParticleFlow/PFClusterProducer>
 <use name=RecoParticleFlow/PFProducer>
 <use name=RecoParticleFlow/PFRootEvent>
 <use name=SimDataFormats/GeneratorProducts> 
@@ -14,7 +14,7 @@
   <use name=DataFormats/ParticleFlowReco>
   <use name=DataFormats/EgammaReco>
   <use name=DataFormats/Math>
-  <use name=RecoParticleFlow/PFClusterAlgo>
+  <use name=RecoParticleFlow/PFClusterProducer>
   <use name=RecoParticleFlow/PFProducer>
   <use name=RecoParticleFlow/PFRootEvent>
   <lib name=RecoParticleFlowMyPFRootEvent>

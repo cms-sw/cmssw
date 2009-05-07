@@ -10,7 +10,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 
-#include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFClusterAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFGeometry.h"
 
 #include "RecoParticleFlow/PFRootEvent/interface/PFRootEventManager.h"

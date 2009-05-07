@@ -2,7 +2,6 @@
 #define RecoParticleFlow_PFClusterTools_PFEnergyCalibration_h 
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
 
 class TF1;
 
@@ -29,7 +28,7 @@ class TF1;
 //
 // Original Author:  Christian Veelken
 //         Created:  Tue Aug  8 16:26:18 CDT 2006
-// $Id: PFEnergyCalibration.h,v 1.7 2009/04/21 09:30:20 cbern Exp $
+// $Id: PFEnergyCalibration.h,v 1.8 2009/05/06 14:42:38 pjanot Exp $
 //
 //
 
