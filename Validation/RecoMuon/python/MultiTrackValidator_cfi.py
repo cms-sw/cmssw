@@ -9,7 +9,7 @@ multiTrackValidator = Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackVal
 multiTrackValidator.dirName = 'RecoMuonV/MultiTrack/'
 multiTrackValidator.pdgIdTP = (13,-13)
 
-multiTrackValidator.useFabsEta = True
+multiTrackValidator.useFabsEta = False
 multiTrackValidator.nint = cms.int32(25)
 multiTrackValidator.min = cms.double(0)
 multiTrackValidator.max = cms.double(2.5)
