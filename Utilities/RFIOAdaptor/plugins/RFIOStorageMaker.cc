@@ -93,7 +93,7 @@ public:
       rfiotype = "castor";
 
     // Force Castor to move control messages out of client TCP buffers faster.
-    putenv("RFIO_TCP_NODELAY=1");
+    putenv(const_cast<char *>("RFIO_TCP_NODELAY=1"));
 
     RFIOPluginFactory::get()->create(rfiotype);
     Cthread_init();
