@@ -3,17 +3,13 @@ import FWCore.ParameterSet.Config as cms
 
 
 # filter on trigger type
-calibrationEventsFilter = cms.EDFilter("TriggerTypeFilter",
-                                       InputLabel = cms.string('source'),
-                                       TriggerFedId = cms.int32(812),
+calibrationEventsFilter = cms.EDFilter("HLTTriggerTypeFilter",
                                        # 1=Physics, 2=Calibration, 3=Random, 4=Technical
                                        SelectedTriggerType = cms.int32(2) 
                                        )
 
 # filter on trigger type
-physicsEventsFilter = cms.EDFilter("TriggerTypeFilter",
-                                   InputLabel = cms.string('source'),
-                                   TriggerFedId = cms.int32(812),
+physicsEventsFilter = cms.EDFilter("HLTTriggerTypeFilter",
                                    # 1=Physics, 2=Calibration, 3=Random, 4=Technical
                                    SelectedTriggerType = cms.int32(1) 
                                    )
@@ -26,8 +22,8 @@ from EventFilter.DTTFRawToDigi.dttfunpacker_cfi import *
 
 from EventFilter.DTRawToDigi.dtunpackerDDUGlobal_cfi import *
 #from EventFilter.DTRawToDigi.dtunpackerDDULocal_cfi import *
-dtunpacker.readOutParameters.performDataIntegrityMonitor = False
-dtunpacker.readOutParameters.rosParameters.performDataIntegrityMonitor = False
+dtunpacker.readOutParameters.performDataIntegrityMonitor = True
+dtunpacker.readOutParameters.rosParameters.performDataIntegrityMonitor = True
 dtunpacker.readOutParameters.debug = False
 dtunpacker.readOutParameters.rosParameters.debug = False
 
