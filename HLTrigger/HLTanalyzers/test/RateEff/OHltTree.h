@@ -472,6 +472,7 @@ public :
   // Here we declare any emulated L1 bits 
   Int_t           OpenL1_ZeroBias;
   Int_t           OpenL1_Mu3EG5; 
+  Int_t           OpenL1_EG5_HTT100;
 
   // JH - 1E31 MC menu
   Int_t           HLTriggerFirstPath; 
@@ -1752,6 +1753,7 @@ public :
 					 float tauEt,float tauL25Tpt, int tauL25Tiso, float tauL3Tpt, int tauL3Tiso);
   int OpenHlt1ElectronPassed(float Et,int L1iso,float Tiso,float Hiso);
   int OpenHlt1LWElectronPassed(float Et,int L1iso,float Tiso,float Hiso); 
+  int OpenHlt1ElectronEleIDPassed(float Et,int L1iso,float Tiso,float Hiso);
   int OpenHlt1PhotonPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC);
   int OpenHlt1PhotonLooseEcalIsoPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC);
   int OpenHlt1PhotonVeryLooseEcalIsoPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC); 
@@ -3459,6 +3461,15 @@ void OHltTree::SetOpenL1Bits()
     OpenL1_Mu3EG5 = 1; 
   else 
     OpenL1_Mu3EG5 = 0; 
+
+  if((map_BitOfStandardHLTPath.find("L1_SingleEG5")->second == 1) &&
+     (map_BitOfStandardHLTPath.find("L1_HTT100")->second == 1)) 
+    OpenL1_EG5_HTT100 = 1;
+  else
+    OpenL1_EG5_HTT100 = 0;
+
+  map_BitOfStandardHLTPath["OpenL1_EG5_HTT100"] = OpenL1_EG5_HTT100; 
+
 
 }
 
