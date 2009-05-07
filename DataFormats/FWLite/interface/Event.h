@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.14 2008/07/30 19:18:41 dsr Exp $
+// $Id: Event.h,v 1.15 2008/11/28 17:44:48 wmtan Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -119,8 +119,7 @@ class Event
 {
 
    public:
-      /**NOTE: Does NOT take ownership so iFile must remain around at least as long as Event
-  */
+      /**NOTE: Does NOT take ownership so iFile must remain around at least as long as Event*/
       Event(TFile* iFile);
       virtual ~Event();
 
@@ -156,6 +155,9 @@ class Event
         return branchMap_.getBranchDescriptions();
       }
       const std::vector<std::string>& getProcessHistory() const;
+      TFile* getTFile() const {
+        return branchMap_.getFile();
+      }
 
       // ---------- static member functions --------------------
       static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);
@@ -163,7 +165,7 @@ class Event
       // ---------- member functions ---------------------------
 
    private:
-        friend class internal::ProductGetter;
+      friend class internal::ProductGetter;
       
       Event(const Event&); // stop default
 

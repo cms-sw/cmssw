@@ -9,7 +9,14 @@ fwlite::ChainEvent e(files);
 
 int i =0;
 int returnValue = 0;
+TFile* f = 0;
+
 for( ;e.isValid();++e,++i) {
+  if (e.getTFile() != f) {
+    f = e.getTFile();
+    cout << "New file " << f->GetName() << endl;
+  }
+
   fwlite::Handle<vector<edmtest::Thing> > pThing;
   //pThing.getByLabel(e,"Thing","","TEST"); //WORKS
   pThing.getByLabel(e,"Thing");

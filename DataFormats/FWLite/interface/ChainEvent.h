@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: ChainEvent.h,v 1.2 2007/08/06 15:01:53 chrjones Exp $
+// $Id: ChainEvent.h,v 1.3 2008/07/24 20:38:45 dsr Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -74,6 +74,9 @@ class ChainEvent
 
       const std::vector<edm::BranchDescription>& getBranchDescriptions() const;
       const std::vector<std::string>& getProcessHistory() const;
+      TFile* getTFile() const {
+        return event_->getTFile();
+      }
 
       // ---------- static member functions --------------------
       static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);
