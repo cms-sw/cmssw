@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for muon reco track
  *
- *  $Date: 2008/07/15 10:17:16 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/11/25 11:17:02 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -101,6 +101,7 @@ class MuonRecoAnalyzer : public MuonAnalyzerBase {
   std::vector<MonitorElement*> oneOverpResolution;
   std::vector<MonitorElement*> oneOverptResolution;
   std::vector<MonitorElement*> rhAnalysis;
+  std::vector<MonitorElement*> muVStkSytemRotation;
   // tracker muon
   MonitorElement* etaTrack;
   MonitorElement* thetaTrack;

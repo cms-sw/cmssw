@@ -7,8 +7,8 @@
  *  DQMOffline Test Client
  *       check the recostruction efficiency of Sta/Glb on eta, phi parameters
  *
- *  $Date: 2008/07/12 10:48:43 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/07/16 13:02:47 $
+ *  $Revision: 1.2 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -87,6 +87,8 @@ private:
   // efficiency histograms
   MonitorElement* etaEfficiency;
   MonitorElement* phiEfficiency;
+  // aligment plot
+  std::vector<MonitorElement*> globalRotation;
 
 };
 

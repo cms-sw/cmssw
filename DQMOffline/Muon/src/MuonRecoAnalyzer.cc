@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/18 11:48:05 $
- *  $Revision: 1.17 $
+ *  $Date: 2008/11/25 11:16:09 $
+ *  $Revision: 1.18 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -253,6 +253,10 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   rhAnalysis.push_back(dbe->book1D("GlbRh_Div_RhAssoStaTk", "recHits_{GLB} / (recHits_{TKfromGLB}+recHits_{STAfromGLB})", rhBin, rhMin, rhMax));
   rhAnalysis.push_back(dbe->book1D("invalidRh_Frac_inTk", "Invalid recHits / rechits_{GLB}", rhBin, rhMin, rhMax));
 
+  // monitoring of the muon system rotation w.r.t. tracker
+  muVStkSytemRotation.push_back(dbe->book2D("muVStkSytemRotation_posMu", "pT_{TK} / pT_{GLB} vs pT_{GLB} for #mu^{+}", 50,0,200,100,0.8,1.2));
+  muVStkSytemRotation.push_back(dbe->book2D("muVStkSytemRotation_negMu", "pT_{TK} / pT_{GLB} vs pT_{GLB} for #mu^{-}", 50,0,200,100,0.8,1.2));
+
 }
 
 
@@ -383,6 +387,12 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     rhAnalysis[3]->Fill(rhGlb_TkProvenance/rhTkGlb);
     rhAnalysis[4]->Fill(rhGlb/(rhStaGlb+rhTkGlb));
     rhAnalysis[5]->Fill(rhTkGlb_notValid/rhGlb);
+
+    // aligment plots (mu system w.r.t. tracker rotation)
+    if(recoCombinedGlbTrack->charge()>0)
+      muVStkSytemRotation[0]->Fill(recoCombinedGlbTrack->pt(),recoTkGlbTrack->pt()/recoCombinedGlbTrack->pt());
+    else
+      muVStkSytemRotation[1]->Fill(recoCombinedGlbTrack->pt(),recoTkGlbTrack->pt()/recoCombinedGlbTrack->pt());
     
   }
 
