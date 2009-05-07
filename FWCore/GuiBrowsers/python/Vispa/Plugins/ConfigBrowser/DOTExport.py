@@ -79,6 +79,7 @@ class DotExport(FileExportPlugin):
         result+='}\n'
         return result
       else:
+        nodes[data.label(obj)]={'obj':obj,'n_label':nodeLabel(obj),'n_shape':self.shapes.get(data.type(obj),'plaintext'),'inpath':True}
         return '%s\n'%data.label(obj)
     
     #get a list of all an object's children, recursively
@@ -129,6 +130,8 @@ class DotExport(FileExportPlugin):
           nodes['end_%s'%data.label(path)]={'obj':path,'n_label':'End %s'%data.label(path),'n_color':'grey','n_shape':'plaintext','inpath':False}
       labels=[]
       for c in children:
+        #this is also done in seqRecurseChildren, so will be duplicated
+        #unncessary, but relatively cheap and saves more cff/cfg conditionals
         nodes[data.label(c)]={'obj':c,'n_label':nodeLabel(c),'n_shape':self.shapes.get(data.type(c),'plaintext'),'inpath':True}
         labels.append(data.label(c))
       if self.options['seqconnect']:
@@ -146,21 +149,40 @@ class DotExport(FileExportPlugin):
           pathresult += 'endstart_%s->%s\n' % (data.label(path),labels[0])
         else:
           pathresult += 'start_%s->%s\n%s->end_%s\n' % (data.label(path),labels[0],labels[-1],data.label(path))
-      
     
       return pathresult
         
-      
-    #build a dictionary of available top-level objects
-    all_toplevel={}
-    for tlo in data.children(data.topLevelObjects()[0]):
-      children = data.children(tlo)
-      if children:
-        all_toplevel[tlo._label]=children
     
     #dictionary of all nodes that ultimately need to be added with style definitions
     #keys named n_foo are added as foo=value to the dot format
     nodes={}
+      
+    #build a dictionary of available top-level objects
+    all_toplevel={}
+    if data.process():
+      for tlo in data.children(data.topLevelObjects()[0]):
+        children = data.children(tlo)
+        if children:
+          all_toplevel[tlo._label]=children
+    else:
+      #case if we have only an anonymous (non-process) file
+      #pick up (modules, sequences, paths)
+      for tlo in data.topLevelObjects():
+        if data.type(tlo)=='Sequence':
+          if 'sequences' in all_toplevel:
+            all_toplevel['sequences']+=[tlo]
+          else:
+            all_toplevel['sequences']=[tlo]
+        if data.type(tlo)=='Path':
+          if 'paths' in all_toplevel:
+            all_toplevel['paths']+=[tlo]
+          else:
+            all_toplevel['paths']=[tlo]
+        if data.type(tlo) in ('EDAnalyzer','EDFilter','EDProducer','OutputModule'):
+          nodes[data.label(tlo)]={'obj':tlo,'n_label':nodeLabel(tlo),'n_shape':self.shapes.get(data.type(tlo),'plaintext'),'inpath':True} 
+          
+    
+    
     
     #lists of starts, ends of paths for path-endpath and source-path connections
     pathstarts=[]
@@ -168,8 +190,16 @@ class DotExport(FileExportPlugin):
     endstarts=[]
         
     #declare the toplevel graph
-    result='digraph configbrowse {\nsubgraph clusterProcess {\nlabel="%s\\n%s"\n' % (data.process().name_(),data._filename)
+    if not data.process():
+      result='digraph configbrowse {\nsubgraph clusterCFF {\nlabel="%s"\n' % (data._filename)
+    else:
+      result='digraph configbrowse {\nsubgraph clusterProcess {\nlabel="%s\\n%s"\n' % (data.process().name_(),data._filename)
     
+    #non-path sequences from a CFF or CFI file
+    if 'sequences' in all_toplevel:
+      for seq in all_toplevel['sequences']:
+        result += seqRecurseChildren(seq)
+      
     #removed
     #if 'Schedule(Paths)' in all_toplevel:
     #  for path in [path for path in all_toplevel['Schedule(Paths)'] if not (path in all_toplevel.get('EndPaths',()))]:
@@ -319,6 +349,8 @@ class DotExport(FileExportPlugin):
     The areas then get attributes defined by html_attribute fields - eg, 'html_href':'mypage.htm' becomes 'href'='mypage.htm' in the area. Probably you want as a minimum to define html_href and html_alt. It would also be useful to set html_class to allow highlighting of different link types, or html_onclick/onmouseover for more exotic behaviour.
     
     This will probably be quite sensitive to the presence of special characters, complex splitting schemes, etc. Use with caution.
+    
+    This may be somewhat replaceable with the <html_label> and cut-down table format that graphviz provides, but I haven't had much of an experiment with that.
     """
     new_areas=[]
     area_default = {'split_x':1,'scale_x':1.,'split_y':1,'scale_y':1.,'cells':[]}
@@ -357,8 +389,8 @@ class DotExport(FileExportPlugin):
     
     
   def export(self,data,filename,filetype):
-    if not data.process():
-      raise "DOTExport requires a cms.Process object"  
+    #if not data.process():
+    #  raise "DOTExport requires a cms.Process object"  
     
     dot = self.produceDOT(data)
     dot = self.dotIndenter(dot)
