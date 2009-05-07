@@ -1,6 +1,6 @@
 /** \class HLTElectronDetaDphiFilter
  *
- * $Id: HLTElectronDetaDphiFilter.cc,v 1.5 2008/05/25 09:37:38 ghezzi Exp $ 
+ * $Id: HLTElectronDetaDphiFilter.cc,v 1.7 2009/01/15 14:31:49 covarell Exp $ 
  *
  *  \author Alessio Ghezzi (Milano-Bicocca & CERN)
  *
@@ -18,36 +18,29 @@
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
 
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-
-#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"//needed?
-#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"//needed?
-
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/Math/interface/Point3D.h"
-
-#include "RecoEgamma/EgammaTools/interface/ECALPositionCalculator.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 //
 // constructors and destructor
 //
 HLTElectronDetaDphiFilter::HLTElectronDetaDphiFilter(const edm::ParameterSet& iConfig){
+ 
   candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
-  DeltaEtacut_ =  iConfig.getParameter<double> ("DeltaEtaCut");
-  DeltaPhicut_ =  iConfig.getParameter<double> ("DeltaPhiCut");
+  DeltaEtaisoTag_ = iConfig.getParameter< edm::InputTag > ("isoTagDeltaEta");
+  DeltaEtanonIsoTag_ = iConfig.getParameter< edm::InputTag > ("nonIsoTagDeltaEta");
+  DeltaPhiisoTag_ = iConfig.getParameter< edm::InputTag > ("isoTagDeltaPhi");
+  DeltaPhinonIsoTag_ = iConfig.getParameter< edm::InputTag > ("nonIsoTagDeltaPhi");
+
+  DeltaEtacut_ = iConfig.getParameter<double> ("DeltaEtaCut");
+  DeltaPhicut_ = iConfig.getParameter<double> ("DeltaPhiCut");
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
-  //doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
-  BSProducer_ = iConfig.getParameter<edm::InputTag>("BSProducer");
-  
-   store_ = iConfig.getUntrackedParameter<bool> ("SaveTag",false) ;
-   relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
-   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
-   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
+  doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
+   
+  store_ = iConfig.getUntrackedParameter<bool> ("SaveTag",false) ;
+  relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
+  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
+  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
+
   //register your products
   produces<trigger::TriggerFilterObjectWithRefs>();
 }
@@ -68,7 +61,6 @@ HLTElectronDetaDphiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   // Ref to Candidate object to be recorded in filter object
   edm::Ref<reco::ElectronCollection> ref;
 
-
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
 
   iEvent.getByLabel (candTag_,PrevFilterOutput);
@@ -76,54 +68,38 @@ HLTElectronDetaDphiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   std::vector<edm::Ref<reco::ElectronCollection> > elecands;
   PrevFilterOutput->getObjects(TriggerElectron, elecands);
 
-  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  // iEvent.getByType(recoBeamSpotHandle);
-  iEvent.getByLabel(BSProducer_,recoBeamSpotHandle);
-  // gets its position
-  const reco::BeamSpot::Point& BSPosition = recoBeamSpotHandle->position(); 
-  // look at all electrons,  check cuts and add to filter object
-  int n = 0;
+  // retrieve Deta-Dphi association maps
+  edm::Handle<reco::ElectronIsolationMap> depMapEta;
+  iEvent.getByLabel (DeltaEtaisoTag_,depMapEta);
+  edm::Handle<reco::ElectronIsolationMap> depNonIsoMapEta;
+  if (!doIsolated_) iEvent.getByLabel (DeltaEtanonIsoTag_,depNonIsoMapEta);
 
-  edm::ESHandle<MagneticField>                theMagField;
-  iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
+  edm::Handle<reco::ElectronIsolationMap> depMapPhi;
+  iEvent.getByLabel (DeltaPhiisoTag_,depMapPhi);
+  edm::Handle<reco::ElectronIsolationMap> depNonIsoMapPhi;
+  if (!doIsolated_) iEvent.getByLabel (DeltaPhinonIsoTag_,depNonIsoMapPhi);
+
+  int n = 0;
   
   for (unsigned int i=0; i<elecands.size(); i++) {
 
     reco::ElectronRef eleref = elecands[i];
-    const reco::SuperClusterRef theClus = eleref->superCluster();
-    const math::XYZVector trackMom =  eleref->track()->momentum();
     
-    math::XYZPoint SCcorrPosition(theClus->x()-BSPosition.x(), theClus->y()-BSPosition.y() , theClus->z()-eleref->track()->vz() );
-    float deltaeta = SCcorrPosition.eta()-eleref->track()->eta();
+    reco::ElectronIsolationMap::const_iterator mapieta = (*depMapEta).find( eleref );
+    if( mapieta==(*depMapEta).end() && !doIsolated_) mapieta = (*depNonIsoMapEta).find( eleref );
 
-//    ECALPositionCalculator posCalc;
-//    const math::XYZPoint vertex(BSPosition.x(),BSPosition.y(),eleref->track()->vz());
-//
-//    float phi1= posCalc.ecalPhi(theMagField.product(),trackMom,vertex,1);
-//    float phi2= posCalc.ecalPhi(theMagField.product(),trackMom,vertex,-1);
-//
-//    float deltaphi1=fabs( phi1 - theClus->position().phi() );
-//    if(deltaphi1>6.283185308) deltaphi1 -= 6.283185308;
-//    if(deltaphi1>3.141592654) deltaphi1 = 6.283185308-deltaphi1;
-//
-//    float deltaphi2=fabs( phi2 - theClus->position().phi() );
-//    if(deltaphi2>6.283185308) deltaphi2 -= 6.283185308;
-//    if(deltaphi2>3.141592654) deltaphi2 = 6.283185308-deltaphi2;
-//
-//    float deltaphi = deltaphi1;
-//    if(deltaphi2<deltaphi1){ deltaphi = deltaphi2;}
+    reco::ElectronIsolationMap::const_iterator mapiphi = (*depMapPhi).find( eleref );
+    if( mapiphi==(*depMapPhi).end() && !doIsolated_) mapiphi = (*depNonIsoMapPhi).find( eleref ); 
+    
+    float deltaeta = mapieta->val;
+    float deltaphi = mapiphi->val;
 
-    float deltaphi=fabs(eleref->track()->outerPosition().phi()-theClus->phi());
-    if(deltaphi>6.283185308) deltaphi -= 6.283185308;
-    if(deltaphi>3.141592654) deltaphi = 6.283185308-deltaphi;
-
-    if( fabs(deltaeta) < DeltaEtacut_  &&   deltaphi < DeltaPhicut_ ){
+    if( deltaeta < DeltaEtacut_  &&  deltaphi < DeltaPhicut_ ){
       n++;
       filterproduct->addObject(TriggerElectron, eleref);
     }
-	
+
   }
-  
   
   // filter decision
   bool accept(n>=ncandcut_);

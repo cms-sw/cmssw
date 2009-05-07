@@ -4,16 +4,6 @@
   <PoolContainer name="L1TriggerKeyRcd" >
    <Class table="L1TRIGGERKEY" id_columns="ID" name="L1TriggerKey" mapping_version="L1TriggerKey_basic" >
      <Blob column="L1TRIGGERKEY_M_REC_1_BLOB" name="m_recordToKey" />
-     <InlineCArray name="m_subsystemKeys" >
-       <Primitive column="M_SUBSYSTEMKEYS_0" name="m_subsystemKeys[0]" />
-       <Primitive column="M_SUBSYSTEMKEYS_1" name="m_subsystemKeys[1]" />
-       <Primitive column="M_SUBSYSTEMKEYS_2" name="m_subsystemKeys[2]" />
-       <Primitive column="M_SUBSYSTEMKEYS_3" name="m_subsystemKeys[3]" />
-       <Primitive column="M_SUBSYSTEMKEYS_4" name="m_subsystemKeys[4]" />
-       <Primitive column="M_SUBSYSTEMKEYS_5" name="m_subsystemKeys[5]" />
-       <Primitive column="M_SUBSYSTEMKEYS_6" name="m_subsystemKeys[6]" />
-       <Primitive column="M_SUBSYSTEMKEYS_7" name="m_subsystemKeys[7]" />
-     </InlineCArray >
      <Primitive column="M_TSCKEY" name="m_tscKey" />
    </Class >
   </PoolContainer >

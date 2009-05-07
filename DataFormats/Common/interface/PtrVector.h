@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Oct 24 15:26:50 EDT 2007
-// $Id: PtrVector.h,v 1.2 2007/12/21 22:46:50 wmtan Exp $
+// $Id: PtrVector.h,v 1.3 2008/02/15 05:57:03 wmtan Exp $
 //
 
 // system include files
@@ -51,6 +51,8 @@ namespace edm {
   template <typename T>
   class PtrVectorItr : public std::iterator <std::random_access_iterator_tag, Ptr<T> > {
   public:
+    typedef Ptr<T> const reference; // otherwise boost::range does not work
+                                    // const, because this is a const_iterator
     typedef PtrVectorItr<T> iterator;
     typedef typename std::iterator <std::random_access_iterator_tag, Ptr<T> >::difference_type difference_type;
     
@@ -59,9 +61,14 @@ namespace edm {
     iter_(iItr),
     base_(iBase) {}
     
-    Ptr<T> operator*() const {
+    Ptr<T> const operator*() const {
       return base_->fromItr(iter_);
     }
+
+    Ptr<T> const operator[](difference_type n) const {  // Otherwise the
+      return base_->fromItr(iter_+n);        // boost::range 
+    }                                        // doesn't have []
+
     
     PtrHolder<T> operator->() const {
       return PtrHolder<T>( this->operator*() );
@@ -97,6 +104,7 @@ namespace edm {
   public:
     
     typedef PtrVectorItr<T> const_iterator;
+    typedef PtrVectorItr<T> iterator; // make boost::sub_range happy (std allows this)
     typedef Ptr<T> value_type;
     
     friend class PtrVectorItr<T>;

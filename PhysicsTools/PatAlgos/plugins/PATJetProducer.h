@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.h,v 1.9 2008/07/08 21:24:50 gpetrucc Exp $
+// $Id: PATJetProducer.h,v 1.10.4.4 2009/01/16 22:21:52 srappocc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetProducer.h,v 1.9 2008/07/08 21:24:50 gpetrucc Exp $
+  \version  $Id: PATJetProducer.h,v 1.10.4.4 2009/01/16 22:21:52 srappocc Exp $
 */
 
 
@@ -23,14 +23,13 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Common/interface/View.h"
 
-#include "PhysicsTools/Utilities/interface/EtComparator.h"
+#include "PhysicsTools/Utilities/interface/PtComparator.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
-
 
 #include "DataFormats/PatCandidates/interface/UserData.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
@@ -39,10 +38,6 @@ class JetFlavourIdentifier;
 
 
 namespace pat {
-
-
-  class ObjectResolutionCalc;
-
 
   class PATJetProducer : public edm::EDProducer {
 
@@ -68,33 +63,28 @@ namespace pat {
       bool                     addPartonJetMatch_;
       edm::InputTag            partonJetSrc_;
       bool                     addJetCorrFactors_;
-      edm::InputTag            jetCorrFactorsSrc_;
+      std::vector<edm::InputTag> jetCorrFactorsSrc_;
       bool                     addTrigMatch_;
       std::vector<edm::InputTag> trigMatchSrc_;
-      bool                     addResolutions_;
-      bool                     useNNReso_;
-      std::string              caliJetResoFile_;
-      std::string              caliBJetResoFile_;
 
-      bool                     addBTagInfo_;
-      bool                     addDiscriminators_; 
-      edm::InputTag            discriminatorModule_;
-      std::set<std::string>    discriminatorNames_;
-      bool                     addTagInfoRefs_; 
-      edm::InputTag            tagInfoModule_;
-      std::set<std::string>    tagInfoNames_;
+      bool                       addBTagInfo_;
+      bool                       addDiscriminators_; 
+      std::vector<edm::InputTag> discriminatorTags_;
+      std::vector<std::string>   discriminatorLabels_;
+      bool                       addTagInfos_; 
+      std::vector<edm::InputTag> tagInfoTags_;
+      std::vector<std::string>   tagInfoLabels_;
       bool                     addAssociatedTracks_;
       edm::InputTag            trackAssociation_;
       bool                     addJetCharge_;
       edm::InputTag            jetCharge_;
       // tools
-      ObjectResolutionCalc             * theResoCalc_;
-      ObjectResolutionCalc             * theBResoCalc_;
-      GreaterByEt<Jet>                   eTComparator_;
+      GreaterByPt<Jet>                   pTComparator_;
 
       bool addEfficiencies_;
       pat::helper::EfficiencyLoader efficiencyLoader_;
 
+      bool                     addResolutions_;
 
       bool useUserData_;
       pat::PATUserDataHelper<pat::Jet>      userDataHelper_;

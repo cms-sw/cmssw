@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.16 2008/10/07 18:49:59 lowette Exp $
+// $Id: Electron.h,v 1.18.2.2 2009/01/16 15:37:29 pioppi Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.16 2008/10/07 18:49:59 lowette Exp $
+  \version  $Id: Electron.h,v 1.18.2.2 2009/01/16 15:37:29 pioppi Exp $
 */
 
 
@@ -25,6 +25,8 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 // Define typedefs for convenience
 namespace pat {
@@ -112,6 +114,26 @@ namespace pat {
         std::cout << "The pat::Electron::setLeptonIDs() method is deprecated. Please use the setElectronIDs() one instead" << std::endl;
         setElectronIDs(ids);
       }
+      /// Store the cluster shape variables associated to the electron
+      void setClusterShapes ( const float& , const float& , const float& , const float& , const float& ) ;
+      const float scSigmaEtaEta()   const { return  scSigmaEtaEta_ ; }
+      const float scSigmaIEtaIEta() const { return  scSigmaIEtaIEta_ ; }  
+      const float scE1x5()          const { return  scE1x5_ ; }
+      const float scE2x5Max()       const { return  scE2x5Max_ ; }        
+      const float scE5x5()          const { return  scE5x5_ ; }             
+
+
+      // ---- PF specific methods ----
+      /// reference to the source PFCandidates
+      /// null if this has been built from a standard electron
+      reco::PFCandidateRef pfCandidateRef() const;
+      /// add a reference to the source IsolatedPFCandidate
+      void setPFCandidateRef(const reco::PFCandidateRef& ref) {
+	pfCandidateRef_ = ref;
+      } 
+      /// embed the PFCandidate pointed to by pfCandidateRef_
+      void embedPFCandidate();
+
 
     protected:
 
@@ -124,6 +146,23 @@ namespace pat {
       std::vector<reco::Track> track_;
       // ---- electron ID's holder ----
       std::vector<IdPair> electronIDs_;
+
+      float scSigmaEtaEta_ ;
+      float scSigmaIEtaIEta_ ; 
+      float scE1x5_ ;
+      float scE2x5Max_ ; 
+      float scE5x5_ ; 
+
+
+      // ---- PF specific members ----
+      /// true if the IsolatedPFCandidate is embedded
+      bool embeddedPFCandidate_;      
+      /// if embeddedPFCandidate_, a copy of the source IsolatedPFCandidate
+      /// is stored in this vector
+      reco::PFCandidateCollection pfCandidate_;
+      /// reference to the IsolatedPFCandidate this has been built from
+      /// null if this has been built from a standard electron
+      reco::PFCandidateRef pfCandidateRef_;
 
   };
 

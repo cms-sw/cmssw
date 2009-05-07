@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.h,v 1.15 2008/10/08 21:40:38 drell Exp $
+// $Id: V0Fitter.h,v 1.11 2008/04/24 17:59:08 drell Exp $
 //
 //
 
@@ -66,16 +66,16 @@ class V0Fitter {
   // Switching to L. Lista's reco::Candidate infrastructure for V0 storage
   const reco::VertexCompositeCandidateCollection& getKshorts() const;
   const reco::VertexCompositeCandidateCollection& getLambdas() const;
-  //const reco::VertexCompositeCandidateCollection& getLambdaBars() const;
+  const reco::VertexCompositeCandidateCollection& getLambdaBars() const;
 
  private:
   // STL vector of VertexCompositeCandidate that will be filled with VertexCompositeCandidates by fitAll()
   reco::VertexCompositeCandidateCollection theKshorts;
   reco::VertexCompositeCandidateCollection theLambdas;
-  //reco::VertexCompositeCandidateCollection theLambdaBars;
+  reco::VertexCompositeCandidateCollection theLambdaBars;
 
   // Vector used to temporarily hold candidates before cuts and selection
-  //reco::VertexCompositeCandidateCollection preCutCands;
+  reco::VertexCompositeCandidateCollection preCutCands;
 
   // Tracker geometry for discerning hit positions
   const TrackerGeometry* trackerGeom;
@@ -100,15 +100,12 @@ class V0Fitter {
   double collinCut;
   double kShortMassCut;
   double lambdaMassCut;
-  double impactParameterSigCut;
-  double mPiPiCut;
-  double tkDCACut;
 
   // Helper method that does the actual fitting using the KalmanVertexFitter
   void fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   // Applies cuts to the VertexCompositeCandidates after they are fitted/created.
-  //void applyPostFitCuts();
+  void applyPostFitCuts();
 
   // Stuff for debug file output.
   std::ofstream mPiPiMassOut;

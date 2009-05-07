@@ -1,9 +1,6 @@
 #!/bin/bash
 filename=`basename $1`
 pathname=`dirname $1`
-comment=$2
-version=$3
-subversion=$4
 
 tag=`grep 'CREATIONTAG' $1 | head -n 1 | sed 's/.*>\(.*\)<.*/\1/'`
 #tag='CR0T_test3'
@@ -15,14 +12,7 @@ for f in `ls $pathname/*.xml`;
   mv $f $f.dat
 done;
 
-work_dir=`pwd`
-cd $pathname
-#file_list=`ls $pathname/*[0-9].xml.dat`
-file_list=`ls ./*[0-9].xml.dat`
-cd $work_dir
-
-#./xmlToolsRun --luts2 --prefix=$file_prefix --path=$pathname --tag=$tag
-./xmlToolsRun --create-lut-loader --file-list="$file_list" --prefix-name=$file_prefix --tag-name=$tag --version-name="$version" --sub-version="$subversion" --comment-line="$comment"
+./xmlToolsRun --luts2 --prefix=$file_prefix --path=$pathname --tag=$tag
 
 mv $tag\_Loader.xml $pathname/
 
@@ -30,3 +20,17 @@ mv $tag\_Loader.xml $pathname/
 #zip -j $pathname/$tag.zip $pathname/*.xml*
 zip -j ./$tag.zip $pathname/*.xml*
 
+echo ''
+echo 'LUTs are prepared for uploading to OMDS and saved in ./'$tag.zip
+echo ''
+echo 'REMEMBER!'
+echo -n 'It is always a good idea to upload to the validation '
+echo 'database first before uploading to OMDS'
+echo ''
+echo 'In order to upload to a database, copy ./'$tag.zip 'to'
+echo 'dbvalhcal@pcuscms34.cern.ch:conditions/ (validation - first!)'
+echo 'dbpp5hcal@pcuscms34.cern.ch:conditions/ (OMDS)'
+echo ''
+echo -n 'or, even better, follow the most recent instructions at '
+echo 'https://twiki.cern.ch/twiki/bin/view/CMS/OnlineHCALDataSubmissionProceduresTOProdOMDSP5Server'
+echo ''

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/02/15 18:14:49 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/12/07 15:13:57 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -102,8 +102,7 @@ void DTT0Handler::getNewObjects() {
                 >> cel
                 >> t0mean
                 >> t0rms ) {
-    status = t0->set( whe, sta, sec, qua, lay, cel, t0mean, t0rms,
-                      DTTimeUnits::counts );
+    status = t0->set( whe, sta, sec, qua, lay, cel, t0mean, t0rms );
     std::cout << whe << " "
               << sta << " "
               << sec << " "

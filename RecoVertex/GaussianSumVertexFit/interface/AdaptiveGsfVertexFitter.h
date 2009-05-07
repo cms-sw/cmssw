@@ -91,13 +91,6 @@ public:
     return theFitter->vertex(tracks, priorPos, priorError);
   }
 
-  virtual inline CachingVertex<5> 
-  vertex(const vector<RefCountedVertexTrack> & tracks,
-      const reco::BeamSpot & spot ) const
-  {
-    return theFitter->vertex(tracks, spot );
-  }
-
   /** Fit vertex out of a set of VertexTracks.
    *  Uses the specified point and error as the prior estimate of the vertex.
    *  This position is not used to relinearize the tracks.

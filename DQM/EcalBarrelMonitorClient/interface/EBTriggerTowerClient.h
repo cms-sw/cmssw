@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerClient.h
  *
- * $Date: 2008/09/05 13:36:01 $
- * $Revision: 1.38 $
+ * $Date: 2008/09/06 08:01:49 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -107,6 +107,7 @@ MonitorElement* mej02_[36];
 MonitorElement* mel01_[36];
 MonitorElement* mem01_[36];
 MonitorElement* men01_[36];
+MonitorElement* meo01_[36];
 
 TH2F* h01_;
 TH2F* h02_;
@@ -118,6 +119,7 @@ TH3F* j02_[36];
 TH2F* l01_[36];
 TH3F* m01_[36];
 TH3F* n01_[36];
+TH3F* o01_[36];
 
 //MonitorElement* mek01_[36][68];
 //MonitorElement* mek02_[36][68];
@@ -135,6 +137,7 @@ MonitorElement* me_n01_[36][2];
 MonitorElement* me_j01_[36][6];
 MonitorElement* me_j02_[36][6];
 MonitorElement* me_m01_[36][6];
+MonitorElement* me_o01_[36];
 
 };
 

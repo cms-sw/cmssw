@@ -11,7 +11,6 @@
 #include <TProfile.h>
 #include <TString.h>
 
-#include <string>
 
 class GflashHistogram : public TObject {
 
@@ -22,7 +21,7 @@ class GflashHistogram : public TObject {
   GflashHistogram();
   ~GflashHistogram();
 
-  void bookHistogram(std::string histFileName="gflash_histogram.root");
+  void bookHistogram(TString histFileName="gflash_histogram.root");
   void setStoreFlag(bool flag) { theStoreFlag = flag; }
   bool getStoreFlag() { return theStoreFlag; }
 
@@ -37,14 +36,16 @@ class GflashHistogram : public TObject {
   TFile*    histFile_;
 
   // histograms for EM shower model in GflashEMShowerProfile
-  TH1F*     em_incE;
-  TH1F*     em_ssp_rho;
-  TH1F*     em_ssp_z;
-  TH1F*     em_long;
-  TH2F*     em_lateral;
-  TH1F*     em_long_sd;
-  TH2F*     em_lateral_sd;
-  TH1F*     em_nSpots_sd;
+  TH1F*     incE_atEcal;
+  TH2F*     dEdz;
+  TH1F*     dEdz_p;
+  TH1F*     dndz_spot;
+  TH2F*     rxry;
+  TH1F*     dx;
+  TH2F*     xdz;
+  TH2F*     rzSpots;
+  TH1F*     rho_ssp;
+  TH1F*     rArm;
 
   // histograms for HAD shower model in GflashHadronShowerModel
 
@@ -53,7 +54,6 @@ class GflashHistogram : public TObject {
   TH1F*     deltaStep;
   TH1F*     kineticEnergy;
   TH1F*     energyLoss;
-  TH1F*     energyRatio;
 
   // histograms for HAD shower model in GflashHadronShowerProfile
 

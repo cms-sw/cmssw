@@ -21,6 +21,9 @@ class SiPixelActionExecutor {
 
  void createSummary(    	    DQMStore    		 * bei);
  void bookOccupancyPlots(    	    DQMStore    		 * bei,
+                                    bool                           hiRes,
+									bool				isbarrel);
+ void bookOccupancyPlots(    	    DQMStore    		 * bei,
                                     bool                           hiRes);
  void createOccupancy(    	    DQMStore    		 * bei);
  void setupQTests(      	    DQMStore    		 * bei);
@@ -55,12 +58,10 @@ private:
                                     std::string 	     	   me_name);
   MonitorElement* getFEDSummaryME(  DQMStore     		 * bei, 
                                     std::string 	     	   me_name);
-  void fillBarrelSummary(           DQMStore     		 * bei, 
+  void fillSummary(           	    DQMStore     		 * bei, 
                                     std::string 	     	   dir_name,
-                                    std::vector<std::string> 	 & me_names);
-  void fillEndcapSummary(           DQMStore     		 * bei, 
-                                    std::string 	     	   dir_name,
-                                    std::vector<std::string> 	 & me_names);
+                                    std::vector<std::string> 	 & me_names,
+				    bool isbarrel);
   void fillFEDErrorSummary(         DQMStore     		 * bei, 
                                     std::string 	     	   dir_name,
                                     std::vector<std::string> 	 & me_names);
@@ -73,8 +74,8 @@ private:
                                     std::string              	 & me_name, 
 				    std::vector<MonitorElement*> & mes);
  
-  void fillBarrelOccupancy(    	    DQMStore    		 * bei);
-  void fillEndcapOccupancy(    	    DQMStore    		 * bei);
+  void fillOccupancy(    	    DQMStore    		 * bei,
+				    bool isbarrel);
 
   SiPixelConfigParser* configParser_;
   SiPixelConfigWriter* configWriter_;
@@ -90,8 +91,7 @@ private:
   
   QTestHandle* qtHandler_;
   
-  MonitorElement * BarrelOccupancyMap;
-  MonitorElement * EndcapOccupancyMap;
+  MonitorElement * OccupancyMap;
   MonitorElement * PixelOccupancyMap;
   
   

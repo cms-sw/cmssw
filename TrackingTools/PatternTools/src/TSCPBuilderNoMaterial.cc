@@ -7,7 +7,6 @@
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelPlaneCrossingByCircle.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 TrajectoryStateClosestToPoint 
 TSCPBuilderNoMaterial::operator() (const FTS& originalFTS, 
@@ -18,13 +17,10 @@ TSCPBuilderNoMaterial::operator() (const FTS& originalFTS,
 
   // Now do the propagation or whatever...
 
-  PairBoolFTS newStatePair =
-    createFTSatTransverseImpactPoint(originalFTS, referencePoint);
-  if (newStatePair.first) {
-    return constructTSCP(newStatePair.second, referencePoint);
-  } else {
-    return TrajectoryStateClosestToPoint();
-  }  
+  FreeTrajectoryState 
+    ftsAtTransverseImpactPoint = createFTSatTransverseImpactPoint(originalFTS, referencePoint);
+  return constructTSCP(ftsAtTransverseImpactPoint, referencePoint);
+  
 }
 
 TrajectoryStateClosestToPoint 
@@ -36,16 +32,12 @@ TSCPBuilderNoMaterial::operator() (const TSOS& originalTSOS,
 
   // Now do the propagation
   
-  PairBoolFTS newStatePair =
+  FreeTrajectoryState ftsAtTransverseImpactPoint = 
     createFTSatTransverseImpactPoint(*originalTSOS.freeState(), referencePoint);
-  if (newStatePair.first) {
-    return constructTSCP(newStatePair.second, referencePoint);
-  } else {
-    return TrajectoryStateClosestToPoint();
-  }
+  return constructTSCP(ftsAtTransverseImpactPoint, referencePoint);
 }
 
-TSCPBuilderNoMaterial::PairBoolFTS 
+FreeTrajectoryState 
 TSCPBuilderNoMaterial::createFTSatTransverseImpactPoint(
 	const FTS& originalFTS, const GlobalPoint& referencePoint) const 
 {
@@ -60,7 +52,7 @@ TSCPBuilderNoMaterial::createFTSatTransverseImpactPoint(
   }
 }
 
-TSCPBuilderNoMaterial::PairBoolFTS 
+FreeTrajectoryState 
 TSCPBuilderNoMaterial::createFTSatTransverseImpactPointCharged(
 	const FTS& originalFTS, const GlobalPoint& referencePoint) const 
 {
@@ -100,10 +92,8 @@ TSCPBuilderNoMaterial::createFTSatTransverseImpactPointCharged(
 		  HelixPlaneCrossing::DirectionType(pxOrig, pyOrig, pzOrig), 
 		  kappa, direction);
   std::pair<bool,double> propResult = planeCrossing.pathLength(*plane);
-  if ( !propResult.first ) {
-    edm::LogWarning ("TSCPBuilderNoMaterial") << "Propagation to perigee plane failed!";
-    return PairBoolFTS(false, FreeTrajectoryState() );
-  }
+  if ( !propResult.first ) 
+    throw TrajectoryStateException("Propagation to perigee plane failed!");
   double s = propResult.second;
   HelixPlaneCrossing::PositionType xGen = planeCrossing.position(s);
   GlobalPoint xPerigee = GlobalPoint(xGen.x(),xGen.y(),xGen.z());
@@ -120,20 +110,19 @@ TSCPBuilderNoMaterial::createFTSatTransverseImpactPointCharged(
     const AlgebraicMatrix55 &jacobian = curvilinJacobian.jacobian();
     CurvilinearTrajectoryError cte( ROOT::Math::Similarity(jacobian, errorMatrix) );
   
-    return PairBoolFTS(true,
-	FreeTrajectoryState(GlobalTrajectoryParameters(xPerigee, pPerigee, originalFTS.charge(), 
-    			&(originalFTS.parameters().magneticField())), cte) );
+    return FreeTrajectoryState(GlobalTrajectoryParameters(xPerigee, pPerigee, originalFTS.charge(), 
+    					&(originalFTS.parameters().magneticField())),
+			        cte);
   } 
   else {
-    return PairBoolFTS(true,
-	FreeTrajectoryState(GlobalTrajectoryParameters(xPerigee, pPerigee, originalFTS.charge(), 
-    			&(originalFTS.parameters().magneticField()))) );
+    return FreeTrajectoryState(GlobalTrajectoryParameters(xPerigee, pPerigee, originalFTS.charge(), 
+    					&(originalFTS.parameters().magneticField())));
   }
   
 }
 
 
-TSCPBuilderNoMaterial::PairBoolFTS 
+FreeTrajectoryState 
 TSCPBuilderNoMaterial::createFTSatTransverseImpactPointNeutral(const FTS& originalFTS, 
     const GlobalPoint& referencePoint) const 
 {
@@ -163,14 +152,13 @@ TSCPBuilderNoMaterial::createFTSatTransverseImpactPointNeutral(const FTS& origin
     const AlgebraicMatrix55 &jacobian = curvilinJacobian.jacobian();
     CurvilinearTrajectoryError cte( ROOT::Math::Similarity(jacobian, errorMatrix) );
   
-    return PairBoolFTS(true,
-	FreeTrajectoryState(GlobalTrajectoryParameters(xPerigee, pPerigee, originalFTS.charge(), 
-    			&(originalFTS.parameters().magneticField())), cte));
+    return FreeTrajectoryState(GlobalTrajectoryParameters(xPerigee, pPerigee, originalFTS.charge(), 
+    					&(originalFTS.parameters().magneticField())),
+			        cte);
   } 
   else {
-    return PairBoolFTS(true,
-	FreeTrajectoryState(GlobalTrajectoryParameters(xPerigee, pPerigee, originalFTS.charge(),
-    			&(originalFTS.parameters().magneticField()))) );
+    return FreeTrajectoryState(GlobalTrajectoryParameters(xPerigee, pPerigee, originalFTS.charge(),
+    					&(originalFTS.parameters().magneticField())));
   }
   
 }

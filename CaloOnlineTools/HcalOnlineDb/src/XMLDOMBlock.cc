@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Thu Sep 27 01:43:42 CEST 2007
-// $Id: XMLDOMBlock.cc,v 1.6 2008/08/31 20:40:21 kukartse Exp $
+// $Id: XMLDOMBlock.cc,v 1.3 2008/04/10 21:12:09 kukartse Exp $
 //
 
 // system include files
@@ -32,26 +32,17 @@ using namespace std;
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
 
 
+//
+// constants, enums and typedefs
+//
 
-XMLDOMBlock & XMLDOMBlock::operator+=( const XMLDOMBlock & other)
-{
-  DOMNodeList * _children = other.getDocumentConst()->getDocumentElement()->getChildNodes();
-  int _length = _children->getLength();
-  cout << "Children nodes:" << _length << endl;
-  DOMNode * _node;
-  int i = 0;
-  for(int i=0;i!=_length;i++){
-    _node = _children->item(i);
-    //cout << "+++=== " << XMLString::transcode(_node->getNodeName()) << endl;
-    DOMNode * i_node = this->getDocument()->importNode(_node,true);
-    this->getDocument()->getDocumentElement()->appendChild(i_node);
-    //cout << "+++=== result node" << endl << XMLString::transcode(nn->getNodeName()) << endl;
-    //this->write("stdout");
-  }
-  return *this;
-}
+//
+// static data member definitions
+//
 
-
+//
+// constructors and destructor
+//
 XMLDOMBlock::XMLDOMBlock()
 {
   //cout << "XMLDOMBlock (or derived): default constructor called - this is meaningless!" << endl;
@@ -68,50 +59,6 @@ XMLDOMBlock::XMLDOMBlock( string _root, int rootElementName )
 
 
 XMLDOMBlock::XMLDOMBlock( InputSource & _source )
-{
-
-  theProcessor = XMLProcessor::getInstance();
-
-  //theFileName = xmlFileName;
-
-  // initialize the parser
-  parser = new XercesDOMParser();
-  parser->setValidationScheme(XercesDOMParser::Val_Always);    
-  parser->setDoNamespaces(true);    // optional
-  
-  errHandler = (ErrorHandler*) new HandlerBase();
-  parser->setErrorHandler(errHandler);
-
-  // parse the input xml file
-  try
-    {
-      parser->parse( _source );
-    }
-  catch (const XMLException& toCatch) {
-    char* message = XMLString::transcode(toCatch.getMessage());
-    cout << "Exception message is: \n"
-	 << message << "\n";
-    XMLString::release(&message);
-    //return -1;
-  }
-  catch (const DOMException& toCatch) {
-    char* message = XMLString::transcode(toCatch.msg);
-    cout << "Exception message is: \n"
-	 << message << "\n";
-    XMLString::release(&message);
-    //return -1;
-  }
-  catch (...) {
-    cout << "Unexpected Exception \n" ;
-    //return -1;
-  }
-
-  //get the XML document
-  document = parser -> getDocument();
-}
-
-
-void XMLDOMBlock::parse( InputSource & _source )
 {
 
   theProcessor = XMLProcessor::getInstance();
@@ -280,11 +227,6 @@ DOMDocument * XMLDOMBlock::getDocument( void )
   return document;
 }
 
-DOMDocument * XMLDOMBlock::getDocumentConst( void ) const
-{
-  return document;
-}
-
 int XMLDOMBlock::write( string target )
 {
   theProcessor -> write( this, target );
@@ -302,13 +244,6 @@ XMLDOMBlock::~XMLDOMBlock()
 const char * XMLDOMBlock::getTagValue( const string & tagName, int _item, DOMDocument * _document )
 {
   if (!_document) _document = document;
-  const char * _result = XMLString::transcode( _document -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item ) -> getFirstChild()-> getNodeValue() );
-  return _result;
-}
-
-const char * XMLDOMBlock::getTagValue( const string & tagName, int _item, DOMElement * _document )
-{
-  if (!_document) return 0;
   const char * _result = XMLString::transcode( _document -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item ) -> getFirstChild()-> getNodeValue() );
   return _result;
 }

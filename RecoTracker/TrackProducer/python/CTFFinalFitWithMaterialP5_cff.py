@@ -10,14 +10,17 @@ from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
 from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
-ctfWithMaterialTracksP5 = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+
 FittingSmootherRKP5.ComponentName = 'FittingSmootherRKP5'
 FittingSmootherRKP5.Fitter = 'RKFitter'
 FittingSmootherRKP5.Smoother = 'RKSmoother'
 FittingSmootherRKP5.MinNumberOfHits = 4
-ctfWithMaterialTracksP5.src = 'ckfTrackCandidatesP5'
-ctfWithMaterialTracksP5.Fitter = 'FittingSmootherRKP5'
-ctfWithMaterialTracksP5.TTRHBuilder = 'WithTrackAngle'
 
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+ctfWithMaterialTracksP5 = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone(
+    src = 'ckfTrackCandidatesP5',
+    Fitter = 'FittingSmootherRKP5',
+    TTRHBuilder = 'WithTrackAngle',
+    AlgorithmName = cms.string('ctf')
+)
 

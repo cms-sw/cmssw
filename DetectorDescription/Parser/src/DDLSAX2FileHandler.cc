@@ -27,10 +27,13 @@
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 
 // Xerces C++ dependencies
+#include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/sax/SAXParseException.hpp>
 #include <xercesc/sax/SAXException.hpp>
 
 #include <iostream>
+#include <vector>
+#include <string>
 
 // ---------------------------------------------------------------------------
 //  DDLSAX2Handler: Constructors and Destructor

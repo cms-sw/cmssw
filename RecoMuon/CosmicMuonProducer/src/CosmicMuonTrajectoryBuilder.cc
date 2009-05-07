@@ -4,8 +4,8 @@
  *  class to build trajectories of cosmic muons and beam-halo muons
  *
  *
- *  $Date: 2008/10/18 22:23:35 $
- *  $Revision: 1.41 $
+ *  $Date: 2009/04/15 10:16:59 $
+ *  $Revision: 1.48 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -48,9 +48,9 @@ CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet
 
   thePropagatorName = par.getParameter<string>("Propagator");
 
-  bool enableDTMeasurement = par.getUntrackedParameter<bool>("EnableDTMeasurement",true);
-  bool enableCSCMeasurement = par.getUntrackedParameter<bool>("EnableCSCMeasurement",true);
-  bool enableRPCMeasurement = par.getUntrackedParameter<bool>("EnableRPCMeasurement",true);
+  bool enableDTMeasurement = par.getParameter<bool>("EnableDTMeasurement");
+  bool enableCSCMeasurement = par.getParameter<bool>("EnableCSCMeasurement");
+  bool enableRPCMeasurement = par.getParameter<bool>("EnableRPCMeasurement");
 
 //  if(enableDTMeasurement)
   InputTag DTRecSegmentLabel = par.getParameter<InputTag>("DTRecSegmentLabel");
@@ -80,12 +80,11 @@ CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet
 
   theBKUpdator = new MuonTrajectoryUpdator(muonBackwardUpdatorPSet, outsideIn);
 
-  theTraversingMuonFlag = par.getUntrackedParameter<bool>("BuildTraversingMuon",true);
+  theTraversingMuonFlag = par.getParameter<bool>("BuildTraversingMuon");
 
   ParameterSet smootherPSet = par.getParameter<ParameterSet>("MuonSmootherParameters");
 
-  ParameterSet emptyPS;
-  theNavigationPSet = par.getUntrackedParameter<ParameterSet>("MuonNavigationParameters", emptyPS);
+  theNavigationPSet = par.getParameter<ParameterSet>("MuonNavigationParameters");
 
   theSmoother = new CosmicMuonSmoother(smootherPSet,theService);
 
@@ -192,9 +191,7 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   vector<TrajectoryMeasurement> measL;
 
   LogTrace(category_)<<"Begin forward fit "<<navLayers.size();
-  const DTRecSegment4D* firstDTseg = 0;
-  const DTRecSegment4D* lastDTseg = 0;
-  int nDTseg = 0;
+
   for ( vector<const DetLayer*>::const_iterator rnxtlayer = navLayers.begin(); rnxtlayer!= navLayers.end(); ++rnxtlayer) {
      LogTrace(category_)<<"new layer ";
      measL.clear();
@@ -218,14 +215,6 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
             if (result.first ) {
               LogTrace(category_)<<"update ok ";
               incrementChamberCounters((*rnxtlayer), DTChamberUsedBack, CSCChamberUsedBack, RPCChamberUsedBack, TotalChamberUsedBack);
-	      if ( theMeas->recHit()->geographicalId().subdetId() == MuonSubdetId::DT ) {
-                 nDTseg++;
-                 //this are the 4D segment for the CSC/DT and a point for the RPC
-                 TransientTrackingRecHit::ConstRecHitPointer muonRecHit = theMeas->recHit();
-                 if (firstDTseg == 0)   firstDTseg = dynamic_cast<const DTRecSegment4D*>((muonRecHit)->hit());
-                 lastDTseg = dynamic_cast<const DTRecSegment4D*>((muonRecHit)->hit());
-
-              }
               secondLast = lastTsos;
               if ( (!theTraj->empty()) && result.second.isValid() ) {
                 lastTsos = result.second;
@@ -240,13 +229,12 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     theTraj->pop();
   }
 
-  delete theTraj;
-
   if (!theTraj->isValid() || TotalChamberUsedBack < 2 || (DTChamberUsedBack+CSCChamberUsedBack) == 0 || !lastTsos.isValid()) {
+    delete theTraj;
     return trajL;
   }
+  delete theTraj;
 
-//    LogTrace(category_)<<"checkDirectionByT0 "<<checkDirectionByT0(firstDTseg, lastDTseg)<<" nDTseg "<<nDTseg;
 
   //if got good trajectory, then do backward refitting
   DTChamberUsedBack = 0;
@@ -342,7 +330,6 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   if ( theTraversingMuonFlag && ( allUnusedHits.size() >= 2 ) && 
      ( ( myTraj.lastLayer()->location() == GeomDetEnumerators::barrel ) ||
        ( myTraj.firstMeasurement().layer()->location() == GeomDetEnumerators::barrel ) ) ) {
-      theNTraversing++;
 //      LogTrace(category_)<<utilities()->print(allUnusedHits);
       LogTrace(category_)<<"Building trajectory in second hemisphere...";
       buildSecondHalf(myTraj);
@@ -353,6 +340,17 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 //     getDirectionByTime(myTraj);
   if (beamhaloFlag) estimateDirection(myTraj);
   if ( myTraj.empty() ) return trajL;
+
+  // try to smooth it 
+  vector<Trajectory> smoothed = theSmoother->trajectories(myTraj); 
+
+  if ( !smoothed.empty() && smoothed.front().foundHits()> 3 )  {  
+    LogTrace(category_) <<" Smoothed successfully."; 
+    myTraj = smoothed.front(); 
+  } 
+  else {  
+    LogTrace(category_) <<" Smooth failed."; 
+  } 
 
   LogTrace(category_) <<"first "<< myTraj.firstMeasurement().updatedState()
                       <<"\n last "<<myTraj.lastMeasurement().updatedState();
@@ -633,6 +631,7 @@ void CosmicMuonTrajectoryBuilder::flipTrajectory(Trajectory& traj) const {
 
     vector<Trajectory> refittedback = theSmoother->fit(traj.seed(),hits,lastTSOS);
     if ( refittedback.empty() ) {
+       LogTrace(category_) <<"flipTrajectory fail. "<<endl;
        return;
     }
   LogTrace(category_) <<"flipTrajectory: first "<< refittedback.front().firstMeasurement().updatedState()

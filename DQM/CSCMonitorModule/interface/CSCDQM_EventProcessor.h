@@ -26,64 +26,34 @@
 
 #include <TString.h>
 
-#ifndef DQMLOCAL
+#ifdef DQMGLOBAL
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
-#include "DQM/CSCMonitorModule/interface/CSCHistoProvider.h"
 
 #endif
 
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
-#include "DQM/CSCMonitorModule/interface/CSCDQM_HistoType.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Summary.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_StripClusterFinder.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Configuration.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Configuration.h"
 
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBTimeSlice.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
 
-#define LOG_ERROR Logger(ERROR)
-#define LOG_WARN  Logger(WARNING)
-#define LOG_INFO  Logger(INFO)
-#define LOG_DEBUG Logger(DEBUG)
-
-
-#define TAG_EMU "EMU"
-#define TAG_DDU "DDU_%d"
-#define TAG_CSC "CSC_%03d_%02d"
-
 namespace cscdqm {
-
-#ifndef DQMLOCAL
-
-  typedef CSCHistoProvider HPType;
-  typedef CSCMonitorObject METype;
-
-#endif
-
-  typedef struct EffParametersType {
-    double cold_threshold;
-    double cold_sigfail;
-    double hot_threshold;
-    double hot_sigfail;
-    double err_threshold;
-    double err_sigfail;
-    double nodata_threshold;
-    double nodata_sigfail;
-  };
-
-  typedef enum BinCheckerCRCType { 
-    ALCT, 
-    CFEB, 
-    TMB 
-  };
 
   typedef std::map<std::string, uint32_t> CSCCounters;
 
+  /**
+   * @class EventProcessor
+   * @brief Object used to process Events and compute statistics
+   */
   class EventProcessor {
 
 // ===================================================================================================
@@ -92,21 +62,16 @@ namespace cscdqm {
 
     public:
       
-      EventProcessor(HPType* p_histoProvider);
-      ~EventProcessor();
+      EventProcessor(Configuration* const p_config);
+      ~EventProcessor() { }
 
-      void blockHisto(const HistoType histo);
-
-      void setDDUCheckMask(const uint32_t mask) { dduCheckMask = mask; }
-      const uint32_t getDDUCheckMask() const { return dduCheckMask; }
-      void setBinCheckMask(const uint32_t mask) { binCheckMask = mask; }
-      uint32_t getBinCheckMask() const { return binCheckMask; }
-
-      void setBinCheckerCRC(const BinCheckerCRCType crc, const bool value);
-      void setBinCheckerOutput(const bool value);
-
+      void init();
       void updateFractionHistos();
-      void updateEfficiencyHistos(EffParametersType& effParams);
+      void updateEfficiencyHistos();
+      void updateFractionAndEfficiencyHistos() {
+        updateFractionHistos();
+        updateEfficiencyHistos();
+      }
 
     private:
       
@@ -114,32 +79,27 @@ namespace cscdqm {
       void processDDU(const CSCDDUEventData& data);
       void processCSC(const CSCEventData& data, const int dduID);
 
-      void calcEMUFractionHisto(const HistoType result, const HistoType set, const HistoType subset);
+      void calcEMUFractionHisto(const HistoId& result, const HistoId& set, const HistoId& subset);
 
-      const bool histoNotBlocked(const HistoType histo) const;
+      const bool getEMUHisto(const HistoId& histo, MonitorObject*& me);
+      const bool getDDUHisto(const HistoId& histo, const HwId& dduID, MonitorObject*& me);
+      const bool getCSCHisto(const HistoId& histo, const HwId& crateID, const HwId& dmbSlot, MonitorObject*& me);
+      const bool getCSCHisto(const HistoId& histo, const HwId& crateID, const HwId& dmbSlot, const HwId& adId, MonitorObject*& me);
+      const bool getParHisto(const HistoId& histo, MonitorObject*& me);
 
-      const bool getEMUHisto(const HistoType histo, METype* me, const bool ref = false);
-      const bool getDDUHisto(const int dduID, const HistoType histo, METype* me, const bool ref = false);
-      const bool getCSCHisto(const int crateID, const int dmbSlot, const HistoType histo, METype* me, const int adId = 0, const bool ref = false);
+      const bool getCSCFromMap(const unsigned int& crateId, const unsigned int& dmbId, unsigned int& cscType, unsigned int& cscPosition) const;
 
-      std::set<HistoType> blocked;
-      HPType* histoProvider;
+      Configuration* config;
       Summary summary;
 
-      uint32_t nEvents; 
-      uint32_t nBadEvents; 
-      uint32_t nGoodEvents; 
-      uint32_t nCSCEvents;
-      uint32_t unpackedDMBcount;
+      bool bCSCEventCounted;
+
       std::map<std::string, uint32_t> nDMBEvents;
       std::map<std::string, CSCCounters> cscCntrs;
 
       CSCDCCExaminer binChecker;
-      uint32_t dduCheckMask;
-      uint32_t binCheckMask;
-      uint32_t dduBinCheckMask; 
 
-      std::map<uint32_t,uint32_t> L1ANumbers;
+      std::map<uint32_t, uint32_t> L1ANumbers;
       uint32_t L1ANumber;
       uint32_t BXN;
       bool fFirstEvent;
@@ -149,13 +109,11 @@ namespace cscdqm {
 // Local ONLY stuff 
 // ===================================================================================================
 
-#ifndef DQMGLOBAL
+#ifdef DQMLOCAL
 
     public:
 
       void processEvent(const char* data, const int32_t dataSize, const uint32_t errorStat, const int32_t nodeNumber);
-
-    private:
 
 #endif      
 
@@ -163,16 +121,11 @@ namespace cscdqm {
 // Global ONLY stuff 
 // ===================================================================================================
 
-#ifndef DQMLOCAL
+#ifdef DQMGLOBAL
 
     public:
 
-      void processEvent(const edm::Event& e);
-      void setInputTag(const edm::InputTag p_inputTag) { inputTag = p_inputTag; }
-
-    private:
-
-      edm::InputTag inputTag;
+      void processEvent(const edm::Event& e, const edm::InputTag& inputTag);
 
 #endif      
 

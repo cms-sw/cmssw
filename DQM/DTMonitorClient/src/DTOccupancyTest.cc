@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/16 09:33:39 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/11/03 14:20:32 $
+ *  $Revision: 1.11 $
  *  \author G. Cerminara - University and INFN Torino
  */
 
@@ -45,6 +45,10 @@ DTOccupancyTest::DTOccupancyTest(const edm::ParameterSet& ps){
   
   // switch on the mode for running on test pulses (different top folder)
   tpMode = ps.getUntrackedParameter<bool>("testPulseMode", false);
+  
+  runOnAllHitsOccupancies =  ps.getUntrackedParameter<bool>("runOnAllHitsOccupancies", true);
+  runOnNoiseOccupancies =  ps.getUntrackedParameter<bool>("runOnNoiseOccupancies", false);
+  runOnInTimeOccupancies = ps.getUntrackedParameter<bool>("runOnInTimeOccupancies", false);
 
 }
 
@@ -82,6 +86,17 @@ void DTOccupancyTest::beginJob(const EventSetup& context){
   summaryHisto = dbe->book2D("OccupancySummary","Occupancy Summary",12,1,13,5,-2,3);
   summaryHisto->setAxisTitle("sector",1);
   summaryHisto->setAxisTitle("wheel",2);
+
+  // assign the name of the input histogram
+  if(runOnAllHitsOccupancies) {
+    nameMonitoredHisto = "OccupancyAllHits_perCh";
+  } else if(runOnNoiseOccupancies) {
+    nameMonitoredHisto = "OccupancyNoise_perCh";
+  } else if(runOnInTimeOccupancies) {
+    nameMonitoredHisto = "OccupancyInTimeHits_perCh";
+  } else { // default is AllHits histo
+    nameMonitoredHisto = "OccupancyAllHits_perCh";
+  }
 
 }
 
@@ -122,7 +137,7 @@ void DTOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
       chamber != chambers.end(); ++chamber) {  // Loop over all chambers
     DTChamberId chId = (*chamber)->id();
 
-    MonitorElement * chamberOccupancyHisto = dbe->get(getMEName("OccupancyAllHits_perCh", chId));	
+    MonitorElement * chamberOccupancyHisto = dbe->get(getMEName(nameMonitoredHisto, chId));	
 
     // Run the tests on the plot for the various granularities
     if(chamberOccupancyHisto != 0) {
@@ -150,7 +165,7 @@ void DTOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
       }
     } else {
       LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << "[DTOccupancyTest] ME: "
-				      << getMEName("OccupancyAllHits_perCh", chId) << " not found!" << endl;
+				      << getMEName(nameMonitoredHisto, chId) << " not found!" << endl;
     }
 
   }
@@ -546,6 +561,6 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
 
 
 string DTOccupancyTest::topFolder() const {
-  if(tpMode) return string("DT/99-TestPulses/");
+  if(tpMode) return string("DT/10-TestPulses/");
   return string("DT/01-Digi/");
 }

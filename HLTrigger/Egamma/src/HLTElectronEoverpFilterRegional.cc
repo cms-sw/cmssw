@@ -2,7 +2,7 @@
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
- * $Id: HLTElectronEoverpFilterRegional.cc,v 1.6 2007/12/07 09:32:56 ghezzi Exp $
+ * $Id: HLTElectronEoverpFilterRegional.cc,v 1.7 2007/12/07 14:41:33 ghezzi Exp $
  *
  */
 
@@ -98,7 +98,7 @@ HLTElectronEoverpFilterRegional::filter(edm::Event& iEvent, const edm::EventSetu
 	    filterproduct->addObject(TriggerElectron, electronref);
 	  }
 	}
-	if( (fabs(electronref->eta()) > 1.5) &&  (fabs(electronref->eta()) < 2.5) ){
+	if( fabs(electronref->eta()) > 1.5 ){
 	  if ( elecEoverp < eoverpendcapcut_) {
 	    n++;
 	    filterproduct->addObject(TriggerElectron, electronref);
@@ -127,7 +127,7 @@ HLTElectronEoverpFilterRegional::filter(edm::Event& iEvent, const edm::EventSetu
 	    filterproduct->addObject(TriggerElectron, electronref);
 	  }
 	}
-	if( (fabs(electronref->eta()) > 1.5) &&  (fabs(electronref->eta()) < 2.5) ){
+	if( fabs(electronref->eta()) > 1.5 ){
 	  if ( elecEoverp < eoverpendcapcut_) {
 	    n++;
 	    filterproduct->addObject(TriggerElectron, electronref);

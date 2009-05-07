@@ -6,7 +6,6 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/EcalPreshowerGeometryRecord.h"
 #include "CondFormats/AlignmentRecord/interface/ESAlignmentRcd.h"
-#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include <vector>
 
 class EcalPreshowerGeometry : public CaloSubdetectorGeometry
@@ -21,7 +20,7 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
       typedef CaloSubdetectorGeometry::ParVec ParVec ;
       typedef CaloSubdetectorGeometry::ParVecVec ParVecVec ;
 
-      enum { k_NumberOfCellsForCorners = ESDetId::kSizeForDenseIndexing } ;
+      enum CornersCount { k_NumberOfCellsForCorners = 137216 } ;
 
       EcalPreshowerGeometry() ;
   
@@ -50,8 +49,6 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
       static std::string producerName() { return "EcalPreshower" ; }
 
       static unsigned int numberOfAlignments() { return 1 ; }
-
-      static unsigned int whichGlobal() { return (unsigned int)DetId::Ecal ; } // global position record index
 
    private:
 

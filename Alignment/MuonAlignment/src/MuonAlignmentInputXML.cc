@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Mar 10 16:37:40 CDT 2008
-// $Id: MuonAlignmentInputXML.cc,v 1.8 2008/06/20 15:28:12 pivarski Exp $
+// $Id: MuonAlignmentInputXML.cc,v 1.7 2008/05/17 16:50:06 pivarski Exp $
 //
 
 // system include files
@@ -63,7 +63,6 @@ MuonAlignmentInputXML::MuonAlignmentInputXML(std::string fileName)
    str_setsurveyerr = XMLString::transcode("setsurveyerr");
    str_moveglobal = XMLString::transcode("moveglobal");
    str_rotatelocal = XMLString::transcode("rotatelocal");
-   str_rotatebeamline = XMLString::transcode("rotatebeamline");
    str_relativeto = XMLString::transcode("relativeto");
    str_rawId = XMLString::transcode("rawId");
    str_wheel = XMLString::transcode("wheel");
@@ -87,8 +86,6 @@ MuonAlignmentInputXML::MuonAlignmentInputXML(std::string fileName)
    str_alpha = XMLString::transcode("alpha");
    str_beta = XMLString::transcode("beta");
    str_gamma = XMLString::transcode("gamma");
-   str_rphi = XMLString::transcode("rphi");
-   str_phi = XMLString::transcode("phi");
    str_xx = XMLString::transcode("xx");
    str_xy = XMLString::transcode("xy");
    str_xz = XMLString::transcode("xz");
@@ -140,7 +137,6 @@ MuonAlignmentInputXML::~MuonAlignmentInputXML() {
    XMLString::release(&str_setsurveyerr);
    XMLString::release(&str_moveglobal);
    XMLString::release(&str_rotatelocal);
-   XMLString::release(&str_rotatebeamline);
    XMLString::release(&str_relativeto);
    XMLString::release(&str_rawId);
    XMLString::release(&str_wheel);
@@ -164,8 +160,6 @@ MuonAlignmentInputXML::~MuonAlignmentInputXML() {
    XMLString::release(&str_alpha);
    XMLString::release(&str_beta);
    XMLString::release(&str_gamma);
-   XMLString::release(&str_rphi);
-   XMLString::release(&str_phi);
    XMLString::release(&str_xx);
    XMLString::release(&str_xy);
    XMLString::release(&str_xz);
@@ -970,10 +964,10 @@ void MuonAlignmentInputXML::do_rotatelocal(const xercesc_2_7::DOMElement *node, 
    DOMAttr *node_axisy = node->getAttributeNode(str_axisy);
    DOMAttr *node_axisz = node->getAttributeNode(str_axisz);
    DOMAttr *node_angle = node->getAttributeNode(str_angle);
-   if (node_axisx == NULL) throw cms::Exception("XMLException") << "<rotatelocal> is missing required \"axisx\" attribute" << std::endl;
-   if (node_axisy == NULL) throw cms::Exception("XMLException") << "<rotatelocal> is missing required \"axisy\" attribute" << std::endl;
-   if (node_axisz == NULL) throw cms::Exception("XMLException") << "<rotatelocal> is missing required \"axisz\" attribute" << std::endl;
-   if (node_angle == NULL) throw cms::Exception("XMLException") << "<rotatelocal> is missing required \"angle\" attribute" << std::endl;
+   if (node_axisx == NULL) throw cms::Exception("XMLException") << "<moveglobal> is missing required \"axisx\" attribute" << std::endl;
+   if (node_axisy == NULL) throw cms::Exception("XMLException") << "<moveglobal> is missing required \"axisy\" attribute" << std::endl;
+   if (node_axisz == NULL) throw cms::Exception("XMLException") << "<moveglobal> is missing required \"axisz\" attribute" << std::endl;
+   if (node_angle == NULL) throw cms::Exception("XMLException") << "<moveglobal> is missing required \"angle\" attribute" << std::endl;
 
    double x = parseDouble(node_axisx->getValue(), "x");
    double y = parseDouble(node_axisy->getValue(), "y");
@@ -992,46 +986,6 @@ void MuonAlignmentInputXML::do_rotatelocal(const xercesc_2_7::DOMElement *node, 
       const SurveyDet *survey = ali->survey();
       if (survey != NULL) {
 	 matrix6x6 = survey->errors();  // save the constraint information
-      }
-      ali->setSurvey(new SurveyDet(ali->surface(), matrix6x6));
-   } // end loop over alignables
-}
-
-void MuonAlignmentInputXML::do_rotatebeamline(const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const {
-   DOMAttr *node_rphi = node->getAttributeNode(str_rphi);
-   DOMAttr *node_phi = node->getAttributeNode(str_phi);
-   if (node_rphi == NULL  &&  node_phi == NULL) throw cms::Exception("XMLException") << "<rotatebeamline> is missing required \"*phi\" attribute" << std::endl;
-   if (node_rphi != NULL  &&  node_phi != NULL) throw cms::Exception("XMLException") << "<rotatebeamline> can't have both an \"rphi\" and a \"phi\" attribute" << std::endl;
-
-   double value;
-   if (node_rphi != NULL) {
-      value = parseDouble(node_rphi->getValue(), "rphi");
-   }  
-   else {
-      value = parseDouble(node_phi->getValue(), "phi");
-   }  
-
-   for (std::map<Alignable*, bool>::const_iterator aliiter = aliset.begin();  aliiter != aliset.end();  ++aliiter) {
-      Alignable *ali = aliiter->first;
-
-      GlobalPoint pos = ali->surface().toGlobal(LocalPoint(0,0,0));
-
-      double radius = pos.perp();
-      double phi0 = pos.phi();
-      double deltaphi = value;
-      if (node_rphi != NULL) deltaphi = value / radius;
-
-      ali->rotateAroundGlobalZ(deltaphi);
-      ali->move(GlobalVector(radius * (cos(phi0 + deltaphi) - cos(phi0)),
-                             radius * (sin(phi0 + deltaphi) - sin(phi0)),
-                             0.));
-
-      align::ErrorMatrix matrix6x6 = ROOT::Math::SMatrixIdentity();
-      matrix6x6 *= 1000.;  // initial assumption: infinitely weak constraint
-
-      const SurveyDet *survey = ali->survey();
-      if (survey != NULL) {
-         matrix6x6 = survey->errors();  // save the constraint information
       }
       ali->setSurvey(new SurveyDet(ali->surface(), matrix6x6));
    } // end loop over alignables

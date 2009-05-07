@@ -9,7 +9,7 @@ pfJetBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
     recPt = cms.double(10.0),
     deltaRMax = cms.double(0.2),
     PlotAgainstRecoQuantities = cms.bool(False),
-    OnlyTwoJets = cms.bool(False),
+    OnlyTwoJets = cms.bool(True),
     BenchmarkLabel = cms.string( jets ),
     InputRecoLabel = cms.InputTag( jets )
 )

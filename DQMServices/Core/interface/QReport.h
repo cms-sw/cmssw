@@ -16,6 +16,10 @@ public:
   int getStatus(void) const
     { return qvalue_->code; }
 
+  /// get test result i.e. prob value
+  float getQTresult(void) const
+    { return qvalue_->qtresult; }
+
   /// get message attached to test
   const std::string &getMessage(void) const
     { return qvalue_->message; }

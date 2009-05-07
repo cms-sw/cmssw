@@ -1,246 +1,418 @@
 // JetValidation.cc
 // Description:  Some Basic validation plots for jets.
-// Author: K. Kousouris
-// Date:  27 - August - 2008
+// Author: Robert M. Harris
+// Date:  30 - August - 2006
 // 
 #include "RecoJets/JetAnalyzers/interface/JetValidation.h"
 #include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
-#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <TROOT.h>
 #include <TSystem.h>
 #include <TFile.h>
+#include <TCanvas.h>
 #include <cmath>
 using namespace edm;
 using namespace reco;
 using namespace std;
-////////////////////////////////////////////////////////////////////////////////////////
-JetValidation::JetValidation(edm::ParameterSet const& cfg)
-{
-  dRmatch             = cfg.getParameter<double> ("dRmatch");
-  PtMin               = cfg.getParameter<double> ("PtMin");
-  Njets               = cfg.getParameter<int> ("Njets");
-  MCarlo              = cfg.getParameter<bool> ("MCarlo");
-  genAlgo             = cfg.getParameter<string> ("genAlgo");
-  calAlgo             = cfg.getParameter<string> ("calAlgo");
-  jetTracksAssociator = cfg.getParameter<string> ("jetTracksAssociator"); 
-  histoFileName       = cfg.getParameter<string> ("histoFileName");
+
+// Get the algorithm of the jet collections we will read from the .cfg file 
+// which defines the value of the strings CaloJetAlgorithm and GenJetAlgorithm.
+JetValidation::JetValidation( const ParameterSet & cfg ) :
+  PtHistMax( cfg.getParameter<double>( "PtHistMax" ) ),
+  diagPrintNum( cfg.getParameter<int>( "diagPrintNum" ) ),
+  GenType( cfg.getParameter<string>( "GenType" ) )
+  {
 }
-////////////////////////////////////////////////////////////////////////////////////////
-void JetValidation::beginJob(edm::EventSetup const& iSetup) 
-{
-  m_file = new TFile(histoFileName.c_str(),"RECREATE"); 
+
+void JetValidation::beginJob( const EventSetup & ) {
+  cout << "JetValidation: Maximum bin edge for Pt Hists = " << PtHistMax << endl;
+  if(GenType=="chargedPion"){
+    numJets=1;
+    cout << "charged pion analysis mode" << endl;
+  }
+  else
+  {
+    numJets=2;
+  }
+
+  //Initialize some stuff
+  evtCount = 0;
+
+  // Open the histogram file and book some associated histograms
+  m_file=new TFile("JetValidationHistos.root","RECREATE"); 
   
-  m_HistNames1D["CaloJetMulti"] = new TH1F("CaloJetMulti","Multiplicity of CaloJets",100,0,100);
-  m_HistNames1D["ptCalo"] = new TH1F("ptCalo","p_{T} of CaloJets",7000,0,7000);
-  m_HistNames1D["etaCalo"] = new TH1F("etaCalo","#eta of CaloJets",100,-5.0,5.0);
-  m_HistNames1D["phiCalo"] = new TH1F("phiCalo","#phi of CaloJets",72,-M_PI, M_PI);
-  m_HistNames1D["m2jCalo"] = new TH1F("m2jCalo","Dijet Mass of leading CaloJets",7000,0,14000);
-  m_HistNames1D["nTracks"] = new TH1F("nTracks","Number of tracks associated with a jet",100,0,100);
-  m_HistNames1D["chargeFraction"] = new TH1F("chargeFraction","Fraction of charged tracks pt",500,0,5);
-  m_HistNames1D["emEnergyFraction"] = new TH1F("emEnergyFraction","Jets EM Fraction",110,0,1.1);
-  m_HistNames1D["emEnergyInEB"] = new TH1F("emEnergyInEB","Jets emEnergyInEB",7000,0,14000);
-  m_HistNames1D["emEnergyInEE"] = new TH1F("emEnergyInEE","Jets emEnergyInEE",7000,0,14000);
-  m_HistNames1D["emEnergyInHF"] = new TH1F("emEnergyInHF","Jets emEnergyInHF",7000,0,14000);
-  m_HistNames1D["hadEnergyInHB"] = new TH1F("hadEnergyInHB","Jets hadEnergyInHB",7000,0,14000);
-  m_HistNames1D["hadEnergyInHE"] = new TH1F("hadEnergyInHE","Jets hadEnergyInHE",7000,0,14000);
-  m_HistNames1D["hadEnergyInHF"] = new TH1F("hadEnergyInHF","Jets hadEnergyInHF",7000,0,14000);
-  m_HistNames1D["hadEnergyInHO"] = new TH1F("hadEnergyInHO","Jets hadEnergyInHO",7000,0,14000);
-  m_HistNamesProfile["EBfractionVsEta"] = new TProfile("EBfractionVsEta","Jets EBfraction vs #eta",100,-5.0,5.0);
-  m_HistNamesProfile["EEfractionVsEta"] = new TProfile("EEfractionVsEta","Jets EEfraction vs #eta",100,-5.0,5.0);
-  m_HistNamesProfile["HBfractionVsEta"] = new TProfile("HBfractionVsEta","Jets HBfraction vs #eta",100,-5.0,5.0);
-  m_HistNamesProfile["HOfractionVsEta"] = new TProfile("HOfractionVsEta","Jets HOfraction vs #eta",100,-5.0,5.0);
-  m_HistNamesProfile["HEfractionVsEta"] = new TProfile("HEfractionVsEta","Jets HEfraction vs #eta",100,-5.0,5.0);
-  m_HistNamesProfile["HFfractionVsEta"] = new TProfile("HFfractionVsEta","Jets HFfraction vs #eta",100,-5.0,5.0); 
-  m_HistNamesProfile["CaloEnergyVsEta"] = new TProfile("CaloEnergyVsEta","CaloJets Energy Vs. Eta",100,-5.0,5.0);
-  m_HistNamesProfile["emEnergyVsEta"] = new TProfile("emEnergyVsEta","Jets EM Energy Vs. Eta",100,-5.0,5.0);
-  m_HistNamesProfile["hadEnergyVsEta"] = new TProfile("hadEnergyVsEta","Jets HAD Energy Vs. Eta",100,-5.0,5.0);
-  if (MCarlo)
-    {
-      m_HistNames1D["GenJetMulti"] = new TH1F("GenJetMulti","Multiplicity of GenJets",100,0,100);
-      m_HistNames1D["ptHat"] = new TH1F("ptHat","p_{T}hat",7000,0,7000);
-      m_HistNames1D["ptGen"] = new TH1F("ptGen","p_{T} of GenJets",7000,0,7000);
-      m_HistNames1D["etaGen"] = new TH1F("etaGen","#eta of GenJets",100,-5.0,5.0);
-      m_HistNames1D["phiGen"] = new TH1F("phiGen","#phi of GenJets",72,-M_PI, M_PI);
-      m_HistNames1D["m2jGen"] = new TH1F("m2jGen","Dijet Mass of leading GenJets",7000,0,14000);
-      m_HistNames1D["dR"] = new TH1F("dR","GenJets dR with matched CaloJet",200,0,1);
-      m_HistNamesProfile["GenEnergyVsEta"] = new TProfile("GenEnergyVsEta","GenJets Energy Vs. Eta",100,-5.0,5.0);
-      m_HistNamesProfile["respVsPtBarrel"] = new TProfile("respVsPtBarrel","CaloJet Response of GenJets in Barrel",7000,0,7000);
-      m_HistNamesProfile["CaloErespVsEta"] = new TProfile("CaloErespVsEta","Jets Energy Response Vs. Eta",100,-5.0,5.0);
-      m_HistNamesProfile["emErespVsEta"] = new TProfile("emErespVsEta","Jets EM Energy Response Vs. Eta",100,-5.0,5.0);
-      m_HistNamesProfile["hadErespVsEta"] = new TProfile("hadErespVsEta","Jets HAD Energy Response Vs. Eta",100,-5.0,5.0);
-    } 
+  //Simple histos
+  
+  //MC5 cal
+  ptMC5cal  = TH1F("ptMC5cal","p_{T} of leading CaloJets (MC5)",50,0.0,PtHistMax);
+  etaMC5cal = TH1F("etaMC5cal","#eta of leading CaloJets (MC5)",100,-5.0,5.0);
+  phiMC5cal = TH1F("phiMC5cal","#phi of leading CaloJets (MC5)",72,-M_PI, M_PI);
+  m2jMC5cal = TH1F("m2jMC5cal","Dijet Mass of leading CaloJets (MC5)",100,0.0,2*PtHistMax);
+
+  //MC5 gen
+  ptMC5gen = TH1F("ptMC5gen","p_{T} of leading GenJets (MC5)",50,0.0,PtHistMax);
+  etaMC5gen = TH1F("etaMC5gen","#eta of leading GenJets (MC5)",100,-5.0,5.0);
+  phiMC5gen = TH1F("phiMC5gen","#phi of leading GenJets (MC5)",72,-M_PI, M_PI);
+  m2jMC5gen = TH1F("m2jMC5gen","Dijet Mass of leading GenJets (MC5)",100,0.0,2*PtHistMax);
+
+  //IC5 cal
+  ptIC5cal  = TH1F("ptIC5cal","p_{T} of leading CaloJets (IC5)",50,0.0,PtHistMax);
+  etaIC5cal = TH1F("etaIC5cal","#eta of leading CaloJets (IC5)",100,-5.0,5.0);
+  phiIC5cal = TH1F("phiIC5cal","#phi of leading CaloJets (IC5)",72,-M_PI, M_PI);
+  m2jIC5cal = TH1F("m2jIC5cal","Dijet Mass of leading CaloJets (IC5)",100,0.0,2*PtHistMax);
+
+  //IC5 gen
+  ptIC5gen = TH1F("ptIC5gen","p_{T} of leading GenJets (IC5)",50,0.0,PtHistMax);
+  etaIC5gen = TH1F("etaIC5gen","#eta of leading GenJets (IC5)",100,-5.0,5.0);
+  phiIC5gen = TH1F("phiIC5gen","#phi of leading GenJets (IC5)",72,-M_PI, M_PI);
+  m2jIC5gen = TH1F("m2jIC5gen","Dijet Mass of leading GenJets (IC5)",100,0.0,2*PtHistMax);
+
+  //KT10 cal
+  ptKT10cal  = TH1F("ptKT10cal","p_{T} of leading CaloJets (KT10)",50,0.0,PtHistMax);
+  etaKT10cal = TH1F("etaKT10cal","#eta of leading CaloJets (KT10)",100,-5.0,5.0);
+  phiKT10cal = TH1F("phiKT10cal","#phi of leading CaloJets (KT10)",72,-M_PI, M_PI);
+  m2jKT10cal = TH1F("m2jKT10cal","Dijet Mass of leading CaloJets (KT10)",100,0.0,2*PtHistMax);
+
+  //KT10 gen
+  ptKT10gen = TH1F("ptKT10gen","p_{T} of leading GenJets (KT10)",50,0.0,PtHistMax);
+  etaKT10gen = TH1F("etaKT10gen","#eta of leading GenJets (KT10)",100,-5.0,5.0);
+  phiKT10gen = TH1F("phiKT10gen","#phi of leading GenJets (KT10)",72,-M_PI, M_PI);
+  m2jKT10gen = TH1F("m2jKT10gen","Dijet Mass of leading GenJets (KT10)",100,0.0,2*PtHistMax);
+
+  //Calorimeter Sub-System Analysis Histograms for IC5 CaloJets only
+  emEnergyFraction =  TH1F("emEnergyFraction","Leading Jets EM Fraction",100,0.0,1.00001);
+  emEnergyInEB = TH1F("emEnergyInEB","Leading Jets emEnergyInEB",100,0.0,2*PtHistMax);
+  emEnergyInEE = TH1F("emEnergyInEE","Leading Jets emEnergyInEE",100,0.0,2*PtHistMax);
+  emEnergyInHF = TH1F("emEnergyInHF","Leading Jets emEnergyInHF",100,0.0,2*PtHistMax);
+  hadEnergyInHB = TH1F("hadEnergyInHB","Leading Jets hadEnergyInHB",100,0.0,2*PtHistMax);
+  hadEnergyInHE = TH1F("hadEnergyInHE","Leading Jets hadEnergyInHE",100,0.0,2*PtHistMax);
+  hadEnergyInHF = TH1F("hadEnergyInHF","Leading Jets hadEnergyInHF",100,0.0,2*PtHistMax);
+  hadEnergyInHO = TH1F("hadEnergyInHO","Leading Jets hadEnergyInHO",100,0.0,0.5*PtHistMax);
+
+  EBfractionVsEta = TProfile("EBfractionVsEta","Leading Jets EBfraction vs #eta",50,0.0,5.0);
+  EEfractionVsEta = TProfile("EEfractionVsEta","Leading Jets EEfraction vs #eta",50,0.0,5.0);
+  HBfractionVsEta = TProfile("HBfractionVsEta","Leading Jets HBfraction vs #eta",50,0.0,5.0);
+  HOfractionVsEta = TProfile("HOfractionVsEta","Leading Jets HOfraction vs #eta",50,0.0,5.0);
+  HEfractionVsEta = TProfile("HEfractionVsEta","Leading Jets HEfraction vs #eta",50,0.0,5.0);
+  HFfractionVsEta = TProfile("HFfractionVsEta","Leading Jets HFfraction vs #eta",50,0.0,5.0);
+
+  CaloEnergyVsEta  = TProfile("CaloEnergyVsEta","Leading CaloJets Energy Vs. Eta",50,0.0,5.0);
+  GenEnergyVsEta  = TProfile("GenEnergyVsEta","Leading GenJets Energy Vs. Eta",50,0.0,5.0);
+  emEnergyVsEta  = TProfile("emEnergyVsEta","Leading Jets EM Energy Vs. Eta",50,0.0,5.0);
+  hadEnergyVsEta  = TProfile("hadEnergyVsEta","Leading Jets HAD Energy Vs. Eta",50,0.0,5.0);
+
+  CaloErespVsEta  = TProfile("CaloErespVsEta","Leading Jets Energy Response Vs. Eta",50,0.0,5.0);
+  emErespVsEta  = TProfile("emErespVsEta","Leading Jets EM Energy Response Vs. Eta",50,0.0,5.0);
+  hadErespVsEta  = TProfile("hadErespVsEta","Leading Jets HAD Enegy Response Vs. Eta",50,0.0,5.0);
+
+
+  WindowEBfractionVsEta = TProfile("WindowEBfractionVsEta","Jets EBfraction vs #eta (E Window)",50,0.0,5.0);
+  WindowEEfractionVsEta = TProfile("WindowEEfractionVsEta","Jets EEfraction vs #eta (E Window)",50,0.0,5.0);
+  WindowHBfractionVsEta = TProfile("WindowHBfractionVsEta","Jets HBfraction vs #eta (E Window)",50,0.0,5.0);
+  WindowHOfractionVsEta = TProfile("WindowHOfractionVsEta","Jets HOfraction vs #eta (E Window)",50,0.0,5.0);
+  WindowHEfractionVsEta = TProfile("WindowHEfractionVsEta","Jets HEfraction vs #eta (E Window)",50,0.0,5.0);
+  WindowHFfractionVsEta = TProfile("WindowHFfractionVsEta","Jets HFfraction vs #eta (E Window)",50,0.0,5.0);
+
+
+  WindowCaloEnergyVsEta  = TProfile("WindowCaloEnergyVsEta","CaloJets Energy Vs. Eta (E Window)",50,0.0,5.0);
+  WindowGenEnergyVsEta  = TProfile("WindowGenEnergyVsEta","GenJets Energy Vs. Eta (E Window)",50,0.0,5.0);
+  WindowEmEnergyVsEta  = TProfile("WindowEmEnergyVsEta","Jets EM Energy Vs. Eta (E Window)",50,0.0,5.0);
+  WindowHadEnergyVsEta  = TProfile("WindowHadEnergyVsEta","Jets HAD Energy Vs. Eta (E Window)",50,0.0,5.0);
+
+  WindowCaloErespVsEta  = TProfile("WindowCaloErespVsEta","Jets Energy Response Vs. Eta (E Window)",50,0.0,5.0);
+  WindowEmErespVsEta  = TProfile("WindowEmErespVsEta","Jets EM Energy Response Vs. Eta (E Window)",50,0.0,5.0);
+  WindowHadErespVsEta  = TProfile("WindowHadErespVsEta","Jets HAD Enegy Response Vs. Eta (E Window)",50,0.0,5.0);
+
+  WindowMaxTowErespVsEta  = TProfile("WindowMaxTowErespVsEta","Max EM + HAD Tower Response Vs. Jet Eta (E Window)",50,0.0,5.0);
+  WindowMaxEmErespVsEta  = TProfile("WindowMaxEmErespVsEta","Max EM Tower Response Vs. Jet Eta (E Window)",50,0.0,5.0);
+  WindowMaxHadErespVsEta  = TProfile("WindowMaxHadErespVsEta","Max Had Tower Response Vs. Jet Eta (E Window)",50,0.0,5.0);
+
+  GenEnergyVsEta2D  = TH2F("GenEnergyVsEta2D","Leading GenJets Energy Vs. Eta",50,0.0,5.0,100,0.0,5*PtHistMax);
+  AllGenEnergyVsEta2D  = TH2F("AllGenEnergyVsEta2D","All GenJets Energy Vs. Eta",50,0.0,5.0,100,0.0,5*PtHistMax);
+
+
+  //Matched jets Analysis Histograms for MC5 CaloJets only
+  dR = TH1F("dR","Leading GenJets dR with matched CaloJet",100,0,0.5);
+  dPhi = TH1F("dPhi","Leading GenJets dPhi with matched CaloJet",200,-0.5,0.5);
+  dEta = TH1F("dEta","Leading GenJets dEta with matched CaloJet",200,-0.5,0.5);
+  respVsPt = TProfile("respVsPt","CaloJet Response of Leading GenJets in Barrel",100,0.0,PtHistMax/2); 
+  dRcor = TH1F("dRcor","CorJets dR with matched CaloJet",100,0.0,0.01);
+  corRespVsPt = TProfile("corRespVsPt","Corrected CaloJet Response of Leading GenJets in Barrel",100,0.0,PtHistMax/2); 
 }
-////////////////////////////////////////////////////////////////////////////////////////
-void JetValidation::analyze(edm::Event const& evt, edm::EventSetup const& iSetup) 
-{
-  math::XYZTLorentzVector p4jet[2];
-  int jetInd,jetCounter,nTracks;
-  double dRmin,dR,e,eta,emEB,emEE,emHF,hadHB,hadHE,hadHO,hadHF,pt,phi,pthat,chf;
-  Handle<CaloJetCollection> caljets;
-  Handle<GenJetCollection> genjets;
-  Handle<double> genEventScale;
-  Handle<JetTracksAssociation::Container> jetTracks;
-  CaloJetCollection::const_iterator i_caljet;
-  GenJetCollection::const_iterator i_genjet;
-  evt.getByLabel(calAlgo,caljets);
-  evt.getByLabel(jetTracksAssociator,jetTracks);
+
+void JetValidation::analyze( const Event& evt, const EventSetup& es ) {
+
+  evtCount++;
+  math::XYZTLorentzVector p4jet[2], p4gen[2], p4cal[2], p4cor[2];
+  int jetInd;
+  Handle<CaloJetCollection> caloJets;
+  Handle<GenJetCollection> genJets;
+
+  //Fill Simple Histos
+  
+  //MC5 cal
+  evt.getByLabel( "midPointCone5CaloJets", caloJets );
   jetInd = 0;
-  jetCounter = 0;
-  if (caljets->size()==0)
-    cout<<"WARNING: NO calo jets in event "<<evt.id().event()<<", Run "<<evt.id().run()<<" !!!!"<<endl;
-  for(i_caljet = caljets->begin(); i_caljet != caljets->end() && jetInd<Njets; ++i_caljet) 
-    {
-      e = i_caljet->energy();
-      pt = i_caljet->pt();
-      phi = i_caljet->phi(); 
-      eta = i_caljet->eta();
-      emEB = i_caljet->emEnergyInEB();
-      emEE = i_caljet->emEnergyInEE();
-      emHF = i_caljet->emEnergyInHF();
-      hadHB = i_caljet->hadEnergyInHB();
-      hadHE = i_caljet->hadEnergyInHE(); 
-      hadHO = i_caljet->hadEnergyInHO(); 
-      hadHF = i_caljet->hadEnergyInHF();  
-      nTracks = JetTracksAssociation::tracksNumber(*jetTracks,*i_caljet);
-      chf = (JetTracksAssociation::tracksP4(*jetTracks,*i_caljet)).pt()/pt;
-      if (jetInd<2)
-        p4jet[jetInd] = i_caljet->p4();
-      if (pt>PtMin)
-        {  
-          FillHist1D("ptCalo",pt);
-          FillHist1D("etaCalo",eta);
-          FillHist1D("phiCalo",phi);
-          FillHist1D("emEnergyFraction",i_caljet->emEnergyFraction());
-	  FillHist1D("nTracks",nTracks);
-	  FillHist1D("chargeFraction",chf); 
-          FillHist1D("emEnergyInEB",emEB); 
-          FillHist1D("emEnergyInEE",emEE); 
-          FillHist1D("emEnergyInHF",emHF); 
-          FillHist1D("hadEnergyInHB",hadHB); 
-          FillHist1D("hadEnergyInHE",hadHE); 
-          FillHist1D("hadEnergyInHF",hadHF); 
-          FillHist1D("hadEnergyInHO",hadHO);
-          FillHistProfile("EBfractionVsEta",eta,emEB/e);
-          FillHistProfile("EEfractionVsEta",eta,emEE/e);
-          FillHistProfile("HBfractionVsEta",eta,hadHB/e);
-          FillHistProfile("HOfractionVsEta",eta,hadHO/e);
-          FillHistProfile("HEfractionVsEta",eta,hadHE/e);
-          FillHistProfile("HFfractionVsEta",eta,(hadHF+emHF)/e);
-          FillHistProfile("CaloEnergyVsEta",eta,e);
-          FillHistProfile("emEnergyVsEta",eta,emEB+emEE+emHF);
-          FillHistProfile("hadEnergyVsEta",eta,hadHB+hadHO+hadHE+hadHF);
-          jetCounter++;
-        }
-      jetInd++;
+  for( CaloJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end() && jetInd<numJets; ++ cal ) {
+    ptMC5cal.Fill( cal->pt() );   
+    etaMC5cal.Fill( cal->eta() );
+    phiMC5cal.Fill( cal->phi() );
+    p4jet[jetInd] = cal->p4();
+    jetInd++;
+  }
+  if(jetInd==2)m2jMC5cal.Fill( (p4jet[0]+p4jet[1]).mass() ); 
+
+  //MC5 gen
+  evt.getByLabel( "midPointCone5GenJets", genJets );
+  jetInd = 0;
+  for( GenJetCollection::const_iterator gen = genJets->begin(); gen != genJets->end() && jetInd<numJets; ++ gen ) {
+    ptMC5gen.Fill( gen->pt() );   
+    etaMC5gen.Fill( gen->eta() );
+    phiMC5gen.Fill( gen->phi() );
+    p4jet[jetInd] = gen->p4();
+    jetInd++;
+  }
+  if(jetInd==2)m2jMC5gen.Fill( (p4jet[0]+p4jet[1]).mass() ); 
+
+  //IC5 cal
+  evt.getByLabel( "iterativeCone5CaloJets", caloJets );
+  jetInd = 0;
+  for( CaloJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end() && jetInd<numJets; ++ cal ) {
+    ptIC5cal.Fill( cal->pt() );   
+    etaIC5cal.Fill( cal->eta() );
+    phiIC5cal.Fill( cal->phi() );
+    p4jet[jetInd] = cal->p4();
+    jetInd++;
+  }
+  if(jetInd==2)m2jIC5cal.Fill( (p4jet[0]+p4jet[1]).mass() ); 
+
+  //IC5 gen
+  evt.getByLabel( "iterativeCone5GenJets", genJets );
+  jetInd = 0;
+  for( GenJetCollection::const_iterator gen = genJets->begin(); gen != genJets->end() && jetInd<numJets; ++ gen ) {
+    ptIC5gen.Fill( gen->pt() );   
+    etaIC5gen.Fill( gen->eta() );
+    phiIC5gen.Fill( gen->phi() );
+    p4jet[jetInd] = gen->p4();
+
+    GenEnergyVsEta.Fill(fabs(gen->eta()),gen->energy());
+    GenEnergyVsEta2D.Fill(fabs(gen->eta()),gen->energy());
+
+    jetInd++;
+  }
+  for( GenJetCollection::const_iterator gen = genJets->begin(); gen != genJets->end(); ++ gen ) {
+    AllGenEnergyVsEta2D.Fill(fabs(gen->eta()),gen->energy());
+    if(gen->energy()<0.5*PtHistMax && gen->energy()>0.3*PtHistMax){
+      WindowGenEnergyVsEta.Fill(fabs(gen->eta()),gen->energy());
     }
-  FillHist1D("CaloJetMulti",jetCounter);
-  if (jetInd>1)
-    FillHist1D("m2jCalo",(p4jet[0]+p4jet[1]).mass());
-  if (MCarlo)
-    { 
-      evt.getByLabel(genAlgo,genjets);  
-      evt.getByLabel("genEventScale",genEventScale);
-      pthat = *genEventScale;
-      FillHist1D("ptHat",pthat);
-      CaloJet MatchedJet;
-      jetInd = 0;
-      if (genjets->size()==0)
-        cout<<"WARNING: NO gen jets in event "<<evt.id().event()<<", Run "<<evt.id().run()<<" !!!!"<<endl;
-      for(i_genjet = genjets->begin(); i_genjet != genjets->end() && jetInd<Njets; ++i_genjet) 
-        {
-          if (jetInd<2)
-            p4jet[jetInd] = i_genjet->p4();
-          FillHist1D("ptGen",i_genjet->pt());
-          FillHist1D("etaGen",i_genjet->eta());
-          FillHist1D("phiGen",i_genjet->phi());
-          FillHistProfile("GenEnergyVsEta",i_genjet->eta(),i_genjet->energy());
-          dRmin=1000.0;
-          for(i_caljet = caljets->begin(); i_caljet != caljets->end(); ++i_caljet)
-            {
-              dR = deltaR(i_caljet->eta(),i_caljet->phi(),i_genjet->eta(),i_genjet->phi());
-              if (dR<dRmin)
-                {
-                  dRmin = dR;           
-	          MatchedJet = *i_caljet;       
-                }
-            }
-          FillHist1D("dR",dRmin); 
-          e = MatchedJet.energy();
-          pt = MatchedJet.pt();
-          eta = MatchedJet.eta();
-          phi = MatchedJet.phi();
-          emEB = MatchedJet.emEnergyInEB();
-          emEE = MatchedJet.emEnergyInEE();
-          emHF = MatchedJet.emEnergyInHF();
-          hadHB = MatchedJet.hadEnergyInHB();
-          hadHE = MatchedJet.hadEnergyInHE(); 
-          hadHO = MatchedJet.hadEnergyInHO(); 
-          hadHF = MatchedJet.hadEnergyInHF();    
-          if (dRmin<dRmatch && pt>PtMin)
-            {
-              FillHistProfile("CaloErespVsEta",eta,e/i_genjet->energy());
-              FillHistProfile("emErespVsEta",eta,(emEB+emEE+emHF)/i_genjet->energy());
-              FillHistProfile("hadErespVsEta",eta,(hadHB+hadHO+hadHE+hadHF)/i_genjet->energy());
-              if (fabs(i_genjet->eta())<1.)
-                FillHistProfile("respVsPtBarrel",i_genjet->pt(),pt/i_genjet->pt()); 
-            }
-          jetInd++;
-        } 
-      FillHist1D("GenJetMulti",jetInd);
-      if (jetInd>1)
-        FillHist1D("m2jGen",(p4jet[0]+p4jet[1]).mass()); 
+
+  } 
+ 
+  if(jetInd==2)m2jIC5gen.Fill( (p4jet[0]+p4jet[1]).mass() ); 
+
+  //KT10 cal
+  evt.getByLabel( "ktCaloJets", caloJets );
+  jetInd = 0;
+  for( CaloJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end() && jetInd<numJets; ++ cal ) {
+    ptKT10cal.Fill( cal->pt() );   
+    etaKT10cal.Fill( cal->eta() );
+    phiKT10cal.Fill( cal->phi() );
+    p4jet[jetInd] = cal->p4();
+    jetInd++;
+  }
+  if(jetInd==2)m2jKT10cal.Fill( (p4jet[0]+p4jet[1]).mass() ); 
+
+  //KT10 gen
+  evt.getByLabel( "ktGenJets", genJets );
+  jetInd = 0;
+  for( GenJetCollection::const_iterator gen = genJets->begin(); gen != genJets->end() && jetInd<numJets; ++ gen ) {
+    ptKT10gen.Fill( gen->pt() );   
+    etaKT10gen.Fill( gen->eta() );
+    phiKT10gen.Fill( gen->phi() );
+    p4jet[jetInd] = gen->p4();
+    jetInd++;
+  }
+  if(jetInd==2)m2jKT10gen.Fill( (p4jet[0]+p4jet[1]).mass() ); 
+
+ //Calorimeter Sub-System Analysis Histograms for IC5 CaloJets only
+  evt.getByLabel( "iterativeCone5CaloJets", caloJets );
+  jetInd = 0;
+  for( CaloJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end() && jetInd<numJets; ++ cal ) {
+    emEnergyFraction.Fill(cal->emEnergyFraction()); 
+    emEnergyInEB.Fill(cal->emEnergyInEB()); 
+    emEnergyInEE.Fill(cal->emEnergyInEE()); 
+    emEnergyInHF.Fill(cal->emEnergyInHF()); 
+    hadEnergyInHB.Fill(cal->hadEnergyInHB()); 
+    hadEnergyInHE.Fill(cal->hadEnergyInHE()); 
+    hadEnergyInHF.Fill(cal->hadEnergyInHF()); 
+    hadEnergyInHO.Fill(cal->hadEnergyInHO()); 
+
+    EBfractionVsEta.Fill(fabs(cal->eta()),cal->emEnergyInEB()/cal->energy());
+    EEfractionVsEta.Fill(fabs(cal->eta()),cal->emEnergyInEE()/cal->energy());
+    HBfractionVsEta.Fill(fabs(cal->eta()),cal->hadEnergyInHB()/cal->energy());
+    HOfractionVsEta.Fill(fabs(cal->eta()),cal->hadEnergyInHO()/cal->energy());
+    HEfractionVsEta.Fill(fabs(cal->eta()),cal->hadEnergyInHE()/cal->energy());
+    HFfractionVsEta.Fill(fabs(cal->eta()), (cal->hadEnergyInHF()+cal->emEnergyInHF())/cal->energy());
+    
+    CaloEnergyVsEta.Fill(fabs(cal->eta()),cal->energy());
+    emEnergyVsEta.Fill(fabs(cal->eta()),cal->emEnergyInEB()+cal->emEnergyInEE()+cal->emEnergyInHF());
+    hadEnergyVsEta.Fill(fabs(cal->eta()),cal->hadEnergyInHB()+cal->hadEnergyInHO()+cal->hadEnergyInHE()+cal->hadEnergyInHF());
+   
+   jetInd++;
+  }
+
+  //Matching for IC5 Jets for window energy fraction study
+  evt.getByLabel( "iterativeCone5GenJets", genJets );
+  evt.getByLabel( "iterativeCone5CaloJets", caloJets );
+  double dRminSave;
+  for( GenJetCollection::const_iterator gen = genJets->begin(); gen != genJets->end(); ++ gen ) { //all genJets
+    CaloJet MatchedJet;
+    dRminSave=1000.0;
+    if( gen->energy()<0.5*PtHistMax && gen->energy()>0.3*PtHistMax){
+      for( CaloJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end(); ++ cal ) { //all CaloJets
+         double delR = deltaR( cal->eta(), cal->phi(), gen->eta(), gen->phi() ); 
+         if(delR<dRminSave){
+           dRminSave=delR;           //delta R of match
+	   MatchedJet = *cal;       //Matched Jet
+         }
+      }
+      if(dRminSave>0.5)cout << "Window Match Warning: dR=" << dRminSave << ", Gen eta=" << gen->eta() << ", Cal eta=" << MatchedJet.eta() << endl;
+      else{
+        WindowEBfractionVsEta.Fill(fabs(MatchedJet.eta()),MatchedJet.emEnergyInEB()/MatchedJet.energy());
+        WindowEEfractionVsEta.Fill(fabs(MatchedJet.eta()),MatchedJet.emEnergyInEE()/MatchedJet.energy());
+        WindowHBfractionVsEta.Fill(fabs(MatchedJet.eta()),MatchedJet.hadEnergyInHB()/MatchedJet.energy());
+        WindowHOfractionVsEta.Fill(fabs(MatchedJet.eta()),MatchedJet.hadEnergyInHO()/MatchedJet.energy());
+        WindowHEfractionVsEta.Fill(fabs(MatchedJet.eta()),MatchedJet.hadEnergyInHE()/MatchedJet.energy());
+        WindowHFfractionVsEta.Fill(fabs(MatchedJet.eta()), (MatchedJet.hadEnergyInHF()+MatchedJet.emEnergyInHF())/MatchedJet.energy());      
+        WindowCaloEnergyVsEta.Fill(fabs(MatchedJet.eta()),MatchedJet.energy());
+        WindowEmEnergyVsEta.Fill(fabs(MatchedJet.eta()),MatchedJet.emEnergyInEB()+MatchedJet.emEnergyInEE()+MatchedJet.emEnergyInHF());
+        WindowHadEnergyVsEta.Fill(fabs(MatchedJet.eta()),MatchedJet.hadEnergyInHB()+MatchedJet.hadEnergyInHO()+MatchedJet.hadEnergyInHE()+MatchedJet.hadEnergyInHF());
+        WindowCaloErespVsEta.Fill(fabs(MatchedJet.eta()),MatchedJet.energy()/gen->energy());
+        WindowEmErespVsEta.Fill(fabs(MatchedJet.eta()),(MatchedJet.emEnergyInEB()+MatchedJet.emEnergyInEE()+MatchedJet.emEnergyInHF())/gen->energy());
+        WindowHadErespVsEta.Fill(fabs(MatchedJet.eta()),(MatchedJet.hadEnergyInHB()+MatchedJet.hadEnergyInHO()+MatchedJet.hadEnergyInHE()+MatchedJet.hadEnergyInHF())/gen->energy());
+        WindowMaxTowErespVsEta.Fill(fabs(MatchedJet.eta()),(MatchedJet.maxEInEmTowers()+MatchedJet.maxEInHadTowers())/gen->energy());
+        WindowMaxEmErespVsEta.Fill(fabs(MatchedJet.eta()),MatchedJet.maxEInEmTowers()/gen->energy());
+        WindowMaxHadErespVsEta.Fill(fabs(MatchedJet.eta()),MatchedJet.maxEInHadTowers()/gen->energy());
+      }
     }
-}
-////////////////////////////////////////////////////////////////////////////////////////
-void JetValidation::endJob() 
-{
-  /////////// Write Histograms in output ROOT file ////////
-  if (m_file !=0) 
-    {
-      m_file->cd();
-      for (std::map<TString, TH1*>::iterator hid = m_HistNames1D.begin(); hid != m_HistNames1D.end(); hid++)
-        hid->second->Write();
-      for (std::map<TString, TH2*>::iterator hid = m_HistNames2D.begin(); hid != m_HistNames2D.end(); hid++)
-        hid->second->Write();
-      for (std::map<TString, TProfile*>::iterator hid = m_HistNamesProfile.begin(); hid != m_HistNamesProfile.end(); hid++)
-        hid->second->Write(); 
-      delete m_file;
-      m_file = 0;      
+    
+  }
+
+  //Matching for IC5 Jets for leading jets energy fraction
+  evt.getByLabel( "iterativeCone5GenJets", genJets );
+  evt.getByLabel( "iterativeCone5CaloJets", caloJets );
+  jetInd = 0;
+  for( GenJetCollection::const_iterator gen = genJets->begin(); gen != genJets->end() && jetInd<numJets; ++ gen ) { //leading genJets
+    CaloJet MatchedJet;
+    dRminSave=1000.0;
+    for( CaloJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end(); ++ cal ) { //all CaloJets
+       double delR = deltaR( cal->eta(), cal->phi(), gen->eta(), gen->phi() ); 
+       if(delR<dRminSave){
+         dRminSave=delR;           //delta R of match
+	 MatchedJet = *cal;       //Matched Jet
+       }
     }
+    if(dRminSave>0.5)cout << "Leading Match Warning: dR=" << dRminSave << ", Gen eta=" << gen->eta() << ", Cal eta=" << MatchedJet.eta() << endl;       
+    else{
+      float abs_eta;
+      if(GenType=="chargedPion"){abs_eta=fabs(gen->eta());} else {abs_eta=fabs(MatchedJet.eta());}
+      CaloErespVsEta.Fill(abs_eta, MatchedJet.energy()/gen->energy());
+      emErespVsEta.Fill(abs_eta,(MatchedJet.emEnergyInEB()+MatchedJet.emEnergyInEE()+MatchedJet.emEnergyInHF())/gen->energy());
+      hadErespVsEta.Fill(abs_eta,(MatchedJet.hadEnergyInHB()+MatchedJet.hadEnergyInHO()+MatchedJet.hadEnergyInHE()+MatchedJet.hadEnergyInHF())/gen->energy());
+    }
+    jetInd++;
+  }
+
+
+  //Matching for MC5 Jets: leading genjets matched to any CaloJet
+  evt.getByLabel( "midPointCone5GenJets", genJets );
+  evt.getByLabel( "midPointCone5CaloJets", caloJets );
+  jetInd = 0;
+  double dRmin[2];
+  for( GenJetCollection::const_iterator gen = genJets->begin(); gen != genJets->end() && jetInd<numJets; ++ gen ) { //leading genJets
+    p4gen[jetInd] = gen->p4();    //Gen 4-vector
+    dRmin[jetInd]=1000.0;
+    for( CaloJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end(); ++ cal ) { //all CaloJets
+       double delR = deltaR( cal->eta(), cal->phi(), gen->eta(), gen->phi() ); 
+       if(delR<dRmin[jetInd]){
+         dRmin[jetInd]=delR;           //delta R of match
+	 p4cal[jetInd] = cal->p4();  //Matched Cal 4-vector
+       }
+    }
+    dR.Fill(dRmin[jetInd]);
+    double dphi = deltaPhi(p4cal[jetInd].phi(), p4gen[jetInd].phi());
+    dPhi.Fill(dphi);
+    double deta = p4cal[jetInd].eta() - p4gen[jetInd].eta();
+    dEta.Fill(deta);
+    if(dRmin[jetInd]>0.5)cout << "MC5 Match Warning: dR=" <<dRmin[jetInd]<<", GenPt="<<p4gen[jetInd].Pt()<<", CalPt="<<p4cal[jetInd].Pt()<<endl;
+    jetInd++;    
+  }
+  //Fill Resp vs Pt profile histogram with response of two leading gen jets
+  for( jetInd=0; jetInd<numJets; ++jetInd ){
+    if(fabs(p4gen[jetInd].eta())<1.){
+      respVsPt.Fill(p4gen[jetInd].Pt(), p4cal[jetInd].Pt()/p4gen[jetInd].Pt() );
+    }
+  }
+
+  //Find the Corrected CaloJets that match the two uncorrected CaloJets
+  evt.getByLabel( "corJetMcone5", caloJets );
+  for( jetInd=0; jetInd<numJets; ++jetInd ){
+    bool found=kFALSE;
+    for( CaloJetCollection::const_iterator cor = caloJets->begin(); cor != caloJets->end() && !found; ++ cor ) { //all corrected CaloJets
+       double delR = deltaR( cor->eta(), cor->phi(), p4cal[jetInd].eta(),  p4cal[jetInd].phi()); 
+       if(delR<0.01){
+         dRmin[jetInd]=delR;           //delta R of match
+	 p4cor[jetInd] = cor->p4();  //Matched Cal 4-vector
+	 found=kTRUE;
+         dRcor.Fill(dRmin[jetInd]);
+       }
+    }
+    if(!found)cout << "Warning: corrected jet not found. jetInd=" << jetInd << endl;
+  }
+  //Fill Resp vs Pt profile histogram with corrected response of two leading gen jets
+  for( jetInd=0; jetInd<numJets; ++jetInd ){
+    if(fabs(p4gen[jetInd].eta())<1.){
+     corRespVsPt.Fill(p4gen[jetInd].Pt(), p4cor[jetInd].Pt()/p4gen[jetInd].Pt() ); 
+    }
+  }
+   
+
+  //Diagnostic Printout
+  if(evtCount<=diagPrintNum){
+
+    // Printout the uncorrected calojets for midpoint cone size 0.5
+    evt.getByLabel( "midPointCone5CaloJets", caloJets );
+    jetInd=0;
+    for( CaloJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end(); ++ cal ) {
+     cout <<"CaloJet "<< jetInd << ", pt=" <<cal->pt()<<", eta="<<cal->eta()<<", phi="<<cal->phi()<<endl;
+     jetInd++;
+    }
+
+    // Printout the Corrected jets for midpoint cone size 0.5
+    evt.getByLabel( "corJetMcone5", caloJets );
+    jetInd=0;
+    for( CaloJetCollection::const_iterator cor = caloJets->begin(); cor != caloJets->end(); ++ cor ) { 
+     cout <<"CorJet "<< jetInd << ", pt=" <<cor->pt()<<", eta="<<cor->eta()<<", phi="<<cor->phi()<<endl;
+     jetInd++;
+    }
+
+  }
+
+
 }
-////////////////////////////////////////////////////////////////////////////////////////
-void JetValidation::FillHist1D(const TString& histName,const Double_t& value) 
-{
-  std::map<TString, TH1*>::iterator hid=m_HistNames1D.find(histName);
-  if (hid==m_HistNames1D.end())
-    std::cout << "%fillHist -- Could not find histogram with name: " << histName << std::endl;
-  else
-    hid->second->Fill(value);
+
+void JetValidation::endJob() {
+
+  //Write out the histogram file.
+  m_file->Write(); 
+
 }
-////////////////////////////////////////////////////////////////////////////////////////
-void JetValidation::FillHist2D(const TString& histName,const Double_t& valuex,const Double_t& valuey) 
-{
-  std::map<TString, TH2*>::iterator hid=m_HistNames2D.find(histName);
-  if (hid==m_HistNames2D.end())
-    std::cout << "%fillHist -- Could not find histogram with name: " << histName << std::endl;
-  else
-    hid->second->Fill(valuex,valuey);
-}
-////////////////////////////////////////////////////////////////////////////////////////
-void JetValidation::FillHistProfile(const TString& histName,const Double_t& valuex,const Double_t& valuey) 
-{
-  std::map<TString, TProfile*>::iterator hid=m_HistNamesProfile.find(histName);
-  if (hid==m_HistNamesProfile.end())
-    std::cout << "%fillHist -- Could not find histogram with name: " << histName << std::endl;
-  else
-    hid->second->Fill(valuex,valuey);
-} 
+ 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(JetValidation);

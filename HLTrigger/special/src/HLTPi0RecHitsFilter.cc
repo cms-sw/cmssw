@@ -51,7 +51,9 @@
 #define TWOPI 6.283185308
 
 using namespace l1extra;
-
+using namespace edm;
+using namespace std;
+using namespace trigger;
 
 
 HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
@@ -59,24 +61,6 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
   barrelHits_ = iConfig.getParameter< edm::InputTag > ("barrelHits");
   endcapHits_ = iConfig.getParameter< edm::InputTag > ("endcapHits");
   
-
-  pi0BarrelHits_ = iConfig.getParameter< std::string > ("pi0BarrelHitCollection");
-
-  pi0EndcapHits_ = iConfig.getParameter< std::string > ("pi0EndcapHitCollection");
-  
-    
-  
-  ///Below are not used at All
-  //  gammaCandEtaSize_ = iConfig.getParameter<int> ("gammaCandEtaSize");
-  //gammaCandPhiSize_ = iConfig.getParameter<int> ("gammaCandPhiSize");
-  //if ( gammaCandPhiSize_ % 2 == 0 ||  gammaCandEtaSize_ % 2 == 0)
-  //  edm::LogError("AlCaPi0RecHitsProducerError") << "Size of eta/phi for sliding window should be odd numbers";
-
-
-  
-
-
-
   clusSeedThr_ = iConfig.getParameter<double> ("clusSeedThr");
   clusSeedThrEndCap_ = iConfig.getParameter<double> ("clusSeedThrEndCap");
 
@@ -85,34 +69,90 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
   if ( clusPhiSize_ % 2 == 0 ||  clusEtaSize_ % 2 == 0)
     edm::LogError("AlCaPi0RecHitsProducerError") << "Size of eta/phi for simple clustering should be odd numbers";
 
-  selePtGammaOne_ = iConfig.getParameter<double> ("selePtGammaOne");  
-  selePtGammaTwo_ = iConfig.getParameter<double> ("selePtGammaTwo");  
-  selePtPi0_ = iConfig.getParameter<double> ("selePtPi0");  
-  seleMinvMaxPi0_ = iConfig.getParameter<double> ("seleMinvMaxPi0");  
-  seleMinvMinPi0_ = iConfig.getParameter<double> ("seleMinvMinPi0");  
-  seleXtalMinEnergy_ = iConfig.getParameter<double> ("seleXtalMinEnergy");
+  
   seleNRHMax_ = iConfig.getParameter<int> ("seleNRHMax");
-  //New Selection
-  seleS4S9GammaOne_ = iConfig.getParameter<double> ("seleS4S9GammaOne");  
-  seleS4S9GammaTwo_ = iConfig.getParameter<double> ("seleS4S9GammaTwo");  
-  selePi0Iso_ = iConfig.getParameter<double> ("selePi0Iso");  
-  selePi0BeltDR_ = iConfig.getParameter<double> ("selePi0BeltDR");  
-  selePi0BeltDeta_ = iConfig.getParameter<double> ("selePi0BeltDeta");  
- 
-
-  ///for EndCap
+  seleXtalMinEnergy_ = iConfig.getParameter<double>("seleXtalMinEnergy");
+  seleXtalMinEnergyEndCap_ = iConfig.getParameter<double>("seleXtalMinEnergyEndCap");
   
-
   
-  selePtGammaEndCap_ = iConfig.getParameter<double> ("selePtGammaEndCap");  
-  selePtPi0EndCap_ = iConfig.getParameter<double> ("selePtPi0EndCap");   
-  seleS4S9GammaEndCap_ = iConfig.getParameter<double> ("seleS4S9GammaEndCap");  
-  seleMinvMaxPi0EndCap_ = iConfig.getParameter<double> ("seleMinvMaxPi0EndCap");  
-  seleMinvMinPi0EndCap_ = iConfig.getParameter<double> ("seleMinvMinPi0EndCap");  
-  ptMinForIsolationEndCap_ = iConfig.getParameter<double> ("ptMinForIsolationEndCap");
-  selePi0IsoEndCap_ = iConfig.getParameter<double> ("selePi0IsoEndCap");  
+  
+  doSelForPi0Barrel_ = iConfig.getParameter<bool> ("doSelForPi0Barrel");  
+  if(doSelForPi0Barrel_){
+    ///for Pi0 barrel selection
+    selePtGamma_ = iConfig.getParameter<double> ("selePtGamma");  
+    selePtPi0_ = iConfig.getParameter<double> ("selePtPi0");  
+    seleMinvMaxPi0_ = iConfig.getParameter<double> ("seleMinvMaxPi0");  
+    seleMinvMinPi0_ = iConfig.getParameter<double> ("seleMinvMinPi0");  
+    seleS4S9Gamma_ = iConfig.getParameter<double> ("seleS4S9Gamma");  
+    selePi0Iso_ = iConfig.getParameter<double> ("selePi0Iso");  
+    ptMinForIsolation_ = iConfig.getParameter<double> ("ptMinForIsolation");
+    selePi0BeltDR_ = iConfig.getParameter<double> ("selePi0BeltDR");  
+    selePi0BeltDeta_ = iConfig.getParameter<double> ("selePi0BeltDeta");  
+
+    storeIsoClusRecHitPi0EB_ = iConfig.getParameter<bool> ("storeIsoClusRecHitPi0EB");
+    pi0BarrelHits_ = iConfig.getParameter< std::string > ("pi0BarrelHitCollection");
+    
+  }
+  
+  doSelForPi0Endcap_ = iConfig.getParameter<bool>("doSelForPi0Endcap");  
+  if(doSelForPi0Endcap_){
+    ///for Pi0 endcap selection
+    selePtGammaEndCap_ = iConfig.getParameter<double> ("selePtGammaEndCap");  
+    selePtPi0EndCap_ = iConfig.getParameter<double> ("selePtPi0EndCap");   
+    seleS4S9GammaEndCap_ = iConfig.getParameter<double> ("seleS4S9GammaEndCap");  
+    seleMinvMaxPi0EndCap_ = iConfig.getParameter<double> ("seleMinvMaxPi0EndCap");  
+    seleMinvMinPi0EndCap_ = iConfig.getParameter<double> ("seleMinvMinPi0EndCap");  
+    ptMinForIsolationEndCap_ = iConfig.getParameter<double> ("ptMinForIsolationEndCap");
+    selePi0BeltDREndCap_ = iConfig.getParameter<double> ("selePi0BeltDREndCap");  
+    selePi0BeltDetaEndCap_ = iConfig.getParameter<double> ("selePi0BeltDetaEndCap");  
+    selePi0IsoEndCap_ = iConfig.getParameter<double> ("selePi0IsoEndCap");  
+    storeIsoClusRecHitPi0EE_ = iConfig.getParameter<bool> ("storeIsoClusRecHitPi0EE");
+    pi0EndcapHits_ = iConfig.getParameter< std::string > ("pi0EndcapHitCollection");
+  }
+
     
   
+  doSelForEtaBarrel_ = iConfig.getParameter<bool>("doSelForEtaBarrel");  
+  if(doSelForEtaBarrel_){
+    ///for Eta barrel selection
+    selePtGammaEta_ = iConfig.getParameter<double> ("selePtGammaEta");  
+    selePtEta_ = iConfig.getParameter<double> ("selePtEta");   
+    seleS4S9GammaEta_ = iConfig.getParameter<double> ("seleS4S9GammaEta");  
+    seleS9S25GammaEta_ = iConfig.getParameter<double> ("seleS9S25GammaEta");  
+    seleMinvMaxEta_ = iConfig.getParameter<double> ("seleMinvMaxEta");  
+    seleMinvMinEta_ = iConfig.getParameter<double> ("seleMinvMinEta");  
+    ptMinForIsolationEta_ = iConfig.getParameter<double> ("ptMinForIsolationEta");
+    seleEtaIso_ = iConfig.getParameter<double> ("seleEtaIso");  
+    seleEtaBeltDR_ = iConfig.getParameter<double> ("seleEtaBeltDR");  
+    seleEtaBeltDeta_ = iConfig.getParameter<double> ("seleEtaBeltDeta");  
+    storeIsoClusRecHitEtaEB_ = iConfig.getParameter<bool> ("storeIsoClusRecHitEtaEB");
+    removePi0CandidatesForEta_ = iConfig.getParameter<bool>("removePi0CandidatesForEta");
+    if(removePi0CandidatesForEta_){
+      massLowPi0Cand_ = iConfig.getParameter<double>("massLowPi0Cand");
+      massHighPi0Cand_ = iConfig.getParameter<double>("massHighPi0Cand");
+    }
+    etaBarrelHits_ = iConfig.getParameter< std::string > ("etaBarrelHitCollection");
+    store5x5RecHitEtaEB_ = iConfig.getParameter<bool> ("store5x5RecHitEtaEB");
+  }
+  
+  
+  doSelForEtaEndcap_ = iConfig.getParameter<bool>("doSelForEtaEndcap");  
+  if(doSelForEtaEndcap_){
+    ///for Eta endcap selection
+    selePtGammaEtaEndCap_ = iConfig.getParameter<double> ("selePtGammaEtaEndCap");  
+    selePtEtaEndCap_ = iConfig.getParameter<double> ("selePtEtaEndCap");   
+    seleS4S9GammaEtaEndCap_ = iConfig.getParameter<double> ("seleS4S9GammaEtaEndCap");  
+    seleS9S25GammaEtaEndCap_ = iConfig.getParameter<double> ("seleS9S25GammaEtaEndCap");  
+    seleMinvMaxEtaEndCap_ = iConfig.getParameter<double> ("seleMinvMaxEtaEndCap");  
+    seleMinvMinEtaEndCap_ = iConfig.getParameter<double> ("seleMinvMinEtaEndCap");  
+    ptMinForIsolationEtaEndCap_ = iConfig.getParameter<double> ("ptMinForIsolationEtaEndCap");
+    seleEtaIsoEndCap_ = iConfig.getParameter<double> ("seleEtaIsoEndCap");  
+    seleEtaBeltDREndCap_ = iConfig.getParameter<double> ("seleEtaBeltDREndCap");  
+    seleEtaBeltDetaEndCap_ = iConfig.getParameter<double> ("seleEtaBeltDetaEndCap");  
+    storeIsoClusRecHitEtaEE_ = iConfig.getParameter<bool> ("storeIsoClusRecHitEtaEE");
+    etaEndcapHits_ = iConfig.getParameter< std::string > ("etaEndcapHitCollection");
+    store5x5RecHitEtaEE_ = iConfig.getParameter<bool> ("store5x5RecHitEtaEE");
+  }
   
 
   ParameterLogWeighted_ = iConfig.getParameter<bool> ("ParameterLogWeighted");
@@ -123,13 +163,6 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
   ParameterW0_ = iConfig.getParameter<double> ("ParameterW0");
   
   
-  
-  ///  detaL1_ = iConfig.getParameter<double> ("detaL1");
-  ////dphiL1_ = iConfig.getParameter<double> ("dphiL1");
-  ///  UseMatchedL1Seed_ = iConfig.getParameter<bool> ("UseMatchedL1Seed"); 
-
-    
-
   l1IsolatedTag_ = iConfig.getParameter< edm::InputTag > ("l1IsolatedTag");
   l1NonIsolatedTag_ = iConfig.getParameter< edm::InputTag > ("l1NonIsolatedTag");
   l1SeedFilterTag_ = iConfig.getParameter< edm::InputTag > ("l1SeedFilterTag");
@@ -137,10 +170,6 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
     
 
   debug_ = iConfig.getParameter<int> ("debugLevel");
-  storeIsoClusRecHit_ = iConfig.getParameter<bool> ("storeIsoClusRecHit");
-  ptMinForIsolation_ = iConfig.getParameter<double> ("ptMinForIsolation");
-  
-
   ////  RegionalMatch should = true for old regional ecal unpacker( release <= 21X)
   ///   RegionalMatch = false for EcalRawToRecHit unpacker 
   RegionalMatch_ = iConfig.getUntrackedParameter<bool>("RegionalMatch",true);
@@ -189,14 +218,40 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
   
   posCalculator_ = PositionCalc(providedParameters);
   
-  
-
   //register your products
-  produces< EBRecHitCollection >(pi0BarrelHits_);
-
-  produces< EERecHitCollection >(pi0EndcapHits_);
+  doBarrel = true; 
+  if(doSelForPi0Barrel_ && doSelForEtaBarrel_){
+    BarrelHits_ = pi0BarrelHits_;
+  }
+  else if(!doSelForPi0Barrel_ && doSelForEtaBarrel_){
+    BarrelHits_ = etaBarrelHits_;
+  }
+  else if(doSelForPi0Barrel_ && !doSelForEtaBarrel_){
+    BarrelHits_ = pi0BarrelHits_;
+  }else{
+    doBarrel = false; 
+  }
+  
+  if(doBarrel){
+    produces< EBRecHitCollection >(BarrelHits_);
+  }
   
   
+  
+  doEndcap = true; 
+  if(doSelForPi0Endcap_ && doSelForEtaEndcap_){
+    EndcapHits_ = pi0EndcapHits_;
+  }else if(!doSelForPi0Endcap_ && doSelForEtaEndcap_){
+    EndcapHits_ = etaEndcapHits_;
+  }else if(doSelForPi0Endcap_ && !doSelForEtaEndcap_){
+    EndcapHits_ = pi0EndcapHits_;
+  }else{
+    doEndcap = false; 
+  }
+  
+  if(doEndcap){
+    produces< EERecHitCollection >(EndcapHits_);
+  }
   
 }
 
@@ -216,9 +271,6 @@ HLTPi0RecHitsFilter::~HLTPi0RecHitsFilter()
 bool
 HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  using namespace edm;
-  using namespace std;
-  using namespace trigger;
 
   
 
@@ -261,13 +313,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(l1NonIsolatedTag_, l1EGNonIso ) ;
 
 
-  
-  
-
-  bool accept=false;
-
-
-
+    
   
   ///first get all the FEDs around EM objects with PT > defined value. 
   
@@ -459,7 +505,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(debug_>=1) std::cout<<" pi0 barrel_input_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<hitCollection_p->size()<<std::endl;
   
 
-
+  
   std::vector<EcalRecHit> seeds;
   seeds.clear();
 
@@ -498,9 +544,10 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   
   //Create empty output collections
-  std::auto_ptr< EBRecHitCollection > pi0EBRecHitCollection( new EBRecHitCollection );
-  
-  
+  std::auto_ptr< EBRecHitCollection > selEBRecHitCollection( new EBRecHitCollection );
+  std::auto_ptr< EERecHitCollection > selEERecHitCollection( new EERecHitCollection );
+  vector<DetId> selectedEBDetIds;
+  vector<DetId> selectedEEDetIds; 
   
   
 
@@ -508,11 +555,14 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   vector<float> eClus;
   vector<float> etClus;
   vector<float> etaClus;
+  vector<float> thetaClus;
   vector<float> phiClus;
   vector<EBDetId> max_hit;
   vector< vector<EcalRecHit> > RecHitsCluster;
+  vector< vector<EcalRecHit> > RecHitsCluster5x5;
   vector<float> s4s9Clus;
-
+  vector<float> s9s25Clus;
+  
   nClus=0;
 
   // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
@@ -537,9 +587,9 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
 
     vector<EcalRecHit> RecHitsInWindow;
+    vector<EcalRecHit> RecHitsInWindow5x5;
+    float simple_energy = 0; 
     
-    double simple_energy = 0; 
-
     for (std::vector<DetId>::iterator det=clus_v.begin(); det!=clus_v.end(); det++) {
       EBDetId EBdet = *det;
       
@@ -573,25 +623,16 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
             
     }
     
+    if(simple_energy <= 0) continue; 
     
     
     math::XYZPoint clus_pos = posCalculator_.Calculate_Location(clus_used,hitCollection_p,geometry_eb,geometry_es);
     
     
     float theta_s = 2. * atan(exp(-clus_pos.eta()));
-    float p0x_s = simple_energy * sin(theta_s) * cos(clus_pos.phi());
-    float p0y_s = simple_energy * sin(theta_s) * sin(clus_pos.phi());
-    float et_s = sqrt( p0x_s*p0x_s + p0y_s*p0y_s);
+    float et_s = simple_energy * sin(theta_s);
     
-        
-
-    
-    eClus.push_back(simple_energy);
-    etClus.push_back(et_s);
-    etaClus.push_back(clus_pos.eta());
-    phiClus.push_back(clus_pos.phi());
-    max_hit.push_back(seed_id);
-    RecHitsCluster.push_back(RecHitsInWindow);
+  
     //Compute S4/S9 variable
     //We are not sure to have 9 RecHits so need to check eta and phi:
 
@@ -604,7 +645,8 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     convxtalid( seed_iphi,seed_ieta);
     
-    
+    float e3x3 = 0; 
+    float e5x5 = 0; 
     for(unsigned int j=0; j<RecHitsInWindow.size();j++){
       EBDetId det = (EBDetId)RecHitsInWindow[j].id(); 
       
@@ -623,23 +665,70 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if(dx <= 0 && dy >=0) s4s9_tmp[2] += en; 
       if(dx >= 0 && dy >=0) s4s9_tmp[3] += en; 
       
+      if(abs(dx)<=1 && abs(dy)<=1) e3x3 += en; 
+      if(abs(dx)<=2 && abs(dy)<=2) e5x5 += en; 
       
     }
     
-    float s4s9_max = *max_element( s4s9_tmp,s4s9_tmp+4)/simple_energy; 
-    s4s9Clus.push_back(s4s9_max);
+
+    if(e3x3 <= 0) continue; 
+    
     
 
+    float s4s9_max = *max_element( s4s9_tmp,s4s9_tmp+4)/e3x3; 
+   
+    
+    ///calculate e5x5
+    std::vector<DetId> clus_v5x5 = topology_eb->getWindow(seed_id,5,5);	
+    for( std::vector<DetId>::const_iterator idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); idItr++){
+      EBDetId det = *idItr;
+      
+      ///once again. check FED of this det which might be inside another FED which are not unpacked.
+      if (RegionalMatch_){
+	int fed = TheMapping->DCCid(det);
+	it = find(FEDListUsedBarrel.begin(),FEDListUsedBarrel.end(),fed);
+	if(it == FEDListUsedBarrel.end()) continue; 
+      }
+
+      std::vector<EBDetId>::iterator itdet0 = find(usedXtals.begin(),usedXtals.end(),det);
+
+      ///already clustered
+      if(itdet0 != usedXtals.end()) continue; 
+      
+      //inside collections
+      std::vector<EBDetId>::iterator itdet = find( detIdEBRecHits.begin(),detIdEBRecHits.end(),det);
+      if(itdet == detIdEBRecHits.end()) continue; 
+      int nn = int(itdet - detIdEBRecHits.begin());
+      
+      RecHitsInWindow5x5.push_back(EBRecHits[nn]);
+      e5x5 += EBRecHits[nn].energy();
+      
+    }
+    
+    
+    if(e5x5 <= 0) continue; 
+    
+    eClus.push_back(simple_energy);
+    etClus.push_back(et_s);
+    etaClus.push_back(clus_pos.eta());
+    thetaClus.push_back(theta_s);
+    phiClus.push_back(clus_pos.phi());
+    s4s9Clus.push_back(s4s9_max);
+    s9s25Clus.push_back(e3x3/e5x5);
+    RecHitsCluster.push_back(RecHitsInWindow);
+    RecHitsCluster5x5.push_back(RecHitsInWindow5x5);
+    
+    
 
     if(debug_>=1){
-      std::cout<<"pi0 cluster (n,nxt,e,et eta,phi,s4s9) "<<nClus<<" "<<int(RecHitsInWindow.size())<<" "<<eClus[nClus]<<" "<<" "<<etClus[nClus]<<" "<<etaClus[nClus]<<" "<<phiClus[nClus]<<" "<<s4s9Clus[nClus]<<std::endl;
+      cout<<"3x3_cluster_eb (n,nxt,e,et eta,phi,s4s9,s9s25) "<<nClus<<" "<<int(RecHitsInWindow.size())<<" "<<eClus[nClus]<<" "<<etClus[nClus]<<" "<<etaClus[nClus]<<" "<<phiClus[nClus]<<" "<<s4s9Clus[nClus]<<" "
+	  <<s9s25Clus[nClus]<<endl;
     }
     
     
 
-
     nClus++;
-    if (nClus == MAXCLUS) return accept;
+    if (nClus == MAXCLUS) return false; 
   }
   
   
@@ -653,91 +742,270 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   ////to avoid duplicated push_back rechit
   vector<int> indClusSelected; 
 
+  ///do selection for pi0->gg barrel
+  if(doSelForPi0Barrel_){
 
-  for(Int_t i=0 ; i<nClus ; i++){
-    for(Int_t j=i+1 ; j<nClus ; j++){
+
+
+
+    for(int i=0 ; i<nClus ; i++){
+      for(int j=i+1 ; j<nClus ; j++){
       
-      if( etClus[i]>selePtGammaOne_ && etClus[j]>selePtGammaTwo_ && s4s9Clus[i]>seleS4S9GammaOne_ && s4s9Clus[j]>seleS4S9GammaTwo_){
-	float theta_0 = 2. * atan(exp(-etaClus[i]));
-	float theta_1 = 2. * atan(exp(-etaClus[j]));
+	if( etClus[i]>selePtGamma_ && etClus[j]>selePtGamma_ && s4s9Clus[i]>seleS4S9Gamma_ && s4s9Clus[j]>seleS4S9Gamma_){
         
-	float p0x = eClus[i] * sin(theta_0) * cos(phiClus[i]);
-	float p1x = eClus[j] * sin(theta_1) * cos(phiClus[j]);
-	float p0y = eClus[i] * sin(theta_0) * sin(phiClus[i]);
-	float p1y = eClus[j] * sin(theta_1) * sin(phiClus[j]);
-	float p0z = eClus[i] * cos(theta_0);
-	float p1z = eClus[j] * cos(theta_1);
+	  float p0x = etClus[i] * cos(phiClus[i]);
+	  float p1x = etClus[j] * cos(phiClus[j]);
+	  float p0y = etClus[i] * sin(phiClus[i]);
+	  float p1y = etClus[j] * sin(phiClus[j]);
+	  float p0z = eClus[i] * cos(thetaClus[i]);
+	  float p1z = eClus[j] * cos(thetaClus[j]);
+	
         
-	float pt_pi0 = sqrt( (p0x+p1x)*(p0x+p1x) + (p0y+p1y)*(p0y+p1y));
+	  float pt_pair = sqrt( (p0x+p1x)*(p0x+p1x) + (p0y+p1y)*(p0y+p1y));
 
-	if (pt_pi0 < selePtPi0_)continue;
-	float m_inv = sqrt ( (eClus[i] + eClus[j])*(eClus[i] + eClus[j]) - (p0x+p1x)*(p0x+p1x) - (p0y+p1y)*(p0y+p1y) - (p0z+p1z)*(p0z+p1z) );  
-
-	if ( (m_inv<seleMinvMaxPi0_) && (m_inv>seleMinvMinPi0_) ){
+	  if (pt_pair < selePtPi0_)continue;
+	  float m_inv = sqrt ( (eClus[i] + eClus[j])*(eClus[i] + eClus[j]) - (p0x+p1x)*(p0x+p1x) - (p0y+p1y)*(p0y+p1y) - (p0z+p1z)*(p0z+p1z) );  
 	  
+	  if ( (m_inv<seleMinvMaxPi0_) && (m_inv>seleMinvMinPi0_) ){
+	  
+	  
+	    //New Loop on cluster to measure isolation:
+	    vector<int> IsoClus;
+	    IsoClus.clear();
+	    float Iso = 0;
+	    TVector3 pairVect = TVector3((p0x+p1x), (p0y+p1y), (p0z+p1z));
+	    for(int k=0 ; k<nClus ; k++){
 
-	  //New Loop on cluster to measure isolation:
-	  vector<int> IsoClus;
-	  IsoClus.clear();
-	  float Iso = 0;
-	  TVector3 pi0vect = TVector3((p0x+p1x), (p0y+p1y), (p0z+p1z));
-	  for(Int_t k=0 ; k<nClus ; k++){
-
-	    if(etClus[k] < ptMinForIsolation_) continue; 
+	      if(etClus[k] < ptMinForIsolation_) continue; 
 	    
 	    
-	    if(k==i || k==j)continue;
-	    
-	    TVector3 Clusvect = TVector3(eClus[k] * sin(2. * atan(exp(-etaClus[k]))) * cos(phiClus[k]), eClus[k] * sin(2. * atan(exp(-etaClus[k]))) * sin(phiClus[k]) , eClus[k] * cos(2. * atan(exp(-etaClus[k]))));
-	    float dretaclpi0 = fabs(etaClus[k] - pi0vect.Eta());
-	    float drclpi0 = Clusvect.DeltaR(pi0vect);
-	    
-	    if((drclpi0<selePi0BeltDR_) && (dretaclpi0<selePi0BeltDeta_) ){
-	      Iso = Iso + etClus[k];
-	      IsoClus.push_back(k);
-	    }
-	  }
-
-	  if(Iso/pt_pi0<selePi0Iso_){
-
-	    
-
-	    it = find(indClusSelected.begin(),indClusSelected.end(),i);
-	    if( it == indClusSelected.end()){
-	      indClusSelected.push_back(i);
-	      for(unsigned int Rec=0;Rec<RecHitsCluster[i].size();Rec++) pi0EBRecHitCollection->push_back(RecHitsCluster[i][Rec]);
+	      if(k==i || k==j)continue;
+	      
+	      TVector3 clusVect = TVector3(etClus[k] *cos(phiClus[k]), etClus[k] * sin(phiClus[k]) , eClus[k] * cos(thetaClus[k]));
+	      float dretacl = fabs(etaClus[k] - pairVect.Eta());
+	      float drcl = clusVect.DeltaR(pairVect);
+	      
+	      if((drcl<selePi0BeltDR_) && (dretacl<selePi0BeltDeta_) ){
+		Iso = Iso + etClus[k];
+		IsoClus.push_back(k);
+	      }
 	    }
 	    
-	    it = find(indClusSelected.begin(),indClusSelected.end(),j);
-	    if( it == indClusSelected.end()){
-	      indClusSelected.push_back(j);
-	      for(unsigned int Rec2=0;Rec2<RecHitsCluster[j].size();Rec2++) pi0EBRecHitCollection->push_back(RecHitsCluster[j][Rec2]);
-	    }
-	    
-	    if( storeIsoClusRecHit_){
+	    if(Iso/pt_pair<selePi0Iso_){
 
-	      for(unsigned int iii=0 ; iii<IsoClus.size() ; iii++){   
-		int ind = IsoClus[iii];
+	      int indtmp[2]={i,j};
+	      for(int jj =0; jj<2; jj++){
+		int ind = indtmp[jj];
 		it = find(indClusSelected.begin(),indClusSelected.end(),ind);
 		if( it == indClusSelected.end()){
 		  indClusSelected.push_back(ind);
-		  for(unsigned int Rec3=0;Rec3<RecHitsCluster[ind].size();Rec3++) pi0EBRecHitCollection->push_back(RecHitsCluster[ind][Rec3]);
+		  for(unsigned int Rec=0;Rec<RecHitsCluster[ind].size();Rec++) {
+		    selEBRecHitCollection->push_back(RecHitsCluster[ind][Rec]);
+		    selectedEBDetIds.push_back(RecHitsCluster[ind][Rec].id());
+		  }
 		}
-	      } 
-	    }
+	      }
 	    
-	    npi0_s++;
+	      if( storeIsoClusRecHitPi0EB_){
+
+		for(unsigned int iii=0 ; iii<IsoClus.size() ; iii++){   
+		  int ind = IsoClus[iii];
+		  it = find(indClusSelected.begin(),indClusSelected.end(),ind);
+		  if( it == indClusSelected.end()){
+		    indClusSelected.push_back(ind);
+		    for(unsigned int Rec3=0;Rec3<RecHitsCluster[ind].size();Rec3++) {
+		      selEBRecHitCollection->push_back(RecHitsCluster[ind][Rec3]);
+		      selectedEBDetIds.push_back(RecHitsCluster[ind][Rec3].id());
+		    }
+		  }
+		} 
+	      }
+	    
+	      npi0_s++;
+	    }
+	  
+	    if(npi0_s == MAXPI0S) return false; 
+	  }
+	}
+      } // End of the "j" loop over Simple Clusters
+    } // End of the "i" loop over Simple Clusters
+
+
+    if(debug_>=1) cout<<"npi0seleb: "<<npi0_s<<endl;
+    
+  }///end of selection on pi0->gg in in barrel
+    
+
+  ///do selection for eta->gg in barrel
+  if(doSelForEtaBarrel_){
+
+    vector<int> indEtaCand; 
+    
+    
+    vector<int> indClusPi0Candidates; 
+    if( removePi0CandidatesForEta_){
+      
+      for(int i=0 ; i<nClus ; i++){
+	for(int j=i+1 ; j<nClus ; j++){
+	  
+	  float p0x = etClus[i] * cos(phiClus[i]);
+	  float p1x = etClus[j] * cos(phiClus[j]);
+	  float p0y = etClus[i] * sin(phiClus[i]);
+	  float p1y = etClus[j] * sin(phiClus[j]);
+	  float p0z = eClus[i] * cos(thetaClus[i]);
+	  float p1z = eClus[j] * cos(thetaClus[j]);
+	  float m_inv = sqrt ( (eClus[i] + eClus[j])*(eClus[i] + eClus[j]) - (p0x+p1x)*(p0x+p1x) - (p0y+p1y)*(p0y+p1y) - (p0z+p1z)*(p0z+p1z) );  
+	  
+	  int tmp[2] = {i,j};
+	  
+	  if(m_inv > massLowPi0Cand_ && m_inv < massHighPi0Cand_){
+	    for( int k=0;k<2; k++){
+	      it = find(indClusPi0Candidates.begin(),indClusPi0Candidates.end(),tmp[k]);
+	      if( it == indClusPi0Candidates.end()) indClusPi0Candidates.push_back(tmp[k]);
+	      
+	    }
 	  }
 	  
-	  if(npi0_s == MAXPI0S) return false; 
 	}
       }
-    } // End of the "j" loop over Simple Clusters
-  } // End of the "i" loop over Simple Clusters
+      
+    }
+    
+    
 
+    for(int i=0 ; i<nClus ; i++){
+      for(int j=i+1 ; j<nClus ; j++){
+	
+	if( removePi0CandidatesForEta_){
+	  int tmp[2] = {i,j};
+	  int flagPi0 = 0; 
+	  for( int k=0;k<2; k++){
+	    it = find(indClusPi0Candidates.begin(),indClusPi0Candidates.end(),tmp[k]);
+	    if( it != indClusPi0Candidates.end())  {
+	      flagPi0 = 1; 
+	      break; 
+	    }
+	  }
+	  if(flagPi0==1) continue; 
+	}
+		
+
+	if( etClus[i]>selePtGammaEta_ && etClus[j]>selePtGammaEta_ && s4s9Clus[i]>seleS4S9GammaEta_ && s4s9Clus[j]>seleS4S9GammaEta_
+	    & s9s25Clus[i]>seleS9S25GammaEta_ && s9s25Clus[j]>seleS9S25GammaEta_
+	    ){
+	  float p0x = etClus[i] * cos(phiClus[i]);
+	  float p1x = etClus[j] * cos(phiClus[j]);
+	  float p0y = etClus[i] * sin(phiClus[i]);
+	  float p1y = etClus[j] * sin(phiClus[j]);
+	  float p0z = eClus[i] * cos(thetaClus[i]);
+	  float p1z = eClus[j] * cos(thetaClus[j]);
+	  
+	  float pt_pair = sqrt( (p0x+p1x)*(p0x+p1x) + (p0y+p1y)*(p0y+p1y));
+	  if (pt_pair < selePtEta_ ) continue;
+	  
+	  float m_inv = sqrt ( (eClus[i] + eClus[j])*(eClus[i] + eClus[j]) - (p0x+p1x)*(p0x+p1x) - (p0y+p1y)*(p0y+p1y) - (p0z+p1z)*(p0z+p1z) );  
+	  
+	  if ( (m_inv<seleMinvMaxEta_) && (m_inv>seleMinvMinEta_) ){
+
+	    //New Loop on cluster to measure isolation:
+	    vector<int> IsoClus;
+	    IsoClus.clear();
+	    float Iso = 0;
+	    TVector3 pairVect = TVector3((p0x+p1x), (p0y+p1y), (p0z+p1z));
+	    for(int k=0 ; k<nClus ; k++){
+	      
+	      if(etClus[k] < ptMinForIsolationEta_) continue; 
+	    
+	      if(k==i || k==j)continue;
+	      TVector3 clusVect = TVector3(etClus[k] * cos(phiClus[k]), etClus[k] * sin(phiClus[k]) , eClus[k] * cos(thetaClus[k]));
+	      float dretacl = fabs(etaClus[k] - pairVect.Eta());
+	      float drcl = clusVect.DeltaR(pairVect);
+	      if((drcl<seleEtaBeltDR_) && (dretacl<seleEtaBeltDeta_) ){
+		Iso = Iso + etClus[k];
+		IsoClus.push_back(k);
+	      }
+	    }
+	    
+	    if(Iso/pt_pair < seleEtaIso_){
+	      int indtmp[2]={i,j};
+	      for(int jj =0; jj<2; jj++){
+		int ind = indtmp[jj];
+		
+		///eta candidates
+		it = find(indEtaCand.begin(),indEtaCand.end(),ind);
+		if(it == indEtaCand.end()){
+		  indEtaCand.push_back(ind);
+		}
+		
+		it = find(indClusSelected.begin(),indClusSelected.end(),ind);
+		if( it == indClusSelected.end()){
+		  indClusSelected.push_back(ind);
+		  for(unsigned int Rec=0;Rec<RecHitsCluster[ind].size();Rec++) {
+		    selEBRecHitCollection->push_back(RecHitsCluster[ind][Rec]);
+		    selectedEBDetIds.push_back(RecHitsCluster[ind][Rec].id());
+		  }
+		  
+		}
+	      }
+	      
+	      
+	      if( storeIsoClusRecHitEtaEB_){
+		for(unsigned int iii=0 ; iii<IsoClus.size() ; iii++){   
+		  int ind = IsoClus[iii];
+
+		  
+		  ///eta candidates isoClus.
+		  it = find(indEtaCand.begin(),indEtaCand.end(),ind);
+		  if(it == indEtaCand.end()){
+		    indEtaCand.push_back(ind);
+		  }
+
+		  it = find(indClusSelected.begin(),indClusSelected.end(),ind);
+		  if( it == indClusSelected.end()){
+		    indClusSelected.push_back(ind);
+		    for(unsigned int Rec3=0;Rec3<RecHitsCluster[ind].size();Rec3++)  {
+		      selEBRecHitCollection->push_back(RecHitsCluster[ind][Rec3]);
+		      selectedEBDetIds.push_back(RecHitsCluster[ind][Rec3].id());
+		    }
+		    
+		  }
+		} 
+	      }
+	      
+	    } /// Isolation passed
+	    
+	  } /// Inside Eta Mass window
+	  
+	} //// PT Cut && S4S9 Cut satisfied.
+	
+	
+      } // End of the "j" loop over Simple Clusters
+    } // End of the "i" loop over Simple Clusters
+    
+    if( store5x5RecHitEtaEB_){
+      ///for selected eta->gg candidates save 5x5 rechits also
+      for(int j=0; j<int(indEtaCand.size());j++){
+	int ind = indEtaCand[j];
+	for(unsigned int Rec3=0;Rec3<RecHitsCluster5x5[ind].size();Rec3++) {
+	
+	  DetId det = RecHitsCluster5x5[ind][Rec3].id();
+	  std::vector<DetId>::iterator itdet = find(selectedEBDetIds.begin(),selectedEBDetIds.end(),det);
+	  if(itdet == selectedEBDetIds.end()){
+	    selectedEBDetIds.push_back(det);
+	    selEBRecHitCollection->push_back(RecHitsCluster5x5[ind][Rec3]);
+	  }
+	
+	}
+      }
+    }
+    
+    
+  }////end of selections of eta->gg barrel
+  
+  
   
 
-  if(debug_>=1) std::cout<<" pi0 barrel_ouput_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<pi0EBRecHitCollection->size()<<std::endl;
+  if(debug_>=1) std::cout<<" pi0 barrel_ouput_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<selEBRecHitCollection->size()<<std::endl;
   ///==============End of  barrel ==================///
   
   
@@ -757,7 +1025,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   const EcalRecHitCollection *hitCollection_e = endcapRecHitsHandle.product();
   if(debug_>=1) std::cout<<" pi0 endcap_input_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<hitCollection_e->size()<<std::endl;
   
-
+  
   
   detIdEERecHits.clear(); //// EEDetId
   EERecHits.clear();  /// EcalRecHit
@@ -775,7 +1043,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   EERecHitCollection::const_iterator ite;
   for (ite=endcapRecHitsHandle->begin(); ite!=endcapRecHitsHandle->end(); ite++) {
     double energy = ite->energy();
-    if( energy < seleXtalMinEnergy_) continue; 
+    if( energy < seleXtalMinEnergyEndCap_) continue; 
     
     EEDetId det = ite->id();
     if (RegionalMatch_){
@@ -794,24 +1062,23 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   
   
-  
-  
-  //Create empty output collections
-  std::auto_ptr< EERecHitCollection > pi0EERecHitCollection( new EERecHitCollection );
-  
-  
 
   
   int nClusEndCap;
   vector<float> eClusEndCap;
   vector<float> etClusEndCap;
   vector<float> etaClusEndCap;
+  vector<float> thetaClusEndCap;
+  
   vector<float> phiClusEndCap;
   vector< vector<EcalRecHit> > RecHitsClusterEndCap;
+  vector< vector<EcalRecHit> > RecHitsCluster5x5EndCap;
   vector<float> s4s9ClusEndCap;
+  vector<float> s9s25ClusEndCap;
+  
   nClusEndCap=0;
   
-    
+  
   
   
   // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
@@ -838,9 +1105,10 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
 
     vector<EcalRecHit> RecHitsInWindow;
+    vector<EcalRecHit> RecHitsInWindow5x5;
     
-    double simple_energy = 0; 
-
+    float simple_energy = 0; 
+    
     for (std::vector<DetId>::iterator det=clus_v.begin(); det!=clus_v.end(); det++) {
       EEDetId EEdet = *det;
       
@@ -871,27 +1139,21 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       RecHitsInWindow.push_back(EERecHits[nn]);
       clus_used.push_back(*det);
       simple_energy = simple_energy + EERecHits[nn].energy();
-      
-      
+        
     }
     
+    if( simple_energy <= 0) continue; 
+    
+
         
     math::XYZPoint clus_pos = posCalculator_.Calculate_Location(clus_used,hitCollection_e,geometry_ee,geometry_es);
     
-
     float theta_s = 2. * atan(exp(-clus_pos.eta()));
-    float p0x_s = simple_energy * sin(theta_s) * cos(clus_pos.phi());
-    float p0y_s = simple_energy * sin(theta_s) * sin(clus_pos.phi());
-    float et_s = sqrt( p0x_s*p0x_s + p0y_s*p0y_s);
+    float et_s = simple_energy * sin(theta_s);
     
-
     
-    eClusEndCap.push_back(simple_energy);
-    etClusEndCap.push_back(et_s);
-    etaClusEndCap.push_back(clus_pos.eta());
-    phiClusEndCap.push_back(clus_pos.phi());
-    //    max_hit.push_back(seed_id);
-    RecHitsClusterEndCap.push_back(RecHitsInWindow);
+ 
+    
     //Compute S4/S9 variable
     //We are not sure to have 9 RecHits so need to check eta and phi:
     float s4s9_tmp[4];
@@ -899,6 +1161,8 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     int ixSeed = seed_id.ix();
     int iySeed = seed_id.iy();
+    float e3x3 = 0; 
+    float e5x5 = 0;
     for(unsigned int j=0; j<RecHitsInWindow.size();j++){
       EEDetId det_this = (EEDetId)RecHitsInWindow[j].id(); 
       int dx = ixSeed - det_this.ix();
@@ -910,14 +1174,56 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if(dx >= 0 && dy <=0) s4s9_tmp[1] += en; 
       if(dx <= 0 && dy >=0) s4s9_tmp[2] += en; 
       if(dx >= 0 && dy >=0) s4s9_tmp[3] += en; 
+
+      if( abs(dx)<=1 && abs(dy)<=1) e3x3 += en; 
+      if( abs(dx)<=2 && abs(dy)<=2) e5x5 += en; 
       
     }
-    s4s9ClusEndCap.push_back(*max_element( s4s9_tmp,s4s9_tmp+4)/simple_energy);
+    
+    if(e3x3 <= 0) continue; 
     
     
+    std::vector<DetId> clus_v5x5 = topology_ee->getWindow(seed_id,5,5);	
+    for( std::vector<DetId>::const_iterator idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); idItr++){
+      EEDetId det = *idItr;
+
+      ///once again. check FED of this det which could be in another FED which are not unpacked.
+      if (RegionalMatch_){
+	EcalElectronicsId elid = TheMapping->getElectronicsId(det);
+	int fed = elid.dccId();
+	it = find(FEDListUsedEndcap.begin(),FEDListUsedEndcap.end(),fed);
+	if(it == FEDListUsedEndcap.end()) continue; 
+      }
+
+      ///already clustered
+      std::vector<EEDetId>::iterator itdet0 = find(usedXtalsEndCap.begin(),usedXtalsEndCap.end(),det);
+      if( itdet0 != usedXtalsEndCap.end()) continue; 
+      
+      //inside collections
+      std::vector<EEDetId>::iterator itdet = find( detIdEERecHits.begin(),detIdEERecHits.end(),det);
+      if(itdet == detIdEERecHits.end()) continue; 
+      int nn = int(itdet - detIdEERecHits.begin());
+      
+      RecHitsInWindow5x5.push_back(EERecHits[nn]);
+      e5x5 +=  EERecHits[nn].energy();
+      
+    }
+    
+    if(e5x5 <= 0) continue; 
+    
+    eClusEndCap.push_back(simple_energy);
+    etClusEndCap.push_back(et_s);
+    etaClusEndCap.push_back(clus_pos.eta());
+    thetaClusEndCap.push_back(theta_s);
+    phiClusEndCap.push_back(clus_pos.phi());
+    s4s9ClusEndCap.push_back(*max_element( s4s9_tmp,s4s9_tmp+4)/e3x3);
+    s9s25ClusEndCap.push_back(e3x3/e5x5);
+    RecHitsClusterEndCap.push_back(RecHitsInWindow);
+    RecHitsCluster5x5EndCap.push_back(RecHitsInWindow5x5);
+        
     
     if(debug_>=1){
-      std::cout<<"pi0 ee cluster (n,nxt,e,et eta,phi,s4s9) "<<nClusEndCap<<" "<<int(RecHitsInWindow.size())<<" "<<eClusEndCap[nClusEndCap]<<" "<<" "<<etClusEndCap[nClusEndCap]<<" "<<etaClusEndCap[nClusEndCap]<<" "<<phiClusEndCap[nClusEndCap]<<" "<<s4s9ClusEndCap[nClusEndCap]<<std::endl;
+      cout<<"3x3_cluster_ee (n,nxt,e,et eta,phi,s4s9,s925) "<<nClusEndCap<<" "<<int(RecHitsInWindow.size())<<" "<<eClusEndCap[nClusEndCap]<<" "<<" "<<etClusEndCap[nClusEndCap]<<" "<<etaClusEndCap[nClusEndCap]<<" "<<phiClusEndCap[nClusEndCap]<<" "<<s4s9ClusEndCap[nClusEndCap]<<" "<<s9s25ClusEndCap[nClusEndCap]<<endl;
     }
     
 
@@ -927,119 +1233,250 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   
   
-  
-  // Selection, based on Simple clustering
-  //pi0 candidates
-  //  static const int MAXPI0S = 200;
+  // Selection, based on Simple clustering 
   int npi0_se=0;
   ////to avoid duplicated push_back rechit
   vector<int> indClusEndCapSelected; 
   
   
+  if(doSelForPi0Endcap_){
 
-  for(Int_t i=0 ; i<nClusEndCap ; i++){
-    for(Int_t j=i+1 ; j<nClusEndCap ; j++){
+    for(int i=0 ; i<nClusEndCap ; i++){
+      for(int j=i+1 ; j<nClusEndCap ; j++){
       
-      if( etClusEndCap[i]>selePtGammaEndCap_ && etClusEndCap[j]>selePtGammaEndCap_ && s4s9ClusEndCap[i]>seleS4S9GammaEndCap_ && s4s9ClusEndCap[j]>seleS4S9GammaEndCap_){
-	float theta_0 = 2. * atan(exp(-etaClusEndCap[i]));
-	float theta_1 = 2. * atan(exp(-etaClusEndCap[j]));
+	if( etClusEndCap[i] > selePtGammaEndCap_ && etClusEndCap[j] > selePtGammaEndCap_ && s4s9ClusEndCap[i] > seleS4S9GammaEndCap_ && s4s9ClusEndCap[j] > seleS4S9GammaEndCap_){
+	  
+	  float p0x = etClusEndCap[i] * cos(phiClusEndCap[i]);
+	  float p1x = etClusEndCap[j] * cos(phiClusEndCap[j]);
+	  float p0y = etClusEndCap[i] * sin(phiClusEndCap[i]);
+	  float p1y = etClusEndCap[j] * sin(phiClusEndCap[j]);
+	  float p0z = eClusEndCap[i] * cos(thetaClusEndCap[i]);
+	  float p1z = eClusEndCap[j] * cos(thetaClusEndCap[j]);
         
-	float p0x = eClusEndCap[i] * sin(theta_0) * cos(phiClusEndCap[i]);
-	float p1x = eClusEndCap[j] * sin(theta_1) * cos(phiClusEndCap[j]);
-	float p0y = eClusEndCap[i] * sin(theta_0) * sin(phiClusEndCap[i]);
-	float p1y = eClusEndCap[j] * sin(theta_1) * sin(phiClusEndCap[j]);
-	float p0z = eClusEndCap[i] * cos(theta_0);
-	float p1z = eClusEndCap[j] * cos(theta_1);
-        
-	float pt_pi0 = sqrt( (p0x+p1x)*(p0x+p1x) + (p0y+p1y)*(p0y+p1y));
 	
-	if (pt_pi0 < selePtPi0EndCap_)continue;
-	float m_inv = sqrt ( (eClusEndCap[i] + eClusEndCap[j])*(eClusEndCap[i] + eClusEndCap[j]) - (p0x+p1x)*(p0x+p1x) - (p0y+p1y)*(p0y+p1y) - (p0z+p1z)*(p0z+p1z) );  
-
-	if ( (m_inv<seleMinvMaxPi0EndCap_) && (m_inv>seleMinvMinPi0EndCap_) ){
+	  float pt_pair = sqrt( (p0x+p1x)*(p0x+p1x) + (p0y+p1y)*(p0y+p1y));
+	  if (pt_pair < selePtPi0EndCap_)continue;
 	  
-
-	  //New Loop on cluster to measure isolation:
-	  vector<int> IsoClus;
-	  IsoClus.clear();
-	  float Iso = 0;
-	  TVector3 pi0vect = TVector3((p0x+p1x), (p0y+p1y), (p0z+p1z));
-	  for(Int_t k=0 ; k<nClusEndCap ; k++){
-
-	    if(etClusEndCap[k] < ptMinForIsolationEndCap_) continue; 
+	  float m_inv = sqrt ( (eClusEndCap[i] + eClusEndCap[j])*(eClusEndCap[i] + eClusEndCap[j]) - (p0x+p1x)*(p0x+p1x) - (p0y+p1y)*(p0y+p1y) - (p0z+p1z)*(p0z+p1z) );  
+	  if ( (m_inv < seleMinvMaxPi0EndCap_) && (m_inv > seleMinvMinPi0EndCap_) ){
 	    
+	    //New Loop on cluster to measure isolation:
+	    vector<int> IsoClus;
+	    IsoClus.clear();
+	    float Iso = 0;
+	    TVector3 pairVect = TVector3((p0x+p1x), (p0y+p1y), (p0z+p1z));
+	    for(int k=0 ; k<nClusEndCap ; k++){
+	      
+	      if(etClusEndCap[k] < ptMinForIsolationEndCap_) continue; 
+	      
 	    
-	    if(k==i || k==j)continue;
+	      if(k==i || k==j)continue;
 	    
-	    TVector3 Clusvect = TVector3(eClusEndCap[k] * sin(2. * atan(exp(-etaClusEndCap[k]))) * cos(phiClusEndCap[k]), eClusEndCap[k] * sin(2. * atan(exp(-etaClusEndCap[k]))) * sin(phiClusEndCap[k]) , eClusEndCap[k] * cos(2. * atan(exp(-etaClusEndCap[k]))));
-	    float dretaclpi0 = fabs(etaClusEndCap[k] - pi0vect.Eta());
-	    float drclpi0 = Clusvect.DeltaR(pi0vect);
-	    
-	    if(drclpi0<selePi0BeltDR_ && dretaclpi0<selePi0BeltDeta_ ){
-	      Iso = Iso + etClusEndCap[k];
-	      IsoClus.push_back(k);
-	    }
-	  }
-	  
-	  if(Iso/pt_pi0<selePi0IsoEndCap_){
-	    
-
-	    it = find(indClusEndCapSelected.begin(),indClusEndCapSelected.end(),i);
-	    if( it == indClusEndCapSelected.end()){
-	      indClusEndCapSelected.push_back(i);
-	      for(unsigned int Rec=0;Rec<RecHitsClusterEndCap[i].size();Rec++) pi0EERecHitCollection->push_back(RecHitsClusterEndCap[i][Rec]);
+	      TVector3 clusVect = TVector3(etClusEndCap[k] * cos(phiClusEndCap[k]), etClusEndCap[k] * sin(phiClusEndCap[k]) , eClusEndCap[k] * cos(thetaClusEndCap[k]) ) ;
+	      float dretacl = fabs(etaClusEndCap[k] - pairVect.Eta());
+	      float drcl = clusVect.DeltaR(pairVect);
+	      
+	      if(drcl < selePi0BeltDREndCap_ && dretacl < selePi0BeltDetaEndCap_ ){
+		Iso = Iso + etClusEndCap[k];
+		IsoClus.push_back(k);
+	      }
 	    }
 	    
-	    it = find(indClusEndCapSelected.begin(),indClusEndCapSelected.end(),j);
-	    if( it == indClusEndCapSelected.end()){
-	      indClusEndCapSelected.push_back(j);
-	      for(unsigned int Rec2=0;Rec2<RecHitsClusterEndCap[j].size();Rec2++) pi0EERecHitCollection->push_back(RecHitsClusterEndCap[j][Rec2]);
-	    }
-	    
-	    if( storeIsoClusRecHit_){
-
-	      for(unsigned int iii=0 ; iii<IsoClus.size() ; iii++){   
-		int ind = IsoClus[iii];
+	    if(Iso/pt_pair < selePi0IsoEndCap_){
+	      int indtmp[2]={i,j};
+	      for(int jj =0; jj<2; jj++){
+		int ind = indtmp[jj];
 		it = find(indClusEndCapSelected.begin(),indClusEndCapSelected.end(),ind);
 		if( it == indClusEndCapSelected.end()){
 		  indClusEndCapSelected.push_back(ind);
-		  for(unsigned int Rec3=0;Rec3<RecHitsClusterEndCap[ind].size();Rec3++) pi0EERecHitCollection->push_back(RecHitsClusterEndCap[ind][Rec3]);
+		  for(unsigned int Rec=0;Rec<RecHitsClusterEndCap[ind].size();Rec++) {
+		    selEERecHitCollection->push_back(RecHitsClusterEndCap[ind][Rec]);
+		    selectedEEDetIds.push_back(RecHitsClusterEndCap[ind][Rec].id());
+		  }
 		}
-	      } 
+	      }
+	    
+	    
+	      if( storeIsoClusRecHitPi0EE_){
+
+		for(unsigned int iii=0 ; iii<IsoClus.size() ; iii++){   
+		  int ind = IsoClus[iii];
+		  it = find(indClusEndCapSelected.begin(),indClusEndCapSelected.end(),ind);
+		  if( it == indClusEndCapSelected.end()){
+		    indClusEndCapSelected.push_back(ind);
+		    for(unsigned int Rec3=0;Rec3<RecHitsClusterEndCap[ind].size();Rec3++) {
+		      selEERecHitCollection->push_back(RecHitsClusterEndCap[ind][Rec3]);
+		      selectedEEDetIds.push_back(RecHitsClusterEndCap[ind][Rec3].id());
+		    }
+		  }
+		} 
+	      }
+	    
+	      npi0_se++;
+	    }////inside mass window
+	    
+	    if(npi0_se == MAXPI0S) return false; 
+	  }
+	}
+      } // End of the "j" loop over Simple Clusters
+    } // End of the "i" loop over Simple Clusters
+    
+  } ///end of selection of pi0->gg endCap
+  
+  
+
+  ///selection of eta->gg endcap
+  if(doSelForEtaEndcap_){
+    
+    
+    vector<int> indEtaCand; 
+    for(int i=0 ; i<nClusEndCap ; i++){
+      for(int j=i+1 ; j<nClusEndCap ; j++){
+      
+	if( etClusEndCap[i] > selePtGammaEtaEndCap_ && etClusEndCap[j] > selePtGammaEtaEndCap_ && s4s9ClusEndCap[i] > seleS4S9GammaEtaEndCap_ && s4s9ClusEndCap[j] > seleS4S9GammaEtaEndCap_
+	    & s9s25ClusEndCap[i] > seleS9S25GammaEtaEndCap_ && s9s25ClusEndCap[j] > seleS9S25GammaEtaEndCap_
+	    ){
+	  float p0x = etClusEndCap[i] * cos(phiClusEndCap[i]);
+	  float p1x = etClusEndCap[j] * cos(phiClusEndCap[j]);
+	  float p0y = etClusEndCap[i] * sin(phiClusEndCap[i]);
+	  float p1y = etClusEndCap[j] * sin(phiClusEndCap[j]);
+	  float p0z = eClusEndCap[i] * cos(thetaClusEndCap[i]);
+	  float p1z = eClusEndCap[j] * cos(thetaClusEndCap[j]);
+	  
+	  
+	  
+	  float pt_pair = sqrt( (p0x+p1x)*(p0x+p1x) + (p0y+p1y)*(p0y+p1y));
+	  if (pt_pair < selePtEtaEndCap_)continue;
+
+
+	  float m_inv =  sqrt ((eClusEndCap[i] + eClusEndCap[j])*(eClusEndCap[i] + eClusEndCap[j]) - (p0x+p1x)*(p0x+p1x) - (p0y+p1y)*(p0y+p1y) - (p0z+p1z)*(p0z+p1z));
+	  if ( (m_inv < seleMinvMaxEtaEndCap_) && (m_inv > seleMinvMinEtaEndCap_) ){
+	    
+	    //New Loop on cluster to measure isolation:
+	    vector<int> IsoClus;
+	    IsoClus.clear();
+	    float Iso = 0;
+	    TVector3 pairVect = TVector3((p0x+p1x), (p0y+p1y), (p0z+p1z));
+	    for(int k=0 ; k<nClusEndCap ; k++){
+	    
+	      if(etClusEndCap[k] < ptMinForIsolationEtaEndCap_) continue; 
+	      
+	      
+	      if(k==i || k==j)continue;
+	      
+	      TVector3 clusVect = TVector3(etClusEndCap[k] * cos(phiClusEndCap[k]), etClusEndCap[k] * sin(phiClusEndCap[k]) , eClusEndCap[k] * cos(thetaClusEndCap[k]));
+	      float dretacl = fabs(etaClusEndCap[k] - pairVect.Eta());
+	      float drcl = clusVect.DeltaR(pairVect);
+	    
+	      if(drcl < seleEtaBeltDREndCap_ && dretacl < seleEtaBeltDetaEndCap_ ){
+		Iso = Iso + etClusEndCap[k];
+		IsoClus.push_back(k);
+	      }
 	    }
 	    
-	    npi0_se++;
+	    if(Iso/pt_pair<seleEtaIsoEndCap_){
+	      
+	      
+	      int indtmp[2]={i,j};
+	      for(int jj =0; jj<2; jj++){
+		int ind = indtmp[jj];
+
+		///eta candidates
+		it = find(indEtaCand.begin(),indEtaCand.end(),ind);
+		if(it == indEtaCand.end()){
+		  indEtaCand.push_back(ind);
+		}
+		
+		it = find(indClusEndCapSelected.begin(),indClusEndCapSelected.end(),ind);
+		if( it == indClusEndCapSelected.end()){
+		  indClusEndCapSelected.push_back(ind);
+		  for(unsigned int Rec=0;Rec<RecHitsClusterEndCap[ind].size();Rec++) {
+		    selEERecHitCollection->push_back(RecHitsClusterEndCap[ind][Rec]);
+		    selectedEEDetIds.push_back(RecHitsClusterEndCap[ind][Rec].id());
+		  }
+		}
+	      }
+	      
+	      
+	      if( storeIsoClusRecHitEtaEE_){
+		
+		for(unsigned int iii=0 ; iii<IsoClus.size() ; iii++){   
+		  int ind = IsoClus[iii];
+		  ///eta candidates IsoClus.
+		  it = find(indEtaCand.begin(),indEtaCand.end(),ind);
+		  if(it == indEtaCand.end()){
+		    indEtaCand.push_back(ind);
+		  }
+
+		  it = find(indClusEndCapSelected.begin(),indClusEndCapSelected.end(),ind);
+		  if( it == indClusEndCapSelected.end()){
+		    indClusEndCapSelected.push_back(ind);
+		    for(unsigned int Rec3=0;Rec3<RecHitsClusterEndCap[ind].size();Rec3++) {
+		      selEERecHitCollection->push_back(RecHitsClusterEndCap[ind][Rec3]);
+		      selectedEEDetIds.push_back(RecHitsClusterEndCap[ind][Rec3].id());
+		    }
+		  }
+		} 
+	      }
+	      
+	    }
+	    
 	  }
+	}
+      } // End of the "j" loop over Simple Clusters
+    } // End of the "i" loop over Simple Clusters
+    
+    
+    if(store5x5RecHitEtaEE_){
+      ///for selected eta->gg candidates save 5x5 rechits also
+      for(int j=0; j<int(indEtaCand.size());j++){
+	int ind = indEtaCand[j];
+	for(unsigned int Rec3=0;Rec3<RecHitsCluster5x5EndCap[ind].size();Rec3++) {
 	  
-	  if(npi0_se == MAXPI0S) return false; 
+	  DetId det = RecHitsCluster5x5EndCap[ind][Rec3].id();
+	  std::vector<DetId>::iterator itdet = find(selectedEEDetIds.begin(),selectedEEDetIds.end(),det);
+	  if(itdet == selectedEEDetIds.end()){
+	    selectedEEDetIds.push_back(det);
+	    selEERecHitCollection->push_back(RecHitsCluster5x5EndCap[ind][Rec3]);
+	  }
+	
 	}
       }
-    } // End of the "j" loop over Simple Clusters
-  } // End of the "i" loop over Simple Clusters
+    }
+    
+    
+  }///end of selections eta->gg endcap
   
+  
+  
+
   ////==============End of endcap ===============///
   
-  if(debug_>=1) std::cout<<" pi0 endcap_ouput_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<pi0EERecHitCollection->size()<<std::endl;
+  if(debug_>=1) std::cout<<" pi0 endcap_ouput_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<selEERecHitCollection->size()<<std::endl;
   
 
   //Put selected information in the event
-  int pi0_collsize = pi0EBRecHitCollection->size();
-  int pi0_collsizeEndCap = pi0EERecHitCollection->size();
+  int collsize = int(selEBRecHitCollection->size());
+  int collsizeEndCap = int(selEERecHitCollection->size());
+      
+  
+  ///no rechits selected.
+  if( collsize < 2 && collsizeEndCap <2) return false; 
   
   
-  
-
-
-  if( pi0_collsize < 2 && pi0_collsizeEndCap <2) return false; 
+  ///too many rechits.
+  if(collsize + collsizeEndCap > seleNRHMax_ ) return false; 
   
   
-
-
-  iEvent.put( pi0EBRecHitCollection, pi0BarrelHits_);
-  iEvent.put( pi0EERecHitCollection, pi0EndcapHits_);
-
+  ////Now put into events selected rechits.
+  if(doBarrel){
+    iEvent.put( selEBRecHitCollection, BarrelHits_);
+  }  
   
-
+  if(doEndcap){
+    iEvent.put( selEERecHitCollection, EndcapHits_);
+  }
+  
   return true; 
   
   
@@ -1131,7 +1568,7 @@ int HLTPi0RecHitsFilter::convertSmToFedNumbBarrel(int ieta, int smId){
 }
 
 
-void HLTPi0RecHitsFilter::convxtalid(Int_t &nphi,Int_t &neta)
+void HLTPi0RecHitsFilter::convxtalid(int &nphi,int &neta)
 {
   // Barrel only
   // Output nphi 0...359; neta 0...84; nside=+1 (for eta>0), or 0 (for eta<0).
@@ -1151,15 +1588,15 @@ void HLTPi0RecHitsFilter::convxtalid(Int_t &nphi,Int_t &neta)
 
 
 
-int HLTPi0RecHitsFilter::diff_neta_s(Int_t neta1, Int_t neta2){
-  Int_t mdiff;
+int HLTPi0RecHitsFilter::diff_neta_s(int neta1, int neta2){
+  int mdiff;
   mdiff=(neta1-neta2);
   return mdiff;
 }
 
 // Calculate the distance in xtals taking into account the periodicity of the Barrel
-int HLTPi0RecHitsFilter::diff_nphi_s(Int_t nphi1,Int_t nphi2) {
-   Int_t mdiff;
+int HLTPi0RecHitsFilter::diff_nphi_s(int nphi1,int nphi2) {
+   int mdiff;
    if(abs(nphi1-nphi2) < (360-abs(nphi1-nphi2))) {
      mdiff=nphi1-nphi2;
    }
@@ -1169,3 +1606,4 @@ int HLTPi0RecHitsFilter::diff_nphi_s(Int_t nphi1,Int_t nphi2) {
    }
    return mdiff;
 }
+

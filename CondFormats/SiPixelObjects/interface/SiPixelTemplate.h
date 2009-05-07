@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.h (v4.00)
+//  SiPixelTemplate.h (v5.00)
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -20,6 +20,11 @@
 //  Store error and bias information for the simple chi^2 min position analysis (no interpolation or Q_{FB} corrections) to use in cluster splitting
 //  To save time, the gaussian centers and sigma are not interpolated right now (they aren't currently used).  They can be restored by un-commenting lines in the interpolate method.
 //  Add a new method to calculate qbin for input cotbeta and cluster charge.  To be used for error estimation of merged clusters in PixelCPEGeneric.
+//  Add bias info for Barrel and FPix separately in the header
+//  Improve the charge estimation for larger cot(alpha) tracks
+//  Change interpolate method to return false boolean if track angles are outside of range
+//  Add template info and method for truncation information
+//  Change to allow template sizes to be changed at compile time
 //
 // Created by Morris Swartz on 10/27/06.
 // Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -30,6 +35,20 @@
 
 #ifndef SiPixelTemplate_h
 #define SiPixelTemplate_h 1
+
+#define TYSIZE 21
+#define TYTEN 210 // = 10*TYSIZE
+#define BYSIZE TYSIZE+4
+#define BHY 12 // = BYSIZE/2
+#define BYM1 TYSIZE+3
+#define BYM2 TYSIZE+2
+#define BYM3 TYSIZE+1
+#define TXSIZE 13
+#define BXSIZE TXSIZE+4
+#define BHX 8 // = BXSIZE/2
+#define BXM1 TXSIZE+3
+#define BXM2 TXSIZE+2
+#define BXM3 TXSIZE+1
 
 #include<vector>
 #include<cassert>
@@ -45,6 +64,7 @@ struct SiPixelTemplateEntry { //!< Basic template entry corresponding to a singl
   float cotbeta;           //!< cot(beta) is proportional to cluster length in y and is basis of interpolation 
   float costrk[3];            //!< direction cosines of tracks used to generate this entry 
   float qavg;              //!< average cluster charge for this set of track angles 
+  float pixmax;            //!< maximum charge for individual pixels in cluster
   float symax;             //!< average pixel signal for y-projection of cluster 
   float dyone;             //!< mean offset/correction for one pixel y-clusters 
   float syone;             //!< rms for one pixel y-clusters 
@@ -59,9 +79,9 @@ struct SiPixelTemplateEntry { //!< Basic template entry corresponding to a singl
   float clsleny;           //!< cluster y-length in pixels at signal height symax/2
   float clslenx;           //!< cluster x-length in pixels at signal height sxmax/2
   float ypar[2][5];        //!< projected y-pixel uncertainty parameterization 
-  float ytemp[9][21];      //!< templates for y-reconstruction (binned over 1 central pixel) 
+  float ytemp[9][TYSIZE];  //!< templates for y-reconstruction (binned over 1 central pixel) 
   float xpar[2][5];        //!< projected x-pixel uncertainty parameterization 
-  float xtemp[9][7];       //!< templates for x-reconstruction (binned over 1 central pixel) 
+  float xtemp[9][TXSIZE];  //!< templates for x-reconstruction (binned over 1 central pixel) 
   float yavg[4];           //!< average y-bias of reconstruction binned in 4 charge bins 
   float yrms[4];           //!< average y-rms of reconstruction binned in 4 charge bins 
   float ygx0[4];           //!< average y0 from Gaussian fit binned in 4 charge bins 
@@ -100,7 +120,8 @@ struct SiPixelTemplateHeader {           //!< template header structure
   int NFy;                //!< number of FPix y entries 
   int NFyx;               //!< number of FPix y-slices of x entries 
   int NFxx;               //!< number of FPix x entries in each slice
-  float vbias;            //!< detector bias potential in Volts 
+  float Bbias;            //!< Barrel bias potential in Volts 
+  float Fbias;            //!< Fpix bias potential in Volts 
   float temperature;      //!< detector temperature in deg K 
   float fluence;          //!< radiation fluence in n_eq/cm^2 
   float qscale;           //!< Charge scaling to match cmssw and pixelav 
@@ -115,9 +136,9 @@ struct SiPixelTemplateHeader {           //!< template header structure
 struct SiPixelTemplateStore { //!< template storage structure 
   SiPixelTemplateHeader head;
   SiPixelTemplateEntry entby[60];     //!< 60 Barrel y templates spanning cluster lengths from 0px to +18px 
-  SiPixelTemplateEntry entbx[5][9];   //!< 9 Barrel x templates spanning alpha angles from -350mRad to +350mRad in each of 5 slices
-  SiPixelTemplateEntry entfy[5];      //!< 5 FPix y templates spanning cluster lengths from 0.20px to 1.20px 
-  SiPixelTemplateEntry entfx[2][9];   //!< 9 FPix x templates spanning alpha angles from 75mRad to 675mRad in each of 2 slices
+  SiPixelTemplateEntry entbx[5][29];  //!< 29 Barrel x templates spanning cluster lengths from -6px (-1.125Rad) to +6px (+1.125Rad) in each of 5 slices
+  SiPixelTemplateEntry entfy[16];     //!< 16 FPix y templates spanning cluster lengths from 0.0px to 6.0px 
+  SiPixelTemplateEntry entfx[3][29];   //!< 29 FPix x templates spanning alpha angles from -1.14Rad to 1.14Rad in each of 3 slices
 } ;
 
 
@@ -150,12 +171,12 @@ class SiPixelTemplate {
                                   // file with the index (int) filenum
   
   // Interpolate input alpha and beta angles to produce a working template for each individual hit. 
-  void interpolate(int id, bool fpix, float cotalpha, float cotbeta);
+  bool interpolate(int id, bool fpix, float cotalpha, float cotbeta);
   
   // retreive interpolated templates. 
-  void ytemp(int fybin, int lybin, float ytemplate[41][25]);
+  void ytemp(int fybin, int lybin, float ytemplate[41][BYSIZE]);
   
-  void xtemp(int fxbin, int fxbin, float xtemplate[41][11]);
+  void xtemp(int fxbin, int fxbin, float xtemplate[41][BXSIZE]);
   
   // new methods to build templates from two interpolated clusters (for splitting) 
   void ytemp3d(int nypix, array_3d& ytemplate);
@@ -163,9 +184,9 @@ class SiPixelTemplate {
   void xtemp3d(int nxpix, array_3d& xtemplate);
   
   // Convert vector of projected signals into uncertainties for fitting. 
-  void ysigma2(int fypix, int lypix, float sythr, float ysum[25], float ysig2[25]);
+  void ysigma2(int fypix, int lypix, float sythr, float ysum[BYSIZE], float ysig2[BYSIZE]);
   
-  void xsigma2(int fxpix, int lxpix, float sxthr, float xsum[11], float xsig2[11]);
+  void xsigma2(int fxpix, int lxpix, float sxthr, float xsum[BXSIZE], float xsig2[BXSIZE]);
   
   // Interpolate qfl correction in y. 
   float yflcorr(int binq, float qfly);
@@ -177,6 +198,7 @@ class SiPixelTemplate {
   int qbin(int id, bool fpix, float cotbeta, float qclus);
   
   float qavg() {return pqavg;}        //!< average cluster charge for this set of track angles 
+  float pixmax() {return ppixmax;}         //!< maximum pixel charge 
   float qscale() {return pqscale;}         //!< charge scaling factor 
   float s50() {return ps50;}               //!< 1/2 of the pixel threshold signal in adc units 
   float symax() {return psymax;}             //!< average pixel signal for y-projection of cluster 
@@ -234,9 +256,11 @@ class SiPixelTemplate {
   // Keep results of last interpolation to return through member functions
   
   float pqavg;              //!< average cluster charge for this set of track angles 
+  float ppixmax;            //!< maximum pixel charge
   float pqscale;            //!< charge scaling factor 
   float ps50;               //!< 1/2 of the pixel threshold signal in adc units 
   float psymax;             //!< average pixel signal for y-projection of cluster 
+  float psyparmax;          //!< maximum pixel signal for parameterization of y uncertainties 
   float pdyone;             //!< mean offset/correction for one pixel y-clusters 
   float psyone;             //!< rms for one pixel y-clusters 
   float pdytwo;             //!< mean offset/correction for one double-pixel y-clusters 
@@ -255,19 +279,19 @@ class SiPixelTemplate {
   float pyparh[2][5];       //!< projected y-pixel uncertainty parameterization for larger cotbeta 
   float pxparly0[2][5];     //!< projected x-pixel uncertainty parameterization for smaller cotbeta (central alpha)
   float pxparhy0[2][5];     //!< projected x-pixel uncertainty parameterization for larger cotbeta (central alpha)
-  float pytemp[9][25];     //!< templates for y-reconstruction (binned over 5 central pixels) 
+  float pytemp[9][BYSIZE];  //!< templates for y-reconstruction (binned over 5 central pixels) 
   float pyxratio;           //!< fractional distance in y between x-slices of cotalpha templates 
   float pxxratio;           //!< fractional distance in x between cotalpha templates 
   float pxpar0[2][5];       //!< projected x-pixel uncertainty parameterization for central cotalpha 
   float pxparl[2][5];       //!< projected x-pixel uncertainty parameterization for smaller cotalpha 
   float pxparh[2][5];       //!< projected x-pixel uncertainty parameterization for larger cotalpha 
-  float pxtemp[9][11];     //!< templates for x-reconstruction (binned over 5 central pixels) 
+  float pxtemp[9][BXSIZE];  //!< templates for x-reconstruction (binned over 5 central pixels) 
   float pyavg[4];           //!< average y-bias of reconstruction binned in 4 charge bins 
   float pyrms[4];           //!< average y-rms of reconstruction binned in 4 charge bins 
   float pygx0[4];           //!< average y0 from Gaussian fit binned in 4 charge bins 
   float pygsig[4];          //!< average sigma_y from Gaussian fit binned in 4 charge bins 
-  float pyflparl[4][6];    //!< Aqfl-parameterized y-correction in 4 charge bins for smaller cotbeta
-  float pyflparh[4][6];    //!< Aqfl-parameterized y-correction in 4 charge bins for larger cotbeta
+  float pyflparl[4][6];     //!< Aqfl-parameterized y-correction in 4 charge bins for smaller cotbeta
+  float pyflparh[4][6];     //!< Aqfl-parameterized y-correction in 4 charge bins for larger cotbeta
   float pxavg[4];           //!< average x-bias of reconstruction binned in 4 charge bins 
   float pxrms[4];           //!< average x-rms of reconstruction binned in 4 charge bins 
   float pxgx0[4];           //!< average x0 from Gaussian fit binned in 4 charge bins 

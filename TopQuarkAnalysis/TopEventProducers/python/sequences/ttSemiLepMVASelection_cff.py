@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 #
 
 ## std sequence to produce an mva discriminant
-from TopQuarkAnalysis.TopEventSelection.TtSemiLepSignalSelMVAComputer_Muons_cff import *
+from TopQuarkAnalysis.TopEventSelection.TtSemiLepSignalSelMVAComputer_cff import *
 
 ## make mva discriminant for event selection
 makeTtSemiLepMVASelDiscriminant = cms.Sequence(findTtSemiLepSignalSelMVA)

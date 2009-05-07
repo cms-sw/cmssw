@@ -16,8 +16,6 @@
 #include <ios>
 #include <assert.h>
 #include "CalibFormats/SiPixelObjects/interface/PixelTrimAllPixels.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelTimeFormatter.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelBase64.h"
 
 using namespace pos;
 
@@ -29,24 +27,34 @@ PixelTrimAllPixels::PixelTrimAllPixels( std::vector <std::vector<std::string> >&
     std::map<std::string , int > colM;
     std::vector<std::string > colNames;
     /**
-       EXTENSION_TABLE_NAME: ROC_TRIMS (VIEW: CONF_KEY_ROC_TRIMS_V)
+       View's name: CONF_KEY_ROC_TRIMS_MV
 
-       CONFIG_KEY				 NOT NULL VARCHAR2(80)
-       KEY_TYPE 				 NOT NULL VARCHAR2(80)
-       KEY_ALIAS				 NOT NULL VARCHAR2(80)
-       VERSION  					  VARCHAR2(40)
-       KIND_OF_COND				 NOT NULL VARCHAR2(40)
-       ROC_NAME 				 NOT NULL VARCHAR2(200)
-       TRIM_BITS				 NOT NULL VARCHAR2(4000)
+       Name                                      Null?    Type
+       ----------------------------------------- -------- ----------------------------
+       CONFIG_KEY_ID                                      NUMBER(38)
+       CONFG_KEY                                          VARCHAR2(80)
+       VERSION                                            VARCHAR2(40)
+       KIND_OF_COND                                       VARCHAR2(40)
+       ROC_NAME                                           VARCHAR2(187)
+       HUB_ADDRS                                          NUMBER(38)
+       PORT_NUMBER                                        NUMBER(10)
+       ROC_I2C_ADDR                                       NUMBER
+       GEOM_ROC_NUM                                       NUMBER(10)
+       DATA_FILE                                          VARCHAR2(200)
+       TRIM_CLOB                                          CLOB
     */
 
-    colNames.push_back("CONFIG_KEY"  );
-    colNames.push_back("KEY_TYPE"    );
-    colNames.push_back("KEY_ALIAS"   );
-    colNames.push_back("VERSION"     );
-    colNames.push_back("KIND_OF_COND");
-    colNames.push_back("ROC_NAME"    );
-    colNames.push_back("TRIM_BITS"   );
+    colNames.push_back("CONFIG_KEY_ID"  );
+    colNames.push_back("CONFG_KEY"	);
+    colNames.push_back("VERSION"	);
+    colNames.push_back("KIND_OF_COND"	);
+    colNames.push_back("ROC_NAME"	);
+    colNames.push_back("HUB_ADDRS"	);
+    colNames.push_back("PORT_NUMBER"	);
+    colNames.push_back("ROC_I2C_ADDR"   );
+    colNames.push_back("GEOM_ROC_NUM"   );
+    colNames.push_back("DATA_FILE"      );
+    colNames.push_back("TRIM_CLOB"      );
  
 
     for(unsigned int c = 0 ; c < tableMat[0].size() ; c++)
@@ -76,9 +84,21 @@ PixelTrimAllPixels::PixelTrimAllPixels( std::vector <std::vector<std::string> >&
     for(unsigned int r = 1 ; r < tableMat.size() ; r++)    //Goes to every row of the Matrix
       {
 	PixelROCName rocid( tableMat[r][colM["ROC_NAME"]] );
-	PixelROCTrimBits tmp;     
-	tmp.read(rocid, base64_decode(tableMat[r][colM["TRIM_BITS"]])) ;
+	// tableMat[r][colM["TRIM_BLOB"]].copy(c , 2080 );
+	// unsigned char *bits = (unsigned char* )(tableMat[r][colM["TRIM_BLOB"]].c_str());
+	//bits = (unsigned char)(tableMat[r][colM["TRIM_BLOB"]].c_str());
+	PixelROCTrimBits tmp;     // Have to add like this  PixelROCTrimBits tmp(rocid , bits ); 
+	std::istringstream istring ;
+	istring.str(tableMat[r][colM["TRIM_CLOB"]]) ;
+	tmp.read(rocid, istring) ;
+// 	bits = tableMat[r][colM["TRIM_CLOB"]];
+	//std::cout<<rocid<<std::endl;
+	// std::cout<<bits.size()<<std::endl;
+// 	tmp.setROCTrimBits(rocid, bits);
 	trimbits_.push_back(tmp);
+	//std::cout<<"Pase por aqui:"<<r<<std::endl;
+	// dacValue = atoi(tableMat[r][colM["VALUE"]].c_str());
+	// pDSM.insert(pair<string,pair<string,int> >(currentRocName.str(),pair<string,int>(dacName,dacValue)));
       }//end for r 
     //std::cout<<trimbits_.size()<<std::endl;
 } //end contructor with databasa table
@@ -271,77 +291,5 @@ void PixelTrimAllPixels::writeASCII(std::string dir) const{
     trimbits_[i].writeASCII(out);
   }
 
-
-}
-//=============================================================================================
-void PixelTrimAllPixels::writeXMLHeader(pos::PixelConfigKey key, 
-                                  	int version, 
-                                  	std::string path, 
-                                  	std::ofstream *outstream,
-                                  	std::ofstream *out1stream,
-                                   	std::ofstream *out2stream) const
-{
-  std::string mthn = "[PixelTrimAllPixels::writeXMLHeader()]\t\t\t    " ;
-  std::stringstream maskFullPath ;
-
-  maskFullPath << path << "/Pixel_RocTrims_" << PixelTimeFormatter::getmSecTime() << ".xml";
-  std::cout << mthn << "Writing to: " << maskFullPath.str() << std::endl ;
-
-  outstream->open(maskFullPath.str().c_str()) ;
-  
-  *outstream << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"                                 << std::endl ;
-  *outstream << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 		 	          << std::endl ;
-  *outstream << ""                                                                                        << std::endl ; 
-  *outstream << " <HEADER>"                                                                               << std::endl ; 
-  *outstream << "  <TYPE>"                                                                                << std::endl ; 
-  *outstream << "   <EXTENSION_TABLE_NAME>ROC_TRIMS</EXTENSION_TABLE_NAME>"                               << std::endl ; 
-  *outstream << "   <NAME>ROC Trim Bits</NAME>"                                                           << std::endl ; 
-  *outstream << "  </TYPE>"                                                                               << std::endl ; 
-  *outstream << "  <RUN>"                                                                                 << std::endl ; 
-  *outstream << "   <RUN_TYPE>ROC Trim Bits</RUN_TYPE>"                                                   << std::endl ; 
-  *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                           << std::endl ; 
-  *outstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>"   << std::endl ; 
-  *outstream << "   <COMMENT_DESCRIPTION>ROC Trim Bits</COMMENT_DESCRIPTION>"                             << std::endl ; 
-  *outstream << "   <LOCATION>CERN TAC</LOCATION>"                                                        << std::endl ; 
-  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"                                 << std::endl ; 
-  *outstream << "  </RUN>"                                                                                << std::endl ; 
-  *outstream << " </HEADER>"                                                                              << std::endl ; 
-  *outstream << ""                                                                                        << std::endl ; 
-  *outstream << " <DATA_SET>"                                                                             << std::endl ;
-  *outstream << ""                                                                                        << std::endl ;
-  *outstream << "  <VERSION>" << version << "</VERSION>"                                                  << std::endl ;
-  *outstream << ""                                                                                        << std::endl ;
-  *outstream << "  <PART>"                                                                                << std::endl ;
-  *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                              << std::endl ;      
-  *outstream << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                           << std::endl ;         
-  *outstream << "  </PART>"                                                                               << std::endl ;
-  *outstream << ""                                                                                        << std::endl ;
-
-}
-
-//=============================================================================================
-void PixelTrimAllPixels::writeXML( std::ofstream *outstream,
-                             	   std::ofstream *out1stream,
-                             	   std::ofstream *out2stream) const 
-{
-  std::string mthn = "[PixelTrimAllPixels::writeXML()]\t\t\t    " ;
-
-  for(unsigned int i=0;i<trimbits_.size();i++){
-      trimbits_[i].writeXML(outstream);
-  }
-}
-
-//=============================================================================================
-void PixelTrimAllPixels::writeXMLTrailer(std::ofstream *outstream,
-                             	   	 std::ofstream *out1stream,
-                             	   	 std::ofstream *out2stream ) const 
-{
-  std::string mthn = "[PixelTrimAllPixels::writeXMLTrailer()]\t\t\t    " ;
-  
-  *outstream << " </DATA_SET>"		 								  << std::endl ;
-  *outstream << "</ROOT>"  		 								  << std::endl ;
-  
-  outstream->close() ;
-  std::cout << mthn << "Data written "   								  << std::endl ;
 
 }

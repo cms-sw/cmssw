@@ -13,143 +13,112 @@ def makeAODTrackCandidates(process, label='TrackCands',                ## output
                      cms.EDFilter("CandViewSelector",
                         src = cms.InputTag('patAOD' + label + 'Unfiltered'),
                         cut = cms.string(candSelection) ) )
-    process.patLayer0.replace( process.patBeforeLevel0Reco, 
-            getattr(process, 'patAOD' + label + 'Unfiltered')
-            * getattr(process, 'patAOD' + label)
-            + process.patBeforeLevel0Reco )
+    process.patAODCoreReco += getattr(process, 'patAOD' + label + 'Unfiltered') * getattr(process, 'patAOD' + label)
 
-def makePATTrackCandidates(process, label='TrackCands',                   # output will be 'allLayer'+(0/1)+label , 'selectedLayer1' + label
-                                    input='patAODTrackCands',             # Name of input collection
-                                    cleaning=True,                        # Run the 'PATGenericParticleCleaner'
-                                                                          #   The module will be called 'allLayer0' + label
-                                    selection='pt > 10',                  # Selection on PAT Layer 1 objects;
-                                                                          #   The output will be 'selectedLayer1' + label
-                                                                          #   If set to None, you will only have 'allLayer1'+label in the output file
-                                    isolation=['tracker','caloTowers'],   # Isolations to use (currently only 'tracker' and 'caloTowers' are valid options)
-                                    mcAs='allLayer0Muons',                # Replicate MC match as the one used for this PAT collection (None = no mc match)
-                                    triggerAs=['allLayer0Muons'],         # Replicate trigger match as all the ones used by these PAT collections (None = no trig.)
-                                    layers=[0,1]):                        # Apply to PAT Layer 0 and 1  (the only other valid option is [0], not also [1])
-    l1cands = None; l0cands = None; l0label = None;
-    if cleaning :
-        from PhysicsTools.PatAlgos.cleaningLayer0.genericTrackCleaner_cfi import allLayer0TrackCands
-        l0label = 'allLayer0' + label
-        setattr(process, l0label, allLayer0TrackCands.clone(src = cms.InputTag(input)))
-        l0cands = getattr(process, l0label)
-        process.patLayer0.replace(process.allLayer0Jets, l0cands + process.allLayer0Jets)
-    else:
-        l0label = Input
-    if layers.count(1) != 0:
-        from PhysicsTools.PatAlgos.producersLayer1.genericParticleProducer_cfi import allLayer1GenericParticles
-        setattr(process, 'allLayer1' + label, allLayer1GenericParticles.clone(src = cms.InputTag(l0label)))
-        l1cands = getattr(process, 'allLayer1' + label)
-        process.patLayer1.replace(process.allLayer1Jets, l1cands + process.allLayer1Jets)
-        if selection != None:
-            setattr(process, 'selectedLayer1' + label, 
-                             cms.EDFilter("PATGenericParticleSelector",
-                                src = cms.InputTag("allLayer1"+label),
-                                cut = cms.string(selection) ) )
-            process.patLayer1.replace(process.selectedLayer1Jets, 
-                                        getattr(process, 'selectedLayer1' + label) + process.selectedLayer1Jets)
+def makePATTrackCandidates(process, 
+        label='TrackCands',                     # output will be 'allLayer1'+label , 'selectedLayer1' + label
+        input=cms.InputTag('patAODTrackCands'), # Name of input collection
+        selection='pt > 10',                    # Selection on PAT Layer 1 objects;
+                                                #   The output will be 'selectedLayer1' + label
+        isolation={'tracker':0.3,               # Isolations to use ('source':deltaR)
+                   'ecalTowers':0.3,            # 'tracker' => as muon track iso
+                   'hcalTowers':0.3},           # 'ecalTowers', 'hcalTowers' => as muon iso from calo towers.
+        isodeposits=['tracker','ecalTowers','hcalTowers'],   
+        mcAs=cms.InputTag("muons"),             # Replicate MC match as the one used by PAT on this AOD collection (None = no mc match)
+        triggerAs=[]):                          # Replicate trigger match as all the ones used by PAT on these AOD collections (None = no trig.)
+    from PhysicsTools.PatAlgos.producersLayer1.genericParticleProducer_cfi import allLayer1GenericParticles
+    from PhysicsTools.PatAlgos.cleaningLayer1.genericTrackCleaner_cfi     import cleanLayer1Tracks
+    # Define Modules
+    #   producer
+    setattr(process, 'allLayer1' + label, allLayer1GenericParticles.clone(src = input))
+    #   selector
+    setattr(process, 'selectedLayer1' + label, 
+        cms.EDFilter("PATGenericParticleSelector",
+            src = cms.InputTag("allLayer1"+label),
+            cut = cms.string(selection) 
+        ) 
+    )
+    #   cleaner
+    setattr(process, 'cleanLayer1' + label, cleanLayer1Tracks.clone(src = cms.InputTag('selectedLayer1' + label)))
+    # Get them as variables, so we can put them in the sequences and/or configure them
+    l1cands = getattr(process, 'allLayer1' + label)
+    selectedL1cands = getattr(process, 'selectedLayer1' + label)
+    cleanL1cands    = getattr(process, 'cleanLayer1' + label)
+    # Insert in sequence, after electrons
+    process.allLayer1Objects.replace(process.allLayer1Electrons, l1cands + process.allLayer1Electrons)
+    process.selectedLayer1Objects.replace(process.selectedLayer1Electrons, process.selectedLayer1Electrons + selectedL1cands)
+    process.cleanLayer1Objects.replace(process.cleanLayer1Electrons, process.cleanLayer1Electrons + cleanL1cands)
+    # Add to Summary Tables
+    process.aodSummary.candidates += [ input ]
+    process.allLayer1Summary.candidates += [ cms.InputTag("allLayer1"+label) ]
+    process.selectedLayer1Summary.candidates += [ cms.InputTag("selectedLayer1"+label) ]
+    process.cleanLayer1Summary.candidates += [ cms.InputTag("cleanLayer1"+label) ]
     
     # Isolation: start with empty config
-    if isolation == None or isolation == []:
-        if l0cands != None:
-            l0cands.isolation = cms.PSet()
-        if l1cands != None:
-            l1cands.isolation = cms.PSet()
-            l1cands.isoDeposits = cms.PSet()
-    else:
-        isoLabels = []; isoModules = []
-        isoDets = { 'tracker':False, 'ecal':False, 'hcal':False }
-        for source in isolation:
-            if source == 'tracker':
-                isoDets['tracker'] = True
-                from RecoMuon.MuonIsolationProducers.trackExtractorBlocks_cff import MIsoTrackExtractorCtfBlock
-                setattr(process, 'patAOD'+label+'IsoDepositTracks',
-                                 cms.EDProducer("CandIsoDepositProducer",
-                                        src                  = cms.InputTag(input),
-                                        trackType            = cms.string('best'),
-                                        MultipleDepositsFlag = cms.bool(False),
-                                        ExtractorPSet        = cms.PSet( MIsoTrackExtractorCtfBlock )
-                                    ) )
-                isoLabels.append(cms.InputTag('patAOD'+label+'IsoDepositTracks'))
-                isoModules.append(getattr(process, 'patAOD'+label+'IsoDepositTracks'))
-                if l0cands != None:
-                    l0cands.isolation.tracker.src = cms.InputTag('patAOD'+label+'Isolations', 'patAOD'+label+'IsoDepositTracks') 
-                if l1cands != None: 
-                    l1cands.isolation.tracker.src = cms.InputTag('layer0'+label+'Isolations', 'patAOD'+label+'IsoDepositTracks') 
-                    l1cands.isoDeposits.tracker   = cms.InputTag('layer0'+label+'Isolations', 'patAOD'+label+'IsoDepositTracks') 
-            elif source == 'caloTowers':
-                isoDets['ecal'] = True
-                isoDets['hcal'] = True
-                from RecoMuon.MuonIsolationProducers.caloExtractorByAssociatorBlocks_cff import MIsoCaloExtractorByAssociatorTowersBlock
-                setattr(process, 'patAOD'+label+'IsoDepositCaloTowers',
-                                 cms.EDProducer("CandIsoDepositProducer",
-                                        src                  = cms.InputTag(input),
-                                        trackType            = cms.string('best'),
-                                        MultipleDepositsFlag = cms.bool(True),
-                                        ExtractorPSet        = cms.PSet( MIsoCaloExtractorByAssociatorTowersBlock )
-                                    ) )
-                isoLabels += [ cms.InputTag('patAOD'+label+'IsoDepositCaloTowers',x) for x in ('ecal', 'hcal') ]
-                isoModules.append(getattr(process, 'patAOD'+label+'IsoDepositCaloTowers') )
-                if l0cands != None:
-                    l0cands.isolation.ecal.src = cms.InputTag('patAOD'+label+'Isolations', 'patAOD'+label+'IsoDepositCaloTowers' + 'ecal')
-                    l0cands.isolation.hcal.src = cms.InputTag('patAOD'+label+'Isolations', 'patAOD'+label+'IsoDepositCaloTowers' + 'hcal')
-                if l1cands != None:
-                    l1cands.isolation.ecal.src   = cms.InputTag('layer0'+label+'Isolations', 'patAOD'+label+'IsoDepositCaloTowers' + 'ecal')
-                    l1cands.isolation.hcal.src   = cms.InputTag('layer0'+label+'Isolations', 'patAOD'+label+'IsoDepositCaloTowers' + 'hcal')
-                    l1cands.isoDeposits.ecal = cms.InputTag('layer0'+label+'Isolations', 'patAOD'+label+'IsoDepositCaloTowers' + 'ecal')
-                    l1cands.isoDeposits.hcal = cms.InputTag('layer0'+label+'Isolations', 'patAOD'+label+'IsoDepositCaloTowers' + 'hcal')
-            else:
-                raise ValueError, "Unknown isolation '%s'"%(source,)
-        # turn off unused dets
-        for det in [ x for (x,y) in isoDets.items() if y == False]: # loop on unread detector labels
-            if l0cands != None:
-                setattr(l0cands.isolation, source, cms.PSet())
-            if l1cands != None:
-                setattr(l1cands.isolation,   source, cms.PSet())
-                setattr(l1cands.isoDeposits, source, cms.InputTag(''))
-        # now make up sequences, converter, re-keyer
-        seq = isoModules[0];
-        for m in isoModules[1:]: seq += m
-        if l0cands != None:
-            setattr(process, 'patAOD'+label+'Isolations', 
-                             cms.EDFilter("MultipleIsoDepositsToValueMaps",
-                                collection   = cms.InputTag(input),
-                                associations = cms.VInputTag(*isoLabels) ) )
-            seq += getattr(process, 'patAOD'+label+'Isolations')
-            setattr(process, 'layer0'+label+'Isolations',
-                             cms.EDFilter("CandManyValueMapsSkimmerIsoDeposits",
-                                 collection   = cms.InputTag(l0label),
-                                 backrefs     = cms.InputTag(l0label),
-                                 commonLabel  = cms.InputTag('patAOD'+label+'Isolations'),
-                                 associations = cms.VInputTag(*isoLabels) ) )
-            setattr(process, 'patAOD'+label+'Isolation', cms.Sequence( seq ) )
-            # put AOD iso
-            process.patLayer0.replace(process.patBeforeLevel0Reco, process.patBeforeLevel0Reco + getattr(process, 'patAOD'+label+'Isolation'))
-            # put Keyeyer
-            process.patLayer0.replace(process.patHighLevelReco,    process.patHighLevelReco    + getattr(process, 'layer0'+label+'Isolations'))  
-        else:
-            setattr(process, 'layer0'+label+'Isolations', 
-                             cms.EDFilter("MultipleIsoDepositsToValueMaps",
-                                collection   = cms.InputTag(input),
-                                associations = cms.VInputTag(*isoLabels) ) )
-            # do directly in post-layer0
-            setattr(process, 'layer0'+label+'Isolation', cms.Sequence( seq ) )
-            process.patLayer0.replace(process.patHighLevelReco,    process.patHighLevelReco    + getattr(process, 'layer0'+label+'Isolation'))  
-    
+    isoModules = []
+    runIsoDeps = { 'tracker':False, 'caloTowers':False }
+    for (source,deltaR) in isolation.items():
+        if source == 'tracker':
+            runIsoDeps['tracker'] = True
+            l1cands.isolation.tracker = cms.PSet(
+                    src    = cms.InputTag('pat'+label+'IsoDepositTracks'),
+                    deltaR = cms.double(deltaR),
+            )
+        elif source == 'ecalTowers':
+            runIsoDeps['caloTowers'] = True
+            l1cands.isolation.ecal = cms.PSet(
+                    src    = cms.InputTag('pat'+label+'IsoDepositCaloTowers', 'ecal'),
+                    deltaR = cms.double(deltaR),
+            )
+        elif source == 'hcalTowers':
+            runIsoDeps['caloTowers'] = True
+            l1cands.isolation.hcal = cms.PSet(
+                    src    = cms.InputTag('pat'+label+'IsoDepositCaloTowers', 'hcal'),
+                    deltaR = cms.double(deltaR),
+            )
+    for source in isodeposits:
+        if source == 'tracker':
+            runIsoDeps['tracker'] = True
+            l1cands.isoDeposits.tracker = cms.InputTag('pat'+label+'IsoDepositTracks') 
+        elif source == 'ecalTowers':
+            runIsoDeps['caloTowers'] = True
+            l1cands.isoDeposits.ecal = cms.InputTag('pat'+label+'IsoDepositCaloTowers', 'ecal') 
+        elif source == 'hcalTowers':
+            runIsoDeps['caloTowers'] = True
+            l1cands.isoDeposits.hcal = cms.InputTag('pat'+label+'IsoDepositCaloTowers', 'hcal') 
+    for dep in [ dep for dep,runme in runIsoDeps.items() if runme == True ]:
+        if dep == 'tracker':
+            from RecoMuon.MuonIsolationProducers.trackExtractorBlocks_cff import MIsoTrackExtractorCtfBlock
+            setattr(process, 'pat'+label+'IsoDepositTracks',
+                             cms.EDProducer("CandIsoDepositProducer",
+                                    src                  = input,
+                                    trackType            = cms.string('best'),
+                                    MultipleDepositsFlag = cms.bool(False),
+                                    ExtractorPSet        = cms.PSet( MIsoTrackExtractorCtfBlock )
+                                ) )
+            isoModules.append( getattr(process, 'pat'+label+'IsoDepositTracks') )
+        elif dep == 'caloTowers':
+            from RecoMuon.MuonIsolationProducers.caloExtractorByAssociatorBlocks_cff import MIsoCaloExtractorByAssociatorTowersBlock
+            setattr(process, 'pat'+label+'IsoDepositCaloTowers',
+                             cms.EDProducer("CandIsoDepositProducer",
+                                    src                  = input,
+                                    trackType            = cms.string('best'),
+                                    MultipleDepositsFlag = cms.bool(True),
+                                    ExtractorPSet        = cms.PSet( MIsoCaloExtractorByAssociatorTowersBlock )
+                                ) )
+            isoModules.append( getattr(process, 'pat'+label+'IsoDepositCaloTowers') )
+    for m in isoModules: process.patAODExtraReco += m
     # MC and trigger
     from PhysicsTools.PatAlgos.tools.jetTools import MassSearchParamVisitor;
-    if mcAs != None:
-        searchMC = MassSearchParamVisitor('src', cms.InputTag(mcAs));
+    if type(mcAs) != type(None): # otherwise it complains that 'None' is not a valid InputTag :-(
+        searchMC = MassSearchParamVisitor('src', mcAs);
         process.patMCTruth.visit(searchMC)
         modulesMC = searchMC.modules()
         if len(modulesMC) != 1: raise RuntimeError, "Can't find MC-Truth match for '%s', or it's not unique."%(mcAs,)
-        setattr(process, 'pat'+label+'MCMatch', modulesMC[0].clone(src = cms.InputTag(l0label)))
+        setattr(process, 'pat'+label+'MCMatch', modulesMC[0].clone(src = input))
         process.patMCTruth.replace( modulesMC[0], modulesMC[0] + getattr(process, 'pat'+label+'MCMatch'))
-        if l1cands != None:
-            l1cands.addGenMatch = True
-            l1cands.genParticleMatch = cms.InputTag('pat'+label+'MCMatch')
+        l1cands.addGenMatch = True
+        l1cands.genParticleMatch = cms.InputTag('pat'+label+'MCMatch')
     if triggerAs != None and triggerAs != []:
         modulesTR = []; labelsTR = []
         for t in triggerAs:
@@ -160,26 +129,24 @@ def makePATTrackCandidates(process, label='TrackCands',                   # outp
         def ucfirst(x): return x[0].upper() + x[1:]
         for m in modulesTR:
             lbl = 'pat'+label+'TrigMatchAs' + ucfirst(m.label())
-            setattr(process, lbl, m.clone(src = cms.InputTag(l0label)))
+            setattr(process, lbl, m.clone(src = input))
             process.patTrigMatch.replace( m, m + getattr(process, lbl))
             labelsTR.append (cms.InputTag(lbl))
-        if l1cands != None:
-            l1cands.addTrigMatch = cms.bool(True)
-            l1cands.trigPrimMatch = cms.VInputTag(*labelsTR)
+        l1cands.addTrigMatch = cms.bool(True)
+        l1cands.trigPrimMatch = cms.VInputTag(*labelsTR)
 
 def makeTrackCandidates(process, 
         label='TrackCands',                   # output collection will be 'allLayer'+(0/1)+label , 'selectedLayer1' + label
         tracks=cms.InputTag('generalTracks'), # input track collection
         particleType="pi+",                   # particle type (for assigning a mass)
         preselection='pt > 10',               # preselection cut on candidates
-        cleaning=True,                        # Run the PATGenericParticleCleaner 
-                                              #   The module will be called 'allLayer0' + label
-        selection='pt > 10',                  # Selection on PAT Layer 1 objects; 
-                                              #   The output will be 'selectedLayer1' + label
-                                              #   If set to None, you will only have 'allLayer1'+label in the output file
-        isolation=['tracker','caloTowers'],   # Isolations to use (currently only 'tracker' and 'caloTowers' are valid options)
-        mcAs='allLayer0Muons',                # Replicate MC match as the one used for this PAT collection (None = no mc match)
-        triggerAs=['allLayer0Muons'],         # Replicate trigger match as all the ones used by these PAT collections (None = no trig.)
-        layers=[0,1]):
+        selection='pt > 10',                  # Selection on PAT Layer 1 objects. The output will be 'selectedLayer1' + label
+        isolation={'tracker':   0.3,          #  Isolations to use ({'source':deltaR, ...}; use {} for none)
+                   'ecalTowers':0.3,          # 'tracker' => as muon track iso
+                   'hcalTowers':0.3},         # 'ecalTowers', 'hcalTowers' => as muon iso from calo towers.
+        isodeposits=['tracker','ecalTowers','hcalTowers'],   # IsoDeposits to save ([] for none)
+        mcAs=cms.InputTag("muons"),           # Replicate MC match as the one used by PAT on this AOD collection (None = no mc match)
+        triggerAs=[]):                        # Replicate trigger match as all the ones used by PAT on these AOD collections ([] = none)
     makeAODTrackCandidates(process, tracks=tracks, particleType=particleType, candSelection=preselection, label=label) 
-    makePATTrackCandidates(process, label=label, input='patAOD' + label, isolation=isolation, mcAs=mcAs, triggerAs=triggerAs, layers=layers)
+    makePATTrackCandidates(process, label=label, input=cms.InputTag('patAOD' + label), 
+                           isolation=isolation, isodeposits=isodeposits, mcAs=mcAs, triggerAs=triggerAs, selection=selection)

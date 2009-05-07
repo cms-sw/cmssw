@@ -252,60 +252,8 @@ JPTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    // l1 and l2 are leptons from Z->ll to be checked they are not gen jets (DR match)
    HepLorentzVector l1(0.,0.,1.,1.);
    HepLorentzVector l2(0.,0.,1.,1.);
-   //
-   const HepMC::GenEvent* evt = EvtHandle->GetEvent() ;
-   ESHandle<ParticleDataTable> pdt;
-   iSetup.getData( pdt );
-   for ( HepMC::GenEvent::particle_const_iterator p = evt->particles_begin();
-	 p != evt->particles_end(); ++p ) {
-     /*
-     cout <<" status : " << (*p)->status() 
-	  <<" pid = " << (*p)->pdg_id() 
-	  <<" px = " << (*p)->momentum().px()
-	  <<" py = " << (*p)->momentum().py() 
-	  <<" charge = " << (pdt->particle((*p)->pdg_id()))->charge()
-	  <<" charge3 = " << (pdt->particle((*p)->pdg_id()))->ID().threeCharge() << endl;
-     */
-     if((*p)->status() == 3 && (*p)->pdg_id() == 23) {
-       //Z 
-       /*
-       cout <<" Z status : " << (*p)->status() 
-	    <<" pid = " << (*p)->pdg_id() 
-	    <<" px = " << (*p)->momentum().px()
-	    <<" py = " << (*p)->momentum().py() 
-	    <<" charge = " << (pdt->particle((*p)->pdg_id()))->charge()
-	    <<" charge3 = " << (pdt->particle((*p)->pdg_id()))->ID().threeCharge() << endl;
-       */
-       // l1 doc lines
-       ++p;
-       /*
-       cout <<" l1 status : " << (*p)->status() 
-	    <<" pid = " << (*p)->pdg_id() 
-	    <<" px = " << (*p)->momentum().px()
-	    <<" py = " << (*p)->momentum().py() 
-	    <<" pz = " << (*p)->momentum().pz() 
-	    <<" e = " << (*p)->momentum().e() 
-	    <<" charge = " << (pdt->particle((*p)->pdg_id()))->charge()
-	    <<" charge3 = " << (pdt->particle((*p)->pdg_id()))->ID().threeCharge() << endl;
-       */
-       HepLorentzVector l1c((*p)->momentum().px(),(*p)->momentum().py(),(*p)->momentum().pz(),(*p)->momentum().e());
-       l1 = l1c;
-       // l2 doc lines
-       ++p;
-       /*
-       cout <<" l2 status : " << (*p)->status() 
-	    <<" pid = " << (*p)->pdg_id() 
-	    <<" px = " << (*p)->momentum().px()
-	    <<" py = " << (*p)->momentum().py() 
-	    <<" pz = " << (*p)->momentum().pz() 
-	    <<" e = " << (*p)->momentum().e() 
-	    <<" charge = " << (pdt->particle((*p)->pdg_id()))->charge()
-	    <<" charge3 = " << (pdt->particle((*p)->pdg_id()))->ID().threeCharge() << endl;
-       */
-       HepLorentzVector l2c((*p)->momentum().px(),(*p)->momentum().py(),(*p)->momentum().pz(),(*p)->momentum().e());
-       l2 = l2c;
-     }
-   }
+ 
+  //
      
    // get collection of towers
    /*

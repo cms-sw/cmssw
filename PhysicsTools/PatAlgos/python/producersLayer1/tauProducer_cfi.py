@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 allLayer1Taus = cms.EDProducer("PATTauProducer",
     # General configurables
-    tauSource = cms.InputTag("allLayer0Taus"),
+    tauSource = cms.InputTag("pfRecoTauProducer"),
 
                                
     # user data to add
@@ -29,13 +29,33 @@ allLayer1Taus = cms.EDProducer("PATTauProducer",
     embedIsolationTracks = cms.bool(False), ## whether to embed in AOD externally stored isolation tracks
 
     # resolution configurables
-    addResolutions = cms.bool(True),
-    tauResoFile = cms.string('PhysicsTools/PatUtils/data/Resolutions_tau.root'),
-    useNNResolutions = cms.bool(True), ## use the neural network approach?
+    addResolutions = cms.bool(False),
 
     # isolation configurables
-    isolation = cms.PSet(),
-    isoDeposits = cms.PSet(),
+    isolation = cms.PSet(
+        pfAllParticles = cms.PSet(
+            src = cms.InputTag("tauIsoDepositPFCandidates"),
+            deltaR = cms.double(0.5)
+        ),
+        pfChargedHadron = cms.PSet(
+            src = cms.InputTag("tauIsoDepositPFChargedHadrons"),
+            deltaR = cms.double(0.5)
+        ),
+        pfNeutralHadron = cms.PSet(
+            src = cms.InputTag("tauIsoDepositPFNeutralHadrons"),
+            deltaR = cms.double(0.5)
+        ),
+        pfGamma = cms.PSet(
+            src = cms.InputTag("tauIsoDepositPFGammas"),
+            deltaR = cms.double(0.5)
+        )
+    ),                           
+    isoDeposits = cms.PSet(
+        pfAllParticles = cms.InputTag("tauIsoDepositPFCandidates"),
+        pfChargedHadron = cms.InputTag("tauIsoDepositPFChargedHadrons"),
+        pfNeutralHadron = cms.InputTag("tauIsoDepositPFNeutralHadrons"),
+        pfGamma = cms.InputTag("tauIsoDepositPFGammas")
+    ),
 
     # tau ID configurables
     # (for efficiency studies)
@@ -43,14 +63,18 @@ allLayer1Taus = cms.EDProducer("PATTauProducer",
     tauIDSources = cms.PSet(
         # configure many IDs as InputTag <someName> = <someTag>
         # you can comment out those you don't want to save some disk space
-        leadingTrackFinding = cms.InputTag("patPFRecoTauDiscriminationByLeadingTrackFinding"),
-        leadingTrackPtCut = cms.InputTag("patPFRecoTauDiscriminationByLeadingTrackPtCut"),
-        trackIsolation = cms.InputTag("patPFRecoTauDiscriminationByTrackIsolation"),
-        ecalIsolation = cms.InputTag("patPFRecoTauDiscriminationByECALIsolation"),
-        byIsolation = cms.InputTag("patPFRecoTauDiscriminationByIsolation"),
-        againstElectron = cms.InputTag("patPFRecoTauDiscriminationAgainstElectron"),
-        againstMuon = cms.InputTag("patPFRecoTauDiscriminationAgainstMuon")
+        leadingTrackFinding = cms.InputTag("pfRecoTauDiscriminationByLeadingTrackFinding"),
+        leadingTrackPtCut = cms.InputTag("pfRecoTauDiscriminationByLeadingTrackPtCut"),
+        trackIsolation = cms.InputTag("pfRecoTauDiscriminationByTrackIsolation"),
+        ecalIsolation = cms.InputTag("pfRecoTauDiscriminationByECALIsolation"),
+        byIsolation = cms.InputTag("pfRecoTauDiscriminationByIsolation"),
+        againstElectron = cms.InputTag("pfRecoTauDiscriminationAgainstElectron"),
+        againstMuon = cms.InputTag("pfRecoTauDiscriminationAgainstMuon")
     ),
+
+    # tau decay mode configurables
+    addDecayMode = cms.bool(False),
+    decayModeSrc = cms.InputTag("fixedConePFTauDecayModeProducer"),                    
 
     # Trigger matching configurables
     addTrigMatch = cms.bool(True),

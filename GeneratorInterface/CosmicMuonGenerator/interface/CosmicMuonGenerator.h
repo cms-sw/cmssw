@@ -31,7 +31,8 @@ public:
     MinP_CMS =     MinP;
     MaxP =   3000.;
     MinTheta =  0.*Deg2Rad;
-    MaxTheta = 84.26*Deg2Rad;
+    //MaxTheta = 84.26*Deg2Rad;
+    MaxTheta = 89.0*Deg2Rad;
     MinPhi =    0.*Deg2Rad;
     MaxPhi =  360.*Deg2Rad;
     MinT0  = -12.5;
@@ -39,6 +40,7 @@ public:
     ElossScaleFactor = 1.0;
     RadiusOfTarget = 8000.;
     ZDistOfTarget = 15000.;
+    ZCentrOfTarget = 0.;
     TrackerOnly = false;
     TIFOnly_constant = false;
     TIFOnly_linear = false;
@@ -54,6 +56,10 @@ public:
     NotInitialized = true;
     Target3dRadius = 0.;
     SurfaceRadius = 0.;
+    //set plug as default onto PX56 shaft
+    PlugVx = PlugOnShaftVx;
+    PlugVz = PlugOnShaftVz;
+
 
     std::cout << std::endl;
     std::cout << "*********************************************************" << std::endl;
@@ -71,6 +77,7 @@ public:
     delete Cosmics;
   }
   // event with one particle
+  //SingleParticleEvent OneMuoEvt;
   SingleParticleEvent OneMuoEvt;
  
  
@@ -95,6 +102,7 @@ private:
   double ElossScaleFactor; // scale factor for energy loss
   double RadiusOfTarget; // Radius of target-cylinder which cosmics HAVE to hit [mm], default is CMS-dimensions
   double ZDistOfTarget; // z-length of target-cylinder which cosmics HAVE to hit [mm], default is CMS-dimensions
+  double ZCentrOfTarget; // z-position of centre of target-cylinder which cosmics HAVE to hit [mm], default is Nominal Interaction Point (=0)
   bool   TrackerOnly; //if set to "true" detector with tracker-only setup is used, so no material or B-field outside is considerd
   bool   TIFOnly_constant; //if set to "true" cosmics can also be generated below 2GeV with unphysical constant energy dependence
   bool   TIFOnly_linear; //if set to "true" cosmics can also be generated below 2GeV with unphysical linear energy dependence
@@ -110,6 +118,9 @@ private:
   double Ndiced; // number of diced events
   double Target3dRadius; // radius of sphere around target (cylinder)
   double SurfaceRadius; // radius for area on surface that has to be considered (for event generation)
+  double PlugVx; //Plug x position
+  double PlugVz; //Plug z position
+
   // random number generator (periodicity > 10**14)
   TRandom2 RanGen; 
   // check user input
@@ -137,10 +148,14 @@ public:
   void setElossScaleFactor(double ElossScaleFact);
   void setRadiusOfTarget(double R);
   void setZDistOfTarget(double Z);
+  void setZCentrOfTarget(double Z);
   void setTrackerOnly(bool Tracker);
   void setTIFOnly_constant(bool TIF);
   void setTIFOnly_linear(bool TIF);
   void setMTCCHalf(bool MTCC);
+  void setPlugVx(double PlugVtx);
+  void setPlugVz(double PlugVtz);
+
   // initialize the generator
   void initialize();
    // prints rate + statistics

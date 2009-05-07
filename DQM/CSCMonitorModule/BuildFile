@@ -1,18 +1,11 @@
-<Flags CXXFLAGS="-D CMSSW21 -g">
+<Flags CPPDEFINES="DQMGLOBAL">
+<Flags CPPDEFINES="CMSSW22">
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DQMServices/Core>
 <use name=DQMServices/Components>
-<use name=DQMServices/WebComponents>
 <use name=EventFilter/CSCRawToDigi>
 <export>
   <lib name=DQMCSCMonitorModule>
-  <use name=FWCore/Framework>
-  <use name=FWCore/PluginManager>
-  <use name=FWCore/ParameterSet>
-  <use name=DQMServices/Core>
-  <use name=DQMServices/Components>
-  <use name=DQMServices/WebComponents>
-  <use name=EventFilter/CSCRawToDigi>
 </export>

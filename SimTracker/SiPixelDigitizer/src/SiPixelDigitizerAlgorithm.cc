@@ -22,13 +22,18 @@
 // Change the TOF cut to lower and upper limit. d.k. 7/07
 // Split Lorentz Angle configuration in BPix/FPix: V. Cuplov, Rice University 7/08
 // tanLorentzAngleperTesla_FPix=0.0912 and tanLorentzAngleperTesla_BPix=0.106
-// 
-// September 2008: V. Cuplov
-// Disable Pixel modules which are declared dead in the configuration python file
-// 
-// October 2008: V Cuplov
-// Accessing/Reading the Lorentz angle from the DataBase instead the cfg file.
-
+// Disable Pixel modules which are declared dead in the configuration python file. (sept 2008)
+// Accessing/Reading the Lorentz angle from the DataBase instead of the cfg file. (oct 2008)
+// Accessing dead modules from the DB. Implementation done and tested on a test.db
+// Do not use this option for now. The PixelQuality Objects are not in the official DB yet.
+// Accessing dead modules via DB is tested using GlobalTag STARTUP_30X (jan 2009). Ok
+// Split Fpix and Bpix threshold and use official numbers (fev 2009)
+// ThresholdInElectrons_FPix = 2870 and ThresholdInElectrons_BPix = 3700
+// update the electron to VCAL conversion using: VCAL_electrons = VCAL * 65.5 - 414
+// Threshold gaussian smearing: (fev. 2009)
+// Fpix: Mean=2870 and RMS=200 
+// Bpix: Mean=3700 and RMS=410
+ 
 
 #include <vector>
 #include <iostream>
@@ -42,6 +47,7 @@
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandFlat.h"
 
+
 //#include "SimTracker/SiPixelDigitizer/interface/PixelIndices.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
@@ -51,14 +57,12 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineService.h"
  
-//Begin: Accessing Lorentz Angle from the DB:
+// Accessing Lorentz Angle from the DB:
 #include "CalibTracker/SiPixelLorentzAngle/test/SiPixelLorentzAngleReader.h"
-//#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
-//End: Accessing Lorentz Angle from the DB:
 
-//Begin: Accessing Dead pixel modules from the DB:
-#include "CondTools/SiPixel/test/SiPixelBadModuleReader.h"
-#include "DataFormats/DetId/interface/DetId.h"
+// Accessing dead pixel modules from the DB:
+//#include "CondTools/SiPixel/test/SiPixelBadModuleReader.h"
+//#include "DataFormats/DetId/interface/DetId.h"
 
 using namespace std;
 using namespace edm;
@@ -66,25 +70,25 @@ using namespace edm;
 #define TP_DEBUG // protect all LogDebug with ifdef. Takes too much CPU
 
 void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es){
- if(use_ineff_from_db_){// load gain calibration service fromdb...
-   //    std::cout << "loading calibration service..." << std::endl;
+  if(use_ineff_from_db_){// load gain calibration service fromdb...
     theSiPixelGainCalibrationService_= new SiPixelGainCalibrationOfflineService(conf_);
     theSiPixelGainCalibrationService_->setESObjects( es );
   }
 
   fillDeadModules(es); // gets the dead module from config file or DB.
-  fillLorentzAngle(es); // gets the Lorentz angle from the config file or DB.
-
+  fillLorentzAngle(es); // gets the Lorentz angle from the config file or DB.  
 }
+
+//=========================================================================
 
 void SiPixelDigitizerAlgorithm::fillDeadModules(const edm::EventSetup& es){
   if(!use_deadmodule_DB_){
-    DeadModules = conf_.getParameter<Parameters>("DeadModules"); // get the dead module from cfg file
+    DeadModules = conf_.getParameter<Parameters>("DeadModules"); // get dead module from cfg file
   }
-  else{  // Get Dead pixel modules from the Record: 
-         // An ESHandle was defined in the header file   edm::ESHandle<SiPixelQuality> SiPixelBadModule_;
-    es.get<SiPixelQualityRcd>().get(SiPixelBadModule_);
-  }
+  //  else{  // Get dead module from DB record 
+    // ESHandle was defined in the header file   edm::ESHandle<SiPixelQuality> SiPixelBadModule_;
+  //    es.get<SiPixelQualityRcd>().get(SiPixelBadModule_);
+  //  }
 }
 
 void SiPixelDigitizerAlgorithm::fillLorentzAngle(const edm::EventSetup& es){
@@ -94,34 +98,35 @@ void SiPixelDigitizerAlgorithm::fillLorentzAngle(const edm::EventSetup& es){
     tanLorentzAnglePerTesla_BPix=conf_.getParameter<double>("TanLorentzAnglePerTesla_BPix");
   } 
   else {
-    // Get Lorentz angle from the Record: 
-    // An ESHandle was defined in the header file edm::ESHandle<SiPixelLorentzAngle> SiPixelLorentzAngle_;
+    // Get Lorentz angle from DB record 
+    // ESHandle was defined in the header file edm::ESHandle<SiPixelLorentzAngle> SiPixelLorentzAngle_;
     es.get<SiPixelLorentzAngleRcd>().get(SiPixelLorentzAngle_);
   }
 }
+//=========================================================================
 
 SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf) :
   conf_(conf) , fluctuate(0), theNoiser(0), pIndexConverter(0),
   use_ineff_from_db_(conf_.getParameter<bool>("useDB")),
-  use_module_killing_(conf_.getParameter<bool>("killModules")), 
-  use_deadmodule_DB_(conf_.getParameter<bool>("DeadModules_DB")), //use this boolean to kill dead modules using DB
-  use_LorentzAngle_DB_(conf_.getParameter<bool>("LorentzAngle_DB")), //use this boolean to read Lorentz angle from DB 
+  use_module_killing_(conf_.getParameter<bool>("killModules")), // boolean to kill or not modules
+  use_deadmodule_DB_(conf_.getParameter<bool>("DeadModules_DB")), // boolean to access dead modules from DB
+  use_LorentzAngle_DB_(conf_.getParameter<bool>("LorentzAngle_DB")), // boolean to access Lorentz angle from DB 
   theSiPixelGainCalibrationService_(0)
 {
   using std::cout;
   using std::endl;
 
   // Common pixel parameters
-  // This are parameters which are not likely to be changed
+  // These are parameters which are not likely to be changed
   NumberOfSegments = 20; // Default number of track segment divisions
   ClusterWidth = 3.;     // Charge integration spread on the collection plane
-  GeVperElectron = 3.61E-09; //1 electrons=3.61eV, 1keV=277e, mod 9/06 d.k.
+  GeVperElectron = 3.61E-09; // 1 electron =3.61eV, 1keV=277e, mod 9/06 d.k.
   Sigma0 = 0.00037;           // Charge diffusion constant 7->3.7 
   Dist300 = 0.0300;          //   normalized to 300micron Silicon
 
   alpha2Order = conf_.getParameter<bool>("Alpha2Order");   // switch on/off of E.B effect   
 
-  //get external parameters
+  // get external parameters:
   // ADC calibration 1adc count = 135e.
   // Corresponds to 2adc/kev, 270[e/kev]/135[e/adc]=2[adc/kev]
   // Be carefull, this parameter is also used in SiPixelDet.cc to 
@@ -129,22 +134,30 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   // Both defaults should be the same.
   theElectronPerADC=conf_.getParameter<double>("ElectronPerAdc");
 
-
-
   // ADC saturation value, 255=8bit adc.
   //theAdcFullScale=conf_.getUntrackedParameter<int>("AdcFullScale",255);
   theAdcFullScale=conf_.getParameter<int>("AdcFullScale");
 
-  // Pixel threshold in units of noise.
-  //thePixelThreshold=conf_.getParameter<double>("ThresholdInNoiseUnits");
+  // Pixel threshold in units of noise:
+  // thePixelThreshold=conf_.getParameter<double>("ThresholdInNoiseUnits");
   // Pixel threshold in electron units.
-  thePixelThresholdInE=conf_.getParameter<double>("ThresholdInElectrons");
+  theThresholdInE_FPix=conf_.getParameter<double>("ThresholdInElectrons_FPix");
+  theThresholdInE_BPix=conf_.getParameter<double>("ThresholdInElectrons_BPix");
+
+  // Add threshold gaussian smearing:
+  addThresholdSmearing = conf_.getParameter<bool>("AddThresholdSmearing");
+  theThresholdSmearing_FPix = conf_.getParameter<double>("ThresholdSmearing_FPix");
+  theThresholdSmearing_BPix = conf_.getParameter<double>("ThresholdSmearing_BPix");
+
+  // electrons to VCAL conversion needed in misscalibrate()
+  electronsPerVCAL = conf_.getParameter<double>("ElectronsPerVcal");
+  electronsPerVCAL_Offset = conf_.getParameter<double>("ElectronsPerVcal_Offset");
 
   // Add noise   
   addNoise=conf_.getParameter<bool>("AddNoise");
   // Add noisy pixels 
   addNoisyPixels=conf_.getParameter<bool>("AddNoisyPixels");
-  // Noise in electrons.
+  // Noise in electrons:
   // Pixel cell noise, relevant for generating noisy pixels 
   theNoiseInElectrons=conf_.getParameter<double>("NoiseInElectrons");
   // Fill readout noise, including all readout chain, relevant for smearing
@@ -177,16 +190,16 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   // the first 3 settings [0],[1],[2] are for the barrel pixels
   // the next  3 settings [3],[4],[5] are for the endcaps (undecided how)  
 
-  if (thePixelLuminosity==-1) {  // No indefficiency, all 100% efficient
+  if (thePixelLuminosity==-1) {  // No inefficiency, all 100% efficient
     pixelInefficiency=false;
     for (int i=0; i<6;i++) {
       thePixelEfficiency[i]     = 1.;  // pixels = 100%
       thePixelColEfficiency[i]  = 1.;  // columns = 100%
       thePixelChipEfficiency[i] = 1.; // chips = 100%
     }
-
-  // include only the static (non rate depedent) efficiency 
-  // Usefull for very low rates (luminosity)
+    
+    // include only the static (non rate depedent) efficiency 
+    // Usefull for very low rates (luminosity)
   } else if (thePixelLuminosity==0) { // static effciency
     pixelInefficiency=true;
     // Default efficiencies 
@@ -209,8 +222,8 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 	thePixelChipEfficiency[i] = 1.-0.001; // chips = 99.9%
       }
     }
-
-  // Include also luminosity rate dependent inefficieny
+    
+    // Include also luminosity rate dependent inefficieny
   } else if (thePixelLuminosity>0) { // Include effciency
     pixelInefficiency=true;
     // Default efficiencies 
@@ -242,9 +255,8 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
     
   } // end the pixel inefficiency part
 
-
-  // Init the random number services
-  if(addNoise || thePixelLuminosity || fluctuateCharge) {
+  // Init the random number services  
+    if(addNoise || thePixelLuminosity || fluctuateCharge || addThresholdSmearing ) {
     edm::Service<edm::RandomNumberGenerator> rng;
     if ( ! rng.isAvailable()) {
       throw cms::Exception("Configuration")
@@ -262,7 +274,6 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
     gaussDistribution_ = new CLHEP::RandGaussQ(engine, 0., theReadoutNoise);
     flatDistribution_ = new CLHEP::RandFlat(engine, 0., 1.);
 
-
     if(addNoise) { 
       theNoiser = new GaussianTailNoiseGenerator(engine);
     }
@@ -270,15 +281,20 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
     if(fluctuateCharge) {
       fluctuate = new SiG4UniversalFluctuation(engine);
     }
-     
-  }
 
+    // Threshold smearing with gaussian distribution:
+    if(addThresholdSmearing) {
+      smearedThreshold_FPix_ = new CLHEP::RandGaussQ(engine, theThresholdInE_FPix , theThresholdSmearing_FPix);
+      smearedThreshold_BPix_ = new CLHEP::RandGaussQ(engine, theThresholdInE_BPix , theThresholdSmearing_BPix);
+    }
+
+    } //end Init the random number services
 
   // Prepare for the analog amplitude miss-calibration
   if(doMissCalibrate) {
     LogDebug ("PixelDigitizer ") 
       << " miss-calibrate the pixel amplitude "; 
-
+    
     const bool ReadCalParameters = false;
     if(ReadCalParameters) {   // Read the calibration files from file
       // read the calibration constants from a file (testing only)
@@ -360,11 +376,14 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   } // end if missCalibration 
 
   LogInfo ("PixelDigitizer ") <<"SiPixelDigitizerAlgorithm constructed"
-			       <<"Configuration parameters:" 
-			       << "Threshold/Gain = "  
-			       << thePixelThresholdInE<<" "<<theElectronPerADC 
-			       << " " << theAdcFullScale 
-			       << " The delta cut-off is set to " << tMax
+			      <<"Configuration parameters:" 
+			      << "Threshold/Gain = "  
+			      << "threshold in electron FPix = " 
+			      << theThresholdInE_FPix
+			      << "threshold in electron BPix = " 
+			      << theThresholdInE_BPix 
+			      <<" " << theElectronPerADC << " " << theAdcFullScale 
+			      << " The delta cut-off is set to " << tMax
 			      << " pix-inefficiency "<<thePixelLuminosity;
 
 
@@ -373,23 +392,30 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 SiPixelDigitizerAlgorithm::~SiPixelDigitizerAlgorithm() {
 
   LogDebug ("PixelDigitizer")<<"SiPixelDigitizerAlgorithm deleted";
+  
+  // Destructor
+  delete gaussDistribution_;
+  delete flatDistribution_;
+  delete theSiPixelGainCalibrationService_;
 
-   // Destructor
-   delete gaussDistribution_;
-   delete flatDistribution_;
-   delete theSiPixelGainCalibrationService_;
+  // Threshold gaussian smearing:
+  if(addThresholdSmearing) {
+    delete smearedThreshold_FPix_;
+    delete smearedThreshold_BPix_;
+  }
 
-    if(addNoise) delete theNoiser;
-    if(fluctuateCharge) delete fluctuate;
-   
+  if(addNoise) delete theNoiser;
+  if(fluctuateCharge) delete fluctuate;
+  
 }
+
 //=========================================================================
 edm::DetSet<PixelDigi>::collection_type 
 SiPixelDigitizerAlgorithm::run(
 			       const std::vector<PSimHit> &input,
 			       PixelGeomDetUnit *pixdet,
 			       GlobalVector bfield) {
-
+  
   _detp = pixdet; //cache the PixGeomDetUnit
   _PixelHits=input; //cache the SimHit
   _bfield=bfield; //cache the drift direction
@@ -397,52 +423,77 @@ SiPixelDigitizerAlgorithm::run(
   // Pixel Efficiency moved from the constructor to the method run because
   // the information of the det are not available in the constructor
   // Effciency parameters. 0 - no inefficiency, 1-low lumi, 10-high lumi
-
+  
   detID= _detp->geographicalId().rawId();
-
+  
   _signal.clear();
-
+  
   // initalization  of pixeldigisimlinks
   link_coll.clear();
-
+  
   //Digitization of the SimHits of a given pixdet
   vector<PixelDigi> collector =digitize(pixdet);
 
   // edm::DetSet<PixelDigi> collector;
-
+  
 #ifdef TP_DEBUG
   LogDebug ("PixelDigitizer") << "[SiPixelDigitizerAlgorithm] converted " << collector.size() << " PixelDigis in DetUnit" << detID; 
 #endif
-
+  
   return collector;
 }
+
 //============================================================================
 vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
- 
+  
   if( _PixelHits.size() > 0 || addNoisyPixels) {
- 
+    
     topol=&det->specificTopology(); // cache topology
     numColumns = topol->ncolumns();  // det module number of cols&rows
     numRows = topol->nrows();
-
-
-    // full detector thicness
+    
+    // full detector thickness
     moduleThickness = det->specificSurface().bounds().thickness(); 
-
+    
     // The index converter is only needed when inefficiencies or misscalibration
     // are simulated.
     if((pixelInefficiency>0) || doMissCalibrate ) {  // Init pixel indices
       pIndexConverter = new PixelIndices(numColumns,numRows);
     }
-
-    // Noise laready defined in electrons
-    //thePixelThresholdInE = thePixelThreshold * theNoiseInElectrons; 
+    
+    // Noise already defined in electrons
+    //thePixelThresholdInE = thePixelThreshold * theNoiseInElectrons ; 
     // Find the threshold in noise units, needed for the noiser.
-    if(theNoiseInElectrons>0.) 
-      thePixelThreshold = thePixelThresholdInE/theNoiseInElectrons; 
-    else 
-      thePixelThreshold = 0.;
 
+  unsigned int Sub_detid=DetId(detID).subdetId();
+    
+  if(theNoiseInElectrons>0.){
+    if(Sub_detid == PixelSubdetector::PixelBarrel){ // Barrel modules
+      if(addThresholdSmearing) { 
+	thePixelThresholdInE = smearedThreshold_BPix_->fire(); // gaussian smearing 
+      } else {
+	thePixelThresholdInE = theThresholdInE_BPix; // no smearing
+      }
+      
+      thePixelThreshold = thePixelThresholdInE/theNoiseInElectrons; 
+      
+      //      std::cout << "digitize(): theNoiseInElectrons>0 and BPix: threshold in electrons is: " << thePixelThresholdInE << std::endl;
+      
+    } else { // Forward disks modules 
+      if(addThresholdSmearing) {
+	thePixelThresholdInE = smearedThreshold_FPix_->fire(); // gaussian smearing
+      } else {
+	thePixelThresholdInE = theThresholdInE_FPix; // no smearing
+      }
+      
+      thePixelThreshold = thePixelThresholdInE/theNoiseInElectrons;
+      
+      //      std::cout << "digitize(): theNoiseInElectrons>0 and FPix: threshold in electrons is: " << thePixelThresholdInE << std::endl;
+    }
+  } else {
+    thePixelThreshold = 0.;
+  }
+  
 #ifdef TP_DEBUG
     LogDebug ("PixelDigitizer") 
       << " PixelDigitizer "  
@@ -476,13 +527,11 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
       } //  end if 
     } // end for 
 
-      // Remove pixel dead modules:
-    if(use_module_killing_ && use_deadmodule_DB_) {
-      module_killing_DB();
-    }
-    else if(use_module_killing_ && !use_deadmodule_DB_){
+    //    if(use_module_killing_ && use_deadmodule_DB_) // remove dead modules using DB
+    //      module_killing_DB();
+
+    if(use_module_killing_ && !use_deadmodule_DB_) // remove dead modules using the list in cfg file
       module_killing_conf();
-    }
   
     if(addNoise) add_noise();  // generate noise
     // Do only if needed 
@@ -493,8 +542,8 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
     if(use_ineff_from_db_ && (_signal.size()>0))
       pixel_inefficiency_db();
 
-      
     delete pIndexConverter;
+
   }
 
   make_digis();
@@ -506,20 +555,20 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
 // Divide the track into small sub-segments  
 void SiPixelDigitizerAlgorithm::primary_ionization(const PSimHit& hit) {
 
-// // Straight line approximation for trajectory inside active media
+// Straight line approximation for trajectory inside active media
 
   const float SegmentLength = 0.0010; //10microns in cm
   float energy;
-
+  
   // Get the 3D segment direction vector 
   LocalVector direction = hit.exitPoint() - hit.entryPoint(); 
-
+  
   float eLoss = hit.energyLoss();  // Eloss in GeV
   float length = direction.mag();  // Track length in Silicon
-
+  
   NumberOfSegments = int ( length / SegmentLength); // Number of segments
   if(NumberOfSegments < 1) NumberOfSegments = 1;
-
+  
 #ifdef TP_DEBUG
   LogDebug ("Pixel Digitizer") 
     << " enter primary_ionzation " << NumberOfSegments 
@@ -559,7 +608,6 @@ void SiPixelDigitizerAlgorithm::primary_ionization(const PSimHit& hit) {
     EnergyDepositUnit edu( energy, point); //define position,energy point
     _ionization_points[i] = edu; // save
     
-
 #ifdef TP_DEBUG
     LogDebug ("Pixel Digitizer") 
       << i << " " << _ionization_points[i].x() << " " 
@@ -574,6 +622,7 @@ void SiPixelDigitizerAlgorithm::primary_ionization(const PSimHit& hit) {
 
 }
 //****************************************************************************** 
+
 // Fluctuate the charge comming from a small (10um) track segment.
 // Use the G4 routine. For mip pions for the moment.  
 void SiPixelDigitizerAlgorithm::fluctuateEloss(int pid, float particleMomentum, 
@@ -627,9 +676,10 @@ void SiPixelDigitizerAlgorithm::fluctuateEloss(int pid, float particleMomentum,
   }
   return;
 }
+
 //*******************************************************************************
 // Drift the charge segments to the sensor surface (collection plane)
-// INlcude the effect of E-field and B-field 
+// Include the effect of E-field and B-field 
 void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
 
 
@@ -645,56 +695,56 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
     return;
   }  
 
-  // tangen of Lorentz angle
+  // tangent of Lorentz angle
   //float TanLorenzAngleX = driftDir.x()/driftDir.z(); 
   //float TanLorenzAngleY = 0.; // force to 0, driftDir.y()/driftDir.z();
 
   float TanLorenzAngleX, TanLorenzAngleY,dir_z, CosLorenzAngleX,
     CosLorenzAngleY;
   if ( alpha2Order) {
-
-      TanLorenzAngleX = driftDir.x(); // tangen of Lorentz angle
-      TanLorenzAngleY = driftDir.y();
-      dir_z = driftDir.z(); // The z drift direction
-      CosLorenzAngleX = 1./sqrt(1.+TanLorenzAngleX*TanLorenzAngleX); //cosine
-      CosLorenzAngleY = 1./sqrt(1.+TanLorenzAngleY*TanLorenzAngleY); //cosine;
-
+    
+    TanLorenzAngleX = driftDir.x(); // tangen of Lorentz angle
+    TanLorenzAngleY = driftDir.y();
+    dir_z = driftDir.z(); // The z drift direction
+    CosLorenzAngleX = 1./sqrt(1.+TanLorenzAngleX*TanLorenzAngleX); //cosine
+    CosLorenzAngleY = 1./sqrt(1.+TanLorenzAngleY*TanLorenzAngleY); //cosine;
+    
   } else{
-
-      TanLorenzAngleX = driftDir.x();
-      TanLorenzAngleY = 0.; // force to 0, driftDir.y()/driftDir.z();
-      dir_z = driftDir.z(); // The z drift direction
-      CosLorenzAngleX = 1./sqrt(1.+TanLorenzAngleX*TanLorenzAngleX); //cosine to estimate the path length
-      CosLorenzAngleY = 1.;
+    
+    TanLorenzAngleX = driftDir.x();
+    TanLorenzAngleY = 0.; // force to 0, driftDir.y()/driftDir.z();
+    dir_z = driftDir.z(); // The z drift direction
+    CosLorenzAngleX = 1./sqrt(1.+TanLorenzAngleX*TanLorenzAngleX); //cosine to estimate the path length
+    CosLorenzAngleY = 1.;
   }
- 
-
+  
+  
 #ifdef TP_DEBUG
   LogDebug ("Pixel Digitizer") 
     << " Lorentz Tan " << TanLorenzAngleX << " " << TanLorenzAngleY <<" "
     << CosLorenzAngleX << " " << CosLorenzAngleY << " "
     << moduleThickness*TanLorenzAngleX << " " << driftDir;
 #endif  
-
+  
   float Sigma_x = 1.;  // Charge spread 
   float Sigma_y = 1.;
   float DriftDistance; // Distance between charge generation and collection 
   float DriftLength;   // Actual Drift Lentgh
   float Sigma;
-
-
+  
+  
   for (unsigned int i = 0; i != _ionization_points.size(); i++) {
-        
+    
     float SegX, SegY, SegZ; // position
     SegX = _ionization_points[i].x();
     SegY = _ionization_points[i].y();
     SegZ = _ionization_points[i].z();
-
+    
     // Distance from the collection plane
     //DriftDistance = (moduleThickness/2. + SegZ); // Drift to -z 
     // Include explixitely the E drift direction (for CMS dir_z=-1)
     DriftDistance = moduleThickness/2. - (dir_z * SegZ); // Drift to -z 
-   
+    
     //if( DriftDistance <= 0.) 
     //cout<<" <=0 "<<DriftDistance<<" "<<i<<" "<<SegZ<<" "<<dir_z<<" "
     //  <<SegX<<" "<<SegY<<" "<<(moduleThickness/2)<<" "
@@ -737,6 +787,7 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
   } // loop over ionization points, i.
  
 } // end drift
+
 //*************************************************************************
 // Induce the signal on the collection plane of the active sensor area.
 void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
@@ -937,21 +988,21 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
    
 
     // Test conversions (THIS IS FOR TESTING ONLY) comment-out.
-//     mp = topol->measurementPosition( i->position() ); //OK
-//     LocalPoint lp = topol->localPosition(mp);     //OK
-//     pair<float,float> p = topol->pixel( i->position() );  //OK
-//     chan = PixelDigi::pixelToChannel( int(p.first), int(p.second));
-//     pair<int,int> ip = PixelDigi::channelToPixel(chan);
-//     MeasurementPoint mp1 = MeasurementPoint( float(ip.first),
-// 					     float(ip.second) );
-//     LogDebug ("Pixel Digitizer") << " Test "<< mp.x() << " " << mp.y() 
-// 				 << " "<< lp.x() << " " << lp.y() << " "<<" "
-// 				 <<p.first <<" "<<p.second<<" "<<chan<< " "
-// 				 <<" " << ip.first << " " << ip.second << " "
-// 				 << mp1.x() << " " << mp1.y() << " " //OK
-// 				 << topol->localPosition(mp1).x() << " "  //OK
-// 				 << topol->localPosition(mp1).y() << " "
-// 				 << topol->channel( i->position() ); //OK
+    //     mp = topol->measurementPosition( i->position() ); //OK
+    //     LocalPoint lp = topol->localPosition(mp);     //OK
+    //     pair<float,float> p = topol->pixel( i->position() );  //OK
+    //     chan = PixelDigi::pixelToChannel( int(p.first), int(p.second));
+    //     pair<int,int> ip = PixelDigi::channelToPixel(chan);
+    //     MeasurementPoint mp1 = MeasurementPoint( float(ip.first),
+    // 					     float(ip.second) );
+    //     LogDebug ("Pixel Digitizer") << " Test "<< mp.x() << " " << mp.y() 
+    // 				 << " "<< lp.x() << " " << lp.y() << " "<<" "
+    // 				 <<p.first <<" "<<p.second<<" "<<chan<< " "
+    // 				 <<" " << ip.first << " " << ip.second << " "
+    // 				 << mp1.x() << " " << mp1.y() << " " //OK
+    // 				 << topol->localPosition(mp1).x() << " "  //OK
+    // 				 << topol->localPosition(mp1).y() << " "
+    // 				 << topol->channel( i->position() ); //OK
     
     
   } // loop over charge distributions
@@ -973,17 +1024,22 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
   }
 
 } // end induce_signal
+
 /***********************************************************************/
+
 // Build pixels, check threshold, add misscalibration, ... 
 void SiPixelDigitizerAlgorithm::make_digis() {
   internal_coll.reserve(50); internal_coll.clear();
 
 #ifdef TP_DEBUG
   LogDebug ("Pixel Digitizer") << " make digis "<<" "
-			       << " pixel threshold " << thePixelThresholdInE << " " 
+			       << " pixel threshold FPix" << theThresholdInE_FPix << " " 
+                               << " pixel threshold BPix" << theThresholdInE_BPix << " "
 			       << " List pixels passing threshold ";
 #endif  
   
+
+  //  std::cout << "make_digis(): we enter the make_digis.... " << std::endl;
 
   // Loop over hit pixels
 
@@ -991,16 +1047,20 @@ void SiPixelDigitizerAlgorithm::make_digis() {
     
     float signalInElectrons = (*i).second ;   // signal in electrons
     // Do the miss calibration for calibration studies only.
-    //if(doMissCalibrate) signalInElectrons = missCalibrate(signalInElectrons);
-    
+    //if(doMissCalibrate) signalInElectrons = missCalibrate(signalInElectrons)
+
     // Do only for pixels above threshold
+
+    //    std::cout << "make_digis(): signalInElectrons is " << signalInElectrons << std::endl;
+
     if ( signalInElectrons >= thePixelThresholdInE) { // check threshold
       
+      //      unsigned int Sub_detid=DetId(detID).subdetId();
+      //      std::cout << "make_digis(): For (Sub_detid, detID) = (" << Sub_detid << ", "<< detID << ") " << "thePixelThresholdInE vaut " << thePixelThresholdInE << std::endl;
+
       int chan =  (*i).first;  // channel number
       pair<int,int> ip = PixelDigi::channelToPixel(chan);
       int adc=0;  // ADC count as integer
-      
-
 
       // Do the miss calibration for calibration studies only.
       if(doMissCalibrate) {
@@ -1047,10 +1107,12 @@ void SiPixelDigitizerAlgorithm::make_digis() {
 	
       }
     }
-   
+    
   }
 }
+
 /***********************************************************************/
+
 //  Add electronic noise to pixel charge
 void SiPixelDigitizerAlgorithm::add_noise() {
 
@@ -1074,6 +1136,11 @@ void SiPixelDigitizerAlgorithm::add_noise() {
   int numberOfPixels = (numRows * numColumns);
   map<int,float, less<int> > otherPixels;
   map<int,float, less<int> >::iterator mapI;
+
+  //  unsigned int Sub_detid=DetId(detID).subdetId();
+  //  std::cout << "add_noise: " << "Subdetid = " << Sub_detid << " and detID " << detID << " the threshold is " << thePixelThreshold << " and the threshold in electrons = " << thePixelThresholdInE << std::endl;
+
+
   theNoiser->generate(numberOfPixels, 
                       thePixelThreshold, //thr. in un. of nois
 		      theNoiseInElectrons, // noise in elec. 
@@ -1083,7 +1150,7 @@ void SiPixelDigitizerAlgorithm::add_noise() {
   LogDebug ("Pixel Digitizer") 
     <<  " Add noisy pixels " << numRows << " " 
     << numColumns << " " << theNoiseInElectrons << " " 
-    << thePixelThresholdInE <<" "<< numberOfPixels<<" " 
+    << theThresholdInE_FPix << theThresholdInE_BPix <<" "<< numberOfPixels<<" " 
     << otherPixels.size() ;
 #endif
   
@@ -1114,7 +1181,9 @@ void SiPixelDigitizerAlgorithm::add_noise() {
   }
   
 } 
+
 /***********************************************************************/
+
 // Simulate the readout inefficiencies. 
 // Delete a selected number of single pixels, dcols and rocs.
 void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
@@ -1182,7 +1251,6 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
     columns[dColInDet]++;
   }
   
-
   // Delete some ROC hits.
   for ( iter = chips.begin(); iter != chips.end() ; iter++ ) {
     //float rand  = RandFlat::shoot();
@@ -1225,6 +1293,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
 } // end pixel_indefficiency
 
 //***********************************************************************
+
 // Fluctuate the gain and offset for the amplitude calibration
 // Use gaussian smearing.
 //float SiPixelDigitizerAlgorithm::missCalibrate(const float amp) const {
@@ -1243,11 +1312,14 @@ float SiPixelDigitizerAlgorithm::missCalibrate(int col,int row,
   //const float s0=0.00020, s1=0.051, s2=5.4, s3=4.4; // average roc=0
   //const float s0=0.00015, s1=0.043, s2=3.2, s3=3.1; // col average roc=0
 
-  const float electronsPerVCAL = 65.; // out present VCAL calibration
+  //  const float electronsPerVCAL = 65.5; // our present VCAL calibration (feb 2009)
+  //  const float electronsPerVCAL_Offset = -414.0; // our present VCAL calibration (feb 2009)
   float newAmp = 0.; //Modified signal
 
   // Convert electrons to VCAL units
-  float signal = signalInElectrons/electronsPerVCAL;
+  float signal = (signalInElectrons-electronsPerVCAL_Offset)/electronsPerVCAL;
+
+  //  std::cout << "electronsPerVCAL = " << electronsPerVCAL << " and electronsPerVCAL_Offset = " << electronsPerVCAL_Offset << std::endl;
 
   //
   // Simulate the analog response with fixed parametrization
@@ -1286,6 +1358,7 @@ float SiPixelDigitizerAlgorithm::missCalibrate(int col,int row,
   return newAmp;
 }  
 //******************************************************************************
+
 // Set the drift direction accoring to the Bfield in local det-unit frame
 // Works for both barrel and forward pixels.
 // Replace the sign convention to fit M.Swartz's formulaes.
@@ -1295,7 +1368,7 @@ float SiPixelDigitizerAlgorithm::missCalibrate(int col,int row,
 LocalVector SiPixelDigitizerAlgorithm::DriftDirection(){
   Frame detFrame(_detp->surface().position(),_detp->surface().rotation());
   LocalVector Bfield=detFrame.toLocal(_bfield);
-
+  
   float alpha2_FPix;
   float alpha2_BPix;
   float alpha2;
@@ -1313,9 +1386,10 @@ LocalVector SiPixelDigitizerAlgorithm::DriftDirection(){
   
   unsigned int Sub_detid=DetId(detID).subdetId();
 
-//Read Lorentz angle from cfg file:**************************************************************
+  // Read Lorentz angle from cfg file:**************************************************************
+  
   if(!use_LorentzAngle_DB_){ 
-
+    
     if ( alpha2Order) {
       alpha2_FPix = tanLorentzAnglePerTesla_FPix*tanLorentzAnglePerTesla_FPix;
       alpha2_BPix = tanLorentzAnglePerTesla_BPix*tanLorentzAnglePerTesla_BPix;
@@ -1323,28 +1397,28 @@ LocalVector SiPixelDigitizerAlgorithm::DriftDirection(){
       alpha2_FPix = 0.0;
       alpha2_BPix = 0.0;
     }
-
-      if (Sub_detid == PixelSubdetector::PixelBarrel){// barrel layers
-	dir_x = -( tanLorentzAnglePerTesla_BPix * Bfield.y() + alpha2_BPix* Bfield.z()* Bfield.x() );
-	dir_y = +( tanLorentzAnglePerTesla_BPix * Bfield.x() - alpha2_BPix* Bfield.z()* Bfield.y() );
-	dir_z = -(1 + alpha2_BPix* Bfield.z()*Bfield.z() );
-	scale = (1 + alpha2_BPix* Bfield.z()*Bfield.z() );
-	
-      } else {// forward disks
-	dir_x = -( tanLorentzAnglePerTesla_FPix * Bfield.y() + alpha2_FPix* Bfield.z()* Bfield.x() );
-	dir_y = +( tanLorentzAnglePerTesla_FPix * Bfield.x() - alpha2_FPix* Bfield.z()* Bfield.y() );
-	dir_z = -(1 + alpha2_FPix* Bfield.z()*Bfield.z() );
-	scale = (1 + alpha2_FPix* Bfield.z()*Bfield.z() );
-      }
+    
+    if (Sub_detid == PixelSubdetector::PixelBarrel){// barrel layers
+      dir_x = -( tanLorentzAnglePerTesla_BPix * Bfield.y() + alpha2_BPix* Bfield.z()* Bfield.x() );
+      dir_y = +( tanLorentzAnglePerTesla_BPix * Bfield.x() - alpha2_BPix* Bfield.z()* Bfield.y() );
+      dir_z = -(1 + alpha2_BPix* Bfield.z()*Bfield.z() );
+      scale = (1 + alpha2_BPix* Bfield.z()*Bfield.z() );
+      
+    } else {// forward disks
+      dir_x = -( tanLorentzAnglePerTesla_FPix * Bfield.y() + alpha2_FPix* Bfield.z()* Bfield.x() );
+      dir_y = +( tanLorentzAnglePerTesla_FPix * Bfield.x() - alpha2_FPix* Bfield.z()* Bfield.y() );
+      dir_z = -(1 + alpha2_FPix* Bfield.z()*Bfield.z() );
+      scale = (1 + alpha2_FPix* Bfield.z()*Bfield.z() );
+    }
     } // end: Read LA from cfg file.
   
-    //Read Lorentz angle from DB:********************************************************************
-    if(use_LorentzAngle_DB_){ 
-  std::map<unsigned int,float> detid_la= SiPixelLorentzAngle_->getLorentzAngles();
-  std::map<unsigned int,float>::const_iterator it;
-  
-
-  for (it=detid_la.begin();it!=detid_la.end();it++)
+  //Read Lorentz angle from DB:********************************************************************
+  if(use_LorentzAngle_DB_){ 
+    std::map<unsigned int,float> detid_la= SiPixelLorentzAngle_->getLorentzAngles();
+    std::map<unsigned int,float>::const_iterator it;
+    
+    
+    for (it=detid_la.begin();it!=detid_la.end();it++)
     {
       if (detID==it->first) {
 	if (alpha2Order) {
@@ -1353,7 +1427,7 @@ LocalVector SiPixelDigitizerAlgorithm::DriftDirection(){
 	else {
 	  alpha2 = 0.0;
 	} 
-	std::cout << "detID is: " << it->first << "The LA per tesla is: " << it->second << std::endl;
+	//	std::cout << "detID is: " << it->first << "The LA per tesla is: " << it->second << std::endl;
 	dir_x = -( it->second * Bfield.y() + alpha2 * Bfield.z()* Bfield.x() );
 	dir_y = +( it->second * Bfield.x() - alpha2 * Bfield.z()* Bfield.y() );
 	dir_z = -(1 + alpha2 * Bfield.z()*Bfield.z() );
@@ -1361,25 +1435,26 @@ LocalVector SiPixelDigitizerAlgorithm::DriftDirection(){
       }
     } 
   }// end: Read LA from DataBase.
-
+  
   LocalVector theDriftDirection = LocalVector(dir_x/scale, dir_y/scale, dir_z/scale );  
-
+  
 #ifdef TP_DEBUG
   LogDebug ("Pixel Digitizer") << " The drift direction in local coordinate is "   
 			       << theDriftDirection ;
 #endif
-   
+  
   return theDriftDirection;
 }
 
 //****************************************************************************************************
+
 void SiPixelDigitizerAlgorithm::pixel_inefficiency_db(void){
   if(!use_ineff_from_db_)
     return;
   
   // Loop over hit pixels, amplitude in electrons, channel = coded row,col
   for(signal_map_iterator i = _signal.begin();i != _signal.end(); i++) {    
-
+    
     //    int chan = i->first;
     pair<int,int> ip = PixelDigi::channelToPixel(i->first);//get pixel pos
     int row = ip.first;  // X in row
@@ -1396,10 +1471,11 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency_db(void){
 
 
 //****************************************************************************************************
+
 void SiPixelDigitizerAlgorithm::module_killing_conf(void){
   if(!use_module_killing_)
     return;
-
+  
   bool isbad=false;
   int detid = detID;
   
@@ -1420,75 +1496,73 @@ void SiPixelDigitizerAlgorithm::module_killing_conf(void){
   
   if(Module=="whole"){
     for(signal_map_iterator i = _signal.begin();i != _signal.end(); i++) {    
-      // make pixel amplitude =0, pixel will be lost at clusterization    
       i->second.set(0.); // reset amplitude
-      }
+      //      std::cout << "whole dead module is removed " << detid << std::endl;
+    }
   }
-  
   
   for(signal_map_iterator i = _signal.begin();i != _signal.end(); i++) {    
     pair<int,int> ip = PixelDigi::channelToPixel(i->first);//get pixel pos
     
-	if(Module=="tbmA" && ip.first>=80 && ip.first<=159){
-	  i->second.set(0.);
-	}
-	
-	if( Module=="tbmB" && ip.first<=79){
-	  i->second.set(0.);
-	}
+    if(Module=="tbmA" && ip.first>=80 && ip.first<=159){
+      i->second.set(0.);
+      //      std::cout << "tbmA dead module is removed " << detid << std::endl;
+    }
+    
+    if( Module=="tbmB" && ip.first<=79){
+      i->second.set(0.);
+      //      std::cout << "tbmB dead module is removed " << detid << std::endl;
 
-  } // end pixel loop 
-} // end module_killing_conf
+    }
 
-
+  }
+}
 
 
 //****************************************************************************************************
+  /*
 void SiPixelDigitizerAlgorithm::module_killing_DB(void){
   if(!use_module_killing_)
     return;
-
-  bool isbad=false;
-  int detid = detID;
   
-
+  bool isbad=false;
+  uint32_t detid = detID;
+  
   std::vector<SiPixelQuality::disabledModuleType>disabledModules = SiPixelBadModule_->getBadComponentList();
   for (size_t id=0;id<disabledModules.size();id++)
     {
       SiPixelQuality::disabledModuleType badmodule = disabledModules[id];
-
-    if(detid==badmodule.DetID){
-      isbad=true;
-      break;
+      
+      if(detid==badmodule.DetID){
+	isbad=true;
+	//std::cout << "Dead module from DB is: " << detid << std::endl;
+	break;
+      }
     }
-  }
   
   if(!isbad)
     return;
   
-
   SiPixelQuality::disabledModuleType badmodule;
-
+  
   if(badmodule.errorType == 0){
-
+    std::cout << "bad module error type is " << badmodule.errorType <<std::endl;
     for(signal_map_iterator i = _signal.begin();i != _signal.end(); i++) {    
-      // make pixel amplitude =0, pixel will be lost at clusterization    
       i->second.set(0.); // reset amplitude
-      }
+    }
   }
+  
   
   for(signal_map_iterator i = _signal.begin();i != _signal.end(); i++) {    
     pair<int,int> ip = PixelDigi::channelToPixel(i->first);//get pixel pos
     
-	if(badmodule.errorType == 1 && ip.first>=80 && ip.first<=159){
-	  i->second.set(0.);
-	}
-	
-	if(badmodule.errorType == 2 && ip.first<=79){
-	  i->second.set(0.);
-	}
-
-  } // end pixel loop 
-} // end module_killing_DB
-
- 
+    if(badmodule.errorType == 1 &&  ip.first>=80 && ip.first<=159){
+      i->second.set(0.);
+    }
+    
+    if( badmodule.errorType == 2 && ip.first<=79){
+      i->second.set(0.);
+    }
+  } 
+}
+  */

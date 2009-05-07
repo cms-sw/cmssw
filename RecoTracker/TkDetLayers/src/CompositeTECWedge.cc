@@ -122,7 +122,7 @@ CompositeTECWedge::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   searchNeighbors( tsos, prop, est, crossings.other(), window,
   		   nextResult, true);
 
-  int crossingSide = LayerCrossingSide().barrelSide( closestGel.trajectoryState(), prop);
+  int crossingSide = LayerCrossingSide().endcapSide( closestGel.trajectoryState(), prop);
   DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result,
 					  crossings.closestIndex(), crossingSide);
 }

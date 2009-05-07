@@ -3,8 +3,8 @@
  * Test suit for CSCDigi.
  * Based on testDTDigis.cpp
  *
- * $Date: 2008/01/31 10:32:10 $
- * $Revision: 1.22 $
+ * $Date: 2007/05/21 21:10:33 $
+ * $Revision: 1.20 $
  *
  * \author N. Terentiev, CMU (for CSCWireDigi, CSCRPCDigi, 
  *                                CSCALCTDigi, CSCCLCTDigi)
@@ -12,43 +12,42 @@
  * \author A. Tumanov, Rice U.
  */
 
-static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.22 2008/01/31 10:32:10 muzaffar Exp $";
+static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.20 2007/05/21 21:10:33 tumanov Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-#include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+#include <DataFormats/CSCDigi/interface/CSCWireDigi.h>
+#include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
                                                                                 
-#include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
+#include <DataFormats/CSCDigi/interface/CSCComparatorDigi.h>
+#include <DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h>
 
-#include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
+#include <DataFormats/CSCDigi/interface/CSCStripDigi.h>
+#include <DataFormats/CSCDigi/interface/CSCStripDigiCollection.h>
 
-#include "DataFormats/CSCDigi/interface/CSCRPCDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCRPCDigiCollection.h"
+#include <DataFormats/CSCDigi/interface/CSCRPCDigi.h>
+#include <DataFormats/CSCDigi/interface/CSCRPCDigiCollection.h>
 
-#include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
+#include <DataFormats/CSCDigi/interface/CSCALCTDigi.h>
+#include <DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h>
 
-#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include <DataFormats/CSCDigi/interface/CSCCLCTDigi.h>
+#include <DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h>
 
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h>
+#include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
 
-#include "DataFormats/CSCDigi/interface/CSCCFEBStatusDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCCFEBStatusDigiCollection.h"
+#include <DataFormats/CSCDigi/interface/CSCCFEBStatusDigi.h>
+#include <DataFormats/CSCDigi/interface/CSCCFEBStatusDigiCollection.h>
 
-#include "DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCTMBStatusDigiCollection.h"
+#include <DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h>
+#include <DataFormats/CSCDigi/interface/CSCTMBStatusDigiCollection.h>
 
-#include "DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigiCollection.h"
+#include <DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigi.h>
+#include <DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigiCollection.h>
 
 #include <stdio.h>
-#include <iostream>
 
 using namespace std;
 

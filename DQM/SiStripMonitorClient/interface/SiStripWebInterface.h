@@ -1,7 +1,7 @@
 #ifndef _SiStripWebInterface_h_
 #define _SiStripWebInterface_h_
 
-#include "DQMServices/WebComponents/interface/WebInterface.h"
+#include "DQM/TrackerCommon/interface/WebInterface.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 

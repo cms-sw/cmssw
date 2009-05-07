@@ -26,7 +26,6 @@ DEFINE_EDM_PLUGIN(CachingVariableFactory, DoubleVar, "DoubleVar");
 DEFINE_EDM_PLUGIN(CachingVariableFactory, BoolVar, "BoolVar");
 DEFINE_EDM_PLUGIN(CachingVariableFactory, DoubleVVar, "DoubleVVar");
 DEFINE_EDM_PLUGIN(CachingVariableFactory, BoolVVar, "BoolVVar");
-DEFINE_EDM_PLUGIN(CachingVariableFactory, HLTBitVariable, "HLTBitVariable");
 
 DEFINE_EDM_PLUGIN(CachingVariableFactory, ComputedVariable, "ComputedVariable");
 

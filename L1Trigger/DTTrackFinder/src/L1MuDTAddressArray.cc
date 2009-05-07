@@ -5,8 +5,8 @@
 //   Description: Array of relative Addresses
 //
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.2 $
+//   $Date: 2006/06/26 16:11:13 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -129,8 +129,8 @@ void L1MuDTAddressArray::reset() {
 //
 void L1MuDTAddressArray::setStation(int stat, int adr) {
 
-  //  assert( stat >  0 && stat <= 4 );
-  //  assert( adr  >= 0 && adr  <= 15       );  
+  assert( stat >  0 && stat <= 4 );
+  assert( adr  >= 0 && adr  <= 15       );  
   m_station[stat-1] = adr;
 
 }
@@ -290,7 +290,7 @@ unsigned short int L1MuDTAddressArray::convert(unsigned short int adr) {
 //
 bool L1MuDTAddressArray::sameWheel(unsigned short int adr) {
 
-  //  if ( adr > 15 ) cerr << "L1MuDTAddressArray : Error wrong address " << adr << endl;
+  if ( adr > 15 ) cerr << "L1MuDTAddressArray : Error wrong address " << adr << endl;
   return ( (adr/2)%2 == 0 );
 
 }
@@ -301,7 +301,7 @@ bool L1MuDTAddressArray::sameWheel(unsigned short int adr) {
 //
 bool L1MuDTAddressArray::nextWheel(unsigned short int adr) {
 
-  //  if ( adr > 15 ) cerr << "L1MuDTAddressArray : Error wrong address " << adr << endl;
+  if ( adr > 15 ) cerr << "L1MuDTAddressArray : Error wrong address " << adr << endl;
   return ( (adr/2)%2 == 1 );
 
 }
