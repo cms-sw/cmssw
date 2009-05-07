@@ -3,7 +3,7 @@
  * Generates PYQUEN HepMC events
  *
  * Original Author: Camelia Mironov
- * $Id: PyquenProducer.cc,v 1.6 2009/02/19 02:26:58 yilmaz Exp $
+ * $Id: PyquenProducer.cc,v 1.7 2009/05/06 16:13:44 yilmaz Exp $
 */
 
 #include <iostream>
@@ -83,7 +83,8 @@ eventNumber_(0)
   call_pyinit("CMS", "p", "p", comenergy);  
   
   produces<HepMCProduct>();
-  produces<GenEventInfoProduct, edm::InRun>();
+  produces<GenEventInfoProduct>();
+  //  produces<GenRunInfoProduct, edm::InRun>();
 
 }
 
