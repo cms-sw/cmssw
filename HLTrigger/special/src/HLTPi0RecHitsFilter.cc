@@ -114,9 +114,9 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
     selePtGammaPi0EndCap_region1_ = iConfig.getParameter<double> ("selePtGammaPi0EndCap_region1");  
     selePtPi0EndCap_region1_ = iConfig.getParameter<double> ("selePtPi0EndCap_region1");   
     
-    preScale_endcapPi0_region1_ = iConfig.getParameter<int> ("preScale_endcapPi0_region1"); 
-    preScale_endcapPi0_region2_ = iConfig.getParameter<int> ("preScale_endcapPi0_region2"); 
-    preScale_endcapPi0_region3_ = iConfig.getParameter<int> ("preScale_endcapPi0_region3"); 
+    //    preScale_endcapPi0_region1_ = iConfig.getParameter<int> ("preScale_endcapPi0_region1"); 
+    // preScale_endcapPi0_region2_ = iConfig.getParameter<int> ("preScale_endcapPi0_region2"); 
+    //preScale_endcapPi0_region3_ = iConfig.getParameter<int> ("preScale_endcapPi0_region3"); 
     
     
     
@@ -188,9 +188,9 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
     selePtGammaEtaEndCap_region3_ = iConfig.getParameter<double> ("selePtGammaEtaEndCap_region3");  
     selePtEtaEndCap_region3_ = iConfig.getParameter<double> ("selePtEtaEndCap_region3");  
     
-    preScale_endcapEta_region1_ = iConfig.getParameter<int> ("preScale_endcapEta_region1"); 
-    preScale_endcapEta_region2_ = iConfig.getParameter<int> ("preScale_endcapEta_region2"); 
-    preScale_endcapEta_region3_ = iConfig.getParameter<int> ("preScale_endcapEta_region3"); 
+    //    preScale_endcapEta_region1_ = iConfig.getParameter<int> ("preScale_endcapEta_region1"); 
+    // preScale_endcapEta_region2_ = iConfig.getParameter<int> ("preScale_endcapEta_region2"); 
+    //preScale_endcapEta_region3_ = iConfig.getParameter<int> ("preScale_endcapEta_region3"); 
         
 
     seleS4S9GammaEtaEndCap_ = iConfig.getParameter<double> ("seleS4S9GammaEtaEndCap");  
@@ -1487,17 +1487,17 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if(Iso/pt_pair > selePi0IsoEndCap_) continue; 
 	
 	
-	///Now prescale pi0 selection 
-	if(etapair <= region1_Pi0EndCap_){
-	  selected_endcapPi0_region1 ++; 
-	  if(selected_endcapPi0_region1 % preScale_endcapPi0_region1_ != 0) continue; 
-	}else if( etapair <= region2_Pi0EndCap_){
-	  selected_endcapPi0_region2 ++; 
-	  if(selected_endcapPi0_region2 % preScale_endcapPi0_region2_ != 0) continue; 
-	}else{
-	  selected_endcapPi0_region3 ++; 
-	  if(selected_endcapPi0_region3 % preScale_endcapPi0_region3_ != 0) continue; 
-	}
+	// 	///Now prescale pi0 selection 
+	// 	if(etapair <= region1_Pi0EndCap_){
+	// 	  selected_endcapPi0_region1 ++; 
+	// 	  if(selected_endcapPi0_region1 % preScale_endcapPi0_region1_ != 0) continue; 
+	// 	}else if( etapair <= region2_Pi0EndCap_){
+	// 	  selected_endcapPi0_region2 ++; 
+	// 	  if(selected_endcapPi0_region2 % preScale_endcapPi0_region2_ != 0) continue; 
+	// 	}else{
+	// 	  selected_endcapPi0_region3 ++; 
+	// 	  if(selected_endcapPi0_region3 % preScale_endcapPi0_region3_ != 0) continue; 
+	// 	}
 	
 	
 	
@@ -1616,17 +1616,18 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if(Iso/pt_pair > seleEtaIsoEndCap_) continue; 
 	
 	
-	///Now prescale eta selection 
-	if(etapair <= region1_EtaEndCap_){
-	  selected_endcapEta_region1 ++; 
-	  if(selected_endcapEta_region1 % preScale_endcapEta_region1_ != 0) continue; 
-	}else if( etapair <= region2_EtaEndCap_){
-	  selected_endcapEta_region2 ++; 
-	  if(selected_endcapEta_region2 % preScale_endcapEta_region2_ != 0) continue; 
-	}else{
-	  selected_endcapEta_region3 ++; 
-	  if(selected_endcapEta_region3 % preScale_endcapEta_region3_ != 0) continue; 
-	}
+	// 	///Now prescale eta selection 
+	// 	if(etapair <= region1_EtaEndCap_){
+	// 	  selected_endcapEta_region1 ++; 
+	// 	  if(selected_endcapEta_region1 % preScale_endcapEta_region1_ != 0) continue; 
+	// 	}else if( etapair <= region2_EtaEndCap_){
+	// 	  selected_endcapEta_region2 ++; 
+	// 	  if(selected_endcapEta_region2 % preScale_endcapEta_region2_ != 0) continue; 
+	// 	}else{
+	// 	  selected_endcapEta_region3 ++; 
+	// 	  if(selected_endcapEta_region3 % preScale_endcapEta_region3_ != 0) continue; 
+	// 	}
+	
 	
 	
 	
