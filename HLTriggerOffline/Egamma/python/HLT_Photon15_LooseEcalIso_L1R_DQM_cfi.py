@@ -95,7 +95,7 @@ HLT_Photon15_LooseEcalIso_L1R_DQM = cms.EDFilter("EmDQM",
             PlotBounds = cms.vdouble(0.0, 10.0),
             HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEt15LEIHcalIsolFilter","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("hltL1IsolatedPhotonHcalIsol","","HLT"), cms.InputTag("hltL1NonIsolatedPhotonHcalIsol","","HLT")),
-            theHLTOutputTypes = cms.int32(92),
+            theHLTOutputTypes = cms.int32(81),
             HLTCollectionHumanName = cms.untracked.string("Hcal Iso Filter")
         )
         ##########################################################
