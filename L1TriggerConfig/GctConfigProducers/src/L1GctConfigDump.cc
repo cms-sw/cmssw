@@ -1,6 +1,8 @@
 #include "L1TriggerConfig/GctConfigProducers/interface/L1GctConfigDump.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -42,8 +44,8 @@ void L1GctConfigDump::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   edm::ESHandle< L1GctJetFinderParams > jfParams;
   iSetup.get< L1GctJetFinderParamsRcd >().get( jfParams ) ;
 
-  edm::ESHandle< L1GctChannelMask > chanMask;
-  iSetup.get< L1GctChannelMaskRcd >().get( chanMask ) ;
+//   edm::ESHandle< L1GctChannelMask > chanMask;
+//   iSetup.get< L1GctChannelMaskRcd >().get( chanMask ) ;
 
   edm::ESHandle< L1CaloEtScale > jetScale;
   iSetup.get< L1JetEtScaleRcd >().get( jetScale ) ;
@@ -62,3 +64,6 @@ void L1GctConfigDump::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   LogDebug("L1GctConfigDump") << (*hfRingScale) << std::endl;
   
 }
+
+
+DEFINE_ANOTHER_FWK_MODULE(L1GctConfigDump);
