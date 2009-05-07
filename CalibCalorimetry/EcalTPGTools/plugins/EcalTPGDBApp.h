@@ -37,6 +37,7 @@ class EcalTPGDBApp : public EcalCondDBInterface {
   
   void readFromConfDB_TPGPedestals(int iconf_req) ;
   int readFromCondDB_Pedestals(map<EcalLogicID, MonPedestalsDat> & pedset, int runNb) ;
+  int writeToConfDB_TPGMain(int ped, int lin, int lut, int fgr, int sli, int wei, int bxt, int btt, string tag, int ver) ;
   
   
  private:

@@ -46,6 +46,17 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
 {
   std::cout<<"here we are in EcalTPGParamBuilder::EcalTPGParamBuilder"<<endl;
 
+  ped_conf_id_=0;
+  lin_conf_id_=0;
+  lut_conf_id_=0;
+  wei_conf_id_=0;
+  fgr_conf_id_=0;
+  sli_conf_id_=0;
+  bxt_conf_id_=0;
+  btt_conf_id_=0;
+  tag_="";
+  version_=0;
+
   readFromDB_ = pSet.getParameter<bool>("readFromDB") ;
   writeToDB_  = pSet.getParameter<bool>("writeToDB") ;
   DBEE_ = pSet.getParameter<bool>("allowDBEE") ;
@@ -54,6 +65,11 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   string DBpass   = pSet.getParameter<std::string>("DBpass") ;
   uint32_t DBport = pSet.getParameter<unsigned int>("DBport") ;
   DBrunNb_        = pSet.getParameter<unsigned int>("DBrunNb") ;
+
+  tag_   = pSet.getParameter<std::string>("TPGtag") ;
+  version_ = pSet.getParameter<unsigned int>("TPGversion") ;
+
+  std::cout << "data will be saved with tag and version="<< tag_<< ".version"<<version_<< endl;
 
   std::cout << "DB RUN NB="<< DBrunNb_<< endl;
  
@@ -207,8 +223,11 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     }
   }
 
-
-  std::cout <<"we get the pedestals from online DB"<<endl;
+// I comment this one 
+// because the best pedestals are already in the offline DB
+ 
+/*  
+std::cout <<"we get the pedestals from online DB"<<endl;
   map<EcalLogicID, MonPedestalsDat> pedMapDB ;
   int iovId = 0 ;
   std::cout << "DB RUN NB="<< DBrunNb_<< endl;
@@ -241,6 +260,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     }
   }
   // now peds is complete 
+
+  */
 
 
   const EcalPedestalsMap & pedMapNew = peds->getMap() ;
@@ -311,6 +332,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   // loop on EB xtals
   if (writeToFiles_) (*out_file_)<<"COMMENT ====== barrel crystals ====== "<<std::endl ;
   const std::vector<DetId>& ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
+  std::cout <<" number of valid ebcells "<<ebCells.size()<<std::endl;
 
   // special case of eta slices
   for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
@@ -408,12 +430,12 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	  }
 	}
       }
-      if (writeToDB_) {
-	int ixtal=(id.ism()-1)*1700+(id.ic()-1);
-	EcalLogicID logicId =my_EcalLogicId[ixtal];
-	pedset[logicId] = ped ;
-	linset[logicId] = lin ;	
-      }
+    }
+    if (writeToDB_) {
+      int ixtal=(id.ism()-1)*1700+(id.ic()-1);
+      EcalLogicID logicId =my_EcalLogicId[ixtal];
+      pedset[logicId] = ped ;
+      linset[logicId] = lin ;	
     }
   } //ebCells
 
@@ -465,12 +487,9 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       logicId = db_->getEcalLogicID ("EE_crystal_number", iz, id.ix(), id.iy()) ;
     }
 
+// comment to can write to the OnlineDB at P5    
     coeffStruc coeff ;
     if (readFromDB_ && DBEE_) {
-      getCoeff(coeff, calibMap, id.rawId()) ;
-      getCoeff(coeff, gainMap, id.rawId()) ;
-      getCoeff(coeff, pedMapDB, logicId) ;      
-    } else {
       getCoeff(coeff, calibMap, id.rawId()) ;
       getCoeff(coeff, gainMap, id.rawId()) ;
       getCoeff(coeff, pedMap, id.rawId()) ;
@@ -509,9 +528,10 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
   std::cout<< "we are in analyze 2"<< endl; 
 
+
   if (writeToDB_) {
-    db_->writeToConfDB_TPGPedestals(pedset, iovId, "from_CondDB") ;
-    db_->writeToConfDB_TPGLinearCoef(linset,linparamset, iovId, "from_CondDB") ;
+    ped_conf_id_=db_->writeToConfDB_TPGPedestals(pedset, 1, "from_OfflineDB") ;
+    lin_conf_id_=db_->writeToConfDB_TPGLinearCoef(linset,linparamset, 1, "from_CondDB") ;
   }
 
   /////////////////////////////
@@ -573,7 +593,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       wtag.str(""); wtag<<"SimShape_Phase"<<phase<<"_NGroups_"<<NWEIGROUPS;
       std::string weight_tag=wtag.str();
       std::cout<< " weight tag "<<weight_tag<<endl; 
-      db_->writeToConfDB_TPGWeight(dataset, dataset2, NWEIGROUPS, weight_tag) ;
+      wei_conf_id_=db_->writeToConfDB_TPGWeight(dataset, dataset2, NWEIGROUPS, weight_tag) ;
       
     }
   }
@@ -641,7 +661,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       wtag.str(""); wtag<<"FGR_"<<lutFG<<"_NGroups_"<<NFGRGROUPS;
       std::string weight_tag=wtag.str();
       std::cout<< " weight tag "<<weight_tag<<endl; 
-      db_->writeToConfDB_TPGFgr(dataset, dataset2, NFGRGROUPS, weight_tag) ;
+      fgr_conf_id_=db_->writeToConfDB_TPGFgr(dataset, dataset2, NFGRGROUPS, weight_tag) ;
   }
 
   if (writeToDB_) {
@@ -668,7 +688,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       std::string justatag=wtag.str();
       std::cout<< " sliding tag "<<justatag<<endl;
       int iov_id=0; // just a parameter ... 
-      db_->writeToConfDB_TPGSliding(dataset,iov_id, justatag) ;
+      sli_conf_id_=db_->writeToConfDB_TPGSliding(dataset,iov_id, justatag) ;
   }
 
   
@@ -741,11 +761,17 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     ltag.str(""); ltag<<LUT_option_<<"_NGroups_"<<NLUTGROUPS;
     std::string lut_tag=ltag.str();
     std::cout<< " LUT tag "<<lut_tag<<endl; 
-    db_->writeToConfDB_TPGLUT(dataset, dataset2, NLUTGROUPS, lut_tag) ;
+    lut_conf_id_=db_->writeToConfDB_TPGLUT(dataset, dataset2, NLUTGROUPS, lut_tag) ;
 
   }
 
+  // last we insert the FE_CONFIG_MAIN table 
+ if (writeToDB_) {
+   
+   int conf_id_=db_->writeToConfDB_TPGMain(ped_conf_id_,lin_conf_id_, lut_conf_id_, fgr_conf_id_, 
+					sli_conf_id_, wei_conf_id_, bxt_conf_id_, btt_conf_id_, tag_, version_) ;
 
+ }
 
 
   ///////////////////////////////////////////////////////////

@@ -65,6 +65,36 @@ int EcalTPGDBApp::writeToConfDB_TPGLinearCoef(const  map<EcalLogicID, FEConfigLi
   return result;
 }
 
+int EcalTPGDBApp::writeToConfDB_TPGMain(int ped, int lin, int lut, int fgr, int sli, int wei, int bxt, int btt, string tag, int ver) {
+  
+  int result=0;
+
+  cout << "*********************************************" << endl;
+  cout << "**Inserting Main FE table in conf-OMDS     **" << endl;
+  cout << "*********************************************" << endl;
+  
+  cout << "creating fe record " <<endl;
+
+  FEConfigMainInfo fe_main ;
+  fe_main.setPedId(ped) ;
+  fe_main.setLinId(lin) ;
+  fe_main.setLUTId(lut) ;
+  fe_main.setFgrId(fgr) ;
+  fe_main.setSliId(sli) ;
+  fe_main.setWeiId(wei) ;
+  fe_main.setBxtId(bxt) ;
+  fe_main.setBttId(btt) ;
+  fe_main.setConfigTag(tag) ;
+  fe_main.setVersion(ver) ;
+
+  insertConfigSet(&fe_main) ;
+  result = fe_main.getId() ;
+  
+  cout << "*********Done Main           *********" << endl;
+  
+  return result;
+}
+
 
 void EcalTPGDBApp::readFromConfDB_TPGPedestals(int iconf_req ) {
   // now we do something else 

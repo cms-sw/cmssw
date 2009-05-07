@@ -110,5 +110,16 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   unsigned int DBrunNb_ ;
   bool DBEE_ ;
 
+  int ped_conf_id_;
+  int lin_conf_id_;
+  int lut_conf_id_;
+  int fgr_conf_id_;
+  int sli_conf_id_;
+  int wei_conf_id_;
+  int bxt_conf_id_;
+  int btt_conf_id_;
+  std::string tag_;
+  int version_;
+
 };
 #endif
