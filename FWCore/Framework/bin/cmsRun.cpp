@@ -1,7 +1,8 @@
 /*----------------------------------------------------------------------
 
 This is a generic main that can be used with any plugin and a 
-PSet script.   See notes in EventProcessor.cpp for details about it.
+PSet script.   See notes in EventProcessor.cpp for details about
+it.
 
 
 ----------------------------------------------------------------------*/  
@@ -32,7 +33,6 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/ServiceRegistry/interface/ServiceWrapper.h"
-#include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include "TError.h"
 
@@ -47,8 +47,6 @@ static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
 static char const* const kStrictOpt = "strict";
 static char const* const kProgramName = "cmsRun";
-static char const* const kVersionOpt = "version";
-static char const* const kVersionCommandOpt = "version,v";
 
 // -----------------------------------------------
 namespace {
@@ -109,21 +107,22 @@ int main(int argc, char* argv[])
   //    be run below and can lead to error messages which should be sent via
   //    the message logger)
   bool multiThreadML = false;
-  for (int i = 0; i < argc; ++i) {
-    if ((std::strncmp (argv[i], "-t", 20) == 0) ||
-         (std::strncmp (argv[i], "--multithreadML", 20) == 0)) {
-      multiThreadML = true; 
+  for (int i=0; i<argc; ++i) {
+    if ( (std::strncmp (argv[i],"-t", 20) == 0) ||
+         (std::strncmp (argv[i],"--multithreadML", 20) == 0) )
+    { multiThreadML = true; 
       break; 
     }
   } 
  
   // TEMPORARY -- REMOVE AT ONCE!!!!!
-  // if (multiThreadML) std::cerr << "\n\n multiThreadML \n\n";
+  // if ( multiThreadML ) std::cerr << "\n\n multiThreadML \n\n";
   
   // Load the message service plug-in
   boost::shared_ptr<edm::Presence> theMessageServicePresence;
 
-  if (multiThreadML) {
+  if (multiThreadML)
+  {
     try {
       theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
           makePresence("MessageServicePresence").release());
@@ -177,8 +176,7 @@ int main(int argc, char* argv[])
     	"Job Mode for MessageLogger defaults - default mode is grid")
     (kMultiThreadMessageLoggerOpt,
     	"MessageLogger handles multiple threads - default is single-thread")
-    (kStrictOpt, "strict parsing")
-    (kVersionCommandOpt, "print version");
+    (kStrictOpt, "strict parsing");
 
   // anything at the end will be ignored, and sent to python
   boost::program_options::positional_options_description p;
@@ -212,12 +210,6 @@ int main(int argc, char* argv[])
     return 0;
   }
   
-  if(vm.count(kVersionOpt)) {
-    std::cout << edm::getReleaseVersion() <<std::endl;
-    if(!vm.count(kParameterSetOpt)) edm::HaltMessageLogging();
-    return 0;
-  }
-
   if(!vm.count(kParameterSetOpt)) {
     std::string shortDesc("ConfigFileNotFound");
     std::ostringstream longDesc;
@@ -257,9 +249,9 @@ int main(int argc, char* argv[])
   std::auto_ptr<std::ofstream> jobReportStreamPtr;
   if (vm.count("jobreport")) {
     std::string jobReportFile = vm["jobreport"].as<std::string>();
-    jobReportStreamPtr = std::auto_ptr<std::ofstream>(new std::ofstream(jobReportFile.c_str()));
+    jobReportStreamPtr = std::auto_ptr<std::ofstream>( new std::ofstream(jobReportFile.c_str()) );
   } else if (vm.count("enablejobreport")) {
-    jobReportStreamPtr = std::auto_ptr<std::ofstream>(new std::ofstream("FrameworkJobReport.xml"));
+    jobReportStreamPtr = std::auto_ptr<std::ofstream>( new std::ofstream("FrameworkJobReport.xml") );
   } 
   //
   // Make JobReport Service up front
@@ -267,7 +259,7 @@ int main(int argc, char* argv[])
   //NOTE: JobReport must have a lifetime shorter than jobReportStreamPtr so that when the JobReport destructor
   // is called jobReportStreamPtr is still valid
   std::auto_ptr<edm::JobReport> jobRepPtr(new edm::JobReport(jobReportStreamPtr.get()));  
-  boost::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::JobReport> > jobRep(new edm::serviceregistry::ServiceWrapper<edm::JobReport>(jobRepPtr));
+  boost::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::JobReport> > jobRep( new edm::serviceregistry::ServiceWrapper<edm::JobReport>(jobRepPtr) );
   edm::ServiceToken jobReportToken = 
     edm::ServiceRegistry::createContaining(jobRep);
   
