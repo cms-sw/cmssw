@@ -56,7 +56,7 @@ RPCSimTriv::simulate(const RPCRoll* roll,
        _hit != rpcHits.end(); ++_hit){
 
     int type = _hit->particleType();
-    if (type != 11 ){
+    if (type == 13 || type == -13){
       // Here I hould check if the RPC are up side down;
       const LocalPoint& entr=_hit->entryPoint();
       int time_hit = _rpcSync->getSimHitBx(&(*_hit));
