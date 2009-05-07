@@ -200,6 +200,15 @@ inline void evaluateTtSemiLepJetComb(PhysicsTools::Variable::ValueList& values, 
   values.add( "bTagSumImpactParaMVA", jetComb.combinedBTags(kImpactParaMVA, kAdd) );
   // multiplied b-tags of the two b quark candidates
   values.add( "bTagProdImpactParaMVA", jetComb.combinedBTags(kImpactParaMVA, kMult) );
+  // summed b-tags of the two light quark candidates
+  values.add( "bTagSumHadQHadQBarTrkCntHighEff", jetComb.combinedBTagsForLightQuarks(kTrkCntHighEff, kAdd) );
+  values.add( "bTagSumHadQHadQBarTrkCntHighPur", jetComb.combinedBTagsForLightQuarks(kTrkCntHighPur, kAdd) );
+  values.add( "bTagSumHadQHadQBarSoftMuon"     , jetComb.combinedBTagsForLightQuarks(kSoftMuon     , kAdd) );
+  values.add( "bTagSumHadQHadQBarSimpSecondVtx", jetComb.combinedBTagsForLightQuarks(kSimpSecondVtx, kAdd) );
+  values.add( "bTagSumHadQHadQBarCombSecondVtx", jetComb.combinedBTagsForLightQuarks(kCombSecondVtx, kAdd) );
+  values.add( "bTagSumHadQHadQBarImpactParaMVA", jetComb.combinedBTagsForLightQuarks(kImpactParaMVA, kAdd) );
+  // multiplied b-tags of the two light quark candidates
+  values.add( "bTagProdHadQHadQBarImpactParaMVA", jetComb.combinedBTagsForLightQuarks(kImpactParaMVA, kMult) );
 }
 
 #endif
