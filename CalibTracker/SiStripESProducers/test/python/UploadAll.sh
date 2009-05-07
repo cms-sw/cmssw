@@ -37,9 +37,9 @@ cmsRun DummyCondDBWriter_tmp_cfg.py
 cat DummyCondDBWriter_SiStripLorentzAngle_cfg.py | sed -e "s@$oldDest@$newDest@" -e "s@$oldTag@$newTag@" > DummyCondDBWriter_tmp_cfg.py
 cmsRun DummyCondDBWriter_tmp_cfg.py
 # 
-cat DummyCondDBWriter_SiStripLorentzAngle_cfg.py | sed -e "s@$oldDest@$newDest@" -e "s@$oldTag@$newTag@" -e "s@SiStripLorentzAngle_Ideal@SiStripLorentzAngle_IdealSim@" -e s"@TIB_PerCent_Err=cms.double(0.)@TIB_PerCent_Err=cms.double(0.)@" -e s"@TOB_PerCent_Err=cms.double(0.)@TOB_PerCent_Err=cms.double(0.)@"> DummyCondDBWriter_tmp_cfg.py
+cat DummyCondDBWriter_SiStripLorentzAngle_cfg.py | sed -e "s@$oldDest@$newDest@" -e "s@$oldTag@$newTag@" -e "s@SiStripLorentzAngle_Ideal@SiStripLorentzAngle_IdealSim@" -e "s@TIB_PerCent_Err=cms.double(0.)@TIB_PerCent_Err=cms.double(0.)@" -e "s@TOB_PerCent_Err=cms.double(0.)@TOB_PerCent_Err=cms.double(0.)@"> DummyCondDBWriter_tmp_cfg.py
 cmsRun DummyCondDBWriter_tmp_cfg.py
-cat DummyCondDBWriter_SiStripLorentzAngle_cfg.py | sed -e "s@$oldDest@$newDest@" -e "s@$oldTag@$newTag@" -e "s@SiStripLorentzAngle_Ideal@SiStripLorentzAngle_StartUp@" -e s"@TIB_PerCent_Err=cms.double(0.)@TIB_PerCent_Err=cms.double(20.)@" -e s"@TOB_PerCent_Err=cms.double(0.)@TOB_PerCent_Err=cms.double(20.)@"> DummyCondDBWriter_tmp_cfg.py
+cat DummyCondDBWriter_SiStripLorentzAngle_cfg.py | sed -e "s@$oldDest@$newDest@" -e "s@$oldTag@$newTag@" -e "s@SiStripLorentzAngle_Ideal@SiStripLorentzAngle_StartUp@" -e "s@TIB_PerCent_Err=cms.double(0.)@TIB_PerCent_Err=cms.double(20.)@" -e "s@TOB_PerCent_Err=cms.double(0.)@TOB_PerCent_Err=cms.double(20.)@"> DummyCondDBWriter_tmp_cfg.py
 cmsRun DummyCondDBWriter_tmp_cfg.py
 # #
 cat DummyCondDBWriter_SiStripDetVOff_cfg.py | sed -e "s@$oldDest@$newDest@" -e "s@$oldTag@$newTag@" > DummyCondDBWriter_tmp_cfg.py
