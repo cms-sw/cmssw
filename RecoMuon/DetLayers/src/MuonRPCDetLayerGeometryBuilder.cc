@@ -348,14 +348,15 @@ bool MuonRPCDetLayerGeometryBuilder::isFront(const RPCDetId & rpcId)
   // 20 degree rings are a little weird! not anymore from 17x
   if(rpcId.ring() == 1 && rpcId.station() > 1)
   {
-    // RE1/2 RE1/3
-    /* goes (sector) (subsector)
+    // RE2/1 RE3/1  Upscope Geometry
+    /* goes (sector) (subsector)            1/3
     1 1 back   // front 
-    1 2 front  // back
-    1 3 front  // front
-    2 1 front  // back
-    2 2 back   // from
-    2 3 back   // back
+    1 2 front  // back  
+    1 3 front  // front 
+    2 1 front  // back  
+    2 2 back   // from  
+    2 3 back   // back  
+                        
     */
     result = (rpcId.subsector() != 2);
     if(rpcId.sector()%2 == 0) result = !result;
@@ -364,7 +365,7 @@ bool MuonRPCDetLayerGeometryBuilder::isFront(const RPCDetId & rpcId)
   else
   {
     // 10 degree rings have odd subsectors in front
-    result = (rpcId.subsector()%2 == 1);
+    result = (rpcId.subsector()%2 == 0);
   }
   return result;
 }
