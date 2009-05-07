@@ -27,6 +27,8 @@ public:
 
   MonitorElement* meStatus;
 
+  int unsuppressed; // flag for ZSC unsuppressedDigis picking up
+
 };
 
 #endif

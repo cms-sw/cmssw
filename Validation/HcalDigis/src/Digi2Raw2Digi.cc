@@ -42,10 +42,14 @@ void Digi2Raw2Digi::compare(const edm::Event& iEvent, const edm::EventSetup& iSe
   typename edm::Handle<edm::SortedCollection<Digi> > digiCollection2;
   typename edm::SortedCollection<Digi>::const_iterator digiItr2;
   
-   
-  iEvent.getByLabel (inputTag1_, digiCollection1);
+  if(unsuppressed) {  // ZDC
+    iEvent.getByLabel ("simHcalUnsuppressedDigis", digiCollection1); 
+  }
+  else iEvent.getByLabel (inputTag1_, digiCollection1);
+
   iEvent.getByLabel (inputTag2_, digiCollection2);
 
+ 
   int size1 = 0;
   int size2 = 0;
 
@@ -135,15 +139,18 @@ void Digi2Raw2Digi::compare(const edm::Event& iEvent, const edm::EventSetup& iSe
 Digi2Raw2Digi::Digi2Raw2Digi(const edm::ParameterSet& iConfig)
   : inputTag1_(iConfig.getParameter<edm::InputTag>("digiLabel1")),
     inputTag2_(iConfig.getParameter<edm::InputTag>("digiLabel2")),
-    outputFile_(iConfig.getUntrackedParameter<std::string>("outputFile","")),
+    outputFile_(iConfig.getUntrackedParameter<std::string>("outputFile")),
     dbe_(0)
 { 
 
   // DQM ROOT output
   if ( outputFile_.size() != 0 ) {
-    edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
+    edm::LogInfo("OutputInfo")
+      << " Hcal RecHit Task histograms will be saved to '" 
+      << outputFile_.c_str() << "'";
   } else {
-    edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will NOT be saved";
+    edm::LogInfo("OutputInfo") 
+      << " Hcal RecHit Task histograms will NOT be saved";
   }
 
   // DQM service initialization
@@ -163,12 +170,17 @@ Digi2Raw2Digi::Digi2Raw2Digi(const edm::ParameterSet& iConfig)
 }
 
 
-Digi2Raw2Digi::~Digi2Raw2Digi() { }
+Digi2Raw2Digi::~Digi2Raw2Digi() { 
+
+  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
+
+}
 
 
 void Digi2Raw2Digi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
+  unsuppressed = 0;
+  
   //  std::cout << "=== HBHE ==================" << std::endl; 
   compare<HBHEDataFrame>(iEvent,iSetup);
 
@@ -180,7 +192,8 @@ void Digi2Raw2Digi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 
   //  std::cout << "=== ZDC ===================" << std::endl; 
-  //  compare<ZDCDataFrame>(iEvent,iSetup);
+  unsuppressed = 1;
+  compare<ZDCDataFrame>(iEvent,iSetup);
   
   
   //  std::cout << "=== CASTOR ================" << std::endl; 
