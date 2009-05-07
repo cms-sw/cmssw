@@ -15,11 +15,16 @@ conversions = cms.EDProducer("ConvertedPhotonProducer",
     inOutTrackCollection = cms.string(''),
     inOutTrackSCAssociation = cms.string('inOutTrackSCAssociationCollection'),
     outInTrackSCAssociation = cms.string('outInTrackSCAssociationCollection'),
-    convertedPhotonCollection = cms.string(''),
+    convertedPhotonCollection = cms.string('uncleanedConversions'),
+    cleanedConvertedPhotonCollection = cms.string(''),                         
     AlgorithmName = cms.string('ecalSeeded'),
-    minSCEt = cms.double(10.0),                         
+    minSCEt = cms.double(10.0),
     recoverOneTrackCase = cms.bool(True),
     dRForConversionRecovery = cms.double(0.3),                      
     deltaCotCut = cms.double(0.05),
-    minApproachDisCut  = cms.double(0.)                         
+    minApproachDisCut  = cms.double(0.),
+    maxNumOfCandidates = cms.int32(3),
+    risolveConversionAmbiguity = cms.bool(True),                         
+    MVA_weights_location = cms.string('RecoEgamma/EgammaTools/data/TMVAnalysis_Likelihood.weights.txt')
 )
+
