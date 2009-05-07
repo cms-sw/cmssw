@@ -44,6 +44,7 @@ when random numbers are only generated in modules and not in the source).
 
 #include <vector>
 #include <string>
+#include <stdint.h>
 
 namespace CLHEP {
   class HepRandomEngine;
