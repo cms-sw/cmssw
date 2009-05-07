@@ -216,7 +216,26 @@ class HLTPi0RecHitsFilter : public HLTFilter {
       bool doEndcap; 
     
       
-
+      
+      //pre-scale factors for different eta regions in Endcap, to suppress rate from high eta regions.
+      ///region1: |eta|<2; region2: 2<|eta|<2.5; region3: |eta|>2.5;
+      int preScale_endcapPi0_region1_; 
+      int preScale_endcapPi0_region2_; 
+      int preScale_endcapPi0_region3_; 
+      
+      int preScale_endcapEta_region1_; 
+      int preScale_endcapEta_region2_; 
+      int preScale_endcapEta_region3_; 
+      
+      ///global counts for selected 
+      long int selected_endcapPi0_region1; 
+      long int selected_endcapPi0_region2; 
+      long int selected_endcapPi0_region3; 
+      
+      long int selected_endcapEta_region1; 
+      long int selected_endcapEta_region2; 
+      long int selected_endcapEta_region3; 
+            
 
       bool storeRecHitES_; 
       edm::InputTag preshHitProducer_;         // name of module/plugin/producer producing hits

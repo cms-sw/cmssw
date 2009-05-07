@@ -114,6 +114,12 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
     selePtGammaPi0EndCap_region1_ = iConfig.getParameter<double> ("selePtGammaPi0EndCap_region1");  
     selePtPi0EndCap_region1_ = iConfig.getParameter<double> ("selePtPi0EndCap_region1");   
     
+    preScale_endcapPi0_region1_ = iConfig.getParameter<int> ("preScale_endcapPi0_region1"); 
+    preScale_endcapPi0_region2_ = iConfig.getParameter<int> ("preScale_endcapPi0_region2"); 
+    preScale_endcapPi0_region3_ = iConfig.getParameter<int> ("preScale_endcapPi0_region3"); 
+    
+    
+    
     region2_Pi0EndCap_ = iConfig.getParameter<double> ("region2_Pi0EndCap");
     selePtGammaPi0EndCap_region2_ = iConfig.getParameter<double> ("selePtGammaPi0EndCap_region2");  
     selePtPi0EndCap_region2_ = iConfig.getParameter<double> ("selePtPi0EndCap_region2");   
@@ -182,6 +188,10 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
     selePtGammaEtaEndCap_region3_ = iConfig.getParameter<double> ("selePtGammaEtaEndCap_region3");  
     selePtEtaEndCap_region3_ = iConfig.getParameter<double> ("selePtEtaEndCap_region3");  
     
+    preScale_endcapEta_region1_ = iConfig.getParameter<int> ("preScale_endcapEta_region1"); 
+    preScale_endcapEta_region2_ = iConfig.getParameter<int> ("preScale_endcapEta_region2"); 
+    preScale_endcapEta_region3_ = iConfig.getParameter<int> ("preScale_endcapEta_region3"); 
+        
 
     seleS4S9GammaEtaEndCap_ = iConfig.getParameter<double> ("seleS4S9GammaEtaEndCap");  
     seleS9S25GammaEtaEndCap_ = iConfig.getParameter<double> ("seleS9S25GammaEtaEndCap");  
@@ -286,11 +296,21 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
   }
   
   
-
+  ///for prescales
+  selected_endcapPi0_region1 = 0; 
+  selected_endcapPi0_region2 = 0; 
+  selected_endcapPi0_region3 = 0; 
+  
+  selected_endcapEta_region1 = 0; 
+  selected_endcapEta_region2 = 0; 
+  selected_endcapEta_region3 = 0; 
+  
+  
+  
   TheMapping = new EcalElectronicsMapping();
   first_ = true;
   
-   
+  
  
   providedParameters.insert(std::make_pair("LogWeighted",ParameterLogWeighted_));
   providedParameters.insert(std::make_pair("X0",ParameterX0_));
@@ -1194,8 +1214,6 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   ///detid for each ee cluster, both in X and Y plane
   vector< vector<DetId> > esdetIDClusterEndCap;
-  int neshitClustered = 0; 
-  
   
 
   nClusEndCap=0;
@@ -1337,8 +1355,8 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     RecHitsCluster5x5EndCap.push_back(RecHitsInWindow5x5);
         
     
-    //without es energy; 
-    float e_noes = simple_energy; 
+    //es energy; 
+    float en_es = 0; 
     
     
     if(storeRecHitES_){
@@ -1351,6 +1369,10 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       double e1=0;
       double e2=0;
       double deltaE=0;
+      ///this is to get already done before this cluster
+      ////the used_strips is defined with set, so the order is re-shuffled each time. 
+      std::set<DetId> used_strips_before = used_strips; 
+      
       // Get ES clusters (found by the PreshSeeded algorithm) associated with a given EE cluster.           
       for (int i=0; i<preshNclust_; i++) {
 	reco::PreshowerCluster cl1 = presh_algo->makeOneCluster(strip1,&used_strips,&esrechits_map,geometry_es,topology_es);   
@@ -1367,6 +1389,8 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	e1 = e1 / mip_;
 	e2 = e2 / mip_;
 	deltaE = gamma_*(calib_planeX_*e1+calib_planeY_*e2);       
+	en_es = deltaE; 
+	
       }
       ///if add ES energy to EE cluster, still keep the same directions.
       if( addESEnergyToEECluster_){
@@ -1374,19 +1398,18 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	et_s = simple_energy * sin(theta_s);
       }
       
+      ///actual clustered eshits for this endcap cluster
       std::vector<DetId> detides_clus; 
       std::set<DetId>::const_iterator ites = used_strips.begin();
-      int nskip = 0; 
       for(; ites != used_strips.end(); ++ ites ){
-	if(nskip < neshitClustered){
-	  nskip ++; 
-	  continue; 
+	ESDetId d1 = ESDetId(*ites);
+	std::set<DetId>::const_iterator ites2 = find(used_strips_before.begin(),used_strips_before.end(),d1);
+	if(ites2 == used_strips_before.end()){
+	  detides_clus.push_back(d1);
 	}
-	detides_clus.push_back(*ites);
       }
-      
-      neshitClustered = int(used_strips.size());
       esdetIDClusterEndCap.push_back(detides_clus);
+      
     }
     
     
@@ -1395,7 +1418,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
         
     
     if(debug_>=1){
-      cout<<"3x3_cluster_ee (n,nxt,e(noes),et eta,phi,s4s9,s925) "<<nClusEndCap<<" "<<int(RecHitsInWindow.size())<<" "<<eClusEndCap[nClusEndCap]<<" "<<e_noes<<" "<<etClusEndCap[nClusEndCap]<<" "<<etaClusEndCap[nClusEndCap]<<" "<<phiClusEndCap[nClusEndCap]<<" "<<s4s9ClusEndCap[nClusEndCap]<<" "<<s9s25ClusEndCap[nClusEndCap]<<endl;
+      cout<<"3x3_cluster_ee (n,nxt,e(es),et eta,phi,s4s9,s925) "<<nClusEndCap<<" "<<int(RecHitsInWindow.size())<<" "<<eClusEndCap[nClusEndCap]<<" "<<en_es<<" "<<etClusEndCap[nClusEndCap]<<" "<<etaClusEndCap[nClusEndCap]<<" "<<phiClusEndCap[nClusEndCap]<<" "<<s4s9ClusEndCap[nClusEndCap]<<" "<<s9s25ClusEndCap[nClusEndCap]<<endl;
     }
     
     nClusEndCap++;
@@ -1462,6 +1485,21 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	
 	
 	if(Iso/pt_pair > selePi0IsoEndCap_) continue; 
+	
+	
+	///Now prescale pi0 selection 
+	if(etapair <= region1_Pi0EndCap_){
+	  selected_endcapPi0_region1 ++; 
+	  if(selected_endcapPi0_region1 % preScale_endcapPi0_region1_ != 0) continue; 
+	}else if( etapair <= region2_Pi0EndCap_){
+	  selected_endcapPi0_region2 ++; 
+	  if(selected_endcapPi0_region2 % preScale_endcapPi0_region2_ != 0) continue; 
+	}else{
+	  selected_endcapPi0_region3 ++; 
+	  if(selected_endcapPi0_region3 % preScale_endcapPi0_region3_ != 0) continue; 
+	}
+	
+	
 	
 	int indtmp[2]={i,j};
 	for(int jj =0; jj<2; jj++){
@@ -1578,6 +1616,20 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if(Iso/pt_pair > seleEtaIsoEndCap_) continue; 
 	
 	
+	///Now prescale eta selection 
+	if(etapair <= region1_EtaEndCap_){
+	  selected_endcapEta_region1 ++; 
+	  if(selected_endcapEta_region1 % preScale_endcapEta_region1_ != 0) continue; 
+	}else if( etapair <= region2_EtaEndCap_){
+	  selected_endcapEta_region2 ++; 
+	  if(selected_endcapEta_region2 % preScale_endcapEta_region2_ != 0) continue; 
+	}else{
+	  selected_endcapEta_region3 ++; 
+	  if(selected_endcapEta_region3 % preScale_endcapEta_region3_ != 0) continue; 
+	}
+	
+	
+	
 	int indtmp[2]={i,j};
 	for(int jj =0; jj<2; jj++){
 	  int ind = indtmp[jj];
@@ -1666,7 +1718,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   delete topology_es;
   
   
-
+  
   ////==============End of endcap ===============///
   
   if(debug_>=1) std::cout<<" pi0 endcap_ouput_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<selEERecHitCollection->size()<<" "<<selESRecHitCollection->size()<<std::endl;
