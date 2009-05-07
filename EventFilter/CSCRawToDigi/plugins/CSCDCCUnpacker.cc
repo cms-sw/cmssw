@@ -80,14 +80,17 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   unpackStatusDigis = pset.getUntrackedParameter<bool>("UnpackStatusDigis", false);
   inputObjectsTag = pset.getParameter<edm::InputTag>("InputObjects");
   
-  // Visualization of raw data in FED-less events 
+  /// Visualization of raw data in FED-less events 
   visualFEDInspect=pset.getUntrackedParameter<bool>("VisualFEDInspect", false);
   visualFEDShort=pset.getUntrackedParameter<bool>("VisualFEDShort", false);
-  
-  // Enable Format Status Digis
+
+  /// Suppress zeros LCTs
+  SuppressZeroLCT=pset.getUntrackedParameter<bool>("SuppressZeroLCT", true);
+    
+  /// Enable Format Status Digis
   useFormatStatus = pset.getUntrackedParameter<bool>("UseFormatStatus", false);
 
-  // Selective unpacking mode will skip only troublesome CSC blocks and not whole DCC/DDU block
+  /// Selective unpacking mode will skip only troublesome CSC blocks and not whole DCC/DDU block
   useSelectiveUnpacking = pset.getUntrackedParameter<bool>("UseSelectiveUnpacking", false);
 
   if(instatiateDQM)  {
@@ -327,7 +330,16 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	    if (goodALCT){
 	      std::vector <CSCALCTDigi>  alctDigis =
 		cscData[iCSC].alctHeader()->ALCTDigis();
-	      alctProduct->put(std::make_pair(alctDigis.begin(), alctDigis.end()),layer);
+		if(SuppressZeroLCT){
+	        std::vector<CSCALCTDigi> alctDigis_0;
+	          for (int unsigned i=0; i<alctDigis.size(); ++i){
+	              if(alctDigis[i].isValid())
+		      alctDigis_0.push_back(alctDigis[i]);
+	          }
+	        alctProduct->put(std::make_pair(alctDigis_0.begin(), alctDigis_0.end()),layer);
+		}
+		else
+		alctProduct->put(std::make_pair(alctDigis.begin(), alctDigis.end()),layer);
 	    }
 		    
 		  
@@ -352,14 +364,32 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	    if (goodTMB) { 
 	      std::vector <CSCCorrelatedLCTDigi>  correlatedlctDigis =
 		cscData[iCSC].tmbHeader()->CorrelatedLCTDigis(layer.rawId());
-	      
-	      corrlctProduct->put(std::make_pair(correlatedlctDigis.begin(),
+	        if(SuppressZeroLCT){
+	          std::vector<CSCCorrelatedLCTDigi> correlatedlctDigis_0;
+	            for (int unsigned i=0; i<correlatedlctDigis.size(); ++i){
+	              if(correlatedlctDigis[i].isValid())
+		    correlatedlctDigis_0.push_back(correlatedlctDigis[i]);
+	          }
+		corrlctProduct->put(std::make_pair(correlatedlctDigis_0.begin(),
+						 correlatedlctDigis_0.end()),layer);
+		}
+		else
+         	  corrlctProduct->put(std::make_pair(correlatedlctDigis.begin(),
 						 correlatedlctDigis.end()),layer);
 		      
 	      std::vector <CSCCLCTDigi>  clctDigis =
 		cscData[iCSC].tmbHeader()->CLCTDigis(layer.rawId());
-	      clctProduct->put(std::make_pair(clctDigis.begin(), clctDigis.end()),layer);
-	      
+	        if(SuppressZeroLCT){
+	          std::vector<CSCCLCTDigi> clctDigis_0;
+	          for (int unsigned i=0; i<clctDigis.size(); ++i){
+	            if(clctDigis[i].isValid())
+		  clctDigis_0.push_back(clctDigis[i]);
+	          }
+	        clctProduct->put(std::make_pair(clctDigis_0.begin(), clctDigis_0.end()),layer);
+		}
+		else
+        	clctProduct->put(std::make_pair(clctDigis.begin(), clctDigis.end()),layer);
+		
 	      /// fill cscrpc digi
 	      if (cscData[iCSC].tmbData()->checkSize()) {
 		if (cscData[iCSC].tmbData()->hasRPC()) {

@@ -4,8 +4,8 @@
 /** \class CSCDCCUnpacker
  * 
  *
- *  $Date: 2009/03/27 15:49:11 $
- *  $Revision: 1.20 $
+ *  $Date: 2009/04/06 13:18:57 $
+ *  $Revision: 1.21 $
  * \author Alex Tumanov 
  */
 
@@ -34,9 +34,12 @@ class CSCDCCUnpacker: public edm::EDProducer {
 
   bool debug, printEventNumber, goodEvent, useExaminer, unpackStatusDigis;
   bool useSelectiveUnpacking, useFormatStatus;
-  // Visualization of raw data in FED-less events
+  
+  /// Visualization of raw data in FED-less events
   bool  visualFEDInspect, visualFEDShort;
-  // Visualization of raw data in FED-less events
+  /// Suppress zeros LCTs
+  bool SuppressZeroLCT;
+  
   int numOfEvents;
   unsigned int errorMask, examinerMask;
   bool instatiateDQM;
