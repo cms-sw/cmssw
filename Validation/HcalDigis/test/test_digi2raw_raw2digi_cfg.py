@@ -23,7 +23,7 @@ process.load("DQMServices.Core.DQM_cfg")
 process.DQM.collectorHost = ''
 
 # The number of events to be processed.
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10))
 
 process.source = cms.Source("EmptySource")
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
@@ -50,6 +50,7 @@ process.VtxSmeared.SigmaZ = 0.00001
 process.Comp = cms.EDFilter("Digi2Raw2Digi",
     digiLabel1 = cms.InputTag("simHcalDigis"),
     digiLabel2 = cms.InputTag("hcalDigis"),
+    outputFile = cms.untracked.string('histo.root')
 )
 
 
@@ -65,15 +66,16 @@ process.USER = cms.OutputModule("PoolOutputModule",
 #--- this is required for after310pre6 change in g4SimHits input collection
 #--- which is by default now HepMCProductLabel = cms.string('LHCTransport')!
 #
-#process.g4SimHits.Generator.HepMCProductLabel = 'generator'
+process.g4SimHits.Generator.HepMCProductLabel = 'generator'
 
 process.p = cms.Path(
  process.generator * process.VtxSmeared * process.g4SimHits * process.mix *
  process.simHcalUnsuppressedDigis * process.simHcalDigis *
+# process.simCastorDigis * 
  process.hcalRawData *
- process.hcalDigis * 
+ process.hcalDigis  *
  process.Comp
 )
 
 
-# process.outpath = cms.EndPath(process.USER)
+#process.outpath = cms.EndPath(process.USER)
