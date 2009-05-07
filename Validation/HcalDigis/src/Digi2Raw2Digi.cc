@@ -180,11 +180,11 @@ void Digi2Raw2Digi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 
   //  std::cout << "=== ZDC ===================" << std::endl; 
-  compare<ZDCDataFrame>(iEvent,iSetup);
+  //  compare<ZDCDataFrame>(iEvent,iSetup);
   
   
   //  std::cout << "=== CASTOR ================" << std::endl; 
-  compare<CastorDataFrame>(iEvent,iSetup); 
+  //  compare<CastorDataFrame>(iEvent,iSetup); 
   
 }
 
