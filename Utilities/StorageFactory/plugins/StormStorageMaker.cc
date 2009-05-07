@@ -6,6 +6,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cstdlib>
+#include <cstdio>
 #include <sys/stat.h>
 
 class StormStorageMaker : public StorageMaker
