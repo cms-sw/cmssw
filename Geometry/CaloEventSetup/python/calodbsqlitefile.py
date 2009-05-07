@@ -1,8 +1,5 @@
 
 import FWCore.ParameterSet.Config as cms
-
-from Geometry.CaloEventSetup.CaloGeometryDBReader_cfi import *
-
  
 idealGeometryRecord = cms.ESSource("EmptyESSource",
                                    recordName = cms.string('IdealGeometryRecord'),

@@ -5,9 +5,20 @@ process = cms.Process("GeometryTest")
 
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
-process.load("Geometry.CaloEventSetup.calodbsqlitefile")
+#from xml text files #process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
+#from db xml source: #process.load("GeometryReaders.XMLIdealGeometryESSource.cmsGeometryDB_cff")
+#from db sql file:   #process.load("Geometry.CaloEventSetup.xmlsqlitefile")
+#from db frontier:   #process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+
+#xml source: #process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
+
+#reco source from db: #
 process.load("Geometry.CaloEventSetup.CaloGeometryDBReader_cfi")
+
+#reco from db sql     : #process.load("Geometry.CaloEventSetup.calodbsqlitefile")
+#reco from db frontier: #
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 
