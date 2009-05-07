@@ -3,9 +3,9 @@
 /** \class ConvertedPhotonProducer
  **  
  **
- **  $Id: ConvertedPhotonProducer.h,v 1.27 2009/04/02 11:50:01 nancy Exp $ 
- **  $Date: 2009/04/02 11:50:01 $ 
- **  $Revision: 1.27 $
+ **  $Id: ConvertedPhotonProducer.h,v 1.28 2009/04/30 11:30:59 nancy Exp $ 
+ **  $Date: 2009/04/30 11:30:59 $ 
+ **  $Revision: 1.28 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -27,6 +27,7 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/Common/interface/View.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
 
 class ConversionTrackEcalImpactPoint;
 class ConversionTrackPairFinder;
@@ -51,6 +52,13 @@ class ConvertedPhotonProducer : public edm::EDProducer {
 			  const edm::Handle<reco::TrackCollection>  & trkHandle,
 			  std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr>& allPairs,
 			  reco::ConversionCollection & outputConvPhotonCollection);
+  void cleanCollections (edm::Event& evt,
+			 edm::EventSetup const & es,
+			 const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
+			 const edm::OrphanHandle<reco::ConversionCollection> & conversionHandle,
+			 reco::ConversionCollection & outputCollection);
+			   
+  std::vector<reco::ConversionRef> solveAmbiguity( const edm::OrphanHandle<reco::ConversionCollection> & conversionHandle, reco::CaloClusterPtr& sc);
 
   float calculateMinApproachDistance ( const reco::TrackRef& track1, const reco::TrackRef& track2);
   void getCircleCenter(const reco::TrackRef& tk, double r, double& x0, double& y0);
@@ -65,6 +73,7 @@ class ConvertedPhotonProducer : public edm::EDProducer {
 
 
   std::string ConvertedPhotonCollection_;
+  std::string CleanedConvertedPhotonCollection_;
   
 //  std::string bcProducer_;
   edm::InputTag bcBarrelCollection_;
@@ -84,9 +93,15 @@ class ConvertedPhotonProducer : public edm::EDProducer {
   double minSCEt_;
   int nEvt_;
   std::string algoName_;
+  double minSCEt_;
   bool  recoverOneTrackCase_;
   double dRForConversionRecovery_;
   double deltaCotCut_;
   double minApproachDisCut_;
+  int    maxNumOfCandidates_;
+  bool risolveAmbiguity_;
+  std::string likelihoodWeights_;
+  ConversionLikelihoodCalculator* theLikelihoodCalc_;
+
 };
 #endif
