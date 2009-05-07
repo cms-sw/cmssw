@@ -4,7 +4,7 @@
 #include "PhysicsTools/HepMCCandAlgos/interface/FlavorHistoryProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "PhysicsTools/Utilities/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 // #include "DataFormats/Common/interface/ValueMap.h"
 // #include <iterators>

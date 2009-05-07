@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "PhysicsTools/HepMCCandAlgos/interface/PdgEntryReplacer.h"
 
