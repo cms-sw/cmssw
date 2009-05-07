@@ -6,6 +6,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <map>
 
@@ -19,6 +21,11 @@ public:
 
   edm::InputTag inputTag1_;
   edm::InputTag inputTag2_;
+
+  std::string outputFile_;
+  DQMStore* dbe_;
+
+  MonitorElement* meStatus;
 
 };
 
