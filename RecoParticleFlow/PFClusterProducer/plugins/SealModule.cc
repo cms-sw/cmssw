@@ -2,10 +2,10 @@
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "RecoParticleFlow/PFClusterProducer/interface/PFClusterProducer.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitProducerECAL.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitProducerHCAL.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitProducerPS.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/PFClusterProducer.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/PFRecHitProducerECAL.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/PFRecHitProducerHCAL.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/PFRecHitProducerPS.h"
 
 DEFINE_SEAL_MODULE();
 

@@ -1,5 +1,5 @@
-#ifndef RecoParticleFlow_PFClusterProducer_h_
-#define RecoParticleFlow_PFClusterProducer_h_
+#ifndef RecoParticleFlow_PFClusterProducer_PFClusterProducer_h_
+#define RecoParticleFlow_PFClusterProducer_PFClusterProducer_h_
 
 // system include files
 #include <memory>
@@ -17,7 +17,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
-#include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFClusterAlgo.h"
 
 /**\class PFClusterProducer 
 \brief Producer for particle flow  clusters (PFCluster). 

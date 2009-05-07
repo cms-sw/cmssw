@@ -1,8 +1,8 @@
-#include "RecoParticleFlow/PFClusterProducer/interface/PFClusterProducer.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/PFClusterProducer.h"
 
 #include <memory>
 
-#include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFClusterAlgo.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"

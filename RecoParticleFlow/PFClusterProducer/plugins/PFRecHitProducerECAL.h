@@ -1,5 +1,5 @@
-#ifndef RecoParticleFlow_PFRecHitProducerECAL_h_
-#define RecoParticleFlow_PFRecHitProducerECAL_h_
+#ifndef RecoParticleFlow_PFClusterProducer_PFRecHitProducerECAL_h_
+#define RecoParticleFlow_PFClusterProducer_PFRecHitProducerECAL_h_
 
 // system include files
 #include <memory>
@@ -16,7 +16,7 @@
 
 #include "Geometry/CaloTopology/interface/CaloDirection.h"
 
-#include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitProducer.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/PFRecHitProducer.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 
 #include "DataFormats/Math/interface/Vector3D.h"

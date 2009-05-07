@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitProducerHCAL.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/PFRecHitProducerHCAL.h"
 
 #include <memory>
 
@@ -222,14 +222,23 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		//---ab: 2 rechits for HF:
 		double energyemHF = weight_HFem_*ct.emEnergy();
 		double energyhadHF = weight_HFhad_*ct.hadEnergy();
+		// Some energy in the tower !
 		if((energyemHF+energyhadHF) < thresh_HF_ ) continue;
-		if(energyemHF > thresh_HF_ ){
+		// The EM energy might be negative, as it amounts to Long - Short
+		// In that case, put the EM "energy" in the HAD energy
+		// Just to avoid systematic positive bias due to "Short" high fluctuations
+		if ( energyemHF < thresh_HF_ ) { 
+		  energyhadHF += energyemHF;
+		  energyemHF = 0.;
+		// Otherwise, create an EM rechit.
+		} else { 
 		  pfrhHFEM = createHcalRecHit( detid, 
 					   energyemHF, 
 					   PFLayer::HF_EM, 
 					   hcalEndcapGeometry,
 					   ct.id().rawId() );
 		}
+		// And create a HAD rechit with either the HAD or the HAD+EM energy. 
 		if(energyhadHF > thresh_HF_ ){
 		  pfrhHFHAD = createHcalRecHit( detid, 
 					    energyhadHF, 

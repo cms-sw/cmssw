@@ -1,5 +1,5 @@
-#ifndef RecoParticleFlow_PFRecHitProducer_h_
-#define RecoParticleFlow_PFRecHitProducer_h_
+#ifndef RecoParticleFlow_PFClusterProducer_PFRecHitProducer_h_
+#define RecoParticleFlow_PFClusterProducer_PFRecHitProducer_h_
 
 // system include files
 #include <memory>

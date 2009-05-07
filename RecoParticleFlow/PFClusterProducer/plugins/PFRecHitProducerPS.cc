@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitProducerPS.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/PFRecHitProducerPS.h"
 
 #include <memory>
 

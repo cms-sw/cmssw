@@ -1,0 +1,15 @@
+<library name="RecoParticleFlowPFClusterProducerPlugins" file="*.cc">
+ <use name=FWCore/Framework>
+ <use name=FWCore/ParameterSet>
+ <use name=DataFormats/ParticleFlowReco>
+ <use name=DataFormats/EcalRecHit>
+ <use name=DataFormats/HcalRecHit>
+ <use name=Geometry/CaloEventSetup>
+ <use name=Geometry/CaloGeometry>
+ <use name=Geometry/CaloTopology>
+ <use name=DataFormats/HcalDetId>
+ <use name=DataFormats/EcalDetId>
+ <use name=Geometry/EcalAlgo>
+ <use name=RecoParticleFlow/PFClusterProducer>
+ < flags EDM_PLUGIN=1 >
+</library>
