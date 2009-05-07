@@ -49,6 +49,8 @@ void SeedGeneratorFromRegionHits::run(TrajectorySeedCollection & seedCollection,
   const OrderedSeedingHits & hitss = theHitsGenerator->run(region, ev, es);
 
   unsigned int nHitss =  hitss.size();
+  if (seedCollection.empty()) seedCollection.reserve(nHitss); // don't do multiple reserves in the case of multiple regions: it would make things even worse
+                                                              // as it will cause N re-allocations instead of the normal log(N)/log(2)
   for (unsigned int iHits = 0; iHits < nHitss; ++iHits) { 
     const SeedingHitSet & hits =  hitss[iHits];
     if (!theComparitor || theComparitor->compatible( hits, es) ) {
