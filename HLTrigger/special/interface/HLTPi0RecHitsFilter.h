@@ -1,7 +1,6 @@
 /**
 
-Description: Producer for EcalRecHits to be used for pi0 ECAL calibration. ECAL Barrel RecHits only.
-
+ Description: Producer for EcalRecHits to be used for pi0 ECAL calibration. ECAL Barrel RecHits only.
 
  Implementation:
      <Notes on implementation>
@@ -75,9 +74,6 @@ class HLTPi0RecHitsFilter : public HLTFilter {
 
       
       int convertSmToFedNumbBarrel(int, int); 
-      void convxtalid(int & , int &);
-      int diff_neta_s(int,int);
-      int diff_nphi_s(int,int);
       
       
 
@@ -92,17 +88,11 @@ class HLTPi0RecHitsFilter : public HLTFilter {
       // ----------member data ---------------------------
 
  // replace the 2 strings with 1 InputTag of form label:instance
-      edm::InputTag barrelHits_;
-      edm::InputTag endcapHits_;
+   edm::InputTag barrelHits_;
 
 
-      std::string pi0BarrelHits_;
-      std::string pi0EndcapHits_;
-      
-      
-      
-      
-      
+ std::string pi0BarrelHits_;
+
  int gammaCandEtaSize_;
  int gammaCandPhiSize_;
 
@@ -110,47 +100,27 @@ class HLTPi0RecHitsFilter : public HLTFilter {
  int clusEtaSize_;
  int clusPhiSize_;
 
- double clusSeedThrEndCap_;
- 
-
  double selePtGammaOne_;
  double selePtGammaTwo_;
  double selePtPi0_;
  double seleMinvMaxPi0_;
  double seleMinvMinPi0_;
  double seleXtalMinEnergy_;
-
-
-
- double selePtGammaEndCap_;
- double selePtPi0EndCap_;
- double seleMinvMaxPi0EndCap_;
- double seleMinvMinPi0EndCap_;
-
-
-
  int seleNRHMax_;
  //New criteria
  double seleS4S9GammaOne_;
  double seleS4S9GammaTwo_;
-
- double seleS4S9GammaEndCap_;
-
-
-
  double selePi0BeltDR_;
  double selePi0BeltDeta_;
  double selePi0Iso_;
  bool ParameterLogWeighted_;
  double ParameterX0_;
  double ParameterT0_barl_;
- double ParameterT0_endc_;
- double ParameterT0_endcPresh_;
  double ParameterW0_;
  // double detaL1_;
  // double dphiL1_;
  // bool UseMatchedL1Seed_;
- double selePi0IsoEndCap_;
+ 
 
 
   edm::InputTag l1IsolatedTag_;
@@ -164,35 +134,16 @@ class HLTPi0RecHitsFilter : public HLTFilter {
  std::vector<EBDetId> detIdEBRecHits; 
  std::vector<EcalRecHit> EBRecHits; 
  
-  
- std::vector<EEDetId> detIdEERecHits; 
- std::vector<EcalRecHit> EERecHits; 
-
-
  
  double ptMinForIsolation_; 
  bool storeIsoClusRecHit_; 
 
- double ptMinForIsolationEndCap_; 
+ 
  
  
 
- bool useEndCapEG_;
+ 
 
- bool Jets_; 
- 
- edm::InputTag CentralSource_;
- edm::InputTag ForwardSource_;
- edm::InputTag TauSource_;
- bool JETSdoCentral_ ;
- bool JETSdoForward_ ;
- bool JETSdoTau_ ;
- double Ptmin_jets_; 
- double Ptmin_taujets_; 
- double JETSregionEtaMargin_;
- double JETSregionPhiMargin_;
- 
- 
 
  int debug_; 
  bool first_; 
@@ -204,12 +155,7 @@ class HLTPi0RecHitsFilter : public HLTFilter {
  
  
 
- std::vector<int> FEDListUsed; ///by regional objects.  ( em, jet, etc)
-
- std::vector<int> FEDListUsedBarrel; 
- std::vector<int> FEDListUsedEndcap; 
-
- bool RegionalMatch_;
+ std::vector<int> FEDListUsed; ///by EM objects. 
  
 
  double ptMinEMObj_ ; 
@@ -226,7 +172,7 @@ class HLTPi0RecHitsFilter : public HLTFilter {
  
  PositionCalc posCalculator_;
  
- static const int MAXCLUS = 2000;
- static const int MAXPI0S = 200;
+ 
+
 
 };

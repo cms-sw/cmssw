@@ -28,6 +28,7 @@
 #include <memory>
 #include <string>
 #include <iostream>
+#include <sstream>
 //#include <vector>
 
 using namespace std;
@@ -41,6 +42,7 @@ class ParticleListDrawer : public edm::EDAnalyzer {
     void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   private:
+    std::string getParticleName( int id ) const;
 
     edm::InputTag src_;
     edm::ESHandle<ParticleDataTable> pdt_;
@@ -56,6 +58,17 @@ ParticleListDrawer::ParticleListDrawer(const edm::ParameterSet & pset) :
   nEventAnalyzed_(0),
   printOnlyHardInteraction_(pset.getUntrackedParameter<bool>("printOnlyHardInteraction", false)),
   useMessageLogger_(pset.getUntrackedParameter<bool>("useMessageLogger", false)) {
+}
+
+std::string ParticleListDrawer::getParticleName(int id) const
+{
+  const ParticleData * pd = pdt_->particle( id );
+  if (!pd) {
+    std::ostringstream ss;
+    ss << "P" << id;
+    return ss.str();
+  } else
+    return pd->name();
 }
 
 void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {  
@@ -101,8 +114,7 @@ void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
       // Particle Name
       int id = p->pdgId();
-      const ParticleData * pd = pdt_->particle(id);
-      string particleName = pd == 0 ? "???" : pd->name();
+      string particleName = getParticleName(id);
       
       // Particle Index
       idx =  p - particles->begin();

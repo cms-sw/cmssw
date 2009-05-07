@@ -24,20 +24,18 @@ if (! open(INPUT,"<$file") ) {
 
         ($crystal,$eta,$phi) = split(' ', $line, 3); 
 
-        my $filename = "crystal".$crystal."_cff.py";
+        my $filename = "crystal".$crystal.".cff";
 
         open(OUTFILE, ">$filename");
-        print OUTFILE "import FWCore.ParameterSet.Config as cms\n";
-        print OUTFILE "                                        \n";   
-        print OUTFILE "common_beam_direction_parameters = cms.PSet(\n";
-        print OUTFILE "    MinEta = cms.untracked.double(".$eta,"),\n";
-        print OUTFILE "    MaxEta = cms.untracked.double(".$eta,"),\n";
-        print OUTFILE "    MinPhi = cms.untracked.double(".$phi,"),\n";
-        print OUTFILE "    MaxPhi = cms.untracked.double(".$phi,"),\n";
-        print OUTFILE "    BeamMeanX = cms.untracked.double(0.0),\n";
-        print OUTFILE "    BeamMeanY = cms.untracked.double(0.0),\n";
-        print OUTFILE "    BeamPosition = cms.untracked.double(-26733.5)\n";
-        print OUTFILE ")\n";
+        print OUTFILE "block common_beam_direction_parameters = {\n";
+        print OUTFILE "  untracked double MinEta = ".$eta,"\n";
+        print OUTFILE "  untracked double MaxEta = ".$eta,"\n";
+        print OUTFILE "  untracked double MinPhi = ".$phi,"\n";
+        print OUTFILE "  untracked double MaxPhi = ".$phi,"\n";
+        print OUTFILE "  untracked double BeamMeanX = 0.\n";
+        print OUTFILE "  untracked double BeamMeanY = 0.\n";
+        print OUTFILE "  untracked double BeamPosition = -26733.5\n";
+        print OUTFILE "}\n";
  
     }
     close(INPUT);

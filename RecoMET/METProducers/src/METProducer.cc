@@ -4,21 +4,21 @@
 // Creation Date:  20.04.2006.
 //
 //--------------------------------------------
-// Modification by R. Remington on 10/21/08
-// Added globalThreshold input Parameter to impose on each tower in tower collection
-// that is looped over by the CaloSpecificAlgo.  This is in order to fulfill Scheme B threhsolds...   
-
-
+//Modified:     29.10.2008 by R.Cavanaugh, UIC/Fermilab
+//Description:  include Particle Flow MET
+//
 #include <memory>
 #include "RecoMET/METProducers/interface/METProducer.h"
 #include "RecoMET/METAlgorithms/interface/SignCaloSpecificAlgo.h"
 #include "RecoMET/METAlgorithms/interface/SignAlgoResolutions.h"
 #include "RecoMET/METAlgorithms/interface/CaloSpecificAlgo.h"
+#include "RecoMET/METAlgorithms/interface/PFSpecificAlgo.h"
 #include "RecoMET/METAlgorithms/interface/GenSpecificAlgo.h"
 //#include "DataFormats/METObjects/interface/METCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
@@ -58,6 +58,8 @@ namespace cms
 
     if(      METtype == "CaloMET" ) 
       produces<CaloMETCollection>().setBranchAlias(alias.c_str()); 
+    else if( METtype == "PFMET" )
+      produces<PFMETCollection>().setBranchAlias(alias.c_str()); 
     else if( METtype == "GenMET" )  
       produces<GenMETCollection>().setBranchAlias(alias.c_str());
     else if (METtype == "CaloMETSignif")
@@ -116,6 +118,15 @@ namespace cms
       calometcoll.reset(new CaloMETCollection);
       calometcoll->push_back( calo.addInfo(input, output, noHF, globalThreshold) );
       event.put( calometcoll );
+    }
+    //-----------------------------------
+    else if( METtype == "PFMET" )
+    {
+      PFSpecificAlgo pf;
+      std::auto_ptr<PFMETCollection> pfmetcoll;
+      pfmetcoll.reset (new PFMETCollection);
+      pfmetcoll->push_back( pf.addInfo(input, output) );
+      event.put( pfmetcoll );
     }
     //-----------------------------------
     else if( METtype == "GenMET" ) 

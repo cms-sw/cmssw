@@ -48,6 +48,9 @@ class TrainProcessor : public Source,
 	virtual void
 	configure(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *config) {}
 
+	virtual void
+	passFlags(const std::vector<Variable::Flags> &flags) {}
+
 	virtual Calibration::VarProcessor *getCalibration() const { return 0; }
 
 	void doTrainBegin();

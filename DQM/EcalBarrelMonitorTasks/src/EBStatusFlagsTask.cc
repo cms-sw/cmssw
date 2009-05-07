@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsTask.cc
  *
- * $Date: 2008/04/17 04:53:15 $
- * $Revision: 1.13 $
+ * $Date: 2008/12/03 10:28:10 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -216,15 +216,13 @@ void EBStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      EcalDCCHeaderBlock dcch = (*dcchItr);
+      if ( Numbers::subDet( *dcchItr ) != EcalBarrel ) continue;
 
-      if ( Numbers::subDet( dcch ) != EcalBarrel ) continue;
+      int ism = Numbers::iSM( *dcchItr, EcalBarrel );
 
-      int ism = Numbers::iSM( dcch, EcalBarrel );
+      if ( meEvtType_[ism-1] ) meEvtType_[ism-1]->Fill(dcchItr->getRunType()+0.5);
 
-      if ( meEvtType_[ism-1] ) meEvtType_[ism-1]->Fill(dcch.getRunType()+0.5);
-
-      vector<short> status = dcch.getFEStatus();
+      const vector<short> status = dcchItr->getFEStatus();
 
       for ( unsigned int itt=1; itt<=status.size(); itt++ ) {
 

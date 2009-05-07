@@ -29,15 +29,14 @@ public:
 
   /// MS sigma  at the layer for which parametrisation is initialised;
   /// particle assumed to come from nominal vertex, "fast" methods called
-  float operator()(float pt, float cotTheta, float transverseIP = 0.) const;
+  float operator()(float pt, float cotTheta) const;
 
   /// MS sigma  at the layer for which parametrisation is initialised;
   /// particle assumed to come from constraint point (inner to layer).
   /// layer by layer contribution is calculated
   float operator()(float pt,
                    float cotTheta,
-                   const PixelRecoPointRZ & point,
-                   float transverseIP = 0.) const;
+                   const PixelRecoPointRZ & point) const;
 
   /// MS sigma  at the layer for which parametrisation is initialised;
   /// particle assumed to be measured at point1 and point2,
@@ -46,8 +45,7 @@ public:
   float operator()(float pt,
                    const PixelRecoPointRZ & point1,
                    const PixelRecoPointRZ & point2,
-                   Consecutive consecutive = notAssumeConsecutive,
-                   float transverseIP = 0.) const;
+                   Consecutive consecutive = notAssumeConsecutive) const;
 
 private:
 

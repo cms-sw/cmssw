@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.L1TMonitor.L1TGT_readout_cff import *
 from DQM.L1TMonitor.L1TGCT_readout_cff import *
-l1tmonitor = cms.Sequence(l1tgt*l1tgmt*l1trpctf*l1tcsctf*l1tdttf*l1trct*l1tgct)
+from DQM.L1TMonitor.L1TFED_cfi import *
+l1tmonitor = cms.Sequence(l1tgt*l1tgmt*l1trpctf*l1tcsctf*l1tdttf*l1trct*l1tgct*l1tfed)
 l1tgt.gtSource = 'gtDigis::'
 l1tgmt.gmtSource = 'gtDigis::'
 l1tdttf.dttpgSource = 'dttfDigis::'

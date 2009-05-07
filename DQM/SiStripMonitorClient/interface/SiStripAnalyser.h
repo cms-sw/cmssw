@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2008/09/19 12:34:21 $
- *  $Revision: 1.24 $
+ *  $Date: 2008/09/27 18:20:57 $
+ *  $Revision: 1.25 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
@@ -44,7 +44,7 @@ public:
   void publish(xdata::InfoSpace *){};
   //  void handleWebRequest(xgi::Input *in, xgi::Output *out); 
 
-protected:
+private:
 
   /// BeginJob
   void beginJob(edm::EventSetup const& eSetup);

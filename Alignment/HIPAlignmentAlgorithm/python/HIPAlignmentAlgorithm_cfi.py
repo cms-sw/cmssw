@@ -25,7 +25,6 @@ HIPAlignmentAlgorithm = cms.PSet(
     trueFile = cms.string('IOTruePositions.root'),
     eventPrescale = cms.int32(20),
     outfile = cms.string('HIPAlignmentEvents.root'),
-	surveyFile = cms.string('HIPSurveyResiduals.root'),
     maxAllowedHitPull = cms.double(-1.0),
     surveyResiduals = cms.untracked.vstring(), ## no survey constraint
 
@@ -34,7 +33,6 @@ HIPAlignmentAlgorithm = cms.PSet(
     verbosity = cms.bool(False),
     # Dump tracks before and after refit
     debug = cms.bool(False),
-    alignedFile = cms.string('IOAlignedPositions.root'),
-	fillTrackMonitoring = cms.untracked.bool(False)
+    alignedFile = cms.string('IOAlignedPositions.root')
 )
 

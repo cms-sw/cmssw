@@ -12,10 +12,10 @@
 import FWCore.ParameterSet.Config as cms
 
 ecalphiSymHLT = cms.EDFilter("HLTHighLevel",
-    HLTPaths = cms.vstring('AlCa_EcalPhiSym'),
+    HLTPaths = cms.vstring('AlCa_EcalPhiSym*'),
     andOr = cms.bool(True),
-    throw = cms.untracked.bool(False), #dont throw except on unknown path name 
-    TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
+    TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+    throw= cms.untracked.bool(False)                         
 )
 
 

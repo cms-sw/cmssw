@@ -5,9 +5,9 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using a weights method
   *
-  *  $Id: EcalUncalibRecHitRecWeightsAlgo.h,v 1.6 2007/05/08 13:29:21 meridian Exp $
-  *  $Date: 2007/05/08 13:29:21 $
-  *  $Revision: 1.6 $
+  *  $Id: EcalUncalibRecHitRecWeightsAlgo.h,v 1.5 2007/04/05 15:41:21 meridian Exp $
+  *  $Date: 2007/04/05 15:41:21 $
+  *  $Revision: 1.5 $
   *  \author R. Bruneliere - A. Zabi
   */
 
@@ -34,16 +34,10 @@ template<class C> class EcalUncalibRecHitRecWeightsAlgo : public EcalUncalibRecH
     ROOT::Math::SVector<double,C::MAXSAMPLES> frame;
     int gainId0 = 1;
     int iGainSwitch = 0;
-    bool isSaturated = 0;
     for(int iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
       int gainId = dataFrame.sample(iSample).gainId();
       //Handling saturation (treating saturated gainId as maximum gain)
-      if (gainId == 0 ) 
-	{ 
-	  gainId = 3;
-	  isSaturated = 1;
-	}
-
+      if (gainId == 0 ) gainId = 3;
       if (gainId != gainId0) iGainSwitch = 1;
       if (!iGainSwitch)
 	frame(iSample) = double(dataFrame.sample(iSample).adc());
@@ -58,10 +52,6 @@ template<class C> class EcalUncalibRecHitRecWeightsAlgo : public EcalUncalibRecH
     if (amplitude_) jitter_ = param(EcalUncalibRecHitRecAbsAlgo<C>::iTime);
     // Compute chi2 = frame^T * chi2Matrix * frame
     chi2_ = ROOT::Math::Similarity((*(chi2Matrix[iGainSwitch])),frame);
-    //When saturated gain flag i
-    if (isSaturated)
-      chi2_ = EcalUncalibratedRecHit::kSATURATED;
- 
     return EcalUncalibratedRecHit( dataFrame.id(), amplitude_, pedestal_, jitter_, chi2_);
   }
 };

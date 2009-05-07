@@ -45,8 +45,10 @@
 #include <fstream>
 #include <sstream>
 
+using namespace std;
+using namespace reco;
 //
-// class declaration
+// class decleration
 //
 namespace cms{
 class Analyzer_minbias : public edm::EDAnalyzer {
@@ -60,64 +62,66 @@ class Analyzer_minbias : public edm::EDAnalyzer {
 
    private:
   // ----------member data ---------------------------
-     std::string fOutputFileName ;
-     std::string hcalfile_;
-     std::ofstream *myout_hcal;
+     string fOutputFileName ;
+  //   string datasetType ;
      
   // names of modules, producing object collections
-  
+  //   edm::InputTag m_tracksSrc;
+  //
      TFile*      hOutputFile ;
-     TTree*      myTree;
-     TH1F*       hCalo1[73][43];
-     TH1F*       hCalo2[73][43];
-     TH1F*       hCalo1mom2[73][43];
-     TH1F*       hCalo2mom2[73][43];
- 
-  // Root tree members
+ TH1D*  hHBHEEt;
+ TH1D*  hHBHEEt_eta_1;
+ TH1D*  hHBHEEt_eta_25;
+ TH1D*  hHBHEEta;
+ TH1D*  hHBHEPhi;
+
+ TH1D*  hHFEt;
+ TH1D*  hHFEt_eta_33;
+ TH1D*  hHFEta;
+ TH1D*  hHFPhi;
+  
+ TH1D*  hHOEt;
+ TH1D*  hHOEt_eta_5;
+ TH1D*  hHOEta;
+ TH1D*  hHOPhi;
+ TTree * myTree;
+ int    mystart;
+  //  
+ int mydet, mysubd, depth, iphi, ieta;
+ float phi,eta;
+ float mom0,mom1,mom2,mom3,mom4,occup;
+ float mom0_cut,mom1_cut,mom2_cut,mom3_cut,mom4_cut;
+// counters
+  map<DetId,double> theFillDetMap0;
+  map<DetId,double> theFillDetMap1; 
+  map<DetId,double> theFillDetMap2; 
+  map<DetId,double> theFillDetMap3; 
+  map<DetId,double> theFillDetMap4;
+  
+  map<DetId,double> theFillDetMap_cut0;
+  map<DetId,double> theFillDetMap_cut1; 
+  map<DetId,double> theFillDetMap_cut2; 
+  map<DetId,double> theFillDetMap_cut3; 
+  map<DetId,double> theFillDetMap_cut4;
    
-     int mydet, mysubd, depth, iphi, ieta;
-     float phi,eta;
-     float mom0_MB,mom1_MB,mom2_MB,mom3_MB,mom4_MB,occup;
-     float mom0_Noise,mom1_Noise,mom2_Noise,mom3_Noise,mom4_Noise;
-     float mom0_Diff,mom1_Diff,mom2_Diff,mom3_Diff,mom4_Diff;
-  
-  // Noise subtraction
-     
-     double meannoise_pl[73][43],meannoise_min[73][43]; 
-     double noise_pl[73][43],noise_min[73][43];
-
-  // counters
-
-     double nevent;
-     double theMBFillDetMapPl0[5][5][73][43]; 
-     double theMBFillDetMapPl1[5][5][73][43]; 
-     double theMBFillDetMapPl2[5][5][73][43];
-     double theMBFillDetMapMin0[5][5][73][43]; 
-     double theMBFillDetMapMin1[5][5][73][43]; 
-     double theMBFillDetMapMin2[5][5][73][43];
-     double theNSFillDetMapPl0[5][5][73][43]; 
-     double theNSFillDetMapPl1[5][5][73][43]; 
-     double theNSFillDetMapPl2[5][5][73][43];
-     double theNSFillDetMapMin0[5][5][73][43]; 
-     double theNSFillDetMapMin1[5][5][73][43]; 
-     double theNSFillDetMapMin2[5][5][73][43];
-     double theDFFillDetMapPl0[5][5][73][43]; 
-     double theDFFillDetMapPl1[5][5][73][43]; 
-     double theDFFillDetMapPl2[5][5][73][43];
-     double theDFFillDetMapMin0[5][5][73][43]; 
-     double theDFFillDetMapMin1[5][5][73][43]; 
-     double theDFFillDetMapMin2[5][5][73][43];
-     
-     edm::InputTag  hbherecoMB;
-     edm::InputTag  horecoMB;
-     edm::InputTag  hfrecoMB;
-  
-     edm::InputTag  hbherecoNoise;
-     edm::InputTag  horecoNoise;
-     edm::InputTag  hfrecoNoise;
-  
-  
-     bool theRecalib;
+// Calo geometry    
+//  const CaloGeometry* geo;
+//  edm::ESHandle<HcalDbService> conditions;
+  std::string nameprod;
+  edm::InputTag  hbhereco;
+  edm::InputTag  horeco;
+  edm::InputTag  hfreco;
+  bool useMCInfo;
+  bool theRecalib;
+  double hbhecut;
+  double hocut;
+  double hfcut;  
+  std::vector<HcalDetId> theHcalId;
+//  CaloMiscalibMapHcal mapHcal_;  
+  std::string hcalfile_;
+  std::ofstream *myout_hcal;
+  int start;
+  std::vector<DetId> alldid;
 
 };
 }

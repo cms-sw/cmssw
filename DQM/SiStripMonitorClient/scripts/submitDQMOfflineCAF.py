@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# $Id: submitDQMOfflineCAF.py,v 1.20.2.4 2008/10/29 20:30:20 vadler Exp $
+# $Id: submitDQMOfflineCAF.py,v 1.23 2008/11/27 17:18:38 vadler Exp $
 #
 
 ## CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMOfflineCAF.py
@@ -87,7 +87,7 @@ STR_textUsage            = """ CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMO
          CRAB server to use;
          available: None (default)
                     caf  (works, but slow)
-                    bari (CRAB version >= 2.3.2,
+                    bari (CRAB version >= 2.4.1,
                           s. https://twiki.cern.ch/twiki/bin/view/CMS/CrabServer#Server_available_for_users)
                     
          NOTE: CRAB server submission is disabled at the moment.
@@ -102,7 +102,7 @@ STR_textUsage            = """ CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMO
          
      -g, --global-tag GLOBAL_TAG
          global tag to be used;
-         default: CRAFT_V3P::All
+         default: CRAFT_V4P::All
          
      -M, --magnetic-field FIELD
          specification of field to be used;
@@ -140,7 +140,7 @@ LSTR_server       = [STR_none,'caf','bari']
 STR_server        = LSTR_server[0]
 STR_email         = 'volker.adler@cern.ch'
 INT_jobs          = 10
-STR_globalTag     = 'CRAFT_V3P::All'
+STR_globalTag     = 'CRAFT_V4P::All'
 STR_magField      = '38T'
 BOOL_magFieldAuto = False
 BOOL_filter       = False
@@ -281,13 +281,7 @@ def Func_MkDir(str_path):
   """ Function Func_MkDir():
   Create new directory
   """
-  if os.path.exists(str_path):
-    for str_root, str_dirs, str_files in os.walk(str_path, topdown = False):
-      for name in str_files:
-        os.remove(os.path.join(str_root, name))
-      for name in str_dirs:
-        os.rmdir(os.path.join(str_root, name))
-    os.rmdir(str_path)
+  shutil.rmtree(str_path, True)
   os.mkdir(str_path)
   
 ## Function Func_MagConfig(float_magFieldMeasured)
@@ -298,7 +292,6 @@ def Func_MagConfig(float_magFieldMeasured):
   Determine configuration to be used for a given magnetic field
   """
   float_magField = 0.0
-  str_magField   = '0'
   for float_valueMagField in LFLOAT_valueMagField:
     if math.fabs(float_valueMagField-float_magFieldMeasured) < math.fabs(float_magField-float_magFieldMeasured):
       float_magField = float_valueMagField

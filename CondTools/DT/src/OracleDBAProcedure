@@ -17,31 +17,31 @@ cp DTTtrig-mapping-default.xml DTTtrig-mapping-custom.xml
 edit DTTtrig-mapping-custom.xml
 
 start DBA procedure:
-build real table in sqlite db
+build real table in oracle db
 
-pool_build_object_relational_mapping -f DTMtime-mapping-custom.xml -d CondFormatsDTObjects -c sqlite_file:testfile.db -u user -p pass -debug>DTMtime.debug
+pool_build_object_relational_mapping -f DTMtime-mapping-custom.xml -d CondFormatsDTObjects -c oracle://devdb10/cms_xiezhen_dev -u cms_xiezhen_dev -p xiezhen123 -debug>DTMtime.debug
 
-pool_build_object_relational_mapping -f DTReadOutMapping-mapping-custom.xml -d CondFormatsDTObjects -c sqlite_file:testfile.db -u user -p pass -debug>DTReadOutMapping.debug
+pool_build_object_relational_mapping -f DTReadOutMapping-mapping-custom.xml -d CondFormatsDTObjects -c oracle://devdb10/cms_xiezhen_dev -u cms_xiezhen_dev -p xiezhen123 -debug>DTReadOutMapping.debug
 
-pool_build_object_relational_mapping -f DTT0-mapping-custom.xml -d CondFormatsDTObjects -c sqlite_file:testfile.db -u user -p pass -debug>DTT0.debug
+pool_build_object_relational_mapping -f DTT0-mapping-custom.xml -d CondFormatsDTObjects -c oracle://devdb10/cms_xiezhen_dev -u cms_xiezhen_dev -p xiezhen123 -debug>DTT0.debug
 
-pool_build_object_relational_mapping -f DTTtrig-mapping-custom.xml -d CondFormatsDTObjects -c sqlite_file:testfile.db -u user -p pass -debug>DTTtrig.debug
+pool_build_object_relational_mapping -f DTTtrig-mapping-custom.xml -d CondFormatsDTObjects -c oracle://devdb10/cms_xiezhen_dev -u cms_xiezhen_dev -p xiezhen123 -debug>DTTtrig.debug
 
-pool_build_object_relational_mapping -f mapping-template-CondIOV-default.xml -d CondCoreIOVService -c sqlite_file:testfile.db -u user -p pass -o CondIOV-mapping-default.xml -debug > DTCondIOV.debug
+pool_build_object_relational_mapping -f mapping-template-CondIOV-default.xml -d CondCoreIOVService -c oracle://devdb10/cms_xiezhen_dev -u cms_xiezhen_dev -p xiezhen123 -o CondIOV-mapping-default.xml -debug > DTCondIOV.debug
 
 to get create statements for DBA record:
 grep CREATE *.debug > DTschema.debug
-clean up DTschema.debug and replace schema name
+clean up DTschema.debug and replace CMS_XIEZHEN_DEV by CSC schema name
 also change the GRANT SELECT according to setup
 
 add extra TIME column to the payload tables
-sqlplus user@devdb10/pass < addDTPayloadTime.sql
+sqlplus cms_xiezhen_dev@devdb10/xiezhen123 < addDTPayloadTime.sql
 
 create METADATA table
-sqlplus user@devdb10/pass < createMetaDataTable.sql
+sqlplus cms_xiezhen_dev@devdb10/xiezhen123 < createMetaDataTable.sql
 
 create catalog tables
 setenv POOL_OUTMSG_LEVEL D
-FCregisterPFN -p pippo -u relationalcatalog_sqlite:testfile.db -t POOL_RDBMS > &catalog.debug
+FCregisterPFN -p pippo -u relationalcatalog_oracle://devdb10/cms_xiezhen_dev -t POOL_RDBMS > &catalog.debug
 
 grep CREATE catalog.debug

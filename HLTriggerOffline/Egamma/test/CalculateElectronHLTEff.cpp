@@ -6,6 +6,7 @@
 #include <string.h>
 #include <iomanip>
 #include<fstream>
+#include <math.h>
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -26,8 +27,8 @@ int main(int argc, char* argv[])
   outfile<<"\\usepackage{color}"<<endl;
   outfile<<"\\usepackage{amssymb}"<<endl;
   outfile<<"\\begin{document}"<<endl;
-  const int npaths = 4;
-  string paths[npaths]={"singleElectron","singleElectronRelaxed","doubleElectron","doubleElectronRelaxed"};
+  const int npaths = 3;
+  string paths[npaths]={"singleElectron","singleElectronRelaxed","singleElectronLargeWindow"};
   string Histo_paths[npaths];
   for(int i=0;i<npaths;i++){Histo_paths[i]=paths[i]+"DQM/total eff";}
   //Single electron path
@@ -73,7 +74,7 @@ int main(int argc, char* argv[])
       outfile<<"\\hline"<<endl;
       outfile<<"\\multicolumn{3}{|c|}{"<<paths[path]<<"}\\\\"<<endl;
       outfile<<"\\hline"<<endl;
-      outfile<<" module & eff1 & eff2 \\\\"<<endl;
+      outfile<<" module & 2\\_1\\_0\\_pre6 & 2\\_1\\_4 \\\\"<<endl;
       outfile<<"\\hline"<<endl;
       outfile<<" Total Events & "<< h1->GetBinContent(1) <<" & " <<h2->GetBinContent(1)<<" \\\\"<<endl;
       outfile<<"\\hline"<<endl;

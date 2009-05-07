@@ -22,7 +22,6 @@
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
@@ -41,6 +40,7 @@ class ConvertedPhotonProducer : public edm::EDProducer {
 
   //  virtual void beginJob (edm::EventSetup const & es);
   virtual void beginRun (edm::Run& r, edm::EventSetup const & es);
+  virtual void endRun (edm::Run& r, edm::EventSetup const & es);
   virtual void endJob ();
   virtual void produce(edm::Event& evt, const edm::EventSetup& es);
 
@@ -72,7 +72,6 @@ class ConvertedPhotonProducer : public edm::EDProducer {
   edm::ParameterSet conf_;
 
   edm::ESHandle<MagneticField> theMF_;
-  edm::ESHandle<TransientTrackBuilder> theTransientTrackBuilder_;
 
   ConversionTrackPairFinder*      theTrackPairFinder_;
   ConversionVertexFinder*         theVertexFinder_;

@@ -1,3 +1,4 @@
+
 #include "RecoTauTag/HLTProducers/interface/L2TauIsolationSelector.h"
 #include "DataFormats/TauReco/interface/L2TauInfoAssociation.h"
 
@@ -15,6 +16,9 @@ L2TauIsolationSelector::L2TauIsolationSelector(const edm::ParameterSet& iConfig)
   SeedTowerEt_(iConfig.getParameter<double>("SeedTowerEt"))
 
 {
+
+
+
 
   produces<CaloJetCollection>("Isolated");
 }
@@ -39,9 +43,10 @@ L2TauIsolationSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    Handle<L2TauInfoAssociation> Imap;
    
 
+   iEvent.getByLabel(associationInput_ ,Imap);//get the handle
 
-   if(iEvent.getByLabel(associationInput_ ,Imap))
-        {
+     if(&(*Imap)) 
+       {
 	 //Create the CaloJet Collection
 	
 	 std::auto_ptr<CaloJetCollection> l2IsolCaloJets( new CaloJetCollection );
@@ -52,7 +57,7 @@ L2TauIsolationSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	     //Retrieve The L2TauIsolationInfo Class from the AssociationMap
 	     const L2TauIsolationInfo l2info = p->val;
 	     //Retrieve the Jet
-	     const CaloJet jet =*(p->key);
+	     const CaloJet& jet =*(p->key);
 	     
 	
 	     
@@ -67,7 +72,7 @@ L2TauIsolationSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 			   if(l2info.TowerIsolConeCut<TowerIsolEt_)
 			     {
 			         //Retrieve the Jet From the AssociationMap
-	   		       l2IsolCaloJets->push_back(jet);
+	   		       l2IsolCaloJets->push_back(*(jet.clone()));
 			     }
 
 	   }

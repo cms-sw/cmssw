@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/02 16:14:16 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/11/05 11:39:46 $
+ *  $Revision: 1.8 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -35,13 +35,13 @@ using namespace std;
 
 DTLocalTriggerBaseTest::~DTLocalTriggerBaseTest(){
 
-  edm::LogVerbatim ("localTrigger") << "[" << testName << "Test]: analyzed " << nevents << " events";
+  LogVerbatim(category()) << "[" << testName << "Test]: analyzed " << nevents << " events";
 
 }
 
 void DTLocalTriggerBaseTest::beginJob(const edm::EventSetup& context){
 
-  edm::LogVerbatim ("localTrigger") << "[" << testName << "Test]: BeginJob";
+  LogVerbatim(category()) << "[" << testName << "Test]: BeginJob";
   nevents = 0;
   nLumiSegs = 0;
   context.get<MuonGeometryRecord>().get(muonGeom);
@@ -51,7 +51,7 @@ void DTLocalTriggerBaseTest::beginJob(const edm::EventSetup& context){
 
 void DTLocalTriggerBaseTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  edm::LogVerbatim ("localTrigger") <<"[" << testName << "Test]: Begin of LS transition";
+  LogTrace(category()) <<"[" << testName << "Test]: Begin of LS transition";
 
   // Get the run number
   run = lumiSeg.run();
@@ -62,7 +62,7 @@ void DTLocalTriggerBaseTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg
 void DTLocalTriggerBaseTest::analyze(const edm::Event& e, const edm::EventSetup& context){
 
   nevents++;
-//   edm::LogVerbatim ("localTrigger") << "[" << testName << "Test]: "<<nevents<<" events";
+  LogTrace(category()) << "[" << testName << "Test]: "<<nevents<<" events";
 
 }
 
@@ -71,13 +71,13 @@ void DTLocalTriggerBaseTest::endLuminosityBlock(edm::LuminosityBlock const& lumi
   
   if (!runOnline) return;
 
-  edm::LogVerbatim ("localTrigger") <<"[" << testName << "Test]: End of LS transition, performing the DQM client operation";
+  LogVerbatim("DTDQM|DTMonitorClient|DTLocalTriggerTest") <<"[" << testName << "Test]: End of LS transition, performing the DQM client operation";
 
   // counts number of lumiSegs and prescale
   nLumiSegs++;
   if ( nLumiSegs%prescaleFactor != 0 ) return;
 
-  edm::LogVerbatim ("localTrigger") <<"[" << testName << "Test]: "<<nLumiSegs<<" updates";  
+  LogVerbatim("DTDQM|DTMonitorClient|DTLocalTriggerTest") <<"[" << testName << "Test]: "<<nLumiSegs<<" updates";  
   runClientDiagnostic();
 
 }
@@ -85,17 +85,17 @@ void DTLocalTriggerBaseTest::endLuminosityBlock(edm::LuminosityBlock const& lumi
 
 void DTLocalTriggerBaseTest::endJob(){
   
-  edm::LogVerbatim ("localTrigger") << "[" << testName << "Test] endjob called!";
+  LogTrace(category()) << "[" << testName << "Test] endjob called!";
 
   if (!runOnline) {
-    edm::LogVerbatim ("localTrigger") << "[" << testName << "Test] Client called in offline mode, performing client operations";
+    LogVerbatim(category()) << "[" << testName << "Test] Client called in offline mode, performing client operations";
 
-    if (dbe->dirExists("DT/03-LocalTrigger")) {
+    if (dbe->dirExists(topFolder())) {
       //dbe->showDirStructure();
       runClientDiagnostic();
     }
     else {
-      edm::LogVerbatim ("localTrigger") << "[" << testName << "Test] trigger ME dir does not exist! Skipping";  
+      LogVerbatim(category()) << "[" << testName << "Test] trigger ME dir does not exist! Skipping";  
     }
 
   }
@@ -107,7 +107,7 @@ void DTLocalTriggerBaseTest::setConfig(const edm::ParameterSet& ps, string name)
 
   testName=name;
 
-  edm::LogVerbatim ("localTrigger") << "[" << testName << "Test]: Constructor";
+  LogTrace(category()) << "[" << testName << "Test]: Constructor";
 
   sourceFolder = ps.getUntrackedParameter<string>("folderRoot", ""); 
   runOnline = ps.getUntrackedParameter<bool>("runOnline",true);
@@ -144,7 +144,7 @@ string DTLocalTriggerBaseTest::getMEName(string histoTag, string subfolder, cons
   string hwFolder = hwSource=="DCC" ? "DCC/" : ""; 
 
   string folderName = 
-    "DT/03-LocalTrigger/" + hwFolder + "Wheel" +  wheel.str() +
+    topFolder() + hwFolder + "Wheel" +  wheel.str() +
     "/Sector" + sector.str() +
     "/Station" + station.str() + "/" + subfolder + "/";  
 
@@ -187,13 +187,16 @@ void DTLocalTriggerBaseTest::bookSectorHistos(int wheel,int sector,string folder
   stringstream wh; wh << wheel;
   stringstream sc; sc << sector;
   int sectorid = (wheel+3) + (sector-1)*5;
-  string hwFolder = hwSource=="DCC" ? "DCC/" : ""; 
-  dbe->setCurrentFolder("DT/03-LocalTrigger/"+hwFolder+"Wheel"+wh.str()+"/Sector"+sc.str()+"/"+folder);
+  string hwFolder = hwSource=="DCC" ? "DCC/" : "";
+  string basedir = topFolder()+hwFolder+"Wheel"+wh.str()+"/Sector"+sc.str()+"/";
+  if (folder!="") {
+    basedir += folder +"/";
+  }
+  dbe->setCurrentFolder(basedir);
 
   string fullTag = fullName(hTag);
   string hname    = fullTag + "_W" + wh.str()+"_Sec" +sc.str();
-  edm::LogVerbatim ("localTrigger") << "[" << testName << "Test]: booking DT/03-LocalTrigger/Wheel" << wheel 
-				    <<"/Sector" << sector << "/" << folder << "/" << hname;
+  LogTrace(category()) << "[" << testName << "Test]: booking " << basedir << hname;
   if (hTag.find("Phi") != string::npos || 
       hTag.find("TkvsTrig") != string::npos ){    
     MonitorElement* me = dbe->book1D(hname.c_str(),hname.c_str(),4,0.5,4.5);
@@ -218,14 +221,13 @@ void DTLocalTriggerBaseTest::bookSectorHistos(int wheel,int sector,string folder
 
 void DTLocalTriggerBaseTest::bookCmsHistos( string hTag ) {
 
-  string basedir = "DT/03-LocalTrigger";
+  string basedir = topFolder();
    if(hwSource == "DCC") 
-      basedir += "/" + hwSource;
+      basedir += hwSource + "/";
   dbe->setCurrentFolder(basedir);
 
   string hname = fullName(hTag);
-  edm::LogVerbatim ("localTrigger") << "[" << testName << "Test]: booking " <<
-    basedir << "/" << hname;
+  LogTrace(category()) << "[" << testName << "Test]: booking " << basedir << hname;
 
 
     MonitorElement* me = dbe->book2D(hname.c_str(),hname.c_str(),12,1,13,5,-2,3);
@@ -241,16 +243,19 @@ void DTLocalTriggerBaseTest::bookWheelHistos(int wheel, string folder, string hT
   string basedir;  
   string hwFolder = hwSource=="DCC" ? "DCC/" : "" ;  
   if (hTag.find("Summary") != string::npos ) {
-    basedir = "DT/03-LocalTrigger/" + hwFolder;   //Book summary histo outside wheel directories
+    basedir = topFolder() + hwFolder;   //Book summary histo outside wheel directories
   } else {
-    basedir = "DT/03-LocalTrigger/" + hwFolder + "Wheel"+ wh.str()+"/" + folder;
+    basedir = topFolder() + hwFolder + "Wheel" + wh.str() + "/" ;
+    if (folder != "") {
+      basedir += folder +"/" ;
+    }
   }
   dbe->setCurrentFolder(basedir);
 
   string fullTag = fullName(hTag);
   string hname    = fullTag+ "_W" + wh.str();
 
-  edm::LogVerbatim ("localTrigger") << "[" << testName << "Test]: booking "<< basedir << "/" << hname;
+  LogTrace(category()) << "[" << testName << "Test]: booking "<< basedir << hname;
   
   if (hTag.find("Phi")!= string::npos ||
       hTag.find("Summary") != string::npos ){    

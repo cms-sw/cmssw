@@ -17,7 +17,7 @@ from RecoMuon.MuonIdentification.muonIdProducerSequence_cff import *
 
 # Muon Isolation sequence
 from RecoMuon.MuonIsolationProducers.muIsolation_cff import *
-muontracking = cms.Sequence(standAloneMuonSeeds*standAloneMuons*globalMuons)
+muontracking = cms.Sequence(MuonSeed*standAloneMuons*globalMuons)
 muontracking_with_TeVRefinement = cms.Sequence(muontracking*tevMuons)
 
 # Muon Reconstruction

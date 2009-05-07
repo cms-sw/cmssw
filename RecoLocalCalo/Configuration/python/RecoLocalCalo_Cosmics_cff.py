@@ -35,9 +35,4 @@ hfreco.samplesToAdd = 8
 hfreco.correctForTimeslew = True
 hfreco.correctForPhaseContainment = True
 hfreco.correctionPhaseNS = 10.
-zdcreco.firstSample = 1
-zdcreco.samplesToAdd = 8
-zdcreco.correctForTimeslew = True
-zdcreco.correctForPhaseContainment = True
-zdcreco.correctionPhaseNS = 10.
 

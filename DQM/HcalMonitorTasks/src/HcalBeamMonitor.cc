@@ -47,8 +47,13 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
   HcalBaseMonitor::setup(ps,dbe);  // perform setups of base class
 
   ievt_=0; // event counter
-  baseFolder_ = rootFolder_ + "BeamMonitor";
+  baseFolder_ = rootFolder_ + "BeamMonitor_Hcal";
   if (fVerbosity) cout <<"<HcalBeamMonitor::setup> Setup in progress"<<endl;
+
+  beammon_makeDiagnostics_ = ps.getUntrackedParameter<bool>("BeamMonitor_makeDiagnosticPlots",makeDiagnostics);
+  // These two variables aren't yet in use
+  beammon_checkNevents_    = ps.getUntrackedParameter<int>("BeamMonitor_checkNevents",checkNevents_);
+  beammon_minErrorFlag_    = ps.getUntrackedParameter<double>("BeamMonitor_minErrorFlag",0.);
 
   if (m_dbe)
     {
@@ -57,7 +62,24 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       type = "BeamMonitor Event Number";
       meEVT_ = m_dbe->bookInt(type);
     
+      // Basic Problem Cells
+      ProblemBeamCells=m_dbe->book2D(" ProblemBeamCells",
+                                     " Problem Beam Cell Rate for all HCAL",
+                                     etaBins_,etaMin_,etaMax_,
+                                     phiBins_,phiMin_,phiMax_);
+      ProblemBeamCells->setAxisTitle("i#eta",1);
+      ProblemBeamCells->setAxisTitle("i#phi",2);
+      // Only show problem cells that are above problem threshold
+      //(ProblemBeamCells->getTH2F())->SetMinimum(beammon_minErrorFlag_);
+      (ProblemBeamCells->getTH2F())->SetMinimum(0);
+      (ProblemBeamCells->getTH2F())->SetMaximum(1.);
+      
+      // Overall Problem plot appears in main directory; plots by depth appear \in subdirectory
+      m_dbe->setCurrentFolder(baseFolder_+"/problem_beammonitor");
+      setupDepthHists2D(ProblemBeamCellsByDepth, " Problem BeamMonitor Rate","");
+
       //jason's
+      m_dbe->setCurrentFolder(baseFolder_);
       CenterOfEnergyRadius = m_dbe->book1D("CenterOfEnergyRadius",
 				   "Center Of Energy radius",
 				   200,0,1);
@@ -88,17 +110,20 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 				       "HB Center of Energy",
 				       200,-1,1,
 				       200,-1,1);
-      for (int i=-16;i<=16;++i)
+      if (beammon_makeDiagnostics_)
 	{
-	  if (i==0) continue;
-	  histname.str("");
-	  histtitle.str("");
-	  histname<<"HB_CenterOfEnergyRadius_ieta"<<i;
-	  histtitle<<"HB Center Of Energy i#eta = "<<i;
-	  HB_CenterOfEnergyRadius[i]=m_dbe->book1D(histname.str().c_str(),
-					    histtitle.str().c_str(),
-					    200,0,1);
-	} // end of HB loop
+	  for (int i=-16;i<=16;++i)
+	    {
+	      if (i==0) continue;
+	      histname.str("");
+	      histtitle.str("");
+	      histname<<"HB_CenterOfEnergyRadius_ieta"<<i;
+	      histtitle<<"HB Center Of Energy ieta = "<<i;
+	      HB_CenterOfEnergyRadius[i+ETA_OFFSET_HB]=m_dbe->book1D(histname.str().c_str(),
+							  histtitle.str().c_str(),
+							  200,0,1);
+	    } // end of HB loop
+	}
       m_dbe->setCurrentFolder(baseFolder_+"/HE");
       HECenterOfEnergyRadius = m_dbe->book1D("HECenterOfEnergyRadius",
 					     "HE Center Of Energy radius",
@@ -107,18 +132,20 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 				       "HE Center of Energy",
 				       200,-1,1,
 				       200,-1,1);
-      for (int i=-29;i<=29;++i)
+      if (beammon_makeDiagnostics_)
 	{
-	  if (i>-17 && i<17) continue;
-	  histname.str("");
-	  histtitle.str("");
-	  histname<<"HE_CenterOfEnergyRadius_ieta"<<i;
-	  histtitle<<"HE Center Of Energy i#eta = "<<i;
-	  HE_CenterOfEnergyRadius[i]=m_dbe->book1D(histname.str().c_str(),
-					    histtitle.str().c_str(),
-					    200,0,1);
-	} // end of HE loop
-
+	  for (int i=-29;i<=29;++i)
+	    {
+	      if (abs(i)<ETA_BOUND_HE) continue;
+	      histname.str("");
+	      histtitle.str("");
+	      histname<<"HE_CenterOfEnergyRadius_ieta"<<i;
+	      histtitle<<"HE Center Of Energy ieta = "<<i;
+	      HE_CenterOfEnergyRadius[i+ETA_OFFSET_HE]=m_dbe->book1D(histname.str().c_str(),
+							  histtitle.str().c_str(),
+							  200,0,1);
+	    } // end of HE loop
+	}
       m_dbe->setCurrentFolder(baseFolder_+"/HO");
       HOCenterOfEnergyRadius = m_dbe->book1D("HOCenterOfEnergyRadius",
 					     "HO Center Of Energy radius",
@@ -127,17 +154,20 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 				       "HO Center of Energy",
 				       200,-1,1,
 				       200,-1,1);
-      for (int i=-15;i<=15;++i)
+      if (beammon_makeDiagnostics_)
 	{
-	  if (i==0) continue;
-	  histname.str("");
-	  histtitle.str("");
-	  histname<<"HO_CenterOfEnergyRadius_ieta"<<i;
-	  histtitle<<"HO Center Of Energy radius i#eta = "<<i;
-	  HO_CenterOfEnergyRadius[i]=m_dbe->book1D(histname.str().c_str(),
-					    histtitle.str().c_str(),
-					    200,0,1);
-	} // end of HO loop
+	  for (int i=-15;i<=15;++i)
+	    {
+	      if (i==0) continue;
+	      histname.str("");
+	      histtitle.str("");
+	      histname<<"HO_CenterOfEnergyRadius_ieta"<<i;
+	      histtitle<<"HO Center Of Energy radius ieta = "<<i;
+	      HO_CenterOfEnergyRadius[i+ETA_OFFSET_HO]=m_dbe->book1D(histname.str().c_str(),
+								     histtitle.str().c_str(),
+								     200,0,1);
+	    } // end of HO loop
+	}
       m_dbe->setCurrentFolder(baseFolder_+"/HF");
       HFCenterOfEnergyRadius = m_dbe->book1D("HFCenterOfEnergyRadius",
 					     "HF Center Of Energy radius",
@@ -146,18 +176,20 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 				       "HF Center of Energy",
 				       200,-1,1,
 				       200,-1,1);
-      for (int i=-41;i<=41;++i)
+      if (beammon_makeDiagnostics_)
 	{
-	  if (i>-29 && i<29) continue;
-	  histname.str("");
-	  histtitle.str("");
-	  histname<<"HF_CenterOfEnergyRadius_ieta"<<i;
-	  histtitle<<"HF Center Of Energy radius i#eta = "<<i;
-	  HF_CenterOfEnergyRadius[i]=m_dbe->book1D(histname.str().c_str(),
-					    histtitle.str().c_str(),
-					    200,0,1);
-	} // end of HF loop
-
+	  for (int i=-41;i<=41;++i)
+	    {
+	      if (abs(i)<ETA_BOUND_HF) continue;
+	      histname.str("");
+	      histtitle.str("");
+	      histname<<"HF_CenterOfEnergyRadius_ieta"<<i;
+	      histtitle<<"HF Center Of Energy radius ieta = "<<i;
+	      HF_CenterOfEnergyRadius[i+ETA_OFFSET_HF]=m_dbe->book1D(histname.str().c_str(),
+								     histtitle.str().c_str(),
+								     200,0,1);
+	    } // end of HF loop
+	}
       
       m_dbe->setCurrentFolder(baseFolder_+"/Lumi");
       // Wenhan's 
@@ -166,7 +198,7 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       Etsum_phi_L=m_dbe->bookProfile("Et Sum vs Phi Long Fiber","Et Sum per Area vs Phi Long Fiber",100,-4,4,200,0,2000);
       Etsum_phi_S=m_dbe->bookProfile("Et Sum vs Phi Short Fiber","Et Sum per Area crossing vs Phi Short Fiber",100,-4,4,200,0,2000);
       Etsum_ratio_p=m_dbe->book1D("Occ vs fm HF+","Energy difference of Long and Short Fiber HF+",105,-1.05,1.05);
-      Energy_Occ=m_dbe->book1D("Occ vs Energy ","Occupancy  vs Energy ",200,0,2000);
+      Energy_Occ=m_dbe->book1D("Occ vs Energy","Occupancy vs Energy",200,0,2000);
       Etsum_ratio_m=m_dbe->book1D("Occ vs fm HF-","Energy difference of Long and Short Fiber HF-",105,-1.05,1.05);
       Etsum_map_L=m_dbe->book2D("EtSum 2D phi and eta Long Fiber","Et Sum 2D phi and eta Long Fiber",120,-6,6,100,-4,4);
       Etsum_map_S=m_dbe->book2D("EtSum 2D phi and eta Short Fiber","Et Sum 2D phi and eta Short Fiber",120,-6,6,100,-4,4);
@@ -174,11 +206,10 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       Etsum_rphi_L=m_dbe->book2D("EtSum 2D phi and radius Long Fiber","Et Sum 2D phi and radius Long Fiber",100,0,1500,100,-4,4);
       Etsum_ratio_map=m_dbe->book2D("Abnormal fm","Abnormal fm",84,-42,42,72,0,72);
       
-      
       Occ_rphi_S=m_dbe->book2D("Occ 2D phi and radius Short Fiber","Occupancy 2D phi and radius Short Fiber",100,0,1500,100,-4,4);
       Occ_rphi_L=m_dbe->book2D("Occ 2D phi and radius Long Fiber","Occupancy 2D phi and radius Long Fiber",100,0,1500,100,-4,4);
       Occ_eta_S=m_dbe->bookProfile("Occ vs Eta Short Fiber","Occ per Bunch crossing vs Eta Short Fiber",120,-6,6,200,0,2000);
-      Occ_eta_L=m_dbe->bookProfile("Occ vs Eta long Fiber","Occ per Bunch crossing vs Eta long Fiber",120,-6,6,200,0,2000);
+      Occ_eta_L=m_dbe->bookProfile("Occ vs Eta Long Fiber","Occ per Bunch crossing vs Eta Long Fiber",120,-6,6,200,0,2000);
       
       Occ_phi_L=m_dbe->bookProfile("Occ vs Phi Long Fiber","Occ per Bunch crossing vs Phi Long Fiber",100,-4,4,200,0,2000);
       
@@ -217,6 +248,11 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
       return;
     }
 
+  if (showTiming)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+  
   ievt_++;
   meEVT_->Fill(ievt_);
 
@@ -245,26 +281,24 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
   float radius[13]={1300,1162,975,818,686,576,483,406,340,286,240,201,169};
 
      
-     float hitsp[13][36][2];
-     float hitsm[13][36][2];
-
-     for(int m=0;m<13;m++){
-       for(int n=0;n<36;n++){
-	 hitsp[m][n][0]=0;
-         hitsp[m][n][1]=0; 
-         hitsm[m][n][0]=0;
-         hitsm[m][n][1]=0;
-       }
-     }
-
+  float hitsp[13][36][2];
+  float hitsm[13][36][2];
+  
+  for(int m=0;m<13;m++){
+    for(int n=0;n<36;n++){
+      hitsp[m][n][0]=0;
+      hitsp[m][n][1]=0; 
+      hitsm[m][n][0]=0;
+      hitsm[m][n][1]=0;
+    }
+  }
   if (showTiming)
     {
+      cpu_timer.stop(); std::cout << " TIMER::HcalBeamMonitor BEAMMON analyze pre-process-> " << cpu_timer.cpuTime() << std::endl;
       cpu_timer.reset(); cpu_timer.start();
-    }
-  
-      
-  //  try
-  if (1>0)
+    } // if (showTiming)
+
+  try
     {
       if(hbheHits.size()>0)
 	{
@@ -329,7 +363,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	      //cout <<"\tMOMENT = "<<moment<<endl;
 	      if (moment!=0)
 		{
-		  HB_CenterOfEnergyRadius[i]->Fill(moment);
+		  if (beammon_makeDiagnostics_) HB_CenterOfEnergyRadius[index]->Fill(moment);
 		  COEradiusVSeta->Fill(i,moment);
 		}
 	    } // for (int i=-1*hbeta;i<=hbeta;++i)
@@ -346,22 +380,21 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	      moment/=HE_energy[index];
 	      if (moment!=0)
 		{
-		  HE_CenterOfEnergyRadius[i]->Fill(moment);
+		  if (beammon_makeDiagnostics_) HE_CenterOfEnergyRadius[index]->Fill(moment);
 		  COEradiusVSeta->Fill(i,moment);
 		}
 	    } // for (int i=-1*heeta;i<=heeta;++i)
 
 	} // if (hbheHits.size()>0)
     } // try
-  //catch (...)
-  else
+  catch (...)
     {
       if (fVerbosity) cout <<"HcalBeamMonitor::processEvent   Error in HBHE RecHit loop"<<endl;
     } // catch
   
   if (showTiming)
     {
-      cpu_timer.stop(); std::cout << " TIMER::HcalRecHit BEAMMON HBHE-> " << cpu_timer.cpuTime() << std::endl;
+      cpu_timer.stop(); std::cout << " TIMER::HcalBeamMonitor BEAMMON HBHE-> " << cpu_timer.cpuTime() << std::endl;
       cpu_timer.reset(); cpu_timer.start();
     } // if (showTiming)
   
@@ -409,7 +442,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	      offset = (i>0 ? 0.5: -0.5);
 	      if (moment!=0)
 		{
-		  HO_CenterOfEnergyRadius[i]->Fill(moment);
+		  if (beammon_makeDiagnostics_) HO_CenterOfEnergyRadius[index]->Fill(moment);
 		  COEradiusVSeta->Fill(i+offset,moment);
 		}
 	    } // for (int i=-1*hoeta;i<=hoeta;++i)
@@ -422,7 +455,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
   
   if (showTiming)
     {
-      cpu_timer.stop(); std::cout << " TIMER::HcalRecHit BEAMMON HO-> " << cpu_timer.cpuTime() << std::endl;
+      cpu_timer.stop(); std::cout << " TIMER::HcalBeamMonitor BEAMMON HO-> " << cpu_timer.cpuTime() << std::endl;
       cpu_timer.reset(); cpu_timer.start();
     } // if (showTiming)
 
@@ -581,35 +614,35 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	      offset = (i>0 ? 0.5: -0.5);
 	      if (moment!=0)
 		{
-		  HF_CenterOfEnergyRadius[i]->Fill(moment);
+		  if (beammon_makeDiagnostics_) HF_CenterOfEnergyRadius[index]->Fill(moment);
 		  COEradiusVSeta->Fill(i+offset,moment);
 		}
 	    } // for (int i=-1*hfeta;i<=hfeta;++i)
-               float ratiom,ratiop;
-      
-      for(int i=0;i<13;i++){
-        for(int j=0;j<36;j++){
-          
-          if(hitsp[i][j][0]==hitsp[i][j][1]) continue;
-                    
-          ratiop=(hitsp[i][j][0]-hitsp[i][j][1])/(hitsp[i][j][0]+hitsp[i][j][1]);
+	  float ratiom,ratiop;
+	  
+	  for(int i=0;i<13;i++){
+	    for(int j=0;j<36;j++){
+	      
+	      if(hitsp[i][j][0]==hitsp[i][j][1]) continue;
+	      
+	      ratiop=(hitsp[i][j][0]-hitsp[i][j][1])/(hitsp[i][j][0]+hitsp[i][j][1]);
           //cout<<ratiop<<endl;
-	  Etsum_ratio_p->Fill(ratiop);
-          if(abs(ratiop>0.85))
-           Etsum_ratio_map->Fill(i+29,2*j+1); 
-	}
-      }
-      
-     for(int p=0;p<13;p++){
-        for(int q=0;q<36;q++){
-	 
-         if(hitsm[p][q][0]==hitsm[p][q][1]) continue;
-         ratiom=(hitsm[p][q][0]-hitsm[p][q][1])/(hitsm[p][q][0]+hitsm[p][q][1]);         
-	    Etsum_ratio_m->Fill(ratiom);
-            if(abs(ratiom>0.85))
-            Etsum_ratio_map->Fill(-p-29,2*q+1);
-	}
-     } 
+	      Etsum_ratio_p->Fill(ratiop);
+	      if(abs(ratiop>0.85))
+		Etsum_ratio_map->Fill(i+29,2*j+1); 
+	    }
+	  }
+	  
+	  for(int p=0;p<13;p++){
+	    for(int q=0;q<36;q++){
+	      
+	      if(hitsm[p][q][0]==hitsm[p][q][1]) continue;
+	      ratiom=(hitsm[p][q][0]-hitsm[p][q][1])/(hitsm[p][q][0]+hitsm[p][q][1]);         
+	      Etsum_ratio_m->Fill(ratiom);
+	      if(abs(ratiom>0.85))
+		Etsum_ratio_map->Fill(-p-29,2*q+1);
+	    }
+	  } 
 	} // if (hfHits.size()>0)
     } // try (HF loop)
   catch (...)
@@ -619,7 +652,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
   
   if (showTiming)
     {
-      cpu_timer.stop(); std::cout << " TIMER::HcalRecHit BEAMMON HF-> " << cpu_timer.cpuTime() << std::endl;
+      cpu_timer.stop(); std::cout << " TIMER::HcalBeamMonitor BEAMMON HF-> " << cpu_timer.cpuTime() << std::endl;
     } // if (showTiming)
 
   totalX=HBtotalX+HEtotalX+HOtotalX+HFtotalX;

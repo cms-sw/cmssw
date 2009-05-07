@@ -1,8 +1,0 @@
-<flags GENREFLEX_ARGS="--">
-<use name=boost>
-<use name=FWCore/Framework>
-<use name=rootrflx>
-<export>
-  <use name=boost>
-  <lib name=CondFormatsCommon>
-</export>

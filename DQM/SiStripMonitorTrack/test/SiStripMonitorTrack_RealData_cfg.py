@@ -15,7 +15,9 @@ process.MessageLogger = cms.Service(
 #-------------------------------------------------
 # Magnetic Field
 #-------------------------------------------------
-process.load("Configuration.StandardSequences.MagneticField_0T_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.prefer("VolumeBasedMagneticFieldESProducer")
+
 
 #-------------------------------------------------
 # CMS Geometry
@@ -27,7 +29,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 #-------------------------------------------------
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRUZET4_V2P::All"
+process.GlobalTag.globaltag = "CRAFT_ALL_V4::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 #process.sistripconn = cms.ESProducer("SiStripConnectivity")
@@ -61,12 +63,15 @@ process.load("DQM.SiStripMonitorTrack.SiStripMonitorTrack_StandAlone_cff")
 # input
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-    '/store/data/Commissioning08/Cosmics/RECO/CRUZET4_v1/000/058/059/06A2E4C8-976F-DD11-A692-000423D6C8EE.root',
-    '/store/data/Commissioning08/Cosmics/RECO/CRUZET4_v1/000/058/059/0869DF02-6D6F-DD11-B318-001617DBCF90.root'
-    
+
+    '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V4_ReReco-v1/0001/2EA98EBE-07C2-DD11-9584-001D0967D0DF.root',
+    '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V4_ReReco-v1/0001/EA0B6FEA-AFC1-DD11-A9CA-001D0967BC3E.root',
+    '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V4_ReReco-v1/0007/D08B578B-7CC4-DD11-9754-001D0967D24C.root',
+    '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V4_ReReco-v1/0051/2A2DAF71-E6CB-DD11-9DF3-001D0967D5FD.root'
+     
     )
                             )
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(2000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
 
 # output
 #process.out = cms.OutputModule("PoolOutputModule",

@@ -3,15 +3,15 @@
 
 /**
  * \class L1GTEvmDigiToRaw
- * 
- * 
- * Description: generate raw data from digis.  
+ *
+ *
+ * Description: generate raw data from digis.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
- * \author: Vasile Mihai Ghete - HEPHY Vienna 
- * 
+ *
+ * \author: Vasile Mihai Ghete - HEPHY Vienna
+ *
  * $Date$
  * $Revision$
  *
@@ -109,6 +109,12 @@ private:
 
     /// length of BST record (in bytes)
     int m_bstLengthBytes;
+
+private:
+
+    /// verbosity level
+    int m_verbosity;
+    bool m_isDebugEnabled;
 
 };
 

@@ -1,12 +1,13 @@
 #ifndef HLT_JOB_CNTLER_HPP
 #define HLT_JOB_CNTLER_HPP
-// $Id: JobController.h,v 1.21 2008/09/04 17:47:21 biery Exp $
+// $Id: JobController.h,v 1.21.2.4 2008/11/15 20:01:58 biery Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/EventServer.h"
 #include "EventFilter/StorageManager/interface/DQMEventServer.h"
 #include "EventFilter/StorageManager/interface/InitMsgCollection.h"
 #include "EventFilter/StorageManager/interface/SMPerformanceMeter.h"
+#include "EventFilter/StorageManager/interface/SMFUSenderList.h"
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
@@ -14,6 +15,8 @@
 
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
+
+#include "log4cplus/logger.h"
 
 #include <string>
 
@@ -23,14 +26,8 @@ namespace stor
   class JobController
   {
   public:
-    // remove next ctor later
-    JobController(const std::string& fu_config,
-		  const std::string& my_config,
-		  FragmentCollector::Deleter);
     JobController(const std::string& my_config,
-		  FragmentCollector::Deleter);
-    JobController(const edm::ProductRegistry& reg,
-		  const std::string& my_config,
+		  log4cplus::Logger& applicationLogger,
 		  FragmentCollector::Deleter);
 
     ~JobController();
@@ -65,6 +62,11 @@ namespace stor
     }
     boost::shared_ptr<InitMsgCollection>& getInitMsgCollection() { return initMsgCollection_; }
 
+    void setSMRBSenderList(SMFUSenderList* senderList) {
+      if (collector_.get() != NULL) collector_->setSMRBSenderList(senderList);
+      smRBSenderList_ = senderList;
+    }
+
     void setNumberOfFileSystems(int disks)    { collector_->setNumberOfFileSystems(disks); }
     void setFileCatalog(std::string catalog)  { collector_->setFileCatalog(catalog); }
     void setSourceId(std::string sourceId)    { collector_->setSourceId(sourceId); }
@@ -97,8 +99,10 @@ namespace stor
     boost::shared_ptr<EventServer> eventServer_;
     boost::shared_ptr<DQMEventServer> DQMeventServer_;
     boost::shared_ptr<InitMsgCollection> initMsgCollection_;
+    SMFUSenderList* smRBSenderList_;
 
     int fileClosingTestInterval_;
+    log4cplus::Logger& applicationLogger_;
 
     boost::shared_ptr<boost::thread> me_;
   };

@@ -15,7 +15,6 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CondFormats/AlignmentRecord/interface/HFAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/HFAlignmentErrorRcd.h"
-#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "boost/mpl/vector.hpp"
 
 
@@ -25,9 +24,7 @@ class HFGeometryRecord :
 		boost::mpl::vector<
                 IdealGeometryRecord,
 		HFAlignmentRcd, 
-		HFAlignmentErrorRcd,
-		GlobalPositionRcd
-		> > {};
+		HFAlignmentErrorRcd> > {};
 
 #endif /* RECORDS_HFGEOMETRYRECORD_H */
 

@@ -45,18 +45,12 @@ namespace edm
 
     // declare the products to produce, retrieve
 
-    EBProducerSig_ = ps.getParameter<edm::InputTag>("EBProducerSig");
-    EEProducerSig_ = ps.getParameter<edm::InputTag>("EEProducerSig");
-    ESProducerSig_ = ps.getParameter<edm::InputTag>("ESProducerSig");
-    EBProducerPile_ = ps.getParameter<edm::InputTag>("EBProducerPile");
-    EEProducerPile_ = ps.getParameter<edm::InputTag>("EEProducerPile");
-    ESProducerPile_ = ps.getParameter<edm::InputTag>("ESProducerPile");
-    EBrechitCollectionSig_ = ps.getParameter<edm::InputTag>("EBrechitCollectionSig");
-    EErechitCollectionSig_ = ps.getParameter<edm::InputTag>("EErechitCollectionSig");
-    ESrechitCollectionSig_ = ps.getParameter<edm::InputTag>("ESrechitCollectionSig");
-    EBrechitCollectionPile_ = ps.getParameter<edm::InputTag>("EBrechitCollectionPile");
-    EErechitCollectionPile_ = ps.getParameter<edm::InputTag>("EErechitCollectionPile");
-    ESrechitCollectionPile_ = ps.getParameter<edm::InputTag>("ESrechitCollectionPile");
+    EBProducer_ = ps.getParameter<edm::InputTag>("EBProducer");
+    EEProducer_ = ps.getParameter<edm::InputTag>("EEProducer");
+    ESProducer_ = ps.getParameter<edm::InputTag>("ESProducer");
+    EBrechitCollection_ = ps.getParameter<edm::InputTag>("EBrechitCollection");
+    EErechitCollection_ = ps.getParameter<edm::InputTag>("EErechitCollection");
+    ESrechitCollection_ = ps.getParameter<edm::InputTag>("ESrechitCollection");
     EBRecHitCollectionDM_        = ps.getParameter<std::string>("EBRecHitCollectionDM");
     EERecHitCollectionDM_        = ps.getParameter<std::string>("EERecHitCollectionDM");
     ESRecHitCollectionDM_        = ps.getParameter<std::string>("ESRecHitCollectionDM");
@@ -90,7 +84,7 @@ namespace edm
 
    const EBRecHitCollection*  EBRecHits = 0;
 
-   if(e.getByLabel(EBProducerSig_.label(),EBrechitCollectionSig_.label(), pEBRecHits) ){
+   if(e.getByLabel(EBProducer_.label(),EBrechitCollection_.label(), pEBRecHits) ){
      EBRecHits = pEBRecHits.product(); // get a ptr to the product
      LogDebug("DataMixingEMWorker") << "total # EB rechits: " << EBRecHits->size();
    }
@@ -118,7 +112,7 @@ namespace edm
    const EERecHitCollection*  EERecHits = 0;
 
    
-   if(e.getByLabel(EEProducerSig_.label(),EErechitCollectionSig_.label(), pEERecHits) ){
+   if(e.getByLabel(EEProducer_.label(),EErechitCollection_.label(), pEERecHits) ){
      EERecHits = pEERecHits.product(); // get a ptr to the product
      LogDebug("DataMixingEMWorker") << "total # EE rechits: " << EERecHits->size();
    } 
@@ -146,7 +140,7 @@ namespace edm
    const ESRecHitCollection*  ESRecHits = 0;
 
    
-   if(e.getByLabel( ESProducerSig_.label(),ESrechitCollectionSig_.label(), pESRecHits) ){
+   if(e.getByLabel( ESProducer_.label(),ESrechitCollection_.label(), pESRecHits) ){
      ESRecHits = pESRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # ES rechits: " << ESRecHits->size();
@@ -185,7 +179,7 @@ namespace edm
    const EBRecHitCollection*  EBRecHits = 0;
 
   
-   if( e->getByLabel(EBProducerPile_.label(),EBrechitCollectionPile_.label(), pEBRecHits) ){
+   if( e->getByLabel(EBProducer_.label(),EBrechitCollection_.label(), pEBRecHits) ){
      EBRecHits = pEBRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # EB rechits: " << EBRecHits->size();
@@ -214,7 +208,7 @@ namespace edm
    const EERecHitCollection*  EERecHits = 0;
 
    
-   if( e->getByLabel( EEProducerPile_.label(),EErechitCollectionPile_.label(), pEERecHits) ){
+   if( e->getByLabel( EEProducer_.label(),EErechitCollection_.label(), pEERecHits) ){
      EERecHits = pEERecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # EE rechits: " << EERecHits->size();
@@ -243,7 +237,7 @@ namespace edm
    const ESRecHitCollection*  ESRecHits = 0;
 
    
-   if( e->getByLabel( ESProducerPile_.label(),ESrechitCollectionPile_.label(), pESRecHits) ){
+   if( e->getByLabel( ESProducer_.label(),ESrechitCollection_.label(), pESRecHits) ){
      ESRecHits = pESRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # ES rechits: " << ESRecHits->size();
@@ -281,6 +275,8 @@ namespace edm
     DetId currentID;
     float ESum = 0.;
     float EBTime = 0.;
+    EcalRecHit OldHit;
+    int nmatch=0;
 
     // EB first...
 
@@ -292,25 +288,40 @@ namespace edm
       currentID = iEB->first; 
 
       if (currentID == formerID) { // we have to add these rechits together
+	nmatch++;                  // use this to avoid using the "count" function
+	ESum+=(iEB->second).energy();          // on every element...
 
-	ESum+=(iEB->second).energy(); 
+	iEBchk = iEB;
+	if((iEBchk++) == EBRecHitStorage_.end()) {  //make sure not to lose the last one
+	  EcalRecHit aHit(formerID, ESum, EBTime);
+	  EBrechits->push_back( aHit );	  
+	  // reset energy sum, nmatch
+	  ESum = 0 ;
+	  nmatch=0;	  
+	}
       }
       else {
-	  if(formerID>0) {
-	    // cutoff for ESum?
-	    EcalRecHit aHit(formerID, ESum, EBTime);
-	    EBrechits->push_back( aHit );
-	  }
-	  //save pointers for next iteration
-	  formerID = currentID;
-	  ESum = (iEB->second).energy();
-	  EBTime = (iEB->second).time();  // take time of first hit in sequence - is this ok?
-      }
+	if(nmatch>0) {
+	  EcalRecHit aHit(formerID, ESum, EBTime);
+	  EBrechits->push_back( aHit );	  
+	  // reset energy sum, nmatch
+	  ESum = 0 ;
+	  nmatch=0;	  
+	}
+	else {
+	  if(formerID>0) EBrechits->push_back( OldHit );
+	}
+	
+	iEBchk = iEB;
+	if((iEBchk++) == EBRecHitStorage_.end()) {  //make sure not to lose the last one
+	  EBrechits->push_back( iEB->second );
+	}
 
-      iEBchk = iEB;
-      if((++iEBchk) == EBRecHitStorage_.end()) {  //make sure not to lose the last one
-	EcalRecHit aHit(formerID, ESum, EBTime);
-	EBrechits->push_back( aHit );	  
+	// save pointers for next iteration
+	OldHit = iEB->second;
+	formerID = currentID;
+	ESum = (iEB->second).energy();
+	EBTime = (iEB->second).time();  // take time of first hit in sequence - is this ok?
       }
     }
 
@@ -321,6 +332,8 @@ namespace edm
     ESum = 0.;
     float EETime = 0.;
     
+    nmatch=0;
+
     EERecHitMap::const_iterator iEEchk;
 
     for(EERecHitMap::const_iterator iEE  = EERecHitStorage_.begin();
@@ -329,25 +342,40 @@ namespace edm
       currentID = iEE->first; 
 
       if (currentID == formerID) { // we have to add these rechits together
+	nmatch++;                  // use this to avoid using the "count" function
+	ESum+=(iEE->second).energy();          // on every element...
 
-	ESum+=(iEE->second).energy(); 
+	iEEchk = iEE;
+	if((iEEchk++) == EERecHitStorage_.end()) {  //make sure not to lose the last one
+	  EcalRecHit aHit(formerID, ESum, EETime);
+	  EErechits->push_back( aHit );	  
+	  // reset energy sum, nmatch
+	  ESum = 0 ;
+	  nmatch=0;	  
+	}
       }
       else {
-	  if(formerID>0) {
-	    // cutoff for ESum?
-	    EcalRecHit aHit(formerID, ESum, EETime);
-	    EErechits->push_back( aHit );
-	  }
-	  //save pointers for next iteration
-	  formerID = currentID;
-	  ESum = (iEE->second).energy();
-	  EETime = (iEE->second).time();  // take time of first hit in sequence - is this ok?
-      }
+	if(nmatch>0) {
+	  EcalRecHit aHit(formerID, ESum, EETime);
+	  EErechits->push_back( aHit );	  
+	  // reset energy sum, nmatch
+	  ESum = 0 ;
+	  nmatch=0;	  
+	}
+	else {
+	  if(formerID>0) EErechits->push_back( OldHit );
+	}
+	
+	iEEchk = iEE;
+	if((iEEchk++) == EERecHitStorage_.end()) {  //make sure not to lose the last one
+	  EErechits->push_back( iEE->second );
+	}
 
-      iEEchk = iEE;
-      if((++iEEchk) == EERecHitStorage_.end()) {  //make sure not to lose the last one
-	EcalRecHit aHit(formerID, ESum, EETime);
-	EErechits->push_back( aHit );	  
+	// save pointers for next iteration
+	OldHit = iEE->second;
+	formerID = currentID;
+	ESum = (iEE->second).energy();
+	EETime = (iEE->second).time();  // take time of first hit in sequence - is this ok?
       }
     }
 
@@ -357,6 +385,7 @@ namespace edm
     formerID = 0;
     ESum = 0.;
     float ESTime = 0.;
+    nmatch=0;
 
     ESRecHitMap::const_iterator iESchk;
 
@@ -366,29 +395,42 @@ namespace edm
       currentID = iES->first; 
 
       if (currentID == formerID) { // we have to add these rechits together
+	nmatch++;                  // use this to avoid using the "count" function
+	ESum+=(iES->second).energy();          // on every element...
 
-	ESum+=(iES->second).energy(); 
+	iESchk = iES;
+	if((iESchk++) == ESRecHitStorage_.end()) {  //make sure not to lose the last one
+	  EcalRecHit aHit(formerID, ESum, ESTime);
+	  ESrechits->push_back( aHit );	  
+	  // reset energy sum, nmatch
+	  ESum = 0 ;
+	  nmatch=0;	  
+	}
       }
       else {
-	  if(formerID>0) {
-	    // cutoff for ESum?
-	    EcalRecHit aHit(formerID, ESum, ESTime);
-	    ESrechits->push_back( aHit );
-	  }
-	  //save pointers for next iteration
-	  formerID = currentID;
-	  ESum = (iES->second).energy();
-	  ESTime = (iES->second).time();  // take time of first hit in sequence - is this ok?
-      }
+	if(nmatch>0) {
+	  EcalRecHit aHit(formerID, ESum, ESTime);
+	  ESrechits->push_back( aHit );	  
+	  // reset energy sum, nmatch
+	  ESum = 0 ;
+	  nmatch=0;	  
+	}
+	else {
+	  if(formerID>0) ESrechits->push_back( OldHit );
+	}
+	
+	iESchk = iES;
+	if((iESchk++) == ESRecHitStorage_.end()) {  //make sure not to lose the last one
+	  ESrechits->push_back( iES->second );
+	}
 
-      iESchk = iES;
-      if((++iESchk) == ESRecHitStorage_.end()) {  //make sure not to lose the last one
-	EcalRecHit aHit(formerID, ESum, ESTime);
-	ESrechits->push_back( aHit );	  
+	// save pointers for next iteration
+	OldHit = iES->second;
+	formerID = currentID;
+	ESum = (iES->second).energy();
+	ESTime = (iES->second).time();  // take time of first hit in sequence - is this ok?
       }
     }
-
-    // done merging
 
     // put the collection of reconstructed hits in the event   
     LogInfo("DataMixingEMWorker") << "total # EB Merged rechits: " << EBrechits->size() ;

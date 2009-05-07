@@ -1,7 +1,7 @@
 #ifndef TopObjects_TtHadEvtSolution_h
 #define TopObjects_TtHadEvtSolution_h
 //
-// $Id: TtHadEvtSolution.h,v 1.7 2008/02/15 12:10:47 rwolf Exp $
+// $Id: TtHadEvtSolution.h,v 1.9 2008/11/14 19:20:51 rwolf Exp $
 // adapted TtSemiEvtSolution.h,v 1.14 2007/07/06 03:07:47 lowette Exp 
 // for fully hadronic channel
 
@@ -51,10 +51,10 @@ class TtHadEvtSolution {
   const edm::RefProd<TtGenEvent> & getGenEvent() const { return theGenEvt_; };
   const reco::GenParticle * getGenHadb() const { if (!theGenEvt_) return 0; else return theGenEvt_->b(); };
   const reco::GenParticle * getGenHadbbar() const { if (!theGenEvt_) return 0; else return theGenEvt_->bBar(); };
-  const reco::GenParticle * getGenHadp() const { if (!theGenEvt_) return 0; else return theGenEvt_->quarkFromTop(); };
-  const reco::GenParticle * getGenHadq() const { if (!theGenEvt_) return 0; else return theGenEvt_->quarkFromTopBar(); };
-  const reco::GenParticle * getGenHadj() const { if (!theGenEvt_) return 0; else return theGenEvt_->quarkFromAntiTop(); };
-  const reco::GenParticle * getGenHadk() const { if (!theGenEvt_) return 0; else return theGenEvt_->quarkFromAntiTopBar(); };
+  const reco::GenParticle * getGenHadp() const { if (!theGenEvt_) return 0; else return theGenEvt_->lightQFromTop(); };
+  const reco::GenParticle * getGenHadq() const { if (!theGenEvt_) return 0; else return theGenEvt_->lightQBarFromTop(); };
+  const reco::GenParticle * getGenHadj() const { if (!theGenEvt_) return 0; else return theGenEvt_->lightQFromTopBar(); };
+  const reco::GenParticle * getGenHadk() const { if (!theGenEvt_) return 0; else return theGenEvt_->lightQBarFromTopBar(); };
   
   //-------------------------------------------
   // get (un-)/calibrated reco objects
@@ -64,12 +64,12 @@ class TtHadEvtSolution {
   reco::Particle getRecHadW_plus() const;     
   reco::Particle getRecHadW_minus() const;       
   
-  pat::JetType getRecHadb() const { return this->getHadb().recJet(); };
-  pat::JetType getRecHadbbar() const { return this->getHadbbar().recJet(); };
-  pat::JetType getRecHadp() const { return this->getHadp().recJet(); };
-  pat::JetType getRecHadq() const { return this->getHadq().recJet(); };
-  pat::JetType getRecHadj() const { return this->getHadj().recJet(); };
-  pat::JetType getRecHadk() const { return this->getHadk().recJet(); };
+  pat::JetType getRecHadb() const { return this->getHadb().correctedJet("RAW"); };
+  pat::JetType getRecHadbbar() const { return this->getHadbbar().correctedJet("RAW"); };
+  pat::JetType getRecHadp() const { return this->getHadp().correctedJet("RAW"); };
+  pat::JetType getRecHadq() const { return this->getHadq().correctedJet("RAW"); };
+  pat::JetType getRecHadj() const { return this->getHadj().correctedJet("RAW"); };
+  pat::JetType getRecHadk() const { return this->getHadk().correctedJet("RAW"); };
   
   reco::Particle getCalHadt() const;
   reco::Particle getCalHadtbar() const;

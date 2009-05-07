@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: mk_satamap.pl,v 1.3 2008/09/13 01:06:45 loizides Exp $
+# $Id: mk_satamap.pl,v 1.4 2008/09/13 01:21:07 loizides Exp $
 #
 # Make sata mapping of volume serial numbers, suitable for intput to "makeall" script
 #
@@ -10,7 +10,11 @@ use strict;
 my @satabeasts = (
 		  "SATAB-C2C07-03-00",
 		  "SATAB-C2C07-04-00",
-		  "SATAB-C2C07-05-00"
+		  "SATAB-C2C07-05-00",
+                  "SATAB-C2C06-03-00",
+                  "SATAB-C2C06-04-00",
+                  "SATAB-C2C06-05-00",
+                  "SATAB-C2C06-06-00"
                   );
 
 #nominal node mapping to satabeasts (ordering tied to that in @satabeasts):
@@ -20,19 +24,37 @@ my @nodeAssign = (
 		  "srv-C2C07-13",
 		  "srv-C2C07-14",
 		  "srv-C2C07-18",
-		  "srv-C2C07-16"
+		  "srv-C2C07-16",
+                  "srv-C2C06-12",
+                  "srv-C2C06-13",
+                  "srv-C2C06-14",
+                  "srv-C2C06-15",
+                  "srv-C2C06-16",
+                  "srv-C2C06-17",
+                  "srv-C2C06-18",
+                  "srv-C2C06-19",
+                  "srv-C2C06-20"
                   );
 
 # wwpn for each node (can be obtained with getwwpn.sh)
 my %nodeWWPN = ( 
                  "srv-C2C07-13" => "21-00-00-E0-8B-9D-A9-F4",
                  "srv-C2C07-14" => "21-00-00-E0-8B-9D-37-F1",
-                 "srv-C2C07-15" => "unknown",
+                 "srv-C2C07-15" => "21-00-00-E0-8B-9D-84-F3",
                  "srv-C2C07-16" => "21-00-00-E0-8B-9E-68-0C",
                  "srv-C2C07-17" => "21-00-00-E0-8B-9D-BA-F3",
                  "srv-C2C07-18" => "21-00-00-E0-8B-9D-C3-F3",
                  "srv-C2C07-19" => "21-00-00-E0-8B-9D-A5-F1",
-                 "srv-C2C07-20" => "21-00-00-E0-8B-9D-0C-F2"
+                 "srv-C2C07-20" => "21-00-00-E0-8B-9D-0C-F2",
+                 "srv-C2C06-12" => "21-00-00-1B-32-1B-AB-87",
+                 "srv-C2C06-13" => "21-00-00-1B-32-1B-19-C9",
+                 "srv-C2C06-14" => "21-00-00-1B-32-00-5B-D2",
+                 "srv-C2C06-15" => "21-00-00-1B-32-1B-A3-85",
+                 "srv-C2C06-16" => "21-00-00-1B-32-0F-22-E6",
+                 "srv-C2C06-17" => "21-00-00-1B-32-1B-C5-87",
+                 "srv-C2C06-18" => "21-00-00-1B-32-1B-3E-8B",
+                 "srv-C2C06-19" => "21-00-00-1B-32-1B-E6-85",
+                 "srv-C2C06-20" => "21-00-00-1B-32-1B-58-86"
                  );
 
 my $nbeast=0;

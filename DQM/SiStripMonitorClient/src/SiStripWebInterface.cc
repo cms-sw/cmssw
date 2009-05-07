@@ -2,8 +2,8 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripInformationExtractor.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMScope.h"
-#include "DQMServices/WebComponents/interface/CgiWriter.h"
-#include "DQMServices/WebComponents/interface/CgiReader.h"
+#include "DQM/TrackerCommon/interface/CgiWriter.h"
+#include "DQM/TrackerCommon/interface/CgiReader.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 

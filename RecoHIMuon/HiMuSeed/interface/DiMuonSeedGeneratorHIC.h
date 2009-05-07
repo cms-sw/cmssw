@@ -77,7 +77,6 @@ class DiMuonSeedGeneratorHIC  {
                          const MagneticField*, 
                          const GeometricSearchTracker*,
                          const HICConst*,
-                         const std::string, 
 			 int aMult);
 
   virtual std::map<DetLayer*,SeedContainer>  produce(const edm::Event& e, const edm::EventSetup& c,
@@ -98,7 +97,7 @@ class DiMuonSeedGeneratorHIC  {
   FreeTrajectoryState                        theFtsMuon;
   const HICConst*                            theHICConst;
   Propagator*                                thePropagator; 
-  std::string                                builderName;    
+  
   int                                        theLowMult;
   
   std::vector<BarrelDetLayer*>               bl;

@@ -2,31 +2,28 @@ import FWCore.ParameterSet.Config as cms
 
 PhotonIDProd = cms.EDProducer("PhotonIDProducer",
     #required inputs
-    #What collection of photons do I run on?
     photonProducer = cms.string('photons'),                              
     photonLabel = cms.string(''),
-    #What labels do I use for my products?
     photonIDAssociationLabel = cms.string('PhotonAssociatedID'),
     photonIDLabel = cms.string('PhotonIDCutBasedProducer'),
-    #What rechit collection do I use for ECAL iso?                          
     barrelEcalRecHitProducer = cms.string('ecalRecHit'),
     barrelEcalRecHitCollection = cms.string('EcalRecHitsEB'),
     endcapEcalRecHitProducer = cms.string('ecalRecHit'),
     endcapEcalRecHitCollection = cms.string('EcalRecHitsEE'),
-    #What tower collection do I use for HCAL iso?
-    HcalRecHitProducer = cms.string('towerMaker'),
+    HcalRecHitProducer = cms.string('hbhereco'),
     HcalRecHitCollection = cms.string(''),
+    GsfRecoCollection = cms.InputTag("pixelMatchGsfElectrons"),
     # Photon will be marked as being near phi module boundary if
     #  it is closer than this.  Currently half a crystal.
-    #  1 Ecal Crystal = 0.0174 radians = 1 degree
+    #  1 Ecal Crystal = 0.0174 rad
     modulePhiBoundary =   cms.double(0.0087),
     # Photon will be marked as being near an eta boundary if
     #  it is between the 0th and 1st element, or the 2nd and 3rd, or the 4th and 5th...
-    moduleEtaBoundary = cms.vdouble(0.0, 0.02, 0.43, 0.46, 0.78, 0.81, 1.13, 1.15, 1.45, 1.58),
-    #What collection of tracks do I use for Track Isolation?
+    moduleEtaBoundary = cms.vdouble(0.0, 0.05, 0.4, 0.5, 0.75, 0.85, 1.1, 1.2, 1.4, 1.6),
     trackProducer = cms.InputTag("generalTracks"),
     doCutBased = cms.bool(True),
-    #switches, turn on quality cuts for various quantities.
+    #switches
+    RequireNotElectron = cms.bool(False),                    
     RequireFiducial = cms.bool(False),
     DoHollowConeTrackIsolationCut = cms.bool(True),
     DoSolidConeTrackIsolationCut = cms.bool(False),
@@ -34,37 +31,21 @@ PhotonIDProd = cms.EDProducer("PhotonIDProducer",
     DoSolidConeNTrkCut = cms.bool(False),
     DoHadOverEMCut = cms.bool(False),
     DoEtaWidthCut = cms.bool(False),
-    DoHcalTowerIsolationCut = cms.bool(True),
+    DoHcalRecHitIsolationCut = cms.bool(True),
     DoEcalRecHitIsolationCut = cms.bool(True),
     DoR9Cut = cms.bool(True),                               
-    #configuration of parameters for isolations
-    #tracks
-    isolationtrackThresholdA = cms.double(0.0),
-    TrackConeOuterRadiusA = cms.double(0.4),
-    TrackConeInnerRadiusA = cms.double(0.04),
-    #Ecal rechits 
-    EcalRecHitInnerRadiusA = cms.double(0.06),
-    EcalRecHitOuterRadiusA = cms.double(0.4),
-    EcalRecHitEtaSliceA = cms.double(0.04),
-    EcalRecThreshEA = cms.double(0.0),
-    EcalRecThreshEtA = cms.double(0.0),
-    #Hcal towers
-    HcalTowerInnerRadiusA = cms.double(0.1),
-    HcalTowerOuterRadiusA = cms.double(0.4),
-    HcalTowerThreshEA = cms.double(0.0),
-    isolationtrackThresholdB = cms.double(0.0),
-    TrackConeOuterRadiusB = cms.double(0.3),
-    TrackConeInnerRadiusB = cms.double(0.04),
-    #Ecal rechits 
-    EcalRecHitInnerRadiusB = cms.double(0.06),
-    EcalRecHitOuterRadiusB = cms.double(0.3),
-    EcalRecHitEtaSliceB = cms.double(0.04),
-    EcalRecThreshEB = cms.double(0.0),
-    EcalRecThreshEtB = cms.double(0.0),
-    #Hcal towers
-    HcalTowerInnerRadiusB = cms.double(0.1),
-    HcalTowerOuterRadiusB = cms.double(0.3),
-    HcalTowerThreshEB = cms.double(0.0),
+    #configuration
+    isolationtrackThreshold = cms.double(0.0),
+    TrackConeOuterRadius = cms.double(0.4),
+    TrackConeInnerRadius = cms.double(0.04),
+    EcalRecHitInnerRadius = cms.double(0.0),
+    EcalRecHitOuterRadius = cms.double(0.4),
+    EcalRecHitEtaSlice = cms.double(0.0),
+    EcalRecThresh = cms.double(0.0),
+    HcalRecHitInnerRadius = cms.double(0.1),
+    HcalRecHitOuterRadius = cms.double(0.4),
+    HcalRecHitEtaSlice = cms.double(0.),
+    HcalRecHitThresh = cms.double(0.0),
     #cuts
     #cuts, two sets, EE and EB
     #LooseEM cuts EB
@@ -74,58 +55,58 @@ PhotonIDProd = cms.EDProducer("PhotonIDProducer",
     LooseEMHollowNTrkEB = cms.int32(999),
     LooseEMEtaWidthEB = cms.double(999.9),
     LooseEMHadOverEMEB = cms.double(999.9),
-    LooseEMEcalRecHitIsoEB = cms.double(5.0),
-    LooseEMHcalTowerIsoEB = cms.double(5.0),
+    LooseEMEcalRecHitIsoEB = cms.double(20.0),
+    LooseEMHcalRecHitIsoEB = cms.double(10.0),
     LooseEMR9CutEB = cms.double(0.0),
     #LoosePhoton cuts EB  
-    LoosePhotonHollowTrkEB = cms.double(9.0),
+    LoosePhotonHollowTrkEB = cms.double(30.0),
     LoosePhotonSolidTrkEB  = cms.double(999.9),
     LoosePhotonSolidNTrkEB = cms.int32(999),
     LoosePhotonHollowNTrkEB = cms.int32(999),
     LoosePhotonEtaWidthEB = cms.double(999.9),
     LoosePhotonHadOverEMEB = cms.double(999.9),
-    LoosePhotonEcalRecHitIsoEB = cms.double(5.0),
-    LoosePhotonHcalTowerIsoEB = cms.double(5.0),
+    LoosePhotonEcalRecHitIsoEB = cms.double(20.0),
+    LoosePhotonHcalRecHitIsoEB = cms.double(10.0),
     LoosePhotonR9CutEB = cms.double(0.0),
     #TightPhoton cuts EB
-    TightPhotonHollowTrkEB = cms.double(9.0),
+    TightPhotonHollowTrkEB = cms.double(30.0),
     TightPhotonSolidTrkEB  = cms.double(999.9),
     TightPhotonSolidNTrkEB = cms.int32(999),
     TightPhotonHollowNTrkEB = cms.int32(999),
     TightPhotonEtaWidthEB = cms.double(999.9),
     TightPhotonHadOverEMEB = cms.double(999.9),
-    TightPhotonEcalRecHitIsoEB = cms.double(5.0),
-    TightPhotonHcalTowerIsoEB = cms.double(5.0),
+    TightPhotonEcalRecHitIsoEB = cms.double(20.0),
+    TightPhotonHcalRecHitIsoEB = cms.double(10.0),
     TightPhotonR9CutEB = cms.double(0.8),
-    #LooseEM cuts EE
+    #LooseEM cuts EB
     LooseEMHollowTrkEE = cms.double(999.9),
     LooseEMSolidTrkEE  = cms.double(999.9),
     LooseEMSolidNTrkEE = cms.int32(999),
     LooseEMHollowNTrkEE = cms.int32(999),
     LooseEMEtaWidthEE = cms.double(999.9),
     LooseEMHadOverEMEE = cms.double(999.9),
-    LooseEMEcalRecHitIsoEE = cms.double(5.0),
-    LooseEMHcalTowerIsoEE = cms.double(5.0),
+    LooseEMEcalRecHitIsoEE = cms.double(20.0),
+    LooseEMHcalRecHitIsoEE = cms.double(10.0),
     LooseEMR9CutEE = cms.double(0.0),
-    #LoosePhoton cuts EE  
-    LoosePhotonHollowTrkEE = cms.double(9.0),
+    #LoosePhoton cuts EB  
+    LoosePhotonHollowTrkEE = cms.double(30.0),
     LoosePhotonSolidTrkEE  = cms.double(999.9),
     LoosePhotonSolidNTrkEE = cms.int32(999),
     LoosePhotonHollowNTrkEE = cms.int32(999),
     LoosePhotonEtaWidthEE = cms.double(999.9),
     LoosePhotonHadOverEMEE = cms.double(999.9),
-    LoosePhotonEcalRecHitIsoEE = cms.double(5.0),
-    LoosePhotonHcalTowerIsoEE = cms.double(5.0),
+    LoosePhotonEcalRecHitIsoEE = cms.double(20.0),
+    LoosePhotonHcalRecHitIsoEE = cms.double(10.0),
     LoosePhotonR9CutEE = cms.double(0.0),
-    #TightPhoton cuts EE
-    TightPhotonHollowTrkEE = cms.double(9.0),
+    #TightPhoton cuts EB
+    TightPhotonHollowTrkEE = cms.double(30.0),
     TightPhotonSolidTrkEE  = cms.double(999.9),
     TightPhotonSolidNTrkEE = cms.int32(999),
     TightPhotonHollowNTrkEE = cms.int32(999),
     TightPhotonEtaWidthEE = cms.double(999.9),
     TightPhotonHadOverEMEE = cms.double(999.9),
-    TightPhotonEcalRecHitIsoEE = cms.double(5.0),
-    TightPhotonHcalTowerIsoEE = cms.double(5.0),
+    TightPhotonEcalRecHitIsoEE = cms.double(20.0),
+    TightPhotonHcalRecHitIsoEE = cms.double(10.0),
     TightPhotonR9CutEE = cms.double(0.8)
 )
 

@@ -183,8 +183,9 @@ if [ "$HEPMC" = "TRUE" ]; then
     fi
   else
     export HEPMC2DIR=${IDIR}"/HepMC-"${HVER}
+    export HEPMC2IDIR=${IDIR}"/HEPMC_"${HVER}
     echo " -> no HepMC2 directory specified, trying installation"
-    echo "     into "${HEPMC2DIR}
+    echo "     into "${HEPMC2IDIR}
     ${MSI}/${shhmifile} -v ${HVER} -d ${IDIR} ${IFLG} ${FLOC}
   fi
 ###FIXME
@@ -192,9 +193,10 @@ if [ "$HEPMC" = "TRUE" ]; then
     SHCFLAGS=${SHCFLAGS}" --enable-hepmc2"
     SHMFLAGS=${SHMFLAGS}" --copt --enable-hepmc2"
   else
-    SHCFLAGS=${SHCFLAGS}" --enable-hepmc2="${HEPMC2DIR}
-    SHMFLAGS=${SHMFLAGS}" --copt --enable-hepmc2="${HEPMC2DIR}
+    SHCFLAGS=${SHCFLAGS}" --enable-hepmc2="${HEPMC2IDIR}
+    SHMFLAGS=${SHMFLAGS}" --copt --enable-hepmc2="${HEPMC2IDIR}
   fi
+  export HEPMC2DIR=${HEPMC2IDIR}
 ###FIXME
 fi
 
@@ -213,8 +215,9 @@ if [ "$LHAPDF" = "TRUE" ]; then
     fi
   else
     export LHAPDFDIR=${IDIR}"/lhapdf-"${LVER}
+    export LHAPDFIDIR=${IDIR}"/LHAPDF_"${LVER}
     echo " -> no LHAPDF directory specified, trying installation"
-    echo "     into "${LHAPDFDIR}
+    echo "     into "${LHAPDFIDIR}
     ${MSI}/${shlhifile} -v ${LVER} -d ${IDIR} ${IFLG} ${FLOC}
   fi
 ###FIXME
@@ -222,14 +225,16 @@ if [ "$LHAPDF" = "TRUE" ]; then
     SHCFLAGS=${SHCFLAGS}" --enable-lhapdf"
     SHMFLAGS=${SHMFLAGS}" --copt --enable-lhapdf"
   else
-    SHCFLAGS=${SHCFLAGS}" --enable-lhapdf="${LHAPDFDIR}
-    SHMFLAGS=${SHMFLAGS}" --copt --enable-lhapdf="${LHAPDFDIR}
+    SHCFLAGS=${SHCFLAGS}" --enable-lhapdf="${LHAPDFIDIR}
+    SHMFLAGS=${SHMFLAGS}" --copt --enable-lhapdf="${LHAPDFIDIR}
   fi
 ###FIXME
   PATCHLHAPDF=TRUE
   FIXLHAPDF=TRUE
+  export LHAPDFDIR=${LHAPDFIDIR}
 fi
-
+#echo "STOP"
+#sleep 1000
 
 # download and extract SHERPA
 cd ${IDIR}
@@ -269,7 +274,11 @@ if [ "$FLGDEBUG" = "TRUE" ]; then
   M_CXXFLGS2=${M_CXXFLGS2}" --cxx "${CFDEBUG}
 fi
 CONFFLG=${M_CFLAGS}" "${M_FFLAGS}" "${M_CXXFLAGS}" "${M_LDFLAGS}
-MAKEFLG=" --copt "${M_CFLAGS}" --copt "${M_LDFLAGS}" "${M_CXXFLGS2}" "${M_FFLGS2}
+if [ "$FLAGS" = "TRUE" ]; then
+  M_CFLAGS=" --copt "${M_CFLAGS}
+  M_LDFLAGS=" --copt "${M_LDFLAGS}
+fi
+MAKEFLG=${M_CFLAGS}" "${M_LDFLAGS}" "${M_CXXFLGS2}" "${M_FFLGS2}
 SHCFLAGS=${SHCFLAGS}" "${CONFFLG}
 SHMFLAGS=${SHMFLAGS}" "${MAKEFLG}
 
@@ -413,21 +422,22 @@ fi
 
 # get LHAPDFs into SHERPA... (now with symbolic links)
 if [ "$LHAPDF" = "TRUE" ]; then
+  pdfdir=""
   pdfdir1=${LHAPDFDIR}/../PDFsets
   pdfdir2=${LHAPDFDIR}/PDFsets
+  pdfdir3=${LHAPDFDIR}/share/lhapdf/PDFsets
   if [ -d ${pdfdir1} ]; then
-    if [ "${LINKPDF}" = "TRUE" ]; then
-      ln -s ${pdfdir1} ${SHERPADIR}/share/SHERPA-MC/PDFsets
-    else
-      cp -r ${pdfdir1} ${SHERPADIR}/share/SHERPA-MC/
-    fi
+    pdfdir=${pdfdir1}
   elif [ -d ${pdfdir2} ]; then
-    if [ "${LINKPDF}" = "TRUE" ]; then
-      ln -s ${pdfdir2} ${SHERPADIR}/share/SHERPA-MC/PDFsets
-    else
-      cp -r ${pdfdir2} ${SHERPADIR}/share/SHERPA-MC/
-    fi
+    pdfdir=${pdfdir2}
+  elif [ -d ${pdfdir3} ]; then
+    pdfdir=${pdfdir3}
   else
     echo " <E> PDFsets of LHAPDF not found"
+  fi
+  if [ "${LINKPDF}" = "TRUE" ] && [ ! "${pdfdir}" = "" ]; then
+    ln -s ${pdfdir} ${SHERPADIR}/share/SHERPA-MC/PDFsets
+  else
+    cp -r ${pdfdir} ${SHERPADIR}/share/SHERPA-MC/
   fi
 fi

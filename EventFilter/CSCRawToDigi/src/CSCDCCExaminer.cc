@@ -183,7 +183,7 @@ CSCDCCExaminer::CSCDCCExaminer(unsigned long mask):nERRORS(29),nWARNINGS(5),nPAY
   DDU_WordMismatch_Occurrences = 0;
   DDU_WordsSinceLastTrailer    = 0;
 
-  TMB_WordsExpectedCorrection  = 0;
+  TMB_WordsRPC  = 0;
   TMB_Firmware_Revision = 0;
   zeroCounts();
 
@@ -252,8 +252,13 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
     if (!modeDDUonly) {
       // DCC Header 1 && DCC Header 2
-      if( (buf0[3]&0xF000) == 0x5000 && (buf0[0]&0x00FF) == 0x005F &&
-	  (buf1[3]&0xFF00) == 0xD900 ){
+      // =VB= Added support for Sep. 2008 CMS DAQ DCC format
+      if ( ( ( (buf0[3]&0xF000) == 0x5000 && (buf0[0]&0x00FF) == 0x005F )
+           ||
+             ( (buf0[3]&0xF000) == 0x5000 && (buf0[0]&0x000F) == 0x0008 ) )
+           &&
+          (buf1[3]&0xFF00) == 0xD900 )
+        {
 	if( fDCC_Header ){
 	  // == Another DCC Header before encountering DCC Trailer!
 	  fERROR[25]=true;
@@ -515,7 +520,9 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
 
     // New ALCT data format:
-    if( buf0[0]==0xDB0A && (buf0[1]&0xF000)==0xD000 && (buf0[2]&0xF000)==0xD000 && (buf0[3]&0xF000)==0xD000){
+    if( ( buf0[0]==0xDB0A && (buf0[1]&0xF000)==0xD000 && (buf0[2]&0xF000)==0xD000 && (buf0[3]&0xF000)==0xD000)
+	&&
+        ( (buf_1[0]&0xF000)==0xA000 && (buf_1[1]&0xF000)==0xA000 && (buf_1[2]&0xF000)==0xA000 && (buf_1[3]&0xF000)==0xA000 ) ){
         fALCT_Header              = true;
         fALCT_Format2007          = true;
         ALCT_CRC                  = 0;
@@ -706,17 +713,22 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       }
     }
 
-    // == Find Correction for TMB_WordsExpected,
+    // == Find Correction for TMB_WordsExpected due to RPC raw hits,
     //    should it turn out to be the new RPC-aware format
-    if( fTMB_Header && ((buf0[2]&0xFFFF)==0x6E0B) )  {
-      TMB_WordsExpectedCorrection =  2 +   // header/trailer for block of RPC raw hits
-	//				((buf_1[2]&0x0800)>>11) * ((buf_1[2]&0x0700)>>8) * TMB_Tbins * 2;  // RPC raw hits
-                ( fTMB_Format2007 ? 
-			( TMB_Firmware_Revision >= 0x50c3 ?
-				// ((buf_1[0]&0x0010)>>4) * ((buf_1[0]&0x000c)>>2) * TMB_Tbins * 2 :// RPC raw hits TMB2007 rev.0x50c3 
-				((buf_1[0]&0x0010)>>4) * ((buf_1[0]&0x000c)>>2) * ((buf_1[0]>>5) & 0x1F) * 2 : // RPC raw hits TMB2007 rev.0x50c3
-                		((buf_1[0]&0x0040)>>6) * ((buf_1[0]&0x0030)>>4) * TMB_Tbins * 2):// RPC raw hits TMB2007
-                ((buf_1[2]&0x0040)>>6) * ((buf_1[2]&0x0030)>>4) * TMB_Tbins * 2 );  // RPC raw hits
+    if( fTMB_Header && ((buf0[2]&0xFFFF)==0x6E0B) ) {
+      if (fTMB_Format2007) {
+	if (TMB_Firmware_Revision >= 0x50c3) { // TMB2007 rev.0x50c3
+	  // On/off * nRPCs * nTimebins * 2 words/RPC/bin
+	  TMB_WordsRPC = ((buf_1[0]&0x0010)>>4) * ((buf_1[0]&0x000c)>>2) * ((buf_1[0]>>5) & 0x1F) * 2;
+	}
+	else { // TMB2007 (may not work since TMB_Tbins != RPC_Tbins)
+	  TMB_WordsRPC = ((buf_1[0]&0x0040)>>6) * ((buf_1[0]&0x0030)>>4) * TMB_Tbins * 2;
+	}
+      }
+      else { // Old format
+	TMB_WordsRPC   = ((buf_1[2]&0x0040)>>6) * ((buf_1[2]&0x0030)>>4) * TMB_Tbins * 2;
+      }
+      TMB_WordsRPC += 2; // add header/trailer for block of RPC raw hits
     }
 
     // == TMB Trailer found
@@ -764,15 +776,28 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       //	1) for 2 optional 0x2AAA and 0x5555 Words in the Trailer
       //    	2) for extra 4 frames in the new TMB trailer and
       //         for RPC raw hit data, if present
-      if( buf_1[1]==0x6E0C ) {
-        // RPW add 4 for TMB trailer
-	TMB_WordsExpected = TMB_WordsExpected + 4+ 2;	//
+      //
+      // If the scope data was enabled in readout, scope data markers (0x6B05
+      // and 0x6E05) appear before 0x6E0C, and the optional 0x2AAA and 0x5555
+      // trailer words are suppressed.  So far, we only have data with the
+      // empty scope content, so more corrections will be needed once
+      // non-empty scope data is available. -SV, 5 Nov 2008.
+      //
+      // If word count is not multiple of 4, add 2 optional words and
+      // 4 trailer words.
+      if( buf_1[1]==0x6E0C || buf_1[1]==0x6B05 ) {
+	TMB_WordsExpected += 6;
+	// Add RPC counts if RPC raw hits included.
 	if( buf_1[0]==0x6E04 )
-	  TMB_WordsExpected = TMB_WordsExpected + TMB_WordsExpectedCorrection;
+	  TMB_WordsExpected += TMB_WordsRPC;
       }
-
-      if( buf_1[3]==0x6E0C && buf_1[2]==0x6E04 )
-	TMB_WordsExpected = TMB_WordsExpected + 4 + TMB_WordsExpectedCorrection;
+      // If word count is multiple of 4, add 4 trailer words.
+      else if( buf_1[3]==0x6E0C || buf_1[3]==0x6B05 ) {
+	TMB_WordsExpected += 4;
+	// Add RPC counts if RPC raw hits included.
+	if( buf_1[2]==0x6E04 )
+	  TMB_WordsExpected += TMB_WordsRPC;
+      }
 
       CFEB_SampleWordCount = 0;
       cout << "T> ";
@@ -1113,8 +1138,12 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
     if (!modeDDUonly) {
       // DCC Trailer 1 && DCC Trailer 2
+      // =VB= Added support for Sep. 2008 CMS DAQ DCC format
+      // =VB= 04.18.09 Removed (buf2[0]&0x0003) == 0x3 check for old DCC format to satisfy older format of simulated data
       if( (buf1[3]&0xFF00) == 0xEF00 &&
-	  (buf2[3]&0xFF00) == 0xAF00 ){
+          ( ( (buf2[3]&0xFF00) == 0xAF00 )
+          || 
+     	    ( (buf2[3]&0xFF00) == 0xA000 && (buf2[0]&0x0003) == 0x0) ) ) {	
 	if(fDCC_Trailer){
 	  fERROR[26] = true;
 	  bERROR|=0x4000000;
@@ -1149,6 +1178,17 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
   buf1  = &(tmpbuf[8]);
   buf2  = &(tmpbuf[12]);
   memcpy((void*)tmpbuf,(void*)(buffer-16),sizeof(short)*16);
+
+  
+  if (!modeDDUonly && !fDCC_Trailer && !fDCC_Header) {
+        fERROR[26] = true;
+        bERROR|=0x4000000;
+        fERROR[25] = true;
+        bERROR|=0x2000000;
+        fERROR[0]=true;
+        bERROR|=0x1;
+        return length;
+  }
 
   return -1;
 }

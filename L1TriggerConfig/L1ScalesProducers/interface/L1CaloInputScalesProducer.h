@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri May 30 18:25:56 CEST 2008
-// $Id: L1CaloInputScalesProducer.h,v 1.1 2008/05/30 19:29:26 wsun Exp $
+// $Id$
 //
 
 // system include files
@@ -50,9 +50,7 @@ class L1CaloInputScalesProducer : public edm::ESProducer {
       // ----------member data ---------------------------
   std::vector<double> m_ecalEtThresholdsPosEta;
   std::vector<double> m_ecalEtThresholdsNegEta;
-  std::vector<double> m_hcalEtThresholdsPosEta;
-  std::vector<double> m_hcalEtThresholdsNegEta;
-
+  std::vector<double> m_hcalEtThresholds;
 };
 
 #endif

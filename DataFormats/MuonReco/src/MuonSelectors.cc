@@ -272,38 +272,60 @@ bool muon::isGoodMuon( const reco::Muon& muon,
    bool goodMuon = false;
 
    if (type == TMLastStation) {
+      // To satisfy my own paranoia, if the user specifies that the
+      // minimum number of matches is zero, then return true.
+      if(minNumberOfMatches == 0) return true;
+
       unsigned int theStationMask = muon.stationMask(arbitrationType);
       unsigned int theRequiredStationMask = RequiredStationMask(muon, maxChamberDist, maxChamberDistPull, arbitrationType);
 
       // Require that there be at least a minimum number of segments
       int numSegs = 0;
-      for(int it = 0; it < 8; ++it)
+      int numRequiredStations = 0;
+      for(int it = 0; it < 8; ++it) {
          if(theStationMask & 1<<it) ++numSegs;
+         if(theRequiredStationMask & 1<<it) ++numRequiredStations;
+      }
+
+      // Make sure the minimum number of matches is not greater than
+      // the number of required stations but still greater than zero
+      // Note that we only do this in the barrel region!
+      if (fabs(muon.eta()) < 1.2) {
+         if(minNumberOfMatches > numRequiredStations)
+            minNumberOfMatches = numRequiredStations;
+         if(minNumberOfMatches < 1)
+            minNumberOfMatches = 1;
+      }
 
       if(numSegs >= minNumberOfMatches) goodMuon = 1;
 
       // Require that last required station have segment
-      if(theRequiredStationMask)
+      // If there are zero required stations keep track
+      // of the last station with a segment so that we may
+      // apply the quality cuts below to it instead
+      int lastSegBit = 0;
+      if(theRequiredStationMask) {
          for(int stationIdx = 7; stationIdx >= 0; --stationIdx)
             if(theRequiredStationMask & 1<<stationIdx)
                if(theStationMask & 1<<stationIdx) {
+                  lastSegBit = stationIdx;
                   goodMuon &= 1;
                   break;
                } else {
                   goodMuon = false;
                   break;
                }
+      } else {
+         for(int stationIdx = 7; stationIdx >= 0; --stationIdx)
+            if(theStationMask & 1<<stationIdx) {
+               lastSegBit = stationIdx;
+               break;
+            }
+      }
 
       if(!goodMuon) return false;
 
       // Impose pull cuts on last segment
-      int lastSegBit = 0;
-      for(int stationIdx = 7; stationIdx >= 0; --stationIdx)
-         if(theStationMask & 1<<stationIdx) {
-            lastSegBit = stationIdx;
-            break;
-         }
-
       int station = 0, detector = 0;
       station  = lastSegBit < 4 ? lastSegBit+1 : lastSegBit-3;
       detector = lastSegBit < 4 ? 1 : 2;
@@ -348,6 +370,9 @@ bool muon::isGoodMuon( const reco::Muon& muon,
                      fabs(muon.dY(stationIdx,1,arbitrationType)) > maxAbsDy) {
                   return false;
                }
+
+               // If we get this far then great this is a good muon
+               return true;
             }
          }
       }

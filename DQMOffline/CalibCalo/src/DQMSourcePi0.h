@@ -155,7 +155,7 @@ private:
   double ParameterT0_barl_;
   double ParameterW0_;
 
-  //  std::map<DetId, EcalRecHit> *recHitsEB_map;
+  std::map<DetId, EcalRecHit> *recHitsEB_map;
 
 
   /// Monitor every prescaleFactor_ events

@@ -3,16 +3,16 @@
 
 /**
  * \class L1GlobalTriggerRawToDigi
- * 
- * 
- * Description: unpack raw data into digitized data.  
+ *
+ *
+ * Description: unpack raw data into digitized data.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
- * \author: Vasile Mihai Ghete - HEPHY Vienna -  GT 
+ *
+ * \author: Vasile Mihai Ghete - HEPHY Vienna -  GT
  * \author: Ivan Mikulec       - HEPHY Vienna - GMT
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -96,10 +96,10 @@ private:
 
     /// input tags for GT DAQ record
     edm::InputTag m_daqGtInputTag;
-    
+
     /// FED Id for GT DAQ record
     /// default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
-    int m_daqGtFedId;  
+    int m_daqGtFedId;
 
     /// mask for active boards
     boost::uint16_t m_activeBoardsMaskGt;
@@ -116,11 +116,28 @@ private:
     int m_uppSkipBxInEvent;
 
     /// total Bx's in the event, obtained from GTFE block
+    //
+    /// corresponding to alternative 0 in altNrBxBoard()
+    int m_recordLength0;
+
+    /// corresponding to alternative 1 in altNrBxBoard()
+    int m_recordLength1;
+
+    /// number of Bx for a board, obtained from GTFE block (record length & alternative)
     int m_totalBxInEvent;
+
 
     /// muon trigger scales to convert unpacked data into physical quantities
     const L1MuTriggerScales* m_TriggerScales;
     const L1MuTriggerPtScale* m_TriggerPtScale;
+
+private:
+
+    /// verbosity level
+    int m_verbosity;
+    bool m_isDebugEnabled;
+
+
 };
 
 #endif // EventFilter_L1GlobalTriggerRawToDigi_L1GlobalTriggerRawToDigi_h

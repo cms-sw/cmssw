@@ -4,17 +4,16 @@
   <class name="std::vector<std::pair<int, double> > " />
   <class name="std::vector<std::vector<std::pair<int, double> > >" />
 
-  <class name="JetRejObs" />
-  <class name="std::vector<JetRejObs>" />
-  <class name="edm::Wrapper<std::vector<JetRejObs> >" />
-  <class name="JetRejObsRef" />
-
   <class name="std::pair<unsigned int, double>" />
   <class name="std::vector<std::pair<double, double> >" />
   <class name="std::vector<std::pair<unsigned int, double> >" />
   <class name="std::pair<unsigned int, std::vector<unsigned int> >" />
   <class name="std::vector<int>" />
   <class name="std::vector<std::pair<std::string, double> >" />
+
+  <class name="TString" />
+  <class name="edm::Wrapper<TString>" />
+  <class name="edm::Wrapper<std::vector<std::vector<int> > >" />
 
   <class name="PtrMet" />
   <class name="PtrJet" />
@@ -24,23 +23,30 @@
   <class name="TtGenEvent" />
   <class name="StGenEvent" />
   <class name="TopGenEvent" />
+  <class name="TtEvent" />
+  <class name="TtFullLeptonicEvent" />
   <class name="TtSemiLeptonicEvent" />
   <class name="edm::Wrapper<TtGenEvent>" />
   <class name="edm::Wrapper<StGenEvent>" />
   <class name="edm::Wrapper<TopGenEvent>" />
+  <class name="edm::Wrapper<TtFullLeptonicEvent>" />
   <class name="edm::Wrapper<TtSemiLeptonicEvent>" />
+  <class name="edm::Wrapper<reco::CompositeCandidate>" />
 
   <class name="edm::RefProd<TtGenEvent>" />
   <class name="edm::RefProd<StGenEvent>" />
   <class name="edm::RefProd<TopGenEvent>" />
+  <class name="edm::RefProd<TtFullLeptonicEvent>" />
   <class name="edm::RefProd<TtSemiLeptonicEvent>" />
 
-  <class name="std::map<TtSemiLeptonicEvent::HypoKey, reco::CompositeCandidate>" />
-  <class name="std::map<TtSemiLeptonicEvent::HypoKey, std::vector<int> >" />
+  <class name="std::pair<WDecay::LeptonType, WDecay::LeptonType>" />
+  <class name="std::pair<reco::CompositeCandidate, std::vector<int> >" />
+  <class name="std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > >" />
+  <class name="edm::Wrapper<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >" />
+  <class name="std::map<TtEvent::HypoClassKey, std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >" />
 
   <class name="TtDilepEvtSolution" />
   <class name="TtSemiEvtSolution" />
-  <class name="TtSemiMassSolution" />
   <class name="TtHadEvtSolution" />
   <class name="StEvtSolution" />
   <class name="std::vector<TtDilepEvtSolution>" />
@@ -66,7 +72,6 @@
   <class name="edm::Wrapper<reco::CATopJetTagInfoCollection>"/>
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CATopJetTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::CATopJetTagInfoRef>" />
-
 
 </lcgdict>
 

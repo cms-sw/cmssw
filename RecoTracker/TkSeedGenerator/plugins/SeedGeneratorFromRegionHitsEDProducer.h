@@ -15,7 +15,8 @@ public:
   SeedGeneratorFromRegionHitsEDProducer(const edm::ParameterSet& cfg);
   ~SeedGeneratorFromRegionHitsEDProducer();
 
-  virtual void beginJob(const edm::EventSetup& es);
+  virtual void beginRun(edm::Run &run, const edm::EventSetup& es);
+  virtual void endRun(edm::Run &run, const edm::EventSetup& es);
 
   virtual void produce(edm::Event& ev, const edm::EventSetup& es);
 

@@ -1,12 +1,8 @@
-# last update on $Date: 2008/08/11 19:12:41 $ by $Author: flucke $
+# last update on $Date: 2008/07/15 18:35:21 $ by $Author: flucke $
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Alignment")
-
-process.options = cms.untracked.PSet(
-    Rethrow = cms.untracked.vstring("ProductNotFound") # do not accept this exception
-    )
 
 # initialize  MessageLogger
 # process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -69,7 +65,7 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 # for Muon: process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'IDEAL_V9::All'  # take your favourite
+process.GlobalTag.globaltag = 'IDEAL_V1::All'  # take your favourite
 #    # if alignment constants not from global tag, add this
 #from CondCore.DBCommon.CondDBSetup_cfi import *
 #process.trackerAlignment = cms.ESSource("PoolDBESSource",CondDBSetup,
@@ -89,7 +85,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
 # track selection for alignment
 process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
-process.AlignmentTrackSelector.src = 'ALCARECOTkAlMuonIsolated' #'generalTracks' ## ALCARECOTkAlMinBias # adjust to input file
+process.AlignmentTrackSelector.src = 'generalTracks' ## ALCARECOTkAlMinBias # adjust to input file
 process.AlignmentTrackSelector.ptMin = 2.
 process.AlignmentTrackSelector.etaMin = -5.
 process.AlignmentTrackSelector.etaMax = 5.
@@ -209,10 +205,8 @@ process.AlignmentProducer.algoConfig.binaryFile = cms.string("milleBinaryISN.dat
 
 process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),
-    fileNames = cms.untracked.vstring(#'/store/relval/2008/6/22/RelVal-RelValZMM-1213987236-IDEAL_V2-2nd/0004/04666D76-1941-DD11-9549-001617E30E28.root'
+    fileNames = cms.untracked.vstring('/store/relval/2008/6/22/RelVal-RelValZMM-1213987236-IDEAL_V2-2nd/0004/04666D76-1941-DD11-9549-001617E30E28.root'
                                       # <== is a relval file from CMSSW_2_1_0_pre8.
-                                      '/store/relval/CMSSW_2_1_8/RelValZMM/ALCARECO/STARTUP_V7_StreamALCARECOTkAlMuonIsolated_v1/0003/A8583C5E-0283-DD11-8D18-000423D987FC.root'
-                                      # <== is a relval from CMSSW_2_1_8.
                                       #"file:aFile.root" #"rfio:/castor/cern.ch/cms/store/..."
                                       )
 )

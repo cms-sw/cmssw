@@ -175,12 +175,11 @@ bool SiPixelConfigParser::getMENamesForTree(string& structure_name,
 //
 bool SiPixelConfigParser::getMENamesForBarrelSummary(string& structure_name,
 						vector<string>& me_names) {
-  //cout<<"Entering SiPixelConfigParser::getMENamesForBarrelSummary..."<<endl;
+//  cout<<"Entering SiPixelConfigParser::getMENamesForBarrelSummary..."<<endl;
   if (!doc) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
     return false;
   }
-
   me_names.clear();
   unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureBarrelLevel"))->getLength();
   if (structureNodes == 0) return false;
@@ -190,7 +189,6 @@ bool SiPixelConfigParser::getMENamesForBarrelSummary(string& structure_name,
   if (! structureNode) return false;
   DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
   if (! structureElement) return false;		 
-		
   structure_name = qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("name"))); 
 
   DOMNodeList * meList = structureElement->getElementsByTagName(qtxml::_toDOMS("MonElement"));
@@ -202,9 +200,9 @@ bool SiPixelConfigParser::getMENamesForBarrelSummary(string& structure_name,
     string me_name = qtxml::_toString(meElement->getAttribute (qtxml::_toDOMS ("name"))); 
     me_names.push_back(me_name);    
   }
+//  cout<<"...leaving SiPixelConfigParser::getMENamesForBarrelSummary!"<<endl;
   if (me_names.size() == 0) return false;
   else return true;
-  //cout<<"...leaving SiPixelConfigParser::getMENamesForBarrelSummary!"<<endl;
   
 }
 bool SiPixelConfigParser::getMENamesForEndcapSummary(string& structure_name,
