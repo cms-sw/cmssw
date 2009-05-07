@@ -21,6 +21,4 @@
  <class name="lumi::HLTInfo"/>
  <class name="std::vector<lumi::HLTInfo>"/>
 
-<class name="MagneticFieldScaler"  class_version="0"/>
-
 </lcgdict>  

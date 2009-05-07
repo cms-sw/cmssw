@@ -4,7 +4,6 @@
 #include "CondFormats/RunInfo/interface/L1TriggerScaler.h"
 #include "CondFormats/RunInfo/interface/HLTScaler.h"
 #include "CondFormats/RunInfo/interface/LuminosityInfo.h"
-#include "CondFormats/RunInfo/interface/MagneticFieldScaler.h"
 namespace {
   struct dictionary {
     std::vector<runinfo_test::RunNumber::Item>::iterator tmp0;
