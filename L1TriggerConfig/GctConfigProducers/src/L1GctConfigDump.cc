@@ -59,11 +59,12 @@ void L1GctConfigDump::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   LogDebug("L1GctConfigDump") << (*jfParams) << std::endl;
   //  LogDebug("L1GctConfigDump") << (*chanMask) << std::endl;
-  LogDebug("L1GctConfigDump") << (*jetScale) << std::endl;
-  LogDebug("L1GctConfigDump") << (*htmScale) << std::endl;
-  LogDebug("L1GctConfigDump") << (*hfRingScale) << std::endl;
-  
+  LogDebug("L1GctConfigDump") << "GCT jet Et scale : " << std::endl << (*jetScale) << std::endl;
+  LogDebug("L1GctConfigDump") << "GCT HtMiss scale : " << std::endl << (*htmScale) << std::endl;
+  LogDebug("L1GctConfigDump") << "GCT HF ring scale : " << std::endl << (*hfRingScale) << std::endl;
+
 }
+
 
 
 DEFINE_ANOTHER_FWK_MODULE(L1GctConfigDump);

@@ -12,8 +12,8 @@
  *   
  * \author: Jim Brooke
  * 
- * $Date$
- * $Revision$
+ * $Date: 2009/05/06 16:29:01 $
+ * $Revision: 1.1 $
  *
  */
 
@@ -40,7 +40,7 @@ public:
     virtual ~L1GctConfigDump();
 
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
-
+    
 };
 
 #endif
