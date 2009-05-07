@@ -1,9 +1,14 @@
 //
-// $Id: JetCorrFactorsProducer.cc,v 1.5 2009/03/26 20:18:12 rwolf Exp $
+// $Id: JetCorrFactorsProducer.cc,v 1.6 2009/03/30 17:18:11 rwolf Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/JetCorrFactorsProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterDescription.h"
+
 
 #include <vector>
 #include <memory>
@@ -290,6 +295,23 @@ JetCorrFactorsProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
   iEvent.put(jetCorrsMap);
 }
 
+// ParameterSet description for module
+void
+JetCorrFactorsProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
+{
+  edm::ParameterSetDescription iDesc;
+  iDesc.add<bool>("useEMF", false);
+  iDesc.add<edm::InputTag>("jetSource", edm::InputTag("iterativeCone5CaloJets")); 
+  iDesc.add<int>("sampleType", 0);
+  iDesc.add<std::string>("L1Offset", "none");
+  iDesc.add<std::string>("L2Relative", "Summer08Redigi_L2Relative_IC5Calo");
+  iDesc.add<std::string>("L3Absolute", "Summer08Redigi_L2Relative_IC5Calo");
+  iDesc.add<std::string>("L4EMF", "none");
+  iDesc.add<std::string>("L5Flavor", "L5Flavor_IC5");
+  iDesc.add<std::string>("L6UE", "none");
+  iDesc.add<std::string>("L7Parton", "L7Parton_IC5");
+  descriptions.add("PATTauProducer", iDesc);
+}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

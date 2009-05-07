@@ -1,5 +1,5 @@
 //
-// $Id: JetCorrFactorsProducer.h,v 1.5 2009/03/30 17:18:11 rwolf Exp $
+// $Id: JetCorrFactorsProducer.h,v 1.6 2009/04/09 15:22:29 rwolf Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_JetCorrFactorsProducer_h
@@ -18,7 +18,7 @@
    created in the PAT Layer-1.
 
   \author   Steven Lowette
-  \version  $Id: JetCorrFactorsProducer.h,v 1.5 2009/03/30 17:18:11 rwolf Exp $
+  \version  $Id: JetCorrFactorsProducer.h,v 1.6 2009/04/09 15:22:29 rwolf Exp $
 */
 
 #include "FWCore/Framework/interface/Event.h"
@@ -55,6 +55,7 @@ namespace pat {
       explicit JetCorrFactorsProducer(const edm::ParameterSet & iConfig);
       ~JetCorrFactorsProducer();
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
     private:
 
