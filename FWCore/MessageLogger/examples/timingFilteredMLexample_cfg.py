@@ -37,9 +37,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 					, 'timingFilteredML'
 					) ,
     categories   = cms.untracked.vstring( 'TimeEvent'
-                                        , 'Time Module'
+                                        , 'TimeModule'
 					, 'TimeReport' 
-					, 'cat_B'
 					) ,
     cout = cms.untracked.PSet(
         threshold  = cms.untracked.string('WARNING'),
