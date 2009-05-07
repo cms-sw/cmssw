@@ -1,4 +1,3 @@
-
 #include "HLTriggerOffline/Egamma/interface/EmDQMPostProcessor.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -10,7 +9,7 @@
 #include <iostream>
 #include <string.h>
 #include <iomanip>
-#include<fstream>
+#include <fstream>
 #include <math.h>
 
 
@@ -158,7 +157,8 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
           if (!dqm) break;
 
 	  // Is this the last filter? Book efficiency vs gen level
-          if (filter==total->getNbinsX()-2-1) {
+	  std::string temp = *postfix;
+          if (filter==total->getNbinsX()-2-1 && temp.find("matched")!=std::string::npos) {
             genName = dqm->pwd() + "/gen_" + *var;
             genPlot = dqm->get(genName);
             effVsGen = dqm->book1D("final_eff_vs_"+*var, dqm->get(genName)->getTH1F());
