@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: RootAutoLibraryLoader.cc,v 1.18 2009/04/01 15:14:43 dsr Exp $
+// $Id: RootAutoLibraryLoader.cc,v 1.19 2009/04/01 15:28:08 dsr Exp $
 //
 
 // system include files
@@ -30,8 +30,6 @@
 #include "Reflex/Type.h"
 #include "Cintex/Cintex.h"
 #include "TClass.h"
-//#include "TClassTable.h"
-#include "TIsAProxy.h"
 
 //
 // constants, enums and typedefs
@@ -102,7 +100,7 @@ addWrapperOfVectorOfBuiltin(std::map<std::string,std::string>& iMap, const char*
    static std::string sReflexPostfix("> >");
 
    //Wrapper<vector<float,allocator<float> > >
-   static std::string sCintPrefix("edm::Wrapper<vector<");
+   static std::string sCintPrefix("Wrapper<vector<");
    static std::string sCintMiddle(",allocator<");
    static std::string sCintPostfix("> > >");
 
@@ -303,7 +301,7 @@ void registerTypes() {
         }
         TClass* reflexNamedClass = TClass::GetClass(t.TypeInfo());
         if(0==reflexNamedClass){
-          std::cout <<" failed to get TClass by typeid"<<std::endl;
+          std::cout <<"failed to get TClass by typeid for "<<name<<std::endl;
           continue;
         }
 #if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
@@ -313,6 +311,10 @@ void registerTypes() {
 #else
         reflexNamedClass->Clone(itSpecial->first.c_str());
 #endif
+        std::string magictypedef("namespace edm { typedef ");
+        magictypedef += classNameForRoot(name) + " " + itSpecial->first + "; }";
+        // std::cout << "Magic typedef " << magictypedef << std::endl;
+        gROOT->ProcessLine(magictypedef.c_str());
       }
     }
   }
@@ -331,15 +333,17 @@ RootAutoLibraryLoader::RootAutoLibraryLoader() :
    //set the special cases
    std::map<std::string,std::string>& specials = cintToReflexSpecialCasesMap();
    if(specials.empty()) {
+      addWrapperOfVectorOfBuiltin(specials,"bool");
+
       addWrapperOfVectorOfBuiltin(specials,"char");
       addWrapperOfVectorOfBuiltin(specials,"unsigned char");
-//      addWrapperOfVectorOfBuiltin(specials,"signed char");
+      addWrapperOfVectorOfBuiltin(specials,"signed char");
       addWrapperOfVectorOfBuiltin(specials,"short");
       addWrapperOfVectorOfBuiltin(specials,"unsigned short");
       addWrapperOfVectorOfBuiltin(specials,"int");
       addWrapperOfVectorOfBuiltin(specials,"unsigned int");
-//      addWrapperOfVectorOfBuiltin(specials,"long");
-//      addWrapperOfVectorOfBuiltin(specials,"unsigned long");
+      addWrapperOfVectorOfBuiltin(specials,"long");
+      addWrapperOfVectorOfBuiltin(specials,"unsigned long");
       addWrapperOfVectorOfBuiltin(specials,"long long");
       addWrapperOfVectorOfBuiltin(specials,"unsigned long long");
 
