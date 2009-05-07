@@ -1,6 +1,7 @@
 #include "IOPool/Streamer/interface/StreamerFileIO.h"
 #include <fstream>
 #include <iostream>
+#include <stdint.h>
 #include "FWCore/Utilities/interface/Exception.h"
 
   OutputFile::OutputFile(const std::string& name):
