@@ -30,50 +30,50 @@ namespace edm  {
     /// Standard constructor (No initialization of data for performance reasons)
     Guid()             {                                 }
     /// Standard constructor (With possible initialization)
-    explicit Guid(bool assign)  { if ( assign ) create(*this);    }
+    explicit Guid(bool assign)  { if (assign) create(*this);    }
     /// Constructor for Guid from char*
-    explicit Guid(const char* s)        { fromString(s);          }
+    explicit Guid(char const* s)        { fromString(s);          }
     /// Constructor for Guid from string
-    explicit Guid(const std::string& s) { fromString(s);          }
+    explicit Guid(std::string const& s) { fromString(s);          }
     /// Copy constructor
-    Guid(const Guid& c)                 { *this = c;              }
+    Guid(Guid const& c)                 { *this = c;              }
     /// Assignment operator
-    Guid& operator=(const Guid& g)    {
-      if ( this != &g )  {
+    Guid& operator=(Guid const& g) {
+      if (this != &g)  {
         Data1 = g.Data1;
         Data2 = g.Data2;
         Data3 = g.Data3;
-        unsigned int       *p = (unsigned int*)&Data4[0]; 
-        const unsigned int *q = (const unsigned int*)&g.Data4[0];
+        unsigned int      * p = reinterpret_cast<unsigned int *>(&Data4[0]);
+        unsigned int const* q = reinterpret_cast<unsigned int const*>(&g.Data4[0]);
         *(p+1) = *(q+1);
         *p     = *q;
       }
       return *this;
     }
     /// Smaller operator
-    bool operator<(const Guid& g)  const;
+    bool operator<(Guid const& g) const;
     /// Equality operator
-    bool operator==(const Guid& g)  const  {
-      if ( this != & g )  {
-        if (Data1 != g.Data1 ) return false;
-        if (Data2 != g.Data2 ) return false;
-        if (Data3 != g.Data3 ) return false;
-        const unsigned int *p = (const unsigned int*)&Data4[0], 
-                            *q = (const unsigned int*)&g.Data4[0];
-        return *p++ == *q++ && *p == *q;
+    bool operator==(Guid const& g) const {
+      if (this != & g)  {
+        if (Data1 != g.Data1) return false;
+        if (Data2 != g.Data2) return false;
+        if (Data3 != g.Data3) return false;
+        unsigned int const* p = reinterpret_cast<unsigned int const*>(&Data4[0]);
+        unsigned int const* q = reinterpret_cast<unsigned int const*>(&g.Data4[0]);
+        return *p == *q && *(p+1) == *(q+1);
       }
       return true;
     }
     /// Non-equality operator
-    bool operator!=(const Guid& g)  const  {
-      return !(this->operator==(g));
+    bool operator!=(Guid const& g) const {
+      return !(this->operator == (g));
     }
     /// Automatic conversion from string reprentation
-    const std::string toString() const;
+    std::string const toString() const;
     /// Automatic conversion to string representation
-    const Guid& fromString(const std::string& s);
+    Guid const& fromString(std::string const& s);
     /// NULL-Guid: static class method
-    static const Guid& null();
+    static Guid const& null();
     /// Create a new Guid
     static void create(Guid& guid);
   };
