@@ -1,9 +1,13 @@
 #include "CondFormats/RunInfo/interface/LuminosityInfo.h"
 //#include "FWCore/Utilities/Exception.h"
 //#include <iostream>
-lumi::LuminosityInfo::LuminosityInfo(){
+lumi::LuminosityInfo::LuminosityInfo(): m_sectionid(0),m_deadtime_normalization(-99.0),m_versionid(-99){
   m_bx.reserve(lumi::BXMAX*LUMIALGOMAX);
   m_summaryinfo.reserve(lumi::LUMIALGOMAX);
+}
+bool 
+lumi::LuminosityInfo::isNullData() const{
+  return m_versionid<0;
 }
 short
 lumi::LuminosityInfo::lumiVersionNumber()const{
@@ -46,6 +50,10 @@ lumi::LuminosityInfo::bunchCrossingBegin( const LumiAlgoType lumialgotype )const
 lumi::BunchCrossingIterator 
 lumi::LuminosityInfo::bunchCrossingEnd( const LumiAlgoType lumialgotype )const{
   return m_bx.end()-(lumi::BXMAX)*lumialgotype;
+}
+void
+lumi::LuminosityInfo::setLumiNull(){
+  m_versionid=-99;
 }
 void 
 lumi::LuminosityInfo::setLumiVersionNumber(short versionid){

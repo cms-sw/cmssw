@@ -8,7 +8,7 @@
  * each event will occur at one of these BX. BX is defined to be the number of the
  * bunch crossing where this event occurred.
  *
- * $Id: LuminosityInfo.h,v 1.4 2009/02/23 10:40:04 xiezhen Exp $
+ * $Id: LuminosityInfo.h,v 1.5 2009/02/23 12:59:42 xiezhen Exp $
  *
  ************************************************************/
  
@@ -31,7 +31,7 @@ namespace lumi{
     int lumiquality;
     int normalization;
   };
-  static const BunchCrossingInfo BXNULL=BunchCrossingInfo(0,0.0,0.0,0,0);
+  static const BunchCrossingInfo BXNULL=BunchCrossingInfo(-99,-99.0,-99.0,-99,-99);
   typedef std::vector<BunchCrossingInfo>::const_iterator BunchCrossingIterator;
 
   //persistable class
@@ -43,7 +43,7 @@ namespace lumi{
     int   quality;
     int normalization;
   };
-  
+  static const LumiAverage LumiNULL=LumiAverage(-99.0,-99.0,-99,-99);
   //main persistable class
   class LuminosityInfo{
   public:
@@ -53,6 +53,7 @@ namespace lumi{
     ///
     ///getter methods
     ///
+    bool isNullData() const; //if there is no lumi data written
     short lumiVersionNumber()const;
     int lumisectionID()const;
     float deadTimeNormalization()const;
@@ -72,7 +73,8 @@ namespace lumi{
     ///
     ///setter methods. 
     ///
-    void setLumiVersionNumber(short versiondid);
+    void setLumiNull(); //set versionid number to -99, signal no lumi data written.
+    void setLumiVersionNumber(short versionid);
     void setLumiSectionId(int sectionid);
     void setDeadtimeNormalization(float dtimenorm);
     void setLumiAverage(const LumiAverage& avg,
