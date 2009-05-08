@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: FWCSCSegmentsRPZ2DProxyBuilder.cc,v 1.1 2009/01/19 14:09:33 amraktad Exp $
+// $Id: FWCSCSegmentsRPZ2DProxyBuilder.cc,v 1.2 2009/01/23 21:35:46 amraktad Exp $
 //
 
 
@@ -14,6 +14,7 @@
 #include "TEveGeoNode.h"
 #include "TEveStraightLineSet.h"
 #include "TEveManager.h"
+#include "TEveCompound.h"
 
 #include "Fireworks/Core/interface/FWRPZ2DDataProxyBuilder.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
@@ -84,7 +85,7 @@ void FWCSCSegmentsRPZ2DProxyBuilder::build(const FWEventItem* iItem,
    TEveElementList* tList = *product;
 
    if(0 == tList) {
-      tList =  new TEveElementList(iItem->name().c_str(),"cscSegments",true);
+      tList =  new TEveCompound(iItem->name().c_str(),"cscSegments",true);
       *product = tList;
       tList->SetMainColor(iItem->defaultDisplayProperties().color());
       gEve->AddElement(tList);
