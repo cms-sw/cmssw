@@ -1,7 +1,7 @@
-#include "PhysicsTools/UtilAlgos/interface/PhysObjectMatcher.h"
-#include "PhysicsTools/UtilAlgos/interface/MCMatchSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/MatchByDRDPt.h"
-#include "PhysicsTools/UtilAlgos/interface/MatchLessByDPt.h"
+#include "CommonTools/UtilAlgos/interface/PhysObjectMatcher.h"
+#include "CommonTools/UtilAlgos/interface/MCMatchSelector.h"
+#include "CommonTools/UtilAlgos/interface/MatchByDRDPt.h"
+#include "CommonTools/UtilAlgos/interface/MatchLessByDPt.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"

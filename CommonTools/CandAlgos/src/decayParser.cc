@@ -8,16 +8,14 @@
 //
 // Original Author:  
 //         Created:  Sun Aug  7 20:26:31 EDT 2005
-// $Id: decayParser.cc,v 1.5 2008/04/11 16:56:15 kaulmer Exp $
+// $Id: decayParser.cc,v 1.1 2009/03/03 13:50:55 llista Exp $
 //
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/actor/push_back_actor.hpp>
-#include <vector>
 #include "CommonTools/CandAlgos/interface/decayParser.h"
+#include <vector>
 
 using namespace boost::spirit;
 using namespace std;
-
+using namespace boost::spirit::classic;
 namespace cand {
   namespace parser {
     
@@ -35,7 +33,7 @@ namespace cand {
     
     typedef scanner_policies<skip_parser_iteration_policy<nothing_parser, 
 							  iteration_policy>, 
-			     match_policy,action_policy> ScannerPolicy;
+			     match_policy, action_policy> ScannerPolicy;
     typedef scanner<const char*, ScannerPolicy > ScannerUsed_1;
     typedef rule<ScannerUsed_1> Rule_1;
     

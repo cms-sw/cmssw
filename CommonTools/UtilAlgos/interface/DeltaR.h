@@ -1,6 +1,6 @@
 #ifndef UtilAlgos_DeltaR_h
 #define UtilAlgos_DeltaR_h
-#include "CommonTools/Utils/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 
 namespace reco {

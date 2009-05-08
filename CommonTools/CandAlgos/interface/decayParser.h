@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Aug  7 20:26:36 EDT 2005
-// $Id: decayParser.h,v 1.1 2007/11/14 09:55:39 llista Exp $
+// $Id: decayParser.h,v 1.1 2009/03/03 13:50:55 llista Exp $
 //
 
 // system include files
@@ -25,8 +25,8 @@
 #include <vector>
 #include <iostream>
 #include <string>
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/actor/push_back_actor.hpp>
+#include <boost/spirit/include/classic_core.hpp>
+#include <boost/spirit/include/classic_push_back_actor.hpp>
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 // forward declarations
