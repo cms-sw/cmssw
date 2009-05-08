@@ -13,20 +13,7 @@ process.load("DQMServices.Core.DQM_cfg")
 #
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
-#process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
-
-#process.load("Configuration.GlobalRuns.ReconstructionGR_cff")
-
 process.load("Configuration.StandardSequences.Geometry_cff")
-
-#process.load("L1Trigger.Configuration.L1Config_cff")
-#process.load("L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff")
-#process.load("L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleConfig_cff")
-#process.load("L1TriggerConfig.L1GtConfigProducers.L1GtBoardMapsConfig_cff")
-#process.load("L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff")
-#process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.lumi1030.L1Menu2008_2E30_Unprescaled_cff")
-
-#process.load("L1Trigger.HardwareValidation.L1HardwareValidation_cff")
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
@@ -53,8 +40,10 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("PoolSource",
     fileNames = 
-	cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre5/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP_31X_A_v1/0000/C69ACB56-532B-DE11-870F-001617C3B69C.root')
-	#cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre5/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0000/1A0A2101-9A2B-DE11-A65C-001617C3B73A.root')
+	#cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre6/RelValQCD_Pt_3000_3500/GEN-SIM-RECO/IDEAL_31X_v1/0002/F2DD152F-2D33-DE11-B6F4-000423D9870C.root')
+	#cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre6/RelValQCD_Pt_80_120/GEN-SIM-RECO/IDEAL_31X_v1/0002/F4802588-F232-DE11-A617-000423D94524.root')
+	#cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre5/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP_31X_A_v1/0000/C69ACB56-532B-DE11-870F-001617C3B69C.root')
+	cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre4/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP_30X_v1/0003/E650DA99-1316-DE11-B057-000423D9A2AE.root')
 	#cms.untracked.vstring('file:test.root')
         #cms.untracked.vstring('/store/relval/CMSSW_2_1_7/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0001/0C3B40D7-F87D-DD11-A9FB-000423D998BA.root','/store/relval/CMSSW_2_1_7/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0001/3A5455F3-F87D-DD11-AEF4-000423D94534.root')
 )
@@ -79,7 +68,9 @@ process.MessageLogger = cms.Service("MessageLogger",
         'cout')
 )
 
-process.psource = cms.Path(process.hltResults*process.jetMETHLTOfflineSource*process.jetMETHLTOfflineClient)
+
+
+process.psource = cms.Path(process.jetMETHLTOfflineSource*process.jetMETHLTOfflineClient)
 process.p = cms.EndPath(process.dqmSaver)
 process.DQMStore.verbose = 0
 process.DQM.collectorHost = ''
