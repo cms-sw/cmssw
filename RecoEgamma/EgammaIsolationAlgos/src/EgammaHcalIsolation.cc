@@ -17,25 +17,29 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 using namespace std;
 
-EgammaHcalIsolation::EgammaHcalIsolation (double extRadius,
+EgammaHcalIsolation::EgammaHcalIsolation (
+        double extRadius,
         double intRadius,
-        double etLow,
+        double eLowB,
+        double eLowE,
+        double etLowB,
+        double etLowE,
         edm::ESHandle<CaloGeometry> theCaloGeom ,
-        HBHERecHitMetaCollection*  mhbhe) :
-    extRadius_(extRadius),
-    intRadius_(intRadius),
-    etLow_(etLow),
-    theCaloGeom_(theCaloGeom) ,  
-    mhbhe_(mhbhe)
+        HBHERecHitMetaCollection*  mhbhe
+) :
+  extRadius_(extRadius),
+  intRadius_(intRadius),
+  eLowB_(eLowB),
+  eLowE_(eLowE),
+  etLowB_(etLowB),
+  etLowE_(etLowE),
+  theCaloGeom_(theCaloGeom) ,  
+  mhbhe_(mhbhe)
 {
     //set up the geometry and selector
     const CaloGeometry* caloGeom = theCaloGeom_.product();
@@ -47,57 +51,48 @@ EgammaHcalIsolation::~EgammaHcalIsolation ()
     delete doubleConeSel_;
 }
 
-double EgammaHcalIsolation::getHcalEtSum (const reco::Candidate* emObject) const
+double EgammaHcalIsolation::getHcalSum(const GlobalPoint &pclu, const HcalDepth &depth,
+                                       double(*scale)(const double&) ) const
 {
-    double hcalEt = 0.;
+    double sum = 0.;
     if (mhbhe_) 
     {
-        //Take the SC position
-        reco::SuperClusterRef sc = emObject->get<reco::SuperClusterRef>();
-        math::XYZPoint theCaloPosition = sc.get()->position();
-        //      math::XYZPoint theCaloPosition = (emObject->get<reco::SuperClusterRef>())->position() ;
-        GlobalPoint pclu (theCaloPosition.x () ,
-                theCaloPosition.y () ,
-                theCaloPosition.z () );
         //Compute the HCAL energy behind ECAL
+        double eta;
         std::auto_ptr<CaloRecHitMetaCollectionV> chosen = doubleConeSel_->select(pclu,*mhbhe_);
-        for (CaloRecHitMetaCollectionV::const_iterator i = chosen->begin () ; 
-                i!= chosen->end () ; 
-                ++i) 
+        CaloRecHitMetaCollectionV::const_iterator i;
+        for (i = chosen->begin () ; i!= chosen->end () ; ++i) 
         {
-            double hcalHit_eta = theCaloGeom_.product()->getPosition(i->detid()).eta();
-            double hcalHit_Et = i->energy()*sin(2*atan(exp(-hcalHit_eta)));
-            if ( hcalHit_Et > etLow_)
-                hcalEt += hcalHit_Et;
+            eta = theCaloGeom_.product()->getPosition(i->detid()).eta();
+            HcalDetId hcalDetId(i->detid());
+            if(hcalDetId.subdet() == HcalBarrel &&              //Is it in the barrel?
+               i->energy() > eLowB_ &&                          //Does it pass the min energy?
+               i->energy()*scaleToEt(eta) > etLowB_ &&          //Does it pass the min et?
+               (depth == AllDepths || depth == Depth1)) {                    //Are we asking for the first depth?
+                    sum += i->energy() * scale(eta);
+            }
+            if(hcalDetId.subdet() == HcalEndcap &&              //Is it in the endcap?
+               i->energy() > eLowE_ &&                          //Does it pass the min energy?
+               i->energy()*scaleToEt(eta) > etLowE_ ) {         //Does it pass the min et?
+               switch(depth) {                                  //Which depth?
+                    case AllDepths: sum += i->energy() * scale(eta); break;
+                    case Depth1: sum += (isDepth2(i->detid())) ? 0 : i->energy() * scale(eta); break;
+                    case Depth2: sum += (isDepth2(i->detid())) ? i->energy() * scale(eta) : 0; break;
+               }
+            }
         }
     } 
-    return hcalEt ;
+    return sum ;
 }
 
-double EgammaHcalIsolation::getHcalESum (const reco::Candidate* emObject) const
-{
-    double hcalE = 0.;
-    if (mhbhe_) 
-    {
-        //Take the SC position
-        reco::SuperClusterRef sc = emObject->get<reco::SuperClusterRef>();
-        math::XYZPoint theCaloPosition = sc.get()->position();
-        //      math::XYZPoint theCaloPosition = (emObject->get<reco::SuperClusterRef>())->position() ;
-        GlobalPoint pclu (theCaloPosition.x () ,
-                theCaloPosition.y () ,
-                theCaloPosition.z () );
-        //Compute the HCAL energy behind ECAL
-        std::auto_ptr<CaloRecHitMetaCollectionV> chosen = doubleConeSel_->select(pclu,*mhbhe_);
-        for (CaloRecHitMetaCollectionV::const_iterator i = chosen->begin () ; 
-                i!= chosen->end () ; 
-                ++i) 
-        {
-            double hcalHit_eta = theCaloGeom_.product()->getPosition(i->detid()).eta();
-            double hcalHit_E = i->energy();
-            if ( hcalHit_E*sin(2*atan(exp(-hcalHit_eta))) > etLow_)
-                hcalE += hcalHit_E;
-        }
-    } 
-    return hcalE ;
-}
+bool EgammaHcalIsolation::isDepth2(const DetId& detId) const {
+    
+    if( (HcalDetId(detId).depth()==2 && HcalDetId(detId).ietaAbs()>=18 && HcalDetId(detId).ietaAbs()<27) ||
+        (HcalDetId(detId).depth()==3 && HcalDetId(detId).ietaAbs()==27) ) {
 
+        return true;
+
+   } else {
+        return false;
+   }
+}
