@@ -6,7 +6,7 @@
 //     <Notes on implementation>
 // Original Author:  gbruno
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripGain.cc,v 1.4 2009/03/27 18:48:58 giordano Exp $
+// $Id: SiStripGain.cc,v 1.5 2009/05/04 10:52:55 lowette Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
@@ -56,21 +56,9 @@ const SiStripApvGain::Range SiStripGain::getRange(const uint32_t& DetId) const {
 
 
 void SiStripGain::printDebug(std::stringstream& ss) const {
-
-  std::vector<uint32_t> detid;
-  getDetIds(detid);
-
-  ss << "detid \t|\t apv lists\n"; 
-  for (size_t id=0;id<detid.size();id++){
-    SiStripApvGain::Range range=getRange(detid[id]);
-    ss  <<  detid[id] << " \t|\t";
-    for(int it=0;it<range.second-range.first;it++){
-      ss << getApvGain(it,range)     << " \t|\t"; 
-    } 
-    ss<< std::endl;          
-  }
+  apvgain_->printDebug(ss);
 }
 
 void SiStripGain::printSummary(std::stringstream& ss) const{ 
-  ss << "SiStripGain::printSummary has to be implemented " << std::endl;
+  apvgain_->printSummary(ss);
 }
