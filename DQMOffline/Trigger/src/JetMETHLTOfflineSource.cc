@@ -6,8 +6,6 @@
 
 #include <boost/algorithm/string.hpp>
 
-// using namespace egHLT;
-
 JetMETHLTOfflineSource::JetMETHLTOfflineSource(const edm::ParameterSet& iConfig)
 {
 
@@ -38,7 +36,9 @@ JetMETHLTOfflineSource::JetMETHLTOfflineSource(const edm::ParameterSet& iConfig)
     if (debug_) std::cout << getNumeratorTrigger(hltPathsEff[i]) << std::endl;
     if (debug_) std::cout << getDenominatorTrigger(hltPathsEff[i]) << std::endl;
     HLTPathsEffSingleJet_.push_back(PathInfo(getDenominatorTrigger(hltPathsEff[i]),
-					     getNumeratorTrigger(hltPathsEff[i])));
+					     getNumeratorTrigger(hltPathsEff[i]),
+					     getTriggerEffLevel(hltPathsEff[i]),
+					     getTriggerThreshold(hltPathsEff[i])));
   }
 
   //--- dijet average
@@ -46,10 +46,10 @@ JetMETHLTOfflineSource::JetMETHLTOfflineSource(const edm::ParameterSet& iConfig)
   hltPathsEff.clear();
   hltPathsEff = iConfig.getParameter<std::vector<std::string > >("HLTPathsEffDiJetAve");
   for (unsigned int i=0; i<hltPathsEff.size(); i++){
-    if (debug_) std::cout << getNumeratorTrigger(hltPathsEff[i]) << std::endl;
-    if (debug_) std::cout << getDenominatorTrigger(hltPathsEff[i]) << std::endl;
     HLTPathsEffDiJetAve_.push_back(PathInfo(getDenominatorTrigger(hltPathsEff[i]),
-					     getNumeratorTrigger(hltPathsEff[i])));
+					    getNumeratorTrigger(hltPathsEff[i]),
+					    getTriggerEffLevel(hltPathsEff[i]),
+					    getTriggerThreshold(hltPathsEff[i])));
   }
 
   //--- met
@@ -57,10 +57,10 @@ JetMETHLTOfflineSource::JetMETHLTOfflineSource(const edm::ParameterSet& iConfig)
   hltPathsEff.clear();
   hltPathsEff = iConfig.getParameter<std::vector<std::string > >("HLTPathsEffMET");
   for (unsigned int i=0; i<hltPathsEff.size(); i++){
-    if (debug_) std::cout << getNumeratorTrigger(hltPathsEff[i]) << std::endl;
-    if (debug_) std::cout << getDenominatorTrigger(hltPathsEff[i]) << std::endl;
     HLTPathsEffMET_.push_back(PathInfo(getDenominatorTrigger(hltPathsEff[i]),
-					     getNumeratorTrigger(hltPathsEff[i])));
+				       getNumeratorTrigger(hltPathsEff[i]),
+				       getTriggerEffLevel(hltPathsEff[i]),
+				       getTriggerThreshold(hltPathsEff[i])));
   }
 
   //--- mht
@@ -68,10 +68,10 @@ JetMETHLTOfflineSource::JetMETHLTOfflineSource(const edm::ParameterSet& iConfig)
   hltPathsEff.clear();
   hltPathsEff = iConfig.getParameter<std::vector<std::string > >("HLTPathsEffMHT");
   for (unsigned int i=0; i<hltPathsEff.size(); i++){
-    if (debug_) std::cout << getNumeratorTrigger(hltPathsEff[i]) << std::endl;
-    if (debug_) std::cout << getDenominatorTrigger(hltPathsEff[i]) << std::endl;
     HLTPathsEffMHT_.push_back(PathInfo(getDenominatorTrigger(hltPathsEff[i]),
-					     getNumeratorTrigger(hltPathsEff[i])));
+				       getNumeratorTrigger(hltPathsEff[i]),
+				       getTriggerEffLevel(hltPathsEff[i]),
+				       getTriggerThreshold(hltPathsEff[i])));
   }
 
   //--- trigger path names for more monitoring histograms
@@ -80,14 +80,17 @@ JetMETHLTOfflineSource::JetMETHLTOfflineSource(const edm::ParameterSet& iConfig)
   for (unsigned int i=0; i<hltMonPaths.size(); i++)
     HLTPathsMonSingleJet_.push_back(PathHLTMonInfo(hltMonPaths[i]));
 
+  hltMonPaths.clear();
   hltMonPaths = iConfig.getParameter<std::vector<std::string > >("HLTPathsMonDiJetAve");
   for (unsigned int i=0; i<hltMonPaths.size(); i++)
     HLTPathsMonDiJetAve_.push_back(PathHLTMonInfo(hltMonPaths[i]));
 
+  hltMonPaths.clear();
   hltMonPaths = iConfig.getParameter<std::vector<std::string > >("HLTPathsMonMET");
   for (unsigned int i=0; i<hltMonPaths.size(); i++)
     HLTPathsMonMET_.push_back(PathHLTMonInfo(hltMonPaths[i]));
 
+  hltMonPaths.clear();
   hltMonPaths = iConfig.getParameter<std::vector<std::string > >("HLTPathsMonMHT");
   for (unsigned int i=0; i<hltMonPaths.size(); i++)
     HLTPathsMonMHT_.push_back(PathHLTMonInfo(hltMonPaths[i]));
@@ -102,19 +105,6 @@ JetMETHLTOfflineSource::JetMETHLTOfflineSource(const edm::ParameterSet& iConfig)
 
   processname_ = iConfig.getParameter<std::string>("processname");
 
-//   std::vector<edm::ParameterSet> paths = 
-//     iConfig.getParameter<std::vector<edm::ParameterSet> >("paths");
-//   for(std::vector<edm::ParameterSet>::iterator 
-//         pathconf = paths.begin() ; pathconf != paths.end(); 
-//       pathconf++) {
-//     std::pair<std::string, std::string> custompathnamepair;
-//     custompathnamepair.first =pathconf->getParameter<std::string>("pathname"); 
-//     custompathnamepair.second = pathconf->getParameter<std::string>("denompathname");   
-//     custompathnamepairs_.push_back(custompathnamepair);
-//     // customdenompathnames_.push_back(pathconf->getParameter<std::string>("denompathname"));  
-//     // custompathnames_.push_back(pathconf->getParameter<std::string>("pathname"));  
-//   }
-
   //--- HLT tag
   hltTag_ = iConfig.getParameter<std::string>("hltTag");
   if (debug_) std::cout << hltTag_ << std::endl;
@@ -122,6 +112,10 @@ JetMETHLTOfflineSource::JetMETHLTOfflineSource(const edm::ParameterSet& iConfig)
   //--- DQM output folder name
   dirName_=iConfig.getParameter<std::string>("DQMDirName");
   if (debug_) std::cout << dirName_ << std::endl;
+
+  l1ExtraTaus_ = iConfig.getParameter<edm::InputTag>("L1Taus");
+  l1ExtraCJets_= iConfig.getParameter<edm::InputTag>("L1CJets");
+  l1ExtraFJets_= iConfig.getParameter<edm::InputTag>("L1FJets");
 
   if (dbe_ != 0 ) {
     dbe_->setCurrentFolder(dirName_);
@@ -164,114 +158,23 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
     if (!hltConfig_.init(processname_)){
       LogDebug("JetMETHLTOffline") << "HLTConfigProvider failed to initialize.";
     }
-    // check if trigger name in (new) config
-    cout << "Available TriggerNames are: " << endl;
-    hltConfig_.dump("Triggers");
   }
 
   if (verbose_){
-    const unsigned int n(hltConfig_.size());
-    for (unsigned int j=0; j!=n; ++j) {
-      std::string pathname = hltConfig_.triggerName(j);  
+    for (unsigned int j=0; j!=hltConfig_.size(); ++j) {
       cout << j << " " << hltConfig_.triggerName(j) << endl;      
     }
   }
   
   //
   //--- obtain the L1 and HLT module names
-  for(PathInfoCollection::iterator v = HLTPathsEffSingleJet_.begin(); 
-      v!= HLTPathsEffSingleJet_.end(); ++v ) {
-    // find L1 global seed for numpath,
-    // list module labels for numpath
-    //KH needs to put a protectoon so that even if this path doesn't exist in hltConfig_ it doesn't crash
-    std::vector<std::string> numpathmodules = hltConfig_.moduleLabels("HLT_"+v->getPathName());
-    for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
-	numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
-      std::cout << "testest " << v->getPathName() << "\t" 
-      		<< *numpathmodule << "\t" 
-      		<< hltConfig_.moduleType(*numpathmodule) << std::endl;
-      if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed")
-	v->setPathNameL1s(*numpathmodule);
-      if (hltConfig_.moduleType(*numpathmodule) == "HLT1CaloJet")
-	v->setPathNameL1s(*numpathmodule);
-    } // loop over module names
-  }   // loop over path collections
-
-  for(PathInfoCollection::iterator v = HLTPathsEffDiJetAve_.begin(); 
-      v!= HLTPathsEffDiJetAve_.end(); ++v ) {
-    // find L1 global seed for numpath,
-    // list module labels for numpath
-    //KH need to put a protectoon so that even if this path doesn't exist in hltConfig_ it doesn't crash
-    std::vector<std::string> numpathmodules = hltConfig_.moduleLabels("HLT_"+v->getPathName());
-    for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
-	numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
-      if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed")
-	v->setPathNameL1s(*numpathmodule);
-      if (hltConfig_.moduleType(*numpathmodule) == "HLTDiJetAveFilter")
-	v->setPathNameL1s(*numpathmodule);
-    } // loop over module names
-  }   // loop over path collections
-
-  for(PathInfoCollection::iterator v = HLTPathsEffMET_.begin(); 
-      v!= HLTPathsEffMET_.end(); ++v ) {
-    // find L1 global seed for numpath,
-    // list module labels for numpath
-    //KH need to put a protectoon so that even if this path doesn't exist in hltConfig_ it doesn't crash
-    std::vector<std::string> numpathmodules = hltConfig_.moduleLabels("HLT_"+v->getPathName());
-    for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
-	numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
-      if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed")
-	v->setPathNameL1s(*numpathmodule);
-      if (hltConfig_.moduleType(*numpathmodule) == "HLT1CaloMET")
-	v->setPathNameL1s(*numpathmodule);
-    } // loop over module names
-  }   // loop over path collections
-
-
-  for(PathHLTMonInfoCollection::iterator v = HLTPathsMonSingleJet_.begin(); 
-      v!= HLTPathsMonSingleJet_.end(); ++v ) {
-    // find L1 global seed for numpath,
-    // list module labels for numpath
-    //KH needs to put a protectoon so that even if this path doesn't exist in hltConfig_ it doesn't crash
-    std::vector<std::string> numpathmodules = hltConfig_.moduleLabels("HLT_"+v->getPathName());
-    for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
-	numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
-      if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed")
-	v->setPathNameL1s(*numpathmodule);
-      if (hltConfig_.moduleType(*numpathmodule) == "HLT1CaloJet")
-	v->setPathNameL1s(*numpathmodule);
-    } // loop over module names
-  }   // loop over path collections
-
-  for(PathHLTMonInfoCollection::iterator v = HLTPathsMonDiJetAve_.begin(); 
-      v!= HLTPathsMonDiJetAve_.end(); ++v ) {
-    // find L1 global seed for numpath,
-    // list module labels for numpath
-    //KH need to put a protectoon so that even if this path doesn't exist in hltConfig_ it doesn't crash
-    std::vector<std::string> numpathmodules = hltConfig_.moduleLabels("HLT_"+v->getPathName());
-    for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
-	numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
-      if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed")
-	v->setPathNameL1s(*numpathmodule);
-      if (hltConfig_.moduleType(*numpathmodule) == "HLTDiJetAveFilter")
-	v->setPathNameL1s(*numpathmodule);
-    } // loop over module names
-  }   // loop over path collections
-
-  for(PathHLTMonInfoCollection::iterator v = HLTPathsMonMET_.begin(); 
-      v!= HLTPathsMonMET_.end(); ++v ) {
-    // find L1 global seed for numpath,
-    // list module labels for numpath
-    //KH need to put a protectoon so that even if this path doesn't exist in hltConfig_ it doesn't crash
-    std::vector<std::string> numpathmodules = hltConfig_.moduleLabels("HLT_"+v->getPathName());
-    for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
-	numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
-      if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed")
-	v->setPathNameL1s(*numpathmodule);
-      if (hltConfig_.moduleType(*numpathmodule) == "HLT1CaloMET")
-	v->setPathNameL1s(*numpathmodule);
-    } // loop over module names
-  }   // loop over path collections
+  HLTPathsEffSingleJet_ = fillL1andHLTModuleNames(HLTPathsEffSingleJet_,"HLTLevel1GTSeed","HLT1CaloJet");
+  HLTPathsEffDiJetAve_  = fillL1andHLTModuleNames(HLTPathsEffDiJetAve_, "HLTLevel1GTSeed","HLTDiJetAveFilter");
+  HLTPathsEffMET_       = fillL1andHLTModuleNames(HLTPathsEffMET_,      "HLTLevel1GTSeed","HLT1CaloMET");
+ 
+  HLTPathsMonSingleJet_ = fillL1andHLTModuleNames(HLTPathsMonSingleJet_,"HLTLevel1GTSeed","HLT1CaloJet");
+  HLTPathsMonDiJetAve_  = fillL1andHLTModuleNames(HLTPathsMonDiJetAve_, "HLTLevel1GTSeed","HLTDiJetAveFilter");
+  HLTPathsMonMET_       = fillL1andHLTModuleNames(HLTPathsMonMET_,      "HLTLevel1GTSeed","HLT1CaloMET");
 
   //--- MonitorElement booking ---
   bookMEforEffSingleJet();
@@ -322,37 +225,20 @@ void JetMETHLTOfflineSource::analyze(const edm::Event& iEvent,const edm::EventSe
 
   }
 
-  // did we pass the denomPath?
+  // did we pass each trigger path?
   if (debug_){
-    for(int i = 0; i < npath; ++i) {
-      if (triggerNames_.triggerName(i).find("HLT_Jet") != std::string::npos && triggerResults_->accept(i))
-	{
-	  std::cout << i << " " << triggerNames_.triggerName(i) << " ";
-	}
-    }
     std::cout << std::endl;
+    // tirggerResults
+    for(int i = 0; i < npath; ++i) {
+      if (triggerNames_.triggerName(i).find("HLT_") != std::string::npos ){
+	std::cout << i << " "
+		  << triggerNames_.triggerName(i) << " "
+		  << triggerResults_->wasrun(i) << " "
+		  << triggerResults_->accept(i) << " "
+		  << triggerResults_->error(i) << std::endl;
+      }
+    }
   }
-
-  // 6 HLT_L1Jet6U
-  // 7 HLT_Jet15U
-  // 8 HLT_Jet30U
-  // 9 HLT_Jet50U
-  // 10 HLT_FwdJet20U
-  // 11 HLT_DiJetAve15U_8E29
-  // 12 HLT_DiJetAve30U_8E29
-  // 13 HLT_QuadJet15U
-  // 14 HLT_L1MET20
-  // 15 HLT_MET35
-  // 16 HLT_MET100
-  // 17 HLT_L1MuOpen
-  // 18 HLT_L1Mu
-  // 19 HLT_L1Mu20
-  // 20 HLT_L2Mu9
-  // 21 HLT_L2Mu11
-  // 22 HLT_IsoMu3
-  // 23 HLT_Mu3
-  // 24 HLT_Mu5
-  // 25 HLT_Mu9
 
   //---------- triggerSummary ----------
   if (debug_) std::cout << ">>>now triggerSummary" << std::endl;
@@ -368,31 +254,19 @@ void JetMETHLTOfflineSource::analyze(const edm::Event& iEvent,const edm::EventSe
   if (debug_) {
     for ( size_t ia = 0; ia < triggerObj_->sizeFilters(); ++ ia) {
       std::string name = triggerObj_->filterTag(ia).encode();
-      std::cout << name << std::endl;
+      std::cout << ia << " " << name << std::endl;
       
+      const trigger::Vids & idtype = triggerObj_->filterIds(ia);
       const trigger::Keys & k      = triggerObj_->filterKeys(ia);
+      trigger::Vids::const_iterator idtypeiter = idtype.begin();
       for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
 	std::cout << toc[*ki].pt()  << " "
 		  << toc[*ki].eta() << " "
 		  << toc[*ki].phi() << std::endl;
+	++idtypeiter;
       } // loop over different objects
     }   // loop over different paths
   }
-
-  //
-  //hlt1jet15U::HLT
-  //hlt1jet30U::HLT
-  //hltDiJetAve15U8E29::HLT
-  //hltDiJetAve30U8E29::HLT
-  //
-  //level-1 seed
-  //hltL1sJet15U::HLT
-  //hltL1sJet30U::HLT
-  //hltL1sJet50U::HLT
-  //hltL1sL1Jet6U::HLT ?
-  //hltL1sL1MET20::HLT ?
-  //hltL1sMET100::HLT
-  //hltL1sMET35::HLT
 
   //--- Show one particular path
   if (debug_){
@@ -419,7 +293,7 @@ void JetMETHLTOfflineSource::analyze(const edm::Event& iEvent,const edm::EventSe
 
   //--- Show one particular L1s path
   if (debug_){
-    edm::InputTag testTag2("hltL1sJet30U","",processname_);
+    edm::InputTag testTag2("hltL1sJet50U","",processname_);
     const int index2              = triggerObj_->filterIndex(testTag2);
 
     if ( index2 >= triggerObj_->sizeFilters() ) {    
@@ -440,6 +314,32 @@ void JetMETHLTOfflineSource::analyze(const edm::Event& iEvent,const edm::EventSe
     } // index2
   }
  
+  //----------- l1extra jet particle collection -----
+
+  edm::Handle<l1extra::L1JetParticleCollection> taus;
+  edm::Handle<l1extra::L1JetParticleCollection> cjets;
+  edm::Handle<l1extra::L1JetParticleCollection> fjets;
+
+  if (debug_){
+  if(iEvent.getByLabel(l1ExtraTaus_,taus))
+    for(l1extra::L1JetParticleCollection::const_iterator i = taus->begin();i!=taus->end();++i)
+      {
+	std::cout << "tau" << i->pt() << std::endl;
+      }
+ 
+  if(iEvent.getByLabel(l1ExtraCJets_,cjets))
+    for(l1extra::L1JetParticleCollection::const_iterator i = cjets->begin();i!=cjets->end();++i)
+      {     
+	std::cout << "cjet" << i->pt() << std::endl;
+      }
+  
+  if(iEvent.getByLabel(l1ExtraFJets_,fjets))
+    for(l1extra::L1JetParticleCollection::const_iterator i = fjets->begin();i!=fjets->end();++i)
+      {     
+	std::cout << "fjet" << i->pt() << std::endl;
+      }
+  }
+
   //----------- Offline Jets -----
   if (debug_) std::cout << ">>>now offline jets" << std::endl;
   iEvent.getByLabel(caloJetsTag_,calojetColl_);
@@ -454,6 +354,106 @@ void JetMETHLTOfflineSource::analyze(const edm::Event& iEvent,const edm::EventSe
 		       <<" phi = " << jet->phi() << endl;
       if (j==0) LeadingCaloJetPt = jet->pt();
       j++;
+      
+      if (debug_) {
+      //test - pt>100 gev case
+      if (j==1 && jet->pt()>100.){
+	std::cout << ">>>>>>new event start - " << std::endl;
+	cout <<" Jet " << j
+	     <<" pt = " << jet->pt()
+	     <<" eta = " << jet->eta()
+	     <<" phi = " << jet->phi() << endl;
+
+	//
+	for(CaloJetCollection::const_iterator jet2 = calojetColl_->begin();
+	    jet2 != calojetColl_->end(); ++jet2 ) {
+	  cout <<" Jet "   << j
+	       <<" pt = "  << jet2->pt()
+	       <<" eta = " << jet2->eta()
+	       <<" phi = " << jet2->phi() << endl;
+	}
+	
+	// tirggerResults
+	for(int i = 0; i < npath; ++i) {
+	  if (triggerNames_.triggerName(i).find("HLT_Jet") != std::string::npos ){
+	    std::cout << i << " "
+		      << triggerNames_.triggerName(i) << " "
+		      << triggerResults_->wasrun(i) << " "
+		      << triggerResults_->accept(i) << " "
+		      << triggerResults_->error(i) << std::endl;
+	  }
+	}
+	
+	//-----
+	// triggerSummary
+ 	edm::InputTag testTag2("hltL1sJet30U","",processname_);
+ 	const int index2 = triggerObj_->filterIndex(testTag2);
+	//std::cout << index2 << " " << triggerObj_->sizeFilters() << std::endl;
+
+ 	if ( index2 >= triggerObj_->sizeFilters() ) {    
+ 	  edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< index2 << " of that name ";
+	  std::cout << "no index "<< index2 << " of that name " << std::endl;
+ 	} else {       
+       
+	  const trigger::Keys & k = triggerObj_->filterKeys(index2);
+	  std::string name = triggerObj_->filterTag(index2).encode();
+	  std::cout << name << k.size() << std::endl;	  
+	  if (k.size()){
+	    for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
+	      std::cout << toc[*ki].pt()  << " "
+			<< toc[*ki].eta() << " "
+			<< toc[*ki].phi() << std::endl;
+	    }
+	  }
+
+	}
+
+	//-----
+	edm::InputTag testTag("hlt1jet30U","",processname_);
+	const int index              = triggerObj_->filterIndex(testTag);	
+	//std::cout << index << " " << triggerObj_->sizeFilters() << std::endl;
+
+	if ( index >= triggerObj_->sizeFilters() ) {    
+	  edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< index << " of that name ";
+	  
+	} else {       
+      
+	  const trigger::Keys & k = triggerObj_->filterKeys(index);
+	  std::string name = triggerObj_->filterTag(index).encode();
+
+	  if (k.size()){
+	    std::cout << name << std::endl;
+	    for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
+	      std::cout << toc[*ki].pt()  << " "
+			<< toc[*ki].eta() << " "
+			<< toc[*ki].phi() << std::endl;
+	    }
+	  }
+      
+	} // index
+
+	if(iEvent.getByLabel(l1ExtraTaus_,taus))
+	  for(l1extra::L1JetParticleCollection::const_iterator i = taus->begin();i!=taus->end();++i)
+	    {
+	      std::cout << "tau" << i->pt() << " " << i->eta() << " " << i->phi() << std::endl;
+	    }
+	
+	if(iEvent.getByLabel(l1ExtraCJets_,cjets))
+	  for(l1extra::L1JetParticleCollection::const_iterator i = cjets->begin();i!=cjets->end();++i)
+	    {     
+	      std::cout << "cjet" << i->pt() << " " << i->eta() << " " << i->phi() << std::endl;
+	    }
+  
+	if(iEvent.getByLabel(l1ExtraFJets_,fjets))
+	  for(l1extra::L1JetParticleCollection::const_iterator i = fjets->begin();i!=fjets->end();++i)
+	    {     
+	      std::cout << "fjet" << i->pt() << " " << i->eta() << " " << i->phi() << std::endl;
+	    }
+	
+      }
+      //test
+      }
+
     }
   }
 
@@ -479,38 +479,6 @@ void JetMETHLTOfflineSource::analyze(const edm::Event& iEvent,const edm::EventSe
   fillMEforMonMET();
   fillMEforMonMHT();
 
-// 302    // work with l1 information
-// 303    if (&l1extjetc) {
-// 304      nl1extjetc = ((l1extra::L1JetParticleCollection&)*l1extjetc).size();
-// 305      if (debug_) printf("[Info] There are %i L1 jets.\n",nl1extjetc);
-// 306      l1extra::L1JetParticleCollection myl1jetsc;
-// 307      //     myl1jetsc= (l1extra::L1JetParticleCollection&)*l1extjetc;
-// 308 // //      std::sort(myl1jetsc.begin(),myl1jetsc.end(),EtGreater());
-// 309      int il1exjt = 0;
-// 310      //     for (l1extra::L1JetParticleCollection::const_iterator jtItr = myl1jetsc.begin(); jtItr != myl1jetsc.end(); ++jtItr) {
-// 311      if (nl1extjetc > 0) {
-// 312        for (l1extra::L1JetParticleCollection::const_iterator jtItr = ((l1extra::L1JetParticleCollection&)*l1extjetc).begin(); jtItr != ((l1extra::L1JetParticleCollection&)*l1extjetc).end(); ++jtItr) {
-// 313          l1extjtcet[il1exjt] = jtItr->et();
-// 314          l1extjtce[il1exjt] = jtItr->energy();
-// 315          l1extjtceta[il1exjt] = jtItr->eta();
-// 316          l1extjtcphi[il1exjt] = jtItr->phi();
-// 317 
-// 318          if (debug_){
-// 319            printf("[INFO] L1 Jet(%i) Et = %f\n",il1exjt,l1extjtcet[il1exjt]);
-// 320            printf("[INFO] L1 Jet(%i) E  = %f\n",il1exjt,l1extjtce[il1exjt]);
-// 321            printf("[INFO] L1 Jet(%i) Eta= %f\n",il1exjt,l1extjtceta[il1exjt]);
-// 322            printf("[INFO] L1 Jet(%i) Phi= %f\n",il1exjt,l1extjtcphi[il1exjt]);
-// 323          }
-// 324          il1exjt++;
-// 325        }
-// 326      }
-// 327    }
-// 328    else {
-// 329      nl1extjetc = 0;
-// 330      if (debug_) std::cout << "[ERROR] -- No L1 Central JET object" << std::endl;
-// 331    }
-
-
 }
 
 
@@ -533,17 +501,23 @@ void JetMETHLTOfflineSource::fillMEforEffSingleJet(){
     {
       
       // did we pass the denomPath?
-      for(int i = 0; i < npath; ++i) {
-	if (triggerNames_.triggerName(i).find("HLT_"+v->getDenomPathName()) != std::string::npos 
-	    && triggerResults_->accept(i))
-	  {
+      bool acceptedDenom = isHLTPathAccepted("HLT_"+v->getDenomPathName());
+
+      if (acceptedDenom){
 	    // denomPath passed 
 	    
-	    // numerator L1s passed
-	    edm::InputTag l1sTag(v->getPathNameL1s(),"",processname_);
-	    const int indexl1s = triggerObj_->filterIndex(l1sTag);
-	    if ( indexl1s >= triggerObj_->sizeFilters() ) break;
+// 	    edm::InputTag l1sTag(v->getPathNameL1s(),"",processname_);
+// 	    const int indexl1s = triggerObj_->filterIndex(l1sTag);
 
+ 	    edm::InputTag testTag(v->getDenomPathNameHLT(),"",processname_);
+ 	    const int index = triggerObj_->filterIndex(testTag);    
+
+// 	    std::cout 
+// 		      << v->getTrigEffLevel() << " " 
+// 		      << v->getPathName() << " "
+// 		      << v->getPathNameHLT() << " "
+// 		      << v->getPathNameL1s() << std::endl;
+      
 	    // njets>=1
 	    if (calojetColl_.isValid()){
 	    if (calojetColl_->size()){	    
@@ -558,8 +532,6 @@ void JetMETHLTOfflineSource::fillMEforEffSingleJet(){
 	      v->getMEDenominatorEtaPhi()->Fill(jet->eta(),jet->phi());
 	    }}
 
- 	    edm::InputTag testTag(v->getPathNameHLT(),"",processname_);
- 	    const int index = triggerObj_->filterIndex(testTag);    
  	    if ( index >= triggerObj_->sizeFilters() ) {    
  	      edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< index << " of that name ";	      
  	    } else {             
@@ -577,10 +549,17 @@ void JetMETHLTOfflineSource::fillMEforEffSingleJet(){
  	      }
  	    }	      
 
-	    for(int j = 0; j < npath; ++j) {
-	      if (triggerNames_.triggerName(j).find("HLT_"+v->getPathName()) != std::string::npos 
-		  && triggerResults_->accept(j))
-		{		    
+	    bool acceptedNumerator=false;
+	    if (v->getTrigEffLevel()=="HLT") {
+	      // HLT path
+	      acceptedNumerator = isHLTPathAccepted("HLT_"+v->getPathName());
+	    } else {
+	      // L1s (L1seed case)	     
+	      acceptedNumerator = isTriggerObjectFound(v->getPathNameL1s());
+	    }
+
+	    if (acceptedNumerator){
+
 		  // numeratorPath passed 
 		  if (calojetColl_.isValid()){
  		  if (calojetColl_->size()){	    
@@ -595,8 +574,6 @@ void JetMETHLTOfflineSource::fillMEforEffSingleJet(){
  		    v->getMENumeratorEtaPhi()->Fill(jet->eta(),jet->phi());
  		  }}
 
- 		  edm::InputTag testTag(v->getPathNameHLT(),"",processname_);
- 		  const int index = triggerObj_->filterIndex(testTag);    
  		  if ( index >= triggerObj_->sizeFilters() ) {    
  		    edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< index << " of that name ";	      
  		  } else {             
@@ -612,15 +589,51 @@ void JetMETHLTOfflineSource::fillMEforEffSingleJet(){
  		      v->getMENumeratorPhiHLT()->Fill(toc[*ki].phi());
  		      v->getMENumeratorEtaPhiHLT()->Fill(toc[*ki].eta(),toc[*ki].phi());
  		    }
- 		  }	      
-		  
-		  break;
-		} // numerator trig accepted?
-	    }     // 2nd loop for numerator trig path
-	    break;
-	  }         // denominator trig accepted?
-      }             // 1st loop for numerator trig path
-    }               // Loop over all path combinations
+ 		  }	      		  
+
+	    }     // numerator trig accepted?
+
+
+	    bool acceptedNumeratorEmulate=false;
+	    acceptedNumeratorEmulate = isTrigAcceptedEmulatedSingleJet(*v);
+
+	    if (acceptedNumeratorEmulate){
+
+		  // numeratorPath passed 
+		  if (calojetColl_.isValid()){
+ 		  if (calojetColl_->size()){	    
+ 		    // leading jet iterator
+ 		    CaloJetCollection::const_iterator jet = calojetColl_->begin();
+  		    v->getMEEmulatedNumeratorPt()->Fill(jet->pt());
+  		    if (isBarrel(jet->eta()))  v->getMEEmulatedNumeratorPtBarrel()->Fill(jet->pt());
+  		    if (isEndCap(jet->eta()))  v->getMEEmulatedNumeratorPtEndCap()->Fill(jet->pt());
+  		    if (isForward(jet->eta())) v->getMEEmulatedNumeratorPtForward()->Fill(jet->pt());
+ 		    v->getMEEmulatedNumeratorEta()->Fill(jet->eta());
+ 		    v->getMEEmulatedNumeratorPhi()->Fill(jet->phi());
+ 		    v->getMEEmulatedNumeratorEtaPhi()->Fill(jet->eta(),jet->phi());
+ 		  }}
+
+ 		  if ( index >= triggerObj_->sizeFilters() ) {    
+ 		    edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< index << " of that name ";	      
+ 		  } else {             
+ 		    const trigger::Keys & k = triggerObj_->filterKeys(index);
+ 		    std::string name = triggerObj_->filterTag(index).encode();
+ 		    if (k.size()){
+ 		      trigger::Keys::const_iterator ki = k.begin();
+ 		      v->getMEEmulatedNumeratorPtHLT()->Fill(toc[*ki].pt());
+ 		      if (isBarrel(toc[*ki].eta()))  v->getMEEmulatedNumeratorPtHLTBarrel()->Fill(toc[*ki].pt());
+ 		      if (isEndCap(toc[*ki].eta()))  v->getMEEmulatedNumeratorPtHLTEndCap()->Fill(toc[*ki].pt());
+ 		      if (isForward(toc[*ki].eta())) v->getMEEmulatedNumeratorPtHLTForward()->Fill(toc[*ki].pt());
+ 		      v->getMEEmulatedNumeratorEtaHLT()->Fill(toc[*ki].eta());
+ 		      v->getMEEmulatedNumeratorPhiHLT()->Fill(toc[*ki].phi());
+ 		      v->getMEEmulatedNumeratorEtaPhiHLT()->Fill(toc[*ki].eta(),toc[*ki].phi());
+ 		    }
+ 		  }	      		  
+
+	    }     // numerator trig accepted?
+
+      }           // denominator trig accepted?
+    }             // Loop over all path combinations
 
 }
 
@@ -641,16 +654,16 @@ void JetMETHLTOfflineSource::fillMEforEffDiJetAve(){
     {
       
       // did we pass the denomPath?
-      for(int i = 0; i < npath; ++i) {
-	if (triggerNames_.triggerName(i).find("HLT_"+v->getDenomPathName()) != std::string::npos 
-	    && triggerResults_->accept(i))
-	  {
+      bool acceptedDenom = isHLTPathAccepted("HLT_"+v->getDenomPathName());
+
+      if (acceptedDenom){
 	    // denomPath passed 
 
-	    // numerator L1s passed
-	    edm::InputTag l1sTag(v->getPathNameL1s(),"",processname_);
-	    const int indexl1s = triggerObj_->filterIndex(l1sTag);
-	    if ( indexl1s >= triggerObj_->sizeFilters() ) break;
+// 	    edm::InputTag l1sTag(v->getPathNameL1s(),"",processname_);
+// 	    const int indexl1s = triggerObj_->filterIndex(l1sTag);
+
+ 	    edm::InputTag testTag(v->getPathNameHLT(),"",processname_);
+ 	    const int index = triggerObj_->filterIndex(testTag);    
 
 	    // njets>=1
 	    if (calojetColl_.isValid()){
@@ -663,8 +676,6 @@ void JetMETHLTOfflineSource::fillMEforEffDiJetAve(){
 	    }
 	    }
 
- 	    edm::InputTag testTag(v->getPathNameHLT(),"",processname_);
- 	    const int index = triggerObj_->filterIndex(testTag);    
  	    if ( index >= triggerObj_->sizeFilters() ) {    
  	      edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< index << " of that name ";	      
  	    } else {             
@@ -678,14 +689,18 @@ void JetMETHLTOfflineSource::fillMEforEffDiJetAve(){
  	      }
  	    }	      
 
-	    bool accepted=false;
-	    for(int j = 0; j < npath; ++j) {
-	      if (triggerNames_.triggerName(j).find("HLT_"+v->getPathName()) != std::string::npos 
-		  && triggerResults_->accept(j))
-		{		    
-		  accepted=true;
-		  // numeratorPath passed 
+	    bool acceptedNumerator=false;
+	    if (v->getTrigEffLevel()=="HLT") {
+	      // HLT path
+	      acceptedNumerator = isHLTPathAccepted("HLT_"+v->getPathName());
+	    } else {
+	      // L1s (L1seed case)	     
+	      acceptedNumerator = isTriggerObjectFound(v->getPathNameL1s());
+	    }
 
+	    if (acceptedNumerator){
+
+		  // numeratorPath passed 
 		  if (calojetColl_.isValid()){
  		  if (calojetColl_->size()>=2){	    
  		    // leading two jets iterator
@@ -695,8 +710,6 @@ void JetMETHLTOfflineSource::fillMEforEffDiJetAve(){
  		    v->getMENumeratorEta()->Fill( (jet->eta()+jet2->eta())/2. );
  		  }}
 
- 		  edm::InputTag testTag(v->getPathNameHLT(),"",processname_);
- 		  const int index = triggerObj_->filterIndex(testTag);    
  		  if ( index >= triggerObj_->sizeFilters() ) {    
  		    edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< index << " of that name ";	      
  		  } else {             
@@ -710,13 +723,39 @@ void JetMETHLTOfflineSource::fillMEforEffDiJetAve(){
  		    }
  		  }	      
 		  
-		  break;
 		} // numerator trig accepted?
-	    }     // 2nd loop for numerator trig path
-	    //if (!accepted) std::cout << "not accepted" << std::endl;
-	    break;
+
+	    bool acceptedNumeratorEmulate=false;
+	    acceptedNumeratorEmulate = isTrigAcceptedEmulatedDiJetAve(*v);
+	    
+	    if (acceptedNumeratorEmulate){
+
+		  // numeratorPath passed 
+		  if (calojetColl_.isValid()){
+ 		  if (calojetColl_->size()>=2){	    
+ 		    // leading two jets iterator
+ 		    CaloJetCollection::const_iterator jet = calojetColl_->begin();
+		    CaloJetCollection::const_iterator jet2= calojetColl_->begin(); jet2++;
+  		    v->getMEEmulatedNumeratorPt()->Fill( (jet->pt()+jet2->pt())/2. );
+ 		    v->getMEEmulatedNumeratorEta()->Fill( (jet->eta()+jet2->eta())/2. );
+ 		  }}
+
+ 		  if ( index >= triggerObj_->sizeFilters() ) {    
+ 		    edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< index << " of that name ";	      
+ 		  } else {             
+ 		    const trigger::Keys & k = triggerObj_->filterKeys(index);
+ 		    std::string name = triggerObj_->filterTag(index).encode();
+ 		    if (k.size()>=2){
+ 		      trigger::Keys::const_iterator ki = k.begin();
+		      trigger::Keys::const_iterator ki2= k.begin(); ki2++;
+ 		      v->getMEEmulatedNumeratorPtHLT()->Fill( (toc[*ki].pt()+toc[*ki2].pt())/2. );
+ 		      v->getMEEmulatedNumeratorEtaHLT()->Fill( (toc[*ki].eta()+toc[*ki2].eta())/2. );
+ 		    }
+ 		  }	      
+		  
+		} // numerator trig accepted?
+
 	  }         // denominator trig accepted?
-      }             // 1st loop for numerator trig path
     }               // Loop over all path combinations
 
 }
@@ -738,16 +777,13 @@ void JetMETHLTOfflineSource::fillMEforEffMET(){
     {
       
       // did we pass the denomPath?
-      for(int i = 0; i < npath; ++i) {
-	if (triggerNames_.triggerName(i).find("HLT_"+v->getPathName()) != std::string::npos 
-	    && triggerResults_->accept(i))
-	  {
-	    // Path passed 
-	    
-	    // numerator L1s passed
-	    edm::InputTag l1sTag(v->getPathNameL1s(),"",processname_);
-	    const int indexl1s = triggerObj_->filterIndex(l1sTag);
-	    if ( indexl1s >= triggerObj_->sizeFilters() ) break;
+      bool acceptedDenom = isHLTPathAccepted("HLT_"+v->getDenomPathName());
+
+      if (acceptedDenom){
+	// denomPath passed
+
+	    edm::InputTag testTag(v->getDenomPathNameHLT(),"",processname_);
+	    const int index = triggerObj_->filterIndex(testTag);    
 
 	    // calomet valid?
 	    if (calometColl_.isValid()){	    
@@ -757,8 +793,6 @@ void JetMETHLTOfflineSource::fillMEforEffMET(){
 	      v->getMEDenominatorPhi()->Fill(met.phi());
 	    }
 
- 	    edm::InputTag testTag(v->getPathNameHLT(),"",processname_);
- 	    const int index = triggerObj_->filterIndex(testTag);    
  	    if ( index >= triggerObj_->sizeFilters() ) {    
  	      edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< index << " of that name ";	      
  	    } else {             
@@ -771,10 +805,17 @@ void JetMETHLTOfflineSource::fillMEforEffMET(){
  	      }
  	    }	      
 
-	    for(int j = 0; j < npath; ++j) {
-	      if (triggerNames_.triggerName(j).find("HLT_"+v->getPathName()) != std::string::npos 
-		  && triggerResults_->accept(j))
-		{		    
+	    bool acceptedNumerator=false;
+	    if (v->getTrigEffLevel()=="HLT") {
+	      // HLT path
+	      acceptedNumerator = isHLTPathAccepted("HLT_"+v->getPathName());
+	    } else {
+	      // L1s (L1seed case)	     
+	      acceptedNumerator = isTriggerObjectFound(v->getPathNameL1s());
+	    }
+
+	    if (acceptedNumerator){
+
 		  // numeratorPath passed 
 		  // calomet valid?
 		  if (calometColl_.isValid()){	    
@@ -784,8 +825,6 @@ void JetMETHLTOfflineSource::fillMEforEffMET(){
  		    v->getMENumeratorPhi()->Fill(met.phi());
  		  }
 
- 		  edm::InputTag testTag(v->getPathNameHLT(),"",processname_);
- 		  const int index = triggerObj_->filterIndex(testTag);    
  		  if ( index >= triggerObj_->sizeFilters() ) {    
  		    edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< index << " of that name ";	      
  		  } else {             
@@ -798,12 +837,37 @@ void JetMETHLTOfflineSource::fillMEforEffMET(){
  		    }
  		  }	      
 		  
-		  break;
-		} // numerator trig accepted?
-	    }     // 2nd loop for numerator trig path
-	    break;
-	  }         // denominator trig accepted?
-      }             // 1st loop for numerator trig path
+	    } // numerator trig accepted?
+
+	    bool acceptedNumeratorEmulate=false;
+	    acceptedNumeratorEmulate = isTrigAcceptedEmulatedMET(*v);
+	    	    
+	    if (acceptedNumeratorEmulate){
+
+		  // numeratorPath passed 
+		  // calomet valid?
+		  if (calometColl_.isValid()){	    
+		    const CaloMETCollection *calometcol = calometColl_.product();
+		    const CaloMET met = calometcol->front();
+  		    v->getMEEmulatedNumeratorPt()->Fill(met.pt());
+ 		    v->getMEEmulatedNumeratorPhi()->Fill(met.phi());
+ 		  }
+
+ 		  if ( index >= triggerObj_->sizeFilters() ) {    
+ 		    edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< index << " of that name ";	      
+ 		  } else {             
+ 		    const trigger::Keys & k = triggerObj_->filterKeys(index);
+ 		    std::string name = triggerObj_->filterTag(index).encode();
+ 		    if (k.size()){
+ 		      trigger::Keys::const_iterator ki = k.begin();
+ 		      v->getMEEmulatedNumeratorPtHLT()->Fill(toc[*ki].pt());
+ 		      v->getMEEmulatedNumeratorPhiHLT()->Fill(toc[*ki].phi());
+ 		    }
+ 		  }	      
+		  
+	    } // numerator trig accepted?
+
+      }         // denominator trig accepted?
     }               // Loop over all path combinations
 
 }
@@ -873,6 +937,25 @@ void JetMETHLTOfflineSource::fillMEforMonSingleJet(){
  	      }
  	    }	      
 
+ 	    edm::InputTag testTag2(v->getPathNameL1s(),"",processname_);
+ 	    const int index2 = triggerObj_->filterIndex(testTag2);    
+ 	    if ( index2 >= triggerObj_->sizeFilters() ) {    
+ 	      edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< index2 << " of that name ";	      
+ 	    } else {             
+ 	      const trigger::Keys & k = triggerObj_->filterKeys(index2);
+ 	      std::string name = triggerObj_->filterTag(index2).encode();
+ 	      if (k.size()){
+ 		trigger::Keys::const_iterator ki = k.begin();
+ 		v->getMEPtL1s()->Fill(toc[*ki].pt());
+ 		if (isBarrel(toc[*ki].eta()))  v->getMEPtL1sBarrel()->Fill(toc[*ki].pt());
+ 		if (isEndCap(toc[*ki].eta()))  v->getMEPtL1sEndCap()->Fill(toc[*ki].pt());
+ 		if (isForward(toc[*ki].eta())) v->getMEPtL1sForward()->Fill(toc[*ki].pt());
+ 		v->getMEEtaL1s()->Fill(toc[*ki].eta());
+ 		v->getMEPhiL1s()->Fill(toc[*ki].phi());
+ 		v->getMEEtaPhiL1s()->Fill(toc[*ki].eta(),toc[*ki].phi());
+ 	      }
+ 	    }	      
+
 	  }         // denominator trig accepted?
       }             // 1st loop for numerator trig path
     }               // Loop over all path combinations
@@ -933,6 +1016,21 @@ void JetMETHLTOfflineSource::fillMEforMonDiJetAve(){
  	      }
  	    }	      
 
+ 	    edm::InputTag testTag2(v->getPathNameL1s(),"",processname_);
+ 	    const int index2 = triggerObj_->filterIndex(testTag2);    
+ 	    if ( index2 >= triggerObj_->sizeFilters() ) {    
+ 	      edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< index2 << " of that name ";	      
+ 	    } else {             
+ 	      const trigger::Keys & k = triggerObj_->filterKeys(index2);
+ 	      std::string name = triggerObj_->filterTag(index).encode();
+ 	      if (k.size()>=2){
+ 		trigger::Keys::const_iterator ki = k.begin();
+ 		trigger::Keys::const_iterator ki2= k.begin(); ki2++;
+ 		v->getMEPtL1s()->Fill( (toc[*ki].pt()+toc[*ki2].pt())/2. );
+ 		v->getMEEtaL1s()->Fill( (toc[*ki].eta()+toc[*ki2].eta())/2. );
+ 	      }
+ 	    }	      
+
 	  }         // denominator trig accepted?
       }             // 1st loop for numerator trig path
     }               // Loop over all path combinations
@@ -989,6 +1087,20 @@ void JetMETHLTOfflineSource::fillMEforMonMET(){
  	      }
  	    }	      
 
+ 	    edm::InputTag testTag2(v->getPathNameL1s(),"",processname_);
+ 	    const int index2 = triggerObj_->filterIndex(testTag2);    
+ 	    if ( index2 >= triggerObj_->sizeFilters() ) {    
+ 	      edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< index2 << " of that name ";	      
+ 	    } else {             
+ 	      const trigger::Keys & k = triggerObj_->filterKeys(index2);
+ 	      std::string name = triggerObj_->filterTag(index2).encode();
+ 	      if (k.size()){
+ 		trigger::Keys::const_iterator ki = k.begin();
+ 		v->getMEPtL1s()->Fill(toc[*ki].pt());
+ 		v->getMEPhiL1s()->Fill(toc[*ki].phi());
+ 	      }
+ 	    }	      
+
 	  }         // denominator trig accepted?
       }             // 1st loop for numerator trig path
     }               // Loop over all path combinations
@@ -1015,22 +1127,38 @@ void JetMETHLTOfflineSource::bookMEforEffSingleJet(){
       v!= HLTPathsEffSingleJet_.end(); ++v )
     {      
       std::string subdirname = dirname + "/Eff_" + v->getPathName() + "_wrt_" + v->getDenomPathName(); 
+      if (v->getTrigEffLevel()=="L1s") subdirname = dirname + "/EffL1s_" + v->getPathName() + "_wrt_" + v->getDenomPathName();
       dbe_->setCurrentFolder(subdirname);
 
       MonitorElement *NumeratorPt     
-	= dbe_->book1D("NumeratorPt",    "LeadJetPt_"+v->getPathName()+"_"+v->getDenomPathName(),    40, 0.,200.);
+	= dbe_->book1D("NumeratorPt",    "LeadJetPt_"+v->getPathNameAndLevel()+"_"+v->getDenomPathName(),    40, 0.,200.);
       MonitorElement *NumeratorPtBarrel     
-	= dbe_->book1D("NumeratorPtBarrel", "LeadJetPtBarrel_"+v->getPathName()+"_"+v->getDenomPathName(),    40, 0.,200.);
+	= dbe_->book1D("NumeratorPtBarrel", "LeadJetPtBarrel_"+v->getPathNameAndLevel()+"_"+v->getDenomPathName(),    40, 0.,200.);
       MonitorElement *NumeratorPtEndCap     
-	= dbe_->book1D("NumeratorPtEndCap", "LeadJetPtEndCap_"+v->getPathName()+"_"+v->getDenomPathName(),    40, 0.,200.);
+	= dbe_->book1D("NumeratorPtEndCap", "LeadJetPtEndCap_"+v->getPathNameAndLevel()+"_"+v->getDenomPathName(),    40, 0.,200.);
       MonitorElement *NumeratorPtForward     
-	= dbe_->book1D("NumeratorPtForward","LeadJetPtForward_"+v->getPathName()+"_"+v->getDenomPathName(),   40, 0.,200.);
+	= dbe_->book1D("NumeratorPtForward","LeadJetPtForward_"+v->getPathNameAndLevel()+"_"+v->getDenomPathName(),   40, 0.,200.);
       MonitorElement *NumeratorEta    
-	= dbe_->book1D("NumeratorEta",   "LeadJetEta_"+v->getPathName()+"_"+v->getDenomPathName(),   50,-5.,5.);
+	= dbe_->book1D("NumeratorEta",   "LeadJetEta_"+v->getPathNameAndLevel()+"_"+v->getDenomPathName(),   50,-5.,5.);
       MonitorElement *NumeratorPhi    
-	= dbe_->book1D("NumeratorPhi",   "LeadJetPhi_"+v->getPathName()+"_"+v->getDenomPathName(),   24,-PI,PI);
+	= dbe_->book1D("NumeratorPhi",   "LeadJetPhi_"+v->getPathNameAndLevel()+"_"+v->getDenomPathName(),   24,-PI,PI);
       MonitorElement *NumeratorEtaPhi 
-	= dbe_->book2D("NumeratorEtaPhi","LeadJetEtaPhi_"+v->getPathName()+"_"+v->getDenomPathName(),50,-5.,5.,24,-PI,PI);
+	= dbe_->book2D("NumeratorEtaPhi","LeadJetEtaPhi_"+v->getPathNameAndLevel()+"_"+v->getDenomPathName(),50,-5.,5.,24,-PI,PI);
+
+      MonitorElement *EmulatedNumeratorPt     
+	= dbe_->book1D("EmulatedNumeratorPt",    "LeadJetPt_"+v->getPathNameAndLevel()+"_Emulated_"+v->getDenomPathName(),    40, 0.,200.);
+      MonitorElement *EmulatedNumeratorPtBarrel     
+	= dbe_->book1D("EmulatedNumeratorPtBarrel", "LeadJetPtBarrel_"+v->getPathNameAndLevel()+"_Emulated_"+v->getDenomPathName(),    40, 0.,200.);
+      MonitorElement *EmulatedNumeratorPtEndCap     
+	= dbe_->book1D("EmulatedNumeratorPtEndCap", "LeadJetPtEndCap_"+v->getPathNameAndLevel()+"_Emulated_"+v->getDenomPathName(),    40, 0.,200.);
+      MonitorElement *EmulatedNumeratorPtForward     
+	= dbe_->book1D("EmulatedNumeratorPtForward","LeadJetPtForward_"+v->getPathNameAndLevel()+"_Emulated_"+v->getDenomPathName(),   40, 0.,200.);
+      MonitorElement *EmulatedNumeratorEta    
+	= dbe_->book1D("EmulatedNumeratorEta",   "LeadJetEta_"+v->getPathNameAndLevel()+"_Emulated_"+v->getDenomPathName(),   50,-5.,5.);
+      MonitorElement *EmulatedNumeratorPhi    
+	= dbe_->book1D("EmulatedNumeratorPhi",   "LeadJetPhi_"+v->getPathNameAndLevel()+"_Emulated_"+v->getDenomPathName(),   24,-PI,PI);
+      MonitorElement *EmulatedNumeratorEtaPhi 
+	= dbe_->book2D("EmulatedNumeratorEtaPhi","LeadJetEtaPhi_"+v->getPathNameAndLevel()+"_Emulated_"+v->getDenomPathName(),50,-5.,5.,24,-PI,PI);
 
       MonitorElement *DenominatorPt     
 	= dbe_->book1D("DenominatorPt",    "LeadJetPt_"+v->getDenomPathName(),    40, 0.,200.);
@@ -1048,19 +1176,34 @@ void JetMETHLTOfflineSource::bookMEforEffSingleJet(){
 	= dbe_->book2D("DenominatorEtaPhi","LeadJetEtaPhi_"+v->getDenomPathName(),50,-5.,5.,24,-PI,PI);
 
       MonitorElement *NumeratorPtHLT     
-	= dbe_->book1D("NumeratorPtHLT",    "LeadJetPtHLT_"+v->getPathName()+"_"+v->getDenomPathName(),    40, 0.,200.);
+	= dbe_->book1D("NumeratorPtHLT",    "LeadJetPtHLT_"+v->getPathNameAndLevel()+"_"+v->getDenomPathName(),    40, 0.,200.);
       MonitorElement *NumeratorPtHLTBarrel     
-	= dbe_->book1D("NumeratorPtHLTBarrel", "LeadJetPtHLTBarrel_"+v->getPathName()+"_"+v->getDenomPathName(),    40, 0.,200.);
+	= dbe_->book1D("NumeratorPtHLTBarrel", "LeadJetPtHLTBarrel_"+v->getPathNameAndLevel()+"_"+v->getDenomPathName(),    40, 0.,200.);
       MonitorElement *NumeratorPtHLTEndCap     
-	= dbe_->book1D("NumeratorPtHLTEndCap", "LeadJetPtHLTEndCap_"+v->getPathName()+"_"+v->getDenomPathName(),    40, 0.,200.);
+	= dbe_->book1D("NumeratorPtHLTEndCap", "LeadJetPtHLTEndCap_"+v->getPathNameAndLevel()+"_"+v->getDenomPathName(),    40, 0.,200.);
       MonitorElement *NumeratorPtHLTForward     
-	= dbe_->book1D("NumeratorPtHLTForward","LeadJetPtHLTForward_"+v->getPathName()+"_"+v->getDenomPathName(),   40, 0.,200.);
+	= dbe_->book1D("NumeratorPtHLTForward","LeadJetPtHLTForward_"+v->getPathNameAndLevel()+"_"+v->getDenomPathName(),   40, 0.,200.);
       MonitorElement *NumeratorEtaHLT    
-	= dbe_->book1D("NumeratorEtaHLT",   "LeadJetEtaHLT_"+v->getPathName()+"_"+v->getDenomPathName(),   50,-5.,5.);
+	= dbe_->book1D("NumeratorEtaHLT",   "LeadJetEtaHLT_"+v->getPathNameAndLevel()+"_"+v->getDenomPathName(),   50,-5.,5.);
       MonitorElement *NumeratorPhiHLT    
-	= dbe_->book1D("NumeratorPhiHLT",   "LeadJetPhiHLT_"+v->getPathName()+"_"+v->getDenomPathName(),   24,-PI,PI);
+	= dbe_->book1D("NumeratorPhiHLT",   "LeadJetPhiHLT_"+v->getPathNameAndLevel()+"_"+v->getDenomPathName(),   24,-PI,PI);
       MonitorElement *NumeratorEtaPhiHLT 
-	= dbe_->book2D("NumeratorEtaPhiHLT","LeadJetEtaPhiHLT_"+v->getPathName()+"_"+v->getDenomPathName(),50,-5.,5.,24,-PI,PI);
+	= dbe_->book2D("NumeratorEtaPhiHLT","LeadJetEtaPhiHLT_"+v->getPathNameAndLevel()+"_"+v->getDenomPathName(),50,-5.,5.,24,-PI,PI);
+
+      MonitorElement *EmulatedNumeratorPtHLT     
+	= dbe_->book1D("EmulatedNumeratorPtHLT",    "LeadJetPtHLT_"+v->getPathNameAndLevel()+"_Emulated_"+v->getDenomPathName(),    40, 0.,200.);
+      MonitorElement *EmulatedNumeratorPtHLTBarrel     
+	= dbe_->book1D("EmulatedNumeratorPtHLTBarrel", "LeadJetPtHLTBarrel_"+v->getPathNameAndLevel()+"_Emulated_"+v->getDenomPathName(),    40, 0.,200.);
+      MonitorElement *EmulatedNumeratorPtHLTEndCap     
+	= dbe_->book1D("EmulatedNumeratorPtHLTEndCap", "LeadJetPtHLTEndCap_"+v->getPathNameAndLevel()+"_Emulated_"+v->getDenomPathName(),    40, 0.,200.);
+      MonitorElement *EmulatedNumeratorPtHLTForward     
+	= dbe_->book1D("EmulatedNumeratorPtHLTForward","LeadJetPtHLTForward_"+v->getPathNameAndLevel()+"_Emulated_"+v->getDenomPathName(),   40, 0.,200.);
+      MonitorElement *EmulatedNumeratorEtaHLT    
+	= dbe_->book1D("EmulatedNumeratorEtaHLT",   "LeadJetEtaHLT_"+v->getPathNameAndLevel()+"_Emulated_"+v->getDenomPathName(),   50,-5.,5.);
+      MonitorElement *EmulatedNumeratorPhiHLT    
+	= dbe_->book1D("EmulatedNumeratorPhiHLT",   "LeadJetPhiHLT_"+v->getPathNameAndLevel()+"_Emuated_"+v->getDenomPathName(),   24,-PI,PI);
+      MonitorElement *EmulatedNumeratorEtaPhiHLT 
+	= dbe_->book2D("EmulatedNumeratorEtaPhiHLT","LeadJetEtaPhiHLT_"+v->getPathNameAndLevel()+"_Emulated_"+v->getDenomPathName(),50,-5.,5.,24,-PI,PI);
 
       MonitorElement *DenominatorPtHLT     
 	= dbe_->book1D("DenominatorPtHLT",    "LeadJetPtHLT_"+v->getDenomPathName(),    40, 0.,200.);
@@ -1078,11 +1221,15 @@ void JetMETHLTOfflineSource::bookMEforEffSingleJet(){
 	= dbe_->book2D("DenominatorEtaPhiHLT","LeadJetEtaPhiHLT_"+v->getDenomPathName(),50,-5.,5.,24,-PI,PI);
 
       v->setHistos( NumeratorPt,   NumeratorPtBarrel,   NumeratorPtEndCap,   NumeratorPtForward,   
-		    NumeratorEta,   NumeratorPhi,   NumeratorEtaPhi, 
+		    NumeratorEta,   NumeratorPhi,   NumeratorEtaPhi,
+                    EmulatedNumeratorPt,   EmulatedNumeratorPtBarrel,   EmulatedNumeratorPtEndCap,   EmulatedNumeratorPtForward,   
+		    EmulatedNumeratorEta,   EmulatedNumeratorPhi,   EmulatedNumeratorEtaPhi, 
 		    DenominatorPt, DenominatorPtBarrel, DenominatorPtEndCap, DenominatorPtForward, 
 		    DenominatorEta, DenominatorPhi, DenominatorEtaPhi,
                     NumeratorPtHLT,   NumeratorPtHLTBarrel,   NumeratorPtHLTEndCap,   NumeratorPtHLTForward,   
 		    NumeratorEtaHLT,   NumeratorPhiHLT,   NumeratorEtaPhiHLT, 
+                    EmulatedNumeratorPtHLT,   EmulatedNumeratorPtHLTBarrel,   EmulatedNumeratorPtHLTEndCap,   EmulatedNumeratorPtHLTForward,   
+		    EmulatedNumeratorEtaHLT,   EmulatedNumeratorPhiHLT,   EmulatedNumeratorEtaPhiHLT, 
 		    DenominatorPtHLT, DenominatorPtHLTBarrel, DenominatorPtHLTEndCap, DenominatorPtHLTForward, 
 		    DenominatorEtaHLT, DenominatorPhiHLT, DenominatorEtaPhiHLT);
 
@@ -1104,12 +1251,18 @@ void JetMETHLTOfflineSource::bookMEforEffDiJetAve(){
       v!= HLTPathsEffDiJetAve_.end(); ++v )
     {      
       std::string subdirname = dirname + "/Eff_" + v->getPathName() + "_wrt_" + v->getDenomPathName(); 
+      if (v->getTrigEffLevel()=="L1s") subdirname = dirname + "/EffL1s_" + v->getPathName() + "_wrt_" + v->getDenomPathName();
       dbe_->setCurrentFolder(subdirname);
 
       MonitorElement *NumeratorPtAve     
-	= dbe_->book1D("NumeratorPtAve",    "DiJetAvePt_"+v->getPathName()+"_"+v->getDenomPathName(),    40, 0.,200.);
+	= dbe_->book1D("NumeratorPtAve",    "DiJetAvePt_"+v->getPathNameAndLevel()+"_"+v->getDenomPathName(),    40, 0.,200.);
       MonitorElement *NumeratorEtaAve    
-	= dbe_->book1D("NumeratorEtaAve",   "DiJetAveEta_"+v->getPathName()+"_"+v->getDenomPathName(),   50,-5.,5.);
+	= dbe_->book1D("NumeratorEtaAve",   "DiJetAveEta_"+v->getPathNameAndLevel()+"_"+v->getDenomPathName(),   50,-5.,5.);
+
+      MonitorElement *EmulatedNumeratorPtAve     
+	= dbe_->book1D("EmulatedNumeratorPtAve",    "DiJetAvePt_"+v->getPathNameAndLevel()+"_Emulated_"+v->getDenomPathName(),    40, 0.,200.);
+      MonitorElement *EmulatedNumeratorEtaAve    
+	= dbe_->book1D("EmulatedNumeratorEtaAve",   "DiJetAveEta_"+v->getPathNameAndLevel()+"_Emulated_"+v->getDenomPathName(),   50,-5.,5.);
 
       MonitorElement *DenominatorPtAve     
 	= dbe_->book1D("DenominatorPtAve",    "DiJetAvePt_"+v->getDenomPathName(),    40, 0.,200.);
@@ -1117,9 +1270,14 @@ void JetMETHLTOfflineSource::bookMEforEffDiJetAve(){
 	= dbe_->book1D("DenominatorEtaAve",   "DiJetAveEta_"+v->getDenomPathName(),   50,-5.,5.);
 
       MonitorElement *NumeratorPtAveHLT     
-	= dbe_->book1D("NumeratorPtAveHLT",    "DiJetAvePtHLT_"+v->getPathName()+"_"+v->getDenomPathName(),    40, 0.,200.);
+	= dbe_->book1D("NumeratorPtAveHLT",    "DiJetAvePtHLT_"+v->getPathNameAndLevel()+"_"+v->getDenomPathName(),    40, 0.,200.);
       MonitorElement *NumeratorEtaAveHLT    
-	= dbe_->book1D("NumeratorEtaAveHLT",   "DiJetAveEtaHLT_"+v->getPathName()+"_"+v->getDenomPathName(),   50,-5.,5.);
+	= dbe_->book1D("NumeratorEtaAveHLT",   "DiJetAveEtaHLT_"+v->getPathNameAndLevel()+"_"+v->getDenomPathName(),   50,-5.,5.);
+
+      MonitorElement *EmulatedNumeratorPtAveHLT     
+	= dbe_->book1D("EmulatedNumeratorPtAveHLT",    "DiJetAvePtHLT_"+v->getPathNameAndLevel()+"_Emulated_"+v->getDenomPathName(),    40, 0.,200.);
+      MonitorElement *EmulatedNumeratorEtaAveHLT    
+	= dbe_->book1D("EmulatedNumeratorEtaAveHLT",   "DiJetAveEtaHLT_"+v->getPathNameAndLevel()+"_Emulated_"+v->getDenomPathName(),   50,-5.,5.);
 
       MonitorElement *DenominatorPtAveHLT     
 	= dbe_->book1D("DenominatorPtAveHLT",    "DiJetAvePtHLT_"+v->getDenomPathName(),    40, 0.,200.);
@@ -1128,10 +1286,14 @@ void JetMETHLTOfflineSource::bookMEforEffDiJetAve(){
 
       v->setHistos( NumeratorPtAve,       dummy, dummy, dummy,
 		    NumeratorEtaAve,      dummy, dummy,
+                    EmulatedNumeratorPtAve,       dummy, dummy, dummy,
+		    EmulatedNumeratorEtaAve,      dummy, dummy,
 		    DenominatorPtAve,     dummy, dummy, dummy,
 		    DenominatorEtaAve,    dummy, dummy,
                     NumeratorPtAveHLT,    dummy, dummy, dummy,
 		    NumeratorEtaAveHLT,   dummy, dummy,
+                    EmulatedNumeratorPtAveHLT,    dummy, dummy, dummy,
+		    EmulatedNumeratorEtaAveHLT,   dummy, dummy,
 		    DenominatorPtAveHLT,  dummy, dummy, dummy,
 		    DenominatorEtaAveHLT, dummy, dummy);
 
@@ -1153,12 +1315,18 @@ void JetMETHLTOfflineSource::bookMEforEffMET(){
       v!= HLTPathsEffMET_.end(); ++v )
     {      
       std::string subdirname = dirname + "/Eff_" + v->getPathName() + "_wrt_" + v->getDenomPathName(); 
+      if (v->getTrigEffLevel()=="L1s") subdirname = dirname + "/EffL1s_" + v->getPathName() + "_wrt_" + v->getDenomPathName();
       dbe_->setCurrentFolder(subdirname);
 
       MonitorElement *NumeratorEt     
-	= dbe_->book1D("NumeratorEt",    "MET_"+v->getPathName()+"_"+v->getDenomPathName(),    40, 0.,200.);
+	= dbe_->book1D("NumeratorEt",    "MET_"+v->getPathNameAndLevel()+"_"+v->getDenomPathName(),    40, 0.,200.);
       MonitorElement *NumeratorPhi    
-	= dbe_->book1D("NumeratorPhi",   "METPhi_"+v->getPathName()+"_"+v->getDenomPathName(),   24,-PI,PI);
+	= dbe_->book1D("NumeratorPhi",   "METPhi_"+v->getPathNameAndLevel()+"_"+v->getDenomPathName(),   24,-PI,PI);
+
+      MonitorElement *EmulatedNumeratorEt     
+	= dbe_->book1D("EmulatedNumeratorEt",    "MET_"+v->getPathNameAndLevel()+"_Emulated_"+v->getDenomPathName(),    40, 0.,200.);
+      MonitorElement *EmulatedNumeratorPhi    
+	= dbe_->book1D("EmulatedNumeratorPhi",   "METPhi_"+v->getPathNameAndLevel()+"_Emulated_"+v->getDenomPathName(),   24,-PI,PI);
 
       MonitorElement *DenominatorEt     
 	= dbe_->book1D("DenominatorEt",    "MET_"+v->getDenomPathName(),    40, 0.,200.);
@@ -1166,9 +1334,14 @@ void JetMETHLTOfflineSource::bookMEforEffMET(){
 	= dbe_->book1D("DenominatorPhi",   "METPhi_"+v->getDenomPathName(),   24,-PI,PI);
 
       MonitorElement *NumeratorEtHLT     
-	= dbe_->book1D("NumeratorEtHLT",    "METHLT_"+v->getPathName()+"_"+v->getDenomPathName(),    40, 0.,200.);
+	= dbe_->book1D("NumeratorEtHLT",    "METHLT_"+v->getPathNameAndLevel()+"_"+v->getDenomPathName(),    40, 0.,200.);
       MonitorElement *NumeratorPhiHLT    
-	= dbe_->book1D("NumeratorPhiHLT",   "METPhiHLT_"+v->getPathName()+"_"+v->getDenomPathName(),   24,-PI,PI);
+	= dbe_->book1D("NumeratorPhiHLT",   "METPhiHLT_"+v->getPathNameAndLevel()+"_"+v->getDenomPathName(),   24,-PI,PI);
+
+      MonitorElement *EmulatedNumeratorEtHLT     
+	= dbe_->book1D("EmulatedNumeratorEtHLT",    "METHLT_"+v->getPathNameAndLevel()+"_Emulated_"+v->getDenomPathName(),    40, 0.,200.);
+      MonitorElement *EmulatedNumeratorPhiHLT    
+	= dbe_->book1D("EmulatedNumeratorPhiHLT",   "METPhiHLT_"+v->getPathNameAndLevel()+"_Emulated_"+v->getDenomPathName(),   24,-PI,PI);
 
       MonitorElement *DenominatorEtHLT     
 	= dbe_->book1D("DenominatorEtHLT",    "METHLT_"+v->getDenomPathName(),    40, 0.,200.);
@@ -1176,8 +1349,10 @@ void JetMETHLTOfflineSource::bookMEforEffMET(){
 	= dbe_->book1D("DenominatorPhiHLT",   "METPhiHLT_"+v->getDenomPathName(),   24,-PI,PI);
 
       v->setHistos( NumeratorEt,   dummy, dummy, dummy, dummy,   NumeratorPhi,   dummy, 
+                    EmulatedNumeratorEt,   dummy, dummy, dummy, dummy,   EmulatedNumeratorPhi,   dummy, 
 		    DenominatorEt, dummy, dummy, dummy, dummy,   DenominatorPhi, dummy,
                     NumeratorEtHLT,dummy, dummy, dummy, dummy,   NumeratorPhiHLT,dummy,
+                    EmulatedNumeratorEtHLT,dummy, dummy, dummy, dummy,   EmulatedNumeratorPhiHLT,dummy,
 		    DenominatorEtHLT, dummy, dummy, dummy, dummy,DenominatorPhiHLT,dummy);
 
     }
@@ -1234,10 +1409,27 @@ void JetMETHLTOfflineSource::bookMEforMonSingleJet(){
       MonitorElement *EtaPhiHLT 
 	= dbe_->book2D("EtaPhiHLT","LeadJetEtaPhiHLT",50,-5.,5.,24,-PI,PI);
 
+      MonitorElement *PtL1s     
+	= dbe_->book1D("PtL1s",    "LeadJetPtL1s",    40, 0.,200.);
+      MonitorElement *PtL1sBarrel     
+	= dbe_->book1D("PtL1sBarrel", "LeadJetPtL1sBarrel",    40, 0.,200.);
+      MonitorElement *PtL1sEndCap     
+	= dbe_->book1D("PtL1sEndCap", "LeadJetPtL1sEndCap",    40, 0.,200.);
+      MonitorElement *PtL1sForward     
+	= dbe_->book1D("PtL1sForward","LeadJetPtL1sForward",   40, 0.,200.);
+      MonitorElement *EtaL1s    
+	= dbe_->book1D("EtaL1s",   "LeadJetEtaL1s",   50,-5.,5.);
+      MonitorElement *PhiL1s    
+	= dbe_->book1D("PhiL1s",   "LeadJetPhiL1s",   24,-PI,PI);
+      MonitorElement *EtaPhiL1s 
+	= dbe_->book2D("EtaPhiL1s","LeadJetEtaPhiL1s",50,-5.,5.,24,-PI,PI);
+
       v->setHistos( Pt,   PtBarrel,   PtEndCap,   PtForward,   
 		    Eta,   Phi,   EtaPhi, 
                     PtHLT,   PtHLTBarrel,   PtHLTEndCap,   PtHLTForward,   
-		    EtaHLT,   PhiHLT,   EtaPhiHLT);
+		    EtaHLT,   PhiHLT,   EtaPhiHLT,
+                    PtL1s,   PtL1sBarrel,   PtL1sEndCap,   PtL1sForward,   
+		    EtaL1s,   PhiL1s,   EtaPhiL1s);
 
     }
   
@@ -1269,10 +1461,17 @@ void JetMETHLTOfflineSource::bookMEforMonDiJetAve(){
       MonitorElement *EtaAveHLT    
 	= dbe_->book1D("EtaAveHLT",   "DiJetAveEtaHLT",   50,-5.,5.);
 
+      MonitorElement *PtAveL1s     
+	= dbe_->book1D("PtAveL1s",    "DiJetAvePtL1s",    40, 0.,200.);
+      MonitorElement *EtaAveL1s    
+	= dbe_->book1D("EtaAveL1s",   "DiJetAveEtaL1s",   50,-5.,5.);
+
       v->setHistos( PtAve,       dummy, dummy, dummy,
 		    EtaAve,      dummy, dummy,
                     PtAveHLT,    dummy, dummy, dummy,
-		    EtaAveHLT,   dummy, dummy);
+		    EtaAveHLT,   dummy, dummy,
+                    PtAveL1s,    dummy, dummy, dummy,
+		    EtaAveL1s,   dummy, dummy);
 
     }
   
@@ -1304,8 +1503,14 @@ void JetMETHLTOfflineSource::bookMEforMonMET(){
       MonitorElement *PhiHLT    
 	= dbe_->book1D("PhiHLT",   "METPhiHLT",   24,-PI,PI);
 
+      MonitorElement *EtL1s     
+	= dbe_->book1D("EtL1s",    "METL1s",    40, 0.,200.);
+      MonitorElement *PhiL1s    
+	= dbe_->book1D("PhiL1s",   "METPhiL1s",   24,-PI,PI);
+
       v->setHistos( Et,   dummy, dummy, dummy, dummy,   Phi,   dummy, 
-                    EtHLT,dummy, dummy, dummy, dummy,   PhiHLT,dummy);
+                    EtHLT,dummy, dummy, dummy, dummy,   PhiHLT,dummy,
+                    EtL1s,dummy, dummy, dummy, dummy,   PhiL1s,dummy);
 
     }
   
@@ -1316,26 +1521,68 @@ void JetMETHLTOfflineSource::bookMEforMonMHT(){
 
 //============ Auxiliary =================================
 
-//KH needs to put a protectoon so that the output won't contain forbidden chars like ":"
 std::string JetMETHLTOfflineSource::getNumeratorTrigger(const std::string& name)
 {
-  std::string output = name;
-  //std::cout << name.length()  << std::endl;
-  //std::cout << name.find(":") << std::endl;
-  unsigned int position = name.find(":");
-  output = name.substr(0,position);
+//   std::string output = name;
+//   //std::cout << name.length()  << std::endl;
+//   //std::cout << name.find(":") << std::endl;
+//   unsigned int position = name.find(":");
+//   output = name.substr(0,position);
+//   return output;
+
+  std::string output = "none";
+  std::vector<std::string> splitStrings;
+  boost::split(splitStrings,name,boost::is_any_of(":"));
+  if (splitStrings.size()<1) {
+  } else {
+    output = splitStrings[0];
+  }
   return output;
 }
 
 
-//KH needs to put a protectoon so that the output won't contain forbidden chars like ":"
 std::string JetMETHLTOfflineSource::getDenominatorTrigger(const std::string& name)
 {
-  std::string output = name;
-  //std::cout << name.length()  << std::endl;
-  //std::cout << name.find(":") << std::endl;
-  unsigned int position = name.find(":");
-  output = name.substr(position+1,name.length());
+//   std::string output = name;
+//   //std::cout << name.length()  << std::endl;
+//   //std::cout << name.find(":") << std::endl;
+//   unsigned int position = name.find(":");
+//   output = name.substr(position+1,name.length());
+//   return output;
+
+  std::string output = "none";
+  std::vector<std::string> splitStrings;
+  boost::split(splitStrings,name,boost::is_any_of(":"));
+  if (splitStrings.size()<2) {
+  } else {
+    output = splitStrings[1];
+  }
+  return output;
+}
+
+
+std::string JetMETHLTOfflineSource::getTriggerEffLevel(const std::string& name)
+{
+  std::string output = "HLT";
+  std::vector<std::string> splitStrings;
+  boost::split(splitStrings,name,boost::is_any_of(":"));
+  if (splitStrings.size()<3) {
+  } else {
+    output = splitStrings[2];
+  }
+  return output;
+}
+
+
+double JetMETHLTOfflineSource::getTriggerThreshold(const std::string& name)
+{
+  double output = 0.;
+  std::vector<std::string> splitStrings;
+  boost::split(splitStrings,name,boost::is_any_of(":"));
+  if (splitStrings.size()<4) {
+  } else {
+    output = atof(splitStrings[3].c_str());
+  }
   return output;
 }
 
@@ -1358,4 +1605,215 @@ bool JetMETHLTOfflineSource::isForward(double eta){
   bool output = false;
   if (fabs(eta)>3.0) output=true;
   return output;
+}
+
+
+bool JetMETHLTOfflineSource::validPathHLT(std::string pathname){
+  // hltConfig_ has to be defined first before calling this method
+  bool output=false;
+  for (unsigned int j=0; j!=hltConfig_.size(); ++j) {
+    if (hltConfig_.triggerName(j) == pathname )
+      output=true;
+  }
+  return output; 
+}
+
+
+bool JetMETHLTOfflineSource::isHLTPathAccepted(std::string pathName){
+  // triggerResults_, triggerNames_ has to be defined first before calling this method
+  bool output=false;
+  if(&triggerResults_) {
+    unsigned int npath = triggerResults_->size();
+    for(int i = 0; i < npath; ++i) {
+      if (triggerNames_.triggerName(i).find(pathName) != std::string::npos 
+	  && triggerResults_->accept(i))
+	{ output = true; break; }
+    }  
+  }
+  return output;
+}
+
+
+bool JetMETHLTOfflineSource::isTriggerObjectFound(std::string objectName){
+  // processname_, triggerObj_ has to be defined before calling this method
+  bool output=false;
+  edm::InputTag testTag(objectName,"",processname_);
+  const int index = triggerObj_->filterIndex(testTag);    
+  if ( index >= triggerObj_->sizeFilters() ) {    
+    edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< index << " of that name ";
+  } else {       
+    const trigger::Keys & k = triggerObj_->filterKeys(index);
+    if (k.size()) output=true;
+  }
+  return output;
+}
+
+
+bool JetMETHLTOfflineSource::isTrigAcceptedEmulatedSingleJet(PathInfo v){
+  // processname_, triggerObj_ has to be defined before calling this method
+  bool output=false;
+  std::string objectName = v.getPathNameHLT();
+  if (v.getTrigEffLevel()=="L1s") objectName = v.getPathNameL1s();
+
+  const trigger::TriggerObjectCollection & toc(triggerObj_->getObjects());
+
+  edm::InputTag testTag(objectName,"",processname_);
+  const int index = triggerObj_->filterIndex(testTag);    
+  if ( index >= triggerObj_->sizeFilters() ) {    
+    edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< index << " of that name ";
+  } else {       
+    const trigger::Keys & k = triggerObj_->filterKeys(index);
+    if (k.size()){
+      for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
+// 	std::cout << toc[*ki].pt()  << " "
+// 		  << toc[*ki].eta() << " "
+// 		  << toc[*ki].phi() << std::endl;
+	if (toc[*ki].pt() > v.getTrigThreshold()) output = true;
+	break;
+      }      
+    }
+  }
+  return output;
+}
+
+
+bool JetMETHLTOfflineSource::isTrigAcceptedEmulatedDiJetAve(PathInfo v){
+  // processname_, triggerObj_ has to be defined before calling this method
+  bool output=false;
+  std::string objectName = v.getPathNameHLT();
+  if (v.getTrigEffLevel()=="L1s") objectName = v.getPathNameL1s();
+
+  const trigger::TriggerObjectCollection & toc(triggerObj_->getObjects());
+
+  edm::InputTag testTag(objectName,"",processname_);
+  const int index = triggerObj_->filterIndex(testTag);    
+  if ( index >= triggerObj_->sizeFilters() ) {    
+    edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< index << " of that name ";
+  } else {       
+    const trigger::Keys & k = triggerObj_->filterKeys(index);
+    if (v.getTrigEffLevel()=="HLT"){
+    if (k.size()>2){
+      trigger::Keys::const_iterator ki = k.begin();
+      trigger::Keys::const_iterator kj = k.begin(); kj++;
+      if ((toc[*ki].pt()+toc[*kj].pt())/2 > v.getTrigThreshold()) output = true;
+    } else {
+      if (k.size()){
+      for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
+	if (toc[*ki].pt() > v.getTrigThreshold()) output = true;
+	break;
+      }      
+      }
+    }
+    }
+  }
+  return output;
+}
+
+
+bool JetMETHLTOfflineSource::isTrigAcceptedEmulatedMET(PathInfo v){
+  // processname_, triggerObj_ has to be defined before calling this method
+  bool output=false;
+  std::string objectName = v.getPathNameHLT();
+  if (v.getTrigEffLevel()=="L1s") objectName = v.getPathNameL1s();
+
+  const trigger::TriggerObjectCollection & toc(triggerObj_->getObjects());
+
+  edm::InputTag testTag(objectName,"",processname_);
+  const int index = triggerObj_->filterIndex(testTag);    
+  if ( index >= triggerObj_->sizeFilters() ) {    
+    edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< index << " of that name ";
+  } else {       
+    const trigger::Keys & k = triggerObj_->filterKeys(index);
+    if (k.size()){
+      for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
+// 	std::cout << toc[*ki].pt()  << " "
+// 		  << toc[*ki].eta() << " "
+// 		  << toc[*ki].phi() << std::endl;
+	if (toc[*ki].pt() > v.getTrigThreshold()) output = true;
+	break;
+      }      
+    }
+  }
+  return output;
+}
+
+
+// Set L1 and HLT module names for each PathInfo
+JetMETHLTOfflineSource::PathInfoCollection JetMETHLTOfflineSource::fillL1andHLTModuleNames(PathInfoCollection hltPaths, 
+						     std::string L1ModuleName, std::string HLTModuleName){
+  // hltConfig_ has to be defined first before calling this method
+
+  for(PathInfoCollection::iterator v = hltPaths.begin(); v!= hltPaths.end(); ) {
+    // Check if these paths exist in menu. If not, erase it.
+    if (!validPathHLT("HLT_"+v->getPathName()) || !validPathHLT("HLT_"+v->getDenomPathName())){
+      v = hltPaths.erase(v);
+      continue;
+    }
+
+    // list module labels for numpath
+    std::vector<std::string> numpathmodules = hltConfig_.moduleLabels("HLT_"+v->getPathName());
+    for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin(); 
+	numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
+      // find L1 global seed for numpath,
+      if (hltConfig_.moduleType(*numpathmodule) == L1ModuleName)  v->setPathNameL1s(*numpathmodule);
+      if (hltConfig_.moduleType(*numpathmodule) == HLTModuleName) v->setPathNameHLT(*numpathmodule);
+      //       std::cout << "testest " << v->getPathName() << "\t" 
+      //        		<< *numpathmodule << "\t" 
+      // 		<< hltConfig_.moduleType(*numpathmodule) 
+      // 		<< L1ModuleName << " "
+      // 		<< HLTModuleName << " "
+      // 		<< v->getPathNameL1s() << " "
+      // 		<< v->getPathNameHLT() << " "
+      // 		<< std::endl;
+    } // loop over module names
+
+    // list module labels for denompath
+    std::vector<std::string> denompathmodules = hltConfig_.moduleLabels("HLT_"+v->getDenomPathName());
+    for(std::vector<std::string>::iterator denompathmodule = denompathmodules.begin(); 
+	denompathmodule!= denompathmodules.end(); ++denompathmodule ) {
+      //       std::cout << "testest " << v->getPathName() << "\t" 
+      // 		<< *denompathmodule << "\t" 
+      // 		<< hltConfig_.moduleType(*denompathmodule) << std::endl;
+      // find L1 global seed for denompath,
+      if (hltConfig_.moduleType(*denompathmodule) == L1ModuleName)  v->setDenomPathNameL1s(*denompathmodule);
+      if (hltConfig_.moduleType(*denompathmodule) == HLTModuleName) v->setDenomPathNameHLT(*denompathmodule);
+    } // loop over module names
+
+    ++v;
+  }   // loop over path collections
+
+  return hltPaths;
+
+}
+
+
+// Set L1 and HLT module names for each PathInfo
+JetMETHLTOfflineSource::PathHLTMonInfoCollection JetMETHLTOfflineSource::fillL1andHLTModuleNames(PathHLTMonInfoCollection hltPaths, 
+						     std::string L1ModuleName, std::string HLTModuleName){
+  // hltConfig_ has to be defined first before calling this method
+
+  for(PathHLTMonInfoCollection::iterator v = hltPaths.begin(); v!= hltPaths.end(); ) {
+    // Check if these paths exist in menu. If not, erase it.
+    if (!validPathHLT("HLT_"+v->getPathName())){
+      v = hltPaths.erase(v);
+      continue;
+    } 
+
+    // list module labels for numpath
+    std::vector<std::string> numpathmodules = hltConfig_.moduleLabels("HLT_"+v->getPathName());
+    for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin(); 
+	numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
+      //std::cout << "testest " << v->getPathName() << "\t" 
+      // 		<< *numpathmodule << "\t" 
+      // 		<< hltConfig_.moduleType(*numpathmodule) << std::endl;
+      // find L1 global seed for numpath,
+      if (hltConfig_.moduleType(*numpathmodule) == L1ModuleName)  v->setPathNameL1s(*numpathmodule);
+      if (hltConfig_.moduleType(*numpathmodule) == HLTModuleName) v->setPathNameHLT(*numpathmodule);
+    } // loop over module names
+
+    ++v;
+  }   // loop over path collections
+
+  return hltPaths;
+
 }
