@@ -34,10 +34,10 @@ layerInfo = cms.PSet(
         TTRHBuilder = cms.string('WithTrackAngle')
     ),
     TEC = cms.PSet(
-        useSimpleRphiHitsCleaner = cms.untracked.bool(True),
+        useSimpleRphiHitsCleaner = cms.bool(True),
         minRing = cms.int32(5),
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        useRingSlector = cms.untracked.bool(False),
+        useRingSlector = cms.bool(False),
         TTRHBuilder = cms.string('WithTrackAngle'),
         rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
         maxRing = cms.int32(7)
