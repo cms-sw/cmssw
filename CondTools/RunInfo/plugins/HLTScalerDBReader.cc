@@ -51,8 +51,7 @@ lumi::HLTScalerDBReader::~HLTScalerDBReader(){
 void lumi::HLTScalerDBReader::fill(int startRun,
 				int numberOfRuns,
 				std::vector< std::pair<lumi::HLTScaler*,cond::Time_t> >& result){
-  //fill hlt registry hlt is empty. nothing to do
-  //select hlt.INPUT_COUNT, hlt.ACCEPT_COUNT, hlt.PRESCALE_FACTOR from CMS_LUMI.HLTS hlt , CMS_LUMI.LUMI_SECTIONS sect WHERE sect.SECTION_ID=hlt.SECTION_ID AND sect.RUN_NUMBER=runnumber AND sect.LUMI_SECTION_NUMBER=lumisectionid;
+  //select PACCEPT, L1PASS from CMS_LUMI.HLTS hlt , CMS_LUMI.LUMI_SECTIONS sect WHERE sect.SECTION_ID=hlt.SECTION_ID AND sect.RUN_NUMBER=runnumber AND sect.LUMI_SECTION_NUMBER=lumisectionid;
 }
 
 DEFINE_EDM_PLUGIN(lumi::HLTScalerReaderFactory,lumi::HLTScalerDBReader,"omds");
