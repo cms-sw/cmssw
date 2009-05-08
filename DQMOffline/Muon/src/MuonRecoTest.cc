@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/18 11:48:15 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/05/07 09:28:33 $
+ *  $Revision: 1.8 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -195,9 +195,12 @@ void MuonRecoTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup
 
     for(int x=1; x<50; x++){
       globalRotation[0]->Fill((x*4)-1,muVStkSytemRotation_posMu_profile->GetBinContent(x));
+      globalRotation[0]->setBinError(x,muVStkSytemRotation_posMu_profile->GetBinError(x));
       globalRotation[1]->Fill((x*4)-1,muVStkSytemRotation_negMu_profile->GetBinContent(x));
+      globalRotation[1]->setBinError(x,muVStkSytemRotation_negMu_profile->GetBinError(x));
       globalRotation[2]->Fill((x*4)-1,muVStkSytemRotation_posMu_profile->GetBinContent(x)-muVStkSytemRotation_negMu_profile->GetBinContent(x));
-
+      globalRotation[2]->setBinError(x,sqrt((muVStkSytemRotation_posMu_profile->GetBinError(x)*muVStkSytemRotation_posMu_profile->GetBinError(x))
+					    + (muVStkSytemRotation_negMu_profile->GetBinError(x)*muVStkSytemRotation_negMu_profile->GetBinError(x))));
     }
   }
 
