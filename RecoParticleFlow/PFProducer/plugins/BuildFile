@@ -4,6 +4,7 @@
  <use name="DataFormats/EcalDetId">
  <use name="DataFormats/EcalRecHit">
  <use name="DataFormats/EgammaReco">
+ <use name="DataFormats/EgammaTrackReco">
  <use name="DataFormats/GeometrySurface">
  <use name="DataFormats/GeometryVector">
  <use name="DataFormats/GsfTrackReco">
