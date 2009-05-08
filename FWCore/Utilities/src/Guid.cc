@@ -9,7 +9,6 @@
 //      Author    : Markus Frank
 //      
 //      ====================================================================
-//$Id: Guid.cc,v 1.2 2008/11/11 11:27:34 elmer Exp $
 #include "Guid.h"
 #include <cstdio>
 #include <cstring>

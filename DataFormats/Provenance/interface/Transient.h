@@ -17,7 +17,6 @@
 //
 // Original Author:  Bill Tanenbaum
 //         Created:  Sat Aug 18 17:30:08 EDT 2007
-// $Id: Transient.h,v 1.1 2008/09/29 23:01:39 wmtan Exp $
 //
 
 // system include files
