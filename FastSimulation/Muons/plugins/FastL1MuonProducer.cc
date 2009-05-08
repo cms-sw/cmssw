@@ -449,7 +449,7 @@ void FastL1MuonProducer::loadL1Muons(L1MuonCollection & c ,
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-FastL1MuonProducer::beginJob(const edm::EventSetup& es)
+FastL1MuonProducer::beginJob()
 {
 
   // Initialize
@@ -461,18 +461,19 @@ FastL1MuonProducer::beginJob(const edm::EventSetup& es)
   myL1EfficiencyHandler = new FML1EfficiencyHandler(random);
   myL1PtSmearer = new FML1PtSmearer(random);
 
-// Get the DT Geometry
-  es.get<MuonGeometryRecord>().get(dtGeometry);
-// Get the CSC Geometry
-  es.get<MuonGeometryRecord>().get(cscGeometry);
-// Get the RPC Geometry
-  es.get<MuonGeometryRecord>().get(rpcGeometry);
 
 }
 
 void 
 FastL1MuonProducer::beginRun(edm::Run & run, 
 			     const edm::EventSetup & es) {
+
+// Get the DT Geometry
+  es.get<MuonGeometryRecord>().get(dtGeometry);
+// Get the CSC Geometry
+  es.get<MuonGeometryRecord>().get(cscGeometry);
+// Get the RPC Geometry
+  es.get<MuonGeometryRecord>().get(rpcGeometry);
 
   // Read trigger scales
   edm::ESHandle< L1MuTriggerScales > muScales ;
