@@ -1,6 +1,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 
 bool SiStripApvGain::put(const uint32_t& DetId, Range input) {
   // put in SiStripApvGain of DetId
@@ -66,3 +67,35 @@ float SiStripApvGain::getApvGain(const uint16_t& apv, const Range& range) const 
   return *(range.first+apv);
 }
 
+void SiStripApvGain::printDebug(std::stringstream & ss) const
+{
+  std::vector<unsigned int>::const_iterator detid = v_detids.begin();
+  ss << "Number of detids " << v_detids.size() << std::endl;
+
+  for( ; detid != v_detids.end(); ++detid ) {
+    SiStripApvGain::Range range = getRange(*detid);
+    int apv=0;
+    for( int it=0; it < range.second - range.first; ++it ) {
+      ss << "detid " << *detid << " \t"
+         << " apv " << apv++ << " \t"
+         << getApvGain(it,range) << " \t" 
+         << std::endl;          
+    } 
+  }
+}
+
+void SiStripApvGain::printSummary(std::stringstream & ss) const
+{
+  SiStripDetSummary summaryGain;
+
+  std::vector<uint32_t>::const_iterator detid = v_detids.begin();
+  for( ; detid != v_detids.end(); ++detid ) {
+    Range range = getRange(*detid);
+    int apv=0;
+    for( int it=0; it < range.second - range.first; ++it ) {
+      summaryGain.add(*detid, getApvGain(it, range));
+    } 
+  }
+  ss << "Summary of detectors with HV off:" << endl;
+  summaryGain.print(ss, true);
+}

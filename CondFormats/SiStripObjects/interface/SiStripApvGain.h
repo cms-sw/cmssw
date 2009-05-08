@@ -28,9 +28,12 @@ class SiStripApvGain {
   float   getStripGain     (const uint16_t& strip, const Range& range) const;
   float   getApvGain  (const uint16_t& apv, const Range& range) const;
 
+  void printDebug(std::stringstream & ss) const;
+  void printSummary(std::stringstream & ss) const;
+
  private:
 
-  std::vector<float> v_gains; 
+  std::vector<float> v_gains;
   std::vector<unsigned int>   v_detids;
   std::vector<unsigned int>   v_ibegin;
   std::vector<unsigned int>   v_iend;
