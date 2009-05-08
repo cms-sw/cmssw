@@ -1,4 +1,5 @@
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBEventPosition.h"
+#include <cstdio>
 
 using namespace std;
 

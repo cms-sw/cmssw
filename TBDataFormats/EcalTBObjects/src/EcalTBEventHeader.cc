@@ -1,4 +1,5 @@
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBEventHeader.h"
+#include <cstdio>
 
 //! Return the event type: "beam", "laser", "pedestal". "error"
 //! or a number orresponding to the orginal eventype stored in 
