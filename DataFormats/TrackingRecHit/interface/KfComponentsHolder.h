@@ -2,6 +2,7 @@
 #define DataFormats_TrackingRecHit_interface_KfComponentsHolder_h_
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include <stdint.h>
 
 class TrackingRecHit;
 

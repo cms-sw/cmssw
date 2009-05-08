@@ -1,9 +1,10 @@
-// Last commit: $Id: Constants.h,v 1.6 2007/07/31 15:20:24 ratnik Exp $
+// Last commit: $Id: Constants.h,v 1.7 2009/02/10 21:45:54 lowette Exp $
 
 #ifndef DataFormats_SiStripCommon_Constants_H
 #define DataFormats_SiStripCommon_Constants_H
 
 #include <string>
+#include <stdint.h>
 
 /** 
     @file Constants.h

@@ -12,6 +12,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <stdint.h>
 
 class SiPixelRawDataError {
   public:

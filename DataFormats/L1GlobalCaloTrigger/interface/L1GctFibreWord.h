@@ -3,6 +3,7 @@
 
 #include <ostream>
 #include <string>
+#include <stdint.h>
 
 /*! \class L1GctFibreWord
  * \brief Global Calorimeter Trigger SC -> CC fibre data word

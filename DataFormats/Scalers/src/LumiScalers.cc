@@ -5,6 +5,7 @@
 
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/Scalers/interface/ScalersRaw.h"
+#include <cstdio>
 
 LumiScalers::LumiScalers() : 
    trigType_(0),

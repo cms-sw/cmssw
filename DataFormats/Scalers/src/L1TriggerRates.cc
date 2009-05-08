@@ -6,6 +6,7 @@
 #include "DataFormats/Scalers/interface/L1TriggerRates.h"
 
 #include <iostream>
+#include <cstdio>
 
 L1TriggerRates::L1TriggerRates():
   version_(0),

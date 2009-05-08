@@ -1,6 +1,8 @@
 #include <math.h>
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/TrackReco/interface/TrackResiduals.h"
+#include <cstdio>
+
 using namespace reco;
 
 TrackResiduals::TrackResiduals () : residualType(X_Y_RESIDUALS)

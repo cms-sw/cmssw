@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <time.h>
+#include <cstdio>
 
 L1TriggerScalers::L1TriggerScalers():
   version_(0),

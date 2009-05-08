@@ -2,7 +2,7 @@
 #define L1GCTETTOTAL_H
 
 #include <ostream>
-
+#include <stdint.h>
 
 /*! \file L1GctEtTotal.h
  * \Header file for the GCT energy sum output

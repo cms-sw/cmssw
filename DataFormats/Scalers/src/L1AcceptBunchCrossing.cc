@@ -4,6 +4,7 @@
 
 #include "DataFormats/Scalers/interface/L1AcceptBunchCrossing.h"
 #include "DataFormats/Scalers/interface/ScalersRaw.h"
+#include <cstdio>
 
 L1AcceptBunchCrossing::L1AcceptBunchCrossing() : 
   l1AcceptOffset_(0),

@@ -1,4 +1,5 @@
 #include "DataFormats/HcalRecHit/interface/HcalSourcePositionData.h"
+#include <cstdio>
 
 using namespace std;
 
