@@ -8,8 +8,8 @@ using namespace SurfaceSideDefinition;
 // Update of the trajectory state (implemented in base class since general for
 //   all classes returning deltaP and deltaCov.
 //
-TrajectoryStateOnSurface MaterialEffectsUpdator::updateState (const TrajectoryStateOnSurface& TSoS, 
-							      const PropagationDirection propDir) const {
+bool MaterialEffectsUpdator::updateStateInPlace (TrajectoryStateOnSurface& TSoS, 
+				                 const PropagationDirection propDir) const {
   //
   // Check if 
   // - material is associated to surface
@@ -18,30 +18,33 @@ TrajectoryStateOnSurface MaterialEffectsUpdator::updateState (const TrajectorySt
   //
   const Surface& surface = TSoS.surface();
   if ( !surface.mediumProperties() || propDir==anyDirection || 
-       TSoS.surfaceSide()==atCenterOfSurface )  return TSoS;
+       TSoS.surfaceSide()==atCenterOfSurface )  return true;
   //
   // Check, if already on right side of surface
   //
   if ( (propDir==alongMomentum && TSoS.surfaceSide()==afterSurface ) ||
-       (propDir==oppositeToMomentum && TSoS.surfaceSide()==beforeSurface ) )  return TSoS;
+       (propDir==oppositeToMomentum && TSoS.surfaceSide()==beforeSurface ) )  return true;
   //
   // Update momentum. In case of failure: return invalid state
   //
   LocalTrajectoryParameters lp = TSoS.localParameters();
   if ( !lp.updateP(deltaP(TSoS,propDir)) )  
-    return TrajectoryStateOnSurface();
+    return false;
   //
   // Update covariance matrix?
   //
   SurfaceSide side = propDir==alongMomentum ? afterSurface : beforeSurface;
   if ( TSoS.hasError() ) {
     AlgebraicSymMatrix55 eloc = TSoS.localError().matrix() + deltaLocalError(TSoS,propDir);
-    return TrajectoryStateOnSurface(lp,LocalTrajectoryError(eloc),surface,
-				    &(TSoS.globalParameters().magneticField()),side);
+    //TSoS = TrajectoryStateOnSurface(lp,LocalTrajectoryError(eloc),surface, &(TSoS.globalParameters().magneticField()),side);
+    TSoS.update(lp,LocalTrajectoryError(eloc),surface,
+                &(TSoS.globalParameters().magneticField()),side);
   }
   else {
-    return TrajectoryStateOnSurface(lp,surface,&(TSoS.globalParameters().magneticField()),side);
+    TSoS.update(lp,surface,&(TSoS.globalParameters().magneticField()),side);
+    //TSoS = TrajectoryStateOnSurface(lp,surface,&(TSoS.globalParameters().magneticField()),side);
   }
+  return true;
 }
 
 // static initialization

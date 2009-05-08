@@ -37,24 +37,26 @@ pair<TrajectoryStateOnSurface,double>
 PropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts, 
 					   const Plane& plane) const {
   TsosWP newTsosWP = theGeometricalPropagator->propagateWithPath(fts,plane);
-  if ( !(newTsosWP.first).isValid() || materialAtSource() )  return newTsosWP;
-  TrajectoryStateOnSurface updatedTSoS = 
-    theMEUpdator->updateState(newTsosWP.first,
-			      PropagationDirectionFromPath()(newTsosWP.second,
-							     propagationDirection()));
-  return TsosWP(updatedTSoS,newTsosWP.second);
+  if ( (newTsosWP.first).isValid() && !materialAtSource() ) { 
+      bool updateOk = theMEUpdator->updateStateInPlace(newTsosWP.first,
+                                                       PropagationDirectionFromPath()(newTsosWP.second,
+                                                                                      propagationDirection()));
+      if (!updateOk) newTsosWP.first = TrajectoryStateOnSurface();
+  }
+  return newTsosWP;
 }
 
 pair<TrajectoryStateOnSurface,double> 
 PropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts, 
 					   const Cylinder& cylinder) const {
   TsosWP newTsosWP = theGeometricalPropagator->propagateWithPath(fts,cylinder);
-  if ( !(newTsosWP.first).isValid() || materialAtSource() )  return newTsosWP;
-  TrajectoryStateOnSurface updatedTSoS = 
-    theMEUpdator->updateState(newTsosWP.first,
-			      PropagationDirectionFromPath()(newTsosWP.second,
-							     propagationDirection()));
-  return TsosWP(updatedTSoS,newTsosWP.second);
+  if ( (newTsosWP.first).isValid() && !materialAtSource() ) { 
+      bool updateOk = theMEUpdator->updateStateInPlace(newTsosWP.first,
+                                                       PropagationDirectionFromPath()(newTsosWP.second,
+                                                                                      propagationDirection()));
+      if (!updateOk) newTsosWP.first = TrajectoryStateOnSurface();
+  }
+  return newTsosWP;
 }
 
 
@@ -64,25 +66,25 @@ PropagatorWithMaterial::propagateWithPath (const TrajectoryStateOnSurface& tsos,
   //
   // add material at starting surface, if requested
   //
-  TrajectoryStateOnSurface stateAtSource;
-  if ( materialAtSource() )
-    stateAtSource = theMEUpdator->updateState(tsos,propagationDirection());
-  else
-    stateAtSource = tsos;
-  if ( !stateAtSource.isValid() )  return TsosWP(stateAtSource,0.);
+  TsosWP newTsosWP(tsos,0.);
+  if ( materialAtSource() ) {
+    bool updateOk = theMEUpdator->updateStateInPlace(newTsosWP.first,propagationDirection());
+    if (!updateOk) newTsosWP.first = TrajectoryStateOnSurface();
+  }
+  if ( !newTsosWP.first.isValid() )  return newTsosWP;
   //
   // geometrical propagation
   //
-  TsosWP newTsosWP = theGeometricalPropagator->propagateWithPath(stateAtSource,plane);
-  if ( !(newTsosWP.first).isValid() || materialAtSource() )  return newTsosWP;
+  newTsosWP = theGeometricalPropagator->propagateWithPath(newTsosWP.first,plane);
+  if ( !newTsosWP.first.isValid() || materialAtSource() )  return newTsosWP;
   //
   // add material at destination surface, if requested
   //
-  TrajectoryStateOnSurface updatedTSoS = 
-    theMEUpdator->updateState(newTsosWP.first,
-			      PropagationDirectionFromPath()(newTsosWP.second,
-							     propagationDirection()));
-  return TsosWP(updatedTSoS,newTsosWP.second);
+  bool updateOk = theMEUpdator->updateStateInPlace(newTsosWP.first,
+                                                   PropagationDirectionFromPath()(newTsosWP.second,
+                                                                                  propagationDirection()));
+  if (!updateOk) newTsosWP.first = TrajectoryStateOnSurface();
+  return newTsosWP;
 }
 
 pair<TrajectoryStateOnSurface,double> 
@@ -91,25 +93,25 @@ PropagatorWithMaterial::propagateWithPath (const TrajectoryStateOnSurface& tsos,
   //
   // add material at starting surface, if requested
   //
-  TrajectoryStateOnSurface stateAtSource;
-  if ( materialAtSource() )
-    stateAtSource = theMEUpdator->updateState(tsos,propagationDirection());
-  else
-    stateAtSource = tsos;
-  if ( !stateAtSource.isValid() )  return TsosWP(stateAtSource,0.);
+  TsosWP newTsosWP(tsos,0.);
+  if ( materialAtSource() ) {
+    bool updateOk = theMEUpdator->updateStateInPlace(newTsosWP.first,propagationDirection());
+    if (!updateOk) newTsosWP.first = TrajectoryStateOnSurface();
+  }
+  if ( !newTsosWP.first.isValid() )  return newTsosWP;
   //
   // geometrical propagation
   //
-  TsosWP newTsosWP = theGeometricalPropagator->propagateWithPath(stateAtSource,cylinder);
+  newTsosWP = theGeometricalPropagator->propagateWithPath(newTsosWP.first,cylinder);
   if ( !(newTsosWP.first).isValid() || materialAtSource() )  return newTsosWP;
   //
   // add material at destination surface, if requested
   //
-  TrajectoryStateOnSurface updatedTSoS = 
-    theMEUpdator->updateState(newTsosWP.first,
-			      PropagationDirectionFromPath()(newTsosWP.second,
-							     propagationDirection()));
-  return TsosWP(updatedTSoS,newTsosWP.second);
+  bool updateOk = theMEUpdator->updateStateInPlace(newTsosWP.first,
+                                                   PropagationDirectionFromPath()(newTsosWP.second,
+                                                                                  propagationDirection()));
+  if (!updateOk) newTsosWP.first = TrajectoryStateOnSurface();
+  return newTsosWP;
 }
 
 void PropagatorWithMaterial::setPropagationDirection (PropagationDirection dir) {
