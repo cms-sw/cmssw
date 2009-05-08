@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: FWDTSegmentsRPZ2DProxyBuilder.cc,v 1.2 2009/01/23 21:35:46 amraktad Exp $
+// $Id: FWDTSegmentsRPZ2DProxyBuilder.cc,v 1.3 2009/05/08 20:47:04 amraktad Exp $
 //
 
 
@@ -84,7 +84,7 @@ void FWDTSegmentsRPZ2DProxyBuilder::build(const FWEventItem* iItem,
    TEveElementList* tList = *product;
 
    if(0 == tList) {
-      tList =  new TEveCompound(iItem->name().c_str(),"dtSegments",true);
+      tList =  new TEveElementList(iItem->name().c_str(),"dtSegments",true);
       *product = tList;
       tList->SetMainColor(iItem->defaultDisplayProperties().color());
       gEve->AddElement(tList);
@@ -99,6 +99,9 @@ void FWDTSegmentsRPZ2DProxyBuilder::build(const FWEventItem* iItem,
       // std::cout <<"failed to get DT segments"<<std::endl;
       return;
    }
+
+   TEveCompound* compund = new TEveCompound("dt compound", "dtSegments" );
+   compund->OpenCompound();
    unsigned int index = 0;
    for (  DTRecSegment4DCollection::id_iterator chamberId = segments->id_begin();
           chamberId != segments->id_end(); ++chamberId, ++index )
@@ -115,7 +118,7 @@ void FWDTSegmentsRPZ2DProxyBuilder::build(const FWEventItem* iItem,
       segmentSet->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
       segmentSet->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
       pointSet->SetMainColor(iItem->defaultDisplayProperties().color());
-      gEve->AddElement( segmentSet, tList );
+      compund->AddElement( segmentSet );
       segmentSet->AddElement( pointSet );
       const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( (*chamberId).rawId() );
 
@@ -170,6 +173,7 @@ void FWDTSegmentsRPZ2DProxyBuilder::build(const FWEventItem* iItem,
          }
       }
    }
+   tList->AddElement(compund);
 }
 
 void

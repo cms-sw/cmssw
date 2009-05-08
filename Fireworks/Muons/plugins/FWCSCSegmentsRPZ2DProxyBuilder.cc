@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: FWCSCSegmentsRPZ2DProxyBuilder.cc,v 1.2 2009/01/23 21:35:46 amraktad Exp $
+// $Id: FWCSCSegmentsRPZ2DProxyBuilder.cc,v 1.3 2009/05/08 20:47:04 amraktad Exp $
 //
 
 
@@ -85,7 +85,7 @@ void FWCSCSegmentsRPZ2DProxyBuilder::build(const FWEventItem* iItem,
    TEveElementList* tList = *product;
 
    if(0 == tList) {
-      tList =  new TEveCompound(iItem->name().c_str(),"cscSegments",true);
+      tList =  new TEveElementList(iItem->name().c_str(),"cscSegments",true);
       *product = tList;
       tList->SetMainColor(iItem->defaultDisplayProperties().color());
       gEve->AddElement(tList);
@@ -100,6 +100,9 @@ void FWCSCSegmentsRPZ2DProxyBuilder::build(const FWEventItem* iItem,
       // std::cout <<"failed to get CSC segments"<<std::endl;
       return;
    }
+
+   TEveCompound* compund = new TEveCompound("csc compound", "cscSegments" );
+   compund->OpenCompound();
    unsigned int index = 0;
    for (  CSCSegmentCollection::id_iterator chamberId = segments->id_begin();
           chamberId != segments->id_end(); ++chamberId, ++index )
@@ -120,7 +123,7 @@ void FWCSCSegmentsRPZ2DProxyBuilder::build(const FWEventItem* iItem,
       segmentSet->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
       segmentSet->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
       pointSet->SetMainColor(iItem->defaultDisplayProperties().color());
-      gEve->AddElement( segmentSet, tList );
+      compund->AddElement( segmentSet);
       segmentSet->AddElement( pointSet );
 
       CSCSegmentCollection::range range = segments->get(*chamberId);
@@ -163,6 +166,7 @@ void FWCSCSegmentsRPZ2DProxyBuilder::build(const FWEventItem* iItem,
          }
       }
    }
+   tList->AddElement(compund);
 }
 
 void
