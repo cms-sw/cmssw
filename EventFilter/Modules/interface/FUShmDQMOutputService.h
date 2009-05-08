@@ -9,7 +9,7 @@
  * 27-Dec-2006 - KAB  - Initial Implementation
  * 31-Mar-2007 - HWKC - modification for shared memory usage
  *
- * $Id: FUShmDQMOutputService.h,v 1.4 2008/03/04 17:05:52 hcheung Exp $
+ * $Id: FUShmDQMOutputService.h,v 1.5 2008/10/14 13:18:13 biery Exp $
  */
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -29,7 +29,7 @@ class FUShmDQMOutputService
 {
  public:
   FUShmDQMOutputService(const edm::ParameterSet &pset,
-                   edm::ActivityRegistry &actReg);
+                        edm::ActivityRegistry &actReg);
   ~FUShmDQMOutputService(void);
 
   void postEventProcessing(const edm::Event &event,
@@ -46,6 +46,7 @@ class FUShmDQMOutputService
   void postSourceConstructionProcessing(const edm::ModuleDescription &modDesc);
   void preModuleConstructionProcessing(const edm::ModuleDescription &modDesc);
   void postModuleConstructionProcessing(const edm::ModuleDescription &modDesc);
+  void preBeginRun(const edm::RunID &runID, const edm::Timestamp &timestamp);
 
   bool attachToShm();
   bool detachFromShm();

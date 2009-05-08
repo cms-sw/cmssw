@@ -18,7 +18,7 @@
  * - DQMServices/NodeROOT/src/SenderBase.cc
  * - DQMServices/NodeROOT/src/ReceiverBase.cc
  *
- * $Id: FUShmDQMOutputService.cc,v 1.10 2008/10/14 13:18:13 biery Exp $
+ * $Id: FUShmDQMOutputService.cc,v 1.11 2008/12/10 14:24:27 wmtan Exp $
  */
 
 #include "EventFilter/Modules/interface/FUShmDQMOutputService.h"
@@ -67,6 +67,9 @@ FUShmDQMOutputService::FUShmDQMOutputService(const edm::ParameterSet &pset,
   // to the storage manager and any other needed setup.??
   actReg.watchPostSourceConstruction(this,
          &FUShmDQMOutputService::postSourceConstructionProcessing);
+
+  // specify the routine to be called when a run begins
+  actReg.watchPreBeginRun(this, &FUShmDQMOutputService::preBeginRun);
 
   // specify the routine to be called when the job has finished.  It will
   // be used to disconnect from the SM, if needed, and any other shutdown
@@ -350,6 +353,21 @@ void FUShmDQMOutputService::postSourceConstructionProcessing(const edm::ModuleDe
   }
 
   bei = edm::Service<DQMStore>().operator->();
+}
+
+/**
+ * Callback to be used after the Run has been created by the InputSource
+ * but before any modules have seen the Run
+ */
+void FUShmDQMOutputService::preBeginRun(const edm::RunID &runID,
+                                        const edm::Timestamp &timestamp)
+{
+  if (DSS_DEBUG) {
+    cout << "FUShmDQMOutputService::preBeginRun called, run number "
+         << runID.run() << endl;
+  }
+
+  initializationIsNeeded_ = true;
 }
 
 /**
