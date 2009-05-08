@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.35 2009/03/11 21:16:20 amraktad Exp $
+// $Id: FWRhoPhiZView.cc,v 1.36 2009/04/07 14:10:54 chrjones Exp $
 //
 
 #define private public
@@ -116,6 +116,7 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
 {
    m_projMgr.reset(new TEveProjectionManager);
    m_projMgr->SetProjection(iProjType);
+   m_projMgr->SetImportEmpty(kTRUE);
    //m_projMgr->GetProjection()->SetFixedRadius(700);
    /*
      m_projMgr->GetProjection()->SetDistortion(m_distortion.value()*1e-3);
