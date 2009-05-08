@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 #
 
 ## std sequence to compute mva discriminant
-from TopQuarkAnalysis.TopJetCombination.TtSemiLepJetCombMVAComputer_Muons_cff import *
+from TopQuarkAnalysis.TopJetCombination.TtSemiLepJetCombMVAComputer_cff import *
 
 ## configure mvaDisc hypothesis
 from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypMVADisc_cfi import *
