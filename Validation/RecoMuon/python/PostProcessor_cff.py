@@ -138,54 +138,6 @@ postProcessorRecoMuonComp = cms.EDAnalyzer(
     outputFileName = cms.untracked.string("")
 )
 
-postProcessorMuonIsolation = cms.EDAnalyzer(
-    "DQMGenericClient",
-    subDirs = cms.untracked.vstring("MuonIsolationV/*"),
-    efficiency = cms.vstring(""),
-    resolution = cms.vstring(""),
-    normalization = cms.untracked.vstring("sumPt",
-                                          "emEt",
-                                          "hadEt",
-                                          "hoEt",
-                                          "nTracks",
-                                          "nJets",
-                                          "trackerVetoPt",
-                                          "emVetoEt",
-                                          "hadVetoEt",
-                                          "hoVetoEt",
-                                          "muonPt",
-                                          "avgPt",
-                                          "weightedEt",
-                                          "sumPt_cd",
-                                          "emEt_cd",
-                                          "hadEt_cd",
-                                          "hoEt_cd",
-                                          "nTracks_cd",
-                                          "nJets_cd",
-                                          "trackerVetoPt_cd",
-                                          "emVetoEt_cd",
-                                          "hadVetoEt_cd",
-                                          "hoVetoEt_cd",                                          
-                                          "muonPt_cd",
-                                          "avgPt_cd",
-                                          "weightedEt_cd"
-                                          ),
-    cumulativeDists = cms.untracked.vstring("sumPt_cd",
-                                            "emEt_cd",
-                                            "hadEt_cd",
-                                            "hoEt_cd",
-                                            "nTracks_cd",
-                                            "nJets_cd",
-                                            "trackerVetoPt_cd",
-                                            "emVetoEt_cd",
-                                            "hadVetoEt_cd",
-                                            "hoVetoEt_cd",
-                                            "muonPt_cd",
-                                            "avgPt_cd",
-                                            "weightedEt_cd"
-                                            ),
-    outputFileName = cms.untracked.string("")
-)        
+        
 
 recoMuonPostProcessors = cms.Sequence(postProcessorMuonMultiTrack*postProcessorRecoMuon*postProcessorMuonMultiTrackComp*postProcessorRecoMuonComp)
-recoMuonPostProcessorsWithIsolation = cms.Sequence(postProcessorMuonMultiTrack*postProcessorRecoMuon*postProcessorMuonMultiTrackComp*postProcessorRecoMuonComp*postProcessorMuonIsolation)
