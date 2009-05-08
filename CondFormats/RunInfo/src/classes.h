@@ -9,5 +9,7 @@ namespace {
     std::vector<runinfo_test::RunNumber::Item>::iterator tmp0;
     std::vector<L1TriggerScaler::Lumi>::iterator tmp1;
     //  std::vector<RunSummary::Summary>::iterator tmp2;
+    std::pair< std::string,lumi::HLTInfo > tmp2;
+    std::vector< std::pair< std::basic_string<char>,lumi::HLTInfo > > tmp3;
   };
 }

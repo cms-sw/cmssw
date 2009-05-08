@@ -1,10 +1,12 @@
 #ifndef CondFormats_RunInfo_HLTScaler_h
 #define CondFormats_RunInfo_HLTScaler_h
 /** 
- * $Id: LuminosityInfo.h,v 1.1 2009/02/17 11:05:53 xiezhen Exp $
+ * $Id: HLTScaler.h,v 1.1 2009/02/19 15:58:59 xiezhen Exp $
  *
  ************************************************************/
 #include <vector>
+#include <utility>
+#include <string>
 //persistable class
 namespace lumi{
   struct HLTInfo {
@@ -15,21 +17,24 @@ namespace lumi{
     int acceptcount;
     int prescalefactor;
   };
-  static const HLTInfo HLTNULL=HLTInfo(0,0,0);  
-  typedef std::vector<HLTInfo>::const_iterator HLTIterator;  
+  static const HLTInfo HLTNULL=HLTInfo(-99,-99,-99);  
+  typedef std::vector< std::pair<std::string,HLTInfo> >::const_iterator HLTIterator;  
   class HLTScaler{
   public:
     HLTScaler();
-    size_t nHLTtrigger()const;
+    //total number of HLT paths
+    size_t nHLTPath()const;
     //sequential access to HLTInfo
     HLTIterator hltBegin()const;
     HLTIterator hltEnd()const;
+    //get HLT info for a given path
+    HLTInfo getHLTInfo( const std::string& pathname )const;
     ///
     ///setter methods. 
     ///
-    void setHLTData(const std::vector<HLTInfo>& hltdetail);
+    void setHLTData(const std::vector< std::pair<std::string,HLTInfo> >& hltdetail);
   private:
-    std::vector<HLTInfo> m_hltinfo;
+    std::vector< std::pair<std::string,HLTInfo> > m_hltinfo;
   }; 
 }
 #endif 

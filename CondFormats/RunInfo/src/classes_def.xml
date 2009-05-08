@@ -19,6 +19,8 @@
 
  <class name="lumi::HLTScaler"  class_version="0"/>
  <class name="lumi::HLTInfo"/>
- <class name="std::vector<lumi::HLTInfo>"/>
+ <class name="std::basic_string<char>"/>
+ <class name="std::pair< std::basic_string<char>,lumi::HLTInfo >"/>
+ <class name="std::vector< std::pair< std::basic_string<char>,lumi::HLTInfo > >"/>
 
 </lcgdict>  
