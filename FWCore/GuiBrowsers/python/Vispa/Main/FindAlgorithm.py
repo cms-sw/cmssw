@@ -1,17 +1,17 @@
 import logging
 
+from ObjectHolder import ObjectHolder
 from Vispa.Main.BasicDataAccessor import *
 from Vispa.Main.Exceptions import exception_traceback
 
-class FindAlgorithm(object):
+class FindAlgorithm(ObjectHolder):
     """ Searches for label and properties in a list of objects using a BasicDataAccessor.
     
     One can search using findUsingFindDialog where a FindDialog is used as input for the search label and properties.
     Navigation through the results in supported by next(), previous(),numberOfResult(),currentNumber()
     """
     def __init__(self):
-        self._dataAccessor = None
-        self._dataObjects = []
+        ObjectHolder.__init__(self)
         self._results=[]
         self._index=0
         self._message=None
@@ -20,74 +20,71 @@ class FindAlgorithm(object):
         logging.debug(__name__ + ": setDataAccessor")
         if not isinstance(accessor, BasicDataAccessor):
             raise TypeError(__name__ + " requires data accessor of type BasicDataAccessor.")
-        self._dataAccessor = accessor
+        ObjectHolder.setDataAccessor(self, accessor)
     
-    def dataAccessor(self):
-        return self._dataAccessor
-
-    def setDataObjects(self, objects):
-        logging.debug(__name__ + ": setDataObjects")
-        self._dataObjects = objects
-        
-    def dataObjects(self):
-        return self._dataObjects
-    
-    def findUsingFindDialog(self, dialog):
-        logging.debug(__name__ +': findUsingFindDialog')
+    def clear(self):
         self._message=None
         self._results=[]
+            
+    def findUsingFindDialog(self, dialog):
+        logging.debug(__name__ +': findUsingFindDialog')
+        self.clear()
         if self._dataAccessor:
-            for object in self._dataObjects:
+            for object in self._filter(self._dataObjects):
                 self._results+=self._findIn(object,dialog)
         self._index=0
         if len(self._results)>0:
             return self._results[0]
         else:
-            return None
+            return []
         
     def _findIn(self, object,dialog):
         # find Label
-        label=self._dataAccessor.label(object)
-        logging.debug(__name__ +': _findIn: ' + label)
+        foundLabel=True
         findLabel=dialog.label()
-        if not dialog.caseSensitive():
-            label=label.lower()
-            findLabel=findLabel.lower()
-        if dialog.exactMatch():
-            foundLabel=findLabel=="" or findLabel==label
-        else:
-            foundLabel=findLabel in label
+        if findLabel!="":
+            label=self._dataAccessor.label(object)
+            logging.debug(__name__ +': _findIn: ' + label)
+            if not dialog.caseSensitive():
+                label=label.lower()
+                findLabel=findLabel.lower()
+            if dialog.exactMatch():
+                foundLabel=findLabel=="" or findLabel==label
+            else:
+                foundLabel=findLabel in label
 
         # find property
-        properties=[(p[1],p[2]) for p in self._dataAccessor.properties(object)]
+        foundProperties=True
         findProperties=dialog.properties()
-        if not dialog.caseSensitive():
-            properties=[(property[0].lower(),property[1].lower()) for property in properties]
-            findProperties=[(property[0].lower(),property[1].lower()) for property in findProperties]
-        if dialog.exactMatch():
-            foundProperties=True
-            for findProperty in findProperties:
-                foundProperties=(foundProperties and\
-                    True in [(findProperty[0]=="" or findProperty[0]==p[0]) and\
-                             (findProperty[1]=="" or findProperty[1]==p[1]) for p in properties])
-        else:
-            foundProperties=True
-            for findProperty in findProperties:
-                foundProperties=(foundProperties and\
-                    True in [findProperty[0] in p[0] and\
-                             findProperty[1] in p[1] for p in properties])
+        if len(findProperties)>0 and (findProperties[0][0]!="" or findProperties[0][1]!=""): 
+            properties=[(p[1],p[2]) for p in self._dataAccessor.properties(object)]
+            if not dialog.caseSensitive():
+                properties=[(str(property[0]).lower(),str(property[1]).lower()) for property in properties]
+                findProperties=[(str(property[0]).lower(),str(property[1]).lower()) for property in findProperties]
+            if dialog.exactMatch():
+                for findProperty in findProperties:
+                    foundProperties=(foundProperties and\
+                        True in [(findProperty[0]=="" or findProperty[0]==p[0]) and\
+                                 (findProperty[1]=="" or findProperty[1]==p[1]) for p in properties])
+            else:
+                for findProperty in findProperties:
+                    foundProperties=(foundProperties and\
+                        True in [findProperty[0] in p[0] and\
+                                 findProperty[1] in p[1] for p in properties])
 
         # find property
         findScripts=dialog.scripts()
         foundScripts=True
-        dataAccessorObject=BasicDataAccessorInterface(object,self._dataAccessor)
-        for findScript in findScripts:
-            try:
-                foundScripts=(foundScripts and\
-                    (findScript=="" or dataAccessorObject.applyScript(findScript)))
-            except Exception,e:
-                logging.info("Error in script: "+ exception_traceback())
-                self._message="Error in script: "+ str(e)
+        if len(findScripts)>0 and findScripts[0]!="":
+            dataAccessorObject=BasicDataAccessorInterface(object,self._dataAccessor)
+            for findScript in findScripts:
+                try:
+                    foundScripts=(foundScripts and\
+                       (findScript=="" or dataAccessorObject.runScript(findScript)))
+                except Exception,e:
+                    foundScripts=False
+                    logging.info("Error in script: "+ exception_traceback())
+                    self._message="Error in script: "+ str(e)
 
         # combine the searches
         found=foundLabel and foundProperties and foundScripts
@@ -95,7 +92,7 @@ class FindAlgorithm(object):
             results=[object]
         else:
             results=[]
-        for daughter in self._dataAccessor.children(object):
+        for daughter in self._filter(self._dataAccessor.children(object)):
             for object in self._findIn(daughter,dialog):
                 if not object in results:
                     results+=[object]

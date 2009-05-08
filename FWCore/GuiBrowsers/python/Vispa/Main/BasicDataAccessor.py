@@ -30,26 +30,36 @@ class BasicDataAccessor(object):
         """
         raise NotImplementedError
 
-    def allChildren(self,object):
-        children=list(self.children(object))
+    def allChildren(self, object):
+        """ Collect all children of children of an object.
+        """
+        children = list(self.children(object))
         for child in self.children(object):
-            children+=list(self.allChildren(child)) 
+            children += list(self.allChildren(child)) 
         return tuple(children)
 
 class BasicDataAccessorInterface(object):
-    def __init__(self,object,accessor):
-        self._object=object
-        self._accessor=accessor
+    """ This class gives a comfortable Interface to objects accessible via an accessor.
+    
+    Given the object and the accessor all properties and attributes of the object and
+    the accessor are accessible via __getattr__. A script in which all attributes
+    of the objects can be accessed can be run. 
+    """
+    def __init__(self, object, accessor):
+        self._object = object
+        self._accessor = accessor
         
-    def __getattr__(self,attr):
-        if hasattr(self._accessor,attr):
-            return getattr(self._accessor,attr)(self._object)
-        elif attr in [p[1] for p in self._accessor.properties(self._object)]:
-            return self._accessor.propertyValue(self._object,attr)
+    def __getattr__(self, attr):
+        if attr in [p[1] for p in self._accessor.properties(self._object)]:
+            return self._accessor.propertyValue(self._object, attr)
+        elif hasattr(self._object, attr):
+            return getattr(self._object, attr)
+        elif hasattr(self._accessor, attr):
+            return getattr(self._accessor, attr)(self._object)
         else:
-            raise AttributeError("object has no property '"+attr+"'")
+            raise AttributeError("object has no property '" + attr + "'")
 
-    def applyScript(self,script):
-        object=self
-        exec "result="+str(script)
+    def runScript(self, script):
+        object = self
+        exec "result=" + str(script)
         return result

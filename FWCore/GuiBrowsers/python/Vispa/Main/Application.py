@@ -502,7 +502,7 @@ class Application(QApplication):
         if slot:
             self.connect(action, SIGNAL("triggered()"), slot)
         if shortcut:
-            if isinstance(shortcut,list):
+            if isinstance(shortcut, list):
                 action.setShortcuts(shortcut)
             else:
                 action.setShortcut(shortcut)
@@ -598,8 +598,8 @@ class Application(QApplication):
             self.stopWorking(statusMessage)
         else:
             logging.error(errormsg)
-            self.warningMessage(errormsg)
             self.stopWorking(statusMessage, "failed")
+            self.warningMessage(errormsg)
     
     def reloadFile(self):
         """ Tells current tab controller to refresh.

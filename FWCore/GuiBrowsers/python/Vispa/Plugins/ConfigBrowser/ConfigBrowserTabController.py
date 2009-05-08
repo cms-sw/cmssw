@@ -32,8 +32,8 @@ class ConfigBrowserTabController(TripleTabController):
         self._thread = None
         
         self._viewMenu.addSeparator()
-        self.addCenterView("&Sequence structure", self.sequenceStructure, False, "Ctrl+P")
-        self.addCenterView("&Connection structure", self.connectionStructure, True, "Ctrl+U")
+        self.addCenterView("&Connection structure", self.connectionStructure, True, "Ctrl+1")
+        self.addCenterView("&Sequence structure", self.sequenceStructure, False, "Ctrl+2")
         self._configBrowserBoxView = ConfigBrowserBoxView()
         self.fillCenterViewSelectMenu()
 
@@ -95,12 +95,12 @@ class ConfigBrowserTabController(TripleTabController):
             while self._thread.isRunning():
                 QCoreApplication.instance().processEvents()
         objects = []
-        if self._treeViewSelection != None:
-            item = self.tab().treeView().itemById(self._treeViewSelection)
+        select=self.tab().treeView().selection()
+        if select != None:
             if self.currentCenterView() == "&Connection structure":
-                objects = self.dataAccessor().nonSequenceChildren(item.object)
+                objects = self.dataAccessor().nonSequenceChildren(select)
             else:
-                objects = [item.object]
+                objects = [select]
         self.tab().centerView().setDataObjects(objects)
         if self.currentCenterView() == "&Connection structure":
             thread = RunThread(self.dataAccessor().readConnections, objects)
@@ -113,18 +113,17 @@ class ConfigBrowserTabController(TripleTabController):
         else:
             if isinstance(self.tab().centerView(), ConfigBrowserBoxView):
                 self.tab().centerView().setConnections([])
-        result=self.tab().centerView().updateContent()
-        if result and self._centerViewSelection != None:
-            selectedWidget = self.tab().centerView().widgetById(self._centerViewSelection)
-            self._restoreCenterViewSelectionFlag = True
-            self.tab().centerView().select(selectedWidget)
-            self._restoreCenterViewSelectionFlag = False
-            if selectedWidget!=None and self.tab().propertyView().dataObject() != selectedWidget.object:
-                self.tab().propertyView().setDataObject(selectedWidget.object)
-                self.tab().propertyView().updateContent()
+        result = self.tab().centerView().updateContent()
+        if result:
+            self.tab().centerView().restoreSelection()
+            select = self.tab().centerView().selection()
+            if select != None:
+                if self.tab().propertyView().dataObject() != select:
+                    self.tab().propertyView().setDataObject(select)
+                    self.tab().propertyView().updateContent()
         self.plugin().application().stopWorking(statusMessage)
         return result
-
+        
     def selected(self):
         """ Shows plugin menus when user selects tab.
         """
@@ -215,9 +214,8 @@ class ConfigBrowserTabController(TripleTabController):
             self._centerViewActions[self._currentCenterView].setChecked(False)
             self._currentCenterView = proposed_view
             self._centerViewActions[self._currentCenterView].setChecked(True)
-        
         self._availableCenterViews[self._currentCenterView]()
-        self.connect(self.tab().centerView(), SIGNAL("widgetSelected"), self.onWidgetSelected)
+        self.connect(self.tab().centerView(), SIGNAL("selected"), self.onSelected)
         if ini.has_option("config", "box content script"):
             self._configBrowserBoxView.setBoxContentScript(str(ini.get("config", "box content script")))
             self._boxContentDialog.setScript(str(ini.get("config", "box content script")))
@@ -241,7 +239,7 @@ class ConfigBrowserTabController(TripleTabController):
         if self.currentCenterView() == "&Connection structure":
             presets = {'endpath':False, 'source':False, 'legend':False}
         else:
-            presets = {'seq':True, 'seqconnect':True, 'tagconnect':False, 'legend':False}
+            presets = {'seqconnect':True, 'tagconnect':False, 'legend':False}
         for opt, val in presets.items():
             dot.setOption(opt, val)
         types = ""
@@ -279,7 +277,6 @@ class ConfigBrowserTabController(TripleTabController):
                 self.dumpAction().setEnabled(False)
                 self.readOnlyAction().setChecked(True)
                 self.readOnlyAction().setEnabled(False)
-                self.dotExportAction().setEnabled(False)
                 self.readOnlyMode()
                 self.plugin().application().warningMessage("Config does not contain a process and is opened in read-only mode.")
             if self.plugin().application().commandLineOptions().saveimage:

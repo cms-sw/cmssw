@@ -16,7 +16,6 @@ from RelativeDataAccessor import *
 from ParticleDataAccessor import *
 from Workspace import *
 from PropertyView import *
-from Vispa.Main.ZoomableScrollArea import *
 
 class LineDecayTree(Workspace):
     """Visualizes a decay tree.
@@ -24,15 +23,11 @@ class LineDecayTree(Workspace):
     def __init__(self, parent=None):
         logging.debug(__name__ + ": __init__")
         Workspace.__init__(self, parent)
-        self._accessor = None
-        self._dataObjects = []
         self._operationId = 0
         self.setPalette(QPalette(Qt.black, Qt.white))
         self._allNodes = {}
         self._vector = []
-        self._vector2 = []  
-        self._scrollArea = ZoomableScrollArea(self)
-        self._selectedobject = None
+        self._vector2 = []
         self._color = [QtGui.QColor(29,11,249), QtGui.QColor(75,240,0), QtGui.QColor(253,74,74), QtGui.QColor(247,77,251), QtGui.QColor(176,179,177), QtGui.QColor(254,244,67)]
         
                 
@@ -47,26 +42,8 @@ class LineDecayTree(Workspace):
             raise TypeError(__name__ + " requires data accessor of type RelativeDataAccessor.")
         if not isinstance(accessor, ParticleDataAccessor):
             raise TypeError(__name__ + " requires data accessor of type ParticleDataAccessor.")
-        self._accessor = accessor
+        Workspace.setDataAccessor(self, accessor)
     
-    def accessor(self):
-        return self._accessor
-    
-    def scrollArea(self):
-        """ Returns scroll area of this tab.
-        """
-        return self._scrollArea
-    
-    def setDataObjects(self, objects):
-        """ Sets the selected object from which the lines are created
-        
-        You need to call updateContent() in order to make the changes visible   
-        """
-        self._dataObjects = objects
-        
-    def dataObjects(self):
-        return self._dataObjects
-
     def clear(self):
 
         logging.debug(__name__ + ": clear")
@@ -78,8 +55,10 @@ class LineDecayTree(Workspace):
         """ Clear the LineDecayTree and refill it.
         """
         logging.debug(__name__ + ": updateContent")
+        self._updatingFlag=True
         self.clear()
         self.autolayout()
+        self._updatingFlag=False
   
     def nodesfiller(self):
         for object in self._dataObjects:
@@ -96,16 +75,16 @@ class LineDecayTree(Workspace):
                 self._allNodes[object] = [node1 , node2, label]
             
         for object in self._dataObjects:
-            self._allNodes[object][2] = self._accessor.label(object)
+            self._allNodes[object][2] = self._dataAccessor.label(object)
                            
         for object1 in self._dataObjects: 
             for object2 in self._dataObjects:
-                if object2 in self._accessor.daughterRelations(object1):
+                if object2 in self._dataAccessor.daughterRelations(object1):
                     self._allNodes[object1][1] = self._allNodes[object2][0]
         
         for object1 in self._dataObjects:
             for object2 in self._dataObjects:
-                if object2 in self._accessor.motherRelations(object1):               
+                if object2 in self._dataAccessor.motherRelations(object1):               
                     self._allNodes[object1][0] = self._allNodes[object2][1]
 
         for object in self._dataObjects:
@@ -148,7 +127,7 @@ class LineDecayTree(Workspace):
             vector[i].position.x = vector[i].position.x - 30
              
         for object in self._dataObjects:
-            if self._accessor.id(object)!=None:
+            if self._dataAccessor.id(object)!=None:
                 if len(self._allNodes[object][0].mothers) == 0 and len(self._allNodes[object][1].children) == 0 :
                     x1 = self._allNodes[object][0].position.x
                     y1 = self._allNodes[object][0].position.y
@@ -156,7 +135,7 @@ class LineDecayTree(Workspace):
                     y2 = self._allNodes[object][1].position.y      
                     label1 = self._allNodes[object][2]
 #                    isVertex = self._allNodes[object][1].isVertex
-                    self._vector2.append([x1,y1,x2,y2,label1,self._accessor.id(object),object])
+                    self._vector2.append([x1,y1,x2,y2,label1,self._dataAccessor.id(object),object])
                 else:    
                     x1 = self._allNodes[object][0].position.x
                     y1 = self._allNodes[object][0].position.y
@@ -164,7 +143,7 @@ class LineDecayTree(Workspace):
                     y2 = self._allNodes[object][1].position.y      
                     label1 = self._allNodes[object][2]
 #                   isVertex = self._allNodes[object][1].isVertex
-                    self._vector.append([x1,y1,x2,y2,label1,self._accessor.id(object),object])
+                    self._vector.append([x1,y1,x2,y2,label1,self._dataAccessor.id(object),object])
             else:
                 if len(self._allNodes[object][0].mothers) == 0 and len(self._allNodes[object][1].children) == 0 :
                     x1 = self._allNodes[object][0].position.x
@@ -222,13 +201,6 @@ class LineDecayTree(Workspace):
         
         self.resize(width+20,height+10)
 
-#    def select(self,object):
-        
-#        if object == self._selectedobject(object):
-#            return True
-#        else:
-#            return False
-        
     def mousePressEvent(self, event):
 
         zoom = self.zoomFactor()
@@ -252,8 +224,9 @@ class LineDecayTree(Workspace):
             if event.pos().x() in testx and event.pos().y() in testy:
 #                if hasattr(object, "getId"):
 #                    print object.getId()
-                if object != self._selectedobject:
-                    self._selectedobject = object
+                if object != self.selection():
+                    self._selection = self._dataObjects.index(object)
+                    self.emit(SIGNAL("selected"), object)
                     self.repaint()
                     break
                 else:
@@ -266,7 +239,7 @@ class LineDecayTree(Workspace):
                 #self.emit(SIGNAL("widgetSelected", test123.widgetByObject(object))) 
                 
             else:
-                self._selectedobject = None
+                self._selection = None
                 self.repaint()
         
     def paintEvent(self, Event):
@@ -286,16 +259,16 @@ class LineDecayTree(Workspace):
             y2 = self._allNodes[object][1].position.y * zoom      
             label = self._allNodes[object][2]
             
-            if self._accessor.isLepton(object):
+            if self._dataAccessor.isLepton(object):
                 paint.setPen(QtGui.QPen(self._color[0], 3*zoom, QtCore.Qt.SolidLine))
             
-            elif self._accessor.isQuark(object):
+            elif self._dataAccessor.isQuark(object):
                 paint.setPen(QtGui.QPen(self._color[1], 3*zoom, QtCore.Qt.SolidLine))
                 
-            elif self._accessor.isBoson(object):
+            elif self._dataAccessor.isBoson(object):
                 paint.setPen(QtGui.QPen(self._color[2], 3*zoom, QtCore.Qt.DashLine))
                            
-            elif self._accessor.isGluon(object):
+            elif self._dataAccessor.isGluon(object):
                 paint.setPen(QtGui.QPen(self._color[3], 3*zoom, QtCore.Qt.SolidLine))
 
             else:
@@ -307,12 +280,13 @@ class LineDecayTree(Workspace):
             paint.drawText((x2+x1)/2 ,(y2+y1)/2 - 5*zoom , label)
 
         for object in self._dataObjects:
-            if self._selectedobject != None: 
-                x1 = self._allNodes[self._selectedobject][0].position.x * zoom
-                y1 = self._allNodes[self._selectedobject][0].position.y * zoom
-                x2 = self._allNodes[self._selectedobject][1].position.x * zoom
-                y2 = self._allNodes[self._selectedobject][1].position.y * zoom      
-                label1 = self._allNodes[self._selectedobject][2]
+            select=self.selection()
+            if select in self._allNodes.keys():
+                x1 = self._allNodes[select][0].position.x * zoom
+                y1 = self._allNodes[select][0].position.y * zoom
+                x2 = self._allNodes[select][1].position.x * zoom
+                y2 = self._allNodes[select][1].position.y * zoom      
+                label1 = self._allNodes[select][2]
 
                 paint.setPen(QtGui.QPen(self._color[5], 3*zoom, QtCore.Qt.SolidLine))
                 paint.drawLine(x1,y1,x2,y2)
@@ -348,3 +322,20 @@ class LineDecayTree(Workspace):
                 height = self._vector2[i][3] * zoom    
         
         self.resize(width+20,height+10)
+
+    def select(self,object):
+        logging.debug(__name__ + ": select")
+        if object in self._dataObjects:
+            self._selection=self._dataObjects.index(object)
+        self.repaint()
+
+    def selection(self):
+        logging.debug(__name__ + ": selection")
+        if self._selection!=None and len(self._dataObjects)>self._selection:
+            return self._dataObjects[self._selection]
+        else:
+            return None
+
+    def restoreSelection(self):
+        logging.debug(__name__ + ": restoreSelection")
+        self.repaint()

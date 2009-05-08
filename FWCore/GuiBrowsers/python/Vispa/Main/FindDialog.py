@@ -15,6 +15,8 @@ class FindDialog(QDialog):
         self._findAlgorithm=None
         self._properties=[]
         self._scripts=[]
+        self._find=True
+        self._filter=False
 
         self.fill()
         
@@ -26,7 +28,6 @@ class FindDialog(QDialog):
         self._caseSensitiveCheckBox=QCheckBox("Case sensitive")
         self._exactMatchCheckBox=QCheckBox("Exact match")
         self._addStringPropertyButton=QPushButton("&Add Property")
-        #self._removePropertyButton=QPushButton("&Remove Property")
         self._addScriptButton=QPushButton("&Add Script")
         
         self._findPreviousButton = QPushButton("&Previous")
@@ -34,7 +35,8 @@ class FindDialog(QDialog):
         self._findNumberLabel = QLabel("?/?")
         self._findNumberLabel.hide()
         self._findNextButton = QPushButton("&Find")
-        self._findNextButton.setDefault(True)
+        self._filterButton = QPushButton("&Filter")
+        self._resetButton = QPushButton("&Reset")
         self._closeButton = QPushButton("&Close")
 
         self.setLayout(QVBoxLayout())
@@ -52,7 +54,6 @@ class FindDialog(QDialog):
 
         self._layout3.addWidget(self._addStringPropertyButton)
         self._layout3.addWidget(self._addScriptButton)
-        #self._layout3.addWidget(self._removePropertyButton)
         self._layout3.addStretch()
         self._layout3.addWidget(self._caseSensitiveCheckBox)
         self._layout3.addWidget(self._exactMatchCheckBox)
@@ -60,6 +61,8 @@ class FindDialog(QDialog):
         self._layout4.addWidget(self._findPreviousButton)
         self._layout4.addWidget(self._findNumberLabel)
         self._layout4.addWidget(self._findNextButton)
+        self._layout4.addWidget(self._filterButton)
+        self._layout4.addWidget(self._resetButton)
         self._layout4.addStretch()
         self._layout4.addWidget(self._closeButton)
 
@@ -68,13 +71,15 @@ class FindDialog(QDialog):
         self.connect(self._exactMatchCheckBox, SIGNAL('stateChanged(int)'), self.edited)
 
         self.connect(self._addStringPropertyButton, SIGNAL('clicked(bool)'), self._addStringProperty)
-        #self.connect(self._removePropertyButton, SIGNAL('clicked(bool)'), self._removeProperty)
         self.connect(self._addScriptButton, SIGNAL('clicked(bool)'), self._addScript)
         self.connect(self._findPreviousButton, SIGNAL('clicked(bool)'), self.findPrevious)
         self.connect(self._findNextButton, SIGNAL('clicked(bool)'), self.findNext)
+        self.connect(self._filterButton, SIGNAL('clicked(bool)'), self.filter)
+        self.connect(self._resetButton, SIGNAL('clicked(bool)'), self.reset)
         self.connect(self._closeButton, SIGNAL('clicked(bool)'), self.reject)
 
         self._addStringProperty()
+        self._addScript()
 
     def _removeProperty(self):
         if len(self._properties)==0:
@@ -109,6 +114,16 @@ class FindDialog(QDialog):
         
         self._properties+=[(layout2,findPropertyNameLineEdit,findPropertyValueLineEdit,findPropertyNameLabel,findPropertyValueLabel)]
         
+    def _removeScript(self):
+        if len(self._scripts)==0:
+            return False
+        script=self._scripts[len(self._scripts)-1]
+        script[1].close()
+        script[2].close()
+        self.layout().removeItem(script[0])
+        self._scripts.remove(script)
+        return True
+
     def _addScript(self):
 
         layout2=QHBoxLayout()
@@ -126,8 +141,24 @@ class FindDialog(QDialog):
         
         self._scripts+=[(layout2,findScriptLineEdit,findScriptLabel)]
         
-    def onScreen(self):
+    def onScreen(self, filter=False, find=True):
         logging.debug(__name__ +': onScreen')
+        self._find=find
+        self._filter=filter
+        if self._find and self._filter:
+            self._findNextButton.setDefault(True)
+            self.setWindowTitle("Find/Filter...")
+        elif self._find:
+            self._findNextButton.setDefault(True)
+            self.setWindowTitle("Find...")
+        elif self._filter:
+            self._filterButton.setDefault(True)
+            self.setWindowTitle("Filter...")
+            
+        self._findNextButton.setVisible(find)
+        if not find:
+            self._findPreviousButton.setVisible(find)
+        self._filterButton.setVisible(filter)
         self.show()
         self.raise_()
         self.activateWindow()
@@ -152,13 +183,13 @@ class FindDialog(QDialog):
     
     def setLabel(self,label):
         logging.debug(__name__ +': setLabel '+label)
-        self._findLabelLineEdit.insert(label)
+        self._findLabelLineEdit.setText(label)
     
     def properties(self):
-        return ((str(property[1].text()),str(property[2].text())) for property in self._properties)
+        return [(str(property[1].text()),str(property[2].text())) for property in self._properties]
     
     def scripts(self):
-        return (str(script[1].text()) for script in self._scripts)
+        return [str(script[1].text()) for script in self._scripts]
     
     def caseSensitive(self):
         return self._caseSensitiveCheckBox.checkState()==Qt.Checked
@@ -176,12 +207,17 @@ class FindDialog(QDialog):
         current=self._findAlgorithm.currentNumber()
         total=self._findAlgorithm.numberOfResults()
         message=self._findAlgorithm.message()
-        if message:
-            self._findNumberLabel.setText(message)
-        elif total>0:
-            self._findNumberLabel.setText(str(current)+"/"+str(total))
+        text=""
+        if self._filter:
+            text=str(total)+" found"
         else:
-            self._findNumberLabel.setText("not found")
+            if total>0:
+                text=str(current)+"/"+str(total)
+            else:
+                text="not found"
+        if message:
+            text+=" ("+message+")"
+        self._findNumberLabel.setText(text)
     
     def findPrevious(self):
         logging.debug(__name__ +': findPrevious')
@@ -193,6 +229,8 @@ class FindDialog(QDialog):
         logging.debug(__name__ +': findNext')
         if not self._findPreviousButton.isVisible():
             self._findNextButton.setVisible(False)
+            self._filterButton.setVisible(False)
+            self._resetButton.setVisible(False)
             self._findNumberLabel.setText("Searching...")
             self._findNumberLabel.show()
             thread = RunThread(self._findAlgorithm.findUsingFindDialog, self)
@@ -200,10 +238,42 @@ class FindDialog(QDialog):
                 QCoreApplication.instance().processEvents()
             object=thread.returnValue
             self._findNextButton.setVisible(True)
-            if object!=None:
-                self._findPreviousButton.show()
-                self._findNextButton.setText("&Next")
+            if self._filter:
+                self._filterButton.setVisible(True)
+            self._resetButton.setVisible(True)
+            self._findPreviousButton.show()
+            self._findNextButton.setText("&Next")
         else:
             object=self._findAlgorithm.next()
         self._updateNumberLabel()
         self.emit(SIGNAL("found"),object)
+
+    def filter(self):
+        logging.debug(__name__ +': findNext')
+        self._findNextButton.setVisible(False)
+        self._filterButton.setVisible(False)
+        self._resetButton.setVisible(False)
+        self._findNumberLabel.setText("Searching...")
+        self._findNumberLabel.show()
+        thread = RunThread(self._findAlgorithm.findUsingFindDialog, self)
+        while thread.isRunning():
+            QCoreApplication.instance().processEvents()
+        if self._find:
+            self._findNextButton.setVisible(True)
+        self._filterButton.setVisible(True)
+        self._resetButton.setVisible(True)
+        self._updateNumberLabel()
+        self.emit(SIGNAL("filtered"),self._findAlgorithm.results())
+
+    def reset(self):
+        self.setLabel("")
+        for p in self._properties:
+            self._removeProperty()
+        for p in self._scripts:
+            self._removeScript()
+        self._addStringProperty()
+        self._addScript()
+        self._findAlgorithm.clear()
+        self._updateNumberLabel()
+        if self._filter:
+            self.emit(SIGNAL("filtered"),None)

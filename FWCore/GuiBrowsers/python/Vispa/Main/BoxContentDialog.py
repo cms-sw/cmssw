@@ -4,19 +4,19 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 class BoxContentDialog(QDialog):
-    def __init__(self,parent=None):
-        logging.debug(__name__ +': __init__')
-        QDialog.__init__(self,parent)
+    def __init__(self, parent=None):
+        logging.debug(__name__ + ': __init__')
+        QDialog.__init__(self, parent)
         self.setWindowFlags(Qt.Window)
         self.setWindowTitle("Set box content...")
 
-        self._buttons=[]
+        self._buttons = []
         
         self.fill()
         self.hide()
         
     def fill(self):
-        logging.debug(__name__ +': fill')
+        logging.debug(__name__ + ': fill')
         self._scriptLabel = QLabel("Script: ")
         self._scriptTextEdit = QTextEdit()
 
@@ -25,8 +25,8 @@ class BoxContentDialog(QDialog):
         self._cancelButton = QPushButton("&Cancel")
 
         self.setLayout(QVBoxLayout())
-        self._layout3=QHBoxLayout()
-        self._layout4=QHBoxLayout()
+        self._layout3 = QHBoxLayout()
+        self._layout4 = QHBoxLayout()
     
         self.layout().addWidget(self._scriptLabel)
         self.layout().addWidget(self._scriptTextEdit)
@@ -43,26 +43,26 @@ class BoxContentDialog(QDialog):
         
         self._addLabelLabel = QLabel("Add: ")
         self._layout3.addWidget(self._addLabelLabel)
-        self.addButton("&Space","' '")
-        self.addButton("&New line","'\n'")
+        self.addButton("&Space", "' '")
+        self.addButton("&New line", "'\n'")
         self._layout3.addStretch()
 
-    def addButton(self,name,script):
-        button=QPushButton(name)
-        button.script=script
-        self._buttons+=[button]
+    def addButton(self, name, script):
+        button = QPushButton(name)
+        button.script = script
+        self._buttons += [button]
         self._layout3.addWidget(button)
         self.connect(button, SIGNAL('pressed()'), self.buttonPressed)
 
     def buttonPressed(self):
         for button in self._buttons:
             if button.isDown():
-                if self.script()!="":
+                if self.script() != "":
                     self._scriptTextEdit.textCursor().insertText("+")
                 self._scriptTextEdit.textCursor().insertText(button.script)
         
     def onScreen(self):
-        logging.debug(__name__ +': onScreen')
+        logging.debug(__name__ + ': onScreen')
         self.show()
         self.raise_()
         self.activateWindow()
@@ -76,12 +76,12 @@ class BoxContentDialog(QDialog):
         QDialog.keyPressEvent(self, event)
 
     def script(self):
-        return str(self._scriptTextEdit.toPlainText()).replace("\n","\\n")
+        return str(self._scriptTextEdit.toPlainText()).replace("\n", "\\n")
     
-    def setScript(self,script):
+    def setScript(self, script):
         self._scriptTextEdit.insertPlainText(script)
 
     def apply(self):
-        self.emit(SIGNAL("scriptChanged"),self.script())
+        self.emit(SIGNAL("scriptChanged"), self.script())
         self.accept()
     

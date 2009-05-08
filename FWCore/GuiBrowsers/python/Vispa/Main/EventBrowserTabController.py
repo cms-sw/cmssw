@@ -8,6 +8,7 @@ from Vispa.Main.Thread import RunThread
 
 from Vispa.Main.Workspace import *
 from Vispa.Main.BoxDecayTree import *
+from Vispa.Main.LineDecayTree import *
 
 class EventBrowserTabController(TripleTabController):
     """ The EventBrowserTabController supplies functionality for browsing objects in an EventBrowserTab and navigating through events.
@@ -19,10 +20,10 @@ class EventBrowserTabController(TripleTabController):
         self.setEditable(False)
 
         self._viewMenu.addSeparator()
-        self.addCenterView("&None", self.switchToNoneView)
+        self.addCenterView("&None", self.switchToNoneView, False, "Ctrl+0")
         self._noneCenterView = Workspace()
-        self.addCenterView("&Decay Tree Graph", self.switchToLineDecayTree, False, "Ctrl+D")
-        self.addCenterView("&Box Decay Tree", self.switchToBoxDecayView, True, "Ctrl+T")
+        self.addCenterView("&Box Decay Tree", self.switchToBoxDecayView, True, "Ctrl+1")
+        self.addCenterView("&Decay Tree Graph", self.switchToLineDecayTree, False, "Ctrl+2")
         self._boxDecayTree = BoxDecayTree()
         self.fillCenterViewSelectMenu()
         self._eventFileNavigator = EventFileNavigator(self.plugin().application())
@@ -54,7 +55,7 @@ class EventBrowserTabController(TripleTabController):
         logging.debug(__name__ + ": switchToBoxDecayView")
         
         self.tab().setCenterView(self._boxDecayTree)
-        self.tab().centerView().setUseLineDecayTree(False)
+        self.tab().centerView().setSubView(None)
         self._boxContentAction.setVisible(True)
         if self.tab().mainWindow():
             self.tab().mainWindow().application().showZoomToolBar()
@@ -65,8 +66,8 @@ class EventBrowserTabController(TripleTabController):
         """
         logging.debug(__name__ + ": switchToLineDecayTree")
         self.tab().setCenterView(self._boxDecayTree)
+        self.tab().centerView().setSubView(LineDecayTree)
         self._boxContentAction.setVisible(False)
-        self.tab().centerView().setUseLineDecayTree(True)
         if self.tab().mainWindow():
             self.tab().mainWindow().application().showZoomToolBar()
         self._saveIni()
@@ -91,10 +92,10 @@ class EventBrowserTabController(TripleTabController):
             self._currentCenterView = proposed_view
             self._centerViewActions[self._currentCenterView].setChecked(True)
         self._availableCenterViews[self._currentCenterView]()
+        self.connect(self.tab().centerView(), SIGNAL("selected"), self.onSelected)
         if ini.has_option("view", "box content script"):
             self._boxDecayTree.setBoxContentScript(str(ini.get("view", "box content script")))
             self._boxContentDialog.setScript(str(ini.get("view", "box content script")))
-        self.connect(self.tab().centerView(), SIGNAL("widgetSelected"), self.onWidgetSelected)
 
     def switchToNoneView(self):
         logging.debug(__name__ + ": switchToNoneView")

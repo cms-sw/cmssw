@@ -160,6 +160,8 @@ class PropertyView(QTableWidget):
                 propertyObject.setChecked(property[2])      # strange, does not work in constructor
             elif property[0] == "Integer":
                 propertyObject = self.append(IntegerProperty(property[1], property[2]))
+            elif property[0] == "Float":
+                propertyObject = self.append(FloatProperty(property[1], property[2]))
                 
             if len(property) > 3 and property[3] == "readonly":
                 propertyObject.setReadOnly(True)
@@ -579,6 +581,26 @@ class IntegerProperty(StringProperty):
     def createTextEdit(self, value=None):
         StringProperty.createTextEdit(self, value)
         self.textEdit().setInputMask("0000000000000000000000000000")
+            
+class FloatProperty(StringProperty):
+    """ StringProperty which holds float numbers.
+    """
+    
+    USER_INFO = "Float field"
+    
+    def __init__(self, name, value):
+        """ Constructor
+        """
+        StringProperty.__init__(self, name, value)
+        
+    def _toString(self, object):
+        if isinstance(object, float):
+            return "%g" % object
+        else:
+            return str(object)
+
+    def setValue(self, value):
+        StringProperty.setValue(self, self._toString(value))
             
 class FileProperty(TextEditWithButtonProperty):
     """ This property has an editable text line and a button. If the button is clicked a dialog allowing to chose a file appears. """

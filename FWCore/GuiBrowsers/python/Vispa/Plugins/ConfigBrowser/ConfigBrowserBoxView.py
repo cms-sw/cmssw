@@ -36,8 +36,8 @@ class ConfigBrowserBoxView(BoxDecayTree):
         for connection in self._connections:
             if operationId != self._operationId:
                 break
-            w1 = self.widgetByObject(connection[0])
-            w2 = self.widgetByObject(connection[2])
+            w1 = self._widgetByObject(connection[0])
+            w2 = self._widgetByObject(connection[2])
             if w1 and w2 and w2 == widget:
                 col = - 1
                 for w in children:

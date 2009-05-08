@@ -11,7 +11,6 @@ from RelativeDataAccessor import *
 from ParticleDataAccessor import *
 from PortConnection import *
 from Workspace import *
-from LineDecayTree import *
 from Exceptions import *
 
 class BoxDecayTree(Workspace):
@@ -23,21 +22,17 @@ class BoxDecayTree(Workspace):
         logging.debug(__name__ + ": __init__")
         Workspace.__init__(self, parent)
 
-        self._accessor = None
-        self._dataObjects = []
         self._operationId = 0
         self._boxContentScript = ""
         self._sortBeforeArranging = True
-        self._useLineDecayTree = False
-                
+        self._subView = None
+        self._subViews = []
+
         self.setPalette(QPalette(Qt.black, Qt.white))
 
-    def useLineDecayTree(self):
-        return self._useLineDecayTree
+    def setSubView(self, view):
+        self._subView = view
     
-    def setUseLineDecayTree(self, use):
-        self._useLineDecayTree = use
-
     def setSortBeforeArranging(self, set):
         self._sortBeforeArranging = set
     
@@ -59,21 +54,8 @@ class BoxDecayTree(Workspace):
             raise TypeError(__name__ + " requires data accessor of type BasicDataAccessor.")
         if not isinstance(accessor, RelativeDataAccessor):
             raise TypeError(__name__ + " requires data accessor of type RelativeDataAccessor.")
-        self._accessor = accessor
+        Workspace.setDataAccessor(self, accessor)
     
-    def accessor(self):
-        return self._accessor
-    
-    def setDataObjects(self, objects):
-        """ Sets the selected object from which the boxes are created
-        
-        You need to call updateContent() in order to make the changes visible   
-        """
-        self._dataObjects = objects
-        
-    def dataObjects(self):
-        return self._dataObjects
-
     def clear(self):
         """ Deletes all boxes in the BoxDecayTree
         """
@@ -81,15 +63,17 @@ class BoxDecayTree(Workspace):
         # Abort currently ongoing drawing operations
         self._operationId += 1
         Workspace.clear(self)
+        self._subViews = []
 
     def updateContent(self):
         """ Clear the BoxDecayTree and refill it.
         """
         logging.debug(__name__ + ": updateContent")
+        self._updatingFlag = True
         self.clear()
         operationId = self._operationId
-        if self._accessor:
-            objects = self._dataObjects
+        if self._dataAccessor:
+            objects = self._filter(self._dataObjects)
             if self._sortBeforeArranging:
                 objects = self._sortByRelations(operationId, objects)
             i = 0
@@ -98,6 +82,7 @@ class BoxDecayTree(Workspace):
                     break
                 self.createBoxRecursive(operationId, object, self, str(i))
                 i += 1
+        self._updatingFlag = False
         return operationId == self._operationId
 
     def createBox(self, widgetParent, container, title, text):
@@ -165,7 +150,7 @@ class BoxDecayTree(Workspace):
         """
         widget.setShowPortNames(False)
         # create port for daughters
-        if self._accessor.daughterRelations(widget.object):
+        if self._dataAccessor.daughterRelations(widget.object):
             self.createSourcePort(widget, "daughterRelations", False)
         # create connections to mothers
         if widgetParent:
@@ -176,7 +161,7 @@ class BoxDecayTree(Workspace):
         for w in children:
             if operationId != self._operationId:
                 break
-            if w.object in self._accessor.motherRelations(widget.object):
+            if w.object in self._dataAccessor.motherRelations(widget.object):
                 self.createConnection(w, 'daughterRelations', widget, 'motherRelations', None, False)
         widget.raise_()
         
@@ -187,7 +172,7 @@ class BoxDecayTree(Workspace):
         topMargin = widget.getDistance('topMargin')
         x = leftMargin
         y = topMargin
-        motherRelations = self._accessor.allMotherRelations(widget.object)
+        motherRelations = self._dataAccessor.allMotherRelations(widget.object)
         if widget.parent():
             vispaWidgets = [w for w in widget.parent().children() if isinstance(w, VispaWidget)]
             children = vispaWidgets[:vispaWidgets.index(widget)]
@@ -205,12 +190,12 @@ class BoxDecayTree(Workspace):
             if not w.object in motherRelations and\
                 y < w.y() + w.height():
                 y = w.y() + w.height() + topMargin
-        # resolve overlaps with LineDecayTree
-        if widget.parent():
-            lineDecayTrees = [w for w in widget.parent().children() if isinstance(w, LineDecayTree)]
+        # resolve overlaps with SubViews
+        if self._subView != None and widget.parent():
+            subViews = [w for w in widget.parent().children() if isinstance(w, self._subView)]
         else:
-            lineDecayTrees = []
-        for w in lineDecayTrees:
+            subViews = []
+        for w in subViews:
             if y < w.y() + w.height():
                 y = w.y() + w.height() + topMargin
         widget.move(x, y)
@@ -224,7 +209,7 @@ class BoxDecayTree(Workspace):
             vispaWidgets = [w for w in widget.parent().children() if isinstance(w, VispaWidget)]
             children = vispaWidgets[vispaWidgets.index(widget) + 1:]
         else:
-            children= []
+            children = []
         for w in children:
             self.arrangeBoxPosition(w)
 
@@ -241,13 +226,13 @@ class BoxDecayTree(Workspace):
         # create box
         text = ""
         if self._boxContentScript != "":
-            dataAccessorObject = BasicDataAccessorInterface(object, self._accessor)
+            dataAccessorObject = BasicDataAccessorInterface(object, self._dataAccessor)
             try:
-                text = dataAccessorObject.applyScript(self._boxContentScript).replace("None", "")
+                text = dataAccessorObject.runScript(self._boxContentScript).replace("None", "")
             except Exception, e:
                 logging.info("Error in script: " + exception_traceback())
                 text = "Error in script: " + str(e)
-        widget = self.createBox(widgetParent, len(self._accessor.children(object)) > 0, self._accessor.label(object), text)
+        widget = self.createBox(widgetParent, len(self._dataAccessor.children(object)) > 0, self._dataAccessor.label(object), text)
         self.addWidget(widget, object, id)
 
         # create Connections
@@ -258,17 +243,19 @@ class BoxDecayTree(Workspace):
         if isinstance(widget, WidgetContainer):
             decayTreeChildren = []
             otherChildren = []
-            for daughter in self._accessor.children(object):
-                if len(self._accessor.children(daughter)) == 0 and isinstance(self._accessor, ParticleDataAccessor) and self._accessor.id(daughter)!=None:
+            for daughter in self._filter(self._dataAccessor.children(object)):
+                if len(self._dataAccessor.children(daughter)) == 0 and isinstance(self._dataAccessor, ParticleDataAccessor) and self._dataAccessor.id(daughter) != None:
                     decayTreeChildren += [daughter]
                 else:
                     otherChildren += [daughter]
-            if self._useLineDecayTree and len(decayTreeChildren) > 0:
-                lineDecayTree = LineDecayTree(widget)
-                lineDecayTree.setDataAccessor(self._accessor)
-                lineDecayTree.setDataObjects(decayTreeChildren)
-                lineDecayTree.updateContent()
-                lineDecayTree.move(widget.getDistance('leftMargin'), widget.getDistance('topMargin'))
+            if self._subView != None and len(decayTreeChildren) > 0:
+                subView = self._subView(widget)
+                subView.setDataAccessor(self._dataAccessor)
+                subView.setDataObjects(decayTreeChildren)
+                subView.updateContent()
+                subView.move(widget.getDistance('leftMargin'), widget.getDistance('topMargin'))
+                self._subViews += [subView]
+                self.connect(subView, SIGNAL("selected"), self.onSubViewSelected)
             else:
                 otherChildren += decayTreeChildren
             if self._sortBeforeArranging:
@@ -312,8 +299,8 @@ class BoxDecayTree(Workspace):
                 break
             if currentObject in unsortedObjects:
                 motherFound = False
-                if len(self._accessor.motherRelations(currentObject)) > 0:
-                    for mother in reversed(self._accessor.motherRelations(currentObject)):
+                if len(self._dataAccessor.motherRelations(currentObject)) > 0:
+                    for mother in reversed(self._dataAccessor.motherRelations(currentObject)):
                         if mother in unsortedObjects:
                             motherFound = True
                             unsortedObjects.remove(mother)
@@ -324,10 +311,10 @@ class BoxDecayTree(Workspace):
                     unsortedObjects.remove(currentObject)
                     sortedObjects += [currentObject]
             else:
-                if len(self._accessor.daughterRelations(currentObject)) > 0:
-                    for daughter in reversed(self._accessor.daughterRelations(currentObject)):
+                if len(self._dataAccessor.daughterRelations(currentObject)) > 0:
+                    for daughter in reversed(self._dataAccessor.daughterRelations(currentObject)):
                         if daughter in unsortedObjects:
-                            if len(self._accessor.motherRelations(daughter)) == 1 and len(self._accessor.daughterRelations(daughter)) == 0:
+                            if len(self._dataAccessor.motherRelations(daughter)) == 1 and len(self._dataAccessor.daughterRelations(daughter)) == 0:
                                 unsortedObjects.remove(daughter)
                                 sortedObjects += [daughter]
                             else:
@@ -337,6 +324,48 @@ class BoxDecayTree(Workspace):
                     currentObject = unsortedObjects[0]
         return tuple(sortedObjects)
 
-    def closeEvent(self,event):
+    def closeEvent(self, event):
         self.clear()
-        Workspace.closeEvent(self,event)
+        Workspace.closeEvent(self, event)
+
+    def onSubViewSelected(self, object):
+        """ When item is selected in SubView forward signal.
+        """
+        logging.debug(self.__class__.__name__ + ": onDecayTreeItemSelected")
+        self.emit(SIGNAL("selected"), object)
+        for sv in self._subViews:
+            if object in sv.dataObjects():
+                self._selection = "subview-" + str(self._subViews.index(sv)) + "-" + str(sv.dataObjects().index(object))
+
+    def select(self, object):
+        """ Mark an object as selected. Also in subviews.
+        """
+        logging.debug(self.__class__.__name__ + ": select")
+        Workspace.select(self, object)
+        for sv in self._subViews:
+            if object in sv.dataObjects():
+                sv.select(object)
+    
+    def selection(self):
+        """ Return the selected object. Also in subviews.
+        """
+        selection = Workspace.selection(self)
+        for sv in self._subViews:
+            if sv.selection() != None:
+                selection = sv.selection()
+        return selection
+
+    def restoreSelection(self):
+        """ Restore selection. Also in subviews.
+        """
+        logging.debug(self.__class__.__name__ + ": restoreSelection")
+        Workspace.restoreSelection(self)
+        if self._selection != None and self._selection.startswith("subview"):
+            split = self._selection.split("-")
+            if len(self._subViews) > int(split[1]):
+                sv = self._subViews[int(split[1])]
+                if len(sv.dataObjects()) > int(split[2]):
+                    sv.select(sv.dataObjects()[int(split[2])])
+        for sv in self._subViews:
+            if object in sv.dataObjects():
+                sv.select(object)

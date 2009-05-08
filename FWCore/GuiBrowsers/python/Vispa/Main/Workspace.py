@@ -2,23 +2,25 @@ import logging
 
 from PyQt4.QtGui import *
 
+from Vispa.Main.AbstractView import *
 from Vispa.Main.ZoomableWidget import *
 from Vispa.Main.ZoomableScrollArea import *
 from Vispa.Main.ConnectableWidgetOwner import *
 
-class Workspace(ZoomableWidget, ConnectableWidgetOwner):
+class Workspace(AbstractView, ZoomableWidget, ConnectableWidgetOwner):
     """ Area for drawing connectable widgets.
     
-    The Workspace maps all widgets to an id and a data object.
     New widgets have to be added by using the addWidget function.
-    A widget can be retrieved by widgetById or widgetByObject.
+    The Workspace takes of the selection of widgets.
     """
     def __init__(self, parent=None):
         logging.debug(__name__ + ": __init__")
+        AbstractView.__init__(self)
         ZoomableWidget.__init__(self, parent)
         ConnectableWidgetOwner.__init__(self)
 
-        self.widgetDict = {}
+        self._widgetDict = {}
+        self._selection = None
 
     def setZoom(self, zoom):
         """ Sets zoom.
@@ -48,73 +50,78 @@ class Workspace(ZoomableWidget, ConnectableWidgetOwner):
         """
         logging.debug(__name__ + ": widgetSelected")
         ConnectableWidgetOwner.widgetSelected(self, widget)
-        self.emit(SIGNAL("widgetSelected"), widget)
+        if not self._updatingFlag:
+            self._selection = widget.widgetId
+            self.emit(SIGNAL("selected"), widget.object)
         
     def deselectAllWidgets(self, exception=None):
-        ConnectableWidgetOwner.deselectAllWidgets(self,exception)
-        self.emit(SIGNAL("widgetSelected"), None)
-
-    def select(self, widget):
-        """ Mark a widget as selected.
+        """ Emits signal widgetSelected that the TabController can connect to.
         """
-        if widget:
-            widget.select()
-        else:
-            self.deselectAllWidgets()
+        ConnectableWidgetOwner.deselectAllWidgets(self, exception)
+        if not self._updatingFlag:
+            self._selection = None
+            self.emit(SIGNAL("selected"), None)
 
-    def widgetById(self, id):
-        """ Return a widget in the Workspace with a certain id.
-        
-        The id is unique inside the Workspace and can be accessed by anyWidget.widgetId.
-        """
-        if id in self.widgetDict.keys():
-            return self.widgetDict[id]
-        return None
-
-    def widgetByObject(self, object):
-        """ Return a widget in the Workspace with a certain object.
-        """
+    def _widgetByObject(self, object):
         widgets = []
-        for id, widget in self.widgetDict.items():
+        for id, widget in self._widgetDict.items():
             if widget.object == object:
                 widgets += [(id, widget)]
         if len(widgets) > 0:
             return sorted(widgets)[0][1]
-        return None
+        else:
+            return None
+
+    def select(self, object):
+        """ Mark an object as selected.
+        """
+        widget = self._widgetByObject(object)
+        if widget!=None:
+            self._selection = widget.widgetId
+            self._updatingFlag = True
+            widget.select()
+            self._updatingFlag = False
+        else:
+            self._selection = None
+            self._updatingFlag = True
+            self.deselectAllWidgets()
+            self._updatingFlag = False
+
+    def restoreSelection(self):
+        """ Restore selection.
+        """
+        if self._selection in self._widgetDict.keys():
+            widget = self._widgetDict[self._selection]
+            widget.select()
+
+    def selection(self):
+        """ Return the currently selected object.
+        """
+        if self._selection in self._widgetDict.keys():
+            return self._widgetDict[self._selection].object
+        else:
+            return None
 
     def clear(self):
         """ Deletes all boxes in the Workspace
         """
         logging.debug(__name__ + ": clear")
-        self.widgetDict = {}
+        self._widgetDict = {}
         for w in self.children():
             w.setParent(None)
             w.deleteLater()
             
     def addWidget(self, widget, object=None, id=0):
-        if id in self.widgetDict.keys():
+        """ Add widget to the view and map it to an id.
+        """
+        if id in self._widgetDict.keys():
             id = 0
-            while id in self.widgetDict.keys():
+            while id in self._widgetDict.keys():
                 id += 1
-        widget.widgetId = id
+        widget.widgetId = str(id)+"("+self._dataAccessor.label(object)+")"
         widget.object = object
-        self.widgetDict[widget.widgetId] = widget
+        self._widgetDict[widget.widgetId] = widget
 
     def closeEvent(self, event):
         self.clear()
         event.accept()
-
-    def updateContent(self):
-        pass
-
-    def setDataObjects(self, objects):
-        pass
-
-    def setDataAccessor(self, accessor):
-        pass
-
-    def setBoxContentScript(self, script):
-        pass
-
-    def setFilterObjects(self, objects):
-        pass

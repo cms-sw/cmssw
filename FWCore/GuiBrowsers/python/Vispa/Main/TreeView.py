@@ -4,16 +4,19 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
 from Vispa.Main.BasicDataAccessor import *
+from Vispa.Main.AbstractView import *
 
-class TreeView(QTreeWidget):
+class TreeView(AbstractView, QTreeWidget):
     """ The TreeView widget fills itself using a DataAccessor.
     """
-    def __init__(self, parent=None, name=None, fl=0):
+    def __init__(self, parent=None, maxDepth=100):
         logging.debug(__name__ + ": __init__")
+        AbstractView.__init__(self)
         QTreeWidget.__init__(self, parent)
-        self._accessor = None
         self._itemDict = {}
-        self._dataObjects = []
+        self._maxDepth = maxDepth
+        self._selection = None
+        self._updatingFlag = False
 
         self.setSortingEnabled(False)
         self.setColumnCount(1)
@@ -30,21 +33,13 @@ class TreeView(QTreeWidget):
         """
         if not isinstance(accessor, BasicDataAccessor):
             raise TypeError(__name__ + " requires data accessor of type BasicDataAccessor.")
-        self._accessor = accessor
-    
-    def accessor(self):
-        return self._accessor
-    
-    def setDataObjects(self, objects):
-        """ Sets the objects that shall be shown.
-        
-        You need to call updateContent() in order to make the changes visible.   
-        """
-        self._dataObjects = objects
-        
-    def dataObjects(self):
-        return self._dataObjects
+        AbstractView.setDataAccessor(self, accessor)
 
+    def setDataObjects(self, objects):
+        if len(self._dataObjects)!=len(objects):
+            self._selection=None
+        AbstractView.setDataObjects(self, objects)
+    
     def clear(self):
         """ Deletes all items in the TreeView
         """
@@ -55,56 +50,80 @@ class TreeView(QTreeWidget):
     def updateContent(self):
         """ Clear the TreeView and refill it.
         """
+        logging.debug(__name__ + ": updateContent")
+        self._updatingFlag = True
         self.clear()
-        if self._accessor:
+        if self._dataAccessor:
             i = 0
-            for object in self._dataObjects:
+            for object in self._filter(self._dataObjects):
                 self._createNode(object, self, str(i))
                 i += 1
         self.expandToDepth(0)
+        self._updatingFlag = False
         
     def _createNode(self, object=None, itemParent=None, id="0"):
         """ Create daughter items of an object recursively.
         """
         item = QTreeWidgetItem(itemParent)
-        item.setText(0, self._accessor.label(object))
+        item.setText(0, self._dataAccessor.label(object))
         item.object = object
-        item.itemId = id
+        item.itemId = str(id)+"("+self._dataAccessor.label(object)+")"
         self._itemDict[item.itemId] = item
         i = 0
-        for daughter in self._accessor.children(object):
-            self._createNode(daughter, item, id + "-" + str(i))
-            i += 1
+        if len(id.split("-")) < self._maxDepth:
+            for daughter in self._filter(self._dataAccessor.children(object)):
+                self._createNode(daughter, item, id + "-" + str(i))
+                i += 1
 
     def itemSelectionChanged(self):
-        """ Emits signal itemSelected that the TabController can connect to.
+        """ Emits signal selected that the TabController can connect to.
         """
         logging.debug(__name__ + ": itemSelectionChanged")
-        self.emit(SIGNAL("itemSelected"), self.currentItem())
+        if not self._updatingFlag:
+            self._selection = self.currentItem().itemId
+            self.emit(SIGNAL("selected"), self.currentItem().object)
         
-    def itemById(self, id):
-        """ Return an item in the TreeView with a certain id.
-        
-        The id is unique inside the TreeView and can be accessed by anyItem.itemId.
+    def select(self, object):
+        """ Mark an object in the TreeView as selected.
         """
-        if id in self._itemDict.keys():
-            return self._itemDict[id]
-        return None
-
-    def select(self, item):
-        """ Mark an item in the TreeView as selected.
-        """
-        if item != None:
-            self.setCurrentItem(item)
-
-    def itemByObject(self, object):
-        """ Return an item in the TreeView with a certain object.
-        """
+        logging.debug(__name__ + ": select")
         items = []
         for id, item in self._itemDict.items():
             if item.object == object:
                 items += [(id, item)]
         if len(items) > 0:
-            return sorted(items)[0][1]
+            item = sorted(items)[0][1]
+            self._selection = item.itemId
+            self._updatingFlag = True
+            self.setCurrentItem(item)
+            self._updatingFlag = False
+
+    def _selectedItem(self):
+        if self._selection in self._itemDict.keys():
+            return self._itemDict[self._selection]
+        elif len(self._itemDict.items()) > 0:
+            return sorted(self._itemDict.items())[0][1]
+        else:
+            return None
+
+    def restoreSelection(self):
+        """ Restore selection.
+        """
+        logging.debug(__name__ + ": restoreSelection")
+        select = self._selectedItem()
+        if select != None:
+            self._updatingFlag = True
+            self.setCurrentItem(select)
+            self._updatingFlag = False
+    
+    def selection(self):
+        """ Return currently selected object.
+        
+        If selection unknown return first object.
+        """
+        logging.debug(__name__ + ": selection")
+        select = self._selectedItem()
+        if select != None:
+            return select.object
         else:
             return None
