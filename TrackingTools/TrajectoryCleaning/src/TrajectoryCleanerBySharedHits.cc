@@ -5,6 +5,12 @@
 #include <vector>
 #include <boost/unordered_map.hpp>
 
+#include "TrackingTools/TrajectoryCleaning/src/OtherHashMaps.h"
+
+
+//#define DEBUG_PRINT(X) X
+#define DEBUG_PRINT(X) 
+
 // Define when two rechits are equals
 struct EqualsBySharesInput { 
     bool operator()(const TransientTrackingRecHit *h1, const TransientTrackingRecHit *h2) const {
@@ -19,37 +25,46 @@ struct HashByDetId : std::unary_function<const TransientTrackingRecHit *, std::s
     }
 };
 
+
 using namespace std;
 
 void TrajectoryCleanerBySharedHits::clean( TrajectoryPointerContainer & tc) const
 {
-  typedef vector<Trajectory*>::iterator TI;
-  typedef vector<TI> TIs;
-  typedef boost::unordered_map<const TransientTrackingRecHit*, TIs, HashByDetId, EqualsBySharesInput> RecHitMap;
-  //typedef map<Trajectory*,int,less<Trajectory*> > TrajMap;  // for each Trajectory it stores the number of shared hits
-  typedef boost::unordered_map<Trajectory*, int> TrajMap;  // for each Trajectory it stores the number of shared hits
-  RecHitMap theRecHitMap(20*tc.size()); 
+  if (tc.size() <= 1) return; // nothing to clean
 
-  // start filling theRecHit
-  for (TrajectoryCleaner::TrajectoryPointerIterator
+  //typedef boost::unordered_map<const TransientTrackingRecHit*, TIs, HashByDetId, EqualsBySharesInput> RecHitMap;
+  typedef cmsutil::SimpleAllocHashMultiMap<const TransientTrackingRecHit*, Trajectory *, HashByDetId, EqualsBySharesInput> RecHitMap;
+
+  //typedef boost::unordered_map<Trajectory*, int> TrajMap;  // for each Trajectory it stores the number of shared hits
+  typedef cmsutil::UnsortedDumbVectorMap<Trajectory*, int> TrajMap;
+
+  static RecHitMap theRecHitMap(128,256,1024);// allocate 128 buckets, one row for 256 keys and one row for 512 values
+  theRecHitMap.clear(10*tc.size());           // set 10*tc.size() active buckets
+                                              // numbers are not optimized
+
+  DEBUG_PRINT(std::cout << "Filling RecHit map" << std::endl);
+  for (TrajectoryPointerContainer::iterator
 	 it = tc.begin(); it != tc.end(); ++it) {
+    DEBUG_PRINT(std::cout << "  Processing trajectory " << *it << " (" << (*it)->foundHits() << " valid hits)" << std::endl);
     const Trajectory::DataContainer & pd = (*it)->data();
     for (Trajectory::DataContainer::const_iterator im = pd.begin();
     	 im != pd.end(); im++) {
-      //RC const TransientTrackingRecHit* theRecHit = ((*im).recHit());
       const TransientTrackingRecHit* theRecHit = &(*(*im).recHit());
       if (theRecHit->isValid()) {
-        theRecHitMap[theRecHit].push_back(it);
+        DEBUG_PRINT(std::cout << "    Added hit " << theRecHit << " for trajectory " << *it << std::endl);
+        theRecHitMap.insert(theRecHit, *it);
       }
     }
   }
+  DEBUG_PRINT(theRecHitMap.dump());
 
+  DEBUG_PRINT(std::cout << "Using RecHit map" << std::endl);
   // for each trajectory fill theTrajMap
-
-  TrajMap theTrajMap(20);
+  static TrajMap theTrajMap; 
   for (TrajectoryCleaner::TrajectoryPointerIterator
 	 itt = tc.begin(); itt != tc.end(); ++itt) {
     if((*itt)->isValid()){  
+      DEBUG_PRINT(std::cout << "  Processing trajectory " << *itt << " (" << (*itt)->foundHits() << " valid hits)" << std::endl);
       theTrajMap.clear();
       const Trajectory::DataContainer & pd = (*itt)->data();
       for (Trajectory::DataContainer::const_iterator im = pd.begin();
@@ -57,12 +72,12 @@ void TrajectoryCleanerBySharedHits::clean( TrajectoryPointerContainer & tc) cons
 	//RC const TransientTrackingRecHit* theRecHit = ((*im).recHit());
 	const TransientTrackingRecHit* theRecHit = &(*(*im).recHit());
         if (theRecHit->isValid()) {
-          const TIs & hitTrajectories = theRecHitMap[theRecHit];
-	  for (TIs::const_iterator ivec=hitTrajectories.begin(); 
-	     ivec!=hitTrajectories.end(); ivec++) {
-              if (*ivec != itt){
-                if ((**ivec)->isValid()){
-                    theTrajMap[**ivec]++;
+          DEBUG_PRINT(std::cout << "    Searching for overlaps on hit " << theRecHit << " for trajectory " << *itt << std::endl);
+          for (RecHitMap::value_iterator ivec = theRecHitMap.values(theRecHit);
+                ivec.good(); ++ivec) {
+              if (*ivec != *itt){
+                if ((*ivec)->isValid()){
+                    theTrajMap[*ivec]++;
                 }
               }
           }
