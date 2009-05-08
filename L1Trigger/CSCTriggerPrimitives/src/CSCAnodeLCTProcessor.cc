@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2009/03/27 17:04:52 $
-//   $Revision: 1.32 $
+//   $Date: 2009/04/10 14:44:06 $
+//   $Revision: 1.33 $
 //
 //   Modifications: 
 //
@@ -494,7 +494,7 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
 	if (preTrigger(i_wire, start_bx)) {
 	  if (infoV > 2) showPatterns(i_wire);
 	  if (patternDetection(i_wire)) {
-	    trigger  = true;
+	    trigger = true;
 	    break;
 	  }
 	  else {
@@ -963,7 +963,7 @@ void CSCAnodeLCTProcessor::lctSearch() {
   // with the best quality per time bin.
   std::vector<CSCALCTDigi> fourBest = bestTrackSelector(lct_list);
 
-  // Select two best of of four per time bin, based on quality and
+  // Select two best of four per time bin, based on quality and
   // accel_mode parameter.
   for (std::vector<CSCALCTDigi>::const_iterator plct = fourBest.begin();
        plct != fourBest.end(); plct++) {
@@ -1161,7 +1161,7 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(
     }
   }
 
-  // Fill the vector with up to four best ALCTs and return it.
+  // Fill the vector with up to four best ALCTs per bx and return it.
   std::vector<CSCALCTDigi> fourBest;
   for (int bx = 0; bx <= late_tbins; bx++) {
     for (int i = 0; i < 2; i++) {
@@ -1389,11 +1389,13 @@ void CSCAnodeLCTProcessor::showPatterns(const int key_wire) {
 	std::ostringstream strstrm_pulse;
 	int this_layer = pattern_envelope[0][i_wire];
 	int this_wire  = pattern_envelope[1+MESelection][i_wire]+key_wire;
-	for (int i = 1; i <= 32; i++) {
-	  strstrm_pulse << ((pulse[this_layer][this_wire]>>(32-i)) & 1);
+	if (this_wire >= 0 && this_wire < numWireGroups) {
+	  for (int i = 1; i <= 32; i++) {
+	    strstrm_pulse << ((pulse[this_layer][this_wire]>>(32-i)) & 1);
+	  }
+	  LogTrace("CSCAnodeLCTProcessor")
+	    << strstrm_pulse.str() << " on layer " << this_layer;
 	}
-	LogTrace("CSCAnodeLCTProcessor")
-	  << strstrm_pulse.str() << " on layer " << this_layer;
       }
     }
     LogTrace("CSCAnodeLCTProcessor")
