@@ -259,19 +259,20 @@ match(products& output, LocalVector trackdirection) const
 void SiStripRecHitConverterAlgorithm::
 fillBad128StripBlocks(const uint32_t &detid, bool bad128StripBlocks[6] ) const 
 {
-  short badApvs   = quality->getBadApvs(detid);
-  short badFibers = quality->getBadFibers(detid);
-  for (int j = 0; j < 6; j++) {
-    bad128StripBlocks[j] = (badApvs & (1 << j));
-  }
-  for (int j = 0; j < 3; j++) {
-    if (badFibers & (1 << j)) {
-      bad128StripBlocks[2*j+0] = true;
-      bad128StripBlocks[2*j+1] = true;
+  if(maskBad128StripBlocks) {
+    short badApvs   = quality->getBadApvs(detid);
+    short badFibers = quality->getBadFibers(detid);
+    for (int j = 0; j < 6; j++) {
+      bad128StripBlocks[j] = (badApvs & (1 << j));
+    }
+    for (int j = 0; j < 3; j++) {
+      if (badFibers & (1 << j)) {
+	bad128StripBlocks[2*j+0] = true;
+	bad128StripBlocks[2*j+1] = true;
+      }
     }
   }
 }
-
 
 inline
 bool SiStripRecHitConverterAlgorithm::
