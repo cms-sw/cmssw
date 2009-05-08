@@ -14,6 +14,7 @@
 <use name=MagneticField/Engine>
 <use name=CondFormats/SiStripObjects>
 <use name=CalibFormats/SiStripObjects>
+<use name=CalibTracker/Records>
 <use name=TrackingTools/TransientTrackingRecHit>
 
 <export>
@@ -34,5 +35,6 @@
 <use name=MagneticField/Engine>
 <use name=CondFormats/SiStripObjects>
 <use name=CalibFormats/SiStripObjects>
+<use name=CalibTracker/Records>
 <use name=TrackingTools/TransientTrackingRecHit>
 </export>

@@ -15,11 +15,10 @@ class SiStripRecHitConverter : public edm::EDProducer
   
  private:
   
-  SiStripRecHitConverterAlgorithm recHitConverterAlgorithm_;
-  edm::ParameterSet conf_;
-  std::string matchedRecHitsTag_, rphiRecHitsTag_, stereoRecHitsTag_;
-  std::string np_;
-  bool m_newCont; // save also in emdNew::DetSetVector
+  SiStripRecHitConverterAlgorithm recHitConverterAlgorithm;
+  std::string matchedRecHitsTag, rphiRecHitsTag, stereoRecHitsTag;
+  edm::InputTag clusterProducer, lazyGetterProducer;
+  bool regional;
   
 };
 #endif
