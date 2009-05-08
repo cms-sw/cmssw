@@ -2,8 +2,8 @@
  * Class: GlobalMuonMatchAnalyzer
  *
  *
- * $Date: 2008/03/02 20:26:22 $
- * $Revision: 1.6 $
+ * $Date: 2009/05/08 09:56:38 $
+ * $Revision: 1.7 $
  *
  * Authors :
  * \author Adam Everett - Purdue University
@@ -227,16 +227,6 @@ GlobalMuonMatchAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 void 
 GlobalMuonMatchAnalyzer::beginJob()
 {
-  // Tk Associator
-  edm::ESHandle<TrackAssociatorBase> tkassociatorHandle;
-  setup.get<TrackAssociatorRecord>().get(tkAssociatorName_,tkassociatorHandle);
-  tkAssociator_ = tkassociatorHandle.product();
-
-  // Mu Associator
-  edm::ESHandle<TrackAssociatorBase> muassociatorHandle;
-  setup.get<TrackAssociatorRecord>().get(muAssociatorName_,muassociatorHandle);
-  muAssociator_ = muassociatorHandle.product();
-
   dbe_->cd();
   std::string dirName="Matcher/";
   dbe_->setCurrentFolder("RecoMuonV/Matcher");
@@ -268,6 +258,21 @@ GlobalMuonMatchAnalyzer::endJob() {
 
   if( out.size() != 0 && dbe_ ) dbe_->save(out);
 }
+
+void GlobalMuonMatchAnalyzer::beginRun(const edm::EventSetup& setup)
+{
+  // Tk Associator
+  edm::ESHandle<TrackAssociatorBase> tkassociatorHandle;
+  setup.get<TrackAssociatorRecord>().get(tkAssociatorName_,tkassociatorHandle);
+  tkAssociator_ = tkassociatorHandle.product();
+
+  // Mu Associator
+  edm::ESHandle<TrackAssociatorBase> muassociatorHandle;
+  setup.get<TrackAssociatorRecord>().get(muAssociatorName_,muassociatorHandle);
+  muAssociator_ = muassociatorHandle.product();
+}
+
+
 
 void GlobalMuonMatchAnalyzer::computeEfficiencyEta(MonitorElement *effHist, MonitorElement *recoTH2, MonitorElement *simTH2){
   TH2F * h1 = recoTH2->getTH2F();
