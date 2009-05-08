@@ -1,13 +1,15 @@
+
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
+<use name=DataFormats/Math>
 <use name=DataFormats/ParticleFlowReco>
-<use name=DataFormats/EcalRecHit>
 <use name=DataFormats/EgammaReco>
-<use name=Geometry/CaloEventSetup>
-<use name=Geometry/CaloGeometry>
-<use name=Geometry/CaloTopology>
-<use name=RecoParticleFlow/PFClusterShapeAlgo>
-<flags EDM_PLUGIN=1>
 <export>
-   <lib name=RecoParticleFlowPFClusterShapeProducer>
+  <lib name=RecoParticleFlowPFClusterShapeProducer>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=DataFormats/Math>
+  <use name=DataFormats/ParticleFlowReco>
+  <use name=DataFormats/EgammaReco>
 </export>
+

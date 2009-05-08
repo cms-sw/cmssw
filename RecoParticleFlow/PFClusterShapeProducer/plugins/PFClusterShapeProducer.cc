@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/PFClusterShapeProducer/interface/PFClusterShapeProducer.h"
+#include "RecoParticleFlow/PFClusterShapeProducer/plugins/PFClusterShapeProducer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"

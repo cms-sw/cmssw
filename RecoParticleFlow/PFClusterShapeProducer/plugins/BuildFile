@@ -1,0 +1,12 @@
+<library name="RecoParticleFlowPFClusterShapeProducerPlugins" file="*.cc">
+ <use name=FWCore/Framework>
+ <use name=FWCore/ParameterSet>
+ <use name=DataFormats/ParticleFlowReco>
+ <use name=DataFormats/EcalRecHit>
+ <use name=DataFormats/EgammaReco>
+ <use name=Geometry/CaloEventSetup>
+ <use name=Geometry/CaloGeometry>
+ <use name=Geometry/CaloTopology>
+ <use name=RecoParticleFlow/PFClusterShapeProducer>
+ <flags EDM_PLUGIN=1>
+</library>

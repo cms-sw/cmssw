@@ -1,5 +1,5 @@
-#ifndef RecoParticleFlow_PFClusterShapeProducer_h_
-#define RecoParticleFlow_PFClusterShapeProducer_h_
+#ifndef RecoParticleFlow_PFClusterShapeProducer_PFClusterShapeProducer_h_
+#define RecoParticleFlow_PFClusterShapeProducer_PFClusterShapeProducer_h_
 
 // system include files
 #include <memory>
@@ -23,7 +23,7 @@
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
 
-#include "RecoParticleFlow/PFClusterShapeAlgo/interface/PFClusterShapeAlgo.h"
+#include "RecoParticleFlow/PFClusterShapeProducer/interface/PFClusterShapeAlgo.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
