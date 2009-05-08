@@ -319,6 +319,10 @@ void EgammaSuperClusters::beginJob(edm::EventSetup const&)
 void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup& es )
 {
 
+	bool skipMC = false;
+	bool skipBarrel = false;
+	bool skipEndcap = false;
+
         //
         // Get MCTRUTH
         //
@@ -327,8 +331,11 @@ void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup&
         if (!pMCTruth.isValid()) {
           edm::LogError("EgammaSuperClusters") << "Error! can't get collection with label "
                                                << MCTruthCollection_.label();
+	  skipMC = true;
         }
 	const HepMC::GenEvent* genEvent = pMCTruth->GetEvent();
+
+	if( skipMC ) return;
 
 	//
 	// Get the BARREL products 
@@ -338,6 +345,7 @@ void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup&
 	if (!pBarrelRawSuperClusters.isValid()) {
 	  edm::LogError("EgammaSuperClusters") << "Error! can't get collection with label " 
 					       << barrelRawSuperClusterCollection_.label();
+	  skipBarrel = true;
   	}
 
         edm::Handle<reco::SuperClusterCollection> pBarrelCorSuperClusters;
@@ -345,9 +353,23 @@ void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup&
         if (!pBarrelCorSuperClusters.isValid()) {
           edm::LogError("EgammaSuperClusters") << "Error! can't get collection with label "
                                                << barrelCorSuperClusterCollection_.label();
+	  skipBarrel = true;
         }
 
-        EcalClusterLazyTools lazyTool( evt, es, barrelRecHitCollection_, endcapRecHitCollection_ );
+	edm::Handle< EBRecHitCollection > pBarrelRecHitCollection;
+	evt.getByLabel( barrelRecHitCollection_, pBarrelRecHitCollection );
+	if ( ! pBarrelRecHitCollection.isValid() ) {
+	  skipBarrel = true;
+	}
+	edm::Handle< EERecHitCollection > pEndcapRecHitCollection;
+	evt.getByLabel( endcapRecHitCollection_, pEndcapRecHitCollection );
+	if ( ! pEndcapRecHitCollection.isValid() ) {
+	  skipEndcap = true;
+	}
+
+	if( skipBarrel || skipEndcap ) return;
+
+	EcalClusterLazyTools lazyTool( evt, es, barrelRecHitCollection_, endcapRecHitCollection_ );
 
 	// Get the BARREL collections        
   	const reco::SuperClusterCollection* barrelRawSuperClusters = pBarrelRawSuperClusters.product();
