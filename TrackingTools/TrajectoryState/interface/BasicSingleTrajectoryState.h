@@ -193,6 +193,17 @@ public:
     return theSurfaceSide;
   }
 
+  virtual bool canUpdateLocalParameters() const { return true; }
+  virtual void update( const LocalTrajectoryParameters& p,
+                       const Surface& aSurface,
+                       const MagneticField* field,
+                       const SurfaceSide side ) ;
+  virtual void update( const LocalTrajectoryParameters& p,
+                       const LocalTrajectoryError& err,
+                       const Surface& aSurface,
+                       const MagneticField* field,
+                       const SurfaceSide side,
+                       double weight ) ;
 private:
 
 // create global parameters and errors from local
@@ -221,7 +232,7 @@ private:
   mutable bool                      theLocalErrorValid;
 
   ConstReferenceCountingPointer<Surface> theSurfaceP;
-  const SurfaceSide theSurfaceSide;
+  SurfaceSide theSurfaceSide;
   double theWeight;
   const MagneticField* theField;
 

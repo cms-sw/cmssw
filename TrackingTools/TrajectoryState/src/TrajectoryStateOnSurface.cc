@@ -54,3 +54,33 @@ TrajectoryStateOnSurface( const LocalTrajectoryParameters& p,
 			  double weight) :
   Base( new BTSOS( p, err, aSurface, field, SurfaceSideDefinition::atCenterOfSurface, weight)) {}
 
+
+void
+TrajectoryStateOnSurface::
+update( const LocalTrajectoryParameters& p,
+        const Surface& aSurface,
+        const MagneticField* field,
+        const SurfaceSide side) 
+{
+    if (data().canUpdateLocalParameters()) {
+        unsharedData().update(p, aSurface, field, side);
+    } else {
+        *this = TrajectoryStateOnSurface(p, aSurface, field, side);
+    }
+}
+
+void
+TrajectoryStateOnSurface::
+update( const LocalTrajectoryParameters& p,
+        const LocalTrajectoryError& err,
+        const Surface& aSurface,
+        const MagneticField* field,
+        const SurfaceSide side, 
+        double weight) 
+{
+   if (data().canUpdateLocalParameters()) {
+        unsharedData().update(p, err, aSurface, field, side, weight);
+    } else {
+        *this = TrajectoryStateOnSurface(p, err, aSurface, field, side, weight);
+    }
+}

@@ -174,6 +174,29 @@ public:
   SurfaceSide surfaceSide() const {
     return data().surfaceSide();
   }
+
+  /** Mutator from local parameters, errors and surface. For surfaces 
+   *  with material the side of the surface should be specified explicitely.
+   *  If the underlying trajectory state supports updates, it will be updated, otherwise this method will
+   *  just behave like creating a new TSOS (which will make a new BasicSingleTrajectoryState)
+   */
+  void update( const LocalTrajectoryParameters& p,
+	       const Surface& aSurface,
+	       const MagneticField* field,
+	       const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
+  /** Mutator from local parameters, errors and surface. For surfaces 
+   *  with material the side of the surface should be specified explicitely. 
+   *  For multi-states the weight should be specified explicitely.
+   *  If the underlying trajectory state supports updates, it will be updated, otherwise this method will
+   *  just behave like creating a new TSOS (which will make a new BasicSingleTrajectoryState)
+   */
+  void update( const LocalTrajectoryParameters& p,
+	       const LocalTrajectoryError& err,
+               const Surface& aSurface,
+               const MagneticField* field,
+               const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface, 
+               double weight = 1.);
+
 };
 
 std::ostream& operator<<(std::ostream& os, const TrajectoryStateOnSurface& tsos);

@@ -261,3 +261,43 @@ BasicSingleTrajectoryState::createLocalErrorFromCartesianError() const {
   theLocalError = LocalTrajectoryError(C);
   theLocalErrorValid = true;
 }
+
+void
+BasicSingleTrajectoryState::update( const LocalTrajectoryParameters& p,
+        const Surface& aSurface,
+        const MagneticField* field,
+        const SurfaceSide side) 
+{
+    theLocalParameters = p;
+    if (&aSurface != &*theSurfaceP) theSurfaceP.reset(&aSurface);
+    theSurfaceSide = side;
+    theWeight      = 1.0; 
+
+    theGlobalParamsUp2Date   = false;
+    theCartesianErrorUp2Date = false;
+    theCurvilinErrorUp2Date  = false; 
+    theLocalErrorValid       = false;
+    theLocalParametersValid  = true;
+}
+
+void
+BasicSingleTrajectoryState::update( const LocalTrajectoryParameters& p,
+        const LocalTrajectoryError& err,
+        const Surface& aSurface,
+        const MagneticField* field,
+        const SurfaceSide side, 
+        double weight) 
+{
+    theLocalParameters = p;
+    theLocalError      = err;
+    if (&aSurface != &*theSurfaceP) theSurfaceP.reset(&aSurface);
+    theSurfaceSide = side;
+    theWeight      = weight; 
+
+    theGlobalParamsUp2Date   = false;
+    theCartesianErrorUp2Date = false;
+    theCurvilinErrorUp2Date  = false; 
+    theLocalErrorValid       = true;
+    theLocalParametersValid  = true;
+
+}

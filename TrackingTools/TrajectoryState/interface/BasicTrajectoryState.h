@@ -93,6 +93,18 @@ public:
 
   /// Position relative to material, defined relative to momentum vector.
   virtual SurfaceSide surfaceSide() const = 0;
+
+  virtual bool canUpdateLocalParameters() const = 0;
+  virtual void update( const LocalTrajectoryParameters& p,
+                       const Surface& aSurface,
+                       const MagneticField* field,
+                       const SurfaceSide side ) = 0;
+  virtual void update( const LocalTrajectoryParameters& p,
+                       const LocalTrajectoryError& err,
+                       const Surface& aSurface,
+                       const MagneticField* field,
+                       const SurfaceSide side,
+                       double weight ) = 0;
 };
 
 #endif
