@@ -21,6 +21,8 @@ siStripFEDMonitor.BadDAQPacketHistogramConfig.Enabled = True
 siStripFEDMonitor.InvalidBuffersHistogramConfig.Enabled = True
 siStripFEDMonitor.BadDAQCRCsHistogramConfig.Enabled = True
 siStripFEDMonitor.BadFEDCRCsHistogramConfig.Enabled = True
+#TkHistoMap
+siStripFEDMonitor.TkHistoMapHistogramConfig.Enabled = True
 #Detailed FED level expert histograms
 siStripFEDMonitor.FEOverflowsDetailedHistogramConfig.Enabled = False
 siStripFEDMonitor.FEMissingDetailedHistogramConfig.Enabled = False

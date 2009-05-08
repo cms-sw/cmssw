@@ -88,6 +88,8 @@ public:
 			 bool fullDebugMode = false
 			 );
 
+  bool isTkHistoMapEnabled();
+
   void bookAllFEDHistograms();
 
   //load the config for a histogram from PSet called <configName>HistogramConfig (writes a debug message to stream if pointer is non-NULL)
@@ -165,7 +167,7 @@ private:
   std::vector<bool> histosBooked_, 
     debugHistosBooked_;
 
-
+  std::string tkMapConfigName_;
   TkHistoMap *tkmapFED_;
 
 

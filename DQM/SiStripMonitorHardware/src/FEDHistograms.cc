@@ -57,12 +57,15 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
   getConfigForHistogram("nFEDsWithMissingFEs",iConfig,pDebugStream);
   getConfigForHistogram("nFEDsWithFEBadMajorityAddresses",iConfig,pDebugStream);
 
+  tkMapConfigName_ = "TkHistoMap";
+  getConfigForHistogram(tkMapConfigName_,iConfig,pDebugStream);
+
+
 }
 
 void FEDHistograms::fillHistogram(MonitorElement* histogram, double value)
 {
   if (histogram) histogram->Fill(value);
-  else std::cout << "WARNING: Unknown histogram " << histogram->getName() << std::endl;
 }
 
 
@@ -261,11 +264,16 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 
 
   //book map after, as it creates a new folder...
-  const std::string dqmPath = dqm_->pwd();
-  tkmapFED_ = new TkHistoMap(dqmPath+"/TkHistoMap","FractionOfBadChannels",0.,0);
+  if (histogramConfig_[tkMapConfigName_].enabled){
+    //const std::string dqmPath = dqm_->pwd();
+    tkmapFED_ = new TkHistoMap("SiStrip/TkHisto","TkHMap_FractionOfBadChannels",0.,1);
+  }
+  else tkmapFED_ = 0;
 
+}
 
-
+bool FEDHistograms::isTkHistoMapEnabled(){
+  return histogramConfig_[tkMapConfigName_].enabled;
 }
 
 void FEDHistograms::bookFEDHistograms(unsigned int fedId,

@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.12 2009/04/28 15:22:24 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.13 2009/04/29 19:25:23 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -108,6 +108,10 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
   uint32_t cablingCacheId_;
   const SiStripFedCabling* cabling_;
   std::vector< std::vector<bool> > activeChannels_;
+
+  //add parameter to save computing time if TkHistoMap are not filled
+  bool doTkHistoMap_;
+
 };
 
 
@@ -140,6 +144,8 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
   std::ostringstream* pDebugStream = (printDebug_ ? &debugStream : NULL);
   
   fedHists_.initialise(iConfig,pDebugStream);
+
+  doTkHistoMap_ = fedHists_.isTkHistoMapEnabled();
 
 
   if (printDebug_) LogTrace("SiStripMonitorHardware") << debugStream.str();
@@ -213,89 +219,95 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
     lFedErrors.incrementFEDCounters();
     fedHists_.fillFEDHistograms(lFedErrors,lFullDebug);
 
-    //Fill TkHistoMap:
-    //1--Add all channels of a FED if anyFEDErrors or corruptBuffer
-    if (lFedErrors.anyFEDErrors() || (lFedErrors.getFEDLevelErrors()).CorruptBuffer){
-      for (unsigned int iCh = 0; 
-	   iCh < sistrip::FEDCH_PER_FED; 
-	   iCh++) {
-	const FedChannelConnection & lConnection = cabling_->connection(fedId,iCh);
-	if (!lConnection.isConnected()) continue;
-	unsigned int detid = lConnection.detId();
-	unsigned short nChInModule = lConnection.nApvPairs();
-	alreadyThere = badChannelFraction.insert(std::pair<unsigned int,std::pair<unsigned short,unsigned short> >(detid,std::pair<unsigned short,unsigned short>(nChInModule,1)));
-	if (!alreadyThere.second) ((alreadyThere.first)->second).second += 1;
+
+    if (doTkHistoMap_){//if TkHistMap is enabled
+
+      //Fill TkHistoMap:
+      //1--Add all channels of a FED if anyFEDErrors or corruptBuffer
+      if (lFedErrors.anyFEDErrors() || (lFedErrors.getFEDLevelErrors()).CorruptBuffer){
+	for (unsigned int iCh = 0; 
+	     iCh < sistrip::FEDCH_PER_FED; 
+	     iCh++) {
+	  const FedChannelConnection & lConnection = cabling_->connection(fedId,iCh);
+	  if (!lConnection.isConnected()) continue;
+	  unsigned int detid = lConnection.detId();
+	  unsigned short nChInModule = lConnection.nApvPairs();
+	  alreadyThere = badChannelFraction.insert(std::pair<unsigned int,std::pair<unsigned short,unsigned short> >(detid,std::pair<unsigned short,unsigned short>(nChInModule,1)));
+	  if (!alreadyThere.second) ((alreadyThere.first)->second).second += 1;
+	}
+
+	lFedErrors.getFELevelErrors().clear();
+	lFedErrors.getBadChannels().clear();
+
+	assert(lFedErrors.getFELevelErrors().size() == 0);
+	assert(lFedErrors.getBadChannels().size() == 0);
       }
 
-      lFedErrors.getFELevelErrors().clear();
-      lFedErrors.getBadChannels().clear();
+      //if missing FEs or BadMajAddresses, fill channels vec with all channels from FE
 
-      assert(lFedErrors.getFELevelErrors().size() == 0);
-      assert(lFedErrors.getBadChannels().size() == 0);
-    }
+      std::vector<FEDErrors::FELevelErrors> & lFeVec = lFedErrors.getFELevelErrors();
+      unsigned int nBadFEs = lFeVec.size();
+      std::vector<std::pair<unsigned int, bool> > & lBadChannels = lFedErrors.getBadChannels();
 
-    //if missing FEs or BadMajAddresses, fill channels vec with all channels from FE
+      //fill a map of affected FEs to not duplicate with badChannels
+      std::map<unsigned short,bool> lFeMap;
+      lFeMap.clear();
 
-    std::vector<FEDErrors::FELevelErrors> & lFeVec = lFedErrors.getFELevelErrors();
-    unsigned int nBadFEs = lFeVec.size();
-    std::vector<std::pair<unsigned int, bool> > & lBadChannels = lFedErrors.getBadChannels();
+      for (unsigned int ife(0); ife<nBadFEs; ife++) {
+	unsigned short feNumber = (lFeVec.at(ife)).FeID;
+	lFeMap.insert(std::pair<unsigned short, bool>(feNumber,true));
+	for (unsigned int feUnitCh = 0; feUnitCh < sistrip::FEDCH_PER_FEUNIT; feUnitCh++) {
+	  unsigned int iCh = feNumber*sistrip::FEDCH_PER_FEUNIT+feUnitCh;
 
-    //fill a map of affected FEs to not duplicate with badChannels
-    std::map<unsigned short,bool> lFeMap;
-    lFeMap.clear();
-
-    for (unsigned int ife(0); ife<nBadFEs; ife++) {
-      unsigned short feNumber = (lFeVec.at(ife)).FeID;
-      lFeMap.insert(std::pair<unsigned short, bool>(feNumber,true));
-      for (unsigned int feUnitCh = 0; feUnitCh < sistrip::FEDCH_PER_FEUNIT; feUnitCh++) {
-	unsigned int iCh = feNumber*sistrip::FEDCH_PER_FEUNIT+feUnitCh;
-
-	const FedChannelConnection & lConnection = cabling_->connection(fedId,iCh);
-	if (!lConnection.isConnected()) continue;
-	unsigned int detid = lConnection.detId();
-	unsigned short nChInModule = lConnection.nApvPairs();
-	alreadyThere = badChannelFraction.insert(std::pair<unsigned int,std::pair<unsigned short,unsigned short> >(detid,std::pair<unsigned short,unsigned short>(nChInModule,1)));
-	if (!alreadyThere.second) ((alreadyThere.first)->second).second += 1;
-
+	  const FedChannelConnection & lConnection = cabling_->connection(fedId,iCh);
+	  if (!lConnection.isConnected()) continue;
+	  unsigned int detid = lConnection.detId();
+	  unsigned short nChInModule = lConnection.nApvPairs();
+	  alreadyThere = badChannelFraction.insert(std::pair<unsigned int,std::pair<unsigned short,unsigned short> >(detid,std::pair<unsigned short,unsigned short>(nChInModule,1)));
+	  if (!alreadyThere.second) ((alreadyThere.first)->second).second += 1;
+	  
+	}
       }
-    }
 
 
-    for (unsigned int iCh(0); iCh<lBadChannels.size(); iCh++) {
-      if (lBadChannels.at(iCh).second) {
-	unsigned short feNumber = static_cast<unsigned int>(iCh*1./sistrip::FEDCH_PER_FEUNIT);
-	if (lFeMap.find(feNumber) != lFeMap.end()) continue;
-	const FedChannelConnection & lConnection = cabling_->connection(fedId,lBadChannels.at(iCh).first);
-	if (!lConnection.isConnected()) continue;
-	unsigned int detid = lConnection.detId();
-	unsigned short nChInModule = lConnection.nApvPairs();
-	alreadyThere = badChannelFraction.insert(std::pair<unsigned int,std::pair<unsigned short,unsigned short> >(detid,std::pair<unsigned short,unsigned short>(nChInModule,1)));
-	if (!alreadyThere.second) ((alreadyThere.first)->second).second += 1;
-
+      for (unsigned int iCh(0); iCh<lBadChannels.size(); iCh++) {
+	if (lBadChannels.at(iCh).second) {
+	  unsigned short feNumber = static_cast<unsigned int>(iCh*1./sistrip::FEDCH_PER_FEUNIT);
+	  if (lFeMap.find(feNumber) != lFeMap.end()) continue;
+	  const FedChannelConnection & lConnection = cabling_->connection(fedId,lBadChannels.at(iCh).first);
+	  if (!lConnection.isConnected()) continue;
+	  unsigned int detid = lConnection.detId();
+	  unsigned short nChInModule = lConnection.nApvPairs();
+	  alreadyThere = badChannelFraction.insert(std::pair<unsigned int,std::pair<unsigned short,unsigned short> >(detid,std::pair<unsigned short,unsigned short>(nChInModule,1)));
+	  if (!alreadyThere.second) ((alreadyThere.first)->second).second += 1;
+	  
+	}
       }
-    }
+    }//if TkHistMap is enabled
   }//loop over FED IDs
   
   fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters());
 
   //match fedId/channel with detid
 
-  std::map<unsigned int,std::pair<unsigned short,unsigned short> >::iterator fracIter;
-  std::vector<std::pair<unsigned int,unsigned int> >::iterator chanIter;
+  if (doTkHistoMap_) {//if TkHistoMap is enabled
+    std::map<unsigned int,std::pair<unsigned short,unsigned short> >::iterator fracIter;
+    std::vector<std::pair<unsigned int,unsigned int> >::iterator chanIter;
 
-  //std::cout << " --- Number of bad channels to fill in tkHistoMap = " << badChannelFraction.size() << std::endl;
-  //int ele = 0;
-  for (fracIter = badChannelFraction.begin(); fracIter!=badChannelFraction.end(); fracIter++){
-    uint32_t detid = fracIter->first;
-    //if ((fracIter->second).second != 0) {
-    //std::cout << "------ ele #" << ele << ", Frac for detid #" << detid << " = " <<(fracIter->second).second << "/" << (fracIter->second).first << std::endl;
-    //}
-    unsigned short nTotCh = (fracIter->second).first;
-    unsigned short nBadCh = (fracIter->second).second;
-    assert (nTotCh >= nBadCh);
-    if (nTotCh != 0) fedHists_.fillTkHistoMap(detid,static_cast<float>(nBadCh)/nTotCh);
-    //ele++;
-  }
+    //std::cout << " --- Number of bad channels to fill in tkHistoMap = " << badChannelFraction.size() << std::endl;
+    //int ele = 0;
+    for (fracIter = badChannelFraction.begin(); fracIter!=badChannelFraction.end(); fracIter++){
+      uint32_t detid = fracIter->first;
+      //if ((fracIter->second).second != 0) {
+      //std::cout << "------ ele #" << ele << ", Frac for detid #" << detid << " = " <<(fracIter->second).second << "/" << (fracIter->second).first << std::endl;
+      //}
+      unsigned short nTotCh = (fracIter->second).first;
+      unsigned short nBadCh = (fracIter->second).second;
+      assert (nTotCh >= nBadCh);
+      if (nTotCh != 0) fedHists_.fillTkHistoMap(detid,static_cast<float>(nBadCh)/nTotCh);
+      //ele++;
+    }
+  }//if TkHistoMap is enabled
 
 }//analyze method
 

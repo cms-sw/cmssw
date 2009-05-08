@@ -33,6 +33,8 @@ siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
   InvalidBuffersHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   BadDAQCRCsHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   BadFEDCRCsHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  #TkHistoMap
+  TkHistoMapHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   #Detailed FED level expert histograms
   FEOverflowsDetailedHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   FEMissingDetailedHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
