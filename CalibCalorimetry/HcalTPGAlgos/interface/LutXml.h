@@ -16,13 +16,14 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Mar 18 14:30:33 CDT 2008
-// $Id: LutXml.h,v 1.6 2009/04/08 23:03:44 kukartse Exp $
+// $Id: LutXml.h,v 1.1 2009/04/14 22:49:05 kukartse Exp $
 //
 
 #include <vector>
 #include <map>
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLDOMBlock.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include <stdint.h>
 
 class LutXml : public XMLDOMBlock
 {

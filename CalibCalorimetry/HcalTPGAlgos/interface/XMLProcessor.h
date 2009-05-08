@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Sep 23 16:57:06 CEST 2007
-// $Id: XMLProcessor.h,v 1.4 2009/03/02 23:42:22 kukartse Exp $
+// $Id: XMLProcessor.h,v 1.1 2009/04/14 22:49:05 kukartse Exp $
 //
 
 // system include files
@@ -28,6 +28,7 @@
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/framework/MemBufInputSource.hpp>
+#include <cstdio>
 
 #if defined(XERCES_NEW_IOSTREAMS)
 #include <iostream>

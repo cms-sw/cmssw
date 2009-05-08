@@ -1,10 +1,11 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: CastorDbASCIIIO.cc,v 1.43 2009/03/25 14:08:18 rofierzy Exp $
+// $Id: CastorDbASCIIIO.cc,v 1.2 2009/03/26 17:49:44 mundim Exp $
 //
 #include <vector>
 #include <string>
+#include <cstdio>
 
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/CastorElectronicsId.h"

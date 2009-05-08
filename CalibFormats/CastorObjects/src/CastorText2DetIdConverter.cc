@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <iomanip>
+#include <cstdio>
 
 #include "FWCore/Utilities/interface/Exception.h"
 
