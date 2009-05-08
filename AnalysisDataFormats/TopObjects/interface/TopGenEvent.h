@@ -21,6 +21,13 @@ namespace TopDecayID{
   static const int tauID  = 15;
 }
 
+namespace WDecay{
+  /// classification of leptons in the decay channel 
+  /// of the W boson used in several places throughout 
+  /// the package
+  enum LeptonType {kNone, kElec, kMuon, kTau};
+}
+
 // ----------------------------------------------------------------------
 // common base class for: 
 //
@@ -53,6 +60,8 @@ class TopGenEvent {
   std::vector<const reco::GenParticle*> lightQuarks(bool plusB=false) const;
   /// return number of leptons in the decay chain
   int numberOfLeptons(bool fromWBoson=true) const;
+  /// return number of leptons in the decay chain
+  int numberOfLeptons(WDecay::LeptonType type, bool fromWBoson=true) const;
   /// return number of b quarks in the decay chain
   int numberOfBQuarks(bool fromTopQuark=true) const;
   /// return number of top anti-top sisters
@@ -60,38 +69,35 @@ class TopGenEvent {
 
   /// get candidate with given pdg id if available; 0 else 
   const reco::GenParticle* candidate(int id) const;
-  /// return single lepton if available; 0 else
-  const reco::GenParticle* singleLepton() const;
-  /// return single neutrino if available; 0 else
-  const reco::GenParticle* singleNeutrino() const;
   /// return electron if available; 0 else
-  const reco::GenParticle* eMinus() const   { return candidate( 11 );}
+  const reco::GenParticle* eMinus() const   { return candidate( TopDecayID::elecID );}
   /// return positron if available; 0 else
-  const reco::GenParticle* ePlus() const    { return candidate(-11 );}
+  const reco::GenParticle* ePlus() const    { return candidate(-TopDecayID::elecID );}
   /// return muon if available; 0 else
-  const reco::GenParticle* muMinus() const  { return candidate( 13 );}
+  const reco::GenParticle* muMinus() const  { return candidate( TopDecayID::muonID );}
   /// return anti-muon if available; 0 else
-  const reco::GenParticle* muPlus() const   { return candidate(-13 );}
+  const reco::GenParticle* muPlus() const   { return candidate(-TopDecayID::muonID );}
   /// return tau if available; 0 else
-  const reco::GenParticle* tauMinus() const { return candidate( 15 );}
+  const reco::GenParticle* tauMinus() const { return candidate( TopDecayID::tauID  );}
   /// return anti-tau if available; 0 else
-  const reco::GenParticle* tauPlus() const  { return candidate(-15 );}
+  const reco::GenParticle* tauPlus() const  { return candidate(-TopDecayID::tauID  );}
   /// return W minus if available; 0 else
-  const reco::GenParticle* wMinus() const   { return candidate( 24 );}
+  const reco::GenParticle* wMinus() const   { return candidate( TopDecayID::WID    );}
   /// return W plus if available; 0 else
-  const reco::GenParticle* wPlus() const    { return candidate(-24 );}
+  const reco::GenParticle* wPlus() const    { return candidate(-TopDecayID::WID    );}
   /// return top if available; 0 else
-  const reco::GenParticle* top() const      { return candidate(  6 );}
+  const reco::GenParticle* top() const      { return candidate( TopDecayID::tID    );}
   /// return anti-top if available; 0 else
-  const reco::GenParticle* topBar() const   { return candidate( -6 );}
+  const reco::GenParticle* topBar() const   { return candidate(-TopDecayID::tID    );}
   /// return b quark if available; 0 else
-  const reco::GenParticle* b() const        { return candidate(  5 );}
+  const reco::GenParticle* b() const        { return candidate( TopDecayID::bID    );}
   /// return anti-b quark if available; 0 else
-  const reco::GenParticle* bBar() const     { return candidate( -5 );}
+  const reco::GenParticle* bBar() const     { return candidate(-TopDecayID::bID    );}
 
   /// print content of the top decay chain as formated 
   /// LogInfo to the MessageLogger output for debugging
   void dumpEventContent() const;
+
 
  protected:
 

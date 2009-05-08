@@ -1,5 +1,5 @@
 //
-// $Id: StGenEvent.cc,v 1.7 2008/02/15 12:10:51 rwolf Exp $
+// $Id: StGenEvent.cc,v 1.8 2009/03/06 22:37:09 rwolf Exp $
 //
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -52,6 +52,34 @@ StGenEvent::associatedB() const
 	// ... but it should be the opposite!
         cand = &partsColl[i];
       }
+    }
+  }
+  return cand;
+}
+
+const reco::GenParticle* 
+StGenEvent::singleLepton() const 
+{
+  const reco::GenParticle* cand = 0;
+  const reco::GenParticleCollection& partsColl = *parts_;
+  for (unsigned int i = 0; i < partsColl.size(); ++i) {
+    if (reco::isLepton(partsColl[i]) && partsColl[i].mother() &&
+	abs(partsColl[i].mother()->pdgId())==TopDecayID::WID) {
+      cand = &partsColl[i];
+    }
+  }
+  return cand;
+}
+
+const reco::GenParticle* 
+StGenEvent::singleNeutrino() const 
+{
+  const reco::GenParticle* cand=0;
+  const reco::GenParticleCollection & partsColl = *parts_;
+  for (unsigned int i = 0; i < partsColl.size(); ++i) {
+    if (reco::isNeutrino(partsColl[i]) && partsColl[i].mother() &&
+	abs(partsColl[i].mother()->pdgId())==TopDecayID::WID) {
+      cand = &partsColl[i];
     }
   }
   return cand;

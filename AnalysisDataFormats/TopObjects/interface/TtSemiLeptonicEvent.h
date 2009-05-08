@@ -4,7 +4,8 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtEvent.h"
 
 namespace TtSemiLepDaughter{
-  // semileptonic daughter names
+  /// semi-leptonic daughter names for common
+  /// use and use with the hypotheses
   static const std::string Nu  ="Nu"  , Lep ="Lep" , LepW="LepW", LepB="LepB", LepTop="LepTop";
   static const std::string HadQ="HadQ", HadP="HadP", HadW="HadW", HadB="HadB", HadTop="HadTop"; 
 }

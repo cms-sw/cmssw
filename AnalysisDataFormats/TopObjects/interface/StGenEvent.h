@@ -25,13 +25,17 @@ class StGenEvent: public TopGenEvent {
   /// default destructor
   virtual ~StGenEvent();
 
-  /// get single W
+  /// return single lepton if available; 0 else
+  const reco::GenParticle* singleLepton() const;
+  /// return single neutrino if available; 0 else
+  const reco::GenParticle* singleNeutrino() const;
+  /// return single W
   const reco::GenParticle* singleW() const;
-  /// get single Top
+  /// return single Top
   const reco::GenParticle* singleTop() const;
-  /// get b
+  /// return decay b
   const reco::GenParticle* decayB() const;
-  /// get associated b 
+  /// return associated b 
   const reco::GenParticle* associatedB() const;
 };
 
