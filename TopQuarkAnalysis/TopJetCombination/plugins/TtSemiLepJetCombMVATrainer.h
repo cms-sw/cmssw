@@ -10,6 +10,8 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
+
 #include "PhysicsTools/MVAComputer/interface/HelperMacros.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputerCache.h"
 
@@ -31,14 +33,16 @@ class TtSemiLepJetCombMVATrainer : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event& evt, const edm::EventSetup& setup);
   virtual void endJob();
 
+  WDecay::LeptonType readLeptonType(const std::string& str);
+
   edm::InputTag leptons_;
   edm::InputTag jets_;
   edm::InputTag mets_;
   edm::InputTag matching_;
 
-  unsigned int maxNJets_;
+  int maxNJets_;
   
-  int lepChannel_;
+  WDecay::LeptonType leptonType_;
 
   PhysicsTools::MVAComputerCache mvaComputer;
 

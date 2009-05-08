@@ -4,7 +4,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
+
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepJetCombEval.h"
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombMVATrainer.h"
 
@@ -12,12 +12,12 @@
 #include "PhysicsTools/MVATrainer/interface/HelperMacros.h"
 
 TtSemiLepJetCombMVATrainer::TtSemiLepJetCombMVATrainer(const edm::ParameterSet& cfg):
-  leptons_   (cfg.getParameter<edm::InputTag>("leptons")),
-  jets_      (cfg.getParameter<edm::InputTag>("jets")),
-  mets_      (cfg.getParameter<edm::InputTag>("mets")),
+  leptons_   (cfg.getParameter<edm::InputTag>("leptons" )),
+  jets_      (cfg.getParameter<edm::InputTag>("jets"    )),
+  mets_      (cfg.getParameter<edm::InputTag>("mets"    )),
   matching_  (cfg.getParameter<edm::InputTag>("matching")),
-  maxNJets_  (cfg.getParameter<int>("maxNJets")),
-  lepChannel_(cfg.getParameter<int>("lepChannel"))
+  maxNJets_  (cfg.getParameter<int>          ("maxNJets")),
+  leptonType_(readLeptonType(cfg.getParameter<std::string>("leptonType")))
 {
 }
 
@@ -78,7 +78,7 @@ TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup
   edm::Handle< std::vector< std::vector<int> > > matchingHandle;
   std::vector<int> matching;
   // get jet-parton matching if signal channel
-  if(genEvt->semiLeptonicChannel() == lepChannel_) {
+  if(genEvt->semiLeptonicChannel() == leptonType_) {
     evt.getByLabel(matching_, matchingHandle);
     matching = *(matchingHandle->begin());
     if(matching.size() < nPartons) return;
@@ -105,7 +105,7 @@ TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup
 
   std::vector<int> jetIndices;
   for(unsigned int i=0; i<jets->size(); ++i) {
-    if(maxNJets_ >= nPartons && i == (unsigned int) maxNJets_) break;
+    if(maxNJets_ >= (int) nPartons && i == (unsigned int) maxNJets_) break;
     jetIndices.push_back(i);
   }
 
@@ -133,7 +133,7 @@ TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup
 	bool trueCombi = false;
 	// true combination only if signal channel
 	// and in agreement with matching
-	if(genEvt->semiLeptonicChannel()==lepChannel_ && combi==matching)
+	if(genEvt->semiLeptonicChannel()==leptonType_ && combi==matching)
 	  trueCombi = true;
 
 	// feed MVA input variables for this jetComb into the ValueList
@@ -163,6 +163,16 @@ TtSemiLepJetCombMVATrainer::endJob()
       << "...rejected since not enough jets          : " << std::setw(7) << nEvents[2]-nEvents[3] << "\n"
       << "...rejected due to bad jet-parton matching : " << std::setw(7) << nEvents[3]-nEvents[4] << "\n"
       << "...accepted for training                   : " << std::setw(7) << nEvents[4] << "\n";
+}
+
+WDecay::LeptonType
+TtSemiLepJetCombMVATrainer::readLeptonType(const std::string& str)
+{
+  if     (str == "kElec") return WDecay::kElec;
+  else if(str == "kMuon") return WDecay::kMuon;
+  else if(str == "kTau" ) return WDecay::kTau;
+  else throw cms::Exception("Configuration")
+    << "Chosen leptonType is not supported: " << str << "\n";
 }
 
 // implement the plugins for the trainer
