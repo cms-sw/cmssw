@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: RBCEmulator.cc,v 1.5 2009/01/30 15:42:47 aosorio Exp $
 // Include files 
 
 // local
@@ -23,6 +23,8 @@ RBCEmulator::RBCEmulator( ) {
   m_input   = new RBCInput();
   m_rbcinfo = new RBCId();
   
+  m_debug   = false;
+    
 }
 
 RBCEmulator::RBCEmulator( const char * logic_type ) {
@@ -33,6 +35,8 @@ RBCEmulator::RBCEmulator( const char * logic_type ) {
   m_rbcinfo = new RBCId();
   m_rbcconf = dynamic_cast<RBCConfiguration*> (new RBCBasicConfig(logic_type));
   
+  m_debug   = false;
+
 }
 
 RBCEmulator::RBCEmulator( const char * f_name  , const char * logic_type ) {
@@ -42,6 +46,8 @@ RBCEmulator::RBCEmulator( const char * f_name  , const char * logic_type ) {
   m_input   = new RBCInput();
   m_rbcinfo = new RBCId();
   m_rbcconf = dynamic_cast<RBCConfiguration*> (new RBCBasicConfig(logic_type));
+
+  m_debug   = false;
   
 }
 
@@ -73,7 +79,7 @@ bool RBCEmulator::initialise()
   status = m_rbcconf->initialise();
   
   if ( !status ) { 
-    std::cout << "RBCEmulator> Problem initialising the Configuration \n"; 
+    if( m_debug ) std::cout << "RBCEmulator> Problem initialising the Configuration \n"; 
     return 0; };
   
   return 1;
@@ -88,7 +94,7 @@ void RBCEmulator::setid( int _wh, int * _sec)
 void RBCEmulator::emulate() 
 {
   
-  std::cout << "RBCEmulator> starting test emulation" << std::endl;
+  if( m_debug ) std::cout << "RBCEmulator> starting test emulation" << std::endl;
   
   std::bitset<2> _decision;
   
@@ -109,14 +115,14 @@ void RBCEmulator::emulate()
     
   }
   
-  std::cout << "RBCEmulator> end test emulation" << std::endl;
+  if( m_debug ) std::cout << "RBCEmulator> end test emulation" << std::endl;
   
 }
 
 void RBCEmulator::emulate( RBCInput * _in )
 {
   
-  std::cout << "RBCEmulator> starting emulation" << std::endl;
+  if( m_debug ) std::cout << "RBCEmulator> starting emulation" << std::endl;
   
   std::bitset<2> _decision;
   
@@ -130,23 +136,27 @@ void RBCEmulator::emulate( RBCInput * _in )
   m_layersignal[0] = m_rbcconf->m_rbclogic->getlayersignal( 0 );
   m_layersignal[1] = m_rbcconf->m_rbclogic->getlayersignal( 1 );
   
-  printlayerinfo();
-  
-  std::cout << _decision[0] << " " << _decision[1] << std::endl;
-  
-  std::cout << "RBCEmulator> end emulation" << std::endl;
-  
+  if( m_debug ) {
+    printlayerinfo();
+    std::cout << _decision[0] << " " << _decision[1] << std::endl;
+    std::cout << "RBCEmulator> end emulation" << std::endl;
+  }
+    
 }
 
 void RBCEmulator::printinfo()
 {
-  std::cout << "RBC --> \n";
-  m_rbcinfo->printinfo();
-
+  
+  if( m_debug ) {
+    std::cout << "RBC --> \n";
+    m_rbcinfo->printinfo();
+  }
+  
 }
 
 void RBCEmulator::printlayerinfo()
 {
+
   std::cout << "Sector summary by layer: \n";
   for(int i=0; i < 6; ++i)
     std::cout << (*m_layersignal[0])[i] << '\t' 

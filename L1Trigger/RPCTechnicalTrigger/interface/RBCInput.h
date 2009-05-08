@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: RBCInput.h,v 1.1 2009/01/30 15:42:47 aosorio Exp $
 #ifndef INTERFACE_RBCINPUT_H 
 #define INTERFACE_RBCINPUT_H 1
 
@@ -22,7 +22,7 @@
 class RBCInput {
 public: 
   /// Standard constructor
-  RBCInput( ) { }; 
+  RBCInput( ) { m_debug = false; }; 
   
   virtual ~RBCInput( ) { }; ///< Destructor
   
@@ -59,5 +59,7 @@ protected:
   
 private:
 
+  bool m_debug;
+  
 };
 #endif // INTERFACE_RBCINPUT_H

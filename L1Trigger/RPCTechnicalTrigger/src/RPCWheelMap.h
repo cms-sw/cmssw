@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: RPCWheelMap.h,v 1.1 2009/02/05 13:46:21 aosorio Exp $
 #ifndef RPCWHEELMAP_H 
 #define RPCWHEELMAP_H 1
 
@@ -40,6 +40,7 @@ private:
   std::bitset<6> * m_wheelmap;
   std::bitset<6> * m_wheelmapbx;
   
-  
+  bool m_debug;
+    
 };
 #endif // RPCWHEELMAP_H

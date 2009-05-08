@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: RPCWheelMap.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
 // Include files 
 
 
@@ -29,6 +29,8 @@ RPCWheelMap::RPCWheelMap( int wheelid ) {
   
   for(int i=0; i < 84; ++i)
     m_wheelmapbx[i].reset();
+
+  m_debug = false;
   
 }
 //=============================================================================
@@ -48,7 +50,7 @@ void RPCWheelMap::addHit( int bx, int sec, int layer)
   
   int indx1 = bx + 3;
   int indx2 = sec + indx1*12;
-  m_wheelmapbx[ indx2 ].set( layer-1, 1);
+  m_wheelmapbx[ indx2 ].set( layer-1, 1); 
   
 }
 
@@ -56,8 +58,7 @@ void RPCWheelMap::contractMaps()
 {
   
   std::bitset<6> tmp;
-  std::string test;
-  
+    
   for(int i=0; i < 12; ++i) {
     tmp.reset();
     for(int j=0; j < 7; ++j) {
@@ -67,10 +68,13 @@ void RPCWheelMap::contractMaps()
     m_wheelmap[i] = tmp;
   }
   
-  //for(int i=0; i<12; ++i) {
-  //test = m_wheelmap[i].to_string<char,std::char_traits<char>,std::allocator<char> >();
-  //std::cout << test << std::endl;
-  //}
+  if( m_debug ) {
+    std::string test;
+    for(int i=0; i<12; ++i) {
+      test = m_wheelmap[i].to_string<char,std::char_traits<char>,std::allocator<char> >();
+      std::cout << "sec: " << i << " " << test << std::endl;
+    }
+  }
   
 }
 

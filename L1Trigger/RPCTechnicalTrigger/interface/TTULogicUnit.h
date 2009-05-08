@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: TTULogicUnit.h,v 1.1 2009/01/30 15:42:47 aosorio Exp $
 #ifndef TTULOGICUNIT_H 
 #define TTULOGICUNIT_H 1
 
@@ -45,6 +45,8 @@ private:
   TTULogic             * m_logic;
   
   LogicTool<TTULogic>  * m_logtool;
-  
+
+  bool m_debug;
+    
 };
 #endif // TTUPAC_H

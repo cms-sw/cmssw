@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: TTUInput.h,v 1.1 2009/01/30 15:42:47 aosorio Exp $
 #ifndef INTERFACE_TTUINPUT_H 
 #define INTERFACE_TTUINPUT_H 1
 
@@ -17,6 +17,7 @@
  */
 class TTUInput {
 public: 
+  
   /// Standard constructor
   TTUInput( ); 
   
@@ -48,8 +49,7 @@ protected:
   
 private:
   
-  
-  
-  
+  bool m_debug;
+    
 };
 #endif // INTERFACE_TTUINPUT_H

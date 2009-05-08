@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: RBCLogicUnit.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
 // Include files 
 
 
@@ -18,6 +18,7 @@
 RBCLogicUnit::RBCLogicUnit( ) : RPCLogicUnit() {
   
   m_logtool = new LogicTool<RBCLogic>();
+  m_debug = false;
   
 }
 
@@ -25,7 +26,8 @@ RBCLogicUnit::RBCLogicUnit( const char * logic_type ) : RPCLogicUnit() {
   
   m_logtool = new LogicTool<RBCLogic>();
   m_logtype = std::string( logic_type );
- 
+  m_debug = false;
+
 }
 //=============================================================================
 // Destructor
@@ -47,13 +49,13 @@ bool RBCLogicUnit::initialise()
   
   status = m_logtool->initialise();
   if ( !status ) { 
-    std::cout << "RBCLogicUnit> Problem initialising LogicTool \n"; 
+    if( m_debug ) std::cout << "RBCLogicUnit> Problem initialising LogicTool \n"; 
     return 0; };
   
   m_logic  = dynamic_cast<RBCLogic*> ( m_logtool->retrieve(m_logtype) );
   
   if ( ! m_logic ) { 
-    std::cout << "RBCLogicUnit> No logic found \n"; 
+    if( m_debug ) std::cout << "RBCLogicUnit> No logic found \n"; 
     return 0; };
   
   return 1;

@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: TTULogicUnit.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
 // Include files 
 
 
@@ -18,6 +18,7 @@
 TTULogicUnit::TTULogicUnit( ) : RPCLogicUnit () {
   
   m_logtool = new LogicTool<TTULogic>();
+  m_debug = false;
   
 }
 
@@ -25,6 +26,7 @@ TTULogicUnit::TTULogicUnit( const char * logic_type ) : RPCLogicUnit () {
 
   m_logtool = new LogicTool<TTULogic>();
   m_logtype = std::string( logic_type );
+  m_debug = false;
   
 }
 //=============================================================================
@@ -47,13 +49,13 @@ bool TTULogicUnit::initialise()
   
   status = m_logtool->initialise();
   if ( !status ) { 
-    std::cout << "TTULogicUnit> Problem initialising LogicTool \n"; 
+    if( m_debug ) std::cout << "TTULogicUnit> Problem initialising LogicTool \n"; 
     return 0; };
 
   m_logic  = dynamic_cast<TTULogic*> ( m_logtool->retrieve(m_logtype) );
   
   if ( ! m_logic ) { 
-    std::cout << "TTULogicUnit> No logic found \n"; 
+    if( m_debug ) std::cout << "TTULogicUnit> No logic found \n"; 
     return 0; };
   
   return 1;

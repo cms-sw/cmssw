@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: RBCInput.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
 // Include files 
 
 // local
@@ -52,7 +52,7 @@ void RBCInput::mask( const std::vector<int> & maskvec )
 void RBCInput::force( const std::vector<int> & forcevec )
 {
   
-  std::cout << forcevec.size() << std::endl;
+  if( m_debug ) std::cout << forcevec.size() << std::endl;
 
   std::bitset<15> tmp;
   

@@ -1,11 +1,10 @@
-// $Id: RPCProcessDigiSignal.h,v 1.2 2009/02/16 09:11:30 aosorio Exp $
-#ifndef RPCPROCESSDIGISIGNAL_H 
-#define RPCPROCESSDIGISIGNAL_H 1
+// $Id: ProcessDigiGlobalSignal.h,v 1.3 2009/03/23 17:30:36 aosorio Exp $
+#ifndef PROCESSDIGIGLOBALSIGNAL_H 
+#define PROCESSDIGIGLOBALSIGNAL_H 1
 
 // Include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
 
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
@@ -31,21 +30,21 @@
 #include <map>
 #include <vector>
 
-/** @class RPCProcessDigiSignal RPCProcessDigiSignal.h
+/** @class ProcessDigiGlobalSignal ProcessDigiGlobalSignal.h
  *  
  *
  *  @author Andres Felipe Osorio Oliveros
  *  @date   2008-11-21
  */
-class RPCProcessDigiSignal : public ProcessInputSignal {
+class ProcessDigiGlobalSignal : public ProcessInputSignal {
 public: 
   /// Standard constructor
-  RPCProcessDigiSignal( ) {};
+  ProcessDigiGlobalSignal( ) {};
   
-  RPCProcessDigiSignal( const edm::ESHandle<RPCGeometry> &, 
-                        const edm::Handle<RPCDigiCollection> & );
+  ProcessDigiGlobalSignal( const edm::ESHandle<RPCGeometry> &, 
+                           const edm::Handle<RPCDigiCollection> & );
   
-  virtual ~RPCProcessDigiSignal( ); ///< Destructor
+  virtual ~ProcessDigiGlobalSignal( ); ///< Destructor
   
   int  next();
   
@@ -77,6 +76,7 @@ private:
   RPCDigiCollection::const_iterator m_digiItr;
   RPCDigiCollection::DigiRangeIterator m_detUnitItr;
 
-      
+  bool m_debug;
+        
 };
-#endif // RPCPROCESSDIGISIGNAL_H
+#endif // PROCESSDIGIGLOBALSIGNAL_H

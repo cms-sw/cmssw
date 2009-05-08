@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: RBCBasicConfig.cc,v 1.1 2009/01/30 15:42:47 aosorio Exp $
 // Include files 
 
 
@@ -21,7 +21,9 @@ RBCBasicConfig::RBCBasicConfig( const RBCBoardSpecs * rbcspecs , RBCId * info )
   m_rbcboardspecs  = rbcspecs;
   m_rbclogic       = new RBCLogicUnit();
   m_rbcinfo        = new RBCId( *info );
-  
+
+  m_debug = false;
+    
 }
 
 RBCBasicConfig::RBCBasicConfig( const char * _logic ) {
@@ -63,7 +65,7 @@ bool RBCBasicConfig::initialise()
   m_vecforce.assign( (*itr).m_ForcedOrInput.begin(), (*itr).m_ForcedOrInput.end() );
   
   if ( !status ) { 
-    std::cout << "RBCConfiguration> Problem initialising the logic unit\n"; 
+    if( m_debug ) std::cout << "RBCConfiguration> Problem initialising the logic unit\n"; 
     return 0; };
   
   return 1;
@@ -73,11 +75,11 @@ bool RBCBasicConfig::initialise()
 void RBCBasicConfig::preprocess( RBCInput & input )
 {
   
-  std::cout << "RBCBasicConfig::preprocess> starts here" << std::endl;
+  if( m_debug ) std::cout << "RBCBasicConfig::preprocess> starts here" << std::endl;
 
   input.mask( m_vecmask );
   input.force( m_vecforce );
   
-  std::cout << "RBCBasicConfig::preprocess> done" << std::endl;
+  if( m_debug ) std::cout << "RBCBasicConfig::preprocess> done" << std::endl;
   
 }

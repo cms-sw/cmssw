@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: TTUTrackingAlg.h,v 1.1 2009/02/05 13:46:21 aosorio Exp $
 #ifndef TTUTRACKINGALG_H 
 #define TTUTRACKINGALG_H 1
 
@@ -153,6 +153,8 @@ private:
       std::cout << (*itr) << '\t';
     std::cout << '\n';
   };
-  
+
+  bool m_debug;
+    
 };
 #endif // TTUTRACKINGALG_H

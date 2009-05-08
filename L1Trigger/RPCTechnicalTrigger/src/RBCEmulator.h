@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: RBCEmulator.h,v 1.1 2009/02/05 13:46:21 aosorio Exp $
 #ifndef RBCEMULATOR_H 
 #define RBCEMULATOR_H 1
 
@@ -69,6 +69,8 @@ private:
   int m_bx;
   
   std::string m_logtype;
-  
+
+  bool m_debug;
+    
 };
 #endif // RBCEMULATOR_H

@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: TTUBasicConfig.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
 // Include files 
 
 
@@ -19,13 +19,17 @@ TTUBasicConfig::TTUBasicConfig( const TTUBoardSpecs * ttuspecs ) {
 
   m_ttuboardspecs = ttuspecs;
   m_ttulogic      = new TTULogicUnit();
-  
+
+  m_debug = false;
+    
 }
 
 TTUBasicConfig::TTUBasicConfig( const char * _logic  ) {
 
   m_ttulogic = new TTULogicUnit( _logic );
-  
+
+  m_debug = false;
+    
 }
 
 //=============================================================================
@@ -62,7 +66,7 @@ bool TTUBasicConfig::initialise()
   m_vecforce.assign( (*itr).m_ForcedSectors.begin(), (*itr).m_ForcedSectors.end() );
   
   if ( !status ) { 
-    std::cout << "TTUConfiguration> Problem initialising the logic unit\n"; 
+    if( m_debug ) std::cout << "TTUConfiguration> Problem initialising the logic unit\n"; 
     return 0; };
   
   return status;
@@ -72,11 +76,11 @@ bool TTUBasicConfig::initialise()
 void TTUBasicConfig::preprocess( TTUInput & input )
 {
   
-  std::cout << "TTUBasicConfig::preprocess> starts here" << std::endl;
-
+  if( m_debug ) std::cout << "TTUBasicConfig::preprocess> starts here" << std::endl;
+  
   input.mask( m_vecmask );
   //input.force( m_vecforce );
   
-  std::cout << "TTUBasicConfig::preprocess> done" << std::endl;
+  if( m_debug ) std::cout << "TTUBasicConfig::preprocess> done" << std::endl;
   
 }

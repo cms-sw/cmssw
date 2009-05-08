@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: RPCWheel.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
 // Include files 
 
 
@@ -28,7 +28,9 @@ RPCWheel::RPCWheel( int _wid ) {
     m_RBCE[k] = new RBCEmulator( ); 
     m_RBCE[k]->setid( _wid, _bisector );
   }
-  
+
+  m_debug = false;
+    
 }
 
 RPCWheel::RPCWheel( int _wid, const char * logic_type) {
@@ -43,6 +45,8 @@ RPCWheel::RPCWheel( int _wid, const char * logic_type) {
     m_RBCE[k] = new RBCEmulator( logic_type ); 
     m_RBCE[k]->setid( _wid, _bisector );
   }
+
+  m_debug = false;
   
 }
 
@@ -58,6 +62,8 @@ RPCWheel::RPCWheel( int _wid, const char * f_name, const char * logic_type) {
     m_RBCE[k] = new RBCEmulator( f_name, logic_type ); 
     m_RBCE[k]->setid( _wid, _bisector );
   }
+
+  m_debug = false;
   
 }
 
@@ -98,6 +104,7 @@ void RPCWheel::emulate()
   {
     m_RBCE[k]->emulate();
   }
+
 }
 
 bool RPCWheel::process( const std::map<int,RBCInput*> & _data )
@@ -112,16 +119,14 @@ bool RPCWheel::process( const std::map<int,RBCInput*> & _data )
     int _pos = m_RBCE[k]->m_rbcinfo->wheel()*10000 
       + m_RBCE[k]->m_rbcinfo->sector(0)*100
       + m_RBCE[k]->m_rbcinfo->sector(1);
-
+    
     itr = _data.find( _pos );
     
     if ( itr != _data.end() )  {
       m_RBCE[k]->emulate( ( itr->second ) );
       status = true;
     } else {
-      std::cout << "RPCWheel::process> position not found: " 
-                <<  _pos << std::endl;
-      // handle error
+      if( m_debug ) std::cout << "RPCWheel::process> position not found: " <<  _pos << std::endl;
       status = false;
     }
   }
@@ -137,7 +142,7 @@ bool RPCWheel::process( const std::map<int,TTUInput*> & _data )
   int _pos = m_id*10000;
   std::map<int,TTUInput*>::const_iterator itr;
   
-  std::cout << "RPCWheel::process> " << _data.size() << std::endl;
+  if( m_debug ) std::cout << "RPCWheel::process> " << _data.size() << std::endl;
   
   itr = _data.find( _pos );
   
@@ -147,12 +152,12 @@ bool RPCWheel::process( const std::map<int,TTUInput*> & _data )
       status = true;
     }
   } else {
-    std::cout << "RPCWheel::process> position not found: " <<  _pos << std::endl;
+    if( m_debug ) std::cout << "RPCWheel::process> position not found: " <<  _pos << std::endl;
     status = false;
   }
   
   return status;
-    
+  
 }
 
 
@@ -185,7 +190,7 @@ void RPCWheel::retrieveWheelMap( TTUInput & _output )
     }
   }
   
-  print_wheel( _output );
+  if( m_debug ) print_wheel( _output );
   
 }
 
@@ -208,7 +213,8 @@ void print_wheel (const TTUInput & _wmap )
 {
   for( int i=0; i < 12; ++i) std::cout << '\t' << (i+1);
   std::cout << std::endl;
-  for( int k=5; k >= 0; --k )
+
+  for( int k=0; k < 6; ++k )
   {
     std::cout << (k+1) << '\t';
     for( int j=0; j < 12; ++j)

@@ -1,13 +1,13 @@
-// $Id: RPCProcessDigiSignal.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
+// $Id: ProcessDigiGlobalSignal.cc,v 1.2 2009/03/23 17:30:36 aosorio Exp $
 // Include files 
 
 
 // local
-#include "L1Trigger/RPCTechnicalTrigger/src/RPCProcessDigiSignal.h"
+#include "L1Trigger/RPCTechnicalTrigger/src/ProcessDigiGlobalSignal.h"
 #include "L1Trigger/RPCTechnicalTrigger/src/TTUGlobalSignal.h" 
 
 //-----------------------------------------------------------------------------
-// Implementation file for class : RPCProcessDigiSignal
+// Implementation file for class : ProcessDigiGlobalSignal
 //
 // 2008-11-23 : Andres Felipe Osorio Oliveros
 //-----------------------------------------------------------------------------
@@ -15,32 +15,34 @@
 //=============================================================================
 // Standard constructor, initializes variables
 //=============================================================================
-RPCProcessDigiSignal::RPCProcessDigiSignal( const edm::ESHandle<RPCGeometry> & rpcGeom, 
-                                            const edm::Handle<RPCDigiCollection> & digiColl ) 
+ProcessDigiGlobalSignal::ProcessDigiGlobalSignal( const edm::ESHandle<RPCGeometry> & rpcGeom, 
+                                                  const edm::Handle<RPCDigiCollection> & digiColl ) 
 {
   
   m_ptr_rpcGeom  = & rpcGeom;
   m_ptr_digiColl = & digiColl;
-
+  
   m_wmin = dynamic_cast<RPCInputSignal*>( new TTUGlobalSignal( &m_data ) );
+
+  m_debug = false;
   
 }
 //=============================================================================
 // Destructor
 //=============================================================================
-RPCProcessDigiSignal::~RPCProcessDigiSignal() {
-
+ProcessDigiGlobalSignal::~ProcessDigiGlobalSignal() {
+  
   std::vector<RPCWheelMap*>::iterator itr;
   for(itr = m_wheelmapvec.begin(); itr != m_wheelmapvec.begin(); ++itr)
     delete (*itr);
   m_wheelmapvec.clear();
-
+  
   if( m_wmin ) delete m_wmin;
   
 } 
 
 //=============================================================================
-int RPCProcessDigiSignal::next() 
+int ProcessDigiGlobalSignal::next() 
 {
   
   //. Generate a Wheel map from Digi collection
@@ -57,7 +59,7 @@ int RPCProcessDigiSignal::next()
     const RPCRoll * roll = dynamic_cast<const RPCRoll* >( (*m_ptr_rpcGeom)->roll(id));
     
     if((roll->isForward())) {
-      std::cout << "RPCProcessDigiSignal: roll is forward" << std::endl;
+      if( m_debug ) std::cout << "ProcessDigiGlobalSignal: roll is forward" << std::endl;
       //continue;
     }
     
@@ -65,14 +67,14 @@ int RPCProcessDigiSignal::next()
     int sector  = roll->id().sector() - 1;              // 0 to 11 (12)
     int layer   = roll->id().layer();                   // 1,2
     int station = roll->id().station();                 // 1-4
-    int blayer  = getBarrelLayer( layer, station ) - 1; // 1 to 6
+    int blayer  = getBarrelLayer( layer, station );     // 1 to 6
     
-    std::cout << "Bx: "      << bx      << '\t'
-              << "Wheel: "   << wheel   << '\t'
-              << "Sector: "  << sector  << '\t'
-              << "Station: " << station << '\t'
-              << "Layer: "   << layer   << '\t'
-              << "B-Layer: " << blayer  << '\n';
+    if ( m_debug ) std::cout << "Bx: "      << bx      << '\t'
+                             << "Wheel: "   << wheel   << '\t'
+                             << "Sector: "  << sector  << '\t'
+                             << "Station: " << station << '\t'
+                             << "Layer: "   << layer   << '\t'
+                             << "B-Layer: " << blayer  << '\n';
     
     
     if ( wheel != prev_wheel_id ) {
@@ -80,14 +82,14 @@ int RPCProcessDigiSignal::next()
       m_wheelmapvec.push_back ( wheelmap );
     }
     
-    wheelmap->addHit ( bx, sector, layer );
-    //...
+    wheelmap->addHit( bx, sector, layer );
+    
     prev_wheel_id = wheel;
     
   }
-
+  
   //.. add up all bunch X info into a single map
-
+  
   std::vector<RPCWheelMap*>::const_iterator itr;
   itr = m_wheelmapvec.begin();
   while( itr!=m_wheelmapvec.end()){
@@ -95,7 +97,8 @@ int RPCProcessDigiSignal::next()
     ++itr;
   }
   
-  //... set up now data to be processed
+  //... set up data to be processed
+  
   int wheel      = -10;
   int prev_wheel = -100;
   itr = m_wheelmapvec.begin();
@@ -115,7 +118,7 @@ int RPCProcessDigiSignal::next()
   
 }
 
-int RPCProcessDigiSignal::getBarrelLayer( const int & _layer, const int & _station )
+int ProcessDigiGlobalSignal::getBarrelLayer( const int & _layer, const int & _station )
 {
   
   //... Calculates the generic Barrel Layer (1 to 6)

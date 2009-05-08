@@ -1,4 +1,4 @@
-// $Id: TTUEmulator.h,v 1.1 2009/02/05 13:46:21 aosorio Exp $
+// $Id: TTUEmulator.h,v 1.2 2009/02/16 09:11:31 aosorio Exp $
 #ifndef TTUEMULATOR_H 
 #define TTUEMULATOR_H 1
 
@@ -90,6 +90,7 @@ private:
 
   TTUConfiguration * m_ttuconf;
   
-  
+  bool m_debug;
+    
 };
 #endif // TTUEMULATOR_H

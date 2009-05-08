@@ -1,6 +1,6 @@
-// $Id: $
-#ifndef RPCPROCESSTESTSIGNAL_H 
-#define RPCPROCESSTESTSIGNAL_H 1
+// $Id: ProcessTestSignal.h,v 1.1 2009/02/05 13:46:21 aosorio Exp $
+#ifndef PROCESSTESTSIGNAL_H 
+#define PROCESSTESTSIGNAL_H 1
 
 // Include files
 
@@ -17,7 +17,7 @@
 #include <vector>
 
 
-/** @class RPCProcessTestSignal RPCProcessTestSignal.h
+/** @class ProcessTestSignal ProcessTestSignal.h
  *  
  * 
  *
@@ -26,14 +26,14 @@
  *  @author Andres Osorio
  *  @date   2008-11-14
  */
-class RPCProcessTestSignal : public ProcessInputSignal {
+class ProcessTestSignal : public ProcessInputSignal {
 public: 
   /// Standard constructor
-  RPCProcessTestSignal( ) { }; 
+  ProcessTestSignal( ) { }; 
   
-  RPCProcessTestSignal( const char * );
+  ProcessTestSignal( const char * );
   
-  virtual ~RPCProcessTestSignal( ); ///< Destructor
+  virtual ~ProcessTestSignal( ); ///< Destructor
   
   int  next();
   
@@ -71,4 +71,4 @@ private:
   
   
 };
-#endif // RPCPROCESSTESTSIGNAL_H
+#endif // PROCESSTESTSIGNAL_H

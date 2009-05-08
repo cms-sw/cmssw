@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: TTUBasicConfig.h,v 1.1 2009/02/05 13:46:21 aosorio Exp $
 #ifndef INTERFACE_TTUBASICCONFIG_H 
 #define INTERFACE_TTUBASICCONFIG_H 1
 
@@ -34,6 +34,8 @@ private:
 
   std::vector<int> m_vecmask;
   std::vector<int> m_vecforce;
-  
+
+  bool m_debug;
+    
 };
 #endif // INTERFACE_TTUBASICCONFIG_H

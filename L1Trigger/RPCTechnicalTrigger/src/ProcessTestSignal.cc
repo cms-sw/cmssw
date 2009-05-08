@@ -1,12 +1,13 @@
-// $Id: $
+// $Id: ProcessTestSignal.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
 // Include files 
 
 
 // local
-#include "L1Trigger/RPCTechnicalTrigger/src/RPCProcessTestSignal.h"
+#include "L1Trigger/RPCTechnicalTrigger/src/ProcessTestSignal.h"
 #include "L1Trigger/RPCTechnicalTrigger/src/RBCLinkBoardGLSignal.h"
+
 //-----------------------------------------------------------------------------
-// Implementation file for class : RPCProcessTestSignal
+// Implementation file for class : ProcessTestSignal
 //
 // 2008-11-17 : Andres Osorio
 //-----------------------------------------------------------------------------
@@ -14,16 +15,16 @@
 //=============================================================================
 // Standard constructor, initializes variables
 //=============================================================================
-RPCProcessTestSignal::RPCProcessTestSignal( const char * f_name ) 
+ProcessTestSignal::ProcessTestSignal( const char * f_name ) 
 {
   
   m_in = new std::ifstream();
   m_in->open(f_name);
   
   if(!m_in->is_open()) {
-    std::cout << "RPCProcessTestSignal> cannot open file" << std::endl;
+    std::cout << "ProcessTestSignal> cannot open file" << std::endl;
   } else { 
-    std::cout << "RPCProcessTestSignal> file is now open" << std::endl;
+    std::cout << "ProcessTestSignal> file is now open" << std::endl;
   }
   
   m_lbin = dynamic_cast<RPCInputSignal*>( new RBCLinkBoardGLSignal( &m_data ) );
@@ -32,7 +33,7 @@ RPCProcessTestSignal::RPCProcessTestSignal( const char * f_name )
 //=============================================================================
 // Destructor
 //=============================================================================
-RPCProcessTestSignal::~RPCProcessTestSignal() {
+ProcessTestSignal::~ProcessTestSignal() {
 
   if ( m_lbin ) delete m_lbin;
   
@@ -44,7 +45,7 @@ RPCProcessTestSignal::~RPCProcessTestSignal() {
 } 
 
 //=============================================================================
-int RPCProcessTestSignal::next()
+int ProcessTestSignal::next()
 {
   
   reset();
@@ -65,7 +66,7 @@ int RPCProcessTestSignal::next()
   
 }
 
-void RPCProcessTestSignal::showfirst() 
+void ProcessTestSignal::showfirst() 
 {
   rewind();
   std::vector<RPCData*>::iterator itr;
@@ -75,13 +76,13 @@ void RPCProcessTestSignal::showfirst()
   
 }
 
-void RPCProcessTestSignal::rewind() 
+void ProcessTestSignal::rewind() 
 { 
   m_in->clear();
   m_in->seekg(0,std::ios::beg); 
 }
 
-void RPCProcessTestSignal::reset()
+void ProcessTestSignal::reset()
 {
   
   std::vector<RPCData*>::iterator itr;
@@ -91,7 +92,7 @@ void RPCProcessTestSignal::reset()
   
 }
 
-void RPCProcessTestSignal::builddata() 
+void ProcessTestSignal::builddata() 
 {
   
   int _code(0);

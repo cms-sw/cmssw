@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: RBCLogicUnit.h,v 1.1 2009/01/30 15:42:47 aosorio Exp $
 #ifndef RBCLOGICUNIT_H 
 #define RBCLOGICUNIT_H 1
 
@@ -49,6 +49,8 @@ private:
   RBCLogic            * m_logic;
   
   LogicTool<RBCLogic> * m_logtool;
-  
+
+  bool m_debug;
+    
 };
 #endif // RBCLOGICUNIT_H

@@ -1,4 +1,4 @@
-// $Id: TTUEmulator.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
+// $Id: TTUEmulator.cc,v 1.2 2009/02/16 09:11:31 aosorio Exp $
 // Include files 
 
 
@@ -36,7 +36,9 @@ TTUEmulator::TTUEmulator( int _id, int _mxw  )
   m_trigger.reset();
     
   m_mode = 1;
-  
+
+  m_debug = false;
+    
 }
 
 
@@ -60,6 +62,8 @@ TTUEmulator::TTUEmulator( int _id, const char * rbclogic_type, const char * ttul
   m_trigger.reset();
   
   m_mode = 1;
+
+  m_debug = false;
   
 }
 
@@ -84,6 +88,8 @@ TTUEmulator::TTUEmulator( int _id, const char * f_name, const char * rbclogic_ty
   m_trigger.reset();
 
   m_mode = 1;
+
+  m_debug = false;
   
 }
 
@@ -129,7 +135,7 @@ bool TTUEmulator::initialise()
   status = m_ttuconf->initialise();
   
   if ( !status ) { 
-    std::cout << "TTUEmulator> Problem initialising the Configuration \n"; 
+    if( m_debug ) std::cout << "TTUEmulator> Problem initialising the Configuration \n"; 
     return 0; };
   
   return status;
@@ -173,14 +179,14 @@ void TTUEmulator::processlocal( RPCInputSignal * signal )
       
       m_trigger.set(k,trg);
       
-      std::cout << "TTUEmulator::processlocal ttuid: " << m_id 
-                << " wheel: "       << m_Wheels[k]->getid()
-                << " response: "    << trg << std::endl;
+      if( m_debug ) std::cout << "TTUEmulator::processlocal ttuid: " << m_id 
+                              << " wheel: "       << m_Wheels[k]->getid()
+                              << " response: "    << trg << std::endl;
     }
     
   }
   
-  std::cout << "TTUEmulator::processlocal> done with this TTU: " << m_id << std::endl;
+  if( m_debug ) std::cout << "TTUEmulator::processlocal> done with this TTU: " << m_id << std::endl;
   
 }
 
@@ -214,16 +220,16 @@ void TTUEmulator::processglobal( RPCInputSignal * signal )
       
       m_trigger.set(k,trg);
       
-      std::cout << "TTUEmulator::processglobal ttuid: " << m_id 
-                << " wheel: "       << m_Wheels[k]->getid()
-                << " response: "    << trg << std::endl;
-
-
+      if( m_debug ) std::cout << "TTUEmulator::processglobal ttuid: " << m_id 
+                              << " wheel: "       << m_Wheels[k]->getid()
+                              << " response: "    << trg << std::endl;
+      
+      
     }
     
   }
-
-  std::cout << "TTUEmulator::processglobal> done with this TTU: " << m_id << std::endl;
+  
+  if( m_debug ) std::cout << "TTUEmulator::processglobal> done with this TTU: " << m_id << std::endl;
   
 }
 

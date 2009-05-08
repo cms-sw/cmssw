@@ -44,10 +44,6 @@ Implementation:
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 
-//#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-//#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-//#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
@@ -99,6 +95,7 @@ private:
   std::bitset<1> m_trigger;
   std::bitset<6> m_triggerbits;
   std::bitset<8> m_gmtfilter;
+  std::bitset<5> m_bits_24o28;
   
   edm::ESHandle<RPCGeometry> m_rpcGeometry;
   
@@ -106,6 +103,9 @@ private:
   int m_validation;
   std::string m_rbclogictype;
   std::string m_ttulogictype;
+  std::string m_testfile;
+  std::vector<unsigned>    m_ttBits;
+  std::vector<std::string> m_ttNames;
   
   edm::InputTag m_GMTLabel;
   
@@ -117,8 +117,7 @@ private:
   int m_ievt;
   int m_cand;
   int m_valflag;
-
-
+  
 };
 
 #endif // RPCTECHNICALTRIGGER_H
