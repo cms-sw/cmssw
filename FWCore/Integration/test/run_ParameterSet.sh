@@ -33,6 +33,15 @@ pushd ${LOCAL_TMP_DIR}
   cmsRun -p ${LOCAL_TEST_DIR}/testPSetAnalyzer_cfg.py 2>&1 | grep " PSet test " > testPSetAnalyzer.txt
   diff ${LOCAL_TMP_DIR}/testPSetAnalyzer.txt ${LOCAL_TEST_DIR}/unit_test_outputs/testPSetAnalyzer.txt || die "comparing testPSetAnalyzer.txt" $?
 
+# Print human readable from the ParameterSetDescription 
+  echo edmParamDesc -p ProducerWithPSetDesc ------------------------------
+  edmParamDesc -p ProducerWithPSetDesc &> testProducerWithPsetDesc_doc.txt || die "edmParamDesc -p ProducerWithPSetDesc" $?
+  diff ${LOCAL_TMP_DIR}/testProducerWithPsetDesc_doc.txt ${LOCAL_TEST_DIR}/unit_test_outputs/testProducerWithPsetDesc_doc.txt || die "comparing testProducerWithPsetDesc_doc.txt" $?
+
+# Print human readable from the ParameterSetDescription, brief format 
+  echo edmParamDesc -p ProducerWithPSetDesc -b ---------------------------
+  edmParamDesc -p ProducerWithPSetDesc -b &> testProducerWithPsetDesc_briefdoc.txt || die "edmParamDesc -p ProducerWithPSetDesc -b" $?
+  diff ${LOCAL_TMP_DIR}/testProducerWithPsetDesc_briefdoc.txt ${LOCAL_TEST_DIR}/unit_test_outputs/testProducerWithPsetDesc_briefdoc.txt || die "comparing testProducerWithPsetDesc_briefdoc.txt" $?
 
 popd
 

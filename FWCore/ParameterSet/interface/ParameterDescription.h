@@ -40,32 +40,61 @@ namespace edm {
   class InputTag;
   class FileInPath;
   class VParameterSetEntry;
+  class DocFormatHelper;
 
-  namespace writeToCfi {
-    void writeValueToCfi(std::ostream & os, int indentation, int const& value_);
-    void writeValueToCfi(std::ostream & os, int indentation, std::vector<int> const& value_);
-    void writeValueToCfi(std::ostream & os, int indentation, unsigned const& value_);
-    void writeValueToCfi(std::ostream & os, int indentation, std::vector<unsigned> const& value_);
-    void writeValueToCfi(std::ostream & os, int indentation, boost::int64_t const& value_);
-    void writeValueToCfi(std::ostream & os, int indentation, std::vector<boost::int64_t> const& value_);
-    void writeValueToCfi(std::ostream & os, int indentation, boost::uint64_t const& value_);
-    void writeValueToCfi(std::ostream & os, int indentation, std::vector<boost::uint64_t> const& value_);
-    void writeValueToCfi(std::ostream & os, int indentation, double const& value_);
-    void writeValueToCfi(std::ostream & os, int indentation, std::vector<double> const& value_);
-    void writeValueToCfi(std::ostream & os, int indentation, bool const& value_);
-    void writeValueToCfi(std::ostream & os, int indentation, std::string const& value_);
-    void writeValueToCfi(std::ostream & os, int indentation, std::vector<std::string> const& value_);
-    void writeValueToCfi(std::ostream & os, int indentation, edm::EventID const& value_);
-    void writeValueToCfi(std::ostream & os, int indentation, std::vector<edm::EventID> const& value_);
-    void writeValueToCfi(std::ostream & os, int indentation, edm::LuminosityBlockID const& value_);
-    void writeValueToCfi(std::ostream & os, int indentation, std::vector<edm::LuminosityBlockID> const& value_);
-    void writeValueToCfi(std::ostream & os, int indentation, edm::LuminosityBlockRange const& value_);
-    void writeValueToCfi(std::ostream & os, int indentation, std::vector<edm::LuminosityBlockRange> const& value_);
-    void writeValueToCfi(std::ostream & os, int indentation, edm::EventRange const& value_);
-    void writeValueToCfi(std::ostream & os, int indentation, std::vector<edm::EventRange> const& value_);
-    void writeValueToCfi(std::ostream & os, int indentation, edm::InputTag const& value_);
-    void writeValueToCfi(std::ostream & os, int indentation, std::vector<edm::InputTag> const& value_);
-    void writeValueToCfi(std::ostream & os, int indentation, edm::FileInPath const& value_);
+  namespace writeParameterValue {
+
+    enum ValueFormat { CFI, DOC };
+
+    void writeValue(std::ostream & os, int indentation, int const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, std::vector<int> const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, unsigned const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, std::vector<unsigned> const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, boost::int64_t const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, std::vector<boost::int64_t> const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, boost::uint64_t const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, std::vector<boost::uint64_t> const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, double const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, std::vector<double> const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, bool const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, std::string const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, std::vector<std::string> const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, edm::EventID const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, std::vector<edm::EventID> const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, edm::LuminosityBlockID const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, std::vector<edm::LuminosityBlockID> const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, edm::LuminosityBlockRange const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, std::vector<edm::LuminosityBlockRange> const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, edm::EventRange const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, std::vector<edm::EventRange> const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, edm::InputTag const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, std::vector<edm::InputTag> const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, edm::FileInPath const& value_, ValueFormat format);
+
+    bool hasNestedContent(int const& value);
+    bool hasNestedContent(std::vector<int> const& value);
+    bool hasNestedContent(unsigned const& value);
+    bool hasNestedContent(std::vector<unsigned> const& value);
+    bool hasNestedContent(boost::int64_t const& value);
+    bool hasNestedContent(std::vector<boost::int64_t> const& value);
+    bool hasNestedContent(boost::uint64_t const& value);
+    bool hasNestedContent(std::vector<boost::uint64_t> const& value);
+    bool hasNestedContent(double const& value);
+    bool hasNestedContent(std::vector<double> const& value);
+    bool hasNestedContent(bool const& value);
+    bool hasNestedContent(std::string const& value);
+    bool hasNestedContent(std::vector<std::string> const& value);
+    bool hasNestedContent(edm::EventID const& value);
+    bool hasNestedContent(std::vector<edm::EventID> const& value);
+    bool hasNestedContent(edm::LuminosityBlockID const& value);
+    bool hasNestedContent(std::vector<edm::LuminosityBlockID> const& value);
+    bool hasNestedContent(edm::LuminosityBlockRange const& value);
+    bool hasNestedContent(std::vector<edm::LuminosityBlockRange> const& value);
+    bool hasNestedContent(edm::EventRange const& value);
+    bool hasNestedContent(std::vector<edm::EventRange> const& value);
+    bool hasNestedContent(edm::InputTag const& value);
+    bool hasNestedContent(std::vector<edm::InputTag> const& value);
+    bool hasNestedContent(edm::FileInPath const& value);
   }
 
   template<class T>
@@ -137,8 +166,16 @@ namespace edm {
       return pset.existsAs<T>(label(), isTracked());
     }
 
+    virtual bool hasNestedContent_() {
+      return writeParameterValue::hasNestedContent(value_);
+    }
+
     virtual void writeCfi_(std::ostream & os, int indentation) const {
-      writeToCfi::writeValueToCfi(os, indentation, value_);
+      writeParameterValue::writeValue(os, indentation, value_, writeParameterValue::CFI);
+    }
+
+    virtual void writeDoc_(std::ostream & os, int indentation) const {
+      writeParameterValue::writeValue(os, indentation, value_, writeParameterValue::DOC);
     }
 
     T value_;
@@ -174,9 +211,21 @@ namespace edm {
                            std::set<std::string> & validatedLabels,
                            bool optional) const;
 
+    virtual void printThirdLine_(std::ostream & os,
+                                 bool writeToCfi,
+                                 DocFormatHelper & dfh);
+
+    virtual bool hasNestedContent_();
+
+    virtual void printNestedContent_(std::ostream & os,
+                                     bool optional,
+                                     DocFormatHelper & dfh);
+
     virtual bool exists_(ParameterSet const& pset) const;
 
     virtual void writeCfi_(std::ostream & os, int indentation) const;
+
+    virtual void writeDoc_(std::ostream & os, int indentation) const;
 
     value_ptr<ParameterSetDescription> psetDesc_;
   };
@@ -211,9 +260,21 @@ namespace edm {
                            std::set<std::string> & validatedLabels,
                            bool optional) const;
 
+    virtual void printThirdLine_(std::ostream & os,
+                                 bool writeToCfi,
+                                 DocFormatHelper & dfh);
+
+    virtual bool hasNestedContent_();
+
+    virtual void printNestedContent_(std::ostream & os,
+                                     bool optional,
+                                     DocFormatHelper & dfh);
+
     virtual bool exists_(ParameterSet const& pset) const;
 
     virtual void writeCfi_(std::ostream & os, int indentation) const;
+
+    virtual void writeDoc_(std::ostream & os, int indentation) const;
 
     static void writeOneDescriptionToCfi(ParameterSetDescription const& psetDesc,
                                          std::ostream & os,

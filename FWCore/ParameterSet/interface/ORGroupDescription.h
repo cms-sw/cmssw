@@ -1,5 +1,5 @@
-#ifndef FWCore_ParameterSet_OrParameterDescription_h
-#define FWCore_ParameterSet_OrParameterDescription_h
+#ifndef FWCore_ParameterSet_ORGroupDescription_h
+#define FWCore_ParameterSet_ORGroupDescription_h
 
 #include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
 
@@ -13,23 +13,24 @@
 namespace edm {
 
   class ParameterSet;
+  class DocFormatHelper;
 
-  class OrParameterDescription : public ParameterDescriptionNode {
+  class ORGroupDescription : public ParameterDescriptionNode {
   public:
-    OrParameterDescription(ParameterDescriptionNode const& node_left,
-                           ParameterDescriptionNode const& node_right);
+    ORGroupDescription(ParameterDescriptionNode const& node_left,
+                       ParameterDescriptionNode const& node_right);
 
-    OrParameterDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
-                           ParameterDescriptionNode const& node_right);
+    ORGroupDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
+                       ParameterDescriptionNode const& node_right);
 
-    OrParameterDescription(ParameterDescriptionNode const& node_left,
-                           std::auto_ptr<ParameterDescriptionNode> node_right);
+    ORGroupDescription(ParameterDescriptionNode const& node_left,
+                       std::auto_ptr<ParameterDescriptionNode> node_right);
 
-    OrParameterDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
-                           std::auto_ptr<ParameterDescriptionNode> node_right);
+    ORGroupDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
+                       std::auto_ptr<ParameterDescriptionNode> node_right);
 
     virtual ParameterDescriptionNode* clone() const {
-      return new OrParameterDescription(*this);
+      return new ORGroupDescription(*this);
     }
 
   private:
@@ -47,11 +48,24 @@ namespace edm {
                            int indentation,
                            bool & wroteSomething) const;
 
+    virtual void print_(std::ostream & os,
+                        bool optional,
+                        bool writeToCfi,
+                        DocFormatHelper & dfh);
+
+    virtual bool hasNestedContent_() {
+      return true;
+    }
+
+    virtual void printNestedContent_(std::ostream & os,
+                                     bool optional,
+                                     DocFormatHelper & dfh);
+
     virtual bool exists_(ParameterSet const& pset) const;
 
     virtual bool partiallyExists_(ParameterSet const& pset) const;
 
-    virtual int howManyExclusiveOrSubNodesExist_(ParameterSet const& pset) const;
+    virtual int howManyXORSubNodesExist_(ParameterSet const& pset) const;
 
     void throwIfDuplicateLabels(std::set<std::string> const& labelsLeft,
                                 std::set<std::string> const& labelsRight) const;

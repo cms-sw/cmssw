@@ -45,6 +45,7 @@ namespace edm {
   class ParameterDescriptionNode;
   template <typename T> class ParameterDescription;
   template <typename T> class ParameterDescriptionCases;
+  class DocFormatHelper;
 
   class ParameterSetDescription {
   public:
@@ -67,6 +68,10 @@ namespace edm {
 
     ParameterSetDescription();
     virtual ~ParameterSetDescription();
+
+    std::string const& comment() const { return comment_; }
+    void setComment(std::string const & value);
+    void setComment(char const* value);
 
     ///allow any parameter label/value pairs
     void setAllowAnything();
@@ -115,86 +120,90 @@ namespace edm {
       return addWildcard<T, U>(pattern, false);
     }
 
-    void addNode(ParameterDescriptionNode const& node);
-    void addNode(std::auto_ptr<ParameterDescriptionNode> node);
-    void addOptionalNode(ParameterDescriptionNode const& node, bool writeToCfi);
-    void addOptionalNode(std::auto_ptr<ParameterDescriptionNode> node, bool writeToCfi);
+    ParameterDescriptionNode* addNode(ParameterDescriptionNode const& node);
+    ParameterDescriptionNode* addNode(std::auto_ptr<ParameterDescriptionNode> node);
+    ParameterDescriptionNode* addOptionalNode(ParameterDescriptionNode const& node, bool writeToCfi);
+    ParameterDescriptionNode* addOptionalNode(std::auto_ptr<ParameterDescriptionNode> node, bool writeToCfi);
 
     // ifValue will only work with type T as a bool, int, or string.
     // T holds the value of the switch variable.
     // If you try using any other type, then it will not compile.
     template <typename T>
-    void ifValue(ParameterDescription<T> const& switchParameter,
-                 std::auto_ptr<ParameterDescriptionCases<T> > cases) {
-      ifValue<T>(switchParameter, cases, false, true);
+    ParameterDescriptionNode*
+    ifValue(ParameterDescription<T> const& switchParameter,
+            std::auto_ptr<ParameterDescriptionCases<T> > cases) {
+      return ifValue<T>(switchParameter, cases, false, true);
     }
 
     template <typename T>
-    void ifValueOptional(ParameterDescription<T> const& switchParameter,
-                         std::auto_ptr<ParameterDescriptionCases<T> > cases,
-                         bool writeToCfi) {
-      ifValue<T>(switchParameter, cases, true, writeToCfi);
+    ParameterDescriptionNode*
+    ifValueOptional(ParameterDescription<T> const& switchParameter,
+                    std::auto_ptr<ParameterDescriptionCases<T> > cases,
+                    bool writeToCfi) {
+      return ifValue<T>(switchParameter, cases, true, writeToCfi);
     }
 
-    void ifExists(ParameterDescriptionNode const& node1,
-		  ParameterDescriptionNode const& node2) {
-      ifExists(node1, node2, false, true);
+    ParameterDescriptionNode*
+    ifExists(ParameterDescriptionNode const& node1,
+	     ParameterDescriptionNode const& node2) {
+      return ifExists(node1, node2, false, true);
     }
 
-    void ifExistsOptional(ParameterDescriptionNode const& node1,
+    ParameterDescriptionNode*
+    ifExistsOptional(ParameterDescriptionNode const& node1,
 		          ParameterDescriptionNode const& node2,
                           bool writeToCfi) {
-      ifExists(node1, node2, true, writeToCfi);
+      return ifExists(node1, node2, true, writeToCfi);
     }
 
     template<typename T, typename U>
-    void
+    ParameterDescriptionNode*
     labelsFrom(U const& iLabel) {
-      labelsFrom<T,U>(iLabel, true, false, true);
+      return labelsFrom<T,U>(iLabel, true, false, true);
     }
 
     template<typename T, typename U>
-    void
+    ParameterDescriptionNode*
     labelsFromUntracked(U const& iLabel) {
-      labelsFrom<T,U>(iLabel, false, false, true);
+      return labelsFrom<T,U>(iLabel, false, false, true);
     }
 
     template<typename T, typename U>
-    void
+    ParameterDescriptionNode*
     labelsFromOptional(U const& iLabel, bool writeToCfi) {
-      labelsFrom<T,U>(iLabel, true, true, writeToCfi);
+      return labelsFrom<T,U>(iLabel, true, true, writeToCfi);
     }
 
     template<typename T, typename U>
-    void
+    ParameterDescriptionNode*
     labelsFromOptionalUntracked(U const& iLabel, bool writeToCfi) {
-      labelsFrom<T,U>(iLabel, false, true, writeToCfi);
+      return labelsFrom<T,U>(iLabel, false, true, writeToCfi);
     }
 
     // These next four functions only work when the template
     // parameter is ParameterSetDescription or vector<ParameterSetDescription>
     template<typename T, typename U>
-    void
+    ParameterDescriptionNode*
     labelsFrom(U const& iLabel, T const& desc) {
-      labelsFrom<T,U>(iLabel, true, false, true, desc);
+      return labelsFrom<T,U>(iLabel, true, false, true, desc);
     }
 
     template<typename T, typename U>
-    void
+    ParameterDescriptionNode*
     labelsFromUntracked(U const& iLabel, T const& desc) {
-      labelsFrom<T,U>(iLabel, false, false, true, desc);
+      return labelsFrom<T,U>(iLabel, false, false, true, desc);
     }
 
     template<typename T, typename U>
-    void
+    ParameterDescriptionNode*
     labelsFromOptional(U const& iLabel, bool writeToCfi, T const& desc) {
-      labelsFrom<T,U>(iLabel, true, true, writeToCfi, desc);
+      return labelsFrom<T,U>(iLabel, true, true, writeToCfi, desc);
     }
 
     template<typename T, typename U>
-    void
+    ParameterDescriptionNode*
     labelsFromOptionalUntracked(U const& iLabel, bool writeToCfi, T const& desc) {
-      labelsFrom<T,U>(iLabel, false, true, writeToCfi, desc);
+      return labelsFrom<T,U>(iLabel, false, true, writeToCfi, desc);
     }
 
     bool anythingAllowed() const { return anythingAllowed_; }
@@ -218,6 +227,8 @@ namespace edm {
 
     void writeCfi(std::ostream & os, bool startWithComma, int indentation) const; 
 
+    void print(std::ostream & os, DocFormatHelper & dfh) const; 
+
   private:
 
     template<typename T, typename U>
@@ -227,24 +238,25 @@ namespace edm {
     template<typename T, typename U>
     ParameterWildcardBase * addWildcard(U const& pattern, bool isTracked);
 
-    void addNode(std::auto_ptr<ParameterDescriptionNode> node, bool optional, bool writeToCfi);
-
+    ParameterDescriptionNode* addNode(std::auto_ptr<ParameterDescriptionNode> node, bool optional, bool writeToCfi);
 
     template <typename T>
-    void ifValue(ParameterDescription<T> const& switchParameter,
-                 std::auto_ptr<ParameterDescriptionCases<T> > cases,
-                 bool optional, bool writeToCfi);
+    ParameterDescriptionNode*
+    ifValue(ParameterDescription<T> const& switchParameter,
+            std::auto_ptr<ParameterDescriptionCases<T> > cases,
+            bool optional, bool writeToCfi);
 
-    void ifExists(ParameterDescriptionNode const& node1,
-		  ParameterDescriptionNode const& node2,
-                  bool optional, bool writeToCfi);
+    ParameterDescriptionNode*
+    ifExists(ParameterDescriptionNode const& node1,
+             ParameterDescriptionNode const& node2,
+             bool optional, bool writeToCfi);
 
     template<typename T, typename U>
-    void
+    ParameterDescriptionNode*
     labelsFrom(U const& iLabel, bool isTracked, bool optional, bool writeToCfi);
 
     template<typename T, typename U>
-    void
+    ParameterDescriptionNode*
     labelsFrom(U const& iLabel, bool isTracked, bool optional, bool writeToCfi, T const& desc);
 
     static
@@ -264,6 +276,11 @@ namespace edm {
               int indentation,
               bool & wroteSomething);
 
+    static void
+    printNode(SetDescriptionEntry const& entry,
+              std::ostream & os,
+              DocFormatHelper & dfh);
+
     void throwIfLabelsAlreadyUsed(std::set<std::string> const& nodeLabels);
     void throwIfWildcardCollision(std::set<ParameterTypes> const& nodeParameterTypes,
                                   std::set<ParameterTypes> const& nodeWildcardTypes);
@@ -275,6 +292,8 @@ namespace edm {
     std::set<std::string> usedLabels_;
     std::set<ParameterTypes> typesUsedForParameters_;
     std::set<ParameterTypes> typesUsedForWildcards_;    
+
+    std::string comment_;
   };
 }
 
@@ -310,26 +329,26 @@ namespace edm {
   }
 
   template <typename T>
-  void
+  ParameterDescriptionNode*
   ParameterSetDescription::ifValue(ParameterDescription<T> const& switchParameter,
           std::auto_ptr<ParameterDescriptionCases<T> > cases,
           bool optional, bool writeToCfi) {
     std::auto_ptr<ParameterDescriptionNode> pdswitch(new ParameterSwitch<T>(switchParameter, cases));
-    addNode(pdswitch, optional, writeToCfi);
+    return addNode(pdswitch, optional, writeToCfi);
   }
 
   template<typename T, typename U>
-  void
+  ParameterDescriptionNode*
   ParameterSetDescription::labelsFrom(U const& iLabel, bool isTracked, bool optional, bool writeToCfi) {
     std::auto_ptr<ParameterDescriptionNode> pd(new AllowedLabelsDescription<T>(iLabel, isTracked));
-    addNode(pd, optional, writeToCfi);
+    return addNode(pd, optional, writeToCfi);
   }
 
   template<typename T, typename U>
-  void
+  ParameterDescriptionNode*
   ParameterSetDescription::labelsFrom(U const& iLabel, bool isTracked, bool optional, bool writeToCfi, T const& desc) {
     std::auto_ptr<ParameterDescriptionNode> pd(new AllowedLabelsDescription<T>(iLabel, desc, isTracked));
-    addNode(pd, optional, writeToCfi);
+    return addNode(pd, optional, writeToCfi);
   }
 }
 

@@ -19,6 +19,7 @@ namespace edm {
 
   class ParameterSet;
   template <typename T> class ParameterDescriptionCases;
+  class DocFormatHelper;
 
   // Originally these were defined such that the values were the
   // same as in the ParameterSet Entry class and the validation
@@ -73,6 +74,10 @@ namespace edm {
 
     virtual ParameterDescriptionNode* clone() const = 0;
 
+    std::string const& comment() const { return comment_; }
+    void setComment(std::string const & value);
+    void setComment(char const* value);
+
     // The validate function should do one of three things, find that the
     // node "exists", make the node "exist" by inserting missing parameters
     // or throw.  The only exception to this rule occurs when the argument
@@ -102,6 +107,20 @@ namespace edm {
       writeCfi_(os, startWithComma, indentation, wroteSomething);
     }
 
+    // Print out the description in human readable format
+    void print(std::ostream & os,
+               bool optional,
+               bool writeToCfi,
+               DocFormatHelper & dfh);
+
+    bool hasNestedContent() {
+      return hasNestedContent_();
+    }
+
+    void printNestedContent(std::ostream & os,
+                            bool optional,
+                            DocFormatHelper & dfh);
+
     // The next three functions are only called by the logical nodes
     // on their subnodes.  When executing these functions, the
     // insertion of missing parameters does not occur.
@@ -121,8 +140,8 @@ namespace edm {
     // -- Exactly one then only the nonzero subnode gets validated
     // -- Zero it tries to validate the first node and then rechecks to see what the missing
     // parameter insertion did.
-    int howManyExclusiveOrSubNodesExist(ParameterSet const& pset) const {
-      return howManyExclusiveOrSubNodesExist_(pset);
+    int howManyXORSubNodesExist(ParameterSet const& pset) const {
+      return howManyXORSubNodesExist_(pset);
     }
 
     /* Validation puts requirements on which parameters can and cannot exist
@@ -183,6 +202,7 @@ namespace edm {
       checkAndGetLabelsAndTypes_(usedLabels, parameterTypes, wildcardTypes);
     }
 
+
   protected:
 
     virtual void checkAndGetLabelsAndTypes_(std::set<std::string> & usedLabels,
@@ -198,11 +218,26 @@ namespace edm {
                            int indentation,
                            bool & wroteSomething) const = 0;
 
+    virtual void print_(std::ostream & os,
+                        bool optional,
+                        bool writeToCfi,
+                        DocFormatHelper & dfh) { }
+
+    virtual bool hasNestedContent_() {
+      return false;
+    }
+
+    virtual void printNestedContent_(std::ostream & os,
+                                     bool optional,
+                                     DocFormatHelper & dfh) { }
+
     virtual bool exists_(ParameterSet const& pset) const = 0;
 
     virtual bool partiallyExists_(ParameterSet const& pset) const = 0;
 
-    virtual int howManyExclusiveOrSubNodesExist_(ParameterSet const& pset) const = 0;
+    virtual int howManyXORSubNodesExist_(ParameterSet const& pset) const = 0;
+
+    std::string comment_;
   };
 
   template <>

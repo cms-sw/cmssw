@@ -13,6 +13,7 @@
 namespace edm {
 
   class ParameterSet;
+  class DocFormatHelper;
 
   class IfExistsDescription : public ParameterDescriptionNode {
   public:
@@ -47,11 +48,24 @@ namespace edm {
                            int indentation,
                            bool & wroteSomething) const;
 
+    virtual void print_(std::ostream & os,
+                        bool optional,
+                        bool writeToCfi,
+                        DocFormatHelper & dfh);
+
+    virtual bool hasNestedContent_() {
+      return true;
+    }
+
+    virtual void printNestedContent_(std::ostream & os,
+                                     bool optional,
+                                     DocFormatHelper & dfh);
+
     virtual bool exists_(ParameterSet const& pset) const;
 
     virtual bool partiallyExists_(ParameterSet const& pset) const;
 
-    virtual int howManyExclusiveOrSubNodesExist_(ParameterSet const& pset) const;
+    virtual int howManyXORSubNodesExist_(ParameterSet const& pset) const;
 
     void throwIfDuplicateLabels(std::set<std::string> const& labelsLeft,
                                 std::set<std::string> const& labelsRight) const;

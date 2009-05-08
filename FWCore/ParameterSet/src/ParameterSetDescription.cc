@@ -15,6 +15,7 @@
 #include "FWCore/ParameterSet/interface/ParameterDescriptionBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/IfExistsDescription.h"
+#include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -36,6 +37,14 @@ namespace edm {
   ParameterSetDescription::~ParameterSetDescription() {
   }
 
+  void
+  ParameterSetDescription::setComment(std::string const & value)
+  { comment_ = value; }
+
+  void
+  ParameterSetDescription::setComment(char const* value)
+  { comment_ = value; }
+
   void 
   ParameterSetDescription::setAllowAnything()
   {
@@ -48,33 +57,33 @@ namespace edm {
     unknown_ = true;
   }
 
-  void
+  ParameterDescriptionNode*
   ParameterSetDescription::
   addNode(ParameterDescriptionNode const& node) {
     std::auto_ptr<ParameterDescriptionNode> clonedNode(node.clone());
-    addNode(clonedNode, false, true);
+    return addNode(clonedNode, false, true);
   }
 
-  void
+  ParameterDescriptionNode*
   ParameterSetDescription::
   addNode(std::auto_ptr<ParameterDescriptionNode> node) {
-    addNode(node, false, true);
+    return addNode(node, false, true);
   }
 
-  void
+  ParameterDescriptionNode*
   ParameterSetDescription::
   addOptionalNode(ParameterDescriptionNode const& node, bool writeToCfi) {
     std::auto_ptr<ParameterDescriptionNode> clonedNode(node.clone());
-    addNode(clonedNode, true, writeToCfi);
+    return addNode(clonedNode, true, writeToCfi);
   }
 
-  void
+  ParameterDescriptionNode*
   ParameterSetDescription::
   addOptionalNode(std::auto_ptr<ParameterDescriptionNode> node, bool writeToCfi) {
-    addNode(node, true, writeToCfi);
+    return addNode(node, true, writeToCfi);
   }
 
-  void
+  ParameterDescriptionNode*
   ParameterSetDescription::
   addNode(std::auto_ptr<ParameterDescriptionNode> node,
       bool optional,
@@ -92,7 +101,9 @@ namespace edm {
     entry.setWriteToCfi(writeToCfi);
     assert(entry.optional() || entry.writeToCfi());
     entries_.push_back(entry);
+    ParameterDescriptionNode* returnValue = node.get();
     entries_.back().setNode(node);
+    return returnValue;
   }
 
   void
@@ -155,6 +166,51 @@ namespace edm {
     entry.node()->validate(pset, validatedLabels, entry.optional());
   }
 
+  void ParameterSetDescription::
+  print(std::ostream & os, DocFormatHelper & dfh) const {
+
+    if (isUnknown()) {
+      dfh.indent(os);
+      os << "Description is unknown.  The configured PSet will not be validated\n";
+      dfh.indent(os);
+      os << "because the module has not defined this parameter set description.\n";
+      if (!dfh.brief()) os << "\n";
+    }
+
+    if (anythingAllowed()) {
+      dfh.indent(os);
+      os << "Description allows anything and requires nothing.\n";
+      dfh.indent(os);
+      os << "The configured PSet will not be validated.\n";
+      if (!dfh.brief()) os << "\n";
+    }
+
+    // Zeroth pass is only to calculate column widths in advance of any printing
+    dfh.setPass(0);
+    dfh.setCounter(0);
+    for_all(entries_, boost::bind(&ParameterSetDescription::printNode,
+                                  _1,
+                                  boost::ref(os),
+                                  boost::ref(dfh)));
+
+    // First pass prints top level parameters and references to structure
+    dfh.setPass(1);
+    dfh.setCounter(0);
+    for_all(entries_, boost::bind(&ParameterSetDescription::printNode,
+                                  _1,
+                                  boost::ref(os),
+                                  boost::ref(dfh)));
+
+    // Second pass prints substructure that goes into different sections of the
+    // output document
+    dfh.setPass(2);
+    dfh.setCounter(0);
+    for_all(entries_, boost::bind(&ParameterSetDescription::printNode,
+                                  _1,
+                                  boost::ref(os),
+                                  boost::ref(dfh)));
+  }
+
   void
   ParameterSetDescription::throwIllegalParameters(
     std::vector<std::string> const& parameterNames,
@@ -200,6 +256,18 @@ namespace edm {
                                      bool & wroteSomething) {
     if (entry.writeToCfi()) {
       entry.node()->writeCfi(os, startWithComma, indentation, wroteSomething);
+    }
+  }
+
+  void
+  ParameterSetDescription::printNode(SetDescriptionEntry const& entry,
+                                     std::ostream & os,
+                                     DocFormatHelper & dfh) {
+    if (dfh.pass() < 2) {
+      entry.node()->print(os, entry.optional(), entry.writeToCfi(), dfh);
+    }
+    else {
+      entry.node()->printNestedContent(os, entry.optional(), dfh);
     }
   }
 
@@ -304,12 +372,12 @@ namespace edm {
     typesUsedForWildcards_.insert(nodeWildcardTypes.begin(), nodeWildcardTypes.end());
   }
 
-  void
+  ParameterDescriptionNode*
   ParameterSetDescription::
   ifExists(ParameterDescriptionNode const& node1,
            ParameterDescriptionNode const& node2,
            bool optional, bool writeToCfi) {
     std::auto_ptr<ParameterDescriptionNode> pdIfExists(new IfExistsDescription(node1, node2));
-    addNode(pdIfExists, optional, writeToCfi);
+    return addNode(pdIfExists, optional, writeToCfi);
   }
 }

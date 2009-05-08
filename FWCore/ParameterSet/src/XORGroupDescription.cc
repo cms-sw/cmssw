@@ -1,45 +1,43 @@
 
-#include "FWCore/ParameterSet/interface/IfExistsDescription.h"
+#include "FWCore/ParameterSet/interface/XORGroupDescription.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 
-#include <algorithm>
-#include <sstream>
 #include <ostream>
 #include <iomanip>
 
 namespace edm {
 
-  IfExistsDescription::
-  IfExistsDescription(ParameterDescriptionNode const& node_left,
+  XORGroupDescription::
+  XORGroupDescription(ParameterDescriptionNode const& node_left,
                       ParameterDescriptionNode const& node_right) :
     node_left_(node_left.clone()),
     node_right_(node_right.clone()) {
   }
 
-  IfExistsDescription::
-  IfExistsDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
+  XORGroupDescription::
+  XORGroupDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
                       ParameterDescriptionNode const& node_right) :
     node_left_(node_left),
     node_right_(node_right.clone()) {
   }
 
-  IfExistsDescription::
-  IfExistsDescription(ParameterDescriptionNode const& node_left,
+  XORGroupDescription::
+  XORGroupDescription(ParameterDescriptionNode const& node_left,
                       std::auto_ptr<ParameterDescriptionNode> node_right) :
     node_left_(node_left.clone()),
     node_right_(node_right) {
   }
 
-  IfExistsDescription::
-  IfExistsDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
+  XORGroupDescription::
+  XORGroupDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
                       std::auto_ptr<ParameterDescriptionNode> node_right) :
     node_left_(node_left),
     node_right_(node_right) {
   }
 
   void
-  IfExistsDescription::
+  XORGroupDescription::
   checkAndGetLabelsAndTypes_(std::set<std::string> & usedLabels,
                              std::set<ParameterTypes> & parameterTypes,
                              std::set<ParameterTypes> & wildcardTypes) const {
@@ -54,10 +52,6 @@ namespace edm {
     std::set<ParameterTypes> wildcardTypesRight;
     node_right_->checkAndGetLabelsAndTypes(labelsRight, parameterTypesRight, wildcardTypesRight);
 
-    throwIfDuplicateLabels(labelsLeft, labelsRight);
-    throwIfDuplicateTypes(wildcardTypesLeft, parameterTypesRight);
-    throwIfDuplicateTypes(wildcardTypesRight, parameterTypesLeft);
-
     usedLabels.insert(labelsLeft.begin(), labelsLeft.end());
     usedLabels.insert(labelsRight.begin(), labelsRight.end());
 
@@ -69,52 +63,69 @@ namespace edm {
   }
 
   void
-  IfExistsDescription::
+  XORGroupDescription::
   validate_(ParameterSet & pset,
             std::set<std::string> & validatedLabels,
             bool optional) const {
 
-    bool leftExists = node_left_->exists(pset);
-    bool rightExists = node_right_->exists(pset);
+    int nExistLeft = node_left_->howManyXORSubNodesExist(pset);
+    int nExistRight = node_right_->howManyXORSubNodesExist(pset);
+    int nTotal = nExistLeft + nExistRight;
 
-    if (!leftExists && !rightExists) {
-      return;
+    if (nTotal == 0 && optional) return;
+
+    if (nTotal > 1) {
+      throwMoreThanOneParameter();
     }
-    else if (leftExists && rightExists) {
-      node_left_->validate(pset, validatedLabels, false);
+
+    if (nExistLeft == 1) {
+      node_left_->validate(pset, validatedLabels, false);      
+    }
+    else if (nExistRight == 1) {
       node_right_->validate(pset, validatedLabels, false);
     }
-    else if (leftExists && !rightExists) {
-      node_left_->validate(pset, validatedLabels, false);
-      if (!optional) node_right_->validate(pset, validatedLabels, false);
-    }
-    else if (!leftExists && rightExists) {
-      node_left_->validate(pset, validatedLabels, false);
-      node_right_->validate(pset, validatedLabels, false);
+    else if (nTotal == 0) {
+      node_left_->validate(pset, validatedLabels, false);      
+
+      // When missing parameters get inserted, both nodes could
+      // be affected so we have to recheck both nodes.
+      nExistLeft = node_left_->howManyXORSubNodesExist(pset);
+      nExistRight = node_right_->howManyXORSubNodesExist(pset);
+      nTotal = nExistLeft + nExistRight;
+
+      if (nTotal != 1) {
+        throwAfterValidation();
+      }
     }
   }
 
   void
-  IfExistsDescription::
+  XORGroupDescription::
   writeCfi_(std::ostream & os,
             bool & startWithComma,
             int indentation,
             bool & wroteSomething) const {
     node_left_->writeCfi(os, startWithComma, indentation, wroteSomething);
-    node_right_->writeCfi(os, startWithComma, indentation, wroteSomething);
   }
 
   void
-  IfExistsDescription::
+  XORGroupDescription::
   print_(std::ostream & os,
          bool optional,
          bool writeToCfi,
          DocFormatHelper & dfh) {
 
+    if (dfh.parent() == DocFormatHelper::XOR) {
+      dfh.decrementCounter();
+      node_left_->print(os, false, true, dfh);
+      node_right_->print(os, false, true, dfh);
+      return;
+    }
+
     if (dfh.pass() == 1) {
 
       dfh.indent(os);
-      os << "IfExists pair:";
+      os << "XOR group:";
 
       if (dfh.brief()) {
 
@@ -151,10 +162,17 @@ namespace edm {
   }
 
   void
-  IfExistsDescription::
+  XORGroupDescription::
   printNestedContent_(std::ostream & os,
                       bool optional,
                       DocFormatHelper & dfh) {
+
+    if (dfh.parent() == DocFormatHelper::XOR) {
+      dfh.decrementCounter();
+      node_left_->printNestedContent(os, false, dfh);
+      node_right_->printNestedContent(os, false, dfh);
+      return;
+    }
 
     int indentation = dfh.indentation();
     if (dfh.parent() != DocFormatHelper::TOP) {
@@ -166,15 +184,14 @@ namespace edm {
     std::string newSection = ss.str();
 
     os << std::setfill(' ') << std::setw(indentation) << "";
-    os << "Section " << newSection;
-    if (optional) os << " optional";
-    os << " IfExists pair description:\n";
+    os << "Section " << newSection
+       << " XOR group description:\n";
     os << std::setfill(' ') << std::setw(indentation) << "";
     if (optional) {
-      os << "If the first parameter exists, then the second is allowed to exist\n";
+      os << "This optional XOR group requires exactly one or none of the following to be in the PSet\n";
     }
     else {
-      os << "If the first parameter exists, then the second is required to exist\n";
+      os << "This XOR group requires exactly one of the following to be in the PSet\n";
     }
     if (!dfh.brief()) os << "\n";
 
@@ -182,7 +199,7 @@ namespace edm {
     new_dfh.init();
     new_dfh.setSection(newSection);
     new_dfh.setIndentation(indentation + DocFormatHelper::offsetSectionContent());
-    new_dfh.setParent(DocFormatHelper::OTHER);
+    new_dfh.setParent(DocFormatHelper::XOR);
 
     node_left_->print(os, false, true, new_dfh);
     node_right_->print(os, false, true, new_dfh);
@@ -197,86 +214,56 @@ namespace edm {
     new_dfh.setCounter(0);
 
     node_left_->printNestedContent(os, false, new_dfh);
-    node_right_->printNestedContent(os, false , new_dfh);
+    node_right_->printNestedContent(os, false, new_dfh);
   }
 
   bool
-  IfExistsDescription::
+  XORGroupDescription::
   exists_(ParameterSet const& pset) const {
-    bool leftExists = node_left_->exists(pset);
-    bool rightExists = node_right_->exists(pset);
-
-    if (leftExists && rightExists) return true;
-    else if (!leftExists && !rightExists) return true;
-    return false;
+    int nTotal = node_left_->howManyXORSubNodesExist(pset) +
+                 node_right_->howManyXORSubNodesExist(pset);
+    return nTotal == 1;
   }
 
   bool
-  IfExistsDescription::
+  XORGroupDescription::
   partiallyExists_(ParameterSet const& pset) const {
     return exists(pset);
   }
 
   int
-  IfExistsDescription::
+  XORGroupDescription::
   howManyXORSubNodesExist_(ParameterSet const& pset) const {
-    return exists(pset) ? 1 : 0;
+    return node_left_->howManyXORSubNodesExist(pset) +
+           node_right_->howManyXORSubNodesExist(pset);
   }
 
   void
-  IfExistsDescription::
-  throwIfDuplicateLabels(std::set<std::string> const& labelsLeft,
-                         std::set<std::string> const& labelsRight) const {
-
-    std::set<std::string> duplicateLabels;
-    std::insert_iterator<std::set<std::string> > insertIter(duplicateLabels, duplicateLabels.begin());
-    std::set_intersection(labelsLeft.begin(), labelsLeft.end(),
-                          labelsRight.begin(), labelsRight.end(),
-                          insertIter);
-    if (!duplicateLabels.empty()) {
-      std::stringstream ss;
-      for (std::set<std::string>::const_iterator iter = duplicateLabels.begin(),
-	                                         iEnd = duplicateLabels.end();
-           iter != iEnd;
-           ++iter) {
-        ss << " \"" << *iter <<  "\"\n";
-      }
-      throw edm::Exception(errors::LogicError)
-        << "Labels used in a node of a ParameterSetDescription\n"
-        << "\"ifExists\" expression must be not be the same as labels used\n"
-        << "in other nodes of the expression.  The following duplicate\n"
-        << "labels were detected:\n"
-        << ss.str()
-        << "\n";
-    }
+  XORGroupDescription::
+  throwMoreThanOneParameter() const {
+    // Need to expand this error message to print more information
+    // I guess I need to print out the entire node structure of
+    // of the xor node and all the nodes it contains.
+    throw edm::Exception(errors::LogicError)
+      << "Exactly one parameter can exist in a ParameterSet from a list of\n"
+      << "parameters described by an \"xor\" operator in a ParameterSetDescription.\n"
+      << "This rule also applies in a more general sense to the other types\n"
+      << "of nodes that can appear within a ParameterSetDescription.  Only one\n"
+      << "can pass validation as \"existing\".\n";
   }
 
   void
-  IfExistsDescription::
-  throwIfDuplicateTypes(std::set<ParameterTypes> const& types1,
-                        std::set<ParameterTypes> const& types2) const
-  {
-    if (!types1.empty()) {
-      std::set<ParameterTypes> duplicateTypes;
-      std::insert_iterator<std::set<ParameterTypes> > insertIter(duplicateTypes, duplicateTypes.begin());
-      std::set_intersection(types1.begin(), types1.end(),
-                            types2.begin(), types2.end(),
-                            insertIter);
-      if (!duplicateTypes.empty()) {
-        std::stringstream ss;
-        for (std::set<ParameterTypes>::const_iterator iter = duplicateTypes.begin(),
-	                                              iEnd = duplicateTypes.end();
-             iter != iEnd;
-             ++iter) {
-          ss << " \"" << parameterTypeEnumToString(*iter) <<  "\"\n";
-        }
-        throw edm::Exception(errors::LogicError)
-          << "Types used for wildcards in a node of a ParameterSetDescription\n"
-          << "\"ifExists\" expression must be different from types used for other parameters\n"
-          << "in other nodes.  The following duplicate types were detected:\n"
-          << ss.str()
-          << "\n";
-      }
-    }
+  XORGroupDescription::
+  throwAfterValidation() const {
+    // Need to expand this error message to print more information
+    // I guess I need to print out the entire node structure of
+    // of the xor node and all the nodes it contains.
+    throw edm::Exception(errors::LogicError)
+      << "Exactly one parameter can exist in a ParameterSet from a list of\n"
+      << "parameters described by an \"xor\" operator in a ParameterSetDescription.\n"
+      << "This rule also applies in a more general sense to the other types\n"
+      << "of nodes that can appear within a ParameterSetDescription.  Only one\n"
+      << "can pass validation as \"existing\".  This error has occurred after an\n"
+      << "attempt to insert missing parameters to fix the problem.\n";
   }
 }

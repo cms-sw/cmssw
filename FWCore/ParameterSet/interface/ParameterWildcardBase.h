@@ -13,6 +13,7 @@
 namespace edm {
 
   class ParameterSet;
+  class DocFormatHelper;
 
   enum WildcardValidationCriteria {
     RequireZeroOrMore,
@@ -53,9 +54,14 @@ namespace edm {
                            int indentation,
                            bool & wroteSomething) const;
 
+    virtual void print_(std::ostream & os,
+                        bool optional,
+                        bool writeToCfi,
+                        DocFormatHelper & dfh);
+
     virtual bool partiallyExists_(ParameterSet const& pset) const;
 
-    virtual int howManyExclusiveOrSubNodesExist_(ParameterSet const& pset) const;
+    virtual int howManyXORSubNodesExist_(ParameterSet const& pset) const;
 
     ParameterTypes type_;
     bool isTracked_;

@@ -30,6 +30,14 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
     0,
     11
   ),
+  vuint5 = cms.vuint32(
+    4294967295,
+    0,
+    11,
+    21,
+    31,
+    41
+  ),
   int64v1 = cms.int64(9000000000000000000),
   int64v2 = cms.int64(-9000000000000000000),
   int64v3 = cms.int64(0),
@@ -211,8 +219,9 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
     ivalue2 = cms.double(101)
   ),
   xorPset = cms.PSet(
-    type = cms.string('11'),
-    type1 = cms.string('11')
+    name = cms.string('11'),
+    name1 = cms.string('11'),
+    name3 = cms.string('11')
   ),
   orPset = cms.PSet(
     x1 = cms.string('11'),
@@ -239,7 +248,9 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
     z2 = cms.string('11')
   ),
   allowedLabelsPset = cms.PSet(
-    allowedLabels = cms.vstring(),
-    allowedLabelsUntracked = cms.untracked.vstring()
+    testAllowedLabels = cms.vstring(),
+    testAllowedLabelsUntracked = cms.untracked.vstring(),
+    testWithSet = cms.untracked.vstring(),
+    testWithVectorOfSets = cms.untracked.vstring()
   )
 )

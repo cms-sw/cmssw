@@ -1,35 +1,37 @@
-#ifndef FWCore_ParameterSet_AllowedLabelsDescriptionBase_h
-#define FWCore_ParameterSet_AllowedLabelsDescriptionBase_h
+#ifndef FWCore_ParameterSet_XORGroupDescription_h
+#define FWCore_ParameterSet_XORGroupDescription_h
 
 #include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
-#include "FWCore/ParameterSet/interface/ParameterDescription.h"
 
-#include <vector>
-#include <string>
-#include <set>
+#include "FWCore/Utilities/interface/value_ptr.h"
+
+#include <memory>
 #include <iosfwd>
+#include <set>
+#include <string>
 
 namespace edm {
 
   class ParameterSet;
+  class DocFormatHelper;
 
-  class AllowedLabelsDescriptionBase : public ParameterDescriptionNode {
+  class XORGroupDescription : public ParameterDescriptionNode {
   public:
+    XORGroupDescription(ParameterDescriptionNode const& node_left,
+                        ParameterDescriptionNode const& node_right);
 
-    virtual ~AllowedLabelsDescriptionBase();
+    XORGroupDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
+                        ParameterDescriptionNode const& node_right);
 
-    ParameterTypes type() const { return type_; }
-    bool isTracked() const { return isTracked_; }
+    XORGroupDescription(ParameterDescriptionNode const& node_left,
+                        std::auto_ptr<ParameterDescriptionNode> node_right);
 
-  protected:
+    XORGroupDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
+                        std::auto_ptr<ParameterDescriptionNode> node_right);
 
-    AllowedLabelsDescriptionBase(std::string const& label, ParameterTypes iType, bool isTracked);
-
-    AllowedLabelsDescriptionBase(char const* label, ParameterTypes iType, bool isTracked);
-
-    void printNestedContentBase_(std::ostream & os,
-                                 bool optional,
-                                 DocFormatHelper & dfh);
+    virtual ParameterDescriptionNode* clone() const {
+      return new XORGroupDescription(*this);
+    }
 
   private:
 
@@ -46,13 +48,14 @@ namespace edm {
                            int indentation,
                            bool & wroteSomething) const;
 
-
     virtual void print_(std::ostream & os,
                         bool optional,
                         bool writeToCfi,
                         DocFormatHelper & dfh);
 
-    virtual bool hasNestedContent_();
+    virtual bool hasNestedContent_() {
+      return true;
+    }
 
     virtual void printNestedContent_(std::ostream & os,
                                      bool optional,
@@ -64,14 +67,11 @@ namespace edm {
 
     virtual int howManyXORSubNodesExist_(ParameterSet const& pset) const;
 
-    virtual void validateAllowedLabel_(std::string const& allowedLabel,
-                                       ParameterSet & pset,
-                                       std::set<std::string> & validatedLabels) const = 0;
+    void throwMoreThanOneParameter() const;
+    void throwAfterValidation() const;
 
-    ParameterDescription<std::vector<std::string> > parameterHoldingLabels_;
-    ParameterTypes type_;
-    bool isTracked_;
+    edm::value_ptr<ParameterDescriptionNode> node_left_;
+    edm::value_ptr<ParameterDescriptionNode> node_right_;
   };
 }
-
 #endif

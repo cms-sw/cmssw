@@ -1,9 +1,10 @@
 
 #include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
 #include "FWCore/ParameterSet/interface/ParameterDescriptionCases.h"
-#include "FWCore/ParameterSet/interface/AndParameterDescriptions.h"
-#include "FWCore/ParameterSet/interface/OrParameterDescription.h"
-#include "FWCore/ParameterSet/interface/ExclusiveOrDescription.h"
+#include "FWCore/ParameterSet/interface/ANDGroupDescription.h"
+#include "FWCore/ParameterSet/interface/ORGroupDescription.h"
+#include "FWCore/ParameterSet/interface/XORGroupDescription.h"
+#include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 
 #include <vector>
 #include <boost/cstdint.hpp>
@@ -88,6 +89,36 @@ namespace edm {
   ParameterDescriptionNode::~ParameterDescriptionNode() {
   }
 
+  void
+  ParameterDescriptionNode::setComment(std::string const & value)
+  { comment_ = value; }
+
+  void
+  ParameterDescriptionNode::setComment(char const* value)
+  { comment_ = value; }
+
+  void
+  ParameterDescriptionNode::print(std::ostream & os,
+                                  bool optional,
+                                  bool writeToCfi,
+                                  DocFormatHelper & dfh) {
+    if (hasNestedContent()) {
+      dfh.incrementCounter();
+    }
+    print_(os, optional, writeToCfi, dfh);
+  }
+
+  void
+  ParameterDescriptionNode::printNestedContent(std::ostream & os,
+                                               bool optional,
+                                               DocFormatHelper & dfh) {
+    if (hasNestedContent()) {
+      dfh.incrementCounter();
+      printNestedContent_(os, optional, dfh);
+    }
+  }
+
+
   // operator>> ---------------------------------------------
 
   std::auto_ptr<ParameterDescriptionCases<bool> >
@@ -152,25 +183,25 @@ namespace edm {
   std::auto_ptr<ParameterDescriptionNode>
   operator&&(ParameterDescriptionNode const& node_left,
              ParameterDescriptionNode const& node_right) {
-    return std::auto_ptr<ParameterDescriptionNode>(new AndParameterDescriptions(node_left, node_right));
+    return std::auto_ptr<ParameterDescriptionNode>(new ANDGroupDescription(node_left, node_right));
   }
 
   std::auto_ptr<ParameterDescriptionNode>
   operator&&(std::auto_ptr<ParameterDescriptionNode> node_left,
              ParameterDescriptionNode const& node_right) {
-    return std::auto_ptr<ParameterDescriptionNode>(new AndParameterDescriptions(node_left, node_right));
+    return std::auto_ptr<ParameterDescriptionNode>(new ANDGroupDescription(node_left, node_right));
   }
 
   std::auto_ptr<ParameterDescriptionNode>
   operator&&(ParameterDescriptionNode const& node_left,
              std::auto_ptr<ParameterDescriptionNode> node_right) {
-    return std::auto_ptr<ParameterDescriptionNode>(new AndParameterDescriptions(node_left, node_right));
+    return std::auto_ptr<ParameterDescriptionNode>(new ANDGroupDescription(node_left, node_right));
   }
 
   std::auto_ptr<ParameterDescriptionNode>
   operator&&(std::auto_ptr<ParameterDescriptionNode> node_left,
              std::auto_ptr<ParameterDescriptionNode> node_right) {
-    return std::auto_ptr<ParameterDescriptionNode>(new AndParameterDescriptions(node_left, node_right));
+    return std::auto_ptr<ParameterDescriptionNode>(new ANDGroupDescription(node_left, node_right));
   }
 
   // operator|| ---------------------------------------------
@@ -178,25 +209,25 @@ namespace edm {
   std::auto_ptr<ParameterDescriptionNode>
   operator||(ParameterDescriptionNode const& node_left,
              ParameterDescriptionNode const& node_right) {
-    return std::auto_ptr<ParameterDescriptionNode>(new OrParameterDescription(node_left, node_right));
+    return std::auto_ptr<ParameterDescriptionNode>(new ORGroupDescription(node_left, node_right));
   }
 
   std::auto_ptr<ParameterDescriptionNode>
   operator||(std::auto_ptr<ParameterDescriptionNode> node_left,
              ParameterDescriptionNode const& node_right) {
-    return std::auto_ptr<ParameterDescriptionNode>(new OrParameterDescription(node_left, node_right));
+    return std::auto_ptr<ParameterDescriptionNode>(new ORGroupDescription(node_left, node_right));
   }
 
   std::auto_ptr<ParameterDescriptionNode>
   operator||(ParameterDescriptionNode const& node_left,
              std::auto_ptr<ParameterDescriptionNode> node_right) {
-    return std::auto_ptr<ParameterDescriptionNode>(new OrParameterDescription(node_left, node_right));
+    return std::auto_ptr<ParameterDescriptionNode>(new ORGroupDescription(node_left, node_right));
   }
 
   std::auto_ptr<ParameterDescriptionNode>
   operator||(std::auto_ptr<ParameterDescriptionNode> node_left,
              std::auto_ptr<ParameterDescriptionNode> node_right) {
-    return std::auto_ptr<ParameterDescriptionNode>(new OrParameterDescription(node_left, node_right));
+    return std::auto_ptr<ParameterDescriptionNode>(new ORGroupDescription(node_left, node_right));
   }
 
   // operator^  ---------------------------------------------
@@ -204,24 +235,24 @@ namespace edm {
   std::auto_ptr<ParameterDescriptionNode>
   operator^(ParameterDescriptionNode const& node_left,
             ParameterDescriptionNode const& node_right) {
-    return std::auto_ptr<ParameterDescriptionNode>(new ExclusiveOrDescription(node_left, node_right));
+    return std::auto_ptr<ParameterDescriptionNode>(new XORGroupDescription(node_left, node_right));
   }
 
   std::auto_ptr<ParameterDescriptionNode>
   operator^(std::auto_ptr<ParameterDescriptionNode> node_left,
             ParameterDescriptionNode const& node_right) {
-    return std::auto_ptr<ParameterDescriptionNode>(new ExclusiveOrDescription(node_left, node_right));
+    return std::auto_ptr<ParameterDescriptionNode>(new XORGroupDescription(node_left, node_right));
   }
 
   std::auto_ptr<ParameterDescriptionNode>
   operator^(ParameterDescriptionNode const& node_left,
             std::auto_ptr<ParameterDescriptionNode> node_right) {
-    return std::auto_ptr<ParameterDescriptionNode>(new ExclusiveOrDescription(node_left, node_right));
+    return std::auto_ptr<ParameterDescriptionNode>(new XORGroupDescription(node_left, node_right));
   }
 
   std::auto_ptr<ParameterDescriptionNode>
   operator^(std::auto_ptr<ParameterDescriptionNode> node_left,
             std::auto_ptr<ParameterDescriptionNode> node_right) {
-    return std::auto_ptr<ParameterDescriptionNode>(new ExclusiveOrDescription(node_left, node_right));
+    return std::auto_ptr<ParameterDescriptionNode>(new XORGroupDescription(node_left, node_right));
   }
 }

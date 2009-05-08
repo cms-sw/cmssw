@@ -19,6 +19,6 @@ process.source = cms.Source("EmptySource")
 # where the cfi was just created by the test script
 from FWCore.Integration.testProducerWithPsetDescEmpty_cfi import *
 
-process.testProducerWithPsetDescEmpty = testProducerWithPsetDescEmpty
+process.testProducerWithPsetDesc = testProducerWithPsetDesc
 
-process.p1 = cms.Path(process.testProducerWithPsetDescEmpty)
+process.p1 = cms.Path(process.testProducerWithPsetDesc)

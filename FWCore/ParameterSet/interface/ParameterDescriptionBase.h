@@ -29,6 +29,7 @@
 namespace edm {
 
   class ParameterSetDescription;
+  class DocFormatHelper;
 
   class ParameterDescriptionBase : public ParameterDescriptionNode 
   {
@@ -45,10 +46,10 @@ namespace edm {
     virtual std::vector<ParameterSetDescription> const* parameterSetDescriptions() const { return 0; }
     virtual std::vector<ParameterSetDescription> * parameterSetDescriptions() { return 0; }
 
+  protected:
     void throwParameterWrongTrackiness() const;
     void throwParameterWrongType() const;
 
-  protected:
     ParameterDescriptionBase(std::string const& iLabel,
                              ParameterTypes iType,
                              bool isTracked
@@ -72,9 +73,24 @@ namespace edm {
 
     virtual bool partiallyExists_(ParameterSet const& pset) const;
 
-    virtual int howManyExclusiveOrSubNodesExist_(ParameterSet const& pset) const;
+    virtual int howManyXORSubNodesExist_(ParameterSet const& pset) const;
 
     virtual void writeCfi_(std::ostream & os, int indentation) const = 0;
+
+    virtual void writeDoc_(std::ostream & os, int indentation) const = 0;
+
+    virtual void print_(std::ostream & os,
+                        bool optional,
+                        bool writeToCfi,
+                        DocFormatHelper & dfh);
+
+    virtual void printThirdLine_(std::ostream & os,
+                                 bool writeToCfi,
+                                 DocFormatHelper & dfh);
+
+    virtual void printNestedContent_(std::ostream & os,
+                                     bool optional,
+                                     DocFormatHelper & dfh);
 
     std::string label_;
     ParameterTypes type_;

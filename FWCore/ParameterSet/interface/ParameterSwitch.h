@@ -8,6 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterDescriptionCases.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 
 #include "boost/bind.hpp"
 
@@ -16,8 +17,9 @@
 #include <set>
 #include <string>
 #include <utility>
-#include <iosfwd>
 #include <sstream>
+#include <ostream>
+#include <iomanip>
 
 namespace edm {
 
@@ -119,6 +121,53 @@ namespace edm {
       if (selectedCase != cases_.end()) {
         selectedCase->second->writeCfi(os, startWithComma, indentation, wroteSomething);
       }
+    }
+
+    virtual void print_(std::ostream & os,
+                        bool optional,
+                        bool writeToCfi,
+                        DocFormatHelper & dfh) {
+      printBase(os, optional, writeToCfi, dfh, switch_.label(), switch_.isTracked(), parameterTypeEnumToString(switch_.type()));
+    }
+
+    virtual void printNestedContent_(std::ostream & os,
+                                     bool optional,
+                                     DocFormatHelper & dfh) {
+
+      DocFormatHelper new_dfh(dfh);
+      printNestedContentBase(os, dfh, new_dfh, switch_.label());
+
+      switch_.print(os, optional, true, new_dfh);
+      for_all(cases_, boost::bind(&ParameterSwitchBase::printCaseT<T>,
+                                  _1,
+                                  boost::ref(os),
+                                  optional,
+                                  boost::ref(new_dfh),
+                                  boost::cref(switch_.label())));
+
+      new_dfh.setPass(1);
+      new_dfh.setCounter(0);
+
+      new_dfh.indent(os);
+      os << "switch:\n";
+      switch_.print(os, optional, true, new_dfh);
+      for_all(cases_, boost::bind(&ParameterSwitchBase::printCaseT<T>,
+                                  _1,
+                                  boost::ref(os),
+                                  optional,
+                                  boost::ref(new_dfh),
+                                  boost::cref(switch_.label())));
+
+      new_dfh.setPass(2);
+      new_dfh.setCounter(0);
+
+      switch_.printNestedContent(os, optional, new_dfh);
+      for_all(cases_, boost::bind(&ParameterSwitchBase::printCaseT<T>,
+                                  _1,
+                                  boost::ref(os),
+                                  optional,
+                                  boost::ref(new_dfh),
+                                  boost::cref(switch_.label())));
     }
 
     virtual bool exists_(ParameterSet const& pset) const { return switch_.exists(pset); }

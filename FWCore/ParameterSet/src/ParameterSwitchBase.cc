@@ -1,8 +1,12 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSwitchBase.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 
 #include <utility>
+#include <ostream>
+#include <iomanip>
+#include <sstream>
 
 namespace edm {
 
@@ -70,6 +74,181 @@ namespace edm {
       << message;
   }
 
+  void
+  ParameterSwitchBase::
+  printBase(std::ostream & os,
+            bool optional,
+            bool writeToCfi,
+            DocFormatHelper & dfh,
+            std::string const& switchLabel,
+            bool isTracked,
+            std::string const& typeString) const {
+
+    if (dfh.pass() == 0) {
+      dfh.setAtLeast1(switchLabel.size() + 11U);
+      dfh.setAtLeast2(typeString.size());
+      dfh.setAtLeast3(9U);
+      dfh.setAtLeast4(8U);
+    }
+    if (dfh.pass() == 1) {
+
+      dfh.indent(os);
+
+      if (dfh.brief()) {
+
+	std::stringstream ss;
+        ss << switchLabel << " (switch)"; 
+        os << std::left << std::setw(dfh.column1()) << ss.str();
+
+        os << " " << std::setw(dfh.column2()) << typeString << " ";
+
+        os << std::setw(dfh.column3());
+        if (isTracked) os << "tracked";
+        else os << "untracked";
+
+        os << " " << std::setw(dfh.column4());
+        if (optional)  os << "optional";
+        else  os << "required";
+
+        if (!writeToCfi) os << " (do not write to cfi)";
+
+        os << " see Section " << dfh.section() << "." << dfh.counter() << "\n";
+      }
+      // not brief
+      else {
+
+        os << switchLabel << " (switch)\n";
+
+        dfh.indent2(os);
+        os << "type: " << typeString << " ";
+
+        if (isTracked) os << "tracked ";
+        else os << "untracked ";
+
+        if (optional)  os << "optional";
+        else  os << "required";
+
+        if (!writeToCfi) os << " (do not write to cfi)";
+        os << "\n";
+
+        dfh.indent2(os);
+        os << "see Section " << dfh.section() << "." << dfh.counter() << "\n";
+
+        if (!comment().empty()) {
+          DocFormatHelper::wrapAndPrintText(os,
+                                            comment(),
+                                            dfh.startColumn2(),
+                                            dfh.commentWidth());
+        }
+        os << "\n";
+      }
+    }
+  }
+
+  bool
+  ParameterSwitchBase::
+  hasNestedContent_() {
+    return true;
+  }
+
+  void
+  ParameterSwitchBase::
+  printNestedContentBase(std::ostream & os,
+                         DocFormatHelper & dfh,
+                         DocFormatHelper & new_dfh,
+                         std::string const& switchLabel) {
+
+    int indentation = dfh.indentation();
+    if (dfh.parent() != DocFormatHelper::TOP) {
+      indentation -= DocFormatHelper::offsetSectionContent();
+    }
+
+    std::stringstream ss;
+    ss << dfh.section() << "." << dfh.counter();
+    std::string newSection = ss.str();
+
+    os << std::setfill(' ') << std::setw(indentation) << "";
+    os << "Section " << newSection
+       << " " << switchLabel << " (switch):\n";
+    
+    if (!dfh.brief()) {
+      os << std::setfill(' ') << std::setw(indentation) << "";
+      os << "The value of \"" << switchLabel << "\" controls which other parameters\n";
+      os << std::setfill(' ') << std::setw(indentation) << "";
+      os << "are required or allowed to be in the PSet.\n";
+    }
+    if (!dfh.brief()) os << "\n";
+
+    new_dfh.init();
+    new_dfh.setSection(newSection);
+    new_dfh.setIndentation(indentation + DocFormatHelper::offsetSectionContent());
+    new_dfh.setParent(DocFormatHelper::OTHER);
+  }
+
+
+  void
+  ParameterSwitchBase::
+  printCase(std::pair<bool, edm::value_ptr<ParameterDescriptionNode> > const& p,
+            std::ostream & os,
+            bool optional,
+            DocFormatHelper & dfh,
+            std::string const& switchLabel) {
+    if (dfh.pass() == 0) {
+      p.second->print(os, false, true, dfh);
+    }
+    if (dfh.pass() == 1) {
+      dfh.indent(os);
+      os << "if " << switchLabel << " = ";
+      if (p.first) os << "True";
+      else os << "False";
+      os << "\n";
+      p.second->print(os, false, true, dfh);
+    }
+    if (dfh.pass() == 2) {
+      p.second->printNestedContent(os, false, dfh);
+    }
+  }
+
+  void
+  ParameterSwitchBase::
+  printCase(std::pair<int, edm::value_ptr<ParameterDescriptionNode> > const& p,
+            std::ostream & os,
+            bool optional,
+            DocFormatHelper & dfh,
+            std::string const& switchLabel) {
+    if (dfh.pass() == 0) {
+      p.second->print(os, false, true, dfh);
+    }
+    if (dfh.pass() == 1) {
+      dfh.indent(os);
+      os << "if " << switchLabel << " = " << p.first << "\n";
+      p.second->print(os, false, true, dfh);
+    }
+    if (dfh.pass() == 2) {
+      p.second->printNestedContent(os, false, dfh);
+    }
+  }
+
+  void
+  ParameterSwitchBase::
+  printCase(std::pair<std::string, edm::value_ptr<ParameterDescriptionNode> > const& p,
+            std::ostream & os,
+            bool optional,
+            DocFormatHelper & dfh,
+            std::string const& switchLabel) {
+    if (dfh.pass() == 0) {
+      p.second->print(os, false, true, dfh);
+    }
+    if (dfh.pass() == 1) {
+      dfh.indent(os);
+      os << "if " << switchLabel << " = \"" << p.first << "\"\n";
+      p.second->print(os, false, true, dfh);
+    }
+    if (dfh.pass() == 2) {
+      p.second->printNestedContent(os, false, dfh);
+    }
+  }
+
   bool
   ParameterSwitchBase::
   partiallyExists_(ParameterSet const& pset) const {
@@ -78,7 +257,7 @@ namespace edm {
 
   int
   ParameterSwitchBase::
-  howManyExclusiveOrSubNodesExist_(ParameterSet const& pset) const {
+  howManyXORSubNodesExist_(ParameterSet const& pset) const {
     return exists(pset) ? 1 : 0; 
   }
 }

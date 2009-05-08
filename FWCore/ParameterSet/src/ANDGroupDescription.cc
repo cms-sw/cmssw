@@ -1,45 +1,48 @@
 
-#include "FWCore/ParameterSet/interface/AndParameterDescriptions.h"
+#include "FWCore/ParameterSet/interface/ANDGroupDescription.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 
 #include "boost/bind.hpp"
 
 #include <algorithm>
 #include <sstream>
+#include <ostream>
+#include <iomanip>
 
 namespace edm {
 
-  AndParameterDescriptions::
-  AndParameterDescriptions(ParameterDescriptionNode const& node_left,
-                           ParameterDescriptionNode const& node_right) :
+  ANDGroupDescription::
+  ANDGroupDescription(ParameterDescriptionNode const& node_left,
+                      ParameterDescriptionNode const& node_right) :
     node_left_(node_left.clone()),
     node_right_(node_right.clone()) {
   }
 
-  AndParameterDescriptions::
-  AndParameterDescriptions(std::auto_ptr<ParameterDescriptionNode> node_left,
-                           ParameterDescriptionNode const& node_right) :
+  ANDGroupDescription::
+  ANDGroupDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
+                      ParameterDescriptionNode const& node_right) :
     node_left_(node_left),
     node_right_(node_right.clone()) {
   }
 
-  AndParameterDescriptions::
-  AndParameterDescriptions(ParameterDescriptionNode const& node_left,
-                           std::auto_ptr<ParameterDescriptionNode> node_right) :
+  ANDGroupDescription::
+  ANDGroupDescription(ParameterDescriptionNode const& node_left,
+                      std::auto_ptr<ParameterDescriptionNode> node_right) :
     node_left_(node_left.clone()),
     node_right_(node_right) {
   }
 
-  AndParameterDescriptions::
-  AndParameterDescriptions(std::auto_ptr<ParameterDescriptionNode> node_left,
-                           std::auto_ptr<ParameterDescriptionNode> node_right) :
+  ANDGroupDescription::
+  ANDGroupDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
+                      std::auto_ptr<ParameterDescriptionNode> node_right) :
     node_left_(node_left),
     node_right_(node_right) {
   }
 
   void
-  AndParameterDescriptions::
+  ANDGroupDescription::
   checkAndGetLabelsAndTypes_(std::set<std::string> & usedLabels,
                              std::set<ParameterTypes> & parameterTypes,
                              std::set<ParameterTypes> & wildcardTypes) const {
@@ -69,7 +72,7 @@ namespace edm {
   }
 
   void
-  AndParameterDescriptions::
+  ANDGroupDescription::
   validate_(ParameterSet & pset,
             std::set<std::string> & validatedLabels,
             bool optional) const {
@@ -80,7 +83,7 @@ namespace edm {
   }
 
   void
-  AndParameterDescriptions::
+  ANDGroupDescription::
   writeCfi_(std::ostream & os,
             bool & startWithComma,
             int indentation,
@@ -89,26 +92,135 @@ namespace edm {
     node_right_->writeCfi(os, startWithComma, indentation, wroteSomething);
   }
 
+  void
+  ANDGroupDescription::
+  print_(std::ostream & os,
+         bool optional,
+         bool writeToCfi,
+         DocFormatHelper & dfh) {
+
+    if (dfh.parent() == DocFormatHelper::AND) {
+      dfh.decrementCounter();
+      node_left_->print(os, false, true, dfh);
+      node_right_->print(os, false, true, dfh);
+      return;
+    }
+
+    if (dfh.pass() == 1) {
+
+      dfh.indent(os);
+      os << "AND group:";
+
+      if (dfh.brief()) {
+
+        if (optional)  os << " optional";
+        else  os << " required";
+
+        if (!writeToCfi) os << " (do not write to cfi)";
+
+        os << " see Section " << dfh.section() << "." << dfh.counter() << "\n";
+      }
+      // not brief
+      else {
+
+        os << "\n";
+        dfh.indent2(os);
+        if (optional)  os << "optional";
+        else  os << "required";
+
+        if (!writeToCfi) os << " (do not write to cfi)";
+        os << "\n";
+
+        dfh.indent2(os);
+        os << "see Section " << dfh.section() << "." << dfh.counter() << "\n";
+
+        if (!comment().empty()) {
+          DocFormatHelper::wrapAndPrintText(os,
+                                            comment(),
+                                            dfh.startColumn2(),
+                                            dfh.commentWidth());
+        }
+        os << "\n";
+      }
+    }
+  }
+
+  void
+  ANDGroupDescription::
+  printNestedContent_(std::ostream & os,
+                      bool optional,
+                      DocFormatHelper & dfh) {
+
+    if (dfh.parent() == DocFormatHelper::AND) {
+      dfh.decrementCounter();
+      node_left_->printNestedContent(os, false, dfh);
+      node_right_->printNestedContent(os, false, dfh);
+      return;
+    }
+
+    int indentation = dfh.indentation();
+    if (dfh.parent() != DocFormatHelper::TOP) {
+      indentation -= DocFormatHelper::offsetSectionContent();
+    }
+
+    std::stringstream ss;
+    ss << dfh.section() << "." << dfh.counter();
+    std::string newSection = ss.str();
+
+    os << std::setfill(' ') << std::setw(indentation) << "";
+    os << "Section " << newSection
+       << " AND group description:\n";
+    os << std::setfill(' ') << std::setw(indentation) << "";
+    if (optional) {
+      os << "This optional AND group requires all or none of the following to be in the PSet\n";
+    }
+    else {
+      os << "This AND group requires all of the following to be in the PSet\n";
+    }
+    if (!dfh.brief()) os << "\n";
+
+    DocFormatHelper new_dfh(dfh);
+    new_dfh.init();
+    new_dfh.setSection(newSection);
+    new_dfh.setIndentation(indentation + DocFormatHelper::offsetSectionContent());
+    new_dfh.setParent(DocFormatHelper::AND);
+
+    node_left_->print(os, false, true, new_dfh);
+    node_right_->print(os, false, true, new_dfh);
+
+    new_dfh.setPass(1);
+    new_dfh.setCounter(0);
+
+    node_left_->print(os, false, true, new_dfh);
+    node_right_->print(os, false, true, new_dfh);
+
+    new_dfh.setPass(2);
+    new_dfh.setCounter(0);
+
+    node_left_->printNestedContent(os, false, new_dfh);
+    node_right_->printNestedContent(os, false, new_dfh);
+  }
+
   bool
-  AndParameterDescriptions::
+  ANDGroupDescription::
   exists_(ParameterSet const& pset) const {
     return node_left_->exists(pset) && node_right_->exists(pset);
   }
 
   bool
-  AndParameterDescriptions::
+  ANDGroupDescription::
   partiallyExists_(ParameterSet const& pset) const {
     return node_left_->partiallyExists(pset) || node_right_->partiallyExists(pset);
   }
 
   int
-  AndParameterDescriptions::
-  howManyExclusiveOrSubNodesExist_(ParameterSet const& pset) const {
+  ANDGroupDescription::
+  howManyXORSubNodesExist_(ParameterSet const& pset) const {
     return exists(pset) ? 1 : 0; 
   }
 
   void
-  AndParameterDescriptions::
+  ANDGroupDescription::
   throwIfDuplicateLabels(std::set<std::string> const& labelsLeft,
                          std::set<std::string> const& labelsRight) const {
 
@@ -135,7 +247,7 @@ namespace edm {
   }
 
   void
-  AndParameterDescriptions::
+  ANDGroupDescription::
   throwIfDuplicateTypes(std::set<ParameterTypes> const& types1,
                         std::set<ParameterTypes> const& types2) const
   {

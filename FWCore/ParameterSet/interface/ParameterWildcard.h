@@ -16,6 +16,7 @@ namespace edm {
   class ParameterSet;
   class VParameterSetEntry;
   class ParameterSetDescription;
+  class DocFormatHelper;
 
   template<class T>
   class ParameterWildcard : public ParameterWildcardBase {
@@ -85,6 +86,12 @@ namespace edm {
                            std::set<std::string> & validatedLabels,
                            bool optional) const;
 
+    virtual bool hasNestedContent_();
+
+    virtual void printNestedContent_(std::ostream & os,
+                                     bool optional,
+                                     DocFormatHelper & helper);
+
     virtual bool exists_(ParameterSet const& pset) const;
 
     void validateDescription(std::string const& parameterName, ParameterSet & pset) const;
@@ -114,6 +121,12 @@ namespace edm {
     virtual void validate_(ParameterSet & pset,
                            std::set<std::string> & validatedLabels,
                            bool optional) const;
+
+    virtual bool hasNestedContent_();
+
+    virtual void printNestedContent_(std::ostream & os,
+                                     bool optional,
+                                     DocFormatHelper & dfh);
 
     virtual bool exists_(ParameterSet const& pset) const;
 

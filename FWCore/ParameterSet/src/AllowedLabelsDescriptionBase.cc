@@ -11,14 +11,16 @@ namespace edm {
   AllowedLabelsDescriptionBase::~AllowedLabelsDescriptionBase() { }
 
   AllowedLabelsDescriptionBase::
-  AllowedLabelsDescriptionBase(std::string const& label, bool isTracked):
+  AllowedLabelsDescriptionBase(std::string const& label, ParameterTypes iType, bool isTracked):
     parameterHoldingLabels_(label, std::vector<std::string>(), isTracked),
+    type_(iType),
     isTracked_(isTracked) {
   }
 
   AllowedLabelsDescriptionBase::
-  AllowedLabelsDescriptionBase(char const* label, bool isTracked):
+  AllowedLabelsDescriptionBase(char const* label, ParameterTypes iType, bool isTracked):
     parameterHoldingLabels_(label, std::vector<std::string>(), isTracked),
+    type_(iType),
     isTracked_(isTracked) {
   }
 
@@ -64,6 +66,102 @@ namespace edm {
     parameterHoldingLabels_.writeCfi(os, startWithComma, indentation, wroteSomething);
   }
 
+  void
+  AllowedLabelsDescriptionBase::
+  print_(std::ostream & os,
+         bool optional,
+	 bool writeToCfi,
+         DocFormatHelper & dfh)
+  {
+    if (dfh.pass() == 1) {
+
+      dfh.indent(os);
+      os << parameterHoldingLabels_.label() << " (list of allowed labels)";
+
+      if (dfh.brief()) {
+
+        if (optional)  os << " optional";
+        else  os << " required";
+
+        if (!writeToCfi) os << " (do not write to cfi)";
+
+        os << " see Section " << dfh.section() << "." << dfh.counter() << "\n";
+      }
+      // not brief
+      else {
+
+        os << "\n";
+        dfh.indent2(os);
+        if (optional)  os << "optional";
+        else  os << "required";
+
+        if (!writeToCfi) os << " (do not write to cfi)";
+        os << "\n";
+
+        dfh.indent2(os);
+        os << "see Section " << dfh.section() << "." << dfh.counter() << "\n";
+
+        if (!comment().empty()) {
+          DocFormatHelper::wrapAndPrintText(os,
+                                            comment(),
+                                            dfh.startColumn2(),
+                                            dfh.commentWidth());
+        }
+        os << "\n";
+      }
+    }
+  }
+
+  bool
+  AllowedLabelsDescriptionBase::
+  hasNestedContent_() {
+    return true;
+  }
+
+
+  void
+  AllowedLabelsDescriptionBase::
+  printNestedContent_(std::ostream & os,
+                      bool optional,
+                      DocFormatHelper & dfh) {
+    printNestedContentBase_(os, optional, dfh);
+    if (!dfh.brief()) os << "\n";
+  }
+
+  void
+  AllowedLabelsDescriptionBase::
+  printNestedContentBase_(std::ostream & os,
+                          bool optional,
+                          DocFormatHelper & dfh) {
+
+    int indentation = dfh.indentation();
+    if (dfh.parent() != DocFormatHelper::TOP) {
+      indentation -= DocFormatHelper::offsetSectionContent();
+    }
+
+    os << std::setfill(' ') << std::setw(indentation) << "";
+    os << "Section " << dfh.section() << "." << dfh.counter()
+       << " " << parameterHoldingLabels_.label()
+       << " - allowed labels description\n";
+    os << std::setfill(' ') << std::setw(indentation) << "";
+    os << "The following parameter contains a list of parameter labels\n";
+    os << std::setfill(' ') << std::setw(indentation) << "";
+    os << "which are allowed to be in the PSet\n";
+    if (!dfh.brief()) os << "\n";
+
+    parameterHoldingLabels_.print(os, optional, true, dfh);
+    dfh.indent(os);
+    os << "type of allowed parameters:";
+    if (dfh.brief()) os << " ";
+    else {
+      os << "\n";
+      dfh.indent2(os);
+    } 
+    os << parameterTypeEnumToString(type()) << " ";
+    if (isTracked()) os << "tracked\n";
+    else  os << "untracked\n";
+  }
+
   bool
   AllowedLabelsDescriptionBase::
   exists_(ParameterSet const& pset) const {
@@ -78,7 +176,7 @@ namespace edm {
 
   int
   AllowedLabelsDescriptionBase::
-  howManyExclusiveOrSubNodesExist_(ParameterSet const& pset) const {
+  howManyXORSubNodesExist_(ParameterSet const& pset) const {
     return exists(pset) ? 1 : 0;
   }
 }

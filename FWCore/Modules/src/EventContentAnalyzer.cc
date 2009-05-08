@@ -36,6 +36,7 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 namespace edm {
@@ -421,20 +422,35 @@ namespace edm {
   void
   EventContentAnalyzer::fillDescriptions(ConfigurationDescriptions & descriptions) {
   
+     descriptions.setComment("This module will print a list of all products in the event "
+                             "provenance.  It also has options to print and/or get each product.");
+
      ParameterSetDescription desc;
-  
+
+     ParameterDescriptionNode *np;
+
      std::string defaultString("++");
-     desc.addOptionalUntracked<std::string>("indentation", defaultString);
-  
+     np = desc.addOptionalUntracked<std::string>("indentation", defaultString);
+     np->setComment("This string is printed at the beginning of every line printed during event processing.");
+
+     np = desc.addOptionalUntracked<bool>("verbose", false);
+     np->setComment("If true, the contents of products are printed using Reflex.");
+
      defaultString = "  ";
-     desc.addOptionalUntracked<std::string>("verboseIndentation", defaultString);
+     np = desc.addOptionalUntracked<std::string>("verboseIndentation", defaultString);
+     np->setComment("This string is used to further indent lines when printing the contents of products in verbose mode.");
   
      std::vector<std::string> defaultVString;
-     desc.addOptionalUntracked<std::vector<std::string> >("verboseForModuleLabels", defaultVString);
-     desc.addOptionalUntracked<bool>("verbose", false);
-     desc.addOptionalUntracked<std::vector<std::string> >("getDataForModuleLabels", defaultVString);
-     desc.addOptionalUntracked<bool>("getData", false);
-  
+
+     np = desc.addOptionalUntracked<std::vector<std::string> >("verboseForModuleLabels", defaultVString);
+     np->setComment("If this vector is not empty, then only products with module labels on this list are printed using Reflex.");
+
+     np = desc.addOptionalUntracked<bool>("getData", false);
+     np->setComment("If true the products will be retrieved using getByLabel.");
+
+     np = desc.addOptionalUntracked<std::vector<std::string> >("getDataForModuleLabels", defaultVString);
+     np->setComment("If this vector is not empty, then only products with module labels on this list are retrieved by getByLabel.");
+
      descriptions.add("printContent", desc);
   }
 }

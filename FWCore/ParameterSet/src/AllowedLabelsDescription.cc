@@ -14,7 +14,7 @@ namespace edm {
   AllowedLabelsDescription<ParameterSetDescription>::
   AllowedLabelsDescription(std::string const& label,
                            bool isTracked) :
-    AllowedLabelsDescriptionBase(label, isTracked),
+    AllowedLabelsDescriptionBase(label, k_PSet, isTracked),
     psetDesc_()
   {              
   }
@@ -22,7 +22,7 @@ namespace edm {
   AllowedLabelsDescription<ParameterSetDescription>::
   AllowedLabelsDescription(char const* label,
                            bool isTracked) :
-    AllowedLabelsDescriptionBase(label, isTracked),
+    AllowedLabelsDescriptionBase(label, k_PSet, isTracked),
     psetDesc_()
   {
   }
@@ -31,7 +31,7 @@ namespace edm {
   AllowedLabelsDescription(std::string const& label,
                            ParameterSetDescription const& value,
                            bool isTracked) :
-    AllowedLabelsDescriptionBase(label, isTracked),
+    AllowedLabelsDescriptionBase(label, k_PSet, isTracked),
     psetDesc_(new ParameterSetDescription(value))
   {              
   }
@@ -40,7 +40,7 @@ namespace edm {
   AllowedLabelsDescription(char const* label,
                            ParameterSetDescription const& value,
                            bool isTracked) :
-    AllowedLabelsDescriptionBase(label, isTracked),
+    AllowedLabelsDescriptionBase(label, k_PSet, isTracked),
     psetDesc_(new ParameterSetDescription(value))
   {
   }
@@ -51,6 +51,46 @@ namespace edm {
     return new AllowedLabelsDescription(*this);
   }
 
+  void
+  AllowedLabelsDescription<ParameterSetDescription>::
+  printNestedContent_(std::ostream & os,
+                      bool optional,
+                      DocFormatHelper & dfh) {
+
+    printNestedContentBase_(os, optional, dfh);
+
+    int indentation = dfh.indentation();
+    if (dfh.parent() != DocFormatHelper::TOP) {
+      indentation -= DocFormatHelper::offsetSectionContent();
+    }
+
+    std::stringstream ss;
+    ss << dfh.section() << "." << dfh.counter() << ".1";
+    std::string newSection = ss.str();
+
+    if (dfh.brief()) {
+      os << std::setfill(' ')
+         << std::setw(indentation + DocFormatHelper::offsetSectionContent())
+         << "";
+    }
+    else {
+      dfh.indent2(os);
+    }
+    os << "see Section " << newSection << "\n";
+    if (!dfh.brief()) os << "\n";
+
+    os << std::setfill(' ') << std::setw(indentation) << "";
+    os << "Section " << newSection
+       << " PSet description:\n";
+    if (!dfh.brief()) os << "\n";
+
+    DocFormatHelper new_dfh(dfh);
+    new_dfh.setSection(newSection);
+    new_dfh.setIndentation(indentation + DocFormatHelper::offsetSectionContent());
+    new_dfh.setParent(DocFormatHelper::OTHER);
+
+    psetDesc_->print(os, new_dfh);
+  }
 
   void
   AllowedLabelsDescription<ParameterSetDescription>::
@@ -71,7 +111,7 @@ namespace edm {
   AllowedLabelsDescription<std::vector<ParameterSetDescription> >::
   AllowedLabelsDescription(std::string const& label,
                            bool isTracked) :
-    AllowedLabelsDescriptionBase(label, isTracked),
+    AllowedLabelsDescriptionBase(label, k_VPSet, isTracked),
     vPsetDesc_()
   {              
   }
@@ -79,7 +119,7 @@ namespace edm {
   AllowedLabelsDescription<std::vector<ParameterSetDescription> >::
   AllowedLabelsDescription(char const* label,
                            bool isTracked) :
-    AllowedLabelsDescriptionBase(label, isTracked),
+    AllowedLabelsDescriptionBase(label, k_VPSet, isTracked),
     vPsetDesc_()
   {
   }
@@ -88,7 +128,7 @@ namespace edm {
   AllowedLabelsDescription(std::string const& label,
                            std::vector<ParameterSetDescription> const& value,
                            bool isTracked) :
-    AllowedLabelsDescriptionBase(label, isTracked),
+    AllowedLabelsDescriptionBase(label, k_VPSet, isTracked),
     vPsetDesc_(new std::vector<ParameterSetDescription>(value))
   {
   }
@@ -97,7 +137,7 @@ namespace edm {
   AllowedLabelsDescription(char const* label,
                            std::vector<ParameterSetDescription> const& value,
                            bool isTracked) :
-    AllowedLabelsDescriptionBase(label, isTracked),
+    AllowedLabelsDescriptionBase(label, k_VPSet, isTracked),
     vPsetDesc_(new std::vector<ParameterSetDescription>(value))
   {
   }
@@ -108,6 +148,64 @@ namespace edm {
     return new AllowedLabelsDescription(*this);
   }
 
+  void
+  AllowedLabelsDescription<std::vector<ParameterSetDescription> >::
+  printNestedContent_(std::ostream & os,
+                      bool optional,
+                      DocFormatHelper & dfh) {
+
+    printNestedContentBase_(os, optional, dfh);
+
+    int indentation = dfh.indentation();
+    if (dfh.parent() != DocFormatHelper::TOP) {
+      indentation -= DocFormatHelper::offsetSectionContent();
+    }
+
+    std::stringstream ss;
+    ss << dfh.section() << "." << dfh.counter() << ".1";
+    std::string newSection = ss.str();
+
+    if (dfh.brief()) {
+      os << std::setfill(' ')
+         << std::setw(indentation + DocFormatHelper::offsetSectionContent())
+         << "";
+    }
+    else {
+      dfh.indent2(os);
+    }
+    os << "see Section " << newSection << "\n";
+    if (!dfh.brief()) os << "\n";
+
+    os << std::setfill(' ') << std::setw(indentation) << "";
+    os << "Section " << newSection
+       << " VPSet description:\n";
+
+    for (unsigned i = 1; i <= vPsetDesc_->size(); ++i) {
+      os << std::setfill(' ')
+         << std::setw(indentation + DocFormatHelper::offsetSectionContent())
+         << "";
+      os << "[" << (i - 1) << "]: see Section " << dfh.section() << "." << dfh.counter()
+         << ".1." << i << "\n";
+    }
+    if (!dfh.brief()) os << "\n";
+
+    for (unsigned i = 1; i <= vPsetDesc_->size(); ++i) {
+
+      std::stringstream ss2;
+      ss2 << newSection << "." << i;
+      std::string newSection2 = ss2.str();
+
+      os << std::setfill(' ') << std::setw(indentation) << "";
+      os << "Section " << newSection2 << " PSet description:\n";
+      if (!dfh.brief()) os << "\n";
+
+      DocFormatHelper new_dfh(dfh);
+      new_dfh.setSection(newSection2);
+      new_dfh.setIndentation(indentation + DocFormatHelper::offsetSectionContent());
+      new_dfh.setParent(DocFormatHelper::OTHER);
+      (*vPsetDesc_)[i - 1].print(os, new_dfh);
+    }
+  }
 
   void
   AllowedLabelsDescription<std::vector<ParameterSetDescription> >::

@@ -1,3 +1,4 @@
+
 #ifndef FWCore_ParameterSet_AllowedLabelsDescription_h
 #define FWCore_ParameterSet_AllowedLabelsDescription_h
 
@@ -9,11 +10,13 @@
 #include <string>
 #include <set>
 #include <vector>
+#include <iosfwd>
 
 namespace edm {
 
   class VParameterSetEntry;
   class ParameterSetDescription;
+  class DocFormatHelper;
 
   template<class T>
   class AllowedLabelsDescription : public AllowedLabelsDescriptionBase {
@@ -21,13 +24,13 @@ namespace edm {
   public:
     AllowedLabelsDescription(std::string const& label,
                              bool isTracked) :
-      AllowedLabelsDescriptionBase(label, isTracked)
+      AllowedLabelsDescriptionBase(label, ParameterTypeToEnum::toEnum<T>(), isTracked)
     {              
     }
 
     AllowedLabelsDescription(char const* label,
                              bool isTracked) :
-      AllowedLabelsDescriptionBase(label, isTracked)
+      AllowedLabelsDescriptionBase(label, ParameterTypeToEnum::toEnum<T>(), isTracked)
     {
     }
 
@@ -68,6 +71,10 @@ namespace edm {
 
   private:
 
+    virtual void printNestedContent_(std::ostream & os,
+                                     bool optional,
+                                     DocFormatHelper & helper);
+
     virtual void validateAllowedLabel_(std::string const& allowedLabel,
                                        ParameterSet & pset,
                                        std::set<std::string> & validatedLabels) const;
@@ -96,6 +103,10 @@ namespace edm {
     virtual ParameterDescriptionNode* clone() const;
 
   private:
+
+    virtual void printNestedContent_(std::ostream & os,
+                                     bool optional,
+                                     DocFormatHelper & helper);
 
     virtual void validateAllowedLabel_(std::string const& allowedLabel,
                                        ParameterSet & pset,

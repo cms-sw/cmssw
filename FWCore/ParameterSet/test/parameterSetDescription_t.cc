@@ -29,7 +29,7 @@ namespace testParameterSetDescription {
                 bool validates) {
     assert(node.exists(pset) == exists);
     assert(node.partiallyExists(pset) == exists);
-    assert(node.howManyExclusiveOrSubNodesExist(pset) == (exists ? 1 : 0));
+    assert(node.howManyXORSubNodesExist(pset) == (exists ? 1 : 0));
     if (validates) {
       psetDesc.validate(pset);
     }
@@ -460,11 +460,11 @@ namespace testParameterSetDescription {
 
     assert(node1->exists(pset1) == false);
     assert(node1->partiallyExists(pset1) == false);
-    assert(node1->howManyExclusiveOrSubNodesExist(pset1) == 0);
+    assert(node1->howManyXORSubNodesExist(pset1) == 0);
 
     assert(node1->exists(pset2) == false);
     assert(node1->partiallyExists(pset2) == false);
-    assert(node1->howManyExclusiveOrSubNodesExist(pset2) == 4);
+    assert(node1->howManyXORSubNodesExist(pset2) == 4);
 
     // 0 of the options existing should fail validation
     psetDesc1.addNode(node1);
@@ -579,11 +579,11 @@ namespace testParameterSetDescription {
 
     assert(node1->exists(pset1) == false);
     assert(node1->partiallyExists(pset1) == false);
-    assert(node1->howManyExclusiveOrSubNodesExist(pset1) == 0);
+    assert(node1->howManyXORSubNodesExist(pset1) == 0);
 
     assert(node1->exists(pset2) == true);
     assert(node1->partiallyExists(pset2) == true);
-    assert(node1->howManyExclusiveOrSubNodesExist(pset2) == 1);
+    assert(node1->howManyXORSubNodesExist(pset2) == 1);
 
     // 0 of the options existing should fail validation
     psetDesc1.addNode(node1);
@@ -707,15 +707,15 @@ namespace testParameterSetDescription {
 
     assert(node1->exists(pset1) == false);
     assert(node1->partiallyExists(pset1) == false);
-    assert(node1->howManyExclusiveOrSubNodesExist(pset1) == 0);
+    assert(node1->howManyXORSubNodesExist(pset1) == 0);
 
     assert(node1->exists(pset2) == true);
     assert(node1->partiallyExists(pset2) == true);
-    assert(node1->howManyExclusiveOrSubNodesExist(pset2) == 1);
+    assert(node1->howManyXORSubNodesExist(pset2) == 1);
 
     assert(node1->exists(pset3) == false);
     assert(node1->partiallyExists(pset3) == true);
-    assert(node1->howManyExclusiveOrSubNodesExist(pset3) == 0);
+    assert(node1->howManyXORSubNodesExist(pset3) == 0);
 
     psetDesc1.addNode(node1);
     psetDesc1.validate(pset1);
@@ -849,25 +849,25 @@ namespace testParameterSetDescription {
 
     assert(node1->exists(pset1) == true);
     assert(node1->partiallyExists(pset1) == true);
-    assert(node1->howManyExclusiveOrSubNodesExist(pset1) == 1);
+    assert(node1->howManyXORSubNodesExist(pset1) == 1);
     assert(node1a->exists(pset1) == true);
     assert(node1b->exists(pset1) == true);
 
     assert(node1->exists(pset2) == true);
     assert(node1->partiallyExists(pset2) == true);
-    assert(node1->howManyExclusiveOrSubNodesExist(pset2) == 1);
+    assert(node1->howManyXORSubNodesExist(pset2) == 1);
     assert(node1a->exists(pset2) == true);
     assert(node1b->exists(pset2) == true);
 
     assert(node1->exists(pset3) == false);
     assert(node1->partiallyExists(pset3) == false);
-    assert(node1->howManyExclusiveOrSubNodesExist(pset3) == 0);
+    assert(node1->howManyXORSubNodesExist(pset3) == 0);
     assert(node1a->exists(pset3) == false);
     assert(node1b->exists(pset3) == false);
 
     assert(node1->exists(pset4) == false);
     assert(node1->partiallyExists(pset4) == false);
-    assert(node1->howManyExclusiveOrSubNodesExist(pset4) == 0);
+    assert(node1->howManyXORSubNodesExist(pset4) == 0);
     assert(node1a->exists(pset4) == false);
     assert(node1b->exists(pset4) == false);
 
@@ -981,11 +981,11 @@ namespace testParameterSetDescription {
 
     assert(node1->exists(pset1) == false);
     assert(node1->partiallyExists(pset1) == false);
-    assert(node1->howManyExclusiveOrSubNodesExist(pset1) == 0);
+    assert(node1->howManyXORSubNodesExist(pset1) == 0);
 
     assert(node1->exists(pset2) == true);
     assert(node1->partiallyExists(pset2) == true);
-    assert(node1->howManyExclusiveOrSubNodesExist(pset2) == 1);
+    assert(node1->howManyXORSubNodesExist(pset2) == 1);
 
     // One of the labels cannot already exist in the description
     edm::ParameterSetDescription psetDesc2;
@@ -1209,7 +1209,7 @@ int main(int argc, char* argv[]) {
   edm::ParameterDescriptionBase * par = psetDesc.add<int>(std::string("ivalue"), a);
   assert(par->exists(pset) == false);
   assert(par->partiallyExists(pset) == false);
-  assert(par->howManyExclusiveOrSubNodesExist(pset) == 0);
+  assert(par->howManyXORSubNodesExist(pset) == 0);
   pset.addParameter<int>("ivalue", a);
   assert(par != 0); 
   assert(par->label() == std::string("ivalue"));
@@ -1218,7 +1218,7 @@ int main(int argc, char* argv[]) {
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("int32"));
   assert(par->exists(pset) == true);
   assert(par->partiallyExists(pset) == true);
-  assert(par->howManyExclusiveOrSubNodesExist(pset) == 1);
+  assert(par->howManyXORSubNodesExist(pset) == 1);
 
   edm::ParameterSetDescription::const_iterator parIter = psetDesc.begin();
   assert(parIter->node().operator->() == par);
@@ -1361,27 +1361,27 @@ int main(int argc, char* argv[]) {
   par = psetDesc.add<edm::ParameterSetDescription>("psetDesc", m);
   assert(par->exists(pset) == false);
   assert(par->partiallyExists(pset) == false);
-  assert(par->howManyExclusiveOrSubNodesExist(pset) == 0);
+  assert(par->howManyXORSubNodesExist(pset) == 0);
   edm::ParameterSet p1;
   pset.addParameter<edm::ParameterSet>("psetDesc", p1);
   assert(par->type() == edm::k_PSet);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("PSet"));
   assert(par->exists(pset) == true);
   assert(par->partiallyExists(pset) == true);
-  assert(par->howManyExclusiveOrSubNodesExist(pset) == 1);
+  assert(par->howManyXORSubNodesExist(pset) == 1);
 
   std::vector<edm::ParameterSetDescription> v10;
   par = psetDesc.add<std::vector<edm::ParameterSetDescription> >("psetDescVector", v10);
   assert(par->exists(pset) == false);
   assert(par->partiallyExists(pset) == false);
-  assert(par->howManyExclusiveOrSubNodesExist(pset) == 0);
+  assert(par->howManyXORSubNodesExist(pset) == 0);
   std::vector<edm::ParameterSet> vp1;
   pset.addParameter<std::vector<edm::ParameterSet> >("psetDescVector", vp1);
   assert(par->type() == edm::k_VPSet);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("VPSet"));
   assert(par->exists(pset) == true);
   assert(par->partiallyExists(pset) == true);
-  assert(par->howManyExclusiveOrSubNodesExist(pset) == 1);
+  assert(par->howManyXORSubNodesExist(pset) == 1);
 
   psetDesc.validate(pset);
 

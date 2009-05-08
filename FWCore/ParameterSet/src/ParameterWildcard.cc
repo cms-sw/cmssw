@@ -3,10 +3,13 @@
 #include "FWCore/ParameterSet/interface/VParameterSetEntry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 
 #include "boost/bind.hpp"
 
 #include <cassert>
+#include <ostream>
+#include <iomanip>
 
 namespace edm {
 
@@ -77,6 +80,42 @@ namespace edm {
                       ParameterSet & pset) const {
     ParameterSet * containedPSet = pset.getPSetForUpdate(parameterName);
     psetDesc_->validate(*containedPSet);
+  }
+
+  bool
+  ParameterWildcard<ParameterSetDescription>::
+  hasNestedContent_() {
+    if (psetDesc_) return true;
+    return false;
+  }
+
+  void
+  ParameterWildcard<ParameterSetDescription>::
+  printNestedContent_(std::ostream & os,
+                      bool optional,
+                      DocFormatHelper & dfh) {
+
+    int indentation = dfh.indentation();
+    if (dfh.parent() != DocFormatHelper::TOP) {
+      indentation -= DocFormatHelper::offsetSectionContent();
+    }
+
+    os << std::setfill(' ') << std::setw(indentation) << "";
+    os << "Section " << dfh.section() << "." << dfh.counter()
+       << " description of PSet matching wildcard:";
+    os << "\n";
+    if (!dfh.brief()) os << "\n";
+
+    std::stringstream ss;
+    ss << dfh.section() << "." << dfh.counter();
+    std::string newSection = ss.str();
+
+    DocFormatHelper new_dfh(dfh);
+    new_dfh.setSection(newSection);
+    new_dfh.setIndentation(indentation + DocFormatHelper::offsetSectionContent());
+    new_dfh.setParent(DocFormatHelper::OTHER);
+
+    psetDesc_->print(os, new_dfh);
   }
 
   bool
@@ -181,6 +220,55 @@ namespace edm {
                       int & i) const {
     psetDescription.validate(vpsetEntry->psetInVector(i));
     ++i;
+  }
+
+  bool
+  ParameterWildcard<std::vector<ParameterSetDescription> >::
+  hasNestedContent_() {
+    if (vPsetDesc_) return true;
+    return false;
+  }
+
+  void
+  ParameterWildcard<std::vector<ParameterSetDescription> >::
+  printNestedContent_(std::ostream & os,
+                      bool optional,
+                      DocFormatHelper & dfh) {
+
+    int indentation = dfh.indentation();
+    if (dfh.parent() != DocFormatHelper::TOP) {
+      indentation -= DocFormatHelper::offsetSectionContent();
+    }
+
+    os << std::setfill(' ') << std::setw(indentation) << "";
+    os << "Section " << dfh.section() << "." << dfh.counter()
+       << " description of VPSet matching wildcard:\n";
+
+    for (unsigned i = 1; i <= vPsetDesc_->size(); ++i) {
+      os << std::setfill(' ') 
+         << std::setw(indentation + DocFormatHelper::offsetSectionContent())
+         << "";
+      os << "[" << (i - 1) << "]: see Section " << dfh.section() << "." << dfh.counter()
+         << "." << i << "\n";
+    }
+    if (!dfh.brief()) os << "\n";
+
+    for (unsigned i = 1; i <= vPsetDesc_->size(); ++i) {
+
+      std::stringstream ss;
+      ss << dfh.section() << "." << dfh.counter() << "." << i;
+      std::string newSection = ss.str();
+
+      os << std::setfill(' ') << std::setw(indentation) << "";
+      os << "Section " << newSection << " description of PSet:\n";
+      if (!dfh.brief()) os << "\n";
+
+      DocFormatHelper new_dfh(dfh);
+      new_dfh.setSection(newSection);
+      new_dfh.setIndentation(indentation + DocFormatHelper::offsetSectionContent());
+      new_dfh.setParent(DocFormatHelper::OTHER);
+      (*vPsetDesc_)[i - 1].print(os, new_dfh);
+    }
   }
 
   bool

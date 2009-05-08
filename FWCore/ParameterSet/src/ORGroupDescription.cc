@@ -1,42 +1,45 @@
 
-#include "FWCore/ParameterSet/interface/OrParameterDescription.h"
+#include "FWCore/ParameterSet/interface/ORGroupDescription.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 
 #include <algorithm>
 #include <sstream>
+#include <ostream>
+#include <iomanip>
 
 namespace edm {
 
-  OrParameterDescription::
-  OrParameterDescription(ParameterDescriptionNode const& node_left,
-                         ParameterDescriptionNode const& node_right) :
+  ORGroupDescription::
+  ORGroupDescription(ParameterDescriptionNode const& node_left,
+                     ParameterDescriptionNode const& node_right) :
     node_left_(node_left.clone()),
     node_right_(node_right.clone()) {
   }
 
-  OrParameterDescription::
-  OrParameterDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
-                         ParameterDescriptionNode const& node_right) :
+  ORGroupDescription::
+  ORGroupDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
+                     ParameterDescriptionNode const& node_right) :
     node_left_(node_left),
     node_right_(node_right.clone()) {
   }
 
-  OrParameterDescription::
-  OrParameterDescription(ParameterDescriptionNode const& node_left,
-                         std::auto_ptr<ParameterDescriptionNode> node_right) :
+  ORGroupDescription::
+  ORGroupDescription(ParameterDescriptionNode const& node_left,
+                     std::auto_ptr<ParameterDescriptionNode> node_right) :
     node_left_(node_left.clone()),
     node_right_(node_right) {
   }
 
-  OrParameterDescription::
-  OrParameterDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
-                         std::auto_ptr<ParameterDescriptionNode> node_right) :
+  ORGroupDescription::
+  ORGroupDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
+                     std::auto_ptr<ParameterDescriptionNode> node_right) :
     node_left_(node_left),
     node_right_(node_right) {
   }
 
   void
-  OrParameterDescription::
+  ORGroupDescription::
   checkAndGetLabelsAndTypes_(std::set<std::string> & usedLabels,
                              std::set<ParameterTypes> & parameterTypes,
                              std::set<ParameterTypes> & wildcardTypes) const {
@@ -66,7 +69,7 @@ namespace edm {
   }
 
   void
-  OrParameterDescription::
+  ORGroupDescription::
   validate_(ParameterSet & pset,
             std::set<std::string> & validatedLabels,
             bool optional) const {
@@ -86,7 +89,7 @@ namespace edm {
   }
 
   void
-  OrParameterDescription::
+  ORGroupDescription::
   writeCfi_(std::ostream & os,
             bool & startWithComma,
             int indentation,
@@ -94,27 +97,139 @@ namespace edm {
     node_left_->writeCfi(os, startWithComma, indentation, wroteSomething);
   }
 
+  void
+  ORGroupDescription::
+  print_(std::ostream & os,
+         bool optional,
+         bool writeToCfi,
+         DocFormatHelper & dfh) {
+
+    if (dfh.parent() == DocFormatHelper::OR) {
+      dfh.decrementCounter();
+      node_left_->print(os, false, true, dfh);
+      node_right_->print(os, false, true, dfh);
+      return;
+    }
+
+    if (dfh.pass() == 1) {
+
+      dfh.indent(os);
+      os << "OR group:";
+
+      if (dfh.brief()) {
+
+        if (optional)  os << " optional";
+        else  os << " required";
+
+        if (!writeToCfi) os << " (do not write to cfi)";
+
+        os << " see Section " << dfh.section() << "." << dfh.counter() << "\n";
+      }
+      // not brief
+      else {
+
+        os << "\n";
+        dfh.indent2(os);
+        if (optional)  os << "optional";
+        else  os << "required";
+
+        if (!writeToCfi) os << " (do not write to cfi)";
+        os << "\n";
+
+        dfh.indent2(os);
+        os << "see Section " << dfh.section() << "." << dfh.counter() << "\n";
+
+        if (!comment().empty()) {
+          DocFormatHelper::wrapAndPrintText(os,
+                                            comment(),
+                                            dfh.startColumn2(),
+                                            dfh.commentWidth());
+        }
+        os << "\n";
+      }
+    }
+  }
+
+  void
+  ORGroupDescription::
+  printNestedContent_(std::ostream & os,
+                      bool optional,
+                      DocFormatHelper & dfh) {
+
+    if (dfh.parent() == DocFormatHelper::OR) {
+      dfh.decrementCounter();
+      node_left_->printNestedContent(os, false, dfh);
+      node_right_->printNestedContent(os, false, dfh);
+      return;
+    }
+
+    int indentation = dfh.indentation();
+    if (dfh.parent() != DocFormatHelper::TOP) {
+      indentation -= DocFormatHelper::offsetSectionContent();
+    }
+
+    std::stringstream ss;
+    ss << dfh.section() << "." << dfh.counter();
+    std::string newSection = ss.str();
+
+    os << std::setfill(' ') << std::setw(indentation) << "";
+    os << "Section " << newSection
+       << " OR group description:\n";
+    os << std::setfill(' ') << std::setw(indentation) << "";
+    if (optional) {
+      // An optional OR group is kind of pointless, it would be
+      // easier just make the parameters be independent optional parameters
+      // I only allow it to make the behavior analogous to the other groups
+      os << "This optional OR group requires at least one or none of the following to be in the PSet\n";
+    }
+    else {
+      os << "This OR group requires at least one of the following to be in the PSet\n";
+    }
+    if (!dfh.brief()) os << "\n";
+
+    DocFormatHelper new_dfh(dfh);
+    new_dfh.init();
+    new_dfh.setSection(newSection);
+    new_dfh.setIndentation(indentation + DocFormatHelper::offsetSectionContent());
+    new_dfh.setParent(DocFormatHelper::OR);
+
+    node_left_->print(os, false, true, new_dfh);
+    node_right_->print(os, false, true, new_dfh);
+
+    new_dfh.setPass(1);
+    new_dfh.setCounter(0);
+
+    node_left_->print(os, false, true, new_dfh);
+    node_right_->print(os, false, true, new_dfh);
+
+    new_dfh.setPass(2);
+    new_dfh.setCounter(0);
+
+    node_left_->printNestedContent(os, false, new_dfh);
+    node_right_->printNestedContent(os, false, new_dfh);
+  }
+
   bool
-  OrParameterDescription::
+  ORGroupDescription::
   exists_(ParameterSet const& pset) const {
     return node_left_->exists(pset) ||
            node_right_->exists(pset);
   }
 
   bool
-  OrParameterDescription::
+  ORGroupDescription::
   partiallyExists_(ParameterSet const& pset) const {
     return exists(pset);
   }
 
   int
-  OrParameterDescription::
-  howManyExclusiveOrSubNodesExist_(ParameterSet const& pset) const {
+  ORGroupDescription::
+  howManyXORSubNodesExist_(ParameterSet const& pset) const {
     return exists(pset) ? 1 : 0;
   }
 
   void
-  OrParameterDescription::
+  ORGroupDescription::
   throwIfDuplicateLabels(std::set<std::string> const& labelsLeft,
                          std::set<std::string> const& labelsRight) const {
 
@@ -142,7 +257,7 @@ namespace edm {
   }
 
   void
-  OrParameterDescription::
+  ORGroupDescription::
   throwIfDuplicateTypes(std::set<ParameterTypes> const& types1,
                         std::set<ParameterTypes> const& types2) const
   {
