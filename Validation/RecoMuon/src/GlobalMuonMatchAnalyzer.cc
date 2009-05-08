@@ -2,8 +2,8 @@
  * Class: GlobalMuonMatchAnalyzer
  *
  *
- * $Date: 2008/02/25 21:51:02 $
- * $Revision: 1.5 $
+ * $Date: 2008/03/02 20:26:22 $
+ * $Revision: 1.6 $
  *
  * Authors :
  * \author Adam Everett - Purdue University
@@ -225,7 +225,7 @@ GlobalMuonMatchAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-GlobalMuonMatchAnalyzer::beginJob(const edm::EventSetup& setup)
+GlobalMuonMatchAnalyzer::beginJob()
 {
   // Tk Associator
   edm::ESHandle<TrackAssociatorBase> tkassociatorHandle;

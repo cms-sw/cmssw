@@ -1,8 +1,8 @@
 /** \class MuonTrackAnalyzer
  *  Analyzer of the Muon tracks
  *
- *  $Date: 2008/06/24 16:40:53 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/08/11 12:09:39 $
+ *  $Revision: 1.7 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -87,7 +87,7 @@ MuonTrackAnalyzer::~MuonTrackAnalyzer(){
   if (theService) delete theService;
 }
 
-void MuonTrackAnalyzer::beginJob(const EventSetup& eventSetup){
+void MuonTrackAnalyzer::beginJob(){
   dbe_->showDirStructure();
   
   dbe_->cd();

@@ -74,7 +74,7 @@ MuonTrackResidualAnalyzer::~MuonTrackResidualAnalyzer(){
 }
 
 // Operations
-void MuonTrackResidualAnalyzer::beginJob(const edm::EventSetup& eventSetup){
+void MuonTrackResidualAnalyzer::beginJob(){
   LogDebug("MuonTrackResidualAnalyzer")<<"Begin Job";
   
   dbe_->showDirStructure();

@@ -4,8 +4,8 @@
 /** \class MuonTrackAnalyzer
  *  Analyzer of the StandAlone muon tracks
  *
- *  $Date: 2007/05/29 08:57:31 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/06/24 16:40:53 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -58,7 +58,7 @@ class MuonTrackAnalyzer: public edm::EDAnalyzer {
 		     edm::Handle<edm::SimTrackContainer> simTracks);
     
 
-  virtual void beginJob(const edm::EventSetup& eventSetup) ;
+  virtual void beginJob() ;
   virtual void endJob() ;
  protected:
 

@@ -2,8 +2,8 @@
  *  Class: MuonSeedTrack
  *
  * 
- *  $Date: 2007/09/27 18:04:38 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/08/11 12:09:39 $
+ *  $Revision: 1.2 $
  *
  *  Authors :
  *  \author Adam Everett - Purdue University
@@ -109,7 +109,7 @@ MuonSeedTrack::produce(edm::Event& event, const edm::EventSetup& eventSetup)
  * empty method
  */
 void
-MuonSeedTrack::beginJob(const edm::EventSetup&)
+MuonSeedTrack::beginJob()
 {
 }
 

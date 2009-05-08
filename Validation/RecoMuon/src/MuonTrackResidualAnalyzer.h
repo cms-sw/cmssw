@@ -4,8 +4,8 @@
 /** \class MuonTrackResidualAnalyzer
  *  No description available.
  *
- *  $Date: 2007/05/29 08:58:52 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/06/24 16:40:53 $
+ *  $Revision: 1.5 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */ 
 
@@ -57,7 +57,7 @@ public:
 
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
-  virtual void beginJob(const edm::EventSetup& eventSetup) ;
+  virtual void beginJob() ;
   virtual void endJob() ;
 
 protected:

@@ -10,8 +10,8 @@
  * Validation packages, such as Validation/RecoTrack
  * MultiTrackValidator.cc
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/09/27 18:04:38 $
+ *  $Revision: 1.1 $
  *
  *  \author Adam Everett        Purdue University
  */
@@ -51,7 +51,7 @@ class MuonSeedTrack : public edm::EDProducer {
   
  private:
   /// pre-job booking
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
 
   /// construct proto-tracks
   virtual void produce(edm::Event&, const edm::EventSetup&);
