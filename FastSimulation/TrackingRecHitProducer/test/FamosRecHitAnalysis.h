@@ -26,7 +26,7 @@ public:
   explicit FamosRecHitAnalysis(const edm::ParameterSet& pset);
   
   virtual ~FamosRecHitAnalysis();
-  virtual void beginJob(const edm::EventSetup& setup);
+  virtual void beginRun(const edm::Run &, const edm::EventSetup & );
   virtual void endJob(); 
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
   

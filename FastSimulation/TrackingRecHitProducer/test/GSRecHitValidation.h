@@ -38,7 +38,7 @@ class GSRecHitValidation : public edm::EDAnalyzer {
   explicit GSRecHitValidation(const edm::ParameterSet& conf);
   virtual ~GSRecHitValidation();  
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void beginJob();
   virtual void endJob();
 
  private:

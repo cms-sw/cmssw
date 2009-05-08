@@ -17,7 +17,7 @@ public:
   explicit FamosRecHitTest(const edm::ParameterSet& pset);
 
   virtual ~FamosRecHitTest();
-  virtual void beginJob(const edm::EventSetup& setup);
+  virtual void beginJob();
   virtual void endJob();
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
 

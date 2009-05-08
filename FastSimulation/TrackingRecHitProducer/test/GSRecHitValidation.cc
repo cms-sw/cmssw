@@ -92,7 +92,7 @@ GSRecHitValidation::GSRecHitValidation(edm::ParameterSet const& conf) :
 
 GSRecHitValidation::~GSRecHitValidation() {}
 
-void GSRecHitValidation::beginJob( const edm::EventSetup& es){
+void GSRecHitValidation::beginJob(){
   // book histograms  for plots
   // number of pixel hits
   hMap["NumSimPixHits"] = new TH1F("NumSimPixHits", "NumSimPixHits", 100, 0,10);

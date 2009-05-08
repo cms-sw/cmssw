@@ -271,9 +271,7 @@ SiPixelRecHitsInputDistributionsMaker::SiPixelRecHitsInputDistributionsMaker(con
 SiPixelRecHitsInputDistributionsMaker::~SiPixelRecHitsInputDistributionsMaker() {
 }
 
-void SiPixelRecHitsInputDistributionsMaker::beginJob(const EventSetup& c) {
-  
-}
+void SiPixelRecHitsInputDistributionsMaker::beginJob() { }
 
 void SiPixelRecHitsInputDistributionsMaker::endJob() {
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);

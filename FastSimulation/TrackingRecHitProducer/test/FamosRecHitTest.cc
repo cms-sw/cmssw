@@ -28,7 +28,7 @@ FamosRecHitTest::FamosRecHitTest(edm::ParameterSet const& pset)
   std::cout << "Start Famos RecHit Test" << std::endl;
 }
 
-void FamosRecHitTest::beginJob(const edm::EventSetup& setup) {}
+void FamosRecHitTest::beginJob() {}
 
 void FamosRecHitTest::endJob() {}
 
