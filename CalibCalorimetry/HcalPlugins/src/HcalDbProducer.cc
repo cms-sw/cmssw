@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.cc,v 1.22 2009/03/24 16:11:35 rofierzy Exp $
+// $Id: HcalDbProducer.cc,v 1.23 2009/05/06 22:24:11 mansj Exp $
 //
 //
 
@@ -33,29 +33,25 @@
 
 #include "HcalDbProducer.h"
 
-namespace edm {
-  namespace eventsetup {
-
-    template< typename T, typename T1, typename T2, typename T3, typename T4>
-    depends_on::TwoHolder<depends_on::TwoHolder< depends_on::TwoHolder<depends_on::OneHolder<T,T1>, T2>, T3>, T4>
-    dependsOn4(void(T::* iT1)(const T1&), T2 iT2, T3 iT3, T4 iT4) { return depends_on::OneHolder<T,T1>(iT1) & iT2 & iT3 & iT4; }
-  }
-}
-
-
 HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
   : ESProducer(),
     mService (new HcalDbService (fConfig)),
     mDumpRequest (),
     mDumpStream(0)
 {
-  //the following line is needed to tell the framework what
-  // data is being produced
-  setWhatProduced (this, (dependsOn4 (&HcalDbProducer::pedestalsCallback,
-				     &HcalDbProducer::respCorrsCallback,
-				     &HcalDbProducer::gainsCallback,
-				     &HcalDbProducer::timeCorrsCallback) &
+  //the following line is needed to tell the framework what data is being produced
+  // comments of dependsOn:
+  // 1) There are two ways one can use 'dependsOn' the first is passing it up to three arguments.  
+  //    However, one can also extend the dependencies by first calling 'dependsOn() and then using '&' to add additional dependencies.  So
+  //      dependsOn(&FooProd::func1, &FooProd::func2, &FooProd::func3)
+  //    gives the same result as
+  //      dependsOn(&FooProd::func1) & (&FooProd::func2) & (&FooProd::func3)
+  // 2) Upon IOV change, all callbacks are called, in the inverse order of their specification below (tested).
+  setWhatProduced (this, (dependsOn (&HcalDbProducer::pedestalsCallback) &
 			  &HcalDbProducer::pedestalWidthsCallback &
+			  &HcalDbProducer::respCorrsCallback &
+			  &HcalDbProducer::gainsCallback &
+			  &HcalDbProducer::timeCorrsCallback &
 			  &HcalDbProducer::QIEDataCallback &
 			  &HcalDbProducer::gainWidthsCallback &
 			  &HcalDbProducer::channelQualityCallback &

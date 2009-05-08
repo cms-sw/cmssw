@@ -48,13 +48,13 @@ class HcalDbService {
 
   void setData (const HcalPedestals* fItem) {mPedestals = fItem; buildCalibrations(); }
   void setData (const HcalPedestalWidths* fItem) {mPedestalWidths = fItem; buildCalibWidths(); }
-  void setData (const HcalGains* fItem) {mGains = fItem; buildCalibrations(); }
+  void setData (const HcalGains* fItem) {mGains = fItem; }
   void setData (const HcalGainWidths* fItem) {mGainWidths = fItem; }
   void setData (const HcalQIEData* fItem) {mQIEData = fItem; }
   void setData (const HcalChannelQuality* fItem) {mChannelQuality = fItem;}
   void setData (const HcalElectronicsMap* fItem) {mElectronicsMap = fItem;}
-  void setData (const HcalRespCorrs* fItem) {mRespCorrs = fItem; buildCalibrations(); }
-  void setData (const HcalTimeCorrs* fItem) {mTimeCorrs = fItem;  buildCalibrations(); }
+  void setData (const HcalRespCorrs* fItem) {mRespCorrs = fItem; }
+  void setData (const HcalTimeCorrs* fItem) {mTimeCorrs = fItem; }
   void setData (const HcalZSThresholds* fItem) {mZSThresholds = fItem;}
   void setData (const HcalL1TriggerObjects* fItem) {mL1TriggerObjects = fItem;}
 

@@ -17,6 +17,7 @@
 #include "CondFormats/HcalObjects/interface/HcalCalibrationQIEData.h"
 #include "CondFormats/HcalObjects/interface/HcalZSThresholds.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
+#include "CondFormats/HcalObjects/interface/HcalTimeCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalL1TriggerObjects.h"
 
 #include "CondFormats/DataRecord/interface/HcalPedestalsRcd.h"
@@ -29,6 +30,7 @@
 #include "CondFormats/DataRecord/interface/HcalCalibrationQIEDataRcd.h"
 #include "CondFormats/DataRecord/interface/HcalZSThresholdsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalTimeCorrsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalL1TriggerObjectsRcd.h"
 
 DEFINE_SEAL_MODULE();
@@ -42,4 +44,5 @@ REGISTER_PLUGIN(HcalQIEDataRcd,HcalQIEData);
 REGISTER_PLUGIN(HcalCalibrationQIEDataRcd,HcalCalibrationQIEData);
 REGISTER_PLUGIN(HcalZSThresholdsRcd,HcalZSThresholds);
 REGISTER_PLUGIN(HcalRespCorrsRcd,HcalRespCorrs);
+REGISTER_PLUGIN(HcalTimeCorrsRcd,HcalTimeCorrs);
 REGISTER_PLUGIN(HcalL1TriggerObjectsRcd,HcalL1TriggerObjects);
