@@ -6,8 +6,8 @@
  *  Base class to get the PVSS aliases of digital LV, analog LV and biased HV channels
  *  for a given DetId in the Pixel Detector.
  *
- *  $Date: 2008/11/30 19:41:08 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/04/22 11:42:41 $
+ *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
 
@@ -20,6 +20,8 @@ class PixelCaenAlias
   const std::string& digitalLV() const { return theDigitalLV; }
   const std::string& analogLV() const { return theAnalogLV; }
   const std::string& biasedHV() const { return theBiasedHV; }
+
+  virtual ~PixelCaenAlias() {}
 
   protected:
 
