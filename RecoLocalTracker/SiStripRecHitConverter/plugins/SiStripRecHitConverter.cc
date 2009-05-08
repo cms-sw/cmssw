@@ -39,4 +39,8 @@ produce(edm::Event& e, const edm::EventSetup& es)
   e.put( output.stereo,          stereoRecHitsTag  );
   e.put( output.rphiUnmatched,   rphiRecHitsTag   + "Unmatched" );
   e.put( output.stereoUnmatched, stereoRecHitsTag + "Unmatched" );  
+
+  LogDebug("SiStripRecHitConverter") << "found\n"  
+				     << output.rphi->dataSize()   << "  clusters in mono detectors\n"                            
+				     << output.stereo->dataSize() << "  clusters in partners stereo detectors\n";
 }

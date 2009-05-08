@@ -17,8 +17,9 @@ class RefGetter;
 
 class SiStripRecHitConverterAlgorithm 
 {
- public:
 
+ public:
+  
   struct products {
     std::auto_ptr<SiStripMatchedRecHit2DCollection> matched;
     std::auto_ptr<SiStripRecHit2DCollection> rphi, stereo, rphiUnmatched, stereoUnmatched;
@@ -37,11 +38,12 @@ class SiStripRecHitConverterAlgorithm
   void run(edm::Handle<edm::RefGetter<SiStripCluster> >, edm::Handle<edm::LazyGetter<SiStripCluster> >, products&);
   
  private:
-
+  
   void match(products& output, LocalVector trackdirection) const;
   void fillBad128StripBlocks(const uint32_t &detid, bool bad128StripBlocks[6]) const;
   bool isMasked(const SiStripCluster &cluster, bool bad128StripBlocks[6]) const;
-
+  bool useModule(uint32_t id) const;
+  
   bool useQuality, maskBad128StripBlocks;
   uint32_t tracker_cache_id, cpe_cache_id, quality_cache_id;
   edm::ESInputTag cpeTag, matcherTag, qualityTag;
@@ -49,6 +51,8 @@ class SiStripRecHitConverterAlgorithm
   edm::ESHandle<StripClusterParameterEstimator> parameterestimator;
   edm::ESHandle<SiStripRecHitMatcher> matcher;
   edm::ESHandle<SiStripQuality> quality;
+  
+  typedef SiStripRecHit2DCollection::FastFiller Collector;
 
 };
 
