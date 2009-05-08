@@ -11,7 +11,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb  2 16:40:52 EST 2009
-// $Id: FWTableViewTableManager.h,v 1.1.2.5 2009/04/25 22:39:03 jmuelmen Exp $
+// $Id: FWTableViewTableManager.h,v 1.2 2009/05/01 22:30:41 jmuelmen Exp $
 //
 
 // system include files
@@ -98,6 +98,7 @@ protected:
 
      const FWTableView *m_view;
      TGGC *m_graphicsContext;
+     TGGC *m_highlightContext;
      FWTextTableCellRenderer *m_renderer;
      std::vector<FWExpressionEvaluator> m_evaluators;
      std::vector<FWTableViewManager::TableEntry> *m_tableFormats;

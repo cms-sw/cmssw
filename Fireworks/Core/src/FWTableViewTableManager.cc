@@ -1,4 +1,4 @@
-// $Id: FWTableViewTableManager.cc,v 1.1.2.9 2009/04/28 00:55:00 jmuelmen Exp $
+// $Id: FWTableViewTableManager.cc,v 1.2 2009/05/01 22:30:41 jmuelmen Exp $
 
 #include <math.h>
 #include "TClass.h"
@@ -18,8 +18,11 @@ FWTableViewTableManager::FWTableViewTableManager (const FWTableView *view)
      GCValues_t gc = *(m_view->m_tableWidget->GetWhiteGC().GetAttributes());
      m_graphicsContext = gClient->GetResourcePool()->GetGCPool()->GetGC(&gc,kTRUE);
 //      m_graphicsContext = (TGGC *)&FWTextTableCellRenderer::getDefaultGC();
+     m_highlightContext = gClient->GetResourcePool()->GetGCPool()->GetGC(&gc,kTRUE);
+     m_highlightContext->SetForeground(gVirtualX->GetPixel(kBlue));
+     m_highlightContext->SetBackground(gVirtualX->GetPixel(kBlue));
      m_renderer = new FWTextTableCellRenderer(m_graphicsContext,
-					      &FWTextTableCellRenderer::getHighlightGC(),
+					      m_highlightContext,
 					      FWTextTableCellRenderer::kJustifyRight);
 }
 
@@ -94,20 +97,32 @@ FWTableCellRendererBase *FWTableViewTableManager::cellRenderer(int iSortedRowNum
 	       snprintf(s, sizeof(s), fs, ret);
 	       break;
 	  }
- 	  m_graphicsContext->
- 	       SetForeground(gVirtualX->GetPixel(m_view->item()->modelInfo(realRowNumber).
- 						 displayProperties().color()));
-	  if (not m_view->item()->modelInfo(realRowNumber).isSelected())
+//  	  m_highlightContext->SetForeground(gVirtualX->GetPixel(kBlue));
+//  	  m_highlightContext->SetBackground(gVirtualX->GetPixel(kBlue));
+	  if (not m_view->item()->modelInfo(realRowNumber).isSelected()) {
+	       if (m_view->item()->modelInfo(realRowNumber).displayProperties().isVisible())
+		    m_graphicsContext->
+			 SetForeground(gVirtualX->GetPixel(m_view->item()->modelInfo(realRowNumber).
+							   displayProperties().color()));
+	       else m_graphicsContext->
+			 SetForeground(gVirtualX->GetPixel(kGray));
 	       m_renderer->setGraphicsContext(m_graphicsContext);
-	  else {
-	       static TGGC* s_context = 0;
-	       if(0==s_context) {
-		    GCValues_t hT = *(gClient->GetResourcePool()->GetSelectedGC()->GetAttributes());
-		    s_context = gClient->GetResourcePool()->GetGCPool()->GetGC(&hT,kTRUE);
-		    s_context->SetForeground(s_context->GetBackground());
-		    //s_context->SetForeground(gVirtualX->GetPixel(kBlue+2));
-	       }
-	       m_renderer->setGraphicsContext(s_context);
+	  } else {
+// 	       m_graphicsContext->
+// 		    SetBackground(gVirtualX->GetPixel(kWhite));
+	       m_graphicsContext->
+		    SetForeground(0xffffff);
+// 	       m_graphicsContext->SetFillStyle(kFillSolid);
+	       m_renderer->setGraphicsContext(m_graphicsContext);
+// 	       m_renderer->setGraphicsContext(m_highlightContext);
+// 	       static TGGC* s_context = 0;
+// 	       if(0==s_context) {
+// 		    GCValues_t hT = *(gClient->GetResourcePool()->GetSelectedGC()->GetAttributes());
+// 		    s_context = gClient->GetResourcePool()->GetGCPool()->GetGC(&hT,kTRUE);
+// 		    s_context->SetForeground(s_context->GetBackground());
+// 		    //s_context->SetForeground(gVirtualX->GetPixel(kBlue+2));
+// 	       }
+// 	       m_renderer->setGraphicsContext(s_context);
 	  }
 	  m_renderer->setData(s, m_view->item()->modelInfo(realRowNumber).isSelected());
 // 			      not m_view->item()->modelInfo(realRowNumber).
@@ -119,11 +134,37 @@ FWTableCellRendererBase *FWTableViewTableManager::cellRenderer(int iSortedRowNum
 }
 
 namespace {
+     struct itemOrderGt {
+	  bool operator () (const std::pair<bool, double> &i1, 
+			    const std::pair<bool, double> &i2) 
+	       {
+		    // sort first by visibility
+		    if (i1.first and not i2.first)
+			 return true;
+		    if (i2.first and not i1.first)
+			 return false;
+		    // then by value
+		    else return i1.second > i2.second;
+	       }
+     };
+     struct itemOrderLt {
+	  bool operator () (const std::pair<bool, double> &i1, 
+			    const std::pair<bool, double> &i2) 
+	       {
+		    // sort first by visibility
+		    if (i1.first and not i2.first)
+			 return true;
+		    if (i2.first and not i1.first)
+			 return false;
+		    // then by value
+		    else return i1.second < i2.second;
+	       }
+     };
      template<typename S>
      void doSort(const FWEventItem& iItem,
 		 int iCol,
 		 const std::vector<FWExpressionEvaluator> &evaluators,
-		 std::map<double,int,S>& iMap,
+		 std::map<std::pair<bool, double>, int, S>& iMap,
 		 std::vector<int>& oNewSort) 
      {
 	  int size = iItem.size();
@@ -136,10 +177,15 @@ namespace {
 		    printf("something bad happened\n");
 		    ret = -999;
 	       }
-	       iMap.insert(std::make_pair(ret, index));
+	       iMap.insert(std::make_pair(
+				std::make_pair(
+				     iItem.modelInfo(index).displayProperties().isVisible(), ret), 
+				index));
 	  }
 	  std::vector<int>::iterator itVec = oNewSort.begin();
-	  for(typename std::map<double,int,S>::iterator it = iMap.begin(), itEnd = iMap.end();
+	  for(typename std::map<std::pair<bool, double>,int,S>::iterator 
+		   it = iMap.begin(), 
+		   itEnd = iMap.end();
 	      it != itEnd;
 	      ++it,++itVec) {
 	       *itVec = it->second;
@@ -154,10 +200,10 @@ void FWTableViewTableManager::implSort(int iCol, bool iSortOrder)
 	  return;
 //      printf("sorting %s\n", iSortOrder == sort_down ? "down" : "up");
      if (iSortOrder == sort_down) {
-	  std::map<double,int, std::greater<double> > s;
+	  std::map<std::pair<bool, double>, int, itemOrderGt> s;
 	  doSort(*m_view->item(), iCol, m_evaluators, s, m_sortedToUnsortedIndices);
      } else {
-	  std::map<double,int, std::less<double> > s;
+	  std::map<std::pair<bool, double>, int, itemOrderLt> s;
 	  doSort(*m_view->item(), iCol, m_evaluators, s, m_sortedToUnsortedIndices);
      }
      m_view->m_tableWidget->dataChanged();
