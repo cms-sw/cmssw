@@ -129,6 +129,17 @@ public:
   /// Position relative to material, defined relative to momentum vector.
   virtual SurfaceSide surfaceSide() const;
 
+  virtual bool canUpdateLocalParameters() const { return false; }
+  virtual void update( const LocalTrajectoryParameters& p,
+                       const Surface& aSurface,
+                       const MagneticField* field,
+                       const SurfaceSide side ) ;
+  virtual void update( const LocalTrajectoryParameters& p,
+                       const LocalTrajectoryError& err,
+                       const Surface& aSurface,
+                       const MagneticField* field,
+                       const SurfaceSide side,
+                       double weight ) ;
 private:
 
   std::vector<TSOS> theStates;

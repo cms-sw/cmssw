@@ -105,3 +105,27 @@ BasicMultiTrajectoryState::surfaceSide () const
   return theStates.front().surfaceSide();
 }
 
+void
+BasicMultiTrajectoryState::
+update( const LocalTrajectoryParameters& p,
+        const Surface& aSurface,
+        const MagneticField* field,
+        const SurfaceSide side) 
+{
+  throw cms::Exception("LogicError", 
+                       "BasicMultiTrajectoryState::update(LocalTrajectoryParameters, Surface, ...) called even if canUpdateLocalParameters() is false");
+}
+
+void
+BasicMultiTrajectoryState::
+update( const LocalTrajectoryParameters& p,
+        const LocalTrajectoryError& err,
+        const Surface& aSurface,
+        const MagneticField* field,
+        const SurfaceSide side,
+        double weight) 
+{
+  throw cms::Exception("LogicError", 
+                       "BasicMultiTrajectoryState::update(LocalTrajectoryParameters, LocalTrajectoryError, ...) called even if canUpdateLocalParameters() is false");
+}
+
