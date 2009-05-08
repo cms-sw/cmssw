@@ -1,5 +1,5 @@
 #include "DataFormats/HcalDigi/interface/HOTriggerPrimitiveDigi.h"
-
+#include <cstdio>
 
 HOTriggerPrimitiveDigi::HOTriggerPrimitiveDigi(int ieta, int iphi, int nsamples, int whichSampleTriggered, int databits){
   if ((nsamples<0) || (nsamples>HO_TP_SAMPLES_MAX)) printf("HOTRiggerPrimitiveDigi: nsamples out of range.");
