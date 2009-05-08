@@ -1,7 +1,6 @@
 #ifndef SiStripRecHitConverterAlgorithm_h
 #define SiStripRecHitConverterAlgorithm_h
 
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
