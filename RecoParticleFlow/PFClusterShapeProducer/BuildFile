@@ -4,7 +4,6 @@
 <use name="DataFormats/ParticleFlowReco">
 <use name="Geometry/CaloGeometry">
 <use name="Geometry/CaloTopology">
-<use name="RecoCaloTools/Navigation">
 <export>
   <use name="DataFormats/Common">
   <use name="DataFormats/EgammaReco">
@@ -12,6 +11,5 @@
   <use name="DataFormats/ParticleFlowReco">
   <use name="Geometry/CaloGeometry">
   <use name="Geometry/CaloTopology">
-  <use name="RecoCaloTools/Navigation">
   <lib name="RecoParticleFlowPFClusterShapeProducer">
 </export>
