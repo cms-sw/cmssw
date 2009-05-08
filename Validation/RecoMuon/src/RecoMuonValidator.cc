@@ -512,7 +512,7 @@ RecoMuonValidator::~RecoMuonValidator()
   if ( theMuonService ) delete theMuonService;
 }
 
-void RecoMuonValidator::beginJob(const EventSetup& eventSetup)
+void RecoMuonValidator::beginRun(const EventSetup& eventSetup)
 {
   if ( theMuonService ) theMuonService->update(eventSetup);
 
@@ -534,7 +534,7 @@ void RecoMuonValidator::beginJob(const EventSetup& eventSetup)
   }
 }
 
-void RecoMuonValidator::endJob()
+void RecoMuonValidator::endRun()
 {
   if ( theDQM && ! outputFileName_.empty() ) theDQM->save(outputFileName_);
 }
