@@ -174,6 +174,14 @@ void SiStripMonitorCondData::analyze(edm::Event const& iEvent, edm::EventSetup c
 // ----- endRun
 //    
 void SiStripMonitorCondData::endRun(edm::Run const& run, edm::EventSetup const& eSetup) {
+  if(monitorPedestals_)      { pedestalsDQM_     ->end();}
+  if(monitorNoises_)         { noisesDQM_        ->end();}    
+  if(monitorLowThreshold_)   { lowthresholdDQM_  ->end();}    
+  if(monitorHighThreshold_)  { highthresholdDQM_ ->end();}    
+  if(monitorApvGains_)       { apvgainsDQM_      ->end();}    
+  if(monitorLorentzAngle_)   { lorentzangleDQM_  ->end();}
+  if(monitorQuality_)        { qualityDQM_       ->end();}
+  if(monitorCabling_)        { cablingDQM_       ->end();}
  
   bool outputMEsInRootFile     = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName  = conf_.getParameter<std::string>("OutputFileName");
@@ -184,6 +192,7 @@ void SiStripMonitorCondData::endRun(edm::Run const& run, edm::EventSetup const& 
     dqmStore_->showDirStructure();
     dqmStore_->save(outputFileName);
   } 
+
   
 } // endRun
 // -----

@@ -19,11 +19,12 @@ SiStripBaseCondObjDQM::SiStripBaseCondObjDQM(const edm::EventSetup & eSetup,
   HistoMaps_On_            = fPSet_.getParameter<bool>("HistoMaps_On");
   SummaryOnLayerLevel_On_  = fPSet_.getParameter<bool>("SummaryOnLayerLevel_On");
   SummaryOnStringLevel_On_ = fPSet_.getParameter<bool>("SummaryOnStringLevel_On");
-  GrandSummary_On_           = fPSet_.getParameter<bool>("GrandSummary_On");
-  
+  GrandSummary_On_         = fPSet_.getParameter<bool>("GrandSummary_On");
+
+
   CondObj_fillId_    = hPSet_.getParameter<std::string>("CondObj_fillId");
   CondObj_name_      = hPSet_.getParameter<std::string>("CondObj_name");
-
+ 
 
   //Warning message from wrong input:
   if(SummaryOnLayerLevel_On_ && SummaryOnStringLevel_On_){
@@ -31,6 +32,9 @@ SiStripBaseCondObjDQM::SiStripBaseCondObjDQM(const edm::EventSetup & eSetup,
        << "[SiStripBaseCondObjDQM::SiStripBaseCondObjDQMs] PLEASE CHECK : String and layer level options can not be activated together"
        << std::endl; 
   }
+
+  if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On"))
+    bookTkMap(hPSet_.getParameter<std::string>("TkMapName"));
 
 }
 // -----
@@ -46,10 +50,26 @@ void SiStripBaseCondObjDQM::analysis(const edm::EventSetup & eSetup_){
   
   getConditionObject(eSetup_);
 
-  getActiveDetIds(eSetup_);
-  
+  //The or of the two conditions allow to switch on this feature for all the component, if the FillConditions_PSet as the ActiveDetIds_On =true
+  //or to switch on for few features is the single condmonitor pset is on 
+  if(fPSet_.getParameter<bool>("ActiveDetIds_On") || hPSet_.getParameter<bool>("ActiveDetIds_On"))
+    getActiveDetIds(eSetup_);
+  else
+    activeDetIds=reader->getAllDetIds();
+
+  selectModules(activeDetIds);
+
   if(Mod_On_ )                                            { fillModMEs(activeDetIds); }
   if(SummaryOnLayerLevel_On_ || SummaryOnStringLevel_On_ ){ fillSummaryMEs(activeDetIds);}
+
+  string filename = hPSet_.getParameter<std::string>("TkMapName");
+  if (filename!=""){
+    char sRun[128];
+    sprintf(sRun,"_Run_%d",eSetup_.iovSyncValue().eventID().run());
+    filename.insert(filename.find("."),sRun);
+    
+    saveTkMap(filename.c_str());
+  }
 }
 // -----
 
@@ -135,6 +155,9 @@ std::vector<uint32_t> SiStripBaseCondObjDQM::getCabledModules() {
 
 //=========================================================
 // -----
+
+//#FIXME : very long method. please factorize it
+ 
 void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
    
   ModulesToBeExcluded_     = fPSet_.getParameter< std::vector<unsigned int> >("ModulesToBeExcluded");
@@ -318,6 +341,7 @@ void SiStripBaseCondObjDQM::getModMEs(ModMEs& CondObj_ME, const uint32_t& detId_
 
 //===============================================
 // -----
+//%FIXME: very long method, factorize
 void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& detId_){
 
   std::map<uint32_t, ModMEs>::const_iterator SummaryMEsMap_iter;
@@ -331,6 +355,8 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
    
   if (SummaryMEsMap_iter != SummaryMEsMap_.end()){ return;}
 
+  //FIXME t's not good that the base class has to know about which derived class shoudl exist.
+  // please modify this part. implement virtual functions, esplicited in the derived classes
   // --> currently only profile summary defined for all condition objects except quality
   if(  (CondObj_fillId_ =="ProfileAndCumul" || CondObj_fillId_ =="onlyProfile" ) &&
      (
@@ -366,6 +392,7 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
   } 
                           
   if(CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_) {
+    //FIXME getStringNameandId takes time. not need to call it every timne. put the call at the beginning of the method and caache the string 
     SummaryMEsMap_.insert( std::make_pair(getStringNameAndId(detId_).second,CondObj_ME) );
   }
   else {
@@ -466,6 +493,7 @@ void SiStripBaseCondObjDQM::bookCumulMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_
 
 //===========================================
 // -----
+//#FIXME: same comments: factorize, and remove any reference to derived classes
 void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_){
   
   std::vector<uint32_t> sameLayerDetIds_;
@@ -756,6 +784,7 @@ void SiStripBaseCondObjDQM::bookSummaryCumulMEs(SiStripBaseCondObjDQM::ModMEs& C
 
 //================================================
 // -----
+//FIXME same as before: factorize
 void SiStripBaseCondObjDQM::bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_){
   
   std::vector<uint32_t> sameLayerDetIds_;
@@ -840,7 +869,8 @@ void SiStripBaseCondObjDQM::bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs& CondOb
     iBin++;
     char sameLayerDetIds_Name[1024];
     sprintf(sameLayerDetIds_Name,"%u",sameLayerDetIds_[i]);
-    CondObj_ME.SummaryDistr->setBinLabel(iBin, " ");
+    if(iBin%100==0)
+      CondObj_ME.SummaryDistr->setBinLabel(iBin, sameLayerDetIds_Name);
     
   }
   // -----
@@ -1154,3 +1184,44 @@ std::vector<uint32_t> SiStripBaseCondObjDQM::GetSameLayerDetId(std::vector<uint3
 }
 
 
+//==========================
+void SiStripBaseCondObjDQM::bookTkMap(const std::string& TkMapname){
+  tkMap= new TrackerMap(TkMapname.c_str());
+}
+
+//==========================
+void SiStripBaseCondObjDQM::fillTkMap(const uint32_t& detid, const float& value){
+  tkMap->fill(detid,value);
+}
+
+//==========================
+void SiStripBaseCondObjDQM::saveTkMap(const std::string& TkMapname){
+  tkMap->save(false,0,0,TkMapname.c_str());
+}
+
+
+//==========================
+void SiStripBaseCondObjDQM::end(){
+  edm::LogInfo("SiStripBaseCondObjDQM") 
+    << "SiStripBase::end"
+    << std::endl; 
+}
+
+//==========================
+void SiStripBaseCondObjDQM::fillModMEs(const std::vector<uint32_t> & selectedDetIds){
+  ModMEs CondObj_ME;
+ 
+  for(std::vector<uint32_t>::const_iterator detIter_=selectedDetIds.begin();
+                                           detIter_!=selectedDetIds.end();++detIter_){
+    fillMEsForDet(CondObj_ME,*detIter_);
+  }
+}
+
+//==========================
+void SiStripBaseCondObjDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds){
+  
+  for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
+      detIter_!= selectedDetIds.end();detIter_++){
+    fillMEsForLayer(SummaryMEsMap_, *detIter_);    
+  } 
+}

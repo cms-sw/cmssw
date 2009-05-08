@@ -16,6 +16,7 @@
 <use name=CalibTracker/SiStripAPVAnalysis>
 
 <use name=CondCore/DBOutputService>
+<use name=CommonTools/TrackerMap>
 
 <export>
    <lib name=DQMSiStripMonitorSummary>
@@ -29,5 +30,6 @@
    <use name=DataFormats/SiStripDigi>
    <use name=CondFormats/DataRecord>
    <use name=CondFormats/SiStripObjects>
+   <use name=CommonTools/TrackerMap>
 </export>
 
