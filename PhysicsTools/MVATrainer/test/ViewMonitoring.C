@@ -868,9 +868,43 @@ void DrawProcMatrix(TDirectory *dir)
 	matrix->GetXaxis()->SetLabelSize(0.04);
 	matrix->GetYaxis()->SetLabelSize(0.04);
 	matrix->Draw("colz");
+	TBox box;
+	TLine line;
+	box.SetFillColor(kBlack);
+	line.SetLineColor(kBlack);
+	for(unsigned int i = 0; i < matrix->GetNbinsX(); i++)
+		box.DrawBox(i, i, i + 1, i + 1);
+	line.DrawLine(matrix->GetNbinsX() - 1, 0,
+	              matrix->GetNbinsX() - 1, matrix->GetNbinsX());
+	line.DrawLine(0, matrix->GetNbinsX() - 1,
+	              matrix->GetNbinsX(), matrix->GetNbinsX() - 1);
 
 	pad->RedrawAxis();
 	Save(pad, dir);
+
+	pad = pads.Next();
+	TH1 *rank = dynamic_cast<TH1*>(dir->Get("Ranking"));
+	if (rank) {
+		TString *labels = new TString[rank->GetNbinsX()];
+		for(unsigned int i = 1; i <= rank->GetNbinsX(); i++) {
+			labels[i - 1] = rank->GetXaxis()->GetBinLabel(i);
+			rank->GetXaxis()->SetBinLabel(i,
+				Form("%d.", rank->GetNbinsX() - i + 1));
+		}
+		rank->SetStats(0);
+		rank->SetFillColor(kGreen);
+		rank->Draw("hbar2");
+		for(unsigned int i = 1; i <= rank->GetNbinsX(); i++) {
+			double v = fabs(rank->GetBinContent(i + 1) -
+			                rank->GetBinContent(i));
+			TString text = labels[i - 1] +
+			               Form(": %+1.2f%%", v * 100.0);
+			double off = rank->GetMaximum() * 0.1;
+			TText *t = new TText(off, i - 0.5, text);
+			t->Draw();
+		}
+		delete[] labels;
+	}
 
 	Save(pads);
 }

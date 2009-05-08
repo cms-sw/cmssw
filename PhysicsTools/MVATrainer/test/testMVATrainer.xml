@@ -28,6 +28,34 @@
 			<var name="y"/>
 		</output>
 	</processor>
+
+	<processor id="rank" name="ProcLikelihood">
+		<input>
+			<var source="norm" name="x"/>
+			<var source="norm" name="y"/>
+		</input>
+		<config>
+			<general individual="true"/>
+			<sigbkg/>
+			<sigbkg/>
+		</config>
+		<output>
+			<var name="x"/>
+			<var name="y"/>
+		</output>
+	</processor>
+	<processor id="ranking" name="ProcMatrix">
+		<input>
+			<var source="rank" name="x"/>
+			<var source="rank" name="y"/>
+		</input>
+		<config>
+			<fill ranking="true"/>
+		</config>
+		<output>
+		</output>
+	</processor>
+
 	<processor id="rot" name="ProcMatrix">
 		<input>
 			<var source="norm" name="x"/>

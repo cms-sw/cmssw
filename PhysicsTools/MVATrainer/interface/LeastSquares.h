@@ -26,6 +26,8 @@ class LeastSquares
 	double getConstant() const;
 
 	inline unsigned int getSize() const { return n; }
+	inline const TMatrixDSym &getCoefficients() const { return coeffs; }
+	inline const TMatrixDSym &getCovariance() const { return covar; }
 	inline const TMatrixDSym &getCorrelations() const { return corr; }
 	inline const TMatrixD &getRotation() { return rotation; }
 
@@ -33,12 +35,15 @@ class LeastSquares
 	XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *save(
 		XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *doc) const;
 
+	static TVectorD solveFisher(const TMatrixDSym &coeffs);
+	static TMatrixD solveRotation(const TMatrixDSym &covar,
+	                              TVectorD &trace);
+
     private:
 	TMatrixDSym		coeffs;
 	TMatrixDSym		covar;
 	TMatrixDSym		corr;
 	TMatrixD		rotation;
-	TVectorD		sums;
 	TVectorD		weights;
 	TVectorD		variance;
 	TVectorD		trace;
