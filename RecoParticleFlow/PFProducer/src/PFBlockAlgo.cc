@@ -1515,6 +1515,8 @@ PFBlockAlgo::testTrackAndClusterByRecHit( const PFRecTrack& track,
   for(unsigned int rhit = 0; rhit < fracs.size(); ++rhit){
 
     const reco::PFRecHitRef& rh = fracs[rhit].recHitRef();
+    double fraction = fracs[rhit].fraction();
+    if(fraction < 1E-4) continue;
     if(rh.isNull()) continue;
     
     //getting rechit center position
@@ -1650,12 +1652,13 @@ PFBlockAlgo::testTrackAndClusterByRecHit( const PFRecTrack& track,
 #ifdef PFLOW_DEBUG
     if( debug_ ) 
       cout << "Track and Cluster LINKED BY RECHIT" << endl;
-    std::cout << "Distance = " << distance 
-	      << ", Barrel/Hcal/Brem ? " << barrel << " " << hcal << " " << isBrem << std::endl
-	      << " Cluster " << clusterX << " " << clusterY << " " << clusterZ << " " << clustereta << " " << clusterphi << std::endl
-	      << " Track   " << track_X << " " << track_Y << " " << track_Z << " " << tracketa << " " << trackphi << std::endl;
 #endif
-  
+    //if ( distance > 40. || distance < -100. ) 
+    //  std::cout << "Distance = " << distance 
+    //	<< ", Barrel/Hcal/Brem ? " << barrel << " " << hcal << " " << isBrem << std::endl
+    //<< " Cluster " << clusterX << " " << clusterY << " " << clusterZ << " " << clustereta << " " << clusterphi << std::endl
+    //		<< " Track   " << track_X << " " << track_Y << " " << track_Z << " " << tracketa << " " << trackphi << std::endl;
+    
     return lnk;
   } else {
     return std::pair<double,double>(-1,-1);
@@ -1713,6 +1716,8 @@ PFBlockAlgo::testECALAndPSByRecHit( const PFCluster& clusterECAL,
   for(unsigned int rhit = 0; rhit < fracs.size(); ++rhit){
 
     const reco::PFRecHitRef& rh = fracs[rhit].recHitRef();
+    double fraction = fracs[rhit].fraction();
+    if(fraction < 1E-4) continue;
     if(rh.isNull()) continue;
 
     //getting rechit center position
