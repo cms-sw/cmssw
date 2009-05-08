@@ -324,19 +324,14 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
     double pedestal = (pedestalit != pedestalmap_.end()) ? pedestalit->second : nominalPedestal_;
 
     // determine if the digi is one the highest energy hits in the HPD
-    bool isBig=false, isBig5=false;
-
-    // see if the digi has the same id as the highest energy rechit
-    // this assumes that the rechits are properly sorted
-    if(rechits.begin()!=rechits.end() && (*rechits.begin())->id() == digi.id())
-      isBig=isBig5=true;
-
-    // loop over the five highest E rechits and see if the digi is there
+    bool isBig=false, isBig5=false, isRBX=false;
+    int counter=0;
     for(edm::RefVector<HBHERecHitCollection>::const_iterator rit=rechits.begin();
-	rit!=rechits.end() && rit!=rechits.begin()+5; ++rit) {
+	rit!=rechits.end(); ++rit, ++counter) {
       if((*rit)->id() == digi.id()) {
-	isBig5=true;
-	break;
+	if(counter==0) isBig=isBig5=true;  // digi is also the highest energy rechit
+	if(counter<5) isBig5=true;         // digi is one of 5 highest energy rechits
+	isRBX=true;                        // digi has rechit energy>1.5 GeV
       }
     }
 
@@ -359,7 +354,7 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
       // fill the relevant digi arrays
       if(isBig)  hpd.bigCharge_[ts]+=corrfc;
       if(isBig5) hpd.big5Charge_[ts]+=corrfc;
-      rbx.allCharge_[ts]+=corrfc;
+      if(isRBX)  rbx.allCharge_[ts]+=corrfc;
     }
 
     // record the maximum number of zero's found
