@@ -17,7 +17,7 @@
 //
 // Original Author:  Bill Tanenbaum
 //         Created:  Sat Aug 18 17:30:08 EDT 2007
-// $Id: Transient.h,v 1.2 2007/09/14 09:44:47 llista Exp $
+// $Id: Transient.h,v 1.1 2008/09/29 23:01:39 wmtan Exp $
 //
 
 // system include files
@@ -31,9 +31,10 @@ template <typename T>
 class Transient {
 public:
   typedef T value_type;
-  Transient(T value = T()) : value_(value) {}
+  Transient() : value_(T()) {}
+  explicit Transient(T const& value) : value_(value) {}
   operator T() const { return value_; }
-  Transient & operator=(T rh) { value_ = rh; return *this; }
+  Transient & operator=(T const& rh) { value_ = rh; return *this; }
   T const& get() const { return value_;}
   T & get() { return value_;}
 private:

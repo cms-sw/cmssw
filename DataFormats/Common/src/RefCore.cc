@@ -4,6 +4,11 @@
 #include <ostream>
 
 namespace edm {
+
+  RefCore::RefCore(ProductID const& theId, void const* prodPtr, EDProductGetter const* prodGetter, bool transient) :
+      id_(theId), 
+      transients_(prodPtr, prodGetter, transient) {}
+
   EDProduct const*
   RefCore::getProductPtr() const {
     // The following invariant would be nice to establish in all
