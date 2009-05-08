@@ -12,5 +12,5 @@ from RecoParticleFlow.PFProducer.pfElectronTranslator_cff import *
 particleFlowReco = cms.Sequence( particleFlowTrack*
                                  particleFlowBlock*
                                  particleFlow*
-                                 pfElectronTranslator)
+                                 pfElectronTranslatorSequence)
 
