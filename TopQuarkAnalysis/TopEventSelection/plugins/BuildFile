@@ -13,6 +13,6 @@
 <use name=rootcore>
 <use name=rootmath>
 
-#<library file=*.cc name=TopQuarkAnalysisTopEventSelectionPlugins>
-#  <flags EDM_PLUGIN=1>
-#</library>
+<library file=*.cc name=TopQuarkAnalysisTopEventSelectionPlugins>
+  <flags EDM_PLUGIN=1>
+</library>

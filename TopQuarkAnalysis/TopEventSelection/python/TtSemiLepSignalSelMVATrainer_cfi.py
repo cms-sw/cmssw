@@ -6,9 +6,9 @@ import FWCore.ParameterSet.Config as cms
 buildTraintree = cms.EDAnalyzer("TtSemiLepSignalSelMVATrainer",
     #input tags used in the example
     muons  = cms.InputTag("selectedLayer1Muons"),
-    electrons  = cms.InputTag("selectedLayer1Electrons"),                         
-    jets     = cms.InputTag("selectedLayer1Jets"),
-    METs     = cms.InputTag("selectedLayer1METs"),
+    elecs  = cms.InputTag("selectedLayer1Electrons"),                         
+    jets   = cms.InputTag("selectedLayer1Jets"),
+    mets   = cms.InputTag("layer1METs"),
 
     # ------------------------------------------------
     # select semileptonic signal channel

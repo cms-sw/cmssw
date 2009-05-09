@@ -18,9 +18,9 @@
 
 TtSemiLepSignalSelMVATrainer::TtSemiLepSignalSelMVATrainer(const edm::ParameterSet& cfg):
   muons_     (cfg.getParameter<edm::InputTag>("muons")),
-  electrons_ (cfg.getParameter<edm::InputTag>("electrons")),
+  electrons_ (cfg.getParameter<edm::InputTag>("elecs")),
   jets_      (cfg.getParameter<edm::InputTag>("jets")),
-  METs_      (cfg.getParameter<edm::InputTag>("METs")),
+  METs_      (cfg.getParameter<edm::InputTag>("mets")),
   lepChannel_(cfg.getParameter<int>("lepChannel")),
   whatData_  (cfg.getParameter<int>("whatData")),
   maxEv_     (cfg.getParameter<int>("maxEv"))

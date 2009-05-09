@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 kinFitTtSemiLepEvent = cms.EDProducer("TtSemiLepKinFitProducerElectron",
     jets = cms.InputTag("selectedLayer1Jets"),
     leps = cms.InputTag("selectedLayer1Electrons"),
-    mets = cms.InputTag("selectedLayer1METs"),
+    mets = cms.InputTag("layer1METs"),
 
     # ------------------------------------------------
     # maximum number of jets to be considered in the

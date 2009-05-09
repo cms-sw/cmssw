@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 #
 solutions = cms.EDProducer("TtDilepEvtSolutionMaker",
     evtSource      = cms.InputTag("genEvt"),
-    metSource      = cms.InputTag("selectedLayer1METs"),
+    metSource      = cms.InputTag("layer1METs"),
     tauSource      = cms.InputTag("selectedLayer1Taus"),
     muonSource     = cms.InputTag("selectedLayer1Muons"),
     electronSource = cms.InputTag("selectedLayer1Electrons"),

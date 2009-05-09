@@ -6,7 +6,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
-#include <DataFormats/PatCandidates/interface/Muon.h>
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -18,10 +18,10 @@
 TtSemiLepSignalSelMVAComputer::TtSemiLepSignalSelMVAComputer(const edm::ParameterSet& cfg):
   muons_ (cfg.getParameter<edm::InputTag>("muons")),
   jets_    (cfg.getParameter<edm::InputTag>("jets")),
-  METs_    (cfg.getParameter<edm::InputTag>("METs")),
-  electrons_ (cfg.getParameter<edm::InputTag>("electrons"))
+  METs_    (cfg.getParameter<edm::InputTag>("mets")),
+  electrons_ (cfg.getParameter<edm::InputTag>("elecs"))
 {
-  produces< double        >("DiscSel");
+  produces< double >("DiscSel");
 }
 
   
@@ -33,7 +33,7 @@ TtSemiLepSignalSelMVAComputer::~TtSemiLepSignalSelMVAComputer()
 void
 TtSemiLepSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
-  std::auto_ptr< double >        pOutDisc (new double);
+  std::auto_ptr< double > pOutDisc (new double);
  
   mvaComputer.update<TtSemiLepSignalSelMVARcd>(setup, "ttSemiLepSignalSelMVA");
 

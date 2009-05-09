@@ -34,7 +34,7 @@ Resolutions_bJets  = cms.EDAnalyzer("ResolutionChecker",
 
 Resolutions_met  = cms.EDAnalyzer("ResolutionChecker",
 	object    	= cms.string('met'),
-	label  		= cms.string('selectedLayer1METs'),
+	label  		= cms.string('layer1METs'),
 	minMatchingDR	= cms.double(1000.),
 	pTbinValues  	= cms.vdouble(20,29,37,44,51,59,69,80,96,122,200)	
 ) 

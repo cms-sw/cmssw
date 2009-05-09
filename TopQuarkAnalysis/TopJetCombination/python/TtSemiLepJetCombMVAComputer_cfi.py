@@ -9,7 +9,7 @@ findTtSemiLepJetCombMVA = cms.EDProducer("TtSemiLepJetCombMVAComputer",
     #-------------------------------------------------
     leptons  = cms.InputTag("selectedLayer1Muons"),
     jets     = cms.InputTag("selectedLayer1Jets"),
-    mets     = cms.InputTag("selectedLayer1METs"),
+    mets     = cms.InputTag("layer1METs"),
 
     #-------------------------------------------------
     # number of jets to be considered in combinatorics
