@@ -9,6 +9,7 @@
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include <wordexp.h>
+#include <cstdio>
 
 HcalPatternSource::HcalPatternSource(const edm::ParameterSet & pset, edm::InputSourceDescription const& desc) : 
   edm::ConfigurableInputSource(pset,desc),

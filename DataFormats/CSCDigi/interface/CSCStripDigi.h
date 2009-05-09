@@ -5,8 +5,8 @@
  *
  * Digi for CSC Cathode Strips.
  *
- *  $Date: 2008/03/03 17:54:33 $
- *  $Revision: 1.19 $
+ *  $Date: 2008/10/29 18:34:40 $
+ *  $Revision: 1.20 $
  *
  * \author M. Schmitt, Northwestern
  *
@@ -14,6 +14,7 @@
 
 #include <vector>
 #include <iosfwd>
+#include <stdint.h>
 
 class CSCStripDigi{
 

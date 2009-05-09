@@ -5,13 +5,14 @@
  *
  *  Digi for CSC ALCT info available in DDU
  *  
- *  $Date: 2007/08/17 20:18:47 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/10/29 18:34:40 $
+ *  $Revision: 1.6 $
  *
  */
 
 #include <vector>
 #include <iosfwd>
+#include <stdint.h>
 
 class CSCALCTStatusDigi{
 

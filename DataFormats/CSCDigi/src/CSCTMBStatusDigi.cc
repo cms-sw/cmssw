@@ -2,13 +2,14 @@
  * 
  *  Digi for CSC TMB info available in DDU
  *
- *  $Date: 2008/10/29 18:34:41 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/01/30 23:22:47 $
+ *  $Revision: 1.8 $
  *
  */
 #include "DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h"
 #include <ostream>
 #include <cstring>
+#include <stdint.h>
 
 CSCTMBStatusDigi::CSCTMBStatusDigi(const uint16_t * header, const uint16_t * trailer)
 {

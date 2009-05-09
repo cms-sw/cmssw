@@ -5,13 +5,14 @@
  *
  *  Digi for CSC DDU info available in DDU
  *  
- *  $Date: 2007/07/23 12:08:19 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/10/29 18:34:40 $
+ *  $Revision: 1.5 $
  *
  */
 
 #include <vector>
 #include <iosfwd>
+#include <stdint.h>
 
 class CSCDDUStatusDigi{
 

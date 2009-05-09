@@ -1,13 +1,14 @@
 /** \file
  * 
- *  $Date: 2008/02/12 17:40:44 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/10/29 18:34:40 $
+ *  $Revision: 1.6 $
  *
  * \author N.Terentiev, CMU
  */
 #include <DataFormats/CSCDigi/interface/CSCCFEBStatusDigi.h>
 
 #include <iostream>
+#include <stdint.h>
 
             /// Shift and select
 int CSCCFEBStatusDigi::ShiftSel(int nmb,int nshift,int nsel) const {

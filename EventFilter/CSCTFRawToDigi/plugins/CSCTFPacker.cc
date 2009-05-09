@@ -4,6 +4,7 @@
 #include <strings.h>
 #include <errno.h>
 #include <iostream>
+#include <cstdio>
 
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
 

@@ -5,13 +5,14 @@
  *
  *  Digi for CSC TMB info available in DDU
  *  
- *  $Date: 2007/09/20 07:52:36 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/10/29 18:34:40 $
+ *  $Revision: 1.9 $
  *
  */
 
 #include <vector>
 #include <iosfwd>
+#include <stdint.h>
 
 class CSCTMBStatusDigi{
 

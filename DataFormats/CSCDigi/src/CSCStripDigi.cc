@@ -1,12 +1,13 @@
 /** \file
  *
- *  $Date: 2008/03/03 17:54:35 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/10/29 18:34:41 $
+ *  $Revision: 1.16 $
  *
  * \author M.Schmitt, Northwestern
  */
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
 #include <iostream>
+#include <stdint.h>
 
 // Constructors
 CSCStripDigi::CSCStripDigi (const int & istrip, const std::vector<int> & vADCCounts, const std::vector<uint16_t> & vADCOverflow,

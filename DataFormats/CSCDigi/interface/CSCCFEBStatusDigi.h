@@ -5,8 +5,8 @@
  *
  * Digi for CSC CFEB status.
  *  
- *  $Date: 2007/07/23 12:08:19 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/10/29 18:34:40 $
+ *  $Revision: 1.6 $
  *
  * \author N. Terentiev, CMU
  *
@@ -14,6 +14,7 @@
 
 #include <vector>
 #include <iosfwd>
+#include <stdint.h>
 
 class CSCCFEBStatusDigi{
 

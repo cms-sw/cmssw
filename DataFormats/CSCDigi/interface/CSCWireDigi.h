@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <iosfwd>
+#include <stdint.h>
 
 class CSCWireDigi{
 
