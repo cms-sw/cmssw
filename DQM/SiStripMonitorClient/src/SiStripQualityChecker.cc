@@ -88,7 +88,7 @@ void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
 
       dqm_store->setCurrentFolder("SiStrip/EventInfo/reportSummaryContents");  
       me_name = "SiStrip_DetFraction_" + det;
-      local_mes.DetFraction = dqm_store->bookFloat(me_name);
+     local_mes.DetFraction = dqm_store->bookFloat(me_name);
 
 
       dqm_store->setCurrentFolder("SiStrip/EventInfo/reportSummaryContents");  
@@ -96,6 +96,13 @@ void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
       local_mes.SToNFlag    = dqm_store->bookFloat(me_name);
       SubDetMEsMap.insert(pair<string, SubDetMEs>(det, local_mes));
     }
+
+    dqm_store->cd();
+    dqm_store->setCurrentFolder("Tracking/EventInfo"); 
+    TrackSummaryReportGlobal = dqm_store->bookFloat("reportSummary");
+
+    dqm_store->setCurrentFolder("Tracking/EventInfo/reportSummaryContents");  
+    ReportTrackRate = dqm_store->bookFloat("TrackRate");     
 
     bookedStatus_ = true;
   }
@@ -122,6 +129,9 @@ void SiStripQualityChecker::fillDummyStatus(){
       }
     }
     SummaryReportGlobal->Fill(-1.0);
+    
+    TrackSummaryReportGlobal->Fill(-1.0);
+    ReportTrackRate->Fill(-1.0);
   }
 }
 //
@@ -140,6 +150,9 @@ void SiStripQualityChecker::resetStatus() {
       local_mes.SummaryFlag->Reset();
     }
     SummaryReportGlobal->Reset();
+
+    TrackSummaryReportGlobal->Reset();
+    ReportTrackRate->Reset();
   }
 }
 //
@@ -149,7 +162,14 @@ void SiStripQualityChecker::fillStatus(DQMStore* dqm_store) {
   if (bookedStatus_) bookStatus(dqm_store);
 
   resetStatus(); 
-  fillDummyStatus();  
+  fillDummyStatus();
+  fillDetectorStatus(dqm_store);
+  fillTrackingStatus(dqm_store);
+}
+//
+// Fill Detector Status
+//
+void SiStripQualityChecker::fillDetectorStatus(DQMStore* dqm_store) {
   unsigned int xbin = 0;
   float global_flag = 0;
   dqm_store->cd();
@@ -173,6 +193,32 @@ void SiStripQualityChecker::fillStatus(DQMStore* dqm_store) {
   }
   global_flag = global_flag/xbin*1.0;
   SummaryReportGlobal->Fill(global_flag);
+}
+//
+// -- Fill Tracking Status
+//
+void SiStripQualityChecker::fillTrackingStatus(DQMStore* dqm_store) {
+  dqm_store->cd();
+  string dir = "Tracking"; 
+  if (!SiStripUtility::goToDir(dqm_store, dir)) return;
+  dir = "TrackParameter"; 
+  if (!SiStripUtility::goToDir(dqm_store, dir)) return;
+  vector<MonitorElement*> meVec = dqm_store->getContents(dqm_store->pwd());
+  float gstatus = 1.0;
+  for (vector<MonitorElement*>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
+    MonitorElement * me = (*it);     
+    if (!me) continue;
+    if (me->getQReports().size() == 0) continue;
+    string name = me->getName();
+    int istat =  SiStripUtility::getMEStatus((*it)); 
+    float status = 1.0; 
+    if (name.find("NumberOfTracks") != string::npos) {
+      if (istat == dqm::qstatus::ERROR) status = 0.0;
+      ReportTrackRate->Fill(status);
+    }
+    gstatus = gstatus * status; 
+  }
+  TrackSummaryReportGlobal->Fill(gstatus);
 }
 //
 // -- Get Errors from Module level histograms
@@ -221,8 +267,8 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
   vector<string> subDirVec = dqm_store->getSubdirs();
 
   unsigned int ybin   = 0;
-  int tot_ndet      = 0;
-  int tot_errdet    = 0;
+  int tot_ndet        = 0;
+  int tot_errdet      = 0;
   float tot_ston_stat = 0;
 
   for (vector<string>::const_iterator ic = subDirVec.begin();
@@ -321,7 +367,7 @@ void SiStripQualityChecker::getModuleStatus(MonitorElement* me, int& ndet,
                                             vector<DQMChannel>& bad_channels){
   int ndet_me = 0;
   vector<DQMChannel> bad_channels_me;
-      std::vector<QReport *> qreports = me->getQReports();
+  std::vector<QReport *> qreports = me->getQReports();
   if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) {
     ndet_me = me->getNbinsX();
     bad_channels_me = qreports[0]->getBadChannels();

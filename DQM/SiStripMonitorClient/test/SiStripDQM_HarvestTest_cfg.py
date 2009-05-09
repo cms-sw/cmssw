@@ -37,6 +37,12 @@ process.source.processingMode = "RunsAndLumis"
 
 process.DQMStore.referenceFileName = ''
 process.dqmSaver.convention = 'Online'
+process.dqmEnvTr = cms.EDFilter("DQMEventInfo",
+                                                 subSystemFolder = cms.untracked.string('Tracking'),
+                                                 eventRateWindow = cms.untracked.double(0.5),
+                                                 eventInfoFolder = cms.untracked.string('EventInfo')
+                                )
+
 
 
 #process.dqmSaver.workflow = '/GlobalCruzet4-A/CMSSW_2_1_X-Testing/RECO'
@@ -52,4 +58,4 @@ process.load("DQMServices.Components.DQMStoreStats_cfi")
 process.Tracer = cms.Service('Tracer',indentation = cms.untracked.string('$$'))
 process.load('DQM.SiStripCommon.MessageLogger_cfi')
 
-process.p1 = cms.Path(process.EDMtoMEConverter*process.SiStripOfflineDQMClient*process.siStripDaqInfo*process.siStripDcsInfo*process.siStripCertificationInfo*process.dqmSaver*process.dqmStoreStats)
+process.p1 = cms.Path(process.EDMtoMEConverter*process.SiStripOfflineDQMClient*process.siStripDaqInfo*process.siStripDcsInfo*process.siStripCertificationInfo*process.dqmEnvTr*process.dqmSaver*process.dqmStoreStats)

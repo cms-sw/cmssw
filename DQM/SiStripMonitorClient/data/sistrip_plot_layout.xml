@@ -1,9 +1,9 @@
 <Layouts>
 <layout name="GlobalTracks">
-  <monitorable name="SiStrip/Tracks/NumberOfTracks_CKFTk"></monitorable>
-  <monitorable name="SiStrip/Tracks/NumberOfRecHitsPerTrack_CKFTk"></monitorable>
-  <monitorable name="SiStrip/Tracks/TrackPhi_CKFTk"></monitorable>
-  <monitorable name="SiStrip/Tracks/TrackEta_CKFTk"></monitorable>
+  <monitorable name="Tracking/TrackParameters/NumberOfTracks_CKFTk"></monitorable>
+  <monitorable name="Tracking/TrackParameters/NumberOfRecHitsPerTrack_CKFTk"></monitorable>
+  <monitorable name="Tracking/TrackParameters/TrackPhi_CKFTk"></monitorable>
+  <monitorable name="Tracking/TrackParameters/TrackEta_CKFTk"></monitorable>
 </layout>
 <layout name="OnTrackCluster_Number">
   <monitorable name="SiStrip/MechanicalView/TOB/Summary_TotalNumberOfClusters_OnTrack_in_TOB"></monitorable>

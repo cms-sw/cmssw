@@ -26,7 +26,7 @@ SiStripMonitorTrackSim = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStrip
 SiStripMonitorTrackSim.TrackProducer = 'TrackRefitter'
 SiStripMonitorTrackSim.TrackLabel    = ''
 SiStripMonitorTrackSim.Cluster_src   = 'siStripClusters'
-SiStripMonitorTrackSim.FolderName    = 'SiStrip/Tracks'
+SiStripMonitorTrackSim.FolderName    = 'Tracking/TrackParameters'
 SiStripMonitorTrackSim.Mod_On        = True
 
 # Clone for Real Data
@@ -35,7 +35,7 @@ SiStripMonitorTrackReal = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStri
 SiStripMonitorTrackReal.TrackProducer = 'ctfWithMaterialTracksP5'
 SiStripMonitorTrackReal.TrackLabel    = ''
 SiStripMonitorTrackReal.Cluster_src   = 'siStripClusters'
-SiStripMonitorTrackReal.FolderName    = 'SiStrip/Tracks'
+SiStripMonitorTrackReal.FolderName    = 'Tracking/TrackParameters'
 SiStripMonitorTrackReal.Mod_On        = True
 
 # Clone for Real Data (Collision)
@@ -44,7 +44,7 @@ SiStripMonitorTrackColl = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStri
 SiStripMonitorTrackColl.TrackProducer = 'generalTracks'
 SiStripMonitorTrackColl.TrackLabel    = ''
 SiStripMonitorTrackColl.Cluster_src   = 'siStripClusters'
-SiStripMonitorTrackColl.FolderName    = 'SiStrip/Tracks'
+SiStripMonitorTrackColl.FolderName    = 'Tracking/TrackParameters'
 SiStripMonitorTrackColl.Mod_On        = True
 
 
@@ -70,18 +70,18 @@ MonitorTrackResidualsColl.OutputMEsInRootFile = False
 # Clone for Sim Data
 import DQM.TrackingMonitor.TrackingMonitor_cfi
 TrackMonSim = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
-TrackMonSim.FolderName = 'SiStrip/Tracks'
+TrackMonSim.FolderName = 'Tracking/TrackParameters'
 # Clone for Real Data (Cosmic)
 import DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi
 TrackMonReal = DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi.TrackerCosmicTrackMon.clone()
 TrackMonReal.TrackProducer = 'ctfWithMaterialTracksP5'
-TrackMonReal.FolderName = 'SiStrip/Tracks'
+TrackMonReal.FolderName = 'Tracking/TrackParameters'
 TrackMonReal.AlgoName = 'CKFTk'
 # Clone for Real Data (Collison)
 import DQM.TrackingMonitor.TrackingMonitor_cfi
 TrackMonColl = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
 TrackMonColl.TrackProducer = 'generalTracks'
-TrackMonColl.FolderName = 'SiStrip/Tracks'
+TrackMonColl.FolderName = 'Tracking/TrackParameters'
 TrackMonColl.AlgoName = 'CKFTk'
 
 # Sequences

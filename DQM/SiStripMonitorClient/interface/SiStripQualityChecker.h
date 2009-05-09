@@ -40,6 +40,8 @@ class SiStripQualityChecker {
     MonitorElement* SummaryFlag;
   };
 
+  void fillDetectorStatus(DQMStore* dqm_store);
+  void fillTrackingStatus(DQMStore* dqm_store);
   void fillSubDetStatus(DQMStore* dqm_store,SubDetMEs& mes,
                                  unsigned int xbin,float& gflag);
   void getModuleStatus(DQMStore* dqm_store,int& ndet,int& errdet);
@@ -56,6 +58,9 @@ class SiStripQualityChecker {
   MonitorElement* SummaryReportMap;
 
   MonitorElement* SummaryReportGlobal;
+
+  MonitorElement* ReportTrackRate;
+  MonitorElement* TrackSummaryReportGlobal;
 
   std::map<uint32_t,uint16_t> badModuleList;
  

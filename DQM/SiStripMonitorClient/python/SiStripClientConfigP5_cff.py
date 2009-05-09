@@ -9,7 +9,7 @@ SiStripAnalyser = cms.EDFilter("SiStripAnalyser",
     SummaryCreationFrequency = cms.untracked.int32(1),
     ShiftReportFrequency     = cms.untracked.int32(1),
     SummaryConfigPath        = cms.untracked.string("DQM/SiStripMonitorClient/data/sistrip_monitorelement_config.xml"),
-    PrintFaultyModuleList    = cms.untracked.bool(False),                                
+    PrintFaultyModuleList    = cms.untracked.bool(True),                                
     RawDataTag               = cms.untracked.InputTag("source"),                              
     TkmapParameters = cms.PSet(
         loadFedCabling = cms.untracked.bool(True),
@@ -41,7 +41,7 @@ SiStripAnalyser = cms.EDFilter("SiStripAnalyser",
 # Track Efficiency Client
 
 from DQM.TrackingMonitor.TrackEfficiencyClient_cfi import *
-TrackEffClient.FolderName = 'SiStrip/Tracks/Efficiencies'
+TrackEffClient.FolderName = 'Tracking/TrackParameters/TrackEfficiency'
 TrackEffClient.AlgoName   = 'CKFTk'
 
 

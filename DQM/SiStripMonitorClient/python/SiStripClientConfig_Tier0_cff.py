@@ -16,7 +16,7 @@ siStripQTester = cms.EDFilter("QualityTester",
 )
 
 from DQM.TrackingMonitor.TrackEfficiencyClient_cfi import *
-TrackEffClient.FolderName = 'SiStrip/Tracks/Efficiencies'
+TrackEffClient.FolderName = 'Tracking/TrackParameters/TrackEfficiency'
 TrackEffClient.AlgoName   = 'CKFTk'
 
 # Sequence

@@ -93,7 +93,7 @@
       <PARAM name="xmin">25.0</PARAM>
       <PARAM name="xmax">50.0</PARAM>
 </QTEST>
-<QTEST name="MeanWithinExpectedRange:CKFTk">
+<QTEST name="MeanWithinExpectedRange:TrkRate" activate="true">
       <TYPE>MeanWithinExpected</TYPE>
       <PARAM name="error">0.05</PARAM>
       <PARAM name="warning">0.3</PARAM>
@@ -101,8 +101,8 @@
       <PARAM name="useRMS">0</PARAM>
       <PARAM name="useSigma">0</PARAM>
       <PARAM name="useRange">1</PARAM>
-      <PARAM name="xmin">0.0</PARAM>
-      <PARAM name="xmax">25.0</PARAM>
+      <PARAM name="xmin">0.01</PARAM>
+      <PARAM name="xmax">10.0</PARAM>
 </QTEST>
 
 
@@ -136,8 +136,8 @@
 <LINK name="*Summary_ClusterStoNCorr__OnTrack__TID__side__2__wheel__*">
   <TestName activate="true">MeanWithinExpectedRange:StoNTID</TestName>
 </LINK>
-<LINK name="*NumberOfTracks_CKFTk">
-  <TestName activate="true">MeanWithinExpectedRange:CKFTk</TestName>
+<LINK name="Tracking/TrackParameters/NumberOfTracks_CKFTk">
+  <TestName activate="true">MeanWithinExpectedRange:TrkRate</TestName>
 </LINK>
 
 </TESTCONFIGURATION>

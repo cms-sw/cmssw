@@ -20,7 +20,7 @@ SiStripMonitorDigi.Mod_On = False
 from DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi import *
 SiStripMonitorTrack.TrackProducer = 'generalTracks'
 SiStripMonitorTrack.Mod_On        = False
-SiStripMonitorTrack.FolderName    = 'SiStrip/Tracks'
+SiStripMonitorTrack.FolderName    = 'Tracking/TrackParameters'
 
 # TrackerMonitorTrack ####
 from DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi import *
@@ -32,7 +32,7 @@ MonitorTrackResiduals.Mod_On = False
 from DQM.TrackingMonitor.TrackingMonitor_cfi import *
 TrackMon.TrackProducer = 'generalTracks'
 TrackMon.AlgoName = 'CKFTk'
-TrackMon.FolderName = 'SiStrip/Tracks'
+TrackMon.FolderName = 'Tracking/TrackParameters'
 
 # DQM Services
 dqmInfoSiStrip = cms.EDFilter("DQMEventInfo",
