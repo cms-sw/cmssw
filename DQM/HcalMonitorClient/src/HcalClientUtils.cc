@@ -1,7 +1,7 @@
 #include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
+#include <cstdlib>
 
 void resetME(const char* name, DQMStore* dbe){
   if(dbe==NULL) return;

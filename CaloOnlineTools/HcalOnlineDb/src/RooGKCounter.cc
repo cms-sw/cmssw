@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <math.h>
+#include <cstdio>
 using std::cout;
 using std::endl;
 using std::ostream;
