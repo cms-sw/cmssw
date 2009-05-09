@@ -4,6 +4,7 @@
 #include <sstream>
 #include <memory>
 #include <string>
+#include <algorithm>
 
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/util/XMLString.hpp>
