@@ -350,8 +350,6 @@ void LeastSquares::load(DOMElement *elem)
 				M = M > 0.0 ? std::sqrt(M) : 0.0;
 				variance[n] = M;
 
-				double N = coeffs(n + 1, n + 1);
-
 				for(unsigned int i = 0; i <= n; i++) {
 					double v = M * variance[i];
 					double w = covar(n, i);
