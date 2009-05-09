@@ -1,9 +1,10 @@
 /**
- * $Id: RateLimiter.cc,v 1.1 2008/04/16 02:46:34 biery Exp $
+ * $Id: RateLimiter.cc,v 1.2 2008/06/12 15:47:29 biery Exp $
  */
 
 #include "EventFilter/StorageManager/interface/RateLimiter.h"
 #include "EventFilter/StorageManager/interface/BaseCounter.h"
+#include <cstdio>
 
 using namespace stor;
 

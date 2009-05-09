@@ -9,6 +9,7 @@
 #include "HepMC/PythiaWrapper6_2.h"
 //#include "CLHEP/HepMC/ConvertHEPEVT.h"
 //#include "CLHEP/HepMC/CBhepevt.h"
+#include <cstdio>
 
 // External Fortran routines to link to:
 double dsimps_(double*, double*, double*, int*);

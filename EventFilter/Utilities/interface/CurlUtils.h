@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <cstring>
+#include <cstdio>
 
 namespace evf{
   //______________________________________________________________________________

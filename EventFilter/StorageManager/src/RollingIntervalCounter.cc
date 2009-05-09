@@ -1,9 +1,9 @@
 /**
- * $Id: RollingIntervalCounter.cc,v 1.19 2008/03/03 20:09:37 biery Exp $
+ * $Id: RollingIntervalCounter.cc,v 1.1 2008/04/14 15:42:28 biery Exp $
  */
 
 #include "EventFilter/StorageManager/interface/RollingIntervalCounter.h"
-
+#include <cstdio>
 using namespace stor;
 
 /**

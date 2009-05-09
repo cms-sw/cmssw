@@ -5,11 +5,12 @@
  *  This will eventually be an interface class for curl common
  *  functions but now is just some common utility
  *
- *  $Id$
+ *  $Id: SMCurlInterface.h,v 1.1 2007/04/26 00:58:17 hcheung Exp $
  */
 
 #include <string>
 #include <iostream>
+#include <cstdlib>
 
 namespace stor
 {

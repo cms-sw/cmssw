@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include <algorithm>
+#include <cstdio>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"

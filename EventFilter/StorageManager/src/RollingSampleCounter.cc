@@ -1,8 +1,9 @@
 /**
- * $Id: RollingSampleCounter.cc,v 1.1 2008/04/14 15:42:28 biery Exp $
+ * $Id: RollingSampleCounter.cc,v 1.2 2008/04/16 01:30:32 biery Exp $
  */
 
 #include "EventFilter/StorageManager/interface/RollingSampleCounter.h"
+#include <cstdio>
 
 using namespace stor;
 
