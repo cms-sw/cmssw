@@ -23,4 +23,6 @@ PixelCaenChannels::PixelCaenChannels(const PixelDCSObject<CaenChannel>& channels
   theDigitalLV = &channels.getValue( alias->digitalLV() );
   theAnalogLV = &channels.getValue( alias->analogLV() );
   theBiasedHV = &channels.getValue( alias->biasedHV() );
+
+  delete alias;
 }
