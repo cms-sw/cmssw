@@ -1,4 +1,4 @@
-// $Id: SprAddBaggersApp.cc,v 1.1 2007/10/25 22:11:09 narsky Exp $
+// $Id: SprAddBaggersApp.cc,v 1.1 2007/10/30 18:56:09 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsTrainedClassifier.hh"
@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <cassert>
+#include <cstdio>
 
 using namespace std;
 
