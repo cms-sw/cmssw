@@ -12,7 +12,7 @@
 
 // C++ headers
 #include <ostream>
-
+#include <stdint.h>
 
 class L1GctInternHtMiss
 {

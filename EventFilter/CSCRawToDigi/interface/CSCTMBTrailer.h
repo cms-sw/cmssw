@@ -3,6 +3,7 @@
 
 #include <string.h> // bzero
 #include "DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h"
+#include <stdint.h>
 
 /** Defined to begin at the 6E0C word 2006 format
 6E0C

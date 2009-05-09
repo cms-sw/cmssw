@@ -2,7 +2,7 @@
 
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h" 
 #include <iostream>
-
+#include <cstdio>
 
 namespace bitset_utilities {
 

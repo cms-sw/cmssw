@@ -1,7 +1,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBTimeSlice.h"
 #include <cassert>
 #include <iomanip>
-
+#include <stdint.h>
 
 // a Gray code is An ordering of 2n binary numbers such that
 // only one bit changes from one entry to the next
