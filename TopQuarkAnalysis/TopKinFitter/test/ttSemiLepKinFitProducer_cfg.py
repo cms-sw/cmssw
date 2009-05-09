@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-#-------------------------------------------------
-# test cfg file for the ttSemiLepKinFitProducer
-#-------------------------------------------------
 process = cms.Process("TEST")
 
 ## add message logger
@@ -16,53 +13,33 @@ process.MessageLogger.cerr.INFO = cms.untracked.PSet(
     KinFitter           = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
 )
 
-#-------------------------------------------------
-# process configuration
-#-------------------------------------------------
-
-
 ## define input
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/afs/cern.ch/cms/PRS/top/cmssw-data/relval200-for-pat-testing/FullSimTTBar-2_1_X_2008-07-08_STARTUP_V4-AODSIM.100.root')
+    fileNames = cms.untracked.vstring(
+    '/store/relval/CMSSW_3_1_0_pre6/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0002/50D4BADB-FA32-DE11-BA01-000423D98DC4.root'    
+    )
 )
-
 ## define maximal number of events to loop over
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
-
 ## configure process options
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(False)
 )
 
-## configure geometry
+## configure geometry & conditions
 process.load("Configuration.StandardSequences.Geometry_cff")
-
-## configure conditions
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('STARTUP_V4::All')
-
-## load magnetic field
 process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = cms.string('IDEAL_31X::All')
 
-#-------------------------------------------------
-# tqaf configuration
-#-------------------------------------------------
-
-## std sequence for tqaf layer1
-process.load("TopQuarkAnalysis.TopObjectProducers.tqafLayer1_cff")
-
-## necessary fixes to run 2.2.X on 2.1.X data
-## comment this when running on samples produced
-## with 22X
-from PhysicsTools.PatAlgos.tools.cmsswVersionTools import run22XonSummer08AODSIM
-run22XonSummer08AODSIM(process)
-
+## std sequence for pat
+process.load("PhysicsTools.PatAlgos.patSequences_cff")
 ## std sequence to produce the kinematic fit for semi-leptonic events
 process.load("TopQuarkAnalysis.TopKinFitter.TtSemiLepKinFitProducer_Muons_cfi")
 
 ## process path
-process.p = cms.Path(process.tqafLayer1  *
+process.p = cms.Path(process.patDefaultSequence *
                      process.kinFitTtSemiLepEvent
                      )

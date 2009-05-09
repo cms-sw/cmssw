@@ -84,7 +84,7 @@ TtDecayChannelSelector::operator()(const reco::GenParticleCollection& parts, std
       }
     }
   }
-  edm::LogVerbatim log("TtDecayChannelSelector::selection");
+  edm::LogVerbatim log("TtDecayChannelSelector_selection");
   log << "----------------------" << "\n"
       << " iTop    : " << iTop    << "\n"
       << " iBeauty : " << iBeauty << "\n"
