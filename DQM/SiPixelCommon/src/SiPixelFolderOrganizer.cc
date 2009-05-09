@@ -9,6 +9,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include <sstream>
+#include <cstdio>
 
 /// Constructor
 SiPixelFolderOrganizer::SiPixelFolderOrganizer() :

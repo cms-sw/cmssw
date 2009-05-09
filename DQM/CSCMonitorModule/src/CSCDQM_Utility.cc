@@ -16,6 +16,7 @@
  */
 
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Utility.h"
+#include <stdint.h>
 
 namespace cscdqm {
 

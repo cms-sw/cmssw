@@ -24,6 +24,7 @@
 #include <set>
 #include <vector>
 #include <sstream>
+#include <stdint.h>
 
 #include <xercesc/util/XMLString.hpp>
 #include <boost/shared_ptr.hpp>
