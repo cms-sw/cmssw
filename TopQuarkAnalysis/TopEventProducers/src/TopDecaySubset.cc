@@ -188,14 +188,17 @@ TopDecaySubset::fromFullListing(const reco::GenParticleCollection& src, reco::Ge
         for(reco::GenParticle::const_iterator ts = t->mother()->begin(); ts!=t->mother()->end(); ++ts){
 	  // loop over all daughters of the top mother i.e.
 	  // the two top quarks and their potential sisters
-	  if(abs(ts->pdgId())!=t->pdgId()){
-	    // add all further particles
-	    // but the two top quarks 
+	  if(abs(ts->pdgId())!=t->pdgId() && ts->pdgId()!=t->mother()->pdgId()){
+	    // add all further particles but the two top quarks and potential 
+	    // cases where the mother of the top has itself as daughter
 	    reco::GenParticle* cand = new reco::GenParticle( ts->threeCharge(), ts->p4(), ts->vertex(), ts->pdgId(), ts->status(), false );
 	    std::auto_ptr<reco::GenParticle> sPtr( cand );
 	    target.push_back( *sPtr );
-	    // increment & add 1. generation of daughters
-	    addDaughters(++motherPartIdx_,ts->begin(),target,false);
+	    if(ts->begin()!=ts->end()){ 
+	      // in case the sister has daughters increment
+	      // and add the first generation of daughters
+	      addDaughters(++motherPartIdx_,ts->begin(),target,false);
+	    }
 	  }
 	}
       }
@@ -310,14 +313,17 @@ TopDecaySubset::fromTruncListing(const reco::GenParticleCollection& src, reco::G
         for(reco::GenParticle::const_iterator ts = t->mother()->begin(); ts!=t->mother()->end(); ++ts){
 	  // loop over all daughters of the top mother i.e.
 	  // the two top quarks and their potential sisters
-	  if(abs(ts->pdgId())!=t->pdgId()){
-	    // add all further particles
-	    // but the two top quarks 
+	  if(abs(ts->pdgId())!=t->pdgId() && ts->pdgId()!=t->mother()->pdgId()){
+	    // add all further particles but the two top quarks and potential 
+	    // cases where the mother of the top has itself as daughter
 	    reco::GenParticle* cand = new reco::GenParticle( ts->threeCharge(), ts->p4(), ts->vertex(), ts->pdgId(), ts->status(), false );
 	    std::auto_ptr<reco::GenParticle> sPtr( cand );
 	    target.push_back( *sPtr );
-	    // increment & add 1. generation of daughters
-	    addDaughters(++motherPartIdx_,ts->begin(),target,false);
+	    if(ts->begin()!=ts->end()){ 
+	      // in case the sister has daughters increment
+	      // and add the first generation of daughters
+	      addDaughters(++motherPartIdx_,ts->begin(),target,false);
+	    }
 	  }
 	}
       }
