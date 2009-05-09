@@ -12,7 +12,7 @@
 //
 // Original Author:  Leonard Apanasevich
 //         Created:  Wed Mar 25 16:01:27 CDT 2009
-// $Id$
+// $Id: HLTHcalMETNoiseFilter.cc,v 1.1 2009/03/28 20:23:28 apana Exp $
 //
 //
 
@@ -26,7 +26,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/METReco/interface/HcalNoiseRBXArray.h"
+#include "RecoMET/METProducers/interface/HcalNoiseRBXArray.h"
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 
 
