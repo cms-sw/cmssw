@@ -8,7 +8,7 @@
  * each event will occur at one of these BX. BX is defined to be the number of the
  * bunch crossing where this event occurred.
  *
- * $Id: LuminosityInfo.h,v 1.5 2009/02/23 12:59:42 xiezhen Exp $
+ * $Id: LuminosityInfo.h,v 1.6 2009/05/08 09:35:16 xiezhen Exp $
  *
  ************************************************************/
  
@@ -23,27 +23,26 @@ namespace lumi{
   //persistable class
   struct BunchCrossingInfo {
     BunchCrossingInfo(){}
-    BunchCrossingInfo(int idx,float value,float err,int quality,int norm):
-      BXIdx(idx),lumivalue(value),lumierr(err),lumiquality(quality),normalization(norm){}
+    BunchCrossingInfo(int idx,float value,float err,int quality):
+      BXIdx(idx),lumivalue(value),lumierr(err),lumiquality(quality){}
     int BXIdx;//starting from 1
     float lumivalue; 
     float lumierr;
     int lumiquality;
-    int normalization;
   };
-  static const BunchCrossingInfo BXNULL=BunchCrossingInfo(-99,-99.0,-99.0,-99,-99);
+  static const BunchCrossingInfo BXNULL=BunchCrossingInfo(-99,-99.0,-99.0,-99);
   typedef std::vector<BunchCrossingInfo>::const_iterator BunchCrossingIterator;
 
   //persistable class
   struct LumiAverage{
     LumiAverage(){}
-    LumiAverage(float v,float e, int q,int norm):value(v),error(e),quality(q),normalization(norm){}
+    LumiAverage(float v,float e, int q,float d):value(v),error(e),quality(q),deadfrac(d){}
     float value;
     float error;
     int   quality;
-    int normalization;
+    float deadfrac;
   };
-  static const LumiAverage LumiNULL=LumiAverage(-99.0,-99.0,-99,-99);
+  static const LumiAverage LumiNULL=LumiAverage(-99.0,-99.0,-99,-99.0);
   //main persistable class
   class LuminosityInfo{
   public:
@@ -56,11 +55,10 @@ namespace lumi{
     bool isNullData() const; //if there is no lumi data written
     short lumiVersionNumber()const;
     int lumisectionID()const;
-    float deadTimeNormalization()const;
     size_t nBunchCrossing()const;
-    //radom access to LumiAverage by algorithm
-    LumiAverage lumiAverage( const LumiAlgoType lumialgotype )const;
-    //get all bunchCrossingInfo by algorithm
+    //radom access to instant LumiAverage 
+    LumiAverage lumiAverage()const;
+    //get bunchCrossingInfo by algorithm
     void bunchCrossingInfo(  const LumiAlgoType lumialgotype, 
 			     std::vector<BunchCrossingInfo>& result )const ;
     //random access to bunchCrossingInfo by bunchcrossing index
@@ -76,16 +74,13 @@ namespace lumi{
     void setLumiNull(); //set versionid number to -99, signal no lumi data written.
     void setLumiVersionNumber(short versionid);
     void setLumiSectionId(int sectionid);
-    void setDeadtimeNormalization(float dtimenorm);
-    void setLumiAverage(const LumiAverage& avg,
-			const LumiAlgoType algotype);
+    void setLumiAverage(const LumiAverage& avg);
     void setBunchCrossingData(const std::vector<BunchCrossingInfo>& BXs,
 			      const LumiAlgoType algotype);
   private:
     std::vector<BunchCrossingInfo> m_bx;
     int m_sectionid; 
-    float m_deadtime_normalization;
-    std::vector<LumiAverage> m_summaryinfo;
+    LumiAverage m_summaryinfo;
     short m_versionid;
   }; 
 }//ns lumi

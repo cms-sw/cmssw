@@ -1,9 +1,7 @@
 #include "CondFormats/RunInfo/interface/LuminosityInfo.h"
-//#include "FWCore/Utilities/Exception.h"
 //#include <iostream>
-lumi::LuminosityInfo::LuminosityInfo(): m_sectionid(0),m_deadtime_normalization(-99.0),m_versionid(-99){
+lumi::LuminosityInfo::LuminosityInfo(): m_sectionid(0),m_versionid(-99){
   m_bx.reserve(lumi::BXMAX*LUMIALGOMAX);
-  m_summaryinfo.reserve(lumi::LUMIALGOMAX);
 }
 bool 
 lumi::LuminosityInfo::isNullData() const{
@@ -17,17 +15,13 @@ int
 lumi::LuminosityInfo::lumisectionID()const{
   return m_sectionid;
 }
-float
-lumi::LuminosityInfo::deadTimeNormalization()const{
-  return m_deadtime_normalization;
-}
 size_t
 lumi::LuminosityInfo::nBunchCrossing()const{
   return m_bx.size()/lumi::LUMIALGOMAX;
 }
 lumi::LumiAverage
-lumi::LuminosityInfo::lumiAverage(const lumi::LumiAlgoType lumialgotype)const{
-  return m_summaryinfo.at(lumialgotype);
+lumi::LuminosityInfo::lumiAverage()const{
+  return m_summaryinfo;
 }
 void 
 lumi::LuminosityInfo::bunchCrossingInfo(  const lumi::LumiAlgoType lumialgotype, 
@@ -63,14 +57,9 @@ void
 lumi::LuminosityInfo::setLumiSectionId(int sectionid){
   m_sectionid=sectionid;
 }
-void 
-lumi::LuminosityInfo::setDeadtimeNormalization(float dtimenorm){
-  m_deadtime_normalization=dtimenorm;
-}
 void
-lumi::LuminosityInfo::setLumiAverage(const LumiAverage& avg,const LumiAlgoType algotype){
-  std::vector<LumiAverage>::iterator it=m_summaryinfo.begin();
-  m_summaryinfo.insert(it+algotype,1,avg);
+lumi::LuminosityInfo::setLumiAverage(const LumiAverage& avg){
+  m_summaryinfo=avg;
 }
 void 
 lumi::LuminosityInfo::setBunchCrossingData(const std::vector<BunchCrossingInfo>& BXs,const LumiAlgoType algotype){

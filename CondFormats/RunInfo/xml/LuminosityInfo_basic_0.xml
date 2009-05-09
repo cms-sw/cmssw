@@ -3,11 +3,15 @@
  <PoolDatabase >
   <PoolContainer name="LuminosityInfo">
    <Class table="LUMINOSITYINFO" id_columns="IOV_VALUE_ID" name="lumi::LuminosityInfo" mapping_version="basic" >
-     <Primitive column="DEADTIME_NORM" name="m_deadtime_normalization" />
      <Primitive column="SECTIONID" name="m_sectionid" />
      <Primitive column="VERSIONID" name="m_versionid" />
      <Blob column="BUNCHCXINFO" name="m_bx" />
-     <Blob column="LUMISUMMARY" name="m_summaryinfo" />
+     <Object name="m_summaryinfo" >
+       <Primitive column="SUMMARY_DEADFRAC" name="deadfrac" />
+       <Primitive column="SUMMARY_ERROR" name="error" />
+       <Primitive column="SUMMARY_QUALITY" name="quality" />
+       <Primitive column="SUMMARY_VALUE" name="value" />
+     </Object>
    </Class >
   </PoolContainer >
  </PoolDatabase >
