@@ -5,6 +5,7 @@
 #define FEDEMU_TYPE 0xDEF00003
 #define FED9U_TYPE  0xDEF00002
 #define FEDTRG_TYPE 0xDEF0DEF0
+#include <cstdio>
 
 class TFHeaderDescription {
 
