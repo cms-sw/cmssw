@@ -20,7 +20,7 @@ namespace edm {
 	boost::shared_ptr<History> history,
 	boost::shared_ptr<BranchMapper> mapper,
 	boost::shared_ptr<DelayedReader> rtrv) :
-	  Base(reg, pc, history->processHistoryID(), mapper, rtrv),
+	  Base(reg, pc, InEvent, history->processHistoryID(), mapper, rtrv),
 	  aux_(aux),
 	  luminosityBlockPrincipal_(),
 	  unscheduledHandler_(),

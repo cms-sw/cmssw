@@ -9,7 +9,7 @@ namespace edm {
     ProcessConfiguration const& pc,
     boost::shared_ptr<BranchMapper> mapper,
     boost::shared_ptr<DelayedReader> rtrv) :
-      Base(reg, pc, aux.processHistoryID_, mapper, rtrv),
+      Base(reg, pc, InRun, aux.processHistoryID_, mapper, rtrv),
       aux_(aux) {
     if (reg->productProduced(InRun)) {
       addToProcessHistory();
