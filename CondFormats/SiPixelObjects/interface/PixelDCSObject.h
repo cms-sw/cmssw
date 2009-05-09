@@ -8,8 +8,8 @@
  *  Value type is specified by the template parameter Type.
  *  Define a new struct for non-POD value type.
  *
- *  $Date: 2008/11/30 19:41:08 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/04/22 11:42:41 $
+ *  $Revision: 1.3 $
  *  \author Chung Khim Lae
  */
 
@@ -25,24 +25,24 @@ class PixelDCSObject
 
   typedef T Type;
 
-  typedef typename std::map<std::string, Type> Map;
-  typedef typename Map::value_type Item;
+  typedef typename std::map<std::string, Type> List;
+  typedef typename List::value_type Item;
 
-  Type& operator [](const std::string& name) { return items[name]; }
+  Type& operator [](const std::string& name) { return theItems[name]; }
 
   const Type& getValue(const std::string& name) const;
 
   private:
 
-  Map items;
+  List theItems;
 };
 
 template <class Type>
 const Type& PixelDCSObject<Type>::getValue(const std::string& name) const
 {
-  typename Map::const_iterator f = items.find(name);
+  typename List::const_iterator f = theItems.find(name);
 
-  if (items.end() == f)
+  if (theItems.end() == f)
   {
     throw cms::Exception("PixelDCSObject")
         << "Cannot find item for " << name << " in DCS object.";
