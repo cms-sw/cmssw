@@ -40,7 +40,7 @@ pointer to a Group, when queried.
 #include "FWCore/Framework/interface/NoDelayedReader.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-
+#include "DataFormats/Provenance/interface/TransientProductLookupMap.h"
 
 namespace edm {
    struct FilledGroupPtr {
@@ -61,6 +61,7 @@ namespace edm {
 
     Principal(boost::shared_ptr<ProductRegistry const> reg,
 	      ProcessConfiguration const& pc,
+              BranchType bt,
 	      ProcessHistoryID const& hist = ProcessHistoryID(),
               boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
               boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
@@ -167,19 +168,13 @@ namespace edm {
     virtual bool unscheduledFill(std::string const& moduleLabel) const = 0;
 
     // Used for indices to find groups by type and process
-    typedef std::map<std::string, std::vector<ProductTransientIndex> > ProcessLookup;
-    typedef std::map<TypeID, ProcessLookup> TypeLookup;
+    typedef TransientProductLookupMap TypeLookup;
 
     size_t findGroups(TypeID const& typeID,
 		      TypeLookup const& typeLookup,
 		      SelectorBase const& selector,
 		      BasicHandleVec& results,
 		      bool stopIfProcessHasMatch) const;
-
-    void findGroupsForProcess(std::string const& processName,
-                              ProcessLookup const& processLookup,
-                              SelectorBase const& selector,
-                              BasicHandleVec& results) const;
 
     // Make my DelayedReader get the EDProduct for a Group or
     // trigger unscheduled execution if required.  The Group is
@@ -210,6 +205,8 @@ namespace edm {
     // Pointer to the 'source' that will be used to obtain EDProducts
     // from the persistent store.
     boost::shared_ptr<DelayedReader> store_;
+     
+    BranchType branchType_;
   };
 
   template <typename PROD>

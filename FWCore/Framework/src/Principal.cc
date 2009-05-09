@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <sstream>
 #include <stdexcept>
+#include <limits>
 
 #include "FWCore/Framework/interface/Principal.h"
 #include "DataFormats/Provenance/interface/BranchMapper.h"
@@ -21,6 +22,7 @@ namespace edm {
 
   Principal::Principal(boost::shared_ptr<ProductRegistry const> reg,
 		       ProcessConfiguration const& pc,
+                       BranchType bt,
 		       ProcessHistoryID const& hist,
 		       boost::shared_ptr<BranchMapper> mapper,
 		       boost::shared_ptr<DelayedReader> rtrv) :
@@ -32,7 +34,8 @@ namespace edm {
     size_(0),
     preg_(reg),
     branchMapperPtr_(mapper),
-    store_(rtrv)
+    store_(rtrv),
+    branchType_(bt)
   {
     if (hist.isValid()) {
       ProcessHistoryRegistry& history(*ProcessHistoryRegistry::instance());
@@ -40,6 +43,8 @@ namespace edm {
       bool found = history.getMapped(hist, *processHistoryPtr_);
       assert(found);
     }
+    reg->productLookup().reorderIfNecessary(bt,*processHistoryPtr_,pc.processName());
+    reg->elementLookup().reorderIfNecessary(bt,*processHistoryPtr_,pc.processName());
   }
 
   Principal::~Principal() {
@@ -324,80 +329,51 @@ namespace edm {
     // A class without a dictionary cannot be in an Event/Lumi/Run.
     // First, we check if the class has a dictionary.  If it does not,
     // we return immediately.
-    TypeLookup::const_iterator i = typeLookup.find(typeID);
-
-    if (i == typeLookup.end()) {
+    typedef TransientProductLookupMap TPLMap;
+    const std::pair<TPLMap::const_iterator, TPLMap::const_iterator> range = typeLookup.equal_range(TypeInBranchType(typeID,branchType_));
+    if(range.first == range.second) {
       return 0;
     }
 
-    const ProcessLookup& processLookup = i->second;
-
-    // Handle groups for current process, note that we need to
-    // look at the current process even if it is not in the processHistory
-    // because of potential unscheduled (onDemand) production
-    findGroupsForProcess(processConfiguration_->processName(),
-                         processLookup,
-                         selector,
-                         results);
-
-    // Loop over processes in reverse time order.  Sometimes we want to stop
-    // after we find a process with matches so check for that at each step.
-    for (ProcessHistory::const_reverse_iterator iproc = processHistory().rbegin(),
-	   eproc = processHistory().rend();
-         iproc != eproc && (results.empty() || !stopIfProcessHasMatch);
-         ++iproc) {
-
-      // We just dealt with the current process before the loop so skip it
-      if (iproc->processName() == processConfiguration_->processName()) continue;
-
-      findGroupsForProcess(iproc->processName(),
-                           processLookup,
-                           selector,
-                           results);
-    }
-    return results.size();
-  }
-
-  void 
-  Principal::findGroupsForProcess(std::string const& processName,
-				  ProcessLookup const& processLookup,
-				  SelectorBase const& selector,
-				  BasicHandleVec& results) const {
-
-    ProcessLookup::const_iterator j = processLookup.find(processName);
-
-    if (j == processLookup.end()) return;
-
-    // This is a vector of indexes into the productID vector
-    // These indexes point to groups with desired process name (and
-    // also type when this function is called from findGroups)
-    std::vector<ProductTransientIndex> const& vindex = j->second;
-
-     for (std::vector<ProductTransientIndex>::const_iterator idx(vindex.begin()), ie(vindex.end());
-	 idx != ie;
-	 ++idx) {
-      SharedConstGroupPtr const& group = getGroupByIndex(*idx, false, false, false);
-      if(group.get() == 0) {
+    results.reserve(range.second - range.first);
+    
+    unsigned int processLevelFound = std::numeric_limits<unsigned int>::max();
+    for(TPLMap::const_iterator it = range.first; it != range.second; ++it) {
+      if( (it->processIndex() > processLevelFound) && stopIfProcessHasMatch ) {
+        //this is for a later process and we've already found a match for an earlier process
         continue;
       }
-
-      if (selector.match(group->productDescription())) {
-
-	// Skip product if not available.
+        
+      if( selector.match(*(it->branchDescription())) ) {
+        
+        //now see if the data is actual available
+        SharedConstGroupPtr const& group = getGroupByIndex(it->index(), false, false, false);
+        if(group.get() == 0) {
+          continue;
+        }
+        // Skip product if not available.
         if (!group->productUnavailable()) {
           this->resolveProduct(*group, true);
 	  // If the product is a dummy filler, group will now be marked unavailable.
           // Unscheduled execution can fail to produce the EDProduct so check
           if (!group->productUnavailable() && !group->onDemand()) {
+            
+            if(stopIfProcessHasMatch && it->processIndex() < processLevelFound) {
+              results.clear();
+              processLevelFound = it->processIndex();
+            }
+            
             // Found a good match, save it
 	    BasicHandle bh(group->product(), group->provenance());
 	    bh.provenance()->setStore(branchMapperPtr_);
             results.push_back(bh);
           }
         }
+        
       }
+      
     }
-    return;
+    return results.size();
   }
 
   void
