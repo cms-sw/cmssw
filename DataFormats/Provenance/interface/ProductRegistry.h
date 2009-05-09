@@ -26,6 +26,8 @@
 #include "DataFormats/Provenance/interface/Transient.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
+#include "DataFormats/Provenance/interface/TransientProductLookupMap.h"
+
 #include "Reflex/Type.h"
 
 namespace edm {
@@ -56,10 +58,6 @@ namespace edm {
 
     typedef std::map<BranchKey, ConstBranchDescription> ConstProductList;
     
-    // Used for indices to find branch IDs by type and process
-    typedef std::map<std::string, std::vector<ProductTransientIndex> > ProcessLookup;
-    typedef std::map<TypeID, ProcessLookup> TypeLookup;
-
     void addProduct(BranchDescription const& productdesc, bool iFromListener=false);
 
     void copyProduct(BranchDescription const& productdesc);
@@ -119,9 +117,9 @@ namespace edm {
        return transients_.get().constProductList_;
     }
 
-    TypeLookup & productLookup() const {return transients_.get().productLookup_;}
+    TransientProductLookupMap & productLookup() const {return transients_.get().productLookup_;}
 
-    TypeLookup & elementLookup() const {return transients_.get().elementLookup_;}
+    TransientProductLookupMap & elementLookup() const {return transients_.get().elementLookup_;}
 
     //returns the appropriate PriductTransientIndex else 0xFFFFFFFF if no BranchID is available
     static ProductTransientIndex const kInvalidIndex=0xFFFFFFFF;
@@ -137,8 +135,8 @@ namespace edm {
       // by type, first one by the type of the EDProduct and the
       // second by the type of object contained in a sequence in
       // an EDProduct
-      TypeLookup productLookup_;
-      TypeLookup elementLookup_;
+      TransientProductLookupMap productLookup_;
+      TransientProductLookupMap elementLookup_;
        
       std::map<BranchID, ProductTransientIndex> branchIDToIndex_;
     };
@@ -154,10 +152,7 @@ namespace edm {
     virtual void addCalled(BranchDescription const&, bool iFromListener);
     void throwIfNotFrozen() const;
     void throwIfFrozen() const;
-    void fillElementLookup(Reflex::Type const& type,
-                           ProductTransientIndex const& slotNumber,
-                           BranchKey const& bk) const;
-    
+
     ProductList productList_;
     mutable Transient<Transients> transients_;
     

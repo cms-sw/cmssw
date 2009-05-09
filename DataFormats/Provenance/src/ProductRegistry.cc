@@ -209,21 +209,43 @@ namespace edm {
     return differences.str();
   }
 
+  static void
+  fillLookup(Reflex::Type const& type,
+             ProductTransientIndex const& index,
+             ConstBranchDescription const* branchDesc,
+             TransientProductLookupMap::FillFromMap& oMap)
+  {
+    oMap[std::make_pair(TypeInBranchType(edm::TypeID(type.TypeInfo()),
+                                         branchDesc->branchType()),
+                        branchDesc)]=index;
+  }
+  
   void ProductRegistry::initializeTransients() const {
     constProductList().clear();
-    productLookup().clear();
-    elementLookup().clear();
     transients_.get().branchIDToIndex_.clear();
     ProductTransientIndex index=0;
+    
+    //NOTE it might be possible to remove the need for this temporary map because the productList is ordered by the
+    // BranchKey and for the same C++ class type the BranchKey will sort just like CompareTypeInBranchTypeConstBranchDescription
+    typedef TransientProductLookupMap::FillFromMap TempLookupMap;
+    TempLookupMap tempProductLookupMap;
+    TempLookupMap tempElementLookupMap;
+    
+    typedef std::set<std::string> UsedProcessNames;
+    UsedProcessNames usedProcessNames;
     for (ProductList::const_iterator i = productList_.begin(), e = productList_.end(); i != e; ++i,++index) {
       if (i->second.produced()) {
 	setProductProduced(i->second.branchType());
       }
-
-      constProductList().insert(std::make_pair(i->first, ConstBranchDescription(i->second)));
+      
+      //insert returns a pair<iterator,bool> and we want the address of the ConstBranchDescription that was created in the map
+      // this is safe since items in a map always retain their memory address
+      ConstBranchDescription const* pBD = &(constProductList().insert(std::make_pair(i->first, ConstBranchDescription(i->second))).first->second);
 
       transients_.get().branchIDToIndex_[i->second.branchID()]=index;
 
+      usedProcessNames.insert(pBD->processName());
+      
       Reflex::Type type(Reflex::Type::ByName(i->second.className()));
       //only do the following if the data is supposed to be available in the event
       if(i->second.present()) {
@@ -236,12 +258,7 @@ namespace edm {
           " 3) the file is from an old release and this data type has been removed from the present release.";
           continue;
         }
-        
-        
-        ProcessLookup& processLookup = productLookup()[edm::TypeID(type.TypeInfo())];
-        std::vector<ProductTransientIndex>& vint = processLookup[i->first.processName_];
-        vint.push_back(index);
-        //[could use productID instead]
+        fillLookup(type,index,pBD,tempProductLookupMap);
         
         if (bool(type)) {
           
@@ -258,7 +275,7 @@ namespace edm {
                value_type_of(type, valueType)) 
               && bool(valueType)) {
             
-            fillElementLookup(valueType, index, i->first);
+            fillLookup(valueType, index, pBD, tempElementLookupMap);
             
             // Repeat this for all public base classes of the value_type
             std::vector<Reflex::Type> baseTypes;
@@ -268,12 +285,14 @@ namespace edm {
                  iend = baseTypes.end();
                     iter != iend;
                  ++iter) {
-              fillElementLookup(*iter, index, i->first);
+              fillLookup(*iter, index, pBD, tempElementLookupMap);
             }
           }
         }
       }
     }
+    productLookup().fillFrom(tempProductLookupMap);
+    elementLookup().fillFrom(tempElementLookupMap);
   }
 
   ProductTransientIndex ProductRegistry::indexFrom(BranchID const& iID) const {
@@ -282,17 +301,6 @@ namespace edm {
       return kInvalidIndex;
     }
     return itFind->second;
-  }
-  
-
-  void ProductRegistry::fillElementLookup(Reflex::Type const& type,
-                                          ProductTransientIndex const& id,
-                                          BranchKey const& bk) const {
-    TypeID typeID(type.TypeInfo());
-    
-    ProcessLookup& processLookup = elementLookup()[typeID];
-    std::vector<ProductTransientIndex>& vint = processLookup[bk.processName_];
-    vint.push_back(id);    
   }
   
   void ProductRegistry::print(std::ostream& os) const {
