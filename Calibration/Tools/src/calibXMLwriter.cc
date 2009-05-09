@@ -1,6 +1,6 @@
 #include "Calibration/Tools/interface/calibXMLwriter.h"
 #include <string>
-
+#include <cstdio>
 
 calibXMLwriter::calibXMLwriter(EcalSubdetector subdet) : subdet_(subdet)
 {

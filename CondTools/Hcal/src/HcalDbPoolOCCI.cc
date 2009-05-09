@@ -1,10 +1,11 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbPoolOCCI.cc,v 1.2 2006/07/29 00:45:21 fedor Exp $
+// $Id: HcalDbPoolOCCI.cc,v 1.3 2008/03/03 20:33:29 rofierzy Exp $
 //
 #include <string>
 #include <iostream>
+#include <cstdio>
 
 #include "occi.h" 
 

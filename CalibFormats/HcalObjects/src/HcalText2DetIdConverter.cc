@@ -1,10 +1,11 @@
 /** \class HcalText2DetIdConverter
     \author F.Ratnikov, UMd
-    $Id: HcalText2DetIdConverter.cc,v 1.8 2008/07/07 07:57:17 rofierzy Exp $
+    $Id: HcalText2DetIdConverter.cc,v 1.9 2008/07/22 11:41:34 mansj Exp $
 */
 #include <stdlib.h>
 #include <iostream>
 #include <iomanip>
+#include <cstdio>
 
 #include "FWCore/Utilities/interface/Exception.h"
 

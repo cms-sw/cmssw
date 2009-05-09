@@ -8,6 +8,7 @@
 
 #include <string>
 #include <boost/variant.hpp>
+#include <stdint.h>
 
 namespace reco {
   namespace parser {

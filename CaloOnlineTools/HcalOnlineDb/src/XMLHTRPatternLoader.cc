@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: XMLHTRPatternLoader.cc,v 1.1 2008/02/12 17:02:02 kukartse Exp $
+// $Id: XMLHTRPatternLoader.cc,v 1.2 2009/04/14 22:53:06 kukartse Exp $
 //
 
 // system include files
@@ -16,7 +16,7 @@
 // user include files
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLHTRPatternLoader.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
-
+#include <cstdio>
 
 //
 // constants, enums and typedefs

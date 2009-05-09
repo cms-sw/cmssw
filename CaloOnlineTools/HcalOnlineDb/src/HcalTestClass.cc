@@ -2,6 +2,7 @@
 
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
+#include <stdint.h>
 
 class HcalTestClass{
 public:
