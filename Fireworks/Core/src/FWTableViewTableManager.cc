@@ -1,4 +1,4 @@
-// $Id: FWTableViewTableManager.cc,v 1.2 2009/05/01 22:30:41 jmuelmen Exp $
+// $Id: FWTableViewTableManager.cc,v 1.3 2009/05/08 20:04:42 jmuelmen Exp $
 
 #include <math.h>
 #include "TClass.h"
@@ -104,8 +104,7 @@ FWTableCellRendererBase *FWTableViewTableManager::cellRenderer(int iSortedRowNum
 		    m_graphicsContext->
 			 SetForeground(gVirtualX->GetPixel(m_view->item()->modelInfo(realRowNumber).
 							   displayProperties().color()));
-	       else m_graphicsContext->
-			 SetForeground(gVirtualX->GetPixel(kGray));
+	       else m_graphicsContext->SetForeground(0x404040);
 	       m_renderer->setGraphicsContext(m_graphicsContext);
 	  } else {
 // 	       m_graphicsContext->
