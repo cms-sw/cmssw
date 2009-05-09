@@ -1,10 +1,11 @@
-// $Id: Tm.cc,v 1.2 2006/11/17 08:38:53 egeland Exp $
+// $Id: Tm.cc,v 1.3 2008/10/23 09:47:23 fra Exp $
 
 #include <time.h>
 #include <iostream>
 #include <string>
 #include <stdexcept>
 #include <math.h>
+#include <cstdio>
 
 #include "OnlineDB/EcalCondDB/interface/Tm.h"
 
