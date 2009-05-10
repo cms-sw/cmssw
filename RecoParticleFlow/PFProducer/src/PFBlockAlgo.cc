@@ -1662,7 +1662,7 @@ PFBlockAlgo::testTrackAndClusterByRecHit( const PFRecTrack& track,
     if( debug_ ) 
       cout << "Track and Cluster LINKED BY RECHIT" << endl;
 #endif
-    /* */
+    /*    
     //if ( distance > 40. || distance < -100. ) 
     double clusterr = std::sqrt(clusterX*clusterX+clusterY*clusterY);
     double trackr = std::sqrt(track_X*track_X+track_Y*track_Y);
@@ -1671,7 +1671,7 @@ PFBlockAlgo::testTrackAndClusterByRecHit( const PFRecTrack& track,
 	      << ", Barrel/Hcal/Brem ? " << barrel << " " << hcal << " " << isBrem << std::endl
 	      << " Cluster " << clusterr << " " << clusterZ << " " << clusterphi << " " << clustereta << std::endl
 	      << " Track   " << trackr << " " << track_Z << " " << trackphi << " " << tracketa << std::endl;
-    /* */
+    */
     return lnk;
   } else {
     return std::pair<double,double>(-1,-1);
