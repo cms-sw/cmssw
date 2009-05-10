@@ -1,4 +1,4 @@
-// $Id: ProcessTestSignal.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
+// $Id: ProcessTestSignal.cc,v 1.1 2009/05/08 10:24:05 aosorio Exp $
 // Include files 
 
 
@@ -106,6 +106,7 @@ void ProcessTestSignal::builddata()
         + 100*(*itr)->m_sec1[k]
         + 1*(*itr)->m_sec2[k];
       RBCInput * _signal = & (*itr)->m_orsignals[k];
+      _signal->needmapping = true;
       m_data.insert( std::make_pair( _code , _signal) );
       
     }

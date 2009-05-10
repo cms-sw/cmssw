@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: RBCChamberORLogic.h,v 1.5 2009/02/05 13:46:21 aosorio Exp $
 #ifndef RBCCHAMBERORLOGIC_H 
 #define RBCCHAMBERORLOGIC_H 1
 
@@ -39,6 +39,8 @@ public:
   typedef std::vector<std::string>::iterator itr2names;
   typedef std::map<std::string,bool>::iterator itr2chambers;
   
+  void copymap( const std::bitset<15> & );
+  
   void createmap( const std::bitset<15> & );
   
   void reset();
@@ -59,6 +61,6 @@ private:
   
   int m_maxcb;
   int m_maxlevel;
-    
+  
 };
 #endif // RBCCHAMBERORLOGIC_H

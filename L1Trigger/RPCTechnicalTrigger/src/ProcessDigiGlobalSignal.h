@@ -1,4 +1,4 @@
-// $Id: ProcessDigiGlobalSignal.h,v 1.3 2009/03/23 17:30:36 aosorio Exp $
+// $Id: ProcessDigiGlobalSignal.h,v 1.1 2009/05/08 10:24:05 aosorio Exp $
 #ifndef PROCESSDIGIGLOBALSIGNAL_H 
 #define PROCESSDIGIGLOBALSIGNAL_H 1
 
@@ -48,15 +48,13 @@ public:
   
   int  next();
   
-  void rewind() {};
-  
-  void showfirst() {};
-  
-  void reset() {};
-  
   RPCInputSignal * retrievedata() {
     return  m_wmin;
   };
+  
+  void rewind() {};
+  void showfirst() {};
+  void reset() {};
   
 protected:
   

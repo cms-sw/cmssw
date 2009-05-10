@@ -1,4 +1,4 @@
-// $Id: TTUEmulator.h,v 1.2 2009/02/16 09:11:31 aosorio Exp $
+// $Id: TTUEmulator.h,v 1.3 2009/05/08 10:24:05 aosorio Exp $
 #ifndef TTUEMULATOR_H 
 #define TTUEMULATOR_H 1
 
@@ -52,8 +52,10 @@ public:
   
   void emulate();
   
+  void processtest( RPCInputSignal * );
+  
   void processlocal( RPCInputSignal * );
-
+  
   void processglobal( RPCInputSignal * );
   
   void printinfo();

@@ -1,4 +1,4 @@
-// $Id: ProcessDigiGlobalSignal.cc,v 1.2 2009/03/23 17:30:36 aosorio Exp $
+// $Id: ProcessDigiGlobalSignal.cc,v 1.1 2009/05/08 10:24:05 aosorio Exp $
 // Include files 
 
 
@@ -60,7 +60,7 @@ int ProcessDigiGlobalSignal::next()
     
     if((roll->isForward())) {
       if( m_debug ) std::cout << "ProcessDigiGlobalSignal: roll is forward" << std::endl;
-      //continue;
+      continue;
     }
     
     int wheel   = roll->id().ring();                    // -2,-1,0,+1,+2

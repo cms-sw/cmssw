@@ -1,4 +1,4 @@
-// $Id: TTUInput.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
+// $Id: TTUInput.cc,v 1.2 2009/05/08 10:24:05 aosorio Exp $
 // Include files 
 
 
@@ -17,6 +17,8 @@
 //=============================================================================
 TTUInput::TTUInput(  ) {
   
+  input_sec = new std::bitset<6>[12];
+  
   for(int i=0; i < 12; ++i) {
     for (int j=0; j < 6; ++j ) {
       input_sec[i].set(j,false);
@@ -29,8 +31,11 @@ TTUInput::TTUInput(  ) {
 //=============================================================================
 // Destructor
 //=============================================================================
-TTUInput::~TTUInput() {} 
-
+TTUInput::~TTUInput() {
+  
+  if ( input_sec ) delete[] input_sec;
+  
+} 
 //=============================================================================
 
 void TTUInput::reset() 

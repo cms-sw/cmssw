@@ -1,10 +1,11 @@
-// $Id: $
+// $Id: ProcessDigiLocalSignal.cc,v 1.1 2009/05/08 10:24:05 aosorio Exp $
 // Include files 
 
 
 
 // local
 #include "L1Trigger/RPCTechnicalTrigger/src/ProcessDigiLocalSignal.h"
+#include "L1Trigger/RPCTechnicalTrigger/src/RBCLinkBoardGLSignal.h"
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : ProcessDigiLocalSignal
@@ -21,8 +22,56 @@ ProcessDigiLocalSignal::ProcessDigiLocalSignal(  const edm::ESHandle<RPCGeometry
   
   m_ptr_rpcGeom  = & rpcGeom;
   m_ptr_digiColl = & digiColl;
-  
+
+  m_lbin = dynamic_cast<RPCInputSignal*>( new RBCLinkBoardGLSignal( &m_data ) );
+
   m_debug = false;
+  
+  m_wheelid.push_back(-2);
+  m_wheelid.push_back(-1);
+  m_wheelid.push_back( 0);
+  m_wheelid.push_back( 1);
+  m_wheelid.push_back( 2);
+
+  m_sec1id.push_back(1);
+  m_sec2id.push_back(12);
+  
+  m_sec1id.push_back(2);
+  m_sec2id.push_back(3);
+  
+  m_sec1id.push_back(4);
+  m_sec2id.push_back(5);
+
+  m_sec1id.push_back(6);
+  m_sec2id.push_back(7);
+
+  m_sec1id.push_back(8);
+  m_sec2id.push_back(9);
+  
+  m_sec1id.push_back(10);
+  m_sec2id.push_back(11);
+
+  m_layermap[113]     = 0;  //RB1InFw
+  m_layermap[123]     = 1;  //RB1OutFw
+  m_layermap[313]     = 5;  //RB3Fw
+  m_layermap[413]     = 6;  //RB4Fw
+  m_layermap[111]     = 7;  //RB1InBk
+  m_layermap[121]     = 8;  //RB1OutBk
+  m_layermap[311]     = 11; //RB3Bk
+  m_layermap[411]     = 12; //RB4Bk
+  
+  m_layermap[30212]   = 4;   //RB23M
+  m_layermap[30222]   = 4;   //RB23M
+  
+  m_layermap[20213]   = 2;   //RB22Fw
+  m_layermap[20211]   = 9;   //RB22Bw
+  m_layermap[30213]   = 3;   //RB23Fw
+  m_layermap[30211]   = 10;  //RB23Bw
+  
+  m_layermap[20223]   = 2;  //RB22Fw
+  m_layermap[20221]   = 9;  //RB22Bw
+  m_layermap[30223]   = 3;   //RB23Fw
+  m_layermap[30221]   = 10;  //RB23Bw
   
 }
 
@@ -31,17 +80,203 @@ ProcessDigiLocalSignal::ProcessDigiLocalSignal(  const edm::ESHandle<RPCGeometry
 //=============================================================================
 ProcessDigiLocalSignal::~ProcessDigiLocalSignal() {
   
+  if ( m_lbin ) delete m_lbin;
 
+  m_sec1id.clear();
+  m_sec2id.clear();
+  m_wheelid.clear();
+  m_layermap.clear();
   
 } 
 
 //=============================================================================
 int ProcessDigiLocalSignal::next() {
   
+  //.
+  initialize();
   
+  //...
+  
+  for (m_detUnitItr = (*m_ptr_digiColl)->begin(); 
+       m_detUnitItr != (*m_ptr_digiColl)->end(); ++m_detUnitItr ) {
 
+    if ( m_debug ) std::cout << "looping over digis 1 ..." << std::endl;
+    
+    m_digiItr = (*m_detUnitItr ).second.first;
+    int bx = (*m_digiItr).bx();
+    
+    const RPCDetId & id  = (*m_detUnitItr).first;
+    const RPCRoll * roll = dynamic_cast<const RPCRoll* >( (*m_ptr_rpcGeom)->roll(id));
+    
+    if((roll->isForward())) {
+      if( m_debug ) std::cout << "ProcessDigiGlobalSignal: roll is forward" << std::endl;
+      continue;
+    }
+    
+    int wheel   = roll->id().ring();                    // -2,-1,0,+1,+2
+    int sector  = roll->id().sector();                  // 1 to 12
+    int layer   = roll->id().layer();                   // 1,2
+    int station = roll->id().station();                 // 1-4
+    int blayer  = getBarrelLayer( layer, station );     // 1 to 6
+    int rollid  = id.roll();
+
+    int digipos = (station * 100) + (layer * 10) + rollid;
+    
+    if ( (wheel == -1 || wheel == 0 || wheel == 1) && station == 2 && layer == 1 )
+      digipos = 30000 + digipos;
+    if ( (wheel == -2 || wheel == 2) && station == 2 && layer == 2 )
+      digipos = 30000 + digipos;
+    
+    if ( (wheel == -1 || wheel == 0 || wheel == 1) && station == 2 && layer == 2 )
+      digipos = 20000 + digipos;
+    if ( (wheel == -2 || wheel == 2) && station == 2 && layer == 1 )
+      digipos = 20000 + digipos;
+    
+    if ( m_debug ) std::cout << "Bx: "      << bx      << '\t'
+                             << "Wheel: "   << wheel   << '\t'
+                             << "Sector: "  << sector  << '\t'
+                             << "Station: " << station << '\t'
+                             << "Layer: "   << layer   << '\t'
+                             << "B-Layer: " << blayer  << '\t'
+                             << "Roll id: " << rollid  << '\t'
+                             << "Digi at: " << digipos << '\n';
+    
+    //... Construct the RBCinput objects
+    
+    this->m_block = m_vecdata[ wheel + 2 ];
+    
+    setDigiAt( sector, digipos );
+    
+    //...
+    
+    if ( m_debug ) std::cout << "looping over digis 2 ..." << std::endl;
+    
+  }
+  
+  builddata();
   
   return 1;
+  
+}
+
+void ProcessDigiLocalSignal::reset()
+{
+  
+  std::vector<RPCData*>::iterator itr;
+  for(itr=m_vecdata.begin();itr!=m_vecdata.end();++itr)
+    delete *itr;
+  m_vecdata.clear();
+  
+}
+
+
+void ProcessDigiLocalSignal::initialize() 
+{
+
+  if ( m_debug ) std::cout << "initialize: starts" << std::endl;
+  
+  reset();
+  
+  for(int i=0; i < 5; ++i) {
+    
+    m_block = new RPCData();
+    
+    m_block->m_wheel = m_wheelid[i];
+    
+    for(int j=0; j < 6; ++j) {
+      m_block->m_sec1[j] = m_sec1id[j];
+      m_block->m_sec2[j] = m_sec2id[j];
+      m_block->m_orsignals[j].input_sec[0].reset();
+      m_block->m_orsignals[j].input_sec[1].reset();
+    }
+    
+    m_vecdata.push_back( m_block );
+    
+  }
+  
+  if ( m_debug ) std::cout << "initialize: completed" << std::endl;
+  
+}
+
+void ProcessDigiLocalSignal::builddata() 
+{
+  
+  int _code(0);
+  std::vector<RPCData*>::iterator itr;
+  
+  for(itr = m_vecdata.begin(); itr != m_vecdata.end(); ++itr)
+  {
+    for(int k=0; k < 6; ++k) {
+      
+      _code = 10000*(*itr)->m_wheel
+        + 100*(*itr)->m_sec1[k]
+        + 1*(*itr)->m_sec2[k];
+
+      RBCInput * _signal = & (*itr)->m_orsignals[k];
+      
+      _signal->needmapping = false;
+      m_data.insert( std::make_pair( _code , _signal) );
+      
+    }
+  }
+  
+  if ( m_debug ) std::cout << "builddata: completed" << std::endl;
+  
+}
+
+int ProcessDigiLocalSignal::getBarrelLayer( const int & _layer, const int & _station )
+{
+  
+  //... Calculates the generic Barrel Layer (1 to 6)
+  int blayer(0);
+  
+  if ( _station < 3 ) {
+    blayer = ( (_station-1) * 2 ) + _layer;
+  }
+  else {
+    blayer = _station + 2;
+  }
+  
+  return blayer;
+  
+}
+
+
+void ProcessDigiLocalSignal::setDigiAt( int sector, int digipos )
+{
+  
+  int pos   = 0;
+  int isAoB = 0;
+  
+  std::vector<int>::const_iterator itr;
+  itr = std::find( m_sec1id.begin(), m_sec1id.end(), sector );
+  
+  if ( itr == m_sec1id.end()) {
+    itr = std::find( m_sec2id.begin(), m_sec2id.end(), sector );
+    isAoB = 1;
+  } 
+  
+  for ( pos = 0; pos < 6; ++pos ) {
+    if (this->m_block->m_sec1[pos] == sector || this->m_block->m_sec2[pos] == sector )
+      break;
+  }
+  
+  if ( m_debug ) std::cout << this->m_block->m_orsignals[pos];
+  
+  setInputBit( this->m_block->m_orsignals[pos].input_sec[ isAoB ] , digipos );
+  
+  if ( m_debug ) std::cout << this->m_block->m_orsignals[pos];
+  
+  if ( m_debug ) std::cout << "setDigiAt completed" << std::endl;
+  
+}
+
+void ProcessDigiLocalSignal::setInputBit( std::bitset<15> & signals , int digipos ) 
+{
+  
+  int bitpos = m_layermap[digipos];
+  if( m_debug ) std::cout << "Bitpos: " << bitpos << std::endl;
+  signals.set( bitpos , 1 );
   
 }
 

@@ -1,4 +1,4 @@
-// $Id: TTUInput.h,v 1.1 2009/01/30 15:42:47 aosorio Exp $
+// $Id: TTUInput.h,v 1.2 2009/05/08 10:24:04 aosorio Exp $
 #ifndef INTERFACE_TTUINPUT_H 
 #define INTERFACE_TTUINPUT_H 1
 
@@ -19,9 +19,10 @@ class TTUInput {
 public: 
   
   /// Standard constructor
-  TTUInput( ); 
+  TTUInput( );
   
-  virtual ~TTUInput( ); ///< Destructor
+  ///< Destructor
+  virtual ~TTUInput( );
   
   TTUInput( const TTUInput & _in)
   {
@@ -39,7 +40,7 @@ public:
   
   void reset();
   
-  std::bitset<6> input_sec[12];
+  std::bitset<6> * input_sec;
   
   void mask ( const std::vector<int> & );
   

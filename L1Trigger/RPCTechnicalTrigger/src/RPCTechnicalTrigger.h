@@ -49,12 +49,9 @@ Implementation:
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
-
 // Local to project
 #include "L1Trigger/RPCTechnicalTrigger/interface/ProcessInputSignal.h"
 #include "L1Trigger/RPCTechnicalTrigger/src/TTUEmulator.h"
-#include "L1Trigger/RPCTechnicalTrigger/src/HistoOutput.h"
 
 #include "CondFormats/RPCObjects/interface/RBCBoardSpecs.h"
 #include "CondFormats/DataRecord/interface/RBCBoardSpecsRcd.h"
@@ -77,12 +74,6 @@ private:
   virtual void endJob();
   
   //...........................................................................
-
-  void validate( const edm::Event&, const edm::EventSetup&, int & );
-  
-  int  discriminateGMT( const edm::Event&, const edm::EventSetup& );
-  
-  void makeGMTFilterDist( );
   
   void printinfo();
   
@@ -91,7 +82,7 @@ private:
   RPCInputSignal * m_input;
   
   ProcessInputSignal * m_signal;
-
+  
   std::bitset<1> m_trigger;
   std::bitset<6> m_triggerbits;
   std::bitset<8> m_gmtfilter;
@@ -100,9 +91,8 @@ private:
   edm::ESHandle<RPCGeometry> m_rpcGeometry;
   
   int m_debugmode;
-  int m_validation;
-  std::string m_rbclogictype;
-  std::string m_ttulogictype;
+  int m_triggermode;
+  
   std::string m_testfile;
   std::vector<unsigned>    m_ttBits;
   std::vector<std::string> m_ttNames;
@@ -112,11 +102,8 @@ private:
   const TTUBoardSpecs * m_ttuspecs;
   const RBCBoardSpecs * m_rbcspecs;
   
-  HistoOutput * m_houtput;
-  
   int m_ievt;
   int m_cand;
-  int m_valflag;
   
 };
 

@@ -1,4 +1,4 @@
-// $Id: RBCInput.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
+// $Id: RBCInput.cc,v 1.2 2009/05/08 10:24:05 aosorio Exp $
 // Include files 
 
 // local
@@ -21,6 +21,7 @@ std::istream& operator>>(std::istream &istr , RBCInput & rhs) {
     rhs.input_sec[_ks].set(i-(15*_ks), rhs.input[i]);
   }
   return istr;
+
 }
 
 std::ostream& operator<<(std::ostream &ostr , RBCInput & rhs) {

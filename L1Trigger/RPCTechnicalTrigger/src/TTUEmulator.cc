@@ -1,4 +1,4 @@
-// $Id: TTUEmulator.cc,v 1.2 2009/02/16 09:11:31 aosorio Exp $
+// $Id: TTUEmulator.cc,v 1.3 2009/05/08 10:24:05 aosorio Exp $
 // Include files 
 
 
@@ -151,14 +151,14 @@ void TTUEmulator::emulate()
   
 }
 
-void TTUEmulator::processlocal( RPCInputSignal * signal ) 
+void TTUEmulator::processtest( RPCInputSignal * signal ) 
 {
   
   //. 
   bool trg(false); 
-
+  
   m_trigger.reset();
-    
+  
   std::map<int,RBCInput*> * linkboardin;
   linkboardin = dynamic_cast<RBCLinkBoardGLSignal*>( signal )->m_linkboardin;
   
@@ -189,6 +189,46 @@ void TTUEmulator::processlocal( RPCInputSignal * signal )
   if( m_debug ) std::cout << "TTUEmulator::processlocal> done with this TTU: " << m_id << std::endl;
   
 }
+
+void TTUEmulator::processlocal( RPCInputSignal * signal ) 
+{
+  
+  //. 
+  bool trg(false); 
+  
+  m_trigger.reset();
+  
+  std::map<int,RBCInput*> * linkboardin;
+  linkboardin = dynamic_cast<RBCLinkBoardGLSignal*>( signal )->m_linkboardin;
+  
+  for( int k=0; k < m_maxwheels; ++k )
+  {
+    
+    if ( m_Wheels[k]->process( (*linkboardin) ) ) {
+      
+      m_Wheels[k]->createWheelMap();
+      m_Wheels[k]->retrieveWheelMap( (*m_ttuin[k]) );
+      
+      //.. execute here the Tracking Algorithm or any other selected logic
+      
+      m_ttuconf->m_ttulogic->run( (*m_ttuin[k]) );
+      
+      //... and produce a Wheel level trigger
+      trg = m_ttuconf->m_ttulogic->isTriggered();
+      
+      m_trigger.set(k,trg);
+      
+      if( m_debug ) std::cout << "TTUEmulator::processlocal ttuid: " << m_id 
+                              << " wheel: "       << m_Wheels[k]->getid()
+                              << " response: "    << trg << std::endl;
+    }
+    
+  }
+  
+  if( m_debug ) std::cout << "TTUEmulator::processlocal> done with this TTU: " << m_id << std::endl;
+  
+}
+
 
 void TTUEmulator::processglobal( RPCInputSignal * signal ) 
 {

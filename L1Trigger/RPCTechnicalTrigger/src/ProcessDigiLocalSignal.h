@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: ProcessDigiLocalSignal.h,v 1.1 2009/05/08 10:24:05 aosorio Exp $
 #ifndef PROCESSDIGILOCALSIGNAL_H 
 #define PROCESSDIGILOCALSIGNAL_H 1
 
@@ -45,32 +45,53 @@ public:
                           const edm::Handle<RPCDigiCollection> & );
 
   virtual ~ProcessDigiLocalSignal( ); ///< Destructor
-
+  
   int  next();
   
-  void rewind() {};
+  void reset();
   
-  void showfirst() {};
+  void initialize();
   
-  void reset() {};
+  void builddata();
   
   RPCInputSignal * retrievedata() {
     return  m_lbin;
   };
   
+  void rewind() {};
+  void showfirst() {};
+  
 protected:
-
+  
 private:
+  
+  int getBarrelLayer(const int &, const int &);
+  
+  void setDigiAt( int , int  );
+  
+  void setInputBit( std::bitset<15> & , int );
   
   const edm::ESHandle<RPCGeometry>     * m_ptr_rpcGeom;
   const edm::Handle<RPCDigiCollection> * m_ptr_digiColl;
   
   RPCDigiCollection::const_iterator m_digiItr;
   RPCDigiCollection::DigiRangeIterator m_detUnitItr;
+
+  RPCData  * m_block;
   
   RPCInputSignal * m_lbin;
 
-  bool m_debug;
+  std::vector<RPCData*> m_vecdata;
   
+  std::map<int,RBCInput*> m_data;
+
+  std::map<int,int> m_layermap;
+    
+  bool m_debug;
+
+  std::vector<int> m_wheelid;
+  std::vector<int> m_sec1id;
+  std::vector<int> m_sec2id;
+    
 };
 #endif // PROCESSDIGILOCALSIGNAL_H

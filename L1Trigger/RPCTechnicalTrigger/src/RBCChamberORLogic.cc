@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: RBCChamberORLogic.cc,v 1.1 2009/01/30 15:42:47 aosorio Exp $
 // Include files 
 
 
@@ -15,7 +15,7 @@
 // Standard constructor, initializes variables
 //=============================================================================
 RBCChamberORLogic::RBCChamberORLogic(  ) {
-
+  
   m_rbname.push_back(std::string("RB1InFw"));
   m_rbname.push_back(std::string("RB1OutFw"));
   m_rbname.push_back(std::string("RB22Fw"));
@@ -64,8 +64,11 @@ void RBCChamberORLogic::process( const RBCInput & _input, std::bitset<2> & _deci
   for (int k=0; k < 2; ++k ) 
   {
     
-    this->createmap( _input.input_sec[k] );
-  
+    if( _input.needmapping )
+      this->createmap( _input.input_sec[k] );
+    else
+      this->copymap  ( _input.input_sec[k] );
+    
     status = this->evaluateLayerOR( "RB1InFw"  , "RB1InBk" );
     m_layersignal[k].set( 0 , status);
     
@@ -96,6 +99,25 @@ void RBCChamberORLogic::process( const RBCInput & _input, std::bitset<2> & _deci
   }
 
   //...all done!
+  
+}
+
+void RBCChamberORLogic::copymap( const std::bitset<15> & _input ) 
+{
+  
+  m_chamber[m_rbname[0]]  = _input[0];
+  m_chamber[m_rbname[1]]  = _input[1];
+  m_chamber[m_rbname[2]]  = _input[2];
+  m_chamber[m_rbname[3]]  = _input[3];
+  m_chamber[m_rbname[4]]  = _input[4];
+  m_chamber[m_rbname[5]]  = _input[5];
+  m_chamber[m_rbname[6]]  = _input[6];
+  m_chamber[m_rbname[7]]  = _input[7];
+  m_chamber[m_rbname[8]]  = _input[8];
+  m_chamber[m_rbname[9]]  = _input[9];
+  m_chamber[m_rbname[10]] = _input[10];
+  m_chamber[m_rbname[11]] = _input[11];
+  m_chamber[m_rbname[12]] = _input[12];
   
 }
 
