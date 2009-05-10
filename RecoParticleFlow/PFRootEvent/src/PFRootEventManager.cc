@@ -1910,6 +1910,7 @@ void
 PFRootEventManager::PreprocessRecTracks(reco::GsfPFRecTrackCollection& recTracks) {  
   for( unsigned i=0; i<recTracks.size(); ++i ) {     
     recTracks[i].calculatePositionREP();
+    recTracks[i].calculateBremPositionREP();
   }
 }
 

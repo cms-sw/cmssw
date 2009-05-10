@@ -513,6 +513,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
      brem.addPoint(dummyHCALexit); 
    }
 
+   brem.calculatePositionREP();
    pftrack.addBrem(brem);
    iTrajPos++;
   }
