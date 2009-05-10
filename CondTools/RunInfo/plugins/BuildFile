@@ -24,6 +24,9 @@
 <library file=LuminosityInfoAnalyzer.cc name=LuminosityInfoAnalyzer>
         <flags EDM_PLUGIN=1>
 </library>
+<library file=HLTScalerAnalyzer.cc name=HLTScalerAnalyzer>
+        <flags EDM_PLUGIN=1>
+</library>
 
 
  

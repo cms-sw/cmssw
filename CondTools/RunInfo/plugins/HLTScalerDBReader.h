@@ -1,5 +1,5 @@
 #ifndef CondTools_RunInfo_HLTScalerDBReader_h
-#define CondTools_RunInfo_HLTSCalerDBReader_h
+#define CondTools_RunInfo_HLTScalerDBReader_h
 #include <vector>
 #include <string>
 #include "CondTools/RunInfo/interface/HLTScalerReaderBase.h"

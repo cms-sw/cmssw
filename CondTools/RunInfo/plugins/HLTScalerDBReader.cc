@@ -1,3 +1,4 @@
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
@@ -7,7 +8,7 @@
 #include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/src/CoralConnectionProxy.h"
-#include "CondFormats/RunInfo/interface/HLTScaler.h"
+#include "CondFormats/RunInfo/interface/LuminosityInfo.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
@@ -48,10 +49,21 @@ lumi::HLTScalerDBReader::HLTScalerDBReader(const edm::ParameterSet&pset):lumi::H
 lumi::HLTScalerDBReader::~HLTScalerDBReader(){
   delete m_session;
 }
-void lumi::HLTScalerDBReader::fill(int startRun,
-				int numberOfRuns,
-				std::vector< std::pair<lumi::HLTScaler*,cond::Time_t> >& result){
-  //select PACCEPT, L1PASS from CMS_LUMI.HLTS hlt , CMS_LUMI.LUMI_SECTIONS sect WHERE sect.SECTION_ID=hlt.SECTION_ID AND sect.RUN_NUMBER=runnumber AND sect.LUMI_SECTION_NUMBER=lumisectionid;
+
+void 
+lumi::HLTScalerDBReader::fill(int startRun,
+			   int numberOfRuns,
+			   std::vector< std::pair<lumi::HLTScaler*,cond::Time_t> >& result){
+
+  try{
+    m_session->open();
+    cond::Connection con(m_constr,-1);
+    con.connect(m_session);
+    cond::CoralTransaction& transaction=con.coralTransaction();
+    coral::AttributeList bindVariableList;
+  }catch(const std::exception& er){
+    std::cout<<"caught exception "<<er.what()<<std::endl;
+  }
 }
 
-DEFINE_EDM_PLUGIN(lumi::HLTScalerReaderFactory,lumi::HLTScalerDBReader,"omds");
+DEFINE_EDM_PLUGIN(lumi::HLTScalerReaderFactory,lumi::HLTScalerDBReader,"db");
