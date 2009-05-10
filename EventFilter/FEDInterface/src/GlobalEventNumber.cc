@@ -1,7 +1,61 @@
-#include "EventFilter/FEDInterface/interface/GlobalEventNumber.h"
+#include "EventFilter/FEDInterface/interface/GlobalEventNumber.icc"
 
 namespace evf{
   namespace evtn{
+
+
+    bool evm_board_sense(const unsigned char *p, size_t size)
+    {
+      switch(size){
+      case BST32_3BX:
+	EVM_GTFE_BLOCK = EVM_GTFE_BLOCK_V0000;
+	EVM_FDL_NOBX = 3;
+	break;
+      case BST32_5BX:
+	EVM_GTFE_BLOCK = EVM_GTFE_BLOCK_V0000;
+	EVM_FDL_NOBX = 5;
+	break;
+      case BST52_3BX:
+	EVM_GTFE_BLOCK = EVM_GTFE_BLOCK_V0011;
+	EVM_FDL_NOBX = 3;
+	break;
+      case BST52_5BX:
+	EVM_GTFE_BLOCK = EVM_GTFE_BLOCK_V0011;
+	EVM_FDL_NOBX = 5;
+	break;
+      default:
+	EVM_GTFE_BLOCK = EVM_GTFE_BLOCK_V0000;
+	EVM_FDL_NOBX = 3;	    
+      }
+      return (*(unsigned int*)(p + sizeof(fedh_t) + EVM_BOARDID_OFFSET * SLINK_WORD_SIZE / 2) >> EVM_BOARDID_SHIFT) == EVM_BOARDID_VALUE;
+    }
+
+
+    void evm_board_setformat(size_t size)
+    {
+      switch(size){
+      case BST32_3BX:
+	EVM_GTFE_BLOCK = EVM_GTFE_BLOCK_V0000;
+	EVM_FDL_NOBX = 3;
+	break;
+      case BST32_5BX:
+	EVM_GTFE_BLOCK = EVM_GTFE_BLOCK_V0000;
+	EVM_FDL_NOBX = 5;
+	break;
+      case BST52_3BX:
+	EVM_GTFE_BLOCK = EVM_GTFE_BLOCK_V0011;
+	EVM_FDL_NOBX = 3;
+	break;
+      case BST52_5BX:
+	EVM_GTFE_BLOCK = EVM_GTFE_BLOCK_V0011;
+	EVM_FDL_NOBX = 5;
+	break;
+      default:
+	EVM_GTFE_BLOCK = EVM_GTFE_BLOCK_V0000;
+	EVM_FDL_NOBX = 3;	    
+      }
+    }
+    
 
     unsigned int offset(bool evm)
     {

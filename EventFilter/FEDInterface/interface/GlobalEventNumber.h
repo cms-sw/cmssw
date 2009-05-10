@@ -1,3 +1,6 @@
+#ifndef EVF_EVTN_GLOBAL_EVENT_NUMBER_H
+#define EVF_EVTN_GLOBAL_EVENT_NUMBER_H
+
 #include <stddef.h>
 #include "interface/shared/fed_header.h" // from xdaq
 namespace evf{
@@ -26,7 +29,7 @@ namespace evf{
       const unsigned int EVM_GTFE_BLOCK_V0000 = 6; //size in 64-bit words
       const unsigned int EVM_GTFE_BLOCK_V0011 = 9; //size in 64-bit words, new format, not yet in effect
       const unsigned int EVM_GTFE_BSTGPS_OFFSET = 4; //offset in 32-bit words
-      unsigned int EVM_GTFE_BLOCK = EVM_GTFE_BLOCK_V0000;
+
 
       const unsigned int EVM_TCS_BLOCK = 5; //size in 64-bit words
       const unsigned int EVM_TCS_TRIGNR_OFFSET  = 5; //offset in 32-bit words
@@ -37,7 +40,7 @@ namespace evf{
       const unsigned int EVM_TCS_EVNTYP_SHIFT   = 20; 
       const unsigned int EVM_TCS_BCNRIN_MASK    = 0x00000fff; // 12 LSB
 
-      unsigned int EVM_FDL_NOBX = 3;
+ 
       const unsigned int EVM_FDL_BLOCK = 7; //size in 64-bit words
       const unsigned int EVM_FDL_BCNRIN_OFFSET  = 1; //offset in 32-bit words
       const unsigned int EVM_FDL_TECTRG_OFFSET  = 2; //offset in 32-bit words
@@ -61,57 +64,8 @@ namespace evf{
 	{
 	  return (*(unsigned int*)(p + sizeof(fedh_t) + DAQ_BOARDID_OFFSET * SLINK_WORD_SIZE / 2) >> DAQ_BOARDID_SHIFT) == DAQ_BOARDID_VALUE;
 	}
-      inline bool evm_board_sense(const unsigned char *p, size_t size)
-	{
-	  switch(size){
-	  case BST32_3BX:
-	    EVM_GTFE_BLOCK = EVM_GTFE_BLOCK_V0000;
-	    EVM_FDL_NOBX = 3;
-	    break;
-	  case BST32_5BX:
-	    EVM_GTFE_BLOCK = EVM_GTFE_BLOCK_V0000;
-	    EVM_FDL_NOBX = 3;
-	    break;
-	  case BST52_3BX:
-	    EVM_GTFE_BLOCK = EVM_GTFE_BLOCK_V0011;
-	    EVM_FDL_NOBX = 3;
-	    break;
-	  case BST52_5BX:
-	    EVM_GTFE_BLOCK = EVM_GTFE_BLOCK_V0011;
-	    EVM_FDL_NOBX = 5;
-	    break;
-	  default:
-	    EVM_GTFE_BLOCK = EVM_GTFE_BLOCK_V0000;
-	    EVM_FDL_NOBX = 3;	    
-	  }
-
-	    
-	  return (*(unsigned int*)(p + sizeof(fedh_t) + EVM_BOARDID_OFFSET * SLINK_WORD_SIZE / 2) >> EVM_BOARDID_SHIFT) == EVM_BOARDID_VALUE;
-	}
-      inline void evm_board_setformat(size_t size)
-	{
-	  switch(size){
-	  case BST32_3BX:
-	    EVM_GTFE_BLOCK = EVM_GTFE_BLOCK_V0000;
-	    EVM_FDL_NOBX = 3;
-	    break;
-	  case BST32_5BX:
-	    EVM_GTFE_BLOCK = EVM_GTFE_BLOCK_V0000;
-	    EVM_FDL_NOBX = 3;
-	    break;
-	  case BST52_3BX:
-	    EVM_GTFE_BLOCK = EVM_GTFE_BLOCK_V0011;
-	    EVM_FDL_NOBX = 3;
-	    break;
-	  case BST52_5BX:
-	    EVM_GTFE_BLOCK = EVM_GTFE_BLOCK_V0011;
-	    EVM_FDL_NOBX = 5;
-	    break;
-	  default:
-	    EVM_GTFE_BLOCK = EVM_GTFE_BLOCK_V0000;
-	    EVM_FDL_NOBX = 3;	    
-	  }
-	}
+      bool evm_board_sense(const unsigned char *p, size_t size);
+      void evm_board_setformat(size_t size);
       inline bool gtpe_board_sense(const unsigned char *p)
 	{
 	  return (*(unsigned int*)(p + GTPE_BOARDID_OFFSET * SLINK_WORD_SIZE / 2) >> GTPE_BOARDID_SHIFT) != 0;
@@ -133,3 +87,4 @@ namespace evf{
       unsigned long long getfdlta2(const unsigned char *);
   }
 }
+#endif
