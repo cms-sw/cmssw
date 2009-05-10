@@ -1,6 +1,6 @@
 #############################################################################
 #
-# $Id: cms-valgrind-memcheck.supp,v 1.1 2008/05/24 21:55:54 elmer Exp $
+# $Id: cms-valgrind-memcheck.supp,v 1.2 2009/01/27 01:05:51 elmer Exp $
 #
 # Valgrind memcheck suppression file for CMS. This is meant primarily for
 # suppressing problems reported for external packages which are known to
@@ -14,7 +14,9 @@
 #============================================================================
 # Python - From SVN trunk Misc/valgrind-python.supp on 23 May, 2008. This is
 #          not their complete file, but rather the subset we see in our 
-#          applications
+#          applications.
+#          64bit versions added based on those in our applications on 10 
+#          May, 2009.
 
 {
    ADDRESS_IN_RANGE/Invalid read of size 4
@@ -25,6 +27,12 @@
 {
    ADDRESS_IN_RANGE/Invalid read of size 4
    Memcheck:Value4
+   fun:PyObject_Free
+}
+
+{
+   ADDRESS_IN_RANGE/Invalid read of size 8
+   Memcheck:Value8
    fun:PyObject_Free
 }
 
@@ -43,6 +51,12 @@
 {
    ADDRESS_IN_RANGE/Invalid read of size 4
    Memcheck:Value4
+   fun:PyObject_Realloc
+}
+
+{
+   ADDRESS_IN_RANGE/Invalid read of size 8
+   Memcheck:Value8
    fun:PyObject_Realloc
 }
 
