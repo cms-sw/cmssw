@@ -20,8 +20,14 @@ trackId_=trackId;
 
 
   
-void GsfPFRecTrack::addBrem(const reco::PFBrem& brem){
+void 
+GsfPFRecTrack::addBrem(const reco::PFBrem& brem){
   pfBremVec_.push_back(brem);
 }
 
 
+void 
+GsfPFRecTrack::calculateBremPositionREP() { 
+  for ( unsigned j=0; j<pfBremVec_.size(); ++j ) 
+    pfBremVec_[j].calculatePositionREP();
+}

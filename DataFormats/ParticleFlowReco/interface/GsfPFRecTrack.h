@@ -43,6 +43,9 @@ namespace reco {
     /// add a Bremsstrahlung photon
     void addBrem( const reco::PFBrem& brem);
 
+    /// calculate posrep_ once and for all for each brem
+    void calculateBremPositionREP();
+
     /// \return the vector of PFBrem
     const std::vector<reco::PFBrem>& PFRecBrem()const {return pfBremVec_;}
 
