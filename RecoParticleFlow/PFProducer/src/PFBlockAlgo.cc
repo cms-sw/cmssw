@@ -1345,8 +1345,8 @@ PFBlockAlgo::testLinkByVertex( const reco::PFBlockElement* elt1,
 
 std::pair<double,double> 
 PFBlockAlgo::testTrackAndClusterByRecHit( const PFRecTrack& track, 
-			       const PFCluster&  cluster,
-			       bool isBrem)  const {
+					  const PFCluster&  cluster,
+					  bool isBrem)  const {
   
 #ifdef PFLOW_DEBUG
   if( debug_ ) 
@@ -1469,10 +1469,19 @@ PFBlockAlgo::testTrackAndClusterByRecHit( const PFRecTrack& track,
   }
 
 
-  // Check that, if in the endcap, the track and the cluster are on the same side !
-  // PJ - 28-Feb-09
-  if ( !barrel && track_Z * clusterZ < 0. ) 
-    return std::pair<double,double>(-1,-1);
+  // Check that, if the cluster is in the endcap, 
+  // 1) the track is in the endcap too !
+  // 2) the track is in the same end-cap !
+  // PJ - 10-May-09
+  if ( !barrel ) { 
+    if ( !hcal && fabs(track_Z) < 300. ) return std::pair<double,double>(-1,-1);
+    // if ( hcal && track_Z < 359. ) return std::pair<double,double>(-1,-1);
+    if ( track_Z * clusterZ < 0. ) return std::pair<double,double>(-1,-1);
+  }
+  // Check that, if the cluster is in the barrel, 
+  // 1) the track is in the barrel too !
+  if ( barrel ) 
+    if ( !hcal && fabs(track_Z) > 300. ) return std::pair<double,double>(-1,-1);
 
   double clusteretares 
     = mapeta->GetBinContent(mapeta->FindBin(clustereta, 
@@ -1653,12 +1662,16 @@ PFBlockAlgo::testTrackAndClusterByRecHit( const PFRecTrack& track,
     if( debug_ ) 
       cout << "Track and Cluster LINKED BY RECHIT" << endl;
 #endif
+    /* */
     //if ( distance > 40. || distance < -100. ) 
-    //  std::cout << "Distance = " << distance 
-    //	<< ", Barrel/Hcal/Brem ? " << barrel << " " << hcal << " " << isBrem << std::endl
-    //<< " Cluster " << clusterX << " " << clusterY << " " << clusterZ << " " << clustereta << " " << clusterphi << std::endl
-    //		<< " Track   " << track_X << " " << track_Y << " " << track_Z << " " << tracketa << " " << trackphi << std::endl;
-    
+    double clusterr = std::sqrt(clusterX*clusterX+clusterY*clusterY);
+    double trackr = std::sqrt(track_X*track_X+track_Y*track_Y);
+    if ( distance > 40. ) 
+    std::cout << "Distance = " << distance 
+	      << ", Barrel/Hcal/Brem ? " << barrel << " " << hcal << " " << isBrem << std::endl
+	      << " Cluster " << clusterr << " " << clusterZ << " " << clusterphi << " " << clustereta << std::endl
+	      << " Track   " << trackr << " " << track_Z << " " << trackphi << " " << tracketa << std::endl;
+    /* */
     return lnk;
   } else {
     return std::pair<double,double>(-1,-1);
