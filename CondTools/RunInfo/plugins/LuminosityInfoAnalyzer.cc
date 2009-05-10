@@ -57,6 +57,9 @@ namespace edmtest
     // Context is not used.
     //std::cout <<" I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
     //    std::cout <<" ---EVENT NUMBER "<<e.id().event() <<std::endl;
+    std::cout<<"lumiblock id value "<<iLBlock.id().value()<<std::endl;
+    std::cout<<"lumiblock in run "<<iLBlock.run()<<std::endl;
+    std::cout<<"lumiblock number "<<iLBlock.id().luminosityBlock()<<std::endl;
     edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("LuminosityInfoRcd"));
     if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
       //record not found
