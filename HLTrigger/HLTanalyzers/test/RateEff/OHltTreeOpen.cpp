@@ -771,7 +771,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
           if ( ohEleHiso[i] < Hiso || ohEleHiso[i]/ohEleEt[i] < 0.05) { 
             if (ohEleNewSC[i]==1) { 
               if (ohElePixelSeeds[i]>0) { 
-                if ( ohEleTiso[i] < Tiso && ohEleTiso[i] != -999.) { 
+		//                if ( ohEleTiso[i] < Tiso && ohEleTiso[i] != -999.) { 
                   if ( ohEleL1iso[i] >= L1iso ) {  // L1iso is 0 or 1  
                     for(int j=0;j<NohEle && j != i;j++) { 
                       if(ohEleEt[j] > 15.) { 
@@ -780,7 +780,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
                       } 
                     } 
                   } 
-                } 
+		  //                } 
               } 
             } 
           } 
@@ -805,21 +805,19 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
 	for (int j=0;j<NohEle && j != i;j++) {  
 	  
 	  if ( ohEleEt[i] > 5.0 && ohEleEt[j] > 5.0) { 
-	    if ( (ohEleHiso[i] < 9. || ohEleHiso[i]/ohEleEt[i] < 0.2) && (ohEleHiso[j] < 9. || ohEleHiso[j]/ohEleEt[j] < 0.2) ){
+	    if ( ((ohEleHiso[i] < 9.) || (ohEleHiso[i]/ohEleEt[i] < 0.2)) && ((ohEleHiso[j] < 9.) || (ohEleHiso[j]/ohEleEt[j] < 0.2)) ){
 	      if (ohEleNewSC[i]==1 && ohEleNewSC[j]==1) {
 		if (ohElePixelSeeds[i]>0 && ohElePixelSeeds[j]>0 ) {
-		  if ( ohEleTiso[i] < 9999. && ohEleTiso[i] != -999. && ohEleTiso[j] < 9999. && ohEleTiso[j] != -999.) {
-		    if ( ohEleL1iso[i] >= 0 && ohEleL1iso[j] >= 0 ) {  // L1iso is 0 or 1 
-		      if( ohEleL1Dupl[i] == false && ohEleL1Dupl[j] == false) { // JH - remove double-counted L1 SCs   
-	    
+		  if ( ohEleL1iso[i] >= 0 && ohEleL1iso[j] >= 0 ) {  // L1iso is 0 or 1 
+		    if( ohEleL1Dupl[i] == false && ohEleL1Dupl[j] == false) { // JH - remove double-counted L1 SCs   
+		      
 			e1.SetPtEtaPhiM(ohEleEt[i],ohEleEta[i],ohElePhi[i],0.0); 
 			e2.SetPtEtaPhiM(ohEleEt[j],ohEleEta[j],ohElePhi[j],0.0); 
 			meson = e1 + e2; 
-	    
+			
 			float mesonmass = meson.M();  
 			if(mesonmass > 2.0 && mesonmass < 4.5)
 			  rc++;
-		      }
 		    }
 		  }
 		}
@@ -848,24 +846,22 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
         for (int j=0;j<NohEle && j != i;j++) {   
            
           if ( ohEleEt[i] > 5.0 && ohEleEt[j] > 5.0) {  
-            if ( (ohEleHiso[i] < 9. || ohEleHiso[i]/ohEleEt[i] < 0.2) && (ohEleHiso[j] < 9. || ohEleHiso[j]/ohEleEt[j] < 0.2) ){ 
+            if ( ((ohEleHiso[i] < 9.) || (ohEleHiso[i]/ohEleEt[i] < 0.2)) && ((ohEleHiso[j] < 9.) || (ohEleHiso[j]/ohEleEt[j] < 0.2)) ){ 
               if (ohEleNewSC[i]==1 && ohEleNewSC[j]==1) { 
                 if (ohElePixelSeeds[i]>0 && ohElePixelSeeds[j]>0 ) { 
-                  if ( ohEleTiso[i] < 9999. && ohEleTiso[i] != -999. && ohEleTiso[j] < 9999. && ohEleTiso[j] != -999.) { 
-                    if ( ohEleL1iso[i] >= 0 && ohEleL1iso[j] >= 0 ) {  // L1iso is 0 or 1  
-                      if( ohEleL1Dupl[i] == false && ohEleL1Dupl[j] == false) { // JH - remove double-counted L1 SCs    
-             
-                        e1.SetPtEtaPhiM(ohEleEt[i],ohEleEta[i],ohElePhi[i],0.0);  
-                        e2.SetPtEtaPhiM(ohEleEt[j],ohEleEta[j],ohElePhi[j],0.0);  
-                        meson = e1 + e2;  
-			
-			float mesonmass = meson.M();   
-			if(mesonmass > 8.0 && mesonmass < 11.0) 
-			  rc++; 
-		      } 
+		  if ( ohEleL1iso[i] >= 0 && ohEleL1iso[j] >= 0 ) {  // L1iso is 0 or 1  
+		    if( ohEleL1Dupl[i] == false && ohEleL1Dupl[j] == false) { // JH - remove double-counted L1 SCs    
+		      
+		      e1.SetPtEtaPhiM(ohEleEt[i],ohEleEta[i],ohElePhi[i],0.0);  
+		      e2.SetPtEtaPhiM(ohEleEt[j],ohEleEta[j],ohElePhi[j],0.0);  
+		      meson = e1 + e2;  
+		      
+		      float mesonmass = meson.M();   
+		      if(mesonmass > 8.0 && mesonmass < 11.0) 
+			rc++; 
 		    } 
 		  } 
-		}
+		} 
 	      }
 	    }
 	  }
@@ -914,7 +910,36 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }         
     }   
   }
-  
+ 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele25_SW_EleId_LooseTrackIso_L1R") == 0) {   
+    float Et = 25.;   
+    float Tiso = 8.0;   
+    float Hiso = 9999.; 
+    float Tisoratio = 0.5; 
+    int L1iso = 0;
+    int rc = 0;   
+ 
+    if ( map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {
+      for (int i=0;i<NohEle;i++) {  
+        if ( ohEleEt[i] > Et) {  
+          if ( ohEleHiso[i] < Hiso || ohEleHiso[i]/ohEleEt[i] < 0.05)  
+            if (ohEleNewSC[i]==1)  
+              if (ohElePixelSeeds[i]>0)  
+                if ( (ohEleTiso[i] < Tisoratio || (ohEleTiso[i]*ohEleEt[i]) < Tiso) && ohEleTiso[i] != -999.)  
+                  if ( ohEleL1iso[i] >= L1iso )   // L1iso is 0 or 1  
+		    if ( (TMath::Abs(ohPhotEta[i]) < 1.5 && ohEleClusShap[i] < 0.015) ||  
+			 (1.5 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.5 && ohEleClusShap[i] < 0.04) )   
+		      if ( (ohEleDeta[i] < 0.008) && (ohEleDphi[i] < 0.1) )  
+			if( ohEleL1Dupl[i] == false) // JH - remove double-counted L1 SCs    
+			  rc++;        
+        }  
+      }  
+      if(rc > 0) {  
+	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }          
+      }    
+    } 
+  }
+ 
  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_SiStrip_L1R") == 0) {  
    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {  
       // JH: This is just a placeholder for now until strip-seeded electrons are available 
@@ -1650,9 +1675,10 @@ int OHltTree::OpenHlt1LWElectronPassed(float Et, int L1iso, float Tiso, float Hi
 	if (ohEleNewSCLW[i]==1) 
 	  if (ohElePixelSeedsLW[i]>0) 
 	    if ( ohEleTisoLW[i] < Tiso && ohEleTisoLW[i] != -999.) 
-	      if ( ohEleL1isoLW[i] >= L1iso )   // L1iso is 0 or 1 
+	      if ( ohEleL1isoLW[i] >= L1iso ) {  // L1iso is 0 or 1 
 		if( ohEleLWL1Dupl[i] == false) // JH - remove double-counted L1 SCs
 		  rc++;       
+	      }
     } 
   }
   

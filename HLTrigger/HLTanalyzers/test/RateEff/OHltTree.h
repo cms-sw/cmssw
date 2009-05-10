@@ -3345,6 +3345,22 @@ void OHltTree::RemoveEGOverlaps()
     }
   }
 
+  for(int i=0;i<NohEleLW ;i++){ 
+    if (ohEleL1isoLW[i] == 1){ohEleLWL1Dupl[i]=false;} 
+    else{ 
+      float  dist = 1000; 
+      for(int j=0;j<NohEleLW ;j++){ 
+        if(ohEleL1isoLW[j]==1){ 
+          float distTemp = fabs(ohEleEtaLW[i]-ohEleEtaLW[j])+fabs(ohEleELW[i]-ohEleELW[j]); 
+          if(distTemp < dist){dist=distTemp;} 
+        } 
+      }//loop over j 
+      if (dist < 0.01){ohEleLWL1Dupl[i]=true;} 
+      else {ohEleLWL1Dupl[i]=false;} 
+    } 
+  } 
+
+
   for(int i=0;i<NohPhot ;i++){ 
     if (ohPhotL1iso[i] == 1){ohPhotL1Dupl[i]=false;} 
     else{ 

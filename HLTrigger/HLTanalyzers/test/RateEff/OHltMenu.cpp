@@ -531,6 +531,7 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
 
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_Ele15_SW_EleId_L1R", myvec(1, "L1_SingleEG8")));
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_Ele15_SC15_SW_EleId_L1R", myvec(1, "L1_SingleEG8")));
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_Ele25_SW_EleId_LooseTrackIso_L1R", myvec(1, "L1_SingleEG8"))); 
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_Ele15_SiStrip_L1R", myvec(1, "L1_SingleEG8")));
 
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_Photon10_L1R",  myvec(1,"L1_SingleEG5")));
