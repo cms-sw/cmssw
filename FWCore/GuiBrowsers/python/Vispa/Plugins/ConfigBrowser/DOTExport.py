@@ -18,6 +18,248 @@ except Exception:
 from Vispa.Plugins.ConfigBrowser.ConfigDataAccessor import *
 from Vispa.Plugins.ConfigBrowser.FileExportPlugin import *
 
+class DotProducer(object):
+  def __init__(self,data,options,shapes):
+    self.data = data
+    self.options = options
+    self.shapes = shapes
+    self.nodes={}
+    #lists of starts, ends of paths for path-endpath and source-path connections
+    self.pathstarts=[]
+    self.pathends=[]
+    self.endstarts=[]
+    self.toplevel = self.getTopLevel()
+    
+  def getTopLevel(self):
+      
+    #build a dictionary of available top-level objects
+    all_toplevel={}
+    if self.data.process():
+      for tlo in self.data.children(self.data.topLevelObjects()[0]):
+        children = self.data.children(tlo)
+        if children:
+          all_toplevel[tlo._label]=children
+    else:
+      #case if we have only an anonymous (non-process) file
+      #pick up (modules, sequences, paths)
+      for tlo in self.data.topLevelObjects():
+        if self.data.type(tlo)=='Sequence':
+          if 'sequences' in all_toplevel:
+            all_toplevel['sequences']+=[tlo]
+          else:
+            all_toplevel['sequences']=[tlo]
+        if data.type(tlo)=='Path':
+          if 'paths' in all_toplevel:
+            all_toplevel['paths']+=[tlo]
+          else:
+            all_toplevel['paths']=[tlo]
+        if data.type(tlo) in ('EDAnalyzer','EDFilter','EDProducer','OutputModule'):
+          self.nodes[self.data.label(tlo)]={'obj':tlo,'n_label':self.nodeLabel(tlo),'n_shape':self.shapes.get(data.type(tlo),'plaintext'),'inpath':True} 
+        if self.options['services'] and self.data.type(tlo)=='Service':
+          self.nodes[self.data.label(tlo)]={'obj':tlo,'n_label':self.nodeLabel(tlo),'n_shape':self.shapes.get(data.type(tlo),'plaintext'),'inpath':False}
+        if self.options['es'] and self.data.type(tlo) in ('ESSource','ESProducer'):
+          self.nodes[self.data.label(tlo)]={'obj':tlo,'n_label':self.nodeLabel(tlo),'n_shape':self.shapes.get(data.type(tlo),'plaintext'),'inpath':False}
+    return all_toplevel      
+
+  def seqRecurseChildren(self,obj):
+    children = self.data.children(obj)
+    if children:
+      seqlabel = self.data.label(obj)
+      if self.options['file']:
+        seqlabel += '\\n%s:%s' % (self.data.pypath(obj),self.data.lineNumber(obj))
+      result='subgraph clusterSeq%s {\nlabel="Sequence %s"\ncolor="%s"\nfontcolor="%s"\n' % (self.data.label(obj),seqlabel,self.options['color_sequence'],self.options['color_sequence'])
+      for c in children:
+        result += self.seqRecurseChildren(c)
+      result+='}\n'
+      return result
+    else:
+      self.nodes[self.data.label(obj)]={'obj':obj,'n_label':self.nodeLabel(obj),'n_shape':self.shapes.get(self.data.type(obj),'plaintext'),'inpath':True}
+      return '%s\n'%self.data.label(obj)   
+      
+  def recurseChildren(self,obj):
+    result=[]
+    children=self.data.children(obj)
+    if children:
+      for c in children:
+        result += self.recurseChildren(c)
+    else:
+      result.append(obj)
+    return result
+    
+  #write out an appropriate node label
+  def nodeLabel(self,obj):
+    result = self.data.label(obj)
+    if self.options['class']:
+      result += '\\n%s'%self.data.classname(obj)
+    if self.options['file']:
+      result += '\\n%s:%s'%(self.data.pypath(obj),self.data.lineNumber(obj))
+    return result
+    
+    #generate an appropriate URL by replacing placeholders in baseurl
+  def nodeURL(self,obj):
+    classname = self.data.classname(obj)
+    pypath = self.data.pypath(obj)
+    pyline = self.data.lineNumber(obj)
+    url = self.options['urlbase'].replace('$classname',classname).replace('$pypath',pypath).replace('$py',pyline)
+    return url
+    
+  def makePath(self,path,endpath=False):
+    children = self.recurseChildren(path)
+    pathlabel = self.data.label(path)
+    if self.options['file']:
+      pathlabel += '\\n%s:%s'%(self.data.pypath(path),self.data.lineNumber(path))
+    if endpath:
+      pathresult = 'subgraph cluster%s {\nlabel="%s"\ncolor="%s"\nfontcolor="%s"\n' % (self.data.label(path),pathlabel,self.options['color_endpath'],self.options['color_endpath'])
+    else:
+      pathresult = 'subgraph cluster%s {\nlabel="%s"\ncolor="%s"\nfontcolor="%s"\n' % (self.data.label(path),pathlabel,self.options['color_path'],self.options['color_path'])
+    if self.options['seqconnect']:
+      if endpath:
+        self.endstarts.append('endstart_%s'%self.data.label(path))
+        self.nodes['endstart_%s'%data.label(path)]={'obj':path,'n_label':'Start %s'%self.data.label(path),'n_color':'grey','n_shape':'plaintext','inpath':False}
+      else:
+        self.pathstarts.append('start_%s'%self.data.label(path))
+        self.pathends.append('end_%s'%self.data.label(path))
+        self.nodes['start_%s'%self.data.label(path)]={'obj':path,'n_label':'Start %s'%self.data.label(path),'n_color':'grey','n_shape':'plaintext','inpath':False}
+        self.nodes['end_%s'%self.data.label(path)]={'obj':path,'n_label':'End %s'%self.data.label(path),'n_color':'grey','n_shape':'plaintext','inpath':False}
+    labels=[]
+    for c in children:
+      #this is also done in seqRecurseChildren, so will be duplicated
+      #unncessary, but relatively cheap and saves more cff/cfg conditionals
+      self.nodes[self.data.label(c)]={'obj':c,'n_label':self.nodeLabel(c),'n_shape':self.shapes.get(self.data.type(c),'plaintext'),'inpath':True}
+      labels.append(self.data.label(c))
+    if self.options['seqconnect']:
+      pathresult += '->'.join(labels)+'\n'
+    else:
+      if not self.options['seq']:
+        pathresult += '\n'.join(labels)+'\n'
+    if self.options['seq']:
+      if self.data.children(path):
+        for path_child in self.data.children(path):
+          pathresult += self.seqRecurseChildren(path_child)
+    pathresult += '}\n'
+    if len(labels)>0 and self.options['seqconnect']:
+      if endpath:
+        pathresult += 'endstart_%s->%s\n' % (self.data.label(path),labels[0])
+      else:
+        pathresult += 'start_%s->%s\n%s->end_%s\n' % (self.data.label(path),labels[0],labels[-1],self.data.label(path))
+    
+    return pathresult
+
+  def producePaths(self):
+    result=''
+    if 'paths' in self.toplevel:
+      for path in self.toplevel['paths']:
+        result += self.makePath(path)
+    if self.options['endpath']:
+      if 'endpaths' in self.toplevel:
+        for path in self.toplevel['endpaths']:
+          result += self.makePath(path,True)
+    if 'sequences' in self.toplevel:
+      for seq in self.toplevel['sequences']:
+        result += self.seqRecurseChildren(seq)
+    return result
+    
+  def connectPaths(self):
+    result=''
+    for p in self.pathends:
+      for p2 in self.endstarts:
+        result+="%s->%s\n" % (p,p2)
+    return result
+  
+  def connectTags(self):
+    #if we are connecting by tag, add labelled tag joining lines
+    #this doesn't have to be exclusive with sequence connection, by stylistically probably should be
+    result=''
+    allobjects = [self.nodes[n]['obj'] for n in self.nodes if self.nodes[n]['inpath']]
+    self.data.readConnections(allobjects)
+    connections = self.data.connections()
+    for c in connections:
+      if self.options['taglabel']:
+        result += '%s->%s[label="%s",color="%s",fontcolor="%s"]\n' % (c[0],c[2],c[3],self.options['color_inputtag'],self.options['color_inputtag'])
+      else:
+        result += '%s->%s[color="%s"]\n' % (c[0],c[2],self.options['color_inputtag'])
+    return result
+  
+  
+  def produceSource(self):
+    #add the source
+    #if we are connecting sequences, connect it to all the path starts
+    #if we are connecting sequences and have a schedule, connect it to path #0
+    result=''
+    if 'source' in self.toplevel:
+      for s in self.toplevel['source']:
+        self.nodes['source']={'obj':s,'n_label':self.data.classname(s),'n_shape':self.shapes['Source']}
+        if self.options['seqconnect']:
+            for p in self.pathstarts:
+              result += 'source->%s\n' % (p)   
+    return result
+    
+  def produceServices(self):
+    # add service, eventsetup nodes
+    # this will usually result in thousands and isn't that interesting
+    servicenodes=[]
+    result=''
+    if self.options['es']:
+      if 'essources' in self.toplevel:
+        for e in self.toplevel['essources']:
+          servicenodes.append(self.data.label(e))
+          self.nodes[self.data.label(e)]={'obj':e,'n_label':self.nodeLabel(e), 'n_shape':self.shapes['ESSource'],'inpath':False}
+      if 'esproducers' in self.toplevel:
+        for e in self.toplevel['esproducers']:
+          servicenodes.append(self.data.label(e))
+          self.nodes[self.data.label(e)]={'obj':e,'n_label':self.nodeLabel(e), 'n_shape':self.shapes['ESProducer'],'inpath':False}
+    if self.options['services']:
+      if 'services' in self.toplevel:
+        for s in self.toplevel['services']:
+          self.servicenodes.append(self.data.label(s))
+          self.nodes[self.data.label(s)]={'obj':s,'n_label':self.nodeLabel(e), 'n_shape':self.shapes['Service'],'inpath':False}
+    #find the maximum path and endpath lengths for servicenode layout
+    maxpath=max([len(recurseChildren(path) for path in self.toplevel.get('paths',(0,)))])
+    maxendpath=max([len(recurseChildren(path) for path in self.toplevel.get('endpaths',(0,)))])
+    
+    #add invisible links between service nodes where necessary to ensure they only fill to the same height as the longest path+endpath
+    #this constraint should only apply for link view
+    for i,s in enumerate(servicenodes[:-1]):
+      if not i%(maxpath+maxendpath)==(maxpath+maxendpath)-1:
+        result+='%s->%s[style=invis]\n' % (s,servicenodes[i+1])
+    return result
+    
+  def produceNodes(self):
+    result=''
+    for n in self.nodes:
+      if self.options['url']:
+        self.nodes[n]['n_URL']=self.nodeURL(nodes[n]['obj'])
+      result += "%s[%s]\n" % (n,','.join(['%s="%s"' % (k[2:],v) for k,v in self.nodes[n].items() if k[0:2]=='n_']))
+    return result
+    
+  def produceLegend(self):
+    """
+    Return a legend subgraph using current shape and colour preferences.
+    """
+    return 'subgraph clusterLegend {\nlabel="legend"\ncolor=red\nSource->Producer->Filter->Analyzer\nService->ESSource[style=invis]\nESSource->ESProducer[style=invis]\nProducer->Filter[color="%s",label="InputTag",fontcolor="%s"]\nProducer[shape=%s]\nFilter[shape=%s]\nAnalyzer[shape=%s]\nESSource[shape=%s]\nESProducer[shape=%s]\nSource[shape=%s]\nService[shape=%s]\nsubgraph clusterLegendSequence {\nlabel="Sequence"\ncolor="%s"\nfontcolor="%s"\nProducer\nFilter\n}\n}\n' % (self.options['color_inputtag'],self.options['color_inputtag'],self.shapes['EDProducer'],self.shapes['EDFilter'],self.shapes['EDAnalyzer'],self.shapes['ESSource'],self.shapes['ESProducer'],self.shapes['Source'],self.shapes['Service'],self.options['color_sequence'],self.options['color_sequence'])
+    
+  def __call__(self):
+    blocks=[]
+    if self.options['legend']:
+      blocks += [self.produceLegend()]
+    blocks += [self.producePaths()]
+    if self.data.process:
+      if self.options['seqconnect']:
+        blocks += [self.connectPaths()]
+      if self.options['tagconnect']:
+        blocks += [self.connectTags()]
+      if self.options['source']:
+        blocks += [self.produceSource()]
+      if self.options['es'] or self.options['services']:
+        blocks += [self.produceServices()]
+      blocks += [self.produceNodes()]
+      return 'digraph configbrowse {\nsubgraph clusterProcess {\nlabel="%s\\n%s"\n%s\n}\n}\n' % (self.data.process().name_(),self.data._filename,'\n'.join(blocks))
+    else:
+      blocks += [self.produceNodes()]
+      return 'digraph configbrowse {\nsubgraph clusterCFF {\nlabel="%s"\n%s\n}\n}\n' % (self.data._filename,'\n'.join(blocks))
+  
+  
+
 class DotExport(FileExportPlugin):
   """
   Export a CMSSW config file to DOT (http://www.graphviz.org) markup, either as raw markup or by invoking the dot program, as an image.
@@ -59,246 +301,7 @@ class DotExport(FileExportPlugin):
     self.shapes['ESProducer']='Msquare'
     self.shapes['Source']='ellipse'
     self.shapes['Service']='diamond'
-  
-  def produceDOT(self,data):
-    """
-    Produce a string of DOT representing the supplied ConfigDataAccessor's currently loaded file, according to the current object options.
-    """  
-  
-  
-    #produce nested markup of children and sequences
-    def seqRecurseChildren(obj):
-      children = data.children(obj)
-      if children:
-        seqlabel = data.label(obj)
-        if self.options['file']:
-          seqlabel += '\\n%s:%s' % (data.filename(obj),data.lineNumber(obj))
-        result='subgraph clusterSeq%s {\nlabel="Sequence %s"\ncolor="%s"\nfontcolor="%s"\n' % (data.label(obj),seqlabel,self.options['color_sequence'],self.options['color_sequence'])
-        for c in children:
-          result += seqRecurseChildren(c)
-        result+='}\n'
-        return result
-      else:
-        nodes[data.label(obj)]={'obj':obj,'n_label':nodeLabel(obj),'n_shape':self.shapes.get(data.type(obj),'plaintext'),'inpath':True}
-        return '%s\n'%data.label(obj)
     
-    #get a list of all an object's children, recursively
-    def recurseChildren(obj):
-      result=[]
-      children=data.children(obj)
-      if children:
-        for c in children:
-          result += recurseChildren(c)
-      else:
-        result.append(obj)
-      return result
-      
-    #write out an appropriate node label
-    def nodeLabel(obj):
-      result = data.label(obj)
-      if self.options['class']:
-        result += '\\n%s'%data.classname(obj)
-      if self.options['file']:
-        result += '\\n%s:%s'%(data.pypath(obj),data.lineNumber(obj))
-      return result
-    
-    #generate an appropriate URL by replacing placeholders in baseurl
-    def nodeURL(obj):
-      classname = data.classname(obj)
-      pypath = data.pypath(obj)
-      pyline = data.lineNumber(obj)
-      url = self.options['urlbase'].replace('$classname',classname).replace('$pypath',pypath).replace('$py',pyline)
-      return url
-       
-    def makePath(path,endpath=False):
-      children = recurseChildren(path)
-      pathlabel = data.label(path)
-      if self.options['file']:
-        pathlabel += '\\n%s:%s'%(data.filename(path),data.lineNumber(path))
-      if endpath:
-        pathresult = 'subgraph cluster%s {\nlabel="%s"\ncolor="%s"\nfontcolor="%s"\n' % (data.label(path),pathlabel,self.options['color_endpath'],self.options['color_endpath'])
-      else:
-        pathresult = 'subgraph cluster%s {\nlabel="%s"\ncolor="%s"\nfontcolor="%s"\n' % (data.label(path),pathlabel,self.options['color_path'],self.options['color_path'])
-      if self.options['seqconnect']:
-        if endpath:
-          endstarts.append('endstart_%s'%data.label(path))
-          nodes['endstart_%s'%data.label(path)]={'obj':path,'n_label':'Start %s'%data.label(path),'n_color':'grey','n_shape':'plaintext','inpath':False}
-        else:
-          pathstarts.append('start_%s'%data.label(path))
-          pathends.append('end_%s'%data.label(path))
-          nodes['start_%s'%data.label(path)]={'obj':path,'n_label':'Start %s'%data.label(path),'n_color':'grey','n_shape':'plaintext','inpath':False}
-          nodes['end_%s'%data.label(path)]={'obj':path,'n_label':'End %s'%data.label(path),'n_color':'grey','n_shape':'plaintext','inpath':False}
-      labels=[]
-      for c in children:
-        #this is also done in seqRecurseChildren, so will be duplicated
-        #unncessary, but relatively cheap and saves more cff/cfg conditionals
-        nodes[data.label(c)]={'obj':c,'n_label':nodeLabel(c),'n_shape':self.shapes.get(data.type(c),'plaintext'),'inpath':True}
-        labels.append(data.label(c))
-      if self.options['seqconnect']:
-        pathresult += '->'.join(labels)+'\n'
-      else:
-        if not self.options['seq']:
-          pathresult += '\n'.join(labels)+'\n'
-      if self.options['seq']:
-        if data.children(path):
-          for path_child in data.children(path):
-            pathresult += seqRecurseChildren(path_child)
-      pathresult += '}\n'
-      if len(labels)>0 and self.options['seqconnect']:
-        if endpath:
-          pathresult += 'endstart_%s->%s\n' % (data.label(path),labels[0])
-        else:
-          pathresult += 'start_%s->%s\n%s->end_%s\n' % (data.label(path),labels[0],labels[-1],data.label(path))
-    
-      return pathresult
-        
-    
-    #dictionary of all nodes that ultimately need to be added with style definitions
-    #keys named n_foo are added as foo=value to the dot format
-    nodes={}
-      
-    #build a dictionary of available top-level objects
-    all_toplevel={}
-    if data.process():
-      for tlo in data.children(data.topLevelObjects()[0]):
-        children = data.children(tlo)
-        if children:
-          all_toplevel[tlo._label]=children
-    else:
-      #case if we have only an anonymous (non-process) file
-      #pick up (modules, sequences, paths)
-      for tlo in data.topLevelObjects():
-        if data.type(tlo)=='Sequence':
-          if 'sequences' in all_toplevel:
-            all_toplevel['sequences']+=[tlo]
-          else:
-            all_toplevel['sequences']=[tlo]
-        if data.type(tlo)=='Path':
-          if 'paths' in all_toplevel:
-            all_toplevel['paths']+=[tlo]
-          else:
-            all_toplevel['paths']=[tlo]
-        if data.type(tlo) in ('EDAnalyzer','EDFilter','EDProducer','OutputModule'):
-          nodes[data.label(tlo)]={'obj':tlo,'n_label':nodeLabel(tlo),'n_shape':self.shapes.get(data.type(tlo),'plaintext'),'inpath':True} 
-          
-    
-    
-    
-    #lists of starts, ends of paths for path-endpath and source-path connections
-    pathstarts=[]
-    pathends=[]
-    endstarts=[]
-        
-    #declare the toplevel graph
-    if not data.process():
-      result='digraph configbrowse {\nsubgraph clusterCFF {\nlabel="%s"\n' % (data._filename)
-    else:
-      result='digraph configbrowse {\nsubgraph clusterProcess {\nlabel="%s\\n%s"\n' % (data.process().name_(),data._filename)
-    
-    #non-path sequences from a CFF or CFI file
-    if 'sequences' in all_toplevel:
-      for seq in all_toplevel['sequences']:
-        result += seqRecurseChildren(seq)
-      
-    #removed
-    #if 'Schedule(Paths)' in all_toplevel:
-    #  for path in [path for path in all_toplevel['Schedule(Paths)'] if not (path in all_toplevel.get('EndPaths',()))]:
-    #    result += makePath(path)
-    if 'paths' in all_toplevel:
-      for path in all_toplevel['paths']:
-        result += makePath(path)
-    if self.options['endpath']:
-      if 'endpaths' in all_toplevel:
-        for path in all_toplevel['endpaths']:
-          result += makePath(path,True)
-    
-    #if we are connecting by sequence, connect all path ends to all endpath starts
-    if self.options['seqconnect']:
-      #if self.options['schedule']:
-      #  if 'Schedule(Paths)' in all_toplevel:
-      #    result += 'subgraph clusterSchedule {\nlabel="Schedule"\ncolor="%s"\nfontcolor="%s"\n' % (self.options['color_schedule'],self.options['color_schedule'])
-      #    result += '->'.join(['start_%s' % data.label(path) for path in all_toplevel['Schedule(Paths)']])+'\n'
-      #    result += '}\n'
-      for p in pathends:
-        for p2 in endstarts:
-          result+="%s->%s\n" % (p,p2)
-         
-    
-    #if we are connecting by tag, add labelled tag joining lines
-    #this doesn't have to be exclusive with sequence connection, by stylistically probably should be
-    if self.options['tagconnect']:
-      allobjects = [nodes[n]['obj'] for n in nodes if nodes[n]['inpath']]
-      data.readConnections(allobjects)
-      connections = data.connections()
-      for c in connections:
-        if self.options['taglabel']:
-          result += '%s->%s[label="%s",color="%s",fontcolor="%s"]\n' % (c[0],c[2],c[3],self.options['color_inputtag'],self.options['color_inputtag'])
-        else:
-          result += '%s->%s[color="%s"]\n' % (c[0],c[2],self.options['color_inputtag'])
-    
-    #add the source
-    #if we are connecting sequences, connect it to all the path starts
-    #if we are connecting sequences and have a schedule, connect it to path #0
-    if self.options['source']:
-      if 'source' in all_toplevel:
-        for s in all_toplevel['source']:
-          nodes['source']={'obj':s,'n_label':data.classname(s),'n_shape':self.shapes['Source']}
-          if self.options['seqconnect']:
-            #if 'Schedule(Paths)' in all_toplevel and self.options['schedule']:
-            #  if all_toplevel['Schedule(Paths)']:
-            #    result += 'source->%s\n' % (data.label(data.children(all_toplevel['Schedule(Paths)'])[0]))
-            #else:
-              for p in pathstarts:
-                result += "source->%s\n" % (p)
-        
-    
-    # add service, eventsetup nodes
-    # this will usually result in thousands and isn't that interesting
-    servicenodes=[]
-    if self.options['es']:
-      if 'essources' in all_toplevel:
-        for e in all_toplevel['essources']:
-          servicenodes.append(data.label(e))
-          nodes[data.label(e)]={'obj':e,'n_label':nodeLabel(e), 'n_shape':self.shapes['ESSource'],'inpath':False}
-      if 'esproducers' in all_toplevel:
-        for e in all_toplevel['esproducers']:
-          servicenodes.append(data.label(e))
-          nodes[data.label(e)]={'obj':e,'n_label':nodeLabel(e), 'n_shape':self.shapes['ESProducer'],'inpath':False}
-    if self.options['services']:
-      if 'services' in all_toplevel:
-        for s in all_toplevel['services']:
-          servicenodes.append(data.label(s))
-          nodes[data.label(s)]={'obj':s,'n_label':nodeLabel(e), 'n_shape':self.shapes['Service'],'inpath':False}
-    
-    #find the maximum path and endpath lengths for servicenode layout
-    maxpath=max([len(recurseChildren(path)) for path in all_toplevel.get('paths',(0,))])
-    maxendpath=max([len(recurseChildren(path)) for path in all_toplevel.get('endpaths',(0,))])
-    
-    #add invisible links between service nodes where necessary to ensure they only fill to the same height as the longest path+endpath
-    #this constraint should only apply for link view
-    for i,s in enumerate(servicenodes[:-1]):
-      if not i%(maxpath+maxendpath)==(maxpath+maxendpath)-1:
-        result+="%s->%s[style=invis]\n" % (s,servicenodes[i+1])
-            
-    for n in nodes:
-      if self.options['url']:
-        nodes[n]['n_URL']=nodeURL(nodes[n]['obj'])
-      result += "%s[%s]\n" % (n,','.join(['%s="%s"' % (k[2:],v) for k,v in nodes[n].items() if k[0:2]=='n_']))
-                
-    
-    result += '}\n'
-    if self.options['legend']:
-      result+=self.legend()
-      
-    result += "}\n"
-    return result 
-
-  def legend(self):
-    """
-    Return a legend subgraph using current shape and colour preferences.
-    """
-    return 'subgraph clusterLegend {\nlabel="legend"\ncolor=red\nSource->Producer->Filter->Analyzer\nService->ESSource[style=invis]\nESSource->ESProducer[style=invis]\nProducer->Filter[color="%s",label="InputTag",fontcolor="%s"]\nProducer[shape=%s]\nFilter[shape=%s]\nAnalyzer[shape=%s]\nESSource[shape=%s]\nESProducer[shape=%s]\nSource[shape=%s]\nService[shape=%s]\nsubgraph clusterLegendSequence {\nlabel="Sequence"\ncolor="%s"\nfontcolor="%s"\nProducer\nFilter\n}\n}\n' % (self.options['color_inputtag'],self.options['color_inputtag'],self.shapes['EDProducer'],self.shapes['EDFilter'],self.shapes['EDAnalyzer'],self.shapes['ESSource'],self.shapes['ESProducer'],self.shapes['Source'],self.shapes['Service'],self.options['color_sequence'],self.options['color_sequence'])
-  
   def dotIndenter(self,dot):
     """
     Simple indenter for dot output, mainly to prettify it for human reading.
@@ -392,7 +395,8 @@ class DotExport(FileExportPlugin):
     #if not data.process():
     #  raise "DOTExport requires a cms.Process object"  
     
-    dot = self.produceDOT(data)
+    #dot = self.produceDOT(data)
+    dot = DotProducer(data,self.options,self.shapes)()
     dot = self.dotIndenter(dot)
     
     #don't use try-except-finally here, we want any errors passed on so the enclosing program can decide how to handle them
