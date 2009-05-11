@@ -480,7 +480,7 @@ uint32_t CastorSD::setDetUnitId(G4Step* aStep) {
 void CastorSD::setNumberingScheme(CastorNumberingScheme* scheme) {
 
   if (scheme != 0) {
-    edm::LogWarning("ForwardSim") << "CastorSD: updates numbering scheme for " 
+    edm::LogInfo("ForwardSim") << "CastorSD: updates numbering scheme for " 
 				  << GetName();
     if (numberingScheme) delete numberingScheme;
     numberingScheme = scheme;
