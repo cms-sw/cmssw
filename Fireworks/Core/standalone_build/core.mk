@@ -1,7 +1,7 @@
 ifeq ($(shell uname), Linux)
    BoostLibs := boost_system-gcc34-mt-1_38 boost_thread-gcc34-mt-1_38  boost_signals-gcc34-mt-1_38  boost_filesystem-gcc34-mt-1_38  boost_program_options-gcc34-mt-1_38  boost_regex-gcc34-mt-1_38  
    RootLibs := Cintex Cint Core  Net Tree Treeplayer Gpad Graf3d Graf Hist Matrix Physics Postscript Hist Matrix MathCore MathMore GenVector Minuit Minuit2 Physics Reflex
-   CoreLibs := CLHEP-1.9.4.2  gsl gslcblas HepMCfio HepMC pcre sigc-2.0 nsl crypt dl uuid
+   CoreLibs :=   $(BoostLibs) $(RootLibs) CLHEP-1.9.4.2  gsl gslcblas HepMCfio HepMC pcre sigc-2.0 nsl crypt dl uuid
    CoreIncludes := external/inc/boost/1.38.0/include external/inc/clhep/1.9.4.2-cms2/include external/inc/gsl/1.10-cms/include external/inc/hepmc/2.03.06-cms3/include external/inc/pcre/4.4-cms/include external/inc/sigcpp/2.0.17-cms/include/sigc++-2.0
 else 
    ifeq ($(shell uname), Darwin)
