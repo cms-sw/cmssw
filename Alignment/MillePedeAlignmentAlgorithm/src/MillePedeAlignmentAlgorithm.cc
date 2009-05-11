@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.42 $
- *  $Date: 2008/11/10 14:48:42 $
- *  (last update by $Author: henderle $)
+ *  $Revision: 1.43 $
+ *  $Date: 2009/04/03 08:59:34 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
@@ -279,6 +279,16 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup, const EventI
   } // end of reference trajectory and track loop
 
   theUseTrackTsos = useTrackTsosBack;
+}
+
+//____________________________________________________
+void MillePedeAlignmentAlgorithm::endRun(const EndRunInfo &runInfo,
+					 const edm::EventSetup &setup)
+{
+  if (runInfo.tkLasBeams_ && runInfo.tkLasBeamTsoses_) {
+    // LAS beam treatment
+    this->addLaserData(*(runInfo.tkLasBeams_), *(runInfo.tkLasBeamTsoses_));
+  }
 }
 
 //____________________________________________________
@@ -814,4 +824,20 @@ int MillePedeAlignmentAlgorithm
   }
 
   return (isReal2DHit ? 2 : 1);
+}
+
+//____________________________________________________
+void MillePedeAlignmentAlgorithm::addLaserData(const TkFittedLasBeamCollection &lasBeams,
+					       const TsosVectorCollection &lasBeamTsoses)
+{
+  TsosVectorCollection::const_iterator iTsoses = lasBeamTsoses.begin();
+  for (TkFittedLasBeamCollection::const_iterator iBeam = lasBeams.begin(), iEnd = lasBeams.end();
+       iBeam != iEnd; ++iBeam, ++iTsoses) { // beam/tsoses parallel!
+    edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::addLaserData"
+			      << "Beam " << iBeam->getBeamId() << " with " 
+			      << iBeam->parameters().size() << " and " << iBeam->getData().size()
+			      << " hits.\n There are " << iTsoses->size() << " TSOSes, first is "
+			      << ((*iTsoses)[0].isValid() ? "valid." : "invalid.");
+  }
+  
 }
