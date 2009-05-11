@@ -2,7 +2,7 @@
 #define ConfigurableAnalysis_ConfigurableHisto_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileDirectory.h"
+#include "CommonTools/UtilAlgos/interface/TFileDirectory.h"
 
 #include "TH1.h"
 #include "TH1F.h"
@@ -10,8 +10,8 @@
 #include "TProfile.h"
 #include "THStack.h"
 
-#include "PhysicsTools/UtilAlgos/interface/VariableHelper.h"
-#include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
+#include "CommonTools/UtilAlgos/interface/VariableHelper.h"
+#include "CommonTools/UtilAlgos/interface/CachingVariable.h"
 
 
 class ConfigurableAxis {

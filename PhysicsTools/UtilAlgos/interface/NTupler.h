@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EDFilter.h"
-#include <FWCore/Framework/interface/ProducerBase.h>
+#include "FWCore/Framework/interface/ProducerBase.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "TTree.h"

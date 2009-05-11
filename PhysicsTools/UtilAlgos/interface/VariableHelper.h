@@ -2,7 +2,7 @@
 #define ConfigurableAnalysis_VariableHelper_H
 
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
+#include "CommonTools/UtilAlgos/interface/CachingVariable.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 

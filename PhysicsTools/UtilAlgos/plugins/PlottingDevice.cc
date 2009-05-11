@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Thu May 15 14:37:59 CEST 2008
-// $Id: PlottingDevice.cc,v 1.4 2008/08/30 19:52:51 vlimant Exp $
+// $Id: PlottingDevice.cc,v 1.1 2009/03/03 13:07:29 llista Exp $
 //
 //
 

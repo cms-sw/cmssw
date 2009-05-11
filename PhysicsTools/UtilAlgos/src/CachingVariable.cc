@@ -1,8 +1,6 @@
 #include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
 #include "PhysicsTools/UtilAlgos/interface/VariableHelper.h"
 
-
-
 CachingVariable::evalType VarSplitter::eval(const edm::Event & iEvent) const{
   const CachingVariable * var=edm::Service<VariableHelperService>()->get().variable(var_);
   if (!var->compute(iEvent)) return std::make_pair(false,0);
@@ -25,8 +23,6 @@ CachingVariable::evalType VarSplitter::eval(const edm::Event & iEvent) const{
   else return std::make_pair(true,(double)i-1);
 }
 
-
-
 CachingVariable::evalType VariablePower::eval( const edm::Event & iEvent) const {
   const CachingVariable * var=edm::Service<VariableHelperService>()->get().variable(var_);
   if (!var->compute(iEvent)) return std::make_pair(false,0);
@@ -35,8 +31,6 @@ CachingVariable::evalType VariablePower::eval( const edm::Event & iEvent) const 
   double p=exp(power_*log(v));
   return std::make_pair(true,p);
 }
-
-
 
 VariableComputer::VariableComputer(CachingVariable::CachingVariableFactoryArg arg) : arg_(arg) {
   if (arg_.iConfig.exists("separator")) separator_ = arg_.iConfig.getParameter<std::string>("separator");
