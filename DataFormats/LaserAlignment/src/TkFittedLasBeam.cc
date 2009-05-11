@@ -27,7 +27,7 @@ void TkFittedLasBeam::setParameters(unsigned int parametrisation,
 
   // check integrity
   if (parameters_.size() != derivatives_.size() || firstFixedParameter_ > parameters_.size()
-      || paramCovariance_.num_row() != firstFixedParameter_) {
+      || static_cast<unsigned int>(paramCovariance_.num_row()) != firstFixedParameter_) {
     throw cms::Exception("BadInput")
       << "[TkFittedLasBeam::setParameters]  with inconsistent sizes: " 
       << parameters_.size() << " parameters, " << derivatives_.size()
