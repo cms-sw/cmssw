@@ -133,8 +133,8 @@ void Exhume::Event::SelectValues(){
   t1 = InvB * log(tt1) + InvBlnB;
   t2 = InvB * log(tt2) + InvBlnB;
 
-  Phi1 = TwoPI * randomEngine->flat() / double(RAND_MAX);
-  Phi2 = TwoPI * randomEngine->flat() / double(RAND_MAX);
+  Phi1 = TwoPI * randomEngine->flat();
+  Phi2 = TwoPI * randomEngine->flat();
 
   // y = 0.5 log(x1/x2) and at t1 = t2 = 0 x1x2 = sHat/s
   // so the max kinematically allowed value of x1 is
