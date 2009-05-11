@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcessRegistry.h,v 1.6 2007/08/13 12:43:41 saout Exp $
+// $Id: ProcessRegistry.h,v 1.7 2007/08/16 15:23:56 saout Exp $
 //
 
 #include <string>
@@ -67,10 +67,9 @@ class ProcessRegistry {
 	 ************************************************************/
 	class Factory {
 	    public:
-		inline static Base_t *create(const char *name,
-		                             const CalibBase_t *calib,
-		                             Parent_t *parent = 0)
-		{ return ProcessRegistry::create(name, calib, parent); }
+		static Base_t *create(const char *name,
+		                      const CalibBase_t *calib,
+		                      Parent_t *parent = 0);
 	};
 
     protected:

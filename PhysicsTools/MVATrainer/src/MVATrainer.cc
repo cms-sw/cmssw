@@ -645,7 +645,7 @@ void MVATrainer::makeProcessor(DOMElement *elem, AtomicId id, const char *name)
 			<< "Variable processor trainer " << name
 			<< " could not be instantiated. Most likely because"
 			   " the trainer plugin for \"" << name << "\""
-			   " \" does not exist." << std::endl;
+			   " does not exist." << std::endl;
 
 	if (sources.find(id) != sources.end())
 		throw cms::Exception("MVATrainer")

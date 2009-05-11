@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcessRegistry.icc,v 1.5 2007/08/13 12:43:41 saout Exp $
+// $Id: ProcessRegistry.icc,v 1.6 2007/08/16 15:23:56 saout Exp $
 //
 
 #include <string>
@@ -18,6 +18,11 @@
 #include "PhysicsTools/MVAComputer/interface/ProcessRegistry.h"
 
 namespace PhysicsTools {
+
+template<class Base_t, class CalibBase_t, class Parent_t>
+Base_t *ProcessRegistry<Base_t, CalibBase_t, Parent_t>::Factory::create(
+		const char *name, const CalibBase_t *calib, Parent_t *parent)
+{ return ProcessRegistry::create(name, calib, parent); }
 
 template<class Base_t, class CalibBase_t, class Parent_t>
 std::map<std::string, const ProcessRegistry<Base_t, CalibBase_t, Parent_t>*>

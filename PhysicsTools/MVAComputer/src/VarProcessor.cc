@@ -10,12 +10,18 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: VarProcessor.cc,v 1.3 2007/07/15 22:31:46 saout Exp $
+// $Id: VarProcessor.cc,v 1.4 2009/03/27 14:33:38 saout Exp $
 //
+
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 #include "PhysicsTools/MVAComputer/interface/VarProcessor.h"
 #include "PhysicsTools/MVAComputer/interface/Calibration.h"
 #include "PhysicsTools/MVAComputer/interface/BitSet.h"
+
+EDM_REGISTER_PLUGINFACTORY(PhysicsTools::VarProcessor::PluginFactory,
+                           "PhysicsToolsMVAComputer");
 
 namespace PhysicsTools {
 
@@ -72,6 +78,28 @@ VarProcessor::configureLoop(ConfigCtx::Context *ctx, ConfigCtx::iterator begin,
                             ConfigCtx::iterator cur, ConfigCtx::iterator end)
 {
 	return 0;
+}
+
+template<>
+VarProcessor *ProcessRegistry<VarProcessor, Calibration::VarProcessor,
+                              const MVAComputer>::Factory::create(
+	        const char *name, const Calibration::VarProcessor *calib,
+		const MVAComputer *parent)
+{
+	VarProcessor *result = ProcessRegistry::create(name, calib, parent);
+	if (!result) {
+		// try to load the shared library and retry
+		try {
+			delete VarProcessor::PluginFactory::get()->create(
+					std::string("VarProcessor/") + name);
+			result = ProcessRegistry::create(name, calib, parent);
+		} catch(const cms::Exception &e) {
+			// caller will have to deal with the null pointer
+			// in principle this will just give a slightly more
+			// descriptive error message (and will rethrow anyhow)
+		}
+	}
+	return result;
 }
 
 } // namespace PhysicsTools

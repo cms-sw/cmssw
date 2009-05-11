@@ -3,10 +3,16 @@
 
 #include <TH1.h>
 
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
+
 #include "PhysicsTools/MVAComputer/interface/AtomicId.h"
 
 #include "PhysicsTools/MVATrainer/interface/MVATrainer.h"
 #include "PhysicsTools/MVATrainer/interface/TrainProcessor.h"
+
+EDM_REGISTER_PLUGINFACTORY(PhysicsTools::TrainProcessor::PluginFactory,
+                           "PhysicsToolsMVATrainer");
 
 namespace PhysicsTools {
 
@@ -136,6 +142,27 @@ void TrainProcessor::doTrainEnd()
 
 		monModule = 0;
 	}
+}
+
+template<>
+TrainProcessor *ProcessRegistry<TrainProcessor, AtomicId,
+                                MVATrainer>::Factory::create(
+                const char *name, const AtomicId *id, MVATrainer *trainer)
+{
+	TrainProcessor *result = ProcessRegistry::create(name, id, trainer);
+	if (!result) {
+		// try to load the shared library and retry
+		try {
+			delete TrainProcessor::PluginFactory::get()->create(
+				std::string("TrainProcessor/") + name);
+			result = ProcessRegistry::create(name, id, trainer);
+		} catch(const cms::Exception &e) {
+			// caller will have to deal with the null pointer
+			// in principle this will just give a slightly more
+			// descriptive error message (and will rethrow anyhow)
+		}
+	}
+	return result;
 }
 
 } // namespace PhysicsTools

@@ -15,6 +15,8 @@
 #include <Cintex/Cintex.h>
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 
 #include "PhysicsTools/MVAComputer/interface/Calibration.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputer.h"
@@ -85,6 +87,14 @@ TTree *getTree(const std::string &arg)
 
 int main(int argc, char **argv)
 {
+	try {
+		edmplugin::PluginManager::configure(
+				edmplugin::standard::config());
+	} catch(cms::Exception &e) {
+		std::cerr << e.what() << std::endl;
+		return 1;
+	}
+
 	if (argc < 3) {
 		std::cerr << "Syntax: " << argv[0] << " <input.mva> "
 		             "<output.root> <input.root> [<input2.root>...]\n";

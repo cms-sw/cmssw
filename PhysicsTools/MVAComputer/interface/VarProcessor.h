@@ -9,11 +9,13 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: VarProcessor.h,v 1.6 2007/12/08 16:11:11 saout Exp $
+// $Id: VarProcessor.h,v 1.7 2009/03/27 14:33:38 saout Exp $
 //
 
 #include <algorithm>
 #include <vector>
+
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 #include "PhysicsTools/MVAComputer/interface/ProcessRegistry.h"
 #include "PhysicsTools/MVAComputer/interface/CalibrationFwd.h"
@@ -108,6 +110,9 @@ class VarProcessor :
 	                        unsigned int nOutput,
 	                        unsigned int &nOffset) const
 	{ return kStop; }
+
+	struct Dummy {};
+	typedef edmplugin::PluginFactory<Dummy*()> PluginFactory;
 
     protected:
 	/** \class ConfIterator
@@ -287,6 +292,16 @@ class VarProcessor :
 	unsigned int		nInputVars;
 };
 
+template<>
+VarProcessor *ProcessRegistry<VarProcessor, Calibration::VarProcessor,
+                              const MVAComputer>::Factory::create(
+	const char*, const Calibration::VarProcessor*, const MVAComputer*);
+
 } // namespace PhysicsTools
+
+#define MVA_COMPUTER_DEFINE_PLUGIN(T) \
+	DEFINE_EDM_PLUGIN(::PhysicsTools::VarProcessor::PluginFactory, \
+	                  ::PhysicsTools::VarProcessor::Dummy, \
+	                  "VarProcessor/" #T)
 
 #endif // PhysicsTools_MVAComputer_VarProcessor_h

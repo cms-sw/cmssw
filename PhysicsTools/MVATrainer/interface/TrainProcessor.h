@@ -9,6 +9,8 @@
 
 #include <xercesc/dom/DOM.hpp>
 
+#include "FWCore/PluginManager/interface/PluginFactory.h"
+
 #include "PhysicsTools/MVAComputer/interface/AtomicId.h"
 #include "PhysicsTools/MVAComputer/interface/Variable.h"
 #include "PhysicsTools/MVAComputer/interface/Calibration.h"
@@ -64,6 +66,9 @@ class TrainProcessor : public Source,
 
 	inline const char *getId() const { return name.c_str(); }
 
+	struct Dummy {};
+	typedef edmplugin::PluginFactory<Dummy*()> PluginFactory;
+
     protected:
 	virtual void trainBegin() {}
 	virtual void trainData(const std::vector<double> *values,
@@ -97,6 +102,16 @@ class TrainProcessor : public Source,
 	Monitoring		*monModule;
 };
 
+template<>
+TrainProcessor *ProcessRegistry<TrainProcessor, AtomicId,
+                                MVATrainer>::Factory::create(
+			const char*, const AtomicId*, MVATrainer*);
+
 } // namespace PhysicsTools
+
+#define MVA_TRAINER_DEFINE_PLUGIN(T) \
+	DEFINE_EDM_PLUGIN(::PhysicsTools::TrainProcessor::PluginFactory, \
+	                  ::PhysicsTools::TrainProcessor::Dummy, \
+	                  "TrainProcessor/" #T)
 
 #endif // PhysicsTools_MVATrainer_TrainProcessor_h
