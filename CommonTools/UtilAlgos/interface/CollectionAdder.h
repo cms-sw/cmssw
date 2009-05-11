@@ -1,5 +1,5 @@
-#ifndef CommonTools_UtilAlgos_CollectionAdder_h
-#define CommonTools_UtilAlgos_CollectionAdder_h
+#ifndef PhysicsTools_UtilAlgos_CollectionAdder_h
+#define PhysicsTools_UtilAlgos_CollectionAdder_h
 /* \class CollectionAdder<C>
  * 
  * \author Luca Lista, INFN
