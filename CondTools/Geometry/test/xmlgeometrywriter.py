@@ -17,11 +17,11 @@ process.XMLGeometryWriter = cms.EDAnalyzer("XMLGeometryBuilder",
                                            ZIP = cms.untracked.bool(True)
                                            )
 
+process.CondDBCommon.BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
+process.CondDBCommon.timetype = cms.untracked.string('runnumber')
+process.CondDBCommon.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDBCommon,
-                                          BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-                                          timetype = cms.untracked.string('runnumber'),
-                                          connect = cms.string('sqlite_file:myfile.db'),
                                           toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),tag = cms.string('XMLFILE_Geometry_Test03')))
                                           )
 

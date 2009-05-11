@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CaloGeometryWriter")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.load('Configuration/StandardSequences/GeometryIdeal_cff')
+process.load('Configuration/StandardSequences/GeometryExtended_cff')
 process.load('Geometry/CaloEventSetup/CaloGeometryDBWriter_cfi')
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
@@ -13,11 +13,11 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.CaloGeometryWriter = cms.EDAnalyzer("PCaloGeometryBuilder")
 
+process.CondDBCommon.BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
+process.CondDBCommon.timetype = cms.untracked.string('runnumber')
+process.CondDBCommon.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDBCommon,
-                                          BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-                                          timetype = cms.untracked.string('runnumber'),
-                                          connect = cms.string('sqlite_file:myfile.db'),
                                           toPut = cms.VPSet(cms.PSet(record = cms.string('PEcalBarrelRcd'),   tag = cms.string('EBRECO_Geometry_Test01')),
                                                             cms.PSet(record = cms.string('PEcalEndcapRcd'),   tag = cms.string('EERECO_Geometry_Test01')),
                                                             cms.PSet(record = cms.string('PEcalPreshowerRcd'),tag = cms.string('EPRECO_Geometry_Test01')),

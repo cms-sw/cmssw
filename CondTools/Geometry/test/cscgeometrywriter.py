@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CSCGeometryWriter")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.load('Configuration/StandardSequences/GeometryIdeal_cff')
+process.load('Configuration/StandardSequences/GeometryExtended_cff')
 
 
 process.source = cms.Source("EmptyIOVSource",
@@ -15,12 +15,11 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.CSCGeometryWriter = cms.EDAnalyzer("CSCRecoIdealDBLoader")
 
+process.CondDBCommon.BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
+process.CondDBCommon.timetype = cms.untracked.string('runnumber')
+process.CondDBCommon.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDBCommon,
-                                          BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-
-                                          timetype = cms.untracked.string('runnumber'),
-                                          connect = cms.string('sqlite_file:myfile.db'),
                                           toPut = cms.VPSet(cms.PSet(record = cms.string('CSCRecoGeometryRcd'),tag = cms.string('CSCRECO_Geometry_Test01')),
                                                             cms.PSet(record = cms.string('CSCRecoDigiParametersRcd'),tag = cms.string('CSCRECODIGI_Geometry_Test01')))
                                           )
