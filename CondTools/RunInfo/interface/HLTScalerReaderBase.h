@@ -2,6 +2,7 @@
 #define CondTools_RunInfo_HLTScalerReaderBase_h
 #include <vector>
 #include "CondCore/DBCommon/interface/Time.h"
+#include "CondFormats/RunInfo/interface/HLTScaler.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace lumi{

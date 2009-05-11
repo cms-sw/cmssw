@@ -18,7 +18,7 @@ lumi::HLTScalerDummyReader::fill(int startRun,
 	hltdata.push_back( std::make_pair<std::string,lumi::HLTInfo>("hltdummypath",hltinfo) );
       }
       lumi::HLTScaler* l=new lumi::HLTScaler;
-      l->setHLTData(hltdata);
+      l->setHLTData(lu,hltdata);
       std::cout<<"current "<<current<<std::endl;
       result.push_back(std::make_pair<lumi::HLTScaler*,cond::Time_t>(l,current));
     }

@@ -6,8 +6,12 @@
 //#include <iostream>
 lumi::HLTScalerHandler::HLTScalerHandler(const edm::ParameterSet& pset):m_name(pset.getParameter<std::string>("hltscalerReaderName")),m_startRun(0),m_numberOfRuns(0){
   m_to_transfer.reserve(100);
-  m_startRun=pset.getUntrackedParameter<int>("startRun");
-  m_numberOfRuns=pset.getUntrackedParameter<int>("numberOfRuns");
+  m_startRun=pset.getParameter<int>("startRun");
+  if(pset.exists("endRun")){
+    m_numberOfRuns=pset.getUntrackedParameter<int>("endfRun")-m_startRun+1; 
+  }else if(pset.exists("numberOfRuns")){
+    m_numberOfRuns=pset.getUntrackedParameter<int>("numberOfRuns"); 
+  }
   m_datareader=lumi::HLTScalerReaderFactory::get()->create(m_name,pset);
 }
 
