@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.19 2009/01/08 14:07:13 amraktad Exp $
+// $Id: CmsShowMainFrame.h,v 1.20 2009/01/23 21:35:40 amraktad Exp $
 //
 
 // system include files
@@ -62,6 +62,8 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
+  virtual void CloseWindow();
+
    void addToActionMap(CSGAction *action);
    Bool_t activateMenuEntry(int entry);
    Bool_t activateToolBarEntry(int entry);

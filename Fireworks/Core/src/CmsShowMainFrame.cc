@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.46 2009/05/01 22:30:41 jmuelmen Exp $
+// $Id: CmsShowMainFrame.cc,v 1.47 2009/05/04 20:03:32 amraktad Exp $
 //
 // hacks
 #define private public
@@ -71,8 +71,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 {
    const unsigned int backgroundColor=0x2f2f2f;
    const unsigned int textColor= 0xb3b3b3;
-
-   Connect("CloseWindow()","CmsShowMainFrame",this,"quit()");
 
    m_manager = m;
    CSGAction *openData = new CSGAction(this, cmsshow::sOpenData.c_str());
@@ -495,6 +493,11 @@ void CmsShowMainFrame::loadEvent(const fwlite::Event& event) {
    m_goToLast->enable();
    m_playEvents->enable();
    m_playEventsBack->enable();
+}
+
+void  CmsShowMainFrame::CloseWindow()
+{
+   getAction(cmsshow::sQuit)->activated();
 }
 
 void CmsShowMainFrame::quit() {
