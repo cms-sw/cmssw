@@ -26,13 +26,13 @@ using namespace std;
 // to retrive trigger desition words, to select pedestal (from hcal point of view) triggers (global runs only)
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
-#include "CondTools/Hcal/interface/HcalLogicalMapGenerator.h"
-#include "CondTools/Hcal/interface/HcalLogicalMap.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
+#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 
 /** \class HcalDetDiagLEDMonitor
   *  
-  * $Date: 2009/01/21 15:01:37 $
-  * $Revision: 1.20 $
+  * $Date: 2009/04/03 08:17:04 $
+  * $Revision: 1.1 $
   * \author D. Vishnevskiy
   */
 
