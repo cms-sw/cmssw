@@ -1,7 +1,8 @@
 #!/bin/sh
 
 #FileLock Directory
-LockFileDir="/var/lock"
+#LockFileDir="/var/lock"
+LockFileDir="/tmp/"
 
 #script to clean up LOOKAREA --- to run on cms-data-lookarea
 #(derived from  cleanupEmu.sh)
@@ -27,7 +28,11 @@ if [ ! -e "${LockFileDir}" ] || [ ! -d "${LockFileDir}" ]
    exit ${ERROR}
 fi
 ER_INTERRUPT=13
-LockFileBaseName="$0"
+#LockFileBaseName="$0"
+LockFileBaseName=`echo $0 | awk -F/ '{print $NF}' `
+
+
+
 DATE=`date +"%F_%H:%M:%S"`
 LockFile=${LockFileDir}/${LockFileBaseName}-${DATE}-${PID}.lock
 echo ${PID} >${LockFile}
@@ -65,6 +70,8 @@ if ! test -d "$LOOKDIR"; then
     exit 123
 fi
 
+CUDdir="$LOOKDIR"
+mntpoint="$LOOKDIR"
 
 
 #Delete BIG/SMALL files with different ages,
@@ -78,6 +85,18 @@ SMALLFILESIZE_M=$(echo "scale=2;$SMALLFILESIZE/1024 " | bc)
 
 #deletion cutoffs:
 # lifetime in mins / 1 day = 1440
+LIFETIME_SMLL90=120     #  2 hrs
+LIFETIME_SMLL82=360     #  6 hrs
+LIFETIME_SMLL73=720     # 12 hrs 
+LIFETIME_SMLL65=1440    # 1 day
+LIFETIME_SMLL55=4320    # 3 days
+LIFETIME_SMLL45=7200    # 5 days 
+LIFETIME_SMLL28=10800   # 7 days
+LIFETIME_SMLL15=20160   #14 days
+LIFETIME_SMLL00=50400   #35 days
+
+
+
 LIFETIME_BIG85=60      #  1 hr
 LIFETIME_BIG80=180     #  3 hr
 LIFETIME_BIG75=360     #  6 hrs
@@ -91,23 +110,56 @@ LIFETIME_BIG10=20160   #14 days
 LIFETIME_BIG00=50400   #35 days
 
 
-LIFETIME_SMLL90=120     #  2 hrs
-LIFETIME_SMLL85=360     #  6 hrs
-LIFETIME_SMLL80=720     # 12 hrs 
-LIFETIME_SMLL70=1440    # 1 day
-LIFETIME_SMLL60=4320    # 3 days
-LIFETIME_SMLL50=7200    # 5 days 
-LIFETIME_SMLL30=10800   # 7 days
-LIFETIME_SMLL18=20160   #14 days
-LIFETIME_SMLL00=50400   #35 days
+
+
+
+# delete small files first:
+
+    # find how full disk is to determine how much to delete
+LIFETIME_SMLL=$(df | 
+    awk -v LIFETIME_SMLL90="$LIFETIME_SMLL90" \
+	-v LIFETIME_SMLL82="$LIFETIME_SMLL82" \
+	-v LIFETIME_SMLL73="$LIFETIME_SMLL73" \
+	-v LIFETIME_SMLL65="$LIFETIME_SMLL65" \
+	-v LIFETIME_SMLL55="$LIFETIME_SMLL55" \
+	-v LIFETIME_SMLL45="$LIFETIME_SMLL45" \
+	-v LIFETIME_SMLL28="$LIFETIME_SMLL28" \
+	-v LIFETIME_SMLL15="$LIFETIME_SMLL15" \
+	-v LIFETIME_SMLL00="$LIFETIME_SMLL00" \
+	-v pat="$mntpoint" \
+	'$0 ~ pat {if ($4 > 90) print LIFETIME_SMLL90; \
+	else if ($4 > 82) print LIFETIME_SMLL82; \
+	else if ($4 > 73) print LIFETIME_SMLL73; \
+	else if ($4 > 65) print LIFETIME_SMLL65; \
+	else if ($4 > 55) print LIFETIME_SMLL55; \
+	else if ($4 > 45) print LIFETIME_SMLL45; \
+	else if ($4 > 28) print LIFETIME_SMLL28; \
+	else if ($4 > 15) print LIFETIME_SMLL15; \
+	else print LIFETIME_SMLL00; }' )
+
+
+    #clean SMALL files
+
+#increment threshold cuz tests are only > or <, not =
+SMALLFILESIZE=$(echo "scale=0;$SMALLFILESIZE+1 " | bc) 
+
+
+
+NDELETEDSMLL=`find $CUDdir -cmin +$LIFETIME_SMLL -type f -a -size -"$SMALLFILESIZE"k  -a  -exec rm -fv {}  \; | grep -c removed`
 
 
 
 
 
-mntpoint="$LOOKDIR"
+DELETETIME_hr=$(echo "scale=2;$LIFETIME_SMLL/60 " | bc) 
+DELETETIME_day=$(echo "scale=1;$DELETETIME_hr/24 " | bc) 
+echo " >>>> Deleted $NDELETEDSMLL files older than $LIFETIME_SMLL ($DELETETIME_hr hrs; or $DELETETIME_day days) and smaller than  $SMALLFILESIZE kB ($SMALLFILESIZE_M MB)"
 
-# delete big files first:
+
+
+
+
+# then delete big files:
 
     # find how full disk is to determine how much to delete
 LIFETIME_BIG=$(df | 
@@ -137,7 +189,7 @@ LIFETIME_BIG=$(df |
 
 
     #clean BIG
-CUDdir="$LOOKDIR"
+###CUDdir="$LOOKDIR"
 NDELETEDBIG=`find $CUDdir -cmin +$LIFETIME_BIG -type f -a -size +"$SMALLFILESIZE"k  -a  -exec rm -fv {} \; | grep -c removed`
 
 
@@ -147,46 +199,6 @@ DELETETIME_day=$(echo "scale=1;$DELETETIME_hr/24 " | bc)
 
 echo " >>>> Deleted $NDELETEDBIG files older than $LIFETIME_BIG ($DELETETIME_hr hrs; or $DELETETIME_day days) and larger than $SMALLFILESIZE kB ($SMALLFILESIZE_M MB)"
 
-
-# then delete small files:
-
-    # find how full disk is to determine how much to delete
-LIFETIME_SMLL=$(df | 
-    awk -v LIFETIME_SMLL90="$LIFETIME_SMLL90" \
-	-v LIFETIME_SMLL85="$LIFETIME_SMLL85" \
-	-v LIFETIME_SMLL80="$LIFETIME_SMLL80" \
-	-v LIFETIME_SMLL70="$LIFETIME_SMLL70" \
-	-v LIFETIME_SMLL60="$LIFETIME_SMLL60" \
-	-v LIFETIME_SMLL50="$LIFETIME_SMLL50" \
-	-v LIFETIME_SMLL30="$LIFETIME_SMLL30" \
-	-v LIFETIME_SMLL18="$LIFETIME_SMLL18" \
-	-v LIFETIME_SMLL00="$LIFETIME_SMLL00" \
-	-v pat="$mntpoint" \
-	'$0 ~ pat {if ($4 > 90) print LIFETIME_SMLL90; \
-	else if ($4 > 85) print LIFETIME_SMLL85; \
-	else if ($4 > 80) print LIFETIME_SMLL80; \
-	else if ($4 > 70) print LIFETIME_SMLL70; \
-	else if ($4 > 60) print LIFETIME_SMLL60; \
-	else if ($4 > 50) print LIFETIME_SMLL50; \
-	else if ($4 > 30) print LIFETIME_SMLL30; \
-	else if ($4 > 18) print LIFETIME_SMLL18; \
-	else print LIFETIME_SMLL00; }' )
-
-
-    #clean SMALL files
-#    CUDdir="$LOOKDIR"
-
-#increment threshold cuz tests are only > or <, not =
-SMALLFILESIZE=$(echo "scale=0;$SMALLFILESIZE+1 " | bc) 
-
-
-NDELETEDSMLL=`find $CUDdir -cmin +$LIFETIME_SMLL -type f -a -size -"$SMALLFILESIZE"k  -a  -exec rm -fv {}  \; | grep -c removed`
-
-
-
-DELETETIME_hr=$(echo "scale=2;$LIFETIME_SMLL/60 " | bc) 
-DELETETIME_day=$(echo "scale=1;$DELETETIME_hr/24 " | bc) 
-echo " >>>> Deleted $NDELETEDSMLL files older than $LIFETIME_SMLL ($DELETETIME_hr hrs; or $DELETETIME_day days) and smaller than  $SMALLFILESIZE kB ($SMALLFILESIZE_M MB)"
 
 
 exit 0;
