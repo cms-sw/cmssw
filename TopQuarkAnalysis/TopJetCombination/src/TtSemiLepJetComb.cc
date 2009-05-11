@@ -299,12 +299,17 @@ TtSemiLepJetComb::deduceMothers()
 double TtSemiLepJetComb::bTag(const pat::Jet& jet, JetComb::BTagAlgo algo) const
 {
   switch(algo){
-  case JetComb::kTrkCntHighEff : return jet.bDiscriminator("trackCountingHighEffBJetTags"   );
-  case JetComb::kTrkCntHighPur : return jet.bDiscriminator("trackCountingHighPurBJetTags"   );
-  case JetComb::kSoftMuon      : return jet.bDiscriminator("softMuonBJetTags"               );
-  case JetComb::kSimpSecondVtx : return jet.bDiscriminator("simpleSecondaryVertexBJetTags"  );
-  case JetComb::kCombSecondVtx : return jet.bDiscriminator("combinedSecondaryVertexBJetTags");
-  case JetComb::kImpactParaMVA : return jet.bDiscriminator("impactParameterMVABJetTags"     );
+  case JetComb::kTrackCountHighEff : return jet.bDiscriminator("trackCountingHighEffBJetTags"      );
+  case JetComb::kTrackCountHighPur : return jet.bDiscriminator("trackCountingHighPurBJetTags"      );
+  case JetComb::kSoftMuon          : return jet.bDiscriminator("softMuonBJetTags"                  );
+  case JetComb::kSoftMuonByPt      : return jet.bDiscriminator("softMuonByPtBJetTags"              );
+  case JetComb::kSofMuonByIP3d     : return jet.bDiscriminator("softMuonByIP3dBJetTags"            );
+  case JetComb::kSoftElec          : return jet.bDiscriminator("softElectronBJetTags"              );
+  case JetComb::kProbability       : return jet.bDiscriminator("jetProbabilityBJetTags"            );
+  case JetComb::kBProbability      : return jet.bDiscriminator("jetBProbabilityBJetTags"           );
+  case JetComb::kSimpleSecondVtx   : return jet.bDiscriminator("simpleSecondaryVertexBJetTags"     );
+  case JetComb::kCombSecondVtx     : return jet.bDiscriminator("combinedSecondaryVertexBJetTags"   );
+  case JetComb::kCombSecondVtxMVA  : return jet.bDiscriminator("combinedSecondaryVertexMVABJetTags");
   };
   return -9999.;
 }
