@@ -41,9 +41,7 @@ class TtEvtBuilder : public edm::EDProducer {
 
  private:
 
-  /// internal event counter for verbosity switch
-  int event_;
-  /// determine vebosity level (0 or >0 are supported)
+  /// vebosity level (0 and 1 are supported)
   int verbosity_;
   /// vector of hypothesis class names
   std::vector<std::string> hyps_;
@@ -72,7 +70,7 @@ class TtEvtBuilder : public edm::EDProducer {
 };
 
 template <typename C>
-TtEvtBuilder<C>::TtEvtBuilder(const edm::ParameterSet& cfg) : event_(0),
+TtEvtBuilder<C>::TtEvtBuilder(const edm::ParameterSet& cfg) :
   verbosity_   (cfg.getParameter<int>                      ("verbosity"    )),
   hyps_        (cfg.getParameter<std::vector<std::string> >("hypotheses"   )),
   genEvt_      (cfg.getParameter<edm::InputTag>            ("genEvent"     )),
@@ -168,11 +166,9 @@ TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
     event.setMvaDiscriminators( *disc );
   }
 
-  // print summary via MessageLogger for up
-  // to verbosity events if verbosity_>0
-  if(verbosity_ > 0 && event_<verbosity_){ 
+  // print summary via MessageLogger if verbosity_>0
+  if(verbosity_ > 0)
     event.print();
-  }
 
   // write object to root file 
   std::auto_ptr<C> pOut(new C);

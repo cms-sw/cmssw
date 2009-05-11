@@ -16,7 +16,7 @@ ttSemiLepEvent = cms.EDProducer("TtSemiLepEvtBuilder",
 
     ## set verbosity level
     verbosity = cms.int32(0),  # 0: no additional printout
-                               # N: print a summary for N events
+                               # 1: print a summary for each event
 
     ## add genEvt (if available)
     genEvent = cms.InputTag("genEvt"),
