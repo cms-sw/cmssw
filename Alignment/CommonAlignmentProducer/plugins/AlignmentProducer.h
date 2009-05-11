@@ -7,8 +7,8 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.12 $
-///  last update: $Date: 2008/12/17 08:27:50 $
+///  Revision   : $Revision: 1.13 $
+///  last update: $Date: 2009/04/03 08:59:08 $
 ///  by         : $Author: flucke $
 
 #include <vector>
@@ -17,6 +17,8 @@
 #include "FWCore/Framework/interface/ESProducerLooper.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
+
+#include "DataFormats/Provenance/interface/RunID.h"
 
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -76,6 +78,12 @@ class AlignmentProducer : public edm::ESProducerLooper
   /// Called at end of loop
   virtual Status endOfLoop( const edm::EventSetup&, unsigned int iLoop );
 
+  /// (To be) Called at run start - currently as a hack within duringLoop
+  virtual void beginRun(const edm::Run &run, const edm::EventSetup &setup);
+  /// (To be) Called at run end 
+  /// (currently as a hack within duringLoop at the begin (!) of the run!)
+  virtual void endRun(const edm::Run &run, const edm::EventSetup &setup);
+
   /// Called at each event 
   virtual Status duringLoop( const edm::Event&, const edm::EventSetup& );
 
@@ -127,7 +135,7 @@ class AlignmentProducer : public edm::ESProducerLooper
   const Alignments *globalPositions_;
 
   int nevent_;
-
+  edm::RunID lastRunId_; /// hack until get a beginRun(...)
   edm::ParameterSet theParameterSet;
 
   // steering parameters
@@ -143,6 +151,7 @@ class AlignmentProducer : public edm::ESProducerLooper
   // event input tags
   const edm::InputTag tjTkAssociationMapTag_; // map with tracks/trajectories
   const edm::InputTag beamSpotTag_;           // beam spot
+  const edm::InputTag tkLasBeamTag_;          // LAS beams in edm::Run (ignore if empty)
 
   // ESWatcher
   edm::ESWatcher<TrackerSurveyRcd> watchTkSurveyRcd_;
