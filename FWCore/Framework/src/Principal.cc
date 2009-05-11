@@ -5,6 +5,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <limits>
+#include <cstring>
 
 #include "FWCore/Framework/interface/Principal.h"
 #include "DataFormats/Provenance/interface/BranchMapper.h"
@@ -186,6 +187,34 @@ namespace edm {
     return results[0];
   }
 
+  namespace  {
+    class GetByLabelSelector : public SelectorBase {
+    public:
+      //NOTE: use const char* instead of string to avoid temporary creation of memory
+      GetByLabelSelector(char const* iModule,
+                         char const* iProductInstance,
+                         char const* iProcessName):
+      module_(iModule),
+      productInstance_(iProductInstance),
+      processName_(strlen(iProcessName)?iProcessName:static_cast<const char*> (0)) {}
+      
+      bool doMatch(ConstBranchDescription const& p) const {
+        return ( (0 == strcmp(module_,p.moduleLabel().c_str()) ) &&
+                 (0 == strcmp(productInstance_, p.productInstanceName().c_str())) &&
+                 ( (0 == processName_) || (0 == strcmp(processName_, p.processName().c_str())) ) );
+      }
+      
+      GetByLabelSelector* clone() const {
+        return new GetByLabelSelector(*this);
+      }
+      
+    private:
+      char const * const module_;
+      char const * const productInstance_;
+      char const * const processName_;
+  };
+}
+  
   BasicHandle
   Principal::getByLabel(TypeID const& productType,
 			std::string const& label,
@@ -194,11 +223,9 @@ namespace edm {
   {
 
     BasicHandleVec results;
-
-    edm::Selector sel(edm::ModuleLabelSelector(label) &&
-                      edm::ProductInstanceNameSelector(productInstanceName) &&
-                      edm::ProcessNameSelector(processName));
-
+    
+    GetByLabelSelector sel(label.c_str(),productInstanceName.c_str(),processName.c_str());
+    
     int nFound = findGroups(productType,
                             preg_->productLookup(),
                             sel,
