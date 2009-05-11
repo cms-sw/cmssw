@@ -68,7 +68,14 @@ namespace edmtest
     edm::ESHandle<lumi::HLTScaler> pPeds;
     context.get<HLTScalerRcd>().get(pPeds);
     const lumi::HLTScaler* myped=pPeds.product();
-    
+    if(myped->isNullData()){
+      std::cout<<"null data"<<std::endl;
+    }else{
+      std::cout<<"\n Dumping hlt info lumi::HLTScaler* "<<myped<<"\n";
+      std::cout<<"run number "<<myped->runNumber()<<"\n";
+      std::cout<<"lum section number "<<myped->lumisectionNumber()<<"\n";
+      std::cout<<"nPath "<<myped->nHLTPath()<<"\n";
+    }
   }
 
   void
