@@ -516,12 +516,21 @@ BaseParticlePropagator::propagateToHcalEntrance(bool first) {
   //
 
   // First propagate to global barrel / endcap cylinder 
-  setPropagationConditions(177.5 , 359.4, first);
+  setPropagationConditions(177.5 , 335.0, first);
   propDir = 0;
   bool done = propagate();
   propDir = 1;
 
-  // We are not in the HCAL acceptance
+  // If went through the bottom of HB cylinder -> re-propagate to HE surface
+  if (done && success == 2) {
+    setPropagationConditions(99999.0, 400.458, first);
+    propDir = 0;
+    done = propagate();
+    propDir = 1;
+  }
+
+
+  // out of the HB/HE acceptance
   // eta = 3.0 -> cos^2(theta) = 0.99014
   if ( done && cos2ThetaV() > 0.99014 ) success = 0;
 
