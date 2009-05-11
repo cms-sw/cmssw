@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.32 $
-///  last update: $Date: 2009/04/03 08:59:06 $
+///  Revision   : $Revision: 1.33 $
+///  last update: $Date: 2009/05/11 09:31:37 $
 ///  by         : $Author: flucke $
 
 #include "AlignmentProducer.h"
@@ -536,9 +536,8 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
      iSetup.get<MuonNumberingRecord>().get(mdc);
      DTGeometryBuilderFromDDD DTGeometryBuilder;
      CSCGeometryBuilderFromDDD CSCGeometryBuilder;
-//      theMuonDT = boost::shared_ptr<DTGeometry>(new DTGeometry );
-//      DTGeometryBuilder.build( theMuonDT, &(*cpv), *mdc);
-     theMuonDT  = boost::shared_ptr<DTGeometry>( DTGeometryBuilder.build( &(*cpv), *mdc ) );
+     theMuonDT = boost::shared_ptr<DTGeometry>(new DTGeometry );
+     DTGeometryBuilder.build( theMuonDT, &(*cpv), *mdc);
      theMuonCSC = boost::shared_ptr<CSCGeometry>( new CSCGeometry );
      CSCGeometryBuilder.build( theMuonCSC, &(*cpv), *mdc );
    }
