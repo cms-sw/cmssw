@@ -22,6 +22,9 @@
 
 using namespace std;
 
+double scaleToE(const double& eta) { return 1.0; }
+double scaleToEt(const double& eta) { return sin(2*atan(exp(-eta))); }
+
 EgammaHcalIsolation::EgammaHcalIsolation (
         double extRadius,
         double intRadius,

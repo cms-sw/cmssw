@@ -25,8 +25,8 @@
 
 
 //Sum helper functions
-double scaleToE(const double& eta) { return 1.0; }
-double scaleToEt(const double& eta) { return sin(2*atan(exp(-eta))); }
+double scaleToE(const double& eta);
+double scaleToEt(const double& eta);
 
 
 class EgammaHcalIsolation {
@@ -49,7 +49,6 @@ class EgammaHcalIsolation {
         //destructor 
         ~EgammaHcalIsolation() ;
 
-        
         //AllDepths
         double getHcalESum (const reco::Candidate *c)     const { return getHcalESum(c->get<reco::SuperClusterRef>().get()); } 
         double getHcalEtSum(const reco::Candidate *c)     const { return getHcalEtSum(c->get<reco::SuperClusterRef>().get()); } 
@@ -83,6 +82,7 @@ class EgammaHcalIsolation {
 
     private:
 
+        
         bool isDepth2(const DetId&) const;
         double getHcalSum(const GlobalPoint&, const HcalDepth&, double(*)(const double&) ) const;
 
