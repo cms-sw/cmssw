@@ -65,7 +65,7 @@ void LASGeometryUpdater::EndcapUpdate( LASEndcapAlignmentParameterSet& endcapPar
 /// merge the output from endcap and barrel algorithms
 /// and update the AlignableTracker object
 ///
-/// the AlignableTracker object is expected to be perfectly aligned!!
+/// the AlignableTracker input object is expected to be perfectly aligned!!
 ///
 void LASGeometryUpdater::TrackerUpdate( LASEndcapAlignmentParameterSet& endcapParameters,
 					LASBarrelAlignmentParameterSet& barrelParameters, 

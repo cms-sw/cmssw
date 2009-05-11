@@ -6,8 +6,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2009/02/05 15:52:36 $
- *  $Revision: 1.21 $
+ *  $Date: 2009/02/13 12:50:46 $
+ *  $Revision: 1.22 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -67,6 +67,7 @@
 
 #include "TH1.h"
 #include "TFile.h"
+#include "TF1.h"
 
 
 
@@ -120,8 +121,11 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   /// fills a LASGlobalData<LASCoordinateSet> with nominal module positions
   void CalculateNominalCoordinates( void );
   
-  /// for debugging only, wil disappear
+  /// for debugging only, will disappear
   void DumpPosFileSet( LASGlobalData<LASCoordinateSet>& );
+
+  /// for debugging only, will disappear
+  void DumpStripFileSet( LASGlobalData<std::pair<float,float> >& );
 
   /// for debugging only, will disappear
   void DumpHitmaps( LASGlobalData<int> );
@@ -135,8 +139,14 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   /// config switch
   bool theUseMinuitAlgorithm;
 
+  /// config parameter
+  double peakFinderThreshold;
+
   /// config switch
   bool enableJudgeZeroFilter;
+
+  /// config parameters for the LASProfileJudge
+  unsigned int judgeOverdriveThreshold;
 
   /// config switch
   bool updateFromInputGeometry;
@@ -156,6 +166,9 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   /// config parameter (histograms file output name)
   std::string theFileName;
 
+  /// config parameter
+  std::vector<unsigned int> theMaskTecModules;
+ 
   /// config switch
   bool theSetNominalStrips;
 
@@ -164,10 +177,10 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   LASProfileJudge judge;
 
   // the detector ids for all the modules
-  LASGlobalData<int> detectorId;
+  LASGlobalData<unsigned int> detectorId;
 
   // the detector ids for the doubly hit modules in the TECs
-  std::vector<int> tecDoubleHitDetId;
+  std::vector<unsigned int> tecDoubleHitDetId;
 
   // all the 474 profiles for the pedestals
   LASGlobalData<LASModuleProfile> pedestalProfiles;

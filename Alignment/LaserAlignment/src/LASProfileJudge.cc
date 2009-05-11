@@ -110,6 +110,19 @@ void LASProfileJudge::EnableZeroFilter( bool zeroFilter ) {
 
 
 ///
+/// set the threshold for overdriven profiles (passed from cfg file)
+///
+void LASProfileJudge::SetOverdriveThreshold( unsigned int aThreshold ) {
+
+  overdriveThreshold = aThreshold;
+
+}
+
+
+
+
+
+///
 /// In case of too high laser intensities, the APV baselines tend
 /// to drop down. here, the strip amplitudes in the area around the
 /// signal region are summed to return a variable which can indicate this.
@@ -236,12 +249,9 @@ bool LASProfileJudge::IsOverdrive( int offset ) {
   // backplane "alignment hole" approx. half size (in strips)
   const unsigned int halfWindowSize = 33;
 
-  // to be softcoded...
-  const unsigned int maxmimumAllowedAmplitude = 200;
-
   // find maximum strip amplitude in range
   for( unsigned int strip = meanPosition - halfWindowSize; strip < meanPosition + halfWindowSize; ++strip ) {
-    if( profile.GetValue( strip ) > maxmimumAllowedAmplitude ) return true;
+    if( profile.GetValue( strip ) > overdriveThreshold ) return true;
   }
 
   return false;

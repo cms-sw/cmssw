@@ -14,6 +14,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load( "CondCore.DBCommon.CondDBCommon_cfi" )
 process.CondDBCommon.connect = 'sqlite_file:Alignments_S.db'
 
+
 process.PoolDBOutputService = cms.Service( "PoolDBOutputService",
   process.CondDBCommon,
   toPut = cms.VPSet(
