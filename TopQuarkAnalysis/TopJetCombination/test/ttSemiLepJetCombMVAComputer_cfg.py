@@ -30,19 +30,23 @@ process.GlobalTag.globaltag = cms.string('IDEAL_31X::All')
 
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
+
 ## configure mva computer
 process.load("TopQuarkAnalysis.TopJetCombination.TtSemiLepJetCombMVAComputer_cff")
 ## change maximum number of jets taken into account per event (default: 4)
 #process.findTtSemiLepJetCombMVA.maxNJets = 5
 
-## produce tqafLayer1 and perform MVA for jet-parton association
+## produce pat objects and perform MVA for jet-parton association
 process.p = cms.Path(process.patDefaultSequence *
                      process.findTtSemiLepJetCombMVA)
 
 ## configure output module
 process.out = cms.OutputModule("PoolOutputModule",
     SelectEvents   = cms.untracked.PSet(SelectEvents = cms.vstring('p') ),                               
-    fileName = cms.untracked.string('ttSemiLepJetCombMVAComputer_muons.root')
+    fileName = cms.untracked.string('ttSemiLepJetCombMVAComputer_muons.root'),
+    outputCommands = cms.untracked.vstring('drop *')
 )
+process.out.outputCommands += ['keep *_findTtSemiLepJetCombMVA_*_*']
+
 ## output path
 process.outpath = cms.EndPath(process.out)
