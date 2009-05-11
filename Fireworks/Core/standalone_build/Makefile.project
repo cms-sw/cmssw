@@ -46,8 +46,8 @@ else
 		 -lGui -lGpad -lGraf -lHist -lPhysics -lGed -lEG -lTree \
 		-lTreePlayer -lRGL -lFTGL -lNet  -lRint -lRGL -lGui -lCore \
 		-lCintex -lCint -lReflex -lGenVector -lMathMore -lMathCore \
-		-lboost_filesystem-gcc-mt -lboost_program_options-gcc-mt \
-		-lboost_regex-gcc-mt -lsigc-2.0 -L./ -l$(LibCore)
+		-lboost_iostreams-xgcc40-mt-1_38 -lboost_program_options-xgcc40-mt-1_38 \
+		-lboost_regex-xgcc40-mt-1_38 -lsigc-2.0.0 -L./ -l$(LibCore)
    endif
 endif
 
