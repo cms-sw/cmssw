@@ -1,12 +1,14 @@
 #ifndef CondFormats_RunInfo_HLTScaler_h
 #define CondFormats_RunInfo_HLTScaler_h
 /** 
- * $Id: HLTScaler.h,v 1.1 2009/02/19 15:58:59 xiezhen Exp $
+ * $Id: HLTScaler.h,v 1.2 2009/05/08 17:32:55 xiezhen Exp $
  *
  ************************************************************/
 #include <vector>
 #include <utility>
 #include <string>
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+
 //persistable class
 namespace lumi{
   struct HLTInfo {
@@ -17,11 +19,15 @@ namespace lumi{
     int acceptcount;
     int prescalefactor;
   };
-  static const HLTInfo HLTNULL=HLTInfo(-99,-99,-99);  
+  static const HLTInfo HLTInfoNULL=HLTInfo(-99,-99,-99);
   typedef std::vector< std::pair<std::string,HLTInfo> >::const_iterator HLTIterator;  
   class HLTScaler{
   public:
     HLTScaler();
+    //current lumisection number
+    int lumisectionNumber()const;
+    //current run number
+    int runNumber()const;
     //total number of HLT paths
     size_t nHLTPath()const;
     //sequential access to HLTInfo
@@ -29,11 +35,21 @@ namespace lumi{
     HLTIterator hltEnd()const;
     //get HLT info for a given path
     HLTInfo getHLTInfo( const std::string& pathname )const;
+    bool isNullData()const;
     ///
     ///setter methods. 
     ///
-    void setHLTData(const std::vector< std::pair<std::string,HLTInfo> >& hltdetail);
+    
+    void setHLTNULL();
+    //first lumisecion id=-99 signals there are no data taken for the entire run
+    void setHLTData(edm::LuminosityBlockID lumiid, 
+		    const std::vector< std::pair<std::string,HLTInfo> >& hltdetail);
   private:
+    //current run
+    int m_run;
+    //current lumi section number
+    int m_lsnumber;
+    //hltinfo by HLTPATH
     std::vector< std::pair<std::string,HLTInfo> > m_hltinfo;
   }; 
 }
