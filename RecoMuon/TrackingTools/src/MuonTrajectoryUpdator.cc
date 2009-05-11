@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2007/09/13 19:59:52 $
- *  $Revision: 1.27 $
+ *  $Date: 2009/04/23 15:36:05 $
+ *  $Revision: 1.28.6.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -27,6 +27,8 @@
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBreaker.h"
+#include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitByValue.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -100,7 +102,7 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
   // measurement layer
   const DetLayer* detLayer=measurement->layer();
 
-  // this are the 4D segment for the CSC/DT and a point for the RPC 
+  // these are the 4D segment for the CSC/DT and a point for the RPC 
   TransientTrackingRecHit::ConstRecHitPointer muonRecHit = measurement->recHit();
  
   // The KFUpdator takes TransientTrackingRecHits as arg.
@@ -158,10 +160,21 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
 	  LogTrace(metname) << "\n\n     Kalman End" << "\n" << "\n";	      
 	  
 	  TrajectoryMeasurement updatedMeasurement = updateMeasurement( propagatedTSOS, lastUpdatedTSOS, 
-									*recHit,thisChi2.second,detLayer, 
+									*recHit, thisChi2.second, detLayer, 
 									measurement);
 	  // FIXME: check!
 	  trajectory.push(updatedMeasurement, thisChi2.second);	  
+	}
+	else {
+          LogTrace(metname) << "  Compatible RecHit with too large chi2"
+			    << "  --> trajectory NOT updated, invalid RecHit added." << endl;
+	  //	  const TrackingRecHit *invalidRH = new TrackingRecHit( (*recHit)->geographicalId(), TrackingRecHit::bad );
+	  InvalidTrackingRecHit invrh( (*recHit)->geographicalId(), TrackingRecHit::bad );
+	  TransientTrackingRecHit::RecHitPointer invalidRhPtr = TransientTrackingRecHitByValue<InvalidTrackingRecHit>::build( (*recHit)->det(), &invrh);
+
+	  TrajectoryMeasurement invalidRHMeasurement(propagatedTSOS, propagatedTSOS, invalidRhPtr, thisChi2.second, detLayer);
+
+	  trajectory.push(invalidRHMeasurement, thisChi2.second);	  
 	}
       }
     }
