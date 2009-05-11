@@ -8,6 +8,7 @@
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/HcalDigi>
 <use name=DataFormats/HcalDetId>
+<use name=CalibFormats/HcalObjects>
 <use name=CalibFormats/CaloTPG>
 <use name=CalibCalorimetry/EcalTPGTools>
 <use name=CondFormats/L1TObjects>
@@ -30,6 +31,7 @@
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/HcalDigi>
 <use name=DataFormats/HcalDetId>
+<use name=CalibFormats/HcalObjects>
 <use name=CalibFormats/CaloTPG>
 <use name=CalibCalorimetry/EcalTPGTools>
 <use name=CondFormats/L1TObjects>
