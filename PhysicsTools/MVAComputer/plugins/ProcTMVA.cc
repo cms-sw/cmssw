@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcTMVA.cc,v 1.6 2008/03/05 12:22:04 saout Exp $
+// $Id: ProcTMVA.cc,v 1.7 2008/03/15 22:26:55 saout Exp $
 //
 
 #include <string>
@@ -134,3 +134,5 @@ void ProcTMVA::eval(ValueIterator iter, unsigned int n) const
 }
 
 } // anonymous namespace
+
+MVA_COMPUTER_DEFINE_PLUGIN(ProcTMVA);

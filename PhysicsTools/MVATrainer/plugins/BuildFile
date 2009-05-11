@@ -5,3 +5,8 @@
 <library file="module.cc" name="PhysicsToolsMVATrainerPlugins">
   <flags EDM_PLUGIN="1">
 </library>
+
+<library file="ProcTMVA.cc" name="PhysicsToolsMVATrainerProcTMVA">
+  <use name=roottmva>
+  <flags EDM_PLUGIN="1">
+</library>

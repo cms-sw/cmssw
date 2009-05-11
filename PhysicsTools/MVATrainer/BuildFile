@@ -7,7 +7,7 @@
 <use name=PhysicsTools/MVAComputer>
 <use name=boost>
 <use name=rootcore>
-<use name=roottmva>
+<use name=roothistmatrix>
 <use name=xerces-c>
 <export>
   <use name=FWCore/Framework>

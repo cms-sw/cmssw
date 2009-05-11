@@ -11,9 +11,6 @@
 
 #include <xercesc/dom/DOM.hpp>
 
-// ROOT version magic to support TMVA interface changes in newer ROOT   
-#include <RVersion.h>
-
 #include <TDirectory.h>
 #include <TTree.h>
 #include <TFile.h>
@@ -436,3 +433,5 @@ void ProcTMVA::cleanup()
 }
 
 } // anonymous namespace
+
+MVA_TRAINER_DEFINE_PLUGIN(ProcTMVA);
