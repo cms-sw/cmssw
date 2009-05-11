@@ -79,4 +79,17 @@
 </class>
 <class name="CSCTriggerMapping::CSCTriggerConnection"/>
 
+  <class name="cscdqm::DCSAddressType"/>
+  <class name="std::vector<cscdqm::DCSAddressType>"/>
+  <class name="cscdqm::DCSData"/>
+  <class name="std::vector<cscdqm::DCSData>"/>
+  <class name="cscdqm::TempMeasType"/>
+  <class name="std::vector<cscdqm::TempMeasType>"/>
+  <class name="cscdqm::HVVMeasType"/>
+  <class name="std::vector<cscdqm::HVVMeasType>"/>
+  <class name="cscdqm::LVVMeasType"/>
+  <class name="std::vector<cscdqm::LVVMeasType>"/>
+  <class name="cscdqm::LVIMeasType"/>
+  <class name="std::vector<cscdqm::LVIMeasType>"/>
+
 </lcgdict>   

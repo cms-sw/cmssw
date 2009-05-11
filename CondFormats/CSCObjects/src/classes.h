@@ -16,6 +16,7 @@
 #include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
 #include "CondFormats/CSCObjects/interface/CSCDDUMap.h"
 #include "CondFormats/CSCObjects/interface/CSCChamberIndex.h"
+#include "CondFormats/CSCObjects/interface/CSCDQM_DCSData.h"
 
 namespace {
   struct dictionary {
@@ -46,6 +47,13 @@ namespace {
     std::pair< const int, CSCMapItem::MapItem > chmapvalue;
 
     std::vector< CSCMapItem::MapItem > chvector;
+
+    std::vector<cscdqm::DCSAddressType> CSCDQM_DCSAddressType_V;
+    std::vector<cscdqm::DCSData>        CSCDQM_DCSData_V;
+    std::vector<cscdqm::TempMeasType>   CSCDQM_TempMeasType_V;
+    std::vector<cscdqm::HVVMeasType>    CSCDQM_HVVMeasType_V;
+    std::vector<cscdqm::LVVMeasType>    CSCDQM_LVVMeasType_V;
+    std::vector<cscdqm::LVIMeasType>    CSCDQM_LVIMeasType_V;
   };
 }
 
