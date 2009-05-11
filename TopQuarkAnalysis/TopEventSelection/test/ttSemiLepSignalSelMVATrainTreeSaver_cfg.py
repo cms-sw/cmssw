@@ -41,9 +41,7 @@ process.load("TopQuarkAnalysis.TopEventSelection.TtSemiLepSignalSelMVATrainTreeS
 from TopQuarkAnalysis.TopEventSelection.TtSemiLepSignalSelMVATrainTreeSaver_cff import looper
 process.looper = looper
 
-## produce tqafLayer1 and and ttGenEvt
-process.p0 = cms.Path(process.patDefaultSequence *
-                      process.makeGenEvt
-                      )
-## make mva training
-process.p1 = cms.Path(process.saveTrainTree)
+## produce pat objects and ttGenEvt and make mva training
+process.p = cms.Path(process.patDefaultSequence *
+                     process.makeGenEvt *
+                     process.saveTrainTree)
