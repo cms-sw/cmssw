@@ -1,6 +1,5 @@
-
-#ifndef __TKLASBEAM_H
-#define __TKLASBEAM_H
+#ifndef DataFormats_LaserAlignment_TkLasBeam_h
+#define DataFormats_LaserAlignment_TkLasBeam_h
 
 #include <vector>
 #include <cmath>
@@ -18,10 +17,11 @@ public:
 
   typedef std::vector<SiStripLaserRecHit2D>::const_iterator const_iterator;
 
-
   TkLasBeam() {}
 
   TkLasBeam( unsigned int aBeamId ) { beamId = aBeamId; }
+
+  virtual ~TkLasBeam() {} // virtual destructor to work as base class
   
   /// return the full beam identifier
   unsigned int getBeamId( void ) const { return beamId; }
@@ -42,14 +42,7 @@ public:
   unsigned int getBeamNumber( void ) const { return beamId%100/10; }
   
   /// true if this is a TEC internal beam (from 10^2 digit of beamId). side parameter: -1 = ask if TEC-, 1 = TEC+, 0 = any tec, don't care
-  bool isTecInternal( int side = 0 ) const {
-    switch( side ) { 
-      case  0: return beamId%1000/100  < 2; 
-      case -1: return beamId%1000/100 == 1; 
-      case  1: return beamId%1000/100 == 0; 
-      default: throw cms::Exception( "[TkLasBeam::isTecInternal]" ) << " ** ERROR: side=" << side << " undefined." << std::endl; 
-    }
-  }
+  bool isTecInternal( int side = 0 ) const;
  
   /// true if this is an AT beam (from 10^2 digit of beamId)
   bool isAlignmentTube( void ) const { return ( beamId%1000/100 ) == 2; }
