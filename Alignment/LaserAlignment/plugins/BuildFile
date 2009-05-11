@@ -5,7 +5,7 @@
 
 
 
-<library name=LaserAlignmentPlugins file=LaserAlignment.cc,LaserAlignmentFillDetId.cc,LaserAlignmentT0Producer.cc>
+<library name=LaserAlignmentPlugins file=*cc>
 	<use name=Alignment/LaserAlignment>
 	<use name=Alignment/TrackerAlignment>
 	<use name=CondCore/DBOutputService>
@@ -17,6 +17,7 @@
 	<use name=Geometry/CommonTopologies>
 	<use name=Geometry/TrackerGeometryBuilder>
 	<use name=Geometry/TrackerNumberingBuilder>
+	<use name=TrackingTools/TrajectoryState>
 	<use name=Utilities/Timing>
 	<use name=boost>
 	<use name=CLHEP>
