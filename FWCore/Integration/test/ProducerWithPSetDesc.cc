@@ -456,7 +456,7 @@ namespace edmtest {
                    " words to make the lines fit in the terminal screen width. There is "
                    "a command line parameter that can be set to override this width to " 
                    "any desired value. If there is no terminal then it should default to "
-                   "80. The logic for setting the width is in edmParamDesc.cpp" );
+                   "80. The logic for setting the width is in edmPluginHelp.cpp" );
 
     iDesc.addUntracked<int>("p_int_untracked", -2147483647);
     iDesc.addOptional<int>("p_int_opt", 0);

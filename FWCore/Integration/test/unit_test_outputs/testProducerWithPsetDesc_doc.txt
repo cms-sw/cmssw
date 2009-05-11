@@ -23,7 +23,7 @@ generated for each configuration with a module label.
                         screen width. There is a command line parameter that 
                         can be set to override this width to any desired value. 
                         If there is no terminal then it should default to 80. 
-                        The logic for setting the width is in edmParamDesc.cpp
+                        The logic for setting the width is in edmPluginHelp.cpp
 
     p_int_untracked
                         type: int32 untracked required
