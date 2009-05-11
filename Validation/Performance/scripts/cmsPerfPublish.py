@@ -45,7 +45,7 @@ DirName=( #These need to match the candle directory names ending (depending on t
           )
 #Defining Steps as a union of Step and ProductionSteps:
 Steps=set(Step+ProductionSteps)
-
+print Steps
 
 ##################
 #

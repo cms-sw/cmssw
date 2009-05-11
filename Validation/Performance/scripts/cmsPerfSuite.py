@@ -8,6 +8,7 @@ import threading #Needed in threading use for Valgrind
 import subprocess #Nicer subprocess management than os.popen
 
 #Redefine _cleanup() function not to poll active processes
+#[This is necessary to avoid issues when threading]
 #So let's have it do nothing:
 def _cleanup():
    pass
@@ -116,7 +117,8 @@ class PerfSuite:
                             RunIgProfPU      = ""         ,
                             RunCallgrindPU   = ""         ,
                             RunMemcheckPU    = ""         ,
-                            PUInputFile      = ""         )
+                            PUInputFile      = ""         ,
+                            userInputFile    = ""         )
         parser.add_option('-q', '--quiet'      , action="store_false", dest='verbose'   ,
             help = 'Output less information'                  )
         parser.add_option('-b', '--bypass-hlt' , action="store_true" , dest='bypasshlt' ,
@@ -175,6 +177,10 @@ class PerfSuite:
             help = 'specify on which candles to run the Callgrind tests with PILE UP')
         parser.add_option('--RunMemcheckPU'             , type='string', dest='RunMemcheckPU' , metavar='<CANDLES>'       ,
             help = 'specify on which candles to run the Memcheck tests with PILE UP')
+
+        #Adding a filein option to use pre-processed RAW file for RECO and HLT:
+        parser.add_option('--filein'             , type='string', dest='userInputFile' , metavar='<FILE>', #default="",
+            help = 'specify input RAW root file for HLT and RAW2DIGI-RECO')
                 
         #####################
         #    
@@ -235,6 +241,8 @@ class PerfSuite:
         RunCallgrindPU   = options.RunCallgrindPU
         RunMemcheckPU    = options.RunMemcheckPU
         PUInputFile      = options.PUInputFile
+        userInputFile    = options.userInputFile
+        #print userInputFile
     
         #################
         # Check logfile option
@@ -431,7 +439,8 @@ class PerfSuite:
                 IgProfPUCandles   ,
                 CallgrindPUCandles,
                 MemcheckPUCandles ,
-                PUInputFile     )
+                PUInputFile     ,
+                userInputFile)
     
     #def usage(self):
     #    return __doc__
@@ -652,31 +661,26 @@ class PerfSuite:
     ##############
     # Wrapper for cmsRelvalreportInput 
     # 
-    def runCmsInput(self,cpu,dir,numevents,candle,cmsdrvopts,stepopt,profiles,bypasshlt):
-    
+    def runCmsInput(self,cpu,dir,numevents,candle,cmsdrvopts,stepopt,profiles,bypasshlt,userInputFile):
+
+        #Crappy fix for optional options with special synthax (bypasshlt and userInputFile)
         bypass = ""
         if bypasshlt:
             bypass = "--bypass-hlt"
+        userInputFileOption=""
+        if userInputFile:
+           userInputFileOption = "--filein %s"%userInputFile
         cmd = self.Commands[cpu][2]
         cmds=[]
-        #for cpu in self.Commands.keys():
-        #    cmds.append("cd %s"%(dir[cpu]))
-        #    cmds.append("%s %s \"%s\" %s %s %s %s" % (cmd,
-        #                                              numevents,
-        #                                              candle,
-        #                                              profiles,
-        #                                              cmsdrvopts,
-        #                                              stepopt,
-        #                                              bypass))
         #print cmds
         cmds = ("cd %s"                    % (dir),
-                "%s %s \"%s\" %s %s %s %s" % (cmd,
+                "%s %s \"%s\" %s %s %s %s %s" % (cmd,
                                               numevents,
                                               candle,
                                               profiles,
                                               cmsdrvopts,
                                               stepopt,
-                                              bypass))
+                                              bypass,userInputFileOption))
         exitstat=0
         exitstat = self.runCmdSet(cmds)
         if self._unittest and (not exitstat == 0):
@@ -685,7 +689,7 @@ class PerfSuite:
     ##############
     # Prepares the profiling directory and runs all the selected profiles (if this is not a unit test)
     #
-    def simpleGenReport(self,cpus,perfdir,NumEvents,candles,cmsdriverOptions,stepOptions,Name,profilers,bypasshlt):
+    def simpleGenReport(self,cpus,perfdir,NumEvents,candles,cmsdriverOptions,stepOptions,Name,profilers,bypasshlt,userInputFile):
         callgrind = Name == "Callgrind"
         memcheck  = Name == "Memcheck"
     
@@ -710,16 +714,16 @@ class PerfSuite:
                 #Catch the case of PILE UP:
                 if "--pileup" in cmsdriverOptions:
                     adir=self.mkCandleDir(pfdir,"%s_PU"%candle,Name)
-                    print "PUPUPU %s"%adir
+                    #print "PUPUPU %s"%adir
                 else:
                     adir=self.mkCandleDir(pfdir,candle,Name)       
 
                 if self._unittest:
                     # Run cmsDriver.py
-                    self.runCmsInput(cpu,adir,NumEvents,candle,cmsdriverOptions,stepOptions,profiles,bypasshlt)
+                    self.runCmsInput(cpu,adir,NumEvents,candle,cmsdriverOptions,stepOptions,profiles,bypasshlt,userInputFile)
                     self.testCmsDriver(cpu,adir,candle)
                 else:
-                    self.runCmsInput(cpu,adir,NumEvents,candle,cmsdriverOptions,stepOptions,profiles,bypasshlt)            
+                    self.runCmsInput(cpu,adir,NumEvents,candle,cmsdriverOptions,stepOptions,profiles,bypasshlt,userInputFile)            
                     #Here where the no_exec option kicks in (do everything but do not launch cmsRelvalreport.py, it also prevents cmsScimark spawning...):
                     if self._noexec:
                         self.logh.write("Running in debugging mode, without executing cmsRelvalreport.py\n")
@@ -779,7 +783,8 @@ class PerfSuite:
                      IgProfPUCandles      = ""         ,
                      CallgrindPUCandles   = ""         ,
                      MemcheckPUCandles    = ""         ,
-                     PUInputFile          = ""         ):
+                     PUInputFile          = ""         ,
+                     userInputFile        = ""         ):
         
         #Set up a variable for the FinalExitCode to be used as the sum of exit codes:
         FinalExitCode=0
@@ -941,14 +946,14 @@ class PerfSuite:
                 self.logh.write("Launching the TimeSize tests (TimingReport, TimeReport, SimpleMemoryCheck, EdmSize) with %s events each\n" % TimeSizeEvents)
                 self.printDate()
                 self.logh.flush()
-                ReportExit=self.simpleGenReport(cpus,perfsuitedir,TimeSizeEvents,TimeSizeCandles,cmsdriverOptions,stepOptions,"TimeSize",profilers,bypasshlt)
+                ReportExit=self.simpleGenReport(cpus,perfsuitedir,TimeSizeEvents,TimeSizeCandles,cmsdriverOptions,stepOptions,"TimeSize",profilers,bypasshlt,userInputFile)
                 FinalExitCode=FinalExitCode+ReportExit
                 #Launch eventual Digi Pile Up TimeSize too:
                 if TimeSizePUCandles:
                     self.logh.write("Launching the PILE UP TimeSize tests (TimingReport, TimeReport, SimpleMemoryCheck, EdmSize) with %s events each\n" % TimeSizeEvents)
                     self.printDate()
                     self.logh.flush()
-                    ReportExit=self.simpleGenReport(cpus,perfsuitedir,TimeSizeEvents,TimeSizePUCandles,cmsdriverPUOptions,stepOptions,"TimeSize",profilers,bypasshlt)
+                    ReportExit=self.simpleGenReport(cpus,perfsuitedir,TimeSizeEvents,TimeSizePUCandles,cmsdriverPUOptions,stepOptions,"TimeSize",profilers,bypasshlt,userInputFile)
                     FinalExitCode=FinalExitCode+ReportExit
                 
             #IgProf tests:
@@ -956,14 +961,14 @@ class PerfSuite:
                 self.logh.write("Launching the IgProf tests (IgProfPerf, IgProfMemTotal, IgProfMemLive, IgProfMemAnalyse) with %s events each\n" % IgProfEvents)
                 self.printDate()
                 self.logh.flush()
-                ReportExit=self.simpleGenReport(cpus,perfsuitedir,IgProfEvents,IgProfCandles,cmsdriverOptions,stepOptions,"IgProf",profilers,bypasshlt)
+                ReportExit=self.simpleGenReport(cpus,perfsuitedir,IgProfEvents,IgProfCandles,cmsdriverOptions,stepOptions,"IgProf",profilers,bypasshlt,userInputFile)
                 FinalExitCode=FinalExitCode+ReportExit
                 #Launch eventual Digi Pile Up IgProf too:
                 if IgProfPUCandles:
                     self.logh.write("Launching the PILE UP IgProf tests (IgProfPerf, IgProfMemTotal, IgProfMemLive, IgProfMemAnalyse) with %s events each\n" % IgProfEvents)
                     self.printDate()
                     self.logh.flush()
-                    ReportExit=self.simpleGenReport(cpus,perfsuitedir,IgProfEvents,IgProfPUCandles,cmsdriverPUOptions,stepOptions,"IgProf",profilers,bypasshlt)
+                    ReportExit=self.simpleGenReport(cpus,perfsuitedir,IgProfEvents,IgProfPUCandles,cmsdriverPUOptions,stepOptions,"IgProf",profilers,bypasshlt,userInputFile)
                     FinalExitCode=FinalExitCode+ReportExit
             
             #Stopping all cmsScimark jobs and analysing automatically the logfiles
@@ -993,14 +998,14 @@ class PerfSuite:
                 self.logh.write("Launching the Valgrind Callgrind (FCE) tests with %s events each\n" % CallgrindEvents)
                 self.printDate()
                 self.logh.flush()
-                ReportExit=self.simpleGenReport(cpus,perfsuitedir,CallgrindEvents,CallgrindCandles,cmsdriverOptions,stepOptions,"Callgrind",profilers,bypasshlt)
+                ReportExit=self.simpleGenReport(cpus,perfsuitedir,CallgrindEvents,CallgrindCandles,cmsdriverOptions,stepOptions,"Callgrind",profilers,bypasshlt,userInputFile)
                 FinalExitCode=FinalExitCode+ReportExit
                 #Launch eventual Digi Pile Up Callgrind too:
                 if CallgrindPUCandles:
                     self.logh.write("Launching the PILE UP Valgrind Callgrind (FCE) tests with %s events each\n" % CallgrindEvents)
                     self.printDate()
                     self.logh.flush()
-                    ReportExit=self.simpleGenReport(cpus,perfsuitedir,CallgrindEvents,CallgrindPUCandles,cmsdriverPUOptions,stepOptions,"Callgrind",profilers,bypasshlt)
+                    ReportExit=self.simpleGenReport(cpus,perfsuitedir,CallgrindEvents,CallgrindPUCandles,cmsdriverPUOptions,stepOptions,"Callgrind",profilers,bypasshlt,userInputFile)
                     FinalExitCode=FinalExitCode+ReportExit
                 
             if MemcheckEvents > 0:
@@ -1019,14 +1024,14 @@ class PerfSuite:
                 self.logh.write("Launching the Valgrind Memcheck tests with %s events each\n" % CallgrindEvents)
                 self.printDate()
                 self.logh.flush()
-                ReportExit=self.simpleGenReport(cpus,perfsuitedir,MemcheckEvents,MemcheckCandles,cmsdriverOptions,stepOptions,"Memcheck",profilers,bypasshlt)
+                ReportExit=self.simpleGenReport(cpus,perfsuitedir,MemcheckEvents,MemcheckCandles,cmsdriverOptions,stepOptions,"Memcheck",profilers,bypasshlt,userInputFile)
                 FinalExitCode=FinalExitCode+ReportExit
                 #Launch eventual Digi Pile Up Memcheck too:
                 if MemcheckPUCandles:
                     self.logh.write("Launching the PILE UP Valgrind Memcheck tests with %s events each\n" % CallgrindEvents)
                     self.printDate()
                     self.logh.flush()
-                    ReportExit=self.simpleGenReport(cpus,perfsuitedir,MemcheckEvents,MemcheckPUCandles,cmsdriverPUOptions,stepOptions,"Memcheck",profilers,bypasshlt)
+                    ReportExit=self.simpleGenReport(cpus,perfsuitedir,MemcheckEvents,MemcheckPUCandles,cmsdriverPUOptions,stepOptions,"Memcheck",profilers,bypasshlt,userInputFile)
                     FinalExitCode=FinalExitCode+ReportExit
                 
             if benching and not (self._unittest or self._noexec):
@@ -1100,7 +1105,8 @@ def main(argv=[__name__]): #argv is a list of arguments.
     #Let's instatiate the class:
     suite=PerfSuite()
 
-    print suite                      
+    print suite
+    print suite.optionParse(argv)
     
     PerfSuiteArgs={}
     (PerfSuiteArgs['castordir'],
@@ -1132,7 +1138,8 @@ def main(argv=[__name__]): #argv is a list of arguments.
      PerfSuiteArgs['IgProfPUCandles'],
      PerfSuiteArgs['CallgrindPUCandles'],
      PerfSuiteArgs['MemcheckPUCandles'],
-     PerfSuiteArgs['PUInputFile']     
+     PerfSuiteArgs['PUInputFile'],
+     PerfSuiteArgs['userInputFile']
      ) = suite.optionParse(argv)
     
     print "Initial PerfSuite Arguments:"

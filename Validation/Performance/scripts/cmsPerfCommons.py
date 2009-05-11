@@ -49,7 +49,9 @@ ProductionSteps = ["GEN,SIM,DIGI,L1,DIGI2RAW,HLT",
                    #Add also all PILEUP steps
                    "GEN,SIM,DIGI,L1,DIGI2RAW,HLT_PILEUP",
                    "GEN,SIM,DIGI,L1,DIGI2RAW_PILEUP",
-                   "RAW2DIGI,RECO_PILEUP" #This is already included in Step!
+                   "RAW2DIGI,RECO_PILEUP", #This is already included in Step!
+                   "GEN,FASTSIM", #Adding FASTSIM workflow
+                   "HLT"          #Adding HLT alone workflow
                    ]
 #A dictionary with the reverse look-up for the candle given the root base filename 
 revCFname = {

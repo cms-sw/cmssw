@@ -70,29 +70,41 @@ def getLstIndex(item, list):
             return x
 
 def checkSteps(steps):
+    '''Checks user steps <steps> for order against steps defined in AllSteps list.
+    If they are not, prints a warning and exits.
+    No return value.'''
+    
+    print steps
     idx = -2
     lstidx = -2
     for step in steps:
         astep = step
         split = []
-        if "-" in step:
-            split = astep.split("-")
-            astep = split[0]
-        idx = AllSteps.index(astep)
-        if not ( idx == -2 ):
-            if lstidx > idx:
-                print "ERROR: Your user defined steps are not in a valid order"
-                sys.exit()
-        lstidx = idx    
-        if "-" in step:
-            lstidx = AllSteps.index(split[1])
+        #Added special workflow for GEN-FASTSIM, bypass the check of step order:
+        if step=="GEN,FASTSIM":
+            pass
+        else:
+            if "-" in step:
+                split = astep.split("-")
+                astep = split[0]
+            idx = AllSteps.index(astep)            
+            if not ( idx == -2 ):
+                if lstidx > idx:
+                    print "ERROR: Your user defined steps are not in a valid order"
+                    sys.exit()
+                lstidx = idx    
+            if "-" in step:
+                lstidx = AllSteps.index(split[1])
 
 
 def getSteps(userSteps):
-
+    '''Analyzes the steps in <userSteps> to translate the cmsRelvalreportInput.py --step option into the cmsDriver.py one. Expanding hyphens for combined steps.
+    Handle the exceptional cases of GEN-, GEN-SIM and GEN-FASTSIM (GEN is never profiled by itself).
+    Returns a list of steps <steps>.'''
     # Then split the user steps into "steps"
     gsreg = re.compile('GEN-SIM')
     greg = re.compile('GEN') #Add a second hack (due to the first) to handle the step 1 case GEN-HLT
+    gfsreg = re.compile('GEN-FASTSIM') #Add a third hack to handle the case GEN-FASTSIM workflow
     StepsTokens = userSteps.split(",")
     steps = [] 
     for astep in StepsTokens:
@@ -102,11 +114,13 @@ def getSteps(userSteps):
 
         if gsreg.search(astep):
             astep = gsreg.sub(r"GEN,SIM", astep)
+        elif gfsreg.search(astep):
+            astep = gfsreg.sub(r"GEN,FASTSIM", astep) #could add protection for user screw-ups
         elif greg.search(astep):
             astep = greg.sub(r"GEN,SIM", astep)
             
         print astep
-        # Finally collect all the steps into the @Steps array:
+        # Finally collect all the steps into the steps list:
 
         steps.append(astep)
     
@@ -145,15 +159,15 @@ def optionparse():
           8     ValgrindFCE
           9     ValgrindMemCheck    
 
-    Examples:  
-       Perform Timing Report profiling for all candles and 10 events per cfg.
-        ./%s 10 AllCandles 1
-       Perform Timing Report, Time Report and SimpleMemoryCheck profiling for Higgs boson and 50 events.
-        ./%s 50 \"HZZLLLL\" 012
-       Perform IgProfPerf and IgProfMemTotal profiling for TTbar and 100 events.
-        ./%s 100 \"TTBAR\" 45 --cmsdriver=\"--conditions FakeConditions\"
-       Perform ValgrindFCE ValgrindMemCheck profiling for Minimum bias and 100 events. Only on gensim and digi steps.
-        ./%s 100 \"MINBIAS\" 89 --cmsdriver=\"--conditions FakeConditions\" \"--usersteps=GEN-SIM,DIGI"""
+    Examples (could be obsolete!):  
+       Perform Timing Report profiling for all candles, all steps and 10 events per cfg.
+        ./%s 10 AllCandles 1 \"--conditions FakeConditions --eventcontent FEVTDEBUGHLT\"
+       Perform Timing Report, Time Report and SimpleMemoryCheck profiling for HiggsZZ4LM200, all steps and 50 events.
+        ./%s 50 \"HiggsZZ4LM200\" 012 \"--conditions FakeConditions --eventcontent FEVTDEBUGHLT\"
+       Perform IgProfPerf and IgProfMemTotal profiling for TTbar, all steps and 100 events.
+        ./%s 100 \"TTbar\" 45 --cmsdriver=\"--conditions FakeConditions --eventcontent RAWRECO\"
+       Perform ValgrindFCE ValgrindMemCheck profiling for Minimum bias and 100 events. Only on GEN,SIM and DIGI steps.
+        ./%s 100 \"MinBias\" 89 --cmsdriver=\"--conditions FakeConditions --eventcontent RAWSIM\" \"--usersteps=GEN-SIM,DIGI"""
       % ( THIS_PROG_NAME, explanation, THIS_PROG_NAME,THIS_PROG_NAME,THIS_PROG_NAME,THIS_PROG_NAME)))
     
     devel  = opt.OptionGroup(parser, "Developer Options",
@@ -186,7 +200,15 @@ def optionparse():
         help='Option for cmsDriver.py can be specified as a string to be added to all cmsDriver.py commands',
         metavar='<CONDITION>',
         )
-
+    parser.add_option(
+        '-i',
+        '--filein',
+        type='string',
+        dest='userInputFile',
+        help='Eventual input file (for now to be only used with HLT and RAW2DIGI-RECO workflows)',
+        default='',
+        metavar='<INPUTFILE>',
+        )
     devel.add_option(
         '-1',
         '--no-profile',
@@ -296,7 +318,7 @@ def setupProgramParameters(options,args):
     for astep in steps:
         print astep
 
-    return (NumberOfEvents, ProfileCode, cmsDriverOptions, steps, Candle, options.bypasshlt)
+    return (NumberOfEvents, ProfileCode, cmsDriverOptions, steps, Candle, options.bypasshlt,options.userInputFile)
 
 def init_vars():
 
@@ -385,13 +407,8 @@ def determineNewProfile(step,Profile,SavedProfile):
     return (Profile, SavedProfile)
 
 def pythonFragment(step,cmsdriverOptions):
-    # Convenient dictionary to map the correct customise Python fragment for cmsDriver.py:
+    # Convenient CustomiseFragment dictionary to map the correct customise Python fragment for cmsDriver.py:
     #It is now living in cmsPerfCommons.py!
-
- #   CustomiseFragment = {
- #        'GEN,SIM': 'Validation/Performance/TimeMemoryG4Info.py',
- #        'DIGI': 'Validation/Performance/TimeMemoryInfo.py',
- #        'DIGI-PILEUP':'Validation/Performance/MixingModule.py'}
     
     if "--pileup" in cmsdriverOptions:
         return CustomiseFragment['DIGI-PILEUP']
@@ -415,6 +432,8 @@ def setInputFile(steps,step,acandle,stepIndex,pileup=False,bypasshlt=False):
         pass
     else :
         if 'GEN,SIM' in step:  # there is no input file for GEN,SIM!
+            InputFileOption = ''
+        if 'GEN,FASTSIM' in step: # there is no input file for GEN,FASTSIM!
             InputFileOption = ''
         elif   'HLT' in steps[stepIndex - 1] and bypasshlt:
 
@@ -477,6 +496,8 @@ def writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unp
 
 def writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions,pileup,bypasshlt):
     fstIdx = -1
+    #Hack for GEN-FASTSIM workflow:
+    #if steps=="GEN,FASTSIM":   
     if "-" in steps[0]:
         fstIdx = AllSteps.index(steps[0].split("-")[0])
     else:
@@ -497,8 +518,9 @@ def writeCommands(simcandles,
                   cmsDriverOptions,
                   bypasshlt,                  
                   stepIndex = 0,
-                  pileup = False):
-
+                  pileup = False,
+                  userInputFile=""):
+    #print "a:%s,b:%s,c:%s"%(stepIndex,pileup,userInputFile)
     OutputStep = ""
 
     stopIndex = len(steps)
@@ -511,104 +533,67 @@ def writeCommands(simcandles,
 
     #Handling the case of the first user step not being the first step (GEN,SIM):
     print "Steps passed to writeCommands %s",steps
-    if not (steps[0] == AllSteps[0]) and (steps[0].split("-")[0] != "GEN,SIM"):
-        #Write the necessary line to run without profiling all the steps before the wanted ones in one shot:
-        (stepIndex, rootFileStr) = writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions,pileup,bypasshlt)
-        
-        #Now take care of setting the indeces and input root file name right for the profiling part...
-        if fstROOTfile:
-            fstROOTfileStr = rootFileStr
-            fstROOTfile = False
-        start = -1
-        if "-" in steps[0]:
-            start = AllSteps.index(steps[0].split("-")[0])
-        else:
-            start = AllSteps.index(steps[0])
-        lst = - 1
-        if "-" in steps[-1]:
-            lst   = AllSteps.index(steps[-1].split("-")[1]) #here we are assuming that - is always between two steps no GEN-SIM-DIGI, this is GEN-DIGI
-        else:
-            lst   = AllSteps.index(steps[-1])
-        runSteps = AllSteps[start:lst]
-        numOfSteps = (lst - start) + 1
-        stopIndex = start + numOfSteps
-        #Handling the case in which the first user step is the same as the first step (GEN,SIM)
-        #elif  not (steps[0] == AllSteps[0]) and (steps[0].split("-")[0] == "GEN"):
+    #Special case for FASTSIM:
+    if (steps[0] == "GEN,FASTSIM"):
+        start=-1
+        stopIndex=1
+        steps = ["GEN,FASTSIM"]
     else:
-        #Handling the case of the last step being a composite one:
-        if "-" in steps[-1]:
-            #Set the stop index at the last step of the composite step (WHY???) 
-            stopIndex = AllSteps.index(steps[-1].split("-")[1]) + 1
+        if not (steps[0] == AllSteps[0]) and (steps[0].split("-")[0] != "GEN,SIM"):
+            #print "userInputFile: %s"%userInputFile
+            if userInputFile == "":
+                #Write the necessary line to run without profiling all the steps before the wanted ones in one shot:
+                (stepIndex, rootFileStr) = writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions,pileup,bypasshlt)
+            else: #To be implemented if we want to have input file capability beyond the HLT and RAW2DIGI-RECO workflows
+                if "-" in steps[0]:
+                    stepIndex=AllSteps.index(steps[0].split("-")[0])
+                    #print "Here!"
+                else:
+                    #print "There!"
+                    stepIndex=AllSteps.index(steps[0])
+                rootFileStr=""    
+            #Now take care of setting the indeces and input root file name right for the profiling part...
+            if fstROOTfile:
+                fstROOTfileStr = rootFileStr
+                fstROOTfile = False
+            start = -1
+            if "-" in steps[0]:
+                start = AllSteps.index(steps[0].split("-")[0])
+            else:
+                start = AllSteps.index(steps[0])
+            lst = - 1
+            if "-" in steps[-1]:
+                lst   = AllSteps.index(steps[-1].split("-")[1]) #here we are assuming that - is always between two steps no GEN-SIM-DIGI, this is GEN-DIGI
+            else:
+                lst   = AllSteps.index(steps[-1])
+            runSteps = AllSteps[start:lst]
+            numOfSteps = (lst - start) + 1
+            stopIndex = start + numOfSteps
+            #Handling the case in which the first user step is the same as the first step (GEN,SIM)
+            #elif  not (steps[0] == AllSteps[0]) and (steps[0].split("-")[0] == "GEN"):
         else:
-            stopIndex = AllSteps.index(steps[-1]) + 1
+            #Handling the case of the last step being a composite one:
+            if "-" in steps[-1]:
+                #Set the stop index at the last step of the composite step (WHY???) 
+                stopIndex = AllSteps.index(steps[-1].split("-")[1]) + 1
+            else:
+                stopIndex = AllSteps.index(steps[-1]) + 1
             
-    steps = AllSteps
+        steps = AllSteps
             
     unprofiledSteps = []
     rawreg = re.compile("^RAW2DIGI")
-
-#Beginning of a new design of the loop (abandoned for now for lack of time... simply fixed the issues with unprofiled steps by adding one argument to the writeUnprofiledSteps and fixed a couple of inconsistencies with the -b option:
-##    #CurrentStepIndex = 0
-##    print "UserSteps:"
-##    AllStepsIndex=-1
-##    #Tests that can be done before looping:
-##    #Check the first step to see if there are unprofiled pre-steps needed:
-##   if not (userSteps[0] == AllSteps[0]) and (userSteps[0].split("-")[0] != "GEN,SIM"):
-##           print "Need some pre-steps before starting with userSteps %s"%userSteps
-##           print "Will run steps %s"%AllSteps[0:AllSteps.index(userSteps[0].split("-")[0])]
-##           #implement here the running of unprofiled steps between GEN-SIM and AllSteps.index(steps[0].split("-")[0] -1)
-##           #possibly calling a function WriteUnprofiledSteps(unprofiledSteps) that takes care of all (input, output filename)
-##           
-##   for step in userSteps:
-##       print step
-##       #Before establish the corresponding index in AllSteps:
-##       
-##       #Check if there are hypens (they mean we want to run all the steps between the hypens in one shot profiling them)
-##       if "-" in step:
-##           print "Hyphenated step: %s"%step
-##           #implement profiling of steps a la cmsDriver.py, by translating the hypens:
-##           #GEN-HLT -> GEN,SIM,DIGI,L1,DIGI2RAW,HLT
-##           #Also make sure the output is called like the last step (in this case HLT.root)
-##           print "Expanded hyphenated steps: %s"%expandHyphens(step)
-##           FirstStep=expandHyphens(step)[0]
-##           FirstStepIndex=AllSteps.index(FirstStep)
-##           LastStep=expandHyphens(step)[1]
-##           LastStepIndex=AllSteps.index(LastStep)
-##           print "First step %s and last step %s"%(FirstStep,LastStep)
-##           cmsDriverSteps=",".join(AllSteps[FirstStepIndex:LastStepIndex+1])
-##           print "cmsDriverSteps = %s"%cmsDriverSteps
-##           if '--pileup' in cmsDriverOptions:
-##               outfile = LastStep + "_PILEUP"
-##           else:
-##               outfile = LastStep
-##           OutputFile = setOutputFileOption(acandle,outfile)
-##           print "OutputFile is %s"%OutputFile
-##       if AllStepsIndex != -1:
-##           try:
-##               if AllSteps.index(step) == AllStepsIndex + 1:
-##                   print "Consecutive steps to profile"
-##               else:
-##                   print "Step %s is not the consecutive step of %s, so we will need to run the intermediate ones unprofiled"%(AllSteps.index(step),AllStepsIndex)
-##           except:#To catch the case of hyphenated steps
-##               if AllSteps.index(expandHyphens(step)[0]) == AllStepsIndex + 1:
-##                   print "Consecutive steps to profile"
-##               else:
-##                   print "Step %s is not the consecutive step of %s, so we will need to run the intermediate ones unprofiled"%(AllSteps.index(expandHyphens(step)[0]),AllStepsIndex)
-##       #Finally establish the corresponding index in AllSteps:
-##       try:
-##           AllStepsIndex=AllSteps.index(step)
-##       except: #To catch the case of hyphenated steps
-##           AllStepsIndex=AllSteps.index(expandHyphens(step)[-1])
-##
-##
-##       #CurrentStepIndex = CurrentStepIndex + 1
 
 #Horrible structure... to be rewritten sooner or later...
     
 #   FOR step in steps
 
     prevPrevOutputFile = ""
-    previousOutputFile = ""
+    #Add if to introduce the possibility to run on user selected input file.
+    if userInputFile!="":
+        previousOutputFile=userInputFile
+    else:
+        previousOutputFile = ""
 
     for x in range(start,stopIndex,1):
         if stepIndex >= stopIndex:
@@ -762,7 +747,7 @@ def writeCommands(simcandles,
             stepIndex +=1
     return fstROOTfileStr
 
-def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriverOptions,steps,bypasshlt):
+def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriverOptions,steps,bypasshlt,userInputFile):
 
     OutputStep = ''
 
@@ -779,13 +764,18 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
         #
 
         #Here all candles are processed with all the same command, and in the pileup case they will have the pileup settings set correctly already:
+        #print "1-userInputFile: %s"%userInputFile
+        
         fstoutfile = writeCommands(simcandles,
                                    Profile,
                                    acandle,
                                    steps,
                                    NumberOfEvents,
                                    cmsDriverOptions,
-                                   bypasshlt)
+                                   bypasshlt,
+                                   0,
+                                   False,
+                                   userInputFile)
         
 
 def main(argv=sys.argv):
@@ -800,7 +790,8 @@ def main(argv=sys.argv):
     # Set up arguments and option handling
     #
 
-    (NumberOfEvents, ProfileCode, cmsDriverOptions, steps, Candle, bypasshlt ) = setupProgramParameters(options,args)
+    (NumberOfEvents, ProfileCode, cmsDriverOptions, steps, Candle, bypasshlt, userInputFile ) = setupProgramParameters(options,args)
+    print setupProgramParameters(options,args)
 
     ######################
     # Initialize a few variables
@@ -824,7 +815,7 @@ def main(argv=sys.argv):
     # Write the commands for the report to the file
     #
 
-    writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriverOptions,steps,bypasshlt)
+    writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriverOptions,steps,bypasshlt,userInputFile)
                 
     simcandles.close()
 
