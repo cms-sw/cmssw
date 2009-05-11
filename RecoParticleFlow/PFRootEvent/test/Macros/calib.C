@@ -40,11 +40,11 @@ double threshH = 2.9;
 //double threshE = 0.;
 //double threshH = 0.;
 // Barrel
-//double etamin = 0.0;
-//double etamax = 1.48;
+double etamin = 0.0;
+double etamax = 1.48;
 // Endcap
-double etamin = 1.48;
-double etamax = 3.0;
+//double etamin = 1.48;
+//double etamax = 3.0;
 // Endcap - HF border
 //double etamin = 2.9;
 //double etamax = 3.0;
@@ -221,13 +221,12 @@ public:
   bool fill(double e, double h, double t, double eta, unsigned input = 0) { 
     bool isFilled = false;
     if ( t > minE && t < maxE )  { 
-      S.push_back(sqrt(0.06*0.06 + 1.20*(e+h)));
-      //S.push_back(1.);
       double thresh = 0.;
       if ( input == 0 ) thresh = e > 0 ? ( h > 0 ? threshE : threshE0 ) : threshH;
     
       if ( ( etamax > 1.5 && eta > 1.6 && eta < 2.9 ) || 
 	   ( etamax < 1.5 && eta < 1.4 ) ) {  
+	S.push_back(sqrt(0.06*0.06 + 1.20*(e+h)));
 	E.push_back(e/S.back());
 	H.push_back(h/S.back());
 	T.push_back((t-thresh)/S.back());
@@ -609,6 +608,11 @@ public:
     return rms;    
   }
 
+  unsigned int size() { 
+    return T.size();
+  }
+  
+  
   double theta() {
     if ( sigmaA()*sigmaB() == 0. ) return 0.;
     double s2 = -2.*rhoAB() * sigmaA() * sigmaB();
@@ -869,9 +873,10 @@ double findABC(std::vector<Fit*>& fits, double tE0, double tE, double tH) {
   double rmsC = 0.;
   unsigned nfit = 0;
   for ( unsigned ifit=5; ifit<fits.size()-1; ++ifit ) {
+    if ( !fits[ifit]->size() ) continue;
     fits[ifit]->eMatrices();
     if (ifit<20) continue;
-    // if (ifit<50 && etamin > 1.4 ) continue;
+   // if (ifit<50 && etamin > 1.4 ) continue;
     ave0 += fits[ifit]->E1Coeffs(0);
     aveA += fits[ifit]->E2Coeffs(0);
     aveB += fits[ifit]->E2Coeffs(1);
@@ -937,7 +942,7 @@ computeBarrelCoefficients(const char* calibFile) {
   vector<Fit*> fits;
   
   for ( double bin=0.; bin<10.; bin=bin+0.5) { 
-    fits.push_back(new Fit(bin,bin+1.));    
+    fits.push_back(new Fit(bin,bin+0.5));    
   }
 
   for ( double bin=10.; bin<100.; bin=bin+1.) { 
@@ -945,7 +950,7 @@ computeBarrelCoefficients(const char* calibFile) {
   }
 
   for ( double bin=100.; bin<1000.; bin=bin+5.) { 
-    fits.push_back(new Fit(bin,bin+10.));    
+    fits.push_back(new Fit(bin,bin+5.));    
   }
 
   TFile* myFile = new TFile("myTree.root","recreate");
@@ -959,7 +964,7 @@ computeBarrelCoefficients(const char* calibFile) {
   NTuple* ntuple = new NTuple(TT);
   unsigned nEntries = TT->GetEntriesFast();
 
-  /*
+  /* 
   double rmsMaxE0 = 999.;
   for ( double te0=0.; te0<10; te0=te0+0.1) {
     double rmsCoeff = findABC(fits, te0, threshE, threshH);
@@ -1002,6 +1007,7 @@ computeBarrelCoefficients(const char* calibFile) {
   vector<double> xa0, xab, xc, a, a0, b, c, sxa0, sxab, sxc, sa, sa0, sb, sc;
   vector<double> at, bt, ct, dt, aht, bht, sat, sbt, sct, sdt, saht, sbht;
   for ( unsigned ifit=5; ifit<fits.size()-1; ++ifit ) {
+    if ( !fits[ifit]->size() ) continue;
     //fits[ifit]->eMatrices();
     cout << "Bin " << ifit 
 	 << "; a, b, c, a0  = " << fits[ifit]->E2Coeffs(0)
@@ -1284,7 +1290,8 @@ computeBarrelCoefficients(const char* calibFile) {
   vector<double> aEta0, bEta0, cEta0, aEta1, bEta1, cEta1, aEta2, bEta2, cEta2;
   vector<double> saEta0, sbEta0, scEta0, saEta1, sbEta1, scEta1, saEta2, sbEta2, scEta2;
   vector<double> xEta, sxEta;
-  for ( unsigned ifit=2; ifit<fits.size()-1; ++ifit ) {
+  for ( unsigned ifit=4; ifit<fits.size()-1; ++ifit ) {
+    if ( !fits[ifit]->size() ) continue;
     fits[ifit]->etaMatrices();
     cout << "Bin " << ifit 
 	 << "; a0, b0 = " 
