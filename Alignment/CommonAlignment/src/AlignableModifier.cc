@@ -120,7 +120,8 @@ bool AlignableModifier::modify( Alignable* alignable, const edm::ParameterSet& p
     else if ( (*iParam) == "phiXlocal" ) { phiXlocal_=pSet.getParameter<double>( *iParam ); rotX_++; }
     else if ( (*iParam) == "phiYlocal" ) { phiYlocal_=pSet.getParameter<double>( *iParam ); rotY_++; }
     else if ( (*iParam) == "phiZlocal" ) { phiZlocal_=pSet.getParameter<double>( *iParam ); rotZ_++; }
-    else if ( !pSet.existsAs<edm::ParameterSet>(*iParam) ) { // PSets are OK to ignore
+    //    else if ( !pSet.existsAs<edm::ParameterSet>(*iParam) ) { // PSets are OK to ignore
+    else if ( pSet.retrieve( *iParam ).typeCode() != 'P' ) { // Add unknown parameter to list
       if ( !error.str().length() ) error << "Unknown parameter name(s): ";
       error << " " << *iParam;
     }
