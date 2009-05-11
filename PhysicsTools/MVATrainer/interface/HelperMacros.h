@@ -44,5 +44,4 @@
 // 	MVA_COMPUTER_SAVE_IMPLEMENT(N ## Rcd, N ## SaveCondDB)
 //	MVA_TRAINER_LOOPER_IMPLEMENT(N ## Rcd, N ## TrainerLooper)
 
-
 #endif // PhysicsTools_MVATrainer_HelperMacros_h
