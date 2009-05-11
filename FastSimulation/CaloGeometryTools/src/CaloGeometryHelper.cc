@@ -118,16 +118,14 @@ DetId CaloGeometryHelper::getClosestCell(const XYZPoint& point, bool ecal, bool 
       if(myDetId.depth()==3) return result;
 
       int ieta=myDetId.ietaAbs();
-      float azmin=388.;
+      float azmin=400.458;         /// in sync with BaseParticlePropagator 
 
       if(ieta<=17) 
         return result;
-      else if(ieta==18)
-        azmin=416;
-      else if(ieta>=10&&ieta<=26) 
-        azmin=423.;
+      else if(ieta>=18 && ieta<=26) 
+        azmin += 35.0;    // don't consider ieta=18 nose separately
       else if(ieta>=27)
-        azmin=409;
+        azmin += 21.0;
 
       HcalDetId first(HcalEndcap,myDetId.ieta(),myDetId.iphi(),1);
       bool layer2=(fabs(point.Z())>azmin);
