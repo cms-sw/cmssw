@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.5 2009/04/12 20:43:28 amraktad Exp $
+// $Id: FWTableView.cc,v 1.6 2009/05/01 22:30:41 jmuelmen Exp $
 //
 
 // system include files
@@ -247,10 +247,6 @@ FWTableView::FWTableView (TEveWindowSlot* iParent, FWTableViewManager *manager)
 //      TGHorizontalFrame *buttons = new TGHorizontalFrame(frame);
 //      frame->AddFrame(buttons, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
 
-//      TGCompositeFrame *labfr = new TGHorizontalFrame(buttons, 60, 20, kFixedSize);
-//      TGLabel *label = new TGLabel(labfr, "Collection");
-//      labfr->AddFrame(label,  new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 1,3,1,1));
-//      buttons->AddFrame(labfr);
 //      m_collection = new TGComboBox(buttons);
      m_vert = new TGVerticalFrame(frame);
      frame->AddFrame(m_vert, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
@@ -263,8 +259,12 @@ FWTableView::FWTableView (TEveWindowSlot* iParent, FWTableViewManager *manager)
 						arrow_right_disabled(bgIsBlack));
      m_columnUIButton->Connect("Clicked()", "FWTableView", this, "toggleShowHide()");
      header->AddFrame(m_columnUIButton, new TGLayoutHints(kLHintsCenterY | kLHintsLeft,6,10));
-     TGLabel *label = new TGLabel(header, "Collection");
-     header->AddFrame(label, new TGLayoutHints(kLHintsLeft));
+
+     TGCompositeFrame *labfr = new TGHorizontalFrame(header, 60, 25, kFixedSize);
+     TGLabel *label = new TGLabel(labfr, "Collection");
+     labfr->AddFrame(label,  new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 1,3,0,0));
+     header->AddFrame(labfr, new TGLayoutHints(kLHintsLeft));
+
      m_collection = new TGComboBox(header);
      updateItems();
      header->AddFrame(m_collection, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY));
