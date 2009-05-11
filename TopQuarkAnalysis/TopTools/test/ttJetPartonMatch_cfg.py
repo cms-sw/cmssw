@@ -73,3 +73,16 @@ process.p = cms.Path(process.patDefaultSequence *
                      process.ttFullHadJetPartonMatch *
                      process.ttFullLepJetPartonMatch *
                      process.ttSemiLepJetPartonMatch)
+
+## configure output module
+process.out = cms.OutputModule("PoolOutputModule",
+    SelectEvents   = cms.untracked.PSet(SelectEvents = cms.vstring('p') ),                               
+    fileName = cms.untracked.string('ttJetPartonMatch.root'),                               
+    outputCommands = cms.untracked.vstring('drop *')
+)
+process.out.outputCommands += ['keep *_ttFullHadJetPartonMatch_*_*',
+                               'keep *_ttFullLepJetPartonMatch_*_*',
+                               'keep *_ttSemiLepJetPartonMatch_*_*']
+
+## output path
+process.outpath = cms.EndPath(process.out)
