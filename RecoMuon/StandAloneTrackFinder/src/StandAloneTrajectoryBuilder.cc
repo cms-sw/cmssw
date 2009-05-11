@@ -1,10 +1,11 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2008/04/23 16:56:34 $
- *  $Revision: 1.40 $
+ *  $Date: 2009/04/27 17:52:54 $
+ *  $Revision: 1.41.2.3 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author Stefano Lacaprara - INFN Legnaro
+ *  \author D. Trocino - INFN Torino <daniele.trocino@to.infn.it>
  */
 
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
@@ -159,17 +160,67 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   // the trajectory is filled in the refitter::refit
   filter()->refit(inputFromSeed.second,inputFromSeed.first,trajectoryFW);
 
-  // Get the last TSOS
-  TrajectoryStateOnSurface tsosAfterRefit = filter()->lastUpdatedTSOS();
+  // "0th order" check...
+  if( trajectoryFW.empty() ) {
+    LogTrace(metname) << "Forward trajectory EMPTY! No trajectory will be loaded!" << endl;
+    return trajectoryContainer;
+  }
 
-  LogTrace(metname) << "StandAloneMuonTrajectoryBuilder filter output " << endl ;
+  // Get the last TSOS
+  //  TrajectoryStateOnSurface tsosAfterRefit = filter()->lastUpdatedTSOS();     // this is the last UPDATED TSOS
+  TrajectoryStateOnSurface tsosAfterRefit = filter()->lastCompatibleTSOS();     // this is the last COMPATIBLE TSOS
+
+  LogTrace(metname) << "StandAloneMuonTrajectoryBuilder filter output " << endl;
   LogTrace(metname) << debug.dumpTSOS(tsosAfterRefit);
   
 
-  if( filter()->layers().size() ) 
-    LogTrace(metname) << debug.dumpLayer( filter()->lastDetLayer());
-  else return trajectoryContainer; 
-  
+  /*
+  // -- 1st attempt
+  if( filter()->isCompatibilitySatisfied() ) {
+    if( filter()->layers().size() )   //  OR   if( filter()->goodState() ) ???  Maybe when only RPC hits are used...
+      LogTrace(metname) << debug.dumpLayer( filter()->lastDetLayer() );
+    else {
+      LogTrace(metname) << "Compatibility satisfied, but all RecHits are invalid! A trajectory with only invalid hits will be loaded!" << endl;
+      trajectoryContainer.push_back(new Trajectory(trajectoryFW));
+      return trajectoryContainer;
+    }
+  }
+  else {
+    LogTrace(metname) << "Compatibility NOT satisfied after Forward filter! No trajectory will be loaded!" << endl;
+    LogTrace(metname) << "Total chambers: " << filter()->getTotalCompatibleChambers() << "; DT: " 
+		      << filter()->getDTCompatibleChambers() << "; CSC: " << filter()->getCSCCompatibleChambers() << endl;
+    return trajectoryContainer; 
+  }
+  // -- end 1st attempt
+  */
+
+  // -- 2nd attempt
+  if( filter()->goodState() ) {
+    LogTrace(metname) << debug.dumpLayer( filter()->lastDetLayer() );
+  }
+  else if( filter()->isCompatibilitySatisfied() ) {
+    int foundValidRh = trajectoryFW.foundHits();  // number of valid hits
+    LogTrace(metname) << "Compatibility satisfied after Forward filter, but too few valid RecHits ("
+		      << foundValidRh << ")." << endl
+		      << "A trajectory with only invalid RecHits will be loaded!" << endl;
+    if(!foundValidRh) {
+      trajectoryContainer.push_back(new Trajectory(trajectoryFW));
+      return trajectoryContainer;
+    }
+    Trajectory defaultTraj(seed,fwDirection);
+    filter()->createDefaultTrajectory(trajectoryFW, defaultTraj);
+    trajectoryContainer.push_back(new Trajectory(defaultTraj));
+    return trajectoryContainer;
+  }
+  else {
+    LogTrace(metname) << "Compatibility NOT satisfied after Forward filter! No trajectory will be loaded!" << endl;
+    LogTrace(metname) << "Total compatible chambers: " << filter()->getTotalCompatibleChambers() << ";  DT: " 
+		      << filter()->getDTCompatibleChambers() << ";  CSC: " << filter()->getCSCCompatibleChambers() 
+		      << ";  RPC: " << filter()->getRPCCompatibleChambers() << endl;
+    return trajectoryContainer; 
+  }
+  // -- end 2nd attempt
+
   LogTrace(metname) << "Number of DT/CSC/RPC chamber used (fw): " 
        << filter()->getDTChamberUsed() << "/"
        << filter()->getCSCChamberUsed() << "/"
@@ -177,43 +228,39 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   LogTrace(metname) << "Momentum: " <<tsosAfterRefit.freeState()->momentum();
   
 
-  if(!doBackwardFilter){ 
-    LogTrace(metname) << "Only forward refit requested. Any backward refit will be performed!"<<endl;
+  if(!doBackwardFilter) { 
+    LogTrace(metname) << "Only forward refit requested. No backward refit will be performed!"<<endl;
     
-    if (filter()->goodState()){
-
-      // ***** Refit of fwd step *****
-      if (doRefit && !trajectoryFW.empty()){
-	pair<bool,Trajectory> refitResult = refitter()->refit(trajectoryFW);
-	if (refitResult.first){
-	  trajectoryContainer.push_back(new Trajectory(refitResult.second));
-	  LogTrace(metname) << "StandAloneMuonTrajectoryBuilder refit output " << endl ;
-	  LogTrace(metname) << debug.dumpTSOS(refitResult.second.lastMeasurement().updatedState());
-	}
-	else
-	  trajectoryContainer.push_back(new Trajectory(trajectoryFW));
+    // ***** Refit of fwd step *****
+    //    if (doRefit && !trajectoryFW.empty() && filter()->goodState()){    // CHECK!!! Can trajectoryFW really be empty at this point??? And goodState...?
+    if(doRefit) {
+      pair<bool,Trajectory> refitResult = refitter()->refit(trajectoryFW);
+      if(refitResult.first) {
+	trajectoryContainer.push_back(new Trajectory(refitResult.second));
+	LogTrace(metname) << "StandAloneMuonTrajectoryBuilder refit output " << endl ;
+	LogTrace(metname) << debug.dumpTSOS(refitResult.second.lastMeasurement().updatedState());
       }
       else
 	trajectoryContainer.push_back(new Trajectory(trajectoryFW));
-      
-      LogTrace(metname)<< "Trajectory saved" << endl;
     }
-    else LogTrace(metname)<< "Trajectory NOT saved. No enough number of tracking chamber used!" << endl;
-    
+    else
+      trajectoryContainer.push_back(new Trajectory(trajectoryFW));
+
+    LogTrace(metname) << "Trajectory saved" << endl;
     return trajectoryContainer;
-  } 
+  }
 
 
   // ***** Backward filtering *****
   
   TrajectorySeed seedForBW;
 
-  if(theBWSeedType == "noSeed"){
+  if(theBWSeedType == "noSeed") {
     TrajectorySeed seedVoid;
     seedForBW = seedVoid;
   }
-  else if (theBWSeedType == "fromFWFit"){
-    
+  else if(theBWSeedType == "fromFWFit") {
+
     TrajectoryStateTransform tsTransform;
     
     PTrajectoryStateOnDet *seedTSOS =
@@ -225,7 +272,7 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 
     seedForBW = fwFit;
   }
-  else if (theBWSeedType == "fromGenerator"){
+  else if(theBWSeedType == "fromGenerator") {
     seedForBW = seed;
   }
   else
@@ -250,11 +297,16 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     << bwfilter()->getCSCChamberUsed() << "/" 
     << bwfilter()->getRPCChamberUsed();
   
-  // The trajectory is good if there are at least 2 chamber used in total and at
-  // least 1 "tracking" (DT or CSC)
-  if (bwfilter()->goodState()) {
+  // -- The trajectory is "good" if there are at least 2 chambers used in total and at
+  //    least 1 is "tracking" (DT or CSC)
+  // -- The trajectory satisfies the "compatibility" requirements if there are at least 
+  //    2 compatible chambers (not necessarily used!) in total and at
+  //    least 1 is "tracking" (DT or CSC)
+  // 1st attempt
+  /*
+  if (bwfilter()->isCompatibilitySatisfied()) {
     
-    if (doRefit && !trajectoryBW.empty()){
+    if (doRefit && !trajectoryBW.empty() && bwfilter()->goodState()){
       pair<bool,Trajectory> refitResult = refitter()->refit(trajectoryBW);
       if (refitResult.first){
      	trajectoryContainer.push_back(new Trajectory(refitResult.second));
@@ -282,8 +334,52 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     // above pattern.
     
   }
+
+  else {
+    LogTrace(metname) << "Compatibility NOT satisfied after Backward filter!" << endl;
+    LogTrace(metname) << "The result of Forward filter will be loaded!" << endl;
+
+    trajectoryContainer.push_back(new Trajectory(trajectoryFW));
+  }
+  */
+  // end 1st attempt
+
+  // 2nd attempt
+  if( bwfilter()->goodState() ) {
+    LogTrace(metname) << debug.dumpLayer( bwfilter()->lastDetLayer() );
+  }
+  else if( bwfilter()->isCompatibilitySatisfied() ) {
+    LogTrace(metname) << "Compatibility satisfied after Backward filter, but too few valid RecHits ("
+		      << trajectoryBW.foundHits() << ")." << endl
+		      << "The (good) result of FW filter will be loaded!" << endl;
+    trajectoryContainer.push_back(new Trajectory(trajectoryFW));
+    return trajectoryContainer;
+  }
+  else {
+    LogTrace(metname) << "Compatibility NOT satisfied after Backward filter!" << endl 
+                      << "The Forward trajectory will be invalidated and then loaded!" << endl;
+    Trajectory defaultTraj(seed,fwDirection);
+    filter()->createDefaultTrajectory(trajectoryFW, defaultTraj);
+    trajectoryContainer.push_back(new Trajectory(defaultTraj));
+    return trajectoryContainer;
+  }
+  // end 2nd attempt
+
+  if(doRefit) {
+    pair<bool,Trajectory> refitResult = refitter()->refit(trajectoryBW);
+    if(refitResult.first) {
+      trajectoryContainer.push_back(new Trajectory(refitResult.second));
+      LogTrace(metname) << "StandAloneMuonTrajectoryBuilder Refit output " << endl;
+      LogTrace(metname) << debug.dumpTSOS(refitResult.second.lastMeasurement().updatedState());
+    }
+    else
+      trajectoryContainer.push_back(new Trajectory(trajectoryBW));
+  }
   else
-    LogTrace(metname)<< "Trajectory NOT saved" << endl;
+    trajectoryContainer.push_back(new Trajectory(trajectoryBW));
+    
+  LogTrace(metname) << "Trajectory saved" << endl;
+    
   return trajectoryContainer;
 }
 
