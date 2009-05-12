@@ -27,7 +27,9 @@ namespace edm {
     typedef EDFilter ModuleType;
     typedef WorkerT<EDFilter> WorkerType;
     
-    EDFilter() : ProducerBase() , moduleDescription_(), current_context_(0) {}
+     EDFilter() : ProducerBase() , moduleDescription_(), current_context_(0), 
+     previousParentage_(), previousParentageId_()
+ {}
     virtual ~EDFilter();
 
     static void fillDescriptions(ConfigurationDescriptions & descriptions);
@@ -80,6 +82,8 @@ namespace edm {
     }
     ModuleDescription moduleDescription_;
     CurrentProcessingContext const* current_context_;
+    std::vector<BranchID> previousParentage_;
+    ParentageID previousParentageId_;
   };
 }
 

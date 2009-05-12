@@ -24,7 +24,7 @@ namespace edm
     bool rc = false;
     Event e(ep, moduleDescription_);
     rc = this->filter(e, c);
-    e.commit_();
+    e.commit_(&previousParentage_,&previousParentageId_);
     return rc;
   }
 

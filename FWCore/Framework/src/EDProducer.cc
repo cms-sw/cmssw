@@ -16,7 +16,9 @@ namespace edm {
   EDProducer::EDProducer() :
       ProducerBase(),
       moduleDescription_(),
-      current_context_(0) {}
+      current_context_(0),
+      previousParentage_(),
+      previousParentageId_() { }
 
   EDProducer::~EDProducer() { }
 
@@ -26,7 +28,7 @@ namespace edm {
     detail::CPCSentry sentry(current_context_, cpc);
     Event e(ep, moduleDescription_);
     this->produce(e, c);
-    e.commit_();
+    e.commit_(&previousParentage_,&previousParentageId_);
     return true;
   }
 

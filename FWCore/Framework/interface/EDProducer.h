@@ -77,6 +77,8 @@ namespace edm {
     }
     ModuleDescription moduleDescription_;
     CurrentProcessingContext const* current_context_;
+    std::vector<BranchID> previousParentage_;
+    ParentageID previousParentageId_;
   };
 }
 
