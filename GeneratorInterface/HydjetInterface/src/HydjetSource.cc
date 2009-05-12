@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetSource.cc,v 1.28 2009/03/09 17:22:42 yilmaz Exp $
+ * $Id: HydjetSource.cc,v 1.30 2009/04/28 02:53:35 yilmaz Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -32,10 +32,15 @@
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 
 namespace {
-  int convertStatus(int pyst){
-    if(pyst > 10) return 2;
-    else return 1;
-  }
+   int convertStatus(int st){
+
+      if(st<= 0) return 0;
+      if(st<=10) return 1;
+      if(st<=20) return 2;
+      if(st<=30) return 3;
+
+      else return st;
+   }
 
 }
 
