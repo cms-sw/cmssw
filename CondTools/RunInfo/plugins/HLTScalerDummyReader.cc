@@ -12,10 +12,10 @@ lumi::HLTScalerDummyReader::fill(int startRun,
     for(int j=1; j<30; ++j){
       edm::LuminosityBlockID lu(i,j);
       cond::Time_t current=(cond::Time_t)(lu.value());
-      std::vector< std::pair<std::string, lumi::HLTInfo> > hltdata;
+      std::vector< lumi::HLTInfo > hltdata;
       for(int h=0; h<100; ++h){
-	lumi::HLTInfo hltinfo(12+h,10+h,2+h);
-	hltdata.push_back( std::make_pair<std::string,lumi::HLTInfo>("hltdummypath",hltinfo) );
+	lumi::HLTInfo hltinfo("dummypath",12+h,10+h,2+h);
+	hltdata.push_back( hltinfo );
       }
       lumi::HLTScaler* l=new lumi::HLTScaler;
       l->setHLTData(lu,hltdata);

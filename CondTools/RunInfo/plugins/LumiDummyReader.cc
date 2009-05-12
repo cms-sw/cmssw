@@ -32,8 +32,10 @@ lumi::LumiDummyReader::fill(int startRun,
 	lumi::LuminosityInfo* l=new lumi::LuminosityInfo;
 	l->setLumiVersionNumber(1);
 	l->setLumiSectionId(j);
-	lumi::LumiAverage avg(1.1,0.2,1,0.5);
-	l->setLumiAverage(avg);
+	l->setLumiAverage(1.1);
+	l->setLumiQuality(1);
+	l->setDeadFraction(0.2);
+	l->setLumiError(0.5);
 	std::vector<lumi::BunchCrossingInfo> bxinfo;
 	bxinfo.reserve(3564);
 	for(int bxidx=1;bxidx<=3564;++bxidx){

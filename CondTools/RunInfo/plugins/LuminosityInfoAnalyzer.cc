@@ -74,9 +74,10 @@ namespace edmtest
       std::cout<<"\n Dumping summary info lumi::LuminosityInfo* "<<myped<<"\n";
       std::cout<<"lum section number "<<myped->lumisectionID()<<"\n";
       std::cout<<"nBunchCrossing  "<<myped->nBunchCrossing()<<"\n";
-      std::cout<<"deadtime fraction  "<<myped->lumiAverage().deadfrac<<"\n";
-      std::cout<<"lumi average value "<<myped->lumiAverage().value<<"\n";
-      std::cout<<"lumi average error "<<myped->lumiAverage().error<<"\n";
+      std::cout<<"deadtime fraction  "<<myped->deadFraction()<<"\n";
+      std::cout<<"lumi average value "<<myped->lumiAverage()<<"\n";
+      std::cout<<"lumi average error "<<myped->lumiError()<<"\n";
+      std::cout<<"lumi average quality "<<myped->lumiquality()<<"\n";
       std::cout<<"\n Dumping detail info of BX 1 "<<myped<<"\n";
       std::cout<<"ET lumi value  "<<myped->bunchCrossingInfo(1,lumi::ET).lumivalue<<"\n";
       std::cout<<"ET lumi error "<<myped->bunchCrossingInfo(1,lumi::ET).lumierr<<"\n";

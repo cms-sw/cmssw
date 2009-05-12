@@ -117,7 +117,7 @@ lumi::HLTScalerDBReader::fill(int startRun,
       query1->setRowCacheSize( 10692 );
       coral::ICursor& cursor1 = query1->execute();
 
-      std::vector< std::pair<std::string,lumi::HLTInfo> > hltinfoPerLumi;
+      std::vector< lumi::HLTInfo > hltinfoPerLumi;
       hltinfoPerLumi.reserve(100);
       int currentLumiSection=1;
       int currentPath=1;
@@ -136,8 +136,8 @@ lumi::HLTScalerDBReader::fill(int startRun,
 	  hltratecounter=(int)row["hltratecounter"].data<long long>();
 	}
 	std::string pathname=row["pathname"].data<std::string>();
-	lumi::HLTInfo hltinfo(hltinput,hltratecounter,-99);	  
-	hltinfoPerLumi.push_back( std::make_pair<std::string,lumi::HLTInfo>(pathname,hltinfo) );
+	lumi::HLTInfo hltinfo(pathname,hltinput,hltratecounter,-99);	  
+	hltinfoPerLumi.push_back( hltinfo );
 	if(currentPath==npath){
 	  lumi::HLTScaler* h=new lumi::HLTScaler;
 	  edm::LuminosityBlockID lu(currentRun,currentLumiSection);

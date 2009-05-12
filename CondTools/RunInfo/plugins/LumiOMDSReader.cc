@@ -170,7 +170,7 @@ lumi::LumiOMDSReader::fill(int startRun,
 	    bx_quality_occd2=(int)row["bx_quality_occd2"].data<short>();
 	  }
 	  bxinfo_occd2.push_back(lumi::BunchCrossingInfo(bxidx,bx_lumi_occd2,bx_err_occd2,bx_quality_occd2));
-	  if(currentLumiSection>lastLumiSection && bxidx>=3564){
+	  if(currentLumiSection>lastLumiSection && bxidx==3564){
 	    l=new lumi::LuminosityInfo;
 	    edm::LuminosityBlockID lu(currentRun,currentLumiSection);
 	    cond::Time_t current=(cond::Time_t)(lu.value());
@@ -193,8 +193,11 @@ lumi::LumiOMDSReader::fill(int startRun,
 	    if( !row["instant_lumi_quality"].isNull() ){
 	      instant_lumi_quality=(int)row["instant_lumi_quality"].data<short>();
 	    }
-	    lumi::LumiAverage avg(instant_lumi,instant_lumi_err,instant_lumi_quality,deadfrac);
-	    l->setLumiAverage(avg);
+
+	    l->setLumiAverage(instant_lumi);
+	    l->setLumiError(instant_lumi_err);
+	    l->setLumiQuality(instant_lumi_quality);
+	    l->setDeadFraction(deadfrac);
 	    l->setBunchCrossingData(bxinfo_et,lumi::ET);
 	    l->setBunchCrossingData(bxinfo_occd1,lumi::OCCD1);
 	    l->setBunchCrossingData(bxinfo_occd2,lumi::OCCD2);
