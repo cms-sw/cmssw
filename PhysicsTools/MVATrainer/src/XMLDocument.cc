@@ -5,16 +5,21 @@
 #include <memory>
 #include <string>
 #include <cstdio>
+#include <stdio.h>
+#include <ext/stdio_filebuf.h>
 
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/util/XMLUni.hpp>
+#include <xercesc/util/BinInputStream.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/dom/DOMImplementationLS.hpp>
 #include <xercesc/dom/DOMWriter.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
+#include <xercesc/sax/InputSource.hpp>
 #include <xercesc/sax/HandlerBase.hpp>
+
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -33,7 +38,87 @@ namespace { // anonymous
 
 		DOMDocument *doc;
 	};
+
+	template<typename T>
+	class XMLInputSourceWrapper :
+		public XERCES_CPP_NAMESPACE_QUALIFIER InputSource {
+	    public:
+		typedef typename T::Stream_t Stream_t;
+
+		XMLInputSourceWrapper(std::auto_ptr<Stream_t> &obj) : obj(obj) {}
+		virtual ~XMLInputSourceWrapper() {}
+
+		virtual XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream*
+							makeStream() const
+		{ return new T(*obj); }
+
+	    private:
+		std::auto_ptr<Stream_t>	obj;
+	};
+
+	class STLInputStream :
+			public XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream {
+	    public:
+	        typedef std::istream Stream_t;
+
+	        STLInputStream(std::istream &in) : in(in) {}
+	        virtual ~STLInputStream() {}
+
+	        virtual unsigned int curPos() const { return pos; }
+
+	        virtual unsigned int readBytes(XMLByte *const buf,
+	                                       const unsigned int size);
+
+	    private:
+	        std::istream    &in;
+	        unsigned int    pos;
+	};
+
+	template<int (*close)(FILE*)>
+	class stdio_istream : public std::istream {
+	    public:
+		typedef __gnu_cxx::stdio_filebuf<char>	__filebuf_type;
+		typedef stdio_istream<close>		__istream_type;
+
+		stdio_istream(FILE *file) :
+			file_(file), filebuf_(file, std::ios_base::in)
+		{ this->init(&filebuf_); }
+
+		~stdio_istream()
+		{ close(file_); }
+
+		__filebuf_type *rdbuf() const
+		{ return const_cast<__filebuf_type*>(&filebuf_); }
+
+	    private:
+		FILE		*file_;
+		__filebuf_type	filebuf_;
+	};
+
+	typedef XMLInputSourceWrapper<STLInputStream> STLInputSource;
 } // anonymous namespace
+
+unsigned int STLInputStream::readBytes(XMLByte* const buf,
+                                       const unsigned int size)
+{
+	char *rawBuf = reinterpret_cast<char*>(buf);
+	unsigned int bytes = size * sizeof(XMLByte);
+	in.read(rawBuf, bytes);
+	unsigned int readBytes = in.gcount();
+
+	if (in.bad())
+		throw cms::Exception("XMLDocument")
+			<< "I/O stream bad in STLInputStream::readBytes()"
+			<< std::endl;
+
+	unsigned int read = (unsigned int)(readBytes / sizeof(XMLByte));
+	unsigned int rest = (unsigned int)(readBytes % sizeof(XMLByte));
+	for(unsigned int i = 1; i <= rest; i++)
+		in.putback(rawBuf[readBytes - i]);
+
+	pos += read;
+	return read;
+}
 
 XMLDocument::XercesPlatform::XercesPlatform()
 {
@@ -61,8 +146,39 @@ XMLDocument::XMLDocument(const std::string &fileName, bool write) :
 {
 	if (write)
 		openForWrite(fileName);
-	else
-		openForRead(fileName);
+	else {
+		std::auto_ptr<std::istream> inputStream(
+					new std::ifstream(fileName.c_str()));
+		if (!inputStream->good())
+			throw cms::Exception("XMLDocument")
+				<< "XML input file \"" << fileName << "\" "
+				   "could not be opened for reading."
+				<< std::endl;
+		openForRead(inputStream);
+	}
+}
+
+XMLDocument::XMLDocument(const std::string &fileName,
+                         const std::string &command) :
+	platform(new XercesPlatform()), fileName(fileName),
+	write(false), impl(0), doc(0), rootNode(0)
+{
+	FILE *file = popen(command.c_str(), "r");
+	if (!file)
+		throw cms::Exception("XMLDocument")
+			<< "Could not execute XML preprocessing "
+			   " command \"" << command << "\"."
+			<< std::endl;
+
+	std::auto_ptr<std::istream> inputStream(
+					new stdio_istream<pclose>(file));
+	if (!inputStream->good())
+		throw cms::Exception("XMLDocument")
+			<< "XML preprocessing command \"" << fileName
+			<< "\" stream could not be opened for reading."
+			<< std::endl;
+
+	openForRead(inputStream);
 }
 
 XMLDocument::~XMLDocument()
@@ -93,20 +209,22 @@ XMLDocument::~XMLDocument()
 	}
 }
 
-void XMLDocument::openForRead(const std::string &fileName)
+void XMLDocument::openForRead(std::auto_ptr<std::istream> &stream)
 {
-	parser = std::auto_ptr<XercesDOMParser>(new XercesDOMParser());
+	parser.reset(new XercesDOMParser());
 	parser->setValidationScheme(XercesDOMParser::Val_Auto);
 	parser->setDoNamespaces(false);
 	parser->setDoSchema(false);
 	parser->setValidationSchemaFullChecking(false);
 
-	errHandler = std::auto_ptr<HandlerBase>(new HandlerBase());
-	parser->setErrorHandler(errHandler.operator -> ());
+	errHandler.reset(new HandlerBase());
+	parser->setErrorHandler(errHandler.get());
 	parser->setCreateEntityReferenceNodes(false);
 
+	inputSource.reset(new STLInputSource(stream));
+
 	try {
-		parser->parse(fileName.c_str());
+		parser->parse(*inputSource);
 		if (parser->getErrorCount())
 			throw cms::Exception("XMLDocument")
 				<< "XML parser reported errors."

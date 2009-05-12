@@ -37,9 +37,10 @@ TreeTrainer::~TreeTrainer()
 }
 
 Calibration::MVAComputer *TreeTrainer::train(const std::string &trainFile,
-                                             double crossValidation)
+                                             double crossValidation,
+                                             bool useXSLT)
 {
-	MVATrainer trainer(trainFile);
+	MVATrainer trainer(trainFile, useXSLT);
 	trainer.setMonitoring(true);
 	trainer.setCrossValidation(crossValidation);
 	train(&trainer);

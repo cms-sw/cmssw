@@ -26,7 +26,7 @@ class TrainProcessor;
 
 class MVATrainer {
     public:
-	MVATrainer(const std::string &fileName);
+	MVATrainer(const std::string &fileName, bool useXSLT = false);
 	~MVATrainer();
 
 	inline void setAutoSave(bool autoSave) { doAutoSave = autoSave; }

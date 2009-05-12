@@ -39,11 +39,13 @@ MVATrainerLooper::Trainer::Trainer(const edm::ParameterSet &params)
 		trainDescription = entry->getFileInPath().fullPath();
 	else
 		trainDescription = entry->getString();
+
+	bool useXSLT = params.getUntrackedParameter<bool>("useXSLT", false);
 	bool doLoad = params.getUntrackedParameter<bool>("loadState", false);
 	bool doSave = params.getUntrackedParameter<bool>("saveState", false);
 	bool doMonitoring = params.getUntrackedParameter<bool>("monitoring", false);
 
-	trainer = std::auto_ptr<MVATrainer>(new MVATrainer(trainDescription));
+	trainer.reset(new MVATrainer(trainDescription, useXSLT));
 
 	if (doLoad)
 		trainer->loadState();

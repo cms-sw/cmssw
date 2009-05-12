@@ -97,6 +97,7 @@ int main(int argc, char **argv)
 	bool save = true;
 	bool monitoring = true;
 	bool weights = true;
+	bool useXSLT = false;
 	char **args = argv + 1;
 	argc--;
 	while(argc > 0 && **args == '-') {
@@ -112,6 +113,9 @@ int main(int argc, char **argv)
 		else if (!std::strcmp(*args, "-w") || 
 		         !std::strcmp(*args, "--no-weights"))
 			weights = false;
+		else if (!std::strcmp(*args, "-x") || 
+		         !std::strcmp(*args, "--xslt"))
+			useXSLT = true;
 		else
 			std::cerr << "Unsupported option " << *args
 			          << "." << std::endl;
@@ -128,7 +132,8 @@ int main(int argc, char **argv)
 		             "\t-l / --load\t\tLoad existing training data.\n"
 		             "\t-s / --no-save\t\tDon't save training data.\n"
 		             "\t-m / --no-monitoring\tDon't write monitoring plots.\n"
-		             "\t-w / --no-weights\tIgnore __WEIGHT__ branches.\n\n";
+		             "\t-w / --no-weights\tIgnore __WEIGHT__ branches.\n";
+		             "\t-x / --xslt\t\tUse MVATrainer XSLT parsing.\n\n";
 		std::cerr << "Trees can be selected as "
 		             "(<tree name>@)<file name>" << std::endl;
 		return 1;
@@ -165,7 +170,7 @@ int main(int argc, char **argv)
 			             "signal and background tree has to be "
 			             "specified." << std::endl;
                             
-		MVATrainer trainer(args[0]);
+		MVATrainer trainer(args[0], useXSLT);
 		trainer.setMonitoring(monitoring);
 		trainer.setAutoSave(save);
 		if (load)

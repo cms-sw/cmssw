@@ -17,6 +17,7 @@
 #include <TRandom.h>
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "PhysicsTools/MVAComputer/interface/AtomicId.h"
@@ -401,12 +402,37 @@ static bool isMagic(AtomicId id)
 	       id == kOutputId;
 }
 
-MVATrainer::MVATrainer(const std::string &fileName) :
-	input(0), output(0), name("MVATrainer"),
-	doAutoSave(true), doCleanup(false), doMonitoring(false),
-	randomSeed(65539), crossValidation(0.0)
+static std::string escape(const std::string &in)
 {
-	xml = std::auto_ptr<XMLDocument>(new XMLDocument(fileName));
+	std::string result("'");
+	for(std::string::const_iterator iter = in.begin();
+	    iter != in.end(); ++iter) {
+		switch(*iter) {
+		    case '\'':
+			result += "'\\''";
+			break;
+		    default:
+			result += *iter;
+		}
+	}
+	result += '\'';
+	return result;
+}
+
+MVATrainer::MVATrainer(const std::string &fileName, bool useXSLT) :
+	input(0), output(0), name("MVATrainer"),
+	doAutoSave(true), doCleanup(false),
+	doMonitoring(false), randomSeed(65539), crossValidation(0.0)
+{
+	if (useXSLT) {
+		edm::FileInPath xsltLocation(
+			"PhysicsTools/MVATrainer/data/MVATrainer.xsl");
+		std::string preproc = "xsltproc --xinclude " +
+		                      escape(xsltLocation.fullPath()) + " " +
+		                      escape(fileName);
+		xml.reset(new XMLDocument(fileName, preproc));
+	} else
+		xml.reset(new XMLDocument(fileName));
 
 	DOMNode *node = xml->getRootNode();
 

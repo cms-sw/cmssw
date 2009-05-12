@@ -23,7 +23,8 @@ class TreeTrainer {
 	~TreeTrainer();
 
 	Calibration::MVAComputer *train(const std::string &trainDescription,
-	                                double crossValidation = 0.0);
+	                                double crossValidation = 0.0,
+	                                bool useXSLT = false);
 
 	// more precise control
 
