@@ -5,6 +5,37 @@
 
 // to run on calibrated rechits reduced trees
 
+/*
+  dwjang recipe to run this file
+
+###### data section
+#
+#foreach imom ($mom)
+#    echo "lateralAllCalib input_tb_${imom}.list tb_${imom} $imom 0 0"
+#    ./lateralAllCalib input_tb_${imom}.list tb_${imom} $imom 0 0 >&! log.tb_${imom}
+#    echo "Done."
+#end
+#
+###### geant4
+#
+#foreach imom ($mom)
+#    echo "lateralAllCalib input_g4_${imom}.list g4_${imom} $imom 0 1"
+#    ./lateralAllCalib input_g4_${imom}.list g4_${imom} $imom 0 1 >&! log.g4_${imom}
+#    echo "Done."
+#end
+#
+##### gflash
+
+#foreach imom ($mom)
+#    echo "lateralAllCalib input_gf_${imom}.list gf_${imom} $imom 0 1"
+#    ./lateralAllCalib input_gf_${imom}.list gf_${imom} $imom 0 1 >&! log.gf_${imom}
+#    echo "Done."
+#end
+
+
+*/
+
+
 //! c++ includes              
 #include <string>
 #include <iostream>
@@ -25,6 +56,7 @@
 #include "TF1.h"
 #include "TProfile.h"
 #include "TMinuit.h"
+#include "TString.h"
 
 using namespace std;
 
@@ -41,7 +73,7 @@ int main ( int argc, char **argv)
 { 
   // --------------------------------------------
   // input parameters
-  char inputFileName[150], outputFileName[150];
+  char inputFileName[500], outputFileName[150];
   int beamEne, appendFlag, simul;
   if (argc==6) {
     strcpy(inputFileName,argv[1]); 
@@ -153,20 +185,25 @@ int main ( int argc, char **argv)
   treeEntries.push_back(0);  
   
   TChain *T = new TChain("T1");
-  char Buffer[500];
-  char MyRootFile[2000];  // [max length filename]
-  cout << "input: " << inputFileName << endl; 
-  ifstream *inputFile = new ifstream(inputFileName);
-  while( !(inputFile->eof()) ){
-    inputFile->getline(Buffer,500);
-    if (!strstr(Buffer,"#") && !(strspn(Buffer," ") == strlen(Buffer))){
-      sscanf(Buffer,"%s",MyRootFile);
-      T->Add(MyRootFile);	  
-      treeEntries.push_back( T->GetEntries() );  
-      cout << "chaining " << MyRootFile << endl;
-    }}
-  inputFile->close();
-  delete inputFile;
+//   char Buffer[500];
+//   char MyRootFile[2000];  // [max length filename]
+//   cout << "input: " << inputFileName << endl; 
+//   ifstream *inputFile = new ifstream(inputFileName);
+//   while( !(inputFile->eof()) ){
+//     inputFile->getline(Buffer,500);
+//     if (!strstr(Buffer,"#") && !(strspn(Buffer," ") == strlen(Buffer))){
+//       sscanf(Buffer,"%s",MyRootFile);
+//       T->Add(MyRootFile);	  
+//       treeEntries.push_back( T->GetEntries() );  
+//       cout << "chaining " << MyRootFile << endl;
+//     }}
+//   inputFile->close();
+//   delete inputFile;
+
+  TString input_name(inputFileName);
+  input_name = input_name.ReplaceAll(".root","*.root");
+  T->Add(input_name);
+
 
   const static int numTrees = treeEntries.size();
   cout << endl;  
@@ -1038,10 +1075,10 @@ int main ( int argc, char **argv)
       //       e9  /= 0.9795;
       //       e25 /= 0.9795;
       // this is my correction factor depending on beam energy
-      double ccf = 9.789932e-01 - 1.666832e-05 * beamEne;
-      e1  /= ccf;
-      e9  /= ccf;
-      e25 /= ccf;
+      //      double ccf = 9.789932e-01 - 1.666832e-05 * beamEne;
+      //      e1  /= ccf;
+      //      e9  /= ccf;
+      //      e25 /= ccf;
     }
 
     if( (e1>-20) && (e9>-20) ) { e1e9  = e1/e9;  }
