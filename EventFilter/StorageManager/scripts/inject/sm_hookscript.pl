@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: sm_hookscript.pl,v 1.13 2009/03/27 10:27:25 jserrano Exp $
+# $Id: sm_hookscript.pl,v 1.14 2009/03/27 10:29:33 jserrano Exp $
 ################################################################################
 
 use strict;
@@ -31,7 +31,8 @@ my $copydelay   = 3;
 
 # special treatment for EcalCalibration
 my $doca = $ENV{'SM_CALIB_NFS'};
-if($fields[3] eq "EcalCalibration") {
+
+if($fields[3] eq "EcalCalibration" || $stream =~ '_EcalNFS$') {
     if (defined $doca) {
         my $COPYCOMMAND = '$SMT0_BASE_DIR/sm_nfscopy.sh $SM_CALIB_NFS $SM_PATHNAME/$SM_FILENAME $SM_CALIBAREA 5';
         my $copyresult = 1;
@@ -48,7 +49,7 @@ if($fields[3] eq "EcalCalibration") {
 }
 
 
-# copy first file per lumi section to look area 
+# copy one file per instance to look area 
 my $dola = $ENV{'SM_LA_NFS'};
 if (defined $dola) {
     if ($lumisection == ((5 * $instance) + 1)  && $count < 1)
