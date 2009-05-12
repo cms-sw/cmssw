@@ -8,17 +8,41 @@
 #include "SimG4CMS/Forward/interface/ZdcSD.h"
 #include "SimG4CMS/Forward/interface/ZdcShowerLibrary.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "G4VPhysicalVolume.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
-#include "Randomize.hh"
+
 #include "CLHEP/Units/SystemOfUnits.h"
+
+#include "CLHEP/Random/RandGaussQ.h"
+#include "CLHEP/Random/RandLandau.h"
 
 ZdcShowerLibrary::ZdcShowerLibrary(std::string & name, const DDCompactView & cpv,
 				 edm::ParameterSet const & p) {
   edm::ParameterSet m_HS   = p.getParameter<edm::ParameterSet>("ZdcShowerLibrary");
   verbose                  = m_HS.getUntrackedParameter<int>("Verbosity",0);
+
+  npe = 9; // number of channels or fibers where the energy will be deposited
+  hits.reserve(npe);
+
+  gaussDist_ = 0;
+  landauDist_ = 0;
+
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "ZdcShowerLibrary (OscarProducer) requires the RandomNumberGeneratorService\n"
+      "which is not present in the configuration file.  You must add the service\n"
+      "in the configuration file or remove the modules that require it.";
+  }
+
+  CLHEP::HepRandomEngine& engine = rng->getEngine();
+  gaussDist_  = new CLHEP::RandGaussQ(engine);
+  landauDist_ = new CLHEP::RandLandau(engine);
+
 }
 
 ZdcShowerLibrary::~ZdcShowerLibrary() {
@@ -48,7 +72,7 @@ void ZdcShowerLibrary::initRun(G4ParticleTable * theParticleTable) {
 		       << anutauPDG;
 }
 
-std::vector<ZdcShowerLibrary::Hit> ZdcShowerLibrary::getHits(G4Step * aStep, bool & ok) {
+std::vector<ZdcShowerLibrary::Hit> & ZdcShowerLibrary::getHits(G4Step * aStep, bool & ok) {
 
   G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
   G4StepPoint * postStepPoint = aStep->GetPostStepPoint(); 
@@ -59,8 +83,8 @@ std::vector<ZdcShowerLibrary::Hit> ZdcShowerLibrary::getHits(G4Step * aStep, boo
   double energy = preStepPoint->GetKineticEnergy();
   G4ThreeVector hitPoint = preStepPoint->GetPosition();   
   int parCode  = track->GetDefinition()->GetPDGEncoding();
-  
-  std::vector<ZdcShowerLibrary::Hit> hits;
+
+  hits.clear();
  
   ok = false;
   if (parCode == pi0PDG || parCode == etaPDG || parCode == nuePDG ||
@@ -83,7 +107,6 @@ std::vector<ZdcShowerLibrary::Hit> ZdcShowerLibrary::getHits(G4Step * aStep, boo
   ZdcShowerLibrary::Hit oneHit;
   side = (hitPoint.z() > 0.) ?  true : false;  
   
-  int npe = 9; // number of channels or fibers where the energy will be deposited
   float xWidthEM = fabs(theXChannelBoundaries[0] - theXChannelBoundaries[1]);
   float zWidthEM = fabs(theZSectionBoundaries[0] - theZSectionBoundaries[1]); 
   float zWidthHAD = fabs(theZHadChannelBoundaries[0] -theZHadChannelBoundaries[1]); 
@@ -110,11 +133,11 @@ std::vector<ZdcShowerLibrary::Hit> ZdcShowerLibrary::getHits(G4Step * aStep, boo
       yylocal = 0;
       yy = yylocal + Y0;
       zzlocal = (hitPoint.z() > 0.) ? 
-	theZHadChannelBoundaries[i-5] + (zWidthHAD/2.) : theZHadChannelBoundaries[i-5] - (zWidthHAD/2.);
+        theZHadChannelBoundaries[i-5] + (zWidthHAD/2.) : theZHadChannelBoundaries[i-5] - (zWidthHAD/2.);
       zz = (hitPoint.z() > 0.) ? zzlocal +  Z0 : zzlocal -  Z0; 
       pos = G4ThreeVector(xx,yy,zz);
       posLocal = G4ThreeVector(xxlocal,yylocal,zzlocal);
-   }
+    }
     
     oneHit.position = pos;
     oneHit.entryLocal = posLocal;
@@ -151,7 +174,7 @@ std::vector<ZdcShowerLibrary::Hit> ZdcShowerLibrary::getHits(G4Step * aStep, boo
                          <<" EM Energy  " << (hits[nHit].DeEM);    
     nHit++;
   }
-   return hits;
+  return hits;
 }
 
 
@@ -191,7 +214,7 @@ int ZdcShowerLibrary::getEnergyFromLibrary(G4ThreeVector hitPoint, G4ThreeVector
   float yin = hitPoint.y();
   //float zin = hitPoint.z();
   //int isection = int(section);
-  int iside = (side)? 1 : 2;     
+  //int iside = (side)? 1 : 2;     
   int iparCode  = encodePartID(parCode);
 
   double eav, esig, edis = 0.;
@@ -222,15 +245,16 @@ int ZdcShowerLibrary::getEnergyFromLibrary(G4ThreeVector hitPoint, G4ThreeVector
     if(channel ==5 )
       if(theXChannelBoundaries[channel-1]< xin + X0)fact = 1.0;
     }
-  nphotons = fact*photonFluctuation(eav, esig, edis);
+  nphotons = (int)fact*photonFluctuation(eav, esig, edis);
   return nphotons; 
 }
 
 int ZdcShowerLibrary::photonFluctuation(double eav, double esig,double edis){
   int nphot=0;
   double efluct = 0.;
-  if(edis == 1.0)efluct = CLHEP::RandGaussQ::shoot(eav,esig);
-  if(edis == 3.0)efluct = eav+esig*CLHEP::RandLandau::shoot();
+
+  if(edis == 1.0) efluct = eav+esig*gaussDist_->fire();
+  if(edis == 3.0) efluct = eav+esig*landauDist_->fire();
   nphot = int(efluct);
   return nphot;
 }

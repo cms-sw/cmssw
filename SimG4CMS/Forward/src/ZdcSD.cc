@@ -48,7 +48,9 @@ ZdcSD::ZdcSD(G4String name, const DDCompactView & cpv,
      << "\nUse of Shower hits method is set to "
      << useShowerHits; 			
   
-  if(useShowerLibrary)showerLibrary = new ZdcShowerLibrary(name, cpv, p);
+  if(useShowerLibrary) showerLibrary = new ZdcShowerLibrary(name, cpv, p);
+
+  hits.clear();
   
 }
 
@@ -89,8 +91,8 @@ void ZdcSD::getFromLibrary (G4Step* aStep) {
   double etrack    = preStepPoint->GetKineticEnergy();
   int    primaryID = 0;
 
-  std::vector<ZdcShowerLibrary::Hit> hits;
- 
+  hits.clear();
+
   if (etrack >= zdcHitEnergyCut) {
     primaryID    = theTrack->GetTrackID();
   } else {
@@ -107,15 +109,15 @@ void ZdcSD::getFromLibrary (G4Step* aStep) {
   if (etrack >= zdcHitEnergyCut){
     // create hits only if above threshold
     /** std::cout<<"----------------New track------------------------------"<<std::endl;
-    std::cout<<"Incident EnergyTrack: "<<etrack<<std::endl;
-    std::cout<<"Zdc Cut Energy for Hits: "<<zdcHitEnergyCut<<std::endl;
+        std::cout<<"Incident EnergyTrack: "<<etrack<<std::endl;
+        std::cout<<"Zdc Cut Energy for Hits: "<<zdcHitEnergyCut<<std::endl;
     **/
-    hits = showerLibrary->getHits(aStep, ok);
+    hits.swap(showerLibrary->getHits(aStep, ok));
     
     LogDebug("ForwardSim") << "ZdcSD::getFromLibrary " <<hits.size() <<" hits for "
-			    << GetName() << " of " << primaryID << " with " 
-			    << theTrack->GetDefinition()->GetParticleName() << " of " 
-			      << preStepPoint->GetKineticEnergy()/GeV << " GeV";
+                           << GetName() << " of " << primaryID << " with " 
+                           << theTrack->GetDefinition()->GetParticleName() << " of " 
+                           << preStepPoint->GetKineticEnergy()/GeV << " GeV";
   }
  
   for (unsigned int i=0; i<hits.size(); i++) {
@@ -142,13 +144,13 @@ void ZdcSD::getFromLibrary (G4Step* aStep) {
     currentHit->setIncidentEnergy(etrack);
     currentHit->setEntryLocal(hitEntry.x(),hitEntry.y(),hitEntry.z());
     /**
-    std::cout<<"Final Hit number:"<<i<<"-->"
-	     <<"New HitID: "<<currentHit->getUnitID()
-	     <<" New EM Energy: "<<currentHit->getEM()
-	     <<" New HAD Energy: "<<currentHit->getHadr()
-	     <<" New HitEntryPoint: "<<currentHit->getEntryLocal()
-	     <<" New IncidentEnergy: "<<currentHit->getIncidentEnergy()
-	     <<" New HitPosition: "<<hitPoint<<std::endl;
+       std::cout<<"Final Hit number:"<<i<<"-->"
+       <<"New HitID: "<<currentHit->getUnitID()
+       <<" New EM Energy: "<<currentHit->getEM()
+       <<" New HAD Energy: "<<currentHit->getHadr()
+       <<" New HitEntryPoint: "<<currentHit->getEntryLocal()
+       <<" New IncidentEnergy: "<<currentHit->getIncidentEnergy()
+       <<" New HitPosition: "<<hitPoint<<std::endl;
     **/  
   }
   //if (etrack >= zdcHitEnergyCut)std::cout<<"--------------------------------------"<<std::endl;

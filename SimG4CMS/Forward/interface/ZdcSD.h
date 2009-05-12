@@ -37,6 +37,7 @@ private:
   ZdcShowerLibrary *    showerLibrary;
   ZdcNumberingScheme * numberingScheme;
 
+  std::vector<ZdcShowerLibrary::Hit> hits;
 
 };
 

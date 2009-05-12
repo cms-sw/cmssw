@@ -40,62 +40,62 @@ unsigned int ZdcNumberingScheme::getUnitID(const G4Step* aStep) const {
     int channel = 0;
     int fiber   = 0;
     int layer   = 0;
-    HcalZDCDetId::Section section;
+    HcalZDCDetId::Section section = HcalZDCDetId::Unknown;
     
     for (int ich=0; ich  <  level; ich++) {
       if (name[ich] == "ZDC") {
-	if(copyno[ich] == 1)zside = 1;
-	if(copyno[ich] == 2)zside = -1;
+        if(copyno[ich] == 1)zside = 1;
+        if(copyno[ich] == 2)zside = -1;
       } 
       else if (name[ich] == "ZDC_EMLayer") {
-	section = HcalZDCDetId::EM;
-	layer = copyno[ich];
+        section = HcalZDCDetId::EM;
+        layer = copyno[ich];
       }
       else if (name[ich] == "ZDC_EMFiber") {
-	fiber = copyno[ich];
-	if (fiber < 20)
-	  channel = 1;
-	else if (fiber < 39)            
-	  channel = 2;                         
-	else if (fiber < 58)
-	  channel = 3; 
-	else if (fiber < 77)
-	  channel = 4;
-	else
-	  channel = 5;	
+        fiber = copyno[ich];
+        if (fiber < 20)
+          channel = 1;
+        else if (fiber < 39)            
+          channel = 2;                         
+        else if (fiber < 58)
+          channel = 3; 
+        else if (fiber < 77)
+          channel = 4;
+        else
+          channel = 5;	
       } 
       else if (name[ich] == "ZDC_LumLayer") {
-	section = HcalZDCDetId::LUM;
-	layer = copyno[ich];
-	channel = layer;
+        section = HcalZDCDetId::LUM;
+        layer = copyno[ich];
+        channel = layer;
       }
       else if (name[ich] == "ZDC_LumGas") {
-	fiber = 1;
+        fiber = 1;
       }
       else if (name[ich] == "ZDC_HadLayer") {
-	section = HcalZDCDetId::HAD;
-	layer = copyno[ich];
+        section = HcalZDCDetId::HAD;
+        layer = copyno[ich];
       	if (layer < 6)
-	  channel = 1;
+          channel = 1;
       	else if (layer < 12)
       	  channel = 2;
-	else if (layer < 18)
-	  channel = 3;
+        else if (layer < 18)
+          channel = 3;
       	else
-	  channel = 4;
+          channel = 4;
       }
       else if (name[ich] == "ZDC_HadFiber") {
-	fiber = copyno[ich];
+        fiber = copyno[ich];
       }
     }
  
     // intindex = myPacker.packZdcIndex (section, layer, fiber, channel, zside);
     intindex = packZdcIndex (section, layer, fiber, channel, zside);
-    bool true_for_positive_eta;
-    if(zside == 1)true_for_positive_eta = true;
-    if(zside == 1)true_for_positive_eta = false;
+    bool true_for_positive_eta = true;
+    //if(zside == 1)true_for_positive_eta = true;
+    if(zside == -1)true_for_positive_eta = false;
 
-    HcalZDCDetId zdcId = HcalZDCDetId(section, true_for_positive_eta, channel);
+    HcalZDCDetId zdcId(section, true_for_positive_eta, channel);
     index = zdcId.rawId();
 
 #ifdef debug
@@ -104,15 +104,15 @@ unsigned int ZdcNumberingScheme::getUnitID(const G4Step* aStep) const {
 
     
     std::cout<< "ZdcNumberingScheme:" 
-	     << "  getUnitID - # of levels = " 
-	     << level << std::endl;
+             << "  getUnitID - # of levels = " 
+             << level << std::endl;
     for (int ich = 0; ich < level; ich++)
       std::cout<< "  " << ich  << ": copyno " << copyno[ich] 
-	       << " name="  << name[ich]
-	       << "  section " << section << " zside " << zside
-	       << " layer " << layer << " fiber " << fiber
-	       << " channel " << channel << "packedIndex ="
-	       << intindex << " detId raw: "<<index<<std::endl;
+               << " name="  << name[ich]
+               << "  section " << section << " zside " << zside
+               << " layer " << layer << " fiber " << fiber
+               << " channel " << channel << "packedIndex ="
+               << intindex << " detId raw: "<<index<<std::endl;
                
 #endif
     
