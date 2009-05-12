@@ -73,8 +73,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/05/04 11:49:02 $ 
- **  $Revision: 1.25 $
+ **  $Date: 2009/05/04 16:00:59 $ 
+ **  $Revision: 1.26 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -291,17 +291,6 @@ void PhotonValidator::initVectors() {
   theEventSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",theHitsAssociator);
   theTrackAssociator_ = (TrackAssociatorBase *) theHitsAssociator.product();
 
-
-  if (dbe_) {
-    if (verbosity_ > 0 ) {
-      dbe_->setVerbose(1);
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }
-  if (dbe_) {
-    if (verbosity_ > 0 ) dbe_->showDirStructure();
-  }
 
 
 
