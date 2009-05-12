@@ -79,9 +79,9 @@ std::pair<bool,float> GenericTripletGenerator::qualityFilter(const OrderedHitTri
 							     const std::map<float, OrderedHitTriplet>& map,
 							     const SeedingLayers& ls) const{
 	//first check the radius
-	GlobalPoint innerpos  = ls[0].hitBuilder()->build(&(*(oht.inner())))->globalPosition();
-	GlobalPoint middlepos = ls[1].hitBuilder()->build(&(*(oht.middle())))->globalPosition();
-	GlobalPoint outerpos  = ls[2].hitBuilder()->build(&(*(oht.outer())))->globalPosition();
+        GlobalPoint innerpos  = oht.inner()->globalPosition();
+	GlobalPoint middlepos = oht.middle()->globalPosition();
+	GlobalPoint outerpos  = oht.outer()->globalPosition();
 	std::vector<const TrackingRecHit*> ohttrh;
 	ohttrh.push_back(&(*(oht.inner()))); ohttrh.push_back(&(*(oht.middle()))); ohttrh.push_back(&(*(oht.outer()))); 
 	std::vector<const TrackingRecHit*>::const_iterator ioht;
