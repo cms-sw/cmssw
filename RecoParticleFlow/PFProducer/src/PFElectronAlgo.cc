@@ -231,6 +231,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 
       // Find Associated Kf Track elements and Ecal to KF elements
       unsigned int KfGsf_index = CutIndex;
+      unsigned int KfGsf_secondIndex = CutIndex; 
       std::multimap<double, unsigned int> kfElems;
       block.associatedElements( gsfIs[iEle],linkData,
 				kfElems,
@@ -247,6 +248,9 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 				    ecalKfElems ,
 				    reco::PFBlockElement::ECAL,
 				    reco::PFBlock::LINKTEST_ALL );  
+	}
+	else {	  
+	  KfGsf_secondIndex = itkf->second;
 	}
       }
       
@@ -513,7 +517,11 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
       }
 
       EcalIndex.insert(EcalIndex.end(),GsfElemIndex.begin(),GsfElemIndex.end());
-      if(KfGsf_index < CutIndex) GsfElemIndex.push_back(KfGsf_index);
+      if(KfGsf_index < CutIndex) 
+	GsfElemIndex.push_back(KfGsf_index);
+      else if(KfGsf_secondIndex < CutIndex) 
+	GsfElemIndex.push_back(KfGsf_secondIndex);
+      
       GsfElemIndex.insert(GsfElemIndex.end(),keyBremIndex.begin(),keyBremIndex.end());
       associatedToGsf_.insert(pair<unsigned int, vector<unsigned int> >(gsfIs[iEle],GsfElemIndex));
       
