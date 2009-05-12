@@ -19,7 +19,7 @@ mix = cms.EDProducer("MixingModule",
     input = cms.SecSource("PoolSource",
         nbPileupEvents = cms.PSet(
             sigmaInel = cms.double(80.0),
-            Lumi = cms.double(0.11)
+            Lumi = cms.double(0.1615)
         ),
         seed = cms.int32(1234567),
         type = cms.string('poisson'),
