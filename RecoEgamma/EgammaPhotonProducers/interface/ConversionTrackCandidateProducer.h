@@ -3,9 +3,9 @@
 /** \class ConversionTrackCandidateProducer
  **  
  **
- **  $Id: ConversionTrackCandidateProducer.h,v 1.13 2009/03/02 16:52:41 nancy Exp $ 
- **  $Date: 2009/03/02 16:52:41 $ 
- **  $Revision: 1.13 $
+ **  $Id: ConversionTrackCandidateProducer.h,v 1.14 2009/03/04 21:19:55 nancy Exp $ 
+ **  $Date: 2009/03/04 21:19:55 $ 
+ **  $Revision: 1.14 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -19,7 +19,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
+#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
@@ -29,6 +29,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 class OutInConversionSeedFinder;
 class InOutConversionSeedFinder;
@@ -63,22 +64,18 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
   std::string OutInTrackSuperClusterAssociationCollection_;
   std::string InOutTrackSuperClusterAssociationCollection_;
   
-  //std::string bcProducer_;
   edm::InputTag bcBarrelCollection_;
   edm::InputTag bcEndcapCollection_;
   edm::InputTag scHybridBarrelProducer_;
   edm::InputTag scIslandEndcapProducer_;
   edm::ParameterSet conf_;
-  std::string hbheLabel_;
-  std::string hbheInstanceName_;
-
+  edm::InputTag hcalTowers_;
  
   double hOverEConeSize_;
   double maxHOverE_;
   double minSCEt_;
 
   edm::ESHandle<CaloGeometry> theCaloGeom_;  
-  HoECalculator  theHoverEcalc_;
 
   const NavigationSchool*       theNavigationSchool_;
   OutInConversionSeedFinder*  theOutInSeedFinder_;
@@ -95,7 +92,7 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
   
   void buildCollections( const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
 			 const edm::Handle<edm::View<reco::CaloCluster> > & bcHandle,
-			 HBHERecHitMetaCollection *mhbhe,
+			 const edm::Handle<CaloTowerCollection> & hcalTowersHandle,
 			 TrackCandidateCollection& outInTracks,
 			 TrackCandidateCollection& inOutTracks,
 			 std::vector<edm::Ptr<reco::CaloCluster> >& vecRecOI,
