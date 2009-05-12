@@ -177,7 +177,8 @@ void L1MuDTTFMasks::print() const {
   cout << "Disable PHTF St.1 :" << endl;
   cout << "===================" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_inrec_chdis_st1(i,j); }
     cout << endl; }
 
@@ -185,7 +186,8 @@ void L1MuDTTFMasks::print() const {
   cout << "Disable PHTF St.2 :" << endl;
   cout << "===================" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_inrec_chdis_st2(i,j); }
     cout << endl; }
 
@@ -193,7 +195,8 @@ void L1MuDTTFMasks::print() const {
   cout << "Disable PHTF St.3 :" << endl;
   cout << "===================" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_inrec_chdis_st3(i,j); }
     cout << endl; }
 
@@ -201,7 +204,8 @@ void L1MuDTTFMasks::print() const {
   cout << "Disable PHTF St.4 :" << endl;
   cout << "===================" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_inrec_chdis_st4(i,j); }
     cout << endl; }
 
@@ -209,7 +213,8 @@ void L1MuDTTFMasks::print() const {
   cout << "Disable CSC :" << endl;
   cout << "=============" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_inrec_chdis_csc(i,j); }
     cout << endl; }
 
@@ -217,7 +222,8 @@ void L1MuDTTFMasks::print() const {
   cout << "Disable ETTF St.1 :" << endl;
   cout << "===================" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     if ( i == 2 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_etsoc_chdis_st1(i,j); }
     cout << endl; }
@@ -226,7 +232,8 @@ void L1MuDTTFMasks::print() const {
   cout << "Disable ETTF St.2 :" << endl;
   cout << "===================" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     if ( i == 2 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_etsoc_chdis_st2(i,j); }
     cout << endl; }
@@ -235,7 +242,8 @@ void L1MuDTTFMasks::print() const {
   cout << "Disable ETTF St.3 :" << endl;
   cout << "===================" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     if ( i == 2 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_etsoc_chdis_st3(i,j); }
     cout << endl; }

@@ -294,7 +294,8 @@ void L1MuDTTFParameters::print() const {
   cout << "Quality Cut St.1 :" << endl;
   cout << "==================" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_inrec_qual_st1(i,j); }
     cout << endl; }
 
@@ -302,7 +303,8 @@ void L1MuDTTFParameters::print() const {
   cout << "Quality Cut St.2 :" << endl;
   cout << "==================" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_inrec_qual_st2(i,j); }
     cout << endl; }
 
@@ -310,7 +312,8 @@ void L1MuDTTFParameters::print() const {
   cout << "Quality Cut St.3 :" << endl;
   cout << "==================" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_inrec_qual_st3(i,j); }
     cout << endl; }
 
@@ -318,7 +321,8 @@ void L1MuDTTFParameters::print() const {
   cout << "Quality Cut St.4 :" << endl;
   cout << "==================" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_inrec_qual_st4(i,j); }
     cout << endl; }
 
@@ -326,7 +330,8 @@ void L1MuDTTFParameters::print() const {
   cout << "Quality Cut Next Wheel :" << endl;
   cout << "========================" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_stdis_n(i,j); }
     cout << endl; }
 
@@ -334,7 +339,8 @@ void L1MuDTTFParameters::print() const {
   cout << "Quality Cut WL :" << endl;
   cout << "================" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_stdis_wl(i,j); }
     cout << endl; }
 
@@ -342,7 +348,8 @@ void L1MuDTTFParameters::print() const {
   cout << "Quality Cut WR :" << endl;
   cout << "================" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_stdis_wr(i,j); }
     cout << endl; }
 
@@ -350,7 +357,8 @@ void L1MuDTTFParameters::print() const {
   cout << "Quality Cut ZL :" << endl;
   cout << "================" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_stdis_zl(i,j); }
     cout << endl; }
 
@@ -358,7 +366,8 @@ void L1MuDTTFParameters::print() const {
   cout << " Quality Cut ZR :" << endl;
   cout << "=================" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_stdis_zr(i,j); }
     cout << endl; }
 
@@ -366,7 +375,8 @@ void L1MuDTTFParameters::print() const {
   cout << "Quality Cut SOC St.1 :" << endl;
   cout << "======================" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_qcut_st1(i,j); }
     cout << endl; }
 
@@ -374,7 +384,8 @@ void L1MuDTTFParameters::print() const {
   cout << "Quality Cut SOC St.2 :" << endl;
   cout << "======================" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_qcut_st2(i,j); }
     cout << endl; }
 
@@ -382,7 +393,8 @@ void L1MuDTTFParameters::print() const {
   cout << "Quality Cut SOC St.4 :" << endl;
   cout << "======================" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_qcut_st4(i,j); }
     cout << endl; }
 
@@ -390,7 +402,8 @@ void L1MuDTTFParameters::print() const {
   cout << "CSC Quality Cut :" << endl;
   cout << "=================" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_qual_csc(i,j); }
     cout << endl; }
 
@@ -398,7 +411,8 @@ void L1MuDTTFParameters::print() const {
   cout << "Extrapolation 21 :" << endl;
   cout << "==================" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_run_21(i,j); }
     cout << endl; }
 
@@ -406,7 +420,8 @@ void L1MuDTTFParameters::print() const {
   cout << "Herbert Scheme :" << endl;
   cout << "================" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_nbx_del(i,j); }
     cout << endl; }
 
@@ -414,7 +429,8 @@ void L1MuDTTFParameters::print() const {
   cout << "CSC Eta Cancellation :" << endl;
   cout << "======================" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_csc_etacanc(i,j); }
     cout << endl; }
 
@@ -422,7 +438,8 @@ void L1MuDTTFParameters::print() const {
   cout << "Open LUTs :" << endl;
   cout << "===========" << endl;
   cout << endl;
-  for( int i=0; i<6; i++ ) {
+  for( int i=-3; i<4; i++ ) {
+    if ( i == 0 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_soc_openlut_extr(i,j); }
     cout << endl; }
 
