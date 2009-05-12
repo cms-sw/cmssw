@@ -23,7 +23,6 @@ RPCEventSummary::RPCEventSummary(const ParameterSet& ps ){
   prescaleFactor_ =  ps.getUntrackedParameter<int>("PrescaleFactor", 1);
   eventInfoPath_ = ps.getUntrackedParameter<string>("EventInfoPath", "RPC/EventInfo");
   globalFolder_ = ps.getUntrackedParameter<string>("RPCSummaryFolder", "RPC/RecHits/SummaryHistograms");
-  verbose_=ps.getUntrackedParameter<bool>("VerboseLevel", 0);
   minimumEvents_= ps.getUntrackedParameter<int>("MinimumRPCEvents", 10000);
  
    tier0_=ps.getUntrackedParameter<bool>("Tier0", false);
@@ -38,7 +37,6 @@ RPCEventSummary::~RPCEventSummary(){
 void RPCEventSummary::beginJob(const EventSetup& iSetup){
  LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Begin job ";
  dbe_ = Service<DQMStore>().operator->();
- dbe_->setVerbose(verbose_);
 }
 
 void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){

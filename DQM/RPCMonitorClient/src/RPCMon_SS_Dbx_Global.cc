@@ -28,7 +28,6 @@ RPCMon_SS_Dbx_Global::RPCMon_SS_Dbx_Global(const ParameterSet& iConfig ){
 
   saveRootFile_ =  iConfig.getUntrackedParameter<bool>("SaveRootFile", false);
   rootFileName_ = iConfig.getUntrackedParameter<string>("RootFileName","out.root");
-  verbose_ =  iConfig.getUntrackedParameter<int>("VerboseLevel", 0);
   digiLabel_ = iConfig.getUntrackedParameter<std::string>("DigiLabel","muonRPCDigis");
 }
 
@@ -40,7 +39,6 @@ RPCMon_SS_Dbx_Global::~RPCMon_SS_Dbx_Global(){
 void RPCMon_SS_Dbx_Global::beginJob(const EventSetup& iSetup){
  LogVerbatim ("rpcmonitorerror") << "[RPCMon_SS_Dbx_Global]: Begin job ";
  dbe_ = Service<DQMStore>().operator->();
- dbe_->setVerbose(verbose_);
 }
 
 void RPCMon_SS_Dbx_Global::endJob(){}

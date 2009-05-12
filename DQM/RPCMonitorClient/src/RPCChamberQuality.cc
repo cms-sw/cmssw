@@ -30,10 +30,7 @@ RPCChamberQuality::RPCChamberQuality(const ParameterSet& ps ){
   
   prescaleFactor_ =  ps.getUntrackedParameter<int>("PrescaleFactor", 1);
   prefixDir_ = ps.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
-  verbose_=ps.getUntrackedParameter<bool>("VerboseLevel", 0);
   minEvents = ps.getUntrackedParameter<int>("MinimumRPCEvents", 10000);
-  
-  
 }
 
 RPCChamberQuality::~RPCChamberQuality(){
@@ -44,7 +41,6 @@ RPCChamberQuality::~RPCChamberQuality(){
 void RPCChamberQuality::beginJob(const EventSetup& iSetup){
   LogVerbatim ("rpceventsummary") << "[RPCChamberQuality]: Begin job ";
   dbe_ = Service<DQMStore>().operator->();
-  dbe_->setVerbose(verbose_);
 }
 
 

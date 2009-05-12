@@ -28,7 +28,6 @@ class RPCMon_SS_Dbx_Global : public edm::EDAnalyzer {
 
       std::string  globalFolder_, digiLabel_;
       bool  saveRootFile_;
-      int  verbose_ ;
       std::string rootFileName_;
  DQMStore* dbe_;
 };

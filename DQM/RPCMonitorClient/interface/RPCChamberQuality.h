@@ -7,8 +7,8 @@
 **  Class RPCClusterSizeTest           **
 **  DQM Event Summary module for RPCs  **
 **                                     **
-**  $Date: 2009/03/04 18:29:18 $       **
-**  $Revision: 1.1 $                   **
+**  $Date: 2009/03/28 02:20:07 $       **
+**  $Revision: 1.2 $                   **
 **  David Lomidze                      **
 **  INFN di Napoli                     **
 **                                     **
@@ -66,7 +66,7 @@ public:
   std::string prefixDir_;
   
   int prescaleFactor_;
-  bool verbose_;
+  //  bool verbose_;
   bool init_;
   DQMStore* dbe_;
   int nLumiSegs_;
