@@ -22,7 +22,6 @@ SiGaussianTailNoiseAdder::~SiGaussianTailNoiseAdder(){
 void SiGaussianTailNoiseAdder::addNoise(std::vector<double> &in,
 					size_t& minChannel, size_t& maxChannel,
 					int ns, float nrms){
-  
   numStrips = ns; 
   noiseRMS = nrms; 
   std::vector<std::pair<int,float> > generatedNoise;
@@ -48,14 +47,42 @@ void SiGaussianTailNoiseAdder::createRaw(std::vector<double> &in,
 					 size_t& minChannel, size_t& maxChannel,
 					 int ns, float nrms, float ped){
   
-  // Add pedestals
-  for (size_t iChannel=0; iChannel!=in.size(); iChannel++) {
-    in[iChannel] += ped;
+  // Add noise
+  // Full Gaussian noise is only added to signal strips, and only 
+  // tails are added elsewhere. 
+  // This is clearly wrong, but it's the best we can do.
+  // Generating a Gaussian noise everywhere would lead to huge time
+  // (some minutes)
+  // Still, we must generate both + and - tails not to bias CMN algos.
+  numStrips = ns; 
+  noiseRMS = nrms; 
+  std::vector<std::pair<int,float> > generatedNoiseP;
+  genNoise->generate(numStrips,threshold,noiseRMS,generatedNoiseP);
+  std::vector<std::pair<int,float> > generatedNoiseN;
+  genNoise->generate(numStrips,threshold,noiseRMS,generatedNoiseN);
+  
+  // noise on strips with signal:
+  for (size_t iChannel=minChannel; iChannel<=maxChannel; iChannel++) {
+    if(in[iChannel] != 0) {
+      in[iChannel] += gaussDistribution->fire(0.,noiseRMS);
+    }
+  }
+
+  // Noise on the other strips
+  typedef std::vector<std::pair<int,float> >::const_iterator VI;  
+  for(VI p = generatedNoiseP.begin(); p != generatedNoiseP.end(); p++){
+    if(in[(*p).first] == 0) {
+      in[(*p).first] += (*p).second;
+    }
+  }
+  for(VI p = generatedNoiseN.begin(); p != generatedNoiseN.end(); p++){
+    if(in[(*p).first] == 0) {
+      in[(*p).first] -= (*p).second;
+    }
   }
   
-  // in raw mode, we simulate the same noise everywhere 
-  // (no threshold effect).
-  for (size_t iChannel=minChannel; iChannel<=maxChannel; iChannel++) {
-      in[iChannel] += gaussDistribution->fire(0.,nrms);           
+  // Add pedestals
+  for (size_t iChannel=0; iChannel!=in.size(); iChannel++) {
+    in[iChannel] += ped;           
   }
 }
