@@ -3,8 +3,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/08/09 16:08:21 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/05/04 16:37:57 $
+ *  $Revision: 1.13 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -44,13 +44,6 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
   // get dqm info
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
-  if (dbe) {
-    if (verbosity) {
-      dbe->setVerbose(1);
-    } else {
-      dbe->setVerbose(0);
-    }
-  }
     
   // create persistent objects
   produces<MEtoEDM<TH1F>, edm::InRun>(fName);

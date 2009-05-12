@@ -2,8 +2,8 @@
  *
  *  See header file for description of class
  *
- *  $Date: 2008/09/22 17:26:01 $
- *  $Revision: 1.19 $
+ *  $Date: 2009/05/04 17:46:13 $
+ *  $Revision: 1.20 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -34,13 +34,6 @@ EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
   // get dqm info
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
-  if (dbe) {
-    if (verbosity) {
-      dbe->setVerbose(1);
-    } else {
-      dbe->setVerbose(0);
-    }
-  }
 
   // print out Parameter Set information being used
   if (verbosity >= 0) {
