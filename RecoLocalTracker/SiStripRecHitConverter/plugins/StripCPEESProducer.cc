@@ -2,6 +2,7 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTrackAngle.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTrackAngle2.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEgeometric.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 StripCPEESProducer::StripCPEESProducer(const edm::ParameterSet & p) 
@@ -29,6 +30,8 @@ produce(const TkStripCPERecord & iRecord)
     cpe_ = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEfromTrackAngle( pset_, magfield.product(), pDD.product(), lorentzAngle.product() ));
   else if(name_=="StripCPEfromTrackAngle2")
     cpe_ = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEfromTrackAngle2(pset_, magfield.product(), pDD.product(), lorentzAngle.product() ));
+  else if(name_=="StripCPEgeometric")
+    cpe_ = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEgeometric(pset_, magfield.product(), pDD.product(), lorentzAngle.product() ));
   else throw cms::Exception("Unknown StripCPE type") << name_;
 
   return cpe_;
