@@ -14,11 +14,9 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
+#include "Randomize.hh"
 
 #include "CLHEP/Units/SystemOfUnits.h"
-
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Random/RandLandau.h"
 
 ZdcShowerLibrary::ZdcShowerLibrary(std::string & name, const DDCompactView & cpv,
 				 edm::ParameterSet const & p) {
@@ -27,21 +25,6 @@ ZdcShowerLibrary::ZdcShowerLibrary(std::string & name, const DDCompactView & cpv
 
   npe = 9; // number of channels or fibers where the energy will be deposited
   hits.reserve(npe);
-
-  gaussDist_ = 0;
-  landauDist_ = 0;
-
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "ZdcShowerLibrary (OscarProducer) requires the RandomNumberGeneratorService\n"
-      "which is not present in the configuration file.  You must add the service\n"
-      "in the configuration file or remove the modules that require it.";
-  }
-
-  CLHEP::HepRandomEngine& engine = rng->getEngine();
-  gaussDist_  = new CLHEP::RandGaussQ(engine);
-  landauDist_ = new CLHEP::RandLandau(engine);
 
 }
 
@@ -253,8 +236,8 @@ int ZdcShowerLibrary::photonFluctuation(double eav, double esig,double edis){
   int nphot=0;
   double efluct = 0.;
 
-  if(edis == 1.0) efluct = eav+esig*gaussDist_->fire();
-  if(edis == 3.0) efluct = eav+esig*landauDist_->fire();
+  if(edis == 1.0) efluct = eav+esig*CLHEP::RandGaussQ::shoot();
+  if(edis == 3.0) efluct = eav+esig*CLHEP::RandLandau::shoot();
   nphot = int(efluct);
   return nphot;
 }

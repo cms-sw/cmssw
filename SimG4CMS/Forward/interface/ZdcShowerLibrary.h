@@ -18,11 +18,6 @@
 #include <string>
 #include <memory>
 
-namespace CLHEP {
-  class RandGaussQ;
-  class RandLandau;
-}
-
 class G4Step;
 class DDCompactView;    
 class ZdcShowerLibrary {
@@ -66,8 +61,5 @@ private:
   int                         npe;
   std::vector<ZdcShowerLibrary::Hit> hits;
   
-  CLHEP::RandGaussQ*          gaussDist_;
-  CLHEP::RandLandau*          landauDist_;
-
 };
 #endif
