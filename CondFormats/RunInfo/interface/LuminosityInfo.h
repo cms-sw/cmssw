@@ -8,7 +8,7 @@
  * each event will occur at one of these BX. BX is defined to be the number of the
  * bunch crossing where this event occurred.
  *
- * $Id: LuminosityInfo.h,v 1.6 2009/05/08 09:35:16 xiezhen Exp $
+ * $Id: LuminosityInfo.h,v 1.7 2009/05/09 18:59:22 xiezhen Exp $
  *
  ************************************************************/
  
@@ -33,16 +33,6 @@ namespace lumi{
   static const BunchCrossingInfo BXNULL=BunchCrossingInfo(-99,-99.0,-99.0,-99);
   typedef std::vector<BunchCrossingInfo>::const_iterator BunchCrossingIterator;
 
-  //persistable class
-  struct LumiAverage{
-    LumiAverage(){}
-    LumiAverage(float v,float e, int q,float d):value(v),error(e),quality(q),deadfrac(d){}
-    float value;
-    float error;
-    int   quality;
-    float deadfrac;
-  };
-  static const LumiAverage LumiNULL=LumiAverage(-99.0,-99.0,-99,-99.0);
   //main persistable class
   class LuminosityInfo{
   public:
@@ -57,7 +47,10 @@ namespace lumi{
     int lumisectionID()const;
     size_t nBunchCrossing()const;
     //radom access to instant LumiAverage 
-    LumiAverage lumiAverage()const;
+    float lumiAverage()const;
+    float lumiError()const;
+    float deadFraction()const;
+    int lumiquality()const;
     //get bunchCrossingInfo by algorithm
     void bunchCrossingInfo(  const LumiAlgoType lumialgotype, 
 			     std::vector<BunchCrossingInfo>& result )const ;
@@ -74,14 +67,20 @@ namespace lumi{
     void setLumiNull(); //set versionid number to -99, signal no lumi data written.
     void setLumiVersionNumber(short versionid);
     void setLumiSectionId(int sectionid);
-    void setLumiAverage(const LumiAverage& avg);
+    void setLumiAverage(float lumiavg);
+    void setLumiQuality(int lumiquality);
+    void setDeadFraction(float deadfrac);
+    void setLumiError(float lumierr);
     void setBunchCrossingData(const std::vector<BunchCrossingInfo>& BXs,
 			      const LumiAlgoType algotype);
   private:
     std::vector<BunchCrossingInfo> m_bx;
     int m_sectionid; 
-    LumiAverage m_summaryinfo;
     short m_versionid;
+    float m_lumiavg;
+    float m_lumierror;
+    int   m_quality;
+    float m_deadfrac;
   }; 
 }//ns lumi
 #endif 

@@ -1,17 +1,15 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="LuminosityInfo">
+  <PoolContainer name="lumi::LuminosityInfo">
    <Class table="LUMINOSITYINFO" id_columns="IOV_VALUE_ID" name="lumi::LuminosityInfo" mapping_version="basic" >
+     <Blob column="BUNCHCXINFO" name="m_bx" />
      <Primitive column="SECTIONID" name="m_sectionid" />
      <Primitive column="VERSIONID" name="m_versionid" />
-     <Blob column="BUNCHCXINFO" name="m_bx" />
-     <Object name="m_summaryinfo" >
-       <Primitive column="SUMMARY_DEADFRAC" name="deadfrac" />
-       <Primitive column="SUMMARY_ERROR" name="error" />
-       <Primitive column="SUMMARY_QUALITY" name="quality" />
-       <Primitive column="SUMMARY_VALUE" name="value" />
-     </Object>
+     <Primitive column="AVERAGE" name="m_lumiavg" />
+     <Primitive column="ERROR" name="m_lumierror" />
+     <Primitive column="QUALITY" name="m_quality" />
+     <Primitive column="DEADFRAC" name="m_deadfrac" />
    </Class >
   </PoolContainer >
  </PoolDatabase >

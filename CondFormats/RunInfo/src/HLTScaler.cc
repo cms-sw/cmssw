@@ -23,16 +23,9 @@ lumi::HLTIterator
 lumi::HLTScaler::hltEnd()const{
   return m_hltinfo.end();
 }
-lumi::HLTInfo 
-lumi::HLTScaler::getHLTInfo( const std::string& pathname )const{
-  for( std::vector< std::pair<std::string, lumi::HLTInfo> >::const_iterator it=m_hltinfo.begin();it!=m_hltinfo.end(); ++it){
-    if( (*it).first==pathname ) return (*it).second;
-  }
-  return lumi::HLTInfoNULL;
-}
 bool 
 lumi::HLTScaler::isNullData()const{
-  return m_lsnumber==-99;
+  return (m_lsnumber==-99);
 }
 void
 lumi::HLTScaler::setHLTNULL(){
@@ -41,7 +34,7 @@ lumi::HLTScaler::setHLTNULL(){
 }
 void 
 lumi::HLTScaler::setHLTData(edm::LuminosityBlockID lumiid, 
-			    const std::vector< std::pair<std::string,lumi::HLTInfo> >& hltdetail){
+			    const std::vector< lumi::HLTInfo >& hltdetail){
   m_run=lumiid.run();
   m_lsnumber=lumiid.luminosityBlock();
   std::copy(hltdetail.begin(),hltdetail.end(),std::back_inserter(m_hltinfo));

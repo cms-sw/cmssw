@@ -19,9 +19,21 @@ size_t
 lumi::LuminosityInfo::nBunchCrossing()const{
   return m_bx.size()/lumi::LUMIALGOMAX;
 }
-lumi::LumiAverage
+float
 lumi::LuminosityInfo::lumiAverage()const{
-  return m_summaryinfo;
+  return m_lumiavg;
+}
+float 
+lumi::LuminosityInfo::lumiError()const{
+  return  m_lumierror;
+}
+float 
+lumi::LuminosityInfo::deadFraction()const{
+  return m_deadfrac;
+}
+int 
+lumi::LuminosityInfo::lumiquality()const{
+  return m_quality;
 }
 void 
 lumi::LuminosityInfo::bunchCrossingInfo(  const lumi::LumiAlgoType lumialgotype, 
@@ -58,8 +70,20 @@ lumi::LuminosityInfo::setLumiSectionId(int sectionid){
   m_sectionid=sectionid;
 }
 void
-lumi::LuminosityInfo::setLumiAverage(const LumiAverage& avg){
-  m_summaryinfo=avg;
+lumi::LuminosityInfo::setLumiAverage(float avg){
+  m_lumiavg=avg;
+}
+void 
+lumi::LuminosityInfo::setLumiQuality(int lumiquality){
+  m_quality=lumiquality;
+}
+void 
+lumi::LuminosityInfo::setDeadFraction(float deadfrac){
+  m_deadfrac=deadfrac;
+}
+void 
+lumi::LuminosityInfo::setLumiError(float lumierr){
+  m_lumierror=lumierr;
 }
 void 
 lumi::LuminosityInfo::setBunchCrossingData(const std::vector<BunchCrossingInfo>& BXs,const LumiAlgoType algotype){
