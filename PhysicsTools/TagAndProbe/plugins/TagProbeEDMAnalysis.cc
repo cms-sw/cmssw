@@ -28,22 +28,75 @@
 // UPdated binning on the SBS method
 //
 
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/TagAndProbe/interface/TagProbeEDMAnalysis.h"
 
-
 // ROOT headers
 
-#include <TArrow.h>
 #include <TCanvas.h>
 #include <TFile.h>
-#include <TGaxis.h>
+//#include <TGaxis.h>
 #include <TGraphAsymmErrors.h>
 #include <TIterator.h>
 #include <TLatex.h>
 #include <TString.h>
 #include <TStyle.h>
+
+// system include files
+#include <memory>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <iterator>
+#include <iostream>
+
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "PhysicsTools/TagAndProbe/interface/RooCMSShapePdf.h"
+
+// Used for 2D efficiency reading/writing
+#include "PhysicsTools/TagAndProbe/interface/EffTableLoader.h"
+
+// ROOT
+
+#include <TROOT.h>
+#include <TChain.h>
+#include <TFile.h>
+#include <TCanvas.h>
+#include <TH1F.h>
+#include <TH2F.h>
+#include <TTree.h>
+
+// RooFit headers
+#include <RooAbsData.h>
+#include <RooDataSet.h>
+#include <RooAddPdf.h>
+#include <RooBifurGauss.h>
+#include <RooBreitWigner.h>
+#include <RooCategory.h>
+#include <RooCatType.h>
+#include <RooCBShape.h>
+#include <RooChi2Var.h>
+#include <RooDataHist.h>
+#include <RooFitResult.h>
+#include <RooGaussian.h>
+#include <RooGenericPdf.h>
+#include <RooGlobalFunc.h>
+#include <RooLandau.h>
+#include <RooMinuit.h>
+#include <RooNLLVar.h>
+#include <RooPlot.h>
+#include <RooPolynomial.h>
+#include <RooRealVar.h>
+#include <RooSimultaneous.h>
+#include <RooTreeData.h>
+#include <RooVoigtian.h>
 
 using namespace std;
 using namespace edm;
@@ -2174,6 +2227,82 @@ TagProbeEDMAnalysis::endJob()
       return;
    }
 
+}
+
+void TagProbeEDMAnalysis::cleanFitVariables()
+{
+  if( !calcEffsFitter_ ) return;
+  
+  if( rooMass_ != NULL )               delete rooMass_;
+  if( signalShapePdf_ != NULL )        delete signalShapePdf_;
+  if( bkgShapePdf_ != NULL )           delete bkgShapePdf_;
+  
+  // Clean Z line shape
+  if( fitZLineShape_ )
+    {
+      if( rooZMean_ != NULL )           delete rooZMean_;
+      if( rooZWidth_ != NULL )          delete rooZWidth_;
+      if( rooZSigma_ != NULL )          delete rooZSigma_;
+      if( rooZWidthL_ != NULL )         delete rooZWidthL_;
+      if( rooZWidthR_ != NULL )         delete rooZWidthR_;
+      if( rooZBifurGaussFrac_ != NULL ) delete rooZBifurGaussFrac_;
+      if( rooZVoigtPdf_ != NULL )       delete rooZVoigtPdf_;
+      if( rooZBifurGaussPdf_ != NULL )  delete rooZBifurGaussPdf_;
+      
+      if( floatFailZMean_ && rooFailZMean_ != NULL )   delete rooFailZMean_;
+      if( floatFailZWidth_ && rooFailZWidth_ != NULL ) delete rooFailZWidth_;
+      if( floatFailZSigma_ && rooFailZSigma_ != NULL ) delete rooFailZSigma_;
+      if( floatFailZWidthL_ && rooFailZWidthL_ != NULL ) delete rooFailZWidthL_;
+      if( floatFailZWidthR_ && rooFailZWidthR_ != NULL ) delete rooFailZWidthR_;
+      if( floatFailZBifurGaussFrac_ && rooFailZBifurGaussFrac_ != NULL ) delete rooFailZBifurGaussFrac_;
+      if( rooFailZVoigtPdf_ != NULL )       delete rooFailZVoigtPdf_;
+      if( rooFailZBifurGaussPdf_ != NULL )  delete rooFailZBifurGaussPdf_;
+      
+      if( signalShapeFailPdf_ != NULL )     delete signalShapeFailPdf_;
+    }
+  
+  if( fitCBLineShape_ )
+    {
+      // Clean CB line shape
+      if( rooCBMean_ != NULL )           delete rooCBMean_;
+      if( rooCBSigma_ != NULL )          delete rooCBSigma_;
+      if( rooCBAlpha_ != NULL )          delete rooCBAlpha_;
+      if( rooCBN_ != NULL )              delete rooCBN_;
+      if( rooCBDummyFrac_ != NULL )      delete rooCBDummyFrac_;
+      if( rooCBPdf_ != NULL )            delete rooCBPdf_;
+    }
+  
+  if( fitGaussLineShape_ )
+    {
+      // Clean Gauss line shape
+      if( rooGaussMean_ != NULL )           delete rooGaussMean_;
+      if( rooGaussSigma_ != NULL )          delete rooGaussSigma_;
+      if( rooGaussDummyFrac_ != NULL )      delete rooGaussDummyFrac_;
+      if( rooGaussPdf_ != NULL )            delete rooGaussPdf_;
+    }
+  
+  if( fitCMSBkgLineShape_ )
+    {
+      // Clean CMS Bkg line shape
+      if( rooCMSBkgAlpha_ != NULL )      delete rooCMSBkgAlpha_;
+      if( rooCMSBkgBeta_ != NULL )       delete rooCMSBkgBeta_;
+      if( rooCMSBkgPeak_ != NULL )       delete rooCMSBkgPeak_;
+      if( rooCMSBkgGamma_ != NULL )      delete rooCMSBkgGamma_;
+      if( rooCMSBkgDummyFrac_ != NULL )  delete rooCMSBkgDummyFrac_;
+      if( rooCMSBkgPdf_ != NULL )        delete rooCMSBkgPdf_;
+    }
+  
+  if( fitPolyBkgLineShape_ )
+    {
+      // Clean the polynomial background line shape
+      if( rooPolyBkgC0_ != NULL )        delete rooPolyBkgC0_;
+      if( rooPolyBkgC1_ != NULL )        delete rooPolyBkgC1_;
+      if( rooPolyBkgC2_ != NULL )        delete rooPolyBkgC2_;
+      if( rooPolyBkgC3_ != NULL )        delete rooPolyBkgC3_;
+      if( rooPolyBkgC4_ != NULL )        delete rooPolyBkgC4_;
+      if( rooPolyBkgDummyFrac_ != NULL ) delete rooPolyBkgDummyFrac_;
+      if( rooPolyBkgPdf_ != NULL )       delete rooPolyBkgPdf_;
+    }
 }
 
 //define this as a plug-in
