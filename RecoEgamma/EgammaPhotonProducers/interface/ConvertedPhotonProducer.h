@@ -3,9 +3,9 @@
 /** \class ConvertedPhotonProducer
  **  
  **
- **  $Id: ConvertedPhotonProducer.h,v 1.29 2009/05/07 20:05:06 nancy Exp $ 
- **  $Date: 2009/05/07 20:05:06 $ 
- **  $Revision: 1.29 $
+ **  $Id: ConvertedPhotonProducer.h,v 1.30 2009/05/07 20:15:50 nancy Exp $ 
+ **  $Date: 2009/05/07 20:15:50 $ 
+ **  $Revision: 1.30 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -28,6 +28,8 @@
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/Common/interface/View.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
+#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 class ConversionTrackEcalImpactPoint;
 class ConversionTrackPairFinder;
@@ -49,6 +51,7 @@ class ConvertedPhotonProducer : public edm::EDProducer {
 
   void buildCollections ( const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
 			  const edm::Handle<edm::View<reco::CaloCluster> > & bcHandle,
+			  const edm::Handle<CaloTowerCollection> & hcalTowersHandle,
 			  const edm::Handle<reco::TrackCollection>  & trkHandle,
 			  std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr>& allPairs,
 			  reco::ConversionCollection & outputConvPhotonCollection);
@@ -75,15 +78,14 @@ class ConvertedPhotonProducer : public edm::EDProducer {
   std::string ConvertedPhotonCollection_;
   std::string CleanedConvertedPhotonCollection_;
   
-//  std::string bcProducer_;
   edm::InputTag bcBarrelCollection_;
   edm::InputTag bcEndcapCollection_;
   edm::InputTag scHybridBarrelProducer_;
   edm::InputTag scIslandEndcapProducer_;
-  //  std::string scHybridBarrelCollection_;
-  //std::string scIslandEndcapCollection_;
   edm::ParameterSet conf_;
+  edm::InputTag hcalTowers_;
 
+  edm::ESHandle<CaloGeometry> theCaloGeom_;
   edm::ESHandle<MagneticField> theMF_;
   edm::ESHandle<TransientTrackBuilder> theTransientTrackBuilder_;
 
@@ -92,6 +94,10 @@ class ConvertedPhotonProducer : public edm::EDProducer {
   ConversionTrackEcalImpactPoint* theEcalImpactPositionFinder_;
   int nEvt_;
   std::string algoName_;
+
+ 
+  double hOverEConeSize_;
+  double maxHOverE_;
   double minSCEt_;
   bool  recoverOneTrackCase_;
   double dRForConversionRecovery_;
