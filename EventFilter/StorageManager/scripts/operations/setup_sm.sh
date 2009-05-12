@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.35 2009/03/02 13:33:48 jserrano Exp $
+# $Id: setup_sm.sh,v 1.36 2009/03/09 16:17:19 jserrano Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -88,7 +88,7 @@ startinjectworker () {
         if test -f "$local_file"; then
             local local_time=`stat -t $local_file 2>/dev/null | cut -f13 -d' '`
             local reference_time=`stat -t $reference_file 2>/dev/null | cut -f13 -d' '`
-            if test $reference_time -lt $local_time; then
+            if test $reference_time -gt $local_time; then
                 logger -s -t "SM INIT" "INFO: $reference_file is more recent than $local_file"
                 logger -s -t "SM INIT" "INFO: I will overwrite the local configuration"
                 mv $local_file $local_file.old.$local_time
@@ -182,9 +182,7 @@ start () {
     return 0;
 }
 
-stopworkers () {
-    su - smpro -c "$t0inject stop"
-    rm -f /tmp/.20*-${hname}-*.log.lock
+stopcopyworker () {
     su - cmsprod -c "$t0control stop"
 
     counter=1;
@@ -198,6 +196,16 @@ stopworkers () {
     done
 
     killall -q rfcp
+}
+
+stopinjectworker () {
+    su - smpro -c "$t0inject stop"
+    rm -f /tmp/.20*-${hname}-*.log.lock
+}
+
+stopworkers () {
+    stopinjectworker
+    stopcopyworker
 }
 
 stop () {
@@ -314,8 +322,32 @@ case "$1" in
 	status
 	RETVAL=$?
 	;;
+    startinject)
+	startinjectworker
+	RETVAL=$?
+	;;
+    stopinject)
+	stopinjectworker
+	RETVAL=$?
+	;;
+    statusinject)
+        su - smpro -c "$t0inject status"
+	RETVAL=$?
+	;;
+    startcopy)
+	startcopyworker
+	RETVAL=$?
+	;;
+    stopcopy)
+	stopcopyworker
+	RETVAL=$?
+	;;
+    statuscopy)
+        su - cmsprod -c "$t0control status"
+	RETVAL=$?
+	;;
     *)
-	echo $"Usage: $0 {start|stop|status}"
+	echo $"Usage: $0 {start|stop|status|startinject|stopinject|statusinject|startcopy|stopcopy|statuscopy}"
 	RETVAL=1
 	;;
 esac
