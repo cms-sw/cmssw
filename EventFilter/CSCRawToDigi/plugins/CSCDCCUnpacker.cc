@@ -71,29 +71,35 @@
 
 CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   numOfEvents(0) {
-  printEventNumber = pset.getUntrackedParameter<bool>("PrintEventNumber", true);
-  debug = pset.getUntrackedParameter<bool>("Debug", false);
-  useExaminer = pset.getUntrackedParameter<bool>("UseExaminer", true);
-  examinerMask = pset.getUntrackedParameter<unsigned int>("ExaminerMask",0x7FB7BF6);
-  instatiateDQM = pset.getUntrackedParameter<bool>("runDQM", false);
-  errorMask = pset.getUntrackedParameter<unsigned int>("ErrorMask",0xDFCFEFFF);
-  unpackStatusDigis = pset.getUntrackedParameter<bool>("UnpackStatusDigis", false);
-  inputObjectsTag = pset.getParameter<edm::InputTag>("InputObjects");
+
+  // Tracked
+
+  inputObjectsTag       = pset.getParameter<edm::InputTag>("InputObjects");
+  useExaminer           = pset.getParameter<bool>("UseExaminer");
+  examinerMask          = pset.getParameter<unsigned int>("ExaminerMask");
+  /// Selective unpacking mode will skip only troublesome CSC blocks and not whole DCC/DDU block
+  useSelectiveUnpacking = pset.getParameter<bool>("UseSelectiveUnpacking");
+  errorMask             = pset.getParameter<unsigned int>("ErrorMask");
+  unpackStatusDigis     = pset.getParameter<bool>("UnpackStatusDigis");
+  /// Enable Format Status Digis
+  useFormatStatus       = pset.getParameter<bool>("UseFormatStatus");
+
+  // Untracked
+
+  printEventNumber      = pset.getUntrackedParameter<bool>("PrintEventNumber", true);
+  debug                 = pset.getUntrackedParameter<bool>("Debug", false);
+  instantiateDQM        = pset.getUntrackedParameter<bool>("runDQM", false);
   
   /// Visualization of raw data in FED-less events 
-  visualFEDInspect=pset.getUntrackedParameter<bool>("VisualFEDInspect", false);
-  visualFEDShort=pset.getUntrackedParameter<bool>("VisualFEDShort", false);
+  visualFEDInspect      = pset.getUntrackedParameter<bool>("VisualFEDInspect", false);
+  visualFEDShort        = pset.getUntrackedParameter<bool>("VisualFEDShort", false);
 
   /// Suppress zeros LCTs
-  SuppressZeroLCT=pset.getUntrackedParameter<bool>("SuppressZeroLCT", true);
+  SuppressZeroLCT       = pset.getUntrackedParameter<bool>("SuppressZeroLCT", true);
     
-  /// Enable Format Status Digis
-  useFormatStatus = pset.getUntrackedParameter<bool>("UseFormatStatus", false);
 
-  /// Selective unpacking mode will skip only troublesome CSC blocks and not whole DCC/DDU block
-  useSelectiveUnpacking = pset.getUntrackedParameter<bool>("UseSelectiveUnpacking", false);
 
-  if(instatiateDQM)  {
+  if(instantiateDQM)  {
     monitor = edm::Service<CSCMonitorInterface>().operator->();
   }
   
@@ -257,7 +263,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		
   	CSCDCCEventData dccData((short unsigned int *) fedData.data(),ptrExaminer);
 	
-	if(instatiateDQM) monitor->process(examiner, &dccData);
+	if(instantiateDQM) monitor->process(examiner, &dccData);
 	
 	///get a reference to dduData
 	const std::vector<CSCDDUEventData> & dduData = dccData.dduData();
@@ -479,7 +485,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
         }
 
 	// dccStatusProduct->insertDigi(CSCDetId(1,1,1,1,1), CSCDCCStatusDigi(examiner->errors()));
-	// if(instatiateDQM)  monitor->process(examiner, NULL);
+	// if(instantiateDQM)  monitor->process(examiner, NULL);
       }
       if (examiner!=NULL) delete examiner;
     } // end of if fed has data
