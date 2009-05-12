@@ -3,6 +3,15 @@ from DQM.HcalMonitorModule.HcalMonitorModule_cfi import * # there's probably a b
 from DQM.HcalMonitorClient.HcalMonitorClient_cfi import * # ditto
 
 process = cms.Process("HCALDQM")
+
+process.hltHcalCalibTypeFilter = cms.EDFilter( "HLTHcalCalibTypeFilter", 
+   InputLabel    = cms.string( "source" ),
+   CalibTypes    = cms.vint32( 0,1,2,3,4,5 ),
+   FilterSummary = cms.untracked.bool( False ) 
+)
+
+
+
 #----------------------------
 # Event Source
 #-----------------------------
@@ -158,7 +167,7 @@ process.options = cms.untracked.PSet(
         'TooManyProducts', 
         'TooFewProducts')
 )
-process.p = cms.Path(process.hcalDigis*process.horeco*process.hfreco*process.hbhereco*process.zdcreco*process.hcalMonitor*process.hcalClient*process.dqmEnv*process.dqmSaver)
+process.p = cms.Path(process.hltHcalCalibTypeFilter*process.hcalDigis*process.horeco*process.hfreco*process.hbhereco*process.zdcreco*process.hcalMonitor*process.hcalClient*process.dqmEnv*process.dqmSaver)
 
 #-----------------------------
 # Quality Tester 
