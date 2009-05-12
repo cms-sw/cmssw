@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.7 2009/02/20 13:53:41 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.8 2009/04/23 09:13:52 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,7 +35,8 @@ from the configuration file, the DB is not implemented yet)
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/RunInfo/interface/LuminosityInfo.h"
 #include "CondFormats/DataRecord/interface/LuminosityInfoRcd.h"
-
+#include "CondFormats/RunInfo/interface/HLTScaler.h"
+#include "CondFormats/DataRecord/interface/HLTScalerRcd.h"
 #include <sstream>
 #include <string>
 #include <memory>
@@ -87,52 +88,64 @@ void LumiProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 }
 
 void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::EventSetup const &iSetup) {
+  std::cout<<"beginLuminosityBlock"<<std::endl;
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("LuminosityInfoRcd"));
   if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
     //record not found
     std::cout <<"Record \"LuminosityInfoRcd"<<"\" does not exist "<<std::endl;
   }
+  std::cout<<"lumiblock id value "<<iLBlock.id().value()<<std::endl;
+  std::cout<<"lumiblock in run "<<iLBlock.run()<<std::endl;
+  std::cout<<"lumiblock number "<<iLBlock.id().luminosityBlock()<<std::endl;
+  
   edm::ESHandle<lumi::LuminosityInfo> pLumi;
   iSetup.get<LuminosityInfoRcd>().get(pLumi);
   const lumi::LuminosityInfo* myLumi=pLumi.product();
+  if(!myLumi){
+    //std::cout<<"no lumi data found"<<std::endl;
+    std::string errmsg("NULL lumi object ");
+    throw cms::Exception(" LumiProducer",errmsg);
+  }
+  
   /**summary information
+     if avginsdellumi is -99, it signals that there is no lumi data written for this lumisection,consequently, all the l1 and hlt values are empty. So users should check and decide what to do.
+     
      avginsdellumi: average instante lumi value 
      avginsdellumierr:  average instante lumi error
      lumisecqual: lumi section quality
      lsnumber: lumisection number
      deadfrac: deadtime normalization
      
-     l1ratecounter, unavailable now
-     hltratecounter, unavailable now
-     hltscaler, unavailable now
-     hltinput, unavailable now
+     l1data, unavailable now
+     hldata
   */
-  float avginsdellumi=myLumi->lumiAverage(lumi::ET).value;
-  float avginsdellumierr=myLumi->lumiAverage(lumi::ET).error;
-  int lumisecqual=myLumi->lumiAverage(lumi::ET).quality;
-  float deadfrac=myLumi->deadTimeNormalization();
+  float avginsdellumi=myLumi->lumiAverage();
+  float avginsdellumierr=myLumi->lumiError();
+  int lumisecqual=myLumi->lumiquality();
+  float deadfrac=myLumi->deadFraction();
   int lsnumber=myLumi->lumisectionID();
-  std::vector<int> l1ratecounter;
+  std::vector<LumiSummary::L1> l1data;
   for(unsigned int i=0; i<128; ++i){
-    l1ratecounter.push_back(-99);
+    l1data.push_back( LumiSummary::L1() );
   }
-  std::vector<int> l1scaler;
-  for(unsigned int i=0; i<128; ++i){
-    l1scaler.push_back(-99);
+  edm::ESHandle<lumi::HLTScaler> pHLT;
+  iSetup.get<HLTScalerRcd>().get(pHLT);
+  const lumi::HLTScaler* myHLT=pHLT.product();
+  if(!myHLT){
+    std::string errmsg("NULL HLTScaler object ");
+    throw cms::Exception(" LumiProducer",errmsg);
   }
-  std::vector<int> hltratecounter;
-  for(unsigned int i=0; i<128; ++i){
-    hltratecounter.push_back(-99);
+  std::vector<LumiSummary::HLT> hltdata;
+  for(lumi::HLTIterator it=myHLT->hltBegin(); it!=myHLT->hltEnd();++it){
+    LumiSummary::HLT h;
+    h.pathname=it->pathname;
+    h.ratecount=it->acceptcount;
+    h.inputcount=it->inputcount;
+    h.scalingfactor=it->prescalefactor;
+    hltdata.push_back(h);
   }
-  std::vector<int> hltscaler;
-  for(unsigned int i=0; i<128; ++i){
-    hltscaler.push_back(-99);
-  }
-  std::vector<int> hltinput;
-  for(unsigned int i=0; i<128; ++i){
-    hltinput.push_back(-99);
-  }
-  LumiSummary* pIn1=new LumiSummary(avginsdellumi,avginsdellumierr,lumisecqual,deadfrac,lsnumber,l1ratecounter,l1scaler,hltratecounter,hltscaler,hltinput);
+  
+  LumiSummary* pIn1=new LumiSummary(avginsdellumi,avginsdellumierr,lumisecqual,deadfrac,lsnumber,l1data,hltdata);
   std::auto_ptr<LumiSummary> pOut1(pIn1);
   iLBlock.put(pOut1);
   
