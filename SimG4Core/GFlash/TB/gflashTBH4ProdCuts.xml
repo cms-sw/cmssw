@@ -3,7 +3,7 @@
   <SpecParSection label="regions.xml" eval="true">
     <SpecPar name="ecal">
       <PartSelector path="//ECAL" />
-      <Parameter name="CMSCutsRegion" value="GflashRegion" eval="false"/>
+      <Parameter name="CMSCutsRegion" value="CaloRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="1*mm"/>
       <Parameter name="ProdCutsForPositrons" value="1*mm"/>
       <Parameter name="ProdCutsForGamma" value="1*mm"/>
@@ -19,7 +19,7 @@
 
   <SpecPar name="TBH4">
     <PartSelector path="//OCMS"   />
-    <Parameter name="CMSCutsRegion" value="GflashRegion" eval="false"/>
+    <Parameter name="CMSCutsRegion" value="CaloRegion" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="1*mm"/>
     <Parameter name="ProdCutsForPositrons" value="1*mm"/>
     <Parameter name="ProdCutsForGamma" value="10*mm"/>
@@ -27,7 +27,7 @@
   <SpecPar name="Scintillator">
     <PartSelector path="//FIBR"/>
     <PartSelector path="//TRG.*"/>
-    <Parameter name="CMSCutsRegion"  value="GflashRegion" eval="false"/>
+    <Parameter name="CMSCutsRegion"  value="CaloRegion" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="0.1*mm"/>
     <Parameter name="ProdCutsForPositrons" value="0.1*mm"/>
     <Parameter name="ProdCutsForGamma" value="0.1*mm"/>
