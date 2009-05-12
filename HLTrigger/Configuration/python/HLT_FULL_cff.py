@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre6/HLT/V9 (CMSSW_3_1_0_pre6_HLT3)
+# /dev/CMSSW_3_1_0/pre6/HLT/V11 (CMSSW_3_1_0_pre6_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre6/HLT/V9')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre6/HLT/V11')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -7889,7 +7889,8 @@ hltIconeCentral4Regional = cms.EDProducer( "IterativeConeJetProducer",
 )
 hltL2TauJets = cms.EDProducer( "L2TauJetsMerger",
     EtMin = cms.double( 15.0 ),
-    JetSrc = cms.VInputTag( 'hltIconeTau1Regional','hltIconeTau2Regional','hltIconeTau3Regional','hltIconeTau4Regional','hltIconeCentral1Regional','hltIconeCentral2Regional','hltIconeCentral3Regional','hltIconeCentral4Regional' )
+    JetSrc = cms.VInputTag( 'hltIconeTau1Regional','hltIconeTau2Regional','hltIconeTau3Regional','hltIconeTau4Regional','hltIconeCentral1Regional','hltIconeCentral2Regional','hltIconeCentral3Regional','hltIconeCentral4Regional' ),
+    esMapping = cms.PSet(  )
 )
 hltFilterL2EtCutSingleLooseIsoTau20 = cms.EDFilter( "HLT1Tau",
     inputTag = cms.InputTag( "hltL2TauJets" ),
