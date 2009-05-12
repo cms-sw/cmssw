@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 #  configuration for producer of converted photons
-#  $Id: conversionTrackCandidates_cfi.py,v 1.19 2009/04/30 11:15:04 nancy Exp $
+#  $Id: conversionTrackCandidates_cfi.py,v 1.20 2009/05/07 20:07:13 nancy Exp $
 #
 # stripCPE
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
@@ -25,22 +25,21 @@ from RecoEgamma.EgammaPhotonProducers.propOppoMomentumWithMaterialForElectrons_c
 
 conversionTrackCandidates = cms.EDProducer("ConversionTrackCandidateProducer",
 #    beamSpot = cms.InputTag("offlineBeamSpot"),
-    inOutTrackCandidateSCAssociationCollection = cms.string('inOutTrackCandidateSCAssociationCollection'),
-    maxHOverE = cms.double(0.2),
+    bcBarrelCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
+    bcEndcapCollection = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
     scHybridBarrelProducer = cms.InputTag("correctedHybridSuperClusters"),
-    hbheModule = cms.string('hbhereco'),
+    scIslandEndcapProducer = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
+    outInTrackCandidateSCAssociationCollection = cms.string('outInTrackCandidateSCAssociationCollection'),                                           
+    inOutTrackCandidateSCAssociationCollection = cms.string('inOutTrackCandidateSCAssociationCollection'),
     inOutTrackCandidateCollection = cms.string('inOutTracksFromConversions'),
     outInTrackCandidateCollection = cms.string('outInTracksFromConversions'),
-    minSCEt = cms.double(10.0),
     MeasurementTrackerName = cms.string(''),
-    InOutRedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
-    bcEndcapCollection = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
-    outInTrackCandidateSCAssociationCollection = cms.string('outInTrackCandidateSCAssociationCollection'),
-    bcBarrelCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
-    scIslandEndcapProducer = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
     OutInRedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
+    InOutRedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
+    hcalTowers = cms.InputTag("towerMaker"),                                       
+    minSCEt = cms.double(10.0),
     hOverEConeSize = cms.double(0.15),
-    hbheInstance = cms.string(''),
+    maxHOverE = cms.double(0.2),
     TrajectoryBuilder = cms.string('TrajectoryBuilderForConversions'),
     TransientInitialStateEstimatorParameters = cms.PSet(
         propagatorAlongTISE = cms.string('alongMomElePropagator'),
