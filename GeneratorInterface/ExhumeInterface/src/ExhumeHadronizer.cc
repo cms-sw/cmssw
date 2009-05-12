@@ -19,6 +19,7 @@
 #include "GeneratorInterface/ExhumeInterface/interface/QQ.h"
 #include "GeneratorInterface/ExhumeInterface/interface/GG.h"
 #include "GeneratorInterface/ExhumeInterface/interface/Higgs.h"
+#include "GeneratorInterface/ExhumeInterface/interface/DiPhoton.h"
 
 #include <string>
 #include <sstream>
@@ -191,20 +192,25 @@ bool ExhumeHadronizer::initializeForInternalPartons()
    if(processType == "Higgs"){
       exhumeProcess_ = new Exhume::Higgs(myPSet_);
       int higgsDecay = processPSet.getParameter<int>("HiggsDecay");
-      ((Exhume::Higgs*)exhumeProcess_)->SetHiggsDecay(higgsDecay);
+      (static_cast<Exhume::Higgs*>(exhumeProcess_))->SetHiggsDecay(higgsDecay);
       sigID = 100 + higgsDecay;
    } else if(processType == "QQ"){	
       exhumeProcess_ = new Exhume::QQ(myPSet_);
       int quarkType = processPSet.getParameter<int>("QuarkType");
       double thetaMin = processPSet.getParameter<double>("ThetaMin");
       ((Exhume::QQ*)exhumeProcess_)->SetQuarkType(quarkType);
-      ((Exhume::QQ*)exhumeProcess_)->SetThetaMin(thetaMin);
+      (static_cast<Exhume::QQ*>(exhumeProcess_))->SetThetaMin(thetaMin);
       sigID = 200 + quarkType;
    } else if(processType == "GG"){
       exhumeProcess_ = new Exhume::GG(myPSet_);
       double thetaMin = processPSet.getParameter<double>("ThetaMin");
-      ((Exhume::GG*)exhumeProcess_)->SetThetaMin(thetaMin);
+      (static_cast<Exhume::GG*>(exhumeProcess_))->SetThetaMin(thetaMin);
       sigID = 300;
+   } else if(processType == "DiPhoton"){
+      exhumeProcess_ = new Exhume::DiPhoton(myPSet_);
+      double thetaMin = processPSet.getParameter<double>("ThetaMin");
+      (static_cast<Exhume::DiPhoton*>(exhumeProcess_))->SetThetaMin(thetaMin);
+      sigID = 400;
    } else{
       sigID = -1;
       throw edm::Exception(edm::errors::Configuration,"ExhumeError") <<" No valid Exhume Process";

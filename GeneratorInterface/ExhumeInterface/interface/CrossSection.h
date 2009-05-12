@@ -30,6 +30,10 @@
 //#include "CLHEP/HepMC/ConvertHEPEVT.h"
 //#include "CLHEP/HepMC/CBhepevt.h"
 
+namespace CLHEP {
+class HepRandomEngine;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 namespace Exhume{
   
@@ -50,6 +54,8 @@ namespace Exhume{
     virtual double SubParameterWeight()=0;
 
     double AlphaS(const double&);
+
+    inline void SetRandomEngine(CLHEP::HepRandomEngine* engine){randomEngine = engine;}
 
     inline double GetRg(const double &x_, const double &Qt){
 
@@ -280,7 +286,9 @@ namespace Exhume{
 
     double Gev2fb;
 
-    std::string lhapdfSetPath_;	
+    std::string lhapdfSetPath_;
+
+    CLHEP::HepRandomEngine* randomEngine;
   };
 }
 

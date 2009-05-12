@@ -32,6 +32,7 @@ Exhume::Event::Event(CrossSection &Process_, CLHEP::HepRandomEngine* engine){
   InvRoot_s = 1.0/Root_s;
   randomEngine = engine;
   std::cout<<"   ++ Random number seed   "<< randomEngine->getSeed() <<" ++"<<std::endl<<std::endl;
+  Process->SetRandomEngine(engine);
   //srand(Seed_);
 
 }

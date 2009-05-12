@@ -1,4 +1,5 @@
 #include "GeneratorInterface/ExhumeInterface/interface/TwoSpace.h"
+#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
 
 Exhume::TwoSpace::TwoSpace(const edm::ParameterSet& pset):
   CrossSection(pset){
@@ -22,10 +23,10 @@ int Exhume::TwoSpace::GetNumberOfSubParameters(){
 
 void Exhume::TwoSpace::SetSubParameters(){
  
-  double cos_th = double(rand())/RAND_MAX;
+  double cos_th = randomEngine->flat();
 
   CosTheta = GetValue(cos_th);
-  Phi = 2*PI*double(rand())/RAND_MAX;;
+  Phi = 2*PI*randomEngine->flat();
  
   //std::cout<<CosTheta<<std::endl;
   LIPS2Amp();
