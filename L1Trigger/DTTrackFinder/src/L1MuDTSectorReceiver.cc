@@ -5,8 +5,8 @@
 //   Description: Sector Receiver 
 //
 //
-//   $Date: 2008/11/28 10:40:39 $
-//   $Revision: 1.15 $
+//   $Date: 2008/12/12 08:21:40 $
+//   $Revision: 1.16 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -42,6 +42,8 @@
 #include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
 #include "CondFormats/DataRecord/interface/L1MuDTTFParametersRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTTFMasks.h"
+#include "CondFormats/DataRecord/interface/L1MuDTTFMasksRcd.h"
 
 using namespace std;
 
@@ -78,6 +80,7 @@ L1MuDTSectorReceiver::~L1MuDTSectorReceiver() {
 void L1MuDTSectorReceiver::run(int bx, const edm::Event& e, const edm::EventSetup& c) {
 
   c.get< L1MuDTTFParametersRcd >().get( pars );
+  c.get< L1MuDTTFMasksRcd >().get( msks );
 
   // get track segments from DTBX chamber trigger
   receiveDTBXData(bx, e, c);
@@ -133,19 +136,19 @@ void L1MuDTSectorReceiver::receiveDTBXData(int bx, const edm::Event& e, const ed
         lwheel = abs(lwheel)/lwheel*(abs(wheel)+1);
 
         if ( station == 1 ) {
-          if ( pars->get_inrec_chdis_st1(lwheel, sector) ) continue;
+          if ( msks->get_inrec_chdis_st1(lwheel, sector) ) continue;
           if ( qual < pars->get_inrec_qual_st1(lwheel, sector) ) continue;
         } 
         else if ( station == 2 ) {
-          if ( pars->get_inrec_chdis_st2(lwheel, sector) ) continue;
+          if ( msks->get_inrec_chdis_st2(lwheel, sector) ) continue;
           if ( qual < pars->get_inrec_qual_st2(lwheel, sector) ) continue;
           } 
         else if ( station == 3 ) {
-          if ( pars->get_inrec_chdis_st3(lwheel, sector) ) continue;
+          if ( msks->get_inrec_chdis_st3(lwheel, sector) ) continue;
           if ( qual < pars->get_inrec_qual_st3(lwheel, sector) ) continue;
         } 
         else if ( station == 4 ) {
-          if ( pars->get_inrec_chdis_st4(lwheel, sector) ) continue;
+          if ( msks->get_inrec_chdis_st4(lwheel, sector) ) continue;
           if ( qual < pars->get_inrec_qual_st4(lwheel, sector) ) continue;
         } 
 
@@ -271,6 +274,7 @@ void L1MuDTSectorReceiver::receiveCSCData(int bx, const edm::Event& e, const edm
     int phi = static_cast<int>(floor( dphi ));
     if ( phi < -2048 || phi > 2047 ) continue; 
 
+    if ( msks->get_inrec_chdis_csc(m_sp.id().wheel(), m_sp.id().sector()) ) continue;
     if ( qual < pars->get_soc_qual_csc(m_sp.id().wheel(), m_sp.id().sector()) ) continue;
 
     if ( ncsc < 2 ) {

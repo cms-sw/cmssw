@@ -9,8 +9,8 @@
  *   and stores it into the Data Buffer
  *
  *
- *   $Date: 2007/04/01 10:05:05 $
- *   $Revision: 1.5 $
+ *   $Date: 2008/11/28 10:30:51 $
+ *   $Revision: 1.6 $
  *
  *   N. Neumeister            CERN EP
  *   J. Troconiz              UAM Madrid
@@ -39,6 +39,7 @@
 #include <FWCore/Framework/interface/Event.h>
 class L1MuDTSectorProcessor;
 class L1MuDTTFParameters;
+class L1MuDTTFMasks;
 
 //              ---------------------
 //              -- Class Interface --
@@ -79,6 +80,7 @@ class L1MuDTSectorReceiver {
     L1MuDTSectorProcessor& m_sp;
 
     edm::ESHandle< L1MuDTTFParameters > pars;
+    edm::ESHandle< L1MuDTTFMasks >      msks;
 
 };
   

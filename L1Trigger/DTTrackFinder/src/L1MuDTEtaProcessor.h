@@ -10,8 +10,8 @@
  *    - one Eta Matching Unit (EMU)
  *
  *
- *   $Date: 2007/04/01 10:05:05 $
- *   $Revision: 1.5 $
+ *   $Date: 2008/05/12 15:00:09 $
+ *   $Revision: 1.6 $
  *
  *   N. Neumeister            CERN EP
  *   J. Troconiz              UAM Madrid
@@ -45,6 +45,7 @@ class L1MuDTTrackFinder;
 class L1MuDTTrack;
 class L1MuDTEtaPatternLut;
 class L1MuDTQualPatternLut;
+class L1MuDTTFMasks;
 
 //              ---------------------
 //              -- Class Interface --
@@ -119,6 +120,7 @@ class L1MuDTEtaProcessor {
     
     edm::ESHandle< L1MuDTEtaPatternLut >  theEtaPatternLUT;  // ETF look-up table
     edm::ESHandle< L1MuDTQualPatternLut > theQualPatternLUT; // EMU look-up tables
+    edm::ESHandle< L1MuDTTFMasks >        msks;
  
 };
 
