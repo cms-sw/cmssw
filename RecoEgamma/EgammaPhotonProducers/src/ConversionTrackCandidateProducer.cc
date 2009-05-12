@@ -31,7 +31,7 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/InOutConversionSeedFinder.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/OutInConversionTrackFinder.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/InOutConversionTrackFinder.h"
-
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::ParameterSet& config) : 
@@ -50,16 +50,12 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
    
   // use onfiguration file to setup input/output collection names
  
-//Using InputTag
-//  bcProducer_             = conf_.getParameter<std::string>("bcProducer");
+
   bcBarrelCollection_     = conf_.getParameter<edm::InputTag>("bcBarrelCollection");
   bcEndcapCollection_     = conf_.getParameter<edm::InputTag>("bcEndcapCollection");
   
   scHybridBarrelProducer_       = conf_.getParameter<edm::InputTag>("scHybridBarrelProducer");
   scIslandEndcapProducer_       = conf_.getParameter<edm::InputTag>("scIslandEndcapProducer");
-  
-  // scHybridBarrelCollection_     = conf_.getParameter<std::string>("scHybridBarrelCollection");
-  //scIslandEndcapCollection_     = conf_.getParameter<std::string>("scIslandEndcapCollection");
   
   OutInTrackCandidateCollection_ = conf_.getParameter<std::string>("outInTrackCandidateCollection");
   InOutTrackCandidateCollection_ = conf_.getParameter<std::string>("inOutTrackCandidateCollection");
@@ -68,8 +64,7 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
   OutInTrackSuperClusterAssociationCollection_ = conf_.getParameter<std::string>("outInTrackCandidateSCAssociationCollection");
   InOutTrackSuperClusterAssociationCollection_ = conf_.getParameter<std::string>("inOutTrackCandidateSCAssociationCollection");
 
-  hbheLabel_        = conf_.getParameter<std::string>("hbheModule");
-  hbheInstanceName_ = conf_.getParameter<std::string>("hbheInstance");
+  hcalTowers_ = conf_.getParameter<edm::InputTag>("hcalTowers");
   hOverEConeSize_   = conf_.getParameter<double>("hOverEConeSize");
   maxHOverE_        = conf_.getParameter<double>("maxHOverE");
   minSCEt_        = conf_.getParameter<double>("minSCEt");
@@ -208,30 +203,19 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
 
   // get the geometry from the event setup:
   theEventSetup.get<CaloGeometryRecord>().get(theCaloGeom_);
-  // Get HoverE
-  bool validHcalRecHitHandle=true;
-  Handle<HBHERecHitCollection> hbhe;
-  std::auto_ptr<HBHERecHitMetaCollection> mhbhe;
-  theEvent.getByLabel(hbheLabel_,hbheInstanceName_,hbhe);  
-  if (!hbhe.isValid()) {
-    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<hbheInstanceName_.c_str();
-    validHcalRecHitHandle=false;
-  }
 
-  
-  if (validHcalRecHitHandle && hOverEConeSize_ > 0.) {
-    mhbhe=  std::auto_ptr<HBHERecHitMetaCollection>(new HBHERecHitMetaCollection(*hbhe));
-  }
-  theHoverEcalc_=HoECalculator(theCaloGeom_);
+  // get Hcal towers collection 
+  Handle<CaloTowerCollection> hcalTowersHandle;
+  theEvent.getByLabel(hcalTowers_, hcalTowersHandle);
 
 
   caloPtrVecOutIn_.clear();
   caloPtrVecInOut_.clear();
 
   if ( validBarrelBCHandle && validBarrelSCHandle ) 
-    buildCollections(scBarrelHandle, bcBarrelHandle,  mhbhe.get(), *outInTrackCandidate_p,*inOutTrackCandidate_p,caloPtrVecOutIn_,caloPtrVecInOut_ );
+    buildCollections(scBarrelHandle, bcBarrelHandle, hcalTowersHandle, *outInTrackCandidate_p,*inOutTrackCandidate_p,caloPtrVecOutIn_,caloPtrVecInOut_ );
   if ( validEndcapBCHandle && validEndcapSCHandle ) 
-    buildCollections(scEndcapHandle, bcEndcapHandle,  mhbhe.get(), *outInTrackCandidate_p,*inOutTrackCandidate_p,caloPtrVecOutIn_,caloPtrVecInOut_ );
+    buildCollections(scEndcapHandle, bcEndcapHandle, hcalTowersHandle, *outInTrackCandidate_p,*inOutTrackCandidate_p,caloPtrVecOutIn_,caloPtrVecInOut_ );
 
 
 
@@ -276,7 +260,7 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
 
 void ConversionTrackCandidateProducer::buildCollections( const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
                                                          const edm::Handle<edm::View<reco::CaloCluster> > & bcHandle,
-							 HBHERecHitMetaCollection *mhbhe,
+							 const edm::Handle<CaloTowerCollection> & hcalTowersHandle,
 							 TrackCandidateCollection& outInTrackCandidates,
 							 TrackCandidateCollection& inOutTrackCandidates,
 							 std::vector<edm::Ptr<reco::CaloCluster> >& vecRecOI,
@@ -285,19 +269,22 @@ void ConversionTrackCandidateProducer::buildCollections( const edm::Handle<edm::
 {
 
   //  std::cout << "ConversionTrackCandidateProducer builcollections bc size " << bcHandle->size() <<  "\n";
+  const CaloGeometry* geometry = theCaloGeom_.product();
 
   //  Loop over SC in the barrel and reconstruct converted photons
   for (unsigned i = 0; i < scHandle->size(); ++i ) {
 
     reco::CaloClusterPtr aClus= scHandle->ptrAt(i);
-    // preselection
+
+    // preselection based in Et and H/E cut. 
     if (aClus->energy()/cosh(aClus->eta()) <= minSCEt_) continue;
-
-
     const reco::CaloCluster* pClus=&(*aClus);
     const reco::SuperCluster*  sc=dynamic_cast<const reco::SuperCluster*>(pClus);
-    double HoE=theHoverEcalc_(sc,mhbhe);
+    const CaloTowerCollection* hcalTowersColl = hcalTowersHandle.product();
+    EgammaTowerIsolation towerIso(hOverEConeSize_,0.,0.,-1,hcalTowersColl) ;
+    double HoE=towerIso.getTowerESum(sc)/sc->energy();
     if (HoE>=maxHOverE_)  continue;
+    ////
 
     theOutInSeedFinder_->setCandidate(pClus->energy(), GlobalPoint(pClus->position().x(),pClus->position().y(),pClus->position().z() ) );
     theOutInSeedFinder_->makeSeeds( bcHandle );
