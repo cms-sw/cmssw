@@ -134,7 +134,7 @@ void popcon::EcalTPGLutIdMapHandler::getNewObjects()
 
 
         	// now get TPGLutIdMap
-        	int lutId=fe_main_info.getLutId();
+        	int lutId=fe_main_info.getLUTId();
 		FEConfigLUTInfo fe_lut_info;
 		fe_lut_info.setId(lutId);
 		econn-> fetchConfigSet(&fe_lut_info);

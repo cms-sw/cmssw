@@ -140,7 +140,7 @@ void popcon::EcalTPGLutGroupHandler::getNewObjects()
 	    edm::LogInfo("EcalTPGLutGroupHandler") << "got " << nr << "objects in dataset.";
 
             // now get TPGLutGroup
-            int lutId=fe_main_info.getLutId();
+            int lutId=fe_main_info.getLUTId();
 	    FEConfigLUTInfo fe_lut_info;
 	    fe_lut_info.setId(lutId);
 	    econn-> fetchConfigSet(&fe_lut_info);

@@ -155,7 +155,7 @@ void popcon::EcalTPGBadXTHandler::getNewObjects()
 	    // EB data	    
 	    if (ecid_name=="EB_crystal_number") {
 	      // get SM id
-	      int sm_num=rd_badXt.getSMId();
+	      int sm_num=rd_badXt.getTCCId();
 	      // get crystal id
 	      int xt_num=rd_badXt.getXTId();
 	    
