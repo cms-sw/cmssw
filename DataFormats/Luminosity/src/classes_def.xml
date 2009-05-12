@@ -2,4 +2,8 @@
   <class pattern="edm::Wrapper<*>"/>
   <class name="LumiSummary"/>
   <class name="LumiDetails"/>
+  <class name="LumiSummary::HLT"/>
+  <class name="LumiSummary::L1"/>
+  <class name="std::vector<LumiSummary::L1>"/>
+  <class name="std::vector<LumiSummary::HLT>"/>
 </lcgdict>

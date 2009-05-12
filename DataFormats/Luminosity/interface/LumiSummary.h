@@ -11,16 +11,32 @@
  *         David Dagenhart
  *
  * \version   1st Version June 7 2007
- * $Id: LumiSummary.h,v 1.5 2008/11/22 05:39:42 wmtan Exp $
+ * $Id: LumiSummary.h,v 1.6 2009/02/18 17:03:55 elmer Exp $
  *
  ************************************************************/
  
 #include <vector>
 #include <iosfwd>
-
+#include <string>
 class LumiSummary {
+ public:
+  class L1{
   public:
+    L1():triggersource(""),ratecount(-99),scalingfactor(-99){}
+    std::string triggersource;
+    int ratecount;
+    int scalingfactor;
+  };
+  class HLT{
+  public:
+    HLT():pathname(""),ratecount(-99),inputcount(-99),scalingfactor(-99){}
+    std::string pathname;
+    int ratecount;
+    int inputcount;
+    int scalingfactor;
+  };
 
+ public:
     /// default constructor
     LumiSummary():
       avginsdellumi_(-99.),
@@ -28,73 +44,58 @@ class LumiSummary {
       lumisecqual_(-1),
       deadfrac_(-99.),
       lsnumber_(-1)
-    { }
-
+    { 
+      hltdata_.reserve(100);
+      l1data_.reserve(128);
+    }
+    
     /// set default constructor
     LumiSummary(float avginsdellumi, float avginsdellumierr,
 	        int lumisecqual,
                 float deadfrac, int lsnumber,
-                const std::vector<int>& l1ratecounter, const std::vector<int>& l1scaler,
-                const std::vector<int>& hltratecounter, const std::vector<int>& hltscaler,
-                const std::vector<int>& hltinput):
+                const std::vector<L1>& l1in,
+		const std::vector<HLT>& hltin):
       avginsdellumi_(avginsdellumi), avginsdellumierr_(avginsdellumierr), 
       lumisecqual_(lumisecqual),
       deadfrac_(deadfrac), lsnumber_(lsnumber),
-      l1ratecounter_(l1ratecounter), l1scaler_(l1scaler),
-      hltratecounter_(hltratecounter), hltscaler_(hltscaler),
-      hltinput_(hltinput)
+      hltdata_(hltin), l1data_(l1in)
     { }
 
     /// destructor
     ~LumiSummary(){}
 	 
-    float avgInsDelLumi() const { return avginsdellumi_; }
-  
-    float avgInsDelLumiErr() const { return avginsdellumierr_; }
-  
-    int    lumiSecQual() const { return lumisecqual_; }
-
-    float deadFrac() const { return deadfrac_; }
-    float liveFrac() const { return (1.0f - deadfrac_); }
- 
-    int    lsNumber() const { return lsnumber_; }
-
-    bool isValid() const { return (lsnumber_ != -1); }
+    float avgInsDelLumi() const;
+    float avgInsDelLumiErr() const;
+    int   lumiSecQual() const ;
+    float deadFrac() const ;
+    float liveFrac() const;
+    int lsNumber() const;
+    bool isValid() const;
 
     // other inline have to be made to return 
     // the rate counter and scalers based on the label
-
-    int    l1RateCounter(int line) const {return l1ratecounter_.at(line);}
-    int    l1Scaler(int line) const {return l1scaler_.at(line);}
-    int    hltRateCounter(int line) const {return hltratecounter_.at(line);}
-    int    hltScaler(int line) const {return hltscaler_.at(line);}
-    int    hltInput(int line) const {return hltinput_.at(line);}
-
-    const std::vector<int>&    l1RateCounter() const {return l1ratecounter_;}
-    const std::vector<int>&    l1Scaler() const {return l1scaler_;}
-    const std::vector<int>&    hltRateCounter() const {return hltratecounter_;}
-    const std::vector<int>&    hltScaler() const {return hltscaler_;}
-    const std::vector<int>&    hltInput() const {return hltinput_;}
-
-    float avgInsRecLumi() const { return avginsdellumi_ * liveFrac(); }
-  
-    float avgInsRecLumiErr() const { return avginsdellumierr_ * liveFrac(); }
-  
+    
+    L1 l1info(int linenumber) const;
+    std::string triggerConfig(int linenumber) const;
+    HLT hltinfo(int idx)const;
+    HLT hltinfo(const std::string& pathname) const;
+    size_t nTriggerLine()const;
+    size_t nHLTPath()const;
+    std::vector<std::string> HLTPaths()const;
+    float avgInsRecLumi() const;
+    float avgInsRecLumiErr() const;
     bool isProductEqual(LumiSummary const& next) const;
 
   private :
-
     float avginsdellumi_;
     float avginsdellumierr_;
-    int    lumisecqual_;
+    int   lumisecqual_;
     float deadfrac_;
-    int    lsnumber_;
-
-    std::vector<int> l1ratecounter_;
-    std::vector<int> l1scaler_;
-    std::vector<int> hltratecounter_;
-    std::vector<int> hltscaler_;
-    std::vector<int> hltinput_;
+    int   lsnumber_;
+    //contains about 100 hlt paths
+    std::vector<HLT> hltdata_;
+    //contains 128 triggers
+    std::vector<L1> l1data_;
 }; 
 
 std::ostream& operator<<(std::ostream& s, const LumiSummary& lumiSummary);
