@@ -4,8 +4,8 @@
 /** \class CSCDCCUnpacker
  * 
  *
- *  $Date: 2009/04/06 13:18:57 $
- *  $Revision: 1.21 $
+ *  $Date: 2009/05/07 21:56:54 $
+ *  $Revision: 1.22 $
  * \author Alex Tumanov 
  */
 
@@ -42,7 +42,7 @@ class CSCDCCUnpacker: public edm::EDProducer {
   
   int numOfEvents;
   unsigned int errorMask, examinerMask;
-  bool instatiateDQM;
+  bool instantiateDQM;
   CSCMonitorInterface * monitor;
   edm::InputTag inputObjectsTag; // input tag labelling raw data for input
 
