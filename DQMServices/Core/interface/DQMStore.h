@@ -270,6 +270,7 @@ private:
   typedef std::map<std::string, QCriterion *(*)(const std::string &)>	QAMap;
  
   unsigned			verbose_;
+  unsigned			verboseQT_;
   bool				reset_;
   bool				collateHistograms_;
   std::string			readSelectedDirectory_;

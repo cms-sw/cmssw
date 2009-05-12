@@ -451,7 +451,8 @@ MonitorElement::runQTests(void)
     QCriterion *qc = qr.qcriterion_;
     qr.qvalue_ = &qv;
 
-    if (qc && (dirty || qc->wasModified())) //FIXME: remove wasModified ?
+    // if (qc && (dirty || qc->wasModified()))  // removed for new QTest (abm-090503)
+    if (qc && dirty ) 
     {
       assert(qc->getName() == qv.qtname);
       std::string oldMessage = qv.message;

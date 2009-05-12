@@ -1,6 +1,7 @@
 #include "DQMServices/Core/interface/QTest.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/src/QStatisticalTests.h"
+#include "DQMServices/Core/src/DQMError.h"
 #include "TMath.h"
 #include "TH1F.h"
 #include "TH1S.h"
@@ -17,40 +18,18 @@ const float QCriterion::WARNING_PROB_THRESHOLD = 0.90;
 void
 QCriterion::init(void)
 {
-  wasModified_ = true;
   errorProb_ = ERROR_PROB_THRESHOLD;
   warningProb_ = WARNING_PROB_THRESHOLD;
   setAlgoName("NO_ALGORITHM");
   status_ = dqm::qstatus::DID_NOT_RUN;
   message_ = "NO_MESSAGE";
-}
-
-// set status & message for disabled tests
-void
-QCriterion::setDisabled(void)
-{
-  status_ = dqm::qstatus::DISABLED;
-  std::ostringstream message;
-  message << " Test " << qtname_ << " (" << algoName()
-	  << ") has been disabled ";
-  message_ = message.str();
-}
-
-// set status & message for invalid tests
-void
-QCriterion::setInvalid(void)
-{
-  status_ = dqm::qstatus::INVALID;
-  std::ostringstream message;
-  message << " Test " << qtname_ << " (" << algoName()
-	  << ") cannot run due to problems ";
-  message_ = message.str();
+  verbose_ = 0; // 0 = silent, 1 = algorithmic failures, 2 = info
 }
 
 float QCriterion::runTest(const MonitorElement *me)
 {
-  cout << " QCriterion:: virtual runTest method called " << endl;
-  return -1;
+  raiseDQMError("QCriterion", "virtual runTest method called" );
+  return 0.;
 }
 //===================================================//
 //================ QUALITY TESTS ====================//
@@ -61,89 +40,102 @@ float QCriterion::runTest(const MonitorElement *me)
 //-------------------------------------------------------//
 // run the test (result: [0, 1] or <0 for failure)
 float Comp2RefEqualH::runTest(const MonitorElement*me)
- {
-   
- badChannels_.clear();
+{
+  badChannels_.clear();
 
- if (!me) return -1;
- if (!me->getRootObject() || !me->getRefRootObject()) return -1;
- TH1* h=0;//initialize histogram pointer
- TH1* ref_=0;
- 
- int nbins=0;
- int nbinsref=0;
- //-- TH1F
- if (me->kind()==MonitorElement::DQM_KIND_TH1F){ 
-  nbins = me->getTH1F()->GetXaxis()->GetNbins(); 
-  nbinsref = me->getRefTH1F()->GetXaxis()->GetNbins();
-  h  = me->getTH1F(); // access Test histo
-  ref_ = me->getRefTH1F(); //access Ref hiso 
-  if (nbins != nbinsref) return -1;
- } 
+  if (!me) 
+    return -1;
+  if (!me->getRootObject() || !me->getRefRootObject()) 
+    return -1;
+  TH1* h=0; //initialize histogram pointer
+  TH1* ref_=0;
+  
+  if (verbose_>1) 
+    std::cout << "QTest:" << getAlgoName() << "::runTest called on " 
+              << me-> getFullname() << "\n";
 
- //-- TH1S
- else if (me->kind()==MonitorElement::DQM_KIND_TH1S){ 
-  nbins = me->getTH1S()->GetXaxis()->GetNbins(); 
-  nbinsref = me->getRefTH1S()->GetXaxis()->GetNbins();
-  h  = me->getTH1S(); // access Test histo
-  ref_ = me->getRefTH1S(); //access Ref hiso 
-  if (nbins != nbinsref) return -1;
- } 
- 
- //-- TH2
- else if (me->kind()==MonitorElement::DQM_KIND_TH2F){ 
-  nbins = me->getTH2F()->GetXaxis()->GetNbins() *
-          me->getTH2F()->GetYaxis()->GetNbins();
-  nbinsref = me->getRefTH2F()->GetXaxis()->GetNbins() *
-             me->getRefTH2F()->GetYaxis()->GetNbins();
-  h  = me->getTH2F(); // access Test histo
-  ref_ = me->getRefTH2F(); //access Ref hiso 
-  if (nbins != nbinsref) return -1;
- } 
+  int nbins=0;
+  int nbinsref=0;
+  //-- TH1F
+  if (me->kind()==MonitorElement::DQM_KIND_TH1F)
+  { 
+    nbins = me->getTH1F()->GetXaxis()->GetNbins(); 
+    nbinsref = me->getRefTH1F()->GetXaxis()->GetNbins();
+    h  = me->getTH1F(); // access Test histo
+    ref_ = me->getRefTH1F(); //access Ref hiso 
+    if (nbins != nbinsref) return -1;
+  } 
+  //-- TH1S
+  else if (me->kind()==MonitorElement::DQM_KIND_TH1S)
+  { 
+    nbins = me->getTH1S()->GetXaxis()->GetNbins(); 
+    nbinsref = me->getRefTH1S()->GetXaxis()->GetNbins();
+    h  = me->getTH1S(); // access Test histo
+    ref_ = me->getRefTH1S(); //access Ref hiso 
+    if (nbins != nbinsref) return -1;
+  } 
+  //-- TH2
+  else if (me->kind()==MonitorElement::DQM_KIND_TH2F)
+  { 
+    nbins = me->getTH2F()->GetXaxis()->GetNbins() *
+            me->getTH2F()->GetYaxis()->GetNbins();
+    nbinsref = me->getRefTH2F()->GetXaxis()->GetNbins() *
+               me->getRefTH2F()->GetYaxis()->GetNbins();
+    h = me->getTH2F(); // access Test histo
+    ref_ = me->getRefTH2F(); //access Ref hiso 
+    if (nbins != nbinsref) return -1;
+  } 
 
- //-- TH2
- else if (me->kind()==MonitorElement::DQM_KIND_TH2S){ 
-  nbins = me->getTH2S()->GetXaxis()->GetNbins() *
-          me->getTH2S()->GetYaxis()->GetNbins();
-  nbinsref = me->getRefTH2S()->GetXaxis()->GetNbins() *
-             me->getRefTH2S()->GetYaxis()->GetNbins();
-  h  = me->getTH2S(); // access Test histo
-  ref_ = me->getRefTH2S(); //access Ref hiso 
-  if (nbins != nbinsref) return -1;
- } 
+  //-- TH2
+  else if (me->kind()==MonitorElement::DQM_KIND_TH2S)
+  { 
+    nbins = me->getTH2S()->GetXaxis()->GetNbins() *
+            me->getTH2S()->GetYaxis()->GetNbins();
+    nbinsref = me->getRefTH2S()->GetXaxis()->GetNbins() *
+               me->getRefTH2S()->GetYaxis()->GetNbins();
+    h = me->getTH2S(); // access Test histo
+    ref_ = me->getRefTH2S(); //access Ref hiso 
+    if (nbins != nbinsref) return -1;
+  } 
 
- //-- TH3
- else if (me->kind()==MonitorElement::DQM_KIND_TH3F){ 
-  nbins = me->getTH3F()->GetXaxis()->GetNbins() *
-          me->getTH3F()->GetYaxis()->GetNbins() *
-          me->getTH3F()->GetZaxis()->GetNbins();
-  nbinsref = me->getRefTH3F()->GetXaxis()->GetNbins() *
-             me->getRefTH3F()->GetYaxis()->GetNbins() *
-             me->getRefTH3F()->GetZaxis()->GetNbins();
-  h  = me->getTH3F(); // access Test histo
-  ref_ = me->getRefTH3F(); //access Ref hiso 
-  if (nbins != nbinsref) return -1;
- } 
+  //-- TH3
+  else if (me->kind()==MonitorElement::DQM_KIND_TH3F)
+  { 
+    nbins = me->getTH3F()->GetXaxis()->GetNbins() *
+            me->getTH3F()->GetYaxis()->GetNbins() *
+            me->getTH3F()->GetZaxis()->GetNbins();
+    nbinsref = me->getRefTH3F()->GetXaxis()->GetNbins() *
+               me->getRefTH3F()->GetYaxis()->GetNbins() *
+               me->getRefTH3F()->GetZaxis()->GetNbins();
+    h = me->getTH3F(); // access Test histo
+    ref_ = me->getRefTH3F(); //access Ref hiso 
+    if (nbins != nbinsref) return -1;
+  } 
 
- else{ 
-  std::cout<< "Comp2RefEqualH ERROR: ME does not contain TH1F/TH1S/TH2F/TH2S/TH3F" << std::endl; 
-  return -1;
- } 
- 
- //--  QUALITY TEST itself 
- Int_t first = 0; // 1 //(use underflow bin)
- Int_t last  = nbins+1; //(use overflow bin)
- bool failure = false;
-  for (Int_t bin=first;bin<=last;bin++) {
-   float contents = h->GetBinContent(bin);
-   if (contents != ref_->GetBinContent(bin)) {
-    failure = true;
-    DQMChannel chan(bin, 0, 0, contents, h->GetBinError(bin));
-    badChannels_.push_back(chan);
-   }
+  else
+  { 
+    if (verbose_>0) 
+      std::cout << "QTest:Comp2RefEqualH" 
+                << " ME does not contain TH1F/TH1S/TH2F/TH2S/TH3F, exiting\n"; 
+    return -1;
+  } 
+
+  //--  QUALITY TEST itself 
+  Int_t first = 0; // 1 //(use underflow bin)
+  Int_t last  = nbins+1; //(use overflow bin)
+  bool failure = false;
+  for (Int_t bin=first;bin<=last;bin++) 
+  {
+    float contents = h->GetBinContent(bin);
+    if (contents != ref_->GetBinContent(bin)) 
+    {
+      failure = true;
+      DQMChannel chan(bin, 0, 0, contents, h->GetBinError(bin));
+      badChannels_.push_back(chan);
+    }
   }
- if (failure) return 0;
- return 1;
+  if (failure) return 0;
+  return 1;
 }
 
 //-------------------------------------------------------//
@@ -151,39 +143,52 @@ float Comp2RefEqualH::runTest(const MonitorElement*me)
 //-------------------------------------------------------//
 float Comp2RefChi2::runTest(const MonitorElement *me)
 {
-   if (!me) return -1;
-   if (!me->getRootObject() || !me->getRefRootObject()) return -1;
-   TH1* h=0;
-   TH1* ref_=0;
+  if (!me) 
+    return -1;
+  if (!me->getRootObject() || !me->getRefRootObject()) 
+    return -1;
+  TH1* h=0;
+  TH1* ref_=0;
  
-   //-- TH1F
-   if (me->kind()==MonitorElement::DQM_KIND_TH1F){ 
+  if (verbose_>1) 
+    std::cout << "QTest:" << getAlgoName() << "::runTest called on " 
+              << me-> getFullname() << "\n";
+  //-- TH1F
+  if (me->kind()==MonitorElement::DQM_KIND_TH1F)
+  { 
     h = me->getTH1F(); // access Test histo
     ref_ = me->getRefTH1F(); //access Ref histo
-   } 
-   //-- TH1S
-   else if (me->kind()==MonitorElement::DQM_KIND_TH1S){ 
+  } 
+  //-- TH1S
+  else if (me->kind()==MonitorElement::DQM_KIND_TH1S)
+  { 
     h = me->getTH1S(); // access Test histo
     ref_ = me->getRefTH1S(); //access Ref histo
-   } 
-   //-- TProfile
-   else if (me->kind()==MonitorElement::DQM_KIND_TPROFILE){
+  } 
+  //-- TProfile
+  else if (me->kind()==MonitorElement::DQM_KIND_TPROFILE)
+  {
     h = me->getTProfile(); // access Test histo
     ref_ = me->getRefTProfile(); //access Ref histo
-   } 
-  
-   else{ 
-    std::cout<< "Comp2RefChi2 ERROR: ME does not contain TH1F/TH1S/TProfile" << std::endl; 
+  } 
+  else
+  { 
+    if (verbose_>0) 
+      std::cout << "QTest::Comp2RefChi2"
+                << " ME does not contain TH1F/TH1S/TProfile, exiting\n"; 
     return -1;
-   } 
+  } 
 
    //-- isInvalid ? - Check consistency in number of channels
   Int_t ncx1  = h->GetXaxis()->GetNbins(); 
   Int_t ncx2  = ref_->GetXaxis()->GetNbins();
-  if ( ncx1 !=  ncx2){
-   std::cout<<"Comp2RefChi2 ERROR: different number of channels! ("
-            << ncx1 << ", " << ncx2 << ") " << std::endl;
-   return -1;
+  if ( ncx1 !=  ncx2)
+  {
+    if (verbose_>0) 
+      std::cout << "QTest:Comp2RefChi2"
+                << " different number of channels! ("
+                << ncx1 << ", " << ncx2 << "), exiting\n";
+    return -1;
   } 
 
   //--  QUALITY TEST itself 
@@ -203,35 +208,48 @@ float Comp2RefChi2::runTest(const MonitorElement *me)
 
   //Compute the normalisation factor
   Double_t sum1=0, sum2=0;
-  for (i=i_start; i<=i_end; i++){
+  for (i=i_start; i<=i_end; i++)
+  {
     sum1 += h->GetBinContent(i);
     sum2 += ref_->GetBinContent(i);
   }
 
   //check that the histograms are not empty
-  if (sum1 == 0){
-    std::cout << "Comp2RefChi2 ERROR : Test Histogram " << h->GetName() << " is empty " << std::endl;
+  if (sum1 == 0)
+  {
+    if (verbose_>0) 
+      std::cout << "QTest:Comp2RefChi2"
+                << " Test Histogram " << h->GetName() 
+		<< " is empty, exiting\n";
     return -1;
   }
-  if (sum2 == 0){
-    std::cout << "Comp2RefChi2 ERROR: Ref Histogram " << ref_->GetName() << " is empty " << std::endl;
+  if (sum2 == 0)
+  {
+    if (verbose_>0) 
+      std::cout << "QTest:Comp2RefChi2"
+                << " Ref Histogram " << ref_->GetName() 
+                << " is empty, exiting\n";
     return -1;
   }
-
 
   Double_t bin1, bin2, err1, err2, temp;
-  for (i=i_start; i<=i_end; i++){
+  for (i=i_start; i<=i_end; i++)
+  {
     bin1 = h->GetBinContent(i)/sum1;
     bin2 = ref_->GetBinContent(i)/sum2;
-    if (bin1 ==0 && bin2==0){
+    if (bin1 ==0 && bin2==0)
+    {
       --ndof; //no data means one less degree of freedom
-    } else {
+    } 
+    else 
+    {
       temp  = bin1-bin2;
       err1=h->GetBinError(i); err2=ref_->GetBinError(i);
       if (err1 == 0 && err2 == 0)
       {
-	std::cout << " Comp2RefChi2 ERROR: bins with non-zero content and zero error"
-		  << std::endl;
+	if (verbose_>0) 
+	  std::cout << "QTest:Comp2RefChi2"
+	            << " bins with non-zero content and zero error, exiting\n";
 	return -1;
       }
       err1*=err1      ; err2*=err2;
@@ -249,55 +267,73 @@ float Comp2RefChi2::runTest(const MonitorElement *me)
 
 float Comp2RefKolmogorov::runTest(const MonitorElement *me)
 {
-   const Double_t difprec = 1e-5;
+  const Double_t difprec = 1e-5;
    
-   if (!me) return -1;
-   if (!me->getRootObject() || !me->getRefRootObject()) return -1;
-   TH1* h=0;
-   TH1* ref_=0;
+  if (!me) 
+    return -1;
+  if (!me->getRootObject() || !me->getRefRootObject()) 
+    return -1;
+  TH1* h=0;
+  TH1* ref_=0;
 
-   //-- TH1F
-   if (me->kind()==MonitorElement::DQM_KIND_TH1F){ 
+  if (verbose_>1) 
+    std::cout << "QTest:" << getAlgoName() << "::runTest called on " 
+              << me-> getFullname() << "\n";
+  //-- TH1F
+  if (me->kind()==MonitorElement::DQM_KIND_TH1F)
+  { 
     h = me->getTH1F(); // access Test histo
     ref_ = me->getRefTH1F(); //access Ref histo
-   } 
-   //-- TH1S
-   else if (me->kind()==MonitorElement::DQM_KIND_TH1S){ 
+  } 
+  //-- TH1S
+  else if (me->kind()==MonitorElement::DQM_KIND_TH1S)
+  { 
     h = me->getTH1S(); // access Test histo
     ref_ = me->getRefTH1S(); //access Ref histo
-   } 
-   //-- TProfile
-   else if (me->kind()==MonitorElement::DQM_KIND_TPROFILE){
+  } 
+  //-- TProfile
+  else if (me->kind()==MonitorElement::DQM_KIND_TPROFILE)
+  {
     h = me->getTProfile(); // access Test histo
     ref_ = me->getRefTProfile(); //access Ref histo
-    }
-   else{ 
-    std::cout<< "Comp2RefKolmogorov ERROR: ME does not contain TH1F/TH1S/TProfile" << std::endl; 
+  }
+  else
+  { 
+    if (verbose_>0) 
+      std::cout << "QTest:Comp2RefKolmogorov"
+                << " ME does not contain TH1F/TH1S/TProfile, exiting\n"; 
     return -1;
-   } 
+  } 
    
-   //-- isInvalid ? - Check consistency in number of channels
-  Int_t ncx1  = h->GetXaxis()->GetNbins(); 
-  Int_t ncx2  = ref_->GetXaxis()->GetNbins();
-  if ( ncx1 !=  ncx2){
-  std::cout<<"Comp2RefKolmogorov ERROR: different number of channels! ("
-  << ncx1 << ", " << ncx2 << ") " << std::endl;
-  return -1;
+  //-- isInvalid ? - Check consistency in number of channels
+  Int_t ncx1 = h->GetXaxis()->GetNbins(); 
+  Int_t ncx2 = ref_->GetXaxis()->GetNbins();
+  if ( ncx1 !=  ncx2)
+  {
+    if (verbose_>0) 
+      std::cout << "QTest:Comp2RefKolmogorov"
+                << " different number of channels! ("
+                << ncx1 << ", " << ncx2 << "), exiting\n";
+    return -1;
   } 
   //-- isInvalid ? - Check consistency in channel edges
   Double_t diff1 = TMath::Abs(h->GetXaxis()->GetXmin() - ref_->GetXaxis()->GetXmin());
   Double_t diff2 = TMath::Abs(h->GetXaxis()->GetXmax() - ref_->GetXaxis()->GetXmax());
-  if (diff1 > difprec || diff2 > difprec){
-  std::cout << "Comp2RefKolmogorov ERROR: histograms with different binning" << std::endl;
-  return -1;
+  if (diff1 > difprec || diff2 > difprec)
+  {
+    if (verbose_>0) 
+      std::cout << "QTest:Comp2RefKolmogorov"
+                << " histograms with different binning, exiting\n";
+    return -1;
   }
 
-   //--  QUALITY TEST itself 
+  //--  QUALITY TEST itself 
   Bool_t afunc1 = kFALSE; Bool_t afunc2 = kFALSE;
   Double_t sum1 = 0, sum2 = 0;
   Double_t ew1, ew2, w1 = 0, w2 = 0;
   Int_t bin;
-  for (bin=1;bin<=ncx1;bin++){
+  for (bin=1;bin<=ncx1;bin++)
+  {
     sum1 += h->GetBinContent(bin);
     sum2 += ref_->GetBinContent(bin);
     ew1   = h->GetBinError(bin);
@@ -305,12 +341,21 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
     w1   += ew1*ew1;
     w2   += ew2*ew2;
   }
-  if (sum1 == 0){
-    std::cout << "Comp2RefKolmogorov ERROR: Test Histogram " << h->GetName() << " integral is zero" << std::endl;
+  
+  if (sum1 == 0)
+  {
+    if (verbose_>0) 
+      std::cout << "QTest:Comp2RefKolmogorov"
+                << " Test Histogram: " << h->GetName() 
+                << ": integral is zero, exiting\n";
     return -1;
   }
-  if (sum2 == 0){
-    std::cout << "Comp2RefKolmogorov ERROR: Ref Histogram " << ref_->GetName() << " integral is zero" << std::endl;
+  if (sum2 == 0)
+  {
+    if (verbose_>0) 
+      std::cout << "QTest:Comp2RefKolmogorov"
+                << " Ref Histogram: " << ref_->GetName() 
+                << ": integral is zero, exiting\n";
     return -1;
   }
 
@@ -331,8 +376,10 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
   if (difsum1 > difprec && Int_t(ne1) != ncx1)
   {
     if (h->GetSumw2N() == 0)
-      std::cout << " Comp2RefKolmogorov WARNING: Weighted events and no Sumw2 for "
-		<< h->GetName() << std::endl;
+      if (verbose_>0) 
+        std::cout << "QTest:Comp2RefKolmogorov"
+                  << " Weighted events and no Sumw2 for "
+	          << h->GetName() << "\n";
     else
       esum1 = sum1*sum1/w1;  //number of equivalent entries
   }
@@ -342,22 +389,22 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
   if (difsum2 > difprec && Int_t(ne2) != ncx1)
   {
     if (ref_->GetSumw2N() == 0)
-      std::cout << " Comp2RefKolmogorov WARNING: Weighted events and no Sumw2 for "
-		<< ref_->GetName() << std::endl;
+      if (verbose_>0) 
+        std::cout << "QTest:Comp2RefKolmogorov"
+                  << " Weighted events and no Sumw2 for "
+	          << ref_->GetName() << "\n";
     else
       esum2 = sum2*sum2/w2;  //number of equivalent entries
   }
 
   Double_t s1 = 1/tsum1; Double_t s2 = 1/tsum2;
-
   // Find largest difference for Kolmogorov Test
   Double_t dfmax =0, rsum1 = 0, rsum2 = 0;
-
   // use underflow bin
   Int_t first = 0; // 1
   // use overflow bin
   Int_t last  = ncx1+1; // ncx1
-  for (bin=first;bin<=last;bin++)
+  for ( bin=first; bin<=last; bin++)
   {
     rsum1 += s1*h->GetBinContent(bin);
     rsum2 += s2*ref_->GetBinContent(bin);
@@ -372,64 +419,79 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
 
   // This numerical error condition should never occur:
   if (TMath::Abs(rsum1-1) > 0.002)
-    std::cout << " Comp2RefKolmogorov WARNING: Numerical problems with histogram "
-	      << h->GetName() << std::endl;
+    if (verbose_>0) 
+      std::cout << "QTest:Comp2RefKolmogorov" 
+                << " Numerical problems with histogram "
+                << h->GetName() << "\n";
   if (TMath::Abs(rsum2-1) > 0.002)
-    std::cout << " Comp2RefKolmogorov WARNING: Numerical problems with histogram "
-	      << ref_->GetName() << std::endl;
+    if (verbose_>0) 
+      std::cout << "QTest:Comp2RefKolmogorov" 
+                << " Numerical problems with histogram "
+                << ref_->GetName() << "\n";
 
   return TMath::KolmogorovProb(z);
 }
-
-
 
 //----------------------------------------------------//
 //--------------- ContentsXRange ---------------------//
 //----------------------------------------------------//
 float ContentsXRange::runTest(const MonitorElement*me)
 {
+  badChannels_.clear();
 
- badChannels_.clear();
+  if (!me) 
+    return -1;
+  if (!me->getRootObject()) 
+    return -1;
+  TH1* h=0; 
 
- if (!me) return -1;
- if (!me->getRootObject()) return -1;
- TH1* h=0; 
+  if (verbose_>1) 
+    std::cout << "QTest:" << getAlgoName() << "::runTest called on " 
+              << me-> getFullname() << "\n";
+  // -- TH1F
+  if (me->kind()==MonitorElement::DQM_KIND_TH1F ) 
+  {
+    h = me->getTH1F();
+  } 
+  // -- TH1S
+  else if ( me->kind()==MonitorElement::DQM_KIND_TH1S ) 
+  {
+    h = me->getTH1S();
+  } 
+  else 
+  {
+    if (verbose_>0) std::cout << "QTest:ContentsXRange"
+         << " ME " << me->getFullname() 
+         << " does not contain TH1F/TH1S, exiting\n"; 
+    return -1;
+  } 
 
- if (me->kind()==MonitorElement::DQM_KIND_TH1F ) {
-   h = me->getTH1F();
- } 
- else if ( me->kind()==MonitorElement::DQM_KIND_TH1S ) {
-   h = me->getTH1S();
- } 
- else {
-     std::cout<< "ContentsXRange ERROR: ME " << me->getFullname() << " does not contain TH1F/TH1S" << std::endl; 
-     return -1;
- } 
+  if (!rangeInitialized_)
+  {
+    if ( h->GetXaxis() ) 
+      setAllowedXRange(h->GetXaxis()->GetXmin(), h->GetXaxis()->GetXmax());
+    else 
+      return -1;
+  }
+  Int_t ncx = h->GetXaxis()->GetNbins();
+  // use underflow bin
+  Int_t first = 0; // 1
+  // use overflow bin
+  Int_t last  = ncx+1; // ncx
+  // all entries
+  Double_t sum = 0;
+  // entries outside X-range
+  Double_t fail = 0;
+  Int_t bin;
+  for (bin = first; bin <= last; ++bin)
+  {
+    Double_t contents = h->GetBinContent(bin);
+    float x = h->GetBinCenter(bin);
+    sum += contents;
+    if (x < xmin_ || x > xmax_)fail += contents;
+  }
 
- if (!rangeInitialized_)
- {
-  if ( h->GetXaxis() ) setAllowedXRange(h->GetXaxis()->GetXmin(), h->GetXaxis()->GetXmax());
-  else return -1;
- }
- Int_t ncx = h->GetXaxis()->GetNbins();
- // use underflow bin
- Int_t first = 0; // 1
- // use overflow bin
- Int_t last  = ncx+1; // ncx
- // all entries
- Double_t sum = 0;
- // entries outside X-range
- Double_t fail = 0;
- Int_t bin;
- for (bin = first; bin <= last; ++bin)
- {
-  Double_t contents = h->GetBinContent(bin);
-  float x = h->GetBinCenter(bin);
-  sum += contents;
-  if (x < xmin_ || x > xmax_)fail += contents;
- }
-
-   if(sum==0) return 1;
+  if (sum==0) return 1;
   // return fraction of entries within allowed X-range
   return (sum - fail)/sum; 
 
@@ -440,23 +502,34 @@ float ContentsXRange::runTest(const MonitorElement*me)
 //----------------------------------------------------//
 float ContentsYRange::runTest(const MonitorElement*me)
 {
+  badChannels_.clear();
 
- badChannels_.clear();
+  if (!me) 
+    return -1;
+  if (!me->getRootObject()) 
+    return -1;
+  TH1* h=0; 
 
- if (!me) return -1;
- if (!me->getRootObject()) return -1;
- TH1* h=0; 
+  if (verbose_>1) 
+    std::cout << "QTest:" << getAlgoName() << "::runTest called on " 
+              << me-> getFullname() << "\n";
 
- if (me->kind()==MonitorElement::DQM_KIND_TH1F) { 
-  h = me->getTH1F(); //access Test histo
- } 
- else if (me->kind()==MonitorElement::DQM_KIND_TH1S) { 
-  h = me->getTH1S(); //access Test histo
- } 
- else {
- std::cout<< "ContentsYRange ERROR: ME " << me->getFullname() << " does not contain TH1F/TH1S" << std::endl; 
- return -1;
- } 
+  if (me->kind()==MonitorElement::DQM_KIND_TH1F) 
+  { 
+    h = me->getTH1F(); //access Test histo
+  } 
+  else if (me->kind()==MonitorElement::DQM_KIND_TH1S) 
+  { 
+    h = me->getTH1S(); //access Test histo
+  } 
+  else 
+  {
+    if (verbose_>0) 
+      std::cout << "QTest:ContentsYRange" 
+                << " ME " << me->getFullname() 
+                << " does not contain TH1F/TH1S, exiting\n"; 
+    return -1;
+  } 
 
   if (!rangeInitialized_ || !h->GetXaxis()) return 1; // all bins are accepted if no initialization
   Int_t ncx = h->GetXaxis()->GetNbins();
@@ -468,130 +541,145 @@ float ContentsYRange::runTest(const MonitorElement*me)
   Int_t fail = 0;
   Int_t bin;
   
-  if(useEmptyBins_)///Standard test !
+  if (useEmptyBins_)///Standard test !
   {
-   for (bin = first; bin <= last; ++bin){
-    Double_t contents = h->GetBinContent(bin);
-    bool failure = false;
-    failure = (contents < ymin_ || contents > ymax_); // allowed y-range: [ymin_, ymax_]
-    if (failure) { 
-     DQMChannel chan(bin, 0, 0, contents, h->GetBinError(bin));
-     badChannels_.push_back(chan);
-     ++fail;
+    for (bin = first; bin <= last; ++bin)
+    {
+      Double_t contents = h->GetBinContent(bin);
+      bool failure = false;
+      failure = (contents < ymin_ || contents > ymax_); // allowed y-range: [ymin_, ymax_]
+      if (failure) 
+      { 
+        DQMChannel chan(bin, 0, 0, contents, h->GetBinError(bin));
+        badChannels_.push_back(chan);
+        ++fail;
+      }
     }
-   }
-   // return fraction of bins that passed test
-   return 1.*(ncx - fail)/ncx;
+    // return fraction of bins that passed test
+    return 1.*(ncx - fail)/ncx;
   }
-
   else ///AS quality test !!!  
   {
-   for (bin = first; bin <= last; ++bin){
-    Double_t contents = h->GetBinContent(bin);
-    bool failure = false;
-     if(contents) failure = (contents < ymin_ || contents > ymax_); // allowed y-range: [ymin_, ymax_]
-     if (failure) ++fail;
-   }
-   // return fraction of bins that passed test
-   return 1.*(ncx - fail)/ncx;
-  }  ///end of AS quality tests 
-//=================== end of ContentsYRange =========// 
+    for (bin = first; bin <= last; ++bin)
+    {
+      Double_t contents = h->GetBinContent(bin);
+      bool failure = false;
+      if (contents) failure = (contents < ymin_ || contents > ymax_); // allowed y-range: [ymin_, ymax_]
+      if (failure) ++fail;
+    }
+    // return fraction of bins that passed test
+    return 1.*(ncx - fail)/ncx;
+  } ///end of AS quality tests 
 }
-
 
 //-----------------------------------------------------//
 //------------------ DeadChannel ---------------------//
 //----------------------------------------------------//
 float DeadChannel::runTest(const MonitorElement*me)
 {
- badChannels_.clear();
- if (!me) return -1;
- if (!me->getRootObject()) return -1;
- TH1* h1=0;
- TH2* h2=0;//initialize histogram pointers
+  badChannels_.clear();
+  if (!me) 
+    return -1;
+  if (!me->getRootObject()) 
+    return -1;
+  TH1* h1=0;
+  TH2* h2=0;//initialize histogram pointers
 
- //TH1F
- if (me->kind()==MonitorElement::DQM_KIND_TH1F) { 
-  h1 = me->getTH1F(); //access Test histo
- } 
-
- //TH1S
- else if (me->kind()==MonitorElement::DQM_KIND_TH1S) { 
-  h1 = me->getTH1S(); //access Test histo
- } 
-
- //-- TH2F
- else if (me->kind()==MonitorElement::DQM_KIND_TH2F){ 
-  h2  = me->getTH2F(); // access Test histo
- } 
-
- //-- TH2S
- else if (me->kind()==MonitorElement::DQM_KIND_TH2S){ 
-  h2  = me->getTH2S(); // access Test histo
- } 
-
- else {
- std::cout<< "DeadChannel ERROR: ME " << me->getFullname() << " does not contain TH1F/TH1S/TH2F/TH1S" << std::endl; 
- return -1;
- } 
-
- Int_t fail = 0; // number of failed channels
-
- //--------- do the quality test for 1D histo ---------------//
- if(h1 != NULL)  
- {
-  if (!rangeInitialized_ || !h1->GetXaxis() ) return 1; // all bins are accepted if no initialization
-  Int_t ncx = h1->GetXaxis()->GetNbins();
-  Int_t first = 1;
-  Int_t last  = ncx;
-  Int_t bin;
-
-  /// loop over all channels
-   for (bin = first; bin <= last; ++bin)
-   {
-    Double_t contents = h1->GetBinContent(bin);
-    bool failure = false;
-    failure = contents <= ymin_; // dead channel: equal to or less than ymin_
-    if (failure){ 
-     DQMChannel chan(bin, 0, 0, contents, h1->GetBinError(bin));
-     badChannels_.push_back(chan);
-     ++fail;
-    }
-   }
- //return fraction of alive channels
- return 1.*(ncx - fail)/ncx;
- }
- //----------------------------------------------------------//
- 
- //--------- do the quality test for 2D -------------------//
- else if (h2 !=NULL )
- {
-   int ncx = h2->GetXaxis()->GetNbins(); // get X bins
-   int ncy = h2->GetYaxis()->GetNbins(); // get Y bins
-
-  /// loop over all bins 
-  for (int cx = 1; cx <= ncx; ++cx)
+  if (verbose_>1) 
+    std::cout << "QTest:" << getAlgoName() << "::runTest called on " 
+              << me-> getFullname() << "\n";
+  //TH1F
+  if (me->kind()==MonitorElement::DQM_KIND_TH1F) 
+  { 
+    h1 = me->getTH1F(); //access Test histo
+  } 
+  //TH1S
+  else if (me->kind()==MonitorElement::DQM_KIND_TH1S) 
+  { 
+    h1 = me->getTH1S(); //access Test histo
+  } 
+  //-- TH2F
+  else if (me->kind()==MonitorElement::DQM_KIND_TH2F)
+  { 
+    h2  = me->getTH2F(); // access Test histo
+  } 
+  //-- TH2S
+  else if (me->kind()==MonitorElement::DQM_KIND_TH2S)
+  { 
+    h2  = me->getTH2S(); // access Test histo
+  } 
+  else 
   {
-    for (int cy = 1; cy <= ncy; ++cy)
-   {
-    Double_t contents = h2->GetBinContent(h2->GetBin(cx, cy));
-    bool failure = false;
-    failure = contents <= ymin_; // dead channel: equal to or less than ymin_
-    if (failure){ 
-       DQMChannel chan(cx, cy, 0, contents, h2->GetBinError(h2->GetBin(cx, cy)));
-       badChannels_.push_back(chan);
-       ++fail;
+    if (verbose_>0) 
+      std::cout << "QTest:DeadChannel"
+         << " ME " << me->getFullname() 
+         << " does not contain TH1F/TH1S/TH2F/TH1S, exiting\n"; 
+    return -1;
+  } 
+
+  Int_t fail = 0; // number of failed channels
+
+  //--------- do the quality test for 1D histo ---------------//
+  if (h1 != NULL)  
+  {
+    if (!rangeInitialized_ || !h1->GetXaxis() ) 
+      return 1; // all bins are accepted if no initialization
+    Int_t ncx = h1->GetXaxis()->GetNbins();
+    Int_t first = 1;
+    Int_t last  = ncx;
+    Int_t bin;
+
+    /// loop over all channels
+    for (bin = first; bin <= last; ++bin)
+    {
+      Double_t contents = h1->GetBinContent(bin);
+      bool failure = false;
+      failure = contents <= ymin_; // dead channel: equal to or less than ymin_
+      if (failure)
+      { 
+        DQMChannel chan(bin, 0, 0, contents, h1->GetBinError(bin));
+        badChannels_.push_back(chan);
+        ++fail;
       }
     }
+    //return fraction of alive channels
+    return 1.*(ncx - fail)/ncx;
   }
- //return fraction of alive channels
+  //----------------------------------------------------------//
  
- return 1.*(ncx*ncy - fail) / (ncx*ncy);
- }
- 
- else {std::cout<< "DeadChannel ERROR: TH1/TH2F are NULL !" << std::endl; return -1;}
-}
+  //--------- do the quality test for 2D -------------------//
+  else if (h2 !=NULL )
+  {
+    int ncx = h2->GetXaxis()->GetNbins(); // get X bins
+    int ncy = h2->GetYaxis()->GetNbins(); // get Y bins
 
+    /// loop over all bins 
+    for (int cx = 1; cx <= ncx; ++cx)
+    {
+      for (int cy = 1; cy <= ncy; ++cy)
+      {
+	Double_t contents = h2->GetBinContent(h2->GetBin(cx, cy));
+	bool failure = false;
+	failure = contents <= ymin_; // dead channel: equal to or less than ymin_
+	if (failure)
+	{ 
+          DQMChannel chan(cx, cy, 0, contents, h2->GetBinError(h2->GetBin(cx, cy)));
+          badChannels_.push_back(chan);
+          ++fail;
+	}
+      }
+    }
+    //return fraction of alive channels
+    return 1.*(ncx*ncy - fail) / (ncx*ncy);
+  }
+  else 
+  {
+    if (verbose_>0) 
+      std::cout << "QTest:DeadChannel"
+                << " TH1/TH2F are NULL, exiting\n"; 
+    return -1;
+  }
+}
 
 //-----------------------------------------------------//
 //----------------  NoisyChannel ---------------------//
@@ -599,45 +687,58 @@ float DeadChannel::runTest(const MonitorElement*me)
 // run the test (result: fraction of channels not appearing noisy or "hot")
 // [0, 1] or <0 for failure
 float NoisyChannel::runTest(const MonitorElement *me)
- {
+{
+  badChannels_.clear();
+  if (!me) 
+    return -1;
+  if (!me->getRootObject()) 
+    return -1; 
+  TH1* h=0;//initialize histogram pointer
 
- badChannels_.clear();
- if (!me) return -1;
- if (!me->getRootObject()) return -1; 
- TH1* h=0;//initialize histogram pointer
+  if (verbose_>1) 
+    std::cout << "QTest:" << getAlgoName() << "::runTest called on " 
+              << me-> getFullname() << "\n";
 
- int nbins=0;
- //-- TH1F
- if (me->kind()==MonitorElement::DQM_KIND_TH1F){ 
-   nbins = me->getTH1F()->GetXaxis()->GetNbins(); 
-   h  = me->getTH1F(); // access Test histo
- } 
- //-- TH1S
- else if (me->kind()==MonitorElement::DQM_KIND_TH1S){ 
-   nbins = me->getTH1S()->GetXaxis()->GetNbins(); 
-   h  = me->getTH1S(); // access Test histo
- } 
- //-- TH2
- else if (me->kind()==MonitorElement::DQM_KIND_TH2F){ 
-   nbins = me->getTH2F()->GetXaxis()->GetNbins() *
-           me->getTH2F()->GetYaxis()->GetNbins();
-   h  = me->getTH2F(); // access Test histo
- } 
- //-- TH2
- else if (me->kind()==MonitorElement::DQM_KIND_TH2S){ 
-   nbins = me->getTH2S()->GetXaxis()->GetNbins() *
-           me->getTH2S()->GetYaxis()->GetNbins();
-   h  = me->getTH2S(); // access Test histo
- } 
- else {  
-   std::cout<< "NoisyChannel ERROR: ME " << me->getFullname() << 
-   " does not contain TH1F/TH1S or TH2F/TH2S" << std::endl; 
-   return -1;
- }
+  int nbins=0;
+  //-- TH1F
+  if (me->kind()==MonitorElement::DQM_KIND_TH1F)
+  { 
+    nbins = me->getTH1F()->GetXaxis()->GetNbins(); 
+    h  = me->getTH1F(); // access Test histo
+  } 
+  //-- TH1S
+  else if (me->kind()==MonitorElement::DQM_KIND_TH1S)
+  { 
+    nbins = me->getTH1S()->GetXaxis()->GetNbins(); 
+    h  = me->getTH1S(); // access Test histo
+  } 
+  //-- TH2
+  else if (me->kind()==MonitorElement::DQM_KIND_TH2F)
+  { 
+    nbins = me->getTH2F()->GetXaxis()->GetNbins() *
+            me->getTH2F()->GetYaxis()->GetNbins();
+    h  = me->getTH2F(); // access Test histo
+  } 
+  //-- TH2
+  else if (me->kind()==MonitorElement::DQM_KIND_TH2S)
+  { 
+    nbins = me->getTH2S()->GetXaxis()->GetNbins() *
+            me->getTH2S()->GetYaxis()->GetNbins();
+    h  = me->getTH2S(); // access Test histo
+  } 
+  else 
+  {  
+    if (verbose_>0) 
+      std::cout << "QTest:NoisyChannel"
+        << " ME " << me->getFullname() 
+        << " does not contain TH1F/TH1S or TH2F/TH2S, exiting\n"; 
+    return -1;
+  }
 
- //--  QUALITY TEST itself 
+  //--  QUALITY TEST itself 
 
- if ( !rangeInitialized_ || !h->GetXaxis() ) return 1; // all channels are accepted if tolerance has not been set
+  if ( !rangeInitialized_ || !h->GetXaxis() ) 
+    return 1; // all channels are accepted if tolerance has not been set
 
   // do NOT use underflow bin
   Int_t first = 1;
@@ -652,7 +753,7 @@ float NoisyChannel::runTest(const MonitorElement *me)
     Double_t average = getAverage(bin, h);
     bool failure = false;
     if (average != 0)
-      failure = (((contents-average)/TMath::Abs(average)) > tolerance_);
+       failure = (((contents-average)/TMath::Abs(average)) > tolerance_);
 
     if (failure)
     {
@@ -664,7 +765,7 @@ float NoisyChannel::runTest(const MonitorElement *me)
 
   // return fraction of bins that passed test
   return 1.*(nbins - fail)/nbins;
- }
+}
 
 // get average for bin under consideration
 // (see description of method setNumNeighbors)
@@ -674,7 +775,6 @@ Double_t NoisyChannel::getAverage(int bin, const TH1 *h) const
   Int_t first = 1;
   /// do NOT use overflow bin
   Int_t ncx  = h->GetXaxis()->GetNbins();
-
   Double_t sum = 0; int bin_low, bin_hi;
   for (unsigned i = 1; i <= numNeighbors_; ++i)
   {
@@ -682,15 +782,12 @@ Double_t NoisyChannel::getAverage(int bin, const TH1 *h) const
     bin_low = bin-i;  bin_hi = bin+i;
     /// check if need to consider bins on other side of spectrum
     /// (ie. if bins below 1 or above ncx)
-
     while (bin_low < first) // shift bin by +ncx
       bin_low = ncx + bin_low;
     while (bin_hi > ncx) // shift bin by -ncx
       bin_hi = bin_hi - ncx;
-  
       sum += h->GetBinContent(bin_low) + h->GetBinContent(bin_hi);
   }
-
   /// average is sum over the # of bins used
   return sum/(numNeighbors_ * 2);
 }
@@ -704,206 +801,238 @@ Double_t NoisyChannel::getAverage(int bin, const TH1 *h) const
 float ContentsWithinExpected::runTest(const MonitorElement*me)
 {
   badChannels_.clear();
-  if (!me) return -1;
-  if (!me->getRootObject()) return -1;
-  TH1* h=0;//initialize histogram pointer
+  if (!me) 
+    return -1;
+  if (!me->getRootObject()) 
+    return -1;
+  TH1* h=0; //initialize histogram pointer
+
+  if (verbose_>1) 
+    std::cout << "QTest:" << getAlgoName() << "::runTest called on " 
+              << me-> getFullname() << "\n";
 
   int ncx;
   int ncy;
 
- if(useEmptyBins_)
- {
-   //-- TH2
-  if (me->kind()==MonitorElement::DQM_KIND_TH2F){
-    ncx = me->getTH2F()->GetXaxis()->GetNbins();
-    ncy = me->getTH2F()->GetYaxis()->GetNbins(); 
-    h  = me->getTH2F(); // access Test histo
-  }
- 
-   //-- TH2S
-  else if (me->kind()==MonitorElement::DQM_KIND_TH2S){
-    ncx = me->getTH2S()->GetXaxis()->GetNbins();
-    ncy = me->getTH2S()->GetYaxis()->GetNbins(); 
-    h  = me->getTH2S(); // access Test histo
-  }
+  if (useEmptyBins_)
+  {
+    //-- TH2
+    if (me->kind()==MonitorElement::DQM_KIND_TH2F)
+    {
+      ncx = me->getTH2F()->GetXaxis()->GetNbins();
+      ncy = me->getTH2F()->GetYaxis()->GetNbins(); 
+      h  = me->getTH2F(); // access Test histo
+    }
+    //-- TH2S
+    else if (me->kind()==MonitorElement::DQM_KIND_TH2S)
+    {
+      ncx = me->getTH2S()->GetXaxis()->GetNbins();
+      ncy = me->getTH2S()->GetYaxis()->GetNbins(); 
+      h  = me->getTH2S(); // access Test histo
+    }
+    //-- TProfile
+    else if (me->kind()==MonitorElement::DQM_KIND_TPROFILE)
+    {
+      ncx = me->getTProfile()->GetXaxis()->GetNbins();
+      ncy = 1;
+      h  = me->getTProfile(); // access Test histo
+    }
+    //-- TProfile2D
+    else if (me->kind()==MonitorElement::DQM_KIND_TPROFILE2D)
+    {
+      ncx = me->getTProfile2D()->GetXaxis()->GetNbins();
+      ncy = me->getTProfile2D()->GetYaxis()->GetNbins();
+      h  = me->getTProfile2D(); // access Test histo
+    }
+    else
+    {
+      if (verbose_>0) 
+        std::cout << "QTest:ContentsWithinExpected" 
+	 << " ME does not contain TH2F/TH2S/TPROFILE/TPROFILE2D, exiting\n"; 
+      return -1;
+    } 
 
-  //-- TProfile
-  else if (me->kind()==MonitorElement::DQM_KIND_TPROFILE){
-    ncx = me->getTProfile()->GetXaxis()->GetNbins();
-    ncy = 1;
-    h  = me->getTProfile(); // access Test histo
-  }
+    int nsum = 0;
+    float sum = 0.0;
+    float average = 0.0;
 
-  //-- TProfile2D
-  else if (me->kind()==MonitorElement::DQM_KIND_TPROFILE2D){
-    ncx = me->getTProfile2D()->GetXaxis()->GetNbins();
-    ncy = me->getTProfile2D()->GetYaxis()->GetNbins();
-    h  = me->getTProfile2D(); // access Test histo
-  }
+    if (checkMeanTolerance_)
+    { // calculate average value of all bin contents
 
-  else{
-  std::cout<< " ContentsWithinExpected ERROR: ME does not contain TH2F/TH2S/TPROFILE/TPROFILE2D" << std::endl; 
-  return -1;
-  } 
- 
-   int nsum = 0;
-   float sum = 0.0;
-   float average = 0.0;
+      for (int cx = 1; cx <= ncx; ++cx)
+      {
+	for (int cy = 1; cy <= ncy; ++cy)
+	{
+	  if (me->kind() == MonitorElement::DQM_KIND_TH2F)
+	  {
+	    sum += h->GetBinContent(h->GetBin(cx, cy));
+	    ++nsum;
+	  }
+	  else if (me->kind() == MonitorElement::DQM_KIND_TH2S)
+	  {
+	    sum += h->GetBinContent(h->GetBin(cx, cy));
+	    ++nsum;
+	  }
+	  else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE)
+	  {
+	    if (me->getTProfile()->GetBinEntries(h->GetBin(cx)) >= minEntries_/(ncx))
+	    {
+	      sum += h->GetBinContent(h->GetBin(cx));
+	      ++nsum;
+	    }
+	  }
+	  else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D)
+	  {
+	    if (me->getTProfile2D()->GetBinEntries(h->GetBin(cx, cy)) >= minEntries_/(ncx*ncy))
+	    {
+	      sum += h->GetBinContent(h->GetBin(cx, cy));
+	      ++nsum;
+	    }
+	  }
+	}
+      }
 
-  if (checkMeanTolerance_){ // calculate average value of all bin contents
+      if (nsum > 0) 
+	average = sum/nsum;
+
+    } // calculate average value of all bin contents
+
+    int fail = 0;
 
     for (int cx = 1; cx <= ncx; ++cx)
     {
       for (int cy = 1; cy <= ncy; ++cy)
       {
-	if (me->kind() == MonitorElement::DQM_KIND_TH2F)
+	bool failMean = false;
+	bool failRMS = false;
+	bool failMeanTolerance = false;
+
+	if (me->kind() == MonitorElement::DQM_KIND_TPROFILE && 
+            me->getTProfile()->GetBinEntries(h->GetBin(cx)) < minEntries_/(ncx))
+          continue;
+
+	if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D && 
+            me->getTProfile2D()->GetBinEntries(h->GetBin(cx, cy)) < minEntries_/(ncx*ncy)) 
+	  continue;
+
+	if (checkMean_)
 	{
-	  sum += h->GetBinContent(h->GetBin(cx, cy));
-	  ++nsum;
+	  float mean = h->GetBinContent(h->GetBin(cx, cy));
+          failMean = (mean < minMean_ || mean > maxMean_);
 	}
-	else if (me->kind() == MonitorElement::DQM_KIND_TH2S)
+
+	if (checkRMS_)
 	{
-	  sum += h->GetBinContent(h->GetBin(cx, cy));
-	  ++nsum;
+	  float rms = h->GetBinError(h->GetBin(cx, cy));
+          failRMS = (rms < minRMS_ || rms > maxRMS_);
 	}
-	else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE)
+
+	if (checkMeanTolerance_)
 	{
-	  if (me->getTProfile()->GetBinEntries(h->GetBin(cx)) >= minEntries_/(ncx))
+	  float mean = h->GetBinContent(h->GetBin(cx, cy));
+          failMeanTolerance = (TMath::Abs(mean - average) > toleranceMean_*TMath::Abs(average));
+	}
+
+	if (failMean || failRMS || failMeanTolerance)
+	{
+
+	  if (me->kind() == MonitorElement::DQM_KIND_TH2F) 
 	  {
-	    sum += h->GetBinContent(h->GetBin(cx));
-	    ++nsum;
+            DQMChannel chan(cx, cy, 0,
+			    h->GetBinContent(h->GetBin(cx, cy)),
+			    h->GetBinError(h->GetBin(cx, cy)));
+            badChannels_.push_back(chan);
 	  }
-	}
-	else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D)
-	{
-	  if (me->getTProfile2D()->GetBinEntries(h->GetBin(cx, cy)) >= minEntries_/(ncx*ncy))
+	  else if (me->kind() == MonitorElement::DQM_KIND_TH2S) 
 	  {
-	    sum += h->GetBinContent(h->GetBin(cx, cy));
-	    ++nsum;
+            DQMChannel chan(cx, cy, 0,
+			    h->GetBinContent(h->GetBin(cx, cy)),
+			    h->GetBinError(h->GetBin(cx, cy)));
+            badChannels_.push_back(chan);
 	  }
+	  else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) 
+	  {
+	    DQMChannel chan(cx, cy, int(me->getTProfile()->GetBinEntries(h->GetBin(cx))),
+			    0,
+			    h->GetBinError(h->GetBin(cx)));
+            badChannels_.push_back(chan);
+	  }
+	  else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D) 
+	  {
+	    DQMChannel chan(cx, cy, int(me->getTProfile2D()->GetBinEntries(h->GetBin(cx, cy))),
+			    h->GetBinContent(h->GetBin(cx, cy)),
+			    h->GetBinError(h->GetBin(cx, cy)));
+            badChannels_.push_back(chan);
+	  }
+          ++fail;
 	}
       }
     }
-
-    if (nsum > 0) average = sum/nsum;
-
-  } // calculate average value of all bin contents
-
-  int fail = 0;
-
-  for (int cx = 1; cx <= ncx; ++cx)
-  {
-    for (int cy = 1; cy <= ncy; ++cy)
-    {
-      bool failMean = false;
-      bool failRMS = false;
-      bool failMeanTolerance = false;
-
-      if (me->kind() == MonitorElement::DQM_KIND_TPROFILE && me->getTProfile()->GetBinEntries(h->GetBin(cx)) < minEntries_/(ncx)) continue;
-
-      if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D && me->getTProfile2D()->GetBinEntries(h->GetBin(cx, cy)) < minEntries_/(ncx*ncy)) continue;
-
-      if (checkMean_)
-      {
-	float mean = h->GetBinContent(h->GetBin(cx, cy));
-        failMean = (mean < minMean_ || mean > maxMean_);
-      }
-
-      if (checkRMS_)
-      {
-	float rms = h->GetBinError(h->GetBin(cx, cy));
-        failRMS = (rms < minRMS_ || rms > maxRMS_);
-      }
-
-      if (checkMeanTolerance_)
-      {
-	float mean = h->GetBinContent(h->GetBin(cx, cy));
-        failMeanTolerance = (TMath::Abs(mean - average) > toleranceMean_*TMath::Abs(average));
-      }
-
-      if (failMean || failRMS || failMeanTolerance)
-      {
-
-	if (me->kind() == MonitorElement::DQM_KIND_TH2F) {
-          DQMChannel chan(cx, cy, 0,
-			  h->GetBinContent(h->GetBin(cx, cy)),
-			  h->GetBinError(h->GetBin(cx, cy)));
-          badChannels_.push_back(chan);
-	}
-	else if (me->kind() == MonitorElement::DQM_KIND_TH2S) {
-          DQMChannel chan(cx, cy, 0,
-			  h->GetBinContent(h->GetBin(cx, cy)),
-			  h->GetBinError(h->GetBin(cx, cy)));
-          badChannels_.push_back(chan);
-	}
-	else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) {
-	  DQMChannel chan(cx, cy, int(me->getTProfile()->GetBinEntries(h->GetBin(cx))),
-			  0,
-			  h->GetBinError(h->GetBin(cx)));
-          badChannels_.push_back(chan);
-	}
-	else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D) {
-	  DQMChannel chan(cx, cy, int(me->getTProfile2D()->GetBinEntries(h->GetBin(cx, cy))),
-			  h->GetBinContent(h->GetBin(cx, cy)),
-			  h->GetBinError(h->GetBin(cx, cy)));
-          badChannels_.push_back(chan);
-	}
-        ++fail;
-      }
-    }
-  }
-
-  return 1.*(ncx*ncy - fail)/(ncx*ncy);
+    return 1.*(ncx*ncy - fail)/(ncx*ncy);
   } /// end of normal Test
 
-else     /// AS quality test !!!  
-{
-  if (me->kind()==MonitorElement::DQM_KIND_TH2F){
-    ncx = me->getTH2F()->GetXaxis()->GetNbins();
-    ncy = me->getTH2F()->GetYaxis()->GetNbins();
-    h  = me->getTH2F(); // access Test histo
-  }
-  else if (me->kind()==MonitorElement::DQM_KIND_TH2S){
-    ncx = me->getTH2S()->GetXaxis()->GetNbins();
-    ncy = me->getTH2S()->GetYaxis()->GetNbins();
-    h  = me->getTH2S(); // access Test histo
-  }
-  else {
-   std::cout<< " ContentsWithinExpected AS! ERROR: ME does not contain TH2F/TH2S" << std::endl; 
-   return -1;
-   } 
+  else     /// AS quality test !!!  
+  {
+    if (me->kind()==MonitorElement::DQM_KIND_TH2F)
+    {
+      ncx = me->getTH2F()->GetXaxis()->GetNbins();
+      ncy = me->getTH2F()->GetYaxis()->GetNbins();
+      h  = me->getTH2F(); // access Test histo
+    }
+    else if (me->kind()==MonitorElement::DQM_KIND_TH2S)
+    {
+      ncx = me->getTH2S()->GetXaxis()->GetNbins();
+      ncy = me->getTH2S()->GetYaxis()->GetNbins();
+      h  = me->getTH2S(); // access Test histo
+    }
+    else 
+    {
+      if (verbose_>0) 
+        std::cout << "QTest:ContentsWithinExpected AS" 
+                  << " ME does not contain TH2F/TH2S, exiting\n"; 
+      return -1;
+    } 
 
-  // if (!rangeInitialized_) return 0; // all accepted if no initialization
-   int fail = 0;
-   for (int cx = 1; cx <= ncx; ++cx)
-   {
-     for (int cy = 1; cy <= ncy; ++cy)
-     {
-       bool failure = false;
-       float Content = h->GetBinContent(h->GetBin(cx, cy));
-       if(Content) failure = (Content <  minMean_ || Content >  maxMean_);
-       if (failure) ++fail;
+    // if (!rangeInitialized_) return 0; // all accepted if no initialization
+    int fail = 0;
+    for (int cx = 1; cx <= ncx; ++cx)
+    {
+      for (int cy = 1; cy <= ncy; ++cy)
+      {
+	bool failure = false;
+	float Content = h->GetBinContent(h->GetBin(cx, cy));
+	if (Content) 
+	  failure = (Content <  minMean_ || Content >  maxMean_);
+	if (failure) 
+	  ++fail;
       }
     }
- 
     return 1.*(ncx*ncy-fail)/(ncx*ncy);
- } /// end of AS quality test 
-
+  } /// end of AS quality test 
 
 }
-
-// check that allowed range is logical
-void
-ContentsWithinExpected::checkRange(const float xmin, const float xmax)
+/// set expected value for mean
+void ContentsWithinExpected::setMeanRange(float xmin, float xmax)
 {
-  if (xmin < xmax)
-    validMethod_ = true;
-  else
-  {
-    std::cerr << " *** Error! Illogical range: (" << xmin << ", " << xmax
-	      << ") in algorithm " << getAlgoName() << std::endl;
-    validMethod_ = false;
-  }
+  if (xmax < xmin)
+    if (verbose_>0) 
+      std::cout << "QTest:ContentsWitinExpected" 
+                << " Illogical range: (" << xmin << ", " << xmax << "\n";
+  minMean_ = xmin;
+  maxMean_ = xmax;
+  checkMean_ = true;
+}
+
+/// set expected value for mean
+void ContentsWithinExpected::setRMSRange(float xmin, float xmax)
+{
+  if (xmax < xmin)
+    if (verbose_>0) 
+      std::cout << "QTest:ContentsWitinExpected" 
+                << " Illogical range: (" << xmin << ", " << xmax << "\n";
+  minRMS_ = xmin;
+  maxRMS_ = xmax;
+  checkRMS_ = true;
 }
 
 //----------------------------------------------------------------//
@@ -921,810 +1050,100 @@ ContentsWithinExpected::checkRange(const float xmin, const float xmax)
 //   (returns result in [0, 1] or <0 for failure) 
 float MeanWithinExpected::runTest(const MonitorElement *me )
 {
-  if (!me) return -1;
-  if (!me->getRootObject()) return -1;
+  if (!me) 
+    return -1;
+  if (!me->getRootObject()) 
+    return -1;
   TH1* h=0;
    
-  if (me->kind()==MonitorElement::DQM_KIND_TH1F) { 
+  if (verbose_>1) 
+    std::cout << "QTest:" << getAlgoName() << "::runTest called on " 
+              << me-> getFullname() << "\n";
+
+  if (me->kind()==MonitorElement::DQM_KIND_TH1F) 
+  { 
     h = me->getTH1F(); //access Test histo
   }
-  else if (me->kind()==MonitorElement::DQM_KIND_TH1S) { 
+  else if (me->kind()==MonitorElement::DQM_KIND_TH1S) 
+  { 
     h = me->getTH1S(); //access Test histo
   }
   else {
-    std::cout<< " MeanWithinExpected ERROR: ME " << me->getFullname() << " does not contain TH1F/TH1S" << std::endl; 
+    if (verbose_>0) 
+      std::cout << "QTest:MeanWithinExpected"
+                << " ME " << me->getFullname() 
+                << " does not contain TH1F/TH1S, exiting\n"; 
     return -1;
   } 
-   
-  if (isInvalid()) return -1;
-
-  if (useRange_) return doRangeTest(h);
-
-  if (useSigma_) return doGaussTest(h, sigma_);
-
-  if (useRMS_) return doGaussTest(h, h->GetRMS());
-
-  // we should never reach this point;
-  return -99;
-}
-
-// test assuming mean value is quantity with gaussian errors
-float MeanWithinExpected::doGaussTest(const TH1 *h, float sigma)
-{
-  float chi = (h->GetMean() - expMean_)/sigma;
-  return TMath::Prob(chi*chi, 1);
-}
-
-// test for useRange_ = true case
-float MeanWithinExpected::doRangeTest(const TH1 *h)
-{
-  float mean = h->GetMean();
-  if (mean <= xmax_ && mean >= xmin_) return 1;
-  else  return 0;
-}
-
-// check that exp_sigma_ is non-zero
-void
-MeanWithinExpected::checkSigma(void)
-{
-  if (sigma_ != 0) validMethod_ = true;
-  else
-  {
-  std::cout << " *** Error! Expected sigma = " << sigma_ << " in algorithm " << getAlgoName() << std::endl;
-    validMethod_ = false;
+ 
+  
+  if (useRange_) {
+    float mean = h->GetMean();
+    if (mean <= xmax_ && mean >= xmin_) 
+      return 1;
+    else
+      return 0;
   }
-}
-
-// check that allowed range is logical
-void MeanWithinExpected::checkRange(void)
-{
-  if (xmin_ < xmax_)  validMethod_ = true;
-  else
+  else if (useSigma_) 
   {
-    std::cout << " *** Error! Illogical range: (" << xmin_ << ", " << xmax_
-	      << ") in algorithm " << getAlgoName() << std::endl;
-    validMethod_ = false;
+    if (sigma_ != 0.) 
+    {
+      float chi = (h->GetMean() - expMean_)/sigma_;
+      return TMath::Prob(chi*chi, 1);
+    }
+    else
+    {
+      if (verbose_>0) 
+        std::cout << "QTest:MeanWithinExpected"
+                  << " Error, sigma_ is zero, exiting\n";
+      return 0;
+    }
   }
+  else if (useRMS_) 
+  {
+    if (h->GetRMS() != 0.) 
+    {
+      float chi = (h->GetMean() - expMean_)/h->GetRMS();
+      return TMath::Prob(chi*chi, 1);
+    }
+    else
+    {
+      if (verbose_>0) 
+        std::cout << "QTest:MeanWithinExpected"
+                  << " Error, RMS is zero, exiting\n";
+      return 0;
+    }
+  }
+  else 
+    if (verbose_>0) 
+      std::cout << "QTest:MeanWithinExpected"
+                << " Error, neither Range, nor Sigma, nor RMS, exiting\n";
+    return -1; 
 }
 
-// true if test cannot run
-bool MeanWithinExpected::isInvalid(void)
+void MeanWithinExpected::useRange(float xmin, float xmax)
 {
-  // if useRange_ = true, test does not need a "expected mean value"
-  if (useRange_) return !validMethod_; // set by checkRange()
-
-  // otherwise (useSigma_ or useRMS_ case), we also need to check
-  // if "expected mean value" has been set
-  return !validMethod_  // set by useRMS() or checkSigma()
-    || !validExpMean_; // set by setExpectedMean()
-
+    useRange_ = true;
+    useSigma_ = useRMS_ = false;
+    xmin_ = xmin; xmax_ = xmax;
+    if (xmin_ > xmax_)  
+      if (verbose_>0) 
+        std::cout << "QTest:MeanWithinExpected"
+                  << " Illogical range: (" << xmin_ << ", " << xmax_ << "\n";
+}
+void MeanWithinExpected::useSigma(float expectedSigma)
+{
+  useSigma_ = true;
+  useRMS_ = useRange_ = false;
+  sigma_ = expectedSigma;
+  if (sigma_ == 0) 
+    if (verbose_>0) 
+      std::cout << "QTest:MeanWithinExpected"
+                << " Expected sigma = " << sigma_ << "\n";
 }
 
-
-
-//
-// @brief
-//   Rational approximation for erfc(rdX) (Abramowitz & Stegun, Sec. 7.1.26)
-//   Fifth order approximation. | error| <= 1.5e-7 for all rdX
-//
-// @param rdX
-//   Significance value
-//
-// @return
-//   Probability
-//
-//  double edm::qtests::fits::erfc(const double &rdX)
-//  {
-//   const double dP  = 0.3275911;
-//   const double dA1 = 0.254829592;
-//   const double dA2 = -0.284496736;
-//   const double dA3 = 1.421413741;
-//   const double dA4 = -1.453152027;
-//   const double dA5 = 1.061405429;
-//   const double dT  = 1.0 / (1.0 + dP * rdX);
-//   return (dA1 + (dA2 + (dA3 + (dA4 + dA5 * dT) * dT) * dT) * dT) * exp(-rdX * rdX);
-//  }
-// 
-
-// //----------------------------------------------------------------//
-// //--------------------  MostProbableBase  ------------------------//
-// //---------------------------------------------------------------//
-// // --[ Fit: Base - MostProbableBase ]
-//  MostProbableBase::MostProbableBase(const std::string &name)
-//   : SimpleTest(name),
-//     dMostProbable_(0),
-//     dSigma_(0),
-//     dXMin_(0),
-//     dXMax_(0)
-// {}
-// 
-// //
-// // @brief
-// //   Run QTest
-// //
-// // @param poPLOT
-// //   See Interface
-// //
-// // @return
-// //   See Interface
-// //
-//  float MostProbableBase::runTest(const MonitorElement *me)
-//  {
-//   float dResult = -1;
-// 
-//   if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
-//   std::cout<< " MostProbableBase ERROR: ME does not contain TH1F" << std::endl; 
-//   return -1;} 
-// 
-//    poPLOT = me->getTH1F(); //access Test histo
-//    if (!poPLOT) return -1;
-// 
-// 
-//   if (poPLOT && !isInvalid())
-//   {
-//     // It is childrens responsibility to implement and actually fit Histogram.
-//     // Constness should be removed since TH1::Fit(...) method is declared as
-//     // non const.
-//     if (TH1F *const poPlot = const_cast<TH1F *const>(poPLOT))
-//       dResult = fit(poPlot);
-//   }
-// 
-//   return dResult;
-//  }
-// 
-// //
-// // @brief
-// //   Check if given QTest is Invalid
-// //
-// // @return
-// //   See Interface
-// //
-//  bool MostProbableBase::isInvalid(void)
-//  {
-//   return !(dMostProbable_ > dXMin_
-// 	   && dMostProbable_ < dXMax_
-// 	   && dSigma_ > 0);
-//  }
-// 
-//  double MostProbableBase::compareMostProbables(const double &rdMP_FIT, const double &rdSIGMA_FIT) const
-//  {
-//   double dDeltaMP = rdMP_FIT - dMostProbable_;
-//   if (dDeltaMP < 0)
-//     dDeltaMP = -dDeltaMP;
-// 
-//   return (dDeltaMP / dSigma_ < 2 // Check Deviation 
-// 	  ? edm::qtests::fits::erfc((dDeltaMP / sqrt(rdSIGMA_FIT * rdSIGMA_FIT + dSigma_ * dSigma_)))  / sqrt(2.0)
-// 	  : 0);
-//  }
-// 
-// 
-//  // --[ Fit: Landau ]-----------------------------------------------------------
-//  MostProbableLandau::MostProbableLandau(const std::string &name)
-//   : MostProbableBase(name),
-//     dNormalization_(0)
-//  {
-//   setMinimumEntries(50);
-//   setAlgoName(getAlgoName());
-//  }
-// 
-// //
-// // @brief
-// //   Perform Landau Fit
-// //
-// // @param poPlot
-// //   See Interface
-// //
-// // @return
-// //   See Interface
-// //
-//  float MostProbableLandau::fit(TH1F *const poPlot)
-//  {
-//   double dResult = -1;
-// 
-//   // Create Fit Function
-//   TF1 *poFFit = new TF1("Landau", "landau", getXMin(), getXMax());
-// 
-//   // Fit Parameters:
-//   //   [0]  Normalisation coefficient.
-//   //   [1]  Most probable value.
-//   //   [2]  Lambda in most books (the width of the distribution)
-//   poFFit->SetParameters(dNormalization_, getMostProbable(), getSigma());
-// 
-//   // Fit
-//   if (!poPlot->Fit(poFFit, "RB0"))
-//   {
-//     // Obtain Fit Parameters: We are interested in Most Probable and Sigma so far.
-//     const double dMP_FIT    = poFFit->GetParameter(1);
-//     const double dSIGMA_FIT = poFFit->GetParameter(2);
-// 
-//     // Compare gotten values with expected ones.
-//     dResult = compareMostProbables(dMP_FIT, dSIGMA_FIT);
-//   }
-// 
-//    return dResult;
-//  }
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// //----------------------------------------------------------------//
-// //--------------------  AllContentWithinFixedRange  -------------//
-// //---------------------------------------------------------------//
-// 
-// float AllContentWithinFixedRange::runTest(const MonitorElement*me)
-// {
-//   if (!me) return -1;
-// 
-//   if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
-//   std::cout<< " AllContentWithinFixedRange ERROR: ME " << me->getFullname() << " does not contain TH1F" << std::endl; 
-//   return -1;} 
-// 
-//    histogram = me->getTH1F(); //access Test histo
-//    if (!histogram) return -1;
-// 
-//   //double x, y, z; 
-//   set_x_min( 6.0 );
-//   set_x_max( 9.0 );
-//   set_epsilon_max( 0.1 );
-//   set_S_fail( 5.0 );
-//   set_S_pass( 5.0 );
-// 
-//   /*--------------------------------------------------------------------------+
-//     |                 Input to this function                                   |
-//     +--------------------------------------------------------------------------+
-//     |TH1F* histogram,      : histogram to be compared with Rule                |
-//     |double x_min,         : x range (low). Note low edge <= bin < high edge   |
-//     |double x_max,         : x range (high). Note low edge <= bin < high edge  |
-//     |double epsilon_max,   : maximum allowed failure rate fraction             |
-//     |double S_fail,        : required Statistical Significance to fail rule    |
-//     |double S_pass,        : required Significance to pass rule                |
-//     |double* epsilon_obs   : uninitialised observed failure rate fraction      |
-//     |double* S_fail_obs    : uninitialised Significance of failure             |
-//     |double* S_pass_obs    : uninitialised Significance of Success             |
-//     +--------------------------------------------------------------------------+
-//     |                 Result values for this function                          |
-//     +--------------------------------------------------------------------------+
-//     |int result            : "0" = "Passed Rule & is statistically significant"|
-//     |                        "1" = "Failed Rule & is statistically significant"|
-//     |                        "2" = "Passed Rule & not stat. significant"       |
-//     |                        "3" = "Failed Rule & not stat. significant"       |
-//     |                        "4" = "zero histo entries, can not evaluate Rule" |
-//     |                        "5" = "Input invalid,      can not evaluate Rule" |
-//     |double* epsilon_obs   : the observed failure rate frac. from the histogram|
-//     |double* S_fail_obs    : the observed Significance of failure              |
-//     |double* S_pass_obs    : the observed Significance of Success              |
-//     +--------------------------------------------------------------------------+
-//     | Author: Richard Cavanaugh, University of Florida                         |
-//     | email:  Richard.Cavanaugh@cern.ch                                        |
-//     | Creation Date: 08.July.2005                                              |
-//     | Last Modified: 16.Jan.2006                                               |
-//     | Comments:                                                                |
-//     |   11.July.2005 - moved the part which calculates the statistical         |
-//     |                  significance of the result into a separate function     |
-//     +--------------------------------------------------------------------------*/
-//   epsilon_obs = 0.0;
-//   S_fail_obs = 0.0;
-//   S_pass_obs = 0.0;
-// 
-//   //-----------Perform Quality Checks on Input-------------
-//   if (!histogram)  {result = 5; return 0.0;}//exit if histo does not exist
-//   TAxis *xAxis = histogram -> GetXaxis();   //retrieve x-axis information
-//   if (x_min < xAxis -> GetXmin() || xAxis -> GetXmax() < x_max)
-//   {result = 5; return 0.0;}//exit if x range not in hist range
-//   if (epsilon_max <= 0.0 || epsilon_max >= 1.0)
-//   {result = 5; return 0.0;}//exit if epsilon_max not in (0,1)
-//   if (S_fail < 0)  {result = 5; return 0.0;}//exit if Significance < 0
-//   if (S_pass < 0)  {result = 5; return 0.0;}//exit if Significance < 0
-//   S_fail_obs = 0.0; S_pass_obs = 0.0;       //initialise Sig return values
-//   int Nentries = (int) histogram -> GetEntries();
-//   if (Nentries < 1){result = 4; return 0.0;}//exit if histo has 0 entries
-// 
-//   //-----------Find number of successes and failures-------------
-//   int low_bin, high_bin;                   //convert x range to bin range
-//   if (x_min != x_max)                      //Note: x in [low_bin, high_bin)
-//   {                                      //Or:   x in [0,high_bin) &&
-//     //           [low_bin, max_bin]
-//     low_bin  = (int)(histogram -> GetNbinsX() /
-// 		     (xAxis -> GetXmax() - xAxis -> GetXmin()) *
-// 		     (x_min - xAxis -> GetXmin())) + 1;
-//     high_bin = (int)(histogram -> GetNbinsX() /
-// 		     (xAxis -> GetXmax() - xAxis -> GetXmin()) *
-// 		     (x_max - xAxis -> GetXmin())) + 1;
-//   }
-//   else                                     //convert x point to particular bin
-//   {
-//     low_bin = high_bin = (int)(histogram -> GetNbinsX() /
-// 			       (xAxis -> GetXmax() - xAxis -> GetXmin()) *
-// 			       (x_min - xAxis -> GetXmin())) + 1;
-//   }
-//   int Nsuccesses = 0;
-//   if (low_bin <= high_bin)                  //count number of entries
-//     for (int i = low_bin; i <= high_bin; i++) //in bin range
-//       Nsuccesses += (int) histogram -> GetBinContent(i);
-//   else                                     //include wrap-around case
-//   {
-//     for (int i = 0; i <= high_bin; i++)
-//       Nsuccesses += (int) histogram -> GetBinContent(i);
-//     for (int i = low_bin; i <= histogram -> GetNbinsX(); i++)
-//       Nsuccesses += (int) histogram -> GetBinContent(i);
-//   }
-//   int Nfailures       = Nentries - Nsuccesses;
-//   double Nepsilon_max = (double)Nentries * epsilon_max;
-//   epsilon_obs         = (double)Nfailures / (double)Nentries;
-// 
-//   //-----------Calculate Statistical Significance-------------
-//   BinLogLikelihoodRatio(Nentries,Nfailures,epsilon_max,&S_fail_obs,&S_pass_obs);
-//   if (Nfailures > Nepsilon_max)
-//   {
-//     if (S_fail_obs > S_fail)
-//     {result = 1; return 0.0;}           //exit if statistically fails rule
-//     else
-//     {result = 3; return 0.0;}           //exit if non-stat significant result
-//   }
-//   else
-//   {
-//     if (S_pass_obs > S_pass)
-//     {result = 0; return 1.0;}           //exit if statistically passes rule
-//     else
-//     {result = 2; return 0.0;}           //exit if non-stat significant result
-//   }
-// }
-// 
-// 
-// //----------------------------------------------------------------//
-// //--------------------  AllContentWithinFixedRange  -------------//
-// //---------------------------------------------------------------//
-// float AllContentWithinFloatingRange::runTest(const MonitorElement*me)
-// {
-//   if (!me) return -1;
-// 
-//   if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
-//   std::cout<< " AllContentWithinFloatingRange ERROR: ME " << me->getFullname() << " does not contain TH1F" << std::endl; 
-//   return -1;} 
-// 
-//    histogram = me->getTH1F(); //access Test histo
-//    if (!histogram) return -1;
-// 
-//   //double x, y, z; 
-//   set_Nrange( 1 );
-//   set_epsilon_max( 0.1 );
-//   set_S_fail( 5.0 );
-//   set_S_pass( 5.0 );
-// 
-//   /*--------------------------------------------------------------------------+
-//     |                 Input to this function                                   |
-//     +--------------------------------------------------------------------------+
-//     |TH1F* histogram,      : histogram to be compared with Rule                |
-//     |int     Nrange,       : number of contiguous bins holding entries         |
-//     |double  epsilon_max,  : maximum allowed failure rate fraction             |
-//     |double  S_fail,       : required Statistical Significance to fail rule    |
-//     |double  S_pass,       : required Significance to pass rule                |
-//     |double* epsilon_obs   : uninitialised observed failure rate fraction      |
-//     |double* S_fail_obs    : uninitialised Significance of failure             |
-//     |double* S_pass_obs    : uninitialised Significance of Success             |
-//     +--------------------------------------------------------------------------+
-//     |                 Result values for this function                          |
-//     +--------------------------------------------------------------------------+
-//     |int result            : "0" = "Passed Rule & is statistically significant"|
-//     |                        "1" = "Failed Rule & is statistically significant"|
-//     |                        "2" = "Passed Rule & not stat. significant"       |
-//     |                        "3" = "Failed Rule & not stat. significant"       |
-//     |                        "4" = "zero histo entries, can not evaluate Rule" |
-//     |                        "5" = "Input invalid,      can not evaluate Rule" |
-//     |double* epsilon_obs   : the observed failure rate frac. from the histogram|
-//     |double* S_fail_obs    : the observed Significance of failure              |
-//     |double* S_pass_obs    : the observed Significance of Success              |
-//     +--------------------------------------------------------------------------+
-//     | Author: Richard Cavanaugh, University of Florida                         |
-//     | email:  Richard.Cavanaugh@cern.ch                                        |
-//     | Creation Date: 07.Jan.2006                                               |
-//     | Last Modified: 16.Jan.2006                                               |
-//     | Comments:                                                                |
-//     +--------------------------------------------------------------------------*/
-//   epsilon_obs = 0.0;
-//   S_fail_obs = 0.0;
-//   S_pass_obs = 0.0;
-// 
-//   //-----------Perform Quality Checks on Input-------------
-//   if (!histogram)    {result = 5; return 0.0;}//exit if histo does not exist
-//   int Nbins = histogram -> GetNbinsX();
-//   if (Nrange > Nbins){result = 5; return 0.0;}//exit if Nrange > # bins in histo
-//   if (epsilon_max <= 0.0 || epsilon_max >= 1.0)
-//   {result = 5; return 0.0;}//exit if epsilon_max not in (0,1)
-//   if (S_fail < 0)    {result = 5; return 0.0;}//exit if Significance < 0
-//   if (S_pass < 0)    {result = 5; return 0.0;}//exit if Significance < 0
-//   S_fail_obs = 0.0; S_pass_obs = 0.0;         //initialise Sig return values
-//   int Nentries = (int) histogram -> GetEntries();
-//   if (Nentries < 1)  {result = 4; return 0.0;}//exit if histo has 0 entries
-// 
-//   //-----------Find number of successes and failures-------------
-//   int Nsuccesses = 0, EntriesInCurrentRange = 0;
-//   for (int i = 1; i <= Nrange; i++)  //initialise Nsuccesses
-//   {                                 //histos start with bin index 1 (not 0)
-//     Nsuccesses += (int) histogram -> GetBinContent(i);
-//   }
-//   EntriesInCurrentRange = Nsuccesses;
-//   for (int i = Nrange + 1; i <= Nbins; i++) //optimise floating bin range
-//   { //slide range by adding new high side bin & subtracting old low side bin
-//     EntriesInCurrentRange +=
-//       (int) (histogram -> GetBinContent(i) -
-// 	     histogram -> GetBinContent(i - Nrange));
-//     if (EntriesInCurrentRange > Nsuccesses)
-//       Nsuccesses = EntriesInCurrentRange;
-//   }
-//   for (int i = 1; i < Nrange; i++) //include possiblity of wrap-around
-//   { //slide range by adding new low side bin & subtracting old high side bin
-//     EntriesInCurrentRange +=
-//       (int) (histogram -> GetBinContent(i) -
-// 	     histogram -> GetBinContent(Nbins - (Nrange - i)));
-//     if (EntriesInCurrentRange > Nsuccesses)
-//       Nsuccesses = EntriesInCurrentRange;
-//   }
-//   int Nfailures       = Nentries - Nsuccesses;
-//   double Nepsilon_max = (double)Nentries * epsilon_max;
-//   epsilon_obs        = (double)Nfailures / (double)Nentries;
-// 
-//   //-----------Calculate Statistical Significance-------------
-//   BinLogLikelihoodRatio(Nentries,Nfailures,epsilon_max,&S_fail_obs,&S_pass_obs);
-//   if (Nfailures > Nepsilon_max)
-//   {
-//     if (S_fail_obs > S_fail)
-//     {result = 1; return 0.0;}        //exit if statistically fails rule
-//     else
-//     {result = 3; return 0.0;}        //exit if non-stat significant result
-//   }
-//   else
-//   {
-//     if (S_pass_obs > S_pass)
-//     {result = 0; return 1.0;}        //exit if statistically passes rule
-//     else
-//     {result = 2; return 0.0;}        //exit if non-stat significant result
-//   }
-// }
-// 
-// 
-// 
-// 
-// 
-// //----------------------------------------------------------------//
-// //--------------------  FlatOccupancy1d  ------------------------//
-// //---------------------------------------------------------------//
-// 
-// #if 0
-// float FlatOccupancy1d::runTest(const MonitorElement*me)
-// {
-// 
-//   if (!me) return -1;
-// 
-//   if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
-//   std::cout<< " FlatOccupancy1d ERROR: ME " << me->getFullname() << " does not contain TH1F" << std::endl; 
-//   return -1;} 
-// 
-//    histogram = me->getTH1F(); //access Test histo
-//    if (!histogram) return -1;
-// 
-// 
-//   /*--------------------------------------------------------------------------+
-//     |                 Input to this function                                   |
-//     +--------------------------------------------------------------------------+
-//     |TH1F* histogram,      : histogram to be compared with Rule                |
-//     |int* mask             : bit mask which excludes bins from consideration   |
-//     |double epsilon_min,   : minimum tolerance (fraction of line)              |
-//     |double epsilon_max,   : maximum tolerance (fraction of line)              |
-//     |double S_fail,        : required Statistical Significance to fail rule    |
-//     |double S_pass,        : required Significance to pass rule                |
-//     |double[2][] FailedBins: uninit. vector of bins out of tolerance           |
-//     +--------------------------------------------------------------------------+
-//     |                 Result values for this function                          |
-//     +--------------------------------------------------------------------------+
-//     |int result            : "0" = "Passed Rule & is statistically significant"|
-//     |                        "1" = "Failed Rule & is statistically significant"|
-//     |                        "2" = "Passed Rule & not stat. significant"       |
-//     |                        "3" = "Failed Rule & not stat. significant"       |
-//     |                        "4" = "zero histo entries, can not evaluate Rule" |
-//     |                        "5" = "Input invalid,      can not evaluate Rule" |
-//     |double[2][] FailedBins: the obs. vector of bins out of tolerance          |
-//     +--------------------------------------------------------------------------+
-//     | Author: Richard Cavanaugh, University of Florida                         |
-//     | email:  Richard.Cavanaugh@cern.ch                                        |
-//     | Creation Date: 07.Jan.2006                                               |
-//     | Last Modified: 16.Jan.2006                                               |
-//     | Comments:                                                                |
-//     +--------------------------------------------------------------------------*/
-//   double *S_fail_obs;
-//   double *S_pass_obs;
-//   double dummy1, dummy2;
-//   S_fail_obs = &dummy1;
-//   S_pass_obs = &dummy2;
-//   *S_fail_obs = 0.0;
-//   *S_pass_obs = 0.0;
-//   Nbins = histogram -> GetNbinsX();
-// 
-//   //-----------Perform Quality Checks on Input-------------
-//   if (!histogram)  {result = 5; return 0.0;}//exit if histo does not exist
-//   if (epsilon_min <= 0.0 || epsilon_min >= 1.0)
-//   {result = 5; return 0.0;}//exit if epsilon_min not in (0,1)
-//   if (epsilon_max <= 0.0 || epsilon_max >= 1.0)
-//   {result = 5; return 0.0;}//exit if epsilon_max not in (0,1)
-//   if (epsilon_max < epsilon_min)
-//   {result = 5; return 0.0;}//exit if max < min
-//   if (S_fail < 0) {result = 5; return 0.0;}//exit if Significance < 0
-//   if (S_pass < 0) {result = 5; return 0.0;}//exit if Significance < 0
-//   int Nentries = (int) histogram -> GetEntries();
-//   if (Nentries < 1){result = 4; return 0.0;}//exit if histo has 0 entries
-// 
-//   //-----------Find best value for occupancy b----------------
-//   double b = 0.0;
-//   int NusedBins = 0;
-//   for (int i = 1; i <= Nbins; i++)          //loop over all bins
-//   {
-//     if (ExclusionMask[i-1] != 1)          //do not check if bin excluded (=1)
-//     {
-//       b += histogram -> GetBinContent(i);
-//       NusedBins += 1;                  //keep track of # checked bins
-//     }
-//   }
-//   b *= 1.0 / (double) NusedBins;           //average for poisson stats
-// 
-//   //-----------Calculate Statistical Significance-------------
-//   double S_pass_obs_min = 0.0, S_fail_obs_max = 0.0;
-//   // allocate Nbins of memory for FailedBins
-//   for (int i = 0; i <= 1; i++) FailedBins[i] = new double [Nbins];
-//   // remember to delete[] FailedBins[0] and delete[] FailedBins[1]
-//   for (int i = 1; i <= Nbins; i++)         //loop (again) over all bins
-//   {
-//     FailedBins[0][i-1] = 0.0;            //initialise obs fraction
-//     FailedBins[1][i-1] = 0.0;            //initialise obs significance
-//     if (ExclusionMask[i-1] != 1)          //do not check if bin excluded (=1)
-//     {
-//       //determine significance for bin to fail or pass, given occupancy
-//       //hypothesis b with tolerance epsilon_min < b < epsilon_max
-//       PoissionLogLikelihoodRatio(histogram->GetBinContent(i),
-// 				 b,
-// 				 epsilon_min, epsilon_max,
-// 				 S_fail_obs, S_pass_obs);
-//       //set S_fail_obs to maximum over all non-excluded bins
-//       //set S_pass_obs to non-zero minimum over all non-excluded bins
-//       if (S_fail_obs_max == 0.0 && *S_pass_obs > 0.0)
-// 	S_pass_obs_min = *S_pass_obs;  //init to first non-zero value
-//       if (*S_fail_obs > S_fail_obs_max) S_fail_obs_max = *S_fail_obs;
-//       if (*S_pass_obs < S_pass_obs_min) S_pass_obs_min = *S_pass_obs;
-//       //set FailedBins[0][] to fraction away from fitted line b
-//       //set to zero if bin is within tolerance (via initialisation)
-//       if (*S_fail_obs > 0) FailedBins[0][i-1] =
-// 			     histogram->GetBinContent(i)/b - 1.0;
-//       //set FailedBins[1][] to observed significance of failure
-//       //set to zero if bin is within tolerance (via initialisation)
-//       if (*S_fail_obs > 0) FailedBins[1][i-1] = *S_fail_obs;
-//     }
-//   }
-//   *S_fail_obs = S_fail_obs_max;
-//   *S_pass_obs = S_pass_obs_min;
-//   if (*S_fail_obs > 0.0)
-//   {
-//     if (*S_fail_obs > S_fail)
-//     {result = 1; return 0.0;}           //exit if statistically fails rule
-//     else
-//     {result = 3; return 0.0;}           //exit if non-stat significant result
-//   }
-//   else
-//   {
-//     if (*S_pass_obs > S_pass)
-//     {result = 0; return 1.0;}           //exit if statistically passes rule
-//     else
-//     {result = 2; return 0.0;}           //exit if non-stat significant result
-//   }
-// }
-// #endif
-// 
-// 
-// 
-// 
-// float FixedFlatOccupancy1d::runTest(const MonitorElement *me)
-// {
-//   if (!me) return -1;
-// 
-//   if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
-//   std::cout<< " FixedFlatOccupancy1d  ERROR: ME " << me->getFullname() << " does not contain TH1F" << std::endl; 
-//   return -1;} 
-// 
-//   histogram = me->getTH1F(); //access Test histo
-//   if (!histogram) return -1;
-// 
-// 
-//   set_Occupancy( 1.0 );
-//   double mask[10] = {1,0,0,0,1,1,1,1,1,1};
-//   set_ExclusionMask( mask );
-//   set_epsilon_min( 0.099 );
-//   set_epsilon_max( 0.101 );
-//   set_S_fail( 5.0 );
-//   set_S_pass( 5.0 ); 
-// 
-//   /*--------------------------------------------------------------------------+
-//     |                 Input to this function                                   |
-//     +--------------------------------------------------------------------------+
-//     |TH1F* histogram,      : histogram to be compared with Rule                |
-//     |int* mask             : bit mask which excludes bins from consideration   |
-//     |double epsilon_min,   : minimum tolerance (fraction of line)              |
-//     |double epsilon_max,   : maximum tolerance (fraction of line)              |
-//     |double S_fail,        : required Statistical Significance to fail rule    |
-//     |double S_pass,        : required Significance to pass rule                |
-//     |double[2][] FailedBins: uninit. vector of bins out of tolerance           |
-//     +--------------------------------------------------------------------------+
-//     |                 Result values for this function                          |
-//     +--------------------------------------------------------------------------+
-//     |int result            : "0" = "Passed Rule & is statistically significant"|
-//     |                        "1" = "Failed Rule & is statistically significant"|
-//     |                        "2" = "Passed Rule & not stat. significant"       |
-//     |                        "3" = "Failed Rule & not stat. significant"       |
-//     |                        "4" = "zero histo entries, can not evaluate Rule" |
-//     |                        "5" = "Input invalid,      can not evaluate Rule" |
-//     |double[2][] FailedBins: the obs. vector of bins out of tolerance          |
-//     +--------------------------------------------------------------------------+
-//     | Author: Richard Cavanaugh, University of Florida                         |
-//     | email:  Richard.Cavanaugh@cern.ch                                        |
-//     | Creation Date: 07.Jan.2006                                               |
-//     | Last Modified: 16.Jan.2006                                               |
-//     | Comments:                                                                |
-//     +--------------------------------------------------------------------------*/
-//   double *S_fail_obs;
-//   double *S_pass_obs;
-//   double dummy1, dummy2;
-//   S_fail_obs = &dummy1;
-//   S_pass_obs = &dummy2;
-//   *S_fail_obs = 0.0;
-//   *S_pass_obs = 0.0;
-//   Nbins = histogram -> GetNbinsX();
-// 
-//   //-----------Perform Quality Checks on Input-------------
-//   if (!histogram)  {result = 5; return 0.0;}   //exit if histo does not exist
-//   if (epsilon_min <= 0.0 || epsilon_min >= 1.0)
-//   {result = 5; return 0.0;}   //exit if epsilon_min not in (0,1)
-//   if (epsilon_max <= 0.0 || epsilon_max >= 1.0)
-//   {result = 5; return 0.0;}   //exit if epsilon_max not in (0,1)
-//   if (epsilon_max < epsilon_min)
-//   {result = 5; return 0.0;}   //exit if max < min
-//   if (S_fail < 0)  {result = 5; return 0.0;}   //exit if Significance < 0
-//   if (S_pass < 0)  {result = 5; return 0.0;}   //exit if Significance < 0
-//   int Nentries = (int) histogram -> GetEntries();
-//   if (Nentries < 1){result = 4; return 0.0;}    //exit if histo has 0 entries
-// 
-//   //-----------Calculate Statistical Significance-------------
-//   double S_pass_obs_min = 0.0, S_fail_obs_max = 0.0;
-//   // allocate Nbins of memory for FailedBins
-//   for (int i = 0; i <= 1; i++) FailedBins[i] = new double [Nbins];
-//   // remember to delete[] FailedBins[0] and delete[] FailedBins[1];
-//   for (int i = 1; i <= Nbins; i++)         //loop over all bins
-//   {
-//     FailedBins[0][i-1] = 0.0;            //initialise obs fraction
-//     FailedBins[1][i-1] = 0.0;            //initialise obs significance
-//     if (ExclusionMask[i-1] != 1)          //do not check if bin excluded
-//     {
-//       //determine significance for bin to fail or pass, given occupancy
-//       //hypothesis b with tolerance epsilon_min < b < epsilon_max
-//       PoissionLogLikelihoodRatio(histogram->GetBinContent(i),
-// 				 b,
-// 				 epsilon_min, epsilon_max,
-// 				 S_fail_obs, S_pass_obs);
-//       //set S_fail_obs to maximum over all non-excluded bins
-//       //set S_pass_obs to non-zero minimum over all non-excluded bins
-//       if (S_fail_obs_max == 0.0 && *S_pass_obs > 0.0)
-// 	S_pass_obs_min = *S_pass_obs;  //init to first non-zero value
-//       if (*S_fail_obs > S_fail_obs_max) S_fail_obs_max = *S_fail_obs;
-//       if (*S_pass_obs < S_pass_obs_min) S_pass_obs_min = *S_pass_obs;
-//       //set FailedBins[0][] to fraction away from fitted line b
-//       //set to zero if bin is within tolerance (via initialisation)
-//       if (*S_fail_obs > 0) FailedBins[0][i-1] =
-// 			     histogram->GetBinContent(i)/b - 1.0;
-//       //set FailedBins[1][] to observed significance of failure
-//       //set to zero if bin is within tolerance (via initialisation)
-//       if (*S_fail_obs > 0) FailedBins[1][i-1] = *S_fail_obs;
-//     }
-//   }
-//   *S_fail_obs = S_fail_obs_max;
-//   *S_pass_obs = S_pass_obs_min;
-//   if (*S_fail_obs > 0.0)
-//   {
-//     if (*S_fail_obs > S_fail)
-//     {result = 1; return 0.0;}            //exit if statistically fails rule
-//     else
-//     {result = 3; return 0.0;}            //exit if non-stat significant result
-//   }
-//   else
-//   {
-//     if (*S_pass_obs > S_pass)
-//     {result = 0; return 1.0;}            //exit if statistically passes rule
-//     else
-//     {result = 2; return 0.0;}            //exit if non-stat significant result
-//   }
-// }
-// 
-// 
-// 
-// #if 0
-// float AllContentAlongDiagonal::runTest(const TH2F *histogram)
-// {
-// 
-//   if (!me) return -1;
-// 
-//   if (me->kind()!=MonitorElement::DQM_KIND_TH2F) { 
-//   std::cout<< " AllContentAlongDiagonal ERROR: ME " << me->getFullname() << " does not contain TH2F" << std::endl; 
-//   return -1;} 
-// 
-//   histogram = me->getTH2F(); //access Test histo
-//   if (!histogram) return -1;
-// 
-//   /*
-//     +--------------------------------------------------------------------------+
-//     |                 Input to this function                                   |
-//     +--------------------------------------------------------------------------+
-//     |TH2* histogram,       : histogram to be compared with Rule                |
-//     |double epsilon_max,   : maximum allowed failure rate fraction             |
-//     |double S_fail,        : required Significance to fail rule                |
-//     |double S_pass,        : required Significance to pass rule                |
-//     |double* epsilon_obs   : uninitialised actual failure rate fraction        |
-//     |double* S_fail_obs    : uninitialised Statistical Significance of failure |
-//     |double* S_pass_obs    : uninitialised Significance of Success             |
-//     +--------------------------------------------------------------------------+
-//     |                 Result values for this function                          |
-//     +--------------------------------------------------------------------------+
-//     |int result            : "0" = "Passed Rule & is statistically significant"|
-//     |                        "1" = "Failed Rule & is statistically significant"|
-//     |                        "2" = "Passed Rule & not stat. significant"       |
-//     |                        "3" = "Failed Rule & not stat. significant"       |
-//     |                        "4" = "zero histo entries, can not evaluate Rule" |
-//     |                        "5" = "Input invalid,      can not evaluate Rule" |
-//     |double* epsilon_obs   : the observed failure rate frac. from the histogram|
-//     |double* S_fail_obs    : the observed Significance of failure              |
-//     |double* S_pass_obs    : the observed Significance of Success              |
-//     +--------------------------------------------------------------------------+
-//     | Author: Richard Cavanaugh, University of Florida                         |
-//     | email:  Richard.Cavanaugh@cern.ch                                        |
-//     | Creation Date: 11.July.2005                                              |
-//     | Last Modified: 16.Jan.2006                                               |
-//     | Comments:                                                                |
-//     +--------------------------------------------------------------------------+
-//   */
-//   //-----------Perform Quality Checks on Input-------------
-//   if (!histogram)  {result = 5; return 0.0;}//exit if histo does not exist
-//   if (histogram -> GetNbinsX() != histogram -> GetNbinsY())
-//   {result = 5; return 0.0;}//exit if histogram not square
-//   if (epsilon_max <= 0.0 || epsilon_max >= 1.0)
-//   {result = 5; return 0.0;}//exit if epsilon_max not in (0,1)
-//   if (S_fail < 0)  {result = 5; return 0.0;}//exit if Significance < 0
-//   if (S_pass < 0)  {result = 5; return 0.0;}//exit if Significance < 0
-//   S_fail_obs = 0.0; S_pass_obs = 0.0;       //initialise Sig return values
-//   int Nentries = (int) histogram -> GetEntries();
-//   if (Nentries < 1){result = 4; return 0.0;}//exit if histo has 0 entries
-// 
-//   //-----------Find number of successes and failures-------------
-//   int Nsuccesses = 0;
-//   for (int i = 0; i <= histogram -> GetNbinsX() + 1; i++)//count the number of
-//   {                                       //entries contained along diag.
-//     Nsuccesses += (int) histogram -> GetBinContent(i,i);
-//   }
-//   int Nfailures       = Nentries - Nsuccesses;
-//   double Nepsilon_max = (double)Nentries * epsilon_max;
-//   epsilon_obs         = (double)Nfailures / (double)Nentries;
-// 
-//   //-----------Calculate Statistical Significance-------------
-//   BinLogLikelihoodRatio(Nentries,Nfailures,epsilon_max,&S_fail_obs,&S_pass_obs);
-//   if (Nfailures > Nepsilon_max)
-//   {
-//     if (S_fail_obs > S_fail)
-//     {result = 1; return 0.0;}           //exit if statistically fails rule
-//     else
-//     {result = 3; return 0.0;}           //exit if non-stat significant result
-//   }
-//   else
-//   {
-//     if (S_pass_obs > S_pass)
-//     {result = 0; return 1.0;}           //exit if statistically passes rule
-//     else
-//     {result = 2; return 0.0;}           //exit if non-stat significant result
-//   }
-// }
-// #endif
+void MeanWithinExpected::useRMS()
+{
+  useRMS_ = true;
+  useSigma_ = useRange_ = false;
+}

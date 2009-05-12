@@ -91,8 +91,6 @@ DQMReadFileExample::~DQMReadFileExample()
 // remove all MonitorElements and directories
 void DQMReadFileExample::removeAll()
 {
-  dbe->setVerbose(0);
-
   // go to top directory
   dbe->cd();
   // remove MEs at top directory
@@ -102,8 +100,6 @@ void DQMReadFileExample::removeAll()
      dbe->rmdir("Collector");
   if(dbe->dirExists("Summary"))
   dbe->rmdir("Summary");
-
-  dbe->setVerbose(1);
 }
 
 void DQMReadFileExample::endJob(void)

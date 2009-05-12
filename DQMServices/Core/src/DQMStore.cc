@@ -132,6 +132,7 @@ DQMStore::instance(void)
 
 DQMStore::DQMStore(const edm::ParameterSet &pset)
   : verbose_ (1),
+    verboseQT_ (1),
     reset_ (false),
     collateHistograms_ (false),
     readSelectedDirectory_ (""),
@@ -148,6 +149,10 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
   if (verbose_ > 0)
     std::cout << "DQMStore: verbosity set to " << verbose_ << std::endl;
   
+  verboseQT_ = pset.getUntrackedParameter<int>("verboseQT", 0);
+  if (verbose_ > 0)
+    std::cout << "DQMStore: QTest verbosity set to " << verboseQT_ << std::endl;
+  
   collateHistograms_ = pset.getUntrackedParameter<bool>("collateHistograms", false);
   if (collateHistograms_)
     std::cout << "DQMStore: histogram collation is enabled\n";
@@ -155,7 +160,7 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
   std::string ref = pset.getUntrackedParameter<std::string>("referenceFileName", "");
   if (! ref.empty())
   {
-    std::cout << "DQMStore: using reference file " << ref << std::endl;
+    std::cout << "DQMStore: using reference file '" << ref << "'\n";
     open(ref, false, "", s_referenceDirName);
   }
 
@@ -187,8 +192,8 @@ DQMStore::~DQMStore(void)
 //////////////////////////////////////////////////////////////////////
 /// set verbose level (0 turns all non-error messages off)
 void
-DQMStore::setVerbose(unsigned level)
-{ verbose_ = level; }
+DQMStore::setVerbose(unsigned level) 
+{ return; }
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -326,10 +331,10 @@ DQMStore::book(const std::string &dir, const std::string &name,
     }
     else
     {    
-      if (verbose_)
+      if (verbose_>1)
         std::cout << "DQMStore: "
                   << context << ": monitor element '"
-                  << path << "' already exists" << std::endl;
+                  << path << "' already exists, collating" << std::endl;
       me->Reset();
       collate(me, h);
       delete h;
@@ -348,10 +353,10 @@ DQMStore::book(const std::string &dir, const std::string &name,
 {
   // Check if the request monitor element already exists.
   if (MonitorElement *me = findObject(dir, name, path)) {
-      if (verbose_)
+      if (verbose_>1)
         std::cout << "DQMStore: "
                   << context << ": monitor element '"
-                  << path << "' already exists" << std::endl;
+                  << path << "' already exists, resetting" << std::endl;
       me->Reset();
       return me;
   }
@@ -1369,6 +1374,7 @@ DQMStore::save(const std::string &filename,
   std::set<std::string>::iterator di, de;
   MEMap::iterator mi, me = data_.end();
   DQMNet::QReports::const_iterator qi, qe;
+  int nme=0;
 
   // TFile flushes to disk with fsync() on every TDirectory written to the
   // file.  This makes DQM file saving painfully slow, and ironically makes
@@ -1385,6 +1391,9 @@ DQMStore::save(const std::string &filename,
   std::string opt = "UPDATE";
   if (outputFileRecreate_) 
     opt = "RECREATE";
+  if (verbose_>0)
+    std::cout << "\n DQMStore: Opening TFile '" << filename 
+              << "' with option '" << opt <<"'\n";
 
   TFileNoSync f(filename.c_str(), opt.c_str()); // open file
   if(f.IsZombie())
@@ -1422,7 +1431,7 @@ DQMStore::save(const std::string &filename,
 	&& ! isSubdirectory(path, *di)
 	&& ! isSubdirectory(refpath, *di))
       continue;
-
+    
     // Loop over monitor elements in this directory.
     mi = data_.lower_bound(*di);
     for ( ; mi != me && isSubdirectory(*di, mi->second.path_); ++mi)
@@ -1458,8 +1467,8 @@ DQMStore::save(const std::string &filename,
 
 	  if (! master || status < minStatus)
 	  {
-	    if (verbose_)
-	      std::cout << "DQMStore: skipping monitor element '"
+	    if (verbose_>1)
+	      std::cout << "DQMStore::save: skipping monitor element '"
 		        << mi->first << "' while saving, status is "
 			<< status << ", required minimum status is "
 			<< minStatus << std::endl;
@@ -1468,9 +1477,10 @@ DQMStore::save(const std::string &filename,
         }
       }
 
-      if (verbose_)
-	std::cout << "DQMStore: saving monitor element '"
+      if (verbose_>1)
+	std::cout << "DQMStore::save: saving monitor element '"
 		  << mi->first << "'\n";
+      nme++; // count saved histograms
 
       // Create the directory.
       gDirectory->cd("/");
@@ -1511,7 +1521,9 @@ DQMStore::save(const std::string &filename,
 
   // Maybe make some noise.
   if (verbose_)
-    std::cout << "DQMStore: saved DQM file '" << filename << "'\n";
+    std::cout << "DQMStore::save: successfully wrote " << nme 
+              << " objects from path '" << path  
+	      << "' into DQM file '" << filename << "'\n";
 }
 
 /// read ROOT objects from file <file> in directory <onlypath>;
@@ -1569,7 +1581,7 @@ DQMStore::readDirectory(TFile *file,
         && slash + 10 == dirpart.size()
 	&& dirpart.compare( slash+1 , 9 , "EventInfo") == 0) {
       if (verbose_)
-            std::cout << "DQMStore::readDirectory: skipping" << dirpart << "'\n";
+            std::cout << "DQMStore::readDirectory: skipping '" << dirpart << "'\n";
       return 0;
     }
 
@@ -1608,7 +1620,7 @@ DQMStore::readDirectory(TFile *file,
       ;
     else
     {
-      if (verbose_)
+      if (verbose_>2)
 	std::cout << "DQMStore: reading object '" << obj->GetName()
 		  << "' of type '" << obj->IsA()->GetName()
 		  << "' from '" << file->GetName()
@@ -1620,7 +1632,7 @@ DQMStore::readDirectory(TFile *file,
     }
   }
 
-  if (verbose_)
+  if (verbose_>1)
     std::cout << "DQMStore: read " << count << '/' << ntot
 	      << " objects from directory '" << dirpart << "'\n";
 
@@ -1828,6 +1840,8 @@ DQMStore::createQTest(const std::string &algoname, const std::string &qtname)
 		  " algorithm '%s'", algoname.c_str());
 
   QCriterion *qc = i->second(qtname);
+  qc->setVerbose(verboseQT_);
+
   qtests_[qtname] = qc;
   return qc;
 }
@@ -1909,12 +1923,6 @@ DQMStore::runQTests(void)
   for ( ; mi != me; ++mi)
     if (mi->first.compare(0, s_referenceDirName.size(), s_referenceDirName))
       mi->second.runQTests();
-
-  // Reset "modified" flag on all quality tests. // FIXME: remove ?
-  QCMap::iterator qi = qtests_.begin();
-  QCMap::iterator qe = qtests_.end();
-  for ( ; qi != qe; ++qi)
-    qi->second->wasModified_ = false;
 
   reset_ = false;
 }
