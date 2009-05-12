@@ -23,7 +23,9 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
   theMatchingBCs_(matchingBC), 
   theMinDistOfApproach_(DCA),
   theTrackPin_(trackPin),
-  theTrackPout_(trackPout) { }
+  theTrackPout_(trackPout),
+  algorithm_(algo) 
+ { }
 
 Conversion::Conversion() { 
   theMinDistOfApproach_ = 9999.;
