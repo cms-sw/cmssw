@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: MuonDetIdAssociator.cc,v 1.8 2008/03/31 13:31:42 dmytro Exp $
+// $Id: MuonDetIdAssociator.cc,v 1.9 2009/04/29 12:15:09 jribnik Exp $
 //
 //
 
@@ -74,7 +74,7 @@ std::set<DetId> MuonDetIdAssociator::getASetOfValidDetIds() const {
    std::vector<GeomDet*> geomDetsCSC = geometry_->slaveGeometry(CSCDetId())->dets();
    for(std::vector<GeomDet*>::const_iterator it = geomDetsCSC.begin(); it != geomDetsCSC.end(); ++it)
      if (CSCChamber* csc = dynamic_cast< CSCChamber*>(*it)) {
-       if ((! includeBadChambers_) && (isBadCSCChamber(CSCDetId(csc->id())))) continue;
+       if ((! includeBadChambers_) && (cscbadchambers_->isInBadChamber(CSCDetId(csc->id())))) continue;
        setOfValidIds.insert(csc->id());
      }
    
