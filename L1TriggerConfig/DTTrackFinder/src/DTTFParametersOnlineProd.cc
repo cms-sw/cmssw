@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Fri Oct  3 00:26:52 CEST 2008
-// $Id: DTTFParametersOnlineProd.cc,v 1.3 2008/11/14 20:23:42 wsun Exp $
+// $Id: DTTFParametersOnlineProd.cc,v 1.4 2008/11/24 14:43:35 troco Exp $
 //
 //
 
@@ -41,10 +41,6 @@ class DTTFParametersOnlineProd :
         const std::string& objectKey ) ;
 
    private:
-       void disablePHTF( 
-         boost::shared_ptr< L1MuDTTFParameters >& dttfParameters,
-         int nwh,    // wheel
-         int isc ) ; // sector
 
       // ----------member data ---------------------------
 };
@@ -89,7 +85,6 @@ DTTFParametersOnlineProd::newObject( const std::string& objectKey )
      crateKeyColumns.push_back( "WEDGE_CRATE_4" ) ;
      crateKeyColumns.push_back( "WEDGE_CRATE_5" ) ;
      crateKeyColumns.push_back( "WEDGE_CRATE_6" ) ;
-     crateKeyColumns.push_back( "HW_SETTINGS" ) ;
 
      l1t::OMDSReader::QueryResults crateKeyResults =
        m_omdsReader.basicQuery( crateKeyColumns,
@@ -116,47 +111,6 @@ DTTFParametersOnlineProd::newObject( const std::string& objectKey )
 		   << crateKeys[ icrate ] << std::endl ;
        }
 
-     // Wedge crate masks
-     // Order of strings is used below -- don't change!
-     std::vector< std::string > crateMaskColumns ;
-     crateMaskColumns.push_back( "WEDGE_CRATE_1" ) ;
-     crateMaskColumns.push_back( "WEDGE_CRATE_2" ) ;
-     crateMaskColumns.push_back( "WEDGE_CRATE_3" ) ;
-     crateMaskColumns.push_back( "WEDGE_CRATE_4" ) ;
-     crateMaskColumns.push_back( "WEDGE_CRATE_5" ) ;
-     crateMaskColumns.push_back( "WEDGE_CRATE_6" ) ;
-
-     l1t::OMDSReader::QueryResults crateMaskResults =
-       m_omdsReader.basicQuery( crateMaskColumns,
-                                dttfSchema,
-                                "DTTF_SETTINGS",
-                                "DTTF_SETTINGS.ID",
-                                crateKeyResults, "HW_SETTINGS" ) ;
-
-     if( crateMaskResults.queryFailed() ||
-	 crateMaskResults.numberRows() != 1 ) // check query successful
-       {
-	 edm::LogError( "L1-O2O" )
-	   << "Problem with DTTF_SETTINGS key." ;
-	 return boost::shared_ptr< L1MuDTTFParameters >() ;
-       }
-
-     // Cache crate masks
-     unsigned long crateMaskL[ 6 ] ;
-     unsigned long crateMaskR[ 6 ] ;
-     for( int icrate = 0 ; icrate < 6 ; ++icrate )
-       {
-	 std::string crateMask ;
-	 crateMaskResults.fillVariable( crateMaskColumns[ icrate ],
-					crateMask ) ;
-         char* pEnd;
-	 crateMaskL[ icrate ] = std::strtol( crateMask.c_str(), &pEnd, 16 ) ;
-	 crateMaskR[ icrate ] = std::strtol( pEnd, (char **)NULL, 16 ) ;
-	 std::cout << "Crate " << icrate << " masks"
-		   << " L: " << std::hex << crateMaskL[ icrate ]
-	           << " R: " << std::hex << crateMaskR[ icrate ] << std::endl ;
-       }
-
      // Map of sector (0-11) to name (L/R)
      std::string sectorNames[ 12 ] = {
        "R", "L", "R", "L", "L", "R", "L", "R", "R", "L", "R", "L" } ;
@@ -170,21 +124,13 @@ DTTFParametersOnlineProd::newObject( const std::string& objectKey )
      // Map of wheel array index to name ({N,P}{0,1,2}).
      std::string wheelNames[ 6 ] = { "N2", "N1", "N0", "P0", "P1", "P2" } ;
 
-     // Map of sector+wheel name to bit number in crate mask
-     std::map< std::string, unsigned int > crateMaskBitmap ;
-     crateMaskBitmap.insert( std::make_pair( "N2", 24 ) ) ;
-     crateMaskBitmap.insert( std::make_pair( "N1", 20 ) ) ;
-     crateMaskBitmap.insert( std::make_pair( "N0", 16 ) ) ;
-     crateMaskBitmap.insert( std::make_pair( "P0",  8 ) ) ;
-     crateMaskBitmap.insert( std::make_pair( "P1",  4 ) ) ;
-     crateMaskBitmap.insert( std::make_pair( "P2",  0 ) ) ;
-
      // Needed over and over later
      std::vector< std::string > phtfMaskColumns ;
      phtfMaskColumns.push_back( "INREC_QUAL_ST1" ) ;
      phtfMaskColumns.push_back( "INREC_QUAL_ST2" ) ;
      phtfMaskColumns.push_back( "INREC_QUAL_ST3" ) ;
      phtfMaskColumns.push_back( "INREC_QUAL_ST4" ) ;
+     phtfMaskColumns.push_back( "SOC_QUAL_CSC" ) ;
      phtfMaskColumns.push_back( "SOC_STDIS_N" ) ;
      phtfMaskColumns.push_back( "SOC_STDIS_WL" ) ;
      phtfMaskColumns.push_back( "SOC_STDIS_WR" ) ;
@@ -202,58 +148,19 @@ DTTFParametersOnlineProd::newObject( const std::string& objectKey )
      for( int isc = 0 ; isc < 12 ; ++isc )
        {
 	 int crateNumber = crateNumbers[ isc ] ;
-	 unsigned long crateMask = crateMaskL[ crateNumber ] ;
-         if ( sectorNames[ isc ] == "R" ) crateMask = crateMaskR[ crateNumber ] ;
 	 std::cout << "isc " << isc << " icr " << crateNumber << std::endl ;
 
 	 // Loop over wheels 0-5
 	 for( int iwh = 0 ; iwh < 6 ; ++iwh )
 	   {
-	     // Check appropriate bit of crate mask
-	     // 0 = PHTF disabled, other = PHTF enabled
 	     std::string sectorWheelName =
 	       sectorNames[ isc ] + wheelNames[ iwh ] ;
 
-	     unsigned int maskBit = 30 ;
-	     std::map< std::string, unsigned int >::const_iterator itr =
-	       crateMaskBitmap.find( wheelNames[ iwh ] ) ;
-	     if( itr != crateMaskBitmap.end() )
-	       {
-		 maskBit = itr->second ;
-	       }
-
-	     unsigned long phtfEnabled = ( crateMask >> maskBit ) & 0xF ;
-
-             if ( wheelNames[ iwh ] == "P2" ) phtfEnabled += ( crateMask >> 24 ) & 0x10 ;
-             if ( wheelNames[ iwh ] == "N2" ) phtfEnabled += ( crateMask >> 25 ) & 0x10 ;
-
-	     std::cout << "Bits " << std::dec << maskBit << " (" << sectorWheelName
-		       << ") of mask " << std::hex << crateMask << " is "
-		       << std::hex << phtfEnabled << std::endl ;
-
 	     int nwh = wheelNumbers[ iwh ] ;
 
-	     disablePHTF( pDTTFParameters, nwh, isc ) ;
-
-	     // Check if PHTF enabled
-	     if( phtfEnabled & 0xF )
+	     // Now PHTF is always enabled
+	     if( 1 )
                {
-	         unsigned long chmask = phtfEnabled & 0x1;
-		 std::cout << " INREC_CHDIS_ST1 " << 1-chmask ;
-		 pDTTFParameters->set_inrec_chdis_st1( nwh, isc, 1-chmask ) ;
-		 chmask = ( phtfEnabled >> 1 ) & 0x1;
-		 std::cout << " INREC_CHDIS_ST2 " << 1-chmask ;
-		 pDTTFParameters->set_inrec_chdis_st2( nwh, isc, 1-chmask ) ;
-		 chmask = ( phtfEnabled >> 2 ) & 0x1;
-		 std::cout << " INREC_CHDIS_ST3 " << 1-chmask ;
-		 pDTTFParameters->set_inrec_chdis_st3( nwh, isc, 1-chmask ) ;
-		 chmask = ( phtfEnabled >> 3 ) & 0x1;
-		 std::cout << " INREC_CHDIS_ST4 " << 1-chmask ;
-		 pDTTFParameters->set_inrec_chdis_st4( nwh, isc, 1-chmask ) ;
-		 chmask = ( phtfEnabled >> 4 ) & 0x1;
-		 std::cout << " INREC_QUAL_CSC " << 7*(1-chmask) << std::endl ;
-		 pDTTFParameters->set_soc_qual_csc( nwh, isc, 7*(1-chmask) ) ;
-
 	         // Check if non-null crate key
 	         std::string crateKey ;
 	         if( crateKeyResults.fillVariable( crateKeyColumns[ crateNumber ],
@@ -313,6 +220,8 @@ DTTFParametersOnlineProd::newObject( const std::string& objectKey )
 		         phtfMaskResults.fillVariable( "INREC_QUAL_ST4", tmp ) ;
 		         std::cout << " INREC_QUAL_ST4 " << tmp << std::endl ;
 		         pDTTFParameters->set_inrec_qual_st4( nwh, isc, tmp ) ;
+		         std::cout << " SOC_QUAL_CSC " << tmp << std::endl ;
+		         pDTTFParameters->set_soc_qual_csc( nwh, isc, tmp ) ;
 
 		         phtfMaskResults.fillVariable( "SOC_STDIS_N", tmp ) ;
 		         std::cout << " SOC_STDIS_N " << tmp ;
@@ -359,43 +268,6 @@ DTTFParametersOnlineProd::newObject( const std::string& objectKey )
        }
 
      return pDTTFParameters ;
-}
-
-//
-// member functions
-//
-
-void
-DTTFParametersOnlineProd::disablePHTF( 
-  boost::shared_ptr< L1MuDTTFParameters >& dttfParameters,
-  int nwh,  // wheel
-  int isc ) // sector
-{
-  dttfParameters->set_inrec_chdis_st1( nwh, isc, true ) ;
-  dttfParameters->set_inrec_chdis_st2( nwh, isc, true ) ;
-  dttfParameters->set_inrec_chdis_st3( nwh, isc, true ) ;
-  dttfParameters->set_inrec_chdis_st4( nwh, isc, true ) ;
-
-  dttfParameters->set_inrec_qual_st1( nwh, isc, 0x7 ) ;
-  dttfParameters->set_inrec_qual_st2( nwh, isc, 0x7 ) ;
-  dttfParameters->set_inrec_qual_st3( nwh, isc, 0x7 ) ;
-  dttfParameters->set_inrec_qual_st4( nwh, isc, 0x7 ) ;
-
-  dttfParameters->set_soc_stdis_n( nwh, isc, 0x7 ) ;
-  dttfParameters->set_soc_stdis_wl( nwh, isc, 0x7 ) ;
-  dttfParameters->set_soc_stdis_wr( nwh, isc, 0x7 ) ;
-  dttfParameters->set_soc_stdis_zl( nwh, isc, 0x7 ) ;
-  dttfParameters->set_soc_stdis_zr( nwh, isc, 0x7 ) ;
-
-  dttfParameters->set_soc_qcut_st1( nwh, isc, 0x7 ) ;
-  dttfParameters->set_soc_qcut_st2( nwh, isc, 0x7 ) ;
-  dttfParameters->set_soc_qcut_st4( nwh, isc, 0x7 ) ;
-  dttfParameters->set_soc_qual_csc( nwh, isc, 0x7 ) ;
-
-  dttfParameters->set_soc_run_21( nwh, isc, true ) ;
-  dttfParameters->set_soc_nbx_del( nwh, isc, true ) ;
-  dttfParameters->set_soc_csc_etacanc( nwh, isc, true ) ;
-  dttfParameters->set_soc_openlut_extr( nwh, isc, false ) ;
 }
 
 // ------------ method called to produce the data  ------------

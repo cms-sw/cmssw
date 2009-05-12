@@ -36,6 +36,12 @@ dttfpar = cms.ESSource("EmptyESSource",
     firstValid = cms.vuint32(1)
 )
 
+dttfmsk = cms.ESSource("EmptyESSource",
+    recordName = cms.string('L1MuDTTFMasksRcd'),
+    iovIsRunNotTime = cms.bool(True),
+    firstValid = cms.vuint32(1)
+)
+
 dttfluts = cms.ESProducer("DTTrackFinderConfig")
 
 

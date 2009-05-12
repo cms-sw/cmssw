@@ -23,6 +23,7 @@ process.DTPtaLutTester = cms.EDAnalyzer("DTPtaLutTester")
 process.DTEtaPatternLutTester = cms.EDAnalyzer("DTEtaPatternLutTester")
 process.DTQualPatternLutTester = cms.EDAnalyzer("DTQualPatternLutTester")
 process.DTTFParametersTester = cms.EDAnalyzer("DTTFParametersTester")
+process.DTTFMasksTester = cms.EDAnalyzer("DTTFMasksTester")
 
 process.p = cms.Path(process.DTExtLutTester
                     *process.DTPhiLutTester
@@ -30,4 +31,5 @@ process.p = cms.Path(process.DTExtLutTester
                     *process.DTEtaPatternLutTester
                     *process.DTQualPatternLutTester
                     *process.DTTFParametersTester
+                    *process.DTTFMasksTester
 )

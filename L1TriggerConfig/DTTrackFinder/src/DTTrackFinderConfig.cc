@@ -5,8 +5,8 @@
 //   L1 DT Track Finder ESProducer
 //
 //
-//   $Date: 2008/05/14 14:52:09 $
-//   $Revision: 1.3 $
+//   $Date: 2008/10/13 03:26:13 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   J. Troconiz              UAM Madrid
@@ -28,6 +28,7 @@ DTTrackFinderConfig::DTTrackFinderConfig(const edm::ParameterSet& pset) {
   setWhatProduced(this, &DTTrackFinderConfig::produceL1MuDTEtaPatternLut);
   setWhatProduced(this, &DTTrackFinderConfig::produceL1MuDTQualPatternLut);
   setWhatProduced(this, &DTTrackFinderConfig::produceL1MuDTTFParameters);
+  setWhatProduced(this, &DTTrackFinderConfig::produceL1MuDTTFMasks);
   
 }
 
@@ -92,11 +93,20 @@ auto_ptr<L1MuDTQualPatternLut> DTTrackFinderConfig::produceL1MuDTQualPatternLut(
 
 auto_ptr<L1MuDTTFParameters> DTTrackFinderConfig::produceL1MuDTTFParameters(const L1MuDTTFParametersRcd& iRecord) {
 
-  auto_ptr<L1MuDTTFParameters> dttfpar = auto_ptr<L1MuDTTFParameters>( new L1MuDTTFParameters() );
+   auto_ptr<L1MuDTTFParameters> dttfpar = auto_ptr<L1MuDTTFParameters>( new L1MuDTTFParameters() );
 
    dttfpar->reset();
 
    return dttfpar;
+}
+
+auto_ptr<L1MuDTTFMasks> DTTrackFinderConfig::produceL1MuDTTFMasks(const L1MuDTTFMasksRcd& iRecord) {
+
+   auto_ptr<L1MuDTTFMasks> dttfmsk = auto_ptr<L1MuDTTFMasks>( new L1MuDTTFMasks() );
+
+   dttfmsk->reset();
+
+   return dttfmsk;
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(DTTrackFinderConfig);
