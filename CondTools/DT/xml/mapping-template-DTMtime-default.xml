@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="DTMtimeRcd" >
+  <PoolContainer name="DTMtime" >
    <Class name="DTMtime" mapping_version="DTMtime-1.0" >
    </Class >
   </PoolContainer >

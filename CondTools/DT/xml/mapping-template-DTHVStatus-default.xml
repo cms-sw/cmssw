@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="DTHVStatusRcd" >
+  <PoolContainer name="DTHVStatus" >
    <Class name="DTHVStatus" mapping_version="DTHVStatus-1.0" >
    </Class >
   </PoolContainer >

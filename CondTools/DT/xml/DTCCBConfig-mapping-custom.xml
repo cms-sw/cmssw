@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="DTCCBConfigRcd" >
+  <PoolContainer name="DTCCBConfig" >
    <Class table="DTCCBCONFIG" id_columns="IOV_VALUE_ID" name="DTCCBConfig" mapping_version="DTCCBConfig-1.0" >
      <Primitive column="TIME" name="timeStamp" />
      <Primitive column="DATA_VERSION" name="dataVersion" />

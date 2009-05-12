@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="DTReadOutMappingRcd" >
+  <PoolContainer name="DTReadOutMapping" >
    <Class table="DTREADOUTMAPPING" id_columns="IOV_VALUE_ID" name="DTReadOutMapping" mapping_version="DTReadOutMapping-1.0" >
      <Primitive column="ROB_MAP_VERSION" name="robMapVersion" />
      <Primitive column="CELL_MAP_VERSION" name="cellMapVersion" />

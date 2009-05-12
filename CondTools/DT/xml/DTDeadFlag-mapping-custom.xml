@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="DTDeadFlagRcd" >
+  <PoolContainer name="DTDeadFlag" >
    <Class table="DTDEADFLAG" id_columns="ID" name="DTDeadFlag" mapping_version="DTDeadFlag-1.0" >
      <Primitive column="DATA_VERSION" name="dataVersion" />
      <Container table="DT_DEADLIST" id_columns="IOV_VALUE_ID" name="dataList" position_column="DATA_ID" >

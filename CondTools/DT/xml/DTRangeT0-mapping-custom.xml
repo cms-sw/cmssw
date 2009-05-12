@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="DTRangeT0Rcd" >
+  <PoolContainer name="DTRangeT0" >
    <Class table="DTRANGET0" id_columns="IOV_VALUE_ID" name="DTRangeT0" mapping_version="DTRangeT0-1.0" >
      <Primitive column="DATA_VERSION" name="dataVersion" />
      <Container table="DT_RANGET0LIST" id_columns="IOV_VALUE_ID" name="dataList" position_column="DATA_ID" >

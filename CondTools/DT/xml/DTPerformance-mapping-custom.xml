@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="DTPerformanceRcd" >
+  <PoolContainer name="DTPerformance" >
    <Class table="DTPERFORMANCE" id_columns="IOV_VALUE_ID" name="DTPerformance" mapping_version="DTPerformance-1.0" >
      <Primitive column="DATA_VERSION" name="dataVersion" />
      <Primitive column="NS_PER_COUNT" name="nsPerCount"  />
