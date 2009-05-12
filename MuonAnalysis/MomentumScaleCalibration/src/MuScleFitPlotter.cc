@@ -1,8 +1,8 @@
 //  \class MuScleFitPlotter
 //  Plotter for simulated,generated and reco info of muons
 //
-//  $Date: 2009/04/28 12:48:41 $
-//  $Revision: 1.3 $
+//  $Date: 2009/04/28 12:54:29 $
+//  $Revision: 1.4 $
 //  \author  C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 // ----------------------------------------------------------------------------------
@@ -103,9 +103,9 @@ void MuScleFitPlotter::fillGen2(Handle<HepMCProduct> evtMC){
   for (HepMC::GenEvent::particle_const_iterator part=Evt->particles_begin(); 
        part!=Evt->particles_end(); part++) {
     int status = (*part)->status();
-    int pdgId = (*part)->pdg_id();
+    int pdgId = abs((*part)->pdg_id());
     //cout<<"PDG ID "<< (*part)->pdg_id() <<"    status "<< (*part)->status()
-    //	<<"   pt "<<(*part)->momentum().perp()<< "     eta  "<<(*part)->momentum().eta()<<endl    ;
+    //<<"   pt "<<(*part)->momentum().perp()<< "     eta  "<<(*part)->momentum().eta()<<endl    ;
      //Check if it's a resonance	
     if( status==2 && 
         ( pdgId==23  || pdgId==443    || pdgId==100443 ||
@@ -125,12 +125,12 @@ void MuScleFitPlotter::fillGen2(Handle<HepMCProduct> evtMC){
 	  fromRes=true;
 	}
       }
+
       if(fromRes) {	
 	mapHisto["hGenMu"]->Fill(reco::Particle::LorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
 							       (*part)->momentum().pz(),(*part)->momentum().e()));
 	mapHisto["hGenMuVSEta"]->Fill(reco::Particle::LorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
 								    (*part)->momentum().pz(),(*part)->momentum().e()));
-
 	if((*part)->pdg_id()==-13)
 	  muFromRes.first = (reco::Particle::LorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
 							   (*part)->momentum().pz(),(*part)->momentum().e()));
@@ -211,9 +211,10 @@ void MuScleFitPlotter::fillGen2(Handle<HepMCProduct> evtMC){
      for(vector<reco::LeafCandidate>::const_iterator mu2 = muons.begin(); mu2!=muons.end(); mu2++){  
        if (mu1==mu2) continue;
        reco::Particle::LorentzVector Res (mu1->p4()+mu2->p4());
-       mapHisto["hRecMuPMuM"]->Fill(Res);	  
+        mapHisto["hRecMuPMuM"]->Fill(Res);	  
      } 
    }
+   mapHisto["hRecMu"]->Fill(muons.size());
  }
 
 

@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/04/28 12:48:34 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/05/04 12:52:56 $
+ *  $Revision: 1.8 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -46,7 +46,7 @@
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 
 // To use callgrind for code profiling uncomment also the following define.
-#define USE_CALLGRIND
+//#define USE_CALLGRIND
 #include "valgrind/callgrind.h"
 
 using namespace std;
@@ -252,7 +252,9 @@ pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes( const vector<
 
     // Choose the best resonance using its mass probability
     // ----------------------------------------------------
-  double maxprob = -0.1;
+  double maxprob = -0.1; 
+  double minDeltaMass = 999999;
+  pair<reco::LeafCandidate,reco::LeafCandidate> bestMassMuons;
   for (vector<reco::LeafCandidate>::const_iterator Muon1=muons.begin(); Muon1!=muons.end(); ++Muon1) {  
     for (vector<reco::LeafCandidate>::const_iterator Muon2=Muon1+1; Muon2!=muons.end(); ++Muon2) { 
       if (((*Muon1).charge()*(*Muon2).charge())>0) {
@@ -284,11 +286,29 @@ pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes( const vector<
 	    ResFound = true; // NNBB we accept "resonances" even outside mass bounds
 	    maxprob = prob;
 	  }
+	  double deltaMass = fabs(mcomb-ResMass[ires]);
+	  if(deltaMass<minDeltaMass){
+	    bestMassMuons = make_pair((*Muon1),(*Muon2));
+	    minDeltaMass = deltaMass;
+	  }
 	}
       }
     // }
     }
   }
+  //If outside mass window (maxprob==0) then take the two muons with best invariant mass
+  //(anyway they will not be used in the likelihood calculation, only to fill plots)
+  if(!maxprob){
+    if(bestMassMuons.first.charge()<0){
+      recMuFromBestRes.first = bestMassMuons.first.p4();
+      recMuFromBestRes.second = bestMassMuons.second.p4();
+    }
+    else{
+      recMuFromBestRes.second = bestMassMuons.first.p4();
+      recMuFromBestRes.first = bestMassMuons.second.p4();      
+    }
+  }
+
   return recMuFromBestRes;
 }
 
