@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.24 2009/03/26 08:03:23 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.25 2009/05/04 22:27:44 dutta Exp $
 //
 //
 
@@ -205,7 +205,6 @@ void SiStripOfflineDQM::endJob() {
 bool SiStripOfflineDQM::openInputFile() { 
   if (inputFileName_.size() == 0) return false;
   edm::LogInfo("SiStripOfflineDQM") <<  "SiStripOfflineDQM::openInputFile: Accessing root File" << inputFileName_;
-  dqmStore_->setVerbose(0);
   dqmStore_->open(inputFileName_, false); 
   return true;
 }
