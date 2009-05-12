@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri May  1 12:17:12 CDT 2009
-// $Id$
+// $Id: TransientProductLookupMap.cc,v 1.1 2009/05/09 20:29:47 chrjones Exp $
 //
 
 // system include files
@@ -38,17 +38,18 @@ bool CompareTypeInBranchTypeConstBranchDescription::operator()( std::pair<TypeIn
       return false;
    }
    
-   if(iLHS.second->moduleLabel() < iRHS.second->moduleLabel()) {
+   int c = iLHS.second->moduleLabel().compare(iRHS.second->moduleLabel());
+   if(c < 0 ) {
       return true;
    }
-   if(iRHS.second->moduleLabel() < iLHS.second->moduleLabel()) {
+   if( c > 0 ) {
       return false;
    }
-   
-   if(iLHS.second->productInstanceName() < iRHS.second->productInstanceName()) {
+   c = iLHS.second->productInstanceName().compare(iRHS.second->productInstanceName());
+   if(c < 0 ) {
       return true;
    }
-   if(iRHS.second->productInstanceName() < iLHS.second->productInstanceName()) {
+   if(c > 0 ) {
       return false;
    }
    
