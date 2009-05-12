@@ -112,7 +112,7 @@ void CSCDCCEventData::addChamber(CSCEventData & chamber, int dduID, int dduSlot,
     dduIndex = nDDUs;
     dccHeader().setDAV(dduSlot);
   }
-  theDDUData[dduIndex].add(chamber, dmbID);
+  theDDUData[dduIndex].add(chamber, dmbID, dduID);
 }
  
 

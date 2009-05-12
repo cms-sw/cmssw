@@ -28,13 +28,18 @@ void CSCDDUHeader::init()
 }
 
 
-void CSCDDUHeader::setDMBDAV(int dmbId) 
+void CSCDDUHeader::setDMBDAV(int dduId) 
 {
-  dmb_dav_ |= (1 << dmbId); 
-  // use Ritchie algo to count bits
+  // Set appropriate bit in dmb_dav_
+
+  dmb_dav_ |= (1 << dduId);  // dduId is 0-14
+
+  // Count bits set in dmb_dav_... for the trick used see
+  // http://en.wikipedia.org/wiki/Hamming_weight or http://graphics.stanford.edu/~seander/bithacks.html
+
   ncsc_ = 0;
   unsigned short dmbdav = dmb_dav_;
-  for( ; dmbdav; ++ncsc_)
+  for( ; dmbdav; ++ncsc_ )
   {
     dmbdav &= dmbdav - 1;
   }
