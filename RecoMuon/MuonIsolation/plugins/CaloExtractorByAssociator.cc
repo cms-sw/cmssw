@@ -22,7 +22,9 @@
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
-#include "PhysicsTools/Utilities/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaR.h"
+//#include "CommonTools/Utils/interface/deltaR.h"
+//#include "PhysicsTools/Utilities/interface/deltaR.h"
 
 using namespace edm;
 using namespace std;
@@ -41,6 +43,7 @@ CaloExtractorByAssociator::CaloExtractorByAssociator(const ParameterSet& par) :
   theDR_Veto_E(par.getParameter<double>("DR_Veto_E")),
   theDR_Veto_H(par.getParameter<double>("DR_Veto_H")),
   theDR_Veto_HO(par.getParameter<double>("DR_Veto_HO")),
+  theCenterConeOnCalIntersection(par.getParameter<bool>("CenterConeOnCalIntersection")),
   theDR_Max(par.getParameter<double>("DR_Max")),
   theNoise_EB(par.getParameter<double>("Noise_EB")),
   theNoise_EE(par.getParameter<double>("Noise_EE")),
@@ -134,6 +137,20 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
 		       theDR_Veto_H));
   depHOcal.setVeto(Veto(reco::isodeposit::Direction(mInfo.trkGlobPosAtHO.eta(), mInfo.trkGlobPosAtHO.phi()),
 			theDR_Veto_HO));
+
+  if (theCenterConeOnCalIntersection){
+    reco::isodeposit::Direction dirTmp = depEcal.veto().vetoDir;
+    double dRtmp = depEcal.veto().dR;
+    depEcal = IsoDeposit(dirTmp); depEcal.setVeto(Veto(dirTmp, dRtmp));
+
+    dirTmp = depHcal.veto().vetoDir;
+    dRtmp = depHcal.veto().dR;
+    depHcal = IsoDeposit(dirTmp); depHcal.setVeto(Veto(dirTmp, dRtmp));
+
+    dirTmp = depHOcal.veto().vetoDir;
+    dRtmp = depHOcal.veto().dR;
+    depHOcal = IsoDeposit(dirTmp); depHOcal.setVeto(Veto(dirTmp, dRtmp));
+  }
 
   if (theUseRecHitsFlag){
     //! do things based on rec-hits here
