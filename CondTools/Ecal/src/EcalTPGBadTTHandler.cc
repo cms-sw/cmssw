@@ -143,7 +143,7 @@ void popcon::EcalTPGBadTTHandler::getNewObjects()
 	      
 	     if(ecid_name=="EB_trigger_tower") {
  	  
-	       int sm_num=rd_badTT.getSMId();
+	       int sm_num=rd_badTT.getTCCId();
 	       int xt_num=rd_badTT.getTTId();
 	        
 	       EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);
