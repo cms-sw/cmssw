@@ -8,9 +8,9 @@
  *  All work is done by TrackDetectorAssociator. Because of the heavy
  *  weight of the tool, all extractions can (should?) be placed in a single place.
  *  
- *  $Date: 2007/11/30 06:23:08 $
- *  $Revision: 1.3 $
- *  $Id: CaloExtractorByAssociator.h,v 1.3 2007/11/30 06:23:08 slava77 Exp $
+ *  $Date: 2008/03/02 21:13:13 $
+ *  $Revision: 1.4 $
+ *  $Id: CaloExtractorByAssociator.h,v 1.4 2008/03/02 21:13:13 slava77 Exp $
  *  \author S. Krutelyov
  */
 
@@ -77,6 +77,9 @@ namespace muonisolation {
     double theDR_Veto_E;
     double theDR_Veto_H;
     double theDR_Veto_HO;
+    //! centers the cone on the veto direction -- makes more sense for
+    //! very displaced tracks like in cosmics
+    bool theCenterConeOnCalIntersection;
     //! max cone size in which towers are considered
     double theDR_Max;
 
