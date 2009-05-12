@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="DTRecoGeometryRcd" >
+  <PoolContainer name="RecoIdealGeometry" >
    <Class table="DTRECOGEOMETRY" id_columns="ID" name="RecoIdealGeometry" mapping_version="DTRecoGeometry_basic" >
      <Blob column="RPCRECOGEOMETRY__1" name="pDetIds"/>
      <Blob column="RPCRECOGEOMETRY__2" name="pPars"/>
