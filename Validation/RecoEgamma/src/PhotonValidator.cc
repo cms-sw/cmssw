@@ -73,8 +73,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/05/04 16:00:59 $ 
- **  $Revision: 1.26 $
+ **  $Date: 2009/05/12 11:36:53 $ 
+ **  $Revision: 1.27 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -268,12 +268,7 @@ void PhotonValidator::initVectors() {
 }
 
 
-
- void  PhotonValidator::beginRun (edm::Run const & r, edm::EventSetup const & theEventSetup) {
-   
-   //get magnetic field
-  edm::LogInfo("ConvertedPhotonProducer") << " get magnetic field" << "\n";
-  theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);  
+void  PhotonValidator::beginJob() {
 
   nEvt_=0;
   nEntry_=0;
@@ -286,11 +281,6 @@ void PhotonValidator::initVectors() {
   dbe_ = 0;
   dbe_ = edm::Service<DQMStore>().operator->();
   
-
-  edm::ESHandle<TrackAssociatorBase> theHitsAssociator;
-  theEventSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",theHitsAssociator);
-  theTrackAssociator_ = (TrackAssociatorBase *) theHitsAssociator.product();
-
 
 
 
@@ -996,6 +986,23 @@ void PhotonValidator::initVectors() {
 
   }
 
+
+
+}
+
+
+ void  PhotonValidator::beginRun (edm::Run const & r, edm::EventSetup const & theEventSetup) {
+   
+   //get magnetic field
+  edm::LogInfo("ConvertedPhotonProducer") << " get magnetic field" << "\n";
+  theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);  
+
+
+  edm::ESHandle<TrackAssociatorBase> theHitsAssociator;
+  theEventSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",theHitsAssociator);
+  theTrackAssociator_ = (TrackAssociatorBase *) theHitsAssociator.product();
+
+
   
 
 }
@@ -1632,6 +1639,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	if ( fabs( aConv->pairCotThetaSeparation() ) > dCotCutValue_ ) continue;
       }
       
+      //std::cout << " PhotonValidator converison algo name " << aConv->algoName() << " " << aConv->algo() << std::endl;
       
       nRecConv_++;
       
