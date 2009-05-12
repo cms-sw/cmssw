@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.33 2009/03/04 21:20:09 nancy Exp $ 
- **  $Date: 2009/03/04 21:20:09 $ 
- **  $Revision: 1.33 $
+ **  $Id: PhotonProducer.h,v 1.34 2009/03/25 11:21:27 nancy Exp $ 
+ **  $Date: 2009/03/25 11:21:27 $ 
+ **  $Revision: 1.34 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -24,10 +24,10 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
-#include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
 
@@ -71,9 +71,6 @@ class PhotonProducer : public edm::EDProducer {
   std::string conversionProducer_;
   std::string conversionCollection_;
 
-
-  std::string hbheLabel_;
-  std::string hbheInstanceName_;
   double hOverEConeSize_;
   double maxHOverE_;
   double minSCEt_;
@@ -92,7 +89,7 @@ class PhotonProducer : public edm::EDProducer {
 
   edm::ESHandle<CaloGeometry> theCaloGeom_;
   edm::ESHandle<CaloTopology> theCaloTopo_;
-  HoECalculator  theHoverEcalc_;
+ 
 
 
   bool validPixelSeeds_;
