@@ -5,8 +5,8 @@
 //   Description: DTTF Parameters from OMDS
 //
 //
-//   $Date: 2008/05/29 10:15:02 $
-//   $Revision: 1.2 $
+//   $Date: 2009/05/04 09:20:57 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   J. Troconiz              UAM Madrid
@@ -50,10 +50,6 @@ void L1MuDTTFParameters::reset() {
   for( int i=0; i<6; i++ ) {
     for( int j=0; j<12; j++ ) {
 
-      inrec_chdis_st1[i][j]  = false;
-      inrec_chdis_st2[i][j]  = false;
-      inrec_chdis_st3[i][j]  = false;
-      inrec_chdis_st4[i][j]  = false;
       inrec_qual_st1[i][j]   = 0;
       inrec_qual_st2[i][j]   = 0;
       inrec_qual_st3[i][j]   = 0;
@@ -73,54 +69,6 @@ void L1MuDTTFParameters::reset() {
       soc_openlut_extr[i][j] = false;
     }
   }
-}
-
-void L1MuDTTFParameters::set_inrec_chdis_st1(int wh, int sc, const bool val) {
-
-  if ( check(wh,sc) == -99 ) return;
-  inrec_chdis_st1[check(wh,sc)][sc] = val;
-}
-
-bool L1MuDTTFParameters::get_inrec_chdis_st1(int wh, int sc) const{
-
-  if ( check(wh,sc) == -99 ) return false;
-  return inrec_chdis_st1[check(wh,sc)][sc];
-}
-
-void L1MuDTTFParameters::set_inrec_chdis_st2(int wh, int sc, const bool val) {
-
-  if ( check(wh,sc) == -99 ) return;
-  inrec_chdis_st2[check(wh,sc)][sc] = val;
-}
-
-bool L1MuDTTFParameters::get_inrec_chdis_st2(int wh, int sc) const{
-
-  if ( check(wh,sc) == -99 ) return false;
-  return inrec_chdis_st2[check(wh,sc)][sc];
-}
-
-void L1MuDTTFParameters::set_inrec_chdis_st3(int wh, int sc, const bool val) {
-
-  if ( check(wh,sc) == -99 ) return;
-  inrec_chdis_st3[check(wh,sc)][sc] = val;
-}
-
-bool L1MuDTTFParameters::get_inrec_chdis_st3(int wh, int sc) const{
-
-  if ( check(wh,sc) == -99 ) return false;
-  return inrec_chdis_st3[check(wh,sc)][sc];
-}
-
-void L1MuDTTFParameters::set_inrec_chdis_st4(int wh, int sc, const bool val) {
-
-  if ( check(wh,sc) == -99 ) return;
-  inrec_chdis_st4[check(wh,sc)][sc] = val;
-}
-
-bool L1MuDTTFParameters::get_inrec_chdis_st4(int wh, int sc) const{
-
-  if ( check(wh,sc) == -99 ) return false;
-  return inrec_chdis_st4[check(wh,sc)][sc];
 }
 
 void L1MuDTTFParameters::set_inrec_qual_st1(int wh, int sc, const unsigned short int val) {
@@ -341,38 +289,6 @@ void L1MuDTTFParameters::print() const {
   cout << "L1 barrel Track Finder Parameters :" << endl;
   cout << "===================================" << endl;
   cout << endl;
-
-  cout << endl;
-  cout << "Disable St.1 :" << endl;
-  cout << "==============" << endl;
-  cout << endl;
-  for( int i=0; i<6; i++ ) {
-    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_inrec_chdis_st1(i,j); }
-    cout << endl; }
-
-  cout << endl;
-  cout << "Disable St.2 :" << endl;
-  cout << "==============" << endl;
-  cout << endl;
-  for( int i=0; i<6; i++ ) {
-    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_inrec_chdis_st2(i,j); }
-    cout << endl; }
-
-  cout << endl;
-  cout << "Disable St.3 :" << endl;
-  cout << "==============" << endl;
-  cout << endl;
-  for( int i=0; i<6; i++ ) {
-    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_inrec_chdis_st3(i,j); }
-    cout << endl; }
-
-  cout << endl;
-  cout << "Disable St.4 :" << endl;
-  cout << "==============" << endl;
-  cout << endl;
-  for( int i=0; i<6; i++ ) {
-    for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_inrec_chdis_st4(i,j); }
-    cout << endl; }
 
   cout << endl;
   cout << "Quality Cut St.1 :" << endl;

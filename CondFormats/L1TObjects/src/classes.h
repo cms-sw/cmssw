@@ -13,6 +13,7 @@
 #include "CondFormats/L1TObjects/interface/L1MuDTEtaPatternLut.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTQualPatternLut.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTTFMasks.h"
 #include "CondFormats/L1TObjects/interface/L1MuCSCTFConfiguration.h"
 #include "CondFormats/L1TObjects/interface/L1MuCSCPtLut.h"
 #include "CondFormats/L1TObjects/interface/L1MuCSCTFAlignment.h"

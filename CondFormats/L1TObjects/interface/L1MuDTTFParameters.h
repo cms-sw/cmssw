@@ -5,8 +5,8 @@
  *   DTTF Parameters from OMDS
  *
  *
- *   $Date: 2008/05/14 14:58:02 $
- *   $Revision: 1.1 $
+ *   $Date: 2009/05/04 09:20:57 $
+ *   $Revision: 1.2 $
  *
  *   J. Troconiz            UAM Madrid
  */
@@ -47,15 +47,6 @@ class L1MuDTTFParameters {
 
     /// reset parameters to zero
     void reset();
-
-    void set_inrec_chdis_st1(int wh, int sc, const bool val);
-    bool get_inrec_chdis_st1(int wh, int sc) const;
-    void set_inrec_chdis_st2(int wh, int sc, const bool val);
-    bool get_inrec_chdis_st2(int wh, int sc) const;
-    void set_inrec_chdis_st3(int wh, int sc, const bool val);
-    bool get_inrec_chdis_st3(int wh, int sc) const;
-    void set_inrec_chdis_st4(int wh, int sc, const bool val);
-    bool get_inrec_chdis_st4(int wh, int sc) const;
 
     void set_inrec_qual_st1(int wh, int sc, const unsigned short int val);
     unsigned short int get_inrec_qual_st1(int wh, int sc) const;
@@ -102,11 +93,6 @@ class L1MuDTTFParameters {
     int check(int wh, int sc) const;
 
   private:
-
-    bool inrec_chdis_st1[6][12];
-    bool inrec_chdis_st2[6][12];
-    bool inrec_chdis_st3[6][12];
-    bool inrec_chdis_st4[6][12];
 
     unsigned short int inrec_qual_st1[6][12];
     unsigned short int inrec_qual_st2[6][12];
