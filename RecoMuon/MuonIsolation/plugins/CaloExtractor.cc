@@ -13,7 +13,9 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "PhysicsTools/Utilities/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaR.h"
+//#include "CommonTools/Utils/interface/deltaR.h"
+//#include "PhysicsTools/Utilities/interface/deltaR.h"
 #include "PhysicsTools/Utilities/interface/normalizedPhi.h"
 
 using namespace edm;
