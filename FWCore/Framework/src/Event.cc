@@ -100,13 +100,14 @@ namespace edm {
 
 
   void
-  Event::commit_() {
-    commit_aux(putProducts(), true);
+  Event::commit_(std::vector<BranchID>* previousParentage, ParentageID* previousParentageId) {
+    commit_aux(putProducts(), true,previousParentage,previousParentageId);
     commit_aux(putProductsWithoutParents(), false);
   }
 
   void
-  Event::commit_aux(Base::ProductPtrVec& products, bool record_parents) {
+  Event::commit_aux(Base::ProductPtrVec& products, bool record_parents,
+                    std::vector<BranchID>* previousParentage, ParentageID* previousParentageId) {
     // fill in guts of provenance here
     EventPrincipal & ep = eventPrincipal();
 
@@ -119,22 +120,55 @@ namespace edm {
     // record_parents is false (and may be empty if record_parents is
     // true).
 
+    //Check that previousParentageId is still good by seeing if previousParentage matches gotBranchIDs_
+    bool sameAsPrevious=( (0 != previousParentage) && (previousParentage->size() == gotBranchIDs_.size()) );
     if (record_parents && !gotBranchIDs_.empty()) {
       gotBranchIDVector.reserve(gotBranchIDs_.size());
+      std::vector<BranchID>::const_iterator itPrevious;
+      if(previousParentage) {
+        itPrevious = previousParentage->begin();
+      }
       for (BranchIDSet::const_iterator it = gotBranchIDs_.begin(), itEnd = gotBranchIDs_.end();
 	  it != itEnd; ++it) {
         gotBranchIDVector.push_back(*it);
+        if(sameAsPrevious) {
+          if(*it != *itPrevious) {
+            sameAsPrevious=false;
+          } else {
+            ++itPrevious;
+          }
+        }
+      }
+      if(!sameAsPrevious && 0!=previousParentage) {
+        previousParentage->assign(gotBranchIDVector.begin(),gotBranchIDVector.end());
       }
     }
 
+    //If we don't have a valid previousParentage then we want to use a temp value in order to
+    // avoid constantly recalculating the ParentageID which is a time consuming operation
+    ParentageID temp;
+    if(!previousParentage) {
+      assert(!sameAsPrevious);
+      previousParentageId = &temp;
+    }
     while(pit!=pie) {
-	// set provenance
-	std::auto_ptr<ProductProvenance> productProvenancePtr(
-		new ProductProvenance(pit->second->branchID(),
-				   productstatus::present(),
-				   gotBranchIDVector));
-	ep.put(pit->first, *pit->second, productProvenancePtr);
-	++pit;
+      // set provenance
+      std::auto_ptr<ProductProvenance> productProvenancePtr;
+      if(!sameAsPrevious) {
+        productProvenancePtr = std::auto_ptr<ProductProvenance>(
+                                                                new ProductProvenance(pit->second->branchID(),
+                                                                                      productstatus::present(),
+                                                                                      gotBranchIDVector));
+        *previousParentageId = productProvenancePtr->parentageID();
+        sameAsPrevious=true;
+      } else {
+        productProvenancePtr = std::auto_ptr<ProductProvenance>(
+                                                                new ProductProvenance(pit->second->branchID(),
+                                                                                      productstatus::present(),
+                                                                                      *previousParentageId));
+      }
+      ep.put(pit->first, *pit->second, productProvenancePtr);
+      ++pit;
     }
 
     // the cleanup is all or none

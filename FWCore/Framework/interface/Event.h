@@ -232,8 +232,8 @@ namespace edm {
     friend class EDFilter;
     friend class EDProducer;
 
-    void commit_();
-    void commit_aux(Base::ProductPtrVec& products, bool record_parents);
+     void commit_(std::vector<BranchID>* previousParentage=0, ParentageID* previousParentageId=0);
+    void commit_aux(Base::ProductPtrVec& products, bool record_parents, std::vector<BranchID>* previousParentage=0, ParentageID* previousParentageId=0);
 
     BasicHandle 
     getByProductID_(ProductID const& oid) const;
