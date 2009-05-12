@@ -41,6 +41,7 @@
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 
 ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config) : 
 
@@ -60,8 +61,6 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   
   
   // use onfiguration file to setup input collection names
-  
-  //bcProducer_             = conf_.getParameter<std::string>("bcProducer");
   bcBarrelCollection_     = conf_.getParameter<edm::InputTag>("bcBarrelCollection");
   bcEndcapCollection_     = conf_.getParameter<edm::InputTag>("bcEndcapCollection");
   
@@ -76,6 +75,9 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   
   algoName_ = conf_.getParameter<std::string>( "AlgorithmName" );  
 
+  hcalTowers_ = conf_.getParameter<edm::InputTag>("hcalTowers");
+  hOverEConeSize_   = conf_.getParameter<double>("hOverEConeSize");
+  maxHOverE_        = conf_.getParameter<double>("maxHOverE");
   minSCEt_        = conf_.getParameter<double>("minSCEt");
   recoverOneTrackCase_ = conf_.getParameter<bool>( "recoverOneTrackCase" );  
   dRForConversionRecovery_ = conf_.getParameter<double>("dRForConversionRecovery");
@@ -265,7 +267,13 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
     validEndcapBCHandle=true;
   }
  
-  
+
+// get Hcal towers collection 
+  Handle<CaloTowerCollection> hcalTowersHandle;
+  theEvent.getByLabel(hcalTowers_, hcalTowersHandle);
+
+  // get the geometry from the event setup:
+  theEventSetup.get<CaloGeometryRecord>().get(theCaloGeom_);
 
 
   if (  validTrackInputs ) {
@@ -280,8 +288,8 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
     allPairs = theTrackPairFinder_->run(t_outInTrk, outInTrkHandle, outInTrkSCAssocHandle, t_inOutTrk, inOutTrkHandle, inOutTrkSCAssocHandle  );
     LogDebug("ConvertedPhotonProducer")  << "ConvertedPhotonProducer  allPairs.size " << allPairs.size() << "\n";      
 
-    buildCollections(scBarrelHandle, bcBarrelHandle,generalTrkHandle, allPairs, outputConvPhotonCollection);
-    buildCollections(scEndcapHandle, bcEndcapHandle,generalTrkHandle, allPairs, outputConvPhotonCollection);
+    buildCollections(scBarrelHandle, bcBarrelHandle, hcalTowersHandle, generalTrkHandle, allPairs, outputConvPhotonCollection);
+    buildCollections(scEndcapHandle, bcEndcapHandle, hcalTowersHandle, generalTrkHandle, allPairs, outputConvPhotonCollection);
   }
   
   // put the product in the event
@@ -312,6 +320,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
 void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
 						  const edm::Handle<edm::View<reco::CaloCluster> > & bcHandle,
+						  const edm::Handle<CaloTowerCollection> & hcalTowersHandle, 
 						  const edm::Handle<reco::TrackCollection>  & generalTrkHandle,
 						  std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr>& allPairs,
                                                   reco::ConversionCollection & outputConvPhotonCollection)
@@ -320,17 +329,27 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 
   
   reco::Conversion::ConversionAlgorithm algo = reco::Conversion::algoByName(algoName_);
+ 
   std::vector<reco::TransientTrack> t_generalTrk;
   if (  recoverOneTrackCase_ )  t_generalTrk = ( *theTransientTrackBuilder_ ).build(generalTrkHandle );
- 
+  const CaloGeometry* geometry = theCaloGeom_.product(); 
 
   //  Loop over SC in the barrel and reconstruct converted photons
   int myCands=0;
   reco::CaloClusterPtrVector scPtrVec;
   for (unsigned i = 0; i < scHandle->size(); ++i ) {
-
     reco::CaloClusterPtr aClus= scHandle->ptrAt(i);
+
+    // preselection based in Et and H/E cut
     if (aClus->energy()/cosh(aClus->eta()) <= minSCEt_) continue;
+    const reco::CaloCluster* pClus=&(*aClus);
+    const reco::SuperCluster*  sc=dynamic_cast<const reco::SuperCluster*>(pClus);
+    const CaloTowerCollection* hcalTowersColl = hcalTowersHandle.product();
+    EgammaTowerIsolation towerIso(hOverEConeSize_,0.,0.,-1,hcalTowersColl) ;
+    double HoE=towerIso.getTowerESum(sc)/sc->energy();
+    if (HoE>=maxHOverE_)  continue;
+    /////
+
 
     std::vector<edm::Ref<reco::TrackCollection> > trackPairRef;
     std::vector<math::XYZVector> trackPin;
@@ -437,9 +456,8 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
         
 	minAppDist=calculateMinApproachDistance( trackPairRef[0],  trackPairRef[1]);
 
-	reco::Conversion  newCandidate(scPtrVec,  trackPairRef,  trkPositionAtEcal, theConversionVertex, matchingBC,  minAppDist, trackPin, trackPout, algo );
+	reco::Conversion  newCandidate(scPtrVec,  trackPairRef,  trkPositionAtEcal, theConversionVertex, matchingBC,  minAppDist, trackPin, trackPout, algo);
 	outputConvPhotonCollection.push_back(newCandidate);
-	
 	
 	
 	myCands++;
