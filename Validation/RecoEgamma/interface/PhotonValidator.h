@@ -24,8 +24,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/04/22 16:36:35 $ 
- **  $Revision: 1.16 $
+ **  $Date: 2009/05/04 11:48:57 $ 
+ **  $Revision: 1.17 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -52,6 +52,7 @@ class PhotonValidator : public edm::EDAnalyzer
                                    
       
   virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
+  virtual void beginJob();
   virtual void beginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) ;
   virtual void endJob() ;
   
