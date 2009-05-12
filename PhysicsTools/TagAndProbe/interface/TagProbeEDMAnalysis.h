@@ -4,7 +4,7 @@
 //
 // Original Author: Nadia Adam (Princeton University) 
 //         Created:  Fri May 16 16:48:24 CEST 2008
-// $Id: TagProbeEDMAnalysis.h,v 1.12 2009/04/06 19:18:35 ahunt Exp $
+// $Id: TagProbeEDMAnalysis.h,v 1.13 2009/05/12 21:57:01 ahunt Exp $
 //
 //
 // Kalanand Mishra: July 1, 2008 
@@ -66,6 +66,17 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer
       void TPEffMCTruth2D();
 
       void CalculateEfficiencies();
+
+      void FillFitTree(const edm::Event&);
+
+      void ConfigureZLineShape(const edm::ParameterSet&);
+      void ConfigureCBLineShape(const edm::ParameterSet&);
+      void ConfigureGaussLineShape(const edm::ParameterSet&);
+      void ConfigurePolynomialShape(const edm::ParameterSet&);
+      void ConfigureCMSBackgroundLineShape(const edm::ParameterSet&);
+
+      void InitializeMCHistograms();
+
       void cleanFitVariables();
 
       // Histogram drawing input variables

@@ -98,23 +98,19 @@
 #include <RooTreeData.h>
 #include <RooVoigtian.h>
 
-using namespace std;
-using namespace edm;
-using namespace RooFit;
-
 TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
 {
    // TagProbeEDMAnalysis variables
-   vector<string>       dEmptyStringVec;
-   vector<unsigned int> dEmptyUIntVec;
-   vector<double>       dEmptyDoubleVec;
-   quantities_      = iConfig.getUntrackedParameter< vector<string> >("quantities",dEmptyStringVec); 
-   conditions_      = iConfig.getUntrackedParameter< vector<string> >("conditions",dEmptyStringVec); 
-   outputFileNames_ = iConfig.getUntrackedParameter< vector<string> >("outputFileNames",dEmptyStringVec);
-   XBins_           = iConfig.getUntrackedParameter< vector<unsigned int> >("XBins",dEmptyUIntVec);
-   XMin_            = iConfig.getUntrackedParameter< vector<double> >("XMin",dEmptyDoubleVec);
-   XMax_            = iConfig.getUntrackedParameter< vector<double> >("XMax",dEmptyDoubleVec);
-   logY_            = iConfig.getUntrackedParameter< vector<unsigned int> >("logY",dEmptyUIntVec);
+   std::vector<string>       dEmptyStringVec;
+   std::vector<unsigned int> dEmptyUIntVec;
+   std::vector<double>       dEmptyDoubleVec;
+   quantities_      = iConfig.getUntrackedParameter< std::vector<string> >("quantities",dEmptyStringVec); 
+   conditions_      = iConfig.getUntrackedParameter< std::vector<string> >("conditions",dEmptyStringVec); 
+   outputFileNames_ = iConfig.getUntrackedParameter< std::vector<string> >("outputFileNames",dEmptyStringVec);
+   XBins_           = iConfig.getUntrackedParameter< std::vector<unsigned int> >("XBins",dEmptyUIntVec);
+   XMin_            = iConfig.getUntrackedParameter< std::vector<double> >("XMin",dEmptyDoubleVec);
+   XMax_            = iConfig.getUntrackedParameter< std::vector<double> >("XMax",dEmptyDoubleVec);
+   logY_            = iConfig.getUntrackedParameter< std::vector<unsigned int> >("logY",dEmptyUIntVec);
 
    // Efficiency input variables
    tagProbeType_   = iConfig.getUntrackedParameter< int >("TagProbeType",0);
@@ -136,18 +132,18 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
    inweight_         = iConfig.getUntrackedParameter< double >("Weight",1.0);
 
    // The efficiency binning variables (default pt and eta)
-   vector< double > dBins;
+   std::vector< double > dBins;
    var1Name_       = iConfig.getUntrackedParameter< string >("NameVar1","pt");
    var1Nbins_      = iConfig.getUntrackedParameter< int >("NumBinsVar1",20);
    var1Low_        = iConfig.getUntrackedParameter< double >("Var1Low",0.0);
    var1High_       = iConfig.getUntrackedParameter< double >("Var1High",100.0);
-   var1Bins_       = iConfig.getUntrackedParameter< vector<double> >("Var1BinBoundaries",dBins);
+   var1Bins_       = iConfig.getUntrackedParameter< std::vector<double> >("Var1BinBoundaries",dBins);
 
    var2Name_       = iConfig.getUntrackedParameter< string >("NameVar2","eta");
    var2Nbins_      = iConfig.getUntrackedParameter< int >("NumBinsVar2",20);
    var2Low_        = iConfig.getUntrackedParameter< double >("Var2Low",-2.4);
    var2High_       = iConfig.getUntrackedParameter< double >("Var2High",2.4);
-   var2Bins_       = iConfig.getUntrackedParameter< vector<double> >("Var2BinBoundaries",dBins);
+   var2Bins_       = iConfig.getUntrackedParameter< std::vector<double> >("Var2BinBoundaries",dBins);
 
    // This gives the option to use bins from a file. 
    doTextDefinedBins_ = iConfig.getUntrackedParameter< bool >("DoBinsFromTxt",false);
@@ -178,7 +174,7 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
 	  var1Name_ == "etDet" || var1Name_ == "etaDet" || var1Name_ == "phiDet" ||
 	  var1Name_ == "jetDeltaR" || var1Name_ == "totJets" ) )
    {
-      LogWarning("TagAndProbe") << "Warning: Var1 name invalid, setting var1 name to pt!";
+      edm::LogWarning("TagAndProbe") << "Warning: Var1 name invalid, setting var1 name to pt!";
       var1Name_ = "pt";
    }
 
@@ -190,7 +186,7 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
 	  var2Name_ == "etDet" || var2Name_ == "etaDet" || var2Name_ == "phiDet" ||
 	  var2Name_ == "jetDeltaR" || var2Name_ == "totJets" ) )
    {
-      LogWarning("TagAndProbe") << "Warning: Var2 name invalid, setting var2 name to eta!";
+      edm::LogWarning("TagAndProbe") << "Warning: Var2 name invalid, setting var2 name to eta!";
       var2Name_ = "eta";
    }
 
@@ -231,170 +227,39 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
 
    // Fitter variables
 
-   // 1. ZLineShape
-   fitZLineShape_ = false;
-   ParameterSet dLineShape;
-   ZLineShape_ = iConfig.getUntrackedParameter< edm::ParameterSet >("ZLineShape",dLineShape);
+   ConfigureZLineShape(iConfig);
+   ConfigureCBLineShape(iConfig);
+   ConfigureGaussLineShape(iConfig);
+   ConfigurePolynomialShape(iConfig);
+   ConfigureCMSBackgroundLineShape(iConfig);
 
-   vector<double> dSigM;
-   dSigM.push_back(91.1876);
-   dSigM.push_back(85.0);
-   dSigM.push_back(95.0);
-   zMean_     = ZLineShape_.getUntrackedParameter< vector<double> >("ZMean",dSigM);
-   vector<double> dSigW;
-   dSigW.push_back(2.3);
-   dSigW.push_back(1.0);
-   dSigW.push_back(4.0);
-   zWidth_     = ZLineShape_.getUntrackedParameter< vector<double> >("ZWidth",dSigW);
-   vector<double> dSigS;
-   dSigS.push_back(1.5);
-   dSigS.push_back(0.0);
-   dSigS.push_back(4.0);
-   zSigma_     = ZLineShape_.getUntrackedParameter< vector<double> >("ZSigma",dSigS);
-   vector<double> dSigWL;
-   dSigWL.push_back(3.0);
-   dSigWL.push_back(1.0);
-   dSigWL.push_back(10.0);
-   zWidthL_    = ZLineShape_.getUntrackedParameter< vector<double> >("ZWidthL",dSigWL);
-   vector<double> dSigWR;
-   dSigWR.push_back(0.52);
-   dSigWR.push_back(0.0);
-   dSigWR.push_back(2.0);
-   zWidthR_    = ZLineShape_.getUntrackedParameter< vector<double> >("ZWidthR",dSigWR);
-   vector<double> dBGF;
-   dBGF.push_back(0.87);
-   dBGF.push_back(0.0);
-   dBGF.push_back(1.0);
-   zBifurGaussFrac_  = ZLineShape_.getUntrackedParameter< vector<double> >("ZBifurGaussFrac",dBGF);
-
-   floatFailZMean_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZMean",false);
-   floatFailZWidth_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZWidth",false);
-   floatFailZSigma_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZSigma",false);
-   floatFailZWidthL_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZWidthL",false);
-   floatFailZWidthR_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZWidthR",false);
-   floatFailZBifurGaussFrac_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZBifurGaussFrac",false);
-
-   // 2. CBLineShape
-   fitCBLineShape_ = false;
-   ParameterSet dCBLineShape;
-   CBLineShape_     = iConfig.getUntrackedParameter< edm::ParameterSet >("CBLineShape",dCBLineShape);
-
-   vector<double> dCBM;
-   dCBM.push_back(91.1876);
-   dCBM.push_back(85.0);
-   dCBM.push_back(95.0);
-   cbMean_          = CBLineShape_.getUntrackedParameter< vector<double> >("CBMean",dCBM);
-   vector<double> dCBS;
-   dCBS.push_back(1.5);
-   dCBS.push_back(0.0);
-   dCBS.push_back(4.0);
-   cbSigma_         = CBLineShape_.getUntrackedParameter< vector<double> >("CBSigma",dCBS);
-   vector<double> dCBAlpha;
-   dCBAlpha.push_back(3.0);
-   dCBAlpha.push_back(1.0);
-   dCBAlpha.push_back(10.0);
-   cbAlpha_         = CBLineShape_.getUntrackedParameter< vector<double> >("CBAlpha",dCBAlpha);
-   vector<double> dCBN;
-   dCBN.push_back(3.0);
-   dCBN.push_back(0.0);
-   dCBN.push_back(20.0);
-   cbN_             = CBLineShape_.getUntrackedParameter< vector<double> >("CBN",dCBN);
-
-   // 3. GaussLineShape
-   fitGaussLineShape_ = false;
-   ParameterSet dGaussLineShape;
-   GaussLineShape_     = iConfig.getUntrackedParameter< edm::ParameterSet >("GaussLineShape",dGaussLineShape);
-
-   vector<double> dGaussM;
-   dGaussM.push_back(91.1876);
-   dGaussM.push_back(85.0);
-   dGaussM.push_back(95.0);
-   gaussMean_          = GaussLineShape_.getUntrackedParameter< vector<double> >("GaussMean",dGaussM);
-   vector<double> dGaussS;
-   dGaussS.push_back(1.5);
-   dGaussS.push_back(0.0);
-   dGaussS.push_back(4.0);
-   gaussSigma_         = GaussLineShape_.getUntrackedParameter< vector<double> >("GaussSigma",dGaussS);
-
-   // 1. CMS Background Line Shape
-   fitCMSBkgLineShape_ = false;
-   ParameterSet dCMSBkgLineShape;
-   CMSBkgLineShape_ = iConfig.getUntrackedParameter< edm::ParameterSet >("CMSBkgLineShape",dCMSBkgLineShape);
-
-   vector<double> dBAl;
-   dBAl.push_back(63.0);
-   cmsBkgAlpha_        = CMSBkgLineShape_.getUntrackedParameter< vector<double> >("CMSBkgAlpha",dBAl);
-   vector<double> dBBt;
-   dBBt.push_back(0.001);
-   cmsBkgBeta_         = CMSBkgLineShape_.getUntrackedParameter< vector<double> >("CMSBkgBeta",dBBt);
-   vector<double> dBPk;
-   dBPk.push_back(91.1876);
-   cmsBkgPeak_         = CMSBkgLineShape_.getUntrackedParameter< vector<double> >("CMSBkgPeak",dBPk);
-   vector<double> dBGam;
-   dBGam.push_back(0.08);
-   dBGam.push_back(0.0);
-   dBGam.push_back(1.0);
-   cmsBkgGamma_        = CMSBkgLineShape_.getUntrackedParameter< vector<double> >("CMSBkgGamma",dBGam);
-
-   // 2. Polynomial Background Line Shape
-   fitPolyBkgLineShape_ = false;
-   ParameterSet dPolyBkgLineShape;
-   PolyBkgLineShape_ = iConfig.getUntrackedParameter< edm::ParameterSet >("PolyBkgLineShape",dPolyBkgLineShape);
-
-   vector<double> dC0;
-   dC0.push_back(0);
-   dC0.push_back(0);
-   dC0.push_back(10000);
-   polyBkgC0_        = PolyBkgLineShape_.getUntrackedParameter< vector<double> >("PolyBkgC0",dC0); 
-   vector<double> dC1;
-   dC1.push_back(1.0);
-   dC1.push_back(-1000);
-   dC1.push_back(1000);
-   polyBkgC1_        = PolyBkgLineShape_.getUntrackedParameter< vector<double> >("PolyBkgC1",dC1); 
-   vector<double> dC2;
-   dC2.push_back(0);
-   dC2.push_back(-1000);
-   dC2.push_back(1000);
-   polyBkgC2_        = PolyBkgLineShape_.getUntrackedParameter< vector<double> >("PolyBkgC2",dC2); 
-   vector<double> dC3;
-   dC3.push_back(0);
-   dC3.push_back(-1000);
-   dC3.push_back(1000);
-   polyBkgC3_        = PolyBkgLineShape_.getUntrackedParameter< vector<double> >("PolyBkgC3",dC3); 
-   vector<double> dC4;
-   dC4.push_back(0);
-   dC4.push_back(-1000);
-   dC4.push_back(1000);
-   polyBkgC4_        = PolyBkgLineShape_.getUntrackedParameter< vector<double> >("PolyBkgC4",dC4); 
-
-
-   vector<double> dEff;
+   std::vector<double> dEff;
    dEff.push_back(0.98);
    dEff.push_back(0.0);
    dEff.push_back(1.1);
-   efficiency_      = iConfig.getUntrackedParameter< vector<double> >("Efficiency",dEff);
-   vector<double> dNSig;
+   efficiency_      = iConfig.getUntrackedParameter< std::vector<double> >("Efficiency",dEff);
+   std::vector<double> dNSig;
    dNSig.push_back(1000.0);
    dNSig.push_back(-10.0);
    dNSig.push_back(1000000.0);
-   numSignal_       = iConfig.getUntrackedParameter< vector<double> >("NumSignal",dNSig);
-   vector<double> dNBPs;
+   numSignal_       = iConfig.getUntrackedParameter< std::vector<double> >("NumSignal",dNSig);
+   std::vector<double> dNBPs;
    dNBPs.push_back(1000.0);
    dNBPs.push_back(-10.0);
    dNBPs.push_back(1000000.0);
-   numBkgPass_      = iConfig.getUntrackedParameter< vector<double> >("NumBkgPass",dNBPs);
-   vector<double> dNBFl;
+   numBkgPass_      = iConfig.getUntrackedParameter< std::vector<double> >("NumBkgPass",dNBPs);
+   std::vector<double> dNBFl;
    dNBFl.push_back(1000.0);
    dNBFl.push_back(-10.0);
    dNBFl.push_back(1000000.0);
-   numBkgFail_      = iConfig.getUntrackedParameter< vector<double> >("NumBkgFail",dNBFl);
+   numBkgFail_      = iConfig.getUntrackedParameter< std::vector<double> >("NumBkgFail",dNBFl);
 
    // Get the mode of operation variables
    mode_        = iConfig.getUntrackedParameter< string >("Mode","Normal");
    fitFileName_ = iConfig.getUntrackedParameter< string >("FitFileName","fitfile.root");
 
-   vector< string > dReadFiles;
-   readFiles_   = iConfig.getUntrackedParameter< vector<string> >("ReadFromFiles",dReadFiles);
+   std::vector< std::string > dReadFiles;
+   readFiles_   = iConfig.getUntrackedParameter< std::vector<string> >("ReadFromFiles",dReadFiles);
    
    // Allocate space for the simple plot histograms
    numQuantities_ = quantities_.size();
@@ -447,6 +312,166 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
 		       (var2NameUp_+"/D").c_str());   
    }
 
+   InitializeMCHistograms();
+
+}
+
+void TagProbeEDMAnalysis::ConfigureZLineShape(const edm::ParameterSet& iConfig){
+
+   // 1. ZLineShape
+   fitZLineShape_ = false;
+   edm::ParameterSet dLineShape;
+   ZLineShape_ = iConfig.getUntrackedParameter< edm::ParameterSet >("ZLineShape",dLineShape);
+
+   std::vector<double> dSigM;
+   dSigM.push_back(91.1876);
+   dSigM.push_back(85.0);
+   dSigM.push_back(95.0);
+   zMean_     = ZLineShape_.getUntrackedParameter< std::vector<double> >("ZMean",dSigM);
+   std::vector<double> dSigW;
+   dSigW.push_back(2.3);
+   dSigW.push_back(1.0);
+   dSigW.push_back(4.0);
+   zWidth_     = ZLineShape_.getUntrackedParameter< std::vector<double> >("ZWidth",dSigW);
+   std::vector<double> dSigS;
+   dSigS.push_back(1.5);
+   dSigS.push_back(0.0);
+   dSigS.push_back(4.0);
+   zSigma_     = ZLineShape_.getUntrackedParameter< std::vector<double> >("ZSigma",dSigS);
+   std::vector<double> dSigWL;
+   dSigWL.push_back(3.0);
+   dSigWL.push_back(1.0);
+   dSigWL.push_back(10.0);
+   zWidthL_    = ZLineShape_.getUntrackedParameter< std::vector<double> >("ZWidthL",dSigWL);
+   std::vector<double> dSigWR;
+   dSigWR.push_back(0.52);
+   dSigWR.push_back(0.0);
+   dSigWR.push_back(2.0);
+   zWidthR_    = ZLineShape_.getUntrackedParameter< std::vector<double> >("ZWidthR",dSigWR);
+   std::vector<double> dBGF;
+   dBGF.push_back(0.87);
+   dBGF.push_back(0.0);
+   dBGF.push_back(1.0);
+   zBifurGaussFrac_  = ZLineShape_.getUntrackedParameter< std::vector<double> >("ZBifurGaussFrac",dBGF);
+
+   floatFailZMean_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZMean",false);
+   floatFailZWidth_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZWidth",false);
+   floatFailZSigma_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZSigma",false);
+   floatFailZWidthL_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZWidthL",false);
+   floatFailZWidthR_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZWidthR",false);
+   floatFailZBifurGaussFrac_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZBifurGaussFrac",false);
+}
+
+void TagProbeEDMAnalysis::ConfigureCBLineShape(const edm::ParameterSet& iConfig){
+
+   // 2. CBLineShape
+   fitCBLineShape_ = false;
+   edm::ParameterSet dCBLineShape;
+   CBLineShape_     = iConfig.getUntrackedParameter< edm::ParameterSet >("CBLineShape",dCBLineShape);
+
+   std::vector<double> dCBM;
+   dCBM.push_back(91.1876);
+   dCBM.push_back(85.0);
+   dCBM.push_back(95.0);
+   cbMean_          = CBLineShape_.getUntrackedParameter< std::vector<double> >("CBMean",dCBM);
+   std::vector<double> dCBS;
+   dCBS.push_back(1.5);
+   dCBS.push_back(0.0);
+   dCBS.push_back(4.0);
+   cbSigma_         = CBLineShape_.getUntrackedParameter< std::vector<double> >("CBSigma",dCBS);
+   std::vector<double> dCBAlpha;
+   dCBAlpha.push_back(3.0);
+   dCBAlpha.push_back(1.0);
+   dCBAlpha.push_back(10.0);
+   cbAlpha_         = CBLineShape_.getUntrackedParameter< std::vector<double> >("CBAlpha",dCBAlpha);
+   std::vector<double> dCBN;
+   dCBN.push_back(3.0);
+   dCBN.push_back(0.0);
+   dCBN.push_back(20.0);
+   cbN_             = CBLineShape_.getUntrackedParameter< std::vector<double> >("CBN",dCBN);
+}
+
+
+void TagProbeEDMAnalysis::ConfigureGaussLineShape(const edm::ParameterSet& iConfig) {
+
+   // 3. GaussLineShape
+   fitGaussLineShape_ = false;
+   edm::ParameterSet dGaussLineShape;
+   GaussLineShape_     = iConfig.getUntrackedParameter< edm::ParameterSet >("GaussLineShape",dGaussLineShape);
+
+   std::vector<double> dGaussM;
+   dGaussM.push_back(91.1876);
+   dGaussM.push_back(85.0);
+   dGaussM.push_back(95.0);
+   gaussMean_          = GaussLineShape_.getUntrackedParameter< std::vector<double> >("GaussMean",dGaussM);
+   std::vector<double> dGaussS;
+   dGaussS.push_back(1.5);
+   dGaussS.push_back(0.0);
+   dGaussS.push_back(4.0);
+   gaussSigma_         = GaussLineShape_.getUntrackedParameter< std::vector<double> >("GaussSigma",dGaussS);
+
+}
+
+void TagProbeEDMAnalysis::ConfigureCMSBackgroundLineShape(const edm::ParameterSet& iConfig) {
+
+   // 1. CMS Background Line Shape
+   fitCMSBkgLineShape_ = false;
+   edm::ParameterSet dCMSBkgLineShape;
+   CMSBkgLineShape_ = iConfig.getUntrackedParameter< edm::ParameterSet >("CMSBkgLineShape",dCMSBkgLineShape);
+
+   std::vector<double> dBAl;
+   dBAl.push_back(0);  // Approximate turn on from pt cut;
+   cmsBkgAlpha_        = CMSBkgLineShape_.getUntrackedParameter< std::vector<double> >("CMSBkgAlpha",dBAl);
+   std::vector<double> dBBt;
+   dBBt.push_back(0.001); // "Rise time" from pt cut;
+   cmsBkgBeta_         = CMSBkgLineShape_.getUntrackedParameter< std::vector<double> >("CMSBkgBeta",dBBt);
+   std::vector<double> dBPk;
+   dBPk.push_back(91.1876);  // Offset to extend exponetial range.
+   cmsBkgPeak_         = CMSBkgLineShape_.getUntrackedParameter< std::vector<double> >("CMSBkgPeak",dBPk);
+   std::vector<double> dBGam; 
+   dBGam.push_back(0.08);
+   dBGam.push_back(0.0);
+   dBGam.push_back(1.0);
+   cmsBkgGamma_        = CMSBkgLineShape_.getUntrackedParameter< std::vector<double> >("CMSBkgGamma",dBGam);
+
+}
+
+void TagProbeEDMAnalysis::ConfigurePolynomialShape(const edm::ParameterSet& iConfig) {
+
+   // 2. Polynomial Background Line Shape
+   fitPolyBkgLineShape_ = false;
+   edm::ParameterSet dPolyBkgLineShape;
+   PolyBkgLineShape_ = iConfig.getUntrackedParameter< edm::ParameterSet >("PolyBkgLineShape",dPolyBkgLineShape);
+
+   std::vector<double> dC0;
+   dC0.push_back(0);
+   dC0.push_back(0);
+   dC0.push_back(10000);
+   polyBkgC0_        = PolyBkgLineShape_.getUntrackedParameter< std::vector<double> >("PolyBkgC0",dC0); 
+   std::vector<double> dC1;
+   dC1.push_back(1.0);
+   dC1.push_back(-1000);
+   dC1.push_back(1000);
+   polyBkgC1_        = PolyBkgLineShape_.getUntrackedParameter< std::vector<double> >("PolyBkgC1",dC1); 
+   std::vector<double> dC2;
+   dC2.push_back(0);
+   dC2.push_back(-1000);
+   dC2.push_back(1000);
+   polyBkgC2_        = PolyBkgLineShape_.getUntrackedParameter< std::vector<double> >("PolyBkgC2",dC2); 
+   std::vector<double> dC3;
+   dC3.push_back(0);
+   dC3.push_back(-1000);
+   dC3.push_back(1000);
+   polyBkgC3_        = PolyBkgLineShape_.getUntrackedParameter< std::vector<double> >("PolyBkgC3",dC3); 
+   std::vector<double> dC4;
+   dC4.push_back(0);
+   dC4.push_back(-1000);
+   dC4.push_back(1000);
+   polyBkgC4_        = PolyBkgLineShape_.getUntrackedParameter< std::vector<double> >("PolyBkgC4",dC4); 
+}
+
+void TagProbeEDMAnalysis::InitializeMCHistograms(){
+
    // MC Truth Histograms
    var1Pass_ = new TH1F("hvar1pass","Var1 Pass",
 			var1Bins_.size()-1,&var1Bins_[0]);
@@ -486,9 +511,6 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
 }
 
 
-
-
-
 TagProbeEDMAnalysis::~TagProbeEDMAnalysis()
 {
    // Clean up
@@ -520,46 +542,34 @@ TagProbeEDMAnalysis::~TagProbeEDMAnalysis()
 
 
 
+void TagProbeEDMAnalysis::FillFitTree(const edm::Event& iEvent){
 
-// ------------ method called to for each event  ------------
-void
-TagProbeEDMAnalysis::analyze(const edm::Event& iEvent, 
-			     const edm::EventSetup& iSetup)
-{
-
-   // Safety check .. if mode = read, the user should use an empty source.
-   if( mode_ == "Read" ) return;
-
-   // Fill the fit tree if we are fitting or doing SB subtraction
-   if( calcEffsSB_ || calcEffsFitter_ || mode_ == "Write" )
-   {
-      // Get the TP variables to fill the fitter tree ...
-      Handle< vector<int> > tp_type;
+      edm::Handle< std::vector<int> > tp_type;
       if ( !iEvent.getByLabel("TPEdm","TPtype",tp_type) ) {
 	edm::LogInfo("TagProbeEDMAnalysis") << "No TPtype in Tree!"; 
       }
 
-      Handle< vector<int> > tp_true;
+      edm::Handle< std::vector<int> > tp_true;
       if ( !iEvent.getByLabel("TPEdm","TPtrue",tp_true) ) {
          edm::LogInfo("TagProbeEDMAnalysis") << "No TPtrue in Tree!"; 
       }
       
-      Handle< vector<int> > tp_ppass;
+      edm::Handle< std::vector<int> > tp_ppass;
       if ( !iEvent.getByLabel("TPEdm","TPppass",tp_ppass) ) {
          edm::LogInfo("TagProbeEDMAnalysis") << "No TPppass in Tree!"; 
       }
       
-      Handle< vector<float> > tp_mass;
+      edm::Handle< std::vector<float> > tp_mass;
       if ( !iEvent.getByLabel("TPEdm","TPmass",tp_mass) ) {
          edm::LogInfo("TagProbeEDMAnalysis") << "No TPmass in Tree!"; 
       }
 
-      Handle< vector<float> > tp_probe_var1;
+      edm::Handle< std::vector<float> > tp_probe_var1;
       if ( !iEvent.getByLabel("TPEdm",("TPProbe"+var1Name_).c_str(),tp_probe_var1) ) {
          edm::LogInfo("TagProbeEDMAnalysis") << "No TPProbe"+var1Name_+" in Tree!"; 
       }
       
-      Handle< vector<float> > tp_probe_var2;
+      edm::Handle< std::vector<float> > tp_probe_var2;
       if ( !iEvent.getByLabel("TPEdm",("TPProbe"+var2Name_).c_str(),tp_probe_var2) ) {
          edm::LogInfo("TagProbeEDMAnalysis") << "No TPProbe"+var2Name_+" in Tree!"; 
       }
@@ -579,6 +589,23 @@ TagProbeEDMAnalysis::analyze(const edm::Event& iEvent,
 	  fitTree_->Fill();
 	}
       }      
+}
+
+
+// ------------ method called to for each event  ------------
+void
+TagProbeEDMAnalysis::analyze(const edm::Event& iEvent, 
+			     const edm::EventSetup& iSetup)
+{
+
+   // Safety check .. if mode = read, the user should use an empty source.
+   if( mode_ == "Read" ) return;
+
+   // Fill the fit tree if we are fitting or doing SB subtraction
+   if( calcEffsSB_ || calcEffsFitter_ || mode_ == "Write" )
+   {
+      // Get the TP variables to fill the fitter tree ...
+     FillFitTree(iEvent);
    }
 
 
@@ -586,32 +613,32 @@ TagProbeEDMAnalysis::analyze(const edm::Event& iEvent,
    if( calcEffsTruth_ || mode_ == "Write" )
    {
       // Get the Cnd variable for the MC truth ...
-      Handle< vector<int> > cnd_type;
+      edm::Handle< std::vector<int> > cnd_type;
       if ( !iEvent.getByLabel("TPEdm","Cndtype",cnd_type) ) {
          edm::LogInfo("TagProbeEDMAnalysis") << "No Cndtype in Tree!"; 
       }
 
-      Handle< vector<int> > cnd_tag;
+      edm::Handle< std::vector<int> > cnd_tag;
       if ( !iEvent.getByLabel("TPEdm","Cndtag",cnd_tag) ) {
          edm::LogInfo("TagProbeEDMAnalysis") << "No Cndtag in Tree!"; 
       }
 
-      Handle< vector<int> > cnd_aprobe;
+      edm::Handle< std::vector<int> > cnd_aprobe;
       if ( !iEvent.getByLabel("TPEdm","Cndaprobe",cnd_aprobe) ) {
          edm::LogInfo("TagProbeEDMAnalysis") << "No Cndaprobe in Tree!"; 
       }
 
-      Handle< vector<int> > cnd_pprobe;
+      edm::Handle< std::vector<int> > cnd_pprobe;
       if ( !iEvent.getByLabel("TPEdm","Cndpprobe",cnd_pprobe) ) {
          edm::LogInfo("TagProbeEDMAnalysis") << "No Cndpprobe in Tree!"; 
       }
 
-      Handle< vector<int> > cnd_moid;
+      edm::Handle< std::vector<int> > cnd_moid;
       if ( !iEvent.getByLabel("TPEdm","Cndmoid",cnd_moid) ) {
          edm::LogInfo("TagProbeEDMAnalysis") << "No Cndmoid in Tree!"; 
       }
 
-      Handle< vector<int> > cnd_gmid;
+      edm::Handle< std::vector<int> > cnd_gmid;
       if ( !iEvent.getByLabel("TPEdm","Cndgmid",cnd_gmid) ) {
          edm::LogInfo("TagProbeEDMAnalysis") << "No Cndgmid in Tree!"; 
       }
@@ -629,32 +656,32 @@ TagProbeEDMAnalysis::analyze(const edm::Event& iEvent,
 	truthVar2.insert(0, "Cndr");
       }
 
-      Handle< vector<float> > cnd_var1;
+      edm::Handle< std::vector<float> > cnd_var1;
       if ( !iEvent.getByLabel("TPEdm",truthVar1.c_str(),cnd_var1) ) {
          edm::LogInfo("TagProbeEDMAnalysis") << "No Cnd"+var1Name_+" in Tree!"; 
       }
 
-      Handle< vector<float> > cnd_var2;
+      edm::Handle< std::vector<float> > cnd_var2;
       if ( !iEvent.getByLabel("TPEdm",truthVar2.c_str(),cnd_var2) ) {
          edm::LogInfo("TagProbeEDMAnalysis") << "No Cnd"+var2Name_+" in Tree!"; 
       }
 
-      Handle< vector<float> > cnd_rpx;
+      edm::Handle< std::vector<float> > cnd_rpx;
       if ( !iEvent.getByLabel("TPEdm","Cndrpx",cnd_rpx) ) {
          edm::LogInfo("TagProbeEDMAnalysis") << "No Cndrpx in Tree!"; 
       }
 
-      Handle< vector<float> > cnd_rpy;
+      edm::Handle< std::vector<float> > cnd_rpy;
       if ( !iEvent.getByLabel("TPEdm","Cndrpy",cnd_rpy) ) {
          edm::LogInfo("TagProbeEDMAnalysis") << "No Cndrpy in Tree!"; 
       }
 
-      Handle< vector<float> > cnd_rpz;
+      edm::Handle< std::vector<float> > cnd_rpz;
       if ( !iEvent.getByLabel("TPEdm","Cndrpz",cnd_rpz) ) {
          edm::LogInfo("TagProbeEDMAnalysis") << "No Cndrpz in Tree!"; 
       }
 
-      Handle< vector<float> > cnd_re;
+      edm::Handle< std::vector<float> > cnd_re;
       if ( !iEvent.getByLabel("TPEdm","Cndre",cnd_re) ) {
          edm::LogInfo("TagProbeEDMAnalysis") << "No Cndre in Tree!"; 
       }
@@ -752,13 +779,13 @@ TagProbeEDMAnalysis::analyze(const edm::Event& iEvent,
 	     quantities_[i] == "Run"       || 
 	     quantities_[i] == "Event" )
 	 {
-	    Handle< int > h;
+	    edm::Handle< int > h;
 	    if ( !iEvent.getByLabel("TPEdm",quantities_[i].c_str(),h) ) { 
 	       edm::LogInfo("TagProbeEDMAnalysis") << "No "+quantities_[i]+" in Tree!"; 
             }
 	    if( h.isValid() ) Histograms_[i].Fill(*h);
 	 }
-	 // vector<int>
+	 // std::vector<int>
 	 else if( quantities_[i].find("type") != string::npos ||
 		  quantities_[i].find("true") != string::npos || 
 		  quantities_[i].find("ppass") != string::npos || 
@@ -772,7 +799,7 @@ TagProbeEDMAnalysis::analyze(const edm::Event& iEvent,
 		  quantities_[i].find("pid") != string::npos || 
 		  quantities_[i].find("bc") != string::npos )
 	 {
-	    Handle< vector<int> > h;
+	    edm::Handle< std::vector<int> > h;
 	    if ( !iEvent.getByLabel("TPEdm",quantities_[i].c_str(),h) ) {
 	        edm::LogInfo("TagProbeEDMAnalysis") << "No "+quantities_[i]+" in Tree!"; 
             }
@@ -780,10 +807,10 @@ TagProbeEDMAnalysis::analyze(const edm::Event& iEvent,
 	      for( int n=0; n<(int)h->size(); ++n ) 
 		Histograms_[i].Fill((*h)[n]);
 	 }
-	 // vector< float >
+	 // std::vector< float >
 	 else
 	 {
-	    Handle< vector<float> > h;
+	    edm::Handle< std::vector<float> > h;
 	    if ( !iEvent.getByLabel("TPEdm",quantities_[i].c_str(),h) ) {
 	        edm::LogInfo("TagProbeEDMAnalysis") << "No "+quantities_[i]+" in Tree!"; 
             }
@@ -819,14 +846,9 @@ int TagProbeEDMAnalysis::SaveHistogram(TH1F& Histo, std::string outFileName, Int
 }
 // ***************************************************** //
 
-
-
-
-
-
 // ****************** TP Eff Side band subtraction *************
 void TagProbeEDMAnalysis::TPEffSBS( string &fileName, string &bvar, 
-				     vector< double > bins, string &bvar2, 
+				     std::vector< double > bins, string &bvar2, 
 				     double bvar2Lo, double bvar2Hi )
 {
 
@@ -1021,8 +1043,8 @@ void TagProbeEDMAnalysis::TPEffSBS( string &fileName, string &bvar,
 
 // ****************** TP Eff Side band subtraction *************
 void TagProbeEDMAnalysis::TPEffSBS2D( string &fileName, string &bvar1, 
-				       vector< double > bins1,
-				       string &bvar2, vector< double > bins2 )
+				       std::vector< double > bins1,
+				       string &bvar2, std::vector< double > bins2 )
 {
 
   outRootFile_->cd();
@@ -1254,7 +1276,7 @@ void TagProbeEDMAnalysis::SideBandSubtraction( const TH1F& Total, TH1F& Result,
 
 // ********** Z -> l+l- Fitter ********** //
 void TagProbeEDMAnalysis::TPEffFitter( string &fileName, string &bvar, 
-					vector< double > bins, string &bvar2, 
+					std::vector< double > bins, string &bvar2, 
 					double bvar2Lo, double bvar2Hi )
 {
    edm::LogInfo("TagProbeEDMAnalysis") << "Here in TP fitter";
@@ -1268,7 +1290,7 @@ void TagProbeEDMAnalysis::TPEffFitter( string &fileName, string &bvar,
    edm::LogInfo("TagProbeEDMAnalysis") << "TPEffFitter: The number of bins is " << bnbins;
    TH1F effhist(hname.c_str(),htitle.c_str(),bnbins,&bins[0]);
     
-   vector< double > bins2;
+   std::vector< double > bins2;
    bins2.push_back( bvar2Lo );
    bins2.push_back( bvar2Hi );
    double eff = 0.0, err = 0.0;
@@ -1294,8 +1316,8 @@ void TagProbeEDMAnalysis::TPEffFitter( string &fileName, string &bvar,
 
 
 // ********** Z -> l+l- Fitter ********** //
-void TagProbeEDMAnalysis::TPEffFitter2D( string &fileName, string &bvar1, vector< double > bins1,
-					  string &bvar2, vector<double> bins2 )
+void TagProbeEDMAnalysis::TPEffFitter2D( string &fileName, string &bvar1, std::vector< double > bins1,
+					  string &bvar2, std::vector<double> bins2 )
 {
 
    outRootFile_->cd();
@@ -1639,6 +1661,9 @@ void TagProbeEDMAnalysis::doFit( std::string &bvar1, std::vector< double > bins1
 				 std::string &bvar2, std::vector<double> bins2, int bin2,  
                                  double &eff, double &err, bool is2D )
 {
+
+  using namespace RooFit;
+
    // The fit variable - lepton invariant mass
    rooMass_ = new RooRealVar("Mass","Invariant Di-Lepton Mass", massLow_, massHigh_, "GeV/c^{2}");
    rooMass_->setBins(massNbins_);
