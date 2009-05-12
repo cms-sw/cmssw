@@ -2,8 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("dump")
 
+# process.load("L1TriggerConfig.RPCTriggerConfig.L1RPCConfig_cff")
 
-process.load("L1TriggerConfig.RPCTriggerConfig.L1RPCConfig_cff")
+useGlobalTag = 'IDEAL_30X'
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = useGlobalTag + '::All'
+
+
 
 
 process.source = cms.Source("EmptySource")
