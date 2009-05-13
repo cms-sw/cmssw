@@ -8,6 +8,8 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
+#include "TrackingTools/GsfTracking/interface/TrajGsfTrackAssociation.h"
+
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
@@ -29,6 +31,7 @@ GsfTrackProducer::GsfTrackProducer(const edm::ParameterSet& iConfig):
   produces<reco::GsfTrackExtraCollection>().setBranchAlias( alias_ + "GsfTrackExtras" );
   produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
   produces<std::vector<Trajectory> >() ;
+  produces<TrajGsfTrackAssociationCollection>();
 
 }
 
@@ -44,6 +47,7 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   std::auto_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
   std::auto_ptr<reco::GsfTrackExtraCollection> outputGsfTEColl(new reco::GsfTrackExtraCollection);
   std::auto_ptr<std::vector<Trajectory> >    outputTrajectoryColl(new std::vector<Trajectory>);
+
   //
   //declare and get stuff to be retrieved from ES
   //

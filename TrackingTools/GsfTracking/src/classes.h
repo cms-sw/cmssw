@@ -8,7 +8,7 @@
 // #include "Math/CylindricalEta3D.h" 
 // #include <boost/cstdint.hpp> 
 // #include "DataFormats/TrackReco/interface/TrackFwd.h" 
-// #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 // #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 // #include "DataFormats/GeometrySurface/interface/Surface.h" 
 // #include "DataFormats/CLHEP/interface/Migration.h" 
@@ -19,14 +19,22 @@
 // #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h" 
 // #include "DataFormats/Common/interface/OwnVector.h" 
 // #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h" 
-// #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/GsfTracking/interface/TrajGsfTrackAssociation.h"
 // #include "TrackingTools/PatternTools/interface/TrackConstraintAssociation.h"
 #include "TrackingTools/GsfTracking/interface/GsfTrackConstraintAssociation.h"
 #include <vector>
 
 namespace {
   namespace {
-  
+
+    TrajGsfTrackAssociationCollection ttam;
+    edm::Wrapper<TrajGsfTrackAssociationCollection> wttam;
+    TrajGsfTrackAssociation vttam;
+    TrajGsfTrackAssociationRef rttam;
+    TrajGsfTrackAssociationRefProd rpttam;
+    TrajGsfTrackAssociationRefVector rvttam;
+
+
     GsfTrackMomConstraintAssociationCollection i1;
     edm::Wrapper<GsfTrackMomConstraintAssociationCollection> i2;
     GsfTrackMomConstraintAssociation i3;

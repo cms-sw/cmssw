@@ -17,7 +17,7 @@
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/GsfTracking/interface/TrajGsfTrackAssociation.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
@@ -40,9 +40,9 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
   edm::Ref<reco::TrackExtraCollection>::key_type idx = 0;
   edm::Ref<reco::TrackExtraCollection>::key_type hidx = 0;
   edm::Ref<reco::GsfTrackExtraCollection>::key_type idxGsf = 0;
-//   edm::Ref<reco::TrackCollection>::key_type iTkRef = 0;
-//   edm::Ref< std::vector<Trajectory> >::key_type iTjRef = 0;
-//   std::map<unsigned int, unsigned int> tjTkMap;
+  edm::Ref<reco::GsfTrackCollection>::key_type iTkRef = 0;
+  edm::Ref< std::vector<Trajectory> >::key_type iTjRef = 0;
+  std::map<unsigned int, unsigned int> tjTkMap;
 
   TSCBLBuilderNoMaterial tscblBuilder;
   
@@ -50,8 +50,9 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
     Trajectory * theTraj = (*i).first;
     if(trajectoryInEvent_) {
       selTrajectories->push_back(*theTraj);
-//       iTjRef++;
+      iTjRef++;
     }
+
     // const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits(useSplitting);  // NO: the return type in Trajectory is by VALUE
     TrajectoryFitter::RecHitContainer transHits = theTraj->recHits(useSplitting);
     reco::GsfTrack * theTrack = (*i).second.first;
@@ -61,16 +62,16 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
 
     reco::GsfTrack t = * theTrack;
     selTracks->push_back( t );
-//     iTkRef++;
+    iTkRef++;
 
-//     // Store indices in local map (starts at 0)
-//     if(trajectoryInEvent_) tjTkMap[iTjRef-1] = iTkRef-1;
+    // Store indices in local map (starts at 0)
+    if(trajectoryInEvent_) tjTkMap[iTjRef-1] = iTkRef-1;
 
     //sets the outermost and innermost TSOSs
     TrajectoryStateOnSurface outertsos;
     TrajectoryStateOnSurface innertsos;
     unsigned int innerId, outerId;
-
+    
     // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
     // This is consistent with innermost and outermost labels only for tracks from LHC collision
     if (theTraj->direction() == alongMomentum) {
@@ -97,12 +98,12 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
     reco::TrackExtraRef teref= reco::TrackExtraRef ( rTrackExtras, idx ++ );
     reco::GsfTrack & track = selTracks->back();
     track.setExtra( teref );
-
-
+    
+    
     selTrackExtras->push_back( reco::TrackExtra (outpos, outmom, true, inpos, inmom, true,
 						 outertsos.curvilinearError(), outerId,
 						 innertsos.curvilinearError(), innerId,
-						 seedDir,theTraj->seedRef()));
+						 seedDir, theTraj->seedRef()));
 
 
     reco::TrackExtra & tx = selTrackExtras->back();
@@ -179,16 +180,16 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
   if(trajectoryInEvent_) {
     edm::OrphanHandle<std::vector<Trajectory> > rTrajs = evt.put(selTrajectories);
 
-//     // Now Create traj<->tracks association map
-//     std::auto_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection() );
-//     for ( std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin(); 
-//           i != tjTkMap.end(); i++ ) {
-//       edm::Ref<std::vector<Trajectory> > trajRef( rTrajs, (*i).first );
-//       edm::Ref<reco::GsfTrackCollection>    tkRef( rTracks_, (*i).second );
-//       trajTrackMap->insert( edm::Ref<std::vector<Trajectory> >( rTrajs, (*i).first ),
-//                             edm::Ref<reco::GsfTrackCollection>( rTracks_, (*i).second ) );
-//     }
-//     evt.put( trajTrackMap );
+    // Now Create traj<->tracks association map
+    std::auto_ptr<TrajGsfTrackAssociationCollection> trajTrackMap( new TrajGsfTrackAssociationCollection() );
+    for ( std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin(); 
+	  i != tjTkMap.end(); i++ ) {
+      edm::Ref<std::vector<Trajectory> > trajRef( rTrajs, (*i).first );
+      edm::Ref<reco::GsfTrackCollection>    tkRef( rTracks_, (*i).second );
+      trajTrackMap->insert( edm::Ref<std::vector<Trajectory> >( rTrajs, (*i).first ),
+			    edm::Ref<reco::GsfTrackCollection>( rTracks_, (*i).second ) );
+    }
+    evt.put( trajTrackMap );
   }
 }
 
