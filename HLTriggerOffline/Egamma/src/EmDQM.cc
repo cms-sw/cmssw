@@ -447,6 +447,16 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
   if (recoecalcands.size() >= reqNum ) 
     total->Fill(n+0.5);
 
+
+  ///////////////////////////////////////////////////
+  // check for validity                            //
+  // prevents crash in CMSSW_3_1_0_pre6            //
+  ///////////////////////////////////////////////////
+  for (unsigned int j=0; j<recoecalcands.size(); j++){
+    if(!( recoecalcands.at(j).isAvailable())) edm::LogError("EmDQM") << "Event content inconsistent: TriggerEventWithRefs contains invalid Refs" << std::endl << "invalid refs for: " << theHLTCollectionLabels[n].label();
+    return;
+  }
+
   ////////////////////////////////////////////////////////////
   // Loop over the Generated Particles, and find the        //
   // closest HLT object match.                              //
