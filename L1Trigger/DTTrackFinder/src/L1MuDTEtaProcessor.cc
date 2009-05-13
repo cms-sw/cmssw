@@ -86,10 +86,8 @@ L1MuDTEtaProcessor::~L1MuDTEtaProcessor() {}
 //
 void L1MuDTEtaProcessor::run(int bx, const edm::Event& e, const edm::EventSetup& c) {
 
-  c.get< L1MuDTTFMasksRcd >().get( msks );
-
   if ( L1MuDTTFConfig::getEtaTF() ) {
-    receiveData(bx,e);
+    receiveData(bx,e,c);
     runEtaTrackFinder(c);
   }
 
@@ -214,7 +212,9 @@ void L1MuDTEtaProcessor::print() const {
 //
 // receive data ( 15*3 DTBX eta trigger primitives )
 //
-void L1MuDTEtaProcessor::receiveData(int bx, const edm::Event& e) {
+void L1MuDTEtaProcessor::receiveData(int bx, const edm::Event& e, const edm::EventSetup& c) {
+
+  c.get< L1MuDTTFMasksRcd >().get( msks );
 
   edm::Handle<L1MuDTChambThContainer> dttrig;
   e.getByLabel(L1MuDTTFConfig::getDTDigiInputTag(),dttrig);
@@ -233,19 +233,15 @@ void L1MuDTEtaProcessor::receiveData(int bx, const edm::Event& e) {
       bitset<7> pos;
       bitset<7> qual;
 
-      if ( tseta ) {
-        int lwheel = wheel+1;
-        if ( wheel < 0 ) lwheel = wheel-1;
+      int lwheel = wheel+1;
+      if ( wheel < 0 ) lwheel = wheel-1;
 
-        if ( stat == 1 ) {
-          if ( msks->get_etsoc_chdis_st1(lwheel, sector) ) continue;
-        } 
-        else if ( stat == 2 ) {
-          if ( msks->get_etsoc_chdis_st2(lwheel, sector) ) continue;
-          } 
-        else if ( stat == 3 ) {
-          if ( msks->get_etsoc_chdis_st3(lwheel, sector) ) continue;
-        } 
+      bool masked = false;
+      if ( stat == 1 ) masked = msks->get_etsoc_chdis_st1(lwheel, sector);
+      if ( stat == 2 ) masked = msks->get_etsoc_chdis_st2(lwheel, sector);
+      if ( stat == 3 ) masked = msks->get_etsoc_chdis_st3(lwheel, sector);
+
+      if ( tseta && !masked ) {
 
         if ( wheel == -2 || wheel == -1 || 
              ( wheel == 0 && (sector == 0 || sector == 3 || sector == 4 || sector == 7 || sector == 8 || sector == 11) ) ) {

@@ -85,7 +85,7 @@ class L1MuDTEtaProcessor {
   private:
     
     /// receive data (eta trigger primitives)
-    void receiveData(int bx, const edm::Event& e);
+    void receiveData(int bx, const edm::Event& e, const edm::EventSetup& c);
     
     /// receive addresses (from 6 Sector Processors)
     void receiveAddresses();
