@@ -13,21 +13,36 @@ process.options = cms.untracked.PSet(
 )
 
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(3)
+  input = cms.untracked.int32(1)
 )
+
+#process.source = cms.Source("EmptySource",
+#     numberEventsInRun = cms.untracked.uint32(21),
+#     firstRun = cms.untracked.uint32(83037),
+#     numberEventsInLuminosityBlock = cms.untracked.uint32(1),
+#     firstLuminosityBlock = cms.untracked.uint32(1)
+#)
 
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('lumiid'),
-    firstValue = cms.uint64(42949672962),
-    lastValue = cms.uint64(42949672964),
+    firstValue = cms.uint64(356641199357953),
+    lastValue = cms.uint64(356641199357973),
     interval = cms.uint64(1)
 )
 
 process.LumiESSource.DBParameters.authenticationPath=cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-process.LumiESSource.toGet=cms.VPSet(cms.PSet(
-    record = cms.string('LuminosityInfoRcd'),
-    tag = cms.string('lumitest')
-    ))
+process.LumiESSource.BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
+process.LumiESSource.connect=cms.string('sqlite_file:offlinelumi.db')
+process.LumiESSource.toGet=cms.VPSet(
+    cms.PSet(
+      record = cms.string('LuminosityInfoRcd'),
+      tag = cms.string('globalrun')
+    ),
+    cms.PSet(
+      record = cms.string('HLTScalerRcd'),
+      tag = cms.string('globalrunhltscaler')
+    )
+)
 
 process.lumiProducer=cms.EDProducer("LumiProducer")
 process.test = cms.EDAnalyzer("TestLumiProducer")
