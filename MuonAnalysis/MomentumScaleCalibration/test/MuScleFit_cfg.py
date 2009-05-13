@@ -143,7 +143,7 @@ process.maxEvents = cms.untracked.PSet(
     # the number of Upsilon1S events.
     # input = cms.untracked.int32(89355)
 
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(10000)
 )
 process.looper = cms.Looper(
     "MuScleFit",

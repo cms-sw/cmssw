@@ -12,7 +12,6 @@ using namespace std;
 
 void getHistograms(const TString canvasName, TH1F * & histo1, TProfile * & histo2, const TString & resonance);
 
-
 /**
  * This macro creates the histograms to compare mass before and after
  * the correction with mass prob in the same conditions. <br>
@@ -87,6 +86,70 @@ void ShowMassComparison(const TString & resonance = "Z")
   newCanvas->Write();
   outputFile->Close();
 }
+
+
+// In Progress:
+// Histograms normalized in each region before putting all together
+// ----------------------------------------------------------------
+void fillMapAndLegend( const TString & canvasName, const TString & resonance, map<double, TH1*, greater<double> > & histoMap, TLegend * legend = 0 )
+{
+  TH1F * histo1 = 0;
+  TProfile * histo2 = 0;
+  getHistograms(canvasName, histo1, histo2, resonance);
+  TH1F * histo3 = 0;
+  TProfile * histo4 = 0;
+  getHistograms(canvasName+"2", histo3, histo4, resonance);
+
+  histo2->Scale(histo1->GetEntries()/histo2->GetEntries());
+  histo3->Scale(histo1->GetEntries()/histo3->GetEntries());
+  histo4->Scale(histo1->GetEntries()/histo4->GetEntries());
+
+  histoMap.insert(make_pair(histo1->GetMaximum(), histo1));
+  histoMap.insert(make_pair(histo2->GetMaximum(), histo2));
+  histoMap.insert(make_pair(histo3->GetMaximum(), histo3));
+  histoMap.insert(make_pair(histo4->GetMaximum(), histo4));
+
+  histo4->SetLineColor(kBlue);
+  histo4->SetMarkerColor(kBlue);
+  histo2->SetMarkerColor(kRed);
+  histo2->SetLineColor(kRed);
+  histo1->SetLineColor(kBlack);
+  histo3->SetLineColor(kGreen);
+
+  if( legend != 0 ) {
+    legend->SetTextSize(0.02);
+    legend->SetFillColor(0); // Have a white background
+    legend->AddEntry(histo1, "mass before correction");
+    legend->AddEntry(histo2, "mass prob before correction");
+    legend->AddEntry(histo3, "mass after correction");
+    legend->AddEntry(histo4, "mass prob after correction");
+  }
+}
+
+void ShowMassesComparison(const TString & resonance = "Z")
+{
+  TString canvasName("Allres");
+
+  map<double, TH1*, greater<double> > histoMap;
+  TLegend * legend = new TLegend(0.7,0.71,0.98,1.);
+
+  fillMapAndLegend(canvasName, "Upsilon", histoMap, legend);
+  fillMapAndLegend(canvasName, "Upsilon2S", histoMap);
+  fillMapAndLegend(canvasName, "Upsilon3S", histoMap);
+
+  TCanvas * newCanvas = new TCanvas("newCanvas", "newCanvas", 1000, 800);
+  cout << "size = " << histoMap.size() << endl;
+  map<double, TH1*, greater<double> >::const_iterator it = histoMap.begin();
+  it->second->Draw();
+  it->second->SetAxisRange(9,11);
+  for( ; it != histoMap.end(); ++it ) it->second->Draw("SAME");
+  legend->Draw("SAME");
+
+  TFile * outputFile = new TFile("ShowMassComparison.root", "RECREATE");
+  newCanvas->Write();
+  outputFile->Close();
+}
+// ----------------------------------------------------------------------------
 
 /**
  * Helper function to extract the histograms from the canvas file. <br>
