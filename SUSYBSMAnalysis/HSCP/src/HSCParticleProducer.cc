@@ -14,7 +14,7 @@
 // Original Author:  Rizzi Andrea
 // Reworked and Ported to CMSSW_3_0_0 by Christophe Delaere
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCParticleProducer.cc,v 1.5 2008/08/26 14:09:25 arizzi Exp $
+// $Id: HSCParticleProducer.cc,v 1.6 2009/02/04 10:50:57 delaer Exp $
 //
 //
 
@@ -28,9 +28,19 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/TrackReco/interface/DeDxData.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include <DataFormats/MuonDetId/interface/RPCDetId.h>
+#include <DataFormats/MuonDetId/interface/MuonSubdetId.h>
+#include <DataFormats/RPCRecHit/interface/RPCRecHit.h>
+
+#include <Geometry/Records/interface/MuonGeometryRecord.h>
+#include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+#include <Geometry/RPCGeometry/interface/RPCGeomServ.h> 
+#include <Geometry/RPCGeometry/interface/RPCRoll.h> 
 
 #include "RecoTracker/DeDx/interface/DeDxEstimatorProducer.h"
 
@@ -64,8 +74,10 @@ class HSCParticleProducer : public edm::EDProducer {
     edm::InputTag m_muonsTag;
     edm::InputTag m_muonsTOFTag;
     std::vector<HSCParticle> associate( susybsm::DeDxBetaCollection & tk ,const MuonTOFCollection & dts );
+    void addBetaFromRPC(HSCParticle& candidate);
     float minTkP, minDtP, maxTkBeta, minDR, maxInvPtDiff, maxChi2;
     unsigned int minTkHits, minTkMeas;
+    edm::ESHandle<RPCGeometry> rpcGeo;
 };
 
 HSCParticleProducer::HSCParticleProducer(const edm::ParameterSet& iConfig) {
@@ -141,13 +153,19 @@ HSCParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   // match TOF and dE/dx info
   *hscp=associate(tkInfos,dtInfos);
 
+  // compute the RPC contribution
+  for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate < hscp->end(); ++hscpcandidate) {
+    addBetaFromRPC(*hscpcandidate);
+  }
+
   // output result
   iEvent.put(result); 
 }
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-HSCParticleProducer::beginJob(const edm::EventSetup&) {
+HSCParticleProducer::beginJob(const edm::EventSetup& iSetup) {
+  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -230,6 +248,47 @@ std::vector<HSCParticle> HSCParticleProducer::associate( DeDxBetaCollection & tk
   // returns the result
   LogDebug("matching") << "Matching between trakcer and dt information over.";
   return result;
+}
+
+void HSCParticleProducer::addBetaFromRPC(HSCParticle& candidate) {
+  // here we do basically as in RPCHSCPCANDIDATE.cc, but just for the hits on the muon of interest
+  RPCBetaMeasurement result;
+  // so, loop on the RPC hits of the muon
+  trackingRecHit_iterator start,stop;
+  if(candidate.hasMuonCombinedTrack()) {
+    start = candidate.combinedTrack().recHitsBegin();
+    stop  = candidate.combinedTrack().recHitsEnd();
+  } else if(candidate.hasMuonStaTrack()) {
+    start = candidate.staTrack().recHitsBegin();
+    stop  = candidate.staTrack().recHitsEnd();
+  } else return;
+  for(trackingRecHit_iterator recHit = start; recHit != stop; ++recHit) {
+    if ( (*recHit)->geographicalId().subdetId() != MuonSubdetId::RPC ) continue;
+    if (!(*recHit)->isValid()) continue;
+    RPCDetId rollId = (RPCDetId)(*recHit)->geographicalId();
+    RPCGeomServ rpcsrv(rollId);
+    LocalPoint recHitPos=(*recHit)->localPosition();
+    const RPCRoll* rollasociated = rpcGeo->roll(rollId);
+    const BoundPlane & RPCSurface = rollasociated->surface();
+    RPCHit4D ThisHit;
+    ThisHit.bx = ((RPCRecHit*)(&(**recHit)))->BunchX();
+    ThisHit.gp = RPCSurface.toGlobal(recHitPos);
+    ThisHit.id = (RPCDetId)(*recHit)->geographicalId().rawId();
+    result.hits.push_back(ThisHit);
+  }
+  // here we go on with the RPC procedure 
+  std::sort(result.hits.begin(), result.hits.end());
+  int lastbx=7;
+  bool decreasing = true;
+  bool outOfTime = false;
+  for(std::vector<RPCHit4D>::iterator point = result.hits.begin(); point < result.hits.end(); ++point) {
+    outOfTime |= (point->bx!=0); //condition 1: at least one measurement must have BX!=0
+    decreasing &= (point->bx<=lastbx); //condition 2: BX must be decreasing when going inside-out.
+    lastbx = point->bx;
+  }
+  result.isCandidate = (outOfTime&&decreasing);
+  result.beta = 1; // here we should get some pattern-based estimate
+  candidate.setRpc(result);
 }
 
 //define this as a plug-in

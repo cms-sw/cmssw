@@ -11,6 +11,25 @@
 
 namespace susybsm {
 
+ class RPCHit4D
+  {
+   public:
+     int id;
+     int bx;
+     GlobalPoint gp;
+     bool operator<(const RPCHit4D& other) const {
+       return gp.mag() < other.gp.mag();
+     }
+  };
+
+ class RPCBetaMeasurement
+  {
+   public:
+     bool isCandidate;
+     std::vector<RPCHit4D> hits;
+     float beta;
+  };
+ 
  class TimeMeasurement
   {
    public:
@@ -74,13 +93,17 @@ namespace susybsm {
  class HSCParticle 
   {
    public:
-      HSCParticle():hasDt(false),hasTk(false) {}
+      HSCParticle():hasRpc(false),hasDt(false),hasTk(false) {}
+      bool  hasRpcInfo() const {return hasRpc; }
       bool  hasDtInfo() const {return hasDt; }
       bool  hasTkInfo() const {return hasTk; }
+      void  setRpc(const RPCBetaMeasurement& data) { rpc = data; hasRpc = true; }
       void  setDt(const MuonTOF& data)  { dt = data; hasDt = true; }
       void  setTk(const DeDxBeta& data) { tk = data; hasTk = true; }
+      const RPCBetaMeasurement& Rpc() const { return rpc; }
       const MuonTOF& Dt() const { return dt; }
       const DeDxBeta& Tk() const { return tk; }
+      RPCBetaMeasurement& Rpc() { return rpc; }
       MuonTOF& Dt() { return dt; }
       DeDxBeta& Tk() { return tk; }
       float p() const;
@@ -103,10 +126,12 @@ namespace susybsm {
       const reco::Track& trackerTrack() const {return *tk.track(); } 
       bool  emptyDTInfo() const { return  ( ! hasDt ) || (dt.second.nHits ==0  && dt.second.nStations ==0) ;  }
    private:
+      bool hasRpc;
       bool hasDt;
       bool hasTk;
       MuonTOF  dt;
       DeDxBeta tk;
+      RPCBetaMeasurement rpc;
   };
 
   typedef  std::vector<HSCParticle> HSCParticleCollection;
