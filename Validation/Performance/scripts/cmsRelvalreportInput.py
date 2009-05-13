@@ -712,11 +712,35 @@ def writeCommands(simcandles,
                     stepLabel=stepToWrite
                     if '--pileup' in cmsDriverOptions and not "_PILEUP" in stepToWrite:
                         stepLabel = stepToWrite+"_PILEUP"
-                    simcandles.write("%s @@@ %s @@@ %s_%s_%s\n" % (Command,
-                                                                   Profiler[prof],
-                                                                   FileName[acandle],
-                                                                   stepLabel,
-                                                                   prof))
+                    #Add kludge here to make the IGPROF ANALYSE work:
+                    #The idea is to:
+                    #1-Check if ANALYSE is there everytime we're handling IGPROF profiles, check also it is not IgProfPerf, for which it makes no sense to dump intermediate profiles.
+                    #2-If it is there then write 2 lines instead of 1: add a @@@ reuse to the first line and a second line with ANALYSE @@@ the same metadata
+                    #[3-Catch the case of ANALYSE by itself and raise an exception]
+                    #4-Catch the case of ANALYSE proper, and do nothing in that case (already taken care by the second lines done after PERF_TICKS, MEM_TOTAL and MEM_LIVE.
+                    #print "EEEEEEE %s"%prof
+                    if 'IgProf' in prof and 'perf' not in prof:
+                        
+                        if 'Analyse' not in prof and (lambda x: 'Analyse' in x,Profile):
+                                
+                            simcandles.write("%s @@@ %s @@@ %s_%s_%s\n" % (Command,
+                                                                           Profiler[prof],
+                                                                           FileName[acandle],
+                                                                           stepLabel,
+                                                                           prof))
+                            simcandles.write("%s @@@ %s @@@ %s_%s_%s\n" % (Command,
+                                                                           Profiler[prof].split(".")[0]+'.ANALYSE',
+                                                                           FileName[acandle],
+                                                                           stepLabel,
+                                                                           prof))
+                        elif 'Analyse' in prof:
+                            pass
+                    else:    
+                        simcandles.write("%s @@@ %s @@@ %s_%s_%s\n" % (Command,
+                                                                       Profiler[prof],
+                                                                       FileName[acandle],
+                                                                       stepLabel,
+                                                                       prof))
 
                 if debug:
                     print InputFileOption, step, 'GEN,SIM' in step, 'HLT' in steps[stepIndex - 1], steps

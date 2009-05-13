@@ -28,4 +28,11 @@ def customise(process):
     #when invoking cmsDriver.py with the --PU option
     process.mix.input.fileNames = cms.untracked.vstring('file:../INPUT_PILEUP_EVENTS.root')
 
+    #Add the configuration for the Igprof running to dump profile snapshots:
+    process.IgProfService = cms.Service("IgProfService",
+                                        reportFirstEvent            = cms.untracked.int32(0),
+                                        reportEventInterval         = cms.untracked.int32(25),
+                                        reportToFileAtPostEvent     = cms.untracked.string("| gzip -c > IgProf.%I.gz")
+                                        )
+
     return(process)

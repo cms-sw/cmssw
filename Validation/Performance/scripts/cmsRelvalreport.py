@@ -43,6 +43,9 @@ VMPARSERSTYLE='%s/src/Utilities/ReleaseScripts/data/valgrindMemcheckParser.css' 
 #IGPROFANALYS='%s/src/Validation/Performance/scripts/cmsIgProf_Analysis.py'%os.environ[RELEASE]
 IGPROFANALYS='cmsIgProf_Analysis.py'
 
+#Adding IgProf dump Analysis to handle the dumping of the IgProf at intermediate events:
+IGPROFDUMPANALYSIS='cmsIgProfDumpAnalysis.py'
+
 # Timereport parser
 #TIMEREPORTPARSER='%s/src/Validation/Performance/scripts/cmsTimeReport.pl'%os.environ[RELEASE]
 TIMEREPORTPARSER='cmsTimeReport.pl'
@@ -151,7 +154,7 @@ def logger(message,level=0):
 
 class Candles_file:
     '''
-    Class to read the trivial ASCCI file containing the candles
+    Class to read the trivial ASCII file containing the candles
     '''
     def __init__(self, filename):
         
@@ -450,8 +453,9 @@ class Profile:
 
         
         if outdir==None or outdir==self.profile_name:
-            outdir=self.profile_name+'_outdir'            
-                  
+            outdir=self.profile_name+'_outdir'
+            
+        #Create the directory where the report will be stored:          
         if not os.path.exists(outdir) and not fill_db:
             execute('mkdir %s' %outdir)
         
@@ -465,6 +469,10 @@ class Profile:
         if tmp_dir!='':
             execute('mkdir %s' %tmp_dir)
             tmp_switch=' -t %s' %tmp_dir
+
+        #Handle the various profilers:
+        
+        ##################################################################### 
         
         # Profiler is ValgrindFCE:
         if self.profiler=='ValgrindFCE':
@@ -492,6 +500,7 @@ class Profile:
             
         # Profiler is IgProf:
         if self.profiler.find('IgProf')!=-1:
+            #First the case of regular PerfReport reporting:
             if IgProf_option!='ANALYSE':
                 uncompressed_profile_name=self.profile_name[:-3]+'_uncompressed'
                 execute('gzip -d -c %s > %s' %(self.profile_name,uncompressed_profile_name))
@@ -519,8 +528,17 @@ class Profile:
                 exit=execute(perfreport_command)
                 execute('rm  %s' %uncompressed_profile_name)
                 return exit
-            else: #We use IgProf Analisys
-                return execute('%s -o%s -i%s' %(IGPROFANALYS,outdir,self.profile_name))
+            #Then the "ANALYSE" case that we want to use to add to the same directories (Perf, MemTotal, MemLive)
+            #also some analyses and in particular the dump at different event numbers:
+            else: #We use IgProf Analysis
+                #Add here the handling of the new IgProf.N.gz files so that they will get preserved and not overwritten:
+                localFiles=os.listdir('.')
+                IgProfDumps=filter(lambda x: "IgProf." in x[:7],localFiles) #Hardcoded sloppily, should use regular expression
+                for dump in IgProfDumps:
+                    DumpedProfileName=self.profile_name[:-3]+"."+dump.split(".")[1]+".gz"
+                    execute('mv %s %s'%(dump,DumpedProfileName))
+                    execute('%s -o%s -i%s' %(IGPROFANALYS,outdir,DumpedProfileName))
+                return execute('%s -o%s -i%s' %(IGPROFANALYS,outdir,self.profile_name)) #move the modification inside the analysis script.
                 
 
         #####################################################################                     
@@ -654,8 +672,8 @@ def principal(options):
         
         if options.infile!='': # we have a list of commands
 
-            reportdir='%s_%s' %(meta,options.output)
-            reportdir=clean_name(reportdir)                        
+            reportdir='%s_%s' %(meta,options.output) #Usually options.output is not used
+            reportdir=clean_name(reportdir)          #Remove _
          
             profile_name=clean_name('%s_%s'%(meta,options.profile_name))
                     
@@ -667,15 +685,16 @@ def principal(options):
                 if profile_name[-3:]!='.gz':
                     profile_name+='.gz'
                     
-            elif profiler_opt.find('MEM_TOTAL')!=-1 or\
-                 profiler_opt.find('MEM_LIVE')!=-1 or\
-                 profiler_opt.find('MEM_PEAK')!=-1: 
-                profiler='IgProf_mem'
-                IgProf_counter=profiler_opt
-
-
-                if profile_name[-3:]!='.gz':
-                    profile_name+='.gz'
+            #Think this is obsolete:        
+            #elif profiler_opt.find('MEM_TOTAL')!=-1 or\
+            #     profiler_opt.find('MEM_LIVE')!=-1 or\
+            #     profiler_opt.find('MEM_PEAK')!=-1: 
+            #    profiler='IgProf_mem'
+            #    IgProf_counter=profiler_opt
+            #
+            #
+            #    if profile_name[-3:]!='.gz':
+            #        profile_name+='.gz'
             
             # Profiler is Timereport_Parser
             elif profiler_opt in STDOUTPROFILERS:
