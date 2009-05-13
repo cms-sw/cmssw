@@ -29,7 +29,7 @@ ZdcSD::ZdcSD(G4String name, const DDCompactView & cpv,
   edm::ParameterSet m_ZdcSD = p.getParameter<edm::ParameterSet>("ZdcSD");
   useShowerLibrary = m_ZdcSD.getParameter<bool>("UseShowerLibrary");
   useShowerHits    = m_ZdcSD.getParameter<bool>("UseShowerHits");
-  zdcHitEnergyCut  = m_ZdcSD.getParameter<double>("ZdcHitEnergyCut");
+  zdcHitEnergyCut  = m_ZdcSD.getParameter<double>("ZdcHitEnergyCut")*GeV;
   verbosity  = m_ZdcSD.getParameter<int>("Verbosity");
   int verbn  = verbosity/10;
   verbosity %= 10;
@@ -83,7 +83,7 @@ bool ZdcSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 }
 
 void ZdcSD::getFromLibrary (G4Step* aStep) {
-  bool ok;
+  bool ok = true;
 
   preStepPoint  = aStep->GetPreStepPoint(); 
   theTrack      = aStep->GetTrack();   
