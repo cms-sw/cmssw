@@ -8,7 +8,6 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
         restoreStateLabel = cms.untracked.string("randomEngineStateProducer"),
 )
 
-from SimGeneral.MixingModule.mixNoPU_cfi import *
 mix.playback=True
 
 from Validation.GlobalDigis.globaldigis_analyze_cfi import *
@@ -18,6 +17,4 @@ from Validation.Configuration.globalValidation_cff import *
 
 from HLTriggerOffline.Common.HLTValidation_cff import *
 
-validation = cms.Sequence(mix+globaldigisanalyze*globalhitsanalyze*globalrechitsanalyze*globalValidation*hltvalidation)
-
-validation_pu = cms.Sequence(globaldigisanalyze*globalhitsanalyze*globalValidation_pu*hltvalidation)
+validation = cms.Sequence(cms.SequencePlaceHolder("mix")+globaldigisanalyze*globalhitsanalyze*globalrechitsanalyze*globalValidation*hltvalidation)
