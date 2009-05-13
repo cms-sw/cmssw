@@ -11,6 +11,16 @@
 
 namespace susybsm {
 
+ class CaloBetaMeasurement
+  {
+   public:
+     float hcalenergy, ecalenergy, hoenergy;
+     float ecal3by3dir, ecal5by5dir;
+     float hcal3by3dir, hcal5by5dir;
+     float trkisodr;
+     float ecaltime, ecalbeta;
+  };
+ 
  class RPCHit4D
   {
    public:
@@ -93,16 +103,20 @@ namespace susybsm {
  class HSCParticle 
   {
    public:
-      HSCParticle():hasRpc(false),hasDt(false),hasTk(false) {}
-      bool  hasRpcInfo() const {return hasRpc; }
-      bool  hasDtInfo() const {return hasDt; }
-      bool  hasTkInfo() const {return hasTk; }
+      HSCParticle():hasCalo(false),hasRpc(false),hasDt(false),hasTk(false) {}
+      bool  hasCaloInfo() const { return hasCalo; }
+      bool  hasRpcInfo()  const { return hasRpc;  }
+      bool  hasDtInfo()   const { return hasDt;   }
+      bool  hasTkInfo()   const { return hasTk;   }
+      void  setCalo(const CaloBetaMeasurement& data) { calo = data; hasCalo = true; }
       void  setRpc(const RPCBetaMeasurement& data) { rpc = data; hasRpc = true; }
       void  setDt(const MuonTOF& data)  { dt = data; hasDt = true; }
       void  setTk(const DeDxBeta& data) { tk = data; hasTk = true; }
+      const CaloBetaMeasurement& Calo() const { return calo; }
       const RPCBetaMeasurement& Rpc() const { return rpc; }
       const MuonTOF& Dt() const { return dt; }
       const DeDxBeta& Tk() const { return tk; }
+      CaloBetaMeasurement& Calo() { return calo; }
       RPCBetaMeasurement& Rpc() { return rpc; }
       MuonTOF& Dt() { return dt; }
       DeDxBeta& Tk() { return tk; }
@@ -125,13 +139,15 @@ namespace susybsm {
       const reco::Track& combinedTrack() const {return *dt.first->combinedMuon(); } 
       const reco::Track& trackerTrack() const {return *tk.track(); } 
       bool  emptyDTInfo() const { return  ( ! hasDt ) || (dt.second.nHits ==0  && dt.second.nStations ==0) ;  }
-   private:
+private:
+      bool hasCalo;
       bool hasRpc;
       bool hasDt;
       bool hasTk;
       MuonTOF  dt;
       DeDxBeta tk;
       RPCBetaMeasurement rpc;
+      CaloBetaMeasurement calo;
   };
 
   typedef  std::vector<HSCParticle> HSCParticleCollection;

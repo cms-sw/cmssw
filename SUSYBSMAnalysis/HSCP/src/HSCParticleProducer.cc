@@ -14,7 +14,7 @@
 // Original Author:  Rizzi Andrea
 // Reworked and Ported to CMSSW_3_0_0 by Christophe Delaere
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCParticleProducer.cc,v 1.6 2009/02/04 10:50:57 delaer Exp $
+// $Id: HSCParticleProducer.cc,v 1.7 2009/05/13 15:18:29 delaer Exp $
 //
 //
 
@@ -44,6 +44,8 @@
 
 #include "RecoTracker/DeDx/interface/DeDxEstimatorProducer.h"
 
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
+#include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
 #include "Math/GenVector/VectorUtil.h"
@@ -73,11 +75,14 @@ class HSCParticleProducer : public edm::EDProducer {
     edm::InputTag m_trackDeDxEstimatorTag;
     edm::InputTag m_muonsTag;
     edm::InputTag m_muonsTOFTag;
-    std::vector<HSCParticle> associate( susybsm::DeDxBetaCollection & tk ,const MuonTOFCollection & dts );
-    void addBetaFromRPC(HSCParticle& candidate);
+    std::vector<HSCParticle> associate(susybsm::DeDxBetaCollection& ,const MuonTOFCollection&);
+    void addBetaFromRPC(HSCParticle&);
+    void addBetaFromEcal(HSCParticle&, edm::Handle<reco::TrackCollection>&, edm::Event&, const edm::EventSetup&);
     float minTkP, minDtP, maxTkBeta, minDR, maxInvPtDiff, maxChi2;
     unsigned int minTkHits, minTkMeas;
     edm::ESHandle<RPCGeometry> rpcGeo;
+    TrackDetectorAssociator trackAssociator_; 
+    TrackAssociatorParameters parameters_; 
 };
 
 HSCParticleProducer::HSCParticleProducer(const edm::ParameterSet& iConfig) {
@@ -99,6 +104,7 @@ HSCParticleProducer::HSCParticleProducer(const edm::ParameterSet& iConfig) {
   maxChi2=iConfig.getParameter<double>("maxTkChi2"); //5
   minTkHits=iConfig.getParameter<uint32_t>("minTkHits"); //9
   minTkMeas=iConfig.getParameter<uint32_t>("minTkMeas"); //9
+  parameters_.loadParameters( iConfig ); 
 
   // what I produce
   produces<susybsm::HSCParticleCollection >();
@@ -156,6 +162,11 @@ HSCParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   // compute the RPC contribution
   for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate < hscp->end(); ++hscpcandidate) {
     addBetaFromRPC(*hscpcandidate);
+  }
+
+  // add the ecal contribution
+  for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate < hscp->end(); ++hscpcandidate) {
+    addBetaFromEcal(*hscpcandidate,trackCollectionHandle,iEvent,iSetup);
   }
 
   // output result
@@ -289,6 +300,56 @@ void HSCParticleProducer::addBetaFromRPC(HSCParticle& candidate) {
   result.isCandidate = (outOfTime&&decreasing);
   result.beta = 1; // here we should get some pattern-based estimate
   candidate.setRpc(result);
+}
+
+void HSCParticleProducer::addBetaFromEcal(HSCParticle& candidate, edm::Handle<reco::TrackCollection>& tracks, 
+                                          edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  // the calo info object
+  CaloBetaMeasurement result;
+  
+  // select the track
+  reco::Track track;
+  if(candidate.hasMuonCombinedTrack()) {
+    track = candidate.combinedTrack();
+  } else if(candidate.hasTrackerTrack()) {
+    track = candidate.trackerTrack();
+  } else if(candidate.hasMuonStaTrack()) {
+    track = candidate.staTrack();
+  } else return;
+  
+  // compute the track isolation
+  result.trkisodr=100;
+  for(reco::TrackCollection::const_iterator ndTrack = tracks->begin(); ndTrack != tracks->end(); ++ndTrack) {
+      double dr=sqrt(pow((track.outerEta()-ndTrack->outerEta()),2)+pow((track.outerPhi()-ndTrack->outerPhi()),2));
+      if(dr>0.00001 && dr<result.trkisodr) result.trkisodr=dr;
+  }
+
+  // use the track associator to propagate to the calo
+  TrackDetMatchInfo info = trackAssociator_.associate( iEvent, iSetup, 
+                                                       trackAssociator_.getFreeTrajectoryState(iSetup, track),
+                                                       parameters_ );
+
+  // extract various quantities
+  result.ecalenergy = info.crossedEnergy(TrackDetMatchInfo::EcalRecHits);
+  DetId centerId = info.findMaxDeposition(TrackDetMatchInfo::EcalRecHits);
+  GlobalPoint position = info.getPosition(centerId);
+  double matchedR = sqrt(pow(position.x(),2)+pow(position.y(),2)+pow(position.z(),2));
+  result.ecal5by5dir = info.nXnEnergy(TrackDetMatchInfo::EcalRecHits, 2);
+  for(std::vector<const EcalRecHit*>::const_iterator hit = info.crossedEcalRecHits.begin(); 
+      hit != info.crossedEcalRecHits.end(); ++hit) {
+    result.ecaltime += (*hit)->time();	
+  }
+  if(info.crossedEcalRecHits.size()) {
+    result.ecaltime /= info.crossedEcalRecHits.size();
+    result.ecalbeta = (matchedR+23)/(result.ecaltime*25.*30+matchedR);
+  }
+  result.hcalenergy = info.crossedEnergy(TrackDetMatchInfo::HcalRecHits);
+  result.hoenergy = info.crossedEnergy(TrackDetMatchInfo::HORecHits);
+  centerId = info.findMaxDeposition(TrackDetMatchInfo::HcalRecHits);
+  result.hcal3by3dir = info.nXnEnergy(TrackDetMatchInfo::HcalRecHits, 1);
+  result.hcal5by5dir = info.nXnEnergy(TrackDetMatchInfo::HcalRecHits, 2);
+  // conclude by putting all that in the candidate
+  candidate.setCalo(result);
 }
 
 //define this as a plug-in
