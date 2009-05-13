@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/08/04 16:20:24 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/04/15 12:49:42 $
+ *  $Revision: 1.7 $
  *  \author Marina Giunta
  */
 
@@ -11,7 +11,7 @@
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 // Declare histograms for debugging purposes
-#include "CalibMuon/DTCalibration/plugins/Histogram.h"
+#include "CalibMuon/DTCalibration/interface/Histogram.h"
 
 #include <map>
 #include <iostream>
