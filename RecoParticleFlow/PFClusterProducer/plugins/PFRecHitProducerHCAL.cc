@@ -82,6 +82,8 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
   // the key of this map is detId. 
   // the value is the index in the rechits vector
   map<unsigned,  unsigned > idSortedRecHits;
+  map<unsigned,  unsigned > idSortedRecHitsHFEM;
+  map<unsigned,  unsigned > idSortedRecHitsHFHAD;
   typedef map<unsigned, unsigned >::iterator IDH;  
 
 
@@ -97,8 +99,8 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
     geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
 
   //--ab
-  auto_ptr<reco::PFRecHitCollection> HFHADRecHits ( new reco::PFRecHitCollection);
-  auto_ptr<reco::PFRecHitCollection> HFEMRecHits ( new reco::PFRecHitCollection);
+  auto_ptr< vector<reco::PFRecHit> > HFHADRecHits( new vector<reco::PFRecHit> ); 
+  auto_ptr< vector<reco::PFRecHit> > HFEMRecHits( new vector<reco::PFRecHit> ); 
   //--ab
 
   // 2 possibilities to make HCAL clustering :
@@ -260,36 +262,40 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 	      idSortedRecHits.insert( make_pair(ct.id().rawId(), 
 						rechits.size()-1 ) ); 
 	    }
-	    //---ab: 2nd rechit for HF:	   
+	    //---ab: 2 rechits for HF:	   
 	    if(pfrhHFEM) { 
-	      //rechits.push_back( *pfrhHFEM );
 	      HFEMRecHits->push_back( *pfrhHFEM );
 	      delete pfrhHFEM;
-	      idSortedRecHits.insert( make_pair(ct.id().rawId(), 
-						rechits.size()-1 ) ); 
+	      idSortedRecHitsHFEM.insert( make_pair(ct.id().rawId(), 
+						HFEMRecHits->size()-1 ) ); 
 	    }
 	    if(pfrhHFHAD) { 
-	      //rechits.push_back( *pfrhHFHAD );
 	      HFHADRecHits->push_back( *pfrhHFHAD );
 	      delete pfrhHFHAD;
-	      idSortedRecHits.insert( make_pair(ct.id().rawId(), 
-						rechits.size()-1 ) ); 
+	      idSortedRecHitsHFHAD.insert( make_pair(ct.id().rawId(), 
+						HFHADRecHits->size()-1 ) ); 
 	    }
 	    //---ab	   
 	  }
       }
-      //---ab
-      iEvent.put( HFHADRecHits,"HFHAD" );	
-      iEvent.put( HFEMRecHits,"HFEM" );	
-      //---ab
       // do navigation 
       for(unsigned i=0; i<rechits.size(); i++ ) {
-	
 	findRecHitNeighboursCT( rechits[i], 
 				idSortedRecHits, 
 				caloTowerTopology);
-	
       }
+      for(unsigned i=0; i<HFEMRecHits->size(); i++ ) {
+	findRecHitNeighboursCT( (*HFEMRecHits)[i], 
+				idSortedRecHitsHFEM, 
+				caloTowerTopology);
+      }
+      for(unsigned i=0; i<HFHADRecHits->size(); i++ ) {
+	findRecHitNeighboursCT( (*HFHADRecHits)[i], 
+				idSortedRecHitsHFHAD, 
+				caloTowerTopology);
+      }
+      iEvent.put( HFHADRecHits,"HFHAD" );	
+      iEvent.put( HFEMRecHits,"HFEM" );	
     }   
   }
   else if( !(inputTagHcalRecHitsHBHE_ == InputTag()) ) { 
@@ -441,6 +447,7 @@ PFRecHitProducerHCAL::findRecHitNeighbours
   const CaloSubdetectorTopology& endcapTopology, 
   const CaloSubdetectorGeometry& endcapGeometry ) {
   
+  //cout<<"------PFRecHitProducerHcaL:findRecHitNeighbours navigation value "<<navigation_HF_<<endl;
  if(navigation_HF_ == false){
     if( rh.layer() == PFLayer::HF_HAD )
       return;
@@ -560,6 +567,12 @@ PFRecHitProducerHCAL::findRecHitNeighboursCT
 ( reco::PFRecHit& rh, 
   const map<unsigned, unsigned >& sortedHits, 
   const CaloSubdetectorTopology& topology ) {
+  //cout<<"------PFRecHitProducerHcaL:findRecHitNeighboursCT navigation value "<<navigation_HF_<<endl;
+  //  cout<<"----------- rechit print out"<<endl;
+  // if(( rh.layer() == PFLayer::HF_HAD )||(rh.layer() == PFLayer::HF_EM)) {  
+    
+  //    cout<<rh<<endl;
+    //  }
   if(navigation_HF_ == false){
     if( rh.layer() == PFLayer::HF_HAD )
       return;
@@ -695,6 +708,12 @@ PFRecHitProducerHCAL::findRecHitNeighboursCT
   i = sortedHits.find( northwest.rawId() );
   if(i != sortedHits.end() ) 
     rh.add8Neighbour( i->second );
+
+  //  cout<<"----------- rechit print out"<<endl;
+  // if(( rh.layer() == PFLayer::HF_HAD )||(rh.layer() == PFLayer::HF_EM)) {  
+    
+  //   cout<<rh<<endl;
+    //  }
 }
 
 
