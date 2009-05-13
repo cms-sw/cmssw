@@ -1,11 +1,6 @@
-import FWCore.ParameterSet.Config as cms
-
-magfield = cms.ESSource("XMLIdealGeometryESSource",
-    geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/normal/cmsextent.xml', 
-        'Geometry/CMSCommonData/data/cms.xml', 
-        'Geometry/CMSCommonData/data/cmsMagneticField.xml', 
-        'MagneticField/GeomBuilder/data/MagneticFieldVolumes_1103l.xml'),
-    rootNodeName = cms.string('cmsMagneticField:MAGF')
-)
+import sys
+print "MagneticField/GeomBuilder/data/cmsMagneticField_1103l.cfi is obsolete and will soon be removed."
+print "Now exiting with -1 error. \nplease remove inclusion of this file and try again.\n
+sys.exit(-1);
 
 
