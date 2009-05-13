@@ -13,7 +13,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/04/30 15:32:15 $ 
+ **  $Date: 2009/05/07 10:45:29 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -60,7 +60,7 @@ PhotonAnalyzer::PhotonAnalyzer( const edm::ParameterSet& pset )
 PhotonAnalyzer::~PhotonAnalyzer() {}
 
 
-void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
+void PhotonAnalyzer::beginJob()
 {
   
   nEvt_=0;
@@ -69,19 +69,6 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
   dbe_ = 0;
   dbe_ = edm::Service<DQMStore>().operator->();
   
-
-
- if (dbe_) {
-    if (verbosity_ > 0 ) {
-      dbe_->setVerbose(1);
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }
-  if (dbe_) {
-    if (verbosity_ > 0 ) dbe_->showDirStructure();
-  }
-
 
 
   double eMin = parameters_.getParameter<double>("eMin");
@@ -208,6 +195,7 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
     p_efficiencyVsEtTight_ = dbe_->book1D("EfficiencyVsEtTight","Fraction of Tightly Isolated Photons vs. Et;Et (GeV)",etBin,etMin, etMax);
     p_efficiencyVsEtaHLT_ = dbe_->book1D("EfficiencyVsEtaHLT","Fraction of Photons passing HLT vs. Eta;#eta",etaBin,etaMin, etaMax);
     p_efficiencyVsEtHLT_ = dbe_->book1D("EfficiencyVsEtHLT","Fraction of Photons passing HLT vs. Et;Et (GeV)",etBin,etMin, etMax);  
+
 
     h_phoEta_Vertex_ = dbe_->book1D("phoEtaVertex"," Converted Photon with valid vertex Eta ",etaBin,etaMin, etaMax) ;
     p_vertexReconstructionEfficiencyVsEta_ = dbe_->book1D("VertexReconstructionEfficiencyVsEta","Fraction of Converted Photons having a valid vertex vs. Eta;#eta",etaBin,etaMin, etaMax);
@@ -514,8 +502,8 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 	h_dEtaTracksAtEcal_part_.clear();
 
 	//Conversion fraction histograms
-	p_convFractionVsEta_isol_.push_back(dbe_->book1D("convFractionVsEta","Fraction of Converted Photons  vs. Eta;#eta",etaBin,etaMin, etaMax));
-	p_convFractionVsEt_isol_.push_back(dbe_->book1D("convFractionVsEt","Fraction of Converted Photons vs. Et;Et (GeV)",etBin,etMin, etMax));
+ 	p_convFractionVsEta_isol_.push_back(dbe_->book1D("convFractionVsEta","Fraction of Converted Photons  vs. Eta;#eta",etaBin,etaMin, etaMax));
+ 	p_convFractionVsEt_isol_.push_back(dbe_->book1D("convFractionVsEt","Fraction of Converted Photons vs. Et;Et (GeV)",etBin,etMin, etMax));
     
 	h_phoConvEta_isol_.push_back(dbe_->book1D("phoConvEta",types[type]+" Converted Photon Eta;#eta ",etaBin,etaMin, etaMax)) ;
 	h_phoConvPhi_isol_.push_back(dbe_->book1D("phoConvPhi",types[type]+" Converted Photon Phi;#phi ",phiBin,phiMin,phiMax)) ;
@@ -987,17 +975,19 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 
 
+
+
     //make invariant mass plots
     float EtCut = 20.0;
     if (isTightPhoton && iPho->et()>=EtCut ){
-      //cout << "isTightPhoton: " << isTightPhoton; 
+
       for (reco::PhotonCollection::const_iterator iPho2=iPho+1; iPho2!=photonCollection.end(); iPho2++){
 	
 	edm::Ref<reco::PhotonCollection> photonref2(photonHandle, photonCounter); //note: correct to use photonCounter and not photonCounter+1 
 	bool  isTightPhoton2 = (*tightPhotonID)[photonref2];                      //since it has already been incremented earlier
 	
 	if(isTightPhoton2 && iPho2->et()>=EtCut){
-	  //cout << "  isTightPhoton2: " << isTightPhoton2; 
+
 	  math::XYZTLorentzVector p12 = iPho->p4()+iPho2->p4();
 	  float gamgamMass2 = p12.Dot(p12);
 	  
@@ -1010,7 +1000,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	}
 	
       }
-      //cout << endl;
+
     }
     
     
@@ -1039,6 +1029,13 @@ void PhotonAnalyzer::endJob()
   
   if(standAlone_){
 
+    double etMin = parameters_.getParameter<double>("etMin");
+    double etMax = parameters_.getParameter<double>("etMax");
+    int etBin = parameters_.getParameter<int>("etBin");
+    double etaMin = parameters_.getParameter<double>("etaMin");
+    double etaMax = parameters_.getParameter<double>("etaMax");
+    int etaBin = parameters_.getParameter<int>("etaBin");
+
     vector<string> types;
     types.push_back("All");
     types.push_back("GoodCandidate");
@@ -1048,11 +1045,43 @@ void PhotonAnalyzer::endJob()
     std::string IsoPath = "Egamma/PhotonAnalyzer/GoodCandidatePhotons/";
     std::string NonisoPath = "Egamma/PhotonAnalyzer/BackgroundPhotons/";
     std::string EffPath = "Egamma/PhotonAnalyzer/Efficiencies/";
+   
+
+    currentFolder_.str("");
+    currentFolder_ << "Egamma/PhotonAnalyzer/Efficiencies";
+    dbe_->setCurrentFolder(currentFolder_.str()); 
+
+    p_efficiencyVsEtaLoose_ = dbe_->book1D("EfficiencyVsEtaLoose","Fraction of Loosely Isolated Photons  vs. Eta;#eta;",etaBin,etaMin, etaMax);
+    p_efficiencyVsEtLoose_ = dbe_->book1D("EfficiencyVsEtLoose","Fraction of Loosely Isolated Photons vs. Et;Et (GeV)",etBin,etMin, etMax);
+    p_efficiencyVsEtaTight_ = dbe_->book1D("EfficiencyVsEtaTight","Fraction of Tightly Isolated Photons  vs. Eta;#eta",etaBin,etaMin, etaMax);
+    p_efficiencyVsEtTight_ = dbe_->book1D("EfficiencyVsEtTight","Fraction of Tightly Isolated Photons vs. Et;Et (GeV)",etBin,etMin, etMax);
+    p_efficiencyVsEtaHLT_ = dbe_->book1D("EfficiencyVsEtaHLT","Fraction of Photons passing HLT vs. Eta;#eta",etaBin,etaMin, etaMax);
+    p_efficiencyVsEtHLT_ = dbe_->book1D("EfficiencyVsEtHLT","Fraction of Photons passing HLT vs. Et;Et (GeV)",etBin,etMin, etMax);
+    p_vertexReconstructionEfficiencyVsEta_ = dbe_->book1D("VertexReconstructionEfficiencyVsEta","Fraction of Converted Photons having a valid vertex vs. Eta;#eta",etaBin,etaMin, etaMax);
+
+    for(int cut = 0; cut != numberOfSteps_; ++cut){   //looping over Et cut values
+      for(uint type=0;type!=types.size();++type){ //looping over isolation type
+	
+	currentFolder_.str("");	
+	currentFolder_ << "Egamma/PhotonAnalyzer/" << types[type] << "Photons/Et above " << cut*cutStep_ << " GeV/Conversions";
+	dbe_->setCurrentFolder(currentFolder_.str());
+	
+	p_convFractionVsEta_isol_.push_back(dbe_->book1D("convFractionVsEta","Fraction of Converted Photons  vs. Eta;#eta",etaBin,etaMin, etaMax));
+	p_convFractionVsEt_isol_.push_back(dbe_->book1D("convFractionVsEt","Fraction of Converted Photons vs. Et;Et (GeV)",etBin,etMin, etMax));
+	
+	
+	p_convFractionVsEt_.push_back(p_convFractionVsEt_isol_);
+	p_convFractionVsEt_isol_.clear();
+	p_convFractionVsEta_.push_back(p_convFractionVsEta_isol_);
+	p_convFractionVsEta_isol_.clear(); 
+      }
+    }
     
     currentFolder_.str("");
     currentFolder_ << "Et above 0 GeV/";
     
     dividePlots(dbe_->get(EffPath+"Filters"),dbe_->get(EffPath+"Filters"),dbe_->get(EffPath+ "phoEtHLT")->getTH1F()->GetEntries());   
+    
     //making efficiency plots
     
     dividePlots(dbe_->get(EffPath+"EfficiencyVsEtaLoose"),dbe_->get(EffPath+ "phoEtaLoose"),dbe_->get(AllPath+currentFolder_.str() + "phoEta"));
@@ -1214,7 +1243,7 @@ void PhotonAnalyzer::doProfileX(MonitorElement * th2m, MonitorElement* me) {
 void  PhotonAnalyzer::dividePlots(MonitorElement* dividend, MonitorElement* numerator, MonitorElement* denominator){
 
   double value,err;
-
+  //cout << "dividend name: " << dividend->title();
   for (int j=1; j<=numerator->getNbinsX(); j++){
     if (denominator->getBinContent(j)!=0){
       value = ((double) numerator->getBinContent(j))/((double) denominator->getBinContent(j));

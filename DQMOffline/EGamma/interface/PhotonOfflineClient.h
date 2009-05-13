@@ -39,7 +39,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2008/09/30 19:51:05 $ 
+ **  $Date: 2008/11/28 12:51:56 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -72,6 +72,23 @@ class PhotonOfflineClient : public edm::EDAnalyzer
  private:
   //
 
+  MonitorElement*  h_filters_;
+  MonitorElement* p_efficiencyVsEtaLoose_;
+  MonitorElement* p_efficiencyVsEtLoose_;
+  MonitorElement* p_efficiencyVsEtaTight_;
+  MonitorElement* p_efficiencyVsEtTight_;
+  MonitorElement* p_efficiencyVsEtaHLT_;
+  MonitorElement* p_efficiencyVsEtHLT_;
+  std::vector<MonitorElement*> p_convFractionVsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_convFractionVsEta_;
+  std::vector<MonitorElement*> p_convFractionVsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > p_convFractionVsEt_;
+
+
+  MonitorElement* p_vertexReconstructionEfficiencyVsEta_;
+
+
+
 
   void doProfileX(TH2 * th2, MonitorElement* me);
   void doProfileX(MonitorElement * th2m, MonitorElement* me);
@@ -86,6 +103,13 @@ class PhotonOfflineClient : public edm::EDAnalyzer
 
   double cutStep_;
   int numberOfSteps_;
+  double etMin_;
+  double etMax_;
+  int etBin_;
+  double etaMin_;
+  double etaMax_;
+  int etaBin_;
+
 
   std::stringstream currentFolder_;
    

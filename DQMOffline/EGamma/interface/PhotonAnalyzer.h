@@ -77,7 +77,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/04/11 17:22:18 $ 
+ **  $Date: 2009/04/30 15:06:41 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -106,7 +106,7 @@ class PhotonAnalyzer : public edm::EDAnalyzer
                                    
       
   virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-  virtual void beginJob( const edm::EventSetup& ) ;
+  virtual void beginJob() ;
   virtual void endJob() ;
  
  private:
