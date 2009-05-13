@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.5 2008/06/26 16:06:41 fambrogl Exp $
+#  $Id: EventContent_cff.py,v 1.6 2008/08/08 15:14:49 rahatlou Exp $
 #
 #
 #
@@ -98,7 +98,8 @@ RAWEventContent = cms.PSet(
 #
 #
 RECOEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
+    outputCommands = cms.untracked.vstring('drop *',
+	'keep *_logErrorHarvester_*_*')
 )
 #
 #
@@ -106,7 +107,8 @@ RECOEventContent = cms.PSet(
 #
 #
 AODEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep *_logErrorHarvester_*_*')
 )
 #
 #
@@ -122,7 +124,8 @@ RAWSIMEventContent = cms.PSet(
 #
 #
 RECOSIMEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep *_logErrorHarvester_*_*')
 )
 #
 #
@@ -130,7 +133,8 @@ RECOSIMEventContent = cms.PSet(
 #
 #
 AODSIMEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep *_logErrorHarvester_*_*')
 )
 #
 #
@@ -138,7 +142,8 @@ AODSIMEventContent = cms.PSet(
 #
 #
 FEVTEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep *_logErrorHarvester_*_*')
 )
 #
 #
@@ -146,7 +151,8 @@ FEVTEventContent = cms.PSet(
 #
 #
 FEVTSIMEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep *_logErrorHarvester_*_*')
 )
 #
 #
@@ -154,7 +160,8 @@ FEVTSIMEventContent = cms.PSet(
 #
 #
 RAWDEBUGEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep *_logErrorHarvester_*_*')
 )
 #
 #
@@ -162,7 +169,8 @@ RAWDEBUGEventContent = cms.PSet(
 #
 #
 RAWDEBUGHLTEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep *_logErrorHarvester_*_*')
 )
 #
 #
@@ -170,7 +178,8 @@ RAWDEBUGHLTEventContent = cms.PSet(
 #
 #
 FEVTDEBUGEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep *_logErrorHarvester_*_*')
 )
 #
 #
@@ -178,7 +187,8 @@ FEVTDEBUGEventContent = cms.PSet(
 #
 #
 FEVTDEBUGHLTEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep *_logErrorHarvester_*_*')
 )
 
 #
@@ -188,7 +198,8 @@ from HLTrigger.Configuration.HLTDebugOutput_cff  import block_hltDebugOutput
 HLTDEBUGEventContent = cms.PSet(
     #outputCommands = cms.untracked.vstring('drop *',
     #        'keep *_hlt*_*_*')
-    outputCommands = cms.untracked.vstring('drop *')
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep *_logErrorHarvester_*_*')
 )
 HLTDEBUGEventContent.outputCommands.extend(block_hltDebugOutput.outputCommands)
 
