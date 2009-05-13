@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.115 $"
+__version__ = "$Revision: 1.116 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -20,7 +20,8 @@ defaultOptions.scenarioOptions=['pp','cosmics','nocoll']
 defaultOptions.harvesting= 'AtRunEnd'
 
 # the pile up map
-pileupMap = {'LowLumiPileUp': 7.1,
+pileupMap = {'156BxLumiPileUp': 6.9,
+             'LowLumiPileUp': 7.1,
 	     'NoPileUp': 0, 
 	     'InitialPileUp': 3.8,
 	     'HighLumiPileUp': 25.4
@@ -661,7 +662,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.115 $"),
+              (version=cms.untracked.string("$Revision: 1.116 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
