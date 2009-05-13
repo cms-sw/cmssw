@@ -6,6 +6,7 @@ higgsToZZ4LeptonsSkimProducer = cms.EDFilter("HiggsToZZ4LeptonsSkimProducer",
     # Collection to be accessed
     ElectronCollectionLabel = cms.InputTag("pixelMatchGsfElectrons"),
     MuonCollectionLabel     = cms.InputTag("muons"),
+    isGlobalMuon            = cms.bool(False),
   
     # Pt thresholds for leptons
     stiffMinimumPt          = cms.double(10.0),

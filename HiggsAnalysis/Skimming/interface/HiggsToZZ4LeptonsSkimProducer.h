@@ -51,6 +51,7 @@ class HiggsToZZ4LeptonsSkimProducer : public edm::EDProducer {
   int nLeptonMin;
 
   // Reco samples
+  bool isGlobalMuon;
   edm::InputTag theMuonLabel;
   edm::InputTag theGsfELabel;
 

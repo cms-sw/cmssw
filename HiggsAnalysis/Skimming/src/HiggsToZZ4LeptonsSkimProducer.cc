@@ -40,6 +40,7 @@ HiggsToZZ4LeptonsSkimProducer::HiggsToZZ4LeptonsSkimProducer(const edm::Paramete
   debug              = pset.getParameter<bool>("DebugHiggsToZZ4LeptonsSkim");
 
   // Reconstructed objects
+  isGlobalMuon       = pset.getParameter<bool>("isGlobalMuon");
   theMuonLabel       = pset.getParameter<edm::InputTag>("MuonCollectionLabel");
   theGsfELabel       = pset.getParameter<edm::InputTag>("ElectronCollectionLabel");
 
@@ -81,10 +82,20 @@ void HiggsToZZ4LeptonsSkimProducer::produce(edm::Event& event, const edm::EventS
     // and how many are above threshold
     for ( muons = mus->begin(); muons != mus->end(); ++muons ) {
 
-      if(muons->isGlobalMuon()){
+      bool matchglb=false;
+
+      if(isGlobalMuon==true && muons->isGlobalMuon()){
+	matchglb=true;
+      }
+      else if (isGlobalMuon==false) {
+	matchglb=true;
+      }
+
+      if (matchglb==true ){
 	if ( muons->pt() > stiffMinPt) nStiffLeptons++; 
 	if ( muons->pt() > softMinPt) nLeptons++; 
-      }
+      }	
+
     }  
   } 
   
