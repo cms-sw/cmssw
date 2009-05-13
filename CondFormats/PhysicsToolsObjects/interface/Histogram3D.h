@@ -117,7 +117,7 @@ class Histogram3D {
         bool hasEquidistantBinsZ() const { return binULimitsZ.empty(); }
 	int numberOfBinsX() const { return strideX - 2; }
 	int numberOfBinsY() const { return strideY - 2; }
-        int numberOfBinsZ() const { return binValues.size() / ((strideX - 2)*(strideY - 2)); }
+        int numberOfBinsZ() const { return binValues.size() / (strideX * strideY) - 2; }
 	int numberOfBins() const
 	{ return numberOfBinsX() * numberOfBinsY() * numberOfBinsZ(); }
 
