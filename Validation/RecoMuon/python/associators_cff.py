@@ -5,25 +5,22 @@ from Validation.RecoMuon.selectors_cff import *
 
 #TrackAssociation
 from SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi import *
-from SimTracker.TrackAssociation.TrackAssociatorByHits_cfi import *
-from SimTracker.TrackAssociation.TrackAssociatorByPosition_cfi import *
+import SimTracker.TrackAssociation.TrackAssociatorByHits_cfi
+import SimTracker.TrackAssociation.TrackAssociatorByPosition_cfi
 
-#TrackAssociation by DeltaR
-TrackAssociatorByPosDeltaR = cms.ESProducer('TrackAssociatorByPositionESProducer',
-    # QminCut not used
-    QminCut = cms.double(120.0),
-    MinIfNoMatch = cms.bool(False),
-    ComponentName = cms.string('TrackAssociatorByDeltaR'),
-    propagator = cms.string('SteppingHelixPropagatorAlong'),
-    # minimum distance from the origin to find a hit 
-    # from a simulated particle and match it to reconstructed track
-    positionMinimumDistance = cms.double(0.0),
-    # use the delta eta-phi estimator on the position 
-    # at a plane in the muon system    
-    method = cms.string('momdr'),
-    QCut = cms.double(0.5),
-    ConsiderAllSimHits = cms.bool(True)
-)
+TrackAssociatorByHits = SimTracker.TrackAssociation.TrackAssociatorByHits_cfi.TrackAssociatorByHits.clone()
+
+OnlineTrackAssociatorByHits = SimTracker.TrackAssociation.TrackAssociatorByHits_cfi.TrackAssociatorByHits.clone()
+OnlineTrackAssociatorByHits.UseGrouped = False
+OnlineTrackAssociatorByHits.UseSplitting = False
+OnlineTrackAssociatorByHits.ThreeHitTracksAreSpecial = False
+
+TrackAssociatorByPosDeltaR = SimTracker.TrackAssociation.TrackAssociatorByPosition_cfi.TrackAssociatorByPosition.clone()
+TrackAssociatorByPosDeltaR.ComponentName = 'TrackAssociatorByDeltaR'
+TrackAssociatorByPosDeltaR.method = cms.string('momdr')
+TrackAssociatorByPosDeltaR.QCut = cms.double(0.5)
+TrackAssociatorByPosDeltaR.ConsiderAllSimHits = cms.bool(True)
+    
 
 #
 # Associators for Full Sim + Reco:
@@ -79,14 +76,14 @@ tpToL3TrackAssociation = cms.EDProducer("TrackAssociatorEDProducer",
 
 tpToL3TkTrackTrackAssociation = cms.EDProducer("TrackAssociatorEDProducer",
     ignoremissingtrackcollection=cms.untracked.bool(True),
-    associator = cms.string('TrackAssociatorByHits'),
+    associator = cms.string('OnlineTrackAssociatorByHits'),
     label_tp = cms.InputTag('mergedtruth','MergedTrackTruth'),
     label_tr = cms.InputTag('hltL3TkTracksFromL2','')
 )
 
 tpToL3L2TrackTrackAssociation = cms.EDProducer("TrackAssociatorEDProducer",
     ignoremissingtrackcollection=cms.untracked.bool(True),
-    associator = cms.string('TrackAssociatorByHits'),
+    associator = cms.string('OnlineTrackAssociatorByHits'),
     label_tp = cms.InputTag('mergedtruth','MergedTrackTruth'),
     label_tr = cms.InputTag('hltL3Muons:L2Seeded')
 )
