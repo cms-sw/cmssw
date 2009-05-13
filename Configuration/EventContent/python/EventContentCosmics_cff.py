@@ -17,7 +17,7 @@ import FWCore.ParameterSet.Config as cms
 #    include reconstruction, simulation and analysis
 #  FEVTSIMDIGIHLTDEBUG FEVTSIMHLTDEBUG
 #
-#  $Id: EventContentCosmics_cff.py,v 1.7 2008/09/29 15:48:52 arizzi Exp $
+#  $Id: EventContentCosmics_cff.py,v 1.8 2008/11/03 13:53:43 arizzi Exp $
 #
 #
 #
@@ -62,7 +62,8 @@ from RecoVertex.Configuration.RecoVertex_EventContent_cff import *
 #
 #
 FEVTEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep *_logErrorHarvester_*_*')
 )
 #replace FEVTEventContent.outputCommands += HLTriggerFEVT.outputCommands 
 #
@@ -71,7 +72,8 @@ FEVTEventContent = cms.PSet(
 #
 #
 RECOEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep *_logErrorHarvester_*_*')
 )
 #
 #
@@ -79,7 +81,8 @@ RECOEventContent = cms.PSet(
 #
 #
 AODEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep *_logErrorHarvester_*_*')
 )
 # RAW only data tier
 RAWEventContent = cms.PSet(
@@ -101,7 +104,8 @@ RAWSIMEventContent = cms.PSet(
 #
 #
 RECOSIMEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep *_logErrorHarvester_*_*')
 )
 #
 #
@@ -109,7 +113,8 @@ RECOSIMEventContent = cms.PSet(
 #
 #
 AODSIMEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep *_logErrorHarvester_*_*')
 )
 
 #
@@ -117,7 +122,8 @@ AODSIMEventContent = cms.PSet(
 #
 #
 FEVTSIMEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep *_logErrorHarvester_*_*')
 )
 
 
