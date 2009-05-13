@@ -710,7 +710,7 @@ sub reset_var {
   $pathcfg_variable         =$cfgTemplate;
   $pathdata_variable        =$infiList;
   $pathpedescript_variable  =$mergeScript;
-  $pathcastor_variable      =$mssDir;
+  $pathcastor_variable      =$mssDirPool.":".$mssDir; # ':' as delimter "defined" in mps_setup.pl
   $jobname_variable         =$addFiles;
   $njobs_variable           =$nJobs;
   $batchclass_variable      =$class;

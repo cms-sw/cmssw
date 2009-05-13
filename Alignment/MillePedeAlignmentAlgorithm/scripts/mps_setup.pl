@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     08-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.14 $
-#     $Date: 2009/01/07 18:27:19 $
+#     $Revision: 1.15 $
+#     $Date: 2009/03/09 11:21:09 $
 #
 #  Setup local mps database
 #  
@@ -36,7 +36,7 @@ $class = "S";
 $addFiles = "";
 $driver = "";
 $mergeScript = "";
-$castorPool = "";
+$mssDirPool = "";
 $mssDir = "";
 $append = 0;
 
@@ -135,9 +135,9 @@ if ($driver eq "merge") {
 
 $mssDirOrig = $mssDir; # First store the original value of $mssDir
 if ($mssDir ne "") {
-  if ($mssDir =~ /:/) {
-    $castorPool = $mssDir;
-    $castorPool =~ s/:.+?$//; # Remove all that follows ":"
+  if ($mssDir =~ /:/) { # ':' as delimeter also used in mpedegui.pl
+    $mssDirPool = $mssDir;
+    $mssDirPool =~ s/:.+?$//; # Remove all that follows ":"
 
     $mssDir =~ s/^.+?://; # Remove all the precedes ":"
   }
@@ -247,8 +247,8 @@ for ($j = 1; $j <= $nJobs; ++$j) {
   print "mps_splice.pl $cfgTemplate jobData/$theJobDir/theSplit jobData/$theJobDir/the.py $theIsn\n";
   system "mps_splice.pl $cfgTemplate jobData/$theJobDir/theSplit jobData/$theJobDir/the.py $theIsn";
   # create the run script
-  print "mps_script.pl $batchScript  jobData/$theJobDir/theScript.sh $theJobData/$theJobDir the.py jobData/$theJobDir/theSplit $theIsn $mssDir $castorPool\n";
-  system "mps_script.pl $batchScript  jobData/$theJobDir/theScript.sh $theJobData/$theJobDir the.py jobData/$theJobDir/theSplit $theIsn $mssDir $castorPool";
+  print "mps_script.pl $batchScript  jobData/$theJobDir/theScript.sh $theJobData/$theJobDir the.py jobData/$theJobDir/theSplit $theIsn $mssDir $mssDirPool\n";
+  system "mps_script.pl $batchScript  jobData/$theJobDir/theScript.sh $theJobData/$theJobDir the.py jobData/$theJobDir/theSplit $theIsn $mssDir $mssDirPool";
 }
 
 # create the merge job entry. This is always done. Whether it is used depends on the "merge" option.
@@ -281,8 +281,8 @@ if ($driver eq "merge") {
   system "mps_merge.pl $cfgTemplate jobData/jobm/alignment_merge.py $theJobData/jobm $nJobsMerge";
 
   # create merge job script
-  print "mps_scriptm.pl $mergeScript jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.py $nJobsMerge $mssDir $castorPool\n";
-  system "mps_scriptm.pl $mergeScript jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.py $nJobsMerge $mssDir $castorPool";
+  print "mps_scriptm.pl $mergeScript jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.py $nJobsMerge $mssDir $mssDirPool\n";
+  system "mps_scriptm.pl $mergeScript jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.py $nJobsMerge $mssDir $mssDirPool";
 }
 
 # Create a backup of batchScript, cfgTemplate, infiList (and mergeScript)
@@ -302,8 +302,6 @@ system "rm -rf jobData/$ScriptCfg";
 
 
 # Write to DB
-
-$mssDir = $mssDirOrig; # First restore original value of $mssDir...
-write_db(); # ... then save to DB
+write_db();
 read_db();
 print_memdb();
