@@ -53,6 +53,27 @@ postProcessorMuonMultiTrackComp = cms.EDAnalyzer("DQMGenericClient",
     outputFileName = cms.untracked.string("")
 )
 
+postProcessorMuonMultiTrackCompFS = cms.EDAnalyzer("DQMGenericClient",
+    subDirs = cms.untracked.vstring("RecoMuonV/MultiTrack/"),
+    efficiency = cms.vstring(
+    "Eff_GlbTk_Eta 'Eff_{GLB,TK} vs #eta' globalMuons_tpToGlbAssociation/effic general_tpToTkmuAssociationFS/effic",
+    "Eff_GlbTk_Pt 'Eff_{GLB,TK} vs p_{T}' globalMuons_tpToGlbAssociation/efficPt general_tpToTkmuAssociationFS/efficPt",
+    "Eff_GlbTk_Hit 'Eff_{GLB,TK} vs n Hits' globalMuons_tpToGlbAssociation/effic_vs_hit general_tpToTkmuAssociationFS/effic_vs_hit",
+    "Eff_GlbSta_Eta 'Eff_{GLB,STA} vs #eta' globalMuons_tpToGlbAssociation/effic standAloneMuons_UpdatedAtVtx_tpToStaUpdAssociationFS/effic",
+    "Eff_GlbSta_Pt 'Eff_{GLB,STA} vs p_{T}' globalMuons_tpToGlbAssociation/efficPt standAloneMuons_UpdatedAtVtx_tpToStaUpdAssociationFS/efficPt",
+    "Eff_GlbSta_Hit 'Eff_{GLB,STA} vs n Hits' globalMuons_tpToGlbAssociation/effic_vs_hit standAloneMuons_UpdatedAtVtx_tpToStaUpdAssociationFS/effic_vs_hit",
+
+    "Eff_GlbTk_Eta_mabh 'Eff_{GLB,TK} vs #eta' globalMuons_tpToGlbMuonAssociation/effic general_tpToTkMuonAssociationFS/effic",
+    "Eff_GlbTk_Pt_mabh 'Eff_{GLB,TK} vs p_{T}' globalMuons_tpToGlbMuonAssociation/efficPt general_tpToTkMuonAssociationFS/efficPt",
+    "Eff_GlbTk_Hit_mabh 'Eff_{GLB,TK} vs n Hits' globalMuons_tpToGlbMuonAssociation/effic_vs_hit general_tpToTkMuonAssociationFS/effic_vs_hit",
+    "Eff_GlbSta_Eta_mabh 'Eff_{GLB,STA} vs #eta' globalMuons_tpToGlbMuonAssociation/effic standAloneMuons_UpdatedAtVtx_tpToStaUpdMuonAssociationFS/effic",
+    "Eff_GlbSta_Pt_mabh 'Eff_{GLB,STA} vs p_{T}' globalMuons_tpToGlbMuonAssociation/efficPt standAloneMuons_UpdatedAtVtx_tpToStaUpdMuonAssociationFS/efficPt",
+    "Eff_GlbSta_Hit_mabh 'Eff_{GLB,STA} vs n Hits' globalMuons_tpToGlbMuonAssociation/effic_vs_hit standAloneMuons_UpdatedAtVtx_tpToStaUpdMuonAssociationFS/effic_vs_hit",
+    ),
+    resolution = cms.vstring(""),
+    outputFileName = cms.untracked.string("")
+)
+
 
 postProcessorRecoMuon = cms.EDAnalyzer("DQMGenericClient",
     subDirs = cms.untracked.vstring("RecoMuonV/RecoMuon_*",),
@@ -141,3 +162,5 @@ postProcessorRecoMuonComp = cms.EDAnalyzer(
         
 
 recoMuonPostProcessors = cms.Sequence(postProcessorMuonMultiTrack*postProcessorRecoMuon*postProcessorMuonMultiTrackComp*postProcessorRecoMuonComp)
+
+recoMuonPostProcessorsFastSim = cms.Sequence(postProcessorMuonMultiTrack*postProcessorRecoMuon*postProcessorMuonMultiTrackCompFS*postProcessorRecoMuonComp)
