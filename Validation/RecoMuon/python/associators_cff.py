@@ -142,6 +142,9 @@ tpToL3TkMuonAssociation.UseMuon = False
 tpToL3TkMuonAssociation.EfficiencyCut_track = 0.5
 tpToL3TkMuonAssociation.PurityCut_track = 0.75
 tpToL3TkMuonAssociation.ignoreMissingTrackCollection = True
+tpToL3TkMuonAssociation.UseSplitting = False
+tpToL3TkMuonAssociation.UseGrouped = False
+tpToL3TkMuonAssociation.ThreeHitTracksAreSpecial = False 
 
 tpToL2MuonAssociation.tpTag = 'mergedtruth:MergedTrackTruth'
 tpToL2MuonAssociation.tracksTag = 'hltL2Muons'
@@ -171,7 +174,9 @@ tpToL3MuonAssociation.PurityCut_muon = 0.5
 tpToL3MuonAssociation.EfficiencyCut_track = 0.5
 tpToL3MuonAssociation.PurityCut_track = 0.75
 tpToL3MuonAssociation.ignoreMissingTrackCollection = True
-
+tpToL3MuonAssociation.UseSplitting = False
+tpToL3MuonAssociation.UseGrouped = False
+tpToL3MuonAssociation.ThreeHitTracksAreSpecial = False 
 
 muonAssociation_seq = cms.Sequence((tpToTkMuonAssociation+tpToStaMuonAssociation+tpToStaUpdMuonAssociation+tpToGlbMuonAssociation)
                                   +(tpToTkmuTrackAssociation+tpToStaTrackAssociation+tpToStaUpdTrackAssociation+tpToGlbTrackAssociation))
