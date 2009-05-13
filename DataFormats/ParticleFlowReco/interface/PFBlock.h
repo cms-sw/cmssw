@@ -32,11 +32,19 @@ namespace reco {
 
   public:
 
+    struct Link {
+      Link()   : distance(-1), chi2(-1), test(0) {}
+      Link(float d,float c, char t) : distance(d), chi2(c), test(t) {}
+      float distance;
+      float chi2;
+      char test;
+    };
+
     typedef edm::OwnVector< reco::PFBlockElement >::const_iterator IE;
     /*     typedef std::vector< reco::PFBlockLink >::const_iterator IL; */
     
     // typedef std::vector< std::vector<double> > LinkData;
-    typedef std::vector< std::vector<std::pair<float,float> > > LinkData;
+    typedef std::map< unsigned int,  Link >  LinkData;
     
     enum LinkTest {
       LINKTEST_CHI2=0,
@@ -86,13 +94,19 @@ namespace reco {
 
     /// \return chi2 of link
     double chi2( unsigned ie1, unsigned ie2, 
-                 const LinkData& linkData, 
-		 LinkTest  test=LINKTEST_CHI2 ) const;
+        const LinkData& linkData, LinkTest  test ) const {return chi2(ie1,ie2,linkData);}
 
     /// \return distance of link
     double dist( unsigned ie1, unsigned ie2, 
-                 const LinkData& linkData, 
-		 LinkTest  test=LINKTEST_CHI2 ) const;
+        const LinkData& linkData, LinkTest  test ) const {return dist(ie1,ie2,linkData);}
+
+    /// \return chi2 of link
+    double chi2( unsigned ie1, unsigned ie2, 
+                 const LinkData& linkData) const;
+
+    /// \return distance of link
+    double dist( unsigned ie1, unsigned ie2, 
+                 const LinkData& linkData) const;
 
     /// \return elements
     const edm::OwnVector< reco::PFBlockElement >& elements() const 

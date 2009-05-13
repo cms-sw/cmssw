@@ -42,6 +42,7 @@
 #include "DataFormats/ParticleFlowReco/interface/Calibratable.h"
 #include "DataFormats/ParticleFlowReco/interface/CalibrationResultWrapper.h"
 #include "DataFormats/ParticleFlowReco/interface/CalibrationProvenance.h"
+#include <map>
 
 namespace { 
   struct dictionary {
@@ -129,6 +130,6 @@ namespace {
     std::vector<pftools::CalibratableElement> dummy55;
     std::vector<pftools::CandidateWrapper> dummy56;
     std::vector<pftools::CalibrationResultWrapper> dummy57;
-    std::vector<std::pair<float,float> > dummy58;
+    std::vector< std::pair<float,float> > dummy58;
   };
 }
