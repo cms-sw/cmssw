@@ -7,8 +7,8 @@
  * One instance is created for each DDVolume. The parameters of the 
  * boundary surfaces are calculated during construction.
  *
- *  $Date: 2008/04/23 14:03:22 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/03/25 16:20:08 $
+ *  $Revision: 1.8 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -106,7 +106,9 @@ public:
 
   /// Temporary hack to pass information on material. Will eventually be replaced!
   bool isIron() const{return isIronFlag;}
-  
+
+  /// The sector for which an interpolator for this class of volumes should be built
+  int masterSector;
 
 private:
   // Disallow Default/copy ctor & assignment op.
