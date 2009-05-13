@@ -14,7 +14,7 @@ NewRelease='CMSSW_3_1_0_pre6'
 
 # startup and ideal sample list
 startupsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
-#startupsamples= ['RelValTTbar', 'RelValZMM']
+#startupsamples= []
 
 idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
 #idealsamples= ['RelValTTbar']
@@ -170,7 +170,6 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 
                 
                 # if not harvesting find secondary file names
-#                    if(dataset!="" ):
                     if(dataset!="" and Sequence!="harvesting"):
                         print 'Getting secondary files'
                         cmd3='python $DBSCMD_HOME/dbsCommandLine.py "find dataset.parent where dataset like '+ dataset[:-1] +'"|grep ' + sample
