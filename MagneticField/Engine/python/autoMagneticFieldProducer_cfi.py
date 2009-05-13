@@ -3,7 +3,14 @@ import FWCore.ParameterSet.Config as cms
 # This cfi contains everything needed to use a field engine that is built using
 # the current value provided in the ES. 
 
-from MagneticField.GeomBuilder.cmsMagneticFieldXML_1103l_cfi import *
+magfield = cms.ESSource("XMLIdealGeometryESSource",
+    geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/normal/cmsextent.xml', 
+        'Geometry/CMSCommonData/data/cms.xml', 
+        'Geometry/CMSCommonData/data/cmsMagneticField.xml', 
+        'MagneticField/GeomBuilder/data/MagneticFieldVolumes_1103l.xml',
+        'MagneticField/GeomBuilder/data/MagneticFieldParameters_07.xml'),
+    rootNodeName = cms.string('cmsMagneticField:MAGF')
+)
 
 # avoid interference with EmptyESSource in uniformMagneticField.cfi
 es_prefer_magfield = cms.ESPrefer("XMLIdealGeometryESSource","magfield")
