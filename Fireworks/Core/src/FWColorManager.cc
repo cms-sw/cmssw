@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.6 2009/05/04 20:03:32 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.7 2009/05/05 09:39:28 amraktad Exp $
 //
 
 // system include files
@@ -157,7 +157,10 @@ static const float s_geomForWhite[][3] ={
 {1.,0.5,0.5},
 {0.45,0.68,1.},
 {0.2,0.4,1.},
-{0.57,1.,0.26}
+{0.57,1.,0.26},
+{0.8, 0.8, 0.8}, // calo3d grid
+{0.8, 0.8, 0.8}, // lego grid
+{0.6, 0.6, 0.6} // lego font
 };
 
 static const float s_geomForBlack[][3] ={
@@ -165,7 +168,10 @@ static const float s_geomForBlack[][3] ={
 {0x7f/256.,0.,0.},
 {0.,0.,0x3f/256.},
 {0.,0.,0x7f/256.},
-{0.,0x7f/256.,0.}
+{0.,0x7f/256.,0.},
+{0.34, 0.34, 0.34}, // calo3d grid
+{0.17, 0.17, 0.17},  // lego grid
+{0.7, 0.7, 0.7}   // lego font
 };
 
 static const unsigned int s_geomSize = sizeof(s_geomForBlack)/sizeof(s_geomForBlack[0]);
@@ -274,6 +280,21 @@ void FWColorManager::updateBrightness()
    FWChangeSentry sentry(*m_changeManager);
    colorsHaveChanged_();
    colorsHaveChangedFinished_();
+}
+
+
+void
+FWColorManager::setBrightness(float off)
+{
+   Float_t value = off;
+   if (value < -2.5 || value > 2.5)
+   {
+      printf("Warning::Set brightness out of range.  value '%f' out of range [-2.5, 2.5]. \n", value);
+      return;
+   }
+   
+   m_gammaOff = value;
+   updateBrightness();
 }
 
 void

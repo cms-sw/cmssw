@@ -1,7 +1,7 @@
 #ifndef Fireworks_Core_FW3DViewManager_h
 #define Fireworks_Core_FW3DViewManager_h
 // -*- C++ -*-
-// $Id: FW3DViewManager.h,v 1.7 2009/03/11 21:16:19 amraktad Exp $
+// $Id: FW3DViewManager.h,v 1.8 2009/04/07 14:05:46 chrjones Exp $
 
 // system include files
 #include <string>
@@ -25,6 +25,7 @@ class TEveElementList;
 class TEveSelection;
 class FWSelectionManager;
 class TEveCaloDataHist;
+class TEveCalo3D;
 class TEveWindowSlot;
 
 class FW3DViewManager : public FWViewManagerBase
@@ -70,6 +71,7 @@ private:
    std::vector<boost::shared_ptr<FW3DView> > m_views;
    FWEvePtr<TEveElementList> m_elements;
    TEveCaloDataHist* m_caloData;
+   TEveCalo3D* m_calo3d;
 
    TEveSelection* m_eveSelection;
    FWSelectionManager* m_selectionManager;

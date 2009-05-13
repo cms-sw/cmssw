@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DViewManager.cc,v 1.8 2009/03/11 21:16:20 amraktad Exp $
+// $Id: FW3DViewManager.cc,v 1.9 2009/04/07 14:05:46 chrjones Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 #include "TEveCaloData.h"
 #include "TEveElement.h"
 #include "TEveWindow.h"
+#include "TEveCalo.h"
 #include "TROOT.h"
 
 // user include files
@@ -59,6 +60,7 @@ FW3DViewManager::FW3DViewManager(FWGUIManager* iGUIMgr) :
    FWViewManagerBase(),
    m_elements( new TEveElementList("3D")),
    m_caloData(0),
+   m_calo3d(0),
    m_eveSelection(0),
    m_selectionManager(0)
 {
@@ -171,7 +173,9 @@ FW3DViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
             builder->setItem(iItem);
             builder->setHaveAWindow(!m_views.empty());
             builder->addToScene(*m_elements,&m_caloData);
-            //m_elements.AddElement(builder->usedInScene());
+            m_calo3d =  dynamic_cast<TEveCalo3D*>( m_elements->FirstChild());
+            m_calo3d->SetMainColor(colorManager().geomColor(kFWCalo3DFrameColorIndex));
+          
             m_builders.push_back(pB);
          }
       }
@@ -203,6 +207,8 @@ FW3DViewManager::colorsChanged()
        ++it) {
       (*it)->setBackgroundColor(colorManager().background());
    }
+
+    if (m_calo3d)  m_calo3d->SetMainColor(colorManager().geomColor(kFWCalo3DFrameColorIndex));
 }
 
 void

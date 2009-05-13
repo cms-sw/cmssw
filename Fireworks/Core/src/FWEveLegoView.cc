@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.40 2009/04/12 20:14:11 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.41 2009/04/14 18:23:56 amraktad Exp $
 //
 
 // system include files
@@ -168,9 +168,10 @@ void
 FWEveLegoView::setBackgroundColor(Color_t iColor)
 {
    m_viewer->GetGLViewer()->SetClearColor(iColor);
+
    TAttAxis* att = m_overlay->GetAttAxis();
    if(iColor == FWColorManager::kBlackIndex) {
-      att->SetLabelColor(Color_t(TColor::GetColor("#202020")));
+     att->SetLabelColor(Color_t(TColor::GetColor("#202020")));
       att->SetAxisColor(Color_t(TColor::GetColor("#202020")));
    } else {
       att->SetLabelColor(Color_t(TColor::GetColor("#E0E0E0")));

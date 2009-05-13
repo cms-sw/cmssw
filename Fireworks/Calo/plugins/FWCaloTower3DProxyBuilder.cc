@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTower3DProxyBuilder.cc,v 1.1 2009/01/19 17:59:11 amraktad Exp $
+// $Id: FWCaloTower3DProxyBuilder.cc,v 1.2 2009/01/23 21:35:39 amraktad Exp $
 //
 
 #include <math.h>
@@ -59,7 +59,7 @@ FWCaloTower3DProxyBuilderBase::addToScene(TEveElement& iContainer, TEveCaloDataH
       TEveCalo3D* calo3d = new TEveCalo3D(*iCaloData);
       calo3d->SetBarrelRadius(129);
       calo3d->SetEndCapPos(310);
-      calo3d->SetFrameTransparency(90);
+      calo3d->SetFrameTransparency(80);
       iContainer.AddElement(calo3d);
    }
    m_caloData = *iCaloData;
