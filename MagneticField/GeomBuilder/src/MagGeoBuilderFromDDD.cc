@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/25 16:44:20 $
- *  $Revision: 1.20 $
+ *  $Date: 2009/04/07 15:09:45 $
+ *  $Revision: 1.21 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -93,7 +93,7 @@ void MagGeoBuilderFromDDD::summary(handles & volumes){
   handles::const_iterator last = volumes.end();
 
   for (handles::const_iterator i=first; i!=last; ++i){
-    if (int((*i)->shape())>4) continue; // FIXME: missing shapes...
+    if (int((*i)->shape())>4) continue; // FIXME: implement test for missing shapes...
     for (int side = 0; side < 6; ++side) {
       int references = 	(*i)->references(side);
       if ((*i)->isPlaneMatched(side)) {
@@ -134,13 +134,9 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
   map<string, MagProviderInterpol*> bInterpolators;
   map<string, MagProviderInterpol*> eInterpolators;
   
-  // Counter of different (FIXME can be removed)
+  // Counter of different volumes
   int bVolCount = 0;
   int eVolCount = 0;
-
-
-  // Look for MAGF tree (any better way to find out???)
-  //  fv.reset();
 
   if (fv.logicalPart().name().name()!="MAGF") {
      std::string topNodeName(fv.logicalPart().name().name());
@@ -172,36 +168,38 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
     if (debug) cout << endl << "Name: " << name << endl
 			       << "      " << fv.geoHistory() <<endl;
 
+    // FIXME: special handling of version 85l_030919. This version is no 
+    //        longer supported and special handling for it may not work
+    //        anymore - it will eventually be removed.
     // Build only the z-negative volumes, assuming symmetry
-    // FIXME: should not use name but center...
-    // even better, we should fix the XML!
     if (name.substr(2,2)=="ZP") {
       doSubDets = fv.nextSibling();
       continue;
     }
     
-    bool mergeCylinders=true;
+    // FIXME: single-volyme cylinders - this is feature has been removed 
+    //        and should be revisited.
+    //    bool mergeCylinders=false;
 
-    // In the barrel, cylinders sectors will be skipped to build full 
+    // If true, In the barrel, cylinders sectors will be skipped to build full 
     // cylinders out of sector copyno #1.
-    // (these should be just volumes 1,2,4)
     bool expand = false;
-    if (mergeCylinders) {
-      if (name == "V_ZN_1"
-	  || name == "V_ZN_2") {
-	if (debug && fv.logicalPart().solid().shape()!=ddtubs) {
-	  cout << "ERROR: MagGeoBuilderFromDDD::build: volume " << name
-	       << " should be a cylinder" << endl;
-	}
-	if(fv.copyno()==1) {
-	  // FIXME expand = true;
-	} else {
-	  //cout << "... to be skipped: "
-	  //     << name << " " << fv.copyno() << endl;
-	  //FIXME continue;
-	}
-      }
-    }
+
+//     if (mergeCylinders) {
+//       if (name == "V_ZN_1"
+// 	  || name == "V_ZN_2") {
+// 	if (debug && fv.logicalPart().solid().shape()!=ddtubs) {
+// 	  cout << "ERROR: MagGeoBuilderFromDDD::build: volume " << name
+// 	       << " should be a cylinder" << endl;
+// 	}
+// 	if(fv.copyno()==1) {
+// 	  expand = true;
+// 	} else {
+// 	  //cout << "... to be skipped: "
+// 	  //     << name << " " << fv.copyno() << endl;
+// 	}
+//       }
+//     }
 
     volumeHandle* v = new volumeHandle(fv, expand);
     
@@ -213,7 +211,8 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
     // volume #7, centered at 6477.5
     // v 1103l: same numbers work fine. #16 instead of #7, same coords;
     // see comment below for V6,7
-    // FIXME: misalignment?
+    //ASSUMPTION: no misalignment is applied to mag volumes.
+    //FIXME: implement barrel/endcap flags as DDD SpecPars.
     if ((fabs(Z)<647. || (R>350. && fabs(Z)<662.)) &&
 	!(fabs(Z)>480 && R<172) // in 1103l we place V_6 and V_7 in the 
 	                        // endcaps to preserve nice layer structure
@@ -222,16 +221,22 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 	) { // Barrel
       if (debug) cout << " (Barrel)" <<endl;
       bVolumes.push_back(v);
+
+
       // Build the interpolator of the "master" volume (the one which is
-      // not replicated, i.e. copy number #1)
-      if (v->copyno==1) {
+      // not replicated in phi)
+      // ASSUMPTION: copyno == sector. 
+      //             Note this is not the case for obsolete grid_85l_030919 - 
+      // In case in  future models this should no more be the case, can 
+      // implement secotor numbers as SpecPars in the XML      
+      if (v->copyno==v->masterSector) {
 	buildInterpolator(v, bInterpolators);
 	++bVolCount;
       }
     } else {               // Endcaps
       if (debug) cout << " (Endcaps)" <<endl;
       eVolumes.push_back(v);
-      if (v->copyno==1) { 
+      if (v->copyno==v->masterSector) { 
 	buildInterpolator(v, eInterpolators);
 	++eVolCount;
       }
@@ -382,7 +387,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 	 << "Number of interpolators built = " << bInterpolators.size() << endl
     	 << "Number of MagBLayers built    = " << mBLayers.size() << endl;
 
-    testInside(bVolumes); // Fixme: all volumes should be checked in one go.
+    testInside(bVolumes); // FIXME: all volumes should be checked in one go.
   }
   
   //--- Endcap
@@ -401,7 +406,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 	 << "Number of interpolators built = " << eInterpolators.size() << endl
     	 << "Number of MagESector built    = " << mESectors.size() << endl;
 
-    testInside(eVolumes); // Fixme: all volumes should be checked in one go.
+    testInside(eVolumes); // FIXME: all volumes should be checked in one go.
   }
 }
 
@@ -417,11 +422,11 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles & volumes, map<string, 
       cout << "No interpolator found for file " << (*vol)->magFile
 	   << " vol: " << (*vol)->name << endl;
       cout << interpolators.size() <<endl;
-      //FIXME08      continue;
     }
       
 
     // Get the volume number from the volume name.
+    // ASSUMPTION: volume names ends with "_NUM" where NUM is the volume number
     int volNum;
     string name = (*vol)->name;
     name.erase(0,name.rfind('_')+1);
@@ -430,10 +435,11 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles & volumes, map<string, 
     str >> volNum;
 
 
+    // ASSUMPTION: copyno == sector. 
+    //             Note this is not the case for obsolete grid_85l_030919 - 
+    // In case in  future models this should no more be the case, can 
+    // implement secotor numbers as SpecPars in the XML
     int key = volNum*100+(*vol)->copyno; 
-    // FIXME: is copyno == sector??? should be the case for V1103l; but not
-    // for 85l
-
     map<int, double>::const_iterator isf = theScalingFactors.find(key);
     if (isf == theScalingFactors.end()) {
       key = volNum*100;
@@ -444,22 +450,19 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles & volumes, map<string, 
     if (isf != theScalingFactors.end()) {
       sf = (*isf).second;
 
-      //FIXME
       edm::LogInfo("MagneticField|VolumeBasedMagneticFieldESProducer") << "Applying scaling factor " << sf << " to "<< (*vol)->name << " (key:" << key << ")" << endl;
     }
 
     const GloballyPositioned<float> * gpos = (*vol)->placement();
-    // FIXME check pos, rot corrsponds
     (*vol)->magVolume = new MagVolume6Faces(gpos->position(),
 					    gpos->rotation(),
 					    (*vol)->shape(),
 					    (*vol)->sides(),
 					    mp, sf);
 
-    // FIXME temporary hack 
     (*vol)->magVolume->setIsIron((*vol)->isIron());
 
-    // FIXME: debug, to be removed
+    // The name and sector of the volume are saved for debug purposes only. They may be removed at some point...
     (*vol)->magVolume->name = (*vol)->name;
     (*vol)->magVolume->copyno = (*vol)->copyno;
   }
@@ -469,10 +472,22 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles & volumes, map<string, 
 void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<string, MagProviderInterpol*> & interpolators){
 
 
+  // FIXME: special handling of version 85l_030919. This version is no 
+  //        longer supported and special handling for it may not work
+  //        anymore - it will eventually be removed.
   // In version grid_85l_030919, interpolators should be built only 
   // for volumes on NEGATIVE z 
   // (Z symmetry in field tables)
   if (version=="grid_85l_030919" && vol->center().z()>0) return;
+
+  // Phi of the master sector
+  double masterSectorPhi = (vol->masterSector-1)*Geom::pi()/6.;
+  //FIXME: special handling of version 85l_030919 (see FIXME above). 
+  // In ver. grid_85l_030919, the master sector was sector 4 
+  // (along Y axis).
+  if (version=="grid_85l_030919") {
+    masterSectorPhi=Geom::pi()/2.;
+  } 
 
   if (debug) {
     cout << "Building interpolator from "
@@ -482,12 +497,6 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
 	 << " file: " << vol->magFile
 	 << endl;
 
-    // In ver. grid_85l_030919, the master sector is sector 4 (along Y axis).
-    // In ver. grid_1103l_071212, it is sector 1 (along X axis)
-    double masterSectorPhi=0.;
-    if (version=="grid_85l_030919") {
-      masterSectorPhi=Geom::pi()/2.;
-    }
     if ( fabs(vol->center().phi() - masterSectorPhi) > Geom::pi()/9.) {
       cout << "***WARNING wrong sector? " << endl;
     }
@@ -505,26 +514,40 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
     fullPath = mydata.fullPath();
   } catch (edm::Exception& exc) {
     cerr << "MagGeoBuilderFromDDD: exception in reading table; " << exc.what() << endl;
-    //FIXME08    
+    if (!debug) throw;
     return;
-    //throw;
   }
   
   
   try{
     if (vol->toExpand()){
-      //FIXME
+      //FIXME: see discussion on mergeCylinders above.
 //       interpolators[vol->magFile] =
 // 	MFGridFactory::build( fullPath, *(vol->placement()), vol->minPhi(), vol->maxPhi());
     } else {
+      // If the table is in "local" coordinates, must create a reference 
+      // frame that is appropriately rotated along the CMS Z axis.
+
+      GloballyPositioned<float> rf = *(vol->placement());
+
+      if (vol->masterSector != 1) {
+	typedef Basic3DVector<float> Vector;
+
+	GloballyPositioned<float>::RotationType rot(Vector(0,0,1), -masterSectorPhi);
+	Vector vpos(vol->placement()->position());
+	
+
+	rf = GloballyPositioned<float>(GloballyPositioned<float>::PositionType(rot.multiplyInverse(vpos)), vol->placement()->rotation()*rot);
+      }
+
       interpolators[vol->magFile] =
-	MFGridFactory::build( fullPath, *(vol->placement()));
+	MFGridFactory::build( fullPath, rf);
     }
   } catch (MagException& exc) {
     cout << exc.what() << endl;
     interpolators.erase(vol->magFile);
-    throw; // FIXME, comment this to debug geometry in absence of interpolators
-    //return;
+    if (!debug) throw; 
+    return;
   }
 
 
@@ -629,13 +652,15 @@ vector<MagVolume6Faces*> MagGeoBuilderFromDDD::endcapVolumes() const{
 
 
 float MagGeoBuilderFromDDD::maxR() const{
-  //FIXME: get from the actual geometry!!!
+  //FIXME: should get it from the actual geometry - MAGF is an option, 
+  //       but that is not changed together the geometry itself 
+  //       (it lives in cmsMagneticField.xml in CMSCommonData)
   if (version=="grid_85l_030919") return 1000.;
   else return 900.;
 }
 
 float MagGeoBuilderFromDDD::maxZ() const{
-  //FIXME: get from the actual geometry!!!
+  //FIXME: should get it from the actual geometry - see above
   return 1600.;
 }
 
