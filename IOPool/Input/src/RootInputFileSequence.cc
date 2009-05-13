@@ -61,7 +61,7 @@ namespace edm {
     primarySequence_(primarySequence),
     randomAccess_(false),
     duplicateChecker_(),
-    dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", true)) {
+    dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", primary())) {
 
     if (!primarySequence_) noEventSort_ = false;
     if (!whichLumisToProcess_.empty() && !whichEventsToProcess_.empty()) {
