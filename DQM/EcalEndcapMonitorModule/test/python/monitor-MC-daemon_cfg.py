@@ -65,20 +65,20 @@ process.source = cms.Source("PoolSource",
     noEventSort = cms.untracked.bool(True),
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
 #---
-#   fileNames = cms.untracked.vstring('/store/users/dellaric/data/relval_zee.root')
+#   fileNames = cms.untracked.vstring('/store/user/dellaric/data/relval_zee.root')
 #---
-    fileNames = cms.untracked.vstring('/store/users/dellaric/data/relval_zee.root', 
-        '/store/users/dellaric/data/relval_zee.root', 
-        '/store/users/dellaric/data/relval_zee.root', 
-        '/store/users/dellaric/data/relval_zee.root', 
-        '/store/users/dellaric/data/relval_zee.root', 
-        '/store/users/dellaric/data/relval_zee.root', 
-        '/store/users/dellaric/data/relval_zee.root', 
-        '/store/users/dellaric/data/relval_zee.root', 
-        '/store/users/dellaric/data/relval_zee.root', 
-        '/store/users/dellaric/data/relval_zee.root', 
-        '/store/users/dellaric/data/relval_zee.root', 
-        '/store/users/dellaric/data/relval_zee.root')
+    fileNames = cms.untracked.vstring('/store/user/dellaric/data/relval_zee.root', 
+        '/store/user/dellaric/data/relval_zee.root', 
+        '/store/user/dellaric/data/relval_zee.root', 
+        '/store/user/dellaric/data/relval_zee.root', 
+        '/store/user/dellaric/data/relval_zee.root', 
+        '/store/user/dellaric/data/relval_zee.root', 
+        '/store/user/dellaric/data/relval_zee.root', 
+        '/store/user/dellaric/data/relval_zee.root', 
+        '/store/user/dellaric/data/relval_zee.root', 
+        '/store/user/dellaric/data/relval_zee.root', 
+        '/store/user/dellaric/data/relval_zee.root', 
+        '/store/user/dellaric/data/relval_zee.root')
 #---
 )
 

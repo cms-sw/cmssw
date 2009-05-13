@@ -60,14 +60,14 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 #process.source = cms.Source("NewEventStreamFileReader",
-#    fileNames = cms.untracked.vstring('/store/users/dellaric/data/GlobalAug07.00017123.0001.A.storageManager.0.0000.dat',
-#        '/store/users/dellaric/data/GlobalAug07.00017123.0002.A.storageManager.0.0000.dat')
+#    fileNames = cms.untracked.vstring('/store/user/dellaric/data/GlobalAug07.00017123.0001.A.storageManager.0.0000.dat',
+#        '/store/user/dellaric/data/GlobalAug07.00017123.0002.A.storageManager.0.0000.dat')
 #)
 process.source = cms.Source("PoolSource",
     noEventSort = cms.untracked.bool(True),
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
-    fileNames = cms.untracked.vstring('/store/users/dellaric/data/GlobalAug07.00017123.root')
-#    fileNames = cms.untracked.vstring('/store/users/dellaric/data/GlobalCruzet2.00046798.root')
+    fileNames = cms.untracked.vstring('/store/user/dellaric/data/GlobalAug07.00017123.root')
+#    fileNames = cms.untracked.vstring('/store/user/dellaric/data/GlobalCruzet2.00046798.root')
 )
 
 process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")

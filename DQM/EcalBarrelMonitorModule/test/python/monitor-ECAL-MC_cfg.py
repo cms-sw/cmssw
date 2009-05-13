@@ -64,7 +64,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     noEventSort = cms.untracked.bool(True),
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
-    fileNames = cms.untracked.vstring('/store/users/dellaric/data/relval_zee.root')
+    fileNames = cms.untracked.vstring('/store/user/dellaric/data/relval_zee.root')
 )
 
 process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")

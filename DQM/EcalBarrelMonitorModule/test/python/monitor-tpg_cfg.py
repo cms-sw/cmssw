@@ -63,7 +63,7 @@ process.source = cms.Source("PoolSource",
     noEventSort = cms.untracked.bool(True),
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
 #---
-    fileNames = cms.untracked.vstring('/store/users/dellaric/data/h4b.00015071.A.0.0.root')
+    fileNames = cms.untracked.vstring('/store/user/dellaric/data/h4b.00015071.A.0.0.root')
 #---
 )
 

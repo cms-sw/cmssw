@@ -78,9 +78,9 @@ process.source = cms.Source("PoolSource",
     noEventSort = cms.untracked.bool(True),
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
 #---
-    fileNames = cms.untracked.vstring('/store/users/dellaric/data/ecal_local.00058699.root')
+    fileNames = cms.untracked.vstring('/store/user/dellaric/data/ecal_local.00058699.root')
 #---
-#    fileNames = cms.untracked.vstring('/store/users/dellaric/data/ecal_local.00058721.root')
+#    fileNames = cms.untracked.vstring('/store/user/dellaric/data/ecal_local.00058721.root')
 #---
 )
 
