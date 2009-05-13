@@ -227,7 +227,7 @@ if ValidationSequence=="harvesting":
 process.harvesting= cms.Sequence(
     process.EDMtoMEConverter
     *process.postValidation_fastsim
-    *process.HLTMuonPostVal_FastSim)
+    *process.HLTMuonPostVal_FastSim
     *process.dqmSaver)
 
 
