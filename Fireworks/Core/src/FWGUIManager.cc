@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.116 2009/05/01 02:01:34 dmytro Exp $
+// $Id: FWGUIManager.cc,v 1.117 2009/05/04 20:03:32 amraktad Exp $
 //
 
 // system include files
@@ -39,6 +39,7 @@
 #include "TEveWindowManager.h"
 #include "TEveSelection.h"
 #include "TGFileDialog.h"
+#include "TGSlider.h"
 #include "TColor.h"
 #include "TVirtualX.h"
 
@@ -196,6 +197,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
 
       getAction(cmsshow::sBackgroundColor)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::changeBackgroundColor));
       setBackgroundName(getAction(cmsshow::sBackgroundColor), m_colorManager);
+      getAction(cmsshow::sShowColorInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showColorPopup));
 
       // toolbar special widget with non-void actions
       m_cmsShowMainFrame->m_delaySliderListener->valueChanged_.connect(boost::bind(&FWGUIManager::delaySliderChanged,this,_1));
@@ -1170,6 +1172,49 @@ void FWGUIManager::eventIdChanged()
 void FWGUIManager::eventFilterChanged()
 {
    changedEventFilter_.emit(m_cmsShowMainFrame->m_filterEntry->GetText());
+}
+
+
+//==============================================================================
+void
+FWGUIManager::showColorPopup()
+{
+   TGTransientFrame* colFrame = new TGTransientFrame(gClient->GetDefaultRoot(),  m_cmsShowMainFrame, 200, 200);
+   colFrame->SetWindowName("Color Controller");
+
+   {
+      TGLabel* label = new TGLabel(colFrame, Form("BackgroundColor"));
+      TGFont* defaultFont = gClient->GetFontPool()->GetFont(label->GetDefaultFontStruct());
+      label->SetTextFont(gClient->GetFontPool()->GetFont(defaultFont->GetFontAttributes().fFamily, 14, defaultFont->GetFontAttributes().fWeight + 2, defaultFont->GetFontAttributes().fSlant));
+      colFrame->AddFrame(label, new TGLayoutHints(kLHintsNormal, 0, 0, 5, 3));
+      getAction(cmsshow::sBackgroundColor.c_str())->createTextButton(colFrame);
+   }
+
+   TGHorizontal3DLine* colorVisSeperator = new TGHorizontal3DLine(colFrame, 200, 5);
+   colFrame->AddFrame(colorVisSeperator, new TGLayoutHints(kLHintsNormal, 0, 0, 15, 5));
+
+   {
+      TGLabel* label = new TGLabel(colFrame, Form("BrigtnessControll "));
+      TGFont* defaultFont = gClient->GetFontPool()->GetFont(label->GetDefaultFontStruct());
+      label->SetTextFont(gClient->GetFontPool()->GetFont(defaultFont->GetFontAttributes().fFamily, 14, defaultFont->GetFontAttributes().fWeight + 2, defaultFont->GetFontAttributes().fSlant));
+      colFrame->AddFrame(label);
+
+      TGHSlider*  slider = new TGHSlider(colFrame, 150);
+      slider->SetPosition(0);
+      slider->Connect("PositionChanged(Int_t)", "FWGUIManager", this, "doBrightness(Int_t)");
+      slider->SetRange(-15, 15);
+      colFrame->AddFrame(slider);
+   }
+
+   colFrame->MapWindow();
+   colFrame->MapSubwindows();
+   colFrame->Layout();
+}
+
+void 
+FWGUIManager::doBrightness(Int_t x)
+{
+  m_colorManager->setBrightness(-x*0.1);
 }
 
 void 

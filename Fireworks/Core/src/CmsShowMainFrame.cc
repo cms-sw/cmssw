@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.47 2009/05/04 20:03:32 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.48 2009/05/11 10:10:35 amraktad Exp $
 //
 // hacks
 #define private public
@@ -92,6 +92,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *goToFirst = new CSGAction(this, cmsshow::sGotoFirstEvent.c_str());
    CSGAction *goToLast = new CSGAction(this, cmsshow::sGotoLastEvent.c_str());
 
+   CSGAction *showColorInsp = new CSGAction(this, cmsshow::sShowColorInsp.c_str());
    CSGAction *decBrightness = new CSGAction(this, cmsshow::sDecBrightness.c_str());
    decBrightness->setToolTip("Increase Brightness");
    CSGAction *incBrightness = new CSGAction(this, cmsshow::sIncBrightness.c_str());
@@ -106,7 +107,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *showAddCollection = new CSGAction(this, cmsshow::sShowAddCollection.c_str());
    CSGAction *help = new CSGAction(this, cmsshow::sHelp.c_str());
    CSGAction *keyboardShort = new CSGAction(this, cmsshow::sKeyboardShort.c_str());
-   CSGAction *changeBackgroundColor = new CSGAction(this, cmsshow::sBackgroundColor.c_str());
+   new CSGAction(this, cmsshow::sBackgroundColor.c_str());
    m_nextEvent = nextEvent;
    m_previousEvent = previousEvent;
    m_goToFirst = goToFirst;
@@ -165,12 +166,11 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    TGPopupMenu *viewMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("View", viewMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
-   changeBackgroundColor->createMenuEntry(viewMenu);
-   viewMenu->AddSeparator();
-   decBrightness->createMenuEntry(viewMenu);
+   showColorInsp->createMenuEntry(viewMenu);
    decBrightness->createShortcut(kKey_b, "CTRL+SHIFT");
-   incBrightness->createMenuEntry(viewMenu);
    incBrightness->createShortcut(kKey_b, "CTRL");
+
+   viewMenu->AddSeparator();
 
    nextEvent->createMenuEntry(viewMenu);
    nextEvent->createShortcut(kKey_Right, "CTRL");

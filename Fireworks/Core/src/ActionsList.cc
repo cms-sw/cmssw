@@ -16,6 +16,7 @@ const std::string cmsshow::sRedo = "Redo";
 const std::string cmsshow::sCut = "Cut";
 const std::string cmsshow::sCopy = "Copy";
 const std::string cmsshow::sPaste = "Paste";
+const std::string cmsshow::sShowColorInsp = "Show Color Display Controller";
 const std::string cmsshow::sDecBrightness = "Decrease Brightness";
 const std::string cmsshow::sIncBrightness = "Increase Brightness";
 const std::string cmsshow::sNextEvent = "Goto Next Event";

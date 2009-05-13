@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.60 2009/04/12 19:55:20 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.61 2009/05/04 20:03:32 amraktad Exp $
 //
 
 // system include files
@@ -121,6 +121,8 @@ public:
    void resetModelPopup();
    void showModelPopup();
 
+   void showColorPopup();
+
    void createViewPopup();
    void refillViewPopup(FWViewBase* iView);
    void resetViewPopup();
@@ -161,6 +163,7 @@ public:
    void loadEvent(const fwlite::Event& event);
    void newFile(const TFile*);
 
+   void doBrightness(int x);
    void decreaseBrightness();
    void increaseBrightness();
    void changeBackgroundColor();
