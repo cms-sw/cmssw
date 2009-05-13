@@ -15,6 +15,8 @@ from Validation.RecoTrack.TrackValidation_fastsim_cff import *
 from Validation.RecoMuon.muonValidationFastSim_cff import *
 from Validation.MuonIsolation.MuIsoVal_cff import *
 
+from Validation.RecoMuon.muonValidationHLTFastSim_cff import *
+
 from PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi import * 
 from Validation.RecoB.bTagAnalysis_cfi import *
 bTagValidation.jetMCSrc = 'IC5byValAlgo'
@@ -24,6 +26,7 @@ globalValidation = cms.Sequence(trackingParticles+trackingTruthValid
                                 +tracksValidation
                                 +METRelValSequence
                                 +recoMuonValidationFastSim+muIsoVal_seq
+                                +recoMuonValidationHLTFastSim_seq
                                 +myPartons
                                 +iterativeCone5Flavour
                                 +bTagValidation)
