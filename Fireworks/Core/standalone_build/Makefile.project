@@ -41,7 +41,7 @@ ifeq ($(shell uname), Linux)
 else 
    ifeq ($(shell uname), Darwin)
       MAKESHAREDLIB := -dynamiclib
-      ExecLibs = -lEve -lRGL -lCore -lGUI  -lNet -L./ -l$(LibProject) -l$(LibCore) -lCore
+      ExecLibs = -lEve -lRint -lRGL -lCore -lGUI  -lNet -L./ -l$(LibProject) -l$(LibCore) -lCore
       ExtraProjectLibs = -lEve -lGeom -lGeomPainter -lGraf3d \
 		 -lGui -lGpad -lGraf -lHist -lPhysics -lGed -lEG -lTree \
 		-lTreePlayer -lRGL -lFTGL -lNet  -lRint -lRGL -lGui -lCore \
