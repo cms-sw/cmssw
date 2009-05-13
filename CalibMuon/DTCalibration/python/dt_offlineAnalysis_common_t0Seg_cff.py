@@ -39,7 +39,7 @@ dt2DSegments.Reco2DAlgoConfig.T0_hit_resolution = cms.untracked.double(0.0250)
 
 dt4DSegments.Reco4DAlgoConfig.performT0SegCorrection = True
 dt4DSegments.Reco4DAlgoConfig.T0_hit_resolution = cms.untracked.double(0.0250)
-dt4DSegments.Reco4DAlgoConfig.T0SegCorrectionDebug = True
+dt4DSegments.Reco4DAlgoConfig.debug = True
 
 
 
