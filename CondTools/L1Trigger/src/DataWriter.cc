@@ -57,7 +57,8 @@ DataWriter::writeKeyList( L1TriggerKeyList* keyList,
 
    // Write L1TriggerKeyList payload
    cond::TypedRef< L1TriggerKeyList > ref( pool, keyList ) ;
-   ref.markWrite( "L1TriggerKeyListRcd" ) ;
+   //   ref.markWrite( "L1TriggerKeyListRcd" ) ;
+   ref.markWrite( ref.className() ) ;
 
    // Save payload token before committing.
    std::string payloadToken = ref.token() ;

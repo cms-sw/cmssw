@@ -53,9 +53,9 @@ class WriterProxyT : public WriterProxy
         /* This method requires that Record and Type supports copy constructor */
         virtual std::string save (const edm::EventSetup & setup, cond::PoolTransaction & pool) const
         {
-            // get className for the record first
-            std::string recordName =
-                edm::eventsetup::heterocontainer::HCTypeTagTemplate<Record, edm::eventsetup::EventSetupRecordKey>::className ();
+/*             // get className for the record first */
+/*             std::string recordName = */
+/*                 edm::eventsetup::heterocontainer::HCTypeTagTemplate<Record, edm::eventsetup::EventSetupRecordKey>::className (); */
 
             // load record and type from EventSetup and save them in db
             edm::ESHandle<Type> handle;
@@ -72,7 +72,8 @@ class WriterProxyT : public WriterProxy
 	    // If handle is invalid, then data is already in DB
 	    cond::TypedRef<Type> ref (pool,
 				      new Type (*(handle.product ())));
-	    ref.markWrite (recordName);
+	    // ref.markWrite (recordName);
+	    ref.markWrite ( ref.className() );
 
 	    return ref.token ();
         }
