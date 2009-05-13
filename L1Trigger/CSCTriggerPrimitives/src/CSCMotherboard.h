@@ -31,8 +31,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2009/04/23 09:53:42 $
- * $Revision: 1.11 $
+ * $Date: 2009/04/23 13:49:15 $
+ * $Revision: 1.12 $
  *
  */
 
@@ -108,11 +108,14 @@ class CSCMotherboard
   static const unsigned int def_alct_trig_enable, def_clct_trig_enable;
   static const unsigned int def_match_trig_enable, def_match_trig_window_size;
 
+  /** Maximum number of time bins. */
+  enum {MAX_LCT_BINS = 16};
+
   /** Container for first correlated LCT. */
-  CSCCorrelatedLCTDigi firstLCT;
+  CSCCorrelatedLCTDigi firstLCT[MAX_LCT_BINS];
 
   /** Container for second correlated LCT. */
-  CSCCorrelatedLCTDigi secondLCT;
+  CSCCorrelatedLCTDigi secondLCT[MAX_LCT_BINS];
 
   /** Make sure that the parameter values are within the allowed range. */
   void checkConfigParameters();
