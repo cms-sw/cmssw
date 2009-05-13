@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 MonitorHcalDiJetsAlCaReco = cms.EDAnalyzer("DQMHcalDiJetsAlCaReco",
-FolderName=cms.string("AlCaReco/HcalDiJets"),
+FolderName=cms.untracked.string("AlCaReco/HcalDiJets"),
 SaveToFile=cms.untracked.bool(False),
 FileName=cms.untracked.string("HcalDiJetsAlCaRecoMon.root"),
 jetsInput = cms.InputTag('DiJProd:DiJetsBackToBackCollection'),
