@@ -36,7 +36,8 @@ iterTracks = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrack
 generalTracks = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone(
     TrackProducer1 = 'firstStepTracksWithQuality',
     TrackProducer2 = 'iterTracks',
-    promoteTrackQuality = True
+    promoteTrackQuality = True,
+    copyExtras = True
     )
 
 trackCollectionMerging = cms.Sequence(merge2nd3rdTracks*

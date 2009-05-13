@@ -53,16 +53,11 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
 	if (copyExtras_) {
 	  produces<reco::TrackExtraCollection>().setBranchAlias( alias + "TrackExtras");
 	  produces<TrackingRecHitCollection>().setBranchAlias( alias + "RecHits");
-	  if (copyTrajectories_) {
-		produces< std::vector<Trajectory> >().setBranchAlias( alias + "Trajectories");
-		produces< TrajTrackAssociationCollection >().setBranchAlias( alias + "TrajectoryTrackAssociations");
-	  }
 	}
-	selTracks_ = std::auto_ptr<reco::TrackCollection>(new reco::TrackCollection());
-	selTrackExtras_ = std::auto_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection());
-	selHits_ = std::auto_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection());
-	selTrajs_ = std::auto_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>()); 
-	selTTAss_ = std::auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
+        if (copyTrajectories_) {
+            produces< std::vector<Trajectory> >().setBranchAlias( alias + "Trajectories");
+            produces< TrajTrackAssociationCollection >().setBranchAlias( alias + "TrajectoryTrackAssociations");
+        }
  
 }
 
@@ -77,6 +72,7 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
 
     Handle<TrackCollection> hSrcTrack;
     Handle< vector<Trajectory> > hTraj;
+    Handle< vector<Trajectory> > hTrajP;
     Handle< TrajTrackAssociationCollection > hTTAss;
 
 	// looking for the beam spot
@@ -117,20 +113,20 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
         }
 	selTracks_->push_back( Track( trk ) ); // clone and store
         if (ok && setQualityBit_) selTracks_->back().setQuality(qualityToSet_);
-        if (!copyExtras_) continue;
-
-        // TrackExtras
-        selTrackExtras_->push_back( TrackExtra( trk.outerPosition(), trk.outerMomentum(), trk.outerOk(),
-                    trk.innerPosition(), trk.innerMomentum(), trk.innerOk(),
-                    trk.outerStateCovariance(), trk.outerDetId(),
-                    trk.innerStateCovariance(), trk.innerDetId(),
-                    trk.seedDirection(), trk.seedRef() ) );
-        selTracks_->back().setExtra( TrackExtraRef( rTrackExtras_, selTrackExtras_->size() - 1) );
-        TrackExtra & tx = selTrackExtras_->back();
-        // TrackingRecHits
-        for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
-            selHits_->push_back( (*hit)->clone() );
-            tx.add( TrackingRecHitRef( rHits_, selHits_->size() - 1) );
+        if (copyExtras_) {
+            // TrackExtras
+            selTrackExtras_->push_back( TrackExtra( trk.outerPosition(), trk.outerMomentum(), trk.outerOk(),
+                        trk.innerPosition(), trk.innerMomentum(), trk.innerOk(),
+                        trk.outerStateCovariance(), trk.outerDetId(),
+                        trk.innerStateCovariance(), trk.innerDetId(),
+                        trk.seedDirection(), trk.seedRef() ) );
+            selTracks_->back().setExtra( TrackExtraRef( rTrackExtras_, selTrackExtras_->size() - 1) );
+            TrackExtra & tx = selTrackExtras_->back();
+            // TrackingRecHits
+            for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
+                selHits_->push_back( (*hit)->clone() );
+                tx.add( TrackingRecHitRef( rHits_, selHits_->size() - 1) );
+            }
         }
         if (copyTrajectories_) {
             trackRefs_[current] = TrackRef(rTracks_, selTracks_->size() - 1);
@@ -164,12 +160,10 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
 	  evt.put(selTrackExtras_); 
 	  evt.put(selHits_);
 	}
-	if (copyExtras_ ) {
-	  if ( copyTrajectories_ ) {
-		evt.put(selTrajs_);
-		evt.put(selTTAss_);
-	  }
-	}
+        if ( copyTrajectories_ ) {
+            evt.put(selTrajs_);
+            evt.put(selTTAss_);
+        }
 }
 
 

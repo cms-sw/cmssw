@@ -11,8 +11,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2008/05/12 19:06:28 $
-// $Revision: 1.3 $
+// $Date: 2008/05/13 14:10:32 $
+// $Revision: 1.4 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -59,6 +59,7 @@ namespace cms
     edm::RefProd< std::vector<Trajectory> > refTrajs;
     std::vector<reco::TrackRef> trackRefs;
 
+    bool copyExtras_;
   };
 }
 

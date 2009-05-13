@@ -44,7 +44,8 @@ ctfrsTrackListMerger = cms.EDProducer("SimpleTrackListMerger",
     TrackProducer1 = cms.string('generalTracks'),
     # set new quality for confirmed tracks
     promoteTrackQuality = cms.bool(False),
-    newQuality = cms.string('confirmed')
+    newQuality = cms.string('confirmed'),
+    copyExtras = cms.untracked.bool(False)
 )
 
 

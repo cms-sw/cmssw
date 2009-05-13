@@ -7,21 +7,21 @@ import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
 zeroStepWithLooseQuality = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone(
     src = 'preFilterZeroStepTracks',
     keepAllTracks = False, ## we only keep those who pass the filter
-    copyExtras = True,
+    copyExtras = False,
     copyTrajectories = True
 )
 
 zeroStepWithTightQuality = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone(
     src = 'zeroStepWithLooseQuality',
     keepAllTracks = True,
-    copyExtras = True,
+    copyExtras = False,
     copyTrajectories = True
     )
 
 zeroStepTracksWithQuality = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
     src = 'zeroStepWithTightQuality',
     keepAllTracks = True,
-    copyExtras = True,
+    copyExtras = False,
     copyTrajectories = True
     )
 
@@ -29,20 +29,20 @@ zeroStepTracksWithQuality = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
 firstStepWithLooseQuality = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone(
     src = 'preFilterStepOneTracks',
     keepAllTracks = False, ## we only keep those who pass the filter
-    copyExtras = True,
+    copyExtras = False,
     copyTrajectories = True
     )
 
 firstStepWithTightQuality = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone(
     src = 'firstStepWithLooseQuality',
     keepAllTracks = True,
-    copyExtras = True,
+    copyExtras = False,
     copyTrajectories = True
     )
 preMergingFirstStepTracksWithQuality = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
     src = 'firstStepWithTightQuality',
     keepAllTracks = True,
-    copyExtras = True,
+    copyExtras = False,
     copyTrajectories = True
     )
 

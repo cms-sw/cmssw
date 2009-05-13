@@ -6,9 +6,9 @@
  * 
  * \author Paolo Azzurri, Giovanni Petrucciani 
  *
- * \version $Revision: 1.8 $
+ * \version $Revision: 1.10 $
  *
- * $Id: AnalyticalTrackSelector.h,v 1.8 2008/12/14 16:32:54 paoloa Exp $
+ * $Id: AnalyticalTrackSelector.h,v 1.10 2009/04/14 14:07:11 bonato Exp $
  *
  */
 
@@ -94,6 +94,7 @@ namespace reco { namespace modules {
             std::auto_ptr<reco::TrackExtraCollection> selTrackExtras_;
             std::auto_ptr< TrackingRecHitCollection>  selHits_;
             std::auto_ptr< std::vector<Trajectory> > selTrajs_;
+            std::auto_ptr< std::vector<const Trajectory *> > selTrajPtrs_;
             std::auto_ptr< TrajTrackAssociationCollection >  selTTAss_;
             reco::TrackRefProd rTracks_;
             reco::TrackExtraRefProd rTrackExtras_;

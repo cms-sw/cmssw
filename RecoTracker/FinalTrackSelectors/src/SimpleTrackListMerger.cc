@@ -7,9 +7,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: bonato $
-// $Date: 2009/04/14 14:07:11 $
-// $Revision: 1.18 $
+// $Author: vlimant $
+// $Date: 2009/04/29 18:37:12 $
+// $Revision: 1.19 $
 //
 
 #include <memory>
@@ -42,10 +42,13 @@ namespace cms
   SimpleTrackListMerger::SimpleTrackListMerger(edm::ParameterSet const& conf) : 
     conf_(conf)
   {
+    copyExtras_ = conf_.getUntrackedParameter<bool>("copyExtras", true);
 
     produces<reco::TrackCollection>();
-    produces<reco::TrackExtraCollection>();
-    produces<TrackingRecHitCollection>();
+    if (copyExtras_) {
+        produces<reco::TrackExtraCollection>();
+        produces<TrackingRecHitCollection>();
+    }
     produces< std::vector<Trajectory> >();
     produces< TrajTrackAssociationCollection >();
 
@@ -123,10 +126,13 @@ namespace cms
     outputTrks = std::auto_ptr<reco::TrackCollection>(new reco::TrackCollection);
     refTrks = e.getRefBeforePut<reco::TrackCollection>();      
 
-    outputTrkExtras = std::auto_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection);
-    refTrkExtras    = e.getRefBeforePut<reco::TrackExtraCollection>();
-    outputTrkHits   = std::auto_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection);
-    refTrkHits      = e.getRefBeforePut<TrackingRecHitCollection>();
+    if (copyExtras_) {
+        outputTrkExtras = std::auto_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection);
+        refTrkExtras    = e.getRefBeforePut<reco::TrackExtraCollection>();
+        outputTrkHits   = std::auto_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection);
+        refTrkHits      = e.getRefBeforePut<TrackingRecHitCollection>();
+    }
+
     outputTrajs = std::auto_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>()); 
     outputTTAss = std::auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
 
@@ -427,25 +433,28 @@ namespace cms
 	outputTrks->back().setQualityMask(selected1[i]-10);
 	outputTrks->back().setQuality(qualityToSet);
       }
-      // Fill TrackExtra collection
-      outputTrkExtras->push_back( reco::TrackExtra( 
-		    theTrack.outerPosition(), theTrack.outerMomentum(), theTrack.outerOk(),
-                    theTrack.innerPosition(), theTrack.innerMomentum(), theTrack.innerOk(),
-                    theTrack.outerStateCovariance(), theTrack.outerDetId(),
-                    theTrack.innerStateCovariance(), theTrack.innerDetId(),
-                    theTrack.seedDirection(), theTrack.seedRef() ) );
-      outputTrks->back().setExtra( reco::TrackExtraRef( refTrkExtras, outputTrkExtras->size() - 1) );
-      reco::TrackExtra & tx = outputTrkExtras->back();
-      // fill TrackingRecHits
-      std::vector<const TrackingRecHit*>& iHits = rh1[track]; 
-      unsigned nh1 = iHits.size();
-      for ( unsigned ih=0; ih<nh1; ++ih ) { 
-	const TrackingRecHit* hit = iHits[ih];
-	//for( trackingRecHit_iterator hit = itB; hit != itE; ++hit ) {
-	outputTrkHits->push_back( hit->clone() );
-	tx.add( TrackingRecHitRef( refTrkHits, outputTrkHits->size() - 1) );
+      if (copyExtras_) {
+          // Fill TrackExtra collection
+          outputTrkExtras->push_back( reco::TrackExtra( 
+                        theTrack.outerPosition(), theTrack.outerMomentum(), theTrack.outerOk(),
+                        theTrack.innerPosition(), theTrack.innerMomentum(), theTrack.innerOk(),
+                        theTrack.outerStateCovariance(), theTrack.outerDetId(),
+                        theTrack.innerStateCovariance(), theTrack.innerDetId(),
+                        theTrack.seedDirection(), theTrack.seedRef() ) );
+          outputTrks->back().setExtra( reco::TrackExtraRef( refTrkExtras, outputTrkExtras->size() - 1) );
+          reco::TrackExtra & tx = outputTrkExtras->back();
+          // fill TrackingRecHits
+          std::vector<const TrackingRecHit*>& iHits = rh1[track]; 
+          unsigned nh1 = iHits.size();
+          for ( unsigned ih=0; ih<nh1; ++ih ) { 
+            const TrackingRecHit* hit = iHits[ih];
+            //for( trackingRecHit_iterator hit = itB; hit != itE; ++hit ) {
+            outputTrkHits->push_back( hit->clone() );
+            tx.add( TrackingRecHitRef( refTrkHits, outputTrkHits->size() - 1) );
+          }
       }
       trackRefs[current] = reco::TrackRef(refTrks, outputTrks->size() - 1);
+    
 
     }//end faux loop over tracks
    }//end more than 0 track
@@ -455,10 +464,7 @@ namespace cms
    e.getByLabel(trackProducer1, hTraj1);
    edm::Handle< TrajTrackAssociationCollection > hTTAss1;
    e.getByLabel(trackProducer1, hTTAss1);
- 
-   outputTrajs = std::auto_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>()); 
    refTrajs    = e.getRefBeforePut< std::vector<Trajectory> >();
-   outputTTAss = std::auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
 
    if (!hTraj1.failedToGet() && !hTTAss1.failedToGet()){
    for (size_t i = 0, n = hTraj1->size(); i < n; ++i) {
@@ -468,13 +474,14 @@ namespace cms
        const edm::Ref<reco::TrackCollection> &trkRef = match->val; 
        short oldKey = static_cast<short>(trkRef.key());
        if (trackRefs[oldKey].isNonnull()) {
-	 outputTrajs->push_back( Trajectory(*trajRef) );
-	 outputTTAss->insert ( edm::Ref< std::vector<Trajectory> >(refTrajs, outputTrajs->size() - 1), 
-			       trackRefs[oldKey] );
+         outputTrajs->push_back( Trajectory(*trajRef) );
+         outputTTAss->insert ( edm::Ref< std::vector<Trajectory> >(refTrajs, outputTrajs->size() - 1), 
+                               trackRefs[oldKey] );
        }
      }
    }
    }
+
    short offset = current; //save offset into trackRefs
 
    if ( 0<tC2.size() ){
@@ -492,22 +499,24 @@ namespace cms
 	outputTrks->back().setQualityMask(selected2[i]-10);
 	outputTrks->back().setQuality(qualityToSet);
       }
-      // Fill TrackExtra collection
-      outputTrkExtras->push_back( reco::TrackExtra( 
-		    theTrack.outerPosition(), theTrack.outerMomentum(), theTrack.outerOk(),
-                    theTrack.innerPosition(), theTrack.innerMomentum(), theTrack.innerOk(),
-                    theTrack.outerStateCovariance(), theTrack.outerDetId(),
-                    theTrack.innerStateCovariance(), theTrack.innerDetId(),
-                    theTrack.seedDirection(), theTrack.seedRef() ) );
-      outputTrks->back().setExtra( reco::TrackExtraRef( refTrkExtras, outputTrkExtras->size() - 1) );
-      reco::TrackExtra & tx = outputTrkExtras->back();
-      // fill TrackingRecHits
-      std::vector<const TrackingRecHit*>& jHits = rh2[track]; 
-      unsigned nh2 = jHits.size();
-      for ( unsigned jh=0; jh<nh2; ++jh ) { 
-	const TrackingRecHit* hit = jHits[jh];
-	outputTrkHits->push_back( hit->clone() );
-	tx.add( TrackingRecHitRef( refTrkHits, outputTrkHits->size() - 1) );
+      if (copyExtras_) {
+          // Fill TrackExtra collection
+          outputTrkExtras->push_back( reco::TrackExtra( 
+                        theTrack.outerPosition(), theTrack.outerMomentum(), theTrack.outerOk(),
+                        theTrack.innerPosition(), theTrack.innerMomentum(), theTrack.innerOk(),
+                        theTrack.outerStateCovariance(), theTrack.outerDetId(),
+                        theTrack.innerStateCovariance(), theTrack.innerDetId(),
+                        theTrack.seedDirection(), theTrack.seedRef() ) );
+          outputTrks->back().setExtra( reco::TrackExtraRef( refTrkExtras, outputTrkExtras->size() - 1) );
+          reco::TrackExtra & tx = outputTrkExtras->back();
+          // fill TrackingRecHits
+          std::vector<const TrackingRecHit*>& jHits = rh2[track]; 
+          unsigned nh2 = jHits.size();
+          for ( unsigned jh=0; jh<nh2; ++jh ) { 
+            const TrackingRecHit* hit = jHits[jh];
+            outputTrkHits->push_back( hit->clone() );
+            tx.add( TrackingRecHitRef( refTrkHits, outputTrkHits->size() - 1) );
+          }
       }
       trackRefs[current] = reco::TrackRef(refTrks, outputTrks->size() - 1);
 
@@ -528,16 +537,18 @@ namespace cms
        const edm::Ref<reco::TrackCollection> &trkRef = match->val; 
        short oldKey = static_cast<short>(trkRef.key()) + offset;
        if (trackRefs[oldKey].isNonnull()) {
-	 outputTrajs->push_back( Trajectory(*trajRef) );
-	 outputTTAss->insert ( edm::Ref< std::vector<Trajectory> >(refTrajs, outputTrajs->size() - 1), 
-			       trackRefs[oldKey] ); 
+           outputTrajs->push_back( Trajectory(*trajRef) );
+           outputTTAss->insert ( edm::Ref< std::vector<Trajectory> >(refTrajs, outputTrajs->size() - 1), 
+                   trackRefs[oldKey] ); 
        }
      }
    }}
 
     e.put(outputTrks);
-    e.put(outputTrkExtras);
-    e.put(outputTrkHits);
+    if (copyExtras_) {
+        e.put(outputTrkExtras);
+        e.put(outputTrkHits);
+    }
     e.put(outputTrajs);
     e.put(outputTTAss);
     return;
