@@ -1,0 +1,145 @@
+	Design of validation for the cfg PSet for the MessageService
+	---------------------------------------------------------
+
+The following errors in configuring the message service 
+should be detected and reported rather than  proceeding
+with a job, because the mysterious behavior they cause
+is too tough to track down by hand:
+
+At the main level, only the following PSets are allowed:
+  A destination, as listed in the vstring destinations 
+  A category, as listed in the vstring categories or messageIDs
+  One of the following keywords, which are valid as PSets at the main level
+	default  
+    	ERROR
+    	WARNING
+   	INFO
+    	DEBUG
+
+At the main level, only the following non-PSets are allowed:
+    statistics		vstring
+    destinations	vstring
+    categories		vstring
+    threshold		string	only certain values
+
+
+	threshold
+
+
+
+    limit		int
+    reportEvery		int
+    timespan		int
+
+
+    placeholder		bool
+    noTimeStamps	bool
+    generate_preconfiguration_message		bool
+    noLineBreaks	bool
+    lineLength   	int
+    fwkJobReports	string
+    filename		string
+    extension		string
+    output		string
+    reset		bool
+    statistics		vstring
+    destinations	vstring
+    categories		vstring
+suppressInfo     
+ suppressDebug    
+  suppressWarning
+    debugModules
+    
+
+default (destination) should not have threshold -- OR BETTER, I shoudl allow it
+to!  (But that is a feature change and I have to decide about clashes with
+overall threshold) AHA: overall threshold is prefered if PSet is not used,
+otherwise default threshold is prefered.   
+Better:  Overall threshold is prefered always. 
+
+
+
+Within a destination PSet, a PSet is declared which is none of the following:
+  A category, as listed in the vstring categories or messageIDs
+  One of the following keywords, which are valid as PSets at the main level
+	default  
+    	ERROR
+    	WARNING
+   	INFO
+    	DEBUG
+ 
+Within a destination PSet, only the following non-PSets are allowed:
+	(list here)
+
+The same rules apply for the default PSet at main level as for destination PSet.
+
+Within a category PSet, only the following are allowed:
+	(list here)
+
+Within a severity pset, only the following are allowed:
+    limit		int
+    reportEvery		int
+    timespan		int
+
+
+In the destinations vstring, duplicate names.
+
+In the destinations vstring, presence of both cerr and cout.
+
+Use of filename or extension on cerr or cout.
+
+In the statistics vstring, duplicate names, or cerr when destinations has
+coout or vice-versa. 
+
+In the categories vstring, duplicate names or names matching one of the
+destinations or statistics or a keyword.  
+
+
+
+
+ (which are valid in both the main level
+  and the destination levle PSets):    
+    limit		int
+    reportEvery		int
+    timespan		int
+    placeholder		bool
+    threshold		string	only certain values
+    noTimeStamps	bool
+    generate_preconfiguration_message		bool
+    noLineBreaks	bool
+    lineLength   	int
+    fwkJobReports	string
+    filename		string
+    extension		string
+    output		string
+    reset		bool
+    statistics		vstring
+    destinations	vstring
+    categories		vstring
+suppressInfo     
+ suppressDebug    
+  suppressWarning
+    debugModules
+    
+    
+    
+Any destination or category is used as anything other than a PSet
+
+
+Use of wildcards with suppressInfo or suppressWarnig or suppressDebug not
+allowed
+
+
+
+
+=========================================================================
+
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+edm::service::MessageLogger::
+MessageLogger( ParameterSet const & iPS
+             , ActivityRegistry   & iRegistry
+                            )
+
+Look at configure_errorlog to see how to send a message before configuration.
+But that might not be best for this sort of message.
