@@ -14,8 +14,8 @@ NewRelease='CMSSW_3_1_0_pre6'
 
 # startup and ideal sample list
 #startupsamples= ['RelValTTbar', 'RelValZMM']
-startupsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
-#startupsamples= ['']
+#startupsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
+startupsamples= ['']
 
 idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
 #idealsamples= ['RelValSingleMuPt10']
@@ -150,7 +150,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
             
             #Check if a dataset is found
             if(dataset!="" or DBS==False):
-                print 'dataset found'
+                print 'dataset found ', dataset[:-1]
                 #Find and format the list of files
                 cmd2='python $DBSCMD_HOME/dbsCommandLine.py "find file where dataset like '+ dataset[:-1] +'"|grep ' + sample 
 
@@ -166,16 +166,15 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                     if dataset!="":
                         if (OneAtATime==False):
                             for filename in os.popen(cmd2).readlines():
-                                filenames+=filename
+                                filenames+='"'+filename[:-1]+'",'
                         else:
-                            filenames+=thisFilename
+                            filenames+='"'+thisFilename+'",'
                     filenames+=']);\n'
 
                 
                 # if not harvesting find secondary file names
                     if(dataset!="" and Sequence!="harvesting"):
                         print 'Getting secondary files'
- #                       cmd3='./DDSearchCLI.py  --limit -1 --input="find dataset.parent where dataset like '+ dataset +'"|grep ' + sample
                         cmd3=cmd
                         parentdataset=os.popen(cmd3).readline()
                         print 'Parent DataSet:  ', parentdataset, '\n'
@@ -186,7 +185,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                             filenames+='secFiles.extend( [\n'
                             first=True                        
                             for line in os.popen(cmd4).readlines():
-                                filenames+=line
+                                filenames+='"'+line[:-1]+'",'
                             filenames+=']);\n'
                         else :
                             print "No primary dataset found skipping sample: ", sample
