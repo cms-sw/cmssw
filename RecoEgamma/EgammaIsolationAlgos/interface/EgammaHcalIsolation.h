@@ -14,7 +14,7 @@
 
 //CMSSW includes
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoCaloTools/Selectors/interface/CaloDualConeSelector.h"
