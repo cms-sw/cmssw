@@ -11,6 +11,7 @@ import SimTracker.TrackAssociation.TrackAssociatorByPosition_cfi
 TrackAssociatorByHits = SimTracker.TrackAssociation.TrackAssociatorByHits_cfi.TrackAssociatorByHits.clone()
 
 OnlineTrackAssociatorByHits = SimTracker.TrackAssociation.TrackAssociatorByHits_cfi.TrackAssociatorByHits.clone()
+OnlineTrackAssociatorByHits.ComponentName = 'OnlineTrackAssociatorByHits'
 OnlineTrackAssociatorByHits.UseGrouped = False
 OnlineTrackAssociatorByHits.UseSplitting = False
 OnlineTrackAssociatorByHits.ThreeHitTracksAreSpecial = False
