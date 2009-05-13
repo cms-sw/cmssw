@@ -22,5 +22,5 @@ class QualityFilter : public edm::EDProducer {
   
   edm::InputTag tkTag; 
   reco::TrackBase::TrackQuality trackQuality_;
-  
+  bool copyExtras_;  
 };
