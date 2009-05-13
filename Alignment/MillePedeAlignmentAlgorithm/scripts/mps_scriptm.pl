@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     06-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.4 $
-#     $Date: 2008/05/21 10:03:12 $
+#     $Revision: 1.5 $
+#     $Date: 2009/01/07 18:27:03 $
 #
 #  Prepare the run script for the merge job.
 #  The main action is to embed the output directory
@@ -26,7 +26,7 @@ $outScript = "undefined";
 $runDir = "undefined";
 $cfgName = "undefined";
 $nJobs = "undefined";
-$mssDir = "undefined";
+$mssDirLocal = "undefined"; # not to confuse with mssDir from 'mpslib'.
 $castorPool = "undefined";
 
 
@@ -67,7 +67,7 @@ while (@ARGV) {
       $nJobs = $arg;
     }
     elsif ($i eq 6) {
-      $mssDir = $arg;
+      $mssDirLocal = $arg;
     }
     elsif ($i eq 7) {
       $castorPool = $arg;
@@ -104,7 +104,7 @@ $nn = ($body =~ m/MSSDIR=(.+)$/m);
 if ($nn != 1) {
   print "mps_script.pl: no (unambiguous) MSSDIR directive found in runscript\n";
 }
-$nn = ($body =~ s/MSSDIR=(.+)$/MSSDIR=$mssDir/m);
+$nn = ($body =~ s/MSSDIR=(.+)$/MSSDIR=$mssDirLocal/m);
 
 if ($castorPool ne "undefined") {
 # replace MSSDIRPOOL setting...

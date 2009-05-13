@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     06-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.3 $
-#     $Date: 2008/05/21 09:46:39 $
+#     $Revision: 1.4 $
+#     $Date: 2009/01/07 18:26:47 $
 #
 #  Prepare the run script for this job.
 #  The main action is to embed the output directory
@@ -22,7 +22,7 @@ $runDir = "undefined";
 $cfgName = "undefined";
 $fileSplit = "undefined";
 $isn = "undefined";
-$mssDir = "undefined";
+$mssDirLocal = "undefined"; # not to confuse with mssDir from 'mpslib'.
 $castorPool = "undefined";
 
 
@@ -62,7 +62,7 @@ while (@ARGV) {
       $isn = $arg;
     }
     elsif ($i eq 7) {
-      $mssDir = $arg;
+      $mssDirLocal = $arg;
     }
     elsif ($i eq 8) {
       $castorPool = $arg;
@@ -95,7 +95,7 @@ $nn = ($body =~ m/MSSDIR=(.+)$/m);
 if ($nn != 1) {
   print "mps_script.pl: no (unambiguous) MSSDIR directive found in runscript\n";
 }
-$nn = ($body =~ s/MSSDIR=(.+)$/MSSDIR=$mssDir/m);
+$nn = ($body =~ s/MSSDIR=(.+)$/MSSDIR=$mssDirLocal/m);
 
 if ($castorPool ne "undefined") {
 # replace MSSDIRPOOL setting...
