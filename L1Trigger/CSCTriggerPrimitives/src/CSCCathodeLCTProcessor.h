@@ -23,8 +23,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2009/03/26 15:32:53 $
- * $Revision: 1.19 $
+ * $Date: 2009/03/27 17:10:12 $
+ * $Revision: 1.20 $
  *
  */
 
@@ -67,11 +67,14 @@ class CSCCathodeLCTProcessor
   bool getDigis(const CSCComparatorDigiCollection* compdc);
   void getDigis(const CSCComparatorDigiCollection* compdc, const CSCDetId& id);
 
+  /** Maximum number of time bins. */
+  enum {MAX_CLCT_BINS = 16};
+
   /** Best LCT in this chamber, as found by the processor. */
-  CSCCLCTDigi bestCLCT;
+  CSCCLCTDigi bestCLCT[MAX_CLCT_BINS];
 
   /** Second best LCT in this chamber, as found by the processor. */
-  CSCCLCTDigi secondCLCT;
+  CSCCLCTDigi secondCLCT[MAX_CLCT_BINS];
 
   /** Returns vector of found CLCTs, if any. */
   std::vector<CSCCLCTDigi> getCLCTs();
@@ -190,9 +193,11 @@ class CSCCathodeLCTProcessor
   //--------------- Functions for 2007 version of the firmware ----------------
   std::vector<CSCCLCTDigi> findLCTs2007(
  const int halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]);
+  void pulseExtension(
+      const int time[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+  unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]);
   bool preTrigger(
-      const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
-   unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+      const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
       const int start_bx, int& first_bx);
   void ptnFinding2007(
       const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
