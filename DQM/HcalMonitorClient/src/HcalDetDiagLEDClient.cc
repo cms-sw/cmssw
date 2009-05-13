@@ -92,6 +92,7 @@ double HcalDetDiagLEDClient::get_energy(char *subdet,int eta,int phi,int depth,i
 }
 
 static void printTableHeader(ofstream& file,char * header){
+
      file << "</html><html xmlns=\"http://www.w3.org/1999/xhtml\">"<< endl;
      file << "<head>"<< endl;
      file << "<meta http-equiv=\"Content-Type\" content=\"text/html\"/>"<< endl;
@@ -107,6 +108,7 @@ static void printTableHeader(ofstream& file,char * header){
      file << "<body>"<< endl;
      file << "<table>"<< endl;
 }
+/*
 static void printTableLine(ofstream& file,int ind,HcalDetId& detid,HcalFrontEndId& lmap_entry,HcalElectronicsId &emap_entry,char *comment=""){
    if(ind==0){
      file << "<tr>";
@@ -156,12 +158,14 @@ static void printTableLine(ofstream& file,int ind,HcalDetId& detid,HcalFrontEndI
    file << raw_class<< emap_entry.htrTopBottom()<<"</td>"<< endl;
    if(comment[0]!=0) file << raw_class<< comment<<"</td>"<< endl;
 }
+*/
 static void printTableTail(ofstream& file){
      file << "</table>"<< endl;
      file << "</body>"<< endl;
      file << "</html>"<< endl;
 }
 void HcalDetDiagLEDClient::htmlOutput(int runNo, string htmlDir, string htmlName){
+  /*
 int  MissingCnt=0;
 int  UnstableCnt=0;
 int  UnstableLEDCnt=0;
@@ -653,5 +657,6 @@ char *subdet[4]={"HB","HE","HO","HF"};
   htmlFile << "</body> " << endl;
   htmlFile << "</html> " << endl;
   htmlFile.close();
+  */
 } 
 

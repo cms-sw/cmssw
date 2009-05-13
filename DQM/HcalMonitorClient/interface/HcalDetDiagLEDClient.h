@@ -4,8 +4,9 @@
 #include "DQM/HcalMonitorClient/interface/HcalBaseClient.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
-#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
+//#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
+//#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
+
 
 class HcalDetDiagLEDClient : public HcalBaseClient {
 public:

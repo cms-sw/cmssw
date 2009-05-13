@@ -19,16 +19,16 @@ using namespace edm;
 using namespace std;
 // this is to retrieve HCAL digi's
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-// to retrive trigger information (local runs only)
+// to retrieve trigger information (local runs only)
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
 
-#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
-#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
+//#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
+//#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 
 /** \class HcalDetDiagLEDMonitor
   *  
-  * $Date: 2009/04/04 11:19:08 $
-  * $Revision: 1.1 $
+  * $Date: 2009/05/07 09:09:14 $
+  * $Revision: 1.1.2.3 $
   * \author D. Vishnevskiy
   */
 

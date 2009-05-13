@@ -19,20 +19,20 @@ using namespace edm;
 using namespace std;
 // this is to retrieve HCAL digi's
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-// to retrive trigger information (local runs only)
+// to retrieve trigger information (local runs only)
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
-// to retrive GMT information, for cosmic runs muon triggers can be used as pedestal (global runs only)
+// to retrieve GMT information, for cosmic runs muon triggers can be used as pedestal (global runs only)
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
-// to retrive trigger desition words, to select pedestal (from hcal point of view) triggers (global runs only)
+// to retrieve trigger decision words, to select pedestal (from hcal point of view) triggers (global runs only)
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
-#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
-#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
+//#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
+//#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 
 /** \class HcalDetDiagLEDMonitor
   *  
-  * $Date: 2009/04/03 08:17:04 $
-  * $Revision: 1.1 $
+  * $Date: 2009/05/07 09:09:14 $
+  * $Revision: 1.1.2.3 $
   * \author D. Vishnevskiy
   */
 
