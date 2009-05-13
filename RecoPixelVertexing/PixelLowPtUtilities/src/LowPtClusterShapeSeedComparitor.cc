@@ -83,7 +83,12 @@ vector<GlobalVector> LowPtClusterShapeSeedComparitor::getGlobalDirs
                                                cosTheta));
     }
   }
-
+  else{
+    LogDebug("LowPtClusterShapeSeedComparitor")<<"the curvature is null:"
+					       <<"\n point1: "<<g[0]
+					       <<"\n point2: "<<g[1]
+					       <<"\n point3: "<<g[2];
+  }
   return globalDirs;
 }
 
@@ -130,20 +135,40 @@ bool LowPtClusterShapeSeedComparitor::compatible(const SeedingHitSet &hits,
 
   // Check whether shape of pixel cluster is compatible
   // with local track direction
+
+  if (globalDirs.size()!=globalPoss.size() || globalDirs.size()!=thits.size())
+    {
+      LogDebug("LowPtClusterShapeSeedComparitor")<<"not enough global dir calculated:"
+						 <<"\nnHits: "<<thits.size()
+						 <<"\nnPos: "<<globalPoss.size()
+						 <<"\nnDir: "<<globalDirs.size();
+      return false;
+    }
+
   for(int i = 0; i < 3; i++)
   {
     const SiPixelRecHit* pixelRecHit =
       dynamic_cast<const SiPixelRecHit *>(thits[i]->hit());
 
+    if (!pixelRecHit){
+      edm::LogError("LowPtClusterShapeSeedComparitor")<<"this is not a pixel cluster";
+      ok = false; break;
+    }
+
     if(!pixelRecHit->isValid())
     { 
       ok = false; break; 
     }
+    
+    LogDebug("LowPtClusterShapeSeedComparitor")<<"about to compute compatibility."
+					       <<"hit ptr: "<<pixelRecHit
+					       <<"global direction:"<< globalDirs[i];
+
 
     if(! theFilter->isCompatible(*pixelRecHit, globalDirs[i]) )
     {
-      LogTrace("MinBiasTracking")
-         << "  [LowPtClusterShapeSeedComparitor] clusShape problem"
+      LogTrace("LowPtClusterShapeSeedComparitor")
+         << " clusShape is not compatible"
          << HitInfo::getInfo(*thits[i]->hit());
 
       ok = false; break;

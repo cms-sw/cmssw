@@ -103,8 +103,8 @@ void ClusterShapeHitFilter::loadPixelLimits()
   
   inFile.close();
   
-  LogTrace("MinBiasTracking")
-    << " [ClusterShapeHitFilter] pixel-cluster-shape filter loaded";
+  LogTrace("ClusterShapeHitFilter|MinBiasTracking")
+    << "pixel-cluster-shape filter loaded";
  }
 
 /*****************************************************************************/
@@ -133,16 +133,17 @@ void ClusterShapeHitFilter::loadStripLimits()
   
   inFile.close();
   
-  LogTrace("MinBiasTracking")
-    << " [ClusterShapeHitFilter] strip-cluster-width filter loaded";
+  LogTrace("MinBiasTracking|ClusterShapeHitFilter")
+    << " strip-cluster-width filter loaded";
 }
 
 /*****************************************************************************/
 bool ClusterShapeHitFilter::isInside
   (const vector<vector<float> > & limit, const pair<float,float> & pred) const
 { // pixel
+
   return (pred.first  > limit[0][0] && pred.first  < limit[0][1] &&
-          pred.second > limit[1][0] && pred.second < limit[1][1]);
+	    pred.second > limit[1][0] && pred.second < limit[1][1]);
 }  
 
 /*****************************************************************************/
@@ -251,6 +252,8 @@ bool ClusterShapeHitFilter::getSizes
   const PixelGeomDetUnit* pixelDet =
     dynamic_cast<const PixelGeomDetUnit*> (theTracker->idToDet(id));
 
+  //if (!pixelDet)  edm::LogError("ClusterShapeHitFilter")<<"no geomdetunit for this pixel hit.";
+
   // Get shape information
   ClusterData data;
   ClusterShape theClusterShape;
@@ -336,8 +339,7 @@ bool ClusterShapeHitFilter::isCompatible
     PixelLimitsMap::const_iterator i=pixelLimits.find(key);
     if (i!=pixelLimits.end())
       return (isInside((i->second)[0], pred) ||
-	      isInside((i->second)[1], pred));
-    
+	      isInside((i->second)[1], pred));        
   }
   
   // Not usable or no limits
@@ -359,6 +361,7 @@ bool ClusterShapeHitFilter::isCompatible
     if (i!=stripLimits.end())
       return (isInside((i->second)[0], pred) ||
               isInside((i->second)[1], pred));
+    
   }
 
   // Not usable or no limits
