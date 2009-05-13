@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE PoolDatabase SYSTEM "InMemory">
- <PoolDatabase >
-  <PoolContainer name="L1GtTriggerMaskVetoTechTrigRcd" >
-   <Class table="L1GTTRIGGERMASKVETOTECHTRIG" id_columns="ID" name="L1GtTriggerMask" mapping_version="L1GtTriggerMaskVetoTechTrig_basic" >
-     <Blob column="L1GTTRIGGERMASK_M__1_BLOB" name="m_triggerMask" />
-   </Class >
-  </PoolContainer >
- </PoolDatabase >
