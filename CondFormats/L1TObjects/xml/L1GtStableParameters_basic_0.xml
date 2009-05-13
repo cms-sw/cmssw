@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="L1GtStableParametersRcd" >
+  <PoolContainer name="L1GtStableParameters" >
    <Class table="L1GTSTABLEPARAMETERS" id_columns="ID" name="L1GtStableParameters" mapping_version="L1GtStableParameters_basic" >
      <Primitive column="M_IFCALOETANUMBERBITS" name="m_ifCaloEtaNumberBits" />
      <Primitive column="M_IFMUETANUMBERBITS" name="m_ifMuEtaNumberBits" />

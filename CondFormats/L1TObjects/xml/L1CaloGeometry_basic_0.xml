@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="L1CaloGeometryRecord" >
+  <PoolContainer name="L1CaloGeometry" >
    <Class table="L1CALOGEOMETRY" id_columns="ID" name="L1CaloGeometry" mapping_version="L1CaloGeometry_basic" >
      <Primitive column="M_ETABINSPERHALF" name="m_etaBinsPerHalf" />
      <Primitive column="M_ETASIGNBITOFFSET" name="m_etaSignBitOffset" />

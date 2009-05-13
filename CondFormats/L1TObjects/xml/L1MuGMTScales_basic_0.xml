@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="L1MuGMTScalesRcd" >
+  <PoolContainer name="L1MuGMTScales" >
    <Class table="L1MUGMTSCALES" id_columns="ID" name="L1MuGMTScales" mapping_version="L1MuGMTScales_basic" >
      <InlineCArray name="m_DeltaEtaScale" >
        <Object name="m_DeltaEtaScale[0]" >

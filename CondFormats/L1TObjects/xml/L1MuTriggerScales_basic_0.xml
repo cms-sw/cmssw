@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="L1MuTriggerScalesRcd" >
+  <PoolContainer name="L1MuTriggerScales" >
    <Class table="L1MUTRIGGERSCALES" id_columns="ID" name="L1MuTriggerScales" mapping_version="L1MuTriggerScales_basic" >
      <Object name="m_GMTEtaScale" >
        <Primitive column="M_GMTETASCALE_M_NBINS" name="m_NBins" />

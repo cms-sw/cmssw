@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="L1GctChannelMaskRcd" >
+  <PoolContainer name="L1GctChannelMask" >
    <Class table="L1GCTCHANNELMASK" id_columns="ID" name="L1GctChannelMask" mapping_version="L1GctChannelMask_basic" >
      <InlineCArray name="emCrateMask_" >
        <Primitive column="DI0" name="emCrateMask_[0]" />

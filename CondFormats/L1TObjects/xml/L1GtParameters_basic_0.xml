@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="L1GtParametersRcd" >
+  <PoolContainer name="L1GtParameters" >
    <Class table="L1GTPARAMETERS" id_columns="ID" name="L1GtParameters" mapping_version="L1GtParameters_basic" >
      <Primitive column="M_BSTLENGTHBYTES" name="m_bstLengthBytes" />
      <Primitive column="M_DAQACTIVEBOARDS" name="m_daqActiveBoards" />

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="L1RCTParametersRcd" >
+  <PoolContainer name="L1RCTParameters" >
    <Class table="L1RCTPARAMETERS" id_columns="ID" name="L1RCTParameters" mapping_version="L1RCTParameters_basic" >
      <Blob column="L1RCTPARAMETERS_HO_1_BLOB" name="HoverE_smear_high_" />
      <Blob column="L1RCTPARAMETERS_HO_2_BLOB" name="HoverE_smear_low_" />

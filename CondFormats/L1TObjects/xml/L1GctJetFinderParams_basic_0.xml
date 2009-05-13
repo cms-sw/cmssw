@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="L1GctJetFinderParamsRcd" >
+  <PoolContainer name="L1GctJetFinderParams" >
    <Class table="L1GCTJETFINDERPARAMS" id_columns="ID" name="L1GctJetFinderParams" mapping_version="L1GctJetFinderParams_basic" >
      <Primitive column="CENFORJETETABOUNDARY" name="cenForJetEtaBoundary_" />
      <Primitive column="CENJETETSEED" name="cenJetEtSeed_" />

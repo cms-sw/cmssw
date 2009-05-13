@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="L1RPCConeDefinitionRcd" >
+  <PoolContainer name="L1RPCConeDefinition" >
    <Class table="L1RPCCONEDEFINITION" id_columns="ID" name="L1RPCConeDefinition" mapping_version="L1RPCConeDefinition_basic" >
      <Blob column="L1RPCCONEDEFINITIO_1_BLOB" name="m_LPSizeVec" />
      <Primitive column="M_FIRSTTOWER" name="m_firstTower" />
