@@ -56,7 +56,7 @@ position_sigma_inStrips( uint16_t firstStrip, chargeIt_t first, chargeIt_t last,
 
     const float centroid = sumXQ/sumQ  - 0.5*(N-1);
     const float eta = (*last-*first)/sumQ;
-    const float crossover = exp( crossoverRate *(projection - N/(1-fabs(eta))));
+    const float crossover = exp( crossoverRate *(projection - N/(1+fabs(eta))));
 
     const float offset = ( 0.5*eta*projection   /(1+crossover)
 			   + centroid           /(1+1/crossover) );
