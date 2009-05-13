@@ -6,13 +6,13 @@
 #include <cmath>
 
 CSCFindPeakTime::CSCFindPeakTime( const edm::ParameterSet& ps ): 
-  useAverageTime(false), useParabolaFit(false), useFourPoleFit(false) {
+  useAverageTime(false), useParabolaFit(false), useFivePoleFit(false) {
 
   useAverageTime = ps.getParameter<bool>("UseAverageTime");
   useParabolaFit = ps.getParameter<bool>("UseParabolaFit");
-  useFourPoleFit = ps.getParameter<bool>("UseFourPoleFit");
+  useFivePoleFit = ps.getParameter<bool>("UseFivePoleFit");
   LogTrace("CSCRecHit|CSCFindPeakTime") << "CSCFindPeakTime: useAverageTime=" << useAverageTime <<
-    ", useParabolaFit=" << useParabolaFit << ", useFourPoleFit=" << useFourPoleFit;
+    ", useParabolaFit=" << useParabolaFit << ", useFivePoleFit=" << useFivePoleFit;
 }
 
 float CSCFindPeakTime::peakTime( int tmax, const float* adc, float t_peak){
@@ -22,8 +22,8 @@ float CSCFindPeakTime::peakTime( int tmax, const float* adc, float t_peak){
   else if ( useParabolaFit ) {
     return parabolaFitTime( tmax, adc );
   }
-  else if ( useFourPoleFit ) {
-     return fourPoleFitTime( tmax, adc, t_peak);
+  else if ( useFivePoleFit ) {
+     return fivePoleFitTime( tmax, adc, t_peak);
   }
   else {
   // return something, anyway.. may as well be average
@@ -43,7 +43,7 @@ float CSCFindPeakTime::averageTime( int tmax, const float* adc ) {
 }
 
 float CSCFindPeakTime::parabolaFitTime( int tmax, const float* adc ) {
-  // 3-point parabolic fit, courtesy Andy Kubik
+  // 3-point parabolic fit, from Andy Kubik
  
   // We calculate offset to tmax by finding the peak of a parabola through three points
    float tpeak = tmax;
@@ -65,7 +65,7 @@ float CSCFindPeakTime::parabolaFitTime( int tmax, const float* adc ) {
    return tpeak * 50.; // convert to ns.
 }
 
-float CSCFindPeakTime::fourPoleFitTime( int tmax, const float* adc, float t_peak ) {
+float CSCFindPeakTime::fivePoleFitTime( int tmax, const float* adc, float t_peak ) {
 
   // Input is 
   // tmax   = bin# 0-7 containing max SCA pulse height  
@@ -74,8 +74,9 @@ float CSCFindPeakTime::fourPoleFitTime( int tmax, const float* adc, float t_peak
 
   // Returned value is improved (we hope) estimate for SCA peak time
 
-  // Algorithm is to fit four-pole function for start time of SCA pulse, t0
+  // Algorithm is to fit five-pole Semi-Gaussian function for start time of SCA pulse, t0
   // (The SCA peak is assumed to be 133 ns from t0.)
+  // Note that t^4 in time domain corresponds to 1/t^5 in frequency domain (that's the 5 poles).
 
   // Initialize parameters to sensible (?) values
 
@@ -110,18 +111,19 @@ float CSCFindPeakTime::fourPoleFitTime( int tmax, const float* adc, float t_peak
   float x[4];
   float sx2 = 0.;
   float sxy = 0.;
-  float fN = 0.;
+  float fN  = 0.;
 
   while ( del_t > 1. ) {
     sx2 = 0.;
     sxy = 0.;
         
     for ( int j=0; j < n_fit; ++j ) {
-      x[j] = (tb[j] - tt0) * (tb[j] - tt0) * (tb[j] - tt0) * (tb[j] - tt0) * exp( -p0 * (tb[j] - tt0) );
-      sx2  += x[j] * x[j];
-      sxy  += x[j] * adc[j];
+      float tdif = tb[j] - tt0;
+      x[j] = tdif * tdif * tdif * tdif * exp( -p0 * tdif );
+      sx2 += x[j] * x[j];
+      sxy += x[j] * adc[j];
     }
-    fN = sxy / sx2; // least squares fit over time bins i to adc[i] = fN * fourPoleFunction[i]
+    fN = sxy / sx2; // least squares fit over time bins i to adc[i] = fN * fivePoleFunction[i]
     
     // Compute chi^2
     chi2 = 0.0;
@@ -148,9 +150,9 @@ float CSCFindPeakTime::fourPoleFitTime( int tmax, const float* adc, float t_peak
 
 
 
-void CSCFindPeakTime::fourPoleFitCharge( int tmax, const float* adc, const float& t_zero, const float& t_peak, std::vector<float>& adcsFit ) {
+void CSCFindPeakTime::fivePoleFitCharge( int tmax, const float* adc, const float& t_zero, const float& t_peak, std::vector<float>& adcsFit ) {
 
-  //@@ This code can certainly be replaced by fourPoleFitTime above, but I haven't time to do that now (Tim).
+  //@@ This code can certainly be replaced by fivePoleFitTime above, but I haven't time to do that now (Tim).
 
   float p0  = 4./t_peak;
   float tt0 = t_zero;

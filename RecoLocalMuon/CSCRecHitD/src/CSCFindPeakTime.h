@@ -41,18 +41,18 @@ class CSCFindPeakTime
    * Note: t0peak =4/p0 = 133 nsec, and adc[0] is arbitrarily defined a time of 0.0 nsec. 
    *
    */
-  float fourPoleFitTime( int tmax, const float* adc, float t_peak ); 
+  float fivePoleFitTime( int tmax, const float* adc, float t_peak ); 
 
   /**
-   * Integrated charge after fourPoleFitTime
+   * Integrated charge after fivePoleFitTime
    */
   //@@ Needs work and interface fixes!!
-  void fourPoleFitCharge( int tmax, const float* adc, const float& t_zero, const float& t_peak, std::vector<float>& adcsFit );
+  void fivePoleFitCharge( int tmax, const float* adc, const float& t_zero, const float& t_peak, std::vector<float>& adcsFit );
   
  private:
 
   bool useAverageTime;
   bool useParabolaFit;
-  bool useFourPoleFit;  
+  bool useFivePoleFit;  
   
 };
