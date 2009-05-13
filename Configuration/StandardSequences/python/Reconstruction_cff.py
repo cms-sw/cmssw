@@ -52,7 +52,10 @@ highlevelreco_woConv = cms.Sequence(recoJetAssociations*tautagging*particleFlowR
 # "Export" Section
 #
 # Default - change: remove  RS again
-reconstruction = cms.Sequence(localreco*globalreco*highlevelreco)
+
+from FWCore.Modules.logErrorHarvester_cfi import *
+
+reconstruction = cms.Sequence(localreco*globalreco*highlevelreco*logErrorHarvester)
 reconstruction_withRS = cms.Sequence(localreco*globalreco_plusRS*highlevelreco)
 #other possibilities
 reconstruction_plusGSF = cms.Sequence(reconstruction*GsfGlobalElectronTestSequence)
