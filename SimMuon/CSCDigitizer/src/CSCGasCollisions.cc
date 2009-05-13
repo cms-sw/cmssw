@@ -281,7 +281,7 @@ double CSCGasCollisions::generateStep( double avCollisions ) const
 //    double step = -log(1.-da)/avCollisions;
 
     LogTrace(me)  << " step = " << step;
-    // TODO CAn this possibly be right?
+    // Next line only used to fill a container of 'step's for later diagnostic dumps
     //if ( debugV ) theCrossGap->addStep( step );
     return step;
 }
@@ -303,8 +303,8 @@ float CSCGasCollisions::generateEnergyLoss( double avCollisions,
     // Compensate if gamma was actually below 1.1
     if ( theCrossGap->gamma() < 1.1 ) eloss = eloss * 0.173554/theCrossGap->beta2();
     LogTrace(me) << "eloss = " << eloss;
-    // TODO
-//    theCrossGap->addEloss( eloss );
+    // Next line only used to fill container of eloss's for later diagnostic dumps
+    // if ( debugV ) theCrossGap->addEloss( eloss );
     return eloss;
 }
 
