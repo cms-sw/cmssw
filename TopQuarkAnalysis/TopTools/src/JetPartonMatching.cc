@@ -238,8 +238,17 @@ void JetPartonMatching::matchingMinSumDist()
   std::sort(distMatchVec.begin(), distMatchVec.end());
 
   matching.clear();
-  for(unsigned int i=0; i<distMatchVec.size(); ++i)
-    matching.push_back( distMatchVec[i].second );  
+
+  if(distMatchVec.empty()) {
+    MatchingCollection dummyMatch;
+    for(unsigned int ip=0; ip<partons.size(); ++ip)
+      dummyMatch.push_back(std::make_pair(ip, -1));
+    matching.push_back( dummyMatch );
+  }
+  else
+    for(unsigned int i=0; i<distMatchVec.size(); ++i)
+      matching.push_back( distMatchVec[i].second );
+
   return;
 }
 
