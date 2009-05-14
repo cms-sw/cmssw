@@ -15,7 +15,12 @@ class TkHistoMap{
 
  public:
   TkHistoMap(std::string path, std::string MapName, float baseline=0, bool mechanicalView=false);
-  ~TkHistoMap();
+  TkHistoMap();
+  ~TkHistoMap(){};
+
+  void loadServices();
+
+  bool loadTkHistoMap(std::string path, std::string MapName, bool mechanicalView=false);
 
   MonitorElement* getMap(short layerNumber){return tkHistoMap_[layerNumber];};
   tkHistoMapType& getAllMaps(){return tkHistoMap_;};
@@ -30,6 +35,7 @@ class TkHistoMap{
  private:
 
   void createTkHistoMap(std::string& path, std::string& MapName, float& baseline, bool mechanicalView);
+  std::string folderDefinition(std::string& path, std::string& MapName, int layer , bool mechanicalView, std::string& fullName);
 
   DQMStore* dqmStore_;
   TkDetMap* tkdetmap_;

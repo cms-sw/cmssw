@@ -3,10 +3,23 @@
 
 //#define debug_TkHistoMap
 
+TkHistoMap::TkHistoMap():
+  HistoNumber(35){
+  LogTrace("TkHistoMap") <<"TkHistoMap::constructor without parameters"; 
+  loadServices();
+}
+
+
 TkHistoMap::TkHistoMap(std::string path, std::string MapName,float baseline, bool mechanicalView): 
   HistoNumber(35),
   MapName_(MapName)
 {
+  LogTrace("TkHistoMap") <<"TkHistoMap::constructor with parameters"; 
+  loadServices();
+  createTkHistoMap(path,MapName, baseline, mechanicalView);
+}
+
+void TkHistoMap::loadServices(){
   if(!edm::Service<DQMStore>().isAvailable()){
     edm::LogError("TkHistoMap") << 
       "\n------------------------------------------"
@@ -23,48 +36,41 @@ TkHistoMap::TkHistoMap(std::string path, std::string MapName,float baseline, boo
       "\n------------------------------------------";
   }
   tkdetmap_=edm::Service<TkDetMap>().operator->();
-  LogTrace("TkHistoMap") <<"TkHistoMap::constructor "; 
-  createTkHistoMap(path,MapName, baseline, mechanicalView);
 }
 
 void TkHistoMap::save(std::string filename){
   dqmStore_->save(filename);
 }
 
+bool TkHistoMap::loadTkHistoMap(std::string path, std::string MapName, bool mechanicalView){
+  MapName_=MapName;
+  std::string fullName, folder;
+  tkHistoMap_.resize(HistoNumber);    
+  for(int layer=1;layer<HistoNumber;++layer){
+    folder=folderDefinition(path,MapName,layer,mechanicalView,fullName);
+    tkHistoMap_[layer]=dqmStore_->get(folder+fullName);
+    LogTrace("TkHistoMap")  << "[TkHistoMap::loadTkHistoMap] folder " << folder << " histoName " << fullName << " layer " << layer << " ptr " << tkHistoMap_[layer];
+  }
+}
+  
+
+
 void TkHistoMap::createTkHistoMap(std::string& path, std::string& MapName, float& baseline, bool mechanicalView){
   
-  std::string folder=path;
-  dqmStore_->setCurrentFolder(folder);
-  
-  std::string name=MapName+std::string("_");
-  std::string fullName;
   int nchX;
   int nchY;
   double lowX,highX;
   double lowY, highY;
+  std::string fullName, folder;
 
-  SiStripFolderOrganizer folderOrg;
-
-  tkHistoMap_.resize(HistoNumber);  
+  tkHistoMap_.resize(HistoNumber);    
   for(int layer=1;layer<HistoNumber;++layer){
-    fullName=name+tkdetmap_->getLayerName(layer);
-    if(mechanicalView){
-      std::stringstream ss;
-      
-      SiStripDetId::SubDetector subDet;
-      uint32_t subdetlayer, side;
-      tkdetmap_->getSubDetLayerSide(layer,subDet,subdetlayer,side);
-      folderOrg.getSubDetLayerFolderName(ss,subDet,subdetlayer,side);
-
-      folder = ss.str();
-      //folder=path+tkdetmap_->getLayerName(layer); //***FIXME with the mechanical view real code
-      dqmStore_->setCurrentFolder(folder);
-    }
+    folder=folderDefinition(path,MapName,layer,mechanicalView,fullName);
     tkdetmap_->getComponents(layer,nchX,lowX,highX,nchY,lowY,highY);
     TProfile2D* h=new TProfile2D(fullName.c_str(),fullName.c_str(),
 				 nchX,lowX,highX,
 				 nchY,lowY,highY);
-
+    
     //initialize bin content for the not assigned bins
     if(baseline!=0){
       for(size_t ix = 1; ix <= (unsigned int) nchX; ++ix)
@@ -74,10 +80,32 @@ void TkHistoMap::createTkHistoMap(std::string& path, std::string& MapName, float
     }
 
     tkHistoMap_[layer]=dqmStore_->bookProfile2D(fullName,h);
-    LogTrace("TkHistoMap")  << "[TkHistoMap::createTkHistoMap] histoName " << fullName << " layer " << layer << " ptr " << tkHistoMap_[layer];
+    LogTrace("TkHistoMap")  << "[TkHistoMap::createTkHistoMap] folder " << folder << " histoName " << fullName << " layer " << layer << " ptr " << tkHistoMap_[layer];
   }
-
 }
+
+std::string TkHistoMap::folderDefinition(std::string& path, std::string& MapName, int layer , bool mechanicalView,std::string& fullName ){
+  
+  std::string folder=path;
+  std::string name=MapName+std::string("_");
+  fullName=name+tkdetmap_->getLayerName(layer);
+  
+  if(mechanicalView){
+    std::stringstream ss;
+
+    SiStripFolderOrganizer folderOrg;
+    
+    SiStripDetId::SubDetector subDet;
+    uint32_t subdetlayer, side;
+    tkdetmap_->getSubDetLayerSide(layer,subDet,subdetlayer,side);
+    folderOrg.getSubDetLayerFolderName(ss,subDet,subdetlayer,side);
+    
+    folder = ss.str();
+  }
+  dqmStore_->setCurrentFolder(folder);
+  return folder;
+}
+
 
 void TkHistoMap::fill(uint32_t& detid,float value){
   int16_t layer=tkdetmap_->FindLayer(detid);

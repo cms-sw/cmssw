@@ -76,8 +76,11 @@ testTkHistoMap::~testTkHistoMap()
 
 void testTkHistoMap::endJob(void)
 {
+  TkHistoMap* testloadMap = new TkHistoMap();
+  testloadMap->loadTkHistoMap("detIdBis","detIdBis",1); 
+  
   TCanvas C("c","c");
-  C.Divide(2,2);
+  C.Divide(3,3);
   C.Update(); 
   TPostScript ps("test.ps",121);
   ps.NewPage();
@@ -92,20 +95,24 @@ void testTkHistoMap::endJob(void)
     tkhistoR->getMap  (ilayer)->getTProfile2D()->Draw("BOXCOL");
     C.cd(5);
     tkhistoCheck->getMap  (ilayer)->getTProfile2D()->Draw("BOXCOL");
+    C.cd(6);
+    tkhistoBis->getMap  (ilayer)->getTProfile2D()->Draw("BOXCOL");
+    C.cd(7);
+    testloadMap->getMap  (ilayer)->getTProfile2D()->Draw("BOXCOL");
     C.Update();
     ps.NewPage();
   }
   ps.Close();   
 
   edm::Service<DQMStore>().operator->()->save("test.root");  
-
+  
   tkhisto->saveAsCanvas("test_canvas.root","LEGO","RECREATE");
   tkhistoBis->saveAsCanvas("test_canvas.root","LEGO","RECREATE");
   tkhistoZ->saveAsCanvas("test_canvas.root","LEGO","UPDATE");
   tkhistoPhi->saveAsCanvas("test_canvas.root","LEGO","UPDATE");
   tkhistoR->saveAsCanvas("test_canvas.root","LEGO","UPDATE");
   tkhistoCheck->saveAsCanvas("test_canvas.root","LEGO","UPDATE");
- }
+}
 
 
 //
