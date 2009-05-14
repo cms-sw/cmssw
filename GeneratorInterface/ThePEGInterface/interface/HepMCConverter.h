@@ -212,7 +212,8 @@ private:
 
 template<> struct HepMCTraits<HepMC::GenEvent> :
 	public HepMCTraitsBase<HepMC::GenEvent, HepMC::GenParticle,
-		                       HepMC::GenVertex, HepMC::Polarization> {};
+	                       HepMC::GenVertex, HepMC::Polarization,
+	                       HepMC::PdfInfo, true> {};
 
 } // namespace ThePEG
 
