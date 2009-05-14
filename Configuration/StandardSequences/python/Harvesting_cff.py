@@ -12,8 +12,6 @@ dqmHarvesting = cms.Path(DQMOffline_SecondStep*DQMOffline_Certification)
 
 validationHarvesting = cms.Path(postValidation*hltpostvalidation)
 
-validationHarvestingPU = cms.Path(postValidation_pu*hltpostvalidation)
-
 validationHarvestingFS = cms.Path(HarvestingFastSim)
 
 #alcaHarvesting = cms.Path()
