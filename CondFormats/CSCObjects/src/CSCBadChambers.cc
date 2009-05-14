@@ -1,5 +1,6 @@
 #include "CondFormats/CSCObjects/interface/CSCBadChambers.h"
 #include "DataFormats/MuonDetId/interface/CSCIndexer.h"
+#include <algorithm>
 
 bool CSCBadChambers::isInBadChamber( const CSCDetId& id ) const {
 
