@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.48 2009/05/11 10:10:35 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.49 2009/05/13 20:27:09 amraktad Exp $
 //
 // hacks
 #define private public
@@ -93,10 +93,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *goToLast = new CSGAction(this, cmsshow::sGotoLastEvent.c_str());
 
    CSGAction *showColorInsp = new CSGAction(this, cmsshow::sShowColorInsp.c_str());
-   CSGAction *decBrightness = new CSGAction(this, cmsshow::sDecBrightness.c_str());
-   decBrightness->setToolTip("Increase Brightness");
-   CSGAction *incBrightness = new CSGAction(this, cmsshow::sIncBrightness.c_str());
-   incBrightness->setToolTip("Increase Brightness");
+
    CSGAction *nextEvent = new CSGAction(this, cmsshow::sNextEvent.c_str());
    CSGAction *previousEvent = new CSGAction(this, cmsshow::sPreviousEvent.c_str());
    CSGContinuousAction *playEvents = new CSGContinuousAction(this, cmsshow::sPlayEvents.c_str());
@@ -167,8 +164,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    TGPopupMenu *viewMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("View", viewMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
    showColorInsp->createMenuEntry(viewMenu);
-   decBrightness->createShortcut(kKey_b, "CTRL+SHIFT");
-   incBrightness->createShortcut(kKey_b, "CTRL");
 
    viewMenu->AddSeparator();
 

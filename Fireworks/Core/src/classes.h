@@ -8,6 +8,7 @@
 #include "Fireworks/Core/interface/TEveElementIter.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/CmsShowEDI.h"
+#include "Fireworks/Core/interface/CmsShowColorPopup.h"
 #include "Fireworks/Core/interface/CmsShowModelPopup.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"

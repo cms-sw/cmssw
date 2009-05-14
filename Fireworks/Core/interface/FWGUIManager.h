@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.61 2009/05/04 20:03:32 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.62 2009/05/13 20:27:09 amraktad Exp $
 //
 
 // system include files
@@ -117,11 +117,11 @@ public:
    ///Allowed values are -1 or ones from FWDataCategories enum
    void showEDIFrame(int iInfoToShow=-1);
 
+  void showColorPopup();
+
    void createModelPopup();
    void resetModelPopup();
    void showModelPopup();
-
-   void showColorPopup();
 
    void createViewPopup();
    void refillViewPopup(FWViewBase* iView);
@@ -163,10 +163,6 @@ public:
    void loadEvent(const fwlite::Event& event);
    void newFile(const TFile*);
 
-   void doBrightness(int x);
-   void decreaseBrightness();
-   void increaseBrightness();
-   void changeBackgroundColor();
    CSGAction* getAction(const std::string name);
 
    void addData();

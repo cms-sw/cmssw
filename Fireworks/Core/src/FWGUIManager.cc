@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.118 2009/05/13 20:27:09 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.119 2009/05/14 02:51:50 jmuelmen Exp $
 //
 
 // system include files
@@ -78,6 +78,7 @@
 #include "Fireworks/Core/interface/ActionsList.h"
 
 #include "Fireworks/Core/interface/CmsShowEDI.h"
+#include "Fireworks/Core/interface/CmsShowColorPopup.h"
 #include "Fireworks/Core/interface/CmsShowModelPopup.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 
@@ -105,17 +106,6 @@ enum {kSaveConfiguration,
 //
 FWGUIManager* FWGUIManager::m_guiManager = 0;
 
-static 
-void
-setBackgroundName(CSGAction* iAction, FWColorManager* iCM)
-{
-   if(0==iAction || 0==iCM) {return;}
-   if(FWColorManager::kBlackIndex == iCM->backgroundColorIndex()) {
-      iAction->setMenuLabel(cmsshow::sBackgroundColor+" to White");
-   } else {
-      iAction->setMenuLabel(cmsshow::sBackgroundColor+" to Black");   
-   }
-}
 //
 // constructors and destructor
 //
@@ -186,18 +176,13 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(boost::bind( &FWGUIManager::showEDIFrame,this,-1));
       getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showViewPopup));
       getAction(cmsshow::sShowObjInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showModelPopup));
+      getAction(cmsshow::sShowColorInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showColorPopup));
+
       getAction(cmsshow::sShowAddCollection)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::addData));
       assert(getAction(cmsshow::sHelp) != 0);
       getAction(cmsshow::sHelp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createHelpPopup));
       assert(getAction(cmsshow::sKeyboardShort) != 0);
       getAction(cmsshow::sKeyboardShort)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createShortcutPopup));
-      // gamma
-      getAction(cmsshow::sDecBrightness )->activated.connect(sigc::mem_fun(*this, &FWGUIManager::decreaseBrightness));
-      getAction(cmsshow::sIncBrightness )->activated.connect(sigc::mem_fun(*this, &FWGUIManager::increaseBrightness));
-
-      getAction(cmsshow::sBackgroundColor)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::changeBackgroundColor));
-      setBackgroundName(getAction(cmsshow::sBackgroundColor), m_colorManager);
-      getAction(cmsshow::sShowColorInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showColorPopup));
 
       // toolbar special widget with non-void actions
       m_cmsShowMainFrame->m_delaySliderListener->valueChanged_.connect(boost::bind(&FWGUIManager::delaySliderChanged,this,_1));
@@ -579,7 +564,12 @@ FWGUIManager::showEDIFrame(int iToShow)
    }
    m_ediFrame->MapWindow();
 }
-
+ 
+void
+FWGUIManager::showColorPopup()
+{
+   new CmsShowColorPopup( m_colorManager, m_cmsShowMainFrame, 200, 200);
+}
 
 void
 FWGUIManager::createModelPopup()
@@ -1172,72 +1162,6 @@ void FWGUIManager::eventIdChanged()
 void FWGUIManager::eventFilterChanged()
 {
    changedEventFilter_.emit(m_cmsShowMainFrame->m_filterEntry->GetText());
-}
-
-
-//==============================================================================
-void
-FWGUIManager::showColorPopup()
-{
-   TGTransientFrame* colFrame = new TGTransientFrame(gClient->GetDefaultRoot(),  m_cmsShowMainFrame, 200, 200);
-   colFrame->SetWindowName("Color Controller");
-
-   {
-      TGLabel* label = new TGLabel(colFrame, Form("BackgroundColor"));
-      TGFont* defaultFont = gClient->GetFontPool()->GetFont(label->GetDefaultFontStruct());
-      label->SetTextFont(gClient->GetFontPool()->GetFont(defaultFont->GetFontAttributes().fFamily, 14, defaultFont->GetFontAttributes().fWeight + 2, defaultFont->GetFontAttributes().fSlant));
-      colFrame->AddFrame(label, new TGLayoutHints(kLHintsNormal, 0, 0, 5, 3));
-      getAction(cmsshow::sBackgroundColor.c_str())->createTextButton(colFrame);
-   }
-
-   TGHorizontal3DLine* colorVisSeperator = new TGHorizontal3DLine(colFrame, 200, 5);
-   colFrame->AddFrame(colorVisSeperator, new TGLayoutHints(kLHintsNormal, 0, 0, 15, 5));
-
-   {
-      TGLabel* label = new TGLabel(colFrame, Form("BrigtnessControl"));
-      TGFont* defaultFont = gClient->GetFontPool()->GetFont(label->GetDefaultFontStruct());
-      label->SetTextFont(gClient->GetFontPool()->GetFont(defaultFont->GetFontAttributes().fFamily, 14, defaultFont->GetFontAttributes().fWeight + 2, defaultFont->GetFontAttributes().fSlant));
-      colFrame->AddFrame(label);
-
-      TGHSlider*  slider = new TGHSlider(colFrame, 150);
-      slider->SetPosition(0);
-      slider->Connect("PositionChanged(Int_t)", "FWGUIManager", this, "doBrightness(Int_t)");
-      slider->SetRange(-15, 15);
-      colFrame->AddFrame(slider);
-   }
-
-   colFrame->MapWindow();
-   colFrame->MapSubwindows();
-   colFrame->Layout();
-}
-
-void 
-FWGUIManager::doBrightness(Int_t x)
-{
-  m_colorManager->setBrightness(-x*0.1);
-}
-
-void 
-FWGUIManager::decreaseBrightness()
-{
-  m_colorManager->decreaseBrightness();
-}
-
-void 
-FWGUIManager::increaseBrightness()
-{
-  m_colorManager->increaseBrightness();
-}
-
-void 
-FWGUIManager::changeBackgroundColor()
-{
-   if(FWColorManager::kBlackIndex == m_colorManager->backgroundColorIndex()) {
-      m_colorManager->setBackgroundColorIndex(FWColorManager::kWhiteIndex);
-   } else {
-      m_colorManager->setBackgroundColorIndex(FWColorManager::kBlackIndex);
-   }
-   setBackgroundName(getAction(cmsshow::sBackgroundColor), m_colorManager);
 }
 
 void 
