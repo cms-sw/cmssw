@@ -495,7 +495,8 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
             activeBoardInitial = activeBoardsGtInitial & ( 1 << iActiveBit );
             activeBoardToUnpack = activeBoardsGt & ( 1 << iActiveBit );
 
-            altNrBxBoardVal = altNrBxBoardInitial & ( 1 << iActiveBit );
+            altNrBxBoardVal = (altNrBxBoardInitial & ( 1 << iActiveBit )) >> iActiveBit;
+
             if (altNrBxBoardVal == 1) {
                 m_totalBxInEvent = m_recordLength1;
             } else if (altNrBxBoardVal == 0) {
@@ -503,9 +504,15 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
             } else {
                 if (m_verbosity) {
                     edm::LogWarning("L1GlobalTriggerRawToDigi")
-                            << "\nWARNING: Wrong value for altNrBxBoardVal for board"
-                            << ( itBoard->gtBoardId() ) << "\n Set tentatively to "
-                            << m_recordLength0 << "\n Job may crash or produce wrong results"
+                            << "\n\nWARNING: Wrong value altNrBxBoardVal = " << altNrBxBoardVal
+                            << " for board " << std::hex << ( itBoard->gtBoardId() ) << std::dec
+                            << "\n  iActiveBit =            " << iActiveBit
+                            << "\n  altNrBxBoardInitial = 0x" << std::hex << altNrBxBoardInitial <<  std::dec
+                            << "\n  activeBoardsGt =      0x" << std::hex << activeBoardsGt <<  std::dec
+                            << "\n  activeBoardInitial =    " << activeBoardInitial
+                            << "\n  activeBoardToUnpack =   " << activeBoardToUnpack
+                            << "\n Set altNrBxBoardVal tentatively to "
+                            << m_recordLength0 << "\n Job may crash or produce wrong results!\n\n"
                             << std::endl;
                 }
 

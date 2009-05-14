@@ -21,7 +21,7 @@ if useRelValSample == True :
     useGlobalTag = 'IDEAL_V12'
     #useGlobalTag='STARTUP_V9'
 else :
-    useGlobalTag = 'CRAFT_ALL_V11'
+    useGlobalTag = 'CRAFT_ALL_V12'
 
 # change to True to use local files
 #     the type of file should match the choice of useRelValSample and useGlobalTag
@@ -82,20 +82,10 @@ else :
     dataset = '/Cosmics/Commissioning09-v1/RAW'
     print '   Running on set: '+ dataset    
     
-    readFiles.extend( [
-       '/store/data/Commissioning09/Cosmics/RAW/v1/000/076/966/00BD9A1F-B908-DE11-8B2C-000423D94A04.root',
-       '/store/data/Commissioning09/Cosmics/RAW/v1/000/076/966/025E8B48-B608-DE11-A0EE-00161757BF42.root',
-       '/store/data/Commissioning09/Cosmics/RAW/v1/000/076/966/027AA271-D208-DE11-9A7F-001617DBD5AC.root',
-       '/store/data/Commissioning09/Cosmics/RAW/v1/000/076/966/04281D2F-D108-DE11-9A27-000423D944DC.root',
-       '/store/data/Commissioning09/Cosmics/RAW/v1/000/076/966/065B0C1C-C008-DE11-A32B-001617E30F48.root',
-       '/store/data/Commissioning09/Cosmics/RAW/v1/000/076/966/08B1054B-BD08-DE11-AF8B-001617C3B78C.root',
-       '/store/data/Commissioning09/Cosmics/RAW/v1/000/076/966/0C055C33-D108-DE11-B678-001617C3B73A.root',
-       '/store/data/Commissioning09/Cosmics/RAW/v1/000/076/966/0E480977-D208-DE11-BA78-001617C3B6E2.root',
-       '/store/data/Commissioning09/Cosmics/RAW/v1/000/076/966/0E79251B-B908-DE11-83FF-000423D99CEE.root',
-       '/store/data/Commissioning09/Cosmics/RAW/v1/000/076/966/101B8CA0-B508-DE11-B614-000423D99160.root',
-       '/store/data/Commissioning09/Cosmics/RAW/v1/000/076/966/12C62C71-BF08-DE11-A48C-000423D99614.root',
-       '/store/data/Commissioning09/Cosmics/RAW/v1/000/076/966/16A77E08-B008-DE11-9121-000423D8F63C.root'
-        ]);
+    readFiles.extend( [                        
+       '/store/data/Commissioning09/Cosmics/RAW/v1/000/096/242/C255D25C-7040-DE11-9C30-0030487C608C.root',
+       '/store/data/Commissioning09/Cosmics/RAW/v1/000/096/242/BA0CDDA9-8240-DE11-8B85-001D09F29597.root' 
+        ]);                                                                                               
 
     secFiles.extend([
         ])
@@ -148,7 +138,7 @@ process.l1GtEvmUnpack.EvmGtInputTag = evmGtInputTag
 
 # length of BST message (in bytes)
 # if negative, take it from event setup
-#process.l1GtEvmUnpack.BstLengthBytes = 52
+process.l1GtEvmUnpack.BstLengthBytes = 52
 
 # set it to verbose
 process.l1GtEvmUnpack.Verbosity = cms.untracked.int32(1)

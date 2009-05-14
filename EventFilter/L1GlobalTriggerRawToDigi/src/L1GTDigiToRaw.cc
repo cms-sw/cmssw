@@ -232,7 +232,8 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
         if (iActiveBit >= 0) {
             activeBoardToPack = activeBoardsGt & (1 << iActiveBit);
 
-            altNrBxBoardVal = altNrBxBoardInitial & ( 1 << iActiveBit );
+            altNrBxBoardVal = (altNrBxBoardInitial & ( 1 << iActiveBit )) >> iActiveBit;
+
             if (altNrBxBoardVal == 1) {
                 m_totalBxInEvent = recordLength1;
             } else if (altNrBxBoardVal == 0) {
@@ -240,10 +241,15 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
             } else {
                 if (m_verbosity) {
                     edm::LogWarning("L1GTDigiToRaw")
-                            << "\nWARNING: Wrong value for altNrBxBoardVal for board"
-                            << ( itBoard->gtBoardId() ) << "\n Set tentatively to "
-                            << recordLength0 << "\n Job may crash or produce wrong results"
-                            << std::endl;
+                    << "\n\nWARNING: Wrong value altNrBxBoardVal = " << altNrBxBoardVal
+                    << " for board " << std::hex << ( itBoard->gtBoardId() ) << std::dec
+                    << "\n  iActiveBit =            " << iActiveBit
+                    << "\n  altNrBxBoardInitial = 0x" << std::hex << altNrBxBoardInitial <<  std::dec
+                    << "\n  activeBoardsGt =      0x" << std::hex << activeBoardsGt <<  std::dec
+                    << "\n  activeBoardToPack =   " << activeBoardToPack
+                    << "\n Set altNrBxBoardVal tentatively to "
+                    << recordLength0 << "\n Job may crash or produce wrong results!\n\n"
+                    << std::endl;
                 }
 
                 m_totalBxInEvent = recordLength0;
@@ -363,7 +369,8 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
         if (iActiveBit >= 0) {
             activeBoardToPack = activeBoardsGt & (1 << iActiveBit);
 
-            altNrBxBoardVal = altNrBxBoardInitial & ( 1 << iActiveBit );
+            altNrBxBoardVal = (altNrBxBoardInitial & ( 1 << iActiveBit )) >> iActiveBit;
+
             if (altNrBxBoardVal == 1) {
                 m_totalBxInEvent = recordLength1;
             } else if (altNrBxBoardVal == 0) {
@@ -371,10 +378,15 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
             } else {
                 if (m_verbosity) {
                     edm::LogWarning("L1GTDigiToRaw")
-                            << "\nWARNING: Wrong value for altNrBxBoardVal for board"
-                            << ( itBoard->gtBoardId() ) << "\n Set tentatively to "
-                            << recordLength0 << "\n Job may crash or produce wrong results"
-                            << std::endl;
+                    << "\n\nWARNING: Wrong value altNrBxBoardVal = " << altNrBxBoardVal
+                    << " for board " << std::hex << ( itBoard->gtBoardId() ) << std::dec
+                    << "\n  iActiveBit =            " << iActiveBit
+                    << "\n  altNrBxBoardInitial = 0x" << std::hex << altNrBxBoardInitial <<  std::dec
+                    << "\n  activeBoardsGt =      0x" << std::hex << activeBoardsGt <<  std::dec
+                    << "\n  activeBoardToPack =   " << activeBoardToPack
+                    << "\n Set altNrBxBoardVal tentatively to "
+                    << recordLength0 << "\n Job may crash or produce wrong results!\n\n"
+                    << std::endl;
                 }
 
                 m_totalBxInEvent = recordLength0;
