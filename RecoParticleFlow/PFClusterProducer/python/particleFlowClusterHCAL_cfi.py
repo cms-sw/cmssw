@@ -7,11 +7,11 @@ particleFlowClusterHCAL = cms.EDProducer("PFClusterProducer",
     PFRecHits = cms.InputTag("particleFlowRecHitHCAL"),
     #----all thresholds are in GeV
     # seed threshold in HCAL barrel 
-    thresh_Seed_Barrel = cms.double(1.4),
+    thresh_Seed_Barrel = cms.double(0.8),
     # cell threshold in HCAL barrel 
     thresh_Barrel = cms.double(0.8),
     # seed threshold in HCAL endcap 
-    thresh_Seed_Endcap = cms.double(1.4),
+    thresh_Seed_Endcap = cms.double(1.1),
     # cell threshold in HCAL endcap
     thresh_Endcap = cms.double(0.8),    
     #----HCAL options

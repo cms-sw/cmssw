@@ -175,7 +175,7 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
     double seedThresh = parameter( SEED_THRESH, 
 				   static_cast<PFLayer::Layer>(layer) );
 
-    
+
 #ifdef PFLOW_DEBUG
     if(debug_) 
       cout<<"layer:"<<layer<<" seedThresh:"<<seedThresh<<endl;
@@ -304,9 +304,10 @@ void PFClusterAlgo::buildTopoClusters( const reco::PFRecHitCollection& rechits )
 }
 
 
-void PFClusterAlgo::buildTopoCluster( vector< unsigned >& cluster, 
-				      unsigned rhi, 
-				      const reco::PFRecHitCollection& rechits ){
+void 
+PFClusterAlgo::buildTopoCluster( vector< unsigned >& cluster,
+				 unsigned rhi, 
+				 const reco::PFRecHitCollection& rechits ){
 
 
 #ifdef PFLOW_DEBUG
@@ -321,6 +322,7 @@ void PFClusterAlgo::buildTopoCluster( vector< unsigned >& cluster,
   
   double thresh = parameter( THRESH, 
 			     static_cast<PFLayer::Layer>(layer) );
+
 
   if( e < thresh ) {
 #ifdef PFLOW_DEBUG
