@@ -4,17 +4,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include <iostream>
+#include <cstdio>
 
 using namespace std;
 
-/*$Date: 2007/04/10 23:02:39 $
+/*$Date: 2008/01/22 18:43:15 $
 version 3.1 02-13-07 
 
 author Kevin Klapoetke - Minnesota*/
-
-
-
-
 
 class HcalCableMapper : public edm::EDAnalyzer {
 public:
