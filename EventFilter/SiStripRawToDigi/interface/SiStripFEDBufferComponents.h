@@ -1032,7 +1032,7 @@ namespace sistrip {
   inline bool FEDFullDebugHeader::getBit(const uint8_t internalFEDChannelNum, const uint8_t bit) const
     {
       const uint8_t* pFEWord = feWord(internalFEDChannelNum / FEDCH_PER_FEUNIT);
-      const uint8_t bitInFeWord = (internalFEDChannelNum % FEDCH_PER_FEUNIT) * 6 + bit;
+      const uint8_t bitInFeWord = ((FEDCH_PER_FEUNIT-1) - (internalFEDChannelNum%FEDCH_PER_FEUNIT)) * 6 + bit;
       return ( pFEWord[bitInFeWord/8] & (0x1 << bitInFeWord%8) );
     }
   

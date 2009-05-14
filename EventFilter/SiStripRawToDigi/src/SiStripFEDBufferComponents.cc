@@ -949,10 +949,10 @@ namespace sistrip {
 
   bool FEDAPVErrorHeader::checkStatusBits(const uint8_t internalFEDChannelNum, const uint8_t apvNum) const
   {
-    const uint8_t byteNumber = internalFEDChannelNum * 2 / 8;
-    const uint8_t bitInByte = internalFEDChannelNum * 2 % 8;
+    //3 bytes per FE unit, channel order is reversed in FE unit data, 2 bits per channel
+    const uint16_t bitNumber = (internalFEDChannelNum/FEDCH_PER_FED)*24 + (FEDCH_PER_FED-1-(internalFEDChannelNum%FEDCH_PER_FED))*2+apvNum;
     //bit high means no error
-    return (!(header_[byteNumber] & (0x01<<bitInByte) ));
+    return (!(header_[bitNumber/8] & (0x01<<(bitNumber%8)) ));
   }
 
   bool FEDAPVErrorHeader::checkChannelStatusBits(const uint8_t internalFEDChannelNum) const
@@ -976,8 +976,10 @@ namespace sistrip {
   
   FEDAPVErrorHeader& FEDAPVErrorHeader::setAPVStatusBit(const uint8_t internalFEDChannelNum, const uint8_t apvNum, const bool apvGood)
   {
-    const uint8_t byteNumber = internalFEDChannelNum * 2 / 8;
-    const uint8_t bitInByte = internalFEDChannelNum * 2 % 8;
+    //3 bytes per FE unit, channel order is reversed in FE unit data, 2 bits per channel
+    const uint16_t bitNumber = (internalFEDChannelNum/FEDCH_PER_FED)*24 + (FEDCH_PER_FED-1-(internalFEDChannelNum%FEDCH_PER_FED))*2+apvNum;
+    const uint8_t byteNumber = bitNumber/8;
+    const uint8_t bitInByte = bitNumber%8;
     const uint8_t mask = (0x01 << bitInByte);
     header_[byteNumber] = ( (header_[byteNumber] & (~mask)) | (apvGood?mask:0x00) );
     return *this;
@@ -1057,10 +1059,26 @@ namespace sistrip {
     //         !apvAddressErrorFromBit(internalFEDChannelNum,1) );
     return (getChannelStatus(internalFEDChannelNum) == CHANNEL_STATUS_NO_PROBLEMS);
   }
-  
+
   FEDChannelStatus FEDFullDebugHeader::getChannelStatus(const uint8_t internalFEDChannelNum) const
   {
-    const uint8_t feUnitChanNum = internalFEDChannelNum / FEDCH_PER_FEUNIT;
+    const uint8_t* pFEWord = feWord(internalFEDChannelNum/FEDCH_PER_FEUNIT);
+    const uint8_t feUnitChanNum = internalFEDChannelNum % FEDCH_PER_FEUNIT;
+    const uint8_t startByteInFEWord = (FEDCH_PER_FEUNIT-1 - feUnitChanNum) * 6 / 8;
+    switch (feUnitChanNum % 4) {
+    case 0:
+      return FEDChannelStatus( pFEWord[startByteInFEWord] & 0x3F );
+    case 1:
+      return FEDChannelStatus( ((pFEWord[startByteInFEWord] & 0xC0) >> 6) | ((pFEWord[startByteInFEWord+1] & 0x0F) << 2) );
+    case 2:
+      return FEDChannelStatus( ((pFEWord[startByteInFEWord] & 0xF0) >> 4) | ((pFEWord[startByteInFEWord+1] & 0x03) << 4) );
+    case 3:
+      return FEDChannelStatus( (pFEWord[startByteInFEWord] & 0xFC) >> 2 );
+    //stop compiler warning
+    default:
+      return FEDChannelStatus(0);
+    }
+    /*const uint8_t feUnitChanNum = internalFEDChannelNum / FEDCH_PER_FEUNIT;
     const uint8_t* pFEWord = feWord(feUnitChanNum);
     const uint8_t startByteInFEWord = feUnitChanNum * 3 / 4;
     //const uint8_t shift = ( 6 - ((feUnitChanNum-1)%4) );
@@ -1079,7 +1097,7 @@ namespace sistrip {
     //stop compiler warning
     default:
       return FEDChannelStatus(0);
-    }
+    }*/
   }
   
   const uint8_t* FEDFullDebugHeader::data() const
@@ -1142,7 +1160,7 @@ namespace sistrip {
   
   void FEDFullDebugHeader::setBit(const uint8_t internalFEDChannelNum, const uint8_t bit, const bool value)
   {
-    const uint8_t bitInFeWord = (internalFEDChannelNum % FEDCH_PER_FEUNIT) * 6 + bit;
+    const uint8_t bitInFeWord = (FEDCH_PER_FEUNIT-1 - (internalFEDChannelNum%FEDCH_PER_FEUNIT)) * 6 + bit;
     uint8_t& byte = *(feWord(internalFEDChannelNum / FEDCH_PER_FEUNIT)+(bitInFeWord/8));
     const uint8_t mask = (0x1 << bitInFeWord%8);
     byte = ( (byte & (~mask)) | (value?mask:0x0) );
