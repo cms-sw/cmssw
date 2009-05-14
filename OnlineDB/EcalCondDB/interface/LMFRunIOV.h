@@ -26,6 +26,10 @@ class LMFRunIOV : public IIOV {
 
   inline void setSubRunNumber(subrun_t subrun){m_subRunNum=subrun;}
   inline run_t getSubRunNumber() const{return m_subRunNum;}
+
+  inline int getSequenceNumber() const{return m_subRunNum/1000000;}
+  inline int getLMRNumber() const{return (m_subRunNum-(m_subRunNum/1000000)*1000000)/100;}
+  inline int getLaserType() const{return (m_subRunNum%100);}
   inline void setSubRunStart(Tm start){m_subRunStart=start;}
   inline Tm getSubRunStart() const{return m_subRunStart;}
   inline void setSubRunEnd(Tm end){m_subRunEnd=end;}
