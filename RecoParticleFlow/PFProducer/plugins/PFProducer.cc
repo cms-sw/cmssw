@@ -121,20 +121,6 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
     = iConfig.getParameter<double>("pf_calib_HCAL_damping");
 
   //PFElectrons Configuration
-  double chi2EcalGSF
-    = iConfig.getParameter<double>("final_chi2cut_gsfecal");  
-  double chi2EcalBrem
-    = iConfig.getParameter<double>("final_chi2cut_bremecal");  
-  double chi2HcalGSF
-    = iConfig.getParameter<double>("final_chi2cut_gsfhcal");  
-  double chi2HcalBrem
-    = iConfig.getParameter<double>("final_chi2cut_bremhcal");  
-  double chi2PsGSF
-    = iConfig.getParameter<double>("final_chi2cut_gsfps");
-  double chi2PsBrem
-    = iConfig.getParameter<double>("final_chi2cut_bremps");
-  
-
   double mvaEleCut
     = iConfig.getParameter<double>("pf_electron_mvaCut");
 
@@ -192,13 +178,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 			  path_mvaWeightFile.fullPath().c_str() );
 
   //PFElectrons: call the method setpfeleparameters
-  pfAlgo_->setPFEleParameters(chi2EcalGSF,
-			      chi2EcalBrem,
-			      chi2HcalGSF,
-			      chi2HcalBrem,
-			      chi2PsGSF,
-			      chi2PsBrem,
-			      mvaEleCut,
+  pfAlgo_->setPFEleParameters(mvaEleCut,
 			      path_mvaWeightFileEleID,
 			      usePFElectrons_);
   

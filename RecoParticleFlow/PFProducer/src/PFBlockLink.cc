@@ -14,7 +14,7 @@ std::ostream& operator<<(std::ostream& out,
      <<" 0x"<<std::hex<<l.type_<<std::dec<<"\t";
 
   out<<setiosflags(ios::right);
-  out<<setw(10)<<l.chi2_
+  out<<setw(10)<<l.dist_
      <<" "<<l.element1_<<" "<<l.element2_;
   
   out<<resetiosflags(ios::right|ios::fixed);

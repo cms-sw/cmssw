@@ -89,7 +89,7 @@ PFAlgo::setParameters(double nSigmaECAL,
   mergedPhotonsMVA_ = new TMVA::Reader();
   TMVA::gConfig().SetSilent(kTRUE); // workaround for ROOT 5.18/00 bug
   mergedPhotonsMVA_->AddVariable("eECAL/pTrack", &eECALOverpTrack_);
-  mergedPhotonsMVA_->AddVariable("chi2ECAL", &chi2ECAL_);
+  mergedPhotonsMVA_->AddVariable("chi2ECAL", &distECAL_);
   mergedPhotonsMVA_->AddVariable("ptTrack", &ptTrack_);
   
   if( mvaCut < PFAlgo::maxMvaCut_ ) {
@@ -111,21 +111,9 @@ PFAlgo::setParameters(double nSigmaECAL,
 
 //PFElectrons: a new method added to set the parameters for electron reconstruction. 
 void 
-PFAlgo::setPFEleParameters(double chi2EcalGSF,
-			   double chi2EcalBrem,
-			   double chi2HcalGSF,
-			   double chi2HcalBrem,
-			   double chi2PsGSF,
-			   double chi2PsBrem,
-			   double mvaEleCut,
+PFAlgo::setPFEleParameters(double mvaEleCut,
 			   string mvaWeightFileEleID,
 			   bool usePFElectrons) {
-  setchi2Values_.push_back(chi2EcalGSF);
-  setchi2Values_.push_back(chi2EcalBrem);
-  setchi2Values_.push_back(chi2HcalGSF);
-  setchi2Values_.push_back(chi2HcalBrem);
-  setchi2Values_.push_back(chi2PsGSF);
-  setchi2Values_.push_back(chi2PsBrem);
   mvaEleCut_ = mvaEleCut;
   usePFElectrons_ = usePFElectrons;
   if(!usePFElectrons_) return;
@@ -140,7 +128,7 @@ PFAlgo::setPFEleParameters(double chi2EcalGSF,
     err += "'";
     throw invalid_argument( err );
   }
-  pfele_= new PFElectronAlgo(setchi2Values_,mvaEleCut_,mvaWeightFileEleID_);
+  pfele_= new PFElectronAlgo(mvaEleCut_,mvaWeightFileEleID_);
 }
 
 void 
@@ -442,7 +430,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     // look for associated elements of all types
     //COLINFEB16 
     // all types of links are considered. 
-    // the elements are sorted by increasing distance, not chi2
+    // the elements are sorted by increasing distance
     std::multimap<double, unsigned> ecalElems;
     block.associatedElements( iTrack,  linkData,
                               ecalElems ,
@@ -490,8 +478,6 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       PFBlockElement::Type type = elements[index].type();
       if(debug_) {
 	double  dist  = ie->first;
-	//double chi2 = block.chi2(iTrack, index, linkData,
-	//			 reco::PFBlock::LINKTEST_ALL);
         cout<<"\telement "<<elements[index]<<" linked with distance = "<< dist <<endl;
 	if ( ! active[index] ) cout << "This ECAL is already used - skip it" << endl;      
       }
@@ -723,14 +709,13 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     // BUG?? currently forgetting to unlink the distance link!!
     for(IE ie = hcalElems.begin(); ie != hcalElems.end(); ++ie ) {
       
-      // double   chi2  = ie->first;
       unsigned index = ie->second;
       
       PFBlockElement::Type type = elements[index].type();
 
       if(debug_) {
-	double chi2 = block.chi2(iTrack,index,linkData,reco::PFBlock::LINKTEST_ALL);
-        cout<<"\telement "<<elements[index]<<" linked with chi2 "<<chi2<<endl;
+	double dist = block.dist(iTrack,index,linkData,reco::PFBlock::LINKTEST_ALL);
+        cout<<"\telement "<<elements[index]<<" linked with distance "<< dist <<endl;
       }
 
       assert( type == PFBlockElement::HCAL );
@@ -750,21 +735,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
         // unlink from the track
         if(debug_) 
           cout<<"\t\tsecondary hcal cluster. unlinking"<<endl;
-        //block.setLink( iTrack, index,  -1, -1, linkData );
-        //Note ALex: a fonction should be implemented to
-        //force link to -1 for all possible tests
-        //For the moment (15/11/2007) only 2 possible
-        //tests: CHI2 and RECHIT.
-
-	//COLINFEB16 
-	// There is no LINKTEST_DISTANCE
-	// the true distance and the chi2 are computed for the 2 linktests,
-	// which are LINKTEST_CHI2 and LINKTEST_RECHIT.
-	// and those 2 values are the same, whatever the type of link...
-	// we should review the PFBlock dataformat.
-        block.setLink( iTrack, index,  -1, -1, linkData, 
-                       PFBlock::LINKTEST_CHI2 );
-        block.setLink( iTrack, index,  -1, -1, linkData,
+        block.setLink( iTrack, index, -1., linkData,
                        PFBlock::LINKTEST_RECHIT );
       }
     } //loop hcal elements   
@@ -1056,8 +1027,11 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    unsigned jTrack = sortedTracksEcal.begin()->second;
 	    if ( jTrack != iTrack ) continue; 
 
-	    double chi2Ecal = block.chi2(jTrack,iEcal,linkData,
+	    // double chi2Ecal = block.chi2(jTrack,iEcal,linkData,
+	    //                              reco::PFBlock::LINKTEST_ALL);
+	    double distEcal = block.dist(jTrack,iEcal,linkData,
 					 reco::PFBlock::LINKTEST_ALL);
+					 
 	    // totalEcal += eclusterref->energy();
 	    // float ecalEnergyUnCalibrated = eclusterref->energy();
 	    //std::cout << "Ecal Uncalibrated " << ecalEnergyUnCalibrated << std::endl;
@@ -1088,7 +1062,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	      // currentChargedHadron.addElementInBlock( blockref, iEcal );
        
 	      std::pair<double, unsigned> associatedEcal 
-		= make_pair( chi2Ecal, iEcal );
+		= make_pair( distEcal, iEcal );
 	      associatedEcals.insert( make_pair(iTrack, associatedEcal) );
 	      std::pair<unsigned,double> satellite = make_pair(iEcal,ecalEnergyCalibrated);
 	      ecalSatellites.insert( make_pair(-1., satellite) );
@@ -1505,7 +1479,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
           
         if( iae == associatedEcals.end() ) continue;
           
-        double chi2ECAL = iae->second.first;
+        double distECAL = iae->second.first;
         unsigned iEcal = iae->second.second;
           
         PFBlockElement::Type typeEcal = elements[iEcal].type();
@@ -1514,7 +1488,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
         reco::PFClusterRef clusterRef = elements[iEcal].clusterRef();
         assert( !clusterRef.isNull() );
           
-        chi2ECAL_ = static_cast<float>( chi2ECAL );
+        distECAL_ = static_cast<float>( distECAL );
         ptTrack_ = static_cast<float>( trackRef->pt() );
           
         float pTrack = static_cast<float>( trackRef->p() );
@@ -1537,7 +1511,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
           cout<<"\t\t\tmva evaluation : "<<endl;
           cout<<"\t\t\t\teECALOverpTrack = "<<eECALOverpTrack_<<endl;
           cout<<"\t\t\t\tptTrack         = "<<ptTrack_<<endl;
-          cout<<"\t\t\t\tchi2ECAL        = "<<chi2ECAL_<<endl;
+          cout<<"\t\t\t\tdistECAL        = "<<distECAL_<<endl;
           cout<<"\t\t\t ==>        mva = "<<value<<endl;
             
         }
@@ -1799,22 +1773,11 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       
       unsigned iEcal = ie->second;
       double dist = ie->first;
-      double chi2 = block.chi2(iHcal,iEcal,linkData,reco::PFBlock::LINKTEST_ALL);
       PFBlockElement::Type type = elements[iEcal].type();
       assert( type == PFBlockElement::ECAL );
       
       // Check if already used
       if( !active[iEcal] ) continue;
-
-      // std::cout << "chi2, dist : " << chi2 << ", " << dist << std::endl;
-      // Check the chi2
-      //COLINFEB16 
-      // these are parameters and should not be hardcoded. 
-      // PJ FEB17 : 
-      // 1. Link by chi**2 are on the verge of disappearing
-      // 2. The cut on the chi2 is anyway set to 0 in the particleFlow.opt.
-      // But I agree that no parameter must be hardcoded
-      if ( chi2 > 50. ) continue;
 
       // Check the distance (one HCALPlusECAL tower, roughly)
       if ( dist > 0.15 ) continue;
@@ -1860,7 +1823,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 
       if(debug_) {
-        cout<<"\telement "<<elements[iEcal]<<" linked with chi2/dist "<<chi2<<" / " << dist<<endl;
+        cout<<"\telement "<<elements[iEcal]<<" linked with dist "<< dist<<endl;
 	cout<<"Added to HCAL cluster to form a neutral hadron"<<endl;
       }
       

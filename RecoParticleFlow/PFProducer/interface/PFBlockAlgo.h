@@ -57,20 +57,8 @@ class PFBlockAlgo {
   ~PFBlockAlgo();
   
 
-  void setParameters( const char* resMapEtaECAL,
-		      const char* resMapPhiECAL,
-		      const char* resMapEtaHCAL,
-		      const char* resMapPhiHCAL,
-		      std::vector<double>& DPtovPtCut, 
-		      std::vector<unsigned>& NHitCut, 
-		      double chi2TrackECAL,
-		      double chi2GSFECAL,
-		      double chi2TrackHCAL,
-		      double chi2ECALHCAL,
-		      double chi2PSECAL,
-		      double chi2PSTrack,
-		      double chi2PSHV, 
-		      bool   multiLink );
+  void setParameters( std::vector<double>& DPtovPtCut, 
+		      std::vector<unsigned>& NHitCut );
   
   typedef std::vector<bool> Mask;
 
@@ -182,82 +170,45 @@ class PFBlockAlgo {
   /// Showing the connections between the elements
   void buildGraph(); 
 
-  /// check whether 2 elements are linked. Returns chi2 and linktype
+  /// check whether 2 elements are linked. Returns distance and linktype
   void link( const reco::PFBlockElement* el1, 
 	     const reco::PFBlockElement* el2, 
 	     PFBlockLink::Type& linktype, 
 	     reco::PFBlock::LinkTest& linktest,
-	     double& chi2, double& dist) const;
+	     double& dist) const;
 		 
   /// tests association between a track and a PS cluster
-  /// returns chi2
-  std::pair<double,double> 
-    testTrackAndPS(const reco::PFRecTrack& track,
-		   const reco::PFCluster& ps) const;
+  /// returns distance
+  double testTrackAndPS(const reco::PFRecTrack& track,
+			const reco::PFCluster& ps) const;
   
-  /// tests association between a track and an ECAL cluster
-  /// \returns chi2
-  /// 
-  /// this function is non const because it uses PFResolutionMap,
-  /// which reimplements TH1::FindBin, which is non const. 
-  std::pair<double,double> 
-    testTrackAndECAL(const reco::PFRecTrack& track, 
-		     const reco::PFCluster& ecal, 
-		     double SignBremDp = 10.) const;
-
-  /// tests association between a track and an HCAL cluster
-  /// \returns chi2
-  /// 
-  /// this function is non const because it uses PFResolutionMap,
-  /// which reimplements TH1::FindBin, which is non const. 
-  std::pair<double,double> 
-    testTrackAndHCAL(const reco::PFRecTrack& track, 
-		     const reco::PFCluster& hcal) const;
-
   /// tests association between an ECAL and an HCAL cluster
-  /// \returns chi2
-  /// 
-  /// this function is non const because it uses PFResolutionMap,
-  /// which reimplements TH1::FindBin, which is non const. 
-  std::pair<double,double> 
-    testECALAndHCAL(const reco::PFCluster& ecal, 
-		    const reco::PFCluster& hcal) const;
-  /// tests association between an PS and an ECAL cluster
-  /// returns chi2
-  std::pair<double,double> 
-    testPSAndECAL(const reco::PFCluster& ps, 
-		  const reco::PFCluster& ecal) const;
+  /// \returns distance
+  double testECALAndHCAL(const reco::PFCluster& ecal, 
+			 const reco::PFCluster& hcal) const;
 			 
  /// tests association between a PS1 v cluster and a PS2 h cluster
- /// returns chi2
-  std::pair<double,double> 
-    testPS1AndPS2(const reco::PFCluster& ps1,
-		  const reco::PFCluster& ps2) const;
+ /// returns distance
+ double testPS1AndPS2(const reco::PFCluster& ps1,
+		      const reco::PFCluster& ps2) const;
 
   //tests association between a track and a cluster by rechit
-  //see definition if link by rechit in PFBlockAlgo.cc
-  std::pair<double,double> 
-    testTrackAndClusterByRecHit( const reco::PFRecTrack& track, 
-				 const reco::PFCluster& cluster,
-				 bool isBrem = false) const;  
+ double testTrackAndClusterByRecHit( const reco::PFRecTrack& track, 
+				     const reco::PFCluster& cluster,
+				     bool isBrem = false) const;  
 
   //tests association between ECAL and PS clusters by rechit
-  //see definition if link by rechit in PFBlockAlgo.cc
-  std::pair<double,double> 
-    testECALAndPSByRecHit( const reco::PFCluster& clusterECAL, 
-			   const reco::PFCluster& clusterPS)  const;
+ double testECALAndPSByRecHit( const reco::PFCluster& clusterECAL, 
+			       const reco::PFCluster& clusterPS)  const;
 
   /// test association between HFEM and HFHAD, by rechit
-  std::pair<double,double> 
-    testHFEMAndHFHADByRecHit( const reco::PFCluster& clusterHFEM, 
-			      const reco::PFCluster& clusterHFHAD)  const;
+  double testHFEMAndHFHADByRecHit( const reco::PFCluster& clusterHFEM, 
+				   const reco::PFCluster& clusterHFHAD)  const;
   
 
   /// computes a chisquare
-  std::pair<double,double> computeChi2( double eta1, double reta1, 
-					double phi1, double rphi1, 
-					double eta2, double reta2, 
-					double phi2, double rphi2 ) const;
+  double computeDist( double eta1, double phi1, 
+					double eta2, double phi2 ) const;
 
   /// checks size of the masks with respect to the vectors
   /// they refer to. throws std::length_error if one of the
@@ -305,9 +256,8 @@ class PFBlockAlgo {
   // fill secondary tracks of a nuclear interaction
   void fillSecondaries( const reco::PFNuclearInteractionRef& nuclref );
 
-  std::pair<double,double> 
-    testLinkByVertex(const reco::PFBlockElement* elt1,
-		     const reco::PFBlockElement* elt2) const;
+  double testLinkByVertex(const reco::PFBlockElement* elt1,
+			  const reco::PFBlockElement* elt2) const;
 
   std::auto_ptr< reco::PFBlockCollection >    blocks_;
   
@@ -319,44 +269,11 @@ class PFBlockAlgo {
 
   static const Mask                      dummyMask_;
 
-  /// resolution map Eta ECAL 
-  PFResolutionMap* resMapEtaECAL_;
-
-  /// resolution map Phi ECAL 
-  PFResolutionMap* resMapPhiECAL_;
-
-  /// resolution map Eta HCAL 
-  PFResolutionMap* resMapEtaHCAL_;
-
-  /// resolution map Phi HCAL 
-  PFResolutionMap* resMapPhiHCAL_;
-  
   /// DPt/Pt cut for creating atrack element
   std::vector<double> DPtovPtCut_;
   
   /// Number of layers crossed cut for creating atrack element
   std::vector<unsigned> NHitCut_;
-  
-  /// max chi2 for track/ECAL association
-  double chi2TrackECAL_;
-
-  /// max chi2 for GSF/ECAL association
-  double chi2GSFECAL_;
-  
-  /// max chi2 for track/HCAL association
-  double chi2TrackHCAL_;
-
-  /// max chi2 for ECAL/HCAL association
-  double chi2ECALHCAL_;
-    
-  /// max chi2 for PS/ECAL association
-  double chi2PSECAL_; 
-  
-  /// max chi2 for PS/Track association
-  double chi2PSTrack_; 
-  
-  /// max chi2 for PSH/PSV association
-  double chi2PSHV_; 
   
   /// PS strip resolution
   double resPSpitch_;
@@ -364,10 +281,6 @@ class PFBlockAlgo {
   /// PS resolution along strip
   double resPSlength_;
  
-  /// if true, using special algorithm to process
-  /// multiple track associations to the same hcal cluster
-  bool   multipleLink_;
-
   /// if true, debug printouts activated
   bool   debug_;
   

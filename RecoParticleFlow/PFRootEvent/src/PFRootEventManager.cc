@@ -533,61 +533,14 @@ void PFRootEventManager::readOptions(const char* file,
   doParticleFlow_ = true;
   options_->GetOpt("particle_flow", "on/off", doParticleFlow_);  
 
-  string map_ECAL_eta;
-  options_->GetOpt("particle_flow", "resolution_map_ECAL_eta", map_ECAL_eta);
-  string map_ECAL_phi;
-  options_->GetOpt("particle_flow", "resolution_map_ECAL_phi", map_ECAL_phi);
-  string map_ECALec_x;
-  options_->GetOpt("particle_flow", "resolution_map_ECALec_x", map_ECALec_x);
-  string map_ECALec_y;
-  options_->GetOpt("particle_flow", "resolution_map_ECALec_y", map_ECALec_y);
-  string map_HCAL_eta;
-  options_->GetOpt("particle_flow", "resolution_map_HCAL_eta", map_HCAL_eta);
-  string map_HCAL_phi;
-  options_->GetOpt("particle_flow", "resolution_map_HCAL_phi", map_HCAL_phi);
-
-  //getting resolution maps
-  map_ECAL_eta = expand(map_ECAL_eta);
-  map_ECAL_phi = expand(map_ECAL_phi);
-  map_HCAL_eta = expand(map_HCAL_eta);
-  map_HCAL_phi = expand(map_HCAL_phi);
-
   std::vector<double> DPtovPtCut;
   std::vector<unsigned> NHitCut;
   options_->GetOpt("particle_flow", "DPtoverPt_Cut", DPtovPtCut);
   options_->GetOpt("particle_flow", "NHit_Cut", NHitCut);
-  double chi2TrackECAL=100;
-  options_->GetOpt("particle_flow", "chi2_ECAL_Track", chi2TrackECAL);
-  double chi2GSFECAL=900;
-  options_->GetOpt("particle_flow", "chi2_ECAL_GSF", chi2GSFECAL);
-  double chi2TrackHCAL=100;
-  options_->GetOpt("particle_flow", "chi2_HCAL_Track", chi2TrackHCAL);
-  double chi2ECALHCAL=100;
-  options_->GetOpt("particle_flow", "chi2_ECAL_HCAL", chi2ECALHCAL);
-  double chi2PSECAL=100;
-  options_->GetOpt("particle_flow", "chi2_PS_ECAL", chi2PSECAL);
-  double chi2PSTrack=100;
-  options_->GetOpt("particle_flow", "chi2_PS_Track", chi2PSTrack);
-  double chi2PSHV=100;
-  options_->GetOpt("particle_flow", "chi2_PSH_PSV", chi2PSHV);
-  bool   multiLink = false;
-  options_->GetOpt("particle_flow", "multilink", multiLink);
 
   try {
-    pfBlockAlgo_.setParameters( map_ECAL_eta.c_str(),
-                                map_ECAL_phi.c_str(),
-                                map_HCAL_eta.c_str(),
-                                map_HCAL_phi.c_str(),
-                                DPtovPtCut, 
-				NHitCut,
-                                chi2TrackECAL,
-				chi2GSFECAL,
-                                chi2TrackHCAL,
-                                chi2ECALHCAL,
-                                chi2PSECAL, 
-                                chi2PSTrack,
-                                chi2PSHV,
-                                multiLink ); 
+    pfBlockAlgo_.setParameters( DPtovPtCut, 
+				NHitCut); 
   }  
   catch( std::exception& err ) {
     cerr<<"exception setting PFBlockAlgo parameters: "
@@ -765,24 +718,6 @@ void PFRootEventManager::readOptions(const char* file,
 
   if( usePFElectrons ) { 
     // PFElectrons options -----------------------------
-    double chi2EcalGSF = 900;
-    options_->GetOpt("particle_flow", "final_chi2cut_gsfecal", chi2EcalGSF);
-
-    double chi2EcalBrem = 25;
-    options_->GetOpt("particle_flow", "final_chi2cut_bremecal", chi2EcalBrem);
-
-    double chi2HcalGSF = 100;
-    options_->GetOpt("particle_flow", "final_chi2cut_gsfhcal", chi2HcalGSF);
-
-    double chi2HcalBrem = 25;
-    options_->GetOpt("particle_flow", "final_chi2cut_bremhcal", chi2HcalBrem);
-
-    double chi2PsGSF = 100;
-    options_->GetOpt("particle_flow", "final_chi2cut_gsfps", chi2PsGSF);
-
-    double chi2PsBrem = 25;
-    options_->GetOpt("particle_flow", "final_chi2cut_bremps", chi2PsBrem);
-
     double mvaEleCut = -1.;  // if = -1. get all the pre-id electrons
     options_->GetOpt("particle_flow", "electron_mvaCut", mvaEleCut);
 
@@ -792,13 +727,7 @@ void PFRootEventManager::readOptions(const char* file,
     mvaWeightFileEleID = expand(mvaWeightFileEleID);
     
     try { 
-      pfAlgo_.setPFEleParameters(chi2EcalGSF,
-				 chi2EcalBrem,
-				 chi2HcalGSF,
-				 chi2HcalBrem,
-				 chi2PsGSF,
-				 chi2PsBrem,
-				 mvaEleCut,
+      pfAlgo_.setPFEleParameters(mvaEleCut,
 				 mvaWeightFileEleID,
 				 usePFElectrons);
     }

@@ -23,8 +23,9 @@ void PFBlock::bookLinkData() {
 
 
 
-void PFBlock::setLink(unsigned i1, unsigned i2, 
-		      double Chi2, double Dist,
+void PFBlock::setLink(unsigned i1, 
+		      unsigned i2, 
+		      double Dist,
                       LinkData& linkData, 
 		      LinkTest test) const {
   
@@ -35,10 +36,9 @@ void PFBlock::setLink(unsigned i1, unsigned i2,
 
   if(ok) {
     //ignore the  -1, -1 pair
-    if ( Chi2 > -0.5 || Dist > -0.5 ) {
+    if ( Dist > -0.5 ) {
         Link & l = linkData[index];
         l.distance=Dist;
-        l.chi2=Chi2;
         l.test |= (1 << test);
     }     else  //delete if existing
     {
@@ -76,10 +76,7 @@ void PFBlock::associatedElements( unsigned i,
                                   const LinkData& linkData, 
                                   multimap<double, unsigned>& sortedAssociates,
                                   PFBlockElement::Type type,
-				  LinkTest test ) 
-  const {
-  
-
+				  LinkTest test ) const {
 
   sortedAssociates.clear();
   
@@ -99,27 +96,28 @@ void PFBlock::associatedElements( unsigned i,
       continue;
     }
 
-    // double c2 = chi2(i, ie,  linkData );
-    // PJ the real distance is better to decide what cluster is closest 
-    // pJ -> Order the elements by increasing distance !
+    // Order the elements by increasing distance !
 
     unsigned index = 0;
     if( !matrix2vector(i, ie, index) ) continue;
 
     double c2=-1;
     LinkData::const_iterator it =  linkData.find(index);
-    if(it!=linkData.end() && ( ( (1 << test ) & it->second.test) !=0 || (test == LINKTEST_ALL) ) ) c2= it->second.distance;
+    if ( it!=linkData.end() && 
+	 ( ( (1 << test ) & it->second.test) !=0 || (test == LINKTEST_ALL) ) ) 
+      c2= it->second.distance;
 
     // not associated
     if( c2 < 0 ) { 
       continue;
     }
-//    std::cout << "ardebug " << c2 << " " <<  ie << " " <<  i << " " << type << std::endl;
+
     sortedAssociates.insert( pair<double,unsigned>(c2, ie) );
   }
 } 
 
-bool PFBlock::matrix2vector( unsigned iindex, unsigned jindex, 
+bool PFBlock::matrix2vector( unsigned iindex, 
+			     unsigned jindex, 
                              unsigned& index ) const {
 
   unsigned size = elements_.size();
@@ -145,20 +143,6 @@ bool PFBlock::matrix2vector( unsigned iindex, unsigned jindex,
 }
 
 
-double PFBlock::chi2( unsigned ie1, unsigned ie2,
-                      const LinkData& linkData) const {
-  
-  double Chi2 = -1;
-
-  unsigned index = 0;
-  if( !matrix2vector(ie1, ie2, index) ) return Chi2;
-  LinkData::const_iterator it =  linkData.find(index);
-  if(it!=linkData.end() ) Chi2= it->second.chi2;
-
-  return Chi2;
-
-}
-
 double PFBlock::dist( unsigned ie1, unsigned ie2,
                       const LinkData& linkData) const {
 
@@ -167,7 +151,7 @@ double PFBlock::dist( unsigned ie1, unsigned ie2,
   unsigned index = 0;
   if( !matrix2vector(ie1, ie2, index) ) return Dist;
   LinkData::const_iterator it =  linkData.find(index);
-  if(it!=linkData.end() ) Dist= it->second.distance;
+  if( it!=linkData.end() ) Dist= it->second.distance;
 
   return Dist;
 
@@ -281,45 +265,8 @@ ostream& reco::operator<<(  ostream& out,
   }
   
   out<<endl;
+
   int width = 6;
-  if( !block.linkData().empty() ) {
-    out<<"\tlink data (chi squared): "<<endl;
-    out<<setiosflags(ios::right);
-    out<<"\t" << setw(width) << " ";
-    for(unsigned ie=0; ie<elid.size(); ie++) 
-      if ( toPrint[ie] ) out <<setw(width)<< elid[ie];
-    out<<endl;  
-    out<<setiosflags(ios::fixed);
-    out<<setprecision(1);      
-  
-    for(unsigned i=0; i<block.elements_.size(); i++) {
-      if ( !toPrint[i] ) continue;
-      out<<"\t";
-      out <<setw(width) << elid[i];
-      for(unsigned j=0; j<block.elements_.size(); j++) {
-	if ( !toPrint[j] ) continue;
-        double chi2 = block.chi2(i,j, block.linkData() );
-
-	//Note Alex: we might want to print out all the
-	//linkdata matrix obtained from chi2, rechit, tangent tests?
-	
-	//if not linked, try to see if linked by rechit
-	if( chi2<0 ) chi2 = block.chi2(i,j, block.linkData());
-//				       PFBlock::LINKTEST_RECHIT );
-
-	if (chi2 > -0.5) out<<setw(width)<< chi2; 
-        else  out <<setw(width)<< " ";
-      }
-      out<<endl;
-    }
-    out<<setprecision(3);  
-    out<<resetiosflags(ios::right|ios::fixed);
-  }
-  else {
-    out<<"\tno links."<<endl;
-  }
-      
-  width = 6;
   if( !block.linkData().empty() ) {
     out<<endl<<"\tlink data (distance x 1000): "<<endl;
     out<<setiosflags(ios::right);

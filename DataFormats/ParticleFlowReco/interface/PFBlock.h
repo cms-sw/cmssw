@@ -33,10 +33,9 @@ namespace reco {
   public:
 
     struct Link {
-      Link()   : distance(-1), chi2(-1), test(0) {}
-      Link(float d,float c, char t) : distance(d), chi2(c), test(t) {}
+      Link()   : distance(-1), test(0) {}
+      Link(float d, char t) : distance(d), test(t) {}
       float distance;
-      float chi2;
       char test;
     };
 
@@ -47,9 +46,7 @@ namespace reco {
     typedef std::map< unsigned int,  Link >  LinkData;
     
     enum LinkTest {
-      LINKTEST_CHI2=0,
       LINKTEST_RECHIT,
-      LINKTEST_TANGENT,
       LINKTEST_NLINKTEST,
       LINKTEST_ALL
     };
@@ -67,13 +64,14 @@ namespace reco {
     /// the 1D vector which is the most compact way to store the matrix
     bool matrix2vector(unsigned i, unsigned j, unsigned& index) const;
 
-    /// set a link between elements of indices i1 and i2, of "distance" chi2
+    /// set a link between elements of indices i1 and i2, of "distance" dist
     /// the link is set in the linkData vector provided as an argument.
     /// As indicated by the 'const' statement, 'this' is not modified.
-    void setLink(unsigned i1, unsigned i2, 
-		 double chi2, double dist, 
+    void setLink(unsigned i1, 
+		 unsigned i2, 
+		 double dist, 
                  LinkData& linkData, 
-		 LinkTest  test=LINKTEST_CHI2 ) const;
+		 LinkTest  test=LINKTEST_RECHIT ) const;
 
     /// lock an element ( unlink it from the others )
     /// Colin: this function is misleading
@@ -81,44 +79,44 @@ namespace reco {
 
 
     /// fills a map with the elements associated to element i.
-    /// elements are sorted by increasing chi2.
+    /// elements are sorted by increasing distance.
     /// if specified, only the elements of type "type" will be considered
     /// if specified, only the link calculated from a certain "test" will 
-    /// be considered: chi2 test, rechit test, tangent test etc..
+    /// be considered: distance test, etc..
     void associatedElements( unsigned i,
                              const LinkData& linkData, 
                              std::multimap<double, unsigned>& sortedAssociates,
                              reco::PFBlockElement::Type type = PFBlockElement::NONE,
-			     LinkTest test=LINKTEST_CHI2 ) const; 
+			     LinkTest test=LINKTEST_RECHIT ) const; 
       
 
-    /// \return chi2 of link
-    double chi2( unsigned ie1, unsigned ie2, 
-        const LinkData& linkData, LinkTest  test ) const {return chi2(ie1,ie2,linkData);}
+    /// \return distance of link
+    double dist(unsigned ie1, 
+		unsigned ie2, 
+		const LinkData& linkData, 
+		LinkTest  test ) const {
+      return dist(ie1,ie2,linkData);
+    }
 
     /// \return distance of link
-    double dist( unsigned ie1, unsigned ie2, 
-        const LinkData& linkData, LinkTest  test ) const {return dist(ie1,ie2,linkData);}
-
-    /// \return chi2 of link
-    double chi2( unsigned ie1, unsigned ie2, 
-                 const LinkData& linkData) const;
-
-    /// \return distance of link
-    double dist( unsigned ie1, unsigned ie2, 
+    double dist( unsigned ie1, 
+		 unsigned ie2, 
                  const LinkData& linkData) const;
 
     /// \return elements
-    const edm::OwnVector< reco::PFBlockElement >& elements() const 
-      {return elements_;}
+    const edm::OwnVector< reco::PFBlockElement >& elements() const {
+      return elements_;
+    }
 
     /// \return link data
-    const LinkData& linkData() const 
-      {return linkData_;}
+    const LinkData& linkData() const {
+      return linkData_;
+    }
 
     /// \return link data
-    LinkData& linkData()  
-      {return linkData_;}
+    LinkData& linkData() {
+      return linkData_;
+    }
 
     friend std::ostream& operator<<( std::ostream& out, const PFBlock& co );
 

@@ -41,8 +41,7 @@ class PFBlockLink {
   /// \todo not sure it's useful
   PFBlockLink() : 
     type_(NONE), 
-    test_(reco::PFBlock::LINKTEST_CHI2),
-    chi2_(0), 
+    test_(reco::PFBlock::LINKTEST_RECHIT),
     dist_(0),
     element1_( 0 ), 
     element2_( 0 ) {}  
@@ -50,11 +49,15 @@ class PFBlockLink {
   /// standard constructor
   PFBlockLink(Type type, 
 	      reco::PFBlock::LinkTest test,
-	      double chi2, double dist,
-	      unsigned elem1, unsigned elem2) 
+	      double dist,
+	      unsigned elem1, 
+	      unsigned elem2) 
     :  
-    type_(type), test_(test), chi2_(chi2), dist_(dist),
-    element1_(elem1), element2_(elem2) {}
+    type_(type), 
+    test_(test), 
+    dist_(dist),
+    element1_(elem1), 
+    element2_(elem2) {}
   
   
   /// \return index to neighbouring element
@@ -68,12 +71,9 @@ class PFBlockLink {
   Type type() const {return type_;}  
 
   /// \return the test: test used to compute the 
-  /// value of the chi2 (CHI2, RECHIT, TANGENT etc..)
+  /// value of the distance
   reco::PFBlock::LinkTest test() const {return test_;}  
   
-  /// \return the chi2
-  double chi2() const {return chi2_;}  
-
   /// \return the distance
   double dist() const {return dist_;}
   
@@ -93,9 +93,6 @@ class PFBlockLink {
   
   /// type of test
   reco::PFBlock::LinkTest test_;
-
-  /// chi2 of the link
-  double  chi2_;
 
   /// distance of the link
   double dist_;

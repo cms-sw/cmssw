@@ -89,87 +89,16 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   
   // particle flow parameters  -----------------------------------
 
-  string map_ECAL_eta 
-    = iConfig.getParameter<string>("pf_resolution_map_ECAL_eta");  
-  string map_ECAL_phi 
-    = iConfig.getParameter<string>("pf_resolution_map_ECAL_phi");  
-  //   will be necessary when preshower is used:
-  //   string map_ECALec_x 
-  //     = iConfig.getParameter<string>("pf_resolution_map_ECALec_x");  
-  //   string map_ECALec_y 
-  //     = iConfig.getParameter<string>("pf_resolution_map_ECALec_y");  
-  string map_HCAL_eta 
-    = iConfig.getParameter<string>("pf_resolution_map_HCAL_eta");  
-  string map_HCAL_phi 
-    = iConfig.getParameter<string>("pf_resolution_map_HCAL_phi"); 
-	
   std::vector<double> DPtovPtCut 
      = iConfig.getParameter<std::vector<double> >("pf_DPtoverPt_Cut");   
 
   std::vector<unsigned> NHitCut 
      = iConfig.getParameter<std::vector<unsigned> >("pf_NHit_Cut");   
 
-  double chi2_ECAL_PS 
-     = iConfig.getParameter<double>("pf_chi2_ECAL_PS");  
-//   double chi2_HCAL_PS 
-//     = iConfig.getParameter<double>("pf_chi2_HCAL_PS");  
-
-  double chi2_ECAL_Track 
-    = iConfig.getParameter<double>("pf_chi2_ECAL_Track");  
-  double chi2_ECAL_GSF 
-    = iConfig.getParameter<double>("pf_chi2_ECAL_GSF");  
-  double chi2_HCAL_Track 
-    = iConfig.getParameter<double>("pf_chi2_HCAL_Track");  
-  double chi2_ECAL_HCAL 
-    = iConfig.getParameter<double>("pf_chi2_ECAL_HCAL");  
-  double chi2_PS_Track 
-    = iConfig.getParameter<double>("pf_chi2_PS_Track");  
-  double chi2_PSH_PSV 
-    = iConfig.getParameter<double>("pf_chi2_PSH_PSV");  
-  
-  bool multiLink = 
-    iConfig.getParameter<bool>("pf_multilink");
-  
-  //energyCalibration_ = new PFEnergyCalibration(iConfig);
-
-  
-  //   PFBlock::setEnergyResolution(energyResolution_);
-
-  edm::FileInPath path_ECAL_eta( map_ECAL_eta.c_str() );
-  edm::FileInPath path_ECAL_phi( map_ECAL_phi.c_str() );
-  edm::FileInPath path_HCAL_eta( map_HCAL_eta.c_str() );
-  edm::FileInPath path_HCAL_phi( map_HCAL_phi.c_str() );
-   
-  pfBlockAlgo_.setParameters( path_ECAL_eta.fullPath().c_str(),
-			      path_ECAL_phi.fullPath().c_str(),
-			      path_HCAL_eta.fullPath().c_str(),
-			      path_HCAL_phi.fullPath().c_str(),
-			      DPtovPtCut,
-			      NHitCut,
-			      chi2_ECAL_Track,
-			      chi2_ECAL_GSF,
-			      chi2_HCAL_Track,
-			      chi2_ECAL_HCAL,
-			      chi2_ECAL_PS,
-			      chi2_PS_Track,
-			      chi2_PSH_PSV,
-			      multiLink );
+  pfBlockAlgo_.setParameters( DPtovPtCut,
+			      NHitCut );
   
   pfBlockAlgo_.setDebug(debug_);
-
-//   energyCalibration_ = new PFEnergyCalibration();
-//   double calibParamECAL_slope_ 
-//     = iConfig.getParameter<double>("pf_ECAL_calib_p1");
-//   double calibParamECAL_offset_ 
-//     = iConfig.getParameter<double>("pf_ECAL_calib_p0");
-  
-//   energyCalibration_->setCalibrationParametersEm(calibParamECAL_slope_, calibParamECAL_offset_); 
-  
-//   //   PFBlock::setEnergyCalibration(energyCalibration_);
-//   //energyResolution_ = new PFEnergyResolution(iConfig);
-
-//   energyResolution_ = new PFEnergyResolution();
-
 
 }
 

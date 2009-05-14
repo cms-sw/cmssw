@@ -19,10 +19,8 @@
 
 using namespace std;
 using namespace reco;
-PFElectronAlgo::PFElectronAlgo(const std::vector<double> chi2values,
-			       const double mvaEleCut,
+PFElectronAlgo::PFElectronAlgo(const double mvaEleCut,
 			       string mvaWeightFileEleID):
-  chi2values_(chi2values),
   mvaEleCut_(mvaEleCut)
 {
   // Set the tmva reader

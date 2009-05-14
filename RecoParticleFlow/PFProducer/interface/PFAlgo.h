@@ -69,13 +69,7 @@ class PFAlgo {
 				  double nSigmaTRACK,
 				  double ptError,
 				  std::vector<double> factors45);   
-  void setPFEleParameters(double chi2EcalGSF,
-			  double chi2EcalBrem,
-			  double chi2HcalGSF,
-			  double chi2HcalBrem,
-			  double chi2PsGSF,
-			  double chi2PsBrem, 
-			  double mvaEleCut,
+  void setPFEleParameters(double mvaEleCut,
 			  std::string mvaWeightFileEleID,
 			  bool usePFElectrons);
 
@@ -196,7 +190,7 @@ class PFAlgo {
   TMVA::Reader      *mergedPhotonsMVA_;
   
   float              eECALOverpTrack_;
-  float              chi2ECAL_;
+  float              distECAL_;
   float              ptTrack_;
   float              mvaCut_;
 

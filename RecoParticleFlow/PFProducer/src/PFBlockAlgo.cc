@@ -19,69 +19,24 @@ const PFBlockAlgo::Mask PFBlockAlgo::dummyMask_;
 
 PFBlockAlgo::PFBlockAlgo() : 
   blocks_( new reco::PFBlockCollection ),
-  //   tracks_(tracks),
-  //   clustersECAL_(clustersECAL),
-  //   clustersHCAL_(clustersHCAL),
-  resMapEtaECAL_(0),
-  resMapPhiECAL_(0),
-  resMapEtaHCAL_(0),
-  resMapPhiHCAL_(0), 
   DPtovPtCut_(std::vector<double>(4,static_cast<double>(999.))),
-  NHitCut_(std::vector<unsigned int>(4,static_cast<unsigned>(0))),
-  chi2TrackECAL_(-1),
-  chi2GSFECAL_(-1),
-  chi2TrackHCAL_(-1), 
-  chi2ECALHCAL_ (-1),
-  chi2PSECAL_ (-1), 
-  chi2PSTrack_ (-1), 
-  chi2PSHV_ (-1), 
+  NHitCut_(std::vector<unsigned int>(4,static_cast<unsigned>(0))), 
   resPSpitch_ (0),
   resPSlength_ (0),
   debug_(false) {}
 
 
 
-void PFBlockAlgo::setParameters( const char* resMapEtaECAL,
-				 const char* resMapPhiECAL,
-				 const char* resMapEtaHCAL,
-				 const char* resMapPhiHCAL, 
-				 std::vector<double>& DPtovPtCut,
-				 std::vector<unsigned int>& NHitCut,
-				 double chi2TrackECAL,
-				 double chi2GSFECAL,
-				 double chi2TrackHCAL,
-				 double chi2ECALHCAL,
-				 double chi2PSECAL,
-				 double chi2PSTrack,
-				 double chi2PSHV,
-				 bool   multiLink ) {
+void PFBlockAlgo::setParameters( std::vector<double>& DPtovPtCut,
+				 std::vector<unsigned int>& NHitCut ) {
   
-  try {
-    resMapEtaECAL_ = new PFResolutionMap("resmapEtaECAL",resMapEtaECAL);
-    resMapPhiECAL_ = new PFResolutionMap("resmapPhiECAL",resMapPhiECAL);
-    resMapEtaHCAL_ = new PFResolutionMap("resmapEtaHCAL",resMapEtaHCAL);
-    resMapPhiHCAL_ = new PFResolutionMap("resmapPhiHCAL",resMapPhiHCAL);
-  }
-  catch(std::exception& err ) {
-    // cout<<err.what()<<endl;
-    throw;
-  }
-
   DPtovPtCut_    = DPtovPtCut;
   NHitCut_       = NHitCut;
-  chi2TrackECAL_ = chi2TrackECAL;
-  chi2GSFECAL_   = chi2GSFECAL;
-  chi2TrackHCAL_ = chi2TrackHCAL; 
-  chi2ECALHCAL_  = chi2ECALHCAL;
-  chi2PSECAL_    = chi2PSECAL;
-  chi2PSTrack_   = chi2PSTrack;
-  chi2PSHV_      = chi2PSHV;
   double strip_pitch = 0.19;
   double strip_length = 6.1;
   resPSpitch_    = strip_pitch/sqrt(12.);
   resPSlength_   = strip_length/sqrt(12.);
 
-  multipleLink_  = multiLink;
 }
 
 PFBlockAlgo::~PFBlockAlgo() {
@@ -92,14 +47,6 @@ PFBlockAlgo::~PFBlockAlgo() {
 	<<elements_.size()<<endl;
 #endif
   
-  if(resMapEtaECAL_) delete resMapEtaECAL_;
-  
-  if(resMapPhiECAL_) delete resMapPhiECAL_;
-  
-  if(resMapEtaHCAL_) delete resMapEtaHCAL_;
-
-  if(resMapPhiHCAL_) delete resMapPhiHCAL_;
-
 }
 
 void 
@@ -151,13 +98,12 @@ PFBlockAlgo::associate( IE last,
 
   if( last!= elements_.end() ) {
     PFBlockLink::Type linktype = PFBlockLink::NONE;
-    double chi2 = -1; 
     double dist = -1;
-    PFBlock::LinkTest linktest = PFBlock::LINKTEST_CHI2;
-    link( *last, *next, linktype, linktest, chi2, dist ); 
+    PFBlock::LinkTest linktest = PFBlock::LINKTEST_RECHIT;
+    link( *last, *next, linktype, linktest, dist ); 
 
    
-    if(chi2<-0.5) {
+    if(dist<-0.5) {
 #ifdef PFLOW_DEBUG
       if(debug_ ) cout<<"link failed"<<endl;
 #endif
@@ -175,7 +121,6 @@ PFBlockAlgo::associate( IE last,
       // create a link between next and last
       links.push_back( PFBlockLink(linktype, 
 				   linktest,
-				   chi2, 
 				   dist,
 				   (*last)->index(), 
 				   (*next)->index() ) );
@@ -265,12 +210,11 @@ PFBlockAlgo::packLinks( reco::PFBlock& block,
       // no reflexive link
       if( i1==i2 ) continue;
       
-      double chi2 = -1;
       double dist = -1;
       
       bool linked = false;
       PFBlock::LinkTest linktest 
-	= PFBlock::LINKTEST_CHI2; 
+	= PFBlock::LINKTEST_RECHIT; 
 
       // are these elements already linked ?
       // this can be optimized
@@ -281,18 +225,17 @@ PFBlockAlgo::packLinks( reco::PFBlock& block,
 	    (links[il].element1() == i2 && 
 	     links[il].element2() == i1) ) { // yes
 	  
-	  chi2 = links[il].chi2();
 	  dist = links[il].dist();
 	  linked = true;
 
 	  //modif-beg	  
-	  //retrieve type of test used to get chi2
+	  //retrieve type of test used to get distance
 	  linktest = links[il].test();
 #ifdef PFLOW_DEBUG
 	  if( debug_ )
 	    cout << "Reading link vector: linktest used=" 
 		 << linktest 
-		 << " chi2= " << chi2 
+		 << " distance = " << dist 
 		 << endl; 
 #endif
 	  //modif-end
@@ -303,139 +246,20 @@ PFBlockAlgo::packLinks( reco::PFBlock& block,
       
       if(!linked) {
 	PFBlockLink::Type linktype = PFBlockLink::NONE;
-	link( & els[i1], & els[i2], linktype, linktest, chi2, dist);
+	link( & els[i1], & els[i2], linktype, linktest, dist);
       }
 
-      //loading link data according to link test used: CHI2, RECHIT 
+      //loading link data according to link test used: RECHIT 
       //block.setLink( i1, i2, chi2, block.linkData() );
 #ifdef PFLOW_DEBUG
       if( debug_ )
 	cout << "Setting link between elements " << i1 << " and " << i2
-	     << " of chi2 =" << chi2 << " computed from link test "
+	     << " of dist =" << dist << " computed from link test "
 	     << linktest << endl;
 #endif
-      block.setLink( i1, i2, chi2, dist, block.linkData(), linktest );
+      block.setLink( i1, i2, dist, block.linkData(), linktest );
     }
   }
-
-  //Second Loop: checking the link by rechit for HCAL 
-  //A Hcal-Track link by rechit is preserved  
-  //only of the cluster is linked to another track.
-
-  // PJ Keep all link by rechit, even for one track !
-  // PJ Indeed, the logic of the link by rechit also applies to the 
-  // PJ case where there is only one tracks (and e.g., a neutral 
-  // PJ hadron that biasses the cluster position
-  /*
-  if( multipleLink_ ) {
-    for( unsigned i1=0; i1<els.size(); i1++ ) {
-      for( unsigned i2=0; i2<els.size(); i2++ ) {
-	
-	// no reflexive link
-	if( i1==i2 ) continue;
-	
-	//Only checking link by rechit 
-	double chi2 = block.chi2( i1, i2, block.linkData(), 
-				  PFBlock::LINKTEST_RECHIT );
-
-	double dist = block.dist( i1, i2, block.linkData(), 
-				  PFBlock::LINKTEST_RECHIT );
-
-	
-	//if( chi2 < chi2TrackHCAL_ || chi2<0 ) continue;
-	//if not linked, continue 
-	if( chi2<0 ) continue; 
-	
- 	bool keeplink = false;
-#ifdef PFLOW_DEBUG
-	if( debug_ )
-	  cout << "This is a link by rechit concerning elements: " 
-	       << i1  << " and " << i2 << endl;
-#endif
-	
-	unsigned int idCluster = i1;
-	unsigned int idTrack   = i2;
-	PFBlockElement::Type type2 = els[i2].type();
-	if( type2 == PFBlockElement::HCAL ){
-	  idCluster = i2; 
-	  idTrack = i1;
-	}
-
-	//protection: only considering possible HCAL-TRACK
-	//link by rechit in what follows
-	if( els[idCluster].type() != PFBlockElement::HCAL )
-	  continue;
-	if( els[idTrack].type()   != PFBlockElement::TRACK )
-	  continue;
- 
-#ifdef PFLOW_DEBUG
-	if( debug_ ){
-	  cout << "Hcal Cluster is element " << idCluster << endl;
-	  cout << "Track is element "        << idTrack << endl;
-	  cout << "Checking if cluster "     << idCluster 
-	       << " is linked to another track" << endl;
-	}
-#endif
-	
-	for( unsigned k1=0; k1<els.size(); k1++ ) {
-	  for( unsigned k2=0; k2<els.size(); k2++ ) {
-	    
-	    // no reflexive link
-	    if( k1==k2 ) continue;
-	    
-	    if( ( k1 != idTrack && 
-		  k2 == idCluster ) || 
-		( k1 == idCluster && 
-		  k2 != idTrack ) ) { // yes
-	      
-	      //retrieving chi2 values for each possible link tests
-	      double chi2loc_chi2   
-		= block.chi2( i1, i2, block.linkData(), 
-			      PFBlock::LINKTEST_CHI2 ); 
-	      double chi2loc_rechit 
-		= block.chi2( i1, i2, block.linkData(), 
-			      PFBlock::LINKTEST_RECHIT ); 
-	      
-	      PFBlockElement::Type type1loc = els[k1].type();
-	      PFBlockElement::Type type2loc = els[k2].type();
-
-	      //  	      cout << "  elements: " << k1 << " " << k2  << endl;
-	      //  	      cout << "  types: "    << type1loc  << " " << type2loc << endl;
-	      //  	      cout << "  chi2 from chi2 test="    << chi2loc_chi2    << endl;
-	      //  	      cout << "  chi2 from rechit test= " << chi2loc_rechit  << endl;
-	      
-	      if( type1loc == 1 || type2loc == 1 )
-		//if( chi2loc > 0 ){
-		//if either track is linked to that cluster by rechit of chi2
-		if( chi2loc_chi2 > 0 || chi2loc_rechit > 0 ){
-#ifdef PFLOW_DEBUG
-		  if( debug_ )
-		    cout << "This cluster is linked to another tracks:"
-			 << "keep this link" << endl; 
-#endif
-		  keeplink = true;
-		  break;
-		}
-	    }//finding other track
-	    
-	  }//loop ele1
-	}//loop ele2
-	
-	if(!keeplink) 
-	  { 
-#ifdef PFLOW_DEBUG
-	    if( debug_ ) 
-	      cout << "This cluster is not linked to any other tracks:" 
-		   << "link by rechit must be removed" << endl;
-#endif
-	    //block.setLink( i1, i2, -1, -1, block.linkData() );
-	    block.setLink( i1, i2, -1, -1, block.linkData(),
-			   PFBlock::LINKTEST_RECHIT );
-	  }//destroy link by rechit
-      }// loop ele2
-    }//loop ele1
-  }//mulipleLink
-  */
 
   checkNuclearLinks( block );
 }
@@ -454,14 +278,12 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
 		   const reco::PFBlockElement* el2, 
 		   PFBlockLink::Type& linktype, 
 		   reco::PFBlock::LinkTest& linktest,
-		   double& chi2, double& dist) const {
+		   double& dist) const {
   
 
 
-  chi2=-1;
   dist=-1.;
-  std::pair<double,double> lnk(chi2,dist);
-  linktest = PFBlock::LINKTEST_CHI2; //chi2 by default 
+  linktest = PFBlock::LINKTEST_RECHIT; //rechit by default 
 
   PFBlockElement::Type type1 = el1->type();
   PFBlockElement::Type type2 = el2->type();
@@ -504,63 +326,34 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       PFClusterRef  clusterref = highEl->clusterRef();
       assert( !trackref.isNull() );
       assert( !clusterref.isNull() );
-      lnk = testTrackAndPS( *trackref, *clusterref );
-      chi2 = lnk.first;
-      dist = lnk.second;
+      // PJ - 14-May-09 : A link by rechit is needed here !
+      dist = testTrackAndPS( *trackref, *clusterref );
+      linktest = PFBlock::LINKTEST_RECHIT;
       break;
     }
-
+    
   case PFBlockLink::TRACKandECAL:
     {
       if(debug_ ) cout<<"TRACKandECAL"<<endl;
       PFRecTrackRef trackref = lowEl->trackRefPF();
-
+      
       if(debug_ ) std::cout << " Track pt " << trackref->trackRef()->pt() << std::endl;
-
+      
       PFClusterRef  clusterref = highEl->clusterRef();
       assert( !trackref.isNull() );
       assert( !clusterref.isNull() );
-      lnk = testTrackAndECAL( *trackref, *clusterref );
-      chi2 = lnk.first;
-      dist = lnk.second;
-      if(debug_ )  std::cout << " chi2 from testTrackAndECAL " << chi2 << std::endl;
-      //Link by rechit for ECAL
+      dist = testTrackAndClusterByRecHit( *trackref, *clusterref );
+      linktest = PFBlock::LINKTEST_RECHIT;
 
-      /*
-      lnk = testTrackAndClusterByRecHit( *trackref, *clusterref );
-
-      if ( chi2 < 100. && chi2 > 0. && lnk.first < 0. ) {
-	std::cout << "Warning : ECAL link by chi2 = " << chi2 
-		  << ", but no link by RecHit ! " << std::endl;
+      if ( debug_ ) { 
+	if( dist > 0. ) { 
+	  std::cout << " Here a link has been established"
+		    << " between a track an Ecal with dist  " 
+		    << dist <<  std::endl;
+	} else {
+	  std::cout << " No link found " << std::endl;
+	}
       }
-
-      chi2 = -1.;
-      */
-
-
-      if( ( chi2 > chi2TrackECAL_ || chi2 < 0 )
-	  && multipleLink_ ){	
-	//If Chi2 failed checking if Track can be linked by rechit
-	//to a ECAL cluster. Definition:
-	// A cluster can be linked to a track by rechit if the 
-	// extrapolated position of the track to the ECALShowerMax 
-	// falls within the boundaries of any cell that belongs 
-	// to this cluster.
-	if(debug_ ) std::cout << " try  testTrackAndClusterByRecHit " << std::endl;
-	lnk = testTrackAndClusterByRecHit( *trackref, *clusterref );
-	chi2 = lnk.first;
-	dist = lnk.second;
-	if(debug_ ) std::cout << " chi2 testTrackAndClusterByRecHit " << chi2 << std::endl;
-	linktest = PFBlock::LINKTEST_RECHIT;
-      }//link by rechit  
-
-      if ( chi2>0) {
-	if(debug_ ) std::cout << " Here a link has been established between a track an Ecal with chi2  " << chi2 <<  std::endl;
-      } else {
-	if(debug_ ) std::cout << " No link found " << std::endl;
-      }
-
-
 
       break;
     }
@@ -571,36 +364,8 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       PFClusterRef  clusterref = highEl->clusterRef();
       assert( !trackref.isNull() );
       assert( !clusterref.isNull() );
-      lnk = testTrackAndHCAL( *trackref, *clusterref );
-      chi2 = lnk.first;
-      dist = lnk.second;
-  
-      /*
-      lnk = testTrackAndClusterByRecHit( *trackref, *clusterref );
-
-      if ( chi2 < 100. && chi2 > 0. && lnk.first < 0. ) {
-	std::cout << "Warning : HCAL link by chi2 = " << chi2 
-		  << ", but no link by RecHit ! " << std::endl;
-      }
-
-      chi2 = -1.;
-      */
-
-      if( ( chi2 > chi2TrackHCAL_ || chi2 < 0 )
-	  && multipleLink_ ){	
-	//If Chi2 failed checking if Track can be linked by rechit
-	//to a HCAL cluster. Definition:
-	// A cluster can be linked to a track by rechit if the 
-	// extrapolated position of the track to the HCAL entrance 
-	// falls within the boundaries of any cell that belongs 
-	// to this cluster.
-	
-	lnk = testTrackAndClusterByRecHit( *trackref, *clusterref );
-	chi2 = lnk.first;
-	dist = lnk.second;
-	linktest = PFBlock::LINKTEST_RECHIT;
-      }//link by rechit  
-      
+      dist = testTrackAndClusterByRecHit( *trackref, *clusterref );
+      linktest = PFBlock::LINKTEST_RECHIT;      
       break;
     }
   case PFBlockLink::ECALandHCAL:
@@ -610,9 +375,10 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       PFClusterRef  hcalref = highEl->clusterRef();
       assert( !ecalref.isNull() );
       assert( !hcalref.isNull() );
-      lnk = testECALAndHCAL( *ecalref, *hcalref );
-      chi2 = lnk.first;
-      dist = lnk.second;
+      // PJ - 14-May-09 : A link by rechit is needed here !
+      // dist = testECALAndHCAL( *ecalref, *hcalref );
+      dist = -1.;
+      linktest = PFBlock::LINKTEST_RECHIT;
       break;
     }
   case PFBlockLink::PS1andECAL:
@@ -623,19 +389,8 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       PFClusterRef  ecalref = highEl->clusterRef();
       assert( !psref.isNull() );
       assert( !ecalref.isNull() );
-      lnk = testPSAndECAL( *psref, *ecalref );
-      chi2 = lnk.first;
-      dist = lnk.second;
-
-      if ( chi2 > chi2PSECAL_ || chi2 < 0 ) {
-	//If Chi2 failed, check link by rechit in this case too. 
-	lnk = testECALAndPSByRecHit( *ecalref, *psref );
-	dist = lnk.second;
-	if ( dist > 0. ) chi2 = dist*dist*1E6;
-	else chi2 = -1.;
-	linktest = PFBlock::LINKTEST_RECHIT;
-      }
-
+      dist = testECALAndPSByRecHit( *ecalref, *psref );
+      linktest = PFBlock::LINKTEST_RECHIT;      
       break;
     }
   case PFBlockLink::PS1andPS2:
@@ -644,18 +399,18 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       PFClusterRef  ps2ref = highEl->clusterRef();
       assert( !ps1ref.isNull() );
       assert( !ps2ref.isNull() );
-      lnk = testPS1AndPS2( *ps1ref, *ps2ref );
-      chi2 = lnk.first;
-      dist = lnk.second;
+      // PJ - 14-May-09 : A link by rechit is needed here !
+      // dist = testPS1AndPS2( *ps1ref, *ps2ref );
+      dist = -1.;
+      linktest = PFBlock::LINKTEST_RECHIT;
       break;
     }
   case PFBlockLink::TRACKandTRACK:
     {
       if(debug_ ) cout<<"TRACKandTRACK"<<endl;
-      lnk = testLinkByVertex(lowEl, highEl);
-      chi2 = lnk.first;
-      dist = lnk.second;
-      if(debug_ ) std::cout << " PFBlockLink::TRACKandTRACK chi2 " << chi2 << std::endl;
+      dist = testLinkByVertex(lowEl, highEl);
+      if(debug_ ) std::cout << " PFBlockLink::TRACKandTRACK dist " << dist << std::endl;
+      linktest = PFBlock::LINKTEST_RECHIT;
       break;
     }
   case PFBlockLink::ECALandGSF:
@@ -664,32 +419,17 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       assert( !clusterref.isNull() );
       const reco::PFBlockElementGsfTrack *  GsfEl =  dynamic_cast<const reco::PFBlockElementGsfTrack*>(highEl);
       const PFRecTrack * myTrack =  &(GsfEl->GsftrackPF());
-      lnk = testTrackAndECAL( *myTrack, *clusterref);
-      chi2 = lnk.first;
-      dist = lnk.second;
-      if( ( chi2 >  chi2GSFECAL_  || chi2 < 0 )
-	  && multipleLink_ ){	
-	//If Chi2 failed checking if Track can be linked by rechit
-	//to a ECAL cluster. Definition:
-	// A cluster can be linked to a track by rechit if the 
-	// extrapolated position of the track to the ECALShowerMax 
-	// falls within the boundaries of any cell that belongs 
-	// to this cluster.
-	//	std::cout << " try GSF testTrackAndClusterByRecHit " << std::endl;
-	lnk = testTrackAndClusterByRecHit( *myTrack, *clusterref );
-	chi2 = lnk.first;
-	dist = lnk.second;
-	if(debug_ ) std::cout << " chi2 testTrackAndClusterByRecHit " << chi2 << std::endl;
-	linktest = PFBlock::LINKTEST_RECHIT;
-      }//link by rechit  
+      dist = testTrackAndClusterByRecHit( *myTrack, *clusterref );
+      linktest = PFBlock::LINKTEST_RECHIT;
       
-      if ( chi2>0) {
-	if(debug_ ) 
-	  std::cout << " Here a link has been established between a track an Ecal with chi2  " 
-		    << chi2 <<  std::endl;
-
-      } else {
-	if(debug_ ) std::cout << " No link found " << std::endl;
+      if ( debug_ ) {
+	if ( dist > 0. ) {
+	  std::cout << " Here a link has been established" 
+		    << " between a GSF track an Ecal with dist  " 
+		    << dist <<  std::endl;
+	} else {
+	  if(debug_ ) std::cout << " No link found " << std::endl;
+	}
       }
       break;
     }
@@ -697,37 +437,26 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
     {
       PFRecTrackRef trackref = lowEl->trackRefPF();
       assert( !trackref.isNull() );
-      const reco::PFBlockElementGsfTrack *  GsfEl =  dynamic_cast<const reco::PFBlockElementGsfTrack*>(highEl);
+      const reco::PFBlockElementGsfTrack *  GsfEl =  
+	dynamic_cast<const reco::PFBlockElementGsfTrack*>(highEl);
       GsfPFRecTrackRef gsfref = GsfEl->GsftrackRefPF();
       reco::TrackRef kftrackref= (*trackref).trackRef();
       assert( !gsfref.isNull() );
       PFRecTrackRef refkf = (*gsfref).kfPFRecTrackRef();
-      if(refkf.isNonnull())
-	{
-	  reco::TrackRef gsftrackref = (*refkf).trackRef();
-	  if (gsftrackref.isNonnull()&&kftrackref.isNonnull()) {
-	    if (kftrackref == gsftrackref) { 
-	      chi2 = 1;
-	      dist = 0.001;
-	      //	      std::cout <<  " Linked " << std::endl;
-	    } else { 
-	      chi2 = -1;
-	      dist = -1.;
-	      //	      std::cout <<  " Not Linked " << std::endl;
-	    }
-	  }
-	  else { 
-	    chi2 = -1;
+      if(refkf.isNonnull()) {
+	reco::TrackRef gsftrackref = (*refkf).trackRef();
+	if (gsftrackref.isNonnull()&&kftrackref.isNonnull()) {
+	  if (kftrackref == gsftrackref) { 
+	    dist = 0.001;
+	  } else { 
 	    dist = -1.;
-	    //	    std::cout <<  " Not Linked " << std::endl;
 	  }
-	}
-      else
-	{
-	  chi2 = -1;
+	} else { 
 	  dist = -1.;
-	  //	  std::cout <<  " Not Linked " << std::endl;
 	}
+      } else {
+	dist = -1.;
+      }
       break;      
     }
 	 
@@ -740,10 +469,8 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       assert( !gsfref.isNull() );
       assert( !bremref.isNull() );
       if (gsfref == bremref)  { 
-	chi2 = 1;
 	dist = 0.001;
       } else { 
-	chi2 = -1;
 	dist = -1.;
       }
       break;
@@ -752,32 +479,20 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
     {
       PFClusterRef  clusterref = lowEl->clusterRef();
       assert( !clusterref.isNull() );
-      const reco::PFBlockElementBrem * BremEl =  dynamic_cast<const reco::PFBlockElementBrem*>(highEl);
+      const reco::PFBlockElementBrem * BremEl =  
+	dynamic_cast<const reco::PFBlockElementBrem*>(highEl);
       const PFRecTrack * myTrack = &(BremEl->trackPF());
+      /*
       double DP = (BremEl->DeltaP())*(-1.);
       double SigmaDP = BremEl->SigmaDeltaP();
       double SignBremDp = DP/SigmaDP;
-      lnk = testTrackAndECAL( *myTrack, *clusterref, SignBremDp);
-      chi2 = lnk.first;
-      dist = lnk.second;
-
-      if( ( chi2 > chi2TrackECAL_ || chi2 < 0 )
-	  && multipleLink_ ){	
-	//If Chi2 failed checking if Track can be linked by rechit
-	//to a ECAL cluster. Definition:
-	// A cluster can be linked to a track by rechit if the 
-	// extrapolated position of the track to the ECALShowerMax 
-	// falls within the boundaries of any cell that belongs 
-	// to this cluster.
-	if(debug_ ) std::cout << "ECALandBREM: try  testTrackAndClusterByRecHit " << std::endl;
-	bool isBrem = true;
-	lnk = testTrackAndClusterByRecHit( *myTrack, *clusterref, isBrem);
-	chi2 = lnk.first;
-	dist = lnk.second;
-	if(debug_ ) std::cout << "ECALandBREM: chi2 testTrackAndClusterByRecHit " << chi2 << std::endl;
-	linktest = PFBlock::LINKTEST_RECHIT;
-      }//link by rechit  
-
+      */
+      bool isBrem = true;
+      dist = testTrackAndClusterByRecHit( *myTrack, *clusterref, isBrem);
+      if( debug_ && dist > 0. ) 
+	std::cout << "ECALandBREM: dist testTrackAndClusterByRecHit " 
+		  << dist << std::endl;
+      linktest = PFBlock::LINKTEST_RECHIT;
       break;
     }
   case PFBlockLink::PS1andGSF:
@@ -787,9 +502,9 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       assert( !psref.isNull() );
       const reco::PFBlockElementGsfTrack *  GsfEl =  dynamic_cast<const reco::PFBlockElementGsfTrack*>(highEl);
       const PFRecTrack * myTrack =  &(GsfEl->GsftrackPF());
-      lnk = testTrackAndPS( *myTrack, *psref );
-      chi2 = lnk.first;
-      dist = lnk.second;
+      // PJ - 14-May-09 : A link by rechit is needed here !
+      dist = testTrackAndPS( *myTrack, *psref );
+      linktest = PFBlock::LINKTEST_RECHIT;
       break;
     }
   case PFBlockLink::PS1andBREM:
@@ -799,9 +514,9 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       assert( !psref.isNull() );
       const reco::PFBlockElementBrem * BremEl =  dynamic_cast<const reco::PFBlockElementBrem*>(highEl);
       const PFRecTrack * myTrack = &(BremEl->trackPF());
-      lnk = testTrackAndPS( *myTrack, *psref );
-      chi2 = lnk.first;
-      dist = lnk.second;
+      // PJ - 14-May-09 : A link by rechit is needed here !
+      dist = testTrackAndPS( *myTrack, *psref );
+      linktest = PFBlock::LINKTEST_RECHIT;
       break;
     }
   case PFBlockLink::HCALandGSF:
@@ -810,23 +525,8 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       assert( !clusterref.isNull() );
       const reco::PFBlockElementGsfTrack *  GsfEl =  dynamic_cast<const reco::PFBlockElementGsfTrack*>(highEl);
       const PFRecTrack * myTrack =  &(GsfEl->GsftrackPF());
-      lnk = testTrackAndHCAL( *myTrack, *clusterref);
-      chi2 = lnk.first;
-      dist = lnk.second;
-      if( ( chi2 > chi2TrackHCAL_ || chi2 < 0 )
-	  && multipleLink_ ){	
-	//If Chi2 failed checking if Track can be linked by rechit
-	//to a HCAL cluster. Definition:
-	// A cluster can be linked to a track by rechit if the 
-	// extrapolated position of the track to the HCAL entrance 
-	// falls within the boundaries of any cell that belongs 
-	// to this cluster.
-	
-	lnk = testTrackAndClusterByRecHit( *myTrack, *clusterref );
-	chi2 = lnk.first;
-	dist = lnk.second;
-	linktest = PFBlock::LINKTEST_RECHIT;
-      }//link by rechit 
+      dist = testTrackAndClusterByRecHit( *myTrack, *clusterref );
+      linktest = PFBlock::LINKTEST_RECHIT;
       break;
     }
   case PFBlockLink::HCALandBREM:
@@ -835,9 +535,8 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       assert( !clusterref.isNull() );
       const reco::PFBlockElementBrem * BremEl =  dynamic_cast<const reco::PFBlockElementBrem*>(highEl);
       const PFRecTrack * myTrack = &(BremEl->trackPF());
-      lnk = testTrackAndHCAL( *myTrack, *clusterref);
-      chi2 = lnk.first;
-      dist = lnk.second;
+      bool isBrem = true;
+      dist = testTrackAndClusterByRecHit( *myTrack, *clusterref, isBrem);
       break;
     }
   case PFBlockLink::HFEMandHFHAD:
@@ -847,26 +546,26 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       PFClusterRef  href = highEl->clusterRef();
       assert( !eref.isNull() );
       assert( !href.isNull() );
-      lnk = testHFEMAndHFHADByRecHit( *eref, *href );
-      chi2 = lnk.first;
-      dist = lnk.second;
+      dist = testHFEMAndHFHADByRecHit( *eref, *href );
+      linktest = PFBlock::LINKTEST_RECHIT;
       break;
       
       break;
     }
   default:
-    chi2 = -1.;
     dist = -1.;
+    linktest = PFBlock::LINKTEST_RECHIT;
     // cerr<<"link type not implemented yet: 0x"<<hex<<linktype<<dec<<endl;
     // assert(0);
     return;
   }
 }
 
-std::pair<double,double>
+double
 PFBlockAlgo::testTrackAndPS(const PFRecTrack& track, 
 			    const PFCluster& ps)  const {
 
+#ifdef PFLOW_DEBUG
   //   cout<<"entering testTrackAndPS"<<endl;
   // resolution of PS cluster dxdx and dydy from strip pitch and length
   double dx=0.;
@@ -894,359 +593,73 @@ PFBlockAlgo::testTrackAndPS(const PFRecTrack& track,
   const reco::PFTrajectoryPoint& atPS
     = track.extrapolatedPoint( layerid );  
   // did not reach PS, cannot be associated with a cluster.
-  if( ! atPS.isValid() ) return std::pair<double,double>(-1,-1);   
+  if( ! atPS.isValid() ) return -1.;   
   
   double trackx = atPS.position().X();
   double tracky = atPS.position().Y();
-	double trackz = atPS.position().Z(); // MDN jan 09
+  double trackz = atPS.position().Z(); // MDN jan 09
   
   // ps position  x, y
   double psx = ps.position().X();
   double psy = ps.position().Y();
-	// MDN Jan 09: check that trackz and psz have the same sign
-	double psz = ps.position().Z();
-	if( trackz*psz < 0.) return std::pair<double,double>(-1,-1); 
+  // MDN Jan 09: check that trackz and psz have the same sign
+  double psz = ps.position().Z();
+  if( trackz*psz < 0.) return -1.; 
   
-  // rec track resolution negligible compared to ps resolution?
-  // compute chi2 PS_TRACK in x, y
-  double trackresolx = 0.;
-  double trackresoly = 0.;
-  
-  double chi2 = (psx-trackx)*(psx-trackx)/(dx*dx + trackresolx*trackresolx)
-    + (psy-tracky)*(psy-tracky)/(dy*dy + trackresoly*trackresoly);
+  // double chi2 = (psx-trackx)*(psx-trackx)/(dx*dx + trackresolx*trackresolx)
+  //  + (psy-tracky)*(psy-tracky)/(dy*dy + trackresoly*trackresoly);
 
   double dist = std::sqrt( (psx-trackx)*(psx-trackx)
-			 + (psy-tracky)*(psy-tracky));
-
-  
-#ifdef PFLOW_DEBUG
-  if(debug_) cout<<"testTrackAndPS "<<chi2<<" "<<endl;
+			 + (psy-tracky)*(psy-tracky));  
+  if(debug_) cout<<"testTrackAndPS "<< dist <<" "<<endl;
   if(debug_){
-    cout<<" trackx " << trackx << " trackresolx " << trackresolx
-	<<" tracky " << tracky << " trackresoly " << trackresoly << endl
-	<<" psx "    <<  psx   << "  dx "         << dx
-	<<" psy "    << psy    << "  dy "         << dy << endl;
+    cout<<" trackx " << trackx 
+	<<" tracky " << tracky 
+	<<" psx "    <<  psx   
+	<<" psy "    << psy    
+	<< endl;
   }
 #endif
   
-  
-  if(chi2<chi2PSTrack_ || chi2PSTrack_<0 )
-    return std::pair<double,double>(chi2,dist/1000.);
-  else 
-    return std::pair<double,double>(-1,-1);
+  // Return -1. as long as no link by rechit is available
+  return -1.;
 }
 
-
-
-std::pair<double,double> 
-PFBlockAlgo::testTrackAndECAL(const PFRecTrack& track, 
-			      const PFCluster& ecal, 
-			      double SignBremDp)  const {
-  
-  //   cout<<"entering testTrackAndECAL"<<endl;
-  
-  
-  double tracketa;
-  double trackphi;
-
-  // special chi2 for GSF-ECAL matching
-  double chi2cut = (track.algoType()!=PFRecTrack::GSF) ? chi2TrackECAL_ : chi2GSFECAL_;
-
-  //  cout << " SignBremDp " << SignBremDp << endl;
-  // The SignBremDp cut has to be optimized 
-  if (SignBremDp > 3) {
-    const reco::PFTrajectoryPoint& atECAL 
-      = track.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax );
-    if( ! atECAL.isValid() ) return std::pair<double,double>(-1,-1);   
-    tracketa = atECAL.positionREP().Eta();
-    trackphi = atECAL.positionREP().Phi();
-    //   cout<<"atECAL "<<atECAL.layer()<<" "
-    //       <<atECAL.position().Eta()<<" "
-    //       <<atECAL.position().Phi()<<endl;
-  }
-  else {
-    // needed only for the brem when the momentum is bad estimated. 
-    // The ECAL cluster energy is taken in these cases
-
-    const reco::PFTrajectoryPoint& atECAL 
-      = track.extrapolatedPoint( reco::PFTrajectoryPoint::ECALEntrance );
-    if( ! atECAL.isValid() ) return std::pair<double,double>(-1,-1);   
-    math::XYZVector posatecal( atECAL.position().x(),
-			       atECAL.position().y(),
-			       atECAL.position().z());
-    
-    bool isBelowPS=(fabs(ecal.positionREP().Eta())>1.65) ? true :false;
-    double clusenergy = ecal.energy();
-    double ecalShowerDepth 
-      = reco::PFCluster::getDepthCorrection(clusenergy, isBelowPS,false);
-    
-    math::XYZVector direction(atECAL.momentum().x(),
-			      atECAL.momentum().y(),
-			      atECAL.momentum().z() );
-
-    direction=direction.unit();
-    posatecal += ecalShowerDepth*direction;
-    tracketa = posatecal.eta();
-    trackphi = posatecal.phi();
-  }
-
-
-  double ecaleta  = ecal.positionREP().Eta();
-  double ecalphi  = ecal.positionREP().Phi();
-  
-
-  PFResolutionMap* mapeta = const_cast<PFResolutionMap*>(resMapEtaECAL_);
-  PFResolutionMap* mapphi = const_cast<PFResolutionMap*>(resMapPhiECAL_);
-
-  
-  double ecaletares 
-    = mapeta->GetBinContent(mapeta->FindBin(ecaleta, 
-					    ecal.energy() ) );
-  double ecalphires 
-    = mapphi->GetBinContent(mapphi->FindBin(ecaleta, 
-					    ecal.energy() ) );
-  
-  
-  // rec track resolution should be negligible compared to ecal resolution
-  double trackres = 0;
-  
-  std::pair<double,double> lnk = computeChi2( ecaleta, ecaletares, 
-					      ecalphi, ecalphires, 
-					      tracketa, trackres, 
-					      trackphi, trackres);
-  double chi2 = lnk.first;
-
-#ifdef PFLOW_DEBUG
-  if(debug_) cout<<"testTrackAndECAL "<<chi2<<" "<<endl;
-  if(debug_){
-    cout<<" ecaleta "  << ecaleta  << "  ecaletares " <<ecaletares
-	<<" ecalphi "  << ecalphi  << "  ecalphires " <<ecalphires
-	<<" tracketa " << tracketa << "  trackres "   <<trackres
-	<<" trackphi " << trackphi << "  trackres "   <<trackres << endl;
-  }
-#endif
-  
-
-  if(chi2<chi2cut || chi2TrackECAL_<0 )
-    return lnk;
-  else 
-    return std::pair<double,double>(-1,-1);
-}
-
-
-
-std::pair<double,double> 
-PFBlockAlgo::testTrackAndHCAL(const PFRecTrack& track, 
-			      const PFCluster& hcal)  const {
-  
-  
-  //   cout<<"entering testTrackAndHCAL"<<endl;
-
-  // this is the fake cluster for ps cells
-  //   if( ! hcal.type() ) return -1;
-  
-  
-  const reco::PFTrajectoryPoint& atHCAL 
-    = track.extrapolatedPoint( reco::PFTrajectoryPoint::HCALEntrance );
-  
-  //   cout<<"atHCAL "<<atHCAL.layer()<<" "
-  //       <<atHCAL.position().Eta()<<" "
-  //       <<atHCAL.position().Phi()<<endl;
-  
-  // did not reach hcal, cannot be associated with a cluster.
-  if( ! atHCAL.isValid() ) return std::pair<double,double>(-1,-1);   
-  
-  double tracketa = atHCAL.positionREP().Eta();
-  double trackphi = atHCAL.positionREP().Phi();
-  double hcaleta  = hcal.positionREP().Eta();
-  double hcalphi  = hcal.positionREP().Phi();
-  
-  
-  PFResolutionMap* mapeta = const_cast<PFResolutionMap*>(resMapEtaHCAL_);
-  PFResolutionMap* mapphi = const_cast<PFResolutionMap*>(resMapPhiHCAL_);
-  
-  double hcaletares 
-    = mapeta->GetBinContent(mapeta->FindBin(hcaleta, 
-					    hcal.energy() ) );
-  double hcalphires 
-    = mapphi->GetBinContent(mapphi->FindBin(hcaleta, 
-					    hcal.energy() ) );
-  
-  
-  // rec track resolution should be negligible compared to hcal resolution
-  double trackres = 0;
-  
-  std::pair<double,double> lnk = computeChi2( hcaleta, hcaletares, 
-					      hcalphi, hcalphires, 
-					      tracketa, trackres, 
-					      trackphi, trackres);
-  double chi2 = lnk.first;
-  
-#ifdef PFLOW_DEBUG
-  if(debug_) cout<<"testTrackAndHCAL "<<chi2<<" "<<endl;
-  if(debug_){
-    cout<<" hcaleta "  << hcaleta << "  hcaletares "<<hcaletares
-	<<" hcalphi "  << hcalphi << "  hcalphires "<<hcalphires
-	<<" tracketa " << tracketa<< "  trackres "  <<trackres
-	<<" trackphi " << trackphi<< "  trackres "  <<trackres << endl;
-  }
-#endif
-  
-  if(chi2<chi2TrackHCAL_ || chi2TrackHCAL_<0 )
-    return lnk;
-  else 
-    return std::pair<double,double>(-1,-1);
-}
-
-
-std::pair<double,double> 
+double
 PFBlockAlgo::testECALAndHCAL(const PFCluster& ecal, 
 			     const PFCluster& hcal)  const {
   
   //   cout<<"entering testECALAndHCAL"<<endl;
   
-  
-  PFResolutionMap* mapetaECAL = const_cast<PFResolutionMap*>(resMapEtaECAL_);
-  PFResolutionMap* mapphiECAL = const_cast<PFResolutionMap*>(resMapPhiECAL_);
-  
-  PFResolutionMap* mapetaHCAL = const_cast<PFResolutionMap*>(resMapEtaHCAL_);
-  PFResolutionMap* mapphiHCAL = const_cast<PFResolutionMap*>(resMapPhiHCAL_);
-  
-  // retrieve resolutions from resolution maps
-  double ecaletares 
-    = mapetaECAL->GetBinContent(mapetaECAL->FindBin(ecal.positionREP().Eta(), 
-						    ecal.energy() ) );
-  double ecalphires 
-    = mapphiECAL->GetBinContent(mapphiECAL->FindBin(ecal.positionREP().Eta(), 
-						    ecal.energy() ) );
-		      
-  double hcaletares 
-    = mapetaHCAL->GetBinContent(mapetaHCAL->FindBin(hcal.positionREP().Eta(), 
-						    hcal.energy() ) );
-  double hcalphires 
-    = mapphiHCAL->GetBinContent(mapphiHCAL->FindBin(hcal.positionREP().Eta(), 
-						    hcal.energy() ) );
-		      
-  // compute chi2
-  std::pair<double,double> lnk = 
-    computeChi2( ecal.positionREP().Eta(), ecaletares, 
-		 ecal.positionREP().Phi(), ecalphires, 
-		 hcal.positionREP().Eta(), hcaletares, 
-		 hcal.positionREP().Phi(), hcalphires );
-  double chi2 = lnk.first;
-  
+  /*
+  double dist = 
+    computeDist( ecal.positionREP().Eta(),
+		 ecal.positionREP().Phi(), 
+		 hcal.positionREP().Eta(), 
+		 hcal.positionREP().Phi() );
+  */
+
 #ifdef PFLOW_DEBUG
-  if(debug_) cout<<"testECALAndHCAL "<<chi2<<" "<<endl;
+  if(debug_) cout<<"testECALAndHCAL "<< dist <<" "<<endl;
   if(debug_){
-    cout<<" ecaleta " << ecal.positionREP().Eta()<< "  ecaletares "<<ecaletares
-	<<" ecalphi " << ecal.positionREP().Phi()<< "  ecalphires "<<ecalphires
-	<<" hcaleta " << hcal.positionREP().Eta()<< "  hcaletares "<<hcaletares
-	<<" hcalphi " << hcal.positionREP().Phi()<< "  hcalphires "<<hcalphires<< endl;
+    cout<<" ecaleta " << ecal.positionREP().Eta()
+	<<" ecalphi " << ecal.positionREP().Phi()
+	<<" hcaleta " << hcal.positionREP().Eta()
+	<<" hcalphi " << hcal.positionREP().Phi()
   }
 #endif
 
-
-  if(chi2<chi2ECALHCAL_ || chi2ECALHCAL_<0 )
-    return lnk;
-  else 
-    return std::pair<double,double>(-1,-1);
+  // Need to implement a link by RecHit
+  return -1.;
 }
 
 
 
-std::pair<double,double> 
-PFBlockAlgo::testPSAndECAL(const PFCluster& ps, 
-			   const PFCluster& ecal)  const {
-  
-  //   cout<<"entering testPSAndECAL"<<endl;
-  
-  PFResolutionMap* mapetaECAL = const_cast<PFResolutionMap*>(resMapEtaECAL_);
-  PFResolutionMap* mapphiECAL = const_cast<PFResolutionMap*>(resMapPhiECAL_);
-  
-  // retrieve resolutions from resolution maps
-  double ecaletares 
-    = mapetaECAL->GetBinContent(mapetaECAL->FindBin(ecal.positionREP().Eta(), 
-						    ecal.energy() ) );
-  double ecalphires 
-    = mapphiECAL->GetBinContent(mapphiECAL->FindBin(ecal.positionREP().Eta(), 
-						    ecal.energy() ) );
-  // ecal position in eta and phi
-  double ecaleta = ecal.positionREP().Eta();
-  double ecalphi = ecal.positionREP().Phi();
-  
-  
-  // ps position x, y, z, R and  rho, eta, phi
-  double pseta = ps.positionREP().Eta();
-  double psphi = ps.positionREP().Phi();
-  double psrho = ps.positionREP().Rho();
-  double psrho2 = psrho*psrho;
-  double psx = ps.position().X();
-  double psy = ps.position().Y();
-  double psz = ps.position().Z();
-  double psR = ps.position().R();
-  // resolution of PS cluster dxdx and dydy from strip pitch and length
-  double dxdx =0.;
-  double dydy =0.;
-  switch (ps.layer()) {
-  case PFLayer::PS1:
-    // vertical strips, measure x with pitch precision
-    dxdx = resPSpitch_*resPSpitch_;
-    dydy = resPSlength_*resPSlength_;
-    break;
-  case PFLayer::PS2:
-    // horizontal strips, measure y with pitch precision
-    dydy = resPSpitch_*resPSpitch_;
-    dxdx = resPSlength_*resPSlength_;
-    break;
-  default:
-    break;
-  }
-  // derivatives deta/dx, deta/dy, dphi/dx, dphi/deta
-  double detadx = psx*psz/(psrho2*psR);
-  double detady = psy*psz/(psrho2*psR);
-  double dphidx = -psy/psrho2;
-  double dphidy = psx/psrho2;
-  // propagate error matrix  x. y (diagonal) to eta, phi (non diagonal)
-  double detadeta = detadx*detadx*dxdx + detady*detady*dydy;
-  double dphidphi = dphidx*dphidx*dxdx + dphidy*dphidy*dydy;
-  double detadphi = detadx*dphidx*dxdx + detady*dphidy*dydy;
-  // add ecal resol in quadrature
-  double detadetas = detadeta + ecaletares*ecaletares;
-  double dphidphis = dphidphi + ecalphires*ecalphires;
-  // compute chi2 in eta, phi with non diagonal error matrix (detadphi non zero)
-  double deta = pseta - ecaleta;
-  double dphi = Utils::mpi_pi(psphi - ecalphi);
-  double det  = detadetas*dphidphis - detadphi*detadphi;
-  double chi2 
-    = (dphidphis*deta*deta + detadetas*dphi*dphi - 2.*detadphi*deta*dphi)/det;
-  double dist = std::sqrt(deta*deta+dphi*dphi);
-  
-  
-  //#ifdef PFLOW_DEBUG
-  if(debug_) cout<<"testPSAndECAL "<<chi2<<" "<<endl;
-  if(debug_){
-    double psetares = sqrt(detadeta);
-    double psphires = sqrt (dphidphi);
-    cout<< " pseta "  <<pseta   << " psetares "   << psetares
-	<< " psphi "  <<psphi   << " psphires "   << psphires << endl
-	<< " ecaleta "<<ecaleta << " ecaletares " << ecaletares
-	<< " ecalphi "<<ecalphi << " ecalphires " << ecalphires<< endl;
-    cout << "deta/dphi/dist = " << deta << " " << dphi << " " << dist << " " << std::endl;
-  }
-  //#endif
-  
-
-  if(chi2<chi2PSECAL_ || chi2PSECAL_<0 )
-    return std::pair<double,double>(chi2,dist);
-  else 
-    return std::pair<double,double>(-1,-1);
-}
-
-
-std::pair<double,double> 
+double
 PFBlockAlgo::testPS1AndPS2(const PFCluster& ps1, 
 			   const PFCluster& ps2)  const {
   
+#ifdef PFLOW_DEBUG
   //   cout<<"entering testPS1AndPS2"<<endl;
   
   // compute chi2 in y, z using swimming formulae
@@ -1259,8 +672,8 @@ PFBlockAlgo::testPS1AndPS2(const PFCluster& ps1,
   double x2 = ps2.position().X();
   double y2 = ps2.position().Y();
   double z2 = ps2.position().Z();
-	// MDN Bug correction Jan 09: check that z1 and z2 have the same sign!
-	if (z1*z2<0.) return std::pair <double, double> (-1, -1);
+  // MDN Bug correction Jan 09: check that z1 and z2 have the same sign!
+  if (z1*z2<0.) -1.;
   // swim to PS2
   double scale = z2/z1;
   double x1atPS2 = x1*scale;
@@ -1273,14 +686,13 @@ PFBlockAlgo::testPS1AndPS2(const PFCluster& ps1,
   double dy2dy2 = resPSpitch_*resPSpitch_;
   double dx2dx2 = resPSlength_*resPSlength_;
   
-  double chi2 = (x2-x1atPS2)*(x2-x1atPS2)/(dx1dx1 + dx2dx2) 
-    + (y2-y1atPS2)*(y2-y1atPS2)/(dy1dy1 + dy2dy2);
+  // double chi2 = (x2-x1atPS2)*(x2-x1atPS2)/(dx1dx1 + dx2dx2) 
+  //  + (y2-y1atPS2)*(y2-y1atPS2)/(dy1dy1 + dy2dy2);
   
   double dist = std::sqrt( (x2-x1atPS2)*(x2-x1atPS2)
 			 + (y2-y1atPS2)*(y2-y1atPS2));
     
-#ifdef PFLOW_DEBUG
-  if(debug_) cout<<"testPS1AndPS2 "<<chi2<<" "<<endl;
+  if(debug_) cout<<"testPS1AndPS2 "<<dist<<" "<<endl;
   if(debug_){
     cout<<" x1atPS2 "<< x1atPS2 << " dx1 "<<resPSpitch_*scale
 	<<" y1atPS2 "<< y1atPS2 << " dy1 "<<resPSlength_*scale<< endl
@@ -1288,15 +700,14 @@ PFBlockAlgo::testPS1AndPS2(const PFCluster& ps1,
 	<<" y2 " << y2 << " dy2 "<<resPSpitch_<< endl;
   }
 #endif
-  if(chi2<chi2PSHV_ || chi2PSHV_<0 )
-    return std::pair<double,double>(chi2,dist/1000.);
-  else 
-    return std::pair<double,double>(-1,-1);
+
+  // Need a link by rechit here
+  return -1.; 
 }
 
 
 
-std::pair<double,double> 
+double
 PFBlockAlgo::testLinkByVertex( const reco::PFBlockElement* elt1, 
 			       const reco::PFBlockElement* elt2) const {
 
@@ -1340,10 +751,10 @@ PFBlockAlgo::testLinkByVertex( const reco::PFBlockElement* elt1,
     }
   }
 
-  return std::pair<double,double>(result,0.);
+  return result;
 }
 
-std::pair<double,double> 
+double 
 PFBlockAlgo::testTrackAndClusterByRecHit( const PFRecTrack& track, 
 					  const PFCluster&  cluster,
 					  bool isBrem)  const {
@@ -1385,9 +796,6 @@ PFBlockAlgo::testTrackAndClusterByRecHit( const PFRecTrack& track,
     trackPt = 2.;
 
 
-  //retrieving resolution maps
-  PFResolutionMap* mapeta;
-  PFResolutionMap* mapphi;
   switch (cluster.layer()) {
   case PFLayer::ECAL_BARREL: barrel = true;
   case PFLayer::ECAL_ENDCAP:
@@ -1396,11 +804,8 @@ PFBlockAlgo::testTrackAndClusterByRecHit( const PFRecTrack& track,
       cout << "Fetching Ecal Resolution Maps"
 	   << endl;
 #endif
-    mapeta = const_cast<PFResolutionMap*>(resMapEtaECAL_);
-    mapphi = const_cast<PFResolutionMap*>(resMapPhiECAL_);
-
     // did not reach ecal, cannot be associated with a cluster.
-    if( ! atECAL.isValid() ) return std::pair<double,double>(-1,-1);   
+    if( ! atECAL.isValid() ) return -1.;   
     
     tracketa = atECAL.positionREP().Eta();
     trackphi = atECAL.positionREP().Phi();
@@ -1423,18 +828,16 @@ PFBlockAlgo::testTrackAndClusterByRecHit( const PFRecTrack& track,
       cout << "Fetching Hcal Resolution Maps"
 	   << endl;
 #endif
-    mapeta = const_cast<PFResolutionMap*>(resMapEtaHCAL_);
-    mapphi = const_cast<PFResolutionMap*>(resMapPhiHCAL_);
-    if(isBrem == true) 
-      return std::pair<double,double>(-1,-1);
-    if(isBrem == false) {
+    if( isBrem ) {  
+      return  -1.;
+    } else { 
       hcal=true;
       const reco::PFTrajectoryPoint& atHCAL 
 	= track.extrapolatedPoint( reco::PFTrajectoryPoint::HCALEntrance );
       const reco::PFTrajectoryPoint& atHCALExit 
 	= track.extrapolatedPoint( reco::PFTrajectoryPoint::HCALExit );
       // did not reach hcal, cannot be associated with a cluster.
-      if( ! atHCAL.isValid() ) return std::pair<double,double>(-1,-1);   
+      if( ! atHCAL.isValid() ) return -1.;   
       
       // The link is computed between 0 and ~1 interaction length in HCAL
       dHEta = atHCALExit.positionREP().Eta()-atHCAL.positionREP().Eta();
@@ -1463,9 +866,9 @@ PFBlockAlgo::testTrackAndClusterByRecHit( const PFRecTrack& track,
       cout << "No link by rechit possible for pre-shower yet!"
 	   << endl;
 #endif
-    return std::pair<double,double>(-1,-1);
+    return -1.;
   default:
-    return std::pair<double,double>(-1,-1);
+    return -1.;
   }
 
 
@@ -1474,40 +877,25 @@ PFBlockAlgo::testTrackAndClusterByRecHit( const PFRecTrack& track,
   // 2) the track is in the same end-cap !
   // PJ - 10-May-09
   if ( !barrel ) { 
-    if ( !hcal && fabs(track_Z) < 300. ) return std::pair<double,double>(-1,-1);
+    if ( !hcal && fabs(track_Z) < 300. ) return -1.;
     // if ( hcal && track_Z < 359. ) return std::pair<double,double>(-1,-1);
-    if ( track_Z * clusterZ < 0. ) return std::pair<double,double>(-1,-1);
+    if ( track_Z * clusterZ < 0. ) return -1.;
   }
   // Check that, if the cluster is in the barrel, 
   // 1) the track is in the barrel too !
   if ( barrel ) 
-    if ( !hcal && fabs(track_Z) > 300. ) return std::pair<double,double>(-1,-1);
+    if ( !hcal && fabs(track_Z) > 300. ) return -1.;
 
-  double clusteretares 
-    = mapeta->GetBinContent(mapeta->FindBin(clustereta, 
-					    cluster.energy() ) );
-  double clusterphires 
-    = mapphi->GetBinContent(mapphi->FindBin(clustereta, 
-					    cluster.energy() ) );
-  
-  
-  // rec track resolution should be negligible compared 
-  // calo resolution
-  double trackres = 0;
-  
-  std::pair<double,double> lnk = computeChi2( clustereta, clusteretares, 
-					      clusterphi, clusterphires, 
-					      tracketa, trackres, 
-					      trackphi, trackres);
+  double dist = computeDist( clustereta, clusterphi, 
+			     tracketa, trackphi);
   
 #ifdef PFLOW_DEBUG
-  double chi2 = lnk.first;
-  if(debug_) cout<<"test link by rechit "<<chi2<<" "<<endl;
+  if(debug_) cout<<"test link by rechit "<< dist <<" "<<endl;
   if(debug_){
-    cout<<" clustereta "  << clustereta << "  clusteretares "<<clusteretares
-	<<" clusterphi "  << clusterphi << "  clusterphires "<<clusterphires
-	<<" tracketa " << tracketa<< "  trackres "  <<trackres
-	<<" trackphi " << trackphi<< "  trackres "  <<trackres << endl;
+    cout<<" clustereta "  << clustereta 
+	<<" clusterphi "  << clusterphi 
+	<<" tracketa " << tracketa
+	<<" trackphi " << trackphi << endl;
   }
 #endif
   
@@ -1541,10 +929,10 @@ PFBlockAlgo::testTrackAndClusterByRecHit( const PFRecTrack& track,
     const std::vector<reco::PFRecHit::REPPoint>& corners = 
       rechit_cluster.getCornersREP();
     assert(corners.size() == 4);
-
+    
     if( barrel || hcal ){ // barrel case matching in eta/phi 
                           // (and HCAL endcap too!)
-
+      
       //rechit size determination 
       // blown up by 50% (HCAL) to 100% (ECAL) to include cracks & gaps
       // also blown up to account for multiple scattering at low pt.
@@ -1556,7 +944,7 @@ PFBlockAlgo::testTrackAndClusterByRecHit( const PFRecTrack& track,
       if ( hcal ) { 
 	rhsizeEta = rhsizeEta * (1.50 + 0.5/fracs.size()) + 0.2*fabs(dHEta);
 	rhsizePhi = rhsizePhi * (1.50 + 0.5/fracs.size()) + 0.2*fabs(dHPhi); 
-
+	
       } else { 
 	rhsizeEta *= 2.00 + 1.0/fracs.size()/min(1.,trackPt/2.);
 	rhsizePhi *= 2.00 + 1.0/fracs.size()/min(1.,trackPt/2.); 
@@ -1577,14 +965,14 @@ PFBlockAlgo::testTrackAndClusterByRecHit( const PFRecTrack& track,
 	     << " SizePhi=" << rhsizePhi << endl;
       }
 #endif
-    
+      
       //distance track-rechit center
       // const math::XYZPoint& posxyz 
       // = rechit_cluster.position();
       double deta = fabs(posrep.Eta() - tracketa);
       double dphi = fabs(posrep.Phi() - trackphi);
       if ( dphi > M_PI ) dphi = 2.*M_PI - dphi;
-
+      
 #ifdef PFLOW_DEBUG
       if( debug_ ){
 	cout << "distance=" 
@@ -1602,12 +990,12 @@ PFBlockAlgo::testTrackAndClusterByRecHit( const PFRecTrack& track,
       }
     }
     else { //ECAL & PS endcap case, matching in X,Y
-
+      
 #ifdef PFLOW_DEBUG
       if( debug_ ){
 	const math::XYZPoint& posxyz 
 	  = rechit_cluster.position();
-       
+	
 	cout << "RH " << posxyz.X()
 	     << " "   << posxyz.Y()
 	     << endl;
@@ -1620,14 +1008,14 @@ PFBlockAlgo::testTrackAndClusterByRecHit( const PFRecTrack& track,
       
       double x[5];
       double y[5];
-
+      
       for ( unsigned jc=0; jc<4; ++jc ) {
 	math::XYZPoint cornerposxyz = cornersxyz[jc];
 	x[jc] = cornerposxyz.X() + (cornerposxyz.X()-posxyz.X())
-	                         * (1.00+0.50/fracs.size()/min(1.,trackPt/2.));
+	  * (1.00+0.50/fracs.size()/min(1.,trackPt/2.));
 	y[jc] = cornerposxyz.Y() + (cornerposxyz.Y()-posxyz.Y())
-                        	 * (1.00+0.50/fracs.size()/min(1.,trackPt/2.));
-
+	  * (1.00+0.50/fracs.size()/min(1.,trackPt/2.));
+	
 #ifdef PFLOW_DEBUG
 	if( debug_ ){
 	  cout<<"corners "<<jc
@@ -1637,12 +1025,12 @@ PFBlockAlgo::testTrackAndClusterByRecHit( const PFRecTrack& track,
 	}
 #endif
       }//loop corners
-
+      
       //need to close the polygon in order to
       //use the TMath::IsInside fonction from root lib
       x[4] = x[0];
       y[4] = y[0];
-  
+      
       //Check if the extrapolation point of the track falls 
       //within the rechit boundaries
       bool isinside = TMath::IsInside(track_X,
@@ -1668,25 +1056,25 @@ PFBlockAlgo::testTrackAndClusterByRecHit( const PFRecTrack& track,
     double trackr = std::sqrt(track_X*track_X+track_Y*track_Y);
     if ( distance > 40. ) 
     std::cout << "Distance = " << distance 
-	      << ", Barrel/Hcal/Brem ? " << barrel << " " << hcal << " " << isBrem << std::endl
-	      << " Cluster " << clusterr << " " << clusterZ << " " << clusterphi << " " << clustereta << std::endl
-	      << " Track   " << trackr << " " << track_Z << " " << trackphi << " " << tracketa << std::endl;
+    << ", Barrel/Hcal/Brem ? " << barrel << " " << hcal << " " << isBrem << std::endl
+    << " Cluster " << clusterr << " " << clusterZ << " " << clusterphi << " " << clustereta << std::endl
+    << " Track   " << trackr << " " << track_Z << " " << trackphi << " " << tracketa << std::endl;
     */
-    return lnk;
+    return dist;
   } else {
-    return std::pair<double,double>(-1,-1);
+    return -1.;
   }
 
 }
 
-std::pair<double,double> 
+double
 PFBlockAlgo::testECALAndPSByRecHit( const PFCluster& clusterECAL, 
 				    const PFCluster& clusterPS)  const {
 
   // Check that clusterECAL is in ECAL endcap and that clusterPS is a preshower cluster
   if ( clusterECAL.layer() != PFLayer::ECAL_ENDCAP ||
        ( clusterPS.layer() != PFLayer::PS1 && 
-	 clusterPS.layer() != PFLayer::PS2 ) ) return std::pair<double,double>(-1,-1);
+	 clusterPS.layer() != PFLayer::PS2 ) ) return -1.;
 
 #ifdef PFLOW_DEBUG
   if( debug_ ) 
@@ -1703,7 +1091,7 @@ PFBlockAlgo::testECALAndPSByRecHit( const PFCluster& clusterECAL,
   double xPS = clusterPS.position().X(); //* zECAL/zPS;
   double yPS = clusterPS.position().Y(); //* zECAL/zPS;
 // MDN jan09 : check that zEcal and zPs have the same sign
-	if (zECAL*zPS <0.) return std::pair<double,double>(-1,-1);
+	if (zECAL*zPS <0.) return -1.;
   double deltaX = 0.;
   double deltaY = 0.;
   double sqr12 = std::sqrt(12.);
@@ -1785,39 +1173,18 @@ PFBlockAlgo::testECALAndPSByRecHit( const PFCluster& clusterECAL,
   
   if( linkedbyrechit ) {
     if( debug_ ) cout << "Cluster PS and Cluster ECAL LINKED BY RECHIT" << endl;
-    std::pair<double,double> 
-      lnk = computeChi2( xECAL/1000.,1.,yECAL/1000.,1.,
-			 xPS/1000.  ,1.,yPS/1000.  ,1.);    
-    return lnk;
+    double dist = computeDist( xECAL/1000.,yECAL/1000.,
+			       xPS/1000.  ,yPS/1000);    
+    return dist;
   } else { 
-    return std::pair<double,double>(-1,-1);
+    return -1.;
   }
 
 }
 
-std::pair<double,double> 
-PFBlockAlgo::computeChi2( double eta1, double reta1, 
-			  double phi1, double rphi1, 
-			  double eta2, double reta2, 
-			  double phi2, double rphi2 ) const {
-  
-  double phicor = Utils::mpi_pi(phi1 - phi2);
-  
-  double chi2 =  
-    (eta1 - eta2)*(eta1 - eta2) / ( reta1*reta1+ reta2*reta2 ) +
-    phicor*phicor / ( rphi1*rphi1+ rphi2*rphi2 );
-
-  double dist = std::sqrt( (eta1 - eta2)*(eta1 - eta2) 
-			  + phicor*phicor);
-
-  return std::pair<double,double>(chi2,dist);
-
-}
-
-
-std::pair<double,double> 
+double 
 PFBlockAlgo::testHFEMAndHFHADByRecHit(const reco::PFCluster& clusterHFEM, 
-					   const reco::PFCluster& clusterHFHAD) const {
+				      const reco::PFCluster& clusterHFHAD) const {
   
   math::XYZPoint posxyzEM = clusterHFEM.position();
   math::XYZPoint posxyzHAD = clusterHFHAD.position();
@@ -1826,25 +1193,36 @@ PFBlockAlgo::testHFEMAndHFHADByRecHit(const reco::PFCluster& clusterHFEM,
   double dY = posxyzEM.Y()-posxyzHAD.Y();
   double sameZ = posxyzEM.Z()*posxyzHAD.Z();
 
-
-  std::pair<double,double> badLink(-1,-1);
- 
-  if(sameZ<0) return badLink;
+  if(sameZ<0) return -1.;
 
   double dist2 = dX*dX + dY*dY; 
 
-  if( dist2<0.1 ) {
+  if( dist2 < 0.1 ) {
     // less than one mm
     double dist = sqrt( dist2 );
-    return std::pair<double,double>(dist, dist);;
+    return dist;;
   }
   else 
-    return std::pair<double,double>(-1,-1);
+    return -1.;
 
 }
 
+double
+PFBlockAlgo::computeDist( double eta1, double phi1, 
+			  double eta2, double phi2 ) const {
+  
+  double phicor = Utils::mpi_pi(phi1 - phi2);
+  
+  // double chi2 =  
+  //  (eta1 - eta2)*(eta1 - eta2) / ( reta1*reta1+ reta2*reta2 ) +
+  //  phicor*phicor / ( rphi1*rphi1+ rphi2*rphi2 );
 
+  double dist = std::sqrt( (eta1 - eta2)*(eta1 - eta2) 
+			  + phicor*phicor);
 
+  return dist;
+
+}
 
 void 
 PFBlockAlgo::checkMaskSize( const reco::PFRecTrackCollection& tracks,
@@ -1925,17 +1303,6 @@ std::ostream& operator<<(std::ostream& out, const PFBlockAlgo& a) {
   if(! out) return out;
   
   out<<"====== Particle Flow Block Algorithm ======= ";
-  out<<endl;
-  out<<"resMapEtaECAL "<<a.resMapEtaECAL_->GetMapFile()<<endl;
-  out<<"resMapPhiECAL "<<a.resMapPhiECAL_->GetMapFile()<<endl;
-  out<<"resMapEtaHCAL "<<a.resMapEtaHCAL_->GetMapFile()<<endl;
-  out<<"resMapPhiHCAL "<<a.resMapPhiHCAL_->GetMapFile()<<endl;
-  out<<"chi2TrackECAL "<<a.chi2TrackECAL_<<endl;
-  out<<"chi2TrackHCAL "<<a.chi2TrackHCAL_<<endl;
-  out<<"chi2ECALHCAL  "<<a.chi2ECALHCAL_<<endl;
-  out<<"chi2PSECAL    "<<a.chi2PSECAL_  <<endl;
-  out<<"chi2PSTRACK   "<<a.chi2PSTrack_ <<endl;
-  out<<"chi2PSHV      "<<a.chi2PSHV_    <<endl;
   out<<endl;
   out<<"number of unassociated elements : "<<a.elements_.size()<<endl;
   out<<endl;
@@ -2146,7 +1513,7 @@ PFBlockAlgo::checkNuclearLinks( reco::PFBlock& block ) const {
 			      reco::PFBlockElement::TRACK,
 			      reco::PFBlock::LINKTEST_ALL );
     for( IE ie = assocTracks.begin(); ie != assocTracks.end(); ++ie) {
-      double   chi2prim  = ie->first;
+      double   distprim  = ie->first;
       unsigned iprim     = ie->second;
       // if this track a primary track (T_To_NUCL)
       if( els[iprim].trackType(PFBlockElement::T_TO_NUCL) )  {
@@ -2158,24 +1525,16 @@ PFBlockAlgo::checkNuclearLinks( reco::PFBlock& block ) const {
 				  reco::PFBlock::LINKTEST_ALL );
 	for( IE ie2 = secTracks.begin(); ie2 != secTracks.end(); ++ie2) { 
 	  unsigned isec = ie2->second;
-	  double chi2sec_rechit = block.chi2( i1, isec, block.linkData(),
-					      PFBlock::LINKTEST_RECHIT );
-	  double chi2sec_chi2 = block.chi2( i1, isec, block.linkData(),
-					    PFBlock::LINKTEST_CHI2 );
-	  double chi2sec;
+	  double distsec = block.dist( i1, isec, block.linkData(),
+				       PFBlock::LINKTEST_RECHIT );
 
 	  // at present associatedElement return first the chi2 by chi2
 	  // maybe in the futur return the min between chi2 and rechit! 
-	  if( chi2sec_chi2 > 0) chi2sec = chi2sec_chi2;
-	  else chi2sec=chi2sec_rechit;
-
 	  // if one secondary tracks has a chi2 < chi2prim 
 	  // remove the link between the element and the primary
-	  if( chi2sec < 0 ) continue;
-	  else if( chi2sec < chi2prim ) { 
-	    block.setLink( i1, iprim, -1, -1, block.linkData(),
-			   PFBlock::LINKTEST_CHI2 );
-	    block.setLink( i1, iprim, -1, -1, block.linkData(),
+	  if( distsec < 0 ) continue;
+	  else if( distsec < distprim ) { 
+	    block.setLink( i1, iprim, -1, block.linkData(),
 			   PFBlock::LINKTEST_RECHIT );
 	    continue;
 	  }

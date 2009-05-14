@@ -262,12 +262,6 @@ clustering posCalc_p1_PS                0
 
 // particle flow parameters ----------------------------------------------
 
-
-particle_flow resolution_map_ECAL_eta ${CMSSW_DATA_PATH}/data-RecoParticleFlow-PFBlockProducer/2/RecoParticleFlow/PFBlockProducer/data/resmap_ECAL_eta.dat
-particle_flow resolution_map_ECAL_phi ${CMSSW_DATA_PATH}/data-RecoParticleFlow-PFBlockProducer/2/RecoParticleFlow/PFBlockProducer/data/resmap_ECAL_phi.dat
-particle_flow resolution_map_HCAL_eta ${CMSSW_DATA_PATH}/data-RecoParticleFlow-PFBlockProducer/2/RecoParticleFlow/PFBlockProducer/data/resmap_HCAL_eta.dat
-particle_flow resolution_map_HCAL_phi ${CMSSW_DATA_PATH}/data-RecoParticleFlow-PFBlockProducer/2/RecoParticleFlow/PFBlockProducer/data/resmap_HCAL_phi.dat
-
 // Debug blockAlgo
 blockAlgo debug 0
 // Debug PFAlgo
@@ -277,26 +271,6 @@ PFAlgo debug 0
 // and if nHit >= nHitCut
 particle_flow DPtoverPt_Cut  1. 1. 0.8 0.5 0.0
 particle_flow NHit_Cut 3 3 3 6 100
-
-// chi2 maximum limit for ECAL/Track association
-particle_flow chi2_ECAL_Track  0
-// chi2 maximum limit for HCAL/Track association
-particle_flow chi2_HCAL_Track  0
-// chi2 maximum limit for ECAL/HCAL assoiation
-particle_flow chi2_ECAL_HCAL   0
-
-// chi2 maximum limit for PS/ECAL association
-particle_flow chi2_PS_ECAL	0
-// chi2 maximum limit for PS/Track association
-particle_flow chi2_PS_Track	0
-// chi2 maximum limit for PSH/PSH association
-particle_flow chi2_PSH_PSV	0
-// chi2 maximum limit for ECAL/GSF association
-particle_flow chi2_ECAL_GSF	0
-
-// if true, using special algorithm to process
-// multiple track associations to the same hcal cluster
-particle_flow multilink 1
 
 // Treatment of muons : 
 // Expected energy in ECAL and HCAL, and RMS
@@ -321,12 +295,6 @@ particle_flow	mergedPhotons_mvaWeightFile ${CMSSW_DATA_PATH}/data-RecoParticleFl
 particle_flow   mergedPhotons_PSCut  0.001   
 
 // PFElectrons
-particle_flow 	final_chi2cut_gsfecal  0.
-particle_flow   final_chi2cut_bremecal 0.
-particle_flow 	final_chi2cut_gsfhcal  0.
-particle_flow   final_chi2cut_bremhcal 0.
-particle_flow 	final_chi2cut_gsfps    0.
-particle_flow   final_chi2cut_bremps   0.
 particle_flow   electron_mvaCut     -0.1
 particle_flow   usePFElectrons      1
 particle_flow   electronID_mvaWeightFile    ${CMSSW_DATA_PATH}/data-RecoParticleFlow-PFProducer/1/RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan.txt

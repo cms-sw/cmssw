@@ -125,7 +125,7 @@ bool PFConversionAlgo::setLinks(const reco::PFBlockRef& blockRef,
     block.associatedElements( iElem,  linkData,
                               trackElems ,
                               reco::PFBlockElement::TRACK,
-                              reco::PFBlock::LINKTEST_CHI2);
+                              reco::PFBlock::LINKTEST_RECHIT);
 
 
     if(trackElems.empty() ) {
@@ -146,7 +146,6 @@ bool PFConversionAlgo::setLinks(const reco::PFBlockRef& blockRef,
 
     //    std::cout<<"  look at linked hcal clusters"<<std::endl;
     for(IE iTk = hcalElems.begin(); iTk != hcalElems.end(); ++iTk ) {
-      //      double   chi2  = iTk->first;
       unsigned index = iTk->second;
       PFBlockElement::Type type = elements[index].type();
       if ( type ==  reco::PFBlockElement::HCAL) {
@@ -161,7 +160,6 @@ bool PFConversionAlgo::setLinks(const reco::PFBlockRef& blockRef,
 
     //    std::cout<<"  look at linked ecal clusters"<<std::endl;
     for(IE iTk = ecalElems.begin(); iTk != ecalElems.end(); ++iTk ) {
-      //      double   chi2  = iTk->first;
       unsigned index = iTk->second;
       PFBlockElement::Type type = elements[index].type();
       if ( type ==  reco::PFBlockElement::ECAL) {
@@ -176,7 +174,6 @@ bool PFConversionAlgo::setLinks(const reco::PFBlockRef& blockRef,
 
     //    std::cout<<"PFConversionAlgo::setLinks  look at linked tracks"<<std::endl;    
     for(IE iTk = trackElems.begin(); iTk != trackElems.end(); ++iTk ) {
-      //      double   chi2  = iTk->first;
       unsigned index = iTk->second;
       //PFBlockElement::Type type = elements[index].type();
 	// link track-track is found 
@@ -190,7 +187,6 @@ bool PFConversionAlgo::setLinks(const reco::PFBlockRef& blockRef,
 
 
 	for(IE iTk = ecalElems2.begin(); iTk != ecalElems2.end(); ++iTk ) {
-	  //	  double   chi2  = iTk->first;
 	  unsigned index = iTk->second;
 	  PFBlockElement::Type type = elements[index].type();
 	  if ( type ==  reco::PFBlockElement::ECAL) {
@@ -207,7 +203,6 @@ bool PFConversionAlgo::setLinks(const reco::PFBlockRef& blockRef,
 				 hcalElems2 ,
 				 reco::PFBlockElement::HCAL );
 	for(IE iTk = hcalElems.begin(); iTk != hcalElems.end(); ++iTk ) {
-	  //	  double   chi2  = iTk->first;
 	  unsigned index = iTk->second;
 	  PFBlockElement::Type type = elements[index].type();
 	  if ( type ==  reco::PFBlockElement::HCAL) {

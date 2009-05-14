@@ -14,8 +14,7 @@ class PFElectronAlgo {
  public:
   
   //constructor
-  PFElectronAlgo(const std::vector<double> chi2values,
-		 const double mvaEleCut,
+  PFElectronAlgo(const double mvaEleCut,
 		 std::string  mvaWeightFileEleID);
 		
   
@@ -77,7 +76,6 @@ class PFElectronAlgo {
   std::map<unsigned int,std::vector<reco::PFCandidate> > photonCandidates_;
   std::vector<double> BDToutput_;
   std::vector<bool> lockExtraKf_;
-  std::vector<double> chi2values_;
   std::vector<bool> GsfTrackSingleEcal_;
 
   double mvaEleCut_;
