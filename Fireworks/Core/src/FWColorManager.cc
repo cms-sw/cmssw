@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.7 2009/05/05 09:39:28 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.8 2009/05/13 20:26:05 amraktad Exp $
 //
 
 // system include files
@@ -298,29 +298,9 @@ FWColorManager::setBrightness(float off)
 }
 
 void
-FWColorManager::decreaseBrightness()
+FWColorManager::defaultBrightness()
 {
-   Float_t value =  m_gammaOff + 0.1;
-   if (value < -2.5 || value > 2.5)
-   {
-      printf("Warning::Set brightness out of range.  value '%f' out of range [-2.5, 2.5]. \n", value);
-      return;
-   }
-   
-   m_gammaOff = value;
-   updateBrightness();
-}
-
-void
-FWColorManager::increaseBrightness()
-{
-   Float_t value =  m_gammaOff - 0.1;
-   if (value < -2.5 || value > 2.5)
-   {
-      printf("Warning::Set brightness out of range.  value '%f' out of range [-2.5, 2.5].\n", value);
-      return;
-   }
-   m_gammaOff = value;
+   m_gammaOff = 0;
    updateBrightness();
 }
 

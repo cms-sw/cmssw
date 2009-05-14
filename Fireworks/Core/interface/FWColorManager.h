@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:07:58 CET 2009
-// $Id: FWColorManager.h,v 1.5 2009/05/04 20:03:32 amraktad Exp $
+// $Id: FWColorManager.h,v 1.6 2009/05/13 20:26:05 amraktad Exp $
 //
 
 // system include files
@@ -67,8 +67,7 @@ public:
    // ---------- static member functions --------------------
    
    // ---------- member functions ---------------------------
-   void increaseBrightness();
-   void decreaseBrightness();
+   void defaultBrightness();
    void setBrightness(float x);
    
    void setBackgroundColorIndex(BackgroundColorIndex);
