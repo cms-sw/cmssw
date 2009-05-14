@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: CastorHardcodeCalibrations.cc,v 1.17 2009/03/24 16:11:36 rofierzy Exp $
+// $Id: CastorHardcodeCalibrations.cc,v 1.3 2009/03/26 17:49:44 mundim Exp $
 // Adapted for CASTOR by L. Mundim
 //
 
@@ -54,7 +54,7 @@ std::vector<HcalGenericDetId> allCells (bool h2_mode) {
 
    section = HcalCastorDetId::HAD;
     for(int sector= 1; sector < 17; sector++){
-     for(int module=1; module<13; module++) {
+     for(int module=3; module<15; module++) {
       cell = HcalCastorDetId(section, true, sector, module);
       if(castortopology.valid(cell)) result.push_back(cell);
       cell = HcalCastorDetId(section, false, sector, module);
