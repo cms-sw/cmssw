@@ -4,39 +4,16 @@
 #include "PhysicsTools/CandUtils/interface/pdgIdUtils.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
 
+/**
+   \class   TtGenEvent TtGenEvent.h "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 
-namespace TtFullLepEvtPartons{
-  /// full leptonic parton enum used to define the order 
-  /// in the vector for lepton jet combinatorics; this 
-  /// order has to be obeyed strictly then!
-  enum { B, BBar, Lepton, LeptonBar };
-}
+   \brief   Class derived from the TopGenEvent for ttbar events
 
-namespace TtSemiLepEvtPartons{
-  /// semi-leptonic parton enum used to define the order 
-  /// in the vector for lepton jet combinatorics; this 
-  /// order has to be obeyed strictly then!
-  enum { LightQ, LightQBar, HadB, LepB, Lepton };
-}
-
-namespace TtFullHadEvtPartons{
-  /// full hadronic parton enum used to define the order 
-  /// in the vector for lepton jet combinatorics; this 
-  /// order has to be obeyed strictly then!
-  enum { LightQTop, LightQBarTop, B, LightQTopBar, LightQBarTopBar, BBar};
-}
-
-
-// ----------------------------------------------------------------------
-// derived class for: 
-//
-//  * TtGenEvent
-//
-//  the structure holds reference information to the generator particles 
-//  of the decay chains for each top quark and of the initial partons 
-//  and provides access and administration;  the derived class contains 
-//  a few additional getters with respect to its base class
-// ----------------------------------------------------------------------
+   The structure holds reference information to the generator particles 
+   of the decay chains for each top quark and of the initial partons 
+   and provides access and administration. The derived class contains 
+   a few additional getters with respect to its base class.
+*/
 
 class TtGenEvent: public TopGenEvent {
 

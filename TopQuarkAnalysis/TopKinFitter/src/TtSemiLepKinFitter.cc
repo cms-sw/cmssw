@@ -5,7 +5,7 @@
 #include "PhysicsTools/KinFitter/interface/TFitParticleEtThetaPhi.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleEScaledMomDev.h"
 
-#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiLepKinFitter.h"
 
 //introduced to repair kinFit w/o resolutions from pat

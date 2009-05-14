@@ -1,6 +1,5 @@
-#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypWMassMaxSumPt.h"
-
 
 TtSemiLepHypWMassMaxSumPt::TtSemiLepHypWMassMaxSumPt(const edm::ParameterSet& cfg):
   TtSemiLepHypothesis( cfg ),  
@@ -100,14 +99,17 @@ TtSemiLepHypWMassMaxSumPt::buildHypo(edm::Event& evt,
     setCandidate(jets, closestToWMassIndices[0], lightQ_);
     match[TtSemiLepEvtPartons::LightQ] = closestToWMassIndices[0];
   }
+
   if( isValid(closestToWMassIndices[1], jets) ){
     setCandidate(jets, closestToWMassIndices[1], lightQBar_);
     match[TtSemiLepEvtPartons::LightQBar] = closestToWMassIndices[1];
   }
+  
   if( isValid(hadB, jets) ){
     setCandidate(jets, hadB, hadronicB_);
     match[TtSemiLepEvtPartons::HadB] = hadB;
   }
+
   if( isValid(lepB, jets) ){
     setCandidate(jets, lepB, leptonicB_);
     match[TtSemiLepEvtPartons::LepB] = lepB;

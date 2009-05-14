@@ -1,4 +1,4 @@
-#include "AnalysisDataFormats/TopObjects/interface/TtEventPartons.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepJetComb.h"
 
 TtSemiLepJetComb::TtSemiLepJetComb()

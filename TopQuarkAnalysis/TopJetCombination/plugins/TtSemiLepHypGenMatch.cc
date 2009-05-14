@@ -1,7 +1,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypGenMatch.h"
-
 
 TtSemiLepHypGenMatch::TtSemiLepHypGenMatch(const edm::ParameterSet& cfg):
   TtSemiLepHypothesis( cfg ) { }
@@ -22,17 +22,13 @@ TtSemiLepHypGenMatch::buildHypo(edm::Event& evt,
     if( isValid(match[idx], jets) ){
       switch(idx){
       case TtSemiLepEvtPartons::LightQ:
-	setCandidate(jets, match[idx], lightQ_); 
-	break;
+	setCandidate(jets, match[idx], lightQ_); break;
       case TtSemiLepEvtPartons::LightQBar:
-	setCandidate(jets, match[idx], lightQBar_); 
-	break;
+	setCandidate(jets, match[idx], lightQBar_); break;
       case TtSemiLepEvtPartons::HadB:
-	setCandidate(jets, match[idx], hadronicB_); 
-	break;
+	setCandidate(jets, match[idx], hadronicB_); break;
       case TtSemiLepEvtPartons::LepB: 
-	setCandidate(jets, match[idx], leptonicB_); 
-	break;
+	setCandidate(jets, match[idx], leptonicB_); break;
       }
     }
   }
@@ -42,9 +38,8 @@ TtSemiLepHypGenMatch::buildHypo(edm::Event& evt,
   // -----------------------------------------------------
   if( !leps->empty() ){
     int iLepton = findMatchingLepton(evt,leps);
-    if( iLepton>=0 ){
+    if( iLepton>=0 )
       setCandidate(leps, iLepton, lepton_);
-    }
     match.push_back( iLepton );
   }
   else match.push_back( -1 );
@@ -52,9 +47,8 @@ TtSemiLepHypGenMatch::buildHypo(edm::Event& evt,
   // -----------------------------------------------------
   // add neutrino
   // -----------------------------------------------------
-  if( !mets->empty() ){
+  if( !mets->empty() )
     setCandidate(mets, 0, neutrino_);
-  }
 }
 
 int
