@@ -19,7 +19,7 @@
 //
 // Original Author:  Sal Rappoccio
 //         Created:  Wed Nov 28 15:31:57 CST 2007
-// $Id: CompositeKit.h,v 1.5 2008/07/09 16:31:47 srappocc Exp $
+// $Id: CompositeKit.h,v 1.4 2008/07/08 21:53:11 srappocc Exp $
 //
 // Revision History:
 //       -  Sal Rappoccio, Fri Nov 30 12:49:44 CST 2007: Added other objects as first
@@ -75,8 +75,6 @@ protected:
   edm::Handle<std::vector<pat::Jet> >      jetHandle_;
   edm::Handle<std::vector<pat::MET> >      METHandle_;
   edm::Handle<std::vector<pat::Photon> >   photonHandle_;
-  edm::Handle<std::vector<reco::RecoChargedCandidate> >   trackHandle_;
-  edm::Handle<std::vector<reco::GenParticle> > genParticlesHandle_;
 
   // Composite Candidates Input handle
   edm::Handle<std::vector<reco::CompositeCandidate> >  compositeCandHandle_;

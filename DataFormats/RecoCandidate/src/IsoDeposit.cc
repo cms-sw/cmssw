@@ -139,6 +139,10 @@ double IsoDeposit::sumWithin(double coneSize, const AbsVetos& vetos, bool skipDe
 {
 	return algoWithin<SumAlgo>(coneSize, vetos, skipDepositVeto);
 }
+double IsoDeposit::sumWithin(const Direction& dir, double coneSize, const AbsVetos& vetos, bool skipDepositVeto) const 
+{
+	return algoWithin<SumAlgo>(dir, coneSize, vetos, skipDepositVeto);
+}
 double IsoDeposit::sum2Within(double coneSize, const AbsVetos& vetos, bool skipDepositVeto) const 
 {
 	return algoWithin<Sum2Algo>(coneSize, vetos, skipDepositVeto);
@@ -148,12 +152,7 @@ double IsoDeposit::maxWithin(double coneSize, const AbsVetos& vetos, bool skipDe
 	return algoWithin<MaxAlgo>(coneSize, vetos, skipDepositVeto);
 }
 
-
-
-
-
-std::string IsoDeposit::print() const
-{
+std::string IsoDeposit::print() const {
   std::ostringstream str;
   str<<"Direction : "<<theDirection.print()<<std::endl;
   str<<"Veto:       ("<<theVeto.vetoDir.eta()<<", "<<theVeto.vetoDir.phi()<<" dR="<<theVeto.dR<<")"<<std::endl;

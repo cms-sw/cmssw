@@ -100,7 +100,7 @@ void PixelROCName::check(bool check, const string& name){
 
   if (check) return;
 
-  cout << "[PixelROCName::check()]\t\t\t\t    ERROR tried to parse string:'"<<name;
+  cout << "ERROR tried to parse string:'"<<name;
   cout << "' as a ROC name. Will terminate."<<endl;
 
   ::abort();
@@ -118,7 +118,7 @@ void PixelROCName::parsename(std::string name){
     //
 
     
-  //    std::cout << "[PixelROCName::parsename()]\t\tROC name:"<<name<<std::endl;
+//    std::cout << "[PixelROCName::parsename()]\t\tROC name:"<<name<<std::endl;
 
     check(name[0]=='F'||name[0]=='B',name);
 

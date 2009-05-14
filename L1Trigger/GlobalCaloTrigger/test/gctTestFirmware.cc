@@ -116,8 +116,13 @@ vector<gctTestFirmware::JetsVector> gctTestFirmware::getJetsFromFile(const int b
       // *** The sort is currently commented. Note that it won't work unless the ***
       // *** same et->rank lookup table is used in the test and in the emulator  ***
       // sort(temp.begin(), temp.end(), L1GctJet::rankGreaterThan());
-      JetsVector::iterator itr = result.at(j).end();
-      result.at(j).insert(itr, temp.begin(), temp.end());
+
+      // Shift the jetfinders around in phi 
+      static const unsigned JF_PHI_OFFSET = 1;
+      static const unsigned JF_NPHI = L1CaloRegionDetId::N_PHI/2;
+      unsigned pos = JF_NPHI*( j/JF_NPHI ) + (j + JF_PHI_OFFSET)%JF_NPHI;
+      JetsVector::iterator itr = result.at(pos).end();
+      result.at(pos).insert(itr, temp.begin(), temp.end());
     }
     bx++;
   }

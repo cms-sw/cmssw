@@ -38,6 +38,10 @@ class MultiIsolator {
         template<typename T>
         void fill(const edm::View<T> &coll, int idx, IsolationValuePairs& isolations) const ;
 
+        /// Fill Isolation from a Ref, Ptr or RefToBase to the object
+        template<typename RefType>
+        void fill(const RefType &ref, IsolationValuePairs& isolations) const ;
+
         void print(std::ostream &out) const ;
 
         std::string printSummary() const ;
@@ -61,16 +65,24 @@ class MultiIsolator {
         return retval;
     }
 
-    template<typename T>
+    template<typename RefType>
     void 
-    MultiIsolator::fill(const edm::View<T> &coll, int idx, IsolationValuePairs & isolations) const 
+    MultiIsolator::fill(const RefType &rb, IsolationValuePairs & isolations) const 
     {
         isolations.resize(isolators_.size());
-        edm::RefToBase<T> rb = coll.refAt(idx); 
         for (size_t i = 0, n = isolators_.size(); i < n; ++i) {
            isolations[i].first  = keys_[i];
            isolations[i].second = isolators_[i].getValue(rb); 
         }
+    }
+
+
+    template<typename T>
+    void 
+    MultiIsolator::fill(const edm::View<T> &coll, int idx, IsolationValuePairs & isolations) const 
+    {
+        edm::RefToBase<T> rb = coll.refAt(idx); 
+        fill(rb, isolations);
     }
 
 }} // namespace

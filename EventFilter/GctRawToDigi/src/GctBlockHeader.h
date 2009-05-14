@@ -1,66 +1,82 @@
-#ifndef GCTBLOCKHEADER_H
-#define GCTBLOCKHEADER_H
+#ifndef GctBlockHeader_h_
+#define GctBlockHeader_h_
 
-#include "EventFilter/GctRawToDigi/src/GctBlockHeaderBase.h"
 
 /*!
 * \class GctBlockHeader
-* \brief Version 1 of the pipeline block header (deprecated - kept for backwards compatibility)
-* 
-* 
+* \brief Simple class for holding the basic attributes of an 32-bit block header.
+* * 
 * \author Robert Frazier
-* $Revision: $
-* $Date: $
-*/ 
+* $Revision: 1.17 $
+* $Date: 2009/04/09 11:09:26 $
+*/
 
-//  Bit mapping of the header:
-//  --------------------------
-/*! blockId = 7:0,
- *  nSamples = 11:8 (if nSamples=0xf, use defNSamples_),
- *  bcId = 23:12,
- *  eventId = 31:24
- */
+// C++ headers
+#include <ostream>
 
 
-
-class GctBlockHeader : public GctBlockHeaderBase
+class GctBlockHeader
 {
 public:
-
-  GctBlockHeader(const uint32_t data=0):GctBlockHeaderBase(data) {}
-  GctBlockHeader(const unsigned char * data):GctBlockHeaderBase(data) {}
-  GctBlockHeader(uint16_t id, uint16_t nsamples, uint16_t bcid, uint16_t evid);
-  ~GctBlockHeader() {}
+ 
+   /* PUBLIC METHODS */
+ 
+  /// Constructor. Don't use directly - use the generateBlockHeader() method in GctFormatTranslateBase-derived classes.
+  /*! \param valid Flag if this is a known and valid header .*/
+  GctBlockHeader(uint32_t blockId,
+                 uint32_t blockLength,
+                 uint32_t nSamples,
+                 uint32_t bxId,
+                 uint32_t eventId,
+                 bool valid);
   
-  /// the block ID
-  unsigned int id() const { return d & 0xff; }
-
-  /// number of time samples
-  unsigned int nSamples() const { return (d>>8) & 0xf; }
+  /// Destructor.
+  ~GctBlockHeader() {};
   
-  /// bunch crossing ID
-  unsigned int bcId() const { return (d>>12) & 0xfff; }
+  /// Get the block ID
+  uint32_t blockId() const { return m_blockId; }
 
-  /// event ID
-  unsigned int eventId() const { return (d>>24) & 0xff; }
+  /// Get the fundamental block length (for 1 time sample)
+  uint32_t blockLength() const { return m_blockLength; }
 
-protected:
-
-  BlockLengthMap& blockLengthMap() { return blockLength_; }
-  const BlockLengthMap& blockLengthMap() const { return blockLength_; }
+  /// Get the number of time samples
+  uint32_t nSamples() const { return m_nSamples; }
   
-  /// Pure virtual interface for accessing concrete-subclass static blockname map.
-  BlockNameMap& blockNameMap() { return blockName_; }
-  const BlockNameMap& blockNameMap() const { return blockName_; }
-  
+  /// Get the bunch crossing ID
+  uint32_t bxId() const { return m_bxId; }
+
+  /// Get the event ID
+  uint32_t eventId() const { return m_eventId; }
+
+  /// Returns true if it's valid block header - i.e. if the header is known and can be unpacked.
+  bool valid() const { return m_valid; }
+
 
 private:
 
-  /// Map to translate block number to fundamental size of a block (i.e. for 1 time-sample).
-  static BlockLengthMap blockLength_;
+  /* PRIVATE METHODS */  
+
+
+
+  /* PRIVATE MEMBER DATA */
   
-  /// Map to hold a description for each block number.
-  static BlockNameMap blockName_;
+  uint32_t m_blockId;  ///< The Block ID
+  
+  uint32_t m_blockLength;  ///< The fundamental block length (for 1 time sample)
+
+  uint32_t m_nSamples;  ///< The number of time-samples 
+  
+  uint32_t m_bxId;  ///< The bunch-crossing ID
+  
+  uint32_t m_eventId;  ///< The event ID
+  
+  bool m_valid; ///< Is this a valid block header
+
 };
 
-#endif
+#include <vector>
+typedef std::vector<GctBlockHeader> GctBlockHeaderCollection;
+
+std::ostream& operator<<(std::ostream& os, const GctBlockHeader& h);
+
+#endif /* GctBlockHeader_h_ */

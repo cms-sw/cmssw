@@ -4,19 +4,21 @@ from DQM.EcalBarrelMonitorClient.EcalBarrelMonitorClient_cfi import *
 from DQM.EcalEndcapMonitorClient.EcalEndcapMonitorClient_cfi import *
 
 dqmQTestEB = cms.EDFilter("QualityTester",
-    reportThreshold = cms.untracked.string('red'),
+#    reportThreshold = cms.untracked.string('red'),
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQM/EcalBarrelMonitorModule/test/data/EcalBarrelQualityTests.xml'),
     getQualityTestsFromFile = cms.untracked.bool(True),
-    qtestOnEndRun = cms.untracked.bool(True)
+    qtestOnEndRun = cms.untracked.bool(True),
+    verboseQT = cms.untracked.bool(False)
 )
 
 dqmQTestEE = cms.EDFilter("QualityTester",
-    reportThreshold = cms.untracked.string('red'),
+#    reportThreshold = cms.untracked.string('red'),
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQM/EcalEndcapMonitorModule/test/data/EcalEndcapQualityTests.xml'),
     getQualityTestsFromFile = cms.untracked.bool(True),
-    qtestOnEndRun = cms.untracked.bool(True)
+    qtestOnEndRun = cms.untracked.bool(True),
+    verboseQT = cms.untracked.bool(False)
 )
 
 eb_dqm_client_offline = cms.Sequence(ecalBarrelMonitorClient*dqmQTestEB)

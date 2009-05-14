@@ -13,9 +13,7 @@ class EcalRecHit : public CaloRecHit {
 public:
   typedef DetId key_type;
 
-  static const float kPRECISION;
   static const int kRECOVERED = 9999;
-  static const int kSATURATED = 10000;
 
   EcalRecHit();
   EcalRecHit(const DetId& id, float energy, float time);
@@ -23,7 +21,6 @@ public:
   // For the moment not returning a specific id for subdetector
   DetId id() const { return DetId(detid());}
   bool isRecovered() const;
-  bool isSaturated() const;
 };
 
 std::ostream& operator<<(std::ostream& s, const EcalRecHit& hit);

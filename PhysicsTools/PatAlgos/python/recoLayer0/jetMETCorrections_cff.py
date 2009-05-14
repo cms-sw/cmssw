@@ -1,52 +1,36 @@
 import FWCore.ParameterSet.Config as cms
 
-# default JetMET calibration on IC, KT and MC Jets
-from JetMETCorrections.Configuration.L2L3Corrections152_cff import *
-
-# define jet flavour correction services
-from JetMETCorrections.Configuration.L5FlavorCorrections_cff import *
-
-# produce associated jet correction factors in a valuemap
+## produce associated jet correction factors in a valuemap
 from PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import *
+## jet sequence
+patJetCorrections = cms.Sequence(jetCorrFactors)
 
-# Pick the L2+L3 corrections
-es_prefer_L2L3JetCorrectorIcone5 = cms.ESPrefer("JetCorrectionServiceChain","L2L3JetCorrectorIcone5")
-
-
-# MET corrections from JES
+## MET corrections for JES
 from JetMETCorrections.Type1MET.MetType1Corrections_cff import *
+from JetMETCorrections.Configuration.L2L3Corrections_Summer08_cff import *
+corMetType1Icone5.corrector = cms.string('L2L3JetCorrectorIC5Calo')
 
-# change corrector to L2+L3
-corMetType1Icone5.corrector = cms.string('L2L3JetCorrectorIcone5')
-
-
-# MET corrections from muons
-import JetMETCorrections.Type1MET.corMetMuons_cfi
-# muon MET correction maker 
-corMetType1Icone5Muons = JetMETCorrections.Type1MET.corMetMuons_cfi.corMetMuons.clone()
-# JetMET corrections for muons: input jet-corrected MET
-corMetType1Icone5Muons.inputUncorMetLabel = cms.InputTag('corMetType1Icone5')
-
-# It would be better to get this config to JetMETCorrections/Type1MET/data/ at some point
-corMetType1Icone5Muons.TrackAssociatorParameters.useEcal = False ## RecoHits
-corMetType1Icone5Muons.TrackAssociatorParameters.useHcal = False ## RecoHits
-corMetType1Icone5Muons.TrackAssociatorParameters.useHO = False ## RecoHits
-corMetType1Icone5Muons.TrackAssociatorParameters.useCalo = True ## CaloTowers
-corMetType1Icone5Muons.TrackAssociatorParameters.useMuon = False ## RecoHits
+## MET corrections for muons:
+from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
+from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
+from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi import *
+from JetMETCorrections.Type1MET.MetMuonCorrections_cff import corMetGlobalMuons, goodMuonsforMETCorrection
+corMetType1Icone5Muons = corMetGlobalMuons.clone(uncorMETInputTag = cms.InputTag('corMetType1Icone5'),
+                                                 muonsInputTag    = cms.InputTag('goodMuonsforMETCorrection'))
+corMetType1Icone5Muons.TrackAssociatorParameters.useEcal    = False ## RecoHits
+corMetType1Icone5Muons.TrackAssociatorParameters.useHcal    = False ## RecoHits
+corMetType1Icone5Muons.TrackAssociatorParameters.useHO      = False ## RecoHits
+corMetType1Icone5Muons.TrackAssociatorParameters.useCalo    = True  ## CaloTowers
+corMetType1Icone5Muons.TrackAssociatorParameters.useMuon    = False ## RecoHits
 corMetType1Icone5Muons.TrackAssociatorParameters.truthMatch = False
+## MET sequence
+patMETCorrections = cms.Sequence(goodMuonsforMETCorrection *
+                                 corMetType1Icone5 *
+                                 corMetType1Icone5Muons
+                                 )
 
-
-# re-key jet energy corrections to layer 0 output
-layer0JetCorrFactors = cms.EDFilter("JetCorrFactorsValueMapSkimmer",
-    collection  = cms.InputTag("allLayer0Jets"),
-    backrefs    = cms.InputTag("allLayer0Jets"),
-    association = cms.InputTag("jetCorrFactors"),
-)
-
-
-# default PAT sequence for JetMET corrections before cleaners
-patAODJetMETCorrections = cms.Sequence(jetCorrFactors * corMetType1Icone5 * corMetType1Icone5Muons)
-
-# default PAT sequence for JetMET corrections after cleaners
-patLayer0JetMETCorrections = cms.Sequence(layer0JetCorrFactors)
+# JetMET sequence
+patJetMETCorrections = cms.Sequence(patJetCorrections +
+                                    patMETCorrections
+                                    )
 

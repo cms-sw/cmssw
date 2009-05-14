@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Generator.PythiaUESettings_cfi import *
 
 
-process.source = cms.Source("PythiaSource",
+source = cms.Source("PythiaSource",
     pythiaPylistVerbosity = cms.untracked.int32(1),
     filterEfficiency = cms.untracked.double(1.0),
     pythiaHepMCVerbosity = cms.untracked.bool(False),

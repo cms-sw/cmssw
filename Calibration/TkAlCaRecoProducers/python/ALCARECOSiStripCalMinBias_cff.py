@@ -9,7 +9,6 @@ from Calibration.TkAlCaRecoProducers.CalibrationTrackSelector_cfi import *
 ALCARECOSiStripCalMinBias = copy.deepcopy(CalibrationTrackSelector)
 seqALCARECOSiStripCalMinBias = cms.Sequence(ALCARECOSiStripCalMinBiasHLT+ALCARECOSiStripCalMinBias)
 ALCARECOSiStripCalMinBiasHLT.andOr = True ## choose logical OR between Triggerbits
-ALCARECOSiStripCalMinBiasHLT.throw = False ## dont throw on unknown paths
 
 ALCARECOSiStripCalMinBiasHLT.HLTPaths = ['HLT_MinBiasEcal', 'HLT_MinBiasHcal', 'HLT_MinBiasPixel']
 ALCARECOSiStripCalMinBias.applyBasicCuts = True

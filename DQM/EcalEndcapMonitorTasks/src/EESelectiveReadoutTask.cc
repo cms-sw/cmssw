@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2008/10/10 16:14:14 $
- * $Revision: 1.15 $
+ * $Date: 2008/12/03 12:55:50 $
+ * $Revision: 1.20 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -53,7 +53,7 @@ EESelectiveReadoutTask::EESelectiveReadoutTask(const ParameterSet& ps){
   EEUnsuppressedDigiCollection_ = ps.getParameter<edm::InputTag>("EEUsuppressedDigiCollection");
   EESRFlagCollection_ = ps.getParameter<edm::InputTag>("EESRFlagCollection");
   EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
-  EcalFEDRawCollection_ = ps.getParameter<edm::InputTag>("EcalFEDRawCollection");
+  FEDRawDataCollection_ = ps.getParameter<edm::InputTag>("FEDRawDataCollection");
 
   // histograms...
   EEDccEventSize_ = 0;
@@ -286,7 +286,7 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
   ievt_++;
 
   Handle<FEDRawDataCollection> raw;
-  if ( e.getByLabel(EcalFEDRawCollection_, raw) ) {
+  if ( e.getByLabel(FEDRawDataCollection_, raw) ) {
 
     int EEFirstFED[2];
     EEFirstFED[0] = 601; // EE-
@@ -307,7 +307,23 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } else {
-    LogWarning("EESelectiveReadoutTask") << EcalFEDRawCollection_ << " not available";
+    LogWarning("EESelectiveReadoutTask") << FEDRawDataCollection_ << " not available";
+  }
+
+  TH2F *h01[2];
+  float integral01[2];
+  for(int iside=0;iside<2;iside++) {
+    h01[iside] = UtilsClient::getHisto<TH2F*>( EEFullReadoutSRFlagMap_[iside] );
+    integral01[iside] = h01[iside]->GetEntries();
+    if( integral01[iside] != 0 ) h01[iside]->Scale( integral01[iside] );
+  }
+  
+  TH2F *h02[2];
+  float integral02[2];
+  for(int iside=0;iside<2;iside++) {
+    h02[iside] = UtilsClient::getHisto<TH2F*>( EEReadoutUnitForcedBitMap_[iside] );
+    integral02[iside] = h02[iside]->GetEntries();
+    if( integral02[iside] != 0 ) h02[iside]->Scale( integral02[iside] );
   }
 
   // Selective Readout Flags
@@ -316,27 +332,17 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EESrFlagCollection::const_iterator it = eeSrFlags->begin(); it != eeSrFlags->end(); ++it ) {
 
-      const EESrFlag& srf = *it;
+      int ix = it->id().ix();
+      int iy = it->id().iy();
 
-      int ix = srf.id().ix();
-      int iy = srf.id().iy();
-
-      int zside = srf.id().zside();
+      int zside = it->id().zside();
 
       if ( zside < 0 ) ix = 101 - ix;
 
       float xix = ix-0.5;
       float xiy = iy-0.5;
 
-      int flag = srf.value() & ~EcalSrFlag::SRF_FORCED_MASK;
-
-      TH2F *h01[2];
-      float integral[2];
-      for(int iside=0;iside<2;iside++) {
-	h01[iside] = UtilsClient::getHisto<TH2F*>( EEFullReadoutSRFlagMap_[iside] );
-	integral[iside] = h01[iside]->GetEntries();
-	if( integral[iside] != 0 ) h01[iside]->Scale( integral[iside] );
-      }
+      int flag = it->value() & ~EcalSrFlag::SRF_FORCED_MASK;
 
       if(flag == EcalSrFlag::SRF_FULL){
 	if( zside < 0 ) {
@@ -354,18 +360,7 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 	}
       }
 
-      for(int iside=0;iside<2;iside++) {
-	if( integral[iside] != 0 ) h01[iside]->Scale( 1.0/integral[iside] );
-      }
-
-      TH2F *h02[2];
-      for(int iside=0;iside<2;iside++) {
-        h02[iside] = UtilsClient::getHisto<TH2F*>( EEReadoutUnitForcedBitMap_[iside] );
-        integral[iside] = h02[iside]->GetEntries();
-        if( integral[iside] != 0 ) h02[iside]->Scale( integral[iside] );
-      }
-
-      if(srf.value() & EcalSrFlag::SRF_FORCED_MASK){
+      if(it->value() & EcalSrFlag::SRF_FORCED_MASK){
 	if( zside < 0 ) {
 	  EEReadoutUnitForcedBitMap_[0]->Fill(xix,xiy);
 	}
@@ -381,13 +376,30 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 	}
       }
 
-      for(int iside=0;iside<2;iside++) {
-        if( integral[iside] != 0 ) h02[iside]->Scale( 1.0/integral[iside] );
-      }
-
     }
   } else {
     LogWarning("EESelectiveReadoutTask") << EESRFlagCollection_ << " not available";
+  }
+
+  for(int iside=0;iside<2;iside++) {
+    if( integral01[iside] != 0 ) h01[iside]->Scale( 1.0/integral01[iside] );
+    if( integral02[iside] != 0 ) h02[iside]->Scale( 1.0/integral02[iside] );  
+  }
+
+  TH2F *h03[2];
+  float integral03[2];
+  for(int iside=0;iside<2;iside++) {
+    h03[iside] = UtilsClient::getHisto<TH2F*>( EELowInterestTriggerTowerFlagMap_[iside] );
+    integral03[iside] = h03[iside]->GetEntries();
+    if( integral03[iside] != 0 ) h03[iside]->Scale( integral03[iside] );
+  }
+
+  TH2F *h04[2];
+  float integral04[2];
+  for(int iside=0;iside<2;iside++) {
+    h04[iside] = UtilsClient::getHisto<TH2F*>( EEHighInterestTriggerTowerFlagMap_[iside] );
+    integral04[iside] = h04[iside]->GetEntries();
+    if( integral04[iside] != 0 ) h04[iside]->Scale( integral04[iside] );
   }
 
   Handle<EcalTrigPrimDigiCollection> TPCollection;
@@ -397,14 +409,11 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     EcalTrigPrimDigiCollection::const_iterator TPdigi;
     for ( TPdigi = TPCollection->begin(); TPdigi != TPCollection->end(); ++TPdigi ) {
 
-      EcalTriggerPrimitiveDigi data = (*TPdigi);
-      EcalTrigTowerDetId idt = data.id();
+      if ( Numbers::subDet( TPdigi->id() ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( idt ) != EcalEndcap ) continue;
+      int ismt = Numbers::iSM( TPdigi->id() );
 
-      int ismt = Numbers::iSM( idt );
-
-      vector<DetId> crystals = Numbers::crystals( idt );
+      vector<DetId> crystals = Numbers::crystals( TPdigi->id() );
 
       for ( unsigned int i=0; i<crystals.size(); i++ ) {
 
@@ -417,14 +426,6 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
         float xix = ix-0.5;
         float xiy = iy-0.5;
-
-	TH2F *h03[2];
-	float integral[2];
-	for(int iside=0;iside<2;iside++) {
-	  h03[iside] = UtilsClient::getHisto<TH2F*>( EELowInterestTriggerTowerFlagMap_[iside] );
-	  integral[iside] = h03[iside]->GetEntries();
-	  if( integral[iside] != 0 ) h03[iside]->Scale( integral[iside] );
-	}
 
         if ( (TPdigi->ttFlag() & 0x3) == 0 ) {
 	  if ( ismt >= 1 && ismt <= 9 ) {
@@ -440,18 +441,6 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 	  else {
 	    EELowInterestTriggerTowerFlagMap_[1]->Fill(-1,-1);
 	  }
-	}
-
-	for(int iside=0;iside<2;iside++) {
-	  if( integral[iside] != 0 ) h03[iside]->Scale( 1.0/integral[iside] );
-	}
-
-
-	TH2F *h04[2];
-	for(int iside=0;iside<2;iside++) {
-	  h04[iside] = UtilsClient::getHisto<TH2F*>( EEHighInterestTriggerTowerFlagMap_[iside] );
-	  integral[iside] = h04[iside]->GetEntries();
-	  if( integral[iside] != 0 ) h04[iside]->Scale( integral[iside] );
 	}
 
         if ( (TPdigi->ttFlag() & 0x3) == 3 ) {
@@ -470,15 +459,16 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 	  }
 	}
 
-	for(int iside=0;iside<2;iside++) {
-	  if( integral[iside] != 0 ) h04[iside]->Scale( 1.0/integral[iside] );
-	}
-
       }
 
     }
   } else {
     LogWarning("EESelectiveReadoutTask") << EcalTrigPrimDigiCollection_ << " not available";
+  }
+
+  for(int iside=0;iside<2;iside++) {
+    if( integral03[iside] != 0 ) h03[iside]->Scale( 1.0/integral03[iside] );
+    if( integral04[iside] != 0 ) h04[iside]->Scale( 1.0/integral04[iside] );
   }
 
   if (!eeSrFlags.isValid()) return;
@@ -505,13 +495,13 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       anaDigi(eedf, *eeSrFlags);
     }
 
-    //low interesest channels:
+    //low interest channels:
     aLowInterest[0] = nEeLI_[0]*bytesPerCrystal/kByte;
     EELowInterestPayload_[0]->Fill(aLowInterest[0]);
     aLowInterest[1] = nEeLI_[1]*bytesPerCrystal/kByte;
     EELowInterestPayload_[1]->Fill(aLowInterest[1]);
 
-    //low interesest channels:
+    //low interest channels:
     aHighInterest[0] = nEeHI_[0]*bytesPerCrystal/kByte;
     EEHighInterestPayload_[0]->Fill(aHighInterest[0]);
     aHighInterest[1] = nEeHI_[1]*bytesPerCrystal/kByte;
@@ -531,7 +521,8 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
 void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCollection& srFlagColl){
 
-  EESrFlagCollection::const_iterator srf = srFlagColl.find(readOutUnitOf(frame.id()));
+  EEDetId id = frame.id();
+  EESrFlagCollection::const_iterator srf = srFlagColl.find(readOutUnitOf(id));
 
   if(srf == srFlagColl.end()){
     // LogWarning("EESelectiveReadoutTask") << "SR flag not found";
@@ -541,11 +532,10 @@ void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCol
   bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
                        == EcalSrFlag::SRF_FULL);
 
-  const DetId& xtalId = frame.id();
-  bool endcap = (xtalId.subdetId()==EcalEndcap);
+  bool endcap = (id.subdetId()==EcalEndcap);
 
   if(endcap){
-    int ism = Numbers::iSM( frame.id() );
+    int ism = Numbers::iSM( id );
     if ( ism >= 1 && ism <= 9 ) {
       ++nEe_[0];
       if(highInterest){
@@ -562,17 +552,17 @@ void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCol
       }
     }
 
-    int iX0 = iXY2cIndex(static_cast<const EEDetId&>(frame.id()).ix());
-    int iY0 = iXY2cIndex(static_cast<const EEDetId&>(frame.id()).iy());
-    int iZ0 = static_cast<const EEDetId&>(frame.id()).zside()>0?1:0;
+    int iX0 = iXY2cIndex(id.ix());
+    int iY0 = iXY2cIndex(id.iy());
+    int iZ0 = id.zside()>0?1:0;
 
     if(!eeRuActive_[iZ0][iX0/scEdge][iY0/scEdge]){
-      ++nRuPerDcc_[dccNum(xtalId)];
+      ++nRuPerDcc_[dccNum(id)];
       eeRuActive_[iZ0][iX0/scEdge][iY0/scEdge] = true;
     }
   }
 
-  ++nPerDcc_[dccNum(xtalId)-1];
+  ++nPerDcc_[dccNum(id)-1];
 }
 
 void EESelectiveReadoutTask::anaDigiInit(){

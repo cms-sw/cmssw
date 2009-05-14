@@ -1,29 +1,32 @@
-#ifndef HcalRecHitClient_H
-#define HcalRecHitClient_H
+#ifndef GUARD_HcalRecHitClient_H
+#define GUARD_HcalRecHitClient_H
 
 #include "DQM/HcalMonitorClient/interface/HcalBaseClient.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+
 #include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
 #include "DQM/HcalMonitorClient/interface/HcalHistoUtils.h"
 
-class HcalRecHitClient : public HcalBaseClient {
 
+class HcalRecHitClient : public HcalBaseClient {
+  
  public:
   
   /// Constructor
   HcalRecHitClient();
-  
   /// Destructor
   ~HcalRecHitClient();
-  
-  void init(const edm::ParameterSet& ps, DQMStore* dbe, string clientName);    
+
+  void init(const edm::ParameterSet& ps, DQMStore* dbe, string clientName);
 
   /// Analyze
   void analyze(void);
   
   /// BeginJob
-  void beginJob(void);
-  
+  //void beginJob(const EventSetup& c);
+  void beginJob();
+
   /// EndJob
   void endJob(void);
   
@@ -41,39 +44,71 @@ class HcalRecHitClient : public HcalBaseClient {
   
   /// HtmlOutput
   void htmlOutput(int run, string htmlDir, string htmlName);
+  void htmlExpertOutput(int run, string htmlDir, string htmlName);
   void getHistograms();
   void loadHistograms(TFile* f);
-
+  
+  ///process report
   void report();
-
+  
   void resetAllME();
   void createTests();
- private:
 
-  TH2F* tot_occ_[4];
-  TH1F* tot_energy_;
-
-  TH2F* occ_[4];
-  TH1F* energy_[4];
-  TH1F* energyT_[4];
-  TH1F* time_[4];
-
-  TH1F* time_thresh_[4];
-
-  TH1F* hfshort_E_all;
-  //TH1F* hfshort_E_low;
-  TH1F* hfshort_T_all;
-
-  TH1F* ZDCtanAlpha;
-  TH1F* ZDCaverageX;
-  TH2F* ZDCxplusVSxminus;
-  TH2F* ZDChadVSem_plus;
-  TH2F* ZDChadVSem_minus;
-  TH2F* ZDCenergy_plusVSminus;
+private:
   
-  TProfile* ZDCenergyVSlayer_plus;
-  TProfile* ZDCenergyVSlayer_minus;
+  vector <std::string> subdets_;
 
+  double minErrorFlag_;  // minimum error rate which causes problem cells to be dumped in client
+  bool rechitclient_makeDiagnostics_;
+
+  int rechitclient_checkNevents_;
+  
+  // Histograms
+  TH2F* ProblemRecHits;
+  TH2F* ProblemRecHitsByDepth[6];
+  TH2F* OccupancyByDepth[6];
+  TH2F* OccupancyThreshByDepth[6];
+  TH2F* EnergyByDepth[6];
+  TH2F* EnergyThreshByDepth[6];
+  TH2F* TimeByDepth[6];
+  TH2F* TimeThreshByDepth[6];
+
+  // diagnostic histograms
+  TH1F* d_HBEnergy;
+  TH1F* d_HBTotalEnergy;
+  TH1F* d_HBTime;
+  TH1F* d_HBOccupancy;
+  TH1F* d_HBThreshEnergy;
+  TH1F* d_HBThreshTotalEnergy;
+  TH1F* d_HBThreshTime;
+  TH1F* d_HBThreshOccupancy;
+
+  TH1F* d_HEEnergy;
+  TH1F* d_HETotalEnergy;
+  TH1F* d_HETime;
+  TH1F* d_HEOccupancy;
+  TH1F* d_HEThreshEnergy;
+  TH1F* d_HEThreshTotalEnergy;
+  TH1F* d_HEThreshTime;
+  TH1F* d_HEThreshOccupancy;
+
+  TH1F* d_HOEnergy;
+  TH1F* d_HOTotalEnergy;
+  TH1F* d_HOTime;
+  TH1F* d_HOOccupancy;
+  TH1F* d_HOThreshEnergy;
+  TH1F* d_HOThreshTotalEnergy;
+  TH1F* d_HOThreshTime;
+  TH1F* d_HOThreshOccupancy;
+
+  TH1F* d_HFEnergy;
+  TH1F* d_HFTotalEnergy;
+  TH1F* d_HFTime;
+  TH1F* d_HFOccupancy;
+  TH1F* d_HFThreshEnergy;
+  TH1F* d_HFThreshTotalEnergy;
+  TH1F* d_HFThreshTime;
+  TH1F* d_HFThreshOccupancy;
 };
 
 #endif

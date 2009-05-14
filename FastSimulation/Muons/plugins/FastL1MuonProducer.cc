@@ -34,6 +34,8 @@
 
 // SimTrack
 #include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 // L1
 #include "FastSimDataFormats/L1GlobalMuonTrigger/interface/SimpleL1MuGMTCand.h"
@@ -46,6 +48,11 @@
 // Data Formats
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+
+// Geometry
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <map>
 
@@ -114,6 +121,14 @@ FastL1MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //  Handle<std::vector<SimVertex> > simVertices;
   //  iEvent.getByLabel(theSimModuleLabel_,simVertices);
 
+  Handle<PSimHitContainer> muonDTHits;
+  iEvent.getByLabel(theDTHits,muonDTHits);
+  Handle<PSimHitContainer> muonCSCHits;
+  iEvent.getByLabel(theCSCHits,muonCSCHits);
+  Handle<PSimHitContainer> muonRPCHits;
+  iEvent.getByLabel(theRPCHits,muonRPCHits);
+
+
 //
 // Loop over generated muons and reconstruct L1, L3 and Global muons
 //
@@ -131,28 +146,58 @@ FastL1MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     int pid = mySimTrack.type();        
     if ( fabs(pid) != 13 ) continue;
 
-    bool hasL1 = false;
+    // Check whether there are hits in DT/CSC/RPC,
+    // and keep for the L1 mu the position of first such hit:
+    bool hasPSimHits = false;
+    GlobalPoint glbPosition;
+    PSimHitContainer::const_iterator simDTHit=muonDTHits->begin();
+    PSimHitContainer::const_iterator endDTHit=muonDTHits->end();
+    for ( ; simDTHit!=endDTHit; ++simDTHit) {
+      if ( simDTHit->trackId() == mySimTrack.trackId() ) {
+        glbPosition = dtGeometry->idToDet(simDTHit->detUnitId())->surface().toGlobal(simDTHit->localPosition());
+        hasPSimHits = true;
+        break;
+      }
+    }
 
-    //Replace with this as soon transition to ROOTMath is complete
-    //    math::XYZTLorentzVector& mySimP4 =  mySimTrack.momentum();
-    math::XYZTLorentzVector mySimP4 =  math::XYZTLorentzVector(mySimTrack.momentum().x(),
-							       mySimTrack.momentum().y(),
-							       mySimTrack.momentum().z(),
-							       mySimTrack.momentum().t());
+    if (! hasPSimHits) {
+      PSimHitContainer::const_iterator simCSCHit=muonCSCHits->begin();
+      PSimHitContainer::const_iterator endCSCHit=muonCSCHits->end();
+      for ( ; simCSCHit!=endCSCHit; ++simCSCHit) {
+	if ( simCSCHit->trackId() == mySimTrack.trackId() ) {
+	  glbPosition = cscGeometry->idToDet(simCSCHit->detUnitId())->surface().toGlobal(simCSCHit->localPosition());
+	  hasPSimHits = true;
+	  break;
+	}
+      }
+    }
+    if (! hasPSimHits) {
+      PSimHitContainer::const_iterator simRPCHit=muonRPCHits->begin();
+      PSimHitContainer::const_iterator endRPCHit=muonRPCHits->end();
+      for ( ; simRPCHit!=endRPCHit; ++simRPCHit) {
+	if ( simRPCHit->trackId() == mySimTrack.trackId() ) {
+	  glbPosition = rpcGeometry->idToDet(simRPCHit->detUnitId())->surface().toGlobal(simRPCHit->localPosition());
+	  hasPSimHits = true;
+	  break;
+	}
+      }
+    }
 
     // *** Reconstruct parameterized muons starting from undecayed simulated muons
-    
-    if ( mySimP4.Eta()>minEta_ && mySimP4.Eta()<maxEta_ ) {
-      
+    if (hasPSimHits) {
+
       nMu++;
-      
+
       //
       // Now L1 parametrization
       //
-      double pT = mySimP4.Pt();
-      double eta = mySimP4.Eta();
-      double phi = mySimP4.Phi();
+      double pT = mySimTrack.momentum().pt();
+      double eta = glbPosition.eta();
+      // Avoid L1MuScales complains if |eta|>2.4:
+      if (eta > 2.4) eta = 2.4-1e-6; else if (eta < -2.4) eta = -2.4+1e-6;
+      double phi = glbPosition.phi();
       if ( phi < 0. ) phi = 2* M_PI + phi;
+
       unsigned etaIndex = theMuScales->getGMTEtaScale()->getPacked(eta);
       unsigned phiIndex = theMuScales->getPhiScale()->getPacked(phi);
       unsigned pTIndex = theMuPtScale->getPtScale()->getPacked(pT);
@@ -181,7 +226,7 @@ FastL1MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	new SimpleL1MuGMTCand(&mySimTrack,
 			      etaIndex, phiIndex, pTIndex,
 			      etaValue,phiValue,pTValue);
-      hasL1 = myL1EfficiencyHandler->kill(thisL1MuonCand);
+      bool hasL1 = myL1EfficiencyHandler->kill(thisL1MuonCand);
       if (hasL1) {
 	bool status2 = myL1PtSmearer->smear(thisL1MuonCand);
 	if (!status2) { std::cout << "Pt smearing of L1 muon went wrong!!" << std::endl; }
@@ -190,7 +235,6 @@ FastL1MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	       std::pair<float,SimpleL1MuGMTCand*>(thisL1MuonCand->ptValue(),thisL1MuonCand));
 	}
 	else {
-	  hasL1 = false;
 	  delete thisL1MuonCand;
 	}
       }
@@ -374,7 +418,7 @@ void FastL1MuonProducer::loadL1Muons(L1MuonCollection & c ,
     regionalMuonDTCSC.setPtValue(aMuon.ptValue());    
     
     rc.setInputCand(DTCSCIndex,regionalMuonDTCSC);
-  
+ 
     // Then RPC (if in RPC acceptance)
     if ( fabs(etaPilePoil) < 2.1 ) { 
       L1MuRegionalCand regionalMuonRPC = 
@@ -390,7 +434,9 @@ void FastL1MuonProducer::loadL1Muons(L1MuonCollection & c ,
       regionalMuonRPC.setPhiValue(aMuon.phiValue());
       regionalMuonRPC.setEtaValue(etaRPCValue);
       regionalMuonRPC.setPtValue(aMuon.ptValue());
+
       rc.setInputCand(RPCIndex,regionalMuonRPC);
+
     }
 
   }
@@ -414,6 +460,13 @@ FastL1MuonProducer::beginJob(const edm::EventSetup& es)
   myL1EfficiencyHandler = new FML1EfficiencyHandler(random);
   myL1PtSmearer = new FML1PtSmearer(random);
 
+// Get the DT Geometry
+  es.get<MuonGeometryRecord>().get(dtGeometry);
+// Get the CSC Geometry
+  es.get<MuonGeometryRecord>().get(cscGeometry);
+// Get the RPC Geometry
+  es.get<MuonGeometryRecord>().get(rpcGeometry);
+
 }
 
 void 
@@ -436,7 +489,7 @@ void
 FastL1MuonProducer::endJob() {
 
   std::cout << " ===> FastL1MuonProducer , final report." << std::endl;
-  std::cout << " ===> Number of total -> L1 in the whole run : "
+  std::cout << " ===> Number of total -> L1 muons in the whole run : "
             <<   nMuonTot << " -> " << nL1MuonTot << std::endl;
 }
 
@@ -444,13 +497,9 @@ FastL1MuonProducer::endJob() {
 void FastL1MuonProducer::readParameters(const edm::ParameterSet& fastMuons) {
   // Muons
   theSimModule = fastMuons.getParameter<edm::InputTag>("simModule");
-  minEta_ = fastMuons.getParameter<double>("MinEta");
-  maxEta_ = fastMuons.getParameter<double>("MaxEta");
-  if (minEta_ > maxEta_) {
-    double tempEta_ = maxEta_ ;
-    maxEta_ = minEta_ ;
-    minEta_ = tempEta_ ;
-  }
+  theDTHits = fastMuons.getParameter<edm::InputTag>("dtSimHits");
+  theCSCHits = fastMuons.getParameter<edm::InputTag>("cscSimHits");
+  theRPCHits = fastMuons.getParameter<edm::InputTag>("rpcSimHits");
 
 }
 

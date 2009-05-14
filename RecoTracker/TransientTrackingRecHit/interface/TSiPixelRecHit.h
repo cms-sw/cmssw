@@ -7,7 +7,7 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 // class GeomDetUnit;
 
@@ -72,38 +72,30 @@ public:
   }
 
 
-  //!  Probability of the compatibility of the track with the pixel cluster shape.
-  virtual float clusterProbability() {
-    return theHitData.clusterProbability( theClusterProbComputationFlag );
-  }
-
-
-
 private:
 
   SiPixelRecHit                         theHitData;
   const PixelClusterParameterEstimator* theCPE;
-  unsigned int                          theClusterProbComputationFlag;
 
-  /// This private constructor copies the TrackingRecHit.  It should be used when the 
-  /// TrackingRecHit exist already in some collection.
+  /// This constructor copy the TrackingRecHit, it should be used when the 
+  /// TrackingRecHit exist already in some collection
   TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh, 
 		 const PixelClusterParameterEstimator* cpe,
-		 float weight, float annealing);
+		 float weight, float annealing) : 
+    TransientTrackingRecHit(geom, *rh, weight, annealing), theHitData(*rh), theCPE(cpe) {}
 
-
-
-  /// Another private constructor.  It creates the TrackingRecHit internally, 
-  /// avoiding redundent cloning.
+  /// Creates the TrackingRecHit internally, avoids redundent cloning
   TSiPixelRecHit( const LocalPoint& pos, const LocalError& err,
 				const GeomDet* det, 
 		  //				const SiPixelCluster& clust,
 		  clusterRef clust,
 		  const PixelClusterParameterEstimator* cpe,
-		  float weight, float annealing);
-
+		  float weight, float annealing) :
+    TransientTrackingRecHit(det,weight, annealing), 
+    theHitData( pos, err, det->geographicalId(), clust),
+    theCPE(cpe)
+  {}
   
-
   //  TSiPixelRecHit( const TSiPixelRecHit& other ) :
   //  TransientTrackingRecHit( other.det()), 
   //  theHitData( other.specificHit()->clone()),

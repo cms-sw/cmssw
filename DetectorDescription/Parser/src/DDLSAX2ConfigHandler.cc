@@ -21,6 +21,8 @@
 #include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
 
 // Xerces C++ dependencies.
+#include <xercesc/sax2/Attributes.hpp>
+#include <xercesc/sax/SAXParseException.hpp>
 #include <xercesc/sax/SAXException.hpp>
 
 // DDCore dependencies
@@ -29,6 +31,8 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 
 #include <iostream>
+#include <string>
+#include <vector>
 
 // ---------------------------------------------------------------------------
 //  DDLSAX2ConfigHandler: Constructors and Destructor

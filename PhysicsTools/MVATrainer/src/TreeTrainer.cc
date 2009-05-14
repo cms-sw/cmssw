@@ -20,15 +20,15 @@ TreeTrainer::TreeTrainer()
 {
 }
 
-TreeTrainer::TreeTrainer(TTree *tree)
+TreeTrainer::TreeTrainer(TTree *tree, double weight)
 {
-	addTree(tree);
+	addTree(tree, -1, weight);
 }
 
-TreeTrainer::TreeTrainer(TTree *signal, TTree *background)
+TreeTrainer::TreeTrainer(TTree *signal, TTree *background, double weight)
 {
-	addTree(signal, true);
-	addTree(background, false);
+	addTree(signal, true, weight);
+	addTree(background, false, weight);
 }
 
 TreeTrainer::~TreeTrainer()
@@ -58,10 +58,16 @@ void TreeTrainer::addTree(TTree *tree, int target, double weight)
 {
 	static const bool targets[2] = { true, false };
 
-	TreeReader reader(tree);
+	TreeReader reader(tree, false, weight > 0.0);
 
-	if (target >= 0)
+	if (target >= 0) {
+		if (tree->GetBranch("__TARGET__"))
+			throw cms::Exception("TreeTrainer")
+				<< "__TARGET__ branch already present in file."
+				<< std::endl;
+
 		reader.addSingle(MVATrainer::kTargetId, &targets[!target]);
+	}
 
 	if (weight > 0.0) {
 		double *ptr = new double(weight);

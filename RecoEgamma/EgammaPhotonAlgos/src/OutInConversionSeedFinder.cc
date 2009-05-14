@@ -203,9 +203,8 @@ std::pair<FreeTrajectoryState,bool>  OutInConversionSeedFinder::makeTrackState(i
 
 
   //  Old GlobalPoint gpOrigine(theBCPosition_.x()*0.3, theBCPosition_.y()*0.3, theBCPosition_.z()*0.3) ;
- //  GlobalPoint gpOrigine(0.,0.,0.);
 
-  GlobalPoint  gpOrigine(theBeamSpot_.position().x(),theBeamSpot_.position().y(),theBeamSpot_.position().z()); 
+  GlobalPoint gpOrigine(0.,0.,0.);
   GlobalVector gvBcRadius = theBCPosition_ - gpOrigine ;
   HepPoint3D radiusBc(gvBcRadius.x(),gvBcRadius.y(),gvBcRadius.z()) ;
   HepPoint3D momentumWithoutCurvature = radiusBc.unit() * theBCEnergy_ ;

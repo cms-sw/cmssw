@@ -4,7 +4,7 @@
 /** \class SherpaSource
  *
  * 
- *   Martin Niegel
+ *   Martin Niegel niegel@cern.ch
  ***************************************/
 
 #include "SHERPA-MC/Sherpa.H"
@@ -16,25 +16,13 @@
 #include "CLHEP/Random/RandFlat.h"
           
 
-
-
-
-namespace CLHEP
-{
-  class RandFlat ;
-  class HepRandomEngine;
-}
-
 namespace edm
 {
   class SherpaSource : public GeneratedInputSource {
   public:
 
-    /// Constructor
     SherpaSource(const ParameterSet &, const InputSourceDescription &);
-    /// Destructor
     virtual ~SherpaSource();
-
 
   private:
     
@@ -43,16 +31,17 @@ namespace edm
     
     HepMC::GenEvent  *evt;
     std::string libDir_,resultDir_;
-
-  
     SHERPA::Sherpa Generator;
    
-      
-    HepRandomEngine* fRandomEngine;
-    CLHEP::RandFlat*        fRandomGenerator; 
-
-
   };
 } 
+
+
+#include "SHERPA-MC/Random.H"
+class CMS_RNG: public ATOOLS::External_RNG {
+  public: 
+    double Get();
+};
+
 
 #endif

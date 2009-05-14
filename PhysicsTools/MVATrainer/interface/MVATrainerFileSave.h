@@ -27,6 +27,8 @@ class MVATrainerFileSave : public edm::EDAnalyzer {
 	virtual const Calibration::MVAComputerContainer *
 	getToPut(const edm::EventSetup& es) const = 0;
 
+	bool							trained;
+
     private:
 	typedef std::map<std::string, std::string> LabelFileMap;
 

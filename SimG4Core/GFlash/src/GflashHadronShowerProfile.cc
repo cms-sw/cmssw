@@ -1,4 +1,5 @@
 #include "SimG4Core/GFlash/interface/GflashHadronShowerProfile.h"
+#include "SimG4Core/GFlash/interface/GflashEnergySpot.h"
 #include "SimG4Core/GFlash/interface/GflashHistogram.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -7,26 +8,18 @@
 #include "CLHEP/GenericFunctions/IncompleteGamma.hh"
 #include "CLHEP/GenericFunctions/LogGamma.hh"
 #include "Randomize.hh"
-#include "G4TransportationManager.hh"
-#include "G4TouchableHandle.hh"
-#include "G4VSensitiveDetector.hh"
-#include "G4VPhysicalVolume.hh"
 
 //#include "SimG4Core/GFlash/interface/GflashTrajectory.h"
 #include "SimG4Core/GFlash/interface/GflashTrajectoryPoint.h"
 
 #include <math.h>
 
-GflashHadronShowerProfile::GflashHadronShowerProfile(G4Region* envelope, edm::ParameterSet parSet) : theParSet(parSet)
+GflashHadronShowerProfile::GflashHadronShowerProfile(G4Region* envelope)
 {
-  showerType   = -1;
+  showerType   = 0;
   jCalorimeter = Gflash::kNULL;
   theHelix = new GflashTrajectory;
-  theGflashStep = new G4Step();
-  theGflashTouchableHandle = new G4TouchableHistory();
-
   theHisto = GflashHistogram::instance();
-  theBField = parSet.getParameter<double>("bField");
 
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
@@ -38,6 +31,9 @@ GflashHadronShowerProfile::GflashHadronShowerProfile(G4Region* envelope, edm::Pa
   }
   theRandGauss = new CLHEP::RandGaussQ(rng->getEngine());
   theRandGamma = new CLHEP::RandGamma(rng->getEngine());
+
+  //correllation and fluctuation matrix
+  fillFluctuationVector();
 }
 
 GflashHadronShowerProfile::~GflashHadronShowerProfile()
@@ -46,9 +42,37 @@ GflashHadronShowerProfile::~GflashHadronShowerProfile()
   delete theHelix;
   delete theRandGauss;
   delete theRandGamma;
-  if(theGflashStep) delete theGflashStep;
 }
 
+Gflash::CalorimeterNumber GflashHadronShowerProfile::getCalorimeterNumber(const G4ThreeVector position)
+{
+  Gflash::CalorimeterNumber index = Gflash::kNULL;
+  G4double eta = position.getEta();
+
+  //central
+  if (fabs(eta) < Gflash::EtaMax[Gflash::kESPM] || fabs(eta) < Gflash::EtaMax[Gflash::kHB]) {
+    if(position.getRho() > Gflash::Rmin[Gflash::kESPM] && 
+       position.getRho() < Gflash::Rmax[Gflash::kESPM] ) {
+      index = Gflash::kESPM;
+    }
+    if(position.getRho() > Gflash::Rmin[Gflash::kHB] && 
+       position.getRho() < Gflash::Rmax[Gflash::kHB]) {
+      index = Gflash::kHB;
+    }
+  }
+  //forward
+  else if (fabs(eta) > Gflash::EtaMin[Gflash::kENCA] || fabs(eta) > Gflash::EtaMin[Gflash::kHE]) {
+    if( fabs(position.getZ()) > Gflash::Zmin[Gflash::kENCA] &&  
+	fabs(position.getZ()) < Gflash::Zmax[Gflash::kENCA] ) {
+      index = Gflash::kENCA;
+    }
+    if( fabs(position.getZ()) > Gflash::Zmin[Gflash::kHE] &&  
+	fabs(position.getZ()) < Gflash::Zmax[Gflash::kHE] ) {
+      index = Gflash::kHE;
+    }
+  }
+  return index;
+}
 
 void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fastTrack)
 {
@@ -59,7 +83,7 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
   // unit convention: energy in [GeV] and length in [cm]
 
   // maximum number of energy spots 
-  const G4int    maxNumberOfSpots = 100000;  
+  const G4int    maxNumberOfSpots = 10000;  
 
   // low energy cutoff (unit in GeV)
   //  const G4double energyCutoff     = 0.01; 
@@ -78,14 +102,19 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
   G4ThreeVector momentumShower = fastTrack.GetPrimaryTrack()->GetMomentum()/GeV;
 
   //find the calorimeter at the shower starting point
-  jCalorimeter = Gflash::getCalorimeterNumber(positionShower);
+  jCalorimeter = getCalorimeterNumber(positionShower);
 
   //get all necessary parameters for hadronic shower profiles including energyToDeposit
   loadParameters(fastTrack);
 
-  // inside the magnetic field (tesla unit);
+  // The direction of shower is assumed to be along the showino trajectory 
+  // inside the magnetic field;
+
+  const G4double bField = 4.0*tesla; 
+
   double charge = fastTrack.GetPrimaryTrack()->GetStep()->GetPreStepPoint()->GetCharge();
-  theHelix->initializeTrajectory(momentumShower,positionShower,charge,theBField);
+
+  theHelix->initializeTrajectory(momentumShower,positionShower,charge,bField/tesla);
 
   //path Length from the origin to the shower starting point in cm
 
@@ -102,14 +131,18 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
   if(jCalorimeter == Gflash::kESPM || jCalorimeter == Gflash::kHB ) {
     pathLength0 = theHelix->getPathLengthAtRhoEquals(positionShower.getRho());
     stepLengthLeft = theHelix->getPathLengthAtRhoEquals(Gflash::Rmax[Gflash::kHB])
-                   - theHelix->getPathLengthAtRhoEquals(positionShower.getRho());
-    transDepth = theHelix->getPathLengthAtRhoEquals(Gflash::Rmin[Gflash::kHB]) - pathLength0;
+      - theHelix->getPathLengthAtRhoEquals(positionShower.getRho());
+    if(showerType == 3 ) {
+      transDepth = theHelix->getPathLengthAtRhoEquals(Gflash::Rmin[Gflash::kHB]) - pathLength0;
+    }
   }
   else if (jCalorimeter == Gflash::kENCA || jCalorimeter == Gflash::kHE ) {
     pathLength0 = theHelix->getPathLengthAtZ(positionShower.getZ());
     stepLengthLeft = theHelix->getPathLengthAtRhoEquals(Gflash::Zmax[Gflash::kHE])
       - theHelix->getPathLengthAtRhoEquals(positionShower.getZ());
-    transDepth = theHelix->getPathLengthAtZ(Gflash::Zmin[Gflash::kHE]) - pathLength0;
+    if ( showerType ==7 ) {
+      transDepth = theHelix->getPathLengthAtZ(Gflash::Zmin[Gflash::kHE]) - pathLength0;
+    }
   }
   else { 
     //@@@extend for HF later
@@ -119,7 +152,7 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
   G4double pathLength  = pathLength0; // this will grow along the shower development
 
   // Limit number of spots to maxNumberOfSpots
-  G4int numberOfSpots = getNumberOfSpots(einc);
+  G4int numberOfSpots = std::max( 50, static_cast<int>(800.*std::log(einc)+50.));
   numberOfSpots = std::min(numberOfSpots,maxNumberOfSpots);
 
   // Spot energy to simulate sampling fluctuations (SampleEnergySpot) and
@@ -132,16 +165,14 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
   G4double deltaStep = 0.0;
   G4double showerDepth = 0.0;
 
+
   G4int totalNumberOfSpots = 0;
 
+  //empty energy spot vector for a new track
+  aEnergySpotList.clear();
+
   double scaleLateral = 0.0;
-
-  Gflash::CalorimeterNumber whichCalor = jCalorimeter;
-
-  // navigator and time information is needed for making a fake step
-  theGflashNavigator = new G4Navigator();
-  theGflashNavigator->SetWorldVolume(G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume());
-  G4double timeGlobal = fastTrack.GetPrimaryTrack()->GetStep()->GetPreStepPoint()->GetGlobalTime();
+  const double rMoliere = 2.19; //Moliere Radius in [cm]
 
   while(stepLengthLeft > 0.0) {
 
@@ -158,22 +189,13 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
     showerDepth += deltaStep;
     pathLength  += deltaStep;
 
-    //trajectory point of showino along the shower depth (at the pathLength)
-    GflashTrajectoryPoint trajectoryShowino;
-    theHelix->getGflashTrajectoryPoint(trajectoryShowino,pathLength);
-
     // energy in this deltaStep along the longitudinal shower profile
     double deltaEnergy = 0.;
 
-    //double heightProfile = longitudinalProfile(showerDepth,pathLength,transDepth);
-    //@@@O.K, we need the better way of passing arguments here, use like this temporarily
-    double heightProfile = longitudinalProfile(showerDepth,pathLength,transDepth,positionShower,einc);
-
-    //get proper energy scale 
-      
-    whichCalor = Gflash::getCalorimeterNumber(trajectoryShowino.getPosition());
-    deltaEnergy =  heightProfile*divisionStep*energyScale[whichCalor];    
-
+    double heightProfile = longitudinalProfile(showerDepth,pathLength,transDepth);
+    //    deltaEnergy =  longitudinalProfile(showerDepth)*divisionStep*energyToDeposit;    
+    deltaEnergy =  heightProfile*divisionStep*energyToDeposit;    
+    
     //@@@ When depthShower is inside Hcal, the sampling fluctuation for deposited
     //    energy will be treated in SD.  However we should put some scale factor 
     //    to relate the spot energy to the energy deposited in each geant4 step. 
@@ -182,21 +204,6 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
     G4double fluctuatedEnergy = deltaEnergy;
     G4int nSpotsInStep = std::max(1,static_cast<int>(fluctuatedEnergy/spotEnergy));
     G4double sampleSpotEnergy = hadronicFraction*fluctuatedEnergy/nSpotsInStep;
-
-    //@@@@syjun trial consideration for Sampling Detector - only for the central detector
-    //until we optimize the reduction scale in the number of Nspots
-    // trajectoryPoint for along the longitudinal profile center
-
-    G4double rhoShowino = (trajectoryShowino.getPosition()).getRho();
-
-    if(rhoShowino < Gflash::Rmin[Gflash::kHB] ) {
-      nSpotsInStep = static_cast<int>(nSpotsInStep/50);
-      sampleSpotEnergy = sampleSpotEnergy*50.0;
-    }
-    else {
-      nSpotsInStep = static_cast<int>(nSpotsInStep/5.0);
-      sampleSpotEnergy = sampleSpotEnergy*5.0;
-    }
 
     // Sampling fluctuations determine the number of spots:
     //    if (insideSampling(positionShower)) samplingFluctuation(fluctuatedEnergy,einc); 
@@ -226,21 +233,25 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
     //    const G4double  rMoliere = Gflash::RLTHAD[jCalorimeter];
 
     //@@@this should be each spot basis
-    if(showerType == 3 || showerType == 7) {
-      scaleLateral = (3.5+1.0*showerDepth)*Gflash::rMoliere[jCalorimeter];
+    if(showerType == 4 || showerType == 8) {
+      scaleLateral = (3.5+1.0*showerDepth)*rMoliere;
     }
     else {
       //@@@need better division for showerDepth arosse the Hcal front face
       if(showerDepthR50 < 2.0 ) {
-	scaleLateral = (5.5-0.4*std::log(einc))*Gflash::rMoliere[jCalorimeter];
+	scaleLateral = (5.5-0.4*std::log(einc))*rMoliere;
       }
       else {
-	scaleLateral = ( 14-1.5*std::log(einc))*Gflash::rMoliere[jCalorimeter];
+	scaleLateral = ( 14-1.5*std::log(einc))*rMoliere;
       }
     }
+    // region0 && inside Ecal: scaleLateral = (5.5-0.4*logEinc)*rMoliere;
+    // region0 && inside Hcal: scaleLateral = (14-1.5*logEinc)*rMoliere;
+    // region1                 
 
     R50 *= scaleLateral;
 
+    GflashEnergySpot eSpot;
 
     for (G4int ispot = 0 ;  ispot < nSpotsInStep ; ispot++) {
 
@@ -269,51 +280,21 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
         rShower*std::cos(azimuthalAngle)*trajectoryPoint.getOrthogonalUnitVector() +
         rShower*std::sin(azimuthalAngle)*trajectoryPoint.getCrossUnitVector();
 
+      //convert unit of energy to geant4 default MeV
+      //      eSpot.setEnergy((hadSpotEnergy+emSpotEnergy)*GeV);
+      eSpot.setEnergy(sampleSpotEnergy*GeV);
+      eSpot.setPosition(SpotPosition*cm);
+      aEnergySpotList.push_back(eSpot);
+
       //@@@debugging histograms
       if(theHisto->getStoreFlag()) {
 	theHisto->rshower->Fill(rShower);
 	theHisto->lateralx->Fill(rShower*std::cos(azimuthalAngle));
 	theHisto->lateraly->Fill(rShower*std::sin(azimuthalAngle));
+	theHisto->gfhlongProfile->Fill(pathLength+incrementPath-pathLength0,positionShower.getRho(),eSpot.getEnergy()*GeV);
       }
-
-      sampleSpotEnergy *= GeV;
-      SpotPosition *= cm;
-
-      // to make a different time for each fake step. (+1.0 is arbitrary)
-      timeGlobal += 0.0001*nanosecond;
-
-      // fill equivalent changes to a (fake) step associated with a spot 
-
-      theGflashStep->SetTrack(const_cast<G4Track*>(fastTrack.GetPrimaryTrack()));
-      theGflashStep->GetPostStepPoint()->SetGlobalTime(timeGlobal);
-      theGflashStep->GetPreStepPoint()->SetPosition(SpotPosition);
-      theGflashStep->GetPostStepPoint()->SetPosition(SpotPosition);
-      theGflashStep->GetPostStepPoint()->SetProcessDefinedStep(const_cast<G4VProcess*> (fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()));
-
-      theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(SpotPosition,G4ThreeVector(0,0,0),theGflashTouchableHandle, false);
-      theGflashStep->GetPreStepPoint()->SetTouchableHandle(theGflashTouchableHandle);
-      
-      theGflashStep->SetTotalEnergyDeposit(sampleSpotEnergy);
-    
-      // Send G4Step information to Hit/Dig if the volume is sensitive
-
-      G4VPhysicalVolume* aCurrentVolume = theGflashStep->GetPreStepPoint()->GetPhysicalVolume();
-      if( aCurrentVolume == 0 ) continue;
-
-      G4LogicalVolume* lv = aCurrentVolume->GetLogicalVolume();
-      if(lv->GetRegion()->GetName() != "GflashRegion") continue;
-
-      theGflashStep->GetPreStepPoint()->SetSensitiveDetector(aCurrentVolume->GetLogicalVolume()->GetSensitiveDetector());
-      G4VSensitiveDetector* aSensitive = theGflashStep->GetPreStepPoint()->GetSensitiveDetector();
-
-      if( aSensitive == 0 ) continue;
-      aSensitive->Hit(theGflashStep);
-
-    } // end of for spot iteration
-
-  } // end of while for longitudinal integration
-
-  delete theGflashNavigator;
+    }
+  }
 
 }
 
@@ -325,15 +306,16 @@ void GflashHadronShowerProfile::loadParameters(const G4FastTrack& fastTrack)
   G4double einc = fastTrack.GetPrimaryTrack()->GetKineticEnergy()/GeV;
 
   // type of hadron showers subject to the shower starting point (ssp)
-  // showerType = -1 : default (invalid) 
-  // showerType =  0 : ssp before EBRY (barrel crystal) 
-  // showerType =  1 : ssp inside EBRY
-  // showerType =  2 : ssp after  EBRY before HB
-  // showerType =  3 : ssp inside HB
-  // showerType =  4 : ssp before EFRY (endcap crystal) 
-  // showerType =  5 : ssp inside EFRY 
-  // showerType =  6 : ssp after  EFRY before HE
-  // showerType =  7 : ssp inside HE
+
+  // showerType =  0 : default (invalid) 
+  // showerType =  1 : ssp before EB
+  // showerType =  2 : ssp inside EB
+  // showerType =  3 : ssp after  EB before HB
+  // showerType =  4 : ssp inside HB
+  // showerType =  5 : ssp before EE 
+  // showerType =  6 : ssp inside EE 
+  // showerType =  7 : ssp after  EE before HE
+  // showerType =  8 : ssp inside HE
     
   G4TouchableHistory* touch = (G4TouchableHistory*)(fastTrack.GetPrimaryTrack()->GetTouchable());
   G4LogicalVolume* lv = touch->GetVolume()->GetLogicalVolume();
@@ -342,7 +324,7 @@ void GflashHadronShowerProfile::loadParameters(const G4FastTrack& fastTrack)
 
   G4ThreeVector position = fastTrack.GetPrimaryTrack()->GetPosition()/cm;
 
-  showerType = -1;
+  showerType = 0;
 
   G4double correctionAsDepth = 0.0;
 
@@ -352,14 +334,14 @@ void GflashHadronShowerProfile::loadParameters(const G4FastTrack& fastTrack)
     G4double posRho = position.getRho();
 
     if(pos1 != std::string::npos) {
-      showerType = 1;
+      showerType = 2;
     }
     else {
       if(jCalorimeter == Gflash::kESPM) {
-	showerType = 2;
-	if( posRho < 129.0 ) showerType = 0;
+	showerType = 3;
+	if( posRho < 129.0 ) showerType = 1;
       }
-      else showerType = 3;
+      else showerType = 4;
     }
 
     if ( posRho < 150.0 ) {
@@ -372,141 +354,94 @@ void GflashHadronShowerProfile::loadParameters(const G4FastTrack& fastTrack)
   //forward
   else if (jCalorimeter == Gflash::kENCA || jCalorimeter == Gflash::kHE) {
     if(pos2 != std::string::npos) {
-      showerType = 5;
+      showerType = 6;
     }
     else {
       if(jCalorimeter == Gflash::kENCA) {
-	showerType = 6;
-	if(fabs(position.getZ()) < 330.0 ) showerType = 4;
+	showerType = 7;
+	if(fabs(position.getZ()) < 330.0 ) showerType = 5;
       }
-      else showerType = 7;
+      else showerType = 8;
     }
     //@@@need z-dependent correction on the mean energy reponse
   }
 
+  
   // total energy to deposite
   //@@@ need additional parameterization by the shower starting point
   G4double fractionEnergy  = 1.0;
   G4double sigmaEnergy = 0.0;
-  
-  fractionEnergy = fTanh(einc,Gflash::fdep[0]);
-  sigmaEnergy = sqrt(Gflash::fdep[1][0]*Gflash::fdep[1][0]/einc 
-			+ Gflash::fdep[1][1]*Gflash::fdep[1][1]);
+
+  if( showerType == 4 || showerType == 8) { 
+    //Mip-like particle
+    fractionEnergy = 0.7125 + 0.0812*std::tanh(0.9040*(std::log(einc) - 2.6307));
+    sigmaEnergy = 0.0257/std::sqrt(einc) + 0.0734;
+  }
+  else {
+    fractionEnergy = 0.7125 + 0.0812*std::tanh(0.9040*(std::log(einc) - 2.6307));
+    sigmaEnergy = 0.0844/std::sqrt(einc) + 0.0592;
+  }
 
   energyToDeposit = fractionEnergy*(1.0+correctionAsDepth)*einc*(1.0+sigmaEnergy*theRandGauss->fire());
   energyToDeposit = std::max(0.0,energyToDeposit);
 
-  // energy scale
-  //@@@ need additional parameterization for forward detectors
-
-  double energyMeanHcal = 0.0;
-  double energySigmaHcal = 0.0;
-
-  if(showerType == 0 || showerType == 1 || showerType == 4 || showerType == 5) {
-
-    G4double r1 = 0.0;
-    G4double r2 = 0.0;
-
-    //@@@ need energy dependent parameterization and put relevant parameters into GflashNameSpace
-    //@@@ put energy dependent energyRho based on tuning with testbeam data
-    G4double energyRho =  -0.92; 
-
-    do {
-      r1 = theRandGauss->fire();
-      energyScale[Gflash::kESPM] = einc*(fTanh(einc,Gflash::emscale[0]) + fTanh(einc,Gflash::emscale[2])*r1);
-    }
-    while (energyScale[Gflash::kESPM] > einc || energyScale[Gflash::kESPM] < 0.0);
-
-    //@@@extend depthScale for HE 
-    energyMeanHcal  = (fTanh(einc,Gflash::hadscale[0]) +
-		       fTanh(einc,Gflash::hadscale[1])*depthScale(position.getRho(),129.,22.));
-    energySigmaHcal = (fTanh(einc,Gflash::hadscale[2]) +
-		       fTanh(einc,Gflash::hadscale[3])*depthScale(position.getRho(),129.,22.));
-
-    do {
-      r2 = theRandGauss->fire();
-      energyScale[Gflash::kHB] = 
-	exp(energyMeanHcal+energySigmaHcal*(energyRho*r1 + sqrt(1.0- energyRho*energyRho)*r2 ))-0.05*einc;
-    }
-    while (energyScale[Gflash::kHB] > einc);
-  }
-  else if(showerType == 2 || showerType == 6) { //between crystal and Hcal (gap)
-    energyMeanHcal  = einc*(fTanh(einc,Gflash::gapscale[0]) +
-                            fTanh(einc,Gflash::gapscale[1])*depthScale(position.getRho(),179.,28.));
-    energySigmaHcal = einc*(fTanh(einc,Gflash::gapscale[2]) +
-                            fTanh(einc,Gflash::gapscale[3])*depthScale(position.getRho(),179.,28.));
-
-    do{
-      energyScale[Gflash::kHB] = energyMeanHcal + energySigmaHcal*theRandGauss->fire();
-    }
-    while (energyScale[Gflash::kHB] < 0 || energyScale[Gflash::kHB] > einc);
-
-  }
-  else if(showerType == 3 || showerType == 7) { //Hcal response for mip-like pions (mip)
-    //@@@ no depth dependency yet, but may introduce later if necessary
-    energyMeanHcal  = einc*fTanh(einc,Gflash::mipscale[0]);
-    energySigmaHcal = einc*fTanh(einc,Gflash::mipscale[2]);
-
-    do{
-      //@@@ need additional scale in sigma? -> tuning
-      energyScale[Gflash::kHB] = energyMeanHcal + energySigmaHcal*theRandGauss->fire();
-    }
-    while (energyScale[Gflash::kHB] < 0 || energyScale[Gflash::kHB] > einc);
-  }
-
-  energyScale[Gflash::kENCA] = energyScale[Gflash::kESPM];
-  energyScale[Gflash::kHE] = energyScale[Gflash::kHB];
-
   // parameters for the longitudinal profiles
   //@@@check longitudinal profiles of endcaps for possible varitations
-  //correllation and fluctuation matrix of longitudinal parameters
+  //@@@need to add fluctuation and correlation for individual shower
 
-  G4double *rhoHcal = new G4double [2*Gflash::NPar];
-  G4double *correlationVectorHcal = new G4double [Gflash::NPar*(Gflash::NPar+1)/2];
+  longPar[0][0] = 1.41*std::max(0.0,-5.96481e-03 + 0.18231*std::tanh(0.55451*(std::log(einc)-0.458775))) ;
+  longPar[0][1] = std::max(0.0,2.01611 + 1.77483 * std::tanh(0.75719*(std::log(einc) - 2.58172)));
+  longPar[0][2] = std::max(0.0,0.21261 + 0.24168 * std::tanh(0.76962*(std::log(einc) - 2.11936)));
+  longPar[0][3] = std::max(0.0,1.05577e-02 + 1.00807  * std::tanh(-6.31044e-04*(std::log(einc) - 4.60658)));
+  longPar[0][4] = 0.87*std::max(0.0,1.19845e-01 + 6.87070e-02 * std::tanh(-8.23888e-01*(std::log(einc) - 2.90178)));
+  longPar[0][5] = std::max(0.0,2.49694e+01 + 1.10258e+01 * std::tanh(6.16435e-01*(std::log(einc) - 3.56012)));
 
-  //for now, until we have a separate parameterization for Endcap 
-  if(showerType>3) showerType -= 4;
-  if(showerType==0) showerType = 1; //no separate parameterization before crystal
-
-  for(int i = 0 ; i < 2*Gflash::NPar ; i++ ) {
-    rhoHcal[i] = fTanh(einc,Gflash::rho[i + showerType*2*Gflash::NPar]);
-  }
-
-  correlationVectorHcal = getFluctuationVector(rhoHcal);
-
-  G4double normalZ[Gflash::NPar];
-  for (int i = 0; i < Gflash::NPar ; i++) normalZ[i] = theRandGauss->fire();
+  longSigma[0][0] = 0.02;
+  longSigma[0][1] = 0.16;
+  longSigma[0][2] = 0.02;
+  longSigma[0][3] = 0.01;
+  longSigma[0][4] = 0.03;
+  longSigma[0][5] = 2.50;
   
-  for(int i = 0 ; i < Gflash::NPar ; i++) {
-    double correlationSum = 0.0;
-    for(int j = 0 ; j < i+1 ; j++) {
-      correlationSum += correlationVectorHcal[i*(i+1)/2+j]*normalZ[j];
-    }
-    longHcal[i] = fTanh(einc,Gflash::par[i+showerType*Gflash::NPar]) +
-                  fTanh(einc,Gflash::par[i+(4+showerType)*Gflash::NPar])*correlationSum;
-  }
+  longPar[1][0] = 0.1126;
+  longPar[1][1] = 1.3857;
+  longPar[1][2] = std::max(0.0,1.1353 + 0.4997*std::tanh(-0.6382*(std::log(einc) - 2.0035)));
+  longPar[1][3] = 0.2300;
+  longPar[1][4] = 3.5018;
+  longPar[1][5] = std::max(0.0,0.6151 - 0.0561*std::log(einc));
 
-  delete [] rhoHcal;
-  delete [] correlationVectorHcal;
+  longSigma[1][0] = 0.01;
+  longSigma[1][1] = 0.44;
+  longSigma[1][2] = 0.01;
+  longSigma[1][3] = 0.01;
+  longSigma[1][4] = 0.20;
+  longSigma[1][5] = 0.04;
 
-  if(showerType == 0 || showerType == 1) {
-    G4double *rhoEcal = new G4double [2*Gflash::NPar];
-    G4double *correlationVectorEcal = new G4double [2*Gflash::NPar];
-    for(int i = 0 ; i < 2*Gflash::NPar ; i++ ) rhoEcal[i] = fTanh(einc,Gflash::rho[i]);
+  longPar[2][0] = std::max(0.0,-1.55624e+01+1.56831e+01*std::tanh(5.93651e-01*(std::log(einc) + 4.89902)));
+  longPar[2][1] = std::max(0.0,7.28995e-01+ 7.71148e-01*std::tanh(4.77898e-01*(std::log(einc) - 1.69087)));
+  longPar[2][2] = std::max(0.0,1.23387+ 7.34778e-01*std::tanh(-3.14958e-01*(std::log(einc) - 0.529206)));
+  longPar[2][3] = std::max(0.0,1.02070e+02+1.01873e+02*std::tanh(-4.99805e-01*(std::log(einc) + 5.04012)));
+  longPar[2][4] = std::max(0.0,3.59765+8.53358e-01*std::tanh( 8.47277e-01*(std::log(einc) - 3.36548)));
+  longPar[2][5] = std::max(0.0,4.27294e-01+1.62535e-02*std::tanh(-2.26278*(std::log(einc) - 1.81308)));
 
-    correlationVectorEcal = getFluctuationVector(rhoEcal);
+  longSigma[2][0] = 0.01;
+  longSigma[2][1] = 0.44;
+  longSigma[2][2] = 0.01;
+  longSigma[2][3] = 0.01;
+  longSigma[2][4] = 0.20;
+  longSigma[2][5] = 0.04;
 
-    for (int i = 0; i < Gflash::NPar ; i++) normalZ[i] = theRandGauss->fire();
-    for(int i = 0 ; i < Gflash::NPar ; i++) {
+  double normalZ[Gflash::NxN];
+  for (int i = 0; i < Gflash::NxN ; i++) normalZ[i] = theRandGauss->fire();
+  
+  for(int k = 0 ; k < Gflash::NRegion ; k++) {
+    for(int i = 0 ; i < Gflash::NxN ; i++) {
       double correlationSum = 0.0;
-      for(int j = 0 ; j < i+1 ; j++) {
-	correlationSum += correlationVectorEcal[i*(i+1)/2+j]*normalZ[j];
+      for(int j = 0 ; j < Gflash::NxN ; j++) {
+	correlationSum += correlationVector[Gflash::NStart[Gflash::NRegion]+(i+1)/2+j]*normalZ[i];
       }
-      longEcal[i] = fTanh(einc,Gflash::par[i]) +
-        fTanh(einc,Gflash::par[i+4*Gflash::NPar])*correlationSum;
+      longPar[k][i] = std::max(0.0,longPar[k][i]+longSigma[k][i]*correlationSum);
     }
-    delete [] rhoEcal;
-    delete [] correlationVectorEcal;
   }
 
   // parameters for the lateral profile
@@ -515,54 +450,71 @@ void GflashHadronShowerProfile::loadParameters(const G4FastTrack& fastTrack)
   lateralPar[1] = std::max(0.0,0.40 -0.06*std::log(einc));
   lateralPar[2] = 0.70 - 0.05*std::max(0.,std::log(einc));
   lateralPar[3] = 0.20 * lateralPar[2];
-
 }
 
-G4double GflashHadronShowerProfile::longitudinalProfile(G4double showerDepth, G4double pathLength, G4double transDepth,
-							const G4ThreeVector pos,G4double einc) {
+G4double GflashHadronShowerProfile::longitudinalProfile(G4double showerDepth, G4double pathLength, G4double transDepth){
+
   G4double heightProfile = 0;
 
   // Energy in a delta step (dz) = (energy to deposite)*[Gamma(z+dz)-Gamma(z)]*dz
   // where the incomplete Gamma function gives an intergrate probability of the longitudinal 
-  // shower up to the shower depth (z).
+  // shower u[ to the shower depth (z).
   // Instead, we use approximated energy; energy in dz = (energy to deposite)*gamma(z)*dz
   // where gamma is the Gamma-distributed probability function
 
+  Genfun::LogGamma lgam;
   GflashTrajectoryPoint tempPoint;
   theHelix->getGflashTrajectoryPoint(tempPoint,pathLength);
 
-  if(showerType == 0 || showerType == 1 ) {
-    if(tempPoint.getPosition().getRho() < 152.0 ) { 
-      heightProfile = twoGammaProfile(longEcal,showerDepth,Gflash::kESPM);
-      
+  double x = 0.0;
+  //get parameters
+  if(showerType == 1 || showerType == 2 ) {
+    //    std::cout << " pathLength tempPoint.getPosition().getRho()=  "  << pathLength << " "  << tempPoint.getPosition().getRho() << std::endl;
+    if(tempPoint.getPosition().getRho() < 150.0 ) { 
+      x = showerDepth*longPar[0][2];
+      heightProfile = longPar[0][0]*std::pow(x,longPar[0][1]-1.0)*std::exp(-x)/std::exp(lgam(longPar[0][1]))+longPar[0][3];
     }
     else if (tempPoint.getPosition().getRho() > Gflash::Rmin[Gflash::kHB] ){
-      heightProfile = twoGammaProfile(longHcal,showerDepth-transDepth,Gflash::kHB);
-	//@@@put this in the scale, not in the profile
-	//      heightProfile *= Gflash::ScaleSensitive;
+      x = showerDepth;
+      heightProfile = longPar[0][4]*std::exp(-x/longPar[0][5]);
+      heightProfile *= Gflash::ScaleSensitive;
     }
     else heightProfile = 0.;
   }  
-  else if(showerType == 4 || showerType == 5){
+  else if(showerType == 5 || showerType == 6){
     //@@@use new parameterization for EE/HE
     if(std::abs(tempPoint.getPosition().getZ()) < Gflash::Zmin[Gflash::kENCA]+23.0 ) { 
-      heightProfile = twoGammaProfile(longEcal,showerDepth,Gflash::kENCA);
+      x = showerDepth*longPar[0][2];
+      heightProfile = longPar[0][0]*std::pow(x,longPar[0][1]-1.0)*std::exp(-x)/std::exp(lgam(longPar[0][1]))+longPar[0][3];
     }
     else if (std::abs(tempPoint.getPosition().getZ()) > Gflash::Rmin[Gflash::kHE] ){
-      heightProfile = twoGammaProfile(longHcal,showerDepth-transDepth,Gflash::kHE);
+      x = showerDepth;
+      heightProfile = longPar[0][4]*std::exp(-x/longPar[0][5]);
+      heightProfile *= Gflash::ScaleSensitive;
     }
     else heightProfile = 0.;
   }  
-  else if (showerType == 2 || showerType == 6 ) {
+  else if (showerType == 3 || showerType == 7 ) {
     //two gammas between crystal and Hcal
     if((showerDepth - transDepth) > 0.0) {
-      heightProfile = twoGammaProfile(longHcal,showerDepth-transDepth,Gflash::kHB);
+      double x1 = (showerDepth-transDepth)*longPar[1][2]/16.42;
+      double x2 = (showerDepth-transDepth)*longPar[1][5]/1.49;
+
+      heightProfile = longPar[1][3]*std::pow(x1,longPar[1][1]-1.0)*std::exp(-x1)/std::exp(lgam(longPar[1][1]))
+	+ (1.0-longPar[1][3])*std::pow(x2,longPar[1][4]-1.0)*std::exp(-x2)/std::exp(lgam(longPar[1][4]));
+      heightProfile = std::max(0.0,longPar[1][0]*heightProfile);
+      heightProfile *= Gflash::ScaleSensitive;
     }
     else heightProfile = 0.;
   }
-  else if (showerType == 3 || showerType == 7 ) {
+  else if (showerType == 4 || showerType == 8 ) {
     //two gammas inside Hcal
-      heightProfile = twoGammaProfile(longHcal,showerDepth,Gflash::kHB);
+    double x1 = showerDepth*longPar[2][2]/16.42;
+    double x2 = showerDepth*longPar[2][5]/1.49;
+    heightProfile = longPar[2][3]*std::pow(x1,longPar[2][1]-1.0)*std::exp(-x1)/std::exp(lgam(longPar[2][1]))
+                  + (1.0-longPar[2][3])*std::pow(x2,longPar[2][4]-1.0)*std::exp(-x2)/std::exp(lgam(longPar[2][4]));
+    heightProfile = std::max(0.0,longPar[2][0]*heightProfile);
+    heightProfile *= Gflash::ScaleSensitive;
   }
 
   return heightProfile;
@@ -592,12 +544,11 @@ G4bool GflashHadronShowerProfile::insideSampling(const G4ThreeVector pos) {
   return issampling;
 }
 
-G4double* GflashHadronShowerProfile::getFluctuationVector(G4double *lowTriangle) {
+void GflashHadronShowerProfile::fillFluctuationVector() {
+  //  G4double RMX[186]; //21*6 = 186
 
-    const G4int dim = Gflash::NPar;
-
-    G4double *correlationVector = new G4double [dim*(dim+1)/2];
-
+  for(G4int k = 0 ; k < Gflash::NRegion ; k++) {
+    const G4int dim = Gflash::NDim[k];
     G4double **xr   = new G4double *[dim];
     G4double **xrho = new G4double *[dim];
     
@@ -608,28 +559,28 @@ G4double* GflashHadronShowerProfile::getFluctuationVector(G4double *lowTriangle)
     
     for(G4int i = 0; i < dim; i++) {
       for(G4int j = 0; j < i+1 ; j++) {
-        if(j==i) xrho[i][j] = 1.0;
-	else {
-	  xrho[i][j] = lowTriangle[i*(i-1)/2 + j];
-	  xrho[j][i] = xrho[i][j];
-	}
+	xrho[i][j] = Gflash::rho[i+Gflash::NRegion*k][j];
+	xrho[i][j] = Gflash::rho[i][j];
+	xrho[j][i] = xrho[i][j];
       }
     }
-
+    
     doCholeskyReduction(xrho,xr,dim);
 
     for(G4int i = 0 ; i < dim ; i++) {
       for (G4int j = 0 ; j < i+1 ; j++){
-	correlationVector[i*(i+1)/2 + j] = xr[i][j];
+	correlationVector[Gflash::NStart[k]+i*(i+1)/2 + j] = xr[i][j];
       }
     }
 
-    return correlationVector;
+    std::cout << "this should be calcuated at constructor" << std::endl;
+    for(int i = 0; i < 21 ; i++) std::cout << correlationVector[i] << std::endl;
     
     for(G4int j=0;j<dim;j++) delete [] xr[j];
     delete [] xr;
     for(G4int j=0;j<dim;j++) delete [] xrho[j];
     delete [] xrho;
+  }
 }
 
 void GflashHadronShowerProfile::doCholeskyReduction(double **vv, double **cc, const int ndim) {
@@ -665,62 +616,3 @@ void GflashHadronShowerProfile::doCholeskyReduction(double **vv, double **cc, co
     }
   }
 }
-
-G4int GflashHadronShowerProfile::getNumberOfSpots(G4double einc) {
-  //generator number of spots: energy dependent Gamma distribution of Nspots based on Geant4
-  //replacing old parameterization of H1, 
-  //G4int numberOfSpots = std::max( 50, static_cast<int>(80.*std::log(einc)+50.));
-
-  G4int numberOfSpots = 0;
-  G4double alphaNspots = 0.0;
-  G4double betaNspots  = 0.0;
-
-  if(showerType == 0 || showerType == 1 || showerType == 4 || showerType == 5 ) {
-    alphaNspots = 1.37719e+01+1.27901e+01*std::tanh(5.83278e-01*(std::log(einc)-2.71949e+00));
-    betaNspots  = 1.43212e-01-1.43340e-01*std::tanh(2.62593e-01*(std::log(einc)+8.94369e+00));
-  }
-  else if (showerType == 2 || showerType == 3 || showerType == 6 || showerType == 7 ) {
-    alphaNspots = 7.27190e+00+2.63063e+00*std::tanh(2.44278e+00*(std::log(einc)-2.16815e+00));
-    betaNspots  = 2.11525e-01-2.11634e-01*std::tanh(3.78206e-01*(std::log(einc)+6.06337e+00));
-  }
-  else {
-    alphaNspots = 5;
-    betaNspots  = 0.01;
-  }
-
-  //@@@need correlation and individual fluctuation on alphaNspots and betaNspots here:
-  //evaluating covariance should be straight forward since the distribution is 'one' Gamma
-
-  numberOfSpots = std::max(500,static_cast<int> (theRandGamma->fire(alphaNspots,betaNspots)));
-  return numberOfSpots;
-}
-
-G4double GflashHadronShowerProfile::fTanh(G4double einc, const G4double *par) {
-  double func = 0.0;
-  if(einc>0.0) func = par[0]+par[1]*std::tanh(par[2]*(std::log(einc)-par[3]));
-  return func;
-}
-
-G4double GflashHadronShowerProfile::depthScale(G4double ssp, G4double ssp0, G4double length) {
-  double func = 0.0;
-  if(length>0.0) func = std::pow((ssp-ssp0)/length,2.0);
-  return func;
-}
-
-G4double GflashHadronShowerProfile::twoGammaProfile(G4double *longPar, G4double depth, Gflash::CalorimeterNumber kIndex) {
-  G4double twoGamma = 0.0;
-  twoGamma  = longPar[0]* gammaProfile(exp(longPar[1]),exp(longPar[2]),depth,Gflash::radLength[kIndex])
-          +(1-longPar[0])*gammaProfile(exp(longPar[3]),exp(longPar[4]),depth,Gflash::intLength[kIndex]);
-  return twoGamma;
-}
-
-G4double GflashHadronShowerProfile::gammaProfile(G4double alpha, G4double beta, G4double showerDepth, G4double lengthUnit) {
-  double gamma = 0.0;
-  if(alpha > 0 && beta > 0 && lengthUnit > 0) {
-    Genfun::LogGamma lgam;
-    double x = showerDepth*(beta/lengthUnit);
-    gamma = (beta/lengthUnit)*std::pow(x,alpha-1.0)*std::exp(-x)/std::exp(lgam(alpha));
-  }
-  return gamma;
-}
-

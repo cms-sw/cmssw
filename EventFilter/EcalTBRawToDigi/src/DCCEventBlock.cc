@@ -1,4 +1,5 @@
 #include "DCCEventBlock.h"
+#include "DCCBlockPrototype.h"
 #include "DCCDataParser.h"
 #include "DCCDataMapper.h"
 #include "DCCTowerBlock.h"

@@ -121,7 +121,7 @@ void HistoMET::fill( const reco::ShallowClonePtrCandidate * pshallow, uint iPart
 {
 
   // Get the underlying object that the shallow clone represents
-  const pat::MET * met = dynamic_cast<const pat::MET*>(&*(pshallow->masterClonePtr()));
+  const pat::MET * met = dynamic_cast<const pat::MET*>(pshallow);
 
   if ( met == 0 ) {
     cout << "Error! Was passed a shallow clone that is not at heart a met" << endl;

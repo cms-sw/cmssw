@@ -61,14 +61,14 @@ void CastorHardcodeGeometryLoader::fill(HcalCastorDetId::Section section, CaloSu
 
  for(std::vector<HcalCastorDetId>::const_iterator castorIdItr = castorIds.begin();
      castorIdItr != castorIds.end(); ++castorIdItr)
- {
-    geom->addCell( *castorIdItr, makeCell(*castorIdItr, geom ) );
- }
+   {
+     const CaloCellGeometry * geometry = makeCell(*castorIdItr, geom );
+     geom->addCell(*castorIdItr, geometry);
+   }
 }
 
-CaloCellGeometry*
-CastorHardcodeGeometryLoader::makeCell( const HcalCastorDetId&   detId , 
-					CaloSubdetectorGeometry* geom   ) const {
+const CaloCellGeometry*
+CastorHardcodeGeometryLoader::makeCell(const HcalCastorDetId & detId, CaloSubdetectorGeometry* geom) const {
   
   float zside = detId.zside();
   HcalCastorDetId::Section section = detId.section();

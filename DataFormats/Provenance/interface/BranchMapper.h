@@ -42,6 +42,8 @@ namespace edm {
 
     ProductID maxProductID() const;
 
+    void setDelayedRead(bool value) { delayedRead_ = value; }
+
   private:
     typedef std::set<EventEntryInfo> eiSet;
     typedef std::map<ProductID, eiSet::const_iterator> eiMap;

@@ -21,7 +21,7 @@
 </xsl:template>
 
 <xsl:template match="Histogram">
-  <xsl:text>if(REMATCH(".*/</xsl:text>
+  <xsl:text>if(reMatch(".*/</xsl:text>
   <xsl:value-of select="Name"/>
   <xsl:text>$", o.name)) {
   </xsl:text>

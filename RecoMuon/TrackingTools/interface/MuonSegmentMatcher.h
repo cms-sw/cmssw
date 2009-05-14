@@ -24,7 +24,7 @@ class MuonSegmentMatcher {
   public:
 
     /// constructor with Parameter Set and MuonServiceProxy
-    MuonSegmentMatcher(const edm::ParameterSet&, const edm::ParameterSet&, MuonServiceProxy*);
+    MuonSegmentMatcher(const edm::ParameterSet&, MuonServiceProxy*);
           
     /// destructor
     virtual ~MuonSegmentMatcher();

@@ -2,7 +2,7 @@
 #define CSCRecHitD_CSCRangeMapForRecHit_H
 
 /** \class CSCRangeMapForRecHit
- *  Comparator to retrieve CSC rechits by chamber or by layer. 
+ *  Comparator to retrieve CSCrechits by chamber or by layer. 
  *
  *  \author Dominique Fortin
  */

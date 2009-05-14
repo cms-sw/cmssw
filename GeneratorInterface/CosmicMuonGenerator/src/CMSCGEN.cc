@@ -36,10 +36,12 @@ int CMSCGEN::initialize(double pmin_in, double pmax_in, double thetamin_in, doub
 
   //allowed energy range
   pmin_min = 3.;
-  pmin_max = 100.;
+  //pmin_max = 100.;
+  pmin_max = 3000.;
   pmax = 3000.;
   //allowed angular range
-  cmax_max = -0.1,
+  //cmax_max = -0.1,
+  cmax_max = -0.01,
   cmax_min = -0.9999;
 
  if(TIFOnly_const == true || TIFOnly_lin == true) pmin_min = 0.; //forTIF

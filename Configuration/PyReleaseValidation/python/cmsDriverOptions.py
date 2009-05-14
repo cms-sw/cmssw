@@ -56,10 +56,12 @@ parser.add_option("-n", "--number",
 
 parser.add_option("--mc",
                   help="Specify that simulation is to be processed (default = guess based on options",
+                  action="store_true",
                   default=False,
                   dest="isMC")
 parser.add_option("--data",
                   help="Specify that data is to be processed (default = guess based on options",
+                  action="store_true",
                   default=False,
                   dest="isData")
 
@@ -284,8 +286,10 @@ elif options.step=='DATA_CHAIN':
         options.step='RAW2DIGI,RECO,POSTRECO,DQM'
 options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
 
-#always, add on the end of job sequence...
-options.step=options.step+',ENDJOB'
+# add on the end of job sequence...
+# if not fastsim...
+if not "FASTSIM" in options.step: 
+  options.step=options.step+',ENDJOB'
 print options.step
 
 # the process name is just the last step in the list of steps
@@ -305,6 +309,8 @@ if options.isData and options.isMC:
 # if not specified by user try to guess
 if not options.isData and not options.isMC:
     if 'SIM' in trimmedStep:
+        options.isMC=True
+    if 'DIGI' in trimmedStep:
         options.isMC=True
     if (not (options.eventcontent == None)) and 'SIM' in options.eventcontent:
         options.isMC=True

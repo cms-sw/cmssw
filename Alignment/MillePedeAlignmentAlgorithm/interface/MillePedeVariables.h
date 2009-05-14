@@ -8,8 +8,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.3 $
- *  $Date: 2007/03/16 17:03:02 $
+ *  $Revision: 1.2 $
+ *  $Date: 2006/11/30 10:34:04 $
  *  (last update by $Author: flucke $)
  */
 
@@ -21,7 +21,7 @@ class MillePedeVariables : public AlignmentUserVariables {
  public:
   
   /** constructor */
-  MillePedeVariables(unsigned int nParams, unsigned int label);
+  explicit MillePedeVariables(unsigned int nParams);
   /** destructor */
   virtual ~MillePedeVariables() {}
   /** clone method (using copy constructor) */
@@ -83,8 +83,6 @@ class MillePedeVariables : public AlignmentUserVariables {
   bool isFixed(unsigned int nParam) const;
 
  private:
-  MillePedeVariables() {} // make unusable default constructor
-
   std::vector<bool>  myIsValid;
   std::vector<float> myDiffBefore;
   std::vector<float> myGlobalCor;

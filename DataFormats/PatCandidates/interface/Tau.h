@@ -1,5 +1,5 @@
 //
-// $Id: Tau.h,v 1.19 2008/10/08 18:27:09 lowette Exp $
+// $Id: Tau.h,v 1.20.2.1 2009/02/10 10:38:08 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -17,7 +17,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Christophe Delaere, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Tau.h,v 1.19 2008/10/08 18:27:09 lowette Exp $
+  \version  $Id: Tau.h,v 1.20.2.1 2009/02/10 10:38:08 gpetrucc Exp $
 */
 
 
@@ -25,6 +25,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
+
+#include "DataFormats/Common/interface/BoolCache.h"
 
 #include "DataFormats/PatCandidates/interface/TauPFSpecific.h"
 #include "DataFormats/PatCandidates/interface/TauCaloSpecific.h"
@@ -65,11 +67,11 @@ namespace pat {
 
       // ---- methods for content embedding ----
       /// override the TauType::isolationTracks method, to access the internal storage of the track
-      reco::TrackRefVector isolationTracks() const;
+      const reco::TrackRefVector & isolationTracks() const;
       /// override the TauType::track method, to access the internal storage of the track
       reco::TrackRef leadTrack() const;
       /// override the TauType::track method, to access the internal storage of the track
-      reco::TrackRefVector signalTracks() const;
+      const reco::TrackRefVector & signalTracks() const;
       /// method to store the isolation tracks internally
       void embedIsolationTracks();
       /// method to store the leading track internally
@@ -200,6 +202,11 @@ namespace pat {
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       bool  muonDecision() const { return pfSpecific().muonDecision_; }
 
+      /// reconstructed tau decay mode (specific to PFTau)
+      int decayMode() const { return pfSpecific().decayMode_; }
+      /// set decay mode
+      void setDecayMode(int);
+
       // ---- methods for tau ID ----
       /// Returns a specific tau ID associated to the pat::Tau given its name
       /// For cut-based IDs, the value is 1.0 for good, 0.0 for bad.
@@ -219,10 +226,14 @@ namespace pat {
       // ---- for content embedding ----
       bool embeddedIsolationTracks_;
       std::vector<reco::Track> isolationTracks_;
+      mutable reco::TrackRefVector isolationTracksTransientRefVector_;
+      mutable edm::BoolCache       isolationTracksTransientRefVectorFixed_;
       bool embeddedLeadTrack_;
       std::vector<reco::Track> leadTrack_;
       bool embeddedSignalTracks_;
       std::vector<reco::Track> signalTracks_;
+      mutable reco::TrackRefVector signalTracksTransientRefVector_;
+      mutable edm::BoolCache       signalTracksTransientRefVectorFixed_;
       // ---- matched GenJet holder ----
       std::vector<reco::GenJet> genJet_;
       // ---- tau ID's holder ----

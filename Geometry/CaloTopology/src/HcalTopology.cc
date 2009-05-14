@@ -112,7 +112,8 @@ std::vector<DetId> HcalTopology::south(const DetId& id) const
 std::vector<DetId> HcalTopology::up(const DetId& id) const
 {
   HcalDetId neighbor = id;
-  incrementDepth(neighbor);
+  //A.N.
+  //  incrementDepth(neighbor);
   std::vector<DetId> vNeighborsDetId;
   if(incrementDepth(neighbor)) 
   {
@@ -433,8 +434,10 @@ bool HcalTopology::incrementDepth(HcalDetId & detId) const
     }
   }
   detId = HcalDetId(subdet, ieta, detId.iphi(), depth);
-  assert(validRaw(detId));
-  return true;
+  //A.N.  
+  // assert(validRaw(detId));
+  return validRaw(detId);
+  //A.N.  return true;
 }
 
 

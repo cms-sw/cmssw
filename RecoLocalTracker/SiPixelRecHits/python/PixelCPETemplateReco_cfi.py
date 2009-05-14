@@ -9,7 +9,11 @@ templates = cms.ESProducer("PixelCPETemplateRecoESProducer",
     UseClusterSplitter = cms.bool(False),
 
     # petar, for clusterProbability() from TTRHs
-    ClusterProbComputationFlag = cms.int32(0)
+    ClusterProbComputationFlag = cms.int32(0),
+
+    # gavril
+    DoCosmics = cms.bool(False)                       
+
 )
 
 

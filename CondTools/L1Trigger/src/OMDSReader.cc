@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Mar  2 01:46:46 CET 2008
-// $Id: OMDSReader.cc,v 1.5 2008/09/12 04:54:17 wsun Exp $
+// $Id: OMDSReader.cc,v 1.4 2008/07/23 16:38:08 wsun Exp $
 //
 
 // system include files
@@ -98,26 +98,24 @@ OMDSReader::~OMDSReader()
       }
 
     // Only apply condition if RHS has one row.
-    if( !conditionLHS.empty() && conditionRHS.numberRows() == 1 )
+    if( !conditionLHS.empty() && conditionRHS.second.size() == 1 )
       {
 	if( !conditionRHSName.empty() )
 	  {
-	    // Assume all RHS types are strings.
 	    coral::AttributeList attList ;
 	    attList.extend( conditionRHSName, typeid( std::string ) ) ;
-	    std::string tmp ;
-	    conditionRHS.fillVariable( conditionRHSName, tmp ) ;
-	    attList[ conditionRHSName ].data< std::string >() = tmp ;
+	    attList[ conditionRHSName ].data< std::string >() =
+	      conditionRHS.second.front()[ conditionRHSName ].data< std::string >() ;
 
 	    query->setCondition( conditionLHS + " = :" + conditionRHSName,
 				 attList ) ;
+	    //				 conditionRHS.second.front() ) ;
 	  }
-	else if( conditionRHS.columnNames().size() == 1 )
-	  // check for only one column
+	else if( conditionRHS.first.size() == 1 ) // check for only one column
 	  {
 	    query->setCondition( conditionLHS + " = :" +
-				   conditionRHS.columnNames().front(),
-				 conditionRHS.attributeLists().front() ) ;
+				    conditionRHS.first.front(),
+				 conditionRHS.second.front() ) ;
 	  }
       }
 
@@ -131,7 +129,7 @@ OMDSReader::~OMDSReader()
 	atts.push_back( cursor.currentRow() ) ;
       } ;
 
-    return QueryResults( columnNames, atts ) ;
+    return std::make_pair( columnNames, atts ) ;
   }
 
   const OMDSReader::QueryResults
@@ -147,6 +145,22 @@ OMDSReader::~OMDSReader()
     columnNames.push_back( columnName ) ;
     return basicQuery( columnNames, schemaName, tableName,
 			conditionLHS, conditionRHS, conditionRHSName ) ;
+  }
+
+  const OMDSReader::QueryResults
+  OMDSReader::singleAttribute( const std::string& data ) const
+  {
+    std::vector< std::string > names ;
+    names.push_back( "dummy" ) ;
+
+    coral::AttributeList attList ;
+    attList.extend( "dummy", typeid( std::string ) ) ;
+    attList[ "dummy" ].data< std::string >() = data ;
+
+    std::vector< coral::AttributeList > atts ;
+    atts.push_back( attList ) ;
+
+    return std::make_pair( names, atts ) ;
   }
 
 //

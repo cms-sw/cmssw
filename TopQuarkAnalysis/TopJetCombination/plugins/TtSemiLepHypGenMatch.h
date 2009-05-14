@@ -20,7 +20,7 @@ class TtSemiLepHypGenMatch : public TtSemiLepHypothesis  {
 			 const edm::Handle<edm::View<reco::RecoCandidate> >&,
 			 const edm::Handle<std::vector<pat::MET> >&,
 			 const edm::Handle<std::vector<pat::Jet> >&,
-			 std::vector<int>& );
+			 std::vector<int>&, const unsigned int iComb);
   int findMatchingLepton(edm::Event&, 
 			 const edm::Handle<edm::View<reco::RecoCandidate> >&);
 };

@@ -25,6 +25,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 // Scalers classes
+#include "DataFormats/Scalers/interface/L1AcceptBunchCrossing.h"
 #include "DataFormats/Scalers/interface/L1TriggerScalers.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/Scalers/interface/ScalersRaw.h"
@@ -41,6 +42,7 @@ class ScalersRawToDigi : public edm::EDProducer
 // Constructor
 ScalersRawToDigi::ScalersRawToDigi(const edm::ParameterSet& iConfig)
 {
+  produces<L1AcceptBunchCrossingCollection>();
   produces<L1TriggerScalersCollection>();
   produces<LumiScalersCollection>();
 }
@@ -59,8 +61,12 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
   iEvent.getByLabel("source" , rawdata);
 
   std::auto_ptr<LumiScalersCollection> pLumi(new LumiScalersCollection());
+
   std::auto_ptr<L1TriggerScalersCollection> 
     pTrigger(new L1TriggerScalersCollection());
+
+  std::auto_ptr<L1AcceptBunchCrossingCollection> 
+    pBunch(new L1AcceptBunchCrossingCollection());
 
   /// Take a reference to this FED's data
   const FEDRawData & fedData = rawdata->FEDData(ScalersRaw::SCALERS_FED_ID);
@@ -68,11 +74,29 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
   if ( length > 0 ) 
   {
     L1TriggerScalers triggerScalers(fedData.data());
+    pTrigger->push_back(triggerScalers);
+    iEvent.put(pTrigger); 
+
     LumiScalers      lumiScalers(fedData.data());
     pLumi->push_back(lumiScalers);
-    pTrigger->push_back(triggerScalers);
     iEvent.put(pLumi); 
-    iEvent.put(pTrigger); 
+
+    int nWords = length / 8;
+    int nBytesExtra = length - sizeof(struct ScalersEventRecordRaw_v1);
+    if (( nBytesExtra >= 8 ) && (( nBytesExtra % 8 ) == 0 ))
+    {
+      unsigned long long * data = 
+	(unsigned long long *)fedData.data();
+
+      int nWordsExtra = nBytesExtra / 8;
+      for ( int i=0; i<nWordsExtra; i++)
+      {
+	int index = nWords - 5 + i;
+	L1AcceptBunchCrossing bc(i,data[index]);
+	pBunch->push_back(bc);
+      }
+      iEvent.put(pBunch); 
+    }
   }
 }
 

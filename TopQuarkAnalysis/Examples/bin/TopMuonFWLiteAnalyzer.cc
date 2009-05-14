@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
     events_->GetEntry( evt, 0 );
 
     // -------------------------------------------------  
-    if(evt>0 && !evt%100) std::cout << "  processing event: " << evt << std::endl;
+    if(evt>0 && !(evt%10)) std::cout << "  processing event: " << evt << std::endl;
     // -------------------------------------------------  
 
     // fill histograms
