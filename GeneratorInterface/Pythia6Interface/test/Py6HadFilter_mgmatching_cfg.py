@@ -52,8 +52,8 @@ process.generator = cms.EDFilter("Pythia6HadronizerFilter",
        mode = cms.string("auto"),	# soup, or "inclusive" / "exclusive"
        MEMAIN_etaclmax = cms.double(5.0),
        MEMAIN_qcut = cms.double(30.0),
-       MEMAIN_minjets = cms.int32(0),
-       MEMAIN_maxjets = cms.int32(2),
+       MEMAIN_minjets = cms.int32(-1),
+       MEMAIN_maxjets = cms.int32(-1),
     )    
 )
 

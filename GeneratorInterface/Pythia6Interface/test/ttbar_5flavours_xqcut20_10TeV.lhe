@@ -405,6 +405,14 @@ DECAY        25     5.75450381E-03   # H   width
 #  Max wgt                 :  .73264E+00
 #  Average wgt             :  .12094E+02
 </MGGenerationInfo>
+<MGParamCMS>
+# All parameters that are given here can be selected to be set from this
+# header by setting the # corresponding CMSSW config parameter to -1
+# In case this is done, the entries here must exist of an error message
+# is given.
+      0      = minjets ! Smallest number of additional light flavour jets
+      3      = maxjets ! Largest number (inclusive ktMLM matching multipl.)
+</MGParamCMS>
 </header>
 <init>
   2212  2212  0.50000000000E+04  0.50000000000E+04 0 0 10042 10042 3  3
