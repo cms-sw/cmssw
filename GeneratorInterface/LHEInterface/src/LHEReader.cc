@@ -157,7 +157,11 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
 		throw cms::Exception("InvalidFormat")
 			<< "LHE file has invalid format" << std::endl;
 
-	if (name == "header") {
+	if (name == "init")
+		mode = kInit;
+	else if (name == "event")
+		mode = kEvent;
+	else {
 		if (!impl)
 			impl = DOMImplementationRegistry::getDOMImplementation(
 							XMLUniStr("Core"));
@@ -165,10 +169,7 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
 		xmlNodes.resize(1);
 		xmlNodes[0] = xmlHeader->getDocumentElement();
 		mode = kHeader;
-	} if (name == "init")
-		mode = kInit;
-	else if (name == "event")
-		mode = kEvent;
+	}
 
 	if (mode == kNone)
 		throw cms::Exception("InvalidFormat")
@@ -192,7 +193,9 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
 			writer->setEncoding(XMLUniStr("UTF-8"));
 			XMLSimpleStr buffer(
 					writer->writeToString(*xmlNodes[0]));
-			LHERunInfo::Header header("header");
+			LHERunInfo::Header header(
+					(const char*)XMLSimpleStr(
+						xmlNodes[0]->getTagName()));
 			const char *p =
 				std::strchr((const char*)buffer, '>') + 1;
 			const char *q = std::strrchr(p, '<');
