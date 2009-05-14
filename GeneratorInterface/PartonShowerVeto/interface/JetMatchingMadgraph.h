@@ -1,7 +1,6 @@
 #ifndef GeneratorInterface_PartonShowerVeto_JetMatchingMadggraph_h
 #define GeneratorInterface_PartonShowerVeto_JetMatchingMadgraph_h
 
-
 #include "GeneratorInterface/PartonShowerVeto/interface/JetMatching.h"
 
 namespace gen
@@ -26,7 +25,15 @@ class JetMatchingMadgraph : public JetMatching {
 	template<typename T>
 	static T parseParameter(const std::string &value);
 	template<typename T>
+	static T getParameter(const std::map<std::string, std::string> &params,
+	                      const std::string &var, const T &defValue = T());
+	template<typename T>
 	T getParameter(const std::string &var, const T &defValue = T()) const;
+
+	template<typename T>
+	static void updateOrDie(
+			const std::map<std::string, std::string> &params,
+			T &param, const std::string &name);
 
 	std::map<std::string, std::string>	mgParams;
 

@@ -4,6 +4,7 @@
 #include <sstream>
 #include <vector>
 #include <memory>
+#include <cstring>
 #include <string>
 #include <cctype>
 #include <map>
@@ -126,19 +127,21 @@ bool JetMatchingMadgraph::parseParameter(const std::string &value_)
 }
 
 template<typename T>
-T JetMatchingMadgraph::getParameter(const std::string &var,
-                                    const T &defValue) const
+T JetMatchingMadgraph::getParameter(
+			const std::map<std::string, std::string> &params,
+			const std::string &var, const T &defValue)
 {
 	std::map<std::string, std::string>::const_iterator pos =
-							mgParams.find(var);
-	if (pos == mgParams.end())
+							params.find(var);
+	if (pos == params.end())
 		return defValue;
 	return parseParameter<T>(pos->second);
 }
 
-// } // namespace gen
-
-// using namespace gen;
+template<typename T>
+T JetMatchingMadgraph::getParameter(const std::string &var,
+                                    const T &defValue) const
+{ return getParameter(mgParams, var, defValue); }
 
 JetMatchingMadgraph::JetMatchingMadgraph(const edm::ParameterSet &params) :
 	JetMatching(params),
@@ -182,22 +185,11 @@ std::set<std::string> JetMatchingMadgraph::capabilities() const
 	return result;
 }
 
-// implements the Madgraph method - use ME2pythia.f
-
-void JetMatchingMadgraph::init(const lhef::LHERunInfo* runInfo)
+static std::map<std::string, std::string>
+parseHeader(const std::vector<std::string> &header)
 {
-	// read MadGraph run card
+	std::map<std::string, std::string> params;
 
-	std::map<std::string, std::string> parameters;
-
-	std::vector<std::string> header = runInfo->findHeader("MGRunCard");
-	if (header.empty())
-		throw cms::Exception("Generator|PartonShowerVeto")
-			<< "In order to use MadGraph jet matching, "
-			   "the input file has to contain the corresponding "
-			   "MadGraph headers." << std::endl;
-
-	mgParams.clear();
 	for(std::vector<std::string>::const_iterator iter = header.begin();
 	    iter != header.end(); ++iter) {
 		std::string line = *iter;
@@ -217,8 +209,44 @@ void JetMatchingMadgraph::init(const lhef::LHERunInfo* runInfo)
 		std::string value = 
 			boost::algorithm::trim_copy(line.substr(0, pos));
 
-		mgParams[var] = value;
+		params[var] = value;
 	}
+
+	return params;
+}
+
+template<typename T>
+void JetMatchingMadgraph::updateOrDie(
+			const std::map<std::string, std::string> &params,
+			T &param, const std::string &name)
+{
+	if (param < 0)
+		param = getParameter(params, name, param);
+
+	if (param < 0)
+		throw cms::Exception("Generator|PartonShowerVeto")
+			<< "The MGParamCMS header does not specify the jet "
+			   "matching parameter \"" << name << "\", but it "
+			   "is requested by the CMSSW configuration."
+			<< std::endl;
+}
+
+// implements the Madgraph method - use ME2pythia.f
+
+void JetMatchingMadgraph::init(const lhef::LHERunInfo* runInfo)
+{
+	// read MadGraph run card
+
+	std::map<std::string, std::string> parameters;
+
+	std::vector<std::string> header = runInfo->findHeader("MGRunCard");
+	if (header.empty())
+		throw cms::Exception("Generator|PartonShowerVeto")
+			<< "In order to use MadGraph jet matching, "
+			   "the input file has to contain the corresponding "
+			   "MadGraph headers." << std::endl;
+
+	mgParams = parseHeader(header);
 
 	// set variables in common block
 
@@ -234,6 +262,14 @@ void JetMatchingMadgraph::init(const lhef::LHERunInfo* runInfo)
 	// set MG matching parameters
 
 	uppriv_.ickkw = getParameter<int>("ickkw", 0);
+
+	header = runInfo->findHeader("MGParamCMS");
+	std::map<std::string, std::string> mgInfoCMS = parseHeader(header);
+
+	updateOrDie(mgInfoCMS, memain_.etaclmax, "etaclmax");
+	updateOrDie(mgInfoCMS, memain_.qcut, "qcut");
+	updateOrDie(mgInfoCMS, memain_.minjets, "minjets");
+	updateOrDie(mgInfoCMS, memain_.maxjets, "maxjets");
 
 	// run Fortran initialization code
 
