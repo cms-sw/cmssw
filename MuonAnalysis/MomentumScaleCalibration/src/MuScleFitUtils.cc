@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/05/12 12:43:42 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/05/13 08:52:45 $
+ *  $Revision: 1.10 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -752,7 +752,7 @@ double MuScleFitUtils::massResolution( const lorentzVector& mu1,
     if (!didit && resfind[ires]>0 && fabs(mass-ResMass[ires])<ResHalfWidth[ires]) {
       if (mass_res>ResMaxSigma[ires] && counter_resprob<100) {
 	counter_resprob++;
-	LogDebug << "RESOLUTION PROBLEM: ires=" << ires << endl;
+	LogDebug("MuScleFitUtils") << "RESOLUTION PROBLEM: ires=" << ires << endl;
 	// cout << "RESOLUTION PROBLEM: ires=" << ires << endl;
 // 	cout << "---------------------------" << endl;
 // 	cout << "  Pt1=" << pt1 << " phi1=" << phi1 << " cotgth1=" << cos(theta1)/sin(theta1) << " - Pt2=" << pt2 
@@ -899,7 +899,7 @@ double MuScleFitUtils::probability( const double & mass, const double & massReso
     PS = f11 + (f12-f11)*fracSigmaStep + (f21-f11)*fracMassStep + 
       (f22-f21-f12+f11)*fracMassStep*fracSigmaStep;    
     // if (PS>0.1 || debug>1) cout << "iRes = 0 " << " PS=" << PS << " f11,f12,f21,f22=" 
-    if (PS>0.1 || debug>1) LogDebug << "iRes = 0 " << " PS=" << PS << " f11,f12,f21,f22=" 
+    if (PS>0.1 || debug>1) LogDebug("MuScleFitUtils") << "iRes = 0 " << " PS=" << PS << " f11,f12,f21,f22=" 
                                     << f11 << " " << f12 << " " << f21 << " " << f22 << " " 
                                     << " fSS=" << fracSigmaStep << " fMS=" << fracMassStep << " iSL, iSR=" 
                                     << iSigmaLeft << " " << iSigmaRight << " GLV,GLN=" 
