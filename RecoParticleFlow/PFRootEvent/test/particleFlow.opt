@@ -174,7 +174,7 @@ clustering thresh_Seed_Ecal_Barrel     	0.23
 clustering thresh_Ecal_Endcap           0.3
 
 // seed threshold for ECAL endcap rechits
-clustering thresh_Seed_Ecal_Endcap      0.8
+clustering thresh_Seed_Ecal_Endcap      0.6
 
 // number of neighbours to be considered for seed finding in ECAL. 
 // 4 means that it is checked that the 4 direct neighbours 
@@ -207,11 +207,11 @@ clustering depthCor_B_preshower   4.0
 // threshold on HCAL barrel rechits
 clustering thresh_Hcal_Barrel           0.8
 // seed threshold for HCAL barrel rechits
-clustering thresh_Seed_Hcal_Barrel      1.4
+clustering thresh_Seed_Hcal_Barrel      0.8
 // threshold on HCAL endcap rechits
 clustering thresh_Hcal_Endcap           0.8
 // seed threshold for HCAL endcap rechits
-clustering thresh_Seed_Hcal_Endcap      1.4
+clustering thresh_Seed_Hcal_Endcap      1.1
 
 // number of neighbours to be considered for seed finding in HCAL. 
 // 4 means that it is checked that the 4 direct neighbours 
@@ -254,7 +254,7 @@ clustering posCalc_p1_HFHAD		0
 // threshold on preshower rechits
 clustering thresh_PS			0.0001
 // seed threshold for preshower rechits
-clustering thresh_Seed_PS		0.0005
+clustering thresh_Seed_PS		0.0003
 
 clustering posCalc_p1_PS                0
 
@@ -429,7 +429,7 @@ tau_benchmark cone_angle 0.5
 tau_benchmark seed_et 0.4
 
 //distance threshold for merging jets
-tau_benchmark cone_merge 100
+tau_benchmark cone_merge 0.0
 
 //PFJet benchmark options ---------------------------------------------------
 
