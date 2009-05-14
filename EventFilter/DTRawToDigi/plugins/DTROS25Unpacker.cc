@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/04/03 13:53:46 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/04/06 16:28:50 $
+ *  $Revision: 1.12 $
  *  \author  M. Zanetti - INFN Padova
  *  \revision FRC 060906
  */
@@ -346,7 +346,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 			else                      SCstation = 3;
 
 			// construct localtrigger for first station of this "group" ...
-			DTLocalTrigger localtrigger(scEventBX, bx_counter,(scDataWord.SCData()) & 0xFF);
+			DTLocalTrigger localtrigger(bx_counter,(scDataWord.SCData()) & 0xFF);
 			// ... and commit it to the event
 			DTChamberId chamberId (SCwheel,SCstation,SCsector);
 			triggerProduct->insertDigi(chamberId,localtrigger);
@@ -360,7 +360,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 			else                      SCstation = 4;
 
 			// construct localtrigger for second station of this "group" ...
-			DTLocalTrigger localtrigger(scEventBX, bx_counter,(scDataWord.SCData()) >> 8);
+			DTLocalTrigger localtrigger(bx_counter,(scDataWord.SCData()) >> 8);
 			// ... and commit it to the event
 			DTChamberId chamberId (SCwheel,SCstation,SCsector);
 			triggerProduct->insertDigi(chamberId,localtrigger);
