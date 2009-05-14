@@ -555,9 +555,9 @@ void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 		      controlreg,
 		      bufferData);
 
-    //   std::cout<<"ROC="<<dacsettings_[i].getROCName()<<" ; VcThr set to "<<dacs[11]<<std::flush;
+    //std::cout<<"ROC="<<dacsettings_[i].getROCName()<<" ; VcThr set to "<<dacs[11]<<std::flush;
     if (!HVon)    dacs[11]=0; //set Vcthr DAC to 0 (Vcthr is DAC 12=11+1)
-    //    std::cout<<" ; setting VcThr to "<<dacs[11]<<std::endl;
+    //std::cout<<" ; setting VcThr to "<<dacs[11]<<std::endl;
     pixelFEC->setAllDAC(theROC,dacs,bufferData);
 
     // start with no pixels on for calibration
@@ -610,16 +610,16 @@ void PixelDACSettings::setVcthrDisable(PixelFECConfigInterface* pixelFEC, PixelN
 
     dacsettings_[i].getDACs(dacs);
     int controlreg=dacsettings_[i].getControlRegister();
-    //std::cout << "[PixelDACSettings::setVcthrDisable] ROC control reg to be set to: " <<  (controlreg|0x2) <<std::endl;
 
     PixelHdwAddress theROC=*(trans->getHdwAddress(dacsettings_[i].getROCName()));
 
+    //std::cout<<"disabling ROC="<<dacsettings_[i].getROCName()<<std::endl;
     pixelFEC->progdac(theROC.mfec(),
 		      theROC.mfecchannel(),
 		      theROC.hubaddress(),
 		      theROC.portaddress(),
 		      theROC.rocid(),
-		      12, //12 == Vcthr // should this be 12 or 11?
+		      12, //12 == Vcthr
 		      0, //set Vcthr to 0
 		      bufferData);
 
@@ -652,17 +652,19 @@ void PixelDACSettings::setVcthrEnable(PixelFECConfigInterface* pixelFEC, PixelNa
 
     dacsettings_[i].getDACs(dacs);
     int controlreg=dacsettings_[i].getControlRegister();
-    //std::cout << "[PixelDACSettings::setVcthrEnable] ROC control reg to be set to: " <<  controlreg <<std::endl;
 
     PixelHdwAddress theROC=*(trans->getHdwAddress(dacsettings_[i].getROCName()));
+
+    //std::cout<<"ROC="<<dacsettings_[i].getROCName()<<" ; VcThr set to "<<dacs[11]
+    //	     << " ; ROC control reg to be set to: " <<  controlreg <<std::endl;
 
     pixelFEC->progdac(theROC.mfec(),
 		      theROC.mfecchannel(),
 		      theROC.hubaddress(),
 		      theROC.portaddress(),
 		      theROC.rocid(),
-		      12, //12 == Vcthr //should this be 12 or 11?
-		      dacs[11], //need to be careful w/array indices.
+		      12, //12 == Vcthr
+		      dacs[11],
 		      bufferData);
 
     //enable the roc (assuming controlreg was set for the roc to be enabled)
@@ -678,7 +680,7 @@ void PixelDACSettings::setVcthrEnable(PixelFECConfigInterface* pixelFEC, PixelNa
 
   }
 
-  if (bufferData) { //just copying the way it was done in the existing method
+  if (bufferData) {
     pixelFEC->qbufsend();
   }
 
