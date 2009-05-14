@@ -1,4 +1,4 @@
-// $Id: Tm.cc,v 1.3 2008/10/23 09:47:23 fra Exp $
+
 
 #include <time.h>
 #include <iostream>
@@ -89,7 +89,7 @@ uint64_t Tm::microsTime() const
 {
   uint64_t result = 0;
   
-  result += (uint64_t)ceil((m_tm.tm_year + 1900 - 1970) * 365.25) * 24 * 3600;
+  result += (uint64_t)ceil((m_tm.tm_year - 70 ) * 365.25) * 24 * 3600;
   result += (m_tm.tm_yday-1) * 24 * 3600;
   result += m_tm.tm_hour * 3600;
   result += m_tm.tm_min * 60;
@@ -134,7 +134,7 @@ void Tm::setToString(const string s)
 	 &m_tm.tm_hour, &m_tm.tm_min, &m_tm.tm_sec);
 
   try {
-    if (m_tm.tm_year > 9999 || m_tm.tm_year < 1970) {
+    if (m_tm.tm_year > 9999 || m_tm.tm_year < 1900) {
       throw(runtime_error("Year out of bounds"));
     } else if (m_tm.tm_mon > 12 || m_tm.tm_mon < 1) {
       throw(runtime_error("Month out of bounds"));
