@@ -29,6 +29,13 @@ popcon::EcalLaserHandler::EcalLaserHandler(const edm::ParameterSet & ps)
 popcon::EcalLaserHandler::~EcalLaserHandler()
 {
 }
+bool popcon::EcalLaserHandler::checkAPDPN(float x, float old_x)
+{
+  bool result=true;
+  if(x<=0 || x>20) result=false;
+  if(old_x!=1.000 && abs(x-old_x)/old_x>100.00 ) result=false; 
+  return result;
+}
 
 void popcon::EcalLaserHandler::getNewObjects()
 {
@@ -205,17 +212,50 @@ void popcon::EcalLaserHandler::getNewObjects()
     last_lmr.reserve(lmf_runs);
 
 
+    // get the Ecal Logic Ids of the ECAL LMR and their crystals
+    vector<EcalLogicID> crystals_EB  = econn->getEcalLogicIDSetOrdered( "EB_crystal_number",
+									1,36,1,1700,
+									EcalLogicID::NULLID,EcalLogicID::NULLID,
+									"ECAL_LMR", 4 );
+    vector<EcalLogicID> crystals_EE  = econn->getEcalLogicIDSetOrdered( "EE_crystal_number",
+									-1,1,-120,120,
+									-120,120,
+									"ECAL_LMR", 4 );
+    /*
+    std::map<int ,vector<EcalLogicID> > crystals_by_LMR;
+
+    for(int ilmr=0; ilmr<72; ilmr++){
+      vector<EcalLogicID> temp;
+      for (int ixt=0; ixt<61200; ixt++){
+	if(crystals_EB[ixt].getLogicID()%100 == ilmr+1){
+	  temp.push_back(crystals_EB[ixt]);
+	}
+      }
+      std::pair<int ,EcalLogicID> tp=make_pair(ilmr+1,temp) ;
+      crystals_by_LMR.insert(tp);
+    }
+    for(int ilmr=72; ilmr<92; ilmr++){
+      vector<EcalLogicID> temp;
+      for (int ixt=0; ixt<61200; ixt++){
+	if(crystals_EE[ixt].getLogicID()%100 == ilmr+1){
+	  temp.push_back(crystals_EE[ixt]);
+	}
+      }
+
+      std::pair<int ,EcalLogicID> tp=make_pair(ilmr+1,temp) ;
+      crystals_by_LMR.insert(tp);
+    }
+    // done with Ecal Logic Id and LMR
+
+    */
+
+
+    std::cout << "done with Ecal logic id and lmr"<< endl;
 
     for(int kt=0; kt<lmf_runs; kt++){
       last_lmr[kt]=0;
       nsubruns[kt]=lmf_run_vec[kt].getSubRunNumber();
       std::cout<< "nsubr="<<nsubruns[kt]<<endl;
-      
-      // FC qui bisogna controllare il subrun number 
-      // NN00LL0T
-      // NN = numero di sequenza 
-      // LL = numero di Laser Monitoring Region
-      // T = laser type 
       
       int i=lmf_run_vec[kt].getSequenceNumber();
       int i_lmr=lmf_run_vec[kt].getLMRNumber();
@@ -223,8 +263,11 @@ void popcon::EcalLaserHandler::getNewObjects()
       if(last_lmr[i-1]<i_lmr) last_lmr[i-1]=i_lmr;
     }
 
+    std::vector<int> updated_channels;
+    updated_channels.reserve(75848);
 
     int old_seq=0;
+    unsigned long long irun_old=0;
     for(int kr=0; kr<lmf_runs; kr++){
       
       int i=lmf_run_vec[kr].getSequenceNumber();
@@ -235,10 +278,17 @@ void popcon::EcalLaserHandler::getNewObjects()
       unsigned long long irun=(unsigned long long) lmf_run_vec[kr].getRunIOV().getRunNumber();
       cout << "here is the run number: "<< lmf_run_vec[kr].getRunIOV().getRunNumber() <<"."<<i<<"/"<<nsubruns[kr]<< endl;
       
-      if(old_seq!=i) {
+      if(old_seq!=i || irun!=irun_old) {
+	// we enter here at the first sub run of a sequence 
+	// we can do some initialization
 	old_seq=i;
+	irun_old=irun;
 	// setting right since for the first subrun 
 	snc = time_lmf_subrun_micro;
+	for(int id=0; id<75848; id++){
+	  updated_channels[id] =0;
+	}
+
       }
       
 	    
@@ -258,7 +308,7 @@ void popcon::EcalLaserHandler::getNewObjects()
 
 
 
-      
+      int ich=0;
       for (CIlmf p = dataset_lmf.begin(); p != dataset_lmf.end(); p++) {
 	ecid_xt = p->first;
 	rd_apdnorm = p->second;
@@ -271,18 +321,33 @@ void popcon::EcalLaserHandler::getNewObjects()
 	  apdpnpair = laserRatiosMap[ebdetid];
 	  EcalLaserAPDPNRatios::EcalLaserAPDPNpair apdpnpair_temp;
 	  // p1 in a new object should be equal to the p2 in the previos object
-	  apdpnpair_temp.p1 = apdpnpair.p2;
-	  apdpnpair_temp.p2 = rd_apdnorm.getAPDOverPNMean();
+	  float x=rd_apdnorm.getAPDOverPNMean();
+	  float old_x=apdpnpair.p2;
+	  if(checkAPDPN(x,old_x)){
+	    apdpnpair_temp.p1 = apdpnpair.p2;
+	    apdpnpair_temp.p2 = x;
 	  // here we change in the apdpns_temp object only the values that are available in the online DB 
 	  // otherwise we keep the old value 
-	  apdpns_temp->setValue(ebdetid, apdpnpair_temp);
+	    apdpns_temp->setValue(ebdetid, apdpnpair_temp);
+	    updated_channels[hiee]=1;
+	    ich++;
+	    if (ich<10) std::cout<< "updating channel "<< x<<endl;
+	  } else {
+	    // FC here we must decide what to do.
+	    apdpnpair_temp.p1 = apdpnpair.p2;
+	    apdpnpair_temp.p2 = apdpnpair.p2;
+            apdpns_temp->setValue(ebdetid, apdpnpair_temp);
+	    updated_channels[hiee]=2; // 2 means channel was bad and we propagate the old value 
+	    //std::cout<< "NOT updating channel "<< x<<endl;
+	  }
+
 	} else { 
 	  // endcaps case
 	  int iz=ecid_xt.getID1();
 	  int ix=ecid_xt.getID2(); 
-	  int iy=ecid_xt.getID2(); 
+	  int iy=ecid_xt.getID3(); 
 	  EEDetId eedetid(ix,iy,iz);
-	  unsigned int hiee = eedetid.hashedIndex();
+
 	  apdpnpair = laserRatiosMap[eedetid];
 	  EcalLaserAPDPNRatios::EcalLaserAPDPNpair apdpnpair_temp;
 	  // p1 in a new object should be equal to the p2 in the previos object
@@ -291,6 +356,9 @@ void popcon::EcalLaserHandler::getNewObjects()
 	  // here we change in the apdpns_temp object only the values that are available in the online DB 
 	  // otherwise we keep the old value 
 	  apdpns_temp->setValue(eedetid, apdpnpair_temp);
+	  
+	  unsigned int hiee = eedetid.hashedIndex();
+	  updated_channels[hiee+61200]=1;
 	}
       }    
 
@@ -301,8 +369,13 @@ void popcon::EcalLaserHandler::getNewObjects()
       timestamp_temp.t1 = timestamp.t2;
       timestamp_temp.t2 = edm::Timestamp(time_lmf_subrun_micro);
       apdpns_temp->setTime( (i_lmr-1) , timestamp_temp);
-      
 
+      // missing a part that checks for each LMR the 
+      // corresponding crystals and eventually 
+      // extends the values to the new interval
+
+      //      vector<EcalLogicID> this_group=  crystals_by_LMR.find(i_lmr);
+      
     
 
       if(i_lmr==last_lmr[i-1]){
