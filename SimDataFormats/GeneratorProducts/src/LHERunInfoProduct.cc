@@ -6,6 +6,7 @@
 #include <string>
 #include <cmath>
 #include <map>
+#include <set>
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -44,14 +45,23 @@ void LHERunInfoProduct::const_iterator::next()
 		switch(mode) {
 		    case kHeader:
 			if (header == runInfo->headers_end()) {
-				mode = kInit;
-				tmp = "<init>\n";
-				line = 0;
+				if (line++ == 1)
+					tmp = "</header>\n";
+				else {
+					mode = kInit;
+					tmp = "<init>\n";
+					line = 0;
+				}
+				break;
+			} else if (!line) {
+				line++;
+				tmp = "<header>\n";
 				break;
 			} else {
 				mode = kBody;
 				const std::string &tag = header->tag();
-				tmp = tag.empty() ? "<!--" : ("<" + tag + ">");
+				tmp = tag.empty() ? "<!--" :
+				      (tag == "<>") ? "" : ("<" + tag + ">");
 				iter = header->begin();
 				continue;
 			}
@@ -60,7 +70,8 @@ void LHERunInfoProduct::const_iterator::next()
 			if (iter == header->end()) {
 				mode = kHeader;
 				const std::string &tag = header->tag();
-				tmp += tag.empty() ? "-->" : ("</" + tag + ">");
+				tmp += tag.empty() ? "-->" :
+				       (tag == "<>") ? "" : ("</" + tag + ">");
 				tmp += "\n";
 				header++;
 			} else {
@@ -164,40 +175,92 @@ namespace {
 		double	err;
 		double	max;
 	};
+
+	struct HeaderLess {
+		bool operator() (const LHERunInfoProduct::Header &a,
+		                 const LHERunInfoProduct::Header &b) const;
+	};
+}
+
+bool HeaderLess::operator() (const LHERunInfoProduct::Header &a,
+                             const LHERunInfoProduct::Header &b) const
+{
+	if (a == b)
+		return false;
+	if (a.tag() < b.tag())
+		return true;
+	if (a.tag() > b.tag())
+		return false;
+
+	LHERunInfoProduct::Header::const_iterator iter1 = a.begin();
+	LHERunInfoProduct::Header::const_iterator iter2 = b.begin();
+
+	for(; iter1 != a.end() && iter2 != b.end(); ++iter1, ++iter2) {
+		if (*iter1 < *iter2)
+			return true;
+		else if (*iter1 != *iter2)
+			return false;
+	}
+
+	return iter2 != b.end();
 }
 
 bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
 {
-	if (headers_ != other.headers_ ||
-	    comments_ != other.comments_ ||
-	    heprup_.IDBMUP != other.heprup_.IDBMUP ||
+	if (heprup_.IDBMUP != other.heprup_.IDBMUP ||
 	    heprup_.EBMUP != other.heprup_.EBMUP ||
 	    heprup_.PDFGUP != other.heprup_.PDFGUP ||
 	    heprup_.PDFSUP != other.heprup_.PDFSUP ||
 	    heprup_.IDWTUP != other.heprup_.IDWTUP) {
-	  // okay, something is different. Let us check if it is the AlpgenInterface case.
-	  LHERunInfoProduct::Header::const_iterator theLines = headers_.begin()->begin();
-	  theLines++;
-	  std::string alpgenComment ("\tExtracted by AlpgenInterface\n");
-	  std::string initialComment (*theLines);
+		throw cms::Exception("ProductsNotMergeable")
+			<< "Error in LHERunInfoProduct: LHE headers differ. "
+			   "Cannot merge products." << std::endl;
+	}
 
-	  if(alpgenComment == initialComment) {
-	    // okay, it is AlpgenInterface.Concatenate the headers and add them to this LHERunInfoProduct.
-	    for(std::vector<LHERunInfoProduct::Header>::const_iterator theOtherHeaders = other.headers_begin();
-		theOtherHeaders != other.headers_end();
-		++theOtherHeaders)
-	      this->addHeader(*theOtherHeaders);
-	  }
-	  else
-	    throw cms::Exception("ProductsNotMergeable")
-	      << "Error in LHERunInfoProduct: LHE headers differ. "
-	      "Cannot merge products." << std::endl;
-	} // first if
+	bool compatibleHeaders = headers_ == other.headers_;
+
+	// try to merge different, but compatible headers
+	while(!compatibleHeaders) {
+		// okay, something is different.
+		// Let's try to merge, but don't duplicate identical headers
+		// and test the rest against a whitelist
+
+		std::set<Header, HeaderLess> headers;
+		std::copy(headers_begin(), headers_end(),
+		          std::inserter(headers, headers.begin()));
+
+		bool failed = false;
+		for(std::vector<LHERunInfoProduct::Header>::const_iterator
+					header = other.headers_begin();
+		    header != other.headers_end(); ++header) {
+			if (headers.count(*header))
+				continue;
+
+			if (header->tag() == "" ||
+			    header->tag().find("Alpgen") == 0 ||
+			    header->tag() == "MGGridCard" ||
+			    header->tag() == "MGGenerationInfo") {
+				addHeader(*header);	
+				headers.insert(*header);
+			} else
+				failed = true;
+		}
+		if (failed)
+			break;
+
+		compatibleHeaders = true;
+	}
+
+	// still not compatible after fixups
+	if (!compatibleHeaders) {
+		throw cms::Exception("ProductsNotMergeable")
+			<< "Error in LHERunInfoProduct: LHE headers differ. "
+			   "Cannot merge products." << std::endl;
+	}
 
 	// it is exactly the same, so merge
 	if (heprup_ == other.heprup_)
 		return true;
-
 
 	// the input files are different ones, presumably generation
 	// of the same process in different runs with identical run number
