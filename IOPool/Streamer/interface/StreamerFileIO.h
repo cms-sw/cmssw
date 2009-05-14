@@ -43,10 +43,6 @@ class OutputFile
      void inc_events()                     { ++events_; }
      void set_run(uint64 v)                { run_ = v; }
 
-     /* this could be moved into some other namespace */
-     static uint32 adler32(const char *data, size_t len);
-     static void adler32(const char *data, size_t len, uint32 &a, uint32 &b);
-
   private:
      uint64 current_offset_;  /** Location of current ioptr */
      uint64 first_event_offset_;
