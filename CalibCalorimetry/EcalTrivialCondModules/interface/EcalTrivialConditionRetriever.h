@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.20 2009/03/20 15:58:00 ferriff Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.21 2009/04/08 13:08:19 fra Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -159,6 +159,8 @@ private:
   double laserAPDPNRefSigma_;  
   double laserAPDPNMean_;  
   double laserAPDPNSigma_;  
+  unsigned long laserAPDPNTime1_;
+  unsigned long laserAPDPNTime2_;
 
   double EBpedMeanX12_;              // pedestal mean pedestal at gain 12
   double EBpedRMSX12_;               // pedestal rms at gain 12

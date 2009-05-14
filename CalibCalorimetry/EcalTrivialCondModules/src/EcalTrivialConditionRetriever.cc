@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.38 2009/04/03 09:51:11 ferriff Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.39 2009/04/08 13:08:19 fra Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -42,6 +42,9 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
 
   laserAlphaMean_  = ps.getUntrackedParameter<double>("laserAlphaMean",1.55);
   laserAlphaSigma_ = ps.getUntrackedParameter<double>("laserAlphaSigma",0);
+
+  laserAPDPNTime1_ = (unsigned long)atoi( ps.getUntrackedParameter<std::string>("laserAPDPNTime1","1").c_str());
+  laserAPDPNTime2_= (unsigned long)atoi( ps.getUntrackedParameter<std::string>("laserAPDPNTime2","0").c_str());
 
   laserAPDPNRefMean_ = ps.getUntrackedParameter<double>("laserAPDPNRefMean",1.0);
   laserAPDPNRefSigma_ = ps.getUntrackedParameter<double>("laserAPDPNRefSigma",0.0);
@@ -859,8 +862,12 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPN
   EcalLaserAPDPNRatios::EcalLaserTimeStamp TimeStamp;
   //  for(int i=1; i<=92; i++){
   for(int i=0; i<92; i++){
-    TimeStamp.t1 = 1;
-    TimeStamp.t2 = edm::Timestamp::endOfTime().value();
+    TimeStamp.t1 = laserAPDPNTime1_;
+    if(laserAPDPNTime2_ == 0 ){ 
+      TimeStamp.t2 = edm::Timestamp::endOfTime().value();
+    } else {
+      TimeStamp.t2 = laserAPDPNTime2_;
+    }
     ical->setTime( i, TimeStamp );
   }
   
