@@ -144,6 +144,10 @@ class PFAlgo {
   double neutralHadronEnergyResolution( double clusterEnergy,
 					double clusterEta ) const;
 
+  // 
+  double nSigmaHCAL( double clusterEnergy, 
+		     double clusterEta ) const;
+
   std::auto_ptr< reco::PFCandidateCollection >    pfCandidates_;
   // the unfiltered electron collection 
   std::auto_ptr< reco::PFCandidateCollection >    pfElectronCandidates_;

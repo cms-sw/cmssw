@@ -1375,7 +1375,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     /* */
 
     /////////////// TRACKER AND CALO COMPATIBLE  ////////////////
-    double nsigma = nSigmaHCAL_;
+    double nsigma = nSigmaHCAL(totalChargedMomentum,hclusterref->positionREP().Eta());
+    //double nsigma = nSigmaHCAL(caloEnergy,hclusterref->positionREP().Eta());
     if ( abs(totalChargedMomentum-caloEnergy)<nsigma*TotalError ) {
 
       // deposited caloEnergy compatible with total charged momentum
@@ -2170,8 +2171,8 @@ unsigned PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
 
 
 
-double PFAlgo::neutralHadronEnergyResolution( double clusterEnergyHCAL, double eta ) 
-  const {
+double 
+PFAlgo::neutralHadronEnergyResolution(double clusterEnergyHCAL, double eta) const {
 
 
   double resol = 0.;
@@ -2179,14 +2180,29 @@ double PFAlgo::neutralHadronEnergyResolution( double clusterEnergyHCAL, double e
     resol =   1.40/sqrt(clusterEnergyHCAL) +5.00/clusterEnergyHCAL;
   else if ( newCalib_ == 0 ) 
     resol =   1.50/sqrt(clusterEnergyHCAL) +3.00/clusterEnergyHCAL;
-  else 
+  else
     resol =   fabs(eta) < 1.48 ? 
       //min(0.25,sqrt (1.02*1.02/clusterEnergyHCAL + 0.065*0.065)):
       //min(0.30,sqrt (1.35*1.35/clusterEnergyHCAL + 0.018*0.018));
-      sqrt (1.02*1.02/clusterEnergyHCAL + 0.065*0.065):
+      sqrt (1.02*1.02/clusterEnergyHCAL + 0.065*0.065)
+      :
       sqrt (1.35*1.35/clusterEnergyHCAL + 0.018*0.018);
 
   return resol;
+}
+
+double
+PFAlgo::nSigmaHCAL(double clusterEnergyHCAL, double eta) const {
+  double nS;
+  if ( newCalib_ == 2 ) 
+    nS =   fabs(eta) < 1.48 ? 
+      nSigmaHCAL_ * (1. + exp(-clusterEnergyHCAL/100.))     
+      :
+      nSigmaHCAL_ * (1. + exp(-clusterEnergyHCAL/200.));
+  else 
+    nS = nSigmaHCAL_;
+  
+  return nS;
 }
 
 
