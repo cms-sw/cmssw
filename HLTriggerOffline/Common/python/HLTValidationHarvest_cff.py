@@ -23,8 +23,8 @@ hltpostvalidation = cms.Sequence(
     )
 
 hltpostvalidation_fastsim = cms.Sequence( 
-   # HLTMuonPostVal_FastSim
-     HLTTauPostVal
+     HLTMuonPostVal_FastSim
+    +HLTTauPostVal
     +EgammaPostVal
     +HLTriggerOfflineFourVectorClient
     +HLTTopPostVal
