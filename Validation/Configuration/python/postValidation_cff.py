@@ -6,4 +6,4 @@ from Validation.MuonIsolation.PostProcessor_cff import *
 
 postValidation = cms.Sequence(recoMuonPostProcessors+postProcessorTrack+MuIsoValPostProcessor)
 
-postValidation_pu = cms.Sequence(recoMuonPostProcessors+postProcessorTrack)
+postValidation_fastsim = cms.Sequence(recoMuonPostProcessorsFastSim+postProcessorTrack+MuIsoValPostProcessor)
