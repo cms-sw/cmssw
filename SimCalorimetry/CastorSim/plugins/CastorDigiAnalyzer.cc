@@ -32,7 +32,9 @@ namespace CastorDigiAnalyzerImpl {
 void CastorDigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& c) {
   //  edm::Handle<edm::PCaloHitContainer> hits;
 edm::Handle<CrossingFrame<PCaloHit> > castorcf;
-e.getByLabel("mix","CastorFI", castorcf);
+
+e.getByLabel("mix", "g4SimHitsCastorFI", castorcf);
+
 
 //access to SimHits
 std::auto_ptr<MixCollection<PCaloHit> > hits(new MixCollection<PCaloHit>(castorcf.product()));
