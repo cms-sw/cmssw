@@ -157,11 +157,7 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
 		throw cms::Exception("InvalidFormat")
 			<< "LHE file has invalid format" << std::endl;
 
-	if (name == "init")
-		mode = kInit;
-	else if (name == "event")
-		mode = kEvent;
-	else {
+	if (name == "header") {
 		if (!impl)
 			impl = DOMImplementationRegistry::getDOMImplementation(
 							XMLUniStr("Core"));
@@ -169,7 +165,10 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
 		xmlNodes.resize(1);
 		xmlNodes[0] = xmlHeader->getDocumentElement();
 		mode = kHeader;
-	}
+	} if (name == "init")
+		mode = kInit;
+	else if (name == "event")
+		mode = kEvent;
 
 	if (mode == kNone)
 		throw cms::Exception("InvalidFormat")
@@ -191,16 +190,43 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
 				static_cast<DOMImplementationLS*>(
                                                 impl)->createDOMWriter());
 			writer->setEncoding(XMLUniStr("UTF-8"));
-			XMLSimpleStr buffer(
-					writer->writeToString(*xmlNodes[0]));
-			LHERunInfo::Header header(
-					(const char*)XMLSimpleStr(
-						xmlNodes[0]->getTagName()));
-			const char *p =
-				std::strchr((const char*)buffer, '>') + 1;
-			const char *q = std::strrchr(p, '<');
-			fillHeader(header, p, q - p);
-			headers.push_back(header);
+
+			for(DOMNode *node = xmlNodes[0]->getFirstChild();
+			    node; node = node->getNextSibling()) {
+				XMLSimpleStr buffer(
+					writer->writeToString(*node));
+
+				std::string type;
+				const char *p, *q;
+
+				switch(node->getNodeType()) {
+				    case DOMNode::ELEMENT_NODE:
+					DOMElement *elem =
+						static_cast<DOMElement*>(node);
+					type = (const char*)XMLSimpleStr(
+							elem->getTagName());
+					p = std::strchr((const char*)buffer,
+					                '>') + 1;
+					q = std::strrchr(p, '<');
+				    	break;
+				    case DOMNode::COMMENT_NODE:
+					type = "";
+					p = buffer + 4;
+					q = buffer + strlen(buffer) - 3;
+					break;
+				    default:
+					type = "<>";
+					p = buffer +
+					    std::strspn(buffer, " \t\r\n");
+					if (!*p)
+						continue;
+					q = p + strlen(p);
+				}
+
+				LHERunInfo::Header header(type);
+				fillHeader(header, p, q - p);
+				headers.push_back(header);
+			}
 
 			xmlHeader->release();
 			xmlHeader = 0;
@@ -307,6 +333,7 @@ boost::shared_ptr<LHEEvent> LHEReader::next()
 
 		    case XMLHandler::kInit:
 			curRunInfo.reset(new LHERunInfo(data));
+			
 			std::for_each(handler->headers.begin(),
 			              handler->headers.end(),
 			              boost::bind(&LHERunInfo::addHeader,

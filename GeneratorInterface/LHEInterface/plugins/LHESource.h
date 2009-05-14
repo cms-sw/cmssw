@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/ptr_container/ptr_deque.hpp>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -18,6 +19,8 @@ namespace lhef {
 	class LHEReader;
 }
 
+class LHERunInfoProduct;
+
 class LHESource : public edm::ExternalInputSource {
     public:
 	explicit LHESource(const edm::ParameterSet &params,
@@ -27,14 +30,19 @@ class LHESource : public edm::ExternalInputSource {
     protected:
 	virtual void endJob();
 	virtual void beginRun(edm::Run &run);
+	virtual void endRun(edm::Run &run);
 	virtual bool produce(edm::Event &event);
 
 	virtual void nextEvent();
 
 	std::auto_ptr<lhef::LHEReader>		reader;
 
+	boost::shared_ptr<lhef::LHERunInfo>	runInfoLast;
 	boost::shared_ptr<lhef::LHERunInfo>	runInfo;
 	boost::shared_ptr<lhef::LHEEvent>	partonLevel;
+
+	boost::ptr_deque<LHERunInfoProduct>	runInfoProducts;
+	bool					wasMerged;
 
 	unsigned int				skipEvents;
 };

@@ -5,6 +5,7 @@
 #include <memory>
 
 #include <boost/bind.hpp>
+#include <boost/ptr_container/ptr_deque.hpp>
 
 #include "FWCore/Sources/interface/ExternalInputSource.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
@@ -14,12 +15,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/Common/interface/OrphanHandle.h"
+
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEReader.h"
-#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
 #include "LHESource.h"
 
@@ -29,6 +33,7 @@ LHESource::LHESource(const edm::ParameterSet &params,
                      const edm::InputSourceDescription &desc) :
 	ExternalInputSource(params, desc, false),
 	reader(new LHEReader(fileNames(), params.getUntrackedParameter<unsigned int>("seekEvent", 0))),
+	wasMerged(false),
 	skipEvents(params.getUntrackedParameter<unsigned int>("skipEvents", 0))
 {
 	produces<LHEEventProduct>();
@@ -60,14 +65,19 @@ void LHESource::nextEvent()
 	if (!partonLevel)
 			return;
 
-	if (!runInfo)
-		runInfo = partonLevel->getRunInfo();
+	boost::shared_ptr<LHERunInfo> runInfoThis = partonLevel->getRunInfo();
+	if (runInfoThis != runInfoLast) {
+		runInfo = runInfoThis;
+		runInfoLast = runInfoThis;
+	}
 }
 
 void LHESource::beginRun(edm::Run &run)
 {
 	nextEvent();
-	if (runInfo) {
+	if (runInfoLast) {
+		runInfo = runInfoLast;
+
 		std::auto_ptr<LHERunInfoProduct> product(
 				new LHERunInfoProduct(*runInfo->getHEPRUP()));
 		std::for_each(runInfo->getHeaders().begin(),
@@ -79,8 +89,23 @@ void LHESource::beginRun(edm::Run &run)
 		              runInfo->getComments().end(),
 		              boost::bind(&LHERunInfoProduct::addComment,
 		              	product.get(), _1));
+
+		// keep a copy around in case of merging
+		runInfoProducts.push_back(new LHERunInfoProduct(*product));
+		wasMerged = false;
+
 		run.put(product);
+
 		runInfo.reset();
+	}
+}
+
+void LHESource::endRun(edm::Run &run)
+{
+	if (!runInfoProducts.empty()) {
+		std::auto_ptr<LHERunInfoProduct> product(
+					runInfoProducts.pop_front().release());
+		run.put(product);
 	}
 }
 
@@ -99,6 +124,31 @@ bool LHESource::produce(edm::Event &event)
 	              boost::bind(&LHEEventProduct::addComment,
 	                          product.get(), _1));
 	event.put(product);
+
+	if (runInfo) {
+		std::auto_ptr<LHERunInfoProduct> product(
+				new LHERunInfoProduct(*runInfo->getHEPRUP()));
+		std::for_each(runInfo->getHeaders().begin(),
+		              runInfo->getHeaders().end(),
+		              boost::bind(
+		              	&LHERunInfoProduct::addHeader,
+		              	product.get(), _1));
+		std::for_each(runInfo->getComments().begin(),
+		              runInfo->getComments().end(),
+		              boost::bind(&LHERunInfoProduct::addComment,
+		              	product.get(), _1));
+
+		if (!runInfoProducts.empty()) {
+			runInfoProducts.front().mergeProduct(*product);
+			if (!wasMerged) {
+				runInfoProducts.pop_front();
+				runInfoProducts.push_front(product);
+				wasMerged = true;
+			}
+		}
+
+		runInfo.reset();
+	}
 
 	partonLevel.reset();
 	return true;
