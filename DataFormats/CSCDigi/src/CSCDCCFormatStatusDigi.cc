@@ -1,13 +1,13 @@
 /** \file
  * 
- *  $Date: 2008/02/12 17:40:33 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/07/23 12:08:20 $
+ *  $Revision: 1.2 $
  *
  * \author N.Terentiev, CMU
  */
-#include "DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigi.h"
+#include <DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigi.h>
 
-#include <iostream>
+using namespace std;
 
             /// Debug
 void CSCDCCFormatStatusDigi::print() const {
@@ -19,16 +19,3 @@ void CSCDCCFormatStatusDigi::print() const {
     std::cout<<" "<<(getCSCId())[i]; }
     std::cout<<"\n";
 }
-
-
-std::ostream & operator<<(std::ostream & o, const CSCDCCFormatStatusDigi& digi) {
-  o << " " <<digi.getDCCNmb()<<" "<<digi.getDDUNmb()<<" "
-           <<digi.getCSCDCCExaminerInfo()<<" "
-           << digi.getUnpackerInfo()<<" "<<digi.getErInfo()<<"\n";
-  for (size_t i = 0; i<digi.getCSCId().size(); ++i ){
-    o <<" " <<(digi.getCSCId())[i]; }
-  o<<"\n";
-
-  return o;
-}
-

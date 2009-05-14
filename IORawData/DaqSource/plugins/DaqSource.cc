@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2008/10/16 23:12:34 $
- *  $Revision: 1.28 $
+ *  $Date: 2008/11/04 14:47:39 $
+ *  $Revision: 1.29.2.1 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -29,6 +29,8 @@
 #include <iostream>
 #include <time.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#include <linux/unistd.h>
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -106,9 +108,6 @@ namespace edm {
 	mis_->fireItemRevoked("lsTimedOut");
       }
     delete reader_;
-    pthread_mutex_lock(&mutex_);
-    pthread_cond_signal(&cond_);
-    pthread_mutex_unlock(&mutex_);
   }
   
   
@@ -121,7 +120,9 @@ namespace edm {
   DaqSource::getNextItemType() {
     if (noMoreEvents_) {
       pthread_mutex_lock(&mutex_);
+
       pthread_cond_signal(&cond_);
+
       pthread_mutex_unlock(&mutex_);
       return IsStop;
     }
@@ -157,8 +158,11 @@ namespace edm {
       // fillRawData() failed, clean up the fedCollection in case it was allocated!
       if (0 != fedCollection) delete fedCollection;
       noMoreEvents_ = true;
+
       pthread_mutex_lock(&mutex_);
+
       pthread_cond_signal(&cond_);
+
       pthread_mutex_unlock(&mutex_);
       return IsStop;
     }
@@ -167,18 +171,24 @@ namespace edm {
         << "The reader used with DaqSource has returned an invalid (zero) event number!\n"
         << "Event numbers must begin at 1, not 0.";
     }
-    EventSourceSentry(*this);
+    //    EventSourceSentry(*this);
     setTimestamp(tstamp);
     
-    unsigned char *gtpFedAddr = fedCollection->FEDData(daqsource::gtpEvmId_).data();
-    unsigned char *gtpeFedAddr = fedCollection->FEDData(daqsource::gtpeId_).data();
+    unsigned char *gtpFedAddr = fedCollection->FEDData(daqsource::gtpEvmId_).size()!=0 ? fedCollection->FEDData(daqsource::gtpEvmId_).data() : 0;
+    unsigned char *gtpeFedAddr = fedCollection->FEDData(daqsource::gtpeId_).size()!=0 ? fedCollection->FEDData(daqsource::gtpeId_).data() : 0; 
 
     if(fakeLSid_ && luminosityBlockNumber_ != ((eventId.event() - 1)/lumiSegmentSizeInEvents_ + 1)) {
 	luminosityBlockNumber_ = (eventId.event() - 1)/lumiSegmentSizeInEvents_ + 1;
+
 	pthread_mutex_lock(&mutex_);
+
 	pthread_cond_signal(&cond_);
+
 	pthread_mutex_unlock(&mutex_);
+	::usleep(1000);
+
 	pthread_mutex_lock(&mutex_);
+
 	pthread_mutex_unlock(&mutex_);
         newLumi_ = true;
 	lumiSectionIndex_.value_ = luminosityBlockNumber_;
@@ -186,28 +196,40 @@ namespace edm {
     }
     else if(!fakeLSid_){ 
 
-      if(evf::evtn::evm_board_sense(gtpFedAddr)){
+      if(gtpFedAddr!=0 && evf::evtn::evm_board_sense(gtpFedAddr)){
 	unsigned int thisEventLSid = evf::evtn::getlbn(gtpFedAddr);
 	if(luminosityBlockNumber_ != (thisEventLSid + 1)){
 	  luminosityBlockNumber_ = thisEventLSid + 1;
+
 	  pthread_mutex_lock(&mutex_);
+
 	  pthread_cond_signal(&cond_);
+
 	  pthread_mutex_unlock(&mutex_);
+	  ::usleep(1000);
+
 	  pthread_mutex_lock(&mutex_);
+
 	  pthread_mutex_unlock(&mutex_);
 	  newLumi_ = true;
 	  lumiSectionIndex_.value_ = luminosityBlockNumber_;
 	  resetLuminosityBlockPrincipal();
 	}
       }
-      else if(evf::evtn::gtpe_board_sense(gtpeFedAddr)){
+      else if(gtpeFedAddr!=0 && evf::evtn::gtpe_board_sense(gtpeFedAddr)){
 	unsigned int thisEventLSid = evf::evtn::gtpe_getlbn(gtpeFedAddr);
 	if(luminosityBlockNumber_ != (thisEventLSid + 1)){
 	  luminosityBlockNumber_ = thisEventLSid + 1;
+
 	  pthread_mutex_lock(&mutex_);
+
 	  pthread_cond_signal(&cond_);
+
 	  pthread_mutex_unlock(&mutex_);
+	  ::usleep(1000);
+
 	  pthread_mutex_lock(&mutex_);
+
 	  pthread_mutex_unlock(&mutex_);
 	  newLumi_ = true;
 	  lumiSectionIndex_.value_ = luminosityBlockNumber_;
@@ -215,11 +237,11 @@ namespace edm {
 	}
       }
     }
-    if(evf::evtn::evm_board_sense(gtpFedAddr)){
+    if(gtpFedAddr!=0 && evf::evtn::evm_board_sense(gtpFedAddr)){
       bunchCrossing =  int(evf::evtn::getfdlbx(gtpFedAddr));
       orbitNumber =  int(evf::evtn::getorbit(gtpFedAddr));
     }
-    else if(evf::evtn::gtpe_board_sense(gtpeFedAddr)){
+    else if(gtpeFedAddr!=0 && evf::evtn::gtpe_board_sense(gtpeFedAddr)){
       bunchCrossing =  int(evf::evtn::gtpe_getbx(gtpeFedAddr));
       orbitNumber =  int(evf::evtn::gtpe_getorbit(gtpeFedAddr));
     }
@@ -341,10 +363,12 @@ namespace edm {
   {
     count++;
     if(count==2) throw;
+
     pthread_mutex_lock(&mutex_);
     timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
     ts.tv_sec += timeout_sec;
+
     int rc = pthread_cond_timedwait(&cond_, &mutex_, &ts);
     if(rc == ETIMEDOUT) lsTimedOut_.value_ = true; 
   }
@@ -352,7 +376,9 @@ namespace edm {
   void DaqSource::closeBackDoor()
   {
     count--;
+
     pthread_mutex_unlock(&mutex_);
     lsTimedOut_.value_ = false; 
+    ::usleep(1000);
   }
 }

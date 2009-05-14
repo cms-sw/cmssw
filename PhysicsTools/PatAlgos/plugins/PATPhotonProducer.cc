@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.cc,v 1.14 2008/10/06 13:29:16 gpetrucc Exp $
+// $Id: PATPhotonProducer.cc,v 1.15 2008/10/19 21:11:56 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
@@ -7,6 +7,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonIDAssociation.h"
 
 #include <memory>
 
@@ -89,7 +90,7 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
   }
 
   // prepare the PhotonID
-  edm::Handle<edm::ValueMap<reco::PhotonID> > photonID;
+  edm::Handle<reco::PhotonIDAssociationCollection > photonID;
   if (addPhotonID_) {
     iEvent.getByLabel(photonIDSrc_, photonID);
   }
@@ -136,7 +137,9 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
 
     // PhotonID
     if (addPhotonID_) {
-        aPhoton.setPhotonID( (*photonID)[photonRef] );
+        reco::PhotonRef recoPhotonRef = photonRef.castTo<reco::PhotonRef>();
+        if (recoPhotonRef.isNull()) throw cms::Exception("Bad Input") << "You can't read PhotonIDAssociation from something that's not a PhotonCollection";
+        aPhoton.setPhotonID( *( (*photonID)[recoPhotonRef] ) );
     }
 
     if (efficiencyLoader_.enabled()) {

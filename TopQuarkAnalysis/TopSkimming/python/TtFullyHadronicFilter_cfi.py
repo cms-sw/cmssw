@@ -1,16 +1,34 @@
 import FWCore.ParameterSet.Config as cms
 
 ttFullyHadronicFilter = cms.EDFilter("TtDecayChannelFilter",
+    ## input source for decay channel selection
     src = cms.InputTag("genParticles"),
-    # invert selection?
+    ## invert the selection choice                                
     invert = cms.bool(False),
-    #---------------------------------------
-    # allowed families for first (channel_1)
-    # and/or second (channel_2) lepton. In 
-    # order: (elec,muon,tau)
-    #---------------------------------------
-    channel_1 = cms.vint32(0, 0, 0),
-    channel_2 = cms.vint32(0, 0, 0)
+
+    ## allow given lepton in corresponding decay
+    ## branch for a given decay channel selection;
+    ## all leptons to 'False' corresponds to the
+    ## full hadronic decay channel
+    allowedTopDecays = cms.PSet(
+      decayBranchA = cms.PSet(
+        electron = cms.bool(False),
+        muon     = cms.bool(False),
+        tau      = cms.bool(False)
+      ),
+      decayBranchB= cms.PSet(
+        electron = cms.bool(False),
+        muon     = cms.bool(False),
+        tau      = cms.bool(False)
+      )
+    ),
+
+    ## allow different types of tau decay channels
+    allowedTauDecays = cms.PSet(
+      leptonic   = cms.bool(False),
+      oneProng   = cms.bool(False),
+      threeProng = cms.bool(False)
+    )
 )
 
 

@@ -52,6 +52,7 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
 
 
   //ISOLATION REQUEST AS DONE IN THE TAU GROUP
+  applyIsolation_ =iConfig.getParameter<bool>("ApplyIsolation");
   HcalIsolWindow_                       =iConfig.getParameter<double>("HcalWindow");
   EcalStripSumE_minClusEnergy_ = iConfig.getParameter<double>("EcalStripSumE_minClusEnergy");
   EcalStripSumE_deltaEta_ = iConfig.getParameter<double>("EcalStripSumE_deltaEta");
@@ -109,6 +110,8 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
   trackQuality_=TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
 
   useTmva_= iConfig.getUntrackedParameter<bool>("UseTMVA",false);
+  
+  usePreshower_ = iConfig.getParameter<bool>("UsePreShower");
 }
 
 
@@ -295,7 +298,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
       //ENDCAP
       //USE OF PRESHOWER 
-      if (fabs(Tk[i].eta())>1.68){
+      if ((fabs(Tk[i].eta())>1.68)&&(usePreshower_)){
         int iptbin =4*getBin(Tk[i].pt());
 	ps2En=0;ps1En=0;
 	ps2chi=100.; ps1chi=100.;
@@ -312,11 +315,11 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	GoodMatching = (GoodMatching && GoodPSMatching);
       }
   
-
-      if(IsIsolated(float(Tk[i].charge()),Tk[i].p(),
-		    ElecTrkEcalPos,*theECPfClustCollection,*theHCPfClustCollection)) 
+      if(applyIsolation_){
+        if(IsIsolated(float(Tk[i].charge()),Tk[i].p(),
+	   	    ElecTrkEcalPos,*theECPfClustCollection,*theHCPfClustCollection)) 
  	GoodMatching=true;
-
+      }
       bool GoodRange= ((fabs(Tk[i].eta())<maxEta_) && 
                        (Tk[i].pt()>minPt_));
       //KF FILTERING FOR UNMATCHED EVENTS

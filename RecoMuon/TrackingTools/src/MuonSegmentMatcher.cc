@@ -6,7 +6,7 @@
 //
 // Original Author:  Alan Tua
 //         Created:  Wed Jul  9 21:40:17 CEST 2008
-// $Id: MuonSegmentMatcher.cc,v 1.1 2008/10/08 15:28:24 ptraczyk Exp $
+// $Id: MuonSegmentMatcher.cc,v 1.3 2008/12/18 14:03:31 bellan Exp $
 //
 //
 
@@ -43,7 +43,7 @@ using namespace std;
 
 // constructors and destructor
 
-MuonSegmentMatcher::MuonSegmentMatcher(const edm::ParameterSet& iConfig, const edm::ParameterSet& matchParameters, MuonServiceProxy* service)
+MuonSegmentMatcher::MuonSegmentMatcher(const edm::ParameterSet& matchParameters, MuonServiceProxy* service)
   :
   theService(service),
   DTSegmentTags_(matchParameters.getUntrackedParameter<edm::InputTag>("DTsegments")),
@@ -66,6 +66,16 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
   event.getByLabel(DTSegmentTags_, dtRecHits);  
   
   vector<const DTRecSegment4D*> pointerTo4DSegments;
+
+  TrackingRecHitRefVector dtHits;
+
+  // Loop and select DT recHits
+  for(trackingRecHit_iterator hit = muon.recHitsBegin(); hit != muon.recHitsEnd(); ++hit) {
+    if ( (*hit)->geographicalId().det() != DetId::Muon ) continue; 
+    if ( (*hit)->geographicalId().subdetId() != MuonSubdetId::DT ) continue; 
+    if (!(*hit)->isValid()) continue; 
+    dtHits.push_back(*hit);
+  }
   
   double PhiCutParameter=0.001;
   double ZCutParameter=0.001;
@@ -89,10 +99,7 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
       DTChamberId chamberSegIdT((segmZ->geographicalId()).rawId());
 		
       // Loop over muon recHits
-      for(trackingRecHit_iterator hit = muon.recHitsBegin(); hit != muon.recHitsEnd(); ++hit) {
-
-	if ( (*hit)->geographicalId().subdetId() != MuonSubdetId::DT ) continue; 
-	if (!(*hit)->isValid()) continue; 
+      for(trackingRecHit_iterator hit = dtHits.begin(); hit != dtHits.end(); ++hit) {
 
 	DetId idT = (*hit)->geographicalId();
 	DTChamberId dtDetIdHitT(idT.rawId());
@@ -105,17 +112,14 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
         for (vector<DTRecHit1D>::const_iterator hiti=hits1d.begin(); hiti!=hits1d.end(); hiti++) {
 
 	  // Pick the one in the same DT Layer as the 1D hit
-	  if(!(hiti->geographicalId().rawId()==(*hit)->geographicalId().rawId())) continue; 
+	  if(!(hiti->geographicalId().rawId()==idT.rawId())) continue; 
 
           // and compare the local positions
 	  LocalPoint segLocal = hiti->localPosition();
 	  // cout << "Zed Segment Point = "<<pointLocal<<"    Muon Point = "<<segLocal<<"     " << endl;
 	  if ((fabs(pointLocal.x()-segLocal.x())<ZCutParameter) && 
-	      (fabs(pointLocal.y()-segLocal.y())<ZCutParameter)) {
+	      (fabs(pointLocal.y()-segLocal.y())<ZCutParameter)) 
 	    countAgreeingHits++;
-	    //	      cout<<"Matched PT"<<endl;
-	  }
-	  //else cout<<"PT Not Matched "<<endl;
 	} //End Segment Hit Iteration
       } //End Muon Hit Iteration
 		
@@ -135,15 +139,13 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
       DTChamberId chamberSegIdT((segmPhi->geographicalId()).rawId());
 		
       // Loop over muon recHits
-      for(trackingRecHit_iterator hit = muon.recHitsBegin(); hit != muon.recHitsEnd(); ++hit) {
-	if ( (*hit)->geographicalId().subdetId() != MuonSubdetId::DT ) continue; 
-	if (!(*hit)->isValid()) continue; 
+      for(trackingRecHit_iterator hit = dtHits.begin(); hit != dtHits.end(); ++hit) {
 
 	DetId idT = (*hit)->geographicalId();
 	DTChamberId dtDetIdHitT(idT.rawId());
 	DTSuperLayerId dtDetLayerIdHitT(idT.rawId());
 
-	LocalPoint  pointLocal = (*hit)->localPosition(); //Localposition is in DTLayer http://cmslxr.fnal.gov/lxr/source/DataFormats/DTRecHit/interface/DTRecHit1D.h
+	LocalPoint pointLocal = (*hit)->localPosition(); //Localposition is in DTLayer http://cmslxr.fnal.gov/lxr/source/DataFormats/DTRecHit/interface/DTRecHit1D.h
 
 	if ((chamberSegIdT==dtDetIdHitT)&&((dtDetLayerIdHitT.superlayer()==1)||(dtDetLayerIdHitT.superlayer()==3))) 
 	  countMuonDTHits++;
@@ -151,26 +153,22 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
 	for (vector<DTRecHit1D>::const_iterator hiti=hits1d.begin(); hiti!=hits1d.end(); hiti++) {
 
 	  // Pick the one in the same DT Layer as the 1D hit
-	  if(!(hiti->geographicalId().rawId()==(*hit)->geographicalId().rawId())) continue; 
+	  if(!(hiti->geographicalId().rawId()==idT.rawId())) continue; 
 					 
           // and compare the local positions
 	  LocalPoint segLocal = hiti->localPosition();
 	  // cout << "     Phi Segment Point = "<<pointLocal<<"    Muon Point = "<<segLocal<<"     " << endl;
 
 	  if ((fabs(pointLocal.x()-segLocal.x())<PhiCutParameter) && 
-	      (fabs(pointLocal.y()-segLocal.y())<PhiCutParameter)) {
+	      (fabs(pointLocal.y()-segLocal.y())<PhiCutParameter))
 	    countAgreeingHits++; 
-	    // cout<<" Matched PT"<<endl;
-	  }
 	} // End Segment Hit Iteration
       } // End Muon Hit Iteration
 
       matchRatioPhi = countAgreeingHits/countMuonDTHits;
     } // End HasPhi Check
 
-    DTChamberId chamberSegId2((rechit->geographicalId()).rawId());
-    
-    bool matched = false;
+//    DTChamberId chamberSegId2((rechit->geographicalId()).rawId());
     
     if (dtTightMatch && nhitsPhi && nhitsZ) {
       if((matchRatioPhi>0.9)&&(matchRatioZ>0.9)) {
@@ -217,7 +215,7 @@ vector<const CSCSegment*> MuonSegmentMatcher::matchCSC(const reco::Track& muon, 
     CSCDetId myChamber((*segmentCSC).geographicalId().rawId());
 
     for(trackingRecHit_iterator hitC = muon.recHitsBegin(); hitC != muon.recHitsEnd(); ++hitC) {
-
+      if ( (*hitC)->geographicalId().det() != DetId::Muon ) continue; 
       if ( (*hitC)->geographicalId().subdetId() != MuonSubdetId::CSC ) continue;
       if(!(*hitC)->isValid()) continue;
 

@@ -43,6 +43,8 @@ namespace evf {
 
     static
     void   doFedIdCheck(bool doFedIdCheck) { doFedIdCheck_=doFedIdCheck; }
+    static
+    void   useEvmBoard(bool useEvmBoard)   { useEvmBoard_ =useEvmBoard; }
     void   doCrcCheck(bool doCrcCheck)     { doCrcCheck_  =doCrcCheck; }
     
     bool   crcBeingChecked() { return doCrcCheck_; }
@@ -63,7 +65,8 @@ namespace evf {
     UInt_t nbBytes(bool reset=true);
 
     evf::FUShmRawCell* shmCell() { return shmCell_; }
-    static bool useEvmBoard_;    
+
+    
     
   private:
     //
@@ -73,6 +76,8 @@ namespace evf {
     
     static
     bool      doFedIdCheck_;
+    static
+    bool      useEvmBoard_;    
     bool      doCrcCheck_;
     bool      fatalError_;
 
@@ -107,6 +112,7 @@ namespace evf {
 
     static unsigned int gtpDaqId_;
     static unsigned int gtpEvmId_;
+    static unsigned int gtpeId_;
 
   };
   

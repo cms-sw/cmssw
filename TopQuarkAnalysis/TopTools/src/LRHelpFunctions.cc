@@ -323,7 +323,7 @@ void  LRHelpFunctions::storeControlPlots(TString fname){
       pt.SetFillColor(0);
       pt.SetBorderSize(0);
       TString tcorr = "Corr. of "; tcorr += (int)(100.*hObsCorr[hIndex] -> GetCorrelationFactor()); tcorr += " %";
-      TText *text = pt.AddText(tcorr);
+      //TText *text = pt.AddText(tcorr);
       pt.Draw("same");
       ++hIndex;
       cc.Print(fname,"Landscape");

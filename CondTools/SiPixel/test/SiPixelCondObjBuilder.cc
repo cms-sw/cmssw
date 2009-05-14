@@ -51,7 +51,7 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    float mingain=0;
    float maxgain=10;
    float minped=0;
-   float maxped=255;
+   float maxped=50;
    SiPixelGainCalibration_ = new SiPixelGainCalibration(minped,maxped,mingain,maxgain);
 
 

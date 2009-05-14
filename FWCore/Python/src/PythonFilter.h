@@ -13,25 +13,20 @@
 //
 // Original Author:  Chris D Jones & Benedikt Hegner
 //         Created:  Sun Jul 22 10:50:17 EST 2006
-// $Id: PythonFilter.h,v 1.2 2006/07/22 13:47:13 hegner Exp $
 //
-//
-#ifndef PythonFilter_h
-#define PythonFilter_h
-
-#include "boost/python.hpp"
+#ifndef FWCore_Python_PythonFilter_h
+#define FWCore_Python_PythonFilter_h
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/BoostPython.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Python/src/PythonManager.h"
 #include "FWCore/Framework/interface/EDFilter.h"
-
 
 class PythonFilter : public edm::EDFilter {
    public:
       explicit PythonFilter(const edm::ParameterSet&);
       ~PythonFilter();
-
 
       virtual bool filter(edm::Event&, const edm::EventSetup&);
    private:
@@ -43,4 +38,4 @@ class PythonFilter : public edm::EDFilter {
       boost::python::object filter_;
 };
 
-#endif // PythonFilter_h
+#endif // FWCore_Python_PythonFilter_h

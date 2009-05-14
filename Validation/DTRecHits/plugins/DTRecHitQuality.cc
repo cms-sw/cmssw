@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/10/25 11:58:37 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/06/18 15:56:08 $
+ *  $Revision: 1.7 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -50,6 +50,10 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
   doStep1 = pset.getUntrackedParameter<bool>("doStep1", false);
   doStep2 = pset.getUntrackedParameter<bool>("doStep2", false);
   doStep3 = pset.getUntrackedParameter<bool>("doStep3", false);
+
+
+  if(debug)
+    cout << "[DTRecHitQuality] Constructor called" << endl;
 
   // Create the root file
   theFile = new TFile(rootFileName.c_str(), "RECREATE");
@@ -101,6 +105,8 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
 
 // Destructor
   DTRecHitQuality::~DTRecHitQuality(){
+    if(debug) 
+      cout << "[DTRecHitQuality] Destructor called" << endl;
   }
 
 

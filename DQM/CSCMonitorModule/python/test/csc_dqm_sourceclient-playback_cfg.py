@@ -8,6 +8,16 @@ process = cms.Process("CSCDQM")
 
 process.load("DQM.CSCMonitorModule.test.csc_dqm_sourceclient_cfi")
 
+#-------------------------------------------------
+# Offline DQM Module Configuration
+#-------------------------------------------------
+
+process.load("DQMOffline.Muon.CSCMonitor_cfi")
+process.load("Configuration/StandardSequences/MagneticField_cff")
+process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
+process.csc2DRecHits.readBadChambers = cms.bool(False)
+
 #----------------------------
 # Event Source
 #-----------------------------
@@ -40,14 +50,14 @@ process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 #process.DQMStore.referenceFileName = '/home/dqmdevlocal/reference/csc_reference.root'
-process.DQMStore.referenceFileName = '/afs/cern.ch/user/v/valdo/CMSSW_2_1_9/src/DQM/CSCMonitorModule/data/csc_reference.root'
+process.DQMStore.referenceFileName = '/afs/cern.ch/user/v/valdo/data/csc_reference.root'
 #process.DQMStore.referenceFileName = '/nfshome0/valdo/CMSSW_2_1_0/src/DQM/CSCMonitorModule/data/csc_reference.root'
 
 #----------------------------
 # DQM Playback Environment
 #-----------------------------
 
-process.load("DQM.Integration.test.environment_playback_cfi")
+#process.load("DQM.Integration.environment_playback_cfi")
 process.dqmEnv.subSystemFolder    = "CSC"
 
 process.DQM.collectorHost = 'pccmsdqm02.cern.ch'
@@ -58,7 +68,7 @@ process.dqmSaver.dirName = '.'
 # Magnetic Field
 #-----------------------------
 
-process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
+process.load("Configuration/StandardSequences/MagneticField_cff")
 
 #-------------------------------------------------
 # GEOMETRY
@@ -75,6 +85,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect = "frontier://FrontierDev/CMS_COND_CSC"
 process.GlobalTag.connect ="frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_21X_GLOBALTAG"
 process.GlobalTag.globaltag = "CRZT210_V1H::All"
+#process.GlobalTag.globaltag = 'CRAFT_V3P::All'
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 #--------------------------
@@ -85,9 +96,43 @@ process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 process.AdaptorConfig = cms.Service("AdaptorConfig")
 
 #--------------------------
+# Message Logger
+#--------------------------
+
+MessageLogger = cms.Service("MessageLogger",
+
+# suppressInfo = cms.untracked.vstring('source'),
+  suppressInfo = cms.untracked.vstring('*'),
+
+  cout = cms.untracked.PSet(
+    threshold = cms.untracked.string('INFO'),
+    WARNING = cms.untracked.PSet(
+      limit = cms.untracked.int32(0)
+    ),
+    noLineBreaks = cms.untracked.bool(False)
+  ),
+
+  detailedInfo = cms.untracked.PSet(
+    threshold = cms.untracked.string('INFO')
+  ),
+
+  critical = cms.untracked.PSet(
+    threshold = cms.untracked.string('ERROR')
+  ),
+
+  debugModules = cms.untracked.vstring('CSCMonitormodule'),
+
+#  destinations = cms.untracked.vstring('detailedInfo', 
+#    'critical', 
+#    'cout')
+
+)
+
+#--------------------------
 # Sequences
 #--------------------------
 
-process.p = cms.Path(process.dqmClient+process.dqmEnv+process.dqmSaver)
+#process.p = cms.Path(process.dqmCSCClient + process.dqmEnv + process.dqmSaver)
+process.p = cms.Path(process.muonCSCDigis * process.csc2DRecHits * process.cscSegments * process.cscMonitor * process.dqmCSCClient + process.dqmEnv + process.dqmSaver)
 
 

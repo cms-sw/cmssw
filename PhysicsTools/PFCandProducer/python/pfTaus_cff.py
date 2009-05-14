@@ -3,26 +3,24 @@ import FWCore.ParameterSet.Config as cms
 from RecoTauTag.Configuration.RecoPFTauTag_cff import *
 from RecoTauTag.TauTagTools.PFTauSelector_cfi  import pfTauSelector
 
-pfRecoTauProducer.DataType = cms.string('AOD')
-myic5PFJetTracksAssociatorAtVertex = ic5PFJetTracksAssociatorAtVertex.clone()
+pfRecoTauProducerHighEfficiency.DataType = cms.string('AOD')
+ic5PFJetTracksAssociatorAtVertex.jets = 'pfJets'
 
-myic5PFJetTracksAssociatorAtVertex.jets = 'pfJets'
-pfRecoTauTagInfoProducer.PFJetTracksAssociatorProducer = 'myic5PFJetTracksAssociatorAtVertex'
-
-pfTaus = pfTauSelector.clone()
-pfTaus.discriminators = cms.VPSet(
-      cms.PSet( discriminator=cms.InputTag("pfRecoTauDiscriminationByIsolation"),selectionCut=cms.double(0.5))
+allLayer0Taus = pfTauSelector.clone()
+allLayer0Taus.src = cms.InputTag("pfRecoTauProducerHighEfficiency")
+allLayer0Taus.discriminators = cms.VPSet(
+      cms.PSet( discriminator=cms.InputTag("pfRecoTauDiscriminationByIsolationHighEfficiency"),selectionCut=cms.double(0.5))
    )
+
+pfRecoTauTagInfoProducer.PFCandidateProducer = 'pfNoMuonsNoPileUp:PFCandidates'
 
 
 pfTauSequence = cms.Sequence(
-    myic5PFJetTracksAssociatorAtVertex + 
+    ic5PFJetTracksAssociatorAtVertex + 
     pfRecoTauTagInfoProducer + 
-    pfRecoTauProducer + 
-    #    pfRecoTauProducerHighEfficiency + 
-    pfRecoTauDiscriminationByIsolation + 
-    #    pfRecoTauDiscriminationHighEfficiency + 
-    pfTaus
+    pfRecoTauProducerHighEfficiency + 
+    pfRecoTauDiscriminationByIsolationHighEfficiency + 
+    allLayer0Taus
     )
 
 

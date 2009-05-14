@@ -52,7 +52,6 @@ process.GlobalTag.globaltag = cms.string('STARTUP_V7::All')
 # Magnetic field now needs to be in the high-level py
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-
 #-------------------------------------------------
 # tqaf configuration; if the TQAF Layer 1 is
 # already in place you can comment the following
@@ -60,8 +59,14 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 #-------------------------------------------------
 
 ## std sequence for tqaf layer1
-process.load("TopQuarkAnalysis.TopObjectProducers.tqafLayer1_full_cff")
+process.load("TopQuarkAnalysis.TopObjectProducers.tqafLayer1_cff")
 process.p0 = cms.Path(process.tqafLayer1)
+
+## necessary fixes to run 2.2.X on 2.1.X data
+## comment this when running on samples produced
+## with 22X
+from PhysicsTools.PatAlgos.tools.cmsswVersionTools import run22XonSummer08AODSIM
+run22XonSummer08AODSIM(process)
 
 #-------------------------------------------------
 # analyze electrons

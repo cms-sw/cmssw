@@ -90,6 +90,7 @@ class GoodSeedProducer : public edm::EDProducer {
       double maxEta_;
       
       ///ISOLATION REQUEST AS DONE IN THE TAU GROUP
+      bool applyIsolation_;
       double HcalIsolWindow_;
       double EcalStripSumE_minClusEnergy_;
       double EcalStripSumE_deltaEta_;
@@ -149,5 +150,8 @@ class GoodSeedProducer : public edm::EDProducer {
 
       ///B field
       math::XYZVector B_;
+
+      ///Use of Preshower clusters
+      bool usePreshower_;
 };
 #endif

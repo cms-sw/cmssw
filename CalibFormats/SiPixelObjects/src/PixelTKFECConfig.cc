@@ -5,9 +5,7 @@
 //
 
 #include "CalibFormats/SiPixelObjects/interface/PixelTKFECConfig.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelTimeFormatter.h"
 #include <fstream>
-#include <sstream>
 #include <map>
 #include <assert.h>
 
@@ -22,36 +20,27 @@ PixelTKFECConfig::PixelTKFECConfig(std::vector<std::vector<std::string> >& table
   std::vector<std::string > colNames;
   /**
 
-  EXTENSION_TABLE_NAME: TRACKER_FEC_PARAMETERS (VIEW: CONF_KEY_TRACKER_FEC_CONFIG_V)
-  
-  CONFIG_KEY				    NOT NULL VARCHAR2(80)
-  KEY_TYPE				    NOT NULL VARCHAR2(80)
-  KEY_ALIAS				    NOT NULL VARCHAR2(80)
-  VERSION					     VARCHAR2(40)
-  KIND_OF_COND  			    NOT NULL VARCHAR2(40)
-  TRKFEC_NAME				    NOT NULL VARCHAR2(200)
-  CRATE_LABEL					     VARCHAR2(200)
-  CRATE_NUMBER  			    NOT NULL NUMBER(38)
-  TYPE  					     VARCHAR2(200)
-  SLOT_NUMBER					     NUMBER(38)
-  VME_ADDR				    NOT NULL VARCHAR2(200)
-  I2CSPEED					     NUMBER(38)
+  View's name: CONF_KEY_TRACKER_FEC_CONFIG_MV
+  CONFIG_KEY_ID				   NOT NULL NUMBER(38)
+  CONFIG_KEY				   NOT NULL VARCHAR2(80)
+  VERSION					    VARCHAR2(40)
+  KIND_OF_COND				   NOT NULL VARCHAR2(40)
+  TRACKER_FEC				   NOT NULL VARCHAR2(200)
+  CRATE					   NOT NULL NUMBER(38)
+  SLOT_NUMBER				   NOT NULL NUMBER(38)
+  VME_ADDRS_HEX					    VARCHAR2(17)
 
   */
 
-  colNames.push_back("CONFIG_KEY"  ); 
-  colNames.push_back("KEY_TYPE"    ); 
-  colNames.push_back("KEY_ALIAS"   ); 
-  colNames.push_back("VERSION"     ); 
-  colNames.push_back("KIND_OF_COND"); 
-  colNames.push_back("TRKFEC_NAME" ); 
-  colNames.push_back("CRATE_LABEL" ); 
-  colNames.push_back("CRATE_NUMBER"); 
-  colNames.push_back("TYPE"	   );	      
-  colNames.push_back("SLOT_NUMBER" ); 
-  colNames.push_back("VME_ADDR"    );
-  colNames.push_back("I2CSPEED"    );
-
+  colNames.push_back("CONFIG_KEY_ID");
+  colNames.push_back("CONFIG_KEY"   );
+  colNames.push_back("VERSION"	    );
+  colNames.push_back("KIND_OF_COND" );
+  colNames.push_back("TRACKER_FEC"  );
+  colNames.push_back("CRATE"	    );
+  colNames.push_back("SLOT_NUMBER"  );
+  colNames.push_back("VME_ADDRS_HEX");
+  
   for(unsigned int c = 0 ; c < tableMat[0].size() ; c++)
     {
       for(unsigned int n=0; n<colNames.size(); n++)
@@ -255,78 +244,3 @@ unsigned int PixelTKFECConfig::addressFromTKFECID(std::string TKFECID) const{
 
 }
 
-//=============================================================================================
-void PixelTKFECConfig::writeXMLHeader(pos::PixelConfigKey key, 
-                                      int version, 
-                                      std::string path, 
-                                      std::ofstream *outstream,
-                                      std::ofstream *out1stream,
-                                      std::ofstream *out2stream) const
-{
-  std::string mthn = "[PixelTKFECConfig::writeXMLHeader()]\t\t\t    " ;
-  std::stringstream maskFullPath ;
-
-  maskFullPath << path << "/Pixel_TrackerFecParameters_" << PixelTimeFormatter::getmSecTime() << ".xml";
-  std::cout << mthn << "Writing to: " << maskFullPath.str() << std::endl ;
-
-  outstream->open(maskFullPath.str().c_str()) ;
-  
-  *outstream << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"                                 << std::endl ;
-  *outstream << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 		 	          << std::endl ;
-  *outstream << ""                                                                                        << std::endl ; 
-  *outstream << " <HEADER>"                                                                               << std::endl ; 
-  *outstream << "  <TYPE>"                                                                                << std::endl ; 
-  *outstream << "   <EXTENSION_TABLE_NAME>TRACKER_FEC_PARAMETERS</EXTENSION_TABLE_NAME>"                  << std::endl ; 
-  *outstream << "   <NAME>Tracker FEC Parameters</NAME>"                                                  << std::endl ; 
-  *outstream << "  </TYPE>"                                                                               << std::endl ; 
-  *outstream << "  <RUN>"                                                                                 << std::endl ; 
-  *outstream << "   <RUN_TYPE>Tracker FEC Parameters</RUN_TYPE>"                                          << std::endl ; 
-  *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                           << std::endl ; 
-  *outstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>"   << std::endl ; 
-  *outstream << "   <COMMENT_DESCRIPTION>ROC MaxVsf Settings</COMMENT_DESCRIPTION>"                       << std::endl ; 
-  *outstream << "   <LOCATION>CERN TAC</LOCATION>"                                                        << std::endl ; 
-  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"                                 << std::endl ; 
-  *outstream << "  </RUN>"                                                                                << std::endl ; 
-  *outstream << " </HEADER>"                                                                              << std::endl ; 
-  *outstream << ""                                                                                        << std::endl ; 
-  *outstream << " <DATA_SET>"                                                                             << std::endl ;
-  *outstream << ""                                                                                        << std::endl ;
-  *outstream << "  <VERSION>" << version << "</VERSION>"                                                  << std::endl ;
-  *outstream << ""                                                                                        << std::endl ;
-  *outstream << "  <PART>"                                                                                << std::endl ;
-  *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                              << std::endl ;      
-  *outstream << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                           << std::endl ;         
-  *outstream << "  </PART>"                                                                               << std::endl ;
-
-}
-
-//=============================================================================================
-void PixelTKFECConfig::writeXML( std::ofstream *outstream,
-                            	 std::ofstream *out1stream,
-                            	 std::ofstream *out2stream) const 
-{
-  std::string mthn = "[PixelTKFECConfig::writeXML()]\t\t\t    " ;
-
-  for(unsigned int i=0;i<TKFECconfig_.size();i++){
-    *outstream << "  <DATA>"                                                                 		  << std::endl ;
-    *outstream << "   <TRKFEC_NAME>"   << TKFECconfig_[i].getTKFECID() << "</TRKFEC_NAME>"   		  << std::endl ;
-    *outstream << "   <CRATE_NUMBER>"  << TKFECconfig_[i].getCrate()   << "</CRATE_NUMBER>"   		  << std::endl ;
-    *outstream << "   <VME_ADDR>"      << TKFECconfig_[i].getAddress() << "</VME_ADDR>" 		  << std::endl ;
-    *outstream << "  </DATA>"                                                                		  << std::endl ;
-  }
-}
-
-//=============================================================================================
-void PixelTKFECConfig::writeXMLTrailer(std::ofstream *outstream,
-                             	       std::ofstream *out1stream,
-                             	       std::ofstream *out2stream ) const 
-{
-  std::string mthn = "[PixelTKFECConfig::writeXMLTrailer()]\t\t\t    " ;
-  
-  *outstream << " </DATA_SET>"		 								  << std::endl ;
-  *outstream << "</ROOT>"  		 								  << std::endl ;
-  
-  outstream->close() ;
-  std::cout << mthn << "Data written "   								  << std::endl ;
-
-}

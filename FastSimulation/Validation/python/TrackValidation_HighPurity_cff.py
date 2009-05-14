@@ -17,18 +17,14 @@ from Validation.RecoTrack.cuts_cff import *
 from Validation.RecoTrack.cutsTPEffic_cfi import *
 from Validation.RecoTrack.cutsTPFake_cfi import *
 from Validation.RecoTrack.MultiTrackValidator_cff import *
-valid = cms.Sequence(cms.SequencePlaceholder("genParticles")*trackingParticles*cutsRecoTracks*cutsTPEffic*cutsTPFake*multiTrackValidator)
+valid = cms.Sequence(cms.SequencePlaceholder("genParticles")*trackingParticles*cutsTPEffic*cutsTPFake*multiTrackValidator)
 mergedtruth.TrackerHitLabels = ['famosSimHitsTrackerHits']
 mergedtruth.simHitLabel = 'famosSimHits'
 TrackAssociatorByHits.associateStrip = False
 TrackAssociatorByHits.associatePixel = False
 TrackAssociatorByHits.ROUList = ['famosSimHitsTrackerHits']
-
-#use cutsRecoTracks
-cutsRecoTracks.quality = 'highPurity'
-
 # pass only high purity tracks
-multiTrackValidator.label = ['cutsRecoTracks']
+multiTrackValidator.label = ['firstfilter']
 multiTrackValidator.associators = ['TrackAssociatorByHits']
 multiTrackValidator.UseAssociators = True
 

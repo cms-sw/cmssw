@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.23 2008/08/04 17:18:41 biery Exp $
+// $Id: SMProxyServer.cc,v 1.24 2008/10/14 15:02:18 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -116,6 +116,12 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("useCompressionDQM",  &useCompressionDQM_);
   ispace->fireItemAvailable("compressionLevelDQM",  &compressionLevelDQM_);
   //nLogicalDisk_   = 0;
+
+  ispace->fireItemAvailable("rcmsStateListener", fsm_.rcmsStateListener());
+  ispace->fireItemAvailable("foundRcmsStateListener", fsm_.foundRcmsStateListener());
+  // 21-Nov-2008, KAB: the findRcmsStateListener call needs to go after the
+  // calls to add the RCMS vars to the application infospace.
+  fsm_.findRcmsStateListener();
 
   //ispace->fireItemAvailable("nLogicalDisk", &nLogicalDisk_);
 

@@ -4,7 +4,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctHfBitCountsLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctHfEtSumsLut.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 L1GctGlobalHfSumAlgos::L1GctGlobalHfSumAlgos(std::vector<L1GctWheelJetFpga*> wheelJetFpga) :
   L1GctProcessor(),
@@ -13,27 +13,41 @@ L1GctGlobalHfSumAlgos::L1GctGlobalHfSumAlgos(std::vector<L1GctWheelJetFpga*> whe
   m_bitCountLuts(), m_etSumLuts(),
   m_hfInputSumsPlusWheel(),
   m_hfInputSumsMinusWheel(),
-  m_hfOutputSumsPipe()
+  m_hfOutputSumsPipe(),
+  m_setupOk(true)
 {
   if(wheelJetFpga.size() != 2)
     {
-      throw cms::Exception("L1GctSetupError")
-	<< "L1GctGlobalHfSumAlgos::L1GctGlobalHfSumAlgos() : Global HfSum Algos has been incorrectly constructed!\n"
-	<< "This class needs two wheel jet fpga pointers. "
-	<< "Number of wheel jet fpga pointers present is " << wheelJetFpga.size() << ".\n";
+      m_setupOk = false;
+      if (m_verbose) {
+	edm::LogWarning("L1GctSetupError")
+	  << "L1GctGlobalHfSumAlgos::L1GctGlobalHfSumAlgos() : Global HfSum Algos has been incorrectly constructed!\n"
+	  << "This class needs two wheel jet fpga pointers. "
+	  << "Number of wheel jet fpga pointers present is " << wheelJetFpga.size() << ".\n";
+      }
     }
   
   if(m_plusWheelJetFpga == 0)
     {
-      throw cms::Exception("L1GctSetupError")
-	<< "L1GctGlobalHfSumAlgos::L1GctGlobalHfSumAlgos() has been incorrectly constructed!\n"
-	<< "Plus Wheel Jet Fpga pointer has not been set!\n";
+      m_setupOk = false;
+      if (m_verbose) {
+	edm::LogWarning("L1GctSetupError")
+	  << "L1GctGlobalHfSumAlgos::L1GctGlobalHfSumAlgos() has been incorrectly constructed!\n"
+	  << "Plus Wheel Jet Fpga pointer has not been set!\n";
+      }
     }
   if(m_minusWheelJetFpga == 0)
     {
-      throw cms::Exception("L1GctSetupError")
-	<< "L1GctGlobalHfSumAlgos::L1GctGlobalHfSumAlgos() has been incorrectly constructed!\n"
-	<< "Minus Wheel Jet Fpga pointer has not been set!\n";
+      m_setupOk = false;
+      if (m_verbose) {
+	edm::LogWarning("L1GctSetupError")
+	  << "L1GctGlobalHfSumAlgos::L1GctGlobalHfSumAlgos() has been incorrectly constructed!\n"
+	  << "Minus Wheel Jet Fpga pointer has not been set!\n";
+      }
+    }
+
+    if (!m_setupOk && m_verbose) {
+      edm::LogError("L1GctSetupError") << "L1GctGlobalEnergyAlgos has been incorrectly constructed";
     }
 }
 
@@ -91,41 +105,45 @@ void L1GctGlobalHfSumAlgos::resetPipelines() {
 }
 
 void L1GctGlobalHfSumAlgos::fetchInput() {
-  m_hfInputSumsPlusWheel  = m_plusWheelJetFpga->getOutputHfSums();
-  m_hfInputSumsMinusWheel = m_minusWheelJetFpga->getOutputHfSums();
+  if (m_setupOk) {
+    m_hfInputSumsPlusWheel  = m_plusWheelJetFpga->getOutputHfSums();
+    m_hfInputSumsMinusWheel = m_minusWheelJetFpga->getOutputHfSums();
+  }
 }
 
 
 // process the event
 void L1GctGlobalHfSumAlgos::process()
 {
-  // step through the different types of Hf summed quantity
-  // and store each one in turn into the relevant pipeline
+  if (m_setupOk) {
+    // step through the different types of Hf summed quantity
+    // and store each one in turn into the relevant pipeline
 
-  // bit count, positive eta, ring 1
-  storeBitCount(L1GctHfLutSetup::bitCountPosEtaRing1, m_hfInputSumsPlusWheel.nOverThreshold0.value() );
+    // bit count, positive eta, ring 1
+    storeBitCount(L1GctHfLutSetup::bitCountPosEtaRing1, m_hfInputSumsPlusWheel.nOverThreshold0.value() );
 
-  // bit count, negative eta, ring 1
-  storeBitCount(L1GctHfLutSetup::bitCountNegEtaRing1, m_hfInputSumsMinusWheel.nOverThreshold0.value() );
+    // bit count, negative eta, ring 1
+    storeBitCount(L1GctHfLutSetup::bitCountNegEtaRing1, m_hfInputSumsMinusWheel.nOverThreshold0.value() );
 
-  // bit count, positive eta, ring 2
-  storeBitCount(L1GctHfLutSetup::bitCountPosEtaRing2, m_hfInputSumsPlusWheel.nOverThreshold1.value() );
+    // bit count, positive eta, ring 2
+    storeBitCount(L1GctHfLutSetup::bitCountPosEtaRing2, m_hfInputSumsPlusWheel.nOverThreshold1.value() );
 
-  // bit count, negative eta, ring 2
-  storeBitCount(L1GctHfLutSetup::bitCountNegEtaRing2, m_hfInputSumsMinusWheel.nOverThreshold1.value() );
+    // bit count, negative eta, ring 2
+    storeBitCount(L1GctHfLutSetup::bitCountNegEtaRing2, m_hfInputSumsMinusWheel.nOverThreshold1.value() );
 
-  // et sum, positive eta, ring 1
-  storeEtSum(L1GctHfLutSetup::etSumPosEtaRing1, m_hfInputSumsPlusWheel.etSum0.value() );
+    // et sum, positive eta, ring 1
+    storeEtSum(L1GctHfLutSetup::etSumPosEtaRing1, m_hfInputSumsPlusWheel.etSum0.value() );
 
-  // et sum, negative eta, ring 1
-  storeEtSum(L1GctHfLutSetup::etSumNegEtaRing1, m_hfInputSumsMinusWheel.etSum0.value() );
+    // et sum, negative eta, ring 1
+    storeEtSum(L1GctHfLutSetup::etSumNegEtaRing1, m_hfInputSumsMinusWheel.etSum0.value() );
 
-  // et sum, positive eta, ring 2
-  storeEtSum(L1GctHfLutSetup::etSumPosEtaRing2, m_hfInputSumsPlusWheel.etSum1.value() );
+    // et sum, positive eta, ring 2
+    storeEtSum(L1GctHfLutSetup::etSumPosEtaRing2, m_hfInputSumsPlusWheel.etSum1.value() );
 
-  // et sum, negative eta, ring 2
-  storeEtSum(L1GctHfLutSetup::etSumNegEtaRing2, m_hfInputSumsMinusWheel.etSum1.value() );
+    // et sum, negative eta, ring 2
+    storeEtSum(L1GctHfLutSetup::etSumNegEtaRing2, m_hfInputSumsMinusWheel.etSum1.value() );
 
+  }
 }
 
 // Convert bit count value using LUT and store in the pipeline

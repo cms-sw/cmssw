@@ -5,7 +5,6 @@
 <use name=CondCore/DBOutputService>
 <use name=CondFormats/Alignment>  
 <use name=DataFormats/TrackReco>
-<use name=DataFormats/MuonReco>
 <use name=FWCore/PluginManager>
 <use name=FWCore/Framework>
 <use name=FWCore/Utilities>

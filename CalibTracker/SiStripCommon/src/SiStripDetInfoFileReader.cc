@@ -3,12 +3,11 @@
 // Class:      SiStripDetInfoFileReader
 // Original Author:  G. Bruno
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripDetInfoFileReader.cc,v 1.4 2008/01/22 19:16:28 muzaffar Exp $
+// $Id: SiStripDetInfoFileReader.cc,v 1.3 2007/10/24 08:36:38 giordano Exp $
 
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 using namespace cms;
 using namespace std;
@@ -19,28 +18,16 @@ SiStripDetInfoFileReader& SiStripDetInfoFileReader::operator=(const SiStripDetIn
   return *this;  
 }
 
-SiStripDetInfoFileReader::SiStripDetInfoFileReader(const edm::ParameterSet& pset, const edm::ActivityRegistry& ar){
-  edm::FileInPath fp(pset.getUntrackedParameter<std::string>("filePath","CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"));
-  reader(fp.fullPath());
-}
-
 SiStripDetInfoFileReader::SiStripDetInfoFileReader(const SiStripDetInfoFileReader& copy) {
   detData_=copy.detData_;
   detIds_=copy.detIds_;
 }
 
 SiStripDetInfoFileReader::SiStripDetInfoFileReader(std::string filePath) {
-  reader(filePath);
-}
-
-void SiStripDetInfoFileReader::reader(std::string filePath) {
 
 //   if(filePath==std::string("")){
 //     filePath = edm::FileInPath(std::string("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat") ).fullPath();
 //   }
-
-  edm::LogInfo("SiStripDetInfoFileReader") << "filePath " << filePath << std::endl;
-
 
   detData_.clear();
   detIds_.clear();
@@ -65,7 +52,7 @@ void SiStripDetInfoFileReader::reader(std::string filePath) {
 	//	inputFile_ >> numberOfAPVs;
 	//	inputFile_ >> stripLength;
 
-	//     	edm::LogInfo("SiStripDetInfoFileReader::SiStripDetInfoFileReader") << detid <<" " <<numberOfAPVs <<" " <<stripLength << " "<< thickness<< endl;
+	//       	edm::LogInfo("SiStripDetInfoFileReader::SiStripDetInfoFileReader") << detid <<" " <<numberOfAPVs <<" " <<stripLength << " "<< thickness<< endl;
 
 	std::map<uint32_t, DetInfo >::const_iterator it = detData_.find(detid);
 

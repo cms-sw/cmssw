@@ -25,6 +25,7 @@ void RPCDigitizer::doAction(MixCollection<PSimHit> & simHits,
                             RPCDigiCollection & rpcDigis,
 			    RPCDigiSimLinks & rpcDigiSimLink)
 {
+
   theRPCSim->setRPCSimSetUp(theSimSetUp);
 
   // arrange the hits by roll

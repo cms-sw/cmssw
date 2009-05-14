@@ -3,8 +3,6 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalDDDGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#define DebugLog
-
 HcalDDDGeometry::HcalDDDGeometry() : lastReqDet_(DetId::Detector(0)), 
 				     lastReqSubdet_(0), etaMax_(0),
 				     firstHFQuadRing_(40) {
@@ -19,33 +17,26 @@ HcalDDDGeometry::~HcalDDDGeometry() {}
 std::vector<DetId> const & HcalDDDGeometry::getValidDetIds(DetId::Detector det,
 							   int subdet) const {
 
-  const std::vector<DetId>& baseIds(CaloSubdetectorGeometry::getValidDetIds());
-  if (det    == DetId::Detector( 0 ) && subdet == 0) {
-    return baseIds ;
-  }
-   
-  if (lastReqDet_  != det || lastReqSubdet_ != subdet ) {
-    lastReqDet_     = det    ;
-    lastReqSubdet_  = subdet ;
+  if (lastReqDet_!=det || lastReqSubdet_!=subdet) {
+    lastReqDet_=det;
+    lastReqSubdet_=subdet;
     m_validIds.clear();
-    m_validIds.reserve( baseIds.size() ) ;
   }
 
-  if (m_validIds.empty() ) {
-    for( int i ( 0 ) ; i != baseIds.size() ; ++i ) {
-      const DetId id ( baseIds[i] );
-      if (id.det()      == det   && id.subdetId() == subdet ) { 
-	m_validIds.push_back( id ) ;
-      }
+  if (m_validIds.empty()) {
+    m_validIds.reserve(cellGeometries().size());
+    CaloSubdetectorGeometry::CellCont::const_iterator i;
+    for (i=cellGeometries().begin(); i!=cellGeometries().end(); i++) {
+      DetId id(i->first);
+      if (id.det()==det && id.subdetId()==subdet) 
+	m_validIds.push_back(id);
     }
     std::sort(m_validIds.begin(),m_validIds.end());
   }
   
-#ifdef DebugLog
   LogDebug("HCalGeom") << "HcalDDDGeometry::getValidDetIds: "
 		       << m_validIds.size() << " valid IDs found for detector "
 		       << det << " Sub-detector " << subdet;
-#endif
   return m_validIds;
 }
 
@@ -59,11 +50,9 @@ DetId HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const {
   if (phi < 0) phi += twopi;
   double radius = r.mag();
   double z      = fabs(r.z());
-#ifdef DebugLog
   LogDebug("HCalGeom") << "HcalDDDGeometry::getClosestCell for eta "
 		       << r.eta() << " phi " << phi/deg << " z " << r.z()
 		       << " radius " << radius;
-#endif
 
   HcalDetId bestId;
   if (abseta <= etaMax_) {
@@ -71,24 +60,21 @@ DetId HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const {
       if (abseta >=hcalCells_[i].etaMin() && abseta <=hcalCells_[i].etaMax()) {
 	HcalSubdetector bc = hcalCells_[i].detType();
 	int etaring = hcalCells_[i].etaBin();
-	int phibin  = 0;
-	if (hcalCells_[i].unitPhi() == 4) {
-	  // rings 40 and 41 are offset wrt the other phi numbering
-	  //  1        1         1         2
-	  //  ------------------------------
-	  //  72       36        36        1
-	  phibin = static_cast<int>(((phi/deg)+hcalCells_[i].phiOffset()+
-				     0.5*hcalCells_[i].phiBinWidth())/
-				    hcalCells_[i].phiBinWidth());
-	  if (phibin == 0) phibin = hcalCells_[i].nPhiBins();
-	  phibin = phibin*4 - 1; 
-	} else {
-	  phibin = static_cast<int>(((phi/deg)+hcalCells_[i].phiOffset())/
-				    hcalCells_[i].phiBinWidth()) + 1;
-	  // convert to the convention of numbering 1,3,5, in 36 phi bins
-	  phibin = (phibin-1)*(hcalCells_[i].unitPhi()) + 1;
+	int phibin  = static_cast<int>(((phi/deg)+hcalCells_[i].phiOffset())/
+				       hcalCells_[i].phiBinWidth()) + 1;
+	// rings 40 and 41 are offset wrt the other phi numbering
+	//  1        1         1         2
+	//  ------------------------------
+	//  72       36        36        1
+	if (etaring >= firstHFQuadRing_) {
+	  ++phibin;
+	  if (phibin > hcalCells_[i].nPhiBins()) 
+	    phibin -= hcalCells_[i].nPhiBins();
 	}
-
+ 
+	// convert to the convention of numbering 1,3,5, in 36 phi bins
+	// and 1,5,9 in 18 phi bins
+	phibin     = (phibin-1)*(hcalCells_[i].nPhiModule()) + 1;
 	int dbin   = 1;
 	int etabin = (r.z() > 0) ? etaring : -etaring;
 	if (bc == HcalForward) {
@@ -106,9 +92,8 @@ DetId HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const {
       }
     }
   }
-#ifdef DebugLog
   LogDebug("HCalGeom") << "HcalDDDGeometry::getClosestCell " << bestId;
-#endif
+  
   return bestId;
 }
 
@@ -120,10 +105,8 @@ int HcalDDDGeometry::insertCell(std::vector<HcalCellType::HcalCellType> const & 
   for (unsigned int i=0; i<cells.size(); i++) {
     if (cells[i].etaMax() > etaMax_ ) etaMax_ = cells[i].etaMax();
   }
-#ifdef DebugLog
   LogDebug("HCalGeom") << "HcalDDDGeometry::insertCell " << cells.size()
 		       << " cells inserted == Total " << num
 		       << " EtaMax = " << etaMax_;
-#endif
   return num;
 }

@@ -101,6 +101,13 @@ public:
   /// Check if the hit is on one of the requested detector
   bool isOnRequestedDet(const std::vector<unsigned int>& whichDet) const;
 
+  /// Check if a pair is on the proper combination of detectors
+  bool makesAPairWith(const TrackerRecHit& anotherHit) const;
+
+  /// Check if a triplet is on the proper combination of detectors
+  bool makesATripletWith(const TrackerRecHit& anotherHit,
+			 const TrackerRecHit& yetAnotherHit) const;
+ 
   /// Check if two hits are on the same layer of the same subdetector
   inline bool isOnTheSameLayer(const TrackerRecHit& other) const {
     

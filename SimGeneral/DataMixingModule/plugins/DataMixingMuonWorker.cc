@@ -45,23 +45,14 @@ namespace edm
 
     // Declare the products to produce
 
-    DTDigiTagSig_           = ps.getParameter<edm::InputTag>("DTDigiTagSig");
-    DTdigi_collectionSig_   = ps.getParameter<edm::InputTag>("DTdigiCollectionSig");
-    RPCDigiTagSig_          = ps.getParameter<edm::InputTag>("RPCDigiTagSig");
-    RPCdigi_collectionSig_  = ps.getParameter<edm::InputTag>("RPCdigiCollectionSig");
+    DTDigiTag_           = ps.getParameter<edm::InputTag>("DTDigiTag");
+    DTdigi_collection_   = ps.getParameter<edm::InputTag>("DTdigiCollection");
+    RPCDigiTag_          = ps.getParameter<edm::InputTag>("RPCDigiTag");
+    RPCdigi_collection_  = ps.getParameter<edm::InputTag>("RPCdigiCollection");
 
-    CSCDigiTagSig_                = ps.getParameter<edm::InputTag>("CSCDigiTagSig");
-    CSCstripdigi_collectionSig_   = ps.getParameter<edm::InputTag>("CSCstripdigiCollectionSig");
-    CSCwiredigi_collectionSig_    = ps.getParameter<edm::InputTag>("CSCwiredigiCollectionSig");
-
-    DTDigiTagPile_           = ps.getParameter<edm::InputTag>("DTDigiTagPile");
-    DTdigi_collectionPile_   = ps.getParameter<edm::InputTag>("DTdigiCollectionPile");
-    RPCDigiTagPile_          = ps.getParameter<edm::InputTag>("RPCDigiTagPile");
-    RPCdigi_collectionPile_  = ps.getParameter<edm::InputTag>("RPCdigiCollectionPile");
-
-    CSCDigiTagPile_                = ps.getParameter<edm::InputTag>("CSCDigiTagPile");
-    CSCstripdigi_collectionPile_   = ps.getParameter<edm::InputTag>("CSCstripdigiCollectionPile");
-    CSCwiredigi_collectionPile_    = ps.getParameter<edm::InputTag>("CSCwiredigiCollectionPile");
+    CSCDigiTag_                = ps.getParameter<edm::InputTag>("CSCDigiTag");
+    CSCstripdigi_collection_   = ps.getParameter<edm::InputTag>("CSCstripdigiCollection");
+    CSCwiredigi_collection_    = ps.getParameter<edm::InputTag>("CSCwiredigiCollection");
 
 
     DTDigiCollectionDM_  = ps.getParameter<std::string>("DTDigiCollectionDM");
@@ -91,7 +82,7 @@ namespace edm
     Handle<DTDigiCollection> pDTdigis; 
 
     // Get the digis from the event
-    if( e.getByLabel(DTDigiTagSig_.label(), pDTdigis) ) {
+    if( e.getByLabel(DTDigiTag_.label(), pDTdigis) ) {
 
     //    LogInfo("DataMixingMuonWorker") << "total # DT Digis: " << DTdigis->size();
 
@@ -116,7 +107,7 @@ namespace edm
     // Get the digis from the event
     Handle<RPCDigiCollection> pRPCdigis; 
 
-    if( e.getByLabel(RPCDigiTagSig_.label(), pRPCdigis) ) {
+    if( e.getByLabel(RPCDigiTag_.label(), pRPCdigis) ) {
 
     // Loop over digis, copying them to our own local storage
 
@@ -141,7 +132,7 @@ namespace edm
     // Get the digis from the event
     Handle<CSCStripDigiCollection> pCSCStripdigis; 
 
-    if( e.getByLabel(CSCDigiTagSig_.label(),CSCstripdigi_collectionSig_.label(), pCSCStripdigis) ) {
+    if( e.getByLabel(CSCDigiTag_.label(),CSCstripdigi_collection_.label(), pCSCStripdigis) ) {
 
     //if(pCSCStripdigis.isValid() ) { cout << "Signal: have CSCStripDigis" << endl;}
     //else { cout << "Signal: NO CSCStripDigis" << endl;}
@@ -169,7 +160,7 @@ namespace edm
     // Get the digis from the event
     Handle<CSCWireDigiCollection> pCSCWiredigis; 
 
-    if( e.getByLabel(CSCDigiTagSig_.label(),CSCwiredigi_collectionSig_.label(), pCSCWiredigis) ) {
+    if( e.getByLabel(CSCDigiTag_.label(),CSCwiredigi_collection_.label(), pCSCWiredigis) ) {
    
 
     //if(pCSCWiredigis.isValid() ) { cout << "Signal: have CSCWireDigis" << endl;}
@@ -206,7 +197,7 @@ namespace edm
     Handle<DTDigiCollection> pDTdigis;
 
     // Get the digis from the event
-    if( e->getByLabel(DTDigiTagPile_.label(), pDTdigis) ) {
+    if( e->getByLabel(DTDigiTag_.label(), pDTdigis) ) {
 
     //if(pDTdigis.isValid() ) { cout << "Overlay: have DTDigis" << endl;}
     //else { cout << "Overlay: no DTDigis" << endl;}
@@ -232,7 +223,7 @@ namespace edm
     // Get the digis from the event
     Handle<RPCDigiCollection> pRPCdigis;
 
-    if( e->getByLabel(RPCDigiTagPile_.label(), pRPCdigis) ) {
+    if( e->getByLabel(RPCDigiTag_.label(), pRPCdigis) ) {
 
     //if(pRPCdigis.isValid() ) { cout << "Overlay: have RPDCigis" << endl;}
     //else { cout << "Overlay: no RPDCigis" << endl;}
@@ -258,7 +249,7 @@ namespace edm
     // Get the digis from the event
     Handle<CSCStripDigiCollection> pCSCStripdigis;
 
-    if( e->getByLabel(CSCDigiTagPile_.label(),CSCstripdigi_collectionPile_.label(), pCSCStripdigis) ) {
+    if( e->getByLabel(CSCDigiTag_.label(),CSCstripdigi_collection_.label(), pCSCStripdigis) ) {
 
     //if(pCSCStripdigis.isValid() ) { cout << "Overlay: have CSCStripDigis" << endl;}
     //else {cout << "Overlay: no CSCStripDigis" << endl;}
@@ -284,7 +275,7 @@ namespace edm
     // Get the digis from the event
     Handle<CSCWireDigiCollection> pCSCWiredigis;
 
-    if( e->getByLabel(CSCDigiTagPile_.label(),CSCwiredigi_collectionPile_.label(), pCSCWiredigis) ) {
+    if( e->getByLabel(CSCDigiTag_.label(),CSCwiredigi_collection_.label(), pCSCWiredigis) ) {
 
     // Loop over digis, copying them to our own local storage
 

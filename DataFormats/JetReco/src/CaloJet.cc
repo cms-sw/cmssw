@@ -33,42 +33,36 @@ CaloJet::CaloJet (const LorentzVector& fP4,
 
 
 /// Physics Eta (use reference Z and jet kinematics only)
-//float CaloJet::physicsEtaQuick (float fZVertex) const {
-//  return Jet::physicsEta (fZVertex, eta());
-//}
-
-/// Physics Eta (loop over constituents)
-//float CaloJet::physicsEtaDetailed (float fZVertex) const {
-//  Jet::LorentzVector correctedMomentum;
-//  std::vector<const Candidate*> towers = getJetConstituentsQuick ();
-//  for (unsigned i = 0; i < towers.size(); ++i) {
-//    const Candidate* c = towers[i];
-//    double etaRef = Jet::physicsEta (fZVertex, c->eta());
-//    math::PtEtaPhiMLorentzVectorD p4 (c->p()/cosh(etaRef), etaRef, c->phi(), c->mass());
-//    correctedMomentum += p4;
-//  }
-//  return correctedMomentum.eta();
-//}
-
-/// Physics p4 (use jet Z and kinematics only)
-//deprecated, with 3d vertex correction not clear anymore!
-//CaloJet::LorentzVector CaloJet::physicsP4 (float fZVertex) const {
-//  double physicsEta = Jet::physicsEta (fZVertex, eta());
-//  math::PtEtaPhiMLorentzVectorD p4 (p()/cosh(physicsEta), physicsEta, phi(), mass());
-//  return CaloJet::LorentzVector (p4);
-//}
-
-CaloJet::LorentzVector CaloJet::physicsP4 (const Particle::Point &vertex) const {
-  return Jet::physicsP4(vertex,*this,this->vertex());
+float CaloJet::physicsEtaQuick (float fZVertex) const {
+  return Jet::physicsEta (fZVertex, eta());
 }
 
-CaloJet::LorentzVector CaloJet::detectorP4 () const {
-  return Jet::detectorP4(this->vertex(),*this);
+/// Physics Eta (loop over constituents)
+float CaloJet::physicsEtaDetailed (float fZVertex) const {
+  Jet::LorentzVector correctedMomentum;
+  std::vector<const Candidate*> towers = getJetConstituentsQuick ();
+  for (unsigned i = 0; i < towers.size(); ++i) {
+    const Candidate* c = towers[i];
+    double etaRef = Jet::physicsEta (fZVertex, c->eta());
+    math::PtEtaPhiMLorentzVectorD p4 (c->p()/cosh(etaRef), etaRef, c->phi(), c->mass());
+    correctedMomentum += p4;
+  }
+  return correctedMomentum.eta();
+}
+
+  /// Physics p4 (use jet Z and kinematics only)
+CaloJet::LorentzVector CaloJet::physicsP4 (float fZVertex) const {
+  double physicsEta = Jet::physicsEta (fZVertex, eta());
+  math::PtEtaPhiMLorentzVectorD p4 (p()/cosh(physicsEta), physicsEta, phi(), mass());
+  return CaloJet::LorentzVector (p4);
 }
 
 
 CaloTowerPtr CaloJet::getCaloConstituent (unsigned fIndex) const {
    Constituent dau = daughterPtr (fIndex);
+
+   if ( dau.isNonnull() && dau.isAvailable() ) {
+
    const CaloTower* towerCandidate = dynamic_cast <const CaloTower*> (dau.get());
 
     if (towerCandidate) {
@@ -79,6 +73,12 @@ CaloTowerPtr CaloJet::getCaloConstituent (unsigned fIndex) const {
     else {
       throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of CaloTowere type";
     }
+
+   }
+
+   else {
+     return CaloTowerPtr();
+   }
 }
 
 

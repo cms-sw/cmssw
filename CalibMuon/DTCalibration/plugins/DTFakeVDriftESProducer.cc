@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/19 15:56:25 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/01/18 17:48:39 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -48,7 +48,7 @@ DTMtime* DTFakeVDriftESProducer::produce(const DTMtimeRcd& iRecord){
 	for(int superlayer=1; superlayer<4; superlayer++){
 	  if(superlayer==2 && station==4) continue;
 	  DTSuperLayerId slId(DTChamberId(wheel, station, sector),superlayer);
-	  mTimerMap->set(slId, vDrift, reso, DTVelocityUnits::cm_per_ns);
+	  mTimerMap->set(slId, vDrift, reso, DTTimeUnits::ns);
 	}
       }
     }
@@ -58,7 +58,7 @@ DTMtime* DTFakeVDriftESProducer::produce(const DTMtimeRcd& iRecord){
      for(int superlayer=1; superlayer<4; superlayer++){
        if(superlayer==2) continue;
        DTSuperLayerId slId(DTChamberId(wheel, 4, 13),superlayer);
-	 mTimerMap->set(slId, vDrift, reso, DTVelocityUnits::cm_per_ns);
+	 mTimerMap->set(slId, vDrift, reso, DTTimeUnits::ns);
      }  
    }
 
@@ -66,7 +66,7 @@ DTMtime* DTFakeVDriftESProducer::produce(const DTMtimeRcd& iRecord){
      for(int superlayer=1; superlayer<4; superlayer++){
        if(superlayer==2) continue;
        DTSuperLayerId slId(DTChamberId(wheel, 4, 14),superlayer);
-	 mTimerMap->set(slId, vDrift, reso, DTVelocityUnits::cm_per_ns);
+	 mTimerMap->set(slId, vDrift, reso, DTTimeUnits::ns);
      }  
    }
    

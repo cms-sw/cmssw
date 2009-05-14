@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjForHLTReader.h,v 1.2 2008/03/25 22:11:55 fblekman Exp $
+// $Id: SiPixelCondObjForHLTReader.h,v 1.1 2008/02/06 16:08:22 friis Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -44,7 +44,6 @@ public:
 
   ~SiPixelCondObjForHLTReader(){};
   virtual void beginJob( const edm::EventSetup& );
-  virtual void beginRun( const edm::Run&, const edm::EventSetup& );
   virtual void analyze(const edm::Event& , const edm::EventSetup& );
   virtual void endJob() ;
 

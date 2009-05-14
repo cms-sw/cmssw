@@ -4,8 +4,8 @@
 /** \class KFTrajectoryFitter
  *  A Standard Kalman fit. Ported from ORCA
  *
- *  $Date: 2007/10/08 22:22:50 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/05/09 14:17:57 $
+ *  $Revision: 1.6 $
  *  \author todorov, cerati
  */
 
@@ -63,7 +63,7 @@ public:
   
   virtual KFTrajectoryFitter* clone() const
   {
-    return new KFTrajectoryFitter(thePropagator,theUpdator,theEstimator,minHits_);
+    return new KFTrajectoryFitter(thePropagator,theUpdator,theEstimator);
   }
   
 private:

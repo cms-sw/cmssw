@@ -17,7 +17,13 @@ cscSkim = cms.EDFilter(
     whichEndcap = cms.untracked.int32(2),
     whichStation = cms.untracked.int32(3),
     whichRing = cms.untracked.int32(2),
-    whichChamber = cms.untracked.int32(24)
+    whichChamber = cms.untracked.int32(24),
+#
+    cscRecHitTag  = cms.InputTag("csc2DRecHits"),
+    cscSegmentTag = cms.InputTag("cscSegments"),
+    SAMuonTag     = cms.InputTag("cosmicMuonsEndCapsOnly"),
+    GLBMuonTag    = cms.InputTag("muonsEndCapsOnly"),
+    trackTag      = cms.InputTag("ctfWithMaterialTracksP5")
 )
 
 #

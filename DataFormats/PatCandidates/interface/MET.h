@@ -1,5 +1,5 @@
 //
-// $Id: MET.h,v 1.16 2008/10/08 11:44:31 fronga Exp $
+// $Id: MET.h,v 1.17 2008/10/08 18:26:16 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_MET_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Slava Krutelyov
-  \version  $Id: MET.h,v 1.16 2008/10/08 11:44:31 fronga Exp $
+  \version  $Id: MET.h,v 1.17 2008/10/08 18:26:16 lowette Exp $
 */
 
 
@@ -71,11 +71,14 @@ namespace pat {
       //! present ordering: 
       //! 1: jet escale Type1 correction
       //! 2: muon Type1 (?) correction
+      //! 3: tau Type1 (?) correction
       unsigned int nCorrections() const;
       enum UncorrectionType {
+	uncorrNONE = -1, //! do nothing
 	uncorrALL = 0, //! uncorrect to bare bones
 	uncorrJES,     //! uncorrect for JES only
 	uncorrMUON,    //! uncorrect for MUON only
+	uncorrTAU,    //! uncorrect for TAU only
 	uncorrMAXN
       };
       float corEx(UncorrectionType ix = uncorrALL) const;

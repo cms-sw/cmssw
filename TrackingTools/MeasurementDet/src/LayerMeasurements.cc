@@ -52,7 +52,6 @@ LayerMeasurements::groupedMeasurements( const DetLayer& layer,
   vector<TrajectoryMeasurementGroup> result;
 
   vector<DetGroup> groups( layer.groupedCompatibleDets( startingState, prop, est));
-  result.reserve(groups.size());
   for (vector<DetGroup>::const_iterator grp=groups.begin(); grp!=groups.end(); grp++) {
     if ( grp->empty() )  continue;
 
@@ -75,7 +74,6 @@ LayerMeasurements::groupedMeasurements( const DetLayer& layer,
     }
 
     vector<TrajectoryMeasurement> tmpVec2;
-    tmpVec2.reserve(tmpVec.size());
     for(vector<TrajectoryMeasurement>::const_iterator tmpIt=tmpVec.begin();tmpIt!=tmpVec.end();tmpIt++){
       tmpVec2.push_back(  TrajectoryMeasurement(tmpIt->predictedState(),tmpIt->recHit(),tmpIt->estimate(),&layer)  );
     }

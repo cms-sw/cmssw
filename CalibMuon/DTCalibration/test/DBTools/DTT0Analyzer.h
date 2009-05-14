@@ -4,8 +4,8 @@
 /** \class DTT0Analyzer
  *  Plot the t0 from the DB
  *
- *  $Date: 2007/03/28 17:19:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/19 16:04:21 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -33,8 +33,8 @@ public:
   virtual ~DTT0Analyzer();
 
   /// Operations
-  //Read the DTGeometry and the t0 DB
-  virtual void beginRun(const edm::Run&, const edm::EventSetup& setup);
+  //Read the DTGeometry and teh t0 DB
+  void beginJob(const edm::EventSetup& setup);
   void analyze(const edm::Event& event, const edm::EventSetup& setup) {}
   //Do the real work
   void endJob();

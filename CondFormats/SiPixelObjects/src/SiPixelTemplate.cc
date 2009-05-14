@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.cc  Version 4.00 
+//  SiPixelTemplate.cc  Version 5.00 
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -22,6 +22,11 @@
 //  Store error and bias information for the simple chi^2 min position analysis (no interpolation or Q_{FB} corrections) to use in cluster splitting
 //  To save time, the gaussian centers and sigma are not interpolated right now (they aren't currently used).  They can be restored by un-commenting lines in the interpolate method.
 //  Add a new method to calculate qbin for input cotbeta and cluster charge.  To be used for error estimation of merged clusters in PixelCPEGeneric.
+//  Add bias info for Barrel and FPix separately in the header
+//  Improve the charge estimation for larger cot(alpha) tracks
+//  Change interpolate method to return false boolean if track angles are outside of range
+//  Add template info and method for truncation information
+//  Change to allow template sizes to be changed at compile time
 //
 //  Created by Morris Swartz on 10/27/06.
 //  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -66,11 +71,11 @@ bool SiPixelTemplate::pushfile(int filenum)
     // Add template stored in external file numbered filenum to theTemplateStore
     
     // Local variables 
-    int i, j, k;
+    int i, j, k, l;
 	const char *tempfile;
 	char title[80];
     char c;
-	const int code_version={9};
+	const int code_version={11};
 	
 
 
@@ -80,8 +85,7 @@ bool SiPixelTemplate::pushfile(int filenum)
 	//tout << "template_summary_zp" << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
 	//std::string tempf = tout.str();
 	//tempfile = tempf.c_str();
-
-
+	
  std::ostringstream tout;
  tout << "RecoLocalTracker/SiPixelRecHits/data/template_summary_zp" 
       << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
@@ -92,7 +96,7 @@ bool SiPixelTemplate::pushfile(int filenum)
  tempfile = (file.fullPath()).c_str();
  // std::cout << "tempfile = " << tempfile << std::endl;
 
-	
+
 //  open the template file 
 
  std::ifstream in_file(tempfile, std::ios::in);
@@ -115,15 +119,15 @@ bool SiPixelTemplate::pushfile(int filenum)
 // next, the header information     
     
     in_file >> theCurrentTemp.head.ID >> theCurrentTemp.head.NBy >> theCurrentTemp.head.NByx >> theCurrentTemp.head.NBxx
-	        >> theCurrentTemp.head.NFy >> theCurrentTemp.head.NFyx >> theCurrentTemp.head.NFxx >> theCurrentTemp.head.vbias 
-			>> theCurrentTemp.head.temperature >> theCurrentTemp.head.fluence >> theCurrentTemp.head.qscale
+	        >> theCurrentTemp.head.NFy >> theCurrentTemp.head.NFyx >> theCurrentTemp.head.NFxx >> theCurrentTemp.head.Bbias 
+			 >> theCurrentTemp.head.Fbias >> theCurrentTemp.head.temperature >> theCurrentTemp.head.fluence >> theCurrentTemp.head.qscale
 			>> theCurrentTemp.head.s50 >> theCurrentTemp.head.templ_version;
 			
 	if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
 	
     LOGINFO("SiPixelTemplate") << "Template ID = " << theCurrentTemp.head.ID << ", NBy = " << theCurrentTemp.head.NBy << ", NByx = " << theCurrentTemp.head.NByx 
 		 << ", NBxx = " << theCurrentTemp.head.NBxx << ", NFy = " << theCurrentTemp.head.NFy << ", NFyx = " << theCurrentTemp.head.NFyx
-		 << ", NFxx = " << theCurrentTemp.head.NFxx << ", bias voltage " << theCurrentTemp.head.vbias << ", temperature "
+		 << ", NFxx = " << theCurrentTemp.head.NFxx << ", Barrel bias voltage " << theCurrentTemp.head.Bbias << ", FPix bias voltage " << theCurrentTemp.head.Fbias << ", temperature "
 		 << theCurrentTemp.head.temperature << ", fluence " << theCurrentTemp.head.fluence << ", Q-scaling factor " << theCurrentTemp.head.qscale
 		 << ", 1/2 threshold " << theCurrentTemp.head.s50 << ", Template Version " << theCurrentTemp.head.templ_version << ENDL;    
 			
@@ -136,7 +140,7 @@ bool SiPixelTemplate::pushfile(int filenum)
        in_file >> theCurrentTemp.entby[i].runnum >> theCurrentTemp.entby[i].costrk[0] 
 	           >> theCurrentTemp.entby[i].costrk[1] >> theCurrentTemp.entby[i].costrk[2]; 
 			
-	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 1, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
 			  
 // Calculate the alpha, beta, and cot(beta) for this entry 
 
@@ -148,36 +152,30 @@ bool SiPixelTemplate::pushfile(int filenum)
 	   
 	   theCurrentTemp.entby[i].cotbeta = theCurrentTemp.entby[i].costrk[1]/theCurrentTemp.entby[i].costrk[2];
     
-       in_file >> theCurrentTemp.entby[i].qavg >> theCurrentTemp.entby[i].symax >> theCurrentTemp.entby[i].dyone
+       in_file >> theCurrentTemp.entby[i].qavg >> theCurrentTemp.entby[i].pixmax >> theCurrentTemp.entby[i].symax >> theCurrentTemp.entby[i].dyone
 	           >> theCurrentTemp.entby[i].syone >> theCurrentTemp.entby[i].sxmax >> theCurrentTemp.entby[i].dxone >> theCurrentTemp.entby[i].sxone;
 			
-       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 2, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
     
        in_file >> theCurrentTemp.entby[i].dytwo >> theCurrentTemp.entby[i].sytwo >> theCurrentTemp.entby[i].dxtwo 
 	           >> theCurrentTemp.entby[i].sxtwo >> theCurrentTemp.entby[i].qmin >> theCurrentTemp.entby[i].clsleny >> theCurrentTemp.entby[i].clslenx;
 			
-       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 3, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
 			  
 	   for (j=0; j<2; ++j) {
     
           in_file >> theCurrentTemp.entby[i].ypar[j][0] >> theCurrentTemp.entby[i].ypar[j][1] 
 	              >> theCurrentTemp.entby[i].ypar[j][2] >> theCurrentTemp.entby[i].ypar[j][3] >> theCurrentTemp.entby[i].ypar[j][4];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 4, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
 			  
 	   }
 			  
 	   for (j=0; j<9; ++j) {
     
-          in_file >> theCurrentTemp.entby[i].ytemp[j][0] >> theCurrentTemp.entby[i].ytemp[j][1] >> theCurrentTemp.entby[i].ytemp[j][2]
-	              >> theCurrentTemp.entby[i].ytemp[j][3] >> theCurrentTemp.entby[i].ytemp[j][4] >> theCurrentTemp.entby[i].ytemp[j][5]
-	              >> theCurrentTemp.entby[i].ytemp[j][6] >> theCurrentTemp.entby[i].ytemp[j][7] >> theCurrentTemp.entby[i].ytemp[j][8]
-	              >> theCurrentTemp.entby[i].ytemp[j][9] >> theCurrentTemp.entby[i].ytemp[j][10] >> theCurrentTemp.entby[i].ytemp[j][11]
-	              >> theCurrentTemp.entby[i].ytemp[j][12] >> theCurrentTemp.entby[i].ytemp[j][13] >> theCurrentTemp.entby[i].ytemp[j][14]
-	              >> theCurrentTemp.entby[i].ytemp[j][15] >> theCurrentTemp.entby[i].ytemp[j][16] >> theCurrentTemp.entby[i].ytemp[j][17]
-	              >> theCurrentTemp.entby[i].ytemp[j][18] >> theCurrentTemp.entby[i].ytemp[j][19] >> theCurrentTemp.entby[i].ytemp[j][20];
+          for (k=0; k<TYSIZE; ++k) {in_file >> theCurrentTemp.entby[i].ytemp[j][k];}
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 5, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
 	   }
    			  
 	   for (j=0; j<2; ++j) {
@@ -185,24 +183,22 @@ bool SiPixelTemplate::pushfile(int filenum)
 		  in_file >> theCurrentTemp.entby[i].xpar[j][0] >> theCurrentTemp.entby[i].xpar[j][1] 
 	              >> theCurrentTemp.entby[i].xpar[j][2] >> theCurrentTemp.entby[i].xpar[j][3] >> theCurrentTemp.entby[i].xpar[j][4];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 6, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
 			  
 	   }
 			  
 	   for (j=0; j<9; ++j) {
     
-          in_file >> theCurrentTemp.entby[i].xtemp[j][0] >> theCurrentTemp.entby[i].xtemp[j][1] >> theCurrentTemp.entby[i].xtemp[j][2]
-	              >> theCurrentTemp.entby[i].xtemp[j][3] >> theCurrentTemp.entby[i].xtemp[j][4] >> theCurrentTemp.entby[i].xtemp[j][5]
-	              >> theCurrentTemp.entby[i].xtemp[j][6];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+	      for (k=0; k<TXSIZE; ++k) {in_file >> theCurrentTemp.entby[i].xtemp[j][k];} 
+		  			
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 7, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
 	   }
 	   
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entby[i].yavg[j] >> theCurrentTemp.entby[i].yrms[j] >> theCurrentTemp.entby[i].ygx0[j] >> theCurrentTemp.entby[i].ygsig[j];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 8, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
 	   }
 	   			  
 	   for (j=0; j<4; ++j) {
@@ -210,14 +206,14 @@ bool SiPixelTemplate::pushfile(int filenum)
           in_file >> theCurrentTemp.entby[i].yflpar[j][0] >> theCurrentTemp.entby[i].yflpar[j][1] >> theCurrentTemp.entby[i].yflpar[j][2] 
 				  >> theCurrentTemp.entby[i].yflpar[j][3] >> theCurrentTemp.entby[i].yflpar[j][4] >> theCurrentTemp.entby[i].yflpar[j][5];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 9, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
   	   }
 	   
 	  	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entby[i].xavg[j] >> theCurrentTemp.entby[i].xrms[j] >> theCurrentTemp.entby[i].xgx0[j] >> theCurrentTemp.entby[i].xgsig[j];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 10, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
 	   }
 			  
 	   for (j=0; j<4; ++j) {
@@ -225,39 +221,39 @@ bool SiPixelTemplate::pushfile(int filenum)
           in_file >> theCurrentTemp.entby[i].xflpar[j][0] >> theCurrentTemp.entby[i].xflpar[j][1] >> theCurrentTemp.entby[i].xflpar[j][2] 
 		          >> theCurrentTemp.entby[i].xflpar[j][3] >> theCurrentTemp.entby[i].xflpar[j][4] >> theCurrentTemp.entby[i].xflpar[j][5];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 11, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
 	   }
 			  
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entby[i].chi2yavg[j] >> theCurrentTemp.entby[i].chi2ymin[j] >> theCurrentTemp.entby[i].chi2xavg[j] >> theCurrentTemp.entby[i].chi2xmin[j];
 
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 12, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
 	   }
 	   
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entby[i].yavgc2m[j] >> theCurrentTemp.entby[i].yrmsc2m[j] >> theCurrentTemp.entby[i].ygx0c2m[j] >> theCurrentTemp.entby[i].ygsigc2m[j];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 13, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
 	   }
 	   
 	  	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entby[i].xavgc2m[j] >> theCurrentTemp.entby[i].xrmsc2m[j] >> theCurrentTemp.entby[i].xgx0c2m[j] >> theCurrentTemp.entby[i].xgsigc2m[j];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
-	   }
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 14, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
+	   } 
 	   
 	   in_file >> theCurrentTemp.entby[i].yspare[0] >> theCurrentTemp.entby[i].yspare[1] >> theCurrentTemp.entby[i].yspare[2] >> theCurrentTemp.entby[i].yspare[3] >> theCurrentTemp.entby[i].yspare[4]
 	    >> theCurrentTemp.entby[i].yspare[5] >> theCurrentTemp.entby[i].yspare[6] >> theCurrentTemp.entby[i].yspare[7] >> theCurrentTemp.entby[i].yspare[8] >> theCurrentTemp.entby[i].yspare[9];
 
-	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 15, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
 
 	   in_file >> theCurrentTemp.entby[i].xspare[0] >> theCurrentTemp.entby[i].xspare[1] >> theCurrentTemp.entby[i].xspare[2] >> theCurrentTemp.entby[i].xspare[3] >> theCurrentTemp.entby[i].xspare[4]
 	    >> theCurrentTemp.entby[i].xspare[5] >> theCurrentTemp.entby[i].xspare[6] >> theCurrentTemp.entby[i].xspare[7] >> theCurrentTemp.entby[i].xspare[8] >> theCurrentTemp.entby[i].xspare[9];
 
-	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 16, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
     	   
 	}
 	
@@ -270,7 +266,7 @@ bool SiPixelTemplate::pushfile(int filenum)
        in_file >> theCurrentTemp.entbx[k][i].runnum >> theCurrentTemp.entbx[k][i].costrk[0] 
 	           >> theCurrentTemp.entbx[k][i].costrk[1] >> theCurrentTemp.entbx[k][i].costrk[2]; 
 			
-       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 17, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
 			  
 // Calculate the alpha, beta, and cot(beta) for this entry 
 
@@ -282,35 +278,29 @@ bool SiPixelTemplate::pushfile(int filenum)
 	   
 	   theCurrentTemp.entbx[k][i].cotbeta = theCurrentTemp.entbx[k][i].costrk[1]/theCurrentTemp.entbx[k][i].costrk[2];
     
-       in_file >> theCurrentTemp.entbx[k][i].qavg >> theCurrentTemp.entbx[k][i].symax >> theCurrentTemp.entbx[k][i].dyone
+       in_file >> theCurrentTemp.entbx[k][i].qavg >> theCurrentTemp.entbx[k][i].pixmax >> theCurrentTemp.entbx[k][i].symax >> theCurrentTemp.entbx[k][i].dyone
 	           >> theCurrentTemp.entbx[k][i].syone >> theCurrentTemp.entbx[k][i].sxmax >> theCurrentTemp.entbx[k][i].dxone >> theCurrentTemp.entbx[k][i].sxone;
 			
-       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 18, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
     
        in_file >> theCurrentTemp.entbx[k][i].dytwo >> theCurrentTemp.entbx[k][i].sytwo >> theCurrentTemp.entbx[k][i].dxtwo 
 	           >> theCurrentTemp.entbx[k][i].sxtwo >> theCurrentTemp.entbx[k][i].qmin >> theCurrentTemp.entbx[k][i].clsleny >> theCurrentTemp.entbx[k][i].clslenx;
 			
-       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 19, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
 			  
 	   for (j=0; j<2; ++j) {
     
           in_file >> theCurrentTemp.entbx[k][i].ypar[j][0] >> theCurrentTemp.entbx[k][i].ypar[j][1] 
 	              >> theCurrentTemp.entbx[k][i].ypar[j][2] >> theCurrentTemp.entbx[k][i].ypar[j][3] >> theCurrentTemp.entbx[k][i].ypar[j][4];
 			  			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 20, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
 	   }
 			  
 	   for (j=0; j<9; ++j) {
     
-          in_file >> theCurrentTemp.entbx[k][i].ytemp[j][0] >> theCurrentTemp.entbx[k][i].ytemp[j][1] >> theCurrentTemp.entbx[k][i].ytemp[j][2]
-	              >> theCurrentTemp.entbx[k][i].ytemp[j][3] >> theCurrentTemp.entbx[k][i].ytemp[j][4] >> theCurrentTemp.entbx[k][i].ytemp[j][5]
-	              >> theCurrentTemp.entbx[k][i].ytemp[j][6] >> theCurrentTemp.entbx[k][i].ytemp[j][7] >> theCurrentTemp.entbx[k][i].ytemp[j][8]
-	              >> theCurrentTemp.entbx[k][i].ytemp[j][9] >> theCurrentTemp.entbx[k][i].ytemp[j][10] >> theCurrentTemp.entbx[k][i].ytemp[j][11]
-	              >> theCurrentTemp.entbx[k][i].ytemp[j][12] >> theCurrentTemp.entbx[k][i].ytemp[j][13] >> theCurrentTemp.entbx[k][i].ytemp[j][14]
-	              >> theCurrentTemp.entbx[k][i].ytemp[j][15] >> theCurrentTemp.entbx[k][i].ytemp[j][16] >> theCurrentTemp.entbx[k][i].ytemp[j][17]
-	              >> theCurrentTemp.entbx[k][i].ytemp[j][18] >> theCurrentTemp.entbx[k][i].ytemp[j][19] >> theCurrentTemp.entbx[k][i].ytemp[j][20];
-			
-		  if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+	      for (l=0; l<TYSIZE; ++l) {in_file >> theCurrentTemp.entbx[k][i].ytemp[j][l];} 
+		  			
+		  if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 21, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
 	   }
    			  
 	   for (j=0; j<2; ++j) {
@@ -319,23 +309,21 @@ bool SiPixelTemplate::pushfile(int filenum)
 	              >> theCurrentTemp.entbx[k][i].xpar[j][2] >> theCurrentTemp.entbx[k][i].xpar[j][3] >> theCurrentTemp.entbx[k][i].xpar[j][4];
 			  
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 22, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
 	   }
 			  
 	   for (j=0; j<9; ++j) {
     
-          in_file >> theCurrentTemp.entbx[k][i].xtemp[j][0] >> theCurrentTemp.entbx[k][i].xtemp[j][1] >> theCurrentTemp.entbx[k][i].xtemp[j][2]
-	              >> theCurrentTemp.entbx[k][i].xtemp[j][3] >> theCurrentTemp.entbx[k][i].xtemp[j][4] >> theCurrentTemp.entbx[k][i].xtemp[j][5]
-	              >> theCurrentTemp.entbx[k][i].xtemp[j][6];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          for (l=0; l<TXSIZE; ++l) {in_file >> theCurrentTemp.entbx[k][i].xtemp[j][l];} 
+		    			
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 23, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
 	   }
 	   
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entbx[k][i].yavg[j] >> theCurrentTemp.entbx[k][i].yrms[j] >> theCurrentTemp.entbx[k][i].ygx0[j] >> theCurrentTemp.entbx[k][i].ygsig[j];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 24, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
 	   }
 	   			  
 	   for (j=0; j<4; ++j) {
@@ -343,14 +331,14 @@ bool SiPixelTemplate::pushfile(int filenum)
           in_file >> theCurrentTemp.entbx[k][i].yflpar[j][0] >> theCurrentTemp.entbx[k][i].yflpar[j][1] >> theCurrentTemp.entbx[k][i].yflpar[j][2] 
 				  >> theCurrentTemp.entbx[k][i].yflpar[j][3] >> theCurrentTemp.entbx[k][i].yflpar[j][4] >> theCurrentTemp.entbx[k][i].yflpar[j][5];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 25, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
 	   }
 	   			  
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entbx[k][i].xavg[j] >> theCurrentTemp.entbx[k][i].xrms[j] >> theCurrentTemp.entbx[k][i].xgx0[j] >> theCurrentTemp.entbx[k][i].xgsig[j];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 26, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
 	   }
 			  
 	   for (j=0; j<4; ++j) {
@@ -358,39 +346,39 @@ bool SiPixelTemplate::pushfile(int filenum)
           in_file >> theCurrentTemp.entbx[k][i].xflpar[j][0] >> theCurrentTemp.entbx[k][i].xflpar[j][1] >> theCurrentTemp.entbx[k][i].xflpar[j][2] 
 		          >> theCurrentTemp.entbx[k][i].xflpar[j][3] >> theCurrentTemp.entbx[k][i].xflpar[j][4] >> theCurrentTemp.entbx[k][i].xflpar[j][5];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 27, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
 	   }
 			  
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entbx[k][i].chi2yavg[j] >> theCurrentTemp.entbx[k][i].chi2ymin[j] >> theCurrentTemp.entbx[k][i].chi2xavg[j] >> theCurrentTemp.entbx[k][i].chi2xmin[j];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 28, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
 	   }
 	   
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entbx[k][i].yavgc2m[j] >> theCurrentTemp.entbx[k][i].yrmsc2m[j] >> theCurrentTemp.entbx[k][i].ygx0c2m[j] >> theCurrentTemp.entbx[k][i].ygsigc2m[j];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 29, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
 	   }
 	   
 	  	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entbx[k][i].xavgc2m[j] >> theCurrentTemp.entbx[k][i].xrmsc2m[j] >> theCurrentTemp.entbx[k][i].xgx0c2m[j] >> theCurrentTemp.entbx[k][i].xgsigc2m[j];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 30, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
 	   }
 	   
 	   in_file >> theCurrentTemp.entbx[k][i].yspare[0] >> theCurrentTemp.entbx[k][i].yspare[1] >> theCurrentTemp.entbx[k][i].yspare[2] >> theCurrentTemp.entbx[k][i].yspare[3] >> theCurrentTemp.entbx[k][i].yspare[4]
 	    >> theCurrentTemp.entbx[k][i].yspare[5] >> theCurrentTemp.entbx[k][i].yspare[6] >> theCurrentTemp.entbx[k][i].yspare[7] >> theCurrentTemp.entbx[k][i].yspare[8] >> theCurrentTemp.entbx[k][i].yspare[9];
 			
-	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 31, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
 
 	   in_file >> theCurrentTemp.entbx[k][i].xspare[0] >> theCurrentTemp.entbx[k][i].xspare[1] >> theCurrentTemp.entbx[k][i].xspare[2] >> theCurrentTemp.entbx[k][i].xspare[3] >> theCurrentTemp.entbx[k][i].xspare[4]
 	    >> theCurrentTemp.entbx[k][i].xspare[5] >> theCurrentTemp.entbx[k][i].xspare[6] >> theCurrentTemp.entbx[k][i].xspare[7] >> theCurrentTemp.entbx[k][i].xspare[8] >> theCurrentTemp.entbx[k][i].xspare[9];
 			
-	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 32, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
     	   
 	}
   }	
@@ -402,7 +390,7 @@ bool SiPixelTemplate::pushfile(int filenum)
        in_file >> theCurrentTemp.entfy[i].runnum >> theCurrentTemp.entfy[i].costrk[0] 
 	           >> theCurrentTemp.entfy[i].costrk[1] >> theCurrentTemp.entfy[i].costrk[2]; 
 			
-       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 33, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
 			  
 // Calculate the alpha, beta, and cot(beta) for this entry 
 
@@ -414,36 +402,30 @@ bool SiPixelTemplate::pushfile(int filenum)
 	   
 	   theCurrentTemp.entfy[i].cotbeta = theCurrentTemp.entfy[i].costrk[1]/theCurrentTemp.entfy[i].costrk[2];
     
-       in_file >> theCurrentTemp.entfy[i].qavg >> theCurrentTemp.entfy[i].symax >> theCurrentTemp.entfy[i].dyone
+       in_file >> theCurrentTemp.entfy[i].qavg >> theCurrentTemp.entfy[i].pixmax >> theCurrentTemp.entfy[i].symax >> theCurrentTemp.entfy[i].dyone
 	           >> theCurrentTemp.entfy[i].syone >> theCurrentTemp.entfy[i].sxmax >> theCurrentTemp.entfy[i].dxone >> theCurrentTemp.entfy[i].sxone;
     			
-       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 34, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
 	   
        in_file >> theCurrentTemp.entfy[i].dytwo >> theCurrentTemp.entfy[i].sytwo >> theCurrentTemp.entfy[i].dxtwo 
 	           >> theCurrentTemp.entfy[i].sxtwo >> theCurrentTemp.entfy[i].qmin >> theCurrentTemp.entfy[i].clsleny >> theCurrentTemp.entfy[i].clslenx;
 			
-       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 35, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
 			  
 	   for (j=0; j<2; ++j) {
     
           in_file >> theCurrentTemp.entfy[i].ypar[j][0] >> theCurrentTemp.entfy[i].ypar[j][1] 
 	              >> theCurrentTemp.entfy[i].ypar[j][2] >> theCurrentTemp.entfy[i].ypar[j][3] >> theCurrentTemp.entfy[i].ypar[j][4];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 36, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
 			  
 	   }
 			  
 	   for (j=0; j<9; ++j) {
     
-          in_file >> theCurrentTemp.entfy[i].ytemp[j][0] >> theCurrentTemp.entfy[i].ytemp[j][1] >> theCurrentTemp.entfy[i].ytemp[j][2]
-	              >> theCurrentTemp.entfy[i].ytemp[j][3] >> theCurrentTemp.entfy[i].ytemp[j][4] >> theCurrentTemp.entfy[i].ytemp[j][5]
-	              >> theCurrentTemp.entfy[i].ytemp[j][6] >> theCurrentTemp.entfy[i].ytemp[j][7] >> theCurrentTemp.entfy[i].ytemp[j][8]
-	              >> theCurrentTemp.entfy[i].ytemp[j][9] >> theCurrentTemp.entfy[i].ytemp[j][10] >> theCurrentTemp.entfy[i].ytemp[j][11]
-	              >> theCurrentTemp.entfy[i].ytemp[j][12] >> theCurrentTemp.entfy[i].ytemp[j][13] >> theCurrentTemp.entfy[i].ytemp[j][14]
-	              >> theCurrentTemp.entfy[i].ytemp[j][15] >> theCurrentTemp.entfy[i].ytemp[j][16] >> theCurrentTemp.entfy[i].ytemp[j][17]
-	              >> theCurrentTemp.entfy[i].ytemp[j][18] >> theCurrentTemp.entfy[i].ytemp[j][19] >> theCurrentTemp.entfy[i].ytemp[j][20];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          for (l=0; l<TYSIZE; ++l) {in_file >> theCurrentTemp.entfy[i].ytemp[j][l];} 
+		  			
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 37, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
 	   }
    			  
 	   for (j=0; j<2; ++j) {
@@ -452,23 +434,21 @@ bool SiPixelTemplate::pushfile(int filenum)
 	              >> theCurrentTemp.entfy[i].xpar[j][2] >> theCurrentTemp.entfy[i].xpar[j][3] >> theCurrentTemp.entfy[i].xpar[j][4];
 			  
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 38, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
 	   }
 			  
 	   for (j=0; j<9; ++j) {
     
-          in_file >> theCurrentTemp.entfy[i].xtemp[j][0] >> theCurrentTemp.entfy[i].xtemp[j][1] >> theCurrentTemp.entfy[i].xtemp[j][2]
-	              >> theCurrentTemp.entfy[i].xtemp[j][3] >> theCurrentTemp.entfy[i].xtemp[j][4] >> theCurrentTemp.entfy[i].xtemp[j][5]
-	              >> theCurrentTemp.entfy[i].xtemp[j][6];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          for (l=0; l<TXSIZE; ++l) {in_file >> theCurrentTemp.entfy[i].xtemp[j][l];} 
+		  			
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 39, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
 	   }
 	   
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entfy[i].yavg[j] >> theCurrentTemp.entfy[i].yrms[j] >> theCurrentTemp.entfy[i].ygx0[j] >> theCurrentTemp.entfy[i].ygsig[j];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 40, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
 	   }
 	   			  
 	   for (j=0; j<4; ++j) {
@@ -476,14 +456,14 @@ bool SiPixelTemplate::pushfile(int filenum)
           in_file >> theCurrentTemp.entfy[i].yflpar[j][0] >> theCurrentTemp.entfy[i].yflpar[j][1] >> theCurrentTemp.entfy[i].yflpar[j][2]
 				  >> theCurrentTemp.entfy[i].yflpar[j][3] >> theCurrentTemp.entfy[i].yflpar[j][4] >> theCurrentTemp.entfy[i].yflpar[j][5];
  			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 41, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
 	   }
 	   
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entfy[i].xavg[j] >> theCurrentTemp.entfy[i].xrms[j] >> theCurrentTemp.entfy[i].xgx0[j] >> theCurrentTemp.entfy[i].xgsig[j];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 42, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
 	   }
 			  
 	   for (j=0; j<4; ++j) {
@@ -491,39 +471,39 @@ bool SiPixelTemplate::pushfile(int filenum)
           in_file >> theCurrentTemp.entfy[i].xflpar[j][0] >> theCurrentTemp.entfy[i].xflpar[j][1] >> theCurrentTemp.entfy[i].xflpar[j][2] 
 		          >> theCurrentTemp.entfy[i].xflpar[j][3] >> theCurrentTemp.entfy[i].xflpar[j][4] >> theCurrentTemp.entfy[i].xflpar[j][5];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 43, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
 	   }
 			  
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entfy[i].chi2yavg[j] >> theCurrentTemp.entfy[i].chi2ymin[j] >> theCurrentTemp.entfy[i].chi2xavg[j] >> theCurrentTemp.entfy[i].chi2xmin[j];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 44, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
 	   }
 	   
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entfy[i].yavgc2m[j] >> theCurrentTemp.entfy[i].yrmsc2m[j] >> theCurrentTemp.entfy[i].ygx0c2m[j] >> theCurrentTemp.entfy[i].ygsigc2m[j];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 45, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
 	   }
 	   
 	  	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entfy[i].xavgc2m[j] >> theCurrentTemp.entfy[i].xrmsc2m[j] >> theCurrentTemp.entfy[i].xgx0c2m[j] >> theCurrentTemp.entfy[i].xgsigc2m[j];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 46, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
 	   }
 	   
 	   in_file >> theCurrentTemp.entfy[i].yspare[0] >> theCurrentTemp.entfy[i].yspare[1] >> theCurrentTemp.entfy[i].yspare[2] >> theCurrentTemp.entfy[i].yspare[3] >> theCurrentTemp.entfy[i].yspare[4]
 	    >> theCurrentTemp.entfy[i].yspare[5] >> theCurrentTemp.entfy[i].yspare[6] >> theCurrentTemp.entfy[i].yspare[7] >> theCurrentTemp.entfy[i].yspare[8] >> theCurrentTemp.entfy[i].yspare[9];
 			
-	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 47, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
 
 	   in_file >> theCurrentTemp.entfy[i].xspare[0] >> theCurrentTemp.entfy[i].xspare[1] >> theCurrentTemp.entfy[i].xspare[2] >> theCurrentTemp.entfy[i].xspare[3] >> theCurrentTemp.entfy[i].xspare[4]
 	    >> theCurrentTemp.entfy[i].xspare[5] >> theCurrentTemp.entfy[i].xspare[6] >> theCurrentTemp.entfy[i].xspare[7] >> theCurrentTemp.entfy[i].xspare[8] >> theCurrentTemp.entfy[i].xspare[9];
 			
-	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 48, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
     	   
 	}
 	
@@ -536,8 +516,8 @@ bool SiPixelTemplate::pushfile(int filenum)
        in_file >> theCurrentTemp.entfx[k][i].runnum >> theCurrentTemp.entfx[k][i].costrk[0] 
 	           >> theCurrentTemp.entfx[k][i].costrk[1] >> theCurrentTemp.entfx[k][i].costrk[2]; 
 			
-       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
-			  
+       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 49, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
+			   
 // Calculate the alpha, beta, and cot(beta) for this entry 
 
        theCurrentTemp.entfx[k][i].alpha = static_cast<float>(atan2((double)theCurrentTemp.entfx[k][i].costrk[2], (double)theCurrentTemp.entfx[k][i].costrk[0]));
@@ -548,36 +528,30 @@ bool SiPixelTemplate::pushfile(int filenum)
 	   
 	   theCurrentTemp.entfx[k][i].cotbeta = theCurrentTemp.entfx[k][i].costrk[1]/theCurrentTemp.entfx[k][i].costrk[2];
     
-       in_file >> theCurrentTemp.entfx[k][i].qavg >> theCurrentTemp.entfx[k][i].symax >> theCurrentTemp.entfx[k][i].dyone
+       in_file >> theCurrentTemp.entfx[k][i].qavg >> theCurrentTemp.entfx[k][i].pixmax >> theCurrentTemp.entfx[k][i].symax >> theCurrentTemp.entfx[k][i].dyone
 	           >> theCurrentTemp.entfx[k][i].syone >> theCurrentTemp.entfx[k][i].sxmax >> theCurrentTemp.entfx[k][i].dxone >> theCurrentTemp.entfx[k][i].sxone;
 			
-       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 50, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
     
        in_file >> theCurrentTemp.entfx[k][i].dytwo >> theCurrentTemp.entfx[k][i].sytwo >> theCurrentTemp.entfx[k][i].dxtwo 
 	           >> theCurrentTemp.entfx[k][i].sxtwo >> theCurrentTemp.entfx[k][i].qmin >> theCurrentTemp.entfx[k][i].clsleny >> theCurrentTemp.entfx[k][i].clslenx;
 			
-       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 51, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
 			  
 	   for (j=0; j<2; ++j) {
     
           in_file >> theCurrentTemp.entfx[k][i].ypar[j][0] >> theCurrentTemp.entfx[k][i].ypar[j][1] 
 	              >> theCurrentTemp.entfx[k][i].ypar[j][2] >> theCurrentTemp.entfx[k][i].ypar[j][3] >> theCurrentTemp.entfx[k][i].ypar[j][4];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 52, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
 			  
 	   }
 			  
 	   for (j=0; j<9; ++j) {
     
-          in_file >> theCurrentTemp.entfx[k][i].ytemp[j][0] >> theCurrentTemp.entfx[k][i].ytemp[j][1] >> theCurrentTemp.entfx[k][i].ytemp[j][2]
-	              >> theCurrentTemp.entfx[k][i].ytemp[j][3] >> theCurrentTemp.entfx[k][i].ytemp[j][4] >> theCurrentTemp.entfx[k][i].ytemp[j][5]
-	              >> theCurrentTemp.entfx[k][i].ytemp[j][6] >> theCurrentTemp.entfx[k][i].ytemp[j][7] >> theCurrentTemp.entfx[k][i].ytemp[j][8]
-	              >> theCurrentTemp.entfx[k][i].ytemp[j][9] >> theCurrentTemp.entfx[k][i].ytemp[j][10] >> theCurrentTemp.entfx[k][i].ytemp[j][11]
-	              >> theCurrentTemp.entfx[k][i].ytemp[j][12] >> theCurrentTemp.entfx[k][i].ytemp[j][13] >> theCurrentTemp.entfx[k][i].ytemp[j][14]
-	              >> theCurrentTemp.entfx[k][i].ytemp[j][15] >> theCurrentTemp.entfx[k][i].ytemp[j][16] >> theCurrentTemp.entfx[k][i].ytemp[j][17]
-	              >> theCurrentTemp.entfx[k][i].ytemp[j][18] >> theCurrentTemp.entfx[k][i].ytemp[j][19] >> theCurrentTemp.entfx[k][i].ytemp[j][20];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          for (l=0; l<TYSIZE; ++l) {in_file >> theCurrentTemp.entfx[k][i].ytemp[j][l];} 
+		  			
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 53, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
 	   }
    			  
 	   for (j=0; j<2; ++j) {
@@ -586,23 +560,21 @@ bool SiPixelTemplate::pushfile(int filenum)
 	              >> theCurrentTemp.entfx[k][i].xpar[j][2] >> theCurrentTemp.entfx[k][i].xpar[j][3] >> theCurrentTemp.entfx[k][i].xpar[j][4];
 			  
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 54, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
 	   }
 			  
 	   for (j=0; j<9; ++j) {
     
-          in_file >> theCurrentTemp.entfx[k][i].xtemp[j][0] >> theCurrentTemp.entfx[k][i].xtemp[j][1] >> theCurrentTemp.entfx[k][i].xtemp[j][2]
-	              >> theCurrentTemp.entfx[k][i].xtemp[j][3] >> theCurrentTemp.entfx[k][i].xtemp[j][4] >> theCurrentTemp.entfx[k][i].xtemp[j][5]
-	              >> theCurrentTemp.entfx[k][i].xtemp[j][6];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          for (l=0; l<TXSIZE; ++l) {in_file >> theCurrentTemp.entfx[k][i].xtemp[j][l];} 
+		  			
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 55, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
 	   }
 	   
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entfx[k][i].yavg[j] >> theCurrentTemp.entfx[k][i].yrms[j] >> theCurrentTemp.entfx[k][i].ygx0[j] >> theCurrentTemp.entfx[k][i].ygsig[j];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 56, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
 	   }
 	   			  
 	   for (j=0; j<4; ++j) {
@@ -610,14 +582,14 @@ bool SiPixelTemplate::pushfile(int filenum)
           in_file >> theCurrentTemp.entfx[k][i].yflpar[j][0] >> theCurrentTemp.entfx[k][i].yflpar[j][1] >> theCurrentTemp.entfx[k][i].yflpar[j][2] 
 		          >> theCurrentTemp.entfx[k][i].yflpar[j][3] >> theCurrentTemp.entfx[k][i].yflpar[j][4] >> theCurrentTemp.entfx[k][i].yflpar[j][5];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 57, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
 	   }
 	   
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entfx[k][i].xavg[j] >> theCurrentTemp.entfx[k][i].xrms[j] >> theCurrentTemp.entfx[k][i].xgx0[j] >> theCurrentTemp.entfx[k][i].xgsig[j];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 58, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
 	   }
 			  
 	   for (j=0; j<4; ++j) {
@@ -625,38 +597,38 @@ bool SiPixelTemplate::pushfile(int filenum)
           in_file >> theCurrentTemp.entfx[k][i].xflpar[j][0] >> theCurrentTemp.entfx[k][i].xflpar[j][1] >> theCurrentTemp.entfx[k][i].xflpar[j][2] 
 		          >> theCurrentTemp.entfx[k][i].xflpar[j][3] >> theCurrentTemp.entfx[k][i].xflpar[j][4] >> theCurrentTemp.entfx[k][i].xflpar[j][5];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 59, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
 	   }
 			  
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entfx[k][i].chi2yavg[j] >> theCurrentTemp.entfx[k][i].chi2ymin[j] >> theCurrentTemp.entfx[k][i].chi2xavg[j] >> theCurrentTemp.entfx[k][i].chi2xmin[j];
 
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 60, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
 	   }
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entfx[k][i].yavgc2m[j] >> theCurrentTemp.entfx[k][i].yrmsc2m[j] >> theCurrentTemp.entfx[k][i].ygx0c2m[j] >> theCurrentTemp.entfx[k][i].ygsigc2m[j];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 61, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
 	   }
 	   
 	  	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entfx[k][i].xavgc2m[j] >> theCurrentTemp.entfx[k][i].xrmsc2m[j] >> theCurrentTemp.entfx[k][i].xgx0c2m[j] >> theCurrentTemp.entfx[k][i].xgsigc2m[j];
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 62, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
 	   }
 	   
 	   in_file >> theCurrentTemp.entfx[k][i].yspare[0] >> theCurrentTemp.entfx[k][i].yspare[1] >> theCurrentTemp.entfx[k][i].yspare[2] >> theCurrentTemp.entfx[k][i].yspare[3] >> theCurrentTemp.entfx[k][i].yspare[4]
 	    >> theCurrentTemp.entfx[k][i].yspare[5] >> theCurrentTemp.entfx[k][i].yspare[6] >> theCurrentTemp.entfx[k][i].yspare[7] >> theCurrentTemp.entfx[k][i].yspare[8] >> theCurrentTemp.entfx[k][i].yspare[9];
 
-	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 63, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
 
 	   in_file >> theCurrentTemp.entfx[k][i].xspare[0] >> theCurrentTemp.entfx[k][i].xspare[1] >> theCurrentTemp.entfx[k][i].xspare[2] >> theCurrentTemp.entfx[k][i].xspare[3] >> theCurrentTemp.entfx[k][i].xspare[4]
 	    >> theCurrentTemp.entfx[k][i].xspare[5] >> theCurrentTemp.entfx[k][i].xspare[6] >> theCurrentTemp.entfx[k][i].xspare[7] >> theCurrentTemp.entfx[k][i].xspare[8] >> theCurrentTemp.entfx[k][i].xspare[9];
 
-	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 64, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
     	   
 	}	
   }
@@ -698,14 +670,15 @@ bool SiPixelTemplate::pushfile(int filenum)
 //! \param cotalpha - (input) the cotangent of the alpha track angle (see CMS IN 2004/014)
 //! \param cotbeta - (input) the cotangent of the beta track angle (see CMS IN 2004/014)
 // ************************************************************************************************************ 
-void SiPixelTemplate::interpolate(int id, bool fpix, float cotalpha, float cotbeta)
+bool SiPixelTemplate::interpolate(int id, bool fpix, float cotalpha, float cotbeta)
 {
     // Interpolate for a new set of track angles 
     
     // Local variables 
     int i, j, ind;
 	int ilow, ihigh, iylow, iyhigh, Ny, Nxx, Nyx, imidy, imaxx;
-	float yratio, yxratio, xxratio, sxmax;
+	float yratio, yxratio, xxratio, sxmax, qcorrect, symax;
+	bool success;
 //	std::vector <float> xrms(4), xgsig(4), xrmsc2m(4), xgsigc2m(4);
 	std::vector <float> chi2xavg(4), chi2xmin(4);
 
@@ -734,11 +707,13 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	 
 	 assert(index_id >= 0 && index_id < thePixelTemp.size());
 	 
-//		
-
 // Interpolate the absolute value of cot(beta)     
     
     abs_cotb = fabs((double)cotbeta);
+	
+//	qcorrect corrects the cot(alpha)=0 cluster charge for non-zero cot(alpha)	
+
+    qcorrect=(float)sqrt((double)((1.+cotbeta*cotbeta+cotalpha*cotalpha)/(1.+cotbeta*cotbeta)));
 
 // Copy the charge scaling factor to the private variable     
     
@@ -747,6 +722,10 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 // Copy the pseudopixel signal size to the private variable     
     
     ps50 = thePixelTemp[index_id].head.s50;
+
+// success flags whether or not the track angles are inside the interpolation range
+    
+    success = true;
 	
 // Decide which template (FPix or BPix) to use 
 
@@ -769,18 +748,22 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	
 	       ilow = Ny-2;
 		   yratio = 1.;
+		   success = false;
 		
-	   } else if(abs_cotb >= thePixelTemp[index_id].entfy[0].cotbeta) {
+	   } else {
+	   
+	      if(abs_cotb >= thePixelTemp[index_id].entfy[0].cotbeta) {
 
-          for (i=0; i<Ny-1; ++i) { 
+             for (i=0; i<Ny-1; ++i) { 
     
-             if( thePixelTemp[index_id].entfy[i].cotbeta <= abs_cotb && abs_cotb < thePixelTemp[index_id].entfy[i+1].cotbeta) {
+                if( thePixelTemp[index_id].entfy[i].cotbeta <= abs_cotb && abs_cotb < thePixelTemp[index_id].entfy[i+1].cotbeta) {
 		  
-	            ilow = i;
-		        yratio = (abs_cotb - thePixelTemp[index_id].entfy[i].cotbeta)/(thePixelTemp[index_id].entfy[i+1].cotbeta - thePixelTemp[index_id].entfy[i].cotbeta);
-		        break;			 
-		     }
-	      }
+	               ilow = i;
+		           yratio = (abs_cotb - thePixelTemp[index_id].entfy[i].cotbeta)/(thePixelTemp[index_id].entfy[i+1].cotbeta - thePixelTemp[index_id].entfy[i].cotbeta);
+		           break;			 
+		        }
+	         }
+		  } else { success = false; }
 	   }
 	
 	   ihigh=ilow + 1;
@@ -789,7 +772,9 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 
        pyratio = yratio;
 	   pqavg = (1. - yratio)*thePixelTemp[index_id].entfy[ilow].qavg + yratio*thePixelTemp[index_id].entfy[ihigh].qavg;
-	   psymax = (1. - yratio)*thePixelTemp[index_id].entfy[ilow].symax + yratio*thePixelTemp[index_id].entfy[ihigh].symax;
+	   pqavg *= qcorrect;
+	   symax = (1. - yratio)*thePixelTemp[index_id].entfy[ilow].symax + yratio*thePixelTemp[index_id].entfy[ihigh].symax;
+	   psyparmax = symax;
 	   sxmax = (1. - yratio)*thePixelTemp[index_id].entfy[ilow].sxmax + yratio*thePixelTemp[index_id].entfy[ihigh].sxmax;
 	   pdyone = (1. - yratio)*thePixelTemp[index_id].entfy[ilow].dyone + yratio*thePixelTemp[index_id].entfy[ihigh].dyone;
 	   if(cotbeta < 0.) {pdyone = -pdyone;}
@@ -858,14 +843,14 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	   for(i=0; i<9; ++i) {
           pytemp[i][0] = 0.;
           pytemp[i][1] = 0.;
-	      pytemp[i][23] = 0.;
-	      pytemp[i][24] = 0.;
-	      for(j=0; j<21; ++j) {
+	      pytemp[i][BYM2] = 0.;
+	      pytemp[i][BYM1] = 0.;
+	      for(j=0; j<TYSIZE; ++j) {
 		  
 // Flip the basic y-template when the cotbeta is negative
 
 		     if(cotbeta < 0.) {
-	            pytemp[8-i][22-j]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entfy[ihigh].ytemp[i][j];
+	            pytemp[8-i][BYM3-j]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entfy[ihigh].ytemp[i][j];
 			 } else {
 	            pytemp[i][j+2]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entfy[ihigh].ytemp[i][j];
 			 }
@@ -904,19 +889,22 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	
 	       ilow = Nxx-2;
 		   xxratio = 1.;
+		   success = false;
 		
-	   } else if(cotalpha >= thePixelTemp[index_id].entfx[0][0].cotalpha) {
+	   } else {
+	   
+	      if(cotalpha >= thePixelTemp[index_id].entfx[0][0].cotalpha) {
 
-          for (i=0; i<Nxx-1; ++i) { 
+             for (i=0; i<Nxx-1; ++i) { 
     
-             if( thePixelTemp[index_id].entfx[0][i].cotalpha <= cotalpha && cotalpha < thePixelTemp[index_id].entfx[0][i+1].cotalpha) {
+                if( thePixelTemp[index_id].entfx[0][i].cotalpha <= cotalpha && cotalpha < thePixelTemp[index_id].entfx[0][i+1].cotalpha) {
 		  
-	            ilow = i;
-		        xxratio = (cotalpha - thePixelTemp[index_id].entfx[0][i].cotalpha)/(thePixelTemp[index_id].entfx[0][i+1].cotalpha - thePixelTemp[index_id].entfx[0][i].cotalpha);
-		        break;
-			 
+	               ilow = i;
+		           xxratio = (cotalpha - thePixelTemp[index_id].entfx[0][i].cotalpha)/(thePixelTemp[index_id].entfx[0][i+1].cotalpha - thePixelTemp[index_id].entfx[0][i].cotalpha);
+		           break;
+			    }
 		     }
-	      }
+		  } else { success = false; }
 	   }
 	
 	   ihigh=ilow + 1;
@@ -931,6 +919,8 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	   psxparmax = (1. - xxratio)*thePixelTemp[index_id].entfx[imaxx][ilow].sxmax + xxratio*thePixelTemp[index_id].entfx[imaxx][ihigh].sxmax;
 	   psxmax = psxparmax;
        if(thePixelTemp[index_id].entfx[imaxx][imidy].sxmax != 0.) {psxmax=psxmax/thePixelTemp[index_id].entfx[imaxx][imidy].sxmax*sxmax;}
+	   psymax = (1. - xxratio)*thePixelTemp[index_id].entfx[imaxx][ilow].symax + xxratio*thePixelTemp[index_id].entfx[imaxx][ihigh].symax;
+       if(thePixelTemp[index_id].entfx[imaxx][imidy].symax != 0.) {psymax=psymax/thePixelTemp[index_id].entfx[imaxx][imidy].symax*symax;}
 	   pdxone = (1. - xxratio)*thePixelTemp[index_id].entfx[0][ilow].dxone + xxratio*thePixelTemp[index_id].entfx[0][ihigh].dxone;
 	   psxone = (1. - xxratio)*thePixelTemp[index_id].entfx[0][ilow].sxone + xxratio*thePixelTemp[index_id].entfx[0][ihigh].sxone;
 	   pdxtwo = (1. - xxratio)*thePixelTemp[index_id].entfx[0][ilow].dxtwo + xxratio*thePixelTemp[index_id].entfx[0][ihigh].dxtwo;
@@ -943,6 +933,12 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	         pxparh[i][j] = thePixelTemp[index_id].entfx[imaxx][ihigh].xpar[i][j];
 	      }
 	   }
+	   		  
+// pixmax is the maximum allowed pixel charge (used for truncation)
+
+	   ppixmax=(1. - yxratio)*((1. - xxratio)*thePixelTemp[index_id].entfx[iylow][ilow].pixmax + xxratio*thePixelTemp[index_id].entfx[iylow][ihigh].pixmax)
+			  +yxratio*((1. - xxratio)*thePixelTemp[index_id].entfx[iyhigh][ilow].pixmax + xxratio*thePixelTemp[index_id].entfx[iyhigh][ihigh].pixmax);
+			  
 	   for(i=0; i<4; ++i) {
 	      pxavg[i]=(1. - yxratio)*((1. - xxratio)*thePixelTemp[index_id].entfx[iylow][ilow].xavg[i] + xxratio*thePixelTemp[index_id].entfx[iylow][ihigh].xavg[i])
 		          +yxratio*((1. - xxratio)*thePixelTemp[index_id].entfx[iyhigh][ilow].xavg[i] + xxratio*thePixelTemp[index_id].entfx[iyhigh][ihigh].xavg[i]);
@@ -1002,9 +998,9 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	   for(i=0; i<9; ++i) {
           pxtemp[i][0] = 0.;
           pxtemp[i][1] = 0.;
-	      pxtemp[i][9] = 0.;
-	      pxtemp[i][10] = 0.;
-	      for(j=0; j<7; ++j) {
+	      pxtemp[i][BXM2] = 0.;
+	      pxtemp[i][BXM1] = 0.;
+	      for(j=0; j<TXSIZE; ++j) {
 	        pxtemp[i][j+2]=(1. - xxratio)*thePixelTemp[index_id].entfx[imaxx][ilow].xtemp[i][j] + xxratio*thePixelTemp[index_id].entfx[imaxx][ihigh].xtemp[i][j];
 	      }
 	   }
@@ -1029,18 +1025,22 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	
 	       ilow = Ny-2;
 		   yratio = 1.;
+		   success = false;
 		
-	   } else if(abs_cotb >= thePixelTemp[index_id].entby[0].cotbeta) {
+	   } else {
+	   
+	      if(abs_cotb >= thePixelTemp[index_id].entby[0].cotbeta) {
 
-          for (i=0; i<Ny-1; ++i) { 
+             for (i=0; i<Ny-1; ++i) { 
     
-             if( thePixelTemp[index_id].entby[i].cotbeta <= abs_cotb && abs_cotb < thePixelTemp[index_id].entby[i+1].cotbeta) {
+                if( thePixelTemp[index_id].entby[i].cotbeta <= abs_cotb && abs_cotb < thePixelTemp[index_id].entby[i+1].cotbeta) {
 		  
-	            ilow = i;
-		        yratio = (abs_cotb - thePixelTemp[index_id].entby[i].cotbeta)/(thePixelTemp[index_id].entby[i+1].cotbeta - thePixelTemp[index_id].entby[i].cotbeta);
-		        break;			 
-		     }
-	      }
+	               ilow = i;
+		           yratio = (abs_cotb - thePixelTemp[index_id].entby[i].cotbeta)/(thePixelTemp[index_id].entby[i+1].cotbeta - thePixelTemp[index_id].entby[i].cotbeta);
+		           break;			 
+		        }
+	         }
+		  } else { success = false;}
 	   }
 	
 	   ihigh=ilow + 1;
@@ -1049,7 +1049,9 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 
        pyratio = yratio;
 	   pqavg = (1. - yratio)*thePixelTemp[index_id].entby[ilow].qavg + yratio*thePixelTemp[index_id].entby[ihigh].qavg;
-	   psymax = (1. - yratio)*thePixelTemp[index_id].entby[ilow].symax + yratio*thePixelTemp[index_id].entby[ihigh].symax;
+	   pqavg *= qcorrect;
+	   symax = (1. - yratio)*thePixelTemp[index_id].entby[ilow].symax + yratio*thePixelTemp[index_id].entby[ihigh].symax;
+	   psyparmax = symax;
 	   sxmax = (1. - yratio)*thePixelTemp[index_id].entby[ilow].sxmax + yratio*thePixelTemp[index_id].entby[ihigh].sxmax;
 	   pdyone = (1. - yratio)*thePixelTemp[index_id].entby[ilow].dyone + yratio*thePixelTemp[index_id].entby[ihigh].dyone;
 	   if(cotbeta < 0.) {pdyone = -pdyone;}
@@ -1118,14 +1120,14 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	   for(i=0; i<9; ++i) {
           pytemp[i][0] = 0.;
           pytemp[i][1] = 0.;
-	      pytemp[i][23] = 0.;
-	      pytemp[i][24] = 0.;
-	      for(j=0; j<21; ++j) {
+	      pytemp[i][BYM2] = 0.;
+	      pytemp[i][BYM1] = 0.;
+	      for(j=0; j<TYSIZE; ++j) {
 		  
 // Flip the basic y-template when the cotbeta is negative
 
 		     if(cotbeta < 0.) {
-	            pytemp[8-i][22-j]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entby[ihigh].ytemp[i][j];
+	            pytemp[8-i][BYM3-j]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entby[ihigh].ytemp[i][j];
 			 } else {
 	            pytemp[i][j+2]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entby[ihigh].ytemp[i][j];
 			 }
@@ -1164,19 +1166,21 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	
 	       ilow = Nxx-2;
 		   xxratio = 1.;
+		   success = false;
 		
-	   } else if(cotalpha >= thePixelTemp[index_id].entbx[0][0].cotalpha) {
+	   } else {
+	      if(cotalpha >= thePixelTemp[index_id].entbx[0][0].cotalpha) {
 
-          for (i=0; i<Nxx-1; ++i) { 
+             for (i=0; i<Nxx-1; ++i) { 
     
-             if( thePixelTemp[index_id].entbx[0][i].cotalpha <= cotalpha && cotalpha < thePixelTemp[index_id].entbx[0][i+1].cotalpha) {
+                if( thePixelTemp[index_id].entbx[0][i].cotalpha <= cotalpha && cotalpha < thePixelTemp[index_id].entbx[0][i+1].cotalpha) {
 		  
-	            ilow = i;
-		        xxratio = (cotalpha - thePixelTemp[index_id].entbx[0][i].cotalpha)/(thePixelTemp[index_id].entbx[0][i+1].cotalpha - thePixelTemp[index_id].entbx[0][i].cotalpha);
-		        break;
-			 
+	               ilow = i;
+		           xxratio = (cotalpha - thePixelTemp[index_id].entbx[0][i].cotalpha)/(thePixelTemp[index_id].entbx[0][i+1].cotalpha - thePixelTemp[index_id].entbx[0][i].cotalpha);
+		           break;
+			    }
 		     }
-	      }
+		  } else { success = false; }
 	   }
 	
 	   ihigh=ilow + 1;
@@ -1191,6 +1195,8 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	   psxparmax = (1. - xxratio)*thePixelTemp[index_id].entbx[imaxx][ilow].sxmax + xxratio*thePixelTemp[index_id].entbx[imaxx][ihigh].sxmax;
 	   psxmax = psxparmax;
        if(thePixelTemp[index_id].entbx[imaxx][imidy].sxmax != 0.) {psxmax=psxmax/thePixelTemp[index_id].entbx[imaxx][imidy].sxmax*sxmax;}
+	   psymax = (1. - xxratio)*thePixelTemp[index_id].entbx[imaxx][ilow].symax + xxratio*thePixelTemp[index_id].entbx[imaxx][ihigh].symax;
+       if(thePixelTemp[index_id].entbx[imaxx][imidy].symax != 0.) {psymax=psymax/thePixelTemp[index_id].entbx[imaxx][imidy].symax*symax;}
 	   pdxone = (1. - xxratio)*thePixelTemp[index_id].entbx[0][ilow].dxone + xxratio*thePixelTemp[index_id].entbx[0][ihigh].dxone;
 	   psxone = (1. - xxratio)*thePixelTemp[index_id].entbx[0][ilow].sxone + xxratio*thePixelTemp[index_id].entbx[0][ihigh].sxone;
 	   pdxtwo = (1. - xxratio)*thePixelTemp[index_id].entbx[0][ilow].dxtwo + xxratio*thePixelTemp[index_id].entbx[0][ihigh].dxtwo;
@@ -1203,6 +1209,12 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	         pxparh[i][j] = thePixelTemp[index_id].entbx[imaxx][ihigh].xpar[i][j];
 	      }
 	   }
+	   		  
+// pixmax is the maximum allowed pixel charge (used for truncation)
+
+	   ppixmax=(1. - yxratio)*((1. - xxratio)*thePixelTemp[index_id].entbx[iylow][ilow].pixmax + xxratio*thePixelTemp[index_id].entbx[iylow][ihigh].pixmax)
+			  +yxratio*((1. - xxratio)*thePixelTemp[index_id].entbx[iyhigh][ilow].pixmax + xxratio*thePixelTemp[index_id].entbx[iyhigh][ihigh].pixmax);
+			  
 	   for(i=0; i<4; ++i) {
 	      pxavg[i]=(1. - yxratio)*((1. - xxratio)*thePixelTemp[index_id].entbx[iylow][ilow].xavg[i] + xxratio*thePixelTemp[index_id].entbx[iylow][ihigh].xavg[i])
 		          +yxratio*((1. - xxratio)*thePixelTemp[index_id].entbx[iyhigh][ilow].xavg[i] + xxratio*thePixelTemp[index_id].entbx[iyhigh][ihigh].xavg[i]);
@@ -1262,15 +1274,15 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	   for(i=0; i<9; ++i) {
           pxtemp[i][0] = 0.;
           pxtemp[i][1] = 0.;
-	      pxtemp[i][9] = 0.;
-	      pxtemp[i][10] = 0.;
-	      for(j=0; j<7; ++j) {
+	      pxtemp[i][BXM2] = 0.;
+	      pxtemp[i][BXM1] = 0.;
+	      for(j=0; j<TXSIZE; ++j) {
 	        pxtemp[i][j+2]=(1. - xxratio)*thePixelTemp[index_id].entbx[imaxx][ilow].xtemp[i][j] + xxratio*thePixelTemp[index_id].entbx[imaxx][ihigh].xtemp[i][j];
 	      }
 	   }
 	}
   }
-  return;
+  return success;
 } // interpolate
 
 
@@ -1293,16 +1305,17 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
     
     // Local variables 
     int i;
-	float sigi, sigi2, sigi3, sigi4, qscale;
+	float sigi, sigi2, sigi3, sigi4, symax, qscale;
 	
     // Make sure that input is OK
     
-	assert(fypix > 1 && fypix < 23);
-	assert(lypix >= fypix && lypix < 23);
+	assert(fypix > 1 && fypix < BYM2);
+	assert(lypix >= fypix && lypix < BYM2);
 	   	     
-// Define the maximum signal to allow before de-weighting a pixel 
+// Define the maximum signal to use in the parameterization 
 
-//       sythr = 1.1*psymax;
+       symax = psymax;
+	   if(psymax > psyparmax) {symax = psyparmax;}
 	   
 // Evaluate pixel-by-pixel uncertainties (weights) for the templ analysis 
 
@@ -1313,15 +1326,15 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 
 			 ysig2[i] = ps50*ps50;
 		  } else {
-			 if(ysum[i] < psymax) {
+			 if(ysum[i] < symax) {
 				sigi = ysum[i];
 				qscale = 1.;
 			 } else {
-				sigi = psymax;
-				qscale = ysum[i]/psymax;
+				sigi = symax;
+				qscale = ysum[i]/symax;
 			 }
 			 sigi2 = sigi*sigi; sigi3 = sigi2*sigi; sigi4 = sigi3*sigi;
-			 if(i <= 12) {
+			 if(i <= BHY) {
 				ysig2[i] = (1.-pyratio)*
 				(pyparl[0][0]+pyparl[0][1]*sigi+pyparl[0][2]*sigi2+pyparl[0][3]*sigi3+pyparl[0][4]*sigi4)
 				+ pyratio*
@@ -1369,8 +1382,8 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	
     // Make sure that input is OK
     
-	assert(fxpix > 1 && fxpix < 9);
-	assert(lxpix >= fxpix && lxpix < 9);
+	assert(fxpix > 1 && fxpix < BXM2);
+	assert(lxpix >= fxpix && lxpix < BXM2);
 	   	     
 // Define the maximum signal to use in the parameterization 
 
@@ -1397,7 +1410,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 			 
 // First, do the cotbeta interpolation			 
 			 
-			 if(i <= 5) {
+			 if(i <= BHX) {
 				yint = (1.-pyratio)*
 				(pxparly0[0][0]+pxparly0[0][1]*sigi+pxparly0[0][2]*sigi2+pxparly0[0][3]*sigi3+pxparly0[0][4]*sigi4)
 				+ pyratio*
@@ -1411,7 +1424,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 			 
 // Next, do the cotalpha interpolation			 
 			 
-			 if(i <= 5) {
+			 if(i <= BHX) {
 				xsig2[i] = (1.-pxxratio)*
 				(pxparl[0][0]+pxparl[0][1]*sigi+pxparl[0][2]*sigi2+pxparl[0][3]*sigi3+pxparl[0][4]*sigi4)
 				+ pxxratio*
@@ -1425,7 +1438,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 			 
 // Finally, get the mid-point value of the cotalpha function			 
 			 
-			 if(i <= 5) {
+			 if(i <= BHX) {
 				x0 = pxpar0[0][0]+pxpar0[0][1]*sigi+pxpar0[0][2]*sigi2+pxpar0[0][3]*sigi3+pxpar0[0][4]*sigi4;
 			 } else {
 				x0 = pxpar0[1][0]+pxpar0[1][1]*sigi+pxpar0[1][2]*sigi2+pxpar0[1][3]*sigi3+pxpar0[1][4]*sigi4;
@@ -1537,7 +1550,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 //! \param fybin - (input) index of last bin (0-40) to fill
 //! \param ytemplate - (output) a 41x25 output buffer
 // ************************************************************************************************************ 
-  void SiPixelTemplate::ytemp(int fybin, int lybin, float ytemplate[41][25])
+  void SiPixelTemplate::ytemp(int fybin, int lybin, float ytemplate[41][BYSIZE])
   
 {
     // Retrieve already interpolated quantities
@@ -1553,19 +1566,19 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 // Build the y-template, the central 25 bins are here in all cases
 	
 	for(i=0; i<9; ++i) {
-	   for(j=0; j<25; ++j) {
+	   for(j=0; j<BYSIZE; ++j) {
 			ytemplate[i+16][j]=pytemp[i][j];
 	   }
 	}
 	for(i=0; i<8; ++i) {
-	   ytemplate[i+8][24] = 0.;
-	   for(j=0; j<24; ++j) {
+	   ytemplate[i+8][BYM1] = 0.;
+	   for(j=0; j<BYM1; ++j) {
 	      ytemplate[i+8][j]=pytemp[i][j+1];
 	   }
 	}
 	for(i=1; i<9; ++i) {
 	   ytemplate[i+24][0] = 0.;
-	   for(j=0; j<24; ++j) {
+	   for(j=0; j<BYM1; ++j) {
 	      ytemplate[i+24][j+1]=pytemp[i][j];
 	   }
 	}
@@ -1574,9 +1587,9 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 
 	if(fybin < 8) {
 	   for(i=0; i<8; ++i) {
-	      ytemplate[i][23] = 0.;
-	      ytemplate[i][24] = 0.;
-	      for(j=0; j<23; ++j) {
+	      ytemplate[i][BYM2] = 0.;
+	      ytemplate[i][BYM1] = 0.;
+	      for(j=0; j<BYM2; ++j) {
 	        ytemplate[i][j]=pytemp[i][j+2];
 	      }
 	   }
@@ -1585,7 +1598,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
   	   for(i=1; i<9; ++i) {
           ytemplate[i+32][0] = 0.;
 	      ytemplate[i+32][1] = 0.;
-	      for(j=0; j<23; ++j) {
+	      for(j=0; j<BYM2; ++j) {
 	         ytemplate[i+32][j+2]=pytemp[i][j];
 	      }
 	   }
@@ -1603,7 +1616,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 //! \param fxbin - (input) index of last bin (0-40) to fill
 //! \param xtemplate - (output) a 41x11 output buffer
 // ************************************************************************************************************ 
-  void SiPixelTemplate::xtemp(int fxbin, int lxbin, float xtemplate[41][11])
+  void SiPixelTemplate::xtemp(int fxbin, int lxbin, float xtemplate[41][BXSIZE])
   
 {
     // Retrieve already interpolated quantities
@@ -1619,19 +1632,19 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 // Build the x-template, the central 25 bins are here in all cases
 	
 	for(i=0; i<9; ++i) {
-	   for(j=0; j<11; ++j) {
+	   for(j=0; j<BXSIZE; ++j) {
 	      xtemplate[i+16][j]=pxtemp[i][j];
 	   }
 	}
 	for(i=0; i<8; ++i) {
-	   xtemplate[i+8][10] = 0.;
-	   for(j=0; j<10; ++j) {
+	   xtemplate[i+8][BXM1] = 0.;
+	   for(j=0; j<BXM1; ++j) {
 	      xtemplate[i+8][j]=pxtemp[i][j+1];
 	   }
 	}
 	for(i=1; i<9; ++i) {
 	   xtemplate[i+24][0] = 0.;
-	   for(j=0; j<10; ++j) {
+	   for(j=0; j<BXM1; ++j) {
 	      xtemplate[i+24][j+1]=pxtemp[i][j];
 	   }
 	}
@@ -1640,9 +1653,9 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	
 	if(fxbin < 8) {
 	   for(i=0; i<8; ++i) {
-          xtemplate[i][9] = 0.;
-	      xtemplate[i][10] = 0.;
-	      for(j=0; j<9; ++j) {
+          xtemplate[i][BXM2] = 0.;
+	      xtemplate[i][BXM1] = 0.;
+	      for(j=0; j<BXM2; ++j) {
 	        xtemplate[i][j]=pxtemp[i][j+2];
 	      }
 	   }
@@ -1651,7 +1664,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	   for(i=1; i<9; ++i) {
           xtemplate[i+32][0] = 0.;
 	      xtemplate[i+32][1] = 0.;
-	      for(j=0; j<9; ++j) {
+	      for(j=0; j<BXM2; ++j) {
 	        xtemplate[i+32][j+2]=pxtemp[i][j];
 	      }
 	   }
@@ -1680,7 +1693,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 
    // Verify that input parameters are in valid range
 
-	assert(nypix > 0 && nypix < 22);
+	assert(nypix > 0 && nypix < BYM3);
 	
 // Calculate the size of the shift in pixels needed to span the entire cluster
 
@@ -1694,14 +1707,14 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	
 // Create a 2-d working template with the correct size
 
-	array_2d temp2d(boost::extents[nbins][25]);
+	array_2d temp2d(boost::extents[nbins][BYSIZE]);
 	
 //  The 9 central bins are copied from the interpolated private store
 
 	ioff0 = 8*nshift;
 	
 	for(i=0; i<9; ++i) {
-	   for(j=0; j<25; ++j) {
+	   for(j=0; j<BYSIZE; ++j) {
           temp2d[i+ioff0][j]=pytemp[i][j];
 	   }
 	}
@@ -1712,9 +1725,9 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	  ioffm=ioff0-k*8;
 	  for(i=0; i<8; ++i) {
 	     for(j=0; j<k; ++j) {
-	        temp2d[i+ioffm][24-j] = 0.;
+	        temp2d[i+ioffm][BYM1-j] = 0.;
 		 }
-	     for(j=0; j<25-k; ++j) {
+	     for(j=0; j<BYSIZE-k; ++j) {
 	        temp2d[i+ioffm][j]=pytemp[i][j+k];
 	     }
 	   }
@@ -1723,7 +1736,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	      for(j=0; j<k; ++j) {
 	         temp2d[i+ioffp][j] = 0.;
 	      }
-	      for(j=0; j<25-k; ++j) {
+	      for(j=0; j<BYSIZE-k; ++j) {
 	         temp2d[i+ioffp][j+k]=pytemp[i][j];
 	      }
 	   }
@@ -1731,13 +1744,13 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 		
 // Resize the 3d template container
 
-    ytemplate.resize(boost::extents[nbins][nbins][25]);
+    ytemplate.resize(boost::extents[nbins][nbins][BYSIZE]);
 	
 // Sum two 2-d templates to make the 3-d template
 	
    for(i=0; i<nbins; ++i) {
       for(j=0; j<=i; ++j) {
-         for(k=0; k<25; ++k) {
+         for(k=0; k<BYSIZE; ++k) {
             ytemplate[i][j][k]=temp2d[i][k]+temp2d[j][k];	
 		 }
 	  }
@@ -1766,7 +1779,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 
    // Verify that input parameters are in valid range
 
-	assert(nxpix > 0 && nxpix < 8);
+	assert(nxpix > 0 && nxpix < BXM3);
 	
 // Calculate the size of the shift in pixels needed to span the entire cluster
 
@@ -1780,14 +1793,14 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	
 // Create a 2-d working template with the correct size
 
-	array_2d temp2d(boost::extents[nbins][11]);
+	array_2d temp2d(boost::extents[nbins][BXSIZE]);
 	
 //  The 9 central bins are copied from the interpolated private store
 
 	ioff0 = 8*nshift;
 	
 	for(i=0; i<9; ++i) {
-	   for(j=0; j<11; ++j) {
+	   for(j=0; j<BXSIZE; ++j) {
           temp2d[i+ioff0][j]=pxtemp[i][j];
 	   }
 	}
@@ -1798,9 +1811,9 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	  ioffm=ioff0-k*8;
 	  for(i=0; i<8; ++i) {
 	     for(j=0; j<k; ++j) {
-	        temp2d[i+ioffm][10-j] = 0.;
+	        temp2d[i+ioffm][BXM1-j] = 0.;
 		 }
-	     for(j=0; j<11-k; ++j) {
+	     for(j=0; j<BXSIZE-k; ++j) {
 	        temp2d[i+ioffm][j]=pxtemp[i][j+k];
 	     }
 	   }
@@ -1809,7 +1822,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	      for(j=0; j<k; ++j) {
 	         temp2d[i+ioffp][j] = 0.;
 	      }
-	      for(j=0; j<11-k; ++j) {
+	      for(j=0; j<BXSIZE-k; ++j) {
 	         temp2d[i+ioffp][j+k]=pxtemp[i][j];
 	      }
 	   }
@@ -1817,13 +1830,13 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 				
 // Resize the 3d template container
 
-    xtemplate.resize(boost::extents[nbins][nbins][11]);
+    xtemplate.resize(boost::extents[nbins][nbins][BXSIZE]);
 	
 // Sum two 2-d templates to make the 3-d template
 	
    for(i=0; i<nbins; ++i) {
       for(j=0; j<=i; ++j) {
-         for(k=0; k<11; ++k) {
+         for(k=0; k<BXSIZE; ++k) {
             xtemplate[i][j][k]=temp2d[i][k]+temp2d[j][k];	
 		 }
 	  }

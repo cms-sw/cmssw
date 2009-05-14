@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.23 2008/10/08 18:28:44 lowette Exp $
+// $Id: Jet.cc,v 1.25.2.3 2009/01/13 16:47:04 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -14,20 +14,15 @@ Jet::Jet() :
   PATObject<JetType>(JetType()),
   embeddedCaloTowers_(false),
   partonFlavour_(0), 
-  jetCorrF_(),
-  noCorrF_(1.),
   jetCharge_(0.)
 {
 }
-
 
 /// constructor from a JetType
 Jet::Jet(const JetType & aJet) :
   PATObject<JetType>(aJet),
   embeddedCaloTowers_(false),
   partonFlavour_(0), 
-  jetCorrF_(),
-  noCorrF_(1.),
   jetCharge_(0.0)
 {
   tryImportSpecific(aJet);
@@ -38,8 +33,6 @@ Jet::Jet(const edm::Ptr<JetType> & aJetRef) :
   PATObject<JetType>(aJetRef),
   embeddedCaloTowers_(false),
   partonFlavour_(0), 
-  jetCorrF_(),
-  noCorrF_(1.),
   jetCharge_(0.0)
 {
   tryImportSpecific(*aJetRef);
@@ -50,8 +43,6 @@ Jet::Jet(const edm::RefToBase<JetType> & aJetRef) :
   PATObject<JetType>(aJetRef),
   embeddedCaloTowers_(false),
   partonFlavour_(0), 
-  jetCorrF_(),
-  noCorrF_(1.),
   jetCharge_(0.0)
 {
   tryImportSpecific(*aJetRef);
@@ -70,7 +61,6 @@ void Jet::tryImportSpecific(const JetType &source) {
 /// destructor
 Jet::~Jet() {
 }
-
 
 /// ============= CaloJet methods ============
 
@@ -99,6 +89,7 @@ std::vector<CaloTowerPtr> Jet::getCaloConstituents () const {
 }
 
 /// ============= PFJet methods ============
+
 const reco::PFCandidate* Jet::getPFCandidate (const reco::Candidate* fConstituent) {
   if (!fConstituent) return 0;
   const reco::Candidate* base = fConstituent;
@@ -128,118 +119,14 @@ const reco::GenJet * Jet::genJet() const {
   return (genJet_.size() > 0 ? &genJet_.front() : 0);
 }
 
-
 /// return the flavour of the parton underlying the jet
 int Jet::partonFlavour() const {
   return partonFlavour_;
 }
 
-
-/// return the correction factor to go to a non-calibrated jet
-JetCorrFactors Jet::jetCorrFactors() const {
-  return jetCorrF_;
-}
-
-
-/// return the original non-calibrated jet
-JetType Jet::recJet() const {
-  JetType recJet(*this);
-  recJet.setP4(noCorrF_*this->p4());
-  return recJet;
-}
-
-
-/// return the associated non-calibrated jet
-Jet Jet::noCorrJet() const {
-  Jet jet(*this);
-  jet.setP4(noCorrF_ * this->p4());
-  // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
-  jet.setNoCorrFactor(1.);
-  return jet;
-}
-
-
-/// return the associated default-calibrated jet
-Jet Jet::defaultCorrJet() const {
-  Jet jet(*this);
-  jet.setP4(jetCorrF_.scaleDefault() * noCorrF_ * this->p4());
-  // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
-  jet.setNoCorrFactor(1. / jetCorrF_.scaleDefault());
-  return jet;
-}
-
-
-/// return the associated uds-calibrated jet
-Jet Jet::udsCorrJet() const {
-  Jet jet(*this);
-  jet.setP4(jetCorrF_.scaleUds() * noCorrF_ * this->p4());
-  // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
-  jet.setNoCorrFactor(1. / jetCorrF_.scaleUds());
-  return jet;
-}
-
-
-/// return the associated gluon-calibrated jet
-Jet Jet::gluCorrJet() const {
-  Jet jet(*this);
-  jet.setP4(jetCorrF_.scaleGlu() * noCorrF_ * this->p4());
-  // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
-  jet.setNoCorrFactor(1. / jetCorrF_.scaleGlu());
-  return jet;
-}
-
-
-/// return the associated c-calibrated jet
-Jet Jet::cCorrJet() const {
-  Jet jet(*this);
-  jet.setP4(jetCorrF_.scaleC() * noCorrF_ * this->p4());
-  // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
-  jet.setNoCorrFactor(1. / jetCorrF_.scaleC());
-  return jet;
-}
-
-
-/// return the associated b-calibrated jet
-Jet Jet::bCorrJet() const {
-  Jet jet(*this);
-  // set the corrected 4-vector
-  jet.setP4(jetCorrF_.scaleB() * noCorrF_ * this->p4());
-  // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
-  jet.setNoCorrFactor(1. / jetCorrF_.scaleB());
-  return jet;
-}
-
-
-/// return the jet calibrated according to the MC flavour truth
-Jet Jet::mcFlavCorrJet() const {
-  // determine the correction factor to use depending on MC flavour truth
-  float corrF = jetCorrF_.scaleGlu(); // default, also for unidentified flavour
-  if (abs(partonFlavour_) == 1 || abs(partonFlavour_) == 2 || abs(partonFlavour_) == 3) corrF = jetCorrF_.scaleUds();
-  if (abs(partonFlavour_) == 4) corrF = jetCorrF_.scaleC();
-  if (abs(partonFlavour_) == 5) corrF = jetCorrF_.scaleB();
-  Jet jet(*this);
-  jet.setP4(corrF * noCorrF_ * this->p4());
-  // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
-  jet.setNoCorrFactor(1. / corrF);
-  return jet;
-}
-
-
-/// return the jet calibrated with weights assuming W decay
-Jet Jet::wCorrJet() const {
-  Jet jet(*this);
-  // set the corrected 4-vector weighting for the c-content in W decays
-  jet.setP4((3*jetCorrF_.scaleUds() + jetCorrF_.scaleC()) / 4 * noCorrF_ * this->p4());
-  // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
-  jet.setNoCorrFactor(4. / (3*jetCorrF_.scaleUds() + jetCorrF_.scaleC()));
-  return jet;
-}
-
-
 const std::vector<std::pair<std::string, float> > & Jet::getPairDiscri() const {
    return pairDiscriVector_;
 }
-
 
 /// get b discriminant from label name
 float Jet::bDiscriminator(const std::string & aLabel) const {
@@ -268,37 +155,45 @@ const T *  Jet::tagInfoByType() const {
     }
     return 0;
 }
+
 const reco::TrackIPTagInfo * 
 Jet::tagInfoTrackIP(const std::string &label) const {
     return (label.empty() ? tagInfoByType<reco::TrackIPTagInfo>() 
                           : dynamic_cast<const reco::TrackIPTagInfo *>(tagInfo(label)) );
 }
+
 const reco::SoftLeptonTagInfo * 
 Jet::tagInfoSoftLepton(const std::string &label) const {
     return (label.empty() ? tagInfoByType<reco::SoftLeptonTagInfo>()
                           : dynamic_cast<const reco::SoftLeptonTagInfo *>(tagInfo(label)) );
 }
+
 const reco::SecondaryVertexTagInfo * 
 Jet::tagInfoSecondaryVertex(const std::string &label) const {
     return (label.empty() ? tagInfoByType<reco::SecondaryVertexTagInfo>()
                           : dynamic_cast<const reco::SecondaryVertexTagInfo *>(tagInfo(label)) );
 }
+
 void
 Jet::addTagInfo(const std::string &label, const edm::Ptr<reco::BaseTagInfo> &info) {
+    addTagInfo(label, *info);
+}
+
+void
+Jet::addTagInfo(const std::string &label, const reco::BaseTagInfo &info) {
     std::string::size_type idx = label.find("TagInfos");
     if (idx == std::string::npos) {
         tagInfoLabels_.push_back(label);
     } else {
         tagInfoLabels_.push_back(label.substr(0,idx));
     }
-    tagInfos_.push_back(info->clone());
+    tagInfos_.push_back(info.clone());
 }
 
 /// method to return the JetCharge computed when creating the Jet
 float Jet::jetCharge() const {
   return jetCharge_;
 }
-
 
 /// method to return a vector of refs to the tracks associated to this jet
 const reco::TrackRefVector & Jet::associatedTracks() const {
@@ -322,29 +217,143 @@ void Jet::setCaloTowers(const std::vector<CaloTowerPtr> & caloTowers) {
   embeddedCaloTowers_ = true;
 }
 
-
 /// method to set the matched generated jet
 void Jet::setGenJet(const reco::GenJet & gj) {
   genJet_.clear();
   genJet_.push_back(gj);
 }
 
-
 /// method to set the flavour of the parton underlying the jet
 void Jet::setPartonFlavour(int partonFl) {
   partonFlavour_ = partonFl;
 }
 
-
 /// method to set the energy scale correction factors
-void Jet::setJetCorrFactors(const JetCorrFactors & jetCorrF) {
-  jetCorrF_ = jetCorrF;
+void Jet::setCorrFactors(const JetCorrFactors & jetCorrF) {
+  jetEnergyCorrections_.clear();
+  jetEnergyCorrections_.push_back(jetCorrF);
+  activeJetCorrIndex_ = 0;
 }
 
+/// method to add more sets of energy scale correction factors
+void Jet::addCorrFactors(const JetCorrFactors & jetCorrF) {
+  jetEnergyCorrections_.push_back(jetCorrF);
+}
 
-/// method to set correction factor to go back to an uncorrected jet
-void Jet::setNoCorrFactor(float noCorrF) {
-  noCorrF_ = noCorrF;
+/// method to set the energy scale correction factors
+void Jet::setCorrStep(JetCorrFactors::CorrStep step) {
+  jetEnergyCorrectionStep_ = step;
+  setP4(corrFactors_()->correction( step ) * p4());
+}
+
+/// copy of this jet with correction factor to target step, starting from jetCorrStep()
+/// for the currently used set of correction factors
+Jet Jet::correctedJet(const std::string &step, const std::string &flavour) const {
+    Jet ret(*this);
+    ret.setP4(p4() * corrFactors_()->correction(corrFactors_()->corrStep(step, flavour), jetEnergyCorrectionStep_));
+    ret.jetEnergyCorrectionStep_ = corrFactors_()->corrStep(step, flavour);
+    return ret;
+}
+
+/// copy of this jet with correction factor to target step, starting from jetCorrStep()
+/// for the currently used set of correction factors
+Jet Jet::correctedJet(const JetCorrFactors::CorrStep &step) const {
+    Jet ret(*this);
+    ret.setP4(p4() * corrFactors_()->correction(step, jetEnergyCorrectionStep_));
+    ret.jetEnergyCorrectionStep_ = step;
+    return ret;
+}
+
+/// copy of this jet with correction factor to target step
+/// for any available set of correction factors
+Jet Jet::correctedJet(const std::string &step, const std::string &flavour, const std::string &set) const {
+    Jet ret(*this);
+    const JetCorrFactors * jetCorrFac = corrFactors_(set);
+    if (!jetCorrFac)
+      throw cms::Exception("InvalidRequest") 
+	<< "invalid JetCorrectionModule label '" << set 
+	<< "' requested in Jet::correctedJet!";
+    ret.setP4(p4() * jetCorrFac->correction(jetCorrFac->corrStep(step, flavour), jetEnergyCorrectionStep_));
+    ret.jetEnergyCorrectionStep_ = jetCorrFac->corrStep(step, flavour);
+    return ret;
+}
+
+/// copy of this jet with correction factor to target step
+/// for any available set of correction factors
+Jet Jet::correctedJet(const JetCorrFactors::CorrStep &step, const std::string &set) const {
+    Jet ret(*this);
+    const JetCorrFactors * jetCorrFac = corrFactors_(set);
+    if (!jetCorrFac)
+      throw cms::Exception("InvalidRequest") 
+	<< "invalid JetCorrectionModule label '" << set 
+	<< "' requested in Jet::correctedJet!";
+    ret.setP4(p4() * jetCorrFac->correction(step, jetEnergyCorrectionStep_));
+    ret.jetEnergyCorrectionStep_ = step;
+    return ret;
+}
+
+/// Return true if this jet carries the jet correction factors of a different set, for systematic studies
+bool Jet::hasCorrFactorSet(const std::string &set) const 
+{
+  for (std::vector<pat::JetCorrFactors>::const_iterator it=jetEnergyCorrections_.begin();
+       it!=jetEnergyCorrections_.end(); ++it)
+    if (it->getLabel()==set)
+      return true;
+  return false;      
+}
+
+/// Return the jet correction factors of a different set, for systematic studies
+const JetCorrFactors * Jet::corrFactors_(const std::string &set) const 
+{
+  const JetCorrFactors * result = 0;
+  for (std::vector<pat::JetCorrFactors>::const_iterator it=jetEnergyCorrections_.begin();
+       it!=jetEnergyCorrections_.end(); ++it)
+    if (it->getLabel()==set){
+      result = &(*it);
+      break;
+    }  
+  return result;      
+}
+
+/// return the correction factor for this jet. Throws if they're not available.
+const JetCorrFactors * Jet::corrFactors_() const {
+  return &jetEnergyCorrections_.at( activeJetCorrIndex_ );
+}
+
+/// return the name of the current level of jet energy corrections
+std::string Jet::corrStep() const { 
+  return corrFactors_()->corrStep( jetEnergyCorrectionStep_ ); 
+}
+
+/// return flavour of the current level of jet energy corrections
+std::string Jet::corrFlavour() const {
+  return corrFactors_()->flavour( jetEnergyCorrectionStep_ ); 
+}
+
+/// total correction factor to target step, starting from jetCorrStep(),
+/// for the currently used set of correction factors
+float Jet::corrFactor(const std::string &step, const std::string &flavour) const {
+  return corrFactors_()->correction(corrFactors_()->corrStep(step, flavour), jetEnergyCorrectionStep_);
+}
+
+/// total correction factor to target step, starting from jetCorrStep(),
+/// for any available set of correction factors
+float Jet::corrFactor(const std::string &step, const std::string &flavour, const std::string &set) const {
+  const JetCorrFactors * jetCorrFac = corrFactors_(set);
+  if (!jetCorrFac) 
+  throw cms::Exception("InvalidRequest") 
+  	<< "invalid JetCorrectionModule label '" << set << "' requested in Jet::jetCorrFactor!"<<std::endl;;
+  return jetCorrFac->correction(jetCorrFac->corrStep(step, flavour), jetEnergyCorrectionStep_);
+}
+
+/// all available label-names of all sets of jet energy corrections
+const std::vector<std::string> Jet::corrFactorSetLabels() const
+{
+  std::vector<std::string> result;
+  for (std::vector<pat::JetCorrFactors>::const_iterator it=jetEnergyCorrections_.begin();
+       it!=jetEnergyCorrections_.end(); ++it)
+    result.push_back(it->getLabel());
+  return result;      
 }
 
 /// method to add a algolabel-discriminator pair
@@ -357,32 +366,3 @@ void Jet::setJetCharge(float jetCharge) {
   jetCharge_ = jetCharge;
 }
 
-/// correction factor from correction type
-float
-Jet::correctionFactor (CorrectionType type) const
-{
-  switch ( type ) {
-  case NoCorrection :      return noCorrF_;
-  case DefaultCorrection : return jetCorrF_.scaleDefault();
-  case udsCorrection :     return jetCorrF_.scaleUds();
-  case cCorrection :       return jetCorrF_.scaleC();
-  case bCorrection :       return jetCorrF_.scaleB();
-  case gCorrection :       return jetCorrF_.scaleGlu();
-  default :                return jetCorrF_.scaleDefault();
-  }
-}
-
-/// auxiliary method to convert a string to a correction type enum
-Jet::CorrectionType
-Jet::correctionType (const std::string& correctionName) 
-{
-  for ( unsigned int i=0; i<NrOfCorrections; ++i ) {
-    if ( correctionName == correctionNames_[i] )  
-      return static_cast<CorrectionType>(i);
-  }
-  // No MessageLogger in DataFormats 
-  throw cms::Exception("pat::Jet") << "Unknown correction type '" << correctionName << "' ";
-}
-
-const std::string pat::Jet::correctionNames_[] = { "none", "default", 
-						   "uds", "c", "b", "g" };

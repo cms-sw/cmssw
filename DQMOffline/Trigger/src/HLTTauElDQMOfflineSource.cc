@@ -16,7 +16,6 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 

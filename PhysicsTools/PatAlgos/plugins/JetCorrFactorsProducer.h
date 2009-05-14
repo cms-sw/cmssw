@@ -1,5 +1,5 @@
 //
-// $Id: JetCorrFactorsProducer.h,v 1.1 2008/03/07 18:52:56 lowette Exp $
+// $Id: JetCorrFactorsProducer.h,v 1.3.2.4 2009/02/18 16:46:00 rwolf Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_JetCorrFactorsProducer_h
@@ -18,48 +18,77 @@
    created in the PAT Layer-1.
 
   \author   Steven Lowette
-  \version  $Id: JetCorrFactorsProducer.h,v 1.1 2008/03/07 18:52:56 lowette Exp $
+  \version  $Id: JetCorrFactorsProducer.h,v 1.3.2.4 2009/02/18 16:46:00 rwolf Exp $
 */
 
-
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/JetReco/interface/Jet.h"
+
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
+#include "CondFormats/JetMETObjects/interface/CombinedJetCorrector.h"
 
 #include <string>
 
 
 namespace pat {
 
-
   class JetCorrFactorsProducer : public edm::EDProducer {
 
+    /// sample type for flavor dependend correction
+    enum SampleType {kNone, kDijet, kTtbar};
+    /// correction type for flavor dependend corrections
+    enum CorrType   {kPlain, kFlavor, kParton, kCombined};
+    /// correction type for flavor dependend corrections
+    enum FlavorType {kMixed, kGluon, kQuark, kCharm, kBeauty};
+    /// typedef for jetCorrFactors map
     typedef edm::ValueMap<pat::JetCorrFactors> JetCorrFactorsMap;
 
     public:
 
       explicit JetCorrFactorsProducer(const edm::ParameterSet & iConfig);
       ~JetCorrFactorsProducer();
-
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
     private:
+      /// configure the constructor strings for the CombinedJetCorrector
+      void configure(std::string level, std::string tag);
+      /// evaluate the jet correction foactor according to level and corrector type
+      double evaluate(edm::View<reco::Jet>::const_iterator& jet, CombinedJetCorrector* corrector, int& idx);
+      // create strings for parton and flavor dependend corrections
+      std::string flavorTag(CorrType correction, SampleType sample, FlavorType flavor);
 
-      // configurables
+    private:
+
+      /// configurables
+      bool useEMF_;
       edm::InputTag jetsSrc_;
-      std::string defaultJetCorrService_;
-      std::string udsJetCorrService_;
-      std::string gluJetCorrService_;
-      std::string cJetCorrService_;
-      std::string bJetCorrService_;
 
+      /// constructor strings for 
+      /// the CombinedJetCorrector
+      std::string tags_;
+      std::string levels_;
+
+      /// module label name 
+      std::string moduleLabel_;      
+
+
+      /// CombinedJetCorrector: common
+      CombinedJetCorrector* jetCorrector_;
+      /// CombinedJetCorrector: glu
+      CombinedJetCorrector* jetCorrectorGlu_;
+      /// CombinedJetCorrector: uds
+      CombinedJetCorrector* jetCorrectorUds_;
+      /// CombinedJetCorrector: c
+      CombinedJetCorrector* jetCorrectorC_;
+      /// CombinedJetCorrector: b
+      CombinedJetCorrector* jetCorrectorB_;
   };
-
-
 }
 
 #endif

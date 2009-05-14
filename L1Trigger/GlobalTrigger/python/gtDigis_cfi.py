@@ -16,9 +16,15 @@ gtDigis = cms.EDProducer("L1GlobalTrigger",
     #     castorL1Digis =  CASTOR
     CastorInputTag = cms.InputTag("castorL1Digis"),
     
-    # input tag for technical triggers: 
-    #     techTrigDigis = technical trigger emulator 
-    TechnicalTriggersInputTag = cms.InputTag("techTrigDigis"),
+    # technical triggers: a vector of input tags, one tag per each technical 
+    # trigger producer 
+    # 
+    # by default: empty vector
+    
+    # Example:
+    # TechnicalTriggersInputTags = cms.VInputTag(cms.InputTag('aTechTrigDigis'), 
+    #                                            cms.InputTag('anotherTechTriggerDigis')),
+    TechnicalTriggersInputTags = cms.VInputTag(),
     
     # logical flag to produce the L1 GT DAQ readout record
     #     if true, produce the record

@@ -1,9 +1,5 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronSorter.h"
 
-#include "FWCore/Utilities/interface/Exception.h"  
-
-using namespace std;
-
 
 L1GctElectronSorter::L1GctElectronSorter(int nInputs, bool iso):
   L1GctProcessor(),
