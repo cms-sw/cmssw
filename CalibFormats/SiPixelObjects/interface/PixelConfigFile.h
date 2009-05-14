@@ -205,10 +205,10 @@ namespace pos{
 	}
       else
 	{
-	  if( getForceConfigReload() ) {
+	  //	  if( getForceConfigReload() ) {
 	    configs.reload(filename);
 	    forceConfigReload(false) ;
-	  }
+	    //	  }
 	}
 
       counter--;
