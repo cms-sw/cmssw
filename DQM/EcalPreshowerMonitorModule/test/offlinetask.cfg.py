@@ -8,7 +8,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.source = cms.Source("PoolSource", 
 	fileNames = cms.untracked.vstring(
-	    "file:testV4.root"	    
+	    "file:test_310pre5.root"	    
 	) 
     )
 
