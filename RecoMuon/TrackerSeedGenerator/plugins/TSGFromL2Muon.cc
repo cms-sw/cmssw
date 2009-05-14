@@ -34,6 +34,7 @@ TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg)
   theService = new MuonServiceProxy(serviceParameters);
 
   thePtCut = cfg.getParameter<double>("PtCut");
+  thePCut = cfg.getParameter<double>("PCut");
 
   theL2CollectionLabel = cfg.getParameter<edm::InputTag>("MuonCollectionLabel");
   useTFileService_ = cfg.getUntrackedParameter<bool>("UseTFileService",false);
@@ -117,23 +118,13 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
     // cut on muons with low momenta
     if ( muRef->pt() < thePtCut 
 	 || muRef->innerMomentum().Rho() < thePtCut 
-	 || muRef->innerMomentum().R() < 2.5 ) continue;
+	 || muRef->innerMomentum().R() < thePCut ) continue;
     
     //define the region of interest
     RectangularEtaPhiTrackingRegion region;
     if(theRegionBuilder){
       RectangularEtaPhiTrackingRegion * region1 = theRegionBuilder->region(muRef);
-      
-      TkTrackingRegionsMargin<float> etaMargin(fabs(region1->etaRange().min() - region1->etaRange().mean()),
-					       fabs(region1->etaRange().max() - region1->etaRange().mean()));
-
-      region=RectangularEtaPhiTrackingRegion(region1->direction(),
-					     region1->origin(),
-					     region1->ptMin(),
-					     region1->originRBound(),
-					     region1->originZBound(),
-					     etaMargin,
-					     region1->phiMargin());
+      region=RectangularEtaPhiTrackingRegion(*region1);
       delete region1;
     }
     

@@ -32,7 +32,7 @@ private:
   bool useTFileService_;
 
   MuonServiceProxy* theService;
-  double thePtCut;
+  double thePtCut,thePCut;
   MuonTrackingRegionBuilder* theRegionBuilder;
   TrackerSeedGenerator* theTkSeedGenerator;
   TrackerSeedCleaner* theSeedCleaner;

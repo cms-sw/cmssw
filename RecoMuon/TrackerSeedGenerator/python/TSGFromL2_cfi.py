@@ -18,7 +18,8 @@ hltL3TrajectorySeedFromL2 = cms.EDFilter("TSGFromL2Muon",
     UseTFileService = cms.untracked.bool(False),
     MuonCollectionLabel = cms.InputTag("hltL2Muons","UpdatedAtVtx"),
     #this should not exist there !
-    PtCut = cms.double(1.0)
+    PtCut = cms.double(1.0),
+    PCut = cms.double(2.5)            
 )
 
 
