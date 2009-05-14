@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 19 16:12:27 EST 2008
-// $Id: FWMuonBuilder.cc,v 1.6 2009/01/06 21:38:40 chrjones Exp $
+// $Id: FWMuonBuilder.cc,v 1.7 2009/01/23 21:35:46 amraktad Exp $
 //
 
 // system include files
@@ -68,7 +68,7 @@ namespace  {
          if ( id.subdetId() != MuonSubdetId::CSC || showEndcap ) {
             TEveGeoShape* shape = geom->getShape( chamber->id.rawId() );
             if(0!=shape) {
-               shape->SetMainTransparency(75);
+               shape->SetMainTransparency(65);
                shape->SetMainColor(iItem->defaultDisplayProperties().color());
                if (!tracksOnly) parentList->AddElement(shape);
             }
