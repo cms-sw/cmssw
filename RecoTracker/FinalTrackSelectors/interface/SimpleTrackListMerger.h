@@ -10,9 +10,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2008/05/13 14:10:32 $
-// $Revision: 1.4 $
+// $Author: gpetrucc $
+// $Date: 2009/05/13 07:20:43 $
+// $Revision: 1.5 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -29,6 +29,7 @@
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -52,14 +53,17 @@ namespace cms
     std::auto_ptr< TrackingRecHitCollection>  outputTrkHits;
     std::auto_ptr< std::vector<Trajectory> > outputTrajs;
     std::auto_ptr< TrajTrackAssociationCollection >  outputTTAss;
+    std::auto_ptr< TrajectorySeedCollection > outputSeeds;
 
     reco::TrackRefProd refTrks;
     reco::TrackExtraRefProd refTrkExtras;
     TrackingRecHitRefProd refTrkHits;
     edm::RefProd< std::vector<Trajectory> > refTrajs;
     std::vector<reco::TrackRef> trackRefs;
-
+    edm::RefProd< TrajectorySeedCollection > refTrajSeeds;
+    
     bool copyExtras_;
+    bool makeReKeyedSeeds_;
   };
 }
 

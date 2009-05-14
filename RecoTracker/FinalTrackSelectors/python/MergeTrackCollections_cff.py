@@ -37,8 +37,10 @@ generalTracks = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTr
     TrackProducer1 = 'firstStepTracksWithQuality',
     TrackProducer2 = 'iterTracks',
     promoteTrackQuality = True,
-    copyExtras = True
+    copyExtras = True,
+    makeReKeyedSeeds = cms.untracked.bool(True)
     )
+
 
 trackCollectionMerging = cms.Sequence(merge2nd3rdTracks*
                                       merge4th5thTracks*

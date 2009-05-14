@@ -7,9 +7,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: vlimant $
-// $Date: 2009/04/29 18:37:12 $
-// $Revision: 1.19 $
+// $Author: gpetrucc $
+// $Date: 2009/05/13 07:20:43 $
+// $Revision: 1.20 $
 //
 
 #include <memory>
@@ -36,8 +36,35 @@
 
 //#include "DataFormats/TrackReco/src/classes.h"
 
+#include "RecoTracker/TrackProducer/interface/ClusterRemovalRefSetter.h"
+
+
 namespace cms
 {
+  
+  edm::ProductID clusterProduct( const TrackingRecHit *hit){
+    edm::ProductID pID;
+    //cast it into the proper class	and find productID
+    DetId detid = hit->geographicalId(); 
+    uint32_t subdet = detid.subdetId();
+    if ((subdet == PixelSubdetector::PixelBarrel) || (subdet == PixelSubdetector::PixelEndcap)) {
+      pID=reinterpret_cast<const SiPixelRecHit *>(hit)->cluster().id();
+    } else {
+      const std::type_info &type = typeid(*hit);
+      if (type == typeid(SiStripRecHit2D)) {
+	pID=reinterpret_cast<const SiStripRecHit2D *>(hit)->cluster().id();
+      } else if (type == typeid(SiStripMatchedRecHit2D)) {
+	const SiStripMatchedRecHit2D *mhit = reinterpret_cast<const SiStripMatchedRecHit2D *>(hit);
+	pID=mhit->monoHit()->cluster().id();
+      } else if (type == typeid(ProjectedSiStripRecHit2D)) {
+	const ProjectedSiStripRecHit2D *phit = reinterpret_cast<const ProjectedSiStripRecHit2D *>(hit);
+	pID=(&phit->originalHit())->cluster().id();
+      } else throw cms::Exception("Unknown RecHit Type") << "RecHit of type " << type.name() << " not supported. (use c++filt to demangle the name)";
+    }
+        
+    return pID;}
+  
+
 
   SimpleTrackListMerger::SimpleTrackListMerger(edm::ParameterSet const& conf) : 
     conf_(conf)
@@ -45,12 +72,20 @@ namespace cms
     copyExtras_ = conf_.getUntrackedParameter<bool>("copyExtras", true);
 
     produces<reco::TrackCollection>();
+
+    makeReKeyedSeeds_ = conf_.getUntrackedParameter<bool>("makeReKeyedSeeds",false);
+    if (makeReKeyedSeeds_){
+      copyExtras_=true;
+      produces<TrajectorySeedCollection>();
+    }
+
     if (copyExtras_) {
         produces<reco::TrackExtraCollection>();
         produces<TrackingRecHitCollection>();
     }
     produces< std::vector<Trajectory> >();
     produces< TrajTrackAssociationCollection >();
+    
 
   }
 
@@ -128,13 +163,22 @@ namespace cms
 
     if (copyExtras_) {
         outputTrkExtras = std::auto_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection);
+	outputTrkExtras->reserve(TC1->size()+TC2->size());
         refTrkExtras    = e.getRefBeforePut<reco::TrackExtraCollection>();
         outputTrkHits   = std::auto_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection);
+	outputTrkHits->reserve((TC1->size()+TC2->size())*25);
         refTrkHits      = e.getRefBeforePut<TrackingRecHitCollection>();
+	if (makeReKeyedSeeds_){
+	  outputSeeds = std::auto_ptr<TrajectorySeedCollection>(new TrajectorySeedCollection);
+	  outputSeeds->reserve(TC1->size()+TC2->size());
+	  refTrajSeeds = e.getRefBeforePut<TrajectorySeedCollection>();
+	}
     }
 
     outputTrajs = std::auto_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>()); 
+    outputTrajs->reserve(TC1->size()+TC2->size());
     outputTTAss = std::auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
+    //outputTTAss->reserve(TC1->size()+TC2->size());//how do I reserve space for an association map?
 
   //
   //  no input tracks
@@ -434,13 +478,61 @@ namespace cms
 	outputTrks->back().setQuality(qualityToSet);
       }
       if (copyExtras_) {
+	  //--------NEW----------
+	  edm::RefToBase<TrajectorySeed> origSeedRef = theTrack.seedRef();
+	  //creating a seed with rekeyed clusters if required
+	  if (makeReKeyedSeeds_){
+	    bool doRekeyOnThisSeed=false;
+	    
+	    edm::InputTag clusterRemovalInfos("");
+	    //grab on of the hits of the seed
+	    if (origSeedRef->nHits()!=0){
+	      TrajectorySeed::const_iterator firstHit=origSeedRef->recHits().first;
+	      const TrackingRecHit *hit = &*firstHit;
+	      if (firstHit->isValid()){
+		edm::ProductID  pID=clusterProduct(hit);
+		// the cluster collection either produced a removalInfo or mot
+		//get the clusterremoval info from the provenance: will rekey if this is found
+		edm::Handle<reco::ClusterRemovalInfo> CRIh;
+		edm::Provenance prov=e.getProvenance(pID);
+		clusterRemovalInfos=edm::InputTag(prov.moduleLabel(),
+						  prov.productInstanceName(),
+						  prov.processName());
+		doRekeyOnThisSeed=e.getByLabel(clusterRemovalInfos,CRIh);
+	      }//valid hit
+	    }//nhit!=0
+	    
+	    if (doRekeyOnThisSeed && !(clusterRemovalInfos==edm::InputTag("")))
+	      {
+		ClusterRemovalRefSetter refSetter(e,clusterRemovalInfos);
+		TrajectorySeed::recHitContainer  newRecHitContainer;
+		newRecHitContainer.reserve(origSeedRef->nHits());
+		TrajectorySeed::const_iterator iH=origSeedRef->recHits().first;
+		TrajectorySeed::const_iterator iH_end=origSeedRef->recHits().second;
+		for (;iH!=iH_end;++iH){
+		  newRecHitContainer.push_back(*iH);
+		  refSetter.reKey(&newRecHitContainer.back());
+		}
+		outputSeeds->push_back( TrajectorySeed( origSeedRef->startingState(),
+							newRecHitContainer,
+							origSeedRef->direction()));
+	      }
+	    //doRekeyOnThisSeed=true
+	    else{
+	      //just copy the one we had before
+	      outputSeeds->push_back( TrajectorySeed(*origSeedRef));
+	    }
+	    edm::Ref<TrajectorySeedCollection> pureRef(refTrajSeeds, outputSeeds->size()-1);
+	    origSeedRef=edm::RefToBase<TrajectorySeed>( pureRef);
+	  }//creating a new seed and rekeying it rechit clusters.
+	  //--------NEW----------
           // Fill TrackExtra collection
-          outputTrkExtras->push_back( reco::TrackExtra( 
+	  outputTrkExtras->push_back( reco::TrackExtra( 
                         theTrack.outerPosition(), theTrack.outerMomentum(), theTrack.outerOk(),
                         theTrack.innerPosition(), theTrack.innerMomentum(), theTrack.innerOk(),
                         theTrack.outerStateCovariance(), theTrack.outerDetId(),
                         theTrack.innerStateCovariance(), theTrack.innerDetId(),
-                        theTrack.seedDirection(), theTrack.seedRef() ) );
+                        theTrack.seedDirection(), origSeedRef ) );
           outputTrks->back().setExtra( reco::TrackExtraRef( refTrkExtras, outputTrkExtras->size() - 1) );
           reco::TrackExtra & tx = outputTrkExtras->back();
           // fill TrackingRecHits
@@ -500,13 +592,60 @@ namespace cms
 	outputTrks->back().setQuality(qualityToSet);
       }
       if (copyExtras_) {
+	  //--------NEW----------
+	  edm::RefToBase<TrajectorySeed> origSeedRef = theTrack.seedRef();
+	  //creating a seed with rekeyed clusters if required
+	  if (makeReKeyedSeeds_){
+	    bool doRekeyOnThisSeed=false;
+	    
+	    edm::InputTag clusterRemovalInfos("");
+	    //grab on of the hits of the seed
+	    if (origSeedRef->nHits()!=0){
+	      TrajectorySeed::const_iterator firstHit=origSeedRef->recHits().first;
+	      const TrackingRecHit *hit = &*firstHit;
+	      if (firstHit->isValid()){
+		edm::ProductID  pID=clusterProduct(hit);
+		// the cluster collection either produced a removalInfo or mot
+		//get the clusterremoval info from the provenance: will rekey if this is found
+		edm::Handle<reco::ClusterRemovalInfo> CRIh;
+		edm::Provenance prov=e.getProvenance(pID);
+		clusterRemovalInfos=edm::InputTag(prov.moduleLabel(),
+						  prov.productInstanceName(),
+						  prov.processName());
+		doRekeyOnThisSeed=e.getByLabel(clusterRemovalInfos,CRIh);
+	      }//valid hit
+	    }//nhit!=0
+	    
+	    if (doRekeyOnThisSeed && !(clusterRemovalInfos==edm::InputTag("")))
+	      {
+		ClusterRemovalRefSetter refSetter(e,clusterRemovalInfos);
+		TrajectorySeed::recHitContainer  newRecHitContainer;
+		newRecHitContainer.reserve(origSeedRef->nHits());
+		TrajectorySeed::const_iterator iH=origSeedRef->recHits().first;
+		TrajectorySeed::const_iterator iH_end=origSeedRef->recHits().second;
+		for (;iH!=iH_end;++iH){
+		  newRecHitContainer.push_back(*iH);
+		  refSetter.reKey(&newRecHitContainer.back());
+		}
+		outputSeeds->push_back( TrajectorySeed( origSeedRef->startingState(),
+							newRecHitContainer,
+							origSeedRef->direction()));
+	      }//doRekeyOnThisSeed=true
+	      else{
+		//just copy the one we had before
+		outputSeeds->push_back( TrajectorySeed(*origSeedRef));
+	      }
+	    edm::Ref<TrajectorySeedCollection> pureRef(refTrajSeeds, outputSeeds->size()-1);
+	    origSeedRef=edm::RefToBase<TrajectorySeed>( pureRef);
+	  }//creating a new seed and rekeying it rechit clusters.
+	  //--------NEW----------
           // Fill TrackExtra collection
           outputTrkExtras->push_back( reco::TrackExtra( 
                         theTrack.outerPosition(), theTrack.outerMomentum(), theTrack.outerOk(),
                         theTrack.innerPosition(), theTrack.innerMomentum(), theTrack.innerOk(),
                         theTrack.outerStateCovariance(), theTrack.outerDetId(),
                         theTrack.innerStateCovariance(), theTrack.innerDetId(),
-                        theTrack.seedDirection(), theTrack.seedRef() ) );
+                        theTrack.seedDirection(), origSeedRef ) );
           outputTrks->back().setExtra( reco::TrackExtraRef( refTrkExtras, outputTrkExtras->size() - 1) );
           reco::TrackExtra & tx = outputTrkExtras->back();
           // fill TrackingRecHits
@@ -548,6 +687,8 @@ namespace cms
     if (copyExtras_) {
         e.put(outputTrkExtras);
         e.put(outputTrkHits);
+	if (makeReKeyedSeeds_)
+	  e.put(outputSeeds);
     }
     e.put(outputTrajs);
     e.put(outputTTAss);

@@ -22,6 +22,7 @@
 <use name=TrackingTools/PatternTools>
 <use name=AnalysisDataFormats/SiStripClusterInfo>
 <use name=TrackingTools/TransientTrack>
+<use name=RecoTracker/TrackProducer>
 
 <use name=clhep>
 <flags EDM_PLUGIN=1>
