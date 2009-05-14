@@ -7,6 +7,7 @@
 // March 13, 2006
 //
 
+#include <unistd.h>
 #include <exception>
 #include <iostream>
 #include <fstream>
@@ -18,6 +19,7 @@
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
+#include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 
@@ -44,6 +46,7 @@ int main(int argc, char* argv[]) {
     ("printBranchDetails,b","Call Print()sc for all branches")
     ("tree,t", boost::program_options::value<std::string>(), "Select tree used with -P and -b options")
     ("allowRecovery","Allow root to auto-recover corrupted files") 
+    ("adler32,a", "Calculate adler32 checksum.")
     ("events,e", "Print list of all Events, Runs, and LuminosityBlocks in the file sorted by run number, luminosity block number, and event number.  Also prints the entry numbers and whether it is possible to use fast copy with the file.");
 
   // What trees do we require for this to be a valid collection?
@@ -222,6 +225,28 @@ int main(int argc, char* argv[]) {
       if ( vm.count("events") ) {
 	edm::printEventLists(tfile);
       }
+
+      if ( vm.count("adler32") ) {
+#define EDMFILEUTILADLERBUFSIZE 10*1024*1024 // 10MB buffer
+	char buffer[EDMFILEUTILADLERBUFSIZE];
+	size_t bufToRead = EDMFILEUTILADLERBUFSIZE;
+	uint32_t a=1,b=0;
+	size_t fileSize = tfile->GetSize();
+	tfile->Seek( 0, TFile::kBeg );
+ 
+	for ( size_t offset = 0; offset < fileSize;
+	      offset += EDMFILEUTILADLERBUFSIZE )
+	  {
+	    // true on last loop
+	    if ( fileSize - offset < EDMFILEUTILADLERBUFSIZE )
+	      bufToRead = fileSize - offset;
+	    tfile->ReadBuffer( (char*)buffer, bufToRead );
+	    cms::Adler32( buffer, bufToRead, a, b );
+	  }
+	std::cout << std::hex << ((b<<16)|a) << std::dec 
+		  << " " << fileSize << " " << datafile << std::endl;
+      }
+
       tfile->Close();
     }
   }
