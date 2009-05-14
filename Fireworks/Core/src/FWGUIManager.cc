@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.117 2009/05/04 20:03:32 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.118 2009/05/13 20:27:09 amraktad Exp $
 //
 
 // system include files
@@ -1194,7 +1194,7 @@ FWGUIManager::showColorPopup()
    colFrame->AddFrame(colorVisSeperator, new TGLayoutHints(kLHintsNormal, 0, 0, 15, 5));
 
    {
-      TGLabel* label = new TGLabel(colFrame, Form("BrigtnessControll "));
+      TGLabel* label = new TGLabel(colFrame, Form("BrigtnessControl"));
       TGFont* defaultFont = gClient->GetFontPool()->GetFont(label->GetDefaultFontStruct());
       label->SetTextFont(gClient->GetFontPool()->GetFont(defaultFont->GetFontAttributes().fFamily, 14, defaultFont->GetFontAttributes().fWeight + 2, defaultFont->GetFontAttributes().fSlant));
       colFrame->AddFrame(label);
