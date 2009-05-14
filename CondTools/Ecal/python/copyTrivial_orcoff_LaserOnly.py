@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
+process.EcalTrivialConditionRetriever.laserAPDPNTime1 = cms.untracked.string('0')
+process.EcalTrivialConditionRetriever.laserAPDPNTime2 = cms.untracked.string('1')
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 #process.CondDBCommon.connect = 'oracle://cms_orcoff_prep/CMS_COND_ECAL'
