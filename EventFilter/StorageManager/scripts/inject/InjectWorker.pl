@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.34 2009/05/05 17:07:17 loizides Exp $
+# $Id: InjectWorker.pl,v 1.35 2009/05/12 06:56:29 loizides Exp $
 
 use warnings;
 use strict;
@@ -201,7 +201,6 @@ sub inject($$)
         }
 
         if ($nofilecheck==0) {
-            return 0 if (not -e "$pathname/$filename"); #skip file if not present
             if (not -e "$pathname/$indfile") {
                 $indfile = '';
             }
