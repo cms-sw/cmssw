@@ -196,5 +196,6 @@ def initL1Subsystems( tagBase = 'IDEAL',
                         objectKey,
                         objectKey,
                         objectKey,
+                        objectKey,
                         objectKey )
     initL1Subsystems.params.recordInfo.extend(initL1RSSubsystems.params.recordInfo)

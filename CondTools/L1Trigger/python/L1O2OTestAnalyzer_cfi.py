@@ -6,6 +6,7 @@ L1O2OTestAnalyzer = cms.EDAnalyzer("L1O2OTestAnalyzer",
                                    printPayloadTokens = cms.bool(True),
                                    printESRecords = cms.bool(True),
                                    recordsToPrint = cms.vstring(
+    'L1MuDTTFMasksRcd',
     'L1MuGMTChannelMaskRcd',
     'L1RCTChannelMaskRcd',
     'L1GctChannelMaskRcd',

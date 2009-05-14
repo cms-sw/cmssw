@@ -1,4 +1,5 @@
 def initL1RSSubsystems( tagBase = 'IDEAL',
+                        L1MuDTTFMasksRcdKey = 'dummy',
                         L1MuGMTChannelMaskRcdKey = 'dummy',
                         L1RCTChannelMaskRcdKey = 'dummy',
                         L1GctChannelMaskRcdKey = 'dummy',
@@ -12,6 +13,12 @@ def initL1RSSubsystems( tagBase = 'IDEAL',
 
     initL1RSSubsystems.params = cms.PSet(
         recordInfo = cms.VPSet(
+        cms.PSet(
+            record = cms.string('L1MuDTTFMasksRcd'),
+            tag = cms.string('L1MuDTTFMasks_' + tagBase),
+            type = cms.string('L1MuDTTFMasks'),
+            key = cms.string(L1MuDTTFMasksRcdKey)
+        ), 
         cms.PSet(
             record = cms.string('L1MuGMTChannelMaskRcd'),
             tag = cms.string('L1MuGMTChannelMask_' + tagBase),
