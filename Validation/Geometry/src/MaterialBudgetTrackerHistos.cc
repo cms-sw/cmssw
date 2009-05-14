@@ -395,7 +395,7 @@ void MaterialBudgetTrackerHistos::fillEndTrack()
       float x0 = theData->getStepMaterialX0(iStep);
 
       int nSubStep = 1;
-      float boxWidth = 0.5;
+      float boxWidth = 0.1;
       if( (deltaRadius>boxWidth) || (fabs(deltaz)>boxWidth) ) {
 	nSubStep = static_cast<int>(max(
 		       ceil(deltaRadius/boxWidth/2.)*2,
