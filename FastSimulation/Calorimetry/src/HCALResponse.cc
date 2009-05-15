@@ -392,17 +392,22 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset,
     eGridHD[i] = _eGridHD[i];
     for(int j = 0; j<maxHDeta; j++) {
  
-      double factor = 1.;
-      if( j < 16) factor = 0.95 * barrelCorrection[i];     
- 
+      double factor     = 1.0;
+      double factor_s   = 1.0;
+
+      if( j < 16) factor = 0.95 * barrelCorrection[i]; // special HB tuning
+      // rolling back HF scale from 0.7 to 1.0
+      if(j > 29) { factor = 1.0/0.7; factor_s = 1.0/0.7;} 
+
+
       meanHD[i][j]        =  factor * _meanHD[i][j]  / eGridHD[i];
-      sigmaHD[i][j]       =  _sigmaHD[i][j] / eGridHD[i];
+      sigmaHD[i][j]       =  factor_s * _sigmaHD[i][j] / eGridHD[i];
 
       meanHD_mip[i][j]    =  factor * _meanHD_mip[i][j]  / eGridHD[i];
-      sigmaHD_mip[i][j]   =  _sigmaHD_mip[i][j] / eGridHD[i];
+      sigmaHD_mip[i][j]   =  factor_s * _sigmaHD_mip[i][j] / eGridHD[i];
 
       meanHD_nomip[i][j]  =  factor * _meanHD_nomip[i][j]  / eGridHD[i];
-      sigmaHD_nomip[i][j] =  _sigmaHD_nomip[i][j] / eGridHD[i];
+      sigmaHD_nomip[i][j] =  factor_s * _sigmaHD_nomip[i][j] / eGridHD[i];
 
     }
   }
@@ -411,8 +416,8 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset,
   for(int i = 0; i<maxEMe;  i++) {
     eGridEM[i] = _eGridEM[i];
     for(int j = 0; j<maxEMeta; j++) {
-      meanEM[i][j]  = 0.7 *  _meanEM[i][j] / eGridEM[i];
-      sigmaEM[i][j] = 0.7 * _sigmaEM[i][j] / eGridEM[i];
+      meanEM[i][j]  =  _meanEM[i][j] / eGridEM[i];
+      sigmaEM[i][j] =  _sigmaEM[i][j] / eGridEM[i];
     }
   }
 
