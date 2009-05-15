@@ -23,9 +23,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "RecoParticleFlow/PFProducer/interface/PFCandConnector.h"
 
-#include "TMVA/Reader.h"
-
-
 /// \brief Particle Flow Algorithm
 /*!
   \author Colin Bernet
@@ -59,10 +56,7 @@ class PFAlgo {
                      double nSigmaHCAL, 
                      const boost::shared_ptr<PFEnergyCalibration>& calibration,
                      const boost::shared_ptr<pftools::PFClusterCalibration>& clusterCalibration,
-		     unsigned int newCalib,
-                     double PSCut= 0.0001,
-                     double mvaCut = PFAlgo::maxMvaCut_, 
-                     const  char* mvaWeightFile="");
+		     unsigned int newCalib);
   
   void setPFMuonAndFakeParameters(std::vector<double> muonHCAL,
 				  std::vector<double> muonECAL,
@@ -122,7 +116,11 @@ class PFAlgo {
   /// neutral particle is cluster energy - chargedEnergy
 
   unsigned reconstructCluster( const reco::PFCluster& cluster,
-                               double particleEnergy);
+                               double particleEnergy,
+			       bool useDirection = false,
+			       double particleX=0.,
+			       double particleY=0.,
+			       double particleZ=0.);
 
 
   /// \return calibrated energy of a photon
@@ -182,25 +180,10 @@ class PFAlgo {
 
   // std::vector<unsigned> hcalBlockUsed_;
   
-  /// Energy Threshold for PS validation
-  double             PSCut_;
-
-  /// should not be a pointer, but we need to be able to reset this, and there seems 
-  /// to be not reset function in this class.
-  TMVA::Reader      *mergedPhotonsMVA_;
-  
-  float              eECALOverpTrack_;
-  float              distECAL_;
-  float              ptTrack_;
-  float              mvaCut_;
-
-  static float       maxMvaCut_;
-
   int                algo_;
   bool               debug_;
 
   // Variables for PFElectrons
-  // TMVA::Reader      *readerEleID;
   std::string mvaWeightFileEleID_;
   std::vector<double> setchi2Values_;
   double mvaEleCut_;

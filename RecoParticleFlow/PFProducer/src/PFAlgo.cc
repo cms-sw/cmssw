@@ -30,7 +30,6 @@
 #include "Math/DisplacementVector3D.h"
 #include "Math/SMatrix.h"
 #include "TDecompChol.h"
-#include "TMVA/Config.h" // needed for TMVA::gConfig() workaround below
 
 #include "boost/graph/adjacency_matrix.hpp" 
 #include "boost/graph/graph_utility.hpp" 
@@ -38,9 +37,6 @@
 using namespace std;
 using namespace reco;
 using namespace boost;
-
-float PFAlgo::maxMvaCut_ = PFCandidate::bigMva_;
-
 
 typedef std::list< reco::PFBlockRef >::iterator IBR;
 
@@ -50,9 +46,6 @@ PFAlgo::PFAlgo()
   : pfCandidates_( new PFCandidateCollection),
     nSigmaECAL_(0), 
     nSigmaHCAL_(1),
-    PSCut_(999.),
-    mergedPhotonsMVA_( 0 ),
-    mvaCut_(PFAlgo::maxMvaCut_),
     algo_(1),
     debug_(false),
     pfele_(0)
@@ -69,10 +62,7 @@ PFAlgo::setParameters(double nSigmaECAL,
                       double nSigmaHCAL, 
                       const shared_ptr<PFEnergyCalibration>& calibration,
                       const shared_ptr<pftools::PFClusterCalibration>& clusterCalibration,
-		      unsigned int newCalib,
-                      double PSCut,
-                      double mvaCut,
-                      const  char* mvaWeightFile ) {
+		      unsigned int newCalib) {
 
   nSigmaECAL_ = nSigmaECAL;
   nSigmaHCAL_ = nSigmaHCAL;
@@ -82,31 +72,6 @@ PFAlgo::setParameters(double nSigmaECAL,
   newCalib_ = newCalib;
   // std::cout << "Cluster calibration parameters : " << *clusterCalibration_ << std::endl;
 
-  PSCut_=PSCut;
-  mvaCut_ = mvaCut;
-  
-  if( mergedPhotonsMVA_ ) delete mergedPhotonsMVA_;
-  mergedPhotonsMVA_ = new TMVA::Reader();
-  TMVA::gConfig().SetSilent(kTRUE); // workaround for ROOT 5.18/00 bug
-  mergedPhotonsMVA_->AddVariable("eECAL/pTrack", &eECALOverpTrack_);
-  mergedPhotonsMVA_->AddVariable("chi2ECAL", &distECAL_);
-  mergedPhotonsMVA_->AddVariable("ptTrack", &ptTrack_);
-  
-  if( mvaCut < PFAlgo::maxMvaCut_ ) {
-    FILE * file = fopen(mvaWeightFile, "r");
-    if (file) {
-      fclose(file);
-      // file is readable, book MVA
-      mergedPhotonsMVA_->BookMVA( "MVA", mvaWeightFile );
-    }
-    else {
-      // weight file is not readable
-      string err = "PFAlgo: cannot open weight file '";
-      err += mvaWeightFile;
-      err += "'";
-      throw invalid_argument( err );
-    }
-  }
 }
 
 //PFElectrons: a new method added to set the parameters for electron reconstruction. 
@@ -250,7 +215,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
   const reco::PFBlock& block = *blockref;
 
   typedef std::multimap<double, unsigned>::iterator IE;
-  typedef std::multimap<double, std::pair<unsigned,double> >::iterator IS;
+  typedef std::multimap<double, std::pair<unsigned,math::XYZVector> >::iterator IS;
   typedef std::multimap<double, std::pair<unsigned,bool> >::iterator IT;
 
   if(debug_) {
@@ -864,8 +829,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     std::multimap<double, std::pair<unsigned,bool> > associatedTracks;
     
     // A temporary maps for ECAL satellite clusters
-    std::multimap<double,std::pair<unsigned,double> > ecalSatellites;
-    std::pair<unsigned,double> fakeSatellite = make_pair(iHcal,0.);
+    std::multimap<double,std::pair<unsigned,math::XYZVector> > ecalSatellites;
+    std::pair<unsigned,math::XYZVector> fakeSatellite = make_pair(iHcal,math::XYZVector(0.,0.,0.));
     ecalSatellites.insert( make_pair(-1., fakeSatellite) );
 
     PFClusterRef hclusterref = elements[iHcal].clusterRef();
@@ -913,6 +878,14 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     double muonECALError = 0.;
     unsigned nMuons = 0; 
 
+
+    math::XYZVector photonAtECAL(0.,0.,0.);
+    math::XYZVector hadronDirection(hclusterref->position().X(),
+				    hclusterref->position().Y(),
+				    hclusterref->position().Z());
+    hadronDirection = hadronDirection.Unit();
+    math::XYZVector hadronAtECAL = totalHcal * hadronDirection;
+
     // Loop over all tracks associated to this HCAL cluster
     for(IE ie = sortedTracks.begin(); ie != sortedTracks.end(); ++ie ) {
 
@@ -927,6 +900,12 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       reco::TrackRef trackRef = elements[iTrack].trackRef();
       assert( !trackRef.isNull() ); 
 
+      // The direction at ECAL entrance
+      const math::XYZPointF& chargedPosition = 
+	dynamic_cast<const reco::PFBlockElementTrack*>(&elements[iTrack])->positionAtECALEntrance();
+      math::XYZVector chargedDirection(chargedPosition.X(),chargedPosition.Y(),chargedPosition.Z());
+      chargedDirection = chargedDirection.Unit();
+
       // Create a PF Candidate right away if the track is a tight muon
       reco::MuonRef muonRef = elements[iTrack].muonRef();
       bool thisIsAMuon = PFMuonAlgo::isMuon(elements[iTrack]);
@@ -940,7 +919,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	muonHCALEnergy += muonHCAL_[0];
 	muonHCALError += muonHCAL_[1]*muonHCAL_[1];
 	muonECALEnergy += muonECAL_[0];
-	muonECALError += muonECAL_[1]*muonECAL_[1];	
+	muonECALError += muonECAL_[1]*muonECAL_[1];
+	// ... as well as the equivalent "momentum" at ECAL entrance
+	photonAtECAL -= muonECAL_[0]*chargedDirection;
+	hadronAtECAL -= muonHCAL_[0]*chargedDirection;
 	// Create a muon.
 	unsigned tmpi = reconstructTrack( elements[iTrack] );
 	(*pfCandidates_)[tmpi].addElementInBlock( blockref, iTrack );
@@ -951,19 +933,6 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	continue;
       }
  
-      // PJ - 01-Mar-09 : Do we still need this temporary solution ?
-      //MICHELE 
-      //TEMPORARY SOLUTION FOR ELECTRON REJECTION IN PFTAU
-
-      /*						  
-      if (usePFElectrons_ == false) {
-	std::multimap<double,unsigned> gsfElems;
-	block.associatedElements( iTrack,  linkData,
-				  gsfElems ,
-				  reco::PFBlockElement::GSF );
-	currentChargedHadron.set_mva_e_pi(gsfElems.size()>0);
-      }
-      */
       //
 
       if(debug_) cout<<"\t\t"<<elements[iTrack]<<endl;
@@ -1051,6 +1020,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	      
 	    // Calibrate the ECAL energy for photons
 	    float ecalEnergyCalibrated = calibration_->energyEm(*eclusterref,ps1Ene,ps2Ene);
+	    math::XYZVector photonDirection(eclusterref->position().X(),
+					    eclusterref->position().Y(),
+					    eclusterref->position().Z());
+	    photonDirection = photonDirection.Unit();
 
 	    if ( !connectedToEcal ) { // This is the closest ECAL cluster - will add its energy later
 	      
@@ -1058,18 +1031,20 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 			     <<elements[iEcal]<<endl;
 	      
 	      connectedToEcal = true;
-	      // PJ 1st-April-09 : To be done somewhere !!! (Add to comment it, but it is needed)
+	      // PJ 1st-April-09 : To be done somewhere !!! (Had to comment it, but it is needed)
 	      // currentChargedHadron.addElementInBlock( blockref, iEcal );
        
 	      std::pair<double, unsigned> associatedEcal 
 		= make_pair( distEcal, iEcal );
 	      associatedEcals.insert( make_pair(iTrack, associatedEcal) );
-	      std::pair<unsigned,double> satellite = make_pair(iEcal,ecalEnergyCalibrated);
+	      std::pair<unsigned,math::XYZVector> satellite = 
+		make_pair(iEcal,ecalEnergyCalibrated*photonDirection);
 	      ecalSatellites.insert( make_pair(-1., satellite) );
 
 	    } else { // Keep satellite clusters for later
 	      
-	      std::pair<unsigned,double> satellite = make_pair(iEcal,ecalEnergyCalibrated);
+	      std::pair<unsigned,math::XYZVector> satellite = 
+		make_pair(iEcal,ecalEnergyCalibrated*photonDirection);
 	      ecalSatellites.insert( make_pair(dist, satellite) );
 	      
 	    }
@@ -1085,6 +1060,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     double slopeEcal = 1.0;
     double calibEcal = 0.;
     double calibHcal = 0.;
+    hadronDirection = hadronAtECAL.Unit();
 
     // Determine the expected calo resolution from the total charged momentum
     double Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta());    
@@ -1092,7 +1068,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     // Account for muons
     Caloresolution = std::sqrt(Caloresolution*Caloresolution + muonHCALError + muonECALError);
     totalEcal -= std::min(totalEcal,muonECALEnergy);
-    totalHcal -= std::min(totalEcal,muonHCALEnergy);
+    totalHcal -= std::min(totalHcal,muonHCALEnergy);
+    if ( totalEcal < 1E-9 ) photonAtECAL = math::XYZVector(0.,0.,0.);
+    if ( totalHcal < 1E-9 ) hadronAtECAL = math::XYZVector(0.,0.,0.);
 
     // Loop over all ECAL satellites, starting for the closest to the various tracks
     // and adding other satellites until saturation of the total track momentum
@@ -1105,10 +1083,13 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       double previousCalibHcal = calibHcal;
       double previousCaloEnergy = caloEnergy;
       double previousSlopeEcal = slopeEcal;
+      math::XYZVector previousHadronAtECAL = hadronAtECAL;
       //
-      totalEcal += is->second.second;
+      totalEcal += sqrt(is->second.second.Mag2());
+      photonAtECAL += is->second.second;
       calibEcal = std::max(0.,totalEcal);
       calibHcal = std::max(0.,totalHcal);
+      hadronAtECAL = calibHcal * hadronDirection;
 
       // Calibrate ECAL and HCAL energy under the hadron hypothesis.
       if ( newCalib_ == 1) {
@@ -1136,6 +1117,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	caloEnergy = calibEcal+calibHcal;
 	if ( totalEcal > 0.) slopeEcal = calibEcal/totalEcal;
       }
+
+      hadronAtECAL = calibHcal * hadronDirection; 
       
       // Continue looping until all closest clusters are exhausted and as long as
       // the calorimetric energy does not saturate the total momentum.
@@ -1148,9 +1131,11 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
       // Otherwise, do not consider the last cluster examined and exit.
       // active[is->second.first] = true;
-      totalEcal -= is->second.second;
+      totalEcal -= sqrt(is->second.second.Mag2());
+      photonAtECAL -= is->second.second;
       calibEcal = previousCalibEcal;
       calibHcal = previousCalibHcal;
+      hadronAtECAL = previousHadronAtECAL;
       slopeEcal = previousSlopeEcal;
       caloEnergy = previousCaloEnergy;
 
@@ -1179,8 +1164,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       active[iEcal] = false;
       
       // Create a photon
-      unsigned tmpi = reconstructCluster( *eclusterref, is->second.second ); 
-      (*pfCandidates_)[tmpi].setEcalEnergy( is->second.second );
+      unsigned tmpi = reconstructCluster( *eclusterref, sqrt(is->second.second.Mag2()) ); 
+      (*pfCandidates_)[tmpi].setEcalEnergy( sqrt(is->second.second.Mag2()) );
       (*pfCandidates_)[tmpi].setHcalEnergy( 0 );
       (*pfCandidates_)[tmpi].setPs1Energy( associatedPSs[iEcal].first );
       (*pfCandidates_)[tmpi].setPs2Energy( associatedPSs[iEcal].second );
@@ -1241,18 +1226,26 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  double muonPtError = elements[it->second.first].muonRef()->combinedMuon()->ptError();
 	  double staPtError = elements[it->second.first].muonRef()->standAloneMuon()->ptError();
 	  double globalCorr = 1;
-	  if ( muonPt > 20. && muonPtError < trackPtError && muonPtError < staPtError ) globalCorr = muonMomentum/trackMomentum;
-	  if ( staPt > 20. && staPtError < trackPtError && staPtError < muonPtError ) globalCorr = staMomentum/trackMomentum;
+	  if ( muonPt > 20. && muonPtError < trackPtError && muonPtError < staPtError ) 
+	    globalCorr = muonMomentum/trackMomentum;
+	  if ( staPt > 20. && staPtError < trackPtError && staPtError < muonPtError ) 
+	    globalCorr = staMomentum/trackMomentum;
 	  (*pfCandidates_)[tmpi].rescaleMomentum(globalCorr);
 	  if (debug_) std::cout << "\tElement  " << elements[iTrack] << std::endl 
 				<< "PFAlgo: particle type set to muon" << std::endl; 
 	  // Remove it from the block
+	  const math::XYZPointF& chargedPosition = 
+	    dynamic_cast<const reco::PFBlockElementTrack*>(&elements[it->second.first])->positionAtECALEntrance();
+	  math::XYZVector chargedDirection(chargedPosition.X(), chargedPosition.Y(), chargedPosition.Z());
+	  chargedDirection = chargedDirection.Unit();
 	  totalChargedMomentum -= trackMomentum;
 	  // Update the calo energies
 	  calibEcal -= std::min(calibEcal,muonECAL_[0]*calibEcal/totalEcal);
 	  calibHcal -= std::min(calibHcal,muonHCAL_[0]*calibHcal/totalHcal);
 	  totalEcal -= std::min(totalEcal,muonECAL_[0]);
 	  totalHcal -= std::min(totalHcal,muonHCAL_[0]);
+	  if ( totalEcal > muonECAL_[0] ) photonAtECAL -= muonECAL_[0] * chargedDirection;
+	  if ( totalHcal > muonHCAL_[0] ) hadronAtECAL -= muonHCAL_[0]*calibHcal/totalHcal * chargedDirection;
 	  caloEnergy = calibEcal+calibHcal;
 	  muonHCALEnergy += muonHCAL_[0];
 	  muonHCALError += muonHCAL_[1]*muonHCAL_[1];
@@ -1436,7 +1429,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
         
       double eNeutralHadron = caloEnergy - totalChargedMomentum;
       double ePhoton = (caloEnergy - totalChargedMomentum) / slopeEcal;
-        
+
       if(debug_) {
         if(!sortedTracks.empty() ){
           cout<<"\t\tcase 2: NEUTRAL DETECTION "
@@ -1452,16 +1445,14 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
           cout<<"\t\tno track -> hadron "<<endl;
         else 
           cout<<"\t\t"<<sortedTracks.size()
-              <<"tracks -> loop and compute mva"<<endl;
+              <<"tracks -> check if the excess is photonic or hadronic"<<endl;
       }
         
-      // IE maxMvaIe = sortedTracks.end(); 
-      reco::PFClusterRef maxMvaEcalRef;
-      reco::PFClusterRef maxPSClusterRef;
-      double maxMva = -PFCandidate::bigMva_;
-      bool PSsignature = false;
-      unsigned maxMvaiEcal= 9999;       
-      unsigned maxPSiEcal= 9999;  
+
+      double ratioMax = 0.;
+      reco::PFClusterRef maxEcalRef;
+      unsigned maxiEcal= 9999;       
+
       // for each track associated to hcal: iterator IE ie :
         
       for(IE ie = sortedTracks.begin(); ie != sortedTracks.end(); ++ie ) {
@@ -1479,7 +1470,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
           
         if( iae == associatedEcals.end() ) continue;
           
-        double distECAL = iae->second.first;
+        // double distECAL = iae->second.first;
         unsigned iEcal = iae->second.second;
           
         PFBlockElement::Type typeEcal = elements[iEcal].type();
@@ -1488,187 +1479,61 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
         reco::PFClusterRef clusterRef = elements[iEcal].clusterRef();
         assert( !clusterRef.isNull() );
           
-        distECAL_ = static_cast<float>( distECAL );
-        ptTrack_ = static_cast<float>( trackRef->pt() );
-          
-        float pTrack = static_cast<float>( trackRef->p() );
-        float eECAL = static_cast<float>( clusterRef->energy() );
-        eECALOverpTrack_ = eECAL / pTrack;
-          
-        double value = -PFAlgo::maxMvaCut_;
-        if(mvaCut_ < PFAlgo::maxMvaCut_ ) {
-          value = mergedPhotonsMVA_->EvaluateMVA( "MVA" );
-          if( value>maxMva ) {
-            maxMva = value;
-            maxMvaEcalRef = clusterRef;
-            maxMvaiEcal = iEcal;
-          }
-        }         
-          
-        if(debug_) {
-          cout<<"\t\t"<<elements[iTrack]<<endl;
-          cout<<"\t\t\tassociated ECAL "<<elements[iEcal]<<endl;
-          cout<<"\t\t\tmva evaluation : "<<endl;
-          cout<<"\t\t\t\teECALOverpTrack = "<<eECALOverpTrack_<<endl;
-          cout<<"\t\t\t\tptTrack         = "<<ptTrack_<<endl;
-          cout<<"\t\t\t\tdistECAL        = "<<distECAL_<<endl;
-          cout<<"\t\t\t ==>        mva = "<<value<<endl;
-            
-        }
+        double pTrack = trackRef->p();
+        double eECAL = clusterRef->energy();
+        double eECALOverpTrack = eECAL / pTrack;
 
-        // look for PS1/PS2 elements associated to iEcal
-        double PS1energy = associatedPSs[iEcal].first;
-        double PS2energy = associatedPSs[iEcal].second;
-	bool PS1found = PS1energy > PSCut_;
-	bool PS2found = PS2energy > PSCut_;
-	
-        // evaluate PS signature
-        if (PSsignature) continue;
-        //PSsignature = PS1found&&PS2found;
-        PSsignature = PS1found||PS2found;
-        maxPSClusterRef = clusterRef;
-        maxPSiEcal = iEcal;
-        if (debug_) {
-          cout<<" PS signature "<<PSsignature 
-              <<" PS1 energy "<<PS1energy
-              <<" PS2 energy "<<PS2energy<<endl;
-        }
+	if ( eECALOverpTrack > ratioMax ) { 
+	  ratioMax = eECALOverpTrack;
+	  maxEcalRef = clusterRef;
+	  maxiEcal = iEcal;
+	}          
 	
       }  // end loop on tracks associated to hcal: iterator IE ie
     
       std::vector<reco::PFClusterRef> pivotalClusterRef;
       std::vector<unsigned> iPivotal;
       std::vector<double> particleEnergy, ecalEnergy, hcalEnergy;
-      // vector<unsigned> elementIndices;
-      
-      // double particleEnergy = -1;
-      // float  ecalEnergy = 0;
-      // float  hcalEnergy = 0;
-      
-      if( PSsignature) { //  overwrites MVA decision
-        if(debug_) {
-          cout<<" PS signature is true"
-              <<", reconstruct a photon"<<endl;
-        }
-      
-	if ( ePhoton < totalEcal || eNeutralHadron-calibEcal < 1E-10 ) { 
-	  
+      std::vector<math::XYZVector> particleDirection;
+
+      // If the excess is smaller than the ecal energy, assign the whole 
+      // excess to a photon
+      if ( ePhoton < totalEcal || eNeutralHadron-calibEcal < 1E-10 ) { 
+	
+	if ( !maxEcalRef.isNull() ) { 
 	  particleEnergy.push_back(ePhoton);
+	  particleDirection.push_back(photonAtECAL);
 	  ecalEnergy.push_back(ePhoton);
 	  hcalEnergy.push_back(0.);
-	  pivotalClusterRef.push_back(maxPSClusterRef);
-	  iPivotal.push_back(maxPSiEcal);
-	  
-	} else { 
-	  
-	  // Assign the ECAL energy to the photon
-	  pivotalClusterRef.push_back(maxMvaEcalRef);
-	  particleEnergy.push_back(totalEcal);
-	  ecalEnergy.push_back(totalEcal);
-	  hcalEnergy.push_back(0.);
-	  iPivotal.push_back(maxPSiEcal);
-	  
-	  // Assign the remaining excess to a neutral hadron
-	  pivotalClusterRef.push_back(hclusterref);
-	  particleEnergy.push_back(eNeutralHadron-calibEcal);
-	  ecalEnergy.push_back(0.);
-	  hcalEnergy.push_back(eNeutralHadron-calibEcal);
-	  iPivotal.push_back(iHcal);
-	  
-	  mergedNeutralHadronEnergy = eNeutralHadron-calibEcal;
-	  
+	  pivotalClusterRef.push_back(maxEcalRef);
+	  iPivotal.push_back(maxiEcal);
 	}
 	
-      } // end case: PS signature is true
-      else { // start case PS signature is false
-        if( !maxMvaEcalRef.isNull() && 
-            maxMva > mvaCut_) { //  start case: maxMva > mvaCut_
-	  
-	  if ( ePhoton < totalEcal || eNeutralHadron-calibEcal < 1E-10 ) { // PJ !!! waiting for a better MVA ;-)
-	    if(debug_) {
-	      cout<<"\t\tmaxMva = "<<maxMva<<">"<< mvaCut_
-		  <<", reconstruct a photon"<<endl;
-	      
-	    }
-	    
-	    // PJ BUG !
-	    //if( ePhoton>totalEcal ) 
-	    //  ePhoton = totalEcal;
-	    
-            pivotalClusterRef.push_back(maxMvaEcalRef);
-	    particleEnergy.push_back(ePhoton);
-	    ecalEnergy.push_back(ePhoton);
-	    hcalEnergy.push_back(0.);
-	    iPivotal.push_back(maxMvaiEcal);
-	    
-	  } else { 
-	    
-	    // Assign the ECAL energy to the photon
-  	    pivotalClusterRef.push_back(maxMvaEcalRef);
-	    particleEnergy.push_back(totalEcal);
-	    ecalEnergy.push_back(totalEcal);
-	    hcalEnergy.push_back(0.);
-	    iPivotal.push_back(maxMvaiEcal);
-	    
-	    // Assign the remaining excess to a neutral hadron
-            pivotalClusterRef.push_back(hclusterref);
-	    particleEnergy.push_back(eNeutralHadron-calibEcal);
-	    ecalEnergy.push_back(0.);
-	    hcalEnergy.push_back(eNeutralHadron-calibEcal);
-	    iPivotal.push_back(iHcal);
-	    
-	    mergedNeutralHadronEnergy = eNeutralHadron-calibEcal;
-	    
-	  }
-	  
-	}   // end case: maxMva > mvaCut_
-        else {   //  start case : maxMva < mvaCut_
-          if(debug_) {
-            cout<<"\t\treconstruct a hadron"<<endl;
-          }
-          
-	  // if ( totalEcal > 0. ) { 
-	  if ( ePhoton < totalEcal || eNeutralHadron-calibEcal <= 1E-10 ) { // PJ !!! waiting for a better MVA ;-)
-	    // Assign the ECAL energy to the photon
-	    pivotalClusterRef.push_back(maxMvaEcalRef);
-	    particleEnergy.push_back(ePhoton);
-	    ecalEnergy.push_back(ePhoton);
-	    hcalEnergy.push_back(0.);
-	    iPivotal.push_back(maxMvaiEcal);
-	    
-	  } else { 
-	    
-	    // Assign the ECAL energy to the photon
-	    if ( totalEcal > 0. ) { 
-	      pivotalClusterRef.push_back(maxMvaEcalRef);
-	      particleEnergy.push_back(totalEcal);
-	      ecalEnergy.push_back(totalEcal);
-	      hcalEnergy.push_back(0.);
-	      iPivotal.push_back(maxMvaiEcal);
-	    }
-	    
-	    // Assign the remaining excess to a neutral hadron
-	    pivotalClusterRef.push_back(hclusterref);
-	    particleEnergy.push_back(eNeutralHadron-calibEcal);
-	    ecalEnergy.push_back(0.);
-	    hcalEnergy.push_back(eNeutralHadron-calibEcal);
-	    iPivotal.push_back(iHcal);
-	    
-	    /*
-	      pivotalClusterRef.push_back(hclusterref);
-	      particleEnergy.push_back(eNeutralHadron);
-	      ecalEnergy.push_back(0.);
-	      hcalEnergy.push_back(eNeutralHadron);
-	      iPivotal.push_back(iHcal);
-	    */
-	    
-	    // keep track globally of the merged neutral hadron
-	    mergedNeutralHadronEnergy = eNeutralHadron-calibEcal;
-	  } 
-        }   // end case : maxMva < mvaCut_
-      }   // end case PS signature is false 
-    
-      
+      } else { 
+	
+	// Otherwise assign the whole ECAL energy to the photon
+	if ( !maxEcalRef.isNull() ) { 
+	  pivotalClusterRef.push_back(maxEcalRef);
+	  particleEnergy.push_back(totalEcal);
+	  particleDirection.push_back(photonAtECAL);
+	  ecalEnergy.push_back(totalEcal);
+	  hcalEnergy.push_back(0.);
+	  iPivotal.push_back(maxiEcal);
+	}
+	
+	// ... and assign the remaining excess to a neutral hadron
+	pivotalClusterRef.push_back(hclusterref);
+	particleEnergy.push_back(eNeutralHadron-calibEcal);
+	particleDirection.push_back(hadronAtECAL);
+	ecalEnergy.push_back(0.);
+	hcalEnergy.push_back(eNeutralHadron-calibEcal);
+	iPivotal.push_back(iHcal);
+	
+	mergedNeutralHadronEnergy = eNeutralHadron-calibEcal;
+	
+      }
+	
+
       // reconstructing a merged neutral
       // the type of PFCandidate is known from the 
       // reference to the pivotal cluster. 
@@ -1678,18 +1543,23 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	if ( particleEnergy[iPivot] < 0. ) 
 	  std::cout << "ALARM = Negative energy ! " 
 		    << particleEnergy[iPivot] << std::endl;
-
+	
+	bool useDirection = true;
 	unsigned tmpi = reconstructCluster( *pivotalClusterRef[iPivot], 
-					    particleEnergy[iPivot] ); 
+					    particleEnergy[iPivot], 
+					    useDirection,
+	                                    particleDirection[iPivot].X(),
+					    particleDirection[iPivot].Y(),
+					    particleDirection[iPivot].Z()); 
+
       
 	(*pfCandidates_)[tmpi].setEcalEnergy( ecalEnergy[iPivot] );
 	(*pfCandidates_)[tmpi].setHcalEnergy( hcalEnergy[iPivot] );
 	(*pfCandidates_)[tmpi].setPs1Energy( -1 );
 	(*pfCandidates_)[tmpi].setPs2Energy( -1 );
-	(*pfCandidates_)[tmpi].set_mva_nothing_gamma( maxMva );
+	(*pfCandidates_)[tmpi].set_mva_nothing_gamma( -1. );
 	//       (*pfCandidates_)[tmpi].addElement(&elements[iPivotal]);
 	(*pfCandidates_)[tmpi].addElementInBlock(blockref, iPivotal[iPivot]);
-	// add PS elements to be done
 
       }
 
@@ -2071,17 +1941,22 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
 
 
 
-unsigned PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
-                                    double particleEnergy) {
+unsigned 
+PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
+                           double particleEnergy, 
+                           bool useDirection, 
+			   double particleX,
+			   double particleY, 
+			   double particleZ) {
   
   reco::PFCandidate::ParticleType particleType = reco::PFCandidate::X;
 
   // need to convert the math::XYZPoint data member of the PFCluster class=
   // to a displacement vector: 
-  ROOT::Math::DisplacementVector3D< ROOT::Math::Cartesian3D<double> , ROOT::Math::DefaultCoordinateSystemTag > clusterPos( cluster.position().X(), cluster.position().Y(),cluster.position().Z() );
-  
+  math::XYZVector clusterPos( cluster.position().X(), cluster.position().Y(),cluster.position().Z() );
+  math::XYZVector particleDirection ( particleX, particleY, particleZ );
 
-  clusterPos = clusterPos.Unit();
+  clusterPos = useDirection ? particleDirection.Unit() : clusterPos.Unit();
   clusterPos *= particleEnergy;
 
   // clusterPos is now a vector along the cluster direction, 
@@ -2176,8 +2051,6 @@ ostream& operator<<(ostream& out, const PFAlgo& algo) {
   out<<endl;
   out<<"nSigmaECAL_     "<<algo.nSigmaECAL_<<endl;
   out<<"nSigmaHCAL_     "<<algo.nSigmaHCAL_<<endl;
-  out<<"mvaCut_         "<<algo.mvaCut_<<endl;
-  out<<"PSCut_          "<<algo.PSCut_<<endl;
   out<<endl;
   out<<(*(algo.calibration_))<<endl;
   out<<endl;

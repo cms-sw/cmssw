@@ -151,12 +151,6 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 					  h_damping,
 					  newCalib ) );
 
-  double mvaCut = iConfig.getParameter<double>("pf_mergedPhotons_mvaCut");
-  string mvaWeightFile 
-    = iConfig.getParameter<string>("pf_mergedPhotons_mvaWeightFile");
-  edm::FileInPath path_mvaWeightFile( mvaWeightFile.c_str() );
-  double PSCut = iConfig.getParameter<double>("pf_mergedPhotons_PSCut");
-  
   int algoType 
     = iConfig.getParameter<unsigned>("algoType");
   
@@ -172,10 +166,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 			  nSigmaHCAL,
 			  calibration,
 			  clusterCalibration,
-			  newCalib,
-			  PSCut, 
-			  mvaCut, 
-			  path_mvaWeightFile.fullPath().c_str() );
+			  newCalib);
 
   //PFElectrons: call the method setpfeleparameters
   pfAlgo_->setPFEleParameters(mvaEleCut,

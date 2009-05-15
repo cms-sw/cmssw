@@ -35,11 +35,6 @@ particleFlow = cms.EDProducer("PFProducer",
     # Factors to be applied in the four and fifth steps to the pt error
     factors_45 = cms.vdouble(1.,1.),
 
-    # Merged photons
-    pf_mergedPhotons_PSCut = cms.double(0.001),
-    pf_mergedPhotons_mvaCut = cms.double(0.5),
-    pf_mergedPhotons_mvaWeightFile = cms.string('RecoParticleFlow/PFProducer/data/MVAnalysis_MLP.weights.txt'),
-
     # number of sigmas for neutral energy detection
     pf_nsigma_ECAL = cms.double(0.0),
     pf_nsigma_HCAL = cms.double(1.0),
