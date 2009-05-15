@@ -46,13 +46,13 @@ int main() {
     eefflFC[i] = eff[i] - fc.lower();
     eeffhFC[i] = fc.upper() - eff[i];
     cp.calculate(n1, n0);
-    eefflFC[i] = eff[i] - cp.lower();
-    eeffhFC[i] = cp.upper() - eff[i];
+    eefflCP[i] = eff[i] - cp.lower();
+    eeffhCP[i] = cp.upper() - eff[i];
   }
   TGraphAsymmErrors graphFC(bins, x, eff, exl, exh, eefflFC, eeffhFC);
   TGraphAsymmErrors graphCP(bins, x, eff, exl, exh, eefflCP, eeffhCP);
-  graphFC.SetTitle("efficiency (Feldman-Cousins errors) ");
-  graphCP.SetTitle("efficiency (Clopper-Pearson errors)");
+  graphFC.SetTitle("efficiency (Feldman-Cousins intervals) ");
+  graphCP.SetTitle("efficiency (Clopper-Pearson intervals)");
   graphFC.SetMarkerColor(kBlue);
   graphFC.SetMarkerStyle(21);
   graphFC.SetLineWidth(1);
@@ -62,9 +62,11 @@ int main() {
   graphCP.SetLineWidth(1);
   graphCP.SetLineColor(kRed);
   TCanvas c;
+  histo.SetTitle("Efficiency with Feldman-Cousins intervals"); 
   histo.Draw();
   graphFC.Draw("P");
   c.SaveAs("testFeldmanCousinsBinomial.eps");
+  histo.SetTitle("Efficiency with Clopper-Pearson intervals"); 
   histo.Draw();
   graphCP.Draw("P");
   c.SaveAs("testClopperPearsonBinomial.eps");
