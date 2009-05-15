@@ -210,15 +210,13 @@ void Pythia6Hadronizer::finalizeEvent()
       lheEvent()->fillPdfInfo( &pdf );
    }
 
-   if (!lhe || event()->signal_process_id() < 0) event()->set_signal_process_id( pypars.msti[0] );
-   if (!lhe || event()->event_scale() < 0)       event()->set_event_scale( pypars.pari[16] );
-   
-// FIXME event scale is *not* pthat.  We now have the binningValue() for that
-//     -> the event scale Q would be pypars.pari[22]
-//        If we change this, we need to announce it!!!
-// FIXME: alpha qcd, alpha qed
-// FIXME: signal_process_vertex
+   // filling in factorization "Q scale" now! pthat moved to binningValues()
 
+   if (!lhe || event()->signal_process_id() < 0) event()->set_signal_process_id( pypars.msti[0] );
+   if (!lhe || event()->event_scale() < 0)       event()->set_event_scale( pypars.pari[22] );
+   if (!lhe || event()->alphaQED() < 0)          event()->set_alphaQED( pyint1.vint[56] );
+   if (!lhe || event()->alphaQCD() < 0)          event()->set_alphaQCD( pyint1.vint[57] );
+   
    // get pdf info directly from Pythia6 and set it up into HepMC::GenEvent
    // S. Mrenna: Prefer vint block
    //
@@ -233,6 +231,19 @@ void Pythia6Hadronizer::finalizeEvent()
    event()->set_pdf_info( pdf ) ;
 
    event()->weights().push_back( pyint1.vint[96] );
+
+   // now create the GenEventInfo product from the GenEvent and fill
+   // the missing pieces
+
+   eventInfo().reset( new GenEventInfoProduct( event().get() ) );
+
+   // in Pythia6 pthat is used to subdivide samples into different bins
+   // in LHE mode the binning is done by the external ME generator
+   // which is likely not pthat, so only filling it for Py6 internal mode
+   if (!lhe)
+   {
+     eventInfo()->setBinningValues( std::vector<double>(1, pypars.pari[16]) );
+   }
 
    // here we treat long-lived particles
    //
