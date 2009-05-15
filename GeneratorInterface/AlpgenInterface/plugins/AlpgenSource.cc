@@ -75,13 +75,19 @@ private:
   LHERunInfoProduct::Header	lheAlpgenUnwParHeader;
   /// Alpgen _unw.par file as an AlpgenHeader
   AlpgenHeader			header;
+
+  /// configuration flags
+  bool				writeAlpgenWgtFile;
+  bool				writeAlpgenParFile;
 };
 
 AlpgenSource::AlpgenSource(const edm::ParameterSet &params,
 			   const edm::InputSourceDescription &desc) :
   edm::ExternalInputSource(params, desc, false), 
   skipEvents_(params.getUntrackedParameter<unsigned int>("skipEvents", 0)),
-  nEvent_(0), lheAlpgenUnwParHeader("AlpgenUnwParFile")
+  nEvent_(0), lheAlpgenUnwParHeader("AlpgenUnwParFile"),
+  writeAlpgenWgtFile(params.getUntrackedParameter<bool>("writeAlpgenWgtFile", true)),
+  writeAlpgenParFile(params.getUntrackedParameter<bool>("writeAlpgenParFile", true))
 {
   std::vector<std::string> allFileNames = fileNames();
 
@@ -205,26 +211,33 @@ void AlpgenSource::beginRun(edm::Run &run)
   slha.addLine(slhaMassLine(24, AlpgenHeader::mw, "W        mass"));
   slha.addLine(slhaMassLine(25, AlpgenHeader::mh, "H        mass"));
 
+  char buffer[512];
+
   // We also add the information on weighted events.
   LHERunInfoProduct::Header lheAlpgenWgtHeader("AlpgenWgtFile");
-  std::ifstream wgtascii((fileName_+".wgt").c_str());
-  char buffer[512];
-  while(wgtascii.getline(buffer,512)) {
-    lheAlpgenWgtHeader.addLine(std::string(buffer) + "\n");
+  if (writeAlpgenWgtFile) {
+    std::ifstream wgtascii((fileName_+".wgt").c_str());
+    while(wgtascii.getline(buffer,512)) {
+      lheAlpgenWgtHeader.addLine(std::string(buffer) + "\n");
+    }
   }
 
   LHERunInfoProduct::Header lheAlpgenParHeader("AlpgenParFile");
-  std::ifstream parascii((fileName_+".par").c_str());
-  while(parascii.getline(buffer,512)) {
-    lheAlpgenParHeader.addLine(std::string(buffer) + "\n");
+  if (writeAlpgenParFile) {
+    std::ifstream parascii((fileName_+".par").c_str());
+    while(parascii.getline(buffer,512)) {
+      lheAlpgenParHeader.addLine(std::string(buffer) + "\n");
+    }
   }
 
   // Bbuild the final Run info object. Backwards-compatible order.
   std::auto_ptr<LHERunInfoProduct> runInfo(new LHERunInfoProduct(heprup));
   runInfo->addHeader(comments);
   runInfo->addHeader(lheAlpgenUnwParHeader);
-  runInfo->addHeader(lheAlpgenWgtHeader);
-  runInfo->addHeader(lheAlpgenParHeader);
+  if (writeAlpgenWgtFile)
+    runInfo->addHeader(lheAlpgenWgtHeader);
+  if (writeAlpgenParFile)
+    runInfo->addHeader(lheAlpgenParHeader);
   runInfo->addHeader(slha);
   run.put(runInfo);
 
