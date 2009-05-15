@@ -13,7 +13,7 @@
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: HLTFEDSizeFilter.cc,v 1.2 2008/09/18 09:33:36 bdahmes Exp $
+// $Id: HLTFEDSizeFilter.cc,v 1.3 2008/10/10 17:34:53 bdahmes Exp $
 //
 //
 
@@ -50,7 +50,8 @@ private:
     edm::InputTag RawCollection_;
     unsigned int threshold_;
     unsigned int fedStart_, fedStop_ ;
-    
+  bool AND_;
+ 
 };
 
 //
@@ -64,6 +65,7 @@ HLTFEDSizeFilter::HLTFEDSizeFilter(const edm::ParameterSet& iConfig)
     // For a list of FEDs by subdetector, see DataFormats/FEDRawData/src/FEDNumbering.cc
     fedStart_   = iConfig.getParameter<unsigned int>("firstFED"); 
     fedStop_    = iConfig.getParameter<unsigned int>("lastFED");
+    AND_ = iConfig.getParameter<bool>("VectorAND");
 }
 
 
@@ -92,10 +94,17 @@ HLTFEDSizeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         edm::LogWarning("HLTFEDSizeFilter") << RawCollection_ << " not available";
     }
     
-    for (unsigned int i=fedStart_; i<=fedStop_; i++) 
-        if ( theRaw->FEDData(i).size() > threshold_ ) return true ; 
-    
-    return false ; 
+    bool AndResult = false;
+
+    for (unsigned int i=fedStart_; i<=fedStop_; i++){
+      if(!AND_){
+        if (theRaw->FEDData(i).size() >= threshold_ ) return true ; 
+      }else{
+	if( i == fedStart_)AndResult=true;
+	AndResult*=(theRaw->FEDData(i).size() >= threshold_ );
+      }
+    }
+    return AndResult;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
