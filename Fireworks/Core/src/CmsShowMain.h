@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.17 2009/04/07 14:12:59 chrjones Exp $
+// $Id: CmsShowMain.h,v 1.18 2009/04/08 17:11:16 amraktad Exp $
 //
 
 // system include files
@@ -96,7 +96,6 @@ public:
    static void   setCaloScale(double var) {
       m_caloScale = var;
    }
-   static void setBrightness(unsigned int value);
 
    // ---------- member functions ---------------------------
    //  int draw(const fwlite::Event& );

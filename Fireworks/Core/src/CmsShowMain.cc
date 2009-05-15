@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.74 2009/04/27 16:53:29 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.75 2009/05/01 22:30:41 jmuelmen Exp $
 //
 
 // system include files
@@ -140,7 +140,6 @@ static char const* const kHelpCommandOpt = "help,h";
 // static char const* const kSoftOpt = "soft";
 static char const* const kSoftCommandOpt = "soft";
 static const char* const kPortCommandOpt = "port";
-static char const* const kBrightnessCommandOpt = "brightness";
 
 CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    m_configurationManager(new FWConfigurationManager),
@@ -180,7 +179,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
               (kDebugCommandOpt,                                  "Start the display from a debugger and producer a crash report")
               (kAdvancedRenderCommandOpt,                         "Use advance options to improve rendering quality (anti-alias etc)")
               (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
-              (kBrightnessCommandOpt, po::value<unsigned int>(),  "Icnrease brightness of objects when used for slides or projectors. [0-5]")
               (kHelpCommandOpt,                                   "Display help message");
       po::positional_options_description p;
       p.add(kInputFileOpt, -1);
@@ -307,10 +305,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       }
 
       m_startupTasks->startDoingTasks();
-      if(vm.count(kBrightnessCommandOpt)) {
-         f=boost::bind(&CmsShowMain::setBrightness, vm[kBrightnessCommandOpt].as<unsigned int>());
-         m_startupTasks->addTask(f);
-      }
    } catch(std::exception& iException) {
       std::cerr <<"CmsShowMain caught exception "<<iException.what()<<std::endl;
       throw;
@@ -827,42 +821,6 @@ CmsShowMain::reachedEnd()
 {
    if(!m_isPlaying) m_guiManager->disableNext();
 }
-
-void
-CmsShowMain::setBrightness(unsigned int value)
-{
-   // Notes:
-   // you can store the original colors by creating a clone of
-   // (TObjArray*)gROOT->GetListOfColors() and restore the colors by
-   // assigning the vector with original values to the list of colors
-   // that gROOT handles.
-
-   std::cout << "Setting brightness: " << value << std::endl;
-
-   if ( value > 5) {
-      std::cout << "Wrong parameter for brightness. Ignored" << std::endl;
-      return;
-   }
-
-   TObjArray* colors = (TObjArray*)gROOT->GetListOfColors();
-   for (int i = 0; i < colors->GetSize(); ++i ) {
-      if ( TColor* color = dynamic_cast<TColor*>(colors->At(i)) ) {
-         Float_t r(0);
-         Float_t g(0);
-         Float_t b(0);
-         color->GetRGB(r, g, b);
-         if ( r < 0.01 && g < 0.01 && b < 0.01 ) continue; // skip black
-         if ( r > 0.95 && g > 0.95 && b > 0.95 ) continue; // skip white
-         r += value*0.1; if ( r > 1 ) r = 1;
-         g += value*0.1; if ( g > 1 ) g = 1;
-         b += value*0.1; if ( b > 1 ) b = 1;
-         color->SetRGB(r, g, b);
-      }
-   }
-   gEve->FullRedraw3D(false,true);
-}
-
-
 
 //
 // static member functions
