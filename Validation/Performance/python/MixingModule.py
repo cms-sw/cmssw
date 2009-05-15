@@ -30,8 +30,8 @@ def customise(process):
 
     #Add the configuration for the Igprof running to dump profile snapshots:
     process.IgProfService = cms.Service("IgProfService",
-                                        reportFirstEvent            = cms.untracked.int32(0),
-                                        reportEventInterval         = cms.untracked.int32(25),
+                                        reportFirstEvent            = cms.untracked.int32(50),
+                                        reportEventInterval         = cms.untracked.int32(100),
                                         reportToFileAtPostEvent     = cms.untracked.string("| gzip -c > IgProf.%I.gz")
                                         )
 
