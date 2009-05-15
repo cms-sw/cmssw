@@ -91,8 +91,6 @@ bool ThePEGSource::produce(edm::Event &event)
 	hepmcEvent->set_event_number(numberEventsInRun() -
 	                             remainingEvents() - 1);
 	fillAuxiliary(hepmcEvent.get(), &pdf, thepegEvent);
-	if (usePthatEventScale)
-		setPthatEventScale(hepmcEvent.get(), thepegEvent);
 	hepmcEvent->set_pdf_info(pdf);
 
 	if (eventsToPrint) {

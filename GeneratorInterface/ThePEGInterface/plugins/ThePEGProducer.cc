@@ -89,8 +89,6 @@ void ThePEGProducer::produce(edm::Event &event, const edm::EventSetup &es)
 	clearAuxiliary(hepmcEvent.get(), &pdf);
 	hepmcEvent->set_event_number(++index);
 	fillAuxiliary(hepmcEvent.get(), &pdf, thepegEvent);
-	if (usePthatEventScale)
-		setPthatEventScale(hepmcEvent.get(), thepegEvent);
 	hepmcEvent->set_pdf_info(pdf);
 
 	if (eventsToPrint) {

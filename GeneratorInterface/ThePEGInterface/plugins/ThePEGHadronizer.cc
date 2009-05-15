@@ -10,6 +10,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
@@ -99,9 +100,11 @@ void ThePEGHadronizer::finalizeEvent()
 	HepMC::PdfInfo pdf;
 	clearAuxiliary(event().get(), &pdf);
 	fillAuxiliary(event().get(), &pdf, thepegEvent);
-	if (usePthatEventScale)
-		setPthatEventScale(event().get(), thepegEvent);
 	event()->set_pdf_info(pdf);
+
+	eventInfo().reset(new GenEventInfoProduct(event().get()));
+	eventInfo()->setBinningValues(
+			std::vector<double>(1, pthat(thepegEvent)));
 
 	if (eventsToPrint) {
 		eventsToPrint--;

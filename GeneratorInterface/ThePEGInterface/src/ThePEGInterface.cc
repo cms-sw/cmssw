@@ -1,5 +1,5 @@
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.cc,v 1.11 2009/02/12 21:09:41 saout Exp $
+ *  $Id: ThePEGInterface.cc,v 1.12 2009/05/15 14:37:21 stober Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>
@@ -45,7 +45,6 @@ using namespace std;
 using namespace gen;
 
 ThePEGInterface::ThePEGInterface(const edm::ParameterSet &pset) :
-	usePthatEventScale(pset.getParameter<bool>("usePthatEventScale")),
 	randomEngineGlueProxy_(ThePEG::RandomEngineGlue::Proxy::create()),
 	dataLocation_(ParameterCollector::resolve(pset.getParameter<string>("dataLocation"))),
 	generator_(pset.getParameter<string>("generatorModule")),
@@ -310,16 +309,21 @@ void ThePEGInterface::fillAuxiliary(HepMC::GenEvent *hepmc,
 
 }
 
-void ThePEGInterface::setPthatEventScale(HepMC::GenEvent *hepmc, const ThePEG::EventPtr &event)
+double ThePEGInterface::pthat(const ThePEG::EventPtr &event)
 {
 	using namespace ThePEG;
+
 	if (!event->primaryCollision())
-		return;
+		return -1.0;
+
 	tSubProPtr sub = event->primaryCollision()->primarySubProcess();
-	TmpTransform<tSubProPtr> tmp(sub, Utilities::getBoostToCM(sub->incoming()));
+	TmpTransform<tSubProPtr> tmp(sub, Utilities::getBoostToCM(
+							sub->incoming()));
 
 	double pthat = (*sub->outgoing().begin())->momentum().perp();
-	for (PVector::const_iterator it = sub->outgoing().begin(); it != sub->outgoing().end(); ++it)
-		pthat = min(pthat, (*it)->momentum().perp());
-	hepmc->set_event_scale(pthat / ThePEG::GeV);
+	for(PVector::const_iterator it = sub->outgoing().begin();
+	    it != sub->outgoing().end(); ++it)
+		pthat = std::min(pthat, (*it)->momentum().perp());
+
+	return pthat / ThePEG::GeV;
 }
