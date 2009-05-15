@@ -1,5 +1,5 @@
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.cc,v 1.12 2009/05/15 14:37:21 stober Exp $
+ *  $Id: ThePEGInterface.cc,v 1.13 2009/05/15 22:55:48 saout Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>
@@ -291,8 +291,8 @@ void ThePEGInterface::fillAuxiliary(HepMC::GenEvent *hepmc,
 			double v = pdf1->xfx(beams.first->dataPtr(),
 			                     partons.first->dataPtr(),
 			                     scale, x1);
-			if (v > 0)
-				pdf->set_pdf1(v);
+			if (v > 0 && x1 > 0)
+				pdf->set_pdf1(v / x1);
 			else
 				pdf->set_pdf2(-1.0);
 		}
@@ -300,8 +300,8 @@ void ThePEGInterface::fillAuxiliary(HepMC::GenEvent *hepmc,
 			double v = pdf2->xfx(beams.first->dataPtr(),
 			                     partons.first->dataPtr(),
 			                     scale, x2);
-			if (v > 0)
-				pdf->set_pdf2(v);
+			if (v > 0 && x2 > 0)
+				pdf->set_pdf2(v / x2);
 			else
 				pdf->set_pdf2(-1.0);
 		}
