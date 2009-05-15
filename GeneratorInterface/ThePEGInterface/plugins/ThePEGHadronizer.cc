@@ -99,6 +99,8 @@ void ThePEGHadronizer::finalizeEvent()
 	HepMC::PdfInfo pdf;
 	clearAuxiliary(event().get(), &pdf);
 	fillAuxiliary(event().get(), &pdf, thepegEvent);
+	if (usePthatEventScale)
+		setPthatEventScale(event().get(), thepegEvent);
 	event()->set_pdf_info(pdf);
 
 	if (eventsToPrint) {

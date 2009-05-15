@@ -2,7 +2,7 @@
 #define GeneratorInterface_ThePEGInterface_ThePEGInterface_h
 
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.h,v 1.7 2009/02/11 19:34:52 saout Exp $
+ *  $Id: ThePEGInterface.h,v 1.8 2009/02/12 21:09:40 saout Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>
@@ -41,11 +41,14 @@ class ThePEGInterface {
 	static void fillAuxiliary(HepMC::GenEvent *hepmc,
 	                          HepMC::PdfInfo *pdf,
 	                          const ThePEG::EventPtr &event);
+	static void setPthatEventScale(HepMC::GenEvent *hepmc,
+                                   const ThePEG::EventPtr &event);
 
 	std::string dataFile(const std::string &fileName) const;
 	std::string dataFile(const edm::ParameterSet &pset,
-	                     const std::string &paramName) const;
+                         const std::string &paramName) const;
 
+	const bool					usePthatEventScale;
 	ThePEG::EGPtr				eg_;
 	std::auto_ptr<HepMC::IO_BaseClass>	iobc_;
 

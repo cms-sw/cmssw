@@ -1,5 +1,5 @@
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.cc,v 1.10 2009/02/11 19:34:52 saout Exp $
+ *  $Id: ThePEGInterface.cc,v 1.11 2009/02/12 21:09:41 saout Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>
@@ -17,7 +17,7 @@
 
 #include <HepMC/GenEvent.h>
 #include <HepMC/PdfInfo.h>
-#include <HepMC/IO_ExtendedAscii.h>
+#include <HepMC/IO_GenEvent.h>
 
 #include <ThePEG/Utilities/DynamicLoader.h>
 #include <ThePEG/Repository/Repository.h>
@@ -26,9 +26,11 @@
 #include <ThePEG/EventRecord/Event.h>
 #include <ThePEG/EventRecord/Particle.h> 
 #include <ThePEG/EventRecord/Collision.h>
+#include <ThePEG/EventRecord/TmpTransform.h>
 #include <ThePEG/Config/ThePEG.h>
 #include <ThePEG/PDF/PartonExtractor.h>
 #include <ThePEG/PDF/PDFBase.h>
+#include <ThePEG/Utilities/UtilityBase.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -43,6 +45,7 @@ using namespace std;
 using namespace gen;
 
 ThePEGInterface::ThePEGInterface(const edm::ParameterSet &pset) :
+	usePthatEventScale(pset.getParameter<bool>("usePthatEventScale")),
 	randomEngineGlueProxy_(ThePEG::RandomEngineGlue::Proxy::create()),
 	dataLocation_(ParameterCollector::resolve(pset.getParameter<string>("dataLocation"))),
 	generator_(pset.getParameter<string>("generatorModule")),
@@ -53,7 +56,7 @@ ThePEGInterface::ThePEGInterface(const edm::ParameterSet &pset) :
 	// Write events in hepmc ascii format for debugging purposes
 	string dumpEvents = pset.getUntrackedParameter<string>("dumpEvents", "");
 	if (!dumpEvents.empty()) {
-		iobc_.reset(new HepMC::IO_ExtendedAscii(dumpEvents.c_str(), ios::out));
+		iobc_.reset(new HepMC::IO_GenEvent(dumpEvents.c_str(), ios::out));
 		edm::LogInfo("ThePEGSource") << "Event logging switched on (=> " << dumpEvents << ")";
 	}
 	// Clear dumpConfig target
@@ -305,4 +308,18 @@ void ThePEGInterface::fillAuxiliary(HepMC::GenEvent *hepmc,
 		}
 	}
 
+}
+
+void ThePEGInterface::setPthatEventScale(HepMC::GenEvent *hepmc, const ThePEG::EventPtr &event)
+{
+	using namespace ThePEG;
+	if (!event->primaryCollision())
+		return;
+	tSubProPtr sub = event->primaryCollision()->primarySubProcess();
+	TmpTransform<tSubProPtr> tmp(sub, Utilities::getBoostToCM(sub->incoming()));
+
+	double pthat = (*sub->outgoing().begin())->momentum().perp();
+	for (PVector::const_iterator it = sub->outgoing().begin(); it != sub->outgoing().end(); ++it)
+		pthat = min(pthat, (*it)->momentum().perp());
+	hepmc->set_event_scale(pthat / ThePEG::GeV);
 }

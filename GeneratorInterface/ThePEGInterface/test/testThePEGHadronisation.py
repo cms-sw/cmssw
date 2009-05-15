@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 from GeneratorInterface.ThePEGInterface.herwigDefaults_cff import *
+from GeneratorInterface.ThePEGInterface.herwigValidation_cff import *
 
 configurationMetadata = cms.untracked.PSet(
-	version = cms.untracked.string('$Revision: 1.1 $'),
+	version = cms.untracked.string('$Revision: 1.2 $'),
 	name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/GeneratorInterface/ThePEGInterface/test/testThePEGHadronisation.py,v $'),
 	annotation = cms.untracked.string('LHE example - ttbar events, MRST2001 used')
 )
@@ -16,12 +17,11 @@ generator = cms.EDProducer("LHEProducer",
 
 	hadronisation = cms.PSet(
 		herwigDefaultsBlock,
+		herwigValidationBlock,
 
 		generator = cms.string('ThePEG'),
 
 		configFiles = cms.vstring(),
-		dumpConfig  = cms.untracked.string(""),
-		dumpEvents  = cms.untracked.string(""),
 
 		parameterSets = cms.vstring(
 			'pdfCTEQ5L',
@@ -34,4 +34,4 @@ generator = cms.EDProducer("LHEProducer",
 	)
 )
 
-ProducerSourceSequence = cms.Sequence(generator)
+ProductionFilterSequence = cms.Sequence(generator)

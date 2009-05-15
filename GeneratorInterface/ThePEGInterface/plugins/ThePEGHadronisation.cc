@@ -115,6 +115,8 @@ std::auto_ptr<HepMC::GenEvent> ThePEGHadronisation::doHadronisation()
 	clearAuxiliary(event.get(), &pdf);
 	getRawEvent()->fillPdfInfo(&pdf);
 	fillAuxiliary(event.get(), &pdf, thepegEvent);
+	if (usePthatEventScale)
+		setPthatEventScale(event.get(), thepegEvent);
 	event->set_pdf_info(pdf);
 
 	return event;

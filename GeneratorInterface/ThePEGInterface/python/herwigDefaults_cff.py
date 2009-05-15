@@ -6,6 +6,7 @@ herwigDefaultsBlock = cms.PSet(
 	repository = cms.string('HerwigDefaults.rpo'),
 	eventHandlers = cms.string('/Herwig/EventHandlers'),
 	generatorModule = cms.string('/Herwig/Generators/LHCGenerator'),
+	usePthatEventScale = cms.bool(True),
 
 	run = cms.string('LHC'),
 
