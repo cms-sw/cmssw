@@ -5,8 +5,8 @@
 
 /**
 \class RscBaseModel
-$Revision: 1.5 $
-$Date: 2009/04/15 12:08:27 $
+$Revision: 1.6 $
+$Date: 2009/05/15 09:55:43 $
 \author G. Schott (gregory.Schott<at>cern.ch), Danilo Piparo - Universitaet Karlsruhe
 
 The distribution is defined in the datacard. An example for a Gaussian 
@@ -133,6 +133,8 @@ public:
   // BifurGaus
   RooRealVar* sigmaL;
   RooRealVar* sigmaR;
+  RooRealVar* sigmaL2;
+  RooRealVar* sigmaR2;
 
   // CBShape+Gaussian
   RooRealVar* m0;
