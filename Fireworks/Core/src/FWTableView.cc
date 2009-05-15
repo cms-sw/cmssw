@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.6 2009/05/01 22:30:41 jmuelmen Exp $
+// $Id: FWTableView.cc,v 1.7 2009/05/11 18:03:38 amraktad Exp $
 //
 
 // system include files
@@ -238,9 +238,10 @@ FWTableView::FWTableView (TEveWindowSlot* iParent, FWTableViewManager *manager)
        m_tableManager(new FWTableViewTableManager(this)),
        m_tableWidget(0),
        m_showColumnUI(false),
-       m_validator(0),
+       m_validator(new FWExpressionValidator),
        m_currentColumn(-1),
        m_useColumnsFromConfig(false)
+
 {
      m_frame = iParent->MakeFrame(0);
      TGCompositeFrame *frame = m_frame->GetGUICompositeFrame();
@@ -283,7 +284,6 @@ FWTableView::FWTableView (TEveWindowSlot* iParent, FWTableViewManager *manager)
      m_column_name_field->SetMaxWidth(10);
      m_column_expr_field = new FWGUIValidatingTextEntry(column_control_fields);
 //      m_column_expr_field->SetEnabled(kFALSE);
-     m_validator = new FWExpressionValidator;
      m_column_expr_field->setValidator(m_validator);
      m_column_prec_field = new TGTextEntry(column_control_fields);
      m_column_prec_field->SetMaxWidth(10);
@@ -323,6 +323,7 @@ FWTableView::~FWTableView()
 {
      m_frame->DestroyWindowAndSlot();
      delete m_tableManager;
+     delete m_validator;
 }
 
 void
@@ -532,14 +533,18 @@ void FWTableView::dataChanged ()
 
 void FWTableView::selectCollection (Int_t i_coll)
 {
-     printf("selected collection %d, ", i_coll);
+//      printf("selected collection %d, ", i_coll);
      const FWEventItem *item = m_manager->items()[i_coll];
-     printf("%s\n", item->modelType()->GetName());
+//      printf("%s\n", item->modelType()->GetName());
      m_iColl = i_coll;
 //      m_validator = new FWExpressionValidator;
 //      m_column_expr_field->setValidator(m_validator);
-     if (m_validator != 0)
+     if (m_validator != 0) {
+// 	  std::cout << "setting validator to " << item->modelType()->GetName() << std::endl;
 	  m_validator->setType(ROOT::Reflex::Type::ByTypeInfo(*(item->modelType()->GetTypeInfo())));
+     } else {
+// 	  std::cout << "can't set null validator\n";
+     }
      if (not m_useColumnsFromConfig) {
 	  if (m_manager->tableFormats(*item->modelType()) == m_manager->m_tableFormats.end()) {
 	       printf("No table format for objects of this type (%s)\n",
