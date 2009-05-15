@@ -15,7 +15,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2008
-// $Id: TauTagValidation.cc,v 1.9 2009/03/23 13:08:01 vasquez Exp $
+// $Id: TauTagValidation.cc,v 1.10 2009/03/28 18:26:06 vasquez Exp $
 //
 //
 // user include files
@@ -39,13 +39,15 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig)
   saveoutputhistograms_ = iConfig.getParameter<bool>("SaveOutputHistograms");
 
   // Here it can be pretty much anything either a lepton or a jet 
-  refCollection_ = iConfig.getParameter<edm::InputTag>("RefCollection");
+  refCollectionInputTag_ = iConfig.getParameter<InputTag>("RefCollection");
+  refCollection_ = refCollectionInputTag_.label();
   
   // The extension name has information about the Reference collection used
   extensionName_ = iConfig.getParameter<string>("ExtensionName");
   
   // Here is the reconstructed product of interest.
-  TauProducer_ = iConfig.getParameter<string>("TauProducer");
+  TauProducerInputTag_ = iConfig.getParameter<InputTag>("TauProducer");
+  TauProducer_ = TauProducerInputTag_.label();
 
   // The vector of Tau Discriminators to be monitored
   // TauProducerDiscriminators_ = iConfig.getUntrackedParameter<std::vector<string> >("TauProducerDiscriminators");
@@ -56,7 +58,7 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig)
   // Get the discriminators and their cuts
   discriminators_ = iConfig.getParameter< std::vector<edm::ParameterSet> >( "discriminators" ); 
 
-  //  cout << " RefCollection: " << refCollection_.label() << " "<< refCollection_.instance() << endl;
+  //  cout << " RefCollection: " << refCollection_.label() << " "<< refCollection_ << endl;
   
   tversion = edm::getReleaseVersion();
   //    cout<<endl<<"-----------------------*******************************Version: " << tversion<<endl;
@@ -69,7 +71,7 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig)
     tversion.erase(0,1);
     tversion.erase(tversion.size()-1,1);
     outPutFile_.append(tversion);
-    outPutFile_.append("_"+ refCollection_.instance());
+    outPutFile_.append("_"+ refCollection_);
     if ( ! extensionName_.empty()){
       outPutFile_.append("_"+ extensionName_);
     }
@@ -103,10 +105,10 @@ void TauTagValidation::beginJob(const edm::EventSetup& iConfig)
     phiTemp   =  dbeTau->book1D("nRef_Taus_vs_phiTauVisible", "nRef_Taus_vs_phiTauVisible", 36, -180., 180.);
     energyTemp =  dbeTau->book1D("nRef_Taus_vs_energyTauVisible", "nRef_Taus_vs_energyTauVisible", 45, 0., 450.0);
 
-    ptTauVisibleMap.insert( std::make_pair( refCollection_.instance(),ptTemp));
-    etaTauVisibleMap.insert( std::make_pair(refCollection_.instance(),etaTemp));
-    phiTauVisibleMap.insert( std::make_pair(refCollection_.instance(),phiTemp));
-    energyTauVisibleMap.insert( std::make_pair(refCollection_.instance(),energyTemp));
+    ptTauVisibleMap.insert( std::make_pair( refCollection_,ptTemp));
+    etaTauVisibleMap.insert( std::make_pair(refCollection_,etaTemp));
+    phiTauVisibleMap.insert( std::make_pair(refCollection_,phiTemp));
+    energyTauVisibleMap.insert( std::make_pair(refCollection_,energyTemp));
 
     // Number of Tau Candidates matched to MC Taus    
 
@@ -219,13 +221,13 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //std::cout << "Event number: " << ++numEvents_ << endl;
   //std::cout << "--------------------------------------------------------------"<<endl;
 
-  // ------------------------ Reference product -----------------------------------------------------------------------
+  // ----------------------- Reference product -----------------------------------------------------------------------
 
   Handle<genCandidateCollection> ReferenceCollection;
-  bool isGen = iEvent.getByLabel(refCollection_.instance() , ReferenceCollection);    // get the product from the event
+  bool isGen = iEvent.getByLabel(refCollectionInputTag_, ReferenceCollection);    // get the product from the event
 
   if (!isGen) {
-    std::cerr << " Reference collection: " << refCollection_.instance() << " not found while running TauTagValidation.cc " << std::endl;
+    std::cerr << " Reference collection: " << refCollection_ << " not found while running TauTagValidation.cc " << std::endl;
     return;
   }
 
@@ -242,7 +244,7 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   if ( TauProducer_.find("PFTau") != string::npos)
     {
       Handle<PFTauCollection> thePFTauHandle;
-      iEvent.getByLabel(TauProducer_,thePFTauHandle);
+      iEvent.getByLabel(TauProducerInputTag_,thePFTauHandle);
       
       const PFTauCollection  *pfTauProduct;
       pfTauProduct = thePFTauHandle.product();
@@ -252,10 +254,10 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       for (genCandidateCollection::const_iterator RefJet= ReferenceCollection->begin() ; RefJet != ReferenceCollection->end(); RefJet++ ){ 
 
 	
-	ptTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->pt());
-	etaTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->eta());
-	phiTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->phi()*180.0/TMath::Pi());
-	energyTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->energy());
+	ptTauVisibleMap.find(refCollection_)->second->Fill(RefJet->pt());
+	etaTauVisibleMap.find(refCollection_)->second->Fill(RefJet->eta());
+	phiTauVisibleMap.find(refCollection_)->second->Fill(RefJet->phi()*180.0/TMath::Pi());
+	energyTauVisibleMap.find(refCollection_)->second->Fill(RefJet->energy());
 	
 	const reco::Candidate *gen_particle = &(*RefJet);
 	
@@ -331,10 +333,10 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       
       for (genCandidateCollection::const_iterator RefJet= ReferenceCollection->begin() ; RefJet != ReferenceCollection->end(); RefJet++ ){ 
 	
-	ptTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->pt());
-	etaTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->eta());
-	phiTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->phi()*180.0/TMath::Pi());
-	energyTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->energy());
+	ptTauVisibleMap.find(refCollection_)->second->Fill(RefJet->pt());
+	etaTauVisibleMap.find(refCollection_)->second->Fill(RefJet->eta());
+	phiTauVisibleMap.find(refCollection_)->second->Fill(RefJet->phi()*180.0/TMath::Pi());
+	energyTauVisibleMap.find(refCollection_)->second->Fill(RefJet->energy());
 
 	const reco::Candidate *gen_particle = &(*RefJet);
 
