@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2009/04/30 15:32:25 $ 
+ **  $Date: 2009/05/13 14:49:03 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -63,12 +63,11 @@ void PhotonOfflineClient::endJob()
 void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup)
 {
 
-
   vector<string> types;
   types.push_back("All");
   types.push_back("GoodCandidate");
   types.push_back("Background");
-  
+
   std::string AllPath = "Egamma/PhotonAnalyzer/AllPhotons/";
   std::string IsoPath = "Egamma/PhotonAnalyzer/GoodCandidatePhotons/";
   std::string NonisoPath = "Egamma/PhotonAnalyzer/BackgroundPhotons/";
@@ -79,14 +78,18 @@ void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
   currentFolder_.str("");
   currentFolder_ << "Egamma/PhotonAnalyzer/Efficiencies";
   dbe_->setCurrentFolder(currentFolder_.str()); 
-  
-  p_efficiencyVsEtaLoose_ = dbe_->book1D("EfficiencyVsEtaLoose","Fraction of Loosely Isolated Photons  vs. Eta;#eta;",etaBin_,etaMin_, etaMax_);
+
+  p_efficiencyVsEtaLoose_ = dbe_->book1D("EfficiencyVsEtaLoose","Fraction of Loosely Isolated Photons  vs. Eta;#eta",etaBin_,etaMin_, etaMax_);
   p_efficiencyVsEtLoose_ = dbe_->book1D("EfficiencyVsEtLoose","Fraction of Loosely Isolated Photons vs. Et;Et (GeV)",etBin_,etMin_, etMax_);
   p_efficiencyVsEtaTight_ = dbe_->book1D("EfficiencyVsEtaTight","Fraction of Tightly Isolated Photons  vs. Eta;#eta",etaBin_,etaMin_, etaMax_);
   p_efficiencyVsEtTight_ = dbe_->book1D("EfficiencyVsEtTight","Fraction of Tightly Isolated Photons vs. Et;Et (GeV)",etBin_,etMin_, etMax_);
   p_efficiencyVsEtaHLT_ = dbe_->book1D("EfficiencyVsEtaHLT","Fraction of Photons passing HLT vs. Eta;#eta",etaBin_,etaMin_, etaMax_);
   p_efficiencyVsEtHLT_ = dbe_->book1D("EfficiencyVsEtHLT","Fraction of Photons passing HLT vs. Et;Et (GeV)",etBin_,etMin_, etMax_);
+  
   p_vertexReconstructionEfficiencyVsEta_ = dbe_->book1D("VertexReconstructionEfficiencyVsEta","Fraction of Converted Photons having a valid vertex vs. Eta;#eta",etaBin_,etaMin_, etaMax_);
+
+  
+
   
   for(int cut = 0; cut != numberOfSteps_; ++cut){   //looping over Et cut values
     for(uint type=0;type!=types.size();++type){ //looping over isolation type
@@ -105,7 +108,7 @@ void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
       p_convFractionVsEta_isol_.clear(); 
     }
   }
-  
+
   currentFolder_.str("");
   currentFolder_ << "Et above 0 GeV/";
 
@@ -124,6 +127,7 @@ void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
     dividePlots(dbe_->get(EffPath+"VertexReconstructionEfficiencyVsEta"),dbe_->get(EffPath + "phoEtaVertex"),dbe_->get(AllPath+currentFolder_.str() + "Conversions/phoConvEta"));
 
 
+
   currentFolder_.str("");
   currentFolder_ << EffPath;
   dbe_->setCurrentFolder(currentFolder_.str());
@@ -136,7 +140,7 @@ void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
   dbe_->removeElement("phoEtHLT");
   dbe_->removeElement("phoEtaVertex");
 
-  
+
   for(uint type=0;type!=types.size();++type){
     
     for (int cut=0; cut !=numberOfSteps_; ++cut) {
@@ -216,7 +220,7 @@ void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
     
   }
   
-  
+
 }
 
 

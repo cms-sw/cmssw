@@ -13,7 +13,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/05/07 10:45:29 $ 
+ **  $Date: 2009/05/13 14:48:57 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -189,16 +189,7 @@ void PhotonAnalyzer::beginJob()
     h_phoEt_Tight_ = dbe_->book1D("phoEtTight"," Tight Photon Transverse Energy ", etBin,etMin, etMax);
     h_phoEt_HLT_ = dbe_->book1D("phoEtHLT"," Unfiltered Photon Transverse Energy ", etBin,etMin, etMax);
 
-    p_efficiencyVsEtaLoose_ = dbe_->book1D("EfficiencyVsEtaLoose","Fraction of Loosely Isolated Photons  vs. Eta;#eta;",etaBin,etaMin, etaMax);
-    p_efficiencyVsEtLoose_ = dbe_->book1D("EfficiencyVsEtLoose","Fraction of Loosely Isolated Photons vs. Et;Et (GeV)",etBin,etMin, etMax);
-    p_efficiencyVsEtaTight_ = dbe_->book1D("EfficiencyVsEtaTight","Fraction of Tightly Isolated Photons  vs. Eta;#eta",etaBin,etaMin, etaMax);
-    p_efficiencyVsEtTight_ = dbe_->book1D("EfficiencyVsEtTight","Fraction of Tightly Isolated Photons vs. Et;Et (GeV)",etBin,etMin, etMax);
-    p_efficiencyVsEtaHLT_ = dbe_->book1D("EfficiencyVsEtaHLT","Fraction of Photons passing HLT vs. Eta;#eta",etaBin,etaMin, etaMax);
-    p_efficiencyVsEtHLT_ = dbe_->book1D("EfficiencyVsEtHLT","Fraction of Photons passing HLT vs. Et;Et (GeV)",etBin,etMin, etMax);  
-
-
     h_phoEta_Vertex_ = dbe_->book1D("phoEtaVertex"," Converted Photon with valid vertex Eta ",etaBin,etaMin, etaMax) ;
-    p_vertexReconstructionEfficiencyVsEta_ = dbe_->book1D("VertexReconstructionEfficiencyVsEta","Fraction of Converted Photons having a valid vertex vs. Eta;#eta",etaBin,etaMin, etaMax);
 
     //Triggers passed
     
@@ -502,9 +493,7 @@ void PhotonAnalyzer::beginJob()
 	h_dEtaTracksAtEcal_part_.clear();
 
 	//Conversion fraction histograms
- 	p_convFractionVsEta_isol_.push_back(dbe_->book1D("convFractionVsEta","Fraction of Converted Photons  vs. Eta;#eta",etaBin,etaMin, etaMax));
- 	p_convFractionVsEt_isol_.push_back(dbe_->book1D("convFractionVsEt","Fraction of Converted Photons vs. Et;Et (GeV)",etBin,etMin, etMax));
-    
+
 	h_phoConvEta_isol_.push_back(dbe_->book1D("phoConvEta",types[type]+" Converted Photon Eta;#eta ",etaBin,etaMin, etaMax)) ;
 	h_phoConvPhi_isol_.push_back(dbe_->book1D("phoConvPhi",types[type]+" Converted Photon Phi;#phi ",phiBin,phiMin,phiMax)) ;
 
@@ -581,10 +570,6 @@ void PhotonAnalyzer::beginJob()
       p_dCotTracksVsEta_.push_back(p_dCotTracksVsEta_isol_);
       p_dCotTracksVsEta_isol_.clear();
 
-      p_convFractionVsEt_.push_back(p_convFractionVsEt_isol_);
-      p_convFractionVsEt_isol_.clear();
-      p_convFractionVsEta_.push_back(p_convFractionVsEta_isol_);
-      p_convFractionVsEta_isol_.clear(); 
 
     }
 
