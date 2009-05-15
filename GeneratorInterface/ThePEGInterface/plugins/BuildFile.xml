@@ -11,9 +11,6 @@
 	<flags EDM_PLUGIN="1"/>
 	<flags LDFLAGS="${THEPEG_BASE}/lib/ThePEG/LesHouches.so"/>
 </library>
-<library name="GeneratorInterfaceThePEGSource" file="ThePEGSource.cc ThePEGProducer.cc">
-	<flags EDM_PLUGIN="1"/>
-</library>
 <library name="GeneratorInterfaceThePEGHadronisation" file="ThePEGHadronisation.cc ThePEGLesHouchesInterface.cc">
 	<use name="GeneratorInterface/LHEInterface"/>
 	<use name="boost"/>
