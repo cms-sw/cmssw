@@ -1,8 +1,9 @@
-#include "TCanvas.h"
 #include "TROOT.h"
+#include "TStyle.h"
 #include "TRandom3.h"
 #include "TH1.h"
 #include "TGraphAsymmErrors.h" 
+#include "TCanvas.h"
 #include "PhysicsTools/RooStatsCms/interface/binomial_noncentral_intervals.h"
 #include "PhysicsTools/RooStatsCms/interface/binomial_intervals.h"
 #include <cmath>
@@ -62,6 +63,7 @@ int main() {
   graphCP.SetLineWidth(1);
   graphCP.SetLineColor(kRed);
   TCanvas c;
+  gStyle->SetOptStat(0);
   histo.SetTitle("Efficiency with Feldman-Cousins intervals"); 
   histo.Draw();
   graphFC.Draw("P");
