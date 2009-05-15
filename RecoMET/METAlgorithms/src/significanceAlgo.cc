@@ -21,7 +21,7 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: significanceAlgo.cc,v 1.6 2008/11/13 01:30:44 rcr Exp $
+// $Id: significanceAlgo.cc,v 1.7 2008/12/16 14:35:30 fblekman Exp $
 //
 //
 
@@ -110,9 +110,16 @@ metsig::ASignificance(const std::vector<SigInputObj>& EventVec, double &met_r, d
 //   met_phi = tmp_met_phi;
 
   met_phi= TMath::ATan2(ymet, xmet);
-  
-  //--- Calculate Significance ---//
+
+  // one other option: if particles cancel there could be small numbers.
+  // this check fixes this, added by F.Blekman
+  if(v_tot.Abs()<0.000001)
+    return -1;
+
   v_tot.Invert();
+
+
+
   metvec(0) = xmet; metvec(1) = ymet;
   chisq0 = metvec * (v_tot * metvec);
   double lnSignificance = chisq0;  
