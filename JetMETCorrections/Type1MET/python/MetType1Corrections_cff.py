@@ -25,11 +25,11 @@ metJESCorKT6CaloJet.corrector           = "L2L3JetCorrectorKT6Calo"
 
 metJESCorSC5CaloJet = metJESCorIC5CaloJet.clone()
 metJESCorSC5CaloJet.inputUncorJetsLabel = "sisCone5CaloJets"
-metJESCorSC5CaloJet.inputUncorJetsLabel = "L2L3JetCorrectorSC5Calo"
+metJESCorSC5CaloJet.corrector = "L2L3JetCorrectorSC5Calo"
 
 metJESCorSC7CaloJet = metJESCorIC5CaloJet.clone()
 metJESCorSC7CaloJet.inputUncorJetsLabel = "sisCone7CaloJets"
-metJESCorSC7CaloJet.inputUncorJetsLabel = "L2L3JetCorrectorSC7Calo"
+metJESCorSC7CaloJet.corrector = "L2L3JetCorrectorSC7Calo"
 
 #MetType1Corrections = cms.Sequence(corMetType1Icone5*corMetType1Mcone5*corMetType1Mcone7)
 
