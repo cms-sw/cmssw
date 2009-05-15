@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.119 2009/05/14 02:51:50 jmuelmen Exp $
+// $Id: FWGUIManager.cc,v 1.120 2009/05/14 19:57:24 amraktad Exp $
 //
 
 // system include files
@@ -798,6 +798,7 @@ static const std::string kCollectionController("collection");
 static const std::string kViewController("view");
 static const std::string kObjectController("object");
 static const std::string kBackgroundColor("background color");
+static const std::string kBrightness("brightness");
 static const std::string kColorControl("color control");
 
 static
@@ -968,15 +969,22 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       }
    }
    oTo.addKeyValue(kControllers,controllers,true);
-   
-   //Remember what color is the background
+
    FWConfiguration colorControl(1);
    {
+      // background
+      FWConfiguration cbg(1); 
       if(FWColorManager::kBlackIndex==m_colorManager->backgroundColorIndex()) {
          colorControl.addKeyValue(kBackgroundColor,FWConfiguration("black"));
       } else {
          colorControl.addKeyValue(kBackgroundColor,FWConfiguration("white"));
       }
+      
+      // brightness
+      FWConfiguration cbr(1);
+      std::stringstream s;
+      s << static_cast<float>(m_colorManager->brightness());
+      colorControl.addKeyValue(kBrightness,FWConfiguration(s.str()));
    }
    oTo.addKeyValue(kColorControl,colorControl,true);
 }
@@ -1116,12 +1124,24 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
          }
       }
    }
+
+   // display colors
    const FWConfiguration* colorControl = iFrom.valueForKey(kColorControl);
-   if(0!=colorControl) {
+   if( 0!=colorControl)
+   {
+      float brightness = 0;
+      const FWConfiguration* cbr = colorControl->valueForKey(kBrightness);
+      if (cbr)
+      {
+         std::stringstream sw(cbr->value());
+         sw >> brightness;
+         m_colorManager->setBrightness(brightness);
+      }
+
       if("black" == colorControl->valueForKey(kBackgroundColor)->value()) {
-         m_colorManager->setBackgroundColorIndex( FWColorManager::kBlackIndex);
+         m_colorManager->setBackgroundAndBrightness( FWColorManager::kBlackIndex, brightness);
       } else {
-         m_colorManager->setBackgroundColorIndex( FWColorManager::kWhiteIndex);
+         m_colorManager->setBackgroundAndBrightness( FWColorManager::kWhiteIndex, brightness);
       }
    }
 }
@@ -1135,7 +1155,7 @@ FWGUIManager::openEveBrowserForDebugging() const
 //
 // toolbar widgets callbacks
 //
-void
+void       
 FWGUIManager::delaySliderChanged(Int_t val)
 {
    Float_t sec = val*0.001;

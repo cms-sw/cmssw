@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.8 2009/05/13 20:26:05 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.9 2009/05/14 19:57:18 amraktad Exp $
 //
 
 // system include files
@@ -34,7 +34,6 @@
 //static std::vector<Color_t>* s_forWhite=0;
 //static std::vector<Color_t>* s_forBlack=0;
 
-static Float_t m_gammaOff = 0;
 
 enum {
    kFWRed =8,
@@ -179,7 +178,7 @@ static const unsigned int s_geomSize = sizeof(s_geomForBlack)/sizeof(s_geomForBl
 //==============================================================================
 
 static
-void resetColors(const float(* iColors)[3], unsigned int iSize, unsigned int iStart)
+void resetColors(const float(* iColors)[3], unsigned int iSize, unsigned int iStart,  float gammaOff )
 {
    TSeqCollection* colorTable = gROOT->GetListOfColors();
    
@@ -203,9 +202,9 @@ void resetColors(const float(* iColors)[3], unsigned int iSize, unsigned int iSt
       float blue = (*iColors)[2];
      
       // apply brightness
-      red     =  TMath::Power( red, (2.5 + m_gammaOff)/2.5);
-      green = TMath::Power(green, (2.5 + m_gammaOff)/2.5);
-      blue   = TMath::Power(blue, (2.5 + m_gammaOff)/2.5);
+      red     =  TMath::Power( red, (2.5 + gammaOff)/2.5);
+      green = TMath::Power(green, (2.5 + gammaOff)/2.5);
+      blue   = TMath::Power(blue, (2.5 + gammaOff)/2.5);
 
       c->SetRGB(red,green,blue);
    }
@@ -267,15 +266,15 @@ FWColorManager::~FWColorManager()
 //
 // member functions
 
-void FWColorManager::updateBrightness()
+void FWColorManager::updateColors()
 {
 
    if(backgroundColorIndex() == kBlackIndex) {
-      resetColors(s_forBlack,s_size,m_startColorIndex);
-      resetColors(s_geomForBlack, s_geomSize, m_startGeomColorIndex);
+      resetColors(s_forBlack,s_size,m_startColorIndex,  m_gammaOff);
+      resetColors(s_geomForBlack, s_geomSize, m_startGeomColorIndex,  m_gammaOff);
    } else {
-      resetColors(s_forWhite,s_size,m_startColorIndex);
-      resetColors(s_geomForWhite, s_geomSize, m_startGeomColorIndex);
+      resetColors(s_forWhite,s_size,m_startColorIndex,  m_gammaOff);
+      resetColors(s_geomForWhite, s_geomSize, m_startGeomColorIndex,  m_gammaOff);
    }
    FWChangeSentry sentry(*m_changeManager);
    colorsHaveChanged_();
@@ -286,22 +285,15 @@ void FWColorManager::updateBrightness()
 void
 FWColorManager::setBrightness(float off)
 {
-   Float_t value = off;
-   if (value < -2.5 || value > 2.5)
-   {
-      printf("Warning::Set brightness out of range.  value '%f' out of range [-2.5, 2.5]. \n", value);
-      return;
-   }
-   
-   m_gammaOff = value;
-   updateBrightness();
+   m_gammaOff = off;
+   updateColors();
 }
 
 void
 FWColorManager::defaultBrightness()
 {
    m_gammaOff = 0;
-   updateBrightness();
+   updateColors();
 }
 
 void 
@@ -311,18 +303,19 @@ FWColorManager::setBackgroundColorIndex(BackgroundColorIndex iIndex)
       if(backgroundColorIndex()==kBlackIndex) {
          m_background=kWhite;
          m_foreground=kBlack;
-         resetColors(s_forWhite,s_size,m_startColorIndex);
-         resetColors(s_geomForWhite, s_geomSize, m_startGeomColorIndex);
       } else {
          m_background=kBlack;
          m_foreground=kWhite;
-         resetColors(s_forBlack,s_size,m_startColorIndex);
-         resetColors(s_geomForBlack, s_geomSize, m_startGeomColorIndex);
       }
-      FWChangeSentry sentry(*m_changeManager);
-      colorsHaveChanged_();
-      colorsHaveChangedFinished_();
+      updateColors();
    }
+}
+
+void 
+FWColorManager::setBackgroundAndBrightness(BackgroundColorIndex iIndex, float off)
+{
+    m_gammaOff = off;
+    setBackgroundColorIndex(iIndex);
 }
 
 //
