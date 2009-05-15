@@ -211,7 +211,7 @@ namespace edm {
                            std::set<std::string> & validatedLabels,
                            bool optional) const;
 
-    virtual void printThirdLine_(std::ostream & os,
+    virtual void printDefault_(std::ostream & os,
                                  bool writeToCfi,
                                  DocFormatHelper & dfh);
 
@@ -260,7 +260,7 @@ namespace edm {
                            std::set<std::string> & validatedLabels,
                            bool optional) const;
 
-    virtual void printThirdLine_(std::ostream & os,
+    virtual void printDefault_(std::ostream & os,
                                  bool writeToCfi,
                                  DocFormatHelper & dfh);
 

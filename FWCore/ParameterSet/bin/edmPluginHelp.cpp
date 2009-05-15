@@ -168,12 +168,14 @@ int main (int argc, char **argv)
   std::string descString(argv[0]);
   descString += " option [options]\n\n";
   descString += "Prints descriptions of the allowed/required parameters used to\n";
-  descString += "configure modules. Output is ordered by plugin name. Within a\n";
+  descString += "configure plugins. Output is ordered by plugin name. Within a\n";
   descString += "plugin, the labels and parameters are ordered based on the order\n";
-  descString += "declared by the module. Formatted as follows:\n\n";
+  descString += "declared by the plugin. Formatted as follows:\n\n";
   descString += "PluginName Library\n";
   descString += "  ModuleLabel\n";
   descString += "    Details of parameters corresponding to this module label\n\n";
+  descString += "For more information about the output format see:\n";
+  descString += "https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideConfigurationValidationAndHelp\n\n";
 
   descString += "At least one of the following options must be used: -p, -l, -a, or -q\n\n";
   descString += "Allowed options:";

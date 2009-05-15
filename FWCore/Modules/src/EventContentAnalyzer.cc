@@ -422,7 +422,7 @@ namespace edm {
   void
   EventContentAnalyzer::fillDescriptions(ConfigurationDescriptions & descriptions) {
   
-     descriptions.setComment("This module will print a list of all products in the event "
+     descriptions.setComment("This plugin will print a list of all products in the event "
                              "provenance.  It also has options to print and/or get each product.");
 
      ParameterSetDescription desc;

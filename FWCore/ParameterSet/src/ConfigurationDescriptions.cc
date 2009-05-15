@@ -149,7 +149,7 @@ namespace edm {
     if (descriptions_.empty() && !unknownDescDefined_) {
       indentation += DocFormatHelper::offsetModuleLabel();
       os << std::setfill(' ') << std::setw(indentation) << "";
-      os << "There are no PSet descriptions defined for this module.\n";
+      os << "There are no PSet descriptions defined for this plugin.\n";
       os << std::setfill(' ') << std::setw(indentation) << "";
       os << "PSets will not be validated and no cfi files will be generated.\n";
       if (!brief) os << "\n";
@@ -159,7 +159,7 @@ namespace edm {
     if (descriptions_.empty() && unknownDescDefined_ && descForUnknownLabels_.isUnknown()) {
       indentation += DocFormatHelper::offsetModuleLabel();
       os << std::setfill(' ') << std::setw(indentation) << "";
-      os << "This module has not implemented the function which defines its\n";
+      os << "This plugin has not implemented the function which defines its\n";
       os << std::setfill(' ') << std::setw(indentation) << "";
       os << "configuration descriptions yet. No descriptions are available.\n";
       os << std::setfill(' ') << std::setw(indentation) << "";
@@ -172,12 +172,12 @@ namespace edm {
       std::stringstream ss;
       if (unknownDescDefined_) {
         if (descriptions_.empty()) {
-          ss << "This module has only one PSet description. "
+          ss << "This plugin has only one PSet description. "
              << "This description is always used to validate configurations. "
              << "Because this configuration has no module label, no cfi files will be generated.";
         }
         else {
-          ss << "This module has " << (descriptions_.size() + 1U) << " PSet descriptions. "
+          ss << "This plugin has " << (descriptions_.size() + 1U) << " PSet descriptions. "
              << "The description used to validate a configuration is selected by "
              << "matching the module labels. If none match, then the last description, "
              << "which has no label, is selected. "
@@ -186,12 +186,12 @@ namespace edm {
       }
       else {
         if (descriptions_.size() == 1U) {
-          ss << "This module has " << descriptions_.size() << " PSet description. "
+          ss << "This plugin has " << descriptions_.size() << " PSet description. "
              << "This description is always used to validate configurations. "
              << "The module label below is used when generating the cfi file.";
         }
         else {
-          ss << "This module has " << descriptions_.size() << " PSet descriptions. "
+          ss << "This plugin has " << descriptions_.size() << " PSet descriptions. "
              << "The description used to validate a configuration is selected by "
              << "matching the module labels. If none match the first description below is used. "
              << "The module labels below are also used when generating the cfi files.";

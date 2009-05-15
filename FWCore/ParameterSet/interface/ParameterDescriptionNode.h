@@ -125,21 +125,32 @@ namespace edm {
     // on their subnodes.  When executing these functions, the
     // insertion of missing parameters does not occur.
 
-    // Usually checks to see if a parameter exists, but if the node is a logical node,
-    // then it returns the value of the logical expression. 
+    // Usually checks to see if a parameter exists in the configuration, but
+    // if the node is a logical node, then it returns the value of the logical
+    // expression. 
     bool exists(ParameterSet const& pset) const {
       return exists_(pset);
     }
 
-    // Used by operator&& during validation, if either node partially exists, both get validated
+    // For most nodes, this simply returns the same value as the exists
+    // function.  But for AND nodes this returns true if either its subnodes
+    // exists.  Used by operator&& during validation, if either of an AND node's
+    // subnodes exists, then both subnodes get validated.
     bool partiallyExists(ParameterSet const& pset) const {
       return partiallyExists_(pset);
     }
 
-    // -- Used by operator^ during validation, if it returns more than 1 validation will throw,
-    // -- Exactly one then only the nonzero subnode gets validated
-    // -- Zero it tries to validate the first node and then rechecks to see what the missing
-    // parameter insertion did.
+    // For most nodes, this simply returns the same value as the exists
+    // function. It is different for an XOR node.  It counts
+    // XOR subnodes whose exists function returns true.  And it
+    // does this recursively into XOR nodes that are contained in
+    // other XOR nodes.
+    // Used by operator^ during validation:
+    // -- if it returns more than 1, then validation will throw,
+    // -- if it returns exactly one, then only the nonzero subnode gets validated
+    // -- if it returns zero, then validation tries to validate the first node and
+    // then rechecks to see what the missing parameter insertion did (there could
+    // be side effects on the nodes that were not validated)
     int howManyXORSubNodesExist(ParameterSet const& pset) const {
       return howManyXORSubNodesExist_(pset);
     }
@@ -193,8 +204,8 @@ namespace edm {
 
     One strategy to avoid problems with wildcard parameters is to add a nested
     ParameterSet and put the wildcard parameters in the nested ParameterSet.
-    The names in a nested ParameterSet will not interfere with names in the
-    containing ParameterSet.
+    The names and types in a nested ParameterSet will not interfere with names
+    in the containing ParameterSet.
     */
     void checkAndGetLabelsAndTypes(std::set<std::string> & usedLabels,
                                    std::set<ParameterTypes> & parameterTypes,

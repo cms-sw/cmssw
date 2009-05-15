@@ -85,10 +85,14 @@ namespace edm {
             std::string const& typeString) const {
 
     if (dfh.pass() == 0) {
-      dfh.setAtLeast1(switchLabel.size() + 11U);
-      dfh.setAtLeast2(typeString.size());
-      dfh.setAtLeast3(9U);
-      dfh.setAtLeast4(8U);
+      dfh.setAtLeast1(switchLabel.size() + 9U);
+      if (isTracked) {
+        dfh.setAtLeast2(typeString.size());
+      }
+      else {
+        dfh.setAtLeast2(typeString.size() + 10U);
+      }
+      dfh.setAtLeast3(8U);
     }
     if (dfh.pass() == 1) {
 
@@ -99,16 +103,21 @@ namespace edm {
 	std::stringstream ss;
         ss << switchLabel << " (switch)"; 
         os << std::left << std::setw(dfh.column1()) << ss.str();
+        os << " ";
 
-        os << " " << std::setw(dfh.column2()) << typeString << " ";
+        os << std::setw(dfh.column2());
+        if (isTracked) {
+          os << typeString;
+        }
+        else {
+          std::stringstream ss1;
+          ss1 << "untracked " << typeString;
+          os << ss1.str();
+        }
 
-        os << std::setw(dfh.column3());
-        if (isTracked) os << "tracked";
-        else os << "untracked";
-
-        os << " " << std::setw(dfh.column4());
+        os << " " << std::setw(dfh.column3());
         if (optional)  os << "optional";
-        else  os << "required";
+        else  os << "";
 
         if (!writeToCfi) os << " (do not write to cfi)";
 
@@ -120,13 +129,11 @@ namespace edm {
         os << switchLabel << " (switch)\n";
 
         dfh.indent2(os);
-        os << "type: " << typeString << " ";
-
-        if (isTracked) os << "tracked ";
-        else os << "untracked ";
+        os << "type: ";
+        if (!isTracked) os << "untracked ";
+        os << typeString << " ";
 
         if (optional)  os << "optional";
-        else  os << "required";
 
         if (!writeToCfi) os << " (do not write to cfi)";
         os << "\n";

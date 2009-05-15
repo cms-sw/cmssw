@@ -5,6 +5,7 @@
 
 #include <ostream>
 #include <iomanip>
+#include <sstream>
 
 namespace edm {
 
@@ -80,9 +81,13 @@ namespace edm {
   {
     if (dfh.pass() == 0) {
       dfh.setAtLeast1(11U);
-      dfh.setAtLeast2(parameterTypeEnumToString(type()).size());
-      dfh.setAtLeast3(9U);
-      dfh.setAtLeast4(8U);
+      if (isTracked()) {
+        dfh.setAtLeast2(parameterTypeEnumToString(type()).size());
+      }
+      else {
+        dfh.setAtLeast2(parameterTypeEnumToString(type()).size() + 10U);
+      }
+      dfh.setAtLeast3(8U);
     }
     else {
       
@@ -90,17 +95,20 @@ namespace edm {
 
         dfh.indent(os);
         os << std::left << std::setw(dfh.column1()) << "wildcard: *" << " ";
-        os << std::setw(dfh.column2()) << parameterTypeEnumToString(type());
+
+        if (isTracked()) {
+          os << std::setw(dfh.column2()) << parameterTypeEnumToString(type());
+        }
+        else {
+	  std::stringstream ss;
+          ss << "untracked " << parameterTypeEnumToString(type());
+          os << ss.str();
+        }
 
         os << " ";
         os << std::setw(dfh.column3());
-        if (isTracked()) os << "tracked";
-        else  os << "untracked";
-
-        os << " ";
-        os << std::setw(dfh.column4());
         if (optional)  os << "optional";
-        else  os << "required";
+        else  os << "";
 
         if (criteria() == RequireZeroOrMore) {
           os << " (require zero or more)";
@@ -125,13 +133,16 @@ namespace edm {
         os << "labels must match this wildcard pattern: *\n";
 
         dfh.indent2(os);
-        os << "type: " << parameterTypeEnumToString(type());
+        os << "type: ";
+        if (isTracked()) {
+          os << parameterTypeEnumToString(type());
+        }
+        else {
+          os << "untracked " << parameterTypeEnumToString(type());
+        }
 
-        if (isTracked()) os << " tracked ";
-        else  os << " untracked ";
-
-        if (optional)  os << "optional\n";
-        else  os << "required\n";
+        if (optional)  os << " optional";
+        os << "\n";
 
         dfh.indent2(os);
         os << "criteria: ";

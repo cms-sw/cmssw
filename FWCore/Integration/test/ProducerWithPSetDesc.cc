@@ -747,6 +747,7 @@ namespace edmtest {
     // -----------------------------------------------
 
     edm::ParameterSetDescription wildcardPset;
+    wildcardPset.addOptional<unsigned>("p_uint_opt", 0);
     wildcardPset.addWildcard<int>("*");
     pn = wildcardPset.addWildcardUntracked<double>(std::string("*"));
     pn->setComment("A comment for a wildcard parameter");
@@ -868,6 +869,7 @@ namespace edmtest {
 
     edm::ParameterSetDescription allowedLabelsPset;
 
+    allowedLabelsPset.addOptional<int>("p_int_opt", 0);
     allowedLabelsPset.labelsFrom<int>("testAllowedLabels");
     allowedLabelsPset.labelsFromUntracked<unsigned>(std::string("testAllowedLabelsUntracked"));
     allowedLabelsPset.labelsFromOptional<int>("testOptAllowedLabels", false);

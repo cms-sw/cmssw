@@ -82,7 +82,7 @@ namespace edm {
 
   void
   ParameterDescription<ParameterSetDescription>::
-  printThirdLine_(std::ostream & os,
+  printDefault_(std::ostream & os,
                   bool writeToCfi,
                   DocFormatHelper & dfh) {
     os << "see Section " << dfh.section()
@@ -228,7 +228,7 @@ namespace edm {
 
   void
   ParameterDescription<std::vector<ParameterSetDescription> >::
-  printThirdLine_(std::ostream & os,
+  printDefault_(std::ostream & os,
                   bool writeToCfi,
                   DocFormatHelper & dfh) {
     os << "see Section " << dfh.section()

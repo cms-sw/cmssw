@@ -12,7 +12,6 @@ namespace edm {
     column1_ = 0;
     column2_ = 0;
     column3_ = 0;
-    column4_ = 0;
     counter_ = 0;
     parent_ = OTHER;
   }

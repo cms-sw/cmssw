@@ -173,7 +173,7 @@ namespace edm {
       dfh.indent(os);
       os << "Description is unknown.  The configured PSet will not be validated\n";
       dfh.indent(os);
-      os << "because the module has not defined this parameter set description.\n";
+      os << "because the plugin has not defined this parameter set description.\n";
       if (!dfh.brief()) os << "\n";
     }
 
@@ -237,14 +237,14 @@ namespace edm {
         << "Illegal parameter found in configuration.  The parameter is named:\n" 
         << ss.str()
         << "You could be trying to use a parameter name that is not\n"
-        << "allowed for this module or it could be mispelled.\n";
+        << "allowed for this plugin or it could be mispelled.\n";
     }
     else {
       throw edm::Exception(errors::Configuration)
         << "Illegal parameters found in configuration.  The parameters are named:\n" 
         << ss.str()
         << "You could be trying to use parameter names that are not\n"
-        << "allowed for this module or they could be mispelled.\n";
+        << "allowed for this plugin or they could be mispelled.\n";
     }
   }
 

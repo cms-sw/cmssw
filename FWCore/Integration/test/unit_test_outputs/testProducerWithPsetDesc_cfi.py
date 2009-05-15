@@ -212,7 +212,9 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
       ouDrinks = cms.untracked.uint32(5)
     )
   ),
-  wildcardPset = cms.PSet(),
+  wildcardPset = cms.PSet(
+    p_uint_opt = cms.uint32(0)
+  ),
   switchPset = cms.PSet(
     iswitch = cms.int32(1),
     ivalue1 = cms.double(101),
@@ -248,6 +250,7 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
     z2 = cms.string('11')
   ),
   allowedLabelsPset = cms.PSet(
+    p_int_opt = cms.int32(0),
     testAllowedLabels = cms.vstring(),
     testAllowedLabelsUntracked = cms.untracked.vstring(),
     testWithSet = cms.untracked.vstring(),

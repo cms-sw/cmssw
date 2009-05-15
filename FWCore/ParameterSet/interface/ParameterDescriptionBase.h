@@ -84,7 +84,7 @@ namespace edm {
                         bool writeToCfi,
                         DocFormatHelper & dfh);
 
-    virtual void printThirdLine_(std::ostream & os,
+    virtual void printDefault_(std::ostream & os,
                                  bool writeToCfi,
                                  DocFormatHelper & dfh);
 

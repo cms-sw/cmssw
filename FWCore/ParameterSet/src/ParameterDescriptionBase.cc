@@ -27,7 +27,7 @@ namespace edm {
      isTracked_(isTracked)
   {
     if(label_.empty()) {
-      throw edm::Exception(errors::Configuration)
+      throw edm::Exception(errors::LogicError)
         << "Empty string used as a label for a parameter.  This is\n"
            "not allowed.\n";
     }
@@ -41,7 +41,7 @@ namespace edm {
      isTracked_(isTracked)
   {
     if (label_.empty()) {
-      throw edm::Exception(errors::Configuration)
+      throw edm::Exception(errors::LogicError)
         << "Empty string used as a label for a parameter.  This is\n"
            "not allowed.\n";
     }
@@ -115,9 +115,15 @@ namespace edm {
   {
     if (dfh.pass() == 0) {
       dfh.setAtLeast1(label().size());
-      dfh.setAtLeast2(parameterTypeEnumToString(type()).size());
-      dfh.setAtLeast3(9U);
-      dfh.setAtLeast4(8U);
+      if (isTracked()) {
+        dfh.setAtLeast2(parameterTypeEnumToString(type()).size());
+      }
+      else {
+        dfh.setAtLeast2(parameterTypeEnumToString(type()).size() + 10U);
+      }
+      if (optional) {
+        dfh.setAtLeast3(8U);
+      }
     }
     else {
 
@@ -125,19 +131,27 @@ namespace edm {
 
         dfh.indent(os);
         os << std::left << std::setw(dfh.column1()) << label() << " ";
-        os << std::setw(dfh.column2()) << parameterTypeEnumToString(type());
+
+        if (isTracked()) {
+          os << std::setw(dfh.column2()) << parameterTypeEnumToString(type());
+        }
+        else {
+          std::stringstream ss;
+          ss << "untracked ";
+          ss << parameterTypeEnumToString(type());
+          os << std::setw(dfh.column2()) << ss.str();
+        }
         os << " ";
 
         os << std::setw(dfh.column3());
-        if (isTracked()) os << "tracked";
-        else  os << "untracked";
+        if (optional) {
+          os << "optional";
+        }
+        else {
+          os << "";
+        }
         os << " ";
-
-        os << std::setw(dfh.column4());
-        if (optional)  os << "optional ";
-        else  os << "required ";
-
-        printThirdLine_(os, writeToCfi, dfh);
+        printDefault_(os, writeToCfi, dfh);
       }
       // not brief
       else {
@@ -146,16 +160,16 @@ namespace edm {
         os << label() << "\n";
 
         dfh.indent2(os);
-        os << "type: " << parameterTypeEnumToString(type()) << " ";
+        os << "type: ";
+        if (!isTracked()) os << "untracked ";
+        
+        os << parameterTypeEnumToString(type()) << " ";
 
-        if (isTracked()) os << "tracked ";
-        else  os << "untracked ";
-
-        if (optional)  os << "optional\n";
-        else  os << "required\n";
+        if (optional)  os << "optional";
+        os << "\n";
 
         dfh.indent2(os);
-        printThirdLine_(os, writeToCfi, dfh);
+        printDefault_(os, writeToCfi, dfh);
 
         if (!comment().empty()) {
           DocFormatHelper::wrapAndPrintText(os,
@@ -171,7 +185,7 @@ namespace edm {
 
   void
   ParameterDescriptionBase::
-  printThirdLine_(std::ostream & os,
+  printDefault_(std::ostream & os,
                   bool writeToCfi,
                   DocFormatHelper & dfh) {
     if (!dfh.brief()) os << "default: ";

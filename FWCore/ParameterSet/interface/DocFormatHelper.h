@@ -34,7 +34,6 @@ namespace edm {
       column1_(0),
       column2_(0),
       column3_(0),
-      column4_(0),
       counter_(0),
       parent_(OTHER)
     { }
@@ -59,12 +58,10 @@ namespace edm {
     unsigned column1() const { return column1_; }
     unsigned column2() const { return column2_; }
     unsigned column3() const { return column3_; }
-    unsigned column4() const { return column4_; }
 
     void setAtLeast1(unsigned width) { if (width > column1_) column1_ = width; }
     void setAtLeast2(unsigned width) { if (width > column2_) column2_ = width; }
     void setAtLeast3(unsigned width) { if (width > column3_) column3_ = width; }
-    void setAtLeast4(unsigned width) { if (width > column4_) column4_ = width; }
 
     int counter() const { return counter_; }
     void setCounter(int value) { counter_ = value; }
@@ -102,7 +99,6 @@ namespace edm {
     unsigned column1_;
     unsigned column2_;
     unsigned column3_;
-    unsigned column4_;
 
     int counter_;
 

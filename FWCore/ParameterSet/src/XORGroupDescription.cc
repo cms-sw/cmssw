@@ -130,7 +130,6 @@ namespace edm {
       if (dfh.brief()) {
 
         if (optional)  os << " optional";
-        else  os << " required";
 
         if (!writeToCfi) os << " (do not write to cfi)";
 
@@ -141,13 +140,14 @@ namespace edm {
 
         os << "\n";
         dfh.indent2(os);
+
         if (optional)  os << "optional";
-        else  os << "required";
-
         if (!writeToCfi) os << " (do not write to cfi)";
-        os << "\n";
+        if (optional || !writeToCfi) {
+          os << "\n";
+          dfh.indent2(os);
+        }
 
-        dfh.indent2(os);
         os << "see Section " << dfh.section() << "." << dfh.counter() << "\n";
 
         if (!comment().empty()) {
