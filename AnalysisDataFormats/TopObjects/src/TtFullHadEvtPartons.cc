@@ -9,6 +9,7 @@ TtFullHadEvtPartons::vec(const TtGenEvent& genEvt)
 {
   std::vector<const reco::Candidate*> vec;
   if(genEvt.isFullHadronic()) {
+    vec.reserve(6);
     vec[LightQTop      ] = genEvt.lightQFromTop()       ? genEvt.lightQFromTop()       : new reco::GenParticle(0, reco::Particle::LorentzVector(), reco::Particle::Point(), 0, 0, false);
     vec[LightQBarTop   ] = genEvt.lightQBarFromTop()    ? genEvt.lightQBarFromTop()    : new reco::GenParticle(0, reco::Particle::LorentzVector(), reco::Particle::Point(), 0, 0, false);
     vec[B              ] = genEvt.b()                   ? genEvt.b()                   : new reco::GenParticle(0, reco::Particle::LorentzVector(), reco::Particle::Point(), 0, 0, false);
