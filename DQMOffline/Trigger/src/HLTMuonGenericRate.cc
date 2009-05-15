@@ -3,8 +3,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/04/02 16:33:18 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/04/03 10:02:14 $
+ *  $Revision: 1.7 $
  */
 
 
@@ -46,7 +46,8 @@ double minPtCuts[] = { 0. };
 
 /// Constructor
 HLTMuonGenericRate::HLTMuonGenericRate
-( const ParameterSet& pset, string triggerName, vector<string> moduleNames, string myRecoCollection )
+( const ParameterSet& pset, string triggerName, vector<string> moduleNames, MuonSelectionStruct inputSelection, string customName )
+  :  mySelection(inputSelection)
 {
 
 
@@ -69,6 +70,10 @@ HLTMuonGenericRate::HLTMuonGenericRate
   useAod         = pset.getUntrackedParameter<bool>("UseAod");
   theAodL1Label  = pset.getUntrackedParameter<string>("AodL1Label");
   theAodL2Label  = pset.getUntrackedParameter<string>("AodL2Label");
+
+  // what type of matches do we need
+
+  matchType = pset.getUntrackedParameter<string>("matchType");
 
   // JMS Added a method to make standalone histogram output
   createStandAloneHistos = pset.getUntrackedParameter<bool>("createStandAloneHistos");
@@ -124,10 +129,15 @@ HLTMuonGenericRate::HLTMuonGenericRate
   // theRecoLabel         = pset.getUntrackedParameter<string>("RecoLabel","");
 
   // New way
-  LogTrace ("HLTMuonVal") << "\n\nThe RECO collection for this GenericRate is "
-                          << myRecoCollection;
-  
-  theRecoLabel = myRecoCollection;
+  //LogTrace ("HLTMuonVal") << "\n\nThe RECO collection for this GenericRate is "
+  //                         << myRecoCollection;
+
+  // -- Right now the new way is to hard-code it
+  // -- this uses the most generic kind of muon
+  // -- selectors will handle other cuts
+  theRecoLabel = "muons";
+  //myCustomName = mySelection.customLabel;
+
   
   useMuonFromGenerator = ( theGenLabel  == "" ) ? false : true;
   useMuonFromReco      = ( theRecoLabel == "" ) ? false : true;
@@ -136,6 +146,8 @@ HLTMuonGenericRate::HLTMuonGenericRate
   thePtParameters    = pset.getParameter< vector<double> >("PtParameters");
   theEtaParameters   = pset.getParameter< vector<double> >("EtaParameters");
   thePhiParameters   = pset.getParameter< vector<double> >("PhiParameters");
+
+    
 
   theResParameters = pset.getParameter < vector<double> >("ResParameters");
 
@@ -201,12 +213,12 @@ HLTMuonGenericRate::HLTMuonGenericRate
   //==========================================
 
   theD0Parameters.push_back(50);
-  theD0Parameters.push_back(-0.25);
-  theD0Parameters.push_back(0.25);
+  theD0Parameters.push_back(-50.0);
+  theD0Parameters.push_back(50.0);
   
   theZ0Parameters.push_back(50);
-  theZ0Parameters.push_back(-25);
-  theZ0Parameters.push_back(25);
+  theZ0Parameters.push_back(-100);
+  theZ0Parameters.push_back(100);
 
   theChargeParameters.push_back(3);
   theChargeParameters.push_back(-1.5);
@@ -227,6 +239,32 @@ HLTMuonGenericRate::HLTMuonGenericRate
   theIsolationParameters.push_back(25);
   theIsolationParameters.push_back(0.0);
   theIsolationParameters.push_back(1.0);
+
+  thePhiParameters0Pi.push_back(50);
+  thePhiParameters0Pi.push_back(0);
+  thePhiParameters0Pi.push_back(3.2);
+
+  theDeltaPhiVsPhiParameters.push_back(50);
+  theDeltaPhiVsPhiParameters.push_back(-3.15);
+  theDeltaPhiVsPhiParameters.push_back(3.15);
+  theDeltaPhiVsPhiParameters.push_back(50);
+  theDeltaPhiVsPhiParameters.push_back(0);
+  theDeltaPhiVsPhiParameters.push_back(3.2);
+
+  theDeltaPhiVsZ0Parameters.push_back(theZ0Parameters[0]);
+  theDeltaPhiVsZ0Parameters.push_back(theZ0Parameters[1]);
+  theDeltaPhiVsZ0Parameters.push_back(theZ0Parameters[2]);
+  theDeltaPhiVsZ0Parameters.push_back(50);
+  theDeltaPhiVsZ0Parameters.push_back(0);
+  theDeltaPhiVsZ0Parameters.push_back(3.2);
+
+  theDeltaPhiVsD0Parameters.push_back(theD0Parameters[0]);
+  theDeltaPhiVsD0Parameters.push_back(theD0Parameters[1]);
+  theDeltaPhiVsD0Parameters.push_back(theD0Parameters[2]);
+  theDeltaPhiVsD0Parameters.push_back(50);
+  theDeltaPhiVsD0Parameters.push_back(0);
+  theDeltaPhiVsD0Parameters.push_back(3.2);
+      
   
 
   //=======================================
@@ -369,27 +407,43 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
       useMuonFromReco = false;
     } else {
       for ( muon = muTracks->begin(); muon != muTracks->end(); ++muon ) {
+        
+        // this applies cuts that can
+        // go towards the muon collection       
+        if ( mySelection.recoMuonSelector((*muon)) ) {
 
-        // Only consider muons that are global muons for now
-        // I can imagine that we might want to change this
-        // via the muon selectors
-        if ( muon->isGlobalMuon() ) {
-          float pt  = muon->pt();
-          float eta = muon->eta();
-          MatchStruct newMatchStruct;
-          newMatchStruct.recCand = &*muon;
-          recMatches.push_back(newMatchStruct);
+          // now apply cuts to the tracks.
 
-          LogTrace ("HLTMuonVal") << "\n\nFound a muon track in " << theRecoLabel
-                                  << " with pt = " << pt
-                                  << ", eta = " << eta;
-          // Take out this eta cut, but still check to see if
-          // it is a new maximum pt
-          //if ( pt > recMuonPt  && fabs(eta) < theMaxEtaCut)
-          if (pt > recMuonPt )
-            recMuonPt = pt;
+          if ( applyTrackSelection(mySelection, (*muon)) ){
+          
+          
+            float pt  = muon->pt();
+            float eta = muon->eta();
+            MatchStruct newMatchStruct;
+            newMatchStruct.recCand = &*muon;
+            recMatches.push_back(newMatchStruct);
+
+            LogTrace ("HLTMuonVal") << "\n\nFound a muon track in " << mySelection.customLabel
+                                    << " with pt = " << pt
+                                    << ", eta = " << eta;
+            // Take out this eta cut, but still check to see if
+            // it is a new maximum pt
+            //if ( pt > recMuonPt  && fabs(eta) < theMaxEtaCut)
+            if (pt > recMuonPt )
+              recMuonPt = pt;
+          }
         }
       }
+    }
+
+    // This loop checks to see that we successfully stored our cands
+    LogTrace ("HLTMuonVal") << "Print out all rec cands for " << mySelection.customLabel
+                            << endl;
+    
+    for (unsigned iMatch = 0; iMatch < recMatches.size(); iMatch++) {
+      LogTrace ("HLTMuonVal") << "Cand #" << iMatch << "   ";
+      LogTrace ("HLTMuonVal") << "Pt = " << recMatches[iMatch].recCand->pt()
+                              << endl;
     }
 
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -448,6 +502,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
   
   LogTrace("HLTMuonVal") << "\n\n\n\ngenMuonPt: " << genMuonPt << ", "  
                          << "recMuonPt: " << recMuonPt
+                         << "\nCustom name = " << mySelection.customLabel << endl
                          << "\nNow preparing to get trigger objects" 
                          << "\n\n\n\n";
 
@@ -523,6 +578,8 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
       else LogTrace("HLTMuonVal") << "No HLT Collection with label " 
                                   << collectionTag;
 
+      // JMS -- do we ever store this raw info in the MatchStruct?
+      
 
       // don't copy the hltCands into particles
       // for ( size_t j = 0; j < hltCands[i].size(); j++ )
@@ -648,10 +705,22 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
       
       for ( size_t j = 0; j < keys.size(); j++ ){
         TriggerObject foundObject = objects[keys[j]];
-        LogTrace ("HLTMuonVal") << "Storing a trigger object with id = "
-                                << foundObject.id() << "\n\n";
-        //l1Particles.push_back( objects[keys[j]].particle().p4() );
-        l1Particles.push_back( foundObject );
+
+        // This is the trigger object. Apply your filter to it!
+        LogTrace ("HLTMuonVal") << "Testing to see if object in key passes selection"
+                                << endl ;
+        
+        if (mySelection.hltMuonSelector(foundObject)){
+        
+          LogTrace ("HLTMuonVal") << "OBJECT FOUND!!! - Storing a trigger object with id = "              
+                                  << foundObject.id() 
+                                  << ", eta = " << foundObject.eta()
+                                  << ", pt = " << foundObject.pt()
+                                  << ", custom name = " << mySelection.customLabel
+                                  << "\n\n" << endl;
+          //l1Particles.push_back( objects[keys[j]].particle().p4() );
+          l1Particles.push_back( foundObject );
+        }
       }
     } 
     ///////////////////////////////////////////////////////////////
@@ -718,11 +787,27 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
         const Keys &keys = aodTriggerEvent->filterKeys( filterIndex );
         for ( size_t j = 0; j < keys.size(); j++ ){
           TriggerObject foundObject = objects[keys[j]];
-          LogTrace ("HLTMuonVal") << "Storing a trigger object with id = "
-                                << foundObject.id() << "\n\n";
 
-          //hltParticles[indexHltColl].push_back( objects[keys[j]].particle().p4() );
-          hltParticles[indexHltColl].push_back( foundObject );
+          LogTrace ("HLTMuonVal") << "Found and Hlt object, checking to "
+                                  << "see if passes custom selection ...";
+          
+          if (mySelection.hltMuonSelector(foundObject)){
+        
+            LogTrace ("HLTMuonVal") << "HLT OBJECT FOUND!!! - Storing a trigger object with id = "              
+                                    << foundObject.id() 
+                                    << ", eta = " << foundObject.eta()
+                                    << ", pt = " << foundObject.pt()
+                                    << ", custom name = " << mySelection.customLabel
+                                    << "\n\n" << endl;
+          
+          
+        
+         
+         
+
+            //hltParticles[indexHltColl].push_back( objects[keys[j]].particle().p4() );
+            hltParticles[indexHltColl].push_back( foundObject );
+          }
         }
       }
 
@@ -1195,7 +1280,15 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
   //std::vector <bool> matchedToHLT;
   
   // Look at each rec & hlt cand
+
   for ( size_t i = 0; i < recMatches.size(); i++ ) {
+
+    LogTrace("HLTMuonVal") << "Reco Candidate loop:"
+                           << "looking at cand " << i
+                           << " out of " << recMatches.size()
+                           << endl;
+
+
     double pt  = recMatches[i].recCand->pt();
     double eta = recMatches[i].recCand->eta();
     double phi = recMatches[i].recCand->phi();
@@ -1210,25 +1303,42 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 
     // Must get track out of the muon itself
     // how to unpack it all?
-
-    TrackRef theMuoGlobalTrack = recMatches[i].recCand->globalTrack();
     
-    double d0 = theMuoGlobalTrack->d0();
-    double z0 = theMuoGlobalTrack->dz();
-    // comment:
-    // does the charge function return the
-    // same value as the abs(pdgId) ?    
-    int charge = theMuoGlobalTrack->charge(); 
-    int plottedCharge = getCharge (recPdgId);
+
+    LogTrace ("HLTMuonVal") << "trying to get a global track for this muon" << endl;
+    
+    TrackRef theMuoGlobalTrack = recMatches[i].recCand->globalTrack();
+
+    double d0 = -999;
+    double z0 = -999;
+    int charge = -999;
+    int plottedCharge = -999;
+
     double d0beam = -999;
     double z0beam = -999;
     
-    if (foundBeamSpot) {
-      d0beam = theMuoGlobalTrack->dxy(beamSpot.position());
-      z0beam = theMuoGlobalTrack->dz(beamSpot.position());
+    if (theMuoGlobalTrack.isNonnull() ) {
+      d0 = theMuoGlobalTrack->d0();
+      z0 = theMuoGlobalTrack->dz();
+      // comment:
+      // does the charge function return the
+      // same value as the abs(pdgId) ?    
+      charge = theMuoGlobalTrack->charge(); 
+      plottedCharge = getCharge (recPdgId);
+      
+    
+      if (foundBeamSpot) {
+        d0beam = theMuoGlobalTrack->dxy(beamSpot.position());
+        z0beam = theMuoGlobalTrack->dz(beamSpot.position());
+        
+        hBeamSpotZ0Rec[0]->Fill(beamSpot.z0());
+      }
 
-      hBeamSpotZ0Rec[0]->Fill(beamSpot.z0());
+
+    } else {
+      LogTrace ("HLTMuonVal") << "... oops! that wasn't a global muon" << endl;
     }
+    
     
     // For now, take out the cuts on the pt/eta,
     // We'll get the total efficiency and worry about
@@ -1290,7 +1400,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
       
       double deltaR = kinem::delta_R (l1eta, l1phi, eta, phi);
 
-      
+      double deltaPhi = kinem::delta_phi (l1phi, phi);
       
       // These are matched histos
       // so they have no "all" histos
@@ -1301,7 +1411,10 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
       hPtMatchVsPtRec[0]->Fill(l1pt, pt);
       hEtaMatchVsEtaRec[0]->Fill(l1eta, eta);
       hPhiMatchVsPhiRec[0]->Fill(l1phi, phi);
-      
+      hMatchedDeltaPhi[0]->Fill(deltaPhi);
+      hDeltaPhiVsPhi[0]->Fill(phi, deltaPhi);
+      hDeltaPhiVsZ0[0]->Fill(z0, deltaPhi);
+      hDeltaPhiVsD0[0]->Fill(d0, deltaPhi);
       // Resolution histos must have hlt matches
       
       hResoPtAodRec[0]->Fill((pt - l1pt)/pt);
@@ -1362,12 +1475,18 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
         double deltaR = kinem::delta_R (hltCand_eta, hltCand_phi,
                                         eta, phi);
 
+        double deltaPhi = kinem::delta_phi (hltCand_phi, phi);
+
         hDeltaRMatched[j+1]->Fill(deltaR);
         hPassMatchPtRec[j+1]->Fill(pt);
         hPtMatchVsPtRec[j+1]->Fill(hltCand_pt, pt);
         hEtaMatchVsEtaRec[j+1]->Fill(hltCand_eta, eta);
         hPhiMatchVsPhiRec[j+1]->Fill(hltCand_phi, phi);
-
+        hMatchedDeltaPhi[j+1]->Fill(deltaPhi);
+        hDeltaPhiVsPhi[j+1]->Fill(phi, deltaPhi);
+        hDeltaPhiVsZ0[j+1]->Fill(z0, deltaPhi);
+        hDeltaPhiVsD0[j+1]->Fill(d0, deltaPhi);
+        
 
         LogTrace ("HLTMuonVal") << "The pdg id is (hlt [" << j << "]) "
                                 << recMatches[i].hltCands[j].id()
@@ -1411,6 +1530,10 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
       rawMatchHltCandEta[1]->Fill(eta);
       rawMatchHltCandPhi[1]->Fill(phi);      
     }
+
+    LogTrace ("HLTMuonVal") << "There are " << recMatches[i].hltCands.size()
+                            << " hltRaw candidates that could match, starting loop"
+                            << endl;
     
     for ( size_t j = 0; j < recMatches[i].hltCands.size(); j++ ) {
       if ( recMatches[i].hltCands[j].pt() > 0 ) {
@@ -1521,22 +1644,148 @@ int HLTMuonGenericRate::findGenMatch
 
 
 int HLTMuonGenericRate::findRecMatch
-( double eta, double phi,  double maxDeltaR, vector<MatchStruct> matches )
+( double eta, double phi,  double maxDeltaR, vector<MatchStruct> matches)
 {
   double bestDeltaR = maxDeltaR;
   int bestMatch = -1;
-  for ( size_t i = 0; i < matches.size(); i++ ) {
-    double dR = kinem::delta_R( eta, phi, 
-			        matches[i].recCand->eta(), 
-				matches[i].recCand->phi() );
-    if ( dR  < bestDeltaR ) {
-      bestMatch  =  i;
-      bestDeltaR = dR;
+
+  if (matchType == "dr") {
+    for ( size_t i = 0; i < matches.size(); i++ ) {
+      double dR = kinem::delta_R( eta, phi, 
+                                  matches[i].recCand->eta(), 
+                                  matches[i].recCand->phi() );
+      if ( dR  < bestDeltaR ) {
+        bestMatch  =  i;
+        bestDeltaR = dR;
+      }
     }
+    return bestMatch;
   }
+
+  if (matchType == "cosmic") {
+
+    //   Comsic trigger matching
+    //   Just require the the muon
+    //   will be in the same half of the detector
+    //   ignore the eta information
+    //   but we will look for the minmum delta phi
+    //   with the muon in that region of the detector
+    
+    double bestDphi = 100.0;
+    for ( size_t i = 0; i < matches.size(); i++ ) {
+
+      double recCandPhi = matches[i].recCand->phi();
+
+      
+      if (recCandPhi < 0 && phi < 0) {
+        if ( kinem::delta_phi(phi, recCandPhi) < bestDphi) {
+          bestDphi = kinem::delta_phi(phi, recCandPhi);
+          bestMatch = i;          
+        }
+      }
+
+     
+      if (recCandPhi > 0 && phi > 0) {
+        
+        if ( kinem::delta_phi(phi, recCandPhi) < bestDphi) {
+          bestDphi = kinem::delta_phi(phi, recCandPhi);
+          bestMatch = i;          
+        }         
+          
+      }        
+      
+    }
+    return bestMatch;
+  }
+
+  // If you get here, then you've improperly set
+  // your matching
+
+  LogWarning ("HLTMuonVal") << "WARNING: You have improperly set matchType" << endl
+                         << "valid choices are 'dr' and 'cosmic', " <<endl
+                         << "but you provided    " << matchType << endl;
+  
   return bestMatch;
+  
 }
 
+
+bool HLTMuonGenericRate::applyTrackSelection (MuonSelectionStruct mySelection, Muon candMuon) {
+
+  LogTrace ("HLTMuonVal") << "Applying track selection to your muon"
+                          << endl;
+  // get the track 
+  // you should have specified the track using the collection names
+  TrackRef theMuonTrack = getCandTrackRef (mySelection, candMuon);
+
+  bool passedSelection = false;
+  
+  if ( theMuonTrack.isNonnull() ) {
+     double d0 = theMuonTrack->d0();
+     double z0 = theMuonTrack->dz();
+
+
+     LogTrace ("HLTMuonVal") << "d0 = " << d0
+                             << ", d0 cut = " << mySelection.d0cut << endl
+                             << "z0 = " << z0
+                             << ", z0 cut = " << mySelection.z0cut << endl;
+                             
+                             
+     
+     if (fabs(d0) < mySelection.d0cut &&
+         fabs(z0) < mySelection.z0cut ) {
+       passedSelection = true;
+     }
+  } else {
+    LogTrace ("HLTMuonVal") << "This event didn't have a valid track of type "
+                            << mySelection.trackCollection;            
+  }
+
+  return passedSelection;
+  
+}
+
+TrackRef HLTMuonGenericRate::getCandTrackRef (MuonSelectionStruct mySelection, Muon candMuon) {
+
+  string trackCollection = mySelection.trackCollection;
+  TrackRef theTrack;
+
+  LogTrace ("HLTMuonVal") << "Getting the track reference for coll "
+                          << trackCollection
+                          << endl;
+
+  LogTrace ("HLTMuonVal") << "Muon information" << endl
+                          << "pt = " << candMuon.pt()
+                          << ", phi = " << candMuon.phi()
+                          << ", eta = " << candMuon.eta()
+                          << ", global muon? = " << candMuon.isGlobalMuon()
+                          << ", standalone muon = " << candMuon.isStandAloneMuon()
+                          << ", tracker muon = " << candMuon.isTrackerMuon()
+                          << endl;
+  
+  if (trackCollection == "innerTrack") {
+    LogTrace ("HLTMuonVal") << "----> GET " << trackCollection;
+    theTrack = candMuon.innerTrack();
+
+  } else if ( trackCollection == "outerTrack" ) {
+    
+    LogTrace ("HLTMuonVal") << "----> GET " << trackCollection; 
+    theTrack = candMuon.outerTrack();
+    
+  } else if ( trackCollection == "globalTrack") {
+
+    LogTrace ("HLTMuonVal") << "----> GET " << trackCollection;    
+    theTrack = candMuon.globalTrack();
+  }
+
+  if (theTrack.isNonnull()) {
+    LogTrace ("HLTMuonVal") << "Found the desired track";
+  } else {
+    LogTrace ("HLTMuonVal") << "No track for this candidate";
+  }
+  
+  return theTrack;
+}
 
 
 void HLTMuonGenericRate::begin() 
@@ -1558,7 +1807,7 @@ void HLTMuonGenericRate::begin()
 
     // JMS Old way of doing things
     //newFolder = "HLT/Muon/Distributions/" + theTriggerName;
-    newFolder = "HLT/Muon/Distributions/" + theTriggerName + "/" + theRecoLabel;
+    newFolder = "HLT/Muon/Distributions/" + theTriggerName + "/" + mySelection.customLabel;
 
     
     
@@ -1669,6 +1918,11 @@ void HLTMuonGenericRate::begin()
       hResoEtaAodRec.push_back ( bookIt ("recResoEta_" + myLabel, "TrigSumAOD to RECO #eta resolution", theResParameters));
       hResoPhiAodRec.push_back ( bookIt ("recResoPhi_" + myLabel, "TrigSumAOD to RECO #phi resolution", theResParameters));
 
+      // Cosmic debugging histos
+      hMatchedDeltaPhi.push_back ( bookIt( "recDeltaPhiMatched_" + myLabel, "Reco #phi vs HLT #phi  " + myLabel, thePhiParameters0Pi) );
+      hDeltaPhiVsPhi.push_back(bookIt( "recDeltaPhiVsPhi_" + myLabel, "#Delta #phi (reco,hlt) vs HLT #phi  " + myLabel, theDeltaPhiVsPhiParameters) );
+      hDeltaPhiVsZ0.push_back(bookIt( "recDeltaPhiVsZ0_" + myLabel, "#Delta #phi (reco, hlt) vs HLT z0  " + myLabel, theDeltaPhiVsZ0Parameters) );
+      hDeltaPhiVsD0.push_back(bookIt( "recDeltaPhiVsD0_" + myLabel, "#Delta #phi (reco, hlt) vs HLT d0 " + myLabel, theDeltaPhiVsD0Parameters) );
       
       ////////////////////////////////////////////////
       //  RAW Histograms 
@@ -1744,8 +1998,14 @@ void HLTMuonGenericRate::begin()
 
         hDeltaRMatched.push_back ( bookIt("recDeltaRMatched_" + myLabel, "#Delta R between matched HLTCand", theDRParameters));
         hChargeFlipMatched.push_back ( bookIt("recChargeFlipMatched_" + myLabel, "Charge Flip from hlt to RECO;HLT (-,+);Reco (-,+)", theChargeFlipParameters)); 
-        
-        
+
+        // cosmic plots
+
+        hMatchedDeltaPhi.push_back ( bookIt( "recDeltaPhiMatched_" + myLabel, "Reco #phi vs HLT #phi  " + myLabel, thePhiParameters0Pi) );  
+        hDeltaPhiVsPhi.push_back(bookIt( "recDeltaPhiVsPhi_" + myLabel, "Reco #phi vs HLT #phi  " + myLabel, theDeltaPhiVsPhiParameters) );
+        hDeltaPhiVsZ0.push_back(bookIt( "recDeltaPhiVsZ0_" + myLabel, "Reco #phi vs HLT #phi  " + myLabel, theDeltaPhiVsZ0Parameters) );
+        hDeltaPhiVsD0.push_back(bookIt( "recDeltaPhiVsD0_" + myLabel, "#Delta #phi (reco, hlt) vs HLT d0 " + myLabel, theDeltaPhiVsD0Parameters) );
+
         // these candidates are indexed by the number
         // of hlt labels
         allHltCandPt.push_back( bookIt("allHltCandPt_" + myLabel, "Pt of all HLT Muon Cands, for HLT " + myLabel, theMaxPtParameters));     

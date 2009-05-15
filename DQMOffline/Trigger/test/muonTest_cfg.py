@@ -2,12 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("HLTMuonOfflineAnalysis")
 
-process.load("DQMOffline.Trigger.MuonTrigRateAnalyzer_cfi")
+process.load("DQMOffline.Trigger.MuonTrigRateAnalyzer_cosmics_cfi")
+#process.load("DQMOffline.Trigger.MuonTrigRateAnalyzer_cfi")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
 # this will create a list of producers
 # each producer provides a new muon collection
-process.load("DQMOffline.Trigger.muonSelector_cfi")
+#process.load("DQMOffline.Trigger.muonSelector_cfi")
 
 ##### Templates to change parameters in muonTriggerRateTimeAnalyzer
 # process.muonTriggerRateTimeAnalyzer.NtupleFileName = cms.untracked.string("ntuple.root")
@@ -21,9 +22,9 @@ process.load("DQMOffline.Trigger.muonSelector_cfi")
 #process.offlineDQMMuonTrig.BlahBlah
 
 process.maxEvents = cms.untracked.PSet(
-    #input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(10)
 	#input = cms.untracked.int32(100)
-	input = cms.untracked.int32(5)
+	#input = cms.untracked.int32(5)
 )
 
 #process.source = cms.Source("PoolSource",
@@ -54,10 +55,30 @@ process.source = cms.Source("PoolSource",
 							#									'/store/relval/CMSSW_3_1_0_pre1/RelValZMM/GEN-SIM-RECO/STARTUP_30X_v1/0001/72C1C406-F7F7-DD11-9D12-0030487A3C9A.root',
 							#									'/store/relval/CMSSW_3_1_0_pre1/RelValZMM/GEN-SIM-RECO/STARTUP_30X_v1/0001/D63EA9DC-F6F7-DD11-85DC-000423D99658.root')
 
-							fileNames = cms.untracked.vstring ('/store/relval/CMSSW_3_1_0_pre4/RelValZMM/GEN-SIM-RECO/STARTUP_30X_v1/0003/5C786CEA-D415-DE11-9F1D-000423D6B358.root',
-															   '/store/relval/CMSSW_3_1_0_pre4/RelValZMM/GEN-SIM-RECO/STARTUP_30X_v1/0003/62F9AF48-E315-DE11-AF8E-001D09F24047.root',
-															   '/store/relval/CMSSW_3_1_0_pre4/RelValZMM/GEN-SIM-RECO/STARTUP_30X_v1/0003/762338D4-6316-DE11-8D10-000423D991F0.root',
-															   '/store/relval/CMSSW_3_1_0_pre4/RelValZMM/GEN-SIM-RECO/STARTUP_30X_v1/0003/AEDC409C-AB16-DE11-BE1D-001617E30E28.root'  ),
+							#'/store/relval/CMSSW_3_1_0_pre4/RelValZMM/GEN-SIM-RECO/STARTUP_30X_v1/0003/5C786CEA-D415-DE11-9F1D-000423D6B358.root',
+							#								   '/store/relval/CMSSW_3_1_0_pre4/RelValZMM/GEN-SIM-RECO/STARTUP_30X_v1/0003/62F9AF48-E315-DE11-AF8E-001D09F24047.root',
+							#								   '/store/relval/CMSSW_3_1_0_pre4/RelValZMM/GEN-SIM-RECO/STARTUP_30X_v1/0003/762338D4-6316-DE11-8D10-000423D991F0.root',
+							#								   '/store/relval/CMSSW_3_1_0_pre4/RelValZMM/GEN-SIM-RECO/STARTUP_30X_v1/0003/AEDC409C-AB16-DE11-BE1D-001617E30E28.root'  ),
+
+
+							#fileNames = cms.untracked.vstring ('file:/data/slaunwhj/CMSSW_3_1_0_pre4/RelValZMM/5C786CEA-D415-DE11-9F1D-000423D6B358.root',
+							#								   'file:/data/slaunwhj/CMSSW_3_1_0_pre4/RelValZMM/62F9AF48-E315-DE11-AF8E-001D09F24047.root',
+							#								   'file:/data/slaunwhj/CMSSW_3_1_0_pre4/RelValZMM/762338D4-6316-DE11-8D10-000423D991F0.root',
+							#								   'file:/data/slaunwhj/CMSSW_3_1_0_pre4/RelValZMM/AEDC409C-AB16-DE11-BE1D-001617E30E28.root'  ),
+
+
+							#  --- one cosmic file to run on
+							
+							fileNames = cms.untracked.vstring ( '/store/data/Commissioning08/Cosmics/RAW-RECO/CRAFT_ALL_V11_227_Tosca090216_ReReco_FromSuperPointing_v2/0004/26F7DEA2-E81F-DE11-9686-0018F3D096E6.root'),
+
+							# --- Run on relval
+							#fileNames = cms.untracked.vstring (  '/store/relval/CMSSW_2_2_6/RelValZMM/GEN-SIM-RECO/STARTUP_V9_v1/0002/B0E54C9B-D70B-DE11-A7B4-000423D986C4.root'),
+																 #'/store/relval/CMSSW_2_2_6/RelValZMM/GEN-SIM-RECO/STARTUP_V9_v1/0002/543E33B9-490C-DE11-A5FD-000423D996C8.root',
+																 #'/store/relval/CMSSW_2_2_6/RelValZMM/GEN-SIM-RECO/STARTUP_V9_v1/0002/246C604C-D70B-DE11-829D-001D09F28F11.root',
+																 #'/store/relval/CMSSW_2_2_6/RelValZMM/GEN-SIM-RECO/STARTUP_V9_v1/0002/2072D73D-D60B-DE11-808E-000423D987E0.root'),
+
+
+							
 
 
 							# try GEN-SIM-DIGI-RAW-HLTDEBUG
@@ -118,8 +139,8 @@ process.MessageLogger = cms.Service("MessageLogger",
     debugModules   = cms.untracked.vstring('*'),
     cout           = cms.untracked.PSet(
 	# Be careful - this can print a lot of debug info
-    #        threshold = cms.untracked.string('DEBUG')
-	        threshold = cms.untracked.string('WARNING')
+            threshold = cms.untracked.string('DEBUG')
+	#        threshold = cms.untracked.string('WARNING')
     ),
     categories     = cms.untracked.vstring('HLTMuonVal'),
     destinations   = cms.untracked.vstring('cout', 'HLTMuonVal.log')
@@ -135,14 +156,13 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.out = cms.OutputModule("PoolOutputModule",
 	 outputCommands = cms.untracked.vstring('drop *', 'keep *_MEtoEDMConverter_*_*'),
-	 fileName = cms.untracked.string('/afs/cern.ch/user/s/slaunwhj/scratch0/MuonTrigOffline_n10_vMorePlots.root')
+	 fileName = cms.untracked.string('/afs/cern.ch/user/s/slaunwhj/scratch0/EDM_cosmics_n10_vNewConfig.root')
 )
 
 # Path must contain all producers
 # Don't use the other producers,
 # keep them out of the path for now
 process.analyzerpath = cms.Path(
-	process.barrelMuons*
     process.offlineDQMMuonTrig*
     process.MEtoEDMConverter
 )

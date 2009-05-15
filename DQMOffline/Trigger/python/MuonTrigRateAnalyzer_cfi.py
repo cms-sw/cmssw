@@ -33,6 +33,26 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
 	allCollectionNames = cms.vstring ("muons"),
 #									  "barrelMuonTracks",
 #									  "overlapMuonTracks"),
+
+   customCollection = cms.VPSet(
+	cms.untracked.PSet(
+	  collectionName = cms.untracked.string ("barrelMuons"),
+	  recoCuts = cms.untracked.string ("abs(eta) < 0.9"),
+	  hltCuts  = cms.untracked.string ("abs(eta) < 0.9")
+	),
+	cms.untracked.PSet(
+	  collectionName = cms.untracked.string ("overlapMuons"),
+	  recoCuts = cms.untracked.string ("abs(eta) > 0.9 && abs(eta) < 1.4"),
+	  hltCuts  = cms.untracked.string ("abs(eta) > 0.9 && abs(eta) < 1.4")
+	),
+
+	cms.untracked.PSet(
+	  collectionName = cms.untracked.string ("highPtMuons"),
+	  recoCuts = cms.untracked.string ("pt > 40"),
+	  hltCuts  = cms.untracked.string ("pt > 40")
+	),
+	
+	),							
 									  
 
 #  Other possible collection names									
@@ -65,7 +85,14 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
    # L1DrCut            = cms.untracked.double(0.4),
    # L2DrCut            = cms.untracked.double(0.25),
    # L3DrCut            = cms.untracked.double(0.015),
-	# for testing								
+	# for testing
+
+
+	matchType = cms.untracked.string("cosmic"),
+    # If you have cosmic matching
+	# you will ignore the delta R cuts								
+									
+									
 	L1DrCut   = cms.untracked.double(0.4),
 	L2DrCut   = cms.untracked.double(0.25),
 	L3DrCut   = cms.untracked.double(0.015),								

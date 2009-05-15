@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/03/27 15:12:16 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/04/02 16:35:30 $
+ *  $Revision: 1.4 $
  *  \author  M. Vander Donckt, J. Klukas  (copied from J. Alcaraz)
  *  \author  J. Slaunwhite (modified from above
  */
@@ -35,6 +35,7 @@
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
 
 #include <vector>
 #include "TFile.h"
@@ -43,6 +44,52 @@
 
 
 typedef math::XYZTLorentzVector LorentzVector;
+using reco::Muon;
+using trigger::TriggerObject;
+
+//-----------------------------------------
+// Add in a struct that gathers together
+// the selectors and string that form the
+// definition of each object
+//-----------------------------------------
+
+struct MuonSelectionStruct {
+
+  // constructor is empty, but passes in arguments
+  MuonSelectionStruct(StringCutObjectSelector<Muon> rsel, StringCutObjectSelector<TriggerObject> hltsel,
+                      std::string cl, double pD0cut, double pZ0cut, std::string trackCol, std::vector<std::string> reqTrigs)
+    :recoMuonSelector(rsel), hltMuonSelector(hltsel), customLabel(cl),
+     d0cut(pD0cut), z0cut(pZ0cut), trackCollection(trackCol),
+     requiredTriggers(reqTrigs) {};
+  
+  StringCutObjectSelector<Muon> recoMuonSelector;
+  StringCutObjectSelector<TriggerObject> hltMuonSelector;
+  std::string customLabel;
+
+  
+  // the track cuts you want to use
+  // note: for future dev, you may want to
+  // also include some way to force use of beamspot
+  // paramters.
+
+
+  double d0cut;
+  double z0cut;
+
+  
+  // the track collection you want to use
+  std::string trackCollection;
+
+
+  // included here for completeness, but not
+  // yet fully implemented
+
+  std::vector<std::string> requiredTriggers;
+  
+  // note... do we want to make a raw selector?
+  // raw trigger events are called trig event with refs
+  
+};
 
 
 
@@ -52,7 +99,7 @@ public:
 
   /// Constructor
   HLTMuonGenericRate( const edm::ParameterSet& pset, std::string triggerName,
-		      std::vector<std::string> moduleNames, std::string myRecoCollection );
+		      std::vector<std::string> moduleNames, MuonSelectionStruct inputSelection, std::string customName );
 
   // Operations
   void            begin  ( );
@@ -103,6 +150,10 @@ private:
 		    std::vector<MatchStruct> matches );
   int findRecMatch( double eta, double phi, double maxdeltaR,
 		    std::vector<MatchStruct> matches );
+
+  bool applyTrackSelection (MuonSelectionStruct mySelection, reco::Muon candMuon);
+  reco::TrackRef getCandTrackRef (MuonSelectionStruct mySelection, reco::Muon candMuon);
+
   
   // Data members
 
@@ -128,6 +179,13 @@ private:
   std::string  theAodL1Label;
   std::string  theAodL2Label;
 
+
+  std::string matchType;
+
+  MuonSelectionStruct mySelection;
+  //StringCutObjectSelector<Muon> myMuonSelector;
+  //std::string myCustomName;
+  
   // constants and a method
   // to simplify charge plots
 
@@ -140,6 +198,7 @@ private:
   std::vector<double> thePtParameters;
   std::vector<double> theEtaParameters;
   std::vector<double> thePhiParameters;
+  std::vector<double> thePhiParameters0Pi;
   std::vector<double> theD0Parameters; 
   std::vector<double> theZ0Parameters;
   std::vector<double> theChargeParameters;
@@ -152,6 +211,9 @@ private:
   std::vector<double> theEtaParameters2d;
   std::vector<double> thePhiParameters2d;
   std::vector<double> thePhiEtaParameters2d;
+  std::vector<double> theDeltaPhiVsPhiParameters;
+  std::vector<double> theDeltaPhiVsZ0Parameters;
+  std::vector<double> theDeltaPhiVsD0Parameters;
   
 
   // Resolution hisotgram parameters
@@ -210,6 +272,14 @@ private:
   std::vector <MonitorElement*> hPassD0BeamRec;
   std::vector <MonitorElement*> hPassZ0BeamRec;
   std::vector <MonitorElement*> hBeamSpotZ0Rec;
+
+  // studies for cosmics
+  std::vector <MonitorElement*> hMatchedDeltaPhi;
+  std::vector <MonitorElement*> hDeltaPhiVsPhi;
+  std::vector <MonitorElement*> hDeltaPhiVsZ0;
+  std::vector <MonitorElement*> hDeltaPhiVsD0;
+  
+  
 
   std::vector <MonitorElement*> hDeltaRMatched;
   std::vector <MonitorElement*> hIsolationRec;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.1 2009/02/27 13:12:09 slaunwhj Exp $
+// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.2 2009/03/26 09:45:10 slaunwhj Exp $
 //
 //
 
@@ -33,8 +33,14 @@
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
+#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
+
 #include "TFile.h"
 #include "TDirectory.h"
+
+
+
+
 
 class OfflineDQMMuonTrigAnalyzer : public edm::EDAnalyzer {
 
@@ -55,7 +61,7 @@ private:
 
 using namespace std;
 using namespace edm;
-
+using reco::Muon;
 
 
 OfflineDQMMuonTrigAnalyzer::OfflineDQMMuonTrigAnalyzer(const ParameterSet& pset)
@@ -78,17 +84,65 @@ OfflineDQMMuonTrigAnalyzer::OfflineDQMMuonTrigAnalyzer(const ParameterSet& pset)
   //if (defRecoLabel != "") recoCollectionNames.push_back(defRecoLabel);
   //if (highPtTracksLabel != "") recoCollectionNames.push_back(highPtTracksLabel);
 
+  vector<edm::ParameterSet> customCollection = pset.getParameter<vector<edm::ParameterSet> > ("customCollection");
+
+  vector<edm::ParameterSet>::iterator iPSet;
+
+  std::cout << "customCollection is a vector of size = " << customCollection.size() << std::endl
+            << "looping over entries" << std::endl;
+
+  vector < MuonSelectionStruct > customSelectors;
+  vector < string > customNames;
+  // Print out information about each pset
+  for ( iPSet = customCollection.begin();
+        iPSet != customCollection.end();
+        iPSet++) {
+    string customCuts  = iPSet->getUntrackedParameter<string> ("recoCuts");
+    string customName = iPSet->getUntrackedParameter<string> ("collectionName");
+    string hltCuts   = iPSet->getUntrackedParameter<string> ("hltCuts");
+    string targetTrackCollection = iPSet->getUntrackedParameter<string> ("trackCollection");
+    double  customD0Cut = iPSet->getUntrackedParameter<double> ("d0cut");
+    double customZ0Cut = iPSet->getUntrackedParameter<double> ("z0cut");
+
+    vector<string> requiredTriggers = iPSet->getUntrackedParameter< vector<string> > ("requiredTriggers");
+
+    std::cout << "customTargetCollection = " << customName  << std::endl
+              << "customCuts = " << customCuts << std::endl
+              << "targetTrackCollection = " << targetTrackCollection << std::endl
+              << "d0 cut = " << customD0Cut << std::endl
+              << "z0 cut = " << customZ0Cut << std:: endl ;
+
+    StringCutObjectSelector<Muon> tempRecoSelector(customCuts);
+    StringCutObjectSelector<TriggerObject> tempHltSelector(hltCuts);
+    
+    // create a custom selector
+    MuonSelectionStruct tempStruct(tempRecoSelector, tempHltSelector,
+                                   customName, customD0Cut, customZ0Cut,
+                                   targetTrackCollection, requiredTriggers);
+
+    
+    customNames.push_back ( customName);
+    customSelectors.push_back(tempStruct);
+  }
+
+  
   
   
   HLTConfigProvider hltConfig;
   hltConfig.init(theHltProcessName);
   vector<string> validTriggerNames = hltConfig.triggerNames();
 
-  vector<string>::const_iterator iRecCollection;
+  //vector<string>::const_iterator iRecCollection;
 
-  for ( iRecCollection = recoCollectionNames.begin();
-        iRecCollection != recoCollectionNames.end();
-        iRecCollection++) {
+  //  for ( iRecCollection = recoCollectionNames.begin();
+  //        iRecCollection != recoCollectionNames.end();
+  //        iRecCollection++) {
+
+  vector<MuonSelectionStruct>::iterator iMuonSelector;
+  vector<string>::iterator iName = customNames.begin();
+  for ( iMuonSelector = customSelectors.begin();
+        iMuonSelector != customSelectors.end();
+        iMuonSelector++) {
   
     for( size_t i = 0; i < triggerNames.size(); i++) {
       bool isValidTriggerName = false;
@@ -98,10 +152,11 @@ OfflineDQMMuonTrigAnalyzer::OfflineDQMMuonTrigAnalyzer(const ParameterSet& pset)
       else {
         vector<string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
         HLTMuonGenericRate *analyzer;
-        analyzer = new HLTMuonGenericRate( pset, triggerNames[i], moduleNames, (*iRecCollection) );
+        analyzer = new HLTMuonGenericRate( pset, triggerNames[i], moduleNames, (*iMuonSelector), (*iName) );
         theTriggerAnalyzers.push_back( analyzer );
       }
     }
+    iName++;
   }
   theOverlapAnalyzer = new HLTMuonOverlap( pset );    
 
