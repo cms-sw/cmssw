@@ -12,7 +12,7 @@ metJESCorIC5CaloJet = cms.EDProducer("Type1MET",
                                    metType = cms.string('CaloMET'),
                                    jetPTthreshold = cms.double(20.0),
                                    inputUncorMetLabel = cms.string('met'),
-                                   corrector = cms.string('MCJetCorrectorIcone5')
+                                   corrector = cms.string('L2L3JetCorrectorIC5Calo')
                                    )
 
 metJESCorKT4CaloJet = metJESCorIC5CaloJet.clone()
