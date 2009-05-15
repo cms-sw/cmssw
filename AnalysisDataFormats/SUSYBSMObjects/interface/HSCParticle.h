@@ -103,43 +103,58 @@ namespace susybsm {
  class HSCParticle 
   {
    public:
+      // constructor
       HSCParticle():hasCalo(false),hasRpc(false),hasDt(false),hasTk(false) {}
+      // check available infos
       bool  hasCaloInfo() const { return hasCalo; }
       bool  hasRpcInfo()  const { return hasRpc;  }
       bool  hasDtInfo()   const { return hasDt;   }
       bool  hasTkInfo()   const { return hasTk;   }
-      void  setCalo(const CaloBetaMeasurement& data) { calo = data; hasCalo = true; }
-      void  setRpc(const RPCBetaMeasurement& data) { rpc = data; hasRpc = true; }
-      void  setDt(const MuonTOF& data)  { dt = data; hasDt = true; }
-      void  setTk(const DeDxBeta& data) { tk = data; hasTk = true; }
-      const CaloBetaMeasurement& Calo() const { return calo; }
-      const RPCBetaMeasurement& Rpc() const { return rpc; }
-      const MuonTOF& Dt() const { return dt; }
-      const DeDxBeta& Tk() const { return tk; }
-      CaloBetaMeasurement& Calo() { return calo; }
-      RPCBetaMeasurement& Rpc() { return rpc; }
-      MuonTOF& Dt() { return dt; }
-      DeDxBeta& Tk() { return tk; }
-      float p() const;
-      float pt() const;
-      float massTk()const {return tk.track()->p()*sqrt(tk.invBeta2()-1);}
-      float massDt()const {return dt.first->track()->p()*sqrt(dt.second.invBeta*dt.second.invBeta-1);}
-      float massDtComb()const {return dt.first->combinedMuon()->p()*sqrt(dt.second.invBeta*dt.second.invBeta-1);}
-      float massDtSta()const {return dt.first->standAloneMuon()->p()*sqrt(dt.second.invBeta*dt.second.invBeta-1);}
-      float massDtAssoTk()const {return tk.track()->p()*sqrt(dt.second.invBeta*dt.second.invBeta-1);}
-      float massDtBest() const { return p()*sqrt(dt.second.invBeta*dt.second.invBeta-1);}
-      float massTkAssoComb() const {return dt.first->combinedMuon()->p()*sqrt(tk.invBeta2()-1);}
-      float compatibility() const {return (sqrt(tk.invBeta2())-dt.second.invBeta)/(sqrt(tk.invBeta2()/tk.nDedxHits())*0.1+dt.second.invBeta*0.1);}
-      bool  hasMuonTrack() const {return dt.first->track().isNonnull(); }
-      bool  hasMuonStaTrack() const {return dt.first->standAloneMuon().isNonnull(); }
-      bool  hasMuonCombinedTrack() const {return dt.first->combinedMuon().isNonnull(); }
-      bool  hasTrackerTrack() const {return hasTk; }
-      const reco::Track& muonTrack() const {return *dt.first->track(); } 
-      const reco::Track& staTrack() const {return *dt.first->standAloneMuon(); } 
-      const reco::Track& combinedTrack() const {return *dt.first->combinedMuon(); } 
-      const reco::Track& trackerTrack() const {return *tk.track(); } 
       bool  emptyDTInfo() const { return  ( ! hasDt ) || (dt.second.nHits ==0  && dt.second.nStations ==0) ;  }
-private:
+      // set infos
+      void  setCalo(const CaloBetaMeasurement& data) { calo = data; hasCalo = true; }
+      void  setRpc(const RPCBetaMeasurement& data)   { rpc = data; hasRpc = true; }
+      void  setDt(const MuonTOF& data)               { dt = data; hasDt = true; }
+      void  setTk(const DeDxBeta& data)              { tk = data; hasTk = true; }
+      // get infos
+      const CaloBetaMeasurement& Calo() const { return calo; }
+      const RPCBetaMeasurement&  Rpc()  const { return rpc; }
+      const MuonTOF&             Dt()   const { return dt; }
+      const DeDxBeta&            Tk()   const { return tk; }
+      CaloBetaMeasurement&       Calo() { return calo; }
+      RPCBetaMeasurement&        Rpc()  { return rpc; }
+      MuonTOF&                   Dt()   { return dt; }
+      DeDxBeta&                  Tk()   { return tk; }
+      // physical quantities
+      float p()  const;
+      float pt() const;
+      float massTk()         const { return hasTkInfo() ? tk.track()->p()*sqrt(tk.invBeta2()-1) : 0.; }
+      float massTkError()    const;
+      float massDt()         const { return hasDtInfo() ? dt.first->track()->p()*sqrt(dt.second.invBeta*dt.second.invBeta-1) : 0.;}
+      float massDtError()    const;
+      float massAvg()        const { return (massTk()+massDt())/2.;}
+      float massAvgError()   const;
+      float massDtComb()     const { return hasDtInfo() ? dt.first->combinedMuon()->p()*sqrt(dt.second.invBeta*dt.second.invBeta-1) : 0.;}
+      float massDtSta()      const { return hasDtInfo() ? dt.first->standAloneMuon()->p()*sqrt(dt.second.invBeta*dt.second.invBeta-1) : 0.;}
+      float massDtAssoTk()   const { return hasTkInfo()&&hasDtInfo() ? tk.track()->p()*sqrt(dt.second.invBeta*dt.second.invBeta-1) : 0.;}
+      float massDtBest()     const { return hasDtInfo() ? p()*sqrt(dt.second.invBeta*dt.second.invBeta-1) : 0.;}
+      float massTkAssoComb() const { return hasTkInfo()&&hasDtInfo() ? dt.first->combinedMuon()->p()*sqrt(tk.invBeta2()-1) : 0.;}
+      float betaTk()         const { return hasTkInfo() ? 1/sqrt(tk.invBeta2()) : 1.; }
+      float betaDt()         const { return hasDtInfo() ? 1/dt.second.invBeta : 1.; }
+      float betaAvg()        const { return 2./(sqrt(tk.invBeta2())+dt.second.invBeta); }
+      float compatibility()  const { return (sqrt(tk.invBeta2())-dt.second.invBeta)/
+                                            (sqrt(tk.invBeta2()/tk.nDedxHits())*0.1+dt.second.invBeta*0.1) ;}
+      // check if tracks are available
+      bool  hasMuonTrack()         const { return hasDt && dt.first->track().isNonnull(); }
+      bool  hasMuonStaTrack()      const { return hasDt && dt.first->standAloneMuon().isNonnull(); }
+      bool  hasMuonCombinedTrack() const { return hasDt && dt.first->combinedMuon().isNonnull(); }
+      bool  hasTrackerTrack()      const { return hasTk; }
+      // retreive the tracks (! no implicit protection. Call methods above first.)
+      const reco::Track& muonTrack()     const { return *dt.first->track(); } 
+      const reco::Track& staTrack()      const { return *dt.first->standAloneMuon(); } 
+      const reco::Track& combinedTrack() const { return *dt.first->combinedMuon(); } 
+      const reco::Track& trackerTrack()  const { return *tk.track(); } 
+   private:
       bool hasCalo;
       bool hasRpc;
       bool hasDt;
