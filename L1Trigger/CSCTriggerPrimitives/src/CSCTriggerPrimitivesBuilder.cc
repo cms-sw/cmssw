@@ -8,8 +8,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2008/07/29 10:56:05 $
-//   $Revision: 1.14 $
+//   $Date: 2008/08/28 13:50:16 $
+//   $Revision: 1.15 $
 //
 //   Modifications:
 //
@@ -160,11 +160,10 @@ void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
 		theGeom->chamber(endc, stat, sect, subs, cham) != 0) {
 	      std::vector<CSCCorrelatedLCTDigi> lctV = tmb->run(wiredc,compdc);
 
-	      std::vector<CSCALCTDigi> alctV = tmb->alct->getALCTs();
-	      std::vector<CSCCLCTDigi> clctV = tmb->clct->getCLCTs();
+	      std::vector<CSCALCTDigi> alctV = tmb->alct->readoutALCTs();
+	      std::vector<CSCCLCTDigi> clctV = tmb->clct->readoutCLCTs();
 
 	      // Skip to next chamber if there are no LCTs to save.
-	      // (Checking on CLCTs is probably superfluous.)
 	      if (alctV.empty() && clctV.empty() && lctV.empty()) continue;
 
 	      // Calculate DetId.
