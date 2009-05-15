@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.120 2009/05/14 19:57:24 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.121 2009/05/15 13:57:40 amraktad Exp $
 //
 
 // system include files
@@ -900,6 +900,16 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
             wpacked.push_back( sef->GetEveWindow());
          }
       }
+
+      // docked
+      for(std::vector<TEveWindow*>::const_iterator it = m_viewWindows.begin(); it != m_viewWindows.end(); ++it)
+      {
+         TEveWindow* ew = (*it);
+         TEveCompositeFrameInMainFrame* mainFrame = dynamic_cast<TEveCompositeFrameInMainFrame*>(ew->GetEveFrame());
+         if (mainFrame)
+            wpacked.push_back(ew); 
+      
+      }
    }
 
    // use sorted list to weite view area and FW-views configuration
@@ -1080,6 +1090,8 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
    if(0!=undocked) {
       const FWConfiguration::KeyValues* keyVals = undocked->keyValues();
       if(0!=keyVals) {
+
+         int idx = m_viewBases.size() -keyVals->size();
          for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it != keyVals->end(); ++it)
          {
             int x = atoi(it->second.valueForKey("x")->value().c_str());
@@ -1087,8 +1099,10 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
             int width = atoi(it->second.valueForKey("width")->value().c_str());
             int height = atoi(it->second.valueForKey("height")->value().c_str());
 
-            createView(it->first);
-            TEveWindow* myw = m_viewWindows.back();
+            // get pointer to the undocked viewer
+            TEveWindow* myw = m_viewWindows[idx];
+            idx++;
+
             myw->UndockWindowDestroySlot();
             TEveCompositeFrameInMainFrame* emf = dynamic_cast<TEveCompositeFrameInMainFrame*>(myw->GetEveFrame());
             const TGMainFrame* mf =  dynamic_cast<const TGMainFrame*>(emf->GetParent());
