@@ -84,8 +84,8 @@ CSCLayerGeometryInside::CSCLayerGeometryInside( const edm::ParameterSet& ps )
 
   hall = fs->make<TH2F>( "hall", "All      y vs x", nbx, xlo, xhi, nby, ylo, yhi );
   h1ai = fs->make<TH2F>( "h1ai", "ME1a  in y vs x", nbx, xlo, xhi, nby, ylo, yhi );
-  h1bi = fs->make<TH2F>( "h1bi", "ME1b out y vs x", nbx, xlo, xhi, nby, ylo, yhi );
-  h1ao = fs->make<TH2F>( "h1ao", "ME1a  in y vs x", nbx, xlo, xhi, nby, ylo, yhi );
+  h1bi = fs->make<TH2F>( "h1bi", "ME1b  in y vs x", nbx, xlo, xhi, nby, ylo, yhi );
+  h1ao = fs->make<TH2F>( "h1ao", "ME1a out y vs x", nbx, xlo, xhi, nby, ylo, yhi );
   h1bo = fs->make<TH2F>( "h1bo", "ME1b out y vs x", nbx, xlo, xhi, nby, ylo, yhi );
 
 }
