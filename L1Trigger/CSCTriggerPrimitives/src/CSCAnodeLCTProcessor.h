@@ -13,8 +13,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2009/03/26 15:32:51 $
- * $Revision: 1.17 $
+ * $Date: 2009/03/27 17:04:52 $
+ * $Revision: 1.18 $
  *
  */
 
@@ -68,7 +68,10 @@ class CSCAnodeLCTProcessor
   /** Second best LCTs in this chamber, as found by the processor. */
   CSCALCTDigi secondALCT[MAX_ALCT_BINS];
 
-  /** Returns vector of found ALCTs, if any. */
+  /** Returns vector of ALCTs in the read-out time window, if any. */
+  std::vector<CSCALCTDigi> readoutALCTs();
+
+  /** Returns vector of all found ALCTs, if any. */
   std::vector<CSCALCTDigi> getALCTs();
 
   /** Pre-defined patterns. */

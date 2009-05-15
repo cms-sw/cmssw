@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2009/04/10 14:44:06 $
-//   $Revision: 1.33 $
+//   $Date: 2009/05/08 16:24:45 $
+//   $Revision: 1.34 $
 //
 //   Modifications: 
 //
@@ -469,7 +469,7 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
     if (layersHit >= min_layers) run(wire);
   }
 
-  // Return vector of ALCTs.
+  // Return vector of all found ALCTs.
   std::vector<CSCALCTDigi> tmpV = getALCTs();
   return tmpV;
 }
@@ -569,7 +569,7 @@ void CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc,
 }
 
 void CSCAnodeLCTProcessor::readWireDigis(std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) {
-  /* Gets wire times from the wire digis and fills wire[][] array */
+  /* Gets wire times from the wire digis and fills wire[][] vector */
 
   // Loop over all 6 layers.
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
@@ -584,7 +584,7 @@ void CSCAnodeLCTProcessor::readWireDigis(std::vector<int> wire[CSCConstants::NUM
       if (i_wire < 0 || i_wire >= numWireGroups) {
 	if (infoV > 0) edm::LogWarning("CSCAnodeLCTProcessor")
 	  << "+++ Found wire digi with wrong wire number = " << i_wire
-	  << "( max wires = " << numWireGroups << "); skipping it... +++\n";
+	  << " (max wires = " << numWireGroups << "); skipping it... +++\n";
 	continue;
       }
       // Accept digis in expected time window.  Total number of time
@@ -1042,32 +1042,6 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(
      the best quality. */
   CSCALCTDigi bestALCTs[MAX_ALCT_BINS][2], secondALCTs[MAX_ALCT_BINS][2];
 
-  static int fpga_latency = 6;
-  static int early_tbins  = fifo_pretrig - fpga_latency;
-  // The number of LCT bins is equal to l1a_window_width parameter, but made
-  // even by setting the LSB of l1a_window_width to 0.
-  static int lct_bins   = 
-    (l1a_window_width%2 == 0) ? l1a_window_width : l1a_window_width-1;
-  static int late_tbins = early_tbins + lct_bins;
-
-  static int ifois = 0;
-  if (ifois == 0) {
-    if (infoV > 0 && early_tbins < 0) {
-      edm::LogWarning("CSCAnodeLCTProcessor")
-	<< "+++ fifo_pretrig = " << fifo_pretrig
-	<< "; you are loosing in-time ALCT hits!!! +++" << "\n";
-    }
-
-    if (late_tbins > MAX_ALCT_BINS-1) {
-      if (infoV > 0) edm::LogWarning("CSCAnodeLCTProcessor")
-	<< "+++ Allowed range of time bins, [0-" << late_tbins
-	<< "] exceeds max allowed, " << MAX_ALCT_BINS-1 << " +++\n"
-	<< "+++ Set late_tbins to max allowed +++\n";
-      late_tbins = MAX_ALCT_BINS-1;
-    }
-    ifois = 1;
-  }
-
   if (infoV > 1) {
     LogTrace("CSCAnodeLCTProcessor") << all_alcts.size() <<
       " ALCTs at the input of best-track selector: ";
@@ -1083,25 +1057,6 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(
        plct != all_alcts.end(); plct++) {
     if (!plct->isValid()) continue;
 
-    int bx = (*plct).getBX();
-    // Skip ALCTs found too early relative to L1Accept.
-    if (bx <= early_tbins) {
-      if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
-	<< " Do not report ALCT on keywire " << plct->getKeyWG()
-	<< ": found at bx " << bx << ", whereas the earliest allowed bx is "
-	<< early_tbins+1;
-      continue;
-    }
-
-    // Skip ALCTs found too late relative to L1Accept.
-    if (bx > late_tbins) {
-      if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
-	<< " Do not report ALCT on keywire " << plct->getKeyWG()
-	<< ": found at bx " << bx << ", whereas the latest allowed bx is "
-	<< late_tbins;
-      continue;
-    }
-
     // Select two collision and two accelerator ALCTs with the highest
     // quality at every bx.  The search for best ALCTs is done in parallel
     // for collision and accelerator patterns, and simultaneously for
@@ -1109,6 +1064,7 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(
     // the priority is given to the ALCT with larger wiregroup number
     // in the search for tA (collision and accelerator), and to the ALCT
     // with smaller wiregroup number in the search for tB.
+    int bx    = (*plct).getBX();
     int accel = (*plct).getAccelerator();
     int qual  = (*plct).getQuality();
     int wire  = (*plct).getKeyWG();
@@ -1126,7 +1082,7 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(
     }
   }
 
-  for (int bx = early_tbins+1; bx <= late_tbins; bx++) {
+  for (int bx = 0; bx < MAX_ALCT_BINS; bx++) {
     for (int accel = 0; accel <= 1; accel++) {
       // Best ALCT is always tA.
       if (tA[bx][accel].isValid()) {
@@ -1163,7 +1119,7 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(
 
   // Fill the vector with up to four best ALCTs per bx and return it.
   std::vector<CSCALCTDigi> fourBest;
-  for (int bx = 0; bx <= late_tbins; bx++) {
+  for (int bx = 0; bx < MAX_ALCT_BINS; bx++) {
     for (int i = 0; i < 2; i++) {
       if (bestALCTs[bx][i].isValid())   fourBest.push_back(bestALCTs[bx][i]);
     }
@@ -1360,7 +1316,70 @@ void CSCAnodeLCTProcessor::dumpDigis(const std::vector<int> wire[CSCConstants::N
   LogTrace("CSCAnodeLCTProcessor") << strstrm.str();
 }
 
-// Returns vector of found ALCTs, if any.
+// Returns vector of read-out ALCTs, if any.  Starts with the vector of
+// all found ALCTs and selects the ones in the read-out time window.
+std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs() {
+  std::vector<CSCALCTDigi> tmpV;
+
+  static int fpga_latency = 6;
+  static int early_tbins  = fifo_pretrig - fpga_latency;
+  // The number of LCT bins in the read-out is given by the
+  // l1a_window_width parameter, but made even by setting the LSB of
+  // l1a_window_width to 0.
+  static int lct_bins   = 
+    (l1a_window_width%2 == 0) ? l1a_window_width : l1a_window_width-1;
+  static int late_tbins = early_tbins + lct_bins;
+
+  static int ifois = 0;
+  if (ifois == 0) {
+    if (infoV > 0 && early_tbins < 0) {
+      edm::LogWarning("CSCAnodeLCTProcessor")
+	<< "+++ fifo_pretrig = " << fifo_pretrig
+	<< "; in-time ALCTs are not getting read-out!!! +++" << "\n";
+    }
+
+    if (late_tbins > MAX_ALCT_BINS-1) {
+      if (infoV > 0) edm::LogWarning("CSCAnodeLCTProcessor")
+	<< "+++ Allowed range of time bins, [0-" << late_tbins
+	<< "] exceeds max allowed, " << MAX_ALCT_BINS-1 << " +++\n"
+	<< "+++ Set late_tbins to max allowed +++\n";
+      late_tbins = MAX_ALCT_BINS-1;
+    }
+    ifois = 1;
+  }
+
+  // Start from the vector of all found ALCTs and select those within
+  // the ALCT*L1A coincidence window.
+  std::vector<CSCALCTDigi> all_alcts = getALCTs();
+  for (std::vector <CSCALCTDigi>::const_iterator plct = all_alcts.begin();
+       plct != all_alcts.end(); plct++) {
+    if (!plct->isValid()) continue;
+
+    int bx = (*plct).getBX();
+    // Skip ALCTs found too early relative to L1Accept.
+    if (bx <= early_tbins) {
+      if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
+	<< " Do not report ALCT on keywire " << plct->getKeyWG()
+	<< ": found at bx " << bx << ", whereas the earliest allowed bx is "
+	<< early_tbins+1;
+      continue;
+    }
+
+    // Skip ALCTs found too late relative to L1Accept.
+    if (bx > late_tbins) {
+      if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
+	<< " Do not report ALCT on keywire " << plct->getKeyWG()
+	<< ": found at bx " << bx << ", whereas the latest allowed bx is "
+	<< late_tbins;
+      continue;
+    }
+
+    tmpV.push_back(*plct);
+  }
+  return tmpV;
+}
+
+// Returns vector of all found ALCTs, if any.  Used in ALCT-CLCT matching.
 std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::getALCTs() {
   std::vector<CSCALCTDigi> tmpV;
   for (int bx = 0; bx < MAX_ALCT_BINS; bx++) {
