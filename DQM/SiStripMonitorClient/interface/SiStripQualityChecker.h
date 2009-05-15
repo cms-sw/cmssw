@@ -30,7 +30,7 @@ class SiStripQualityChecker {
   void fillStatus(DQMStore* dqm_store);
   void printStatusReport();
   const std::map<uint32_t,uint16_t> & getBadModuleList(DQMStore* dqm_store);
-  void printFaultyModuleList(DQMStore* dqm_store, std::ostringstream& str_val);
+  void fillFaultyModuleStatus(DQMStore* dqm_store);
   
  private:
 

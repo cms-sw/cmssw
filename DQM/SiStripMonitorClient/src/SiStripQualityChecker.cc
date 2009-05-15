@@ -426,17 +426,12 @@ const std::map<uint32_t,uint16_t> & SiStripQualityChecker::getBadModuleList(DQMS
 //
 // -- Create Moneitor Elements for Modules
 //
-void SiStripQualityChecker::printFaultyModuleList(DQMStore* dqm_store, ostringstream& str_val) {
+void SiStripQualityChecker::fillFaultyModuleStatus(DQMStore* dqm_store) {
   if (badModuleList.size() == 0) return;
   dqm_store->cd();
-  str_val << endl;
   string mdir = "MechanicalView"; 
   if (!SiStripUtility::goToDir(dqm_store, mdir)) return;
   string mechanicalview_dir = dqm_store->pwd();
-
-  int nDetsTotal  = 0;
-  int nTotalError = 0;
-
   for (map<string, string>::const_iterator it = SubDetFolderMap.begin(); 
        it != SubDetFolderMap.end(); it++) {
     string subdet_name   = it->first;
@@ -444,23 +439,12 @@ void SiStripQualityChecker::printFaultyModuleList(DQMStore* dqm_store, ostringst
     string dname = mechanicalview_dir + "/" + subdet_folder;
     if (!dqm_store->dirExists(dname)) continue;
     string bad_module_folder = dname + "/" + "BadModuleList";
-    str_val << "============"<< endl;                                                                          
-    str_val << subdet_folder << endl;                                                    
-    str_val << "============"<< endl;                                                                          
-    str_val << endl;      
     dqm_store->cd(dname);
-    vector<string> module_folders;
-    SiStripUtility::getModuleFolderList(dqm_store, module_folders);
-    int nDets = module_folders.size();
-    int nDetsWithError = 0;
     for (map<uint32_t,uint16_t>::const_iterator it =  badModuleList.begin() ; it != badModuleList.end(); it++) {
       uint32_t detId =  it->first;
       string subdet_tag;
       SiStripUtility::getSubDetectorTag(detId,subdet_tag);
-
       if (subdet_tag == (subdet_name)) {
-        nDetsWithError++;
-	str_val << " Module Id " << detId << " : Errors " << it->second << endl;         
         // Check if the ME exists otherwise book it
 	dqm_store->setCurrentFolder(bad_module_folder);
 	ostringstream detid_str;
@@ -472,16 +456,6 @@ void SiStripQualityChecker::printFaultyModuleList(DQMStore* dqm_store, ostringst
 	me->Fill(it->second);
       }
     }
-    str_val << "--------------------------------------------------------------------"<< endl;                  
-    str_val << " Detectors :  Total "<<   nDets
-            << " with Error " << nDetsWithError<< endl;   
-    str_val << "--------------------------------------------------------------------"<< endl;                  
-    nTotalError += nDetsWithError;
-    nDetsTotal  += nDets;    
   }
-  str_val << endl;                                                                                             
-  str_val << endl;                                                          
-  str_val << " Total Detectors " << nDetsTotal << endl;                                                        
-  str_val << " # of Detectors with Error " << nTotalError<< endl;                                          
 }
 

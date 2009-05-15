@@ -248,5 +248,57 @@ void SiStripActionExecutor::printShiftHistoParameters(DQMStore * dqm_store, map<
 //  -- Print List of Modules with QTest warning or Error
 //
 void SiStripActionExecutor::printFaultyModuleList(DQMStore * dqm_store, ostringstream& str_val) { 
-  qualityChecker_->printFaultyModuleList(dqm_store, str_val);   
+  qualityChecker_->fillFaultyModuleStatus(dqm_store);   
+  dqm_store->cd();
+
+  string mdir = "MechanicalView";
+  if (!SiStripUtility::goToDir(dqm_store, mdir)) return;
+  string mechanicalview_dir = dqm_store->pwd();
+
+  vector<string> subdet_folder;
+  subdet_folder.push_back("TIB");
+  subdet_folder.push_back("TOB");
+  subdet_folder.push_back("TEC/side_1");
+  subdet_folder.push_back("TEC/side_2");
+  subdet_folder.push_back("TID/side_1");
+  subdet_folder.push_back("TID/side_2");
+  
+  int nDetsTotal = 0;
+  int nDetsWithErrorTotal = 0;
+  for (vector<string>::const_iterator im = subdet_folder.begin(); im != subdet_folder.end(); im++) {       
+    string dname = mechanicalview_dir + "/" + (*im);
+    if (!dqm_store->dirExists(dname)) continue;
+    str_val << "============"<< endl;
+    str_val << (*im)         << endl;                                                    
+    str_val << "============"<< endl;
+    str_val << endl;      
+
+    dqm_store->cd(dname);
+    vector<string> module_folders;
+    SiStripUtility::getModuleFolderList(dqm_store, module_folders);
+    int nDets = module_folders.size();
+
+    int nDetsWithError = 0;
+    string bad_module_folder = dname + "/" + "BadModuleList";
+    if (dqm_store->dirExists(bad_module_folder)) {
+      std::vector<MonitorElement *> meVec = dqm_store->getContents(bad_module_folder);
+      for (std::vector<MonitorElement *>::const_iterator it = meVec.begin();
+	   it != meVec.end(); it++) {
+        nDetsWithError++; 
+	str_val << (*it)->getName() <<  " " << (*it)->getIntValue() << endl;
+      } 
+    }
+    str_val << "--------------------------------------------------------------------"<< endl;
+    str_val << " Detectors :  Total "<<   nDets
+            << " with Error " << nDetsWithError<< endl;   
+    str_val << "--------------------------------------------------------------------"<< endl;
+    nDetsTotal += nDets;
+    nDetsWithErrorTotal += nDetsWithError;        
+  }    
+  dqm_store->cd();
+  str_val << "--------------------------------------------------------------------"<< endl;
+  str_val << " Total Number of Connected Detectors : " <<   nDetsTotal << endl;
+  str_val << " Total Number of Detectors with Error : " << nDetsWithErrorTotal << endl;
+  str_val << "--------------------------------------------------------------------"<< endl;
+
 }
