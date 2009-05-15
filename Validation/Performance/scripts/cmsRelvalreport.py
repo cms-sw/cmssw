@@ -4,7 +4,7 @@ r'''
 Relvalreport_v2: a script to run performance tests and produce reports in a automated way.
 '''
 
-
+import re #Used for IgProf Analyse work with IgProf Mem profile dumps
 # Configuration parameters:#############################################################
 
 # Perfreport 3 and 2 coordinates:
@@ -42,9 +42,6 @@ VMPARSERSTYLE='%s/src/Utilities/ReleaseScripts/data/valgrindMemcheckParser.css' 
 # IgProf_Analysis coordinates:
 #IGPROFANALYS='%s/src/Validation/Performance/scripts/cmsIgProf_Analysis.py'%os.environ[RELEASE]
 IGPROFANALYS='cmsIgProf_Analysis.py'
-
-#Adding IgProf dump Analysis to handle the dumping of the IgProf at intermediate events:
-IGPROFDUMPANALYSIS='cmsIgProfDumpAnalysis.py'
 
 # Timereport parser
 #TIMEREPORTPARSER='%s/src/Validation/Performance/scripts/cmsTimeReport.pl'%os.environ[RELEASE]
@@ -533,11 +530,20 @@ class Profile:
             else: #We use IgProf Analysis
                 #Add here the handling of the new IgProf.N.gz files so that they will get preserved and not overwritten:
                 localFiles=os.listdir('.')
-                IgProfDumps=filter(lambda x: "IgProf." in x[:7],localFiles) #Hardcoded sloppily, should use regular expression
-                for dump in IgProfDumps:
-                    DumpedProfileName=self.profile_name[:-3]+"."+dump.split(".")[1]+".gz"
-                    execute('mv %s %s'%(dump,DumpedProfileName))
-                    execute('%s -o%s -i%s' %(IGPROFANALYS,outdir,DumpedProfileName))
+                IgProfDumpProfiles=re.compile(r"IgProf.\d+.gz")
+                IgProfDumps=filter(lambda x: IgProfDumpProfiles.search(x),localFiles)
+                if IgProfDumps:
+                    for dump in IgProfDumps:
+                        DumpedProfileName=self.profile_name[:-3]+"."+dump.split(".")[1]+".gz"
+                        execute('mv %s %s'%(dump,DumpedProfileName))
+                        execute('%s -o%s -i%s' %(IGPROFANALYS,outdir,DumpedProfileName))
+                else: #Handle the case of reuse (MEM_LIVE usually re-uses MEM_TOTAL profile, so the IgProf.N.gz files will already have a MemTotal name...
+                    IgProfDumpProfilesPrevious=re.compile(r"\w+.\d+.gz")
+                    IgProfDumps=filter(lambda x: IgProfDumpProfilesPrevious.search(x),localFiles)
+                    for dump in IgProfDumps:
+                        DumpedProfileName=self.profile_name[:-3]+"."+dump.split(".")[1]+".gz"
+                        execute('%s -o%s -i%s' %(IGPROFANALYS,outdir,DumpedProfileName))
+                
                 return execute('%s -o%s -i%s' %(IGPROFANALYS,outdir,self.profile_name)) #move the modification inside the analysis script.
                 
 

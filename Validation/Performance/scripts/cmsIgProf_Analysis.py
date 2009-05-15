@@ -5,11 +5,12 @@
 # In python everything is an object, even if we don't know. 
 # os and time will become 2 objects for us.
 
-import os
+import os,sys
 import time
 
 def execute(command):
     print '[IgAnalysis] %s ...' %command
+    sys.stdout.flush()
     exitstate=os.system(command)
     return exitstate
     
@@ -26,41 +27,26 @@ def analyse_prof_sim(profile_name,outdir):
     #Use the outdir to determine what kind of analysis to make:
 
     AnalysisType=''
-    if "IgProfperf" in outdir:
-        AnalysisType='PERF_TICKS'
-    elif "IgProfMemTotal" in outdir:
+    #I don't think igprof-analyse is used with PERF_TICKS...
+    #if "IgProfperf" in outdir:
+    #    AnalysisType='PERF_TICKS'
+    #el
+    if "IgProfMemTotal" in outdir:
         AnalysisType='MEM_TOTAL'
     elif "IgProfMemLive" in outdir:
         AnalysisType='MEM_LIVE'
 
-    #Use profile input file to determine the name of the output file:
-    outfile=outdir+"/"+profile_name[:-3]+".res"
-        
-    #A first manipulation of the profile
-    #command='igprof-analyse -d -v -g --value peak -r MEM_LIVE %s > %s'\
-    #                                %(profile_name,outfile1)
-    #execute(command) #we use the method system of the object os to run a command
-    
-    # now let's execute the segment and analyse commands                                                                
-    #commands_list=(\
-    #'igprof-segment edm::EDProducer::doEvent < %s |tee  -a %s' %(outfile1,outfile2),
-    #
-    #'igprof-segment edm::EDProducer::doBeginJob < %s |tee -a %s' %(outfile1,outfile3),
-    #
-    #'igprof-analyse -d -v -g -r MEM_LIVE %s |tee -a \%s'\
-    #                                %(profile_name,outfile4),
-    # 
-    #'igprof-analyse -d -v -g -r MEM_TOTAL %s |tee -a \%s'\
-    #                                %(profile_name,outfile5)
-    #              )
-    #
-    #for command in commands_list: #no iterator can be clearer than this one
-    #    #print command
-    #    execute(command)
+    #Use profile input file to determine the name of the output file (based still on the outdir though):
+    if len(profile_name.split(".")) == 3: #Dumped profiles case        
+        outfile=outdir+"/"+outdir+"."+profile_name.split(".")[1]+".res"
+    else:
+        outfile=outdir+"/"+outdir+".res"
 
     #Launch the 1 command:
     
-    command='igprof-analyse -d -v -g -r %s %s|tee -a \%s'%(AnalysisType,profile_name,outfile)
+    #command='igprof-analyse -d -v -g -r %s %s|tee -a \%s'%(AnalysisType,profile_name,outfile)
+    #REplacing tee: it is polluting the log files...
+    command='igprof-analyse -d -v -g -r %s %s > %s'%(AnalysisType,profile_name,outfile)
     execute(command) 
     # Now for every plain ascii file we make an html:
     titlestring='<b>Report executed with release %s on %s.</b>\n<br>\n<hr>\n'\
@@ -70,19 +56,38 @@ def analyse_prof_sim(profile_name,outdir):
     command_info='Command executed: <em>%s</em><br><br>\n' %command 
     
     # we open and read the txt ascii file
+    print "Reading the res file"
     txt_file=open(outfile,'r')
     txt_file_content=txt_file.readlines()#again:everything is an object
+    print "res file has %s lines!"%len(txt_file_content)
     txt_file.close()
-    
-    html_file_name='%s.html' %outfile[:-4]# a way to say the string until its last but 4th char
-    html_file=open(html_file_name,'w')
-    html_file.write('<html>\n<body>\n'+\
-                    titlestring+\
-                    command_info)
+
+    #overwrite the file to only save the first 7 lines:
+    print "Overwriting the res file, to reduce it to 7 lines"
+    out_file=open(outfile,'w')
+    line_num=0
     for line in txt_file_content:
-        html_file.write(line+'<br>\n')
-    html_file.write('\n</body>\n</html>')
-    html_file.close()
+        out_file.write(line)
+        line_num+=1
+        if line_num == 7:
+            break
+    out_file.close()
+    
+    #Could do fancier html, but why bother? txt is OK for res files
+    #html_file_name='%s_oneliner.html' %outfile[:-4]# a way to say the string until its last but 4th char
+    #html_file=open(html_file_name,'w')
+    #html_file.write('<html>\n<body>\n'+\
+    #                titlestring+\
+    #                command_info)
+    
+    ##for line in txt_file_content:
+    ##html_file.write(line+'<br>\n')
+    ##The header line is in line 6
+    #html_file.write(txt_file_content[5]+'<br>\n')
+    ##The actual number are in line 7:
+    #html_file.write(txt_file_content[6]+'<br>\n')
+    #html_file.write('\n</body>\n</html>')
+    #html_file.close()
 
     # compress all the plain txt files!
     execute('pushd %s;gzip *txt;popd' %outdir)
