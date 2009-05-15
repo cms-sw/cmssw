@@ -100,6 +100,8 @@ namespace pftools {
   class PFClusterCalibration;
 }
 
+class METManager;
+
 
 typedef std::pair<double, unsigned> simMatch;
 typedef std::list< std::pair<double, unsigned> >::iterator ITM;
@@ -765,6 +767,8 @@ class PFRootEventManager {
   boost::shared_ptr<pftools::PFClusterCalibration> clusterCalibration_;
   boost::shared_ptr<PFEnergyCalibration> calibration_;
   std::ofstream* calibFile_; 
+  
+  std::auto_ptr<METManager>   metManager_; 
   
 };
 #endif

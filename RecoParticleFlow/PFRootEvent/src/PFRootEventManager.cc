@@ -23,9 +23,12 @@
 
 #include "RecoParticleFlow/PFRootEvent/interface/Utils.h" 
 #include "RecoParticleFlow/PFRootEvent/interface/EventColin.h" 
+#include "RecoParticleFlow/PFRootEvent/interface/METManager.h"
+
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
+
 
 #include "FWCore/ServiceRegistry/interface/Service.h" 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -888,6 +891,10 @@ void PFRootEventManager::readOptions(const char* file,
   cout<<"verbosity : "<<verbosity_<<endl;
 
 
+  // Specific managers
+  // here, read your options from .opt
+  metManager_.reset( new METManager() ); 
+
 }
 
 void PFRootEventManager::connect( const char* infilename ) {
@@ -1388,6 +1395,7 @@ bool PFRootEventManager::processEntry(int entry) {
     reconstructPFJets();
   }    
         
+ 
   // call print() in verbose mode
   if( verbosity_ == VERBOSE ) print();
   
