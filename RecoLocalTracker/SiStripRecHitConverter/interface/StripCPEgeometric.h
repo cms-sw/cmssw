@@ -8,6 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
 class StripCPEgeometric : public StripCPE 
 {
@@ -30,18 +31,19 @@ class StripCPEgeometric : public StripCPE
  private:
 
   typedef vector<uint8_t>::const_iterator chargeIt_t;
-  std::pair<float,float> position_sigma_inStrips( uint16_t, chargeIt_t, chargeIt_t, float) const;
-  bool useNMinusOne(chargeIt_t, chargeIt_t,float) const;
+  std::pair<float,float> position_sigma_inStrips( uint16_t, chargeIt_t, chargeIt_t, float,SiStripDetId::SubDetector) const;
+  bool useNMinusOne(chargeIt_t, chargeIt_t,float, SiStripDetId::SubDetector) const;
   bool hasMultiPeak(chargeIt_t, chargeIt_t) const;
 
 
-  static const float width3threshold, invsqrt12, minProj;
+  static const float TOBeta, TIBeta, invsqrt12, tandriftangle;
   static const unsigned crossoverRate;
 };
 
 const unsigned StripCPEgeometric::crossoverRate=15;
-const float StripCPEgeometric::width3threshold=0.15;
+const float StripCPEgeometric::TOBeta=0.835;
+const float StripCPEgeometric::TIBeta=0.890;
 const float StripCPEgeometric::invsqrt12=1/sqrt(12);
-const float StripCPEgeometric::minProj=0.08;
+const float StripCPEgeometric::tandriftangle=0.01;
 
 #endif
