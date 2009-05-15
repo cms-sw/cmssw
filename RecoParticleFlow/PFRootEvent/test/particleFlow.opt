@@ -289,11 +289,6 @@ particle_flow   factors_45 1. 1.
 particle_flow   nsigma_ECAL    0.0
 particle_flow   nsigma_HCAL    1.0
 
-particle_flow   mergedPhotons_mvaCut 		0.5
-particle_flow	mergedPhotons_mvaWeightFile ${CMSSW_DATA_PATH}/data-RecoParticleFlow-PFProducer/1/RecoParticleFlow/PFProducer/data/MVAnalysis_MLP.weights.txt
-//particle_flow	mergedPhotons_mvaWeightFile	../../PFProducer/data/MVAnalysis_MLP.weights.txt
-particle_flow   mergedPhotons_PSCut  0.001   
-
 // PFElectrons
 particle_flow   electron_mvaCut     -0.1
 particle_flow   usePFElectrons      1

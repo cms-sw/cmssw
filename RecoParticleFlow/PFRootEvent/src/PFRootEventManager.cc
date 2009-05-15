@@ -23,7 +23,6 @@
 
 #include "RecoParticleFlow/PFRootEvent/interface/Utils.h" 
 #include "RecoParticleFlow/PFRootEvent/interface/EventColin.h" 
-#include "RecoParticleFlow/PFRootEvent/interface/METManager.h"
 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h"
@@ -610,14 +609,6 @@ void PFRootEventManager::readOptions(const char* file,
   double nSigmaHCAL = 99999;
   options_->GetOpt("particle_flow", "nsigma_HCAL", nSigmaHCAL);
 
-  double mvaCut = 999999;
-  options_->GetOpt("particle_flow", "mergedPhotons_mvaCut", mvaCut);
-  
-  string mvaWeightFile = "";
-  options_->GetOpt("particle_flow", "mergedPhotons_mvaWeightFile", 
-                   mvaWeightFile);  
-  mvaWeightFile = expand( mvaWeightFile );
-  
   // pfAlgo_.setNewCalibration(newCalib);
 
   // Set the parameters for the brand-new calibration
@@ -663,17 +654,10 @@ void PFRootEventManager::readOptions(const char* file,
   clusterCalibration->setEtaCorrectionParameters(etaCorrectionParams);
 
 
-  // new for PS PFAlgo validation (MDN)
-  double PSCut = 999999;
-  options_->GetOpt("particle_flow", "mergedPhotons_PSCut", PSCut);
-
   try {
-    //     pfAlgo_.setParameters( eCalibP0, eCalibP1, nSigmaECAL, nSigmaHCAL,
-    //                            PSCut, mvaCut, mvaWeightFile.c_str() );
     pfAlgo_.setParameters( nSigmaECAL, nSigmaHCAL, 
                            calibration,
-			   clusterCalibration, newCalib,
-                           PSCut, mvaCut, mvaWeightFile.c_str() );
+			   clusterCalibration, newCalib);
   }
   catch( std::exception& err ) {
     cerr<<"exception setting PFAlgo parameters: "

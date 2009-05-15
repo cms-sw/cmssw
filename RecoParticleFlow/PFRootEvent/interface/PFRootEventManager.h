@@ -54,6 +54,7 @@
 #include "RecoParticleFlow/Benchmark/interface/PFJetBenchmark.h"
 #include "RecoParticleFlow/Benchmark/interface/PFMETBenchmark.h"
 
+#include "RecoParticleFlow/PFRootEvent/interface/METManager.h"
 #include "RecoParticleFlow/PFRootEvent/interface/FWLiteJetProducer.h"
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
