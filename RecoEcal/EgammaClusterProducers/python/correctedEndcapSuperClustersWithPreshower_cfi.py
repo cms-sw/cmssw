@@ -17,7 +17,7 @@ correctedEndcapSuperClustersWithPreshower = cms.EDProducer("PreshowerClusterProd
     preshClusterCollectionX = cms.string('preshowerXClusters'),
     preshCalibPlaneY = cms.double(0.7),
     preshCalibPlaneX = cms.double(1.0),
-    preshCalibMIP = cms.double(9e-05), ## 78.5e-6 
+    preshCalibMIP = cms.double(80.1e-6), ## 78.5e-6 
 
     #InputTag endcapSClusterProducer  = islandSuperClusters:islandEndcapSuperClusters
     endcapSClusterProducer = cms.InputTag("correctedIslandEndcapSuperClusters"),
