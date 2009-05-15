@@ -2,7 +2,7 @@
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
   <PoolContainer name="DTMtime" >
-   <Class name="DTMtime" mapping_version="DTMtime-1.0" >
+   <Class name="DTMtime" mapping_version="DTMtime-2.0" >
    </Class >
   </PoolContainer >
  </PoolDatabase >

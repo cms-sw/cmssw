@@ -2,7 +2,7 @@
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
   <PoolContainer name="DTT0" >
-   <Class table="DTT0" id_columns="IOV_VALUE_ID" name="DTT0" mapping_version="DTT0-1.0" >
+   <Class table="DTT0" id_columns="IOV_VALUE_ID" name="DTT0" mapping_version="DTT0-2.0" >
      <Primitive column="DATA_VERSION" name="dataVersion" />
      <Primitive column="NS_PER_COUNT" name="nsPerCount" />
      <Container table="DT_T0LIST" id_columns="IOV_VALUE_ID" name="dataList" position_column="DATA_ID" >

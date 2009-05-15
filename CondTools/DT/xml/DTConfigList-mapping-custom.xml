@@ -2,7 +2,7 @@
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
   <PoolContainer name="DTConfigList" >
-   <Class table="DTCONFIGLIST" id_columns="LIST_ID" name="DTConfigList" mapping_version="DTConfigList-1.0" >
+   <Class table="DTCONFIGLIST" id_columns="LIST_ID" name="DTConfigList" mapping_version="DTConfigList-2.0" >
      <Primitive column="DATAVERSION" name="dataVersion" />
      <Container table="DT_CFGREF" id_columns="LIST_ID" name="dataList" position_column="LINK_ID" >
        <Object name="value_type" >

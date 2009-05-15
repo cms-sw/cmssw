@@ -2,7 +2,7 @@
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
   <PoolContainer name="DTPerformance" >
-   <Class name="DTPerformance" mapping_version="DTPerformance-1.0" >
+   <Class name="DTPerformance" mapping_version="DTPerformance-2.0" >
    </Class >
   </PoolContainer >
  </PoolDatabase >

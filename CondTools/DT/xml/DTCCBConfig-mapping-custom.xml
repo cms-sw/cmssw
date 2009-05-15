@@ -2,7 +2,7 @@
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
   <PoolContainer name="DTCCBConfig" >
-   <Class table="DTCCBCONFIG" id_columns="IOV_VALUE_ID" name="DTCCBConfig" mapping_version="DTCCBConfig-1.0" >
+   <Class table="DTCCBCONFIG" id_columns="IOV_VALUE_ID" name="DTCCBConfig" mapping_version="DTCCBConfig-2.0" >
      <Primitive column="TIME" name="timeStamp" />
      <Primitive column="DATA_VERSION" name="dataVersion" />
      <Primitive column="CONFKEY" name="fullConfigKey" />

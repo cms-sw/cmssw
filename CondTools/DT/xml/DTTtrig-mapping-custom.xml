@@ -2,7 +2,7 @@
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
   <PoolContainer name="DTTtrig" >
-   <Class table="DTTTRIG" id_columns="IOV_VALUE_ID" name="DTTtrig" mapping_version="DTTtrig-1.0" >
+   <Class table="DTTTRIG" id_columns="IOV_VALUE_ID" name="DTTtrig" mapping_version="DTTtrig-2.0" >
      <Primitive column="DATA_VERSION" name="dataVersion" />
      <Primitive column="NS_PER_COUNT" name="nsPerCount"  />
      <Container table="DT_TTRIGLIST" id_columns="IOV_VALUE_ID" name="dataList" position_column="DATA_ID" >

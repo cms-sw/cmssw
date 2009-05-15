@@ -2,7 +2,7 @@
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
   <PoolContainer name="DTLVStatus" >
-   <Class table="DTCCBSTATUS" id_columns="IOV_VALUE_ID" name="DTLVStatus" mapping_version="DTLVStatus-1.0" >
+   <Class table="DTCCBSTATUS" id_columns="IOV_VALUE_ID" name="DTLVStatus" mapping_version="DTLVStatus-2.0" >
      <Primitive column="DATA_VERSION" name="dataVersion" />
      <Container table="DT_CCBSTATUSLIST" id_columns="IOV_VALUE_ID" name="dataList" position_column="DATA_ID" >
        <Object name="value_type" >

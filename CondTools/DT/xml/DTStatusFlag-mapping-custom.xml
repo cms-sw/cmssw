@@ -2,7 +2,7 @@
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
   <PoolContainer name="DTStatusFlag" >
-   <Class table="DTSTATUSFLAG" id_columns="IOV_VALUE_ID" name="DTStatusFlag" mapping_version="DTStatusFlag-1.0" >
+   <Class table="DTSTATUSFLAG" id_columns="IOV_VALUE_ID" name="DTStatusFlag" mapping_version="DTStatusFlag-2.0" >
      <Primitive column="DATA_VERSION" name="dataVersion" />
      <Container table="DT_STATUSLIST" id_columns="IOV_VALUE_ID" name="dataList" position_column="DATA_ID" >
        <Object name="value_type" >
