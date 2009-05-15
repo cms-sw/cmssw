@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2009/04/23 15:36:05 $
- *  $Revision: 1.28.6.1 $
+ *  $Date: 2009/05/11 10:12:27 $
+ *  $Revision: 1.29 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -60,6 +60,9 @@ MuonTrajectoryUpdator::MuonTrajectoryUpdator(const edm::ParameterSet& par,
     // The rescale factor
     theRescaleFactor =  par.getParameter<double>("RescaleErrorFactor");
   
+  // Use the invalid hits?
+  useInvalidHits =  par.getParameter<bool>("UseInvalidHits");
+
   // Flag needed for the rescaling
   theFirstTSOSFlag = true;
 }
@@ -165,7 +168,7 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
 	  // FIXME: check!
 	  trajectory.push(updatedMeasurement, thisChi2.second);	  
 	}
-	else {
+	else if(useInvalidHits) {
           LogTrace(metname) << "  Compatible RecHit with too large chi2"
 			    << "  --> trajectory NOT updated, invalid RecHit added." << endl;
 	  //	  const TrackingRecHit *invalidRH = new TrackingRecHit( (*recHit)->geographicalId(), TrackingRecHit::bad );

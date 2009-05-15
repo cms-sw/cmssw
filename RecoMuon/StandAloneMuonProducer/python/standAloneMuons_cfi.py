@@ -36,7 +36,8 @@ standAloneMuons = cms.EDProducer("StandAloneMuonProducer",
                                                                                                  MuonTrajectoryUpdatorParameters = cms.PSet(MaxChi2 = cms.double(25.0),
                                                                                                                                             RescaleError = cms.bool(False),
                                                                                                                                             RescaleErrorFactor = cms.double(100.0),
-                                                                                                                                            Granularity = cms.int32(0)
+                                                                                                                                            Granularity = cms.int32(0),
+                                                                                                                                            UseInvalidHits = cms.bool(True)
                                                                                                                                             )
                                                                                                  ),
       
@@ -55,7 +56,8 @@ standAloneMuons = cms.EDProducer("StandAloneMuonProducer",
                                                                                                    MuonTrajectoryUpdatorParameters = cms.PSet(MaxChi2 = cms.double(25.0),
                                                                                                                                               RescaleError = cms.bool(False),
                                                                                                                                               RescaleErrorFactor = cms.double(100.0),
-                                                                                                                                              Granularity = cms.int32(2)
+                                                                                                                                              Granularity = cms.int32(2),
+                                                                                                                                              UseInvalidHits = cms.bool(True)
                                                                                                                                               )
                                                                                                    ),
                                                                      DoRefit = cms.bool(False),
