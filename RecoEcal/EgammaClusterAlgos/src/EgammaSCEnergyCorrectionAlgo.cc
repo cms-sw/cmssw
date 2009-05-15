@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.36 2009/03/25 17:31:16 ferriff Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.37 2009/03/29 02:25:24 ymaravin Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -120,10 +120,10 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   tmp.setEtaWidth(etaWidth); 
     
   if ( theAlgo == reco::CaloCluster::hybrid || theAlgo == reco::CaloCluster::dynamicHybrid ) {
-    newEnergy = EnergyCorrection->getValue(tmp, 0);
+    newEnergy = tmp.rawEnergy() + EnergyCorrection->getValue(tmp, 3);
 
   } else if  ( theAlgo == reco::CaloCluster::multi5x5 ) {     
-    newEnergy = EnergyCorrection->getValue(tmp, 1);
+    newEnergy = tmp.rawEnergy() + tmp.preshowerEnergy() + EnergyCorrection->getValue(tmp, 5);
 
   } else {  
     //Apply f(nCry) correction on island algo and fixedMatrix algo 
