@@ -5,8 +5,8 @@
  *
  * This class simulates the functionality of the cathode LCT card. It is run by
  * the MotherBoard and returns up to two CathodeLCTs.  It can be run either in
- * a test mode, where it is passed an array of comparator times and comparator
- * values, or in normal mode where it determines the time and comparator
+ * a test mode, where it is passed arrays of halfstrip and distrip times,
+ * or in normal mode where it determines the time and comparator
  * information from the comparator digis.
  *
  * The CathodeLCTs come in distrip and halfstrip flavors; they are sorted
@@ -23,8 +23,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2009/03/27 17:10:12 $
- * $Revision: 1.20 $
+ * $Date: 2009/05/13 10:09:44 $
+ * $Revision: 1.21 $
  *
  */
 
@@ -59,9 +59,8 @@ class CSCCathodeLCTProcessor
 
   /** Called in test mode and by the run(compdc) function; does the actual LCT
       finding. */
-  void run(int comp[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS],
-	   int time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS],
-	   int digiNum[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS]);
+  void run(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+	   const std::vector<int> distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]);
  
   /** Access routines to comparator digis. */
   bool getDigis(const CSCComparatorDigiCollection* compdc);
@@ -76,7 +75,10 @@ class CSCCathodeLCTProcessor
   /** Second best LCT in this chamber, as found by the processor. */
   CSCCLCTDigi secondCLCT[MAX_CLCT_BINS];
 
-  /** Returns vector of found CLCTs, if any. */
+  /** Returns vector of CLCTs in the read-out time window, if any. */
+  std::vector<CSCCLCTDigi> readoutCLCTs();
+
+  /** Returns vector of all found CLCTs, if any. */
   std::vector<CSCCLCTDigi> getCLCTs();
 
   static void distripStagger(int stag_triad[CSCConstants::MAX_NUM_STRIPS],
@@ -148,15 +150,24 @@ class CSCCathodeLCTProcessor
   /** Number of di-strips/half-strips per CFEB. */
   static const int cfeb_strips[2];
 
+  //---------------- Methods common to all firmware versions ------------------
+  void readComparatorDigis(std::vector<int>halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+			   std::vector<int> distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]);
+  void readComparatorDigis(std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]);
+  void pulseExtension(
+ const std::vector<int> time[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+ const int nStrips,
+ unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]);
+
   //------------- Functions for idealized version for MC studies --------------
   std::vector<CSCCLCTDigi> findLCTs(
-     const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
-     int width, int numStrips);
+     const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+     int stripType);
   bool preTrigger(
-     const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+     const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
      const int stripType, const int nStrips, int& first_bx);
   void getKeyStripData(
-     const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+     const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
      int keystrip_data[CSCConstants::NUM_HALF_STRIPS][7],
      int nStrips, int first_bx, int& best_strip, int stripType);
   void getPattern(int pattern_num, int strip_value[NUM_PATTERN_STRIPS],
@@ -165,10 +176,10 @@ class CSCCathodeLCTProcessor
 
   //-------------------- Functions for pre-2007 firmware ----------------------
   std::vector<CSCCLCTDigi> findLCTs(
-  const int halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
-  const int distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]);
+  const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+  const std::vector<int> distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]);
   bool preTrigger(
-      const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+      const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
    unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
       const int stripType, const int nStrips,
       const int start_bx, int& first_bx);
@@ -191,11 +202,8 @@ class CSCCathodeLCTProcessor
 		  unsigned int& quality, unsigned int& bend);
 
   //--------------- Functions for 2007 version of the firmware ----------------
-  std::vector<CSCCLCTDigi> findLCTs2007(
- const int halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]);
-  void pulseExtension(
-      const int time[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
-  unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]);
+  std::vector<CSCCLCTDigi> findLCTs(
+ const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]);
   bool preTrigger(
       const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
       const int start_bx, int& first_bx);
@@ -214,7 +222,7 @@ class CSCCathodeLCTProcessor
 
   /** Dump digis on half-strips and di-strips. */
   void dumpDigis(
-      const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+      const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
       const int stripType, const int nStrips) const;
 
   //--------------------------- Methods for tests -----------------------------
@@ -222,7 +230,7 @@ class CSCCathodeLCTProcessor
   void testLCTs();
   void printPatterns();
   void testPatterns();
-  int findNumLayersHit(int stripsHit[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]);
+  int findNumLayersHit(std::vector<int> stripsHit[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]);
 };
 
 #endif

@@ -5,8 +5,8 @@
 //   Description: 
 //     This class simulates the functionality of the cathode LCT card.  It is
 //     run by the MotherBoard and returns up to two CathodeLCTs. It can be
-//     run either in a test mode, where it is passed an array of comparator
-//     times and comparator values, or in normal mode where it determines
+//     run either in a test mode, where it is passed arrays of halfstrip
+//     and distrip times, or in normal mode where it determines
 //     the time and comparator information from the comparator digis.
 //
 //     Additional comments by Jason Mumford 01/31/01 (mumford@physics.ucla.edu)
@@ -19,8 +19,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2009/04/10 14:44:06 $
-//   $Revision: 1.35 $
+//   $Date: 2009/05/13 10:09:45 $
+//   $Revision: 1.36 $
 //
 //   Modifications: 
 //
@@ -452,7 +452,7 @@ void CSCCathodeLCTProcessor::checkConfigParameters() {
 	<< def_min_separation << " +++\n";
       min_separation = def_min_separation;
     }
-  }    
+  }
 }
 
 void CSCCathodeLCTProcessor::clear() {
@@ -556,101 +556,32 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
   bool noDigis = getDigis(compdc);
 
   if (!noDigis) {
-    int time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS];
-    int comp[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS];
-    int digiNum[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS];
-    for (int i = 0; i < CSCConstants::NUM_LAYERS; i++){
-      for (int j = 0; j < CSCConstants::MAX_NUM_STRIPS; j++) {
-	time[i][j]    = -999;
-	comp[i][j]    =    0;
-	digiNum[i][j] = -999;
-      }
+    // Get halfstrip (and possibly distrip) times from comparator digis.
+    std::vector<int>
+      halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS];
+    std::vector<int>
+      distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS];
+    if (isTMB07) { // TMB07 (latest) version: halfstrips only.
+      readComparatorDigis(halfstrip);
+    }
+    else { // Earlier versions: halfstrips and distrips.
+      readComparatorDigis(halfstrip, distrip);
     }
 
-    for (int i = 0; i < CSCConstants::NUM_LAYERS; i++) {
-      std::vector <CSCComparatorDigi> layerDigiV = digiV[i];
-      for (unsigned int j = 0; j < layerDigiV.size(); j++) {
-	// Get one digi at a time for the layer.  -Jm
-	CSCComparatorDigi thisDigi = layerDigiV[j];
-
-	// Dump raw digi info
-	if (infoV > 1) LogTrace("CSCCathodeLCTProcessor")
-	  << "Comparator digi: comparator = " << thisDigi.getComparator()
-	  << " strip #" << thisDigi.getStrip()
-	  << " time bin = " << thisDigi.getTimeBin();
-
-	// Get comparator: 0/1 for left/right halfstrip for each comparator
-	// that fired.
-	int thisComparator = thisDigi.getComparator();
-	if (thisComparator != 0 && thisComparator != 1) {
-	  if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
-	    << "+++ Comparator digi with wrong comparator value: digi #" << j
-	    << ", comparator = " << thisComparator << "; skipping it... +++\n";
-	  continue;
-	}
-
-	// Get strip number.
-	int thisStrip = thisDigi.getStrip() - 1; // count from 0
-	if (thisStrip < 0 || thisStrip >= numStrips) {
-	  if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
-	    << "+++ Comparator digi with wrong strip number: digi #" << j
-	    << ", strip = " << thisStrip
-	    << ", max strips = " << numStrips << "; skipping it... +++\n";
-	  continue;
-	}
-
-	// Get Bx of this Digi and check that it is within the bounds
-	int thisDigiBx = thisDigi.getTimeBin();
-
-	// Total number of time bins in DAQ readout is given by fifo_tbins,
-	// which thus determines the maximum length of time interval.
-	// Better data-emulator agreement is achieved when hits in the
-	// first 2 time bins are excluded.  As of May 2009, the reasons
-	// for this are not fully understood yet (the work is on-going).
-	if (thisDigiBx > 1 && thisDigiBx < static_cast<int>(fifo_tbins)) {
-
-	  // If there is more than one hit in the same strip, pick one
-	  // which occurred earlier.
-	  // In reality, the second hit on the same distrip is ignored only
-	  // during the number of clocks defined by the "hit_persist" 
-	  // parameter (i.e., 6 bx's by default).  So if one simulates
-	  // a large number of bx's in a crowded environment, this
-	  // approximation here may not be sufficiently good.
-	  if (time[i][thisStrip] == -999 || time[i][thisStrip] > thisDigiBx) {
-	    digiNum[i][thisStrip] = j;
-	    time[i][thisStrip]    = thisDigiBx;
-	    comp[i][thisStrip]    = thisComparator;
-	    if (infoV > 1) LogTrace("CSCCathodeLCTProcessor")
-	      << "Comp digi: layer " << i+1
-	      << " digi #"           << j+1
-	      << " strip "           << thisStrip
-	      << " halfstrip "       << 2*thisStrip + comp[i][thisStrip] + stagger[i]
-	      << " distrip "         << thisStrip/2 + // [0-39]
-	      ((thisStrip%2 == 1 && comp[i][thisStrip] == 1 && stagger[i] == 1) ? 1 : 0)
-	      << " time "            <<    time[i][thisStrip]
-	      << " comparator "      <<    comp[i][thisStrip]
-	      << " stagger "         << stagger[i];
-	  }
-	}
-	else {
-	  if (infoV > 1) LogTrace("CSCCathodeLCTProcessor")
-	    << "+++ Skipping comparator digi: strip = " << thisStrip
-	    << ", layer = " << i+1 << ", bx = " << thisDigiBx << " +++";
-	}
-      }
-    }
-
+    // Pass arrays of halfstrips and distrips on to another run() doing the
+    // LCT search.
     // If the number of layers containing digis is smaller than that
     // required to trigger, quit right away.  (If LCT-based digi suppression
     // is implemented one day, this condition will have to be changed
     // to the number of planes required to pre-trigger.)
     unsigned int layersHit = 0;
-    for (int i = 0; i < CSCConstants::NUM_LAYERS; i++) {
-      for (int j = 0; j < numStrips; j++) {
-	if (time[i][j] >= 0) {layersHit++; break;}
+    for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+      for (int i_hstrip = 0; i_hstrip < CSCConstants::NUM_HALF_STRIPS;
+	   i_hstrip++) {
+	if (!halfstrip[i_layer][i_hstrip].empty()) {layersHit++; break;}
       }
     }
-    if (layersHit >= nplanes_hit_pattern) run(comp, time, digiNum);
+    if (layersHit >= nplanes_hit_pattern) run(halfstrip, distrip);
   }
 
   // Return vector of CLCTs.
@@ -658,95 +589,25 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
   return tmpV;
 }
 
-void CSCCathodeLCTProcessor::run(int comp[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS],
-				 int time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS],
-				 int digiNum[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS]){
+void CSCCathodeLCTProcessor::run(
+  const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+  const std::vector<int> distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]) {
   // This version of the run() function can either be called in a standalone
-  // test, being passed the comparator output and time, or called by the 
-  // run() function above.  It takes the comparator & time info and stuffs
-  // it into both half- and di-strip arrays and uses the findLCTs() method
-  // to find vectors of LCT candidates. These candidates are sorted and the
-  // best two are returned.
-  static int test_iteration = 0;
-  int halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS];
-  int distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS];
-
-  for (int i = 0; i < CSCConstants::NUM_LAYERS; i++) {
-    // Use the comparator info to setup the halfstrips and distrips.  -BT
-    for (int j = 0; j < CSCConstants::NUM_HALF_STRIPS; j++){
-      halfstrip[i][j] = -999;
-    }
-    // This loop is only for halfstrips.
-    for (int j = 0; j < CSCConstants::MAX_NUM_STRIPS; j++) {
-      if (time[i][j] >= 0) {
-	int i_halfstrip = 2*j + comp[i][j] + stagger[i];
-	// 2*j    : convert strip to 1/2 strip
-	// comp   : comparator output
-	// stagger: stagger for this layer
-	if (i_halfstrip >= 2*numStrips + 1) {
-	  if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
-	    << "+++ Found wrong halfstrip number = " << i_halfstrip
-	    << "; skipping this digi... +++\n";
-	  continue;
-	}
-	halfstrip[i][i_halfstrip] = time[i][j];
-      }
-    }
-
-    // There are no di-strips in the 2007 version of the TMB firmware.
-    if (!isTMB07) {
-      // This loop is only for distrips.  We have to separate the routines
-      // because triad and time arrays can be changed by the distripStagger
-      // routine which could mess up the halfstrips.
-      for (int j = 0; j < CSCConstants::NUM_HALF_STRIPS; j++){
-	distrip[i][j] = -999;
-      }
-      for (int j = 0; j < CSCConstants::MAX_NUM_STRIPS; j++){
-	if (time[i][j] >= 0) {
-	  int i_distrip = j/2;
-	  if (j%2 == 1 && comp[i][j] == 1 && stagger[i] == 1) {
-	    // @@ Needs to be checked.
-	    bool stagger_debug = (infoV > 2);
-	    distripStagger(comp[i], time[i], digiNum[i], j, stagger_debug);
-	  }
-	  // comp[i][j] == 1	: hit on right half-strip.
-	  // stagger[i] == 1	: half-strips are shifted by 1.
-	  // if these conditions are met add 1; otherwise add 0.
-	  // So if there is a hit on the far right half-strip, and the
-	  // half-strips have been staggered to the right, then the di-strip
-	  // would actually correspond to the next highest di-strip.  -JM
-	  if (infoV > 2 && test_iteration == 1) {
-	    testDistripStagger();
-	    test_iteration++;
-	  }
-	  if (i_distrip >= numStrips/2 + 1) {
-	    if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
-	      << "+++ Found wrong distrip number = " << i_distrip
-	      << "; skipping this digi... +++\n";
-	    continue;
-	  }
-	  distrip[i][i_distrip] = time[i][j];
-	}
-      }
-    }
-  }
-  
-  // Now to do the real work of the CathodeProcessor: make a vector of the
-  // possible halfstrip LCT candidates and a vector of the distrip LCT 
-  // candidates.  Subtract 1 to account for staggering.
+  // test, being passed the halfstrip and distrip times, or called by the 
+  // run() function above.  It uses the findLCTs() method to find vectors
+  // of LCT candidates. These candidates are sorted and the best two per bx
+  // are returned.
   std::vector<CSCCLCTDigi> LCTlist;
 
   if (isTMB07) { // TMB07 (latest) version of the CLCT algorithm.
-    LCTlist = findLCTs2007(halfstrip);
+    LCTlist = findLCTs(halfstrip);
   }
   else if (isMTCC) { // MTCC version.
     LCTlist = findLCTs(halfstrip, distrip);
   }
   else { // Idealized algorithm of many years ago.
-    std::vector<CSCCLCTDigi> halfStripLCTs =
-      findLCTs(halfstrip, 1, 2*numStrips+1);
-    std::vector<CSCCLCTDigi> diStripLCTs   =
-      findLCTs(distrip,   0, numStrips/2+1);
+    std::vector<CSCCLCTDigi> halfStripLCTs = findLCTs(halfstrip, 1);
+    std::vector<CSCCLCTDigi> diStripLCTs   = findLCTs(distrip,   0);
     // Put all the candidates into a single vector and sort them.
     for (unsigned int i = 0; i < halfStripLCTs.size(); i++)
       LCTlist.push_back(halfStripLCTs[i]);
@@ -866,6 +727,250 @@ void CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc,
   }
 }
 
+void CSCCathodeLCTProcessor::readComparatorDigis(
+        std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]) {
+  // Single-argument version for TMB07 (halfstrip-only) firmware.
+  // Takes the comparator & time info and stuffs it into halfstrip vector.
+  // Multiple hits on the same strip are allowed.
+
+  for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+    int i_digi = 0; // digi counter, for dumps.
+    for (std::vector<CSCComparatorDigi>::iterator pld = digiV[i_layer].begin();
+	 pld != digiV[i_layer].end(); pld++, i_digi++) {
+      // Dump raw digi info.
+      if (infoV > 1) {
+	std::ostringstream strstrm;
+	strstrm << "Comparator digi: comparator = " << pld->getComparator()
+		<< " strip #" << pld->getStrip()
+	  	<< " time bins on:";
+	std::vector<int> bx_times = pld->getTimeBinsOn();
+	for (unsigned int tbin = 0; tbin < bx_times.size(); tbin++)
+	  strstrm << " " << bx_times[tbin];
+	LogTrace("CSCCathodeLCTProcessor") << strstrm.str();
+      }
+
+      // Get comparator: 0/1 for left/right halfstrip for each comparator
+      // that fired.
+      int thisComparator = pld->getComparator();
+      if (thisComparator != 0 && thisComparator != 1) {
+	if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
+	  << "+++ Found comparator digi with wrong comparator value = "
+	  << thisComparator << "; skipping it... +++\n";
+	continue;
+      }
+
+      // Get strip number.
+      int thisStrip = pld->getStrip() - 1; // count from 0
+      if (thisStrip < 0 || thisStrip >= numStrips) {
+	if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
+	  << "+++ Found comparator digi with wrong strip number = "
+	  << thisStrip
+	  << " (max strips = " << numStrips << "); skipping it... +++\n";
+	continue;
+      }
+      // 2*strip: convert strip to 1/2 strip
+      // comp   : comparator output
+      // stagger: stagger for this layer
+      int thisHalfstrip = 2*thisStrip + thisComparator + stagger[i_layer];
+      if (thisHalfstrip >= 2*numStrips + 1) {
+	if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
+	  << "+++ Found wrong halfstrip number = " << thisHalfstrip
+	  << "; skipping this digi... +++\n";
+	continue;
+      }
+
+      // Get bx times on this digi and check that they are within the bounds.
+      std::vector<int> bx_times = pld->getTimeBinsOn();
+      for (unsigned int i = 0; i < bx_times.size(); i++) {
+	// Total number of time bins in DAQ readout is given by fifo_tbins,
+	// which thus determines the maximum length of time interval.
+	//
+	// In TMB07 version, better data-emulator agreement is
+	// achieved when hits in the first 2 time bins are excluded.
+	// As of May 2009, the reasons for this are not fully
+	// understood yet (the work is on-going).
+	if (bx_times[i] > 1 && bx_times[i] < static_cast<int>(fifo_tbins)) {
+
+	  if (i == 0 || (i > 0 && bx_times[i]-bx_times[i-1] >=
+			 static_cast<int>(hit_persist))) {
+	    // A later hit on the same strip is ignored during the
+	    // number of clocks defined by the "hit_persist" parameter
+	    // (i.e., 6 bx's by default).
+	    if (infoV > 1) LogTrace("CSCCathodeLCTProcessor")
+	      << "Comp digi: layer " << i_layer+1
+	      << " digi #"           << i_digi+1
+	      << " strip "           << thisStrip
+	      << " halfstrip "       << thisHalfstrip
+	      << " distrip "         << thisStrip/2 + // [0-39]
+			     ((thisStrip%2 == 1 && thisComparator == 1 && stagger[i_layer] == 1) ? 1 : 0)
+	      << " time "            << bx_times[i]
+	      << " comparator "      << thisComparator
+	      << " stagger "         << stagger[i_layer];
+	    halfstrip[i_layer][thisHalfstrip].push_back(bx_times[i]);
+	  }
+	  else if (i > 0) {
+	    if (infoV > 1) LogTrace("CSCCathodeLCTProcessor")
+	      << " Skipping comparator digi: strip = " << thisStrip
+	      << ", layer = " << i_layer+1 << ", bx = " << bx_times[i]
+	      << ", bx of previous hit = " << bx_times[i-1];
+	  }
+	}
+	else {
+	  if (infoV > 1) LogTrace("CSCCathodeLCTProcessor")
+	    << "+++ Skipping comparator digi: strip = " << thisStrip
+	    << ", layer = " << i_layer+1 << ", bx = " << bx_times[i] << " +++";
+	}
+      }
+    }
+  }
+}
+
+void CSCCathodeLCTProcessor::readComparatorDigis(
+  std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+  std::vector<int> distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]) {
+  // Two-argument version for pre-TMB07 (halfstrip and distrips) firmware.
+  // Takes the comparator & time info and stuffs it into halfstrip and (and
+  // possibly distrip) vector.
+
+  int time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS];
+  int comp[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS];
+  int digiNum[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS];
+  for (int i = 0; i < CSCConstants::NUM_LAYERS; i++){
+    for (int j = 0; j < CSCConstants::MAX_NUM_STRIPS; j++) {
+      time[i][j]    = -999;
+      comp[i][j]    =    0;
+      digiNum[i][j] = -999;
+    }
+  }
+
+  for (int i = 0; i < CSCConstants::NUM_LAYERS; i++) {
+    std::vector <CSCComparatorDigi> layerDigiV = digiV[i];
+    for (unsigned int j = 0; j < layerDigiV.size(); j++) {
+      // Get one digi at a time for the layer.  -Jm
+      CSCComparatorDigi thisDigi = layerDigiV[j];
+
+      // Dump raw digi info
+      if (infoV > 1) LogTrace("CSCCathodeLCTProcessor")
+	<< "Comparator digi: comparator = " << thisDigi.getComparator()
+	<< " strip #" << thisDigi.getStrip()
+	<< " time bin = " << thisDigi.getTimeBin();
+
+      // Get comparator: 0/1 for left/right halfstrip for each comparator
+      // that fired.
+      int thisComparator = thisDigi.getComparator();
+      if (thisComparator != 0 && thisComparator != 1) {
+	if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
+	  << "+++ Comparator digi with wrong comparator value: digi #" << j
+	  << ", comparator = " << thisComparator << "; skipping it... +++\n";
+	continue;
+      }
+
+      // Get strip number.
+      int thisStrip = thisDigi.getStrip() - 1; // count from 0
+      if (thisStrip < 0 || thisStrip >= numStrips) {
+	if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
+	  << "+++ Comparator digi with wrong strip number: digi #" << j
+	  << ", strip = " << thisStrip
+	  << ", max strips = " << numStrips << "; skipping it... +++\n";
+	continue;
+      }
+
+      // Get Bx of this Digi and check that it is within the bounds
+      int thisDigiBx = thisDigi.getTimeBin();
+
+      // Total number of time bins in DAQ readout is given by fifo_tbins,
+      // which thus determines the maximum length of time interval.
+      if (thisDigiBx >= 0 && thisDigiBx < static_cast<int>(fifo_tbins)) {
+
+	// If there is more than one hit in the same strip, pick one
+	// which occurred earlier.
+	// In reality, the second hit on the same distrip is ignored only
+	// during the number of clocks defined by the "hit_persist" 
+	// parameter (i.e., 6 bx's by default).  So if one simulates
+	// a large number of bx's in a crowded environment, this
+	// approximation here may not be sufficiently good.
+	if (time[i][thisStrip] == -999 || time[i][thisStrip] > thisDigiBx) {
+	  digiNum[i][thisStrip] = j;
+	  time[i][thisStrip]    = thisDigiBx;
+	  comp[i][thisStrip]    = thisComparator;
+	  if (infoV > 1) LogTrace("CSCCathodeLCTProcessor")
+	    << "Comp digi: layer " << i+1
+	    << " digi #"           << j+1
+	    << " strip "           << thisStrip
+	    << " halfstrip "       << 2*thisStrip + comp[i][thisStrip] + stagger[i]
+	    << " distrip "         << thisStrip/2 + // [0-39]
+	      ((thisStrip%2 == 1 && comp[i][thisStrip] == 1 && stagger[i] == 1) ? 1 : 0)
+	    << " time "            <<    time[i][thisStrip]
+	    << " comparator "      <<    comp[i][thisStrip]
+	    << " stagger "         << stagger[i];
+	}
+      }
+      else {
+	if (infoV > 1) LogTrace("CSCCathodeLCTProcessor")
+	  << "+++ Skipping comparator digi: strip = " << thisStrip
+	  << ", layer = " << i+1 << ", bx = " << thisDigiBx << " +++";
+      }
+    }
+  }
+
+  // Take the comparator & time info and stuff it into half- and di-strip
+  // arrays.
+  for (int i = 0; i < CSCConstants::NUM_LAYERS; i++) {
+    // Use the comparator info to setup the halfstrips and distrips.  -BT
+    // This loop is only for halfstrips.
+    for (int j = 0; j < CSCConstants::MAX_NUM_STRIPS; j++) {
+      if (time[i][j] >= 0) {
+	int i_halfstrip = 2*j + comp[i][j] + stagger[i];
+	// 2*j    : convert strip to 1/2 strip
+	// comp   : comparator output
+	// stagger: stagger for this layer
+	if (i_halfstrip >= 2*numStrips + 1) {
+	  if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
+	    << "+++ Found wrong halfstrip number = " << i_halfstrip
+	    << "; skipping this digi... +++\n";
+	  continue;
+	}
+	halfstrip[i][i_halfstrip].push_back(time[i][j]);
+      }
+    }
+
+    // There are no di-strips in the 2007 version of the TMB firmware.
+    if (!isTMB07) {
+      // This loop is only for distrips.  We have to separate the routines
+      // because triad and time arrays can be changed by the distripStagger
+      // routine which could mess up the halfstrips.
+      static int test_iteration = 0;
+      for (int j = 0; j < CSCConstants::MAX_NUM_STRIPS; j++){
+	if (time[i][j] >= 0) {
+	  int i_distrip = j/2;
+	  if (j%2 == 1 && comp[i][j] == 1 && stagger[i] == 1) {
+	    // @@ Needs to be checked.
+	    bool stagger_debug = (infoV > 2);
+	    distripStagger(comp[i], time[i], digiNum[i], j, stagger_debug);
+	  }
+	  // comp[i][j] == 1	: hit on right half-strip.
+	  // stagger[i] == 1	: half-strips are shifted by 1.
+	  // if these conditions are met add 1; otherwise add 0.
+	  // So if there is a hit on the far right half-strip, and the
+	  // half-strips have been staggered to the right, then the di-strip
+	  // would actually correspond to the next highest di-strip.  -JM
+	  if (infoV > 2 && test_iteration == 1) {
+	    testDistripStagger();
+	    test_iteration++;
+	  }
+	  if (i_distrip >= numStrips/2 + 1) {
+	    if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
+	      << "+++ Found wrong distrip number = " << i_distrip
+	      << "; skipping this digi... +++\n";
+	    continue;
+	  }
+	  distrip[i][i_distrip].push_back(time[i][j]);
+	}
+      }
+    }
+  }
+}
+
 void CSCCathodeLCTProcessor::distripStagger(int stag_triad[CSCConstants::MAX_NUM_STRIPS],
 				   int stag_time[CSCConstants::MAX_NUM_STRIPS],
 				   int stag_digi[CSCConstants::MAX_NUM_STRIPS],
@@ -949,7 +1054,7 @@ void CSCCathodeLCTProcessor::distripStagger(int stag_triad[CSCConstants::MAX_NUM
 // class were discarded.
 // --------------------------------------------------------------------------
 // Idealized version for MC studies.
-std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS], int stripType, int nStrips)
+std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS], int stripType)
 {
   int j;
   int best_strip = 0;
@@ -965,13 +1070,16 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int strip[CSCCon
 
   std::vector <CSCCLCTDigi> lctList;
 
+  int nStrips = 0;
+  if (stripType == 1)      nStrips = 2*numStrips + 1;
+  else if (stripType == 0) nStrips = numStrips/2 + 1;
+
   if (infoV > 1) dumpDigis(strip, stripType, nStrips);
 
   // Send data to a pretrigger so that we don't excessively look at data
   // that won't give an LCT. If there is a pretrigger, then get all quality
   // and bend for all keystrips.
   if (preTrigger(strip, stripType, nStrips, first_bx)){
-
     getKeyStripData(strip, keystrip_data, nStrips, first_bx, best_strip, stripType);
 
     /* Set all final_lcts to impossible key_strip numbers */
@@ -1046,7 +1154,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int strip[CSCCon
 
 
 // Idealized version for MC studies.
-bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+bool CSCCathodeLCTProcessor::preTrigger(const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
 					const int stripType, const int nStrips,
 					int& first_bx)
 {
@@ -1060,31 +1168,9 @@ bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS
 
   const int pre_trigger_layer_min = (stripType == 1) ? hs_thresh : ds_thresh;
 
-  // Clear pulse array.  This array will be used as a bit representation of
-  // hit times.  For example: if strip[1][2] has a value of 3, then 1 shifted
-  // left 3 will be bit pattern of pulse[1][2].  This would make the pattern
-  // look like 0000000000001000.  Later we add on additional bits to signify
-  // the duration of a signal (hit_persist, formerly bx_width).  So for the
-  // same pulse[1][2] with a hit_persist of 3 would look like 0000000000111000.
-  for (i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++)
-    for (i_strip = 0; i_strip < nStrips; i_strip++)
-      pulse[i_layer][i_strip] = 0;
-
-  // The triad decoders output a pulse hit_persist wide (150 ns by default)
-  // for each half-strip that the CFEB comparators saw a hit on.
-  for (i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++){
-    // Loop over all strips (depending on half strip or di-strip count)
-    for (i_strip = 0; i_strip < nStrips; i_strip++){
-      // If no hit time, no need to add a pulse width.
-      if (strip[i_layer][i_strip] >= 0){
-	// Add on hit_persist for a pulse time envelope.  See above...
-	for (unsigned int bx = strip[i_layer][i_strip];
-	     bx < strip[i_layer][i_strip] + hit_persist; bx++) {
-	  pulse[i_layer][i_strip] = pulse[i_layer][i_strip] | (1 << bx);
-	}
-      }
-    }
-  }
+  // Fire half-strip/di-strip one-shots for hit_persist bx's (6 bx's by
+  // default).
+  pulseExtension(strip, nStrips, pulse);
 
   // Now do a loop over different bunch-crossing times.
   for (unsigned int bx_time = 0; bx_time < fifo_tbins; bx_time++) {
@@ -1130,7 +1216,7 @@ bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS
 
 
 // Idealized version for MC studies.
-void CSCCathodeLCTProcessor::getKeyStripData(const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+void CSCCathodeLCTProcessor::getKeyStripData(const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
         int keystrip_data[CSCConstants::NUM_HALF_STRIPS][7],
         int nStrips, int first_bx, int& best_strip, int stripType) {
   int lct_pattern[NUM_PATTERN_STRIPS];
@@ -1155,9 +1241,10 @@ void CSCCathodeLCTProcessor::getKeyStripData(const int strip[CSCConstants::NUM_L
       // This conditional statement prevents us from looking at strips
       // that don't exist along the chamber boundaries.
       if ((this_strip >= 0 && this_strip < nStrips) &&
-	  strip[this_layer][this_strip] >= 0){
+	  !strip[this_layer][this_strip].empty()) {
 	if (nullPattern) nullPattern = false;
-	lct_pattern[pattern_strip] = strip[this_layer][this_strip];
+	std::vector<int> bx_times = strip[this_layer][this_strip];
+	lct_pattern[pattern_strip] = bx_times[0];
       }
       else
 	lct_pattern[pattern_strip] = -999;
@@ -1262,14 +1349,19 @@ bool CSCCathodeLCTProcessor::hitIsGood(int hitTime, int BX) {
 // class were discarded.
 // --------------------------------------------------------------------------
 // Pre-2007 version.
-std::vector <CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS], const int distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]) {
+std::vector <CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
+ const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+ const std::vector<int> distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]) {
   std::vector <CSCCLCTDigi> lctList;
   int _bx[2] = {999, 999};
   int first_bx = 999;
 
+  const int nhStrips = 2*numStrips + 1;
+  const int ndStrips = numStrips/2 + 1;
+
   if (infoV > 1) {
-    dumpDigis(halfstrip, 1, CSCConstants::NUM_HALF_STRIPS);
-    dumpDigis(distrip,   0, CSCConstants::NUM_DI_STRIPS);
+    dumpDigis(halfstrip, 1, nhStrips);
+    dumpDigis(distrip,   0, ndStrips);
   }
 
   // Test beam version of TMB pretrigger and LCT sorting
@@ -1284,10 +1376,8 @@ std::vector <CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int halfstrip[C
 
   // All half-strip and di-strip pattern envelopes are evaluated
   // simultaneously, on every clock cycle.
-  pre_trig[0] =
-    preTrigger(halfstrip, h_pulse, 1, CSCConstants::NUM_HALF_STRIPS, 0, _bx[0]);
-  pre_trig[1] =
-    preTrigger(  distrip, d_pulse, 0,   CSCConstants::NUM_DI_STRIPS, 0, _bx[1]);
+  pre_trig[0] = preTrigger(halfstrip, h_pulse, 1, nhStrips, 0, _bx[0]);
+  pre_trig[1] = preTrigger(  distrip, d_pulse, 0, ndStrips, 0, _bx[1]);
 
   // If any of 200 half-strip and di-strip envelopes has enough layers hit in
   // it, TMB will pre-trigger.
@@ -1384,7 +1474,7 @@ std::vector <CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int halfstrip[C
 
 // Pre-2007 version.
 bool CSCCathodeLCTProcessor::preTrigger(
-      const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+   const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
    unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
 					const int stripType, const int nStrips,
 					const int start_bx, int& first_bx) {
@@ -1392,30 +1482,8 @@ bool CSCCathodeLCTProcessor::preTrigger(
     << "....................PreTrigger...........................";
 
   if (start_bx == 0) {
-    // Clear pulse array.  This array will be used as a bit representation of
-    // hit times.  For example: if strip[1][2] has a value of 3, then 1 shifted
-    // left 3 will be bit pattern of pulse[1][2].  This would make the pattern
-    // look like 0000000000001000.  Then add on additional bits to signify
-    // the duration of a signal (hit_persist, formerly bx_width) to simulate
-    // the TMB's drift delay.  So for the same pulse[1][2] with a hit_persist
-    // of 3 would look like 0000000000111000.  This is similating the digital
-    // one-shot in the TMB.
-    for (int ilayer = 0; ilayer < CSCConstants::NUM_LAYERS; ilayer++)
-      for (int istrip = 0; istrip < nStrips; istrip++)
-	pulse[ilayer][istrip] = 0;
-
-    // note: strip[][] is actually the bx TIME of the hit
-    for (int istrip = 0; istrip < nStrips; istrip++) { // loop over all (di/half)strips
-      for (int ilayer = 0; ilayer < CSCConstants::NUM_LAYERS; ilayer++) { // loop over layers
-	// if there is a hit, simulate digital one shot persistance starting
-	// in the bx of the initial hit.  Fill this into pulse[][].
-	if (strip[ilayer][istrip] >= 0) {
-	  for (unsigned int bx = strip[ilayer][istrip];
-	       bx < strip[ilayer][istrip] + hit_persist; bx++)
-	    pulse[ilayer][istrip] = pulse[ilayer][istrip] | (1 << bx);
-	}
-      }
-    }
+    // Fire one-shots for hit_persist bx's (6 bx's by default).
+    pulseExtension(strip, nStrips, pulse);
   }
 
   bool pre_trig = false;
@@ -1890,7 +1958,7 @@ void CSCCathodeLCTProcessor::getPattern(unsigned int pattern_num,
 // Monte Carlo studies in March 2008 (CMSSW_2_0_0).
 // --------------------------------------------------------------------------
 // TMB-07 version.
-std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs2007(const int halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]) {
+std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]) {
   std::vector<CSCCLCTDigi> lctList;
 
   // Max. number of half-strips for this chamber.
@@ -1905,7 +1973,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs2007(const int halfstri
   unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS];
 
   // Fire half-strip one-shots for hit_persist bx's (6 bx's by default).
-  pulseExtension(halfstrip, pulse);
+  pulseExtension(halfstrip, maxHalfStrips, pulse);
 
   unsigned int start_bx = 0;
   // Allow for more than one pass over the hits in the time window.
@@ -2064,16 +2132,16 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs2007(const int halfstri
   }
 
   return lctList;
-} // findLCTs2007 -- TMB-07 version.
+} // findLCTs -- TMB-07 version.
 
 
-// TMB-07 version.
+// Common to all versions.
 void CSCCathodeLCTProcessor::pulseExtension(
-     const int time[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+ const std::vector<int> time[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+ const int nStrips,
  unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]) {
 
-  // Max. number of half-strips for this chamber.
-  const int nStrips = 2*numStrips + 1;
+  static unsigned int bits_in_pulse = 8*sizeof(pulse[0][0]);
 
   // Clear pulse array.  This array will be used as a bit representation of
   // hit times.  For example: if strip[1][2] has a value of 3, then 1 shifted
@@ -2083,23 +2151,35 @@ void CSCCathodeLCTProcessor::pulseExtension(
   // the TMB's drift delay.  So for the same pulse[1][2] with a hit_persist
   // of 3 would look like 0000000000111000.  This is similating the digital
   // one-shot in the TMB.
-  for (int ilayer = 0; ilayer < CSCConstants::NUM_LAYERS; ilayer++)
-    for (int istrip = 0; istrip < nStrips; istrip++)
-      pulse[ilayer][istrip] = 0;
+  for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++)
+    for (int i_strip = 0; i_strip < nStrips; i_strip++)
+      pulse[i_layer][i_strip] = 0;
 
-  // Loop over all halfstrips and layers.
-  for (int istrip = 0; istrip < nStrips; istrip++) {
-    for (int ilayer = 0; ilayer < CSCConstants::NUM_LAYERS; ilayer++) {
-      // if there is a hit, simulate digital one-shot persistence starting
+  // Loop over all layers and halfstrips.
+  for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+    for (int i_strip = 0; i_strip < nStrips; i_strip++) {
+      // If there is a hit, simulate digital one-shot persistence starting
       // in the bx of the initial hit.  Fill this into pulse[][].
-      if (time[ilayer][istrip] >= 0) {
-	for (unsigned int bx = time[ilayer][istrip];
-	     bx < time[ilayer][istrip] + hit_persist; bx++)
-	  pulse[ilayer][istrip] = pulse[ilayer][istrip] | (1 << bx);
+      if (time[i_layer][i_strip].size() > 0) {
+	std::vector<int> bx_times = time[i_layer][i_strip];
+	for (unsigned int i = 0; i < bx_times.size(); i++) {
+	  // Check that min and max times are within the allowed range.
+	  if (bx_times[i] < 0 || bx_times[i] + hit_persist >= bits_in_pulse) {
+	    if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
+	      << "+++ BX time of comparator digi (halfstrip = " << i_strip
+	      << " layer = " << i_layer << ") bx = " << bx_times[i]
+	      << " is not within the range (0-" << bits_in_pulse
+	      << "] allowed for pulse extension.  Skip this digi! +++\n";
+	    continue;
+	  }
+	  for (unsigned int bx = bx_times[i];
+	       bx < bx_times[i] + hit_persist; bx++)
+	    pulse[i_layer][i_strip] = pulse[i_layer][i_strip] | (1 << bx);
+	}
       }
     }
   }
-} // pulseExtension -- TMB-07 version.
+} // pulseExtension.
 
 
 // TMB-07 version.
@@ -2256,7 +2336,7 @@ void CSCCathodeLCTProcessor::dumpConfigParams() const {
 }
 
 // Reasonably nice dump of digis on half-strips and di-strips.
-void CSCCathodeLCTProcessor::dumpDigis(const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS], const int stripType, const int nStrips) const
+void CSCCathodeLCTProcessor::dumpDigis(const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS], const int stripType, const int nStrips) const
 {
   LogDebug("CSCCathodeLCTProcessor")
     << "ME" << ((theEndcap == 1) ? "+" : "-") << theStation << "/"
@@ -2282,8 +2362,10 @@ void CSCCathodeLCTProcessor::dumpDigis(const int strip[CSCConstants::NUM_LAYERS]
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
     strstrm << "\n";
     for (int i_strip = 0; i_strip < nStrips; i_strip++) {
-      if (strip[i_layer][i_strip] >= 0) {
-	strstrm << std::hex << strip[i_layer][i_strip] << std::dec;
+      if (!strip[i_layer][i_strip].empty()) {
+	std::vector<int> bx_times = strip[i_layer][i_strip];
+	// Dump only the first in time.
+	strstrm << std::hex << bx_times[0] << std::dec;
       }
       else {
 	strstrm << "-";
@@ -2294,15 +2376,91 @@ void CSCCathodeLCTProcessor::dumpDigis(const int strip[CSCConstants::NUM_LAYERS]
   LogTrace("CSCCathodeLCTProcessor") << strstrm.str();
 }
 
-// Returns vector of found CLCTs, if any.
+// Returns vector of read-out CLCTs, if any.  Starts with the vector
+// of all found CLCTs and selects the ones in the read-out time window.
+std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs() {
+  std::vector<CSCCLCTDigi> tmpV;
+
+  // The start time of the L1A*CLCT coincidence window should be
+  // related to the fifo_pretrig parameter, but I am not completely
+  // sure how.  For now, just choose it such that the window is
+  // centered at bx=7.  This may need further tweaking if the value of
+  // tmb_l1a_window_size changes.
+  // static int fpga_latency = 3;
+  // static int early_tbins  = fifo_pretrig - fpga_latency;
+  static int early_tbins = 4;
+  // The number of CLCT bins in the read-out is given by the
+  // tmb_l1a_window_size parameter, but made even by setting the LSB
+  // of tmb_l1a_window_size to 0.
+  //
+  // Need to send tmb_l1a_window_size from CSCMotherboard!
+  static int tmb_l1a_window_size = 7;
+  static int lct_bins   = 
+    (tmb_l1a_window_size%2 == 0) ? tmb_l1a_window_size : tmb_l1a_window_size-1;
+  static int late_tbins = early_tbins + lct_bins;
+
+  static int ifois = 0;
+  if (ifois == 0) {
+    if (infoV > 0 && early_tbins < 0) {
+      edm::LogWarning("CSCCathodeLCTProcessor")
+	<< "+++ early_tbins = " << early_tbins
+	<< "; in-time CLCTs are not getting read-out!!! +++" << "\n";
+    }
+
+    if (late_tbins > MAX_CLCT_BINS-1) {
+      if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
+	<< "+++ Allowed range of time bins, [0-" << late_tbins
+	<< "] exceeds max allowed, " << MAX_CLCT_BINS-1 << " +++\n"
+	<< "+++ Set late_tbins to max allowed +++\n";
+      late_tbins = MAX_CLCT_BINS-1;
+    }
+    ifois = 1;
+  }
+
+  // Start from the vector of all found CLCTs and select those within
+  // the CLCT*L1A coincidence window.
+  int bx_readout = -1;
+  std::vector<CSCCLCTDigi> all_lcts = getCLCTs();
+  for (std::vector <CSCCLCTDigi>::const_iterator plct = all_lcts.begin();
+       plct != all_lcts.end(); plct++) {
+    if (!plct->isValid()) continue;
+
+    int bx = (*plct).getBX();
+    // Skip CLCTs found too early relative to L1Accept.
+    if (bx <= early_tbins) {
+      if (infoV > 1) LogDebug("CSCCathodeLCTProcessor")
+	<< " Do not report CLCT on key halfstrip " << plct->getKeyStrip()
+	<< ": found at bx " << bx << ", whereas the earliest allowed bx is "
+	<< early_tbins+1;
+      continue;
+    }
+
+    // Skip CLCTs found too late relative to L1Accept.
+    if (bx > late_tbins) {
+      if (infoV > 1) LogDebug("CSCCathodeLCTProcessor")
+	<< " Do not report CLCT on key halfstrip " << plct->getKeyStrip()
+	<< ": found at bx " << bx << ", whereas the latest allowed bx is "
+	<< late_tbins;
+      continue;
+    }
+
+    // For now, take only CLCTs in the earliest bx in the read-out window:
+    // in digi->raw step, CLCTs have to be packed into the TMB header, and
+    // there is room just for two.
+    if (bx_readout == -1 || bx == bx_readout) {
+      tmpV.push_back(*plct);
+      if (bx_readout == -1) bx_readout = bx;
+    }
+  }
+  return tmpV;
+}
+
+// Returns vector of all found CLCTs, if any.  Used for ALCT-CLCT matching.
 std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::getCLCTs() {
   std::vector<CSCCLCTDigi> tmpV;
   for (int bx = 0; bx < MAX_CLCT_BINS; bx++) {
     if (bestCLCT[bx].isValid())   tmpV.push_back(bestCLCT[bx]);
     if (secondCLCT[bx].isValid()) tmpV.push_back(secondCLCT[bx]);
-
-    // Only save the one(s) at the earliest bx for now?
-    if (bestCLCT[bx].isValid() || secondCLCT[bx].isValid()) break;
   }
   return tmpV;
 }
@@ -2453,31 +2611,26 @@ void CSCCathodeLCTProcessor::testPatterns() {
   //there are 16 strips in our uber-pattern, each of which can be on or off.
   // 2^16 = 65536
   for (int possibleHits = 0; possibleHits < 65536; possibleHits++) {
-    int stripsHit[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS];
-    for (int layer = 0; layer < CSCConstants::NUM_LAYERS; layer++) {
-      for (int strip = 0; strip < CSCConstants::NUM_HALF_STRIPS; strip++) {
-	stripsHit[layer][strip] = 0;
-      }
-    }
-//assign one bit to each strip in an array. I'll start centered around strip 10.
-    stripsHit[0][ 9] = ( possibleHits &     1 ) != 0;     // 2^0
-    stripsHit[0][10] = ( possibleHits &     2 ) != 0;     // 2^1
-    stripsHit[0][11] = ( possibleHits &     4 ) != 0;     // 2^2
-    stripsHit[1][ 9] = ( possibleHits &     8 ) != 0;     // 2^3
-    stripsHit[1][10] = ( possibleHits &    16 ) != 0;     // 2^4
-    stripsHit[1][11] = ( possibleHits &    32 ) != 0;     // 2^5
-    stripsHit[2][ 9] = ( possibleHits &    64 ) != 0;     // 2^6
-    stripsHit[2][10] = ( possibleHits &   128 ) != 0;     // 2^7
-    stripsHit[2][11] = ( possibleHits &   256 ) != 0;     // 2^8
-    stripsHit[3][10] = ( possibleHits &   512 ) != 0;     // 2^9
-    stripsHit[4][ 9] = ( possibleHits &  1024 ) != 0;     // 2^10
-    stripsHit[4][10] = ( possibleHits &  2048 ) != 0;     // 2^11
-    stripsHit[4][11] = ( possibleHits &  4096 ) != 0;     // 2^12
-    stripsHit[5][ 9] = ( possibleHits &  8192 ) != 0;     // 2^13
-    stripsHit[5][10] = ( possibleHits & 16384 ) != 0;     // 2^14
-    stripsHit[5][11] = ( possibleHits & 32768 ) != 0;     // 2^15
+    std::vector<int> stripsHit[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS];
+    //assign one bit to each strip in an array. I'll start centered around strip 10.
+    stripsHit[0][ 9].push_back(( possibleHits &     1 ) != 0);     // 2^0
+    stripsHit[0][10].push_back(( possibleHits &     2 ) != 0);     // 2^1
+    stripsHit[0][11].push_back(( possibleHits &     4 ) != 0);     // 2^2
+    stripsHit[1][ 9].push_back(( possibleHits &     8 ) != 0);     // 2^3
+    stripsHit[1][10].push_back(( possibleHits &    16 ) != 0);     // 2^4
+    stripsHit[1][11].push_back(( possibleHits &    32 ) != 0);     // 2^5
+    stripsHit[2][ 9].push_back(( possibleHits &    64 ) != 0);     // 2^6
+    stripsHit[2][10].push_back(( possibleHits &   128 ) != 0);     // 2^7
+    stripsHit[2][11].push_back(( possibleHits &   256 ) != 0);     // 2^8
+    stripsHit[3][10].push_back(( possibleHits &   512 ) != 0);     // 2^9
+    stripsHit[4][ 9].push_back(( possibleHits &  1024 ) != 0);     // 2^10
+    stripsHit[4][10].push_back(( possibleHits &  2048 ) != 0);     // 2^11
+    stripsHit[4][11].push_back(( possibleHits &  4096 ) != 0);     // 2^12
+    stripsHit[5][ 9].push_back(( possibleHits &  8192 ) != 0);     // 2^13
+    stripsHit[5][10].push_back(( possibleHits & 16384 ) != 0);     // 2^14
+    stripsHit[5][11].push_back(( possibleHits & 32768 ) != 0);     // 2^15
     int numLayersHit = findNumLayersHit(stripsHit);
-    std::vector <CSCCLCTDigi> results = findLCTs(stripsHit, 1, 2*numStrips+1);
+    std::vector <CSCCLCTDigi> results = findLCTs(stripsHit, 1);
 // print out whatever we find-- but only ones where 4 or more layers are hit
 // OR ones where we find something
 // key: X    a hit there and was used to find pattern
@@ -2490,7 +2643,7 @@ void CSCCathodeLCTProcessor::testPatterns() {
 	if ((isTMB07  && layer != CSCConstants::KEY_CLCT_LAYER - 1) || 
 	    (!isTMB07 && layer != CSCConstants::KEY_CLCT_LAYER_PRE_TMB07 - 1)) {
 	  for (int strip = 9; strip < 12; strip++) {
-	    if (stripsHit[layer][strip] !=0) {
+	    if (!stripsHit[layer][strip].empty()) {
 	      if (results.size() > 0) {
 	        int thePatternStrip = strip - (results[0].getKeyStrip() - 2) + 3*layer;
 		if ((isTMB07 && layer>=CSCConstants::KEY_CLCT_LAYER) ||
@@ -2529,7 +2682,7 @@ void CSCCathodeLCTProcessor::testPatterns() {
 	    std::cout<<"  ";
           }
 	} else {
-          if (stripsHit[layer][10] != 0) {
+          if (!stripsHit[layer][10].empty()) {
 	    std::cout<<" X ";
 	  } else {
 	    std::cout<<" _ ";
@@ -2548,13 +2701,13 @@ void CSCCathodeLCTProcessor::testPatterns() {
   }
 }
 
-int CSCCathodeLCTProcessor::findNumLayersHit(int 
+int CSCCathodeLCTProcessor::findNumLayersHit(std::vector<int> 
           stripsHit[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]) {
   int number = 0;
   for (int layer = 0; layer < CSCConstants::NUM_LAYERS; layer++) {
-    if ((stripsHit[layer][ 9] !=0) || 
-        (stripsHit[layer][10] !=0) ||
-	(stripsHit[layer][11] !=0) ) number++;
+    if ((!stripsHit[layer][ 9].empty()) || 
+        (!stripsHit[layer][10].empty()) ||
+	(!stripsHit[layer][11].empty()) ) number++;
   }
   return number;
 }
