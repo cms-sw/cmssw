@@ -151,8 +151,8 @@ void PFJetBenchmark::setup(
   DBOOK1D(RPt1250_2000,#DeltaP_{T}/P_{T},160,-1,1);
   DBOOK1D(RPt2000_5000,#DeltaP_{T}/P_{T},160,-1,1);
 
-  DBOOK2D(DEtavsPt,#Delta#eta vs P_{T},250,0,500,100,-0.2,0.2);
-  DBOOK2D(DPhivsPt,#Delta#phi vs P_{T},250,0,500,100,-0.2,0.2);
+  DBOOK2D(DEtavsPt,#Delta#eta vs P_{T},1000,0,2000,200,-0.2,0.2);
+  DBOOK2D(DPhivsPt,#Delta#phi vs P_{T},1000,0,2000,200,-0.2,0.2);
 	
  // Set Axis Titles
  
