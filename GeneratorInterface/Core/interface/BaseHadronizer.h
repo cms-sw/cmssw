@@ -36,8 +36,10 @@ namespace gen {
     // GenRunInfo and GenEvent passing
     GenRunInfoProduct &getGenRunInfo() { return genRunInfo_; }
     HepMC::GenEvent *getGenEvent() { return genEvent_.release(); }
+    GenEventInfoProduct *getGenEventInfo() { return genEventInfo_.release(); }
 
     void resetEvent(HepMC::GenEvent *event) { genEvent_.reset(event); }
+    void resetEventInfo(GenEventInfoProduct *eventInfo) { genEventInfo_.reset(eventInfo); }
 
     // LHERunInfo and LHEEvent passing
     const boost::shared_ptr<lhef::LHERunInfo> &getLHERunInfo() const { return lheRunInfo_; }
@@ -48,6 +50,7 @@ namespace gen {
   protected:
     GenRunInfoProduct& runInfo() { return genRunInfo_; }
     std::auto_ptr<HepMC::GenEvent>& event() { return genEvent_; }
+    std::auto_ptr<GenEventInfoProduct>& eventInfo() { return genEventInfo_; }
 
     lhef::LHEEvent* lheEvent() { return lheEvent_.get(); }
     lhef::LHERunInfo *lheRunInfo() { return lheRunInfo_.get(); }
@@ -55,6 +58,7 @@ namespace gen {
   private:
     GenRunInfoProduct                   genRunInfo_;
     std::auto_ptr<HepMC::GenEvent>      genEvent_;
+    std::auto_ptr<GenEventInfoProduct>  genEventInfo_;
 
     boost::shared_ptr<lhef::LHERunInfo> lheRunInfo_;
     std::auto_ptr<lhef::LHEEvent>       lheEvent_;

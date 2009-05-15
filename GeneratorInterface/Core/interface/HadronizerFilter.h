@@ -151,9 +151,14 @@ namespace edm
     bare_product->addHepMCData( event );
     ev.put(bare_product);
 
-    std::auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(event));
+    std::auto_ptr<GenEventInfoProduct> genEventInfo(hadronizer_.getGenEventInfo());
+    if (!genEventInfo.get())
+    { 
+      // create GenEventInfoProduct from HepMC event in case hadronizer didn't provide one
+      genEventInfo.reset(new GenEventInfoProduct(event));
+    }
     ev.put(genEventInfo);
- 
+
     return true;
   }
 
