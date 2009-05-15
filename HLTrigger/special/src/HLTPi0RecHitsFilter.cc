@@ -258,7 +258,8 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
   
   l1IsolatedTag_ = iConfig.getParameter< edm::InputTag > ("l1IsolatedTag");
   l1NonIsolatedTag_ = iConfig.getParameter< edm::InputTag > ("l1NonIsolatedTag");
-  l1SeedFilterTag_ = iConfig.getParameter< edm::InputTag > ("l1SeedFilterTag");
+  //SB comment out, no usage in the following code
+  //  l1SeedFilterTag_ = iConfig.getParameter< edm::InputTag > ("l1SeedFilterTag");
 
     
 
@@ -425,9 +426,9 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
   iSetup.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
     
-  
-  edm::Handle<trigger::TriggerFilterObjectWithRefs> L1SeedOutput;
-  iEvent.getByLabel (l1SeedFilterTag_,L1SeedOutput);
+  //SB comment out: No usage in following code...  
+//   edm::Handle<trigger::TriggerFilterObjectWithRefs> L1SeedOutput;
+//   iEvent.getByLabel (l1SeedFilterTag_,L1SeedOutput);
 
   edm::Handle< l1extra::L1EmParticleCollection > l1EGIso;
   iEvent.getByLabel(l1IsolatedTag_, l1EGIso ) ;
