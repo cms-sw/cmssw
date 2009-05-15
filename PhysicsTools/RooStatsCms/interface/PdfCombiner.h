@@ -1,12 +1,12 @@
-// @(#)root/hist:$Id: PdfCombiner.h,v 1.3 2009/04/15 11:10:45 dpiparo Exp $
+// @(#)root/hist:$Id: PdfCombiner.h,v 1.4 2009/04/15 12:42:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch, Gregory.Schott@cern.ch   05/04/2008
 
 /// PdfCombiner : a class to combine models
 
 /**
 \class PdfCombiner
-$Revision: 1.3 $
-$Date: 2009/04/15 11:10:45 $
+$Revision: 1.4 $
+$Date: 2009/04/15 12:42:44 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott (grgory.schott<at>cern.ch) - Universitaet Karlsruhe 
 This class is meant to represent the combination of models.
 The idea is to have it behave like a pdf container.
@@ -85,6 +85,10 @@ class PdfCombiner : public TNamed {
 
 
 
+//For Cint
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassDef(PdfCombiner,1)
+#endif
 };
 
 #endif

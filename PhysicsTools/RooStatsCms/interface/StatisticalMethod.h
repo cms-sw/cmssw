@@ -2,8 +2,8 @@
 
 /**
 \class StatisticalMethod
-$Revision: 1.1.1.1 $
-$Date: 2009/04/15 08:40:01 $
+$Revision: 1.3 $
+$Date: 2009/04/15 11:10:45 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 This class provides the base for all the statistical methods.
@@ -35,6 +35,10 @@ class StatisticalMethod : public TNamed {
     /// Verbosity flag
     bool m_verbose;
 
+//For Cint
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassDef(StatisticalMethod,1)
+#endif
  };
 
 #endif

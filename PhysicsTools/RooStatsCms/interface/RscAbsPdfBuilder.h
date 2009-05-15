@@ -70,6 +70,10 @@ private:
   static Bool_t isDataFlag; // Should we initiate Pdfs with blind variables ?
   static Bool_t isVerboseFlag;
 
+//For Cint
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassDef(RscAbsPdfBuilder,1)
+#endif
 };
 
 #endif

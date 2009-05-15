@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: RscCombinedModel.cc,v 1.3 2009/04/15 11:10:44 dpiparo Exp $
+// @(#)root/hist:$Id: RscCombinedModel.cc,v 1.4 2009/04/15 12:22:20 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch, Gregory.Schott@cern.ch   05/04/2008
 
 #include <assert.h>
@@ -7,7 +7,11 @@
 #include "TObjArray.h"
 #include "TObjString.h"
 
-#include "PhysicsTools/RooStatsCms/interface/RscCombinedModel.h"
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "RscCombinedModel.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/RscCombinedModel.h"
+#endif
 
 #include "RooFormulaVar.h"
 #include "RooArgSet.h"
@@ -15,6 +19,10 @@
 
 /// For the Cint dictionaries
 
+//For Cint
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassImp(RscCombinedModel)
+#endif
 /*----------------------------------------------------------------------------*/
 
 /// Constructor

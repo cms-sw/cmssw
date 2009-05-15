@@ -2,8 +2,8 @@
 
 /**
 \class LimitPlot
-$Revision: 1.3 $
-$Date: 2009/04/15 11:10:45 $
+$Revision: 1.4 $
+$Date: 2009/04/15 12:42:44 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 This class provides the plots for the result of a study performed with the 
@@ -16,9 +16,17 @@ LimitCalculator class.
 #include <vector>
 #include <iostream>
 
-#include "PhysicsTools/RooStatsCms/interface/Rsc.h"
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "Rsc.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/Rsc.h"
+#endif
 
-#include "PhysicsTools/RooStatsCms/interface/StatisticalPlot.h"
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "StatisticalPlot.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/StatisticalPlot.h"
+#endif
 
 #include "TH1F.h"
 #include "TLine.h"
@@ -105,6 +113,10 @@ class LimitPlot : public StatisticalPlot {
     /// The legend of the plot
     TLegend* m_legend;
 
+//For Cint
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassDef(LimitPlot,1)
+#endif
  };
 
 #endif

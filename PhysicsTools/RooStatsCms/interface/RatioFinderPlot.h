@@ -1,8 +1,8 @@
 /// RatioFinderPlot: The results of the SM production cross sections.
 /**
 \class RatioFinderPlot
-$Revision: 1.1.1.1 $
-$Date: 2009/04/15 08:40:01 $
+$Revision: 1.3 $
+$Date: 2009/04/15 11:10:45 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 Collect the info out of a RatioFinder instance.
@@ -17,7 +17,11 @@ Collect the info out of a RatioFinder instance.
 #include "TLine.h"
 #include "TAxis.h"
 
-#include "PhysicsTools/RooStatsCms/interface/StatisticalPlot.h"
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "StatisticalPlot.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/StatisticalPlot.h"
+#endif
 
 
 class RatioFinderPlot : public StatisticalPlot {
@@ -56,6 +60,10 @@ class RatioFinderPlot : public StatisticalPlot {
     /// The orizontal line for the CL level requested
     TLine* m_CL_line;
 
+//For Cint
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassDef(RatioFinderPlot,1)
+#endif
  };
 
 #endif

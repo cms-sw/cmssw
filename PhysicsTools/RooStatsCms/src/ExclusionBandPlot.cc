@@ -1,15 +1,23 @@
-// @(#)root/hist:$Id: ExclusionBandPlot.cc,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
+// @(#)root/hist:$Id: ExclusionBandPlot.cc,v 1.3 2009/04/15 11:10:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
 #include "math.h"
 
-#include "PhysicsTools/RooStatsCms/interface/ExclusionBandPlot.h"
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "ExclusionBandPlot.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/ExclusionBandPlot.h"
+#endif
 #include "TGraphAsymmErrors.h"
 #include "TStyle.h"
 #include "TAxis.h"
 
 
+//For Cint
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassImp(ExclusionBandPlot)
+#endif
 /*----------------------------------------------------------------------------*/
 ExclusionBandPlot::ExclusionBandPlot(const char* name,
                                      const char* title,

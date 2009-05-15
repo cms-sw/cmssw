@@ -2,8 +2,8 @@
 
 /**
 \class NLLPenalty
-$Revision: 1.3 $
-$Date: 2009/04/15 11:10:45 $
+$Revision: 1.4 $
+$Date: 2009/04/15 11:39:00 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 This class is the base for the blocks of correlations and constraints
@@ -71,6 +71,10 @@ class NLLPenalty {
     /// Verbosity flag
     bool m_verbose;
 
+//For Cint
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassDef(NLLPenalty,1)
+#endif
  };
 
 #endif

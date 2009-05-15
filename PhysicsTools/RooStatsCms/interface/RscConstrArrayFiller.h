@@ -1,12 +1,12 @@
-// @(#)root/hist:$Id: RscConstrArrayFiller.h,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
+// @(#)root/hist:$Id: RscConstrArrayFiller.h,v 1.3 2009/04/15 11:10:45 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch, Gregory.Schott@cern.ch   05/04/2008
 
 /// ConstrArrayFiller : The mother class of the RooStatsCms Tools
 
 /**
 \class ConstrArrayFiller
-$Revision: 1.1.1.1 $
-$Date: 2009/04/15 08:40:01 $
+$Revision: 1.3 $
+$Date: 2009/04/15 11:10:45 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott (grgory.schott<at>cern.ch) - Universitaet Karlsruhe 
 Fill the array of constraints considering the Constraints in a collection of 
 RscTotModels and reading from the datacard the correlations.
@@ -19,7 +19,11 @@ RscTotModels and reading from the datacard the correlations.
 
 #include "RooArgList.h"
 
-#include "PhysicsTools/RooStatsCms/interface/ConstrBlockArray.h"
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "ConstrBlockArray.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/ConstrBlockArray.h"
+#endif
 
 #include "RscTool.h"
 #include "RscCombinedModel.h"
@@ -78,6 +82,10 @@ class RscConstrArrayFiller : public RscTool  {
     bool m_verbose;
 
 
+//For Cint
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassDef(RscConstrArrayFiller,1)
+#endif
 };
 
 #endif

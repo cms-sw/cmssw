@@ -1,11 +1,15 @@
-// @(#)root/hist:$Id: LikelihoodCalculator.cc,v 1.1 2009/01/06 12:22:43 dpiparo Exp $
+// @(#)root/hist:$Id: LikelihoodCalculator.cc,v 1.2 2009/02/20 09:43:00 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 
 #include "assert.h"
 #include <iostream>
 
-#include "PhysicsTools/RooStatsCms/interface/LikelihoodCalculator.h"
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "LikelihoodCalculator.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/LikelihoodCalculator.h"
+#endif
 
 #include "RooMinuit.h"
 #include "RooFitResult.h"
@@ -19,6 +23,10 @@
 /// To build the cint dictionaries
 //ClassImp(LikelihoodCalculator)
 
+//For Cint
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassImp(LikelihoodCalculator)
+#endif
 /*----------------------------------------------------------------------------*/
 
 /**

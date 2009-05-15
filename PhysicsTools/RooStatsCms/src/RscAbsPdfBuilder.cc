@@ -27,12 +27,24 @@
 
 #include "RooStringVar.h"
 
-#include "PhysicsTools/RooStatsCms/interface/RscAbsPdfBuilder.h"
-#include "PhysicsTools/RooStatsCms/interface/Constraint.h"
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "RscAbsPdfBuilder.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/RscAbsPdfBuilder.h"
+#endif
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "Constraint.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/Constraint.h"
+#endif
 
 
 RooArgSet RscAbsPdfBuilder::globalConfig;
 
+//For Cint
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassImp(RscAbsPdfBuilder)
+#endif
 /*----------------------------------------------------------------------------*/
 
 RscAbsPdfBuilder::RscAbsPdfBuilder(){

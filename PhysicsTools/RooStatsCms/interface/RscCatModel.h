@@ -3,15 +3,19 @@
 
 /**
 \class RscCatModel
-$Revision: 1.1.1.1 $
-$Date: 2009/04/15 08:40:01 $
+$Revision: 1.3 $
+$Date: 2009/04/15 12:33:55 $
 \author G. Schott (gregory.Schott<at>cern.ch) - Universitaet Karlsruhe
 **/
 
 #include <iostream>
 #include "RooCategory.h"
 
-#include "PhysicsTools/RooStatsCms/interface/RscAbsPdfBuilder.h"
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "RscAbsPdfBuilder.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/RscAbsPdfBuilder.h"
+#endif
 
 class RscCatModel : public RscAbsPdfBuilder {
 
@@ -38,6 +42,10 @@ private:
   void buildPdf();
   #ifndef SWIG
   #endif /*SWIG */
+//For Cint
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassDef(RscCatModel,1)
+#endif
 };
 
 #endif

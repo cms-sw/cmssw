@@ -2,8 +2,8 @@
 
 /**
 \class LimitCalculator
-$Revision: 1.1.1.1 $
-$Date: 2009/04/15 08:40:01 $
+$Revision: 1.3 $
+$Date: 2009/04/15 11:10:45 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 The class is born from the need to have an implementation of the CLs 
@@ -53,9 +53,21 @@ see also the following interesting references:
 #include "RooDataSet.h"
 #include "RooArgList.h"
 
-#include "PhysicsTools/RooStatsCms/interface/StatisticalMethod.h"
-#include "PhysicsTools/RooStatsCms/interface/ConstrBlockArray.h"
-#include "PhysicsTools/RooStatsCms/interface/LimitResults.h"
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "StatisticalMethod.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/StatisticalMethod.h"
+#endif
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "ConstrBlockArray.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/ConstrBlockArray.h"
+#endif
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "LimitResults.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/LimitResults.h"
+#endif
 
 
 class LimitCalculator : public StatisticalMethod {
@@ -130,6 +142,10 @@ class LimitCalculator : public StatisticalMethod {
     /// -2lnQ value on the data
     float m_m2lnQ_data;
 
+//For Cint
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassDef(LimitCalculator,1)
+#endif
  };
 
 #endif

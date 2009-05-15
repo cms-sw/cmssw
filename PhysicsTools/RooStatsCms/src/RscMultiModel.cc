@@ -2,10 +2,22 @@
 #include "RooFormulaVar.h"
 #include "RooExtendPdf.h"
 
-#include "PhysicsTools/RooStatsCms/interface/RscMultiModel.h"
-#include "PhysicsTools/RooStatsCms/interface/RscBaseModel.h"
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "RscMultiModel.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/RscMultiModel.h"
+#endif
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "RscBaseModel.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/RscBaseModel.h"
+#endif
 
 
+//For Cint
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassImp(RscMultiModel)
+#endif
 /*----------------------------------------------------------------------------*/
 
 RscMultiModel::RscMultiModel(TString theName, RooArgList& theVars)

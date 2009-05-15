@@ -10,7 +10,11 @@
 #include "RooDataHist.h"
 #include "RooArgList.h"
 
-#include "PhysicsTools/RooStatsCms/interface/RscBaseModel.h"
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "RscBaseModel.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/RscBaseModel.h"
+#endif
 
 #include "TH1F.h"
 #include "TFile.h"
@@ -18,6 +22,10 @@
 
 /// Cint dictionaries
 
+//For Cint
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassImp(RscBaseModel)
+#endif
 /*----------------------------------------------------------------------------*/
 
 RscBaseModel::RscBaseModel(TString theName, RooRealVar& theVar, RooArgSet* discVars)

@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: PLScan.cc,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
+// @(#)root/hist:$Id: PLScan.cc,v 1.3 2009/04/15 11:10:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
@@ -10,9 +10,17 @@
 
 #include "TIterator.h"
 
-#include "PhysicsTools/RooStatsCms/interface/PLScan.h"
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "PLScan.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/PLScan.h"
+#endif
 
 
+//For Cint
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassImp(PLScan)
+#endif
 /*----------------------------------------------------------------------------*/
 
 PLScan::PLScan(const char* name,

@@ -2,8 +2,8 @@
 
 /**
 \class RatioFinder
-$Revision: 1.4 $
-$Date: 2009/04/15 11:10:45 $
+$Revision: 1.5 $
+$Date: 2009/04/15 12:27:47 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 Find the production cross section to exclude at a fixed confidence level.
@@ -17,10 +17,26 @@ term called "ratio" appears.
 #include "RooAbsPdf.h"
 #include "RooArgList.h"
 
-#include "PhysicsTools/RooStatsCms/interface/StatisticalMethod.h"
-#include "PhysicsTools/RooStatsCms/interface/ConstrBlockArray.h"
-#include "PhysicsTools/RooStatsCms/interface/LimitCalculator.h"
-#include "PhysicsTools/RooStatsCms/interface/RatioFinderResults.h"
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "StatisticalMethod.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/StatisticalMethod.h"
+#endif
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "ConstrBlockArray.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/ConstrBlockArray.h"
+#endif
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "LimitCalculator.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/LimitCalculator.h"
+#endif
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "RatioFinderResults.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/RatioFinderResults.h"
+#endif
 
 
 class RatioFinder : public StatisticalMethod {
@@ -102,6 +118,10 @@ class RatioFinder : public StatisticalMethod {
 
 
 
+//For Cint
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassDef(RatioFinder,1)
+#endif
  };
 
 #endif

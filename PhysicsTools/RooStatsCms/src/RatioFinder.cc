@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: RatioFinder.cc,v 1.4 2009/04/15 11:10:44 dpiparo Exp $
+// @(#)root/hist:$Id: RatioFinder.cc,v 1.5 2009/04/15 12:27:45 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   07/10/2008
 
 #include "assert.h"
@@ -9,12 +9,24 @@
 
 #include "RooRealVar.h"
 
-#include "PhysicsTools/RooStatsCms/interface/Rsc.h"
-#include "PhysicsTools/RooStatsCms/interface/RatioFinder.h"
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "Rsc.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/Rsc.h"
+#endif
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "RatioFinder.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/RatioFinder.h"
+#endif
 
 
 
 
+//For Cint
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassImp(RatioFinder)
+#endif
 /*----------------------------------------------------------------------------*/
 
 /**

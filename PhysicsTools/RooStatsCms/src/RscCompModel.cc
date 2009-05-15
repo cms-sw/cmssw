@@ -5,12 +5,28 @@
 #include "RooExponential.h"
 #include "RooGaussian.h"
 
-#include "PhysicsTools/RooStatsCms/interface/RscCompModel.h"
-#include "PhysicsTools/RooStatsCms/interface/RscBaseModel.h"
-#include "PhysicsTools/RooStatsCms/interface/RscMultiModel.h"
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "RscCompModel.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/RscCompModel.h"
+#endif
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "RscBaseModel.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/RscBaseModel.h"
+#endif
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "RscMultiModel.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/RscMultiModel.h"
+#endif
 
 
 
+//For Cint
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassImp(RscCompModel)
+#endif
 /*----------------------------------------------------------------------------*/
 
 RscCompModel::RscCompModel(TString theName, RooArgList& theVars)

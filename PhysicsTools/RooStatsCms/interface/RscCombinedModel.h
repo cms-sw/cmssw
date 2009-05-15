@@ -1,12 +1,12 @@
-// @(#)root/hist:$Id: RscCombinedModel.h,v 1.3 2009/04/15 11:10:45 dpiparo Exp $
+// @(#)root/hist:$Id: RscCombinedModel.h,v 1.4 2009/04/15 12:24:15 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch, Gregory.Schott@cern.ch   05/04/2008
 
 /// RscCombinedModel : a class to combine models described by RscTotModel instances.
 
 /**
 \class RscCombinedModel
-$Revision: 1.3 $
-$Date: 2009/04/15 11:10:45 $
+$Revision: 1.4 $
+$Date: 2009/04/15 12:24:15 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott (grgory.schott<at>cern.ch) - Universitaet Karlsruhe 
 
 This class is meant to represent the combination of models.
@@ -210,9 +210,21 @@ correlation_value1 = 0.99 C
 #include "TString.h"
 #include "TList.h"
 
-#include "PhysicsTools/RooStatsCms/interface/RscTotModel.h"
-#include "PhysicsTools/RooStatsCms/interface/ConstrBlockArray.h"
-#include "PhysicsTools/RooStatsCms/interface/PdfCombiner.h"
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "RscTotModel.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/RscTotModel.h"
+#endif
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "ConstrBlockArray.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/ConstrBlockArray.h"
+#endif
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "PdfCombiner.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/PdfCombiner.h"
+#endif
 
 #include "RooAbsPdf.h"
 #include "RooCategory.h"
@@ -342,6 +354,10 @@ class RscCombinedModel : public TNamed  {
     /// The internal RooWorkspace of the combined model istance
     RooWorkspace* m_workspace;
 
+//For Cint
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassDef(RscCombinedModel,1)
+#endif
 };
 
 #endif

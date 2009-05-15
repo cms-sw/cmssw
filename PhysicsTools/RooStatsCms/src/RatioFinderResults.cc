@@ -1,13 +1,21 @@
-// @(#)root/hist:$Id: RatioFinderResults.cc,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
+// @(#)root/hist:$Id: RatioFinderResults.cc,v 1.3 2009/04/15 11:10:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   07/10/2008
 
 #include "assert.h"
 
 #include <iostream>
 
-#include "PhysicsTools/RooStatsCms/interface/RatioFinderResults.h"
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "RatioFinderResults.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/RatioFinderResults.h"
+#endif
 
 
+//For Cint
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassImp(RatioFinderResults)
+#endif
 /*----------------------------------------------------------------------------*/
 RatioFinderResults::RatioFinderResults(const char* name,
                                        const char* title,

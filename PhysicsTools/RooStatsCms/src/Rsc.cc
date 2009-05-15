@@ -5,7 +5,11 @@
 
 #include "math.h"
 
-#include "PhysicsTools/RooStatsCms/interface/Rsc.h"
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "Rsc.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/Rsc.h"
+#endif
 
 #include "TF1.h"
 #include "TAxis.h"

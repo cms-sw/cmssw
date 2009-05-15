@@ -2,8 +2,8 @@
 
 /**
 \class StatisticalPlot
-$Revision: 1.1.1.1 $
-$Date: 2009/04/15 08:40:01 $
+$Revision: 1.3 $
+$Date: 2009/04/15 11:10:45 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 This class provides the base for all the statistical Plots.
@@ -60,6 +60,10 @@ class StatisticalPlot : public TNamed {
     /// Canvas
     TCanvas* m_canvas; 
 
+//For Cint
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassDef(StatisticalPlot,1)
+#endif
  };
 
 #endif

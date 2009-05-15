@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: FCResults.cc,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
+// @(#)root/hist:$Id: FCResults.cc,v 1.3 2009/04/15 11:10:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
@@ -7,9 +7,17 @@
 #include "TChain.h"
 #include "TAxis.h"
 
-#include "PhysicsTools/RooStatsCms/interface/FCResults.h"
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "FCResults.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/FCResults.h"
+#endif
 
 
+//For Cint
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassImp(FCResults)
+#endif
 /*----------------------------------------------------------------------------*/
 
 /**
