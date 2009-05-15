@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.7 2009/05/11 18:03:38 amraktad Exp $
+// $Id: FWTableView.cc,v 1.8 2009/05/15 04:36:08 jmuelmen Exp $
 //
 
 // system include files
@@ -85,7 +85,7 @@ static const TString& coreIcondir() {
    static TString s = Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE"));
    return s;
 }
-
+/*
 static 
 const TGPicture* filtered(bool iBackgroundIsBlack)
 {
@@ -108,7 +108,7 @@ const TGPicture* filtered_over(bool iBackgroundIsBlack)
    static const TGPicture* s = gClient->GetPicture(coreIcondir()+"filtered-whitebg-over.png");
    return s;
 }
-
+*/
 /*
 static 
 const TGPicture* alert_over()
@@ -124,6 +124,8 @@ const TGPicture* alert()
    return s;
 }
 */
+
+/*
 static 
 const TGPicture* unfiltered(bool iBackgroundIsBlack)
 {
@@ -177,7 +179,7 @@ const TGPicture* info_disabled(bool iBackgroundIsBlack)
    static const TGPicture* s = gClient->GetPicture(coreIcondir()+"info2-whitebg-disabled.png");
    return s;
 }
-
+*/
 static
 const TGPicture* arrow_right(bool iBackgroundIsBlack)
 {
