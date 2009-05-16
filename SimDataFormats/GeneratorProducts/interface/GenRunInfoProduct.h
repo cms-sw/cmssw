@@ -57,6 +57,7 @@ class GenRunInfoProduct {
 		bool isSet() const { return value_ >= 0.; }
 		bool hasError() const { return error_ >= 0.; }
 
+		operator double() const { return value_; }
 		operator bool() const { return isSet(); }
 
 		bool operator == (const XSec &other) const

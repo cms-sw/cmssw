@@ -37,7 +37,7 @@ class GenEventInfoProduct {
 	const PDF *pdf() const { return pdf_.get(); }
 	bool hasPDF() const { return pdf() != 0; }
 
-	std::vector<double> binningValues() const { return binningValues_; }
+	const std::vector<double> &binningValues() const { return binningValues_; }
 	bool hasBinningValues() const { return !binningValues_.empty(); }
 
 	// setters
@@ -53,7 +53,7 @@ class GenEventInfoProduct {
 
 	void setPDF(const PDF *pdf) { pdf_.reset(pdf ? new PDF(*pdf) : 0); }
 
-	void setBinningValues(std::vector<double> values)
+	void setBinningValues(const std::vector<double> &values)
 	{ binningValues_ = values; }
 
     private:
