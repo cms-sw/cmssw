@@ -30,8 +30,7 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
   // create empty trajectory
   //
   theLockedHits.clear();
-  TrajectorySeed invalidSeed;
-  TempTrajectory startingTrajectory(invalidSeed,theFullPropagator.propagationDirection());
+  TempTrajectory startingTrajectory(theFullPropagator.propagationDirection());
   //
   // get measurement groups
   //
