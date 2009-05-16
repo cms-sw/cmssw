@@ -42,18 +42,19 @@ void TkHistoMap::save(std::string filename){
   dqmStore_->save(filename);
 }
 
-bool TkHistoMap::loadTkHistoMap(std::string path, std::string MapName, bool mechanicalView){
+void TkHistoMap::loadTkHistoMap(std::string path, std::string MapName, bool mechanicalView){
   MapName_=MapName;
   std::string fullName, folder;
   tkHistoMap_.resize(HistoNumber);    
   for(int layer=1;layer<HistoNumber;++layer){
     folder=folderDefinition(path,MapName,layer,mechanicalView,fullName);
+    LogTrace("TkHistoMap")  << "[TkHistoMap::loadTkHistoMap] folder " << folder << " histoName " << fullName << " find " << folder.find_last_of("/") << "  length " << folder.length();
+    if(folder.find_last_of("/")!=folder.length()-1)
+      folder+="/";
     tkHistoMap_[layer]=dqmStore_->get(folder+fullName);
-    LogTrace("TkHistoMap")  << "[TkHistoMap::loadTkHistoMap] folder " << folder << " histoName " << fullName << " layer " << layer << " ptr " << tkHistoMap_[layer];
+    LogTrace("TkHistoMap")  << "[TkHistoMap::loadTkHistoMap] folder " << folder << " histoName " << fullName << " layer " << layer << " ptr " << tkHistoMap_[layer] << " find " << folder.find_last_of("/") << "  length " << folder.length();
   }
 }
-  
-
 
 void TkHistoMap::createTkHistoMap(std::string& path, std::string& MapName, float& baseline, bool mechanicalView){
   

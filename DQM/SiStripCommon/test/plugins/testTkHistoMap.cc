@@ -50,21 +50,53 @@ public:
   virtual void endJob(void);
 
 private:
-    
+  
+  void read();
+  void create(); 
+
+  bool readFromFile;
   TkHistoMap *tkhisto, *tkhistoBis, *tkhistoZ, *tkhistoPhi, *tkhistoR, *tkhistoCheck;
-     
 };
+
 //
-testTkHistoMap::testTkHistoMap ( const edm::ParameterSet& iConfig )
+testTkHistoMap::testTkHistoMap ( const edm::ParameterSet& iConfig ):
+  readFromFile(iConfig.getParameter<bool>("readFromFile"))
 {
-  tkhisto   =new TkHistoMap("detId","detId",-1); 
-  tkhistoBis   =new TkHistoMap("detIdBis","detIdBis",0,1); //here the baseline (the value of the empty,not assigned bins) is put to -1 (default is zero)
-  tkhistoZ  =new TkHistoMap("Zmap","Zmap");
-  tkhistoPhi=new TkHistoMap("Phi","Phi");
-  tkhistoR  =new TkHistoMap("Rmap","Rmap",-99.); //here the baseline (the value of the empty,not assigned bins) is put to -99 (default is zero)
-  tkhistoCheck = new TkHistoMap("check","check");
+  if(!readFromFile){
+    create();
+  }else{
+    read();
+  }
 }
 
+
+void testTkHistoMap::create(){
+  tkhisto      =new TkHistoMap("detId","detId",-1); 
+  tkhistoBis   =new TkHistoMap("detIdBis","detIdBis",0,1); //here the baseline (the value of the empty,not assigned bins) is put to -1 (default is zero)
+  tkhistoZ     =new TkHistoMap("Zmap","Zmap");
+  tkhistoPhi   =new TkHistoMap("Phi","Phi");
+  tkhistoR     =new TkHistoMap("Rmap","Rmap",-99.); //here the baseline (the value of the empty,not assigned bins) is put to -99 (default is zero)
+  tkhistoCheck =new TkHistoMap("check","check");           
+}
+
+
+void testTkHistoMap::read(){
+  edm::Service<DQMStore>().operator->()->open("test.root");  
+
+  tkhisto      =new TkHistoMap();
+  tkhistoBis   =new TkHistoMap();
+  tkhistoZ     =new TkHistoMap();
+  tkhistoPhi   =new TkHistoMap();
+  tkhistoR     =new TkHistoMap();
+  tkhistoCheck =new TkHistoMap();
+
+  tkhisto     ->loadTkHistoMap("detId","detId"); 	    
+  tkhistoBis  ->loadTkHistoMap("detIdBis","detIdBis",1);  
+  tkhistoZ    ->loadTkHistoMap("Zmap","Zmap");		    
+  tkhistoPhi  ->loadTkHistoMap("Phi","Phi");		    
+  tkhistoR    ->loadTkHistoMap("Rmap","Rmap");
+  tkhistoCheck->loadTkHistoMap("check","check");            
+}
 
 testTkHistoMap::~testTkHistoMap()
 {
@@ -78,7 +110,7 @@ void testTkHistoMap::endJob(void)
 {
   TkHistoMap* testloadMap = new TkHistoMap();
   testloadMap->loadTkHistoMap("detIdBis","detIdBis",1); 
-  
+
   TCanvas C("c","c");
   C.Divide(3,3);
   C.Update(); 
@@ -104,14 +136,15 @@ void testTkHistoMap::endJob(void)
   }
   ps.Close();   
 
-  edm::Service<DQMStore>().operator->()->save("test.root");  
+  if(!readFromFile)
+    edm::Service<DQMStore>().operator->()->save("test.root");  
   
-  tkhisto->saveAsCanvas("test_canvas.root","LEGO","RECREATE");
-  tkhistoBis->saveAsCanvas("test_canvas.root","LEGO","RECREATE");
-  tkhistoZ->saveAsCanvas("test_canvas.root","LEGO","UPDATE");
-  tkhistoPhi->saveAsCanvas("test_canvas.root","LEGO","UPDATE");
-  tkhistoR->saveAsCanvas("test_canvas.root","LEGO","UPDATE");
-  tkhistoCheck->saveAsCanvas("test_canvas.root","LEGO","UPDATE");
+  tkhisto->saveAsCanvas("test.canvas.root","LEGO","RECREATE");
+  tkhistoBis->saveAsCanvas("test.canvas.root","LEGO","RECREATE");
+  tkhistoZ->saveAsCanvas("test.canvas.root","LEGO","UPDATE");
+  tkhistoPhi->saveAsCanvas("test.canvas.root","LEGO","UPDATE");
+  tkhistoR->saveAsCanvas("test.canvas.root","LEGO","UPDATE");
+  tkhistoCheck->saveAsCanvas("test.canvas.root","LEGO","UPDATE");
 }
 
 
@@ -123,6 +156,9 @@ void testTkHistoMap::endJob(void)
 void testTkHistoMap::analyze(const edm::Event& iEvent, 
 				     const edm::EventSetup& iSetup )
 {   
+  if(readFromFile)
+    return;
+
   edm::ESHandle<TrackerGeometry> tkgeom;
   iSetup.get<TrackerDigiGeometryRecord>().get( tkgeom );
 

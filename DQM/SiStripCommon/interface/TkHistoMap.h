@@ -20,7 +20,7 @@ class TkHistoMap{
 
   void loadServices();
 
-  bool loadTkHistoMap(std::string path, std::string MapName, bool mechanicalView=false);
+  void loadTkHistoMap(std::string path, std::string MapName, bool mechanicalView=false);
 
   MonitorElement* getMap(short layerNumber){return tkHistoMap_[layerNumber];};
   tkHistoMapType& getAllMaps(){return tkHistoMap_;};
