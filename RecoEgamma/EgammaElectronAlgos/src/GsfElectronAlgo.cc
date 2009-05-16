@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.60 2009/04/30 11:39:34 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.61 2009/05/04 06:35:45 chamont Exp $
 //
 //
 
@@ -89,7 +89,19 @@ GsfElectronAlgo::GsfElectronAlgo
    double maxFbremBarrel, double maxFbremEndcaps,
    bool isBarrel, bool isEndcaps, bool isFiducial,
    bool seedFromTEC,
-   double minMVA,
+   double minMVA, double maxTIP,
+   double minSCEtBarrelPflow, double minSCEtEndcapsPflow,
+   double maxEOverPBarrelPflow, double maxEOverPEndcapsPflow,
+   double minEOverPBarrelPflow, double minEOverPEndcapsPflow,
+   double maxDeltaEtaBarrelPflow, double maxDeltaEtaEndcapsPflow,
+   double maxDeltaPhiBarrelPflow,double maxDeltaPhiEndcapsPflow,
+   double hOverEConeSizePflow, double hOverEPtMinPflow,
+   double maxHOverEDepth1BarrelPflow, double maxHOverEDepth1EndcapsPflow,
+   double maxHOverEDepth2Pflow,
+   double maxSigmaIetaIetaBarrelPflow, double maxSigmaIetaIetaEndcapsPflow,
+   double maxFbremBarrelPflow, double maxFbremEndcapsPflow,
+   bool isBarrelPflow, bool isEndcapsPflow, bool isFiducialPflow,
+   double minMVAPflow, double maxTIPPflow,
    bool applyPreselection, bool applyEtaCorrection, bool applyAmbResolution,
    bool addPflowElectrons,
    double intRadiusTk, double ptMinTk, double maxVtxDistTk, double maxDrbTk,
@@ -108,7 +120,18 @@ GsfElectronAlgo::GsfElectronAlgo
    maxFbremBarrel_(maxFbremBarrel), maxFbremEndcaps_(maxFbremEndcaps),
    isBarrel_(isBarrel), isEndcaps_(isEndcaps), isFiducial_(isFiducial),
    seedFromTEC_(seedFromTEC),
-   minMVA_(minMVA),
+   minMVA_(minMVA), maxTIP_(maxTIP),
+   minSCEtBarrelPflow_(minSCEtBarrelPflow), minSCEtEndcapsPflow_(minSCEtEndcapsPflow), maxEOverPBarrelPflow_(maxEOverPBarrelPflow), maxEOverPEndcapsPflow_(maxEOverPEndcapsPflow),
+   minEOverPBarrelPflow_(minEOverPBarrelPflow), minEOverPEndcapsPflow_(minEOverPEndcapsPflow),
+   maxDeltaEtaBarrelPflow_(maxDeltaEtaBarrelPflow), maxDeltaEtaEndcapsPflow_(maxDeltaEtaEndcapsPflow),
+   maxDeltaPhiBarrelPflow_(maxDeltaPhiBarrelPflow),maxDeltaPhiEndcapsPflow_(maxDeltaPhiEndcapsPflow),
+   hOverEConeSizePflow_(hOverEConeSizePflow), hOverEPtMinPflow_(hOverEPtMinPflow),
+   maxHOverEDepth1BarrelPflow_(maxHOverEDepth1BarrelPflow), maxHOverEDepth1EndcapsPflow_(maxHOverEDepth1EndcapsPflow),
+   maxHOverEDepth2Pflow_(maxHOverEDepth2Pflow),
+   maxSigmaIetaIetaBarrelPflow_(maxSigmaIetaIetaBarrelPflow), maxSigmaIetaIetaEndcapsPflow_(maxSigmaIetaIetaEndcapsPflow),
+   maxFbremBarrelPflow_(maxFbremBarrelPflow), maxFbremEndcapsPflow_(maxFbremEndcapsPflow),
+   isBarrelPflow_(isBarrelPflow), isEndcapsPflow_(isEndcapsPflow), isFiducialPflow_(isFiducialPflow),
+   minMVAPflow_(minMVAPflow), maxTIPPflow_(maxTIPPflow),
    applyPreselection_(applyPreselection), applyEtaCorrection_(applyEtaCorrection), applyAmbResolution_(applyAmbResolution),
    addPflowElectrons_(addPflowElectrons),
    intRadiusTk_(intRadiusTk), ptMinTk_(ptMinTk),  maxVtxDistTk_(maxVtxDistTk),  maxDrbTk_(maxDrbTk),
@@ -206,7 +229,6 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   GsfElectronPtrCollection tempEle, tempEle1;
 
   // create electrons
-  //process(tracksH,coresH,ctfTracksH,pfMVAH,towersH,pEBRecHits,pEERecHits,bs,tempEle);
   process(coresH,ctfTracksH,pfMVAH,towersH,pEBRecHits,pEERecHits,bs,tempEle);
 
   std::ostringstream str;
@@ -223,7 +245,7 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   if (applyPreselection_)
    {
 
-    preselectElectrons(tempEle, tempEle1);
+    preselectElectrons(tempEle, tempEle1, bs);
 
     std::ostringstream str1 ;
 
@@ -374,7 +396,7 @@ void GsfElectronAlgo::process(
   } // loop over tracks
 }
 
-void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfElectronPtrCollection & outEle )
+void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfElectronPtrCollection & outEle, const reco::BeamSpot& bs )
  {
   GsfElectronPtrCollection::iterator e1;
   for( e1 = inEle.begin() ;  e1 != inEle.end() ; ++e1 )
@@ -382,61 +404,75 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
 
     LogDebug("")<< "========== preSelection ==========";
 
-
-    // pflow only case
-    if ((*e1)->core()->isTrackerDriven() && !(*e1)->core()->isEcalDriven()) {
-
-    if ((*e1)->mva()>minMVA_) outEle.push_back(*e1) ;
-
-    } else {
+    bool eg = (*e1)->core()->isEcalDriven();
+    bool pf = (*e1)->core()->isTrackerDriven() && !(*e1)->core()->isEcalDriven();
 
     // Et cut
     LogDebug("") << "Et : " << (*e1)->superCluster()->energy()/cosh((*e1)->superCluster()->eta());
-    if ((*e1)->isEB() && ((*e1)->superCluster()->energy()/cosh((*e1)->superCluster()->eta()) < minSCEtBarrel_)) continue;
-    if ((*e1)->isEE() && ((*e1)->superCluster()->energy()/cosh((*e1)->superCluster()->eta()) < minSCEtEndcaps_)) continue;
+    if (eg && (*e1)->isEB() && ((*e1)->superCluster()->energy()/cosh((*e1)->superCluster()->eta()) < minSCEtBarrel_)) continue;
+    if (eg && (*e1)->isEE() && ((*e1)->superCluster()->energy()/cosh((*e1)->superCluster()->eta()) < minSCEtEndcaps_)) continue;
+    if (pf && (*e1)->isEB() && ((*e1)->superCluster()->energy()/cosh((*e1)->superCluster()->eta()) < minSCEtBarrelPflow_)) continue;
+    if (pf && (*e1)->isEE() && ((*e1)->superCluster()->energy()/cosh((*e1)->superCluster()->eta()) < minSCEtEndcapsPflow_)) continue;
 
     // E/p cut
     LogDebug("") << "E/p : " << (*e1)->eSuperClusterOverP();
-    if ((*e1)->isEB() && ((*e1)->eSuperClusterOverP() > maxEOverPBarrel_)) continue;
-    if ((*e1)->isEE() && ((*e1)->eSuperClusterOverP() > maxEOverPEndcaps_)) continue;
-    if ((*e1)->isEB() && ((*e1)->eSuperClusterOverP() < minEOverPBarrel_)) continue;
-    if ((*e1)->isEE() && ((*e1)->eSuperClusterOverP() < minEOverPEndcaps_)) continue;
+    if (eg && (*e1)->isEB() && ((*e1)->eSuperClusterOverP() > maxEOverPBarrel_)) continue;
+    if (eg && (*e1)->isEE() && ((*e1)->eSuperClusterOverP() > maxEOverPEndcaps_)) continue;
+    if (eg && (*e1)->isEB() && ((*e1)->eSuperClusterOverP() < minEOverPBarrel_)) continue;
+    if (eg && (*e1)->isEE() && ((*e1)->eSuperClusterOverP() < minEOverPEndcaps_)) continue;
+    if (pf && (*e1)->isEB() && ((*e1)->eSuperClusterOverP() > maxEOverPBarrelPflow_)) continue;
+    if (pf && (*e1)->isEE() && ((*e1)->eSuperClusterOverP() > maxEOverPEndcapsPflow_)) continue;
+    if (pf && (*e1)->isEB() && ((*e1)->eSuperClusterOverP() < minEOverPBarrelPflow_)) continue;
+    if (pf && (*e1)->isEE() && ((*e1)->eSuperClusterOverP() < minEOverPEndcapsPflow_)) continue;
     LogDebug("") << "E/p criteria is satisfied ";
 
     // HoE cuts
     LogDebug("") << "HoE1 : " << (*e1)->hcalDepth1OverEcal() << "HoE2 : " << (*e1)->hcalDepth2OverEcal();
-    if ( (*e1)->isEB() && ((*e1)->hcalDepth1OverEcal() > maxHOverEDepth1Barrel_) ) continue;
-    if ( (*e1)->isEE() && ((*e1)->hcalDepth1OverEcal() > maxHOverEDepth1Endcaps_) ) continue;
-    if ( (*e1)->hcalDepth2OverEcal() > maxHOverEDepth2_ ) continue;
+    if ( eg && (*e1)->isEB() && ((*e1)->hcalDepth1OverEcal() > maxHOverEDepth1Barrel_) ) continue;
+    if ( eg && (*e1)->isEE() && ((*e1)->hcalDepth1OverEcal() > maxHOverEDepth1Endcaps_) ) continue;
+    if ( eg && ((*e1)->hcalDepth2OverEcal() > maxHOverEDepth2_) ) continue;
+    if ( pf && (*e1)->isEB() && ((*e1)->hcalDepth1OverEcal() > maxHOverEDepth1BarrelPflow_) ) continue;
+    if ( pf && (*e1)->isEE() && ((*e1)->hcalDepth1OverEcal() > maxHOverEDepth1EndcapsPflow_) ) continue;
+    if ( pf && ((*e1)->hcalDepth2OverEcal() > maxHOverEDepth2Pflow_) ) continue;
     LogDebug("") << "H/E criteria is satisfied ";
 
     // delta eta criteria
     double deta = (*e1)->deltaEtaSuperClusterTrackAtVtx();
     LogDebug("") << "delta eta : " << deta;
-    if ((*e1)->isEB() && (fabs(deta) > maxDeltaEtaBarrel_)) continue;
-    if ((*e1)->isEE() && (fabs(deta) > maxDeltaEtaEndcaps_)) continue;
+    if (eg && (*e1)->isEB() && (fabs(deta) > maxDeltaEtaBarrel_)) continue;
+    if (eg && (*e1)->isEE() && (fabs(deta) > maxDeltaEtaEndcaps_)) continue;
+    if (pf && (*e1)->isEB() && (fabs(deta) > maxDeltaEtaBarrelPflow_)) continue;
+    if (pf && (*e1)->isEE() && (fabs(deta) > maxDeltaEtaEndcapsPflow_)) continue;
     LogDebug("") << "Delta eta criteria is satisfied ";
 
     // delta phi criteria
     double dphi = (*e1)->deltaPhiSuperClusterTrackAtVtx();
     LogDebug("") << "delta phi : " << dphi;
-    if ((*e1)->isEB() && (fabs(dphi) > maxDeltaPhiBarrel_)) continue;
-    if ((*e1)->isEE() && (fabs(dphi) > maxDeltaPhiEndcaps_)) continue;
+    if (eg && (*e1)->isEB() && (fabs(dphi) > maxDeltaPhiBarrel_)) continue;
+    if (eg && (*e1)->isEE() && (fabs(dphi) > maxDeltaPhiEndcaps_)) continue;
+    if (pf && (*e1)->isEB() && (fabs(dphi) > maxDeltaPhiBarrelPflow_)) continue;
+    if (pf && (*e1)->isEE() && (fabs(dphi) > maxDeltaPhiEndcapsPflow_)) continue;
     LogDebug("") << "Delta phi criteria is satisfied ";
 
-    if ((*e1)->isEB() && ((*e1)->sigmaIetaIeta() > maxSigmaIetaIetaBarrel_)) continue;
-    if ((*e1)->isEE() && ((*e1)->sigmaIetaIeta() > maxSigmaIetaIetaEndcaps_)) continue;
+    if (eg && (*e1)->isEB() && ((*e1)->sigmaIetaIeta() > maxSigmaIetaIetaBarrel_)) continue;
+    if (eg && (*e1)->isEE() && ((*e1)->sigmaIetaIeta() > maxSigmaIetaIetaEndcaps_)) continue;
+    if (pf && (*e1)->isEB() && ((*e1)->sigmaIetaIeta() > maxSigmaIetaIetaBarrelPflow_)) continue;
+    if (pf && (*e1)->isEE() && ((*e1)->sigmaIetaIeta() > maxSigmaIetaIetaEndcapsPflow_)) continue;
 
     // fiducial
-    if (!(*e1)->isEB() && isBarrel_) continue;
-    if (!(*e1)->isEE() && isEndcaps_) continue;
-    if (((*e1)->isEBEEGap() || (*e1)->isEBEtaGap() || (*e1)->isEBPhiGap() || (*e1)->isEERingGap() || (*e1)->isEEDeeGap())
+    if (eg && !(*e1)->isEB() && isBarrel_) continue;
+    if (eg && !(*e1)->isEE() && isEndcaps_) continue;
+    if (eg && ((*e1)->isEBEEGap() || (*e1)->isEBEtaGap() || (*e1)->isEBPhiGap() || (*e1)->isEERingGap() || (*e1)->isEEDeeGap())
      && isFiducial_) continue;
+    if (pf && !(*e1)->isEB() && isBarrelPflow_) continue;
+    if (pf && !(*e1)->isEE() && isEndcapsPflow_) continue;
+    if (pf && ((*e1)->isEBEEGap() || (*e1)->isEBEtaGap() || (*e1)->isEBPhiGap() || (*e1)->isEERingGap() || (*e1)->isEEDeeGap())
+     && isFiducialPflow_) continue;
 
     // seed in TEC
-    if (!seedFromTEC_) {
-      edm::RefToBase<TrajectorySeed> seed = (*e1)->gsfTrack()->extra()->seedRef() ;
-      ElectronSeedRef elseed = seed.castTo<ElectronSeedRef>() ;
+    edm::RefToBase<TrajectorySeed> seed = (*e1)->gsfTrack()->extra()->seedRef() ;
+    ElectronSeedRef elseed = seed.castTo<ElectronSeedRef>() ;
+    if (eg && !seedFromTEC_) {
       if (elseed.isNull())
 	 { edm::LogError("GsfElectronAlgo")<<"The GsfTrack seed is not an ElectronSeed ?!" ; }
 	else
@@ -445,12 +481,18 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
 	 }
     }
 
+    // BDT output
+    if (eg && ((*e1)->mva()<minMVA_)) continue ;
+    if (pf && ((*e1)->mva()<minMVAPflow_)) continue ;
+ 
+    // transverse impact parameter
+    if (eg && fabs((*e1)->gsfTrack()->dxy(bs.position()))>maxTIP_) continue;
+    if (pf && fabs((*e1)->gsfTrack()->dxy(bs.position()))>maxTIPPflow_) continue;
+    
     LogDebug("") << "electron has passed preselection criteria ";
     LogDebug("") << "=================================================";
 
     outEle.push_back(*e1) ;
-
-   }
 
    }
  }

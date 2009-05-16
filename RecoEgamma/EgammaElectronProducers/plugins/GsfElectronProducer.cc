@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronProducer.cc,v 1.18 2009/04/15 15:33:32 charlot Exp $
+// $Id: GsfElectronProducer.cc,v 1.19 2009/04/16 19:40:52 charlot Exp $
 //
 //
 
@@ -68,6 +68,31 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& iConfig)
 		    iConfig.getParameter<bool>("isFiducial"),
 		    iConfig.getParameter<bool>("seedFromTEC"),
 		    iConfig.getParameter<double>("minMVA"),
+		    iConfig.getParameter<double>("maxTIP"),
+		    iConfig.getParameter<double>("minSCEtBarrelPflow"),
+		    iConfig.getParameter<double>("minSCEtEndcapsPflow"),
+		    iConfig.getParameter<double>("maxEOverPBarrelPflow"),
+		    iConfig.getParameter<double>("maxEOverPEndcapsPflow"),
+		    iConfig.getParameter<double>("minEOverPBarrelPflow"),
+		    iConfig.getParameter<double>("minEOverPEndcapsPflow"),
+		    iConfig.getParameter<double>("maxDeltaEtaBarrelPflow"),
+		    iConfig.getParameter<double>("maxDeltaEtaEndcapsPflow"),
+		    iConfig.getParameter<double>("maxDeltaPhiBarrelPflow"),
+		    iConfig.getParameter<double>("maxDeltaPhiEndcapsPflow"),
+		    iConfig.getParameter<double>("hOverEConeSizePflow"),
+		    iConfig.getParameter<double>("hOverEPtMinPflow"),
+		    iConfig.getParameter<double>("maxHOverEDepth1BarrelPflow"),
+		    iConfig.getParameter<double>("maxHOverEDepth1EndcapsPflow"),
+		    iConfig.getParameter<double>("maxHOverEDepth2Pflow"),
+		    iConfig.getParameter<double>("maxSigmaIetaIetaBarrelPflow"),
+		    iConfig.getParameter<double>("maxSigmaIetaIetaEndcapsPflow"),
+		    iConfig.getParameter<double>("maxFbremBarrelPflow"),
+		    iConfig.getParameter<double>("maxFbremEndcapsPflow"),
+		    iConfig.getParameter<bool>("isBarrelPflow"),
+		    iConfig.getParameter<bool>("isEndcapsPflow"),
+		    iConfig.getParameter<bool>("isFiducialPflow"),
+		    iConfig.getParameter<double>("minMVAPflow"),
+		    iConfig.getParameter<double>("maxTIPPflow"),
 		    iConfig.getParameter<bool>("applyPreselection"),
 		    iConfig.getParameter<bool>("applyEtaCorrection"),
 		    iConfig.getParameter<bool>("applyAmbResolution"),

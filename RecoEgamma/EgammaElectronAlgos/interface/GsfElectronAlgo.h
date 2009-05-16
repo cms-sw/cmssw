@@ -64,7 +64,19 @@ class GsfElectronAlgo {
       double maxFbremBarrel, double maxFbremEndcaps,
       bool isBarrel, bool isEndcaps, bool isFiducial,
       bool seedFromTEC,
-      double minMVA,
+      double minMVA, double maxTIP,
+      double minSCEtBarrelPflow, double minSCEtEndcapsPflow,
+      double maxEOverPBarrelPflow, double maxEOverPEndcapsPflow,
+      double minEOverPBarrelPflow, double minEOverPEndcapsPflow,
+      double maxDeltaEtaBarrelPflow, double maxDeltaEtaEndcapsPflow,
+      double maxDeltaPhiBarrelPflow,double maxDeltaPhiEndcapsPflow,
+      double hOverEConeSizePflow, double hOverEPtMinPflow,
+      double maxHOverEDepth1BarrelPflow, double maxHOverEDepth1EndcapsPflow,
+      double maxHOverEDepth2Pflow,
+      double maxSigmaIetaIetaBarrelPflow, double maxSigmaIetaIetaEndcapsPflow,
+      double maxFbremBarrelPflow, double maxFbremEndcapsPflow,
+      bool isBarrelPflow, bool isEndcapsPflow, bool isFiducialPflow,
+      double minMVAPflow, double maxTIPPflow,
       bool applyPreselection, bool applyEtaCorrection, bool applyAmbResolution,
       bool addPflowElectrons,
       double intRadiusTk, double ptMinTk, double maxVtxDistTk, double maxDrbTk,
@@ -109,7 +121,7 @@ class GsfElectronAlgo {
        edm::Handle<EcalRecHitCollection> reducedEBRecHits,edm::Handle<EcalRecHitCollection> reducedEERecHits,
        float mva, GsfElectronPtrCollection & outEle ) ;
 
-    void preselectElectrons( GsfElectronPtrCollection &, GsfElectronPtrCollection & outEle ) ;
+    void preselectElectrons( GsfElectronPtrCollection &, GsfElectronPtrCollection & outEle, const reco::BeamSpot& ) ;
 
     void resolveElectrons( GsfElectronPtrCollection &, reco::GsfElectronCollection & outEle ) ;
 
@@ -131,7 +143,7 @@ class GsfElectronAlgo {
     bool calculateTSOS(const reco::GsfTrack &t,const reco::SuperCluster & theClus, const
      reco::BeamSpot& bs);
 
-    // preselection parameters
+    // preselection parameters (ecal driven electrons)
     // minimum SC Et
     double minSCEtBarrel_;
     double minSCEtEndcaps_;
@@ -163,18 +175,58 @@ class GsfElectronAlgo {
     // maximum fbrem
     double maxFbremBarrel_;
     double maxFbremEndcaps_;
-
     // fiducial regions
     bool isBarrel_;
     bool isEndcaps_;
     bool isFiducial_;
-
-    // electron seed
-    // select or not electrons with seed having second hit in TEC layers
+    // select electrons with seed second hit in TEC layers
     bool seedFromTEC_;
-
-    // for tracker driven preselection
+    // BDT output (if available) 
     double minMVA_;
+    // transverse impact parameter wrt beam spot
+    double maxTIP_;
+
+    // preselection parameters (tracker driven only electrons)
+    // minimum SC Et
+    double minSCEtBarrelPflow_;
+    double minSCEtEndcapsPflow_;
+    // maximum E/p where E is the pflow supercluster energy and p the track momentum at innermost state
+    double maxEOverPBarrelPflow_;
+    double maxEOverPEndcapsPflow_;
+    // minimum E/p where E is the pflow supercluster energy and p the track momentum at innermost state
+    double minEOverPBarrelPflow_;
+    double minEOverPEndcapsPflow_;
+    // maximum eta difference between the pflow supercluster position and the track position at the closest impact to the supercluster
+    double maxDeltaEtaBarrelPflow_;
+    double maxDeltaEtaEndcapsPflow_;
+    // maximum phi difference between the pflow supercluster position and the track position at the closest impact to the supercluster
+    // position to the supercluster
+    double maxDeltaPhiBarrelPflow_;
+    double maxDeltaPhiEndcapsPflow_;
+    // cone size for H/E evaluation
+    double hOverEConeSizePflow_;
+    // min tower Et for H/E evaluation
+    double hOverEPtMinPflow_;
+    // maximum H/E for depth1
+    double maxHOverEDepth1BarrelPflow_;
+    double maxHOverEDepth1EndcapsPflow_;
+    // maximum H/E for depth2
+    double maxHOverEDepth2Pflow_;
+    // maximum sigma ieta ieta
+    double maxSigmaIetaIetaBarrelPflow_;
+    double maxSigmaIetaIetaEndcapsPflow_;
+    // maximum fbrem
+    double maxFbremBarrelPflow_;
+    double maxFbremEndcapsPflow_;
+    // fiducial regions
+    bool isBarrelPflow_;
+    bool isEndcapsPflow_;
+    bool isFiducialPflow_;
+    // BDT output 
+    double minMVAPflow_;
+    // transverse impact parameter wrt beam spot
+    double maxTIPPflow_;
+
 
     // if this parameter is true, electron preselection is applied
     bool applyPreselection_;
