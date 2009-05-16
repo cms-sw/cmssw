@@ -8,7 +8,7 @@ TempTrajectory::TempTrajectory( const Trajectory& traj):
   theChiSquared(0), theValid(traj.isValid()),
   theNumberOfFoundHits(0), theNumberOfLostHits(0),
   theDirection(traj.direction()), theDirectionValidity(true),
-  theSeed( new TrajectorySeed(traj.seed()) ){
+  theSeed( traj.sharedSeed() ){
 
   Trajectory::DataContainer::const_iterator begin=traj.measurements().begin();
   Trajectory::DataContainer::const_iterator end=traj.measurements().end();
@@ -98,6 +98,29 @@ void TempTrajectory::push( const TempTrajectory& segment) {
   }
 }
 
+void TempTrajectory::join( TempTrajectory& segment) {
+  assert (segment.direction() == theDirection) ;
+  if (segment.theData.shared()) {
+      push(segment);
+      segment.theData.clear(); // obey the contract, and increase the chances it will be not shared one day
+  } else {
+      for (DataContainer::const_iterator it = segment.measurements().rbegin(), ed = segment.measurements().rend(); it != ed; --it) {
+          if ( it->recHit()->isValid())       theNumberOfFoundHits++;
+          else if (lost( *(it->recHit()) ) ) theNumberOfLostHits++;
+          theChiSquared += it->estimate();
+      }
+      theData.join(segment.theData);
+
+      if ( !theDirectionValidity && theData.size() >= 2) {
+        if (theData.front().updatedState().globalPosition().perp() <
+            theData.back().updatedState().globalPosition().perp())
+          theDirection = alongMomentum;
+        else theDirection = oppositeToMomentum;
+        theDirectionValidity = true;
+      }
+  }
+}
+
 
 /*
 Trajectory::RecHitContainer Trajectory::recHits() const {
@@ -140,15 +163,17 @@ bool TempTrajectory::lost( const TransientTrackingRecHit& hit)
 }
 
 Trajectory TempTrajectory::toTrajectory() const {
-  Trajectory traj(*theSeed, theDirection);
+  Trajectory traj(theSeed, theDirection);
 
   traj.reserve(theData.size());
-  __gnu_cxx::slist<const TrajectoryMeasurement*> list;
+  static std::vector<const TrajectoryMeasurement*> work;
+  work.resize(theData.size(), 0);
+  std::vector<const TrajectoryMeasurement*>::iterator workend = work.end(), itwork = workend;
   for (TempTrajectory::DataContainer::const_iterator it = theData.rbegin(), ed = theData.rend(); it != ed; --it) {
-        list.push_front(&(*it));
+       --itwork;  *itwork = (&(*it));
   }
-  for(__gnu_cxx::slist<const TrajectoryMeasurement*>::const_iterator it = list.begin(), ed = list.end(); it != ed; ++it) {
-        traj.push(**it);
+  for (; itwork != workend; ++itwork) {
+        traj.push(**itwork);
   }
   return traj;
 }

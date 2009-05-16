@@ -55,7 +55,7 @@ public:
   TempTrajectory() :  theChiSquared(0), theValid(true),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(alongMomentum), theDirectionValidity(false),
-    theSeed(new TrajectorySeed())  
+    theSeed()  
     {}
 
 
@@ -83,6 +83,29 @@ public:
     theSeed( new TrajectorySeed(seed) )
   {}
 
+  /** Constructor of an empty trajectory with defined direction.
+   *  No check is made in the push method that measurements are
+   *  added in the correct direction.
+   */
+  TempTrajectory( const boost::shared_ptr<const TrajectorySeed> & seed, PropagationDirection dir) : 
+    theChiSquared(0), theValid(true),
+    theNumberOfFoundHits(0), theNumberOfLostHits(0),
+    theDirection(dir), theDirectionValidity(true),
+    theSeed( seed )
+  {}
+
+
+  /** Constructor of an empty trajectory with defined direction.
+   *  No check is made in the push method that measurements are
+   *  added in the correct direction.
+   */
+  TempTrajectory(PropagationDirection dir) : 
+    theChiSquared(0), theValid(true),
+    theNumberOfFoundHits(0), theNumberOfLostHits(0),
+    theDirection(dir), theDirectionValidity(true),
+    theSeed()
+  {}
+
 
   /// construct TempTrajectory from standard Trajectory
   TempTrajectory( const Trajectory& traj);
@@ -103,6 +126,13 @@ public:
    *  inside this trajectory (that is, both along or both opposite to momentum)
    */
   void push( const TempTrajectory & segment);
+
+  /** Add a new sets of measurements to a Trajectory
+   *  Exactly like push(TempTrajectory), but it doesn't copy the data
+   *  (the input segment will be reset to an empty one)
+   */
+  void join( TempTrajectory & segment);
+
 
 
   /** same as the one-argument push, but the trajectory Chi2 is incremented 
@@ -214,7 +244,7 @@ private:
   PropagationDirection theDirection;
   bool                 theDirectionValidity;
 
-  boost::shared_ptr<TrajectorySeed>    theSeed;
+  boost::shared_ptr<const TrajectorySeed>    theSeed;
 
   void check() const;
 };
