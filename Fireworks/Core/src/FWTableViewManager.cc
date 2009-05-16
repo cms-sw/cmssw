@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTableViewManager.cc,v 1.2.2.11 2009/04/27 02:01:41 jmuelmen Exp $
+// $Id: FWTableViewManager.cc,v 1.3 2009/05/01 22:30:41 jmuelmen Exp $
 //
 
 // system include files
@@ -238,7 +238,7 @@ void
 FWTableViewManager::modelChangesComing()
 {
    gEve->DisableRedraw();
-   printf("changes coming\n");
+   // printf("changes coming\n");
 }
 
 void
@@ -251,7 +251,7 @@ FWTableViewManager::modelChangesDone()
 	 it != itEnd; ++it) {
 	  (*it)->dataChanged();
      }
-     printf("changes done\n");
+     // printf("changes done\n");
 }
 
 void
