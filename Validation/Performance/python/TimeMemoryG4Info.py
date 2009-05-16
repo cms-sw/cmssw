@@ -73,7 +73,5 @@ def customise(process):
         reportEventInterval         = cms.untracked.int32(25),
         reportToFileAtPostEvent     = cms.untracked.string("| gzip -c > IgProf.%I.gz")
         )
-    
-        )
-    
+        
     return(process)
