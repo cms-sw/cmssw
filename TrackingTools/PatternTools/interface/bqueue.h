@@ -113,6 +113,31 @@ class bqueue {
                 while (idx-- > 0) --it;
                 return *it;
         }
+        bool shared() { 
+            // size = 0: never shared
+            // size = 1: shared if head->refCount > 2 (m_head and m_tail)
+            // size > 1: shared if head->refCount > 2 (m_head and second_hit->back)
+            return (m_size > 0) && (m_head->refCount > 2);
+        }
+        // connect 'other' at the tail of this. will reset 'other' to an empty sequence
+        void join(bqueue<T> &other) {
+            if (m_size == 0) {
+                std::swap(m_head,other.m_head);
+                std::swap(m_tail,other.m_tail);
+                std::swap(m_size,other.m_size);
+            } else {
+                other.m_head->back = this->m_tail;
+                m_tail = other.m_tail;
+                m_size += other.m_size;
+                other.m_head = other.m_tail = other.m_bound;
+                other.m_size = 0;
+            }
+        }
+        void clear() { 
+            m_head = m_bound; 
+            m_tail = m_bound;
+            m_size = 0;
+        }
     private:
         bqueue(size_type size, itemptr bound, itemptr head, itemptr tail) :
             m_size(size), m_bound(bound), m_head(head), m_tail(tail) { }
