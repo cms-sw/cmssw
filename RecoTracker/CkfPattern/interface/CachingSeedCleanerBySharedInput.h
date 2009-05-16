@@ -2,6 +2,7 @@
 #define CachingSeedCleanerBySharedInput_H
 #include "RecoTracker/CkfPattern/interface/RedundantSeedCleaner.h"
 #include <map>
+#include <boost/unordered_map.hpp>
 
 /** Merge of SeedCleanerBySharedInput and CachingSeedCleanerByHitPosition */
 class CachingSeedCleanerBySharedInput : public RedundantSeedCleaner  {
@@ -23,7 +24,8 @@ class CachingSeedCleanerBySharedInput : public RedundantSeedCleaner  {
    virtual ~CachingSeedCleanerBySharedInput() { theVault.clear(); theCache.clear(); }
   private:
     std::vector<Trajectory::RecHitContainer> theVault;
-    std::multimap<uint32_t, unsigned short> theCache;
+    //std::multimap<uint32_t, unsigned short> theCache;
+    boost::unordered_multimap<uint32_t, unsigned short> theCache;
 
     //uint64_t comps_, tracks_, calls_;
 };

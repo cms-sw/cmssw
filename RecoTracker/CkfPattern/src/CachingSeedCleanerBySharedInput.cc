@@ -52,10 +52,15 @@ bool CachingSeedCleanerBySharedInput::good(const TrajectorySeed *seed) {
     SI first = range.first, last = range.second, curr;
     uint32_t detid = first->geographicalId().rawId();
     
-    std::multimap<uint32_t, unsigned short>::const_iterator it, end = theCache.end();
+    //std::multimap<uint32_t, unsigned short>::const_iterator it, end = theCache.end();
+    typedef boost::unordered_multimap<uint32_t, unsigned short>::const_iterator IT;
+    IT it; std::pair<IT,IT> itrange;
+    
 
     //calls_++;
-    for (it = theCache.find(detid); (it != end) && (it->first == detid); ++it) {
+    //for (it = theCache.find(detid); (it != end) && (it->first == detid); ++it) {
+    for (itrange = theCache.equal_range(detid), it = itrange.first; it != itrange.second; ++it) {
+      assert(it->first == detid);
       //tracks_++;
       
       // seeds are limited to the first 4 hits in trajectory...
