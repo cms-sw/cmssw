@@ -13,7 +13,7 @@
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: HLTFEDSizeFilter.cc,v 1.3 2008/10/10 17:34:53 bdahmes Exp $
+// $Id: HLTFEDSizeFilter.cc,v 1.4 2009/05/15 19:19:17 beaucero Exp $
 //
 //
 
@@ -42,15 +42,13 @@ public:
     ~HLTFEDSizeFilter();
     
 private:
-    virtual void beginJob(const edm::EventSetup&) ;
     virtual bool filter(edm::Event&, const edm::EventSetup&);
-    virtual void endJob() ;
     
     // ----------member data ---------------------------
     edm::InputTag RawCollection_;
-    unsigned int threshold_;
-    unsigned int fedStart_, fedStop_ ;
-  bool AND_;
+    unsigned int  threshold_;
+    unsigned int  fedStart_, fedStop_ ;
+    bool          requireAllFEDs_;
  
 };
 
@@ -59,22 +57,19 @@ private:
 //
 HLTFEDSizeFilter::HLTFEDSizeFilter(const edm::ParameterSet& iConfig)
 {
-    //now do what ever initialization is needed
-    threshold_  = iConfig.getParameter<unsigned int>("threshold");
-    RawCollection_ = iConfig.getParameter<edm::InputTag>("rawData");
+    threshold_      = iConfig.getParameter<unsigned int>("threshold");
+    RawCollection_  = iConfig.getParameter<edm::InputTag>("rawData");
     // For a list of FEDs by subdetector, see DataFormats/FEDRawData/src/FEDNumbering.cc
-    fedStart_   = iConfig.getParameter<unsigned int>("firstFED"); 
-    fedStop_    = iConfig.getParameter<unsigned int>("lastFED");
-    AND_ = iConfig.getParameter<bool>("VectorAND");
+    fedStart_       = iConfig.getParameter<unsigned int>("firstFED"); 
+    fedStop_        = iConfig.getParameter<unsigned int>("lastFED");
+    requireAllFEDs_ = iConfig.getParameter<bool>("requireAllFEDs");
 }
 
 
 HLTFEDSizeFilter::~HLTFEDSizeFilter()
 {
- 
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
 }
 
 
@@ -86,35 +81,35 @@ HLTFEDSizeFilter::~HLTFEDSizeFilter()
 bool
 HLTFEDSizeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-    // getting very basic uncalRH
+    // get the RAW data collction
     edm::Handle<FEDRawDataCollection> theRaw;
-    try {
-        iEvent.getByLabel(RawCollection_, theRaw);
-    } catch ( std::exception& ex) {
-        edm::LogWarning("HLTFEDSizeFilter") << RawCollection_ << " not available";
+    iEvent.getByLabel(RawCollection_, theRaw);
+    if (not theRaw.isValid()) {
+      edm::LogWarning("HLTFEDSizeFilter") << RawCollection_ << " not available";
+      return false;
     }
-    
-    bool AndResult = false;
 
-    for (unsigned int i=fedStart_; i<=fedStop_; i++){
-      if(!AND_){
-        if (theRaw->FEDData(i).size() >= threshold_ ) return true ; 
-      }else{
-	if( i == fedStart_)AndResult=true;
-	AndResult*=(theRaw->FEDData(i).size() >= threshold_ );
-      }
+    bool result = false;
+
+    if (not requireAllFEDs_) {
+      // require the at least *one* FED in the given range has size above (or equal to) the threshold
+      for (unsigned int i = fedStart_; i <= fedStop_; i++)
+        if (theRaw->FEDData(i).size() >= threshold_) {
+          result = true;
+          break;
+        }
+      result = false;
+    } else {
+      // require that *all* FEDs in the given range have size above (or equal to) the threshold
+      for (unsigned int i = fedStart_; i <= fedStop_; i++)
+        if (not theRaw->FEDData(i).size() >= threshold_) {
+          result = false;
+          break;
+        }
+      result = true;
     }
-    return AndResult;
-}
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-HLTFEDSizeFilter::beginJob(const edm::EventSetup&) {
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-HLTFEDSizeFilter::endJob() {
+    return result;
 }
 
 //define this as a plug-in
