@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <boost/shared_ptr.hpp>
 
 /** A class for detailed particle trajectory representation.
  *  It is used during trajectory building to "grow" a trajectory.
@@ -51,7 +52,7 @@ public:
   Trajectory() :  theChiSquared(0), theValid(true),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(alongMomentum), theDirectionValidity(false),
-    theSeed(TrajectorySeed()), seedRef_()  
+    theSeed(), seedRef_()  
     {}
 
 
@@ -65,7 +66,7 @@ public:
     theChiSquared(0), theValid(true),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(alongMomentum), theDirectionValidity(false),
-    theSeed(seed), seedRef_()
+    theSeed( new TrajectorySeed(seed) ), seedRef_()
   {}
 
   /** Constructor of an empty trajectory with defined direction.
@@ -76,8 +77,20 @@ public:
     theChiSquared(0), theValid(true),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(dir), theDirectionValidity(true),
-    theSeed(seed), seedRef_()
+    theSeed( new TrajectorySeed(seed) ), seedRef_()
   {}
+
+  /** Constructor of an empty trajectory with defined direction.
+   *  No check is made in the push method that measurements are
+   *  added in the correct direction.
+   */
+  Trajectory( const boost::shared_ptr<const TrajectorySeed> & seed, PropagationDirection dir) : 
+    theChiSquared(0), theValid(true),
+    theNumberOfFoundHits(0), theNumberOfLostHits(0),
+    theDirection(dir), theDirectionValidity(true),
+    theSeed( seed ), seedRef_()
+  {}
+
 
   /** Reserves space in the vector to avoid lots of allocations when 
       push_back-ing measurements */
@@ -182,7 +195,7 @@ public:
   void invalidate() { theValid = false;}
 
   /// Access to the seed used to reconstruct the Trajectory
-  TrajectorySeed const & seed() const { return theSeed;}
+  TrajectorySeed const & seed() const { return *theSeed;}
 
 
   /** Definition of inactive Det from the Trajectory point of view.
@@ -219,6 +232,8 @@ public:
   /// Reverse the propagation direction and the order of the trajectory measurements.
   /// It doesn't reverse the forward and backward predicted states within each trajectory measurement
   void reverse() ;
+
+  const boost::shared_ptr<const TrajectorySeed> & sharedSeed() const { return theSeed; }
 private:
 
   /// used to determine closest measurement to given point
@@ -241,7 +256,7 @@ private:
   PropagationDirection theDirection;
   bool                 theDirectionValidity;
 
-  TrajectorySeed       theSeed;
+  boost::shared_ptr<const TrajectorySeed>    theSeed;
   edm::RefToBase<TrajectorySeed> seedRef_;
 
   void check() const;
