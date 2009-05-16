@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre6/HLT/V17 (CMSSW_3_1_X_2009-05-11-0300)
+# /dev/CMSSW_3_1_0/pre6/HLT/V22 (CMSSW_3_1_X_2009-05-11-0300)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre6/HLT/V17')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre6/HLT/V22')
 )
 
 block_hltDebugWithAlCaOutput = cms.PSet(
@@ -25,7 +25,6 @@ outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
   'keep *_hltRpcRecHits_*_*',
   'keep *_hltL1HLTDoubleLooseIsoTau15JetsMatch_*_*',
   'keep *_hltBSoftmuonL3BJetTagsByDR_*_*',
-  'keep *_hltAlCaEtaRegRecHits_*_*',
   'keep *_hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1Isolated_*_*',
   'keep *_hltBLifetimeL3Associator_*_*',
   'keep *_hltPixelVertices_*_*',
@@ -53,7 +52,6 @@ outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
   'keep *_hltMuonTauIsoL3PreFiltered_*_*',
   'keep *_hltMet_*_*',
   'keep *_hltL25TauCtfWithMaterialTracks_*_*',
-  'keep *_hltAlCaPi0RegRecHits_*_*',
   'keep *_hltBLifetimeRegionalCtfWithMaterialTracks_*_*',
   'keep *_hltL1NonIsoElectronTrackIsol_*_*',
   'keep *_hltBLifetimeL25Associator_*_*',
