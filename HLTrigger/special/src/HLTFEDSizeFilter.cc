@@ -13,7 +13,7 @@
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: HLTFEDSizeFilter.cc,v 1.6 2009/05/16 12:01:09 fwyzard Exp $
+// $Id: HLTFEDSizeFilter.cc,v 1.7 2009/05/16 13:40:34 fwyzard Exp $
 //
 //
 
@@ -82,28 +82,26 @@ bool
 HLTFEDSizeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     // get the RAW data collction
-    edm::Handle<FEDRawDataCollection> theRaw;
-    iEvent.getByLabel(RawCollection_, theRaw);
-    if (not theRaw.isValid()) {
-      edm::LogWarning("HLTFEDSizeFilter") << RawCollection_ << " not available";
-      return false;
-    }
+    edm::Handle<FEDRawDataCollection> h_raw;
+    iEvent.getByLabel(RawCollection_, h_raw);
+    // do NOT handle the case where the collection is not available - let the framework handle the exception
+    const FEDRawDataCollection theRaw = * h_raw;
 
     bool result = false;
 
     if (not requireAllFEDs_) {
-      // require the at least *one* FED in the given range has size above (or equal to) the threshold
+      // require that *at least one* FED in the given range has size above or equal to the threshold
       result = false;
       for (unsigned int i = fedStart_; i <= fedStop_; i++)
-        if (theRaw->FEDData(i).size() >= threshold_) {
+        if (theRaw.FEDData(i).size() >= threshold_) {
           result = true;
           break;
         }
     } else {
-      // require that *all* FEDs in the given range have size above (or equal to) the threshold
+      // require that *all* FEDs in the given range have size above or equal to the threshold
       result = true;
       for (unsigned int i = fedStart_; i <= fedStop_; i++)
-        if (theRaw->FEDData(i).size() < threshold_) {
+        if (theRaw.FEDData(i).size() < threshold_) {
           result = false;
           break;
         }
