@@ -13,7 +13,7 @@
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: HLTFEDSizeFilter.cc,v 1.5 2009/05/16 10:50:42 fwyzard Exp $
+// $Id: HLTFEDSizeFilter.cc,v 1.6 2009/05/16 12:01:09 fwyzard Exp $
 //
 //
 
@@ -103,7 +103,7 @@ HLTFEDSizeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       // require that *all* FEDs in the given range have size above (or equal to) the threshold
       result = true;
       for (unsigned int i = fedStart_; i <= fedStop_; i++)
-        if (not theRaw->FEDData(i).size() >= threshold_) {
+        if (theRaw->FEDData(i).size() < threshold_) {
           result = false;
           break;
         }
