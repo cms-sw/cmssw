@@ -1,9 +1,9 @@
-// $Id: RBCLogicUnit.h,v 1.1 2009/01/30 15:42:47 aosorio Exp $
+// $Id: RBCLogicUnit.h,v 1.2 2009/05/08 10:24:04 aosorio Exp $
 #ifndef RBCLOGICUNIT_H 
 #define RBCLOGICUNIT_H 1
 
 // Include files
-#include "L1Trigger/RPCTechnicalTrigger/src/LogicTool.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/LogicTool.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/RPCLogicUnit.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCLogic.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCInput.h"

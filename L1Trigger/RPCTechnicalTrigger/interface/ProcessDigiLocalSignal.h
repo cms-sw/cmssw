@@ -1,6 +1,6 @@
-// $Id: ProcessDigiGlobalSignal.h,v 1.1 2009/05/08 10:24:05 aosorio Exp $
-#ifndef PROCESSDIGIGLOBALSIGNAL_H 
-#define PROCESSDIGIGLOBALSIGNAL_H 1
+// $Id: ProcessDigiLocalSignal.h,v 1.2 2009/05/10 00:33:18 aosorio Exp $
+#ifndef PROCESSDIGILOCALSIGNAL_H 
+#define PROCESSDIGILOCALSIGNAL_H 1
 
 // Include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -16,11 +16,11 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 
-#include "L1Trigger/RPCTechnicalTrigger/interface/TTUInput.h"
+// From project
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCInput.h" 
 #include "L1Trigger/RPCTechnicalTrigger/interface/RPCInputSignal.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/RPCData.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/ProcessInputSignal.h"
-#include "L1Trigger/RPCTechnicalTrigger/src/RPCWheelMap.h"
 
 #include <stdlib.h>
 #include <iostream>
@@ -30,43 +30,46 @@
 #include <map>
 #include <vector>
 
-/** @class ProcessDigiGlobalSignal ProcessDigiGlobalSignal.h
+/** @class ProcessDigiLocalSignal ProcessDigiLocalSignal.h
  *  
  *
  *  @author Andres Felipe Osorio Oliveros
- *  @date   2008-11-21
+ *  @date   2009-04-15
  */
-class ProcessDigiGlobalSignal : public ProcessInputSignal {
+class ProcessDigiLocalSignal : public ProcessInputSignal {
 public: 
   /// Standard constructor
-  ProcessDigiGlobalSignal( ) {};
-  
-  ProcessDigiGlobalSignal( const edm::ESHandle<RPCGeometry> &, 
-                           const edm::Handle<RPCDigiCollection> & );
-  
-  virtual ~ProcessDigiGlobalSignal( ); ///< Destructor
+  ProcessDigiLocalSignal( ) {};
+
+  ProcessDigiLocalSignal( const edm::ESHandle<RPCGeometry> &, 
+                          const edm::Handle<RPCDigiCollection> & );
+
+  virtual ~ProcessDigiLocalSignal( ); ///< Destructor
   
   int  next();
   
+  void reset();
+  
+  void initialize();
+  
+  void builddata();
+  
   RPCInputSignal * retrievedata() {
-    return  m_wmin;
+    return  m_lbin;
   };
   
   void rewind() {};
   void showfirst() {};
-  void reset() {};
   
 protected:
   
 private:
-
-  int getBarrelLayer(const int &, const int &);
-    
-  TTUInput * m_ttuwheelmap;
-  RPCInputSignal * m_wmin;
   
-  std::vector<RPCWheelMap*> m_wheelmapvec;
-  std::map<int, TTUInput*> m_data;
+  int getBarrelLayer(const int &, const int &);
+  
+  void setDigiAt( int , int  );
+  
+  void setInputBit( std::bitset<15> & , int );
   
   const edm::ESHandle<RPCGeometry>     * m_ptr_rpcGeom;
   const edm::Handle<RPCDigiCollection> * m_ptr_digiColl;
@@ -74,7 +77,21 @@ private:
   RPCDigiCollection::const_iterator m_digiItr;
   RPCDigiCollection::DigiRangeIterator m_detUnitItr;
 
+  RPCData  * m_block;
+  
+  RPCInputSignal * m_lbin;
+
+  std::vector<RPCData*> m_vecdata;
+  
+  std::map<int,RBCInput*> m_data;
+
+  std::map<int,int> m_layermap;
+    
   bool m_debug;
-        
+
+  std::vector<int> m_wheelid;
+  std::vector<int> m_sec1id;
+  std::vector<int> m_sec2id;
+    
 };
-#endif // PROCESSDIGIGLOBALSIGNAL_H
+#endif // PROCESSDIGILOCALSIGNAL_H

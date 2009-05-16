@@ -1,11 +1,11 @@
-// $Id: TTUEmulator.h,v 1.3 2009/05/08 10:24:05 aosorio Exp $
+// $Id: TTUEmulator.h,v 1.4 2009/05/10 00:33:18 aosorio Exp $
 #ifndef TTUEMULATOR_H 
 #define TTUEMULATOR_H 1
 
 // Include files
 #include "L1Trigger/RPCTechnicalTrigger/interface/RPCInputSignal.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUConfiguration.h"
-#include "L1Trigger/RPCTechnicalTrigger/src/RPCWheel.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RPCWheel.h"
 
 #include "CondFormats/RPCObjects/interface/RBCBoardSpecs.h"
 #include "CondFormats/RPCObjects/interface/TTUBoardSpecs.h"

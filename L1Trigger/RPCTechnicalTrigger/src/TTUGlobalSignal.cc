@@ -1,10 +1,10 @@
-// $Id: $
+// $Id: TTUGlobalSignal.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
 // Include files 
 
 
 
 // local
-#include "TTUGlobalSignal.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/TTUGlobalSignal.h"
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : TTUGlobalSignal

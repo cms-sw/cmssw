@@ -1,10 +1,10 @@
-// $Id: TTUBasicConfig.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
+// $Id: TTUBasicConfig.cc,v 1.2 2009/05/08 10:24:05 aosorio Exp $
 // Include files 
 
 
 
 // local
-#include "L1Trigger/RPCTechnicalTrigger/src/TTUBasicConfig.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/TTUBasicConfig.h"
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : TTUBasicConfig

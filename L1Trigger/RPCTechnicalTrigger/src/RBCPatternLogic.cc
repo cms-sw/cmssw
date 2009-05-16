@@ -1,10 +1,10 @@
-// $Id: $
+// $Id: RBCPatternLogic.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
 // Include files 
 
 
 
 // local
-#include "L1Trigger/RPCTechnicalTrigger/src/RBCPatternLogic.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCPatternLogic.h"
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : RBCPatternLogic

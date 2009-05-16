@@ -3,7 +3,7 @@
 // Package:    RPCTechnicalTrigger
 // Class:      RPCTechnicalTrigger
 // 
-/**\class RPCTechnicalTrigger RPCTechnicalTrigger.cc L1Trigger/RPCTechnicalTrigger/src/RPCTechnicalTrigger.cc
+/**\class RPCTechnicalTrigger RPCTechnicalTrigger.cc L1Trigger/RPCTechnicalTrigger/interface/RPCTechnicalTrigger.cc
 
 Description: Implementation of the RPC Technical Trigger Emulator
 
@@ -51,7 +51,7 @@ Implementation:
 
 // Local to project
 #include "L1Trigger/RPCTechnicalTrigger/interface/ProcessInputSignal.h"
-#include "L1Trigger/RPCTechnicalTrigger/src/TTUEmulator.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/TTUEmulator.h"
 
 #include "CondFormats/RPCObjects/interface/RBCBoardSpecs.h"
 #include "CondFormats/DataRecord/interface/RBCBoardSpecsRcd.h"
@@ -69,7 +69,8 @@ public:
   
 private:
   
-  virtual void beginJob(const edm::EventSetup&) ;
+  //virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginRun(edm::Run&, const edm::EventSetup&);
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob();
   
@@ -83,27 +84,28 @@ private:
   
   ProcessInputSignal * m_signal;
   
-  std::bitset<1> m_trigger;
   std::bitset<6> m_triggerbits;
-  std::bitset<8> m_gmtfilter;
-  std::bitset<5> m_bits_24o28;
-  
+    
   edm::ESHandle<RPCGeometry> m_rpcGeometry;
   
-  int m_debugmode;
-  int m_triggermode;
-  
-  std::string m_testfile;
-  std::vector<unsigned>    m_ttBits;
+  int m_verbosity;
+  int m_debugMode;
+  int m_triggerMode;
+  std::string m_testFile;
+  std::vector<unsigned> m_ttBits;
   std::vector<std::string> m_ttNames;
-  
-  edm::InputTag m_GMTLabel;
+  edm::InputTag m_rpcDigiLabel;
   
   const TTUBoardSpecs * m_ttuspecs;
   const RBCBoardSpecs * m_rbcspecs;
   
   int m_ievt;
   int m_cand;
+  int m_boardIndex[3];
+  int m_nWheels[3];
+  int m_maxTtuBoards;
+  int m_maxBits;
+  
   
 };
 

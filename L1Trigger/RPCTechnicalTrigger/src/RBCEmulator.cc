@@ -1,11 +1,11 @@
-// $Id: RBCEmulator.cc,v 1.5 2009/01/30 15:42:47 aosorio Exp $
+// $Id: RBCEmulator.cc,v 1.6 2009/05/08 10:24:05 aosorio Exp $
 // Include files 
 
 // local
-#include "L1Trigger/RPCTechnicalTrigger/src/RBCEmulator.h"
-#include "L1Trigger/RPCTechnicalTrigger/src/RBCBasicConfig.h"
-#include "L1Trigger/RPCTechnicalTrigger/src/RBCProcessTestSignal.h"
-#include "L1Trigger/RPCTechnicalTrigger/src/RBCLinkBoardSignal.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCEmulator.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCBasicConfig.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCProcessTestSignal.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCLinkBoardSignal.h"
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : RBCEmulator

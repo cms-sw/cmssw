@@ -1,13 +1,13 @@
-// $Id: TTUEmulator.cc,v 1.3 2009/05/08 10:24:05 aosorio Exp $
+// $Id: TTUEmulator.cc,v 1.4 2009/05/10 00:33:18 aosorio Exp $
 // Include files 
 
 
 
 // local
-#include "L1Trigger/RPCTechnicalTrigger/src/TTUEmulator.h"
-#include "L1Trigger/RPCTechnicalTrigger/src/TTUBasicConfig.h"
-#include "L1Trigger/RPCTechnicalTrigger/src/RBCLinkBoardGLSignal.h"
-#include "L1Trigger/RPCTechnicalTrigger/src/TTUGlobalSignal.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/TTUEmulator.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/TTUBasicConfig.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCLinkBoardGLSignal.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/TTUGlobalSignal.h"
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : TTUEmulator

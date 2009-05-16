@@ -1,9 +1,9 @@
-// $Id: RBCChamberORLogic.cc,v 1.1 2009/01/30 15:42:47 aosorio Exp $
+// $Id: RBCChamberORLogic.cc,v 1.2 2009/05/10 00:33:18 aosorio Exp $
 // Include files 
 
 
 // local
-#include "L1Trigger/RPCTechnicalTrigger/src/RBCChamberORLogic.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCChamberORLogic.h"
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : RBCChamberORLogic

@@ -1,10 +1,9 @@
-// $Id: RBCEmulator.h,v 1.1 2009/02/05 13:46:21 aosorio Exp $
+// $Id: RBCEmulator.h,v 1.2 2009/05/08 10:24:05 aosorio Exp $
 #ifndef RBCEMULATOR_H 
 #define RBCEMULATOR_H 1
 
 // Include files
-#include "L1Trigger/RPCTechnicalTrigger/src/LogicTool.h"
-
+#include "L1Trigger/RPCTechnicalTrigger/interface/LogicTool.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCId.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCInput.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCConfiguration.h"

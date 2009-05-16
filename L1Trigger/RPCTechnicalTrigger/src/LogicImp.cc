@@ -1,8 +1,8 @@
-// $Id: $
+// $Id: LogicImp.cc,v 1.1 2009/01/30 15:42:47 aosorio Exp $
 // Include files 
 
 // local
-#include "L1Trigger/RPCTechnicalTrigger/src/LogicImp.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/LogicImp.h"
 
 //-----------------------------------------------------------------------------
 // Logic Factory: Implementation

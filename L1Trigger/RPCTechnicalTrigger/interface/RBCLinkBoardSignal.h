@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: RBCLinkBoardSignal.h,v 1.1 2009/02/05 13:46:21 aosorio Exp $
 #ifndef RBCLINKBOARDSIGNAL_H 
 #define RBCLINKBOARDSIGNAL_H 1
 

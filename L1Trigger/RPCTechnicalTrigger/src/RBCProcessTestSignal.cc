@@ -1,10 +1,10 @@
-// $Id: $
+// $Id: RBCProcessTestSignal.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
 // Include files 
 
 
 // local
-#include "L1Trigger/RPCTechnicalTrigger/src/RBCProcessTestSignal.h"
-#include "L1Trigger/RPCTechnicalTrigger/src/RBCLinkBoardSignal.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCProcessTestSignal.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCLinkBoardSignal.h"
 //-----------------------------------------------------------------------------
 // Implementation file for class : RBCProcessTestSignal
 //

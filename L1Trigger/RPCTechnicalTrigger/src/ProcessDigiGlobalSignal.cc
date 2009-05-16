@@ -1,10 +1,10 @@
-// $Id: ProcessDigiGlobalSignal.cc,v 1.1 2009/05/08 10:24:05 aosorio Exp $
+// $Id: ProcessDigiGlobalSignal.cc,v 1.2 2009/05/10 00:33:18 aosorio Exp $
 // Include files 
 
 
 // local
-#include "L1Trigger/RPCTechnicalTrigger/src/ProcessDigiGlobalSignal.h"
-#include "L1Trigger/RPCTechnicalTrigger/src/TTUGlobalSignal.h" 
+#include "L1Trigger/RPCTechnicalTrigger/interface/ProcessDigiGlobalSignal.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/TTUGlobalSignal.h" 
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : ProcessDigiGlobalSignal

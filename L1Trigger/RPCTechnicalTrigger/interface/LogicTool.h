@@ -1,10 +1,10 @@
-// $Id: $
+// $Id: LogicTool.h,v 1.1 2009/02/05 13:46:21 aosorio Exp $
 #ifndef LOGICTOOL_H 
 #define LOGICTOOL_H 1
 
 // Include files
-#include "L1Trigger/RPCTechnicalTrigger/src/LogicFactory.h"
-#include "L1Trigger/RPCTechnicalTrigger/src/LogicImp.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/LogicFactory.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/LogicImp.h"
 
 #include <ostream>
 #include <vector>

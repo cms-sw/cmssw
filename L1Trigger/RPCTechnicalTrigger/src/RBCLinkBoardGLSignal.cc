@@ -1,10 +1,10 @@
-// $Id: $
+// $Id: RBCLinkBoardGLSignal.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
 // Include files 
 
 
 
 // local
-#include "L1Trigger/RPCTechnicalTrigger/src/RBCLinkBoardGLSignal.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCLinkBoardGLSignal.h"
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : RBCLinkBoardGLSignal

@@ -1,11 +1,11 @@
-// $Id: ProcessDigiLocalSignal.cc,v 1.1 2009/05/08 10:24:05 aosorio Exp $
+// $Id: ProcessDigiLocalSignal.cc,v 1.2 2009/05/10 00:33:18 aosorio Exp $
 // Include files 
 
 
 
 // local
-#include "L1Trigger/RPCTechnicalTrigger/src/ProcessDigiLocalSignal.h"
-#include "L1Trigger/RPCTechnicalTrigger/src/RBCLinkBoardGLSignal.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/ProcessDigiLocalSignal.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCLinkBoardGLSignal.h"
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : ProcessDigiLocalSignal
