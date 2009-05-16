@@ -15,25 +15,33 @@
 
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 
-namespace reco {
-  typedef edm::AssociationMap<edm::OneToManyWithQuality <TrackingVertexCollection, reco::VertexCollection, double> >
-    VertexSimToRecoCollection;
-  typedef edm::AssociationMap<edm::OneToManyWithQuality <reco::VertexCollection, TrackingVertexCollection, double> >
-    VertexRecoToSimCollection;
+namespace reco
+{
+typedef edm::AssociationMap<edm::OneToManyWithQuality <TrackingVertexCollection, reco::VertexCollection, double> >
+VertexSimToRecoCollection;
+typedef edm::AssociationMap<edm::OneToManyWithQuality <reco::VertexCollection, TrackingVertexCollection, double> >
+VertexRecoToSimCollection;
 }
 
-class VertexAssociatorBase {
- public:
-  VertexAssociatorBase() {;}
-  virtual ~VertexAssociatorBase() {;}
+class VertexAssociatorBase
+{
+public:
+    VertexAssociatorBase()
+    {
+        ;
+    }
+    virtual ~VertexAssociatorBase()
+    {
+        ;
+    }
 
-  virtual reco::VertexRecoToSimCollection
+    virtual reco::VertexRecoToSimCollection
     associateRecoToSim (edm::Handle<reco::VertexCollection>& vc,
                         edm::Handle<TrackingVertexCollection>& tvc,
                         const edm::Event&    event,
                         reco::RecoToSimCollection& trackAssocResult) const = 0;
 
-  virtual reco::VertexSimToRecoCollection
+    virtual reco::VertexSimToRecoCollection
     associateSimToReco (edm::Handle<reco::VertexCollection>& vc,
                         edm::Handle<TrackingVertexCollection>& tvc ,
                         const edm::Event& event,

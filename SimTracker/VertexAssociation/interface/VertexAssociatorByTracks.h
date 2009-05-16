@@ -2,32 +2,48 @@
 #define VertexAssociatorByTracks_h
 
 #include "SimTracker/VertexAssociation/interface/VertexAssociatorBase.h"
+#include "PhysicsTools/RecoAlgos/interface/TrackingParticleSelector.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
-class VertexAssociatorByTracks : public VertexAssociatorBase {
+class VertexAssociatorByTracks : public VertexAssociatorBase
+{
 
- public:
-  explicit VertexAssociatorByTracks( const edm::ParameterSet& );
-  ~VertexAssociatorByTracks();
+public:
 
-/* Associate TrackingVertex to RecoVertex By Hits */
+    explicit VertexAssociatorByTracks( const edm::ParameterSet& );
+    ~VertexAssociatorByTracks();
 
-  reco::VertexRecoToSimCollection
-    associateRecoToSim (edm::Handle<reco::VertexCollection>& vc,
-                        edm::Handle<TrackingVertexCollection>& tvc,
-                        const edm::Event&    event,
-                        reco::RecoToSimCollection& trackAssocResult) const;
+    /* Associate TrackingVertex to RecoVertex By Hits */
 
-  reco::VertexSimToRecoCollection
-    associateSimToReco (edm::Handle<reco::VertexCollection>& vc,
-                        edm::Handle<TrackingVertexCollection>& tvc ,
-                        const edm::Event&    event,
-                        reco::SimToRecoCollection& trackAssocResult) const;
+    reco::VertexRecoToSimCollection
+    associateRecoToSim (
+        edm::Handle<reco::VertexCollection> &,
+        edm::Handle<TrackingVertexCollection> &,
+        const edm::Event &,
+        reco::RecoToSimCollection &
+    ) const;
 
- private:
-  // ----- member data
-  const edm::ParameterSet& conf_;
-//  const double theMinHitFraction;
-//  int LayerFromDetid(const DetId&);
+    reco::VertexSimToRecoCollection
+    associateSimToReco (
+        edm::Handle<reco::VertexCollection> &,
+        edm::Handle<TrackingVertexCollection> &,
+        const edm::Event &,
+        reco::SimToRecoCollection &
+    ) const;
+
+private:
+
+    // ----- member data
+    const edm::ParameterSet & config_;
+
+    double R2SMatchedSimRatio_;
+    double R2SMatchedRecoRatio_;
+    double S2RMatchedSimRatio_;
+    double S2RMatchedRecoRatio_;
+
+    TrackingParticleSelector selector_;
+    reco::TrackBase::TrackQuality trackQuality_;
+
 };
 
 #endif
