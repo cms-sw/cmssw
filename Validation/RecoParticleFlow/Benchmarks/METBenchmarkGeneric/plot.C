@@ -34,10 +34,16 @@
     
   comp.SetAxis(10, -200,200);
   TCanvas c1a("c1a", "DeltaMET");
-  FormatPad( &c1a, false ); 
+  FormatPad( &c1a, false); 
   comp.DrawSlice("DeltaEtvsEt", 20., 10000., mode);
 //comp.Draw("DeltaEt", mode);
   SavePlot("deltaMET", outdir.c_str() );
+  comp.SetAxis(5);
+
+  TCanvas c1al("c1al", "DeltaMET_log");
+  FormatPad( &c1al, false , false, true  ); 
+  comp.DrawSlice("DeltaEtvsEt", 20., 10000., mode);
+  SavePlot("deltaMET_log", outdir.c_str() );
   comp.SetAxis(5);
 
   TCanvas c1b("c1b", "MET");
