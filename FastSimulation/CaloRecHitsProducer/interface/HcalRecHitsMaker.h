@@ -12,9 +12,10 @@
 
 class CaloGeometry;
 class RandomEngine;
-class HcalTPGCoder;
+// class HcalTPGCoder;
 class HcalSimParameterMap;
 class HcalDbService;
+class HcalRespCorrs;
 
 namespace edm { 
   class ParameterSet;
@@ -94,8 +95,11 @@ class HcalRecHitsMaker
   const RandomEngine* random_;
   std::vector<GaussianTail*> myGaussianTailGenerators_;
 
-  const HcalTPGCoder * myCoder_;
+  //  const HcalTPGCoder * myCoder_;
   //  HcalSimParameterMap * myHcalSimParameterMap_;
+
+  // the access to the response corection factors
+  const HcalRespCorrs* myRespCorr;
 };
 
 #endif

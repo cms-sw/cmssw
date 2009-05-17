@@ -21,6 +21,9 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLHcal.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapHcal.h"
+#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
+#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
+
 #include "TFile.h"
 #include "TGraph.h"
 #include "TROOT.h"
@@ -136,6 +139,12 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
   edm::ESHandle<HcalDbService> conditions;
   es.get<HcalDbRecord>().get(conditions);
   const HcalDbService * theDbService=conditions.product();
+
+  // get the correction factors
+  edm::ESHandle<HcalRespCorrs> rchandle;
+  es.get<HcalRespCorrsRcd>().get(rchandle);
+  myRespCorr= rchandle.product();
+  
 
   if(!initialized_) 
     {     
@@ -300,7 +309,10 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
 	    mgain+=theDbService->getGain(theDetIds_[hfhi_[ic]])->getValue(ig);
 	  // additional 1/2 factor for the HF (Salavat)
 	  if(noiseFromDb_)
-	    noisesigma_[hfhi_[ic]]=noiseInfCfromDB(theDbService,theDetIds_[hfhi_[ic]])*mgain*0.25;
+	    {
+	      // computation from when the noise was taken 
+	      noisesigma_[hfhi_[ic]]=noiseInfCfromDB(theDbService,theDetIds_[hfhi_[ic]])*mgain*0.25;
+	    }
 	  //      std::cout << " NOISEHF " << theDetIds_[hfhi_[ic]].ieta() << " " << noisesigma_[hfhi_[ic]] << "  "<< std::endl;
       
 	  mgain*=2500./0.36;
@@ -393,6 +405,8 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
       // Check if it is above the threshold
       if(hcalRecHits_[cellhashedindex]<threshold_[subdet]) continue; 
       float energy=hcalRecHits_[cellhashedindex];
+      // apply RespCorr only to the RecHit
+      energy *= myRespCorr->getValues(theDetIds_[cellhashedindex])->getValue();
       // poor man saturation
       if(energy>sat_[cellhashedindex]) 
 	{
@@ -439,6 +453,9 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent, HORecHitCollection &h
       if(hcalRecHits_[cellhashedindex]<threshold_[0]) continue; 
 
       float energy=hcalRecHits_[cellhashedindex];
+      // apply RespCorr
+      energy *= myRespCorr->getValues(theDetIds_[cellhashedindex])->getValue();
+
       // poor man saturation
       if(energy>sat_[cellhashedindex]) energy=sat_[cellhashedindex];
 
@@ -468,6 +485,10 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HFRecHitCollection &hf
       if(hcalRecHits_[cellhashedindex]<threshold_[0]) continue; 
 
       float energy=hcalRecHits_[cellhashedindex];
+
+      // apply RespCorr
+      energy *= myRespCorr->getValues(theDetIds_[cellhashedindex])->getValue();
+
       // poor man saturation
       if(energy>sat_[cellhashedindex]) energy=sat_[cellhashedindex];
 
@@ -477,7 +498,8 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HFRecHitCollection &hf
 	{
 	  HFDataFrame myDataFrame(detid);
 	  myDataFrame.setSize(1);
-	  double nfc=hcalRecHits_[cellhashedindex]/gains_[cellhashedindex]+peds_[cellhashedindex];
+	  // Watch out; infamous 0.7 HF factor for the L1
+	  double nfc= 0.7 * hcalRecHits_[cellhashedindex]/gains_[cellhashedindex]+peds_[cellhashedindex];
 	  int nadc=fCtoAdc(nfc/2.6);
 	  HcalQIESample qie(nadc, 0, 0, 0) ;
 	  myDataFrame.setSample(0,qie);
