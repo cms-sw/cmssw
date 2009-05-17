@@ -95,6 +95,13 @@ namespace pos{
       return tmp;
     }
 
+
+    static PixelConfigList& configList(){
+      static PixelConfigList theConfigList=getConfig();
+      return theConfigList;
+    }
+
+
     static unsigned int getVersion(std::string path,std::string alias){
       return getAlias().getVersion(path,alias);
     }
@@ -302,20 +309,18 @@ namespace pos{
     }
 
 
-
+  
     
     //Returns a pointer to the data found in the path with configuration key.
     template <class T>
       static void get(T* &data, std::string path, PixelConfigKey key){
       unsigned int theKey=key.key();
       
-      static PixelConfigList configList=getConfig();
-
-      if (theKey>=configList.size()){
-	configList=getConfig();
+      if (theKey>=configList().size()){
+	configList()=getConfig();
       }
 
-      assert(theKey<=configList.size());
+      assert(theKey<=configList().size());
     
       unsigned int last=path.find_last_of("/");
       assert(last!=std::string::npos);
@@ -338,7 +343,7 @@ namespace pos{
 //      std::cout << "[pos::PixelConfigFile::get()]\t\t\tExtracted ext :"<<ext <<std::endl;
     
       unsigned int version;
-      int err=configList[theKey].find(dir,version);   
+      int err=configList()[theKey].find(dir,version);   
       // assert(err==0);
       if(0!=err) 
 	{
@@ -494,9 +499,8 @@ namespace pos{
 /*       pos::PixelTimeFormatter * timer = new pos::PixelTimeFormatter("PixelConfigFile::ConfigurationDataExists") ; */
       unsigned int theKey=key.key();
     
-      static PixelConfigList configList= getConfig() ;
 
-      assert(theKey<=configList.size());
+      assert(theKey<=configList().size());
       
     
       unsigned int last=path.find_last_of("/");
@@ -520,7 +524,7 @@ namespace pos{
 //      std::cout << __LINE__ << mthn << "Extracted ext :" << ext  <<std::endl;
     
       unsigned int version;
-      int err=configList[theKey].find(dir,version);   
+      int err=configList()[theKey].find(dir,version);   
       // assert(err==0);
       if(0!=err) 
 	{
