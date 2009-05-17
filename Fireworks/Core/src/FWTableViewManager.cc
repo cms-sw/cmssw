@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTableViewManager.cc,v 1.3 2009/05/01 22:30:41 jmuelmen Exp $
+// $Id: FWTableViewManager.cc,v 1.4 2009/05/16 18:00:47 dmytro Exp $
 //
 
 // system include files
@@ -58,7 +58,15 @@ FWTableViewManager::FWTableViewManager(FWGUIManager* iGUIMgr) :
      iGUIMgr->registerViewBuilder(FWTableView::staticTypeName(), f);
 
      // ---------- for some object types, we have default table contents ----------
+     TableEntry genparticle_table_entries[] = { 
+	  { "pt"	, "pT"		, 1 			},
+	  { "eta"	, "eta"		, 3 			},
+	  { "phi"	, "phi"		, 3 			},
+	  { "status"	, "status"	, TableEntry::INT 	},
+	  { "pdgId"	, "pdgId"	, TableEntry::INT 	},
+     };
      TableEntry muon_table_entries[] = { 
+	  { "charge"				, "q"			, TableEntry::INT	},
 	  { "pt"				, "pT"			, 1 			},
 	  { "isGlobalMuon"			, "global"		, TableEntry::BOOL	},
 	  { "isTrackerMuon"			, "tracker"		, TableEntry::BOOL	},
@@ -72,7 +80,8 @@ FWTableViewManager::FWTableViewManager(FWGUIManager* iGUIMgr) :
 	  { "track().d0() / track().d0Error()"	, "d0 / d0Err"		, 3			},
      };
      TableEntry electron_table_entries[] = { 
-	  { "et"				, "ET"		, 1 	},
+	  { "charge"				, "q"		, TableEntry::INT	},
+	  { "pt"				, "pT"		, 1 	},
 	  { "eta"				, "eta"		, 3 	},
 	  { "phi"				, "phi"		, 3 	},
 	  { "eSuperClusterOverP"		, "E/p"		, 3 	},
@@ -81,20 +90,24 @@ FWTableViewManager::FWTableViewManager(FWGUIManager* iGUIMgr) :
 	  { "deltaEtaSuperClusterTrackAtVtx()"	, "dei"		, 3 	},
 	  { "deltaPhiSuperClusterTrackAtVtx()"	, "dpi"		, 3 	} 
      };
-     TableEntry genparticle_table_entries[] = { 
-	  { "pt"	, "pT"		, 1 			},
-	  { "eta"	, "eta"		, 3 			},
-	  { "phi"	, "phi"		, 3 			},
-	  { "status"	, "status"	, TableEntry::INT 	},
-	  { "pdgId"	, "pdgId"	, TableEntry::INT 	},
+     TableEntry photon_table_entries[] = { 
+	  { "pt"				, "pT"		, 1 	},
+	  { "eta"				, "eta"		, 3 	},
+	  { "phi"				, "phi"		, 3 	},
+	  { "hadronicOverEm"			, "H/E"		, 3 	},
      };
-     TableEntry jet_table_entries[] = { 
-	  { "et"	, "ET"		, 1 	},
+     TableEntry calojet_table_entries[] = { 
+	  { "pt"	, "pT"		, 1 	},
 	  { "eta"	, "eta"		, 3 	},
 	  { "phi"	, "phi"		, 3 	},
 	  { "p4().E() * emEnergyFraction()"		, "ECAL"	, 1 	},
 	  { "p4().E() * energyFractionHadronic()"	, "HCAL"	, 1 	},
 	  { "emEnergyFraction()"			, "emf"		, 3 	},
+     };
+     TableEntry jet_table_entries[] = { 
+	  { "pt"	, "pT"		, 1 	},
+	  { "eta"	, "eta"		, 3 	},
+	  { "phi"	, "phi"		, 3 	},
      };
      TableEntry met_table_entries[] = { 
 	  { "et"	, "MET"		, 1 	},
@@ -102,18 +115,51 @@ FWTableViewManager::FWTableViewManager(FWGUIManager* iGUIMgr) :
 	  { "sumEt"	, "sumEt"	, 1 	},
 	  { "mEtSig"	, "mEtSig"	, 3 	},
      };
+     TableEntry track_table_entries[] = { 
+	  { "charge"	, "q"		, TableEntry::INT	},
+	  { "pt"	, "pT"		, 1 	},
+	  { "eta"	, "eta"		, 3 	},
+	  { "phi"	, "phi"		, 3 	},
+	  { "d0"	, "d0"		, 5 	},
+	  { "d0Error"	, "d0Err"	, 5 	},
+	  { "dz"	, "dz"		, 5 	},
+	  { "dzError"	, "dzErr"	, 5 	},
+	  { "vx"	, "vx"		, 5 	},
+	  { "vy"	, "vy"		, 5 	},
+	  { "vz"	, "vz"		, 5 	},
+	  { "hitPattern().numberOfValidPixelHits()"	, "pixel hits"	, TableEntry::INT 	},
+	  { "hitPattern().numberOfValidStripHits()"	, "strip hits"	, TableEntry::INT 	},
+	  { "chi2"	, "chi2"	, 3 	},
+	  { "ndof"	, "ndof"	, TableEntry::INT 	},
+     };
+     TableEntry vertex_table_entries[] = { 
+	  { "x"		, "x"		, 5 	},
+	  { "xError"	, "xError"	, 5 	},
+	  { "y"		, "y"		, 5 	},
+	  { "yError"	, "yError"	, 5 	},
+	  { "z"		, "z"		, 5 	},
+	  { "zError"	, "zError"	, 5 	},
+	  { "tracksSize", "tracks"	, TableEntry::INT 	},
+	  { "chi2"	, "chi2"	, 3 	},
+	  { "ndof"	, "ndof"	, TableEntry::INT 	},
+     };
+     TableEntry calotower_table_entries[] = { 
+	  { "emEt"	, "emEt"	, 1 	},
+	  { "hadEt"	, "hadEt"	, 1 	},
+	  { "Et"	, "et"		, 1 	},
+	  { "eta"	, "eta"		, 3 	},
+	  { "phi"	, "phi"		, 3 	},
+     };
+     m_tableFormats["reco::GenParticle"	].insert(m_tableFormats["reco::GenParticle"	].end(), genparticle_table_entries	, genparticle_table_entries 	+ sizeof(genparticle_table_entries	) / sizeof(TableEntry));
      m_tableFormats["reco::Muon"	].insert(m_tableFormats["reco::Muon"		].end(), muon_table_entries		, muon_table_entries 		+ sizeof(muon_table_entries		) / sizeof(TableEntry));
      m_tableFormats["reco::GsfElectron"	].insert(m_tableFormats["reco::GsfElectron"	].end(), electron_table_entries		, electron_table_entries 	+ sizeof(electron_table_entries		) / sizeof(TableEntry));
-     m_tableFormats["reco::GenParticle"	].insert(m_tableFormats["reco::GenParticle"	].end(), genparticle_table_entries	, genparticle_table_entries 	+ sizeof(genparticle_table_entries	) / sizeof(TableEntry));
+     m_tableFormats["reco::Photon"	].insert(m_tableFormats["reco::Photon"		].end(), photon_table_entries		, photon_table_entries	 	+ sizeof(photon_table_entries		) / sizeof(TableEntry));
+     m_tableFormats["reco::CaloJet"	].insert(m_tableFormats["reco::CaloJet"		].end(), calojet_table_entries		, calojet_table_entries 	+ sizeof(calojet_table_entries		) / sizeof(TableEntry));
      m_tableFormats["reco::Jet"		].insert(m_tableFormats["reco::Jet"		].end(), jet_table_entries		, jet_table_entries 		+ sizeof(jet_table_entries		) / sizeof(TableEntry));
      m_tableFormats["reco::MET"		].insert(m_tableFormats["reco::MET"		].end(), met_table_entries		, met_table_entries 		+ sizeof(met_table_entries		) / sizeof(TableEntry));
-//      m_tableFormats["reco::Photon"	];
-//      m_tableFormats["reco::Track"	];
-//      m_tableFormats["reco::Vertex"	];
-//      m_tableFormats["l1extra::L1JetParticle"	];
-//      m_tableFormats["l1extra::L1EtMissParticle"	];
-//      m_tableFormats["l1extra::L1MuonParticle"	];
-//      m_tableFormats["l1extra::L1EmParticle"	];
+     m_tableFormats["reco::Track"	].insert(m_tableFormats["reco::Track"		].end(), track_table_entries		, track_table_entries 		+ sizeof(track_table_entries		) / sizeof(TableEntry));
+     m_tableFormats["reco::Vertex"	].insert(m_tableFormats["reco::Vertex"		].end(), vertex_table_entries		, vertex_table_entries 		+ sizeof(vertex_table_entries		) / sizeof(TableEntry));
+     m_tableFormats["CaloTower"		].insert(m_tableFormats["CaloTower"		].end(), calotower_table_entries	, calotower_table_entries 	+ sizeof(calotower_table_entries	) / sizeof(TableEntry));
 }
 
 FWTableViewManager::~FWTableViewManager()
@@ -160,8 +206,17 @@ FWTableViewManager::tableFormats (const Reflex::Type &key)
 	  std::cout << "adding new type " << key.Name(ROOT::Reflex::SCOPED) << std::endl;
 	  return m_tableFormats.insert(new_format).first;
      } else {
-	  std::pair<std::string, std::vector<FWTableViewManager::TableEntry> > 
-	       new_format(key.Name(ROOT::Reflex::SCOPED), std::vector<FWTableViewManager::TableEntry>());
+	  TableEntry default_table_entries[] = { 
+	       { "pt"	, "pt"	, 1 	},
+	       { "eta"	, "eta"	, 3 	},
+	       { "phi"	, "phi"	, 3 	},
+	  };
+	  std::pair<std::string, std::vector<FWTableViewManager::TableEntry> > new_format(
+	       key.Name(ROOT::Reflex::SCOPED), 
+	       std::vector<FWTableViewManager::TableEntry>(
+		    default_table_entries, 
+		    default_table_entries + 
+		    sizeof(default_table_entries) / sizeof(TableEntry)));
 	  std::cout << "adding new type " << key.Name(ROOT::Reflex::SCOPED) << std::endl;
 	  return m_tableFormats.insert(new_format).first;
      }
@@ -352,26 +407,29 @@ void FWTableViewManager::setFrom(const FWConfiguration &iFrom)
 {
      try {
 	  const FWConfiguration *typeNames = iFrom.valueForKey(kConfigTypeNames);
-	  assert(typeNames != 0);
-	  m_tableFormats.clear();
-	  for (FWConfiguration::StringValuesIt 
-		    iType = typeNames->stringValues()->begin(),
-		    iTypeEnd = typeNames->stringValues()->end(); 
-	       iType != iTypeEnd; ++iType) {
-	       std::cout << "reading type " << *iType << std::endl;
-	       const FWConfiguration *columns = iFrom.valueForKey(*iType);
-	       assert(columns != 0);
-	       std::vector<TableEntry> &formats = m_tableFormats[*iType];
+	  if (typeNames != 0) {
+	       m_tableFormats.clear();
 	       for (FWConfiguration::StringValuesIt 
-			 it = columns->stringValues()->begin(),
-			 itEnd = columns->stringValues()->end(); 
-		    it != itEnd; ++it) {
-		    const std::string &name = *it++;
-		    const std::string &expr = *it++;
-		    int prec = atoi(it->c_str());
-		    FWTableViewManager::TableEntry e = { expr, name, prec };
-		    formats.push_back(e);
+			 iType = typeNames->stringValues()->begin(),
+			 iTypeEnd = typeNames->stringValues()->end(); 
+		    iType != iTypeEnd; ++iType) {
+		    std::cout << "reading type " << *iType << std::endl;
+		    const FWConfiguration *columns = iFrom.valueForKey(*iType);
+		    assert(columns != 0);
+		    std::vector<TableEntry> &formats = m_tableFormats[*iType];
+		    for (FWConfiguration::StringValuesIt 
+			      it = columns->stringValues()->begin(),
+			      itEnd = columns->stringValues()->end(); 
+			 it != itEnd; ++it) {
+			 const std::string &name = *it++;
+			 const std::string &expr = *it++;
+			 int prec = atoi(it->c_str());
+			 FWTableViewManager::TableEntry e = { expr, name, prec };
+			 formats.push_back(e);
+		    }
 	       }
+	  } else {
+	       std::cout << "no table column configuration stored, using defaults\n";
 	  }
      } catch (...) {
 	  // No info about types in the configuration; this is not an
