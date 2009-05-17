@@ -25,7 +25,8 @@ namespace popcon{
     DQMHistoryPopConHandler(const edm::ParameterSet& pset):
       m_name(pset.getUntrackedParameter<std::string>("name","DQMHistoryPopConHandler")),
       m_since(pset.getUntrackedParameter<uint32_t>("since",5)),
-      m_debugMode(pset.getUntrackedParameter<bool>("debug",false)){}; 
+      m_debugMode(pset.getUntrackedParameter<bool>("debug",false)),
+      m_iovSequence(pset.getUntrackedParameter<bool>("iovSequence",false)){}; 
 
     //---------------------------------------
     //
@@ -92,7 +93,7 @@ namespace popcon{
 
       edm::LogInfo   ("DQMHistoryPopConHandler") << "[DQMHistoryPopConHandler::isTransferNeeded] checking for transfer " << std::endl;
 
-      if(m_since<=this->tagInfo().lastInterval.first){
+      if(m_iovSequence && m_since<=this->tagInfo().lastInterval.first){
 	edm::LogInfo   ("DQMHistoryPopConHandler") 
 	  << "[DQMHistoryPopConHandler::isTransferNeeded] \nthe current starting iov " << m_since
 	  << "\nis not compatible with the last iov ("  
@@ -106,11 +107,11 @@ namespace popcon{
       
       //get log information from previous upload
       if (this->logDBEntry().usertext!="")
-	ss_logdb << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of("@")+2);
+      ss_logdb << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of("@")+2);
 
 
       condObjBuilder->getMetaDataString(ss);
-      if(condObjBuilder->checkForCompatibility(ss_logdb.str())){
+     if ((m_iovSequence && condObjBuilder->checkForCompatibility(ss_logdb.str())) || !m_iovSequence){
 	
 	this->m_userTextLog = "@ " + ss.str();
 	
@@ -119,7 +120,7 @@ namespace popcon{
 	  << "\n Current MetaData - "<< ss.str()  << "\n Last Uploaded MetaData- " << ss_logdb.str() << "\n Fine";
 	
 	return true;
-      } else {
+      } else if (m_iovSequence && !condObjBuilder->checkForCompatibility(ss_logdb.str())) {
 	edm::LogInfo   ("DQMHistoryPopConHandler") 
 	  << "[DQMHistoryPopConHandler::isTransferNeeded] \nthe current MetaData conditions " << ss.str() 
 	  << "\nare not compatible with the MetaData Conditions of the last iov ("  
@@ -159,6 +160,7 @@ namespace popcon{
     std::string m_name;
     unsigned long long m_since;
     bool m_debugMode;
+    bool m_iovSequence;
     edm::Service<U> condObjBuilder;
   };
 }
