@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.21 2008/11/02 08:01:40 elmer Exp $
+// $Id: MuonSimHitProducer.cc,v 1.22 2008/12/11 08:51:32 mulders Exp $
 //
 //
 
@@ -400,9 +400,9 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
       else if ( gd->subDetector() == GeomDetEnumerators::CSC ) {
         CSCDetId id(gd->geographicalId());
         const CSCChamber *chamber = cscGeom->chamber(id);
-        std::vector<const CSCLayer *> layer = chamber->layers();
-        for ( unsigned int ilayer=0; ilayer<layer.size(); ilayer++ ) {
-          CSCDetId lid = layer[ilayer]->id();
+        std::vector<const CSCLayer *> layers = chamber->layers();
+        for ( unsigned int ilayer=0; ilayer<layers.size(); ilayer++ ) {
+          CSCDetId lid = layers[ilayer]->id();
 
 #ifdef FAMOS_DEBUG
             std::cout << "    Extrapolated to CSC (" 
@@ -420,8 +420,13 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
           std::pair<bool,double> path = crossing.pathLength(det->surface());
           if ( ! path.first ) continue;
           LocalPoint lpos = det->toLocal(GlobalPoint(crossing.position(path.second)));
-	  if ( ! det->surface().bounds().inside(lpos) ) continue;
-          double thickness = det->surface().bounds().thickness();
+	  // For CSCs the Bounds are for chamber frames not gas regions
+	  //      if ( ! det->surface().bounds().inside(lpos) ) continue;
+	  // New function knows where the 'active' volume is:
+	  const CSCLayerGeometry* laygeom = layers[ilayer]->geometry();
+          if ( ! laygeom->inside( lpos ) ) continue; 
+	  //double thickness = laygeom->thickness(); gives number which is about 20 times too big
+          double thickness = det->surface().bounds().thickness(); // this one works much better...
           LocalVector lmom = det->toLocal(GlobalVector(crossing.direction(path.second)));
           lmom = lmom.unit()*propagatedState.localMomentum().mag();
           double eloss = 0;
