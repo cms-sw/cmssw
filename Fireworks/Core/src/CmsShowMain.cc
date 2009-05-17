@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.75 2009/05/01 22:30:41 jmuelmen Exp $
+// $Id: CmsShowMain.cc,v 1.76 2009/05/15 14:26:06 amraktad Exp $
 //
 
 // system include files
@@ -60,7 +60,6 @@
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
-#include "Fireworks/Core/interface/FWTextView.h"
 #include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
 
 #include "DataFormats/FWLite/interface/Event.h"
@@ -149,7 +148,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    m_eiManager(new FWEventItemsManager(m_changeManager.get(),
                                        m_selectionManager.get())),
    m_viewManager( new FWViewManagerManager(m_changeManager.get(), m_colorManager.get())),
-   m_textView(0),
    m_context(new fireworks::Context(m_changeManager.get(),
                                     m_selectionManager.get(),
                                     m_eiManager.get(),
@@ -242,10 +240,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       if ( vm.count(kAdvancedRenderOpt) ) {
          TEveLine::SetDefaultSmooth(kTRUE);
       }
-
-      m_textView = std::auto_ptr<FWTextView>(
-         new FWTextView(this, &*m_selectionManager, &*m_changeManager,
-                        &*m_guiManager) );
 
       printf("Input: %s\n", m_inputFileName.c_str());
       printf("Config: %s\n", m_configFileName.c_str());
@@ -388,8 +382,6 @@ void CmsShowMain::draw(const fwlite::Event& event)
    m_guiManager->enableActions(false);
    m_eiManager->setGeom(&m_detIdToGeo);
    m_eiManager->newEvent(&event);
-   if (m_textView.get() != 0)
-      m_textView->newEvent(event, this);
    // stopwatch.Stop(); printf("Total event draw time: "); stopwatch.Print("m");
    m_guiManager->clearStatus();
    if(m_isPlaying) {

@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: FWDisplayEvent.h,v 1.29 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWDisplayEvent.h,v 1.30 2009/04/07 14:13:44 chrjones Exp $
 //
 
 // system include files
@@ -42,7 +42,6 @@ class FWGUIManager;
 class FWEventItem;
 class FWPhysicsObjectDesc;
 class FWConfigurationManager;
-class FWTextView;
 class FWColorManager;
 
 namespace fwlite {
@@ -96,7 +95,6 @@ private:
    std::auto_ptr<FWEventItemsManager> m_eiManager;
    std::auto_ptr<FWViewManagerManager> m_viewManager;
    std::auto_ptr<FWGUIManager> m_guiManager;
-   std::auto_ptr<FWTextView> m_textView;
 
    DetIdToMatrix m_detIdToGeo;
    std::string m_configFileName;

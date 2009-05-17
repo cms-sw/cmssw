@@ -5,15 +5,12 @@
 #include "Fireworks/Core/src/FWListModelEditor.h"
 #include "Fireworks/Core/src/FWListViewObject.h"
 #include "Fireworks/Core/src/FWListItemBase.h"
-#include "Fireworks/Core/src/TableWidget.h"
 #include "Fireworks/Core/src/fwCintInterfaces.h"
-#include "Fireworks/Core/interface/FWTextView.h"
 #include "Fireworks/Core/src/CSGConnector.h"
 #include "Fireworks/Core/interface/FWIntValueListenerBase.h"
 #include "Fireworks/Core/interface/FWSummaryManager.h"
 #include "Fireworks/Core/src/FWGUIEventDataAdder.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
-#include "Fireworks/Core/src/LightTableWidget.h"
 #include "Fireworks/Core/src/FWListWidget.h"
 #include "Fireworks/Core/src/FWCollectionSummaryWidget.h"
 #include "Fireworks/Core/src/FWCompactVerticalLayout.h"
@@ -29,10 +26,6 @@
 #pragma link C++ class FWListModelEditor;
 #pragma link C++ class FWListViewObject;
 #pragma link C++ class FWListItemBase;
-#pragma link C++ class TableWidget;
-#pragma link C++ class LightTableWidget;
-#pragma link C++ class FWTextView;
-#pragma link C++ class FWTextViewPage;
 #pragma link C++ class FWGUIEventDataAdder;
 #pragma link C++ class FWListWidget;
 

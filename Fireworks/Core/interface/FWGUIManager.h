@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.62 2009/05/13 20:27:09 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.63 2009/05/14 19:57:23 amraktad Exp $
 //
 
 // system include files
@@ -109,7 +109,6 @@ public:
 
    TGVerticalFrame* createList(TGSplitFrame *p);
    void createViews(TGTab *p);
-   void createTextView(TGTab *p);
 
    void createEDIFrame();
    void updateEDI(FWEventItem* iItem);

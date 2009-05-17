@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.49 2009/05/13 20:27:09 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.50 2009/05/14 19:57:24 amraktad Exp $
 //
 // hacks
 #define private public
@@ -381,7 +381,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    m_manager->createViews(tabFrame);
 
    csArea->GetSecond()->AddFrame(tabFrame, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY));
-   m_manager->createTextView(tabFrame);
    AddFrame(csArea,new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY,2,2,0,2));
    SetWindowName("cmsShow");
    MapSubwindows();

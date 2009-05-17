@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.121 2009/05/15 13:57:40 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.122 2009/05/15 18:08:15 amraktad Exp $
 //
 
 // system include files
@@ -662,31 +662,6 @@ void FWGUIManager::resetShortcutPopup ()
 {
    m_shortcutPopup->DontCallClose();
    m_shortcutPopup->UnmapWindow();
-}
-
-void FWGUIManager::createTextView (TGTab *p)
-{
-   m_textViewTab = p;
-   m_textViewFrame[0] = p->AddTab("Physics objects");
-   //printf("current tab: %d\n", p->GetCurrent());
-   m_textViewFrame[1] = p->AddTab("Triggers");
-   //printf("current tab: %d\n", p->GetCurrent());
-   m_textViewFrame[2] = p->AddTab("Tracking");
-   //printf("current tab: %d\n", p->GetCurrent());
-
-   const unsigned int kTabColor=0x5f5f5f;
-   TGTabElement *tabel = 0;
-   tabel = p->GetTabTab("Physics objects");
-   tabel->SetBackgroundColor(kTabColor);
-   tabel = p->GetTabTab("Triggers");
-   tabel->SetBackgroundColor(kTabColor);
-   tabel = p->GetTabTab("Tracking");
-   tabel->SetBackgroundColor(kTabColor);
-   tabel = p->GetTabTab("Views");
-   tabel->SetBackgroundColor(kTabColor);
-
-   p->MapSubwindows();
-   p->MapWindow();
 }
 
 //

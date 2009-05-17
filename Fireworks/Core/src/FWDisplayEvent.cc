@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.64 2009/01/23 21:35:42 amraktad Exp $
+// $Id: FWDisplayEvent.cc,v 1.65 2009/04/07 14:13:44 chrjones Exp $
 //
 
 // system include files
@@ -45,7 +45,6 @@
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
-#include "Fireworks/Core/interface/FWTextView.h"
 #include "DataFormats/FWLite/interface/Event.h"
 
 #include "Fireworks/Core/interface/FWConfigurationManager.h"
@@ -80,7 +79,6 @@ FWDisplayEvent::FWDisplayEvent(const std::string& iConfigFileName,
                                  m_colorManager.get(),
                                  m_viewManager.get(),
                                  iEnableDebug)),
-//   m_textView(new FWTextView(this, &*m_selectionManager)),
    m_configFileName(iConfigFileName)
 {
    //connect up the managers
@@ -196,8 +194,6 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
    TStopwatch stopwatch;
    m_eiManager->setGeom(&m_detIdToGeo);
    m_eiManager->newEvent(&iEvent);
-//   if (m_textView.get() != 0)
-//        m_textView->newEvent(iEvent, this);
    stopwatch.Stop();
    printf("Processing time: \n");
    stopwatch.Print("m");
