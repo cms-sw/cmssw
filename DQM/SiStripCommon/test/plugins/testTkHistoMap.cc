@@ -79,7 +79,7 @@ void testTkHistoMap::create(){
   tkhistoCheck =new TkHistoMap("check","check");           
 }
 
-
+/*Check that is possible to load in tkhistomaps histograms already stored in a DQM root file (if the folder and name are know)*/
 void testTkHistoMap::read(){
   edm::Service<DQMStore>().operator->()->open("test.root");  
 
@@ -108,9 +108,16 @@ testTkHistoMap::~testTkHistoMap()
 
 void testTkHistoMap::endJob(void)
 {
-  TkHistoMap* testloadMap = new TkHistoMap();
-  testloadMap->loadTkHistoMap("detIdBis","detIdBis",1); 
+  /*Test extraction of detid from histogram title and ix, iy*/
+  size_t ilayer=1;
+  std::string histoTitle=tkhisto->getMap(ilayer)->getTitle();
+  uint32_t detB=tkhisto->getDetId(ilayer,5,5);
+  uint32_t detA=tkhisto->getDetId(histoTitle,5,5);
+  if(detA==0 || detA!=detB)
+    edm::LogError("testTkHistoMap") << " for layer " << ilayer << " the extracted detid in a bin is wrong " << detA << " " << detB << std::endl;
 
+
+  /*Test Drawing functions*/
   TCanvas C("c","c");
   C.Divide(3,3);
   C.Update(); 
@@ -129,8 +136,6 @@ void testTkHistoMap::endJob(void)
     tkhistoCheck->getMap  (ilayer)->getTProfile2D()->Draw("BOXCOL");
     C.cd(6);
     tkhistoBis->getMap  (ilayer)->getTProfile2D()->Draw("BOXCOL");
-    C.cd(7);
-    testloadMap->getMap  (ilayer)->getTProfile2D()->Draw("BOXCOL");
     C.Update();
     ps.NewPage();
   }
@@ -145,6 +150,25 @@ void testTkHistoMap::endJob(void)
   tkhistoPhi->saveAsCanvas("test.canvas.root","LEGO","UPDATE");
   tkhistoR->saveAsCanvas("test.canvas.root","LEGO","UPDATE");
   tkhistoCheck->saveAsCanvas("test.canvas.root","LEGO","UPDATE");
+  
+  /* test Dump in TkMap*/
+#include "CommonTools/TrackerMap/interface/TrackerMap.h"
+  TrackerMap tkmap, tkmapZ, tkmapPhi, tkmapR; 
+
+  tkmap.setPalette(2);
+  tkmapZ.setPalette(2);
+  tkmapPhi.setPalette(2);
+  tkmapR.setPalette(2);
+  
+  tkhisto->dumpInTkMap(&tkmap);
+  tkhistoZ->dumpInTkMap(&tkmapZ);
+  tkhistoPhi->dumpInTkMap(&tkmapPhi);
+  tkhistoR->dumpInTkMap(&tkmapR);
+
+  tkmap.save(true,0,0,"testTkMap.png");
+  tkmapZ.save(true,0,0,"testTkMapZ.png");
+  tkmapPhi.save(true,0,0,"testTkMapPhi.png");
+  tkmapR.save(true,0,0,"testTkMapR.png");
 }
 
 
@@ -184,9 +208,7 @@ void testTkHistoMap::analyze(const edm::Event& iEvent,
     const StripGeomDetUnit*_StripGeomDetUnit = dynamic_cast<const StripGeomDetUnit*>(tkgeom->idToDetUnit(DetId(TkDetIdList[i])));
     globalPos=(_StripGeomDetUnit->surface()).toGlobal(localPos);
     
-    edm::LogInfo("testTkHistoMap") << "detid " << TkDetIdList[i] << " pos z " << globalPos.z() << " phi " << globalPos.phi() << " r " << globalPos.perp()<<std::endl;;
     value = TkDetIdList[i]%1000000;
-
     
     tkhisto->fill(TkDetIdList[i],value);
     tkhistoBis->fill(TkDetIdList[i],value);
@@ -195,6 +217,11 @@ void testTkHistoMap::analyze(const edm::Event& iEvent,
     tkhistoR->fill(TkDetIdList[i],globalPos.perp());
     tkhistoCheck->add(TkDetIdList[i],1.);
     tkhistoCheck->add(TkDetIdList[i],1.);
+
+    edm::LogInfo("testTkHistoMap") << "detid " << TkDetIdList[i] << " pos z " << globalPos.z() << " phi " << globalPos.phi() << " r " << globalPos.perp() << std::endl;
+
+    if(value!=tkhisto->getValue(TkDetIdList[i]))
+      edm::LogError("testTkHistoMap") << " input value " << value << " differs from read value " << tkhisto->getValue(TkDetIdList[i]) << std::endl;
 
     // For usage that reset histo content use setBinContent instead than fill
     /* 

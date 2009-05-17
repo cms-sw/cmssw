@@ -7,11 +7,12 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "CalibTracker/SiStripCommon/interface/TkDetMap.h"
+#include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include <string>
 
 class TkHistoMap{
 
-  typedef std::vector<MonitorElement*> tkHistoMapType;
+  typedef std::vector<MonitorElement*> tkHistoMapVect;
 
  public:
   TkHistoMap(std::string path, std::string MapName, float baseline=0, bool mechanicalView=false);
@@ -23,12 +24,20 @@ class TkHistoMap{
   void loadTkHistoMap(std::string path, std::string MapName, bool mechanicalView=false);
 
   MonitorElement* getMap(short layerNumber){return tkHistoMap_[layerNumber];};
-  tkHistoMapType& getAllMaps(){return tkHistoMap_;};
+  std::vector<MonitorElement*>& getAllMaps(){return tkHistoMap_;};
+
+  float getValue(uint32_t& detid);
+  uint32_t getDetId(std::string title, int ix, int iy){return getDetId(getLayerNum(getLayerName(title)),ix,iy);}
+  uint32_t getDetId(int layer, int ix, int iy){return tkdetmap_->getDetFromBin(layer,ix,iy);}
+  uint32_t getDetId(MonitorElement*ME, int ix, int iy){return getDetId(ME->getTitle(),ix,iy);}
+  std::string getLayerName(std::string title){return title.erase(0,MapName_.size()+1);}
+  uint16_t getLayerNum(std::string layerName){return tkdetmap_->getLayerNum(layerName);}
 
   void fill(uint32_t& detid,float value);
   void setBinContent(uint32_t& detid,float value);
   void add(uint32_t& detid,float value);
 
+  void dumpInTkMap(TrackerMap* tkmap);
   void save(std::string filename);
   void saveAsCanvas(std::string filename,std::string options="", std::string mode="RECREATE");
 
@@ -39,7 +48,7 @@ class TkHistoMap{
 
   DQMStore* dqmStore_;
   TkDetMap* tkdetmap_;
-  tkHistoMapType tkHistoMap_;
+  std::vector<MonitorElement*> tkHistoMap_;
   int HistoNumber;
   std::string MapName_;
 };

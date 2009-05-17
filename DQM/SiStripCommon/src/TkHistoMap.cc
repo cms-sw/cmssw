@@ -16,7 +16,7 @@ TkHistoMap::TkHistoMap(std::string path, std::string MapName,float baseline, boo
 {
   LogTrace("TkHistoMap") <<"TkHistoMap::constructor with parameters"; 
   loadServices();
-  createTkHistoMap(path,MapName, baseline, mechanicalView);
+  createTkHistoMap(path,MapName_, baseline, mechanicalView);
 }
 
 void TkHistoMap::loadServices(){
@@ -47,7 +47,7 @@ void TkHistoMap::loadTkHistoMap(std::string path, std::string MapName, bool mech
   std::string fullName, folder;
   tkHistoMap_.resize(HistoNumber);    
   for(int layer=1;layer<HistoNumber;++layer){
-    folder=folderDefinition(path,MapName,layer,mechanicalView,fullName);
+    folder=folderDefinition(path,MapName_,layer,mechanicalView,fullName);
     LogTrace("TkHistoMap")  << "[TkHistoMap::loadTkHistoMap] folder " << folder << " histoName " << fullName << " find " << folder.find_last_of("/") << "  length " << folder.length();
     if(folder.find_last_of("/")!=folder.length()-1)
       folder+="/";
@@ -145,6 +145,23 @@ void TkHistoMap::add(uint32_t& detid,float value){
   TkLayerMap::XYbin xybin = tkdetmap_->getXY(detid);
   setBinContent(detid,tkHistoMap_[layer]->getTProfile2D()->GetBinContent(tkHistoMap_[layer]->getTProfile2D()->GetBin(xybin.ix,xybin.iy))+value);
   
+}
+
+float TkHistoMap::getValue(uint32_t& detid){
+  int16_t layer=tkdetmap_->FindLayer(detid);
+  TkLayerMap::XYbin xybin = tkdetmap_->getXY(detid);
+  return tkHistoMap_[layer]->getTProfile2D()->GetBinContent(tkHistoMap_[layer]->getTProfile2D()->GetBin(xybin.ix,xybin.iy));
+}
+
+void TkHistoMap::dumpInTkMap(TrackerMap* tkmap){
+  for(int layer=1;layer<HistoNumber;++layer){
+    std::vector<uint32_t> dets;
+    tkdetmap_->getDetsForLayer(layer,dets);
+    for(size_t i=0;i<dets.size();++i){
+      if(dets[i]>0)
+	tkmap->fill(dets[i],getValue(dets[i]));
+    }
+  }
 }
 
 #include "TCanvas.h"

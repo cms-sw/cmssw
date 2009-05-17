@@ -72,6 +72,7 @@ class TkLayerMap{
   static const int16_t layerSearch(uint32_t detid);
 
   uint32_t getDetFromBin(int ix, int iy);
+  uint32_t* getBinToDet(){return binToDet;}
 
  private:
 
@@ -111,6 +112,7 @@ class TkDetMap{
 
   const TkLayerMap::XYbin& getXY(uint32_t&);
   std::string getLayerName(int& in);
+  int getLayerNum(std::string& in);
   void getSubDetLayerSide(int& in,SiStripDetId::SubDetector&,uint32_t& layer,uint32_t& side);
 
   int16_t FindLayer(uint32_t& detid);
@@ -121,6 +123,8 @@ class TkDetMap{
  
   uint32_t getDetFromBin(int layer, int ix, int iy){ return TkMap[layer]->getDetFromBin(ix,iy); }
 
+  void getDetsForLayer(int layer,std::vector<uint32_t>& output);
+  
  private:
 
   void doMe();

@@ -428,7 +428,7 @@ void TkLayerMap::initialize(int layer){
     LogTrace("TkLayerMap") << "[initialize SingleExtString["<<i<<"] " << SingleExtString[i];
 
   binToDet=(uint32_t*) malloc(nchX*nchY*sizeof(uint32_t));
-  for(size_t i=0;i<nchX*nchY;++i)
+  for(size_t i=0;i<(size_t) nchX*nchY;++i)
     binToDet[i]=0;
 }
  
@@ -673,6 +673,13 @@ void TkDetMap::getComponents(int& layer,
   highY=TkMap[layer]->get_highY();
 }
 
+void TkDetMap::getDetsForLayer(int layer,std::vector<uint32_t>& output){
+  output.clear();
+  size_t size_=TkMap[layer]->get_nchX()*TkMap[layer]->get_nchY();
+  output.resize(size_);
+  memcpy((void*)&output[0],(void*)TkMap[layer]->getBinToDet(),size_*sizeof(uint32_t));
+}
+
 std::string TkDetMap::getLayerName(int& in){
   switch (in)
     {
@@ -746,6 +753,78 @@ std::string TkDetMap::getLayerName(int& in){
       return "TECM_W9";
     }
   return "Invalid";
+}
+
+int TkDetMap::getLayerNum(std::string& in){
+  if(in.compare( "TIB_L1")==0)
+    return TkLayerMap::TIB_L1;
+  if(in.compare( "TIB_L2")==0)
+    return TkLayerMap::TIB_L2;
+  if(in.compare( "TIB_L3")==0)
+    return TkLayerMap::TIB_L3;
+  if(in.compare( "TIB_L4")==0)         
+    return TkLayerMap::TIB_L4;         
+  if(in.compare( "TIDP_D1")==0)
+    return TkLayerMap::TIDP_D1;
+  if(in.compare( "TIDP_D2")==0)
+    return TkLayerMap::TIDP_D2;
+  if(in.compare( "TIDP_D3")==0)
+    return TkLayerMap::TIDP_D3;
+  if(in.compare( "TIDM_D1")==0)
+    return TkLayerMap::TIDM_D1;
+  if(in.compare( "TIDM_D2")==0)
+    return TkLayerMap::TIDM_D2;
+  if(in.compare( "TIDM_D3")==0)
+    return TkLayerMap::TIDM_D3;
+  if(in.compare( "TOB_L1")==0)
+    return TkLayerMap::TOB_L1;
+  if(in.compare( "TOB_L2")==0)
+    return TkLayerMap::TOB_L2;
+  if(in.compare( "TOB_L3")==0)
+    return TkLayerMap::TOB_L3;
+  if(in.compare( "TOB_L4")==0)
+    return TkLayerMap::TOB_L4;
+  if(in.compare( "TOB_L5")==0)
+    return TkLayerMap::TOB_L5;
+  if(in.compare( "TOB_L6")==0)
+    return TkLayerMap::TOB_L6;
+  if(in.compare( "TECP_W1")==0)
+    return TkLayerMap::TECP_W1;
+  if(in.compare( "TECP_W2")==0)
+    return TkLayerMap::TECP_W2;
+  if(in.compare( "TECP_W3")==0)
+    return TkLayerMap::TECP_W3;
+  if(in.compare( "TECP_W4")==0)
+    return TkLayerMap::TECP_W4;
+  if(in.compare( "TECP_W5")==0)
+    return TkLayerMap::TECP_W5; 
+  if(in.compare( "TECP_W6")==0)
+    return TkLayerMap::TECP_W6;
+  if(in.compare( "TECP_W7")==0)
+    return TkLayerMap::TECP_W7;
+  if(in.compare( "TECP_W8")==0)
+    return TkLayerMap::TECP_W8;
+  if(in.compare( "TECP_W9")==0)
+    return TkLayerMap::TECP_W9;
+  if(in.compare( "TECM_W1")==0)
+    return TkLayerMap::TECM_W1;
+  if(in.compare( "TECM_W2")==0)
+    return TkLayerMap::TECM_W2;
+  if(in.compare( "TECM_W3")==0)
+    return TkLayerMap::TECM_W3;
+  if(in.compare( "TECM_W4")==0)
+    return TkLayerMap::TECM_W4;
+  if(in.compare( "TECM_W5")==0)
+    return TkLayerMap::TECM_W5; 
+  if(in.compare( "TECM_W6")==0)
+    return TkLayerMap::TECM_W6;
+  if(in.compare( "TECM_W7")==0)
+    return TkLayerMap::TECM_W7;
+  if(in.compare( "TECM_W8")==0)
+    return TkLayerMap::TECM_W8;
+  if(in.compare( "TECM_W9")==0)
+    return TkLayerMap::TECM_W9;
+  return 0;
 }
 
 void TkDetMap::getSubDetLayerSide(int& in,SiStripDetId::SubDetector& subDet,uint32_t& layer,uint32_t& side){
@@ -913,3 +992,5 @@ void TkDetMap::getSubDetLayerSide(int& in,SiStripDetId::SubDetector& subDet,uint
       break;
     }
 }
+
+//  LocalWords:  TkLayerMap
