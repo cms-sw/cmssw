@@ -279,8 +279,8 @@ private:
     h0_->SetTitle("");
     h1_->SetTitle("");    
 
-    h0_->SetStats(1);
-    h1_->SetStats(1);
+    //h0_->SetStats(1);
+    //h1_->SetStats(1);
 
     if(rebin_>1) {
       h0_->Rebin( rebin_);
@@ -290,6 +290,54 @@ private:
       h0_->GetXaxis()->SetRangeUser( xMin_, xMax_);
       h1_->GetXaxis()->SetRangeUser( xMin_, xMax_);
     }
+
+    TPaveStats *ptstats = new TPaveStats(0.7385057,0.720339,
+					 0.9396552,0.8792373,"brNDC");
+    ptstats->SetName("stats");
+    ptstats->SetBorderSize(1);
+    ptstats->SetLineColor(2);
+    ptstats->SetFillColor(10);
+    ptstats->SetTextAlign(12);
+    ptstats->SetTextColor(2);
+    ptstats->SetOptStat(1111);
+    ptstats->SetOptFit(0);
+    ptstats->Draw();
+    h0_->GetListOfFunctions()->Add(ptstats);
+    ptstats->SetParent(h0_->GetListOfFunctions());
+
+    //std::cout << "FL: h0_->GetMean() = " << h0_->GetMean() << std::endl;
+    //std::cout << "FL: h0_->GetRMS() = " << h0_->GetRMS() << std::endl;
+    //std::cout << "FL: h1_->GetMean() = " << h1_->GetMean() << std::endl;
+    //std::cout << "FL: h1_->GetRMS() = " << h1_->GetRMS() << std::endl;
+    //std::cout << "FL: test2" << std::endl;
+    TPaveStats *ptstats2 = new TPaveStats(0.7399425,0.529661,
+    					  0.941092,0.6885593,"brNDC");
+    ptstats2->SetName("stats");
+    ptstats2->SetBorderSize(1);
+    ptstats2->SetLineColor(4);
+    ptstats2->SetFillColor(10);
+    ptstats2->SetTextAlign(12);
+    ptstats2->SetTextColor(4);
+    TText *text = ptstats2->AddText("h1_");
+    text->SetTextSize(0.03654661);
+
+    std::ostringstream oss3;
+    oss3 << h0_->GetEntries();
+    const std::string txt_entries="Entries = "+oss3.str();
+    text = ptstats2->AddText(txt_entries.c_str());
+    std::ostringstream oss;
+    oss << h0_->GetMean();
+    const std::string txt_mean="Mean  = "+oss.str();
+    text = ptstats2->AddText(txt_mean.c_str());
+    std::ostringstream oss2;
+    oss2 << h0_->GetRMS();
+    const std::string txt_rms="RMS  = "+oss2.str();
+    text = ptstats2->AddText(txt_rms.c_str());
+    ptstats2->SetOptStat(1111);
+    ptstats2->SetOptFit(0);
+    ptstats2->Draw();
+    h1_->GetListOfFunctions()->Add(ptstats2);
+    ptstats2->SetParent(h1_->GetListOfFunctions());
 
     switch(mode) {
     case SCALE:
@@ -305,7 +353,7 @@ private:
       }
       h0_->Draw();
       h1_->Draw("same");
-	
+
       break;
     case EFF:
       h1_->Divide( h0_ );
