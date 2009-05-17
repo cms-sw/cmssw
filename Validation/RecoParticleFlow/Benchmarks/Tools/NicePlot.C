@@ -65,12 +65,15 @@ void FormatHisto( TH1* h, const Style* s ) {
   h->SetFillColor( s->GetFillColor() );
 }
 
-void FormatPad( TPad* pad, bool grid = true) {
+void FormatPad( TPad* pad, bool grid = true, bool logx = false, bool logy = false) {
   
   
   pad->SetGridx(grid);
   pad->SetGridy(grid);
-  
+
+  if (logx) pad->SetLogx();
+  if (logy) pad->SetLogy();
+
   pad->SetBottomMargin(0.14);
   pad->SetLeftMargin(0.15);
   pad->SetRightMargin(0.05);
