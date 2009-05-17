@@ -322,15 +322,15 @@ private:
     text->SetTextSize(0.03654661);
 
     std::ostringstream oss3;
-    oss3 << h0_->GetEntries();
+    oss3 << h1_->GetEntries();
     const std::string txt_entries="Entries = "+oss3.str();
     text = ptstats2->AddText(txt_entries.c_str());
     std::ostringstream oss;
-    oss << h0_->GetMean();
+    oss << h1_->GetMean();
     const std::string txt_mean="Mean  = "+oss.str();
     text = ptstats2->AddText(txt_mean.c_str());
     std::ostringstream oss2;
-    oss2 << h0_->GetRMS();
+    oss2 << h1_->GetRMS();
     const std::string txt_rms="RMS  = "+oss2.str();
     text = ptstats2->AddText(txt_rms.c_str());
     ptstats2->SetOptStat(1111);
