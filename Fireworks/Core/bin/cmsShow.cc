@@ -1,5 +1,3 @@
-//#define  FW_ROOT_INTERACTIVE
-
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 #include "Rtypes.h"
 #include "TROOT.h"
@@ -11,29 +9,57 @@
 #include "TApplication.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
 #include <iostream>
+#include <string.h>
 #include <memory>
 
-int main (int argc, char **argv)
+void run_app(TApplication &app, int argc, char **argv)
 {
-   std::cout <<" starting"<<std::endl;
-   char* dummyArgv[] = {"cmsShow"};
-   int dummyArgc = 1;
-   gEnv->SetValue("Gui.BackgroundColor", "#9f9f9f");
-   //#ifdef FW_ROOT_INTERACTIVE
-   TRint app("cmsShow", &dummyArgc, dummyArgv);
-   //#else
-   //TApplication app("cmsShow", &dummyArgc, dummyArgv);
-   //#endif
    AutoLibraryLoader::enable();
    std::auto_ptr<CmsShowMain> pMain( new CmsShowMain(argc,argv) );
    app.Run();
    pMain.reset();
-   //dynamic_cast<TGLSAViewer*>(gEve->GetGLViewer())->DeleteMenuBar(); //CDJ: Off for now
+
    TEveManager::Terminate();
 
    //the handler has a pointer back to TApplication so must be removed
    TFileHandler* handler = gSystem->RemoveFileHandler(gXDisplay);
    if(0!=handler) {gXDisplay=0;}
    delete handler;
+}
+
+int main (int argc, char **argv)
+{
+   char* dummyArgv[] = {"cmsShow"};
+   int dummyArgc = 1;
+   gEnv->SetValue("Gui.BackgroundColor", "#9f9f9f");
+
+   // check root interactive promp
+   bool isri = false;
+   const char* ropt = "-r";
+   for (Int_t i =0; i<argc; i++)
+   {
+      if (strncmp(argv[i], ropt, 2) == 0)
+      {
+         isri=true;
+         break;
+      }
+   }
+
+   if (isri) {
+      std::cout<<""<<std::endl;
+      std::cout<<"WARNING:You are running cmsShow with ROOT prompt enabled."<<std::endl;
+      std::cout<<"If you encounter an issue you suspect to be a bug in     "<<std::endl;
+      std::cout<<"cmsShow, please re-run without this option and try to    "<<std::endl;
+      std::cout<<"reproduce it before submitting a bug-report.             "<<std::endl;
+      std::cout<<""<<std::endl;
+
+      TRint app("cmsShow", &dummyArgc, dummyArgv);
+      run_app(app,argc, argv);
+   } else {
+      std::cout <<"starting"<<std::endl;
+      TApplication app("cmsShow", &dummyArgc, dummyArgv); 
+      run_app(app, argc, argv);
+   }
+
    return 0;
 }

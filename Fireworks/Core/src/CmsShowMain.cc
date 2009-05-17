@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.76 2009/05/15 14:26:06 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.77 2009/05/17 06:15:43 jmuelmen Exp $
 //
 
 // system include files
@@ -139,6 +139,7 @@ static char const* const kHelpCommandOpt = "help,h";
 // static char const* const kSoftOpt = "soft";
 static char const* const kSoftCommandOpt = "soft";
 static const char* const kPortCommandOpt = "port";
+static char const* const kRootInteractiveCommandOpt = "root-interactive,r";
 
 CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    m_configurationManager(new FWConfigurationManager),
@@ -174,6 +175,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
               (kLoopPlaybackCommandOpt, po::value<float>(),       "Start in auto playback mode with given interval between events in seconds")
               (kPortCommandOpt, po::value<unsigned int>(),        "Listen to port for new data files to open")
               (kEveCommandOpt,                                    "Show Eve browser to help debug problems")
+              (kRootInteractiveCommandOpt,                               "Enable root interactive prompt.")
               (kDebugCommandOpt,                                  "Start the display from a debugger and producer a crash report")
               (kAdvancedRenderCommandOpt,                         "Use advance options to improve rendering quality (anti-alias etc)")
               (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")

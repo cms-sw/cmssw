@@ -26,6 +26,7 @@ if [ "`echo $@ | awk '/\-\-soft/'`" != "" ] ; then
   LIBGL_DRIVERS_PATH=/tmp/
   export LIBGL_DRIVERS_PATH
 fi
+
 if [ "`echo $@ | awk '/\-d/'`" != "" ] ; then
    echo "set args $@" > gdb.cmd
    echo "run"        >> gdb.cmd
@@ -39,19 +40,35 @@ if [ "`echo $@ | awk '/\-d/'`" != "" ] ; then
 else
    $SHELLDIR/cmsShow.exe $@
    if [ $? != "0" ] ; then
-      echo ""
-      echo "  ########################################################################"
-      echo "  #                                                                      #"
-      echo "  #                  Abnormal program termination!                       #"
-      echo "  #                                                                      #"
-      echo "  #  We regret that this happened and we would appreciate your help      #"
-      echo "  #  in debugging and reporting this problem. Please try to reproduce    #"
-      echo "  #  the problem by running the program with --debug flag to get         #"
-      echo "  #  a crash report and send its content (saved in ./crash.report file)  #" 
-      echo "  #  to fireworks-support@cern.ch with brief instructions how to         #"
-      echo "  #  reproduce the problem.                                              #"
-      echo "  #                                                                      #"
-      echo "  ########################################################################"
-      echo ""
+      if [ rooot_interactvie == "" ] ; then
+         echo ""
+         echo "  ########################################################################"
+         echo "  #                                                                      #"
+         echo "  #                  Abnormal program termination!                       #"
+         echo "  #                                                                      #"
+         echo "  #  We regret that this happened and we would appreciate your help      #"
+         echo "  #  in debugging and reporting this problem. Please try to reproduce    #"
+         echo "  #  the problem by running the program with --debug flag to get         #"
+         echo "  #  a crash report and send its content (saved in ./crash.report file)  #" 
+         echo "  #  to fireworks-support@cern.ch with brief instructions how to         #"
+         echo "  #  reproduce the problem.                                              #"
+         echo "  #                                                                      #"
+         echo "  ########################################################################"
+         echo ""
+      else
+          echo  "###########################################################"
+          echo  "#                                                         #"
+          echo  "# You were running cmsShow with ROOT prompt enabled ...   #"
+          echo  "#   ... and it crashed. That was *FUN*.                   #"
+          echo  "#                                                         #"
+          echo  "# Please do not report this issue to fireworks-support    #"
+          echo  "#                    UNLESS                               #"
+          echo  "#         you suspect this is a cmsShow bug               #"
+          echo  "#                     AND                                 #"
+          echo  "# you are able to reproduce the crash without the         #"
+          echo  "# --enable-root-prompt flag.                              #"
+          echo  "#                                                         #"
+          echo  "###########################################################"
+      fi
    fi
 fi
