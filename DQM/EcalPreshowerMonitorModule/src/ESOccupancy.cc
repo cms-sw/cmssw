@@ -182,22 +182,22 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
 
 		if ( (zside == +1) && (plane == 1) ){
 			sum_DigiHits[0]++;
-			hDigiOCC_[0]->Fill(ix, iy);
+			hDigiOCC_[0]->Fill(ix, iy, dataframe.sample(1).adc());
 		}
 
 		if( (zside == +1) && (plane == 2) ){
 			sum_DigiHits[1]++;
-			hDigiOCC_[1]->Fill(ix, iy);
+			hDigiOCC_[1]->Fill(ix, iy, dataframe.sample(1).adc());
 		}
 
 		if( (zside == -1) && (plane == 1) ){
 			sum_DigiHits[2]++;
-			hDigiOCC_[2]->Fill(ix, iy);
+			hDigiOCC_[2]->Fill(ix, iy, dataframe.sample(1).adc());
 		}
 
 		if( (zside == -1) && (plane == 2) ){
 			sum_DigiHits[3]++;
-			hDigiOCC_[3]->Fill(ix, iy);
+			hDigiOCC_[3]->Fill(ix, iy, dataframe.sample(1).adc());
 		}
 	}
 
