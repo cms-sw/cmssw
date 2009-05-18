@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 pfTauBenchmarkElecRejection = cms.EDAnalyzer("PFTauElecRejectionBenchmarkAnalyzer",
     OutputFile = cms.untracked.string('tauBenchmarkElecRejection.root'),
-    InputTruthLabel = cms.InputTag('source'),
+    InputTruthLabel = cms.InputTag('generator'),
     BenchmarkLabel = cms.string('PFTauElecRejection'), 
     minRecoPt = cms.double(15.0),
     maxRecoAbsEta = cms.double(2.5),
@@ -10,7 +10,7 @@ pfTauBenchmarkElecRejection = cms.EDAnalyzer("PFTauElecRejectionBenchmarkAnalyze
     maxMCAbsEta = cms.double(2.5),
     maxDeltaR = cms.double(0.3),
     PFTauProducer = cms.InputTag('shrinkingConePFTauProducer'), 
-    PFTauDiscriminatorByIsolationProducer = cms.InputTag('shrinkingConePFTauDiscriminationByIsolationHighEfficiency'),
+    PFTauDiscriminatorByIsolationProducer = cms.InputTag('shrinkingConePFTauDiscriminationByIsolation'),
     PFTauDiscriminatorAgainstElectronProducer = cms.InputTag('shrinkingConePFTauDiscriminationAgainstElectron'),
     ApplyEcalCrackCut = cms.bool(True),
     GenMatchObjectLabel = cms.string('tau') #  match with hadronic 'tau' or electron "e"
