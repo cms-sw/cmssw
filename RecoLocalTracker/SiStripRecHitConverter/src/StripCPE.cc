@@ -17,7 +17,7 @@ localParameters( const SiStripCluster & cluster) const
 {
   StripCPE::Param const & p = param(DetId(cluster.geographicalId()));
   float position = cluster.barycenter();
-  position -=  0.5 * p.drift.x() / p.topology->localPitch(LocalPoint(position,0.,0.));
+  position -=  0.5 * p.drift.x() / p.topology->localPitch(p.topology->localPosition(position));
 
   return std::make_pair( p.topology->localPosition(position),
 			 p.topology->localError(position, 1/12.) );
