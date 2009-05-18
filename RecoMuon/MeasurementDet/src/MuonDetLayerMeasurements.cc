@@ -1,8 +1,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.
  *
- *  $Date: 2008/11/14 04:28:57 $
- *  $Revision: 1.27 $
+ *  $Date: 2008/12/02 03:07:19 $
+ *  $Revision: 1.28 $
  *  \author C. Liu, R. Bellan, N. Amapane
  *
  */
@@ -213,8 +213,10 @@ MuonDetLayerMeasurements::measurements( const DetLayer* layer,
     MeasurementEstimator::HitReturnType estimate = est.estimate(stateOnDet,**rechit);
     LogTrace("RecoMuon")<<"Dimension: "<<(*rechit)->dimension()
 			<<" Chi2: "<<estimate.second<<std::endl;
-    result.push_back(TrajectoryMeasurement(stateOnDet, rechit->get(),
-   					   estimate.second,layer));
+    if (estimate.first) {
+      result.push_back(TrajectoryMeasurement(stateOnDet, rechit->get(),
+					     estimate.second,layer));
+    }
   }
 
   if (!result.empty()) sort( result.begin(), result.end(), TrajMeasLessEstim());
