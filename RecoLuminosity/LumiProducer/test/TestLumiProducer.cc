@@ -49,6 +49,7 @@ namespace edmtest
 
   void TestLumiProducer::analyze(edm::Event const& e,edm::EventSetup const&)
   {
+    std::cout<<"TestLumiProducer::endLuminosityBlock"<<std::endl;
     LuminosityBlock const& lumiBlock = e.getLuminosityBlock();
 
     Handle<LumiDetails> lumiDetails;
@@ -61,15 +62,15 @@ namespace edmtest
   // -----------------------------------------------------------------
 
   void TestLumiProducer::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
-
+    std::cout<<"TestLumiProducer::endLuminosityBlock"<<std::endl;
     Handle<LumiDetails> lumiDetails;
     lumiBlock.getByLabel("lumiProducer", lumiDetails);
-
+    std::cout<<"got LumiDetails by label"<<std::endl;
     std::cout << *lumiDetails << "\n";
 
     Handle<LumiSummary> lumiSummary;
     lumiBlock.getByLabel("lumiProducer", lumiSummary);
-
+    std::cout<<"got LumiSummary by label"<<std::endl;
     std::cout << *lumiSummary << "\n";
 
     // We know the content we put into the objects in the
