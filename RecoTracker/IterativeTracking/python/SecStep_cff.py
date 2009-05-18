@@ -55,7 +55,10 @@ import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
 secTriplets = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
 secTriplets.RegionFactoryPSet.RegionPSet.originHalfLength = 17.5
 secTriplets.OrderedHitsFactoryPSet.SeedingLayers = 'SecLayerTriplets'
-secTriplets.RegionFactoryPSet.RegionPSet.ptMin = 0.2
+secTriplets.RegionFactoryPSet.RegionPSet.ptMin = 0.075
+
+from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+secTriplets.SeedComparitorPSet.ComponentName = 'LowPtClusterShapeSeedComparitor'
 
 # Use modified pixel-triplet code that works best for large impact parameters
 #secTriplets.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyCreator'
@@ -77,7 +80,7 @@ secCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESPro
     filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
     maxLostHits = 1,
     minimumNumberOfHits = 3,
-    minPt = 0.1
+    minPt = 0.075
     )
     )
 
@@ -133,7 +136,7 @@ secStepTrkLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.cl
     copyTrajectories = True,
     chi2n_par = 0.9,
     res_par = ( 0.003, 0.001 ),
-    minNumberLayers = 4,
+    minNumberLayers = 3,
     d0_par1 = ( 1.5, 4.0 ),
     dz_par1 = ( 1.5, 4.0 ),
     d0_par2 = ( 1.5, 4.0 ),

@@ -20,10 +20,12 @@ from RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff import *
 newSeedFromTriplets = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone(
     RegionFactoryPSet = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.RegionFactoryPSet.clone(
     RegionPSet = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.RegionFactoryPSet.RegionPSet.clone(
-    ptMin = 0.5
+    ptMin = 0.8
     )
     )
     )
+from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+newSeedFromTriplets.SeedComparitorPSet.ComponentName = 'LowPtClusterShapeSeedComparitor'
 
 # building
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
@@ -31,7 +33,7 @@ newTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProduc
     ComponentName = 'newTrajectoryFilter',
     filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
     minimumNumberOfHits = 3,
-    minPt = 0.3
+    minPt = 0.6
     )
     )
 
@@ -106,10 +108,19 @@ newMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_
     stripClusterProducer = 'newClusters'
     )
 
+import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
+stepOneTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
+    ComponentName = 'stepOneTrajectoryFilter',
+    filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
+    minimumNumberOfHits = 3,
+    minPt = 0.6
+    )
+    )
+
 stepOneCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
     ComponentName = 'stepOneCkfTrajectoryBuilder',
     MeasurementTrackerName = 'newMeasurementTracker',
-    trajectoryFilterName = 'newTrajectoryFilter'
+    trajectoryFilterName = 'stepOneTrajectoryFilter'
     )
 
 stepOneTrackCandidateMaker = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
