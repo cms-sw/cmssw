@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.17 2009/01/23 21:35:43 amraktad Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.18 2009/02/04 15:40:47 chrjones Exp $
 //
 
 // system include files
@@ -398,7 +398,7 @@ FWGUIEventDataAdder::createWindow()
    m_frame->Layout();
 
    // Initialize the layout algorithm
-   m_frame->Resize(m_frame->GetDefaultSize());
+   //m_frame->Resize(m_frame->GetDefaultSize());
 
 }
 
