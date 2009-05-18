@@ -3,20 +3,12 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "PhysicsTools/PFCandProducer/interface/PFCandidateSelectorDefinition.h"
 
-struct PdgIdPFCandidateSelectorDefinition {
-
-  typedef reco::PFCandidateCollection collection;
-  typedef edm::Handle< collection > HandleToCollection;
-  typedef std::vector< reco::PFCandidate *> container;
-  typedef container::const_iterator const_iterator;
+struct PdgIdPFCandidateSelectorDefinition : public PFCandidateSelectorDefinition {
 
   PdgIdPFCandidateSelectorDefinition ( const edm::ParameterSet & cfg ) :
   pdgIds_( cfg.getParameter< std::vector<int> >( "pdgId" ) ) { }
-
-  const_iterator begin() const { return selected_.begin(); }
-
-  const_iterator end() const { return selected_.end(); }
 
   void select( const HandleToCollection & hc, 
 	       const edm::Event & e,
@@ -31,19 +23,16 @@ struct PdgIdPFCandidateSelectorDefinition {
       
       for(unsigned iId=0; iId<pdgIds_.size(); iId++) {
 	if ( pfc->pdgId() == pdgIds_[iId] ) {
-	  selected_.push_back( new reco::PFCandidate(*pfc) );
+	  selected_.push_back( reco::PFCandidate(*pfc) );
 	  reco::PFCandidatePtr ptrToMother( hc, key );
-	  selected_.back()->setSourcePtr( ptrToMother );
+	  selected_.back().setSourcePtr( ptrToMother );
 	  break;
 	}
       }
     }
   }
 
-  size_t size() const { return selected_.size(); }
-
 private:
-  container selected_;
   std::vector<int> pdgIds_;
 };
 

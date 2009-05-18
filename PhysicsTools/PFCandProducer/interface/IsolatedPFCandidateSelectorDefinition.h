@@ -3,22 +3,15 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "PhysicsTools/PFCandProducer/interface/PFCandidateSelectorDefinition.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-struct IsolatedPFCandidateSelectorDefinition {
+struct IsolatedPFCandidateSelectorDefinition : public PFCandidateSelectorDefinition {
 
-  typedef reco::PFCandidateCollection collection;
-  typedef edm::Handle< collection > HandleToCollection;
-  typedef std::vector< reco::PFCandidate *> container;
-  typedef container::const_iterator const_iterator;
   typedef edm::ValueMap<double> isoFromDepositsMap;
 
   IsolatedPFCandidateSelectorDefinition ( const edm::ParameterSet & cfg ) :
     isoDepositMap_(cfg.getParameter<edm::InputTag>("IsoDeposit") ),
     isolCut_(cfg.getParameter<double>("IsolationCut")) { }
-
-  const_iterator begin() const { return selected_.begin(); }
-
-  const_iterator end() const { return selected_.end(); }
 
   void select( const HandleToCollection & hc, 
 	       const edm::Event & e,
@@ -41,21 +34,17 @@ struct IsolatedPFCandidateSelectorDefinition {
     
       if (val<isolCut_) {
 
-	selected_.push_back( new reco::PFCandidate(*pfc) );
+	selected_.push_back( reco::PFCandidate(*pfc) );
 	reco::PFCandidatePtr ptrToMother( hc, key );
 
-	selected_.back()->setSourcePtr( ptrToMother );
+	selected_.back().setSourcePtr( ptrToMother );
       }
     }
   }
 
-  size_t size() const { return selected_.size(); }
-
 private:
   edm::InputTag isoDepositMap_;
   double isolCut_;
-  container selected_;
-
 };
 
 #endif
