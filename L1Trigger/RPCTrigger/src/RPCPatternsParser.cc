@@ -158,7 +158,10 @@ void RPCPatternsParser::startElement(const XMLCh* const uri,
     
     
     quality.m_QualityTabNumber = rpcconst.stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("id"))));
-    quality.m_FiredPlanes = xMLCh2String(attrs.getValue(Char2XMLCh("planes")));
+    std::bitset<8> firedPl( xMLCh2String(attrs.getValue(Char2XMLCh("planes")) )) ;
+    unsigned long fpUL = firedPl.to_ulong();
+    quality.m_FiredPlanes = (unsigned char) (fpUL & 0xFF );
+    //quality.m_FiredPlanes = xMLCh2String(attrs.getValue(Char2XMLCh("planes")));
     quality.m_QualityValue = rpcconst.stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("val"))));
 
     m_QualityVec.push_back(quality);
