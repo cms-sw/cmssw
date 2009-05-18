@@ -28,14 +28,14 @@
 // UPdated binning on the SBS method
 //
 
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/TagAndProbe/interface/TagProbeEDMAnalysis.h"
+#include "PhysicsTools/TagAndProbe/interface/ZLineShape.hh"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 // ROOT headers
 
 #include <TCanvas.h>
 #include <TFile.h>
-//#include <TGaxis.h>
 #include <TGraphAsymmErrors.h>
 #include <TIterator.h>
 #include <TLatex.h>
@@ -43,20 +43,13 @@
 #include <TStyle.h>
 
 // system include files
-#include <memory>
 #include <vector>
 #include <string>
-#include <algorithm>
-#include <iterator>
-#include <iostream>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "PhysicsTools/TagAndProbe/interface/RooCMSShapePdf.h"
 
@@ -64,7 +57,6 @@
 #include "PhysicsTools/TagAndProbe/interface/EffTableLoader.h"
 
 // ROOT
-
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
@@ -77,7 +69,6 @@
 #include <RooAbsData.h>
 #include <RooDataSet.h>
 #include <RooAddPdf.h>
-#include <RooBifurGauss.h>
 #include <RooBreitWigner.h>
 #include <RooCategory.h>
 #include <RooCatType.h>
@@ -96,9 +87,20 @@
 #include <RooRealVar.h>
 #include <RooSimultaneous.h>
 #include <RooTreeData.h>
-#include <RooVoigtian.h>
 
-TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
+TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig):var1Pass_(NULL),
+									   var1All_(NULL),
+									   var2Pass_(NULL),
+									   var2All_(NULL),
+									   var1var2Pass_(NULL),
+									   var1var2All_(NULL),
+									   var1BiasPass_(NULL),
+									   var1BiasAll_(NULL),
+									   var2BiasPass_(NULL),
+									   var2BiasAll_(NULL),
+									   var1var2BiasPass_(NULL),
+									   var1var2BiasAll_(NULL),
+									   signalShapePdf_(NULL)
 {
    // TagProbeEDMAnalysis variables
    std::vector<string>       dEmptyStringVec;
@@ -220,14 +222,17 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
       }
    }
 
-
    // SBS
    SBSPeak_     = iConfig.getUntrackedParameter< double >("SBSPeak",90);
    SBSStanDev_  = iConfig.getUntrackedParameter< double >("SBSStanDev",2);
 
    // Fitter variables
 
-   ConfigureZLineShape(iConfig);
+   zLineShape_ = new ZLineShape();
+   std::cout << "Configuring" << std::endl;
+   zLineShape_->Configure(iConfig);
+   std::cout << "All Done" << std::endl;
+
    ConfigureCBLineShape(iConfig);
    ConfigureGaussLineShape(iConfig);
    ConfigurePolynomialShape(iConfig);
@@ -294,7 +299,6 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
       edm::LogInfo("TagProbeEDMAnalysis") << "logY is not the same size as quantities";    
    }   
 
-
    // Make the simple fit tree
    if( mode_ != "Read" )
    {
@@ -313,53 +317,6 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
    }
 
    InitializeMCHistograms();
-
-}
-
-void TagProbeEDMAnalysis::ConfigureZLineShape(const edm::ParameterSet& iConfig){
-
-   // 1. ZLineShape
-   fitZLineShape_ = false;
-   edm::ParameterSet dLineShape;
-   ZLineShape_ = iConfig.getUntrackedParameter< edm::ParameterSet >("ZLineShape",dLineShape);
-
-   std::vector<double> dSigM;
-   dSigM.push_back(91.1876);
-   dSigM.push_back(85.0);
-   dSigM.push_back(95.0);
-   zMean_     = ZLineShape_.getUntrackedParameter< std::vector<double> >("ZMean",dSigM);
-   std::vector<double> dSigW;
-   dSigW.push_back(2.3);
-   dSigW.push_back(1.0);
-   dSigW.push_back(4.0);
-   zWidth_     = ZLineShape_.getUntrackedParameter< std::vector<double> >("ZWidth",dSigW);
-   std::vector<double> dSigS;
-   dSigS.push_back(1.5);
-   dSigS.push_back(0.0);
-   dSigS.push_back(4.0);
-   zSigma_     = ZLineShape_.getUntrackedParameter< std::vector<double> >("ZSigma",dSigS);
-   std::vector<double> dSigWL;
-   dSigWL.push_back(3.0);
-   dSigWL.push_back(1.0);
-   dSigWL.push_back(10.0);
-   zWidthL_    = ZLineShape_.getUntrackedParameter< std::vector<double> >("ZWidthL",dSigWL);
-   std::vector<double> dSigWR;
-   dSigWR.push_back(0.52);
-   dSigWR.push_back(0.0);
-   dSigWR.push_back(2.0);
-   zWidthR_    = ZLineShape_.getUntrackedParameter< std::vector<double> >("ZWidthR",dSigWR);
-   std::vector<double> dBGF;
-   dBGF.push_back(0.87);
-   dBGF.push_back(0.0);
-   dBGF.push_back(1.0);
-   zBifurGaussFrac_  = ZLineShape_.getUntrackedParameter< std::vector<double> >("ZBifurGaussFrac",dBGF);
-
-   floatFailZMean_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZMean",false);
-   floatFailZWidth_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZWidth",false);
-   floatFailZSigma_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZSigma",false);
-   floatFailZWidthL_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZWidthL",false);
-   floatFailZWidthR_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZWidthR",false);
-   floatFailZBifurGaussFrac_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZBifurGaussFrac",false);
 }
 
 void TagProbeEDMAnalysis::ConfigureCBLineShape(const edm::ParameterSet& iConfig){
@@ -510,22 +467,76 @@ void TagProbeEDMAnalysis::InitializeMCHistograms(){
 
 }
 
+void TagProbeEDMAnalysis::CleanUpMCHistograms() {
+
+  if (var1Pass_  ) delete var1Pass_;
+  if (var1All_   ) delete var1All_;
+  if( var2Pass_ ) delete var2Pass_;
+  if( var2All_  ) delete var2All_;
+  
+  if( var1BiasPass_  ) delete var1BiasPass_;
+  if( var1BiasAll_   ) delete var1BiasAll_;
+  if( var2BiasPass_ ) delete var2BiasPass_;
+  if( var2BiasAll_  ) delete var2BiasAll_;
+
+}
+
+void TagProbeEDMAnalysis::ReadMCHistograms(){
+
+      // Now read in the MC truth histograms and add the results
+      for( int iFile=0; iFile<(int)readFiles_.size(); ++iFile )
+      {
+	 TFile inputFile(readFiles_[iFile].c_str());
+
+	 var1Pass_->Add( (TH1F*)inputFile.Get("hvar1pass") );
+	 var1All_->Add( (TH1F*)inputFile.Get("hvar1all") );  
+	 
+	 var2Pass_->Add( (TH1F*)inputFile.Get("hvar2pass") );
+	 var2All_->Add( (TH1F*)inputFile.Get("hvar2all") );  
+	 
+	 var1var2Pass_->Add( (TH2F*)inputFile.Get("hvar1var2pass") );
+	 var1var2All_->Add( (TH2F*)inputFile.Get("hvar1var2all") );
+
+	 var1BiasPass_->Add( (TH1F*)inputFile.Get("hvar1biaspass") );
+	 var1BiasAll_->Add( (TH1F*)inputFile.Get("hvar1biasall") );  
+
+	 var2BiasPass_->Add( (TH1F*)inputFile.Get("hvar2biaspass") );
+	 var2BiasAll_->Add( (TH1F*)inputFile.Get("hvar2biasall") );  
+	 
+	 var1var2BiasPass_->Add( (TH2F*)inputFile.Get("hvar1var2biaspass") );
+	 var1var2BiasAll_->Add( (TH2F*)inputFile.Get("hvar1var2biasall") );
+
+      }
+}
+
+
+void TagProbeEDMAnalysis::WriteMCHistograms() {
+  var1Pass_->Write();
+  var1All_->Write();  
+  
+  var2Pass_->Write();
+  var2All_->Write();  
+  
+  var1var2Pass_->Write();
+  var1var2All_->Write();
+  
+  var1BiasPass_->Write();
+  var1BiasAll_->Write();  
+  
+  var2BiasPass_->Write();
+  var2BiasAll_->Write();  
+  
+  var1var2BiasPass_->Write();
+  var1var2BiasAll_->Write();
+}
 
 TagProbeEDMAnalysis::~TagProbeEDMAnalysis()
 {
    // Clean up
 
-   if( var1Pass_  ) delete var1Pass_;
-   if( var1All_   ) delete var1All_;
-   if( var2Pass_ ) delete var2Pass_;
-   if( var2All_  ) delete var2All_;
-
-   if( var1BiasPass_  ) delete var1BiasPass_;
-   if( var1BiasAll_   ) delete var1BiasAll_;
-   if( var2BiasPass_ ) delete var2BiasPass_;
-   if( var2BiasAll_  ) delete var2BiasAll_;
+  CleanUpMCHistograms();
   
-   if(outRootFile_) 
+   if (outRootFile_) 
    {
       outRootFile_->Close();
       if( mode_ != "Read" ) delete outRootFile_;
@@ -694,21 +705,21 @@ TagProbeEDMAnalysis::analyze(const edm::Event& iEvent,
 	 float py = 0;
 	 float pz = 0;
 	 float e = 0;
-	 int nCnd = (int)cnd_type->size();
-	 for( int i=0; i<nCnd; ++i )
+	 unsigned int nCnd = cnd_type->size();
+	 for( unsigned int iCnd=0; iCnd<nCnd; ++iCnd )
 	 {
-	    if( (*cnd_type)[i] != tagProbeType_ ) continue;
+	    if( (*cnd_type)[iCnd] != tagProbeType_ ) continue;
 	    if( truthParentId_ != 0 && 
-	    !( fabs((*cnd_gmid)[i]) == truthParentId_ || fabs((*cnd_moid)[i]) == truthParentId_ ) ) continue;
+	    !( fabs((*cnd_gmid)[iCnd]) == truthParentId_ || fabs((*cnd_moid)[iCnd]) == truthParentId_ ) ) continue;
 
-	    if( (*cnd_tag)[i] == 1 ) ++nTag;
-	    if( (*cnd_tag)[i] == 1 || (*cnd_aprobe)[i] == 1 )
+	    if( (*cnd_tag)[iCnd] == 1 ) ++nTag;
+	    if( (*cnd_tag)[iCnd] == 1 || (*cnd_aprobe)[iCnd] == 1 )
             {
 	       ++nMatch;
-	       px += (*cnd_rpx)[i];
-	       py += (*cnd_rpy)[i];
-	       pz += (*cnd_rpz)[i];
-	       e += (*cnd_re)[i];
+	       px += (*cnd_rpx)[iCnd];
+	       py += (*cnd_rpy)[iCnd];
+	       pz += (*cnd_rpz)[iCnd];
+	       e += (*cnd_re)[iCnd];
 	    }
 	 }
 	 if( nTag >= 1 && nMatch == 2 )
@@ -716,50 +727,50 @@ TagProbeEDMAnalysis::analyze(const edm::Event& iEvent,
 	    float invMass = sqrt(e*e - px*px - py*py - pz*pz);
 	    if( invMass > massLow_ && invMass < massHigh_ )
 	    {
-	       for( int i=0; i<nCnd; ++i )
+	       for( unsigned int iCnd=0; iCnd<nCnd; ++iCnd )
 	       {
-		  if( (*cnd_type)[i] != tagProbeType_ ) continue;
+		  if( (*cnd_type)[iCnd] != tagProbeType_ ) continue;
 	    
 		  if( truthParentId_ != 0 && 
-		  !( fabs((*cnd_gmid)[i]) == truthParentId_ || fabs((*cnd_moid)[i]) == truthParentId_ ) ) continue;
+		  !( fabs((*cnd_gmid)[iCnd]) == truthParentId_ || fabs((*cnd_moid)[iCnd]) == truthParentId_ ) ) continue;
 	    
 		  // If there is only one tag, only count the probe
 		  bool FillBiasHists = true;
-		  if( nTag==1 && (*cnd_tag)[i]==1 ) FillBiasHists = false;
+		  if( nTag==1 && (*cnd_tag)[iCnd]==1 ) FillBiasHists = false;
 
 		  bool inVar1Range = false;
-		  if( (*cnd_var1)[i] > var1Bins_[0] &&
-		  (*cnd_var1)[i] < var1Bins_[var1Bins_.size()-1] )
+		  if( (*cnd_var1)[iCnd] > var1Bins_[0] &&
+		  (*cnd_var1)[iCnd] < var1Bins_[var1Bins_.size()-1] )
 		     inVar1Range = true;
 		  bool inVar2Range = false;
-		  if( (*cnd_var2)[i] > var2Bins_[0] &&
-		  (*cnd_var2)[i] < var2Bins_[var2Bins_.size()-1] )
+		  if( (*cnd_var2)[iCnd] > var2Bins_[0] &&
+		  (*cnd_var2)[iCnd] < var2Bins_[var2Bins_.size()-1] )
 		     inVar2Range = true;
 
-		  if( (*cnd_aprobe)[i] == 1 && (*cnd_pprobe)[i] == 1 )
+		  if( (*cnd_aprobe)[iCnd] == 1 && (*cnd_pprobe)[iCnd] == 1 )
 		  {
-		     if( inVar2Range ) var1Pass_->Fill((*cnd_var1)[i]);
-		     if( inVar1Range ) var2Pass_->Fill((*cnd_var2)[i]);
-		     var1var2Pass_->Fill((*cnd_var1)[i],(*cnd_var2)[i]);
+		     if( inVar2Range ) var1Pass_->Fill((*cnd_var1)[iCnd]);
+		     if( inVar1Range ) var2Pass_->Fill((*cnd_var2)[iCnd]);
+		     var1var2Pass_->Fill((*cnd_var1)[iCnd],(*cnd_var2)[iCnd]);
 
 		     if( FillBiasHists )
 		     {
-			if( inVar2Range ) var1BiasPass_->Fill((*cnd_var1)[i]);
-			if( inVar1Range ) var2BiasPass_->Fill((*cnd_var2)[i]);
-			var1var2BiasPass_->Fill((*cnd_var1)[i],(*cnd_var2)[i]);
+			if( inVar2Range ) var1BiasPass_->Fill((*cnd_var1)[iCnd]);
+			if( inVar1Range ) var2BiasPass_->Fill((*cnd_var2)[iCnd]);
+			var1var2BiasPass_->Fill((*cnd_var1)[iCnd],(*cnd_var2)[iCnd]);
 		     }
 		  }
-		  if( (*cnd_aprobe)[i] == 1 )
+		  if( (*cnd_aprobe)[iCnd] == 1 )
 		  {
-		     if( inVar2Range ) var1All_->Fill((*cnd_var1)[i]);
-		     if( inVar1Range ) var2All_->Fill((*cnd_var2)[i]);
-		     var1var2All_->Fill((*cnd_var1)[i],(*cnd_var2)[i]);
+		     if( inVar2Range ) var1All_->Fill((*cnd_var1)[iCnd]);
+		     if( inVar1Range ) var2All_->Fill((*cnd_var2)[iCnd]);
+		     var1var2All_->Fill((*cnd_var1)[iCnd],(*cnd_var2)[iCnd]);
 
 		     if( FillBiasHists )
 		     {
-			if( inVar2Range ) var1BiasAll_->Fill((*cnd_var1)[i]);
-			if( inVar1Range ) var2BiasAll_->Fill((*cnd_var2)[i]);
-			var1var2BiasAll_->Fill((*cnd_var1)[i],(*cnd_var2)[i]);
+			if( inVar2Range ) var1BiasAll_->Fill((*cnd_var1)[iCnd]);
+			if( inVar1Range ) var2BiasAll_->Fill((*cnd_var2)[iCnd]);
+			var1var2BiasAll_->Fill((*cnd_var1)[iCnd],(*cnd_var2)[iCnd]);
 		     }
 		  }
 	       }
@@ -768,64 +779,58 @@ TagProbeEDMAnalysis::analyze(const edm::Event& iEvent,
       }
    }
 
-
    // Do plot making etc ...
    if( doAnalyze_ )
    {
-      for(unsigned int i = 0; i < numQuantities_; i++)
+      for(unsigned int iQuant = 0; iQuant < numQuantities_; ++iQuant)
       {
 	 // int
-	 if( quantities_[i].find("n") == 0 || 
-	     quantities_[i] == "Run"       || 
-	     quantities_[i] == "Event" )
+	 if( quantities_[iQuant].find("n") == 0 || 
+	     quantities_[iQuant] == "Run"       || 
+	     quantities_[iQuant] == "Event" )
 	 {
 	    edm::Handle< int > h;
-	    if ( !iEvent.getByLabel("TPEdm",quantities_[i].c_str(),h) ) { 
-	       edm::LogInfo("TagProbeEDMAnalysis") << "No "+quantities_[i]+" in Tree!"; 
+	    if ( !iEvent.getByLabel("TPEdm",quantities_[iQuant].c_str(),h) ) { 
+	       edm::LogInfo("TagProbeEDMAnalysis") << "No "+quantities_[iQuant]+" in Tree!"; 
             }
-	    if( h.isValid() ) Histograms_[i].Fill(*h);
+	    if( h.isValid() ) Histograms_[iQuant].Fill(*h);
 	 }
 	 // std::vector<int>
-	 else if( quantities_[i].find("type") != string::npos ||
-		  quantities_[i].find("true") != string::npos || 
-		  quantities_[i].find("ppass") != string::npos || 
-		  quantities_[i].find("l1") != string::npos || 
-		  quantities_[i].find("hlt") != string::npos || 
-		  quantities_[i].find("tag") != string::npos || 
-		  quantities_[i].find("aprobe") != string::npos || 
-		  quantities_[i].find("pprobe") != string::npos || 
-		  quantities_[i].find("moid") != string::npos || 
-		  quantities_[i].find("gmid") != string::npos || 
-		  quantities_[i].find("pid") != string::npos || 
-		  quantities_[i].find("bc") != string::npos )
+	 else if( quantities_[iQuant].find("type") != string::npos ||
+		  quantities_[iQuant].find("true") != string::npos || 
+		  quantities_[iQuant].find("ppass") != string::npos || 
+		  quantities_[iQuant].find("l1") != string::npos || 
+		  quantities_[iQuant].find("hlt") != string::npos || 
+		  quantities_[iQuant].find("tag") != string::npos || 
+		  quantities_[iQuant].find("aprobe") != string::npos || 
+		  quantities_[iQuant].find("pprobe") != string::npos || 
+		  quantities_[iQuant].find("moid") != string::npos || 
+		  quantities_[iQuant].find("gmid") != string::npos || 
+		  quantities_[iQuant].find("pid") != string::npos || 
+		  quantities_[iQuant].find("bc") != string::npos )
 	 {
 	    edm::Handle< std::vector<int> > h;
-	    if ( !iEvent.getByLabel("TPEdm",quantities_[i].c_str(),h) ) {
-	        edm::LogInfo("TagProbeEDMAnalysis") << "No "+quantities_[i]+" in Tree!"; 
+	    if ( !iEvent.getByLabel("TPEdm",quantities_[iQuant].c_str(),h) ) {
+	        edm::LogInfo("TagProbeEDMAnalysis") << "No "+quantities_[iQuant]+" in Tree!"; 
             }
 	    if( h.isValid() ) 
 	      for( int n=0; n<(int)h->size(); ++n ) 
-		Histograms_[i].Fill((*h)[n]);
+		Histograms_[iQuant].Fill((*h)[n]);
 	 }
 	 // std::vector< float >
 	 else
 	 {
 	    edm::Handle< std::vector<float> > h;
-	    if ( !iEvent.getByLabel("TPEdm",quantities_[i].c_str(),h) ) {
-	        edm::LogInfo("TagProbeEDMAnalysis") << "No "+quantities_[i]+" in Tree!"; 
+	    if ( !iEvent.getByLabel("TPEdm",quantities_[iQuant].c_str(),h) ) {
+	        edm::LogInfo("TagProbeEDMAnalysis") << "No "+quantities_[iQuant]+" in Tree!"; 
             }
 	    if( h.isValid() ) 
 	      for( int n=0; n<(int)h->size(); ++n ) 
-		Histograms_[i].Fill((*h)[n]);
+		Histograms_[iQuant].Fill((*h)[n]);
 	 }
       }
    }
 }
-
-
-
-
-
 
 
 // ********* Save the user requested histograms ******** //
@@ -1395,9 +1400,11 @@ void TagProbeEDMAnalysis::makeSignalPdf( )
       *rooCBSigma_,*rooCBAlpha_,*rooCBN_);
 
       rooCBDummyFrac_ = new RooRealVar("dummyFrac","dummyFrac",1.0);
-
+      
+      std::cout << "1405" << std::endl;
       signalShapePdf_ = new RooAddPdf("signalShapePdf", "signalShapePdf",
       *rooCBPdf_,*rooCBPdf_,*rooCBDummyFrac_);
+      std::cout << "1408" << std::endl;
 
       signalShapeFailPdf_  = signalShapePdf_;
    }
@@ -1427,129 +1434,23 @@ void TagProbeEDMAnalysis::makeSignalPdf( )
 
       rooGaussDummyFrac_ = new RooRealVar("dummyFrac","dummyFrac",1.0);
 
+      std::cout << "1438" << std::endl;
       signalShapePdf_ = new RooAddPdf("signalShapePdf", "signalShapePdf",
       *rooGaussPdf_,*rooGaussPdf_,*rooGaussDummyFrac_);
+      std::cout << "1440" << std::endl;
 
       signalShapeFailPdf_  = signalShapePdf_;
-   }
-   else
-   {
-      // So we can clean up ...
-      fitZLineShape_ = true;
-
-      // Signal PDF variables
-      rooZMean_   = new RooRealVar("zMean","zMean",zMean_[0]);
-      rooZWidth_  = new RooRealVar("zWidth","zWidth",zWidth_[0]);
-      rooZSigma_  = new RooRealVar("zSigma","zSigma",zSigma_[0]);
-      rooZWidthL_ = new RooRealVar("zWidthL","zWidthL",zWidthL_[0]);
-      rooZWidthR_ = new RooRealVar("zWidthR","zWidthR",zWidthR_[0]);
-
-      // If the user has set a range, make the variable float
-      if( zMean_.size() == 3 )
-      {
-	 rooZMean_->setRange(zMean_[1],zMean_[2]);
-	 rooZMean_->setConstant(false);
-      }
-      if( zWidth_.size() == 3 )
-      {
-	 rooZWidth_->setRange(zWidth_[1],zWidth_[2]);
-	 rooZWidth_->setConstant(false);
-      }
-      if( zSigma_.size() == 3 )
-      {
-	 rooZSigma_->setRange(zSigma_[1],zSigma_[2]);
-	 rooZSigma_->setConstant(false);
-      }
-      if( zWidthL_.size() == 3 )
-      {
-	 rooZWidthL_->setRange(zWidthL_[1],zWidthL_[2]);
-	 rooZWidthL_->setConstant(false);
-      }
-      if( zWidthR_.size() == 3 )
-      {
-	 rooZWidthR_->setRange(zWidthR_[1],zWidthR_[2]);
-	 rooZWidthR_->setConstant(false);
-      }
-      // Voigtian
-      rooZVoigtPdf_ = new RooVoigtian("zVoigtPdf", "zVoigtPdf", 
-      *rooMass_, *rooZMean_, *rooZWidth_, *rooZSigma_);
-
-      // Bifurcated Gaussian
-      rooZBifurGaussPdf_ = new RooBifurGauss("zBifurGaussPdf", "zBifurGaussPdf", 
-      *rooMass_, *rooZMean_, *rooZWidthL_, *rooZWidthR_);
-      
-      // Bifurcated Gaussian fraction
-      rooZBifurGaussFrac_ = new RooRealVar("zBifurGaussFrac","zBifurGaussFrac",zBifurGaussFrac_[0]);
-      if( zBifurGaussFrac_.size() == 3 )
-      {
-	 rooZBifurGaussFrac_->setRange(zBifurGaussFrac_[1],zBifurGaussFrac_[2]);
-	 rooZBifurGaussFrac_->setConstant(false);
-      } 
-
-      // The total signal PDF
-      signalShapePdf_ = new RooAddPdf("signalShapePdf", "signalShapePdf",
-      *rooZVoigtPdf_,*rooZBifurGaussPdf_,*rooZBifurGaussFrac_);
-
-      // Fail pdf ...
-      // Signal PDF variables
-      if( !floatFailZMean_ )   rooFailZMean_ = rooZMean_;
-      else                     rooFailZMean_   = new RooRealVar("zFailMean","zMean",zMean_[0]);
-      if( !floatFailZWidth_ )  rooFailZWidth_ = rooZWidth_;
-      else                     rooFailZWidth_  = new RooRealVar("zFailWidth","zWidth",zWidth_[0]);
-      if( !floatFailZSigma_ )  rooFailZSigma_ = rooZSigma_;
-      else                     rooFailZSigma_  = new RooRealVar("zFailSigma","zSigma",zSigma_[0]);
-      if( !floatFailZWidthL_ ) rooFailZWidthL_ = rooZWidthL_;
-      else                     rooFailZWidthL_ = new RooRealVar("zFailWidthL","zWidthL",zWidthL_[0]);
-      if( !floatFailZWidthR_ ) rooFailZWidthR_ = rooZWidthR_;
-      else                     rooFailZWidthR_ = new RooRealVar("zFailWidthR","zWidthR",zWidthR_[0]);
-
-      // If the user has set a range, make the variable float
-      if( floatFailZMean_ && zMean_.size() == 3 )
-      {
-	 rooFailZMean_->setRange(zMean_[1],zMean_[2]);
-	 rooFailZMean_->setConstant(false);
-      }
-      if( floatFailZWidth_ && zWidth_.size() == 3 )
-      {
-	 rooFailZWidth_->setRange(zWidth_[1],zWidth_[2]);
-	 rooFailZWidth_->setConstant(false);
-      }
-      if( floatFailZSigma_ && zSigma_.size() == 3 )
-      {
-	 rooFailZSigma_->setRange(zSigma_[1],zSigma_[2]);
-	 rooFailZSigma_->setConstant(false);
-      }
-      if( floatFailZWidthL_ && zWidthL_.size() == 3 )
-      {
-	 rooFailZWidthL_->setRange(zWidthL_[1],zWidthL_[2]);
-	 rooFailZWidthL_->setConstant(false);
-      }
-      if( floatFailZWidthR_ && zWidthR_.size() == 3 )
-      {
-	 rooFailZWidthR_->setRange(zWidthR_[1],zWidthR_[2]);
-	 rooFailZWidthR_->setConstant(false);
-      }
-      // Voigtian
-      rooFailZVoigtPdf_ = new RooVoigtian("zFailVoigtPdf", "zVoigtPdf", 
-      *rooMass_, *rooFailZMean_, *rooFailZWidth_, *rooFailZSigma_);
-
-      // Bifurcated Gaussian
-      rooFailZBifurGaussPdf_ = new RooBifurGauss("zFailBifurGaussPdf", "zBifurGaussPdf", 
-      *rooMass_, *rooFailZMean_, *rooFailZWidthL_, *rooFailZWidthR_);
-      
-      // Bifurcated Gaussian fraction
-      if( !floatFailZBifurGaussFrac_ ) rooFailZBifurGaussFrac_ = rooZBifurGaussFrac_;
-      else                             rooFailZBifurGaussFrac_ = new RooRealVar("zFailBifurGaussFrac","zBifurGaussFrac",zBifurGaussFrac_[0]);
-      if( floatFailZBifurGaussFrac_ && zBifurGaussFrac_.size() == 3 )
-      {
-	 rooFailZBifurGaussFrac_->setRange(zBifurGaussFrac_[1],zBifurGaussFrac_[2]);
-	 rooFailZBifurGaussFrac_->setConstant(false);
-      } 
-
-      // The total fail signal PDF
-      signalShapeFailPdf_ = new RooAddPdf("signalShapeFailPdf", "signalShapePdf",
-      *rooFailZVoigtPdf_,*rooFailZBifurGaussPdf_,*rooFailZBifurGaussFrac_);
-
+   } else {
+     std::cout << "1445" << std::endl;
+     zLineShape_->CreatePdf(signalShapePdf_, rooMass_);
+     signalShapeFailPdf_  = signalShapePdf_;
+     std::cout << "1447" << std::endl;
+     std::cout << signalShapePdf_ << std::endl;
+     if (signalShapePdf_) {
+       std::cout << signalShapePdf_->getComponents()->getSize() << std::endl;
+     } else {
+       std::cout << "Epic Fail" << std::endl;
+     }
    }
 
    return;
@@ -1558,8 +1459,7 @@ void TagProbeEDMAnalysis::makeSignalPdf( )
 // ***** Function to return the background Pdf depending on the users choice of fit func ******* //
 void TagProbeEDMAnalysis::makeBkgPdf( )
 {
-   if( !PolyBkgLineShape_.empty() )
-   {
+   if (!PolyBkgLineShape_.empty()) {
       // So we can clean up
       fitPolyBkgLineShape_ = true;
 
@@ -1604,8 +1504,7 @@ void TagProbeEDMAnalysis::makeBkgPdf( )
       rooPolyBkgDummyFrac_ = new RooRealVar("dummyFrac","dummyFrac",1.0);
 
       bkgShapePdf_ = new RooAddPdf("bkgShapePdf", "bkgShapePdf",
-      *rooPolyBkgPdf_,*rooPolyBkgPdf_,*rooPolyBkgDummyFrac_);
-
+				   *rooPolyBkgPdf_,*rooPolyBkgPdf_,*rooPolyBkgDummyFrac_);
    }
    else
    {
@@ -1615,9 +1514,9 @@ void TagProbeEDMAnalysis::makeBkgPdf( )
 
       // Background PDF variables
       rooCMSBkgPeak_  = new RooRealVar("cmsBkgPeak","cmsBkgPeak",cmsBkgPeak_[0]);
-      rooCMSBkgBeta_ = new RooRealVar("cmsBkgBeta","cmsBkgBeta",cmsBkgBeta_[0]);
+      rooCMSBkgBeta_  = new RooRealVar("cmsBkgBeta","cmsBkgBeta",cmsBkgBeta_[0]);
       rooCMSBkgAlpha_ = new RooRealVar("cmsBkgAlpha","cmsBkgAlpha",cmsBkgAlpha_[0]);
-      rooCMSBkgGamma_     = new RooRealVar("cmsBkgGamma","cmsBkgGamma",cmsBkgGamma_[0]);
+      rooCMSBkgGamma_ = new RooRealVar("cmsBkgGamma","cmsBkgGamma",cmsBkgGamma_[0]);
 
       // If the user has specified a range, let the bkg shape 
       // variables float in the fit
@@ -1647,16 +1546,16 @@ void TagProbeEDMAnalysis::makeBkgPdf( )
 
       rooCMSBkgDummyFrac_ = new RooRealVar("dummyFrac","dummyFrac",1.0);
 
+      std::cout << "1546" << std::endl;
       bkgShapePdf_ = new RooAddPdf("bkgShapePdf", "bkgShapePdf",
       *rooCMSBkgPdf_,*rooCMSBkgPdf_,*rooCMSBkgDummyFrac_);
+      std::cout << "1549" << std::endl;
    }
 
    return;
 }
 
-
 // ****************** Function to perform the efficiency fit ************ //
-
 void TagProbeEDMAnalysis::doFit( std::string &bvar1, std::vector< double > bins1, int bin1, 
 				 std::string &bvar2, std::vector<double> bins2, int bin2,  
                                  double &eff, double &err, bool is2D )
@@ -1753,10 +1652,13 @@ void TagProbeEDMAnalysis::doFit( std::string &bvar1, std::vector< double > bins1
    RooFormulaVar numSigFail("numSigFail","numSignal*(1.0 - efficiency)", 
    RooArgList(numSignal,efficiency) );
 
-   RooArgList componentspass(*signalShapePdf_,*bkgShapePdf_);
+   RooArgList componentspass(*signalShapePdf_, *bkgShapePdf_);
    RooArgList yieldspass(numSigPass, numBkgPass);
    RooArgList componentsfail(*signalShapeFailPdf_,*bkgShapePdf_);
    RooArgList yieldsfail(numSigFail, numBkgFail);	  
+
+   std::cout << componentspass.getSize() << std::endl;
+   std::cout << yieldspass.getSize() << std::endl;
 
    RooAddPdf sumpass("sumpass","fixed extended sum pdf",componentspass,yieldspass);
    RooAddPdf sumfail("sumfail","fixed extended sum pdf",componentsfail, yieldsfail);
@@ -2153,23 +2055,7 @@ TagProbeEDMAnalysis::endJob()
       edm::LogInfo("TagProbeEDMAnalysis") << "Fit tree has " << fitTree_->GetEntries() << " entries.";
       fitTree_->Write();
 
-      var1Pass_->Write();
-      var1All_->Write();  
-      
-      var2Pass_->Write();
-      var2All_->Write();  
-      
-      var1var2Pass_->Write();
-      var1var2All_->Write();
-
-      var1BiasPass_->Write();
-      var1BiasAll_->Write();  
-      
-      var2BiasPass_->Write();
-      var2BiasAll_->Write();  
-      
-      var1var2BiasPass_->Write();
-      var1var2BiasAll_->Write();
+      WriteMCHistograms();
 
       outRootFile_->Close();
       edm::LogInfo("TagProbeEDMAnalysis") << "Closed ROOT file and returning!";
@@ -2180,9 +2066,10 @@ TagProbeEDMAnalysis::endJob()
    if( mode_ == "Normal" )
    {
       // Save plots ...
-      for( int i=0; i<(int)quantities_.size(); ++i )
+     unsigned int numQuantities = quantities_.size();
+      for( unsigned int iQuant=0; iQuant<numQuantities; ++iQuant )
       {
-	 SaveHistogram(Histograms_[i], outputFileNames_[i], logY_[i]);
+	 SaveHistogram(Histograms_[iQuant], outputFileNames_[iQuant], logY_[iQuant]);
       }
  
       // Calculate the efficiencies etc ...
@@ -2205,8 +2092,7 @@ TagProbeEDMAnalysis::endJob()
       {
 	 edm::LogInfo("TagProbeEDMAnalysis") << "fChain adding: " << readFiles_[iFile].c_str();
 	 fChain.Add(readFiles_[iFile].c_str());
-      }
-      edm::LogInfo("TagProbeEDMAnalysis") << "Added all files: Num Entries = " << fChain.GetEntries();
+      }      edm::LogInfo("TagProbeEDMAnalysis") << "Added all files: Num Entries = " << fChain.GetEntries();
 
       // Now merge the trees into the output file ...
       fChain.Merge(fitFileName_.c_str());
@@ -2216,30 +2102,7 @@ TagProbeEDMAnalysis::endJob()
       fitTree_ = (TTree*)f.Get("fitter_tree");
       edm::LogInfo("TagProbeEDMAnalysis") << "Read mode: Fit tree total entries " << fitTree_->GetEntries();
 
-      // Now read in the MC truth histograms and add the results
-      for( int iFile=0; iFile<(int)readFiles_.size(); ++iFile )
-      {
-	 TFile inputFile(readFiles_[iFile].c_str());
-
-	 var1Pass_->Add( (TH1F*)inputFile.Get("hvar1pass") );
-	 var1All_->Add( (TH1F*)inputFile.Get("hvar1all") );  
-	 
-	 var2Pass_->Add( (TH1F*)inputFile.Get("hvar2pass") );
-	 var2All_->Add( (TH1F*)inputFile.Get("hvar2all") );  
-	 
-	 var1var2Pass_->Add( (TH2F*)inputFile.Get("hvar1var2pass") );
-	 var1var2All_->Add( (TH2F*)inputFile.Get("hvar1var2all") );
-
-	 var1BiasPass_->Add( (TH1F*)inputFile.Get("hvar1biaspass") );
-	 var1BiasAll_->Add( (TH1F*)inputFile.Get("hvar1biasall") );  
-
-	 var2BiasPass_->Add( (TH1F*)inputFile.Get("hvar2biaspass") );
-	 var2BiasAll_->Add( (TH1F*)inputFile.Get("hvar2biasall") );  
-	 
-	 var1var2BiasPass_->Add( (TH2F*)inputFile.Get("hvar1var2biaspass") );
-	 var1var2BiasAll_->Add( (TH2F*)inputFile.Get("hvar1var2biasall") );
-
-      }
+      //ReadMCHistograms();
       
       // Now call for and calculate the efficiencies as normal
       // Set the file pointer
@@ -2263,28 +2126,6 @@ void TagProbeEDMAnalysis::cleanFitVariables()
   if( bkgShapePdf_ != NULL )           delete bkgShapePdf_;
   
   // Clean Z line shape
-  if( fitZLineShape_ )
-    {
-      if( rooZMean_ != NULL )           delete rooZMean_;
-      if( rooZWidth_ != NULL )          delete rooZWidth_;
-      if( rooZSigma_ != NULL )          delete rooZSigma_;
-      if( rooZWidthL_ != NULL )         delete rooZWidthL_;
-      if( rooZWidthR_ != NULL )         delete rooZWidthR_;
-      if( rooZBifurGaussFrac_ != NULL ) delete rooZBifurGaussFrac_;
-      if( rooZVoigtPdf_ != NULL )       delete rooZVoigtPdf_;
-      if( rooZBifurGaussPdf_ != NULL )  delete rooZBifurGaussPdf_;
-      
-      if( floatFailZMean_ && rooFailZMean_ != NULL )   delete rooFailZMean_;
-      if( floatFailZWidth_ && rooFailZWidth_ != NULL ) delete rooFailZWidth_;
-      if( floatFailZSigma_ && rooFailZSigma_ != NULL ) delete rooFailZSigma_;
-      if( floatFailZWidthL_ && rooFailZWidthL_ != NULL ) delete rooFailZWidthL_;
-      if( floatFailZWidthR_ && rooFailZWidthR_ != NULL ) delete rooFailZWidthR_;
-      if( floatFailZBifurGaussFrac_ && rooFailZBifurGaussFrac_ != NULL ) delete rooFailZBifurGaussFrac_;
-      if( rooFailZVoigtPdf_ != NULL )       delete rooFailZVoigtPdf_;
-      if( rooFailZBifurGaussPdf_ != NULL )  delete rooFailZBifurGaussPdf_;
-      
-      if( signalShapeFailPdf_ != NULL )     delete signalShapeFailPdf_;
-    }
   
   if( fitCBLineShape_ )
     {

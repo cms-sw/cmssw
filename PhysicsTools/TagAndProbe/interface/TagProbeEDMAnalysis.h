@@ -4,7 +4,7 @@
 //
 // Original Author: Nadia Adam (Princeton University) 
 //         Created:  Fri May 16 16:48:24 CEST 2008
-// $Id: TagProbeEDMAnalysis.h,v 1.13 2009/05/12 21:57:01 ahunt Exp $
+// $Id: TagProbeEDMAnalysis.h,v 1.14 2009/05/12 22:44:46 ahunt Exp $
 //
 //
 // Kalanand Mishra: July 1, 2008 
@@ -27,12 +27,12 @@ class EffTableLoader;
 
 class RooRealVar;
 class RooAddPdf;
-class RooVoigtian;
-class RooBifurGauss;
 class RooCBShape;
 class RooGaussian;
 class RooCMSShapePdf;
 class RooPolynomial;
+
+class ZLineShape;
 
 class TagProbeEDMAnalysis : public edm::EDAnalyzer
 {
@@ -69,13 +69,15 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer
 
       void FillFitTree(const edm::Event&);
 
-      void ConfigureZLineShape(const edm::ParameterSet&);
       void ConfigureCBLineShape(const edm::ParameterSet&);
       void ConfigureGaussLineShape(const edm::ParameterSet&);
       void ConfigurePolynomialShape(const edm::ParameterSet&);
       void ConfigureCMSBackgroundLineShape(const edm::ParameterSet&);
 
       void InitializeMCHistograms();
+      void ReadMCHistograms();
+      void CleanUpMCHistograms();
+      void WriteMCHistograms();
 
       void cleanFitVariables();
 
@@ -92,7 +94,6 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer
       std::vector<double> lumi_;
       std::vector<double> xsection_;
       std::vector<double> weight_;
-      bool Verbose_;
 
       // Fitting/Efficiency calculation inputs
       int tagProbeType_;        // If more than one tag-probe type is stored select
@@ -111,7 +112,6 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer
       int massNbins_;           // Number of bins in the fit
       double massLow_;          // Lower bound for fit range
       double massHigh_;         // Upper bound for fit range
-
       double inweight_;
       
       std::string var1Name_;          // Name of variable one (default pt)
@@ -134,50 +134,14 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer
 
       // Parameter set fo the available fit functions 
 
+      ZLineShape* zLineShape_;
+
       // The signal & background Pdf & Fit variable
       RooRealVar *rooMass_;
       RooAddPdf  *signalShapePdf_;
       RooAddPdf  *signalShapeFailPdf_;
       RooAddPdf  *bkgShapePdf_;
       
-      // 1. Z line shape
-      bool fitZLineShape_;
-      edm::ParameterSet   ZLineShape_;
-      std::vector<double> zMean_;       // Fit mean
-      std::vector<double> zWidth_;      // Fit width
-      std::vector<double> zSigma_;      // Fit sigma
-      std::vector<double> zWidthL_;     // Fit left width
-      std::vector<double> zWidthR_;     // Fit right width
-      std::vector<double> zBifurGaussFrac_;   // Fraction of signal shape from bifur Gauss
-
-      // Private variables/functions needed for ZLineShape
-      RooRealVar *rooZMean_;
-      RooRealVar *rooZWidth_;
-      RooRealVar *rooZSigma_;
-      RooRealVar *rooZWidthL_;
-      RooRealVar *rooZWidthR_;
-      RooRealVar *rooZBifurGaussFrac_;
-
-      RooVoigtian   *rooZVoigtPdf_;
-      RooBifurGauss *rooZBifurGaussPdf_;
-
-      // In case we need the failing probes to float separately
-      bool        floatFailZMean_;
-      bool        floatFailZWidth_;
-      bool        floatFailZSigma_;
-      bool        floatFailZWidthL_;
-      bool        floatFailZWidthR_;
-      bool        floatFailZBifurGaussFrac_;
-      RooRealVar *rooFailZMean_;
-      RooRealVar *rooFailZWidth_;
-      RooRealVar *rooFailZSigma_;
-      RooRealVar *rooFailZWidthL_;
-      RooRealVar *rooFailZWidthR_;
-      RooRealVar *rooFailZBifurGaussFrac_;
-
-      RooVoigtian   *rooFailZVoigtPdf_;
-      RooBifurGauss *rooFailZBifurGaussPdf_;
-
       // 2. Crystal Ball Line Shape
       bool fitCBLineShape_;
       edm::ParameterSet   CBLineShape_;
