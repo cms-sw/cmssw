@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2009/05/04 20:05:19 $
- * $Revision: 1.56 $
+ * $Date: 2009/05/07 08:17:49 $
+ * $Revision: 1.57 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
  */
@@ -1084,7 +1084,7 @@ std::string DTDataIntegrityTask::topFolder() const {
 
 void DTDataIntegrityTask::channelsInCEROS(int cerosId, int chMask, vector<int>& channels ){
   for (int iCh=0; iCh<6;++iCh) {
-    if (chMask & iCh){
+    if ((chMask >> iCh) & 0x1){
       channels.push_back(cerosId*6+iCh);
     }
   }
@@ -1093,7 +1093,7 @@ void DTDataIntegrityTask::channelsInCEROS(int cerosId, int chMask, vector<int>& 
 
 void DTDataIntegrityTask::channelsInROS(int cerosMask, vector<int>& channels){
   for (int iCeros=0; iCeros<5;++iCeros) {
-    if (cerosMask & iCeros){
+    if ((cerosMask >> iCeros) & 0x1){
       for (int iCh=0; iCh<6;++iCh) {
 	channels.push_back(iCeros*6+iCh);
       }
