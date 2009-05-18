@@ -1,0 +1,5 @@
+<export></export>
+<use name=MuonAnalysis/MuonAssociators>
+<use name=DataFormats/PatCandidates>
+<library name=MuonAnalysisMuonAssociators_plugins file=*.cc>
+</library>
