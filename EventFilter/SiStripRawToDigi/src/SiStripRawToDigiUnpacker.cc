@@ -577,7 +577,10 @@ namespace sistrip {
 
       // construct FEDBuffer
       std::auto_ptr<sistrip::FEDBuffer> buffer;
-      try {buffer.reset(new sistrip::FEDBuffer(output.data(),output.size()));}
+      try {
+        buffer.reset(new sistrip::FEDBuffer(output.data(),output.size()));
+        if (!buffer->doChecks()) throw cms::Exception("FEDBuffer") << "FED Buffer check fails.";
+      }
       catch (const cms::Exception& e) { 
 	if ( edm::isDebugEnabled() ) {
 	  edm::LogWarning("sistrip::RawToDigiUnpacker") << e.what();
@@ -639,15 +642,15 @@ namespace sistrip {
 
 	// Check if fed connection is valid
 	if ( !iconn->isConnected() ) { continue; }
+        
+        // Check DetId is valid (if to be used as key)
+	if ( !useFedKey_ && ( !iconn->detId() || iconn->detId() == sistrip::invalid32_ ) ) { continue; }
       
 	// Check FED channel
 	if (!buffer->channelGood(iconn->fedCh())) {
 	  detids.push_back(iconn->detId()); //@@ Possible multiple entries (ok for Giovanni)
 	  continue;
 	}
-      
-	// Check DetId is valid (if to be used as key)
-	if ( !useFedKey_ && ( !iconn->detId() || iconn->detId() == sistrip::invalid32_ ) ) { continue; }
 
 	// Determine whether FED key is inferred from cabling or channel loop
 	uint32_t fed_key = ( summary.runType() == sistrip::FED_CABLING ) ? ( ( *ifed & sistrip::invalid_ ) << 16 ) | ( chan & sistrip::invalid_ ) : ( ( iconn->fedId() & sistrip::invalid_ ) << 16 ) | ( iconn->fedCh() & sistrip::invalid_ );
