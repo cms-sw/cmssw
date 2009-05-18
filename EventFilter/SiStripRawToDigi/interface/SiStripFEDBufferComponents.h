@@ -1033,7 +1033,7 @@ namespace sistrip {
     {
       const uint8_t* pFEWord = feWord(internalFEDChannelNum / FEDCH_PER_FEUNIT);
       const uint8_t bitInFeWord = ((FEDCH_PER_FEUNIT-1) - (internalFEDChannelNum%FEDCH_PER_FEUNIT)) * 6 + bit;
-      return ( pFEWord[bitInFeWord/8] & (0x1 << bitInFeWord%8) );
+      return ( pFEWord[bitInFeWord/8] & (0x1 << (bitInFeWord%8)) );
     }
   
   inline uint32_t FEDFullDebugHeader::get32BitWordFrom(const uint8_t* startOfWord)

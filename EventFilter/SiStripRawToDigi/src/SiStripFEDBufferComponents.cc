@@ -1065,7 +1065,7 @@ namespace sistrip {
     const uint8_t* pFEWord = feWord(internalFEDChannelNum/FEDCH_PER_FEUNIT);
     const uint8_t feUnitChanNum = internalFEDChannelNum % FEDCH_PER_FEUNIT;
     const uint8_t startByteInFEWord = (FEDCH_PER_FEUNIT-1 - feUnitChanNum) * 6 / 8;
-    switch (feUnitChanNum % 4) {
+    switch ( (FEDCH_PER_FEUNIT-1-feUnitChanNum) % 4 ) {
     case 0:
       return FEDChannelStatus( pFEWord[startByteInFEWord] & 0x3F );
     case 1:
