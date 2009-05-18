@@ -76,14 +76,17 @@ public:
   
   void updateTrajectory( TempTrajectory& traj, const TM& tm) const;
 
-  bool theSharedSeedCheck;
-  std::string theUniqueName;
-  void rememberSeedAndTrajectories(const TrajectorySeed& seed,TrajectoryContainer &result) const;
-  bool seedAlreadyUsed(const TrajectorySeed& seed,TempTrajectoryContainer &candidates) const;
-  bool sharedSeed(const TrajectorySeed& seed1,const TrajectorySeed& seed2) const;
-  //  mutable TempTrajectoryContainer theCachedTrajectories;
-  typedef boost::unordered_multimap<uint32_t,TempTrajectory> SharedTrajectory;
-  mutable SharedTrajectory theCachedTrajectories;
+  /*  
+      //not mature for integration.  
+      bool theSharedSeedCheck;
+      std::string theUniqueName;
+      void rememberSeedAndTrajectories(const TrajectorySeed& seed,TrajectoryContainer &result) const;
+      bool seedAlreadyUsed(const TrajectorySeed& seed,TempTrajectoryContainer &candidates) const;
+      bool sharedSeed(const TrajectorySeed& seed1,const TrajectorySeed& seed2) const;
+      //  mutable TempTrajectoryContainer theCachedTrajectories;
+      typedef boost::unordered_multimap<uint32_t,TempTrajectory> SharedTrajectory;
+      mutable SharedTrajectory theCachedTrajectories;
+  */
 };
 
 #endif

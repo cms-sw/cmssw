@@ -13,7 +13,7 @@ CkfTrajectoryBuilder = cms.ESProducer("CkfTrajectoryBuilderESProducer",
     alwaysUseInvalidHits = cms.bool(True),
     propagatorOpposite = cms.string('PropagatorWithMaterialOpposite'),
     lostHitPenalty = cms.double(30.0),
-    SharedSeedCheck = cms.bool(False)
+    #SharedSeedCheck = cms.bool(False)
 )
 
 
