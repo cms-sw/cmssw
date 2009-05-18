@@ -1,7 +1,7 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.34 2008/04/30 22:05:17 fedor Exp $
+/// $Id: JetMaker.cc,v 1.35 2008/05/17 00:26:10 fedor Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -70,11 +70,13 @@ bool JetMaker::makeSpecific (const JetReco::InputCollection& fTowers,
 	  break;
 	}
 	// get area of the tower (++ minus --)
-	const CaloCellGeometry* geometry = fTowerGeometry.getGeometry(tower->id());
-	if (geometry) {
-	  float dEta = fabs (geometry->getCorners() [0].eta() - geometry->getCorners() [2].eta());
-	  float dPhi = fabs (geometry->getCorners() [0].phi() - geometry->getCorners() [2].phi());
-	  jetArea += dEta * dPhi;
+	if ( tower->energy() > 0 ) {
+	  const CaloCellGeometry* geometry = fTowerGeometry.getGeometry(tower->id());
+	  if (geometry) {
+	    float dEta = fabs (geometry->getCorners() [0].eta() - geometry->getCorners() [2].eta());
+	    float dPhi = fabs (geometry->getCorners() [0].phi() - geometry->getCorners() [2].phi());
+	    jetArea += dEta * dPhi;
+	  }
 	}
 	else {
 	  std::cerr << "JetMaker::makeSpecific (CaloJet)-> Geometry for cell " << tower->id() << " can not be found. Ignoring cell" << std::endl;
