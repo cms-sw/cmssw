@@ -54,7 +54,7 @@ from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff import *
 preFilterZeroStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'newTrackCandidateMaker',
     Fitter = 'KFFittingSmootherWithOutliersRejectionAndRK',
-    AlgorithmName = 'ctf'
+    AlgorithmName = 'iter0'
     )
 
 ### STEP 1 ###
@@ -133,7 +133,7 @@ stepOneTrackCandidateMaker = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTr
 
 # fitting
 preFilterStepOneTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    AlgorithmName = cms.string('ctf'),
+    AlgorithmName = 'iter1',
     src = 'stepOneTrackCandidateMaker',
     clusterRemovalInfo = 'newClusters'
     )
