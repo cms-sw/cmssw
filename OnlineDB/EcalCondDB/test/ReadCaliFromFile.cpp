@@ -1,5 +1,5 @@
 #include <iostream>
-#include <cstdlib>
+
 #include <fstream>
 #include <string>
 #include <vector>
@@ -49,7 +49,10 @@ public:
     locdef.setLocation("LAB");
     CaliTag calitag;
     calitag.setLocationDef(locdef);
-
+    calitag.setDataType("TEMP_SENSOR");
+    calitag.setMethod("COSMICS");
+    calitag.setVersion("OFFSET");
+    calitag.setGeneralTag("EB_with_offset_in_situ");
 
     // Our beginning time will be the current GMT time
     // This is the time zone that should be written to the DB!
@@ -111,32 +114,39 @@ public:
     float temp_vec[61200];
     float beta_vec[61200];
     float r25_vec[61200];
+    float nic_vec[61200];
     int ih4_vec[61200];
     for(int ic=0; ic<61200; ic++){
       beta_vec[ic]=0;
       r25_vec[ic]=0;
       temp_vec[ic]=0;
+      nic_vec[ic]=0;
       ih4_vec[ic]=0;
     }
 
 
     int sm,i,j,ih4,temp;
-    float beta, r25;
+    float beta, r25, nic;
     int slot_num=0;
     while( fin.peek() != EOF )
       {
-	fin >> sm>>i>>j>>ih4>>temp>>beta>>r25;
+
+	//	fin >> sm>>i>>j>>ih4>>temp>>beta>>r25>>nic;
+	fin >> sm>>i>>beta>>r25>>nic;
 	  
 	
-	cout << "sm/i/j/beta/r25="<<sm<<"/"<<i<<"/"<<j<<"/"<<beta<<"/"<<r25<< endl;
-	slot_num=convertFromConstructionSMToSlot(sm,-1);
+	if(i<10) cout << "sm/i/beta/r25/offset="<<sm<<"/"<<i<<"/"<<beta<<"/"<<r25<<"/"<<nic<< endl;
+	//	slot_num=convertFromConstructionSMToSlot(sm,-1);
 	
-	int ic=(slot_num-1)*1700+(ih4-1);
+	int ic=(sm-1)*170+i-1;
+
+	//	int ic=(slot_num-1)*1700+(ih4-1);
+	
 	beta_vec[ic]=beta;
 	r25_vec[ic]=r25;
-	temp_vec[ic]=temp;
+	temp_vec[ic]=1.0;
 	ih4_vec[ic]=ih4;
-	
+	nic_vec[ic]=nic;
       }
 
     fin.close();
@@ -153,13 +163,18 @@ public:
 
 
     vector<EcalLogicID> ecid_vec;
-    ecid_vec = econn->getEcalLogicIDSetOrdered("EB_crystal_number", 1,36, 1, 1700,EcalLogicID::NULLID,
+    //    ecid_vec = econn->getEcalLogicIDSetOrdered("EB_crystal_number", 1,36, 1, 1700,EcalLogicID::NULLID,
+    //					   EcalLogicID::NULLID, "EB_T_capsule",12);
+
+
+    ecid_vec = econn->getEcalLogicIDSetOrdered("EB_T_capsule", 1,36, 1, 170,EcalLogicID::NULLID,
 						   EcalLogicID::NULLID, "EB_T_capsule",12);
 
 
    map<EcalLogicID, CaliTempDat> dataset;
    int count=0;
-   for (int ii=0; ii<61200; ii++){
+   //   for (int ii=0; ii<61200; ii++){
+   for (int ii=0; ii<6120; ii++){
        CaliTempDat capTemp;
        if(temp_vec[ii]!=0 ){
        
@@ -168,12 +183,13 @@ public:
        
 	 capTemp.setBeta(val1);
 	 capTemp.setR25(val2);
-	
+	 capTemp.setOffset(nic_vec[ii]);
+	 capTemp.setTaskStatus(1) ;
        
        // Fill the dataset
 	 
-	 dataset[ecid_vec[ ih4_vec[ii] ] ] = capTemp;
-	 cout<< "filling DB for "<<ii<<" count="<<count<<endl; 
+	 dataset[ecid_vec[ ii] ] = capTemp;
+	 if(ii/100==0) cout<< "filling DB for "<<ii<<" count="<<count<<endl; 
 	 count++;
        }
    }
