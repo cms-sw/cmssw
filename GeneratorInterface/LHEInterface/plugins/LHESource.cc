@@ -32,9 +32,8 @@ using namespace lhef;
 LHESource::LHESource(const edm::ParameterSet &params,
                      const edm::InputSourceDescription &desc) :
 	ExternalInputSource(params, desc, false),
-	reader(new LHEReader(fileNames(), params.getUntrackedParameter<unsigned int>("seekEvent", 0))),
-	wasMerged(false),
-	skipEvents(params.getUntrackedParameter<unsigned int>("skipEvents", 0))
+	reader(new LHEReader(fileNames(), params.getUntrackedParameter<unsigned int>("skipEvents", 0))),
+	wasMerged(false)
 {
 	produces<LHEEventProduct>();
 	produces<LHERunInfoProduct, edm::InRun>();
@@ -53,13 +52,6 @@ void LHESource::nextEvent()
 {
 	if (partonLevel)
 		return;
-
-	while(skipEvents > 0) {
-		skipEvents--;
-		partonLevel = reader->next();
-		if (!partonLevel)
-			return;
-	}
 
 	partonLevel = reader->next();
 	if (!partonLevel)

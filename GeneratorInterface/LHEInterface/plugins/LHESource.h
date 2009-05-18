@@ -43,8 +43,6 @@ class LHESource : public edm::ExternalInputSource {
 
 	boost::ptr_deque<LHERunInfoProduct>	runInfoProducts;
 	bool					wasMerged;
-
-	unsigned int				skipEvents;
 };
 
 #endif // GeneratorInterface_LHEInterface_LHESource_h

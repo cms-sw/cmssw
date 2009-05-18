@@ -62,7 +62,7 @@ static std::pair<std::vector<std::string>, unsigned int>
 	                    boost::regex_constants::icase);
 
 	unsigned int firstEvent =
-		params.getUntrackedParameter<unsigned int>("seekEvent", 0);
+		params.getUntrackedParameter<unsigned int>("skipEvents", 0);
 
 	std::vector<std::string> fileURLs;
 	for(std::vector<mcdb::File>::iterator file = article.files().begin();
@@ -94,7 +94,7 @@ static std::pair<std::vector<std::string>, unsigned int>
 			continue;
 
 		int nEvents = file->eventsNumber();
-		if ((int)firstEvent > nEvents) {
+		if ((int)firstEvent >= nEvents) {
 			firstEvent -= nEvents;
 			continue;
 		}
@@ -120,7 +120,7 @@ static edm::ParameterSet augmentPSetFromMCDB(const edm::ParameterSet &params)
 	newParams.addUntrackedParameter<std::vector<std::string> >(
 						"fileNames", result.first);
 	newParams.addUntrackedParameter<unsigned int>(
-						"seekEvent", result.second);
+						"skipEvents", result.second);
 
 	return newParams;
 }
