@@ -1,5 +1,19 @@
 This test suite is meant to try the configurations which are used for the RelVal samples.
 
+# Temporary modifications to be added to reco python files
+import sys
+import os
+sys.path.append('.')
+import dbs_discovery
+process.source = cms.Source ("PoolSource",
+    fileNames = cms.untracked.vstring(),
+	secondaryFileNames = cms.untracked.vstring()
+)
+process.source.fileNames.extend(dbs_discovery.search())
+process.gsfElectrons.addPflowElectrons = cms.bool(True)
+
+
+
 <var name="DBS_RELEASE" value="CMSSW_3_1_0_pre6">
 <var name="DBS_LIKE" value="*IDEAL_31X_v1*-*RAW*">
 
