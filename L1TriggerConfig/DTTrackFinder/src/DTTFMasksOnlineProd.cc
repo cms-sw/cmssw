@@ -41,10 +41,6 @@ class DTTFMasksOnlineProd :
         const std::string& objectKey ) ;
 
    private:
-       void disablePHTF( 
-         boost::shared_ptr< L1MuDTTFMasks >& dttfMasks,
-         int nwh,    // wheel
-         int isc ) ; // sector
 
       // ----------member data ---------------------------
 };
@@ -89,6 +85,12 @@ DTTFMasksOnlineProd::newObject( const std::string& objectKey )
      crateMaskColumns.push_back( "WEDGE_CRATE_4" ) ;
      crateMaskColumns.push_back( "WEDGE_CRATE_5" ) ;
      crateMaskColumns.push_back( "WEDGE_CRATE_6" ) ;
+     crateMaskColumns.push_back( "WEDGE_CRATE_1_E" ) ;
+     crateMaskColumns.push_back( "WEDGE_CRATE_2_E" ) ;
+     crateMaskColumns.push_back( "WEDGE_CRATE_3_E" ) ;
+     crateMaskColumns.push_back( "WEDGE_CRATE_4_E" ) ;
+     crateMaskColumns.push_back( "WEDGE_CRATE_5_E" ) ;
+     crateMaskColumns.push_back( "WEDGE_CRATE_6_E" ) ;
 
      l1t::OMDSReader::QueryResults crateMaskResults =
        m_omdsReader.basicQuery( crateMaskColumns,
@@ -108,6 +110,8 @@ DTTFMasksOnlineProd::newObject( const std::string& objectKey )
      // Cache crate masks
      unsigned long crateMaskL[ 6 ] ;
      unsigned long crateMaskR[ 6 ] ;
+     unsigned long krateMaskL[ 6 ] ;
+     unsigned long krateMaskR[ 6 ] ;
      for( int icrate = 0 ; icrate < 6 ; ++icrate )
        {
 	 std::string crateMask ;
@@ -116,9 +120,17 @@ DTTFMasksOnlineProd::newObject( const std::string& objectKey )
          char* pEnd;
 	 crateMaskL[ icrate ] = std::strtol( crateMask.c_str(), &pEnd, 16 ) ;
 	 crateMaskR[ icrate ] = std::strtol( pEnd, (char **)NULL, 16 ) ;
+
+	 crateMaskResults.fillVariable( crateMaskColumns[ icrate+6 ],
+					crateMask ) ;
+	 krateMaskL[ icrate ] = std::strtol( crateMask.c_str(), &pEnd, 16 ) ;
+	 krateMaskR[ icrate ] = std::strtol( pEnd, (char **)NULL, 16 ) ;
+
 	 std::cout << "Crate " << icrate << " masks"
 		   << " L: " << std::hex << crateMaskL[ icrate ]
-	           << " R: " << std::hex << crateMaskR[ icrate ] << std::endl ;
+		   << " "    << std::hex << krateMaskL[ icrate ]
+	           << " R: " << std::hex << crateMaskR[ icrate ]
+	           << " "    << std::hex << krateMaskR[ icrate ] << std::endl ;
        }
 
      // Map of sector (0-11) to name (L/R)
@@ -143,29 +155,33 @@ DTTFMasksOnlineProd::newObject( const std::string& objectKey )
      crateMaskBitmap.insert( std::make_pair( "P1",  4 ) ) ;
      crateMaskBitmap.insert( std::make_pair( "P2",  0 ) ) ;
 
+     std::map< std::string, unsigned int > krateMaskBitmap ;
+     krateMaskBitmap.insert( std::make_pair( "N2", 16 ) ) ;
+     krateMaskBitmap.insert( std::make_pair( "N1", 12 ) ) ;
+     krateMaskBitmap.insert( std::make_pair( "P0",  8 ) ) ;
+     krateMaskBitmap.insert( std::make_pair( "P1",  4 ) ) ;
+     krateMaskBitmap.insert( std::make_pair( "P2",  0 ) ) ;
+
      // Loop over sectors 0-11
      for( int isc = 0 ; isc < 12 ; ++isc )
        {
 	 int crateNumber = crateNumbers[ isc ] ;
 	 unsigned long crateMask = crateMaskL[ crateNumber ] ;
          if ( sectorNames[ isc ] == "R" ) crateMask = crateMaskR[ crateNumber ] ;
+	 unsigned long krateMask = krateMaskL[ crateNumber ] ;
+         if ( sectorNames[ isc ] == "R" ) krateMask = krateMaskR[ crateNumber ] ;
 	 std::cout << "isc " << isc << " icr " << crateNumber << std::endl ;
 
 	 // Loop over wheels 0-5
 	 for( int iwh = 0 ; iwh < 6 ; ++iwh )
 	   {
-	     // Check appropriate bit of crate mask
-	     // 0 = PHTF disabled, other = PHTF enabled
 	     std::string sectorWheelName =
 	       sectorNames[ isc ] + wheelNames[ iwh ] ;
 
 	     unsigned int maskBit = 30 ;
 	     std::map< std::string, unsigned int >::const_iterator itr =
 	       crateMaskBitmap.find( wheelNames[ iwh ] ) ;
-	     if( itr != crateMaskBitmap.end() )
-	       {
-		 maskBit = itr->second ;
-	       }
+	     if( itr != crateMaskBitmap.end() ) maskBit = itr->second ;
 
 	     unsigned long phtfEnabled = ( crateMask >> maskBit ) & 0xF ;
 
@@ -178,48 +194,47 @@ DTTFMasksOnlineProd::newObject( const std::string& objectKey )
 
 	     int nwh = wheelNumbers[ iwh ] ;
 
-	     disablePHTF( pDTTFMasks, nwh, isc ) ;
+	     unsigned long chmask = phtfEnabled & 0x1;
+	     std::cout << " INREC_CHDIS_ST1 " << 1-chmask ;
+	     pDTTFMasks->set_inrec_chdis_st1( nwh, isc, 1-chmask ) ;
+	     chmask = ( phtfEnabled >> 1 ) & 0x1;
+	     std::cout << " INREC_CHDIS_ST2 " << 1-chmask ;
+	     pDTTFMasks->set_inrec_chdis_st2( nwh, isc, 1-chmask ) ;
+	     chmask = ( phtfEnabled >> 2 ) & 0x1;
+	     std::cout << " INREC_CHDIS_ST3 " << 1-chmask ;
+	     pDTTFMasks->set_inrec_chdis_st3( nwh, isc, 1-chmask ) ;
+	     chmask = ( phtfEnabled >> 3 ) & 0x1;
+	     std::cout << " INREC_CHDIS_ST4 " << 1-chmask ;
+	     pDTTFMasks->set_inrec_chdis_st4( nwh, isc, 1-chmask ) ;
+	     chmask = ( phtfEnabled >> 4 ) & 0x1;
+	     std::cout << " INREC_CHDIS_CSC " << 1-chmask << std::endl ;
+	     pDTTFMasks->set_inrec_chdis_csc( nwh, isc, 1-chmask ) ;
 
-	     // Check if PHTF enabled
-	     if( phtfEnabled & 0xF )
-               {
-	         unsigned long chmask = phtfEnabled & 0x1;
-		 std::cout << " INREC_CHDIS_ST1 " << 1-chmask ;
-		 pDTTFMasks->set_inrec_chdis_st1( nwh, isc, 1-chmask ) ;
-		 chmask = ( phtfEnabled >> 1 ) & 0x1;
-		 std::cout << " INREC_CHDIS_ST2 " << 1-chmask ;
-		 pDTTFMasks->set_inrec_chdis_st2( nwh, isc, 1-chmask ) ;
-		 chmask = ( phtfEnabled >> 2 ) & 0x1;
-		 std::cout << " INREC_CHDIS_ST3 " << 1-chmask ;
-		 pDTTFMasks->set_inrec_chdis_st3( nwh, isc, 1-chmask ) ;
-		 chmask = ( phtfEnabled >> 3 ) & 0x1;
-		 std::cout << " INREC_CHDIS_ST4 " << 1-chmask ;
-		 pDTTFMasks->set_inrec_chdis_st4( nwh, isc, 1-chmask ) ;
-		 chmask = ( phtfEnabled >> 4 ) & 0x1;
-		 std::cout << " INREC_CHDIS_CSC " << 1-chmask << std::endl ;
-		 pDTTFMasks->set_inrec_chdis_csc( nwh, isc, 1-chmask ) ;
-	       }
+             if ( wheelNames[ iwh ] == "N0" ) continue ;
+
+	     maskBit = 20 ;
+	     itr = krateMaskBitmap.find( wheelNames[ iwh ] ) ;
+	     if( itr != krateMaskBitmap.end() ) maskBit = itr->second ;
+
+	     unsigned long ettfEnabled = ( krateMask >> maskBit ) & 0x7 ;
+
+	     std::cout << "Bits " << std::dec << maskBit << " (" << sectorWheelName
+		       << ") of mask " << std::hex << krateMask << " is "
+		       << std::hex << ettfEnabled << std::endl ;
+
+	     chmask = ettfEnabled & 0x1;
+	     std::cout << " ETSOC_CHDIS_ST1 " << 1-chmask ;
+	     pDTTFMasks->set_etsoc_chdis_st1( nwh, isc, 1-chmask ) ;
+	     chmask = ( ettfEnabled >> 1 ) & 0x1;
+	     std::cout << " ETSOC_CHDIS_ST2 " << 1-chmask ;
+	     pDTTFMasks->set_etsoc_chdis_st2( nwh, isc, 1-chmask ) ;
+	     chmask = ( ettfEnabled >> 2 ) & 0x1;
+	     std::cout << " ETSOC_CHDIS_ST3 " << 1-chmask << std::endl ;
+	     pDTTFMasks->set_etsoc_chdis_st3( nwh, isc, 1-chmask ) ;
 	   }
        }
 
      return pDTTFMasks ;
-}
-
-//
-// member functions
-//
-
-void
-DTTFMasksOnlineProd::disablePHTF( 
-  boost::shared_ptr< L1MuDTTFMasks >& dttfMasks,
-  int nwh,  // wheel
-  int isc ) // sector
-{
-  dttfMasks->set_inrec_chdis_st1( nwh, isc, true ) ;
-  dttfMasks->set_inrec_chdis_st2( nwh, isc, true ) ;
-  dttfMasks->set_inrec_chdis_st3( nwh, isc, true ) ;
-  dttfMasks->set_inrec_chdis_st4( nwh, isc, true ) ;
-  dttfMasks->set_inrec_chdis_csc( nwh, isc, true ) ;
 }
 
 // ------------ method called to produce the data  ------------

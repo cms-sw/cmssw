@@ -158,110 +158,106 @@ DTTFParametersOnlineProd::newObject( const std::string& objectKey )
 
 	     int nwh = wheelNumbers[ iwh ] ;
 
-	     // Now PHTF is always enabled
-	     if( 1 )
-               {
-	         // Check if non-null crate key
-	         std::string crateKey ;
-	         if( crateKeyResults.fillVariable( crateKeyColumns[ crateNumber ],
-						   crateKey ) )
-	           {
-		     // Get PHTF key
-		     std::vector< std::string > phtfKeyColumns ;
-		     phtfKeyColumns.push_back( "PHTF_" + sectorWheelName ) ;
+	     // Check if non-null crate key
+	     std::string crateKey ;
+	     if( crateKeyResults.fillVariable( crateKeyColumns[ crateNumber ],
+					       crateKey ) )
+	       {
+		 // Get PHTF key
+		 std::vector< std::string > phtfKeyColumns ;
+		 phtfKeyColumns.push_back( "PHTF_" + sectorWheelName ) ;
 
-		     l1t::OMDSReader::QueryResults phtfKeyResults =
-		       m_omdsReader.basicQuery( phtfKeyColumns,
-					        dttfSchema,
-					        "WEDGE_CRATE_CONF",
-					        "WEDGE_CRATE_CONF.ID",
-					        crateKeyResults,
-					        crateKeyColumns[ crateNumber ] ) ;
+		 l1t::OMDSReader::QueryResults phtfKeyResults =
+		   m_omdsReader.basicQuery( phtfKeyColumns,
+					    dttfSchema,
+					    "WEDGE_CRATE_CONF",
+					    "WEDGE_CRATE_CONF.ID",
+					    crateKeyResults,
+					    crateKeyColumns[ crateNumber ] ) ;
 
-		     if( phtfKeyResults.queryFailed() ||
-		         phtfKeyResults.numberRows() != 1 )
+		 if( phtfKeyResults.queryFailed() ||
+		     phtfKeyResults.numberRows() != 1 )
+		   {
+		     edm::LogError( "L1-O2O" )
+		       << "Problem with WEDGE_CRATE_CONF key." ;
+		     return boost::shared_ptr< L1MuDTTFParameters >() ;
+		   }
+		 
+		 std::string dummy ;
+		 if( phtfKeyResults.fillVariable( dummy ) )
+		   {
+		     std::cout << "PHTF key " << dummy << std::endl ;
+		     
+		     l1t::OMDSReader::QueryResults phtfMaskResults =
+		       m_omdsReader.basicQuery( phtfMaskColumns,
+						dttfSchema,
+						"PHTF_CONF",
+						"PHTF_CONF.ID",
+						phtfKeyResults ) ;
+		     
+		     if( phtfMaskResults.queryFailed() ||
+			 phtfMaskResults.numberRows() != 1 )
 		       {
-		         edm::LogError( "L1-O2O" )
-		           << "Problem with WEDGE_CRATE_CONF key." ;
-		         return boost::shared_ptr< L1MuDTTFParameters >() ;
+			 edm::LogError( "L1-O2O" )
+			   << "Problem with PHTF_CONF key." ;
+			 return boost::shared_ptr< L1MuDTTFParameters >() ;
 		       }
-
-		     std::string dummy ;
-		     if( phtfKeyResults.fillVariable( dummy ) )
-		       {
-		         std::cout << "PHTF key " << dummy << std::endl ;
-
-		         l1t::OMDSReader::QueryResults phtfMaskResults =
-		           m_omdsReader.basicQuery( phtfMaskColumns,
-						    dttfSchema,
-						    "PHTF_CONF",
-						    "PHTF_CONF.ID",
-						    phtfKeyResults ) ;
-
-		         if( phtfMaskResults.queryFailed() ||
-			     phtfMaskResults.numberRows() != 1 )
-		           {
-			     edm::LogError( "L1-O2O" )
-			       << "Problem with PHTF_CONF key." ;
-			     return boost::shared_ptr< L1MuDTTFParameters >() ;
-		           }
-
-		         long long tmp ;
-
-		         phtfMaskResults.fillVariable( "INREC_QUAL_ST1", tmp ) ;
-		         std::cout << " INREC_QUAL_ST1 " << tmp ;
-		         pDTTFParameters->set_inrec_qual_st1( nwh, isc, tmp ) ;
-		         phtfMaskResults.fillVariable( "INREC_QUAL_ST2", tmp ) ;
-		         std::cout << " INREC_QUAL_ST2 " << tmp ;
-		         pDTTFParameters->set_inrec_qual_st2( nwh, isc, tmp ) ;
-		         phtfMaskResults.fillVariable( "INREC_QUAL_ST3", tmp ) ;
-		         std::cout << " INREC_QUAL_ST3 " << tmp ;
-		         pDTTFParameters->set_inrec_qual_st3( nwh, isc, tmp ) ;
-		         phtfMaskResults.fillVariable( "INREC_QUAL_ST4", tmp ) ;
-		         std::cout << " INREC_QUAL_ST4 " << tmp << std::endl ;
-		         pDTTFParameters->set_inrec_qual_st4( nwh, isc, tmp ) ;
-		         std::cout << " SOC_QUAL_CSC " << tmp << std::endl ;
-		         pDTTFParameters->set_soc_qual_csc( nwh, isc, tmp ) ;
-
-		         phtfMaskResults.fillVariable( "SOC_STDIS_N", tmp ) ;
-		         std::cout << " SOC_STDIS_N " << tmp ;
-		         pDTTFParameters->set_soc_stdis_n( nwh, isc, tmp ) ;
-		         phtfMaskResults.fillVariable( "SOC_STDIS_WL", tmp ) ;
-		         std::cout << " SOC_STDIS_WL " << tmp ;
-		         pDTTFParameters->set_soc_stdis_wl( nwh, isc, tmp ) ;
-		         phtfMaskResults.fillVariable( "SOC_STDIS_WR", tmp ) ;
-		         std::cout << " SOC_STDIS_WR " << tmp ;
-		         pDTTFParameters->set_soc_stdis_wr( nwh, isc, tmp ) ;
-		         phtfMaskResults.fillVariable( "SOC_STDIS_ZL", tmp ) ;
-		         std::cout << " SOC_STDIS_ZL " << tmp ;
-		         pDTTFParameters->set_soc_stdis_zl( nwh, isc, tmp ) ;
-		         phtfMaskResults.fillVariable( "SOC_STDIS_ZR", tmp ) ;
-		         std::cout << " SOC_STDIS_ZR " << tmp << std::endl ;
-		         pDTTFParameters->set_soc_stdis_zr( nwh, isc, tmp ) ;
-
-		         phtfMaskResults.fillVariable( "SOC_QCUT_ST1", tmp ) ;
-		         std::cout << " SOC_QCUT_ST1 " << tmp ;
-		         pDTTFParameters->set_soc_qcut_st1( nwh, isc, tmp ) ;
-		         phtfMaskResults.fillVariable( "SOC_QCUT_ST2", tmp ) ;
-		         std::cout << " SOC_QCUT_ST2 " << tmp ;
-		         pDTTFParameters->set_soc_qcut_st2( nwh, isc, tmp ) ;
-		         phtfMaskResults.fillVariable( "SOC_QCUT_ST4", tmp ) ;
-		         std::cout << " SOC_QCUT_ST4 " << tmp << std::endl ;
-		         pDTTFParameters->set_soc_qcut_st4( nwh, isc, tmp ) ;
-
-		         phtfMaskResults.fillVariable( "SOC_RUN_21", tmp ) ;
-		         std::cout << " SOC_RUN_21 " << tmp ;
-		         pDTTFParameters->set_soc_run_21( nwh, isc, tmp ) ;
-		         phtfMaskResults.fillVariable( "SOC_NBX_DEL", tmp ) ;
-		         std::cout << " SOC_NBX_DEL " << tmp ;
-		         pDTTFParameters->set_soc_nbx_del( nwh, isc, tmp ) ;
-		         phtfMaskResults.fillVariable( "SOC_CSC_ETACANC", tmp ) ;
-		         std::cout << " SOC_CSC_ETACANC " << tmp ;
-		         pDTTFParameters->set_soc_csc_etacanc( nwh, isc, tmp ) ;
-		         phtfMaskResults.fillVariable( "SOC_OPENLUT_EXTR", tmp ) ;
-		         std::cout << " SOC_OPENLUT_EXTR " << tmp << std::endl ;
-		         pDTTFParameters->set_soc_openlut_extr( nwh, isc, tmp ) ;
-		       }
+		     
+		     long long tmp ;
+		     
+		     phtfMaskResults.fillVariable( "INREC_QUAL_ST1", tmp ) ;
+		     std::cout << " INREC_QUAL_ST1 " << tmp ;
+		     pDTTFParameters->set_inrec_qual_st1( nwh, isc, tmp ) ;
+		     phtfMaskResults.fillVariable( "INREC_QUAL_ST2", tmp ) ;
+		     std::cout << " INREC_QUAL_ST2 " << tmp ;
+		     pDTTFParameters->set_inrec_qual_st2( nwh, isc, tmp ) ;
+		     phtfMaskResults.fillVariable( "INREC_QUAL_ST3", tmp ) ;
+		     std::cout << " INREC_QUAL_ST3 " << tmp ;
+		     pDTTFParameters->set_inrec_qual_st3( nwh, isc, tmp ) ;
+		     phtfMaskResults.fillVariable( "INREC_QUAL_ST4", tmp ) ;
+		     std::cout << " INREC_QUAL_ST4 " << tmp << std::endl ;
+		     pDTTFParameters->set_inrec_qual_st4( nwh, isc, tmp ) ;
+		     std::cout << " SOC_QUAL_CSC " << tmp << std::endl ;
+		     pDTTFParameters->set_soc_qual_csc( nwh, isc, tmp ) ;
+		     
+		     phtfMaskResults.fillVariable( "SOC_STDIS_N", tmp ) ;
+		     std::cout << " SOC_STDIS_N " << tmp ;
+		     pDTTFParameters->set_soc_stdis_n( nwh, isc, tmp ) ;
+		     phtfMaskResults.fillVariable( "SOC_STDIS_WL", tmp ) ;
+		     std::cout << " SOC_STDIS_WL " << tmp ;
+		     pDTTFParameters->set_soc_stdis_wl( nwh, isc, tmp ) ;
+		     phtfMaskResults.fillVariable( "SOC_STDIS_WR", tmp ) ;
+		     std::cout << " SOC_STDIS_WR " << tmp ;
+		     pDTTFParameters->set_soc_stdis_wr( nwh, isc, tmp ) ;
+		     phtfMaskResults.fillVariable( "SOC_STDIS_ZL", tmp ) ;
+		     std::cout << " SOC_STDIS_ZL " << tmp ;
+		     pDTTFParameters->set_soc_stdis_zl( nwh, isc, tmp ) ;
+		     phtfMaskResults.fillVariable( "SOC_STDIS_ZR", tmp ) ;
+		     std::cout << " SOC_STDIS_ZR " << tmp << std::endl ;
+		     pDTTFParameters->set_soc_stdis_zr( nwh, isc, tmp ) ;
+		     
+		     phtfMaskResults.fillVariable( "SOC_QCUT_ST1", tmp ) ;
+		     std::cout << " SOC_QCUT_ST1 " << tmp ;
+		     pDTTFParameters->set_soc_qcut_st1( nwh, isc, tmp ) ;
+		     phtfMaskResults.fillVariable( "SOC_QCUT_ST2", tmp ) ;
+		     std::cout << " SOC_QCUT_ST2 " << tmp ;
+		     pDTTFParameters->set_soc_qcut_st2( nwh, isc, tmp ) ;
+		     phtfMaskResults.fillVariable( "SOC_QCUT_ST4", tmp ) ;
+		     std::cout << " SOC_QCUT_ST4 " << tmp << std::endl ;
+		     pDTTFParameters->set_soc_qcut_st4( nwh, isc, tmp ) ;
+		     
+		     phtfMaskResults.fillVariable( "SOC_RUN_21", tmp ) ;
+		     std::cout << " SOC_RUN_21 " << tmp ;
+		     pDTTFParameters->set_soc_run_21( nwh, isc, tmp ) ;
+		     phtfMaskResults.fillVariable( "SOC_NBX_DEL", tmp ) ;
+		     std::cout << " SOC_NBX_DEL " << tmp ;
+		     pDTTFParameters->set_soc_nbx_del( nwh, isc, tmp ) ;
+		     phtfMaskResults.fillVariable( "SOC_CSC_ETACANC", tmp ) ;
+		     std::cout << " SOC_CSC_ETACANC " << tmp ;
+		     pDTTFParameters->set_soc_csc_etacanc( nwh, isc, tmp ) ;
+		     phtfMaskResults.fillVariable( "SOC_OPENLUT_EXTR", tmp ) ;
+		     std::cout << " SOC_OPENLUT_EXTR " << tmp << std::endl ;
+		     pDTTFParameters->set_soc_openlut_extr( nwh, isc, tmp ) ;
 		   }
 	       }
 	   }
