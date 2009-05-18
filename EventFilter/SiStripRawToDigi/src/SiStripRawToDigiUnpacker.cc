@@ -588,6 +588,7 @@ namespace sistrip {
         // FED buffer is bad and should not be unpacked. Skip this FED and mark all modules as bad. 
         std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
         for ( ; iconn != conns.end(); iconn++ ) {
+          if ( !iconn->detId() || iconn->detId() == sistrip::invalid32_ ) continue;
           detids.push_back(iconn->detId()); //@@ Possible multiple entries (ok for Giovanni)
         }
         continue;
