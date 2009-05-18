@@ -1,6 +1,9 @@
 <lcgdict>
 
- <class name="L1CaloTriggerSetup"/>
+<!-- ========================================================================================= -->
+<!-- ==================================== CALO TRIGGER INCLUDES ==================================== -->
+<!-- ========================================================================================= -->
+<class name="L1CaloTriggerSetup"/>
 
  <class name="l1slhc::L1CaloTower"/>
  <class name="l1slhc::L1CaloCluster"/>
@@ -15,6 +18,60 @@
 
  <class name="std::vector<l1slhc::L1CaloJet>"/>
  <class name="edm::Wrapper< std::vector< l1slhc::L1CaloJet > >"/>
+<!-- ========================================================================================= -->
+<!-- ========================================================================================= -->
+<!-- ========================================================================================= -->
 
+
+
+
+
+
+<!-- ========================================================================================= -->
+<!-- ================================== TRACKING TRIGGER INCLUDES =================================== -->
+<!-- ========================================================================================= -->
+	<class pattern="*map*"/>
+
+<!-- Never used to be a problem... -->
+	 <class pattern="edm::Ref<*>"/>
+
+	<class pattern="TrackTriggerHit"/>
+	<class pattern="edm::DetSet<TrackTriggerHit>"/>
+	<class pattern="std::vector<TrackTriggerHit>"/>
+	<class pattern="edm::DetSetVector<TrackTriggerHit>"/>
+	<class pattern="std::vector<edm::DetSet<TrackTriggerHit> >"/>
+	<class pattern="edm::Wrapper< edm::DetSet<TrackTriggerHit> >" splitLevel="0"/>
+	<class pattern="edm::Wrapper< std::vector<edm::DetSet<TrackTriggerHit> > >" splitLevel="0"/>
+	<class pattern="edm::Wrapper< edm::DetSetVector<TrackTriggerHit> >" splitLevel="0"/>
+
+<!-- ========================================================================== -->
+<!-- LocalStub -->
+	 <class pattern="cmsUpgrades::LocalStub*"/>
+
+<!-- LocalStub Collections -->
+	 <class pattern="std::vector<cmsUpgrades::LocalStub*>"/>
+	 <class pattern="edm::Wrapper<std::vector<cmsUpgrades::LocalStub*>>"/>
+
+<!-- ========================================================================== -->
+
+<!-- GlobalStub -->
+	 <class pattern="cmsUpgrades::GlobalStub*"/>
+
+<!-- GlobalStub Collections -->
+	 <class pattern="std::vector<cmsUpgrades::GlobalStub*>"/>
+	 <class pattern="edm::Wrapper<std::vector<cmsUpgrades::GlobalStub*>>"/>
+
+<!-- ========================================================================== -->
+
+<!-- Tracklet -->
+	 <class pattern="cmsUpgrades::Tracklet*"/>
+
+<!-- Tracklet Collections -->
+	 <class pattern="std::vector<cmsUpgrades::Tracklet*>"/>
+	 <class pattern="edm::Wrapper<std::vector<cmsUpgrades::Tracklet*>>"/>
+
+<!-- ========================================================================================= -->
+<!-- ========================================================================================= -->
+<!-- ========================================================================================= -->
 
 </lcgdict>
