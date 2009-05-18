@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 22 10:13:39 CST 2009
-// $Id: FWCollectionSummaryTableManager.cc,v 1.1 2009/03/04 16:40:50 chrjones Exp $
+// $Id: FWCollectionSummaryTableManager.cc,v 1.2 2009/03/13 14:57:35 chrjones Exp $
 //
 
 // system include files
@@ -47,11 +47,19 @@ m_widget(iWidget)
    
    //try to find the default columns
    std::vector<std::pair<std::string,std::string> > s_names;
-   s_names.push_back(std::pair<std::string,std::string>("pt","GeV"));
-   s_names.push_back(std::pair<std::string,std::string>("et","GeV"));
-   s_names.push_back(std::pair<std::string,std::string>("energy","GeV"));
-
    ROOT::Reflex::Type type = ROOT::Reflex::Type::ByTypeInfo(*(m_collection->modelType()->GetTypeInfo()));
+
+   if ( type.Name() == "CaloTower" ){
+     if ( m_collection->name() == "ECal" )
+       s_names.push_back(std::pair<std::string,std::string>("emEt","GeV"));
+     if ( m_collection->name() == "HCal" )
+       s_names.push_back(std::pair<std::string,std::string>("hadEt","GeV"));
+   } else {
+     s_names.push_back(std::pair<std::string,std::string>("pt","GeV"));
+     s_names.push_back(std::pair<std::string,std::string>("et","GeV"));
+     s_names.push_back(std::pair<std::string,std::string>("energy","GeV"));
+   }
+
    boost::shared_ptr<FWItemValueGetter> trans( new FWItemValueGetter(type,s_names));
    if(trans->isValid()) {
       m_valueGetters.push_back(trans);
