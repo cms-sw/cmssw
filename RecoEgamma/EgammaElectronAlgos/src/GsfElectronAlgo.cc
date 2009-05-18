@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.61 2009/05/04 06:35:45 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.62 2009/05/16 16:48:14 charlot Exp $
 //
 //
 
@@ -22,6 +22,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronClassification.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronMomentumCorrector.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronEnergyCorrector.h"
+//#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
@@ -82,9 +83,6 @@ GsfElectronAlgo::GsfElectronAlgo
    double minEOverPBarrel, double minEOverPEndcaps,
    double maxDeltaEtaBarrel, double maxDeltaEtaEndcaps,
    double maxDeltaPhiBarrel,double maxDeltaPhiEndcaps,
-   double hOverEConeSize, double hOverEPtMin,
-   double maxHOverEDepth1Barrel, double maxHOverEDepth1Endcaps,
-   double maxHOverEDepth2,
    double maxSigmaIetaIetaBarrel, double maxSigmaIetaIetaEndcaps,
    double maxFbremBarrel, double maxFbremEndcaps,
    bool isBarrel, bool isEndcaps, bool isFiducial,
@@ -113,9 +111,7 @@ GsfElectronAlgo::GsfElectronAlgo
    minEOverPBarrel_(minEOverPBarrel), minEOverPEndcaps_(minEOverPEndcaps),
    maxDeltaEtaBarrel_(maxDeltaEtaBarrel), maxDeltaEtaEndcaps_(maxDeltaEtaEndcaps),
    maxDeltaPhiBarrel_(maxDeltaPhiBarrel),maxDeltaPhiEndcaps_(maxDeltaPhiEndcaps),
-   hOverEConeSize_(hOverEConeSize), hOverEPtMin_(hOverEPtMin),
-   maxHOverEDepth1Barrel_(maxHOverEDepth1Barrel), maxHOverEDepth1Endcaps_(maxHOverEDepth1Endcaps),
-   maxHOverEDepth2_(maxHOverEDepth2),
+   //hcalHelper_(0),
    maxSigmaIetaIetaBarrel_(maxSigmaIetaIetaBarrel), maxSigmaIetaIetaEndcaps_(maxSigmaIetaIetaEndcaps),
    maxFbremBarrel_(maxFbremBarrel), maxFbremEndcaps_(maxFbremEndcaps),
    isBarrel_(isBarrel), isEndcaps_(isEndcaps), isFiducial_(isFiducial),
@@ -148,8 +144,26 @@ GsfElectronAlgo::GsfElectronAlgo
   // get nested parameter set for the TransientInitialStateEstimator
   ParameterSet tise_params = conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
 
+  // hcal strategy
+//  useHcalTowers_ = conf.getParameter<bool>("useHcalTowers") ;
+//  useHcalRecHits_ = conf.getParameter<bool>("useHcalRecHits") ;
+//  if ((useHcalTowers_&&useHcalRecHits_)||((!useHcalTowers_)&&(!useHcalRecHits_)))
+//   { edm::LogError("GsfElectronAlgo")<<"useHcalTowers and useHcalRecHits parameters cannot be both true or both false" ; }
+//  if (useHcalRecHits_)
+//   {
+//	hcalHelper_ = new ElectronHcalHelper(conf) ;
+//   }
+//  else
+//   {
+    hOverEConeSize_ = conf.getParameter<double>("hOverEConeSize") ;
+    hcalTowers_ = conf.getParameter<edm::InputTag>("hcalTowers") ;
+    hOverEPtMin_ = conf.getParameter<double>("hOverEPtMin") ;
+    maxHOverEDepth1Barrel_ = conf.getParameter<double>("maxHOverEDepth1Barrel") ;
+    maxHOverEDepth1Endcaps_ = conf.getParameter<double>("maxHOverEDepth1Endcaps") ;
+    maxHOverEDepth2_ = conf.getParameter<double>("maxHOverEDepth2") ;
+//   }
+
   // get input collections
-  hcalTowers_ = conf.getParameter<edm::InputTag>("hcalTowers");
   //tracks_ = conf.getParameter<edm::InputTag>("tracks");
   gsfElectronCores_ = conf.getParameter<edm::InputTag>("gsfElectronCores");
   ctfTracks_ = conf.getParameter<edm::InputTag>("ctfTracks");
@@ -160,6 +174,7 @@ GsfElectronAlgo::GsfElectronAlgo
 
 GsfElectronAlgo::~GsfElectronAlgo() {
   delete mtsTransform_;
+//  delete hcalHelper_ ;
 }
 
 void GsfElectronAlgo::setupES(const edm::EventSetup& es) {
@@ -199,8 +214,9 @@ void GsfElectronAlgo::setupES(const edm::EventSetup& es) {
     es.get<CaloTopologyRecord>().get(theCaloTopo);
   }
 
-
-}
+//  if (useHcalRecHits_)
+//   { hcalHelper_->checkSetup(es) ; }
+ }
 
 void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
 
@@ -224,6 +240,10 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   e.getByType(recoBeamSpotHandle);
   const BeamSpot bs = *recoBeamSpotHandle;
+
+  // prepare access to hcal data
+//  if (useHcalRecHits_)
+//   { hcalHelper_->readEvent(e) ; }
 
   // temporay array for electrons before preselection and before amb. solving
   GsfElectronPtrCollection tempEle, tempEle1;
@@ -360,7 +380,7 @@ void GsfElectronAlgo::process(
     const GsfTrackRef gsfTrackRef = coreRef->gsfTrack() ; //edm::Ref<GsfTrackCollection>(gsfTracksH,i);
 
     // don't add pflow only electrons if one so wish
-     if (!coreRef->isEcalDriven() && !addPflowElectrons_) continue;
+    if (!coreRef->isEcalDriven() && !addPflowElectrons_) continue ;
 
     // Get the super cluster
     SuperClusterRef scRef = coreRef->superCluster() ;
@@ -379,8 +399,18 @@ void GsfElectronAlgo::process(
     sclPos_=sclTSOS_.globalPosition() ;
 
     // H/E
-    double HoE1=towerIso1.getTowerESum(&theClus)/theClus.energy();
-    double HoE2=towerIso2.getTowerESum(&theClus)/theClus.energy();
+    double HoE1 = 0. ;
+    double HoE2 = 0. ;
+//    double HoE = 0. ;
+//    if (useHcalTowers_)
+//     {
+      HoE1 = towerIso1.getTowerESum(&theClus)/theClus.energy() ;
+      HoE2 = towerIso2.getTowerESum(&theClus)/theClus.energy() ;
+//     }
+//    else
+//     {
+//      HoE = hcalHelper_->hcalESum(theClus)/theClus.energy() ;
+//     }
 
     pair<TrackRef,float> ctfpair = getCtfTrackRef(gsfTrackRef,ctfTracksH) ;
     const TrackRef ctfTrackRef = ctfpair.first ;
@@ -484,11 +514,11 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
     // BDT output
     if (eg && ((*e1)->mva()<minMVA_)) continue ;
     if (pf && ((*e1)->mva()<minMVAPflow_)) continue ;
- 
+
     // transverse impact parameter
     if (eg && fabs((*e1)->gsfTrack()->dxy(bs.position()))>maxTIP_) continue;
     if (pf && fabs((*e1)->gsfTrack()->dxy(bs.position()))>maxTIPPflow_) continue;
-    
+
     LogDebug("") << "electron has passed preselection criteria ";
     LogDebug("") << "=================================================";
 

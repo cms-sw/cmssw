@@ -11,6 +11,8 @@
 
  ************************************************************/
 
+//class ElectronHcalHelper ;
+
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
@@ -57,9 +59,6 @@ class GsfElectronAlgo {
       double minEOverPBarrel, double minEOverPEndcaps,
       double maxDeltaEtaBarrel, double maxDeltaEtaEndcaps,
       double maxDeltaPhiBarrel,double maxDeltaPhiEndcaps,
-      double hOverEConeSize, double hOverEPtMin,
-      double maxHOverEDepth1Barrel, double maxHOverEDepth1Endcaps,
-      double maxHOverEDepth2,
       double maxSigmaIetaIetaBarrel, double maxSigmaIetaIetaEndcaps,
       double maxFbremBarrel, double maxFbremEndcaps,
       bool isBarrel, bool isEndcaps, bool isFiducial,
@@ -80,7 +79,7 @@ class GsfElectronAlgo {
       bool applyPreselection, bool applyEtaCorrection, bool applyAmbResolution,
       bool addPflowElectrons,
       double intRadiusTk, double ptMinTk, double maxVtxDistTk, double maxDrbTk,
-      double intRadiusHcal, double etMinHcal, 
+      double intRadiusHcal, double etMinHcal,
       double intRadiusEcalBarrel, double intRadiusEcalEndcaps, double jurassicWidth,
       double etMinBarrel, double eMinBarrel, double etMinEndcaps, double eMinEndcaps,
       bool vetoClustered, bool useNumCrystals) ;
@@ -160,15 +159,18 @@ class GsfElectronAlgo {
     // position to the supercluster
     double maxDeltaPhiBarrel_;
     double maxDeltaPhiEndcaps_;
-    // cone size for H/E evaluation
-    double hOverEConeSize_;
-    // min tower Et for H/E evaluation
-    double hOverEPtMin_;
-    // maximum H/E for depth1
-    double maxHOverEDepth1Barrel_;
-    double maxHOverEDepth1Endcaps_;
-    // maximum H/E for depth2
-    double maxHOverEDepth2_;
+
+    // H/E evaluation
+    //bool useHcalRecHits_ ;
+    //ElectronHcalHelper * hcalHelper_ ; // if use rechits
+    //bool useHcalTowers_ ;
+    edm::InputTag hcalTowers_;      // parameter if use towers
+    double hOverEConeSize_;         // parameter if use towers
+    double hOverEPtMin_;            // parameter if use towers : min tower Et for H/E evaluation
+    double maxHOverEDepth1Barrel_;  // parameter if use towers : maximum H/E for depth1
+    double maxHOverEDepth1Endcaps_; // parameter if use towers : maximum H/E for depth1
+    double maxHOverEDepth2_;        // parameter if use towers : maximum H/E for depth2
+
     // maximum sigma ieta ieta
     double maxSigmaIetaIetaBarrel_;
     double maxSigmaIetaIetaEndcaps_;
@@ -181,7 +183,7 @@ class GsfElectronAlgo {
     bool isFiducial_;
     // select electrons with seed second hit in TEC layers
     bool seedFromTEC_;
-    // BDT output (if available) 
+    // BDT output (if available)
     double minMVA_;
     // transverse impact parameter wrt beam spot
     double maxTIP_;
@@ -222,7 +224,7 @@ class GsfElectronAlgo {
     bool isBarrelPflow_;
     bool isEndcapsPflow_;
     bool isFiducialPflow_;
-    // BDT output 
+    // BDT output
     double minMVAPflow_;
     // transverse impact parameter wrt beam spot
     double maxTIPPflow_;
@@ -257,14 +259,13 @@ class GsfElectronAlgo {
     double eMinEndcaps_;
     bool vetoClustered_;
     bool useNumCrystals_;
-    
+
     // input configuration
     edm::InputTag barrelSuperClusters_;
     edm::InputTag endcapSuperClusters_;
     //edm::InputTag tracks_;
     edm::InputTag gsfElectronCores_ ;
     edm::InputTag ctfTracks_;
-    edm::InputTag hcalTowers_;
     edm::InputTag reducedBarrelRecHitCollection_ ;
     edm::InputTag reducedEndcapRecHitCollection_ ;
     edm::InputTag pfMVA_;
