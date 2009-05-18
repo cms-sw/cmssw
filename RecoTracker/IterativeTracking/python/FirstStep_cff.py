@@ -97,7 +97,9 @@ newMixedLayerPairs.TEC.matchedRecHits = cms.InputTag("newStripRecHits","matchedR
 from RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff import *
 newSeedFromPairs = RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff.globalSeedsFromPairsWithVertices.clone()
 newSeedFromPairs.RegionFactoryPSet.RegionPSet.ptMin = 0.9
+newSeedFromPairs.RegionFactoryPSet.RegionPSet.originRadius = 0.05
 newSeedFromPairs.OrderedHitsFactoryPSet.SeedingLayers = cms.string('newMixedLayerPairs')
+
 
 
 # building 
