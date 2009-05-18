@@ -49,7 +49,7 @@
 
 #include <boost/regex.hpp>
 #include <map>
-#include <math>
+//#include <math>
 
 /**
  * Configurables:
@@ -283,17 +283,17 @@ TrackerTrackHitFilter::TrackerTrackHitFilter(const edm::ParameterSet &iConfig) :
     stripFrontInvalidHits_(iConfig.getParameter<bool>("stripFrontInvalidHits")),
     stripBackInvalidHits_( iConfig.getParameter<bool>("stripBackInvalidHits") ),
     stripAllInvalidHits_(  iConfig.getParameter<bool>("stripAllInvalidHits")  ),
-    detsToIgnore_( iConfig.getParameter<std::vector<uint32_t> >("detsToIgnore") ),
     rejectBadStoNHits_(  iConfig.getParameter<bool>("rejectBadStoNHits")  ),
     CMNSubtractionMode_(  iConfig.getParameter<std::string>("CMNSubtractionMode")  ),
+    detsToIgnore_( iConfig.getParameter<std::vector<uint32_t> >("detsToIgnore") ),
     useTrajectories_( iConfig.getParameter<bool>("useTrajectories") ),
     rejectLowAngleHits_( iConfig.getParameter<bool>("rejectLowAngleHits") ),
     TrackAngleCut_( iConfig.getParameter<double>("TrackAngleCut") ),
-    tagOverlaps_( iConfig.getParameter<bool>("tagOverlaps") ),
     checkPXLQuality_(iConfig.getParameter<bool>("usePixelQualityFlag") ),
     pxlTPLProbX_(iConfig.getParameter<double>("PxlTemplateProbXCut")),
     pxlTPLProbY_(iConfig.getParameter<double>("PxlTemplateProbYCut")),
-    pxlTPLqBin_(iConfig.getParameter<int32_t>("PxlTemplateqBinCut"))
+    pxlTPLqBin_(iConfig.getParameter<int32_t>("PxlTemplateqBinCut")),
+    tagOverlaps_( iConfig.getParameter<bool>("tagOverlaps") )
 {
 
 
@@ -733,7 +733,7 @@ bool TrackerTrackHitFilter::checkStoN(const edm::EventSetup &iSetup, const DetId
       const SiPixelRecHit* pixelhit = dynamic_cast<const SiPixelRecHit*>(therechit);
       if(pixelhit!=0){
 	//std::cout << "ClusterCharge=" <<std::flush<<pixelhit->cluster()->charge() << std::flush;
-	float combprob=pixelhit->clusterProbability();//x-y combined log_e probability of the pixel cluster
+	//	float combprob=pixelhit->clusterProbability();//x-y combined log_e probability of the pixel cluster
 	float xprob   =pixelhit->clusterProbability(1);//x  log_e( probability of the pixel cluster )
 	float yprob   =pixelhit->clusterProbability(2);//y  log_e( probability of the pixel cluster )
 	bool haspassed_tplreco= pixelhit->hasFilledProb(); //the cluster was associted to a template
