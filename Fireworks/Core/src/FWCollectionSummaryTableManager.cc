@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 22 10:13:39 CST 2009
-// $Id: FWCollectionSummaryTableManager.cc,v 1.2 2009/03/13 14:57:35 chrjones Exp $
+// $Id: FWCollectionSummaryTableManager.cc,v 1.3 2009/05/18 04:55:55 dmytro Exp $
 //
 
 // system include files
@@ -50,20 +50,28 @@ m_widget(iWidget)
    ROOT::Reflex::Type type = ROOT::Reflex::Type::ByTypeInfo(*(m_collection->modelType()->GetTypeInfo()));
 
    if ( type.Name() == "CaloTower" ){
-     if ( m_collection->name() == "ECal" )
+     if ( m_collection->name() == "ECal" ){
        s_names.push_back(std::pair<std::string,std::string>("emEt","GeV"));
-     if ( m_collection->name() == "HCal" )
+       boost::shared_ptr<FWItemValueGetter> trans( new FWItemValueGetter(type,s_names));
+       if(trans->isValid()) m_valueGetters.push_back(trans);
+     }
+     if ( m_collection->name() == "HCal" ){
        s_names.push_back(std::pair<std::string,std::string>("hadEt","GeV"));
+       boost::shared_ptr<FWItemValueGetter> hadEt( new FWItemValueGetter(type,s_names));
+       if(hadEt->isValid()) m_valueGetters.push_back(hadEt);
+       s_names.clear();
+       s_names.push_back(std::pair<std::string,std::string>("outerEt","GeV"));
+       boost::shared_ptr<FWItemValueGetter> outerEt( new FWItemValueGetter(type,s_names));
+       if(outerEt->isValid()) m_valueGetters.push_back(outerEt);
+     }
    } else {
      s_names.push_back(std::pair<std::string,std::string>("pt","GeV"));
      s_names.push_back(std::pair<std::string,std::string>("et","GeV"));
      s_names.push_back(std::pair<std::string,std::string>("energy","GeV"));
+     boost::shared_ptr<FWItemValueGetter> trans( new FWItemValueGetter(type,s_names));
+     if(trans->isValid()) m_valueGetters.push_back(trans);
    }
 
-   boost::shared_ptr<FWItemValueGetter> trans( new FWItemValueGetter(type,s_names));
-   if(trans->isValid()) {
-      m_valueGetters.push_back(trans);
-   }
    
    s_names.clear();
    s_names.push_back(std::pair<std::string,std::string>("eta",""));
