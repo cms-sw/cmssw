@@ -207,8 +207,10 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       int ipteta=getBin(Tk[i].eta(),Tk[i].pt());
       int ibin=ipteta*8;
       TrackRef trackRef(tkRefCollection, i);
-      TrajectorySeed Seed=Tj[i].seed();
-      
+      // TrajectorySeed Seed=Tj[i].seed();
+      TrajectorySeed Seed=(*trackRef->seedRef());
+
+
       float PTOB=Tj[i].lastMeasurement().updatedState().globalMomentum().mag();
       float chikfred=Tk[i].normalizedChi2();
       int nhitpi=Tj[i].foundHits();

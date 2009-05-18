@@ -100,9 +100,9 @@ ElectronSeedMerger::produce(Event& iEvent, const EventSetup& iSetup)
 	  if (!th->isValid()) continue;
 	  //CHECK THE HIT COMPATIBILITY: put back sharesInput 
 	  // as soon Egamma solves the bug on the seed collection
-	  //if (eh->sharesInput(&(*th),TrackingRecHit::all)) Shared = true;
-	  if(eh->geographicalId() == th->geographicalId() &&
-	     (eh->localPosition() - th->localPosition()).mag() < 0.001) Shared=true;
+	  if (eh->sharesInput(&(*th),TrackingRecHit::all)) Shared = true;
+	//   if(eh->geographicalId() == th->geographicalId() &&
+// 	     (eh->localPosition() - th->localPosition()).mag() < 0.001) Shared=true;
 	}
 	if (Shared) hitShared++;
       }     
