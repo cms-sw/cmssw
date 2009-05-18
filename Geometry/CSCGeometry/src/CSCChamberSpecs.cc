@@ -63,21 +63,24 @@ CSCChamberSpecs::CSCChamberSpecs(
 
   float phiPitch = this->stripPhiPitch();
 
+  // Layer thickness can come from specs too
+  float hThickness = specsValue(32)/10./2.; // mm->cm, and then want half the thickness
+
   poszOddLayerGeometry = new CSCLayerGeometry( geom, iChamberType, bounds,
      nstrips, -stripOffset1, phiPitch, whereStripsMeet, extentOfStripPlane, yCentreOfStripPlane,
-     wg, wireAngleInDegrees, yOfFirstWire );
+     wg, wireAngleInDegrees, yOfFirstWire, hThickness );
 
   poszEvenLayerGeometry = new CSCLayerGeometry( geom, iChamberType, bounds,
      nstrips, -stripOffset2, phiPitch, whereStripsMeet, extentOfStripPlane, yCentreOfStripPlane,
-     wg, wireAngleInDegrees, yOfFirstWire );
+     wg, wireAngleInDegrees, yOfFirstWire, hThickness );
 
   negzOddLayerGeometry = new CSCLayerGeometry( geom, iChamberType, bounds,
      nstrips, -stripOffset1, phiPitch, whereStripsMeet, extentOfStripPlane, yCentreOfStripPlane,
-     wg, -wireAngleInDegrees, yOfFirstWire );
+     wg, -wireAngleInDegrees, yOfFirstWire, hThickness );
 
   negzEvenLayerGeometry = new CSCLayerGeometry( geom, iChamberType, bounds,
      nstrips, -stripOffset2, phiPitch, whereStripsMeet, extentOfStripPlane, yCentreOfStripPlane,
-     wg, -wireAngleInDegrees, yOfFirstWire );
+     wg, -wireAngleInDegrees, yOfFirstWire, hThickness );
 
 }
 

@@ -40,12 +40,13 @@ public:
    * \param wg CSCWireGroupPackage encapsulating wire group info.
    * \param wireAngleInDegrees angle of wires w.r.t local x axis.
    * \param yOfFirstWire local y coordinate of first (lowest) wire in wire plane - nearest narrow edge.
+   * \param hThickness half-thickness of chamber layer in cm (i.e. half the gas gap).
    */
   CSCLayerGeometry( const CSCGeometry* geom, int iChamberType,
              const TrapezoidalPlaneBounds& bounds,
              int nstrips, float stripOffset, float stripPhiPitch, 
 	     float whereStripsMeet, float extentOfStripPlane, float yCentreOfStripPlane,
-             const CSCWireGroupPackage& wg, float wireAngleInDegrees, double yOfFirstWire );
+	     const CSCWireGroupPackage& wg, float wireAngleInDegrees, double yOfFirstWire, float hThickness );
 
   CSCLayerGeometry(const CSCLayerGeometry& );
 

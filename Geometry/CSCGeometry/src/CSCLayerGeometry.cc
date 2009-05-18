@@ -16,22 +16,21 @@
 #include <iostream>
 #include <cmath> // for M_PI_2 via math.h, as long as appropriate compiler flag switched on to allow acces
 
+// Complicated initialization list since the chamber Bounds passed in must have its thickness reset to that of the layer
+// Note for half-widths, t + b = 2w and the TPB only has accessors for t and w so b = 2w - t
+
 CSCLayerGeometry::CSCLayerGeometry( const CSCGeometry* geom, int iChamberType,
          const TrapezoidalPlaneBounds& bounds,
          int nstrips, float stripOffset, float stripPhiPitch,
 	 float whereStripsMeet, float extentOfStripPlane, float yCentreOfStripPlane,
-	 const CSCWireGroupPackage& wg, float wireAngleInDegrees, double yOfFirstWire )
-  :   TrapezoidalPlaneBounds( bounds ), theWireTopology( 0 ),
-      theStripTopology( 0 ), myName( "CSCLayerGeometry" ), 
-      chamberType( iChamberType ) {
+	 const CSCWireGroupPackage& wg, float wireAngleInDegrees, double yOfFirstWire, float hThickness )
+  :   TrapezoidalPlaneBounds( bounds.widthAtHalfLength() - bounds.width()/2., bounds.width()/2., bounds.length()/2., hThickness ), 
+      theWireTopology( 0 ), theStripTopology( 0 ), 
+      hBottomEdge( bounds.widthAtHalfLength() - bounds.width()/2. ), 
+      hTopEdge( bounds.width()/2. ), apothem( bounds.length()/2. ),  
+      myName( "CSCLayerGeometry" ), chamberType( iChamberType ) {
 
-  LogTrace("CSC") << myName <<": being constructed, this=" << this;
-
-  // For simplicity cache the base class TPB dims even though they could be
-  // retrieved indirectly through the TPB public interface
-  apothem     = bounds.length() / 2.;  
-  hTopEdge    = bounds.width() / 2.;
-  hBottomEdge = bounds.widthAtHalfLength() - hTopEdge; // t+b=2w
+  LogTrace("CSCLayerGeometry|CSC") << myName <<": being constructed, this=" << this;
 
   // Ganged strips in ME1A?
   bool gangedME1A = ( iChamberType == 1 && geom->gangedStrips() );
@@ -60,7 +59,7 @@ CSCLayerGeometry::CSCLayerGeometry( const CSCGeometry* geom, int iChamberType,
   }
 
   theWireTopology = new CSCWireTopology( wg, yOfFirstWire, wireAngleInDegrees );
-
+  LogTrace("CSCLayerGeometry|CSC") << myName <<": constructed: "<< *this;
 } 
 
 CSCLayerGeometry::CSCLayerGeometry(const CSCLayerGeometry& melg) :
@@ -100,7 +99,7 @@ CSCLayerGeometry& CSCLayerGeometry::operator=(const CSCLayerGeometry& melg)
 
 CSCLayerGeometry::~CSCLayerGeometry()
 {
-  LogTrace("CSC") << myName << ": being destroyed, this=" << this << 
+  LogTrace("CSCLayerGeometry|CSC") << myName << ": being destroyed, this=" << this << 
     "\nDeleting theStripTopology=" << theStripTopology << 
     " and theWireTopology=" << theWireTopology;
   delete theStripTopology;
@@ -305,22 +304,24 @@ void CSCLayerGeometry::setTopology( CSCStripTopology * newTopology ) {
 std::ostream & operator<<(std::ostream & stream, const CSCLayerGeometry & lg) {
   stream << "LayerGeometry " << std::endl
          << "------------- " << std::endl
-         << "numberOfStrips        " << lg.numberOfStrips() << std::endl
-         << "numberOfWires         " << lg.numberOfWires() << std::endl
-         << "numberOfWireGroups    " << lg.numberOfWireGroups() << std::endl
-         << "wireAngle  (rad)      " << lg.wireAngle() << std::endl
+         << "numberOfStrips               " << lg.numberOfStrips() << std::endl
+         << "numberOfWires                " << lg.numberOfWires() << std::endl
+         << "numberOfWireGroups           " << lg.numberOfWireGroups() << std::endl
+         << "wireAngle  (rad)             " << lg.wireAngle() << std::endl
     //         << "wireAngle  (deg)      " << lg.theWireAngle << std::endl
     //         << "sin(wireAngle)        " << lg.theWireSin << std::endl
     //         << "cos(wireAngle)        " << lg.theWireCos << std::endl
-         << "wirePitch             " << lg.wirePitch() << std::endl
-         << "stripPitch            " << lg.stripPitch() << std::endl
+         << "wirePitch                    " << lg.wirePitch() << std::endl
+         << "stripPitch                   " << lg.stripPitch() << std::endl
     //         << "numberOfWiresPerGroup " << lg.theNumberOfWiresPerGroup << std::endl
     //         << "numberOfWiresInLastGroup " << lg.theNumberOfWiresInLastGroup << std::endl
     //         << "wireOffset            " << lg.theWireOffset << std::endl
     //         << "whereStripsMeet       " << lg.whereStripsMeet << std::endl;
-         << "hBottomEdge           " << lg.hBottomEdge << std::endl
-         << "hTopEdge              " << lg.hTopEdge << std::endl
-         << "apothem               " << lg.apothem << std::endl;
+         << "hBottomEdge                  " << lg.hBottomEdge << std::endl
+         << "hTopEdge                     " << lg.hTopEdge << std::endl
+         << "apothem                      " << lg.apothem << std::endl
+         << "length (should be 2xapothem) " << lg.length() << std::endl
+         << "thickness                    " << lg.thickness() << std::endl;
     return stream;
 }
 
