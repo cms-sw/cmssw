@@ -56,9 +56,6 @@ public:
     static const int m_NOT_CONECTED = 99; 
   
 
-    typedef std::vector<TQuality> TQualityVec;
-
-
   ///Default Constructor. Empty pattern, no muon, all planes m_NOT_CONECTED
     RPCPattern();
     RPCPattern(int tower, int sector, int segment);
