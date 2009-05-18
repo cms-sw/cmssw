@@ -85,14 +85,15 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load("FastSimulation/Configuration/FlatPtMuonGun_cfi")
 # replace FlatRandomPtGunSource.PGunParameters.PartID={13}
-process.FlatRandomPtGunSource.PGunParameters.MinPt = 50.0
+process.FlatRandomPtGunSource.PGunParameters.MinPt = 0.9
 process.FlatRandomPtGunSource.PGunParameters.MaxPt = 50.0
-process.FlatRandomPtGunSource.PGunParameters.MinEta = -3.0
-process.FlatRandomPtGunSource.PGunParameters.MaxEta = 3.0
+process.FlatRandomPtGunSource.PGunParameters.MinEta = -2.4
+process.FlatRandomPtGunSource.PGunParameters.MaxEta = 2.4
+process.FlatRandomPtGunSource.AddAntiParticle = cms.untracked.bool(True)
 
 process.FEVT = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('/uscms_data/d1/cheung/slhc/testfullLB_muon_50GeV.root')
+    fileName = cms.untracked.string('/uscms_data/d2/cheung/slhc/testfullLB_muon_50GeV.root')
 )
 
 process.load("Validation.RecoTrack.cutsTPEffic_cfi")
@@ -102,10 +103,28 @@ process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
 process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
 
 process.load("Validation.RecoTrack.MultiTrackValidator_cff")
-process.multiTrackValidator.label = ['generalTracks']
+#process.multiTrackValidator.label = ['generalTracks']
+### if using simple (non-iterative) or old (as in 1_8_4) tracking
+process.multiTrackValidator.label = ['ctfWithMaterialTracks']
 process.multiTrackValidator.associators = ['TrackAssociatorByHits']
 process.multiTrackValidator.UseAssociators = True
 process.multiTrackValidator.outputFile = "validfullLB_muon_50GeV.root"
+process.multiTrackValidator.nint = cms.int32(20)
+process.multiTrackValidator.nintpT = cms.int32(25)
+process.multiTrackValidator.maxpT = cms.double(50.0)
+
+##### with John's changes ##############################
+process.load("SLHCUpgradeSimulations.Geometry.oldTracking_wtriplets")
+# restrict vertex fining in trackingtruthprod to smaller volume (note: these numbers in mm)
+process.mergedtruth.volumeRadius = cms.double(100.0)
+process.mergedtruth.volumeZ = cms.double(900.0)
+process.mergedtruth.discardOutVolume = cms.bool(True)
+
+process.cutsTPEffic.ptMin = cms.double(2.5)
+process.cutsTPFake.ptMin = cms.double(2.0)
+process.cutsTPFake.tip = cms.double(10.0)
+process.cutsTPFake.lip = cms.double(90.0)
+############ end John's changes ###########################
 
 ### make sure the correct (modified) error routine is used
 process.siPixelRecHits.CPE = 'PixelCPEfromTrackAngle'
@@ -137,31 +156,16 @@ process.thlayerpairs.FPix.TTRHBuilder = cms.string('WithTrackAngle')
 process.thMeasurementTracker.PixelCPE = cms.string('PixelCPEfromTrackAngle')
 process.thWithMaterialTracks.TTRHBuilder = cms.string('WithTrackAngle')
 
-### to make the first step as in 1_8_4
-## not sure of fitter in 1_8_4 its called FittingSmootherRK
-## newer iterative fitting allows hits with large chi2 to be removed and is better
-#process.preFilterFirstStepTracks.Fitter = 'KFFittingSmoother'
-## not sure about the propagator in 1_8_4 its called RungeKuttaTrackerPropagator
-## newer propagator accounts for non-uniformities in field in forward region is better
-#process.preFilterFirstStepTracks.Propagator = 'PropagatorWithMaterial'
-#process.newTrackCandidateMaker.doSeedingRegionRebuilding = False
-#process.newTrackCandidateMaker.useHitsSplitting = False
-## these are tighter than in iterative tracking (3 and 0.3)
-#process.newTrajectoryFilter.filterPset.minimumNumberOfHits = 5
-#process.newTrajectoryFilter.filterPset.minPt = 0.9
-## keep all tracks from first step
-#process.withLooseQuality.keepAllTracks = True
-
 ### produce an ntuple with pixel hits for analysis
 process.ReadLocalMeasurement = cms.EDAnalyzer("StdHitNtuplizer",
    src = cms.InputTag("siPixelRecHits"),
    stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHit"),
    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-   trackProducer = cms.InputTag("generalTracks"),
+   #trackProducer = cms.InputTag("generalTracks"),
    ### if using simple (non-iterative) or old (as in 1_8_4) tracking
-   #trackProducer = cms.InputTag("ctfWithMaterialTracks"),
-   OutputFile = cms.string("stdgrechitfull_ntuple.root"),
+   trackProducer = cms.InputTag("ctfWithMaterialTracks"),
+   OutputFile = cms.string("stdgrechitfullLB_ntuple.root"),
    ### for using track hit association
    associatePixel = cms.bool(True),
    associateStrip = cms.bool(False),
@@ -182,8 +186,6 @@ process.ReadLocalMeasurement = cms.EDAnalyzer("StdHitNtuplizer",
 
 process.Timing =  cms.Service("Timing")
 
-# need validation packages
-
 process.p0 = cms.Path(process.pgen)
 process.p1 = cms.Path(process.psim)
 process.p2 = cms.Path(process.pdigi)
@@ -191,7 +193,8 @@ process.p3 = cms.Path(process.L1Emulator)
 #process.p4 = cms.Path(process.DigiToRaw)
 #process.p5 = cms.Path(process.RawToDigi)
 process.p5 = cms.Path(process.trackerlocalreco)
-process.p6 = cms.Path(process.offlineBeamSpot+process.recopixelvertexing*process.ckftracks)
+process.p6 = cms.Path(process.oldTracking_wtriplets)
+#process.p6 = cms.Path(process.offlineBeamSpot+process.recopixelvertexing*process.ckftracks)
 #process.p6 = cms.Path(process.reconstruction)
 process.p7 = cms.Path(process.cutsTPEffic*process.cutsTPFake*process.multiTrackValidator)
 #process.p7 = cms.Path(process.trackingParticles*process.cutsTPEffic*process.cutsTPFake*process.multiTrackValidator)
@@ -200,7 +203,5 @@ process.p7 = cms.Path(process.cutsTPEffic*process.cutsTPFake*process.multiTrackV
 process.p8 = cms.Path(process.ReadLocalMeasurement)
 process.outpath = cms.EndPath(process.FEVT)
 #process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.p3,process.p4,process.p5,process.p6,process.p7,process.outpath)
-#process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.p3,process.outpath)
-process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.p3,process.p5,process.outpath)
-#process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.p3,process.p5,process.p8,process.outpath)
-#process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.p3,process.p4,process.p5,process.p6,process.p7,process.p8,process.outpath)
+#process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.p3,process.p5,process.outpath)
+process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.p3,process.p5,process.p6,process.p7,process.p8)
