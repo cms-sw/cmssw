@@ -34,7 +34,7 @@ OffsetRadialStripTopology::OffsetRadialStripTopology(
   theCosOff = cos(rotate_by);
   theSinOff = sin(rotate_by);
 
-  LogTrace("CSC") << "fractional strip offset = " << stripOffset <<
+  LogTrace("CSCStripTopology|CSC") << "fractional strip offset = " << stripOffset <<
     "\n angle = " << rotate_by << 
     " cos = " << theCosOff << " sin = " << theSinOff;
 }
