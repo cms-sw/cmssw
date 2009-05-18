@@ -185,24 +185,20 @@ int main ( int argc, char **argv)
   treeEntries.push_back(0);  
   
   TChain *T = new TChain("T1");
-//   char Buffer[500];
-//   char MyRootFile[2000];  // [max length filename]
-//   cout << "input: " << inputFileName << endl; 
-//   ifstream *inputFile = new ifstream(inputFileName);
-//   while( !(inputFile->eof()) ){
-//     inputFile->getline(Buffer,500);
-//     if (!strstr(Buffer,"#") && !(strspn(Buffer," ") == strlen(Buffer))){
-//       sscanf(Buffer,"%s",MyRootFile);
-//       T->Add(MyRootFile);	  
-//       treeEntries.push_back( T->GetEntries() );  
-//       cout << "chaining " << MyRootFile << endl;
-//     }}
-//   inputFile->close();
-//   delete inputFile;
-
-  TString input_name(inputFileName);
-  input_name = input_name.ReplaceAll(".root","*.root");
-  T->Add(input_name);
+  char Buffer[500];
+  char MyRootFile[2000];  // [max length filename]
+  cout << "input: " << inputFileName << endl; 
+  ifstream *inputFile = new ifstream(inputFileName);
+  while( !(inputFile->eof()) ){
+    inputFile->getline(Buffer,500);
+    if (!strstr(Buffer,"#") && !(strspn(Buffer," ") == strlen(Buffer))){
+      sscanf(Buffer,"%s",MyRootFile);
+      T->Add(MyRootFile);	  
+      treeEntries.push_back( T->GetEntries() );  
+      cout << "chaining " << MyRootFile << endl;
+    }}
+  inputFile->close();
+  delete inputFile;
 
 
   const static int numTrees = treeEntries.size();
@@ -1064,22 +1060,6 @@ int main ( int argc, char **argv)
     double e1    = ene1x1_xtal(amplit,24); 
     double e9    = ene3x3_xtal(amplit,24); 
     double e25   = ene5x5_xtal(amplit,24); 
-
-    // @@@ dwjang, energy containment correction for 50GeV electron from Fabio
-    if(simul == 1){
-      //       e1  *= 0.9914; // from old sample which are corrected with 0.971
-      //       e9  *= 0.9914;
-      //       e25 *= 0.9914;
-      // this is the fabio's correction factors
-      //       e1  /= 0.9795;
-      //       e9  /= 0.9795;
-      //       e25 /= 0.9795;
-      // this is my correction factor depending on beam energy
-      //      double ccf = 9.789932e-01 - 1.666832e-05 * beamEne;
-      //      e1  /= ccf;
-      //      e9  /= ccf;
-      //      e25 /= ccf;
-    }
 
     if( (e1>-20) && (e9>-20) ) { e1e9  = e1/e9;  }
     if( (e1>-20) && (e25>-20) ){ e1e25 = e1/e25; }
