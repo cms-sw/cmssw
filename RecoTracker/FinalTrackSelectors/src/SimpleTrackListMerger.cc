@@ -7,9 +7,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gpetrucc $
-// $Date: 2009/05/13 07:20:43 $
-// $Revision: 1.20 $
+// $Author: vlimant $
+// $Date: 2009/05/14 15:06:08 $
+// $Revision: 1.21 $
 //
 
 #include <memory>
@@ -460,6 +460,7 @@ namespace cms
   //  output selected tracks - if any
   //
    trackRefs.resize(tC1.size()+tC2.size());
+   std::vector<edm::RefToBase<TrajectorySeed> > seedsRefs(tC1.size()+tC2.size());
    size_t current = 0;
 
    if ( 0<tC1.size() ){
@@ -533,6 +534,7 @@ namespace cms
                         theTrack.outerStateCovariance(), theTrack.outerDetId(),
                         theTrack.innerStateCovariance(), theTrack.innerDetId(),
                         theTrack.seedDirection(), origSeedRef ) );
+	  seedsRefs[current]=origSeedRef;
           outputTrks->back().setExtra( reco::TrackExtraRef( refTrkExtras, outputTrkExtras->size() - 1) );
           reco::TrackExtra & tx = outputTrkExtras->back();
           // fill TrackingRecHits
@@ -567,6 +569,9 @@ namespace cms
        short oldKey = static_cast<short>(trkRef.key());
        if (trackRefs[oldKey].isNonnull()) {
          outputTrajs->push_back( Trajectory(*trajRef) );
+	 //if making extras and the seeds at the same time, change the seed ref on the trajectory
+	 if (copyExtras_ && makeReKeyedSeeds_)
+	     outputTrajs->back().setSeedRef( seedsRefs[oldKey] );
          outputTTAss->insert ( edm::Ref< std::vector<Trajectory> >(refTrajs, outputTrajs->size() - 1), 
                                trackRefs[oldKey] );
        }
@@ -646,6 +651,7 @@ namespace cms
                         theTrack.outerStateCovariance(), theTrack.outerDetId(),
                         theTrack.innerStateCovariance(), theTrack.innerDetId(),
                         theTrack.seedDirection(), origSeedRef ) );
+	  seedsRefs[current]=origSeedRef;
           outputTrks->back().setExtra( reco::TrackExtraRef( refTrkExtras, outputTrkExtras->size() - 1) );
           reco::TrackExtra & tx = outputTrkExtras->back();
           // fill TrackingRecHits
@@ -677,7 +683,10 @@ namespace cms
        short oldKey = static_cast<short>(trkRef.key()) + offset;
        if (trackRefs[oldKey].isNonnull()) {
            outputTrajs->push_back( Trajectory(*trajRef) );
-           outputTTAss->insert ( edm::Ref< std::vector<Trajectory> >(refTrajs, outputTrajs->size() - 1), 
+	   //if making extras and the seeds at the same time, change the seed ref on the trajectory
+	   if (copyExtras_ && makeReKeyedSeeds_)
+	     outputTrajs->back().setSeedRef( seedsRefs[oldKey] );
+	   outputTTAss->insert ( edm::Ref< std::vector<Trajectory> >(refTrajs, outputTrajs->size() - 1), 
                    trackRefs[oldKey] ); 
        }
      }
