@@ -1,6 +1,6 @@
 # Configuration file to run CSCGeometryAsLayers
 # printing table of layer information.
-# Tim Cox 21.01.2009
+# Tim Cox 18.05.2009
 
 import FWCore.ParameterSet.Config as cms
 
@@ -21,7 +21,7 @@ process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource", "fake2")
 
 # flags for modelling of CSC layer & strip geometry
 # =================================================
-process.load("Geometry.CSCGeometry.cscGeometry_cfi")
+process.load("Geometry.CSCGeometryBuilder.cscGeometry_cfi")
 
 process.source = cms.Source("EmptySource")
 
@@ -29,29 +29,20 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-# Care! The following MessageLogger config deactivates even error messges
-# from other modules. Try removing altogether to see any!
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    debugModules = cms.untracked.vstring('*'),
-    ## DEBUG will dump addresses of CSCChamberSpecs objects etc. INFO does not.        
-    threshold = cms.untracked.string('INFO'),
-    categories = cms.untracked.vstring(
-       'CSC'
-    ),
-    destinations = cms.untracked.vstring('cout'),
-    noLineBreaks = cms.untracked.bool(True),                                    
-    cout = cms.untracked.PSet(
-       INFO = cms.untracked.PSet(
-          limit = cms.untracked.int32(-1)
-       ),
-      default = cms.untracked.PSet(
-         limit = cms.untracked.int32(0)
-      ),
-      CSC = cms.untracked.PSet(
-         limit = cms.untracked.int32(-1)
-      )
-   )
+# I used to append CSCGeometryESModule but this fails to activate any debug output in 310p7 on 18.05.2009.
+# Must use *
+
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.debugModules.append('*')
+process.MessageLogger.categories.append('CSCLayerGeometry')
+process.MessageLogger.categories.append('CSCGeometry')
+process.MessageLogger.categories.append('CSCGeometryBuilder')
+process.MessageLogger.cout = cms.untracked.PSet(
+   threshold = cms.untracked.string('DEBUG'),
+   default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+   CSCLayerGeometry = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+   CSCGeometry = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+   CSCGeometryBuilder = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
 )
 
 process.producer = cms.EDAnalyzer("CSCGeometryAsLayers")
