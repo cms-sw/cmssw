@@ -141,8 +141,9 @@ bool LowPtClusterShapeSeedComparitor::compatible(const SeedingHitSet &hits,
       LogDebug("LowPtClusterShapeSeedComparitor")<<"not enough global dir calculated:"
 						 <<"\nnHits: "<<thits.size()
 						 <<"\nnPos: "<<globalPoss.size()
-						 <<"\nnDir: "<<globalDirs.size();
-      return false;
+						 <<"\nnDir: "<<globalDirs.size()
+						 <<" will say the seed is good anyway.";
+      return true;
     }
 
   for(int i = 0; i < 3; i++)
