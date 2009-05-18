@@ -1,35 +1,28 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEgeometric.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
-//#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <numeric>
 
 StripClusterParameterEstimator::LocalValues StripCPEgeometric::
 localParameters( const SiStripCluster & cluster, const LocalTrajectoryParameters & ltp) const{
 
-  SiStripDetId::SubDetector subdet=SiStripDetId(cluster.geographicalId()).subDetector();
-  StripCPE::Param const & p = param(DetId(cluster.geographicalId()));
+  SiStripDetId::SubDetector subdet = SiStripDetId(cluster.geographicalId()).subDetector();
+  StripCPE::Param const& p = param(DetId(cluster.geographicalId()));
 
-  float minProj = tandriftangle*p.thickness;  
+  float localPitch = p.topology->localPitch(ltp.position());
   LocalVector track = ltp.momentum();
   track *= 
     (track.z()<0) ?  fabs(p.thickness/track.z()) : 
     (track.z()>0) ? -fabs(p.thickness/track.z()) :  
                          p.maxLength/track.mag() ;
-  float projectedWidthInPitches = //neglects edge conditions
-    std::max(2*minProj, (minProj+fabs(((track+p.drift).x()))/p.topology->localPitch(ltp.position()))); 
 
   std::pair<float,float> position_sigma = position_sigma_inStrips( cluster.firstStrip(),
 								   cluster.amplitudes().begin(),
 								   cluster.amplitudes().end()-1,
-								   projectedWidthInPitches,
+								   std::max( 2*tandriftangle*p.thickness, fabs( (track+p.drift).x() ) ) / localPitch,
 								   subdet);
-
-  LocalPoint result = p.topology->localPosition( position_sigma.first) - 0.5*p.drift;
-  LocalError eresult= p.topology->localError( p.topology->measurementPosition(result),
-					      MeasurementError( pow(position_sigma.second,2), 
-								0., 
-								1./12.)    );
-  return std::make_pair(result,eresult);
+  position_sigma.first -= 0.5* p.drift.x() / localPitch;
+  return std::make_pair( p.topology->localPosition(position_sigma.first),
+			 p.topology->localError(position_sigma.first, pow(position_sigma.second,2)) );
 }
 
 //treats strips as parallel
@@ -41,7 +34,7 @@ position_sigma_inStrips( uint16_t firstStrip, chargeIt_t first, chargeIt_t last,
 
   if( N==1 ){
     return std::make_pair( middle,
-			  invsqrt12*( 1 - projection )+0.01   );
+			  invsqrt12*( 1 - projection/(1+exp(10*(projection-1.1))) )   );
   }
   else if( projection < N-2 ) {
     return (  hasMultiPeak(first,last) 
