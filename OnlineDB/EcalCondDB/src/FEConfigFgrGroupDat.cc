@@ -20,7 +20,7 @@ FEConfigFgrGroupDat::FEConfigFgrGroupDat()
   m_thresh_high = 0;
   m_ratio_low = 0;
   m_ratio_high = 0;
-  m_lut_id = 0;
+  m_lut = 0;
 
 }
 
@@ -40,7 +40,7 @@ void FEConfigFgrGroupDat::prepareWrite()
   try {
     m_writeStmt = m_conn->createStatement();
     m_writeStmt->setSQL("INSERT INTO fe_fgr_per_group_dat (fgr_conf_id, group_id, "
-		      " threshold_low, threshold_high, ratio_low, ratio_high, lut_conf_id ) "
+		      " threshold_low, threshold_high, ratio_low, ratio_high, lut_value ) "
 		      "VALUES (:fgr_conf_id, :group_id, "
 		      ":3, :4, :5, :6, :7 )" );
   } catch (SQLException &e) {
@@ -71,7 +71,7 @@ void FEConfigFgrGroupDat::writeDB(const EcalLogicID* ecid, const FEConfigFgrGrou
     m_writeStmt->setFloat(4, item->getThreshHigh());
     m_writeStmt->setFloat(5, item->getRatioLow());
     m_writeStmt->setFloat(6, item->getRatioHigh());
-    m_writeStmt->setInt(7, item->getLUTConfId());
+    m_writeStmt->setFloat(7, item->getLUTValue());
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
@@ -96,7 +96,7 @@ void FEConfigFgrGroupDat::fetchData(map< EcalLogicID, FEConfigFgrGroupDat >* fil
   
   try {
 
-    m_readStmt->setSQL("SELECT d.group_id, d.threshold_low, d.threshold_high, d.ratio_low, d.ratio_high, d.lut_conf_id  "
+    m_readStmt->setSQL("SELECT d.group_id, d.threshold_low, d.threshold_high, d.ratio_low, d.ratio_high, d.lut_value  "
 		 "FROM fe_fgr_per_group_dat d "
 		 "WHERE fgr_conf_id = :fgr_conf_id order by d.group_id ");
     m_readStmt->setInt(1, iconfID);
@@ -115,7 +115,7 @@ void FEConfigFgrGroupDat::fetchData(map< EcalLogicID, FEConfigFgrGroupDat >* fil
       dat.setThreshHigh( rset->getFloat(3) );  
       dat.setRatioLow( rset->getFloat(4) );  
       dat.setRatioHigh( rset->getFloat(5) );  
-      dat.setLUTConfId( rset->getInt(6) );  
+      dat.setLUTValue( rset->getFloat(6) );  
     
       p.second = dat;
       fillMap->insert(p);
@@ -174,7 +174,7 @@ void FEConfigFgrGroupDat::writeArrayDB(const std::map< EcalLogicID, FEConfigFgrG
 	float z=dataitem->getThreshHigh();
 	float r=dataitem->getRatioLow();
 	float s=dataitem->getRatioHigh();
-	int t=dataitem->getLUTConfId();
+	float t=dataitem->getLUTValue();
 
 	xx[count]=x;
 	yy[count]=y;
@@ -204,7 +204,7 @@ void FEConfigFgrGroupDat::writeArrayDB(const std::map< EcalLogicID, FEConfigFgrG
     m_writeStmt->setDataBuffer(4, (dvoid*)zz, OCCIFLOAT , sizeof(zz[0]), z_len );
     m_writeStmt->setDataBuffer(5, (dvoid*)rr, OCCIFLOAT , sizeof(rr[0]), r_len );
     m_writeStmt->setDataBuffer(6, (dvoid*)ss, OCCIFLOAT , sizeof(ss[0]), s_len );
-    m_writeStmt->setDataBuffer(7, (dvoid*)tt, OCCIINT , sizeof(tt[0]), t_len );
+    m_writeStmt->setDataBuffer(7, (dvoid*)tt, OCCIFLOAT , sizeof(tt[0]), t_len );
 
     m_writeStmt->executeArrayUpdate(nrows);
 

@@ -28,8 +28,8 @@ class FEConfigFgrGroupDat : public IDataItem {
   inline float getRatioLow() const { return m_ratio_low; }
   inline void setRatioHigh(float x) { m_ratio_high = x; }
   inline float getRatioHigh() const { return m_ratio_high; }
-  inline void setLUTConfId(int x) { m_lut_id = x; }
-  inline int getLUTConfId() const { return m_lut_id; }
+  inline void setLUTValue(float x) { m_lut = x; }
+  inline float getLUTValue() const { return m_lut; }
 
  private:
   void prepareWrite() 
@@ -52,7 +52,7 @@ class FEConfigFgrGroupDat : public IDataItem {
   float m_thresh_high;
   float m_ratio_low;
   float m_ratio_high;
-  int m_lut_id;
+  float m_lut;
 
 };
 
