@@ -177,16 +177,7 @@ namespace edm {
 
   void
   Event::addToGotBranchIDs(Provenance const& prov) const {
-    if (prov.branchDescription().transient()) {
-      // If the product retrieved is transient, don't use its branch ID.
-      // use the branch ID's of its parents.
-      std::vector<BranchID> const& bids = prov.parents();
-      for (std::vector<BranchID>::const_iterator it = bids.begin(), itEnd = bids.end(); it != itEnd; ++it) {
-        gotBranchIDs_.insert(*it);
-      }
-    } else {
-      gotBranchIDs_.insert(prov.branchID());
-    }
+    gotBranchIDs_.insert(prov.branchID());
   }
 
 }
