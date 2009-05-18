@@ -94,7 +94,7 @@ static std::pair<std::vector<std::string>, unsigned int>
 			continue;
 
 		int nEvents = file->eventsNumber();
-		if ((int)firstEvent >= nEvents) {
+		if (nEvents > 0 && (int)firstEvent >= nEvents) {
 			firstEvent -= nEvents;
 			continue;
 		}

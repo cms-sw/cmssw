@@ -4,12 +4,12 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("LHE")
 
 process.source = cms.Source("MCDBSource",
-	articleID = cms.uint32(120),
+	articleID = cms.uint32(186),
 	supportedProtocols = cms.untracked.vstring('rfio')
 	#filter = cms.untracked.string('\\.lhe$')
 )
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 
 process.configurationMetadata = cms.untracked.PSet(
 	version = cms.untracked.string('alpha'),

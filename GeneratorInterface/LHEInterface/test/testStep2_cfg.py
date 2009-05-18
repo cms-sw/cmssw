@@ -23,25 +23,18 @@ process.generator = cms.EDProducer("LHEProducer",
 	eventsToPrint = cms.untracked.uint32(1),
 
 	hadronisation = cms.PSet(
-		generator = cms.string('Herwig6'),
+		generator = cms.string('Pythia8'),
 
 		maxEventsToPrint = cms.untracked.int32(1),
 		herwigVerbosity = cms.untracked.int32(2),
+		pythiaPylistVerbosity = cms.untracked.int32(2),
 
 		parameterSets = cms.vstring(
-			'herwigCMSDefaults', 
-			'herwigAlpgen'
+			'pythiaCMSDefaults'
 		),
 
-		herwigCMSDefaults = cms.vstring(
-			'PTJIM	 = 2.5', 
-			'JMRAD(73) = 0.57'
-		),
-
-		herwigAlpgen = cms.vstring(
-			'RMASS(4)  = 1.5', 
-			'RMASS(5)  = 4.7', 
-			'RMASS(6)  = 175'
+		pythiaCMSDefaults = cms.vstring(
+			'Check:event = off'
 		)
 	)
 )
