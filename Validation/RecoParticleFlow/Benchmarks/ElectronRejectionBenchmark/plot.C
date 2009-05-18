@@ -84,6 +84,7 @@ if (normHists) {
 TGraph* h3x3Perf = new TGraph();
 fillPerfGraphHoP(h3x3Perf,htau_HoP,helec_HoP);
 
+/*
 //////
 c1->cd(3);
 f1.cd(dir);
@@ -106,6 +107,7 @@ if (normHists) {
 //
 TGraph* epreidPerf = new TGraph();
 fillPerfGraphEPreID(epreidPerf,htau_epreid,helec_epreid);
+*/
 
 
 //////
@@ -365,12 +367,12 @@ discriminantPerf->SetMarkerStyle(28);
 discriminantPerf->SetMarkerSize(2.4);
 discriminantPerf->Draw("P same");
 
-epreidPerf->SetLineColor(kBlack);
-epreidPerf->SetLineWidth(2);
-epreidPerf->SetMarkerColor(kRed);
-epreidPerf->SetMarkerStyle(27);
-epreidPerf->SetMarkerSize(2.4);
-epreidPerf->Draw("LP same");
+//epreidPerf->SetLineColor(kBlack);
+//epreidPerf->SetLineWidth(2);
+//epreidPerf->SetMarkerColor(kRed);
+//epreidPerf->SetMarkerStyle(27);
+//epreidPerf->SetMarkerSize(2.4);
+//epreidPerf->Draw("LP same");
 
 
 gPad->Update();
@@ -397,7 +399,7 @@ c3->cd(2);
 TLegend* leg = new TLegend(0.1,0.1,0.89,0.89);
 leg->SetHeader("Electron vs. tau efficiency");
 leg->AddEntry(discriminantPerf,"Discriminant","p");
-leg->AddEntry(epreidPerf,"Electron Pre-ID","p");
+//leg->AddEntry(epreidPerf,"Electron Pre-ID","p");
 //leg->AddEntry(d2test1Perf,"Emfrac-E/p","p");
 //leg->AddEntry(emfracPerf,"EM fraction","pl");
 leg->AddEntry(eopPerf,"E/p < [0.7,0.75,0.8,0.85,0.9]","lp");
@@ -412,7 +414,7 @@ gPad->Modified();
 
 //////
 c3->cd();
-gPad->SaveAs(plotName+"3.gif");
+gPad->SaveAs(plotName+"2.gif");
 
 
 }
