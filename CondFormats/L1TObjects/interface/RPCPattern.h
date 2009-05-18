@@ -31,24 +31,23 @@ public:
 
     typedef std::vector<RPCPattern> RPCPatVec;
 
-
     struct TQuality {
-        int m_QualityTabNumber;
-        std::string m_FiredPlanes;
-        short m_QualityValue;
-        int m_tower;
-        int m_logsector;
-        int m_logsegment;
+        unsigned char m_FiredPlanes;
+        char m_QualityTabNumber;
+        char m_QualityValue;
+        char m_logsector;
+        char m_logsegment;
+        signed char m_tower;
     };
-    
+
     typedef std::vector<TQuality> TQualityVec;
-		      
+	      
     
 
     // use namespace?   
     // Moved/duplicated from RPCConst 
 //    enum TPatternType {PAT_TYPE_T, PAT_TYPE_E};
-    typedef int TPatternType;
+    typedef char TPatternType;
     static const TPatternType PAT_TYPE_T = 0;
     static const TPatternType PAT_TYPE_E = 1;
     static const int m_LOGPLANES_COUNT = 6;
@@ -56,6 +55,10 @@ public:
     static const int m_LAST_PLANE = 5;
     static const int m_NOT_CONECTED = 99; 
   
+
+    typedef std::vector<TQuality> TQualityVec;
+
+
   ///Default Constructor. Empty pattern, no muon, all planes m_NOT_CONECTED
     RPCPattern();
     RPCPattern(int tower, int sector, int segment);
@@ -115,9 +118,6 @@ private:
   ///Muons ptCode.
   char m_Code;
 
-  ///m_Number of pattern in m_PAC's patterns set.
-  short m_Number;
-
   /** The m_PAC algorith that should be used for given Pattern.
     * PAT_TYPE_T - Basic (clasic), PAT_TYPE_E - "impoved" (economic).
     * @see "Pattern Comparator Trigger Algorithm – implementation in FPGA" */
@@ -129,6 +129,9 @@ private:
   /** The index of quality table that should be used for given pattern.
    * The quality table is defined at the beginig of each patterns file */
   char m_QualityTabNumber;
+
+  ///m_Number of pattern in m_PAC's patterns set.
+  short m_Number;
 
 
 };
