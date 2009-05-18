@@ -357,7 +357,7 @@ create table FE_fgr_PER_GROUP_DAT(
  threshold_high NUMBER,
  ratio_low NUMBER,
  ratio_high NUMBER,
- lut_conf_id NUMBER	
+ lut_value NUMBER	
  );
 
 ALTER TABLE FE_fgr_PER_GROUP_DAT ADD CONSTRAINT FE_fgr_PER_GROUP_pk PRIMARY KEY (fgr_conf_id, group_id);
