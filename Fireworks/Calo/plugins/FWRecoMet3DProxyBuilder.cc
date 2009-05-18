@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWRecoMet3DProxyBuilder.cc,v 1.1 2009/05/14 Yanjun Tu Exp $
+// $Id: FWRecoMet3DProxyBuilder.cc,v 1.1 2009/05/14 20:30:50 yanjuntu Exp $
 //
 
 // system include files
@@ -92,22 +92,22 @@ FWRecoMet3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** produ
       boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
 
       double phi = mets->at(i).phi();
-      double min_phi = phi-M_PI/36/2;
-      double max_phi = phi+M_PI/36/2;
+      // double min_phi = phi-M_PI/36/2;
+      // double max_phi = phi+M_PI/36/2;
 
      
       // double size = mets->at(i).et();
       double size = mets->at(i).et()*2;
-      TGeoBBox *sc_box = new TGeoTubeSeg(r_ecal - 1, r_ecal + 1, 1, min_phi * 180 / M_PI, max_phi * 180 / M_PI);
-      TEveGeoShape *element = fw::getShape( "spread", sc_box, iItem->defaultDisplayProperties().color() );
-      element->SetPickable(kTRUE);
-      container->AddElement(element);
+
+      // TGeoBBox *sc_box = new TGeoTubeSeg(r_ecal - 1, r_ecal + 1, 1, min_phi * 180 / M_PI, max_phi * 180 / M_PI);
+      // TEveGeoShape *element = fw::getShape( "spread", sc_box, iItem->defaultDisplayProperties().color() );
+      // element->SetPickable(kTRUE);
+      // container->AddElement(element);
 
       TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
       marker->SetLineWidth(2);
       // marker->SetLineStyle(kDotted);
       marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
-
       marker->SetScaleCenter( r_ecal*cos(phi), r_ecal*sin(phi), 0 );
     //   const double dx = 0.9*size*0.05;
 //       const double dy = 0.9*size*cos(0.05);
