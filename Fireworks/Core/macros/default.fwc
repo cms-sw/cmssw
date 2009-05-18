@@ -4,7 +4,7 @@ FWConfiguration* fwConfig() {
 {
   FWConfiguration topa(1);
 {
-  FWConfiguration topaa(2);
+  FWConfiguration topaa(3);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("edm::SortedCollection<CaloTower,edm::StrictWeakOrdering<CaloTower> >");
@@ -32,7 +32,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("632");
+  topaaa.addValue("8");
   topaa.addKeyValue("color", topaaa);
 }
 {
@@ -53,7 +53,7 @@ FWConfiguration* fwConfig() {
   topa.addKeyValue("ECal", topaa);
 }
 {
-  FWConfiguration topaa(2);
+  FWConfiguration topaa(3);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("edm::SortedCollection<CaloTower,edm::StrictWeakOrdering<CaloTower> >");
@@ -81,7 +81,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("600");
+  topaaa.addValue("5");
   topaa.addKeyValue("color", topaaa);
 }
 {
@@ -102,7 +102,7 @@ FWConfiguration* fwConfig() {
   topa.addKeyValue("HCal", topaa);
 }
 {
-  FWConfiguration topaa(2);
+  FWConfiguration topaa(3);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("std::vector<reco::CaloJet>");
@@ -130,7 +130,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("400");
+  topaaa.addValue("0");
   topaa.addKeyValue("color", topaaa);
 }
 {
@@ -151,7 +151,7 @@ FWConfiguration* fwConfig() {
   topa.addKeyValue("Jets", topaa);
 }
 {
-  FWConfiguration topaa(2);
+  FWConfiguration topaa(3);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("std::vector<l1extra::L1EmParticle>");
@@ -179,7 +179,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("800");
+  topaaa.addValue("4");
   topaa.addKeyValue("color", topaaa);
 }
 {
@@ -200,7 +200,7 @@ FWConfiguration* fwConfig() {
   topa.addKeyValue("L1EmTrig", topaa);
 }
 {
-  FWConfiguration topaa(2);
+  FWConfiguration topaa(3);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("std::vector<l1extra::L1MuonParticle>");
@@ -228,7 +228,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("880");
+  topaaa.addValue("1");
   topaa.addKeyValue("color", topaaa);
 }
 {
@@ -249,7 +249,7 @@ FWConfiguration* fwConfig() {
   topa.addKeyValue("L1-Muons", topaa);
 }
 {
-  FWConfiguration topaa(2);
+  FWConfiguration topaa(3);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("std::vector<l1extra::L1EtMissParticle>");
@@ -277,7 +277,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("840");
+  topaaa.addValue("7");
   topaa.addKeyValue("color", topaaa);
 }
 {
@@ -298,7 +298,7 @@ FWConfiguration* fwConfig() {
   topa.addKeyValue("L1-MET", topaa);
 }
 {
-  FWConfiguration topaa(2);
+  FWConfiguration topaa(3);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("std::vector<l1extra::L1JetParticle>");
@@ -326,7 +326,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("616");
+  topaaa.addValue("1");
   topaa.addKeyValue("color", topaaa);
 }
 {
@@ -347,7 +347,7 @@ FWConfiguration* fwConfig() {
   topa.addKeyValue("L1-Jets", topaa);
 }
 {
-  FWConfiguration topaa(2);
+  FWConfiguration topaa(3);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("std::vector<reco::Track>");
@@ -375,7 +375,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("416");
+  topaaa.addValue("9");
   topaa.addKeyValue("color", topaaa);
 }
 {
@@ -396,7 +396,7 @@ FWConfiguration* fwConfig() {
   topa.addKeyValue("Tracks", topaa);
 }
 {
-  FWConfiguration topaa(2);
+  FWConfiguration topaa(3);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("std::vector<reco::Muon>");
@@ -424,7 +424,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("632");
+  topaaa.addValue("8");
   topaa.addKeyValue("color", topaaa);
 }
 {
@@ -445,7 +445,7 @@ FWConfiguration* fwConfig() {
   topa.addKeyValue("Muons", topaa);
 }
 {
-  FWConfiguration topaa(2);
+  FWConfiguration topaa(3);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("std::vector<reco::GsfElectron>");
@@ -453,7 +453,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("pixelMatchGsfElectrons");
+  topaaa.addValue("gsfElectrons");
   topaa.addKeyValue("moduleLabel", topaaa);
 }
 {
@@ -473,7 +473,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("432");
+  topaaa.addValue("7");
   topaa.addKeyValue("color", topaaa);
 }
 {
@@ -494,7 +494,7 @@ FWConfiguration* fwConfig() {
   topa.addKeyValue("Electrons", topaa);
 }
 {
-  FWConfiguration topaa(2);
+  FWConfiguration topaa(3);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("std::vector<reco::GenParticle>");
@@ -522,7 +522,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("616");
+  topaaa.addValue("1");
   topaa.addKeyValue("color", topaaa);
 }
 {
@@ -543,7 +543,7 @@ FWConfiguration* fwConfig() {
   topa.addKeyValue("GenParticles", topaa);
 }
 {
-  FWConfiguration topaa(2);
+  FWConfiguration topaa(3);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("std::vector<reco::Vertex>");
@@ -571,7 +571,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("400");
+  topaaa.addValue("0");
   topaa.addKeyValue("color", topaaa);
 }
 {
@@ -592,7 +592,7 @@ FWConfiguration* fwConfig() {
   topa.addKeyValue("Vertices", topaa);
 }
 {
-  FWConfiguration topaa(2);
+  FWConfiguration topaa(3);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("std::vector<reco::CaloMET>");
@@ -620,7 +620,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("632");
+  topaaa.addValue("8");
   topaa.addKeyValue("color", topaaa);
 }
 {
@@ -641,7 +641,7 @@ FWConfiguration* fwConfig() {
   topa.addKeyValue("MET", topaa);
 }
 {
-  FWConfiguration topaa(2);
+  FWConfiguration topaa(3);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("edm::RangeMap<DTChamberId,edm::OwnVector<DTRecSegment4D,edm::ClonePolicy<DTRecSegment4D> >,edm::ClonePolicy<DTRecSegment4D> >");
@@ -669,7 +669,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("600");
+  topaaa.addValue("5");
   topaa.addKeyValue("color", topaaa);
 }
 {
@@ -690,7 +690,7 @@ FWConfiguration* fwConfig() {
   topa.addKeyValue("DT-segments", topaa);
 }
 {
-  FWConfiguration topaa(2);
+  FWConfiguration topaa(3);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> >");
@@ -718,7 +718,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("600");
+  topaaa.addValue("5");
   topaa.addKeyValue("color", topaaa);
 }
 {
@@ -739,7 +739,7 @@ FWConfiguration* fwConfig() {
   topa.addKeyValue("CSC-segments", topaa);
 }
 {
-  FWConfiguration topaa(2);
+  FWConfiguration topaa(3);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("std::vector<reco::Photon>");
@@ -757,7 +757,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("RAW2DIGIRECOALCA");
+  topaaa.addValue("");
   topaa.addKeyValue("processName", topaaa);
 }
 {
@@ -767,7 +767,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("3");
+  topaaa.addValue("9");
   topaa.addKeyValue("color", topaaa);
 }
 {
@@ -805,12 +805,12 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("80");
+  topaaa.addValue("84");
   topaa.addKeyValue("x", topaaa);
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("79");
+  topaaa.addValue("95");
   topaa.addKeyValue("y", topaaa);
 }
   topa.addKeyValue("main window", topaa);
@@ -966,7 +966,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("-0");
+  topaaaa.addValue("0");
   topaaa.addKeyValue("cameraMatrixBase5Plain3D", topaaaa);
 }
 {
@@ -1159,17 +1159,22 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaaa(1);
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.0598403");
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("Auto rebin on zoom", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
   topaaa.addKeyValue("cameraMatrix0Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.485869");
+  topaaaa.addValue("0");
   topaaa.addKeyValue("cameraMatrix1Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.871981");
+  topaaaa.addValue("0");
   topaaa.addKeyValue("cameraMatrix2Lego", topaaaa);
 }
 {
@@ -1179,12 +1184,12 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("-0.992501");
+  topaaaa.addValue("0");
   topaaa.addKeyValue("cameraMatrix4Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.122238");
+  topaaaa.addValue("1");
   topaaa.addKeyValue("cameraMatrix5Lego", topaaaa);
 }
 {
@@ -1199,17 +1204,17 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("-0.106589");
+  topaaaa.addValue("0");
   topaaa.addKeyValue("cameraMatrix8Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("-0.865442");
+  topaaaa.addValue("0");
   topaaa.addKeyValue("cameraMatrix9Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.48954");
+  topaaaa.addValue("1");
   topaaa.addKeyValue("cameraMatrix10Lego", topaaaa);
 }
 {
@@ -1219,17 +1224,17 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("1.61674");
+  topaaaa.addValue("27.1736");
   topaaa.addKeyValue("cameraMatrix12Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("13.127");
+  topaaaa.addValue("0");
   topaaa.addKeyValue("cameraMatrix13Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("23.5588");
+  topaaaa.addValue("0");
   topaaa.addKeyValue("cameraMatrix14Lego", topaaaa);
 }
 {
@@ -1319,7 +1324,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("1.02622");
+  topaaaa.addValue("0.78");
   topaaa.addKeyValue("orthoCameraZoom3D Lego", topaaaa);
 }
 {
@@ -1389,17 +1394,17 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("16.4675");
+  topaaaa.addValue("16.1268");
   topaaa.addKeyValue("orthoCameraMatrix123D Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("-0.0666019");
+  topaaaa.addValue("0");
   topaaa.addKeyValue("orthoCameraMatrix133D Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("-0.347396");
+  topaaaa.addValue("0");
   topaaa.addKeyValue("orthoCameraMatrix143D Lego", topaaaa);
 }
 {
@@ -1528,14 +1533,298 @@ FWConfiguration* fwConfig() {
 }
   topaa.addKeyValue("Rho Z", topaaa);
 }
+{
+  FWConfiguration topaaa(1);
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("emEt");
+  topaaaa.addValue("emEt");
+  topaaaa.addValue("1");
+  topaaaa.addValue("hadEt");
+  topaaaa.addValue("hadEt");
+  topaaaa.addValue("1");
+  topaaaa.addValue("et");
+  topaaaa.addValue("Et");
+  topaaaa.addValue("1");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("3");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("3");
+  topaaa.addKeyValue("CaloTower", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("pT");
+  topaaaa.addValue("pt");
+  topaaaa.addValue("1");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("3");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("3");
+  topaaaa.addValue("ECAL");
+  topaaaa.addValue("p4().E() * emEnergyFraction()");
+  topaaaa.addValue("1");
+  topaaaa.addValue("HCAL");
+  topaaaa.addValue("p4().E() * energyFractionHadronic()");
+  topaaaa.addValue("1");
+  topaaaa.addValue("emf");
+  topaaaa.addValue("emEnergyFraction()");
+  topaaaa.addValue("3");
+  topaaa.addKeyValue("reco::CaloJet", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("pT");
+  topaaaa.addValue("pt");
+  topaaaa.addValue("1");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("3");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("3");
+  topaaaa.addValue("status");
+  topaaaa.addValue("status");
+  topaaaa.addValue("0");
+  topaaaa.addValue("pdgId");
+  topaaaa.addValue("pdgId");
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("reco::GenParticle", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("charge");
+  topaaaa.addValue("charge");
+  topaaaa.addValue("0");
+  topaaaa.addValue("pT");
+  topaaaa.addValue("pt");
+  topaaaa.addValue("1");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("3");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("3");
+  topaaaa.addValue("E/p");
+  topaaaa.addValue("eSuperClusterOverP");
+  topaaaa.addValue("3");
+  topaaaa.addValue("H/E");
+  topaaaa.addValue("hadronicOverEm");
+  topaaaa.addValue("3");
+  topaaaa.addValue("fbrem");
+  topaaaa.addValue("(trackMomentumAtVtx().R() - trackMomentumOut().R()) / trackMomentumAtVtx().R()");
+  topaaaa.addValue("3");
+  topaaaa.addValue("dei");
+  topaaaa.addValue("deltaEtaSuperClusterTrackAtVtx()");
+  topaaaa.addValue("3");
+  topaaaa.addValue("dpi");
+  topaaaa.addValue("deltaPhiSuperClusterTrackAtVtx()");
+  topaaaa.addValue("3");
+  topaaa.addKeyValue("reco::GsfElectron", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("pT");
+  topaaaa.addValue("pt");
+  topaaaa.addValue("1");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("3");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("3");
+  topaaa.addKeyValue("reco::Jet", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("MET");
+  topaaaa.addValue("et");
+  topaaaa.addValue("1");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("3");
+  topaaaa.addValue("sumEt");
+  topaaaa.addValue("sumEt");
+  topaaaa.addValue("1");
+  topaaaa.addValue("mEtSig");
+  topaaaa.addValue("mEtSig");
+  topaaaa.addValue("3");
+  topaaa.addKeyValue("reco::MET", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("charge");
+  topaaaa.addValue("charge");
+  topaaaa.addValue("0");
+  topaaaa.addValue("pT");
+  topaaaa.addValue("pt");
+  topaaaa.addValue("1");
+  topaaaa.addValue("global");
+  topaaaa.addValue("isGlobalMuon");
+  topaaaa.addValue("-2");
+  topaaaa.addValue("tracker");
+  topaaaa.addValue("isTrackerMuon");
+  topaaaa.addValue("-2");
+  topaaaa.addValue("SA");
+  topaaaa.addValue("isStandAloneMuon");
+  topaaaa.addValue("-2");
+  topaaaa.addValue("calo");
+  topaaaa.addValue("isCaloMuon");
+  topaaaa.addValue("-2");
+  topaaaa.addValue("tr pt");
+  topaaaa.addValue("track().pt()");
+  topaaaa.addValue("1");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("3");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("3");
+  topaaaa.addValue("matches");
+  topaaaa.addValue("numberOfMatches('SegmentArbitration')");
+  topaaaa.addValue("0");
+  topaaaa.addValue("d0");
+  topaaaa.addValue("track().d0()");
+  topaaaa.addValue("3");
+  topaaaa.addValue("d0 / d0Err");
+  topaaaa.addValue("track().d0() / track().d0Error()");
+  topaaaa.addValue("3");
+  topaaa.addKeyValue("reco::Muon", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("pT");
+  topaaaa.addValue("pt");
+  topaaaa.addValue("1");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("3");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("3");
+  topaaaa.addValue("H/E");
+  topaaaa.addValue("hadronicOverEm");
+  topaaaa.addValue("3");
+  topaaa.addKeyValue("reco::Photon", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("charge");
+  topaaaa.addValue("charge");
+  topaaaa.addValue("0");
+  topaaaa.addValue("pT");
+  topaaaa.addValue("pt");
+  topaaaa.addValue("1");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("3");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("3");
+  topaaaa.addValue("d0");
+  topaaaa.addValue("d0");
+  topaaaa.addValue("5");
+  topaaaa.addValue("d0Err");
+  topaaaa.addValue("d0Error");
+  topaaaa.addValue("5");
+  topaaaa.addValue("dz");
+  topaaaa.addValue("dz");
+  topaaaa.addValue("5");
+  topaaaa.addValue("dzErr");
+  topaaaa.addValue("dzError");
+  topaaaa.addValue("5");
+  topaaaa.addValue("vx");
+  topaaaa.addValue("vx");
+  topaaaa.addValue("5");
+  topaaaa.addValue("vy");
+  topaaaa.addValue("vy");
+  topaaaa.addValue("5");
+  topaaaa.addValue("vz");
+  topaaaa.addValue("vz");
+  topaaaa.addValue("5");
+  topaaaa.addValue("pixel hits");
+  topaaaa.addValue("hitPattern().numberOfValidPixelHits()");
+  topaaaa.addValue("0");
+  topaaaa.addValue("strip hits");
+  topaaaa.addValue("hitPattern().numberOfValidStripHits()");
+  topaaaa.addValue("0");
+  topaaaa.addValue("chi2");
+  topaaaa.addValue("chi2");
+  topaaaa.addValue("3");
+  topaaaa.addValue("ndof");
+  topaaaa.addValue("ndof");
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("reco::Track", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("x");
+  topaaaa.addValue("x");
+  topaaaa.addValue("5");
+  topaaaa.addValue("xError");
+  topaaaa.addValue("xError");
+  topaaaa.addValue("5");
+  topaaaa.addValue("y");
+  topaaaa.addValue("y");
+  topaaaa.addValue("5");
+  topaaaa.addValue("yError");
+  topaaaa.addValue("yError");
+  topaaaa.addValue("5");
+  topaaaa.addValue("z");
+  topaaaa.addValue("z");
+  topaaaa.addValue("5");
+  topaaaa.addValue("zError");
+  topaaaa.addValue("zError");
+  topaaaa.addValue("5");
+  topaaaa.addValue("tracks");
+  topaaaa.addValue("tracksSize");
+  topaaaa.addValue("0");
+  topaaaa.addValue("chi2");
+  topaaaa.addValue("chi2");
+  topaaaa.addValue("3");
+  topaaaa.addValue("ndof");
+  topaaaa.addValue("ndof");
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("reco::Vertex", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("CaloTower");
+  topaaaa.addValue("reco::CaloJet");
+  topaaaa.addValue("reco::GenParticle");
+  topaaaa.addValue("reco::GsfElectron");
+  topaaaa.addValue("reco::Jet");
+  topaaaa.addValue("reco::MET");
+  topaaaa.addValue("reco::Muon");
+  topaaaa.addValue("reco::Photon");
+  topaaaa.addValue("reco::Track");
+  topaaaa.addValue("reco::Vertex");
+  topaaa.addKeyValue("typeNames", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+{
+  FWConfiguration topaaaaa(0);
+  topaaaaa.addValue("Jets");
+  topaaaa.addKeyValue("collection", topaaaaa);
+}
+  topaaa.addKeyValue("TableView", topaaaa);
+}
+  topaa.addKeyValue("Table", topaaa);
+}
   topa.addKeyValue("views", topaa);
 }
 {
   FWConfiguration topaa(1);
-  topaa.addValue("541");
-  topaa.addValue("259");
-  topaa.addValue("198");
-  topaa.addValue("155");
+  topaa.addValue("407");
+  topaa.addValue("136");
+  topaa.addValue("132");
+  topaa.addValue("129");
+  topaa.addValue("127");
   topa.addKeyValue("view area", topaa);
 }
 {
@@ -1546,7 +1835,25 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaa(1);
   topa.addKeyValue("controllers", topaa);
 }
+{
+  FWConfiguration topaa(1);
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("black");
+  topaa.addKeyValue("background color", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("0");
+  topaa.addKeyValue("brightness", topaaa);
+}
+  topa.addKeyValue("color control", topaa);
+}
   top.addKeyValue("GUI", topa);
+}
+{
+  FWConfiguration topa(1);
+  top.addKeyValue("Tables", topa);
 }
 
   return top_p;
