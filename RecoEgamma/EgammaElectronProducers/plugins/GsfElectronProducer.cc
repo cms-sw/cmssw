@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronProducer.cc,v 1.19 2009/04/16 19:40:52 charlot Exp $
+// $Id: GsfElectronProducer.cc,v 1.20 2009/05/16 16:48:14 charlot Exp $
 //
 //
 
@@ -54,11 +54,6 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& iConfig)
 		    iConfig.getParameter<double>("maxDeltaEtaEndcaps"),
 		    iConfig.getParameter<double>("maxDeltaPhiBarrel"),
 		    iConfig.getParameter<double>("maxDeltaPhiEndcaps"),
-		    iConfig.getParameter<double>("hOverEConeSize"),
-		    iConfig.getParameter<double>("hOverEPtMin"),
-		    iConfig.getParameter<double>("maxHOverEDepth1Barrel"),
-		    iConfig.getParameter<double>("maxHOverEDepth1Endcaps"),
-		    iConfig.getParameter<double>("maxHOverEDepth2"),
 		    iConfig.getParameter<double>("maxSigmaIetaIetaBarrel"),
 		    iConfig.getParameter<double>("maxSigmaIetaIetaEndcaps"),
 		    iConfig.getParameter<double>("maxFbremBarrel"),

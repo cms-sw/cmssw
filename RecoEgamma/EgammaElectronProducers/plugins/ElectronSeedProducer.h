@@ -9,6 +9,11 @@
 //                  to find TrackingSeeds.
 
 
+class ElectronSeedGenerator ;
+class SeedFilter ;
+class EgammaHcalIsolation ;
+//class ElectronHcalHelper ;
+
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -16,20 +21,15 @@
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
-//#include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
 #include "RecoCaloTools/Selectors/interface/CaloDualConeSelector.h"
 
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-class  ElectronSeedGenerator;
-class SeedFilter;
-///class TrajectorySeedCollection;
 
 class ElectronSeedProducer : public edm::EDProducer
 {
@@ -47,23 +47,24 @@ class ElectronSeedProducer : public edm::EDProducer
       HBHERecHitMetaCollection*mhbhe, reco::SuperClusterRefVector &sclRefs);
   void filterSeeds(edm::Event& e, const edm::EventSetup& setup, reco::SuperClusterRefVector &sclRefs);
 
-  edm::InputTag superClusters_[2];
-  edm::InputTag hcalRecHits_;
-  edm::InputTag initialSeeds_;
+  edm::InputTag superClusters_[2] ;
+  edm::InputTag initialSeeds_ ;
 
-  const edm::ParameterSet conf_;
-  ElectronSeedGenerator *matcher_;
+  //const edm::ParameterSet conf_;
+  //ElectronHcalHelper * hcalHelper_ ;
+  ElectronSeedGenerator * matcher_ ;
   SeedFilter * seedFilter_;
 
-  TrajectorySeedCollection *theInitialSeedColl;
+  TrajectorySeedCollection * theInitialSeedColl ;
 
-  //for the filter
-  edm::ESHandle<CaloGeometry>       theCaloGeom;
-  EgammaHcalIsolation *hcalIso_;
-  CaloDualConeSelector *doubleConeSel_;
-  HBHERecHitMetaCollection* mhbhe_ ;
+  // for the filter
+  edm::ESHandle<CaloGeometry> theCaloGeom ;
+  EgammaHcalIsolation * hcalIso_ ;
+//  CaloDualConeSelector * doubleConeSel_ ;
+  HBHERecHitMetaCollection * mhbhe_ ;
 
   // parameters for H/E
+  edm::InputTag hcalRecHits_;
   double maxHOverE_;
   double hOverEConeSize_;
   double hOverEHBMinE_;
