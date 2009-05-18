@@ -35,34 +35,42 @@ process.load("Configuration.StandardSequences.Services_cff")
 """
    Data is stored in
 
-   Validation_[Release]_[Label]/[EventType]_[DataSource]_[Conditions]
+   TauID/[EventType]_[DataSource]_[Conditions]_[label]
 
 """
 
-outputDirName = "Validation_%s" % ReleaseVersion
+#outputDirName = "Validation_%s" % ReleaseVersion
+outputDirName = "TauID"
 
-if (options.label != "none"):
-   outputDirName += "_" + options.label
 
 outputDir = os.path.join(os.getcwd(), outputDirName) 
 # This is the directory where we store the stuff about our current configuration
 outputBaseDir = outputDir
 
 subDirName = ""
-#subDirName += ReleaseVersion
-#subDirName += "_"
-#if (options.label != "none"):
-#   subDirName += "_" + options.label
 
 subDirName += "%s_%s" % (options.eventType, options.dataSource)
 
 if options.conditions != "whatever":
    subDirName += "_%s" % options.conditions
 
+if (options.label != "none"):
+   subDirName += "_" + options.label
+
 outputDir = os.path.join(outputDir, subDirName)
 
 # Store configuration, showtags, etc in a sub directory
 configDir = os.path.join(outputDir, "Config")
+
+if os.path.exists(outputDir):
+   print "Output directory %s already exists!  OK to overwrite?" % outputDir
+   while True:
+      input = raw_input("Please enter [y/n] ")
+      if (input == 'y'):
+         break
+      elif (input == 'n'):
+         print " ...exiting."
+         sys.exit()
 
 if not os.path.exists(outputDir):
    os.makedirs(outputDir)
