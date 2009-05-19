@@ -535,7 +535,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	associatePSClusters(index, reco::PFBlockElement::PS2, block, elements, linkData, active, ps2Ene);
 	
 	// Get the energy calibrated (for photons)
-	double ecalEnergy = calibration_->energyEm(*clusterRef,ps1Ene,ps2Ene);
+	bool crackCorrection = false;
+	double ecalEnergy = calibration_->energyEm(*clusterRef,ps1Ene,ps2Ene,crackCorrection);
 	if ( debug_ )
 	  std::cout << "Corrected ECAL(+PS) energy = " << ecalEnergy << std::endl;
 
@@ -1019,7 +1020,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    associatedPSs.insert(make_pair(iEcal,psEnes));
 	      
 	    // Calibrate the ECAL energy for photons
-	    float ecalEnergyCalibrated = calibration_->energyEm(*eclusterref,ps1Ene,ps2Ene);
+	    bool crackCorrection = false;
+	    float ecalEnergyCalibrated = calibration_->energyEm(*eclusterref,ps1Ene,ps2Ene,false);
 	    math::XYZVector photonDirection(eclusterref->position().X(),
 					    eclusterref->position().Y(),
 					    eclusterref->position().Z());

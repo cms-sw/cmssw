@@ -28,7 +28,7 @@ class TF1;
 //
 // Original Author:  Christian Veelken
 //         Created:  Tue Aug  8 16:26:18 CDT 2006
-// $Id: PFEnergyCalibration.h,v 1.8 2009/05/06 14:42:38 pjanot Exp $
+// $Id: PFEnergyCalibration.h,v 1.9 2009/05/07 10:05:44 pjanot Exp $
 //
 //
 
@@ -58,8 +58,15 @@ class PFEnergyCalibration
   double energyEm(double uncalibratedEnergyECAL, 
 		  double eta=0, double phi=0) const;
   
-  double energyEm(const reco::PFCluster& clusterEcal,std::vector<double> &EclustersPS1,std::vector<double> &EclustersPS2);
-  double energyEm(const reco::PFCluster& clusterEcal,std::vector<double> &EclustersPS1,std::vector<double> &EclustersPS2,double &ps1,double&ps2);
+  double energyEm(const reco::PFCluster& clusterEcal,
+		  std::vector<double> &EclustersPS1,
+		  std::vector<double> &EclustersPS2,
+		  bool crackCorrection = true);
+
+  double energyEm(const reco::PFCluster& clusterEcal,
+		  std::vector<double> &EclustersPS1,
+		  std::vector<double> &EclustersPS2,
+		  double &ps1,double&ps2);
 
   // HCAL only calibration
   double energyHad(double uncalibratedEnergyHCAL, 
@@ -125,13 +132,13 @@ class PFEnergyCalibration
   double Alpha(double eta);
   double Beta(double E, double eta);
   double Gamma(double etaEcal);
-  double EcorrBarrel(double E, double eta, double phi);
+  double EcorrBarrel(double E, double eta, double phi, bool crackCorrection=true);
   double EcorrZoneBeforePS(double E, double eta);
   double EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal);
   double EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal,double&, double&);
   double EcorrPS_ePSNil(double eEcal,double eta);
   double EcorrZoneAfterPS(double E, double eta);
-  double Ecorr(double eEcal,double ePS1,double ePS2,double eta,double phi);
+  double Ecorr(double eEcal,double ePS1,double ePS2,double eta,double phi,bool crackCorrection=true);
   double Ecorr(double eEcal,double ePS1,double ePS2,double eta,double phi,double&,double&);
 
   // Barrel calibration (eta 0.00 -> 1.48)
