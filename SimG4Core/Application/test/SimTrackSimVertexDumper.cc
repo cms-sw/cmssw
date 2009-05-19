@@ -97,7 +97,8 @@ SimTrackSimVertexDumper::analyze( const edm::Event& iEvent, const edm::EventSetu
          if (dumpHepMC ) {
            if ( theSimTracks[isimtk].genpartIndex() != -1 ) {
              HepMC::GenParticle* part = evt->barcode_to_particle( theSimTracks[isimtk].genpartIndex() ) ;
-             std::cout << "  ---> Corresponding to HepMC particle " << *part << std::endl;
+             if ( part ) { std::cout << "  ---> Corresponding to HepMC particle " << *part << std::endl; }
+             else { std::cout << " ---> Corresponding HepMC particle not in selected event " << std::endl; }
            }
          }
        }
