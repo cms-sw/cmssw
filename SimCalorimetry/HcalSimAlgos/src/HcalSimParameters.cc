@@ -73,22 +73,25 @@ double HcalSimParameters::samplingFactor(const DetId & detId) const
   return theSamplingFactors.at(hcalDetId.ietaAbs()-theFirstRing);
 }
 
+//static const double GeV2fC = 1.0/0.145;
+static const double GeV2fC = 1.0/0.4;
+
 void HcalSimParameters::defaultTimeSmearing() {
-  // ampl (fC), time (ns) (used 0.145 GeV/fC for conversion)
-  theSmearSettings.push_back(std::pair<double,double>(27.6	, 2.2));
-  theSmearSettings.push_back(std::pair<double,double>(137.9	, 2.2));
-  theSmearSettings.push_back(std::pair<double,double>(172.4	,1.950));
-  theSmearSettings.push_back(std::pair<double,double>(206.9	,1.809));
-  theSmearSettings.push_back(std::pair<double,double>(255.2	,1.664));
-  theSmearSettings.push_back(std::pair<double,double>(306.9	,1.519));
-  theSmearSettings.push_back(std::pair<double,double>(386.2	,1.425));
-  theSmearSettings.push_back(std::pair<double,double>(437.9	,1.348));
-  theSmearSettings.push_back(std::pair<double,double>(558.6	,1.192));
-  theSmearSettings.push_back(std::pair<double,double>(610.3	,1.130));
-  theSmearSettings.push_back(std::pair<double,double>(789.7	,1.144));
-  theSmearSettings.push_back(std::pair<double,double>(1210.3	,1.070));
-  theSmearSettings.push_back(std::pair<double,double>(2413.8	,1.043));
-  theSmearSettings.push_back(std::pair<double,double>(99999.00, 1.043));
+  // GeV->ampl (fC), time (ns)
+  theSmearSettings.push_back(std::pair<double,double>(  4.00*GeV2fC, 4.050));
+  theSmearSettings.push_back(std::pair<double,double>( 20.00*GeV2fC, 3.300));
+  theSmearSettings.push_back(std::pair<double,double>( 25.00*GeV2fC, 2.925));
+  theSmearSettings.push_back(std::pair<double,double>( 30.00*GeV2fC, 2.714));
+  theSmearSettings.push_back(std::pair<double,double>( 37.00*GeV2fC, 2.496));
+  theSmearSettings.push_back(std::pair<double,double>( 44.50*GeV2fC, 2.278));
+  theSmearSettings.push_back(std::pair<double,double>( 56.00*GeV2fC, 2.138));
+  theSmearSettings.push_back(std::pair<double,double>( 63.50*GeV2fC, 2.022));
+  theSmearSettings.push_back(std::pair<double,double>( 81.00*GeV2fC, 1.788));
+  theSmearSettings.push_back(std::pair<double,double>( 88.50*GeV2fC, 1.695));
+  theSmearSettings.push_back(std::pair<double,double>(114.50*GeV2fC, 1.716));
+  theSmearSettings.push_back(std::pair<double,double>(175.50*GeV2fC, 1.070));
+  theSmearSettings.push_back(std::pair<double,double>(350.00*GeV2fC, 1.564));
+  theSmearSettings.push_back(std::pair<double,double>(99999.00*GeV2fC, 1.564));
 }
 
 double HcalSimParameters::timeSmearRMS(double ampl) const {
