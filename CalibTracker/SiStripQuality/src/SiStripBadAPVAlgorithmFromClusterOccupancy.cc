@@ -12,6 +12,18 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 
+SiStripBadAPVAlgorithmFromClusterOccupancy::SiStripBadAPVAlgorithmFromClusterOccupancy(const edm::ParameterSet& iConfig):
+  lowoccupancy_(0),
+  highoccupancy_(100),
+  absolutelow_(0),
+  numberiterations_(2),
+  Nevents_(0),
+  occupancy_(0),
+  OutFileName_("Occupancy.root")
+  {
+    minNevents_=Nevents_*occupancy_;
+  }
+
 SiStripBadAPVAlgorithmFromClusterOccupancy::~SiStripBadAPVAlgorithmFromClusterOccupancy(){
   LogTrace("SiStripBadAPVAlgorithmFromClusterOccupancy")<<"[SiStripBadAPVAlgorithmFromClusterOccupancy::~SiStripBadAPVAlgorithmFromClusterOccupancy] "<<std::endl;
 }
@@ -225,6 +237,7 @@ void SiStripBadAPVAlgorithmFromClusterOccupancy::extractBadAPVs(SiStripQuality* 
 
   } // end loop on modules
 
+  // Calculate Mean and RMS for each Layer
   MeanAndRms_TIB_Layer1 = CalculateMeanAndRMS(medianValues_TIB_Layer1,numberiterations_);
   MeanAndRms_TIB_Layer2 = CalculateMeanAndRMS(medianValues_TIB_Layer2,numberiterations_);
   MeanAndRms_TIB_Layer3 = CalculateMeanAndRMS(medianValues_TIB_Layer3,numberiterations_);
@@ -267,584 +280,45 @@ void SiStripBadAPVAlgorithmFromClusterOccupancy::extractBadAPVs(SiStripQuality* 
   pQuality=siStripQuality;
   badStripList.clear();
 
-  // ############# TIB Layer 1 #############
-  for (uint32_t it=0; it<medianValues_TIB_Layer1.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TIB_Layer1[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TIB_Layer1[it].apvMedian[apv]<(MeanAndRms_TIB_Layer1.first-lowoccupancy_*MeanAndRms_TIB_Layer1.second)) || ((medianValues_TIB_Layer1[it].apvMedian[apv]>(MeanAndRms_TIB_Layer1.first+highoccupancy_*MeanAndRms_TIB_Layer1.second)) && medianValues_TIB_Layer1[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
+  // Analyze the APV Occupancy for hot APVs
+  AnalyzeOccupancy(siStripQuality,medianValues_TIB_Layer1,MeanAndRms_TIB_Layer1,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TIB_Layer2,MeanAndRms_TIB_Layer2,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TIB_Layer3,MeanAndRms_TIB_Layer3,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TIB_Layer4,MeanAndRms_TIB_Layer4,badStripList);
 
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TIB_Layer1[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TIB_Layer1[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TIB Layer 2 #############
-  for (uint32_t it=0; it<medianValues_TIB_Layer2.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TIB_Layer2[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TIB_Layer2[it].apvMedian[apv]<(MeanAndRms_TIB_Layer2.first-lowoccupancy_*MeanAndRms_TIB_Layer2.second)) || ((medianValues_TIB_Layer2[it].apvMedian[apv]>(MeanAndRms_TIB_Layer2.first+highoccupancy_*MeanAndRms_TIB_Layer2.second)) && medianValues_TIB_Layer2[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
+  AnalyzeOccupancy(siStripQuality,medianValues_TOB_Layer1,MeanAndRms_TOB_Layer1,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TOB_Layer2,MeanAndRms_TOB_Layer2,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TOB_Layer3,MeanAndRms_TOB_Layer3,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TOB_Layer4,MeanAndRms_TOB_Layer4,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TOB_Layer5,MeanAndRms_TOB_Layer5,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TOB_Layer6,MeanAndRms_TOB_Layer6,badStripList);
 
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TIB_Layer2[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TIB_Layer2[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TIB Layer 3 #############
-  for (uint32_t it=0; it<medianValues_TIB_Layer3.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TIB_Layer3[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TIB_Layer3[it].apvMedian[apv]<(MeanAndRms_TIB_Layer3.first-lowoccupancy_*MeanAndRms_TIB_Layer3.second)) || ((medianValues_TIB_Layer3[it].apvMedian[apv]>(MeanAndRms_TIB_Layer3.first+highoccupancy_*MeanAndRms_TIB_Layer3.second)) && medianValues_TIB_Layer3[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
+  AnalyzeOccupancy(siStripQuality,medianValues_TIDPlus_Disc1,MeanAndRms_TIDPlus_Disc1,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TIDPlus_Disc2,MeanAndRms_TIDPlus_Disc2,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TIDPlus_Disc3,MeanAndRms_TIDPlus_Disc3,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TIDMinus_Disc1,MeanAndRms_TIDMinus_Disc1,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TIDMinus_Disc2,MeanAndRms_TIDMinus_Disc2,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TIDMinus_Disc3,MeanAndRms_TIDMinus_Disc3,badStripList);
 
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TIB_Layer3[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TIB_Layer3[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TIB Layer 4 #############
-  for (uint32_t it=0; it<medianValues_TIB_Layer4.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TIB_Layer4[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TIB_Layer4[it].apvMedian[apv]<(MeanAndRms_TIB_Layer4.first-lowoccupancy_*MeanAndRms_TIB_Layer4.second)) || ((medianValues_TIB_Layer4[it].apvMedian[apv]>(MeanAndRms_TIB_Layer4.first+highoccupancy_*MeanAndRms_TIB_Layer4.second)) && medianValues_TIB_Layer4[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
+  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc1,MeanAndRms_TECPlus_Disc1,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc2,MeanAndRms_TECPlus_Disc2,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc3,MeanAndRms_TECPlus_Disc3,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc4,MeanAndRms_TECPlus_Disc4,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc5,MeanAndRms_TECPlus_Disc5,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc6,MeanAndRms_TECPlus_Disc6,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc7,MeanAndRms_TECPlus_Disc7,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc8,MeanAndRms_TECPlus_Disc8,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc9,MeanAndRms_TECPlus_Disc9,badStripList);
 
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TIB_Layer4[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TIB_Layer4[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TOB Layer 1 #############
-  for (uint32_t it=0; it<medianValues_TOB_Layer1.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TOB_Layer1[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TOB_Layer1[it].apvMedian[apv]<(MeanAndRms_TOB_Layer1.first-lowoccupancy_*MeanAndRms_TOB_Layer1.second)) || ((medianValues_TOB_Layer1[it].apvMedian[apv]>(MeanAndRms_TOB_Layer1.first+highoccupancy_*MeanAndRms_TOB_Layer1.second)) && medianValues_TOB_Layer1[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TOB_Layer1[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TOB_Layer1[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TOB Layer 2 #############
-  for (uint32_t it=0; it<medianValues_TOB_Layer2.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TOB_Layer2[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TOB_Layer2[it].apvMedian[apv]<(MeanAndRms_TOB_Layer2.first-lowoccupancy_*MeanAndRms_TOB_Layer2.second)) || ((medianValues_TOB_Layer2[it].apvMedian[apv]>(MeanAndRms_TOB_Layer2.first+highoccupancy_*MeanAndRms_TOB_Layer2.second)) && medianValues_TOB_Layer2[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TOB_Layer2[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TOB_Layer2[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TOB Layer 3 #############
-  for (uint32_t it=0; it<medianValues_TOB_Layer3.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TOB_Layer3[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TOB_Layer3[it].apvMedian[apv]<(MeanAndRms_TOB_Layer3.first-lowoccupancy_*MeanAndRms_TOB_Layer3.second)) || ((medianValues_TOB_Layer3[it].apvMedian[apv]>(MeanAndRms_TOB_Layer3.first+highoccupancy_*MeanAndRms_TOB_Layer3.second)) && medianValues_TOB_Layer3[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TOB_Layer3[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TOB_Layer3[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TOB Layer 4 #############
-  for (uint32_t it=0; it<medianValues_TOB_Layer4.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TOB_Layer4[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TOB_Layer4[it].apvMedian[apv]<(MeanAndRms_TOB_Layer4.first-lowoccupancy_*MeanAndRms_TOB_Layer4.second)) || ((medianValues_TOB_Layer4[it].apvMedian[apv]>(MeanAndRms_TOB_Layer4.first+highoccupancy_*MeanAndRms_TOB_Layer4.second)) && medianValues_TOB_Layer4[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TOB_Layer4[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TOB_Layer4[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TOB Layer 5 #############
-  for (uint32_t it=0; it<medianValues_TOB_Layer5.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TOB_Layer5[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TOB_Layer5[it].apvMedian[apv]<(MeanAndRms_TOB_Layer5.first-lowoccupancy_*MeanAndRms_TOB_Layer5.second)) || ((medianValues_TOB_Layer5[it].apvMedian[apv]>(MeanAndRms_TOB_Layer5.first+highoccupancy_*MeanAndRms_TOB_Layer5.second)) && medianValues_TOB_Layer5[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TOB_Layer5[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TOB_Layer5[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TOB Layer 6 #############
-  for (uint32_t it=0; it<medianValues_TOB_Layer6.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TOB_Layer6[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TOB_Layer6[it].apvMedian[apv]<(MeanAndRms_TOB_Layer6.first-lowoccupancy_*MeanAndRms_TOB_Layer6.second)) || ((medianValues_TOB_Layer6[it].apvMedian[apv]>(MeanAndRms_TOB_Layer6.first+highoccupancy_*MeanAndRms_TOB_Layer6.second)) && medianValues_TOB_Layer6[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TOB_Layer6[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TOB_Layer6[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TIDPlus Disk 1 #############
-  for (uint32_t it=0; it<medianValues_TIDPlus_Disc1.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TIDPlus_Disc1[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TIDPlus_Disc1[it].apvMedian[apv]<(MeanAndRms_TIDPlus_Disc1.first-lowoccupancy_*MeanAndRms_TIDPlus_Disc1.second)) || ((medianValues_TIDPlus_Disc1[it].apvMedian[apv]>(MeanAndRms_TIDPlus_Disc1.first+highoccupancy_*MeanAndRms_TIDPlus_Disc1.second)) && medianValues_TIDPlus_Disc1[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TIDPlus_Disc1[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TIDPlus_Disc1[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TIDPlus Disk 2 #############
-  for (uint32_t it=0; it<medianValues_TIDPlus_Disc2.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TIDPlus_Disc2[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TIDPlus_Disc2[it].apvMedian[apv]<(MeanAndRms_TIDPlus_Disc2.first-lowoccupancy_*MeanAndRms_TIDPlus_Disc2.second)) || ((medianValues_TIDPlus_Disc2[it].apvMedian[apv]>(MeanAndRms_TIDPlus_Disc2.first+highoccupancy_*MeanAndRms_TIDPlus_Disc2.second)) && medianValues_TIDPlus_Disc2[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TIDPlus_Disc2[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TIDPlus_Disc2[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TIDPlus Disk 3 #############
-  for (uint32_t it=0; it<medianValues_TIDPlus_Disc3.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TIDPlus_Disc3[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TIDPlus_Disc3[it].apvMedian[apv]<(MeanAndRms_TIDPlus_Disc3.first-lowoccupancy_*MeanAndRms_TIDPlus_Disc3.second)) || ((medianValues_TIDPlus_Disc3[it].apvMedian[apv]>(MeanAndRms_TIDPlus_Disc3.first+highoccupancy_*MeanAndRms_TIDPlus_Disc3.second)) && medianValues_TIDPlus_Disc3[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TIDPlus_Disc3[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TIDPlus_Disc3[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TIDMinus Disk 1 #############
-  for (uint32_t it=0; it<medianValues_TIDMinus_Disc1.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TIDMinus_Disc1[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TIDMinus_Disc1[it].apvMedian[apv]<(MeanAndRms_TIDMinus_Disc1.first-lowoccupancy_*MeanAndRms_TIDMinus_Disc1.second)) || ((medianValues_TIDMinus_Disc1[it].apvMedian[apv]>(MeanAndRms_TIDMinus_Disc1.first+highoccupancy_*MeanAndRms_TIDMinus_Disc1.second)) && medianValues_TIDMinus_Disc1[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TIDMinus_Disc1[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TIDMinus_Disc1[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TIDMinus Disk 2 #############
-  for (uint32_t it=0; it<medianValues_TIDMinus_Disc2.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TIDMinus_Disc2[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TIDMinus_Disc2[it].apvMedian[apv]<(MeanAndRms_TIDMinus_Disc2.first-lowoccupancy_*MeanAndRms_TIDMinus_Disc2.second)) || ((medianValues_TIDMinus_Disc2[it].apvMedian[apv]>(MeanAndRms_TIDMinus_Disc2.first+highoccupancy_*MeanAndRms_TIDMinus_Disc2.second)) && medianValues_TIDMinus_Disc2[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TIDMinus_Disc2[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TIDMinus_Disc2[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TIDMinus Disk 3 #############
-  for (uint32_t it=0; it<medianValues_TIDMinus_Disc3.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TIDMinus_Disc3[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TIDMinus_Disc3[it].apvMedian[apv]<(MeanAndRms_TIDMinus_Disc3.first-lowoccupancy_*MeanAndRms_TIDMinus_Disc3.second)) || ((medianValues_TIDMinus_Disc3[it].apvMedian[apv]>(MeanAndRms_TIDMinus_Disc3.first+highoccupancy_*MeanAndRms_TIDMinus_Disc3.second)) && medianValues_TIDMinus_Disc3[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TIDMinus_Disc3[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TIDMinus_Disc3[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TECPlus Disk 1 #############
-  for (uint32_t it=0; it<medianValues_TECPlus_Disc1.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TECPlus_Disc1[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TECPlus_Disc1[it].apvMedian[apv]<(MeanAndRms_TECPlus_Disc1.first-lowoccupancy_*MeanAndRms_TECPlus_Disc1.second)) || ((medianValues_TECPlus_Disc1[it].apvMedian[apv]>(MeanAndRms_TECPlus_Disc1.first+highoccupancy_*MeanAndRms_TECPlus_Disc1.second)) && medianValues_TECPlus_Disc1[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TECPlus_Disc1[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TECPlus_Disc1[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TECPlus Disk 2 #############
-  for (uint32_t it=0; it<medianValues_TECPlus_Disc2.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TECPlus_Disc2[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TECPlus_Disc2[it].apvMedian[apv]<(MeanAndRms_TECPlus_Disc2.first-lowoccupancy_*MeanAndRms_TECPlus_Disc2.second)) || ((medianValues_TECPlus_Disc2[it].apvMedian[apv]>(MeanAndRms_TECPlus_Disc2.first+highoccupancy_*MeanAndRms_TECPlus_Disc2.second)) && medianValues_TECPlus_Disc2[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TECPlus_Disc2[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TECPlus_Disc2[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TECPlus Disk 3 #############
-  for (uint32_t it=0; it<medianValues_TECPlus_Disc3.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TECPlus_Disc3[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TECPlus_Disc3[it].apvMedian[apv]<(MeanAndRms_TECPlus_Disc3.first-lowoccupancy_*MeanAndRms_TECPlus_Disc3.second)) || ((medianValues_TECPlus_Disc3[it].apvMedian[apv]>(MeanAndRms_TECPlus_Disc3.first+highoccupancy_*MeanAndRms_TECPlus_Disc3.second)) && medianValues_TECPlus_Disc3[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TECPlus_Disc3[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TECPlus_Disc3[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TECPlus Disk 4 #############
-  for (uint32_t it=0; it<medianValues_TECPlus_Disc4.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TECPlus_Disc4[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TECPlus_Disc4[it].apvMedian[apv]<(MeanAndRms_TECPlus_Disc4.first-lowoccupancy_*MeanAndRms_TECPlus_Disc4.second)) || ((medianValues_TECPlus_Disc4[it].apvMedian[apv]>(MeanAndRms_TECPlus_Disc4.first+highoccupancy_*MeanAndRms_TECPlus_Disc4.second)) && medianValues_TECPlus_Disc4[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TECPlus_Disc4[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TECPlus_Disc4[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TECPlus Disk 5 #############
-  for (uint32_t it=0; it<medianValues_TECPlus_Disc5.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TECPlus_Disc5[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TECPlus_Disc5[it].apvMedian[apv]<(MeanAndRms_TECPlus_Disc5.first-lowoccupancy_*MeanAndRms_TECPlus_Disc5.second)) || ((medianValues_TECPlus_Disc5[it].apvMedian[apv]>(MeanAndRms_TECPlus_Disc5.first+highoccupancy_*MeanAndRms_TECPlus_Disc5.second)) && medianValues_TECPlus_Disc5[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TECPlus_Disc5[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TECPlus_Disc5[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TECPlus Disk 6 #############
-  for (uint32_t it=0; it<medianValues_TECPlus_Disc6.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TECPlus_Disc6[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TECPlus_Disc6[it].apvMedian[apv]<(MeanAndRms_TECPlus_Disc6.first-lowoccupancy_*MeanAndRms_TECPlus_Disc6.second)) || ((medianValues_TECPlus_Disc6[it].apvMedian[apv]>(MeanAndRms_TECPlus_Disc6.first+highoccupancy_*MeanAndRms_TECPlus_Disc6.second)) && medianValues_TECPlus_Disc6[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TECPlus_Disc6[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TECPlus_Disc6[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TECPlus Disk 7 #############
-  for (uint32_t it=0; it<medianValues_TECPlus_Disc7.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TECPlus_Disc7[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TECPlus_Disc7[it].apvMedian[apv]<(MeanAndRms_TECPlus_Disc7.first-lowoccupancy_*MeanAndRms_TECPlus_Disc7.second)) || ((medianValues_TECPlus_Disc7[it].apvMedian[apv]>(MeanAndRms_TECPlus_Disc7.first+highoccupancy_*MeanAndRms_TECPlus_Disc7.second)) && medianValues_TECPlus_Disc7[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TECPlus_Disc7[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TECPlus_Disc7[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TECPlus Disk 8 #############
-  for (uint32_t it=0; it<medianValues_TECPlus_Disc8.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TECPlus_Disc8[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TECPlus_Disc8[it].apvMedian[apv]<(MeanAndRms_TECPlus_Disc8.first-lowoccupancy_*MeanAndRms_TECPlus_Disc8.second)) || ((medianValues_TECPlus_Disc8[it].apvMedian[apv]>(MeanAndRms_TECPlus_Disc8.first+highoccupancy_*MeanAndRms_TECPlus_Disc8.second)) && medianValues_TECPlus_Disc8[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TECPlus_Disc8[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TECPlus_Disc8[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TECPlus Disk 9 #############
-  for (uint32_t it=0; it<medianValues_TECPlus_Disc9.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TECPlus_Disc9[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TECPlus_Disc9[it].apvMedian[apv]<(MeanAndRms_TECPlus_Disc9.first-lowoccupancy_*MeanAndRms_TECPlus_Disc9.second)) || ((medianValues_TECPlus_Disc9[it].apvMedian[apv]>(MeanAndRms_TECPlus_Disc9.first+highoccupancy_*MeanAndRms_TECPlus_Disc9.second)) && medianValues_TECPlus_Disc9[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TECPlus_Disc9[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TECPlus_Disc9[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TECMinus Disk 1 #############
-  for (uint32_t it=0; it<medianValues_TECMinus_Disc1.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TECMinus_Disc1[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TECMinus_Disc1[it].apvMedian[apv]<(MeanAndRms_TECMinus_Disc1.first-lowoccupancy_*MeanAndRms_TECMinus_Disc1.second)) || ((medianValues_TECMinus_Disc1[it].apvMedian[apv]>(MeanAndRms_TECMinus_Disc1.first+highoccupancy_*MeanAndRms_TECMinus_Disc1.second)) && medianValues_TECMinus_Disc1[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TECMinus_Disc1[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TECMinus_Disc1[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TECMinus Disk 2 #############
-  for (uint32_t it=0; it<medianValues_TECMinus_Disc2.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TECMinus_Disc2[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TECMinus_Disc2[it].apvMedian[apv]<(MeanAndRms_TECMinus_Disc2.first-lowoccupancy_*MeanAndRms_TECMinus_Disc2.second)) || ((medianValues_TECMinus_Disc2[it].apvMedian[apv]>(MeanAndRms_TECMinus_Disc2.first+highoccupancy_*MeanAndRms_TECMinus_Disc2.second)) && medianValues_TECMinus_Disc2[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TECMinus_Disc2[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TECMinus_Disc2[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TECMinus Disk 3 #############
-  for (uint32_t it=0; it<medianValues_TECMinus_Disc3.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TECMinus_Disc3[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TECMinus_Disc3[it].apvMedian[apv]<(MeanAndRms_TECMinus_Disc3.first-lowoccupancy_*MeanAndRms_TECMinus_Disc3.second)) || ((medianValues_TECMinus_Disc3[it].apvMedian[apv]>(MeanAndRms_TECMinus_Disc3.first+highoccupancy_*MeanAndRms_TECMinus_Disc3.second)) && medianValues_TECMinus_Disc3[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TECMinus_Disc3[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TECMinus_Disc3[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TECMinus Disk 4 #############
-  for (uint32_t it=0; it<medianValues_TECMinus_Disc4.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TECMinus_Disc4[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TECMinus_Disc4[it].apvMedian[apv]<(MeanAndRms_TECMinus_Disc4.first-lowoccupancy_*MeanAndRms_TECMinus_Disc4.second)) || ((medianValues_TECMinus_Disc4[it].apvMedian[apv]>(MeanAndRms_TECMinus_Disc4.first+highoccupancy_*MeanAndRms_TECMinus_Disc4.second)) && medianValues_TECMinus_Disc4[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TECMinus_Disc4[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TECMinus_Disc4[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TECMinus Disk 5 #############
-  for (uint32_t it=0; it<medianValues_TECMinus_Disc5.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TECMinus_Disc5[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TECMinus_Disc5[it].apvMedian[apv]<(MeanAndRms_TECMinus_Disc5.first-lowoccupancy_*MeanAndRms_TECMinus_Disc5.second)) || ((medianValues_TECMinus_Disc5[it].apvMedian[apv]>(MeanAndRms_TECMinus_Disc5.first+highoccupancy_*MeanAndRms_TECMinus_Disc5.second)) && medianValues_TECMinus_Disc5[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TECMinus_Disc5[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TECMinus_Disc5[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TECMinus Disk 6 #############
-  for (uint32_t it=0; it<medianValues_TECMinus_Disc6.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TECMinus_Disc6[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TECMinus_Disc6[it].apvMedian[apv]<(MeanAndRms_TECMinus_Disc6.first-lowoccupancy_*MeanAndRms_TECMinus_Disc6.second)) || ((medianValues_TECMinus_Disc6[it].apvMedian[apv]>(MeanAndRms_TECMinus_Disc6.first+highoccupancy_*MeanAndRms_TECMinus_Disc6.second)) && medianValues_TECMinus_Disc6[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TECMinus_Disc6[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TECMinus_Disc6[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TECMinus Disk 7 #############
-  for (uint32_t it=0; it<medianValues_TECMinus_Disc7.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TECMinus_Disc7[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TECMinus_Disc7[it].apvMedian[apv]<(MeanAndRms_TECMinus_Disc7.first-lowoccupancy_*MeanAndRms_TECMinus_Disc7.second)) || ((medianValues_TECMinus_Disc7[it].apvMedian[apv]>(MeanAndRms_TECMinus_Disc7.first+highoccupancy_*MeanAndRms_TECMinus_Disc7.second)) && medianValues_TECMinus_Disc7[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TECMinus_Disc7[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TECMinus_Disc7[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TECMinus Disk 8 #############
-  for (uint32_t it=0; it<medianValues_TECMinus_Disc8.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TECMinus_Disc8[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TECMinus_Disc8[it].apvMedian[apv]<(MeanAndRms_TECMinus_Disc8.first-lowoccupancy_*MeanAndRms_TECMinus_Disc8.second)) || ((medianValues_TECMinus_Disc8[it].apvMedian[apv]>(MeanAndRms_TECMinus_Disc8.first+highoccupancy_*MeanAndRms_TECMinus_Disc8.second)) && medianValues_TECMinus_Disc8[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TECMinus_Disc8[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TECMinus_Disc8[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
-  // ############# TECMinus Disk 9 #############
-  for (uint32_t it=0; it<medianValues_TECMinus_Disc9.size(); it++)
-    {
-      for (int apv=0; apv<medianValues_TECMinus_Disc9[it].numberApvs; apv++)
-	{
-	  if ((medianValues_TECMinus_Disc9[it].apvMedian[apv]<(MeanAndRms_TECMinus_Disc9.first-lowoccupancy_*MeanAndRms_TECMinus_Disc9.second)) || ((medianValues_TECMinus_Disc9[it].apvMedian[apv]>(MeanAndRms_TECMinus_Disc9.first+highoccupancy_*MeanAndRms_TECMinus_Disc9.second)) && medianValues_TECMinus_Disc9[it].apvMedian[apv]>absolutelow_))
-	    badStripList.push_back(pQuality->encode((apv*128),128,0));
-
-	}
-      if (badStripList.begin()!=badStripList.end())
-	{
-	  siStripQuality->compact(medianValues_TECMinus_Disc9[it].detrawId,badStripList);
-	  SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-	  siStripQuality->put(medianValues_TECMinus_Disc9[it].detrawId,range);
-	}
-      badStripList.clear();
-    }
+  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc1,MeanAndRms_TECMinus_Disc1,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc2,MeanAndRms_TECMinus_Disc2,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc3,MeanAndRms_TECMinus_Disc3,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc4,MeanAndRms_TECMinus_Disc4,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc5,MeanAndRms_TECMinus_Disc5,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc6,MeanAndRms_TECMinus_Disc6,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc7,MeanAndRms_TECMinus_Disc7,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc8,MeanAndRms_TECMinus_Disc8,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc9,MeanAndRms_TECMinus_Disc9,badStripList);
 
   siStripQuality->fillBadComponents();
 
@@ -894,4 +368,33 @@ std::pair<double,double> SiStripBadAPVAlgorithmFromClusterOccupancy::CalculateMe
     }
 
   return std::make_pair(Mean,Rms);
+}
+
+void SiStripBadAPVAlgorithmFromClusterOccupancy::AnalyzeOccupancy(SiStripQuality* quality, std::vector<Apv>& medianValues, std::pair<double,double>& MeanAndRms, std::vector<unsigned int>& BadStripList)
+{
+  for (uint32_t it=0; it<medianValues.size(); it++)
+    {
+      for (int apv=0; apv<medianValues[it].numberApvs; apv++)
+	{
+	  if (medianValues[it].apvMedian[apv] > minNevents_)
+	    {
+	      if ((medianValues[it].apvMedian[apv]>(MeanAndRms.first+highoccupancy_*MeanAndRms.second)) && (medianValues[it].apvMedian[apv]>absolutelow_))
+		BadStripList.push_back(pQuality->encode((apv*128),128,0));
+	    }
+	  else if (medianValues[it].apvMedian[apv]<(MeanAndRms.first-lowoccupancy_*MeanAndRms.second))
+	    BadStripList.push_back(pQuality->encode((apv*128),128,0));
+	}
+      if (BadStripList.begin()!=BadStripList.end())
+	{
+	  quality->compact(medianValues[it].detrawId,BadStripList);
+	  SiStripQuality::Range range(BadStripList.begin(),BadStripList.end());
+	  quality->put(medianValues[it].detrawId,range);
+	}
+      BadStripList.clear();
+    }
+}
+
+void SiStripBadAPVAlgorithmFromClusterOccupancy::setMinNumOfEvents()
+{
+  minNevents_=occupancy_*Nevents_;
 }

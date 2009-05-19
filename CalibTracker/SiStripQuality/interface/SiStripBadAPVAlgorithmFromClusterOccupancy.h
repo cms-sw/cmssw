@@ -13,7 +13,7 @@
 //
 // Original Author:  Gordon KAUSSEN
 //         Created:  Wed Jan 28 09:11:10 CEST 2009
-// $Id: SiStripBadAPVAlgorithmFromClusterOccupancy.h,$
+// $Id: SiStripBadAPVAlgorithmFromClusterOccupancy.h,v 1.1 2009/02/02 09:50:24 kaussen Exp $
 //
 //
 
@@ -31,6 +31,7 @@
 #include "TTree.h"
 #include "TFile.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "CalibTracker/SiStripQuality/interface/SiStripQualityHistos.h"
 
@@ -41,13 +42,17 @@ class SiStripBadAPVAlgorithmFromClusterOccupancy{
 public:
   typedef SiStrip::QualityHistosMap HistoMap;  
   
-  SiStripBadAPVAlgorithmFromClusterOccupancy():lowoccupancy_(0),highoccupancy_(100),absolutelow_(0),numberiterations_(2),OutFileName_("Occupancy.root"){}
+  SiStripBadAPVAlgorithmFromClusterOccupancy(const edm::ParameterSet&);
+
   virtual ~SiStripBadAPVAlgorithmFromClusterOccupancy();
 
   void setLowOccupancyThreshold(long double low_occupancy){lowoccupancy_=low_occupancy;}
   void setHighOccupancyThreshold(long double high_occupancy){highoccupancy_=high_occupancy;}
   void setAbsoluteLowThreshold(long double absolute_low){absolutelow_=absolute_low;}
   void setNumberIterations(int number_iterations){numberiterations_=number_iterations;}
+  void setAbsoluteOccupancyThreshold(long double occupancy){occupancy_=occupancy;}
+  void setNumberOfEvents(uint32_t Nevents){Nevents_=Nevents;}
+  void setMinNumOfEvents();
   void setOutputFileName(std::string OutputFileName, bool WriteOutputFile){OutFileName_=OutputFileName; WriteOutputFile_=WriteOutputFile;}
   void setTrackerGeometry(const TrackerGeometry* tkgeom){TkGeom = tkgeom;}
   void extractBadAPVs(SiStripQuality*,HistoMap&);
@@ -63,6 +68,8 @@ public:
 
   std::pair<double,double> CalculateMeanAndRMS(std::vector<Apv>, int);
 
+  void AnalyzeOccupancy(SiStripQuality*, std::vector<Apv>&, std::pair<double,double>&, std::vector<unsigned int>&);
+
   struct pHisto{   
 
     pHisto():_NEntries(0),_NBins(0){};
@@ -75,6 +82,9 @@ public:
   long double highoccupancy_;
   long double absolutelow_;
   int numberiterations_;
+  uint32_t Nevents_;
+  long double occupancy_;
+  double minNevents_;
   std::string OutFileName_;
   bool WriteOutputFile_;
   const TrackerGeometry* TkGeom;
