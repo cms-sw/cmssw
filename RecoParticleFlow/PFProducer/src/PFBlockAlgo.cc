@@ -1345,9 +1345,30 @@ PFBlockAlgo::goodPtResolution( const reco::TrackRef& trackref) {
   unsigned int LostHits = trackref->numberOfLostHits();
   double sigmaHad = sqrt(1.20*1.20/P+0.06*0.06) / (1.+LostHits);
 
-  // iteration 1,2,3,4 correspond to algo = 1/5,6,7,8
-  unsigned int Algo = trackref->algo() < 5 ? 
-    trackref->algo()-1 : trackref->algo()-5;
+  // iteration 1,2,3,4,5 correspond to algo = 1/4,5,6,7,8,9
+  unsigned int Algo = 0; 
+  switch (trackref->algo()) {
+  case TrackBase::ctf:
+  case TrackBase::iter0:
+  case TrackBase::iter1:
+    Algo = 0;
+    break;
+  case TrackBase::iter2:
+    Algo = 1;
+    break;
+  case TrackBase::iter3:
+    Algo = 2;
+    break;
+  case TrackBase::iter4:
+    Algo = 3;
+    break;
+  case TrackBase::iter5:
+    Algo = 4;
+    break;
+  default:
+    Algo = 5;
+    break;
+  }
 
   // Temporary : Reject all tracking iteration beyond 5th step. 
   if ( Algo > 4 ) return false;
