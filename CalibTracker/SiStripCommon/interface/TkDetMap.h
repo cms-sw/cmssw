@@ -122,9 +122,10 @@ class TkDetMap{
 		     int& nchY,double& lowY,double& highY);
  
   uint32_t getDetFromBin(int layer, int ix, int iy){ return TkMap[layer]->getDetFromBin(ix,iy); }
+  uint32_t getDetFromBin(std::string layerName, int ix, int iy){return getDetFromBin(getLayerNum(layerName),ix,iy);}
 
   void getDetsForLayer(int layer,std::vector<uint32_t>& output);
-  
+
  private:
 
   void doMe();
