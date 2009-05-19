@@ -12,25 +12,23 @@
 #include "Fireworks/Core/interface/FWColorManager.h"
 
 
-CmsShowColorPopup::CmsShowColorPopup(
-                                     FWColorManager* iColorMgr,
-                                     const TGWindow* p, UInt_t w, UInt_t h) :
+CmsShowColorPopup::CmsShowColorPopup(const TGWindow* p, UInt_t w, UInt_t h) :
    TGTransientFrame(gClient->GetDefaultRoot(),p,w,h),
-   m_colorManager(iColorMgr)
+   m_colorManager(0),
+   m_bgButton(0),
+   m_slider(0)
 {
    SetWindowName("Color Controller");
 
    {
       TGVerticalFrame* fr = new TGVerticalFrame(this);
-      m_bgLabel = new TGLabel(fr, "BackgroundColor: ");
-      TGFont* defaultFont = gClient->GetFontPool()->GetFont(m_bgLabel->GetDefaultFontStruct());
-      m_bgLabel->SetTextFont(gClient->GetFontPool()->GetFont(defaultFont->GetFontAttributes().fFamily, 14, defaultFont->GetFontAttributes().fWeight + 2, defaultFont->GetFontAttributes().fSlant));
-      m_bgLabel->SetTextJustify(kTextLeft);
-      fr->AddFrame(m_bgLabel, new TGLayoutHints(kLHintsExpandX, 0, 2,4));
+      TGLabel* bgLabel = new TGLabel(fr, "BackgroundColor: ");
+      TGFont* defaultFont = gClient->GetFontPool()->GetFont(bgLabel->GetDefaultFontStruct());
+      bgLabel->SetTextFont(gClient->GetFontPool()->GetFont(defaultFont->GetFontAttributes().fFamily, 14, defaultFont->GetFontAttributes().fWeight + 2, defaultFont->GetFontAttributes().fSlant));
+      bgLabel->SetTextJustify(kTextLeft);
+      fr->AddFrame(bgLabel, new TGLayoutHints(kLHintsExpandX, 0, 2,4));
 
-      bool bgBlack =   (FWColorManager::kBlackIndex == m_colorManager->backgroundColorIndex());
-      m_bgButton = new TGTextButton(fr, bgBlack ? " Set White Background " :" Set Black Background ");
-
+      m_bgButton = new TGTextButton(fr, " Set White Background ");
       m_bgButton->Connect("Clicked()","CmsShowColorPopup", this, "changeBackgroundColor()");
       fr->AddFrame(m_bgButton);
 
@@ -53,16 +51,16 @@ CmsShowColorPopup::CmsShowColorPopup(
       m_slider->SetRange(-15, 15);
       fr->AddFrame(m_slider,  new TGLayoutHints(kLHintsNormal, 0, 0, 0, 3));
 
-      m_defaultButton = new TGTextButton(fr," Set Default Brightness ");
-      m_defaultButton->Connect("Clicked()","CmsShowColorPopup", this, "defaultBrightness()");
-      fr->AddFrame(m_defaultButton);
+      TGTextButton* defaultButton = new TGTextButton(fr," Set Default Brightness ");
+      defaultButton->Connect("Clicked()","CmsShowColorPopup", this, "defaultBrightness()");
+      fr->AddFrame(defaultButton);
 
       AddFrame(fr, new  TGLayoutHints(kLHintsExpandX, 4,2,0,2));
    }
 
+   DontCallClose();
    MapSubwindows();
    Layout();
-   MapWindow();
 }
 
 CmsShowColorPopup::~CmsShowColorPopup()
@@ -92,6 +90,14 @@ CmsShowColorPopup::defaultBrightness()
 void
 CmsShowColorPopup::setBrightness(Int_t x)
 {
-   m_colorManager->setBrightness(-x*0.1);
+   m_colorManager->setBrightness(x);
 }
 
+void
+CmsShowColorPopup::setModel(FWColorManager* mng)
+{
+   m_colorManager = mng;
+   bool bgBlack =   (FWColorManager::kBlackIndex == m_colorManager->backgroundColorIndex());
+   m_bgButton->SetText(bgBlack ? " Set White Boackground " : " Set Black Background ");
+   m_slider->SetPosition(m_colorManager->brightness());
+}

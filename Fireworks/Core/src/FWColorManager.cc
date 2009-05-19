@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.9 2009/05/14 19:57:18 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.10 2009/05/15 13:57:40 amraktad Exp $
 //
 
 // system include files
@@ -283,10 +283,16 @@ void FWColorManager::updateColors()
 
 
 void
-FWColorManager::setBrightness(float off)
+FWColorManager::setBrightness(int b)
 {
-   m_gammaOff = off;
+   m_gammaOff = -b*0.1f;
    updateColors();
+}
+
+int
+FWColorManager::brightness()
+{
+  return TMath::FloorNint(-m_gammaOff*10);
 }
 
 void
@@ -312,10 +318,10 @@ FWColorManager::setBackgroundColorIndex(BackgroundColorIndex iIndex)
 }
 
 void 
-FWColorManager::setBackgroundAndBrightness(BackgroundColorIndex iIndex, float off)
+FWColorManager::setBackgroundAndBrightness(BackgroundColorIndex iIndex, int b)
 {
-    m_gammaOff = off;
-    setBackgroundColorIndex(iIndex);
+   m_gammaOff = -b*0.1f;
+   setBackgroundColorIndex(iIndex);
 }
 
 //

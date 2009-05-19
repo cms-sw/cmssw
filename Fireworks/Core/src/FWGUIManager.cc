@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.122 2009/05/15 18:08:15 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.123 2009/05/17 06:15:43 jmuelmen Exp $
 //
 
 // system include files
@@ -131,6 +131,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
    m_ediFrame(0),
    m_modelPopup(0),
    m_viewPopup(0),
+   m_colorPopup(0),
    m_helpPopup(0),
    m_shortcutPopup(0),
    m_tasks(new CmsShowTaskExecutor)
@@ -568,7 +569,18 @@ FWGUIManager::showEDIFrame(int iToShow)
 void
 FWGUIManager::showColorPopup()
 {
-   new CmsShowColorPopup( m_colorManager, m_cmsShowMainFrame, 200, 200);
+  if (! m_colorPopup)
+  {
+      m_colorPopup = new CmsShowColorPopup(m_cmsShowMainFrame, 200, 200);
+      m_colorPopup->Connect("CloseWindow()", "FWGUIManager", this, "resetColorPopup()");
+  }
+  m_colorPopup->MapWindow();
+  m_colorPopup->setModel(m_colorManager);
+}
+
+void
+FWGUIManager::resetColorPopup() {
+  m_colorPopup->UnmapWindow();
 }
 
 void
@@ -968,7 +980,8 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       // brightness
       FWConfiguration cbr(1);
       std::stringstream s;
-      s << static_cast<float>(m_colorManager->brightness());
+      s << static_cast<int>(m_colorManager->brightness());
+      //      printf("save %d brightness \n", m_colorManager->brightness());
       colorControl.addKeyValue(kBrightness,FWConfiguration(s.str()));
    }
    oTo.addKeyValue(kColorControl,colorControl,true);
@@ -1118,12 +1131,13 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
    const FWConfiguration* colorControl = iFrom.valueForKey(kColorControl);
    if( 0!=colorControl)
    {
-      float brightness = 0;
+      int brightness = 0;
       const FWConfiguration* cbr = colorControl->valueForKey(kBrightness);
       if (cbr)
       {
          std::stringstream sw(cbr->value());
          sw >> brightness;
+         // printf("set brightness %d \n", brightness);
          m_colorManager->setBrightness(brightness);
       }
 

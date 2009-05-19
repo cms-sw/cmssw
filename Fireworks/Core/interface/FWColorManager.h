@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:07:58 CET 2009
-// $Id: FWColorManager.h,v 1.7 2009/05/14 19:57:18 amraktad Exp $
+// $Id: FWColorManager.h,v 1.8 2009/05/15 13:57:40 amraktad Exp $
 //
 
 // system include files
@@ -68,11 +68,11 @@ public:
    
    // ---------- member functions ---------------------------
    void defaultBrightness();
-   void setBrightness(float);
-   float brightness () { return  m_gammaOff; }
+   void setBrightness(int);
+   int  brightness ();
    void setBackgroundColorIndex(BackgroundColorIndex);
 
-  void setBackgroundAndBrightness(BackgroundColorIndex,  float);
+  void setBackgroundAndBrightness(BackgroundColorIndex, int);
 
    mutable sigc::signal<void> colorsHaveChanged_;
    //called after all the slots attached to colorsHaveChanged_ are done
