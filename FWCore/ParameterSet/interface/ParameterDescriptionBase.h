@@ -39,6 +39,7 @@ namespace edm {
     std::string const& label() const { return label_; }
     ParameterTypes type() const { return type_; }
     bool isTracked() const { return isTracked_; }
+    bool hasDefault() const { return hasDefault_; }
 
     virtual ParameterSetDescription const* parameterSetDescription() const { return 0; }
     virtual ParameterSetDescription * parameterSetDescription() { return 0; }
@@ -49,15 +50,18 @@ namespace edm {
   protected:
     void throwParameterWrongTrackiness() const;
     void throwParameterWrongType() const;
+    void throwMissingRequiredNoDefault() const;
 
     ParameterDescriptionBase(std::string const& iLabel,
                              ParameterTypes iType,
-                             bool isTracked
+                             bool isTracked,
+                             bool hasDefault
                             );
 
     ParameterDescriptionBase(char const* iLabel,
                              ParameterTypes iType,
-                             bool isTracked
+                             bool isTracked,
+                             bool hasDefault
                             );
 
   private:
@@ -95,6 +99,7 @@ namespace edm {
     std::string label_;
     ParameterTypes type_;
     bool isTracked_;
+    bool hasDefault_;
   };
 }
 #endif

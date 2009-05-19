@@ -21,7 +21,6 @@
 
 #include "boost/bind.hpp"
 
-#include <cassert>
 #include <sstream>
 #include <ostream>
 #include <iomanip>
@@ -99,7 +98,6 @@ namespace edm {
     SetDescriptionEntry entry;
     entry.setOptional(optional);
     entry.setWriteToCfi(writeToCfi);
-    assert(entry.optional() || entry.writeToCfi());
     entries_.push_back(entry);
     ParameterDescriptionNode* returnValue = node.get();
     entries_.back().setNode(node);

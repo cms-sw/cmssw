@@ -719,31 +719,6 @@ namespace edmtest {
     subPsetDescription->add<int>("xvalue", 11);
     subPsetDescription->addUntracked<edm::ParameterSetDescription>(std::string("bar"), bar);
 
-    iDesc.addOptional<int>("noDefault1");
-    iDesc.addOptional<std::vector<int> >("noDefault2");
-    iDesc.addOptional<unsigned>("noDefault3");
-    iDesc.addOptional<std::vector<unsigned> >("noDefault4");
-    iDesc.addOptional<boost::int64_t>("noDefault5");
-    iDesc.addOptional<std::vector<boost::int64_t> >("noDefault6");
-    iDesc.addOptional<boost::uint64_t>("noDefault7");
-    iDesc.addOptional<std::vector<boost::uint64_t> >("noDefault8");
-    iDesc.addOptional<double>("noDefault9");
-    iDesc.addOptional<std::vector<double> >("noDefault10");
-    iDesc.addOptional<bool>("noDefault11");
-    iDesc.addOptional<std::string>("noDefault12");
-    iDesc.addOptional<std::vector<std::string> >("noDefault13");
-    iDesc.addOptional<edm::EventID>("noDefault14");
-    iDesc.addOptional<std::vector<edm::EventID> >("noDefault15");
-    iDesc.addOptional<edm::LuminosityBlockID>("noDefault16");
-    iDesc.addOptional<std::vector<edm::LuminosityBlockID> >("noDefault17");
-    iDesc.addOptional<edm::InputTag>("noDefault18");
-    iDesc.addOptional<std::vector<edm::InputTag> >("noDefault19");
-    iDesc.addOptional<edm::FileInPath>("noDefault20");
-    iDesc.addOptional<edm::LuminosityBlockRange>("noDefault21");
-    iDesc.addOptional<std::vector<edm::LuminosityBlockRange> >("noDefault22");
-    iDesc.addOptional<edm::EventRange>("noDefault23");
-    iDesc.addOptional<std::vector<edm::EventRange> >("noDefault24");
-
     // -----------------------------------------------
 
     edm::ParameterSetDescription wildcardPset;
@@ -883,16 +858,135 @@ namespace edmtest {
 
     iDesc.add("allowedLabelsPset", allowedLabelsPset);
 
+    edm::ParameterSetDescription noDefaultPset3;
+
+    noDefaultPset3.addOptional<int>(std::string("noDefault1"));
+    noDefaultPset3.addOptional<std::vector<int> >("noDefault2");
+    noDefaultPset3.addOptional<unsigned>("noDefault3");
+    noDefaultPset3.addOptional<std::vector<unsigned> >("noDefault4");
+    noDefaultPset3.addOptional<boost::int64_t>("noDefault5");
+    noDefaultPset3.addOptional<std::vector<boost::int64_t> >("noDefault6");
+    noDefaultPset3.addOptional<boost::uint64_t>("noDefault7");
+    noDefaultPset3.addOptional<std::vector<boost::uint64_t> >("noDefault8");
+    noDefaultPset3.addOptional<double>("noDefault9");
+    noDefaultPset3.addOptional<std::vector<double> >("noDefault10");
+    noDefaultPset3.addOptional<bool>("noDefault11");
+    noDefaultPset3.addOptional<std::string>("noDefault12");
+    noDefaultPset3.addOptional<std::vector<std::string> >("noDefault13");
+    noDefaultPset3.addOptional<edm::EventID>("noDefault14");
+    noDefaultPset3.addOptional<std::vector<edm::EventID> >("noDefault15");
+    noDefaultPset3.addOptional<edm::LuminosityBlockID>("noDefault16");
+    noDefaultPset3.addOptional<std::vector<edm::LuminosityBlockID> >("noDefault17");
+    noDefaultPset3.addOptional<edm::InputTag>("noDefault18");
+    noDefaultPset3.addOptional<std::vector<edm::InputTag> >("noDefault19");
+    noDefaultPset3.addOptional<edm::FileInPath>("noDefault20");
+    noDefaultPset3.addOptional<edm::LuminosityBlockRange>("noDefault21");
+    noDefaultPset3.addOptional<std::vector<edm::LuminosityBlockRange> >("noDefault22");
+    noDefaultPset3.addOptional<edm::EventRange>("noDefault23");
+    noDefaultPset3.addOptional<std::vector<edm::EventRange> >("noDefault24");
+
+    iDesc.add("noDefaultPset3", noDefaultPset3);
+
+    edm::ParameterSetDescription noDefaultPset4;
+
+    noDefaultPset4.addOptionalUntracked<int>(std::string("noDefault1"));
+    noDefaultPset4.addOptionalUntracked<std::vector<int> >("noDefault2");
+    noDefaultPset4.addOptionalUntracked<unsigned>("noDefault3");
+    noDefaultPset4.addOptionalUntracked<std::vector<unsigned> >("noDefault4");
+    noDefaultPset4.addOptionalUntracked<boost::int64_t>("noDefault5");
+    noDefaultPset4.addOptionalUntracked<std::vector<boost::int64_t> >("noDefault6");
+    noDefaultPset4.addOptionalUntracked<boost::uint64_t>("noDefault7");
+    noDefaultPset4.addOptionalUntracked<std::vector<boost::uint64_t> >("noDefault8");
+    noDefaultPset4.addOptionalUntracked<double>("noDefault9");
+    noDefaultPset4.addOptionalUntracked<std::vector<double> >("noDefault10");
+    noDefaultPset4.addOptionalUntracked<bool>("noDefault11");
+    noDefaultPset4.addOptionalUntracked<std::string>("noDefault12");
+    noDefaultPset4.addOptionalUntracked<std::vector<std::string> >("noDefault13");
+    noDefaultPset4.addOptionalUntracked<edm::EventID>("noDefault14");
+    noDefaultPset4.addOptionalUntracked<std::vector<edm::EventID> >("noDefault15");
+    noDefaultPset4.addOptionalUntracked<edm::LuminosityBlockID>("noDefault16");
+    noDefaultPset4.addOptionalUntracked<std::vector<edm::LuminosityBlockID> >("noDefault17");
+    noDefaultPset4.addOptionalUntracked<edm::InputTag>("noDefault18");
+    noDefaultPset4.addOptionalUntracked<std::vector<edm::InputTag> >("noDefault19");
+    noDefaultPset4.addOptionalUntracked<edm::FileInPath>("noDefault20");
+    noDefaultPset4.addOptionalUntracked<edm::LuminosityBlockRange>("noDefault21");
+    noDefaultPset4.addOptionalUntracked<std::vector<edm::LuminosityBlockRange> >("noDefault22");
+    noDefaultPset4.addOptionalUntracked<edm::EventRange>("noDefault23");
+    noDefaultPset4.addOptionalUntracked<std::vector<edm::EventRange> >("noDefault24");
+
+    iDesc.add("noDefaultPset4", noDefaultPset4);
+
     // ------------------------------------------
 
     descriptions.add("testProducerWithPsetDesc", iDesc);
+
+    // ------------------------------------------
 
     edm::ParameterSetDescription iDesc1;
     pn = iDesc1.add<int>("p_int", 1);
     iDesc1.setAllowAnything();
     iDesc1.setComment("A comment for a ParameterSetDescription");
+
+    edm::ParameterSetDescription noDefaultPset1;
+
+    noDefaultPset1.add<int>(std::string("noDefault1"));
+    noDefaultPset1.add<std::vector<int> >("noDefault2");
+    noDefaultPset1.add<unsigned>("noDefault3");
+    noDefaultPset1.add<std::vector<unsigned> >("noDefault4");
+    noDefaultPset1.add<boost::int64_t>("noDefault5");
+    noDefaultPset1.add<std::vector<boost::int64_t> >("noDefault6");
+    noDefaultPset1.add<boost::uint64_t>("noDefault7");
+    noDefaultPset1.add<std::vector<boost::uint64_t> >("noDefault8");
+    noDefaultPset1.add<double>("noDefault9");
+    noDefaultPset1.add<std::vector<double> >("noDefault10");
+    noDefaultPset1.add<bool>("noDefault11");
+    noDefaultPset1.add<std::string>("noDefault12");
+    noDefaultPset1.add<std::vector<std::string> >("noDefault13");
+    noDefaultPset1.add<edm::EventID>("noDefault14");
+    noDefaultPset1.add<std::vector<edm::EventID> >("noDefault15");
+    noDefaultPset1.add<edm::LuminosityBlockID>("noDefault16");
+    noDefaultPset1.add<std::vector<edm::LuminosityBlockID> >("noDefault17");
+    noDefaultPset1.add<edm::InputTag>("noDefault18");
+    noDefaultPset1.add<std::vector<edm::InputTag> >("noDefault19");
+    noDefaultPset1.add<edm::FileInPath>("noDefault20");
+    noDefaultPset1.add<edm::LuminosityBlockRange>("noDefault21");
+    noDefaultPset1.add<std::vector<edm::LuminosityBlockRange> >("noDefault22");
+    noDefaultPset1.add<edm::EventRange>("noDefault23");
+    noDefaultPset1.add<std::vector<edm::EventRange> >("noDefault24");
+
+    iDesc1.add("noDefaultPset1", noDefaultPset1);
+
+    edm::ParameterSetDescription noDefaultPset2;
+
+    noDefaultPset2.addUntracked<int>(std::string("noDefault1"));
+    noDefaultPset2.addUntracked<std::vector<int> >("noDefault2");
+    noDefaultPset2.addUntracked<unsigned>("noDefault3");
+    noDefaultPset2.addUntracked<std::vector<unsigned> >("noDefault4");
+    noDefaultPset2.addUntracked<boost::int64_t>("noDefault5");
+    noDefaultPset2.addUntracked<std::vector<boost::int64_t> >("noDefault6");
+    noDefaultPset2.addUntracked<boost::uint64_t>("noDefault7");
+    noDefaultPset2.addUntracked<std::vector<boost::uint64_t> >("noDefault8");
+    noDefaultPset2.addUntracked<double>("noDefault9");
+    noDefaultPset2.addUntracked<std::vector<double> >("noDefault10");
+    noDefaultPset2.addUntracked<bool>("noDefault11");
+    noDefaultPset2.addUntracked<std::string>("noDefault12");
+    noDefaultPset2.addUntracked<std::vector<std::string> >("noDefault13");
+    noDefaultPset2.addUntracked<edm::EventID>("noDefault14");
+    noDefaultPset2.addUntracked<std::vector<edm::EventID> >("noDefault15");
+    noDefaultPset2.addUntracked<edm::LuminosityBlockID>("noDefault16");
+    noDefaultPset2.addUntracked<std::vector<edm::LuminosityBlockID> >("noDefault17");
+    noDefaultPset2.addUntracked<edm::InputTag>("noDefault18");
+    noDefaultPset2.addUntracked<std::vector<edm::InputTag> >("noDefault19");
+    noDefaultPset2.addUntracked<edm::FileInPath>("noDefault20");
+    noDefaultPset2.addUntracked<edm::LuminosityBlockRange>("noDefault21");
+    noDefaultPset2.addUntracked<std::vector<edm::LuminosityBlockRange> >("noDefault22");
+    noDefaultPset2.addUntracked<edm::EventRange>("noDefault23");
+    noDefaultPset2.addUntracked<std::vector<edm::EventRange> >("noDefault24");
+
+    iDesc1.add("noDefaultPset2", noDefaultPset2);
     descriptions.add("testLabel1", iDesc1);
-    
+
+    // ------------------------------------------
 
     edm::ParameterSetDescription iDesc2;
     pn = iDesc2.add<int>("p_int", 2);

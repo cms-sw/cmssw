@@ -425,102 +425,6 @@ generated for each configuration with a module label.
                         type: PSet optional
                         see Section 1.1.7
 
-    noDefault1
-                        type: int32 optional
-                        default: none (do not write to cfi)
-
-    noDefault2
-                        type: vint32 optional
-                        default: none (do not write to cfi)
-
-    noDefault3
-                        type: uint32 optional
-                        default: none (do not write to cfi)
-
-    noDefault4
-                        type: vuint32 optional
-                        default: none (do not write to cfi)
-
-    noDefault5
-                        type: int64 optional
-                        default: none (do not write to cfi)
-
-    noDefault6
-                        type: vint64 optional
-                        default: none (do not write to cfi)
-
-    noDefault7
-                        type: uint64 optional
-                        default: none (do not write to cfi)
-
-    noDefault8
-                        type: vuint64 optional
-                        default: none (do not write to cfi)
-
-    noDefault9
-                        type: double optional
-                        default: none (do not write to cfi)
-
-    noDefault10
-                        type: vdouble optional
-                        default: none (do not write to cfi)
-
-    noDefault11
-                        type: bool optional
-                        default: none (do not write to cfi)
-
-    noDefault12
-                        type: string optional
-                        default: none (do not write to cfi)
-
-    noDefault13
-                        type: vstring optional
-                        default: none (do not write to cfi)
-
-    noDefault14
-                        type: EventID optional
-                        default: none (do not write to cfi)
-
-    noDefault15
-                        type: VEventID optional
-                        default: none (do not write to cfi)
-
-    noDefault16
-                        type: LuminosityBlockID optional
-                        default: none (do not write to cfi)
-
-    noDefault17
-                        type: VLuminosityBlockID optional
-                        default: none (do not write to cfi)
-
-    noDefault18
-                        type: InputTag optional
-                        default: none (do not write to cfi)
-
-    noDefault19
-                        type: VInputTag optional
-                        default: none (do not write to cfi)
-
-    noDefault20
-                        type: FileInPath optional
-                        default: none (do not write to cfi)
-
-    noDefault21
-                        type: LuminosityBlockRange optional
-                        default: none (do not write to cfi)
-
-    noDefault22
-                        type: VLuminosityBlockRange optional
-                        default: none (do not write to cfi)
-
-    noDefault23
-                        type: EventRange optional
-                        default: none (do not write to cfi)
-
-    noDefault24
-                        type: VEventRange optional
-                        default: none (do not write to cfi)
-
     wildcardPset
                         type: PSet 
                         see Section 1.1.8
@@ -548,6 +452,14 @@ generated for each configuration with a module label.
     allowedLabelsPset
                         type: PSet 
                         see Section 1.1.14
+
+    noDefaultPset3
+                        type: PSet 
+                        see Section 1.1.15
+
+    noDefaultPset4
+                        type: PSet 
+                        see Section 1.1.16
 
     Section 1.1.1 vuint5 default contents: (vector size = 6)
         [0]: 4294967295
@@ -1536,6 +1448,202 @@ generated for each configuration with a module label.
                         type: untracked uint32 optional
                         default: 5
 
+    Section 1.1.15 noDefaultPset3 PSet description:
+
+        noDefault1
+                        type: int32 optional
+                        default: none (do not write to cfi)
+
+        noDefault2
+                        type: vint32 optional
+                        default: none (do not write to cfi)
+
+        noDefault3
+                        type: uint32 optional
+                        default: none (do not write to cfi)
+
+        noDefault4
+                        type: vuint32 optional
+                        default: none (do not write to cfi)
+
+        noDefault5
+                        type: int64 optional
+                        default: none (do not write to cfi)
+
+        noDefault6
+                        type: vint64 optional
+                        default: none (do not write to cfi)
+
+        noDefault7
+                        type: uint64 optional
+                        default: none (do not write to cfi)
+
+        noDefault8
+                        type: vuint64 optional
+                        default: none (do not write to cfi)
+
+        noDefault9
+                        type: double optional
+                        default: none (do not write to cfi)
+
+        noDefault10
+                        type: vdouble optional
+                        default: none (do not write to cfi)
+
+        noDefault11
+                        type: bool optional
+                        default: none (do not write to cfi)
+
+        noDefault12
+                        type: string optional
+                        default: none (do not write to cfi)
+
+        noDefault13
+                        type: vstring optional
+                        default: none (do not write to cfi)
+
+        noDefault14
+                        type: EventID optional
+                        default: none (do not write to cfi)
+
+        noDefault15
+                        type: VEventID optional
+                        default: none (do not write to cfi)
+
+        noDefault16
+                        type: LuminosityBlockID optional
+                        default: none (do not write to cfi)
+
+        noDefault17
+                        type: VLuminosityBlockID optional
+                        default: none (do not write to cfi)
+
+        noDefault18
+                        type: InputTag optional
+                        default: none (do not write to cfi)
+
+        noDefault19
+                        type: VInputTag optional
+                        default: none (do not write to cfi)
+
+        noDefault20
+                        type: FileInPath optional
+                        default: none (do not write to cfi)
+
+        noDefault21
+                        type: LuminosityBlockRange optional
+                        default: none (do not write to cfi)
+
+        noDefault22
+                        type: VLuminosityBlockRange optional
+                        default: none (do not write to cfi)
+
+        noDefault23
+                        type: EventRange optional
+                        default: none (do not write to cfi)
+
+        noDefault24
+                        type: VEventRange optional
+                        default: none (do not write to cfi)
+
+    Section 1.1.16 noDefaultPset4 PSet description:
+
+        noDefault1
+                        type: untracked int32 optional
+                        default: none (do not write to cfi)
+
+        noDefault2
+                        type: untracked vint32 optional
+                        default: none (do not write to cfi)
+
+        noDefault3
+                        type: untracked uint32 optional
+                        default: none (do not write to cfi)
+
+        noDefault4
+                        type: untracked vuint32 optional
+                        default: none (do not write to cfi)
+
+        noDefault5
+                        type: untracked int64 optional
+                        default: none (do not write to cfi)
+
+        noDefault6
+                        type: untracked vint64 optional
+                        default: none (do not write to cfi)
+
+        noDefault7
+                        type: untracked uint64 optional
+                        default: none (do not write to cfi)
+
+        noDefault8
+                        type: untracked vuint64 optional
+                        default: none (do not write to cfi)
+
+        noDefault9
+                        type: untracked double optional
+                        default: none (do not write to cfi)
+
+        noDefault10
+                        type: untracked vdouble optional
+                        default: none (do not write to cfi)
+
+        noDefault11
+                        type: untracked bool optional
+                        default: none (do not write to cfi)
+
+        noDefault12
+                        type: untracked string optional
+                        default: none (do not write to cfi)
+
+        noDefault13
+                        type: untracked vstring optional
+                        default: none (do not write to cfi)
+
+        noDefault14
+                        type: untracked EventID optional
+                        default: none (do not write to cfi)
+
+        noDefault15
+                        type: untracked VEventID optional
+                        default: none (do not write to cfi)
+
+        noDefault16
+                        type: untracked LuminosityBlockID optional
+                        default: none (do not write to cfi)
+
+        noDefault17
+                        type: untracked VLuminosityBlockID optional
+                        default: none (do not write to cfi)
+
+        noDefault18
+                        type: untracked InputTag optional
+                        default: none (do not write to cfi)
+
+        noDefault19
+                        type: untracked VInputTag optional
+                        default: none (do not write to cfi)
+
+        noDefault20
+                        type: untracked FileInPath optional
+                        default: none (do not write to cfi)
+
+        noDefault21
+                        type: untracked LuminosityBlockRange optional
+                        default: none (do not write to cfi)
+
+        noDefault22
+                        type: untracked VLuminosityBlockRange optional
+                        default: none (do not write to cfi)
+
+        noDefault23
+                        type: untracked EventRange optional
+                        default: none (do not write to cfi)
+
+        noDefault24
+                        type: untracked VEventRange optional
+                        default: none (do not write to cfi)
+
   1.2 module label: testLabel1
   A comment for a ParameterSetDescription
 
@@ -1545,6 +1653,210 @@ generated for each configuration with a module label.
     p_int
                         type: int32 
                         default: 1
+
+    noDefaultPset1
+                        type: PSet 
+                        see Section 1.2.1
+
+    noDefaultPset2
+                        type: PSet 
+                        see Section 1.2.2
+
+    Section 1.2.1 noDefaultPset1 PSet description:
+
+        noDefault1
+                        type: int32 
+                        default: none (do not write to cfi)
+
+        noDefault2
+                        type: vint32 
+                        default: none (do not write to cfi)
+
+        noDefault3
+                        type: uint32 
+                        default: none (do not write to cfi)
+
+        noDefault4
+                        type: vuint32 
+                        default: none (do not write to cfi)
+
+        noDefault5
+                        type: int64 
+                        default: none (do not write to cfi)
+
+        noDefault6
+                        type: vint64 
+                        default: none (do not write to cfi)
+
+        noDefault7
+                        type: uint64 
+                        default: none (do not write to cfi)
+
+        noDefault8
+                        type: vuint64 
+                        default: none (do not write to cfi)
+
+        noDefault9
+                        type: double 
+                        default: none (do not write to cfi)
+
+        noDefault10
+                        type: vdouble 
+                        default: none (do not write to cfi)
+
+        noDefault11
+                        type: bool 
+                        default: none (do not write to cfi)
+
+        noDefault12
+                        type: string 
+                        default: none (do not write to cfi)
+
+        noDefault13
+                        type: vstring 
+                        default: none (do not write to cfi)
+
+        noDefault14
+                        type: EventID 
+                        default: none (do not write to cfi)
+
+        noDefault15
+                        type: VEventID 
+                        default: none (do not write to cfi)
+
+        noDefault16
+                        type: LuminosityBlockID 
+                        default: none (do not write to cfi)
+
+        noDefault17
+                        type: VLuminosityBlockID 
+                        default: none (do not write to cfi)
+
+        noDefault18
+                        type: InputTag 
+                        default: none (do not write to cfi)
+
+        noDefault19
+                        type: VInputTag 
+                        default: none (do not write to cfi)
+
+        noDefault20
+                        type: FileInPath 
+                        default: none (do not write to cfi)
+
+        noDefault21
+                        type: LuminosityBlockRange 
+                        default: none (do not write to cfi)
+
+        noDefault22
+                        type: VLuminosityBlockRange 
+                        default: none (do not write to cfi)
+
+        noDefault23
+                        type: EventRange 
+                        default: none (do not write to cfi)
+
+        noDefault24
+                        type: VEventRange 
+                        default: none (do not write to cfi)
+
+    Section 1.2.2 noDefaultPset2 PSet description:
+
+        noDefault1
+                        type: untracked int32 
+                        default: none (do not write to cfi)
+
+        noDefault2
+                        type: untracked vint32 
+                        default: none (do not write to cfi)
+
+        noDefault3
+                        type: untracked uint32 
+                        default: none (do not write to cfi)
+
+        noDefault4
+                        type: untracked vuint32 
+                        default: none (do not write to cfi)
+
+        noDefault5
+                        type: untracked int64 
+                        default: none (do not write to cfi)
+
+        noDefault6
+                        type: untracked vint64 
+                        default: none (do not write to cfi)
+
+        noDefault7
+                        type: untracked uint64 
+                        default: none (do not write to cfi)
+
+        noDefault8
+                        type: untracked vuint64 
+                        default: none (do not write to cfi)
+
+        noDefault9
+                        type: untracked double 
+                        default: none (do not write to cfi)
+
+        noDefault10
+                        type: untracked vdouble 
+                        default: none (do not write to cfi)
+
+        noDefault11
+                        type: untracked bool 
+                        default: none (do not write to cfi)
+
+        noDefault12
+                        type: untracked string 
+                        default: none (do not write to cfi)
+
+        noDefault13
+                        type: untracked vstring 
+                        default: none (do not write to cfi)
+
+        noDefault14
+                        type: untracked EventID 
+                        default: none (do not write to cfi)
+
+        noDefault15
+                        type: untracked VEventID 
+                        default: none (do not write to cfi)
+
+        noDefault16
+                        type: untracked LuminosityBlockID 
+                        default: none (do not write to cfi)
+
+        noDefault17
+                        type: untracked VLuminosityBlockID 
+                        default: none (do not write to cfi)
+
+        noDefault18
+                        type: untracked InputTag 
+                        default: none (do not write to cfi)
+
+        noDefault19
+                        type: untracked VInputTag 
+                        default: none (do not write to cfi)
+
+        noDefault20
+                        type: untracked FileInPath 
+                        default: none (do not write to cfi)
+
+        noDefault21
+                        type: untracked LuminosityBlockRange 
+                        default: none (do not write to cfi)
+
+        noDefault22
+                        type: untracked VLuminosityBlockRange 
+                        default: none (do not write to cfi)
+
+        noDefault23
+                        type: untracked EventRange 
+                        default: none (do not write to cfi)
+
+        noDefault24
+                        type: untracked VEventRange 
+                        default: none (do not write to cfi)
 
   1.3 description without a module label
 

@@ -109,7 +109,7 @@ namespace edm {
       // parameter is ParameterSet or vector<ParameterSet>.  ParameterSetDescription
       // or vector<ParameterSetDescription> should be used instead.  This template
       // parameter is usually passed through from an add*<T> function of ParameterSetDescription.
-      ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked),
+      ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, true),
       value_(value) {
     }
 
@@ -121,8 +121,30 @@ namespace edm {
       // parameter is ParameterSet or vector<ParameterSet>.  ParameterSetDescription
       // or vector<ParameterSetDescription> should be used instead.  This template
       // parameter is usually passed through from an add*<T> function of ParameterSetDescription.
-      ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked),
+      ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, true),
       value_(value) {
+    }
+
+    ParameterDescription(std::string const& iLabel,
+                         bool isTracked
+                        ):
+      // WARNING: the toEnum function is intentionally undefined if the template
+      // parameter is ParameterSet or vector<ParameterSet>.  ParameterSetDescription
+      // or vector<ParameterSetDescription> should be used instead.  This template
+      // parameter is usually passed through from an add*<T> function of ParameterSetDescription.
+      ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, false),
+      value_() {
+    }
+
+    ParameterDescription(char const* iLabel,
+                         bool isTracked
+                        ):
+      // WARNING: the toEnum function is intentionally undefined if the template
+      // parameter is ParameterSet or vector<ParameterSet>.  ParameterSetDescription
+      // or vector<ParameterSetDescription> should be used instead.  This template
+      // parameter is usually passed through from an add*<T> function of ParameterSetDescription.
+      ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, false),
+      value_() {
     }
 
     virtual ~ParameterDescription() { }
@@ -152,6 +174,9 @@ namespace edm {
       }
 
       if (!optional && !exists) {
+        if (!hasDefault()) {
+          throwMissingRequiredNoDefault();
+        }
         if (isTracked()) {
           pset.addParameter(label(), value_);
         }
@@ -167,6 +192,7 @@ namespace edm {
     }
 
     virtual bool hasNestedContent_() {
+      if (!hasDefault()) return false;
       return writeParameterValue::hasNestedContent(value_);
     }
 

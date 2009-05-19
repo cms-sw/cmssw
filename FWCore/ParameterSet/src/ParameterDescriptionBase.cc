@@ -21,10 +21,12 @@ namespace edm {
 
   ParameterDescriptionBase::ParameterDescriptionBase(std::string const& iLabel,
                                                      ParameterTypes iType,
-                                                     bool isTracked)
+                                                     bool isTracked,
+                                                     bool hasDefault)
     :label_(iLabel),
      type_(iType),
-     isTracked_(isTracked)
+     isTracked_(isTracked),
+     hasDefault_(hasDefault)
   {
     if(label_.empty()) {
       throw edm::Exception(errors::LogicError)
@@ -35,10 +37,12 @@ namespace edm {
 
   ParameterDescriptionBase::ParameterDescriptionBase(char const* iLabel,
                                                      ParameterTypes iType,
-                                                     bool isTracked)
+                                                     bool isTracked,
+                                                     bool hasDefault)
     :label_(iLabel),
      type_(iType),
-     isTracked_(isTracked)
+     isTracked_(isTracked),
+     hasDefault_(hasDefault)
   {
     if (label_.empty()) {
       throw edm::Exception(errors::LogicError)
@@ -76,6 +80,20 @@ namespace edm {
   }
 
   void
+  ParameterDescriptionBase::throwMissingRequiredNoDefault() const {
+
+    std::string tr("untracked");
+    if (isTracked()) tr = "tracked";
+
+    throw edm::Exception(errors::Configuration)
+      << "Missing required parameter.  It should have label \""
+      << label() << "\" and have type \""
+      << tr << " " << parameterTypeEnumToString(type()) << "\".\n"
+      << "The description has no default.  The parameter must be defined "
+         "in the configuration\n";
+  }
+
+  void
   ParameterDescriptionBase::
   checkAndGetLabelsAndTypes_(std::set<std::string> & usedLabels,
                              std::set<ParameterTypes> & parameterTypes,
@@ -90,6 +108,8 @@ namespace edm {
            bool & startWithComma,
            int indentation,
            bool & wroteSomething) const {
+
+    if (!hasDefault()) return;
 
     wroteSomething = true;
     if (startWithComma) os << ",";
@@ -189,7 +209,7 @@ namespace edm {
                   bool writeToCfi,
                   DocFormatHelper & dfh) {
     if (!dfh.brief()) os << "default: ";
-    if (writeToCfi) {
+    if (writeToCfi && hasDefault()) {
       if (hasNestedContent()) {
         os << "see Section " << dfh.section()
            << "." << dfh.counter();

@@ -1142,6 +1142,24 @@ namespace testParameterSetDescription {
       psetDesc20.validate(psetC);
     }
   }
+// ---------------------------------------------------------------------------------
+
+  void testNoDefault() {
+
+    edm::ParameterSetDescription psetDesc1;
+    psetDesc1.add<int>("x");
+    edm::ParameterSet pset1;
+
+    try {
+      psetDesc1.validate(pset1);
+      assert(0);
+    }
+    catch(edm::Exception) { /* There should be an exception */ }
+
+    pset1.addParameter<int>("x", 1);
+    psetDesc1.validate(pset1);
+
+  }
 
 // ---------------------------------------------------------------------------------
 
@@ -1518,6 +1536,7 @@ int main(int argc, char* argv[]) {
   testParameterSetDescription::testAnd();
   testParameterSetDescription::testIfExists();
   testParameterSetDescription::testAllowedLabels();
+  testParameterSetDescription::testNoDefault();
 
   return 0;
 }

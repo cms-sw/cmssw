@@ -100,14 +100,29 @@ namespace edm {
       return add<T, U>(iLabel, value, false, true, true);
     }
 
+    // The next four will not compile with a template argument of ParameterSetDescription
+    // or vector<ParameterSetDescription>.  We think there is no need for that use case,
+    // but if we are wrong support for this could be added in a couple different ways as
+    // a future development.
+
+    template<typename T, typename U>
+    ParameterDescriptionBase * add(U const& iLabel) {
+      return add<T, U>(iLabel, true, false, false);
+    }
+
+    template<typename T, typename U>
+    ParameterDescriptionBase * addUntracked(U const& iLabel) {
+      return add<T, U>(iLabel, false, false, false);
+    }
+
     template<typename T, typename U>
     ParameterDescriptionBase * addOptional(U const& iLabel) {
-      return add<T, U>(iLabel, T(), true, true, false);
+      return add<T, U>(iLabel, true, true, false);
     }
 
     template<typename T, typename U>
     ParameterDescriptionBase * addOptionalUntracked(U const& iLabel) {
-      return add<T, U>(iLabel, T(), false, true, false);
+      return add<T, U>(iLabel, false, true, false);
     }
 
     template<typename T, typename U>
@@ -236,6 +251,10 @@ namespace edm {
                                    bool isTracked, bool isOptional, bool writeToCfi);
 
     template<typename T, typename U>
+    ParameterDescriptionBase * add(U const& iLabel,
+                                   bool isTracked, bool isOptional, bool writeToCfi);
+
+    template<typename T, typename U>
     ParameterWildcardBase * addWildcard(U const& pattern, bool isTracked);
 
     ParameterDescriptionNode* addNode(std::auto_ptr<ParameterDescriptionNode> node, bool optional, bool writeToCfi);
@@ -309,6 +328,18 @@ namespace edm {
   ParameterSetDescription::add(U const& iLabel, T const& value, bool isTracked, bool isOptional, bool writeToCfi) {
 
     std::auto_ptr<ParameterDescriptionBase> pdbase(new ParameterDescription<T>(iLabel, value, isTracked));
+    ParameterDescriptionBase* pdReturn = pdbase.get();
+    std::auto_ptr<ParameterDescriptionNode> node(pdbase);
+    addNode(node, isOptional, writeToCfi);
+
+    return pdReturn;
+  }
+
+  template<typename T, typename U>
+  ParameterDescriptionBase*
+  ParameterSetDescription::add(U const& iLabel, bool isTracked, bool isOptional, bool writeToCfi) {
+
+    std::auto_ptr<ParameterDescriptionBase> pdbase(new ParameterDescription<T>(iLabel, isTracked));
     ParameterDescriptionBase* pdReturn = pdbase.get();
     std::auto_ptr<ParameterDescriptionNode> node(pdbase);
     addNode(node, isOptional, writeToCfi);

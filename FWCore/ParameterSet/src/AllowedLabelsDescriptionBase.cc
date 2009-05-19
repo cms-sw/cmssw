@@ -3,6 +3,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 
 #include "boost/bind.hpp"
 
@@ -149,7 +150,10 @@ namespace edm {
     os << "which are allowed to be in the PSet\n";
     if (!dfh.brief()) os << "\n";
 
-    parameterHoldingLabels_.print(os, optional, true, dfh);
+    DocFormatHelper new_dfh(dfh);
+    new_dfh.init();
+    new_dfh.setPass(1);
+    parameterHoldingLabels_.print(os, optional, true, new_dfh);
     dfh.indent(os);
     os << "type of allowed parameters:";
     if (dfh.brief()) os << " ";

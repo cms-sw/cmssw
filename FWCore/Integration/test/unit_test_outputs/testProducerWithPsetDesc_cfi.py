@@ -255,5 +255,7 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
     testAllowedLabelsUntracked = cms.untracked.vstring(),
     testWithSet = cms.untracked.vstring(),
     testWithVectorOfSets = cms.untracked.vstring()
-  )
+  ),
+  noDefaultPset3 = cms.PSet(),
+  noDefaultPset4 = cms.PSet()
 )

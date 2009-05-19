@@ -28,7 +28,7 @@ namespace edm {
                        ParameterSetDescription const& value,
                        bool isTracked
 		       ) :
-      ParameterDescriptionBase(iLabel, k_PSet, isTracked),
+      ParameterDescriptionBase(iLabel, k_PSet, isTracked, true),
       psetDesc_(new ParameterSetDescription(value)) {
   }
 
@@ -37,7 +37,7 @@ namespace edm {
                        ParameterSetDescription const& value,
                        bool isTracked
      		      ) :
-      ParameterDescriptionBase(iLabel, k_PSet, isTracked),
+      ParameterDescriptionBase(iLabel, k_PSet, isTracked, true),
       psetDesc_(new ParameterSetDescription(value)) {
   }
 
@@ -163,7 +163,7 @@ namespace edm {
                        std::vector<ParameterSetDescription> const& value,
                        bool isTracked
 		      ) :
-      ParameterDescriptionBase(iLabel, k_VPSet, isTracked),
+      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, true),
       vPsetDesc_(new std::vector<ParameterSetDescription>(value)) {
   }
 
@@ -172,7 +172,7 @@ namespace edm {
                        std::vector<ParameterSetDescription> const& value,
                        bool isTracked
 		      ) :
-      ParameterDescriptionBase(iLabel, k_VPSet, isTracked),
+      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, true),
       vPsetDesc_(new std::vector<ParameterSetDescription>(value)) {
   }
 
