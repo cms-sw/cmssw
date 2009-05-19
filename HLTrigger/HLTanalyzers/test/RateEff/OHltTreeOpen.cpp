@@ -231,21 +231,24 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT300_MHT100") == 0) {  
     if(map_BitOfStandardHLTPath.find("L1_HTT200")->second == 1) {        
-      if(recoHTCalSum > 300. && recoHTCal > 200.) {
+      //      if(recoHTCalSum > 300. && recoHTCal > 200.) {
+      if(recoHTCal > 200. && (OpenHltSumHTPassed(300., 20.) == 1)) {
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
       }
     }
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT200") == 0) {    
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {  
-      if(recoHTCalSum > 200.) {  
+      //      if(recoHTCalSum > 200.) {  
+      if(OpenHltSumHTPassed(200., 20.) == 1) {
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }    
       }  
     }  
   }  
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT250") == 0) {   
     if(map_BitOfStandardHLTPath.find("L1_HTT200")->second == 1) {         
-      if(recoHTCalSum > 250.) { 
+      //      if(recoHTCalSum > 250.) { 
+      if(OpenHltSumHTPassed(250., 20.) == 1) {
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
       } 
     } 
@@ -808,18 +811,20 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
 	    if ( ((ohEleHiso[i] < 9.) || (ohEleHiso[i]/ohEleEt[i] < 0.2)) && ((ohEleHiso[j] < 9.) || (ohEleHiso[j]/ohEleEt[j] < 0.2)) ){
 	      if (ohEleNewSC[i]==1 && ohEleNewSC[j]==1) {
 		if (ohElePixelSeeds[i]>0 && ohElePixelSeeds[j]>0 ) {
-		  if ( ohEleL1iso[i] >= 0 && ohEleL1iso[j] >= 0 ) {  // L1iso is 0 or 1 
-		    if( ohEleL1Dupl[i] == false && ohEleL1Dupl[j] == false) { // JH - remove double-counted L1 SCs   
-		      
+		  //		  if ( ohEleTiso[i] < 9999. && ohEleTiso[i] != -999. && ohEleTiso[j] < 9999. && ohEleTiso[j] != -999.) {
+		    if ( ohEleL1iso[i] >= 0 && ohEleL1iso[j] >= 0 ) {  // L1iso is 0 or 1 
+		      if( ohEleL1Dupl[i] == false && ohEleL1Dupl[j] == false) { // JH - remove double-counted L1 SCs   
+	    
 			e1.SetPtEtaPhiM(ohEleEt[i],ohEleEta[i],ohElePhi[i],0.0); 
 			e2.SetPtEtaPhiM(ohEleEt[j],ohEleEta[j],ohElePhi[j],0.0); 
 			meson = e1 + e2; 
-			
+	    
 			float mesonmass = meson.M();  
 			if(mesonmass > 2.0 && mesonmass < 4.5)
 			  rc++;
+		      }
 		    }
-		  }
+		    //		  }
 		}
 	      }
 	    }
@@ -849,19 +854,21 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
             if ( ((ohEleHiso[i] < 9.) || (ohEleHiso[i]/ohEleEt[i] < 0.2)) && ((ohEleHiso[j] < 9.) || (ohEleHiso[j]/ohEleEt[j] < 0.2)) ){ 
               if (ohEleNewSC[i]==1 && ohEleNewSC[j]==1) { 
                 if (ohElePixelSeeds[i]>0 && ohElePixelSeeds[j]>0 ) { 
-		  if ( ohEleL1iso[i] >= 0 && ohEleL1iso[j] >= 0 ) {  // L1iso is 0 or 1  
-		    if( ohEleL1Dupl[i] == false && ohEleL1Dupl[j] == false) { // JH - remove double-counted L1 SCs    
-		      
-		      e1.SetPtEtaPhiM(ohEleEt[i],ohEleEta[i],ohElePhi[i],0.0);  
-		      e2.SetPtEtaPhiM(ohEleEt[j],ohEleEta[j],ohElePhi[j],0.0);  
-		      meson = e1 + e2;  
-		      
-		      float mesonmass = meson.M();   
-		      if(mesonmass > 8.0 && mesonmass < 11.0) 
-			rc++; 
+		  //                  if ( ohEleTiso[i] < 9999. && ohEleTiso[i] != -999. && ohEleTiso[j] < 9999. && ohEleTiso[j] != -999.) { 
+                    if ( ohEleL1iso[i] >= 0 && ohEleL1iso[j] >= 0 ) {  // L1iso is 0 or 1  
+                      if( ohEleL1Dupl[i] == false && ohEleL1Dupl[j] == false) { // JH - remove double-counted L1 SCs    
+             
+                        e1.SetPtEtaPhiM(ohEleEt[i],ohEleEta[i],ohElePhi[i],0.0);  
+                        e2.SetPtEtaPhiM(ohEleEt[j],ohEleEta[j],ohElePhi[j],0.0);  
+                        meson = e1 + e2;  
+			
+			float mesonmass = meson.M();   
+			if(mesonmass > 8.0 && mesonmass < 11.0) 
+			  rc++; 
+		      } 
 		    } 
 		  } 
-		} 
+		//		}
 	      }
 	    }
 	  }
@@ -1316,7 +1323,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_HT50") == 0){
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {   
       // JH
-      if((recoHTCalSum > 50.0)) { 
+      //      if((recoHTCalSum > 50.0)) { 
+      if(OpenHltSumHTPassed(50., 20.) == 1) {
 	if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1)    
 	  if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
       }
@@ -1324,7 +1332,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_LW_L1R_HT150") == 0){
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {  
-      if((recoHTCalSum > 150.0)) {
+      //      if((recoHTCalSum > 150.0)) {
+      if(OpenHltSumHTPassed(150., 20.) == 1) {
 	if(OpenHlt1LWElectronPassed(10.,0,9999.,9999.)>=1) {
 	  if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }       
 	}
@@ -2110,4 +2119,22 @@ int OHltTree::OpenHltFwdJetPassed(double esum)
     rc = 0; 
 
   return rc;  
+}
+
+int OHltTree::OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold)
+{
+  int rc = 0;  
+  double sumHT = 0.;  
+ 
+  // Loop over all oh jets, sum up the energy 
+  for (int i=0;i<NrecoJetCorCal;i++) {    
+    if(recoJetCorCalPt[i] >= jetthreshold) {
+      sumHT+=recoJetCorCalPt[i];  
+    }    
+  }     
+  
+  if(sumHT >= sumHTthreshold)
+    rc = 1;
+  
+  return rc;   
 }
