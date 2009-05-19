@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Wed Feb 18 17:21:04 MST 2009
-// $Id$
+// $Id: V0Validator.h,v 1.1 2009/05/08 22:21:54 drell Exp $
 //
 //
 
@@ -44,7 +44,9 @@
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+#include "SimTracker/Records/interface/VertexAssociatorRecord.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+#include "SimTracker/VertexAssociation/interface/VertexAssociatorBase.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
@@ -71,6 +73,8 @@
 #include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
 
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+
 
 #include "HepMC/GenVertex.h"
 #include "HepMC/GenParticle.h"
@@ -94,6 +98,7 @@ private:
 
   //Quantities that are to be histogrammed
   float K0sGenEta, LamGenEta, K0sGenpT, LamGenpT, K0sGenR, LamGenR;
+  float LamGenX, LamGenY, LamGenZ, KsGenX, KsGenY, KsGenZ;
   float K0sCandEta, LamCandEta, K0sCandpT, LamCandpT, K0sCandR, LamCandR;
   unsigned int K0sGenStatus, LamGenStatus, K0sCandStatus, LamCandStatus;
   unsigned int K0sPiCandStatus[2], LamPiCandStatus[2], K0sPiEff[2], LamPiEff[2];
@@ -196,6 +201,8 @@ private:
 
   MonitorElement* nKs;
   MonitorElement* nLam;
+
+  std::string theDQMRootFileName;
 
 };
 

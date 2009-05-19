@@ -13,12 +13,13 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Wed Feb 18 17:21:04 MST 2009
-// $Id$
+// $Id: V0Validator.cc,v 1.1 2009/05/08 22:21:55 drell Exp $
 //
 //
 
 
 #include "Validation/RecoVertex/interface/V0Validator.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 typedef std::vector<TrackingVertex> TrackingVertexCollection;
 typedef edm::Ref<TrackingVertexCollection> TrackingVertexRef;
@@ -32,7 +33,8 @@ const double protonMassSquared = protonMass*protonMass;
 
 
 
-V0Validator::V0Validator(const edm::ParameterSet& iConfig) {
+V0Validator::V0Validator(const edm::ParameterSet& iConfig) : 
+  theDQMRootFileName(iConfig.getParameter<std::string>("DQMRootFileName")) {
   genLam = genK0s = realLamFoundEff = realK0sFoundEff = lamCandFound = 
     k0sCandFound = noTPforK0sCand = noTPforLamCand = realK0sFound = realLamFound = 0;
 }
@@ -48,82 +50,82 @@ void V0Validator::beginJob(const edm::EventSetup&) {
   //edm::Service<TFileService> fs;
 
   ksEffVsRHist = new TH1F("K0sEffVsR", 
-			  "K^{0}_{s} Efficiency vs. #rho", 40, 0., 40.);
+			  "K^{0}_{s} Efficiency vs #rho", 40, 0., 40.);
   ksEffVsEtaHist = new TH1F("K0sEffVsEta",
-			    "K^{0}_{s} Efficiency vs. #eta", 40, -2.5, 2.5);
+			    "K^{0}_{s} Efficiency vs #eta", 40, -2.5, 2.5);
   ksEffVsPtHist = new TH1F("K0sEffVsPt",
-			   "K^{0}_{s} Efficiency vs. p_{T}", 70, 0., 20.);;
+			   "K^{0}_{s} Efficiency vs p_{T}", 70, 0., 20.);;
   ksFakeVsRHist = new TH1F("K0sFakeVsR",
-			   "K^{0}_{s} Fake Rate vs. #rho", 40, 0., 40.);
+			   "K^{0}_{s} Fake Rate vs #rho", 40, 0., 40.);
   ksFakeVsEtaHist = new TH1F("K0sFakeVsEta",
-			     "K^{0}_{s} Fake Rate vs. #eta", 40, -2.5, 2.5);
+			     "K^{0}_{s} Fake Rate vs #eta", 40, -2.5, 2.5);
   ksFakeVsPtHist = new TH1F("K0sFakeVsPt",
-			    "K^{0}_{s} Fake Rate vs. p_{T}", 70, 0., 20.);
+			    "K^{0}_{s} Fake Rate vs p_{T}", 70, 0., 20.);
 
   ksTkEffVsRHist = new TH1F("K0sTkEffVsR", 
-			  "K^{0}_{s} Tracking Efficiency vs. #rho", 40, 0., 40.);
+			  "K^{0}_{s} Tracking Efficiency vs #rho", 40, 0., 40.);
   ksTkEffVsEtaHist = new TH1F("K0sTkEffVsEta",
-			    "K^{0}_{s} Tracking Efficiency vs. #eta", 40, -2.5, 2.5);
+			    "K^{0}_{s} Tracking Efficiency vs #eta", 40, -2.5, 2.5);
   ksTkEffVsPtHist = new TH1F("K0sTkEffVsPt",
-			   "K^{0}_{s} Tracking Efficiency vs. p_{T}", 70, 0., 20.);;
+			   "K^{0}_{s} Tracking Efficiency vs p_{T}", 70, 0., 20.);;
   ksTkFakeVsRHist = new TH1F("K0sTkFakeVsR",
-			   "K^{0}_{s} Tracking Fake Rate vs. #rho", 40, 0., 40.);
+			   "K^{0}_{s} Tracking Fake Rate vs #rho", 40, 0., 40.);
   ksTkFakeVsEtaHist = new TH1F("K0sTkFakeVsEta",
-			     "K^{0}_{s} Tracking Fake Rate vs. #eta", 40, -2.5, 2.5);
+			     "K^{0}_{s} Tracking Fake Rate vs #eta", 40, -2.5, 2.5);
   ksTkFakeVsPtHist = new TH1F("K0sTkFakeVsPt",
-			    "K^{0}_{s} Tracking Fake Rate vs. p_{T}", 70, 0., 20.);
+			    "K^{0}_{s} Tracking Fake Rate vs p_{T}", 70, 0., 20.);
 
   ksEffVsRHist_denom = new TH1F("K0sEffVsR_denom", 
-			  "K^{0}_{s} Efficiency vs. #rho", 40, 0., 40.);
+			  "K^{0}_{s} Efficiency vs #rho", 40, 0., 40.);
   ksEffVsEtaHist_denom = new TH1F("K0sEffVsEta_denom",
-			    "K^{0}_{s} Efficiency vs. #eta", 40, -2.5, 2.5);
+			    "K^{0}_{s} Efficiency vs #eta", 40, -2.5, 2.5);
   ksEffVsPtHist_denom = new TH1F("K0sEffVsPt_denom",
-			   "K^{0}_{s} Efficiency vs. p_{T}", 70, 0., 20.);;
+			   "K^{0}_{s} Efficiency vs p_{T}", 70, 0., 20.);;
   ksFakeVsRHist_denom = new TH1F("K0sFakeVsR_denom",
-			   "K^{0}_{s} Fake Rate vs. #rho", 40, 0., 40.);
+			   "K^{0}_{s} Fake Rate vs #rho", 40, 0., 40.);
   ksFakeVsEtaHist_denom = new TH1F("K0sFakeVsEta_denom",
-			     "K^{0}_{s} Fake Rate vs. #eta", 40, -2.5, 2.5);
+			     "K^{0}_{s} Fake Rate vs #eta", 40, -2.5, 2.5);
   ksFakeVsPtHist_denom = new TH1F("K0sFakeVsPt_denom",
-			    "K^{0}_{s} Fake Rate vs. p_{T}", 70, 0., 20.);
+			    "K^{0}_{s} Fake Rate vs p_{T}", 70, 0., 20.);
 
   lamEffVsRHist = new TH1F("LamEffVsR",
-			   "#Lambda^{0} Efficiency vs. #rho", 40, 0., 40.);
+			   "#Lambda^{0} Efficiency vs #rho", 40, 0., 40.);
   lamEffVsEtaHist = new TH1F("LamEffVsEta",
-			     "#Lambda^{0} Efficiency vs. #eta", 40, -2.5, 2.5);
+			     "#Lambda^{0} Efficiency vs #eta", 40, -2.5, 2.5);
   lamEffVsPtHist = new TH1F("LamEffVsPt",
-			    "#Lambda^{0} Efficiency vs. p_{T}", 70, 0., 20.);
+			    "#Lambda^{0} Efficiency vs p_{T}", 70, 0., 20.);
   lamFakeVsRHist = new TH1F("LamFakeVsR",
-			    "#Lambda^{0} Fake Rate vs. #rho", 40, 0., 40.);
+			    "#Lambda^{0} Fake Rate vs #rho", 40, 0., 40.);
   lamFakeVsEtaHist = new TH1F("LamFakeVsEta",
-			      "#Lambda^{0} Fake Rate vs. #eta", 40, -2.5, 2.5);
+			      "#Lambda^{0} Fake Rate vs #eta", 40, -2.5, 2.5);
   lamFakeVsPtHist = new TH1F("LamFakeVsPt",
-			     "#Lambda^{0} Fake Rate vs. p_{T}", 70, 0., 20.);
+			     "#Lambda^{0} Fake Rate vs p_{T}", 70, 0., 20.);
 
   lamTkEffVsRHist = new TH1F("LamTkEffVsR",
-			   "#Lambda^{0} TrackingEfficiency vs. #rho", 40, 0., 40.);
+			   "#Lambda^{0} TrackingEfficiency vs #rho", 40, 0., 40.);
   lamTkEffVsEtaHist = new TH1F("LamTkEffVsEta",
-			     "#Lambda^{0} Tracking Efficiency vs. #eta", 40, -2.5, 2.5);
+			     "#Lambda^{0} Tracking Efficiency vs #eta", 40, -2.5, 2.5);
   lamTkEffVsPtHist = new TH1F("LamTkEffVsPt",
-			    "#Lambda^{0} Tracking Efficiency vs. p_{T}", 70, 0., 20.);
+			    "#Lambda^{0} Tracking Efficiency vs p_{T}", 70, 0., 20.);
   lamTkFakeVsRHist = new TH1F("LamTkFakeVsR",
-			    "#Lambda^{0} Tracking Fake Rate vs. #rho", 40, 0., 40.);
+			    "#Lambda^{0} Tracking Fake Rate vs #rho", 40, 0., 40.);
   lamTkFakeVsEtaHist = new TH1F("LamTkFakeVsEta",
-			      "#Lambda^{0} Tracking Fake Rate vs. #eta", 40, -2.5, 2.5);
+			      "#Lambda^{0} Tracking Fake Rate vs #eta", 40, -2.5, 2.5);
   lamTkFakeVsPtHist = new TH1F("LamTkFakeVsPt",
-			     "#Lambda^{0} Tracking Fake Rate vs. p_{T}", 70, 0., 20.);
+			     "#Lambda^{0} Tracking Fake Rate vs p_{T}", 70, 0., 20.);
 
   lamEffVsRHist_denom = new TH1F("LamEffVsR_denom",
-			   "#Lambda^{0} Efficiency vs. #rho", 40, 0., 40.);
+			   "#Lambda^{0} Efficiency vs #rho", 40, 0., 40.);
   lamEffVsEtaHist_denom = new TH1F("LamEffVsEta_denom",
-			     "#Lambda^{0} Efficiency vs. #eta", 40, -2.5, 2.5);
+			     "#Lambda^{0} Efficiency vs #eta", 40, -2.5, 2.5);
   lamEffVsPtHist_denom = new TH1F("LamEffVsPt_denom",
-			    "#Lambda^{0} Efficiency vs. p_{T}", 70, 0., 20.);
+			    "#Lambda^{0} Efficiency vs p_{T}", 70, 0., 20.);
   lamFakeVsRHist_denom = new TH1F("LamFakeVsR_denom",
-			    "#Lambda^{0} Fake Rate vs. #rho", 40, 0., 40.);
+			    "#Lambda^{0} Fake Rate vs #rho", 40, 0., 40.);
   lamFakeVsEtaHist_denom = new TH1F("LamFakeVsEta_denom",
-			      "#Lambda^{0} Fake Rate vs. #eta", 40, -2.5, 2.5);
+			      "#Lambda^{0} Fake Rate vs #eta", 40, -2.5, 2.5);
   lamFakeVsPtHist_denom = new TH1F("LamFakeVsPt_denom",
-			     "#Lambda^{0} Fake Rate vs. p_{T}", 70, 0., 20.);
+			     "#Lambda^{0} Fake Rate vs p_{T}", 70, 0., 20.);
 
   nKsHist = new TH1F("nK0s",
 		     "Number of K^{0}_{s} found per event", 60, 0., 60.);
@@ -214,18 +216,59 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::ESHandle<TrackAssociatorBase> associatorByHits;
   iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits", associatorByHits);
 
+  VertexAssociatorBase* associatorByTracks;
+
+  edm::ESHandle<VertexAssociatorBase> theTracksAssociator;
+  iSetup.get<VertexAssociatorRecord>().get("VertexAssociatorByTracks",theTracksAssociator);
+  associatorByTracks = (VertexAssociatorBase *) theTracksAssociator.product();
+
   // Get tracks
   Handle< View<reco::Track> > trackCollectionH;
   iEvent.getByLabel("generalTracks", trackCollectionH);
 
+  Handle<SimTrackContainer> simTrackCollection;
+  iEvent.getByLabel("g4SimHits", simTrackCollection);
+  const SimTrackContainer simTC = *(simTrackCollection.product());
+
+  Handle<SimVertexContainer> simVertexCollection;
+  iEvent.getByLabel("g4SimHits", simVertexCollection);
+  const SimVertexContainer simVC = *(simVertexCollection.product());
+
   //Get tracking particles
+  //  -->tracks
   edm::Handle<TrackingParticleCollection>  TPCollectionH ;
   iEvent.getByLabel("mergedtruth", "MergedTrackTruth", TPCollectionH);
   const View<reco::Track>  tC = *( trackCollectionH.product() );
+
+  edm::Handle<TrackingVertexCollection>  TVCollectionH ;
+  iEvent.getByLabel("trackingParticles","VertexTruth",TVCollectionH);
+  const TrackingVertexCollection tVC   = *(TVCollectionH.product());
+
+  // Select the primary vertex, create a new reco::Vertex to hold it
+  edm::Handle< std::vector<reco::Vertex> > primaryVtxCollectionH;
+  iEvent.getByLabel("offlinePrimaryVertices", primaryVtxCollectionH);
+  const reco::VertexCollection primaryVertexCollection   = *(primaryVtxCollectionH.product());
+
+  reco::Vertex* thePrimary = 0;
+  std::vector<reco::Vertex>::const_iterator iVtxPH = primaryVtxCollectionH->begin();
+  for(std::vector<reco::Vertex>::const_iterator iVtx = primaryVtxCollectionH->begin();
+      iVtx < primaryVtxCollectionH->end();
+      iVtx++) {
+    if(primaryVtxCollectionH->size() > 1) {
+      if(iVtx->tracksSize() > iVtxPH->tracksSize()) {
+	iVtxPH = iVtx;
+      }
+    }
+    else iVtxPH = iVtx;
+  }
+  thePrimary = new reco::Vertex(*iVtxPH);
  
 
   reco::RecoToSimCollection r2s = associatorByHits->associateRecoToSim(trackCollectionH,TPCollectionH,&iEvent );
   reco::SimToRecoCollection s2r = associatorByHits->associateSimToReco(trackCollectionH,TPCollectionH,&iEvent );
+
+  reco::VertexRecoToSimCollection vr2s = associatorByTracks->associateRecoToSim(primaryVtxCollectionH, TVCollectionH, iEvent, r2s);
+  reco::VertexSimToRecoCollection vs2r = associatorByTracks->associateSimToReco(primaryVtxCollectionH, TVCollectionH, iEvent, s2r);
 
   //get the V0s;   
   edm::Handle<reco::VertexCompositeCandidateCollection> k0sCollection;
@@ -236,6 +279,31 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   //make vector of pair of trackingParticles to hold good V0 candidates
   std::vector< pair<TrackingParticleRef, TrackingParticleRef> > trueK0s;
   std::vector< pair<TrackingParticleRef, TrackingParticleRef> > trueLams;
+
+  ////////////////////////////
+  // Do vertex calculations //
+  ////////////////////////////
+
+  if( k0sCollection->size() > 0 ) {
+    for(reco::VertexCompositeCandidateCollection::const_iterator iK0s = k0sCollection->begin();
+	iK0s != k0sCollection->end();
+	iK0s++) {
+      // Still can't actually associate the V0 vertex with a TrackingVertexCollection.
+      //  Is this a problem?  You bet.
+      reco::VertexCompositeCandidate::CovarianceMatrix aErr;
+      iK0s->fillVertexCovariance(aErr);
+      reco::Vertex tVtx(iK0s->vertex(), aErr);
+      reco::VertexCollection *tVtxColl = 0;
+      tVtxColl->push_back(tVtx);
+      reco::VertexRef aVtx(tVtxColl, 0);
+      //if(vr2s.find(iK0s->vertex()) != vr2s.end()) {
+      if(vr2s.find(aVtx) != vr2s.end()) {
+	cout << "Found it in the collection." << endl;
+      	std::vector< std::pair<TrackingVertexRef, double> > vVR 
+	  = (std::vector< std::pair<TrackingVertexRef, double> >) vr2s[aVtx];
+      }
+    }
+  }
 
   //////////////////////////////
   // Do fake rate calculation //
@@ -521,6 +589,7 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		    }
 		    if( abs((*iTP2)->pdgId()) == 3122 ) {
 		      // found generated Lambda
+		      
 		      LamGenpT = sqrt((*iTP2)->momentum().perp2());
 		      LamGenEta = (*iTP2)->momentum().eta();
 		      LamGenR = sqrt(itp2->vertex().perp2());
@@ -762,6 +831,8 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }
     }
   }
+
+  delete thePrimary;
 }
 
 
@@ -821,6 +892,9 @@ void V0Validator::endJob() {
 
   nKs = theDQMstore->book1D("nK0s", nKsHist);
   nLam = theDQMstore->book1D("nLam", nLamHist);
+
+  theDQMstore->showDirStructure();
+  theDQMstore->save(theDQMRootFileName);
 }
 
 //define this as a plug-in
