@@ -450,17 +450,8 @@ void MuonErrorMatrix::adjust(FreeTrajectoryState & state){
   //the above contains sigma(i), rho(i,j)
   LogDebug(theCategory+"|Adjust")<<"state sigma(i), rho(i,j): \n"<<simpleTerms;
 
-  // FIXME. you convert sigma/rho -> sigma2/COV -> sigma/rho for nothing
-  AlgebraicSymMatrix55 simpleValues;
-  CurvilinearTrajectoryError sfMat=get(state.momentum());
-  LogDebug(theCategory+"|Adjust")<<"config: (i,i)^2 and (i,j)*(i,i)*(j,j): \n"<<sfMat.matrix();
-  //get retrieves : (i,i)^2 and (i,j)*(i,i)*(j,j), where (i,j) is what is specified in the configuration
-  simpleTerm(sfMat, simpleValues);
-  //transform it to: (i,i), (i,j)
+  AlgebraicSymMatrix55 simpleValues=get(state.momentum(),false).matrix();
   LogDebug(theCategory+"|Adjust")<<"config: (i,i), (i,j): \n"<<simpleValues;
-
-  CurvilinearTrajectoryError sfMatnoScram=get(state.momentum(),false);
-  LogDebug(theCategory+"|Adjust")<<"config: directly (i,j): \n"<<sfMatnoScram.matrix();
 
   for(int i = 0;i!=5;i++){for(int j = i;j!=5;j++){
       //check on each term for desired action
@@ -500,16 +491,8 @@ void MuonErrorMatrix::adjust(TrajectoryStateOnSurface & state){
   simpleTerm(state.curvilinearError(), simpleTerms);
   LogDebug(theCategory+"|Adjust")<<"state sigma(i), rho(i,j): \n"<<simpleTerms;
 
-  // FIXME. you convert sigma/rho -> sigma2/COV -> sigma/rho for nothing
-  AlgebraicSymMatrix55 simpleValues;
-  CurvilinearTrajectoryError sfMat=get(state.globalMomentum());
-  LogDebug(theCategory+"|Adjust")<<"config: (i,i)^2 and (i,j)*(i,i)*(j,j): \n"<<sfMat.matrix();
-  simpleTerm(sfMat, simpleValues);
+  AlgebraicSymMatrix55 simpleValues= get(state.globalMomentum(),false).matrix();
   LogDebug(theCategory+"|Adjust")<<"config: (i,i), (i,j):\n"<<simpleValues;
-
-  CurvilinearTrajectoryError sfMatnoScram=get(state.globalMomentum(),false);
-  LogDebug(theCategory+"|Adjust")<<"config: directly (i,j): \n"<<sfMatnoScram.matrix();
-
 
   for(int i = 0;i!=5;i++){for(int j = i;j!=5;j++){
       //check on each term for desired action
