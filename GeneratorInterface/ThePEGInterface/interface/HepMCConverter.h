@@ -16,6 +16,7 @@
 
 namespace ThePEG {
 
+
 /**
  * The HepMCConverter defines only one public static function which
  * converts a ThePEG::Event object to a
@@ -55,7 +56,7 @@ public:
   /** Forward typedefs from Traits class. */
   typedef typename Traits::VertexT GenVertex;
   /** Forward typedefs from Traits class. */
-//  typedef typename Traits::PdfInfoT PdfInfo;
+  typedef typename Traits::PdfInfoT PdfInfo;
   /** Map ThePEG particles to HepMC particles. */
   typedef map<tcPPtr,GenParticle*> ParticleMap;
   /** Map ThePEG colour lines to HepMC colour indices. */
@@ -89,8 +90,20 @@ public:
    * units of \a lunit.
    */
   static void
-  convert(const Event & ev, GenEvent & gev, bool nocopies = false,
-	  Energy eunit = GeV, Length lunit = millimeter);
+  convert(const Event & ev, GenEvent & gev, bool nocopies,
+	  Energy eunit, Length lunit);
+
+  /**
+   * Convert a ThePEG::Event to a HepMC::GenEvent. The caller supplies
+   * a GenEvent object, \a gev, which will be filled. If \a nocopies
+   * is true, only final copies of particles connected with
+   * Particle::previous() and Particle::next() will be entered in the
+   * HepMC::GenEvent. In the GenEvent object, the energy/momentum
+   * variables will be in units of \a eunit and lengths variables in
+   * units of \a lunit.
+   */
+  static void
+  convert(const Event & ev, GenEvent & gev, bool nocopies = false);
 
 private:
 
@@ -143,18 +156,17 @@ private:
   /**
    * Create a GenVertex from a temporary Vertex.
    */
-  GenVertex * createVertex(Vertex * v);
+  GenVertex * createVertex(Vertex * v); 
 
   /**
    * Create a PdfInfo object from the event
    */
-//  PdfInfo * createPdfInfo(const Event & e);
+  PdfInfo * createPdfInfo(const Event & e);
 
   /**
    * Sort vertices topologically
    */
   void sortTopologically(tcPVector & allv);
-
 private:
 
   /**
@@ -210,11 +222,12 @@ private:
   tcEHPtr eh;
 };
 
-template<> struct HepMCTraits<HepMC::GenEvent> :
-	public HepMCTraitsBase<HepMC::GenEvent, HepMC::GenParticle,
-	                       HepMC::GenVertex, HepMC::Polarization,
-	                       HepMC::PdfInfo, true> {};
+	template<> struct HepMCTraits<HepMC::GenEvent> :
+		public HepMCTraitsBase<
+			HepMC::GenEvent, HepMC::GenParticle,
+			HepMC::GenVertex, HepMC::Polarization,
+			HepMC::PdfInfo> {};
+}
 
-} // namespace ThePEG
 
 #endif /* ThePEG_HepMCConverter_H */

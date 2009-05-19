@@ -1,5 +1,5 @@
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.cc,v 1.13 2009/05/15 22:55:48 saout Exp $
+ *  $Id: ThePEGInterface.cc,v 1.14 2009/05/15 23:48:58 saout Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>
@@ -208,6 +208,7 @@ void ThePEGInterface::flushRandomNumberGenerator()
 auto_ptr<HepMC::GenEvent> ThePEGInterface::convert(
 					const ThePEG::EventPtr &event)
 {
+
 	return std::auto_ptr<HepMC::GenEvent>(
 		ThePEG::HepMCConverter<HepMC::GenEvent>::convert(*event));
 }

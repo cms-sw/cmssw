@@ -1,0 +1,20 @@
+13,15c13,15
+< #include <ThePEG/Config/ThePEG.h>
+< #include <ThePEG/EventRecord/Event.h>
+< #include <ThePEG/Vectors/HepMCTraits.h>
+---
+> #include "ThePEG/Config/ThePEG.h"
+> #include "ThePEG/EventRecord/Event.h"
+> #include "HepMCTraits.h"
+166,169d165
+<   /**
+<    * Sort vertices topologically
+<    */
+<   void sortTopologically(tcPVector & allv);
+219,222d214
+<   /**
+<    * The primary event handler
+<    */
+<   tcEHPtr eh;
+226a219
+> #include "HepMCConverter.tcc"
