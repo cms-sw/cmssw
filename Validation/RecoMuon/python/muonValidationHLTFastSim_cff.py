@@ -4,42 +4,48 @@ from Validation.RecoMuon.muonValidationHLT_cff import *
 
 # Configurations for MultiTrackValidators
 
-l2MuonTrackV.associatormap = 'tpToL2TrackAssociationFS'
-l2MuonTrackV.beamSpot = 'offlineBeamSpot'
+l2MuonTrackFSV = Validation.RecoMuon.muonValidationHLT_cff.l2MuonTrackV.clone()
+l2MuonTrackFSV.associatormap = 'tpToL2TrackAssociationFS'
+l2MuonTrackFSV.beamSpot = 'offlineBeamSpot'
 
-l2UpdMuonTrackV.associatormap = 'tpToL2UpdTrackAssociationFS'
-l2UpdMuonTrackV.beamSpot = 'offlineBeamSpot'
+l2UpdMuonTrackFSV = Validation.RecoMuon.muonValidationHLT_cff.l2UpdMuonTrackV.clone()
+l2UpdMuonTrackFSV.associatormap = 'tpToL2UpdTrackAssociationFS'
+l2UpdMuonTrackFSV.beamSpot = 'offlineBeamSpot'
 
-l3MuonTrackV.associatormap = 'tpToL3TrackAssociationFS'
-l3MuonTrackV.beamSpot = 'offlineBeamSpot'
+l3MuonTrackFSV = Validation.RecoMuon.muonValidationHLT_cff.l3MuonTrackV.clone()
+l3MuonTrackFSV.associatormap = 'tpToL3TrackAssociationFS'
+l3MuonTrackFSV.beamSpot = 'offlineBeamSpot'
 
-l3TkMuonTrackV.associatormap = 'tpToL3TkTrackTrackAssociationFS'
-l3TkMuonTrackV.beamSpot = 'offlineBeamSpot'
+l3TkMuonTrackFSV = Validation.RecoMuon.muonValidationHLT_cff.l3TkMuonTrackV.clone()
+l3TkMuonTrackFSV.associatormap = 'tpToL3TkTrackTrackAssociationFS'
+l3TkMuonTrackFSV.beamSpot = 'offlineBeamSpot'
 
-l3TkMuonMuTrackV.associatormap = 'tpToL3TkMuonAssociationFS'
-l3TkMuonMuTrackV.beamSpot = 'offlineBeamSpot'
+l3TkMuonMuTrackFSV = Validation.RecoMuon.muonValidationHLT_cff.l3TkMuonMuTrackV.clone()
+l3TkMuonMuTrackFSV.associatormap = 'tpToL3TkMuonAssociationFS'
+l3TkMuonMuTrackFSV.beamSpot = 'offlineBeamSpot'
 
-l2MuonMuTrackV.associatormap = 'tpToL2MuonAssociationFS'
-l2MuonMuTrackV.beamSpot = 'offlineBeamSpot'
+l2MuonMuTrackFSV = Validation.RecoMuon.muonValidationHLT_cff.l2MuonMuTrackV.clone()
+l2MuonMuTrackFSV.associatormap = 'tpToL2MuonAssociationFS'
+l2MuonMuTrackFSV.beamSpot = 'offlineBeamSpot'
 
-l2UpdMuonMuTrackV.associatormap = 'tpToL2UpdMuonAssociationFS'
-l2UpdMuonMuTrackV.beamSpot = 'offlineBeamSpot'
+l2UpdMuonMuTrackFSV = Validation.RecoMuon.muonValidationHLT_cff.l2UpdMuonMuTrackV.clone()
+l2UpdMuonMuTrackFSV.associatormap = 'tpToL2UpdMuonAssociationFS'
+l2UpdMuonMuTrackFSV.beamSpot = 'offlineBeamSpot'
 
-l3MuonMuTrackV.associatormap = 'tpToL3MuonAssociationFS'
-l3MuonMuTrackV.beamSpot = 'offlineBeamSpot'
+l3MuonMuTrackFSV = Validation.RecoMuon.muonValidationHLT_cff.l3MuonMuTrackV.clone()
+l3MuonMuTrackFSV.associatormap = 'tpToL3MuonAssociationFS'
+l3MuonMuTrackFSV.beamSpot = 'offlineBeamSpot'
 
 # # Muon validation sequence
 muonValidationHLTFastSim_seq = cms.Sequence(
-     l2MuonTrackV
-     +l2UpdMuonTrackV
-     +l3MuonTrackV
-     +l3TkMuonTrackV
-     +l3TkMuonMuTrackV
-     +l2MuonMuTrackV
-     +l2UpdMuonMuTrackV
-     +l3MuonMuTrackV
-## # #   +recoMuonVMuAssoc
-## # #   +recoMuonVTrackAssoc
+     l2MuonTrackFSV
+     +l2UpdMuonTrackFSV
+     +l3MuonTrackFSV
+     +l3TkMuonTrackFSV
+     +l3TkMuonMuTrackFSV
+     +l2MuonMuTrackFSV
+     +l2UpdMuonMuTrackFSV
+     +l3MuonMuTrackFSV
      )
 
 

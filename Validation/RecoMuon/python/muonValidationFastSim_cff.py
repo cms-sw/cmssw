@@ -4,38 +4,48 @@ from Validation.RecoMuon.muonValidation_cff import *
 
 # Configurations for MultiTrackValidators
 
-trkMuonTrackVTrackAssoc.associatormap = 'tpToTkmuTrackAssociationFS'
+trkMuonTrackVTrackAssocFS = Validation.RecoMuon.muonValidation_cff.trkMuonTrackVTrackAssoc.clone()
+trkMuonTrackVTrackAssocFS.associatormap = 'tpToTkmuTrackAssociationFS'
 
-staMuonTrackVTrackAssoc.associatormap = 'tpToStaTrackAssociationFS'
+staMuonTrackVTrackAssocFS = Validation.RecoMuon.muonValidation_cff.staMuonTrackVTrackAssoc.clone()
+staMuonTrackVTrackAssocFS.associatormap = 'tpToStaTrackAssociationFS'
 
-staUpdMuonTrackVTrackAssoc.associatormap = 'tpToStaUpdTrackAssociationFS'
+staUpdMuonTrackVTrackAssocFS = Validation.RecoMuon.muonValidation_cff.staUpdMuonTrackVTrackAssoc.clone()
+staUpdMuonTrackVTrackAssocFS.associatormap = 'tpToStaUpdTrackAssociationFS'
 
-glbMuonTrackVTrackAssoc.associatormap = 'tpToGlbTrackAssociationFS'
+glbMuonTrackVTrackAssocFS = Validation.RecoMuon.muonValidation_cff.glbMuonTrackVTrackAssoc.clone()
+glbMuonTrackVTrackAssocFS.associatormap = 'tpToGlbTrackAssociationFS'
 
-staMuonTrackVMuonAssoc.associatormap = 'tpToStaMuonAssociationFS'
+staMuonTrackVMuonAssocFS = Validation.RecoMuon.muonValidation_cff.staMuonTrackVMuonAssoc.clone()
+staMuonTrackVMuonAssocFS.associatormap = 'tpToStaMuonAssociationFS'
 
-staUpdMuonTrackVMuonAssoc.associatormap = 'tpToStaUpdMuonAssociationFS'
+staUpdMuonTrackVMuonAssocFS = Validation.RecoMuon.muonValidation_cff.staUpdMuonTrackVMuonAssoc.clone()
+staUpdMuonTrackVMuonAssocFS.associatormap = 'tpToStaUpdMuonAssociationFS'
 
-glbMuonTrackVMuonAssoc.associatormap = 'tpToGlbMuonAssociationFS'
+glbMuonTrackVMuonAssocFS = Validation.RecoMuon.muonValidation_cff.glbMuonTrackVMuonAssoc.clone()
+glbMuonTrackVMuonAssocFS.associatormap = 'tpToGlbMuonAssociationFS'
 
 # Configurations for RecoMuonValidators
 
-recoMuonVMuAssoc.trkMuLabel = 'generalTracks'
-recoMuonVMuAssoc.staMuLabel = 'standAloneMuons:UpdatedAtVtx'
-recoMuonVMuAssoc.glbMuLabel = 'globalMuons'
+recoMuonVMuAssocFS = Validation.RecoMuon.muonValidation_cff.recoMuonVMuAssoc.clone()
+recoMuonVMuAssocFS.trkMuLabel = 'generalTracks'
+recoMuonVMuAssocFS.staMuLabel = 'standAloneMuons:UpdatedAtVtx'
+recoMuonVMuAssocFS.glbMuLabel = 'globalMuons'
 
-recoMuonVMuAssoc.trkMuAssocLabel = 'tpToTkMuonAssociationFS'
-recoMuonVMuAssoc.staMuAssocLabel = 'tpToStaUpdMuonAssociationFS'
-recoMuonVMuAssoc.glbMuAssocLabel = 'tpToGlbMuonAssociationFS'
+recoMuonVMuAssocFS.trkMuAssocLabel = 'tpToTkMuonAssociationFS'
+recoMuonVMuAssocFS.staMuAssocLabel = 'tpToStaUpdMuonAssociationFS'
+recoMuonVMuAssocFS.glbMuAssocLabel = 'tpToGlbMuonAssociationFS'
 
-recoMuonVTrackAssoc.trkMuAssocLabel = 'tpToTkmuTrackAssociationFS'
-recoMuonVTrackAssoc.staMuAssocLabel = 'tpToStaUpdTrackAssociationFS'
-recoMuonVTrackAssoc.glbMuAssocLabel = 'tpToGlbTrackAssociationFS'
+recoMuonVTrackAssocFS = Validation.RecoMuon.muonValidation_cff.recoMuonVTrackAssoc.clone()
+recoMuonVTrackAssocFS.trkMuAssocLabel = 'tpToTkmuTrackAssociationFS'
+recoMuonVTrackAssocFS.staMuAssocLabel = 'tpToStaUpdTrackAssociationFS'
+recoMuonVTrackAssocFS.glbMuAssocLabel = 'tpToGlbTrackAssociationFS'
 
 # Muon validation sequence
-muonValidationFastSim_seq = cms.Sequence(trkMuonTrackVTrackAssoc+staMuonTrackVTrackAssoc+staUpdMuonTrackVTrackAssoc+glbMuonTrackVTrackAssoc
-                                         +staMuonTrackVMuonAssoc+staUpdMuonTrackVMuonAssoc+glbMuonTrackVMuonAssoc
-                                         +recoMuonVMuAssoc+recoMuonVTrackAssoc)
+muonValidationFastSim_seq = cms.Sequence(trkMuonTrackVTrackAssocFS
+                                         +staMuonTrackVTrackAssocFS+staUpdMuonTrackVTrackAssocFS+glbMuonTrackVTrackAssocFS
+                                         +staMuonTrackVMuonAssocFS+staUpdMuonTrackVMuonAssocFS+glbMuonTrackVMuonAssocFS
+                                         +recoMuonVMuAssocFS+recoMuonVTrackAssocFS)
 
 
 # The muon association and validation sequence
