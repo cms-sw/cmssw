@@ -141,6 +141,7 @@ public:
 
   virtual reco::TransientTrack track() const = 0;
 
+  virtual bool isValid() const { return true; }
 };
 
 #endif

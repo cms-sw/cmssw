@@ -139,6 +139,7 @@ public:
   virtual std::vector<ReferenceCountingPointer<LinearizedTrackState<5> > > components()
   									const;
 
+  virtual bool isValid() const { return theTSOS.isValid() && thePredState.isValid(); }
 
 private:
 
