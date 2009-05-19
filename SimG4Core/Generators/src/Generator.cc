@@ -94,6 +94,8 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
   //  double x0 = vtx_->x();
   //  double y0 = vtx_->y();
   
+  unsigned int ng4vtx = 0;
+
   for(HepMC::GenEvent::vertex_const_iterator vitr= evt->vertices_begin();
       vitr != evt->vertices_end(); ++vitr ) { 
     // loop for vertex ...
@@ -225,7 +227,19 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 
     if (verbose > 1 ) g4vtx->Print();
     g4evt->AddPrimaryVertex(g4vtx);
-
+    ng4vtx++;
+  }
+  
+  // Add a protection for completely empty events (produced by LHCTransport): add a dummy vertex with no particle attached to it
+  if ( ng4vtx == 0 ) {
+    double x1 = 0.;
+    double y1 = 0.;
+    double z1 = 0.;
+    double t1 = 0.;
+    G4PrimaryVertex* g4vtx= 
+      new G4PrimaryVertex(x1*mm, y1*mm, z1*mm, t1*mm/c_light);
+    if (verbose > 1 ) g4vtx->Print();
+    g4evt->AddPrimaryVertex(g4vtx);
   }
   
   delete evt ;  
