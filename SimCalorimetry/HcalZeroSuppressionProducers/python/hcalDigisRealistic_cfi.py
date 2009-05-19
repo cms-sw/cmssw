@@ -12,9 +12,9 @@ simHcalDigis = cms.EDFilter("HcalRealisticZS",
     digiLabel = cms.InputTag("simHcalUnsuppressedDigis"),
     mode = cms.int32(0),
     HBlevel = cms.int32(8),
-    HElevel = cms.int32(8),
+    HElevel = cms.int32(9),
     HOlevel = cms.int32(8),
-    HFlevel = cms.int32(9)
+    HFlevel = cms.int32(10)
 )
 
 
