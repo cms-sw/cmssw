@@ -94,10 +94,11 @@ void HepMCConverter<HepMCEventT,Traits>::init(const Event & ev, bool nocopies) {
     throw HepMCConverterException()
       << "Momentum unit used for HepMC::GenEvent was not GEV nor MEV."
       << Exception::runerror;
+  Traits::setUnits(*geneve, energyUnit, lengthUnit);
 
-  if ( ev.primaryCollision() )  eh =
-       dynamic_ptr_cast<tcEHPtr>(ev.primaryCollision()->handler());
-  {
+  if ( ev.primaryCollision() && ( eh =
+       dynamic_ptr_cast<tcEHPtr>(ev.primaryCollision()->handler()) ) ) {
+
     // Get general event info if present.
   }
 
@@ -107,18 +108,12 @@ void HepMCConverter<HepMCEventT,Traits>::init(const Event & ev, bool nocopies) {
   vertices.reserve(all.size()*2);
   sortTopologically(all);
 
-  GenParticle *beam1 = 0, *beam2 = 0;
-
   // Create GenParticle's and map them to the ThePEG particles.
   for ( int i = 0, N = all.size(); i < N; ++i ) {
     tcPPtr p = all[i];
     if ( nocopies && p->next() ) continue;
     if ( pmap.find(p) != pmap.end() ) continue;
     GenParticle * gp = pmap[p] = createParticle(p);
-    if ( gp->status() == 3 && !beam1 )
-        beam1 = gp;
-    else if ( gp->status() == 3 && !beam2)
-        beam2 = gp;
     if ( p->hasColourInfo() ) {
       // Check if the particle is connected to colour lines, in which
       // case the lines are mapped to an integer and set in the
@@ -185,6 +180,7 @@ void HepMCConverter<HepMCEventT,Traits>::init(const Event & ev, bool nocopies) {
   for ( typename GenVertexMap::iterator it = vmap.begin();
 	it != vmap.end(); ++it )
     Traits::addVertex(*geneve, it->second);
+
   // Now find the primary signal process vertex defined to be the
   // decay vertex of the first parton coming into the primary hard
   // sub-collision.
@@ -192,12 +188,13 @@ void HepMCConverter<HepMCEventT,Traits>::init(const Event & ev, bool nocopies) {
   if ( sub && sub->incoming().first ) {
     const Vertex * prim = decv[sub->incoming().first];
     Traits::setSignalProcessVertex(*geneve, vmap[prim]);
+    vmap.erase(prim);
   }
   
 
   // and the incoming beam particles
-	if (beam1 && beam2)
-		geneve->set_beam_particles(beam1, beam2);
+  Traits::setBeamParticles(*geneve,pmap[ev.incoming().first],
+			   pmap[ev.incoming().second]);
 
   // and the PDF info
 }
@@ -310,37 +307,36 @@ HepMCConverter<HepMCEventT,Traits>::createPdfInfo(const Event & e) {
   return output;
 }
 
-
 template<typename HepMCEventT, typename Traits>
 void HepMCConverter<HepMCEventT, Traits>::sortTopologically(tcPVector &all)
 {
-	// order the particles topologically
-	std::set<tcPPtr> visited;
-	for(unsigned int head = 0; head < all.size(); head++) {
-		bool vetoed = true;
-		for(unsigned int cur = head; cur < all.size(); cur++) {
-			vetoed = false;
-			for(tParticleVector::const_iterator iter =
-						all[cur]->parents().begin();
-			    iter != all[cur]->parents().end(); ++iter) {
-				if (visited.find(*iter) == visited.end()) {
-					vetoed = true;
-					break;
-				}
-			}
-			if (!vetoed) {
-				if (cur != head)
-					std::swap(all[head], all[cur]);
-				break;
-			}
-		}
-
-		visited.insert(all[head]);
-	}
-	visited.clear();
+  // order the particles topologically
+  std::set<tcPPtr> visited;
+  for(unsigned int head = 0; head < all.size(); head++) {
+    bool vetoed = true;
+    for(unsigned int cur = head; cur < all.size(); cur++) {
+      vetoed = false;
+      for(tParticleVector::const_iterator iter =
+        all[cur]->parents().begin();
+        iter != all[cur]->parents().end(); ++iter) {
+          if (visited.find(*iter) == visited.end()) {
+            vetoed = true;
+            break;
+          }
+        }
+      if (!vetoed) {
+        if (cur != head)
+          std::swap(all[head], all[cur]);
+        break;
+      }
+    }
+    visited.insert(all[head]);
+  }
+  visited.clear();
 }
 
 template class ThePEG::HepMCConverter<HepMC::GenEvent>;
+
 
 }
 

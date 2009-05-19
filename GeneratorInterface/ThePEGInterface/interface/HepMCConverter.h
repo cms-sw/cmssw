@@ -217,8 +217,8 @@ private:
   Length lengthUnit;
 
   /**
-   * The primary event handler
-   */
+    * The primary event handler
+    */
   tcEHPtr eh;
 };
 
