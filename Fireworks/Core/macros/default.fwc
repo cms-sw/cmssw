@@ -1809,7 +1809,7 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaaaa(1);
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("Jets");
+  topaaaaa.addValue("HCal");
   topaaaa.addKeyValue("collection", topaaaaa);
 }
   topaaa.addKeyValue("TableView", topaaaa);
