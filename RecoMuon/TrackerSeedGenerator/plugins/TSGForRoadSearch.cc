@@ -30,8 +30,7 @@ TSGForRoadSearch::TSGForRoadSearch(const edm::ParameterSet & par){
   theCopyMuonRecHit = par.getParameter<bool>("copyMuonRecHit");
 
   double Chi2 = par.getParameter<double>("maxChi2");
-  if (Chi2>0){ theChi2Estimator = new Chi2MeasurementEstimator(Chi2,sqrt(Chi2));}
-  else { theChi2Estimator=0;}
+  theChi2Estimator = new Chi2MeasurementEstimator(Chi2,sqrt(Chi2));
   
   thePropagatorName = par.getParameter<std::string>("propagatorName");
   thePropagatorCompatibleName = par.getParameter<std::string>("propagatorCompatibleName");
@@ -207,17 +206,26 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
   const std::vector<ForwardDetLayer*> &ptecc = theMeasurementTracker->geometricSearchTracker()->posTecLayers();
   const std::vector<ForwardDetLayer*> &ntecc = theMeasurementTracker->geometricSearchTracker()->negTecLayers();
 
+  LogDebug(theCategory)<<"starting looking for a compatible layer from: "<<outer<<"\nz: "<<z<<"TEC1 z: "<<ptecc.front()->surface().position().z();
+
   uint layerShift=0;
   const DetLayer *inLayer = 0;
   if (fabs(z) < ptecc.front()->surface().position().z()  ){
     inLayer = *(blc.rbegin()+layerShift);
+    LogTrace(theCategory)<<"choosing TOB layer with shift: "<<layerShift;
   } else {
-    //whoa ! +1 should not be allowed !
     uint tecIt=1;
     for (; tecIt!=ptecc.size();tecIt++){
+      LogTrace(theCategory)<<"checking surface with shift: "<<tecIt
+			   <<"z: "<<ptecc[tecIt]->surface().position().z();
       if (fabs(z) < ptecc[tecIt]->surface().position().z())
-	{inLayer = ( z < 0 ) ? ntecc[tecIt-1] : ptecc[tecIt-1] ; break;}}
-    if (!inLayer) {inLayer = ( z < 0 ) ? ntecc.back() : ptecc.back();}
+	{inLayer = ( z < 0 ) ? ntecc[tecIt-1] : ptecc[tecIt-1] ; 
+	  LogTrace(theCategory)<<"choosing TEC layer with shift: "<<layerShift
+			       <<" and z: "<<inLayer->surface().position().z();
+	  break;}}
+    if (!inLayer) {inLayer = ( z < 0 ) ? ntecc.back() : ptecc.back();
+      LogTrace(theCategory)<<"choosing last TEC layer with z: "<<inLayer->surface().position().z();
+    }
   }
 
   //find out at least one compatible detector reached
