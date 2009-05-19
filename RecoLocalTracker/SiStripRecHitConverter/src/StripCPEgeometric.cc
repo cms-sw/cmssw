@@ -3,26 +3,32 @@
 #include <numeric>
 
 StripClusterParameterEstimator::LocalValues StripCPEgeometric::
-localParameters( const SiStripCluster & cluster, const LocalTrajectoryParameters & ltp) const{
+localParameters( const SiStripCluster& cluster, const GeomDetUnit& det, const LocalTrajectoryParameters& ltp) const {
+  return localParameters(cluster,ltp);
+}
 
-  SiStripDetId::SubDetector subdet = SiStripDetId(cluster.geographicalId()).subDetector();
+StripClusterParameterEstimator::LocalValues StripCPEgeometric::
+localParameters( const SiStripCluster& cluster, const LocalTrajectoryParameters& ltp) const {
   StripCPE::Param const& p = param(DetId(cluster.geographicalId()));
+  SiStripDetId::SubDetector subdet = SiStripDetId(cluster.geographicalId()).subDetector();
 
-  float localPitch = p.topology->localPitch(ltp.position());
   LocalVector track = ltp.momentum();
   track *= 
     (track.z()<0) ?  fabs(p.thickness/track.z()) : 
     (track.z()>0) ? -fabs(p.thickness/track.z()) :  
                          p.maxLength/track.mag() ;
 
+  float uProj = std::max(2*tandriftangle*p.thickness, 
+			 fabs( p.coveredStrips(track+p.drift,ltp.position() )));
   std::pair<float,float> position_sigma = position_sigma_inStrips( cluster.firstStrip(),
 								   cluster.amplitudes().begin(),
 								   cluster.amplitudes().end()-1,
-								   std::max( 2*tandriftangle*p.thickness, fabs( (track+p.drift).x() ) ) / localPitch,
+								   uProj,
 								   subdet);
-  position_sigma.first -= 0.5* p.drift.x() / localPitch;
-  return std::make_pair( p.topology->localPosition(position_sigma.first),
-			 p.topology->localError(position_sigma.first, pow(position_sigma.second,2)) );
+  float position = p.driftCorrected(position_sigma.first, ltp.position());
+
+  return std::make_pair( p.topology->localPosition( position ),
+			 p.topology->localError( position, pow(position_sigma.second,2)) );
 }
 
 //treats strips as parallel
