@@ -12,6 +12,7 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "CLHEP/Random/RandGauss.h"
 #include <map>
 
 class HcalHitCorrection : public CaloVHitCorrection
@@ -41,11 +42,15 @@ public:
   /// simple average approximation
   double timeOfFlight(const DetId & id) const;
 
+  void setRandomEngine(CLHEP::HepRandomEngine & engine);
+
 private:
 
   const CaloVSimParameterMap * theParameterMap;
 
   ChargeSumsByChannel theChargeSumsForTimeBin[10];
+
+  CLHEP::RandGauss* theRandGauss;
 
 };
 

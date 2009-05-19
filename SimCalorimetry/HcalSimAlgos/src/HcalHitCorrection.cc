@@ -1,5 +1,6 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalHitCorrection.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloSimParameters.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameters.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -8,7 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 HcalHitCorrection::HcalHitCorrection(const CaloVSimParameterMap * parameterMap)
-: theParameterMap(parameterMap)
+  : theParameterMap(parameterMap),theRandGauss(0) 
 {
 }
 
@@ -56,25 +57,41 @@ double HcalHitCorrection::delay(const PCaloHit & hit) const
   DetId detId(hit.id());
   if(detId.det()==DetId::Calo && detId.subdetId()==HcalZDCDetId::SubdetectorId) return 0;
   HcalDetId hcalDetId(hit.id());
-  if(hcalDetId.subdet() == HcalForward) return 0;  
-  HcalTimeSlew::BiasSetting biasSetting = (hcalDetId.subdet() == HcalOuter) ?
-                                          HcalTimeSlew::Slow :
-                                          HcalTimeSlew::Medium;
   double delay = 0.;
-  int tbin = timeBin(hit);
-  if(tbin >= 0 && tbin < 10)
-  {
-    ChargeSumsByChannel::const_iterator totalChargeItr = theChargeSumsForTimeBin[tbin].find(detId);
-    if(totalChargeItr == theChargeSumsForTimeBin[tbin].end())
-    {
-      throw cms::Exception("HcalHitCorrection") << "Cannot find HCAL charge sum for hit " << hit;
+
+  if(hcalDetId.subdet() == HcalBarrel || hcalDetId.subdet() == HcalEndcap || hcalDetId.subdet() == HcalOuter ) {
+
+    HcalTimeSlew::BiasSetting biasSetting = (hcalDetId.subdet() == HcalOuter) ?
+      HcalTimeSlew::Slow :
+      HcalTimeSlew::Medium;
+
+    int tbin = timeBin(hit);
+    double totalCharge=0;
+    if(tbin >= 0 && tbin < 10)
+      {
+	ChargeSumsByChannel::const_iterator totalChargeItr = theChargeSumsForTimeBin[tbin].find(detId);
+	if(totalChargeItr == theChargeSumsForTimeBin[tbin].end())
+	  {
+	    throw cms::Exception("HcalHitCorrection") << "Cannot find HCAL charge sum for hit " << hit;
+	  }
+	totalCharge = totalChargeItr->second;
+	delay = HcalTimeSlew::delay(totalCharge, biasSetting);
+	LogDebug("HcalHitCorrection") << "TIMESLEWcharge " << charge(hit) 
+				      << "  totalcharge " << totalCharge 
+				      << " olddelay "  << HcalTimeSlew::delay(charge(hit), biasSetting) 
+				      << " newdelay " << delay;
+      }
+    // now, the smearing
+    const HcalSimParameters& params=static_cast<const HcalSimParameters&>(theParameterMap->simParameters(detId));
+    if (params.doTimeSmear() && theRandGauss!=0) {
+      double rms=params.timeSmearRMS(charge(hit));
+      
+      double smearns=theRandGauss->fire()*rms;
+
+      LogDebug("HcalHitCorrection") << "TimeSmear charge " << charge(hit) << " rms " << rms << " delay " << delay << " smearns " << smearns;
+
+      delay+=smearns;
     }
-    double totalCharge = totalChargeItr->second;
-    delay = HcalTimeSlew::delay(totalCharge, biasSetting);
-    LogDebug("HcalHitCorrection") << "TIMESLEWcharge " << charge(hit) 
-				  << "  totalcharge " << totalCharge 
-				  << " olddelay "  << HcalTimeSlew::delay(charge(hit), biasSetting) 
-				  << " newdelay " << delay;
   }
 
   return delay;
@@ -119,3 +136,10 @@ double HcalHitCorrection::timeOfFlight(const DetId & detId) const
     }
 }
 
+
+
+void HcalHitCorrection::setRandomEngine(CLHEP::HepRandomEngine & engine) {
+  if (theRandGauss==0) {
+    theRandGauss=new CLHEP::RandGauss(engine);
+  }
+}

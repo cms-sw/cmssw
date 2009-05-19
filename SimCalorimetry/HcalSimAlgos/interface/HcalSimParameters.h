@@ -5,6 +5,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 
+typedef std::vector<std::pair<double,double> > HcalTimeSmearSettings;
+
 class HcalSimParameters : public CaloSimParameters
 {
 public:
@@ -30,11 +32,17 @@ public:
   /// in the SimHit
   virtual double samplingFactor(const DetId & detId) const;
 
+  bool doTimeSmear() const { return doTimeSmear_; }
 
+  double timeSmearRMS(double ampl) const;
+  
 private:
+  void defaultTimeSmearing();
   const HcalDbService * theDbService;
   int theFirstRing;
   std::vector<double> theSamplingFactors;
+  bool doTimeSmear_;
+  HcalTimeSmearSettings theSmearSettings;
 };
 
 #endif
