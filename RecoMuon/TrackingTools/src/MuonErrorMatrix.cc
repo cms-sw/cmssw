@@ -169,6 +169,11 @@ MuonErrorMatrix::MuonErrorMatrix(const edm::ParameterSet & iConfig):theD(0){
 	  for(unsigned int ix=1;ix<=iX;++ix){
 	    for(unsigned int iy=1;iy<=iY;++iy){
 	      for(unsigned int iz=1;iz<=iZ;++iz){
+		LogTrace(theCategory)<<"filling profile:"
+				     <<"\n pt (x)= "<<pf->GetXaxis()->GetBinCenter(ix)
+				     <<"\n eta (y)= "<<pf->GetYaxis()->GetBinCenter(iy)
+				     <<"\n phi (z)= "<<pf->GetZaxis()->GetBinCenter(iz)
+				     <<"\n value= "<<values[continuous_i];
 		pf->Fill(pf->GetXaxis()->GetBinCenter(ix),
 			 pf->GetYaxis()->GetBinCenter(iy),
 			 pf->GetZaxis()->GetBinCenter(iz),
@@ -222,10 +227,11 @@ MuonErrorMatrix::~MuonErrorMatrix()  {
 
 
 
-CurvilinearTrajectoryError MuonErrorMatrix::get(GlobalVector momentum)  {
+CurvilinearTrajectoryError MuonErrorMatrix::get(GlobalVector momentum,bool convolute)  {
   AlgebraicSymMatrix55 V;
+  //retrieves a 55 matrix containing (i,i)^2 and (i,j)*(i,i)*(j,j)
   for (int i=0;i!=5;i++){for (int j=i;j!=5;j++){
-      V(i,j) = Value(momentum,i,j);}}
+      V(i,j) = Value(momentum,i,j,convolute);}}
   return CurvilinearTrajectoryError(V);}
 
 CurvilinearTrajectoryError MuonErrorMatrix::getFast(GlobalVector momentum) {
@@ -287,7 +293,7 @@ int MuonErrorMatrix::findBin(TAxis * axis, double value){
   return result;}
 
 
-double MuonErrorMatrix::Value(GlobalVector & momentum, int i, int j)  {
+double MuonErrorMatrix::Value(GlobalVector & momentum, int i, int j,bool convolute)  {
   double result=0;
   TProfile3D * ij = Index(i,j);
   if (!ij) {edm::LogError(theCategory)<<"cannot get the profile ("<<i<<":"<<j<<")"; return result;}
@@ -300,6 +306,7 @@ double MuonErrorMatrix::Value(GlobalVector & momentum, int i, int j)  {
   int iBin_y= findBin(ij->GetYaxis(),eta);
   int iBin_z= findBin(ij->GetZaxis(),phi);
 
+  if (convolute){
   if (i!=j){
     //return the covariance = correlation*sigma_1 *sigma_2;
     TProfile3D * ii = Index(i,i);
@@ -319,15 +326,13 @@ double MuonErrorMatrix::Value(GlobalVector & momentum, int i, int j)  {
     double sigma_1 = (ii->GetBinContent(iBin_i_x,iBin_i_y,iBin_i_z));
     double sigma_2 = (jj->GetBinContent(iBin_j_x,iBin_j_y,iBin_j_z));
 
-    LogDebug(theCategory)<<"for: (pT,eta,phi)=("<<pT<<", "<<eta<<", "<<phi<<") nterms are"
-		       <<"\nrho["<<i<<","<<j<<"]: "<<corr<<" ["<< iBin_x<<", "<<iBin_y<<", "<<iBin_z<<"]"
-      //		       <<"\nsigma^2["<<i<<","<<i<<"]: "<< sigma2_1<<" ["<< iBin_i_x<<", "<<iBin_i_y<<", "<<iBin_i_z<<"]"
-      //		       <<"\nsigma^2["<<j<<","<<j<<"]: "<< sigma2_2<<" ["<< iBin_i_x<<", "<<iBin_i_y<<", "<<iBin_i_z<<"]"
-		       <<"\nsigma["<<i<<","<<i<<"]: "<< sigma_1
-		       <<"\nsigma["<<j<<","<<j<<"]: "<< sigma_2;
     
     result=corr*sigma_1*sigma_2;
-    LogDebug(theCategory)<<"for: (pT,eta,phi)=("<<pT<<", "<<eta<<", "<<phi<<") Covariance["<<i<<","<<j<<"] is: "<<result;
+    LogDebug(theCategory)<<"for: (pT,eta,phi)=("<<pT<<", "<<eta<<", "<<phi<<") nterms are"
+			 <<"\nrho["<<i<<","<<j<<"]: "<<corr<<" ["<< iBin_x<<", "<<iBin_y<<", "<<iBin_z<<"]"
+			 <<"\nsigma["<<i<<","<<i<<"]: "<< sigma_1
+			 <<"\nsigma["<<j<<","<<j<<"]: "<< sigma_2
+			 <<"Covariance["<<i<<","<<j<<"] is: "<<result;
     return result;
   }
   else{
@@ -336,6 +341,11 @@ double MuonErrorMatrix::Value(GlobalVector & momentum, int i, int j)  {
     result=ij->GetBinContent(iBin_x,iBin_y,iBin_z);
     result*=result;
     LogDebug(theCategory)<<"for: (pT,eta,phi)=("<<pT<<", "<<eta<<", "<<phi<<") sigma^2["<<i<<","<<j<<"] is: "<<result;
+    return result;
+  }
+  }else{
+    //do not convolute
+    result=ij->GetBinContent(iBin_x,iBin_y,iBin_z);
     return result;
   }
 }
@@ -426,7 +436,7 @@ void MuonErrorMatrix::complicatedTerm(const AlgebraicSymMatrix55 & input, Algebr
       if (i==j)
 	output(i,j) = input(i,j)*input(i,j); //sigma squared
       else
-	output(i,j) = input(i,j)*input(i,j)*input(j,j); //rho*sigma*sigma
+	output(i,j) = input(i,j)*input(i,i)*input(j,j); //rho*sigma*sigma
     }}
 }
 
@@ -434,13 +444,23 @@ void MuonErrorMatrix::complicatedTerm(const AlgebraicSymMatrix55 & input, Algebr
 
 void MuonErrorMatrix::adjust(FreeTrajectoryState & state){
 
+  LogDebug(theCategory+"|Adjust")<<"state: \n"<<state;
   AlgebraicSymMatrix55 simpleTerms;
   simpleTerm(state.curvilinearError(), simpleTerms);
-  
+  //the above contains sigma(i), rho(i,j)
+  LogDebug(theCategory+"|Adjust")<<"state sigma(i), rho(i,j): \n"<<simpleTerms;
+
   // FIXME. you convert sigma/rho -> sigma2/COV -> sigma/rho for nothing
   AlgebraicSymMatrix55 simpleValues;
   CurvilinearTrajectoryError sfMat=get(state.momentum());
+  LogDebug(theCategory+"|Adjust")<<"config: (i,i)^2 and (i,j)*(i,i)*(j,j): \n"<<sfMat.matrix();
+  //get retrieves : (i,i)^2 and (i,j)*(i,i)*(j,j), where (i,j) is what is specified in the configuration
   simpleTerm(sfMat, simpleValues);
+  //transform it to: (i,i), (i,j)
+  LogDebug(theCategory+"|Adjust")<<"config: (i,i), (i,j): \n"<<simpleValues;
+
+  CurvilinearTrajectoryError sfMatnoScram=get(state.momentum(),false);
+  LogDebug(theCategory+"|Adjust")<<"config: directly (i,j): \n"<<sfMatnoScram.matrix();
 
   for(int i = 0;i!=5;i++){for(int j = i;j!=5;j++){
       //check on each term for desired action
@@ -457,16 +477,19 @@ void MuonErrorMatrix::adjust(FreeTrajectoryState & state){
 	}
       case error:
 	{
-	  edm::LogError(theCategory)<<" cannot properly adjust for term: "<<i <<","<<j;
+	  edm::LogError(theCategory+"|Adjust")<<" cannot properly adjust for term: "<<i <<","<<j;
 	}
       }
     }}
+  LogDebug(theCategory+"|Adjust")<<"updated state sigma(i), rho(i,j): \n"<<simpleTerms;
 
   AlgebraicSymMatrix55 finalTerms;
   complicatedTerm(simpleTerms, finalTerms);
+  LogDebug(theCategory+"|Adjust")<<"updated state COV(i,j): \n"<<finalTerms;  
   
   CurvilinearTrajectoryError oMat(finalTerms);
   state = FreeTrajectoryState(state.parameters(), oMat);
+  LogDebug(theCategory+"|Adjust")<<"updated state:\n"<<state;
 }
 
 
@@ -475,11 +498,18 @@ void MuonErrorMatrix::adjust(TrajectoryStateOnSurface & state){
 
   AlgebraicSymMatrix55 simpleTerms;
   simpleTerm(state.curvilinearError(), simpleTerms);
-  
+  LogDebug(theCategory+"|Adjust")<<"state sigma(i), rho(i,j): \n"<<simpleTerms;
+
   // FIXME. you convert sigma/rho -> sigma2/COV -> sigma/rho for nothing
   AlgebraicSymMatrix55 simpleValues;
   CurvilinearTrajectoryError sfMat=get(state.globalMomentum());
+  LogDebug(theCategory+"|Adjust")<<"config: (i,i)^2 and (i,j)*(i,i)*(j,j): \n"<<sfMat.matrix();
   simpleTerm(sfMat, simpleValues);
+  LogDebug(theCategory+"|Adjust")<<"config: (i,i), (i,j):\n"<<simpleValues;
+
+  CurvilinearTrajectoryError sfMatnoScram=get(state.globalMomentum(),false);
+  LogDebug(theCategory+"|Adjust")<<"config: directly (i,j): \n"<<sfMatnoScram.matrix();
+
 
   for(int i = 0;i!=5;i++){for(int j = i;j!=5;j++){
       //check on each term for desired action
@@ -496,18 +526,21 @@ void MuonErrorMatrix::adjust(TrajectoryStateOnSurface & state){
 	}
       case error:
 	{
-	  edm::LogError(theCategory)<<" cannot properly adjust for term: "<<i <<","<<j;
+	  edm::LogError(theCategory+"|Adjust")<<" cannot properly adjust for term: "<<i <<","<<j;
 	}
       }
     }}
+  LogDebug(theCategory+"|Adjust")<<"updated state sigma(i), rho(i,j): \n"<<simpleTerms;
 
   AlgebraicSymMatrix55 finalTerms;
   complicatedTerm(simpleTerms, finalTerms);
-  
+  LogDebug(theCategory+"|Adjust")<<"updated state COV(i,j): \n"<<finalTerms;  
+
   CurvilinearTrajectoryError oMat(finalTerms);
   state = TrajectoryStateOnSurface(state.globalParameters(),
 				   oMat,
 				   state.surface(),
 				   state.surfaceSide(),
 				   state.weight());
+  LogDebug(theCategory+"|Adjust")<<"updated state:\n"<<state;
 }

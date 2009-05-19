@@ -8,7 +8,7 @@
  * Error/Scale factor matrix is obtained using get(GlobalVector momentum)
  *
  * $Dates: 2007/09/04 13:28 $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  *
  * \author Jean-Roch Vlimant  UCSB
  * \author Finn Rebassoo      UCSB
@@ -42,7 +42,7 @@ class MuonErrorMatrix{
   void close();
   
   /// main method to be used. Retrieve a 5x5 symetrical matrix according to parametrization of error or scale factor
-  CurvilinearTrajectoryError get(GlobalVector momentum);
+  CurvilinearTrajectoryError get(GlobalVector momentum,bool convolute=true);
   CurvilinearTrajectoryError getFast(GlobalVector momentum);
 
   /// multiply term by term the two matrix
@@ -100,7 +100,7 @@ class MuonErrorMatrix{
 
 
   /// internal method that retreives the value of the parametrization for term i,j  
-  double Value(GlobalVector & momentum, int i, int j);
+  double Value(GlobalVector & momentum, int i, int j,bool convolute=true);
   /// internal method that retreives the error on the value of the parametrization for term i,j  
   double Rms(GlobalVector & momentum, int i, int j);
   
