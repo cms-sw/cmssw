@@ -5,19 +5,21 @@
  * *
  *  DQM Client to check the data integrity
  *
- *  $Date: 2008/06/03 16:33:51 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/03/27 13:23:53 $
+ *  $Revision: 1.10 $
  *  \author S. Bolognesi - INFN TO
  *   
  */
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/Event.h>
+#include "FWCore/Framework/interface/ESHandle.h"
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
 class DQMStore;
 class MonitorElement;
+class DTReadOutMapping;
 
 class DTDataIntegrityTest: public edm::EDAnalyzer{
 
@@ -33,6 +35,9 @@ protected:
 
   /// BeginJob
   void beginJob(const edm::EventSetup& c);
+
+  /// BeginRun
+  void beginRun(const edm::Run& run, const edm::EventSetup& c);
  
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
@@ -51,6 +56,8 @@ protected:
   /// DQM Client Diagnostic
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
 
+private:
+  int readOutToGeometry(int dduId, int rosNumber, int& wheel, int& sector);
 
 private:
 
@@ -81,6 +88,8 @@ private:
 
 
   DQMStore* dbe;
+  edm::ESHandle<DTReadOutMapping> mapping;
+  
 
   // Monitor Elements
   // <histoType, <DDU index , histo> >    

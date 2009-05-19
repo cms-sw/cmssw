@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2009/03/27 13:22:21 $
- * $Revision: 1.27 $
+ * $Date: 2009/05/07 08:21:05 $
+ * $Revision: 1.28 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -11,7 +11,9 @@
 #include <DQM/DTMonitorClient/src/DTDataIntegrityTest.h>
 
 //Framework
-#include <DataFormats/FEDRawData/interface/FEDNumbering.h>
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
+#include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -63,22 +65,20 @@ void DTDataIntegrityTest::beginJob(const EventSetup& context){
   
   // book the summary histogram
   dbe->setCurrentFolder("DT/00-DataIntegrity");
-  summaryHisto = dbe->book2D("DataIntegritySummary","Summary Data Integrity",12,1,13,5,770,775);
-  summaryHisto->setAxisTitle("ROS",1);
-  summaryHisto->setBinLabel(1,"FED770",2);
-  summaryHisto->setBinLabel(2,"FED771",2);
-  summaryHisto->setBinLabel(3,"FED772",2);
-  summaryHisto->setBinLabel(4,"FED773",2);
-  summaryHisto->setBinLabel(5,"FED774",2);
+  summaryHisto = dbe->book2D("DataIntegritySummary","Summary Data Integrity",12,1,13,5,-2,3);
+  summaryHisto->setAxisTitle("Sector",1);
+  summaryHisto->setAxisTitle("Wheel",2);
 
   dbe->setCurrentFolder("DT/00-DataIntegrity");
-  glbSummaryHisto = dbe->book2D("DataIntegrityGlbSummary","Summary Data Integrity",12,1,13,5,770,775);
-  glbSummaryHisto->setAxisTitle("ROS",1);
-  glbSummaryHisto->setBinLabel(1,"FED770",2);
-  glbSummaryHisto->setBinLabel(2,"FED771",2);
-  glbSummaryHisto->setBinLabel(3,"FED772",2);
-  glbSummaryHisto->setBinLabel(4,"FED773",2);
-  glbSummaryHisto->setBinLabel(5,"FED774",2);
+  glbSummaryHisto = dbe->book2D("DataIntegrityGlbSummary","Summary Data Integrity",12,1,13,5,-2,3);
+  glbSummaryHisto->setAxisTitle("Sector",1);
+  glbSummaryHisto->setAxisTitle("Wheel",2);
+
+}
+
+void DTDataIntegrityTest::beginRun(const Run& run, const EventSetup& context){
+
+  context.get<DTReadOutMappingRcd>().get(mapping);
 
 }
 
@@ -133,7 +133,7 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
   counter++;
 
   //Loop on FED id
-  for (int dduId=FEDNumbering::MINDTFEDID; dduId<FEDNumbering::MAXDTFEDID; ++dduId){
+  for (int dduId=FEDNumbering::MINDTFEDID; dduId<=FEDNumbering::MAXDTFEDID; ++dduId){
     LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest")
       <<"[DTDataIntegrityTest]:FED Id: "<<dduId;
  
@@ -233,44 +233,45 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 
      if(FED_ROSSummary) {
        TH2F * histo_FEDSummary = FED_ROSSummary->getTH2F();
-       for(int rosNumber = 1; rosNumber <= 12; ++rosNumber) { // loop on the ROS
-	 int result = -2;
-	 float nErrors = histo_FEDSummary->Integral(1,11,rosNumber,rosNumber);
-	 if(nErrors == 0) { // no errors
-	   result = 0;
-	 } else { // there are errors
-	   result = 2;
-	 }
-	 summaryHisto->setBinContent(rosNumber,dduId-769,result);
-	 // FIXME: different errors should have different weights
-	 float sectPerc = max((float)0., ((float)nevents-nErrors)/(float)nevents);
-	 glbSummaryHisto->setBinContent(rosNumber,dduId-769,sectPerc);
-       }
        // Check that the FED is in the ReadOut using the FEDIntegrity histos
-       if(hFEDEntry->getBinContent(dduId-769) == 0 &&
-	  hFEDFatal->getBinContent(dduId-769) == 0 &&
-	  hFEDNonFatal->getBinContent(dduId-769) == 0) {
-	 // no data in this FED: it is off
-	 for(int rosNumber = 1; rosNumber <= 12; ++rosNumber) {
-	   summaryHisto->setBinContent(rosNumber,dduId-769,1);
-	   glbSummaryHisto->setBinContent(rosNumber,dduId-769,0);
+       bool fedNotReadout = (hFEDEntry->getBinContent(dduId-769) == 0 &&
+			    hFEDFatal->getBinContent(dduId-769) == 0 &&
+			    hFEDNonFatal->getBinContent(dduId-769) == 0); 
+       for(int rosNumber = 1; rosNumber <= 12; ++rosNumber) { // loop on the ROS
+	 int wheelNumber, sectorNumber;
+	 if (!readOutToGeometry(dduId,rosNumber,wheelNumber,sectorNumber)) {
+	   int result = -2;
+	   float nErrors = histo_FEDSummary->Integral(1,11,rosNumber,rosNumber);
+	   if(nErrors == 0) { // no errors
+	     result = 0;
+	   } else { // there are errors
+	     result = 2;
+	   }
+	   summaryHisto->setBinContent(sectorNumber,wheelNumber+3,result);
+	   // FIXME: different errors should have different weights
+	   float sectPerc = max((float)0., ((float)nevents-nErrors)/(float)nevents);
+	   glbSummaryHisto->setBinContent(sectorNumber,wheelNumber+3,sectPerc);
+
+	   if(fedNotReadout) {
+	     // no data in this FED: it is off
+	     summaryHisto->setBinContent(sectorNumber,wheelNumber+3,1);
+	     glbSummaryHisto->setBinContent(sectorNumber,wheelNumber+3,0);
+	   }
 	 }
        }
-
+       
      } else { // no data in this FED: it is off
        for(int rosNumber = 1; rosNumber <= 12; ++rosNumber) {
-	 summaryHisto->setBinContent(rosNumber,dduId-769,1);
-	 glbSummaryHisto->setBinContent(rosNumber,dduId-769,0);
+	 int wheelNumber, sectorNumber;
+	 if (!readOutToGeometry(dduId,rosNumber,wheelNumber,sectorNumber)) {
+	   summaryHisto->setBinContent(sectorNumber,wheelNumber+3,1);
+	   glbSummaryHisto->setBinContent(sectorNumber,wheelNumber+3,0);
+	 } 
        }
      }
   
   }
 
-
-     
-
-
-  
 }
 
 
@@ -358,3 +359,9 @@ void DTDataIntegrityTest::bookTimeHistos(string histoType, int dduId, int nLumiS
   }
 } 
 
+int DTDataIntegrityTest::readOutToGeometry(int dduId, int ros, int& wheel, int& sector){
+
+  int dummy;
+  return mapping->readOutToGeometry(dduId,ros,2,2,2,wheel,dummy,sector,dummy,dummy,dummy);
+
+}
