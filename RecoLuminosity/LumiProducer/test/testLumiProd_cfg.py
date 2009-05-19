@@ -36,11 +36,11 @@ process.LumiESSource.connect=cms.string('sqlite_file:offlinelumi.db')
 process.LumiESSource.toGet=cms.VPSet(
     cms.PSet(
       record = cms.string('LuminosityInfoRcd'),
-      tag = cms.string('globalrun')
+      tag = cms.string('lumi83037_v1')
     ),
     cms.PSet(
       record = cms.string('HLTScalerRcd'),
-      tag = cms.string('globalrunhltscaler')
+      tag = cms.string('hltscaler83037')
     )
 )
 
