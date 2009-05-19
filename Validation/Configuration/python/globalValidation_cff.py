@@ -10,6 +10,7 @@ multiTrackValidator.UseAssociators = True
 from Validation.EcalHits.ecalSimHitsValidationSequence_cff import *
 from Validation.EcalDigis.ecalDigisValidationSequence_cff import *
 from Validation.EcalRecHits.ecalRecHitsValidationSequence_cff import *
+from Validation.EcalClusters.ecalClustersValidationSequence_cff import *
 from Validation.HcalHits.HcalSimHitStudy_cfi import *
 #from Validation.HcalDigis.hcalDigisValidationSequence_cff import *
 from Validation.HcalRecHits.hcalRecHitsValidationSequence_cff import *
@@ -23,6 +24,6 @@ from Validation.MuonIsolation.MuIsoVal_cff import *
 from Validation.MuonIdentification.muonIdVal_cff import *
 
 globalValidation = cms.Sequence(trackerHitsValidation+trackerDigisValidation+trackerRecHitsValidation+trackingTruthValid+trackingRecHitsValid+tracksValidation+
-                                ecalSimHitsValidationSequence+ecalDigisValidationSequence+ecalRecHitsValidationSequence+
+                                ecalSimHitsValidationSequence+ecalDigisValidationSequence+ecalRecHitsValidationSequence+ecalClustersValidationSequence+
                                 hcalSimHitStudy+hcalRecHitsValidationSequence+calotowersValidationSequence+
                                 validSimHit+muondtdigianalyzer+cscDigiValidation+validationMuonRPCDigis+recoMuonValidation+muIsoVal_seq+muonIdValDQMSeq)
