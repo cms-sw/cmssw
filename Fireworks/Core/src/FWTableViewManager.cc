@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTableViewManager.cc,v 1.4 2009/05/16 18:00:47 dmytro Exp $
+// $Id: FWTableViewManager.cc,v 1.5 2009/05/17 03:33:36 jmuelmen Exp $
 //
 
 // system include files
@@ -408,7 +408,10 @@ void FWTableViewManager::setFrom(const FWConfiguration &iFrom)
      try {
 	  const FWConfiguration *typeNames = iFrom.valueForKey(kConfigTypeNames);
 	  if (typeNames != 0) {
-	       m_tableFormats.clear();
+               //NOTE: FWTableViewTableManagers hold pointers into m_tableFormats so if we
+               // clear it those pointers would be invalid
+               // instead we will just clear the lists and fill them with their new values
+	       //m_tableFormats.clear();
 	       for (FWConfiguration::StringValuesIt 
 			 iType = typeNames->stringValues()->begin(),
 			 iTypeEnd = typeNames->stringValues()->end(); 
@@ -417,6 +420,7 @@ void FWTableViewManager::setFrom(const FWConfiguration &iFrom)
 		    const FWConfiguration *columns = iFrom.valueForKey(*iType);
 		    assert(columns != 0);
 		    std::vector<TableEntry> &formats = m_tableFormats[*iType];
+                    formats.clear();
 		    for (FWConfiguration::StringValuesIt 
 			      it = columns->stringValues()->begin(),
 			      itEnd = columns->stringValues()->end(); 
