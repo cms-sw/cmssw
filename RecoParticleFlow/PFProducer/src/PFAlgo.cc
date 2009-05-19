@@ -1021,7 +1021,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	      
 	    // Calibrate the ECAL energy for photons
 	    bool crackCorrection = false;
-	    float ecalEnergyCalibrated = calibration_->energyEm(*eclusterref,ps1Ene,ps2Ene,false);
+	    float ecalEnergyCalibrated = calibration_->energyEm(*eclusterref,ps1Ene,ps2Ene,crackCorrection);
 	    math::XYZVector photonDirection(eclusterref->position().X(),
 					    eclusterref->position().Y(),
 					    eclusterref->position().Z());
