@@ -69,29 +69,23 @@ namespace edm {
   int
   DataViewImpl::getMatchingSequence_(TypeID const& typeID,
                                      SelectorBase const& selector,
-                                     BasicHandleVec& results,
-                                     bool stopIfProcessHasMatch) const
-  {
+                                     BasicHandle& result) const {
     return principal_.getMatchingSequence(typeID,
                                     selector,
-                                    results,
-                                    stopIfProcessHasMatch);
+                                    result);
   }
 
   int
   DataViewImpl::getMatchingSequenceByLabel_(TypeID const& typeID,
                                             std::string const& label,
                                             std::string const& productInstanceName,
-                                            BasicHandleVec& results,
-                                            bool stopIfProcessHasMatch) const
-  {
-    edm::Selector sel(edm::ModuleLabelSelector(label) &&
-                      edm::ProductInstanceNameSelector(productInstanceName));
+                                            BasicHandle& result) const {
+    Selector sel(ModuleLabelSelector(label) &&
+                 ProductInstanceNameSelector(productInstanceName));
 
     int n = principal_.getMatchingSequence(typeID,
                                      sel,
-                                     results,
-                                     stopIfProcessHasMatch);
+                                     result);
     return n;
   }
 
@@ -100,17 +94,14 @@ namespace edm {
                                             std::string const& label,
                                             std::string const& productInstanceName,
                                             std::string const& processName,
-                                            BasicHandleVec& results,
-                                            bool stopIfProcessHasMatch) const
-  {
-    edm::Selector sel(edm::ModuleLabelSelector(label) &&
-                      edm::ProductInstanceNameSelector(productInstanceName) &&
-                      edm::ProcessNameSelector(processName) );
+                                            BasicHandle& result) const {
+    Selector sel(ModuleLabelSelector(label) &&
+                 ProductInstanceNameSelector(productInstanceName) &&
+                 ProcessNameSelector(processName) );
 
     int n = principal_.getMatchingSequence(typeID,
   				   sel,
-  				   results,
-  				   stopIfProcessHasMatch);
+  				   result);
     return n;
   }
 

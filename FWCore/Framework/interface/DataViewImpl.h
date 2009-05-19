@@ -164,7 +164,7 @@ namespace edm {
     typedef std::vector<std::pair<boost::shared_ptr<EDProduct>, ConstBranchDescription const*> >  ProductPtrVec;
   protected:
 
-    Principal & principal() {return principal_;}
+    Principal& principal() {return principal_;}
     Principal const& principal() const {return principal_;}
 
     ProductPtrVec & putProducts() {return putProducts_;}
@@ -209,23 +209,20 @@ namespace edm {
     int 
     getMatchingSequence_(TypeID const& typeID,
                          SelectorBase const& selector,
-                         BasicHandleVec& results,
-                         bool stopIfProcessHasMatch) const;
+                         BasicHandle& result) const;
 
     int 
     getMatchingSequenceByLabel_(TypeID const& typeID,
                                 std::string const& label,
                                 std::string const& productInstanceName,
-                                BasicHandleVec& results,
-                                bool stopIfProcessHasMatch) const;
+                                BasicHandle& result) const;
 
     int 
     getMatchingSequenceByLabel_(TypeID const& typeID,
                                 std::string const& label,
                                 std::string const& productInstanceName,
                                 std::string const& processName,
-                                BasicHandleVec& results,
-                                bool stopIfProcessHasMatch) const;
+                                BasicHandle& result) const;
     
   protected:
     // Also isolates the DataViewImpl class

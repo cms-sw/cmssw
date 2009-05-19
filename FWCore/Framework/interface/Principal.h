@@ -50,7 +50,7 @@ namespace edm {
   class Principal : public EDProductGetter {
   public:
     typedef std::vector<boost::shared_ptr<Group> > GroupCollection;
-     typedef boost::filter_iterator<FilledGroupPtr, GroupCollection::const_iterator> const_iterator;
+    typedef boost::filter_iterator<FilledGroupPtr, GroupCollection::const_iterator> const_iterator;
     typedef ProcessHistory::const_iterator ProcessNameConstIterator;
     typedef boost::shared_ptr<Group const> SharedConstGroupPtr;
     typedef std::vector<BasicHandle> BasicHandleVec;
@@ -89,16 +89,15 @@ namespace edm {
     void getManyByType(TypeID const& tid, 
 		 BasicHandleVec& results) const;
 
-    // Return a vector of BasicHandles to the products which:
-    //   1. are sequences,
-    //   2. and have the nested type 'value_type'
+    // Return a BasicHandle to the product which:
+    //   1. is a sequence,
+    //   2. and has the nested type 'value_type'
     //   3. and for which typeID is the same as or a public base of
     //      this value_type,
     //   4. and which matches the given selector
     size_t getMatchingSequence(TypeID const& typeID,
-			       SelectorBase const& selector,
-			       BasicHandleVec& results,
-			       bool stopIfProcessHasMatch) const;
+			        SelectorBase const& selector,
+			        BasicHandle& result) const;
 
     void
     readImmediate() const;
@@ -170,11 +169,15 @@ namespace edm {
     // Used for indices to find groups by type and process
     typedef TransientProductLookupMap TypeLookup;
 
+    size_t findGroup(TypeID const& typeID,
+		     TypeLookup const& typeLookup,
+		     SelectorBase const& selector,
+		     BasicHandle& result) const;
+
     size_t findGroups(TypeID const& typeID,
 		      TypeLookup const& typeLookup,
 		      SelectorBase const& selector,
-		      BasicHandleVec& results,
-		      bool stopIfProcessHasMatch) const;
+		      BasicHandleVec& results) const;
 
     // Make my DelayedReader get the EDProduct for a Group or
     // trigger unscheduled execution if required.  The Group is

@@ -73,7 +73,7 @@ namespace edm {
   class Event : private DataViewImpl {
   public:
     typedef DataViewImpl Base;
-    Event(EventPrincipal& ep, const ModuleDescription& md);
+    Event(EventPrincipal& ep, ModuleDescription const& md);
     ~Event(){}
 
     // AUX functions.
@@ -85,8 +85,7 @@ namespace edm {
     EventAuxiliary::ExperimentType experimentType() const {return aux_.experimentType();}
     int bunchCrossing() const {return aux_.bunchCrossing();}
     int orbitNumber() const {return aux_.orbitNumber();}
-    EventAuxiliary const & 
-    eventAuxiliary() const {return aux_;}
+    EventAuxiliary const& eventAuxiliary() const {return aux_;}
 
     using Base::get;
     using Base::getByLabel;
@@ -437,12 +436,11 @@ namespace edm {
 
     TypeID typeID(typeid(ELEMENT));
 
-    BasicHandleVec bhv;
+    BasicHandle bh;
     int nFound = getMatchingSequenceByLabel_(typeID,
                                              moduleLabel,
                                              productInstanceName,
-                                             bhv,
-                                             true);
+                                             bh);
 
     if (nFound == 0) {
       boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound) );
@@ -463,7 +461,7 @@ namespace edm {
 	<< "Looking for productInstanceName: " << productInstanceName << "\n";
     }
 
-    fillView_(bhv[0], result);
+    fillView_(bh, result);
     return true;
   }
 
@@ -477,13 +475,12 @@ namespace edm {
     } else {
       TypeID typeID(typeid(ELEMENT));
       
-      BasicHandleVec bhv;
+      BasicHandle bh;
       int nFound = getMatchingSequenceByLabel_(typeID,
                                                tag.label(),
                                                tag.instance(),
                                                tag.process(),
-                                               bhv,
-                                               true);
+                                               bh);
       
       if (nFound == 0) {
         boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound) );
@@ -506,7 +503,7 @@ namespace edm {
         << "Looking for processName: "<<tag.process() <<"\n";
       }
       
-      fillView_(bhv[0], result);
+      fillView_(bh, result);
       return true;
     }
     return false;
