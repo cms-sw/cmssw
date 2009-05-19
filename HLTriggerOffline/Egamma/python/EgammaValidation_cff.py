@@ -27,14 +27,15 @@ samples.num   = [1,
 
 paths.Wenu = ['HLT_Ele10_LW_L1RDQM',
               'HLT_Ele15_SW_L1RDQM',
-              'HLT_Ele10_LW_EleId_L1RDQM'
-              ]
+              'HLT_Ele10_LW_EleId_L1RDQM']
 
 paths.Zee = paths.Wenu + ['HLT_DoubleEle5_SW_L1RDQM']
 
-paths.GammaJet = ['HLT_Photon15_TrackIso_L1R_DQM']
+paths.GammaJet = ['HLT_Photon10_L1R_DQM',
+                  'HLT_Photon15_TrackIso_L1R_DQM',
+                  'HLT_Photon15_LooseEcalIso_L1R_DQM']
 
-paths.DiGamma  = paths.GammaJet 
+paths.DiGamma  = ['HLT_Photon10_L1R_DQM','HLT_DoublePhoton10_L1R_DQM']
 
 
 ##########################################################
