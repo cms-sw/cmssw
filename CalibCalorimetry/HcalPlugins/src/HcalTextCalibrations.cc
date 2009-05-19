@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalTextCalibrations.cc,v 1.10 2008/11/10 13:28:43 rofierzy Exp $
+// $Id: HcalTextCalibrations.cc,v 1.11 2009/05/06 22:24:12 mansj Exp $
 //
 //
 
@@ -15,17 +15,7 @@
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 
-#include "CondFormats/DataRecord/interface/HcalPedestalsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalPedestalWidthsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalGainsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalGainWidthsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalElectronicsMapRcd.h"
-#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
-#include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
-#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalZSThresholdsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalL1TriggerObjectsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalTimeCorrsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalAllRcds.h"
 
 #include "HcalTextCalibrations.h"
 //
@@ -76,6 +66,10 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       setWhatProduced (this, &HcalTextCalibrations::produceRespCorrs);
       findingRecord <HcalRespCorrsRcd> ();
     }
+    else if (objectName == "LUTCorrs") {
+      setWhatProduced (this, &HcalTextCalibrations::produceLUTCorrs);
+      findingRecord <HcalLUTCorrsRcd> ();
+    }
     else if (objectName == "TimeCorrs") {
       setWhatProduced (this, &HcalTextCalibrations::produceTimeCorrs);
       findingRecord <HcalTimeCorrsRcd> ();
@@ -92,7 +86,7 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       std::cerr << "HcalTextCalibrations-> Unknown object name '" << objectName 
 		<< "', known names are: "
 		<< "Pedestals PedestalWidths Gains GainWidths QIEData ChannelQuality ElectronicsMap "
-		<< "ZSThresholds RespCorrs TimeCorrs L1TriggerObjects"
+		<< "ZSThresholds RespCorrs LUTCorrs TimeCorrs L1TriggerObjects"
 		<< std::endl;
     }
   }
@@ -162,6 +156,10 @@ std::auto_ptr<HcalZSThresholds> HcalTextCalibrations::produceZSThresholds (const
 
 std::auto_ptr<HcalRespCorrs> HcalTextCalibrations::produceRespCorrs (const HcalRespCorrsRcd& rcd) {
   return produce_impl<HcalRespCorrs> (mInputs ["RespCorrs"]);
+}
+
+std::auto_ptr<HcalLUTCorrs> HcalTextCalibrations::produceLUTCorrs (const HcalLUTCorrsRcd& rcd) {
+  return produce_impl<HcalLUTCorrs> (mInputs ["LUTCorrs"]);
 }
 
 std::auto_ptr<HcalTimeCorrs> HcalTextCalibrations::produceTimeCorrs (const HcalTimeCorrsRcd& rcd) {

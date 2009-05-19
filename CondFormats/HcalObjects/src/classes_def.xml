@@ -46,6 +46,10 @@
  <class name="std::vector<HcalRespCorr>"/>
  <class name="HcalRespCorrs"/>
 
+ <class name="HcalLUTCorr"/>
+ <class name="std::vector<HcalLUTCorr>"/>
+ <class name="HcalLUTCorrs"/>
+
  <class name="HcalL1TriggerObject"/>
  <class name="std::vector<HcalL1TriggerObject>"/>
  <class name="HcalL1TriggerObjects"/>

@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.17 2009/03/24 16:11:36 rofierzy Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.18 2009/05/06 22:24:11 mansj Exp $
 //
 //
 
@@ -13,18 +13,7 @@
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
 
-#include "CondFormats/DataRecord/interface/HcalPedestalsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalPedestalWidthsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalGainsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalGainWidthsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalElectronicsMapRcd.h"
-#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
-#include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
-#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalTimeCorrsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalZSThresholdsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalL1TriggerObjectsRcd.h"
-
+#include "CondFormats/DataRecord/interface/HcalAllRcds.h"
 
 #include "Geometry/ForwardGeometry/interface/ZdcTopology.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
@@ -127,6 +116,10 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
       setWhatProduced (this, &HcalHardcodeCalibrations::produceRespCorrs);
       findingRecord <HcalRespCorrsRcd> ();
     }
+    if ((*objectName == "LUTCorrs") || (*objectName == "LUTCorrection") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceLUTCorrs);
+      findingRecord <HcalLUTCorrsRcd> ();
+    }
     if ((*objectName == "TimeCorrs") || (*objectName == "TimeCorrection") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceTimeCorrs);
       findingRecord <HcalTimeCorrsRcd> ();
@@ -228,6 +221,17 @@ std::auto_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const H
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalRespCorr item(cell->rawId(),1.0);
+    result->addValues(item,h2mode_);
+  }
+  return result;
+}
+
+std::auto_ptr<HcalLUTCorrs> HcalHardcodeCalibrations::produceLUTCorrs (const HcalLUTCorrsRcd& rcd) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceLUTCorrs-> ...";
+  std::auto_ptr<HcalLUTCorrs> result (new HcalLUTCorrs ());
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
+  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+    HcalLUTCorr item(cell->rawId(),1.0);
     result->addValues(item,h2mode_);
   }
   return result;

@@ -16,7 +16,7 @@ class HcalCondObjectContainer
   HcalCondObjectContainer();
 
   // destructor:
-  ~HcalCondObjectContainer();
+  virtual ~HcalCondObjectContainer();
 
   // get the object back
   const Item* getValues(DetId fId) const;
@@ -30,7 +30,7 @@ class HcalCondObjectContainer
   // list of available channels:
   std::vector<DetId> getAllChannels() const;
 
-  std::string myname() const {return (std::string)"Hcal Undefined";}
+  virtual std::string myname() const {return (std::string)"Hcal Undefined";}
 
  private:
   void initContainer(int container, bool h2mode_ = false);

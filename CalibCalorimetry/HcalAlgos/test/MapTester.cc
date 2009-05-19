@@ -13,7 +13,7 @@
 //
 // Original Author:  Jared Todd Sturdy
 //         Created:  Thu Oct 23 18:16:33 CEST 2008
-// $Id: MapTester.cc,v 1.1 2009/01/24 15:09:24 rofierzy Exp $
+// $Id$
 //
 //
 
@@ -47,6 +47,11 @@ class MapTester : public edm::EDAnalyzer {
 
 
    private:
+
+      unsigned int mapIOV_;  //1 for first set, 2 for second, ...
+      bool generateTextfiles_;
+      bool generateEmap_;
+
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
@@ -54,55 +59,25 @@ class MapTester : public edm::EDAnalyzer {
       // ----------member data ---------------------------
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 MapTester::MapTester(const edm::ParameterSet& iConfig)
 
 {
-   //now do what ever initialization is needed
-
+  mapIOV_            = iConfig.getParameter<unsigned int>("mapIOV");
+  generateTextfiles_ = iConfig.getParameter<bool>("generateTextfiles");
+  generateEmap_      = iConfig.getParameter<bool>("generateEmap");
 }
 
 
 MapTester::~MapTester()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
 
 }
-
-
-//
-// member functions
-//
 
 // ------------ method called to for each event  ------------
 void
 MapTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-
-
-
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-   Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
-#endif
-   
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-#endif
 }
 
 
@@ -111,21 +86,26 @@ void
 MapTester::beginJob(const edm::EventSetup&)
 {
   HcalLogicalMapGenerator mygen;
-  HcalLogicalMap mymap=mygen.createMap();
-  mymap.printMap();
+  HcalLogicalMap mymap=mygen.createMap(mapIOV_);
+
+  if (generateTextfiles_) mymap.printMap(mapIOV_);
+
   mymap.checkIdFunctions();
   mymap.checkHashIds();
   mymap.checkElectronicsHashIds();
 
-  std::ostringstream file;
-  file<<"myemaptest.txt";
-  std::ofstream outStream( file.str().c_str() );
-
-  HcalElectronicsMap myemap;
-  std::cout<<"generating the emap..."<<std::endl;
-  myemap = mymap.generateHcalElectronicsMap();
-  std::cout<<"dumping the emap..."<<std::endl;
-  HcalDbASCIIIO::dumpObject(outStream,myemap);
+  if (generateEmap_){
+    std::ostringstream file;
+    if      (mapIOV_==1) file<<"version_A_emap.txt";
+    else if (mapIOV_==2) file<<"version_B_emap.txt";
+    else                 file<<"version_C_emap.txt";
+    std::ofstream outStream( file.str().c_str() );
+    
+    HcalElectronicsMap myemap;
+    std::cout<<"generating the emap..."<<std::endl;
+    myemap = mymap.generateHcalElectronicsMap();
+    std::cout<<"dumping the emap..."<<std::endl;
+    HcalDbASCIIIO::dumpObject(outStream,myemap);}
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

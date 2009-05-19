@@ -4,7 +4,7 @@
 /*
 \class HcalRespCorrs
 \author Radek Ofierzynski
-POOL object to store Zero Suppression Thresholds
+POOL object to store Hcal Response Corrections
 */
 
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"

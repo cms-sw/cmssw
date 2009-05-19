@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.h,v 1.13 2008/11/08 21:16:29 rofierzy Exp $
+// $Id: HcalDbProducer.h,v 1.14 2009/05/06 22:24:11 mansj Exp $
 //
 //
 
@@ -29,18 +29,7 @@
 class HcalDbService;
 class HcalDbRecord;
 
-#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
-#include "CondFormats/DataRecord/interface/HcalElectronicsMapRcd.h"  	 
-#include "CondFormats/DataRecord/interface/HcalGainWidthsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalGainsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalPedestalWidthsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalPedestalsRcd.h" 
-#include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
-#include "CondFormats/DataRecord/interface/HcalZSThresholdsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalL1TriggerObjectsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalTimeCorrsRcd.h"
-
+#include "CondFormats/DataRecord/interface/HcalAllRcds.h"
 
 
 class HcalDbProducer : public edm::ESProducer {
@@ -62,6 +51,7 @@ class HcalDbProducer : public edm::ESProducer {
   void L1triggerObjectsCallback (const HcalL1TriggerObjectsRcd& fRecord);
   void electronicsMapCallback (const HcalElectronicsMapRcd& fRecord);
   void timeCorrsCallback (const HcalTimeCorrsRcd& fRecord);
+  void LUTCorrsCallback (const HcalLUTCorrsRcd& fRecord);
 
    private:
       // ----------member data ---------------------------

@@ -1,6 +1,5 @@
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalOtherDetId.h"
-//#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 #include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 
@@ -71,7 +70,7 @@ uint32_t HcalLogicalMap::makeEntryNumber(bool isvalid, int vectorid, int entry)
   return answer;
 }
 
-void HcalLogicalMap::printMap(){  
+void HcalLogicalMap::printMap( unsigned int mapIOV ){  
   using namespace std;
 
   static FILE* HBEFmap; 
@@ -85,6 +84,7 @@ void HcalLogicalMap::printMap(){
   stringstream mystream;
   string HBEFmapstr, HOXmapstr, CALIBmapstr, ZDCmapstr, HTmapstr;
   string date;
+  string IOVlabel;
   
   if (true) {
     time_t myTime = time(NULL);
@@ -105,9 +105,12 @@ void HcalLogicalMap::printMap(){
     date= mystream.str();
   }
   mystream.str("");
+  if      (mapIOV==1) IOVlabel = "A";
+  else if (mapIOV==2) IOVlabel = "B";
+  else                IOVlabel = "C";
 
   HBEFmapstr  = "./HCALmapHBEF_"+date+".txt";
-  HOXmapstr   = "./HCALmapHO_"+date+".txt";
+  HOXmapstr   = "./HCALmapHO_"+date+"_"+IOVlabel+".txt";
   CALIBmapstr = "./HCALmapCALIB_"+date+".txt";
   ZDCmapstr   = "./ZDCmap_"+date+".txt";
   HTmapstr    = "./HCALmapHT_"+date+".txt";
@@ -162,10 +165,8 @@ void HcalLogicalMap::printHBEFMap(FILE* hbefmapfile){
   for (std::vector<HBHEHFLogicalMapEntry>::iterator it = HBHEHFEntries_.begin(); it!=HBHEHFEntries_.end(); ++it) {
     titlecounter = titlecounter % 21;
     if (titlecounter == 0){
-//      fprintf(hbefmapfile,"   linind   side    eta    phi   dphi  depth    det     rbx  wedge     rm  pixel   qie    adc");
       fprintf(hbefmapfile,"#   side    eta    phi   dphi  depth    det     rbx  wedge     rm  pixel   qie    adc");
       fprintf(hbefmapfile,"  rm_fi  fi_ch  crate    htr   fpga  htr_fi  dcc_sl  spigo    dcc    slb  slbin  slbin2");
-//      fprintf(hbefmapfile,"           slnam    rctcra rctcar rctcon               rctnam     fedid   hash\n");
       fprintf(hbefmapfile,"           slnam    rctcra rctcar rctcon               rctnam     fedid\n");
     }
     titlecounter++;
@@ -180,9 +181,7 @@ void HcalLogicalMap::printHOXMap(FILE* hoxmapfile){
   for (std::vector<HOHXLogicalMapEntry>::iterator it = HOHXEntries_.begin(); it!=HOHXEntries_.end(); ++it) {
     titlecounter = titlecounter % 21;
     if (titlecounter == 0){
-//      fprintf(hoxmapfile,"   linind   side    eta    phi   dphi  depth    det     rbx  sector    rm  pixel   qie    adc");
       fprintf(hoxmapfile,"#   side    eta    phi   dphi  depth    det     rbx  sector    rm  pixel   qie    adc");
-//      fprintf(hoxmapfile,"  rm_fi  fi_ch let_code  crate    htr   fpga  htr_fi  dcc_sl  spigo    dcc  fedid   hash\n");
       fprintf(hoxmapfile,"  rm_fi  fi_ch let_code  crate    htr   fpga  htr_fi  dcc_sl  spigo    dcc  fedid\n");
     }
     titlecounter++;
@@ -197,9 +196,7 @@ void HcalLogicalMap::printCalibMap(FILE* calibmapfile){
   for (std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it!=CALIBEntries_.end(); ++it) {
     titlecounter = titlecounter % 21;
     if (titlecounter == 0){	  
-//      fprintf(calibmapfile,"   linind   side    eta    phi   dphi    det     rbx  sector  rm_fi ");
       fprintf(calibmapfile,"#   side    eta    phi   dphi    det     rbx  sector  rm_fi ");
-//      fprintf(calibmapfile," fi_ch  crate  htr  fpga  htr_fi  dcc_sl  spigo  dcc  fedid  ch_type      name   hash\n");
       fprintf(calibmapfile," fi_ch  crate  htr  fpga  htr_fi  dcc_sl  spigo  dcc  fedid  ch_type      name\n");
     }
     titlecounter++;
@@ -214,9 +211,7 @@ void HcalLogicalMap::printZDCMap(FILE* zdcmapfile){
   for (std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it!=ZDCEntries_.end(); ++it) {
     titlecounter = titlecounter % 21;
     if (titlecounter == 0){
-//      fprintf(zdcmapfile,"   linind  side  x  y  dx  depth     det  det_ch  cable  rm  qie ");
       fprintf(zdcmapfile,"#  side  x  y  dx  depth     det  det_ch  cable  rm  qie ");
-//      fprintf(zdcmapfile," adc  rm_fi  fi_ch  crate  htr  fpga  htr_fi  dcc_sl  spigo  dcc  fedid   hash\n");
       fprintf(zdcmapfile," adc  rm_fi  fi_ch  crate  htr  fpga  htr_fi  dcc_sl  spigo  dcc  fedid\n");
     }
     titlecounter++;
@@ -231,10 +226,8 @@ void HcalLogicalMap::printHTMap(FILE* htmapfile){
   for (std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it!=HTEntries_.end(); ++it) {
     titlecounter = titlecounter % 21;
       if (titlecounter == 0){
-//	fprintf(htmapfile,"   linind  side  eta  phi  dphi  depth  det   wedge  crate");
 	fprintf(htmapfile,"#  side  eta  phi  dphi  depth  det   wedge  crate");
         fprintf(htmapfile,"  htr  fpga  dcc_sl  spigo  dcc  slb  slbin  slbin2  nDat    ");
-//        fprintf(htmapfile,"     slnam  rctcra  rctcar  rctcon            rctnam  fedid   hash\n");
         fprintf(htmapfile,"     slnam  rctcra  rctcar  rctcon            rctnam  fedid\n");
       }
     titlecounter++;
@@ -333,8 +326,6 @@ void HcalLogicalMap::checkIdFunctions() {
     if (did0==did1) CALIB_EID_pass++;
     else CALIB_EID_fail++;
   }
-  //for (std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it!=HTEntries_.end(); ++it) {
-  //}
   for (std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it!=ZDCEntries_.end(); ++it) {
     const HcalElectronicsId heid=it->getHcalElectronicsId();
     const DetId did0=it->getDetId();

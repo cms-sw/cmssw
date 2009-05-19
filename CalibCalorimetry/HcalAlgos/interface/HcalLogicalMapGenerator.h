@@ -11,7 +11,7 @@ class HcalLogicalMapGenerator {
          
     HcalLogicalMapGenerator( );
     ~HcalLogicalMapGenerator( );
-    HcalLogicalMap createMap();
+    HcalLogicalMap createMap(unsigned int mapIOV = 2);
 
   private:
 
@@ -34,14 +34,8 @@ class HcalLogicalMapGenerator {
 			       int i_htr_fi, int i_spigot, int i_slb, std::string i_slbin, std::string i_slbin2,
 			       std::string i_slnam, int i_rctcra, int i_rctcar, int i_rctcon, std::string i_rctnam, int i_fed
 			       );
-    
 
-//    static const int HBHEHFShift = 0; //shift to get the linear index
-//    static const int HOHXShift   = 0; // to fit in each vector from 
-//    static const int CalibShift  = 0; //the raw electronics id
-//    static const int ZDCShift    = 0; //
-//    static const int HTShift     = 0;
-    
+    unsigned int mapIOV_;
 
 /*****************************Constants**************************/
 

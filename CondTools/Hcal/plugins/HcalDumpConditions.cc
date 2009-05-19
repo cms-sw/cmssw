@@ -22,14 +22,8 @@ R.Ofierzynski - 2.Oct. 2007
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CondFormats/DataRecord/interface/HcalPedestalsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
-#include "CondFormats/DataRecord/interface/HcalPedestalWidthsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalGainsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalElectronicsMapRcd.h"
-#include "CondFormats/DataRecord/interface/HcalGainWidthsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
-#include "CondFormats/DataRecord/interface/HcalL1TriggerObjectsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalAllRcds.h"
+
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
@@ -110,6 +104,10 @@ namespace edmtest
       dumpIt(new HcalZSThresholds, new HcalZSThresholdsRcd, e,context,"ZSThresholds");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("L1TriggerObjects")) != mDumpRequest.end())
       dumpIt(new HcalL1TriggerObjects, new HcalL1TriggerObjectsRcd, e,context,"L1TriggerObjects");
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("TimeCorrs")) != mDumpRequest.end())
+      dumpIt(new HcalTimeCorrs, new HcalTimeCorrsRcd, e,context,"TimeCorrs");
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("LUTCorrs")) != mDumpRequest.end())
+      dumpIt(new HcalLUTCorrs, new HcalLUTCorrsRcd, e,context,"LUTCorrs");
     
   }
   DEFINE_FWK_MODULE(HcalDumpConditions);

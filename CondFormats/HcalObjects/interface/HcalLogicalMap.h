@@ -31,7 +31,7 @@ class HcalLogicalMap {
     void checkHashIds();
     void checkElectronicsHashIds() ;
     void checkIdFunctions();
-    void printMap();
+    void printMap( unsigned int mapIOV );
     HcalElectronicsMap generateHcalElectronicsMap();
     const DetId getDetId(const HcalElectronicsId&);
     const HcalFrontEndId getHcalFrontEndId(const DetId&);
@@ -48,7 +48,9 @@ class HcalLogicalMap {
     void printCalibMap( FILE* calibmapfile );
     void printZDCMap( FILE* zdcmapfile );
     void printHTMap( FILE* htmapfile );
-    
+
+    unsigned int mapIOV_;
+
     std::vector<HBHEHFLogicalMapEntry> HBHEHFEntries_;
     std::vector<HOHXLogicalMapEntry> HOHXEntries_;
     std::vector<CALIBLogicalMapEntry> CALIBEntries_;

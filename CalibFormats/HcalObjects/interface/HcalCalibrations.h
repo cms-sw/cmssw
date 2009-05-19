@@ -5,13 +5,15 @@
     
     Container for retrieved calibration constants for HCAL
    $Author: ratnikov
-   $Date: 2008/03/07 10:17:09 $
-   $Revision: 1.7 $
+   $Date: 2009/05/06 22:22:41 $
+   $Revision: 1.8 $
 */
 class HcalCalibrations {
  public:
   HcalCalibrations () {};
-  HcalCalibrations (const float fGain [4], const float fPedestal [4], const float fRespCorr, const float fTimeCorr);
+  HcalCalibrations (const float fGain [4], const float fPedestal [4], const float fRespCorr, const float fTimeCorr, const float fLUTCorr);
+  /// get LUT corrected and response corrected gain for capid=0..3
+  double LUTrespcorrgain (int fCapId) const {return (mLUTCorr *  mRespCorrGain [fCapId]);}
   /// get response corrected gain for capid=0..3
   double respcorrgain (int fCapId) const {return mRespCorrGain [fCapId];}
   /// get raw gain for capid=0..3
@@ -27,6 +29,7 @@ class HcalCalibrations {
   double mPedestal [4];
   double mRespCorr;
   double mTimeCorr;
+  double mLUTCorr;
 };
 
 #endif

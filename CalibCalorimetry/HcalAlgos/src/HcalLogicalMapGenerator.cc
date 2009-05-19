@@ -34,7 +34,9 @@ HcalLogicalMapGenerator::~HcalLogicalMapGenerator() {
 
 }
 
-HcalLogicalMap HcalLogicalMapGenerator::createMap() {
+HcalLogicalMap HcalLogicalMapGenerator::createMap( unsigned int mapIOV ) {
+
+  mapIOV_ = mapIOV;
 
   std::vector <HBHEHFLogicalMapEntry> HBHEHFEntries;
   std::vector <HOHXLogicalMapEntry> HOHXEntries;
@@ -722,53 +724,144 @@ void HcalLogicalMapGenerator::buildHOXMap(std::vector <HOHXLogicalMapEntry>& HOH
     }
   }
 
-  //              switched HO RM's need reversed eta values
-  //              old values ranged from 11 to 15, new values range from 15 to 11
-  int rmspecialeta_loc[6][6] = { //there are 6 special cases, corresponding to 6 values of phi
-    { 14, 15, 14, 13, 12, 11 }, // ring +2 phi = 5
-    { 14, 15, 14, 13, 12, 11 }, // ring +2 phi = 67
-    { 10, 9, 8, 7, 6, 5 }, // ring -1 phi = 57
-    { 10, 9, 8, 7, 6, 5 }, // ring -1 phi = 65
-    { 14, 15, 14, 13, 12, 11 },  // ring -2 phi = 16
-    { 14, 15, 14, 13, 12, 11 }  // ring -2 phi = 31
-  };
-  memcpy( rmspecialeta, rmspecialeta_loc, sizeof(int)*6*6 );
-  //              switched HO RM's need revised letter codes
-  //              old values ranged from 11 to 15, new values range from 15 to 11
-  
-  std::string rmspeciallet_code_loc[6][6] = { //there are 6 special cases, corresponding to 6 values of phi
-    { "X", "E", "D", "C", "B", "A" },  // ring +2 phi = 5
-    { "X", "S", "R", "Q", "P", "N" },  // ring +2 phi = 67
-    { "G", "H", "J", "K", "L", "M" },  // ring -1 phi = 57
-    { "A", "B", "C", "D", "E", "F" },  // ring -1 phi = 65
-    { "X", "E", "D", "C", "B", "A" },  // ring -2 phi = 16
-    { "X", "S", "R", "Q", "P", "N" }   // ring -2 phi = 31
-  };
-  for (int jj = 0; jj < 6; jj++) {
-    for (int kk = 0; kk < 6; kk++) {
-      rmspeciallet_code[jj][kk] = rmspeciallet_code_loc[jj][kk];
-    } 
-  }
-  
-  std::string rmspecialdet_loc[6][6] = { //there are 6 special cases, corresponding to 6 values of phi
-    { "HOX", "HO", "HO", "HO", "HO", "HO" }, // ring +2 phi = 5
-    { "HOX", "HO", "HO", "HO", "HO", "HO" }, // ring +2 phi = 67
-    { "HO", "HO", "HO", "HO", "HO", "HO" }, // ring -1 phi = 57
-    { "HO", "HO", "HO", "HO", "HO", "HO" }, // ring -1 phi = 65
-    { "HOX", "HO", "HO", "HO", "HO", "HO" },  // ring -2 phi = 16
-    { "HOX", "HO", "HO", "HO", "HO", "HO" }  // ring -2 phi = 31
+  /******************************************************************************************/
+  //  Here is the section that deals with the miscabled HO RBXs.
+  //  To modify the code between IOVs, just note that inverted corresponds to -infinity to end of 2008
+  //  and otherwise, to 2009 to infinity.
+  //  Except for some small but major caveats:
+  //    HO2M04 (phi=16) was not able to be corrected, thus it is still inverted
+  //    HO2M06 (phi=31) has not been active in 2009, and the cables have not been switched officially
+  //    HO2P12 (phi=67) has not been active in 2009, and the cables have not been switched officially
+  //  In the map, the inactive RBXs have been switched since the changes will be effected when the HO SiPMs
+  //  are installed, also at that time, if it is possible, HO2M04 will be corrected as well.
 
-//    { "HX", "HO", "HO", "HO", "HO", "HO" }, // ring +2 phi = 5
-//    { "HX", "HO", "HO", "HO", "HO", "HO" }, // ring +2 phi = 67
-//    { "HO", "HO", "HO", "HO", "HO", "HO" }, // ring -1 phi = 57
-//    { "HO", "HO", "HO", "HO", "HO", "HO" }, // ring -1 phi = 65
-//    { "HX", "HO", "HO", "HO", "HO", "HO" },  // ring -2 phi = 16
-//    { "HX", "HO", "HO", "HO", "HO", "HO" }  // ring -2 phi = 31
-  };
-  for (int jj = 0; jj < 6; jj++) {
-    for (int kk = 0; kk < 6; kk++) {
-      rmspecialdet[jj][kk] = rmspecialdet_loc[jj][kk];
-    } 
+  //              switched HO RM's need reversed eta values
+  if(mapIOV_==1) {
+    int rmspecialeta_loc[6][6] = { //there are 6 special cases, corresponding to 6 values of phi
+      { 14, 15, 14, 13, 12, 11 }, // ring +2 phi = 5, inverted
+      { 14, 15, 14, 13, 12, 11 }, // ring +2 phi = 67, inverted
+      { 10, 9, 8, 7, 6, 5 }, // ring -1 phi = 57, inverted
+      { 10, 9, 8, 7, 6, 5 }, // ring -1 phi = 65, inverted
+      { 14, 15, 14, 13, 12, 11 },  // ring -2 phi = 16, inverted
+      { 14, 15, 14, 13, 12, 11 }  // ring -2 phi = 31, inverted
+    };
+
+    std::string rmspeciallet_code_loc[6][6] = { //there are 6 special cases, corresponding to 6 values of phi
+      { "X", "B", "C", "D", "E", "F" },  // ring +2 phi = 5, inverted
+      //{ "X", "E", "D", "C", "B", "A" },  // ring +2 phi = 5, inverted old
+      { "X", "P", "Q", "R", "S", "T" },  // ring +2 phi = 67, inverted
+      //{ "X", "S", "R", "Q", "P", "N" },  // ring +2 phi = 67, inverted old
+      { "G", "H", "J", "K", "L", "M" },  // ring -1 phi = 57, inverted
+      { "A", "B", "C", "D", "E", "F" },  // ring -1 phi = 65, inverted
+      { "X", "B", "C", "D", "E", "F" },  // ring -2 phi = 16, inverted
+      //{ "X", "E", "D", "C", "B", "A" },  // ring -2 phi = 16, inverted old
+      { "X", "P", "Q", "R", "S", "T" }   // ring -2 phi = 31, inverted
+      //{ "X", "S", "R", "Q", "P", "N" }   // ring -2 phi = 31, inverted old
+    };
+
+    std::string rmspecialdet_loc[6][6] = { //there are 6 special cases, corresponding to 6 values of phi
+      { "HOX", "HO", "HO", "HO", "HO", "HO" }, // ring +2 phi = 5, inverted
+      { "HOX", "HO", "HO", "HO", "HO", "HO" }, // ring +2 phi = 67, inverted
+      { "HO", "HO", "HO", "HO", "HO", "HO" }, // ring -1 phi = 57, inverted
+      { "HO", "HO", "HO", "HO", "HO", "HO" }, // ring -1 phi = 65, inverted
+      { "HOX", "HO", "HO", "HO", "HO", "HO" },  // ring -2 phi = 16, inverted
+      { "HOX", "HO", "HO", "HO", "HO", "HO" }  // ring -2 phi = 31, inverted
+    };
+
+    memcpy( rmspecialeta, rmspecialeta_loc, sizeof(int)*6*6 );
+    //              switched HO RM's need revised letter codes
+  
+    for (int jj = 0; jj < 6; jj++) {
+      for (int kk = 0; kk < 6; kk++) {
+	rmspeciallet_code[jj][kk] = rmspeciallet_code_loc[jj][kk];}}
+  
+    for (int jj = 0; jj < 6; jj++) {
+      for (int kk = 0; kk < 6; kk++) {
+	rmspecialdet[jj][kk] = rmspecialdet_loc[jj][kk];}}
+  }
+
+  else if (mapIOV_==2) {
+    int rmspecialeta_loc[6][6] = { //there are 6 special cases, corresponding to 6 values of phi
+      { 11, 12, 13, 14, 15, 15 }, // ring +2 phi = 5
+      { 11, 12, 13, 14, 15, 15 }, // ring +2 phi = 67
+      { 5, 6, 7, 8, 9, 10 }, // ring -1 phi = 57
+      { 5, 6, 7, 8, 9, 10 }, // ring -1 phi = 65
+      //{ 11, 12, 13, 14, 15, 15 },  // ring -2 phi = 16
+      { 14, 15, 14, 13, 12, 11 },  // ring -2 phi = 16, still inverted
+      { 11, 12, 13, 14, 15, 15 }  // ring -2 phi = 31
+    };
+
+    std::string rmspeciallet_code_loc[6][6] = { //there are 6 special cases, corresponding to 6 values of phi
+      { "F", "E", "D", "C", "B", "X" },  // ring +2 phi = 5
+      { "T", "S", "R", "Q", "P", "X" },  // ring +2 phi = 67
+      { "M", "L", "K", "J", "H", "G" },  // ring -1 phi = 57
+      { "F", "E", "D", "C", "B", "A" },  // ring -1 phi = 65
+      //{ "F", "E", "D", "C", "B", "X" },  // ring -2 phi = 16
+      { "X", "B", "C", "D", "E", "F" },  // ring -2 phi = 16,still  inverted
+      //{ "X", "E", "D", "C", "B", "A" },  // ring -2 phi = 16, still old inverted
+      { "T", "S", "R", "Q", "P", "X" }   // ring -2 phi = 31
+    };
+
+    std::string rmspecialdet_loc[6][6] = { //there are 6 special cases, corresponding to 6 values of phi
+      { "HO", "HO", "HO", "HO", "HO", "HOX" }, // ring +2 phi = 5
+      { "HO", "HO", "HO", "HO", "HO", "HOX" }, // ring +2 phi = 67
+      { "HO", "HO", "HO", "HO", "HO", "HO" }, // ring -1 phi = 57
+      { "HO", "HO", "HO", "HO", "HO", "HO" }, // ring -1 phi = 65
+      //{ "HO", "HO", "HO", "HO", "HO", "HOX" },  // ring -2 phi = 16
+      { "HOX", "HO", "HO", "HO", "HO", "HO" },  // ring -2 phi = 16, still inverted
+      { "HO", "HO", "HO", "HO", "HO", "HOX" }  // ring -2 phi = 31
+    };
+
+    memcpy( rmspecialeta, rmspecialeta_loc, sizeof(int)*6*6 );
+    //              switched HO RM's need revised letter codes
+  
+    for (int jj = 0; jj < 6; jj++) {
+      for (int kk = 0; kk < 6; kk++) {
+	rmspeciallet_code[jj][kk] = rmspeciallet_code_loc[jj][kk];}}
+  
+    for (int jj = 0; jj < 6; jj++) {
+      for (int kk = 0; kk < 6; kk++) {
+	rmspecialdet[jj][kk] = rmspecialdet_loc[jj][kk];}}
+  }
+
+  else {
+    int rmspecialeta_loc[6][6] = { //there are 6 special cases, corresponding to 6 values of phi
+      { 11, 12, 13, 14, 15, 15 }, // ring +2 phi = 5
+      { 11, 12, 13, 14, 15, 15 }, // ring +2 phi = 67
+      { 5, 6, 7, 8, 9, 10 }, // ring -1 phi = 57
+      { 5, 6, 7, 8, 9, 10 }, // ring -1 phi = 65
+      { 11, 12, 13, 14, 15, 15 },  // ring -2 phi = 16
+      { 11, 12, 13, 14, 15, 15 }  // ring -2 phi = 31
+    };
+
+    std::string rmspeciallet_code_loc[6][6] = { //there are 6 special cases, corresponding to 6 values of phi
+      { "F", "E", "D", "C", "B", "X" },  // ring +2 phi = 5
+      { "T", "S", "R", "Q", "P", "X" },  // ring +2 phi = 67
+      { "M", "L", "K", "J", "H", "G" },  // ring -1 phi = 57
+      { "F", "E", "D", "C", "B", "A" },  // ring -1 phi = 65
+      { "F", "E", "D", "C", "B", "X" },  // ring -2 phi = 16
+      { "T", "S", "R", "Q", "P", "X" }   // ring -2 phi = 31
+    };
+
+    std::string rmspecialdet_loc[6][6] = { //there are 6 special cases, corresponding to 6 values of phi
+      { "HO", "HO", "HO", "HO", "HO", "HOX" }, // ring +2 phi = 5
+      { "HO", "HO", "HO", "HO", "HO", "HOX" }, // ring +2 phi = 67
+      { "HO", "HO", "HO", "HO", "HO", "HO" }, // ring -1 phi = 57
+      { "HO", "HO", "HO", "HO", "HO", "HO" }, // ring -1 phi = 65
+      { "HO", "HO", "HO", "HO", "HO", "HOX" },  // ring -2 phi = 16
+      { "HO", "HO", "HO", "HO", "HO", "HOX" }  // ring -2 phi = 31
+    };
+
+    memcpy( rmspecialeta, rmspecialeta_loc, sizeof(int)*6*6 );
+    //              switched HO RM's need revised letter codes
+  
+    for (int jj = 0; jj < 6; jj++) {
+      for (int kk = 0; kk < 6; kk++) {
+	rmspeciallet_code[jj][kk] = rmspeciallet_code_loc[jj][kk];}}
+  
+    for (int jj = 0; jj < 6; jj++) {
+      for (int kk = 0; kk < 6; kk++) {
+	rmspecialdet[jj][kk] = rmspecialdet_loc[jj][kk];}}
   }
 
   /******************************/  
@@ -971,8 +1064,9 @@ void HcalLogicalMapGenerator::buildHOXMap(std::vector <HOHXLogicalMapEntry>& HOH
         mystream<<tempbuff;
         rbx = mystream.str();
         mystream.str("");
-        //if (ieta == 16) det = "HX";
-        if (ieta == 16) det = "HOX";
+        if (ieta == 16) {
+	  det = "HOX";
+	  letter = "X";}
         else det = "HO";
         
         //  the new htr_fi stuff for HX
@@ -1049,7 +1143,6 @@ void HcalLogicalMapGenerator::buildHOXMap(std::vector <HOHXLogicalMapEntry>& HOH
             iadc = 4;
             ifi_ch = 0;
             letter = "X";
-            //det = "HX";
             det = "HOX";
             HOHXLogicalMapEntry hoxlmapentry(
 					     ifi_ch, ihtr_fi, ispigot, ifed, icrate, ihtr, fpga,
@@ -1071,7 +1164,6 @@ void HcalLogicalMapGenerator::buildHOXMap(std::vector <HOHXLogicalMapEntry>& HOH
             iadc = 1;
             ifi_ch = 1;
             letter = "X";
-            //det = "HX";
             det = "HOX";
             HOHXLogicalMapEntry hoxlmapentry(
 					     ifi_ch, ihtr_fi, ispigot, ifed, icrate, ihtr, fpga,
@@ -1226,11 +1318,6 @@ void HcalLogicalMapGenerator::buildCALIBMap(std::vector <CALIBLogicalMapEntry>& 
           ifi_ch=ifc;
           if (irm_fi==1){
             if (ifc==0) ich_type=0;
-	    /*              {
-			    if (det=="HF") ich_type=8;
-			    else ich_type=0;
-			    }
-	    */ //depends on implementation of HF third pin out
             else if (ifc==1) ich_type=1;
             else if (ifc==2) {
               if (det=="HB") ich_type=2;
@@ -1271,7 +1358,6 @@ void HcalLogicalMapGenerator::buildCALIBMap(std::vector <CALIBLogicalMapEntry>& 
         ifed=fedcalibnum[ic][idcc-1];
         (ifc==0)?ich_type=8:(ifc==1?ich_type=0:ich_type=1);
 	//changed ch_type of fibre channel 0 from 2 to 8, as per HcalCalibDetId specification
-        //(ifc==0)?ich_type=0:(ifc==1?ich_type=1:ich_type=2);
         irm_fi = 1;
         iwedge=ihtr_fi;
         if (itb==0){
@@ -1360,7 +1446,6 @@ void HcalLogicalMapGenerator::buildCALIBMap(std::vector <CALIBLogicalMapEntry>& 
         for(ifc=0; ifc<NFCH_HO; ifc++){
           ifi_ch=ifc;
           (ifi_ch == 2) ? ich_type = 7 : ich_type = ifi_ch;
-          //(ifi_ch == 2) ? det = "HX";
           (ieta==0) ? idphi = 6 : idphi = 12;
           
           (ieta==0) ? iphi=((iwedge*idphi)+71-idphi)%72 : iphi=(((iwedge/2)*idphi)+71-idphi)%72;
