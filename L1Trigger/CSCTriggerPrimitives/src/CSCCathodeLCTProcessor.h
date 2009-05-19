@@ -23,8 +23,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2009/05/13 10:09:44 $
- * $Revision: 1.21 $
+ * $Date: 2009/05/15 16:36:14 $
+ * $Revision: 1.22 $
  *
  */
 
@@ -207,7 +207,7 @@ class CSCCathodeLCTProcessor
   bool preTrigger(
       const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
       const int start_bx, int& first_bx);
-  void ptnFinding2007(
+  bool ptnFinding(
       const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
       const int nStrips, const unsigned int bx_time);
   void markBusyKeys(const int best_hstrip, const int best_patid,

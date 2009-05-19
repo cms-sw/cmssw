@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2009/05/08 16:24:45 $
-//   $Revision: 1.34 $
+//   $Date: 2009/05/15 16:29:52 $
+//   $Revision: 1.35 $
 //
 //   Modifications: 
 //
@@ -486,11 +486,14 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
   bool chamber_empty = pulseExtension(wire);
 
   // Only do the rest of the processing if chamber is not empty.
+  // Stop drift_delay bx's short of fifo_tbins since at later bx's we will
+  // not have a full set of hits to start pattern search anyway.
+  unsigned int stop_bx = fifo_tbins - drift_delay;
   if (!chamber_empty) {
     for (int i_wire = 0; i_wire < numWireGroups; i_wire++) {
       unsigned int start_bx = 0;
       // Allow for more than one pass over the hits in the time window.
-      while (start_bx < fifo_tbins) {
+      while (start_bx < stop_bx) {
 	if (preTrigger(i_wire, start_bx)) {
 	  if (infoV > 2) showPatterns(i_wire);
 	  if (patternDetection(i_wire)) {
@@ -705,7 +708,10 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
 
   // Loop over bx times, accelerator and collision patterns to 
   // look for pretrigger.
-  for (unsigned int bx_time = start_bx; bx_time < fifo_tbins; bx_time++) {
+  // Stop drift_delay bx's short of fifo_tbins since at later bx's we will
+  // not have a full set of hits to start pattern search anyway.
+  unsigned int stop_bx = fifo_tbins - drift_delay;
+  for (unsigned int bx_time = start_bx; bx_time < stop_bx; bx_time++) {
     for (int i_pattern = 0; i_pattern < CSCConstants::NUM_ALCT_PATTERNS; i_pattern++) {
       for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++)
 	hit_layer[i_layer] = false;

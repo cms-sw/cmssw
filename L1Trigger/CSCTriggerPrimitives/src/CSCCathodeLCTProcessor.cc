@@ -19,8 +19,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2009/05/13 10:09:45 $
-//   $Revision: 1.36 $
+//   $Date: 2009/05/15 16:36:14 $
+//   $Revision: 1.37 $
 //
 //   Modifications: 
 //
@@ -1976,8 +1976,11 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
   pulseExtension(halfstrip, maxHalfStrips, pulse);
 
   unsigned int start_bx = 0;
+  // Stop drift_delay bx's short of fifo_tbins since at later bx's we will
+  // not have a full set of hits to start pattern search anyway.
+  unsigned int stop_bx  = fifo_tbins - drift_delay;
   // Allow for more than one pass over the hits in the time window.
-  while (start_bx < fifo_tbins) {
+  while (start_bx < stop_bx) {
     // All half-strip pattern envelopes are evaluated simultaneously, on every
     // clock cycle.
     int first_bx = 999;
@@ -1992,7 +1995,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
 
       // TMB latches LCTs drift_delay clocks after pretrigger.
       int latch_bx = first_bx + drift_delay;
-      ptnFinding2007(pulse, maxHalfStrips, latch_bx);
+      bool hits_in_time = ptnFinding(pulse, maxHalfStrips, latch_bx);
       if (infoV > 1) {
 	for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER-1];
 	     hstrip < maxHalfStrips; hstrip++) {
@@ -2019,21 +2022,23 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
 
       // Calculate quality from pattern id and number of hits, and
       // simultaneously select best-quality LCT.
-      for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER-1];
-	   hstrip < maxHalfStrips; hstrip++) {
-	// The bend-direction bit pid[0] is ignored (left and right
-	// bends have equal quality).
-	quality[hstrip] = (best_pid[hstrip] & 14) | (nhits[hstrip] << 5);      
-	if (quality[hstrip] > best_quality[0]) {
-	  best_halfstrip[0] = hstrip;
-	  best_quality[0]   = quality[hstrip];
-	}
-	if (infoV > 1 && quality[hstrip] > 0) {
-	  LogTrace("CSCCathodeLCTProcessor")
-	    << " 1st CLCT: halfstrip = " << std::setw(3) << hstrip
-	    << " quality = "             << std::setw(3) << quality[hstrip]
-	    << " best halfstrip = " << std::setw(3) << best_halfstrip[0]
-	    << " best quality = "   << std::setw(3) << best_quality[0];
+      if (hits_in_time) {
+	for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER-1];
+	     hstrip < maxHalfStrips; hstrip++) {
+	  // The bend-direction bit pid[0] is ignored (left and right
+	  // bends have equal quality).
+	  quality[hstrip] = (best_pid[hstrip] & 14) | (nhits[hstrip] << 5);
+	  if (quality[hstrip] > best_quality[0]) {
+	    best_halfstrip[0] = hstrip;
+	    best_quality[0]   = quality[hstrip];
+	  }
+	  if (infoV > 1 && quality[hstrip] > 0) {
+	    LogTrace("CSCCathodeLCTProcessor")
+	      << " 1st CLCT: halfstrip = " << std::setw(3) << hstrip
+	      << " quality = "             << std::setw(3) << quality[hstrip]
+	      << " best halfstrip = " << std::setw(3) << best_halfstrip[0]
+	      << " best quality = "   << std::setw(3) << best_quality[0];
+	  }
 	}
       }
 
@@ -2103,17 +2108,22 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
 	  // The search for CLCTs resumes only when the number of hits
 	  // drops below threshold.
 	  start_bx = fifo_tbins;
-	  for (unsigned int bx = latch_bx + 1; bx < fifo_tbins; bx++) {
+	  // Stop checking drift_delay bx's short of fifo_tbins since
+	  // at later bx's we won't have a full set of hits for a
+	  // pattern search anyway.
+	  unsigned int stop_time = fifo_tbins - drift_delay;
+	  for (unsigned int bx = latch_bx + 1; bx < stop_time; bx++) {
 	    bool return_to_idle = true;
-	    ptnFinding2007(pulse, maxHalfStrips, bx);
-	    
-	    for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER-1];
-		 hstrip < maxHalfStrips; hstrip++) {
-	      if (nhits[hstrip] >= nplanes_hit_pattern) {
-		if (infoV > 1) LogTrace("CSCCathodeLCTProcessor")
-		  << " State machine busy at bx = " << bx;
-		return_to_idle = false;
-		break;
+	    bool hits_in_time = ptnFinding(pulse, maxHalfStrips, bx);
+	    if (hits_in_time) {
+	      for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER-1];
+		   hstrip < maxHalfStrips; hstrip++) {
+		if (nhits[hstrip] >= nplanes_hit_pattern) {
+		  if (infoV > 1) LogTrace("CSCCathodeLCTProcessor")
+		    << " State machine busy at bx = " << bx;
+		  return_to_idle = false;
+		  break;
+		}
 	      }
 	    }
 	    if (return_to_idle) {
@@ -2200,27 +2210,29 @@ bool CSCCathodeLCTProcessor::preTrigger(
     // pulses at that bunch-crossing time.  Do the same for the next keystrip, 
     // etc.  Then do the entire process again for the next bunch-crossing, etc
     // until you find a pre-trigger.
-    ptnFinding2007(pulse, nStrips, bx_time);
-    for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER-1];
-	 hstrip < nStrips; hstrip++) {
-      if (infoV > 1) {
-	if (nhits[hstrip] > 0) {
-	  LogTrace("CSCCathodeLCTProcessor")
-	    << " bx = " << std::setw(2) << bx_time << " --->"
-	    << " halfstrip = " << std::setw(3) << hstrip
-	    << " best pid = "  << std::setw(2) << best_pid[hstrip]
-	    << " nhits = "     << nhits[hstrip];
+    bool hits_in_time = ptnFinding(pulse, nStrips, bx_time);
+    if (hits_in_time) {
+      for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER-1];
+	   hstrip < nStrips; hstrip++) {
+	if (infoV > 1) {
+	  if (nhits[hstrip] > 0) {
+	    LogTrace("CSCCathodeLCTProcessor")
+	      << " bx = " << std::setw(2) << bx_time << " --->"
+	      << " halfstrip = " << std::setw(3) << hstrip
+	      << " best pid = "  << std::setw(2) << best_pid[hstrip]
+	      << " nhits = "     << nhits[hstrip];
+	  }
+	}
+	if (nhits[hstrip]    >= nplanes_hit_pretrig &&
+	    best_pid[hstrip] >= pid_thresh_pretrig) {
+	  pre_trig = true;
 	}
       }
-      if (nhits[hstrip]    >= nplanes_hit_pretrig &&
-	  best_pid[hstrip] >= pid_thresh_pretrig) {
-	pre_trig = true;
-      }
-    }
 
-    if (pre_trig) {
-      first_bx = bx_time; // bx at time of pretrigger
-      return true;
+      if (pre_trig) {
+	first_bx = bx_time; // bx at time of pretrigger
+	return true;
+      }
     }
   } // end loop over bx times
 
@@ -2232,22 +2244,32 @@ bool CSCCathodeLCTProcessor::preTrigger(
 
 
 // TMB-07 version.
-void CSCCathodeLCTProcessor::ptnFinding2007(
+bool CSCCathodeLCTProcessor::ptnFinding(
 	   const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
 	   const int nStrips, const unsigned int bx_time) {
-  bool hit_layer[CSCConstants::NUM_LAYERS];
-  int this_layer, this_strip;
-  unsigned int layers_hit;
+  if (bx_time >= fifo_tbins) return false;
 
-  for (int key_hstrip = stagger[CSCConstants::KEY_CLCT_LAYER-1];
-       key_hstrip < nStrips; key_hstrip++) {
+  // This loop is a quick check of a number of layers hit at bx_time: since
+  // most of the time it is 0, this check helps to speed-up the execution
+  // substantially.
+  unsigned int layers_hit = 0;
+  for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+    for (int i_hstrip = 0; i_hstrip < nStrips; i_hstrip++) {
+      if (((pulse[i_layer][i_hstrip] >> bx_time) & 1) == 1) {
+	layers_hit++;
+	break;
+      }
+    }
+  }
+  if (layers_hit < nplanes_hit_pretrig) return false;
+
+  for (int key_hstrip = 0; key_hstrip < nStrips; key_hstrip++) {
     best_pid[key_hstrip] = 0;
     nhits[key_hstrip] = 0;
   }
 
-  if (bx_time >= fifo_tbins) return;
-
   // Loop over candidate key strips.
+  bool hit_layer[CSCConstants::NUM_LAYERS];
   for (int key_hstrip = stagger[CSCConstants::KEY_CLCT_LAYER-1];
        key_hstrip < nStrips; key_hstrip++) {
     // Loop over patterns and look for hits matching each pattern.
@@ -2261,12 +2283,12 @@ void CSCCathodeLCTProcessor::ptnFinding2007(
       // "absolute" halfstrip number for each.
       for (int strip_num = 0; strip_num < NUM_PATTERN_HALFSTRIPS;
 	   strip_num++) {
-	this_layer = pattern2007[pid][strip_num];
+	int this_layer = pattern2007[pid][strip_num];
 	if (this_layer >= 0 && this_layer < CSCConstants::NUM_LAYERS) {
-	  this_strip = pattern2007_offset[strip_num] + key_hstrip;
+	  int this_strip = pattern2007_offset[strip_num] + key_hstrip;
 	  if (this_strip >= 0 && this_strip < nStrips) {
 	    if (infoV > 3) LogTrace("CSCCathodeLCTProcessor")
-	      << " In ptnFinding2007: key_strip = " << key_hstrip
+	      << " In ptnFinding: key_strip = " << key_hstrip
 	      << " pid = " << pid << " strip_num = " << strip_num
 	      << " layer = " << this_layer << " strip = " << this_strip;
 	    // Determine if "one shot" is high at this bx_time
@@ -2283,9 +2305,13 @@ void CSCCathodeLCTProcessor::ptnFinding2007(
       if (layers_hit > nhits[key_hstrip]) {
 	best_pid[key_hstrip] = pid;
 	nhits[key_hstrip] = layers_hit;
+	// Do not loop over the other (worse) patterns if max. numbers of
+	// hits is found.
+	if (nhits[key_hstrip] == CSCConstants::NUM_LAYERS) break;
       }
     } // end loop over pid
   } // end loop over candidate key strips
+  return true;
 } // ptnFinding -- TMB-07 version.
 
 

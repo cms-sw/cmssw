@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2008/10/09 11:09:22 $
-//   $Revision: 1.6 $
+//   $Date: 2009/03/24 14:11:36 $
+//   $Revision: 1.7 $
 //
 //   Modifications:
 //
@@ -70,9 +70,14 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
 
   // Find the geometry (& conditions?) for this event & cache it in 
   // CSCTriggerGeometry.
-  edm::ESHandle<CSCGeometry> h;
-  setup.get<MuonGeometryRecord>().get(h);
-  CSCTriggerGeometry::setGeometry(h);
+  {
+    //static TimingReport::Item & geomTimer =
+    //  (*TimingReport::current())["CSCTriggerPrimitivesProducer:geom"];
+    //TimeMe t(geomTimer, false);
+    edm::ESHandle<CSCGeometry> h;
+    setup.get<MuonGeometryRecord>().get(h);
+    CSCTriggerGeometry::setGeometry(h);
+  }
 
   // Get config. parameters using EventSetup mechanism.  This must be done
   // in produce() for every event and not in beginJob() (see mail from
@@ -101,8 +106,13 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   std::auto_ptr<CSCCorrelatedLCTDigiCollection> oc_sorted_lct(new CSCCorrelatedLCTDigiCollection);
 
   // Fill collections.
-  lctBuilder_->build(wireDigis.product(), compDigis.product(),
-		     *oc_alct, *oc_clct, *oc_lct, *oc_sorted_lct);
+  {
+    //static TimingReport::Item & buildTimer =
+    //  (*TimingReport::current())["CSCTriggerPrimitivesBuilder:build"];
+    //TimeMe t(buildTimer, false);
+    lctBuilder_->build(wireDigis.product(), compDigis.product(),
+		       *oc_alct, *oc_clct, *oc_lct, *oc_sorted_lct);
+  }
 
   // Put collections in event.
   ev.put(oc_alct);
