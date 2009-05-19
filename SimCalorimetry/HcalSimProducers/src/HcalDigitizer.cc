@@ -124,6 +124,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   theHOElectronicsSim->setRandomEngine(engine);
   theZDCElectronicsSim->setRandomEngine(engine);
 
+  if (theHitCorrection!=0) theHitCorrection->setRandomEngine(engine);
 
   hitsProducer_ = ps.getParameter<std::string>("hitsProducer");
 
