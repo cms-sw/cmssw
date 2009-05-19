@@ -1,0 +1,757 @@
+void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
+
+  gROOT->Reset();
+  gROOT->SetBatch();
+
+  // Many of these style statements will likely require tweaking
+  //  to work with the V0 histograms
+  gROOT->SetStyle("Plain");
+  gStyle->SetPadGridX(kTRUE);
+  gStyle->SetPadGridY(kTRUE);
+  gStyle->SetPadRightMargin(0.07);
+  gStyle->SetPadLeftMargin(0.13);
+  //gStyle->SetTitleXSize(0.07); 
+  //gStyle->SetTitleXOffset(0.6); 
+  //tyle->SetTitleYSize(0.3);
+  //gStyle->SetLabelSize(0.6) 
+  //gStyle->SetTextSize(0.5);
+  char* refLabel("REF_LABEL, REF_RELEASE REFSELECTION");
+  char* newLabel("NEW_LABEL, NEW_RELEASE NEWSELECTION");
+
+  TFile* infile1 = new TFile(refFile);
+  infile1->cd("DQMData");
+  TDirectory* refdir = gDirectory;
+  TList* hList1 = refdir->GetListOfKeys();
+
+  TFile* infile2 = new TFile(newFile);
+  infile2->cd("DQMData");
+  TDirectory* newdir = gDirectory;
+  TList* hList2 = newdir->GetListOfKeys();
+
+  TCanvas* canvas;
+
+  // Kshort plots
+  TH1F *ksEffEta, *ksTkEffEta;
+  TH1F *ksEffPt, *ksTkEffPt;
+  TH1F *ksEffR, *ksTkEffR;
+
+  TH1F *ksNewEffEta, *ksNewTkEffEta;
+  TH1F *ksNewEffPt, *ksNewTkEffPt;
+  TH1F *ksNewEffR, *ksNewTkEffR;
+
+  TH1F *ksFakeEta, *ksTkFakeEta;
+  TH1F *ksFakePt, *ksTkFakePt;
+  TH1F *ksFakeR, *ksTkFakeR;
+
+  TH1F *ksNewFakeEta, *ksNewTkFakeEta;
+  TH1F *ksNewFakePt, *ksNewTkFakePt;
+  TH1F *ksNewFakeR, *ksNewTkFakeR;
+
+  // K0s Efficiency plots from reference release
+  refdir->GetObject(hList1->At(0)->GetName(), ksEffEta);
+  ksEffEta->GetYaxis()->SetRangeUser(0, 1.1);
+
+  refdir->GetObject(hList1->At(6)->GetName(), ksTkEffEta);
+  ksTkEffEta->GetYaxis()->SetRangeUser(0, 1.1);
+
+  refdir->GetObject(hList1->At(1)->GetName(), ksEffPt);
+  ksEffPt->GetYaxis()->SetRangeUser(0, 1.1);
+  ksEffPt->GetYaxis()->SetTitle("K^{0}_{S} Efficiency vs p_{T}");
+  ksEffPt->GetYaxis()->SetTitleSize(0.05);
+  ksEffPt->GetYaxis()->SetTitleOffset(1.2);
+  ksEffPt->SetTitle("");
+
+  refdir->GetObject(hList1->At(7)->GetName(), ksTkEffPt);
+  ksTkEffPt->GetYaxis()->SetRangeUser(0, 1.1);
+  ksTkEffPt->GetYaxis()->SetTitle("K^{0}_{S} Tracking Efficiency vs p_{T}");
+  ksTkEffPt->GetYaxis()->SetTitleSize(0.05);
+  ksTkEffPt->GetYaxis()->SetTitleOffset(1.2);
+  ksTkEffPt->SetTitle("");
+
+  refdir->GetObject(hList1->At(2)->GetName(), ksEffR);
+  ksEffR->GetYaxis()->SetRangeUser(0, 1.1);
+  refdir->GetObject(hList1->At(8)->GetName(), ksTkEffR);
+  ksTkEffR->GetYaxis()->SetRangeUser(0, 1.1);
+
+
+  // K0s efficiency plots from new release
+  newdir->GetObject(hList1->At(0)->GetName(), ksNewEffEta);
+  ksNewEffEta->GetYaxis()->SetRangeUser(0, 1.1);
+
+  newdir->GetObject(hList1->At(6)->GetName(), ksNewTkEffEta);
+  ksNewTkEffEta->GetYaxis()->SetRangeUser(0, 1.1);
+
+  newdir->GetObject(hList1->At(1)->GetName(), ksNewEffPt);
+  ksNewEffPt->GetYaxis()->SetRangeUser(0, 1.1);
+  ksNewEffPt->GetYaxis()->SetRangeUser(0, 1.1);
+  ksNewEffPt->GetYaxis()->SetTitle("K^{0}_{S} Efficiency vs p_{T}");
+  ksNewEffPt->GetYaxis()->SetTitleSize(0.05);
+  ksNewEffPt->GetYaxis()->SetTitleOffset(1.2);
+  ksNewEffPt->SetTitle("");
+
+  newdir->GetObject(hList1->At(7)->GetName(), ksNewTkEffPt);
+  ksNewTkEffPt->GetYaxis()->SetRangeUser(0, 1.1);
+  ksNewTkEffPt->GetYaxis()->SetTitle("K^{0}_{S} Tracking Efficiency vs p_{T}");
+  ksNewTkEffPt->GetYaxis()->SetTitleSize(0.05);
+  ksNewTkEffPt->GetYaxis()->SetTitleOffset(1.2);
+  ksNewTkEffPt->SetTitle("");
+
+  newdir->GetObject(hList1->At(2)->GetName(), ksNewEffR);
+  ksNewEffR->GetYaxis()->SetRangeUser(0, 1.1);
+
+  newdir->GetObject(hList1->At(8)->GetName(), ksNewTkEffR);
+  ksNewTkEffR->GetYaxis()->SetRangeUser(0, 1.1);
+
+
+  // K0s fake rate plots from reference release
+  refdir->GetObject(hList1->At(3)->GetName(), ksFakeEta);
+  ksFakeEta->GetYaxis()->SetRangeUser(0, 1.1);
+
+  refdir->GetObject(hList1->At(9)->GetName(), ksTkFakeEta);
+  ksTkFakeEta->GetYaxis()->SetRangeUser(0, 1.1);
+
+  refdir->GetObject(hList1->At(4)->GetName(), ksFakePt);
+  ksFakePt->GetYaxis()->SetRangeUser(0, 1.1);
+  ksFakePt->GetYaxis()->SetRangeUser(0, 1.1);
+  ksFakePt->GetYaxis()->SetTitle("K^{0}_{S} Fake Rate vs p_{T}");
+  ksFakePt->GetYaxis()->SetTitleSize(0.05);
+  ksFakePt->GetYaxis()->SetTitleOffset(1.2);
+  ksFakePt->SetTitle("");
+
+  refdir->GetObject(hList1->At(10)->GetName(), ksTkFakePt);
+  ksTkFakePt->GetYaxis()->SetRangeUser(0, 1.1);
+  ksTkFakePt->GetYaxis()->SetTitle("K^{0}_{S} Tracking Fake Rate vs p_{T}");
+  ksTkFakePt->GetYaxis()->SetTitleSize(0.05);
+  ksTkFakePt->GetYaxis()->SetTitleOffset(1.2);
+  ksTkFakePt->SetTitle("");
+
+  refdir->GetObject(hList1->At(5)->GetName(), ksFakeR);
+  ksFakeR->GetYaxis()->SetRangeUser(0, 1.1);
+
+  refdir->GetObject(hList1->At(11)->GetName(), ksTkFakeR);
+  ksTkFakeR->GetYaxis()->SetRangeUser(0, 1.1);
+
+
+
+  // Kshort plots from new release we're testing
+  newdir->GetObject(hList1->At(3)->GetName(), ksNewFakeEta);
+  ksNewFakeEta->GetYaxis()->SetRangeUser(0, 1.1);
+
+  newdir->GetObject(hList1->At(9)->GetName(), ksNewTkFakeEta);
+  ksNewTkFakeEta->GetYaxis()->SetRangeUser(0, 1.1);
+
+  newdir->GetObject(hList1->At(4)->GetName(), ksNewFakePt);
+  ksNewFakePt->GetYaxis()->SetRangeUser(0, 1.1);
+  ksNewFakePt->SetTitle("");
+
+  newdir->GetObject(hList1->At(10)->GetName(), ksNewTkFakePt);
+  ksNewTkFakePt->GetYaxis()->SetRangeUser(0, 1.1);
+  ksNewTkFakePt->SetTitle("");
+
+  newdir->GetObject(hList1->At(5)->GetName(), ksNewFakeR);
+  ksNewFakeR->GetYaxis()->SetRangeUser(0, 1.1);
+
+  newdir->GetObject(hList1->At(11)->GetName(), ksNewTkFakeR);
+  ksNewTkFakeR->GetYaxis()->SetRangeUser(0, 1.1);
+
+
+  canvas = new TCanvas("Kshorts", "K^{0}_{S} Efficiency", 
+		       1000, 1400);
+
+  ksEffEta->SetMarkerStyle(20);
+  ksEffEta->SetMarkerColor(2);
+  ksEffEta->SetMarkerSize(0.7);
+  ksEffEta->SetLineColor(2);
+  ksNewEffEta->SetMarkerStyle(21);
+  ksNewEffEta->SetMarkerColor(4);
+  ksNewEffEta->SetMarkerSize(0.7);
+  ksNewEffEta->SetLineColor(4);
+
+  ksTkEffEta->SetMarkerStyle(20);
+  ksTkEffEta->SetMarkerColor(2);
+  ksTkEffEta->SetMarkerSize(0.7);
+  ksTkEffEta->SetLineColor(2);
+  ksNewTkEffEta->SetMarkerStyle(21);
+  ksNewTkEffEta->SetMarkerColor(4);
+  ksNewTkEffEta->SetMarkerSize(0.7);
+  ksNewTkEffEta->SetLineColor(4);
+
+  ksEffPt->SetMarkerStyle(20);
+  ksEffPt->SetMarkerColor(2);
+  ksEffPt->SetMarkerSize(0.7);
+  ksEffPt->SetLineColor(2);
+  ksNewEffPt->SetMarkerStyle(21);
+  ksNewEffPt->SetMarkerColor(4);
+  ksNewEffPt->SetMarkerSize(0.7);
+  ksNewEffPt->SetLineColor(4);
+
+  ksTkEffPt->SetMarkerStyle(20);
+  ksTkEffPt->SetMarkerColor(2);
+  ksTkEffPt->SetMarkerSize(0.7);
+  ksTkEffPt->SetLineColor(2);
+  ksNewTkEffPt->SetMarkerStyle(21);
+  ksNewTkEffPt->SetMarkerColor(4);
+  ksNewTkEffPt->SetMarkerSize(0.7);
+  ksNewTkEffPt->SetLineColor(4);
+
+  ksEffR->SetMarkerStyle(20);
+  ksEffR->SetMarkerColor(2);
+  ksEffR->SetMarkerSize(0.7);
+  ksEffR->SetLineColor(2);
+  ksNewEffR->SetMarkerStyle(21);
+  ksNewEffR->SetMarkerColor(4);
+  ksNewEffR->SetMarkerSize(0.7);
+  ksNewEffR->SetLineColor(4);
+
+  ksTkEffR->SetMarkerStyle(20);
+  ksTkEffR->SetMarkerColor(2);
+  ksTkEffR->SetMarkerSize(0.7);
+  ksTkEffR->SetLineColor(2);
+  ksNewTkEffR->SetMarkerStyle(21);
+  ksNewTkEffR->SetMarkerColor(4);
+  ksNewTkEffR->SetMarkerSize(0.7);
+  ksNewTkEffR->SetLineColor(4);
+
+  canvas->Divide(2,3);
+
+  canvas->cd(1);
+  setStats(ksEffEta, ksNewEffEta, -1, 0, false);
+  ksEffEta->Draw();
+  ksNewEffEta->Draw("sames");
+
+  canvas->cd(2);
+  setStats(ksTkEffEta, ksNewTkEffEta, -1, 0, false);
+  ksTkEffEta->Draw();
+  ksNewTkEffEta->Draw("sames");
+
+  canvas->cd(3);
+  setStats(ksEffPt, ksNewEffPt, -1, 0, false);
+  ksEffPt->Draw();
+  ksNewEffPt->Draw("sames");
+
+  canvas->cd(4);
+  setStats(ksTkEffPt, ksNewTkEffPt, 0.6, 0.65, false);
+  ksTkEffPt->Draw();
+  ksNewTkEffPt->Draw("sames");
+
+  canvas->cd(5);
+  setStats(ksEffR, ksNewEffR, -1, 0, false);
+  ksEffR->Draw();
+  ksNewEffR->Draw("sames");
+
+  canvas->cd(6);
+  setStats(ksTkEffR, ksNewTkEffR, 0.6, 0.65, false);
+  ksTkEffR->Draw();
+  ksNewTkEffR->Draw("sames");
+
+  canvas->cd();
+  leg1 = new TLegend(0.20, 0.64, 0.80, 0.69);
+  leg1->SetTextSize(0.012);
+  leg1->SetLineColor(1);
+  leg1->SetLineWidth(1);
+  leg1->SetLineStyle(1);
+  leg1->SetFillColor(0);
+  leg1->SetBorderSize(3);
+  leg1->AddEntry(ksEffEta, refLabel, "LPF");
+  leg1->AddEntry(ksNewEffEta, newLabel, "LPF");
+  leg1->Draw();
+
+  canvas->Print("K0sEff.png");
+
+  delete leg1;
+  //delete canvas;
+
+  canvas = new TCanvas("Kshorts", "K^{0}_{S} Fake Rate", 
+		       1000, 1400);
+
+  ksFakeEta->SetMarkerStyle(20);
+  ksFakeEta->SetMarkerColor(2);
+  ksFakeEta->SetMarkerSize(0.7);
+  ksFakeEta->SetLineColor(2);
+  ksNewFakeEta->SetMarkerStyle(21);
+  ksNewFakeEta->SetMarkerColor(4);
+  ksNewFakeEta->SetMarkerSize(0.7);
+  ksNewFakeEta->SetLineColor(4);
+
+  ksTkFakeEta->SetMarkerStyle(20);
+  ksTkFakeEta->SetMarkerColor(2);
+  ksTkFakeEta->SetMarkerSize(0.7);
+  ksTkFakeEta->SetLineColor(2);
+  ksNewTkFakeEta->SetMarkerStyle(21);
+  ksNewTkFakeEta->SetMarkerColor(4);
+  ksNewTkFakeEta->SetMarkerSize(0.7);
+  ksNewTkFakeEta->SetLineColor(4);
+
+  ksFakePt->SetMarkerStyle(20);
+  ksFakePt->SetMarkerColor(2);
+  ksFakePt->SetMarkerSize(0.7);
+  ksFakePt->SetLineColor(2);
+  ksNewFakePt->SetMarkerStyle(21);
+  ksNewFakePt->SetMarkerColor(4);
+  ksNewFakePt->SetMarkerSize(0.7);
+  ksNewFakePt->SetLineColor(4);
+
+  ksTkFakePt->SetMarkerStyle(20);
+  ksTkFakePt->SetMarkerColor(2);
+  ksTkFakePt->SetMarkerSize(0.7);
+  ksTkFakePt->SetLineColor(2);
+  ksNewTkFakePt->SetMarkerStyle(21);
+  ksNewTkFakePt->SetMarkerColor(4);
+  ksNewTkFakePt->SetMarkerSize(0.7);
+  ksNewTkFakePt->SetLineColor(4);
+
+  ksFakeR->SetMarkerStyle(20);
+  ksFakeR->SetMarkerColor(2);
+  ksFakeR->SetMarkerSize(0.7);
+  ksFakeR->SetLineColor(2);
+  ksNewFakeR->SetMarkerStyle(21);
+  ksNewFakeR->SetMarkerColor(4);
+  ksNewFakeR->SetMarkerSize(0.7);
+  ksNewFakeR->SetLineColor(4);
+
+  ksTkFakeR->SetMarkerStyle(20);
+  ksTkFakeR->SetMarkerColor(2);
+  ksTkFakeR->SetMarkerSize(0.7);
+  ksTkFakeR->SetLineColor(2);
+  ksNewTkFakeR->SetMarkerStyle(21);
+  ksNewTkFakeR->SetMarkerColor(4);
+  ksNewTkFakeR->SetMarkerSize(0.7);
+  ksNewTkFakeR->SetLineColor(4);
+
+  canvas->Divide(2,3);
+
+  canvas->cd(1);
+  setStats(ksFakeEta, ksNewFakeEta, -1, 0, false);
+  ksFakeEta->Draw();
+  ksNewFakeEta->Draw("sames");
+
+  canvas->cd(2);
+  setStats(ksTkFakeEta, ksNewTkFakeEta, -1, 0, false);
+  ksTkFakeEta->Draw();
+  ksNewTkFakeEta->Draw("sames");
+
+  canvas->cd(3);
+  setStats(ksFakePt, ksNewFakePt, -1, 0, false);
+  ksFakePt->Draw();
+  ksNewFakePt->Draw("sames");
+
+  canvas->cd(4);
+  setStats(ksTkFakePt, ksNewTkFakePt, 0.6, 0.65, false);
+  ksTkFakePt->Draw();
+  ksNewTkFakePt->Draw("sames");
+
+  canvas->cd(5);
+  setStats(ksFakeR, ksNewFakeR, -1, 0, false);
+  ksFakeR->Draw();
+  ksNewFakeR->Draw("sames");
+
+  canvas->cd(6);
+  setStats(ksTkFakeR, ksNewTkFakeR, 0.6, 0.65, false);
+  ksTkFakeR->Draw();
+  ksNewTkFakeR->Draw("sames");
+
+  canvas->cd();
+  leg2 = new TLegend(0.20, 0.64, 0.80, 0.69);
+  leg2->SetTextSize(0.012);
+  leg2->SetLineColor(1);
+  leg2->SetLineWidth(1);
+  leg2->SetLineStyle(1);
+  leg2->SetFillColor(0);
+  leg2->SetBorderSize(3);
+  leg2->AddEntry(ksFakeEta, refLabel, "LPF");
+  leg2->AddEntry(ksNewFakeEta, newLabel, "LPF");
+  leg2->Draw();
+
+  canvas->Print("K0sFake.png");
+
+  delete leg2;
+
+  cout << "Plotting Lambdas?" << endl;
+  // Lambda plots
+  TH1F *lamEffEta, *lamTkEffEta;
+  TH1F *lamEffPt, *lamTkEffPt;
+  TH1F *lamEffR, *lamTkEffR;
+
+  TH1F *lamNewEffEta, *lamNewTkEffEta;
+  TH1F *lamNewEffPt, *lamNewTkEffPt;
+  TH1F *lamNewEffR, *lamNewTkEffR;
+
+  TH1F *lamFakeEta, *lamTkFakeEta;
+  TH1F *lamFakePt, *lamTkFakePt;
+  TH1F *lamFakeR, *lamTkFakeR;
+
+  TH1F *lamNewFakeEta, *lamNewTkFakeEta;
+  TH1F *lamNewFakePt, *lamNewTkFakePt;
+  TH1F *lamNewFakeR, *lamNewTkFakeR;
+
+  // Lambda Efficiency plots from reference release
+  refdir->GetObject(hList1->At(12)->GetName(), lamEffEta);
+  lamEffEta->GetYaxis()->SetRangeUser(0, 1.1);
+
+  refdir->GetObject(hList1->At(18)->GetName(), lamTkEffEta);
+  lamTkEffEta->GetYaxis()->SetRangeUser(0, 1.1);
+
+  refdir->GetObject(hList1->At(13)->GetName(), lamEffPt);
+  lamEffPt->GetYaxis()->SetRangeUser(0, 1.1);
+  lamEffPt->GetYaxis()->SetTitle("#Lambda^{0} Efficiency vs p_{T}");
+  lamEffPt->GetYaxis()->SetTitleSize(0.05);
+  lamEffPt->GetYaxis()->SetTitleOffset(1.2);
+  lamEffPt->SetTitle("");
+
+  refdir->GetObject(hList1->At(19)->GetName(), lamTkEffPt);
+  lamTkEffPt->GetYaxis()->SetRangeUser(0, 1.1);
+  lamTkEffPt->GetYaxis()->SetTitle("#Lambda^{0} Tracking Efficiency vs p_{T}");
+  lamTkEffPt->GetYaxis()->SetTitleSize(0.05);
+  lamTkEffPt->GetYaxis()->SetTitleOffset(1.2);
+  lamTkEffPt->SetTitle("");
+
+  refdir->GetObject(hList1->At(14)->GetName(), lamEffR);
+  lamEffR->GetYaxis()->SetRangeUser(0, 1.1);
+  refdir->GetObject(hList1->At(20)->GetName(), lamTkEffR);
+  lamTkEffR->GetYaxis()->SetRangeUser(0, 1.1);
+
+
+  // Lambda efficiency plots from new release
+  newdir->GetObject(hList1->At(12)->GetName(), lamNewEffEta);
+  lamNewEffEta->GetYaxis()->SetRangeUser(0, 1.1);
+
+  newdir->GetObject(hList1->At(18)->GetName(), lamNewTkEffEta);
+  lamNewTkEffEta->GetYaxis()->SetRangeUser(0, 1.1);
+
+  newdir->GetObject(hList1->At(13)->GetName(), lamNewEffPt);
+  lamNewEffPt->GetYaxis()->SetRangeUser(0, 1.1);
+  lamNewEffPt->GetYaxis()->SetRangeUser(0, 1.1);
+  lamNewEffPt->GetYaxis()->SetTitle("#Lambda^{0} Efficiency vs p_{T}");
+  lamNewEffPt->GetYaxis()->SetTitleSize(0.05);
+  lamNewEffPt->GetYaxis()->SetTitleOffset(1.2);
+  lamNewEffPt->SetTitle("");
+
+  newdir->GetObject(hList1->At(19)->GetName(), lamNewTkEffPt);
+  lamNewTkEffPt->GetYaxis()->SetRangeUser(0, 1.1);
+  lamNewTkEffPt->GetYaxis()->SetTitle("#Lambda^{0} Tracking Efficiency vs p_{T}");
+  lamNewTkEffPt->GetYaxis()->SetTitleSize(0.05);
+  lamNewTkEffPt->GetYaxis()->SetTitleOffset(1.2);
+  lamNewTkEffPt->SetTitle("");
+
+  newdir->GetObject(hList1->At(14)->GetName(), lamNewEffR);
+  lamNewEffR->GetYaxis()->SetRangeUser(0, 1.1);
+
+  newdir->GetObject(hList1->At(20)->GetName(), lamNewTkEffR);
+  lamNewTkEffR->GetYaxis()->SetRangeUser(0, 1.1);
+
+
+  // Lambda fake rate plots from reference release
+  refdir->GetObject(hList1->At(15)->GetName(), lamFakeEta);
+  lamFakeEta->GetYaxis()->SetRangeUser(0, 1.1);
+
+  refdir->GetObject(hList1->At(21)->GetName(), lamTkFakeEta);
+  lamTkFakeEta->GetYaxis()->SetRangeUser(0, 1.1);
+
+  refdir->GetObject(hList1->At(16)->GetName(), lamFakePt);
+  lamFakePt->GetYaxis()->SetRangeUser(0, 1.1);
+  lamFakePt->GetYaxis()->SetRangeUser(0, 1.1);
+  lamFakePt->GetYaxis()->SetTitle("#Lambda^{0} Fake Rate vs p_{T}");
+  lamFakePt->GetYaxis()->SetTitleSize(0.05);
+  lamFakePt->GetYaxis()->SetTitleOffset(1.2);
+  lamFakePt->SetTitle("");
+
+  refdir->GetObject(hList1->At(22)->GetName(), lamTkFakePt);
+  lamTkFakePt->GetYaxis()->SetRangeUser(0, 1.1);
+  lamTkFakePt->GetYaxis()->SetTitle("#Lambda^{0} Tracking Fake Rate vs p_{T}");
+  lamTkFakePt->GetYaxis()->SetTitleSize(0.05);
+  lamTkFakePt->GetYaxis()->SetTitleOffset(1.2);
+  lamTkFakePt->SetTitle("");
+
+  refdir->GetObject(hList1->At(17)->GetName(), lamFakeR);
+  lamFakeR->GetYaxis()->SetRangeUser(0, 1.1);
+
+  refdir->GetObject(hList1->At(23)->GetName(), lamTkFakeR);
+  lamTkFakeR->GetYaxis()->SetRangeUser(0, 1.1);
+
+
+
+  // Lambda plots from new release we're testing
+  newdir->GetObject(hList1->At(15)->GetName(), lamNewFakeEta);
+  lamNewFakeEta->GetYaxis()->SetRangeUser(0, 1.1);
+
+  newdir->GetObject(hList1->At(21)->GetName(), lamNewTkFakeEta);
+  lamNewTkFakeEta->GetYaxis()->SetRangeUser(0, 1.1);
+
+  newdir->GetObject(hList1->At(16)->GetName(), lamNewFakePt);
+  lamNewFakePt->GetYaxis()->SetRangeUser(0, 1.1);
+  lamNewFakePt->SetTitle("");
+
+  newdir->GetObject(hList1->At(22)->GetName(), lamNewTkFakePt);
+  lamNewTkFakePt->GetYaxis()->SetRangeUser(0, 1.1);
+  lamNewTkFakePt->SetTitle("");
+
+  newdir->GetObject(hList1->At(17)->GetName(), lamNewFakeR);
+  lamNewFakeR->GetYaxis()->SetRangeUser(0, 1.1);
+
+  newdir->GetObject(hList1->At(23)->GetName(), lamNewTkFakeR);
+  lamNewTkFakeR->GetYaxis()->SetRangeUser(0, 1.1);
+
+
+  canvas = new TCanvas("Lambdas", "#Lambda^{0} Efficiency", 
+		       1000, 1400);
+
+  lamEffEta->SetMarkerStyle(20);
+  lamEffEta->SetMarkerColor(2);
+  lamEffEta->SetMarkerSize(0.7);
+  lamEffEta->SetLineColor(2);
+  lamNewEffEta->SetMarkerStyle(21);
+  lamNewEffEta->SetMarkerColor(4);
+  lamNewEffEta->SetMarkerSize(0.7);
+  lamNewEffEta->SetLineColor(4);
+
+  lamTkEffEta->SetMarkerStyle(20);
+  lamTkEffEta->SetMarkerColor(2);
+  lamTkEffEta->SetMarkerSize(0.7);
+  lamTkEffEta->SetLineColor(2);
+  lamNewTkEffEta->SetMarkerStyle(21);
+  lamNewTkEffEta->SetMarkerColor(4);
+  lamNewTkEffEta->SetMarkerSize(0.7);
+  lamNewTkEffEta->SetLineColor(4);
+
+  lamEffPt->SetMarkerStyle(20);
+  lamEffPt->SetMarkerColor(2);
+  lamEffPt->SetMarkerSize(0.7);
+  lamEffPt->SetLineColor(2);
+  lamNewEffPt->SetMarkerStyle(21);
+  lamNewEffPt->SetMarkerColor(4);
+  lamNewEffPt->SetMarkerSize(0.7);
+  lamNewEffPt->SetLineColor(4);
+
+  lamTkEffPt->SetMarkerStyle(20);
+  lamTkEffPt->SetMarkerColor(2);
+  lamTkEffPt->SetMarkerSize(0.7);
+  lamTkEffPt->SetLineColor(2);
+  lamNewTkEffPt->SetMarkerStyle(21);
+  lamNewTkEffPt->SetMarkerColor(4);
+  lamNewTkEffPt->SetMarkerSize(0.7);
+  lamNewTkEffPt->SetLineColor(4);
+
+  lamEffR->SetMarkerStyle(20);
+  lamEffR->SetMarkerColor(2);
+  lamEffR->SetMarkerSize(0.7);
+  lamEffR->SetLineColor(2);
+  lamNewEffR->SetMarkerStyle(21);
+  lamNewEffR->SetMarkerColor(4);
+  lamNewEffR->SetMarkerSize(0.7);
+  lamNewEffR->SetLineColor(4);
+
+  lamTkEffR->SetMarkerStyle(20);
+  lamTkEffR->SetMarkerColor(2);
+  lamTkEffR->SetMarkerSize(0.7);
+  lamTkEffR->SetLineColor(2);
+  lamNewTkEffR->SetMarkerStyle(21);
+  lamNewTkEffR->SetMarkerColor(4);
+  lamNewTkEffR->SetMarkerSize(0.7);
+  lamNewTkEffR->SetLineColor(4);
+
+  canvas->Divide(2,3);
+
+  canvas->cd(1);
+  setStats(lamEffEta, lamNewEffEta, -1, 0, false);
+  lamEffEta->Draw();
+  lamNewEffEta->Draw("sames");
+
+  canvas->cd(2);
+  setStats(lamTkEffEta, lamNewTkEffEta, -1, 0, false);
+  lamTkEffEta->Draw();
+  lamNewTkEffEta->Draw("sames");
+
+  canvas->cd(3);
+  setStats(lamEffPt, lamNewEffPt, -1, 0, false);
+  lamEffPt->Draw();
+  lamNewEffPt->Draw("sames");
+
+  canvas->cd(4);
+  setStats(lamTkEffPt, lamNewTkEffPt, 0.6, 0.65, false);
+  lamTkEffPt->Draw();
+  lamNewTkEffPt->Draw("sames");
+
+  canvas->cd(5);
+  setStats(lamEffR, lamNewEffR, -1, 0, false);
+  lamEffR->Draw();
+  lamNewEffR->Draw("sames");
+
+  canvas->cd(6);
+  setStats(lamTkEffR, lamNewTkEffR, 0.6, 0.65, false);
+  lamTkEffR->Draw();
+  lamNewTkEffR->Draw("sames");
+
+  canvas->cd();
+  leg3 = new TLegend(0.20, 0.64, 0.80, 0.69);
+  leg3->SetTextSize(0.012);
+  leg3->SetLineColor(1);
+  leg3->SetLineWidth(1);
+  leg3->SetLineStyle(1);
+  leg3->SetFillColor(0);
+  leg3->SetBorderSize(3);
+  leg3->AddEntry(lamEffEta, refLabel, "LPF");
+  leg3->AddEntry(lamNewEffEta, newLabel, "LPF");
+  leg3->Draw();
+
+  canvas->Print("LamEff.png");
+
+  delete leg3;
+  //delete canvas;
+
+  canvas = new TCanvas("Lambdas", "#Lambda^{0} Fake Rate", 
+		       1000, 1400);
+
+  lamFakeEta->SetMarkerStyle(20);
+  lamFakeEta->SetMarkerColor(2);
+  lamFakeEta->SetMarkerSize(0.7);
+  lamFakeEta->SetLineColor(2);
+  lamNewFakeEta->SetMarkerStyle(21);
+  lamNewFakeEta->SetMarkerColor(4);
+  lamNewFakeEta->SetMarkerSize(0.7);
+  lamNewFakeEta->SetLineColor(4);
+
+  lamTkFakeEta->SetMarkerStyle(20);
+  lamTkFakeEta->SetMarkerColor(2);
+  lamTkFakeEta->SetMarkerSize(0.7);
+  lamTkFakeEta->SetLineColor(2);
+  lamNewTkFakeEta->SetMarkerStyle(21);
+  lamNewTkFakeEta->SetMarkerColor(4);
+  lamNewTkFakeEta->SetMarkerSize(0.7);
+  lamNewTkFakeEta->SetLineColor(4);
+
+  lamFakePt->SetMarkerStyle(20);
+  lamFakePt->SetMarkerColor(2);
+  lamFakePt->SetMarkerSize(0.7);
+  lamFakePt->SetLineColor(2);
+  lamNewFakePt->SetMarkerStyle(21);
+  lamNewFakePt->SetMarkerColor(4);
+  lamNewFakePt->SetMarkerSize(0.7);
+  lamNewFakePt->SetLineColor(4);
+
+  lamTkFakePt->SetMarkerStyle(20);
+  lamTkFakePt->SetMarkerColor(2);
+  lamTkFakePt->SetMarkerSize(0.7);
+  lamTkFakePt->SetLineColor(2);
+  lamNewTkFakePt->SetMarkerStyle(21);
+  lamNewTkFakePt->SetMarkerColor(4);
+  lamNewTkFakePt->SetMarkerSize(0.7);
+  lamNewTkFakePt->SetLineColor(4);
+
+  lamFakeR->SetMarkerStyle(20);
+  lamFakeR->SetMarkerColor(2);
+  lamFakeR->SetMarkerSize(0.7);
+  lamFakeR->SetLineColor(2);
+  lamNewFakeR->SetMarkerStyle(21);
+  lamNewFakeR->SetMarkerColor(4);
+  lamNewFakeR->SetMarkerSize(0.7);
+  lamNewFakeR->SetLineColor(4);
+
+  lamTkFakeR->SetMarkerStyle(20);
+  lamTkFakeR->SetMarkerColor(2);
+  lamTkFakeR->SetMarkerSize(0.7);
+  lamTkFakeR->SetLineColor(2);
+  lamNewTkFakeR->SetMarkerStyle(21);
+  lamNewTkFakeR->SetMarkerColor(4);
+  lamNewTkFakeR->SetMarkerSize(0.7);
+  lamNewTkFakeR->SetLineColor(4);
+
+  canvas->Divide(2,3);
+
+  canvas->cd(1);
+  setStats(lamFakeEta, lamNewFakeEta, -1, 0, false);
+  lamFakeEta->Draw();
+  lamNewFakeEta->Draw("sames");
+
+  canvas->cd(2);
+  setStats(lamTkFakeEta, lamNewTkFakeEta, -1, 0, false);
+  lamTkFakeEta->Draw();
+  lamNewTkFakeEta->Draw("sames");
+
+  canvas->cd(3);
+  setStats(lamFakePt, lamNewFakePt, -1, 0, false);
+  lamFakePt->Draw();
+  lamNewFakePt->Draw("sames");
+
+  canvas->cd(4);
+  setStats(lamTkFakePt, lamNewTkFakePt, 0.6, 0.65, false);
+  lamTkFakePt->Draw();
+  lamNewTkFakePt->Draw("sames");
+
+  canvas->cd(5);
+  setStats(lamFakeR, lamNewFakeR, -1, 0, false);
+  lamFakeR->Draw();
+  lamNewFakeR->Draw("sames");
+
+  canvas->cd(6);
+  setStats(lamTkFakeR, lamNewTkFakeR, 0.6, 0.65, false);
+  lamTkFakeR->Draw();
+  lamNewTkFakeR->Draw("sames");
+
+  canvas->cd();
+  leg4 = new TLegend(0.20, 0.64, 0.80, 0.69);
+  leg4->SetTextSize(0.012);
+  leg4->SetLineColor(1);
+  leg4->SetLineWidth(1);
+  leg4->SetLineStyle(1);
+  leg4->SetFillColor(0);
+  leg4->SetBorderSize(3);
+  leg4->AddEntry(lamFakeEta, refLabel, "LPF");
+  leg4->AddEntry(lamNewFakeEta, newLabel, "LPF");
+  leg4->Draw();
+
+  canvas->Print("LamFake.png");
+
+  delete leg4;
+
+}
+
+// Need to fix this to work with 2 plots on each pad
+void setStats(TH1* s, TH1* r, 
+	      double startingY, 
+	      double startingX = .1, 
+	      bool fit) {
+  if(startingY < 0) {
+    s->SetStats(0);
+    r->SetStats(0);
+  }
+  else {
+    if(fit) {
+      s->Fit("gaus");
+      TF1* f1 = (TF1*) s->GetListOfFunctions()->FindObject("gaus");
+      f1->SetLineColor(2);
+      f1->SetLineWidth(1);
+    }
+    s->Draw();
+    gPad->Update();
+    TPaveStats* st1 = (TPaveStats*) s->GetListOfFunctions()->FindObject("stats");
+    //TPaveText* tt1 = (TPaveText*) s->GetListOfFunctions()->FindObject("title");
+    if (fit) {
+      st1->SetOptFit(0010);
+      st1->SetOptStat(1001);
+    }
+    st1->SetX1NDC(startingX);
+    st1->SetX2NDC(startingX + 0.30);
+    st1->SetY1NDC(startingY + 0.20);
+    st1->SetY2NDC(startingY + 0.35);
+    st1->SetTextColor(2);
+    if(fit) {
+      r->Fit("gaus");
+      TF1* f2 = (TF1*) r->GetListOfFunctions()->FindObject("gaus");
+      f2->SetLineColor(4);
+      f2->SetLineWidth(1);
+    }
+    r->Draw();
+    gPad->Update();
+    TPaveStats* st2 = (TPaveStats*) r->GetListOfFunctions()->FindObject("stats");
+    //    TPaveStats* st2 = (TPaveStats*) r->GetListOfFunctions()->FindObject("stats");
+    if(fit) {
+      st2->SetOptFit(0010);
+      st2->SetOptStats(1001);
+    }
+    st2->SetX1NDC(startingX);
+    st2->SetX2NDC(startingX + 0.30);
+    st2->SetY1NDC(startingY);
+    st2->SetY2NDC(startingY + 0.15);
+    st2->SetTextColor(4);
+  }
+}
