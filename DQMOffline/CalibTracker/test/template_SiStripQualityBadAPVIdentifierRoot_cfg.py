@@ -50,7 +50,9 @@ process.prod = cms.EDFilter("SiStripQualityHotStripIdentifierRoot",
         LowOccupancyThreshold  = cms.untracked.double(3),
         HighOccupancyThreshold = cms.untracked.double(5),
         AbsoluteLowThreshold   = cms.untracked.double(10),
-        NumberIterations = cms.untracked.uint32(3)
+        NumberIterations = cms.untracked.uint32(3),
+        OccupancyThreshold = cms.untracked.double(0.0001),
+        NumberOfEvents = cms.untracked.uint32(0)
     ),
     SinceAppendMode = cms.bool(True),
     verbosity = cms.untracked.uint32(0),
