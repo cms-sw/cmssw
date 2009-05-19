@@ -4,7 +4,7 @@
 //
 // Original Author: Nadia Adam (Princeton University) 
 //         Created:  Fri May 16 16:48:24 CEST 2008
-// $Id: TagProbeEDMAnalysis.h,v 1.14 2009/05/12 22:44:46 ahunt Exp $
+// $Id: TagProbeEDMAnalysis.h,v 1.15 2009/05/18 12:33:56 ahunt Exp $
 //
 //
 // Kalanand Mishra: July 1, 2008 
@@ -25,17 +25,17 @@ class TH2F;
 
 class EffTableLoader;
 
+class ZLineShape;
+class CBLineShape;
+class GaussianLineShape;
+class PolynomialLineShape;
+class CMSBkgLineShape;
+
 class RooRealVar;
 class RooAddPdf;
-class RooCBShape;
-class RooGaussian;
-class RooCMSShapePdf;
-class RooPolynomial;
 
-class ZLineShape;
+class TagProbeEDMAnalysis : public edm::EDAnalyzer{
 
-class TagProbeEDMAnalysis : public edm::EDAnalyzer
-{
    public:
       explicit TagProbeEDMAnalysis(const edm::ParameterSet&);
       ~TagProbeEDMAnalysis();
@@ -69,7 +69,6 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer
 
       void FillFitTree(const edm::Event&);
 
-      void ConfigureCBLineShape(const edm::ParameterSet&);
       void ConfigureGaussLineShape(const edm::ParameterSet&);
       void ConfigurePolynomialShape(const edm::ParameterSet&);
       void ConfigureCMSBackgroundLineShape(const edm::ParameterSet&);
@@ -132,9 +131,11 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer
       std::string textBinsFile_;       // This is the name of the file that holds the 2D bin information
       EffTableLoader* effBinsFromTxt_; // This holds the efficiency bins information
 
-      // Parameter set fo the available fit functions 
-
       ZLineShape* zLineShape_;
+      CBLineShape* cbLineShape_;
+      GaussianLineShape* gaussLineShape_;
+      PolynomialLineShape* polyBkgLineShape_;
+      CMSBkgLineShape* cmsBkgLineShape_;
 
       // The signal & background Pdf & Fit variable
       RooRealVar *rooMass_;
@@ -142,73 +143,6 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer
       RooAddPdf  *signalShapeFailPdf_;
       RooAddPdf  *bkgShapePdf_;
       
-      // 2. Crystal Ball Line Shape
-      bool fitCBLineShape_;
-      edm::ParameterSet   CBLineShape_;
-      std::vector<double> cbMean_;           // Fit mean
-      std::vector<double> cbSigma_;          // Fit sigma
-      std::vector<double> cbAlpha_;          // Fit alpha
-      std::vector<double> cbN_;              // Fit n
-
-      // Private variables/functions needed for CBLineShape
-      RooRealVar *rooCBMean_;
-      RooRealVar *rooCBSigma_;
-      RooRealVar *rooCBAlpha_;
-      RooRealVar *rooCBN_;
-      RooRealVar *rooCBDummyFrac_;
-
-      RooCBShape *rooCBPdf_;
-
-      // 3. Plain old Gaussian Line Shape
-      bool fitGaussLineShape_;
-      edm::ParameterSet   GaussLineShape_;
-      std::vector<double> gaussMean_;           // Fit mean
-      std::vector<double> gaussSigma_;          // Fit sigma
-
-      // Private variables/functions needed for CBLineShape
-      RooRealVar  *rooGaussMean_;
-      RooRealVar  *rooGaussSigma_;
-      RooRealVar  *rooGaussDummyFrac_;
-
-      RooGaussian *rooGaussPdf_;
-
-      // The background Pdf and fit variables
-
-      // 1. CMS Background shape
-      bool fitCMSBkgLineShape_;
-      edm::ParameterSet   CMSBkgLineShape_;
-      std::vector<double> cmsBkgAlpha_;         // Fit background shape alpha
-      std::vector<double> cmsBkgBeta_;          // Fit background shape beta
-      std::vector<double> cmsBkgPeak_;          // Fit background shape peak
-      std::vector<double> cmsBkgGamma_;         // Fit background shape gamma
-
-      RooRealVar *rooCMSBkgAlpha_;
-      RooRealVar *rooCMSBkgBeta_;
-      RooRealVar *rooCMSBkgPeak_;
-      RooRealVar *rooCMSBkgGamma_;
-      RooRealVar *rooCMSBkgDummyFrac_;
-
-      RooCMSShapePdf *rooCMSBkgPdf_;
-
-      // 2. Polynomial background shape (up to 4th order)
-      bool fitPolyBkgLineShape_;
-      edm::ParameterSet PolyBkgLineShape_;
-      std::vector<double> polyBkgC0_;
-      std::vector<double> polyBkgC1_;
-      std::vector<double> polyBkgC2_;
-      std::vector<double> polyBkgC3_;
-      std::vector<double> polyBkgC4_;
-
-      RooRealVar *rooPolyBkgC0_;
-      RooRealVar *rooPolyBkgC1_;
-      RooRealVar *rooPolyBkgC2_;
-      RooRealVar *rooPolyBkgC3_;
-      RooRealVar *rooPolyBkgC4_;
-      RooRealVar *rooPolyBkgDummyFrac_;
-
-      RooPolynomial *rooPolyBkgPdf_;
-
-
       std::vector<double> efficiency_;       // Signal efficiency from fit
       std::vector<double> numSignal_;        // Signal events from fit
       std::vector<double> numBkgPass_;       // Background events passing from fit

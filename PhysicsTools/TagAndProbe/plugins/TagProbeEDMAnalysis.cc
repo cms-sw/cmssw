@@ -29,78 +29,75 @@
 //
 
 #include "PhysicsTools/TagAndProbe/interface/TagProbeEDMAnalysis.h"
+
+#include "PhysicsTools/TagAndProbe/interface/EffTableLoader.h"
+
 #include "PhysicsTools/TagAndProbe/interface/ZLineShape.hh"
+#include "PhysicsTools/TagAndProbe/interface/CBLineShape.hh"
+#include "PhysicsTools/TagAndProbe/interface/GaussianLineShape.hh"
+#include "PhysicsTools/TagAndProbe/interface/PolynomialLineShape.hh"
+#include "PhysicsTools/TagAndProbe/interface/CMSBkgLineShape.hh"
+
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-// ROOT headers
-
-#include <TCanvas.h>
-#include <TFile.h>
-#include <TGraphAsymmErrors.h>
-#include <TIterator.h>
-#include <TLatex.h>
-#include <TString.h>
-#include <TStyle.h>
-
-// system include files
-#include <vector>
-#include <string>
-
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "PhysicsTools/TagAndProbe/interface/RooCMSShapePdf.h"
-
-// Used for 2D efficiency reading/writing
-#include "PhysicsTools/TagAndProbe/interface/EffTableLoader.h"
 
 // ROOT
 #include <TROOT.h>
 #include <TChain.h>
-#include <TFile.h>
 #include <TCanvas.h>
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TTree.h>
+#include <TCanvas.h>
+#include <TFile.h>
+#include <TGraphAsymmErrors.h>
+#include <TStyle.h>
 
 // RooFit headers
 #include <RooAbsData.h>
 #include <RooDataSet.h>
 #include <RooAddPdf.h>
-#include <RooBreitWigner.h>
 #include <RooCategory.h>
 #include <RooCatType.h>
-#include <RooCBShape.h>
 #include <RooChi2Var.h>
 #include <RooDataHist.h>
 #include <RooFitResult.h>
-#include <RooGaussian.h>
 #include <RooGenericPdf.h>
 #include <RooGlobalFunc.h>
 #include <RooLandau.h>
 #include <RooMinuit.h>
 #include <RooNLLVar.h>
 #include <RooPlot.h>
-#include <RooPolynomial.h>
 #include <RooRealVar.h>
 #include <RooSimultaneous.h>
 #include <RooTreeData.h>
 
-TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig):var1Pass_(NULL),
-									   var1All_(NULL),
-									   var2Pass_(NULL),
-									   var2All_(NULL),
-									   var1var2Pass_(NULL),
-									   var1var2All_(NULL),
-									   var1BiasPass_(NULL),
-									   var1BiasAll_(NULL),
-									   var2BiasPass_(NULL),
-									   var2BiasAll_(NULL),
-									   var1var2BiasPass_(NULL),
-									   var1var2BiasAll_(NULL),
-									   signalShapePdf_(NULL)
+// system include files
+#include <vector>
+#include <string>
+
+TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig): zLineShape_(NULL),
+									    cbLineShape_(NULL),
+									    gaussLineShape_(NULL),
+									    polyBkgLineShape_(NULL),
+									    cmsBkgLineShape_(NULL),
+									    signalShapePdf_(NULL),
+									    var1Pass_(NULL),
+									    var1All_(NULL),
+									    var2Pass_(NULL),
+									    var2All_(NULL),
+									    var1var2Pass_(NULL),
+									    var1var2All_(NULL),
+									    var1BiasPass_(NULL),
+									    var1BiasAll_(NULL),
+									    var2BiasPass_(NULL),
+									    var2BiasAll_(NULL),
+									    var1var2BiasPass_(NULL),
+									    var1var2BiasAll_(NULL)
+									    
 {
    // TagProbeEDMAnalysis variables
    std::vector<string>       dEmptyStringVec;
@@ -226,17 +223,41 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig):var1P
    SBSPeak_     = iConfig.getUntrackedParameter< double >("SBSPeak",90);
    SBSStanDev_  = iConfig.getUntrackedParameter< double >("SBSStanDev",2);
 
+   
+
    // Fitter variables
+   rooMass_ = new RooRealVar("Mass","Invariant Di-Lepton Mass", massLow_, massHigh_, "GeV/c^{2}");
+   rooMass_->setBins(massNbins_);
+   
+   edm::ParameterSet dZLineShape;
+   edm::ParameterSet ZLineShapePSet = iConfig.getUntrackedParameter< edm::ParameterSet >("ZLineShape",dZLineShape);
+   if (!ZLineShapePSet.empty()) {
+     zLineShape_ = new ZLineShape(ZLineShapePSet, rooMass_);
+   }
 
-   zLineShape_ = new ZLineShape();
-   std::cout << "Configuring" << std::endl;
-   zLineShape_->Configure(iConfig);
-   std::cout << "All Done" << std::endl;
+   edm::ParameterSet dCBLineShape;
+   edm::ParameterSet CBLineShapePSet = iConfig.getUntrackedParameter< edm::ParameterSet >("CBLineShape",dCBLineShape);
+   if (!CBLineShapePSet.empty()) {
+     cbLineShape_ = new CBLineShape(CBLineShapePSet, rooMass_);
+   }
 
-   ConfigureCBLineShape(iConfig);
-   ConfigureGaussLineShape(iConfig);
-   ConfigurePolynomialShape(iConfig);
-   ConfigureCMSBackgroundLineShape(iConfig);
+   edm::ParameterSet dGaussLineShape;
+   edm::ParameterSet GaussLineShapePSet = iConfig.getUntrackedParameter< edm::ParameterSet >("GaussLineShape",dGaussLineShape);
+   if (!GaussLineShapePSet.empty()) {
+     gaussLineShape_ = new GaussianLineShape(GaussLineShapePSet, rooMass_);
+   }
+
+   edm::ParameterSet dPolyLineShape;
+   edm::ParameterSet PolyLineShapePSet = iConfig.getUntrackedParameter< edm::ParameterSet >("PolynomialLineShape",dPolyLineShape);
+   if (!PolyLineShapePSet.empty()) {
+     polyBkgLineShape_ = new PolynomialLineShape(PolyLineShapePSet, rooMass_);
+   }
+
+   edm::ParameterSet dCMSBkgLineShape;
+   edm::ParameterSet CMSBkgLineShapePSet = iConfig.getUntrackedParameter< edm::ParameterSet >("CMSBkgLineShape",dCMSBkgLineShape);
+   if (!CMSBkgLineShapePSet.empty()) {
+     cmsBkgLineShape_ = new CMSBkgLineShape(CMSBkgLineShapePSet, rooMass_);
+   }
 
    std::vector<double> dEff;
    dEff.push_back(0.98);
@@ -319,113 +340,6 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig):var1P
    InitializeMCHistograms();
 }
 
-void TagProbeEDMAnalysis::ConfigureCBLineShape(const edm::ParameterSet& iConfig){
-
-   // 2. CBLineShape
-   fitCBLineShape_ = false;
-   edm::ParameterSet dCBLineShape;
-   CBLineShape_     = iConfig.getUntrackedParameter< edm::ParameterSet >("CBLineShape",dCBLineShape);
-
-   std::vector<double> dCBM;
-   dCBM.push_back(91.1876);
-   dCBM.push_back(85.0);
-   dCBM.push_back(95.0);
-   cbMean_          = CBLineShape_.getUntrackedParameter< std::vector<double> >("CBMean",dCBM);
-   std::vector<double> dCBS;
-   dCBS.push_back(1.5);
-   dCBS.push_back(0.0);
-   dCBS.push_back(4.0);
-   cbSigma_         = CBLineShape_.getUntrackedParameter< std::vector<double> >("CBSigma",dCBS);
-   std::vector<double> dCBAlpha;
-   dCBAlpha.push_back(3.0);
-   dCBAlpha.push_back(1.0);
-   dCBAlpha.push_back(10.0);
-   cbAlpha_         = CBLineShape_.getUntrackedParameter< std::vector<double> >("CBAlpha",dCBAlpha);
-   std::vector<double> dCBN;
-   dCBN.push_back(3.0);
-   dCBN.push_back(0.0);
-   dCBN.push_back(20.0);
-   cbN_             = CBLineShape_.getUntrackedParameter< std::vector<double> >("CBN",dCBN);
-}
-
-
-void TagProbeEDMAnalysis::ConfigureGaussLineShape(const edm::ParameterSet& iConfig) {
-
-   // 3. GaussLineShape
-   fitGaussLineShape_ = false;
-   edm::ParameterSet dGaussLineShape;
-   GaussLineShape_     = iConfig.getUntrackedParameter< edm::ParameterSet >("GaussLineShape",dGaussLineShape);
-
-   std::vector<double> dGaussM;
-   dGaussM.push_back(91.1876);
-   dGaussM.push_back(85.0);
-   dGaussM.push_back(95.0);
-   gaussMean_          = GaussLineShape_.getUntrackedParameter< std::vector<double> >("GaussMean",dGaussM);
-   std::vector<double> dGaussS;
-   dGaussS.push_back(1.5);
-   dGaussS.push_back(0.0);
-   dGaussS.push_back(4.0);
-   gaussSigma_         = GaussLineShape_.getUntrackedParameter< std::vector<double> >("GaussSigma",dGaussS);
-
-}
-
-void TagProbeEDMAnalysis::ConfigureCMSBackgroundLineShape(const edm::ParameterSet& iConfig) {
-
-   // 1. CMS Background Line Shape
-   fitCMSBkgLineShape_ = false;
-   edm::ParameterSet dCMSBkgLineShape;
-   CMSBkgLineShape_ = iConfig.getUntrackedParameter< edm::ParameterSet >("CMSBkgLineShape",dCMSBkgLineShape);
-
-   std::vector<double> dBAl;
-   dBAl.push_back(0);  // Approximate turn on from pt cut;
-   cmsBkgAlpha_        = CMSBkgLineShape_.getUntrackedParameter< std::vector<double> >("CMSBkgAlpha",dBAl);
-   std::vector<double> dBBt;
-   dBBt.push_back(0.001); // "Rise time" from pt cut;
-   cmsBkgBeta_         = CMSBkgLineShape_.getUntrackedParameter< std::vector<double> >("CMSBkgBeta",dBBt);
-   std::vector<double> dBPk;
-   dBPk.push_back(91.1876);  // Offset to extend exponetial range.
-   cmsBkgPeak_         = CMSBkgLineShape_.getUntrackedParameter< std::vector<double> >("CMSBkgPeak",dBPk);
-   std::vector<double> dBGam; 
-   dBGam.push_back(0.08);
-   dBGam.push_back(0.0);
-   dBGam.push_back(1.0);
-   cmsBkgGamma_        = CMSBkgLineShape_.getUntrackedParameter< std::vector<double> >("CMSBkgGamma",dBGam);
-
-}
-
-void TagProbeEDMAnalysis::ConfigurePolynomialShape(const edm::ParameterSet& iConfig) {
-
-   // 2. Polynomial Background Line Shape
-   fitPolyBkgLineShape_ = false;
-   edm::ParameterSet dPolyBkgLineShape;
-   PolyBkgLineShape_ = iConfig.getUntrackedParameter< edm::ParameterSet >("PolyBkgLineShape",dPolyBkgLineShape);
-
-   std::vector<double> dC0;
-   dC0.push_back(0);
-   dC0.push_back(0);
-   dC0.push_back(10000);
-   polyBkgC0_        = PolyBkgLineShape_.getUntrackedParameter< std::vector<double> >("PolyBkgC0",dC0); 
-   std::vector<double> dC1;
-   dC1.push_back(1.0);
-   dC1.push_back(-1000);
-   dC1.push_back(1000);
-   polyBkgC1_        = PolyBkgLineShape_.getUntrackedParameter< std::vector<double> >("PolyBkgC1",dC1); 
-   std::vector<double> dC2;
-   dC2.push_back(0);
-   dC2.push_back(-1000);
-   dC2.push_back(1000);
-   polyBkgC2_        = PolyBkgLineShape_.getUntrackedParameter< std::vector<double> >("PolyBkgC2",dC2); 
-   std::vector<double> dC3;
-   dC3.push_back(0);
-   dC3.push_back(-1000);
-   dC3.push_back(1000);
-   polyBkgC3_        = PolyBkgLineShape_.getUntrackedParameter< std::vector<double> >("PolyBkgC3",dC3); 
-   std::vector<double> dC4;
-   dC4.push_back(0);
-   dC4.push_back(-1000);
-   dC4.push_back(1000);
-   polyBkgC4_        = PolyBkgLineShape_.getUntrackedParameter< std::vector<double> >("PolyBkgC4",dC4); 
-}
 
 void TagProbeEDMAnalysis::InitializeMCHistograms(){
 
@@ -551,8 +465,6 @@ TagProbeEDMAnalysis::~TagProbeEDMAnalysis()
    cleanFitVariables();
 }
 
-
-
 void TagProbeEDMAnalysis::FillFitTree(const edm::Event& iEvent){
 
       edm::Handle< std::vector<int> > tp_type;
@@ -604,9 +516,8 @@ void TagProbeEDMAnalysis::FillFitTree(const edm::Event& iEvent){
 
 
 // ------------ method called to for each event  ------------
-void
-TagProbeEDMAnalysis::analyze(const edm::Event& iEvent, 
-			     const edm::EventSetup& iSetup)
+void TagProbeEDMAnalysis::analyze(const edm::Event& iEvent, 
+				  const edm::EventSetup& iSetup)
 {
 
    // Safety check .. if mode = read, the user should use an empty source.
@@ -618,7 +529,6 @@ TagProbeEDMAnalysis::analyze(const edm::Event& iEvent,
       // Get the TP variables to fill the fitter tree ...
      FillFitTree(iEvent);
    }
-
 
    // Fill the MC truth information if required
    if( calcEffsTruth_ || mode_ == "Write" )
@@ -1363,196 +1273,34 @@ void TagProbeEDMAnalysis::TPEffFitter2D( string &fileName, string &bvar1, std::v
 // ***** Function to return the signal Pdf depending on the users choice of fit func ******* //
 void TagProbeEDMAnalysis::makeSignalPdf( )
 {
-   if( !CBLineShape_.empty() )
-   {
-      // So we can clean up ...
-      fitCBLineShape_ = true;
 
-      // Signal PDF variables
-      rooCBMean_  = new RooRealVar("cbMean","cbMean",cbMean_[0]);
-      rooCBSigma_ = new RooRealVar("cbSigma","cbSigma",cbSigma_[0]);
-      rooCBAlpha_ = new RooRealVar("cbAlpha","cbAlpha",cbAlpha_[0]);
-      rooCBN_     = new RooRealVar("cbN","cbN",cbN_[0]);
-
-      // If the user has set a range, make the variable float
-      if( cbMean_.size() == 3 )
-      {
-	 rooCBMean_->setRange(cbMean_[1],cbMean_[2]);
-	 rooCBMean_->setConstant(false);
-      }
-      if( cbSigma_.size() == 3 )
-      {
-	 rooCBSigma_->setRange(cbSigma_[1],cbSigma_[2]);
-	 rooCBSigma_->setConstant(false);
-      }
-      if( cbAlpha_.size() == 3 )
-      {
-	 rooCBAlpha_->setRange(cbAlpha_[1],cbAlpha_[2]);
-	 rooCBAlpha_->setConstant(false);
-      }
-      if( cbN_.size() == 3 )
-      {
-	 rooCBN_->setRange(cbN_[1],cbN_[2]);
-	 rooCBN_->setConstant(false);
-      }
-
-      rooCBPdf_ = new RooCBShape("cbPdf","cbPdf",*rooMass_,*rooCBMean_,
-      *rooCBSigma_,*rooCBAlpha_,*rooCBN_);
-
-      rooCBDummyFrac_ = new RooRealVar("dummyFrac","dummyFrac",1.0);
-      
-      std::cout << "1405" << std::endl;
-      signalShapePdf_ = new RooAddPdf("signalShapePdf", "signalShapePdf",
-      *rooCBPdf_,*rooCBPdf_,*rooCBDummyFrac_);
-      std::cout << "1408" << std::endl;
-
-      signalShapeFailPdf_  = signalShapePdf_;
-   }
-   else if( !GaussLineShape_.empty() )
-   {
-      // So we can clean up ...
-      fitGaussLineShape_ = true;
-
-      // Signal PDF variables
-      rooGaussMean_  = new RooRealVar("gaussMean","gaussMean",gaussMean_[0]);
-      rooGaussSigma_ = new RooRealVar("gaussSigma","gaussSigma",gaussSigma_[0]);
-
-      // If the user has set a range, make the variable float
-      if( gaussMean_.size() == 3 )
-      {
-	 rooGaussMean_->setRange(gaussMean_[1],gaussMean_[2]);
-	 rooGaussMean_->setConstant(false);
-      }
-      if( gaussSigma_.size() == 3 )
-      {
-	 rooGaussSigma_->setRange(gaussSigma_[1],gaussSigma_[2]);
-	 rooGaussSigma_->setConstant(false);
-      }
-
-      rooGaussPdf_ = new RooGaussian("gaussPdf","gaussPdf",*rooMass_,*rooGaussMean_,
-      *rooGaussSigma_);
-
-      rooGaussDummyFrac_ = new RooRealVar("dummyFrac","dummyFrac",1.0);
-
-      std::cout << "1438" << std::endl;
-      signalShapePdf_ = new RooAddPdf("signalShapePdf", "signalShapePdf",
-      *rooGaussPdf_,*rooGaussPdf_,*rooGaussDummyFrac_);
-      std::cout << "1440" << std::endl;
-
-      signalShapeFailPdf_  = signalShapePdf_;
-   } else {
-     std::cout << "1445" << std::endl;
-     zLineShape_->CreatePdf(signalShapePdf_, rooMass_);
+  
+   if (cbLineShape_) {
+     cbLineShape_->CreatePDF(signalShapePdf_);
      signalShapeFailPdf_  = signalShapePdf_;
-     std::cout << "1447" << std::endl;
-     std::cout << signalShapePdf_ << std::endl;
-     if (signalShapePdf_) {
-       std::cout << signalShapePdf_->getComponents()->getSize() << std::endl;
-     } else {
-       std::cout << "Epic Fail" << std::endl;
-     }
+   } else if (zLineShape_) {
+     zLineShape_->CreatePDF(signalShapePdf_);
+     signalShapeFailPdf_  = signalShapePdf_;
+   } else if (gaussLineShape_) {
+     gaussLineShape_->CreatePDF(signalShapePdf_);
+     signalShapeFailPdf_  = signalShapePdf_;
+   } else {
+     edm::LogError("TagAndProbe") << "No signal PDF specified";
+     exit(1);
    }
-
-   return;
 }
 
 // ***** Function to return the background Pdf depending on the users choice of fit func ******* //
 void TagProbeEDMAnalysis::makeBkgPdf( )
 {
-   if (!PolyBkgLineShape_.empty()) {
-      // So we can clean up
-      fitPolyBkgLineShape_ = true;
-
-      // Background PDF variables
-      rooPolyBkgC0_ = new RooRealVar("polyBkgC0","polyBkgC0",polyBkgC0_[0]);
-      rooPolyBkgC1_ = new RooRealVar("polyBkgC1","polyBkgC1",polyBkgC1_[0]);
-      rooPolyBkgC2_ = new RooRealVar("polyBkgC2","polyBkgC2",polyBkgC2_[0]);
-      rooPolyBkgC3_ = new RooRealVar("polyBkgC3","polyBkgC3",polyBkgC3_[0]);
-      rooPolyBkgC4_ = new RooRealVar("polyBkgC4","polyBkgC4",polyBkgC4_[0]);
-
-      // If the user has specified a range, let the bkg shape 
-      // variables float in the fit
-      if( polyBkgC0_.size() == 3 )
-      {
-	 rooPolyBkgC0_->setRange(polyBkgC0_[1],polyBkgC0_[2]);
-	 rooPolyBkgC0_->setConstant(false);
-      }
-      if( polyBkgC1_.size() == 3 )
-      {
-	 rooPolyBkgC1_->setRange(polyBkgC1_[1],polyBkgC1_[2]);
-	 rooPolyBkgC1_->setConstant(false);
-      }
-      if( polyBkgC2_.size() == 3 )
-      {
-	 rooPolyBkgC2_->setRange(polyBkgC2_[1],polyBkgC2_[2]);
-	 rooPolyBkgC2_->setConstant(false);
-      }
-      if( polyBkgC3_.size() == 3 )
-      {
-	 rooPolyBkgC3_->setRange(polyBkgC3_[1],polyBkgC3_[2]);
-	 rooPolyBkgC3_->setConstant(false);
-      }
-      if( polyBkgC4_.size() == 3 )
-      {
-	 rooPolyBkgC4_->setRange(polyBkgC4_[1],polyBkgC4_[2]);
-	 rooPolyBkgC4_->setConstant(false);
-      }
-
-      rooPolyBkgPdf_ = new RooPolynomial("polyBkgPdf","polyBkgPdf",*rooMass_,
-      RooArgList(*rooPolyBkgC0_,*rooPolyBkgC1_,*rooPolyBkgC2_,*rooPolyBkgC3_,*rooPolyBkgC4_),0);
-
-      rooPolyBkgDummyFrac_ = new RooRealVar("dummyFrac","dummyFrac",1.0);
-
-      bkgShapePdf_ = new RooAddPdf("bkgShapePdf", "bkgShapePdf",
-				   *rooPolyBkgPdf_,*rooPolyBkgPdf_,*rooPolyBkgDummyFrac_);
+   if (polyBkgLineShape_) {
+     polyBkgLineShape_->CreatePDF(bkgShapePdf_);
+   } else if(cmsBkgLineShape_) {
+     cmsBkgLineShape_->CreatePDF(bkgShapePdf_);
+   } else {
+     edm::LogError("TagAndProbe") << "No signal PDF specified";
+     exit(1);
    }
-   else
-   {
-  
-      // So we can clean up ...
-      fitCMSBkgLineShape_ = true;
-
-      // Background PDF variables
-      rooCMSBkgPeak_  = new RooRealVar("cmsBkgPeak","cmsBkgPeak",cmsBkgPeak_[0]);
-      rooCMSBkgBeta_  = new RooRealVar("cmsBkgBeta","cmsBkgBeta",cmsBkgBeta_[0]);
-      rooCMSBkgAlpha_ = new RooRealVar("cmsBkgAlpha","cmsBkgAlpha",cmsBkgAlpha_[0]);
-      rooCMSBkgGamma_ = new RooRealVar("cmsBkgGamma","cmsBkgGamma",cmsBkgGamma_[0]);
-
-      // If the user has specified a range, let the bkg shape 
-      // variables float in the fit
-      if( cmsBkgAlpha_.size() == 3 )
-      {
-	 rooCMSBkgAlpha_->setRange(cmsBkgAlpha_[1],cmsBkgAlpha_[2]);
-	 rooCMSBkgAlpha_->setConstant(false);
-      }
-      if( cmsBkgBeta_.size() == 3 )
-      {
-	 rooCMSBkgBeta_->setRange(cmsBkgBeta_[1],cmsBkgBeta_[2]);
-	 rooCMSBkgBeta_->setConstant(false);
-      }
-      if( cmsBkgGamma_.size() == 3 )
-      {
-	 rooCMSBkgGamma_->setRange(cmsBkgGamma_[1],cmsBkgGamma_[2]);
-	 rooCMSBkgGamma_->setConstant(false);
-      }
-      if( cmsBkgPeak_.size() == 3 )
-      {
-	 rooCMSBkgPeak_->setRange(cmsBkgPeak_[1],cmsBkgPeak_[2]);
-	 rooCMSBkgPeak_->setConstant(false);
-      }
-
-      rooCMSBkgPdf_ = new RooCMSShapePdf("cmsBkgPdf","cmsBkgPdf",*rooMass_,*rooCMSBkgAlpha_,
-      *rooCMSBkgBeta_,*rooCMSBkgGamma_,*rooCMSBkgPeak_);
-
-      rooCMSBkgDummyFrac_ = new RooRealVar("dummyFrac","dummyFrac",1.0);
-
-      std::cout << "1546" << std::endl;
-      bkgShapePdf_ = new RooAddPdf("bkgShapePdf", "bkgShapePdf",
-      *rooCMSBkgPdf_,*rooCMSBkgPdf_,*rooCMSBkgDummyFrac_);
-      std::cout << "1549" << std::endl;
-   }
-
-   return;
 }
 
 // ****************** Function to perform the efficiency fit ************ //
@@ -1564,8 +1312,6 @@ void TagProbeEDMAnalysis::doFit( std::string &bvar1, std::vector< double > bins1
   using namespace RooFit;
 
    // The fit variable - lepton invariant mass
-   rooMass_ = new RooRealVar("Mass","Invariant Di-Lepton Mass", massLow_, massHigh_, "GeV/c^{2}");
-   rooMass_->setBins(massNbins_);
    RooRealVar Mass = *rooMass_;
 
    // The binning variables
@@ -1833,9 +1579,9 @@ void TagProbeEDMAnalysis::doFit( std::string &bvar1, std::vector< double > bins1
    fitStyle.SetLabelSize(font_size, "XYZ");
    fitStyle.cd();
 
-   ostringstream oss1;
+   std::ostringstream oss1;
    oss1 << bin1;
-   ostringstream oss2;
+   std::ostringstream oss2;
    oss2 << bin2;
    string cname = "fit_canvas_" + bvar1 + "_" + oss1.str() + "_" + bvar2 + "_" + oss2.str();
    if( !is2D ) cname = "fit_canvas_" + bvar1 + "_" + oss1.str();
@@ -2032,13 +1778,7 @@ void TagProbeEDMAnalysis::CalculateEfficiencies()
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-TagProbeEDMAnalysis::beginJob()
-{
-
-}
-
-
+void TagProbeEDMAnalysis::beginJob(){}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
@@ -2114,61 +1854,23 @@ TagProbeEDMAnalysis::endJob()
 
       return;
    }
-
 }
 
 void TagProbeEDMAnalysis::cleanFitVariables()
 {
-  if( !calcEffsFitter_ ) return;
   
-  if( rooMass_ != NULL )               delete rooMass_;
-  if( signalShapePdf_ != NULL )        delete signalShapePdf_;
-  if( bkgShapePdf_ != NULL )           delete bkgShapePdf_;
-  
-  // Clean Z line shape
-  
-  if( fitCBLineShape_ )
-    {
-      // Clean CB line shape
-      if( rooCBMean_ != NULL )           delete rooCBMean_;
-      if( rooCBSigma_ != NULL )          delete rooCBSigma_;
-      if( rooCBAlpha_ != NULL )          delete rooCBAlpha_;
-      if( rooCBN_ != NULL )              delete rooCBN_;
-      if( rooCBDummyFrac_ != NULL )      delete rooCBDummyFrac_;
-      if( rooCBPdf_ != NULL )            delete rooCBPdf_;
-    }
-  
-  if( fitGaussLineShape_ )
-    {
-      // Clean Gauss line shape
-      if( rooGaussMean_ != NULL )           delete rooGaussMean_;
-      if( rooGaussSigma_ != NULL )          delete rooGaussSigma_;
-      if( rooGaussDummyFrac_ != NULL )      delete rooGaussDummyFrac_;
-      if( rooGaussPdf_ != NULL )            delete rooGaussPdf_;
-    }
-  
-  if( fitCMSBkgLineShape_ )
-    {
-      // Clean CMS Bkg line shape
-      if( rooCMSBkgAlpha_ != NULL )      delete rooCMSBkgAlpha_;
-      if( rooCMSBkgBeta_ != NULL )       delete rooCMSBkgBeta_;
-      if( rooCMSBkgPeak_ != NULL )       delete rooCMSBkgPeak_;
-      if( rooCMSBkgGamma_ != NULL )      delete rooCMSBkgGamma_;
-      if( rooCMSBkgDummyFrac_ != NULL )  delete rooCMSBkgDummyFrac_;
-      if( rooCMSBkgPdf_ != NULL )        delete rooCMSBkgPdf_;
-    }
-  
-  if( fitPolyBkgLineShape_ )
-    {
-      // Clean the polynomial background line shape
-      if( rooPolyBkgC0_ != NULL )        delete rooPolyBkgC0_;
-      if( rooPolyBkgC1_ != NULL )        delete rooPolyBkgC1_;
-      if( rooPolyBkgC2_ != NULL )        delete rooPolyBkgC2_;
-      if( rooPolyBkgC3_ != NULL )        delete rooPolyBkgC3_;
-      if( rooPolyBkgC4_ != NULL )        delete rooPolyBkgC4_;
-      if( rooPolyBkgDummyFrac_ != NULL ) delete rooPolyBkgDummyFrac_;
-      if( rooPolyBkgPdf_ != NULL )       delete rooPolyBkgPdf_;
-    }
+  if (rooMass_) {
+    delete rooMass_;
+    rooMass_ = NULL;
+  }
+  if (signalShapePdf_) {
+    delete signalShapePdf_;
+    signalShapePdf_ = NULL;
+  }
+  if (bkgShapePdf_) {
+    delete bkgShapePdf_;
+    bkgShapePdf_ = NULL;
+  }
 }
 
 //define this as a plug-in
