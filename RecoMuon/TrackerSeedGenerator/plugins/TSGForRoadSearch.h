@@ -73,6 +73,8 @@ private:
 private:
   /// get the FTS for a Track: adjusting the error matrix if requested
   bool IPfts(const reco::Track &, FreeTrajectoryState &);
+  /// make the adjustement away from PCA state if requested
+  bool notAtIPtsos(TrajectoryStateOnSurface & state);
 
   /// adjust the state at IP or where it is defined for the seed
   bool theAdjustAtIp;

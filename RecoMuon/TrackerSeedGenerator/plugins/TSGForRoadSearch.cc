@@ -84,6 +84,14 @@ void  TSGForRoadSearch::trackerSeeds(const TrackCand & muonTrackCand, const Trac
   }  
 }
 
+bool TSGForRoadSearch::notAtIPtsos(TrajectoryStateOnSurface & state){
+  LogDebug(theCategory)<<"outer state: "<<state;
+  if (theErrorMatrixAdjuster && !theAdjustAtIp){
+    theErrorMatrixAdjuster->adjust(state);
+    LogDebug(theCategory)<<"outer state after rescale: "<<state;
+  }
+  return true;
+}
 
 bool TSGForRoadSearch::IPfts(const reco::Track & muon, FreeTrajectoryState & fts){
   TrajectoryStateTransform transform; 
@@ -113,7 +121,7 @@ void TSGForRoadSearch::makeSeeds_0(const reco::Track & muon, std::vector<Traject
   if ( !inner.isValid() ) {LogDebug(theCategory) <<"inner state is not valid. no seed."; return;}
 
   //rescale the error
-  if (theErrorMatrixAdjuster && !theAdjustAtIp){ theErrorMatrixAdjuster->adjust(inner); }
+  if (!notAtIPtsos(inner)) return;
 
   double z = inner.globalPosition().z();
 
@@ -192,13 +200,11 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
   if ( !outer.isValid() ) {LogDebug(theCategory) <<"outer state is not valid. no seed."; return;}
   
   //rescale the error
-  if (theErrorMatrixAdjuster && !theAdjustAtIp){ theErrorMatrixAdjuster->adjust(outer); }
+  if (!notAtIPtsos(outer)) return;
 
   double z = outer.globalPosition().z();
 
-  const std::vector<ForwardDetLayer*> &ptidc = theMeasurementTracker->geometricSearchTracker()->posTidLayers();
   const std::vector<ForwardDetLayer*> &ptecc = theMeasurementTracker->geometricSearchTracker()->posTecLayers();
-  const std::vector<ForwardDetLayer*> &ntidc = theMeasurementTracker->geometricSearchTracker()->negTidLayers();
   const std::vector<ForwardDetLayer*> &ntecc = theMeasurementTracker->geometricSearchTracker()->negTecLayers();
 
   uint layerShift=0;
@@ -267,7 +273,7 @@ void TSGForRoadSearch::makeSeeds_4(const reco::Track & muon, std::vector<Traject
   if ( !inner.isValid() ) {LogDebug(theCategory) <<"inner state is not valid. no seed."; return;}
 
   //rescale the error
-  if (theErrorMatrixAdjuster && !theAdjustAtIp){ theErrorMatrixAdjuster->adjust(inner); }
+  if (!notAtIPtsos(inner)) return;
     
   double z = inner.globalPosition().z();
 
