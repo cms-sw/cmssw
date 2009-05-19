@@ -24,7 +24,9 @@ RecoParticleFlowRECO = cms.PSet(
 # AOD content
 RecoParticleFlowAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('drop CaloTowersSorted_towerMakerPF_*_*',
+        'drop *_pfElectronTranslator_*_*',
         'keep recoPFCandidates_*_*_*',
-        'keep *_pfElectronTranslator_*_*')
+        'keep recoCaloClusters_pfElectronTranslator_*_*',
+        'keep recoPreshowerClusters_pfElectronTranslator_*_*',
+        'keep recoSuperClusters_pfElectronTranslator_*_*')
 )
-
