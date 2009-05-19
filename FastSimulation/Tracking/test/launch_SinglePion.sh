@@ -192,8 +192,8 @@ cmsRun TEST_cfg.py >& log
 rfcp fevt.root $castorDir$filename
 
 EOF
-chmod 755 job_${name}.sh
-bsub -q cmst3 -R "mem>2000" -J $name $PWD/job_${name}.sh
+###chmod 755 job_${name}.sh
+###bsub -q cmst3 -R "mem>2000" -J $name $PWD/job_${name}.sh
 
 
   done

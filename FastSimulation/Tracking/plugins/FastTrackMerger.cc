@@ -23,7 +23,7 @@
 //
 
 //for debug only 
-//#define FAMOS_DEBUG
+#define FAMOS_DEBUG
 
 FastTrackMerger::FastTrackMerger(const edm::ParameterSet& conf) 
 {  
@@ -56,7 +56,7 @@ FastTrackMerger::FastTrackMerger(const edm::ParameterSet& conf)
   promoteQuality = conf.getUntrackedParameter<bool>("promoteTrackQuality",false);
   qualityStr = conf.getUntrackedParameter<std::string>("newQuality","");
 
-  // optional trackAlgo (iter1/2/3/4)
+  // optional trackAlgo (iter0/1/2/3/4)
   trackAlgo = conf.getUntrackedParameter<unsigned>("trackAlgo",0);
 
   //new parameters for Trajectory filtering
@@ -93,11 +93,12 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
   // The track algorithm (only of merging after iterative tracking)
   reco::TrackBase::TrackAlgorithm algo;
   switch(trackAlgo)  {
-  case 1:  algo = reco::TrackBase::iter1; break;
-  case 2:  algo = reco::TrackBase::iter2; break;
-  case 3:  algo = reco::TrackBase::iter3; break;
-  case 4:  algo = reco::TrackBase::iter4; break;
-  case 5:  algo = reco::TrackBase::iter5; break;
+  case 4:  algo = reco::TrackBase::iter0; break;
+  case 5:  algo = reco::TrackBase::iter1; break;
+  case 6:  algo = reco::TrackBase::iter2; break;
+  case 7:  algo = reco::TrackBase::iter3; break;
+  case 8:  algo = reco::TrackBase::iter4; break;
+  case 9:  algo = reco::TrackBase::iter5; break;
   default: algo = reco::TrackBase::undefAlgorithm;
   }
 
@@ -325,6 +326,8 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 	// Save the quality if requested
 	if (promoteQuality) recoTracks->back().setQuality(qualityToSet);	
 	if ( trackAlgo ) recoTracks->back().setAlgorithm(algo);
+	
+     
 	// A copy of the hits
 	unsigned nh = aRecoTrack.recHitsSize();
 	for ( unsigned ih=0; ih<nh; ++ih ) {
@@ -346,6 +349,7 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 #ifdef FAMOS_DEBUG
   std::cout << "Saving " 
 	    << recoTracks->size() << " reco::Tracks " << std::endl;
+
 #endif
   
   if ( tracksOnly ) { 
@@ -361,8 +365,12 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
     unsigned nTracks = recoTracks->size();
     recoTrackExtras->reserve(nTracks); // To save some time at push_back
     for ( unsigned index = 0; index < nTracks; ++index ) { 
+
       //reco::TrackExtra aTrackExtra;
       reco::Track& aTrack = recoTracks->at(index);
+
+      std::cout << "initial TrackAlgo = " << trackAlgo << "\tNAME " << aTrack.algoName() << "\tnumber = " << aTrack.algo() << std::endl;
+
       reco::TrackExtra aTrackExtra(aTrack.outerPosition(),
 				   aTrack.outerMomentum(),
 				   aTrack.outerOk(),

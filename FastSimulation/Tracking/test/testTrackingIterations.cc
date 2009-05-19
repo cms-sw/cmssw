@@ -53,6 +53,7 @@ private:
   
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
   edm::ParameterSet particleFilter_;
+  std::vector<edm::InputTag> zeroTracks;
   std::vector<edm::InputTag> firstTracks;
   std::vector<edm::InputTag> secondTracks;
   std::vector<edm::InputTag> thirdTracks;
@@ -106,8 +107,8 @@ private:
 
   const TrackerGeometry*  theGeometry;
 
-  int  num1fast, num2fast, num3fast, num4fast, num5fast;
-  int  num1full, num2full, num3full, num4full, num5full;
+  int  num0fast,num1fast, num2fast, num3fast, num4fast, num5fast;
+  int  num0full, num1full, num2full, num3full, num4full, num5full;
 
 };
 
@@ -158,6 +159,8 @@ testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
   particleFilter_ = p.getParameter<edm::ParameterSet>
     ( "TestParticleFilter" );   
 
+  zeroTracks.push_back(p.getParameter<edm::InputTag>("zeroFull"));
+  zeroTracks.push_back(p.getParameter<edm::InputTag>("zeroFast"));
   firstTracks.push_back(p.getParameter<edm::InputTag>("firstFull"));
   firstTracks.push_back(p.getParameter<edm::InputTag>("firstFast"));
   secondTracks.push_back(p.getParameter<edm::InputTag>("secondFull"));
@@ -254,9 +257,9 @@ testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
 testTrackingIterations::~testTrackingIterations()
 {
 
-  std::cout << "\tFULL \tFIRST \tSECOND \tTHIRD\t FOURTH " << std::endl;
-  std::cout << "\t\t" <<  num1full << "\t" << num2full <<"\t" << num3full << "\t" << num4full <<  "\t" << num5full << std::endl;
-  std::cout << "\t\t" <<  num1fast << "\t" << num2fast << "\t" << num3fast << "\t" << num4fast << "\t" << num5fast << std::endl;
+  std::cout << "\t\t \tZERO \tFIRST \tSECOND \tTHIRD\t FOURTH\tFIFTH " << std::endl;
+  std::cout << "\tFULL\t" <<  num0full << "\t"<< num1full << "\t" << num2full <<"\t" << num3full << "\t" << num4full <<  "\t" << num5full << std::endl;
+  std::cout << "\tFAST\t" <<  num0fast <<"\t"<< num1fast << "\t" << num2fast << "\t" << num3fast << "\t" << num4fast << "\t" << num5fast << std::endl;
 
   dbe->save(outputFileName);
 
@@ -275,8 +278,8 @@ void testTrackingIterations::beginRun(edm::Run& run, edm::EventSetup const& es)
   es.get<TrackerDigiGeometryRecord>().get(geometry);
   theGeometry = &(*geometry);
 
-  num1fast = num2fast = num3fast = num4fast= num5fast = 0;
-  num1full = num2full = num3full = num4full= num5full = 0;
+  num0fast = num1fast = num2fast = num3fast = num4fast= num5fast = 0;
+  num0full = num1full = num2full = num3full = num4full= num5full = 0;
 
 }
 
@@ -347,12 +350,14 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     // if ( tkColl[0]+tkColl[1]+tkColl[2] != 1 ) continue;
 
     if(ievt ==0){
+      num0full +=  tkColl[0]->size();       
       num1full +=  tkColl[0]->size();       
       num2full +=  tkColl[1]->size();
       num3full +=  tkColl[2]->size();
       num4full +=  tkColl[3]->size();
       num5full +=  tkColl[4]->size();
     } else if (ievt ==1){
+      num0fast +=  tkColl[0]->size();
       num1fast +=  tkColl[0]->size();
       num2fast +=  tkColl[1]->size();
       num3fast +=  tkColl[2]->size();
