@@ -23,7 +23,7 @@
 //
 
 //for debug only 
-#define FAMOS_DEBUG
+//#define FAMOS_DEBUG
 
 FastTrackMerger::FastTrackMerger(const edm::ParameterSet& conf) 
 {  
@@ -369,7 +369,7 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
       //reco::TrackExtra aTrackExtra;
       reco::Track& aTrack = recoTracks->at(index);
 
-      std::cout << "initial TrackAlgo = " << trackAlgo << "\tNAME " << aTrack.algoName() << "\tnumber = " << aTrack.algo() << std::endl;
+      // std::cout << "initial TrackAlgo = " << trackAlgo << "\tNAME " << aTrack.algoName() << "\tnumber = " << aTrack.algo() << std::endl;
 
       reco::TrackExtra aTrackExtra(aTrack.outerPosition(),
 				   aTrack.outerMomentum(),
