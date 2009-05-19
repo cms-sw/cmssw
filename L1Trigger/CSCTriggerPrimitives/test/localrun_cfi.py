@@ -1,11 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 # run = 59318
-run = 62232
+# run = 62232 # reference run ("splash" events)
 # run = 65882
 # run = 67926 # RUI00-18
 # run = 67912 # RUI00-18
 # run = 72038
+# run = 78396 # no HV
+# run = 79652 # new TMB firmware in one crate
+run = 80733 # new TMB firmware in all crates except ME-1
 dir =  "/data0/slava/data/run" + str(run) + "/"
 file = "csc_000" + str(run) + "_"
 ext = "_Monitor_000.raw"
@@ -14,7 +17,7 @@ ext = "_Monitor_000.raw"
 source = cms.Source("DaqSource",
     readerPluginName = cms.untracked.string("CSCFileReader"),
     readerPset = cms.untracked.PSet(
-        #firstEvent = cms.untracked.int32(35555),
+        #firstEvent = cms.untracked.int32(62550),
         #RUI00 = cms.untracked.vstring(dir+file+"EmuRUI00"+ext),
         RUI01 = cms.untracked.vstring(dir+file+"EmuRUI01"+ext),
         RUI02 = cms.untracked.vstring(dir+file+"EmuRUI02"+ext),

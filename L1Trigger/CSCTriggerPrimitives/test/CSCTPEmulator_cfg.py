@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("CSCTPEmulator")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
+  input = cms.untracked.int32(10000)
 )
 
 # Hack to add "test" directory to the python path.
@@ -118,6 +118,10 @@ process.cscTriggerPrimitiveDigis.CSCWireDigiProducer = "cscunpacker:MuonCSCWireD
 process.load("CSCTriggerPrimitivesReader_cfi")
 process.lctreader.debug = True
 
+# Auxiliary services
+# ==================
+#process.SimpleProfiling = cms.Service("SimpleProfiling")
+
 #process.myfilter = cms.EDFilter(
 #  'EventNumberFilter',
 #  runEventNumbers = cms.vuint32(1,4309, 1,4310)
@@ -126,8 +130,8 @@ process.lctreader.debug = True
 # Output
 # ======
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string("/data0/slava/test/lcts_run62232.root"),
-    #fileName = cms.untracked.string("/data0/slava/test/lcts_run80733.root"),
+    #fileName = cms.untracked.string("/data0/slava/test/lcts_run62232.root"),
+    fileName = cms.untracked.string("/data0/slava/test/lcts_run80733.root"),
     outputCommands = cms.untracked.vstring("keep *", 
         "drop *_DaqSource_*_*")
 )
