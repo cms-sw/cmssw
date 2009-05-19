@@ -19,8 +19,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2009/05/15 16:36:14 $
-//   $Revision: 1.37 $
+//   $Date: 2009/05/19 12:49:12 $
+//   $Revision: 1.38 $
 //
 //   Modifications: 
 //
@@ -1997,14 +1997,16 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
       int latch_bx = first_bx + drift_delay;
       bool hits_in_time = ptnFinding(pulse, maxHalfStrips, latch_bx);
       if (infoV > 1) {
-	for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER-1];
-	     hstrip < maxHalfStrips; hstrip++) {
-	  if (nhits[hstrip] > 0) {
-	    LogTrace("CSCCathodeLCTProcessor")
-	      << " bx = " << std::setw(2) << latch_bx << " --->"
-	      << " halfstrip = " << std::setw(3) << hstrip
-	      << " best pid = "  << std::setw(2) << best_pid[hstrip]
-	      << " nhits = "     << nhits[hstrip];
+	if (hits_in_time) {
+	  for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER-1];
+	       hstrip < maxHalfStrips; hstrip++) {
+	    if (nhits[hstrip] > 0) {
+	      LogTrace("CSCCathodeLCTProcessor")
+		<< " bx = " << std::setw(2) << latch_bx << " --->"
+		<< " halfstrip = " << std::setw(3) << hstrip
+		<< " best pid = "  << std::setw(2) << best_pid[hstrip]
+		<< " nhits = "     << nhits[hstrip];
+	    }
 	  }
 	}
       }
