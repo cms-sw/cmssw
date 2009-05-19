@@ -153,7 +153,7 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
       edm::LogInfo("CaloRecHitsProducer") << "Total number of cells in HCAL " << ncells << std::endl;
       hcalRecHits_.resize(maxIndex_+1,0.);
       edm::LogInfo("CaloRecHitsProducer") << "Largest HCAL hashedindex" << maxIndex_ << std::endl;
-      
+
       peds_.resize(9201);
       gains_.resize(9201);
       if(doSaturation_)
@@ -498,8 +498,8 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HFRecHitCollection &hf
 	{
 	  HFDataFrame myDataFrame(detid);
 	  myDataFrame.setSize(1);
-	  // Watch out; infamous 0.7 HF factor for the L1
-	  double nfc= 0.7 * hcalRecHits_[cellhashedindex]/gains_[cellhashedindex]+peds_[cellhashedindex];
+
+	  double nfc= hcalRecHits_[cellhashedindex]/gains_[cellhashedindex]+peds_[cellhashedindex];
 	  int nadc=fCtoAdc(nfc/2.6);
 	  HcalQIESample qie(nadc, 0, 0, 0) ;
 	  myDataFrame.setSample(0,qie);
