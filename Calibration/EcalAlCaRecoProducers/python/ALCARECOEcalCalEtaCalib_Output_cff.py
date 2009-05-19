@@ -7,6 +7,7 @@ OutALCARECOEcalCalEtaCalib = cms.PSet(
     ),
     outputCommands = cms.untracked.vstring('drop *', 
         'keep *_ecalEtaCorrected_etaEcalRecHitsEB_*',
-        'keep *_ecalEtaCorrected_etaEcalRecHitsEE_*')
+        'keep *_ecalEtaCorrected_etaEcalRecHitsEE_*',
+        'keep *_hltAlCaEtaRegRecHits_etaEcalRecHitsES_*')
 )
 

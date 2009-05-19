@@ -7,6 +7,7 @@ OutALCARECOEcalCalPi0Calib = cms.PSet(
     ),
     outputCommands = cms.untracked.vstring('drop *', 
         'keep *_ecalPi0Corrected_pi0EcalRecHitsEB_*',
-        'keep *_ecalPi0Corrected_pi0EcalRecHitsEE_*')
+        'keep *_ecalPi0Corrected_pi0EcalRecHitsEE_*',
+        'keep *_hltAlCaPi0RegRecHits_pi0EcalRecHitsES_*')
 )
 
