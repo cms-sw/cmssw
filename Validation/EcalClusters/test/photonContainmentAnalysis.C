@@ -9,6 +9,14 @@ double crystalball(double *x, double *par) {
   
   double cb = 0.0;
   double exponent = 0.0;
+
+/*   std::cout << " x = " << x[0] << " Par = "  */
+/*             << par[0] << " "  */
+/*             << par[1] << " "  */
+/*             << par[2] << " "  */
+/*             << par[3] << " "  */
+/*             << par[4] << std::endl; */
+
   if (x[0] > par[0] - par[2]*par[1]) {
     exponent = (x[0] - par[0])/par[1];
     cb = exp(-exponent*exponent/2.);
@@ -20,6 +28,9 @@ double crystalball(double *x, double *par) {
     cb = nenner/zaehler;
   }
   if (par[4] > 0.) { cb *= par[4]; }
+
+  //  std::cout << "CB = " << std::endl;
+
   return cb;
 }
 
@@ -37,7 +48,7 @@ void photonContainmentAnalysis() {
   // fitting the distributions to extract the parameter
   TF1 *gausa;
   TF1 *cb_p;
-  for(int myH=0; myH<6; myH++) {
+  for(int myH=0; myH<2; myH++) {
   
     // histos parameters
     int peakBin   = theHistos[myH]->GetMaximumBin();
@@ -65,9 +76,10 @@ void photonContainmentAnalysis() {
     cb_p->SetParNames ("Mean","Sigma","alpha","n","Norm","Constant");
     cb_p->SetParameter(0, gausMean);
     cb_p->SetParameter(1, gausSigma);
+    cb_p->SetParameter(2, 1.);
+    cb_p->SetParLimits(2, 0.1, 5.);
     cb_p->FixParameter(3, 5.);
     cb_p->SetParameter(4, gausNorm);
-    cb_p->SetParLimits(2, 0.1, 5.);
     theHistos[myH]->Fit("cb_p","lR","",myXmin,myXmax);
     theHistos[myH]->GetXaxis()->SetRangeUser(0.95,1.05); 
     double matrix_gmean      = cb_p->GetParameter(0);
