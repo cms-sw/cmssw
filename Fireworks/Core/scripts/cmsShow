@@ -40,7 +40,7 @@ if [ "`echo $@ | awk '/\-d/'`" != "" ] ; then
 else
    $SHELLDIR/cmsShow.exe $@
    if [ $? != "0" ] ; then
-      if [ rooot_interactvie == "" ] ; then
+      if [ "`echo $@ | awk '/\-r/'`" == "" ] ; then
          echo ""
          echo "  ########################################################################"
          echo "  #                                                                      #"
@@ -66,7 +66,7 @@ else
           echo  "#         you suspect this is a cmsShow bug               #"
           echo  "#                     AND                                 #"
           echo  "# you are able to reproduce the crash without the         #"
-          echo  "# --enable-root-prompt flag.                              #"
+          echo  "# --root-interactive flag.                                #"
           echo  "#                                                         #"
           echo  "###########################################################"
       fi
