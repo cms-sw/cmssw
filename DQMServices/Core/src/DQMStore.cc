@@ -1,15 +1,8 @@
+#include "DQMServices/Core/interface/Standalone.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/QReport.h"
 #include "DQMServices/Core/interface/QTest.h"
 #include "DQMServices/Core/src/DQMError.h"
-#if WITHOUT_CMS_FRAMEWORK
-# include "DQMServices/Core/interface/Standalone.h"
-#else
-# include "FWCore/Utilities/interface/GetReleaseVersion.h"
-# include "FWCore/ParameterSet/interface/ParameterSet.h"
-# include "FWCore/ServiceRegistry/interface/Service.h"
-# include "FWCore/MessageLogger/interface/JobReport.h"
-#endif
 #include "classlib/utils/RegexpMatch.h"
 #include "classlib/utils/Regexp.h"
 #include "classlib/utils/StringOps.h"
