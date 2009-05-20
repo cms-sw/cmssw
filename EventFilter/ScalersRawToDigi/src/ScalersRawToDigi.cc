@@ -75,11 +75,9 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
   {
     L1TriggerScalers triggerScalers(fedData.data());
     pTrigger->push_back(triggerScalers);
-    iEvent.put(pTrigger); 
 
     LumiScalers      lumiScalers(fedData.data());
     pLumi->push_back(lumiScalers);
-    iEvent.put(pLumi); 
 
     int nWords = length / 8;
     int nBytesExtra = length - sizeof(struct ScalersEventRecordRaw_v1);
@@ -95,9 +93,11 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
 	L1AcceptBunchCrossing bc(i,data[index]);
 	pBunch->push_back(bc);
       }
-      iEvent.put(pBunch); 
     }
   }
+  iEvent.put(pTrigger); 
+  iEvent.put(pLumi); 
+  iEvent.put(pBunch);
 }
 
 // Define this as a plug-in
