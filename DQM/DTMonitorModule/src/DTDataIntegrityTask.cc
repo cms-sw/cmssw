@@ -4,7 +4,7 @@
  * 
  * $Date: 2009/05/07 08:17:49 $
  * $Revision: 1.57 $
- * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
+ * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino), G. Cerminara (INFN Torino)
  *
  */
 
@@ -93,20 +93,20 @@ void DTDataIntegrityTask::bookHistos(const int fedMin, const int fedMax) {
   hFEDFatal = dbe->book1D("FEDFatal","# fatal errors DT FED",nFED,fedMin,fedMax+1);
   hFEDNonFatal = dbe->book1D("FEDNonFatal","# NON fatal errors DT FED",nFED,fedMin,fedMax+1);
 
-  if(!hltMode) {
-    dbe->setCurrentFolder(topFolder());
-    hTTSSummary = dbe->book2D("TTSSummary","Summary Status TTS",nFED,fedMin,fedMax+1,9,1,10);
-    hTTSSummary->setAxisTitle("FED",1);
-    hTTSSummary->setBinLabel(1,"ROS PAF",2);	
-    hTTSSummary->setBinLabel(2,"DDU PAF",2);	
-    hTTSSummary->setBinLabel(3,"ROS PAF",2);	
-    hTTSSummary->setBinLabel(4,"DDU PAF",2);	
-    hTTSSummary->setBinLabel(5,"DDU Full",2);	
-    hTTSSummary->setBinLabel(6,"L1A Mism.",2);	
-    hTTSSummary->setBinLabel(7,"ROS Error",2);	
-    hTTSSummary->setBinLabel(8,"BX Mism.",2);	
-    hTTSSummary->setBinLabel(9,"DDU Logic Err.",2);	
-  }
+
+  dbe->setCurrentFolder(topFolder());
+  hTTSSummary = dbe->book2D("TTSSummary","Summary Status TTS",nFED,fedMin,fedMax+1,9,1,10);
+  hTTSSummary->setAxisTitle("FED",1);
+  hTTSSummary->setBinLabel(1,"ROS PAF",2);	
+  hTTSSummary->setBinLabel(2,"DDU PAF",2);	
+  hTTSSummary->setBinLabel(3,"ROS PAF",2);	
+  hTTSSummary->setBinLabel(4,"DDU PAF",2);	
+  hTTSSummary->setBinLabel(5,"DDU Full",2);	
+  hTTSSummary->setBinLabel(6,"L1A Mism.",2);	
+  hTTSSummary->setBinLabel(7,"ROS Error",2);	
+  hTTSSummary->setBinLabel(8,"BX Mism.",2);	
+  hTTSSummary->setBinLabel(9,"DDU Logic Err.",2);	
+
 }
 
 
@@ -788,11 +788,11 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
     LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
       << "[DTDataIntegrityTask]: " << neventsDDU << " events analyzed by processFED" << endl;
 
-  if(hltMode) return;
 
   DTROChainCoding code;
   code.setDDU(ddu);
 
+  hFEDEntry->Fill(code.getDDUID());
 
   FEDTrailer trailer = data.getDDUTrailer();
   FEDHeader header = data.getDDUHeader();
@@ -803,10 +803,8 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
 
   // Fill the status summary of the TTS
 
-  //1D HISTO WITH TTS VALUES form trailer (7 bins = 7 values)
-  MonitorElement* hTTSValue = dduHistos["TTSValues"][code.getDDUID()];
 
-  
+  //1D HISTO WITH TTS VALUES form trailer (7 bins = 7 values)
   int ttsCodeValue = -1;
   int ttsSummaryBin = -1;
 
@@ -880,7 +878,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
     ttsCodeValue = 7;
   }
   }
-  hTTSValue->Fill(ttsCodeValue);
+  if(!hltMode) dduHistos["TTSValues"][code.getDDUID()]->Fill(ttsCodeValue);
   if(ttsSummaryBin != -1) {
     hTTSSummary->Fill(ddu, ttsSummaryBin);
   }
@@ -888,15 +886,6 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
 
 
 
-  //1D HISTOS: EVENT LENGHT from trailer
-  //cout<<"1D HISTOS WITH EVENT LENGHT from trailer"<<endl;
-  int fedEvtLenght = trailer.lenght()*8;
-//   if(fedEvtLenght > 16000) fedEvtLenght = 16000; // overflow bin
-  dduHistos["EventLenght"][code.getDDUID()]->Fill(fedEvtLenght);
-
-  //1D HISTO: EVENT TYPE from header
-  //cout<<"1D HISTO WITH EVENT TYPE from header"<<endl;
-  dduHistos["EventType"][code.getDDUID()]->Fill(header.triggerType());
 
 
   //2D HISTO: ROS VS STATUS (8 BIT = 8 BIN) from 1st-2nd status words (9th BIN FROM LIST OF ROS in 2nd status word)
@@ -909,7 +898,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
     if(rosList & 0x1) {
       rosPositions.insert(i);
       //9th BIN FROM LIST OF ROS in 2nd status word
-      hROSStatus->Fill(8,i,1);
+      if(!hltMode) hROSStatus->Fill(8,i,1);
     }
     rosList >>= 1;
   }
@@ -918,20 +907,72 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   for (vector<DTDDUFirstStatusWord>::const_iterator fsw_it = data.getFirstStatusWord().begin();
        fsw_it != data.getFirstStatusWord().end(); fsw_it++) {
     // assuming association one-to-one between DDU channel and ROS
-    hROSStatus->Fill(0,channel,(*fsw_it).channelEnabled());
-    hROSStatus->Fill(1,channel,(*fsw_it).timeout());
-    hROSStatus->Fill(2,channel,(*fsw_it).eventTrailerLost());
-    hROSStatus->Fill(3,channel,(*fsw_it).opticalFiberSignalLost());
-    hROSStatus->Fill(4,channel,(*fsw_it).tlkPropagationError());
-    hROSStatus->Fill(5,channel,(*fsw_it).tlkPatternError());
-    hROSStatus->Fill(6,channel,(*fsw_it).tlkSignalLost());
-    hROSStatus->Fill(7,channel,(*fsw_it).errorFromROS());
+    if(!hltMode) {
+      hROSStatus->Fill(0,channel,(*fsw_it).channelEnabled());
+      hROSStatus->Fill(1,channel,(*fsw_it).timeout());
+      hROSStatus->Fill(2,channel,(*fsw_it).eventTrailerLost());
+      hROSStatus->Fill(3,channel,(*fsw_it).opticalFiberSignalLost());
+      hROSStatus->Fill(4,channel,(*fsw_it).tlkPropagationError());
+      hROSStatus->Fill(5,channel,(*fsw_it).tlkPatternError());
+      hROSStatus->Fill(6,channel,(*fsw_it).tlkSignalLost());
+      hROSStatus->Fill(7,channel,(*fsw_it).errorFromROS());
+    }
     // check that the enabled channel was also in the read-out
     if((*fsw_it).channelEnabled() == 1 &&
-       rosPositions.find(channel) == rosPositions.end()) hROSStatus->Fill(9,channel,1);
-    
+       rosPositions.find(channel) == rosPositions.end()) {
+      if(!hltMode) hROSStatus->Fill(9,channel,1);
+      hFEDFatal->Fill(code.getDDUID());
+    }
     channel++;
   }
+
+
+  // ---------------------------------------------------------------------
+  // cross checks between FED and ROS data
+  // check the BX ID against the ROSs
+  set<int> rosBXIds = rosBxIdsPerFED[ddu];
+  if((rosBXIds.size() > 1 || rosBXIds.find(header.bxID()) == rosBXIds.end()) && rosBXIds.size() != 0) { // in this case look for faulty ROSs
+    for(vector<DTROS25Data>::const_iterator rosControlData = rosData.begin();
+	rosControlData != rosData.end(); ++rosControlData) { // loop over the ROS data
+      for (vector<DTROSDebugWord>::const_iterator debug_it = (*rosControlData).getROSDebugs().begin();
+	   debug_it != (*rosControlData).getROSDebugs().end(); debug_it++) { // Loop over ROS debug words
+	if ((*debug_it).debugType() == 0 && (*debug_it).debugMessage() != header.bxID()) { // check the BX
+	  int ros = (*rosControlData).getROSID();
+	  // fill the error bin
+	  if(!hltMode) hROSStatus->Fill(11,ros-1);
+	  hFEDFatal->Fill(code.getDDUID());
+	}
+      }
+    }
+  }
+
+  // check the BX ID against other FEDs
+  fedBXIds.insert(header.bxID());
+  if(fedBXIds.size() != 1) {
+    LogWarning("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
+      << "ERROR: FED " << ddu << " BX ID different from other feds: " << header.bxID() << endl;
+    hFEDFatal->Fill(code.getDDUID());
+  }
+
+
+  // check the L1A ID against the ROSs 
+  set<int> rosL1AIds = rosL1AIdsPerFED[ddu];
+  if((rosL1AIds.size() > 1 || rosL1AIds.find(header.lvl1ID()-1) == rosL1AIds.end()) && rosL1AIds.size() != 0) { // in this case look for faulty ROSs
+    //If L1A_ID error identify which ROS has wrong L1A 
+    for (vector<DTROS25Data>::const_iterator rosControlData = rosData.begin();
+	 rosControlData != rosData.end(); rosControlData++) { // loop over the ROS data
+      int ROSHeader_TTCCount = ((*rosControlData).getROSHeader()).TTCEventCounter();
+      if(ROSHeader_TTCCount != header.lvl1ID()-1) {
+	int ros = (*rosControlData).getROSID();
+	if(!hltMode) hROSStatus->Fill(10,ros-1);
+	hFEDFatal->Fill(code.getDDUID());
+      }
+    }
+  }
+
+
+  if(hltMode) return;
+
 
   // size of the list of ROS in the Read-Out
   dduHistos["ROSList"][code.getDDUID()]->Fill(rosPositions.size());
@@ -984,67 +1025,17 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
 
  
 
-  // ---------------------------------------------------------------------
-  // cross checks between FED and ROS data
-  // check the BX ID against the ROSs
-  set<int> rosBXIds = rosBxIdsPerFED[ddu];
-  if((rosBXIds.size() > 1 || rosBXIds.find(header.bxID()) == rosBXIds.end()) && rosBXIds.size() != 0) { // in this case look for faulty ROSs
-    cout << " Enter the loop to check BX ids" << endl;
-    for(vector<DTROS25Data>::const_iterator rosControlData = rosData.begin();
-	rosControlData != rosData.end(); ++rosControlData) { // loop over the ROS data
-      for (vector<DTROSDebugWord>::const_iterator debug_it = (*rosControlData).getROSDebugs().begin();
-	   debug_it != (*rosControlData).getROSDebugs().end(); debug_it++) { // Loop over ROS debug words
-	if ((*debug_it).debugType() == 0 && (*debug_it).debugMessage() != header.bxID()) { // check the BX
-	  int ros = (*rosControlData).getROSID();
-	  // fill the error bin
-	  hROSStatus->Fill(11,ros-1);
-	}
-      }
-    }
-  }
 
-  // check the BX ID against other FEDs
-  fedBXIds.insert(header.bxID());
-  if(fedBXIds.size() != 1) {
-    LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
-      << "ERROR: FED " << ddu << " BX ID different from other feds: " << header.bxID() << endl;
-    // FIXME: write it somewhere FEDFatal
-  }
+  //1D HISTOS: EVENT LENGHT from trailer
+  int fedEvtLenght = trailer.lenght()*8;
+//   if(fedEvtLenght > 16000) fedEvtLenght = 16000; // overflow bin
+  dduHistos["EventLenght"][code.getDDUID()]->Fill(fedEvtLenght);
+
+  //1D HISTO: EVENT TYPE from header
+  dduHistos["EventType"][code.getDDUID()]->Fill(header.triggerType());
 
   // fill the distribution of the BX ids
   dduHistos["BXID"][code.getDDUID()]->Fill(header.bxID());
-
-  // check the L1A ID against the ROSs 
-  set<int> rosL1AIds = rosL1AIdsPerFED[ddu];
-  if((rosL1AIds.size() > 1 || rosL1AIds.find(header.lvl1ID()-1) == rosL1AIds.end()) && rosL1AIds.size() != 0) { // in this case look for faulty ROSs
-    cout << " Enter the loop to check L1A IDs" << endl;
-    //If L1A_ID error identify which ROS has wrong L1A 
-    for (vector<DTROS25Data>::const_iterator rosControlData = rosData.begin();
-	 rosControlData != rosData.end(); rosControlData++) { // loop over the ROS data
-      int ROSHeader_TTCCount = ((*rosControlData).getROSHeader()).TTCEventCounter();
-      if(ROSHeader_TTCCount != header.lvl1ID()-1) {
-	int ros = (*rosControlData).getROSID();
-	cout << "     DDU L1A : " << header.lvl1ID() << " ROS: " << ros << " L1A: " << ROSHeader_TTCCount << endl;
-	hROSStatus->Fill(10,ros-1);
-      }
-    }
-  }
-
-//   float totalROS = 0.;
-//   // event lenght
-//   for(vector<DTROS25Data>::const_iterator rosControlData = rosData.begin();
-//       rosControlData != rosData.end(); ++rosControlData) {
-// //     int ros = (*rosControlData).getROSID();
-//     totalROS += (*rosControlData).getROSTrailer().EventWordCount();
-//   }
-//   // FIXME: check reason for 8 words difference between DDU and ROS sum 
-//   if(ceil(totalROS/2.) - trailer.lenght() != 8) {
-//     LogWarning("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
-//       << "[DTDataIntegrityTask]***Warning: Size mismatch in DDU " << ddu
-//       << " payload: ROS # words: " << totalROS
-//       << " DDU # words: " <<  trailer.lenght() << endl;
-//     fedNonFatal(ddu); // FIXME: dedicated histo?
-//   }
 
 
 }
