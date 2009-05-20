@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:42 EDT 2008
-// $Id: CmsShowEDI.h,v 1.9 2009/04/07 14:13:00 chrjones Exp $
+// $Id: CmsShowEDI.h,v 1.10 2009/04/13 21:19:57 chrjones Exp $
 //
 
 // system include files
@@ -51,6 +51,8 @@ public:
    CmsShowEDI(const TGWindow* p = 0, UInt_t w = 1, UInt_t h = 1, FWSelectionManager* selMgr = 0,
    FWColorManager* colorMgr=0);
    virtual ~CmsShowEDI();
+
+   virtual void CloseWindow() { UnmapWindow(); }
 
    // ---------- const member functions ---------------------
    

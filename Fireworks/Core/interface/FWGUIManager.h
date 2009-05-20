@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.64 2009/05/17 06:15:43 jmuelmen Exp $
+// $Id: FWGUIManager.h,v 1.65 2009/05/19 10:21:07 amraktad Exp $
 //
 
 // system include files
@@ -113,27 +113,21 @@ public:
 
    void createEDIFrame();
    void updateEDI(FWEventItem* iItem);
-   void resetEDIFrame();
    ///Allowed values are -1 or ones from FWDataCategories enum
    void showEDIFrame(int iInfoToShow=-1);
 
    void showColorPopup();
-   void resetColorPopup();
 
    void createModelPopup();
-   void resetModelPopup();
    void showModelPopup();
 
    void createViewPopup();
    void refillViewPopup(FWViewBase* iView);
-   void resetViewPopup();
    void showViewPopup();
 
    // help
    void createHelpPopup ();
-   void resetHelpPopup ();
    void createShortcutPopup ();
-   void resetShortcutPopup ();
 
    // ---------- const member functions ---------------------
    //      bool waitingForUserAction() const;

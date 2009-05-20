@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:31 EDT 2008
-// $Id: CmsShowModelPopup.h,v 1.9 2009/04/07 14:13:00 chrjones Exp $
+// $Id: CmsShowModelPopup.h,v 1.10 2009/04/13 21:21:12 chrjones Exp $
 //
 
 // system include files
@@ -47,6 +47,7 @@ public:
    CmsShowModelPopup(FWDetailViewManager*, FWSelectionManager*, const FWColorManager*, const TGWindow* p = 0, UInt_t w = 1, UInt_t h = 1);
    virtual ~CmsShowModelPopup();
 
+  virtual void CloseWindow() { UnmapWindow(); }
    // ---------- const member functions ---------------------
 
    // ---------- static member functions --------------------

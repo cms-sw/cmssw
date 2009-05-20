@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:31 EDT 2008
-// $Id: CmsShowHelpPopup.h,v 1.3 2008/11/06 22:05:22 amraktad Exp $
+// $Id: CmsShowHelpPopup.h,v 1.4 2009/01/23 21:35:40 amraktad Exp $
 //
 
 // system include files
@@ -33,6 +33,7 @@ public:
                      const std::string &windowname, const TGWindow* p = 0,
                      UInt_t w = 1, UInt_t h = 1);
    virtual ~CmsShowHelpPopup();
+   virtual void CloseWindow() { UnmapWindow(); }
 
    static std::string helpFileName (const std::string &);
 

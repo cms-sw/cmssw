@@ -17,6 +17,9 @@ public:
    virtual ~CmsShowColorPopup();
 
    // ---------- member functions ---------------------------
+
+  virtual void CloseWindow() { UnmapWindow(); }
+
   void changeBackgroundColor() ;
   void defaultBrightness();
   void setBrightness(int);

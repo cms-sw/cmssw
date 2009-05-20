@@ -58,7 +58,6 @@ CmsShowColorPopup::CmsShowColorPopup(const TGWindow* p, UInt_t w, UInt_t h) :
       AddFrame(fr, new  TGLayoutHints(kLHintsExpandX, 4,2,0,2));
    }
 
-   DontCallClose();
    MapSubwindows();
    Layout();
 }

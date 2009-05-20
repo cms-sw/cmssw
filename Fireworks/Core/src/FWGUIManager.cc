@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.123 2009/05/17 06:15:43 jmuelmen Exp $
+// $Id: FWGUIManager.cc,v 1.124 2009/05/19 10:21:07 amraktad Exp $
 //
 
 // system include files
@@ -539,7 +539,6 @@ void
 FWGUIManager::createEDIFrame() {
    if (m_ediFrame == 0) {
       m_ediFrame = new CmsShowEDI(m_cmsShowMainFrame, 200, 200, m_selectionManager,m_colorManager);
-      m_ediFrame->Connect("CloseWindow()", "FWGUIManager", this, "resetEDIFrame()");
       m_ediFrame->CenterOnParent(kTRUE,TGTransientFrame::kTopRight);
    }
 }
@@ -549,13 +548,7 @@ FWGUIManager::updateEDI(FWEventItem* iItem) {
    createEDIFrame();
    m_ediFrame->fillEDIFrame(iItem);
 }
-
-void
-FWGUIManager::resetEDIFrame() {
-   m_ediFrame->DontCallClose();
-   m_ediFrame->UnmapWindow();
-}
-
+  
 void
 FWGUIManager::showEDIFrame(int iToShow)
 {
@@ -572,22 +565,15 @@ FWGUIManager::showColorPopup()
   if (! m_colorPopup)
   {
       m_colorPopup = new CmsShowColorPopup(m_cmsShowMainFrame, 200, 200);
-      m_colorPopup->Connect("CloseWindow()", "FWGUIManager", this, "resetColorPopup()");
   }
   m_colorPopup->MapWindow();
   m_colorPopup->setModel(m_colorManager);
 }
 
 void
-FWGUIManager::resetColorPopup() {
-  m_colorPopup->UnmapWindow();
-}
-
-void
 FWGUIManager::createModelPopup()
 {
    m_modelPopup = new CmsShowModelPopup(m_detailViewManager,m_selectionManager, m_colorManager, m_cmsShowMainFrame, 200, 200);
-   m_modelPopup->Connect("CloseWindow()", "FWGUIManager", this, "resetModelPopup()");
    m_modelPopup->CenterOnParent(kTRUE,TGTransientFrame::kRight);
 }
 
@@ -599,16 +585,9 @@ FWGUIManager::showModelPopup()
 }
 
 void
-FWGUIManager::resetModelPopup() {
-   m_modelPopup->DontCallClose();
-   m_modelPopup->UnmapWindow();
-}
-
-void
 FWGUIManager::createViewPopup() {
    if (m_viewPopup == 0) {
       m_viewPopup = new CmsShowViewPopup(m_cmsShowMainFrame, 200, 200, m_colorManager, m_viewBases[0]);
-      m_viewPopup->Connect("CloseWindow()", "FWGUIManager", this, "resetViewPopup()");
       m_viewPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
    }
    /* seems to work but a small scale test caused seg faults
@@ -627,12 +606,6 @@ FWGUIManager::refillViewPopup(FWViewBase* iView) {
 }
 
 void
-FWGUIManager::resetViewPopup() {
-   m_viewPopup->DontCallClose();
-   m_viewPopup->UnmapWindow();
-}
-
-void
 FWGUIManager::showViewPopup() {
    createViewPopup();
    m_viewPopup->MapWindow();
@@ -644,39 +617,23 @@ void FWGUIManager::createHelpPopup ()
       m_helpPopup = new CmsShowHelpPopup("help.html", "CmsShow Help",
                                          m_cmsShowMainFrame,
                                          800, 600);
-      m_helpPopup->Connect("CloseWindow()", "FWGUIManager", this,
-                           "resetHelpPopup()");
       m_helpPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
    }
    m_helpPopup->MapWindow();
 }
-
-void FWGUIManager::resetHelpPopup ()
-{
-   m_helpPopup->DontCallClose();
-   m_helpPopup->UnmapWindow();
-}
-
+ 
 void FWGUIManager::createShortcutPopup ()
 {
    if (m_shortcutPopup == 0) {
       m_shortcutPopup = new CmsShowHelpPopup("shortcuts.html",
                                              "Keyboard Shortcuts",
                                              m_cmsShowMainFrame, 800, 600);
-      m_shortcutPopup->Connect("CloseWindow()", "FWGUIManager", this,
-                               "resetShortcutPopup()");
+
       m_shortcutPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
    }
    m_shortcutPopup->MapWindow();
 }
-
-void FWGUIManager::resetShortcutPopup ()
-{
-   m_shortcutPopup->DontCallClose();
-   m_shortcutPopup->UnmapWindow();
-}
-
-//
+ //
 // const member functions
 //
 
