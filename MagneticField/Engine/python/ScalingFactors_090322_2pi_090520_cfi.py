@@ -21,17 +21,6 @@ fieldScaling = cms.PSet(
     29100,        #YB0/3
     29300,29400,  #YB+1/3
     29600,        #YB+2/3
-    #Brackets between yoke stations -- all sectors
-    18900,        #YB-2/1-2
-    19700,20100,  #YB-1/1-2
-    20900,        #YB0/1-2
-    21700,22100,  #YB+1/1-2
-    22900,        #YB+2/1-2
-    24300,        #YB-2/2-3
-    25100,25500,  #YB-1/2-3
-    26300,        #YB0/2-3
-    27100,27500,  #YB+1/2-3
-    29600,        #YB+2/2-3
     # Barrel yoke plates -- sector 9, layer 3
     28609,        #YB-2/3
     28809,28909,  #YB-1/3
@@ -70,17 +59,6 @@ scalingFactors = cms.vdouble(
     0.906,        #YB0/3
     0.924,0.924,  #YB+1/3
     0.918,        #YB+2/3
-    #Brackets between yoke stations
-    1,            #YB-2/1-2
-    1,1,          #YB-1/1-2
-    1,            #YB0/1-2
-    1,1,          #YB+1/1-2
-    1,            #YB+2/1-2
-    1,            #YB-2/2-3
-    1,1,          #YB-1/2-3
-    1,            #YB0/2-3
-    1,1,          #YB+1/2-3
-    1,            #YB+2/2-3
     # Barrel yoke plates -- sector 9, layer 3
     0.991,        #YB-2/3
     0.998,0.998,  #YB-1/3
