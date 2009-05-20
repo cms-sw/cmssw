@@ -77,6 +77,9 @@ KalmanVertexUpdator<N>::positionUpdate (const VertexState & oldVertex,
 {
   int error;
 
+  if (!linearizedTrack->isValid())
+    return VertexState();
+
   const AlgebraicMatrixN3 & a = linearizedTrack->positionJacobian();
   const AlgebraicMatrixNM & b = linearizedTrack->momentumJacobian();
 
@@ -138,6 +141,9 @@ pair <bool, double>  KalmanVertexUpdator<N>::chi2Increment(const VertexState & o
 {
   int error;
   GlobalPoint newVertexPosition = newVertexState.position();
+
+  if (!linearizedTrack->isValid())
+    return pair <bool, double> ( false, -1. );
 
   AlgebraicVector3 newVertexPositionV;
   newVertexPositionV(0) = newVertexPosition.x();

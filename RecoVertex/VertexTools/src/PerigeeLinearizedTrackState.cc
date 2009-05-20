@@ -70,6 +70,8 @@ void PerigeeLinearizedTrackState::computeJacobians() const
 //   << "\n Dir      " << theTSOS.globalDirection ()
 //    << "\n";
   thePredState = builder(theTSOS, paramPt); 
+  if (!thePredState.isValid())
+    return;
 //   std::cout << "thePredState " << thePredState.theState().position()<<std::endl;
 //   edm::LogInfo("RecoVertex/PerigeeLTS") 
 //     << "predstate built" << "\n";
@@ -384,4 +386,15 @@ void PerigeeLinearizedTrackState::computeNeutralJacobians() const
   		  theMomentumJacobian * momentumAtExpansionPoint );
 
 
+}
+
+bool PerigeeLinearizedTrackState::isValid() const
+{
+  if (!theTSOS.isValid())
+    return false;
+
+  if (!jacobiansAvailable)
+    computeJacobians();
+
+  return jacobiansAvailable;
 }

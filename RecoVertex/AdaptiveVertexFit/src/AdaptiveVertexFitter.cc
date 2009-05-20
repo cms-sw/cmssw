@@ -314,8 +314,7 @@ AdaptiveVertexFitter::linearizeTracks(const vector<reco::TransientTrack> & track
     try {
       RefCountedLinearizedTrackState lTrData
         = theLinTrkFactory->linearizedTrackState(linP, *i);
-      if (lTrData->isValid())
-        lTracks.push_back(lTrData);
+      lTracks.push_back(lTrData);
     } catch ( exception & e ) {
       LogWarning("RecoVertex/AdaptiveVertexFitter") 
         << "Exception " << e.what() << " in ::linearizeTracks."
