@@ -75,6 +75,8 @@ def checkSteps(steps):
     No return value.'''
     
     print steps
+    #if ":" in steps:
+    #    steps.split(
     idx = -2
     lstidx = -2
     for step in steps:
@@ -86,21 +88,27 @@ def checkSteps(steps):
         else:
             if "-" in step:
                 split = astep.split("-")
-                astep = split[0]
-            idx = AllSteps.index(astep)            
+                astep = split[0].split(":")[0]
+             #   print "This is astep:%s"%astep
+            #idx =AllSteps.index("GEN,SIM")
+            #print idx
+            #print astep
+            idx = AllSteps.index(astep.split(":")[0])            
             if not ( idx == -2 ):
                 if lstidx > idx:
                     print "ERROR: Your user defined steps are not in a valid order"
                     sys.exit()
                 lstidx = idx    
             if "-" in step:
-                lstidx = AllSteps.index(split[1])
+                lstidx = AllSteps.index(split[1].split(":")[0])
 
 
 def getSteps(userSteps):
     '''Analyzes the steps in <userSteps> to translate the cmsRelvalreportInput.py --step option into the cmsDriver.py one. Expanding hyphens for combined steps.
     Handle the exceptional cases of GEN-, GEN-SIM and GEN-FASTSIM (GEN is never profiled by itself).
     Returns a list of steps <steps>.'''
+    #Add handling of ":" in steps
+    print userSteps
     # Then split the user steps into "steps"
     gsreg = re.compile('GEN-SIM')
     greg = re.compile('GEN') #Add a second hack (due to the first) to handle the step 1 case GEN-HLT
@@ -118,6 +126,7 @@ def getSteps(userSteps):
             astep = gfsreg.sub(r"GEN,FASTSIM", astep) #could add protection for user screw-ups
         elif greg.search(astep):
             astep = greg.sub(r"GEN,SIM", astep)
+            
             
         print astep
         # Finally collect all the steps into the steps list:
@@ -250,10 +259,12 @@ def expandHyphens(step):
 #    for step in steps:
     if "-" in step:
         hypsteps = step.split(r"-")
-        if not (len(hypsteps) == 2):
-            print "ERROR: Could not parse usersteps. You have too many hypens between commas"
-            sys.exit()
-        elif not (hypsteps[0] in AllSteps and hypsteps[1] in AllSteps):
+        #if not (len(hypsteps) == 2):
+        #    print "ERROR: Could not parse usersteps. You have too many hypens between commas"
+        #    sys.exit()
+        #el
+        if not reduce(lambda x,y,: x and y,map(lambda x: x.split(":")[0] in AllSteps, hypsteps)):
+        #(hypsteps[0].split(":")[0] in AllSteps and hypsteps[1].split(":") in AllSteps):
             print "ERROR: One of the steps you defined is invalid"
             sys.exit()
         else:
@@ -262,16 +273,19 @@ def expandHyphens(step):
                 newsteps.append(hypsteps[0])
             else:
                 newsteps.append(hypsteps[0])
-                srt = AllSteps.index(hypsteps[0]) + 1
-                for n in range(srt,len(AllSteps) - 1,1):
+                
+                srt = AllSteps.index(hypsteps[0].split(":")[0]) + 1
+                for n in range(srt,AllSteps.index(hypsteps[-1].split(":")[0])):
                     astep = AllSteps[n]
-                    if astep == hypsteps[1]:
-                        break
-                    else:
-                        newsteps.append(astep)
-                newsteps.append(hypsteps[1])
+                    if astep in ( hypsteps[i].split(":")[0] for i in range(1,len(hypsteps))):
+                        #break
+                        astep=filter(lambda x: astep == x.split(":")[0],hypsteps)[0]
+                        if astep==hypsteps[-1].split(":")[0]:
+                            break
+                    newsteps.append(astep)
+                newsteps.append(hypsteps[-1])
     else:
-        if not (step in AllSteps):
+        if not (step.split(":")[0] in AllSteps):
             print "ERROR: One of the steps you defined is invalid"
             sys.exit()
         else:
@@ -498,10 +512,10 @@ def writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptio
     fstIdx = -1
     #Hack for GEN-FASTSIM workflow:
     #if steps=="GEN,FASTSIM":   
-    if "-" in steps[0]:
-        fstIdx = AllSteps.index(steps[0].split("-")[0])
-    else:
-        fstIdx = AllSteps.index(steps[0])
+    #if "-" in steps[0]:
+    fstIdx = AllSteps.index(steps[0].split("-")[0].split(":")[0])
+    #else:
+    #    fstIdx = AllSteps.index(steps[0])
     CustomisePythonFragment = pythonFragment("GEN,SIM",cmsDriverOptions)
     previousOutputFile=""
     OutputFile = writeUnprofiledSteps(simcandles, CustomisePythonFragment, cmsDriverOptions,AllSteps[0:fstIdx],previousOutputFile,acandle,NumberOfEvents, 0,pileup,bypasshlt) 
@@ -545,27 +559,27 @@ def writeCommands(simcandles,
                 #Write the necessary line to run without profiling all the steps before the wanted ones in one shot:
                 (stepIndex, rootFileStr) = writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions,pileup,bypasshlt)
             else: #To be implemented if we want to have input file capability beyond the HLT and RAW2DIGI-RECO workflows
-                if "-" in steps[0]:
-                    stepIndex=AllSteps.index(steps[0].split("-")[0])
+                #if "-" in steps[0]:
+                stepIndex=AllSteps.index(steps[0].split("-")[0].split(":")[0])
                     #print "Here!"
-                else:
+                #else:
                     #print "There!"
-                    stepIndex=AllSteps.index(steps[0])
+                #    stepIndex=AllSteps.index(steps[0])
                 rootFileStr=""    
             #Now take care of setting the indeces and input root file name right for the profiling part...
             if fstROOTfile:
                 fstROOTfileStr = rootFileStr
                 fstROOTfile = False
             start = -1
-            if "-" in steps[0]:
-                start = AllSteps.index(steps[0].split("-")[0])
-            else:
-                start = AllSteps.index(steps[0])
+            #if "-" in steps[0]:
+            start = AllSteps.index(steps[0].split("-")[0].split(":")[0])
+            #else:
+            #    start = AllSteps.index(steps[0])
             lst = - 1
-            if "-" in steps[-1]:
-                lst   = AllSteps.index(steps[-1].split("-")[1]) #here we are assuming that - is always between two steps no GEN-SIM-DIGI, this is GEN-DIGI
-            else:
-                lst   = AllSteps.index(steps[-1])
+            #if "-" in steps[-1]:
+            lst   = AllSteps.index(steps[-1].split("-")[1].split(":")[0]) #here we are assuming that - is always between two steps no GEN-SIM-DIGI, this is GEN-DIGI
+            #else:
+            #    lst   = AllSteps.index(steps[-1])
             runSteps = AllSteps[start:lst]
             numOfSteps = (lst - start) + 1
             stopIndex = start + numOfSteps
@@ -575,10 +589,11 @@ def writeCommands(simcandles,
             #Handling the case of the last step being a composite one:
             if "-" in steps[-1]:
                 #Set the stop index at the last step of the composite step (WHY???) 
-                stopIndex = AllSteps.index(steps[-1].split("-")[1]) + 1
+                stopIndex = AllSteps.index(steps[-1].split("-")[1].split(":")[0]) + 1
             else:
-                stopIndex = AllSteps.index(steps[-1]) + 1
-            
+                
+                stopIndex = AllSteps.index(steps[-1].split(":")[0]) + 1
+                print "LAst step is %s and stopIndex is %s"%(steps[-1],stopIndex)
         steps = AllSteps
             
     unprofiledSteps = []
@@ -611,12 +626,14 @@ def writeCommands(simcandles,
         hypsteps = []
 
         #Looking for step in userSteps, or for composite steps that step matches the first of a composite step in userSteps
-        if step in userSteps or reduce(lambda x,y : x or y,map(lambda x: step == x.split("-")[0],userSteps)): 
+        if step in userSteps or reduce(lambda x,y : x or y,map(lambda x: step == x.split("-")[0].split(":")[0],userSteps)): 
 
             #Checking now if the current step matches the first of a composite step in userSteps
             hypMatch = filter(lambda x: "-" in x,filter(lambda x: step == x.split("-")[0],userSteps))
             if not len(hypMatch) == 0 :
                 hypsteps    = expandHyphens(hypMatch[0])
+                print hypsteps
+                print hypMatch[0]
                 stepToWrite = ",".join(hypsteps)
                 befStep     = hypsteps[0]
                 #Kludge to avoid running HLT in composite steps if the -b option is chosen
@@ -625,6 +642,14 @@ def writeCommands(simcandles,
                 else:
                     aftStep     = hypsteps[-1]
                 oneShotProf = True
+            if filter(lambda x: stepToWrite==x.split(":")[0],userSteps):
+                #print "Inside the filter if!"
+                #print stepToWrite
+                #Here we are assuming that the steps specified with : are not duplicate in the userSteps command:
+                #i.e. GEN-DIGI:SequenceA,HLT:1E31 is OK
+                #GEN-DIGI:SequenceA,HLT:SequenceB,HLT:1E31 IS NOT (OF COURSE!) 
+                stepToWrite=filter(lambda x: stepToWrite==x.split(":")[0],userSteps)[0]
+                #print stepToWrite
 
             writeStepHead(simcandles,acandle,stepToWrite)
 
@@ -710,6 +735,7 @@ def writeCommands(simcandles,
                     simcandles.write("%s @@@ None @@@ None\n" % Command)
                 else:
                     stepLabel=stepToWrite
+                    print "stepLabel is %s"%stepLabel
                     if '--pileup' in cmsDriverOptions and not "_PILEUP" in stepToWrite:
                         stepLabel = stepToWrite+"_PILEUP"
                     #Add kludge here to make the IGPROF ANALYSE work:
@@ -752,7 +778,8 @@ def writeCommands(simcandles,
             isNextStepForProfile = False # Just an initialization for scoping. don't worry about it being false
             
             try:
-                isNextStepForProfile = steps[stepIndex + 1] in userSteps or reduce(lambda x,y : x or y,map(lambda z: steps[ stepIndex + 1 ] == z.split("-")[0],userSteps))
+                isNextStepForProfile = steps[stepIndex + 1] in userSteps or reduce(lambda x,y : x or y,map(lambda z: steps[ stepIndex + 1 ] == z.split("-")[0].split(":")[0],userSteps))
+                #print "YES found Step %s when looking with standard step %s"%(steps[stepIndex],steps[stepIndex])
             except IndexError:
                 # This loop should have terminated if x + 1 is out of bounds!
                 print "Error: Something is wrong we shouldn't have come this far"
