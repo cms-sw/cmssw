@@ -12,7 +12,7 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.28 2009/04/01 17:24:38 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.29 2009/05/04 19:02:13 fwyzard Exp $
 
 
 #include <memory>
@@ -50,8 +50,11 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 
@@ -67,7 +70,8 @@ enum AxisType {
   AXIS_CHARGED_AVERAGE          = 1,  // refine jet axis using charged tracks: use a pT-weighted average of (eta, phi)
   AXIS_CHARGED_AVERAGE_NOLEPTON = 2,  // as above, without the tagging lepton track
   AXIS_CHARGED_SUM              = 3,  // refine jet axis using charged tracks: use the sum of tracks momentum
-  AXIS_CHARGED_SUM_NOLEPTON     = 4   // as above, without the tagging lepton track
+  AXIS_CHARGED_SUM_NOLEPTON     = 4,  // as above, without the tagging lepton track
+  AXIS_CALORIMETRIC_NOLEPTON    = 5   // use the calorimetric jet axis minus the lepton momentum
 };
 
 using namespace std;
@@ -200,6 +204,19 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
     if (h_electrons.isValid()) {
       for (ElectronView::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
         leptons.push_back(edm::RefToBase<reco::Track>( electron->track() ));
+      break;
+    }
+  } { // else
+    // look for PFElectrons
+    Handle<reco::PFCandidateCollection> h_electrons;
+    event.getByLabel(m_leptons, h_electrons);
+    if (h_electrons.isValid()) {
+      for (reco::PFCandidateCollection::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron) {
+        if(!(electron->gsfTrackRef().isNull()))
+          leptons.push_back(edm::RefToBase<reco::Track>( electron->gsfTrackRef() ));
+        else
+          leptons.push_back(edm::RefToBase<reco::Track>( electron->trackRef() ));
+      }
       break;
     }
   } { // else
@@ -352,6 +369,8 @@ GlobalVector SoftLepton::refineJetAxis (
 
     if (sum.R() > 1.) // avoid the case of only the lepton-track with small rounding errors
       axis = sum;
+  } else if(m_refineJetAxis == AXIS_CALORIMETRIC_NOLEPTON) {
+    axis -= exclude->momentum();
   }
   
   return GlobalVector(axis.x(), axis.y(), axis.z());

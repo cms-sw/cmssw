@@ -3,6 +3,7 @@
 
 #include "SoftLepton.h"
 #include "SoftElectronProducer.h"
+#include "SoftPFElectronProducer.h"
 
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerESProducer.h"
 #include "RecoBTag/SoftLepton/interface/ElectronTagger.h"
@@ -14,6 +15,7 @@
 
 DEFINE_FWK_MODULE(SoftLepton);
 DEFINE_FWK_MODULE(SoftElectronProducer);
+DEFINE_FWK_MODULE(SoftPFElectronProducer);
 
 typedef JetTagComputerESProducer<ElectronTagger>        ElectronTaggerESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(ElectronTaggerESProducer);
