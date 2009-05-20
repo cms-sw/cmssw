@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from CondCore.DBCommon.CondDBSetup_cfi import *
 
-GlobalPositionSource = cms.ESSource("PoolDBESSource",
-                                    CondDBSetup,
+geometryESSource = cms.ESSource("PoolDBESSource",
+                                 CondDBSetup,
                                     toGet = cms.VPSet(cms.PSet(record = cms.string('GlobalPositionRcd'),
                                                                tag = cms.string('IdealGeometry')
                                                                ),
@@ -29,7 +29,7 @@ GlobalPositionSource = cms.ESSource("PoolDBESSource",
                                     connect = cms.string('frontier://cms_conditions_data/CMS_COND_21X_ALIGNMENT')
                                     )
 
-beamSpotSource = cms.ESSource("PoolDBESSource",
+beamSpotESSource = cms.ESSource("PoolDBESSource",
                               CondDBSetup,
                               timetype = cms.string('runnumber'),
                               toGet = cms.VPSet(cms.PSet(record = cms.string('BeamSpotObjectsRcd'),
@@ -40,11 +40,11 @@ beamSpotSource = cms.ESSource("PoolDBESSource",
                               authenticationMethod = cms.untracked.uint32(0)
                               )
 
-roMapping = cms.ESSource("PoolDBESSource",
+dtConditionsESSource = cms.ESSource("PoolDBESSource",
                          CondDBSetup,
                          timetype = cms.string('runnumber'),
                          toGet = cms.VPSet(cms.PSet(record = cms.string('DTReadOutMappingRcd'),
-                                                    tag = cms.string('map_CRUZET')
+                                                    tag = cms.string('DT_map10ddu21X_V01')
                                                     ),
                                            cms.PSet(record = cms.string('DTT0Rcd'),
                                                     tag = cms.string('t0_CRUZET_hlt')
