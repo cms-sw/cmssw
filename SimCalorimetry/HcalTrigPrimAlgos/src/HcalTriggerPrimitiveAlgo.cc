@@ -204,7 +204,7 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples,
 	  //use if peak finding true
         int idx = firstTPSample_ + ibin2;
         //if ( samples[ibin2] >= samples[ibin2-1] && samples[ibin2] > samples[ibin2+1] && samples[ibin2] > theThreshold)
-        if ( samples[idx] >= samples[idx-1] && samples[idx] > samples[idx+1] && samples[idx] > theThreshold)
+        if ( samples[idx] > samples[idx-1] && samples[idx] >= samples[idx+1] && samples[idx] > theThreshold)
 	    {
 	      //output[ibin2-1]=sum[ibin2];//if peak found
 	      output[ibin2]=sum[idx];//if peak found
