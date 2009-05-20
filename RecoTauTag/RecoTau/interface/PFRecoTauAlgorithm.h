@@ -70,6 +70,11 @@ class  PFRecoTauAlgorithm  {
   double   HCALIsolConeSize_min_;
   double   HCALIsolConeSize_max_;
   double   AreaMetric_recoElements_maxabsEta_;
+  // parameters for Ellipse ... EELL
+  double Rphi_;
+  double MaxEtInEllipse_;
+  bool AddEllipseGammas_;
+  // EELL
 
   uint32_t ChargedHadrCand_IsolAnnulus_minNhits_;
   uint32_t Track_IsolAnnulus_minNhits_;
