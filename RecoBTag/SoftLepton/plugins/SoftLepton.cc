@@ -12,7 +12,7 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.29 2009/05/04 19:02:13 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.30 2009/05/20 16:33:09 kellerjd Exp $
 
 
 #include <memory>
@@ -53,8 +53,6 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 
