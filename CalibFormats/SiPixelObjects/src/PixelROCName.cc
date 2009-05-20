@@ -98,7 +98,8 @@ void PixelROCName::setIdBPix(char np, char LR,int sec,
 
 void PixelROCName::check(bool check, const string& name){
 
-  std::string mthn = "[PixelROCName::check()]\t\t\t\t    " ;
+  static std::string mthn = "[PixelROCName::check()]\t\t\t\t    " ;
+
   if (check) return;
 
   cout << __LINE__ << "]\t" << mthn << "ERROR tried to parse string:'"<<name;
