@@ -1,46 +1,50 @@
 #ifndef FastElectronSeedProducer_h
 #define FastElectronSeedProducer_h
-  
+
 //
 // Package:         FastSimulation/EgammaElectronAlgos
 // Class:           FastElectronSeedProducer
-// 
+//
 // Description:     Calls FastElectronSeedGenerator
 //                  to find TrackingSeeds.
-  
-  
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
-#include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
-  
-class FastElectronSeedGenerator;
 
-namespace edm { 
+
+class FastElectronSeedGenerator ;
+class EgammaHcalIsolation ;
+
+namespace edm {
   class EventSetup;
   class Event;
   class ParameterSet;
 }
 
- 
+#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
+//#include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
+//#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
+#include "RecoCaloTools/Selectors/interface/CaloDualConeSelector.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+
 class FastElectronSeedProducer : public edm::EDProducer
 {
 
  public:
-  
+
   explicit FastElectronSeedProducer(const edm::ParameterSet& conf);
-  
+
   virtual ~FastElectronSeedProducer();
-  
+
   virtual void beginRun(edm::Run & run, const edm::EventSetup & es);
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
-  
+
  private:
 
   void filterClusters(const edm::Handle<reco::SuperClusterCollection>& superClusters,
-		      HBHERecHitMetaCollection* mhbhe, 
+		      //HBHERecHitMetaCollection* mhbhe,
 		      reco::SuperClusterRefVector& sclRefs);
 
   /*
@@ -57,24 +61,32 @@ class FastElectronSeedProducer : public edm::EDProducer
   edm::InputTag initialSeeds_;
 
   // Pixel Seed generator
-  FastElectronSeedGenerator *matcher_;
+  FastElectronSeedGenerator * matcher_ ;
 
   // A few collections (seeds and hcal hits)
-  const HBHERecHitCollection* hithbhe_;
-  TrajectorySeedCollection *theInitialSeedColl;
+  const HBHERecHitCollection * hithbhe_ ;
+  TrajectorySeedCollection * initialSeedColl_ ;
 
   // H/E filtering
-  HoECalculator calc_;
- 
-  // maximum H/E where H is the Hcal energy inside the cone centered on the seed cluster eta-phi position 
-  double maxHOverE_; 
-  double SCEtCut_;
+  //HoECalculator calc_ ;
+  edm::ESHandle<CaloGeometry> caloGeom_ ;
+  unsigned long long caloGeomCacheId_ ;
+  EgammaHcalIsolation * hcalIso_ ;
+  //CaloDualConeSelector * doubleConeSel_ ;
+  HBHERecHitMetaCollection * mhbhe_ ;
 
-  bool fromTrackerSeeds_;
+  // maximum H/E where H is the Hcal energy inside the cone centered on the seed cluster eta-phi position
+  double maxHOverE_ ;
+  double hOverEConeSize_ ;
+  double hOverEHBMinE_ ;
+  double hOverEHFMinE_ ;
+  double SCEtCut_ ;
+
+  bool fromTrackerSeeds_ ;
 
 };
-  
+
 #endif
- 
+
 
 
