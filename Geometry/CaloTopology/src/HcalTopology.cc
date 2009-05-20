@@ -233,20 +233,20 @@ int HcalTopology::exclude(HcalSubdetector subdet, int ieta1, int ieta2, int iphi
 	break;
       case (HcalEndcap):
 	if (id.ietaAbs()>=21) {
-	  if (id.iphi()==IPHI_MAX-1) neighbor=HcalDetId(HcalEndcap,id.ieta(),1,id.depth()); 
-	  else neighbor=HcalDetId(HcalEndcap,id.ieta(),id.iphi()+2,id.depth()); 
+	  if (id.iphi()==IPHI_MAX-1) neighbor=HcalDetId(id.subdet(),id.ieta(),1,id.depth()); 
+	  else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()+2,id.depth()); 
 	} else {
-	  if (id.iphi()==IPHI_MAX) neighbor=HcalDetId(HcalEndcap,id.ieta(),1,id.depth()); 
-	  else neighbor=HcalDetId(HcalEndcap,id.ieta(),id.iphi()+1,id.depth()); 
+	  if (id.iphi()==IPHI_MAX) neighbor=HcalDetId(id.subdet(),id.ieta(),1,id.depth()); 
+	  else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()+1,id.depth()); 
 	}	
 	break;
       case (HcalForward):
 	if (id.ietaAbs()>=40) {
-	  if (id.iphi()==IPHI_MAX-1) neighbor=HcalDetId(HcalEndcap,id.ieta(),3,id.depth()); 
-	  else neighbor=HcalDetId(HcalEndcap,id.ieta(),id.iphi()+4,id.depth()); 
+	  if (id.iphi()==IPHI_MAX-1) neighbor=HcalDetId(id.subdet(),id.ieta(),3,id.depth()); 
+	  else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()+4,id.depth()); 
 	} else {
-	  if (id.iphi()==IPHI_MAX-1) neighbor=HcalDetId(HcalEndcap,id.ieta(),1,id.depth()); 
-	  else neighbor=HcalDetId(HcalEndcap,id.ieta(),id.iphi()+2,id.depth()); 
+	  if (id.iphi()==IPHI_MAX-1) neighbor=HcalDetId(id.subdet(),id.ieta(),1,id.depth()); 
+	  else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()+2,id.depth()); 
 	}
 	break;
       default: ok=false;
@@ -266,20 +266,20 @@ int HcalTopology::exclude(HcalSubdetector subdet, int ieta1, int ieta2, int iphi
 	break;
       case (HcalEndcap):
 	if (id.ietaAbs()>=21) {
-	  if (id.iphi()==1) neighbor=HcalDetId(HcalEndcap,id.ieta(),IPHI_MAX-1,id.depth()); 
-	  else neighbor=HcalDetId(HcalEndcap,id.ieta(),id.iphi()-2,id.depth()); 
+	  if (id.iphi()==1) neighbor=HcalDetId(id.subdet(),id.ieta(),IPHI_MAX-1,id.depth()); 
+	  else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()-2,id.depth()); 
 	} else {
-	  if (id.iphi()==1) neighbor=HcalDetId(HcalEndcap,id.ieta(),IPHI_MAX,id.depth()); 
-	  else neighbor=HcalDetId(HcalEndcap,id.ieta(),id.iphi()-1,id.depth()); 
+	  if (id.iphi()==1) neighbor=HcalDetId(id.subdet(),id.ieta(),IPHI_MAX,id.depth()); 
+	  else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()-1,id.depth()); 
 	}
 	break;
       case (HcalForward):
 	if (id.ietaAbs()>=40) {
-	  if (id.iphi()==3) neighbor=HcalDetId(HcalEndcap,id.ieta(),IPHI_MAX-1,id.depth()); 
-	  else neighbor=HcalDetId(HcalEndcap,id.ieta(),id.iphi()-4,id.depth()); 
+	  if (id.iphi()==3) neighbor=HcalDetId(id.subdet(),id.ieta(),IPHI_MAX-1,id.depth()); 
+	  else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()-4,id.depth()); 
 	} else {
-	  if (id.iphi()==1) neighbor=HcalDetId(HcalEndcap,id.ieta(),IPHI_MAX-1,id.depth()); 
-	  else neighbor=HcalDetId(HcalEndcap,id.ieta(),id.iphi()-2,id.depth()); 
+	  if (id.iphi()==1) neighbor=HcalDetId(id.subdet(),id.ieta(),IPHI_MAX-1,id.depth()); 
+	  else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()-2,id.depth()); 
 	}
 	break;
       default: ok=false;
@@ -307,6 +307,10 @@ int HcalTopology::exclude(HcalSubdetector subdet, int ieta1, int ieta2, int iphi
       neighbors[0]=HcalDetId(id.subdet(),(aieta+1)*id.zside(),id.iphi()-1,id.depth());
     else if (aieta==39 && ((id.iphi()+1)%4)!=0) 
       neighbors[0]=HcalDetId(id.subdet(),(aieta+1)*id.zside(),((id.iphi()==1)?(71):(id.iphi()-2)),id.depth());
+    else if (aieta==lastHBRing()) 
+      neighbors[0]=HcalDetId(HcalEndcap,(aieta+1)*id.zside(),id.iphi(),1);
+    else if (aieta==lastHERing()) 
+      neighbors[0]=HcalDetId(HcalForward,(aieta+1)*id.zside(),id.iphi(),1);
     else
       neighbors[0]=HcalDetId(id.subdet(),(aieta+1)*id.zside(),id.iphi(),id.depth());
     
@@ -330,6 +334,10 @@ int HcalTopology::exclude(HcalSubdetector subdet, int ieta1, int ieta2, int iphi
       else neighbors[1]=HcalDetId(id.subdet(),(aieta-1)*id.zside(),id.iphi()+2,id.depth());
     } else if (aieta==1) {
       neighbors[0]=HcalDetId(id.subdet(),-aieta*id.zside(),id.iphi(),id.depth());
+    } else if (aieta==lastHBRing()+1) {
+      neighbors[0]=HcalDetId(HcalBarrel,(aieta-1)*id.zside(),id.iphi(),id.depth());
+    } else if (aieta==lastHERing()+1) {
+      neighbors[0]=HcalDetId(HcalEndcap,(aieta-1)*id.zside(),id.iphi(),id.depth());
     } else
       neighbors[0]=HcalDetId(id.subdet(),(aieta-1)*id.zside(),id.iphi(),id.depth());
     
