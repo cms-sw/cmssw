@@ -11,6 +11,9 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelCalibConfiguration.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelDetectorConfig.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelPortcardMap.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelFECConfig.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelTKFECConfig.h"
 #include "PixelUtilities/PixelTestStandUtilities/include/PixelTimer.h"
 
 using namespace pos;
@@ -30,23 +33,62 @@ int main(){
 
   //return 0;
 
-  //PixelDetectorConfig detconfig("detconfig.dat");
 
   cout << "Will open translation.dat" << endl;
 
-  PixelTimer t;
+  PixelTimer t,t2,t3,t4;
 
-  t.start();
+  t2.start();
 
   PixelNameTranslation nametranslation("translation.dat");
 
+  t2.stop();
+  cout << "Time to read name translations:"<<t2.tottime() << endl;
+  
+  t3.start();
+
+  PixelCalibConfiguration calib("calib.dat");
+
+  t3.stop();
+  cout << "Time to read calib.dat:"<<t3.tottime() << endl;
+
+  t4.start();
+
+  PixelDetectorConfig detconfig("detectconfig.dat");
+
+  t4.stop();
+  cout << "Time to read detectconfig:"<<t4.tottime() << endl;
+
+
+  PixelPortcardMap portcardmap("portcardmap.dat");
+
+  PixelFECConfig fecconfig("fecconfig.dat");
+
+  PixelTKFECConfig tkfecconfig("tkfecconfig.dat");
+
+  
+
+  const std::set<std::string>& portcards=portcardmap.portcards(&detconfig);
+ 
+
+
+  cout << "Will start to build ROC list"<<endl;
+
+  t.start();
+
+  calib.buildROCAndModuleLists(&nametranslation, &detconfig);
+
   t.stop();
 
-  cout << "Done opening translation.dat:"<<t.tottime() << endl;
+  cout << "Done with building ROC list"<<endl;
 
+  cout<< "Size of ROC list:"<<calib.rocList().size()<<endl;
+
+  cout << "Time to build ROC list:"<<t.tottime() << endl;
+
+  /*
   
   
-  /* 
   for(unsigned int fednumber=1; fednumber<2; fednumber++){
     for (unsigned int channel=1; channel<7; ++channel) {
       std::cout << "Will check fednumber="<<fednumber<<" and channel="<<channel<<std::endl;
