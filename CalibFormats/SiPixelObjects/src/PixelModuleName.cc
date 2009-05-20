@@ -20,6 +20,19 @@ PixelModuleName::PixelModuleName():
     id_(0)
 {}
 
+
+PixelModuleName::PixelModuleName(PixelROCName roc)
+{
+
+  unsigned int id=roc.id();
+  unsigned int idtmp=(id&0x1FFFFFFF)>>4;
+  if ((id&0x80000000)==0) idtmp=(idtmp&0xFFFFFFFC);
+  
+  id_=idtmp|(id&0xE0000000);
+
+}
+
+
 PixelModuleName::PixelModuleName(string modulename)
 {
 
