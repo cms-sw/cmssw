@@ -3,18 +3,20 @@
 
 #include "G4VPhysicsConstructor.hh"
 #include "globals.hh"
+#include <string>
 
 class CMSEmStandardPhysics92 : public G4VPhysicsConstructor {
 
 public:
-  CMSEmStandardPhysics92(const G4String& name, G4int ver);
+  CMSEmStandardPhysics92(const G4String& name, G4int ver, std::string reg);
   virtual ~CMSEmStandardPhysics92();
 
   virtual void ConstructParticle();
   virtual void ConstructProcess();
 
 private:
-  G4int  verbose;
+  G4int       verbose;
+  std::string region;
 };
 
 #endif

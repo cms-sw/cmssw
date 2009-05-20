@@ -12,6 +12,8 @@
 
 #include "G4DataQuestionaire.hh"
 
+#include <string>
+
 QGSBCMS_BERT_NOLEP2_EML::QGSBCMS_BERT_NOLEP2_EML(G4LogicalVolumeToDDLogicalPartMap& map,
 						 const edm::ParameterSet & p) : PhysicsList(map, p) {
 
@@ -20,14 +22,16 @@ QGSBCMS_BERT_NOLEP2_EML::QGSBCMS_BERT_NOLEP2_EML(G4LogicalVolumeToDDLogicalPartM
   int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
+  std::string region = p.getUntrackedParameter<std::string>("Region", " ");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "QGSB_BERT_NOLEP2_EML 1.0 with Flags for EM Physics "
 			      << emPhys << " and for Hadronic Physics "
-			      << hadPhys << "\n";
+			      << hadPhys << " and special region " << region
+			      << "\n";
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics92("standard EM EML",ver));
+    RegisterPhysics( new CMSEmStandardPhysics92("standard EM EML",ver,region));
 
     // Synchroton Radiation & GN Physics
     RegisterPhysics( new G4EmExtraPhysics("extra EM"));

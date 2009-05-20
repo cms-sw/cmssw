@@ -63,8 +63,9 @@
 #include "G4Alpha.hh"
 #include "G4GenericIon.hh"
 
-CMSEmStandardPhysics92::CMSEmStandardPhysics92(const G4String& name, G4int ver) :
-  G4VPhysicsConstructor(name), verbose(ver) {
+CMSEmStandardPhysics92::CMSEmStandardPhysics92(const G4String& name, 
+					       G4int ver, std::string reg) :
+  G4VPhysicsConstructor(name), verbose(ver), region(reg) {
   G4LossTableManager::Instance();
 }
 
@@ -118,8 +119,11 @@ void CMSEmStandardPhysics92::ConstructParticle() {
 
 void CMSEmStandardPhysics92::ConstructProcess() {
   // Add standard EM Processes
-  G4RegionStore* regStore = G4RegionStore::GetInstance();
-  G4Region* hcal = regStore->GetRegion("HcalRegion", true);
+  G4Region* hcal = 0;
+  if (region != " ") {
+    G4RegionStore* regStore = G4RegionStore::GetInstance();
+    hcal = regStore->GetRegion(region, true);
+  }
 
   theParticleIterator->reset();
   while( (*theParticleIterator)() ){
@@ -142,9 +146,11 @@ void CMSEmStandardPhysics92::ConstructProcess() {
       eioni->SetStepFunction(0.8, 1.0*mm);
       G4eMultipleScattering* msc = new G4eMultipleScattering;
       msc->SetStepLimitType(fMinimal);
-      G4UrbanMscModel2* msc_el  = new G4UrbanMscModel2("UrbanMscUni2Safety");
-      msc_el->SetRangeFactor(0.04);
-      msc->AddEmModel(0,msc_el,hcal);
+      if (hcal != 0) {
+	G4UrbanMscModel2* msc_el  = new G4UrbanMscModel2("UrbanMscUni2Safety");
+	msc_el->SetRangeFactor(0.04);
+	msc->AddEmModel(0,msc_el,hcal);
+      }
       pmanager->AddProcess(msc,                   -1, 1, 1);
       pmanager->AddProcess(eioni,                 -1, 2, 2);
       pmanager->AddProcess(new G4eBremsstrahlung, -1,-3, 3);
@@ -155,9 +161,11 @@ void CMSEmStandardPhysics92::ConstructProcess() {
       eioni->SetStepFunction(0.8, 1.0*mm);
       G4eMultipleScattering* msc = new G4eMultipleScattering;
       msc->SetStepLimitType(fMinimal);
-      G4UrbanMscModel2* msc_pos  = new G4UrbanMscModel2("UrbanMscUni2Safety");
-      msc_pos->SetRangeFactor(0.04);
-      msc->AddEmModel(0,msc_pos,hcal);
+      if (hcal != 0) {
+	G4UrbanMscModel2* msc_pos  = new G4UrbanMscModel2("UrbanMscUni2Safety");
+	msc_pos->SetRangeFactor(0.04);
+	msc->AddEmModel(0,msc_pos,hcal);
+      }
       pmanager->AddProcess(msc,                     -1, 1, 1);
       pmanager->AddProcess(eioni,                   -1, 2, 2);
       pmanager->AddProcess(new G4eBremsstrahlung,   -1,-3, 3);
