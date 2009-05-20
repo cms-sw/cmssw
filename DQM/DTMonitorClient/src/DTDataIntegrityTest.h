@@ -5,8 +5,8 @@
  * *
  *  DQM Client to check the data integrity
  *
- *  $Date: 2009/03/27 13:23:53 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/05/19 14:18:23 $
+ *  $Revision: 1.11 $
  *  \author S. Bolognesi - INFN TO
  *   
  */
@@ -49,7 +49,6 @@ protected:
   std::string getMEName(std::string histoType, int FEDId);
   /// Book the MEs
   void bookHistos(std::string histoType, int dduId);
-  void bookTimeHistos(std::string histoType, int dduId, int evNumber);
 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
@@ -63,17 +62,7 @@ private:
 
   //Number of onUpdates
   int nupdates;
-  //int nSTAEvents;
 
-
-  //Number of bin in time histo
-  int nTimeBin;
-  //If you want info VS time histos
-  bool doTimeHisto;
-  // switch to write histos to file
-  bool writeHisto;
-  // prefix of the name of the root file (lumi# and run# will be appended)
-  std::string outputFile;
   // prescale on the # of LS to update the test
   int prescaleFactor;
 
