@@ -624,7 +624,7 @@ void ConvertedPhotonProducer::cleanCollections(edm::Event& evt,
           if ( iRef->isNonnull() )  {
 	    newCandidate= (*iRef)->clone();
 	    outputConversionCollection.push_back(*newCandidate);
-
+            delete newCandidate;
 	  }
 	}
 	
@@ -637,6 +637,7 @@ void ConvertedPhotonProducer::cleanCollections(edm::Event& evt,
 	  if ( !cpRef->isConverted() ) continue;  
 	  newCandidate= (&(*cpRef))->clone();	 
 	  outputConversionCollection.push_back(*newCandidate);
+	  delete newCandidate;
 
 	}	  
 	
