@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:32 CST 2009
-// $Id: FWCollectionSummaryWidget.cc,v 1.9 2009/04/15 21:54:50 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.cc,v 1.10 2009/05/01 02:01:34 dmytro Exp $
 //
 
 // system include files
@@ -263,6 +263,7 @@ m_backgroundIsWhite(false)
 
    m_collection->defaultDisplayPropertiesChanged_.connect(boost::bind(&FWCollectionSummaryWidget::displayChanged, this));
    m_collection->itemChanged_.connect(boost::bind(&FWCollectionSummaryWidget::itemChanged,this));
+   m_collection->filterChanged_.connect(boost::bind(&FWCollectionSummaryWidget::itemChanged,this));
    
    MapSubwindows();
    Layout();
