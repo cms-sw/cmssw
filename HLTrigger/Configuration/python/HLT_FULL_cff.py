@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre6/HLT/V28 (CMSSW_3_1_X_2009-05-16-1200_HLT1)
+# /dev/CMSSW_3_1_0/pre6/HLT/V30 (CMSSW_3_1_X_2009-05-16-1200_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre6/HLT/V28')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre6/HLT/V30')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -3242,7 +3242,7 @@ hltSiStripClusters = cms.EDProducer( "MeasurementTrackerSiStripRefGetterProducer
     measurementTrackerName = cms.string( "" )
 )
 hltL3TrajectorySeed = cms.EDProducer( "TSGFromL2Muon",
-    PtCut = cms.double( 1.0 ),
+    PtCut = cms.double( 2.5 ),
     MuonCollectionLabel = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' ),
     tkSeedGenerator = cms.string( "TSGFromCombinedHits" ),
     ServiceParameters = cms.PSet( 
