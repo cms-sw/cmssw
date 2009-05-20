@@ -2,8 +2,8 @@
  /* 
  *  See header file for a description of this class.
  *
- *  $Date: 2009/04/13 20:40:38 $
- *  $Revision: 1.16 $
+ *  $Date: 2009/05/20 10:09:56 $
+ *  $Revision: 1.17 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -1063,7 +1063,7 @@ coral::TimeStamp RPCFw::UTtoT(long long utime)
 unsigned long long RPCFw::TtoUT(coral::TimeStamp time) 
 {
   
-  long long utime = (time.year()-1970)*31536000+static_cast<int>(trunc((time.year()-1972)/4))*86400+
+  long long utime = (time.year()-1970)*31536000+static_cast<int>(trunc((time.year()-1968)/4))*86400+
     (((time.month()-1)*31)*86400)+((time.day()-1)*86400)+time.hour()*3600+time.minute()*60+time.second();
   
   if (time.month() == 3) utime = utime - 3*86400;
