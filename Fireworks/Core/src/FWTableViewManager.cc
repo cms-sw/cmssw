@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTableViewManager.cc,v 1.5 2009/05/17 03:33:36 jmuelmen Exp $
+// $Id: FWTableViewManager.cc,v 1.6 2009/05/19 21:56:32 chrjones Exp $
 //
 
 // system include files
@@ -416,7 +416,7 @@ void FWTableViewManager::setFrom(const FWConfiguration &iFrom)
 			 iType = typeNames->stringValues()->begin(),
 			 iTypeEnd = typeNames->stringValues()->end(); 
 		    iType != iTypeEnd; ++iType) {
-		    std::cout << "reading type " << *iType << std::endl;
+		    //std::cout << "reading type " << *iType << std::endl;
 		    const FWConfiguration *columns = iFrom.valueForKey(*iType);
 		    assert(columns != 0);
 		    std::vector<TableEntry> &formats = m_tableFormats[*iType];

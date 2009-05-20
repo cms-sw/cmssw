@@ -1,4 +1,4 @@
-// $Id: FWTableViewTableManager.cc,v 1.3 2009/05/08 20:04:42 jmuelmen Exp $
+// $Id: FWTableViewTableManager.cc,v 1.4 2009/05/09 01:43:32 jmuelmen Exp $
 
 #include <math.h>
 #include "TClass.h"
@@ -239,5 +239,5 @@ void FWTableViewTableManager::updateEvaluators ()
 	       ev.push_back(FWExpressionEvaluator("0", item->modelType()->GetName()));
 	  }
      }
-     printf("Got evaluators\n");
+     //printf("Got evaluators\n");
 }
