@@ -15,6 +15,7 @@
 #include <iosfwd>
 #include <string>
 #include <cassert>
+#include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 
 namespace pos{
 /*! \class PixelModuleName PixelModuleName.h "interface/PixelModuleName.h"
@@ -30,6 +31,8 @@ namespace pos{
 
     explicit PixelModuleName(std::string rocname);
 
+    explicit PixelModuleName(PixelROCName roc);
+    
 
     explicit PixelModuleName(std::ifstream& s);
     
