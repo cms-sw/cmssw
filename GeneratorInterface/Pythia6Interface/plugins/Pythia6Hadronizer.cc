@@ -419,7 +419,7 @@ bool Pythia6Hadronizer::residualDecay()
 	 {
 	    pyjets.k[i][ip] = pyjets_local.k[i][ip];
 	    pyjets.p[i][ip] = pyjets_local.p[i][ip];
-	    pyjets.v[i][ip] = pyjets_local.p[i][ip];
+	    pyjets.v[i][ip] = pyjets_local.v[i][ip];
 	 }
       }
    }
@@ -435,6 +435,7 @@ bool Pythia6Hadronizer::residualDecay()
    int NPartsAfterDecays = event()->particles_size();
    
    std::vector<int> part_idx_to_decay;
+   part_idx_to_decay.clear(); // just a safety measure, shouldn't be necessary but...
    
    //
    // here put additional info back to pyjets BY HANDS
@@ -539,14 +540,23 @@ bool Pythia6Hadronizer::residualDecay()
       // etc.
    }
    
-   for ( size_t ip=0; ip<part_idx_to_decay.size(); ip++ )
-   {         
-      pydecy_(part_idx_to_decay[ip]);
-   }
+   // FIXME:
+   // the if-statement below is an extra protection
+   // put in place following problem report from Roberto Covarelli, 
+   // that some events were inconsistent and even crashed (rarely)
+   // in principle, it should NOT matter but...
+   //
+   if ( part_idx_to_decay.size() > 0 )
+   {
+      for ( size_t ip=0; ip<part_idx_to_decay.size(); ip++ )
+      {         
+         pydecy_(part_idx_to_decay[ip]);
+      }
         
-   call_pyhepc(1);
+      call_pyhepc(1);
    
-   event().reset( conv.read_next_event() );
+      event().reset( conv.read_next_event() );
+   }
    
    return true;
 }
@@ -722,6 +732,7 @@ void Pythia6Hadronizer::statistics()
   {
      // set xsec if not already done (e.g. from LHE cross section collector)
      double cs = pypars.pari[0]; // cross section in mb
+     cs *= pow(10.,9); // translate to pb (CMS/Gen "convenstion" as of May 2009)
      runInfo().setInternalXSec( cs );
 // FIXME: can we get the xsec statistical error somewhere?
   }
