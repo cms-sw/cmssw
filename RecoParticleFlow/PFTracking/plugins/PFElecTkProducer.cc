@@ -29,6 +29,12 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+
+
+
 #include "TMath.h"
 using namespace std;
 using namespace edm;
@@ -50,7 +56,8 @@ PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):
   trajinev_ = iConfig.getParameter<bool>("TrajInEvents");
   modemomentum_ = iConfig.getParameter<bool>("ModeMomentum");
   applySel_ = iConfig.getParameter<bool>("applyEGSelection");
-  applyClean_ = iConfig.getParameter<bool>("applyGsfTrackCleaning");
+  applyGsfClean_ = iConfig.getParameter<bool>("applyGsfTrackCleaning");
+  useFifthStep_ = iConfig.getParameter<bool>("useFifthTrackingStep");
   detaGsfSC_ = iConfig.getParameter<double>("MinDEtaGsfSC");
   dphiGsfSC_ = iConfig.getParameter<double>("MinDPhiGsfSC");
   SCEne_ = iConfig.getParameter<double>("MinSCEnergy");
@@ -92,9 +99,6 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
   iEvent.getByLabel(pfTrackLabel_,thePfRecTrackCollection);
   const PFRecTrackCollection PfRTkColl = *(thePfRecTrackCollection.product());
 
-  
-
-
   if (trajinev_){
     iEvent.getByLabel(gsfTrackLabel_,TrajectoryCollection); 
     GsfTrackCollection gsftracks = *(gsfelectrons.product());
@@ -103,6 +107,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
     for (uint igsf=0; igsf<gsftracks.size();igsf++) {
       
       GsfTrackRef trackRef(gsfelectrons, igsf);
+     
       int kf_ind=FindPfRef(PfRTkColl,gsftracks[igsf],false);
       
       if (kf_ind>=0) {
@@ -111,6 +116,14 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 			     kf_ind);
 	
         
+	if(useFifthStep_ == false) {
+	  TrackRef kfref = kf_ref->trackRef();
+	  unsigned int Algo = kfref->algo() < 5 ? kfref->algo()-1 : kfref->algo()-5;
+	  if ( Algo >= 4 ) {
+	    continue;
+	  }
+	}
+
 	pftrack_=GsfPFRecTrack( gsftracks[igsf].charge(), 
 				reco::PFRecTrack::GSF, 
 				igsf, trackRef,
@@ -127,14 +140,15 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 							    tjvec[igsf],
 							    modemomentum_);
       bool passSel = true;
-      bool retainGsf = true;
+      bool keepGsf = true;
       if(applySel_) 
 	passSel = applySelection(gsftracks[igsf]);      
-      if(applyClean_) 
-	retainGsf = resolveGsfTracks(gsftracks,igsf);
 
+      if(applyGsfClean_) 
+	keepGsf = resolveGsfTracks(gsftracks,igsf);
+      
 
-      if(validgsfbrem && passSel && retainGsf)
+      if(validgsfbrem && passSel && keepGsf)
 	gsfPFRecTrackCollection->push_back(pftrack_);
     }
     //OTHER GSF TRACK COLLECTION
@@ -245,11 +259,10 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
  	for(;hit!=hit_end;++hit){
 	  if (!(hit->isValid())) continue;
 
-	  
-      if((hit->geographicalId()==(*hhit)->geographicalId())&&
-         (((*hhit)->localPosition()-hit->localPosition()).mag()<0.01)) ish++;
+	  if((hit->geographicalId()==(*hhit)->geographicalId())&&
+	     (((*hhit)->localPosition()-hit->localPosition()).mag()<0.01)) ish++;
  	}	
- 
+	
       }
       
 
@@ -332,7 +345,7 @@ PFElecTkProducer::applySelection(reco::GsfTrack gsftk) {
       float feta = fabs(scRef->eta()-gsftk.etaMode());
       float fphi = fabs(scRef->phi()-gsftk.phiMode());
       if (fphi>TMath::Pi()) fphi-= TMath::TwoPi();
-      if(caloEne > SCEne_ && feta < detaGsfSC_ && fphi < dphiGsfSC_)
+      if(caloEne > SCEne_ && feta < detaGsfSC_ && fabs(fphi) < dphiGsfSC_)
 	passCut = true;
     }
   }
@@ -345,64 +358,175 @@ PFElecTkProducer::applySelection(reco::GsfTrack gsftk) {
 bool 
 PFElecTkProducer::resolveGsfTracks(const reco::GsfTrackCollection  & GsfCol, unsigned int ngsf) {
   if (&(*GsfCol[ngsf].seedRef())==0) return false;    
-  ElectronSeedRef ElSeedRef=GsfCol[ngsf].extra()->seedRef().castTo<ElectronSeedRef>();
+  ElectronSeedRef nElSeedRef=GsfCol[ngsf].extra()->seedRef().castTo<ElectronSeedRef>();
+  
 
-  bool  retainGsfTrack = true;
- 
-  if (ElSeedRef->ctfTrack().isNull() && ElSeedRef->caloCluster().isNonnull()){
-    
-    SuperClusterRef scRef1 = ElSeedRef->caloCluster().castTo<SuperClusterRef>();   
-    if(scRef1.isNull()) {
-      retainGsfTrack = false;
-      return retainGsfTrack;
-    }    
-    
-    uint shared=0;
-    bool shareSC = false;
-    
-    float EP1 = scRef1->energy()/GsfCol[ngsf].pMode();
-    float EP2 = 1000.;
-    
-    for (uint igsf=0; igsf<GsfCol.size();igsf++) {
-      ElectronSeedRef tempSeedRef=GsfCol[igsf].extra()->seedRef().castTo<ElectronSeedRef>();
-      if(tempSeedRef->caloCluster().isNull()) continue;
-      if(igsf != ngsf ) {
-	SuperClusterRef scRef2 = tempSeedRef->caloCluster().castTo<SuperClusterRef>();
-	if(scRef2.isNonnull()) {
-	  if(scRef1 == scRef2) {
-	    shareSC = true;
-	    float tempEP =  scRef2->energy()/GsfCol[igsf].pMode();
+  bool n_keepGsf = true;
+  const math::XYZPoint nxyz = GsfCol[ngsf].innerPosition();
+  int nhits=GsfCol[ngsf].numberOfValidHits();
+  int ncharge = GsfCol[ngsf].chargeMode();
+  TrajectoryStateOnSurface outTSOS = mtsTransform_.outerStateOnSurface(GsfCol[ngsf]);
+  TrajectoryStateOnSurface inTSOS = mtsTransform_.innerStateOnSurface(GsfCol[ngsf]);
+  int outCharge = -2;
+  int inCharge = -2;
+  if(outTSOS.isValid())
+    outCharge = mtsMode_->chargeFromMode(outTSOS);	  
+  if(inTSOS.isValid())
+    inCharge = mtsMode_->chargeFromMode(inTSOS);
+  
 
-	    uint tmp_sh=0;
-	    trackingRecHit_iterator  ghit=GsfCol[igsf].recHitsBegin();
-	    trackingRecHit_iterator  ghit_end=GsfCol[igsf].recHitsEnd();
-	    for (;ghit!=ghit_end;++ghit){
-	      if ((*ghit)->isValid()){
-		trackingRecHit_iterator  hit=GsfCol[ngsf].recHitsBegin();
-		trackingRecHit_iterator  hit_end=GsfCol[ngsf].recHitsEnd();
-		for (;hit!=hit_end;++hit){
-		  if ((*hit)->isValid()) {
-		    if(((*hit)->geographicalId()==(*ghit)->geographicalId())&&
-		       (((*hit)->localPosition()-(*ghit)->localPosition()).mag()<0.01)) tmp_sh++;
+  float nchi2 = GsfCol[ngsf].chi2();
+  float neta = GsfCol[ngsf].etaMode();
+  float nphi = GsfCol[ngsf].phiMode();
+  float ndist = sqrt(nxyz.x()*nxyz.x()+
+		     nxyz.y()*nxyz.y()+
+		     nxyz.z()*nxyz.z());
+  
+  
+  
+  for (uint igsf=0; igsf<GsfCol.size();igsf++) {
+    if(igsf != ngsf ) {
+      
+      float ieta = GsfCol[igsf].etaMode();
+      float iphi = GsfCol[igsf].phiMode();
+      float feta = fabs(neta - ieta);
+      float fphi = fabs(nphi - iphi);
+      if (fphi>TMath::Pi()) fphi-= TMath::TwoPi();     
+
+
+      if(feta < 0.05 && fabs(fphi) < 0.3) {
+
+	TrajectoryStateOnSurface i_outTSOS = mtsTransform_.outerStateOnSurface(GsfCol[igsf]);
+	TrajectoryStateOnSurface i_inTSOS = mtsTransform_.innerStateOnSurface(GsfCol[igsf]);
+	int i_outCharge = -2;
+	int i_inCharge = -2;
+	if(i_outTSOS.isValid())
+	  i_outCharge = mtsMode_->chargeFromMode(i_outTSOS);	  
+	if(i_inTSOS.isValid())
+	  i_inCharge = mtsMode_->chargeFromMode(i_inTSOS);
+	
+
+	if (&(*GsfCol[igsf].seedRef())==0) continue;    
+	ElectronSeedRef iElSeedRef=GsfCol[igsf].extra()->seedRef().castTo<ElectronSeedRef>();
+
+	// First Case: both gsf track have a reference to a SC: cleaning using SC 
+	if(nElSeedRef->caloCluster().isNonnull() && iElSeedRef->caloCluster().isNonnull()) {
+
+	  SuperClusterRef nscRef = nElSeedRef->caloCluster().castTo<SuperClusterRef>();
+	  if(nscRef.isNull()) {
+	    n_keepGsf = false;
+	    return n_keepGsf;
+	  }    
+	  float nEP = nscRef->energy()/GsfCol[ngsf].pMode();
+	  SuperClusterRef iscRef = iElSeedRef->caloCluster().castTo<SuperClusterRef>();
+	  if(iscRef.isNonnull()) {
+	    if(nscRef == iscRef) {
+	      float iEP =  iscRef->energy()/GsfCol[igsf].pMode();
+	     
+	      
+	      trackingRecHit_iterator  nhit=GsfCol[ngsf].recHitsBegin();
+	      trackingRecHit_iterator  nhit_end=GsfCol[ngsf].recHitsEnd();
+	      unsigned int tmp_sh = 0;
+	      for (;nhit!=nhit_end;++nhit){
+		if ((*nhit)->isValid()){
+		  trackingRecHit_iterator  ihit=GsfCol[igsf].recHitsBegin();
+		  trackingRecHit_iterator  ihit_end=GsfCol[igsf].recHitsEnd();
+		  for (;ihit!=ihit_end;++ihit){
+		    if ((*ihit)->isValid()) {
+		      if((*nhit)->sharesInput(&*(*ihit),TrackingRecHit::all))  tmp_sh++; 
+		    }
+		  }
+		}
+	      }
+	      if (tmp_sh>0) {
+		if(fabs(iEP-1) < fabs(nEP-1) 
+		   && i_outCharge == i_inCharge
+		   && i_outCharge != -2) {
+		  n_keepGsf = false;
+		  return n_keepGsf;
+		}
+		if(outCharge != inCharge) {
+		  n_keepGsf = false;
+		  return n_keepGsf;
+		}
+	      }			      
+	    }
+	  }
+	}
+	else {
+	  // Second Case: One Gsf has reference to a SC and the other one not or both not
+	  // Cleaning using: starting point 
+	  const math::XYZPoint ixyz = GsfCol[igsf].innerPosition();
+	  float idist = sqrt(ixyz.x()*ixyz.x()+
+			     ixyz.y()*ixyz.y()+
+			     ixyz.z()*ixyz.z());
+	  int ihits=GsfCol[igsf].numberOfValidHits();
+	  float ichi2 = GsfCol[igsf].chi2();
+	  int icharge = GsfCol[igsf].chargeMode();
+	  
+	  if (idist < (ndist-5)) {
+	    n_keepGsf = false;
+	    return n_keepGsf;
+	  }
+	  else if(ndist > (idist-5)){
+	    // Thirt Case:  One Gsf has reference to a SC and the other one not or both not
+	    // gsf tracks starts from the same layer
+	    // check number of sharing modules (at least 50%)
+	    // check number of sharing hits (at least 2)
+	    // check charge flip inner/outer
+	    
+	    unsigned int sharedMod = 0;
+	    unsigned int sharedHits = 0;
+	    
+	    trackingRecHit_iterator  nhit=GsfCol[ngsf].recHitsBegin();
+	    trackingRecHit_iterator  nhit_end=GsfCol[ngsf].recHitsEnd();
+	    for (;nhit!=nhit_end;++nhit){
+	      if ((*nhit)->isValid()){
+		trackingRecHit_iterator  ihit=GsfCol[igsf].recHitsBegin();
+		trackingRecHit_iterator  ihit_end=GsfCol[igsf].recHitsEnd();
+		for (;ihit!=ihit_end;++ihit){
+		  if ((*ihit)->isValid()) {
+		    if((*ihit)->geographicalId()==(*nhit)->geographicalId()) sharedMod++;
+		    if((*nhit)->sharesInput(&*(*ihit),TrackingRecHit::all))  sharedHits++; 
 		  }
 		}
 	      }
 	    }
-	    if (tmp_sh>0) {
-	      shared=tmp_sh;
-	      if(fabs(tempEP-1)<fabs(EP2-1)) {
-		EP2 = tempEP;
+	    unsigned int den = ihits;
+	    if(nhits < ihits)
+	      den = nhits;
+	    float fracMod = sharedMod*1./den*1.;
+	    
+	    TrajectoryStateOnSurface i_outTSOS = mtsTransform_.outerStateOnSurface(GsfCol[igsf]);
+	    TrajectoryStateOnSurface i_inTSOS = mtsTransform_.innerStateOnSurface(GsfCol[igsf]);
+	    int i_outCharge = -2;
+	    int i_inCharge = -2;
+	    if(i_outTSOS.isValid())
+	      i_outCharge = mtsMode_->chargeFromMode(i_outTSOS);	  
+	    if(i_inTSOS.isValid())
+	    i_inCharge = mtsMode_->chargeFromMode(i_inTSOS);
+	    
+	    
+	    if(fracMod > 0.5 && sharedHits > 1 && icharge == ncharge && i_outCharge == i_inCharge) {
+	      if(ihits > nhits) {
+		n_keepGsf = false;
+		return n_keepGsf;
 	      }
+	      else if(ihits == nhits  && ichi2 < nchi2) {
+		n_keepGsf = false;
+		return n_keepGsf;
+	      }
+	    }
+	    if(fracMod > 0.3 && sharedHits > 1 && outCharge != -2 && inCharge != outCharge) {
+	      n_keepGsf = false;
+	      return n_keepGsf;
 	    }
 	  }
 	}
       }
     }
-    if(shared > 0 && shareSC == true) {
-      if(fabs(EP2-1) < fabs(EP1-1)) retainGsfTrack = false;
-    }
   }
-  return retainGsfTrack;
+  return n_keepGsf;
 }
 // ------------ method called once each job just before starting event loop  ------------
 void 
@@ -411,7 +535,18 @@ PFElecTkProducer::beginRun(edm::Run& run,
 {
   ESHandle<MagneticField> magneticField;
   iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+
+  ESHandle<TrackerGeometry> tracker;
+  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+
+
+  mtsTransform_ = MultiTrajectoryStateTransform(tracker.product(),magneticField.product());
+  
+
   pfTransformer_= new PFTrackTransformer(math::XYZVector(magneticField->inTesla(GlobalPoint(0,0,0))));
+
+  
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

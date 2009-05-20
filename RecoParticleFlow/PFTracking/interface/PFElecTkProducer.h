@@ -9,11 +9,12 @@
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-
+#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
+#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
 class PFTrackTransformer;
 class GsfTrack;
-
-
+class MagneticField;
+class TrackerGeometry;
 
 /// \brief Abstract
 /*!
@@ -47,11 +48,12 @@ class PFElecTkProducer : public edm::EDProducer {
  
       bool otherElId(const reco::GsfTrackCollection  & GsfColl, 
 		     reco::GsfTrack GsfTk);
-	
+      
       bool applySelection(reco::GsfTrack);
+      
       bool resolveGsfTracks(const reco::GsfTrackCollection  & GsfColl,
 			    unsigned int igsf);
-
+      
       // ----------member data ---------------------------
       reco::GsfPFRecTrack pftrack_;
       edm::ParameterSet conf_;
@@ -59,13 +61,16 @@ class PFElecTkProducer : public edm::EDProducer {
       edm::InputTag pfTrackLabel_;
 
       ///PFTrackTransformer
-      PFTrackTransformer *pfTransformer_; 
+      PFTrackTransformer *pfTransformer_;     
+      const MultiTrajectoryStateMode *mtsMode_;
+      MultiTrajectoryStateTransform  mtsTransform_;
 
       ///Trajectory of GSfTracks in the event?
       bool trajinev_;
       bool modemomentum_;
       bool applySel_;
-      bool applyClean_;
+      bool applyGsfClean_;
+      bool useFifthStep_;
       double SCEne_;
       double detaGsfSC_;
       double dphiGsfSC_;
