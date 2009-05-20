@@ -55,6 +55,14 @@ namespace pos{
                fedchannel_   == aHdwAddress.fedchannel_ );
     }
 
+    const bool operator<(const PixelHdwAddress& aHdwAddress) const{
+      if (fednumber_ < aHdwAddress.fednumber_ ) return true;
+      if (fednumber_ > aHdwAddress.fednumber_ ) return false;
+      if (fedchannel_ < aHdwAddress.fedchannel_ ) return true;
+      if (fedchannel_ > aHdwAddress.fedchannel_ ) return false;
+      return (fedrocnumber_ < aHdwAddress.fedrocnumber_ );
+    }
+
     void setAddress(std::string what, int value);                                                    // Added by Dario
     void compare(   std::string what, bool &changed, unsigned int newValue, unsigned int &oldValue); // Added by Dario
 
