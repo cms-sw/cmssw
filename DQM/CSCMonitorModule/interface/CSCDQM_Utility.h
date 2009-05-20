@@ -25,6 +25,7 @@
 #include <vector>
 #include <sstream>
 #include <stdint.h>
+#include <math.h>
 
 #include <xercesc/util/XMLString.hpp>
 #include <boost/shared_ptr.hpp>
@@ -78,6 +79,9 @@ namespace cscdqm {
       static void trimString(std::string& str);
       static uint32_t fastHash(const char * data, int len);
       static uint32_t fastHash(const char * data) { return fastHash(data, strlen(data)); }
+
+      static double SignificanceLevel(const unsigned int N, const unsigned int n, const double eps);
+      static double SignificanceLevelHot(const unsigned int N, const unsigned int n);
 
   };
 

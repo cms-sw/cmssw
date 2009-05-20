@@ -80,7 +80,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = "CRZT210_V1H::All"
 #process.GlobalTag.globaltag = 'CRAFT_V3P::All'
 process.GlobalTag.globaltag = "CRAFT_30X::All"
-process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
+#process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 #--------------------------
 # Web Service
