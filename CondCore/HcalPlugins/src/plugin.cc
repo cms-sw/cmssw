@@ -22,5 +22,6 @@ REGISTER_PLUGIN(HcalCalibrationQIEDataRcd,HcalCalibrationQIEData);
 REGISTER_PLUGIN(HcalZSThresholdsRcd,HcalZSThresholds);
 REGISTER_PLUGIN(HcalRespCorrsRcd,HcalRespCorrs);
 REGISTER_PLUGIN(HcalLUTCorrsRcd,HcalLUTCorrs);
+REGISTER_PLUGIN(HcalPFCorrsRcd,HcalPFCorrs);
 REGISTER_PLUGIN(HcalTimeCorrsRcd,HcalTimeCorrs);
 REGISTER_PLUGIN(HcalL1TriggerObjectsRcd,HcalL1TriggerObjects);

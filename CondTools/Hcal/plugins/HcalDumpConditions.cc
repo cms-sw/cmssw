@@ -108,6 +108,8 @@ namespace edmtest
       dumpIt(new HcalTimeCorrs, new HcalTimeCorrsRcd, e,context,"TimeCorrs");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("LUTCorrs")) != mDumpRequest.end())
       dumpIt(new HcalLUTCorrs, new HcalLUTCorrsRcd, e,context,"LUTCorrs");
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("PFCorrs")) != mDumpRequest.end())
+      dumpIt(new HcalPFCorrs, new HcalPFCorrsRcd, e,context,"PFCorrs");
     
   }
   DEFINE_FWK_MODULE(HcalDumpConditions);

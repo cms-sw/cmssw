@@ -8,6 +8,7 @@
 #include "CondFormats/DataRecord/interface/HcalGainWidthsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalL1TriggerObjectsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalLUTCorrsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalPFCorrsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalPedestalWidthsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"

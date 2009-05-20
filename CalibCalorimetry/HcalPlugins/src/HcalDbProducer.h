@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.h,v 1.14 2009/05/06 22:24:11 mansj Exp $
+// $Id: HcalDbProducer.h,v 1.15 2009/05/19 16:06:00 rofierzy Exp $
 //
 //
 
@@ -52,6 +52,7 @@ class HcalDbProducer : public edm::ESProducer {
   void electronicsMapCallback (const HcalElectronicsMapRcd& fRecord);
   void timeCorrsCallback (const HcalTimeCorrsRcd& fRecord);
   void LUTCorrsCallback (const HcalLUTCorrsRcd& fRecord);
+  void PFCorrsCallback (const HcalPFCorrsRcd& fRecord);
 
    private:
       // ----------member data ---------------------------

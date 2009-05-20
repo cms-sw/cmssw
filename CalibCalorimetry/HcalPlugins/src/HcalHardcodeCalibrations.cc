@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.18 2009/05/06 22:24:11 mansj Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.19 2009/05/19 16:06:01 rofierzy Exp $
 //
 //
 
@@ -120,6 +120,10 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
       setWhatProduced (this, &HcalHardcodeCalibrations::produceLUTCorrs);
       findingRecord <HcalLUTCorrsRcd> ();
     }
+    if ((*objectName == "PFCorrs") || (*objectName == "PFCorrection") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::producePFCorrs);
+      findingRecord <HcalPFCorrsRcd> ();
+    }
     if ((*objectName == "TimeCorrs") || (*objectName == "TimeCorrection") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceTimeCorrs);
       findingRecord <HcalTimeCorrsRcd> ();
@@ -232,6 +236,17 @@ std::auto_ptr<HcalLUTCorrs> HcalHardcodeCalibrations::produceLUTCorrs (const Hca
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalLUTCorr item(cell->rawId(),1.0);
+    result->addValues(item,h2mode_);
+  }
+  return result;
+}
+
+std::auto_ptr<HcalPFCorrs> HcalHardcodeCalibrations::producePFCorrs (const HcalPFCorrsRcd& rcd) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::producePFCorrs-> ...";
+  std::auto_ptr<HcalPFCorrs> result (new HcalPFCorrs ());
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
+  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+    HcalPFCorr item(cell->rawId(),1.0);
     result->addValues(item,h2mode_);
   }
   return result;

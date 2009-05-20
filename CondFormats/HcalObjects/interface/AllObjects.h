@@ -16,5 +16,6 @@
 #include "CondFormats/HcalObjects/interface/HcalL1TriggerObjects.h"
 #include "CondFormats/HcalObjects/interface/HcalTimeCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalLUTCorrs.h"
+#include "CondFormats/HcalObjects/interface/HcalPFCorrs.h"
 
 #endif

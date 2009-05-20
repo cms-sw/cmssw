@@ -38,6 +38,9 @@ namespace {
     HcalLUTCorrs mylutcorrs;
     std::vector<HcalLUTCorr> mylutcorrsVec;
  
+    HcalPFCorrs mypfcorrs;
+    std::vector<HcalPFCorr> mypfcorrsVec;
+ 
     HcalL1TriggerObjects myL1trigs;
     std::vector<HcalL1TriggerObject> myL1trigsVec;
 

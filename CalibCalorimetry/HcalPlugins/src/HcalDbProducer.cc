@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.cc,v 1.24 2009/05/08 13:45:56 rofierzy Exp $
+// $Id: HcalDbProducer.cc,v 1.25 2009/05/19 16:05:59 rofierzy Exp $
 //
 //
 
@@ -52,6 +52,7 @@ HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
 			  &HcalDbProducer::respCorrsCallback &
 			  &HcalDbProducer::gainsCallback &
 			  &HcalDbProducer::LUTCorrsCallback &
+			  &HcalDbProducer::PFCorrsCallback &
 			  &HcalDbProducer::timeCorrsCallback &
 			  &HcalDbProducer::QIEDataCallback &
 			  &HcalDbProducer::gainWidthsCallback &
@@ -169,6 +170,16 @@ void HcalDbProducer::LUTCorrsCallback (const HcalLUTCorrsRcd& fRecord) {
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("LUTCorrs")) != mDumpRequest.end()) {
     *mDumpStream << "New HCAL LUTCorrs set" << std::endl;
+    HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
+  }
+}
+
+void HcalDbProducer::PFCorrsCallback (const HcalPFCorrsRcd& fRecord) {
+  edm::ESHandle <HcalPFCorrs> item;
+  fRecord.get (item);
+  mService->setData (item.product ());
+  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("PFCorrs")) != mDumpRequest.end()) {
+    *mDumpStream << "New HCAL PFCorrs set" << std::endl;
     HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
   }
 }

@@ -21,6 +21,7 @@ process.prod = cms.EDFilter("HcalDumpConditions",
         ,'RespCorrs' 
         ,'TimeCorrs'
         ,'LUTCorrs'
+        ,'PFCorrs'
         ,'L1TriggerObjects'
         ,'ZSThresholds'
                                  ),

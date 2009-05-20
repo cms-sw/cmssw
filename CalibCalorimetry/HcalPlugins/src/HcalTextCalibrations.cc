@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalTextCalibrations.cc,v 1.11 2009/05/06 22:24:12 mansj Exp $
+// $Id: HcalTextCalibrations.cc,v 1.12 2009/05/19 16:06:03 rofierzy Exp $
 //
 //
 
@@ -70,6 +70,10 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       setWhatProduced (this, &HcalTextCalibrations::produceLUTCorrs);
       findingRecord <HcalLUTCorrsRcd> ();
     }
+    else if (objectName == "PFCorrs") {
+      setWhatProduced (this, &HcalTextCalibrations::producePFCorrs);
+      findingRecord <HcalPFCorrsRcd> ();
+    }
     else if (objectName == "TimeCorrs") {
       setWhatProduced (this, &HcalTextCalibrations::produceTimeCorrs);
       findingRecord <HcalTimeCorrsRcd> ();
@@ -86,7 +90,7 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       std::cerr << "HcalTextCalibrations-> Unknown object name '" << objectName 
 		<< "', known names are: "
 		<< "Pedestals PedestalWidths Gains GainWidths QIEData ChannelQuality ElectronicsMap "
-		<< "ZSThresholds RespCorrs LUTCorrs TimeCorrs L1TriggerObjects"
+		<< "ZSThresholds RespCorrs LUTCorrs PFCorrs TimeCorrs L1TriggerObjects"
 		<< std::endl;
     }
   }
@@ -160,6 +164,10 @@ std::auto_ptr<HcalRespCorrs> HcalTextCalibrations::produceRespCorrs (const HcalR
 
 std::auto_ptr<HcalLUTCorrs> HcalTextCalibrations::produceLUTCorrs (const HcalLUTCorrsRcd& rcd) {
   return produce_impl<HcalLUTCorrs> (mInputs ["LUTCorrs"]);
+}
+
+std::auto_ptr<HcalPFCorrs> HcalTextCalibrations::producePFCorrs (const HcalPFCorrsRcd& rcd) {
+  return produce_impl<HcalPFCorrs> (mInputs ["PFCorrs"]);
 }
 
 std::auto_ptr<HcalTimeCorrs> HcalTextCalibrations::produceTimeCorrs (const HcalTimeCorrsRcd& rcd) {

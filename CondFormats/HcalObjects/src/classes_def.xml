@@ -50,6 +50,10 @@
  <class name="std::vector<HcalLUTCorr>"/>
  <class name="HcalLUTCorrs"/>
 
+ <class name="HcalPFCorr"/>
+ <class name="std::vector<HcalPFCorr>"/>
+ <class name="HcalPFCorrs"/>
+
  <class name="HcalL1TriggerObject"/>
  <class name="std::vector<HcalL1TriggerObject>"/>
  <class name="HcalL1TriggerObjects"/>

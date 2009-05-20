@@ -1,7 +1,7 @@
 //
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
-// $Id: HcalDbService.cc,v 1.28 2009/05/06 22:22:44 mansj Exp $
+// $Id: HcalDbService.cc,v 1.29 2009/05/19 16:06:09 rofierzy Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
@@ -28,7 +28,8 @@ HcalDbService::HcalDbService (const edm::ParameterSet& cfg)
   mRespCorrs(0),
   mL1TriggerObjects(0),
   mTimeCorrs(0),
-  mLUTCorrs(0)
+  mLUTCorrs(0),
+  mPFCorrs(0)
  {}
 
 bool HcalDbService::makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibrations* fObject, bool pedestalInADC) const {
@@ -221,6 +222,13 @@ const HcalTimeCorr* HcalDbService::getHcalTimeCorr (const HcalGenericDetId& fId)
 const HcalLUTCorr* HcalDbService::getHcalLUTCorr (const HcalGenericDetId& fId) const {
   if (mLUTCorrs) {
     return mLUTCorrs->getValues (fId);
+  }
+  return 0;
+}
+
+const HcalPFCorr* HcalDbService::getHcalPFCorr (const HcalGenericDetId& fId) const {
+  if (mPFCorrs) {
+    return mPFCorrs->getValues (fId);
   }
   return 0;
 }
