@@ -1,10 +1,18 @@
 #ifndef binomial_interval_h
 #define binomial_interval_h
 
+#if (defined (STANDALONE) or defined (__CINT__) )
+#include "TNamed.h"
+#endif
+
 // A class to implement the calculation of intervals for the binomial
 // parameter rho. The bulk of the work is done by derived classes that
 // implement calculate() appropriately.
-class binomial_interval {
+class binomial_interval 
+#if (defined (STANDALONE) or defined (__CINT__) )
+: public TNamed
+#endif
+{
 public:
   // For central intervals, an enum to indicate whether the interval
   // should put all of alpha at the lower or upper end, or equally
@@ -75,6 +83,10 @@ protected:
   double upper_;
 
   void set(double l, double u) { lower_ = l; upper_ = u; }
+
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassDef(binomial_interval,1)
+#endif
 };
 
 #endif

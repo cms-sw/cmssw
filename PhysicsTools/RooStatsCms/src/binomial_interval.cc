@@ -3,7 +3,13 @@
 #include "Math/PdfFuncMathCore.h"
 #include "Math/QuantFuncMathCore.h"
 
+#if (defined (STANDALONE) or defined (__CINT__) )
+#include "binomial_interval.h"
+
+ClassImp(binomial_interval)
+#else
 #include "PhysicsTools/RooStatsCms/interface/binomial_interval.h"
+#endif
 
 void binomial_interval::init(const double alpha, const tail_type type) {
   alpha_     = alpha;

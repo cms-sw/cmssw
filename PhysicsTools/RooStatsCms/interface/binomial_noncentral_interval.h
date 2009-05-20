@@ -7,7 +7,11 @@
 
 #include "Math/PdfFuncMathCore.h"
 
+#if (defined (STANDALONE) or defined (__CINT__) )
+#include "binomial_interval.h"
+#else
 #include "PhysicsTools/RooStatsCms/interface/binomial_interval.h"
+#endif
 
 // Helper class for sorting by probability or likelihood ratio, used
 // in constructing non-central intervals a la Neyman.
@@ -131,6 +135,10 @@ class binomial_noncentral_interval : public binomial_interval {
 
  private:
   Sorter sorter_;
+
+#if (defined (STANDALONE) or defined (__CINT__) )
+ClassDefT(binomial_noncentral_interval,1)
+#endif
 };
 
 #endif

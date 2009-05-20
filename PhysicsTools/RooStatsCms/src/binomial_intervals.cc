@@ -1,6 +1,12 @@
 #include "Math/QuantFuncMathCore.h"
 
+#if (defined (STANDALONE) or defined (__CINT__) )
+#include "binomial_intervals.h"
+
+ClassImp(clopper_pearson)
+#else
 #include "PhysicsTools/RooStatsCms/interface/binomial_intervals.h"
+#endif
 
 using ROOT::Math::beta_quantile;
 using ROOT::Math::beta_quantile_c;
