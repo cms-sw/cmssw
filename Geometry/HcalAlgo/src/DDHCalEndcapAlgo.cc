@@ -627,7 +627,7 @@ void DDHCalEndcapAlgo::parameterLayer0(int mod, int layer, int iphi,
   yh  -= getTrim(mod,iphi);
   bl  -= getTrim(mod,iphi);
   tl  -= getTrim(mod,iphi);
-  alp  = 0.5 * alpha;
+  alp  = atan(0.5 * tan(alpha));
   if (iphi == 0) {
     ypos  = -ypos;
   } else {
@@ -654,19 +654,19 @@ void DDHCalEndcapAlgo::parameterLayer(int iphi, double rinF, double routF,
 		       << " " << zi << " Back " << rinB << " " << routB << " "
 		       << zo << " Alpha " << alpha/CLHEP::deg;
 
-  yh1 = 0.5 * (routF - rinF);
-  bl1 = 0.5 * rinF  * tan(alpha);
+  yh1 = 0.5 * (routF - rinB);
+  bl1 = 0.5 * rinB  * tan(alpha);
   tl1 = 0.5 * routF * tan(alpha);
-  yh2 = 0.5 * (routB - rinB);
+  yh2 = 0.5 * (routF - rinB);
   bl2 = 0.5 * rinB  * tan(alpha);
-  tl2 = 0.5 * routB * tan(alpha);
+  tl2 = 0.5 * routF * tan(alpha);
   double dx  = 0.25* (bl2+tl2-bl1-tl1);
-  double dy  = 0.5 * (rinB+routB-rinF-routF);
-  xpos = 0.25*(rinB+routB+rinF+routF);
+  double dy  = 0.5 * (rinB+routF-rinB-routF);
+  xpos = 0.25*(rinB+routF+rinB+routF);
   ypos = 0.25*(bl2+tl2+bl1+tl1);
   zpos = 0.5*(zi+zo);
-  alp  = 0.5 * alpha;
-  ypos-= getTolPos();
+  alp  = atan(0.5 * tan(alpha));
+  //  ypos-= getTolPos();
   if (iphi == 0) {
     ypos  = -ypos;
   } else {
