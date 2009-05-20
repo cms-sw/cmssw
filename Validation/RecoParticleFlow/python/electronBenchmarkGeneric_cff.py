@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 from PhysicsTools.PFCandProducer.pfAllElectrons_cfi import pfAllElectrons
+
 from Validation.RecoParticleFlow.pfElectronBenchmarkGeneric_cfi import pfElectronBenchmarkGeneric
 
 # setting the sources
@@ -10,13 +12,16 @@ gensource = cms.EDProducer(
     src = cms.InputTag("genParticles"),
     select = cms.vstring(
     "drop * ",
-    "keep pdgId = cms.vint32(11,-11)"
+    "keep pdgId = {e-}",
+    "keep pdgId = {e+}"
     )
-    )
+)
 
-pfElectronBenchmarkGeneric.InputRecoLabel = cms.InputTag("pfsource")
+pfElectronBenchmarkGeneric.InputRecoLabel = cms.InputTag("pfAllElectrons")
 pfElectronBenchmarkGeneric.InputTruthLabel = cms.InputTag("gensource")
 
 electronBenchmarkGeneric = cms.Sequence(
+    pfAllElectrons +
+    gensource + 
     pfElectronBenchmarkGeneric
-    )
+)
