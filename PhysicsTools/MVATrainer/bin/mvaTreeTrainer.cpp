@@ -132,7 +132,7 @@ int main(int argc, char **argv)
 		             "\t-l / --load\t\tLoad existing training data.\n"
 		             "\t-s / --no-save\t\tDon't save training data.\n"
 		             "\t-m / --no-monitoring\tDon't write monitoring plots.\n"
-		             "\t-w / --no-weights\tIgnore __WEIGHT__ branches.\n";
+		             "\t-w / --no-weights\tIgnore __WEIGHT__ branches.\n"
 		             "\t-x / --xslt\t\tUse MVATrainer XSLT parsing.\n\n";
 		std::cerr << "Trees can be selected as "
 		             "(<tree name>@)<file name>" << std::endl;
