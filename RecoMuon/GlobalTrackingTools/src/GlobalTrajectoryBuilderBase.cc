@@ -12,10 +12,10 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/12/18 21:07:00 $
- *  $Revision: 1.30 $
- *  $Date: 2008/12/16 04:21:15 $
- *  $Revision: 1.29.2.4 $
+ *  $Date: 2009/02/24 07:05:54 $
+ *  $Revision: 1.31 $
+ *  $Date: 2009/02/24 07:05:54 $
+ *  $Revision: 1.31 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -275,16 +275,16 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
 
       if((*it)->trackerTrajectory() && (*it)->trackerTrajectory()->isValid() ) refit[0] = (*it)->trackerTrajectory();
 
-      refit[0]->setSeedRef((*it)->trackerTrack()->seedRef());
+      if (refit[0]) refit[0]->setSeedRef((*it)->trackerTrack()->seedRef());
       Trajectory * refitTkTraj = refit[0];
 
       const Trajectory* chosenTrajectory = chooseTrajectory(refit, theMuonHitsOption);
-      if (chosenTrajectory) {
+      if (chosenTrajectory && refitTkTraj) {
 	    Trajectory *tmpTrajectory = new Trajectory(*chosenTrajectory);
 	    tmpTrajectory->setSeedRef((*it)->trackerTrack()->seedRef());
 	    finalTrajectory = new MuonCandidate(tmpTrajectory, (*it)->muonTrack(), (*it)->trackerTrack(), new Trajectory(*refitTkTraj));
       } else {
-	    LogError(theCategory)<<"could not choose a valid trajectory. skipping the muon. no final trajectory.";
+	    LogWarning(theCategory)<<"could not choose a valid trajectory. skipping the muon. no final trajectory.";
       }
 
       if ( finalTrajectory ) {
