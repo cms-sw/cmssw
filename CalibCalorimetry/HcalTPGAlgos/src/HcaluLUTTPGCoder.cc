@@ -474,7 +474,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 		if (LUTGenerationMode){
 			HcalCalibrations calibrations = conditions.getHcalCalibrations(cell);
 	   	ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
-	   	gain_= (calibrations.respcorrgain(0)+calibrations.respcorrgain(1)+calibrations.respcorrgain(2)+calibrations.respcorrgain(3))/4;          
+	   	gain_= (calibrations.LUTrespcorrgain(0)+calibrations.LUTrespcorrgain(1)+calibrations.LUTrespcorrgain(2)+calibrations.LUTrespcorrgain(3))/4;          
 
 			//Add HcalL1TriggerObject to its container
 			HcalL1TriggerObject HcalL1TrigObj(cell.rawId(), ped_, gain_);
@@ -522,7 +522,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 		if (LUTGenerationMode){
 			HcalCalibrations calibrations = conditions.getHcalCalibrations(cell);
 	   	ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
-	   	gain_= (calibrations.respcorrgain(0)+calibrations.respcorrgain(1)+calibrations.respcorrgain(2)+calibrations.respcorrgain(3))/4;          
+	   	gain_= (calibrations.LUTrespcorrgain(0)+calibrations.LUTrespcorrgain(1)+calibrations.LUTrespcorrgain(2)+calibrations.LUTrespcorrgain(3))/4;          
 
 			//Add HcalL1TriggerObject to its container
 			HcalL1TriggerObject HcalL1TrigObj(cell.rawId(), ped_, gain_);
@@ -567,7 +567,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 		if (LUTGenerationMode){
 			HcalCalibrations calibrations = conditions.getHcalCalibrations(cell);
 	   	ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
-	   	gain_= (calibrations.respcorrgain(0)+calibrations.respcorrgain(1)+calibrations.respcorrgain(2)+calibrations.respcorrgain(3))/4;          
+	   	gain_= (calibrations.LUTrespcorrgain(0)+calibrations.LUTrespcorrgain(1)+calibrations.LUTrespcorrgain(2)+calibrations.LUTrespcorrgain(3))/4;          
 
 			//Add HcalL1TriggerObject to its container
 			HcalL1TriggerObject HcalL1TrigObj(cell.rawId(), ped_, gain_);
