@@ -17,6 +17,7 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     standAlone = cms.bool(False),
                                 
     minPhoEtCut = cms.double(0.0),
+    invMassEtCut = cms.double(20.0),                             
               
     cutStep = cms.double(50.0),
     numberOfSteps = cms.int32(2),

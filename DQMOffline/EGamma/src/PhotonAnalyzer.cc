@@ -13,7 +13,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/05/13 14:48:57 $ 
+ **  $Date: 2009/05/15 09:11:39 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -39,6 +39,7 @@ PhotonAnalyzer::PhotonAnalyzer( const edm::ParameterSet& pset )
     triggerEvent_       = pset.getParameter<edm::InputTag>("triggerEvent");
 
     minPhoEtCut_        = pset.getParameter<double>("minPhoEtCut");   
+    invMassEtCut_        = pset.getParameter<double>("invMassEtCut");  
 
     cutStep_            = pset.getParameter<double>("cutStep");
     numberOfSteps_      = pset.getParameter<int>("numberOfSteps");
@@ -893,6 +894,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	    float chi2Prob = ChiSquaredProbability( conversions[iConv]->conversionVertex().normalizedChi2(), conversions[iConv]->conversionVertex().ndof() );
 	    fill2DHistoVector(h_vertexChi2_,chi2Prob,cut,type);
 
+
 	    fill2DHistoVector(h_convVtxRvsZ_,fabs( conversions[iConv]->conversionVertex().position().z() ),  
 			      sqrt( conversions[iConv]->conversionVertex().position().perp2() ),cut,type);
 
@@ -963,15 +965,21 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 
     //make invariant mass plots
-    float EtCut = 20.0;
-    if (isTightPhoton && iPho->et()>=EtCut ){
+
+    if (isIsolated && iPho->et()>=invMassEtCut_){
 
       for (reco::PhotonCollection::const_iterator iPho2=iPho+1; iPho2!=photonCollection.end(); iPho2++){
 	
 	edm::Ref<reco::PhotonCollection> photonref2(photonHandle, photonCounter); //note: correct to use photonCounter and not photonCounter+1 
 	bool  isTightPhoton2 = (*tightPhotonID)[photonref2];                      //since it has already been incremented earlier
+	bool  isLoosePhoton2 = (*loosePhotonID)[photonref2];
 	
-	if(isTightPhoton2 && iPho2->et()>=EtCut){
+	bool isIsolated2=false;
+	if ( isolationStrength_ == 0)  isIsolated2 = isLoosePhoton2;
+	if ( isolationStrength_ == 1)  isIsolated2 = isTightPhoton2; 
+
+
+	if(isIsolated2 && iPho2->et()>=invMassEtCut_){
 
 	  math::XYZTLorentzVector p12 = iPho->p4()+iPho2->p4();
 	  float gamgamMass2 = p12.Dot(p12);

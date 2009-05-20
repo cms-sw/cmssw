@@ -77,7 +77,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/04/30 15:06:41 $ 
+ **  $Date: 2009/05/13 14:48:06 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -143,6 +143,8 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   edm::InputTag triggerEvent_;
 
   double minPhoEtCut_;
+  double invMassEtCut_;
+
 
   double cutStep_;
   int numberOfSteps_;
