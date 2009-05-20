@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ContainmentCorrectionAnalysis")
-process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
+process.load("Configuration.StandardSequences.GeometryExtended_cff")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
