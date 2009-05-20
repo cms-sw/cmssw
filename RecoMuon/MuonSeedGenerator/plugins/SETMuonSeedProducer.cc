@@ -64,6 +64,7 @@ SETMuonSeedProducer::~SETMuonSeedProducer(){
     << "SETMuonSeedProducer destructor called" << endl;
   
   if(theFilter) delete theFilter;
+   if (theService) delete theService;
 }
 
 void SETMuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup){
@@ -171,8 +172,10 @@ void SETMuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& even
 	  dir = alongMomentum;// why forward (for rechits) later?
 	}
 	TrajectoryStateTransform tsTransform;
-	PTrajectoryStateOnDet *seedTSOS =
-	  tsTransform.persistentState( firstTSOS, hitContainer.at(0)->geographicalId().rawId());
+	//PTrajectoryStateOnDet *seedTSOS =
+	  //tsTransform.persistentState( firstTSOS, hitContainer.at(0)->geographicalId().rawId());
+	std::auto_ptr<PTrajectoryStateOnDet> 
+	   seedTSOS(tsTransform.persistentState( firstTSOS, hitContainer.at(0)->geographicalId().rawId()));  
 	TrajectorySeed seed(*seedTSOS,recHitsContainer,dir);
 	TrajectorySeed::range range = seed.recHits();
 	
