@@ -35,7 +35,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 # Calibration
 #-------------------------------------------------
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "CRAFT_30X::All"
+process.GlobalTag.globaltag = "CRAFT_31X::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 #-----------------------
@@ -62,11 +62,13 @@ process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 #--------------------------
 process.load("DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi")
 process.SiStripMonitorCluster.CreateTrendMEs = True
-process.SiStripMonitorCluster.TkHistoMapCluster = True
+process.SiStripMonitorCluster.TkHistoMap_On = True
 process.SiStripMonitorCluster.SelectAllDetectors = True
 process.SiStripMonitorCluster.TProfTotalNumberOfClusters.subdetswitchon = True
+process.SiStripMonitorCluster.TH1TotalNumberOfClusters.subdetswitchon = True
 process.SiStripMonitorCluster.OutputMEsInRootFile = True
 process.SiStripMonitorCluster.OutputFileName = 'SiStripMonitorCluster.root'
+
 
 process.outP = cms.OutputModule("AsciiOutputModule")
 
