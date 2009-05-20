@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # filter on trigger type
-calibrationEventsFilter = cms.EDFilter("TriggerTypeFilter",
+calibrationEventsFilter = cms.EDFilter("HLTTriggerTypeFilter",
                                        InputLabel = cms.string('source'),
                                        TriggerFedId = cms.int32(812),
                                        # 1=Physics, 2=Calibration, 3=Random, 4=Technical
