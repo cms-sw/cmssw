@@ -45,7 +45,7 @@ process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
-        PartID = cms.vint32(211),
+        PartID = cms.vint32(14),
         MinEta = cms.double(-3.5),
         MaxEta = cms.double(3.5),
         MinPhi = cms.double(-3.14159265359),
@@ -59,14 +59,13 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(0)
+    input = cms.untracked.int32(1)
 )
 
 process.p1 = cms.Path(process.generator*process.g4SimHits)
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
 process.g4SimHits.Physics.DummyEMPhysics = True
-process.g4SimHits.Generator.HepMCProductLabel = 'source'
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     type       = cms.string('CheckOverlap'),
     Resolution = cms.untracked.int32(1000),
