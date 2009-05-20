@@ -1,4 +1,4 @@
-// $Id: FWECALDetailView.icc,v 1.3 2009/04/27 16:53:30 dmytro Exp $
+// $Id: FWECALDetailView.icc,v 1.4 2009/05/14 01:27:28 jmuelmen Exp $
 
 // system include files
 #include "TLatex.h"
@@ -284,29 +284,38 @@ void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i,
 	  if (subdetId == EcalBarrel) {
 	       const double eta = i->superCluster()->seed()->position().eta() -  
 		    i->deltaEtaSeedClusterTrackAtCalo();
-	       trackpositionAtCalo->AddLine(eta, ymin, 0,
-					    eta, ymax, 0);
 	       const double phi = i->superCluster()->seed()->position().phi() -  
 		    i->deltaPhiSeedClusterTrackAtCalo();
+	       trackpositionAtCalo->AddLine(eta, ymin, 0,
+					    eta, ymax, 0);
 	       trackpositionAtCalo->AddLine(xmin, phi, 0,
 					    xmax, phi, 0);
 	  } else if (subdetId == EcalEndcap) {
-	       trackpositionAtCalo->AddLine(trackPositionAtCalo(*i).x()*0.01,
+	       const double eta = i->superCluster()->seed()->position().eta() -  
+		    i->deltaEtaSeedClusterTrackAtCalo();
+	       const double phi = i->superCluster()->seed()->position().phi() -  
+		    i->deltaPhiSeedClusterTrackAtCalo();
+	       TVector3 pos;
+	       pos.SetPtEtaPhi(i->superCluster()->seed()->position().rho(), 
+			       eta,
+			       phi);
+	       trackpositionAtCalo->AddLine(pos.X() * 0.01,
 					    ymin,
 					    0,
-					    trackPositionAtCalo(*i).x()*0.01,
+					    pos.X() * 0.01,
 					    ymax,
 					    0);
 	       trackpositionAtCalo->AddLine(xmin,
-					    trackPositionAtCalo(*i).y()*0.01,
+					    pos.Y() * 0.01,
 					    0,
 					    xmax,
-					    trackPositionAtCalo(*i).y()*0.01,
+					    pos.Y() * 0.01,
 					    0);
 	  }
 	  trackpositionAtCalo->SetLineColor(kBlue);
 	  tList->AddElement(trackpositionAtCalo);
 	  TEveStraightLineSet *pinposition = new TEveStraightLineSet("pin position");
+	  pinposition->SetDepthTest(kFALSE);
 	  if (subdetId == EcalBarrel) {
 	       pinposition->AddLine((i->caloPosition().eta() - deltaEtaSuperClusterTrackAtVtx(*i)),
 				    ymin, 
@@ -321,18 +330,22 @@ void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i,
 				    (i->caloPosition().phi() - deltaPhiSuperClusterTrackAtVtx(*i)),
 				    0);
 	  } else if (subdetId == EcalEndcap) {
-// 	       pinposition->AddLine((i->caloPosition().eta() - deltaEtaSuperClusterTrackAtVtx(*i)) * scale,
-// 				    ymin, 
-// 				    0,
-// 				    (i->caloPosition().eta() - deltaEtaSuperClusterTrackAtVtx(*i)) * scale,
-// 				    ymax,
-// 				    0);
-// 	       pinposition->AddLine(xmin,
-// 				    (i->caloPosition().phi() - deltaPhiSuperClusterTrackAtVtx(*i)) * scale,
-// 				    0,
-// 				    xmax,
-// 				    (i->caloPosition().phi() - deltaPhiSuperClusterTrackAtVtx(*i)) * scale,
-// 				    0);
+	       TVector3 pos;
+	       pos.SetPtEtaPhi(i->caloPosition().rho(), 
+			       i->caloPosition().eta() - deltaEtaSuperClusterTrackAtVtx(*i), 
+			       i->caloPosition().phi() - deltaPhiSuperClusterTrackAtVtx(*i));
+ 	       pinposition->AddLine(pos.X() * 0.01,
+ 				    ymin, 
+ 				    0,
+ 				    pos.X() * 0.01,
+ 				    ymax,
+ 				    0);
+ 	       pinposition->AddLine(xmin,
+ 				    pos.Y() * 0.01,
+ 				    0,
+ 				    xmax,
+ 				    pos.Y() * 0.01,
+ 				    0);
 	  }
 	  printf("TrackPositionAtCalo: %f %f\n", 
 		 trackPositionAtCalo(*i).eta(), trackPositionAtCalo(*i).phi());
