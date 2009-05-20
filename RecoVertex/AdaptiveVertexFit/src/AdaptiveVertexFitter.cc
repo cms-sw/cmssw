@@ -563,7 +563,8 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
           ns_trks++;
         };
 
-        if ( fabs ( nVertex.position().z() ) > 10000. )
+        if ( fabs ( nVertex.position().z() ) > 10000. ||
+             nVertex.position().perp()>120.)
         {
           // were more than 100 m off!!
           LogError ("AdaptiveVertexFitter" ) << "Help! Vertex candidate just took off to " << nVertex.position()
