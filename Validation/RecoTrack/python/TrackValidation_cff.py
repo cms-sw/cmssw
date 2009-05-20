@@ -7,8 +7,11 @@ from Validation.RecoTrack.PostProcessorTracker_cfi import *
 import PhysicsTools.RecoAlgos.recoTrackSelector_cfi
 
 # Validation iterative steps
+cutsRecoTracksZero = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
+cutsRecoTracksZero.algorithm=cms.vstring("iter0")
+
 cutsRecoTracksFirst = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
-cutsRecoTracksFirst.algorithm=cms.vstring("ctf")
+cutsRecoTracksFirst.algorithm=cms.vstring("iter1")
 
 cutsRecoTracksSecond = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
 cutsRecoTracksSecond.algorithm=cms.vstring("iter2")
@@ -26,8 +29,12 @@ cutsRecoTracksFifth.algorithm=cms.vstring("iter5")
 cutsRecoTracksHp = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
 cutsRecoTracksHp.quality=cms.vstring("highPurity")
 
+cutsRecoTracksZeroHp = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
+cutsRecoTracksZeroHp.algorithm=cms.vstring("iter0")
+cutsRecoTracksZeroHp.quality=cms.vstring("highPurity")
+
 cutsRecoTracksFirstHp = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
-cutsRecoTracksFirstHp.algorithm=cms.vstring("ctf")
+cutsRecoTracksFirstHp.algorithm=cms.vstring("iter1")
 cutsRecoTracksFirstHp.quality=cms.vstring("highPurity")
 
 cutsRecoTracksSecondHp = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
@@ -49,6 +56,8 @@ cutsRecoTracksFifthHp.quality=cms.vstring("highPurity")
 
 multiTrackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                         cms.InputTag("cutsRecoTracksHp"),
+                                        cms.InputTag("cutsRecoTracksZero"),
+                                        cms.InputTag("cutsRecoTracksZeroHp"),
                                         cms.InputTag("cutsRecoTracksFirst"),
                                         cms.InputTag("cutsRecoTracksFirstHp"),
                                         cms.InputTag("cutsRecoTracksSecond"),
@@ -63,6 +72,8 @@ multiTrackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
 
 
 tracksValidation = cms.Sequence(cutsRecoTracksHp*
+                                cutsRecoTracksZero*
+                                cutsRecoTracksZeroHp*
                                 cutsRecoTracksFirst*
                                 cutsRecoTracksFirstHp*
                                 cutsRecoTracksSecond*

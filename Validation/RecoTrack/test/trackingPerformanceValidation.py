@@ -41,7 +41,7 @@ idealsamples= ['RelValTTbar']
 
 # track algorithm name and quality. Can be a list.
 #Algos= ['ootb']
-Algos= ['ootb', 'ctf','iter2','iter3','iter4','iter5']
+Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5']
 #Qualities=['']
 Qualities=['', 'highPurity']
 
@@ -113,8 +113,8 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
     global Sequence, RefSelection, RefRepository, NewSelection, NewRepository, defaultNevents, Events
     global cfg, macro, Tracksname
     print 'Tag: ' + GlobalTag
-    tracks_map = { 'ootb':'general_AssociatorByHits','ctf':'cutsRecoFirst_AssociatorByHits','iter2':'cutsRecoSecond_AssociatorByHits','iter3':'cutsRecoThird_AssociatorByHits','iter4':'cutsRecoFourth_AssociatorByHits','iter5':'cutsRecoFifth_AssociatorByHits'}
-    tracks_map_hp = { 'ootb':'cutsRecoHp_AssociatorByHits','ctf':'cutsRecoFirstHp_AssociatorByHits','iter2':'cutsRecoSecondHp_AssociatorByHits','iter3':'cutsRecoThirdHp_AssociatorByHits','iter4':'cutsRecoFourthHp_AssociatorByHits','iter5':'cutsRecoFifthHp_AssociatorByHits'}
+    tracks_map = { 'ootb':'general_AssociatorByHits','iter0':'cutsRecoZero_AssociatorByHits','iter1':'cutsRecoFirst_AssociatorByHits','iter2':'cutsRecoSecond_AssociatorByHits','iter3':'cutsRecoThird_AssociatorByHits','iter4':'cutsRecoFourth_AssociatorByHits','iter5':'cutsRecoFifth_AssociatorByHits'}
+    tracks_map_hp = { 'ootb':'cutsRecoHp_AssociatorByHits','iter0':'cutsRecoZeroHp_AssociatorByHits','iter1':'cutsRecoFirstHp_AssociatorByHits','iter2':'cutsRecoSecondHp_AssociatorByHits','iter3':'cutsRecoThirdHp_AssociatorByHits','iter4':'cutsRecoFourthHp_AssociatorByHits','iter5':'cutsRecoFifthHp_AssociatorByHits'}
     if(trackalgorithm=='ctf' or trackalgorithm=='ootb'):
         mineff='0.5'
         maxeff='1.025'
@@ -202,6 +202,8 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 						for line in os.popen(cmd4).readlines():
                                                     secfilename=line.strip()
                                                     if first==True:
+                                                        filenames+="'"
+                                                        filenames+=secfilename
                                                         filenames+="'"
                                                         first=False
                                                     else :
@@ -317,17 +319,6 @@ else:
         sys.exit()
 
 
-#print 'Running validation on the following samples: ', samples
-
-#if os.path.isfile( 'DDSearchCLI.py')!=True:
-#    e =os.system("wget --no-check-certificate https://cmsweb.cern.ch/dbs_discovery/aSearchCLI -O DDSearchCLI.py")
-#    if  e != 0:
-#        print >>sys.stderr, "Failed to dowload dbs aSearch file (https://cmsweb.cern.ch/dbs_discovery/aSearchCLI)"
-#        print >>sys.stderr, "Child was terminated by signal", e
-#        os.remove('DDSearchCLI.py')
-#        sys.exit()
-#    else:
-#        os.system('chmod +x DDSearchCLI.py')
 
 NewSelection=''
 
