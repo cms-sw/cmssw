@@ -1,5 +1,5 @@
 {
-  TFile *f = new TFile("benchmark.root"); 
+  TFile *f = new TFile("electronBenchmarkGeneric.root"); 
   gROOT->LoadMacro("../Tools/NicePlot.C");
   InitNicePlot();
 
