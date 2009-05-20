@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Mon Sep 24 09:30:06 CEST 2007
-// $Id: HSCPAnalyzer.cc,v 1.28 2009/03/05 09:42:09 arizzi Exp $
+// $Id: HSCPAnalyzer.cc,v 1.29 2009/05/15 17:52:21 delaer Exp $
 //
 //
 
@@ -51,6 +51,7 @@
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TF1.h>
+#include <TTree.h>
 
 #include <iostream>
 #include <vector>
@@ -291,6 +292,136 @@ void HSCPStandardPlots::fill(const HSCParticle & hscp, double w) {
   }
 }
 
+class HSCPStandardTree {
+ public:
+   HSCPStandardTree(TFileDirectory& subDir);
+   void newEvent(const edm::Event&, float w);
+   void fill(const HSCParticle & hscp);
+ private:
+   // the tree itself
+   TTree* tree_;
+   // variables for branches
+   unsigned int event,run;
+   float weight;
+   float px,py,pz,p,pt;
+   float tk_px, tk_py, tk_pz, tk_p, tk_pt;
+   float mu_px, mu_py, mu_pz, mu_p, mu_pt;
+   float tk_mass, tk_mass_error;
+   float dt_mass, dt_mass_error;
+   float avg_mass, avg_mass_error;
+   float dtcomb_mass, dtsta_mass, dtatk_mass, dtbest_mass, tkacomb_mass;
+   float tk_beta, dt_beta, beta_compatibility, ecal_beta, rpc_beta;
+   int quality;
+};
+
+HSCPStandardTree::HSCPStandardTree(TFileDirectory& subDir)
+{
+  // creates the tree
+  tree_ = subDir.make<TTree>("HSCParticles","HSCParticles");
+  // set branches
+  tree_->Branch("event",&event,"event/i");
+  tree_->Branch("run",&run,"run/i");
+  tree_->Branch("weight",&weight,"weight/F");
+  tree_->Branch("px",&px,"px/F");
+  tree_->Branch("py",&py,"py/F");
+  tree_->Branch("pz",&pz,"pz/F");
+  tree_->Branch("p",&p,"p/F");
+  tree_->Branch("pt",&pt,"pt/F");
+  tree_->Branch("tk_px",&tk_px,"tk_px/F");
+  tree_->Branch("tk_py",&tk_py,"tk_py/F");
+  tree_->Branch("tk_pz",&tk_pz,"tk_pz/F");
+  tree_->Branch("tk_p",&tk_p,"tk_p/F");
+  tree_->Branch("tk_pt",&tk_pt,"tk_pt/F");
+  tree_->Branch("mu_px",&mu_px,"mu_px/F");
+  tree_->Branch("mu_py",&mu_py,"mu_py/F");
+  tree_->Branch("mu_pz",&mu_pz,"mu_pz/F");
+  tree_->Branch("mu_p",&mu_p,"mu_p/F");
+  tree_->Branch("mu_pt",&mu_pt,"mu_pt/F");
+  tree_->Branch("tk_mass",&tk_mass,"tk_mass/F");
+  tree_->Branch("tk_mass_error",&tk_mass_error,"tk_mass_error/F");
+  tree_->Branch("dt_mass",&dt_mass,"dt_mass/F");
+  tree_->Branch("dt_mass_error",&dt_mass_error,"dt_mass_error/F");
+  tree_->Branch("avg_mass",&avg_mass,"avg_mass/F");
+  tree_->Branch("avg_mass_error",&avg_mass_error,"avg_mass_error/F");
+  tree_->Branch("dtcomb_mass",&dtcomb_mass,"dtcomb_mass/F");
+  tree_->Branch("dtsta_mass",&dtsta_mass,"dtsta_mass/F");
+  tree_->Branch("dtatk_mass",&dtatk_mass,"dtatk_mass/F");
+  tree_->Branch("dtbest_mass",&dtbest_mass,"dtbest_mass/F");
+  tree_->Branch("tkacomb_mass",&tkacomb_mass,"tkacomb_mass/F");
+  tree_->Branch("tk_beta",&tk_beta,"tk_beta/F");
+  tree_->Branch("dt_beta",&dt_beta,"dt_beta/F");
+  tree_->Branch("beta_compatibility",&beta_compatibility,"beta_compatibility/F");
+  tree_->Branch("ecal_beta",&ecal_beta,"ecal_beta/F");
+  tree_->Branch("rpc_beta",&rpc_beta,"rpc_beta/F");
+  tree_->Branch("quality",&quality,"quality/I");
+}
+
+void HSCPStandardTree::newEvent(const edm::Event& iEvent, float w)
+{
+  weight = w;
+  run = iEvent.id().run();
+  event = iEvent.id().event(); 
+}
+
+void HSCPStandardTree::fill(const HSCParticle & hscp)
+{
+  // set the content
+  if(hscp.hasMuonCombinedTrack()) {
+    px = hscp.combinedTrack().px();
+    py = hscp.combinedTrack().py();
+    pz = hscp.combinedTrack().pz();
+  } else if(hscp.hasMuonStaTrack()) {
+    px = hscp.staTrack().px();
+    py = hscp.staTrack().py();
+    pz = hscp.staTrack().pz();
+  } else if(hscp.hasMuonTrack()) {
+    px = hscp.muonTrack().px();
+    py = hscp.muonTrack().py();
+    pz = hscp.muonTrack().pz();
+  } else if(hscp.hasMuonTrack()) {
+    px = hscp.trackerTrack().px();
+    py = hscp.trackerTrack().py();
+    pz = hscp.trackerTrack().pz();
+  } else {
+    px = 0.;
+    py = 0.;
+    pz = 0.;
+  }
+  p  = hscp.p();
+  pt = hscp.pt();
+  tk_px = hscp.hasTrackerTrack() ? hscp.trackerTrack().px() : 0.;
+  tk_py = hscp.hasTrackerTrack() ? hscp.trackerTrack().py() : 0.;
+  tk_pz = hscp.hasTrackerTrack() ? hscp.trackerTrack().pz() : 0.;
+  tk_p  = hscp.hasTrackerTrack() ? hscp.trackerTrack().p()  : 0.;
+  tk_pt = hscp.hasTrackerTrack() ? hscp.trackerTrack().pt() : 0.;
+  mu_px = hscp.hasMuonTrack() ? hscp.muonTrack().px() : 0.;
+  mu_py = hscp.hasMuonTrack() ? hscp.muonTrack().py() : 0.;
+  mu_pz = hscp.hasMuonTrack() ? hscp.muonTrack().pz() : 0.;
+  mu_p  = hscp.hasMuonTrack() ? hscp.muonTrack().p()  : 0.;
+  mu_pt = hscp.hasMuonTrack() ? hscp.muonTrack().pt() : 0.;
+  tk_mass = hscp.massTk();
+  tk_mass_error = hscp.massTkError();
+  dt_mass = hscp.massDt();
+  dt_mass_error = hscp.massDtError();
+  avg_mass = hscp.massAvg();
+  avg_mass_error = hscp.massAvgError();
+  dtcomb_mass  = hscp.massDtComb();
+  dtsta_mass   = hscp.massDtSta();
+  dtatk_mass   = hscp.massDtAssoTk();
+  dtbest_mass  = hscp.massDtBest();
+  tkacomb_mass = hscp.massTkAssoComb();
+  tk_beta = hscp.betaTk();
+  dt_beta = hscp.betaDt();
+  beta_compatibility = hscp.compatibility();
+  ecal_beta = hscp.betaEcal();
+  rpc_beta = hscp.betaRpc();
+  quality = (hscp.hasTkInfo()<<8)|(hscp.hasTrackerTrack()<<7)
+           |(hscp.hasDtInfo()<<6)|(hscp.hasMuonTrack()<<5)
+           |(hscp.hasCaloInfo()<<4)|(hscp.hasRpcInfo()<<3);
+  // fill
+  tree_->Fill();
+}
+
 #define NMONITORS 33
 
 class HSCPAnalyzer : public edm::EDAnalyzer {
@@ -312,6 +443,9 @@ class HSCPAnalyzer : public edm::EDAnalyzer {
       // Counter
       double triggeredCounter;
 
+      // Candidate tree
+      HSCPStandardTree* candidateTree;
+      
       // Standard plots
       HSCPCandidateFilter * filter;
       CutMonitor * cuts[NMONITORS];
@@ -370,6 +504,8 @@ void HSCPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		  << " Xsec "        << *xsHandle     << endl;
   }
 
+  // Initialize the tree with event info
+  candidateTree->newEvent(iEvent,w);
   // Initialize cut monitors
   for(int i=0;i<NMONITORS;i++) if(cuts[i]) cuts[i]->newEvent(w);
 
@@ -383,6 +519,8 @@ void HSCPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   
   // Loop over candidates
   for(vector<HSCParticle>::const_iterator hscpCand = candidates.begin(); hscpCand!=candidates.end(); ++hscpCand) {
+    // fill the tree
+    candidateTree->fill(*hscpCand);
     // fill the histograms for the different cuts
     for(int i=0;i<NMONITORS;++i)
       if(filter->passCut(*hscpCand,susybsm::HSCPCandidateFilter::cutName(i))) cuts[i]->passed(*hscpCand,w);
@@ -416,6 +554,7 @@ void HSCPAnalyzer::beginJob(const edm::EventSetup&)
 {
   edm::Service<TFileService> fs;
   for(int i=0;i<NMONITORS;i++) cuts[i] = new CutMonitor(filter->nameCut(susybsm::HSCPCandidateFilter::cutName(i)),fs);
+  candidateTree = new HSCPStandardTree(*fs);
 
   TFileDirectory subDir2 = fs->mkdir( "Sim" );
   h_simmu_pt    = subDir2.make<TH1F>( "mu_sim_pt"  , "p_{t} mu", 100,  0., 1500. );
