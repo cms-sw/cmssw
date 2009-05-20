@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: valgrindMemcheckGraph.pl,v 1.1 2008/03/28 18:14:31 gpetrucc Exp $
+# $Id: valgrindMemcheckGraph.pl,v 1.2 2008/03/28 22:45:42 gpetrucc Exp $
 # Created: June 2007
 # Author: Gioivanni Petrucciani, INFN Pisa
 #
@@ -20,7 +20,7 @@ my %presets = (
     'fwk' => [ qw(EventSetup  ESProd  castor  ROOT  Pool  Reflex  PluginManager  RFIO  xerces  G_) ],
     'tom'  =>  [ qw(EventSetup ESProd castor ROOT Pool Reflex PluginManager RFIO xerces G_ libGraf createES),
                  qw(Streamer python static MessageLogger ServiceRegistry) ],
-    'prod' => [ '::produce\(\s*edm::Event\s*&' ],
+    'prod' => [ '::(produce|filter)\(\s*edm::Event\s*&' , '::analyze\(\s*(?:const\s+)?edm::Event(?:\s+const)?\s*&' ],
     'prod1' => [ '::produce\(\s*\w+(?:\s+const)?\s*&\w*\s*\)' ],
     'prod1+' => [ '::produce\(\s*\w+(?:\s+const)?\s*&\w*\s*\)', 'edm::eventsetup::DataProxyTemplate<'  ],
 );
