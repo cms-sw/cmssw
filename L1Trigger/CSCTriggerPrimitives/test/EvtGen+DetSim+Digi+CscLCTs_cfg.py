@@ -7,7 +7,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string("$Revision: 1.4 $"),
+    version = cms.untracked.string("$Revision: 1.5 $"),
     name = cms.untracked.string("$Source: /cvs_server/repositories/CMSSW/CMSSW/L1Trigger/CSCTriggerPrimitives/test/EvtGen+DetSim+Digi+CscLCTs_cfg.py,v $"),
     annotation = cms.untracked.string("SV: single particle gun mu- 50 GeV")
 )
@@ -24,8 +24,11 @@ process.MessageLogger = cms.Service("MessageLogger",
     #debugModules = cms.untracked.vstring("cscTriggerPrimitiveDigis","cscpacker")
 )
 
-# Random number seeds
-#
+process.options = cms.untracked.PSet(
+    Rethrow = cms.untracked.vstring('ProductNotFound')
+)
+
+#- Random number seeds
 process.load("Configuration/StandardSequences/SimulationRandomNumberGeneratorSeeds_cff")
 process.RandomNumberGeneratorService.simMuonCSCDigis.initialSeed = 468
 #- Randomize all the seeds
@@ -33,9 +36,17 @@ process.RandomNumberGeneratorService.simMuonCSCDigis.initialSeed = 468
 #randSvc = RandomNumberServiceHelper(process.RandomNumberGeneratorService)
 #randSvc.populate()
 
-# Event Generation.  Single muons
-#
-process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+#- Import of standard configurations
+process.load("Configuration.StandardSequences.Services_cff")
+process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
+process.load('Configuration/StandardSequences/GeometryExtended_cff')
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load("Configuration.StandardSequences.Generator_cff")
+process.load("Configuration.StandardSequences.VtxSmearedEarly10TeVCollision_cff")
+process.load("Configuration.StandardSequences.Sim_cff")
+process.load("Configuration.StandardSequences.Digi_cff")
+
+#- Event Generation.  Single muons
 process.source = cms.Source("EmptySource")
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     firstRun = cms.untracked.uint32(1),
@@ -55,29 +66,11 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
 )
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'IDEAL_30X::All'
+process.GlobalTag.globaltag = 'IDEAL_31X::All'
 #process.GlobalTag.globaltag = 'STARTUP_V5::All'
 #process.prefer("GlobalTag")
 
-# Event vertex smearing - applies only once (internal check)
-# Note : all internal generators will always do (0,0,0) vertex
-#
-process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
-
-process.load("Configuration.StandardSequences.Services_cff")
-
-process.load("Configuration.StandardSequences.Simulation_cff")
-
-process.load('Configuration/StandardSequences/GeometryPilot2_cff')
-
-process.load("Configuration.StandardSequences.MagneticField_cff")
-
-process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
-
-process.load("Configuration.StandardSequences.Reconstruction_cff")
-
 #- CSC TP Emulator
-process.load("L1TriggerConfig.L1CSCTPConfigProducers.L1CSCTriggerPrimitivesConfig_cff")
 process.load("L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi")
 process.cscTriggerPrimitiveDigis.alctParam07.verbosity = 2
 process.cscTriggerPrimitiveDigis.clctParam07.verbosity = 2
@@ -89,10 +82,9 @@ process.cscpacker.alctDigiTag = cms.InputTag("cscTriggerPrimitiveDigis")
 process.cscpacker.clctDigiTag = cms.InputTag("cscTriggerPrimitiveDigis")
 process.cscpacker.correlatedLCTDigiTag = cms.InputTag("cscTriggerPrimitiveDigis","MPCSORTED")
 
-# Output module
-#
-process.GENSIMDIGI = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string("/data0/slava/test/muminus_pt50_CMSSW_3_1_0_pre4.root"),
+#- Output module
+process.output = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string("/data0/slava/test/muminus_pt50_CMSSW_3_1_0_pre7.root"),
     outputCommands = cms.untracked.vstring("keep *", 
          # "drop *_simSiPixelDigis_*_*",
          # "drop *_simSiStripDigis_*_*",
@@ -105,14 +97,13 @@ process.GENSIMDIGI = cms.OutputModule("PoolOutputModule",
         "drop PCaloHits_*_*_*")
 )
 
-# Now order modules for execution
-#
+#- Now order modules for execution
 #sequence trDigi = {  simSiPixelDigis & simSiStripDigis }
 #sequence calDigi = { ecalUnsuppressedDigis & hcalDigis }
 #sequence muonDigi = { simMuonCSCDigis &  simMuonDTDigis & simMuonRPCDigis}
 #sequence doDigi = { trDigi & calDigi & muonDigi }
 #- Gen->Sim->Digi
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.mix*process.muonDigi)
+process.p1 = cms.Path(process.generator*process.pgen*process.psim*process.mix*process.muonDigi)
 #- Gen->Sim->Digi->L1->Raw
-#process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits*process.mix*process.muonDigi*process.cscTriggerPrimitiveDigis*process.cscpacker)
-process.outpath = cms.EndPath(process.GENSIMDIGI)
+#process.p1 = cms.Path(process.generator*process.pgen*process.psim*process.mix*process.muonDigi*process.cscTriggerPrimitiveDigis*process.cscpacker)
+process.outpath = cms.EndPath(process.output)

@@ -7,7 +7,7 @@ process = cms.Process("MuonCSCTriggerPrimitives")
 
 process.source = cms.Source("PoolSource",
     # fileNames = cms.untracked.vstring("file:cscdigis.root"),
-    fileNames = cms.untracked.vstring("file:/data0/slava/test/muminus_pt50_CMSSW_3_1_0_pre4.root.sav"),
+    fileNames = cms.untracked.vstring("file:/data0/slava/test/muminus_pt50_CMSSW_3_1_0_pre7.root"),
     debugVebosity = cms.untracked.uint32(10),
     debugFlag = cms.untracked.bool(True)
 )
@@ -47,13 +47,13 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 # es_source of ideal geometry
 # ===========================
-process.load('Configuration/StandardSequences/GeometryPilot2_cff')
+process.load('Configuration/StandardSequences/GeometryExtended_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'IDEAL_30X::All'
+process.GlobalTag.globaltag = 'IDEAL_31X::All'
 
 # magnetic field (do I need it?)
 # ==============================
-process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 # CSC Trigger Primitives configuration
 # ====================================
@@ -83,7 +83,7 @@ process.cscTriggerPrimitiveDigis.tmbParam.verbosity = 2
 
 process.out = cms.OutputModule("PoolOutputModule",
     # fileName = cms.untracked.string("lcts.root"),
-    fileName = cms.untracked.string("/data0/slava/test/lcts_muminus_pt50_emul_CMSSW_3_1_0_pre4.root"),
+    fileName = cms.untracked.string("/data0/slava/test/lcts_muminus_pt50_emul_CMSSW_3_1_0_pre7.root"),
     outputCommands = cms.untracked.vstring("keep *", 
         "drop *_DaqSource_*_*")
 )
