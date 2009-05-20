@@ -83,6 +83,11 @@ pfRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
       TrackLeadTrack_maxDZ          = cms.double(0.2),
       UseTrackLeadTrackDZconstraint = cms.bool(True),
       Track_IsolAnnulus_minNhits    = cms.uint32(3),
+      ### parameters for gammas in ellipse ###  					  
+      AddEllipseGammas = cms.bool(False),						  
+      Rphi = cms.double(2.0), ## factor*Reta; Reta is the standard ecal signal cone size   
+      MaxEtInEllipse = cms.double(2.0) # max pt for gammas inside the ellipse  	  
+      ########################################  					  
 
 )
  # * possible metrics : "DR", "angle", "area";

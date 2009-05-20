@@ -54,6 +54,12 @@ PFRecoTauAlgorithm::PFRecoTauAlgorithm(const ParameterSet& iConfig) : TransientT
   HCALIsolConeSize_min_               = iConfig.getParameter<double>("HCALIsolConeSize_min");
   HCALIsolConeSize_max_               = iConfig.getParameter<double>("HCALIsolConeSize_max");
   
+  // get paramaeters for ellipse EELL
+  Rphi_				      = iConfig.getParameter<double>("Rphi");
+  MaxEtInEllipse_		      = iConfig.getParameter<double>("MaxEtInEllipse");
+  AddEllipseGammas_		      = iConfig.getParameter<bool>("AddEllipseGammas");
+  // EELL
+  
   AreaMetric_recoElements_maxabsEta_    = iConfig.getParameter<double>("AreaMetric_recoElements_maxabsEta");
   ChargedHadrCand_IsolAnnulus_minNhits_ = iConfig.getParameter<uint32_t>("ChargedHadrCand_IsolAnnulus_minNhits");
   Track_IsolAnnulus_minNhits_           = iConfig.getParameter<uint32_t>("Track_IsolAnnulus_minNhits");
@@ -245,6 +251,37 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     myPFTau.setisolationPFNeutrHadrCands(myIsolPFNeutrHadrCands);
     myIsolPFGammaCands=myPFTauElementsOperators.PFGammaCandsInAnnulus(myPFTau.momentum(),ECALSignalConeMetric_,myECALSignalConeSize,ECALIsolConeMetric_,myECALIsolConeSize,PFTauAlgo_GammaCand_minPt_);  
     myPFTau.setisolationPFGammaCands(myIsolPFGammaCands);
+    
+    //Incorporate converted gammas from isolation ellipse into signal  ... ELLL
+    //Get pair with in/out elements using the isoPFGammaCandidates set by default
+    if(AddEllipseGammas_){
+      double rPhi;
+      if(Rphi_ >= 1.) rPhi = Rphi_*myECALSignalConeSize;
+      else rPhi = Rphi_;
+      
+      pair<PFCandidateRefVector,PFCandidateRefVector> elementsInOutEllipse = myPFTauElementsOperators.PFGammaCandsInOutEllipse(myIsolPFGammaCands, *myleadPFCand, rPhi, myECALSignalConeSize, MaxEtInEllipse_);
+      PFCandidateRefVector elementsInEllipse = elementsInOutEllipse.first;
+      PFCandidateRefVector elementsOutEllipse = elementsInOutEllipse.second;
+      //add the inside elements to signal PFCandidates and reset signal PFCands
+      for(PFCandidateRefVector::const_iterator inEllipseIt = elementsInEllipse.begin(); inEllipseIt != elementsInEllipse.end(); inEllipseIt++){
+        mySignalPFCands.push_back(*inEllipseIt);
+	mySignalPFGammaCands.push_back(*inEllipseIt);
+      }
+      myPFTau.setsignalPFCands(mySignalPFCands);
+      //redefine isoPFGammaCandidates to be the outside elements
+      myIsolPFGammaCands=elementsOutEllipse;
+      myPFTau.setisolationPFGammaCands(myIsolPFGammaCands);
+   /*   
+      //reset four-momentum using elements in signal cone including newly added gammas
+      math::XYZTLorentzVector modifiedLorentzVect(0.,0.,0.,0.);
+      for(PFCandidateRefVector::const_iterator sigCandIt = mySignalPFCands.begin(); sigCandIt != mySignalPFCands.end(); sigCandIt++){
+        modifiedLorentzVect+=(**sigCandIt).p4();
+      }
+      myPFTau.setP4(modifiedLorentzVect);
+   */
+    }
+    // Incorporate ellipse ... ELLL
+
 
     //Fill isolation collections, and calculate pt sum in isolation cone
     float myIsolPFChargedHadrCands_Ptsum = 0.;
