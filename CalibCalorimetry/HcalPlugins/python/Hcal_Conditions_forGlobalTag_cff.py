@@ -6,7 +6,6 @@ hcal_db_producer = cms.ESProducer("HcalDbProducer",
 )
 
 es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
-    toGet = cms.untracked.vstring('GainWidths', 
-        'ZSThresholds')
+    toGet = cms.untracked.vstring('GainWidths')
 )
 
