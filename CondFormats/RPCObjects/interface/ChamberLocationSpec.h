@@ -10,13 +10,17 @@ struct ChamberLocationSpec {
   int diskOrWheel;
   int layer;
   int sector;
-  std::string subsector;
-  std::string chamberLocationName;
-  std::string febZOrnt;
-  std::string febZRadOrnt;
-  std::string barrelOrEndcap; 
+  char subsector;
+  char febZOrnt;
+  char febZRadOrnt;
+  char barrelOrEndcap; 
 
   /// debug printout
   std::string print( int depth = 0) const;
+
+  std::string chamberLocationName() const;
+
 };
+
+
 #endif

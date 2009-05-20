@@ -9,10 +9,10 @@
 
 struct FebLocationSpec {
 
-  std::string cmsEtaPartition;
-  int positionInCmsEtaPartition;
-  std::string localEtaPartition;
-  int positionInLocalEtaPartition;
+  char cmsEtaPartition;
+  char positionInCmsEtaPartition;
+  char localEtaPartition;
+  char positionInLocalEtaPartition;
 
   /// debug printout
   std::string print(int depth = 0) const;

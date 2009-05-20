@@ -34,23 +34,23 @@ public:
   struct lbItem {
     bool theMaster;
     int theLinkBoardNumInLink;
+    int theCode;
     int nFebs;
   };
   struct febItem {
     int theLinkBoardInputNum;
     mutable uint32_t theRawId;
-    std::string cmsEtaPartition;
-    int positionInCmsEtaPartition;
-    std::string localEtaPartition;
-    int positionInLocalEtaPartition;
-    int diskOrWheel;
-    int layer;
+    char cmsEtaPartition;
+    char positionInCmsEtaPartition;
+    char localEtaPartition;
+    char positionInLocalEtaPartition;
+    char diskOrWheel;
+    char layer;
     int sector;
-    std::string subsector;
-    std::string chamberLocationName;
-    std::string febZOrnt;
-    std::string febZRadOrnt;
-    std::string barrelOrEndcap;
+    char subsector;
+    char febZOrnt;
+    char febZRadOrnt;
+    char barrelOrEndcap;
     int nStrips;
   };
   struct stripItem {
@@ -80,9 +80,9 @@ public:
         for (int ilink=lastLink; ilink<lastLink+theTBs[itb].nLinks; ilink++) {
           LinkConnSpec lc(theLinks[ilink].theTriggerBoardInputNumber);
           for (int ilb=lastLB; ilb<lastLB+theLinks[ilink].nLBs; ilb++) {
-            LinkBoardSpec lb(theLBs[ilb].theMaster,theLBs[ilb].theLinkBoardNumInLink);
+            LinkBoardSpec lb(theLBs[ilb].theMaster,theLBs[ilb].theLinkBoardNumInLink,theLBs[ilb].theCode);
             for (int ifeb=lastFeb; ifeb<lastFeb+theLBs[ilb].nFebs; ifeb++) {
-              ChamberLocationSpec chamber={theFebs[ifeb].diskOrWheel,theFebs[ifeb].layer,theFebs[ifeb].sector,theFebs[ifeb].subsector,theFebs[ifeb].chamberLocationName,theFebs[ifeb].febZOrnt,theFebs[ifeb].febZRadOrnt, theFebs[ifeb].barrelOrEndcap};
+              ChamberLocationSpec chamber={theFebs[ifeb].diskOrWheel,theFebs[ifeb].layer,theFebs[ifeb].sector,theFebs[ifeb].subsector,theFebs[ifeb].febZOrnt,theFebs[ifeb].febZRadOrnt,theFebs[ifeb].barrelOrEndcap};
               FebLocationSpec afeb={theFebs[ifeb].cmsEtaPartition,theFebs[ifeb].positionInCmsEtaPartition,theFebs[ifeb].localEtaPartition,theFebs[ifeb].positionInLocalEtaPartition};
               FebConnectorSpec febConnector(theFebs[ifeb].theLinkBoardInputNum,chamber,afeb);
               for (int istrip=lastStrip; istrip<lastStrip+theFebs[ifeb].nStrips; istrip++) {

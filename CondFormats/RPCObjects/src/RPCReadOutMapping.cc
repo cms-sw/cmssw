@@ -238,7 +238,7 @@ std::vector<const LinkBoardSpec*> RPCReadOutMapping::getLBforChamber(const std::
 	 const FebConnectorSpec * feb = location->feb(febInputNum+j);
 	 if(feb){
 	   //feb->print();	  
-	   std::string chName = feb->chamber().chamberLocationName;
+	   std::string chName = feb->chamber().chamberLocationName();
 	   if(chName==name){
 	     vLBforChamber.push_back(location);
 	     //feb->chamber().print();
