@@ -26,7 +26,7 @@ void popcon::RPCReadOutMappingSourceHandler::getNewObjects()
         edm::Service<cond::service::PoolDBOutputService> mydbservice;
 
 // first check what is already there in offline DB
-	const RPCReadOutMapping* cabling_prev;
+	const RPCReadOutMapping* cabling_prev=0;
         if(m_validate==1) {
 //          std::cout<<" Validation was requested, so will check present contents"<<std::endl;
           std::cout<<" Sorry, validation not available for the moment..."<<std::endl;
@@ -71,6 +71,7 @@ void popcon::RPCReadOutMappingSourceHandler::DisconnectOnlineDB()
 void popcon::RPCReadOutMappingSourceHandler::readCablingMap()
 {
 
+/*
 //  string cabling_version = "test";
   time_t rawtime;
   time(&rawtime); //time since January 1, 1970
@@ -238,6 +239,7 @@ void popcon::RPCReadOutMappingSourceHandler::readCablingMap()
     std::cout<<"--> Adding DCC"<<std::endl;
     cabling->add(dcc);
   }
+*/
   cout << endl <<"Building RPC Cabling done!" << flush << endl << endl;
 }
 

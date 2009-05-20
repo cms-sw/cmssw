@@ -201,8 +201,32 @@ void popcon::RPCEMapSourceHandler::readEMap0()
           theLB.push_back(tmpLB);
         }
         for(unsigned int iLB=0; iLB<theLB.size(); iLB++) {
-          thisLB.theLinkBoardNumInLink=atoi(((theLB[iLB].second).substr((theLB[iLB].second).length()-1,1)).c_str());
           thisLB.theMaster = (theLB[iLB].first==boardId);
+// extract all relevant information from BOARD.NAME
+          std::string theName = theLB[iLB].second;
+          int slength = theName.length();
+          thisLB.theLinkBoardNumInLink=atoi((theName.substr(slength-1,1)).c_str());
+          int wheel=atoi((theName.substr(6,1)).c_str());
+          std::string char1=(theName.substr(4,1)).c_str();
+          std::string char2=(theName.substr(slength-7,1)).c_str();
+          int num3=atoi((theName.substr(slength-6,1)).c_str());
+          std::string char4=(theName.substr(slength-5,1)).c_str();
+          bool itsS1to9=(theName.substr(slength-11,1)=="S");
+          int n1=10;
+          int n2=1;
+          int n3=0;
+          if (!itsS1to9) {
+            n1=11;
+            n2=2;
+          }
+          int sector=atoi((theName.substr(slength-n1,n2)).c_str());
+          std::string char1Val[2]={"B","E"};                              // 1,2
+          std::string char2Val[3]={"N","M","P"};                          // 0,1,2
+          std::string char4Val[9]={"0","1","2","3","A","B","C","D","E"};  // 0,...,8
+          for (int i=0; i<2; i++) if (char1==char1Val[i]) n1=i+1;
+          for (int i=0; i<3; i++) if (char2==char2Val[i]) n2=i;
+          for (int i=0; i<9; i++) if (char4==char4Val[i]) n3=i;
+          thisLB.theCode=n3+num3*10+n2*100+n1*1000+wheel*10000+sector*100000;
           FEBStruct tmpFEB;
           std::vector<FEBStruct> theFEB;
 // get FEBs
@@ -236,12 +260,16 @@ void popcon::RPCEMapSourceHandler::readEMap0()
             theFEB.push_back(tmpFEB);
           }
           for(unsigned int iFEB=0; iFEB<theFEB.size(); iFEB++) {
-            thisFeb.localEtaPartition=theFEB[iFEB].localEtaPart;
+            std::string temp=theFEB[iFEB].localEtaPart;
+            std::string localEtaVal[6]={"Forward","Central","Backward","A","B","C"};
+            for (int i=0; i<6; i++) if (temp==localEtaVal[i]) thisFeb.localEtaPartition=i+1;
             thisFeb.positionInLocalEtaPartition=theFEB[iFEB].posInLocalEtaPart;
-            thisFeb.cmsEtaPartition=theFEB[iFEB].cmsEtaPart;
+            temp=theFEB[iFEB].cmsEtaPart;
+            std::string cmsEtaVal[6]={"1","2","3","A","B","C"};
+            for (int i=0; i<6; i++) if (temp==cmsEtaVal[i]) thisFeb.cmsEtaPartition=i+1;
             thisFeb.positionInCmsEtaPartition=theFEB[iFEB].posInCmsEtaPart;
             thisFeb.theLinkBoardInputNum=theFEB[iFEB].lbInputNum;
-            FebLocationSpec febLocation = {theFEB[iFEB].cmsEtaPart,theFEB[iFEB].posInCmsEtaPart,theFEB[iFEB].localEtaPart,theFEB[iFEB].posInLocalEtaPart};
+            FebLocationSpec febLocation = {thisFeb.cmsEtaPartition,theFEB[iFEB].posInCmsEtaPart,thisFeb.localEtaPartition,theFEB[iFEB].posInLocalEtaPart};
             // Get chamber 
             sqlQuery = "SELECT DiskOrWheel, Layer, Sector, Subsector,";
             sqlQuery += " ChamberLocationName,";
@@ -255,14 +283,19 @@ void popcon::RPCEMapSourceHandler::readEMap0()
               thisFeb.diskOrWheel=rset->getInt(1);
               thisFeb.layer=rset->getInt(2);
               thisFeb.sector=rset->getInt(3);
-              thisFeb.subsector=rset->getString(4);
-              if (thisFeb.subsector=="") thisFeb.subsector="0";
-              thisFeb.chamberLocationName=rset->getString(5);
-              thisFeb.febZOrnt=rset->getString(6);
-              thisFeb.febZRadOrnt=rset->getString(7);
-              if (thisFeb.febZRadOrnt=="") thisFeb.febZRadOrnt="N/A";
-              thisFeb.barrelOrEndcap=rset->getString(8);
-              ChamberLocationSpec chamber = {thisFeb.diskOrWheel,thisFeb.layer,thisFeb.sector,thisFeb.subsector,thisFeb.chamberLocationName,thisFeb.febZOrnt,thisFeb.febZRadOrnt,thisFeb.barrelOrEndcap};
+              temp=rset->getString(4);
+              std::string subsVal[5]={"--","-","","+","++"};
+              for (int i=0; i<5; i++) if (temp==subsVal[i]) thisFeb.subsector=i-2;
+              temp=rset->getString(6);
+              thisFeb.febZOrnt=-1;
+              if (temp=="+z") thisFeb.febZOrnt=1;
+              temp=rset->getString(7);
+              std::string febZRVal[3]={"","IN","OUT"};
+              for (int i=0; i<3; i++) if (temp==febZRVal[i]) thisFeb.febZRadOrnt=i;
+              temp=rset->getString(8);
+              thisFeb.barrelOrEndcap=1;
+              if (temp=="Endcap") thisFeb.barrelOrEndcap=2;
+              ChamberLocationSpec chamber = {thisFeb.diskOrWheel,thisFeb.layer,thisFeb.sector,thisFeb.subsector,thisFeb.febZOrnt,thisFeb.febZRadOrnt,thisFeb.barrelOrEndcap};
               DBSpecToDetUnit toDU;
               thisFeb.theRawId=toDU(chamber,febLocation);
             }
@@ -419,8 +452,32 @@ void popcon::RPCEMapSourceHandler::readEMap1()
         }
         delete query5;
         for(unsigned int iLB=0; iLB<theLB.size(); iLB++) {
-          thisLB.theLinkBoardNumInLink=atoi(((theLB[iLB].second).substr((theLB[iLB].second).length()-1,1)).c_str());
           thisLB.theMaster = (theLB[iLB].first==boardId);
+// extract all relevant information from BOARD.NAME
+          std::string theName = theLB[iLB].second;
+          int slength = theName.length();
+          thisLB.theLinkBoardNumInLink=atoi((theName.substr(slength-1,1)).c_str());
+          int wheel=atoi((theName.substr(6,1)).c_str());
+          std::string char1=(theName.substr(4,1)).c_str();
+          std::string char2=(theName.substr(slength-7,1)).c_str();
+          int num3=atoi((theName.substr(slength-6,1)).c_str());
+          std::string char4=(theName.substr(slength-5,1)).c_str();
+          bool itsS1to9=(theName.substr(slength-11,1)=="S");
+          int n1=10;
+          int n2=1;
+          int n3=0;
+          if (!itsS1to9) {
+            n1=11;
+            n2=2;
+          }
+          int sector=atoi((theName.substr(slength-n1,n2)).c_str());
+          std::string char1Val[2]={"B","E"};                              // 1,2
+          std::string char2Val[3]={"N","M","P"};                          // 0,1,2
+          std::string char4Val[9]={"0","1","2","3","A","B","C","D","E"};  // 0,...,8
+          for (int i=0; i<2; i++) if (char1==char1Val[i]) n1=i+1;
+          for (int i=0; i<3; i++) if (char2==char2Val[i]) n2=i;
+          for (int i=0; i<9; i++) if (char4==char4Val[i]) n3=i;
+          thisLB.theCode=n3+num3*10+n2*100+n1*1000+wheel*10000+sector*100000;
           FEBStruct tmpFEB;
           std::vector<FEBStruct> theFEB;
 // get FEBs
@@ -457,12 +514,16 @@ void popcon::RPCEMapSourceHandler::readEMap1()
           }
           delete query6;
           for(unsigned int iFEB=0; iFEB<theFEB.size(); iFEB++) {
-            thisFeb.localEtaPartition=theFEB[iFEB].localEtaPart;
+            std::string temp=theFEB[iFEB].localEtaPart;
+            std::string localEtaVal[6]={"Forward","Central","Backward","A","B","C"};
+            for (int i=0; i<6; i++) if (temp==localEtaVal[i]) thisFeb.localEtaPartition=i+1;
             thisFeb.positionInLocalEtaPartition=theFEB[iFEB].posInLocalEtaPart;
-            thisFeb.cmsEtaPartition=theFEB[iFEB].cmsEtaPart;
+            temp=theFEB[iFEB].cmsEtaPart;
+            std::string cmsEtaVal[6]={"1","2","3","A","B","C"};
+            for (int i=0; i<6; i++) if (temp==cmsEtaVal[i]) thisFeb.cmsEtaPartition=i+1;
             thisFeb.positionInCmsEtaPartition=theFEB[iFEB].posInCmsEtaPart;
             thisFeb.theLinkBoardInputNum=theFEB[iFEB].lbInputNum;
-            FebLocationSpec febLocation = {theFEB[iFEB].cmsEtaPart,theFEB[iFEB].posInCmsEtaPart,theFEB[iFEB].localEtaPart,theFEB[iFEB].posInLocalEtaPart};
+            FebLocationSpec febLocation = {thisFeb.cmsEtaPartition,theFEB[iFEB].posInCmsEtaPart,thisFeb.localEtaPartition,theFEB[iFEB].posInLocalEtaPart};
             // Get chamber 
             coral::IQuery* query7 = schema.newQuery();
             query7->addToTableList("CHAMBERLOCATION");
@@ -482,14 +543,19 @@ void popcon::RPCEMapSourceHandler::readEMap1()
               thisFeb.diskOrWheel=row["DISKORWHEEL"].data<short>();
               thisFeb.layer=row["LAYER"].data<short>();
               thisFeb.sector=row["SECTOR"].data<short>();
-              thisFeb.subsector=row["SUBSECTOR"].data<std::string>();
-              if (thisFeb.subsector=="") thisFeb.subsector="0";
-              thisFeb.chamberLocationName=row["NAME"].data<std::string>();
-              thisFeb.febZOrnt=row["FEBZORNT"].data<std::string>();
-              thisFeb.febZRadOrnt=row["FEBRADORNT"].data<std::string>();
-              if (thisFeb.febZRadOrnt=="") thisFeb.febZRadOrnt="N/A";
-              thisFeb.barrelOrEndcap=row["BARRELORENDCAP"].data<std::string>();
-              ChamberLocationSpec chamber = {thisFeb.diskOrWheel,thisFeb.layer,thisFeb.sector,thisFeb.subsector,thisFeb.chamberLocationName,thisFeb.febZOrnt,thisFeb.febZRadOrnt,thisFeb.barrelOrEndcap};
+              temp=row["SUBSECTOR"].data<std::string>();
+              std::string subsVal[5]={"--","-","","+","++"};
+              for (int i=0; i<5; i++) if (temp==subsVal[i]) thisFeb.subsector=i-2;
+              temp=row["FEBZORNT"].data<std::string>();
+              thisFeb.febZOrnt=-1;
+              if (temp=="+z") thisFeb.febZOrnt=1;
+              temp=row["FEBRADORNT"].data<std::string>();
+              std::string febZRVal[3]={"","IN","OUT"};
+              for (int i=0; i<3; i++) if (temp==febZRVal[i]) thisFeb.febZRadOrnt=i;
+              temp=row["BARRELORENDCAP"].data<std::string>();
+              thisFeb.barrelOrEndcap=1;
+              if (temp=="Endcap") thisFeb.barrelOrEndcap=2;
+              ChamberLocationSpec chamber = {thisFeb.diskOrWheel,thisFeb.layer,thisFeb.sector,thisFeb.subsector,thisFeb.febZOrnt,thisFeb.febZRadOrnt,thisFeb.barrelOrEndcap};
               DBSpecToDetUnit toDU;
               thisFeb.theRawId=toDU(chamber,febLocation);
             }
