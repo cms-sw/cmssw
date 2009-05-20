@@ -95,14 +95,15 @@ process.g4SimHits.HCalSD.ForTBH2 = True
 process.g4SimHits.CaloTrkProcessing.TestBeam = True
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     MaterialBudgetHcal = cms.PSet(
-        FillHisto = cms.untracked.bool(False),
-        NBinPhi   = cms.untracked.int32(180),
-        NBinEta   = cms.untracked.int32(100),
-        MaxEta    = cms.untracked.double(3.0),
-        EtaLow    = cms.untracked.double(-3.0),
-        EtaHigh   = cms.untracked.double(3.0),
-        RMax      = cms.untracked.double(10.0),
-        ZMax      = cms.untracked.double(15.0)
+        FillHisto    = cms.untracked.bool(False),
+        PrintSummary = cms.untracked.bool(True),
+        NBinPhi      = cms.untracked.int32(180),
+        NBinEta      = cms.untracked.int32(100),
+        MaxEta       = cms.untracked.double(3.0),
+        EtaLow       = cms.untracked.double(-3.0),
+        EtaHigh      = cms.untracked.double(3.0),
+        RMax         = cms.untracked.double(10.0),
+        ZMax         = cms.untracked.double(15.0)
     ),
     type = cms.string('MaterialBudgetHcal')
 ))

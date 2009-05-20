@@ -20,12 +20,14 @@ MaterialBudgetHcalHistos::MaterialBudgetHcalHistos(const edm::ParameterSet &p){
   etaLow      = p.getUntrackedParameter<double>("EtaLow", -5.2);
   etaHigh     = p.getUntrackedParameter<double>("EtaHigh", 5.2);
   fillHistos  = p.getUntrackedParameter<bool>("FillHisto", true);
+  printSum    = p.getUntrackedParameter<bool>("PrintSummary", false);
   edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: FillHisto : "
-				 << fillHistos << " == Eta plot: NX "
-				 << binEta << " Range " << -maxEta << ":"
-				 << maxEta << " Phi plot: NX " << binPhi
-				 << " Range " << -pi << ":" << pi << " (Eta "
-				 << "limit " << etaLow << ":" << etaHigh <<")";
+				 << fillHistos << " PrintSummary " << printSum
+				 << " == Eta plot: NX " << binEta << " Range "
+				 << -maxEta << ":" << maxEta <<" Phi plot: NX "
+				 << binPhi << " Range " << -pi << ":" << pi 
+				 << " (Eta limit " << etaLow << ":" << etaHigh 
+				 <<")";
   if (fillHistos) book();
 
 }
@@ -110,6 +112,13 @@ void MaterialBudgetHcalHistos::fillStartTrack(const G4Track* aTrack) {
   double theEnergy = aTrack->GetTotalEnergy();
   int    theID     = (int)(aTrack->GetDefinition()->GetPDGEncoding());
 
+  if (printSum) {
+    matList.clear();
+    stepLength.clear();
+    radLength.clear();
+    intLength.clear();
+  }
+
   LogDebug("MaterialBudget") << "MaterialBudgetHcalHistos: Track " 
 			     << aTrack->GetTrackID() << " Code " << theID
 			     << " Energy " << theEnergy/GeV << " GeV; Eta "
@@ -129,16 +138,39 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
   int    idOld   = id;
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   std::string         name  = touch->GetVolume(0)->GetName();
-  LogDebug("MaterialBudget") << "MaterialBudgetHcalHistos: Step at " << name
-			     << " Length " << step << " in " 
-			     << material->GetName() << " of density "
-			     << density << " g/cc; Radiation Length "
-			     << radl << " mm; Interaction Length " << intl
-			     << " mm\n                          Position "
-			     << aStep->GetPreStepPoint()->GetPosition()
-			     << " Length (so far) " << stepLen << " L/X0 " 
-			     << step/radl << "/" << radLen << " L/Lambda "
-			     << step/intl << "/" << intLen;
+  std::string         matName = material->GetName();
+  if (printSum) {
+    bool found = false;
+    for (unsigned int ii=0; ii<matList.size(); ii++) {
+      if (matList[ii] == matName) {
+	stepLength[ii] += step;
+	radLength[ii]  += (step/radl);
+	intLength[ii]  += (step/intl);
+	found           = true;
+	break;
+      }
+    }
+    if (!found) {
+      matList.push_back(matName);
+      stepLength.push_back(step);
+      radLength.push_back(step/radl);
+      intLength.push_back(step/intl);
+    }
+    LogDebug("MaterialBudget") << name << " " << step << " " << matName 
+			       << " " << stepLen << " " << step/radl << " " 
+			       << radLen << " " << step/intl << " " << intLen;
+  } else {
+    LogDebug("MaterialBudget") << "MaterialBudgetHcalHistos: Step at " << name 
+			       << " Length " << step << " in " << matName 
+			       << " of density " << density << " g/cc;"
+			       << " Radiation Length " << radl << " mm;"
+			       << " Interaction Length " << intl << " mm\n"
+			       << "                          Position " 
+			       << aStep->GetPreStepPoint()->GetPosition() 
+			       << " Length (so far) " << stepLen << " L/X0 " 
+			       << step/radl << "/" << radLen << " L/Lambda " 
+			       << step/intl << "/" << intLen;
+  }
 
   int det=0, lay=0;
   if (fillHistos) {
@@ -202,6 +234,13 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
 
 void MaterialBudgetHcalHistos::fillEndTrack() {
   if (fillHistos) fillHisto(maxSet-1);
+  if (printSum) {
+    for (unsigned int ii=0; ii<matList.size(); ii++) {
+      edm::LogInfo("MaterialBudget") << matList[ii] << "\t" << stepLength[ii]
+				     << "\t" << radLength[ii] << "\t"
+				     << intLength[ii];
+    }
+  }
 }
 
 void MaterialBudgetHcalHistos::book() {
