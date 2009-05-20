@@ -21,19 +21,15 @@ process.maxEvents = cms.untracked.PSet(
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
                                       process.CondDBSetup,
-                                      loadAll = cms.bool(True),
                                       toGet = cms.VPSet(cms.PSet(
     record = cms.string('SiPixelTemplateDBObjectRcd'),
     tag = cms.string('SiPixelTemplateDBObject')
     )),
-                                      DBParameters = cms.PSet(
-    messageLevel = cms.untracked.int32(0),
-    authenticationPath = cms.untracked.string('.')
-    ),
-                                      catalog = cms.untracked.string('file:PoolFileCatalog.xml'),
                                       timetype = cms.string('runnumber'),
                                       connect = cms.string('sqlite_file:siPixelTemplates.db')
                                       )
+process.PoolDBESSource.DBParameters.authenticationPath='.'
+process.PoolDBESSource.DBParameters.messageLevel=0
 
 process.reader = cms.EDFilter("SiPixelTemplateDBObjectReader",
                               siPixelTemplateCalibrationLocation = cms.string(
