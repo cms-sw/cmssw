@@ -22,13 +22,7 @@ MuonSimHits = cms.EDProducer("MuonSimHitProducer",
         ProduceGlobalMuons = cms.untracked.bool(True),
         ProduceL3Muons = cms.untracked.bool(False)
     ),
-    MuonTrajectoryUpdatorParameters = cms.PSet(
-        MaxChi2 = cms.double(1000.0), ##25.0
-
-        RescaleError = cms.bool(False),
-        RescaleErrorFactor = cms.double(100.0),
-        Granularity = cms.int32(0)
-    ),
+    Chi2EstimatorCut = cms.double(1000.0),
     TRACKS = cms.PSet(
         # Set to true if the full pattern recognition was used
         # to reconstruct tracks in the tracker

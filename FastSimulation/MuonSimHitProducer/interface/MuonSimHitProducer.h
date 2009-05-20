@@ -15,7 +15,7 @@
 //
 //  Author:  Martijn Mulders
 // Created:  Wed July 11 12:37:24 CET 2007
-// $Id: MuonSimHitProducer.h,v 1.6 2008/05/28 11:17:18 pjanot Exp $
+// $Id: MuonSimHitProducer.h,v 1.7 2008/06/06 18:16:38 pjanot Exp $
 //
 
 
@@ -24,9 +24,9 @@
 
 // user include files
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
 // FastSimulation headers
-class MuonTrajectoryUpdator;
 class RandomEngine;
 class MagneticField;
 class TrackerGeometry;
@@ -64,7 +64,7 @@ class MuonSimHitProducer : public edm::EDProducer {
 
       const RandomEngine * random;
       MuonServiceProxy *theService;
-      MuonTrajectoryUpdator *theUpdator;
+      Chi2MeasurementEstimator theEstimator;
 
       const MagneticField*  magfield;
       const DTGeometry*     dtGeom;

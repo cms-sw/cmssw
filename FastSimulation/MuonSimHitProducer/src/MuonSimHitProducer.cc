@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.22 2008/12/11 08:51:32 mulders Exp $
+// $Id: MuonSimHitProducer.cc,v 1.23 2009/05/17 14:12:16 mulders Exp $
 //
 //
 
@@ -45,7 +45,6 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
-#include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
 // Tracking Tools
@@ -76,7 +75,7 @@
 //
 // constructors and destructor
 //
-MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig) {
+MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig): theEstimator(iConfig.getParameter<double>("Chi2EstimatorCut")) {
 
   //
   //  Initialize the random number generator service
@@ -107,9 +106,6 @@ MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig) {
   edm::ParameterSet serviceParameters =
      iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
-  edm::ParameterSet updatorParameters = 
-     iConfig.getParameter<edm::ParameterSet>("MuonTrajectoryUpdatorParameters");
-  theUpdator = new MuonTrajectoryUpdator(updatorParameters,insideOut);
 }
 
 // ---- method called once each job just before starting event loop ----
@@ -285,7 +281,7 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
 #endif
       
       std::vector<DetWithState> comps = 
-	navLayers[ilayer]->compatibleDets(propagatedState,*propagatorWithMaterial,*(theUpdator->estimator()));
+	navLayers[ilayer]->compatibleDets(propagatedState,*propagatorWithMaterial,theEstimator);
       if ( comps.empty() ) continue;
 
 #ifdef FAMOS_DEBUG
