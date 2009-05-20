@@ -69,9 +69,9 @@ namespace pos{
     
     friend std::ostream& operator<<(std::ostream& s, const PixelNameTranslation& table);
 
-    std::vector<PixelROCName> getROCsFromFEDChannel(unsigned int fednumber, 
-						    unsigned int fedchannel) const;
-
+    const std::vector<PixelROCName>& getROCsFromFEDChannel(unsigned int fednumber, 
+						     unsigned int fedchannel) const;
+    
     PixelROCName ROCNameFromFEDChannelROC(unsigned int fednumber, 
 					  unsigned int channel,
 					  unsigned int roc) const;
@@ -84,7 +84,7 @@ namespace pos{
 
     bool FEDChannelExist(unsigned int fednumber, unsigned int fedchannel) const;
 					  
-    std::vector<PixelROCName> getROCsFromChannel(const PixelChannel& aChannel) const;
+    const std::vector<PixelROCName>& getROCsFromChannel(const PixelChannel& aChannel) const;
     std::vector<PixelROCName> getROCsFromModule(const PixelModuleName& aModule) const;
 
     void writeASCII(std::string dir="") const;
@@ -119,6 +119,14 @@ namespace pos{
 
     // This is a bit ugly, since the PixelHdwAddress contains the ROC number, which isn't really relevant to a PixelChannel.
     std::map<PixelChannel, PixelHdwAddress > channelTranslationTable_;
+    std::map<PixelHdwAddress, PixelChannel > hdwTranslationTable_;
+
+    std::map<unsigned int, std::map<unsigned int, std::vector<PixelROCName> > > rocsFromFEDidAndChannel_;
+    //       FED id                  FED channel
+
+    std::vector<PixelROCName> buildROCsFromFEDChannel(unsigned int fednumber, 
+						      unsigned int fedchannel) const;
+
 
   };
 }
