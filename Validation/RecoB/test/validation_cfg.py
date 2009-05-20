@@ -14,14 +14,13 @@ process.load("DQMServices.Core.DQM_cfg")
 
 process.load("RecoBTag.Configuration.RecoBTag_cff")
 
-process.load("Validation.RecoB.bTagAnalysis_cfi")
-
 
 process.load("PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi")  
+
+process.load("Validation.RecoB.bTagAnalysis_cfi")
 process.bTagValidation.jetMCSrc = 'IC5byValAlgo'
 process.bTagValidation.allHistograms = True 
-process.bTagValidation.fastMC = True
-
+#process.bTagValidation.fastMC = True
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -36,11 +35,11 @@ process.dqmSaver.producer = 'DQM'
 process.dqmSaver.workflow = '/POG/BTAG/BJET'
 process.dqmSaver.convention = 'RelVal'
 process.PoolSource.fileNames = [
-           '/store/relval/CMSSW_2_2_1/RelValTTbar/GEN-SIM-RECO/IDEAL_V9_v2/0002/00E9B0FB-98C4-DD11-AF51-0030487A322E.root',
-        '/store/relval/CMSSW_2_2_1/RelValTTbar/GEN-SIM-RECO/IDEAL_V9_v2/0002/28E6A7DA-98C4-DD11-AE6E-001D09F2512C.root',
-        '/store/relval/CMSSW_2_2_1/RelValTTbar/GEN-SIM-RECO/IDEAL_V9_v2/0002/3802DDF4-9FC4-DD11-A9AC-001D09F24600.root',
-        '/store/relval/CMSSW_2_2_1/RelValTTbar/GEN-SIM-RECO/IDEAL_V9_v2/0002/5CA764F6-98C4-DD11-A05F-001D09F241B4.root',
-        '/store/relval/CMSSW_2_2_1/RelValTTbar/GEN-SIM-RECO/IDEAL_V9_v2/0002/A6D75ADB-98C4-DD11-B05E-0019B9F704D6.root',
-        '/store/relval/CMSSW_2_2_1/RelValTTbar/GEN-SIM-RECO/IDEAL_V9_v2/0003/72C99195-FDC4-DD11-8F03-001617C3B79A.root'
-           ]
+       '/store/relval/CMSSW_3_1_0_pre7/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0004/CAAA36CC-9841-DE11-A587-0019B9F730D2.root',
+       '/store/relval/CMSSW_3_1_0_pre7/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0004/B47CEC98-E641-DE11-9999-001D09F2437B.root',
+       '/store/relval/CMSSW_3_1_0_pre7/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0004/98E6DFEA-9941-DE11-B198-001D09F25438.root',
+       '/store/relval/CMSSW_3_1_0_pre7/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0004/74475B04-9B41-DE11-A6CB-001D09F24D8A.root',
+       '/store/relval/CMSSW_3_1_0_pre7/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0004/6A9F37C0-9B41-DE11-8334-001D09F28C1E.root',
+       '/store/relval/CMSSW_3_1_0_pre7/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0004/4CF9716F-9E41-DE11-A0BA-001D09F25438.root',
+       '/store/relval/CMSSW_3_1_0_pre7/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0004/18B38D57-9C41-DE11-9DD9-001D09F250AF.root' ]
 
