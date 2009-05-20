@@ -91,7 +91,7 @@ void SimpleCosmicBONSeeder::produce(edm::Event& ev, const edm::EventSetup& es)
   if (magfield->inTesla(GlobalPoint(0,0,0)).mag() > 0.01) {
      size_t clustsOrZero = check_.tooManyClusters(ev);
      if (clustsOrZero) {
-         edm::LogWarning("SimpleCosmicBONSeeder") << "Found too many clusters (" << clustsOrZero << "), bailing out.\n";
+         edm::LogError("TooManyClusters") << "Found too many clusters (" << clustsOrZero << "), bailing out.\n";
      } else {
          init(es);
          bool tripletsOk = triplets(ev,es);
@@ -274,7 +274,7 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
                         if ((maxTriplets_ > 0) && (hitTriplets.size() > size_t(maxTriplets_))) {
                             hitTriplets.clear();                      // clear
                             //OrderedHitTriplets().swap(hitTriplets); // really clear   
-                            edm::LogWarning("SimpleCosmicBONSeeder") << "Found too many triplets, bailing out.\n";
+                            edm::LogError("TooManyTriplets") << "Found too many triplets, bailing out.\n";
                             return false;
                         }
                         if (tripletsVerbosity_ > 3) {
@@ -597,7 +597,7 @@ bool SimpleCosmicBONSeeder::seeds(TrajectorySeedCollection &output, const edm::E
                                                 ( (outer.y()-inner.y()>0) ? alongMomentum : oppositeToMomentum) ));
             if ((maxSeeds_ > 0) && (output.size() > size_t(maxSeeds_))) { 
                 output.clear(); 
-                edm::LogWarning("SimpleCosmicBONSeeder") << "Found too many seeds, bailing out.\n";
+                edm::LogError("TooManySeeds") << "Found too many seeds, bailing out.\n";
                 return false;
             }
         }

@@ -147,10 +147,11 @@ void CtfSpecialSeedGenerator::produce(edm::Event& e, const edm::EventSetup& iSet
   //check on the number of clusters
   ClusterChecker check(conf_);
   if ( !requireBOFF || (theMagfield->inTesla(GlobalPoint(0,0,0)).mag() == 0.00) ) {
-      if (!check.tooManyClusters(e)){
+      size_t clustsOrZero = check.tooManyClusters(e);
+      if (!clustsOrZero){
           bool ok = run(iSetup, e, *output);
           if (!ok) { ; } // nothing to do
-      }
+      } else edm::LogError("TooManyClusters") << "Found too many clusters (" << clustsOrZero << "), bailing out.\n";
   }
   
   
@@ -214,7 +215,7 @@ bool CtfSpecialSeedGenerator::buildSeeds(const edm::EventSetup& iSetup,
   }	 
   if ((theMaxSeeds > 0) && (output.size() > size_t(theMaxSeeds))) {
     output.clear(); 
-    edm::LogWarning("CtfSpecialSeedGenerator") << "Too many seeds, bailing out.\n";
+    edm::LogWarning("TooManySeeds") << "Too many seeds, bailing out.\n";
     return false;
   }
   return true;

@@ -157,7 +157,7 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	  output.push_back(TrajectorySeed(*PTraj,hits,alongMomentum));
 
           if ((maxSeeds_ > 0) && (output.size() > size_t(maxSeeds_))) {
-            edm::LogWarning("SeedGeneratorForCosmics") << "Found too many seeds, bailing out.\n";
+            edm::LogError("TooManySeeds") << "Found too many seeds, bailing out.\n";
             output.clear(); 
             return false;
           }
@@ -179,7 +179,7 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	  output.push_back(TrajectorySeed(*PTraj,hits,oppositeToMomentum));
 
           if ((maxSeeds_ > 0) && (output.size() > size_t(maxSeeds_))) {
-            edm::LogWarning("SeedGeneratorForCosmics") << "Found too many seeds, bailing out.\n";
+            edm::LogError("TooManySeeds") << "Found too many seeds, bailing out.\n";
             output.clear(); 
             return false;
           }
@@ -244,7 +244,7 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	    output.push_back( TrajectorySeed(*PTraj,hits,alongMomentum));
 
             if ((maxSeeds_ > 0) && (output.size() > size_t(maxSeeds_))) {
-              edm::LogWarning("SeedGeneratorForCosmics") << "Found too many seeds, bailing out.\n";
+              edm::LogError("TooManySeeds") << "Found too many seeds, bailing out.\n";
               output.clear(); 
               return false;
             }
@@ -279,7 +279,7 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	  output.push_back(TrajectorySeed(*PTraj,hits,oppositeToMomentum));
 
           if ((maxSeeds_ > 0) && (output.size() > size_t(maxSeeds_))) {
-            edm::LogWarning("SeedGeneratorForCosmics") << "Found too many seeds, bailing out.\n";
+            edm::LogError("TooManySeeds") << "Found too many seeds, bailing out.\n";
             output.clear(); 
             return false;
           }

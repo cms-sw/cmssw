@@ -52,12 +52,13 @@ void CosmicSeedGenerator::produce(edm::Event& ev, const edm::EventSetup& es)
 
   //check on the number of clusters
   ClusterChecker check(conf_);
-  if (!check.tooManyClusters(ev)){
+  size_t clustsOrZero = check.tooManyClusters(ev);
+  if (!clustsOrZero){
     cosmic_seed.init(*stereorecHits,*rphirecHits,*matchedrecHits, es);
     
     // invoke the seed finding algorithm
     cosmic_seed.run(*output,es);
-  }
+  } else edm::LogError("TooManyClusters") << "Found too many clusters (" << clustsOrZero << "), bailing out.\n";
 
   // write output to file
   LogDebug("Algorithm Performance")<<" number of seeds = "<< output->size();
