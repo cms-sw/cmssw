@@ -1,7 +1,7 @@
 #ifndef HydjetSource_h
 #define HydjetSource_h
 
-// $Id: HydjetSource.h,v 1.15 2009/02/03 00:37:40 yilmaz Exp $
+// $Id: HydjetSource.h,v 1.16 2009/04/28 02:53:35 yilmaz Exp $
 
 /** \class HydjetSource
 *
@@ -39,7 +39,7 @@ namespace edm
     HepMC::GenParticle*	                                build_hyjet( int index, int barcode );	
     HepMC::GenVertex*                                   build_hyjet_vertex(int i, int id);
 
-    bool						call_pygive(const std::string& iParm);
+    //    bool						call_pygive(const std::string& iParm);
     void						clear();
     bool						get_particles(HepMC::GenEvent* evt, std::vector<SubEvent>& subs);
     bool                                                call_hyinit(double energy, double a, int ifb, double bmin,

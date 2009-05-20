@@ -1,11 +1,12 @@
 <use name=hepmc>
 <use name=boost>
+<use name=GeneratorInterface/Core>
 <use name=FWCore/Framework>
 <use name=SimDataFormats/GeneratorProducts>
 <use name=SimDataFormats/HiGenData>
 <use name=GeneratorInterface/PyquenInterface>
 <use name=f77compiler>
-
+<use name=GeneratorInterface/ExternalDecays>
 <export>
  <lib name=GeneratorInterfaceHydjetInterface>
  <use name=hepmc>

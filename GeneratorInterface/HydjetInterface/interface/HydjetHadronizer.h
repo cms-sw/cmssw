@@ -1,21 +1,22 @@
-#ifndef HydjetProducer_h
-#define HydjetProducer_h
+#ifndef HydjetHadronizer_h
+#define HydjetHadronizer_h
 
-// $Id: HydjetProducer.h,v 1.2 2009/02/17 16:44:06 saout Exp $
+// $Id: HydjetHadronizer.h,v 1.2 2009/02/17 16:44:06 saout Exp $
 
-/** \class HydjetProducer
+/** \class HydjetHadronizer
 *
 * Generates HYDJET ==> HepMC events
 *
-* Camelia Mironov
-*   for the Generator Interface. April 2007
+* Yetkin Yilmaz
+*   for the Generator Interface. May 2009
 *********************************************/
 
 #define PYCOMP pycomp_
 
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/HiGenData/interface/SubEvent.h"
+#include "GeneratorInterface/Core/interface/BaseHadronizer.h"
+
 #include <map>
 #include <string>
 #include <vector>
@@ -30,30 +31,42 @@ namespace CLHEP {
 class HepRandomEngine;
 }
 
-namespace edm
+namespace gen
 {
-  class HydjetProducer : public EDProducer {
+  class HydjetHadronizer : public BaseHadronizer {
   public:
-    HydjetProducer(const ParameterSet &);
-    virtual ~HydjetProducer();
+    HydjetHadronizer(const edm::ParameterSet &);
+    virtual ~HydjetHadronizer();
+    // bool generatePartons();                                                                                                                           
+    bool generatePartonsAndHadronize();
+    bool hadronize();
+    bool decay();
+    bool residualDecay();
+    bool initializeForExternalPartons();
+    bool initializeForInternalPartons();
+    bool declareStableParticles( const std::vector<int> );
+
+    void finalizeEvent();
+    void statistics();
+    const char* classname() const;
 
   private:
     void					add_heavy_ion_rec(HepMC::GenEvent *evt);
     HepMC::GenParticle*	                        build_hyjet( int index, int barcode );	
     HepMC::GenVertex*                           build_hyjet_vertex(int i, int id);
     //    bool					call_pygive(const std::string& iParm);
-    void					clear();
-    bool					get_hard_particles(HepMC::GenEvent* evt, std::vector<SubEvent>& subs);
-    bool                                        get_soft_particles(HepMC::GenEvent* evt, std::vector<SubEvent>& subs);
+    bool					get_particles(HepMC::GenEvent* evt);
     bool                                        call_hyinit(double energy, double a, int ifb, double bmin,
 							    double bmax,double bfix,int nh);
-    bool					hydjet_init(const ParameterSet &pset);
-    bool					hyjpythia_init(const ParameterSet &pset);
+    bool					hydjet_init(const edm::ParameterSet &pset);
+    bool					hyjpythia_init(const edm::ParameterSet &pset);
     inline double			        nuclear_radius() const;
-    virtual void                                produce(Event & e, const EventSetup & es);
-    virtual void                                endRun(Run & run, const EventSetup & es);
+    void                                        rotateEvtPlane();
+    //    virtual void                                produce(Event & e, const EventSetup & es);
+    //    virtual void                                endRun(Run & run, const EventSetup & es);
 
     HepMC::GenEvent   *evt;
+    edm::ParameterSet pset_;
     double            abeamtarget_;           // beam/target atomic mass number 
     double            bfixed_;                // fixed impact param (fm); valid only if cflag_=0
     double            bmax_;                  // max impact param; 
@@ -94,15 +107,20 @@ namespace edm
                                               // DEFAULT = 1GeV; allowed range [0.2,2.0]GeV; 
     double            qgptau0_;               // proper time of QGP formation
                                               // DEFAULT = 0.1 fm/c; allowed range [0.01,10.0]fm/
+
+    double            phi0_;                  // Event plane angle
+    double            sinphi0_;
+    double            cosphi0_;
+    bool              rotate_;                // Switch to rotate event plane
+
     unsigned int      shadowingswitch_;       // shadowing switcher
                                               // 1-ON, 0-OFF
     double            signn_;                 // inelastic nucleon nucleon cross section [mb]
                                               // DEFAULT= 58 mb
     CLHEP::HepRandomEngine* fRandomEngine;
-    unsigned int      eventNumber_;
   };
 
-double HydjetProducer::nuclear_radius() const
+double HydjetHadronizer::nuclear_radius() const
 {
   // Return the nuclear radius derived from the 
   // beam/target atomic mass number.

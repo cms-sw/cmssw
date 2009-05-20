@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetProducer.cc,v 1.5 2009/01/09 10:23:09 saout Exp $
+ * $Id: HydjetProducer.cc,v 1.6 2009/02/17 16:44:07 saout Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -23,7 +23,9 @@
 #include "GeneratorInterface/HydjetInterface/interface/HydjetProducer.h"
 #include "GeneratorInterface/HydjetInterface/interface/PYR.h"
 #include "GeneratorInterface/HydjetInterface/interface/HydjetWrapper.h"
-#include "GeneratorInterface/CommonInterface/interface/PythiaCMS.h"
+//#include "GeneratorInterface/CommonInterface/interface/PythiaCMS.h"
+#include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
+
 
 #include "HepMC/PythiaWrapper6_2.h"
 #include "HepMC/GenEvent.h"
@@ -175,7 +177,7 @@ HepMC::GenVertex* HydjetProducer::build_hyjet_vertex(int i,int id)
    return vertex;
 }
 
-
+/*
 //______________________________________________________________________
 bool HydjetProducer::call_pygive(const std::string& iParm ) 
 {
@@ -189,7 +191,7 @@ bool HydjetProducer::call_pygive(const std::string& iParm )
   // if an error or warning happens it is problem
   return pydat1.mstu[26] == numWarn && pydat1.mstu[22] == numErr;   
 }
-
+*/
 
 //____________________________________________________________________
 void HydjetProducer::clear()
@@ -387,7 +389,7 @@ bool HydjetProducer::hyjpythia_init(const ParameterSet &pset)
   uint32_t seed = rng->mySeed();
   ostringstream sRandomSet;
   sRandomSet << "MRPY(1)=" << seed;
-  call_pygive(sRandomSet.str());
+  gen::call_pygive(sRandomSet.str());
 
     // Set PYTHIA parameters in a single ParameterSet
   ParameterSet pythia_params = pset.getParameter<ParameterSet>("PythiaParameters") ;
@@ -412,7 +414,7 @@ bool HydjetProducer::hyjpythia_init(const ParameterSet &pset)
 	throw edm::Exception(edm::errors::Configuration,"PythiaError")
 	  <<" Attempted to set random number using 'MRPY(1)'. NOT ALLOWED! \n Use RandomNumberGeneratorService to set the random number seed.";
       }
-      if( !call_pygive(*itPar) ) {
+      if( !gen::call_pygive(*itPar) ) {
 	throw edm::Exception(edm::errors::Configuration,"PythiaError") 
 	  <<"PYTHIA did not accept \""<<*itPar<<"\"";
       }

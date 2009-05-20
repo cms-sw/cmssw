@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Dec 18 09:44:41 EST 2007
-// $Id: HydjetAnalyzer.cc,v 1.12 2009/02/03 22:02:00 yilmaz Exp $
+// $Id: HydjetAnalyzer.cc,v 1.13 2009/02/19 02:32:14 yilmaz Exp $
 //
 //
 
@@ -247,11 +247,11 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
       
    Handle<HepMCProduct> mc;
-   iEvent.getByLabel("source",mc);
+   iEvent.getByLabel("generator",mc);
    evt = mc->GetEvent();
       
       Handle<HepMCProduct> mc2;
-      iEvent.getByLabel("signal",mc2);
+      iEvent.getByLabel("generator",mc2);
       evt2 = mc2->GetEvent();
    
    const HeavyIon* hi = evt->heavy_ion();
