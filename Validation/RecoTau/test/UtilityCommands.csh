@@ -3,6 +3,7 @@ export PYTHONPATH=$CMSSW_BASE/src/Validation/RecoTau/Tools:$PYTHONPATH
 export VALTOOLS=$CMSSW_BASE/src/Validation/RecoTau/Tools
 export VALTEST=$CMSSW_BASE/src/Validation/RecoTau/test
 export PFVALTOOLS=$CMSSW_RELEASE_BASE/src/Validation/RecoParticleFlow/Benchmarks/Tools
+export PYTHONPATH=$PFVALTOOLS:$PYTHONPATH
 export PATH=$VALTOOLS:$PATH
 
 alias MergeBatchJob='cmsRun $VALTOOLS/MergeFilesAndCalculateEfficiencies_cfg.py `ls BatchJobs/*_0.root | sed "s|_0.root|.root|" | sed "s|BatchJobs/||"` BatchJobs/*root'
