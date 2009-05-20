@@ -308,23 +308,22 @@
   <ZSection z="[BeampipeZ27]"     rMin="[cms:Rmin]" rMax="[BeampipeRout26]" />
   <ZSection z="[BeampipeZ27]"     rMin="[cms:Rmin]" rMax="[BeampipeRout27]" />
   <ZSection z="[BeampipeZ28]"     rMin="[cms:Rmin]" rMax="[BeampipeRout28]" />
-  <ZSection z="[cms:MuonBeamZ0]"  rMin="[cms:Rmin]" rMax="[BeampipeRout29]" />
  </Polycone> 
  <Polycone name="BeamVacuum11" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="[BeampipeZ24]"     rMin="[cms:Rmin]" rMax="[BeampipeRin13]"  />
   <ZSection z="[BeampipeZ25]"     rMin="[cms:Rmin]" rMax="[BeampipeRin14]"  />
   <ZSection z="[BeampipeZ26]"     rMin="[cms:Rmin]" rMax="[BeampipeRin15]"  />
   <ZSection z="[BeampipeZ27]"     rMin="[cms:Rmin]" rMax="[BeampipeRin16]"  />
-  <ZSection z="[cms:MuonBeamZ0]"  rMin="[cms:Rmin]" rMax="[BeampipeRin17]"  />
+  <ZSection z="[BeampipeZ28]"     rMin="[cms:Rmin]" rMax="[BeampipeRin17]"  />
  </Polycone> 
  <Polycone name="BeamTube12" startPhi="0*deg" deltaPhi="360*deg" >
-  <ZSection z="[cms:MuonBeamZ0]"  rMin="[cms:Rmin]" rMax="[BeampipeRout29]" />
+  <ZSection z="[BeampipeZ28]"     rMin="[cms:Rmin]" rMax="[BeampipeRout29]" />
   <ZSection z="[cms:TotemBeamZ1]" rMin="[cms:Rmin]" rMax="[cms:TotemBeamR2]"/>
   <ZSection z="[cms:TotemBeamZ1]" rMin="[cms:Rmin]" rMax="[cms:TotemBeamR3]"/>
   <ZSection z="[cms:ForwdBeamZ1]" rMin="[cms:Rmin]" rMax="[cms:ForwdBeamR0]"/>
  </Polycone> 
  <Polycone name="BeamVacuum12" startPhi="0*deg" deltaPhi="360*deg" >
-  <ZSection z="[cms:MuonBeamZ0]"  rMin="[cms:Rmin]" rMax="[BeampipeRin17]"  />
+  <ZSection z="[BeampipeZ28]"     rMin="[cms:Rmin]" rMax="[BeampipeRin17]"  />
   <ZSection z="[cms:TotemBeamZ1]" rMin="[cms:Rmin]" rMax="[BeampipeRin18]"  />
   <ZSection z="[cms:ForwdBeamZ1]" rMin="[cms:Rmin]" rMax="[BeampipeRin19]"  />
  </Polycone> 
