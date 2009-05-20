@@ -33,7 +33,9 @@ muonrecowith_TeVRefinemen = cms.Sequence(muontracking_with_TeVRefinement*muonIdP
 muonsWithSET = RecoMuon.MuonIdentification.muons_cfi.muons.clone()
 muonsWithSET.inputCollectionLabels = ['generalTracks', 'globalSETMuons', cms.InputTag('standAloneSETMuons','UpdatedAtVtx')] 
 muonsWithSET.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']   
-muonreco_with_SET = cms.Sequence(muontracking_with_SET*muonsWithSET)
+#muonreco_with_SET = cms.Sequence(muontracking_with_SET*muonsWithSET)
+#run only the tracking part for SET, after that it should be merged with the main ones at some point
+muonreco_with_SET = cms.Sequence(muontracking_with_SET)
 
 # Muon Reconstruction plus Isolation
 muonreco_plus_isolation = cms.Sequence(muonrecowith_TeVRefinemen*muIsolation)
