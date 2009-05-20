@@ -8,8 +8,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2008/08/28 13:50:16 $
-//   $Revision: 1.15 $
+//   $Date: 2009/05/15 16:38:58 $
+//   $Revision: 1.16 $
 //
 //   Modifications:
 //
@@ -138,7 +138,8 @@ void CSCTriggerPrimitivesBuilder::setConfigParameters(const CSCL1TPParameters* c
 // MPC processor sorts up to 18 LCTs from 9 TMBs and writes collections of
 // up to 3 best LCTs per (sub)sector into Event (to be used by the Sector
 // Receiver).
-void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
+void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
+					const CSCWireDigiCollection* wiredc,
 					const CSCComparatorDigiCollection* compdc,
 					CSCALCTDigiCollection& oc_alct,
 					CSCCLCTDigiCollection& oc_clct,
@@ -158,13 +159,6 @@ void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
 	    // Run processors only if chamber exists in geometry.
 	    if (tmb != 0 &&
 		theGeom->chamber(endc, stat, sect, subs, cham) != 0) {
-	      std::vector<CSCCorrelatedLCTDigi> lctV = tmb->run(wiredc,compdc);
-
-	      std::vector<CSCALCTDigi> alctV = tmb->alct->readoutALCTs();
-	      std::vector<CSCCLCTDigi> clctV = tmb->clct->readoutCLCTs();
-
-	      // Skip to next chamber if there are no LCTs to save.
-	      if (alctV.empty() && clctV.empty() && lctV.empty()) continue;
 
 	      // Calculate DetId.
 	      int ring =
@@ -174,6 +168,17 @@ void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
 							      stat, cham);
 	      // 0th layer means whole chamber.
 	      CSCDetId detid(endc, stat, ring, chid, 0);
+
+	      // Skip chambers marked as bad (includes most of ME4/2 chambers).
+	      if (badChambers->isInBadChamber(detid)) continue;
+
+	      std::vector<CSCCorrelatedLCTDigi> lctV = tmb->run(wiredc,compdc);
+
+	      std::vector<CSCALCTDigi> alctV = tmb->alct->readoutALCTs();
+	      std::vector<CSCCLCTDigi> clctV = tmb->clct->readoutCLCTs();
+
+	      // Skip to next chamber if there are no LCTs to save.
+	      if (alctV.empty() && clctV.empty() && lctV.empty()) continue;
 
 	      // Correlated LCTs.
 	      if (!lctV.empty()) {

@@ -11,11 +11,12 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2007/04/18 16:08:55 $
- * $Revision: 1.4 $
+ * $Date: 2008/07/06 05:17:01 $
+ * $Revision: 1.5 $
  *
  */
 
+#include <CondFormats/CSCObjects/interface/CSCBadChambers.h>
 #include <DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h>
@@ -45,7 +46,8 @@ class CSCTriggerPrimitivesBuilder
   /** Build anode, cathode, and correlated LCTs in each chamber and fill
    *  them into output collections.  Select up to three best correlated LCTs
    *  in each (sub)sector and put them into an output collection as well. */
-  void build(const CSCWireDigiCollection* wiredc,
+  void build(const CSCBadChambers* badChambers,
+	     const CSCWireDigiCollection* wiredc,
 	     const CSCComparatorDigiCollection* compdc,
 	     CSCALCTDigiCollection& oc_alct, CSCCLCTDigiCollection& oc_clct,
 	     CSCCorrelatedLCTDigiCollection& oc_lct,

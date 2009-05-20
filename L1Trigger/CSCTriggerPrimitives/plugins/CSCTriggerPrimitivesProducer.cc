@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2009/03/24 14:11:36 $
-//   $Revision: 1.7 $
+//   $Date: 2009/05/19 12:45:26 $
+//   $Revision: 1.8 $
 //
 //   Modifications:
 //
@@ -17,13 +17,14 @@
 #include <L1Trigger/CSCTriggerPrimitives/plugins/CSCTriggerPrimitivesProducer.h>
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCTriggerPrimitivesBuilder.h>
 
-#include <Utilities/Timing/interface/TimingReport.h>
+//#include <Utilities/Timing/interface/TimingReport.h>
 #include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h> 
 
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
+#include <CondFormats/DataRecord/interface/CSCBadChambersRcd.h>
 
 #include <DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
@@ -79,6 +80,10 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
     CSCTriggerGeometry::setGeometry(h);
   }
 
+  // Find conditions data for bad chambers.
+  edm::ESHandle<CSCBadChambers> pBadChambers;
+  setup.get<CSCBadChambersRcd>().get(pBadChambers);
+
   // Get config. parameters using EventSetup mechanism.  This must be done
   // in produce() for every event and not in beginJob() (see mail from
   // Jim Brooke sent to hn-cms-L1TrigEmulator on July 30, 2007).
@@ -110,7 +115,8 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
     //static TimingReport::Item & buildTimer =
     //  (*TimingReport::current())["CSCTriggerPrimitivesBuilder:build"];
     //TimeMe t(buildTimer, false);
-    lctBuilder_->build(wireDigis.product(), compDigis.product(),
+    lctBuilder_->build(pBadChambers.product(),
+		       wireDigis.product(), compDigis.product(),
 		       *oc_alct, *oc_clct, *oc_lct, *oc_sorted_lct);
   }
 
