@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2009/04/02 15:01:45 $
-//   $Revision: 1.32 $
+//   $Date: 2009/05/01 16:10:23 $
+//   $Revision: 1.33 $
 //
 //   Modifications:
 //
@@ -28,6 +28,9 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
+
+#include "CondFormats/CSCObjects/interface/CSCBadChambers.h"
+#include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
 
 // MC particles
 #include <SimDataFormats/GeneratorProducts/interface/HepMCProduct.h>
@@ -102,7 +105,7 @@ CSCTriggerPrimitivesReader::CSCTriggerPrimitivesReader(const edm::ParameterSet& 
   isMTCCData_ = conf.getParameter<bool>("isMTCCData");
   isTMB07 = true;
   plotME1A = false;
-  plotME42 = false;
+  plotME42 = true;
   lctProducerData_ = conf.getUntrackedParameter<string>("CSCLCTProducerData",
 							"cscunpacker");
   lctProducerEmul_ = conf.getUntrackedParameter<string>("CSCLCTProducerEmul",
@@ -144,6 +147,12 @@ void CSCTriggerPrimitivesReader::analyze(const edm::Event& ev,
   edm::ESHandle<CSCGeometry> cscGeom;
   setup.get<MuonGeometryRecord>().get(cscGeom);
   geom_ = &*cscGeom;
+
+  // Find conditions data for bad chambers & cache it.  Needed for efficiency
+  // calculations.
+  edm::ESHandle<CSCBadChambers> pBad;
+  setup.get<CSCBadChambersRcd>().get(pBad);
+  badChambers_=pBad.product();
 
   // Get the collections of ALCTs, CLCTs, and correlated LCTs from event.
   edm::Handle<CSCALCTDigiCollection> alcts_data;
@@ -1630,6 +1639,8 @@ void CSCTriggerPrimitivesReader::calcEfficiency(
     // Find detId where simHit is located.
     bool sameId = false;
     CSCDetId hitId = (CSCDetId)(*simHitIt).detUnitId();
+    // Skip chambers marked as bad (includes most of ME4/2 chambers).
+    if (badChambers_->isInBadChamber(hitId)) continue;
     if (hitId.ring() == 4) continue; // skip ME1/A for now.
     for (chamberIdIt = chamberIds.begin(); chamberIdIt != chamberIds.end();
 	 chamberIdIt++) {
@@ -2696,6 +2707,8 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   }
   page++;  c1->Update();
 
+  /* Old histos, separately for halfstrips and distrips */
+  /* 
   ps->NewPage();
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
@@ -2737,6 +2750,7 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   pad[page]->cd(10);  hResolDeltaPhiDS->Draw();
   hResolDeltaPhiDS->Fit("gaus","Q");
   page++;  c1->Update();
+  */
 
   ps->NewPage();
   c1->Clear();  c1->cd(0);
@@ -2817,6 +2831,8 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   }
   page++;  c1->Update();
 
+  /* Old histos for distrips */
+  /* 
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
 			 "#phi_rec-#phi_sim (mrad) vs distrip #");
@@ -2835,6 +2851,7 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
     hPhiDiffVsStripCsc[idh][0]->Draw();
   }
   page++;  c1->Update();
+  */
 
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
