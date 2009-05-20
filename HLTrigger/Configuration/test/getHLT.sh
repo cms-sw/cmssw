@@ -5,7 +5,7 @@ cmsenv
 rehash
 
 setenv HLTmaster /dev/CMSSW_3_1_0/pre6
-setenv HLTversion V30
+setenv HLTversion V32
 
 echo "ConfDB path of master: $HLTmaster/HLT/$HLTversion"
 
