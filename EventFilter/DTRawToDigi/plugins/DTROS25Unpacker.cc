@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/04/06 16:28:50 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/05/14 13:36:38 $
+ *  $Revision: 1.13 $
  *  \author  M. Zanetti - INFN Padova
  *  \revision FRC 060906
  */
@@ -426,17 +426,6 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
     wordCounter++; word = index[swap(wordCounter)];
 
   } // loop on ROS!
-
-  // Check that we found the payload for each of the 12 ROS
-  if (performDataIntegrityMonitor) {
-    if(controlDataFromAllROS.size() == 12) {
-      dataMonitor->fedEntry(dduID);
-    } else if(controlDataFromAllROS.size() == 0) {
-      dataMonitor->fedFatal(dduID);
-    } else {
-      dataMonitor->fedNonFatal(dduID);
-    }
-  }
 
 }
 
