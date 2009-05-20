@@ -110,10 +110,11 @@ if options.dataSource.find('recoFiles') != -1:
    LoadDataCffFile(myFile)
    # check if we want to rerun PFTau
    if options.dataSource.find('PFTau') != -1:
-      process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+      process.load("Configuration.StandardSequences.FakeConditions_cff")
       process.load("Configuration.StandardSequences.Geometry_cff")
       process.load("Configuration.StandardSequences.MagneticField_cff")
       process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
+      process.load("RecoTauTag.TauTagTools.TancConditions_cff")
       process.runPFTau = cms.Path(process.PFTau)
       process.schedule.append(process.runPFTau)
 

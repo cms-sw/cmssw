@@ -44,6 +44,13 @@ options.register( 'referenceUsesLegacyProdNames',
                   "Set to 1 if the reference files contains old (eg pfRecoTauProducer) PFTau product names"
                  ) 
 
+options.register( 'usesLegacyProdNames',
+                  0,
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.int,
+                  "Set to 2 if ALL files contains old (eg pfRecoTauProducer) PFTau product names"
+                 ) 
+
 options.parseArguments()
 
 process = cms.Process('MakingPlots')
@@ -117,7 +124,17 @@ from Validation.RecoTau.RecoTauValidation_cfi import SetTestAndReferenceLabels
 SetTestFileToPlot(process, testRootFile)
 SetReferenceFileToPlot(process, refRootFile)
 
-# Set the right plot directory
+# Switch to 22X style names if desired
+from Validation.RecoTau.RecoTauValidation_cfi import UseLegacyProductNames
+from Validation.RecoTau.RecoTauValidation_cfi import SetCompareToLegacyProductNames
+if options.usesLegacyProdNames == 1:
+   # remove the tanc from the sequence
+   process.plotTauValidation = cms.Sequence(process.plotTauValidationNoTanc)
+   UseLegacyProductNames(process.plotTauValidation)
+elif options.referenceUsesLegacyProdNames == 1:
+   SetCompareToLegacyProductNames(process.plotTauValidation)
+
+# Set the right plot directoy
 print process.plotTauValidation
 SetPlotDirectory(process.plotTauValidation, PlotOutputDir)
 
@@ -129,8 +146,7 @@ for baseDir, producerPlotDir in [os.path.split(x) for x in filter(os.path.isdir,
    webpageOptions = "%s %s %s %s" % (CleanTestLabel, CleanReferenceLabel, producerPlotDir, EventType)
    os.system(baseDirCommand+webpageMaker+webpageOptions)
 
-if options.referenceUsesLegacyProdNames:
-   SetCompareToLegacyProductNames(process.plotTauValidation)
+
 
 SetTestAndReferenceLabels(process.plotTauValidation, options.testLabel, options.referenceLabel)
 

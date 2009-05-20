@@ -1155,17 +1155,22 @@ def ConvertDrawJobToLegacyCompare(input):
    """ Converts a draw job defined to compare 31X named PFTau validtion efficiencies
        to comapre a 31X to a 22X named validation """
    # get the list of drawjobs { name : copyOfPSet }
+   if not hasattr(input, "drawJobs"):
+      return
    myDrawJobs = input.drawJobs.parameters_()
-   for drawJobName, drawJobData in myDrawJobs:
+   for drawJobName, drawJobData in myDrawJobs.iteritems():
+      print drawJobData
+      if not drawJobData.plots.pythonTypeName() == "cms.PSet":
+         continue
       pSetToInsert = cms.PSet(
             standardEfficiencyParameters,
-            plots = VPSet(
+            plots = cms.VPSet(
                # test plot w/ modern names
                cms.PSet(
                   dqmMonitorElements = drawJobData.plots.dqmMonitorElements,
                   process = cms.string('test'),
                   drawOptionEntry = cms.string('eff_overlay01'),
-                  legendEntry = cms.string(drawJobData.processes.test.legendEntry)
+                  legendEntry = cms.string(input.processes.test.legendEntry.value())
                   ),
                # ref plot w/ vintage name
                cms.PSet(
@@ -1173,11 +1178,11 @@ def ConvertDrawJobToLegacyCompare(input):
                   dqmMonitorElements = cms.vstring(TranslateToLegacyProdNames(drawJobData.plots.dqmMonitorElements.value()[0])),
                   process = cms.string('reference'),
                   drawOptionEntry = cms.string('eff_overlay02'),
-                  legendEntry = cms.string(drawJobData.processes.reference.legendEntry)
+                  legendEntry = cms.string(input.processes.reference.legendEntry.value())
                   )
                )
             )
-      input.drawJobs.__setattr__("drawJobName", pSetToInsert)
+      input.drawJobs.__setattr__(drawJobName, pSetToInsert)
 
 def MakeLabeler(TestLabel, ReferenceLabel):
    def labeler(module):
