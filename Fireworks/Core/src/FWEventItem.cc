@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.32 2009/01/23 21:35:43 amraktad Exp $
+// $Id: FWEventItem.cc,v 1.33 2009/03/04 16:53:41 chrjones Exp $
 //
 
 // system include files
@@ -190,6 +190,7 @@ void
 FWEventItem::setFilterExpression(const std::string& iExpression)
 {
    m_filter.setExpression(iExpression);
+   filterChanged_(this);
    runFilter();
 }
 
