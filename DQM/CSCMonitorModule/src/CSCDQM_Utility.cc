@@ -258,6 +258,34 @@ namespace cscdqm {
     return hash;
   }
 
+  
+  /**
+   * @brief  Check the hypothesis that n value is too low or too high comparing with the expected N 
+   * @param  N Expected number of events
+   * @param  n Actual (observed) number of events
+   * @param  low_threshold Rate of lower boundary of tolerance (< 1)
+   * @param  high_threshold Rate of higher boundary of tolerance (> 1)
+   * @param  low_sigfail Significance threshold for low value
+   * @param  high_sigfail Significance threshold for high value
+   * @return check outcome: 1 - observed number of events too high wrt expected
+   * (HOT), -1 - observed number of events too low wrt expected (COLD), 0 -
+   * observed number of events is fine wrt expected
+   */
+  short Utility::checkError(const unsigned int N, const unsigned int n, const double low_threshold, const double high_threshold, const double low_sigfail, const double high_sigfail) {
+    if (N > 0) {
+      double eps_meas = (1.0 * n) / (1.0 * N);
+      if (eps_meas < low_threshold) {
+        double S = Utility::SignificanceLevelLow(N, n, low_threshold);
+        if (S > low_sigfail) return -1;
+      } else 
+      if (eps_meas > high_threshold) {
+        double S = Utility::SignificanceLevelHigh(N, n);
+        if (S > high_sigfail) return 1;
+      }
+    }
+    return 0;
+  }
+
   /**
    * @brief  Calculate error significance alpha for the given number of errors 
    * based on reference number of errors for "cold" elements: actual number of 
@@ -267,7 +295,7 @@ namespace cscdqm {
    * @param  eps Rate of tolerance
    * @return Significance level
    */
-  double Utility::SignificanceLevel(const unsigned int N, const unsigned int n, const double eps) {
+  double Utility::SignificanceLevelLow(const unsigned int N, const unsigned int n, const double eps) {
   
     /** std::cout << "N = " << N << ", n = " << n << ", eps = " << eps << "\n"; */
   
@@ -298,7 +326,7 @@ namespace cscdqm {
    * @param  n number of actual events
    * @return error significance
    */
-  double Utility::SignificanceLevelHot(const unsigned int N, const unsigned int n) {
+  double Utility::SignificanceLevelHigh(const unsigned int N, const unsigned int n) {
     if (N > n) return 0.0;
     /**  no - n observed, ne - n expected */
     double no = 1.0 * n, ne = 1.0 * N;

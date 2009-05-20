@@ -113,7 +113,7 @@ namespace cscdqm {
           }
         }
       }
-      double factor = num / denum, eps_meas = 0.0;
+      double factor = num / denum;
   
       Address adr;
       unsigned int N = 0, n = 0;
@@ -149,54 +149,14 @@ namespace cscdqm {
               SetValue(adr, DATA);
             }
   
-            if (N > 0) {
-  
-              eps_meas = (1.0 * n) / (1.0 * N);
-  
-              /**  Chamber is cold? It means error! */
-              if (eps_meas < cold_coef) {
-  
-                double S = Utility::SignificanceLevel(N, n, cold_coef);
-  
-                LOG_DEBUG << "?COLD?" 
-                  << "adr = " << detector.AddressName(adr)
-                  << ", n = " << n 
-                  << ", N = " << N
-                  << ", eps_meas = " << eps_meas
-                  << ", cold_coef = " << cold_coef
-                  << ", cold_Sfail = " << cold_Sfail
-                  << ", S = " << S
-                  << ", result = " << (S > cold_Sfail);
-  
-                if (S > cold_Sfail) {
-                  SetValue(adr, COLD);
-                }
-
-              } else {
-              
-                /**  Chamber is hot? It means error! */
-                if (eps_meas > hot_coef) {
-  
-                  double S = Utility::SignificanceLevelHot(N, n);
-  
-                  LOG_DEBUG << "?HOT?"
-                    << "adr = " << detector.AddressName(adr)
-                    << ", n = " << n << ", N = " << N
-                    << ", eps_meas = " << eps_meas
-                    << ", hot_coef = " << hot_coef
-                    << ", hot_Sfail = " << hot_Sfail
-                    << ", S = " << S
-                    << ", result = " << (S > cold_Sfail);
-  
-                  if (S > hot_Sfail) {
-                    SetValue(adr, HOT);
-                  }
-
-                }
-              }
-  
-  
-            }
+            switch (Utility::checkError(N, n, cold_coef, hot_coef, cold_Sfail, hot_Sfail)) {
+              case -1:
+                SetValue(adr, COLD);
+                break;
+              case 1:
+                SetValue(adr, HOT);
+                break;
+            };
   
           }
   
@@ -233,7 +193,7 @@ namespace cscdqm {
           if (ChamberCoordsToAddress(x, y, adr)) {
             double eps_meas = (1.0 * n) / (1.0 * N);
             if (eps_meas > eps_max) { 
-              if(Utility::SignificanceLevel(N, n, eps_max) > Sfail) { 
+              if(Utility::SignificanceLevelLow(N, n, eps_max) > Sfail) { 
                 SetValue(adr, bit);
               } else {
                 ReSetValue(adr, bit);
