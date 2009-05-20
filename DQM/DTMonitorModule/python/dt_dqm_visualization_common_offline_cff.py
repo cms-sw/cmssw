@@ -1,9 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # filter on trigger type
-calibrationEventsFilter = cms.EDFilter("TriggerTypeFilter",
-                                       InputLabel = cms.string('source'),
-                                       TriggerFedId = cms.int32(812),
+calibrationEventsFilter = cms.EDFilter("HLTTriggerTypeFilter",
                                        # 1=Physics, 2=Calibration, 3=Random, 4=Technical
                                        SelectedTriggerType = cms.int32(1) 
                                        )
@@ -41,7 +39,9 @@ from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
 es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 #GlobalTag.connect ="frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_21X_GLOBALTAG"
-GlobalTag.globaltag = "CRAFT_V3P::All"
+GlobalTag.globaltag = "CRAFT_V14P::All"
+
+#from DQM.DTMonitorModule.dt_standalonedatabases_cfi import *
 
 
 
