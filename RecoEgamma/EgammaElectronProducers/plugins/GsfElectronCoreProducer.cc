@@ -60,6 +60,7 @@ void GsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSetup
      { electrons->push_back(*ele) ; }
     else
      { LogDebug("GsfElectronCoreProducer")<<"GsfTrack with no associated CaloCluster." ; }
+    delete ele ;
    }
   event.put(electrons) ;
  }

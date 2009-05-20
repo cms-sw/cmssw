@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.62 2009/05/16 16:48:14 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.63 2009/05/18 16:47:37 chamont Exp $
 //
 //
 
@@ -173,7 +173,8 @@ GsfElectronAlgo::GsfElectronAlgo
 }
 
 GsfElectronAlgo::~GsfElectronAlgo() {
-  delete mtsTransform_;
+	delete constraintAtVtx_;
+	delete mtsTransform_;
 //  delete hcalHelper_ ;
 }
 

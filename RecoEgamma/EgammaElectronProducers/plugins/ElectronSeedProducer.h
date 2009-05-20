@@ -44,7 +44,7 @@ class ElectronSeedProducer : public edm::EDProducer
  private:
 
   void filterClusters(const edm::Handle<reco::SuperClusterCollection> &superClusters,
-      HBHERecHitMetaCollection*mhbhe, reco::SuperClusterRefVector &sclRefs);
+      /*HBHERecHitMetaCollection*mhbhe,*/ reco::SuperClusterRefVector &sclRefs);
   void filterSeeds(edm::Event& e, const edm::EventSetup& setup, reco::SuperClusterRefVector &sclRefs);
 
   edm::InputTag superClusters_[2] ;
@@ -58,7 +58,8 @@ class ElectronSeedProducer : public edm::EDProducer
   TrajectorySeedCollection * theInitialSeedColl ;
 
   // for the filter
-  edm::ESHandle<CaloGeometry> theCaloGeom ;
+  edm::ESHandle<CaloGeometry> caloGeom_ ;
+  unsigned long long caloGeomCacheId_ ;
   EgammaHcalIsolation * hcalIso_ ;
 //  CaloDualConeSelector * doubleConeSel_ ;
   HBHERecHitMetaCollection * mhbhe_ ;
@@ -73,7 +74,6 @@ class ElectronSeedProducer : public edm::EDProducer
   // super cluster Et cut
   double SCEtCut_;
 
-  unsigned long long cacheID_;
 
   bool fromTrackerSeeds_;
   bool prefilteredSeeds_;
