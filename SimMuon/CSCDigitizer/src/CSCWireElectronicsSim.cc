@@ -86,14 +86,16 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
         int bin_firing_FD = 0;
         for ( i = ibin; i < lastbin; ++i)
         {
-          if( bin_firing_FD == 0 && signal.getBinValue(i) >= qMax * theFraction )
+          if( signal.getBinValue(i) >= qMax * theFraction )
           {
              bin_firing_FD = i;
 	     //@@ Long-standing but unlikely minor bug, I (Tim) think - following 'break' was missing...
 	     //@@ ... So if both ibins 0 and 1 could fire FD, we'd flag the firing bin as 1 not 0
+	     //@@ (since the above test was restricted to bin_firing_FD==0 too).
 	     break;
           }
         } 
+
         float tofOffset = timeOfFlightCalibration(wireGroup);
         int chamberType = theSpecs->chamberType();
 
