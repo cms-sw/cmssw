@@ -40,14 +40,6 @@ void CondReader::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup)
 {
   
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
-//   if( !mydbservice.isAvailable() ){
-//     std::cout<<"Service is unavailable"<<std::endl;
-//     return;
-//   }
-//   std::string tag=mydbservice->tag("RPCObImonRcd");
-//   std::cout<<"tag "<<tag<<std::endl;
-
-
 
   edm::ESHandle<RPCObImon> condRcd;
   evtSetup.get<RPCObImonRcd>().get(condRcd);
