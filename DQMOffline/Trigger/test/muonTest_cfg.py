@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("HLTMuonOfflineAnalysis")
 
-process.load("DQMOffline.Trigger.MuonTrigRateAnalyzer_cosmics_cfi")
-#process.load("DQMOffline.Trigger.MuonTrigRateAnalyzer_cfi")
+#process.load("DQMOffline.Trigger.MuonTrigRateAnalyzer_cosmics_cfi")
+process.load("DQMOffline.Trigger.MuonTrigRateAnalyzer_cfi")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
 # this will create a list of producers
@@ -69,7 +69,13 @@ process.source = cms.Source("PoolSource",
 
 							#  --- one cosmic file to run on
 							
-							fileNames = cms.untracked.vstring ( '/store/data/Commissioning08/Cosmics/RAW-RECO/CRAFT_ALL_V11_227_Tosca090216_ReReco_FromSuperPointing_v2/0004/26F7DEA2-E81F-DE11-9686-0018F3D096E6.root'),
+							#fileNames = cms.untracked.vstring ( '/store/data/Commissioning08/Cosmics/RAW-RECO/CRAFT_ALL_V11_227_Tosca090216_ReReco_FromSuperPointing_v2/0004/26F7DEA2-E81F-DE11-9686-0018F3D096E6.root'),
+
+
+							#  --- one relval
+
+							fileNames = cms.untracked.vstring ( '/store/relval/CMSSW_3_1_0_pre7/RelValZMM/GEN-SIM-RECO/STARTUP_31X_v1/0004/F40BA55C-E641-DE11-858D-001D09F28E80.root'),
+
 
 							# --- Run on relval
 							#fileNames = cms.untracked.vstring (  '/store/relval/CMSSW_2_2_6/RelValZMM/GEN-SIM-RECO/STARTUP_V9_v1/0002/B0E54C9B-D70B-DE11-A7B4-000423D986C4.root'),

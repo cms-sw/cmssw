@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/04/02 16:35:30 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/05/15 09:48:09 $
+ *  $Revision: 1.5 $
  *  \author  M. Vander Donckt, J. Klukas  (copied from J. Alcaraz)
  *  \author  J. Slaunwhite (modified from above
  */
@@ -35,7 +35,8 @@
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
+//#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include <vector>
 #include "TFile.h"

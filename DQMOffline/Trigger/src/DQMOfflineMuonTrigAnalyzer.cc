@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.2 2009/03/26 09:45:10 slaunwhj Exp $
+// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.3 2009/05/15 09:48:07 slaunwhj Exp $
 //
 //
 
@@ -33,7 +33,8 @@
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
+//#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "TFile.h"
 #include "TDirectory.h"

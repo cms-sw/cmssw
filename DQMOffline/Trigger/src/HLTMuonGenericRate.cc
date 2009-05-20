@@ -3,8 +3,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/04/03 10:02:14 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/05/15 09:48:08 $
+ *  $Revision: 1.8 $
  */
 
 
@@ -406,14 +406,20 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
                                << " for the rest of this job";
       useMuonFromReco = false;
     } else {
+
+      LogTrace ("HLTMuonVal") << "Beginning loop over reco muons" << endl;
+      
       for ( muon = muTracks->begin(); muon != muTracks->end(); ++muon ) {
         
         // this applies cuts that can
-        // go towards the muon collection       
+        // go towards the muon collection
+
+        LogTrace ("HLTMuonVal") << "... Applying selection" << endl;
         if ( mySelection.recoMuonSelector((*muon)) ) {
 
           // now apply cuts to the tracks.
-
+          LogTrace ("HLTMuonVal") << "Passed selection!" << endl;
+          
           if ( applyTrackSelection(mySelection, (*muon)) ){
           
           
