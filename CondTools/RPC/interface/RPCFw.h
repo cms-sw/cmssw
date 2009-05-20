@@ -5,8 +5,8 @@
  * \class RPCFw
  *  Reads data from OMDS and creates conditioning objects
  *
- *  $Date: 2008/12/30 10:19:13 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/04/13 20:39:53 $
+ *  $Revision: 1.14 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -38,18 +38,21 @@ public:
   virtual ~RPCFw();
   void run();
 
-  coral::TimeStamp UTtoT(int utime);
+  coral::TimeStamp UTtoT(long long utime);
+  unsigned long long TtoUT(coral::TimeStamp time);
 
+  coral::TimeStamp tMIN;
+  coral::TimeStamp tMAX;
+  unsigned long long N_IOV;
 
-  coral::TimeStamp thr;
-  std::vector<RPCObImon::I_Item> createIMON(int from);
-  std::vector<RPCObVmon::V_Item> createVMON(int from); 
-  std::vector<RPCObStatus::S_Item> createSTATUS(int from); 
-  std::vector<RPCObGas::Item> createGAS(int from);
-  std::vector<RPCObTemp::T_Item> createT(int from);
+  std::vector<RPCObImon::I_Item> createIMON(long long since, long long till);
+  std::vector<RPCObVmon::V_Item> createVMON(long long from, long long till); 
+  std::vector<RPCObStatus::S_Item> createSTATUS(long long from); 
+  std::vector<RPCObGas::Item> createGAS(long long since, long long till);
+  std::vector<RPCObTemp::T_Item> createT(long long since, long long till);
   std::vector<RPCObPVSSmap::Item> createIDMAP();
-  std::vector<RPCObFebmap::Feb_Item> createFEB(int from);	
-
+  std::vector<RPCObFebmap::Feb_Item> createFEB(long long from);	
+  bool isMajor(coral::TimeStamp fir, coral::TimeStamp sec);
   
 private:
   std::string m_connectionString;

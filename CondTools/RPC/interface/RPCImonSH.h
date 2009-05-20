@@ -5,8 +5,8 @@
  * \class RPCImonSH
  *  Core of RPC PopCon Appication
  *
- *  $Date: 2008/12/12 20:02:50 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/12/30 10:14:58 $
+ *  $Revision: 1.5 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -22,6 +22,7 @@
 #include "CoralBase/TimeStamp.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "CondTools/RPC/interface/RPCFw.h"
+#include "CondTools/RPC/interface/RPCIOVReader.h"
 #include<string>
 
 
@@ -36,6 +37,7 @@ namespace popcon{
     RPCObImon* Idata;
 
     unsigned long long snc;
+    unsigned long long tll;
     unsigned long long niov;	    
     unsigned long long utime;
   private:
@@ -44,7 +46,7 @@ namespace popcon{
     std::string user;
     std::string passw;
     unsigned long long m_since;
-
+    unsigned long long m_till;
   };
 }
 #endif

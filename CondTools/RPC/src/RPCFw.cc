@@ -2,8 +2,8 @@
  /* 
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/30 10:12:43 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/04/13 20:40:38 $
+ *  $Revision: 1.16 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -26,6 +26,7 @@
 #include <math.h>
 #include <iostream>
 #include <sstream>
+#include <time.h>
 #include "CondFormats/RPCObjects/interface/RPCObFebmap.h"
 
 RPCFw::RPCFw( const std::string& connectionString,
@@ -48,52 +49,79 @@ RPCFw::run()
 
 
 //----------------------------- I M O N ------------------------------------------------------------------------
-std::vector<RPCObImon::I_Item> RPCFw::createIMON(int from)
+std::vector<RPCObImon::I_Item> RPCFw::createIMON(long long since, long long till)
 {
-  thr = UTtoT(from);
-  std::cout <<">> Processing since: "<<thr.day()<<"/"<<thr.month()<<"/"<<thr.year()<<" "<<thr.hour()<<":"<<thr.minute()<<"."<<thr.second()<< std::endl;
- 
+  tMIN = UTtoT(since);
+  std::cout <<">> Processing since: "<<tMIN.day()<<"/"<<tMIN.month()<<"/"<<tMIN.year()<<" "<<tMIN.hour()<<":"<<tMIN.minute()<<"."<<tMIN.second()<< std::endl;
+
   coral::ISession* session = this->connect( m_connectionString,
                                             m_userName, m_password );
   session->transaction().start( true );
   coral::ISchema& schema = session->nominalSchema();
   int nRows = 0;
-  std::cout << ">> creating IMON object..." << std::endl;
   coral::IQuery* queryI = schema.newQuery();
   queryI->addToTableList( "FWCAENCHANNEL" );
   queryI->addToOutputList( "FWCAENCHANNEL.DPID", "DPID" );
   queryI->addToOutputList( "FWCAENCHANNEL.CHANGE_DATE", "TSTAMP" );
   queryI->addToOutputList( "FWCAENCHANNEL.ACTUAL_IMON", "IMON" );
-  std::string condI = "FWCAENCHANNEL.ACTUAL_IMON is not NULL";
-
-  std::string condition = "FWCAENCHANNEL.ACTUAL_IMON is not NULL AND FWCAENCHANNEL.CHANGE_DATE >:tmax";
-  coral::AttributeList conditionData;
-  conditionData.extend<coral::TimeStamp>( "tmax" );
-  queryI->setCondition( condition, conditionData );
-  conditionData[0].data<coral::TimeStamp>() = thr;
-  coral::ICursor& cursorI = queryI->execute();
-
+  
   RPCObImon::I_Item Itemp;
   std::vector<RPCObImon::I_Item> imonarray;
-  while ( cursorI.next() ) {
-    const coral::AttributeList& row = cursorI.currentRow();
-    float idoub = row["DPID"].data<float>();
-    int id = static_cast<int>(idoub);
-    float val = row["IMON"].data<float>();
-    coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-    int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
-    int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
-
-    Itemp.dpid = id;
-    Itemp.value = val;
-    Itemp.day = ndate;
-    Itemp.time = ntime;
-    imonarray.push_back(Itemp);
-
-    ++nRows;
+  coral::TimeStamp tlast = tMIN;
+  if (till > since) {
+    tMAX = UTtoT(till);
+    std::cout <<">> Processing till: "<<tMAX.day()<<"/"<<tMAX.month()<<"/"<<tMAX.year()<<" "<<tMAX.hour()<<":"<<tMAX.minute()<<"."<<tMAX.second()<< std::endl;
+    std::cout << ">> creating IMON object..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData.extend<coral::TimeStamp>( "tmax" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    conditionData["tmax"].data<coral::TimeStamp>() = tMAX;
+    std::string condition = "FWCAENCHANNEL.ACTUAL_IMON IS NOT NULL AND CHANGE_DATE >:tmin AND CHANGE_DATE <:tmax";
+    queryI->setCondition( condition , conditionData );
+    coral::ICursor& cursorI = queryI->execute();
+    while ( cursorI.next() ) {
+      const coral::AttributeList& row = cursorI.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float val = row["IMON"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Itemp.dpid = id;
+      Itemp.value = val;
+      Itemp.day = ndate;
+      Itemp.time = ntime;
+      imonarray.push_back(Itemp);
+      ++nRows;
+    }
+  } else {
+    std::cout << ">> creating IMON object..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    std::string condition = "FWCAENCHANNEL.ACTUAL_IMON IS NOT NULL AND FWCAENCHANNEL.CHANGE_DATE >:tmin";
+    queryI->setCondition( condition , conditionData );
+    coral::ICursor& cursorI = queryI->execute();
+    while ( cursorI.next() ) {
+      const coral::AttributeList& row = cursorI.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float val = row["IMON"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      if (isMajor(ts, tlast)) tlast = ts;
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Itemp.dpid = id;
+      Itemp.value = val;
+      Itemp.day = ndate;
+      Itemp.time = ntime;
+      imonarray.push_back(Itemp);
+      ++nRows;
+    }
   }
-  
-
+  N_IOV = TtoUT(tlast);
+  if (till > since) N_IOV = till;
   std::cout << ">> Imon array --> size: " << imonarray.size() << " >> done." << std::endl;
   delete queryI;
   session->transaction().commit();
@@ -104,51 +132,79 @@ std::vector<RPCObImon::I_Item> RPCFw::createIMON(int from)
 
 
 //------------------------------------------------------- V M O N ---------------------------------------------------
-std::vector<RPCObVmon::V_Item> RPCFw::createVMON(int from)
+std::vector<RPCObVmon::V_Item> RPCFw::createVMON(long long since, long long till)
 {
-  thr = UTtoT(from);
-  std::cout <<">> Processing since: "<<thr.day()<<"/"<<thr.month()<<"/"<<thr.year()<<" "<<thr.hour()<<":"<<thr.minute()<<"."<<thr.second()<< std::endl;
+  tMIN = UTtoT(since);
+  std::cout <<">> Processing since: "<<tMIN.day()<<"/"<<tMIN.month()<<"/"<<tMIN.year()<<" "<<tMIN.hour()<<":"<<tMIN.minute()<<"."<<tMIN.second()<< std::endl;
 
   coral::ISession* session = this->connect( m_connectionString,
                                             m_userName, m_password );
   session->transaction().start( true );
   coral::ISchema& schema = session->nominalSchema();
   int nRows = 0;
-  std::cout << ">> creating VMON object..." << std::endl;
   coral::IQuery* queryV = schema.newQuery();
   queryV->addToTableList( "FWCAENCHANNEL" );
   queryV->addToOutputList( "FWCAENCHANNEL.DPID", "DPID" );
   queryV->addToOutputList( "FWCAENCHANNEL.CHANGE_DATE", "TSTAMP" );
   queryV->addToOutputList( "FWCAENCHANNEL.ACTUAL_VMON", "VMON" );
-  std::string condV = "FWCAENCHANNEL.ACTUAL_VMON is not NULL";
-  
-  std::string condition = "FWCAENCHANNEL.ACTUAL_VMON is not NULL AND FWCAENCHANNEL.CHANGE_DATE >:tmax";
-  coral::AttributeList conditionData;
-  conditionData.extend<coral::TimeStamp>( "tmax" );
-  queryV->setCondition( condition, conditionData );
-  conditionData[0].data<coral::TimeStamp>() = thr;
-  coral::ICursor& cursorV = queryV->execute();
-
   RPCObVmon::V_Item Vtemp;
   std::vector<RPCObVmon::V_Item> vmonarray;
-  while ( cursorV.next() ) {
-    //if (nRows > 500000) continue;
-    const coral::AttributeList& row = cursorV.currentRow();
-    float idoub = row["DPID"].data<float>();
-    int id = static_cast<int>(idoub);
-    float val = row["VMON"].data<float>();
-    coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-    int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
-    int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
-
-    Vtemp.dpid = id;
-    Vtemp.value = val;
-    Vtemp.day = ndate;
-    Vtemp.time = ntime;
-    vmonarray.push_back(Vtemp);
-
-    ++nRows;
+  coral::TimeStamp tlast = tMIN;
+  if (till > since) {
+    tMAX = UTtoT(till);
+    std::cout <<">> Processing till: "<<tMAX.day()<<"/"<<tMAX.month()<<"/"<<tMAX.year()<<" "<<tMAX.hour()<<":"<<tMAX.minute()<<"."<<tMAX.second()<< std::endl;
+    std::cout << ">> creating VMON object..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData.extend<coral::TimeStamp>( "tmax" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    conditionData["tmax"].data<coral::TimeStamp>() = tMAX;
+    std::string condition = " NOT FWCAENCHANNEL.ACTUAL_VMON IS NULL AND FWCAENCHANNEL.CHANGE_DATE >:tmin AND FWCAENCHANNEL.CHANGE_DATE <:tmax";
+    queryV->setCondition( condition , conditionData );
+    coral::ICursor& cursorV = queryV->execute();
+    while ( cursorV.next() ) {
+      const coral::AttributeList& row = cursorV.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float val = row["VMON"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      if (isMajor(ts, tlast)) tlast = ts;
+      std::cout <<">> Last Value: "<<ts.day()<<"/"<<ts.month()<<"/"<<ts.year()<<" "<<ts.hour()<<":"<<ts.minute()<<"."<<ts.second()<< std::endl;
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Vtemp.dpid = id;
+      Vtemp.value = val;
+      Vtemp.day = ndate;
+      Vtemp.time = ntime;
+      vmonarray.push_back(Vtemp);
+      ++nRows;
+    }
+  } else {
+    std::cout << ">> creating VMON object..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    std::string condition = " NOT FWCAENCHANNEL.ACTUAL_VMON IS NULL AND FWCAENCHANNEL.CHANGE_DATE >:tmin";
+    queryV->setCondition( condition , conditionData );
+    coral::ICursor& cursorV = queryV->execute();
+    while ( cursorV.next() ) {
+      const coral::AttributeList& row = cursorV.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float val = row["VMON"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      if (isMajor(ts, tlast)) tlast = ts;
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Vtemp.dpid = id;
+      Vtemp.value = val;
+      Vtemp.day = ndate;
+      Vtemp.time = ntime;
+      vmonarray.push_back(Vtemp);
+      ++nRows;
+    }
   }
+
   std::cout << ">> Vmon array --> size: " << vmonarray.size() << " >> done." << std::endl;
   delete queryV;
   session->transaction().commit();
@@ -158,10 +214,10 @@ std::vector<RPCObVmon::V_Item> RPCFw::createVMON(int from)
 
 
 //------------------------------ S T A T U S ---------------------------------------------------------------------
-std::vector<RPCObStatus::S_Item> RPCFw::createSTATUS(int from)
+std::vector<RPCObStatus::S_Item> RPCFw::createSTATUS(long long from)
 {
-  thr = UTtoT(from);
-  std::cout <<">> Processing since: "<<thr.day()<<"/"<<thr.month()<<"/"<<thr.year()<<" "<<thr.hour()<<":"<<thr.minute()<<"."<<thr.second()<< std::endl;
+  tMIN = UTtoT(from);
+  std::cout <<">> Processing since: "<<tMIN.day()<<"/"<<tMIN.month()<<"/"<<tMIN.year()<<" "<<tMIN.hour()<<":"<<tMIN.minute()<<"."<<tMIN.second()<< std::endl;
 
   coral::ISession* session = this->connect( m_connectionString,
                                             m_userName, m_password );
@@ -180,7 +236,7 @@ std::vector<RPCObStatus::S_Item> RPCFw::createSTATUS(int from)
   coral::AttributeList conditionData;
   conditionData.extend<coral::TimeStamp>( "tmax" );
   queryS->setCondition( condition, conditionData );
-  conditionData[0].data<coral::TimeStamp>() = thr;
+  conditionData[0].data<coral::TimeStamp>() = tMIN;
   coral::ICursor& cursorS = queryS->execute();
 
   RPCObStatus::S_Item Stemp;
@@ -215,16 +271,17 @@ std::vector<RPCObStatus::S_Item> RPCFw::createSTATUS(int from)
 
 
 //------------------------------ G A S ---------------------------------------------------------------------
-std::vector<RPCObGas::Item> RPCFw::createGAS(int from)
+std::vector<RPCObGas::Item> RPCFw::createGAS(long long since, long long till)
 {
-  thr = UTtoT(from);
-  std::cout <<">> Processing since: "<<thr.day()<<"/"<<thr.month()<<"/"<<thr.year()<<" "<<thr.hour()<<":"<<thr.minute()<<"."<<thr.second()<< std::endl;
+  tMIN = UTtoT(since);
+  std::cout <<">> Processing since: "<<tMIN.day()<<"/"<<tMIN.month()<<"/"<<tMIN.year()<<" "<<tMIN.hour()<<":"<<tMIN.minute()<<"."<<tMIN.second()<< std::endl;
 
   coral::ISession* session = this->connect( m_connectionString,
                                             m_userName, m_password );
   session->transaction().start( true );
   coral::ISchema& schema = session->nominalSchema();
-  std::cout << ">> creating GAS object..." << std::endl;
+  
+  coral::TimeStamp tlast = tMIN;  
 
   // FLOWIN
   coral::IQuery* querySIN = schema.newQuery();
@@ -241,116 +298,211 @@ std::vector<RPCObGas::Item> RPCFw::createGAS(int from)
   querySOUT->addToOutputList( "RPCGASCHANNEL.FLOWOUT", "FLOWOUT" );
 
 
-  coral::AttributeList conditionData;
-  conditionData.extend<coral::TimeStamp>( "tmax" );
-  conditionData[0].data<coral::TimeStamp>() = thr;
   RPCObGas::Item gastemp;
   std::vector<RPCObGas::Item> gasarray;
 
-
-
-  std::cout << "Processing FLOWIN..." << std::endl;
-  std::string conditionIN = "RPCGASCHANNEL.FLOWIN is not NULL AND RPCGASCHANNEL.CHANGE_DATE >:tmax";
-  querySIN->setCondition( conditionIN, conditionData );
-  coral::ICursor& cursorSIN = querySIN->execute();
-  while ( cursorSIN.next() ) {
-    gastemp.dpid=0;gastemp.flowin=0;gastemp.flowout=0;gastemp.day=0;gastemp.time=0;
-    const coral::AttributeList& row = cursorSIN.currentRow();
-    float idoub = row["DPID"].data<float>();
-    int id = static_cast<int>(idoub);
-    float val = row["FLOWIN"].data<float>();
-    coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-    int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
-    int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
-    gastemp.dpid = id;
-    gastemp.flowin = val;
-    gastemp.day = ndate;
-    gastemp.time = ntime;
-    gasarray.push_back(gastemp);
+  if (till > since) {
+    tMAX = UTtoT(till);
+    std::cout <<">> Processing till: "<<tMAX.day()<<"/"<<tMAX.month()<<"/"<<tMAX.year()<<" "<<tMAX.hour()<<":"<<tMAX.minute()<<"."<<tMAX.second()<< std::endl;
+    std::cout << ">> creating GAS object..." << std::endl;
+    std::cout << ">> processing FLOWIN..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData.extend<coral::TimeStamp>( "tmax" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    conditionData["tmax"].data<coral::TimeStamp>() = tMAX;
+    std::string conditionIN = "RPCGASCHANNEL.FLOWIN IS NOT NULL AND CHANGE_DATE >:tmin AND CHANGE_DATE <:tmax";
+    
+    querySIN->setCondition( conditionIN, conditionData );
+    coral::ICursor& cursorSIN = querySIN->execute();
+    while ( cursorSIN.next() ) {
+      gastemp.dpid=0;gastemp.flowin=0;gastemp.flowout=0;gastemp.day=0;gastemp.time=0;
+      const coral::AttributeList& row = cursorSIN.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float val = row["FLOWIN"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      gastemp.dpid = id;
+      gastemp.flowin = val;
+      gastemp.day = ndate;
+      gastemp.time = ntime;
+      gasarray.push_back(gastemp);
+    }
+  } else {
+    std::cout << ">> creating GAS object..." << std::endl;
+    std::cout << ">> processing FLOWIN..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    std::string conditionIN = "RPCGASCHANNEL.FLOWIN IS NOT NULL AND CHANGE_DATE >:tmin";
+    std::cout << "processing FLOWIN..." << std::endl;
+    querySIN->setCondition( conditionIN, conditionData );
+    coral::ICursor& cursorSIN = querySIN->execute();
+    while ( cursorSIN.next() ) {
+      gastemp.dpid=0;gastemp.flowin=0;gastemp.flowout=0;gastemp.day=0;gastemp.time=0;
+      const coral::AttributeList& row = cursorSIN.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float val = row["FLOWIN"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      gastemp.dpid = id;
+      gastemp.flowin = val;
+      gastemp.day = ndate;
+      gastemp.time = ntime;
+      gasarray.push_back(gastemp);
+    }
   }
 
+
+    if (till > since) {
+    tMAX = UTtoT(till);
+    //    std::cout <<">> Processing till: "<<tMAX.day()<<"/"<<tMAX.month()<<"/"<<tMAX.year()<<" "<<tMAX.hour()<<":"<<tMAX.minute()<<"."<<tMAX.second()<< std::endl;
+    std::cout << ">> processing FLOWOUT..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData.extend<coral::TimeStamp>( "tmax" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    conditionData["tmax"].data<coral::TimeStamp>() = tMAX;
+    std::string conditionOUT = "RPCGASCHANNEL.FLOWOUT IS NOT NULL AND CHANGE_DATE >:tmin AND CHANGE_DATE <:tmax";
   
-  std::string condOUT = "RPCGASCHANNEL.FLOWOUT is not NULL";
-  std::cout << "Processing FLOWOUT..." << std::endl;
-  std::string conditionOUT = "RPCGASCHANNEL.FLOWOUT is not NULL AND RPCGASCHANNEL.CHANGE_DATE >:tmax";
-  querySOUT->setCondition( conditionOUT, conditionData );
-  coral::ICursor& cursorSOUT = querySOUT->execute();
-  while ( cursorSOUT.next() ) {
-    gastemp.dpid=0;gastemp.flowin=0;gastemp.flowout=0;gastemp.day=0;gastemp.time=0;
-    const coral::AttributeList& row = cursorSOUT.currentRow();
-    float idoub = row["DPID"].data<float>();
-    int id = static_cast<int>(idoub);
-    float val = row["FLOWOUT"].data<float>();
-    coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-    int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
-    int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
-    gastemp.dpid = id;
-    gastemp.flowout = val;
-    gastemp.day = ndate;
-    gastemp.time = ntime;
-    gasarray.push_back(gastemp);
-  }
-
-  
-
-  std::cout << ">> Gas array --> size: " << gasarray.size() << " >> done." << std::endl << std::endl << std::endl;
-
-  delete querySIN;
-  delete querySOUT;
-  session->transaction().commit();
-  delete session;
-
-  return gasarray;
-
+    querySOUT->setCondition( conditionOUT, conditionData );
+    coral::ICursor& cursorSOUT = querySOUT->execute();
+    while ( cursorSOUT.next() ) {
+      gastemp.dpid=0;gastemp.flowin=0;gastemp.flowout=0;gastemp.day=0;gastemp.time=0;
+      const coral::AttributeList& row = cursorSOUT.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float val = row["FLOWOUT"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      gastemp.dpid = id;
+      gastemp.flowout = val;
+      gastemp.day = ndate;
+      gastemp.time = ntime;
+      gasarray.push_back(gastemp);
+    } 
+    } else {
+      std::cout << ">> processing FLOWOUT..." << std::endl;
+      coral::AttributeList conditionData;
+      conditionData.extend<coral::TimeStamp>( "tmin" );
+      conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+      std::string conditionOUT = "RPCGASCHANNEL.FLOWOUT IS NOT NULL AND CHANGE_DATE >:tmin";
+      querySOUT->setCondition( conditionOUT, conditionData );
+      coral::ICursor& cursorSOUT = querySOUT->execute();
+      while ( cursorSOUT.next() ) {
+	gastemp.dpid=0;gastemp.flowin=0;gastemp.flowout=0;gastemp.day=0;gastemp.time=0;
+	const coral::AttributeList& row = cursorSOUT.currentRow();
+	float idoub = row["DPID"].data<float>();
+	int id = static_cast<int>(idoub);
+	float val = row["FLOWOUT"].data<float>();
+	coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+	int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+	int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+	gastemp.dpid = id;
+	gastemp.flowout = val;
+	gastemp.day = ndate;
+	gastemp.time = ntime;
+	gasarray.push_back(gastemp);
+      }
+    }
+    
+    
+    N_IOV = TtoUT(tlast);
+    if (till > since) N_IOV = till;
+    std::cout << ">> Gas array --> size: " << gasarray.size() << " >> done." << std::endl << std::endl << std::endl;
+    
+    delete querySIN;
+    delete querySOUT;
+    session->transaction().commit();
+    delete session;
+    
+    return gasarray;
+    
 }
 
 
 
 //------------------------------ T E M P E R A T U R E ---------------------------------------------------------------------
-std::vector<RPCObTemp::T_Item> RPCFw::createT(int from)
+std::vector<RPCObTemp::T_Item> RPCFw::createT(long long since, long long till)
 {
-  thr = UTtoT(from);
-  std::cout <<">> Processing since: "<<thr.day()<<"/"<<thr.month()<<"/"<<thr.year()<<" "<<thr.hour()<<":"<<thr.minute()<<"."<<thr.second()<< std::endl;
+  tMIN = UTtoT(since);
+  std::cout <<">> Processing since: "<<tMIN.day()<<"/"<<tMIN.month()<<"/"<<tMIN.year()<<" "<<tMIN.hour()<<":"<<tMIN.minute()<<"."<<tMIN.second()<< std::endl;
 
   coral::ISession* session = this->connect( m_connectionString,
                                             m_userName, m_password );
   session->transaction().start( true );
   coral::ISchema& schema = session->nominalSchema();
   int nRows = 0;
-  std::cout << ">> creating TEMPERATURE object..." << std::endl;
   coral::IQuery* queryS = schema.newQuery();
   queryS->addToTableList( "FWCAENCHANNELADC" );
   queryS->addToOutputList( "FWCAENCHANNELADC.DPID", "DPID" );
   queryS->addToOutputList( "FWCAENCHANNELADC.CHANGE_DATE", "TSTAMP" );
   queryS->addToOutputList( "FWCAENCHANNELADC.ACTUAL_TEMPERATURE", "TEMPERATURE" );
-  std::string condS = "FWCAENCHANNELADC.ACTUAL_TEMPERATURE is not NULL";
-
-  std::string condition = "FWCAENCHANNELADC.ACTUAL_TEMPERATURE is not NULL AND FWCAENCHANNELADC.CHANGE_DATE >:tmax";
-  coral::AttributeList conditionData;
-  conditionData.extend<coral::TimeStamp>( "tmax" );
-  queryS->setCondition( condition, conditionData );
-  conditionData[0].data<coral::TimeStamp>() = thr;
-  coral::ICursor& cursorS = queryS->execute();
-
   RPCObTemp::T_Item Ttemp;
   std::vector<RPCObTemp::T_Item> temparray;
-  while ( cursorS.next() ) {
-    const coral::AttributeList& row = cursorS.currentRow();
-    float idoub = row["DPID"].data<float>();
-    int id = static_cast<int>(idoub);
-    float val = row["TEMPERATURE"].data<float>();
-    coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-    int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
-    int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
-
-    Ttemp.dpid = id;
-    Ttemp.value = val;
-    Ttemp.day = ndate;
-    Ttemp.time = ntime;
-    temparray.push_back(Ttemp);
-
-    ++nRows;
+  coral::TimeStamp tlast = tMIN;
+  if (till > since) {
+    tMAX = UTtoT(till);
+    std::cout <<">> Processing till: "<<tMAX.day()<<"/"<<tMAX.month()<<"/"<<tMAX.year()<<" "<<tMAX.hour()<<":"<<tMAX.minute()<<"."<<tMAX.second()<< std::endl;
+    std::cout << ">> creating TEMPERATURE object..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData.extend<coral::TimeStamp>( "tmax" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    conditionData["tmax"].data<coral::TimeStamp>() = tMAX;
+    std::string condition = "FWCAENCHANNELADC.ACTUAL_TEMPERATURE IS NOT NULL AND CHANGE_DATE >:tmin AND CHANGE_DATE <:tmax";
+    queryS->setCondition( condition , conditionData );
+    coral::ICursor& cursorS = queryS->execute();
+    while ( cursorS.next() ) {
+      const coral::AttributeList& row = cursorS.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float val = row["TEMPERATURE"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      
+      Ttemp.dpid = id;
+      Ttemp.value = val;
+      Ttemp.day = ndate;
+      Ttemp.time = ntime;
+      temparray.push_back(Ttemp);
+      
+      ++nRows;
+    }
+  } else {
+    std::cout << ">> creating TEMPERATURE object..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    std::string condition = "FWCAENCHANNELADC.ACTUAL_TEMPERATURE IS NOT NULL AND CHANGE_DATE >:tmin";
+    queryS->setCondition( condition , conditionData );
+    coral::ICursor& cursorS = queryS->execute();
+    while ( cursorS.next() ) {
+      const coral::AttributeList& row = cursorS.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float val = row["TEMPERATURE"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      
+      Ttemp.dpid = id;
+      Ttemp.value = val;
+      Ttemp.day = ndate;
+      Ttemp.time = ntime;
+      temparray.push_back(Ttemp);
+      
+      ++nRows;
+    }
   }
+  N_IOV = TtoUT(tlast);
+  if (till > since) N_IOV = till;
   std::cout << ">> Temperature array --> size: " << temparray.size() << " >> done." << std::endl << std::endl << std::endl;
 
   delete queryS;
@@ -365,7 +517,7 @@ std::vector<RPCObTemp::T_Item> RPCFw::createT(int from)
 //----------------------------- I D   M A P ------------------------------------------------------------------------
 std::vector<RPCObPVSSmap::Item> RPCFw::createIDMAP()
 {
-  //  float thri = 0;
+  //  float tMINi = 0;
   std::cout <<">> Processing data..." << std::endl;
 
   coral::ISession* session = this->connect( m_connectionString,
@@ -449,11 +601,11 @@ std::vector<RPCObPVSSmap::Item> RPCFw::createIDMAP()
 
 
 //----------------------------- F E B ------------------------------------------------------------------------
-std::vector<RPCObFebmap::Feb_Item> RPCFw::createFEB(int from)
+std::vector<RPCObFebmap::Feb_Item> RPCFw::createFEB(long long from)
 {
 
-  thr = UTtoT(from);
-  std::cout <<">> Processing since: "<<thr.day()<<"/"<<thr.month()<<"/"<<thr.year()<<" "<<thr.hour()<<":"<<thr.minute()<<"."<<thr.second()<< std::endl;
+  tMIN = UTtoT(from);
+  std::cout <<">> Processing since: "<<tMIN.day()<<"/"<<tMIN.month()<<"/"<<tMIN.year()<<" "<<tMIN.hour()<<":"<<tMIN.minute()<<"."<<tMIN.second()<< std::endl;
 
   coral::ISession* session = this->connect( m_connectionString,
                                             m_userName, m_password );
@@ -533,7 +685,7 @@ std::vector<RPCObFebmap::Feb_Item> RPCFw::createFEB(int from)
 
   coral::AttributeList conditionData;
   conditionData.extend<coral::TimeStamp>( "tmax" );
-  conditionData[0].data<coral::TimeStamp>() = thr;
+  conditionData[0].data<coral::TimeStamp>() = tMIN;
   RPCObFebmap::Feb_Item Itemp;
   std::vector<RPCObFebmap::Feb_Item> febarray;
 
@@ -774,8 +926,10 @@ std::vector<RPCObFebmap::Feb_Item> RPCFw::createFEB(int from)
 
 
 //----------------------------------------------------------------------------------------------
-coral::TimeStamp RPCFw::UTtoT(int utime) 
+coral::TimeStamp RPCFw::UTtoT(long long utime) 
 {
+  
+  
   int yea = static_cast<int>(trunc(utime/31536000) + 1970);
   int yes = (yea-1970)*31536000;
   int cony = (yea-1972)%4;
@@ -786,8 +940,8 @@ coral::TimeStamp RPCFw::UTtoT(int utime)
   int mon = 0;
   // BISESTILE YEAR
   if (cony == 0) {
-   day = day + 1; 
-   if (day < 32){
+    day = day + 1; 
+    if (day < 32){
       mon = 1;
       day = day - 0;
     }
@@ -903,3 +1057,38 @@ coral::TimeStamp RPCFw::UTtoT(int utime)
   return Tthr;
 }
 
+
+
+//----------------------------------------------------------------------------------------------
+unsigned long long RPCFw::TtoUT(coral::TimeStamp time) 
+{
+  
+  long long utime = (time.year()-1970)*31536000+static_cast<int>(trunc((time.year()-1972)/4))*86400+
+    (((time.month()-1)*31)*86400)+((time.day()-1)*86400)+time.hour()*3600+time.minute()*60+time.second();
+  
+  if (time.month() == 3) utime = utime - 3*86400;
+  if (time.month() == 4) utime = utime - 3*86400;
+  if (time.month() == 5) utime = utime - 4*86400;
+  if (time.month() == 6) utime = utime - 4*86400;
+  if (time.month() == 7) utime = utime - 5*86400;
+  if (time.month() == 8) utime = utime - 5*86400;
+  if (time.month() == 9) utime = utime - 5*86400;
+  if (time.month() == 10) utime = utime - 6*86400;
+  if (time.month() == 11) utime = utime - 6*86400;
+  if (time.month() == 12) utime = utime - 7*86400;
+  
+  return utime;
+}
+
+
+
+bool RPCFw::isMajor(coral::TimeStamp fir, coral::TimeStamp sec) 
+{
+
+  double first  = fir.year()*1e10+fir.month()+1e8+fir.day()*1e6+fir.hour()*1e4+fir.minute()*1e2+fir.second();
+  double second = sec.year()*1e10+sec.month()+1e8+sec.day()*1e6+sec.hour()*1e4+sec.minute()*1e2+sec.second();
+
+  if (first > second) return true;
+
+      return false;
+}

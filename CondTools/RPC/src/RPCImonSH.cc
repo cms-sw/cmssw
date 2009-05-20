@@ -1,8 +1,8 @@
 /*
  *  See headers for a description
  *
- *  $Date: 2008/12/12 20:20:14 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/12/30 10:09:05 $
+ *  $Revision: 1.4 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -18,7 +18,8 @@ popcon::RpcDataI::RpcDataI(const edm::ParameterSet& pset) :
   host(pset.getUntrackedParameter<std::string>("host", "source db host")),
   user(pset.getUntrackedParameter<std::string>("user", "source username")),
   passw(pset.getUntrackedParameter<std::string>("passw", "source password")),
-  m_since(pset.getUntrackedParameter<unsigned long long>("since",5)){
+  m_since(pset.getUntrackedParameter<unsigned long long>("since",5)),
+  m_till(pset.getUntrackedParameter<unsigned long long>("till",0)){
 }
 
 popcon::RpcDataI::~RpcDataI()
@@ -28,7 +29,7 @@ popcon::RpcDataI::~RpcDataI()
 void popcon::RpcDataI::getNewObjects() {
 
   std::cout << "------- " << m_name << " - > getNewObjects\n" 
-	    << "got offlineInfo"<< tagInfo().name 
+	    << "got offlineInfo "<< tagInfo().name 
 	    << ", size " << tagInfo().size << ", last object valid since " 
 	    << tagInfo().lastInterval.first << " token "   
             << tagInfo().lastPayloadToken << std::endl;
@@ -39,39 +40,41 @@ void popcon::RpcDataI::getNewObjects() {
   
   snc = tagInfo().lastInterval.first;
 
+   std::cout << std::endl << "=============================================" << std::endl;
+   std::cout << std::endl << "===================  IMON  ==================" << std::endl;
+   std::cout << std::endl << "=============================================" << std::endl << std::endl;
 
-  //--------------------------IOV
-  std::string str;
-  time_t t;
-  t = time (NULL);
-  std::stringstream ss;
-  ss << t; ss >> str;
-  std::cout << "Now ==> UNIX TIME = " << str << std::endl;
-  utime = atoi (str.c_str());  
-  //-----------------------------
+   if (snc == 0) snc = m_since; 
+   if (m_till > snc) std::cout << ">> Range mode [" << snc << ", " << m_till << "]" << std::endl;
+      else std::cout << ">> Append mode [" << m_since << ", now]" << std::endl;
 
+   std::cout << std::endl << "=============================================" << std::endl << std::endl;
+   
+   
+   RPCFw caen ( host, user, passw );
+   
+   std::vector<RPCObImon::I_Item> Icheck;
+   
 
-  if (snc > 0) { niov = utime;} else { snc = m_since; niov = utime; }
+   Icheck = caen.createIMON(snc, m_till);
 
-  std::cout << "New IOV: since is = " << niov << std::endl;
+   Idata = new RPCObImon();
+   RPCObImon::I_Item Ifill;
+   std::vector<RPCObImon::I_Item>::iterator Iit;
+   for(Iit = Icheck.begin(); Iit != Icheck.end(); Iit++)
+     {
+       Ifill = *(Iit);
+       Idata->ObImon_rpc.push_back(Ifill);
+     }
+   std::cout << ">> Final object size: " << Idata->ObImon_rpc.size() << std::endl;
 
-  
-  RPCFw caen ( host, user, passw );
-
-  std::vector<RPCObImon::I_Item> Icheck;
-
-  Icheck = caen.createIMON(snc);
-
-  Idata = new RPCObImon();
-  RPCObImon::I_Item Ifill;
-  std::vector<RPCObImon::I_Item>::iterator Iit;
-  for(Iit = Icheck.begin(); Iit != Icheck.end(); Iit++)
-    {
-      Ifill = *(Iit);
-      Idata->ObImon_rpc.push_back(Ifill);
-    }
-  std::cout << " >> Final object size: " << Idata->ObImon_rpc.size() << std::endl;
-
-  m_to_transfer.push_back(std::make_pair((RPCObImon*)Idata,niov));
+   if (Idata->ObImon_rpc.size() > 0) {
+     niov = caen.N_IOV;
+     std::cout << "===> New IOV: since is = " << niov << std::endl;
+   } else {
+     niov = snc + 1;
+     std::cout << "NO DATA TO BE STORED" << std::endl;
+   }
+   m_to_transfer.push_back(std::make_pair((RPCObImon*)Idata,niov));
 }
 
