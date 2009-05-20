@@ -5,7 +5,7 @@
  * \class RPCRunIOV
  *  Reads data from ORCOFF and sqlite file
  *
- *  $Date: 2009/04/13 20:39:53 $
+ *  $Date: 2009/05/20 10:13:28 $
  *  $Revision: 1.1 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
@@ -31,7 +31,7 @@
 class  RPCRunIOV {
 public:
 
-  RPCRunIOV(unsigned long long since, unsigned long long till);
+  RPCRunIOV(unsigned long long m_since, unsigned long long m_till);
   
   ~RPCRunIOV();
   std::vector<RPCObImon::I_Item> getData();

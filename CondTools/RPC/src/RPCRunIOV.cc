@@ -1,8 +1,11 @@
 #include "CondTools/RPC/interface/RPCRunIOV.h"
 
 
-RPCRunIOV::RPCRunIOV(unsigned long long since, unsigned long long till)
-{}
+RPCRunIOV::RPCRunIOV(unsigned long long m_since, unsigned long long m_till)
+{
+  since = m_since;
+  till  = m_till;
+}
 
 RPCRunIOV::~RPCRunIOV(){}
 
