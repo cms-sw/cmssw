@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.13 2009/04/29 19:25:23 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.14 2009/05/08 16:12:21 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -68,6 +68,9 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
 
   //update the cabling if necessary
   void updateCabling(const edm::EventSetup& eventSetup);
+
+  //perform a sanity check with unpacking code check
+  bool failUnpackerFEDCheck(const FEDRawData& rawData);
 
   //return true if there were no errors at the level they are analysing
   //ie analyze FED returns true if there were no FED level errors which prevent the whole FED being unpacked
@@ -168,6 +171,8 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
   //update cabling
   updateCabling(iSetup);
   
+  static bool lFirstEvent = true;
+
   //get raw data
   edm::Handle<FEDRawDataCollection> rawDataCollectionHandle;
   iEvent.getByLabel(rawDataTag_,rawDataCollectionHandle);
@@ -180,10 +185,16 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
   std::map<unsigned int,std::pair<unsigned short,unsigned short> > badChannelFraction;
   std::pair<std::map<unsigned int,std::pair<unsigned short,unsigned short> >::iterator,bool> alreadyThere;
 
+  unsigned int lNMonitoring = 0;
+  unsigned int lNUnpacker = 0;
+
+  unsigned int lNTotBadFeds = 0;
+  unsigned int lNTotBadChannels = 0;
+
   //loop over siStrip FED IDs
   for (unsigned int fedId = FEDNumbering::MINSiStripFEDID; 
        fedId <= FEDNumbering::MAXSiStripFEDID; 
-       fedId++) {
+       fedId++) {//loop over FED IDs
     const FEDRawData& fedData = rawDataCollection.FEDData(fedId);
 
     //create an object to fill all errors
@@ -191,7 +202,9 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
     FEDErrors::FEDLevelErrors & lFedLevelErrors = lFedErrors.getFEDLevelErrors();
     bool lFullDebug = false;
  
-    //check data exists
+
+    //Do detailed check
+    //first check if data exists
     if (!fedData.size() || !fedData.data()) {
       for (unsigned int iCh = 0; 
 	   iCh < sistrip::FEDCH_PER_FED; 
@@ -219,73 +232,104 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
     lFedErrors.incrementFEDCounters();
     fedHists_.fillFEDHistograms(lFedErrors,lFullDebug);
 
+    bool lFailMonitoringFEDcheck = lFedErrors.anyFEDErrors() || (lFedErrors.getFEDLevelErrors()).CorruptBuffer;
+
+    if (lFailMonitoringFEDcheck) lNTotBadFeds++;
+
+    //Do exactly same check as unpacker
+    bool lFailUnpackerFEDcheck = failUnpackerFEDCheck(fedData);
+    
+    //sanity check: if something changed in the unpacking code 
+    //but wasn't propagated here
+    if (lFailMonitoringFEDcheck != lFailUnpackerFEDcheck) {
+      std::cout << " --- WARNING: FED " << fedId << std::endl 
+	       << " ------ Monitoring FED check " ;
+      if (lFailMonitoringFEDcheck) std::cout << "failed." << std::endl;
+      else std::cout << "passed." << std::endl ;
+      std::cout << " ------ Unpacker FED check " ;
+      if (lFailUnpackerFEDcheck) std::cout << "failed." << std::endl;
+      else std::cout << "passed." << std::endl ;
+
+      if (lFailMonitoringFEDcheck) lNMonitoring++;
+      else if (lFailUnpackerFEDcheck) lNUnpacker++;
+
+    }
+
 
     if (doTkHistoMap_){//if TkHistMap is enabled
 
       //Fill TkHistoMap:
       //1--Add all channels of a FED if anyFEDErrors or corruptBuffer
-      if (lFedErrors.anyFEDErrors() || (lFedErrors.getFEDLevelErrors()).CorruptBuffer){
-	for (unsigned int iCh = 0; 
-	     iCh < sistrip::FEDCH_PER_FED; 
-	     iCh++) {
-	  const FedChannelConnection & lConnection = cabling_->connection(fedId,iCh);
-	  if (!lConnection.isConnected()) continue;
-	  unsigned int detid = lConnection.detId();
-	  unsigned short nChInModule = lConnection.nApvPairs();
-	  alreadyThere = badChannelFraction.insert(std::pair<unsigned int,std::pair<unsigned short,unsigned short> >(detid,std::pair<unsigned short,unsigned short>(nChInModule,1)));
-	  if (!alreadyThere.second) ((alreadyThere.first)->second).second += 1;
-	}
-
-	lFedErrors.getFELevelErrors().clear();
-	lFedErrors.getBadChannels().clear();
-
-	assert(lFedErrors.getFELevelErrors().size() == 0);
-	assert(lFedErrors.getBadChannels().size() == 0);
-      }
-
-      //if missing FEs or BadMajAddresses, fill channels vec with all channels from FE
+      //2--Add all channels anyway with 0 if no errors, so TkHistoMap is filled for all valid channels ...
 
       std::vector<FEDErrors::FELevelErrors> & lFeVec = lFedErrors.getFELevelErrors();
       unsigned int nBadFEs = lFeVec.size();
       std::vector<std::pair<unsigned int, bool> > & lBadChannels = lFedErrors.getBadChannels();
 
-      //fill a map of affected FEs to not duplicate with badChannels
-      std::map<unsigned short,bool> lFeMap;
-      lFeMap.clear();
+      //unsigned int nBadChans = 0;
+      for (unsigned int iCh = 0; 
+	   iCh < sistrip::FEDCH_PER_FED; 
+	   iCh++) {//loop on channels
+	const FedChannelConnection & lConnection = cabling_->connection(fedId,iCh);
+	if (!lConnection.isConnected()) continue;
+	
+	unsigned int feNumber = static_cast<unsigned int>(iCh/sistrip::FEDCH_PER_FEUNIT);
+	
+	bool isBadFE = false;
+	for (unsigned int badfe(0); badfe<nBadFEs; badfe++) {
+	  if ((lFeVec.at(badfe)).FeID == feNumber) {
+	    isBadFE = true;
+	    break;
+	  }
+	}
 
-      for (unsigned int ife(0); ife<nBadFEs; ife++) {
-	unsigned short feNumber = (lFeVec.at(ife)).FeID;
-	lFeMap.insert(std::pair<unsigned short, bool>(feNumber,true));
-	for (unsigned int feUnitCh = 0; feUnitCh < sistrip::FEDCH_PER_FEUNIT; feUnitCh++) {
-	  unsigned int iCh = feNumber*sistrip::FEDCH_PER_FEUNIT+feUnitCh;
+	bool isBadChan = false;
+	for (unsigned int badCh(0); badCh<lBadChannels.size(); badCh++) {
+	  if (lBadChannels.at(badCh).first == iCh) {
+	    isBadChan = true;
+	    break;
+	  }
+	}
 
-	  const FedChannelConnection & lConnection = cabling_->connection(fedId,iCh);
-	  if (!lConnection.isConnected()) continue;
-	  unsigned int detid = lConnection.detId();
-	  unsigned short nChInModule = lConnection.nApvPairs();
+	unsigned int detid = lConnection.detId();
+	if (!detid || detid == sistrip::invalid32_) continue;
+	unsigned short nChInModule = lConnection.nApvPairs();
+
+	if (lFailMonitoringFEDcheck || isBadFE || isBadChan) {
 	  alreadyThere = badChannelFraction.insert(std::pair<unsigned int,std::pair<unsigned short,unsigned short> >(detid,std::pair<unsigned short,unsigned short>(nChInModule,1)));
 	  if (!alreadyThere.second) ((alreadyThere.first)->second).second += 1;
-	  
+	  //nBadChans++;
+	  lNTotBadChannels++;
 	}
-      }
-
-
-      for (unsigned int iCh(0); iCh<lBadChannels.size(); iCh++) {
-	if (lBadChannels.at(iCh).second) {
-	  unsigned short feNumber = static_cast<unsigned int>(iCh*1./sistrip::FEDCH_PER_FEUNIT);
-	  if (lFeMap.find(feNumber) != lFeMap.end()) continue;
-	  const FedChannelConnection & lConnection = cabling_->connection(fedId,lBadChannels.at(iCh).first);
-	  if (!lConnection.isConnected()) continue;
-	  unsigned int detid = lConnection.detId();
-	  unsigned short nChInModule = lConnection.nApvPairs();
-	  alreadyThere = badChannelFraction.insert(std::pair<unsigned int,std::pair<unsigned short,unsigned short> >(detid,std::pair<unsigned short,unsigned short>(nChInModule,1)));
-	  if (!alreadyThere.second) ((alreadyThere.first)->second).second += 1;
-	  
+	else {
+	  alreadyThere = badChannelFraction.insert(std::pair<unsigned int,std::pair<unsigned short,unsigned short> >(detid,std::pair<unsigned short,unsigned short>(nChInModule,0)));
 	}
-      }
+
+      }//loop on channels
+
+      //if (nBadChans>0) std::cout << "-------- FED " << fedId << ", " << nBadChans << " bad channels." << std::endl;
+
     }//if TkHistMap is enabled
   }//loop over FED IDs
   
+  if (lNTotBadFeds> 0 || lNTotBadChannels>0 ) {
+    std::cout << " --- Total number of bad feds = " 
+	      << lNTotBadFeds << std::endl
+	      << " --- Total number of bad channels = " 
+	      << lNTotBadChannels << std::endl;
+  }
+
+  if (lNMonitoring > 0 || lNUnpacker > 0) {
+    std::cout
+      << "-------------------------------------------------------------------------" << std::endl 
+      << "-------------------------------------------------------------------------" << std::endl 
+      << "-- Summary of differences between unpacker and monitoring at FED level : " << std::endl 
+      << " ---- Number of times monitoring fails but not unpacking = " << lNMonitoring << std::endl 
+      << " ---- Number of times unpacking fails but not monitoring = " << lNUnpacker << std::endl
+      << "-------------------------------------------------------------------------" << std::endl 
+      << "-------------------------------------------------------------------------" << std::endl ;
+  }
+
   fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters());
 
   //match fedId/channel with detid
@@ -294,12 +338,13 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
     std::map<unsigned int,std::pair<unsigned short,unsigned short> >::iterator fracIter;
     std::vector<std::pair<unsigned int,unsigned int> >::iterator chanIter;
 
-    //std::cout << " --- Number of bad channels to fill in tkHistoMap = " << badChannelFraction.size() << std::endl;
     //int ele = 0;
+    //int nBadChannels = 0;
     for (fracIter = badChannelFraction.begin(); fracIter!=badChannelFraction.end(); fracIter++){
       uint32_t detid = fracIter->first;
       //if ((fracIter->second).second != 0) {
       //std::cout << "------ ele #" << ele << ", Frac for detid #" << detid << " = " <<(fracIter->second).second << "/" << (fracIter->second).first << std::endl;
+      //nBadChannels++;
       //}
       unsigned short nTotCh = (fracIter->second).first;
       unsigned short nBadCh = (fracIter->second).second;
@@ -307,7 +352,11 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
       if (nTotCh != 0) fedHists_.fillTkHistoMap(detid,static_cast<float>(nBadCh)/nTotCh);
       //ele++;
     }
+    //std::cout << "--- Total number of badChannels in map = " << nBadChannels << std::endl;
+
   }//if TkHistoMap is enabled
+
+  lFirstEvent = false;
 
 }//analyze method
 
@@ -333,6 +382,8 @@ SiStripFEDMonitorPlugin::beginJob(const edm::EventSetup&)
        fedId++) {
     activeChannels_[fedId].resize(sistrip::FEDCH_PER_FED,false);
   }
+
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -351,6 +402,25 @@ void SiStripFEDMonitorPlugin::updateCabling(const edm::EventSetup& eventSetup)
     cabling_ = cablingHandle.product();
     cablingCacheId_ = currentCacheId;
   }
+}
+
+bool SiStripFEDMonitorPlugin::failUnpackerFEDCheck(const FEDRawData& rawData)
+{
+  // construct FEDBuffer
+  std::auto_ptr<sistrip::FEDBuffer> buffer;
+  try {
+    buffer.reset(new sistrip::FEDBuffer(rawData.data(),rawData.size()));
+    if (!buffer->doChecks()) return true;
+    //throw cms::Exception("FEDBuffer") << "FED Buffer check fails.";
+  }
+  catch (const cms::Exception& e) { 
+    if ( edm::isDebugEnabled() ) {
+      edm::LogWarning("DQM:SiStripFEDMonitor") << e.what();
+    }
+    return true;
+  }
+  return false;
+
 }
 
 bool SiStripFEDMonitorPlugin::analyzeFED(const FEDRawData& rawData, 
@@ -410,7 +480,10 @@ bool SiStripFEDMonitorPlugin::analyzeFED(const FEDRawData& rawData,
   //need to construct full object to go any further
   std::auto_ptr<const sistrip::FEDBuffer> buffer;
   buffer.reset(new sistrip::FEDBuffer(rawData.data(),rawData.size(),true));
-  
+  static bool lFirst = true;
+  if (lFirst) std::cout << "--- FEDID " << fedId << ", readout mode = " << buffer->readoutMode() << std::endl;
+  lFirst = false;
+
   //payload checks
   if (!aFedErrors.anyFEDErrors()) {
     //corrupt buffer checks
@@ -530,10 +603,19 @@ bool SiStripFEDMonitorPlugin::analyzeChannels(const sistrip::FEDBuffer* buffer,
 
   aFullDebug = debugHeader;
 
-  for (unsigned int iCh = 0; iCh < sistrip::FEDCH_PER_FED; iCh++) {
+  for (unsigned int iCh = 0; iCh < sistrip::FEDCH_PER_FED; iCh++) {//loop on channels
     bool isGood = true;
-    if (!cabling_->connection(fedId,iCh).isConnected()) isGood = false;
-    if (!buffer->feGood(static_cast<unsigned int>(iCh*1./sistrip::FEDCH_PER_FEUNIT))) isGood = false;
+
+    const FedChannelConnection & lConnection = cabling_->connection(fedId,iCh);
+
+    bool lFailUnpackerChannelCheck = !buffer->channelGood(lConnection.fedCh()) && lConnection.isConnected();
+    bool lFailMonitoringChannelCheck = false;
+
+    if (!lConnection.isConnected()) isGood = false;
+    else if (!buffer->feGood(static_cast<unsigned int>(iCh/sistrip::FEDCH_PER_FEUNIT))) {
+      isGood = false;
+      lFailMonitoringChannelCheck = true;
+    }    
 
     if (debugHeader) {
       if (!debugHeader->unlocked(iCh)) activeChannels_[fedId][iCh] = true;
@@ -561,7 +643,8 @@ bool SiStripFEDMonitorPlugin::analyzeChannels(const sistrip::FEDBuffer* buffer,
       lAPVErr.APVAddressError = false;
 
       if (!header->checkStatusBits(iCh,iAPV) && isGood) {
- 	lAPVErr.APVStatusBit = true;
+	lFailMonitoringChannelCheck = true;
+	lAPVErr.APVStatusBit = true;
 	foundError = true;
       }
 
@@ -590,7 +673,21 @@ bool SiStripFEDMonitorPlugin::analyzeChannels(const sistrip::FEDBuffer* buffer,
       if (lChErr.Unlocked || lChErr.OutOfSync) aFedErrors.addBadChannel(lChErr);
     }
 
-  }
+
+//     if (lFailUnpackerChannelCheck != lFailMonitoringChannelCheck) {
+      
+//       std::cout << " ------ WARNING: FED " << fedId << ", channel " << iCh << std::endl 
+// 	       << " --------- Monitoring Channel check " ;
+//       if (lFailMonitoringChannelCheck) std::cout << "failed." << std::endl;
+//       else std::cout << "passed." << std::endl ;
+//       std::cout << " --------- Unpacker Channel check " ;
+//       if (lFailUnpackerChannelCheck) std::cout << "failed." << std::endl;
+//       else std::cout << "passed." << std::endl;
+
+      
+//     }
+
+  }//loop on channels
 
   return !foundError;
 }
