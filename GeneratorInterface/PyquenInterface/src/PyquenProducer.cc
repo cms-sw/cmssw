@@ -3,7 +3,7 @@
  * Generates PYQUEN HepMC events
  *
  * Original Author: Camelia Mironov
- * $Id: PyquenProducer.cc,v 1.7 2009/05/06 16:13:44 yilmaz Exp $
+ * $Id: PyquenProducer.cc,v 1.8 2009/05/07 18:51:14 yilmaz Exp $
 */
 
 #include <iostream>
@@ -151,7 +151,6 @@ void PyquenProducer::produce(Event & e, const EventSetup& es)
 {
 
    //Get Parameters from the background Pb+Pb event if necessary
-   HepMC::FourVector* vtx_;
    double evtPlane = 0;
    if(embedding_){
       Handle<HepMCProduct> input;
@@ -164,21 +163,6 @@ void PyquenProducer::produce(Event & e, const EventSetup& es)
       }else{
 	 LogWarning("EventEmbedding")<<"Background event does not have heavy ion record!";
       }
-
-      HepMC::GenVertex* genvtx = inev->signal_process_vertex();
-      if(!genvtx){
-	 cout<<"No Signal Process Vertex!"<<endl;
-	 HepMC::GenEvent::particle_const_iterator pt=inev->particles_begin();
-	 HepMC::GenEvent::particle_const_iterator ptend=inev->particles_end();
-         while(!genvtx || ( genvtx->particles_in_size() == 1 && pt != ptend ) ){
-	    if(!genvtx) cout<<"No Gen Vertex!"<<endl;
-            ++pt;
-	    if(pt == ptend) cout<<"End reached!"<<endl;
-	    genvtx = (*pt)->production_vertex();
-	 }
-      }
-      vtx_ = &(genvtx->position());
-      LogDebug("PyquenVertex")<<"Vertex is at : "<<vtx_->z()<<" mm";
    }
    
    // Generate PYQUEN event
@@ -219,8 +203,6 @@ void PyquenProducer::produce(Event & e, const EventSetup& es)
 
   std::auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct( evt ));
   e.put(genEventInfo);
-
-  if(embedding_) bare_product->applyVtxGen(vtx_);
   e.put(bare_product); 
 
   // verbosity
