@@ -68,9 +68,12 @@ namespace cscdqm {
 
     public:
 
-      static const bool regexMatch(const TPRegexp& re_expression, const std::string& message);
       static const bool regexMatch(const std::string& expression, const std::string& message);
+      static const bool regexMatch(const TPRegexp& re_expression, const std::string& message);
       static void regexReplace(const std::string& expression, std::string& message, const std::string replace = "");
+      static void regexReplace(const TPRegexp& re_expression, std::string& message, const std::string replace = "");
+      static std::string regexReplaceStr(const std::string& expression, const std::string& message, const std::string replace = "");
+      static std::string regexReplaceStr(const TPRegexp& re_expression, const std::string& message, const std::string replace = "");
 
       static const int getCSCTypeBin(const std::string& cstr);
       static const std::string getCSCTypeLabel(int endcap, int station, int ring);
