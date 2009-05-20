@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:42 EST 2009
-// $Id: FWTableWidget.cc,v 1.10 2009/04/10 21:55:19 jmuelmen Exp $
+// $Id: FWTableWidget.cc,v 1.11 2009/04/23 04:15:42 jmuelmen Exp $
 //
 
 // system include files
@@ -96,6 +96,7 @@ TGCompositeFrame(p),
    m_hSlider = new TGHScrollBar(this);
    AddFrame(m_hSlider, new TGTableLayoutHints(1,2,2,3,kRowOptions));
    m_vSlider = new TGVScrollBar(this);
+   m_vSlider->SetSmallIncrement(12);
    AddFrame(m_vSlider, new TGTableLayoutHints(2,3,1,2,kColOptions));
    MapSubwindows();
    Layout();
