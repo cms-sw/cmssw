@@ -60,6 +60,24 @@ PFCandidateRefVector PFTauElementsOperators::PFNeutrHadrCandsInCone(const math::
   PFCandidateRefVector theFilteredPFCandsInCone=PFCandsInCone(PFGammaCands_,myVector,conemetric,conesize,minPt);
   return theFilteredPFCandsInCone;
 }
+
+// Function to get elements inside ellipse here ... EELL
+pair<PFCandidateRefVector, PFCandidateRefVector> PFTauElementsOperators::PFGammaCandsInOutEllipse(const PFCandidateRefVector PFGammaCands_, const PFCandidate leadCand_, double rPhi, double rEta, double maxPt) const{
+  pair<PFCandidateRefVector,PFCandidateRefVector> myPFGammaCandsInEllipse = PFCandidatesInEllipse_(leadCand_, rPhi, rEta, PFGammaCands_);
+  PFCandidateRefVector thePFGammaCandsInEllipse = myPFGammaCandsInEllipse.first;
+  PFCandidateRefVector thePFGammaCandsOutEllipse = myPFGammaCandsInEllipse.second;
+  PFCandidateRefVector theFilteredPFGammaCandsInEllipse;
+  for(PFCandidateRefVector::const_iterator iPFGammaCand = thePFGammaCandsInEllipse.begin(); iPFGammaCand != thePFGammaCandsInEllipse.end(); ++iPFGammaCand){
+    if((**iPFGammaCand).pt() <= maxPt) theFilteredPFGammaCandsInEllipse.push_back(*iPFGammaCand);
+    else thePFGammaCandsOutEllipse.push_back(*iPFGammaCand);
+  }
+  pair<PFCandidateRefVector, PFCandidateRefVector> theFilteredPFGammaCandsInOutEllipse(theFilteredPFGammaCandsInEllipse, thePFGammaCandsOutEllipse);
+  
+  return theFilteredPFGammaCandsInOutEllipse;
+}
+// EELL
+
+
  PFCandidateRefVector PFTauElementsOperators::PFCandsInAnnulus(const PFCandidateRefVector thePFCands,const math::XYZVector myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt)const{     
   PFCandidateRefVector theFilteredPFCands;
   for (PFCandidateRefVector::const_iterator iPFCand=thePFCands.begin();iPFCand!=thePFCands.end();++iPFCand) {

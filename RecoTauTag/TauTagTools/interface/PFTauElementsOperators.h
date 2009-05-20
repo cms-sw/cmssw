@@ -17,6 +17,7 @@
 #include "RecoTauTag/TauTagTools/interface/TauElementsOperators.h"
 #include "RecoTauTag/TauTagTools/interface/ElementsInCone.h"
 #include "RecoTauTag/TauTagTools/interface/ElementsInAnnulus.h"
+#include "RecoTauTag/TauTagTools/interface/ElementsInEllipse.h"
 #include "PhysicsTools/IsolationUtils/interface/FixedAreaIsolationCone.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "CommonTools/Utils/interface/Angle.h"
@@ -60,6 +61,9 @@ class PFTauElementsOperators : public TauElementsOperators {
   PFCandidateRefVector PFChargedHadrCandsInAnnulus(const math::XYZVector myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt,const double PFChargedHadrCand_tracktorefpoint_maxDZ,const double refpoint_Z)const;
   PFCandidateRefVector PFNeutrHadrCandsInAnnulus(const math::XYZVector myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt)const;
   PFCandidateRefVector PFGammaCandsInAnnulus(const math::XYZVector myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt)const;
+  //Put function to get elements inside ellipse here ... EELL
+  pair<PFCandidateRefVector,PFCandidateRefVector> PFGammaCandsInOutEllipse(const PFCandidateRefVector, const PFCandidate, double rPhi, double rEta, double maxPt) const;
+  //EELL
 
   /// append elements of theInputCands that pass Pt requirement to the end of theOutputCands
   void                 copyCandRefsFilteredByPt(const PFCandidateRefVector& theInputCands, PFCandidateRefVector& theOutputCands, const double minPt);
@@ -121,6 +125,7 @@ class PFTauElementsOperators : public TauElementsOperators {
   ElementsInAnnulus<math::XYZVector,DeltaR<math::XYZVector>,Angle<math::XYZVector>,reco::PFCandidateCollection> PFCandsinAnnulus_innerDRouterAnglemetrics_; 
   ElementsInAnnulus<math::XYZVector,Angle<math::XYZVector>,Angle<math::XYZVector>,reco::PFCandidateCollection> PFCandsinAnnulus_innerAngleouterAnglemetrics_;
   ElementsInAnnulus<math::XYZVector,Angle<math::XYZVector>,DeltaR<math::XYZVector>,reco::PFCandidateCollection> PFCandsinAnnulus_innerAngleouterDRmetrics_; 
+  ElementsInEllipse<reco::PFCandidate, reco::PFCandidateCollection> PFCandidatesInEllipse_;
 };
 #endif
 
