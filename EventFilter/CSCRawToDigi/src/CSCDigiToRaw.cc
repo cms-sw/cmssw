@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/03/20 17:58:11 $
- *  $Revision: 1.36 $
+ *  $Date: 2009/04/15 11:29:49 $
+ *  $Revision: 1.37 $
  *  \author A. Tumanov - Rice
  *  But long, long ago...
  */
@@ -198,7 +198,7 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
   {
     //idcc goes from startingFed to startingFED+7
     // @@ if ReadoutMapping changes, this'll have to change
-    // DCCs 1, 2,4,5have 5 DDUs.  Otherwise, 4
+    // DCCs 1,2,4,5 have 5 DDUs.  Otherwise, 4
     //int nDDUs = (idcc < 2) || (idcc ==4) || (idcc ==5)
     //          ? 5 : 4; 
     //@@ WARNING some DCCs only have 4 DDUs, but I'm giving them all 5, for now
