@@ -7,6 +7,7 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelDetectorConfig.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelTimeFormatter.h"
+//#include "PixelUtilities/PixelTestStandUtilities/include/PixelTimer.h"
 #include <fstream>
 #include <sstream>
 #include <map>
@@ -135,46 +136,101 @@ PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string>
    translationtable_[aROC]=hdwAdd;
    fedlookup_[hdwAdd]=aROC;
 
-   
    PixelModuleName aModule(rocname);
    PixelChannel aChannel(aModule, TBMChannel);
+
+   hdwTranslationTable_[hdwAdd] = aChannel;
+   
+
    // Look for this channel in channelTransaltionTable.  If it is found, check that the hardware address agrees.  If not, add it to the table.  Also, if another channel on that module is found, check that the FEC part agrees, and the FED part doesn't.
    bool foundChannel = false;
-   for ( std::map<PixelChannel, PixelHdwAddress >::const_iterator channelTranslationTable_itr = channelTranslationTable_.begin(); channelTranslationTable_itr != channelTranslationTable_.end(); channelTranslationTable_itr++ ) {
 
-     if ( channelTranslationTable_itr->first == aChannel ) 
-       {
-	 if (!(channelTranslationTable_itr->second |= hdwAdd))
+   std::map<PixelChannel, PixelHdwAddress >::const_iterator channelTranslationTable_itr = channelTranslationTable_.find(aChannel);
+
+   if ( channelTranslationTable_itr != channelTranslationTable_.end()) {
+
+     if (!(channelTranslationTable_itr->second |= hdwAdd))
 	   {
 	     cout << "Found two ROCs on the same channe, but not same hdw"<<endl;
 	     cout << "Hdw1:"<<endl<<channelTranslationTable_itr->second<<endl;
 	     cout << "Hdw2:"<<endl<<hdwAdd<<endl;
 	   }
-	 assert( channelTranslationTable_itr->second |= hdwAdd );
-	 foundChannel = true;
-       }
-     else if ( channelTranslationTable_itr->first.module() == aModule ) 
-       {
-	 assert( channelTranslationTable_itr->second.fecnumber() == hdwAdd.fecnumber() );
-	 assert( channelTranslationTable_itr->second.mfec() == hdwAdd.mfec() );
-	 assert( channelTranslationTable_itr->second.mfecchannel() == hdwAdd.mfecchannel() );
-	 //assert( channelTranslationTable_itr->second.portaddress() == hdwAdd.portaddress() );
-	 assert( channelTranslationTable_itr->second.hubaddress() == hdwAdd.hubaddress() );
-	 assert( channelTranslationTable_itr->second.fednumber() != hdwAdd.fednumber() || channelTranslationTable_itr->second.fedchannel() != hdwAdd.fedchannel() );
-       }
+     assert( channelTranslationTable_itr->second |= hdwAdd );
+     foundChannel = true;
    }
-   if ( foundChannel == false ) channelTranslationTable_[aChannel] = hdwAdd;
+   else if ( channelTranslationTable_itr->first.module() == aModule ) 
+     {
+       assert( channelTranslationTable_itr->second.fecnumber() == hdwAdd.fecnumber() );
+       assert( channelTranslationTable_itr->second.mfec() == hdwAdd.mfec() );
+       assert( channelTranslationTable_itr->second.mfecchannel() == hdwAdd.mfecchannel() );
+       //assert( channelTranslationTable_itr->second.portaddress() == hdwAdd.portaddress() );
+       assert( channelTranslationTable_itr->second.hubaddress() == hdwAdd.hubaddress() );
+       assert( channelTranslationTable_itr->second.fednumber() != hdwAdd.fednumber() || channelTranslationTable_itr->second.fedchannel() != hdwAdd.fedchannel() );
+     }
+   
+   if ( foundChannel == false ) {
+     channelTranslationTable_[aChannel] = hdwAdd;
+   }     
+
  }//end for r
+
+  const std::map<unsigned int, std::set<unsigned int> > fedsAndChannels=getFEDsAndChannels();
+
+
+  std::vector<PixelROCName> tmp(24);
+
+  std::map<unsigned int, std::map<unsigned int, int > > counter;
+    //       FED id                  FED channel
+
+  std::map<unsigned int, std::map<unsigned int, int > > maxindex;
+
+  std::map<PixelROCName,PixelHdwAddress>::const_iterator it=translationtable_.begin();
+    
+  for(;it!=translationtable_.end();it++){
+
+    int index=it->second.fedrocnumber();
+
+    unsigned int fednumber=it->second.fednumber();
+    unsigned int fedchannel=it->second.fedchannel();
+
+    std::vector<PixelROCName>& tmp= rocsFromFEDidAndChannel_[fednumber][fedchannel];
+    
+    if (tmp.size()==0){
+      tmp.resize(24);
+      counter[fednumber][fedchannel]=0;
+      maxindex[fednumber][fedchannel]=0;
+    }
+
+    if (index>maxindex[fednumber][fedchannel]) maxindex[fednumber][fedchannel]=index;
+    tmp[index]=it->first;
+    counter[fednumber][fedchannel]++;
+
+  }
+
+
+  it=translationtable_.begin();
+    
+  for(;it!=translationtable_.end();it++){
+
+    unsigned int fednumber=it->second.fednumber();
+    unsigned int fedchannel=it->second.fedchannel();
+    
+    std::vector<PixelROCName>& tmp= rocsFromFEDidAndChannel_[fednumber][fedchannel];
+    
+    assert(counter[fednumber][fedchannel]==maxindex[fednumber][fedchannel]+1);
+
+    tmp.resize(counter[fednumber][fedchannel]);
+
+  }
+
 }//end contructor
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 PixelNameTranslation::PixelNameTranslation(std::string filename):
   PixelConfigBase(" "," "," "){
 
-  std::string mthn = "[PixelNameTranslation::PixelNameTranslation()]\t\t    " ;
+  static std::string mthn = "[PixelNameTranslation::PixelNameTranslation()]\t\t    " ;
   
-  std::cout << __LINE__ << "]\t" << mthn << "Reading from: "   << filename << std::endl;
-
   std::ifstream in(filename.c_str());
   
   if (!in.good()){
@@ -186,11 +242,12 @@ PixelNameTranslation::PixelNameTranslation(std::string filename):
   }
   
   std::string dummy;
-  
+
   getline(in, dummy); // skip the column headings
-  
+
+
   do {
-	
+
     std::string rocname;
     std::string TBMChannel;
     unsigned int fecnumber;
@@ -202,6 +259,7 @@ PixelNameTranslation::PixelNameTranslation(std::string filename):
     unsigned int fednumber;
     unsigned int fedchannel;
     unsigned int fedrocnumber;
+
 
     in >> rocname;
     in >> TBMChannel;
@@ -219,14 +277,16 @@ PixelNameTranslation::PixelNameTranslation(std::string filename):
        >> fedchannel >> fedrocnumber;
 
     if (!in.eof() ){
-      PixelROCName aROC(rocname);
-      if (aROC.rocname()!=rocname){
-	std::cout << __LINE__ << "]\t" << mthn << "Rocname  : " << rocname        << std::endl;
-	std::cout << __LINE__ << "]\t" << mthn << "Parsed to: " << aROC.rocname() << std::endl;
-	assert(0);
-      }
 
-      
+      PixelROCName aROC(rocname);
+
+      //debug
+      //if (aROC.rocname()!=rocname){
+      //std::cout << __LINE__ << "]\t" << mthn << "Rocname  : " << rocname        << std::endl;
+      //std::cout << __LINE__ << "]\t" << mthn << "Parsed to: " << aROC.rocname() << std::endl;
+      //assert(0);
+      //}
+
       if (ROCNameFromFEDChannelROCExists(fednumber,fedchannel,
 					 fedrocnumber)){
 	std::cout << __LINE__ << "]\t"     << mthn 
@@ -240,8 +300,6 @@ PixelNameTranslation::PixelNameTranslation(std::string filename):
 	assert(0);
 	
       }
-
-      
 
       PixelHdwAddress hdwAdd(fecnumber,mfec,mfecchannel,
 			     hubaddress,portaddress,
@@ -270,43 +328,105 @@ PixelNameTranslation::PixelNameTranslation(std::string filename):
 //     << " G " << fednumber    
 //     << " H " << fedchannel   
 //     << " I " << fedrocnumber << endl ;    
+
+
       translationtable_[aROC]=hdwAdd;
       fedlookup_[hdwAdd]=aROC;
 	    
       PixelModuleName aModule(rocname);
       PixelChannel aChannel(aModule, TBMChannel);
+
+      hdwTranslationTable_[hdwAdd] = aChannel;
+
       // Look for this channel in channelTransaltionTable.  If it is found, 
       // check that the hardware address agrees.  If not, add it to the table.
       // Also, if another channel on that module is found, check that the FEC 
       // part agrees, and the FED part doesn't.
       bool foundChannel = false;
 
-      for ( std::map<PixelChannel, PixelHdwAddress >::const_iterator channelTranslationTable_itr = channelTranslationTable_.begin(); channelTranslationTable_itr != channelTranslationTable_.end(); channelTranslationTable_itr++ ) {
 
-	if ( channelTranslationTable_itr->first == aChannel ) {
-	  if (!(channelTranslationTable_itr->second |= hdwAdd)){
+      std::map<PixelChannel, PixelHdwAddress >::const_iterator channelTranslationTable_itr = channelTranslationTable_.find(aChannel);
+
+      if ( channelTranslationTable_itr != channelTranslationTable_.end()) {
+	if (!(channelTranslationTable_itr->second |= hdwAdd)){
 		
-	    cout << __LINE__ << "]\t" << mthn << "Found two ROCs on the same channe, but not same hdw" << endl;
-	    cout << __LINE__ << "]\t" << mthn << "Hdw1: " << endl << channelTranslationTable_itr->second << endl;
-	    cout << __LINE__ << "]\t" << mthn << "Hdw2: " << endl << hdwAdd << endl;
-	  }
-	  assert( channelTranslationTable_itr->second |= hdwAdd );
-	  foundChannel = true;
+	  cout << __LINE__ << "]\t" << mthn << "Found two ROCs on the same channe, but not same hdw" << endl;
+	  cout << __LINE__ << "]\t" << mthn << "Hdw1: " << endl << channelTranslationTable_itr->second << endl;
+	  cout << __LINE__ << "]\t" << mthn << "Hdw2: " << endl << hdwAdd << endl;
 	}
-	else if ( channelTranslationTable_itr->first.module() == aModule ) {
-	  assert( channelTranslationTable_itr->second.fecnumber() == hdwAdd.fecnumber() );
-	  assert( channelTranslationTable_itr->second.mfec() == hdwAdd.mfec() );
-	  assert( channelTranslationTable_itr->second.mfecchannel() == hdwAdd.mfecchannel() );
-	  //assert( channelTranslationTable_itr->second.portaddress() == hdwAdd.portaddress() );
-	  assert( channelTranslationTable_itr->second.hubaddress() == hdwAdd.hubaddress() );
-	  assert( channelTranslationTable_itr->second.fednumber() != hdwAdd.fednumber() || channelTranslationTable_itr->second.fedchannel() != hdwAdd.fedchannel() );
-	}
+	assert( channelTranslationTable_itr->second |= hdwAdd );
+	foundChannel = true;
       }
-      if ( foundChannel == false )	channelTranslationTable_[aChannel] = hdwAdd;
+      else if ( channelTranslationTable_itr->first.module() == aModule ) {
+	assert( channelTranslationTable_itr->second.fecnumber() == hdwAdd.fecnumber() );
+	assert( channelTranslationTable_itr->second.mfec() == hdwAdd.mfec() );
+	assert( channelTranslationTable_itr->second.mfecchannel() == hdwAdd.mfecchannel() );
+	//assert( channelTranslationTable_itr->second.portaddress() == hdwAdd.portaddress() );
+	assert( channelTranslationTable_itr->second.hubaddress() == hdwAdd.hubaddress() );
+	assert( channelTranslationTable_itr->second.fednumber() != hdwAdd.fednumber() || channelTranslationTable_itr->second.fedchannel() != hdwAdd.fedchannel() );
+      }
+    
+    
+     
+      if ( foundChannel == false ){
+	channelTranslationTable_[aChannel] = hdwAdd;
+      }
+
     }
   }
   while (!in.eof());
   in.close();
+
+
+  const std::map<unsigned int, std::set<unsigned int> > fedsAndChannels=getFEDsAndChannels();
+
+
+  std::vector<PixelROCName> tmp(24);
+
+  std::map<unsigned int, std::map<unsigned int, int > > counter;
+    //       FED id                  FED channel
+
+  std::map<unsigned int, std::map<unsigned int, int > > maxindex;
+
+  std::map<PixelROCName,PixelHdwAddress>::const_iterator it=translationtable_.begin();
+    
+  for(;it!=translationtable_.end();it++){
+
+    int index=it->second.fedrocnumber();
+
+    unsigned int fednumber=it->second.fednumber();
+    unsigned int fedchannel=it->second.fedchannel();
+
+    std::vector<PixelROCName>& tmp= rocsFromFEDidAndChannel_[fednumber][fedchannel];
+    
+    if (tmp.size()==0){
+      tmp.resize(24);
+      counter[fednumber][fedchannel]=0;
+      maxindex[fednumber][fedchannel]=0;
+    }
+
+    if (index>maxindex[fednumber][fedchannel]) maxindex[fednumber][fedchannel]=index;
+    tmp[index]=it->first;
+    counter[fednumber][fedchannel]++;
+
+  }
+
+
+  it=translationtable_.begin();
+    
+  for(;it!=translationtable_.end();it++){
+
+    unsigned int fednumber=it->second.fednumber();
+    unsigned int fedchannel=it->second.fedchannel();
+    
+    std::vector<PixelROCName>& tmp= rocsFromFEDidAndChannel_[fednumber][fedchannel];
+    
+    assert(counter[fednumber][fedchannel]==maxindex[fednumber][fedchannel]+1);
+
+    tmp.resize(counter[fednumber][fedchannel]);
+
+  }
+
 
 }
 
@@ -372,13 +492,16 @@ std::set<PixelChannel> PixelNameTranslation::getChannels(const PixelDetectorConf
 
 const PixelHdwAddress* PixelNameTranslation::getHdwAddress(const PixelROCName& aROC) const{
 
-  std::string mthn = "[PixelNameTranslation::getHdwAddress()]\t\t    " ;
-  if (translationtable_.find(aROC)==translationtable_.end()){
+  static std::string mthn = "[PixelNameTranslation::getHdwAddress()]\t\t    " ;
+  std::map<PixelROCName,PixelHdwAddress>::const_iterator it=
+    translationtable_.find(aROC);
+
+  if (it==translationtable_.end()){
     std::cout<< __LINE__ << "]\t" << mthn << "Could not look up ROC: " << aROC << std::endl;
     assert(0);
   }
     
-  return &(translationtable_.find(aROC))->second;
+  return &(it->second);
 
 }
 
@@ -441,11 +564,28 @@ std::set< PixelChannel > PixelNameTranslation::getChannelsOnModule(const PixelMo
 }
 
 
-//Will return ROC names sorted by FED readout order.
-std::vector<PixelROCName> PixelNameTranslation::getROCsFromFEDChannel(unsigned int fednumber, 
+const std::vector<PixelROCName>& PixelNameTranslation::getROCsFromFEDChannel(unsigned int fednumber, 
 								      unsigned int fedchannel) const{
 
-  //FIXME this should have a proper map to directly look up things in!
+  std::map<unsigned int, std::map<unsigned int, std::vector<PixelROCName> > >::const_iterator it=rocsFromFEDidAndChannel_.find(fednumber);
+
+  assert(it!=rocsFromFEDidAndChannel_.end());
+
+  std::map<unsigned int, std::vector<PixelROCName> >::const_iterator it2=it->second.find(fedchannel);
+
+  assert(it2!=it->second.end());
+
+  return it2->second;
+
+}
+
+
+//Will return ROC names sorted by FED readout order.
+//This (private) method will be called once to build this list
+//when the data is read in.
+
+std::vector<PixelROCName> PixelNameTranslation::buildROCsFromFEDChannel(unsigned int fednumber, 
+									unsigned int fedchannel) const{
 
   std::vector<PixelROCName> tmp(24);
 
@@ -484,9 +624,7 @@ bool PixelNameTranslation::ROCNameFromFEDChannelROCExists(unsigned int fednumber
 
   PixelHdwAddress tmp(0,0,0,0,0,0,fednumber,channel,roc);
 
-  std::map<PixelHdwAddress,PixelROCName,PixelHdwAddress>::const_iterator it1=fedlookup_.find(tmp);
-
-  return (it1!=fedlookup_.end());
+  return (fedlookup_.find(tmp)!=fedlookup_.end());
 
 }
 
@@ -578,19 +716,33 @@ const PixelChannel& PixelNameTranslation::getChannelFromHdwAddress(const PixelHd
 {
 // modified by MR on 30-01-2008 10:38:22
   std::string mthn = "[PixelNameTranslation::getChannelFromHdwAddress()]\t\t    " ;
-  for ( std::map<PixelChannel, PixelHdwAddress >::const_iterator channelTranslationTable_itr = channelTranslationTable_.begin(); 
-	channelTranslationTable_itr != channelTranslationTable_.end(); channelTranslationTable_itr++ )
-    {
+
+  std::map<PixelHdwAddress, PixelChannel >::const_iterator it=
+    hdwTranslationTable_.find(aHdwAddress);
+
+  if (it==hdwTranslationTable_.end()){
+    std::cout << __LINE__ << "]\t" << mthn 
+	      << "ERROR: no channel found for hardware address " << aHdwAddress << std::endl;
+    assert(0);
+  }
+
+  return it->second;
+
+  /*
+    for ( std::map<PixelChannel, PixelHdwAddress >::const_iterator channelTranslationTable_itr = channelTranslationTable_.begin(); 
+  	channelTranslationTable_itr != channelTranslationTable_.end(); channelTranslationTable_itr++ )
+     {
       if ( aHdwAddress |= channelTranslationTable_itr->second )
-	{
-	  return channelTranslationTable_itr->first;
-	}
-    }
+  	{
+  	  return channelTranslationTable_itr->first;
+  	}
+     }
 // modified by MR on 30-01-2008 13:56:34
 // if you get here then there was NO match on the previous loop!!
   std::cout << __LINE__ << "]\t" << mthn 
             << "ERROR: no channel found for hardware address " << aHdwAddress << std::endl;
   assert(0);
+  */
 }
 
 void PixelNameTranslation::writeASCII(std::string dir) const {
@@ -776,7 +928,7 @@ void PixelNameTranslation::writeXML(pos::PixelConfigKey key, int version, std::s
       out << "   <ROC_I2C_ADDR>" << iroc->second.rocid()	<< "</ROC_I2C_ADDR>"	 	      << endl ;
       out << "   <PXLFED_NAME>"  << iroc->second.fednumber()	<< "</PXLFED_NAME>"	 	      << endl ;
       out << "   <FED_CHAN>"     << iroc->second.fedchannel()	<< "</FED_CHAN>" 	 	      << endl ;
-      out << "   <FED_ROC_NUM>"  << iroc->second.fedrocnumber() << "</FED_ROC_NUM>"	 	      << endl ;
+      out << "   <FED_RO_NUM>"  << iroc->second.fedrocnumber() << "</FED_ROC_NUM>"	 	      << endl ;
       out << "  </DATA>"	 							 	      << endl ;
       out << ""								         	              << endl ;
     }
@@ -786,10 +938,13 @@ void PixelNameTranslation::writeXML(pos::PixelConfigKey key, int version, std::s
   assert(0) ;
 }
 
-std::vector<PixelROCName> PixelNameTranslation::getROCsFromChannel(const PixelChannel& aChannel) const
-{
+const std::vector<PixelROCName>& 
+PixelNameTranslation::getROCsFromChannel(const PixelChannel& aChannel) const {
+
   const PixelHdwAddress& channelHdwAddress = getHdwAddress(aChannel);
-  return getROCsFromFEDChannel( channelHdwAddress.fednumber(), channelHdwAddress.fedchannel() );
+  return getROCsFromFEDChannel( channelHdwAddress.fednumber(), 
+				channelHdwAddress.fedchannel() );
+
 }
 
 std::vector<PixelROCName> PixelNameTranslation::getROCsFromModule(const PixelModuleName& aModule) const
