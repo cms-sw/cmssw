@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre6/8E29_V25/V2 (CMSSW_3_1_X_2009-05-16-1200_HLT1)
+# /dev/CMSSW_3_1_0/pre6/8E29_V28/V2 (CMSSW_3_1_X_2009-05-16-1200_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre6/8E29_V25/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre6/8E29_V28/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -1771,12 +1771,13 @@ hltL2Muons = cms.EDProducer( "L2MuonProducer",
         CSCRecSegmentLabel = cms.InputTag( "hltCscSegments" ),
         FitDirection = cms.string( "outsideIn" ),
         DTRecSegmentLabel = cms.InputTag( "hltDt4DSegments" ),
-        MaxChi2 = cms.double( 25.0 ),
+        MaxChi2 = cms.double( 100.0 ),
         MuonTrajectoryUpdatorParameters = cms.PSet( 
           MaxChi2 = cms.double( 25.0 ),
           Granularity = cms.int32( 2 ),
           RescaleErrorFactor = cms.double( 100.0 ),
-          RescaleError = cms.bool( False )
+          RescaleError = cms.bool( False ),
+          UseInvalidHits = cms.bool( True )
         ),
         EnableRPCMeasurement = cms.bool( True ),
         BWSeedType = cms.string( "fromGenerator" ),
@@ -1792,10 +1793,11 @@ hltL2Muons = cms.EDProducer( "L2MuonProducer",
         DTRecSegmentLabel = cms.InputTag( "hltDt4DSegments" ),
         MaxChi2 = cms.double( 1000.0 ),
         MuonTrajectoryUpdatorParameters = cms.PSet( 
-          MaxChi2 = cms.double( 1000.0 ),
+          MaxChi2 = cms.double( 25.0 ),
           Granularity = cms.int32( 0 ),
           RescaleErrorFactor = cms.double( 100.0 ),
-          RescaleError = cms.bool( False )
+          RescaleError = cms.bool( False ),
+          UseInvalidHits = cms.bool( True )
         ),
         EnableRPCMeasurement = cms.bool( True ),
         CSCRecSegmentLabel = cms.InputTag( "hltCscSegments" ),
