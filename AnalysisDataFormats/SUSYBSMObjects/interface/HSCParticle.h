@@ -144,6 +144,8 @@ namespace susybsm {
       float betaAvg()        const { return 2./(sqrt(tk.invBeta2())+dt.second.invBeta); }
       float compatibility()  const { return (sqrt(tk.invBeta2())-dt.second.invBeta)/
                                             (sqrt(tk.invBeta2()/tk.nDedxHits())*0.1+dt.second.invBeta*0.1) ;}
+      float betaEcal()       const { return hasCaloInfo() ? Calo().ecalbeta : 1.; }
+      float betaRpc()        const { return hasRpcInfo() ? Rpc().beta : 1.; }
       // check if tracks are available
       bool  hasMuonTrack()         const { return hasDt && dt.first->track().isNonnull(); }
       bool  hasMuonStaTrack()      const { return hasDt && dt.first->standAloneMuon().isNonnull(); }

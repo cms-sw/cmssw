@@ -6,7 +6,7 @@ float HSCParticle::p() const {
   if(hasMuonCombinedTrack()) return combinedTrack().p();
   if(hasMuonStaTrack()) return staTrack().p();
   if(hasMuonTrack()) return muonTrack().p();
-  if(hasMuonTrack()) return trackerTrack().p();
+  if(hasTrackerTrack()) return trackerTrack().p();
   return 0.;
 }
 
@@ -14,7 +14,7 @@ float HSCParticle::pt() const {
   if(hasMuonCombinedTrack()) return combinedTrack().pt();
   if(hasMuonStaTrack()) return staTrack().pt();
   if(hasMuonTrack()) return muonTrack().pt();
-  if(hasMuonTrack()) return trackerTrack().pt();
+  if(hasTrackerTrack()) return trackerTrack().pt();
   return 0.;
 }
 
