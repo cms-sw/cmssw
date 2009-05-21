@@ -388,7 +388,7 @@ namespace edm {
      // Advance lower bound only
      itPair.first = std::lower_bound(itPair.first, itPair.second, std::make_pair(&moduleLabel, &productInstanceName), CompareModuleLabelAndProductInstanceName());  
      // Protect against no match
-     if (itPair.second < itPair.first ||
+     if (!(itPair.first < itPair.second) ||
          itPair.first->branchDescription()->moduleLabel() != moduleLabel ||
          itPair.first->branchDescription()->productInstanceName() != productInstanceName) {
        itPair.second = itPair.first;
