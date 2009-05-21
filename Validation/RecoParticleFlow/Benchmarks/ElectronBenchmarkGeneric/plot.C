@@ -1,5 +1,5 @@
 {
-  TFile *f = new TFile("electronBenchmarkGeneric.root"); 
+  TFile *f = new TFile("benchmark.root"); 
   gROOT->LoadMacro("../Tools/NicePlot.C");
   InitNicePlot();
 
@@ -21,7 +21,7 @@
 
   c1->SetLogy(1);
   TH1F* h = (TH1F*) gDirectory->Get("DeltaEta");
-  h->Rebin(4);
+  h->Rebin(2);
   FormatHisto(h,spf);
   h->SetStats(1111);
   h->GetXaxis()->SetRangeUser(-0.3,0.3);
@@ -32,7 +32,7 @@
 
   //c1->SetLogy(1);
   TH1F* h = (TH1F*) gDirectory->Get("DeltaPhi");
-  h->Rebin(4);
+  h->Rebin(2);
   FormatHisto(h,spf);
   h->SetStats(1111);
   h->GetXaxis()->SetRangeUser(-0.3,0.3);
@@ -67,7 +67,7 @@
   //p->GetXaxis()->SetRangeUser(-1,1);
   p->Draw();
   SavePlot("etresolution","Plots");
-  //c1->Clear();
+  c1->Clear();
 
 }
 
