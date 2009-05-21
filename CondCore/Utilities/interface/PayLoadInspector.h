@@ -98,7 +98,7 @@ namespace cond {
     // specialize in case of no-wrapper!
     std::string summary() const {
       std::ostringstream os;
-      os << wrapper->summary();
+      os << m_data->summary();
       os << std::endl;
       return os.str();
     }
@@ -115,7 +115,7 @@ namespace cond {
     }
 
   private:
-    virtual bool load(pool::IDataSvc * svc, std::string const & token) {
+    bool load(pool::IDataSvc * svc, std::string const & token) {
       old = false;
      bool ok = false;
       // try wrapper, if not try plain
@@ -123,6 +123,7 @@ namespace cond {
       if (ref) {
 	m_data.copyShallow(ref);
 	m_data->data();
+	m_data->summary();
 	ok= true;
       } else {
 	pool::Ref<DataT> refo(svc,token);
