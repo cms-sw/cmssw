@@ -69,7 +69,7 @@ std::vector<RPCHitAssociator::SimHitIdpr> RPCHitAssociator::associateRecHit(cons
       std::set<RPCDigiSimLink> links = findRPCDigiSimLink(rpcDetId.rawId(),i,bx);
       
       if (links.empty()) edm::LogWarning("RPCHitAssociator")
-	<<"WARNING in RPCHitAssociator: RPCRecHit "<<*rpcrechit<<", strip "<<i<<" has no associated RPCDigiSimLink !"<<endl;
+	<<"*** WARNING in RPCHitAssociator::associateRecHit, RPCRecHit "<<*rpcrechit<<", strip "<<i<<" has no associated RPCDigiSimLink !"<<endl;
       
       for(std::set<RPCDigiSimLink>::iterator itlink = links.begin(); itlink != links.end(); ++itlink) {
 	SimHitIdpr currentId(itlink->getTrackId(),itlink->getEventId());
@@ -78,7 +78,7 @@ std::vector<RPCHitAssociator::SimHitIdpr> RPCHitAssociator::associateRecHit(cons
       }
     }
     
-  } else edm::LogWarning("RPCHitAssociator")<<"WARNING in RPCHitAssociator::associateRecHit, null dynamic_cast !";
+  } else edm::LogWarning("RPCHitAssociator")<<"*** WARNING in RPCHitAssociator::associateRecHit, null dynamic_cast !";
   
   return  matched;
 }

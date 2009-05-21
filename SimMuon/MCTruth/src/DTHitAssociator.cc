@@ -40,7 +40,7 @@ DTHitAssociator::DTHitAssociator(const edm::Event& iEvent, const edm::EventSetup
                               <<", associatorByWire = "<<associatorByWire;
   
   if (!links_exist && !associatorByWire) {
-    edm::LogWarning("DTHitAssociator")<<"DTHitAssociator: WARNING: associatorByWire reset to TRUE !"
+    edm::LogWarning("DTHitAssociator")<<"*** WARNING in DTHitAssociator::DTHitAssociator: associatorByWire reset to TRUE !"
 				      <<"    \t (missing DTDigiSimLinkCollection ?)";
     associatorByWire = true;
   }
@@ -316,7 +316,7 @@ std::vector<DTHitAssociator::SimHitIdpr> DTHitAssociator::associateDTHitId(const
       }
 
     } else {
-      edm::LogError("DTHitAssociator")<<"ERROR in DTHitAssociator::associateDTHitId - DTRecHit1D: "
+      edm::LogError("DTHitAssociator")<<"*** ERROR in DTHitAssociator::associateDTHitId - DTRecHit1D: "
 				      <<*dtrechit<<" has no associated DTDigiSimLink !"<<endl;
       return matched; 
     }
