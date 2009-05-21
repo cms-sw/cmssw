@@ -54,13 +54,15 @@ process.g4SimHits.Physics.DummyEMPhysics = True
 process.g4SimHits.Physics.CutsPerRegion = False
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     MaterialBudgetHcal = cms.PSet(
-        NBinPhi = cms.untracked.int32(360),
-        NBinEta = cms.untracked.int32(260),
-        MaxEta = cms.untracked.double(5.2),
-        EtaLow = cms.untracked.double(-5.2),
-        EtaHigh = cms.untracked.double(5.2),
-        RMax = cms.untracked.double(5.0),
-        ZMax = cms.untracked.double(14.0)
+        FillHisto    = cms.untracked.bool(True),
+        PrintSummary = cms.untracked.bool(False),
+        NBinPhi      = cms.untracked.int32(360),
+        NBinEta      = cms.untracked.int32(260),
+        MaxEta       = cms.untracked.double(5.2),
+        EtaLow       = cms.untracked.double(-5.2),
+        EtaHigh      = cms.untracked.double(5.2),
+        RMax         = cms.untracked.double(5.0),
+        ZMax         = cms.untracked.double(14.0)
     ),
     type = cms.string('MaterialBudgetHcal')
 ))
