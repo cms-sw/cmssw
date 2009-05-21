@@ -490,6 +490,27 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 
   if (deadmon_test_neverpresent_ || deadmon_test_occupancy_)
     {
+
+      // Dummy fills
+      for (unsigned int i=0;i<UnoccupiedDeadCellsByDepth.size();++i)
+	{
+	  UnoccupiedDeadCellsByDepth[i]->setBinContent(0,0,ievt_);
+	  DigisNeverPresentByDepth[i]->setBinContent(0,0,ievt_);
+	}
+      NumberOfNeverPresentCells->setBinContent(0,ievt_);
+      NumberOfNeverPresentCellsHB->setBinContent(0,ievt_);
+      NumberOfNeverPresentCellsHE->setBinContent(0,ievt_);
+      NumberOfNeverPresentCellsHO->setBinContent(0,ievt_);
+      NumberOfNeverPresentCellsHF->setBinContent(0,ievt_);
+      NumberOfNeverPresentCellsZDC->setBinContent(0,ievt_);
+      
+      NumberOfUnoccupiedCells->setBinContent(0,ievt_);
+      NumberOfUnoccupiedCellsHB->setBinContent(0,ievt_);
+      NumberOfUnoccupiedCellsHE->setBinContent(0,ievt_);
+      NumberOfUnoccupiedCellsHO->setBinContent(0,ievt_);
+      NumberOfUnoccupiedCellsHF->setBinContent(0,ievt_);
+      NumberOfUnoccupiedCellsZDC->setBinContent(0,ievt_);
+
       if (showTiming)
 	{
 	  cpu_timer.reset(); cpu_timer.start();
@@ -531,6 +552,19 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	{
 	  cpu_timer.reset(); cpu_timer.start();
 	}
+
+      // Dummy Fills
+      for (unsigned int i=0;i<BelowEnergyThresholdCellsByDepth.size();++i)
+	{
+	BelowEnergyThresholdCellsByDepth[i]->setBinContent(0,0,ievt_);
+	}
+      NumberOfBelowEnergyCells->setBinContent(0,ievt_);
+      NumberOfBelowEnergyCellsHB->setBinContent(0,ievt_);
+      NumberOfBelowEnergyCellsHE->setBinContent(0,ievt_);
+      NumberOfBelowEnergyCellsHO->setBinContent(0,ievt_);
+      NumberOfBelowEnergyCellsHF->setBinContent(0,ievt_);
+      NumberOfBelowEnergyCellsZDC->setBinContent(0,ievt_);
+
       for (HBHERecHitCollection::const_iterator j=hbHits.begin();
 	   j!=hbHits.end(); ++j)
 	{

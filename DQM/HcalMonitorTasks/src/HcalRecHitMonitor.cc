@@ -282,6 +282,27 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
   double  heenergythresh=0;
   int HEbindepth=0;
 
+
+  // Fill dummy values into histograms; not yet sure if this fixes 
+  // problem seen in online DQM where plots don't update
+  h_HBEnergy_1D->setBinContent(0, ievt_);
+  h_HEEnergy_1D->setBinContent(0, ievt_);
+  h_HOEnergy_1D->setBinContent(0, ievt_);
+  h_HFEnergy_1D->setBinContent(0, ievt_);
+
+  for (unsigned int i=0;i<OccupancyByDepth.size();++i)
+    {
+      OccupancyByDepth[i]->setBinContent(0,0,ievt_);
+      EnergyByDepth[i]->setBinContent(0,0,ievt_);
+      TimeByDepth[i]->setBinContent(0,0,ievt_);
+      OccupancyThreshByDepth[i]->setBinContent(0,0,ievt_);
+      EnergyThreshByDepth[i]->setBinContent(0,0,ievt_);
+      TimeThreshByDepth[i]->setBinContent(0,0,ievt_);
+      SumEnergyByDepth[i]->setBinContent(0,0,ievt_);
+      SumTimeByDepth[i]->setBinContent(0,0,ievt_);
+    }
+  
+
   for (HBHERecHitCollection::const_iterator HBHEiter=hbheHits.begin(); HBHEiter!=hbheHits.end(); ++HBHEiter) 
     { // loop over all hits
       float en = HBHEiter->energy();

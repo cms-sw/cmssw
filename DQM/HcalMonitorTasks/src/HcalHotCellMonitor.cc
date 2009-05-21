@@ -597,9 +597,26 @@ void HcalHotCellMonitor::fillHotHistosAtEndRun()
   return;
 
   
-  if (hotmon_test_persistent_ && ievt_%hotmon_checkNevents_>0) fillNevents_persistentenergy();
-  if (hotmon_test_pedestal_  && ievt_%hotmon_checkNevents_ >0) fillNevents_pedestal();
-  if (hotmon_test_neighbor_  && ievt_%hotmon_checkNevents_ >0) fillNevents_neighbor();
+  if (hotmon_test_persistent_) 
+    {
+      for (unsigned int i=0;i<AbovePersistentThresholdCellsByDepth.size();++i)
+	AbovePersistentThresholdCellsByDepth[i]->setBinContent(0,0,ievt_);
+      if (ievt_%hotmon_checkNevents_>0)
+	fillNevents_persistentenergy();
+    }
+  if (hotmon_test_pedestal_)
+    {
+      for (unsigned int i=0;i<AbovePedestalHotCellsByDepth.size();++i)
+	AbovePedestalHotCellsByDepth[i]->setBinContent(0,0,ievt_);
+      if (ievt_%hotmon_checkNevents_ >0)
+	fillNevents_pedestal();
+    }
+  if (hotmon_test_neighbor_)
+    {
+      for (unsigned int i=0;i<AboveNeighborsHotCellsByDepth.size();++i)
+	AboveNeighborsHotCellsByDepth[i]->setBinContent(0,0,ievt_);
+      if (ievt_%hotmon_checkNevents_ >0) fillNevents_neighbor();
+    }
   if (hotmon_test_energy_    && ievt_%hotmon_checkNevents_   >0) fillNevents_energy();
   if (hotmon_test_persistent_ || hotmon_test_pedestal_ || 
       hotmon_test_neighbor_  || hotmon_test_energy_)  
@@ -719,7 +736,13 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
 	 if (hotmon_test_neighbor_) rechitEnergies_[id]=en;
        }
    } // if (checkHF_)
- 
+
+ // Fill Dummy histogram value each event
+ for (unsigned int i=0;i<AboveEnergyThresholdCellsByDepth.size();++i)
+   AboveEnergyThresholdCellsByDepth[i]->setBinContent(0,0,ievt_);
+ for (unsigned int i=0;i<AbovePersistentThresholdCellsByDepth.size();++i)
+   AbovePersistentThresholdCellsByDepth[i]->setBinContent(0,0,ievt_);
+
  
  // Fill histograms 
   if (ievt_%hotmon_checkNevents_==0 && hotmon_test_energy_)
@@ -1048,7 +1071,10 @@ void HcalHotCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollectio
        } // loop over all hits
    } // if (checkHF_)
  
- 
+ // Fill Dummy histogram value each event
+ for (unsigned int i=0;i<AboveNeighborsHotCellsByDepth.size();++i)
+   AboveNeighborsHotCellsByDepth[i]->setBinContent(0,0,ievt_);
+
  // Fill histograms 
   if (ievt_%hotmon_checkNevents_==0)
     {
@@ -1324,6 +1350,10 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
 	} // for (HFDigiCollection...)
     } // if (checkHF_)
 
+  // Fill Dummy histogram value each event
+  for (unsigned int i=0;i<AbovePedestalHotCellsByDepth.size();++i)
+    AbovePedestalHotCellsByDepth[i]->setBinContent(0,0,ievt_);
+
   // Fill histograms 
   if (ievt_%hotmon_checkNevents_==0)
     {
@@ -1429,7 +1459,10 @@ void HcalHotCellMonitor::fillNevents_pedestal(void)
 	  if (diagADC_HB[i]>0)
 	    d_HBnormped->setBinContent(i+1,diagADC_HB[i]);
 	  if (diagADC_HE[i]>0)
-	    d_HEnormped->setBinContent(i+1,diagADC_HE[i]);
+	    {
+	      cout <<i<<"  :  "<<diagADC_HE[i]<<endl;
+	      d_HEnormped->setBinContent(i+1,diagADC_HE[i]);
+	    }
 	  if (diagADC_HO[i]>0)
 	    d_HOnormped->setBinContent(i+1,diagADC_HO[i]);
 	  if (diagADC_HF[i]>0)
@@ -1647,12 +1680,12 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
 	      // last checkNevents.
 	      
 	      problemvalue = min((double)ievt_, problemvalue);
-	      if (problemvalue>=hotmon_minErrorFlag_*ievt_)
+	      if (problemvalue>hotmon_minErrorFlag_*ievt_)
 		ProblemHotCellsByDepth[mydepth]->setBinContent(eta+2,phi+2,problemvalue);
 	      ProblemHotCellsByDepth[mydepth]->setBinContent(0,0,ievt_); // set underflow bin to total number of events (used for normalization)
 	    } // for (int mydepth=0;mydepth<6;...)
 	  sumproblemvalue=min((double)ievt_,sumproblemvalue);
-	  if (sumproblemvalue>=hotmon_minErrorFlag_*ievt_)
+	  if (sumproblemvalue>hotmon_minErrorFlag_*ievt_)
 	    ProblemHotCells->setBinContent(eta+2,phi+2,sumproblemvalue);
 	  ProblemHotCells->setBinContent(0,0,ievt_);
 	} // loop on phi=0;phi<72
