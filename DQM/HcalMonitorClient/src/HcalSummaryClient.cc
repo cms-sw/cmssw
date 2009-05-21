@@ -549,6 +549,10 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
   TH2F* hist;
   MonitorElement* reportMap = dqmStore_->get(prefixME_ + "/EventInfo/advancedReportSummaryMap");
 
+  // No longer use ievtTask for normalization; 
+  // use the underflow bin (0,0) of the 2D histograms to get # of events,
+  // just as with renderPlugins
+  /*
   int ievtTask=-1;
   name.str("");
   name <<prefixME_<<"/"<<s.ievtName;
@@ -560,16 +564,17 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
       sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievtTask);
       if ( debug_>0 ) std::cout << "Found '" << name.str().c_str() << "'" << std::endl;
     }
-
+  */
   // Scale overall problem plot
   name.str("");
   name << prefixME_<<"/"<<s.baseProblemName;
   me=dqmStore_->get(name.str().c_str());
 
+  double counter;
   if (me)
     {
       hist=me->getTH2F();
-      double counter=hist->GetBinContent(0,0);
+      counter=hist->GetBinContent(0,0);
       if (counter>0) 
 	{
 	  hist->Scale(1./counter);
@@ -591,9 +596,7 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
       if (me)
 	{
 	  hist=me->getTH2F();
-
-	  //if (ievtTask>0)	      hist->Scale(1./ievtTask);
-	  double counter=hist->GetBinContent(0,0);
+	  counter=hist->GetBinContent(0,0);
 	  if (counter>0) 
 	    {
 	      hist->Scale(1./counter);
@@ -643,8 +646,13 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
       if (me)
 	{
 	  hist=me->getTH2F();
-	  if (ievtTask>0)	  
-	    hist->Scale(1./ievtTask);
+	  if (counter>0) 
+	    {
+	      hist->Scale(1./counter);
+	      // scale to 0-1 to always maintain consistent coloration
+	      hist->SetMaximum(1.);
+	      hist->SetMinimum(0.);  // change to some threshold value?
+	    }
 
 	  etabins=hist->GetNbinsX();
 	  phibins=hist->GetNbinsY();
@@ -688,8 +696,13 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
       if (me)
 	{
 	  hist=me->getTH2F();
-	  if (ievtTask>0)
-	    hist->Scale(1./ievtTask);
+	  if (counter>0) 
+	    {
+	      hist->Scale(1./counter);
+	      // scale to 0-1 to always maintain consistent coloration
+	      hist->SetMaximum(1.);
+	      hist->SetMinimum(0.);  // change to some threshold value?
+	    }
 	  etabins=hist->GetNbinsX();
 	  phibins=hist->GetNbinsY();
 	  etamin=hist->GetXaxis()->GetXmin();
@@ -730,8 +743,13 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
       if (me)
 	{
 	  hist=me->getTH2F();
-	  if (ievtTask>0)
-	    hist->Scale(1./ievtTask);
+	  if (counter>0) 
+	    {
+	      hist->Scale(1./counter);
+	      // scale to 0-1 to always maintain consistent coloration
+	      hist->SetMaximum(1.);
+	      hist->SetMinimum(0.);  // change to some threshold value?
+	    }
 	  etabins=hist->GetNbinsX();
 	  phibins=hist->GetNbinsY();
 	  etamin=hist->GetXaxis()->GetXmin();
@@ -768,8 +786,13 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
       if (me)
 	{
 	  hist=me->getTH2F();
-	  if (ievtTask>0)
-	    hist->Scale(1./ievtTask);
+	  if (counter>0) 
+	    {
+	      hist->Scale(1./counter);
+	      // scale to 0-1 to always maintain consistent coloration
+	      hist->SetMaximum(1.);
+	      hist->SetMinimum(0.);  // change to some threshold value?
+	    }
 	  etabins=hist->GetNbinsX();
 	  phibins=hist->GetNbinsY();
 	  etamin=hist->GetXaxis()->GetXmin();
@@ -806,8 +829,13 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
       if (me)
 	{
 	  hist=me->getTH2F();
-	  if (ievtTask>0)
-	    hist->Scale(1./ievtTask);
+	  if (counter>0) 
+	    {
+	      hist->Scale(1./counter);
+	      // scale to 0-1 to always maintain consistent coloration
+	      hist->SetMaximum(1.);
+	      hist->SetMinimum(0.);  // change to some threshold value?
+	    }
 	  etabins=hist->GetNbinsX();
 	  phibins=hist->GetNbinsY();
 	  etamin=hist->GetXaxis()->GetXmin();
