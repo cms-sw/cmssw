@@ -12,8 +12,9 @@ LIBS       = $(ROOTLIBS) -lEG $(CFGLIBS) -lconfig++
 
 OHltRateEff: OHltRateEff.cpp OHltConfig.cpp OHltConfig.h OHltMenu.cpp OHltMenu.h \
 	 OHltRateCounter.cpp OHltRateCounter.h OHltRatePrinter.cpp OHltRatePrinter.h \
-	 OHltTree.cpp OHltTreeOpen.cpp OHltTree.h
+	 OHltTree.cpp OHltTreeOpen.cpp OHltTree.h L1GtLogicParser.cpp L1GtLogicParser.h
 	$(CXX) $(CXXFLAGS) $(CFGCFLAGS) $(LIBS) OHltConfig.cpp  OHltMenu.cpp OHltRateEff.cpp \
-	 OHltRateCounter.cpp OHltRatePrinter.cpp OHltTree.cpp OHltTreeOpen.cpp -o OHltRateEff
+	 OHltRateCounter.cpp OHltRatePrinter.cpp OHltTree.cpp OHltTreeOpen.cpp L1GtLogicParser.cpp \
+	-o OHltRateEff
 
 all: OHltRateEff

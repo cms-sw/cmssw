@@ -97,7 +97,7 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
   float physCutThruErr = 0.; 
   float cuPhysRate = 0.; 
   float cuPhysRateErr = 0.; 
-
+    
   for (unsigned int i=0;i<menu->GetTriggerSize();i++) { 
     cumulRate += spureRate[i]; 
     cumulRateErr += pow(spureRateErr[i],2.); 
@@ -111,34 +111,34 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
       physCutThruErr += pow(spureRateErr[i]*menu->GetEventsize(i),2.); 
     } 
 
-    TString tempTrigSeedPrescales; 
     TString tempTrigSeeds; 
+    TString tempTrigSeedPrescales; 
     std::map<TString, std::vector<TString> > 
       mapL1seeds = menu->GetL1SeedsOfHLTPathMap(); // mapping to all seeds 
 
-    vector<TString> vtmp; 
+    TString stmp; 
     vector<int> itmp; 
-
     typedef map< TString, vector<TString> >  mymap; 
-    for(mymap::const_iterator it = mapL1seeds.begin();it != mapL1seeds.end(); ++it) { 
+    //std::cout<<mapL1seeds.size()<<std::endl;
+    for(mymap::const_iterator it = mapL1seeds.begin();it != mapL1seeds.end(); ++it) {
+      //std::cout<<"# "<<it->first<<" | "<<menu->GetTriggerName(i)<<" #"<<std::endl;
+      //std::cout<<it->second.size()<<std::endl;
       if (it->first.CompareTo(menu->GetTriggerName(i)) == 0) { 
-        vtmp = it->second; 
-        //cout<<it->first<<endl; 
         for (unsigned int j=0;j<it->second.size();j++) { 
           itmp.push_back(menu->GetL1Prescale((it->second)[j])); 
-          //cout<<"\t"<<(it->second)[j]<<endl; 
+	  //std::cout<<menu->GetL1Prescale((it->second)[j])<<std::endl;
         } 
       } 
-    } 
-    for (unsigned int j=0;j<vtmp.size();j++) { 
-      tempTrigSeeds = tempTrigSeeds + vtmp[j]; 
+    }
+
+    tempTrigSeeds = menu->GetSeedCondition(menu->GetTriggerName(i));
+    for (unsigned int j=0;j<itmp.size();j++) { 
       tempTrigSeedPrescales += itmp[j]; 
-      if (j<(vtmp.size()-1)) { 
-	tempTrigSeeds = tempTrigSeeds + " or "; 
+      if (j<(itmp.size()-1)) { 
 	tempTrigSeedPrescales = tempTrigSeedPrescales + ", "; 
       } 
-    } 
-
+    }
+    
     outFile << "| !"<< menu->GetTriggerName(i)
 	    << " | !" << tempTrigSeeds
 	    << " | " << tempTrigSeedPrescales
@@ -460,36 +460,37 @@ void OHltRatePrinter::printHltRatesTex(OHltConfig *cfg, OHltMenu *menu) {
     TString tempTrigName = menu->GetTriggerName(i);
     tempTrigName.ReplaceAll("_","\\_");
 
-    TString tempTrigSeedPrescales;
-    TString tempTrigSeeds;
-    std::map<TString, std::vector<TString> >
-      mapL1seeds = menu->GetL1SeedsOfHLTPathMap(); // mapping to all seeds
 
-    vector<TString> vtmp;
-    vector<int> itmp;
-    typedef map< TString, vector<TString> >  mymap;
+
+    TString tempTrigSeeds; 
+    TString tempTrigSeedPrescales; 
+    std::map<TString, std::vector<TString> > 
+      mapL1seeds = menu->GetL1SeedsOfHLTPathMap(); // mapping to all seeds 
+
+    TString stmp; 
+    vector<int> itmp; 
+    typedef map< TString, vector<TString> >  mymap; 
+    //std::cout<<mapL1seeds.size()<<std::endl;
     for(mymap::const_iterator it = mapL1seeds.begin();it != mapL1seeds.end(); ++it) {
-      if (it->first.CompareTo(menu->GetTriggerName(i)) == 0) {
-	vtmp = it->second;
-	//cout<<it->first<<endl;
-	for (unsigned int j=0;j<it->second.size();j++) {
-	  itmp.push_back(menu->GetL1Prescale((it->second)[j]));
-	  //cout<<"\t"<<(it->second)[j]<<endl;
-	}
-      }
+      //std::cout<<"# "<<it->first<<" | "<<menu->GetTriggerName(i)<<" #"<<std::endl;
+      //std::cout<<it->second.size()<<std::endl;
+      if (it->first.CompareTo(menu->GetTriggerName(i)) == 0) { 
+        for (unsigned int j=0;j<it->second.size();j++) { 
+          itmp.push_back(menu->GetL1Prescale((it->second)[j])); 
+	  //std::cout<<menu->GetL1Prescale((it->second)[j])<<std::endl;
+        } 
+      } 
     }
-    // Faster, but crashes???:
-    //vector<TString> vtmp = mapL1seeds.find(TString(menu->GetTriggerName(i)))->second;
-    if (vtmp.size()>2) {
-      for (unsigned int j=0;j<vtmp.size();j++) {
-	tempTrigSeeds = tempTrigSeeds + vtmp[j];
-	tempTrigSeedPrescales += itmp[j];
-	if (j<(vtmp.size()-1)) {
-	  tempTrigSeeds = tempTrigSeeds + ", ";
-	  tempTrigSeedPrescales = tempTrigSeedPrescales + ", ";
-	}
-      }
 
+    tempTrigSeeds = menu->GetSeedCondition(menu->GetTriggerName(i));
+    for (unsigned int j=0;j<itmp.size();j++) { 
+      tempTrigSeedPrescales += itmp[j]; 
+      if (j<(itmp.size()-1)) { 
+	tempTrigSeedPrescales = tempTrigSeedPrescales + ", "; 
+      } 
+    }
+
+    if (itmp.size()>2) {
       tempTrigSeeds.ReplaceAll("_","\\_");
       tempTrigSeedPrescales.ReplaceAll("_","\\_");
       footTrigSeedPrescales.push_back(tempTrigSeedPrescales);
@@ -501,16 +502,8 @@ void OHltRatePrinter::printHltRatesTex(OHltConfig *cfg, OHltMenu *menu) {
       
       tempTrigSeeds = "List Too Long";
       tempTrigSeedPrescales = "-";
-    } else {
-      for (unsigned int j=0;j<vtmp.size();j++) {
-	tempTrigSeeds = tempTrigSeeds + vtmp[j];
-	tempTrigSeedPrescales += itmp[j];
-	if (j<(vtmp.size()-1)) {
-	  tempTrigSeeds = tempTrigSeeds + ",";
-	  tempTrigSeedPrescales = tempTrigSeedPrescales + ",";
-	}
-      }
     }
+    
     tempTrigSeeds.ReplaceAll("_","\\_");
     tempTrigSeedPrescales.ReplaceAll("_","\\_");
     

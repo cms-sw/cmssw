@@ -49,6 +49,7 @@ int main(int argc, char *argv[]){
   vector<OHltTree*> procs; procs.clear();
   fillProcesses(ocfg,procs,chains,omenu);
 
+  
   /* **** */
   // Count rates
   vector<OHltRateCounter*> rcs; rcs.clear();
@@ -57,6 +58,10 @@ int main(int argc, char *argv[]){
   }
   OHltRatePrinter* rprint = new OHltRatePrinter();
   calcRates(ocfg,omenu,procs,rcs,rprint);
+
+  /* **** */
+  // Get Seed prescales
+  omenu->SetMapL1SeedsOfStandardHLTPath(procs[0]->GetL1SeedsOfHLTPathMap());
 
   rprint->printRatesASCII(ocfg,omenu);
   //rprint->printCorrelationASCII();

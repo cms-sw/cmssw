@@ -26,6 +26,19 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }
 
   //////////////////////////////////////////////////////////////////
+  // Check OpenHLT general pass through trigger for seed rates
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1Seed1") == 0) {  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
+    }  
+  }  
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1Seed2") == 0) {  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
+    }  
+  }  
+  
+  //////////////////////////////////////////////////////////////////
   // Check OpenHLT trigger
 
   /* DiJetAve */
@@ -238,7 +251,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT200") == 0) {    
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
       //      if(recoHTCalSum > 200.) {  
       if(OpenHltSumHTPassed(200., 20.) == 1) {
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }    
@@ -271,7 +284,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }  
   }  
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu7") == 0) {  
-    if(map_BitOfStandardHLTPath.find("L1_SingleMu5")->second == 1) {        
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      //if(map_BitOfStandardHLTPath.find("L1_SingleMu5")->second == 1) {        
       if(OpenHlt1MuonPassed(7.,5.,7.,2.,0)>=1) {  
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
       }  
@@ -279,7 +293,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }  
       
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu9") == 0) {  
-    if(map_BitOfStandardHLTPath.find("L1_SingleMu7")->second == 1) {        
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
       if(OpenHlt1MuonPassed(7.,7.,9.,2.,0)>=1) {  
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
       }  
@@ -300,8 +314,9 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }    
   }    
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu") == 0) {        
-    if( (map_BitOfStandardHLTPath.find("L1_SingleMu7")->second +
-	 map_BitOfStandardHLTPath.find("(L1_DoubleMu3")->second) > 0) {              
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {   
+      //if( (map_BitOfStandardHLTPath.find("L1_SingleMu7")->second +
+      // map_BitOfStandardHLTPath.find("(L1_DoubleMu3")->second) > 0) {              
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }       
     }        
   }        
@@ -310,16 +325,17 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
     }         
   }        
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1MuOpen") == 0) {         
-    if( (map_BitOfStandardHLTPath.find("L1_SingleMuOpen")->second +
-	 map_BitOfStandardHLTPath.find("L1_SingleMu0")->second) > 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1MuOpen") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {   
+      //if( (map_BitOfStandardHLTPath.find("L1_SingleMuOpen")->second +
+      // map_BitOfStandardHLTPath.find("L1_SingleMu0")->second) > 0) {
       //	 map_BitOfStandardHLTPath.find("L1_SingleMu3")->second +
       //	 map_BitOfStandardHLTPath.find("(L1_DoubleMu5")->second) > 0) {               
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
     }         
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenAlCa_RPCMuonNormalisation") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       int rc = 0;
       for(int i=0;i<NL1OpenMu;i++) {
 	if(L1OpenMuEta[i] > -1.6 && L1OpenMuEta[i] < 1.6)
@@ -764,7 +780,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele20_SC15_SW_L1R") == 0) {         
     float Et = 20.; 
     int L1iso = 0;  
-    float Tiso = 9999.;  
+    //float Tiso = 9999.;  
     float Hiso = 9999.; 
     int rc = 0; 
 

@@ -78,7 +78,8 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
       ApplyL1Prescales(menu);
     }
 
-    SetMapL1BitOfStandardHLTPath(menu);
+    //SetMapL1BitOfStandardHLTPath(menu);
+    SetMapL1BitOfStandardHLTPathUsingLogicParser(menu);
     SetL1MuonQuality();
 	  
     //////////////////////////////////////////////////////////////////
@@ -130,3 +131,15 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
   }
   
 }
+
+void OHltTree::SetLogicParser(std::string l1SeedsLogicalExpression) {
+
+  if (l1SeedsLogicalExpression != "") {
+    
+    //std::cout<<"@@@ L1 condition: "<<l1SeedsLogicalExpression<<std::endl;
+    // check also the logical expression - add/remove spaces if needed
+    m_l1AlgoLogicParser = L1GtLogicParser(l1SeedsLogicalExpression);
+    
+  }
+};
+

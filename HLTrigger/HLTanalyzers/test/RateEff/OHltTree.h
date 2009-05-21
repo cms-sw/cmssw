@@ -22,10 +22,17 @@
 #include "OHltMenu.h"
 #include "OHltRateCounter.h"
 
+#include "L1GtLogicParser.h"
+
 class OHltTree {
 public :
   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
   Int_t           fCurrent; //!current Tree number in a TChain
+
+  
+  // logic parser for m_l1SeedsLogicalExpression
+  L1GtLogicParser m_l1AlgoLogicParser;
+  void OHltTree::SetLogicParser(std::string l1SeedsLogicalExpression);
 
   // Declaration of leaf types
   Int_t           NrecoJetCal;
@@ -1737,6 +1744,7 @@ public :
   inline Long64_t  LoadTree(Long64_t entry);
   inline void	   SetMapL1BitOfStandardHLTPath(OHltMenu *menu);
   inline void	   SetMapL1SeedsOfStandardHLTPath(OHltMenu *menu);
+  inline void      SetMapL1BitOfStandardHLTPathUsingLogicParser(OHltMenu *menu);
   inline void ApplyL1Prescales(OHltMenu *menu);
   inline void RemoveEGOverlaps();
   inline void SetL1MuonQuality();
@@ -1769,7 +1777,7 @@ public :
   int OpenHltJRMuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso,double ptl3hi);
   int OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold);
 
-  std::map<TString, std::vector<TString> >&
+  std::map<TString, std::vector<TString> >
     GetL1SeedsOfHLTPathMap() { return map_L1SeedsOfStandardHLTPath; }; // mapping to all seeds
 
 
@@ -1832,7 +1840,7 @@ OHltTree::OHltTree(TTree *tree, OHltMenu *menu)
   for(int i=0;i<8000 ;i++)   
     { ohEleLWL1Dupl[i] = true;}
 
-  SetMapL1SeedsOfStandardHLTPath(menu);
+  //SetMapL1SeedsOfStandardHLTPath(menu);
 
   cout<<"Succeeded initialising OHltTree. nEntries: "<<fChain->GetEntries()<<endl;
 }
@@ -3309,6 +3317,69 @@ void OHltTree::ApplyL1Prescales(OHltMenu *menu)
     }
   }
 }
+
+
+void OHltTree::SetMapL1BitOfStandardHLTPathUsingLogicParser(OHltMenu *menu) {
+  typedef vector<TString> myvec;
+  typedef pair< TString, vector<TString> > mypair;
+  typedef map< TString, vector<TString> >  mymap;
+  myvec vtmp;  
+  
+  TString st, l1st, seeds;
+  unsigned ts = menu->GetTriggerSize();
+  unsigned l1ts = menu->GetL1TriggerSize();
+  //std::cout<<"########################### \n";
+  //std::cout <<  "@@@ Level1GTSeedResult\n";
+
+  for (unsigned int i=0;i<ts;i++) {
+    st = menu->GetTriggerName(i);
+    seeds = menu->GetSeedCondition(st);
+
+    SetLogicParser((std::string) seeds);
+
+    //std::cout << "Trigger name: " << st << std::endl;
+    //std::cout << "Seed condition: " << seeds << std::endl;
+    
+    std::vector<L1GtLogicParser::OperandToken>& algOpTokenVector =
+      m_l1AlgoLogicParser.operandTokenVector();
+
+    vtmp.clear(); 
+    for (unsigned int j=0;j<l1ts;j++) {
+      l1st = menu->GetL1TriggerName(j);
+
+      for (size_t k = 0; k < algOpTokenVector.size(); ++k) {
+	bool iResult = false;
+	//std::cout << "Token name: " << (algOpTokenVector[k]).tokenName << std::endl;
+	if (l1st.CompareTo((algOpTokenVector[k]).tokenName) == 0) {         
+	  if (map_BitOfStandardHLTPath.find(l1st)->second==1)
+	    iResult = true;
+	  else
+	    iResult = false;
+	  
+	  //std::cout << "Token result: " << map_BitOfStandardHLTPath.find(l1st)->second << std::endl;
+	  //std::cout << "Token result: " << iResult << std::endl;
+	  (algOpTokenVector[k]).tokenResult = iResult;
+	  vtmp.push_back(l1st);
+	  //std::cout<<st<<": "<<l1st<<std::endl;
+	}
+      }
+    }
+
+    map_L1SeedsOfStandardHLTPath.insert(mypair(st, vtmp));
+  
+    bool seedsResult = m_l1AlgoLogicParser.expressionResult();
+
+    //std::cout << "Expression result: " << seedsResult << std::endl;
+
+    if (seedsResult)
+      map_L1BitOfStandardHLTPath[st] = 1;
+    else
+      map_L1BitOfStandardHLTPath[st] = 0;
+  }
+}
+
+
+
 
 void OHltTree::SetMapL1BitOfStandardHLTPath(OHltMenu *menu) {
   int tt = 0;
