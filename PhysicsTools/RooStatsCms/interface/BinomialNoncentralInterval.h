@@ -1,5 +1,12 @@
-#ifndef binomial_noncentral_interval_h
-#define binomial_noncentral_interval_h
+#ifndef PhysicsTools_RooStatsCms_BinomialNoncentralinterval_h
+#define PhysicsTools_RooStatsCms_BinomialNoncentralinterval_h
+/* \class BinomialNoncentralinterval
+ *
+ * \author Jordan Tucker
+ *
+ * integration in CMSSW: Luca Listta
+ *
+ */
 
 #include <algorithm>
 #include <cmath>
@@ -8,43 +15,12 @@
 #include "Math/PdfFuncMathCore.h"
 
 #if (defined (STANDALONE) or defined (__CINT__) )
-#include "binomial_interval.h"
+#include "BinomialInterval.h"
+#include "BinomialProbHelper.h"
 #else
-#include "PhysicsTools/RooStatsCms/interface/binomial_interval.h"
+#include "PhysicsTools/RooStatsCms/interface/BinomialInterval.h"
+#include "PhysicsTools/RooStatsCms/interface/BinomialProbHelper.h"
 #endif
-
-// Helper class for sorting by probability or likelihood ratio, used
-// in constructing non-central intervals a la Neyman.
-class prob_helper {
- public:
-  prob_helper(double rho, int x, int n)
-    : rho_(rho), x_(x), n_(n),
-    rho_hat_(double(x)/n),
-    prob_(ROOT::Math::binomial_pdf(x, rho, n))
-  {
-    // Cache the likelihood ratio L(\rho)/L(\hat{\rho}), too.
-    if (x == 0)
-      lratio_ = pow(1 - rho, n);
-    else if (x == n)
-      lratio_ = pow(rho, n);
-    else
-      lratio_ = pow(rho/rho_hat_, x) * pow((1 - rho)/(1 - rho_hat_), n - x);
-  }
-
-  double rho   () const { return rho_;    };
-  int    x     () const { return x_;      };
-  int    n     () const { return n_;      };
-  double prob  () const { return prob_;   };
-  double lratio() const { return lratio_; };
-
- private:
-  double rho_;
-  int x_;
-  int n_;
-  double rho_hat_;
-  double prob_;
-  double lratio_;
-};
 
 // Implement noncentral binomial confidence intervals using the Neyman
 // construction. The Sorter class gives the ordering of points,
@@ -52,16 +28,16 @@ class prob_helper {
 // between two prob_helper instances. See feldman_cousins for an
 // example.
 template <typename Sorter>
-class binomial_noncentral_interval : public binomial_interval {
+class BinomialNoncentralInterval : public BinomialInterval {
  public:
   // Given a true value of rho and ntot trials, calculate the
   // acceptance set [x_l, x_r] for use in a Neyman construction.
   bool find_rho_set(const double rho, const int ntot, int& x_l, int& x_r) const {
     // Get the binomial probabilities for every x = 0..n, and sort them
     // in decreasing order, determined by the Sorter class.
-    std::vector<prob_helper> probs;
+    std::vector<BinomialProbHelper> probs;
     for (int i = 0; i <= ntot; ++i)
-      probs.push_back(prob_helper(rho, i, ntot));
+      probs.push_back(BinomialProbHelper(rho, i, ntot));
     std::sort(probs.begin(), probs.end(), sorter_);
 
     // Add up the probabilities until the total is 1 - alpha or
@@ -137,7 +113,7 @@ class binomial_noncentral_interval : public binomial_interval {
   Sorter sorter_;
 
 #if (defined (STANDALONE) or defined (__CINT__) )
-ClassDefT(binomial_noncentral_interval,1)
+ClassDefT(BinomialNoncentralInterval,1)
 #endif
 };
 

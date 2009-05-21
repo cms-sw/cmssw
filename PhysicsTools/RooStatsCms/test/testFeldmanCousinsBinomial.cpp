@@ -4,8 +4,8 @@
 #include "TH1.h"
 #include "TGraphAsymmErrors.h" 
 #include "TCanvas.h"
-#include "PhysicsTools/RooStatsCms/interface/binomial_noncentral_intervals.h"
-#include "PhysicsTools/RooStatsCms/interface/binomial_intervals.h"
+#include "PhysicsTools/RooStatsCms/interface/FeldmanCousinsBinomialInterval.h"
+#include "PhysicsTools/RooStatsCms/interface/ClopperPearsonBinomialInterval.h"
 #include <cmath>
 
 const double r = 6;
@@ -28,8 +28,8 @@ int main() {
   double x[bins], eff[bins];
   double exl[bins], exh[bins], eefflFC[bins], eeffhFC[bins], eefflCP[bins], eeffhCP[bins];
 
-  feldman_cousins fc;
-  clopper_pearson cp;
+  FeldmanCousinsBinomialInterval fc;
+  ClopperPearsonBinomialInterval cp;
   //  alpha = 1 - CL
   const double alpha = (1-0.682);
   fc.init(alpha);

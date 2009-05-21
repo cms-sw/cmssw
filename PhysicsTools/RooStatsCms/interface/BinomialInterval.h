@@ -1,5 +1,12 @@
-#ifndef binomial_interval_h
-#define binomial_interval_h
+#ifndef PhysicsTools_RooStatsCms_BinomialInterval_h
+#define PhysicsTools_RooStatsCms_BinomialInterval_h
+/* \class BinomialInterval
+ *
+ * \author Jordan Tucker
+ * integration in CMSSW: Luca Lista
+ *
+ */
+
 
 #if (defined (STANDALONE) or defined (__CINT__) )
 #include "TNamed.h"
@@ -8,7 +15,7 @@
 // A class to implement the calculation of intervals for the binomial
 // parameter rho. The bulk of the work is done by derived classes that
 // implement calculate() appropriately.
-class binomial_interval 
+class BinomialInterval 
 #if (defined (STANDALONE) or defined (__CINT__) )
 : public TNamed
 #endif
@@ -85,7 +92,7 @@ protected:
   void set(double l, double u) { lower_ = l; upper_ = u; }
 
 #if (defined (STANDALONE) or defined (__CINT__) )
-ClassDef(binomial_interval,1)
+ClassDef(BinomialInterval,1)
 #endif
 };
 

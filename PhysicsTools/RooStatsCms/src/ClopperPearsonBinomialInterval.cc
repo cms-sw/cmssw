@@ -1,11 +1,11 @@
 #include "Math/QuantFuncMathCore.h"
 
 #if (defined (STANDALONE) or defined (__CINT__) )
-#include "binomial_intervals.h"
+#include "ClopperPearsonBinomialInterval.h"
 
-ClassImp(clopper_pearson)
+ClassImp(ClopperPearsonBinomialInterval)
 #else
-#include "PhysicsTools/RooStatsCms/interface/binomial_intervals.h"
+#include "PhysicsTools/RooStatsCms/interface/ClopperPearsonBinomialInterval.h"
 #endif
 
 using ROOT::Math::beta_quantile;
@@ -13,7 +13,7 @@ using ROOT::Math::beta_quantile_c;
 
 // Language of Brown, Cai, DasGupta: p = binomial parameter, X = # successes, n = # trials.
 
-void clopper_pearson::calculate(const double X, const double n) {
+void ClopperPearsonBinomialInterval::calculate(const double X, const double n) {
   set(0, 1);
   if (X > 0)
     lower_ = beta_quantile  (alpha_min_, X,     n - X + 1);
