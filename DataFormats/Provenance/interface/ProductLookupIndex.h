@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri May  1 11:00:21 CDT 2009
-// $Id$
 //
 
 // system include files
@@ -40,7 +39,6 @@ namespace  edm {
       index_(iIndex),
       processIndex_(iProcessIndex),
       isFirst_(iIsFirst) {}
-      //virtual ~ProductLookupIndex();
       
       void setIsFirst(bool iIsFirst) {
          isFirst_ = iIsFirst;
@@ -51,20 +49,20 @@ namespace  edm {
       }
       // ---------- const member functions ---------------------
       ConstBranchDescription const* branchDescription() const { return branchDescription_; }
-      ProductTransientIndex index() const { return index_;}
+      ProductTransientIndex index() const { return index_; }
       
       ///index into the process history table for the process corresponding to this element
-      unsigned int processIndex() const {return processIndex_;}
+      unsigned int processIndex() const { return processIndex_; }
       
       /**True if this is the first ProductLookupIndex in the container for a series of elements
        who are only different based on the ProcessName
        */
-      bool isFirst() const { return isFirst_;}
+      bool isFirst() const { return isFirst_; }
       
    private:
-      //ProductLookupIndex(const ProductLookupIndex&); // allow default
-      
-      //const ProductLookupIndex& operator=(const ProductLookupIndex&); // allow default
+      //ProductLookupIndex(ProductLookupIndex const&); // allow default
+
+      //ProductLookupIndex const& operator=(ProductLookupIndex const&); // allow default
       
       // ---------- member data --------------------------------
       ConstBranchDescription const* branchDescription_;

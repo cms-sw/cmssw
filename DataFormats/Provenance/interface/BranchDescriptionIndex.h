@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Apr 30 15:46:09 CDT 2009
-// $Id$
 //
 
 // system include files
@@ -28,6 +27,5 @@
 namespace edm {
    typedef unsigned int BranchDescriptionIndex;
 }
-
 
 #endif

@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Apr 30 15:50:17 CDT 2009
-// $Id$
 //
 
 // system include files
@@ -31,20 +30,20 @@ namespace edm {
    class TypeInBranchType {
          
    public:
-      TypeInBranchType(const edm::TypeID& iID,
-                       const edm::BranchType& iBranch) :
+      TypeInBranchType(TypeID const& iID,
+                       BranchType const& iBranch) :
       id_(iID),
       branch_(iBranch) {}
       
-      const edm::TypeID& typeID() const {
+      TypeID const& typeID() const {
          return id_;
       }
       
-      const edm::BranchType& branchType() const {
+      BranchType const& branchType() const {
          return branch_;
       }
       
-      bool operator<(const TypeInBranchType& iRHS) const {
+      bool operator<(TypeInBranchType const& iRHS) const {
          if(branch_ < iRHS.branch_) {
             return true;
          }
@@ -54,12 +53,10 @@ namespace edm {
          return id_ < iRHS.id_;
       }
    private:
-      edm::TypeID id_;
-      edm::BranchType branch_;
-      
+      TypeID id_;
+      BranchType branch_;
    };
    
 }
-
 
 #endif
