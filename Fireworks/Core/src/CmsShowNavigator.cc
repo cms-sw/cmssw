@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.23 2009/05/21 14:38:07 chrjones Exp $
+// $Id: CmsShowNavigator.cc,v 1.24 2009/05/21 15:59:02 chrjones Exp $
 //
 
 // #define Fireworks_Core_CmsShowNavigator_WriteLeakInfo
@@ -346,7 +346,14 @@ CmsShowNavigator::filterEventsAndReset(std::string selection)
       while(TObject* branchObj = pIt->Next()) {
          TBranch* b = dynamic_cast<TBranch*> (branchObj);
          if(0!=b) {
-            std::cout <<" branch '"<<b->GetName()<<"' "<<static_cast<void*>(b->GetAddress())<<std::endl;
+            //std::cout <<" branch '"<<b->GetName()<<"' "<<static_cast<void*>(b->GetAddress())<<std::endl;
+            const char * name = b->GetName();
+            unsigned int length = strlen(name);
+            if(length > 1 && name[length-2]!='.') {
+               //this is not a data branch so we should ignore it
+               previousBranchAddresses.push_back(0);
+               continue;
+            }
             if(0!=b->GetAddress()) {
                b->SetAddress(0);
             }
