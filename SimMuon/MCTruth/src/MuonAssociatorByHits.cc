@@ -13,6 +13,8 @@
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
+#include "DataFormats/CSCRecHit/interface/CSCSegment.h"
 #include <sstream>
 
 using namespace reco;
@@ -242,8 +244,8 @@ MuonAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
     n_muon_matched_hits = n_dt_matched_hits + n_csc_matched_hits + n_rpc_matched_hits;
 
     edm::LogVerbatim("MuonAssociatorByHits")
-      <<"\n"<<"##### all RecHits = "<<(*track)->recHitsSize()
-      <<", # matching SimHits = " << n_matching_simhits <<" (may be more than one per rechit)"
+      <<"\n"<<"# All TrackingRecHits = "<<(*track)->recHitsSize()
+      <<", obtained from " << n_matching_simhits << " SimHits"
       <<"\n"<< "# valid RecHits    = " <<n_valid_hits  <<" (" <<n_tracker_valid_hits<<"/"
       <<n_dt_valid_hits<<"/"<<n_csc_valid_hits<<"/"<<n_rpc_valid_hits<<" in Tracker/DT/CSC/RPC)"
       <<"\n"<< "# selected RecHits = " <<n_selected_hits  <<" (" <<n_tracker_selected_hits<<"/"
@@ -251,15 +253,14 @@ MuonAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
       <<"\n"<< "# matched RecHits  = " <<n_matched_hits<<" ("<<n_tracker_matched_hits<<"/"
       <<n_dt_matched_hits<<"/"<<n_csc_matched_hits<<"/"<<n_rpc_matched_hits<<" in Tracker/DT/CSC/RPC)";
 
-    if (!n_matching_simhits) {
-      edm::LogWarning("MuonAssociatorByHits")<<"*** WARNING: no matching PSimHit found for this reco::Track !";
-    }
-
-    if (n_valid_hits != (*track)->found()) {
+    if (!n_matching_simhits)
       edm::LogWarning("MuonAssociatorByHits")
-	<<"*** WARNING: Number of valid RecHits in this track should be:  track->found() = "<<(*track)->found()
+	<<"*** WARNING in MuonAssociatorByHits::associateRecoToSim: no matching PSimHit found for this reco::Track !";
+
+    if (n_valid_hits != (*track)->found())
+      edm::LogVerbatim("MuonAssociatorByHits")
+	<<"\n!!! Number of valid RecHits in this track should be:  track->found() = "<<(*track)->found()
         <<", but getMatchedIds finds:  n_valid_hits = "<<n_valid_hits;
-    }
 
     std::vector<SimHitIdpr> tracker_idcachev, muon_idcachev;
 
@@ -448,8 +449,8 @@ MuonAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
     n_muon_matched_hits = n_dt_matched_hits + n_csc_matched_hits + n_rpc_matched_hits;
 
     if (printRtS) edm::LogVerbatim("MuonAssociatorByHits")
-      <<"\n"<<"*** # all RecHits = "<<(*track)->recHitsSize()
-      <<", # matching PSimHit = " << n_matching_simhits <<" (may be more than one per rechit)"
+      <<"\n"<<"# All TrackingRecHits = "<<(*track)->recHitsSize()
+      <<", obtained from " << n_matching_simhits << " SimHits"
       <<"\n"<< "# valid RecHits   = " <<n_valid_hits  <<" (" <<n_tracker_valid_hits<<"/"
       <<n_dt_valid_hits<<"/"<<n_csc_valid_hits<<"/"<<n_rpc_valid_hits<<" in Tracker/DT/CSC/RPC)"
       <<"\n"<< "# selected RecHits = " <<n_selected_hits  <<" (" <<n_tracker_selected_hits<<"/"
@@ -457,17 +458,15 @@ MuonAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
       <<"\n"<< "# matched RecHits = " <<n_matched_hits<<" ("<<n_tracker_matched_hits<<"/"
       <<n_dt_matched_hits<<"/"<<n_csc_matched_hits<<"/"<<n_rpc_matched_hits<<" in Tracker/DT/CSC/RPC)";
     
-    if (!n_matching_simhits) {
+    if (printRtS && !n_matching_simhits)
       edm::LogWarning("MuonAssociatorByHits")
-	<<"*** WARNING: no matching PSimHit found for this reco::Track !";
-    }
+	<<"*** WARNING in MuonAssociatorByHits::associateSimToReco: no matching PSimHit found for this reco::Track !";
     
-    if (n_valid_hits != (*track)->found()) {
-      edm::LogWarning("MuonAssociatorByHits")
-	<<"*** WARNING: Number of valid RecHits in this track should be:  track->found() = "<<(*track)->found()
+    if (printRtS && n_valid_hits != (*track)->found())
+      edm::LogVerbatim("MuonAssociatorByHits")
+	<<"\n!!! Number of valid RecHits in this track should be:  track->found() = "<<(*track)->found()
 	<<", but getMatchedIds finds:  n_valid_hits = "<<n_valid_hits;
-    }
-
+    
     std::vector<SimHitIdpr> tracker_idcachev, muon_idcachev;
     
     if(n_matching_simhits) {
@@ -705,8 +704,8 @@ int MuonAssociatorByHits::LayerFromDetid(const DetId& detId ) const
       PXFDetId pxfid(detId.rawId()); 
       layerNumber = pxfid.disk();  
     }
-  else
-    edm::LogWarning("MuonAssociatorByHits") << "Unknown Tracker subdetector: subdetId = " <<  subdetId;
+  else edm::LogWarning("MuonAssociatorByHits") 
+    << "*** WARNING in MuonAssociatorByHits::LayerFromDetid: Unknown Tracker subdetector: subdetId = " <<  subdetId;
   
   return layerNumber;
 } 
@@ -766,12 +765,12 @@ void MuonAssociatorByHits::getMatchedIds(std::vector<SimHitIdpr>& tracker_matche
     int subdet = getHitPtr(it)->geographicalId().subdetId();
     
     if (getHitPtr(it)->isValid()) {
-      n_valid_hits++;
       SimTrackIds.clear();	  
       
       if (det == DetId::Tracker) {
 	hitlog = hitlog+" -Tracker - detID = "+detector_id.str();
 	
+	n_valid_hits++;
 	n_tracker_valid_hits++;
 	SimTrackIds = trackertruth->associateHitId(*getHitPtr(it));
 	
@@ -793,66 +792,168 @@ void MuonAssociatorByHits::getMatchedIds(std::vector<SimHitIdpr>& tracker_matche
 	if (subdet == MuonSubdetId::DT) {
 	  hitlog = hitlog+" -Muon DT - detID = "+detector_id.str();	  
 
-	  n_dt_valid_hits++;
-	  SimTrackIds = dttruth.associateHitId(*getHitPtr(it));  
-	  
-	  if (UseMuon) {
-	    n_dt_selected_hits++;
-	    n_selected_hits++;
+	  const TrackingRecHit * hitp = getHitPtr(it);
+	  const DTRecHit1D * dtrechit = dynamic_cast<const DTRecHit1D *>(hitp);
 
-	    if (!SimTrackIds.empty()) {
-	      n_dt_matched_hits++;
-	      n_matched_hits++;
-	      for(unsigned int j=0; j<SimTrackIds.size(); j++) {
-		muon_matchedIds.push_back(SimTrackIds[j]);
+	  if (dtrechit) {
+	    n_valid_hits++;
+	    n_dt_valid_hits++;
+	    SimTrackIds = dttruth.associateDTHitId(dtrechit);  
+	    
+	    if (UseMuon) {
+	      n_dt_selected_hits++;
+	      n_selected_hits++;
+	      
+	      if (!SimTrackIds.empty()) {
+		n_dt_matched_hits++;
+		n_matched_hits++;
+		for(unsigned int j=0; j<SimTrackIds.size(); j++) {
+		  muon_matchedIds.push_back(SimTrackIds[j]);
+		}
 	      }
 	    }
-	  }
-	  if (dumpDT) {
-	    const DTRecHit1D * dtrechit = dynamic_cast<const DTRecHit1D *>(&(*getHitPtr(it)));
-	    DTWireId wireid = dtrechit->wireId();
-	    stringstream wid; 
-	    wid<<wireid;
-	    std::vector<PSimHit> dtSimHits = dttruth.associateHit(*getHitPtr(it));
-	    
-	    stringstream ndthits;
-	    ndthits<<dtSimHits.size();
-            wireidlog = "\t DTWireId :"+wid.str()+", "+ndthits.str()+" associated PSimHit :";
+	    if (dumpDT) {
+	      DTWireId wireid = dtrechit->wireId();
+	      stringstream wid; 
+	      wid<<wireid;
+	      std::vector<PSimHit> dtSimHits = dttruth.associateHit(*hitp);
+	      
+	      stringstream ndthits;
+	      ndthits<<dtSimHits.size();
+	      wireidlog = "\t DTWireId :"+wid.str()+", "+ndthits.str()+" associated PSimHit :";
+	      
+	      for (unsigned int j=0; j<dtSimHits.size(); j++) {
+		stringstream index;
+		index<<j;
+		stringstream simhit;
+		simhit<<dtSimHits[j];
+		string simhitlog = "\t\t PSimHit "+index.str()+": "+simhit.str();
+		DTSimHits.push_back(simhitlog);
+	      }
+	    }  // if (dumpDT)
+	  }  // if (dtrechit)
 
-	    for (unsigned int j=0; j<dtSimHits.size(); j++) {
-	      stringstream index;
-	      index<<j;
-	      stringstream simhit;
-	      simhit<<dtSimHits[j];
-	      string simhitlog = "\t\t PSimHit "+index.str()+": "+simhit.str();
-	      DTSimHits.push_back(simhitlog);
-	    }
-	  } 
+	  else {
+	    const DTRecSegment4D * dtsegment = dynamic_cast<const DTRecSegment4D *>(hitp);
+
+	    if (dtsegment) {
+	      if (printRtS) edm::LogVerbatim("MuonAssociatorByHits")<<"\n this TrackingRecHit is a DTRecSegment4D !";
+
+	      std::vector<const TrackingRecHit *> componentHits;
+	      if (dtsegment->hasPhi()) {
+		std::vector<const TrackingRecHit *> phiHits = dtsegment->phiSegment()->recHits();
+		componentHits.insert(componentHits.end(),phiHits.begin(),phiHits.end());
+		if (printRtS) edm::LogVerbatim("MuonAssociatorByHits")<<"\t hasPhi: nr of Phi hits = "<<phiHits.size();
+	      }
+	      if (dtsegment->hasZed()) {
+		std::vector<const TrackingRecHit *> zHits = dtsegment->zSegment()->recHits();
+		componentHits.insert(componentHits.end(),zHits.begin(),zHits.end());
+		if (printRtS) edm::LogVerbatim("MuonAssociatorByHits")<<"\t hasZed: nr of Z hits = "<<zHits.size();
+	      }
+
+	      for (std::vector<const TrackingRecHit *>::const_iterator ithit =componentHits.begin(); 
+		   ithit != componentHits.end(); ++ithit) {
+		n_valid_hits++;
+		n_dt_valid_hits++; 
+
+		const DTRecHit1D * dtrechit1D = dynamic_cast<const DTRecHit1D *>(*ithit);
+
+		if (dtrechit1D) {
+		  SimTrackIds = dttruth.associateDTHitId(dtrechit1D);  
+		  
+		  if (UseMuon) {
+		    n_dt_selected_hits++;
+		    n_selected_hits++;
+		    
+		    if (!SimTrackIds.empty()) {
+		      n_dt_matched_hits++;
+		      n_matched_hits++;
+		      for(unsigned int j=0; j<SimTrackIds.size(); j++) {
+			muon_matchedIds.push_back(SimTrackIds[j]);
+		      }
+		    }
+		  }  
+		} else if (printRtS) edm::LogWarning("MuonAssociatorByHits")
+		  <<"*** WARNING in MuonAssociatorByHits::getMatchedIds, null dynamic_cast of a DT TrackingRecHit !";
+	      }
+
+	    }  // if (dtsegment)
+	    else if (printRtS) edm::LogWarning("MuonAssociatorByHits")
+	      <<"*** WARNING in MuonAssociatorByHits::getMatchedIds, DT TrackingRecHit is neither DTRecHit1D nor DTRecSegment4D ! ";	    
+	  }
 	}
 	
 	else if (subdet == MuonSubdetId::CSC) {
-	  hitlog = hitlog+" -Muon CSC- detID = "+detector_id.str();	  
-	  
-	  n_csc_valid_hits++;
-	  SimTrackIds = csctruth.associateHitId(*getHitPtr(it)); 
+	  hitlog = hitlog+" -Muon CSC- detID = "+detector_id.str();
 
-	  if (UseMuon) {
-	    n_csc_selected_hits++;
-	    n_selected_hits++;
-	    
-	    if (!SimTrackIds.empty()) {
-	      n_csc_matched_hits++;
-	      n_matched_hits++;
-	      for(unsigned int j=0; j<SimTrackIds.size(); j++) {
-		muon_matchedIds.push_back(SimTrackIds[j]);
+	  const TrackingRecHit * hitp = getHitPtr(it);
+	  const CSCRecHit2D * cscrechit = dynamic_cast<const CSCRecHit2D *>(hitp);
+
+	  if (cscrechit) {
+            n_valid_hits++;
+	    n_csc_valid_hits++; 
+	    SimTrackIds = csctruth.associateCSCHitId(cscrechit);
+
+	    if (UseMuon) {
+	      n_csc_selected_hits++;
+	      n_selected_hits++;
+	      
+	      if (!SimTrackIds.empty()) {
+		n_csc_matched_hits++;
+		n_matched_hits++;
+		for(unsigned int j=0; j<SimTrackIds.size(); j++) {
+		  muon_matchedIds.push_back(SimTrackIds[j]);
+		}
 	      }
 	    }
-	  } 
+
+	  }  // if (cscrechit)
+
+	  else {
+	    const CSCSegment * cscsegment = dynamic_cast<const CSCSegment *>(hitp);
+	    
+	    if (cscsegment) {
+	      if (printRtS) edm::LogVerbatim("MuonAssociatorByHits")<<"\n this TrackingRecHit is a CSCSegment !";
+	      
+	      std::vector<const TrackingRecHit *> componentHits = cscsegment->recHits();
+	      if (printRtS) edm::LogVerbatim("MuonAssociatorByHits")<<"\t nr of hits = "<<componentHits.size();
+
+	      for (std::vector<const TrackingRecHit *>::const_iterator ithit =componentHits.begin(); 
+		   ithit != componentHits.end(); ++ithit) {
+		n_valid_hits++;
+		n_csc_valid_hits++;
+		
+		const CSCRecHit2D * cscrechit2D = dynamic_cast<const CSCRecHit2D *>(*ithit);
+
+		if (cscrechit2D) {
+		  SimTrackIds = csctruth.associateCSCHitId(cscrechit2D);
+		  
+		  if (UseMuon) {
+		    n_csc_selected_hits++;
+		    n_selected_hits++;
+		    
+		    if (!SimTrackIds.empty()) {
+		      n_csc_matched_hits++;
+		      n_matched_hits++;
+		      for(unsigned int j=0; j<SimTrackIds.size(); j++) {
+			muon_matchedIds.push_back(SimTrackIds[j]);
+		      }
+		    }
+		  }
+		} else if (printRtS) edm::LogWarning("MuonAssociatorByHits")
+		  <<"*** WARNING in MuonAssociatorByHits::getMatchedIds, null dynamic_cast of a CSC TrackingRecHit !";
+	      }
+
+	    }  // if (cscsegment)
+	    else if (printRtS) edm::LogWarning("MuonAssociatorByHits")
+	      <<"*** WARNING in MuonAssociatorByHits::getMatchedIds, CSC TrackingRecHit is neither CSCRecHit2D nor CSCSegment ! ";
+	  }
 	}
 	
 	else if (subdet == MuonSubdetId::RPC) {
 	  hitlog = hitlog+" -Muon RPC- detID = "+detector_id.str();	  
 	  
+	  n_valid_hits++;
 	  n_rpc_valid_hits++;
 	  SimTrackIds = rpctruth.associateRecHit(*getHitPtr(it));  
 	  
