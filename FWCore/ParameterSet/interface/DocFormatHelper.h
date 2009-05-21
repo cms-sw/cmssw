@@ -41,12 +41,12 @@ namespace edm {
     void init();
 
     bool brief() const { return brief_; }
-    unsigned lineWidth() const { return lineWidth_; }
+    size_t lineWidth() const { return lineWidth_; }
     int indentation() const { return indentation_; }
     int startColumn2() const { return startColumn2_; }
 
     void setBrief(bool value) { brief_ = value; }
-    void setLineWidth(unsigned value) { lineWidth_ = value; }
+    void setLineWidth(size_t value) { lineWidth_ = value; }
     void setIndentation(int value) { indentation_ = value; }
 
     std::string const& section() const { return section_; }
@@ -55,13 +55,13 @@ namespace edm {
     int pass() const { return pass_; }
     void setPass(int value) { pass_ = value; }
 
-    unsigned column1() const { return column1_; }
-    unsigned column2() const { return column2_; }
-    unsigned column3() const { return column3_; }
+    size_t column1() const { return column1_; }
+    size_t column2() const { return column2_; }
+    size_t column3() const { return column3_; }
 
-    void setAtLeast1(unsigned width) { if (width > column1_) column1_ = width; }
-    void setAtLeast2(unsigned width) { if (width > column2_) column2_ = width; }
-    void setAtLeast3(unsigned width) { if (width > column3_) column3_ = width; }
+    void setAtLeast1(size_t width) { if (width > column1_) column1_ = width; }
+    void setAtLeast2(size_t width) { if (width > column2_) column2_ = width; }
+    void setAtLeast3(size_t width) { if (width > column3_) column3_ = width; }
 
     int counter() const { return counter_; }
     void setCounter(int value) { counter_ = value; }
@@ -71,12 +71,12 @@ namespace edm {
     DescriptionParent parent() const { return parent_; }
     void setParent(DescriptionParent value) { parent_ = value; }
 
-    unsigned commentWidth() const;
+    size_t commentWidth() const;
 
     static void wrapAndPrintText(std::ostream & os,
                                  std::string const& text,
-                                 unsigned indent,
-                                 unsigned suggestedWidth);
+                                 size_t indent,
+                                 size_t suggestedWidth);
 
     void indent(std::ostream & os) const;
     void indent2(std::ostream & os) const;
@@ -88,17 +88,17 @@ namespace edm {
   private:
 
     bool brief_;
-    unsigned lineWidth_;
+    size_t lineWidth_;
     int indentation_;
-    unsigned startColumn2_;
+    size_t startColumn2_;
 
     std::string section_;
 
     int pass_;
 
-    unsigned column1_;
-    unsigned column2_;
-    unsigned column3_;
+    size_t column1_;
+    size_t column2_;
+    size_t column3_;
 
     int counter_;
 

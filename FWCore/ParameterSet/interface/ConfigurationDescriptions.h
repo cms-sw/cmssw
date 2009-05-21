@@ -56,7 +56,7 @@ namespace edm {
                std::string const& moduleLabel,
                bool brief,
                bool printOnlyLabels,
-               unsigned lineWidth,
+               size_t lineWidth,
                int indentation,
                int iPlugin) const;
 
@@ -80,7 +80,7 @@ namespace edm {
                        std::string const& moduleLabel,
                        bool brief,
                        bool printOnlyLabels,
-                       unsigned lineWidth,
+                       size_t lineWidth,
                        int indentationn,
                        DescriptionCounter & counter) const;
 
@@ -90,7 +90,7 @@ namespace edm {
                        std::string const& moduleLabel,
                        bool brief,
                        bool printOnlyLabels,
-                       unsigned lineWidth,
+                       size_t lineWidth,
                        int indentationn,
                        DescriptionCounter & counter) const;
 

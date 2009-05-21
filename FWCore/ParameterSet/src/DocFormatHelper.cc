@@ -16,11 +16,11 @@ namespace edm {
     parent_ = OTHER;
   }
 
-  unsigned DocFormatHelper::commentWidth() const {
+  size_t DocFormatHelper::commentWidth() const {
 
     // Make the length of a comment at least 30 characters
     // per line, longer if there is more space available
-    unsigned width = 30U;
+    size_t width = 30U;
     if (lineWidth() > startColumn2() + 30U) {
       width = lineWidth() - startColumn2();
     }
@@ -43,16 +43,16 @@ namespace edm {
   // printed making the output not nicely formatted ...
   void DocFormatHelper::wrapAndPrintText(std::ostream & os,
                                          std::string const& text,
-                                         unsigned indent,
-                                         unsigned suggestedWidth) {
+                                         size_t indent,
+                                         size_t suggestedWidth) {
 
-    unsigned length = text.size();
+    size_t length = text.size();
 
     // The position in the text where we start printing the next line
-    unsigned startLine = 0U;
+    size_t startLine = 0U;
 
     // The position in the text where we start looking for the next blank space
-    unsigned startNextSearch = 0U;
+    size_t startNextSearch = 0U;
 
     // Loop over spaces in the text
     while (true) {
@@ -68,7 +68,7 @@ namespace edm {
       }
 
       // Look for next space
-      unsigned pos = text.find_first_of(' ', startNextSearch);
+      size_t pos = text.find_first_of(' ', startNextSearch);
 
       // No more spaces
       if (pos == std::string::npos) {
