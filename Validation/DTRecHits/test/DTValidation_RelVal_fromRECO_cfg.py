@@ -15,6 +15,12 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 # Validation RecHits
 process.load("Validation.DTRecHits.DTRecHitQuality_cfi")
 process.rechivalidation.doStep2 = False
+# process.rechivalidation.recHitLabel = 'hltDt1DRecHits'
+# process.rechivalidation.segment4DLabel = 'hltDt4DSegments'
+# process.seg2dsuperphivalidation.segment4DLabel = 'hltDt4DSegments'
+# process.seg4dvalidation.segment4DLabel = 'hltDt4DSegments'
+
+
 
 process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(-1)
