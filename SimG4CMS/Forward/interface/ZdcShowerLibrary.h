@@ -45,18 +45,18 @@ public:
   void                        initRun(G4ParticleTable * theParticleTable);
   std::vector<Hit>&           getHits(G4Step * aStep, bool & ok);
   int                         getEnergyFromLibrary(G4ThreeVector posHit, G4ThreeVector momDir, double energy,
-                                                   int parCode,HcalZDCDetId::Section section, bool side, int channel);
+                                                   G4int parCode,HcalZDCDetId::Section section, bool side, int channel);
   int                         photonFluctuation(double eav, double esig,double edis);
-  int                         encodePartID(int parCode);
+  int                         encodePartID(G4int parCode);
   
  protected:
 
 private:
 
   bool                        verbose;
-  int                         emPDG, epPDG, gammaPDG;
-  int                         pi0PDG, etaPDG, nuePDG, numuPDG, nutauPDG;
-  int                         anuePDG, anumuPDG, anutauPDG, geantinoPDG;
+  G4int                         emPDG, epPDG, gammaPDG;
+  G4int                         pi0PDG, etaPDG, nuePDG, numuPDG, nutauPDG;
+  G4int                         anuePDG, anumuPDG, anutauPDG, geantinoPDG;
 
   int                         npe;
   std::vector<ZdcShowerLibrary::Hit> hits;
