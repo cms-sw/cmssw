@@ -19,6 +19,7 @@
 
 
 using namespace edm;
+using namespace std;
 
 L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
   dbe_(0),
@@ -101,6 +102,19 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
     orbitNumL1A = dbe_->book1D("Orbit Number L1A","OrbitNumber L1A",200,0,10E8);       
     bunchCrossingL1A = dbe_->book1D("Bunch Crossing L1A", "Bunch Crossing L1A", 3564, -0.5, 3563.5);    
     eventType = dbe_->book1D("Event Type", "Event Type", 8, -0.5, 7.5);
+
+
+    for(int j=0; j<3; j++) {
+      sprintf(hname, "BX_Correlation_%d", j+1);
+      sprintf(mename, "BX_Correlation_%d", j+1);
+
+      bunchCrossingCorr[j] = dbe_->book2D(hname, mename, 99,-0.5,3563.5, 99,-0.5,3563.5);
+      bunchCrossingCorr[j]->setAxisTitle("Current Event", 1);
+    }    				     
+    bunchCrossingCorr[0]->setAxisTitle("Previous Event" , 2);
+    bunchCrossingCorr[1]->setAxisTitle("Second Previous Event" , 2);
+    bunchCrossingCorr[2]->setAxisTitle("Third Previous Event" , 2);
+
   }    
 
 
@@ -148,22 +162,26 @@ L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      L1TriggerScalersCollection::const_iterator it = triggerScalers->begin();
      if(triggerScalers->size()){ 
 
-	 unsigned int lumisection = it->luminositySection();
+       //for(L1TriggerScalersCollection::const_iterator it = triggerScalers->begin();
+       //it != triggerScalers->end();
+       //++it){
+       
+       unsigned int lumisection = it->luminositySection();
 //         std::cout << "lumisection " << lumisection << std::endl; 
 
-	 if(lumisection){
-           orbitNum ->Fill(it->orbitNumber());        
-           trigNum ->Fill(it->triggerNumber());
-	   eventNum ->Fill(it->eventNumber());
- 	   finalTrig ->Fill(it->finalTriggersDistributed());
-	   randTrig ->Fill(it->randomTriggers());
-	   numberResets ->Fill(it->numberResets());
-	   deadTime ->Fill(it->deadTime());
-//           std::cout <<"dead time " << it->deadTime() << std::endl;
+       if(lumisection){
+	 orbitNum ->Fill(it->orbitNumber());        
+	 trigNum ->Fill(it->triggerNumber());
+	 eventNum ->Fill(it->eventNumber());
+	 finalTrig ->Fill(it->finalTriggersDistributed());
+	 randTrig ->Fill(it->randomTriggers());
+	 numberResets ->Fill(it->numberResets());
+	 deadTime ->Fill(it->deadTime());
+	   //           std::cout <<"dead time " << it->deadTime() << std::endl;
 
-	   lostFinalTriggers ->Fill(it->lostFinalTriggers());                                    
+	 lostFinalTriggers ->Fill(it->lostFinalTriggers());                                    
 
-           std::vector<unsigned int> algoBits = it->triggers();
+	 std::vector<unsigned int> algoBits = it->triggers();
 //	   unsigned int orbitN = it->orbitNumber();
 //	   std::vector<float> algoBitsF(algoBits.begin(), algoBits.end());
 
@@ -174,20 +192,18 @@ L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //           std::cout << "orbitNum " << orbitN << std::endl; 
 //	   }
          
-	   if(bufferBits_ != algoBits){ 
+	 if(bufferBits_ != algoBits){ 
   
-	     bufferBits_ = algoBits;
+	   bufferBits_ = algoBits;
 
 //           for ( int i=0; i<ScalersRaw::N_L1_TRIGGERS_v1; i++){ 
-             for (unsigned int i=0; i< algorithmRates_.size(); i++){ 
-
-
+	   for (unsigned int i=0; i< algorithmRates_.size(); i++){ 
 //               std::cout << "algobits"<< i << " "  << algoBits[i] << std::endl;
-	       algorithmRates_[i] = (float) algoBits[i]/N_LUMISECTION_TIME ;
+	     algorithmRates_[i] = (float) algoBits[i]/N_LUMISECTION_TIME ;
 //             std::cout << "algorithmRates_"<< i << " "  << algorithmRates_[i] << std::endl;
-               algoRate[i]->setBinContent(it->luminositySection()+1, algorithmRates_[i]); 
-	     } 	   
-           }
+	     algoRate[i]->setBinContent(it->luminositySection()+1, algorithmRates_[i]); 
+	   } 	   
+	 }
 	 //std::cout << "algoBits.size = " << algoBits.size() << std::endl;
 	 //std::cout << "bufferBits_.size = " << bufferBits_.size() << std::endl;
 
@@ -209,7 +225,7 @@ L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
  	         it->luminositySection(), it->bunchCrossingErrors());
          std::cout << line << std::endl;
          */
-         }
+       }
      }
 /*
     L1TriggerRatesCollection::const_iterator it2 = triggerRates->begin();
@@ -226,9 +242,12 @@ L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 */
 
      LumiScalersCollection::const_iterator it3 = lumiScalers->begin();
- 
      if(lumiScalers->size()){ 
-   
+    
+       //for(LumiScalersCollection::const_iterator it3 = lumiScalers->begin();
+       //it3 != lumiScalers->end();
+       //++it3){
+       
        instLumi->Fill(it3->instantLumi());
        instLumiErr->Fill(it3->instantLumiErr()); 
        instLumiQlty->Fill(it3->instantLumiQlty()); 
@@ -251,14 +270,31 @@ L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        */
      }
 
-     L1AcceptBunchCrossingCollection::const_iterator it4 = bunchCrossings->begin();
+     //     L1AcceptBunchCrossingCollection::const_iterator it4 = bunchCrossings->begin();
+     //if(bunchCrossings->size()){
+     //int counttest=0;
+     int l1accept, bx0 = -1;
 
-     if(bunchCrossings->size()){
+     for(L1AcceptBunchCrossingCollection::const_iterator it4 = bunchCrossings->begin();
+	 it4 != bunchCrossings->end();
+	 ++it4){
+       //counttest++;
+       //cout << "counttest = " << counttest << endl;
+       //cout << "bunchCrossing = "  << it4->bunchCrossing() << endl;
+       //cout << "l1AcceptOffset = " << it4->l1AcceptOffset() << endl;
 
-       orbitNumL1A->Fill(it4->orbitNumber());
-       bunchCrossingL1A->Fill(it4->bunchCrossing());
-       eventType->Fill(it4->eventType());
-	
+       l1accept = abs(it4->l1AcceptOffset());   
+
+       if(l1accept == 0){
+	 orbitNumL1A->Fill(it4->orbitNumber());
+
+	 bx0 = it4->bunchCrossing();
+	 bunchCrossingL1A->Fill(bx0);
+
+	 eventType->Fill(it4->eventType());
+       }
+       else bunchCrossingCorr[l1accept-1]->Fill(bx0, it4->bunchCrossing());
+
      }
    
    } // getByLabel succeeds for scalers

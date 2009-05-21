@@ -93,6 +93,9 @@ private:
   MonitorElement *  orbitNumL1A;
   MonitorElement *  bunchCrossingL1A;
   MonitorElement *  eventType;
+  MonitorElement *  bunchCrossingCorr[3];
+
+
 
 };
 
