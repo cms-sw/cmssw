@@ -54,7 +54,6 @@
 #include "RecoParticleFlow/Benchmark/interface/PFJetBenchmark.h"
 #include "RecoParticleFlow/Benchmark/interface/PFMETBenchmark.h"
 
-#include "RecoParticleFlow/PFRootEvent/interface/METManager.h"
 #include "RecoParticleFlow/PFRootEvent/interface/FWLiteJetProducer.h"
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
@@ -67,6 +66,8 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/MET.h"
+
+#include "RecoParticleFlow/PFRootEvent/interface/METManager.h"
 
 #include <TObject.h>
 #include "TEllipse.h"
@@ -260,7 +261,7 @@ class PFRootEventManager {
   /// reconstruct pf jets
   void reconstructPFJets();
   
-  /// reconstruct pf MET
+  // reconstruct pf MET
   void reconstructPFMets();
   
 
@@ -466,7 +467,10 @@ class PFRootEventManager {
   
   ///CMSSW Calo Jet branch
   TBranch*   recCaloBranch_;
-  
+
+  ///CMSSW corrected calo Jet branch
+  TBranch*   reccorrCaloBranch_;
+
   ///CMSSW  PF Jet branch
   TBranch*   recPFBranch_;
 
@@ -592,6 +596,9 @@ class PFRootEventManager {
   /// CMSSW calo Jets
   std::vector<reco::CaloJet> caloJetsCMSSW_;
 
+  /// CMSSW corrected calo Jets
+  std::vector<reco::CaloJet> corrcaloJetsCMSSW_;
+
   /// CMSSW GenParticles
   reco::GenParticleCollection genParticlesCMSSW_;
 
@@ -655,7 +662,7 @@ class PFRootEventManager {
 
   /// PFMET Benchmark
   PFMETBenchmark PFMETBenchmark_;
-  double trueMETcut;
+  double MET1cut;
   double DeltaMETcut;
   double DeltaPhicut;
 
@@ -718,7 +725,10 @@ class PFRootEventManager {
 
   /// MET on/off
   bool   doMet_;  
-  
+
+  /// propagate the Jet Energy Corrections to the caloMET on/off
+  bool JECinCaloMet_;
+
   /// jet algo type
   int    jetAlgoType_;
 
