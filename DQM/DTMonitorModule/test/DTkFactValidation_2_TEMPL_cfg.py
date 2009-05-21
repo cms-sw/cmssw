@@ -73,11 +73,12 @@ process.modulo3=process.resolutionTest.clone()
 process.modulo3.histoTag2D = 'hResDistVsDist_STEP3' 
 process.modulo3.histoTag  = 'hResDist_STEP3'
 process.modulo3.STEP = 'STEP3'
-process.modulo3.OutputMEsInRootFile = cms.bool(False)
+process.modulo3.OutputMEsInRootFile = cms.bool(True)
 process.modulo3.readFile = cms.untracked.bool(True)
 process.modulo3.inputFile = cms.untracked.string('/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/RUNPERIODTEMPLATE/ttrig/DTkFactValidation_RUNNUMBERTEMPLATE.root')
+process.modulo3.OutputFileName = cms.string('/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/RUNPERIODTEMPLATE/ttrig/SummaryResiduals_RUNNUMBERTEMPLATE.root')
 
-process.secondStep = cms.Sequence(process.resolutionTest_step1*process.resolutionTest_step2*process.resolutionTest_step3*process.qTester)
+process.secondStep = cms.Sequence(process.modulo1*process.modulo2*process.modulo3*process.qTester)
 process.p = cms.Path(process.secondStep)
 process.DQM.collectorHost = ''
 
