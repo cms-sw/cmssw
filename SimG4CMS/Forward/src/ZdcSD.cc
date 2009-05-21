@@ -6,7 +6,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/Forward/interface/ZdcSD.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "G4SDManager.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
@@ -18,7 +17,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "G4ios.hh"
 #include "G4Cerenkov.hh"
-
+#include "G4ParticleTable.hh"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Random/Randomize.h"
 
@@ -47,18 +46,26 @@ ZdcSD::ZdcSD(G4String name, const DDCompactView & cpv,
      << useShowerLibrary 
      << "\nUse of Shower hits method is set to "
      << useShowerHits; 			
+ 
+  edm::LogInfo("ForwardSim")
+     << "\nEnergy Threshold Cut set to " 
+     << zdcHitEnergyCut/GeV
+     <<" (GeV)";
   
-  if(useShowerLibrary) showerLibrary = new ZdcShowerLibrary(name, cpv, p);
-
-  hits.clear();
-  
+  if(useShowerLibrary){
+    showerLibrary = new ZdcShowerLibrary(name, cpv, p);
+    G4ParticleTable *theParticleTable = G4ParticleTable::GetParticleTable();
+    showerLibrary->initRun(theParticleTable); 
+  }
+  hits.clear();  
 }
 
 ZdcSD::~ZdcSD() {
  
   //if(numberingScheme) delete numberingScheme;
   //if(showerLibrary) delete showerLibrary;
-  LogDebug("ForwardSim") <<"end of ZdcSC";
+  edm::LogInfo("ForwardSim") 
+    <<"end of ZdcSD\n";
 }
 
 
@@ -90,9 +97,9 @@ void ZdcSD::getFromLibrary (G4Step* aStep) {
 
   double etrack    = preStepPoint->GetKineticEnergy();
   int    primaryID = 0;
-
+  
   hits.clear();
-
+  
   if (etrack >= zdcHitEnergyCut) {
     primaryID    = theTrack->GetTrackID();
   } else {
@@ -100,62 +107,63 @@ void ZdcSD::getFromLibrary (G4Step* aStep) {
     if (primaryID == 0) primaryID = theTrack->GetTrackID();
   }
   
-
+  
   // Reset entry point for new primary
   posGlobal = preStepPoint->GetPosition();
   resetForNewPrimary(posGlobal, etrack);
   //  int primaryID = setTrackID(aStep);
-
   if (etrack >= zdcHitEnergyCut){
     // create hits only if above threshold
-    /** std::cout<<"----------------New track------------------------------"<<std::endl;
-        std::cout<<"Incident EnergyTrack: "<<etrack<<std::endl;
-        std::cout<<"Zdc Cut Energy for Hits: "<<zdcHitEnergyCut<<std::endl;
-    **/
-    hits.swap(showerLibrary->getHits(aStep, ok));
+
+    LogDebug("ForwardSim")
+      //std::cout
+      <<"----------------New track------------------------------\n"
+      <<"Incident EnergyTrack: "<<etrack<< " MeV \n"
+      <<"Zdc Cut Energy for Hits: "<<zdcHitEnergyCut<<" MeV \n"
+      << "ZdcSD::getFromLibrary " <<hits.size() <<" hits for "
+      << GetName() << " of " << primaryID << " with " 
+      << theTrack->GetDefinition()->GetParticleName() << " of " 
+      << preStepPoint->GetKineticEnergy()<< " MeV\n"; 
     
-    LogDebug("ForwardSim") << "ZdcSD::getFromLibrary " <<hits.size() <<" hits for "
-                           << GetName() << " of " << primaryID << " with " 
-                           << theTrack->GetDefinition()->GetParticleName() << " of " 
-                           << preStepPoint->GetKineticEnergy()/GeV << " GeV";
+    hits.swap(showerLibrary->getHits(aStep, ok));
+  
+    
   }
  
   for (unsigned int i=0; i<hits.size(); i++) {
-    G4ThreeVector hitPoint = hits[i].position;
-    G4ThreeVector hitEntry = hits[i].entryLocal;
-    double time            = hits[i].time;
-    unsigned int unitID    = hits[i].detID;
-    double eHAD       = hits[i].DeHad;
-    double eEM        = hits[i].DeEM;
-    currentID.setID(unitID, time, primaryID);
-    
-    // check if it is in the same unit and timeslice as the previous on
-   
-    if (currentID == previousID) {
-      updateHit(currentHit);
-
-    } else {
-      currentHit = createNewHit();
-    }
+      G4ThreeVector hitPoint = hits[i].position;
+      G4ThreeVector hitEntry = hits[i].entryLocal;
+      double time            = hits[i].time;
+      unsigned int unitID    = hits[i].detID;
+      double eHAD       = hits[i].DeHad;
+      double eEM        = hits[i].DeEM;
+      currentID.setID(unitID, time, primaryID);
+      
+      // check if it is in the same unit and timeslice as the previous on
+      
+      if (currentID == previousID) {
+	updateHit(currentHit);
+	
+      } else {
+	currentHit = createNewHit();
+      }
         
-    currentHit->setPosition(hitPoint.x(),hitPoint.y(),hitPoint.z());
-    currentHit->setEM(eEM);
-    currentHit->setHadr(eHAD);
-    currentHit->setIncidentEnergy(etrack);
-    currentHit->setEntryLocal(hitEntry.x(),hitEntry.y(),hitEntry.z());
-    /**
-       std::cout<<"Final Hit number:"<<i<<"-->"
-       <<"New HitID: "<<currentHit->getUnitID()
-       <<" New EM Energy: "<<currentHit->getEM()
-       <<" New HAD Energy: "<<currentHit->getHadr()
-       <<" New HitEntryPoint: "<<currentHit->getEntryLocal()
-       <<" New IncidentEnergy: "<<currentHit->getIncidentEnergy()
-       <<" New HitPosition: "<<hitPoint<<std::endl;
-    **/  
-  }
-  //if (etrack >= zdcHitEnergyCut)std::cout<<"--------------------------------------"<<std::endl;
-     
-
+      currentHit->setPosition(hitPoint.x(),hitPoint.y(),hitPoint.z());
+      currentHit->setEM(eEM);
+      currentHit->setHadr(eHAD);
+      currentHit->setIncidentEnergy(etrack);
+      currentHit->setEntryLocal(hitEntry.x(),hitEntry.y(),hitEntry.z());
+      
+      /**   std::cout<<"Final Hit number:"<<i<<"-->"
+	       <<"New HitID: "<<currentHit->getUnitID()
+	       <<" New EM Energy: "<<currentHit->getEM()
+	       <<" New HAD Energy: "<<currentHit->getHadr()
+	       <<" New HitEntryPoint: "<<currentHit->getEntryLocal()
+	       <<" New IncidentEnergy: "<<currentHit->getIncidentEnergy()
+	       <<" New HitPosition: "<<hitPoint<<std::endl;
+      **/
+    }
+         
   //Now kill the current track
   if (ok) {
     theTrack->SetTrackStatus(fStopAndKill);
