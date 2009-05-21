@@ -17,6 +17,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -58,6 +59,12 @@ class PFMETBenchmark {
 			   const reco::GenParticleCollection&, 
 			   const reco::CaloMETCollection&,
 			   const reco::METCollection&);
+  void calculateQuantities(const reco::PFMETCollection&, 
+			   const reco::GenParticleCollection&, 
+			   const reco::CaloMETCollection&,
+			   const reco::METCollection&,
+			   const std::vector<reco::CaloJet>,
+			   const std::vector<reco::CaloJet>);
   float getTrueMET(){return true_met;}
   float getTruePhi(){return true_phi;}
   float getTrueSET(){return true_set;}
@@ -87,7 +94,7 @@ class PFMETBenchmark {
   float getDeltaTCSET(){return tc_set - true_set;}
   double mpi_pi(double angle);
   void analyse();
-  void FitSlicesInY(TH2F*, TH1F*, TH1F*, bool, int);
+  //void FitSlicesInY(TH2F*, TH1F*, TH1F*, bool, int);
   void write();
 	
  private:
@@ -101,15 +108,32 @@ class PFMETBenchmark {
   TH2F* hSETvsDeltaSET;
   TH2F* hSETvsDeltaMET;
   TH1F* hMEX;
+  TH1F* hDeltaMEX;
   TH1F* hDeltaMET;
   TH1F* hDeltaPhi;
   TH1F* hDeltaSET;
+
+  TH2F* hDeltaPFMETvstrueMET;
+  TH2F* hDeltaCaloMETvstrueMET;
+  TH2F* hDeltaPFPhivstrueMET;
+  TH2F* hDeltaCaloPhivstrueMET;
+  TH2F* hCaloMETvstrueMET;
+  TH2F* hPFMETvstrueMET;
+  TH2F* hDeltaCaloMEXvstrueSET;
+  TH2F* hDeltaPFMEXvstrueSET;
+  TH1F* hTrueMET;
+  TH1F* hCaloMET;
+  TH1F* hPFMET;
+  TH1F* hTCMET;
+  TH2F* hDeltaTCMETvstrueMET;
+  TH2F* hDeltaTCPhivstrueMET;
 
   TProfile* profileCaloSETvsCaloSETresp;
   TProfile* profileCaloMETvsCaloMETresp;
   TH2F* hCaloSETvsDeltaCaloSET;
   TH2F* hCaloSETvsDeltaCaloMET;
   TH1F* hCaloMEX;
+  TH1F* hDeltaCaloMEX;
   TH1F* hDeltaCaloMET;
   TH1F* hDeltaCaloPhi;
   TH1F* hDeltaCaloSET;
@@ -119,16 +143,20 @@ class PFMETBenchmark {
   TH2F* hTCSETvsDeltaTCSET;
   TH2F* hTCSETvsDeltaTCMET;
   TH1F* hTCMEX;
+  TH1F* hDeltaTCMEX;
   TH1F* hDeltaTCMET;
   TH1F* hDeltaTCPhi;
   TH1F* hDeltaTCSET;
 
-  TH1F *hmeanPF;   
-  TH1F *hmeanCalo; 
-  TH1F *hsigmaPF;  
-  TH1F *hsigmaCalo;
-  TH1F *hrmsPF;    
-  TH1F *hrmsCalo;  
+  TH2F* hDeltaTCMEXvstrueSET;
+  TH2F* hTCMETvstrueMET;
+
+  //TH1F *hmeanPF;   
+  //TH1F *hmeanCalo; 
+  //TH1F *hsigmaPF;  
+  //TH1F *hsigmaCalo;
+  //TH1F *hrmsPF;    
+  //TH1F *hrmsCalo;  
 
   std::string outputFile_;	
 
