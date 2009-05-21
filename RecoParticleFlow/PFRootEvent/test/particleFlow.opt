@@ -65,6 +65,9 @@ root recPFJetBranchName 	recoPFJets_iterativeCone5PFJets__PROD.obj
 // Calo Jets read from root file
 root recCaloJetBranchName	recoCaloJets_iterativeCone5CaloJets__PROD.obj
 
+// Corrected calo Jets read from root file
+root reccorrCaloJetBranchName	recoCaloJets_L2L3CorJetIC5Calo__PROD.obj
+
 // Gen Jets read from root file
 root genParticlesforMETBranchName 	recoGenParticles_genParticles__PROD.obj
 // PF MET read from root file
@@ -416,6 +419,9 @@ pfjet_benchmark deltaRMax 0.1
 //PFMET benchmark options ---------------------------------------------------
 
 pfmet_benchmark	on/off	0
+
+// propagate the Jet Energy Corrections to the caloMET on/off
+pfmet_benchmark JECinCaloMET 1
 
 //debug yes/no
 pfmet_benchmark debug 0
