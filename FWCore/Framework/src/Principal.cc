@@ -411,6 +411,9 @@ namespace edm {
     }
 
     for(TypeLookup::const_iterator it = range.first; it != range.second; ++it) {
+      if (it->isFirst() && it != range.first) {
+	return false;
+      }
       if (!processName.empty() && processName != it->branchDescription()->processName()) {
         continue;
       }

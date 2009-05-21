@@ -385,7 +385,15 @@ namespace edm {
         return itPair;
      }
 
-     return std::equal_range(itPair.first, itPair.second, std::make_pair(&moduleLabel, &productInstanceName), CompareModuleLabelAndProductInstanceName());  
+     // Advance lower bound only
+     itPair.first = std::lower_bound(itPair.first, itPair.second, std::make_pair(&moduleLabel, &productInstanceName), CompareModuleLabelAndProductInstanceName());  
+     // Protect against no match
+     if (itPair.second < itPair.first ||
+         itPair.first->branchDescription()->moduleLabel() != moduleLabel ||
+         itPair.first->branchDescription()->productInstanceName() != productInstanceName) {
+       itPair.second = itPair.first;
+     }
+     return itPair;
   }
   
   //
