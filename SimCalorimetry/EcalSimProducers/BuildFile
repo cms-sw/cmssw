@@ -5,13 +5,11 @@
 <use name=SimCalorimetry/EcalSimAlgos>
 <use name=SimDataFormats/CrossingFrame>
 <use name=SimGeneral/NoiseGenerators>
-<use name=Geometry/CaloEventSetup>
 <use name=CondFormats/DataRecord>
 <export>
    <use name=SimCalorimetry/EcalSimAlgos>
    <use name=SimDataFormats/CrossingFrame>
    <use name=SimGeneral/NoiseGenerators>
-   <use name=Geometry/CaloEventSetup>
    <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>
    <use name=CondFormats/DataRecord>
