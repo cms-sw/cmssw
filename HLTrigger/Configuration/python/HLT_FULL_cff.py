@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre6/HLT/V39 (CMSSW_3_1_X_2009-05-16-1200_HLT3)
+# /dev/CMSSW_3_1_0/pre6/HLT/V42 (CMSSW_3_1_X_2009-05-21-0800_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre6/HLT/V39')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre6/HLT/V42')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -2837,12 +2837,14 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
     )
 )
 hltMuonCSCDigis = cms.EDProducer( "CSCDCCUnpacker",
-    PrintEventNumber = cms.untracked.bool( False ),
-    ExaminerMask = cms.untracked.uint32( 0x1febf3f6 ),
-    ErrorMask = cms.untracked.uint32( 0x0 ),
     InputObjects = cms.InputTag( "rawDataCollector" ),
-    UseFormatStatus = cms.untracked.bool( True ),
-    UseSelectiveUnpacking = cms.untracked.bool( True )
+    UseExaminer = cms.bool( True ),
+    ExaminerMask = cms.uint32( 0x1febf3f6 ),
+    UseSelectiveUnpacking = cms.bool( True ),
+    ErrorMask = cms.uint32( 0x0 ),
+    UnpackStatusDigis = cms.bool( False ),
+    UseFormatStatus = cms.bool( True ),
+    PrintEventNumber = cms.untracked.bool( False )
 )
 hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     CSCUseCalibrations = cms.bool( True ),
@@ -2886,7 +2888,7 @@ hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     readBadChambers = cms.bool( False ),
     UseAverageTime = cms.bool( False ),
     UseParabolaFit = cms.bool( False ),
-    UseFourPoleFit = cms.bool( True )
+    UseFivePoleFit = cms.bool( True )
 )
 hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
     inputObjects = cms.InputTag( "hltCsc2DRecHits" ),
