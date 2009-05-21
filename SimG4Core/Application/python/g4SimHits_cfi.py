@@ -70,6 +70,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         Verbosity = cms.untracked.int32(0),
         # 1 will print cuts as they get set from DD
         # 2 will do as 1 + will dump Geant4 table of cuts
+        Region      = cms.string(' '),
         EMPhysics   = cms.untracked.bool(True),
         HadPhysics  = cms.untracked.bool(True),
         FlagBERT    = cms.untracked.bool(False),
