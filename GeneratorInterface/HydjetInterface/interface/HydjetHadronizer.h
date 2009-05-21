@@ -1,7 +1,7 @@
 #ifndef HydjetHadronizer_h
 #define HydjetHadronizer_h
 
-// $Id: HydjetHadronizer.h,v 1.2 2009/02/17 16:44:06 saout Exp $
+// $Id: HydjetHadronizer.h,v 1.1 2009/05/20 23:16:22 yilmaz Exp $
 
 /** \class HydjetHadronizer
 *
@@ -14,7 +14,6 @@
 #define PYCOMP pycomp_
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimDataFormats/HiGenData/interface/SubEvent.h"
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
 
 #include <map>
