@@ -71,30 +71,9 @@
        <Primitive column="DI8_1" name="metMask_[8]" />
        <Primitive column="DI9_1" name="metMask_[9]" />
      </InlineCArray >
-     <InlineCArray name="mhtMask_" >
-       <Primitive column="DI0_3" name="mhtMask_[0]" />
-       <Primitive column="DI10_3" name="mhtMask_[10]" />
-       <Primitive column="DI11_3" name="mhtMask_[11]" />
-       <Primitive column="DI12_3" name="mhtMask_[12]" />
-       <Primitive column="DI13_3" name="mhtMask_[13]" />
-       <Primitive column="DI14_3" name="mhtMask_[14]" />
-       <Primitive column="DI15_3" name="mhtMask_[15]" />
-       <Primitive column="DI16_3" name="mhtMask_[16]" />
-       <Primitive column="DI17_3" name="mhtMask_[17]" />
-       <Primitive column="DI18_2" name="mhtMask_[18]" />
-       <Primitive column="DI19_2" name="mhtMask_[19]" />
-       <Primitive column="DI1_3" name="mhtMask_[1]" />
-       <Primitive column="DI20_2" name="mhtMask_[20]" />
-       <Primitive column="DI21_2" name="mhtMask_[21]" />
-       <Primitive column="DI2_3" name="mhtMask_[2]" />
-       <Primitive column="DI3_3" name="mhtMask_[3]" />
-       <Primitive column="DI4_3" name="mhtMask_[4]" />
-       <Primitive column="DI5_3" name="mhtMask_[5]" />
-       <Primitive column="DI6_3" name="mhtMask_[6]" />
-       <Primitive column="DI7_3" name="mhtMask_[7]" />
-       <Primitive column="DI8_3" name="mhtMask_[8]" />
-       <Primitive column="DI9_3" name="mhtMask_[9]" />
-     </InlineCArray >
+     <CArray table="L1GCTCH_MHTMASK" id_columns="ID_ID" name="mhtMask_" position_column="POS" >
+       <Primitive column="DA22" name="bool" />
+     </CArray >
      <Blob column="L1GCTCHANNELMASK_R_1_BLOB" name="regionMask_" />
      <InlineCArray name="tetMask_" >
        <Primitive column="DI0_0" name="tetMask_[0]" />
