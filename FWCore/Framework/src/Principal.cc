@@ -165,9 +165,9 @@ namespace edm {
     BasicHandle result;
 
     int nFound = findGroup(productType,
-                            preg_->productLookup(),
-                            sel,
-                            result);
+                           preg_->productLookup(),
+                           sel,
+                           result);
 
     if (nFound == 0) {
       boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound));
@@ -184,34 +184,6 @@ namespace edm {
     return result;
   }
 
-  namespace  {
-    class GetByLabelSelector : public SelectorBase {
-    public:
-      //NOTE: use const char* instead of string to avoid temporary creation of memory
-      GetByLabelSelector(char const* iModule,
-                         char const* iProductInstance,
-                         char const* iProcessName):
-      module_(iModule),
-      productInstance_(iProductInstance),
-      processName_(strlen(iProcessName)?iProcessName:static_cast<const char*> (0)) {}
-      
-      bool doMatch(ConstBranchDescription const& p) const {
-        return ((0 == strcmp(module_,p.moduleLabel().c_str())) &&
-                (0 == strcmp(productInstance_, p.productInstanceName().c_str())) &&
-               ((0 == processName_) || (0 == strcmp(processName_, p.processName().c_str()))));
-      }
-      
-      GetByLabelSelector* clone() const {
-        return new GetByLabelSelector(*this);
-      }
-      
-    private:
-      char const * const module_;
-      char const * const productInstance_;
-      char const * const processName_;
-  };
-}
-  
   BasicHandle
   Principal::getByLabel(TypeID const& productType,
 			std::string const& label,
@@ -219,14 +191,15 @@ namespace edm {
 			std::string const& processName) const {
 
     BasicHandle result;
-    GetByLabelSelector sel(label.c_str(), productInstanceName.c_str(), processName.c_str());
     
-    int nFound = findGroup(productType,
-                           preg_->productLookup(),
-                           sel,
-                           result);
+    bool found = findGroupByLabel(productType,
+                                  preg_->productLookup(),
+                                  label,
+                                  productInstanceName,
+                                  processName,
+                                  result);
 
-    if (nFound == 0) {
+    if (!found) {
       boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound));
       *whyFailed
 	<< "getByLabel: Found zero products matching all criteria\n"
@@ -235,14 +208,6 @@ namespace edm {
 	<< "Looking for productInstanceName: " << productInstanceName << "\n"
 	<< (processName.empty() ? "" : "Looking for process: ") << processName << "\n";
       return BasicHandle(whyFailed);
-    }
-    if (nFound > 1) {
-      throw edm::Exception(edm::errors::ProductNotFound)
-        << "getByLabel: Found "<< nFound <<" products rather than one which match all criteria\n"
-	<< "Looking for type: " << productType << "\n"
-	<< "Looking for module label: " << label << "\n"
-	<< "Looking for productInstanceName: " << productInstanceName << "\n"
-	<< (processName.empty() ? "" : "Looking for process: ") << processName << "\n";
     }
     return result;
   }
@@ -376,9 +341,9 @@ namespace edm {
 
   size_t
   Principal::findGroup(TypeID const& typeID,
-			TransientProductLookupMap const& typeLookup,
-			SelectorBase const& selector,
-			BasicHandle& result) const {
+		       TransientProductLookupMap const& typeLookup,
+		       SelectorBase const& selector,
+		       BasicHandle& result) const {
     assert(!result.isValid());
 
     size_t count = 0U;
@@ -425,6 +390,46 @@ namespace edm {
     }
     if (count != 1) result = BasicHandle();
     return count;
+  }
+
+  bool
+  Principal::findGroupByLabel(TypeID const& typeID,
+			      TransientProductLookupMap const& typeLookup,
+			      std::string const& moduleLabel,
+			      std::string const& productInstanceName,
+			      std::string const& processName,
+			      BasicHandle& result) const {
+    assert(!result.isValid());
+
+    typedef TransientProductLookupMap TypeLookup;
+    // A class without a dictionary cannot be in an Event/Lumi/Run.
+    // First, we check if the class has a dictionary.  If it does not,
+    // we return immediately.
+    std::pair<TypeLookup::const_iterator, TypeLookup::const_iterator> const range = typeLookup.equal_range(TypeInBranchType(typeID,branchType_), moduleLabel, productInstanceName);
+    if(range.first == range.second) {
+      return false;
+    }
+
+    for(TypeLookup::const_iterator it = range.first; it != range.second; ++it) {
+      if (!processName.empty() && processName != it->branchDescription()->processName()) {
+        continue;
+      }
+      //now see if the data is actually available
+      SharedConstGroupPtr const& group = getGroupByIndex(it->index(), false, false, false);
+      // Skip product if not available.
+      if (group && !group->productUnavailable()) {
+        this->resolveProduct(*group, true);
+	// If the product is a dummy filler, group will now be marked unavailable.
+        // Unscheduled execution can fail to produce the EDProduct so check
+        if (!group->productUnavailable() && !group->onDemand()) {
+          // Found the match
+	  result = BasicHandle(group->product(), group->provenance());
+	  result.provenance()->setStore(branchMapperPtr_);
+	  return true;
+        }
+      }
+    }
+    return false;
   }
 
   void

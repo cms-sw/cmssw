@@ -174,6 +174,13 @@ namespace edm {
 		     SelectorBase const& selector,
 		     BasicHandle& result) const;
 
+    bool findGroupByLabel(TypeID const& typeID,
+			  TypeLookup const& typeLookup,
+			  std::string const& moduleLabel,
+			  std::string const& productInstanceName,
+			  std::string const& processName,
+			  BasicHandle& result) const;
+
     size_t findGroups(TypeID const& typeID,
 		      TypeLookup const& typeLookup,
 		      SelectorBase const& selector,

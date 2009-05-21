@@ -25,7 +25,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri May  1 11:15:08 CDT 2009
-// $Id$
 //
 
 // system include files
@@ -42,52 +41,51 @@ namespace edm {
    class ProcessHistory;
    
    struct CompareTypeInBranchTypeConstBranchDescription {
-      bool operator()( std::pair<TypeInBranchType,ConstBranchDescription const*> const& iLHS,
-                      std::pair<TypeInBranchType,ConstBranchDescription const*> const& iRHS);
+      bool operator()(std::pair<TypeInBranchType, ConstBranchDescription const*> const& iLHS,
+                      std::pair<TypeInBranchType, ConstBranchDescription const*> const& iRHS) const;
    };
-   
    
    class TransientProductLookupMap {
       
    public:
-      typedef std::vector<std::pair<TypeInBranchType,BranchDescriptionIndex> > TypeInBranchTypeLookup;
-      typedef std::vector<ProductLookupIndex> IndexList;
+      typedef std::vector<std::pair<TypeInBranchType, BranchDescriptionIndex> > TypeInBranchTypeLookup;
+      typedef std::vector<ProductLookupIndex> ProductLookupIndexList;
       
-      typedef IndexList::const_iterator const_iterator;
+      typedef ProductLookupIndexList::const_iterator const_iterator;
 
-      typedef std::map<std::pair<TypeInBranchType,ConstBranchDescription const*>, ProductTransientIndex, CompareTypeInBranchTypeConstBranchDescription> FillFromMap;
+      typedef std::map<std::pair<TypeInBranchType, ConstBranchDescription const*>,
+			ProductTransientIndex,
+			CompareTypeInBranchTypeConstBranchDescription> FillFromMap;
 
-      
       TransientProductLookupMap();
-      //virtual ~TransientProductLookupMap();
-      
             
       // ---------- const member functions ---------------------
       
       ///returns a pair of iterators that define the range for items matching the TypeInBranchType
-      std::pair<const_iterator, const_iterator> equal_range(const TypeInBranchType&) const;
+      std::pair<const_iterator, const_iterator> equal_range(TypeInBranchType const&) const;
+      
+      ///returns a pair of iterators that define the range for items matching
+      ///the TypeInBranchType, the module label, and the product instance name
+      std::pair<const_iterator, const_iterator> equal_range(TypeInBranchType const&,
+							    std::string const&,
+							    std::string const&) const;
       
       // ---------- static member functions --------------------
       
       // ---------- member functions ---------------------------
 
       ///reorders the ProductLookupIndexes for the BranchType based on the processing ordering
-      void reorderIfNecessary(BranchType, const ProcessHistory&, const std::string& iNewProcessName);
+      void reorderIfNecessary(BranchType, ProcessHistory const&, std::string const& iNewProcessName);
       
-      void fillFrom( const FillFromMap& );
+      void fillFrom(FillFromMap const&);
    private:
-      //TransientProductLookupMap(const TransientProductLookupMap&); // allow default
-      
-      //const TransientProductLookupMap& operator=(const TransientProductLookupMap&); // allow default
-      
       // ---------- member data --------------------------------
       TypeInBranchTypeLookup branchLookup_;
-      IndexList indexList_;
-      std::vector<ProcessHistoryID> historyIDForBranchType_;
+      ProductLookupIndexList productLookupIndexList_;
+      std::vector<ProcessHistoryID> historyIDsForBranchType_;
       std::vector<std::vector<std::string> > processNameOrderingForBranchType_;
    };
    
 }
-
 
 #endif
