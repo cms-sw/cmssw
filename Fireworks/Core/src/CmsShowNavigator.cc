@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.22 2009/01/23 21:35:42 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.23 2009/05/21 14:38:07 chrjones Exp $
 //
 
 // #define Fireworks_Core_CmsShowNavigator_WriteLeakInfo
@@ -317,8 +317,6 @@ CmsShowNavigator::filterEventsAndReset(std::string selection)
    // we do this by holding onto the old buffers and create temporary new ones
    std::vector<std::string> modifiedBranches;
    modifiedBranches.reserve(m_main.m_eiManager->end()-m_main.m_eiManager->begin());
-   std::vector<void*> previousBranchAddresses;
-   previousBranchAddresses.reserve(m_main.m_eiManager->end()-m_main.m_eiManager->begin());
    
    for (FWEventItemsManager::const_iterator i = m_main.m_eiManager->begin(),
                                             end = m_main.m_eiManager->end();
@@ -336,16 +334,29 @@ CmsShowNavigator::filterEventsAndReset(std::string selection)
 //               new_sel.c_str());
       if(new_sel != selection) {
          modifiedBranches.push_back((*i)->m_fullBranchName+".obj");
-         TBranch* b = m_eventTree->FindBranch(((*i)->m_fullBranchName+".").c_str());
-         if(0!=b){
+      }
+      selection.swap(new_sel);
+   }
+   
+   TObjArray* branches = m_eventTree->GetListOfBranches();
+   std::vector<void*> previousBranchAddresses;
+   previousBranchAddresses.reserve(branches->GetEntriesFast());
+   {
+      std::auto_ptr<TIterator> pIt( branches->MakeIterator());
+      while(TObject* branchObj = pIt->Next()) {
+         TBranch* b = dynamic_cast<TBranch*> (branchObj);
+         if(0!=b) {
+            std::cout <<" branch '"<<b->GetName()<<"' "<<static_cast<void*>(b->GetAddress())<<std::endl;
+            if(0!=b->GetAddress()) {
+               b->SetAddress(0);
+            }
             previousBranchAddresses.push_back(b->GetAddress());
-            b->SetAddress(0);
          } else {
             previousBranchAddresses.push_back(0);
          }
       }
-      selection.swap(new_sel);
    }
+   
 //      std::string s = selection;
 //      for (boost::sregex_iterator i = boost::sregex_iterator(s.begin(), s.end(), re),
 //             end;
@@ -355,9 +366,6 @@ CmsShowNavigator::filterEventsAndReset(std::string selection)
 //      }
 //      return;
    m_selection = selection;
-
-   //record where the branches are presently
-   Long64_t oldBranchEntry = realEntry(m_event->id().run(), m_event->id().event());
 
    m_eventTree->SetEventList(0);
    if ( m_selection.length() != 0 ) {
@@ -369,16 +377,18 @@ CmsShowNavigator::filterEventsAndReset(std::string selection)
    }
    
    //set the old branch buffers
-   std::vector<void*>::const_iterator itAddress = previousBranchAddresses.begin();
-   for(std::vector<std::string>::const_iterator it = modifiedBranches.begin(), itEnd=modifiedBranches.end();
-       it != itEnd;
-       ++it,++itAddress) {
-      TBranch* b = m_eventTree->FindBranch(it->c_str());
-      if(0!=b) {
-         b->SetAddress(*itAddress);
+   {
+      std::auto_ptr<TIterator> pIt( branches->MakeIterator());
+      std::vector<void*>::const_iterator itAddress = previousBranchAddresses.begin();
+      while(TObject* branchObj = pIt->Next()) {
+         TBranch* b = dynamic_cast<TBranch*> (branchObj);
+         if(0!=b && 0!=*itAddress) {
+            b->SetAddress(*itAddress);
+         }
+         ++itAddress;
       }
    }
-   
+      
    m_nEntries = m_event->size();
    if ( m_eventTree->GetEventList() ){
       m_nEntries = m_eventList->GetN();
