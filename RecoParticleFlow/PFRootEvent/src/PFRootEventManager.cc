@@ -23,11 +23,11 @@
 
 #include "RecoParticleFlow/PFRootEvent/interface/Utils.h" 
 #include "RecoParticleFlow/PFRootEvent/interface/EventColin.h" 
+#include "RecoParticleFlow/PFRootEvent/interface/METManager.h"
 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
-
 
 #include "FWCore/ServiceRegistry/interface/Service.h" 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -205,18 +205,27 @@ void PFRootEventManager::readOptions(const char* file,
     doMet_ = false;
     options_->GetOpt("MET", "on/off", doMet_);
 
+    JECinCaloMet_ = false;
+    options_->GetOpt("pfmet_benchmark", "JECinCaloMET", JECinCaloMet_);
 
-    string outmetfilename;
+    std::string outmetfilename;
     options_->GetOpt("pfmet_benchmark", "outmetfile", outmetfilename);
-        
+
+    // define here the various benchmark comparison
+    metManager_.reset( new METManager(outmetfilename) );
+    metManager_->addGenBenchmark("PF");
+    metManager_->addGenBenchmark("Calo");
+    if ( doMet_ ) metManager_->addGenBenchmark("recompPF");
+    if (JECinCaloMet_) metManager_->addGenBenchmark("corrCalo");
+
     bool pfmetBenchmarkDebug;
     options_->GetOpt("pfmet_benchmark", "debug", pfmetBenchmarkDebug);
     
     bool plotAgainstReco=0;
     options_->GetOpt("pfmet_benchmark", "plotAgainstReco", plotAgainstReco);
     
-    trueMETcut = 10.0;
-    options_->GetOpt("pfmet_benchmark", "truemetcut", trueMETcut);
+    MET1cut = 10.0;
+    options_->GetOpt("pfmet_benchmark", "truemetcut", MET1cut);
     
     DeltaMETcut = 30.0;
     options_->GetOpt("pfmet_benchmark", "deltametcut", DeltaMETcut);
@@ -224,20 +233,22 @@ void PFRootEventManager::readOptions(const char* file,
     DeltaPhicut = 0.8;
     options_->GetOpt("pfmet_benchmark", "deltaphicut", DeltaPhicut);
     
-    fastsim_=true;
-    options_->GetOpt("Simulation","Fast",fastsim_);
+//    fastsim_=true;
+//    options_->GetOpt("Simulation","Fast",fastsim_);
 
+// -----------------------------------
+// PFMETBenchmark staff. This will be removed when all the plots will be made in METManager.
     std::string xbenchmarkLabel_ = "ParticleFlow";
     DQMStore* xdbe_;
     xdbe_ = 0; //edm::Service<DQMStore>().operator->();
-
-    PFMETBenchmark_.setup( outmetfilename, 
+    PFMETBenchmark_.setup( "old_pfmetBenchmark.root", 
                            pfmetBenchmarkDebug,
                            plotAgainstReco,
 			   xbenchmarkLabel_, 
 			   xdbe_);
-  }
+// -----------------------------------
 
+  }
 
   // input root file --------------------------------------------
 
@@ -653,7 +664,6 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("evolution","etaCorrection", etaCorrectionParams);
   clusterCalibration->setEtaCorrectionParameters(etaCorrectionParams);
 
-
   try {
     pfAlgo_.setParameters( nSigmaECAL, nSigmaHCAL, 
                            calibration,
@@ -873,11 +883,6 @@ void PFRootEventManager::readOptions(const char* file,
   verbosity_ = VERBOSE;
   options_->GetOpt("print", "verbosity", verbosity_ );
   cout<<"verbosity : "<<verbosity_<<endl;
-
-
-  // Specific managers
-  // here, read your options from .opt
-  metManager_.reset( new METManager() ); 
 
 }
 
@@ -1192,6 +1197,15 @@ void PFRootEventManager::connect( const char* infilename ) {
           <<recCaloBranchName<< endl;
     }
   }
+  string reccorrCaloBranchName;
+  options_->GetOpt("root","reccorrCaloJetBranchName", reccorrCaloBranchName);
+  if(!reccorrCaloBranchName.empty() ) {
+    reccorrCaloBranch_= tree_->GetBranch(reccorrCaloBranchName.c_str()); 
+    if(!reccorrCaloBranch_) {
+      cerr<<"PFRootEventManager::ReadOptions :reccorrCaloBranch_ not found : "
+          <<reccorrCaloBranchName<< endl;
+    }
+  }
   string recPFBranchName; 
   options_->GetOpt("root","recPFJetBranchName", recPFBranchName);
   if(!recPFBranchName.empty() ) {
@@ -1277,6 +1291,7 @@ void PFRootEventManager::setAddresses() {
 //   }
   if (genJetBranch_) genJetBranch_->SetAddress(&genJetsCMSSW_);
   if (recCaloBranch_) recCaloBranch_->SetAddress(&caloJetsCMSSW_);
+  if (reccorrCaloBranch_) reccorrCaloBranch_->SetAddress(&corrcaloJetsCMSSW_);
   if (recPFBranch_) recPFBranch_->SetAddress(&pfJetsCMSSW_); 
 
   if (recCaloMETBranch_) recCaloMETBranch_->SetAddress(&caloMetsCMSSW_);
@@ -1302,7 +1317,8 @@ PFRootEventManager::~PFRootEventManager() {
 void PFRootEventManager::write() {
 
   if(doPFJetBenchmark_) PFJetBenchmark_.write();
-  if(doPFMETBenchmark_) PFMETBenchmark_.write();
+  if(doPFMETBenchmark_) PFMETBenchmark_.write(); // PFMETBenchmark staff
+  if(doPFMETBenchmark_) metManager_->write();
 
   if(!outFile_) return;
   else {
@@ -1420,45 +1436,68 @@ bool PFRootEventManager::processEntry(int entry) {
     //   else return false;
   }// end PFJet Benchmark
 
-  if(doPFMETBenchmark_) { // start PFJet Benchmark
-          
-    // Recompute MET with latest PFAlgo version
+  if(doPFMETBenchmark_) { // start PFMet Benchmark
+
+    // Fill here the various met benchmarks
+    // pfMET vs GenMET
+    metManager_->setMET1(&genParticlesCMSSW_);
+    metManager_->setMET2(&pfMetsCMSSW_[0]);
+    metManager_->FillHisto("PF");
+    // cout events in tail
+    metManager_->coutTailEvents(entry,DeltaMETcut,DeltaPhicut, MET1cut);
+
+    // caloMET vs GenMET
+    metManager_->setMET2(&caloMetsCMSSW_[0]);
+    metManager_->FillHisto("Calo");
+
+    if ( doMet_ ) { 
+      // recomputed pfMET vs GenMET
+      metManager_->setMET2(*pfCandidates_);
+      metManager_->FillHisto("recompPF");
+    }
+
+    if (JECinCaloMet_)
+    {
+      // corrCaloMET vs GenMET
+      metManager_->setMET2(&caloMetsCMSSW_[0]);
+      metManager_->propagateJECtoMET2(caloJetsCMSSW_, corrcaloJetsCMSSW_);
+      metManager_->FillHisto("corrCalo");
+    }
+
+
+    // -----------------------------------
+    // PFMETBenchmark staff. This will be removed when all the plots will be made in METManager.
     if ( doMet_ ) { 
       reconstructPFMets();
-      PFMETBenchmark_.calculateQuantities( pfMets_, genParticlesCMSSW_, caloMetsCMSSW_, tcMetsCMSSW_ );
-    } else { 
-      PFMETBenchmark_.calculateQuantities( pfMetsCMSSW_, genParticlesCMSSW_, caloMetsCMSSW_, tcMetsCMSSW_ );
-    }
-
-    float trueMET = PFMETBenchmark_.getTrueMET();
-    //float pfMET = PFMETBenchmark_.getPFMET();
-    float deltaPFMET = PFMETBenchmark_.getDeltaPFMET();
-    float deltaPFPhi = PFMETBenchmark_.getDeltaPFPhi();
-    if(trueMET > trueMETcut) { 
-      if ( doMet_ ) 
-	PFMETBenchmark_.process( pfMets_, genParticlesCMSSW_, caloMetsCMSSW_, tcMetsCMSSW_ );
+      if (JECinCaloMet_)
+      {
+	//std::cout << "JECinCaloMet !!! " << std::endl;
+	PFMETBenchmark_.calculateQuantities( pfMets_, genParticlesCMSSW_, caloMetsCMSSW_,
+        tcMetsCMSSW_, caloJetsCMSSW_, corrcaloJetsCMSSW_ );
+      }
       else
-	PFMETBenchmark_.process( pfMetsCMSSW_, genParticlesCMSSW_, caloMetsCMSSW_, tcMetsCMSSW_ );
+      {
+	PFMETBenchmark_.calculateQuantities( pfMets_, genParticlesCMSSW_, caloMetsCMSSW_, tcMetsCMSSW_ );
+      }
+    } else {
+      if (JECinCaloMet_)
+      {
+	PFMETBenchmark_.calculateQuantities( pfMetsCMSSW_, genParticlesCMSSW_, caloMetsCMSSW_, tcMetsCMSSW_,
+        caloJetsCMSSW_, corrcaloJetsCMSSW_ );
+      }
+      else
+      {
+	PFMETBenchmark_.calculateQuantities( pfMetsCMSSW_, genParticlesCMSSW_, caloMetsCMSSW_, tcMetsCMSSW_ );
+      }
     }
-    if( verbosity_ == VERBOSE ){ //start debug print
-
-      cout << " =====================PFMETBenchmark =================" << endl;
-    } // end debug print
-
-    // printout for bad events (selected by the "if")
-    if (  trueMET > trueMETcut && (fabs(deltaPFMET) > DeltaMETcut || fabs(deltaPFPhi) > DeltaPhicut ) ) { 
-      cout << " =====================PFMETBenchmark =================" << endl;
-      cout<<"process entry "<< entry << endl;
-      cout << "TrueMET = " << trueMET
-	   << "; Delta PFMET = " << deltaPFMET 
-	   << "; Delta PFphi = " << deltaPFPhi
-	   << endl;
-      // return true;
-    } else { 
-      // return false;
+    const float trueMET = PFMETBenchmark_.getTrueMET();
+    if(trueMET > MET1cut) { 
+      if ( doMet_ ) 
+      	PFMETBenchmark_.process( pfMets_, genParticlesCMSSW_, caloMetsCMSSW_, tcMetsCMSSW_ );
+      else PFMETBenchmark_.process( pfMetsCMSSW_, genParticlesCMSSW_, caloMetsCMSSW_, tcMetsCMSSW_ );
     }
-    //   if (resNeutralEmEnergy>0.5) return true;
-    //   else return false;
+    // -----------------------------------
+
   }// end PFMET Benchmark
     
   // evaluate tau Benchmark   
@@ -1570,6 +1609,9 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   }
   if(recCaloBranch_) {
     recCaloBranch_->GetEntry(entry);
+  }
+  if(reccorrCaloBranch_) {
+    reccorrCaloBranch_->GetEntry(entry);
   }
   if(recPFBranch_) {
     recPFBranch_->GetEntry(entry);
@@ -2340,7 +2382,8 @@ void PFRootEventManager::reconstructPFJets() {
 
 }
 
-
+// -----------------------------------
+// PFMETBenchmark staff. This will be removed when all the plots will be made in METManager.
 void PFRootEventManager::reconstructPFMets() {
 
   typedef math::XYZTLorentzVector LorentzVector;
@@ -2352,7 +2395,7 @@ void PFRootEventManager::reconstructPFMets() {
   }
   pfMets_.clear();
   pfCandidatesPtrs_.clear();
-        
+    
   for( unsigned i=0; i<pfCandidates_->size(); i++) {
     reco::CandidatePtr candPtr( pfCandidates_.get(), i );
     pfCandidatesPtrs_.push_back( candPtr );
@@ -2387,11 +2430,8 @@ void PFRootEventManager::reconstructPFMets() {
 
   reco::PFMET specificPFMET( specific, sum_et, p4, vtx );
   pfMets_.push_back(specificPFMET);
-
 }
-
-
-
+// -----------------------------------
 
 void 
 PFRootEventManager::reconstructFWLiteJets(const reco::CandidatePtrVector& Candidates, vector<ProtoJet>& output ) {
