@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.24 2009/05/21 15:59:02 chrjones Exp $
+// $Id: CmsShowNavigator.cc,v 1.25 2009/05/21 18:38:06 chrjones Exp $
 //
 
 // #define Fireworks_Core_CmsShowNavigator_WriteLeakInfo
@@ -312,12 +312,6 @@ CmsShowNavigator::goToEvent(Int_t event)
 void
 CmsShowNavigator::filterEventsAndReset(std::string selection)
 {
-   //since ROOT will leave any TBranches used in the filtering at the last event,
-   // we need to be able to reset them to what fwlite::Event expects them to be
-   // we do this by holding onto the old buffers and create temporary new ones
-   std::vector<std::string> modifiedBranches;
-   modifiedBranches.reserve(m_main.m_eiManager->end()-m_main.m_eiManager->begin());
-   
    for (FWEventItemsManager::const_iterator i = m_main.m_eiManager->begin(),
                                             end = m_main.m_eiManager->end();
         i != end;
@@ -332,37 +326,9 @@ CmsShowNavigator::filterEventsAndReset(std::string selection)
 //               (std::string("\\$") + (*i)->name()).c_str(),
 //               (*i)->moduleLabel().c_str(),
 //               new_sel.c_str());
-      if(new_sel != selection) {
-         modifiedBranches.push_back((*i)->m_fullBranchName+".obj");
-      }
       selection.swap(new_sel);
    }
    
-   TObjArray* branches = m_eventTree->GetListOfBranches();
-   std::vector<void*> previousBranchAddresses;
-   previousBranchAddresses.reserve(branches->GetEntriesFast());
-   {
-      std::auto_ptr<TIterator> pIt( branches->MakeIterator());
-      while(TObject* branchObj = pIt->Next()) {
-         TBranch* b = dynamic_cast<TBranch*> (branchObj);
-         if(0!=b) {
-            //std::cout <<" branch '"<<b->GetName()<<"' "<<static_cast<void*>(b->GetAddress())<<std::endl;
-            const char * name = b->GetName();
-            unsigned int length = strlen(name);
-            if(length > 1 && name[length-2]!='.') {
-               //this is not a data branch so we should ignore it
-               previousBranchAddresses.push_back(0);
-               continue;
-            }
-            if(0!=b->GetAddress()) {
-               b->SetAddress(0);
-            }
-            previousBranchAddresses.push_back(b->GetAddress());
-         } else {
-            previousBranchAddresses.push_back(0);
-         }
-      }
-   }
    
 //      std::string s = selection;
 //      for (boost::sregex_iterator i = boost::sregex_iterator(s.begin(), s.end(), re),
@@ -376,25 +342,56 @@ CmsShowNavigator::filterEventsAndReset(std::string selection)
 
    m_eventTree->SetEventList(0);
    if ( m_selection.length() != 0 ) {
-//        std::cout << "Selection requested: " << m_selection << std::endl;
+      //since ROOT will leave any TBranches used in the filtering at the last event,
+      // we need to be able to reset them to what fwlite::Event expects them to be
+      // we do this by holding onto the old buffers and create temporary new ones
+      
+      TObjArray* branches = m_eventTree->GetListOfBranches();
+      std::vector<void*> previousBranchAddresses;
+      previousBranchAddresses.reserve(branches->GetEntriesFast());
+      {
+         std::auto_ptr<TIterator> pIt( branches->MakeIterator());
+         while(TObject* branchObj = pIt->Next()) {
+            TBranch* b = dynamic_cast<TBranch*> (branchObj);
+            if(0!=b) {
+               const char * name = b->GetName();
+               unsigned int length = strlen(name);
+               if(length > 1 && name[length-1]!='.') {
+                  //this is not a data branch so we should ignore it
+                  previousBranchAddresses.push_back(0);
+                  continue;
+               }
+               //std::cout <<" branch '"<<b->GetName()<<"' "<<static_cast<void*>(b->GetAddress())<<std::endl;
+               if(0!=b->GetAddress()) {
+                  b->SetAddress(0);
+               }
+               previousBranchAddresses.push_back(b->GetAddress());
+            } else {
+               previousBranchAddresses.push_back(0);
+            }
+         }
+      }
+      
+      //        std::cout << "Selection requested: " << m_selection << std::endl;
       //NOTE: to be completely safe, we should disable the access to edm::Refs so that our
       // buffers do not get moved
       m_eventTree->Draw(">>list",m_selection.c_str());
       m_eventTree->SetEventList( m_eventList );
+
+      //set the old branch buffers
+      {
+         std::auto_ptr<TIterator> pIt( branches->MakeIterator());
+         std::vector<void*>::const_iterator itAddress = previousBranchAddresses.begin();
+         while(TObject* branchObj = pIt->Next()) {
+            TBranch* b = dynamic_cast<TBranch*> (branchObj);
+            if(0!=b && 0!=*itAddress) {
+               b->SetAddress(*itAddress);
+            }
+            ++itAddress;
+         }
+      }      
    }
    
-   //set the old branch buffers
-   {
-      std::auto_ptr<TIterator> pIt( branches->MakeIterator());
-      std::vector<void*>::const_iterator itAddress = previousBranchAddresses.begin();
-      while(TObject* branchObj = pIt->Next()) {
-         TBranch* b = dynamic_cast<TBranch*> (branchObj);
-         if(0!=b && 0!=*itAddress) {
-            b->SetAddress(*itAddress);
-         }
-         ++itAddress;
-      }
-   }
       
    m_nEntries = m_event->size();
    if ( m_eventTree->GetEventList() ){
