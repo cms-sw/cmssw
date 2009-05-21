@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Wed Feb 18 17:21:04 MST 2009
-// $Id: V0Validator.cc,v 1.1 2009/05/08 22:21:55 drell Exp $
+// $Id: V0Validator.cc,v 1.2 2009/05/19 00:47:59 drell Exp $
 //
 //
 
@@ -240,9 +240,9 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByLabel("mergedtruth", "MergedTrackTruth", TPCollectionH);
   const View<reco::Track>  tC = *( trackCollectionH.product() );
 
-  edm::Handle<TrackingVertexCollection>  TVCollectionH ;
-  iEvent.getByLabel("trackingParticles","VertexTruth",TVCollectionH);
-  const TrackingVertexCollection tVC   = *(TVCollectionH.product());
+//  edm::Handle<TrackingVertexCollection>  TVCollectionH ;
+//  iEvent.getByLabel("trackingParticles","VertexTruth",TVCollectionH);
+//  const TrackingVertexCollection tVC   = *(TVCollectionH.product());
 
   // Select the primary vertex, create a new reco::Vertex to hold it
   edm::Handle< std::vector<reco::Vertex> > primaryVtxCollectionH;
@@ -267,8 +267,8 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   reco::RecoToSimCollection r2s = associatorByHits->associateRecoToSim(trackCollectionH,TPCollectionH,&iEvent );
   reco::SimToRecoCollection s2r = associatorByHits->associateSimToReco(trackCollectionH,TPCollectionH,&iEvent );
 
-  reco::VertexRecoToSimCollection vr2s = associatorByTracks->associateRecoToSim(primaryVtxCollectionH, TVCollectionH, iEvent, r2s);
-  reco::VertexSimToRecoCollection vs2r = associatorByTracks->associateSimToReco(primaryVtxCollectionH, TVCollectionH, iEvent, s2r);
+//  reco::VertexRecoToSimCollection vr2s = associatorByTracks->associateRecoToSim(primaryVtxCollectionH, TVCollectionH, iEvent, r2s);
+//  reco::VertexSimToRecoCollection vs2r = associatorByTracks->associateSimToReco(primaryVtxCollectionH, TVCollectionH, iEvent, s2r);
 
   //get the V0s;   
   edm::Handle<reco::VertexCompositeCandidateCollection> k0sCollection;
@@ -283,7 +283,7 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   ////////////////////////////
   // Do vertex calculations //
   ////////////////////////////
-
+/*
   if( k0sCollection->size() > 0 ) {
     for(reco::VertexCompositeCandidateCollection::const_iterator iK0s = k0sCollection->begin();
 	iK0s != k0sCollection->end();
@@ -304,7 +304,7 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }
     }
   }
-
+*/
   //////////////////////////////
   // Do fake rate calculation //
   //////////////////////////////
@@ -898,4 +898,4 @@ void V0Validator::endJob() {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(V0Validator);
+//DEFINE_FWK_MODULE(V0Validator);
