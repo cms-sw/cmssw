@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.21 2009/01/20 21:25:38 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.22 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // #define Fireworks_Core_CmsShowNavigator_WriteLeakInfo
@@ -26,6 +26,8 @@
 #include "TError.h"
 #include "TGTextEntry.h"
 #include "TGNumberEntry.h"
+#include "TBranch.h"
+
 // user include files
 #include "Fireworks/Core/interface/CmsShowNavigator.h"
 #include "Fireworks/Core/interface/CSGAction.h"
@@ -310,6 +312,14 @@ CmsShowNavigator::goToEvent(Int_t event)
 void
 CmsShowNavigator::filterEventsAndReset(std::string selection)
 {
+   //since ROOT will leave any TBranches used in the filtering at the last event,
+   // we need to be able to reset them to what fwlite::Event expects them to be
+   // we do this by holding onto the old buffers and create temporary new ones
+   std::vector<std::string> modifiedBranches;
+   modifiedBranches.reserve(m_main.m_eiManager->end()-m_main.m_eiManager->begin());
+   std::vector<void*> previousBranchAddresses;
+   previousBranchAddresses.reserve(m_main.m_eiManager->end()-m_main.m_eiManager->begin());
+   
    for (FWEventItemsManager::const_iterator i = m_main.m_eiManager->begin(),
                                             end = m_main.m_eiManager->end();
         i != end;
@@ -324,6 +334,16 @@ CmsShowNavigator::filterEventsAndReset(std::string selection)
 //               (std::string("\\$") + (*i)->name()).c_str(),
 //               (*i)->moduleLabel().c_str(),
 //               new_sel.c_str());
+      if(new_sel != selection) {
+         modifiedBranches.push_back((*i)->m_fullBranchName+".obj");
+         TBranch* b = m_eventTree->FindBranch(((*i)->m_fullBranchName+".").c_str());
+         if(0!=b){
+            previousBranchAddresses.push_back(b->GetAddress());
+            b->SetAddress(0);
+         } else {
+            previousBranchAddresses.push_back(0);
+         }
+      }
       selection.swap(new_sel);
    }
 //      std::string s = selection;
@@ -335,12 +355,30 @@ CmsShowNavigator::filterEventsAndReset(std::string selection)
 //      }
 //      return;
    m_selection = selection;
+
+   //record where the branches are presently
+   Long64_t oldBranchEntry = realEntry(m_event->id().run(), m_event->id().event());
+
    m_eventTree->SetEventList(0);
    if ( m_selection.length() != 0 ) {
 //        std::cout << "Selection requested: " << m_selection << std::endl;
+      //NOTE: to be completely safe, we should disable the access to edm::Refs so that our
+      // buffers do not get moved
       m_eventTree->Draw(">>list",m_selection.c_str());
       m_eventTree->SetEventList( m_eventList );
    }
+   
+   //set the old branch buffers
+   std::vector<void*>::const_iterator itAddress = previousBranchAddresses.begin();
+   for(std::vector<std::string>::const_iterator it = modifiedBranches.begin(), itEnd=modifiedBranches.end();
+       it != itEnd;
+       ++it,++itAddress) {
+      TBranch* b = m_eventTree->FindBranch(it->c_str());
+      if(0!=b) {
+         b->SetAddress(*itAddress);
+      }
+   }
+   
    m_nEntries = m_event->size();
    if ( m_eventTree->GetEventList() ){
       m_nEntries = m_eventList->GetN();
