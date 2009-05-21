@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 pfElectronBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
-    OutputFile = cms.untracked.string('electronBenchmarkGeneric.root'),
+    OutputFile = cms.untracked.string('benchmark.root'),
     InputTruthLabel = cms.InputTag(''),
     minEta = cms.double(-1),
     maxEta = cms.double(2.5),
