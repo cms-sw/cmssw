@@ -10,5 +10,7 @@ dedxDiscrimProd = cms.EDProducer("DeDxDiscriminatorProducer",
     UseStrip           = cms.bool(True),
     UsePixel           = cms.bool(True),
     MeVperADCStrip     = cms.double(3.61e-06*250),
-    MeVperADCPixel     = cms.double(3.61e-06)
+    MeVperADCPixel     = cms.double(3.61e-06),
+
+    minTrackMomentum   = cms.untracked.double(3.0)
 )

@@ -188,7 +188,7 @@ void DeDxDiscriminatorLearner::Learn(const SiStripRecHit2D* sistripsimplehit,Tra
    // Fill Histo Path Vs Charge/Path
    double charge = DeDxDiscriminatorTools::charge(ampls);
    double path   = DeDxDiscriminatorTools::path(cosine,MOD->Thickness);
-   Charge_Vs_Path->Fill(trackDirection.mag(),path,charge/path);
+   Charge_Vs_Path->Fill(trajState.localMomentum().mag(),path,charge/path);
 }
 
 
@@ -202,9 +202,9 @@ PhysicsTools::Calibration::HistogramD3D* DeDxDiscriminatorLearner::getNewObject(
                 Charge_Vs_Path->GetNbinsY(), Charge_Vs_Path->GetYaxis()->GetXmin(),  Charge_Vs_Path->GetYaxis()->GetXmax(),
 	        Charge_Vs_Path->GetNbinsZ(), Charge_Vs_Path->GetZaxis()->GetXmin(),  Charge_Vs_Path->GetZaxis()->GetXmax());
 
-   for(int ix=0; ix<Charge_Vs_Path->GetNbinsX(); ix++){
-      for(int iy=0; iy<Charge_Vs_Path->GetNbinsY(); iy++){
-         for(int iz=0; iz<Charge_Vs_Path->GetNbinsZ(); iz++){
+   for(int ix=0; ix<=Charge_Vs_Path->GetNbinsX()+1; ix++){
+      for(int iy=0; iy<=Charge_Vs_Path->GetNbinsY()+1; iy++){
+         for(int iz=0; iz<=Charge_Vs_Path->GetNbinsZ()+1; iz++){
             obj->setBinContent(ix, iy, iz, Charge_Vs_Path->GetBinContent(ix,iy, iz) );       
 //          if(Charge_Vs_Path->GetBinContent(ix,iy)!=0)printf("%i %i %i --> %f\n",ix,iy, iz, Charge_Vs_Path->GetBinContent(ix,iy,iz)); 
          }

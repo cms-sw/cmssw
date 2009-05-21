@@ -81,6 +81,7 @@ private:
 
   unsigned int Formula;
   string       Reccord;
+  string       ProbabilityMode;
 
 
   TH3D*        Prob_ChargePath;

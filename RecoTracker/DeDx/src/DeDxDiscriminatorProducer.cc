@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxDiscriminatorProducer.cc,v 1.8 2009/03/04 13:34:25 vlimant Exp $
+// $Id: DeDxDiscriminatorProducer.cc,v 1.9 2009/04/05 15:07:32 querten Exp $
 //
 //
 
@@ -61,13 +61,15 @@ DeDxDiscriminatorProducer::DeDxDiscriminatorProducer(const edm::ParameterSet& iC
 
    Formula             = iConfig.getUntrackedParameter<unsigned>("Formula"            ,  0);
    Reccord             = iConfig.getUntrackedParameter<string>  ("Reccord"            , "SiStripDeDxMip_3D_Rcd");
+   ProbabilityMode     = iConfig.getUntrackedParameter<string>  ("ProbabilityMode"    , "Accumulation");
 
-   MinTrackMomentum    = iConfig.getUntrackedParameter<double>  ("minTrackMomentum"   ,  3.0);
+
+   MinTrackMomentum    = iConfig.getUntrackedParameter<double>  ("minTrackMomentum"   ,  0.0);
    MaxTrackMomentum    = iConfig.getUntrackedParameter<double>  ("maxTrackMomentum"   ,  99999.0); 
    MinTrackEta         = iConfig.getUntrackedParameter<double>  ("minTrackEta"        , -5.0);
    MaxTrackEta         = iConfig.getUntrackedParameter<double>  ("maxTrackEta"        ,  5.0);
    MaxNrStrips         = iConfig.getUntrackedParameter<unsigned>("maxNrStrips"        ,  255);
-   MinTrackHits        = iConfig.getUntrackedParameter<unsigned>("MinTrackHits"       ,  4);
+   MinTrackHits        = iConfig.getUntrackedParameter<unsigned>("MinTrackHits"       ,  3);
 }
 
 
@@ -76,6 +78,8 @@ DeDxDiscriminatorProducer::~DeDxDiscriminatorProducer(){}
 // ------------ method called once each job just before starting event loop  ------------
 void  DeDxDiscriminatorProducer::beginRun(edm::Run & run, const edm::EventSetup& iSetup)
 {
+   printf("BEGIN RUN");
+
    edm::ESHandle<PhysicsTools::Calibration::HistogramD3D> DeDxMapHandle_;    
    if(      strcmp(Reccord.c_str(),"SiStripDeDxMip_3D_Rcd")==0){
       iSetup.get<SiStripDeDxMip_3D_Rcd>() .get(DeDxMapHandle_);
@@ -101,25 +105,60 @@ void  DeDxDiscriminatorProducer::beginRun(edm::Run & run, const edm::EventSetup&
    double zmin = DeDxMap_.rangeZ().min;
    double zmax = DeDxMap_.rangeZ().max;
 
+//   if(Prob_ChargePath)delete Prob_ChargePath;
    Prob_ChargePath  = new TH3D ("Prob_ChargePath"     , "Prob_ChargePath" , DeDxMap_.numberOfBinsX(), xmin, xmax, DeDxMap_.numberOfBinsY() , ymin, ymax, DeDxMap_.numberOfBinsZ(), zmin, zmax);
 
    
-   for(int i=0;i<Prob_ChargePath->GetXaxis()->GetNbins();i++){
-      for(int j=0;j<Prob_ChargePath->GetYaxis()->GetNbins();j++){
-         double Ni = 0;
-         for(int k=0;k<Prob_ChargePath->GetZaxis()->GetNbins();k++){ Ni+=DeDxMap_.binContent(i,j,k);} 
 
-         for(int k=0;k<Prob_ChargePath->GetZaxis()->GetNbins();k++){
-            double tmp = 0;
-            for(int l=0;l<=k;l++){ tmp+=DeDxMap_.binContent(i,j,l);}
+   if(strcmp(ProbabilityMode.c_str(),"Accumulation")==0){
+//      printf("LOOOP ON P\n");
+      for(int i=0;i<=Prob_ChargePath->GetXaxis()->GetNbins()+1;i++){
+//         printf("LOOOP ON PATH\n");
+         for(int j=0;j<=Prob_ChargePath->GetYaxis()->GetNbins()+1;j++){
+//            printf("LOOOP ON CHARGE\n");
 
-   	    if(Ni>0){
-               Prob_ChargePath->SetBinContent (i, j, k, tmp/Ni);
-  	    }else{
-               Prob_ChargePath->SetBinContent (i, j, k, 0);
-	    }
+            double Ni = 0;
+            for(int k=0;k<=Prob_ChargePath->GetZaxis()->GetNbins()+1;k++){ Ni+=DeDxMap_.binContent(i,j,k);} 
+
+            for(int k=0;k<=Prob_ChargePath->GetZaxis()->GetNbins()+1;k++){
+               double tmp = 0;
+               for(int l=0;l<=k;l++){ tmp+=DeDxMap_.binContent(i,j,l);}
+
+      	       if(Ni>0){
+                  Prob_ChargePath->SetBinContent (i, j, k, tmp/Ni);
+// 	          printf("P=%6.2f Path=%6.2f Charge%8.2f --> Prob=%8.3f\n",Prob_ChargePath->GetXaxis()->GetBinCenter(i), Prob_ChargePath->GetYaxis()->GetBinCenter(j), Prob_ChargePath->GetZaxis()->GetBinCenter(k), tmp/Ni);
+  	       }else{
+                  Prob_ChargePath->SetBinContent (i, j, k, 0);
+	       }
+            }
          }
       }
+   }else if(strcmp(ProbabilityMode.c_str(),"Integral")==0){
+//      printf("LOOOP ON P\n");
+      for(int i=0;i<=Prob_ChargePath->GetXaxis()->GetNbins()+1;i++){
+//         printf("LOOOP ON PATH\n");
+         for(int j=0;j<=Prob_ChargePath->GetYaxis()->GetNbins()+1;j++){
+//            printf("LOOOP ON CHARGE\n");
+
+            double Ni = 0;
+            for(int k=0;k<=Prob_ChargePath->GetZaxis()->GetNbins()+1;k++){ Ni+=DeDxMap_.binContent(i,j,k);}
+
+            for(int k=0;k<=Prob_ChargePath->GetZaxis()->GetNbins()+1;k++){
+               double tmp = DeDxMap_.binContent(i,j,k);
+
+               if(Ni>0){
+                  Prob_ChargePath->SetBinContent (i, j, k, tmp/Ni);
+//                  printf("P=%6.2f Path=%6.2f Charge%8.2f --> Prob=%8.3f\n",Prob_ChargePath->GetXaxis()->GetBinCenter(i), Prob_ChargePath->GetYaxis()->GetBinCenter(j), Prob_ChargePath->GetZaxis()->GetBinCenter(k), tmp/Ni);
+               }else{
+                  Prob_ChargePath->SetBinContent (i, j, k, 0);
+               }
+            }
+         }
+      }   
+   }else{
+      printf("The ProbabilityMode: %s is unknown\n",ProbabilityMode.c_str());
+      printf("The program will stop now\n");
+      exit(0);
    }
 
 
@@ -232,6 +271,8 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
       double estimator          = ComputeDiscriminator(vect_probs);
       int    size               = vect_probs.size();
       dEdxDiscrims[track_index] = DeDxData(estimator, -1, size );
+
+//      printf("%i --> %g\n",size,estimator);
    }
 
   filler.insert(trackCollectionHandle, dEdxDiscrims.begin(), dEdxDiscrims.end());
@@ -263,9 +304,9 @@ double DeDxDiscriminatorProducer::GetProbability(const SiStripRecHit2D* sistrips
    double charge = DeDxDiscriminatorTools::charge(ampls);
    double path   = DeDxDiscriminatorTools::path(cosine,MOD->Thickness);
 
-   int    BinX   = Prob_ChargePath->GetXaxis()->FindBin(trackDirection.mag());
-   int    BinY   = Prob_ChargePath->GetXaxis()->FindBin(path);
-   int    BinZ   = Prob_ChargePath->GetYaxis()->FindBin(charge/path);
+   int    BinX   = Prob_ChargePath->GetXaxis()->FindBin(trajState.localMomentum().mag());
+   int    BinY   = Prob_ChargePath->GetYaxis()->FindBin(path);
+   int    BinZ   = Prob_ChargePath->GetZaxis()->FindBin(charge/path);
    
    return Prob_ChargePath->GetBinContent(BinX,BinY,BinZ);
 }
