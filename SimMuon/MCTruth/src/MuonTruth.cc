@@ -113,6 +113,39 @@ std::vector<PSimHit> MuonTruth::muonHits()
 }
 
 
+std::vector<MuonTruth::SimHitIdpr> MuonTruth::associateCSCHitId(const CSCRecHit2D * cscrechit) {
+  std::vector<SimHitIdpr> simtrackids;
+  
+  theDetId = cscrechit->geographicalId().rawId();
+  int nchannels = cscrechit->channels().size();
+  const CSCLayerGeometry * laygeom = cscgeom->layer(cscrechit->cscDetId())->geometry();
+  
+  DigiSimLinks::const_iterator layerLinks = theDigiSimLinks->find(theDetId);    
+  
+  if (layerLinks != theDigiSimLinks->end()) {
+    
+    for(int idigi = 0; idigi < nchannels; ++idigi) {
+      // strip and readout channel numbers may differ in ME1/1A
+      int istrip = cscrechit->channels()[idigi];
+      int channel = laygeom->channel(istrip);
+      
+      for (LayerLinks::const_iterator link=layerLinks->begin(); link!=layerLinks->end(); ++link) {
+	int ch = static_cast<int>(link->channel());
+	if (ch == channel) {
+	  SimHitIdpr currentId(link->SimTrackId(), link->eventId());
+	  if (find(simtrackids.begin(), simtrackids.end(), currentId) == simtrackids.end())
+	    simtrackids.push_back(currentId);
+	}
+      }
+    }
+    
+  } else edm::LogWarning("MuonTruth")
+    <<"*** WARNING in MuonTruth::associateCSCHitId - CSC layer "<<theDetId<<" has no DigiSimLinks !"<<std::endl;   
+  
+  return simtrackids;
+}
+
+
 std::vector<MuonTruth::SimHitIdpr> MuonTruth::associateHitId(const TrackingRecHit & hit)
 {
   std::vector<SimHitIdpr> simtrackids;
@@ -146,9 +179,9 @@ std::vector<MuonTruth::SimHitIdpr> MuonTruth::associateHitId(const TrackingRecHi
       }
       
     } else edm::LogWarning("MuonTruth")
-      <<"WARNING in MuonTruth::associateHitId - CSC layer "<<theDetId<<" has no DigiSimLinks !"<<std::endl;   
-
-  } else edm::LogWarning("MuonTruth")<<"WARNING in MuonTruth::associateHitId, null dynamic_cast !";
+      <<"*** WARNING in MuonTruth::associateHitId - CSC layer "<<theDetId<<" has no DigiSimLinks !"<<std::endl;   
+    
+  } else edm::LogWarning("MuonTruth")<<"*** WARNING in MuonTruth::associateHitId, null dynamic_cast !";
   
   return simtrackids;
 }

@@ -28,6 +28,7 @@ public:
 
   MuonTruth(const edm::Event&, const edm::EventSetup&, const edm::ParameterSet&); 
   std::vector<SimHitIdpr> associateHitId(const TrackingRecHit &);
+  std::vector<SimHitIdpr> associateCSCHitId(const CSCRecHit2D *);
 
   void analyze(const CSCRecHit2D & recHit);
   void analyze(const CSCStripDigi & stripDigi, int rawDetIdCorrespondingToCSCLayer);
