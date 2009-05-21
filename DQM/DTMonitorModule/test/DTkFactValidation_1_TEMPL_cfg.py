@@ -64,7 +64,6 @@ process.calibDB = cms.ESSource("PoolDBESSource",
     authenticationMethod = cms.untracked.uint32(0)
 )
 # if read from RAW
-#process.ttrigcalib.digiLabel = 'DIGITEMPLATE'
 #process.load("EventFilter.DTRawToDigi.dtunpacker_cfi")
 
 process.eventInfoProvider = cms.EDFilter("EventCoordinatesSource",
