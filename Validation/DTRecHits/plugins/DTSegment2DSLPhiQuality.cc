@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/10/25 11:58:37 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/10/21 10:52:20 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -42,9 +42,9 @@ DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet& pset)  {
  
   rootFileName = pset.getUntrackedParameter<string>("rootFileName");
   // the name of the simhit collection
-  simHitLabel = pset.getUntrackedParameter<string>("simHitLabel", "SimG4Object");
+  simHitLabel = pset.getUntrackedParameter<InputTag>("simHitLabel");
   // the name of the 4D rec hit collection
-  segment4DLabel = pset.getUntrackedParameter<string>("segment4DLabel");
+  segment4DLabel = pset.getUntrackedParameter<InputTag>("segment4DLabel");
 
   //sigma resolution on position
   sigmaResPos = pset.getParameter<double>("sigmaResPos");
@@ -86,7 +86,7 @@ void DTSegment2DSLPhiQuality::analyze(const Event & event, const EventSetup& eve
 
   // Get the SimHit collection from the event
   edm::Handle<PSimHitContainer> simHits;
-  event.getByLabel(simHitLabel, "MuonDTHits", simHits); //FIXME: second string to be removed
+  event.getByLabel(simHitLabel, simHits);
 
   //Map simHits by chamber
   map<DTChamberId, PSimHitContainer > simHitsPerCh;
@@ -102,6 +102,12 @@ void DTSegment2DSLPhiQuality::analyze(const Event & event, const EventSetup& eve
   Handle<DTRecSegment4DCollection> segment4Ds;
   event.getByLabel(segment4DLabel, segment4Ds);
     
+  if(!segment4Ds.isValid()) {
+    if(debug) cout << "[DTSegment2DSLPhiQuality]**Warning: no 4D Segments with label: " << segment4DLabel
+	 << " in this event, skipping!" << endl;
+    return;
+  }
+
   // Loop over all chambers containing a segment
   DTRecSegment4DCollection::id_iterator chamberId;
   for (chamberId = segment4Ds->id_begin();

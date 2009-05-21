@@ -5,8 +5,8 @@
  *  Basic analyzer class which accesses 1D DTRecHits
  *  and plot resolution comparing reconstructed and simulated quantities
  *
- *  $Date: 2007/06/18 15:29:13 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/10/25 11:58:37 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -62,10 +62,10 @@ private:
   bool debug;
   // Root file name
   std::string rootFileName;
-  std::string simHitLabel;
-  std::string recHitLabel;
-  std::string segment2DLabel;
-  std::string segment4DLabel;
+  edm::InputTag simHitLabel;
+  edm::InputTag recHitLabel;
+  edm::InputTag segment2DLabel;
+  edm::InputTag segment4DLabel;
 
   // Switches for analysis at various steps
   bool doStep1;

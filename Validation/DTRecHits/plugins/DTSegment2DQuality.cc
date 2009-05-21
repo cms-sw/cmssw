@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/21 10:52:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/12/03 12:17:41 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -40,9 +40,9 @@ DTSegment2DQuality::DTSegment2DQuality(const ParameterSet& pset)  {
   DTHitQualityUtils::debug = debug;
   rootFileName = pset.getUntrackedParameter<string>("rootFileName");
   // the name of the simhit collection
-  simHitLabel = pset.getUntrackedParameter<string>("simHitLabel", "SimG4Object");
+  simHitLabel = pset.getUntrackedParameter<InputTag>("simHitLabel");
   // the name of the 2D rec hit collection
-  segment2DLabel = pset.getUntrackedParameter<string>("segment2DLabel");
+  segment2DLabel = pset.getUntrackedParameter<InputTag>("segment2DLabel");
 
   //sigma resolution on position
   sigmaResPos = pset.getParameter<double>("sigmaResPos");
@@ -111,7 +111,7 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
 
   // Get the SimHit collection from the event
   edm::Handle<PSimHitContainer> simHits;
-  event.getByLabel(simHitLabel, "MuonDTHits", simHits); //FIXME: second string to be removed
+  event.getByLabel(simHitLabel, simHits);
 
   //Map simHits by sl
   map<DTSuperLayerId, PSimHitContainer > simHitsPerSl;
@@ -126,7 +126,14 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
   // Get the 2D rechits from the event
   Handle<DTRecSegment2DCollection> segment2Ds;
   event.getByLabel(segment2DLabel, segment2Ds);
-    
+
+  if(!segment2Ds.isValid()) {
+    if(debug) cout << "[DTSegment2DQuality]**Warning: no 2DSegments with label: " << segment2DLabel
+	 << " in this event, skipping!" << endl;
+    return;
+  }
+
+
   // Loop over all superlayers containing a segment
   DTRecSegment2DCollection::id_iterator slId;
   for (slId = segment2Ds->id_begin();
@@ -153,7 +160,7 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
     pair<const PSimHit*, const PSimHit*> inAndOutSimHit = DTHitQualityUtils::findMuSimSegment(muSimHitPerWire); 
     //Check that outermost and innermost SimHit are not the same
     if(inAndOutSimHit.first ==inAndOutSimHit.second ) {
-      cout << "[DTHitQualityUtils]***Warning: outermost and innermost SimHit are the same!" << endl;
+      if(debug) cout << "[DTHitQualityUtils]***Warning: outermost and innermost SimHit are the same!" << endl;
       continue;
     }
 
