@@ -27,6 +27,21 @@ process.MessageLogger.cerr = cms.untracked.PSet(
 
     testReader = cms.untracked.PSet(
         limit = cms.untracked.int32(0)
+    ),
+    MuonAssociatorEDProducer = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+    ),
+    MuonAssociatorByHits = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+    ),
+    DTHitAssociator = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+    ),
+    RPCHitAssociator = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+    ),
+    MuonTruth = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
     )
 )
 
@@ -80,7 +95,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
 # Standard Sequences
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('IDEAL_30X::All')
+process.GlobalTag.globaltag = cms.string('IDEAL_31X::All')
 
 # MuonAssociatorByHits
 process.load("SimMuon.MCTruth.MuonAssociatorByHits_cfi")
