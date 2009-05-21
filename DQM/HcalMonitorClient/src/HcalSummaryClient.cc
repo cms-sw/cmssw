@@ -570,7 +570,7 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
   name << prefixME_<<"/"<<s.baseProblemName;
   me=dqmStore_->get(name.str().c_str());
 
-  double counter;
+  double counter=0;
   if (me)
     {
       hist=me->getTH2F();
