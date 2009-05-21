@@ -3,7 +3,7 @@
  * Generates PYQUEN HepMC events
  *
  * Original Author: Camelia Mironov
- * $Id: PyquenProducer.cc,v 1.8 2009/05/07 18:51:14 yilmaz Exp $
+ * $Id: PyquenProducer.cc,v 1.9 2009/05/20 21:54:32 yilmaz Exp $
 */
 
 #include <iostream>
@@ -12,7 +12,7 @@
 #include "GeneratorInterface/PyquenInterface/interface/PyquenProducer.h"
 #include "GeneratorInterface/PyquenInterface/interface/PYR.h"
 #include "GeneratorInterface/PyquenInterface/interface/PyquenWrapper.h"
-#include "GeneratorInterface/CommonInterface/interface/PythiaCMS.h"
+#include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
@@ -28,11 +28,10 @@
 
 #include "CLHEP/Random/RandomEngine.h"
 
+HepMC::IO_HEPEVT hepevtio2;
 
 using namespace edm;
 using namespace std;
-
-HepMC::IO_HEPEVT hepevtio2;
 
 PyquenProducer :: PyquenProducer(const ParameterSet & pset):
 EDProducer(),
@@ -124,22 +123,6 @@ void PyquenProducer::add_heavy_ion_rec(HepMC::GenEvent *evt)
   delete hi;
 }
 
-
-//______________________________________________________________________
-bool PyquenProducer::call_pygive(const std::string& iParm ) 
-{
-  // Set Pythia parameters
-
-  int numWarn = pydat1.mstu[26];//# warnings
-  int numErr = pydat1.mstu[22]; //# errors
-  // call the fortran routine pygive with a fortran string
-  PYGIVE( iParm.c_str(), iParm.length() );  
-
-  // if an error or warning happens it is problem
-  return pydat1.mstu[26] == numWarn && pydat1.mstu[22] == numErr;   
-}
-
-
 //____________________________________________________________________
 void PyquenProducer::clear()
 {
@@ -182,7 +165,7 @@ void PyquenProducer::produce(Event & e, const EventSetup& es)
   }
 
   // call PYTHIA to finish the hadronization
-  PYEXEC();
+  gen::pyexec_();
 
   // fill the HEPEVT with the PYJETS event record
   call_pyhepc(1);
@@ -234,12 +217,12 @@ bool PyquenProducer::pyqpythia_init(const ParameterSet & pset)
   uint32_t seed = rng->mySeed();
   ostringstream sRandomSet;
   sRandomSet << "MRPY(1)=" << seed;
-  call_pygive(sRandomSet.str());
+  gen::call_pygive(sRandomSet.str());
 
   //Turn Hadronization Off if there is quenching
   if(doquench_){
      string sHadOff("MSTP(111)=0");
-     call_pygive(sHadOff);
+     gen::call_pygive(sHadOff);
   }
 
     // Set PYTHIA parameters in a single ParameterSet  
@@ -267,7 +250,7 @@ bool PyquenProducer::pyqpythia_init(const ParameterSet & pset)
            << " Attempted to set random number using 'MRPY(1)'. NOT ALLOWED!\n"
               " Use RandomNumberGeneratorService to set the random number seed.";
       }
-      if( !call_pygive(*itPar) ) {
+      if( !gen::call_pygive(*itPar) ) {
         throw edm::Exception(edm::errors::Configuration,"PythiaError") 
            << "PYTHIA did not accept \""<<*itPar<<"\"";
       }

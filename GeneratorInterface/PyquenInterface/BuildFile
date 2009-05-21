@@ -1,12 +1,13 @@
 <use name=boost>
 <use name=FWCore/Framework>
+<use name=GeneratorInterface/Core>
 <use name=SimDataFormats/GeneratorProducts>
 <use name=SimDataFormats/HiGenData>
 <use name=clhep> 
 <use name=hepmc>
 <use name=pythia6>
 <use name=f77compiler>
-
+<use name=GeneratorInterface/ExternalDecays>
 <export>
  <lib name=GeneratorInterfacePyquenInterface> 
  <use name=boost>

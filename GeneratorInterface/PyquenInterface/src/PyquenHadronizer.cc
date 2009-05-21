@@ -3,18 +3,19 @@
  * Generates PYQUEN HepMC events
  *
  * Original Author: Camelia Mironov
- * $Id: PyquenSource.cc,v 1.22 2009/02/03 22:02:00 yilmaz Exp $
+ * $Id: PyquenHadronizer.cc,v 1.9 2009/05/20 21:54:32 yilmaz Exp $
 */
 
 #include <iostream>
 #include "time.h"
 
-#include "GeneratorInterface/PyquenInterface/interface/PyquenSource.h"
+#include "GeneratorInterface/PyquenInterface/interface/PyquenHadronizer.h"
 #include "GeneratorInterface/PyquenInterface/interface/PYR.h"
 #include "GeneratorInterface/PyquenInterface/interface/PyquenWrapper.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -25,13 +26,17 @@
 #include "HepMC/IO_HEPEVT.h"
 #include "HepMC/PythiaWrapper.h"
 
-HepMC::IO_HEPEVT hepevtio1;
+#include "CLHEP/Random/RandomEngine.h"
 
+using namespace gen;
 using namespace edm;
 using namespace std;
 
-PyquenSource :: PyquenSource(const ParameterSet & pset, InputSourceDescription const& desc):
-GeneratedInputSource(pset, desc), evt(0), 
+HepMC::IO_HEPEVT hepevtio;
+
+PyquenHadronizer :: PyquenHadronizer(const ParameterSet & pset):
+   BaseHadronizer(pset),
+   pset_(pset),
 abeamtarget_(pset.getParameter<double>("aBeamTarget")),
 angularspecselector_(pset.getParameter<int>("angularSpectrumSelector")),
 bmin_(pset.getParameter<double>("bMin")),
@@ -43,12 +48,14 @@ doquench_(pset.getParameter<bool>("doQuench")),
 doradiativeenloss_(pset.getParameter<bool>("doRadiativeEnLoss")),
 docollisionalenloss_(pset.getParameter<bool>("doCollisionalEnLoss")),
 doIsospin_(pset.getParameter<bool>("doIsospin")),
+embedding_(pset.getParameter<bool>("embeddingMode")),
 nquarkflavor_(pset.getParameter<int>("numQuarkFlavor")),
 qgpt0_(pset.getParameter<double>("qgpInitialTemperature")),
 qgptau0_(pset.getParameter<double>("qgpProperTimeFormation")),
 maxEventsToPrint_(pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
 pythiaHepMCVerbosity_(pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
-pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0))
+pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0)),
+eventNumber_(0)
 {
   // Default constructor
   // Verbosity Level
@@ -64,38 +71,19 @@ pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0
   maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint",0);
   LogDebug("Events2Print") << "Number of events to be printed = " << maxEventsToPrint_ << endl;
 
-  //Proton to Nucleon fraction
-  pfrac_ = 1./(1.98+0.015*pow(abeamtarget_,2./3));
-
-  //initialize pythia
-  pyqpythia_init(pset);
-
-  //initilize pyquen
-  pyquen_init(pset);
-
-  // Call PYTHIA
-  call_pyinit("CMS", "p", "p", comenergy);  
-  
-  cout<<endl;
-
-  produces<HepMCProduct>();
-  produces<GenInfoProduct, edm::InRun>();
 }
 
 
 //_____________________________________________________________________
-PyquenSource::~PyquenSource()
+PyquenHadronizer::~PyquenHadronizer()
 {
   // distructor
-
   call_pystat(1);
-
-  clear();
 }
 
 
 //_____________________________________________________________________
-void PyquenSource::add_heavy_ion_rec(HepMC::GenEvent *evt)
+void PyquenHadronizer::add_heavy_ion_rec(HepMC::GenEvent *evt)
 {
   HepMC::HeavyIon *hi = new HepMC::HeavyIon(
     -1,                                 // Ncoll_hard
@@ -118,23 +106,32 @@ void PyquenSource::add_heavy_ion_rec(HepMC::GenEvent *evt)
   delete hi;
 }
 
-//____________________________________________________________________
-void PyquenSource::clear()
-{
-}
-
-
 //_____________________________________________________________________
-bool PyquenSource::produce(Event & e)
+bool PyquenHadronizer::generatePartonsAndHadronize()
 {
-  edm::LogInfo("PYQUENabeamtarget") << "##### PYQUEN: beam/target A = "                     << abeamtarget_;
-  edm::LogInfo("PYQUENcflag")       << "##### PYQUEN: centrality flag cflag_ = "            << cflag_;
-  edm::LogInfo("PYQUENbfixed")      << "##### PYQUEN: fixed impact parameter bFixed = "     << bfixed_;
-  edm::LogInfo("PYQUENinNFlav")     << "##### PYQUEN: No active quark flavor nf = "         << pyqpar.nfu;
-  edm::LogInfo("PYQUENinTemp")      << "##### PYQUEN: Initial temperature of QGP, T0 = "    << pyqpar.T0u;
-  edm::LogInfo("PYQUENinTau")       << "##### PYQUEN: Proper formation time of QGP, tau0 =" << pyqpar.tau0u;
 
-  // Generate PYQUEN event
+   //Get Parameters from the background Pb+Pb event if necessary
+   double evtPlane = 0;
+
+   // Not possible to retrieve impact paramter and event plane info
+   // at this part, need to overwrite filter() in 
+   // PyquenGeneratorFilter 
+   /*
+   if(embedding_){
+      Handle<HepMCProduct> input;
+      e.getByLabel("source",input);
+      const HepMC::GenEvent * inev = input->GetEvent();
+      HepMC::HeavyIon* hi = inev->heavy_ion();
+      if(hi){
+	 bfixed_ = hi->impact_parameter();
+	 evtPlane = hi->event_plane_angle();
+      }else{
+	 LogWarning("EventEmbedding")<<"Background event does not have heavy ion record!";
+      }
+   }
+   */   
+
+   // Generate PYQUEN event
   // generate single partonic PYTHIA jet event
 
   // Take into account whether it's a nn or pp or pn interaction
@@ -151,49 +148,52 @@ bool PyquenSource::produce(Event & e)
   }
 
   // call PYTHIA to finish the hadronization
-  gen::pyexec_();
+  pyexec_();
 
   // fill the HEPEVT with the PYJETS event record
   call_pyhepc(1);
 
   // event information
-  HepMC::GenEvent* evt = hepevtio1.read_next_event();
+  HepMC::GenEvent* evt = hepevtio.read_next_event();
   evt->set_signal_process_id(pypars.msti[0]);      // type of the process
-  evt->set_event_scale(pypars.pari[16]);           // Q^2
-  evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
 
+  evt->set_event_scale(pypars.pari[16]);           // Q^2
+
+  ++eventNumber_;
+  evt->set_event_number(eventNumber_);
+  if(embedding_) rotateEvtPlane(evt,evtPlane);
   add_heavy_ion_rec(evt);
 
-  auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
-  bare_product->addHepMCData(evt );
-  e.put(bare_product); 
+  event().reset(evt);
 
-  // verbosity
-  if( event() <= maxEventsToPrint_ && ( pythiaPylistVerbosity_ || pythiaHepMCVerbosity_ )) { 
-    // Prints PYLIST info
-     if( pythiaPylistVerbosity_ ){
-       call_pylist(pythiaPylistVerbosity_);
-     }
-      
-     // Prints HepMC event
-     if( pythiaHepMCVerbosity_ ){
-        cout << "Event process = " << pypars.msti[0] << endl; 
-	evt->print(); 
-     }
-  }
-    
   return true;
+}
+
+bool PyquenHadronizer::initializeForInternalPartons(){
+   //Proton to Nucleon fraction
+   pfrac_ = 1./(1.98+0.015*pow(abeamtarget_,2./3));
+
+   //initialize pythia         
+   pyqpythia_init(pset_);
+
+   //initilize pyquen          
+   pyquen_init(pset_);
+
+   // Call PYTHIA              
+   call_pyinit("CMS", "p", "p", comenergy);
+
+   return true;
 }
 
 
 //_____________________________________________________________________
-bool PyquenSource::pyqpythia_init(const ParameterSet & pset)
+bool PyquenHadronizer::pyqpythia_init(const ParameterSet & pset)
 {
   //initialize PYTHIA
 
   //random number seed
   edm::Service<RandomNumberGenerator> rng;
- randomEngine = &(rng->getEngine());
+  randomEngine = fRandomEngine = &(rng->getEngine());
   uint32_t seed = rng->mySeed();
   ostringstream sRandomSet;
   sRandomSet << "MRPY(1)=" << seed;
@@ -242,7 +242,7 @@ bool PyquenSource::pyqpythia_init(const ParameterSet & pset)
 
 
 //_________________________________________________________________
-bool PyquenSource::pyquen_init(const ParameterSet &pset)
+bool PyquenHadronizer::pyquen_init(const ParameterSet &pset)
 {
   // PYQUEN initialization
 
@@ -276,7 +276,7 @@ bool PyquenSource::pyquen_init(const ParameterSet &pset)
   return true;
 }
 
-char* PyquenSource::nucleon(){
+char* PyquenHadronizer::nucleon(){
   int* dummy;
   double random = pyr_(dummy);
   char* nuc;
@@ -286,4 +286,87 @@ char* PyquenSource::nucleon(){
   return nuc;
 }
 
+void PyquenHadronizer::rotateEvtPlane(HepMC::GenEvent* evt, double angle){
+
+   double sinphi0 = sin(angle);
+   double cosphi0 = cos(angle);
+
+   for ( HepMC::GenEvent::vertex_iterator vt=evt->vertices_begin();
+	 vt!=evt->vertices_end(); ++vt )
+      {
+	 
+	 double x0 = (*vt)->position().x();
+	 double y0 = (*vt)->position().y();
+	 double z = (*vt)->position().z();
+	 double t = (*vt)->position().t();
+
+	 double x = x0*cosphi0-y0*sinphi0;
+	 double y = y0*cosphi0+x0*sinphi0;
+
+	 (*vt)->set_position( HepMC::FourVector(x,y,z,t) ) ;      
+      }
+
+   for ( HepMC::GenEvent::particle_iterator vt=evt->particles_begin();
+         vt!=evt->particles_end(); ++vt )
+      {
+
+         double x0 = (*vt)->momentum().x();
+         double y0 = (*vt)->momentum().y();
+         double z = (*vt)->momentum().z();
+         double t = (*vt)->momentum().t();
+
+         double x = x0*cosphi0-y0*sinphi0;
+         double y = y0*cosphi0+x0*sinphi0;
+
+         (*vt)->set_momentum( HepMC::FourVector(x,y,z,t) ) ;
+      }
+}
+
+bool PyquenHadronizer::declareStableParticles( std::vector<int> pdg )
+{
+   for ( size_t i=0; i < pdg.size(); i++ )
+      {
+         int pyCode = pycomp_( pdg[i] );
+	 std::ostringstream pyCard ;
+         pyCard << "MDCY(" << pyCode << ",1)=0";
+	 std::cout << pyCard.str() << std::endl;
+         call_pygive( pyCard.str() );
+      }
+
+   return true;
+
+}
+
+
+
 //____________________________________________________________________
+
+bool PyquenHadronizer::hadronize()
+{
+   return false;
+}
+
+bool PyquenHadronizer::decay()
+{
+   return true;
+}
+
+bool PyquenHadronizer::residualDecay()
+{
+   return true;
+}
+
+void PyquenHadronizer::finalizeEvent(){
+
+}
+
+void PyquenHadronizer::statistics(){
+}
+
+const char* PyquenHadronizer::classname() const
+{
+   return "gen::PyquenHadronizer";
+}
+
+
+
