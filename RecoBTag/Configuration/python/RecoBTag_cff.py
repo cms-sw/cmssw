@@ -22,10 +22,11 @@ btagging = cms.Sequence(
     ) +
 
     # soft electrons, tag infos and algorithm(s)
-    softElectronSelector *
+#    softElectronSelector *
     softPFElectrons *
       softElectronTagInfos *
-      ( softElectronBJetTags +
+      (
+#    softElectronBJetTags +
         softElectronByIP3dBJetTags +
         softElectronByPtBJetTags
       ) +
