@@ -42,12 +42,18 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDelt
 
   //std::cout << "minDeltaPhi = " << minDeltaPhi << std::endl;
 
-
   // CMSSW_2_X_X
   // use bare Root if no DQM (FWLite applications)
-  if (!DQM) file_ = new TFile();
-
+  //if (!DQM)
+  //{
+  //  file_ = new TFile("pfmetBenchmark.root", "recreate");
+  //  cout << "Info: DQM is not available to provide data storage service. Using TFile to save histograms. "<<endl;
+  //}
   // Book Histograms
+
+  //std::cout << "FL : pwd = ";
+  //gDirectory->pwd();
+  //std::cout << std::endl;
 
   int nbinsEt = 1000;
   float minEt = 0;
@@ -201,11 +207,13 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDelt
   while ( TFile *file = (TFile *)next() )
     cout<<"file "<<file->GetName()<<endl;
 
+  if (DQM)
+  {
+    cout<<"DQM subdir"<<endl;
+    cout<< DQM->pwd().c_str()<<endl;
 
-  cout<<"DQM subdir"<<endl;
-  cout<< DQM->pwd().c_str()<<endl;
-
-  DQM->cd( DQM->pwd() );
+    DQM->cd( DQM->pwd() );
+  }
 
   cout<<"current dir"<<endl;
   gDirectory->pwd();
@@ -215,6 +223,7 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDelt
   oldpwd->cd();
   //gDirectory->pwd();
 
+  fillFunctionHasBeenUsed_=false;
 
   //   tree_ = new BenchmarkTree("genericBenchmark", "Generic Benchmark TTree");
 }
@@ -230,6 +239,7 @@ void GenericBenchmark::fill(const edm::View<reco::Candidate> *RecoCollection,
 			    double maxEta_cut, 
 			    double deltaR_cut) {
 
+  fillFunctionHasBeenUsed_=true;
   // loop over reco particles
 
   if( !startFromGen) {
@@ -338,13 +348,17 @@ void GenericBenchmark::fillHistos( const reco::Candidate* genParticle,
 				   double deltaR_cut,
 				   bool plotAgainstReco ) {
 
-
-  
   // get the quantities to place on the denominator and/or divide by
   double et = genParticle->et();
   double eta = genParticle->eta();
   double phi = genParticle->phi();
-  
+  //std::cout << "FL : et = " << et << std::endl;
+  //std::cout << "FL : eta = " << eta << std::endl;
+  //std::cout << "FL : phi = " << phi << std::endl;
+  //std::cout << "FL : rec et = " << recParticle->et() << std::endl;
+  //std::cout << "FL : rec eta = " << recParticle->eta() << std::endl;
+  //std::cout << "FL : rec phi = " <<recParticle-> phi() << std::endl;
+
   if (plotAgainstReco) { 
     et = recParticle->et(); 
     eta = recParticle->eta(); 
@@ -358,6 +372,9 @@ void GenericBenchmark::fillHistos( const reco::Candidate* genParticle,
   double deltaEta = algo_->deltaEta(recParticle,genParticle);
   double deltaPhi = algo_->deltaPhi(recParticle,genParticle);
    
+  //std::cout << "FL :deltaR_cut = " << deltaR_cut << std::endl;
+  //std::cout << "FL :deltaR = " << deltaR << std::endl;
+
   //TODO implement variable Cut:
   if (fabs(deltaR)>deltaR_cut and deltaR_cut != -1.)
     return;
@@ -390,7 +407,19 @@ void GenericBenchmark::fillHistos( const reco::Candidate* genParticle,
   entry.deltaEta = deltaEta;
   entry.et = et;
   entry.eta = eta;
-    
+
+  if (!fillFunctionHasBeenUsed_)
+  {   
+    hEtaGen->Fill(genParticle->eta() );
+    hPhiGen->Fill(genParticle->phi() );
+    hEtGen->Fill(genParticle->et() );
+    hPhiRec->Fill(recParticle->phi() );
+    hEtRec->Fill(recParticle->et() );
+    hExRec->Fill(recParticle->px() );
+    hEyRec->Fill(recParticle->py() );
+    hEtRecvsEt->Fill(genParticle->et(),recParticle->et());
+  }
+
   //     tree_->Fill(entry);
 
 }
@@ -400,4 +429,9 @@ void GenericBenchmark::write(std::string Filename) {
   if (Filename.size() != 0 && file_)
     file_->Write(Filename.c_str());
 
+}
+
+void GenericBenchmark::setfile(TFile *file)
+{
+  file_=file;
 }

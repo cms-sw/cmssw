@@ -44,6 +44,13 @@ class GenericBenchmark{
 
   void write(std::string Filename);
 
+  void fillHistos( const reco::Candidate* genParticle,
+		   const reco::Candidate* recParticle,
+		   double deltaR_cut,
+		   bool plotAgainstReco); 
+
+  void setfile(TFile *file);
+
  private:
   
   bool accepted(const reco::Candidate* particle,
@@ -51,10 +58,6 @@ class GenericBenchmark{
 		double minEtaCut,
 		double maxEtaCut ) const;
     
-  void fillHistos( const reco::Candidate* genParticle,
-		   const reco::Candidate* recParticle,
-		   double deltaR_cut,
-		   bool plotAgainstReco); 
   TFile *file_;
 
   TH1F *hDeltaEt;
@@ -100,6 +103,8 @@ class GenericBenchmark{
   TH1F *hPhiRec;
 
   BenchmarkTree*  tree_;
+
+  bool fillFunctionHasBeenUsed_;
 
  protected:
 
