@@ -236,7 +236,7 @@ void FWColorPopup::SetColors(const std::vector<Pixel_t>& colors, bool background
       if (colors.at(i) == fSelectedColor)
       {
          fSelectedRow = fSecondRow;
-         fSelectedIndex = i - colors.size();
+         fSelectedIndex = i - colors.size()/2;
       }
    }
    fSecondRow->SetBackgroundToBlack(backgroundIsBlack);
