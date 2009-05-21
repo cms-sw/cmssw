@@ -72,7 +72,7 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
 	cout <<"<HcalRecHitMonitor::setup>  Setting up histograms"<<endl;
 
       m_dbe->setCurrentFolder(baseFolder_);
-      meEVT_ = m_dbe->bookInt("RecHit Event Number");
+      meEVT_ = m_dbe->bookInt("RecHit Task Event Number");
       meEVT_->Fill(ievt_);
 
       // Create problem cell plots
