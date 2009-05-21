@@ -77,20 +77,25 @@ namespace cond {
   private:
   };
 
-  template<typename T>
-  class PayLoadInspector : PoolTransactionSentry {
+  template<typename DataT>
+  class PayLoadInspector {
   public:
-    typedef T Class;
-    typedef ValueExtractor<T> Extractor;
-    typedef cond::DataWrapper<T> Wrapper;
+    typedef DataT Class;
+    typedef ValueExtractor<DataT> Extractor;
+    typedef cond::DataWrapper<DataT> DataWrapper;
 
     PayLoadInspector() {}
-    PayLoadInspector(const cond::IOVElementProxy & elem) : 
-      PoolTransactionSentry(*elem.db()),
-      wrapper(*elem.db(),elem.wrapperToken()){}
+
+    PayLoadInspector(const cond::IOVElementProxy & elem) {
+      cond::PoolTransaction & db = *elem.db();
+      db.start(true);
+      load(&db.poolDataSvc(),elem.token());
+      db.commit();
+    }
 
     std::string dump() const { return ""; }
 
+    // specialize in case of no-wrapper!
     std::string summary() const {
       std::ostringstream os;
       os << wrapper->summary();
@@ -105,12 +110,38 @@ namespace cond {
 
     void extract(Extractor & extractor) const {extractor.computeW(object()); }
 
-    Class const & object() const { return wrapper->data();}     
-
+    Class const & object() const { 
+      return old ? *m_OldData : m_data->data(); 
+    }
 
   private:
-    cond::TypedRef<Wrapper> wrapper;
+    virtual bool load(pool::IDataSvc * svc, std::string const & token) {
+      old = false;
+     bool ok = false;
+      // try wrapper, if not try plain
+      pool::Ref<DataWrapper> ref(svc,token);
+      if (ref) {
+	m_data.copyShallow(ref);
+	m_data->data();
+	ok= true;
+      } else {
+	pool::Ref<DataT> refo(svc,token);
+	if (refo) {
+	  old = true;
+	  m_OldData.copyShallow(refo);
+	  ok =  true;
+	}
+      }
+      return ok;
+    }
+    
+    
 
+  private:
+    bool old;
+    pool::Ref<DataWrapper> m_data;
+    // Backward compatibility
+    pool::Ref<DataT> m_OldData;
   };
 
 }
