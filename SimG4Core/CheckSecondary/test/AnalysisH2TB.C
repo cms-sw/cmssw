@@ -25,7 +25,7 @@ static unsigned int antiproton=12, proton=13, neutron=14, heavy=15, ions=16;
 
 void AnalyseH2TB(char element[6], char list[20], char ene[6], char part[4], int sav=0, int nMax=-1, bool debug=false) {
 
-  char *g4ver = "9.2";
+  char *g4ver = "9.2.ref01P";
   bool detail = true;
 
   int  energy = atoi(ene);
@@ -496,14 +496,15 @@ void AnalyseH2TB(char element[6], char list[20], char ene[6], char part[4], int 
       fout->Write();
     }
 
-    std::cout << ninter << " interactions seen in " << nentry << " trials\n";
+    std::cout << ninter << " interactions seen in " << nentry << " trials\n"
+	      << "Elastic/Inelastic " << elastic << "/" << inelastic << "\n";
     if( nentry-ninter != 0 ) {
       double sigma = atwt*10000.*log((double)(nentry)/(double)(nentry-ninter))/(rhol*6.023);
       double dsigma    = sigma/sqrt(double(ninter));
       double sigmaEl   = sigma*((double)(elastic))/((double)(ninter));
-      double dsigmaEl  = sigmaEl/sqrt(double(elastic));
+      double dsigmaEl  = sigmaEl/sqrt(double(max(1,elastic)));
       double sigmaInel = sigma*((double)(inelastic))/((double)(ninter));
-      double dsigmaInel= sigmaInel/sqrt(double(inelastic));
+      double dsigmaInel= sigmaInel/sqrt(double(max(1,inelastic)));
       std::cout << "Total     " << sigma << " +- " << dsigma 
 		<< " mb (" << ninter << " events)\n"
 		<< "Elastic   " << sigmaEl<< " +- " << dsigmaEl
