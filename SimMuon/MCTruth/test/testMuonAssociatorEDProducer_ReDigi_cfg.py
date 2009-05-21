@@ -27,6 +27,21 @@ process.MessageLogger.cerr = cms.untracked.PSet(
 
     testReader = cms.untracked.PSet(
         limit = cms.untracked.int32(0)
+    ),
+    MuonAssociatorEDProducer = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+    ),
+    MuonAssociatorByHits = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+    ),
+    DTHitAssociator = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+    ),
+    RPCHitAssociator = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+    ),
+    MuonTruth = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
     )
 )
 
@@ -89,7 +104,8 @@ process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load("Configuration.StandardSequences.Digi_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 # for 3XX MC data
-process.GlobalTag.globaltag = cms.string('IDEAL_30X::All')
+process.GlobalTag.globaltag = cms.string('IDEAL_31X::All')
+#process.GlobalTag.globaltag = cms.string('IDEAL_30X::All')
 # for 2XX MC data
 #process.GlobalTag.globaltag = cms.string('IDEAL_V12::All') # 22X
 #process.GlobalTag.globaltag = cms.string('IDEAL_V9::All')  # 21X
