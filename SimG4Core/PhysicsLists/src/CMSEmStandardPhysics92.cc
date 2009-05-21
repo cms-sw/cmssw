@@ -119,10 +119,10 @@ void CMSEmStandardPhysics92::ConstructParticle() {
 
 void CMSEmStandardPhysics92::ConstructProcess() {
   // Add standard EM Processes
-  G4Region* hcal = 0;
+  G4Region* reg = 0;
   if (region != " ") {
     G4RegionStore* regStore = G4RegionStore::GetInstance();
-    hcal = regStore->GetRegion(region, true);
+    reg = regStore->GetRegion(region, true);
   }
 
   theParticleIterator->reset();
@@ -146,10 +146,10 @@ void CMSEmStandardPhysics92::ConstructProcess() {
       eioni->SetStepFunction(0.8, 1.0*mm);
       G4eMultipleScattering* msc = new G4eMultipleScattering;
       msc->SetStepLimitType(fMinimal);
-      if (hcal != 0) {
+      if (reg != 0) {
 	G4UrbanMscModel2* msc_el  = new G4UrbanMscModel2("UrbanMscUni2Safety");
 	msc_el->SetRangeFactor(0.04);
-	msc->AddEmModel(0,msc_el,hcal);
+	msc->AddEmModel(0,msc_el,reg);
       }
       pmanager->AddProcess(msc,                   -1, 1, 1);
       pmanager->AddProcess(eioni,                 -1, 2, 2);
@@ -161,10 +161,10 @@ void CMSEmStandardPhysics92::ConstructProcess() {
       eioni->SetStepFunction(0.8, 1.0*mm);
       G4eMultipleScattering* msc = new G4eMultipleScattering;
       msc->SetStepLimitType(fMinimal);
-      if (hcal != 0) {
+      if (reg != 0) {
 	G4UrbanMscModel2* msc_pos  = new G4UrbanMscModel2("UrbanMscUni2Safety");
 	msc_pos->SetRangeFactor(0.04);
-	msc->AddEmModel(0,msc_pos,hcal);
+	msc->AddEmModel(0,msc_pos,reg);
       }
       pmanager->AddProcess(msc,                     -1, 1, 1);
       pmanager->AddProcess(eioni,                   -1, 2, 2);

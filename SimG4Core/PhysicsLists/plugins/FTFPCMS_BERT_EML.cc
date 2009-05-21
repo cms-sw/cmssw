@@ -22,7 +22,7 @@ FTFPCMS_BERT_EML::FTFPCMS_BERT_EML(G4LogicalVolumeToDDLogicalPartMap& map,
   int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
-  std::string region = p.getUntrackedParameter<std::string>("Region", " ");
+  std::string region = p.getParameter<std::string>("Region");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "FTFP_BERT_EML 4.2 with Flags for EM Physics "
 			      << emPhys << " and for Hadronic Physics "
