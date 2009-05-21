@@ -1,10 +1,14 @@
- /** \file HLTMuonGenericRate.cc
- *  Get L1/HLT efficiency/rate plots
- *  Documentation available on the CMS TWiki:
- *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
+ /** \file DQMOffline/Trigger/HLTMuonGenericRate.cc
  *
- *  $Date: 2009/05/15 09:48:08 $
- *  $Revision: 1.8 $
+ *  Muon HLT Offline DQM plotting code
+ *  This object will make occupancy/efficiency plots for a
+ *  specific set of conditions:
+ *    1. A set of selection cuts
+ *    2. A trigger name
+ *  
+ *  $Author: Jason Slaunwhite $
+ *  $Date: 2009/05/20 11:17:53 $
+ *  $Revision: 1.9 $
  */
 
 
@@ -19,6 +23,8 @@
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+
 
 // For storing calorimeter isolation info in the ntuple
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
@@ -46,8 +52,10 @@ double minPtCuts[] = { 0. };
 
 /// Constructor
 HLTMuonGenericRate::HLTMuonGenericRate
-( const ParameterSet& pset, string triggerName, vector<string> moduleNames, MuonSelectionStruct inputSelection, string customName )
-  :  mySelection(inputSelection)
+( const ParameterSet& pset, string triggerName, vector<string> moduleNames,
+  MuonSelectionStruct inputSelection, string customName,
+  vector<string> validTriggers )
+  :  mySelection(inputSelection), selectedValidTriggers(validTriggers)
 {
 
 
@@ -67,9 +75,9 @@ HLTMuonGenericRate::HLTMuonGenericRate
 
   LogTrace ("HLTMuonVal") << "\n\n Getting AOD switch + lables \n\n";
   
-  useAod         = pset.getUntrackedParameter<bool>("UseAod");
-  theAodL1Label  = pset.getUntrackedParameter<string>("AodL1Label");
-  theAodL2Label  = pset.getUntrackedParameter<string>("AodL2Label");
+  useAod         = true;  //pset.getUntrackedParameter<bool>("UseAod");
+  // theAodL1Label  = pset.getUntrackedParameter<string>("AodL1Label");
+  //   theAodL2Label  = pset.getUntrackedParameter<string>("AodL2Label");
 
   // what type of matches do we need
 
@@ -97,50 +105,20 @@ HLTMuonGenericRate::HLTMuonGenericRate
   }
 
   LogTrace ("HLTMuonVal") << "Skipping special AOD handling";
-  // if ( useAod ) {
-//     LogTrace ("HLTMuonVal") << "Storing AOD labels";
-
-//     LogTrace ("HLTMuonVal") << "The AodL1Label is "
-//                             << theAodL1Label
-//                             << "\nThe size of theHltCollectionLabels is "
-//                             << theHltCollectionLabels.size();
-    
-//     theL1CollectionLabel = theAodL1Label;
-
-//     // If you have a hltCollection, then do this tweak
-//     // If not, then leave it alone
-//     if ( theHltCollectionLabels.size() != 0){
-//       string & finalLabel    = theHltCollectionLabels.back();
-//       LogTrace ("HLTMuonVal") << "Final Label is " << finalLabel;
-    
-//       theHltCollectionLabels.clear();
-//       theHltCollectionLabels.push_back( theAodL2Label );
-//       theHltCollectionLabels.push_back( finalLabel );
-//     }
-
-//     LogTrace ("HLTMuonVal") << "Done storing labels\n\n";
-//   }
 
   numHltLabels   = theHltCollectionLabels.size();
   isIsolatedPath = ( numHltLabels == 4 ) ? true : false;
-
-  theGenLabel          = pset.getUntrackedParameter<string>("GenLabel" ,"");
-  // old way
-  // theRecoLabel         = pset.getUntrackedParameter<string>("RecoLabel","");
-
-  // New way
-  //LogTrace ("HLTMuonVal") << "\n\nThe RECO collection for this GenericRate is "
-  //                         << myRecoCollection;
 
   // -- Right now the new way is to hard-code it
   // -- this uses the most generic kind of muon
   // -- selectors will handle other cuts
   theRecoLabel = "muons";
-  //myCustomName = mySelection.customLabel;
 
+
+  TriggerResultLabel = pset.getParameter<edm::InputTag>("TriggerResultLabel");  
   
-  useMuonFromGenerator = ( theGenLabel  == "" ) ? false : true;
-  useMuonFromReco      = ( theRecoLabel == "" ) ? false : true;
+  useMuonFromGenerator = false; // = ( theGenLabel  == "" ) ? false : true;
+  useMuonFromReco      = true; // = ( theRecoLabel == "" ) ? false : true;
 
   theMaxPtParameters = pset.getParameter< vector<double> >("MaxPtParameters");
   thePtParameters    = pset.getParameter< vector<double> >("PtParameters");
@@ -151,7 +129,7 @@ HLTMuonGenericRate::HLTMuonGenericRate
 
   theResParameters = pset.getParameter < vector<double> >("ResParameters");
 
-  //highPtTrackCollection = pset.getParameter <string> ("highPtTrackCollection");
+
   
   // Duplicate the pt parameters for some 2D histos
   for(int i =0; i < 2; i++){
@@ -269,48 +247,11 @@ HLTMuonGenericRate::HLTMuonGenericRate
 
   //=======================================
 
-  theMinPtCut    = pset.getUntrackedParameter<double>("MinPtCut");
-  theMaxEtaCut   = pset.getUntrackedParameter<double>("MaxEtaCut");
+
+
   theL1DrCut     = pset.getUntrackedParameter<double>("L1DrCut");
   theL2DrCut     = pset.getUntrackedParameter<double>("L2DrCut");
   theL3DrCut     = pset.getUntrackedParameter<double>("L3DrCut");
-  theMotherParticleId = pset.getUntrackedParameter<unsigned int> 
-                        ("MotherParticleId");
-  theNSigmas          = pset.getUntrackedParameter< std::vector<double> >
-                        ("NSigmas90");
-
-  theNtupleFileName = pset.getUntrackedParameter<std::string>
-                      ( "NtupleFileName", "" );
-  theNtuplePath     = pset.getUntrackedParameter<std::string>
-                      ( "NtuplePath", "" );
-  makeNtuple = false;
-  if ( theTriggerName == theNtuplePath && theNtupleFileName != "" ) 
-    makeNtuple = true;
-  if ( makeNtuple ) {
-    theFile      = new TFile(theNtupleFileName.c_str(),"RECREATE");
-    TString vars = "eventNum:motherId:passL2Iso:passL3Iso:";
-    vars        += "ptGen:etaGen:phiGen:";
-    vars        += "ptL1:etaL1:phiL1:";
-    vars        += "ptL2:etaL2:phiL2:";
-    vars        += "ptL3:etaL3:phiL3:";
-    for ( int i = 0; i < numCones; i++ ) {
-      int cone  = (int)(coneSizes[i]*100);
-      vars += Form("sumCaloIso%.2i:",cone);
-      vars += Form("numCaloIso%.2i:",cone);
-      vars += Form("sumEcalIso%.2i:",cone);
-      vars += Form("sumHcalIso%.2i:",cone);
-    }
-    for ( int i = 0; i < numCones; i++ ) {
-      int cone  = (int)(coneSizes[i]*100);
-      for ( int j = 0; j < numMinPtCuts; j++ ) {
-        int ptCut = (int)(minPtCuts[j]*10);
-        vars += Form("sumTrackIso%.2i_%.2i:",ptCut,cone);
-        vars += Form("numTrackIso%.2i_%.2i:",ptCut,cone);
-      }
-    }
-    vars.Resize( vars.Length() - 1 );
-    theNtuple    = new TNtuple("nt","data",vars);
-  }
 
   dbe_ = 0 ;
   if ( pset.getUntrackedParameter<bool>("DQMStore", false) ) {
@@ -328,11 +269,6 @@ HLTMuonGenericRate::HLTMuonGenericRate
 
 void HLTMuonGenericRate::finish()
 {
-  if ( makeNtuple ) {
-    theFile->cd();
-    theNtuple->Write();
-    theFile->Close();
-  }
 
   if (createStandAloneHistos && histoFileName != "") {
     dbe_->save(histoFileName);
@@ -349,7 +285,26 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     theTriggerName << ", Event:" << eventNumber <<"\n\n\n";
 
   // Update event numbers
-  meNumberOfEvents->Fill(eventNumber); 
+  meNumberOfEvents->Fill(eventNumber);
+
+
+  //------------------------------------------
+  //    Trigger Requirement
+  //    
+  //------------------------------------------
+
+  LogTrace("HLTMuonVal") << "Checking trigger result for "
+                         << "trigger information stored in the following block "
+                         << TriggerResultLabel;
+
+  bool passedRequiredTrigger = applyTriggerSelection ( mySelection, iEvent);
+
+  if (!passedRequiredTrigger) {
+    LogTrace ("HLTMuonVal") << "You didn't pass the required trigger"
+                            << "skipping event"
+                            << endl;
+    return;
+  }
 
   //////////////////////////////////////////////////////////////////////////
   // Get all generated and reconstructed muons and create structs to hold  
@@ -362,29 +317,8 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
   LogTrace ("HLTMuonVal") << "\n\nStarting to look for gen muons\n\n";
                           
   
-  std::vector<MatchStruct> genMatches;
-  if ( useMuonFromGenerator ) {
-    //   Handle<GenParticleCollection> genParticles;
-    //     iEvent.getByLabel(theGenLabel, genParticles);
-    //     for ( size_t i = 0; i < genParticles->size(); i++ ) {
-    //       const reco::GenParticle *genParticle = &(*genParticles)[i];
-    //       const Candidate *mother = findMother(genParticle);
-    //       int    momId  = ( mother ) ? mother->pdgId() : 0;
-    //       int    id     = genParticle->pdgId();
-    //       int    status = genParticle->status();
-    //       double pt     = genParticle->pt();
-    //       double eta    = genParticle->eta();
-    //       if ( abs(id) == 13  && status == 1 && 
-    // 	   ( theMotherParticleId == 0 || abs(momId) == theMotherParticleId ) )
-    //       {
-    // 	MatchStruct newMatchStruct;
-    // 	newMatchStruct.genCand = genParticle;
-    // 	genMatches.push_back(newMatchStruct);
-    // 	if ( pt > genMuonPt && fabs(eta) < theMaxEtaCut )
-    // 	  genMuonPt = pt;
-    //   } }
-  }
-
+  //std::vector<MatchStruct> genMatches;
+  
 
   LogTrace ("HLTMuonVal") << "\n\n\n\nDone getting gen, now getting reco\n\n\n";
   
@@ -420,8 +354,9 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
           // now apply cuts to the tracks.
           LogTrace ("HLTMuonVal") << "Passed selection!" << endl;
           
-          if ( applyTrackSelection(mySelection, (*muon)) ){
-          
+          if ( applyTrackSelection( mySelection, (*muon) ) ){
+
+            
           
             float pt  = muon->pt();
             float eta = muon->eta();
@@ -437,6 +372,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
             //if ( pt > recMuonPt  && fabs(eta) < theMaxEtaCut)
             if (pt > recMuonPt )
               recMuonPt = pt;
+            
           }
         }
       }
@@ -464,44 +400,6 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     } else {
       LogWarning ("HLTMuonVal") << "FAILED to get the beamspot for this event";
     }
-
-    // Now do the same Reco stuff, but try to use a new collection
-    // that was produced by your muon selector
-    //Handle<reco::TrackCollection> highPtTracks;
-    
-    // I am not 100% on what the modules are producing
-    // but the collection name looks like the module name
-    // and variations on the collection name don't seem to work
-    // ie, name+"Tracks" doesn't give me what I want.
-
-    // iEvent.getByLabel(highPtTrackCollection, highPtTracks);    
-
-    //     reco::TrackCollection::const_iterator iHighPtTrack;
-    //     if  ( highPtTracks.failedToGet() ) {
-    //       LogWarning("HLTMuonVal") << "WARNING: failed to get the produced Muon collection ";
-
-    //       //useMuonFromReco = false;
-    //     } else {
-    //       for ( iHighPtTrack = highPtTracks->begin(); iHighPtTrack != highPtTracks->end(); ++iHighPtTrack ) {
-    //         float pt  = iHighPtTrack->pt();
-    //         float eta = iHighPtTrack->eta();
-    //         MatchStruct newMatchStruct;
-    //         newMatchStruct.recCand = &*iHighPtTrack;
-    //         highPtMatches.push_back(newMatchStruct);
-
-        
-    //         LogTrace ("HLTMuonVal") << "\n\nFound a PRODUCED reco muon with pt = " << pt
-    //                                 << ", eta = " << eta;
-
-        
-    //         // Take out this eta cut, but still check to see if
-    //         // it is a new maximum pt
-    //         //if ( pt > recMuonPt  && fabs(eta) < theMaxEtaCut)
-    //         //if (pt > recMuonPt )
-    //         //  recMuonPt = pt;
-    //       }
-    //     }
-
     
 
   } 
@@ -534,10 +432,6 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
   InputTag collectionTag;
   size_t   filterIndex;
 
-
-  //// Get the candidates from the RAW trigger summary
-
-  //if ( !useAod ) {
 
   // Try to get the triggerSummaryRAW branch for
   // this event. If it's there, great, keep using it.
@@ -646,8 +540,8 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
                             << aodTriggerEvent->sizeFilters()
                             << " Dumping full list of collection tags";
 
-    LogTrace ("HLTMuonVal") << "\nL1LabelAodLabel = " << theAodL1Label << endl
-                            << "\nL2LabelAodLabel = " << theAodL2Label << endl
+    LogTrace ("HLTMuonVal") << "\nL1LabelAodLabel = GREP_REMOVE"  << endl
+                            << "\nL2LabelAodLabel = GREP_REMOVE"  << endl
                             << "\n\nLooping over L3 lables\n" ;
 
 
@@ -822,19 +716,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     
     // At this point, we should check whether the prescaled L1 and L2
     // triggers actually fired, and exit if not.
-    // JMS -- does this still make sense to check?
-    // JMS -- There is a chance that the L1/L2 collections
-    //        won't be available, but that there is still an L3...
-    //        this selection was unique to the AOD piece of the code.
-
     
-    //if ( l1Particles.size() == 0 || hltParticles[0].size() == 0 ) 
-    //   { LogTrace("HLTMuonVal") << "L1,L2  didn't fire, no trigger objects to compare to"; return; }
-    
-    //} // Done getting AOD trigger summary
-
-
-
   /////////////////////////////////////////////////////////////////////
 
   int totalNumOfHltParticles = 0;
@@ -883,13 +765,6 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
   // reco object
   std::vector< std::vector<HltFakeStruct> > hltFakeCands(numHltLabels);
 
-  for ( size_t i = 0; i < genMatches.size(); i++ ) {
-
-    // this part of the code isn't maintained
-    genMatches[i].l1Cand = nullTriggerObject;
-    genMatches[i].hltCands. assign( numHltLabels, nullTriggerObject );
-    //genMatches[i].hltTracks.assign( numHltLabels, false );
-  }
 
   for ( size_t i = 0; i < recMatches.size(); i++ ) {
     recMatches[i].l1Cand = nullTriggerObject;
@@ -921,17 +796,6 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     double maxDeltaR = theL1DrCut;
     numL1Cands++;
 
-    if ( useMuonFromGenerator ){
-      int match = findGenMatch( eta, phi, maxDeltaR, genMatches );
-
-      // JMS why is this less than zero?
-      // less than zero means it is uninitialized
-      if ( match != -1 && genMatches[match].l1Cand.pt() < 0 ) {
-        genMatches[match].l1Cand = l1Cand;
-        LogTrace ("HLTMuonVal") << "Found a generator match to L1 cand";                              
-      }
-      else hNumOrphansGen->getTH1F()->AddBinContent( 1 );
-    }
 
     if ( useMuonFromReco ){
       int match = findRecMatch( eta, phi, maxDeltaR, recMatches );
@@ -964,18 +828,6 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     double maxDeltaR = theL1DrCut;
     //numL1Cands++;
 
-    if ( useMuonFromGenerator ){
-      int match = findGenMatch( eta, phi, maxDeltaR, genMatches );
-
-      // If match didn't return fail, and we don't already
-      // have an L1 cand
-      if ( match != -1 && genMatches[match].l1Cand.energy() < 0 ) {
-        genMatches[match].l1RawCand = l1Cand;
-        LogTrace ("HLTMuonVal") << "Found a generator match to L1 cand";
-        
-      }
-      else hNumOrphansGen->getTH1F()->AddBinContent( 1 );
-    }
 
     if ( useMuonFromReco ){
       int match = findRecMatch( eta, phi, maxDeltaR, recMatches );
@@ -1016,16 +868,6 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 
       numHltCands[i]++;
 
-      if ( useMuonFromGenerator ){
-        int match = findGenMatch( eta, phi, maxDeltaR, genMatches );
-      
-        if ( match != -1 && genMatches[match].hltCands[i].pt() < 0 ) {
-          genMatches[match].hltCands[i] = hltCand;
-          // if ( !useAod ) genMatches[match].hltTracks[i] = 
-          //                            &*hltCands[i][candNum];
-        }
-        else hNumOrphansGen->getTH1F()->AddBinContent( i + 2 );
-      }
 
       if ( useMuonFromReco ){
 
@@ -1083,17 +925,6 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 
       numHltCands[i]++;
 
-      if ( useMuonFromGenerator ){
-        int match = findGenMatch( eta, phi, maxDeltaR, genMatches );
-      
-        if ( match != -1 && genMatches[match].hltCands[i].pt() < 0 ) {
-          genMatches[match].hltRawCands[i] = hltCand;
-          LogTrace ("HLTMuonVal") << "Found a HLT cand match!";
-          //if ( !useAod ) genMatches[match].hltTracks[i] = 
-          //                 &*hltCands[i][candNum];
-        }
-        else hNumOrphansGen->getTH1F()->AddBinContent( i + 2 );
-      }
 
       if ( useMuonFromReco ){
 
@@ -1132,86 +963,11 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 
   
   //////////////////////////////////////////////////////////////////////////
-  // Fill ntuple
-
-  if ( makeNtuple ) {
-    Handle<reco::IsoDepositMap> caloDepMap, trackDepMap;
-    iEvent.getByLabel("hltL2MuonIsolations",caloDepMap);
-    iEvent.getByLabel("hltL3MuonIsolations",trackDepMap);
-    IsoDeposit::Vetos vetos;
-    if ( isIsolatedPath )
-      for ( size_t i = 0; i < hltCands[2].size(); i++ ) {
-	TrackRef tk = hltCands[2][i]->get<TrackRef>();
-	vetos.push_back( (*trackDepMap)[tk].veto() );
-      }
-    for ( size_t i = 0; i < genMatches.size(); i++ ) {
-      for ( int k = 0; k < 50; k++ ) theNtuplePars[k] = -99;
-
-      //   ----------- Obsolete b/c it references GEN info
-      //   ----------- You shouldn't be doing this 
-      
-      theNtuplePars[0] = eventNumber;      
-      theNtuplePars[1] = -9e20; //(findMother(genMatches[i].genCand))->pdgId();
-      theNtuplePars[4] = -9e20; //genMatches[i].genCand->pt();
-      theNtuplePars[5] = -9e20; //genMatches[i].genCand->eta();
-      theNtuplePars[6] = -9e20; //genMatches[i].genCand->phi();
-      if ( genMatches[i].l1Cand.energy() > 0 ) {
-	theNtuplePars[7] = genMatches[i].l1Cand.energy();
-	theNtuplePars[8] = genMatches[i].l1Cand.eta();
-	theNtuplePars[9] = genMatches[i].l1Cand.phi();
-      }
-      for ( size_t j = 0; j < genMatches[i].hltCands.size(); j++ ) {
-	if ( genMatches[i].hltCands[j].pt() > 0 ) {
-	  if ( j == 0 ) {
-	    theNtuplePars[10] = genMatches[i].hltCands[j].pt();
-	    theNtuplePars[11] = genMatches[i].hltCands[j].eta();
-	    theNtuplePars[12] = genMatches[i].hltCands[j].phi();
-	    if ( isIsolatedPath && !useAod ) {
-	      //TrackRef tk = genMatches[i].hltCands[j].globalTrack();
-	      //const IsoDeposit &dep = (*caloDepMap)[tk];
-	      //for ( int m = 0; m < numCones; m++ ) {
-          //  double dr = coneSizes[m];
-          // std::pair<double,int> depInfo = dep.depositAndCountWithin(dr);
-          // theNtuplePars[ 16 + 4*m + 0 ] = depInfo.first;
-          //  theNtuplePars[ 16 + 4*m + 1 ] = depInfo.second;
-          //}
-        }
-      }
-	  if ( ( !isIsolatedPath && j == 1 ) ||
-	       (  isIsolatedPath && j == 2 ) ) {
-	    // theNtuplePars[13] = genMatches[i].hltCands[j].pt();
-// 	    theNtuplePars[14] = genMatches[i].hltCands[j].eta();
-// 	    theNtuplePars[15] = genMatches[i].hltCands[j].phi();
-// 	    if ( isIsolatedPath ) {
-// 	      TrackRef tk = genMatches[i].hltTracks[j]->get<TrackRef>();
-// 	      const IsoDeposit &dep = (*trackDepMap)[tk];
-// 	      for ( int m = 0; m < numCones; m++ ) {
-//             for ( int n = 0; n < numMinPtCuts; n++ ) {
-//               double dr = coneSizes[m];
-//               double minPt = minPtCuts[n];
-//               std::pair<double,int> depInfo;
-//               depInfo = dep.depositAndCountWithin(dr, vetos, minPt);
-//               int currentPlace = 16 + 4*numCones + 2*numMinPtCuts*m + 2*n;
-//               theNtuplePars[ currentPlace + 0 ] = depInfo.first;
-//               theNtuplePars[ currentPlace + 1 ] = depInfo.second;
-//             }
-//           }
-//         }
-      }
-	  if ( isIsolatedPath && j == 1 ) theNtuplePars[2] = true;
-	  if ( isIsolatedPath && j == 3 ) theNtuplePars[3] = true;
-	}
-      }
-      theNtuple->Fill(theNtuplePars); 
-    } // Done filling ntuple
-  }
-  
-  //////////////////////////////////////////////////////////////////////////
   // Fill histograms
 
   // genMuonPt and recMuonPt are the max values
   // fill these hists with the max reconstructed Pt  
-  if ( genMuonPt > 0 ) hPassMaxPtGen[0]->Fill( genMuonPt );
+  //if ( genMuonPt > 0 ) hPassMaxPtGen[0]->Fill( genMuonPt );
   if ( recMuonPt > 0 ) hPassMaxPtRec[0]->Fill( recMuonPt );
 
   int numRecMatches = recMatches.size();
@@ -1226,52 +982,10 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 
   // Fill these if there are any L1 candidates
   if ( numL1Cands >= theNumberOfObjects ) {
-    if ( genMuonPt > 0 ) hPassMaxPtGen[1]->Fill( genMuonPt );
+    //if ( genMuonPt > 0 ) hPassMaxPtGen[1]->Fill( genMuonPt );
     if ( recMuonPt > 0 ) hPassMaxPtRec[1]->Fill( recMuonPt );
     if (numRecMatches == 1 && numL1Cands == 1) {
       if (recMuonPt >0) hPassExaclyOneMuonMaxPtRec[1]->Fill(recMuonPt);
-    }
-  }
-
-  // Fill these if there are any L2/L3 candidates
-  // Altered to only fill the hist if there is a match,
-  // and not just a candidate
-  // for ( size_t i = 0; i < numHltLabels; i++ ) {    
-//     if ( numHltCands[i] >= theNumberOfObjects ) {
-//       if ( genMuonPt > 0 ) hPassMaxPtGen[i+2]->Fill( genMuonPt );
-//       if ( recMuonPt > 0 ) hPassMaxPtRec[i+2]->Fill( recMuonPt );
-      
-//       if (numRecMatches == 1 && numHltCands[i] == 1) {
-//         if (recMuonPt >0) hPassExaclyOneMuonMaxPtRec[i+2]->Fill(recMuonPt);
-//       }
-//     }
-    
-//   }
-
-  // Now actually do some matching
-  //============= GEN ======================
-  for ( size_t i = 0; i < genMatches.size(); i++ ) {
-    double pt  = -9e20; //genMatches[i].genCand->pt();
-    double eta = -9e20; //genMatches[i].genCand->eta();
-    double phi = -9e20; //genMatches[i].genCand->phi();
-    if ( pt > theMinPtCut &&  fabs(eta) < theMaxEtaCut ) {
-      hNumObjects->getTH1()->AddBinContent(1);
-      hPassEtaGen[0]->Fill(eta);
-      hPassPhiGen[0]->Fill(phi);
-
-      // if you found an L1 match, store it in L1 histos
-      if ( genMatches[i].l1Cand.energy() > 0 ) {
-        hPassEtaGen[1]->Fill(eta);
-        hPassPhiGen[1]->Fill(phi);
-      }
-      
-
-      for ( size_t j = 0; j < genMatches[i].hltCands.size(); j++ ) {
-        if ( genMatches[i].hltCands[j].pt() > 0 ) {
-          hPassEtaGen[j+2]->Fill(eta);
-          hPassPhiGen[j+2]->Fill(phi);
-        } 
-      }
     }
   }
   
@@ -1655,7 +1369,9 @@ int HLTMuonGenericRate::findRecMatch
   double bestDeltaR = maxDeltaR;
   int bestMatch = -1;
 
-  if (matchType == "dr") {
+  // Case for delta R matching
+  // the != cosmic case is for default handling.
+  if (matchType != "cosmic" || matchType == "dr"  ) {
     for ( size_t i = 0; i < matches.size(); i++ ) {
       double dR = kinem::delta_R( eta, phi, 
                                   matches[i].recCand->eta(), 
@@ -1751,6 +1467,133 @@ bool HLTMuonGenericRate::applyTrackSelection (MuonSelectionStruct mySelection, M
   
 }
 
+bool HLTMuonGenericRate::applyTriggerSelection(MuonSelectionStruct mySelection, const Event & event) {
+
+  bool passedAllTriggers = false;
+  //  Look and your event selection criteria
+  //  if you have a vector of size zero
+  //  or if you have a vector with just an empty string
+  //  then you should just skip this selection and return true
+
+  LogTrace ("HLTMuonVal") << "Checking to see if you have non-empty triggers to match"
+                          << endl;
+  
+  if (mySelection.requiredTriggers.size() < 1)
+    return true;
+
+  vector<string>::const_iterator iTargetTrig;
+
+  bool everythingIsEmpty = true;
+  for ( iTargetTrig = mySelection.requiredTriggers.begin();
+        iTargetTrig != mySelection.requiredTriggers.end();
+        iTargetTrig ++ ) {
+
+    if ( (*iTargetTrig) != "" ) {
+      everythingIsEmpty = false;
+    }
+    
+  }
+
+  if (everythingIsEmpty) {
+    LogTrace ("HLTMuonVal") << "Only empty triggers, skipping match";
+    return true;
+  }
+
+  //  At this point, you have a true trigger requirement
+  //  You need to check the trigger results
+  //  0. Get the trigger resutls 
+  //  1. Loop over list of target triggers 
+  //  2. See if the target is valid according to HLTConfig
+  //  3. If it is, check to see that it fired
+  //
+  //  Potential optimization - store the trigger index
+  //  rather than doing the match for each event
+
+
+  // Get the trigger results
+  
+  Handle<TriggerResults> trigRes;
+  event.getByLabel(TriggerResultLabel, trigRes);
+  if (!trigRes.isValid()){
+    edm::InputTag triggerResultsLabelFU(TriggerResultLabel.label(),TriggerResultLabel.instance(), "FU");
+    event.getByLabel(triggerResultsLabelFU,trigRes);
+    if(!trigRes.isValid()) {
+      LogTrace("HLTMuonVal")<< "Trigger Results WARNING: No trigger Results in event info, but you wanted to check a trigger";
+      // Do nothing, and 
+      //TrigResultsIn=false;
+
+      return false;
+    }
+  }
+  unsigned size = trigRes->size();
+
+  unsigned int Ntp = 0;
+  
+  LogTrace("HLTMuonVal")<< "Ntp=" << Ntp <<" Size of trigger results="<<size;
+
+
+  // loop over the list of target triggers  
+  
+  map<string,bool> firedTrigger;
+  
+  for ( iTargetTrig = mySelection.requiredTriggers.begin();
+        iTargetTrig != mySelection.requiredTriggers.end();
+        iTargetTrig++ ) {
+
+    std::string targetName = (*iTargetTrig);
+
+    LogTrace("HLTMuonVal") << "Looking to see if " << targetName << " has fired... ";
+
+    firedTrigger[targetName] = false;
+    vector<string>::const_iterator iValidTrig;
+    unsigned int trigIndex = 0;
+    for ( iValidTrig = selectedValidTriggers.begin();
+          iValidTrig != selectedValidTriggers.end();
+          iValidTrig ++) {
+
+      if ( targetName == (*iValidTrig)){
+        
+        LogTrace ("HLTMuonVal") << "Trigger " << targetName
+                                << " was part of the hlt configuration at index"
+                                << trigIndex
+                                << endl;
+        
+        firedTrigger[targetName] =  trigRes->accept(trigIndex);
+
+        LogTrace ("HLTMuonVal") << "Did the trigger fire?      "
+                                << ((firedTrigger[targetName]) ? "PASSED" : "FAILED")
+                                << endl;
+        
+      }
+
+      trigIndex++;
+    } // end loop over valid triggers
+  }// end loop over target triggers
+    
+
+  map<string,bool>::const_iterator iResult;
+
+  passedAllTriggers = true;
+
+  LogTrace ("HLTMuonVal") << "And-ing trigger results together" <<endl;
+
+  
+  for (iResult = firedTrigger.begin();
+       iResult != firedTrigger.end();
+       iResult ++) {
+
+    passedAllTriggers = passedAllTriggers && iResult->second;
+    
+  }
+
+  LogTrace ("HLTMuonVal") << "Returning " << passedAllTriggers;
+
+  return passedAllTriggers;
+  
+}
+
+
+
 TrackRef HLTMuonGenericRate::getCandTrackRef (MuonSelectionStruct mySelection, Muon candMuon) {
 
   string trackCollection = mySelection.trackCollection;
@@ -1837,21 +1680,6 @@ void HLTMuonGenericRate::begin()
       hNumObjects->setBinLabel( i + 3, binLabels[i].c_str() );
     hNumObjects->getTH1()->LabelsDeflate("X");
 
-    if ( useMuonFromGenerator ){
-
-      hNumOrphansGen = dbe_->book1D( "genNumOrphans", "Number of Orphans;;Number of Objects Not Matched to a Gen #mu", 5, 0, 5 );
-      for ( size_t i = 0; i < binLabels.size(); i++ )
-        hNumOrphansGen->setBinLabel( i + 1, binLabels[i].c_str() );
-      hNumOrphansGen->getTH1()->LabelsDeflate("X");
-
-      hPassMaxPtGen.push_back( bookIt( "genPassMaxPt_All", "pt of Leading Gen Muon", theMaxPtParameters) );
-      hPassMaxPtGen.push_back( bookIt( "genPassMaxPt_" + myLabel, "pt of Leading Gen Muon, if matched to " + myLabel, theMaxPtParameters) );
-      hPassEtaGen.push_back( bookIt( "genPassEta_All", "#eta of Gen Muons", theEtaParameters) );
-      hPassEtaGen.push_back( bookIt( "genPassEta_" + myLabel, "#eta of Gen Muons matched to " + myLabel, theEtaParameters) );
-      hPassPhiGen.push_back( bookIt( "genPassPhi_All", "#phi of Gen Muons", thePhiParameters) );
-      hPassPhiGen.push_back( bookIt( "genPassPhi_" + myLabel, "#phi of Gen Muons matched to " + myLabel, thePhiParameters) );
-
-    }
 
     if ( useMuonFromReco ){
 
@@ -1960,14 +1788,6 @@ void HLTMuonGenericRate::begin()
       TString level = ( myLabel.Contains("L2") ) ? "L2" : "L3";
       myLabel = myLabel(myLabel.Index(level),myLabel.Length());
       myLabel = myLabel(0,myLabel.Index("Filtered")+8);
-      
-      if ( useMuonFromGenerator ) {
-
-        hPassMaxPtGen.push_back( bookIt( "genPassMaxPt_" + myLabel, "pt of Leading Gen Muon, if matched to " + myLabel, theMaxPtParameters) );   
-        hPassEtaGen.push_back( bookIt( "genPassEta_" + myLabel, "#eta of Gen Muons matched to " + myLabel, theEtaParameters) );
-        hPassPhiGen.push_back( bookIt( "genPassPhi_" + myLabel, "#phi of Gen Muons matched to " + myLabel, thePhiParameters) );
-
-      }
 
       if ( useMuonFromReco ) {
 

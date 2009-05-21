@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/05/15 09:48:09 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/05/20 11:17:54 $
+ *  $Revision: 1.6 $
  *  \author  M. Vander Donckt, J. Klukas  (copied from J. Alcaraz)
  *  \author  J. Slaunwhite (modified from above
  */
@@ -100,7 +100,9 @@ public:
 
   /// Constructor
   HLTMuonGenericRate( const edm::ParameterSet& pset, std::string triggerName,
-		      std::vector<std::string> moduleNames, MuonSelectionStruct inputSelection, std::string customName );
+                      std::vector<std::string> moduleNames, MuonSelectionStruct inputSelection,
+                      std::string customName,
+                      std::vector<std::string> validTriggers );
 
   // Operations
   void            begin  ( );
@@ -155,6 +157,7 @@ private:
   bool applyTrackSelection (MuonSelectionStruct mySelection, reco::Muon candMuon);
   reco::TrackRef getCandTrackRef (MuonSelectionStruct mySelection, reco::Muon candMuon);
 
+  bool applyTriggerSelection (MuonSelectionStruct mySelection, const edm::Event & event);
   
   // Data members
 
@@ -184,6 +187,13 @@ private:
   std::string matchType;
 
   MuonSelectionStruct mySelection;
+
+  //======= Trigger Selection info ==========
+  edm::InputTag TriggerResultLabel;
+
+  std::vector<std::string> selectedValidTriggers;
+  
+  
   //StringCutObjectSelector<Muon> myMuonSelector;
   //std::string myCustomName;
   
@@ -250,9 +260,9 @@ private:
   std::string histoFileName;
   
 
-  std::vector <MonitorElement*> hPassMaxPtGen;
-  std::vector <MonitorElement*> hPassEtaGen;
-  std::vector <MonitorElement*> hPassPhiGen;
+ //  std::vector <MonitorElement*> hPassMaxPtGen;
+//   std::vector <MonitorElement*> hPassEtaGen;
+//   std::vector <MonitorElement*> hPassPhiGen;
   std::vector <MonitorElement*> hPassMaxPtRec;
   std::vector <MonitorElement*> hPassEtaRec;
   std::vector <MonitorElement*> hPassPhiRec;
@@ -313,7 +323,7 @@ private:
   
   
   MonitorElement *hNumObjects;
-  MonitorElement *hNumOrphansGen;
+  //MonitorElement *hNumOrphansGen;
   MonitorElement *hNumOrphansRec;
   MonitorElement *meNumberOfEvents;
 

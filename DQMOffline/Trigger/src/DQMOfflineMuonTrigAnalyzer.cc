@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.3 2009/05/15 09:48:07 slaunwhj Exp $
+// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.4 2009/05/20 11:17:52 slaunwhj Exp $
 //
 //
 
@@ -77,7 +77,7 @@ OfflineDQMMuonTrigAnalyzer::OfflineDQMMuonTrigAnalyzer(const ParameterSet& pset)
   //string defRecoLabel = pset.getUntrackedParameter<string>("RecoLabel","");
   //string highPtTracksLabel =  pset.getParameter <string> ("highPtTrackCollection");
 
-  vector<string> recoCollectionNames = pset.getParameter < vector<string> > ("allCollectionNames");
+  //vector<string> recoCollectionNames = pset.getParameter < vector<string> > ("allCollectionNames");
 
   
   // make analyzers for each collection. Push the collections into a vector
@@ -89,8 +89,8 @@ OfflineDQMMuonTrigAnalyzer::OfflineDQMMuonTrigAnalyzer(const ParameterSet& pset)
 
   vector<edm::ParameterSet>::iterator iPSet;
 
-  std::cout << "customCollection is a vector of size = " << customCollection.size() << std::endl
-            << "looping over entries" << std::endl;
+  LogTrace ("HLTMuonVal") << "customCollection is a vector of size = " << customCollection.size() << std::endl
+                          << "looping over entries" << std::endl;
 
   vector < MuonSelectionStruct > customSelectors;
   vector < string > customNames;
@@ -106,12 +106,12 @@ OfflineDQMMuonTrigAnalyzer::OfflineDQMMuonTrigAnalyzer(const ParameterSet& pset)
     double customZ0Cut = iPSet->getUntrackedParameter<double> ("z0cut");
 
     vector<string> requiredTriggers = iPSet->getUntrackedParameter< vector<string> > ("requiredTriggers");
-
-    std::cout << "customTargetCollection = " << customName  << std::endl
-              << "customCuts = " << customCuts << std::endl
-              << "targetTrackCollection = " << targetTrackCollection << std::endl
-              << "d0 cut = " << customD0Cut << std::endl
-              << "z0 cut = " << customZ0Cut << std:: endl ;
+    
+    LogTrace("HLTMuonVal") << "customTargetCollection = " << customName  << std::endl
+                           << "customCuts = " << customCuts << std::endl
+                           << "targetTrackCollection = " << targetTrackCollection << std::endl
+                           << "d0 cut = " << customD0Cut << std::endl
+                           << "z0 cut = " << customZ0Cut << std:: endl ;
 
     StringCutObjectSelector<Muon> tempRecoSelector(customCuts);
     StringCutObjectSelector<TriggerObject> tempHltSelector(hltCuts);
@@ -133,11 +133,18 @@ OfflineDQMMuonTrigAnalyzer::OfflineDQMMuonTrigAnalyzer(const ParameterSet& pset)
   hltConfig.init(theHltProcessName);
   vector<string> validTriggerNames = hltConfig.triggerNames();
 
-  //vector<string>::const_iterator iRecCollection;
+  vector<string>::const_iterator iDumpName;
+  unsigned int numTriggers = 0;
+  for (iDumpName = validTriggerNames.begin();
+       iDumpName != validTriggerNames.end();
+       iDumpName++) {
 
-  //  for ( iRecCollection = recoCollectionNames.begin();
-  //        iRecCollection != recoCollectionNames.end();
-  //        iRecCollection++) {
+    LogTrace ("HLTMuonVal") << "Trigger " << numTriggers
+                            << " is called " << (*iDumpName)
+                            << endl;
+    numTriggers++;
+  }
+
 
   vector<MuonSelectionStruct>::iterator iMuonSelector;
   vector<string>::iterator iName = customNames.begin();
@@ -153,7 +160,7 @@ OfflineDQMMuonTrigAnalyzer::OfflineDQMMuonTrigAnalyzer(const ParameterSet& pset)
       else {
         vector<string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
         HLTMuonGenericRate *analyzer;
-        analyzer = new HLTMuonGenericRate( pset, triggerNames[i], moduleNames, (*iMuonSelector), (*iName) );
+        analyzer = new HLTMuonGenericRate( pset, triggerNames[i], moduleNames, (*iMuonSelector), (*iName), validTriggerNames );
         theTriggerAnalyzers.push_back( analyzer );
       }
     }
