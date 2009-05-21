@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("CazziMiei")
+process = cms.Process("DTValidationFromDIGI")
 
 ## General CMS
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
