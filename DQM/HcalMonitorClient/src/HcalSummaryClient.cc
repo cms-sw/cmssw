@@ -542,7 +542,7 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
   int eta, phi;
   double bincontent;
 
-  cout <<"Running Summary Client"<<endl;
+  //cout <<"Running Summary Client"<<endl;
 
   ostringstream name;
   MonitorElement* me;
@@ -726,7 +726,7 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
       name.str("");
       name <<prefixME_<<"/"<<s.problemDir<<"/"<<"HE Depth 1 "<<s.problemName;
       me=dqmStore_->get(name.str().c_str());
-      cout <<"Got "<<name.str().c_str()<<endl;
+      //cout <<"Got "<<name.str().c_str()<<endl;
       if (me)
 	{
 	  hist=me->getTH2F();
@@ -755,7 +755,7 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
 		} // for (int iphi=1;...)
 	    } // for (int ieta=1;...)
 	} // if (me)
-      cout <<"HEstatus (depth1)= "<<HEstatus<<endl;
+      //cout <<"HEstatus (depth1)= "<<HEstatus<<endl;
     } // if (HEpresent_)
   
    // Layer 2 HE
@@ -764,7 +764,7 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
       name.str("");
       name <<prefixME_<<"/"<<s.problemDir<<"/"<<"HE Depth 2 "<<s.problemName;
       me=dqmStore_->get(name.str().c_str());
-      cout <<"Got "<<name.str().c_str()<<endl;
+      //cout <<"Got "<<name.str().c_str()<<endl;
       if (me)
 	{
 	  hist=me->getTH2F();
@@ -793,7 +793,7 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
 		} // for (int iphi=1;...)
 	    } // for (int ieta=1;...)
 	} // if (me)
-      cout <<"HEstatus (depth2)= "<<HEstatus<<endl;
+      //cout <<"HEstatus (depth2)= "<<HEstatus<<endl;
     } // if (HEpresent_)
 
   // HE Depth 3
@@ -802,7 +802,7 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
       name.str("");
       name <<prefixME_<<"/"<<s.problemDir<<"/"<<"HE Depth 3 "<<s.problemName;
       me=dqmStore_->get(name.str().c_str());
-      cout <<"Got "<<name.str().c_str()<<endl;
+      //cout <<"Got "<<name.str().c_str()<<endl;
       if (me)
 	{
 	  hist=me->getTH2F();
@@ -831,7 +831,7 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
 		} // for (int iphi=1;...)
 	    } // for (int ieta=1;...)
 	} // if (me)
-      cout <<"HEstatus (depth3)= "<<HEstatus<<endl;
+      //cout <<"HEstatus (depth3)= "<<HEstatus<<endl;
     } // if (HEpresent_)
 
   ALLstatus=HBstatus+HEstatus+HOstatus+HFstatus;

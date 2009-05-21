@@ -486,6 +486,14 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 
   if (fVerbosity>1) std::cout <<"<HcalDeadCellMonitor::processEvent> Processing event..."<<std::endl;
 
+  // Dummy fills
+  NumberOfDeadCells->Fill(-1,1);
+  NumberOfDeadCellsHB->Fill(-1,1);
+  NumberOfDeadCellsHE->Fill(-1,1);
+  NumberOfDeadCellsHO->Fill(-1,1);
+  NumberOfDeadCellsHF->Fill(-1,1);
+  NumberOfDeadCellsZDC->Fill(-1,1);
+
   // Do Digi-Based dead cell searches 
 
   if (deadmon_test_neverpresent_ || deadmon_test_occupancy_)
@@ -497,19 +505,19 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	  UnoccupiedDeadCellsByDepth[i]->setBinContent(0,0,ievt_);
 	  DigisNeverPresentByDepth[i]->setBinContent(0,0,ievt_);
 	}
-      NumberOfNeverPresentCells->setBinContent(0,ievt_);
-      NumberOfNeverPresentCellsHB->setBinContent(0,ievt_);
-      NumberOfNeverPresentCellsHE->setBinContent(0,ievt_);
-      NumberOfNeverPresentCellsHO->setBinContent(0,ievt_);
-      NumberOfNeverPresentCellsHF->setBinContent(0,ievt_);
-      NumberOfNeverPresentCellsZDC->setBinContent(0,ievt_);
+      NumberOfNeverPresentCells->Fill(-1,1);
+      NumberOfNeverPresentCellsHB->Fill(-1,1);
+      NumberOfNeverPresentCellsHE->Fill(-1,1);
+      NumberOfNeverPresentCellsHO->Fill(-1,1);
+      NumberOfNeverPresentCellsHF->Fill(-1,1);
+      NumberOfNeverPresentCellsZDC->Fill(-1,1);
       
-      NumberOfUnoccupiedCells->setBinContent(0,ievt_);
-      NumberOfUnoccupiedCellsHB->setBinContent(0,ievt_);
-      NumberOfUnoccupiedCellsHE->setBinContent(0,ievt_);
-      NumberOfUnoccupiedCellsHO->setBinContent(0,ievt_);
-      NumberOfUnoccupiedCellsHF->setBinContent(0,ievt_);
-      NumberOfUnoccupiedCellsZDC->setBinContent(0,ievt_);
+      NumberOfUnoccupiedCells->Fill(-1,1);
+      NumberOfUnoccupiedCellsHB->Fill(-1,1);
+      NumberOfUnoccupiedCellsHE->Fill(-1,1);
+      NumberOfUnoccupiedCellsHO->Fill(-1,1);
+      NumberOfUnoccupiedCellsHF->Fill(-1,1);
+      NumberOfUnoccupiedCellsZDC->Fill(-1,1);
 
       if (showTiming)
 	{
@@ -558,12 +566,12 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	{
 	BelowEnergyThresholdCellsByDepth[i]->setBinContent(0,0,ievt_);
 	}
-      NumberOfBelowEnergyCells->setBinContent(0,ievt_);
-      NumberOfBelowEnergyCellsHB->setBinContent(0,ievt_);
-      NumberOfBelowEnergyCellsHE->setBinContent(0,ievt_);
-      NumberOfBelowEnergyCellsHO->setBinContent(0,ievt_);
-      NumberOfBelowEnergyCellsHF->setBinContent(0,ievt_);
-      NumberOfBelowEnergyCellsZDC->setBinContent(0,ievt_);
+      NumberOfBelowEnergyCells->Fill(-1,1);
+      NumberOfBelowEnergyCellsHB->Fill(-1,1);
+      NumberOfBelowEnergyCellsHE->Fill(-1,1);
+      NumberOfBelowEnergyCellsHO->Fill(-1,1);
+      NumberOfBelowEnergyCellsHF->Fill(-1,1);
+      NumberOfBelowEnergyCellsZDC->Fill(-1,1);
 
       for (HBHERecHitCollection::const_iterator j=hbHits.begin();
 	   j!=hbHits.end(); ++j)
