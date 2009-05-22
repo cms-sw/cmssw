@@ -71,9 +71,7 @@
        <Primitive column="DI8_1" name="metMask_[8]" />
        <Primitive column="DI9_1" name="metMask_[9]" />
      </InlineCArray >
-     <CArray table="L1GCTCH_MHTMASK" id_columns="ID_ID" name="mhtMask_" position_column="POS" >
-       <Primitive column="DA22" name="bool" />
-     </CArray >
+     <Blob column="L1GCTCH_MHTMASK_BLOB" name="mhtMask_" />
      <Blob column="L1GCTCHANNELMASK_R_1_BLOB" name="regionMask_" />
      <InlineCArray name="tetMask_" >
        <Primitive column="DI0_0" name="tetMask_[0]" />
