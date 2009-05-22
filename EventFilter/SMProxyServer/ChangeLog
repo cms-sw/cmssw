@@ -1,5 +1,12 @@
 2009-05-22  Kurt Biery <biery@fnal.gov>
 
+	* tag V01-08-14
+	* Modified the DataProcessManager to avoid using the new Utils
+	  functions in the refactored SM (so it will be independent of
+	  the new SM, for now).
+
+2009-05-22  Kurt Biery <biery@fnal.gov>
+
 	* tag V01-08-13
 	* Added the allowMissingSM configuration parameter to control
 	  whether we require all storage managers in the SMRegistrationList
