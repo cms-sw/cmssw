@@ -553,7 +553,7 @@ int main(){
  rh.eff();
  rh.phiEff();
  rh.etaCorr();
- rh.rateVsPt();
+ //rh.rateVsPt();
  rh.drawActCurv(0,7);
  rh.drawActCurv(8,12);
  return 0;
