@@ -50,16 +50,15 @@ L1RCTSaveInput::L1RCTSaveInput(const edm::ParameterSet& conf) :
   useHcal(conf.getParameter<bool>("useHcal")),
   ecalDigisLabel(conf.getParameter<edm::InputTag>("ecalDigisLabel")),
   hcalDigisLabel(conf.getParameter<edm::InputTag>("hcalDigisLabel")),
-  useDebugTpgScales(conf.getParameter<bool>("useDebugTpgScales"))
+  useDebugTpgScales(conf.getParameter<bool>("useDebugTpgScales")),
+  digiFile(conf.getUntrackedParameter<bool>("digiFile",false))
 {
-  //cout << "save input" << endl;
   ofs.open(fileName.c_str(), std::ios::app);
   if(!ofs)
     {
       std::cerr << "Could not create " << fileName << std::endl;
       exit(1);
     }
-  //cout << "save input1" << endl;
 }
 
 L1RCTSaveInput::~L1RCTSaveInput()
@@ -198,6 +197,10 @@ L1RCTSaveInput::analyze(const edm::Event& event,
   if (hcal.isValid()) { hcalColl = *hcal; }
   rct->digiInput(ecalColl, hcalColl);
   static int nEvents = 0;
+  if(digiFile && nEvents==0)
+    nEvents++;//static int nEvents = 1;
+  //else
+  //  static int nEvents = 0;
   //cout << "n event is " << nEvents << endl;
   if(nEvents == 0)
     {
