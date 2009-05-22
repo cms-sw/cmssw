@@ -13,6 +13,12 @@ L1RCTCrate::L1RCTCrate(int crtNo, const L1RCTLookupTables* rctLookupTables) :
     electronCards.push_back(eic);
   }
 }
+
+L1RCTCrate::~L1RCTCrate()
+{
+
+}
+
 void L1RCTCrate::input(std::vector<std::vector<unsigned short> > RCInput,
 		       std::vector<unsigned short> HFInput)
 {

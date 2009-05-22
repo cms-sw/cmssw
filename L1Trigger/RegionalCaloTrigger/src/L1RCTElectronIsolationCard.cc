@@ -12,14 +12,12 @@ L1RCTElectronIsolationCard::L1RCTElectronIsolationCard(int crateNumber,
   rctLookupTables_(rctLookupTables),
   isoElectrons(2),nonIsoElectrons(2), regions(2)
 {
-  regions.at(0) = new L1RCTRegion();
-  regions.at(1) = new L1RCTRegion();
+  regions.push_back(L1RCTRegion());
+  regions.push_back(L1RCTRegion());
 }
 
-L1RCTElectronIsolationCard::~L1RCTElectronIsolationCard(){
-  regions.clear();
-  
-}
+L1RCTElectronIsolationCard::~L1RCTElectronIsolationCard()
+{}
 
 
 void L1RCTElectronIsolationCard::fillElectronCandidates(){
@@ -29,6 +27,8 @@ void L1RCTElectronIsolationCard::fillElectronCandidates(){
   isoElectrons.at(1) = region1Electrons.at(0);
   nonIsoElectrons.at(0) = region0Electrons.at(1);
   nonIsoElectrons.at(1) = region1Electrons.at(1);
+
+
 }
 
 
@@ -39,7 +39,7 @@ void L1RCTElectronIsolationCard::fillElectronCandidates(){
 //An electron candidate is *always* a non-isolated electron.
 //If it also passes the neighbor cuts then it is an isolated electron as well.
 std::vector<unsigned short>
-L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region, int regionNum){
+L1RCTElectronIsolationCard::calcElectronCandidates(const L1RCTRegion& region, int regionNum){
   
   unsigned short nonIsoElectron = 0;
   unsigned short isoElectron = 0;
@@ -48,26 +48,26 @@ L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region, int regi
   for(int i = 0; i<4; i++){
     for(int j = 0; j<4; j++){
 
-      unsigned short primaryEt = region->getEtIn7Bits(i,j);
-      unsigned short primaryHE_FG = region->getHE_FGBit(i,j); 
+      unsigned short primaryEt = region.getEtIn7Bits(i,j);
+      unsigned short primaryHE_FG = region.getHE_FGBit(i,j); 
       
-      unsigned short northEt = region->getEtIn7Bits(i-1,  j);
-      unsigned short southEt = region->getEtIn7Bits(i+1,  j);
-      unsigned short westEt  = region->getEtIn7Bits(  i,j-1);
-      unsigned short eastEt  = region->getEtIn7Bits(  i,j+1);
-      unsigned short neEt    = region->getEtIn7Bits(i-1,j+1);
-      unsigned short nwEt    = region->getEtIn7Bits(i-1,j-1);
-      unsigned short seEt    = region->getEtIn7Bits(i+1,j+1);
-      unsigned short swEt    = region->getEtIn7Bits(i+1,j-1);
+      unsigned short northEt = region.getEtIn7Bits(i-1,  j);
+      unsigned short southEt = region.getEtIn7Bits(i+1,  j);
+      unsigned short westEt  = region.getEtIn7Bits(  i,j-1);
+      unsigned short eastEt  = region.getEtIn7Bits(  i,j+1);
+      unsigned short neEt    = region.getEtIn7Bits(i-1,j+1);
+      unsigned short nwEt    = region.getEtIn7Bits(i-1,j-1);
+      unsigned short seEt    = region.getEtIn7Bits(i+1,j+1);
+      unsigned short swEt    = region.getEtIn7Bits(i+1,j-1);
 
-      unsigned short northHE_FG = region->getHE_FGBit(i-1,  j);
-      unsigned short southHE_FG = region->getHE_FGBit(i+1,  j);
-      unsigned short westHE_FG  = region->getHE_FGBit(  i,j-1);
-      unsigned short eastHE_FG  = region->getHE_FGBit(  i,j+1);
-      unsigned short neHE_FG    = region->getHE_FGBit(i-1,j+1);
-      unsigned short nwHE_FG    = region->getHE_FGBit(i-1,j-1);
-      unsigned short seHE_FG    = region->getHE_FGBit(i+1,j+1);
-      unsigned short swHE_FG    = region->getHE_FGBit(i+1,j-1);
+      unsigned short northHE_FG = region.getHE_FGBit(i-1,  j);
+      unsigned short southHE_FG = region.getHE_FGBit(i+1,  j);
+      unsigned short westHE_FG  = region.getHE_FGBit(  i,j-1);
+      unsigned short eastHE_FG  = region.getHE_FGBit(  i,j+1);
+      unsigned short neHE_FG    = region.getHE_FGBit(i-1,j+1);
+      unsigned short nwHE_FG    = region.getHE_FGBit(i-1,j-1);
+      unsigned short seHE_FG    = region.getHE_FGBit(i+1,j+1);
+      unsigned short swHE_FG    = region.getHE_FGBit(i+1,j-1);
 
       bool top = false;
 
@@ -346,13 +346,13 @@ L1RCTElectronIsolationCard::calcMaxSum(unsigned short primaryEt,unsigned short n
 void L1RCTElectronIsolationCard::print() {
   std::cout << "Electron isolation card " << cardNo << std::endl;
   std::cout << "Region 0 Information" << std::endl;
-  regions.at(0)->print();
+  regions.at(0).print();
 
   std::cout << "IsoElectron Candidate " << isoElectrons.at(0) << std::endl;
   std::cout << "NonIsoElectron Candidate " << nonIsoElectrons.at(0) << std::endl << std::endl;
 
   std::cout << "Region 1 Information" << std::endl;
-  regions.at(1)->print();
+  regions.at(1).print();
 
   std::cout << "IsoElectron Candidate " << isoElectrons.at(1) << std::endl;
   std::cout << "NonIsoElectron Candidate " << nonIsoElectrons.at(1) << std::endl;

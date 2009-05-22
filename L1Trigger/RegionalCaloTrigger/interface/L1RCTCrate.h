@@ -13,6 +13,8 @@ class L1RCTCrate {
  public:
   L1RCTCrate(int crtNo, const L1RCTLookupTables* rctLookupTables);
 
+  ~L1RCTCrate();
+
   int crateNumber(){return crtNo;}
 
   //For sharing information between crates.

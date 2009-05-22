@@ -39,10 +39,10 @@ process.rctDigis.hcalDigis = cms.VInputTag(cms.InputTag('simHcalTriggerPrimitive
 
 process.L1Analysis = cms.EDAnalyzer("L1RCTTestAnalyzer",
     hcalDigisLabel = cms.InputTag("simHcalTriggerPrimitiveDigis"),
-    showEmCands = cms.untracked.bool(True),
+    showEmCands = cms.untracked.bool(False),
     ecalDigisLabel = cms.InputTag("simEcalTriggerPrimitiveDigis"),
     rctDigisLabel = cms.InputTag("rctDigis"),
-    showRegionSums = cms.untracked.bool(True)
+    showRegionSums = cms.untracked.bool(False)
 )
 
 

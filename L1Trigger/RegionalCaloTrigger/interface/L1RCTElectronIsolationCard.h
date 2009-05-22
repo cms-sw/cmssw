@@ -29,7 +29,7 @@ class L1RCTElectronIsolationCard {
   int cardNumber() {return cardNo;}
   
   void fillElectronCandidates();
-  void setRegion(int i, L1RCTRegion* region){
+  void setRegion(int i, const L1RCTRegion& region){
     regions.at(i) = region;
   }
   //Valid arguments to the following two functions are 0 or 1,
@@ -43,12 +43,12 @@ class L1RCTElectronIsolationCard {
   }
   void print();
   void printEdges(){
-    regions.at(0)->printEdges();
-    regions.at(1)->printEdges();
+    regions.at(0).printEdges();
+    regions.at(1).printEdges();
   }
 
  private:
-  std::vector<unsigned short> calcElectronCandidates(L1RCTRegion *region, int regionNum);
+  std::vector<unsigned short> calcElectronCandidates(const L1RCTRegion& region, int regionNum);
   unsigned short calcMaxSum(unsigned short primaryEt,unsigned short northEt,
 			    unsigned short southEt, unsigned short eastEt,
 			    unsigned short westEt);
@@ -62,7 +62,7 @@ class L1RCTElectronIsolationCard {
 
   std::vector<unsigned short> isoElectrons;
   std::vector<unsigned short> nonIsoElectrons;
-  std::vector<L1RCTRegion*> regions;
+  std::vector<L1RCTRegion> regions;
 
   L1RCTElectronIsolationCard();
 };

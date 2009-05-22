@@ -48,8 +48,8 @@ int main() {
   L1RCTRegion r1;
   //This should report 1 isolated electron of 100 
   r0.setEtIn7Bits(0,0,100);
-  eic.setRegion(0,&r0);
-  eic.setRegion(1,&r1);
+  eic.setRegion(0,r0);
+  eic.setRegion(1,r1);
 
   eic.fillElectronCandidates();
   eic.print();

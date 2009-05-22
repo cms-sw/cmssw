@@ -163,7 +163,7 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
       dummyH = hcalScale;
 
       delete e_tpg;
-
+      delete h_tpg; 
     }
   else
     {
@@ -257,5 +257,5 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 
   if (dummyE != 0) delete dummyE;
   if (dummyH != 0) delete dummyH;
-
+  
 }

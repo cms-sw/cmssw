@@ -52,8 +52,8 @@ class L1RCTReceiverCard {
    
   //For each of the following functions the appropriate arguments are
   //0 or 1
-  L1RCTRegion* getRegion(int i) {
-    return &regions.at(i);
+  L1RCTRegion getRegion(int i) {
+    return regions.at(i);
   }
   unsigned short getTauBitRegion(int i) {return tauBits.at(i);}
   unsigned short getMuonBitRegion(int i) {return muonBits.at(i);}

@@ -236,16 +236,16 @@ void L1RCT::randomInput()
 //from anything else.  This makes the electron finding algorithm simpler
 //as then all regions can be treated equally.
 void L1RCT::shareNeighbors(){
-  L1RCTRegion* north;
-  L1RCTRegion* south;
-  L1RCTRegion* west;
-  L1RCTRegion* east;
-  L1RCTRegion* se;
-  L1RCTRegion* sw;
-  L1RCTRegion* nw;
-  L1RCTRegion* ne;
-  vector<vector<vector<L1RCTRegion*> > > regions(18,vector<vector<L1RCTRegion*> >(7));
-  vector<L1RCTRegion*> rpair(2);
+  L1RCTRegion north;
+  L1RCTRegion south;
+  L1RCTRegion west;
+  L1RCTRegion east;
+  L1RCTRegion se;
+  L1RCTRegion sw;
+  L1RCTRegion nw;
+  L1RCTRegion ne;
+  vector<vector<vector<L1RCTRegion> > > regions(18,vector<vector<L1RCTRegion> >(7));
+  vector<L1RCTRegion> rpair(2);
   for(int i = 0; i < 18; i++){
     for(int j = 0; j < 7; j++){
       for(int k = 0; k < 2; k++)
@@ -259,51 +259,51 @@ void L1RCT::shareNeighbors(){
 	vector<int> northIndices = neighborMap.north(i,j,k);
 	if(northIndices.at(0) != -1)
 	  north = regions.at(northIndices.at(0)).at(northIndices.at(1)).at(northIndices.at(2));
-	else north = &empty;
+	else north = empty;
 	vector<int> southIndices = neighborMap.south(i,j,k);
 	if(southIndices.at(0) != -1)
 	  south = regions.at(southIndices.at(0)).at(southIndices.at(1)).at(southIndices.at(2));
-	else south = &empty;
+	else south = empty;
 	vector<int> westIndices = neighborMap.west(i,j,k);
 	if(westIndices.at(0) != -1)
 	  west = regions.at(westIndices.at(0)).at(westIndices.at(1)).at(westIndices.at(2));
-	else west = &empty;
+	else west = empty;
 	vector<int> eastIndices = neighborMap.east(i,j,k);
 	if(eastIndices.at(0) != -1)
 	  east = regions.at(eastIndices.at(0)).at(eastIndices.at(1)).at(eastIndices.at(2));
-	else east = &empty;
+	else east = empty;
 	vector<int> seIndices = neighborMap.se(i,j,k);
 	if(seIndices.at(0) != -1)
 	  se = regions.at(seIndices.at(0)).at(seIndices.at(1)).at(seIndices.at(2));
-	else se = &empty;
+	else se = empty;
 	vector<int> swIndices = neighborMap.sw(i,j,k);
 	if(swIndices.at(0) != -1)
 	  sw = regions.at(swIndices.at(0)).at(swIndices.at(1)).at(swIndices.at(2));
-	else sw = &empty;
+	else sw = empty;
 	vector<int> neIndices = neighborMap.ne(i,j,k);
 	if(neIndices.at(0) != -1)
 	  ne = regions.at(neIndices.at(0)).at(neIndices.at(1)).at(neIndices.at(2));
-	else ne = &empty;
+	else ne = empty;
 	vector<int> nwIndices = neighborMap.nw(i,j,k);
 	if(nwIndices.at(0) != -1)
 	  nw = regions.at(nwIndices.at(0)).at(nwIndices.at(1)).at(nwIndices.at(2));
-	else nw = &empty;
-	regions.at(i).at(j).at(k)->setNorthEt(north->giveNorthEt());
-	regions.at(i).at(j).at(k)->setNorthHE_FG(north->giveNorthHE_FG());
-	regions.at(i).at(j).at(k)->setSouthEt(south->giveSouthEt());
-	regions.at(i).at(j).at(k)->setSouthHE_FG(south->giveSouthHE_FG());
-	regions.at(i).at(j).at(k)->setEastEt(east->giveEastEt());
-	regions.at(i).at(j).at(k)->setEastHE_FG(east->giveEastHE_FG());
-	regions.at(i).at(j).at(k)->setWestEt(west->giveWestEt());
-	regions.at(i).at(j).at(k)->setWestHE_FG(west->giveWestHE_FG());
-	regions.at(i).at(j).at(k)->setSEEt(se->giveSEEt());
-	regions.at(i).at(j).at(k)->setSEHE_FG(se->giveSEHE_FG());
-	regions.at(i).at(j).at(k)->setSWEt(sw->giveSWEt());
-	regions.at(i).at(j).at(k)->setSWHE_FG(sw->giveSWHE_FG());
-	regions.at(i).at(j).at(k)->setNWEt(nw->giveNWEt());
-	regions.at(i).at(j).at(k)->setNWHE_FG(nw->giveNWHE_FG());
-	regions.at(i).at(j).at(k)->setNEEt(ne->giveNEEt());
-	regions.at(i).at(j).at(k)->setNEHE_FG(ne->giveNEHE_FG());
+	else nw = empty;
+	regions.at(i).at(j).at(k).setNorthEt(north.giveNorthEt());
+	regions.at(i).at(j).at(k).setNorthHE_FG(north.giveNorthHE_FG());
+	regions.at(i).at(j).at(k).setSouthEt(south.giveSouthEt());
+	regions.at(i).at(j).at(k).setSouthHE_FG(south.giveSouthHE_FG());
+	regions.at(i).at(j).at(k).setEastEt(east.giveEastEt());
+	regions.at(i).at(j).at(k).setEastHE_FG(east.giveEastHE_FG());
+	regions.at(i).at(j).at(k).setWestEt(west.giveWestEt());
+	regions.at(i).at(j).at(k).setWestHE_FG(west.giveWestHE_FG());
+	regions.at(i).at(j).at(k).setSEEt(se.giveSEEt());
+	regions.at(i).at(j).at(k).setSEHE_FG(se.giveSEHE_FG());
+	regions.at(i).at(j).at(k).setSWEt(sw.giveSWEt());
+	regions.at(i).at(j).at(k).setSWHE_FG(sw.giveSWHE_FG());
+	regions.at(i).at(j).at(k).setNWEt(nw.giveNWEt());
+	regions.at(i).at(j).at(k).setNWHE_FG(nw.giveNWHE_FG());
+	regions.at(i).at(j).at(k).setNEEt(ne.giveNEEt());
+	regions.at(i).at(j).at(k).setNEHE_FG(ne.giveNEHE_FG());
       }
     }
   }
