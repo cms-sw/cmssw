@@ -1,6 +1,7 @@
 <use name=FWCore/Framework>
-<use name=FWCore/PluginManager>
+<use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
 <use name=DQM/EcalCommon>
 <use name=DQMServices/Core>
 <use name=DataFormats/EcalDetId>
@@ -9,7 +10,6 @@
 <use name=rootphysics>
 <flags EDM_PLUGIN=1>
 <export>
-   <lib name=DQMEcalPreshowerMonitorModule>
    <use name=DQM/EcalCommon>
    <use name=DQMServices/Core>
    <use name=DataFormats/EcalDetId>
@@ -17,7 +17,9 @@
    <use name=DataFormats/EcalRawData>
    <use name=rootphysics>
    <use name=FWCore/Framework>
-   <use name=FWCore/PluginManager>
+   <use name=FWCore/MessageLogger>
    <use name=FWCore/ParameterSet>
+   <use name=FWCore/ServiceRegistry>
+   <lib name=DQMEcalPreshowerMonitorModule>	
 </export>
 
