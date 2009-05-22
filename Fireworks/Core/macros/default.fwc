@@ -571,7 +571,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("0");
+  topaaa.addValue("8");
   topaa.addKeyValue("color", topaaa);
 }
 {
