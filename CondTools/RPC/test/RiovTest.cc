@@ -1,27 +1,12 @@
-// -*- C++ -*-
-//
-// Package:    RiovTest
-// Class:      RiovTest
-// 
-/**\class RiovTest RiovTest.cc CondTools/RiovTest/src/RiovTest.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
 //
 // Original Author:  Davide Pagano
 //         Created:  Wed May 20 12:47:20 CEST 2009
-// $Id: RiovTest.cc,v 1.1 2009/05/20 14:32:04 dpagano Exp $
+// $Id: RiovTest.cc,v 1.2 2009/05/22 18:14:11 dpagano Exp $
 //
 //
 
 
-// system include files
 #include <memory>
-
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -32,11 +17,6 @@
 #include "CondTools/RPC/interface/RPCIOVReader.h"
 #include "CoralBase/TimeStamp.h"
 #include "CondTools/RPC/interface/RPCRunIOV.h"
-
-
-//
-// class decleration
-//
 
 
 
@@ -87,7 +67,7 @@ RiovTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    timeU = (tmval.tv_usec*1000000LL)+tmval.tv_sec;
    timeU = (unsigned long long int)trunc(timeU/1000000);
    std::cout << "UNIX = " << timeU << std::endl;
-   int a;
+
    // CONNECTION TO DATABASE----------------
    RPCRunIOV* list = new RPCRunIOV(iSetup);
    if (imon.size() == 0) {
