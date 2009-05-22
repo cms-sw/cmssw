@@ -1,7 +1,7 @@
 //
 // Original Author:  Davide Pagano
 //         Created:  Wed May 20 12:47:20 CEST 2009
-// $Id: RiovTest.cc,v 1.2 2009/05/22 18:14:11 dpagano Exp $
+// $Id: RiovTest.cc,v 1.3 2009/05/22 18:18:11 dpagano Exp $
 //
 //
 
@@ -14,7 +14,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/RPCObjects/interface/RPCObCond.h"
 #include "CondFormats/DataRecord/interface/RPCObCondRcd.h"
-#include "CondTools/RPC/interface/RPCIOVReader.h"
 #include "CoralBase/TimeStamp.h"
 #include "CondTools/RPC/interface/RPCRunIOV.h"
 
