@@ -197,7 +197,8 @@ L1RCTSaveInput::analyze(const edm::Event& event,
   if (ecal.isValid()) { ecalColl = *ecal; }
   if (hcal.isValid()) { hcalColl = *hcal; }
   rct->digiInput(ecalColl, hcalColl);
-  static int nEvents = 1;
+  static int nEvents = 0;
+  //cout << "n event is " << nEvents << endl;
   if(nEvents == 0)
     {
       ofs
@@ -236,8 +237,8 @@ L1RCTSaveInput::analyze(const edm::Event& event,
 		    << iCrate << "\t"
 		    << iCard << "\t"
 		    << iTower << "\t"
-		    << ecal * 2 + fgbit << "\t"
-		    << hcal * 2 + mubit << "\t"
+		    << ecal + fgbit << "\t"
+		    << hcal + mubit << "\t"
 		    << lutOutput
 		    << std::dec 
 		    << std::endl;

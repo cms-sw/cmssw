@@ -32,12 +32,12 @@ L1RCTPatternProducer::L1RCTPatternProducer(const edm::ParameterSet& conf) :
   
   fileName = testName+"Input.txt";
 
-  ofs.open(fileName.c_str());//, std::ios::app);
-  if(!ofs)
-    {
-      std::cerr << "Could not create " << fileName << std::endl;
-      exit(1);
-    }
+//   ofs.open(fileName.c_str());//, std::ios::app);
+//   if(!ofs)
+//     {
+//       std::cerr << "Could not create " << fileName << std::endl;
+//       exit(1);
+//     }
 }
 
 L1RCTPatternProducer::~L1RCTPatternProducer()
@@ -95,23 +95,23 @@ L1RCTPatternProducer::produce(edm::Event& event,
   long NineBit = 0;
   long Overflow = 0;
   static int nEvents = 0;
-  if(nEvents==0) {
-    ofs
-      << "Crate = 0-17" << std::endl
-      << "Card = 0-7 within the crate" << std::endl
-      << "Tower = 0-31 covers 4 x 8 covered by the card" << std::endl
-      << "EMAddr(0:8) = EMFGBit(0:0)+CompressedEMET(1:8)" << std::endl
-      << "HDAddr(0:8) = HDFGBit(0:0)+CompressedHDET(1:8) - note: HDFGBit(0:0) is not part of the hardware LUT address" << std::endl
-      << "LutOut(0:17)= LinearEMET(0:6)+HoEFGVetoBit(7:7)+LinearJetET(8:16)+ActivityBit(17:17)" << std::endl
-      << "Event" << "\t"
-      << "Crate" << "\t"
-      << "Card" << "\t"
-      << "Tower" << "\t"
-      << "EMAddr" << "\t"
-      << "HDAddr" << "\t"
-      << "LUTOut"
-      << std::endl;
-  }
+//   if(nEvents==0) {
+//     ofs
+//       << "Crate = 0-17" << std::endl
+//       << "Card = 0-7 within the crate" << std::endl
+//       << "Tower = 0-31 covers 4 x 8 covered by the card" << std::endl
+//       << "EMAddr(0:8) = EMFGBit(0:0)+CompressedEMET(1:8)" << std::endl
+//       << "HDAddr(0:8) = HDFGBit(0:0)+CompressedHDET(1:8) - note: HDFGBit(0:0) is not part of the hardware LUT address" << std::endl
+//       << "LutOut(0:17)= LinearEMET(0:6)+HoEFGVetoBit(7:7)+LinearJetET(8:16)+ActivityBit(17:17)" << std::endl
+//       << "Event" << "\t"
+//       << "Crate" << "\t"
+//       << "Card" << "\t"
+//       << "Tower" << "\t"
+//       << "EMAddr" << "\t"
+//       << "HDAddr" << "\t"
+//       << "LUTOut"
+//       << std::endl;
+//   }
   if(nEvents < 64)
     {
       for(unsigned short iCrate = 0; iCrate < 18; iCrate++){
@@ -145,22 +145,7 @@ L1RCTPatternProducer::produce(edm::Event& event,
 	  // tower numbered from 0-31
 	  for(unsigned short iTower = 0; iTower < 32; iTower++)
 	    {
-	      //if(iTower==16) Etot = 0;
-
-	      if(testName=="flooding12") {//GCT request 08.09.12
-		fgbit = 0;
-		hcal  = 0;
-		mubit = 0;
-		ecal  = 0;
-		//flood with energy on every 12th event
-		if(nEvents%4==0) {
-		  if(rand()%100>35)
-		    ecal = (rand()%(0x37)+4); 
-		  if(rand()%100>35)
-		    hcal = (rand()%(0x37)+4);
-		}
-	      }
-	      else if(nEvents==0)
+	      if(nEvents==0)
 		firstEvent(iCrate,iCard,iTower);
 	      // Add other events here.....
 	  
@@ -169,47 +154,10 @@ L1RCTPatternProducer::produce(edm::Event& event,
 		hcal = 0;
 		mubit =0;
 		ecal = 0;
-
-		//tame randomness
-		/*
-		  if(iTower==10||iTower==5) {
-		  ecal = rand()%(0x3F);
-		  }
-		  if((iTower==15)) {
-		  ecal = fgEcalE; 
-		  //need at least ecal=0x04 for fgbit to be set
-		  //if the threshold is set to 0x03
-		  fgbit = 1;  
-		  }
-		*/
-		//extra randomness for problem regions 
-		//		if(iCard == 6 || ((iCard == 5 || iCard == 4) && iTower>15)){
-		//if(rand()%100<randomPercent*2) //fill some % of the towers                                                       
-		//  ecal = rand()%(0x2f); //with random energy < 64                                                              
-		//if(rand()%100<(randomPercent/3))  //include fgbit 5% of the time                                                
-		//  fgbit = 1;
-		//} 
-		//else {
 		  if(rand()%100<randomPercent) //fill some % of the towers
 		  ecal = rand()%(0x1f); //with random energy < 64
  		if(rand()%100<(randomPercent/5))  //include fgbit 1/5 as often of the time
 		  fgbit = 1;
-		//}
-		//NO tau stuff yet--set in emulator anyway.
-		/*
-		  if(rand()%32<TowersHit&&Energy!=0) {
-		  k++;
-		  if(NineBit>0 && k==1) 
-		  hcal = 0xff;
-		  else if(Overflow>0&&k<=3&&TowersHit>=4)
-		  hcal = 0xff;
-		  else {
-		  hcal = rand()%Energy;
-		  Energy = Energy-hcal;
-		  }
-		  }
-		*/
-		//different randomness
 		if(regionSums){
 		  //Compatable with HCAL link test
 		  //iEta>21 --> phi divisions are 2 towers wide
@@ -1127,22 +1075,23 @@ L1RCTPatternProducer::produce(edm::Event& event,
       
 	      // Let's analyze this event
 	    
-	      unsigned eAddr = ecal + fgbit; // ecal * 2 + fgbit; 
-	      unsigned hAddr = hcal + mubit;// hcal * 2 + mubit; 
+	      //Printout now done in L1RCTSaveInput.cc
+// 	      unsigned eAddr = ecal + fgbit; // ecal * 2 + fgbit; 
+// 	      unsigned hAddr = hcal + mubit;// hcal * 2 + mubit; 
 
-	      unsigned long lutOutput = rctLookupTables->lookup(ecal, hcal, fgbit, iCrate, iCard, iTower);
+// 	      unsigned long lutOutput = rctLookupTables->lookup(ecal, hcal, fgbit, iCrate, iCard, iTower);
 	     
-	      ofs
-		<< std::hex 
-		<< nEvents << "\t"
-		<< iCrate << "\t"
-		<< iCard << "\t"
-		<< iTower << "\t"
-		<< eAddr << "\t"
-		<< hAddr << "\t"
-		<< lutOutput 
-		<< std::dec 
-		<< std::endl;
+// 	      ofs
+// 		<< std::hex 
+// 		<< nEvents << "\t"
+// 		<< iCrate << "\t"
+// 		<< iCard << "\t"
+// 		<< iTower << "\t"
+// 		<< eAddr << "\t"
+// 		<< hAddr << "\t"
+// 		<< lutOutput 
+// 		<< std::dec 
+// 		<< std::endl;
 	      
 	      //  Add the item into emulutor
 	      int iEta = rctLookupTables->rctParameters()->calcIEta(iCrate,iCard,iTower);
@@ -1155,48 +1104,29 @@ L1RCTPatternProducer::produce(edm::Event& event,
 	  
 	      // args to detid are zside, type of tower, absieta, iphi
 	      // absieta and iphi must be between 1 and 127 inclusive
-	      
-
-	      //writeEcalFiles(TCC, iPhi, iEta); 
-
-
-	      //EcalTriggerPrimitiveDigi   ecalDigi;
 
 	      if(iCard < 4){
 		EcalTriggerPrimitiveDigi 
 		  ecalDigi(EcalTrigTowerDetId(zSide, EcalBarrel, abs(iEta),
 					      iPhi));
-// 		EcalTriggerPrimitiveDigi 
-// 		  tcpEcalDigi(EcalTrigTowerDetId(zSide, EcalBarrel, abs(iEta),
-// 						 iPhi));
-	     
 		ecalDigi.setSize(nEcalSamples);
 	  
 		// last arg is 3-bit trigger tower flag, which we don't use
 		// we only use 8-bit encoded et and 1-bit fg
 		ecalDigi.setSample(0, EcalTriggerPrimitiveSample(ecal, 
 								 fgbit, 0));
-// 		tcpEcalDigi.setSample(0, EcalTriggerPrimitiveSample(ecal, 
-// 								    fgbit, 0));
-// 		tcpEcalTPs->push_back(tcpEcalDigi);
 		ecalTPs->push_back(ecalDigi);  
 	      }
 	      else{
 		EcalTriggerPrimitiveDigi 
 		  ecalDigi(EcalTrigTowerDetId(zSide, EcalEndcap, abs(iEta),
 					      iPhi));	
-// 		EcalTriggerPrimitiveDigi 
-// 		  tcpEcalDigi(EcalTrigTowerDetId(zSide, EcalBarrel, abs(iEta),
-// 						 iPhi));
 		ecalDigi.setSize(nEcalSamples);
 	  
 		// last arg is 3-bit trigger tower flag, which we don't use
 		// we only use 8-bit encoded et and 1-bit fg
 		ecalDigi.setSample(0, EcalTriggerPrimitiveSample(ecal, 
 								 fgbit, 0));
-// 		tcpEcalDigi.setSample(0, EcalTriggerPrimitiveSample(ecal, 
-// 								    fgbit, 0));
-// 		tcpEcalTPs->push_back(tcpEcalDigi);
 		ecalTPs->push_back(ecalDigi);
 	      }
   
@@ -1210,7 +1140,6 @@ L1RCTPatternProducer::produce(edm::Event& event,
 	      hcalDigi.setSample(0, HcalTriggerPrimitiveSample(hcal,
 							       mubit,
 							       0, 0));
-	      //std::cout << hcalDigi << std::endl;
 	      hcalTPs->push_back(hcalDigi);
 
 	      //Used for making HCAL pattern files (input to HCAL instead of RCT)
@@ -1253,9 +1182,9 @@ L1RCTPatternProducer::produce(edm::Event& event,
 		digiHBHE->push_back(hbDataFrame);
 	      if(aiEta>16)
 		digiHBHE->push_back(heDataFrame);
-	    }
 	}
       }
+    }
       
       for (int i = 0; i < 18; i++) //Crate
 	{	  
@@ -1301,18 +1230,18 @@ L1RCTPatternProducer::produce(edm::Event& event,
 		    fgbit = 0;
 		  }
 		}
-		unsigned long lutOutput = rctLookupTables->lookup(hf,i, 999, j);
-		ofs
-		  << std::hex 
-		  << nEvents << "\t"
-		  << i << "\t"
-		  << "999" << "\t"
-		  << j << "\t"
-		  << "0" << "\t"
-		  << hf << "\t"
-		  << lutOutput // << "Wha happen'd"
-		  << std::dec 
-		  << std::endl;
+// 		unsigned long lutOutput = rctLookupTables->lookup(hf,i, 999, j);
+// 		ofs
+// 		  << std::hex 
+// 		  << nEvents << "\t"
+// 		  << i << "\t"
+// 		  << "999" << "\t"
+// 		  << j << "\t"
+// 		  << "0" << "\t"
+// 		  << hf << "\t"
+// 		  << lutOutput // << "Wha happen'd"
+// 		  << std::dec 
+// 		  << std::endl;
 	      }
 
 	      // HF ieta: +- 29 through 32.  HF iphi: 1,5,9,13,etc.
@@ -1347,14 +1276,14 @@ L1RCTPatternProducer::produce(edm::Event& event,
 	}
       
     }
-  event.put(ecalTPs);//,"formatTCP");
-//   event.put(tcpEcalTPs);
+  event.put(ecalTPs);
   event.put(hcalTPs);
   event.put(digiHBHE);
   event.put(digiHF);
 
   nEvents++;
 }
+
 
 /**********************************************
  *

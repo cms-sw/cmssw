@@ -44,41 +44,6 @@ L1RCTPatternTestAnalyzer::L1RCTPatternTestAnalyzer(const edm::ParameterSet& iCon
       std::cerr << "Could not create " << fileName << std::endl;
       exit(1);
     }
-  //cout << "testAnalyzer1" << endl;
-   //now do what ever initialization is needed
-
-//   edm::Service<TFileService> fs;
-//   h_emRank = fs->make<TH1F>( "emRank", "emRank", 64, 0., 64. );
-//   h_emRankOutOfTime = fs->make<TH1F>( "emRankOutOfTime", "emRankOutOfTime",
-// 				      64, 0., 64. );
-//   h_emIeta = fs->make<TH1F>( "emIeta", "emIeta", 22, 0., 22. );
-//   h_emIphi = fs->make<TH1F>( "emIphi", "emIphi", 18, 0., 18. );
-//   h_emIso = fs->make<TH1F>( "emIso", "emIso", 2, 0., 2. );
-//   h_emRankInIetaIphi = fs->make<TH2F>( "emRank2D", "emRank2D", 22, 0., 22.,
-// 				       18, 0., 18. );
-//   h_emIsoInIetaIphi = fs->make<TH2F>( "emIso2D", "emIso2D", 22, 0., 22.,
-// 				      18, 0., 18. );
-//   h_emNonIsoInIetaIphi = fs->make<TH2F>( "emNonIso2D", "emNonIso2D", 22, 0., 
-// 					 22., 18, 0., 18. );
-//   h_emCandTimeSample = fs->make<TH1F>( "emCandTimeSample", "emCandTimeSample",
-// 				       5, -2., 2.);
-
-//   h_regionSum = fs->make<TH1F>( "regionSum", "regionSum", 100, 0., 100. );
-//   h_regionIeta = fs->make<TH1F>( "regionIeta", "regionIeta", 22, 0., 22. );
-//   h_regionIphi = fs->make<TH1F>( "regionIphi", "regionIphi", 18, 0., 18. );
-//   h_regionMip = fs->make<TH1F>( "regionMip", "regionMipBit", 2, 0., 2. );
-//   h_regionSumInIetaIphi = fs->make<TH2F>( "regionSum2D", "regionSum2D", 22, 
-// 					  0., 22., 18, 0., 18. );
-//   h_regionFGInIetaIphi = fs->make<TH2F>( "regionFG2D", "regionFG2D", 22, 0.,
-// 					 22., 18, 0., 18. );
-
-//   h_towerMip = fs->make<TH1F>( "towerMip", "towerMipBit", 2, 0., 2. );
-
-//   h_ecalTimeSample = fs->make<TH1F>( "ecalTimeSample", "ecalTimeSample",
-// 				     10, 0., 10. );
-//   h_hcalTimeSample = fs->make<TH1F>( "hcalTimeSample", "hcalTimeSample",
-// 				     10, 0., 10. );
-
   // get names of modules, producing object collections
 }
 
@@ -128,22 +93,6 @@ L1RCTPatternTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
    iEvent.getByLabel(ecalDigisLabel, ecalColl);
    iEvent.getByLabel(hcalDigisLabel, hcalColl);
 
-//    for (ecal=ecalColl->begin(); ecal!=ecalColl->end(); ecal++)
-//      {
-//        for (unsigned short sample = 0; sample < (*ecal).size(); sample++)
-// 	 {
-// 	   h_ecalTimeSample->Fill(sample);
-// 	 }
-//      }
-
-//    for (hcal=hcalColl->begin(); hcal!=hcalColl->end(); hcal++)
-//      {
-//        h_towerMip->Fill( (*hcal).SOI_fineGrain() );
-//        for (unsigned short sample = 0; sample < (*hcal).size(); sample++)
-// 	 {
-// 	   h_hcalTimeSample->Fill(sample);
-// 	 }
-//      }
    static int numEvents = 0;
    if(limitTo64==true&&numEvents<63||limitTo64==false)
      {   
@@ -158,34 +107,8 @@ L1RCTPatternTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 	   ofs << endl << "L1 RCT EmCand objects" << endl;
 	 }
        for (em=rctEmCands->begin(); em!=rctEmCands->end(); em++){
-	 //  cout << "(Analyzer)\n" << (*em) << endl;
-// 	 h_emCandTimeSample->Fill((*em).bx());
 	 if ((*em).bx() == 0)
 	   {
-// 	     unsigned short n_emcands = 0;
-// 	     //cout << endl << "rank: " << (*em).rank() ;
-	 
-// 	     if ((*em).rank() > 0)
-// 	       {
-// 		 h_emRank->Fill( (*em).rank() );
-// 		 h_emIeta->Fill( (*em).regionId().ieta() );
-// 		 h_emIphi->Fill( (*em).regionId().iphi() );
-// 		 h_emIso->Fill( (*em).isolated() );
-// 		 h_emRankInIetaIphi->Fill( (*em).regionId().ieta(), 
-// 					   (*em).regionId().iphi(),
-// 					   (*em).rank() );
-// 		 if ((*em).isolated())
-// 		   {
-// 		     h_emIsoInIetaIphi->Fill( (*em).regionId().ieta(),
-// 					      (*em).regionId().iphi() );
-// 		   }
-// 		 else
-// 		   {
-// 		     h_emNonIsoInIetaIphi->Fill( (*em).regionId().ieta(),
-// 						 (*em).regionId().iphi() );
-// 		   }
-// 	       }
-	 
 	     if (showEmCands)
 	       {
 		 if ((*em).rank() > 0 || (5==5))
@@ -223,10 +146,6 @@ L1RCTPatternTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 		   }
 	       }
 	   }
-// 	 else
-// 	   {
-// 	     h_emRankOutOfTime->Fill( (*em).rank() );
-// 	   }
        }
        if(showEmCands)
 	 {
@@ -253,17 +172,6 @@ L1RCTPatternTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 		   }
 		   //cout << /* "(Analyzer)\n" << */ (*rgn) << endl;
 		 }
-// 	       if ( (*rgn).et() > 0 )
-// 		 {
-// 		   h_regionSum->Fill( (*rgn).et() );
-// 		   h_regionIeta->Fill( (*rgn).gctEta() );
-// 		   h_regionIphi->Fill( (*rgn).gctPhi() );
-// 		   h_regionSumInIetaIphi->Fill( (*rgn).gctEta(), (*rgn).gctPhi(),
-// 						(*rgn).et() );
-// 		   h_regionFGInIetaIphi->Fill( (*rgn).gctEta(), (*rgn).gctPhi(),
-// 					       (*rgn).fineGrain() );
-// 		 }
-// 	       h_regionMip->Fill( (*rgn).mip() );
 	     }	     
 	   if(showRegionSums)
 	     {
