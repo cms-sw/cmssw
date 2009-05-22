@@ -4,7 +4,7 @@ from DQM.SiStripMonitorSummary.OnDemandMonitoring_cfi import *
 #  SiStripMonitorAnalyser ####
 SiStripAnalyser = cms.EDFilter("SiStripAnalyser",
     StaticUpdateFrequency    = cms.untracked.int32(1),
-    GlobalStatusFilling      = cms.untracked.int32(1),
+    GlobalStatusFilling      = cms.untracked.int32(2),
     TkMapCreationFrequency   = cms.untracked.int32(1),
     SummaryCreationFrequency = cms.untracked.int32(1),
     ShiftReportFrequency     = cms.untracked.int32(1),

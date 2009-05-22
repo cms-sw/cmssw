@@ -14,6 +14,7 @@
 
 class DQMStore;
 class MonitorElement;
+class TkDetMap;
 
 class SiStripQualityChecker {
 
@@ -45,10 +46,11 @@ class SiStripQualityChecker {
   void fillSubDetStatus(DQMStore* dqm_store,SubDetMEs& mes,
                                  unsigned int xbin,float& gflag);
   void getModuleStatus(DQMStore* dqm_store,int& ndet,int& errdet);
-  void getModuleStatus(MonitorElement* me, int& ndet, std::vector<DQMChannel>& bad_channels);
+  void getModuleStatus(std::vector<MonitorElement*>& layer_mes, int& ndet, int& errdet);
 
   void fillStatusHistogram(MonitorElement*, int xbin, int ybin, float val);
-
+  void setBadChannelFlag(std::string & hname, uint16_t& flg);
+  
   std::map<std::string, SubDetMEs> SubDetMEsMap;
   std::map<std::string, std::string> SubDetFolderMap;
 
@@ -67,5 +69,7 @@ class SiStripQualityChecker {
   edm::ParameterSet pSet_;
   bool bookedStatus_;
   int globalStatusFilling_;
+
+  TkDetMap* tkDetMap_;
 };
 #endif

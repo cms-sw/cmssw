@@ -1,9 +1,12 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripQualityChecker.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+
+#include "CalibTracker/SiStripCommon/interface/TkDetMap.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
@@ -34,6 +37,16 @@ SiStripQualityChecker::SiStripQualityChecker(edm::ParameterSet const& ps):pSet_(
   SubDetFolderMap.insert(pair<string, string>("TIDF", "TID/side_2"));
   SubDetFolderMap.insert(pair<string, string>("TIDB", "TID/side_1"));
   badModuleList.clear();
+
+  if(!edm::Service<TkDetMap>().isAvailable()){
+    edm::LogError("TkHistoMap") <<
+      "\n------------------------------------------"
+      "\nUnAvailable Service TkHistoMap: please insert in the configuration file an instance like"
+      "\n\tprocess.TkDetMap = cms.Service(\"TkDetMap\")"
+      "\n------------------------------------------";
+  }
+  tkDetMap_=edm::Service<TkDetMap>().operator->();
+
 }
 //
 // --  Destructor
@@ -237,22 +250,23 @@ void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store,int& ndet,int& e
     vector<MonitorElement*> meVec = dqm_store->getContents((*im));
     if (meVec.size() == 0) continue;
     ndet++; 
-    int err_me = 0;
+    uint16_t flag = 0;
     for (vector<MonitorElement*>::const_iterator it = meVec.begin();
 	 it != meVec.end(); it++) {
       MonitorElement * me = (*it);     
       if (!me) continue;
       if (me->getQReports().size() == 0) continue;
+      string name = me->getName();
       int istat =  SiStripUtility::getMEStatus((*it)); 
-      if (istat == dqm::qstatus::ERROR)   err_me++;
+      if (istat == dqm::qstatus::ERROR) setBadChannelFlag(name,flag);  
     }
-    if (err_me > 0) {
+    if (flag > 0) {
       errdet++;
       map<uint32_t,uint16_t>::iterator iPos = badModuleList.find(detId);
       if (iPos != badModuleList.end()){    
-	if (errdet > iPos->second) iPos->second = errdet;
+	iPos->second = flag;
       } else {
-	badModuleList.insert(pair<uint32_t,uint16_t>(detId,err_me));
+	badModuleList.insert(pair<uint32_t,uint16_t>(detId,flag));
       }
     }
   }
@@ -264,6 +278,8 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
                          SubDetMEs& mes, unsigned int xbin, float& gflag) {
   int status_flag  = pSet_.getUntrackedParameter<int>("GlobalStatusFilling", 1);
   
+  if (status_flag < 1) return;
+
   vector<string> subDirVec = dqm_store->getSubdirs();
 
   unsigned int ybin   = 0;
@@ -281,27 +297,22 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
     int errdet = 0;       
 
     int ston_stat = 1;
-    vector<DQMChannel>  bad_channels;
+
 
 
     if (status_flag == 1) getModuleStatus(dqm_store, ndet, errdet);
-    
+    else if (status_flag == 2) getModuleStatus(meVec, ndet, errdet);
+
     for (vector<MonitorElement*>::const_iterator it = meVec.begin();
 	 it != meVec.end(); it++) {
       MonitorElement * me = (*it);
       if (!me) continue;
       if (me->getQReports().size() == 0) continue;
       string name = me->getName();
-      vector<DQMChannel>  bad_channels_me;
       
       if( name.find("Summary_ClusterStoNCorr__OnTrack") != string::npos){
 	int istat =  SiStripUtility::getMEStatus((*it)); 
 	if (me->getEntries() > 100 && istat == dqm::qstatus::ERROR) ston_stat = 0;
-      } else {
-        if (status_flag == 2) {
-	  getModuleStatus(me, ndet, bad_channels); 
-	  errdet = bad_channels.size();
-        }
       }
     }
 
@@ -363,48 +374,61 @@ void SiStripQualityChecker::printStatusReport() {
 //
 // -- Get Module Status from Layer Level Histograms
 //
-void SiStripQualityChecker::getModuleStatus(MonitorElement* me, int& ndet, 
-                                            vector<DQMChannel>& bad_channels){
+void SiStripQualityChecker::getModuleStatus(vector<MonitorElement*>& layer_mes, int& ndet, int& errdet) { 
+  
   int ndet_me = 0;
-  vector<DQMChannel> bad_channels_me;
-  std::vector<QReport *> qreports = me->getQReports();
-  if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) {
-    ndet_me = me->getNbinsX();
-    bad_channels_me = qreports[0]->getBadChannels();
-  } else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D) {
-    TProfile2D* h  = me->getTProfile2D();
-    float frac = me->getEntries() *1.0/ h->GetBinEntries(h->GetBin(1, 1));
-    ndet_me = static_cast<int> (frac);
-    bad_channels_me = qreports[0]->getBadChannels();
-  }
-  if (ndet_me > ndet)  ndet = ndet_me;
-  // Check Bad Channels 
-  if (bad_channels.size() == 0) bad_channels.insert(bad_channels.end(), bad_channels_me.begin(), bad_channels_me.end());
-  else {
-    size_t v1_size = bad_channels_me.size();
-    size_t v2_size = bad_channels.size();
-    for (size_t it = 0;  it != v1_size; it++){
-      
-      int xval = bad_channels_me[it].getBinX();
-      int yval = bad_channels_me[it].getBinY();
-      int zval = bad_channels_me[it].getBinZ();
-      bool already_exist = false;
-      for (size_t im = 0; im != v2_size; im++){
-	if (xval == bad_channels[im].getBinX() && 
-	    yval == bad_channels[im].getBinY() && 
-	    zval == bad_channels[im].getBinZ()) {
-	  already_exist = true;
-	  break;
-	} else {
-	  already_exist = false;
-	}
+  string lname;
+  map<uint32_t,uint16_t> bad_modules;
+  for (vector<MonitorElement*>::const_iterator it = layer_mes.begin();
+       it != layer_mes.end(); it++) {
+    MonitorElement * me = (*it);
+    if (!me) continue;
+    std::vector<QReport *> qreports = me->getQReports();
+    if (qreports.size() == 0) continue;
+    string name = me->getName();
+    vector<DQMChannel>  bad_channels_me;
+    if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) {
+      ndet_me = me->getNbinsX();
+      bad_channels_me = qreports[0]->getBadChannels();
+      lname = "";
+    } else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D && name.find("TkHMap") != string::npos) {
+      TProfile2D* h  = me->getTProfile2D();
+      float frac = me->getEntries() *1.0/ h->GetBinEntries(h->GetBin(1, 1));
+      ndet_me = static_cast<int> (frac);
+      bad_channels_me = qreports[0]->getBadChannels();
+      lname = name.substr(name.find("TkHistoMap_")+11);
+      lname = lname.substr(lname.find_first_of("_")+1);
+    }
+    if (ndet_me > ndet)  ndet = ndet_me;
+    for (vector<DQMChannel>::iterator it = bad_channels_me.begin(); it != bad_channels_me.end(); it++){
+      int xval = (*it).getBinX();
+      int yval = (*it).getBinY();
+      uint32_t detId = tkDetMap_->getDetFromBin(lname, xval, yval);       
+      map<uint32_t,uint16_t>::iterator iPos = bad_modules.find(detId);
+      uint16_t flag;
+      if (iPos != bad_modules.end()){
+	flag = iPos->second;
+	setBadChannelFlag(name, flag);            
+	iPos->second = flag;
+      } else {
+        flag = 0;
+	setBadChannelFlag(name, flag);              
+	bad_modules.insert(pair<uint32_t,uint16_t>(detId,flag));
       }
-      if (!already_exist) {
-	bad_channels.push_back(bad_channels_me[it]);
-      } 
-      
     }
   }
+  for(map<uint32_t,uint16_t>::const_iterator it = bad_modules.begin();
+      it != bad_modules.end(); it++) {
+    uint32_t detId = it->first;
+    uint16_t flag  = it->second;
+    map<uint32_t,uint16_t>::iterator iPos = badModuleList.find(detId);
+    if (iPos != badModuleList.end()){
+      iPos->second = flag;
+    } else {
+      badModuleList.insert(pair<uint32_t,uint16_t>(detId,flag));
+    }
+  }    
+  errdet = bad_modules.size();  
 }
 //
 // -- Fill Report Summary Map
@@ -458,4 +482,12 @@ void SiStripQualityChecker::fillFaultyModuleStatus(DQMStore* dqm_store) {
     }
   }
 }
-
+//
+// -- Set Bad Channel Flag from hname
+// 
+void SiStripQualityChecker::setBadChannelFlag(std::string & hname, uint16_t& flg){
+  
+  if (hname.find("FractionOfBadChannels") != string::npos) flg |= (1<<0);
+  else if (hname.find("NumberOfDigi")     != string::npos) flg |= (1<<1);
+  else if (hname.find("NumberOfCluster")  != string::npos) flg |= (1<<2);
+}

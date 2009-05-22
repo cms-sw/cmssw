@@ -1,4 +1,16 @@
 <TESTSCONFIGURATION> 
+<QTEST name="ContentsWithinExpected:TkHistoFedError">
+        <TYPE>ContentsWithinExpected</TYPE>
+        <PARAM name="minMean">0.0</PARAM>
+        <PARAM name="maxMean">0.2</PARAM>
+        <PARAM name="minRMS">0</PARAM>
+        <PARAM name="maxRMS">0</PARAM>
+        <PARAM name="toleranceMean">-1</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="minEntries">1000</PARAM>
+        <PARAM name="error">0.30</PARAM>
+        <PARAM name="warning">0.70</PARAM>
+</QTEST>
 <QTEST name="MeanWithinExpectedRange:Digi" activate="true">
       <TYPE>MeanWithinExpected</TYPE>
       <PARAM name="error">0.05</PARAM>
@@ -111,6 +123,9 @@
       <PARAM name="xmin">0.01</PARAM>
       <PARAM name="xmax">10.0</PARAM>
 </QTEST>
+<LINK name="*TkHMap_FractionOfBadChannels*">
+  <TestName activate="true">ContentsWithinExpected:TkHistoFedError</TestName>
+</LINK>
 <LINK name="*TkHMap_NumberOfDigi_*">
   <TestName activate="true">ContentsWithinExpected:TkHistoDigi</TestName>
 </LINK>
