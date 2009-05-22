@@ -154,202 +154,6 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaa(3);
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("std::vector<l1extra::L1EmParticle>");
-  topaa.addKeyValue("type", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("hltL1extraParticles");
-  topaa.addKeyValue("moduleLabel", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("Isolated");
-  topaa.addKeyValue("productInstanceLabel", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("");
-  topaa.addKeyValue("processName", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("$.pt()>15");
-  topaa.addKeyValue("filterExpression", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("4");
-  topaa.addKeyValue("color", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("f");
-  topaa.addKeyValue("isVisible", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("3");
-  topaa.addKeyValue("layer", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("L1EmTrig");
-  topaa.addKeyValue("purpose", topaaa);
-}
-  topa.addKeyValue("L1EmTrig", topaa);
-}
-{
-  FWConfiguration topaa(3);
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("std::vector<l1extra::L1MuonParticle>");
-  topaa.addKeyValue("type", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("hltL1extraParticles");
-  topaa.addKeyValue("moduleLabel", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("");
-  topaa.addKeyValue("productInstanceLabel", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("");
-  topaa.addKeyValue("processName", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("");
-  topaa.addKeyValue("filterExpression", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("1");
-  topaa.addKeyValue("color", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("f");
-  topaa.addKeyValue("isVisible", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("3");
-  topaa.addKeyValue("layer", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("L1-Muons");
-  topaa.addKeyValue("purpose", topaaa);
-}
-  topa.addKeyValue("L1-Muons", topaa);
-}
-{
-  FWConfiguration topaa(3);
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("std::vector<l1extra::L1EtMissParticle>");
-  topaa.addKeyValue("type", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("hltL1extraParticles");
-  topaa.addKeyValue("moduleLabel", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("");
-  topaa.addKeyValue("productInstanceLabel", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("");
-  topaa.addKeyValue("processName", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("");
-  topaa.addKeyValue("filterExpression", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("7");
-  topaa.addKeyValue("color", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("f");
-  topaa.addKeyValue("isVisible", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("3");
-  topaa.addKeyValue("layer", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("L1-MET");
-  topaa.addKeyValue("purpose", topaaa);
-}
-  topa.addKeyValue("L1-MET", topaa);
-}
-{
-  FWConfiguration topaa(3);
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("std::vector<l1extra::L1JetParticle>");
-  topaa.addKeyValue("type", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("hltL1extraParticles");
-  topaa.addKeyValue("moduleLabel", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("Central");
-  topaa.addKeyValue("productInstanceLabel", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("");
-  topaa.addKeyValue("processName", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("$.pt()>15");
-  topaa.addKeyValue("filterExpression", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("1");
-  topaa.addKeyValue("color", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("f");
-  topaa.addKeyValue("isVisible", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("3");
-  topaa.addKeyValue("layer", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("L1-Jets");
-  topaa.addKeyValue("purpose", topaaa);
-}
-  topa.addKeyValue("L1-Jets", topaa);
-}
-{
-  FWConfiguration topaa(3);
-{
-  FWConfiguration topaaa(0);
   topaaa.addValue("std::vector<reco::Track>");
   topaa.addKeyValue("type", topaaa);
 }
@@ -595,55 +399,6 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaa(3);
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("std::vector<reco::CaloMET>");
-  topaa.addKeyValue("type", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("metNoHF");
-  topaa.addKeyValue("moduleLabel", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("");
-  topaa.addKeyValue("productInstanceLabel", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("");
-  topaa.addKeyValue("processName", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("$.pt()>20");
-  topaa.addKeyValue("filterExpression", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("8");
-  topaa.addKeyValue("color", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("t");
-  topaa.addKeyValue("isVisible", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("3");
-  topaa.addKeyValue("layer", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("MET");
-  topaa.addKeyValue("purpose", topaaa);
-}
-  topa.addKeyValue("MET", topaa);
-}
-{
-  FWConfiguration topaa(3);
-{
-  FWConfiguration topaaa(0);
   topaaa.addValue("edm::RangeMap<DTChamberId,edm::OwnVector<DTRecSegment4D,edm::ClonePolicy<DTRecSegment4D> >,edm::ClonePolicy<DTRecSegment4D> >");
   topaa.addKeyValue("type", topaaa);
 }
@@ -787,6 +542,55 @@ FWConfiguration* fwConfig() {
 }
   topa.addKeyValue("Photons", topaa);
 }
+{
+  FWConfiguration topaa(3);
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("std::vector<reco::MET>");
+  topaa.addKeyValue("type", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("tcMet");
+  topaa.addKeyValue("moduleLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("productInstanceLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("RECO");
+  topaa.addKeyValue("processName", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("et()>20");
+  topaa.addKeyValue("filterExpression", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("0");
+  topaa.addKeyValue("color", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("t");
+  topaa.addKeyValue("isVisible", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("11");
+  topaa.addKeyValue("layer", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("recoMET");
+  topaa.addKeyValue("purpose", topaaa);
+}
+  topa.addKeyValue("MET", topaa);
+}
   top.addKeyValue("EventItems", topa);
 }
 {
@@ -805,12 +609,12 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("84");
+  topaaa.addValue("344");
   topaa.addKeyValue("x", topaaa);
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("95");
+  topaaa.addValue("82");
   topaa.addKeyValue("y", topaaa);
 }
   topa.addKeyValue("main window", topaa);
@@ -1324,7 +1128,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.78");
+  topaaaa.addValue("1.07827");
   topaaa.addKeyValue("orthoCameraZoom3D Lego", topaaaa);
 }
 {
@@ -1544,7 +1348,7 @@ FWConfiguration* fwConfig() {
   topaaaa.addValue("hadEt");
   topaaaa.addValue("1");
   topaaaa.addValue("et");
-  topaaaa.addValue("Et");
+  topaaaa.addValue("et");
   topaaaa.addValue("1");
   topaaaa.addValue("eta");
   topaaaa.addValue("eta");
@@ -1809,7 +1613,7 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaaaa(1);
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("HCal");
+  topaaaaa.addValue("Jets");
   topaaaa.addKeyValue("collection", topaaaaa);
 }
   topaaa.addKeyValue("TableView", topaaaa);
@@ -1822,8 +1626,8 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaa(1);
   topaa.addValue("407");
   topaa.addValue("136");
-  topaa.addValue("132");
-  topaa.addValue("129");
+  topaa.addValue("133");
+  topaa.addValue("130");
   topaa.addValue("127");
   topa.addKeyValue("view area", topaa);
 }
