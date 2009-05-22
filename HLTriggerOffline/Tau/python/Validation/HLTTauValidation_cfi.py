@@ -12,11 +12,11 @@ hltTauValidationMonitor = cms.EDFilter("HLTTauDQMOfflineSource",
                                         cms.InputTag("hltFilterL2EtCutDoubleLooseIsoTau15","",hltTauValidationProcess),
                                         cms.InputTag("hltFilterL2EcalIsolationDoubleLooseIsoTau15","",hltTauValidationProcess)
                                         ),
-            MatchDeltaR           = cms.untracked.vdouble(0.5,0.3,0.3),    #One per filter
-            NTriggeredTaus        = cms.untracked.vuint32(2,2,2,2), #The first one is for the ref events
-            NTriggeredLeptons     = cms.untracked.vuint32(0,0,0,0), #the first one is for the ref events
-            TauType               = cms.untracked.vint32(-86,+84,+84),
-            LeptonType            = cms.untracked.vint32(0,0,0)                            
+            MatchDeltaR           = cms.untracked.vdouble(0.5,0.3,0.3,0.3),    #One per filter
+            NTriggeredTaus        = cms.untracked.vuint32(2,2,2,2,2), #The first one is for the ref events
+            NTriggeredLeptons     = cms.untracked.vuint32(0,0,0,0,0), #the first one is for the ref events
+            TauType               = cms.untracked.vint32(-86,84,84,84),
+            LeptonType            = cms.untracked.vint32(0,0,0,0)                            
         ),
 
         cms.PSet(
@@ -44,12 +44,11 @@ hltTauValidationMonitor = cms.EDFilter("HLTTauDQMOfflineSource",
                                         cms.InputTag("hltFilterL2EtCutSingleLooseIsoTau20","",hltTauValidationProcess),
                                         cms.InputTag("hltFilterL2EcalIsolationSingleLooseIsoTau20","",hltTauValidationProcess)
                                         ),
-            MatchDeltaR           = cms.untracked.vdouble(0.5,0.3,0.3),    #One per filter
-            NTriggeredTaus        = cms.untracked.vuint32(1,1,1,1), #The first one is for the ref events
-            NTriggeredLeptons     = cms.untracked.vuint32(0,0,0,0), #the first one is for the ref events
-            TauType               = cms.untracked.vint32(-86,+84,+84),
-            LeptonType            = cms.untracked.vint32(0,0,0)                            
-
+            MatchDeltaR           = cms.untracked.vdouble(0.5,0.3,0.3,0.3,0,0.3),    #One per filter
+            NTriggeredTaus        = cms.untracked.vuint32(1,1,1,1,1,1), #The first one is for the ref events
+            NTriggeredLeptons     = cms.untracked.vuint32(0,0,0,0,0,0), #the first one is for the ref events
+            TauType               = cms.untracked.vint32(-86,84,84,84,84),
+            LeptonType            = cms.untracked.vint32(0,0,0,0,0)                            
         ),
         cms.PSet(
             DQMFolder              = cms.string('HLT/TauRelVal/MC/L1'),
