@@ -11,6 +11,18 @@
 # To set it up on lxplus, run:
 # source /afs/cern.ch/user/v/valya/scratch0/setup.sh
 
+if [[ $1 =~ .*GEN-SIM-RECO ]]; then
+  HLTDEBUGPATH=`echo $1 | sed 's/GEN-SIM-RECO/GEN-SIM-DIGI-RAW-HLTDEBUG/'`
+  RECOPATH=$1
+else
+  HLTDEBUGPATH=$1
+  RECOPATH=`echo $1 | sed 's/GEN-SIM-DIGI-RAW-HLTDEBUG/GEN-SIM-RECO/'`
+fi
+
+echo $HLTDEBUGPATH
+echo $RECOPATH
+
+
 if [ "$DBSCMD_HOME" ] ; then 
     DBS_CMD="python $DBSCMD_HOME/dbsCommandLine.py -c " 
 else if [ "$DBS_CLIENT_ROOT" ] ; then 
@@ -20,14 +32,18 @@ else
 fi
 fi
 
-FILES=`$DBS_CMD lsf --path=$1 | grep .root | sed "s:\(/store/.*\.root\):'\1',\n:"`
+SECFILES=`$DBS_CMD lsf --path=$HLTDEBUGPATH | grep .root | sed "s:\(/store/.*\.root\):'\1',\n:"`
+SECFILES=$SECFILES,,,
+SECFILES=`echo $SECFILES | sed 's/,,,,//'`
+
+FILES=`$DBS_CMD lsf --path=$RECOPATH | grep .root | sed "s:\(/store/.*\.root\):'\1',\n:"`
 FILES=$FILES,,,
 FILES=`echo $FILES | sed 's/,,,,//'`
 
-cat muonTriggerRateTimeAnalyzer_cfg.py | sed "s:vstring():vstring($FILES):" > ana.py
+cat muonTriggerRateTimeAnalyzer_cfg.py | sed "s:\(fileNames.*\)vstring():\1vstring($FILES):" | sed "s:\(secondaryFileNames.*\)vstring():\1vstring($SECFILES):" > ana.py
 
 cmsRun ana.py
-cmsRun PostProcessor_cfg.py
+#cmsRun PostProcessor_cfg.py
 
-jobName=`echo $1 | sed "s/\/RelVal\(.*\)\/CMSSW_\(.*\)\/.*/\1_\2/"`
-mv PostProcessor.root $jobName.root
+#jobName=`echo $HLTDEBUGPATH | sed "s/\/RelVal\(.*\)\/CMSSW_\(.*\)\/.*/\1_\2/"`
+#mv PostProcessor.root $jobName.root
