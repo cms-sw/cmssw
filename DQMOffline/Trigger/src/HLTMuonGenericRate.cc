@@ -6,14 +6,15 @@
  *    1. A set of selection cuts
  *    2. A trigger name
  *  
- *  $Author: Jason Slaunwhite $
- *  $Date: 2009/05/20 11:17:53 $
- *  $Revision: 1.9 $
+ *  $Author: slaunwhj $
+ *  $Date: 2009/05/21 13:27:12 $
+ *  $Revision: 1.10 $
  */
 
 
 #include "DQMOffline/Trigger/interface/HLTMuonGenericRate.h"
-#include "DQMOffline/Trigger/interface/AnglesUtil.h"
+
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -112,12 +113,16 @@ HLTMuonGenericRate::HLTMuonGenericRate
   // -- Right now the new way is to hard-code it
   // -- this uses the most generic kind of muon
   // -- selectors will handle other cuts
-  theRecoLabel = "muons";
+  //theRecoLabel = "muons";
 
-
+  RecoMuonInputTag =  pset.getParameter<edm::InputTag>("RecoMuonInputTag");  
+  BeamSpotInputTag = pset.getParameter<edm::InputTag>("BeamSpotInputTag");
+  HltRawInputTag  = pset.getParameter<edm::InputTag>("HltRawInputTag");
+  HltAodInputTag = pset.getParameter<edm::InputTag>("HltAodInputTag");
+  
   TriggerResultLabel = pset.getParameter<edm::InputTag>("TriggerResultLabel");  
   
-  useMuonFromGenerator = false; // = ( theGenLabel  == "" ) ? false : true;
+  //useMuonFromGenerator = false; // = ( theGenLabel  == "" ) ? false : true;
   useMuonFromReco      = true; // = ( theRecoLabel == "" ) ? false : true;
 
   theMaxPtParameters = pset.getParameter< vector<double> >("MaxPtParameters");
@@ -331,11 +336,11 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
   if ( useMuonFromReco ) {
     //Handle<reco::TrackCollection> muTracks;
     Handle<MuonCollection> muTracks;
-    iEvent.getByLabel(theRecoLabel, muTracks);    
+    iEvent.getByLabel(RecoMuonInputTag, muTracks);    
     //reco::TrackCollection::const_iterator muon;
     MuonCollection::const_iterator muon;
     if  ( muTracks.failedToGet() ) {
-      LogWarning("HLTMuonVal") << "WARNING: failed to get the RECO Muon collection named " << theRecoLabel
+      LogWarning("HLTMuonVal") << "WARNING: failed to get the RECO Muon collection named " << RecoMuonInputTag
                                << "\nYou have tracks to compare to... ignoring RECO muons"
                                << " for the rest of this job";
       useMuonFromReco = false;
@@ -389,7 +394,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     }
 
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-    iEvent.getByLabel("offlineBeamSpot",recoBeamSpotHandle);
+    iEvent.getByLabel(BeamSpotInputTag,recoBeamSpotHandle);
     if (!recoBeamSpotHandle.failedToGet()) {
       
       beamSpot = *recoBeamSpotHandle;
@@ -439,7 +444,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 
   LogTrace ("HLTMuonVal") << "Trying to get RAW information\n\n";
                           
-  iEvent.getByLabel( "hltTriggerSummaryRAW", rawTriggerEvent );
+  iEvent.getByLabel( HltRawInputTag, rawTriggerEvent );
   
   if ( rawTriggerEvent.isValid() ) { 
     LogTrace("HLTMuonVal") << "\n\nRAW trigger summary found! "
@@ -501,7 +506,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     LogTrace ("HLTMuonVal") << "\n\n\nLooking for AOD branch named "
                             << "hltTriggerSummaryAOD\n\n\n";
                             
-    iEvent.getByLabel("hltTriggerSummaryAOD", aodTriggerEvent);
+    iEvent.getByLabel(HltAodInputTag, aodTriggerEvent);
     if ( !aodTriggerEvent.isValid() ) { 
       LogInfo("HLTMuonVal") << "No AOD trigger summary found! Returning..."; 
       return; 
@@ -1118,9 +1123,9 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
                               << l1plottedCharge;
       
       
-      double deltaR = kinem::delta_R (l1eta, l1phi, eta, phi);
+      double deltaR = reco::deltaR (l1eta, l1phi, eta, phi);
 
-      double deltaPhi = kinem::delta_phi (l1phi, phi);
+      double deltaPhi = reco::deltaPhi (l1phi, phi);
       
       // These are matched histos
       // so they have no "all" histos
@@ -1192,10 +1197,10 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
         // so there are no "all" histograms
         // so offset = 1 b/c of L1 histos
 
-        double deltaR = kinem::delta_R (hltCand_eta, hltCand_phi,
+        double deltaR = reco::deltaR (hltCand_eta, hltCand_phi,
                                         eta, phi);
 
-        double deltaPhi = kinem::delta_phi (hltCand_phi, phi);
+        double deltaPhi = reco::deltaPhi (hltCand_phi, phi);
 
         hDeltaRMatched[j+1]->Fill(deltaR);
         hPassMatchPtRec[j+1]->Fill(pt);
@@ -1346,7 +1351,7 @@ int HLTMuonGenericRate::findGenMatch
   double bestDeltaR = maxDeltaR;
   int bestMatch = -1;
   for ( size_t i = 0; i < matches.size(); i++ ) {
-    // double dR = kinem::delta_R( eta, phi, 
+    // double dR = reco::deltaR( eta, phi, 
     // 				matches[i].genCand->eta(), 
     // 				matches[i].genCand->phi() );
 
@@ -1373,7 +1378,7 @@ int HLTMuonGenericRate::findRecMatch
   // the != cosmic case is for default handling.
   if (matchType != "cosmic" || matchType == "dr"  ) {
     for ( size_t i = 0; i < matches.size(); i++ ) {
-      double dR = kinem::delta_R( eta, phi, 
+      double dR = reco::deltaR( eta, phi, 
                                   matches[i].recCand->eta(), 
                                   matches[i].recCand->phi() );
       if ( dR  < bestDeltaR ) {
@@ -1400,8 +1405,8 @@ int HLTMuonGenericRate::findRecMatch
 
       
       if (recCandPhi < 0 && phi < 0) {
-        if ( kinem::delta_phi(phi, recCandPhi) < bestDphi) {
-          bestDphi = kinem::delta_phi(phi, recCandPhi);
+        if ( reco::deltaPhi(phi, recCandPhi) < bestDphi) {
+          bestDphi = reco::deltaPhi(phi, recCandPhi);
           bestMatch = i;          
         }
       }
@@ -1409,8 +1414,8 @@ int HLTMuonGenericRate::findRecMatch
      
       if (recCandPhi > 0 && phi > 0) {
         
-        if ( kinem::delta_phi(phi, recCandPhi) < bestDphi) {
-          bestDphi = kinem::delta_phi(phi, recCandPhi);
+        if ( reco::deltaPhi(phi, recCandPhi) < bestDphi) {
+          bestDphi = reco::deltaPhi(phi, recCandPhi);
           bestMatch = i;          
         }         
           
@@ -1469,7 +1474,7 @@ bool HLTMuonGenericRate::applyTrackSelection (MuonSelectionStruct mySelection, M
 
 bool HLTMuonGenericRate::applyTriggerSelection(MuonSelectionStruct mySelection, const Event & event) {
 
-  bool passedAllTriggers = false;
+  bool passedAnyTrigger = false;
   //  Look and your event selection criteria
   //  if you have a vector of size zero
   //  or if you have a vector with just an empty string
@@ -1573,22 +1578,22 @@ bool HLTMuonGenericRate::applyTriggerSelection(MuonSelectionStruct mySelection, 
 
   map<string,bool>::const_iterator iResult;
 
-  passedAllTriggers = true;
+  passedAnyTrigger = false;
 
-  LogTrace ("HLTMuonVal") << "And-ing trigger results together" <<endl;
+  LogTrace ("HLTMuonVal") << "OR-ing trigger results together" <<endl;
 
   
   for (iResult = firedTrigger.begin();
        iResult != firedTrigger.end();
        iResult ++) {
 
-    passedAllTriggers = passedAllTriggers && iResult->second;
+    passedAnyTrigger = passedAnyTrigger || iResult->second;
     
   }
 
-  LogTrace ("HLTMuonVal") << "Returning " << passedAllTriggers;
+  LogTrace ("HLTMuonVal") << "Returning " << passedAnyTrigger;
 
-  return passedAllTriggers;
+  return passedAnyTrigger;
   
 }
 

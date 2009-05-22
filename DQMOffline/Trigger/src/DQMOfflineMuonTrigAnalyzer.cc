@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.4 2009/05/20 11:17:52 slaunwhj Exp $
+// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.5 2009/05/21 13:27:11 slaunwhj Exp $
 //
 //
 
@@ -50,7 +50,7 @@ public:
   ~OfflineDQMMuonTrigAnalyzer();
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
@@ -133,6 +133,15 @@ OfflineDQMMuonTrigAnalyzer::OfflineDQMMuonTrigAnalyzer(const ParameterSet& pset)
   hltConfig.init(theHltProcessName);
   vector<string> validTriggerNames = hltConfig.triggerNames();
 
+  if (validTriggerNames.size() < 1) {
+    LogTrace ("HLTMuonVal") << endl << endl << endl
+                            << "---> WARNING: The HLT Config Provider gave you an empty list of valid trigger names" << endl
+                            << "Could be a problem with the HLT Process Name (you provided  " << theHltProcessName <<")" << endl
+                            << "W/o valid triggers we can't produce plots, exiting..."
+                            << endl << endl << endl;
+    return;
+  }
+
   vector<string>::const_iterator iDumpName;
   unsigned int numTriggers = 0;
   for (iDumpName = validTriggerNames.begin();
@@ -205,7 +214,7 @@ OfflineDQMMuonTrigAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetu
 
 
 void 
-OfflineDQMMuonTrigAnalyzer::beginJob(const EventSetup&)
+OfflineDQMMuonTrigAnalyzer::beginJob()
 {
   vector<HLTMuonGenericRate *>::iterator thisAnalyzer;
   for ( thisAnalyzer  = theTriggerAnalyzers.begin(); 

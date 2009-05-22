@@ -7,11 +7,23 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
     createStandAloneHistos = cms.untracked.bool(False),
 	histoFileName = cms.untracked.string("MuonTrigHistos_RECO.root"),
 
+   # The muon collection tag must point to a
+   # a group of muon-type objects, not just track objects									
+   RecoMuonInputTag = cms.InputTag("muons", "", ""),
+   BeamSpotInputTag = cms.InputTag("offlineBeamSpot", "", ""),
+   HltRawInputTag = cms.InputTag("hltTriggerSummaryRAW", "", ""),
+   HltAodInputTag = cms.InputTag("hltTriggerSummaryAOD", "", ""),
+   # This is still used
+   # to select based on trigger
+   TriggerResultLabel = cms.InputTag("TriggerResults","","HLT"),
+
+									
    # Define the cuts for your muon selections
    customCollection = cms.VPSet(
 
 	cms.untracked.PSet(
 	  collectionName = cms.untracked.string ("dqmBarrelMuons3"),
+	  # The track collection is just a switch, not a true collection name
 	  trackCollection = cms.untracked.string ("globalTrack"),
 	  requiredTriggers = cms.untracked.vstring(""),
 	  d0cut = cms.untracked.double(2.0),
@@ -65,9 +77,6 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
 	L2DrCut   = cms.untracked.double(0.25),
 	L3DrCut   = cms.untracked.double(0.015),								
 									
-	# This is still used
-	# to select based on trigger
-    TriggerResultLabel = cms.InputTag("TriggerResults","","HLT"),
 
     DQMStore = cms.untracked.bool(True),
 

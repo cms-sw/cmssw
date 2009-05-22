@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/05/20 11:17:54 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/05/21 13:27:13 $
+ *  $Revision: 1.7 $
  *  \author  M. Vander Donckt, J. Klukas  (copied from J. Alcaraz)
  *  \author  J. Slaunwhite (modified from above
  */
@@ -174,11 +174,16 @@ private:
   std::vector<std::string> theHltCollectionLabels;
   unsigned int             theNumberOfObjects;
 
-  bool         useMuonFromGenerator;
+  //bool         useMuonFromGenerator;
   bool         useMuonFromReco;
-  std::string  theGenLabel;
-  std::string  theRecoLabel;
-
+  //std::string  theGenLabel;
+  //std::string  theRecoLabel;
+  
+  edm::InputTag RecoMuonInputTag;
+  edm::InputTag BeamSpotInputTag;
+  edm::InputTag HltRawInputTag;
+  edm::InputTag HltAodInputTag;
+  
   bool         useAod;
   std::string  theAodL1Label;
   std::string  theAodL2Label;
