@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Tue Mar 18 15:15:30 CET 2008
-// $Id$
+// $Id: RPCConeConnectionsAna.cc,v 1.1 2008/04/09 11:06:16 fruboes Exp $
 //
 //
 
@@ -44,6 +44,8 @@
 #include "CondFormats/RPCObjects/interface/RPCEMap.h"
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 
+#include "CondFormats/L1TObjects/interface/L1RPCConeDefinition.h"
+#include "CondFormats/DataRecord/interface/L1RPCConeDefinitionRcd.h"
 
 
 //
@@ -109,13 +111,13 @@ RPCConeConnectionsAna::~RPCConeConnectionsAna()
 
 // ------------ method called to for each event  ------------
 void
-RPCConeConnectionsAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+RPCConeConnectionsAna::beginJob(const edm::EventSetup& evtSetup)
 {}
 
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-RPCConeConnectionsAna::beginJob(const edm::EventSetup& evtSetup)
+RPCConeConnectionsAna::analyze(const edm::Event& iEvent, const edm::EventSetup& evtSetup)
 {
 
     std::map<int,int> PACmap;
@@ -126,6 +128,10 @@ RPCConeConnectionsAna::beginJob(const edm::EventSetup& evtSetup)
 
     edm::ESHandle<RPCGeometry> rpcGeom;
     evtSetup.get<MuonGeometryRecord>().get(rpcGeom);
+
+   edm::ESHandle<L1RPCConeDefinition> coneDef;
+   evtSetup.get<L1RPCConeDefinitionRcd>().get(coneDef);
+
 
 
     edm::ESHandle<RPCEMap> nmap;
@@ -147,26 +153,28 @@ RPCConeConnectionsAna::beginJob(const edm::EventSetup& evtSetup)
  //     if (roll->id().station() != 2 || roll->id().ring() != 2) continue; 
 
 
+      std::pair<L1RPCConeBuilder::TCompressedConVec::const_iterator, 
+                    L1RPCConeBuilder::TCompressedConVec::const_iterator> 
+                    compressedConnPair = coneBuilder->getCompConVec(detId);
       //iterate over strips
       for (int strip = 0; strip< roll->nstrips(); ++strip){
 
+ 
+          /* old 
           std::pair<L1RPCConeBuilder::TStripConVec::const_iterator, 
                     L1RPCConeBuilder::TStripConVec::const_iterator> 
-                    itPair = coneBuilder->getConVec(detId, strip);
+                    itPair = coneBuilder->getConVec(detId, strip);*/
 
-          L1RPCConeBuilder::TStripConVec::const_iterator it = itPair.first;
+ //         L1RPCConeBuilder::TStripConVec::const_iterator it = itPair.first;
+ //         for (; it!=itPair.second;++it){
+        L1RPCConeBuilder::TCompressedConVec::const_iterator itComp = compressedConnPair.first;
+        for (; itComp!=compressedConnPair.second; ++itComp){
+            int logstrip = itComp->getLogStrip(strip, coneDef->getLPSizeVec());
+            if (logstrip==-1) continue; 
 
-
-          for (; it!=itPair.second;++it){
-            //logHits.push_back( RPCLogHit(it->m_tower, it->m_PAC, it->m_logplane, it->m_logstrip) );
             // iterate over all PACs 
             for (int tower = m_towerBeg; tower <= m_towerEnd;++tower){
-
-              if (it->m_tower != tower) continue;
-
-              if (itPair.first == itPair.second) {
-//                   std::cout << " Strip not connected : " << detId << " " << strip << " " << roll->id() << std::endl;
-              }
+              if (itComp->m_tower != tower) continue;
 
               for (int sector = m_sectorBeg; sector <= m_sectorEnd; ++sector){
 
@@ -176,12 +184,9 @@ RPCConeConnectionsAna::beginJob(const edm::EventSetup& evtSetup)
 
                 for(; PAC <= PACend; ++PAC){
 
-                   if (it->m_PAC != PAC ) continue;
+                   if (itComp->m_PAC != PAC ) continue;
                    ++PACmap[PAC];
 
-                /*   std::cout << "Testing PAC " << PAC 
-                             << " in tower " << tower 
-                             << std::endl;*/
   
                    LinkBoardElectronicIndex a;
                    std::pair< LinkBoardElectronicIndex, LinkBoardPackedStrip> linkStrip =
@@ -194,17 +199,14 @@ RPCConeConnectionsAna::beginJob(const edm::EventSetup& evtSetup)
                    for(CI=aVec.begin();CI!=aVec.end();CI++){
 
                      if(CI->first.dccInputChannelNum==dccInputChannel) linkStrip = *CI;
-                     /*if ( detId == 637567014){
-                        std::cout << "TMF  " << CI->first.dccInputChannelNum << std::endl;
-                     }*/
 
                    }
             
                    if(linkStrip.second.packedStrip()==-17) {
                      std::cout<< "BAD: PAC "<< PAC  << " tower "  << tower 
                               << " detId " << detId << " strip " << strip 
-                              << " lp " << (int)it->m_logplane
-                              << " ls "  << (int)it->m_logstrip
+                              << " lp " << (int)itComp->m_logplane
+                              << " ls "  << (int)logstrip
                               <<" "<< RPCDetId(detId) 
                               << std::endl; 
                      std::cout << "      -> " << aVec.begin()->first.dccId << " " << aVec.begin()->first.dccInputChannelNum 
@@ -221,12 +223,13 @@ RPCConeConnectionsAna::beginJob(const edm::EventSetup& evtSetup)
                      std::cout << phiRaw1 << " " << phiRawMax << std::endl; 
                    
                    } else {
-                    /* std::cout<<" OK: PAC "<< PAC  << " tower "  << tower 
+            /*
+                     std::cout<<" OK: PAC "<< PAC  << " tower "  << tower 
                               << " detId " << detId << " strip " << strip 
-                              << " lp " << (int)it->m_logplane
-                              << " ls "  << (int)it->m_logstrip
+                              << " lp " << (int)itComp->m_logplane
+                              << " ls "  << (int)logstrip
                               <<" "<< RPCDetId(detId) 
-                              << std::endl; */
+                              << std::endl;*/
                    }
 
               } // PAC iteration
