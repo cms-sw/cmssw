@@ -7,71 +7,98 @@ RPCRunIOV::RPCRunIOV(unsigned long long m_since, unsigned long long m_till)
   till  = m_till;
 }
 
-RPCRunIOV::~RPCRunIOV(){}
-
-std::vector<RPCObImon::I_Item> 
-RPCRunIOV::getData()
+RPCRunIOV::RPCRunIOV(const edm::EventSetup& evtSetup) 
 {
-  
-  std::cout << std::endl << "=============================================" << std::endl;
-  std::cout << std::endl << "============  RUN IOV ASSOCIATOR  ===========" << std::endl;
-  std::cout << std::endl << "=============================================" << std::endl << std::endl;
-  
-  
-  std::cout << ">> RUN start: " << since << std::endl;
-  std::cout << ">> RUN  stop: " << till << std::endl;
-  std::cout << std::endl << "=============================================" << std::endl << std::endl;
-
-  std::vector<unsigned long long> iov_vect;
-  RPCIOVReader iov_list ("sqlite_file:dati.db", "CMS_COND_GENERAL_R", "rd0548in");
-  iov_vect = iov_list.listIOV();
-  
-  
-
-   unsigned long long iov;
-   std::vector<unsigned long long> final_vect;
-   std::vector<unsigned long long>::iterator it, it_fin;
-
-   if (iov_vect.front() < since) {
-     for (it = iov_vect.begin(); it != iov_vect.end(); it++) {
-       iov = *(it);
-       //std::cout << iov << std::endl;
-       if (since < iov && iov < till) {
-	 if (final_vect.size() == 0) {
-	   *it--;
-	   final_vect.push_back(*it);
-	   *it++;
-	 } 
-	 final_vect.push_back(iov); 
-       } 
-     }
-     std::cout << std::endl << "=============================================" << std::endl;
-     std::cout <<              "        Accessing the following IOVs\n        "<< std::endl; 
-     for (it_fin = final_vect.begin(); it_fin != final_vect.end(); it_fin++) {
-       iov = *(it_fin);
-       std::cout << iov << "\n";
-     }
-   } else {
-     std::cout << "   WARNING: run not included in data range\n";
-   }
-
-   std::vector<RPCObImon::I_Item> IMON;
-   IMON = iov_list.getIMON(final_vect.front(), final_vect.back());
-   std::cout << "\n>> Imon vector created --> size: " << IMON.size() << std::endl;
-   
-   // PRINT
-//    RPCObImon::I_Item temp;
-//    std::string day,time;
-//    for (std::vector<RPCObImon::I_Item>::iterator ii = IMON.begin(); ii != IMON.end(); ii++) {
-//      temp = *(ii);
-//      day  = iov_list.toDay(temp.day);
-//      time = iov_list.toTime(temp.time);
-//      std::cout << "ID: " << temp.dpid << " - Val: " << temp.value << " - Day: " << day << " - Time: " << time << std::endl;
-//    }
-
-   return IMON;
-
+  eventSetup = &evtSetup;
 }
 
-//define this as a plug-in
-//DEFINE_FWK_MODULE(RPCRunIOV);
+
+std::vector<RPCObImon::I_Item>
+RPCRunIOV::getImon() {
+
+  edm::ESHandle<RPCObImon> condRcd;
+  eventSetup->get<RPCObImonRcd>().get(condRcd);
+  edm::LogInfo("CondReader") << "[CondReader] Reading Cond" << std::endl;
+  
+  std::cout << std::endl << "=============================================" << std::endl;
+  std::cout << std::endl << "==================  READER  =================" << std::endl;
+  std::cout << std::endl << "=============================================" << std::endl << std::endl;
+  
+  
+  const RPCObImon* cond = condRcd.product();
+  std::vector<RPCObImon::I_Item> mycond = cond->ObImon_rpc; 
+  std::vector<RPCObImon::I_Item>::iterator icond;
+  
+  std::cout << "--> size: " << mycond.size() << std::endl;
+  
+  std::cout << "************************************" << std::endl;
+  std::vector<RPCObImon::I_Item>::iterator first;
+  first = mycond.begin();
+  min = this->toUNIX(first->day, first->time);
+  max = min;
+  unsigned long long value;
+  for(icond = mycond.begin(); icond < mycond.end(); ++icond){
+    value = this->toUNIX(icond->day, icond->time);
+    if (value < min) min = value;
+    if (value > max) max = value;
+  }
+  return mycond;
+}
+
+
+RPCRunIOV::~RPCRunIOV(){}
+
+bool
+RPCRunIOV::isReadingNeeded(unsigned long long value)
+{
+  if (value < min || value > max) return true;
+
+  return false;
+}
+
+
+unsigned long long 
+RPCRunIOV::toDAQ(unsigned long long timeU)
+{
+  ::timeval tv;
+  tv.tv_sec = timeU;
+  tv.tv_usec = 0;
+  edm::TimeValue_t daqtime=0LL;
+  daqtime=tv.tv_sec;
+  daqtime=(daqtime<<32)+tv.tv_usec;
+  edm::Timestamp daqstamp(daqtime);
+  edm::TimeValue_t dtime_ = daqstamp.value();
+  unsigned long long dtime = dtime_;
+  return dtime;
+}
+
+
+unsigned long long 
+RPCRunIOV::toUNIX(int date, int time)
+{
+  int yea_ = (int)date/100; 
+  int yea = 2000 + (date - yea_*100);
+  int mon_ = (int)yea_/100;
+  int mon = yea_ - mon_*100;
+  int day = (int)yea_/100;
+  int sec_ = (int)time/100;
+  int sec = time - sec_*100;
+  int min_ = (int)sec_/100;
+  int min = sec_ - min_*100;
+  int hou = (int)sec_/100;
+  int nan = 0;
+  
+  coral::TimeStamp TS;  
+  TS = coral::TimeStamp(yea, mon, day, hou, min, sec, nan);
+  
+  RPCFw* conv = new RPCFw ("","","");
+  unsigned long long UT = conv->TtoUT(TS);
+  
+  //  std::cout << date << " - " << time << " <<>> " << UT << std::endl;
+  
+  return UT;
+}
+
+
+
+
