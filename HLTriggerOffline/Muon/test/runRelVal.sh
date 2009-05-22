@@ -43,7 +43,7 @@ FILES=`echo $FILES | sed 's/,,,,//'`
 cat muonTriggerRateTimeAnalyzer_cfg.py | sed "s:\(fileNames.*\)vstring():\1vstring($FILES):" | sed "s:\(secondaryFileNames.*\)vstring():\1vstring($SECFILES):" > ana.py
 
 cmsRun ana.py
-#cmsRun PostProcessor_cfg.py
+cmsRun PostProcessor_cfg.py
 
-#jobName=`echo $HLTDEBUGPATH | sed "s/\/RelVal\(.*\)\/CMSSW_\(.*\)\/.*/\1_\2/"`
-#mv PostProcessor.root $jobName.root
+jobName=`echo $HLTDEBUGPATH | sed "s/\/RelVal\(.*\)\/CMSSW_\(.*\)\/.*/\1_\2/"`
+mv PostProcessor.root $jobName.root
