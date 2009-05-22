@@ -23,9 +23,82 @@ options.register('outputDBAuth',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Authentication path for outputDB")
+options.register('keysFromDB',
+                 1, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "1 = read keys from OMDS, 0 = read keys from command line")
+
+# arguments for setting object keys by hand
+options.register('runNumber',
+                 0, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Dummy argument")
+options.register('L1MuDTTFMasksRcdKey',
+                 'dummy', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Object key")
+options.register('L1MuGMTChannelMaskRcdKey',
+                 'dummy', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Object key")
+options.register('L1RCTChannelMaskRcdKey',
+                 'dummy', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Object key")
+options.register('L1GctChannelMaskRcdKey',
+                 'dummy', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Object key")
+options.register('L1GtPrescaleFactorsAlgoTrigRcdKey',
+                 'dummy', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Object key")
+options.register('L1GtPrescaleFactorsTechTrigRcdKey',
+                 'dummy', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Object key")
+options.register('L1GtTriggerMaskAlgoTrigRcdKey',
+                 'dummy', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Object key")
+options.register('L1GtTriggerMaskTechTrigRcdKey',
+                 'dummy', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Object key")
+options.register('L1GtTriggerMaskVetoTechTrigRcdKey',
+                 'dummy', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Object key")
+
 options.parseArguments()
 
-process.load("CondTools.L1Trigger.L1ConfigRSKeys_cff")
+if options.keysFromDB == 1:
+    process.load("CondTools.L1Trigger.L1ConfigRSKeys_cff")
+else:
+    process.load("CondTools.L1Trigger.L1TriggerKeyDummy_cff")
+    from CondTools.L1Trigger.L1RSSubsystemParams_cfi import initL1RSSubsystems
+    initL1RSSubsystems( tagBase = options.tagBase,
+                        L1MuDTTFMasksRcdKey = options.L1MuDTTFMasksRcdKey,
+                        L1MuGMTChannelMaskRcdKey = options.L1MuGMTChannelMaskRcdKey,
+                        L1RCTChannelMaskRcdKey = options.L1RCTChannelMaskRcdKey,
+                        L1GctChannelMaskRcdKey = options.L1GctChannelMaskRcdKey,
+                        L1GtPrescaleFactorsAlgoTrigRcdKey = options.L1GtPrescaleFactorsAlgoTrigRcdKey,
+                        L1GtPrescaleFactorsTechTrigRcdKey = options.L1GtPrescaleFactorsTechTrigRcdKey,
+                        L1GtTriggerMaskAlgoTrigRcdKey = options.L1GtTriggerMaskAlgoTrigRcdKey,
+                        L1GtTriggerMaskTechTrigRcdKey = options.L1GtTriggerMaskTechTrigRcdKey,
+                        L1GtTriggerMaskVetoTechTrigRcdKey = options.L1GtTriggerMaskVetoTechTrigRcdKey )
+    process.L1TriggerKeyDummy.objectKeys = initL1RSSubsystems.params.recordInfo
 
 # Get L1TriggerKeyList from DB
 process.load("CondCore.DBCommon.CondDBCommon_cfi")

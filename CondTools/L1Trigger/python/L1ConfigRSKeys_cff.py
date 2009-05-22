@@ -4,7 +4,13 @@ L1TriggerKeyDummy.objectKeys = cms.VPSet()
 L1TriggerKeyDummy.label = "SubsystemKeysOnly"
 
 # Generate object keys for each subsystem
+from L1TriggerConfig.DTTrackFinder.L1DTTFRSKeysOnline_cfi import *
+
 from L1TriggerConfig.RCTConfigProducers.RCT_RSKeysOnline_cfi import *
+
+from L1TriggerConfig.GctConfigProducers.L1GctRSObjectKeysOnline_cfi import *
+L1GctRSObjectKeysOnline.subsystemLabel = "GCT"
+
 from L1TriggerConfig.GMTConfigProducers.L1MuGMTRSKeysOnline_cfi import *
 
 from L1TriggerConfig.L1GtConfigProducers.l1GtRsObjectKeysOnline_cfi import *
@@ -17,4 +23,4 @@ l1GtRsObjectKeysOnline.subsystemLabel = "GT"
 
 # Collate subsystem object keys
 from CondTools.L1Trigger.L1TriggerKeyOnline_cfi import *
-L1TriggerKeyOnline.subsystemLabels = cms.vstring( 'RCT_', 'L1MuGMT', 'GT' )
+L1TriggerKeyOnline.subsystemLabels = cms.vstring( 'DTTF', 'RCT_', 'GCT', 'L1MuGMT', 'GT' )

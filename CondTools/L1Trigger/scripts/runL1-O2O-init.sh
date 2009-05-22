@@ -24,7 +24,6 @@ tagbase=$1
 if [ ${xflag} -eq 0 ]
     then
     echo "Setting up sqlite_file:l1config.db"
-#    cmscond_bootstrap_detector -D L1T -f /nfshome0/l1emulator/o2o/conddb/dbconfigSqlite.xml -b $CMSSW_BASE
     cmscond_bootstrap_detector -D L1T -f $CMSSW_BASE/src/CondTools/L1Trigger/test/dbconfiguration.xml -b $CMSSW_BASE
     cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/init_cfg.py tagBase=${tagbase}_hlt outputDBConnect=sqlite_file:l1config.db outputDBAuth=.
 else
