@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:29 EST 2008
-// $Id: FWGUISubviewArea.h,v 1.18 2009/04/09 15:09:58 amraktad Exp $
+// $Id: FWGUISubviewArea.h,v 1.19 2009/04/09 15:45:05 amraktad Exp $
 //
 
 #include "TGFrame.h"
@@ -68,6 +68,7 @@ public:
    sigc::signal<void, FWGUISubviewArea*> unselected_;
 
    void configurePrimaryView();
+   void setInfoButton(bool downp);
 
    TEveWindow* getEveWindow();
    FWViewBase* getFWView();

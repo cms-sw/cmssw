@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:12 EDT 2008
-// $Id: CmsShowViewPopup.h,v 1.6 2009/01/23 21:35:40 amraktad Exp $
+// $Id: CmsShowViewPopup.h,v 1.7 2009/04/13 16:12:44 chrjones Exp $
 //
 
 // system include files
@@ -35,12 +35,13 @@ class TGButton;
 class TGFrame;
 class FWParameterSetterBase;
 class FWColorManager;
+class FWGUISubviewArea;
 
 class CmsShowViewPopup : public TGTransientFrame, public FWParameterSetterEditorBase
 {
 
 public:
-   CmsShowViewPopup(const TGWindow* p = 0, UInt_t w = 0, UInt_t h = 0, FWColorManager* cm=0, FWViewBase* v = 0);
+   CmsShowViewPopup(const TGWindow* p = 0, UInt_t w = 0, UInt_t h = 0, FWColorManager* cm=0, FWViewBase* v = 0, FWGUISubviewArea *sva = 0);
    virtual ~CmsShowViewPopup();
 
    // ---------- const member functions ---------------------
@@ -48,7 +49,9 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   void reset(FWViewBase* iView);
+   virtual void CloseWindow();
+
+   void reset(FWViewBase* iView, FWGUISubviewArea* sva);
    void removeView();
 
    void saveImage();
@@ -68,6 +71,8 @@ private:
    FWViewBase* m_view;
    std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
    FWColorManager* m_colorManager;
+
+   FWGUISubviewArea* m_viewArea;
 };
 
 

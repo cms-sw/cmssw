@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.8 2009/01/23 21:35:42 amraktad Exp $
+// $Id: CmsShowViewPopup.cc,v 1.9 2009/04/13 16:12:44 chrjones Exp $
 //
 
 // system include files
@@ -25,6 +25,7 @@
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWParameterSetterBase.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
+#include "Fireworks/Core/interface/FWGUISubviewArea.h"
 
 //
 // constants, enums and typedefs
@@ -37,11 +38,12 @@
 //
 // constructors and destructor
 //
-CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWColorManager* iCMgr, FWViewBase* v) :
+CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWColorManager* iCMgr, FWViewBase* v, FWGUISubviewArea* va) :
    TGTransientFrame(gClient->GetDefaultRoot(),p, w, h),
    m_colorManager(iCMgr)
 {
    m_view = v;
+   m_viewArea = va;
    SetCleanup(kDeepCleanup);
    m_colorManager->colorsHaveChanged_.connect(boost::bind(&CmsShowViewPopup::backgroundColorWasChanged,this));
    
@@ -117,15 +119,31 @@ CmsShowViewPopup::~CmsShowViewPopup()
 //
 // member functions
 //
+
 void
-CmsShowViewPopup::reset(FWViewBase* iView) {
+CmsShowViewPopup::CloseWindow()
+{
+   UnmapWindow();
+   if (m_viewArea)
+   {
+      m_viewArea->setInfoButton(false);
+   }
+}
+
+
+void
+CmsShowViewPopup::reset(FWViewBase* iView, FWGUISubviewArea* sva) {
+
    //  m_viewContentFrame->RemoveFrame(m_view->frame());
    //  m_viewContentFrame->AddFrame(iView->frame());
    m_view = iView;
+   m_viewArea = sva;
+
    m_viewContentFrame->UnmapWindow();
    RemoveFrame(m_viewContentFrame);
    m_viewContentFrame->DestroyWindow();
    delete m_viewContentFrame;
+
    m_viewContentFrame = new TGCompositeFrame(this);
    m_setters.clear();
    if(iView) {

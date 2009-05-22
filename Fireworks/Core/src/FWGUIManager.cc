@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.124 2009/05/19 10:21:07 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.125 2009/05/20 16:33:40 amraktad Exp $
 //
 
 // system include files
@@ -428,7 +428,7 @@ void
 FWGUIManager::subviewIsBeingDestroyed(FWGUISubviewArea* sva)
 {
    if(sva->isSelected()) {
-      if(0!= m_viewPopup) {refillViewPopup(0);}
+      if(0!= m_viewPopup) {refillViewPopup(0, 0);}
    }
 
    CmsShowTaskExecutor::TaskFunctor f;
@@ -460,14 +460,20 @@ FWGUIManager::subviewDestroy(FWGUISubviewArea* sva)
 void
 FWGUIManager::subviewSelected(FWGUISubviewArea* sva)
 {
+   for (std::vector<TEveWindow*>::iterator it = m_viewWindows.begin(); it != m_viewWindows.end(); it++)
+   {
+      FWGUISubviewArea* ar = getGUISubviewArea(*it);
+      ar->setInfoButton(ar == sva);
+   }
+
    showViewPopup();
-   refillViewPopup(sva->getFWView());
+   refillViewPopup(sva->getFWView(), sva);
 }
 
 void
-FWGUIManager::subviewUnselected(FWGUISubviewArea* /*sva*/)
+FWGUIManager::subviewUnselected(FWGUISubviewArea* sva)
 {
-   if(m_viewPopup) {refillViewPopup(0);}
+   if(m_viewPopup) {refillViewPopup(0, sva);}
 }
 
 void
@@ -601,8 +607,8 @@ FWGUIManager::createViewPopup() {
 }
 
 void
-FWGUIManager::refillViewPopup(FWViewBase* iView) {
-   m_viewPopup->reset(iView);
+FWGUIManager::refillViewPopup(FWViewBase* iView, FWGUISubviewArea* sva) {
+   m_viewPopup->reset(iView, sva);
 }
 
 void

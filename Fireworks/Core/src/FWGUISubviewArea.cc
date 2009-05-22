@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.26 2009/04/09 18:18:56 amraktad Exp $
+// $Id: FWGUISubviewArea.cc,v 1.27 2009/05/01 02:01:34 dmytro Exp $
 //
 
 // system include files
@@ -91,7 +91,6 @@ FWGUISubviewArea::FWGUISubviewArea(TEveCompositeFrame* ef, TGCompositeFrame* par
    AddFrame(m_closeButton, new TGLayoutHints(lh));
    m_closeButton->Connect("Clicked()", "FWGUISubviewArea",this,"destroy()");
 
-   
    // gui manager callbacks
    FWGUIManager* mng = FWGUIManager::getGUIManager();
    goingToBeDestroyed_.connect(boost::bind(&FWGUIManager::subviewIsBeingDestroyed,mng,_1));
@@ -128,7 +127,7 @@ FWGUISubviewArea::selectButtonUp()
 void
 FWGUISubviewArea::unselect()
 {
-   m_infoButton->SetDown(kFALSE);
+   m_infoButton->SetState(kButtonUp);
 }
 
 void
@@ -327,4 +326,10 @@ FWGUISubviewArea::infoDisabledIcon()
       s_icon = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"info-disabled.png");
    }
    return s_icon;
+}
+
+void
+FWGUISubviewArea::setInfoButton(bool downp)
+{
+   m_infoButton->SetState(downp ? kButtonDown : kButtonUp, false);
 }

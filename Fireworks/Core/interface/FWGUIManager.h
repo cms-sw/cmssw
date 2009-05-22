@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.65 2009/05/19 10:21:07 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.66 2009/05/20 16:33:39 amraktad Exp $
 //
 
 // system include files
@@ -122,7 +122,7 @@ public:
    void showModelPopup();
 
    void createViewPopup();
-   void refillViewPopup(FWViewBase* iView);
+   void refillViewPopup(FWViewBase* iView, FWGUISubviewArea* sva);
    void showViewPopup();
 
    // help
