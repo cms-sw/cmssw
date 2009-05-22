@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2008/12/03 15:03:17 $
- * $Revision: 1.46 $
+ * $Date: 2008/12/04 06:22:48 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  *
 */
@@ -414,9 +414,12 @@ void EELedTask::endJob(void){
 void EELedTask::analyze(const Event& e, const EventSetup& c){
 
   bool enable = false;
-  int runType[18] = { -1 };
-  int rtHalf[18] = { -1 };
-  int waveLength[18] = { -1 };
+  int runType[18];
+  for (int i=0; i<18; i++) runType[i] = -1;
+  int rtHalf[18];
+  for (int i=0; i<18; i++) rtHalf[i] = -1;
+  int waveLength[18];
+  for (int i=0; i<18; i++) waveLength[i] = -1;
 
   Handle<EcalRawDataCollection> dcchs;
 

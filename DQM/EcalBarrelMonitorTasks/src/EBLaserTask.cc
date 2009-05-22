@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2008/12/03 15:03:16 $
- * $Revision: 1.120 $
+ * $Date: 2008/12/04 06:22:48 $
+ * $Revision: 1.121 $
  * \author G. Della Ricca
  *
 */
@@ -704,9 +704,12 @@ void EBLaserTask::endJob(void){
 void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
   bool enable = false;
-  int runType[36] = { -1 };
-  int rtHalf[36] = { -1 };
-  int waveLength[36] = { -1 };
+  int runType[36];
+  for (int i=0; i<36; i++) runType[i] = -1;
+  int rtHalf[36];
+  for (int i=0; i<36; i++) rtHalf[i] = -1;
+  int waveLength[36];
+  for (int i=0; i<36; i++) waveLength[i] = -1;
 
   Handle<EcalRawDataCollection> dcchs;
 

@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2008/12/03 15:03:16 $
- * $Revision: 1.90 $
+ * $Date: 2008/12/04 06:22:48 $
+ * $Revision: 1.91 $
  * \author G. Della Ricca
  *
 */
@@ -266,7 +266,8 @@ void EBPedestalTask::endJob(void){
 void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
   bool enable = false;
-  int runType[36] = { -1 };
+  int runType[36];
+  for (int i=0; i<36; i++) runType[i] = -1;
 
   Handle<EcalRawDataCollection> dcchs;
 

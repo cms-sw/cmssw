@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2008/12/03 13:55:43 $
- * $Revision: 1.108 $
+ * $Date: 2008/12/04 06:22:48 $
+ * $Revision: 1.109 $
  * \author G. Della Ricca
  *
 */
@@ -184,7 +184,8 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
 
   bool isData = true;
   bool enable = false;
-  int runType[36] = { -1 };
+  int runType[36];
+  for (int i=0; i<36; i++) runType[i] = -1;
 
   Handle<EcalRawDataCollection> dcchs;
 
