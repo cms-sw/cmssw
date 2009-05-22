@@ -9,6 +9,7 @@
 # else
 #  include <string>
 #  include <vector>
+#  include <map>
 
 namespace edm
 {
@@ -41,14 +42,19 @@ namespace edm
   struct Service
   {
     bool isAvailable(void) { return false; }
-    T *operator->(void) { static T x(ParameterSet()); return &x; }
+    T *operator->(void)
+    {
+      static char buf[sizeof(T)]; static T *x;
+      if (! x) x = new (buf) T(ParameterSet());
+      return x;
+    }
     T &operator*(void) { return * operator->(); }
   };
 
   struct JobReport
   {
     JobReport(const edm::ParameterSet &) {}
-    reportAnalysisFile(const std::string &, const std::map<std::string, std::string> &) {}
+    void reportAnalysisFile(const std::string &, const std::map<std::string, std::string> &) {}
   };
 }
 # endif // WITHOUT_CMS_FRAMEWORK
