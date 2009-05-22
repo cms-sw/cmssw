@@ -1,3 +1,14 @@
+2009-05-22  Kurt Biery <biery@fnal.gov>
+
+	* tag V01-08-13
+	* Added the allowMissingSM configuration parameter to control
+	  whether we require all storage managers in the SMRegistrationList
+	  to be present before fetching events.  When the allowMissingSM
+	  parameter is set to true, the SMPS will fetch events from the
+	  SMs that are available and periodically attempt to contact the
+	  missing SMs.  When it is set to false (the default), it tries
+	  forever to contact the missing SMs before fetching any events.
+
 2009-05-04  Kurt Biery <biery@fnal.gov>
 
 	* tag V01-08-12
