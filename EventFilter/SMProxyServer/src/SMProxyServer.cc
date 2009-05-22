@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.29 2009/04/17 20:09:33 biery Exp $
+// $Id: SMProxyServer.cc,v 1.30 2009/05/04 20:47:41 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -146,6 +146,8 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("DQMconsumerQueueSize",&DQMconsumerQueueSize_);
   esSelectedHLTOutputModule_ = "hltOutputDQM";
   ispace->fireItemAvailable("esSelectedHLTOutputModule",&esSelectedHLTOutputModule_);
+  allowMissingSM_ = false;
+  ispace->fireItemAvailable("allowMissingSM",&allowMissingSM_);
 
   // for performance measurements
   ispace->fireItemAvailable("receivedSamples4Stats",&samples_);
@@ -2943,6 +2945,7 @@ void SMProxyServer::setupFlashList()
   is->fireItemAvailable("idleConsumerTimeout",  &idleConsumerTimeout_);
   is->fireItemAvailable("consumerQueueSize",    &consumerQueueSize_);
   is->fireItemAvailable("esSelectedHLTOutputModule",&esSelectedHLTOutputModule_);
+  is->fireItemAvailable("allowMissingSM",       &allowMissingSM_);
   //is->fireItemAvailable("fairShareES",          &fairShareES_);
 
   //----------------------------------------------------------------------------
@@ -2989,6 +2992,7 @@ void SMProxyServer::setupFlashList()
   is->addItemRetrieveListener("idleConsumerTimeout",  this);
   is->addItemRetrieveListener("consumerQueueSize",    this);
   is->addItemRetrieveListener("esSelectedHLTOutputModule",this);
+  is->addItemRetrieveListener("allowMissingSM",       this);
   //is->addItemRetrieveListener("fairShareES",          this);
   //----------------------------------------------------------------------------
 }
@@ -3072,6 +3076,7 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
     try {
       dpm_.reset(new stor::DataProcessManager());
       dpm_->setHLTOutputModule(esSelectedHLTOutputModule_);
+      dpm_->setAllowMissingSM(allowMissingSM_);
       
       boost::shared_ptr<EventServer>
         eventServer(new EventServer(maxESEventRate_, maxESDataRate_,
