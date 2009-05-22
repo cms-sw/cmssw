@@ -29,7 +29,6 @@ public :
   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
   Int_t           fCurrent; //!current Tree number in a TChain
 
-  
   // logic parser for m_l1SeedsLogicalExpression
   L1GtLogicParser m_l1AlgoLogicParser;
   void OHltTree::SetLogicParser(std::string l1SeedsLogicalExpression);
@@ -149,8 +148,10 @@ public :
   Float_t         ohPhotHiso[8000];   //[NohPhot]
   Float_t         ohPhotTiso[8000];   //[NohPhot]
   Int_t           ohPhotL1iso[8000];   //[NohPhot]
-  Float_t         ohPhotClusShap[8000];   //[NohEle]   
   Int_t           NohEle;
+  Float_t         ohEleClusShap[8000];   //[NohEle]
+  Float_t         ohEleDeta[8000];   //[NohEle]
+  Float_t         ohEleDphi[8000];   //[NohEle]
   Float_t         ohEleEt[8000];   //[NohEle]
   Float_t         ohEleEta[8000];   //[NohEle]
   Float_t         ohElePhi[8000];   //[NohEle]
@@ -161,10 +162,10 @@ public :
   Int_t           ohEleL1iso[8000];   //[NohEle]
   Int_t           ohElePixelSeeds[8000];   //[NohEle]
   Int_t           ohEleNewSC[8000];   //[NohEle]
-  Float_t         ohEleClusShap[8000];   //[NohEle] 
-  Float_t         ohEleDeta[8000];   //[NohEle]  
-  Float_t         ohEleDphi[8000];   //[NohEle]   
   Int_t           NohEleLW;
+  Float_t         ohEleClusShapLW[8000];   //[NohEle]
+  Float_t         ohEleDetaLW[8000];   //[NohEle]
+  Float_t         ohEleDphiLW[8000];   //[NohEle]
   Float_t         ohEleEtLW[11000];   //[NohEleLW]
   Float_t         ohEleEtaLW[11000];   //[NohEleLW]
   Float_t         ohElePhiLW[11000];   //[NohEleLW]
@@ -175,9 +176,6 @@ public :
   Int_t           ohEleL1isoLW[11000];   //[NohEleLW]
   Int_t           ohElePixelSeedsLW[11000];   //[NohEleLW]
   Int_t           ohEleNewSCLW[11000];   //[NohEleLW]
-  Float_t         ohEleClusShapLW[8000];   //[NohEle]   
-  Float_t         ohEleDetaLW[8000];   //[NohEle]    
-  Float_t         ohEleDphiLW[8000];   //[NohEle]     
   Int_t           NrecoMuon;
   Float_t         recoMuonPt[5000];   //[NrecoMuon]
   Float_t         recoMuonPhi[5000];   //[NrecoMuon]
@@ -286,18 +284,27 @@ public :
   bool ohPhotL1Dupl[8000]; 
 
   //L1's
-  /*
+  /* For 8E29 Menu */
+  Int_t           L1_DoubleEG05_TopBottom;
+  Int_t           L1_DoubleMuTopBottom; 
+  Int_t           L1_Mu3QE8_Jet6;  
+  Int_t           L1_Mu5QE8_Jet6; 
+  Int_t           L1_IsoEG10_Jet6_ForJet6; 
+
+  Int_t           L1_SingleJet20; 
+  Int_t           L1_SingleJet40; 
+  Int_t           L1_SingleJet60; 
+  Int_t           L1_DoubleJet30;  
+  Int_t           L1_SingleTauJet10; 
+  Int_t           L1_SingleTauJet20; 
+  Int_t           L1_SingleTauJet50; 
+  Int_t           L1_DoubleTauJet14; 
+
+  /*  
   Int_t           L1_DoubleEG10; 
   Int_t           L1_DoubleEG1; 
   Int_t           L1_DoubleEG5; 
   Int_t           L1_DoubleForJet20; 
-  Int_t           L1_DoubleHfBitCountsRing1_P1N1; 
-  Int_t           L1_DoubleHfBitCountsRing2_P1N1; 
-  Int_t           L1_DoubleHfRingEtSumsRing1_P200N200; 
-  Int_t           L1_DoubleHfRingEtSumsRing1_P4N4; 
-  Int_t           L1_DoubleHfRingEtSumsRing2_P200N200; 
-  Int_t           L1_DoubleHfRingEtSumsRing2_P4N4; 
-  Int_t           L1_DoubleIsoEG05_TopBottom; 
   Int_t           L1_DoubleIsoEG05_TopBottomCen; 
   Int_t           L1_DoubleIsoEG10; 
   Int_t           L1_DoubleIsoEG8; 
@@ -352,12 +359,6 @@ public :
   Int_t           L1_SingleEG8; 
   Int_t           L1_SingleForJet10; 
   Int_t           L1_SingleForJet6; 
-  Int_t           L1_SingleHfBitCountsRing1_1; 
-  Int_t           L1_SingleHfBitCountsRing2_1; 
-  Int_t           L1_SingleHfRingEtSumsRing1_200; 
-  Int_t           L1_SingleHfRingEtSumsRing1_4; 
-  Int_t           L1_SingleHfRingEtSumsRing2_200; 
-  Int_t           L1_SingleHfRingEtSumsRing2_4; 
   Int_t           L1_SingleIsoEG10; 
   Int_t           L1_SingleIsoEG12; 
   Int_t           L1_SingleIsoEG15; 
@@ -409,6 +410,10 @@ public :
   Int_t           L1_SingleJet6;  
   Int_t           L1_ETM30;  
 
+  Int_t           L1_QuadJet6; 
+  Int_t           L1_TripleJet14; 
+
+  
   Int_t           L1_DoubleEG1; 
   Int_t           L1_DoubleEG5; 
   Int_t           L1_DoubleHfBitCountsRing1_P1N1; 
@@ -479,7 +484,6 @@ public :
   // Here we declare any emulated L1 bits 
   Int_t           OpenL1_ZeroBias;
   Int_t           OpenL1_Mu3EG5; 
-  Int_t           OpenL1_EG5_HTT100;
 
   // JH - 1E31 MC menu
   Int_t           HLTriggerFirstPath; 
@@ -986,8 +990,10 @@ public :
   TBranch        *b_ohPhotHiso;   //!
   TBranch        *b_ohPhotTiso;   //!
   TBranch        *b_ohPhotL1iso;   //!
-  TBranch        *b_ohPhotClusShap;   //!    
   TBranch        *b_NohEle;   //!
+  TBranch        *b_ohEleClusShap;   //!
+  TBranch        *b_ohEleDeta;   //!
+  TBranch        *b_ohEleDphi;   //!
   TBranch        *b_ohEleEt;   //!
   TBranch        *b_ohEleEta;   //!
   TBranch        *b_ohElePhi;   //!
@@ -998,10 +1004,10 @@ public :
   TBranch        *b_ohEleL1iso;   //!
   TBranch        *b_ohElePixelSeeds;   //!
   TBranch        *b_ohEleNewSC;   //!
-  TBranch        *b_ohEleClusShap;   //!  
-  TBranch        *b_ohEleDeta;   //!   
-  TBranch        *b_ohEleDphi;   //!    
   TBranch        *b_NohEleLW;   //!
+  TBranch        *b_ohEleClusShapLW;   //!
+  TBranch        *b_ohEleDetaLW;   //!
+  TBranch        *b_ohEleDphiLW;   //!
   TBranch        *b_ohEleEtLW;   //!
   TBranch        *b_ohEleEtaLW;   //!
   TBranch        *b_ohElePhiLW;   //!
@@ -1012,9 +1018,6 @@ public :
   TBranch        *b_ohEleL1isoLW;   //!
   TBranch        *b_ohElePixelSeedsLW;   //!
   TBranch        *b_ohEleNewSCLW;   //!
-  TBranch        *b_ohEleClusShapLW;   //!    
-  TBranch        *b_ohEleDetaLW;   //!     
-  TBranch        *b_ohEleDphiLW;   //!      
   TBranch        *b_NrecoMuon;   //!
   TBranch        *b_recoMuonPt;   //!
   TBranch        *b_recoMuonPhi;   //!
@@ -1118,6 +1121,18 @@ public :
   TBranch        *b_Run;   //!
   TBranch        *b_Event;   //!
 
+  TBranch        *b_L1_DoubleMuTopBottom;   //! 
+  TBranch        *b_L1_DoubleEG05_TopBottom;   //! 
+  TBranch           *b_L1_SingleJet20; 
+  TBranch           *b_L1_SingleJet40; 
+  TBranch           *b_L1_SingleJet60; 
+  TBranch           *b_L1_DoubleJet30;  
+  TBranch           *b_L1_SingleTauJet10; 
+  TBranch           *b_L1_SingleTauJet20; 
+  TBranch           *b_L1_SingleTauJet50; 
+  TBranch           *b_L1_DoubleTauJet14; 
+  TBranch        *b_L1_IsoEG10_Jet6_ForJet6;   //! 
+
   //L1's
   /*
   TBranch        *b_L1_DoubleEG10;   //! 
@@ -1139,7 +1154,6 @@ public :
   TBranch        *b_L1_DoubleJet60;   //! 
   TBranch        *b_L1_DoubleMu3;   //! 
   TBranch        *b_L1_DoubleMuOpen;   //! 
-  TBranch        *b_L1_DoubleMuTopBottom;   //! 
   TBranch        *b_L1_DoubleEG05_TopBottom;   //!  
   TBranch        *b_L1_DoubleNoIsoEG05_TopBottom;   //! 
   TBranch        *b_L1_DoubleNoIsoEG05_TopBottomCen;   //! 
@@ -1240,6 +1254,8 @@ public :
   TBranch        *b_L1_EG5_TripleJet6; //!   
   TBranch        *b_L1_SingleJet6; //!  
   TBranch        *b_L1_ETM30; //!  
+  TBranch        *b_L1_QuadJet6;   //! 
+  TBranch        *b_L1_TripleJet14;   //!  
 
   TBranch        *b_L1_DoubleEG1;   //! 
   TBranch        *b_L1_DoubleEG5;   //! 
@@ -1267,6 +1283,8 @@ public :
   TBranch        *b_L1_Mu3QE8_EG5;   //!
   TBranch        *b_L1_Mu3QE8_Jet15;   //!  
   TBranch        *b_L1_Mu5QE8_Jet15;   //! 
+  TBranch        *b_L1_Mu3QE8_Jet6;   //!  
+  TBranch        *b_L1_Mu5QE8_Jet6;   //! 
   TBranch        *b_L1_QuadJet15;   //! 
   TBranch        *b_L1_SingleEG1;   //! 
   TBranch        *b_L1_SingleEG10;   //! 
@@ -1761,23 +1779,25 @@ public :
 					 float tauEt,float tauL25Tpt, int tauL25Tiso, float tauL3Tpt, int tauL3Tiso);
   int OpenHlt1ElectronPassed(float Et,int L1iso,float Tiso,float Hiso);
   int OpenHlt1LWElectronPassed(float Et,int L1iso,float Tiso,float Hiso); 
-  int OpenHlt1ElectronEleIDPassed(float Et,int L1iso,float Tiso,float Hiso);
+  int OpenHlt1EleIdLWElectronPassed(float Et,int L1iso,float Tiso,float Hiso); 
   int OpenHlt1PhotonPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC);
   int OpenHlt1PhotonLooseEcalIsoPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC);
   int OpenHlt1PhotonVeryLooseEcalIsoPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC); 
+  int OpenHlt2PhotonMassWinPassed(float Et, int L1iso, float Tiso, float Eiso, float HisoBR, float HisoEC,float massLow, float massHigh);
   int OpenHlt1MuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso);
   int OpenHlt2MuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso);
   int OpenHlt1L2MuonPassed(double ptl1,double ptl2,double dr);  
   int OpenHlt1JetPassed(double pt);
   int OpenHlt1CorJetPassed(double pt);
   int OpenHltFwdJetPassed(double esum);
+  int OpenHltFwdCorJetPassed(double esum);
   int OpenHltDiJetAvePassed(double pt);
   int OpenHltCorDiJetAvePassed(double pt);
   int OpenHltQuadJetPassed(double pt);
+  int OpenHltQuadCorJetPassed(double pt);
   int OpenHltJRMuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso,double ptl3hi);
-  int OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold);
 
-  std::map<TString, std::vector<TString> >
+  std::map<TString, std::vector<TString> >&
     GetL1SeedsOfHLTPathMap() { return map_L1SeedsOfStandardHLTPath; }; // mapping to all seeds
 
 
@@ -1804,6 +1824,8 @@ private:
 #ifdef OHltTree_cxx
 OHltTree::OHltTree(TTree *tree, OHltMenu *menu)
 {
+  random.SetSeed(0);
+  
   cout<<"Initialising OHltTree."<<endl;
   if (tree == 0) {
     cerr<<"Error initialising tree!"<<endl;
@@ -1814,8 +1836,6 @@ OHltTree::OHltTree(TTree *tree, OHltMenu *menu)
     return;
   }
   Init(tree);
-
-  random.SetSeed(12345678);
   
   nTrig = menu->GetTriggerSize();
   nL1Trig = menu->GetL1TriggerSize();
@@ -1840,7 +1860,7 @@ OHltTree::OHltTree(TTree *tree, OHltMenu *menu)
   for(int i=0;i<8000 ;i++)   
     { ohEleLWL1Dupl[i] = true;}
 
-  //SetMapL1SeedsOfStandardHLTPath(menu);
+  SetMapL1SeedsOfStandardHLTPath(menu);
 
   cout<<"Succeeded initialising OHltTree. nEntries: "<<fChain->GetEntries()<<endl;
 }
@@ -2003,8 +2023,10 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("ohPhotHiso", ohPhotHiso, &b_ohPhotHiso);
   fChain->SetBranchAddress("ohPhotTiso", ohPhotTiso, &b_ohPhotTiso);
   fChain->SetBranchAddress("ohPhotL1iso", ohPhotL1iso, &b_ohPhotL1iso);
-  fChain->SetBranchAddress("ohPhotClusShap", ohPhotClusShap, &b_ohPhotClusShap); 
   fChain->SetBranchAddress("NohEle", &NohEle, &b_NohEle);
+  fChain->SetBranchAddress("ohEleClusShap", ohEleClusShap, &b_ohEleClusShap);
+  fChain->SetBranchAddress("ohEleDeta", ohEleDeta, &b_ohEleDeta);
+  fChain->SetBranchAddress("ohEleDphi", ohEleDphi, &b_ohEleDphi);
   fChain->SetBranchAddress("ohEleEt", ohEleEt, &b_ohEleEt);
   fChain->SetBranchAddress("ohEleEta", ohEleEta, &b_ohEleEta);
   fChain->SetBranchAddress("ohElePhi", ohElePhi, &b_ohElePhi);
@@ -2015,10 +2037,10 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("ohEleL1iso", ohEleL1iso, &b_ohEleL1iso);
   fChain->SetBranchAddress("ohElePixelSeeds", ohElePixelSeeds, &b_ohElePixelSeeds);
   fChain->SetBranchAddress("ohEleNewSC", ohEleNewSC, &b_ohEleNewSC);
-  fChain->SetBranchAddress("ohEleClusShap", ohEleClusShap, &b_ohEleClusShap);
-  fChain->SetBranchAddress("ohEleDeta", ohEleDeta, &b_ohEleDeta);
-  fChain->SetBranchAddress("ohEleDphi", ohEleDphi, &b_ohEleDphi);
   fChain->SetBranchAddress("NohEleLW", &NohEleLW, &b_NohEleLW);
+  fChain->SetBranchAddress("ohEleClusShapLW", ohEleClusShapLW, &b_ohEleClusShapLW);
+  fChain->SetBranchAddress("ohEleDetaLW", ohEleDetaLW, &b_ohEleDetaLW);
+  fChain->SetBranchAddress("ohEleDphiLW", ohEleDphiLW, &b_ohEleDphiLW);
   fChain->SetBranchAddress("ohEleEtLW", ohEleEtLW, &b_ohEleEtLW);
   fChain->SetBranchAddress("ohEleEtaLW", ohEleEtaLW, &b_ohEleEtaLW);
   fChain->SetBranchAddress("ohElePhiLW", ohElePhiLW, &b_ohElePhiLW);
@@ -2029,9 +2051,6 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("ohEleL1isoLW", ohEleL1isoLW, &b_ohEleL1isoLW);
   fChain->SetBranchAddress("ohElePixelSeedsLW", ohElePixelSeedsLW, &b_ohElePixelSeedsLW);
   fChain->SetBranchAddress("ohEleNewSCLW", ohEleNewSCLW, &b_ohEleNewSCLW);
-  fChain->SetBranchAddress("ohEleClusShapLW", ohEleClusShapLW, &b_ohEleClusShapLW); 
-  fChain->SetBranchAddress("ohEleDetaLW", ohEleDetaLW, &b_ohEleDetaLW); 
-  fChain->SetBranchAddress("ohEleDphiLW", ohEleDphiLW, &b_ohEleDphiLW); 
   fChain->SetBranchAddress("NrecoMuon", &NrecoMuon, &b_NrecoMuon);
   fChain->SetBranchAddress("recoMuonPt", &recoMuonPt, &b_recoMuonPt);
   fChain->SetBranchAddress("recoMuonPhi", &recoMuonPhi, &b_recoMuonPhi);
@@ -2136,6 +2155,22 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("Event", &Event, &b_Event);
   //20X
 
+  fChain->SetBranchAddress("L1_DoubleMuTopBottom", &L1_DoubleMuTopBottom, &b_L1_DoubleMuTopBottom); 
+  fChain->SetBranchAddress("L1_DoubleEG05_TopBottom", &L1_DoubleEG05_TopBottom, &b_L1_DoubleEG05_TopBottom); 
+  fChain->SetBranchAddress("L1_IsoEG10_Jet6_ForJet6", &L1_IsoEG10_Jet6_ForJet6, &b_L1_IsoEG10_Jet6_ForJet6); 
+
+
+  fChain->SetBranchAddress("L1_SingleJet20", &L1_SingleJet20, &b_L1_SingleJet20); 
+  fChain->SetBranchAddress("L1_SingleJet40", &L1_SingleJet40, &b_L1_SingleJet40); 
+  fChain->SetBranchAddress("L1_SingleJet60", &L1_SingleJet60, &b_L1_SingleJet60); 
+  fChain->SetBranchAddress("L1_SingleTauJet10", &L1_SingleTauJet10, &b_L1_SingleTauJet10); 
+  fChain->SetBranchAddress("L1_SingleTauJet20", &L1_SingleTauJet20, &b_L1_SingleTauJet20); 
+  fChain->SetBranchAddress("L1_SingleTauJet50", &L1_SingleTauJet50, &b_L1_SingleTauJet50); 
+  fChain->SetBranchAddress("L1_DoubleJet30", &L1_DoubleJet30, &b_L1_DoubleJet30);   
+
+
+
+  
   //L1's
   /*
   fChain->SetBranchAddress("L1_DoubleEG10", &L1_DoubleEG10, &b_L1_DoubleEG10); 
@@ -2157,7 +2192,6 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_DoubleJet60", &L1_DoubleJet60, &b_L1_DoubleJet60); 
   fChain->SetBranchAddress("L1_DoubleMu3", &L1_DoubleMu3, &b_L1_DoubleMu3); 
   fChain->SetBranchAddress("L1_DoubleMuOpen", &L1_DoubleMuOpen, &b_L1_DoubleMuOpen); 
-  fChain->SetBranchAddress("L1_DoubleMuTopBottom", &L1_DoubleMuTopBottom, &b_L1_DoubleMuTopBottom); 
   fChain->SetBranchAddress("L1_DoubleEG05_TopBottom", &L1_DoubleEG05_TopBottom, &b_L1_DoubleEG05_TopBottom);  
   fChain->SetBranchAddress("L1_DoubleNoIsoEG05_TopBottom", &L1_DoubleNoIsoEG05_TopBottom, &b_L1_DoubleNoIsoEG05_TopBottom); 
   fChain->SetBranchAddress("L1_DoubleNoIsoEG05_TopBottomCen", &L1_DoubleNoIsoEG05_TopBottomCen, &b_L1_DoubleNoIsoEG05_TopBottomCen); 
@@ -2249,10 +2283,12 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleTauJet8_Barrel", &L1_SingleTauJet8_Barrel, &b_L1_SingleTauJet8_Barrel); 
   fChain->SetBranchAddress("L1_TauJet10_ETM30", &L1_TauJet10_ETM30, &b_L1_TauJet10_ETM30); 
   fChain->SetBranchAddress("L1_TauJet10_ETM40", &L1_TauJet10_ETM40, &b_L1_TauJet10_ETM40); 
-  fChain->SetBranchAddress("L1_TripleJet14", &L1_TripleJet14, &b_L1_TripleJet14);  
   fChain->SetBranchAddress("L1_TripleJet30", &L1_TripleJet30, &b_L1_TripleJet30); 
   fChain->SetBranchAddress("L1_TripleMu3", &L1_TripleMu3, &b_L1_TripleMu3); 
   */
+
+  fChain->SetBranchAddress("L1_TripleJet14", &L1_TripleJet14, &b_L1_TripleJet14);  
+  fChain->SetBranchAddress("L1_QuadJet6", &L1_QuadJet6, &b_L1_QuadJet6); 
 
   fChain->SetBranchAddress("L1_Mu5_Jet6", &L1_Mu5_Jet6, &b_L1_Mu5_Jet6);
   fChain->SetBranchAddress("L1_EG5_TripleJet6", &L1_EG5_TripleJet6, &b_L1_EG5_TripleJet6);
@@ -2285,6 +2321,8 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_Mu3QE8_EG5", &L1_Mu3QE8_EG5, &b_L1_Mu3QE8_EG5); 
   fChain->SetBranchAddress("L1_Mu3QE8_Jet15", &L1_Mu3QE8_Jet15, &b_L1_Mu3QE8_Jet15);  
   fChain->SetBranchAddress("L1_Mu5QE8_Jet15", &L1_Mu5QE8_Jet15, &b_L1_Mu5QE8_Jet15); 
+  fChain->SetBranchAddress("L1_Mu3QE8_Jet6", &L1_Mu3QE8_Jet6, &b_L1_Mu3QE8_Jet6);  
+  fChain->SetBranchAddress("L1_Mu5QE8_Jet6", &L1_Mu5QE8_Jet6, &b_L1_Mu5QE8_Jet6); 
   fChain->SetBranchAddress("L1_QuadJet15", &L1_QuadJet15, &b_L1_QuadJet15); 
   fChain->SetBranchAddress("L1_SingleEG1", &L1_SingleEG1, &b_L1_SingleEG1); 
   fChain->SetBranchAddress("L1_SingleEG10", &L1_SingleEG10, &b_L1_SingleEG10); 
@@ -2750,6 +2788,8 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_Mu3QE8_EG5", &map_BitOfStandardHLTPath["L1_Mu3QE8_EG5"], &b_L1_Mu3QE8_EG5); 
   fChain->SetBranchAddress("L1_Mu3QE8_Jet15", &map_BitOfStandardHLTPath["L1_Mu3QE8_Jet15"], &b_L1_Mu3QE8_Jet15);  
   fChain->SetBranchAddress("L1_Mu5QE8_Jet15", &map_BitOfStandardHLTPath["L1_Mu5QE8_Jet15"], &b_L1_Mu5QE8_Jet15); 
+  fChain->SetBranchAddress("L1_Mu3QE8_Jet6", &map_BitOfStandardHLTPath["L1_Mu3QE8_Jet6"], &b_L1_Mu3QE8_Jet6);  
+  fChain->SetBranchAddress("L1_Mu5QE8_Jet6", &map_BitOfStandardHLTPath["L1_Mu5QE8_Jet6"], &b_L1_Mu5QE8_Jet6); 
   fChain->SetBranchAddress("L1_QuadJet15", &map_BitOfStandardHLTPath["L1_QuadJet15"], &b_L1_QuadJet15); 
   fChain->SetBranchAddress("L1_SingleEG1", &map_BitOfStandardHLTPath["L1_SingleEG1"], &b_L1_SingleEG1); 
   fChain->SetBranchAddress("L1_SingleEG10", &map_BitOfStandardHLTPath["L1_SingleEG10"], &b_L1_SingleEG10); 
@@ -2784,13 +2824,29 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleMu7", &map_BitOfStandardHLTPath["L1_SingleMu7"], &b_L1_SingleMu7); 
   fChain->SetBranchAddress("L1_SingleMuBeamHalo", &map_BitOfStandardHLTPath["L1_SingleMuBeamHalo"], &b_L1_SingleMuBeamHalo); 
   fChain->SetBranchAddress("L1_SingleMuOpen", &map_BitOfStandardHLTPath["L1_SingleMuOpen"], &b_L1_SingleMuOpen); 
-  fChain->SetBranchAddress("L1_SingleTauJet30", &map_BitOfStandardHLTPath["L1_SingleTauJet30"], &b_L1_SingleTauJet30); 
   fChain->SetBranchAddress("L1_SingleTauJet40", &map_BitOfStandardHLTPath["L1_SingleTauJet40"], &b_L1_SingleTauJet40); 
   fChain->SetBranchAddress("L1_SingleTauJet60", &map_BitOfStandardHLTPath["L1_SingleTauJet60"], &b_L1_SingleTauJet60); 
   fChain->SetBranchAddress("L1_SingleTauJet80", &map_BitOfStandardHLTPath["L1_SingleTauJet80"], &b_L1_SingleTauJet80); 
   fChain->SetBranchAddress("L1_TripleJet30", &map_BitOfStandardHLTPath["L1_TripleJet30"], &b_L1_TripleJet30); 
 
+  fChain->SetBranchAddress("L1_DoubleMuTopBottom", &map_BitOfStandardHLTPath["L1_DoubleMuTopBottom"], &b_L1_DoubleMuTopBottom); 
+  fChain->SetBranchAddress("L1_DoubleEG05_TopBottom", &map_BitOfStandardHLTPath["L1_DoubleEG05_TopBottom"], &b_L1_DoubleEG05_TopBottom);  
 
+
+  fChain->SetBranchAddress("L1_SingleJet20", &map_BitOfStandardHLTPath["L1_SingleJet20"], &b_L1_SingleJet20); 
+  fChain->SetBranchAddress("L1_SingleJet40", &map_BitOfStandardHLTPath["L1_SingleJet40"], &b_L1_SingleJet40); 
+  fChain->SetBranchAddress("L1_SingleJet60", &map_BitOfStandardHLTPath["L1_SingleJet60"], &b_L1_SingleJet60); 
+  fChain->SetBranchAddress("L1_SingleTauJet10", &map_BitOfStandardHLTPath["L1_SingleTauJet10"], &b_L1_SingleTauJet10); 
+  fChain->SetBranchAddress("L1_SingleTauJet20", &map_BitOfStandardHLTPath["L1_SingleTauJet20"], &b_L1_SingleTauJet20); 
+  fChain->SetBranchAddress("L1_SingleTauJet30", &map_BitOfStandardHLTPath["L1_SingleTauJet30"], &b_L1_SingleTauJet30); 
+  fChain->SetBranchAddress("L1_SingleTauJet50", &map_BitOfStandardHLTPath["L1_SingleTauJet50"], &b_L1_SingleTauJet50); 
+  fChain->SetBranchAddress("L1_DoubleJet30", &map_BitOfStandardHLTPath["L1_DoubleJet30"], &b_L1_DoubleJet30);  
+  fChain->SetBranchAddress("L1_DoubleTauJet14", &map_BitOfStandardHLTPath["L1_DoubleTauJet14"], &b_L1_DoubleTauJet14); 
+  fChain->SetBranchAddress("L1_TripleJet14", &map_BitOfStandardHLTPath["L1_TripleJet14"], &b_L1_TripleJet14);  
+  fChain->SetBranchAddress("L1_QuadJet6", &map_BitOfStandardHLTPath["L1_QuadJet6"], &b_L1_QuadJet6); 
+  fChain->SetBranchAddress("L1_IsoEG10_Jet6_ForJet6", &map_BitOfStandardHLTPath["L1_IsoEG10_Jet6_ForJet6"], &b_L1_IsoEG10_Jet6_ForJet6); 
+
+  
   /*
   fChain->SetBranchAddress("L1_DoubleEG10", &map_BitOfStandardHLTPath["L1_DoubleEG10"], &b_L1_DoubleEG10); 
   fChain->SetBranchAddress("L1_DoubleEG1", &map_BitOfStandardHLTPath["L1_DoubleEG1"], &b_L1_DoubleEG1); 
@@ -3318,6 +3374,176 @@ void OHltTree::ApplyL1Prescales(OHltMenu *menu)
   }
 }
 
+void OHltTree::SetMapL1BitOfStandardHLTPath(OHltMenu *menu) {
+  int tt = 0;
+  TString st;
+  unsigned ts = menu->GetTriggerSize();
+  for (unsigned int i=0;i<ts;i++) {
+    st = menu->GetTriggerName(i);
+    map< TString, vector<TString> >::const_iterator it = map_L1SeedsOfStandardHLTPath.find(st);
+    if (it != map_L1SeedsOfStandardHLTPath.end()) {
+      tt = 0;
+      unsigned ts2 = it->second.size();
+      for (unsigned int j=0;j<ts2;j++) {
+ 	tt += (map_BitOfStandardHLTPath.find((map_L1SeedsOfStandardHLTPath.find(st)->second)[j]))->second;
+      }
+    }
+    map_L1BitOfStandardHLTPath[st] = tt;
+  }
+}
+
+void OHltTree::RemoveEGOverlaps()
+{
+  //remove duplicated SC
+  for(int i=0;i<NohEle ;i++){
+    if (ohEleL1iso[i] == 1){ohEleL1Dupl[i]=false;}
+    else{
+      float  dist = 1000;
+      for(int j=0;j<NohEle ;j++){
+	if(ohEleL1iso[j]==1){
+	  float distTemp = fabs(ohEleEta[i]-ohEleEta[j])+fabs(ohEleE[i]-ohEleE[j]);
+	  if(distTemp < dist){dist=distTemp;}
+	}
+      }//loop over j
+      if (dist < 0.01){ohEleL1Dupl[i]=true;}
+      else {ohEleL1Dupl[i]=false;}
+    }
+  }
+
+  for(int i=0;i<NohEleLW ;i++){
+    if (ohEleL1isoLW[i] == 1){ohEleLWL1Dupl[i]=false;}
+    else{
+      float  dist = 1000;
+      for(int j=0;j<NohEleLW ;j++){
+	if(ohEleL1isoLW[j]==1){
+	  float distTemp = fabs(ohEleEtaLW[i]-ohEleEtaLW[j])+fabs(ohEleELW[i]-ohEleELW[j]);
+	  if(distTemp < dist){dist=distTemp;}
+	}
+      }//loop over j
+      if (dist < 0.01){ohEleLWL1Dupl[i]=true;}
+      else {ohEleLWL1Dupl[i]=false;}
+    }
+  }
+
+  for(int i=0;i<NohPhot ;i++){ 
+    if (ohPhotL1iso[i] == 1){ohPhotL1Dupl[i]=false;} 
+    else{ 
+      float  dist = 1000; 
+      for(int j=0;j<NohPhot ;j++){ 
+        if(ohPhotL1iso[j]==1){ 
+          float distTemp = fabs(ohPhotEta[i]-ohPhotEta[j])+fabs(ohPhotEt[i]-ohPhotEt[j]); 
+          if(distTemp < dist){dist=distTemp;} 
+        } 
+      }//loop over j 
+      if (dist < 0.01){ohPhotL1Dupl[i]=true;} 
+      else {ohPhotL1Dupl[i]=false;} 
+    } 
+  } 
+
+}
+
+void OHltTree::SetL1MuonQuality()
+{
+  // Cut on muon quality
+  // init
+  NL1OpenMu = 0;
+  for (int i=0;i<10;i++) {
+    L1OpenMuPt[i] = -999.;
+    L1OpenMuE[i] = -999.;
+    L1OpenMuEta[i] = -999.;
+    L1OpenMuPhi[i] = -999.;
+    L1OpenMuIsol[i] = -999;
+    L1OpenMuMip[i] = -999;
+    L1OpenMuFor[i] = -999;
+    L1OpenMuRPC[i] = -999;
+    L1OpenMuQal[i] = -999;     
+  }
+  for (int i=0;i<NL1Mu;i++) {
+    if ( L1MuQal[i]==2 || L1MuQal[i]==3 || L1MuQal[i]==4 ||
+	 L1MuQal[i]==5 || L1MuQal[i]==6 || L1MuQal[i]==7 ) {
+      L1OpenMuPt[NL1OpenMu] = L1MuPt[i];
+      L1OpenMuE[NL1OpenMu] = L1MuE[i];
+      L1OpenMuEta[NL1OpenMu] = L1MuEta[i];
+      L1OpenMuPhi[NL1OpenMu] = L1MuPhi[i];
+      L1OpenMuIsol[NL1OpenMu] = L1MuIsol[i];
+      L1OpenMuMip[NL1OpenMu] = L1MuMip[i];
+      L1OpenMuFor[NL1OpenMu] = L1MuFor[i];
+      L1OpenMuRPC[NL1OpenMu] = L1MuRPC[i];
+      L1OpenMuQal[NL1OpenMu] = L1MuQal[i];
+      NL1OpenMu++;
+    }
+  }
+  // init
+  NL1GoodSingleMu = 0;
+  for (int i=0;i<10;i++) {
+    L1GoodSingleMuPt[i] = -999.;
+    L1GoodSingleMuE[i] = -999.;
+    L1GoodSingleMuEta[i] = -999.;
+    L1GoodSingleMuPhi[i] = -999.;
+    L1GoodSingleMuIsol[i] = -999;
+    L1GoodSingleMuMip[i] = -999;
+    L1GoodSingleMuFor[i] = -999;
+    L1GoodSingleMuRPC[i] = -999;
+    L1GoodSingleMuQal[i] = -999;     
+  }
+  // Cut on muon quality      
+  for (int i=0;i<NL1Mu;i++) {
+    if ( L1MuQal[i]==4 || L1MuQal[i]==5 || L1MuQal[i]==6 || L1MuQal[i]==7 ) {
+      L1GoodSingleMuPt[NL1GoodSingleMu] = L1MuPt[i];
+      L1GoodSingleMuE[NL1GoodSingleMu] = L1MuE[i];
+      L1GoodSingleMuEta[NL1GoodSingleMu] = L1MuEta[i];
+      L1GoodSingleMuPhi[NL1GoodSingleMu] = L1MuPhi[i];
+      L1GoodSingleMuIsol[NL1GoodSingleMu] = L1MuIsol[i];
+      L1GoodSingleMuMip[NL1GoodSingleMu] = L1MuMip[i];
+      L1GoodSingleMuFor[NL1GoodSingleMu] = L1MuFor[i];
+      L1GoodSingleMuRPC[NL1GoodSingleMu] = L1MuRPC[i];
+      L1GoodSingleMuQal[NL1GoodSingleMu] = L1MuQal[i];
+      NL1GoodSingleMu++;
+    }
+  }
+
+  // init
+  NL1GoodDoubleMu = 0;
+  for (int i=0;i<10;i++) {
+    L1GoodDoubleMuPt[i] = -999.;
+    L1GoodDoubleMuE[i] = -999.;
+    L1GoodDoubleMuEta[i] = -999.;
+    L1GoodDoubleMuPhi[i] = -999.;
+    L1GoodDoubleMuIsol[i] = -999;
+    L1GoodDoubleMuMip[i] = -999;
+    L1GoodDoubleMuFor[i] = -999;
+    L1GoodDoubleMuRPC[i] = -999;
+    L1GoodDoubleMuQal[i] = -999;     
+  }
+  // Cut on muon quality
+  for (int i=0;i<NL1Mu;i++) {
+    if ( L1MuQal[i]==3 || L1MuQal[i]==5 || L1MuQal[i]==6 || L1MuQal[i]==7 ) {
+      L1GoodDoubleMuPt[NL1GoodDoubleMu] = L1MuPt[i];
+      L1GoodDoubleMuE[NL1GoodDoubleMu] = L1MuE[i];
+      L1GoodDoubleMuEta[NL1GoodDoubleMu] = L1MuEta[i];
+      L1GoodDoubleMuPhi[NL1GoodDoubleMu] = L1MuPhi[i];
+      L1GoodDoubleMuIsol[NL1GoodDoubleMu] = L1MuIsol[i];
+      L1GoodDoubleMuMip[NL1GoodDoubleMu] = L1MuMip[i];
+      L1GoodDoubleMuFor[NL1GoodDoubleMu] = L1MuFor[i];
+      L1GoodDoubleMuRPC[NL1GoodDoubleMu] = L1MuRPC[i];
+      L1GoodDoubleMuQal[NL1GoodDoubleMu] = L1MuQal[i];
+      NL1GoodDoubleMu++;
+    }
+  }
+}
+
+void OHltTree::SetOpenL1Bits()
+{
+  OpenL1_ZeroBias = 1;
+  map_BitOfStandardHLTPath["OpenL1_ZeroBias"] = OpenL1_ZeroBias;
+
+  if(L1GoodSingleMuPt[0] > 3.0 && (L1NIsolEmEt[0] > 5.0 || L1IsolEmEt[0] > 5.0)) 
+    OpenL1_Mu3EG5 = 1; 
+  else 
+    OpenL1_Mu3EG5 = 0; 
+
+}
+
 
 void OHltTree::SetMapL1BitOfStandardHLTPathUsingLogicParser(OHltMenu *menu) {
   typedef vector<TString> myvec;
@@ -3377,190 +3603,6 @@ void OHltTree::SetMapL1BitOfStandardHLTPathUsingLogicParser(OHltMenu *menu) {
       map_L1BitOfStandardHLTPath[st] = 0;
   }
 }
-
-
-
-
-void OHltTree::SetMapL1BitOfStandardHLTPath(OHltMenu *menu) {
-  int tt = 0;
-  TString st;
-  unsigned ts = menu->GetTriggerSize();
-  for (unsigned int i=0;i<ts;i++) {
-    st = menu->GetTriggerName(i);
-    map< TString, vector<TString> >::const_iterator it = map_L1SeedsOfStandardHLTPath.find(st);
-    if (it != map_L1SeedsOfStandardHLTPath.end()) {
-      tt = 0;
-      unsigned ts2 = it->second.size();
-      for (unsigned int j=0;j<ts2;j++) {
- 	tt += (map_BitOfStandardHLTPath.find((map_L1SeedsOfStandardHLTPath.find(st)->second)[j]))->second;
-      }
-    }
-    map_L1BitOfStandardHLTPath[st] = tt;
-  }
-}
-
-void OHltTree::RemoveEGOverlaps()
-{
-  //remove duplicated SC
-  for(int i=0;i<NohEle ;i++){
-    if (ohEleL1iso[i] == 1){ohEleL1Dupl[i]=false;}
-    else{
-      float  dist = 1000;
-      for(int j=0;j<NohEle ;j++){
-	if(ohEleL1iso[j]==1){
-	  float distTemp = fabs(ohEleEta[i]-ohEleEta[j])+fabs(ohEleE[i]-ohEleE[j]);
-	  if(distTemp < dist){dist=distTemp;}
-	}
-      }//loop over j
-      if (dist < 0.01){ohEleL1Dupl[i]=true;}
-      else {ohEleL1Dupl[i]=false;}
-    }
-  }
-
-  for(int i=0;i<NohEleLW ;i++){ 
-    if (ohEleL1isoLW[i] == 1){ohEleLWL1Dupl[i]=false;} 
-    else{ 
-      float  dist = 1000; 
-      for(int j=0;j<NohEleLW ;j++){ 
-        if(ohEleL1isoLW[j]==1){ 
-          float distTemp = fabs(ohEleEtaLW[i]-ohEleEtaLW[j])+fabs(ohEleELW[i]-ohEleELW[j]); 
-          if(distTemp < dist){dist=distTemp;} 
-        } 
-      }//loop over j 
-      if (dist < 0.01){ohEleLWL1Dupl[i]=true;} 
-      else {ohEleLWL1Dupl[i]=false;} 
-    } 
-  } 
-
-
-  for(int i=0;i<NohPhot ;i++){ 
-    if (ohPhotL1iso[i] == 1){ohPhotL1Dupl[i]=false;} 
-    else{ 
-      float  dist = 1000; 
-      for(int j=0;j<NohPhot ;j++){ 
-        if(ohPhotL1iso[j]==1){ 
-          float distTemp = fabs(ohPhotEta[i]-ohPhotEta[j])+fabs(ohPhotEt[i]-ohPhotEt[j]); 
-          if(distTemp < dist){dist=distTemp;} 
-        } 
-      }//loop over j 
-      if (dist < 0.01){ohPhotL1Dupl[i]=true;} 
-      else {ohPhotL1Dupl[i]=false;} 
-    } 
-  } 
-
-}
-
-void OHltTree::SetL1MuonQuality()
-{
-  // Cut on muon quality
-  // init
-  for (int i=0;i<10;i++) {
-    NL1OpenMu = 0;
-    L1OpenMuPt[i] = -999.;
-    L1OpenMuE[i] = -999.;
-    L1OpenMuEta[i] = -999.;
-    L1OpenMuPhi[i] = -999.;
-    L1OpenMuIsol[i] = -999;
-    L1OpenMuMip[i] = -999;
-    L1OpenMuFor[i] = -999;
-    L1OpenMuRPC[i] = -999;
-    L1OpenMuQal[i] = -999;     
-  }
-  for (int i=0;i<NL1Mu;i++) {
-    if ( L1MuQal[i]==2 || L1MuQal[i]==3 || L1MuQal[i]==4 ||
-	 L1MuQal[i]==5 || L1MuQal[i]==6 || L1MuQal[i]==7 ) {
-      L1OpenMuPt[NL1OpenMu] = L1MuPt[i];
-      L1OpenMuE[NL1OpenMu] = L1MuE[i];
-      L1OpenMuEta[NL1OpenMu] = L1MuEta[i];
-      L1OpenMuPhi[NL1OpenMu] = L1MuPhi[i];
-      L1OpenMuIsol[NL1OpenMu] = L1MuIsol[i];
-      L1OpenMuMip[NL1OpenMu] = L1MuMip[i];
-      L1OpenMuFor[NL1OpenMu] = L1MuFor[i];
-      L1OpenMuRPC[NL1OpenMu] = L1MuRPC[i];
-      L1OpenMuQal[NL1OpenMu] = L1MuQal[i];
-      NL1OpenMu++;
-    }
-  }
-  // init
-  for (int i=0;i<10;i++) {
-    NL1GoodSingleMu = 0;
-    L1GoodSingleMuPt[i] = -999.;
-    L1GoodSingleMuE[i] = -999.;
-    L1GoodSingleMuEta[i] = -999.;
-    L1GoodSingleMuPhi[i] = -999.;
-    L1GoodSingleMuIsol[i] = -999;
-    L1GoodSingleMuMip[i] = -999;
-    L1GoodSingleMuFor[i] = -999;
-    L1GoodSingleMuRPC[i] = -999;
-    L1GoodSingleMuQal[i] = -999;     
-  }
-  // Cut on muon quality      
-  for (int i=0;i<NL1Mu;i++) {
-    if ( L1MuQal[i]==4 || L1MuQal[i]==5 || L1MuQal[i]==6 || L1MuQal[i]==7 ) {
-      L1GoodSingleMuPt[NL1GoodSingleMu] = L1MuPt[i];
-      L1GoodSingleMuE[NL1GoodSingleMu] = L1MuE[i];
-      L1GoodSingleMuEta[NL1GoodSingleMu] = L1MuEta[i];
-      L1GoodSingleMuPhi[NL1GoodSingleMu] = L1MuPhi[i];
-      L1GoodSingleMuIsol[NL1GoodSingleMu] = L1MuIsol[i];
-      L1GoodSingleMuMip[NL1GoodSingleMu] = L1MuMip[i];
-      L1GoodSingleMuFor[NL1GoodSingleMu] = L1MuFor[i];
-      L1GoodSingleMuRPC[NL1GoodSingleMu] = L1MuRPC[i];
-      L1GoodSingleMuQal[NL1GoodSingleMu] = L1MuQal[i];
-      NL1GoodSingleMu++;
-    }
-  }
-
-  // init
-  for (int i=0;i<10;i++) {
-    NL1GoodDoubleMu = 0;
-    L1GoodDoubleMuPt[i] = -999.;
-    L1GoodDoubleMuE[i] = -999.;
-    L1GoodDoubleMuEta[i] = -999.;
-    L1GoodDoubleMuPhi[i] = -999.;
-    L1GoodDoubleMuIsol[i] = -999;
-    L1GoodDoubleMuMip[i] = -999;
-    L1GoodDoubleMuFor[i] = -999;
-    L1GoodDoubleMuRPC[i] = -999;
-    L1GoodDoubleMuQal[i] = -999;     
-  }
-  // Cut on muon quality
-  for (int i=0;i<NL1Mu;i++) {
-    if ( L1MuQal[i]==3 || L1MuQal[i]==5 || L1MuQal[i]==6 || L1MuQal[i]==7 ) {
-      L1GoodDoubleMuPt[NL1GoodDoubleMu] = L1MuPt[i];
-      L1GoodDoubleMuE[NL1GoodDoubleMu] = L1MuE[i];
-      L1GoodDoubleMuEta[NL1GoodDoubleMu] = L1MuEta[i];
-      L1GoodDoubleMuPhi[NL1GoodDoubleMu] = L1MuPhi[i];
-      L1GoodDoubleMuIsol[NL1GoodDoubleMu] = L1MuIsol[i];
-      L1GoodDoubleMuMip[NL1GoodDoubleMu] = L1MuMip[i];
-      L1GoodDoubleMuFor[NL1GoodDoubleMu] = L1MuFor[i];
-      L1GoodDoubleMuRPC[NL1GoodDoubleMu] = L1MuRPC[i];
-      L1GoodDoubleMuQal[NL1GoodDoubleMu] = L1MuQal[i];
-      NL1GoodDoubleMu++;
-    }
-  }
-}
-
-void OHltTree::SetOpenL1Bits()
-{
-  OpenL1_ZeroBias = 1;
-  map_BitOfStandardHLTPath["OpenL1_ZeroBias"] = OpenL1_ZeroBias;
-
-  if(L1GoodSingleMuPt[0] > 3.0 && (L1NIsolEmEt[0] > 5.0 || L1IsolEmEt[0] > 5.0)) 
-    OpenL1_Mu3EG5 = 1; 
-  else 
-    OpenL1_Mu3EG5 = 0; 
-
-  if((map_BitOfStandardHLTPath.find("L1_SingleEG5")->second == 1) &&
-     (map_BitOfStandardHLTPath.find("L1_HTT100")->second == 1)) 
-    OpenL1_EG5_HTT100 = 1;
-  else
-    OpenL1_EG5_HTT100 = 0;
-
-  map_BitOfStandardHLTPath["OpenL1_EG5_HTT100"] = OpenL1_EG5_HTT100; 
-
-
-}
-
 
 Bool_t OHltTree::Notify()
 {

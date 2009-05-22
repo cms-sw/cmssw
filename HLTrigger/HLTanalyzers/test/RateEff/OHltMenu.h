@@ -12,7 +12,6 @@
 
 class OHltMenu {
  public:
-  //OHltMenu() {SetMapL1SeedsOfStandardHLTPath();} // obsolete
   OHltMenu();
   
   OHltMenu(bool isL1) { isL1Menu = isL1; }
@@ -33,10 +32,9 @@ class OHltMenu {
   inline TString  		        GetSeedCondition(int i) {return seedcondition[names[i]];}
   inline TString  		        GetSeedCondition(TString s) {return seedcondition[s];}
 
-  void SetMapL1SeedsOfStandardHLTPath(); // obsolete
   void SetMapL1SeedsOfStandardHLTPath(std::map<TString, std::vector<TString> >);
   std::map<TString, std::vector<TString> >&
-    GetL1SeedsOfHLTPathMap() { return map_L1SeedsOfStandardHLTPath; }; // obsolete: mapping to all seeds
+    GetL1SeedsOfHLTPathMap() { return map_L1SeedsOfStandardHLTPath; }; // mapping to all seeds
 
   void AddTrigger(TString trigname, int prescale, float eventSize);
   void AddTrigger(TString trigname, TString seedcond, int prescale, float eventSize);
@@ -65,7 +63,7 @@ class OHltMenu {
   std::vector<TString> 		L1names;
   std::map<TString,int> 	L1prescales;	
 
-  std::map<TString, std::vector<TString> > map_L1SeedsOfStandardHLTPath; // obsolete: mapping to all seeds
+  std::map<TString, std::vector<TString> > map_L1SeedsOfStandardHLTPath; // mapping to all seeds
 
 };
 #endif
