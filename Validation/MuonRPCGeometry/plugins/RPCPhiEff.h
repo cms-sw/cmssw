@@ -18,7 +18,6 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
-#include <L1Trigger/RPCTrigger/interface/RPCTriggerGeo.h>
 #include <L1Trigger/RPCTrigger/interface/RPCLogCone.h>
 #include <L1Trigger/RPCTrigger/interface/RPCConst.h>
 
@@ -55,7 +54,6 @@ class RPCPhiEff:public edm::EDAnalyzer {
     // ----------member data ---------------------------
 
 
-    RPCTriggerGeo m_theLinksystem;
     RPCConst rpcconst;
     //L1MuTriggerScales m_scales;
     edm::InputTag m_rpcb;

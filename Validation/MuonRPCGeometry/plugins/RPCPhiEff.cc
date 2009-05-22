@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Fruboes
 //         Created:  Wed Mar  7 08:31:57 CET 2007
-// $Id: RPCPhiEff.cc,v 1.1 2009/01/26 13:07:12 fruboes Exp $
+// $Id: RPCPhiEff.cc,v 1.2 2009/02/05 10:08:06 fruboes Exp $
 //
 //
 
@@ -34,7 +34,6 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
-#include <L1Trigger/RPCTrigger/interface/RPCTriggerGeo.h>
 #include <L1Trigger/RPCTrigger/interface/RPCLogCone.h>
 #include <L1Trigger/RPCTrigger/interface/RPCConst.h>
 
@@ -94,17 +93,6 @@ void
  RPCPhiEff::analyze(const edm::Event & iEvent,
                     const edm::EventSetup & iSetup)
 {
-
- //  std::cout << "----" <<  std::endl;
-    /*   
-    if (!m_theLinksystem.isGeometryBuilt()) {
-        edm::LogInfo("RPC") << "RPCPhiEff Building RPC links map for a RPCTrigger";
-        edm::ESHandle < RPCGeometry > rpcGeom;
-        iSetup.get < MuonGeometryRecord > ().get(rpcGeom);
-        m_theLinksystem.buildGeometry(rpcGeom);
-        edm::LogInfo("RPC") << "RPCPhiEff RPC links map for a RPCTrigger built";
-    }
-    */
 
 
     edm::Handle<std::vector<L1MuRegionalCand> > rpcBarrel;
