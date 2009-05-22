@@ -1677,7 +1677,8 @@ AlgebraicSymMatrix CSCSegAlgoST::calculateError() const {
 
 void CSCSegAlgoST::flipErrors( AlgebraicSymMatrix& a ) const { 
     
-  // The CSCSegment needs the error matrix re-arranged 
+  // The CSCSegment needs the error matrix re-arranged to match
+  //  parameters in order (uz, vz, u0, v0) where uz, vz = slopes, u0, v0 = intercepts
     
   AlgebraicSymMatrix hold( a ); 
     
@@ -1693,6 +1694,9 @@ void CSCSegAlgoST::flipErrors( AlgebraicSymMatrix& a ) const {
   a(4,3) = hold(2,1); 
   a(4,4) = hold(2,2); 
     
-  // off-diagonal elements remain unchanged 
-    
+  // must also interchange off-diagonal elements of off-diagonal 2x2 submatrices
+  a(4,1) = hold(2,3);
+  a(3,2) = hold(1,4);
+  a(2,3) = hold(4,1); // = hold(1,4)
+  a(1,4) = hold(3,2); // = hold(2,3)
 } 
