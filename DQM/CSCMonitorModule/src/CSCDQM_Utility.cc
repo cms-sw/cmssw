@@ -260,7 +260,7 @@ namespace cscdqm {
 
   
   /**
-   * @brief  Check the hypothesis that n value is too low or too high comparing with the expected N 
+   * @brief  Check the hypothesis that observed events (n) value is too low or too high comparing with the expected N 
    * @param  N Expected number of events
    * @param  n Actual (observed) number of events
    * @param  low_threshold Rate of lower boundary of tolerance (< 1)
@@ -271,7 +271,7 @@ namespace cscdqm {
    * (HOT), -1 - observed number of events too low wrt expected (COLD), 0 -
    * observed number of events is fine wrt expected
    */
-  short Utility::checkError(const unsigned int N, const unsigned int n, const double low_threshold, const double high_threshold, const double low_sigfail, const double high_sigfail) {
+  short Utility::checkOccupancy(const unsigned int N, const unsigned int n, const double low_threshold, const double high_threshold, const double low_sigfail, const double high_sigfail) {
     if (N > 0) {
       double eps_meas = (1.0 * n) / (1.0 * N);
       if (eps_meas < low_threshold) {
@@ -284,6 +284,26 @@ namespace cscdqm {
       }
     }
     return 0;
+  }
+
+  /**
+   * @brief  Check the hypothesis that error events (n) value above threshold comparing with the expected 0 and statistics is enough
+   * @param  N Number of total events
+   * @param  n Actual (observed) number of events errors
+   * @param  threshold Rate of tolerance (<1)
+   * @param  sigfail Significance threshold for low value
+   * @return check result: true - error is significant, false - otherwise
+   */
+  bool Utility::checkError(const unsigned int N, const unsigned int n, const double threshold, const double sigfail) {
+    if (N > 0) {
+      const double eps_meas = (1.0 * n) / (1.0 * N);
+      if (eps_meas > threshold) {
+        if (Utility::SignificanceLevelLow(N, n, threshold) > sigfail) {
+          return true;
+        }
+      } 
+    }
+    return false;
   }
 
   /**

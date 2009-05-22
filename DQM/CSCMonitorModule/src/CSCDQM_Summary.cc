@@ -149,7 +149,7 @@ namespace cscdqm {
               SetValue(adr, DATA);
             }
   
-            switch (Utility::checkError(N, n, cold_coef, hot_coef, cold_Sfail, hot_Sfail)) {
+            switch (Utility::checkOccupancy(N, n, cold_coef, hot_coef, cold_Sfail, hot_Sfail)) {
               case -1:
                 SetValue(adr, COLD);
                 break;
@@ -191,13 +191,10 @@ namespace cscdqm {
           N = int(evs->GetBinContent(x, y));
           n = int(err->GetBinContent(x, y));
           if (ChamberCoordsToAddress(x, y, adr)) {
-            double eps_meas = (1.0 * n) / (1.0 * N);
-            if (eps_meas > eps_max) { 
-              if(Utility::SignificanceLevelLow(N, n, eps_max) > Sfail) { 
-                SetValue(adr, bit);
-              } else {
-                ReSetValue(adr, bit);
-              }
+            if(Utility::checkError(N, n, eps_max, Sfail)) { 
+              SetValue(adr, bit);
+            } else {
+              ReSetValue(adr, bit);
             }
           }
         }

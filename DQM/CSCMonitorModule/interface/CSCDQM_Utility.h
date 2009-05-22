@@ -83,7 +83,8 @@ namespace cscdqm {
       static uint32_t fastHash(const char * data, int len);
       static uint32_t fastHash(const char * data) { return fastHash(data, strlen(data)); }
 
-      static short  checkError(const unsigned int N, const unsigned int n, const double low_threshold, const double high_threshold, const double low_sigfail, const double high_sigfail);
+      static short  checkOccupancy(const unsigned int N, const unsigned int n, const double low_threshold, const double high_threshold, const double low_sigfail, const double high_sigfail);
+      static bool   checkError(const unsigned int N, const unsigned int n, const double threshold, const double sigfail);
       static double SignificanceLevelLow(const unsigned int N, const unsigned int n, const double eps);
       static double SignificanceLevelHigh(const unsigned int N, const unsigned int n);
 
