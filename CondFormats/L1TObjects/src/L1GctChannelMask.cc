@@ -9,6 +9,12 @@ L1GctChannelMask::L1GctChannelMask() {
       regionMask_[ieta][iphi] = false;
     }
   }
+  for (unsigned i=0; i<22; ++i) {
+    tetMask_[i] = false;
+    metMask_[i] = false;
+    htMask_[i] = false;
+    mhtMask_[i] = false;
+  }
 }
 
 

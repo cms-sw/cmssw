@@ -8,8 +8,8 @@
  *                  to the Global Trigger
 */                  
 //                
-//   $Date: 2008/04/16 23:25:10 $
-//   $Revision: 1.4 $ 
+//   $Date: 2008/11/24 10:26:31 $
+//   $Revision: 1.5 $ 
 //
 //   Original Author :
 //   Hannes Sakulin      HEPHY / Vienna
@@ -102,6 +102,7 @@ class L1MuTriggerScales {
 					     offsetBrlRPCEta ) ;
 
     // CSC
+    m_RegionalEtaScale[2] = L1MuBinnedScale() ;
     // // m_RegionalEtaScale[2] = L1MuSymmetricBinnedScale ( 6, 32, 0.9, 2.5);
     //    m_RegionalEtaScaleCSC = L1MuSymmetricBinnedScale ( 6, 32, 0.9, 2.5);
     m_RegionalEtaScaleCSC = L1MuSymmetricBinnedScale ( nbitPackingCSCEta,
