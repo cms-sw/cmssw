@@ -1,4 +1,4 @@
-// $Id: DataProcessManager.cc,v 1.18 2009/04/17 14:40:19 biery Exp $
+// $Id: DataProcessManager.cc,v 1.19 2009/05/22 16:01:05 biery Exp $
 
 #include "EventFilter/SMProxyServer/interface/DataProcessManager.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
@@ -27,6 +27,19 @@ namespace
 
 namespace stor
 {
+  // once we switch to a later version of the SM, we should switch
+  // to stor::utils::getCurrentTime()
+  double getCurrentTime()
+  {
+    double now = -1.0;
+    struct timeval timeStruct;
+    int status = gettimeofday(&timeStruct, 0);
+    if (status == 0) {
+      now = ((double) timeStruct.tv_sec) +
+        (((double) timeStruct.tv_usec) / 1000000.0);
+    }
+    return now;
+  }
 
   DataProcessManager::DataProcessManager():
     cmd_q_(edm::getEventBuffer(voidptr_size,50)),
@@ -209,9 +222,9 @@ namespace stor
 
   void DataProcessManager::processCommands()
   {
-    stor::utils::time_point_t lastRegAttempt = 0.0;
-    stor::utils::time_point_t lastDQMRegAttempt = 0.0;
-    stor::utils::time_point_t lastFullHeaderAttempt = 0.0;
+    double lastRegAttempt = 0.0;
+    double lastDQMRegAttempt = 0.0;
+    double lastFullHeaderAttempt = 0.0;
 
     // called with this data process manager's own thread.
     // first register with the SM for each subfarm
@@ -320,7 +333,7 @@ namespace stor
           if(!doneWithRegistration)
           {
             if (!partiallyRegistered_) waitBetweenRegTrys();
-            stor::utils::time_point_t now = stor::utils::getCurrentTime();
+            double now = getCurrentTime();
             if ((now - lastRegAttempt) > headerRetryInterval_)
             {
               lastRegAttempt = now;
@@ -344,7 +357,7 @@ namespace stor
           if(!doneWithDQMRegistration)
           {
             if (!partiallyRegisteredDQM_) waitBetweenRegTrys();
-            stor::utils::time_point_t now = stor::utils::getCurrentTime();
+            double now = getCurrentTime();
             if ((now - lastDQMRegAttempt) > headerRetryInterval_)
             {
               lastDQMRegAttempt = now;
@@ -371,7 +384,7 @@ namespace stor
           bool success = getAnyHeaderFromSM();
           if(success) gotOneHeader = true;
         }
-        stor::utils::time_point_t now = stor::utils::getCurrentTime();
+        double now = getCurrentTime();
         if(!gotOneHeaderFromAll &&
            (now - lastFullHeaderAttempt) > headerRetryInterval_)
         {
