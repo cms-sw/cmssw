@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Tue Mar 18 15:15:30 CET 2008
-// $Id: RPCConeConnectionsAna.cc,v 1.1 2008/04/09 11:06:16 fruboes Exp $
+// $Id: RPCConeConnectionsAna.cc,v 1.2 2009/05/22 13:47:56 fruboes Exp $
 //
 //
 
@@ -63,6 +63,7 @@ class RPCConeConnectionsAna : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       int getDCCNumber(int iTower, int iSec);
+      int getDCC(int iSec);
       int   m_towerBeg;
       int   m_towerEnd;
       int   m_sectorBeg;
@@ -209,10 +210,16 @@ RPCConeConnectionsAna::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                               << " ls "  << (int)logstrip
                               <<" "<< RPCDetId(detId) 
                               << std::endl; 
-                     std::cout << "      -> " << aVec.begin()->first.dccId << " " << aVec.begin()->first.dccInputChannelNum 
-                               << " " << aVec.size()
-                               << std::endl;
-
+                     std::cout << " Connected to: " <<std::endl;
+                     for(CI=aVec.begin();CI!=aVec.end();CI++){
+                        std::cout << "     DCC: " << CI->first.dccId 
+                                  << " DCCInChannel: " << CI->first.dccInputChannelNum 
+                                  << std::endl; 
+   
+                     }
+                     std::cout << " Me thinks it should be: DCC: " << getDCC(sector) 
+                               << " DCCInChannel: " << dccInputChannel << std::endl;
+                    
                      LocalPoint lStripCentre1 = roll->centreOfStrip(1);
                      LocalPoint lStripCentreMax = roll->centreOfStrip(roll->nstrips() );
 
@@ -220,7 +227,8 @@ RPCConeConnectionsAna::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                      GlobalPoint gStripCentreMax = roll->toGlobal(lStripCentreMax);
                      float phiRaw1 = gStripCentre1.phi();
                      float phiRawMax = gStripCentreMax.phi();
-                     std::cout << phiRaw1 << " " << phiRawMax << std::endl; 
+                     std::cout << " Coresponding chamber spans in phi between : " 
+                               << phiRaw1 << " " << phiRawMax << std::endl; 
                    
                    } else {
             /*
@@ -278,6 +286,17 @@ int RPCConeConnectionsAna::getDCCNumber(int iTower, int iSec){
   return (tbNumber + phiFactor*9); //Count DCC input channel from 1
 }
 
+int RPCConeConnectionsAna::getDCC(int iSec){
+  int ret = 0;
+  if (iSec >= 0 && iSec <= 3 ) ret = 792;
+  else if (iSec >= 4 && iSec <= 7 ) ret = 791;
+  else if (iSec >= 8 && iSec <= 11 ) ret = 791;
+
+  else throw cms::Exception("blablabla") << "Bad ligsector:" << iSec << std::endl;
+
+  return ret;
+
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(RPCConeConnectionsAna);
