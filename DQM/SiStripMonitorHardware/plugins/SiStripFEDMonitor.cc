@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.14 2009/05/08 16:12:21 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.15 2009/05/20 15:12:04 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -43,10 +43,9 @@
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 
-#include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
+//#include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQM/SiStripMonitorHardware/interface/FEDHistograms.hh"
 #include "DQM/SiStripMonitorHardware/interface/FEDErrors.hh"
@@ -69,28 +68,6 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
   //update the cabling if necessary
   void updateCabling(const edm::EventSetup& eventSetup);
 
-  //perform a sanity check with unpacking code check
-  bool failUnpackerFEDCheck(const FEDRawData& rawData);
-
-  //return true if there were no errors at the level they are analysing
-  //ie analyze FED returns true if there were no FED level errors which prevent the whole FED being unpacked
-  bool analyzeFED(const FEDRawData& rawData, 
-		  unsigned int fedId,
-		  FEDErrors & aFEDError,
-		  bool & aFullDebug
-		  );
-
-  bool analyzeFEUnits(const sistrip::FEDBuffer* buffer, 
-		      unsigned int fedId,
-		      FEDErrors & aFEDError
-		      );
-
-  bool analyzeChannels(const sistrip::FEDBuffer* buffer, 
-		       unsigned int fedId,
-                       FEDErrors & aFEDError,
-		       bool & aFullDebug
-		       );
-  
 
   //tag of FEDRawData collection
   edm::InputTag rawDataTag_;
@@ -110,7 +87,7 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
   //FED cabling
   uint32_t cablingCacheId_;
   const SiStripFedCabling* cabling_;
-  std::vector< std::vector<bool> > activeChannels_;
+  //std::vector< std::vector<bool> > activeChannels_;
 
   //add parameter to save computing time if TkHistoMap are not filled
   bool doTkHistoMap_;
@@ -222,12 +199,19 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
       lFedLevelErrors.DataPresent = true;
     }
 
+
+    //Do exactly same check as unpacker
+    //will be used by channel check in following method fillFEDErrors so need to be called beforehand.
+    bool lFailUnpackerFEDcheck = lFedErrors.failUnpackerFEDCheck(fedData);
+ 
     //check for problems and fill detailed histograms
-    analyzeFED(fedData,
-	       fedId,
-	       lFedErrors,
-	       lFullDebug
-	       );
+    lFedErrors.fillFEDErrors(fedData,
+			     cabling_,
+			     lFullDebug,
+			     printDebug_
+			     );
+
+
 
     lFedErrors.incrementFEDCounters();
     fedHists_.fillFEDHistograms(lFedErrors,lFullDebug);
@@ -236,9 +220,7 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 
     if (lFailMonitoringFEDcheck) lNTotBadFeds++;
 
-    //Do exactly same check as unpacker
-    bool lFailUnpackerFEDcheck = failUnpackerFEDCheck(fedData);
-    
+   
     //sanity check: if something changed in the unpacking code 
     //but wasn't propagated here
     if (lFailMonitoringFEDcheck != lFailUnpackerFEDcheck) {
@@ -332,6 +314,8 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 
   fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters());
 
+  std::cout << " -- Info: Readout mode = " << lFedErrors.readoutMode() << std::endl;
+
   //match fedId/channel with detid
 
   if (doTkHistoMap_) {//if TkHistoMap is enabled
@@ -371,18 +355,19 @@ SiStripFEDMonitorPlugin::beginJob(const edm::EventSetup&)
   //this propagates dqm_ to the histoclass, must be called !
   fedHists_.bookTopLevelHistograms(dqm_);
   
-  const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
-  const unsigned int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
-
   if (fillAllDetailedHistograms_) fedHists_.bookAllFEDHistograms();
-  //mark all channels as inactive until they have been 'locked' at least once
-  activeChannels_.resize(siStripFedIdMax+1);
-  for (unsigned int fedId = siStripFedIdMin; 
-       fedId <= siStripFedIdMax; 
-       fedId++) {
-    activeChannels_[fedId].resize(sistrip::FEDCH_PER_FED,false);
-  }
 
+  //const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
+  //const unsigned int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
+
+  //mark all channels as inactive until they have been 'locked' at least once
+  //   activeChannels_.resize(siStripFedIdMax+1);
+  //   for (unsigned int fedId = siStripFedIdMin; 
+  //        fedId <= siStripFedIdMax; 
+  //        fedId++) {
+  //     activeChannels_[fedId].resize(sistrip::FEDCH_PER_FED,false);
+  //   }
+  
 
 }
 
@@ -402,294 +387,6 @@ void SiStripFEDMonitorPlugin::updateCabling(const edm::EventSetup& eventSetup)
     cabling_ = cablingHandle.product();
     cablingCacheId_ = currentCacheId;
   }
-}
-
-bool SiStripFEDMonitorPlugin::failUnpackerFEDCheck(const FEDRawData& rawData)
-{
-  // construct FEDBuffer
-  std::auto_ptr<sistrip::FEDBuffer> buffer;
-  try {
-    buffer.reset(new sistrip::FEDBuffer(rawData.data(),rawData.size()));
-    if (!buffer->doChecks()) return true;
-    //throw cms::Exception("FEDBuffer") << "FED Buffer check fails.";
-  }
-  catch (const cms::Exception& e) { 
-    if ( edm::isDebugEnabled() ) {
-      edm::LogWarning("DQM:SiStripFEDMonitor") << e.what();
-    }
-    return true;
-  }
-  return false;
-
-}
-
-bool SiStripFEDMonitorPlugin::analyzeFED(const FEDRawData& rawData, 
-					 unsigned int fedId,
-					 FEDErrors & aFedErrors,
-					 bool & aFullDebug
-					 )
-{
-  //try to construct the basic buffer object (do not check payload)
-  //if this fails then count it as an invalid buffer and stop checks since we can't understand things like buffer ordering
-
-  FEDErrors::FEDLevelErrors & lFedLevelErrors = aFedErrors.getFEDLevelErrors();
-
-  std::auto_ptr<const sistrip::FEDBufferBase> bufferBase;
-  try {
-    bufferBase.reset(new sistrip::FEDBufferBase(rawData.data(),rawData.size()));
-  } catch (const cms::Exception& e) {
-    lFedLevelErrors.InvalidBuffers = true;
-    //don't check anything else if the buffer is invalid
-    return false;
-  }
-  //CRC checks
-  //if CRC fails then don't continue as if the buffer has been corrupted in DAQ then anything else could be invalid
-  if (!bufferBase->checkNoSlinkCRCError()) {
-    lFedLevelErrors.BadFEDCRCs = true;
-    return false;
-  } else if (!bufferBase->checkCRC()) {
-    lFedLevelErrors.BadDAQCRCs = true;
-    return false;
-  }
-  //next check that it is a SiStrip buffer
-  //if not then stop checks
-  if (!bufferBase->checkSourceIDs() || !bufferBase->checkNoUnexpectedSourceID()) {
-    lFedLevelErrors.BadIDs = true;
-    return false;
-  } 
-  //if so then do DAQ header/trailer checks
-  //if these fail then buffer may be incomplete and checking contents doesn't make sense
-  else if (!bufferBase->doDAQHeaderAndTrailerChecks()) {
-    lFedLevelErrors.BadDAQPacket = true;
-    return false;
-  }
-
-  //now do checks on header
-  //check that tracker special header is consistent
-  if ( !(bufferBase->checkBufferFormat() && bufferBase->checkHeaderType() && bufferBase->checkReadoutMode() && bufferBase->checkAPVEAddressValid()) ) {
-    lFedLevelErrors.InvalidBuffers = true;
-    //keep running only in debug mode....
-    //if (!printDebug_) return false;
-  }
-  //FE unit overflows
-  if (!bufferBase->checkNoFEOverflows()) { 
-    lFedLevelErrors.FEsOverflow = true;
-    //if (!printDebug_) return false;
-  }
-  
-  //need to construct full object to go any further
-  std::auto_ptr<const sistrip::FEDBuffer> buffer;
-  buffer.reset(new sistrip::FEDBuffer(rawData.data(),rawData.size(),true));
-  static bool lFirst = true;
-  if (lFirst) std::cout << "--- FEDID " << fedId << ", readout mode = " << buffer->readoutMode() << std::endl;
-  lFirst = false;
-
-  //payload checks
-  if (!aFedErrors.anyFEDErrors()) {
-    //corrupt buffer checks
-    if (!buffer->doCorruptBufferChecks()) {
-      lFedLevelErrors.CorruptBuffer = true;
-      //if (!printDebug_) return false;
-    }
-
-    //fe check... 
-    analyzeFEUnits(buffer.get(),
-		   fedId,
-		   aFedErrors
-		   );
-    
-    //channel checks
-    analyzeChannels(buffer.get(),
-		    fedId,
-		    aFedErrors,
-		    aFullDebug
-		    );
-
-  }
-  
-  if (aFedErrors.printDebug() && printDebug_) {
-    const sistrip::FEDBufferBase* debugBuffer = NULL;
-    if (buffer.get()) debugBuffer = buffer.get();
-    else if (bufferBase.get()) debugBuffer = bufferBase.get();
-    if (debugBuffer) {
-      std::vector<FEDErrors::APVLevelErrors> & lChVec = aFedErrors.getAPVLevelErrors();
-      std::ostringstream debugStream;
-      if (lChVec.size()) {
-	std::sort(lChVec.begin(),lChVec.end());
-        debugStream << "Cabled channels which had errors: ";
-	
-        for (unsigned int iBadCh(0); iBadCh < lChVec.size(); iBadCh++) {
-          aFedErrors.print(lChVec.at(iBadCh),debugStream);
-        }
-        debugStream << std::endl;
-        debugStream << "Active (have been unlocked in at least one event) cabled channels which had errors: ";
-	for (unsigned int iBadCh(0); iBadCh < lChVec.size(); iBadCh++) {
-          if ((lChVec.at(iBadCh)).IsActive) aFedErrors.print(lChVec.at(iBadCh),debugStream);
-        }
-
-      }
-      debugStream << (*debugBuffer) << std::endl;
-      debugBuffer->dump(debugStream);
-      debugStream << std::endl;
-      edm::LogInfo("SiStripMonitorHardware") << "Errors found in FED " << fedId;
-      edm::LogVerbatim("SiStripMonitorHardware") << debugStream.str();
-    }
-  }
-  
-  return !(aFedErrors.anyFEDErrors());
-}
-
-bool SiStripFEDMonitorPlugin::analyzeFEUnits(const sistrip::FEDBuffer* buffer, 
-					     unsigned int fedId,
-					     FEDErrors & aFedErrors
-					     )
-{
-  bool foundOverflow = false;
-  bool foundBadMajority = false;
-  bool foundMissing = false;
-  for (unsigned int iFE = 0; iFE < sistrip::FEUNITS_PER_FED; iFE++) {
-    
-    FEDErrors::FELevelErrors lFeErr;
-    lFeErr.FeID = iFE;
-    lFeErr.Overflow = false;
-    lFeErr.Missing = false;
-    lFeErr.BadMajorityAddress = false;
-
-    if (buffer->feOverflow(iFE)) {
-      lFeErr.Overflow = true;
-      foundOverflow = true;
-      aFedErrors.addBadFE(lFeErr);
-      //if FE overflowed then address isn't valid
-      continue;
-    }
-    if (!buffer->feEnabled(iFE)) continue;
-    //check for cabled channels
-    bool hasCabledChannels = false;
-    for (unsigned int feUnitCh = 0; feUnitCh < sistrip::FEDCH_PER_FEUNIT; feUnitCh++) {
-      if (cabling_->connection(fedId,iFE*sistrip::FEDCH_PER_FEUNIT+feUnitCh).isConnected()) {
-        hasCabledChannels = true;
-        break;
-      }
-    }
-    //check for missing data
-    if (!buffer->fePresent(iFE)) {
-      if (hasCabledChannels) {
-	lFeErr.Missing = true;
-        foundMissing = true;
-	aFedErrors.addBadFE(lFeErr);
-      }
-      continue;
-    }
-    if (buffer->majorityAddressErrorForFEUnit(iFE)) {
-      foundBadMajority = true;
-      aFedErrors.addBadFE(lFeErr);
-    }
-  }
-
-  return !(foundOverflow || foundMissing || foundBadMajority);
-
-}
-
-bool SiStripFEDMonitorPlugin::analyzeChannels(const sistrip::FEDBuffer* buffer, 
-					      unsigned int fedId,
-					      FEDErrors & aFedErrors,
-					      bool & aFullDebug
- 					      )
-{
-  bool foundError = false;
-
-  const sistrip::FEDFEHeader* header = buffer->feHeader();
-  const sistrip::FEDFullDebugHeader* debugHeader = dynamic_cast<const sistrip::FEDFullDebugHeader*>(header);
-
-  aFullDebug = debugHeader;
-
-  for (unsigned int iCh = 0; iCh < sistrip::FEDCH_PER_FED; iCh++) {//loop on channels
-    bool isGood = true;
-
-    const FedChannelConnection & lConnection = cabling_->connection(fedId,iCh);
-
-    bool lFailUnpackerChannelCheck = !buffer->channelGood(lConnection.fedCh()) && lConnection.isConnected();
-    bool lFailMonitoringChannelCheck = false;
-
-    if (!lConnection.isConnected()) isGood = false;
-    else if (!buffer->feGood(static_cast<unsigned int>(iCh/sistrip::FEDCH_PER_FEUNIT))) {
-      isGood = false;
-      lFailMonitoringChannelCheck = true;
-    }    
-
-    if (debugHeader) {
-      if (!debugHeader->unlocked(iCh)) activeChannels_[fedId][iCh] = true;
-    } else {
-      if (header->checkChannelStatusBits(iCh)) activeChannels_[fedId][iCh] = true;
-    }
-
-    FEDErrors::ChannelLevelErrors lChErr;
-    lChErr.ChannelID = iCh;
-    lChErr.IsActive = activeChannels_[fedId][iCh];
-    lChErr.Unlocked = false;
-    lChErr.OutOfSync = false;
-
-
-    bool lFirst = true;
-
-    for (unsigned int iAPV = 0; iAPV < 2; iAPV++) {//loop on APVs
-
-      FEDErrors::APVLevelErrors lAPVErr;
-      lAPVErr.APVID = 2*iCh+iAPV;
-      lAPVErr.ChannelID = iCh;
-      lAPVErr.IsActive = activeChannels_[fedId][iCh];
-      lAPVErr.APVStatusBit = false;
-      lAPVErr.APVError = false;
-      lAPVErr.APVAddressError = false;
-
-      if (!header->checkStatusBits(iCh,iAPV) && isGood) {
-	lFailMonitoringChannelCheck = true;
-	lAPVErr.APVStatusBit = true;
-	foundError = true;
-      }
-
-      if (debugHeader) {
-	if (debugHeader->apvError(iCh,iAPV)) {
-	  lAPVErr.APVError = true;
-	}
-        if (debugHeader->apvAddressError(iCh,iAPV)) {
-          lAPVErr.APVAddressError = true;
-        }
-      }
-
-      if ( (lAPVErr.APVStatusBit && isGood) || 
-	   lAPVErr.APVError || 
-	   lAPVErr.APVAddressError
-	   ) aFedErrors.addBadAPV(lAPVErr, lFirst);
-    }//loop on APVs
-
-    if (debugHeader) {
-      if (debugHeader->unlocked(iCh)) {
-	lChErr.Unlocked = true;
-      }
-      if (debugHeader->outOfSync(iCh)) {
-	lChErr.OutOfSync = true;
-      }
-      if (lChErr.Unlocked || lChErr.OutOfSync) aFedErrors.addBadChannel(lChErr);
-    }
-
-
-//     if (lFailUnpackerChannelCheck != lFailMonitoringChannelCheck) {
-      
-//       std::cout << " ------ WARNING: FED " << fedId << ", channel " << iCh << std::endl 
-// 	       << " --------- Monitoring Channel check " ;
-//       if (lFailMonitoringChannelCheck) std::cout << "failed." << std::endl;
-//       else std::cout << "passed." << std::endl ;
-//       std::cout << " --------- Unpacker Channel check " ;
-//       if (lFailUnpackerChannelCheck) std::cout << "failed." << std::endl;
-//       else std::cout << "passed." << std::endl;
-
-      
-//     }
-
-  }//loop on channels
-
-  return !foundError;
 }
 
 

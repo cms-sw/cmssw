@@ -20,6 +20,12 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+
+#include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
+
+
 class FEDErrors {
 
 public:
@@ -94,6 +100,28 @@ public:
 
   void hasCabledChannels(const bool isCabled);
 
+  //perform a sanity check with unpacking code check
+  bool failUnpackerFEDCheck(const FEDRawData & fedData);
+
+  //return true if there were no errors at the level they are analysing
+  //ie analyze FED returns true if there were no FED level errors which prevent the whole FED being unpacked
+  //fill errors: define the order of importance.
+  bool fillFEDErrors(const FEDRawData& aFedData,
+		     const SiStripFedCabling* aCabling,
+		     bool & aFullDebug,
+		     const bool aPrintDebug
+		     );
+
+  bool fillFEErrors(const sistrip::FEDBuffer* aBuffer,
+		    const SiStripFedCabling* aCabling
+		    );
+
+  bool fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
+			 const SiStripFedCabling* aCabling,
+			 bool & aFullDebug
+			 );
+
+
   //bool foundFEDErrors();
 
   const bool anyDAQProblems();
@@ -105,6 +133,11 @@ public:
   const bool printDebug();
 
   const unsigned int fedID();
+
+  const std::string readoutMode();
+
+  void readoutMode(const std::string & aMode);
+
 
   static FEDCounters & getFEDErrorsCounters();
 
@@ -149,6 +182,9 @@ private:
   std::vector<APVLevelErrors> apvErrors_;
   std::vector<std::pair<unsigned int,bool> > chErrors_;
 
+  std::string readoutMode_;
+
+  bool failUnpackerFEDCheck_;
 
 };//class
 
