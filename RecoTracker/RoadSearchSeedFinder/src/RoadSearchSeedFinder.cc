@@ -9,8 +9,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: noeding $
-// $Date: 2008/04/05 08:58:12 $
-// $Revision: 1.15 $
+// $Date: 2008/04/15 13:13:07 $
+// $Revision: 1.16 $
 //
 
 #include <iostream>
@@ -83,7 +83,8 @@ void RoadSearchSeedFinder::produce(edm::Event& e, const edm::EventSetup& es)
   ClusterChecker check(conf_);
     
   // invoke the seed finding algorithm: check number of clusters per event *only* in cosmic tracking mode
-  if (!check.tooManyClusters(e)) {
+  size_t clustsOrZero = check.tooManyClusters(e);
+  if (!clustsOrZero) {
 
     roadSearchSeedFinderAlgorithm_.run(rphiRecHits.product(),  
 				       stereoRecHits.product(),
@@ -91,6 +92,8 @@ void RoadSearchSeedFinder::produce(edm::Event& e, const edm::EventSetup& es)
 				       pixelRecHitCollection,
 				       es,
 				       *output);
+  } else {
+    edm::LogError("TooManyClusters") << "Found too many clusters (" << clustsOrZero << "), bailing out.\n";
   }
 
   // write output to file
