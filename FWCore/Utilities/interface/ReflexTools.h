@@ -61,6 +61,10 @@ namespace edm
 			    Reflex::Type& value_type);
 
   bool 
+  if_edm_ptr_get_value_type(Reflex::Type const& possible_ref,
+			    Reflex::Type& value_type);
+
+  bool 
   if_edm_refToBase_get_value_type(Reflex::Type const& possible_ref,
 				  Reflex::Type& value_type);
 
@@ -68,6 +72,9 @@ namespace edm
   is_RefVector(Reflex::Type const& possible_ref_vector,
 	       Reflex::Type& value_type);
 
+  bool
+  is_PtrVector(Reflex::Type const& possible_ref_vector,
+	       Reflex::Type& value_type);
   bool
   is_RefToBaseVector(Reflex::Type const& possible_ref_vector,
 		     Reflex::Type& value_type);

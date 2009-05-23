@@ -22,11 +22,9 @@ using Reflex::Type;
 using Reflex::TypeTemplate;
 using Reflex::Type_Iterator;
 
-namespace edm
-{
+namespace edm {
 
-  Type get_final_type(Type t)
-  {
+  Type get_final_type(Type t) {
     while (t.IsTypedef()) t = t.ToType();
     return t;
   }
@@ -34,28 +32,24 @@ namespace edm
   bool 
   find_nested_type_named(std::string const& nested_type,
 			 Type const& type_to_search,
-			 Type& found_type)
-  {
+			 Type& found_type) {
     // Look for a sub-type named 'nested_type'
     for (Type_Iterator
 	   i = type_to_search.SubType_Begin(),
 	   e = type_to_search.SubType_End();
-	 i != e;
-	 ++i)
-      {
-	if (i->Name() == nested_type)
-	  {
-	    found_type = get_final_type(*i);
-	    return true;
-	  }
+	   i != e;
+	   ++i) {
+      if (i->Name() == nested_type) {
+        found_type = get_final_type(*i);
+	return true;
       }
+    }
     return false;
   }
 
   bool
   if_edm_ref_get_value_type(Type const& possible_ref,
-			    Type & result)
-  {
+			    Type& result) {
     TypeTemplate primary_template_id(possible_ref.TemplateFamily());
     if (primary_template_id == TypeTemplate::ByName("edm::Ref", 3)) {
       (void)value_type_of(possible_ref, result);
@@ -67,9 +61,21 @@ namespace edm
   }
 
   bool
+  if_edm_ptr_get_value_type(Type const& possible_ref,
+			    Type& result) {
+    TypeTemplate primary_template_id(possible_ref.TemplateFamily());
+    if (primary_template_id == TypeTemplate::ByName("edm::Ptr", 1)) {
+      (void)value_type_of(possible_ref, result);
+      return true;
+    } else {
+      result = possible_ref;	
+      return false;
+    }
+  }
+
+  bool
   if_edm_refToBase_get_value_type(Type const& possible_ref,
-				  Type & result)
-  {
+				  Type& result) {
     TypeTemplate primary_template_id(possible_ref.TemplateFamily());
     if (primary_template_id == TypeTemplate::ByName("edm::RefToBase", 1)) {
       (void)value_type_of(possible_ref, result);
@@ -82,48 +88,70 @@ namespace edm
 
   bool
   is_sequence_wrapper(Type const& possible_sequence_wrapper,
-		      Type& found_sequence_value_type)
-  {
+		      Type& found_sequence_value_type) {
     Type possible_sequence;
-    if (!edm::wrapper_type_of(possible_sequence_wrapper, possible_sequence))
+    if (!edm::wrapper_type_of(possible_sequence_wrapper, possible_sequence)) {
       return false;
+    }
 
     Type outer_value_type;
-    if (!edm::value_type_of(possible_sequence, outer_value_type))
+    if (!edm::value_type_of(possible_sequence, outer_value_type)) {
       return false;
+    }
 
     if (!if_edm_ref_get_value_type(outer_value_type,
 				   found_sequence_value_type)) {
 
-      if_edm_refToBase_get_value_type(outer_value_type,
-				      found_sequence_value_type);
+      if (!if_edm_ptr_get_value_type(outer_value_type,
+		 		     found_sequence_value_type)) {
+
+        if_edm_refToBase_get_value_type(outer_value_type,
+				        found_sequence_value_type);
+      }
     }
     return true;
   }
 
   bool
   is_RefVector(Reflex::Type const& possible_ref_vector,
-	       Reflex::Type& value_type)
-  {
+	       Reflex::Type& value_type) {
 
     static TypeTemplate ref_vector_template_id(TypeTemplate::ByName("edm::RefVector", 3));
     static std::string member_type("member_type");
     TypeTemplate primary_template_id(possible_ref_vector.TemplateFamily());
-    if ( primary_template_id == ref_vector_template_id )
+    if (primary_template_id == ref_vector_template_id) {
       return find_nested_type_named(member_type, possible_ref_vector, value_type);
+    }
+    return false;    
+  }
+
+  bool
+  is_PtrVector(Reflex::Type const& possible_ref_vector,
+	       Reflex::Type& value_type) {
+
+    static TypeTemplate ref_vector_template_id(TypeTemplate::ByName("edm::PtrVector", 1));
+    static std::string member_type("member_type");
+    static std::string val_type("value_type");
+    TypeTemplate primary_template_id(possible_ref_vector.TemplateFamily());
+    if (primary_template_id == ref_vector_template_id) {
+      Reflex::Type ptrType;
+      if (find_nested_type_named(val_type, possible_ref_vector, ptrType)) {
+        return find_nested_type_named(val_type, ptrType, value_type);
+      }
+    }
     return false;    
   }
 
   bool
   is_RefToBaseVector(Reflex::Type const& possible_ref_vector,
-		     Reflex::Type& value_type)
-  {
+		     Reflex::Type& value_type) {
 
     static TypeTemplate ref_vector_template_id(TypeTemplate::ByName("edm::RefToBaseVector", 1));
     static std::string member_type("member_type");
     TypeTemplate primary_template_id(possible_ref_vector.TemplateFamily());
-    if ( primary_template_id == ref_vector_template_id )
+    if (primary_template_id == ref_vector_template_id) {
       return find_nested_type_named(member_type, possible_ref_vector, value_type);
+    }
     return false;    
   }
 
@@ -221,7 +249,7 @@ namespace edm
     }
   } // end unnamed namespace
 
-  StringSet & missingTypes() {
+  StringSet& missingTypes() {
     static boost::thread_specific_ptr<StringSet> missingTypes_;
     if (0 == missingTypes_.get()) {
       missingTypes_.reset(new StringSet);
