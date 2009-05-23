@@ -805,7 +805,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
       // cynematical cuts for ZMuTrack
       bool etaCut = false;
       bool ptCut = false;
-      bool isoCut = false;
+      //      bool isoCut = false;
       bool massCut = false;
       if (abs(ZglobalDaughterEta)<etamax_ && abs(ZtrackerDaughterEta)<etamax_) etaCut = true;
       if (ZglobalDaughterPt>ptmin_ && ZtrackerDaughterPt>ptmin_) ptCut = true;
@@ -956,7 +956,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
       // cynematical cuts for ZMuSta
       bool etaCut = false;
       bool ptCut = false;
-      bool isoCut = false;
+      //      bool isoCut = false;
       bool massCut = false;
       if (abs(ZglobalDaughterEta)<etamax_ && abs(ZstaDaughter_StaComponentEta)<etamax_) etaCut = true;
       if (ZglobalDaughterPt>ptmin_ && ZstaDaughter_StaComponentPt>ptmin_) ptCut = true;

@@ -76,7 +76,7 @@ ZMuMuSaMassHistogram::ZMuMuSaMassHistogram(const ParameterSet& pset):
 void ZMuMuSaMassHistogram::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   Handle<CandidateView> dimuons;
   event.getByLabel(src_muons, dimuons);
-  for(int i=0; i< dimuons->size(); ++ i ) {
+  for(size_t i=0; i< dimuons->size(); ++ i ) {
     const Candidate & zmm = (* dimuons)[i];
     const Candidate * dau0 = zmm.daughter(0);
     const Candidate * dau1 = zmm.daughter(1);
