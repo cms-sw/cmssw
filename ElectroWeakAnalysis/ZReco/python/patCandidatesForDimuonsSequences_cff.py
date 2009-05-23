@@ -60,10 +60,6 @@ muonMatch.maxDPtRel = 1.0
 muonMatch.resolveAmbiguities = True
 muonMatch.resolveByMatchQuality = True
 
-# before layer 1: trigger matching
-#from PhysicsTools.PatAlgos.triggerLayer0.patTrigMatcher_cfi import *
-#patTrigMatch = cms.Sequence( patTrigMatchHLT1MuonNonIso )
-
 # layer 1 muons
 from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import *
 allLayer1Muons.isolation.tracker = cms.PSet(
@@ -73,14 +69,38 @@ allLayer1Muons.isolation.tracker = cms.PSet(
     cut = cms.double(3.0),
     threshold = cms.double(1.5)
 )
-
+allLayer1Muons.addTrigMatch = cms.bool(False)
 #allLayer1Muons.trigPrimMatch = cms.VInputTag(cms.InputTag("muonTrigMatchHLT1MuonNonIso"))
 
 from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import *
 selectedLayer1Muons.cut = 'pt > 0. & abs(eta) < 100.0'
 
-# trigger info
-from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cff import *
+# trigger info #### WAITING FOR A RECIPE
+#from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import *
+#
+#muonTriggerMatchHLTMuons = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
+#    src     = cms.InputTag( "selectedLayer1Muons" ),
+#    matched = cms.InputTag( "patTrigger" ),
+#    andOr          = cms.bool( False ),
+#    filterIdsEnum  = cms.vstring( 'TriggerMuon' ), # 'TriggerMuon' is the enum from trigger::TriggerObjectType for HLT muons
+#    filterIds      = cms.vuint32( 0 ),
+#    filterLabels   = cms.vstring( '*' ),
+#    pathNames      = cms.vstring( '*' ),
+#    collectionTags = cms.vstring( '*' ),
+#    maxDPtRel = cms.double( 1.0 ),
+#    maxDeltaR = cms.double( 0.2 ),
+#    resolveAmbiguities    = cms.bool( True ),
+#    resolveByMatchQuality = cms.bool( False )
+#)
+#
+#from PhysicsTools.PatAlgos.triggerLayer1.triggerEventProducer_cfi import *
+#patTriggerEvent.patTriggerMatches  = ( "muonTriggerMatchHLTMuons" )
+#
+#patTriggerSequence = cms.Sequence(
+#    patTrigger *
+#    muonTriggerMatchHLTMuons *
+#    patTriggerEvent
+#)
 
 # pat sequences
 
@@ -89,13 +109,9 @@ beforeLayer1Tracks = cms.Sequence(
     trackMuMatch
 )
 
-#beforeLayer1Muons = cms.Sequence(
-#    muonMatch +    
-#    patTrigMatch
-#)
-
 beforeLayer1Muons = cms.Sequence(
-    muonMatch
+    muonMatch #+
+#    patTrigMatch
 )
 
 beforePatLayer1 = cms.Sequence(
@@ -106,14 +122,14 @@ beforePatLayer1 = cms.Sequence(
 patLayer1 = cms.Sequence(
     allLayer1Muons *
     selectedLayer1Muons *
+#    cleanLayer1Muons *
     allLayer1TrackCands *
     selectedLayer1TrackCands
 )
 
 goodMuonRecoForDimuon = cms.Sequence(
     beforePatLayer1 *
-    patLayer1 *
-    patTriggerSequence
+    patLayer1 # *
+#    patTriggerSequence
 )
-
 
