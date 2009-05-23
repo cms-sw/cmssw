@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/01/16 16:43:46 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/03/19 10:51:40 $
+ *  $Revision: 1.3 $
  */
 
 #include "MagneticField/GeomBuilder/plugins/VolumeBasedMagneticFieldESProducer.h"
@@ -34,10 +34,16 @@ VolumeBasedMagneticFieldESProducer::VolumeBasedMagneticFieldESProducer(const edm
 // ------------ method called to produce the data  ------------
 std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const IdealMagneticFieldRecord & iRecord)
 {
+  bool debug = pset.getUntrackedParameter<bool>("debugBuilder", false);
+  if (debug) {
+    cout << "VolumeBasedMagneticFieldESProducer::produce() " << pset.getParameter<std::string>("version") << endl;
+  }
+  
   edm::ESHandle<DDCompactView> cpv;
   iRecord.get("magfield",cpv );
   MagGeoBuilderFromDDD builder(pset.getParameter<std::string>("version"),
-			       pset.getUntrackedParameter<bool>("debugBuilder", false));
+			       debug, 
+			       pset.getParameter<bool>("overrideMasterSector"));
 
   // Get scaling factors
   vector<int> keys = pset.getParameter<vector<int> >("scalingVolumes");
@@ -53,7 +59,7 @@ std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const I
   // Get slave field
   edm::ESHandle<MagneticField> paramField;
   if (pset.getParameter<bool>("useParametrizedTrackerField")) {;
-    iRecord.get("parametrizedField",paramField);
+    iRecord.get(pset.getParameter<string>("paramLabel"),paramField);
   }
   std::auto_ptr<MagneticField> s(new VolumeBasedMagneticField(pset,builder.barrelLayers(), builder.endcapSectors(), builder.barrelVolumes(), builder.endcapVolumes(), builder.maxR(), builder.maxZ(), paramField.product(), false));
   return s;
