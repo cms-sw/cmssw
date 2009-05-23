@@ -5,8 +5,8 @@
  *
  *  Base class for the different implementation of magnetic field engines.
  *
- *  $Date: 2008/05/06 12:55:12 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/03/19 10:27:05 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - CERN
  */
 
@@ -18,6 +18,13 @@ class MagneticField
  public:
   MagneticField();
   virtual ~MagneticField();
+
+  /// Derived classes can implement cloning without ownership of the 
+  /// underlying engines.
+  virtual MagneticField* clone() const {
+    return 0;
+  }
+  
 
   /// Field value ad specified global point, in Tesla
   virtual GlobalVector inTesla (const GlobalPoint& gp) const = 0;
