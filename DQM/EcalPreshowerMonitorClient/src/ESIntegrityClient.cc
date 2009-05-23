@@ -54,7 +54,6 @@ ESIntegrityClient::ESIntegrityClient(const ParameterSet& ps) {
 }
 
 ESIntegrityClient::~ESIntegrityClient() {
-
 }
 
 void ESIntegrityClient::beginJob(DQMStore* dqmStore) {
@@ -100,6 +99,19 @@ void ESIntegrityClient::setup(void) {
 
   dqmStore_->setCurrentFolder( prefixME_ + "/ESIntegrityClient" );
 
+  for (int i=0 ; i<2; ++i) 
+    for (int j=0 ; j<2; ++j) {
+      int iz = (i==0)? 1:-1;
+      sprintf(histo, "ES Integrity Summary 1 Z %d, P %d", iz, j+1);
+      meFED_[i][j] = dqmStore_->book2D(histo, histo, 40, 1, 41, 40, 1, 41);
+      meFED_[i][j]->setAxisTitle("Si X", 1);
+      meFED_[i][j]->setAxisTitle("Si Y", 2);
+      
+      sprintf(histo, "ES Integrity Summary 2 Z %d, P %d", iz, j+1);
+      meKCHIP_[i][j] = dqmStore_->book2D(histo, histo, 40, 1, 41, 40, 1, 41);
+      meKCHIP_[i][j]->setAxisTitle("Si X", 1);
+      meKCHIP_[i][j]->setAxisTitle("Si Y", 2);
+    }
 }
 
 void ESIntegrityClient::cleanup(void) {
