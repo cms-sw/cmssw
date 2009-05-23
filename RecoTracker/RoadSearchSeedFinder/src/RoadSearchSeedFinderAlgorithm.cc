@@ -12,8 +12,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: vlimant $
-// $Date: 2009/01/26 10:15:10 $
-// $Revision: 1.33 $
+// $Date: 2009/01/26 17:22:15 $
+// $Revision: 1.34 $
 //
 
 #include <vector>
@@ -324,7 +324,7 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
     }
 
     if ((maxNumberOfSeeds_ > 0) && (output.size() > size_t(maxNumberOfSeeds_))) {
-      edm::LogWarning("RoadSearchSeedFinder") << "Found too many seeds, bailing out.\n";
+      edm::LogError("TooManySeeds") << "Found too many seeds, bailing out.\n";
       output.clear(); 
       break;
     }
