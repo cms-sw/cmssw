@@ -14,13 +14,32 @@ VolumeBasedMagneticField::VolumeBasedMagneticField( const edm::ParameterSet& con
   maxR(rMax),
   maxZ(zMax),
   paramField(param),
-  paramFieldOwned(isParamFieldOwned) 
+  magGeomOwned(true),
+  paramFieldOwned(isParamFieldOwned)
 { 
   theNominalValue = MagneticField::nominalValue();
 }
 
+
+VolumeBasedMagneticField::VolumeBasedMagneticField(const VolumeBasedMagneticField& vbf) : 
+  field(vbf.field),
+  maxR(vbf.maxR),
+  maxZ(vbf.maxZ),
+  paramField(vbf.paramField),
+  magGeomOwned(false),
+  paramFieldOwned(false),
+  theNominalValue(vbf.theNominalValue) {
+  // std::cout << "VolumeBasedMagneticField::clone() (shallow copy)" << std::endl;
+}
+
+
+MagneticField* VolumeBasedMagneticField::clone() const {
+  return new VolumeBasedMagneticField(*this);
+}
+
+
 VolumeBasedMagneticField::~VolumeBasedMagneticField(){
-  delete field;
+  if(magGeomOwned) delete field;
   if(paramFieldOwned) delete paramField;
 }
 

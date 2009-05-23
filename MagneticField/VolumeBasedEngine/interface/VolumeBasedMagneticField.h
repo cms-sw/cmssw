@@ -5,8 +5,8 @@
  *
  *  Field engine providing interpolation within the full CMS region.
  *
- *  $Date: 2008/05/06 12:45:04 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/03/19 11:14:50 $
+ *  $Revision: 1.8 $
  *  \author N. Amapane - CERN
  */
 
@@ -26,6 +26,12 @@ class VolumeBasedMagneticField : public MagneticField {
 			    bool isParamFieldOwned=false);
   virtual ~VolumeBasedMagneticField();
 
+  /// Copy constructor implement a shallow copy (ie no ownership of actual engines)
+  VolumeBasedMagneticField(const VolumeBasedMagneticField& vbf);
+
+  /// Returns a shallow copy.
+  virtual MagneticField* clone() const;
+
   GlobalVector inTesla ( const GlobalPoint& g) const;
 
   GlobalVector inTeslaUnchecked ( const GlobalPoint& g) const;
@@ -42,10 +48,11 @@ class VolumeBasedMagneticField : public MagneticField {
   
 
  private:
-  MagGeometry* field;
+  const MagGeometry* field;
   float maxR;
   float maxZ;
   const MagneticField* paramField;
+  bool magGeomOwned;
   bool paramFieldOwned;
   int theNominalValue;
 };
