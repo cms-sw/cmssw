@@ -64,7 +64,7 @@ void ESIntegrityTask::endRun(const Run& r, const EventSetup& c) {
 }
 
 void ESIntegrityTask::reset(void) {
-
+  /*
   if ( meFED_ ) meFED_->Reset();
   if ( meGain_ ) meGain_->Reset();
   if ( meDCCErr_ ) meDCCErr_->Reset();
@@ -75,7 +75,7 @@ void ESIntegrityTask::reset(void) {
   if ( meKF2_ ) meKF2_->Reset();
   if ( meKBC_ ) meKBC_->Reset();
   if ( meKEC_ ) meKEC_->Reset();
-
+  */
 }
 
 void ESIntegrityTask::setup(void){
