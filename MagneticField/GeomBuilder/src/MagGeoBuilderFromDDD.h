@@ -6,8 +6,8 @@
  *  shared surfaces. Build MagVolume6Faces and organise them in a hierarchical
  *  structure. Build MagGeometry out of it.
  *
- *  $Date: 2009/01/16 16:43:47 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/01/21 12:05:14 $
+ *  $Revision: 1.11 $
  *  \author N. Amapane - INFN Torino
  */
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h" 
@@ -31,8 +31,12 @@ namespace magneticfield {
 
 class MagGeoBuilderFromDDD  {
 public:
-  /// Constructor
-  MagGeoBuilderFromDDD(std::string version_, bool debug=false);
+  /// Constructor. 
+  /// overrideMasterSector is a hack to allow switching between 
+  /// phi-symmetric maps and maps with sector-specific tables. 
+  /// It won't be necessary anymore once the geometry is decoupled from 
+  /// the specification of tables, ie when tables will come from the DB.
+  MagGeoBuilderFromDDD(std::string version_, bool debug=false, bool overrideMasterSector=false);
 
   /// Destructor
   virtual ~MagGeoBuilderFromDDD();
@@ -123,6 +127,8 @@ private:
   std::string version; // Version of the data files to be used
   
   std::map<int, double> theScalingFactors;
+
+  bool overrideMasterSector; // see comment on ctor
 
   static bool debug;
 

@@ -1,10 +1,8 @@
-// #include "Utilities/Configuration/interface/Architecture.h"
-
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/04/07 15:09:45 $
- *  $Revision: 1.21 $
+ *  $Date: 2009/05/13 16:05:26 $
+ *  $Revision: 1.22 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -51,6 +49,7 @@
 #include <iterator>
 #include <map>
 #include <set>
+#include <iomanip>
 #include "Utilities/General/interface/precomputed_value_sort.h"
 
 
@@ -58,8 +57,9 @@ bool MagGeoBuilderFromDDD::debug;
 
 using namespace std;
 
-MagGeoBuilderFromDDD::MagGeoBuilderFromDDD(string version_, bool debug_) :
-  version (version_)
+MagGeoBuilderFromDDD::MagGeoBuilderFromDDD(string version_, bool debug_, bool overrideMasterSector_) :
+  version (version_),
+  overrideMasterSector(overrideMasterSector_)
 {  
   debug = debug_;
   if (debug) cout << "Constructing a MagGeoBuilderFromDDD" <<endl;
@@ -202,7 +202,18 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 //     }
 
     volumeHandle* v = new volumeHandle(fv, expand);
-    
+    //FIXME: overrideMasterSector is a hack to allow switching between 
+    // phi-symmetric maps and maps with sector-specific tables. 
+    // It won't be necessary anymore once the geometry is decoupled from 
+    // the specification of tables, ie when tables will come from the DB.
+    if (overrideMasterSector && v->masterSector!=1) {
+      v->masterSector=1;
+      std::string::size_type ibeg, iend;
+      ibeg = (v->magFile).rfind('/');
+      iend = (v->magFile).size();
+      v->magFile = (v->magFile).substr(ibeg+1,iend-ibeg-1);
+    }
+
     // Select volumes, build volume handles.
     float Z = v->center().z();
     float R = v->center().perp();
@@ -450,7 +461,7 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles & volumes, map<string, 
     if (isf != theScalingFactors.end()) {
       sf = (*isf).second;
 
-      edm::LogInfo("MagneticField|VolumeBasedMagneticFieldESProducer") << "Applying scaling factor " << sf << " to "<< (*vol)->name << " (key:" << key << ")" << endl;
+      edm::LogInfo("MagneticField|VolumeBasedMagneticFieldESProducer") << "Applying scaling factor " << sf << " to "<< (*vol)->name << "["<< (*vol)->copyno << "] (key:" << key << ")" << endl;
     }
 
     const GloballyPositioned<float> * gpos = (*vol)->placement();
