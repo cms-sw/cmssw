@@ -13,7 +13,7 @@
 //
 // Original Author:  Carsten Noeding
 //         Created:  Mon Mar 19 13:51:22 CDT 2007
-// $Id: RoadSearchEventFilter.cc,v 1.1 2007/03/31 08:46:35 noeding Exp $
+// $Id: RoadSearchEventFilter.cc,v 1.2 2007/12/18 22:23:25 noeding Exp $
 //
 //
 
@@ -61,7 +61,7 @@ RoadSearchEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    if (rsSeedCollection->size() > numberOfSeeds_) {
      result=false;
-     edm::LogWarning("RoadSearch") << "Found " << rsSeedCollection->size() << " seeds -> skip event.";
+     edm::LogError("TooManySeeds") << "Found " << rsSeedCollection->size() << " seeds -> skip event.";
    }
 
    return result;
