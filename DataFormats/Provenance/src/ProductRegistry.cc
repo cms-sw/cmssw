@@ -124,12 +124,12 @@ namespace edm {
   ProductRegistry::allBranchNames() const
   {
     std::vector<std::string> result;
-    result.reserve( productList().size() ); 
+    result.reserve(productList().size()); 
 
-    ProductList::const_iterator it  = productList().begin();
+    ProductList::const_iterator it = productList().begin();
     ProductList::const_iterator end = productList().end();
 
-    for ( ; it != end; ++it ) result.push_back(it->second.branchName());
+    for (; it != end; ++it) result.push_back(it->second.branchName());
 
     return result;
   }
@@ -138,12 +138,12 @@ namespace edm {
   ProductRegistry::allBranchDescriptions() const
   {
     std::vector<BranchDescription const*> result;
-    result.reserve( productList().size() );
+    result.reserve(productList().size());
 
-    ProductList::const_iterator it  = productList().begin();
+    ProductList::const_iterator it = productList().begin();
     ProductList::const_iterator end = productList().end();
     
-    for ( ; it != end; ++it) result.push_back(&(it->second));    
+    for (; it != end; ++it) result.push_back(&(it->second));
     return result;
   }
   
@@ -250,6 +250,7 @@ namespace edm {
       //only do the following if the data is supposed to be available in the event
       if(i->second.present()) {
         if(not bool(type)) {
+
           edm::LogWarning("Missing Dictionary")<<"Could not find a Reflex dictionary for class '"<<i->second.className()
           <<"'.  This class was registered as one which is supposed to be held by an edm::Event, LuminosityBlock, or Run but will not be available. "
           "Please check\n"
@@ -271,7 +272,8 @@ namespace edm {
           // not exist and we do not need to support those cases.
           Reflex::Type valueType;
           if ((is_RefVector(type, valueType) || 
-               is_RefToBaseVector(type, valueType ) || 
+               is_PtrVector(type, valueType) || 
+               is_RefToBaseVector(type, valueType) || 
                value_type_of(type, valueType)) 
               && bool(valueType)) {
             
