@@ -1,7 +1,7 @@
 //
 // Original Author:  Davide Pagano
 //         Created:  Wed May 20 12:47:20 CEST 2009
-// $Id: RiovTest.cc,v 1.3 2009/05/22 18:18:11 dpagano Exp $
+// $Id: RiovTest.cc,v 1.4 2009/05/22 18:33:00 dpagano Exp $
 //
 //
 
@@ -26,24 +26,26 @@ public:
   
   
 private:
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
-  std::vector<RPCObImon::I_Item> filterData(unsigned long long since, unsigned long long till);
-  
-  RPCRunIOV* connection;
   std::vector<RPCObImon::I_Item> imon;
   std::vector<RPCObImon::I_Item> imon_;
   std::vector<RPCObImon::I_Item> filtImon;
   std::vector<unsigned long long> listIOV;
   unsigned long long min;
   unsigned long long max;
+  unsigned long long RunStart;
+  unsigned long long RunStop;
 };
 
-RiovTest::RiovTest(const edm::ParameterSet& iConfig)
 
+
+RiovTest::RiovTest(const edm::ParameterSet& iConfig)
 {
 }
+
 
 
 RiovTest::~RiovTest()
@@ -75,64 +77,50 @@ RiovTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      max = list->max;
    } else if (timeU < min || timeU > max) {
      imon_ = list->getImon();
-     std::cout << "Before [size] " << imon.size();  
+     //     std::cout << "Before [size] " << imon.size();  
      for(std::vector<RPCObImon::I_Item>::iterator it = imon_.begin(); it < imon_.end(); ++it)
        imon.push_back(*it);
-     std::cout << " <--> After [size] " << imon.size() << std::endl;  
+     //     std::cout << " <--> After [size] " << imon.size() << std::endl;  
      if (min > list->min) min = list->min;
      if (max < list->max) max = list->max;
    }
-   //----------------------------------------
-   std::cout << "MIN = " << min << std::endl;
-   std::cout << "MAX = " << max << std::endl;
+   //   std::cout << "MIN = " << min << std::endl;
+   //   std::cout << "MAX = " << max << std::endl;
 }
 
 
-// this methos filters data
-std::vector<RPCObImon::I_Item> 
-RiovTest::filterData(unsigned long long since, unsigned long long till)
+
+void
+RiovTest::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-
-  std::cout << std::endl << "=============================================" << std::endl;
-  std::cout << std::endl << "============    FILTERING DATA    ===========" << std::endl;
-  std::cout << std::endl << "=============================================" << std::endl << std::endl;
-
-  std::vector<RPCObImon::I_Item>::iterator it;
-
-  RPCFw conv ("","","");
-  int n = 0;
-  for ( it=imon.begin(); it < imon.end(); it++ ) {
-    n++;
-    int day = (int)it->day/10000;
-    int mon = (int)(it->day - day*10000)/100;
-    int yea = (int)(it->day - day*10000 - mon*100)+2000;
-    int hou = (int)it->time/10000;
-    int min = (int)(it->time - hou*10000)/100;
-    int sec = (int)(it->time - hou*10000 - min*100);
-    int nan = 0;
-    coral::TimeStamp timeD = coral::TimeStamp(yea, mon, day, hou, min, sec, nan);
-    unsigned long long timeU = conv.TtoUT(timeD);
-    
-    std::cout << n << " dpid = " << it->dpid << " - value = " << it->value << " - day = " << it->day << " (" << day << "/" << mon << "/" << yea << ") - time = " << it->time << " (" << hou << ":" << min << "." << sec << ") - UT = " << timeU << std::endl;
-
-    if (timeU < till && timeU > since) filtImon.push_back(*it);
-    
-  }
-
-  return filtImon;
+  std::cout << ">>> Run " << iRun.run() << std::endl;
+  std::cout << "    start " << iRun.beginTime().value() << std::endl;
+  std::cout << "     stop " << iRun.endTime().value() << std::endl;
 }
-
 
 
 
 void 
 RiovTest::beginJob()
-{
-}
+{}
+
 
 
 void 
 RiovTest::endJob() {
+
+  if (imon.size() > 0) {
+  std::cout << ">>> Object IMON" << std::endl;
+  std::cout << "    size " << imon.size() << std::endl;
+  std::cout << "    from " << min << " to " << max << std::endl;
+
+  // filtering has to be here
+  RPCRunIOV* filter = new RPCRunIOV();
+  filtImon = filter->filterIMON(imon, min, max);
+  std::cout << ">>> Filtered IMON" << std::endl;
+  std::cout << "    size " << filtImon.size() << std::endl;
+  }
+
 }
 
 //define this as a plug-in
