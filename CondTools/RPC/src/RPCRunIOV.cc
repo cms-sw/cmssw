@@ -120,8 +120,6 @@ RPCRunIOV::filterIMON(std::vector<RPCObImon::I_Item> imon, unsigned long long si
     int nan = 0;
     coral::TimeStamp timeD = coral::TimeStamp(yea, mon, day, hou, min, sec, nan);
     unsigned long long timeU = conv.TtoUT(timeD);
-    //    std::cout << n << " dpid = " << it->dpid << " - value = " << it->value << " - day = " << it->day << " (" << day << "/" << mon << "/" << yea << ") \
-      - time = " << it->time << " (" << hou << ":" << min << "." << sec << ") - UT = " << timeU << std::endl;
     if (timeU < till && timeU > since) filtImon.push_back(*it);
   }
   return filtImon;

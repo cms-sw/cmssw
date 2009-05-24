@@ -1,7 +1,7 @@
 //
 // Original Author:  Davide Pagano
 //         Created:  Wed May 20 12:47:20 CEST 2009
-// $Id: RiovTest.cc,v 1.4 2009/05/22 18:33:00 dpagano Exp $
+// $Id: RiovTest.cc,v 1.5 2009/05/24 14:41:35 dpagano Exp $
 //
 //
 
@@ -108,19 +108,18 @@ RiovTest::beginJob()
 
 void 
 RiovTest::endJob() {
-
+  
   if (imon.size() > 0) {
-  std::cout << ">>> Object IMON" << std::endl;
-  std::cout << "    size " << imon.size() << std::endl;
-  std::cout << "    from " << min << " to " << max << std::endl;
-
-  // filtering has to be here
-  RPCRunIOV* filter = new RPCRunIOV();
-  filtImon = filter->filterIMON(imon, min, max);
-  std::cout << ">>> Filtered IMON" << std::endl;
-  std::cout << "    size " << filtImon.size() << std::endl;
+    std::cout << ">>> Object IMON" << std::endl;
+    std::cout << "    size " << imon.size() << std::endl;
+    std::cout << "    from " << min << " to " << max << std::endl;
+    
+    // filtering has to be here
+    RPCRunIOV* filter = new RPCRunIOV();
+    filtImon = filter->filterIMON(imon, min, max);
+    std::cout << ">>> Filtered IMON" << std::endl;
+    std::cout << "    size " << filtImon.size() << std::endl;
   }
-
 }
 
 //define this as a plug-in
