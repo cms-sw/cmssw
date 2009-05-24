@@ -28,9 +28,11 @@ ParametrizedMagneticFieldProducer = cms.ESProducer("ParametrizedMagneticFieldPro
 VolumeBasedMagneticFieldESProducer = cms.ESProducer("VolumeBasedMagneticFieldESProducer",
     useParametrizedTrackerField = cms.bool(True),
     label = cms.untracked.string(''),
+    paramLabel = cms.string('parametrizedField'),
     version = cms.string('grid_1103l_071212_3_8t'),
     debugBuilder = cms.untracked.bool(False),
     cacheLastVolume = cms.untracked.bool(True),
+    overrideMasterSector = cms.bool(True),
     scalingVolumes = cms.vint32(),
     scalingFactors = cms.vdouble()
 )
