@@ -10,7 +10,7 @@
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 #include <iostream>
 #include <iomanip>

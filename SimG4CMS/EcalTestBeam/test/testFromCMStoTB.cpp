@@ -4,7 +4,7 @@
 #include "Math/GenVector/RotationY.h"
 #include "Math/GenVector/RotationZ.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
  
 
 #include <vector>

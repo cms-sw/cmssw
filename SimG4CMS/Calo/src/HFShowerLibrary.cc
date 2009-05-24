@@ -16,7 +16,7 @@
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "Randomize.hh"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 //#define DebugLog
 

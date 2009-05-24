@@ -6,7 +6,7 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <iostream>
 
 //#define DebugLog

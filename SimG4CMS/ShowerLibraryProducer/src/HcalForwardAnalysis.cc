@@ -21,8 +21,8 @@
 #include "G4SDManager.hh"
 #include "G4VProcess.hh"
 #include "G4HCofThisEvent.hh"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 using namespace edm;
 

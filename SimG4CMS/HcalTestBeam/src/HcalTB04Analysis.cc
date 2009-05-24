@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: HcalTB04Analysis.cc,v 1.8 2007/11/20 12:42:04 fabiocos Exp $
+// $Id: HcalTB04Analysis.cc,v 1.9 2009/04/01 22:55:21 sunanda Exp $
 //
   
 // system include files
@@ -47,8 +47,8 @@
 #include "G4SDManager.hh"
 #include "G4VProcess.hh"
 #include "G4HCofThisEvent.hh"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 //
 // constructors and destructor

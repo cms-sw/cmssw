@@ -10,7 +10,7 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <iostream>
 
 //#define DebugLog

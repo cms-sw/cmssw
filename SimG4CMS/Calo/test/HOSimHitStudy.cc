@@ -5,7 +5,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include <iostream>
 #include <iomanip>
 

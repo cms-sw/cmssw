@@ -16,7 +16,7 @@
 
 #include "G4Step.hh"
 #include "G4Track.hh"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 HcalTB06BeamSD::HcalTB06BeamSD(G4String name, const DDCompactView & cpv,
 			       SensitiveDetectorCatalog & clg, 

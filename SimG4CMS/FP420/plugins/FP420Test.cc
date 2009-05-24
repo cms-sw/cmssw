@@ -37,8 +37,8 @@
 #include "G4ProcessManager.hh"
 //#include "G4EventManager.hh"
 
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include <stdio.h>
 //#include <gsl/gsl_fit.h>
 
