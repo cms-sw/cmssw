@@ -120,8 +120,11 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   
   iEvent.getByLabel(m_rpcDigiLabel, pIn);
   
-  if (m_verbosity && !pIn.isValid()) {
-    edm::LogError("RPCTechnicalTrigger") << "can't find RPCDigiCollection with label" << '\n';
+  if ( !pIn.isValid() ) {
+    edm::LogError("RPCTechnicalTrigger") << "can't find RPCDigiCollection with label: " 
+                                         << m_rpcDigiLabel << '\n';
+    output->setGtTechnicalTrigger(ttVec);    
+    iEvent.put(output);
     return;
   }
   
@@ -148,7 +151,11 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       break;
       
     default:
-      edm::LogError("RPCTechnicalTrigger") << "Case not implemented" << '\n';
+      edm::LogError("RPCTechnicalTrigger") << "Trigger mode not implemented: " << m_triggerMode << '\n';
+      output->setGtTechnicalTrigger(ttVec);
+      iEvent.put(output);
+      return;
+      
     }
     
   }
@@ -163,17 +170,20 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   
   m_triggerbits.reset();
   
-  int indx=0;
+  int indx(0);
   
-  for(int k=0; k< m_maxTtuBoards; ++k) {
+  std::map<int,std::bitset<2> >::const_iterator outItr;
+  
+  for(int k=0; k < m_maxTtuBoards; ++k) {
     
     indx=k*2;
     
     if ( m_debugMode == 1 ) {
-      // process test full chain using ascii data
+      //... process test full chain using ascii data
+      //fix me: m_triggerbits size = 5 not 6 anymore
       m_ttu[k]->processtest( input );
       m_triggerbits.set( indx   , m_ttu[k]->m_trigger[0] );
-      m_triggerbits.set( indx+1 , m_ttu[k]->m_trigger[1] );
+      if ( m_ttu[k]->m_maxWheels > 1 ) m_triggerbits.set( indx+1 , m_ttu[k]->m_trigger[1] );
       continue;
     }
     
@@ -181,14 +191,14 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       
     case 1:
       m_ttu[k]->processglobal( input );
-      m_triggerbits.set( indx   , m_ttu[k]->m_trigger[0] );
-      m_triggerbits.set( indx+1 , m_ttu[k]->m_trigger[1] );
+      for( outItr  = m_ttu[k]->m_triggerBx.begin(); outItr != m_ttu[k]->m_triggerBx.end(); ++outItr )
+        m_serializedInfo.push_back( new TTUResults( k, (*outItr).first, (*outItr).second[0], (*outItr).second[1] ) );
       break;
       
     case 2:
       m_ttu[k]->processlocal( input );
-      m_triggerbits.set( indx   , m_ttu[k]->m_trigger[0] );
-      m_triggerbits.set( indx+1 , m_ttu[k]->m_trigger[1] );
+      for( outItr  = m_ttu[k]->m_triggerBx.begin(); outItr != m_ttu[k]->m_triggerBx.end(); ++outItr )
+        m_serializedInfo.push_back( new TTUResults( k, (*outItr).first, (*outItr).second[0], (*outItr).second[1] ) );
       break;
       
     default:
@@ -197,13 +207,29 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     
   }
   
-  int bx = 0;
-  bool bit = true;
-  
   //.. write results to technical trigger bits
+  int bx(0);
+  int infoSize(0);
   
-  for(int i = 0; i < m_maxBits; ++i) {
-    ttVec.at(i)=L1GtTechnicalTrigger(m_ttNames.at(i), m_ttBits.at(i), bx, bit) ;
+  infoSize = m_serializedInfo.size();
+  std::sort( m_serializedInfo.begin(), m_serializedInfo.end(), sortByBx() );
+
+  for(int k = 0; k < infoSize; k+=m_maxTtuBoards) {
+    
+    m_triggerbits.set(0, m_serializedInfo[k]->m_trigWheel1);
+    m_triggerbits.set(1, m_serializedInfo[k]->m_trigWheel2);
+    m_triggerbits.set(2, m_serializedInfo[k+1]->m_trigWheel1);
+    m_triggerbits.set(3, m_serializedInfo[k+2]->m_trigWheel1);
+    m_triggerbits.set(4, m_serializedInfo[k+2]->m_trigWheel2);
+    
+    bx = m_serializedInfo[k]->m_bx;
+    
+    for(int i = 0; i < m_maxBits; ++i) {
+      ttVec.at(i)=L1GtTechnicalTrigger(m_ttNames.at(i), m_ttBits.at(i), bx, m_triggerbits[i] ) ;
+    }
+    
+    m_triggerbits.reset();
+    
   }
   
   output->setGtTechnicalTrigger(ttVec);    
@@ -213,13 +239,16 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   
   input->clear();
   m_triggerbits.reset();
-  
-  //...
+  std::vector<TTUResults*>::iterator itrRes;
+  for( itrRes=m_serializedInfo.begin(); itrRes!=m_serializedInfo.end(); ++itrRes)
+    delete (*itrRes);
+  m_serializedInfo.clear();
   
   if( m_debugMode == 0 ) delete m_signal;
   
+  //.... all done
+
   ++m_ievt;
-  
   LogDebug("RPCTechnicalTrigger") << "RPCTechnicalTrigger> end of event loop" << std::endl;
   
 }
@@ -277,6 +306,8 @@ void RPCTechnicalTrigger::endJob()
 
 void RPCTechnicalTrigger::printinfo()
 {
+
+  LogDebug("RPCTechnicalTrigger") << "RPCTechnicalTrigger::Printing TTU emulators info>" << std::endl;
   
   for (int k=0; k < m_maxTtuBoards; ++k )
     m_ttu[k]->printinfo();

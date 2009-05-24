@@ -1,4 +1,4 @@
-// $Id: ProcessDigiLocalSignal.h,v 1.2 2009/05/10 00:33:18 aosorio Exp $
+// $Id: ProcessDigiLocalSignal.h,v 1.1 2009/05/16 19:43:30 aosorio Exp $
 #ifndef PROCESSDIGILOCALSIGNAL_H 
 #define PROCESSDIGILOCALSIGNAL_H 1
 
@@ -50,9 +50,11 @@ public:
   
   void reset();
   
-  void initialize();
+  void initialize( std::vector<RPCData*> & );
   
   void builddata();
+  
+  void print_output();
   
   RPCInputSignal * retrievedata() {
     return  m_lbin;
@@ -80,13 +82,13 @@ private:
   RPCData  * m_block;
   
   RPCInputSignal * m_lbin;
-
-  std::vector<RPCData*> m_vecdata;
   
-  std::map<int,RBCInput*> m_data;
-
-  std::map<int,int> m_layermap;
-    
+  std::map<int, int> m_layermap;
+  
+  std::map<int, RBCInput*> m_data;
+  
+  std::map<int, std::vector<RPCData*> > m_vecDataperBx;
+  
   bool m_debug;
 
   std::vector<int> m_wheelid;

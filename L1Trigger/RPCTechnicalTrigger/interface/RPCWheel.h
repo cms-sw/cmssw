@@ -1,4 +1,4 @@
-// $Id: RPCWheel.h,v 1.2 2009/05/08 10:24:05 aosorio Exp $
+// $Id: RPCWheel.h,v 1.1 2009/05/16 19:43:30 aosorio Exp $
 #ifndef RPCWHEEL_H 
 #define RPCWHEEL_H 1
 
@@ -7,6 +7,7 @@
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUInput.h"
 #include "CondFormats/RPCObjects/interface/RBCBoardSpecs.h"
 
+#include<vector>
 #include<map>
 
 /** @class RPCWheel RPCWheel.h
@@ -23,25 +24,25 @@ void print_wheel( const TTUInput & );
 class RPCWheel {
 public: 
   /// Standard constructor
-  RPCWheel( ) { };
+  RPCWheel( );
 
-  RPCWheel( int );
-  
-  RPCWheel( int , const char * );
-
-  RPCWheel( int , const char *, const char * );
-  
   virtual ~RPCWheel( ); ///< Destructor
-
+  
+  void setProperties( int );
+  
+  void setProperties( int , const char * );
+  
+  void setProperties( int , const char *, const char * );
+  
   void setSpecifications( const RBCBoardSpecs * );
   
   bool initialise();
   
   void emulate();
   
-  bool process( const std::map<int,RBCInput*> & );
+  bool process( int , const std::map<int,RBCInput*> & );
   
-  bool process( const std::map<int,TTUInput*> & );
+  bool process( int , const std::map<int,TTUInput*> & );
   
   void createWheelMap();
   
@@ -51,13 +52,21 @@ public:
   
   void printinfo();
 
-  RBCEmulator * m_RBCE[6];
+  void print_wheel(const TTUInput & );
+  
+  std::vector<RBCEmulator*> m_RBCE;
   
 protected:
   
 private:
   
   int m_id;
+  int m_maxrbc;
+  int m_maxlayers;
+  int m_maxsectors;
+  
+  std::vector<int> m_sec1id;
+  std::vector<int> m_sec2id;
   
   //...
   std::bitset<6> * m_wheelmap[12];

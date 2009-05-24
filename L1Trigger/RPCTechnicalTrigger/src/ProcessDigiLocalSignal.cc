@@ -1,4 +1,4 @@
-// $Id: ProcessDigiLocalSignal.cc,v 1.2 2009/05/10 00:33:18 aosorio Exp $
+// $Id: ProcessDigiLocalSignal.cc,v 1.3 2009/05/16 19:43:31 aosorio Exp $
 // Include files 
 
 
@@ -24,33 +24,28 @@ ProcessDigiLocalSignal::ProcessDigiLocalSignal(  const edm::ESHandle<RPCGeometry
   m_ptr_digiColl = & digiColl;
 
   m_lbin = dynamic_cast<RPCInputSignal*>( new RBCLinkBoardGLSignal( &m_data ) );
-
+  
   m_debug = false;
   
-  m_wheelid.push_back(-2);
-  m_wheelid.push_back(-1);
-  m_wheelid.push_back( 0);
-  m_wheelid.push_back( 1);
-  m_wheelid.push_back( 2);
-
+  m_wheelid.push_back(-2); //-2
+  m_wheelid.push_back(-1); //-1
+  m_wheelid.push_back(0);  // 0
+  m_wheelid.push_back( 1); //+1
+  m_wheelid.push_back( 2); //+2
+  
   m_sec1id.push_back(1);
   m_sec2id.push_back(12);
-  
   m_sec1id.push_back(2);
   m_sec2id.push_back(3);
-  
   m_sec1id.push_back(4);
   m_sec2id.push_back(5);
-
   m_sec1id.push_back(6);
   m_sec2id.push_back(7);
-
   m_sec1id.push_back(8);
   m_sec2id.push_back(9);
-  
   m_sec1id.push_back(10);
   m_sec2id.push_back(11);
-
+  
   m_layermap[113]     = 0;  //RB1InFw
   m_layermap[123]     = 1;  //RB1OutFw
   m_layermap[313]     = 5;  //RB3Fw
@@ -60,18 +55,18 @@ ProcessDigiLocalSignal::ProcessDigiLocalSignal(  const edm::ESHandle<RPCGeometry
   m_layermap[311]     = 11; //RB3Bk
   m_layermap[411]     = 12; //RB4Bk
   
-  m_layermap[30212]   = 4;   //RB23M
-  m_layermap[30222]   = 4;   //RB23M
+  m_layermap[30212]   = 4;  //RB23M
+  m_layermap[30222]   = 4;  //RB23M
   
-  m_layermap[20213]   = 2;   //RB22Fw
-  m_layermap[20211]   = 9;   //RB22Bw
-  m_layermap[30213]   = 3;   //RB23Fw
-  m_layermap[30211]   = 10;  //RB23Bw
+  m_layermap[20213]   = 2;  //RB22Fw
+  m_layermap[20211]   = 9;  //RB22Bw
+  m_layermap[30213]   = 3;  //RB23Fw
+  m_layermap[30211]   = 10; //RB23Bw
   
   m_layermap[20223]   = 2;  //RB22Fw
   m_layermap[20221]   = 9;  //RB22Bw
-  m_layermap[30223]   = 3;   //RB23Fw
-  m_layermap[30221]   = 10;  //RB23Bw
+  m_layermap[30223]   = 3;  //RB23Fw
+  m_layermap[30221]   = 10; //RB23Bw
   
 }
 
@@ -86,20 +81,19 @@ ProcessDigiLocalSignal::~ProcessDigiLocalSignal() {
   m_sec2id.clear();
   m_wheelid.clear();
   m_layermap.clear();
-  
+
 } 
 
 //=============================================================================
 int ProcessDigiLocalSignal::next() {
   
-  //.
-  initialize();
+  //...clean up previous data contents
   
-  //...
+  reset();
   
   for (m_detUnitItr = (*m_ptr_digiColl)->begin(); 
        m_detUnitItr != (*m_ptr_digiColl)->end(); ++m_detUnitItr ) {
-
+    
     if ( m_debug ) std::cout << "looping over digis 1 ..." << std::endl;
     
     m_digiItr = (*m_detUnitItr ).second.first;
@@ -119,7 +113,7 @@ int ProcessDigiLocalSignal::next() {
     int station = roll->id().station();                 // 1-4
     int blayer  = getBarrelLayer( layer, station );     // 1 to 6
     int rollid  = id.roll();
-
+    
     int digipos = (station * 100) + (layer * 10) + rollid;
     
     if ( (wheel == -1 || wheel == 0 || wheel == 1) && station == 2 && layer == 1 )
@@ -142,18 +136,34 @@ int ProcessDigiLocalSignal::next() {
                              << "Digi at: " << digipos << '\n';
     
     //... Construct the RBCinput objects
+    std::map<int,std::vector<RPCData*> >::iterator itr;
+    itr = m_vecDataperBx.find( bx );
     
-    this->m_block = m_vecdata[ wheel + 2 ];
-    
-    setDigiAt( sector, digipos );
-    
-    //...
+    if ( itr == m_vecDataperBx.end() ) {
+      if ( m_debug ) std::cout << "Found a new Bx: " << bx << std::endl;
+      std::vector<RPCData*> wheelData;
+      initialize(wheelData);
+      m_vecDataperBx[bx] = wheelData; 
+      this->m_block = wheelData[ (wheel + 2) ];
+      setDigiAt( sector, digipos );
+    }
+    else{
+      this->m_block = (*itr).second[ (wheel + 2) ];
+      setDigiAt( sector, digipos );
+    }
     
     if ( m_debug ) std::cout << "looping over digis 2 ..." << std::endl;
     
   }
   
+  if ( m_debug ) std::cout << "size of data vectors: " << m_vecDataperBx.size() << std::endl;
+  
   builddata();
+  
+  if ( m_debug ) {
+    std::cout << "after reset" << std::endl;
+    print_output();
+  }
   
   return 1;
   
@@ -162,35 +172,42 @@ int ProcessDigiLocalSignal::next() {
 void ProcessDigiLocalSignal::reset()
 {
   
-  std::vector<RPCData*>::iterator itr;
-  for(itr=m_vecdata.begin();itr!=m_vecdata.end();++itr)
-    delete *itr;
-  m_vecdata.clear();
+  std::map<int,std::vector<RPCData*> >::iterator itr1;
+  for( itr1 = m_vecDataperBx.begin(); itr1 != m_vecDataperBx.end(); ++itr1) {
+    std::vector<RPCData*>::iterator itr2;
+    for(itr2 = (*itr1).second.begin(); itr2 != (*itr1).second.end();++itr2 )
+      if ( (*itr2) ) delete *itr2;
+    (*itr1).second.clear();
+  }
+  m_vecDataperBx.clear();
   
 }
 
 
-void ProcessDigiLocalSignal::initialize() 
+void ProcessDigiLocalSignal::initialize( std::vector<RPCData*> & dataVec ) 
 {
-
-  if ( m_debug ) std::cout << "initialize: starts" << std::endl;
   
-  reset();
+  if ( m_debug ) std::cout << "initialize" << std::endl;
   
-  for(int i=0; i < 5; ++i) {
+  int maxWheels = 5;
+  int maxRbcBrds = 6;
+  
+  for(int i=0; i < maxWheels; ++i) {
     
     m_block = new RPCData();
     
     m_block->m_wheel = m_wheelid[i];
     
-    for(int j=0; j < 6; ++j) {
+    for(int j=0; j < maxRbcBrds; ++j) {
       m_block->m_sec1[j] = m_sec1id[j];
       m_block->m_sec2[j] = m_sec2id[j];
       m_block->m_orsignals[j].input_sec[0].reset();
       m_block->m_orsignals[j].input_sec[1].reset();
+      m_block->m_orsignals[j].needmapping = false;
+      m_block->m_orsignals[j].hasData = false;
     }
-    
-    m_vecdata.push_back( m_block );
+
+    dataVec.push_back( m_block );
     
   }
   
@@ -201,26 +218,44 @@ void ProcessDigiLocalSignal::initialize()
 void ProcessDigiLocalSignal::builddata() 
 {
   
-  int _code(0);
+  int bx(0);
+  int code(0);
+  int bxsign(1);
   std::vector<RPCData*>::iterator itr;
+  std::map<int, std::vector<RPCData*> >::iterator itr2;
   
-  for(itr = m_vecdata.begin(); itr != m_vecdata.end(); ++itr)
-  {
-    for(int k=0; k < 6; ++k) {
+  itr2 = m_vecDataperBx.begin();
+  if( itr2 == ( m_vecDataperBx.end() ) ) return;
+  
+  while ( itr2 != m_vecDataperBx.end() ) {
+    
+    bx = (*itr2).first;
+    
+    if ( bx != 0 ) bxsign = ( bx / abs(bx) );
+    else bxsign = 1;
+    
+    for(itr = (*itr2).second.begin(); itr != (*itr2).second.end(); ++itr) {
       
-      _code = 10000*(*itr)->m_wheel
-        + 100*(*itr)->m_sec1[k]
-        + 1*(*itr)->m_sec2[k];
-
-      RBCInput * _signal = & (*itr)->m_orsignals[k];
-      
-      _signal->needmapping = false;
-      m_data.insert( std::make_pair( _code , _signal) );
-      
+      for(int k=0; k < 6; ++k) {
+        
+        code = bxsign * ( 1000000*abs(bx)
+                          + 10000*(*itr)->wheelIdx()
+                          + 100  *(*itr)->m_sec1[k]
+                          + 1    *(*itr)->m_sec2[k] );
+        
+        RBCInput * signal = & (*itr)->m_orsignals[k];
+        
+        signal->needmapping = false;
+        m_data.insert( std::make_pair( code , signal) );
+        
+      }
     }
+    
+    ++itr2;
+  
   }
   
-  if ( m_debug ) std::cout << "builddata: completed" << std::endl;
+  if ( m_debug ) std::cout << "builddata: completed. size of data: " << m_data.size() << std::endl;
   
 }
 
@@ -247,6 +282,8 @@ void ProcessDigiLocalSignal::setDigiAt( int sector, int digipos )
   
   int pos   = 0;
   int isAoB = 0;
+
+  if ( m_debug ) std::cout << "setDigiAt" << std::endl;
   
   std::vector<int>::const_iterator itr;
   itr = std::find( m_sec1id.begin(), m_sec1id.end(), sector );
@@ -265,6 +302,8 @@ void ProcessDigiLocalSignal::setDigiAt( int sector, int digipos )
   
   setInputBit( this->m_block->m_orsignals[pos].input_sec[ isAoB ] , digipos );
   
+  this->m_block->m_orsignals[pos].hasData = true;
+  
   if ( m_debug ) std::cout << this->m_block->m_orsignals[pos];
   
   if ( m_debug ) std::cout << "setDigiAt completed" << std::endl;
@@ -280,3 +319,16 @@ void ProcessDigiLocalSignal::setInputBit( std::bitset<15> & signals , int digipo
   
 }
 
+void  ProcessDigiLocalSignal::print_output() 
+{
+
+  std::cout << "ProcessDigiLocalSignal> Output starts" << std::endl;
+  
+  std::map<int,RBCInput*>::const_iterator itr;
+  for( itr = m_data.begin(); itr != m_data.end(); ++itr) {
+    std::cout << (*itr).first << '\t' << (* (*itr).second ) << '\n';
+  }
+
+  std::cout << "ProcessDigiLocalSignal> Output ends" << std::endl;
+  
+}

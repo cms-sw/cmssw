@@ -1,4 +1,4 @@
-// $Id: TTUInput.h,v 1.2 2009/05/08 10:24:04 aosorio Exp $
+// $Id: TTUInput.h,v 1.3 2009/05/10 00:33:18 aosorio Exp $
 #ifndef INTERFACE_TTUINPUT_H 
 #define INTERFACE_TTUINPUT_H 1
 
@@ -24,15 +24,19 @@ public:
   ///< Destructor
   virtual ~TTUInput( );
   
-  TTUInput( const TTUInput & _in)
+  TTUInput( const TTUInput & in )
   {
+    m_bx = in.m_bx;
+    input_sec = new std::bitset<6>[12];
     for(int i=0; i < 12; ++i) 
-      input_sec[i] = _in.input_sec[i];
+      input_sec[i] = in.input_sec[i];
   };
   
   TTUInput & operator=( const TTUInput & rhs )
   {
     if (this == &rhs) return (*this);
+    (*this).m_bx = rhs.m_bx;
+    (*this).input_sec = new std::bitset<6>[12];
     for(int i=0; i < 12; ++i)
       (*this).input_sec[i] = rhs.input_sec[i];
     return (*this);
@@ -40,6 +44,7 @@ public:
   
   void reset();
   
+  int m_bx;
   std::bitset<6> * input_sec;
   
   void mask ( const std::vector<int> & );

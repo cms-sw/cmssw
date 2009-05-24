@@ -1,8 +1,8 @@
-// $Id: TTUEmulator.cc,v 1.4 2009/05/10 00:33:18 aosorio Exp $
+// $Id: TTUEmulator.cc,v 1.5 2009/05/16 19:43:32 aosorio Exp $
 // Include files 
 
 
-
+#include <cmath>
 // local
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUEmulator.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUBasicConfig.h"
@@ -18,47 +18,49 @@
 //=============================================================================
 // Standard constructor, initializes variables
 //=============================================================================
-TTUEmulator::TTUEmulator( int _id, int _mxw  ) 
+TTUEmulator::TTUEmulator( int id, int mxw  ) 
 {
   
-  m_id        = _id;
-  m_maxwheels = _mxw;
+  m_id        = id;
+  m_maxWheels = mxw;
+  
   int tmp[6]  = {1, -2, 0, 0, -1, 2};
+  m_wheelIds = new int[6];
+  for( int k=0; k < 6; ++k) m_wheelIds[k]=tmp[k];
   
-  for( int k=0; k < 6; ++k) m_wheelids[k]=tmp[k];
+  m_Wheels = new RPCWheel[2];
+  for( int k=0; k < m_maxWheels; ++k ) 
+    m_Wheels[k].setProperties( m_wheelIds[(id*2)+(k-2)] );
   
-  for( int k=0; k < m_maxwheels; ++k ) 
-    m_Wheels[k] = new RPCWheel( m_wheelids[(_id*2)+(k-2)] );
+  m_ttuin = new TTUInput[2];
   
-  m_ttuin[0] = new TTUInput();
-  m_ttuin[1] = new TTUInput();
-
   m_trigger.reset();
-    
+  
   m_mode = 1;
-
+  
   m_debug = false;
     
 }
 
 
-TTUEmulator::TTUEmulator( int _id, const char * rbclogic_type, const char * ttulogic_type, int _mxw  ) 
+TTUEmulator::TTUEmulator( int id, const char * rbclogic_type, const char * ttulogic_type, int mxw  ) 
 {
   
-  m_id        = _id;
-  m_maxwheels = _mxw;
+  m_id        = id;
+  m_maxWheels = mxw;
+
   int tmp[6]  = {1, -2, 0, 0, -1, 2};
+  m_wheelIds = new int[6];
+  for( int k=0; k < 6; ++k) m_wheelIds[k]=tmp[k];
   
-  for( int k=0; k < 6; ++k) m_wheelids[k]=tmp[k];
+  m_Wheels = new RPCWheel[2];
+  for( int k=0; k < m_maxWheels; ++k ) 
+    m_Wheels[k].setProperties( m_wheelIds[(id*2)+(k-2)], rbclogic_type );
   
-  for( int k=0; k < m_maxwheels; ++k ) 
-    m_Wheels[k] = new RPCWheel( m_wheelids[(_id*2)+(k-2)], rbclogic_type );
-  
-  m_ttuin[0] = new TTUInput();
-  m_ttuin[1] = new TTUInput();
+  m_ttuin = new TTUInput[2];
   
   m_ttuconf   = dynamic_cast<TTUConfiguration*> (new TTUBasicConfig (ttulogic_type));
-
+  
   m_trigger.reset();
   
   m_mode = 1;
@@ -67,28 +69,29 @@ TTUEmulator::TTUEmulator( int _id, const char * rbclogic_type, const char * ttul
   
 }
 
-TTUEmulator::TTUEmulator( int _id, const char * f_name, const char * rbclogic_type, 
-                          const char * ttulogic_type, int _mxw  ) 
+TTUEmulator::TTUEmulator( int id, const char * f_name, const char * rbclogic_type, 
+                          const char * ttulogic_type, int mxw  ) 
 {
   
-  m_id        = _id;
-  m_maxwheels = _mxw;
+  m_id        = id;
+  m_maxWheels = mxw;
+
   int tmp[6]  = {1, -2, 0, 0, -1, 2};
+  m_wheelIds = new int[6];
+  for( int k=0; k < 6; ++k) m_wheelIds[k]=tmp[k];
   
-  for( int k=0; k < 6; ++k) m_wheelids[k]=tmp[k];
+  m_Wheels = new RPCWheel[2];
+  for( int k=0; k < m_maxWheels; ++k ) 
+    m_Wheels[k].setProperties( m_wheelIds[(id*2)+(k-2)], f_name, rbclogic_type );
   
-  for( int k=0; k < m_maxwheels; ++k ) 
-    m_Wheels[k] = new RPCWheel( m_wheelids[(_id*2)+(k-2)], f_name, rbclogic_type );
-  
-  m_ttuin[0] = new TTUInput();
-  m_ttuin[1] = new TTUInput();
+  m_ttuin = new TTUInput[2];
   
   m_ttuconf   = dynamic_cast<TTUConfiguration*> (new TTUBasicConfig (ttulogic_type));
-
+  
   m_trigger.reset();
-
+  
   m_mode = 1;
-
+  
   m_debug = false;
   
 }
@@ -98,15 +101,11 @@ TTUEmulator::TTUEmulator( int _id, const char * f_name, const char * rbclogic_ty
 //=============================================================================
 TTUEmulator::~TTUEmulator() {
 
-  if ( m_ttuconf ) delete m_ttuconf;
-  
-  if ( m_ttuin  ) 
-    for (int k=0; k < 2; ++k) 
-      delete m_ttuin[k];
-  
-  if ( m_Wheels ) 
-    for (int k=0; k  < m_maxwheels; ++k )
-      delete m_Wheels[k];
+  if ( m_wheelIds ) delete[] m_wheelIds;
+  if ( m_Wheels   ) delete[] m_Wheels;
+  if ( m_ttuin    ) delete[] m_ttuin;
+  if ( m_ttuconf  ) delete m_ttuconf;
+
   
 } 
 
@@ -116,8 +115,8 @@ void TTUEmulator::setSpecifications( const TTUBoardSpecs * ttuspecs, const RBCBo
   
   m_ttuconf   = dynamic_cast<TTUConfiguration*> (new TTUBasicConfig (ttuspecs));
   
-  for( int k=0; k < m_maxwheels; ++k)
-    m_Wheels[k]->setSpecifications( rbcspecs );
+  for( int k=0; k < m_maxWheels; ++k)
+    m_Wheels[k].setSpecifications( rbcspecs );
 
   std::vector<TTUBoardSpecs::TTUBoardConfig>::const_iterator itr;
   itr = m_ttuconf->m_ttuboardspecs->m_boardspecs.begin();
@@ -129,8 +128,8 @@ void TTUEmulator::setSpecifications( const TTUBoardSpecs * ttuspecs, const RBCBo
 bool TTUEmulator::initialise()
 {
   bool status(false);
-  for( int k=0; k < m_maxwheels; ++k)
-    status = m_Wheels[k]->initialise( );
+  for( int k=0; k < m_maxWheels; ++k)
+    status = m_Wheels[k].initialise( );
   
   status = m_ttuconf->initialise();
   
@@ -146,8 +145,8 @@ void TTUEmulator::emulate()
 {
   
   //... only for testing
-  for( int k=0; k < m_maxwheels; ++k ) 
-    m_Wheels[k]->emulate();
+  for( int k=0; k < m_maxWheels; ++k ) 
+    m_Wheels[k].emulate();
   
 }
 
@@ -162,31 +161,31 @@ void TTUEmulator::processtest( RPCInputSignal * signal )
   std::map<int,RBCInput*> * linkboardin;
   linkboardin = dynamic_cast<RBCLinkBoardGLSignal*>( signal )->m_linkboardin;
   
-  for( int k=0; k < m_maxwheels; ++k )
+  for( int k=0; k < m_maxWheels; ++k )
   {
     
-    if ( m_Wheels[k]->process( (*linkboardin) ) ) {
+    if ( m_Wheels[k].process( 0 , (*linkboardin) ) ) {
       
-      m_Wheels[k]->createWheelMap();
-      m_Wheels[k]->retrieveWheelMap( (*m_ttuin[k]) );
+      m_Wheels[k].createWheelMap();
+      m_Wheels[k].retrieveWheelMap( (m_ttuin[k]) );
       
       //.. execute here the Tracking Algorithm or any other selected logic
       
-      m_ttuconf->m_ttulogic->run( (*m_ttuin[k]) );
+      m_ttuconf->m_ttulogic->run( (m_ttuin[k]) );
       
       //... and produce a Wheel level trigger
       trg = m_ttuconf->m_ttulogic->isTriggered();
       
       m_trigger.set(k,trg);
       
-      if( m_debug ) std::cout << "TTUEmulator::processlocal ttuid: " << m_id 
-                              << " wheel: "       << m_Wheels[k]->getid()
+      if( m_debug ) std::cout << "TTUEmulator::processtest> ttuid: " << m_id 
+                              << " wheel: "       << m_Wheels[k].getid()
                               << " response: "    << trg << std::endl;
     }
     
   }
   
-  if( m_debug ) std::cout << "TTUEmulator::processlocal> done with this TTU: " << m_id << std::endl;
+  if( m_debug ) std::cout << "TTUEmulator::processtest> done with this TTU: " << m_id << std::endl;
   
 }
 
@@ -194,36 +193,56 @@ void TTUEmulator::processlocal( RPCInputSignal * signal )
 {
   
   //. 
+  int bx(0);
   bool trg(false); 
   
   m_trigger.reset();
+  m_triggerBx.clear();
   
   std::map<int,RBCInput*> * linkboardin;
+  std::map<int,RBCInput*>::iterator inItr;
+  
   linkboardin = dynamic_cast<RBCLinkBoardGLSignal*>( signal )->m_linkboardin;
   
-  for( int k=0; k < m_maxwheels; ++k )
-  {
+  for( inItr = (*linkboardin).begin(); inItr != (*linkboardin).end(); ++inItr) {
+
+    if ( (*inItr).first < 0 ) bx = (int) ceil( (*inItr).first / 1000000.0 );
+    else bx = (int) floor( (*inItr).first / 1000000.0 );
+
+    if( m_debug ) std::cout << "starting analysis for bx: " << bx << std::endl;
     
-    if ( m_Wheels[k]->process( (*linkboardin) ) ) {
+    for( int k=0; k < m_maxWheels; ++k )
+    {
       
-      m_Wheels[k]->createWheelMap();
-      m_Wheels[k]->retrieveWheelMap( (*m_ttuin[k]) );
+      if ( m_Wheels[k].process( bx , (*linkboardin) ) ) {
+        
+        m_Wheels[k].createWheelMap();
+        m_Wheels[k].retrieveWheelMap( (m_ttuin[k]) );
+        
+        //.. execute here the Tracking Algorithm or any other selected logic
+        m_ttuconf->m_ttulogic->run( (m_ttuin[k]) );
+        
+        //... and produce a Wheel level trigger
+        trg = m_ttuconf->m_ttulogic->isTriggered();
+        
+        m_trigger.set(k,trg);
+        
+        if( m_debug ) std::cout << "TTUEmulator::processlocal ttuid: " << m_id 
+                                << " bx: "          << bx
+                                << " wheel: "       << m_Wheels[k].getid()
+                                << " response: "    << trg << std::endl;
+        
+      }
       
-      //.. execute here the Tracking Algorithm or any other selected logic
-      
-      m_ttuconf->m_ttulogic->run( (*m_ttuin[k]) );
-      
-      //... and produce a Wheel level trigger
-      trg = m_ttuconf->m_ttulogic->isTriggered();
-      
-      m_trigger.set(k,trg);
-      
-      if( m_debug ) std::cout << "TTUEmulator::processlocal ttuid: " << m_id 
-                              << " wheel: "       << m_Wheels[k]->getid()
-                              << " response: "    << trg << std::endl;
     }
     
+    m_triggerBx[bx] = m_trigger;
+    
   }
+  
+  if( m_debug ) std::cout << "TTUEmulator::processlocal> size of trigger map " 
+                          << m_triggerBx.size() << std::endl;
+  
   
   if( m_debug ) std::cout << "TTUEmulator::processlocal> done with this TTU: " << m_id << std::endl;
   
@@ -233,42 +252,60 @@ void TTUEmulator::processlocal( RPCInputSignal * signal )
 void TTUEmulator::processglobal( RPCInputSignal * signal ) 
 {
   
-  //. 
+  //.
+  int bx(0);
   bool trg(false);
-
+  
   m_trigger.reset();
-
+  m_triggerBx.clear();
+  
   std::map<int,TTUInput*> * wheelmapin;
+  std::map<int,TTUInput*>::iterator inItr;
+
   wheelmapin = dynamic_cast<TTUGlobalSignal*>( signal )->m_wheelmap;
   
-  for( int k=0; k < m_maxwheels; ++k )
-  {
+  for( inItr = (*wheelmapin).begin(); inItr != (*wheelmapin).end(); ++inItr) {
     
-    if ( m_Wheels[k]->process( (*wheelmapin) ) ) {
+    if ( (*inItr).first < 0 ) bx = (int) ceil( (*inItr).first / 1000000.0 );
+    else bx = (int) floor( (*inItr).first / 1000000.0 );
+    
+    if( m_debug ) std::cout << "starting analysis for bx: " << bx << std::endl;
+    
+    for( int k=0; k < m_maxWheels; ++k )
+    {
       
-      m_Wheels[k]->retrieveWheelMap( (*m_ttuin[k]) );
-      
-      //.. mask and force as specified in hardware configuration
-      m_ttuconf->preprocess( (*m_ttuin[k]) );
-      
-      //.. execute here the Tracking Algorithm or any other selected logic
-      
-      m_ttuconf->m_ttulogic->run( (*m_ttuin[k]) );
-      
-      //... and produce a Wheel level trigger
-      trg = m_ttuconf->m_ttulogic->isTriggered();
-      
-      m_trigger.set(k,trg);
-      
-      if( m_debug ) std::cout << "TTUEmulator::processglobal ttuid: " << m_id 
-                              << " wheel: "       << m_Wheels[k]->getid()
-                              << " response: "    << trg << std::endl;
-      
+      if ( m_Wheels[k].process( bx , (*wheelmapin) ) ) {
+        
+        m_Wheels[k].retrieveWheelMap( (m_ttuin[k]) );
+        
+        //.. mask and force as specified in hardware configuration
+        m_ttuconf->preprocess( (m_ttuin[k]) );
+        
+        //.. execute here the Tracking Algorithm or any other selected logic
+        
+        m_ttuconf->m_ttulogic->run( (m_ttuin[k]) );
+        
+        //... and produce a Wheel level trigger
+        trg = m_ttuconf->m_ttulogic->isTriggered();
+        
+        m_trigger.set(k,trg);
+        
+        if( m_debug ) std::cout << "TTUEmulator::processglobal ttuid: " << m_id 
+                                << " wheel: "       << m_Wheels[k].getid()
+                                << " response: "    << trg << std::endl;
+        
+      }
       
     }
     
+    m_triggerBx[bx] = m_trigger;
+    
   }
   
+  if( m_debug ) std::cout << "TTUEmulator::processglobal> size of trigger map " 
+                          << m_triggerBx.size() << std::endl;
+  
+
   if( m_debug ) std::cout << "TTUEmulator::processglobal> done with this TTU: " << m_id << std::endl;
   
 }
@@ -280,7 +317,7 @@ void TTUEmulator::printinfo()
 {
   
   std::cout << "TTUEmulator: " << m_id << '\n';
-  for( int k=0; k < m_maxwheels; ++k ) 
-    m_Wheels[k]->printinfo();
+  for( int k=0; k < m_maxWheels; ++k ) 
+    m_Wheels[k].printinfo();
   
 }

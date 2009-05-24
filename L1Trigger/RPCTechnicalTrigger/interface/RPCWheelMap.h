@@ -1,4 +1,4 @@
-// $Id: RPCWheelMap.h,v 1.2 2009/05/08 10:24:05 aosorio Exp $
+// $Id: RPCWheelMap.h,v 1.1 2009/05/16 19:43:30 aosorio Exp $
 #ifndef RPCWHEELMAP_H 
 #define RPCWHEELMAP_H 1
 
@@ -23,24 +23,27 @@ public:
   
   void addHit( int , int , int );
   
-  void contractMaps();
-  
   void prepareData();
   
   int wheelid() { return m_wheelid; };
-    
-  TTUInput * m_ttuin;
-
+  
+  int wheelIdx() { return (m_wheelid+2); };
+  
+  TTUInput * m_ttuinVec;
+  
 protected:
   
 private:
   
   int m_bx;
   int m_wheelid;
-  std::bitset<6> * m_wheelmap;
-  std::bitset<6> * m_wheelmapbx;
+  int m_maxBx;
+  int m_maxSectors;
+  
+  std::bitset<6> * m_wheelMap;
+  std::bitset<6> * m_wheelMapBx;
   
   bool m_debug;
-    
+  
 };
 #endif // RPCWHEELMAP_H

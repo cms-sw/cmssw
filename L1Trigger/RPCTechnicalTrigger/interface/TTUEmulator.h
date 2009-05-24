@@ -1,4 +1,4 @@
-// $Id: TTUEmulator.h,v 1.4 2009/05/10 00:33:18 aosorio Exp $
+// $Id: TTUEmulator.h,v 1.1 2009/05/16 19:43:30 aosorio Exp $
 #ifndef TTUEMULATOR_H 
 #define TTUEMULATOR_H 1
 
@@ -62,8 +62,6 @@ public:
   
   void setSpecifications( const TTUBoardSpecs *, const RBCBoardSpecs *);
   
-  RPCWheel * m_Wheels[2];
-  
   int mode() {
     return m_mode;
   };
@@ -71,28 +69,29 @@ public:
   void setmode(int _mode) {
     m_mode = _mode;
   };
-
-  void setSpecs( );
-
+  
+  void setSpecs();
+  
+  int m_maxWheels;
+  RPCWheel * m_Wheels;
   std::bitset<2> m_trigger;
-    
+  std::map<int, std::bitset<2> > m_triggerBx;
+  
 protected:
   
 private:
   
   int m_id;
-  int m_maxwheels;
-  int m_wheelids[6];
   int m_bx;
   int m_mode;
   
-  std::string m_logtype;
+  int * m_wheelIds;
   
-  TTUInput         * m_ttuin[2];
-
+  std::string m_logtype;
+  TTUInput         * m_ttuin;
   TTUConfiguration * m_ttuconf;
   
   bool m_debug;
-    
+  
 };
 #endif // TTUEMULATOR_H

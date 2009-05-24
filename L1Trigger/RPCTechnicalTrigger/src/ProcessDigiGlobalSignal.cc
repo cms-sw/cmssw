@@ -1,4 +1,4 @@
-// $Id: ProcessDigiGlobalSignal.cc,v 1.2 2009/05/10 00:33:18 aosorio Exp $
+// $Id: ProcessDigiGlobalSignal.cc,v 1.3 2009/05/16 19:43:31 aosorio Exp $
 // Include files 
 
 
@@ -7,8 +7,8 @@
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUGlobalSignal.h" 
 
 //-----------------------------------------------------------------------------
-// Implementation file for class : ProcessDigiGlobalSignal
-//
+// Implementation file for class : ProcessDigiGlobalSignal 
+// (RPCTechnicalTrigger Emulator
 // 2008-11-23 : Andres Felipe Osorio Oliveros
 //-----------------------------------------------------------------------------
 
@@ -24,7 +24,9 @@ ProcessDigiGlobalSignal::ProcessDigiGlobalSignal( const edm::ESHandle<RPCGeometr
   
   m_wmin = dynamic_cast<RPCInputSignal*>( new TTUGlobalSignal( &m_data ) );
 
-  m_debug = false;
+  m_maxBx = 7;
+  
+  m_debug = true;
   
 }
 //=============================================================================
@@ -32,12 +34,13 @@ ProcessDigiGlobalSignal::ProcessDigiGlobalSignal( const edm::ESHandle<RPCGeometr
 //=============================================================================
 ProcessDigiGlobalSignal::~ProcessDigiGlobalSignal() {
   
-  std::vector<RPCWheelMap*>::iterator itr;
-  for(itr = m_wheelmapvec.begin(); itr != m_wheelmapvec.begin(); ++itr)
-    delete (*itr);
-  m_wheelmapvec.clear();
-  
   if( m_wmin ) delete m_wmin;
+  
+  std::map<int, RPCWheelMap*>::iterator itr;
+  for(itr = m_wheelMapVec.begin(); itr != m_wheelMapVec.begin(); ++itr)
+    if( (*itr).second ) delete (*itr).second;
+  
+  m_wheelMapVec.clear();
   
 } 
 
@@ -45,12 +48,16 @@ ProcessDigiGlobalSignal::~ProcessDigiGlobalSignal() {
 int ProcessDigiGlobalSignal::next() 
 {
   
-  //. Generate a Wheel map from Digi collection
-  int prev_wheel_id = -10;
-  RPCWheelMap * wheelmap = NULL;
+  //. Generate Wheel Maps from Digi collection
+
+  reset();
+    
+  RPCWheelMap * wheelmap;
   
   for (m_detUnitItr = (*m_ptr_digiColl)->begin(); 
        m_detUnitItr != (*m_ptr_digiColl)->end(); ++m_detUnitItr ) {
+    
+    if ( m_debug ) std::cout << "looping over digis 1 ..." << std::endl;
     
     m_digiItr = (*m_detUnitItr ).second.first;
     int bx = (*m_digiItr).bx();
@@ -77,38 +84,52 @@ int ProcessDigiGlobalSignal::next()
                              << "B-Layer: " << blayer  << '\n';
     
     
-    if ( wheel != prev_wheel_id ) {
-      wheelmap = new RPCWheelMap( wheel );
-      m_wheelmapvec.push_back ( wheelmap );
+    std::map<int, RPCWheelMap*>::iterator itr;
+    itr = m_wheelMapVec.find( wheel );
+    
+    if ( itr == m_wheelMapVec.end() ) {
+      if ( m_debug ) std::cout << "Configuring for a new Wheel" << wheel << std::endl;
+      wheelmap = new RPCWheelMap ( wheel );
+      m_wheelMapVec[wheel] = wheelmap;
+      wheelmap->addHit( bx, sector, layer );
+    }
+    else {
+      wheelmap = (*itr).second;
+      wheelmap->addHit( bx, sector, layer );
     }
     
-    wheelmap->addHit( bx, sector, layer );
-    
-    prev_wheel_id = wheel;
+    if ( m_debug ) std::cout << "looping over digis 2 ..." << std::endl;
     
   }
-  
-  //.. add up all bunch X info into a single map
-  
-  std::vector<RPCWheelMap*>::const_iterator itr;
-  itr = m_wheelmapvec.begin();
-  while( itr!=m_wheelmapvec.end()){
-    (*itr)->contractMaps();
-    ++itr;
-  }
-  
+      
   //... set up data to be processed
+  int bx(0);
+  int code(0);
+  int bxsign(1);
+  int wheel(-10);
   
-  int wheel      = -10;
-  int prev_wheel = -100;
-  itr = m_wheelmapvec.begin();
-  while( itr!=m_wheelmapvec.end()){
-    wheel = (*itr)->wheelid();
-    if ( wheel != prev_wheel ) {
-      (*itr)->prepareData();
-      m_data.insert( std::make_pair( (*itr)->wheelid() * 10000 , (*itr)->m_ttuin ) );
+  std::map<int, RPCWheelMap*>::iterator itr;
+  itr = m_wheelMapVec.begin();
+  
+  while( itr != m_wheelMapVec.end()){
+    
+    (*itr).second->prepareData();
+    
+    wheel = (*itr).second->wheelIdx();
+    
+    for( int k = 0; k < m_maxBx; ++k ) {
+      
+      bx   = k-3;
+      
+      if ( bx != 0 ) bxsign = ( bx / abs(bx) );
+      else bxsign = 1;
+      code = bxsign * ( 1000000*abs(bx) + 10000*wheel );
+      
+      TTUInput * signal = & (*itr).second->m_ttuinVec[k];
+      
+      m_data.insert( std::make_pair( code , signal ) );
+      
     }
-    prev_wheel = wheel;
     ++itr;
   }
   
@@ -135,3 +156,14 @@ int ProcessDigiGlobalSignal::getBarrelLayer( const int & _layer, const int & _st
   
 }
 
+void ProcessDigiGlobalSignal::reset()
+{
+  
+  std::map<int, RPCWheelMap*>::iterator itr;
+  
+  for(itr = m_wheelMapVec.begin(); itr != m_wheelMapVec.begin(); ++itr)
+    if( (*itr).second ) delete (*itr).second;
+  
+  m_wheelMapVec.clear();
+  
+}

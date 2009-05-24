@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: RBCId.h,v 1.3 2009/01/30 15:42:47 aosorio Exp $
 #ifndef RBCID_H 
 #define RBCID_H 1
 
@@ -26,6 +26,8 @@ public:
   virtual ~RBCId( ); ///< Destructor
   
   int wheel() const { return m_wheel;};
+  
+  int wheelIdx() const { return (m_wheel+2);}; // wheel index starts from 0
   
   int sector( int _sec ) const { return m_sector[_sec]; };
   

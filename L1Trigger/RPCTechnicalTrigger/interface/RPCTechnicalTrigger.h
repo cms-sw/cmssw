@@ -84,8 +84,8 @@ private:
   
   ProcessInputSignal * m_signal;
   
-  std::bitset<6> m_triggerbits;
-    
+  std::bitset<5> m_triggerbits;
+  
   edm::ESHandle<RPCGeometry> m_rpcGeometry;
   
   int m_verbosity;
@@ -95,7 +95,7 @@ private:
   std::vector<unsigned> m_ttBits;
   std::vector<std::string> m_ttNames;
   edm::InputTag m_rpcDigiLabel;
-  
+    
   const TTUBoardSpecs * m_ttuspecs;
   const RBCBoardSpecs * m_rbcspecs;
   
@@ -105,6 +105,40 @@ private:
   int m_nWheels[3];
   int m_maxTtuBoards;
   int m_maxBits;
+
+  class TTUResults {
+  public:
+    TTUResults() {;}
+    
+    TTUResults( int idx, int bx, int wh1, int wh2 ):
+      m_ttuidx(idx),
+      m_bx(bx),
+      m_trigWheel1(wh1),
+      m_trigWheel2(wh2) {;}
+    
+    ~TTUResults() 
+    {
+      m_ttuidx=0;
+      m_bx=0;
+      m_trigWheel1=0;
+      m_trigWheel2=0;
+    }
+    
+    int m_ttuidx;
+    int m_bx;
+    int m_trigWheel1;
+    int m_trigWheel2;
+    
+  };
+  
+  struct sortByBx {
+    bool operator()( const TTUResults * a, const TTUResults * b )
+    {
+      return (*a).m_bx < (*b).m_bx;
+    }
+  };
+  
+  std::vector<TTUResults*> m_serializedInfo;
   
   
 };

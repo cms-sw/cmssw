@@ -1,4 +1,4 @@
-// $Id: RBCEmulator.cc,v 1.6 2009/05/08 10:24:05 aosorio Exp $
+// $Id: RBCEmulator.cc,v 1.7 2009/05/16 19:43:32 aosorio Exp $
 // Include files 
 
 // local
@@ -86,9 +86,9 @@ bool RBCEmulator::initialise()
   
 }
 
-void RBCEmulator::setid( int _wh, int * _sec)
+void RBCEmulator::setid( int wh, int * sec)
 {
-  m_rbcinfo->setid ( _wh, _sec);
+  m_rbcinfo->setid ( wh, sec);
 }
 
 void RBCEmulator::emulate() 
@@ -96,7 +96,7 @@ void RBCEmulator::emulate()
   
   if( m_debug ) std::cout << "RBCEmulator> starting test emulation" << std::endl;
   
-  std::bitset<2> _decision;
+  std::bitset<2> decision;
   
   while ( m_signal->next() ) 
   {
@@ -104,14 +104,14 @@ void RBCEmulator::emulate()
     RPCInputSignal * data = m_signal->retrievedata();
     (*m_input) = * dynamic_cast<RBCLinkBoardSignal*>( data )->m_linkboardin ;
     
-    m_rbcconf->m_rbclogic->run( (*m_input) , _decision );
+    m_rbcconf->m_rbclogic->run( (*m_input) , decision );
     
     m_layersignal[0] = m_rbcconf->m_rbclogic->getlayersignal( 0 );
     m_layersignal[1] = m_rbcconf->m_rbclogic->getlayersignal( 1 );
     
     printlayerinfo();
     
-    std::cout << _decision[0] << " " << _decision[1] << std::endl;
+    if ( m_debug ) std::cout << decision[0] << " " << decision[1] << std::endl;
     
   }
   
@@ -119,26 +119,32 @@ void RBCEmulator::emulate()
   
 }
 
-void RBCEmulator::emulate( RBCInput * _in )
+void RBCEmulator::emulate( RBCInput * in )
 {
   
   if( m_debug ) std::cout << "RBCEmulator> starting emulation" << std::endl;
   
-  std::bitset<2> _decision;
+  std::bitset<2> decision;
   
-  (*m_input) =  (*_in);
+  (*m_input) =  (*in);
+  
+  if( m_debug ) std::cout << "RBCEmulator> copied data" << std::endl;
 
   //.. mask and force as specified in hardware configuration
   m_rbcconf->preprocess( (*m_input) );   
+
+  if( m_debug ) std::cout << "RBCEmulator> preprocessing done" << std::endl;
     
-  m_rbcconf->m_rbclogic->run( (*m_input) , _decision );
+  m_rbcconf->m_rbclogic->run( (*m_input) , decision );
+
+  if( m_debug ) std::cout << "RBCEmulator> applying logic" << std::endl;
   
   m_layersignal[0] = m_rbcconf->m_rbclogic->getlayersignal( 0 );
   m_layersignal[1] = m_rbcconf->m_rbclogic->getlayersignal( 1 );
   
   if( m_debug ) {
     printlayerinfo();
-    std::cout << _decision[0] << " " << _decision[1] << std::endl;
+    std::cout << decision[0] << " " << decision[1] << std::endl;
     std::cout << "RBCEmulator> end emulation" << std::endl;
   }
     

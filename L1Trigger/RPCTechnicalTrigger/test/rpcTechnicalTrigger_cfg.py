@@ -64,7 +64,6 @@ process.source = cms.Source("PoolSource",
 
 process.load("L1Trigger.RPCTechnicalTrigger.rpcTechnicalTrigger_cfi")
 
-
 process.out = cms.OutputModule("PoolOutputModule",
                                fileName = cms.untracked.string('rpcttbits.root'),
                                outputCommands = cms.untracked.vstring('drop *','keep L1GtTechnicalTriggerRecord_*_*_*') )

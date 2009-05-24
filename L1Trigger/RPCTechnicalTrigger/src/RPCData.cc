@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: RPCData.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
 // Include files 
 
 
@@ -15,9 +15,9 @@
 //=============================================================================
 // Standard constructor, initializes variables
 //=============================================================================
-RPCData::RPCData(  ) {
+RPCData::RPCData() {
   
-  m_wheel = 10;
+  m_wheel     = 10;
   m_sec1      = new int[6];
   m_sec2      = new int[6];
   m_orsignals = new RBCInput[6];

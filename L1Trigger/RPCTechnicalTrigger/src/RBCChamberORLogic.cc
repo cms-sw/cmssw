@@ -1,4 +1,4 @@
-// $Id: RBCChamberORLogic.cc,v 1.2 2009/05/10 00:33:18 aosorio Exp $
+// $Id: RBCChamberORLogic.cc,v 1.3 2009/05/16 19:43:32 aosorio Exp $
 // Include files 
 
 
@@ -57,10 +57,9 @@ RBCChamberORLogic::~RBCChamberORLogic() {
 void RBCChamberORLogic::process( const RBCInput & _input, std::bitset<2> & _decision ) 
 {
   
-  std::cout << "RBCChamberORLogic> Working with chambers OR logic ..." << '\n';
   bool status(false);
-
-
+  //std::cout << "RBCChamberORLogic> Working with chambers OR logic ..." << '\n';
+  
   for (int k=0; k < 2; ++k ) 
   {
     

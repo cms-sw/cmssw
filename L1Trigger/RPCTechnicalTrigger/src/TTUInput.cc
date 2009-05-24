@@ -1,10 +1,11 @@
-// $Id: TTUInput.cc,v 1.2 2009/05/08 10:24:05 aosorio Exp $
+// $Id: TTUInput.cc,v 1.3 2009/05/10 00:33:18 aosorio Exp $
 // Include files 
 
 
 
 // local
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUInput.h"
+#include <iostream>
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : TTUInput
@@ -16,17 +17,16 @@
 // Standard constructor, initializes variables
 //=============================================================================
 TTUInput::TTUInput(  ) {
+
+  m_bx = 0;
   
   input_sec = new std::bitset<6>[12];
   
-  for(int i=0; i < 12; ++i) {
-    for (int j=0; j < 6; ++j ) {
-      input_sec[i].set(j,false);
-    }
-  }
-
-  m_debug = false;
+  for(int i=0; i < 12; ++i)
+    input_sec[i].reset();
   
+  m_debug = false;
+
 }
 //=============================================================================
 // Destructor
@@ -34,17 +34,16 @@ TTUInput::TTUInput(  ) {
 TTUInput::~TTUInput() {
   
   if ( input_sec ) delete[] input_sec;
-  
+
 } 
 //=============================================================================
 
 void TTUInput::reset() 
 {
-  for(int i=0; i < 12; ++i) {
-    for (int j=0; j < 6; ++j ) {
-      input_sec[i].set(j,false);
-    }
-  }
+  
+  for(int i=0; i < 12; ++i)
+    input_sec[i].reset();
+  
 }
 
 void TTUInput::mask( const std::vector<int> & maskvec )

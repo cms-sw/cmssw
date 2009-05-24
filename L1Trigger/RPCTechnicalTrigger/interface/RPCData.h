@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: RPCData.h,v 1.1 2009/01/30 15:42:47 aosorio Exp $
 #ifndef INTERFACE_RPCDATA_H 
 #define INTERFACE_RPCDATA_H 1
 
@@ -28,13 +28,18 @@ public:
   int         m_wheel;
   int      *  m_sec1;
   int      *  m_sec2;
-  RBCInput * m_orsignals;
+  RBCInput *  m_orsignals;
 
   friend std::istream& operator>>(std::istream &, RPCData &);
   friend std::ostream& operator<<(std::ostream &, RPCData &);
   
+  int wheelIdx() //wheel index starts from 0
+  {
+    return (m_wheel + 2);
+  }
+  
 protected:
-
+  
 private:
 
 };
