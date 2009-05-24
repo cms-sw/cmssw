@@ -13,7 +13,7 @@ public:
   GflashTrajectory();
   ~GflashTrajectory();
 
-  void initializeTrajectory(const HepVector3D &, const HepPoint3D &, double q, double Field);
+  void initializeTrajectory(const HepGeom::Vector3D<double>  &, const HepGeom::Point3D<double>  &, double q, double Field);
 
   void setCotTheta(double cotTheta);
   void setCurvature(double curvature);
@@ -34,10 +34,10 @@ public:
   double getCosTheta() const;
 
   // Get Position as a function of (three-dimensional) path length
-  HepPoint3D getPosition(double s = 0.0) const;
+  HepGeom::Point3D<double>  getPosition(double s = 0.0) const;
 
   // Get Direction as a function of (three-dimensional) path length
-  HepVector3D getDirection(double s = 0.0) const;
+  HepGeom::Vector3D<double>  getDirection(double s = 0.0) const;
 
   void getGflashTrajectoryPoint(GflashTrajectoryPoint& point, double s) const;
   double getPathLengthAtRhoEquals(double rho) const; 

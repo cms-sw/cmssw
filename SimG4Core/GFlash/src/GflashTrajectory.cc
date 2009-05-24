@@ -17,9 +17,9 @@ GflashTrajectory::GflashTrajectory()
   //detault constructor
 }
 
-//GflashTrajectory::GflashTrajectory(const HepVector3D & MomentumGev, const HepPoint3D  & PositionCm,
+//GflashTrajectory::GflashTrajectory(const HepGeom::Vector3D<double>  & MomentumGev, const HepGeom::Point3D<double>   & PositionCm,
 //	     double q, double BFieldTesla) 
-void GflashTrajectory::initializeTrajectory(const HepVector3D & MomentumGev, const HepPoint3D  & PositionCm,
+void GflashTrajectory::initializeTrajectory(const HepGeom::Vector3D<double>  & MomentumGev, const HepGeom::Point3D<double>   & PositionCm,
 	     double q, double BFieldTesla) 
  {
   double CotTheta = 0.0 ;
@@ -46,8 +46,8 @@ void GflashTrajectory::initializeTrajectory(const HepVector3D & MomentumGev, con
     Z0              = z + gamma*CotTheta/W;
   }
   else {
-    Hep3Vector direction          = MomentumGev.unit(); 
-    Hep3Vector projectedDirection = Hep3Vector(direction.x(),direction.y(),0.0).unit();
+    CLHEP::Hep3Vector direction          = MomentumGev.unit(); 
+    CLHEP::Hep3Vector projectedDirection = CLHEP::Hep3Vector(direction.x(),direction.y(),0.0).unit();
     double s                      = projectedDirection.dot(PositionCm);
     double sprime                 = s/sin(direction.theta());
     Z0                            = (PositionCm - sprime*direction).z();
@@ -120,15 +120,15 @@ double GflashTrajectory::getCosTheta() const{
   return _cosTheta;
 }
 
-HepPoint3D GflashTrajectory::getPosition(double s) const
+HepGeom::Point3D<double>  GflashTrajectory::getPosition(double s) const
 {
   _cacheSinesAndCosines(s);
   if (s==0.0 || _curvature==0.0) {
-      return HepPoint3D(-_d0*_sinPhi0+s*_cosPhi0*_sinTheta,
+      return HepGeom::Point3D<double> (-_d0*_sinPhi0+s*_cosPhi0*_sinTheta,
                         _d0*_cosPhi0+s*_sinPhi0*_sinTheta,
                         _z0+s*_cosTheta);
   } else {
-      return HepPoint3D((_cosPhi0*_ss-_sinPhi0*(2.0*_curvature*_d0+1.0-_cc))
+      return HepGeom::Point3D<double> ((_cosPhi0*_ss-_sinPhi0*(2.0*_curvature*_d0+1.0-_cc))
                         /(2.0*_curvature),
                         (_sinPhi0*_ss+_cosPhi0*(2.0*_curvature*_d0+1.0-_cc))
                         /(2.0*_curvature),   
@@ -136,16 +136,16 @@ HepPoint3D GflashTrajectory::getPosition(double s) const
   }
 }
 
-HepVector3D GflashTrajectory::getDirection(double s) const
+HepGeom::Vector3D<double>  GflashTrajectory::getDirection(double s) const
 {
   _cacheSinesAndCosines(s);
   if (s==0.0) {
-      return HepVector3D(_cosPhi0*_sinTheta,_sinPhi0*_sinTheta,_cosTheta);
+      return HepGeom::Vector3D<double> (_cosPhi0*_sinTheta,_sinPhi0*_sinTheta,_cosTheta);
   }
   double   xtan     = _sinTheta*(_cosPhi0*_cc -_sinPhi0*_ss); 
   double   ytan     = _sinTheta*(_cosPhi0*_ss +_sinPhi0*_cc); 
   double ztan       = _cosTheta;
-  return HepVector3D(xtan,ytan,ztan);
+  return HepGeom::Vector3D<double> (xtan,ytan,ztan);
 }
 
 
