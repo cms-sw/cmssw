@@ -81,3 +81,6 @@ offlineAnalyser = cms.EDFilter("SiStripAnalyser",
 SiStripOnlineDQMClient = cms.Sequence(onlineAnalyser)
 SiStripOfflineDQMClient = cms.Sequence(offlineAnalyser)
 
+# Services needed for TkHistoMap
+TkDetMap = cms.Service("TkDetMap")
+

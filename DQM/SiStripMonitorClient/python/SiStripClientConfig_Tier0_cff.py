@@ -6,7 +6,7 @@ siStripOfflineAnalyser = cms.EDFilter("SiStripOfflineDQM",
     SummaryCreationFrequency = cms.untracked.int32(-1),
     SummaryConfigPath        = cms.untracked.string("DQM/SiStripMonitorClient/data/sistrip_monitorelement_config.xml"),
     UsedWithEDMtoMEConverter = cms.untracked.bool(True),
-    PrintFaultyModuleList    = cms.untracked.bool(False)
+    PrintFaultyModuleList    = cms.untracked.bool(True)
 )
 
 siStripQTester = cms.EDFilter("QualityTester",
@@ -22,3 +22,7 @@ TrackEffClient.AlgoName   = 'CKFTk'
 # Sequence
 SiStripOfflineDQMClient = cms.Sequence(siStripQTester*siStripOfflineAnalyser*TrackEffClient)
 
+
+# Services needed for TkHistoMap
+TkDetMap = cms.Service("TkDetMap")
+SiStripDetInfoFileReade = cms.Service("SiStripDetInfoFileReader")

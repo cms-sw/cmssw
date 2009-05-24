@@ -248,7 +248,6 @@ void SiStripActionExecutor::printShiftHistoParameters(DQMStore * dqm_store, map<
 //  -- Print List of Modules with QTest warning or Error
 //
 void SiStripActionExecutor::printFaultyModuleList(DQMStore * dqm_store, ostringstream& str_val) { 
-  qualityChecker_->fillFaultyModuleStatus(dqm_store);   
   dqm_store->cd();
 
   string mdir = "MechanicalView";
@@ -277,7 +276,8 @@ void SiStripActionExecutor::printFaultyModuleList(DQMStore * dqm_store, ostrings
     vector<string> module_folders;
     SiStripUtility::getModuleFolderList(dqm_store, module_folders);
     int nDets = module_folders.size();
-
+    dqm_store->cd();    
+  
     int nDetsWithError = 0;
     string bad_module_folder = dname + "/" + "BadModuleList";
     if (dqm_store->dirExists(bad_module_folder)) {

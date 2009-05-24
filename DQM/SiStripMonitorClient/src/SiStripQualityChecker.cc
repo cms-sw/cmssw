@@ -178,6 +178,9 @@ void SiStripQualityChecker::fillStatus(DQMStore* dqm_store) {
   fillDummyStatus();
   fillDetectorStatus(dqm_store);
   fillTrackingStatus(dqm_store);
+
+  int faulty_moduleflag  = pSet_.getUntrackedParameter<bool>("PrintFaultyModuleList", false);
+  if (faulty_moduleflag) fillFaultyModuleStatus(dqm_store);   
 }
 //
 // Fill Detector Status
