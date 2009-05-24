@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2009/05/24 08:42:07 $
- * $Revision: 1.23 $
+ * $Date: 2009/05/24 08:46:28 $
+ * $Revision: 1.24 $
  * \author E. Di Marco
  *
 */
@@ -532,8 +532,8 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
         if(feBxs[fe] != ECALDCC_BunchCrossing && feBxs[fe] != -1) meEBBunchCrossingFEErrors_->Fill( xism, 1/(float)feBxs.size() );
       }
 
-      if(tccBx.size()>0) {
-        if(tccBx[0] != ECALDCC_BunchCrossing && tccBx[0] != -1) meEBBunchCrossingTCCErrors_->Fill( xism, 1. );
+      for(int tcc=0; tcc<(int)tccBx.size(); tcc++) {
+        if(tccBx[tcc] != ECALDCC_BunchCrossing && tccBx[tcc] != -1) meEBBunchCrossingTCCErrors_->Fill( xism, 1/(float)tccBx.size() );
       }
 
       if(srpBx != ECALDCC_BunchCrossing && srpBx != -1) meEBBunchCrossingSRPErrors_->Fill( xism );
@@ -549,8 +549,8 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
         if(feLv1[fe] != ECALDCC_L1A_12bit - 1 && feLv1[fe] != -1) meEBL1AFEErrors_->Fill( xism, 1/(float)feLv1.size());
       }
 
-      if(tccLv1.size()>0) {
-        if(tccLv1[0] != ECALDCC_L1A_12bit && tccLv1[0] != -1) meEBL1ATCCErrors_->Fill( xism, 1/1. );
+      for(int tcc=0; tcc<(int)tccLv1.size(); tcc++) {
+        if(tccLv1[tcc] != ECALDCC_L1A_12bit && tccLv1[tcc] != -1) meEBL1ATCCErrors_->Fill( xism, 1/(float)tccLv1.size() );
       }
 
       if(srpLv1 != ECALDCC_L1A_12bit && srpLv1 != -1) meEBL1ASRPErrors_->Fill( xism );
