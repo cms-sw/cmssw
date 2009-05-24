@@ -292,7 +292,7 @@ EcalTrigTowerDetId EcalElectronicsMapping::getTrigTowerDetId(int TCCid, int iTT)
         if (iz > 0 && tcc >= TCCID_PHI0_EEP_IN && tcc <= TCCID_PHI0_EEP_IN+kTCCinPhi) inner=true;
         bool outer = !inner;
 
-        int ieta = iTT / kEETowersInPhiPerTCC;
+        int ieta = (iTT-1) / kEETowersInPhiPerTCC;
         int iphi = (iTT-1) % kEETowersInPhiPerTCC;
         if (inner) ieta += iEEEtaMinInner;
         else ieta += iEEEtaMinOuter;
