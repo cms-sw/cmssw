@@ -1,12 +1,6 @@
 #include "CondTools/RPC/interface/RPCRunIOV.h"
 
 
-RPCRunIOV::RPCRunIOV(unsigned long long m_since, unsigned long long m_till)
-{
-  since = m_since;
-  till  = m_till;
-}
-
 RPCRunIOV::RPCRunIOV(const edm::EventSetup& evtSetup) 
 {
   eventSetup = &evtSetup;
@@ -31,7 +25,7 @@ RPCRunIOV::getImon() {
   
   std::cout << "--> size: " << mycond.size() << std::endl;
   
-  std::cout << "************************************" << std::endl;
+  std::cout << std::endl << "=============================================" << std::endl << std::endl;
   std::vector<RPCObImon::I_Item>::iterator first;
   first = mycond.begin();
   min = this->toUNIX(first->day, first->time);
@@ -93,8 +87,6 @@ RPCRunIOV::toUNIX(int date, int time)
   
   RPCFw* conv = new RPCFw ("","","");
   unsigned long long UT = conv->TtoUT(TS);
-  
-  //  std::cout << date << " - " << time << " <<>> " << UT << std::endl;
   
   return UT;
 }
