@@ -1,7 +1,6 @@
 #include "SimG4Core/Application/interface/G4SimEvent.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
-// #include "CLHEP/Units/SystemOfUnits.h"
 #include "G4SystemOfUnits.hh"
 
 class IdSort{

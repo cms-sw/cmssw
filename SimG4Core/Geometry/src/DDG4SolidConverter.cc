@@ -233,7 +233,7 @@ G4VSolid * DDG4SolidConverter::reflected(const DDSolid & s)
   G4ReflectedSolid * rs = 0;
   DDReflectionSolid rfs(s); 
   if (rfs) {	
-    static /* G4Transform3D */ HepReflectZ3D z_reflection; // = HepReflectZ3D;	
+    static /* G4Transform3D */ HepGeom::ReflectZ3D z_reflection; // = HepGeom::ReflectZ3D;	
     rs = new G4ReflectedSolid(s.name().name(), 
                               DDG4SolidConverter().convert(rfs.unreflected()), 
 			      z_reflection);
@@ -258,12 +258,12 @@ G4VSolid * DDG4SolidConverter::unionsolid(const DDSolid & s)
     LogDebug("SimG4CoreGeometry") << " " << bs.rotation().rotation()->Inverse() << flush;
     std::vector<double> tdbl(9);
     bs.rotation().rotation()->Inverse().GetComponents(tdbl.begin(), tdbl.end());
-    HepRep3x3 temprep(tdbl[0], tdbl[1], tdbl[2], tdbl[3], tdbl[4], tdbl[5], tdbl[6], tdbl[7], tdbl[8]);
-    Hep3Vector temphvec(bs.translation().X(), bs.translation().Y(), bs.translation().Z()); 
+    CLHEP::HepRep3x3 temprep(tdbl[0], tdbl[1], tdbl[2], tdbl[3], tdbl[4], tdbl[5], tdbl[6], tdbl[7], tdbl[8]);
+    CLHEP::Hep3Vector temphvec(bs.translation().X(), bs.translation().Y(), bs.translation().Z()); 
     us = new G4UnionSolid(s.name().name(),
 			  sa,
 			  sb,
-			  new HepRotation(temprep),
+			  new CLHEP::HepRotation(temprep),
 			  temphvec);
     
   } // else?
@@ -288,12 +288,12 @@ G4VSolid * DDG4SolidConverter::subtraction(const DDSolid & s)
     LogDebug("SimG4CoreGeometry") << " " << bs.rotation().rotation()->Inverse() << flush;
     std::vector<double> tdbl(9);
     bs.rotation().rotation()->Inverse().GetComponents(tdbl.begin(), tdbl.end());
-    HepRep3x3 temprep(tdbl[0], tdbl[1], tdbl[2], tdbl[3], tdbl[4], tdbl[5], tdbl[6], tdbl[7], tdbl[8]);
-    Hep3Vector temphvec(bs.translation().X(), bs.translation().Y(), bs.translation().Z()); 
+    CLHEP::HepRep3x3 temprep(tdbl[0], tdbl[1], tdbl[2], tdbl[3], tdbl[4], tdbl[5], tdbl[6], tdbl[7], tdbl[8]);
+    CLHEP::Hep3Vector temphvec(bs.translation().X(), bs.translation().Y(), bs.translation().Z()); 
     us = new G4SubtractionSolid(s.name().name(),
 				sa,
 				sb,
-				new HepRotation(temprep),
+				new CLHEP::HepRotation(temprep),
 				temphvec);
   }
   return us;	   
@@ -313,12 +313,12 @@ G4VSolid * DDG4SolidConverter::intersection(const DDSolid & s)
     LogDebug("SimG4CoreGeometry") << " " << bs.rotation().rotation()->Inverse() << flush;
     std::vector<double> tdbl(9);
     bs.rotation().rotation()->Inverse().GetComponents(tdbl.begin(), tdbl.end());
-    HepRep3x3 temprep(tdbl[0], tdbl[1], tdbl[2], tdbl[3], tdbl[4], tdbl[5], tdbl[6], tdbl[7], tdbl[8]);
-    Hep3Vector temphvec(bs.translation().X(), bs.translation().Y(), bs.translation().Z()); 
+    CLHEP::HepRep3x3 temprep(tdbl[0], tdbl[1], tdbl[2], tdbl[3], tdbl[4], tdbl[5], tdbl[6], tdbl[7], tdbl[8]);
+    CLHEP::Hep3Vector temphvec(bs.translation().X(), bs.translation().Y(), bs.translation().Z()); 
     us = new G4IntersectionSolid(s.name().name(),
 				 sa,
 				 sb,
-				 new HepRotation(temprep),
+				 new CLHEP::HepRotation(temprep),
 				 temphvec);
   }
   return us;	   

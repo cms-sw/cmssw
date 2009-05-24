@@ -202,20 +202,20 @@ StaticRandomEngineSetUnset::StaticRandomEngineSetUnset() {
     }
     m_currentEngine = &(rng->getEngine());
 
-    m_previousEngine = HepRandom::getTheEngine();
-    HepRandom::setTheEngine(m_currentEngine);
+    m_previousEngine = CLHEP::HepRandom::getTheEngine();
+    CLHEP::HepRandom::setTheEngine(m_currentEngine);
 }
 
 StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(CLHEP::HepRandomEngine * engine) {
 
     m_currentEngine = engine;
 
-    m_previousEngine = HepRandom::getTheEngine();
-    HepRandom::setTheEngine(m_currentEngine);
+    m_previousEngine = CLHEP::HepRandom::getTheEngine();
+    CLHEP::HepRandom::setTheEngine(m_currentEngine);
 }
 
 StaticRandomEngineSetUnset::~StaticRandomEngineSetUnset() {
-    HepRandom::setTheEngine(m_previousEngine);
+    CLHEP::HepRandom::setTheEngine(m_previousEngine);
 }
 
 CLHEP::HepRandomEngine*

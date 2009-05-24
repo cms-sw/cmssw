@@ -13,8 +13,8 @@
 #include "G4Track.hh"
 #include "G4VProcess.hh"
 #include "G4HCofThisEvent.hh"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 #include <cmath>
 #include <iostream>

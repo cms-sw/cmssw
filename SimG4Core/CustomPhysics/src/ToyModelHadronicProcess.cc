@@ -246,7 +246,7 @@ G4VParticleChange* ToyModelHadronicProcess::PostStepDoIt(const G4Track& track,
     KinCalc.doDecay(cm4Momentum, fourMomenta[0], fourMomenta[1], fourMomenta[2] );
     
     //Rotating the plane to a random orientation, and boosting home
-    HepRotation rotation(randomDirection,G4UniformRand()*2*pi);
+    CLHEP::HepRotation rotation(randomDirection,G4UniformRand()*2*pi);
     for (std::vector<G4LorentzVector>::iterator it = fourMomenta.begin();
 	 it!=fourMomenta.end();
 	 it++)
