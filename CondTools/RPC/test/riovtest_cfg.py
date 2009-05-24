@@ -4,12 +4,12 @@ process = cms.Process("Demo")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.CondDBCommon.connect = 'sqlite_file:dati.db'
+process.CondDBCommon.connect = 'sqlite_file:/afs/cern.ch/user/d/dpagano/public/dati.db'
 process.CondDBCommon.DBParameters.authenticationPath = './'
 
 
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(3)
 )
 
 process.rn = cms.ESSource("PoolDBESSource",
@@ -20,6 +20,7 @@ process.rn = cms.ESSource("PoolDBESSource",
         tag = cms.string('Imon_v3')
     ))
 )
+
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
