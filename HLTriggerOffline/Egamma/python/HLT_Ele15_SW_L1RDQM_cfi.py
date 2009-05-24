@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 HLT_Ele15_SW_L1RDQM = cms.EDFilter("EmDQM",
+    triggerobject = cms.InputTag("hltTriggerSummaryRAW","","HLT"),                            
     genEtaAcc = cms.double(2.5),
     genEtAcc = cms.double(2.0),
     reqNum = cms.uint32(1),

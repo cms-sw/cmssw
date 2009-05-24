@@ -37,6 +37,20 @@ paths.GammaJet = ['HLT_Photon10_L1R_DQM',
 
 paths.DiGamma  = ['HLT_Photon10_L1R_DQM','HLT_DoublePhoton10_L1R_DQM']
 
+pathlumi = { 'HLT_Ele10_LW_L1RDQM':'8e29',
+             'HLT_Ele15_SW_L1RDQM':'8e29',
+             'HLT_Ele10_LW_EleId_L1RDQM':'8e29',
+             'HLT_DoubleEle5_SW_L1RDQM':'8e29',
+             'HLT_Photon10_L1R_DQM':'8e29',
+             'HLT_Photon15_TrackIso_L1R_DQM':'8e29',
+             'HLT_Photon15_LooseEcalIso_L1R_DQM':'8e29',
+             'HLT_DoublePhoton10_L1R_DQM':'8e29'
+             }
+
+lumiprocess = { '8e29':'HLT',
+                '1e31':'XXX'
+                }
+    
 
 ##########################################################
 # produce generated paricles in acceptance               #
@@ -88,6 +102,7 @@ for samplenum in range(len(samples.names)):
         setattr(globals()[trigname],"cutcollection",cms.InputTag(fiducialname))        # set preselacted generator collection
         setattr(globals()[trigname],"cutnum",cms.int32( samples.num[samplenum]  )) # cut value for preselection
         setattr(globals()[trigname],"pdgGen",cms.int32( samples.pdgid[samplenum])) #correct pdgId for MC matching
+        getattr(globals()[trigname],'triggerobject').setProcessName( lumiprocess[pathlumi[trig]] )         #set proper process name
         egammaValidationSequence *= globals()[trigname]                      # add to sequence
 
 

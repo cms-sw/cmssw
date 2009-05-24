@@ -36,6 +36,7 @@ import FWCore.ParameterSet.Config as cms
 ##########################################################
 
 HLT_Photon10_L1R_DQM = cms.EDFilter("EmDQM",
+    triggerobject = cms.InputTag("hltTriggerSummaryRAW","","HLT"),                            
     pdgGen = cms.int32(22),     
     genEtaAcc = cms.double(2.5),
     genEtAcc = cms.double(10.0),
