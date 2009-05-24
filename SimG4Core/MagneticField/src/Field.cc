@@ -6,7 +6,7 @@
 
 #include "G4Mag_UsualEqRhs.hh"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 
