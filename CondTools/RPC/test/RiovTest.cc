@@ -1,7 +1,7 @@
 //
 // Original Author:  Davide Pagano
 //         Created:  Wed May 20 12:47:20 CEST 2009
-// $Id: RiovTest.cc,v 1.5 2009/05/24 14:41:35 dpagano Exp $
+// $Id: RiovTest.cc,v 1.6 2009/05/24 14:44:13 dpagano Exp $
 //
 //
 
@@ -116,7 +116,7 @@ RiovTest::endJob() {
     
     // filtering has to be here
     RPCRunIOV* filter = new RPCRunIOV();
-    filtImon = filter->filterIMON(imon, min, max);
+    filtImon = filter->filterIMON(imon, min+1000, max-1000);
     std::cout << ">>> Filtered IMON" << std::endl;
     std::cout << "    size " << filtImon.size() << std::endl;
   }
