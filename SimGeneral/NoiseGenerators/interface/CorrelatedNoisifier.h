@@ -101,7 +101,7 @@ private:
 
   const M theCovarianceMatrix;
   M theMatrix;
-  mutable RandGaussQ * theRandomGaussian;
+  mutable CLHEP::RandGaussQ * theRandomGaussian;
   unsigned int theSize; 
   bool isDiagonal_;
   bool isIdentity_;
