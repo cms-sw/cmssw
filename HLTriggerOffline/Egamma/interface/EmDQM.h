@@ -35,6 +35,7 @@ public:
 
 private:
   // Input from cfg file
+  edm::InputTag triggerobjwithrefs;
   std::vector<edm::InputTag> theHLTCollectionLabels;  
   unsigned int numOfHLTCollectionLabels;  // Will be size of above vector
   bool useHumanReadableHistTitles;
