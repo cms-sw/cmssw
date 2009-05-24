@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2009/04/29 07:46:17 $
- * $Revision: 1.21 $
+ * $Date: 2009/04/29 07:56:40 $
+ * $Revision: 1.22 $
  * \author E. Di Marco
  *
 */
@@ -472,7 +472,6 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-
   } else {
     LogWarning("EBRawDataTask") << FEDRawDataCollection_ << " not available";
   }
@@ -529,11 +528,13 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
       std::vector<short> tccBx = dcchItr->getTCCBx();
       short srpBx = dcchItr->getSRPBx();
 
-      for(int fe=0; fe<(int)feBxs.size(); fe++) {
+      for(int fe=0; fe<feBxs.size(); fe++) {
         if(feBxs[fe] != ECALDCC_BunchCrossing && feBxs[fe] != -1) meEBBunchCrossingFEErrors_->Fill( xism, 1/(float)feBxs.size() );
       }
 
-      if(tccBx[0] != ECALDCC_BunchCrossing && tccBx[0] != -1) meEBBunchCrossingTCCErrors_->Fill( xism, 1. );
+      if(tccBx.size()>0) {
+        if(tccBx[0] != ECALDCC_BunchCrossing && tccBx[0] != -1) meEBBunchCrossingTCCErrors_->Fill( xism, 1. );
+      }
 
       if(srpBx != ECALDCC_BunchCrossing && srpBx != -1) meEBBunchCrossingSRPErrors_->Fill( xism );
 
@@ -544,11 +545,13 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
       // Lv1 in TCC,SRP,FE are limited to 12 bits(LSB), while in the DCC Lv1 has 24 bits
       int ECALDCC_L1A_12bit = ECALDCC_L1A & 0xfff;
 
-      for(int fe=0; fe<(int)feLv1.size(); fe++) {
+      for(int fe=0; fe<feLv1.size(); fe++) {
         if(feLv1[fe] != ECALDCC_L1A_12bit - 1 && feLv1[fe] != -1) meEBL1AFEErrors_->Fill( xism, 1/(float)feLv1.size());
       }
 
-      if(tccLv1[0] != ECALDCC_L1A_12bit && tccLv1[0] != -1) meEBL1ATCCErrors_->Fill( xism, 1/1. );
+      if(tccLv1.size()>0) {
+        if(tccLv1[0] != ECALDCC_L1A_12bit && tccLv1[0] != -1) meEBL1ATCCErrors_->Fill( xism, 1/1. );
+      }
 
       if(srpLv1 != ECALDCC_L1A_12bit && srpLv1 != -1) meEBL1ASRPErrors_->Fill( xism );
 
