@@ -19,7 +19,7 @@
 
 
 #include "DQM/EcalPreshowerMonitorClient/interface/EcalPreshowerMonitorClient.h"
-#include "DQM/EcalPreshowerMonitorClient/interface/ESPedestalClient.h"
+//#include "DQM/EcalPreshowerMonitorClient/interface/ESPedestalClient.h"
 
 
 using namespace cms;
@@ -46,6 +46,7 @@ EcalPreshowerMonitorClient::EcalPreshowerMonitorClient(const edm::ParameterSet& 
 
 
 	PedestalClient_ = new ESPedestalClient(ps);
+	IntegrityClient_ = new ESIntegrityClient(ps);
 
 
 	if(debug_){
@@ -57,6 +58,7 @@ EcalPreshowerMonitorClient::EcalPreshowerMonitorClient(const edm::ParameterSet& 
 EcalPreshowerMonitorClient::~EcalPreshowerMonitorClient()
 {
 	delete PedestalClient_;
+	delete IntegrityClient_;
 	if ( enableMonitorDaemon_ ) delete mui_;
 }
 
@@ -97,6 +99,8 @@ void EcalPreshowerMonitorClient::beginJob(){
 
 	PedestalClient_->beginJob(dqmStore_);
 	PedestalClient_->setup();
+	IntegrityClient_->beginJob(dqmStore_);
+	IntegrityClient_->setup();
 
 }
 
@@ -114,6 +118,7 @@ void EcalPreshowerMonitorClient::beginRun(void){
 	end_run_   = false;
 
 	PedestalClient_->beginRun();
+	IntegrityClient_->beginRun();
 
 }
 
@@ -148,6 +153,7 @@ void EcalPreshowerMonitorClient::endRun() {
 	end_run_   = true;
 
 	PedestalClient_->endRun();
+	IntegrityClient_->endRun();
 
 }
 
@@ -159,6 +165,7 @@ void EcalPreshowerMonitorClient::analyze(void){
 	cout<<"Run Client at "<<EvtperRun_<<"th Event of the run & "<<EvtperJob_<<"th event of the job."<<endl;
 
 	PedestalClient_->analyze();
+	IntegrityClient_->analyze();
 
 
 }

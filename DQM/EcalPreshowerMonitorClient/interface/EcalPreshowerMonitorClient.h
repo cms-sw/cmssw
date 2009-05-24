@@ -9,6 +9,7 @@
 
 //#include "DQM/EcalPreshowerMonitorClient/interface/ESClient.h"
 #include "DQM/EcalPreshowerMonitorClient/interface/ESPedestalClient.h"
+#include "DQM/EcalPreshowerMonitorClient/interface/ESIntegrityClient.h"
 
 
 class DQMOldReceiver;
@@ -56,6 +57,7 @@ class EcalPreshowerMonitorClient : public edm::EDAnalyzer{
                 int EvtperRun_;
 
 		ESPedestalClient* PedestalClient_;
+		ESIntegrityClient* IntegrityClient_;
 
 		int nLines_, runNum_;
 		int runtype_, seqtype_, dac_, gain_, precision_;
