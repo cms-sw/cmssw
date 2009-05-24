@@ -363,6 +363,39 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
   CaloSamples tool;  // digi values in ADC will be converted to fC values stored in tool
   float ADC_myval=0;
 
+  // dummy fills for histograms
+  for (unsigned int i=0;i<MeanMapByDepth.size();++i)
+    {
+      MeanMapByDepth[i]->setBinContent(0,ievt_);
+      RMSMapByDepth[i]->setBinContent(0,ievt_);
+      ADC_PedestalFromDBByDepth[i]->setBinContent(0,ievt_);
+      ADC_WidthFromDBByDepth[i]->setBinContent(0,ievt_);
+      fC_PedestalFromDBByDepth[i]->setBinContent(0,ievt_);
+      fC_WidthFromDBByDepth[i]->setBinContent(0,ievt_);
+      ADC_1D_PedestalFromDBByDepth[i]->setBinContent(0,ievt_);
+      ADC_1D_WidthFromDBByDepth[i]->setBinContent(0,ievt_);
+      fC_1D_PedestalFromDBByDepth[i]->setBinContent(0,ievt_);
+      fC_1D_WidthFromDBByDepth[i]->setBinContent(0,ievt_);
+      ADCPedestalMean[i]->setBinContent(0,ievt_);
+      ADCPedestalRMS[i]->setBinContent(0,ievt_);
+      ADCPedestalMean_1D[i]->setBinContent(0,ievt_);
+      ADCPedestalRMS_1D[i]->setBinContent(0,ievt_);
+      subADCPedestalMean[i]->setBinContent(0,ievt_);
+      subADCPedestalRMS[i]->setBinContent(0,ievt_);
+      subADCPedestalMean_1D[i]->setBinContent(0,ievt_);
+      subADCPedestalRMS_1D[i]->setBinContent(0,ievt_);
+      fCPedestalMean[i]->setBinContent(0,ievt_);
+      fCPedestalRMS[i]->setBinContent(0,ievt_);
+      fCPedestalMean_1D[i]->setBinContent(0,ievt_);
+      fCPedestalRMS_1D[i]->setBinContent(0,ievt_);
+      subfCPedestalMean[i]->setBinContent(0,ievt_);
+      subfCPedestalRMS[i]->setBinContent(0,ievt_);
+      subfCPedestalMean_1D[i]->setBinContent(0,ievt_);
+      subfCPedestalRMS_1D[i]->setBinContent(0,ievt_);
+      ProblemPedestalsByDepth[i]->setBinContent(0,ievt_);
+    }
+  ProblemPedestals->setBinContent(0,ievt_);
+
 
   //ZDC loop
   for (ZDCDigiCollection::const_iterator j=zdc.begin();
