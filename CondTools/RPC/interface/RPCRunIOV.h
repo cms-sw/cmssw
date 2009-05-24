@@ -5,8 +5,8 @@
  * \class RPCRunIOV
  *  Reads data from ORCOFF and sqlite file
  *
- *  $Date: 2009/05/24 09:45:22 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/05/24 14:41:49 $
+ *  $Revision: 1.5 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -23,6 +23,7 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "CondFormats/RPCObjects/interface/RPCObCond.h"
 #include "CondFormats/DataRecord/interface/RPCObCondRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCObPVSSmap.h"
 #include "CoralBase/TimeStamp.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -35,6 +36,7 @@ public:
   RPCRunIOV(const edm::EventSetup& evtSetup);
   ~RPCRunIOV();
   std::vector<RPCObImon::I_Item> getImon();
+  std::map<int, RPCObPVSSmap::Item> getPVSSMap();
   bool isReadingNeeded(unsigned long long);
   unsigned long long toDAQ(unsigned long long);
   unsigned long long toUNIX(int, int);

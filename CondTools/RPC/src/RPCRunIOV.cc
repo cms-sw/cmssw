@@ -16,10 +16,9 @@ RPCRunIOV::getImon() {
 
   edm::ESHandle<RPCObImon> condRcd;
   eventSetup->get<RPCObImonRcd>().get(condRcd);
-  edm::LogInfo("CondReader") << "[CondReader] Reading Cond" << std::endl;
-  
+   
   std::cout << std::endl << "=============================================" << std::endl;
-  std::cout << std::endl << "=================  READER  ==================" << std::endl;
+  std::cout << std::endl << "===============  IMON READER  ===============" << std::endl;
   std::cout << std::endl << "=============================================" << std::endl << std::endl;
   
   
@@ -42,6 +41,47 @@ RPCRunIOV::getImon() {
     if (value > max) max = value;
   }
   return mycond;
+}
+
+
+
+std::map<int, RPCObPVSSmap::Item>
+RPCRunIOV::getPVSSMap()
+{
+
+  edm::ESHandle<RPCObPVSSmap> pvssRcd;
+  eventSetup->get<RPCObPVSSmapRcd>().get(pvssRcd);
+  
+  std::cout << std::endl << "=============================================" << std::endl;
+  std::cout << std::endl << "===============  PVSS READER  ===============" << std::endl;
+  std::cout << std::endl << "=============================================" << std::endl << std::endl;
+
+  const RPCObPVSSmap* pvss = pvssRcd.product();
+  std::vector<RPCObPVSSmap::Item> mypvss = pvss->ObIDMap_rpc;
+  std::vector<RPCObPVSSmap::Item>::iterator ipvss;
+
+  std::cout << ">>> Object PVSS" << std::endl;
+  std::cout << "    size " << mypvss.size() << std::endl;
+
+  RPCObPVSSmap::Item pvssItem;
+  int id;
+  std::map<int, RPCObPVSSmap::Item> pvssmap;
+  for(ipvss = mypvss.begin(); ipvss < mypvss.end(); ++ipvss){
+    id = ipvss->dpid;
+    pvssItem.region = ipvss->region;
+    pvssItem.ring = ipvss->ring;
+    pvssItem.station = ipvss->station;
+    pvssItem.sector = ipvss->sector;
+    pvssItem.layer = ipvss->layer;
+    pvssItem.subsector = ipvss->subsector;
+    pvssItem.suptype = ipvss->suptype;
+    pvssmap.insert ( std::pair<int, RPCObPVSSmap::Item>(id, pvssItem) );
+
+  }
+
+  std::cout << std::endl << "=============================================" << std::endl << std::endl;
+
+  return pvssmap;
 }
 
 

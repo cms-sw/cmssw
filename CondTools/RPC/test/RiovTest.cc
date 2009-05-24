@@ -1,7 +1,7 @@
 //
 // Original Author:  Davide Pagano
 //         Created:  Wed May 20 12:47:20 CEST 2009
-// $Id: RiovTest.cc,v 1.6 2009/05/24 14:44:13 dpagano Exp $
+// $Id: RiovTest.cc,v 1.7 2009/05/24 14:51:19 dpagano Exp $
 //
 //
 
@@ -30,10 +30,12 @@ private:
   virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
+
   std::vector<RPCObImon::I_Item> imon;
   std::vector<RPCObImon::I_Item> imon_;
   std::vector<RPCObImon::I_Item> filtImon;
   std::vector<unsigned long long> listIOV;
+  std::map<int, RPCObPVSSmap::Item> pvssMap;
   unsigned long long min;
   unsigned long long max;
   unsigned long long RunStart;
@@ -71,6 +73,11 @@ RiovTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // CONNECTION TO DATABASE----------------
    RPCRunIOV* list = new RPCRunIOV(iSetup);
+   // get PVSS map
+   if (pvssMap.size() == 0) {
+     pvssMap = list->getPVSSMap();
+   }
+   // get current
    if (imon.size() == 0) {
      imon = list->getImon();
      min = list->min;
