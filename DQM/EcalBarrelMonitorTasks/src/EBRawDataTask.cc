@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2009/04/29 07:56:40 $
- * $Revision: 1.22 $
+ * $Date: 2009/05/24 08:42:07 $
+ * $Revision: 1.23 $
  * \author E. Di Marco
  *
 */
@@ -528,7 +528,7 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
       std::vector<short> tccBx = dcchItr->getTCCBx();
       short srpBx = dcchItr->getSRPBx();
 
-      for(int fe=0; fe<feBxs.size(); fe++) {
+      for(int fe=0; fe<(int)feBxs.size(); fe++) {
         if(feBxs[fe] != ECALDCC_BunchCrossing && feBxs[fe] != -1) meEBBunchCrossingFEErrors_->Fill( xism, 1/(float)feBxs.size() );
       }
 
@@ -545,7 +545,7 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
       // Lv1 in TCC,SRP,FE are limited to 12 bits(LSB), while in the DCC Lv1 has 24 bits
       int ECALDCC_L1A_12bit = ECALDCC_L1A & 0xfff;
 
-      for(int fe=0; fe<feLv1.size(); fe++) {
+      for(int fe=0; fe<(int)feLv1.size(); fe++) {
         if(feLv1[fe] != ECALDCC_L1A_12bit - 1 && feLv1[fe] != -1) meEBL1AFEErrors_->Fill( xism, 1/(float)feLv1.size());
       }
 

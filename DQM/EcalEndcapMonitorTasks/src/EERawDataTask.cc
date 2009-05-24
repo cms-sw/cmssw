@@ -1,8 +1,8 @@
 /*
  * \file EERawDataTask.cc
  *
- * $Date: 2009/04/29 07:56:40 $
- * $Revision: 1.22 $
+ * $Date: 2009/05/24 08:42:06 $
+ * $Revision: 1.23 $
  * \author E. Di Marco
  *
 */
@@ -536,11 +536,11 @@ void EERawDataTask::analyze(const Event& e, const EventSetup& c){
       const std::vector<short> tccBx = dcchItr->getTCCBx();
       short srpBx = dcchItr->getSRPBx();
 
-      for(int fe=0; fe<feBxs.size(); fe++) {
+      for(int fe=0; fe<(int)feBxs.size(); fe++) {
         if(feBxs[fe] != ECALDCC_BunchCrossing && feBxs[fe] != -1) meEEBunchCrossingFEErrors_->Fill( xism, 1/(float)feBxs.size());
       }
 
-      for(int tcc=0; tcc<tccBx.size(); tcc++) {
+      for(int tcc=0; tcc<(int)tccBx.size(); tcc++) {
         if(tccBx[tcc] != ECALDCC_BunchCrossing && tccBx[tcc] != -1) meEEBunchCrossingTCCErrors_->Fill( xism, 1/(float)tccBx.size());
       }
 
@@ -553,11 +553,11 @@ void EERawDataTask::analyze(const Event& e, const EventSetup& c){
       // Lv1 in TCC,SRP,FE are limited to 12 bits(LSB), while in the DCC Lv1 has 24 bits
       int ECALDCC_L1A_12bit = ECALDCC_L1A & 0xfff;
 
-      for(int fe=0; fe<feLv1.size(); fe++) {
+      for(int fe=0; fe<(int)feLv1.size(); fe++) {
         if(feLv1[fe] != ECALDCC_L1A_12bit - 1 && feLv1[fe] != -1) meEEL1AFEErrors_->Fill( xism, 1/(float)feLv1.size());
       }
 
-      for(int tcc=0; tcc<tccLv1.size(); tcc++) {
+      for(int tcc=0; tcc<(int)tccLv1.size(); tcc++) {
         if(tccLv1[tcc] != ECALDCC_L1A_12bit && tccLv1[tcc] != -1) meEEL1ATCCErrors_->Fill( xism, 1/(float)tccLv1.size());
       }
 
