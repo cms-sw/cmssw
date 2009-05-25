@@ -6,7 +6,7 @@
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <iostream>
 
 #define debug

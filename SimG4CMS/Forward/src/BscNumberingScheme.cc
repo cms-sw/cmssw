@@ -6,7 +6,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/Forward/interface/BscNumberingScheme.h"
 //
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "globals.hh"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

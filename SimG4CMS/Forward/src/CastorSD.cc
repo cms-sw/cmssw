@@ -24,7 +24,7 @@
 #include "G4ios.hh"
 #include "G4Cerenkov.hh"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Random/Randomize.h"
 
 #define debug

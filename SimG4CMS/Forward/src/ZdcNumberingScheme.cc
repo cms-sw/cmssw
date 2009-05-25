@@ -6,7 +6,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/Forward/interface/ZdcNumberingScheme.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <iostream>
 #undef debug
 

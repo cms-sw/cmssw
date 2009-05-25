@@ -8,7 +8,7 @@
 //
 // Original Author: 
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: TotemTestGem.cc,v 1.1 2006/05/17 16:18:58 sunanda Exp $
+// $Id: TotemTestGem.cc,v 1.2 2006/11/16 16:54:12 sunanda Exp $
 //
 
 // system include files
@@ -29,8 +29,8 @@
 
 #include "G4SDManager.hh"
 #include "G4HCofThisEvent.hh"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 //
 // constructors and destructor

@@ -15,7 +15,7 @@
 #include "G4Track.hh"
 #include "G4ParticleTable.hh"
 #include "Randomize.hh"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 //#define DebugLog
 

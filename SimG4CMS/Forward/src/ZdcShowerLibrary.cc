@@ -15,7 +15,7 @@
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "Randomize.hh"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 ZdcShowerLibrary::ZdcShowerLibrary(std::string & name, const DDCompactView & cpv,
 				 edm::ParameterSet const & p) {
