@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Thu Oct  2 21:43:50 CEST 2008
-// $Id: DTTFTSCObjectKeysOnlineProd.cc,v 1.1 2008/10/13 03:24:50 wsun Exp $
+// $Id: DTTFTSCObjectKeysOnlineProd.cc,v 1.1 2009/05/14 11:19:40 troco Exp $
 //
 //
 
@@ -74,48 +74,51 @@ DTTFTSCObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
 {
   std::string dttfKey = pL1TriggerKey->subsystemKey( L1TriggerKey::kDTTF ) ;
 
-  // SELECT LUT_KEY FROM CMS_DT_TF.DTTF_CONF WHERE DTTF_CONF.ID = dttfKey
-  l1t::OMDSReader::QueryResults lutKeyResults =
-    m_omdsReader.basicQuery( "LUT_KEY",
-			     "CMS_DT_TF",
-			     "DTTF_CONF",
-			     "DTTF_CONF.ID",
-			     m_omdsReader.singleAttribute( dttfKey  ) );
-
-
-  if( lutKeyResults.queryFailed() ||
-      lutKeyResults.numberRows() != 1 ) // check query successful
+  if( !dttfKey.empty() )
     {
-      edm::LogError( "L1-O2O" ) << "Problem with DTTF key." ;
-      return ;
+      // SELECT LUT_KEY FROM CMS_DT_TF.DTTF_CONF WHERE DTTF_CONF.ID = dttfKey
+      l1t::OMDSReader::QueryResults lutKeyResults =
+	m_omdsReader.basicQuery( "LUT_KEY",
+				 "CMS_DT_TF",
+				 "DTTF_CONF",
+				 "DTTF_CONF.ID",
+				 m_omdsReader.singleAttribute( dttfKey  ) );
+
+
+      if( lutKeyResults.queryFailed() ||
+	  lutKeyResults.numberRows() != 1 ) // check query successful
+	{
+	  edm::LogError( "L1-O2O" ) << "Problem with DTTF key." ;
+	  return ;
+	}
+
+      std::string lutKey ;
+      lutKeyResults.fillVariable( lutKey ) ;
+
+      pL1TriggerKey->add( "L1MuDTEtaPatternLutRcd",
+			  "L1MuDTEtaPatternLut",
+			  lutKey ) ;
+
+      pL1TriggerKey->add( "L1MuDTExtLutRcd",
+			  "L1MuDTExtLut",
+			  lutKey ) ;
+
+      pL1TriggerKey->add( "L1MuDTPhiLutRcd",
+			  "L1MuDTPhiLut",
+			  lutKey ) ;
+
+      pL1TriggerKey->add( "L1MuDTPtaLutRcd",
+			  "L1MuDTPtaLut",
+			  lutKey ) ;
+
+      pL1TriggerKey->add( "L1MuDTQualPatternLutRcd",
+			  "L1MuDTQualPatternLut",
+			  lutKey ) ;
+
+      pL1TriggerKey->add( "L1MuDTTFParametersRcd",
+			  "L1MuDTTFParameters",
+			  dttfKey ) ;
     }
-
-  std::string lutKey ;
-  lutKeyResults.fillVariable( lutKey ) ;
-
-  pL1TriggerKey->add( "L1MuDTEtaPatternLutRcd",
-		      "L1MuDTEtaPatternLut",
-		      lutKey ) ;
-
-  pL1TriggerKey->add( "L1MuDTExtLutRcd",
-		      "L1MuDTExtLut",
-		      lutKey ) ;
-
-  pL1TriggerKey->add( "L1MuDTPhiLutRcd",
-		      "L1MuDTPhiLut",
-		      lutKey ) ;
-
-  pL1TriggerKey->add( "L1MuDTPtaLutRcd",
-		      "L1MuDTPtaLut",
-		      lutKey ) ;
-
-  pL1TriggerKey->add( "L1MuDTQualPatternLutRcd",
-		      "L1MuDTQualPatternLut",
-		      lutKey ) ;
-
-  pL1TriggerKey->add( "L1MuDTTFParametersRcd",
-		      "L1MuDTTFParameters",
-		      dttfKey ) ;
 }
 
 //define this as a plug-in
