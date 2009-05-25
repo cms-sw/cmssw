@@ -91,7 +91,7 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
   // First: loop on the SimHits
   std::vector<std::pair<PSimHit, int > >::const_iterator simHitIter = input.begin();
   std::vector<std::pair<PSimHit, int > >::const_iterator simHitIterEnd = input.end();
-  if(RandFlat::shoot()>inefficiency) {
+  if(CLHEP::RandFlat::shoot()>inefficiency) {
     for (;simHitIter != simHitIterEnd; ++simHitIter) {
       // check TOF
       const PSimHit & ihit = (*simHitIter).first;
