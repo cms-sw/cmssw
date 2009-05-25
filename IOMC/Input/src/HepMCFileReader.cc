@@ -17,9 +17,8 @@
 #include "HepMC/GenParticle.h"
 #include "HepMC/IO_Ascii.h"
 #include "HepMC/IO_ExtendedAscii.h"
-#include "HepMC/IO_GenEvent.h"
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 #include "IOMC/Input/interface/HepMCFileReader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -67,25 +66,19 @@ HepMCFileReader::~HepMCFileReader()
 
 
 //-------------------------------------------------------------------------
-void HepMCFileReader::initialize(const string &filename, FileMode mode)
+void HepMCFileReader::initialize(const string &filename, bool useExtendedAscii)
 {
   if (isInitialized()) {
     edm::LogError("HepMCFileReader") << "Was already initialized... reinitializing";
     delete input_;
   }
 
-  edm::LogInfo("HepMCFileReader") << "Opening file" << filename << "using "
-	 << mode;
-  switch(mode) {
-    case MODE_ASCII:
-     input_ = new HepMC::IO_Ascii(filename.c_str(), std::ios::in);
-     break;
-    case MODE_EXTASCII:
-      input_ = new HepMC::IO_ExtendedAscii(filename.c_str(), std::ios::in);
-      break;
-    case MODE_GENEVENT:
-      input_ = new HepMC::IO_GenEvent(filename.c_str(), std::ios::in);
-      break;
+  edm::LogInfo("HepMCFileReader") << "Opening file" << filename << "using"
+	 << (useExtendedAscii ? "HepMC::IO_ExtendedAscii": "HepMC::IO_Ascii");  
+  if (useExtendedAscii) {
+    input_ = new HepMC::IO_ExtendedAscii(filename.c_str(), std::ios::in);
+  } else {
+    input_ = new HepMC::IO_Ascii(filename.c_str(), std::ios::in);
   }
 
   if (rdstate() == std::ios::failbit) {
@@ -100,14 +93,11 @@ int HepMCFileReader::rdstate() const
 {
   // work around a HepMC IO_ inheritence shortfall
 
-  HepMC::IO_Ascii *p = dynamic_cast<HepMC::IO_Ascii*>(input_);
-  if (p) return p->rdstate();
-
   HepMC::IO_ExtendedAscii *e = dynamic_cast<HepMC::IO_ExtendedAscii*>(input_);
   if (e) return e->rdstate();
 
-  HepMC::IO_GenEvent *g = dynamic_cast<HepMC::IO_GenEvent*>(input_);
-  if (g) return g->rdstate();
+  HepMC::IO_Ascii *p = dynamic_cast<HepMC::IO_Ascii*>(input_);
+  if (p) return p->rdstate();
 
   return std::ios::failbit;
 }
