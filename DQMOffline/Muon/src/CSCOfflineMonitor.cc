@@ -1019,8 +1019,8 @@ void CSCOfflineMonitor::doResolution(edm::Handle<CSCSegmentCollection> cscSegmen
     std::vector<CSCRecHit2D> theseRecHits = (*dSiter).specificRecHits();
     int nRH = (*dSiter).nRecHits();
     int jRH = 0;
-    HepMatrix sp(6,1);
-    HepMatrix se(6,1);
+    CLHEP::HepMatrix sp(6,1);
+    CLHEP::HepMatrix se(6,1);
     for ( vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
       jRH++;
       CSCDetId idRH = (CSCDetId)(*iRH).cscDetId();
@@ -1071,7 +1071,7 @@ void CSCOfflineMonitor::doResolution(edm::Handle<CSCSegmentCollection> cscSegmen
 // and removes hit in layer 3.  It then returns the expected position value in layer 3
 // based on the fit.
 //-------------------------------------------------------------------------------------
-float CSCOfflineMonitor::fitX(HepMatrix points, HepMatrix errors){
+float CSCOfflineMonitor::fitX(CLHEP::HepMatrix points, CLHEP::HepMatrix errors){
 
   float S   = 0;
   float Sx  = 0;

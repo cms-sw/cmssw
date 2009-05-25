@@ -98,7 +98,7 @@ private:
                        edm::ESHandle<CSCGeometry> cscGeom);
 
   // used by modules:
-  float      fitX(HepMatrix sp, HepMatrix ep);
+  float      fitX(CLHEP::HepMatrix sp, CLHEP::HepMatrix ep);
   float      getSignal(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
   int        typeIndex(CSCDetId id, int flag = 1);
   int        chamberSerial(CSCDetId id);
