@@ -18,7 +18,7 @@ namespace edm
       ~PoissonPUGenerator() { }
     
     private:
-      virtual unsigned int numberOfEventsPerBunch() const {return RandPoissonQ::fire(average);}
+      virtual unsigned int numberOfEventsPerBunch() const {return CLHEP::RandPoissonQ::fire(average);}
       double average;
     };
 }//edm
