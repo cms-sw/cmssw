@@ -39,7 +39,7 @@
 
 /// helper files
 #include <CLHEP/Vector/LorentzVector.h>
-#include <CLHEP/Units/SystemOfUnits.h>
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <iostream>
 

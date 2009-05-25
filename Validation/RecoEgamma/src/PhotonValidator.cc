@@ -33,7 +33,7 @@
 //
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
 //
@@ -73,8 +73,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/05/12 11:36:53 $ 
- **  $Revision: 1.27 $
+ **  $Date: 2009/05/12 18:11:47 $ 
+ **  $Revision: 1.28 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/

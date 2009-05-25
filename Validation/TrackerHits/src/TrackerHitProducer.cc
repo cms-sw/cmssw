@@ -226,7 +226,7 @@ void TrackerHitProducer::fillG4MC(edm::Event& iEvent)
     
     ++i;
 
-    const HepLorentzVector& G4Vtx = HepLorentzVector(itVtx->position().x(),
+    const CLHEP::HepLorentzVector& G4Vtx = CLHEP::HepLorentzVector(itVtx->position().x(),
                                                      itVtx->position().y(),
                                                      itVtx->position().z(),  
                                                      itVtx->position().e());
@@ -258,7 +258,7 @@ void TrackerHitProducer::fillG4MC(edm::Event& iEvent)
     ++i;
 
     double etaInit =0, phiInit =0, pInit =0;
-    const HepLorentzVector& G4Trk = HepLorentzVector(itTrk->momentum().x(),
+    const CLHEP::HepLorentzVector& G4Trk = CLHEP::HepLorentzVector(itTrk->momentum().x(),
                                                      itTrk->momentum().y(),
                                                      itTrk->momentum().z(),
                                                      itTrk->momentum().e());

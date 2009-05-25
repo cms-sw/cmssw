@@ -24,7 +24,7 @@
 
 // helper files
 #include <CLHEP/Vector/LorentzVector.h>
-#include <CLHEP/Units/SystemOfUnits.h>
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 
 #include <iostream>
@@ -489,7 +489,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
 
 //    cout << "itTrk = "<< itTrk << endl;
     double eta =0, phi =0, p =0;
-    const HepLorentzVector& G4Trk = HepLorentzVector(itTrk->momentum().x(),
+    const CLHEP::HepLorentzVector& G4Trk = CLHEP::HepLorentzVector(itTrk->momentum().x(),
                                                      itTrk->momentum().y(),
                                                      itTrk->momentum().z(),
                                                      itTrk->momentum().e());  

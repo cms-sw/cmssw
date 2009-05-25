@@ -29,7 +29,7 @@ SimG4HcalHitCluster& SimG4HcalHitCluster::operator+=(const CaloHit& hit) {
     double py = et * sin(phic);
     double pz = et * my_sinh(etac); 
 
-    HepLorentzVector clusHLV(px,py,pz,ec);
+    CLHEP::HepLorentzVector clusHLV(px,py,pz,ec);
       
     // hit px,py,pz
     double eh   = hit.e();
@@ -40,7 +40,7 @@ SimG4HcalHitCluster& SimG4HcalHitCluster::operator+=(const CaloHit& hit) {
     py = et * sin(phih);
     pz = et * my_sinh(etah); 
       
-    HepLorentzVector hitHLV(px,py,pz,eh);
+    CLHEP::HepLorentzVector hitHLV(px,py,pz,eh);
       
     // clus + hit
     clusHLV += hitHLV;
