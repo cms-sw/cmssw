@@ -7,7 +7,7 @@ siStripFEDMonitor.DataPresentHistogramConfig.Enabled = True
 siStripFEDMonitor.AnyFEDErrorsHistogramConfig.Enabled = True
 siStripFEDMonitor.AnyDAQProblemsHistogramConfig.Enabled = True
 siStripFEDMonitor.AnyFEProblemsHistogramConfig.Enabled = True
-siStripFEDMonitor.CorruptBuffersHistogramConfig.Enabled = False
+siStripFEDMonitor.CorruptBuffersHistogramConfig.Enabled = True
 siStripFEDMonitor.BadChannelStatusBitsHistogramConfig.Enabled = False
 siStripFEDMonitor.BadActiveChannelStatusBitsHistogramConfig.Enabled = True
 #sub sets of FE problems
