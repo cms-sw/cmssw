@@ -1,5 +1,5 @@
 #include "Validation/Geometry/interface/MonitorElementMgr.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #ifdef StatTesting
 #include "Validation/SimG4GeometryValidation/interface/StatisticsComparator.h"
 #include "StatisticsTesting/Chi2ComparisonAlgorithm.h"

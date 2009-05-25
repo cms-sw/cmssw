@@ -183,8 +183,8 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   G4StepPoint* prePoint  = aStep->GetPreStepPoint();
   G4StepPoint* postPoint = aStep->GetPostStepPoint();
   
-  Hep3Vector prePos  = prePoint->GetPosition();
-  Hep3Vector postPos = postPoint->GetPosition();
+  CLHEP::Hep3Vector prePos  = prePoint->GetPosition();
+  CLHEP::Hep3Vector postPos = postPoint->GetPosition();
 
   G4double steplen = aStep->GetStepLength();
 

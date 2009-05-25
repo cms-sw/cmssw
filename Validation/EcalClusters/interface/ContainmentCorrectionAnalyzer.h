@@ -32,7 +32,7 @@
 #include "Validation/EcalClusters/interface/EcalSimPhotonMCTruth.h"
 //
 #include <algorithm>
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include <vector>
 #include <map>
 #include <iostream>
