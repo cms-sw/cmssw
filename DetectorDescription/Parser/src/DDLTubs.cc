@@ -26,7 +26,7 @@
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 
 // Default constructor

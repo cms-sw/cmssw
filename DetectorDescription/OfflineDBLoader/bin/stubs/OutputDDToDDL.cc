@@ -18,7 +18,7 @@
 
 // for clhep stuff..
 //#include <DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h>
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <iostream>
 #include <fstream>

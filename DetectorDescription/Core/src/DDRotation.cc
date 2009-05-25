@@ -3,7 +3,7 @@
 #include "DetectorDescription/Base/interface/DDTranslation.h"
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <Math/AxisAngle.h>
 
 #include <sstream>

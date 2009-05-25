@@ -26,7 +26,7 @@
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 //CLHEP dependency
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <cmath>
 

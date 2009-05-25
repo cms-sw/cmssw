@@ -1,6 +1,6 @@
 // Original Author:  Jie Chen
 //         Created:  Thu Apr  5 10:36:22 CDT 2007
-// $Id: MaterialForOnline.cc,v 1.3 2008/01/22 19:14:05 muzaffar Exp $
+// $Id: MaterialForOnline.cc,v 1.4 2008/02/06 18:49:31 case Exp $
 //
 //
 
@@ -19,7 +19,7 @@
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include <Geometry/Records/interface/IdealGeometryRecord.h>
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <iostream>
 #include <istream>

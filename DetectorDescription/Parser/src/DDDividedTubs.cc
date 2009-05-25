@@ -15,7 +15,7 @@
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 //--------------------------------------------------------------------------
 DDDividedTubsRho::DDDividedTubsRho( const DDDivision & div)

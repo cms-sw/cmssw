@@ -97,7 +97,7 @@ DDRotationMatrix DDLRotationByAxis::processOne (DDRotationMatrix R, std::string&
   
   ExprEvalInterface & ev = ExprEvalSingleton::instance();
   double dAngle = ev.eval(pNameSpace, angle);
-  //  HepRotation R;
+  //  CLHEP::HepRotation R;
 
   if ( axis == "x") {
     R = ROOT::Math::RotationX(dAngle);

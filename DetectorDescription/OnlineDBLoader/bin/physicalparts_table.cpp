@@ -76,9 +76,9 @@ int main(int argc, char *argv[])
     //cout << "parent=" << parent.str() << " child=" << child.str() << endl;
     const DDRotationMatrix & rot = epv.rotation();
     const DDTranslation & trans = epv.translation();
-//     Hep3Vector xv = rot.colX();
-//     Hep3Vector yv = rot.colY();
-//     Hep3Vector zv = rot.colZ();
+//     CLHEP::Hep3Vector xv = rot.colX();
+//     CLHEP::Hep3Vector yv = rot.colY();
+//     CLHEP::Hep3Vector zv = rot.colZ();
     DD3Vector xv,yv,zv;
     rot.GetComponents(xv,yv,zv);
     bool reflection = false;

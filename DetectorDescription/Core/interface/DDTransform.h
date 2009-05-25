@@ -61,7 +61,7 @@ DDRotationMatrix * DDcreateRotationMatrix(double thetaX, double phiX,
     It is uniquely identified by its DDName. Further details concerning
     reference-objects can be found in the documentation of DDLogicalPart.
     
-    DDRotation encapsulates CLHEP HepRotation.
+    DDRotation encapsulates CLHEP CLHEP::HepRotation.
 */
 class DDRotation : public DDBase<DDName,DDRotationMatrix*>
 {

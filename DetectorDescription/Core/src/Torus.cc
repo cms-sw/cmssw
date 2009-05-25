@@ -1,6 +1,6 @@
 #include "DetectorDescription/Core/src/Torus.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <cmath>
 
 using std::sqrt;

@@ -1,6 +1,6 @@
 #include "DetectorDescription/Core/src/Trap.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <cmath>
 
 using std::sqrt;

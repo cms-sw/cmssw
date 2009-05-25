@@ -14,7 +14,7 @@
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 //--------------------------------------------------------------------------
 DDDividedPolyhedraRho::DDDividedPolyhedraRho( const DDDivision & div )

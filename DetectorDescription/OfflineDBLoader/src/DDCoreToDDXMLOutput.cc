@@ -7,7 +7,7 @@
 #include <DetectorDescription/Core/interface/DDPartSelection.h>
 #include <DetectorDescription/Core/interface/DDSolidShapes.h>
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <sstream>
 

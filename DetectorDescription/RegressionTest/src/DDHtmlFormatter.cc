@@ -2,7 +2,7 @@ namespace std { } using namespace std;
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fstream>
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "DetectorDescription/RegressionTest/interface/DDHtmlFormatter.h"
 
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"

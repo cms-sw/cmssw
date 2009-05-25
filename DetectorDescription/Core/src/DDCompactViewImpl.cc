@@ -1,7 +1,7 @@
 #include "DetectorDescription/Core/interface/DDCompactViewImpl.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

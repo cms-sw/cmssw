@@ -8,7 +8,7 @@
 // . rotation matrices and translation std::vectors of module CLHEP/Vector
 //   (they are typedef'd to DDRotationMatrix and DDTranslation in
 //   DDD/DDCore/interface/DDTransform.h
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 
 // Interface

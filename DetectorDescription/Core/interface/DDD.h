@@ -2,7 +2,7 @@
 #define DD_DDD_H_GRD
 
 // CLHEP
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include "DetectorDescription/Base/interface/DDException.h"
 
