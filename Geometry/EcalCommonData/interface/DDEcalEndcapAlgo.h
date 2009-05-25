@@ -13,23 +13,24 @@
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "Geometry/CaloGeometry/interface/EcalTrapezoidParameters.h"
+#include "CLHEP/Geometry/Transform3D.h" 
 
 
 class DDEcalEndcapAlgo : public DDAlgorithm {
  public:
 
       typedef EcalTrapezoidParameters Trap ;
-      typedef HepPoint3D              Pt3D ;
-      typedef HepTransform3D          Tf3D ;
-      typedef HepReflectZ3D           RfZ3D ;
-      typedef HepTranslate3D          Tl3D ;
-      typedef HepRotate3D             Ro3D ;
-      typedef HepRotateZ3D            RoZ3D ;
-      typedef HepRotateY3D            RoY3D ;
-      typedef HepRotateX3D            RoX3D ;
+      typedef HepGeom::Point3D<double>               Pt3D ;
+      typedef HepGeom::Transform3D          Tf3D ;
+      typedef HepGeom::ReflectZ3D           RfZ3D ;
+      typedef HepGeom::Translate3D          Tl3D ;
+      typedef HepGeom::Rotate3D             Ro3D ;
+      typedef HepGeom::RotateZ3D            RoZ3D ;
+      typedef HepGeom::RotateY3D            RoY3D ;
+      typedef HepGeom::RotateX3D            RoX3D ;
 
-      typedef Hep3Vector              Vec3 ;
-      typedef HepRotation             Rota ;
+      typedef CLHEP::Hep3Vector              Vec3 ;
+      typedef CLHEP::HepRotation             Rota ;
 
       //Constructor and Destructor
       DDEcalEndcapAlgo();

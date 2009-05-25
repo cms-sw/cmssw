@@ -282,10 +282,10 @@ HcalGeometry::alignmentTransformIndexGlobal( const DetId& id )
    return (unsigned int)DetId::Hcal ;
 }
 
-std::vector<HepPoint3D> 
+std::vector<HepGeom::Point3D<double> > 
 HcalGeometry::localCorners( const double* pv,
 			    unsigned int  i,
-			    HepPoint3D&   ref )
+			    HepGeom::Point3D<double> &   ref )
 {
    const HcalDetId hid ( HcalDetId::detIdFromDenseIndex( i ) ) ;
    const CaloGenericDetId cgid ( hid ) ;

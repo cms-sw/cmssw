@@ -12,7 +12,7 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "Geometry/HcalAlgo/interface/DDHCalAngular.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 DDHCalAngular::DDHCalAngular() {
   LogDebug("HCalGeom") << "DDHCalAngular test: Creating an instance";

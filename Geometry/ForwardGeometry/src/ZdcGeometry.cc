@@ -96,10 +96,10 @@ ZdcGeometry::alignmentTransformIndexGlobal( const DetId& id )
    return (unsigned int)DetId::Calo ;
 }
 
-std::vector<HepPoint3D> 
+std::vector<HepGeom::Point3D<double> > 
 ZdcGeometry::localCorners( const double* pv,
 			   unsigned int  i,
-			   HepPoint3D&   ref )
+			   HepGeom::Point3D<double> &   ref )
 {
    return ( calogeom::IdealZDCTrapezoid::localCorners( pv, ref ) ) ;
 }

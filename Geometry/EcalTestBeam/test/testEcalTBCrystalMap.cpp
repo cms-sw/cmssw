@@ -17,7 +17,7 @@ int main() {
 
   for ( int i = 0 ; i < 10 ; ++i ) {
 
-    int thisCrystal = RandFlat::shootInt(nCrystal);
+    int thisCrystal = CLHEP::RandFlat::shootInt(nCrystal);
     double thisEta = 0.;
     double thisPhi = 0.;
 

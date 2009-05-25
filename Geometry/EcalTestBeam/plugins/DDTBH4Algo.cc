@@ -15,7 +15,7 @@ namespace std{} using namespace std;
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/EcalTestBeam/plugins/DDTBH4Algo.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 DDTBH4Algo::DDTBH4Algo() :
    m_idNameSpace (""), 
@@ -63,7 +63,7 @@ DDTBH4Algo::~DDTBH4Algo() {}
 
 DDRotation
 DDTBH4Algo::myrot( const std::string&      s,
-		   const HepRotation& r ) const 
+		   const CLHEP::HepRotation& r ) const 
 {
    return DDrot( ddname( idNameSpace() + ":" + s ), new DDRotationMatrix( r.xx(), r.xy(), r.xz(), r.yx(), r.yy(), r.yz(), r.zx(), r.zy(), r.zz() ) ) ; 
 }
@@ -213,7 +213,7 @@ void DDTBH4Algo::execute()
 			     vecTrgYOff()[i],
 			     vecTrgZPiv()[i] - halfZbl + blZPiv() - blZBeg() ),
 	    myrot( tName.name()+"Rot",
-		   HepRotationZ( vecTrgPhi()[i]) ) ) ;
+		   CLHEP::HepRotationZ( vecTrgPhi()[i]) ) ) ;
   }
 
   DDName pName ( fibCladName() ) ;
@@ -261,6 +261,6 @@ void DDTBH4Algo::execute()
 			     vecFibYOff()[i],
 			     vecFibZPiv()[i] - halfZbl + blZPiv() - blZBeg() ),
 	    myrot( pName.name()+"Rot" + int_to_string(i),
-		   HepRotationZ( vecFibPhi()[i]) ) ) ;
+		   CLHEP::HepRotationZ( vecFibPhi()[i]) ) ) ;
   }
 }

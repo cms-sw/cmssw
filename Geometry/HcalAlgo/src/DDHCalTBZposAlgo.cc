@@ -14,7 +14,7 @@ namespace std{} using namespace std;
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/HcalAlgo/interface/DDHCalTBZposAlgo.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 DDHCalTBZposAlgo::DDHCalTBZposAlgo() {
   LogDebug("HCalGeom") << "DDHCalTBZposAlgo test: Creating an instance";

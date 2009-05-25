@@ -119,7 +119,7 @@ void CrystalCenterDump::build(const CaloGeometry& cg, DetId::Detector det, int s
             double crysY = dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(depth).y();
             double crysZ = dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(depth).z();
 
-            Hep3Vector crysPos(crysX,crysY,crysZ);
+            CLHEP::Hep3Vector crysPos(crysX,crysY,crysZ);
             double crysEta = crysPos.eta();
             double crysTheta = crysPos.theta();
             double crysPhi = crysPos.phi();

@@ -10,8 +10,8 @@
   *  
   * Only DetId::Calo, subdet=1 DetIds are handled by this class.
   *
-  * $Date: 2006/08/08 15:48:01 $
-  * $Revision: 1.3 $
+  * $Date: 2009/01/29 22:28:52 $
+  * $Revision: 1.4 $
   * \author J. Mans - Minnesota
   */
 class CaloTowerGeometry : public CaloSubdetectorGeometry 
@@ -46,9 +46,9 @@ class CaloTowerGeometry : public CaloSubdetectorGeometry
 
       static unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
 
-      static std::vector<HepPoint3D> localCorners( const double* pv, 
+      static std::vector<HepGeom::Point3D<double> > localCorners( const double* pv, 
 						   unsigned int  i,
-						   HepPoint3D&   ref ) ;
+						   HepGeom::Point3D<double> &   ref ) ;
 
       static CaloCellGeometry* newCell( const GlobalPoint& f1 ,
 					const GlobalPoint& f2 ,

@@ -3,9 +3,9 @@
 
 namespace calogeom {
 
-   std::vector<HepPoint3D>
+   std::vector<HepGeom::Point3D<double> >
    IdealZDCTrapezoid::localCorners( const double* pv  ,
-				    HepPoint3D&   ref   )
+				    HepGeom::Point3D<double> &   ref   )
    {
       assert( 0 != pv ) ;
 
@@ -16,16 +16,16 @@ namespace calogeom {
       const double ta ( tan( an ) ) ;
       const double dt ( dy*ta ) ;
 
-      std::vector<HepPoint3D>  lc ( 8, HepPoint3D( 0,0,0) ) ;
+      std::vector<HepGeom::Point3D<double> >  lc ( 8, HepGeom::Point3D<double> ( 0,0,0) ) ;
 
-      lc[0] = HepPoint3D( -dx, -dy, +dz+dt ) ;
-      lc[1] = HepPoint3D( -dx, +dy, +dz-dt ) ;
-      lc[2] = HepPoint3D( +dx, +dy, +dz-dt ) ;
-      lc[3] = HepPoint3D( +dx, -dy, +dz+dt ) ;
-      lc[4] = HepPoint3D( -dx, -dy, -dz+dt ) ;
-      lc[5] = HepPoint3D( -dx, +dy, -dz-dt ) ;
-      lc[6] = HepPoint3D( +dx, +dy, -dz-dt ) ;
-      lc[7] = HepPoint3D( +dx, -dy, -dz+dt ) ;
+      lc[0] = HepGeom::Point3D<double> ( -dx, -dy, +dz+dt ) ;
+      lc[1] = HepGeom::Point3D<double> ( -dx, +dy, +dz-dt ) ;
+      lc[2] = HepGeom::Point3D<double> ( +dx, +dy, +dz-dt ) ;
+      lc[3] = HepGeom::Point3D<double> ( +dx, -dy, +dz+dt ) ;
+      lc[4] = HepGeom::Point3D<double> ( -dx, -dy, -dz+dt ) ;
+      lc[5] = HepGeom::Point3D<double> ( -dx, +dy, -dz-dt ) ;
+      lc[6] = HepGeom::Point3D<double> ( +dx, +dy, -dz-dt ) ;
+      lc[7] = HepGeom::Point3D<double> ( +dx, -dy, -dz+dt ) ;
 
       ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;
       return lc ;
@@ -40,25 +40,25 @@ namespace calogeom {
 	 CaloCellGeometry::CornersVec& corners ( setCorners() ) ;
 	 const GlobalPoint& p ( getPosition() ) ;
 	 const double zsign ( 0 < p.z() ? 1. : -1. ) ;
-	 const HepPoint3D gf ( p.x(), p.y(), p.z() ) ;
+	 const HepGeom::Point3D<double>  gf ( p.x(), p.y(), p.z() ) ;
 
-	 HepPoint3D lf ;
-	 const std::vector<HepPoint3D> lc ( localCorners( param(), lf ) ) ;
-	 const HepPoint3D lb ( lf.x() , lf.y() , lf.z() - 2.*dz() ) ;
-	 const HepPoint3D ls ( lf.x() - dx(), lf.y(), lf.z() ) ;
+	 HepGeom::Point3D<double>  lf ;
+	 const std::vector<HepGeom::Point3D<double> > lc ( localCorners( param(), lf ) ) ;
+	 const HepGeom::Point3D<double>  lb ( lf.x() , lf.y() , lf.z() - 2.*dz() ) ;
+	 const HepGeom::Point3D<double>  ls ( lf.x() - dx(), lf.y(), lf.z() ) ;
 
-	 const HepPoint3D  gb ( gf.x() , gf.y() , gf.z() + 2.*zsign*dz() ) ;
+	 const HepGeom::Point3D<double>   gb ( gf.x() , gf.y() , gf.z() + 2.*zsign*dz() ) ;
 
-	 const HepPoint3D gs ( gf.x() - zsign*dx(),
+	 const HepGeom::Point3D<double>  gs ( gf.x() - zsign*dx(),
 			       gf.y() ,
 			       gf.z()         ) ;
 
-	 const HepTransform3D tr ( lf, lb, ls,
+	 const HepGeom::Transform3D tr ( lf, lb, ls,
 				   gf, gb, gs ) ;
 
 	 for( unsigned int i ( 0 ) ; i != 8 ; ++i )
 	 {
-	    const HepPoint3D gl ( tr*lc[i] ) ;
+	    const HepGeom::Point3D<double>  gl ( tr*lc[i] ) ;
 	    corners[i] = GlobalPoint( gl.x(), gl.y(), gl.z() ) ;
 	 }
       }
@@ -68,7 +68,7 @@ namespace calogeom {
    bool 
    IdealZDCTrapezoid::inside( const GlobalPoint& point ) const 
    {
-      const HepPoint3D p ( point.x(), point.y(), point.z() ) ;
+      const HepGeom::Point3D<double>  p ( point.x(), point.y(), point.z() ) ;
 
       bool ok ( false ) ;
 

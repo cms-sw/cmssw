@@ -171,7 +171,7 @@ DDEcalEndcapTrap::rotateX(const double angle)
   //  Rotate SC through given angle about X axis
   //
 
-   const HepRotation tmp ( Hep3Vector(1.,0.,0.), angle ) ;
+   const CLHEP::HepRotation tmp ( CLHEP::Hep3Vector(1.,0.,0.), angle ) ;
 
    rotate( DDRotationMatrix( tmp.xx(), tmp.xy(), tmp.xz(),
 			     tmp.yx(), tmp.yy(), tmp.yz(),
@@ -184,7 +184,7 @@ DDEcalEndcapTrap::rotateY(const double angle)
    //
    //  Rotate SC through given angle about Y axis
    //
-   const HepRotation tmp ( Hep3Vector(0.,1.,0.), angle ) ;
+   const CLHEP::HepRotation tmp ( CLHEP::Hep3Vector(0.,1.,0.), angle ) ;
 
    rotate( DDRotationMatrix( tmp.xx(), tmp.xy(), tmp.xz(),
 			     tmp.yx(), tmp.yy(), tmp.yz(),

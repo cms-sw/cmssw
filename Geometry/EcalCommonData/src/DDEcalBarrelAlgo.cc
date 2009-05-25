@@ -14,7 +14,7 @@
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Base/interface/DDTranslation.h"
 #include "Geometry/EcalCommonData/interface/DDEcalBarrelAlgo.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <CLHEP/Geometry/Point3D.h>
 #include <CLHEP/Geometry/Vector3D.h>
@@ -1037,7 +1037,7 @@ void DDEcalBarrelAlgo::execute()
 			    ++ptmCopy, 
 			    DDTranslation(xx,yy, vecIlyPTMZ()[ilyPTM] -ilyLength/2 ),
 			    myrot( ilyPTMLog.name().name() + "_rot" +
-				   int_to_string( ptmCopy ) , HepRotationZ( phi ) )) ;
+				   int_to_string( ptmCopy ) , CLHEP::HepRotationZ( phi ) )) ;
 		  }
 	       }
 	       if( 0 != ilyFanOutHere() )
@@ -1055,7 +1055,7 @@ void DDEcalBarrelAlgo::execute()
 			    DDTranslation(xx,yy, vecIlyFanOutZ()[ilyFO] -ilyLength/2 ),
 			    myrot( ilyFanOutLog.name().name() + "_rot" +
 				   int_to_string( fanOutCopy ) , 
-				   HepRotationZ( phi )*HepRotationY( 180*deg ) )) ;
+				   CLHEP::HepRotationZ( phi )*CLHEP::HepRotationY( 180*deg ) )) ;
 		  }
 		  unsigned int femCopy ( 0 ) ;
 		  for( unsigned int ilyFEM ( 0 ) ; ilyFEM != vecIlyFEMZ().size() ; ++ilyFEM )
@@ -1069,7 +1069,7 @@ void DDEcalBarrelAlgo::execute()
 			    ++femCopy, 
 			    DDTranslation(xx,yy, vecIlyFEMZ()[ilyFEM] -ilyLength/2 ),
 			    myrot( ilyFEMLog.name().name() + "_rot" +
-				   int_to_string( femCopy ) , HepRotationZ( phi ) )) ;
+				   int_to_string( femCopy ) , CLHEP::HepRotationZ( phi ) )) ;
 		  }
 	       }
 	       for( unsigned int iPipe ( 0 ) ; iPipe != vecIlyPipePhi().size(); ++iPipe )
@@ -1267,8 +1267,8 @@ void DDEcalBarrelAlgo::execute()
 			    -hawRform.getTranslation().y(),
 			    -hawRform.getTranslation().z() ),
 	     myrot( hawRName().name()+"RotRefl",
-		    HepRotationY(180*deg)*                 // rotate about Y after refl thru Z
-		    HepRep3x3(1,0,0, 0,1,0, 0,0,-1) ) ) ;
+		    CLHEP::HepRotationY(180*deg)*                 // rotate about Y after refl thru Z
+		    CLHEP::HepRep3x3(1,0,0, 0,1,0, 0,0,-1) ) ) ;
 
 /* this for display of haw cut box instead of subtraction
       DDpos( hawCutLog,
@@ -1647,7 +1647,7 @@ void DDEcalBarrelAlgo::execute()
 
 	    const double xx ( 0.050*mm ) ;
 
-	    const Tf3D tForm ( HepTranslate3D(xx,0,0)*tForm1 ) ;
+	    const Tf3D tForm ( HepGeom::Translate3D(xx,0,0)*tForm1 ) ;
 
 	    DDpos( wallLog,
 		   hawRLog, 
@@ -1751,7 +1751,7 @@ void DDEcalBarrelAlgo::execute()
 		copyOne, 
 		outtra + backPlateTra,
 		myrot( backPlateName().name()+"Rot5",
-		       HepRotationZ(270*deg)    ) ) ;
+		       CLHEP::HepRotationZ(270*deg)    ) ) ;
 
       }
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1794,7 +1794,7 @@ void DDEcalBarrelAlgo::execute()
 		copyOne, 
 		outtra + backSideTra1,
 		myrot( backSideName().name()+"Rot8",
-		       HepRotationX(180*deg)*HepRotationZ(90*deg)    ) ) ;
+		       CLHEP::HepRotationX(180*deg)*CLHEP::HepRotationZ(90*deg)    ) ) ;
 	     
 	 const DDTranslation backSideTra2( 0*mm,
 					   -backPlateWidth()/2 + backSideYOff2(),
@@ -1804,7 +1804,7 @@ void DDEcalBarrelAlgo::execute()
 		copyTwo, 
 		outtra + backSideTra2,
 		myrot( backSideName().name()+"Rot9",
-		       HepRotationZ(90*deg)    ) ) ;
+		       CLHEP::HepRotationZ(90*deg)    ) ) ;
       }
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1949,7 +1949,7 @@ void DDEcalBarrelAlgo::execute()
 					 vecGrilleHeight()[iGr]/2.,manifCut, 
 					 grilleThick()/2.+3*mBManifOutDiam()/2.) ,
 		   myrot( mBManifName().name()+"R1",
-			  HepRotationX(90*deg)             ) ) ;
+			  CLHEP::HepRotationX(90*deg)             ) ) ;
 	    DDpos( mBManifLog,
 		   spmName(),
 		   iGr-1,
@@ -1957,7 +1957,7 @@ void DDEcalBarrelAlgo::execute()
 					 vecGrilleHeight()[iGr]/2.,manifCut, 
 					 grilleThick()/2+3*mBManifOutDiam()/2.) ,
 		   myrot( mBManifName().name()+"R2",
-			  HepRotationX(90*deg)             ) ) ;
+			  CLHEP::HepRotationX(90*deg)             ) ) ;
 	 }
       }
 
@@ -2092,7 +2092,7 @@ void DDEcalBarrelAlgo::execute()
 	     copyTwo           , 
 	     DDTranslation( 0,0, -backCoolBarThick()/2. - thickVFE/2. )   ,
 	     myrot( backVFEName().name() + "Flip",
-		    HepRotationX( 180*deg ) )        ) ;
+		    CLHEP::HepRotationX( 180*deg ) )        ) ;
 
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2648,7 +2648,7 @@ void DDEcalBarrelAlgo::execute()
 		  1+iRod, 
 		  rodTra,
 		  myrot( pincerRodName().name() + int_to_string(iRod),
-			 HepRotationZ( 90*deg + vecPincerRodAzimuth()[iRod] ) ) ) ;
+			 CLHEP::HepRotationZ( 90*deg + vecPincerRodAzimuth()[iRod] ) ) ) ;
 	 }
       }
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2663,10 +2663,10 @@ void DDEcalBarrelAlgo::execute()
    LogDebug("EcalGeom") << "******** DDEcalBarrelAlgo test: end it..." ;
 }
 
-///Create a DDRotation from a string converted to DDName and HepRotation converted to DDRotationMatrix. -- Michael Case
+///Create a DDRotation from a string converted to DDName and CLHEP::HepRotation converted to DDRotationMatrix. -- Michael Case
 DDRotation
 DDEcalBarrelAlgo::myrot( const std::string&      s,
-			 const HepRotation& r ) const 
+			 const CLHEP::HepRotation& r ) const 
 {
   return DDrot( ddname( m_idNameSpace + ":" + s ), new DDRotationMatrix( r.xx(), r.xy(), r.xz(), r.yx(), r.yy(), r.yz(), r.zx(), r.zy(), r.zz() ) ) ; 
 }
@@ -2714,7 +2714,7 @@ DDEcalBarrelAlgo::web( unsigned int        iWeb,
 		       double              BWeb,
 		       double              LWeb,
 		       double              theta,
-		       const HepPoint3D&   corner,
+		       const HepGeom::Point3D<double> &   corner,
 		       const DDLogicalPart logPar,
 		       double&             zee,
 		       double              side,

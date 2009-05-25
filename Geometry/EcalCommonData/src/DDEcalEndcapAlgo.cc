@@ -12,7 +12,7 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "Geometry/EcalCommonData/interface/DDEcalEndcapAlgo.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <CLHEP/Geometry/Transform3D.h>
 
@@ -149,7 +149,7 @@ DDEcalEndcapAlgo::myrot( const std::string&      s,
 /*
 DDRotation
 DDEcalBarrelAlgo::myrot( const std::string&      s,
-			 const HepRotation& r ) const 
+			 const CLHEP::HepRotation& r ) const 
 {
   return DDrot( ddname( m_idNameSpace + ":" + s ), new DDRotationMatrix( r.xx(), r.xy(), r.xz(), r.yx(), r.yy(), r.yz(), r.zx(), r.zy(), r.zz() ) ) ; 
 }*/
@@ -373,7 +373,7 @@ DDEcalEndcapAlgo::EECreateSC( const unsigned int iSCType   )
 				 ( 5 == iSCType ? DDTranslation(  -half*fac,  -half*fac, zmm ) :
 				   DDTranslation(                    -fifth,        zmm,  zmm ) ) ) ) ) ;
 
-      const HepRotationZ cutm ( ffived ) ;
+      const CLHEP::HepRotationZ cutm ( ffived ) ;
 
       DDRotation cutRot ( 5 != iSCType ? noRot : myrot( "EECry5Rot", 
 							DDRotationMatrix( cutm.xx(), cutm.xy(), cutm.xz(),

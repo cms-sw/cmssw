@@ -70,17 +70,17 @@ void EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(const DDCompactView* cpv
        // rotate the box and then move it
       DD3Vector x, y, z;
       fv.rotation().GetComponents(x,y,z);
-      Hep3Vector hx(x.X(), x.Y(), x.Z());
-      Hep3Vector hy(y.X(), y.Y(), y.Z());
-      Hep3Vector hz(z.X(), z.Y(), z.Z());
-      HepRotation hrot(hx, hy, hz);
-      Hep3Vector htran(fv.translation().X(), fv.translation().Y(), fv.translation().Z());
+      CLHEP::Hep3Vector hx(x.X(), x.Y(), x.Z());
+      CLHEP::Hep3Vector hy(y.X(), y.Y(), y.Z());
+      CLHEP::Hep3Vector hz(z.X(), z.Y(), z.Z());
+      CLHEP::HepRotation hrot(hx, hy, hz);
+      CLHEP::Hep3Vector htran(fv.translation().X(), fv.translation().Y(), fv.translation().Z());
 
-      const HepTransform3D ht3d ( hrot,                        // only scale translation
+      const HepGeom::Transform3D ht3d ( hrot,                        // only scale translation
 				  CaloCellGeometry::k_ScaleFromDDDtoGeant*htran ) ;    
 
 
-      const HepPoint3D ctr ( ht3d*HepPoint3D(0,0,0) ) ;
+      const HepGeom::Point3D<double>  ctr ( ht3d*HepGeom::Point3D<double> (0,0,0) ) ;
 
       const GlobalPoint refPoint ( ctr.x(), ctr.y(), ctr.z() ) ;
 

@@ -12,7 +12,7 @@ namespace std{} using namespace std;
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "Geometry/HcalAlgo/interface/DDHCalTestBeamAlgo.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 DDHCalTestBeamAlgo::DDHCalTestBeamAlgo() {
   LogDebug("HCalGeom") << "DDHCalTestBeamAlgo test: Creating an instance";

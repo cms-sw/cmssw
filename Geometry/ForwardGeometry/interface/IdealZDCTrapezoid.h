@@ -16,8 +16,8 @@ namespace calogeom {
   
   Total: 7 parameters 
   
-  $Date: 2009/01/23 15:08:20 $
-  $Revision: 1.5 $
+  $Date: 2009/04/01 13:55:16 $
+  $Revision: 1.6 $
   \author E. Garcia - UIC
   */
    class IdealZDCTrapezoid: public CaloCellGeometry 
@@ -42,12 +42,12 @@ namespace calogeom {
 	const double ta() const { return tan( an() ) ; }
 	const double dt() const { return dy()*ta() ; }
 
-	 virtual std::vector<HepPoint3D> vocalCorners( const double* pv,
-						       HepPoint3D&   ref ) const 
+	 virtual std::vector<HepGeom::Point3D<double> > vocalCorners( const double* pv,
+						       HepGeom::Point3D<double> &   ref ) const 
 	 { return localCorners( pv, ref ) ; }
 
-	 static std::vector<HepPoint3D> localCorners( const double* pv, 
-						      HepPoint3D&   ref ) ;
+	 static std::vector<HepGeom::Point3D<double> > localCorners( const double* pv, 
+						      HepGeom::Point3D<double> &   ref ) ;
     
      private:
   };

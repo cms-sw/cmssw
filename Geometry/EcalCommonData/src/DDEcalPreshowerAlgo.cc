@@ -8,7 +8,7 @@
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 DDEcalPreshowerAlgo::DDEcalPreshowerAlgo() : DDAlgorithm() {
   LogDebug("EcalGeom") << "DDEcalPreshowerAlgo info: Creating an instance" ;

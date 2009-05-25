@@ -29,7 +29,7 @@ class DDTBH4Algo : public DDAlgorithm {
       DDMaterial ddmat(  const std::string& s ) const ;
       DDName     ddname( const std::string& s ) const ;
       DDRotation myrot(  const std::string& s,
-			 const HepRotation& r ) const ;
+			 const CLHEP::HepRotation& r ) const ;
 
       const std::string&         idNameSpace() const { return m_idNameSpace   ; }
 

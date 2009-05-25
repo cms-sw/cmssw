@@ -28,10 +28,10 @@ CaloTowerGeometry::alignmentTransformIndexGlobal( const DetId& id )
    return 0 ;
 }
 
-std::vector<HepPoint3D> 
+std::vector<HepGeom::Point3D<double> > 
 CaloTowerGeometry::localCorners( const double* pv,
 				 unsigned int  i,
-				 HepPoint3D&   ref )
+				 HepGeom::Point3D<double> &   ref )
 {
    return ( calogeom::IdealObliquePrism::localCorners( pv, ref ) ) ;
 }

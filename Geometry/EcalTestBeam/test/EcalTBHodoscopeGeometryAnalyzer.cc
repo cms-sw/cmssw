@@ -35,7 +35,7 @@
 
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/Rotation.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 //
 // class decleration
@@ -52,13 +52,13 @@ class EcalTBHodoscopeGeometryAnalyzer : public edm::EDAnalyzer {
       // ----------member data ---------------------------
   void build(const CaloGeometry& cg, DetId::Detector det, int subdetn);
 
-  HepRotation * fromCMStoTB( const double & myEta , const double & myPhi ) const;
+  CLHEP::HepRotation * fromCMStoTB( const double & myEta , const double & myPhi ) const;
 
   int pass_;
 
   double eta_;
   double phi_;
-  HepRotation * fromCMStoTB_;
+  CLHEP::HepRotation * fromCMStoTB_;
 
 };
 
@@ -108,8 +108,8 @@ void EcalTBHodoscopeGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detec
         if (subdetn == EcalLaserPnDiode) 
           {
 
-            Hep3Vector thisCellPos( cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z() );
-            Hep3Vector rotCellPos = (*fromCMStoTB_)*thisCellPos;
+            CLHEP::Hep3Vector thisCellPos( cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z() );
+            CLHEP::Hep3Vector rotCellPos = (*fromCMStoTB_)*thisCellPos;
 
             edm::LogInfo("EcalTBGeom") << "Fiber DetId = " << HodoscopeDetId(*i) << " position =  " <<rotCellPos;
           }
@@ -143,21 +143,21 @@ EcalTBHodoscopeGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::E
 }
 
 
-HepRotation * EcalTBHodoscopeGeometryAnalyzer::fromCMStoTB( const double & myEta , const double & myPhi ) const
+CLHEP::HepRotation * EcalTBHodoscopeGeometryAnalyzer::fromCMStoTB( const double & myEta , const double & myPhi ) const
 {
 
   double myTheta = 2.0*atan(exp(-myEta));
 
   // rotation matrix to move from the CMS reference frame to the test beam one
   
-  HepRotation * CMStoTB = new HepRotation();
+  CLHEP::HepRotation * CMStoTB = new CLHEP::HepRotation();
   
   double angle1 = 90.*deg - myPhi;
-  HepRotationZ * r1 = new HepRotationZ(angle1);
+  CLHEP::HepRotationZ * r1 = new CLHEP::HepRotationZ(angle1);
   double angle2 = myTheta;
-  HepRotationX * r2 = new HepRotationX(angle2);
+  CLHEP::HepRotationX * r2 = new CLHEP::HepRotationX(angle2);
   double angle3 = 90.*deg;
-  HepRotationZ * r3 = new HepRotationZ(angle3);
+  CLHEP::HepRotationZ * r3 = new CLHEP::HepRotationZ(angle3);
   (*CMStoTB) *= (*r3);
   (*CMStoTB) *= (*r2);
   (*CMStoTB) *= (*r1);
