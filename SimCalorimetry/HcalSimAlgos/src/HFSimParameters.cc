@@ -46,7 +46,7 @@ double HFSimParameters::fCtoGeV(const DetId & detId) const
   double result = gains->getValue(0);
 //  if(doNoise_)
 ///  {
-//    result += RandGaussQ::shoot(0.,  gwidths->getValue(0));
+//    result += CLHEP::RandGaussQ::shoot(0.,  gwidths->getValue(0));
 //  }
   return result;
 }
