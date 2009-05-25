@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Tue Mar 18 15:15:30 CET 2008
-// $Id: RPCConeConnectionsAna.cc,v 1.2 2009/05/22 13:47:56 fruboes Exp $
+// $Id: RPCConeConnectionsAna.cc,v 1.3 2009/05/22 14:18:26 fruboes Exp $
 //
 //
 
@@ -64,6 +64,8 @@ class RPCConeConnectionsAna : public edm::EDAnalyzer {
       virtual void endJob() ;
       int getDCCNumber(int iTower, int iSec);
       int getDCC(int iSec);
+      void printSymetric(RPCDetId det, edm::ESHandle<RPCGeometry> rpcGeom);
+      void printRoll(RPCRoll * roll); 
       int   m_towerBeg;
       int   m_towerEnd;
       int   m_sectorBeg;
@@ -208,8 +210,8 @@ RPCConeConnectionsAna::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                               << " detId " << detId << " strip " << strip 
                               << " lp " << (int)itComp->m_logplane
                               << " ls "  << (int)logstrip
-                              <<" "<< RPCDetId(detId) 
                               << std::endl; 
+
                      std::cout << " Connected to: " <<std::endl;
                      for(CI=aVec.begin();CI!=aVec.end();CI++){
                         std::cout << "     DCC: " << CI->first.dccId 
@@ -220,16 +222,9 @@ RPCConeConnectionsAna::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                      std::cout << " Me thinks it should be: DCC: " << getDCC(sector) 
                                << " DCCInChannel: " << dccInputChannel << std::endl;
                     
-                     LocalPoint lStripCentre1 = roll->centreOfStrip(1);
-                     LocalPoint lStripCentreMax = roll->centreOfStrip(roll->nstrips() );
+                     printRoll(roll);
+                     printSymetric(roll->id(), rpcGeom);
 
-                     GlobalPoint gStripCentre1 = roll->toGlobal(lStripCentre1);
-                     GlobalPoint gStripCentreMax = roll->toGlobal(lStripCentreMax);
-                     float phiRaw1 = gStripCentre1.phi();
-                     float phiRawMax = gStripCentreMax.phi();
-                     std::cout << " Coresponding chamber spans in phi between : " 
-                               << phiRaw1 << " " << phiRawMax << std::endl; 
-                   
                    } else {
             /*
                      std::cout<<" OK: PAC "<< PAC  << " tower "  << tower 
@@ -298,5 +293,50 @@ int RPCConeConnectionsAna::getDCC(int iSec){
 
 }
 
+
+
+void RPCConeConnectionsAna::printSymetric(RPCDetId det,  edm::ESHandle<RPCGeometry> rpcGeom){
+
+    RPCDetId detSym;
+
+    if (det.region() == 0 ) { // bar 
+       detSym = RPCDetId(0, -det.ring(), det.station(), det.sector(), det.layer(), det.subsector(), det.roll() );
+    } else { // endcap
+       detSym = RPCDetId(-det.region(), det.ring(), det.station(), det.sector(), det.layer(), det.subsector(), det.roll() );
+
+    }
+
+
+
+
+    for(TrackingGeometry::DetContainer::const_iterator it = rpcGeom->dets().begin();
+      it != rpcGeom->dets().end();
+      ++it)
+    {
+
+      if( dynamic_cast< RPCRoll* >( *it ) == 0 ) continue;
+      RPCRoll* roll = dynamic_cast< RPCRoll*>( *it );
+
+      if (roll->id() != detSym) continue;
+      printRoll(roll);
+
+
+    }
+}
+
+void RPCConeConnectionsAna::printRoll(RPCRoll * roll){ 
+
+                     LocalPoint lStripCentre1 = roll->centreOfStrip(1);
+                     LocalPoint lStripCentreMax = roll->centreOfStrip(roll->nstrips() );
+
+                     GlobalPoint gStripCentre1 = roll->toGlobal(lStripCentre1);
+                     GlobalPoint gStripCentreMax = roll->toGlobal(lStripCentreMax);
+                     float phiRaw1 = gStripCentre1.phi();
+                     float phiRawMax = gStripCentreMax.phi();
+                     std::cout << roll->id().rawId() << " " << roll->id() << " - chamber spans in phi between : "
+                               << phiRaw1 << " " << phiRawMax << std::endl;
+
+
+}
 //define this as a plug-in
 DEFINE_FWK_MODULE(RPCConeConnectionsAna);
