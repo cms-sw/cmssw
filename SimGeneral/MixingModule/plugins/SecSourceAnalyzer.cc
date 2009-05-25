@@ -13,7 +13,7 @@
 //
 // Original Author:  Emilia Lubenova Becheva
 //         Created:  Wed Apr 22 16:54:31 CEST 2009
-// $Id$
+// $Id: SecSourceAnalyzer.cc,v 1.1 2009/04/24 13:35:34 ebecheva Exp $
 //
 //
 
@@ -140,6 +140,7 @@ void  SecSourceAnalyzer::getBranches(EventPrincipal *ep)
         // Get the PCrossingFrame collection given as signal
     
         // default version changed to transmit vertexoffset
+	tag_ = InputTag("CFwriter","g4SimHits");
         boost::shared_ptr<Wrapper<PCrossingFrame<SimTrack> > const> shPtr =
         getProductByTag<PCrossingFrame<SimTrack> >(*ep, tag_);
         

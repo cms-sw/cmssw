@@ -33,16 +33,19 @@ namespace edm
 	bunchSpace_(75),
 	subdet_(std::string(" ")),
 	label_(std::string(" ")),
+	labelCF_(std::string(" ")),
 	maxNbSources_(5),
 	checktof_(false),
+	mixProdStep2_(false),
  	isTracker_(false)
 	{
 	  tag_=InputTag();
+	  tagSignal_=InputTag("g4SimHits");
 	  opp_=InputTag();
 	}
   
       /*Normal constructor*/ 
-      MixingWorkerBase(int minBunch,int maxBunch,int bunchSpace,std::string &subdet, std::string& label,unsigned int maxNbSources,InputTag &tag,bool checktof,bool isTracker);
+      MixingWorkerBase(int minBunch,int maxBunch,int bunchSpace,std::string &subdet, std::string& label,std::string& labelCF,unsigned int maxNbSources,InputTag &tag,bool checktof,bool mixProdStep2, bool isTracker);
 
       /**Default destructor*/
       virtual ~MixingWorkerBase();
@@ -55,16 +58,19 @@ namespace edm
       virtual void setOppositeTag(InputTag& opp) {opp_=opp;}
       virtual void setCheckTof(bool checktof) {checktof_=checktof;}
       virtual void setTof()=0;
-  
+           
     protected:
       int const minBunch_;
       int const maxBunch_;
       int const bunchSpace_;
       std::string const subdet_;
       std::string const label_;
+      std::string const labelCF_;
       unsigned int const maxNbSources_;
       InputTag tag_;
+      InputTag tagSignal_;
       bool checktof_;
+      bool mixProdStep2_;
       bool isTracker_;
       InputTag opp_;
 
