@@ -52,6 +52,15 @@ void LeastSquares::add(const std::vector<double> &values,
 	coeffs(n + 1, n + 1) += weight;
 }
 
+void LeastSquares::add(const LeastSquares &other, double weight)
+{
+	if (other.getSize() != n)
+		throw cms::Exception("LeastSquares")
+			<< "add(): invalid array size!" << std::endl;
+
+	coeffs += weight * other.coeffs;
+}
+
 TVectorD LeastSquares::solveFisher(const TMatrixDSym &coeffs)
 {
 	unsigned int n = coeffs.GetNrows() - 2;

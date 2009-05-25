@@ -19,6 +19,7 @@ class LeastSquares
 
 	void add(const std::vector<double> &values, double dest,
 	         double weight = 1.0);
+	void add(const LeastSquares &other, double weight = 1.0);
 	void calculate();
 
 	std::vector<double> getWeights() const;

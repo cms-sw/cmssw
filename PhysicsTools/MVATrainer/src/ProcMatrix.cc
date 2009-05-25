@@ -55,10 +55,12 @@ class ProcMatrix : public TrainProcessor {
 
 	std::vector<Rank> ranking() const;
 
+	std::auto_ptr<LeastSquares>	lsSignal, lsBackground;
 	std::auto_ptr<LeastSquares>	ls;
 	std::vector<double>		vars;
 	bool				fillSignal;
 	bool				fillBackground;
+	bool				doNormalization;
 	bool				doRanking;
 };
 
@@ -78,7 +80,7 @@ ProcMatrix::~ProcMatrix()
 
 void ProcMatrix::configure(DOMElement *elem)
 {
-	ls = std::auto_ptr<LeastSquares>(new LeastSquares(getInputs().size()));
+	ls.reset(new LeastSquares(getInputs().size()));
 
 	DOMNode *node = elem->getFirstChild();
 	while(node && node->getNodeType() != DOMNode::ELEMENT_NODE)
@@ -98,10 +100,17 @@ void ProcMatrix::configure(DOMElement *elem)
 		XMLDocument::readAttribute<bool>(elem, "signal", false);
 	fillBackground =
 		XMLDocument::readAttribute<bool>(elem, "background", false);
+	doNormalization =
+		XMLDocument::readAttribute<bool>(elem, "normalize", false);
 
 	doRanking = XMLDocument::readAttribute<bool>(elem, "ranking", false);
 	if (doRanking)
-		fillSignal = fillBackground = true;
+		fillSignal = fillBackground = doNormalization = true;
+
+	if (doNormalization && fillSignal && fillBackground) {
+		lsSignal.reset(new LeastSquares(getInputs().size()));
+		lsBackground.reset(new LeastSquares(getInputs().size()));
+	}
 
 	node = node->getNextSibling();
 	while(node && node->getNodeType() != DOMNode::ELEMENT_NODE)
@@ -153,6 +162,10 @@ void ProcMatrix::trainData(const std::vector<double> *values,
 	if (!(target ? fillSignal : fillBackground))
 		return;
 
+	LeastSquares *ls = target ? lsSignal.get() : lsBackground.get();
+	if (!ls)
+		ls = this->ls.get();
+
 	for(unsigned int i = 0; i < ls->getSize(); i++, values++) {
 		if (values->empty())
 			throw cms::Exception("ProcMatrix")
@@ -171,6 +184,22 @@ void ProcMatrix::trainEnd()
 	switch(iteration) {
 	    case ITER_FILL:
 		vars.clear();
+		if (lsSignal.get()) {
+			unsigned int n = ls->getSize();
+			double weight = lsSignal->getCoefficients()
+								(n + 1, n + 1);
+			if (weight > 1.0e-9)
+				ls->add(*lsSignal, 1.0 / weight);
+			lsSignal.reset();
+		}
+		if (lsBackground.get()) {
+			unsigned int n = ls->getSize();
+			double weight = lsBackground->getCoefficients()
+								(n + 1, n + 1);
+			if (weight > 1.0e-9)
+				ls->add(*lsBackground, 1.0 / weight);
+			lsBackground.reset();
+		}
 		ls->calculate();
 
 		iteration = ITER_DONE;
@@ -292,7 +321,7 @@ static void maskLine(TMatrixDSym &m, unsigned int line)
 	unsigned int n = m.GetNrows();
 	for(unsigned int i = 0; i < n; i++)
 		m(i, line) = m(line, i) = 0.;
-	m(line, line) = 0.;
+	m(line, line) = 1.;
 }
 
 static void restoreLine(TMatrixDSym &m, TMatrixDSym &o, unsigned int line)
@@ -342,10 +371,8 @@ static double targetCorrelation(const TMatrixDSym &coeffs,
 
 std::vector<ProcMatrix::Rank> ProcMatrix::ranking() const
 {
-	TMatrixDSym origCoeffs = ls->getCoefficients();
-	unsigned int n = origCoeffs.GetNrows() - 2;
-
-	TMatrixDSym coeffs = origCoeffs;
+	TMatrixDSym coeffs = ls->getCoefficients();
+	unsigned int n = coeffs.GetNrows() - 2;
 
 	typedef std::pair<unsigned int, double> Rank;
 	std::vector<Rank> ranking;
@@ -356,6 +383,7 @@ std::vector<ProcMatrix::Rank> ProcMatrix::ranking() const
 	for(unsigned int nVars = n; nVars > 1; nVars--) {
 		double bestCorr = -99999.0;
 		unsigned int bestIdx = n;
+		TMatrixDSym origCoeffs = coeffs;
 
 		for(unsigned int i = 0; i < n; i++) {
 			if (!use[i])
