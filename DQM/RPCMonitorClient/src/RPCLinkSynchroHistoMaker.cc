@@ -38,13 +38,13 @@ void RPCLinkSynchroHistoMaker::makeLinkStats()
     const FebLocationSpec & feb =  linkBoard->febs().front().feb();
     unsigned int idx = 0;
     while (idx < theLinkStat.size()) {
-      if (theLinkStat[idx].nameChamber==chamber.chamberLocationName && theLinkStat[idx].namePart == feb.localEtaPartition) break;
+      if (theLinkStat[idx].nameChamber==chamber.chamberLocationName()&& theLinkStat[idx].namePart == feb.localEtaPartition) break;
       idx++;
     }
     if (idx== theLinkStat.size()) {
       LinkStat linkStat;
       linkStat.nameLink=im->first.print();
-      linkStat.nameChamber=chamber.chamberLocationName;
+      linkStat.nameChamber=chamber.chamberLocationName();
       linkStat.namePart=feb.localEtaPartition;
       linkStat.vectStat=im->second.counts();
       linkStat.mean=im->second.mean();
