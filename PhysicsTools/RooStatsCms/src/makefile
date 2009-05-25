@@ -63,7 +63,7 @@ exe: 	$(PROGRAM)
 ${LIB}/$(SONAME):	$(OBJS)
 		@echo "Linking $(SONAME):"
 		$(LD) $(LDFLAGS) $(OBJS) $(SOFLAGS) -o ${LIB}/$(SONAME) ${LIBS}
-		rm cintdict*
+		#rm cintdict*
 
 clean:          cleandict
 		rm -f $(OBJS) main.o core
