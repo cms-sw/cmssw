@@ -21,6 +21,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
@@ -96,9 +98,11 @@ public:
 
   ~FEDErrors();
 
-  void initialise(const unsigned int aFedID);
+  void initialise(const unsigned int aFedID,
+		  const SiStripFedCabling* aCabling);
 
-  void hasCabledChannels(const bool isCabled);
+  //return false if no data, with or without cabled channels.
+  bool checkDataPresent(const FEDRawData& aFedData);
 
   //perform a sanity check with unpacking code check
   bool failUnpackerFEDCheck(const FEDRawData & fedData);
@@ -107,22 +111,27 @@ public:
   //ie analyze FED returns true if there were no FED level errors which prevent the whole FED being unpacked
   //fill errors: define the order of importance.
   bool fillFEDErrors(const FEDRawData& aFedData,
-		     const SiStripFedCabling* aCabling,
 		     bool & aFullDebug,
 		     const bool aPrintDebug
 		     );
 
-  bool fillFEErrors(const sistrip::FEDBuffer* aBuffer,
-		    const SiStripFedCabling* aCabling
-		    );
+  bool fillFEErrors(const sistrip::FEDBuffer* aBuffer);
 
   bool fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
-			 const SiStripFedCabling* aCabling,
-			 bool & aFullDebug
+			 bool & aFullDebug,
+			 const bool aPrintDebug
 			 );
 
+  //1--Add all channels of a FED if anyFEDErrors or corruptBuffer
+  //2--if aFillAll = true, add all channels anyway with 0 if no errors, so TkHistoMap is filled for all valid channels ...
+  void fillBadChannelList(std::map<unsigned int,std::pair<unsigned short,unsigned short> > & aMap,
+			  const SiStripFedCabling* aCabling,
+			  unsigned int & aNBadChannels,
+			  const bool aFillAll);
 
   //bool foundFEDErrors();
+
+  const bool failMonitoringFEDCheck();
 
   const bool anyDAQProblems();
   
@@ -133,11 +142,6 @@ public:
   const bool printDebug();
 
   const unsigned int fedID();
-
-  const std::string readoutMode();
-
-  void readoutMode(const std::string & aMode);
-
 
   static FEDCounters & getFEDErrorsCounters();
 
@@ -175,14 +179,14 @@ private:
 
   unsigned int fedID_;
 
+  bool connected_[sistrip::FEDCH_PER_FED];
+
   FECounters feCounter_;
   FEDLevelErrors fedErrors_;
   std::vector<FELevelErrors> feErrors_;
   std::vector<ChannelLevelErrors> chErrorsDetailed_;
   std::vector<APVLevelErrors> apvErrors_;
   std::vector<std::pair<unsigned int,bool> > chErrors_;
-
-  std::string readoutMode_;
 
   bool failUnpackerFEDCheck_;
 

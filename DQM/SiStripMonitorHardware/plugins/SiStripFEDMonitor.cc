@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.15 2009/05/20 15:12:04 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.16 2009/05/22 16:17:25 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -42,8 +42,6 @@
 
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-
-//#include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -87,7 +85,6 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
   //FED cabling
   uint32_t cablingCacheId_;
   const SiStripFedCabling* cabling_;
-  //std::vector< std::vector<bool> > activeChannels_;
 
   //add parameter to save computing time if TkHistoMap are not filled
   bool doTkHistoMap_;
@@ -148,8 +145,6 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
   //update cabling
   updateCabling(iSetup);
   
-  static bool lFirstEvent = true;
-
   //get raw data
   edm::Handle<FEDRawDataCollection> rawDataCollectionHandle;
   iEvent.getByLabel(rawDataTag_,rawDataCollectionHandle);
@@ -160,7 +155,6 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 
   //initialise map of fedId/bad channel number
   std::map<unsigned int,std::pair<unsigned short,unsigned short> > badChannelFraction;
-  std::pair<std::map<unsigned int,std::pair<unsigned short,unsigned short> >::iterator,bool> alreadyThere;
 
   unsigned int lNMonitoring = 0;
   unsigned int lNUnpacker = 0;
@@ -175,30 +169,16 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
     const FEDRawData& fedData = rawDataCollection.FEDData(fedId);
 
     //create an object to fill all errors
-    lFedErrors.initialise(fedId);
-    FEDErrors::FEDLevelErrors & lFedLevelErrors = lFedErrors.getFEDLevelErrors();
+    lFedErrors.initialise(fedId,cabling_);
     bool lFullDebug = false;
  
-
     //Do detailed check
     //first check if data exists
-    if (!fedData.size() || !fedData.data()) {
-      for (unsigned int iCh = 0; 
-	   iCh < sistrip::FEDCH_PER_FED; 
-	   iCh++) {
-        if (cabling_->connection(fedId,iCh).isConnected()) {
-          lFedLevelErrors.HasCabledChannels = true;
-	  lFedLevelErrors.DataMissing = true;
-          break;
-        }
-      }
-      //if no data, fill histos and go to next FED
+    bool lDataExist = lFedErrors.checkDataPresent(fedData);
+    if (!lDataExist) {
       fedHists_.fillFEDHistograms(lFedErrors,lFullDebug);
       continue;
-    } else {
-      lFedLevelErrors.DataPresent = true;
     }
-
 
     //Do exactly same check as unpacker
     //will be used by channel check in following method fillFEDErrors so need to be called beforehand.
@@ -206,7 +186,6 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
  
     //check for problems and fill detailed histograms
     lFedErrors.fillFEDErrors(fedData,
-			     cabling_,
 			     lFullDebug,
 			     printDebug_
 			     );
@@ -216,24 +195,25 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
     lFedErrors.incrementFEDCounters();
     fedHists_.fillFEDHistograms(lFedErrors,lFullDebug);
 
-    bool lFailMonitoringFEDcheck = lFedErrors.anyFEDErrors() || (lFedErrors.getFEDLevelErrors()).CorruptBuffer;
-
+    bool lFailMonitoringFEDcheck = lFedErrors.failMonitoringFEDCheck();
     if (lFailMonitoringFEDcheck) lNTotBadFeds++;
 
    
     //sanity check: if something changed in the unpacking code 
     //but wasn't propagated here
-    if (lFailMonitoringFEDcheck != lFailUnpackerFEDcheck) {
-      std::cout << " --- WARNING: FED " << fedId << std::endl 
-	       << " ------ Monitoring FED check " ;
-      if (lFailMonitoringFEDcheck) std::cout << "failed." << std::endl;
-      else std::cout << "passed." << std::endl ;
-      std::cout << " ------ Unpacker FED check " ;
-      if (lFailUnpackerFEDcheck) std::cout << "failed." << std::endl;
-      else std::cout << "passed." << std::endl ;
+    if (lFailMonitoringFEDcheck != lFailUnpackerFEDcheck && printDebug_) {
+      std::ostringstream debugStream;
+      debugStream << " --- WARNING: FED " << fedId << std::endl 
+		  << " ------ Monitoring FED check " ;
+      if (lFailMonitoringFEDcheck) debugStream << "failed." << std::endl;
+      else debugStream << "passed." << std::endl ;
+      debugStream << " ------ Unpacker FED check " ;
+      if (lFailUnpackerFEDcheck) debugStream << "failed." << std::endl;
+      else debugStream << "passed." << std::endl ;
 
       if (lFailMonitoringFEDcheck) lNMonitoring++;
       else if (lFailUnpackerFEDcheck) lNUnpacker++;
+      edm::LogProblem("SiStripMonitorHardware") << debugStream.str();
 
     }
 
@@ -241,68 +221,26 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
     if (doTkHistoMap_){//if TkHistMap is enabled
 
       //Fill TkHistoMap:
-      //1--Add all channels of a FED if anyFEDErrors or corruptBuffer
-      //2--Add all channels anyway with 0 if no errors, so TkHistoMap is filled for all valid channels ...
+      //true means have an entry for all channels (good = 0), 
+      //so that tkHistoMap knows which channels should be there.
 
-      std::vector<FEDErrors::FELevelErrors> & lFeVec = lFedErrors.getFELevelErrors();
-      unsigned int nBadFEs = lFeVec.size();
-      std::vector<std::pair<unsigned int, bool> > & lBadChannels = lFedErrors.getBadChannels();
-
-      //unsigned int nBadChans = 0;
-      for (unsigned int iCh = 0; 
-	   iCh < sistrip::FEDCH_PER_FED; 
-	   iCh++) {//loop on channels
-	const FedChannelConnection & lConnection = cabling_->connection(fedId,iCh);
-	if (!lConnection.isConnected()) continue;
-	
-	unsigned int feNumber = static_cast<unsigned int>(iCh/sistrip::FEDCH_PER_FEUNIT);
-	
-	bool isBadFE = false;
-	for (unsigned int badfe(0); badfe<nBadFEs; badfe++) {
-	  if ((lFeVec.at(badfe)).FeID == feNumber) {
-	    isBadFE = true;
-	    break;
-	  }
-	}
-
-	bool isBadChan = false;
-	for (unsigned int badCh(0); badCh<lBadChannels.size(); badCh++) {
-	  if (lBadChannels.at(badCh).first == iCh) {
-	    isBadChan = true;
-	    break;
-	  }
-	}
-
-	unsigned int detid = lConnection.detId();
-	if (!detid || detid == sistrip::invalid32_) continue;
-	unsigned short nChInModule = lConnection.nApvPairs();
-
-	if (lFailMonitoringFEDcheck || isBadFE || isBadChan) {
-	  alreadyThere = badChannelFraction.insert(std::pair<unsigned int,std::pair<unsigned short,unsigned short> >(detid,std::pair<unsigned short,unsigned short>(nChInModule,1)));
-	  if (!alreadyThere.second) ((alreadyThere.first)->second).second += 1;
-	  //nBadChans++;
-	  lNTotBadChannels++;
-	}
-	else {
-	  alreadyThere = badChannelFraction.insert(std::pair<unsigned int,std::pair<unsigned short,unsigned short> >(detid,std::pair<unsigned short,unsigned short>(nChInModule,0)));
-	}
-
-      }//loop on channels
-
-      //if (nBadChans>0) std::cout << "-------- FED " << fedId << ", " << nBadChans << " bad channels." << std::endl;
+      lFedErrors.fillBadChannelList(badChannelFraction,cabling_,lNTotBadChannels,true);
 
     }//if TkHistMap is enabled
   }//loop over FED IDs
-  
-  if (lNTotBadFeds> 0 || lNTotBadChannels>0 ) {
-    std::cout << " --- Total number of bad feds = " 
-	      << lNTotBadFeds << std::endl
-	      << " --- Total number of bad channels = " 
-	      << lNTotBadChannels << std::endl;
+
+  if ((lNTotBadFeds> 0 || lNTotBadChannels>0) && printDebug_) {
+    std::ostringstream debugStream;
+    debugStream << " --- Total number of bad feds = " 
+		<< lNTotBadFeds << std::endl
+		<< " --- Total number of bad channels = " 
+		<< lNTotBadChannels << std::endl;
+    LogTrace("SiStripMonitorHardware") << debugStream.str();
   }
 
-  if (lNMonitoring > 0 || lNUnpacker > 0) {
-    std::cout
+  if ((lNMonitoring > 0 || lNUnpacker > 0) && printDebug_) {
+    std::ostringstream debugStream;
+    debugStream
       << "-------------------------------------------------------------------------" << std::endl 
       << "-------------------------------------------------------------------------" << std::endl 
       << "-- Summary of differences between unpacker and monitoring at FED level : " << std::endl 
@@ -310,11 +248,12 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
       << " ---- Number of times unpacking fails but not monitoring = " << lNUnpacker << std::endl
       << "-------------------------------------------------------------------------" << std::endl 
       << "-------------------------------------------------------------------------" << std::endl ;
+    edm::LogProblem("SiStripMonitorHardware") << debugStream.str();
+
   }
 
   fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters());
 
-  std::cout << " -- Info: Readout mode = " << lFedErrors.readoutMode() << std::endl;
 
   //match fedId/channel with detid
 
@@ -339,8 +278,6 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
     //std::cout << "--- Total number of badChannels in map = " << nBadChannels << std::endl;
 
   }//if TkHistoMap is enabled
-
-  lFirstEvent = false;
 
 }//analyze method
 
