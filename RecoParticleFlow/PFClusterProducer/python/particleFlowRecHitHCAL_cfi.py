@@ -16,8 +16,8 @@ particleFlowRecHitHCAL = cms.EDFilter("PFRecHitProducerHCAL",
     # True  = do clustering in HF
     navigation_HF = cms.bool(False),
 #AUGUSTE: TO BE CHECKED:
-    weight_HFem = cms.double(1.429),
-    weight_HFhad = cms.double(1.429)
+    weight_HFem = cms.double(1.000),
+    weight_HFhad = cms.double(1.000)
 #   weight_HFem = cms.double(1.0),
 #   weight_HFhad = cms.double(1.0)
                                   
