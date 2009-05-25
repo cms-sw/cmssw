@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/03/12 20:48:02 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/03/13 19:21:46 $
+ *  $Revision: 1.2 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -106,7 +106,7 @@ extern "C" {
 }
 
 namespace {
-  HepRandomEngine& getEngineReference()
+  CLHEP::HepRandomEngine& getEngineReference()
   {
 
    Service<RandomNumberGenerator> rng;

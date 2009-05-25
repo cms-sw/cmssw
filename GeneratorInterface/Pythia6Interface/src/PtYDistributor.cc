@@ -52,8 +52,8 @@ PtYDistributor::PtYDistributor(edm::FileInPath fip, CLHEP::HepRandomEngine& fRan
       aProbFunc2[ip] = ypt;
    }
 
-  fYGenerator = new RandGeneral(fRandomEngine,aProbFunc1,ybins_);
-  fPtGenerator = new RandGeneral(fRandomEngine,aProbFunc2,ptbins_);
+  fYGenerator = new CLHEP::RandGeneral(fRandomEngine,aProbFunc1,ybins_);
+  fPtGenerator = new CLHEP::RandGeneral(fRandomEngine,aProbFunc2,ptbins_);
 
   f.Close();
   

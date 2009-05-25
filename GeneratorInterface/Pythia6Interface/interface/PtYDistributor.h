@@ -35,8 +35,8 @@ namespace gen
     int ptbins_;
     int ybins_;
 
-    RandGeneral* fYGenerator;
-    RandGeneral* fPtGenerator;
+    CLHEP::RandGeneral* fYGenerator;
+    CLHEP::RandGeneral* fPtGenerator;
 
   };
 }
