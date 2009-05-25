@@ -69,7 +69,7 @@ private:
 namespace edm {
 
 template <typename T, typename C>
-GenericSelectorByValueMap<T,C>::GenericSelectorByValueMap<T,C>(edm::ParameterSet const & config) :
+GenericSelectorByValueMap<T,C>::GenericSelectorByValueMap(edm::ParameterSet const & config) :
   m_electrons(config.getParameter<edm::InputTag>("input")),
   m_selection(config.getParameter<edm::InputTag>("selection")),
   m_cut(config.getParameter<cut_type>("cut"))
