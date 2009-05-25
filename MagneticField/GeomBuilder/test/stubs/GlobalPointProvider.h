@@ -5,8 +5,8 @@
  *
  *  No description available.
  *
- *  $Date: 2007/03/09 18:17:06 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/04/23 14:09:10 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
@@ -51,9 +51,9 @@ class GlobalPointProvider {
   GlobalPoint getPoint() {
 
     //Turn 
-    double R = RandFlat::shoot(theMinR,theMaxR);
-    double Z = RandFlat::shoot(theMinZ,theMaxZ);
-    double phi = RandFlat::shoot(theMinPhi,theMaxPhi);
+    double R = CLHEP::RandFlat::shoot(theMinR,theMaxR);
+    double Z = CLHEP::RandFlat::shoot(theMinZ,theMaxZ);
+    double phi = CLHEP::RandFlat::shoot(theMinPhi,theMaxPhi);
 
     GlobalPoint gp(GlobalPoint::Cylindrical(R,phi,Z));
 

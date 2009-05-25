@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/25 16:21:15 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/05/13 15:57:05 $
+ *  $Revision: 1.11 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -20,7 +20,7 @@
 #include "DataFormats/GeometrySurface/interface/Cone.h"
 #include "DataFormats/GeometryVector/interface/CoordinateSets.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 // #include "Utilities/Notification/interface/TimingReport.h"
 // #include "Utilities/UI/interface/SimpleConfigurable.h"

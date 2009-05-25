@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/05/13 16:05:26 $
- *  $Revision: 1.22 $
+ *  $Date: 2009/05/23 22:40:44 $
+ *  $Revision: 1.23 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -26,7 +26,7 @@
 #include "DetectorDescription/Core/interface/DDFilter.h"
 
 #include "Utilities/BinningTools/interface/ClusterizingHistogram.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include "MagneticField/Interpolation/interface/MagProviderInterpol.h"
 #include "MagneticField/Interpolation/interface/MFGridFactory.h"
