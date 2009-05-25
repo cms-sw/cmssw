@@ -10,7 +10,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQM/EcalPreshowerMonitorClient/interface/EcalPreshowerMonitorClient.h"
+#include "DQM/EcalPreshowerMonitorClient/interface/ESClient.h"
 
 class MonitorElement;
 class DQMStore;
