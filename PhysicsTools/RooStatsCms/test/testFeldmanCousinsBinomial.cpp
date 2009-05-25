@@ -4,9 +4,16 @@
 #include "TH1.h"
 #include "TGraphAsymmErrors.h" 
 #include "TCanvas.h"
-#include "PhysicsTools/RooStatsCms/interface/FeldmanCousinsBinomialInterval.h"
-#include "PhysicsTools/RooStatsCms/interface/ClopperPearsonBinomialInterval.h"
 #include <cmath>
+
+#if (defined (STANDALONE) or defined (__CINT__) )
+    #include "FeldmanCousinsBinomialInterval.h"
+    #include "ClopperPearsonBinomialInterval.h"
+#else
+    #include "PhysicsTools/RooStatsCms/interface/FeldmanCousinsBinomialInterval.h"
+    #include "PhysicsTools/RooStatsCms/interface/ClopperPearsonBinomialInterval.h"
+#endif
+
 
 const double r = 6;
 const double mu = 40;
