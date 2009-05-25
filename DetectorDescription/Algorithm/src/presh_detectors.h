@@ -2,7 +2,7 @@
 #define DDAlgorithm_presh_detectors_h
 
 #include "DetectorDescription/ExprAlgo/interface/AlgoImpl.h"
-//#include "CLHEP/Units/SystemOfUnits.h"
+//#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #define MAX_DOUBLE DBL_MAX
 //#include <climits>
 //#include <cfloat>

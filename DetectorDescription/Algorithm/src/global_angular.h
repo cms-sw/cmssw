@@ -5,7 +5,7 @@
 #define DDAlgorithm_global_angular_h
 
 #include "DetectorDescription/ExprAlgo/interface/AlgoImpl.h"
-//#include "CLHEP/Units/SystemOfUnits.h"
+//#include "CLHEP/Units/GlobalSystemOfUnits.h"
 // I tried the following on CERN lxplus and still no MAX_DOUBLE was defined.
 // so I tried DBL_MAX which does exist, but I do not know the source of this.
 // So, in keeping with everything else I saw:

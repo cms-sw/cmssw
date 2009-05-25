@@ -12,7 +12,7 @@
 #include "DetectorDescription/Core/interface/DDTransform.h"
 //#include "CLHEP/Geometry/Transform3D.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <Math/RotationZ.h>
                                   
 

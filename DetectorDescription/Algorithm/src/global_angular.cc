@@ -9,7 +9,7 @@
 #define MAX_DOUBLE DBL_MAX
 //#include <climits>
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <Math/RotationZ.h>
 
 
