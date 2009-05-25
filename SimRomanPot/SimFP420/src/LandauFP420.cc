@@ -41,8 +41,8 @@
 // -------------------------------------------------------------------
  
 #include "SimRomanPot/SimFP420/interface/LandauFP420.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandPoisson.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -131,7 +131,7 @@ double LandauFP420::SampleFluctuations(const double momentum,
     siga = sqrt(siga);
     do {
      //loss = G4RandGauss::shoot(meanLoss,siga);
-     loss = RandGaussQ::shoot(meanLoss,siga);
+     loss = CLHEP::RandGaussQ::shoot(meanLoss,siga);
     } while (loss < 0. || loss > 2.*meanLoss);
 
     return loss;
@@ -172,17 +172,17 @@ double LandauFP420::SampleFluctuations(const double momentum,
         {
           siga=sqrt(a3) ;
           //p3 = G4std::max(0,int(G4RandGauss::shoot(a3,siga)+0.5));
-          p3 = std::max(0,int(RandGaussQ::shoot(a3,siga)+0.5));
+          p3 = std::max(0,int(CLHEP::RandGaussQ::shoot(a3,siga)+0.5));
         }
         else
-          p3 = RandPoisson::shoot(a3);
+          p3 = CLHEP::RandPoisson::shoot(a3);
 	//p3 = G4Poisson(a3);
 
         loss = p3*e0 ;
 
         if(p3 > 0)
           //loss += (1.-2.*G4UniformRand())*e0 ;
-          loss += (1.-2.*RandFlat::shoot())*e0 ;
+          loss += (1.-2.*CLHEP::RandFlat::shoot())*e0 ;
 
       }
       else
@@ -194,10 +194,10 @@ double LandauFP420::SampleFluctuations(const double momentum,
         {
           siga=sqrt(a3) ;
           //p3 = G4std::max(0,int(G4RandGauss::shoot(a3,siga)+0.5));
-          p3 = std::max(0,int(RandGaussQ::shoot(a3,siga)+0.5));
+          p3 = std::max(0,int(CLHEP::RandGaussQ::shoot(a3,siga)+0.5));
         }
         else
-          p3 = RandPoisson::shoot(a3);
+          p3 = CLHEP::RandPoisson::shoot(a3);
 	//p3 = G4Poisson(a3);
 
         if(p3 > 0)
@@ -213,7 +213,7 @@ double LandauFP420::SampleFluctuations(const double momentum,
             corrfac = 1. ;
 
           //for(int i=0; i<p3; i++) loss += 1./(1.-w*G4UniformRand()) ;
-          for(int i=0; i<p3; i++) loss += 1./(1.-w*RandFlat::shoot()) ;
+          for(int i=0; i<p3; i++) loss += 1./(1.-w*CLHEP::RandFlat::shoot()) ;
           loss *= e0*corrfac ;  
         }        
       }
@@ -226,10 +226,10 @@ double LandauFP420::SampleFluctuations(const double momentum,
       {
         siga=sqrt(a1) ;
         //p1 = std::max(0,int(G4RandGauss::shoot(a1,siga)+0.5));
-        p1 = std::max(0,int(RandGaussQ::shoot(a1,siga)+0.5));
+        p1 = std::max(0,int(CLHEP::RandGaussQ::shoot(a1,siga)+0.5));
       }
       else
-       p1 = RandPoisson::shoot(a1);
+       p1 = CLHEP::RandPoisson::shoot(a1);
       //p1 = G4Poisson(a1);
 
       // excitation type 2
@@ -237,10 +237,10 @@ double LandauFP420::SampleFluctuations(const double momentum,
       {
         siga=sqrt(a2) ;
         //p2 = std::max(0,int(G4RandGauss::shoot(a2,siga)+0.5));
-        p2 = std::max(0,int(RandGaussQ::shoot(a2,siga)+0.5));
+        p2 = std::max(0,int(CLHEP::RandGaussQ::shoot(a2,siga)+0.5));
       }
       else
-        p2 = RandPoisson::shoot(a2);
+        p2 = CLHEP::RandPoisson::shoot(a2);
       //p2 = G4Poisson(a2);
 
       loss = p1*e1Fluct+p2*e2Fluct;
@@ -248,9 +248,9 @@ double LandauFP420::SampleFluctuations(const double momentum,
       // smearing to avoid unphysical peaks
       if(p2 > 0)
         //loss += (1.-2.*G4UniformRand())*e2Fluct;   
-        loss += (1.-2.*RandFlat::shoot())*e2Fluct;   
+        loss += (1.-2.*CLHEP::RandFlat::shoot())*e2Fluct;   
       else if (loss>0.)
-        loss += (1.-2.*RandFlat::shoot())*e1Fluct;   
+        loss += (1.-2.*CLHEP::RandFlat::shoot())*e1Fluct;   
 
       // ionisation .......................................
      if(a3 > 0.)
@@ -258,10 +258,10 @@ double LandauFP420::SampleFluctuations(const double momentum,
       if(a3>alim)
       {
         siga=sqrt(a3) ;
-        p3 = std::max(0,int(RandGaussQ::shoot(a3,siga)+0.5));
+        p3 = std::max(0,int(CLHEP::RandGaussQ::shoot(a3,siga)+0.5));
       }
       else
-        p3 = RandPoisson::shoot(a3);
+        p3 = CLHEP::RandPoisson::shoot(a3);
 
       lossc = 0.;
       if(p3 > 0)
@@ -274,7 +274,7 @@ double LandauFP420::SampleFluctuations(const double momentum,
           rfac       = dp3/(float(nmaxCont2)+dp3);
           namean     = float(p3)*rfac;
           sa         = float(nmaxCont1)*rfac;
-          na         = RandGaussQ::shoot(namean,sa);
+          na         = CLHEP::RandGaussQ::shoot(namean,sa);
           if (na > 0.)
           {
             alfa   = w1*float(nmaxCont2+p3)/
@@ -282,7 +282,7 @@ double LandauFP420::SampleFluctuations(const double momentum,
             alfa1  = alfa*log(alfa)/(alfa-1.);
             ea     = na*ipotFluct*alfa1;
             sea    = ipotFluct*sqrt(na*(alfa-alfa1*alfa1));
-            lossc += RandGaussQ::shoot(ea,sea);
+            lossc += CLHEP::RandGaussQ::shoot(ea,sea);
           }
         }
 
@@ -291,7 +291,7 @@ double LandauFP420::SampleFluctuations(const double momentum,
         {
           w2 = alfa*ipotFluct;
           w  = (tmax-w2)/tmax;      
-          for (int k=0; k<nb; k++) lossc += w2/(1.-w*RandFlat::shoot());
+          for (int k=0; k<nb; k++) lossc += w2/(1.-w*CLHEP::RandFlat::shoot());
         }
       }        
       loss += lossc;  

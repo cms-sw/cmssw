@@ -37,8 +37,8 @@ GaussNoiseFP420::addNoise(PileUpFP420::signal_map_type in){
       std::cout << " for si->first=  " << si->first  << "    _signal[si->first]=  " << _signal[si->first] << "        si->second=      " << si->second  << std::endl;
     }
     // define Gaussian noise centered at 0. with sigma = noiseRMS:
-    float noise( RandGauss::shoot(0.,noiseRMS) );           
-    //    float noise  = RandGaussQ::shoot(0.,theNoiseInElectrons) ;
+    float noise( CLHEP::RandGauss::shoot(0.,noiseRMS) );           
+    //    float noise  = CLHEP::RandGaussQ::shoot(0.,theNoiseInElectrons) ;
     // add noise to each channel with signal:
     _signal[si->first] = si->second + noise;
     

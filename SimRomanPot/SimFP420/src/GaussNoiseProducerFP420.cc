@@ -34,7 +34,7 @@ void GaussNoiseProducerFP420::generate(int NumberOfchannels,
   
   // with known probability higher threshold compute number of noisy channels distributed in Poisson:
   float meanNumberOfNoisyChannels = probabilityLeft * NumberOfchannels;
-  int numberOfNoisyChannels = RandPoisson::shoot(meanNumberOfNoisyChannels);
+  int numberOfNoisyChannels = CLHEP::RandPoisson::shoot(meanNumberOfNoisyChannels);
   
   // draw noise at random according to Gaussian tail
   
@@ -45,7 +45,7 @@ void GaussNoiseProducerFP420::generate(int NumberOfchannels,
   for (int i = 0; i < numberOfNoisyChannels; i++) {
     
     // Find a random channel number    
-    int theChannelNumber = (int) RandFlat::shootInt(NumberOfchannels);
+    int theChannelNumber = (int) CLHEP::RandFlat::shootInt(NumberOfchannels);
     
     // Find random noise value: random mt19937 over Gaussian tail above threshold:
     float noise = gsl_ran_gaussian_tail(mt19937, lowLimit, noiseRMS);
