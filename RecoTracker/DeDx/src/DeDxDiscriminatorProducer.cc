@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxDiscriminatorProducer.cc,v 1.9 2009/04/05 15:07:32 querten Exp $
+// $Id: DeDxDiscriminatorProducer.cc,v 1.10 2009/05/21 04:23:00 querten Exp $
 //
 //
 
@@ -92,8 +92,8 @@ void  DeDxDiscriminatorProducer::beginRun(edm::Run & run, const edm::EventSetup&
    }else if(strcmp(Reccord.c_str(),"SiStripDeDxElectron_3D_Rcd")==0){
       iSetup.get<SiStripDeDxElectron_3D_Rcd>().get(DeDxMapHandle_);
    }else{
-      printf("The reccord %s is not known by the DeDxDiscriminatorProducer\n", Reccord.c_str());
-      printf("Program will exit now\n");
+//      printf("The reccord %s is not known by the DeDxDiscriminatorProducer\n", Reccord.c_str());
+//      printf("Program will exit now\n");
       exit(0);
    }
    DeDxMap_ = *DeDxMapHandle_.product();
@@ -156,8 +156,8 @@ void  DeDxDiscriminatorProducer::beginRun(edm::Run & run, const edm::EventSetup&
          }
       }   
    }else{
-      printf("The ProbabilityMode: %s is unknown\n",ProbabilityMode.c_str());
-      printf("The program will stop now\n");
+//      printf("The ProbabilityMode: %s is unknown\n",ProbabilityMode.c_str());
+//      printf("The program will stop now\n");
       exit(0);
    }
 
@@ -242,9 +242,9 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
       const Track      track = *it->val;
       const Trajectory traj  = *it->key;
 
-      if(track.eta()  <MinTrackEta      || track.eta()>MaxTrackEta     ){printf("Eta  Cut\n");continue;}
-      if(track.p()    <MinTrackMomentum || track.p()  >MaxTrackMomentum){printf("Pt   Cut\n");continue;}
-      if(track.found()<MinTrackHits                                    ){printf("Hits Cut\n");continue;}
+      if(track.eta()  <MinTrackEta      || track.eta()>MaxTrackEta     ){continue;}
+      if(track.p()    <MinTrackMomentum || track.p()  >MaxTrackMomentum){continue;}
+      if(track.found()<MinTrackHits                                    ){continue;}
 
       std::vector<double> vect_probs;
       vector<TrajectoryMeasurement> measurements = traj.measurements();
@@ -353,19 +353,6 @@ double DeDxDiscriminatorProducer::ComputeDiscriminator(std::vector<double>& vect
       }
       P *= (1.0/size);
       estimator = P;
-      if(estimator>=0.333)printf("BUG --> Estimator>0.3333 for SMI --> %f\n",estimator);
-      if(estimator>=0.333){
-	 printf("DETAIL OF PREVIOUS BUG : \nPROBA = ");
-         for(int i=1;i<=size;i++){printf(" %f ",vect_probs[i-1]);}
-         P = 1.0/(12*size);
-         printf("P = %f\n",P);
-         for(int i=1;i<=size;i++){
-            P += pow(vect_probs[i-1] - ((2.0*i-1.0)/(2.0*size)),2);
-            printf("P = %f\n",P);
-         }
-         P *= (1.0/size);
-         printf("P Normalise = %f\n",P);
-      }
    }else{
       std::sort(vect_probs.begin(), vect_probs.end(), std::less<double>() );
       double P = 1.0/(12*size);
@@ -374,7 +361,6 @@ double DeDxDiscriminatorProducer::ComputeDiscriminator(std::vector<double>& vect
       }
       P *= (1.0/size);
       estimator = P;
-      if(estimator>=0.333)printf("BUG  --> Estimator>0.3333 for ASMI --> %f\n",estimator);
    }
 
    return estimator;

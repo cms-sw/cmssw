@@ -140,9 +140,9 @@ void DeDxDiscriminatorLearner::algoAnalyze(const edm::Event& iEvent, const edm::
       const Track      track = *it->val;
       const Trajectory traj  = *it->key;
 
-      if(track.eta()  <MinTrackEta      || track.eta()>MaxTrackEta     ){printf("Eta  Cut\n");continue;}
-      if(track.p()    <MinTrackMomentum || track.p()  >MaxTrackMomentum){printf("Pt   Cut\n");continue;}
-      if(track.found()<MinTrackHits                                    ){printf("Hits Cut\n");continue;}
+      if(track.eta()  <MinTrackEta      || track.eta()>MaxTrackEta     ){continue;}
+      if(track.p()    <MinTrackMomentum || track.p()  >MaxTrackMomentum){continue;}
+      if(track.found()<MinTrackHits                                    ){continue;}
 
       vector<TrajectoryMeasurement> measurements = traj.measurements();
       for(vector<TrajectoryMeasurement>::const_iterator measurement_it = measurements.begin(); measurement_it!=measurements.end(); measurement_it++)
