@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpGeom.cc,v 1.15 2008/08/24 21:49:24 case Exp $
+// $Id: DumpGeom.cc,v 1.16 2008/09/24 23:32:28 case Exp $
 //
 //
 
@@ -53,7 +53,7 @@
 #include "TGeoMatrix.h"
 #include "TFile.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "Math/GenVector/RotationX.h"
 
 ///////////////////////////////////////////////////////////
