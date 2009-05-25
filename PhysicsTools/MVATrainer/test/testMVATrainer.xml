@@ -35,7 +35,7 @@
 			<var source="norm" name="y"/>
 		</input>
 		<config>
-			<general individual="true" ignore_empty="false"/>
+			<general individual="true"/>
 			<sigbkg/>
 			<sigbkg/>
 		</config>
