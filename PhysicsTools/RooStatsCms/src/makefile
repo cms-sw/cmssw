@@ -2,7 +2,7 @@
 # providing that you use the usual file naming rules.
 LIB	      = ../lib
 INCL      = ../interface
-TESTDIR	  = ../bin
+TESTDIR	  = ../test
 BIN	      = ../bin
 OBJ	      = ../obj
 ObjSuf        = o
