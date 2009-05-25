@@ -5,6 +5,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 bool
 PFMuonAlgo::isMuon( const reco::PFBlockElement& elt ) {
@@ -14,7 +15,7 @@ PFMuonAlgo::isMuon( const reco::PFBlockElement& elt ) {
 
   assert ( eltTrack );
   reco::MuonRef muonRef = eltTrack->muonRef();
-
+  
   return isMuon(muonRef);
 
 }
@@ -85,7 +86,9 @@ PFMuonAlgo::isMuon( const reco::MuonRef& muonRef ) {
     / (trackerMu->ptError()/trackerMu->pt());
   //if ( ratio > 2. && delta < 3. ) std::cout << "ALARM ! " << ratio << ", " << delta << std::endl;
  
-  return ( combinedMu->pt() < 50. || ratio < 2. ) && delta < 3.;
+  bool result =  ( combinedMu->pt() < 50. || ratio < 2. ) && delta < 3.;
+  result = result && muon::isGoodMuon(*muonRef,muon::GlobalMuonPromptTight);
+  return result;
 
 }
 
