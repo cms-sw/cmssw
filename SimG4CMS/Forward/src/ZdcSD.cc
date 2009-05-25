@@ -32,7 +32,10 @@ ZdcSD::ZdcSD(G4String name, const DDCompactView & cpv,
   verbosity  = m_ZdcSD.getParameter<int>("Verbosity");
   int verbn  = verbosity/10;
   verbosity %= 10;
-  setNumberingScheme(new ZdcNumberingScheme(verbn));
+
+  ZdcNumberingScheme* scheme;
+  scheme = new ZdcNumberingScheme(verbn);
+  setNumberingScheme(scheme);
 
   edm::LogInfo("ForwardSim")
     << "***************************************************\n"
@@ -51,23 +54,29 @@ ZdcSD::ZdcSD(G4String name, const DDCompactView & cpv,
      << "\nEnergy Threshold Cut set to " 
      << zdcHitEnergyCut/GeV
      <<" (GeV)";
-  
+
+
   if(useShowerLibrary){
     showerLibrary = new ZdcShowerLibrary(name, cpv, p);
+  }
+}
+
+ZdcSD::~ZdcSD() {
+  
+  if(numberingScheme) delete numberingScheme;
+  if(showerLibrary)delete showerLibrary;
+
+  edm::LogInfo("ForwardSim") 
+    <<"end of ZdcSD\n";
+}
+
+void ZdcSD::initRun(){
+  if(useShowerLibrary){
     G4ParticleTable *theParticleTable = G4ParticleTable::GetParticleTable();
     showerLibrary->initRun(theParticleTable); 
   }
   hits.clear();  
 }
-
-ZdcSD::~ZdcSD() {
- 
-  //if(numberingScheme) delete numberingScheme;
-  //if(showerLibrary) delete showerLibrary;
-  edm::LogInfo("ForwardSim") 
-    <<"end of ZdcSD\n";
-}
-
 
 bool ZdcSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 

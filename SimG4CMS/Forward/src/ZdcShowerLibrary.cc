@@ -32,19 +32,6 @@ ZdcShowerLibrary::~ZdcShowerLibrary() {
 
 void ZdcShowerLibrary::initRun(G4ParticleTable *theParticleTable){
   G4String parName;
-  emPDG = 11;
-  epPDG = -11;
-  gammaPDG = 22;
-  pi0PDG = 111;
-  etaPDG = 221;
-  nuePDG = 12;
-  numuPDG = 13;
-  nutauPDG = 16;
-  anuePDG = -12;
-  anumuPDG = -13;
-  anutauPDG = -16;
-  geantinoPDG =100;
-  /**
   emPDG = theParticleTable->FindParticle(parName="e-")->GetPDGEncoding();
   epPDG = theParticleTable->FindParticle(parName="e+")->GetPDGEncoding();
   gammaPDG = theParticleTable->FindParticle(parName="gamma")->GetPDGEncoding();
@@ -57,7 +44,6 @@ void ZdcShowerLibrary::initRun(G4ParticleTable *theParticleTable){
   anumuPDG= theParticleTable->FindParticle(parName="anti_nu_mu")->GetPDGEncoding();
   anutauPDG= theParticleTable->FindParticle(parName="anti_nu_tau")->GetPDGEncoding();
   geantinoPDG= theParticleTable->FindParticle(parName="geantino")->GetPDGEncoding();
-  **/
   LogDebug("ZdcShower")<< "ZdcShowerLibrary: Particle codes for e- = " << emPDG
 		       << ", e+ = " << epPDG << ", gamma = " << gammaPDG 
 		       << ", pi0 = " << pi0PDG << ", eta = " << etaPDG

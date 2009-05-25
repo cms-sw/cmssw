@@ -27,7 +27,7 @@ public:
  
 
 protected:
-
+  virtual void initRun();
 private:    
 
   int verbosity;
