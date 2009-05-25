@@ -13,7 +13,8 @@ RecoMuonAOD = cms.PSet(
     'keep recoTracks_globalCosmicMuons_*_*', 
     'keep recoTrackExtras_globalCosmicMuons_*_*', 
     'keep TrackingRecHitsOwned_globalCosmicMuons_*_*', 
-    'keep recoMuons_muons_*_*', 
+    'keep recoMuons_muons_*_*',
+    'keep recoCaloMuons_calomuons_*_*',
 
     # Split tracks
     'keep recoTracks_globalCosmicSplitMuons_*_*', 

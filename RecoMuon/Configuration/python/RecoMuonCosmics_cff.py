@@ -24,6 +24,9 @@ muons.fillIsolation = True
 muons.TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5LHCNavigation'
 muons.CaloExtractorPSet.CenterConeOnCalIntersection = True
 
+from RecoMuon.MuonIdentification.calomuons_cfi import *
+calomuons.inputTracks = 'ctfWithMaterialTracksP5LHCNavigation'
+
 ## Sequences
 
 # Stand Alone Tracking
@@ -41,7 +44,7 @@ muIsoDepositTk.ExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5LHCN
 muIsoDepositCalByAssociatorTowers.ExtractorPSet.CenterConeOnCalIntersection = True
 
 # all muons id
-allmuons = cms.Sequence(muons*muIsolation)
+allmuons = cms.Sequence(muons*muIsolation*calomuons)
 
 # Final sequence
 muonrecoforcosmics = cms.Sequence(muontrackingforcosmics*allmuons)
