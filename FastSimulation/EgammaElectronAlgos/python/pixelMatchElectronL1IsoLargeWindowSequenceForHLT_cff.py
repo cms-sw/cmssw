@@ -12,7 +12,20 @@ import FWCore.ParameterSet.Config as cms
 # include "RecoEgamma/EgammaHLTProducers/data/egammaHLTChi2MeasurementEstimatorESProducer.cff"
 # Cluster-seeded pixel pairs
 import FastSimulation.EgammaElectronAlgos.fastElectronSeeds_cfi
-from FastSimulation.Configuration.blockHLT_8E29_cff import *
+
+#####put the hack! choose 1E31 that is more inclusive! 
+from FastSimulation.Configuration.blockHLT_1E31_cff import *
+#####
+
+##new path in XXXX_49 for 1E31 only
+hltL1IsoLargeElectronPixelSeeds = FastSimulation.EgammaElectronAlgos.fastElectronSeeds_cfi.fastElectronSeeds.clone()
+hltL1IsoLargeElectronPixelSeeds.SeedConfiguration = cms.PSet(
+    block_hltL1IsoLargeElectronPixelSeeds
+)
+hltL1IsoLargeElectronPixelSeeds.barrelSuperClusters = 'hltCorrectedHybridSuperClustersL1Isolated'
+hltL1IsoLargeElectronPixelSeeds.endcapSuperClusters = 'hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1Isolated'
+
+
 
 hltL1IsoLargeWindowElectronPixelSeeds = FastSimulation.EgammaElectronAlgos.fastElectronSeeds_cfi.fastElectronSeeds.clone()
 hltL1IsoLargeWindowElectronPixelSeeds.SeedConfiguration = cms.PSet(
