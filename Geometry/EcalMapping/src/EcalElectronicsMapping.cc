@@ -7,6 +7,7 @@
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 
@@ -376,6 +377,10 @@ EcalElectronicsId EcalElectronicsMapping::getElectronicsId(const DetId& id) cons
   }
   else if (subdet == EcalEndcap) {
 	EcalElectronicsMap_by_DetId::const_iterator it=get<0>(m_items).find(id);
+        if(it==get<0>(m_items).end())  
+	  { EcalElectronicsId elid(0);
+	    edm::LogError("EcalElectronicsMapping") << "Ecal mapping was asked non valid id";
+	    return elid; }
 	EcalElectronicsId elid = it -> elid;
 	return elid;
   }
@@ -398,6 +403,10 @@ EcalTriggerElectronicsId EcalElectronicsMapping::getTriggerElectronicsId(const D
   }
   else if (subdet == EcalEndcap) {
 	EcalElectronicsMap_by_DetId::const_iterator it=get<0>(m_items).find(id);
+        if(it==get<0>(m_items).end())  
+	  { EcalTriggerElectronicsId trelid(0);
+	    edm::LogError("EcalElectronicsMapping") << "Ecal mapping was asked non valid trig id";
+	    return trelid; }
 	EcalTriggerElectronicsId trelid = it -> trelid;
 	return trelid;
   }
@@ -466,6 +475,10 @@ DetId EcalElectronicsMapping::getDetId(const EcalElectronicsId& id) const {
 
   else if (subdet == EcalEndcap) {
 	EcalElectronicsMap_by_ElectronicsId::const_iterator it=get<1>(m_items).find(id);
+        if(it==(get<1>(m_items).end()))  
+	  { DetId cell(0);
+	    edm::LogError("EcalElectronicsMapping") << "Ecal mapping was asked non DetId";
+	    return cell; }
 	DetId cell = it -> cell;
 	return cell;
   }
@@ -494,6 +507,10 @@ EcalTriggerElectronicsId EcalElectronicsMapping::getTriggerElectronicsId(const E
   }
   else if (subdet == EcalEndcap) {
 	EcalElectronicsMap_by_ElectronicsId::const_iterator it=get<1>(m_items).find(id);
+        if(it==get<1>(m_items).end())  
+	  { EcalTriggerElectronicsId trelid(0);
+	    edm::LogError("EcalElectronicsMapping") << "Ecal mapping was asked non valid id";
+	    return trelid; }
 	EcalTriggerElectronicsId trelid = it -> trelid;
 	return trelid;
   }
@@ -512,6 +529,10 @@ DetId EcalElectronicsMapping::getDetId(const EcalTriggerElectronicsId& id) const
   }
   else if (subdet == EcalEndcap) {
 	EcalElectronicsMap_by_TriggerElectronicsId::const_iterator it=get<2>(m_items).find(id);
+        if(it==get<2>(m_items).end())  
+	  { DetId cell(0);
+	    edm::LogError("EcalElectronicsMapping") << "Ecal mapping was asked non valid DetId";
+	    return cell; }
 	DetId cell = it -> cell;
 	return cell;
   }
@@ -540,6 +561,10 @@ EcalElectronicsId EcalElectronicsMapping::getElectronicsId(const EcalTriggerElec
   }
   else if (subdet == EcalEndcap) {
 	EcalElectronicsMap_by_TriggerElectronicsId::const_iterator it=get<2>(m_items).find(id);
+        if(it==get<2>(m_items).end())  
+	  { EcalElectronicsId elid(0);
+	    edm::LogError("EcalElectronicsMapping") << "Ecal mapping was asked non valid id";
+	    return elid; }
 	EcalElectronicsId elid = it -> elid;
 	return elid;
   }
