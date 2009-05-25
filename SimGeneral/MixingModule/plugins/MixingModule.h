@@ -63,6 +63,7 @@ namespace edm
       virtual void getEventStartInfo(edm::Event & e, const unsigned int s); // fill in in base class
 
       std::string labelPlayback_;
+      bool mixProdStep2_;
       CrossingFramePlaybackInfo *playbackInfo_;
 
       Selector * sel_;
