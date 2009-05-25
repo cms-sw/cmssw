@@ -58,3 +58,64 @@ mixHepMCProducts = cms.PSet(
     type = cms.string('HepMCProduct')
 )
 
+mixPCFSimHits = cms.PSet(
+    input = cms.VInputTag(cms.InputTag("CFWriter","g4SimHitsBSCHits"), cms.InputTag("CFWriter","g4SimHitsFP420SI"), cms.InputTag("CFWriter","g4SimHitsMuonCSCHits"), cms.InputTag("CFWriter","g4SimHitsMuonDTHits"), cms.InputTag("CFWriter","g4SimHitsMuonRPCHits"), 
+        cms.InputTag("CFWriter","g4SimHitsTotemHitsRP"), cms.InputTag("CFWriter","g4SimHitsTotemHitsT1"), cms.InputTag("CFWriter","g4SimHitsTotemHitsT2Gem"), cms.InputTag("CFWriter","g4SimHitsTrackerHitsPixelBarrelHighTof"), cms.InputTag("CFWriter","g4SimHitsTrackerHitsPixelBarrelLowTof"), 
+        cms.InputTag("CFWriter","g4SimHitsTrackerHitsPixelEndcapHighTof"), cms.InputTag("CFWriter","g4SimHitsTrackerHitsPixelEndcapLowTof"), cms.InputTag("CFWriter","g4SimHitsTrackerHitsTECHighTof"), cms.InputTag("CFWriter","g4SimHitsTrackerHitsTECLowTof"), cms.InputTag("CFWriter","g4SimHitsTrackerHitsTIBHighTof"), 
+        cms.InputTag("CFWriter","g4SimHitsTrackerHitsTIBLowTof"), cms.InputTag("CFWriter","g4SimHitsTrackerHitsTIDHighTof"), cms.InputTag("CFWriter","g4SimHitsTrackerHitsTIDLowTof"), cms.InputTag("CFWriter","g4SimHitsTrackerHitsTOBHighTof"), cms.InputTag("CFWriter","g4SimHitsTrackerHitsTOBLowTof")),
+    type = cms.string('PSimHitPCrossingFrame'),
+    subdets = cms.vstring('BSCHits', 
+        'FP420SI', 
+        'MuonCSCHits', 
+        'MuonDTHits', 
+        'MuonRPCHits', 
+        'TotemHitsRP', 
+        'TotemHitsT1', 
+        'TotemHitsT2Gem', 
+        'TrackerHitsPixelBarrelHighTof', 
+        'TrackerHitsPixelBarrelLowTof', 
+        'TrackerHitsPixelEndcapHighTof', 
+        'TrackerHitsPixelEndcapLowTof', 
+        'TrackerHitsTECHighTof', 
+        'TrackerHitsTECLowTof', 
+        'TrackerHitsTIBHighTof', 
+        'TrackerHitsTIBLowTof', 
+        'TrackerHitsTIDHighTof', 
+        'TrackerHitsTIDLowTof', 
+        'TrackerHitsTOBHighTof', 
+        'TrackerHitsTOBLowTof')
+)
+
+mixPCFCaloHits = cms.PSet(
+    input = cms.VInputTag(cms.InputTag("CFWriter","g4SimHitsCaloHitsTk"), cms.InputTag("CFWriter","g4SimHitsCastorBU"), cms.InputTag("CFWriter","g4SimHitsCastorFI"), cms.InputTag("CFWriter","g4SimHitsCastorPL"), cms.InputTag("CFWriter","g4SimHitsCastorTU"), 
+        cms.InputTag("CFWriter","g4SimHitsEcalHitsEB"), cms.InputTag("CFWriter","g4SimHitsEcalHitsEE"), cms.InputTag("CFWriter","g4SimHitsEcalHitsES"), cms.InputTag("CFWriter","g4SimHitsEcalTBH4BeamHits"), cms.InputTag("CFWriter","g4SimHitsHcalHits"), 
+        cms.InputTag("CFWriter","g4SimHitsHcalTB06BeamHits"), cms.InputTag("CFWriter","g4SimHitsZDCHITS")),
+    type = cms.string('PCaloHitPCrossingFrame'),
+    subdets = cms.vstring('CaloHitsTk', 
+        'CastorBU', 
+        'CastorFI', 
+        'CastorPL', 
+        'CastorTU', 
+        'EcalHitsEB', 
+        'EcalHitsEE', 
+        'EcalHitsES', 
+        'EcalTBH4BeamHits', 
+        'HcalHits', 
+        'HcalTB06BeamHits', 
+        'ZDCHITS')
+)
+
+mixPCFSimTracks = cms.PSet(
+    input = cms.VInputTag(cms.InputTag("CFWriter","g4SimHits")),
+    type = cms.string('SimTrackPCrossingFrame')
+)
+
+mixPCFSimVertices = cms.PSet(
+    input = cms.VInputTag(cms.InputTag("CFWriter","g4SimHits")),
+    type = cms.string('SimVertexPCrossingFrame')
+)
+
+mixPCFHepMCProducts = cms.PSet(
+    input = cms.VInputTag(cms.InputTag("CFWriter","generator")),
+    type = cms.string('HepMCProductPCrossingFrame')
+)
