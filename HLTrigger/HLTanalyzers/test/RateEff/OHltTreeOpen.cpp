@@ -21,6 +21,21 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   } 
 
   //////////////////////////////////////////////////////////////////
+  // Example for pass through triggers, e.g. to be used for L1 seed rates ...
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1Seed1") == 0) {    
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
+    }    
+  }    
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1Seed2") == 0) {    
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
+    }    
+  }    
+
+
+  //////////////////////////////////////////////////////////////////
   // Check OpenHLT trigger
 
   /* Single Jet */

@@ -15,8 +15,8 @@
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  *
- * $Date$
- * $Revision$
+ * $Date: 2009/05/21 18:11:26 $
+ * $Revision: 1.1 $
  *
  */
 
@@ -698,10 +698,12 @@ const bool L1GtLogicParser::expressionResult() const
 
     // return false if there is no RPN vector built
     if ( m_rpnVector.empty() ) {
+      /*
         std::cout << "# L1GtLogicParser: "
             << "\n  No built RPN vector exists."
             << "\n  Returned false by default."
             << std::endl;
+      */
         return false;
     }
 
@@ -959,10 +961,12 @@ const bool L1GtLogicParser::expressionResultNumExp() const
 
     // return false if there is no expression
     if ( m_rpnVector.empty() ) {
+      /*
         std::cout << "# L1GtLogicParser: "
             << "\n  No built RPN vector exists."
             << "\n  Returned false by default."
             << std::endl;
+      */
         return false;
     }
 
