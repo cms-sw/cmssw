@@ -71,12 +71,9 @@ namespace edm {
     bunchSpace_(pset.getParameter<int>("bunchspace")),
     checktof_(pset.getParameter<bool>("checktof")),
     minBunch_((pset.getParameter<int>("minBunch")*25)/pset.getParameter<int>("bunchspace")),
-    maxBunch_((pset.getParameter<int>("maxBunch")*25)/pset.getParameter<int>("bunchspace"))
-//     ,
-//     input_(maybeMakePileUp(pset,"input",minBunch_,maxBunch_)),
-//     cosmics_(maybeMakePileUp(pset,"cosmics",minBunch_,maxBunch_)),
-//     beamHalo_p_(maybeMakePileUp(pset,"beamhalo_plus",minBunch_,maxBunch_)),
-//     beamHalo_m_(maybeMakePileUp(pset,"beamhalo_minus",minBunch_,maxBunch_)),
+    maxBunch_((pset.getParameter<int>("maxBunch")*25)/pset.getParameter<int>("bunchspace")),
+    mixProdStep1_(pset.getParameter<bool>("mixProdStep1")),
+    mixProdStep2_(pset.getParameter<bool>("mixProdStep2"))	
   {
     // FIXME: temporary to keep bwds compatibility for cfg files
     vector<string> names = pset.getParameterNames();
@@ -113,8 +110,10 @@ namespace edm {
     // Create EDProduct
     createnewEDProduct();
 
-    // Add signals 
-    addSignals(e,setup);
+    // Add signals
+    if (!mixProdStep1_){ 
+      addSignals(e,setup);
+    }
 
     // Read the PileUp 
     //    std::vector<EventPrincipalVector> pileup[maxNbSources_];
@@ -203,12 +202,13 @@ namespace edm {
   void BMixingModule::merge(const int bcr, const EventPrincipalVector& vec, unsigned int worker, const edm::EventSetup& setup) {
     //
     // main loop: loop over events and merge 
-    //
+    //    
     eventId_=0;
     LogDebug("MixingModule") <<"For bunchcrossing "<<bcr<<", "<<vec.size()<<" events will be merged";
     vertexoffset=0;
     for (EventPrincipalVector::const_iterator it = vec.begin(); it != vec.end(); ++it) {
       LogDebug("MixingModule") <<" merging Event:  id " << (*it)->id();
+      
       addPileups(bcr, &(**it), ++eventId_,worker,setup);
     }// end main loop
   }
