@@ -5,8 +5,8 @@
  *  A Standard Kalman smoother. The forward fit is not redone,
  *  only the backward smoothing. Ported from ORCA
  *
- *  $Date: 2007/10/08 22:22:50 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/05/09 14:17:57 $
+ *  $Revision: 1.5 $
  *  \author todorov, cerati
  */
 
@@ -60,7 +60,7 @@ public:
   const MeasurementEstimator* estimator() const {return theEstimator;}
 
   virtual KFTrajectorySmoother* clone() const{
-    return new KFTrajectorySmoother(thePropagator,theUpdator,theEstimator,theErrorRescaling,minHits_);
+    return new KFTrajectorySmoother(thePropagator,theUpdator,theEstimator);
   }
 
 private:

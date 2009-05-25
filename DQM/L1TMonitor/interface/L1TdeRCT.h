@@ -7,11 +7,14 @@
  *
  * Version 0.0. A.Savin 2008/04/26
  *
- * $Date: 2008/07/25 13:06:48 $
- * $Revision: 1.6 $
+ * $Date: 2008/09/22 16:48:32 $
+ * $Revision: 1.7 $
  * \author P. Wittich
- * $Id: L1TdeRCT.h,v 1.6 2008/07/25 13:06:48 weinberg Exp $
+ * $Id: L1TdeRCT.h,v 1.7 2008/09/22 16:48:32 asavin Exp $
  * $Log: L1TdeRCT.h,v $
+ * Revision 1.7  2008/09/22 16:48:32  asavin
+ * reg1D overeff added
+ *
  * Revision 1.6  2008/07/25 13:06:48  weinberg
  * added GCT region/bit information
  *
@@ -161,14 +164,14 @@ private:
   MonitorElement *rctBitQuietEff2D_;
   MonitorElement *rctBitQuietIneff2D_;
   MonitorElement *rctBitQuietOvereff2D_;
-  MonitorElement *rctBitEmulFineGrain2D_;
-  MonitorElement *rctBitDataFineGrain2D_;
-  MonitorElement *rctBitMatchedFineGrain2D_;
-  MonitorElement *rctBitUnmatchedEmulFineGrain2D_;
-  MonitorElement *rctBitUnmatchedDataFineGrain2D_;
-  MonitorElement *rctBitFineGrainEff2D_;
-  MonitorElement *rctBitFineGrainIneff2D_;
-  MonitorElement *rctBitFineGrainOvereff2D_;
+  MonitorElement *rctBitEmulHfPlusTau2D_;
+  MonitorElement *rctBitDataHfPlusTau2D_;
+  MonitorElement *rctBitMatchedHfPlusTau2D_;
+  MonitorElement *rctBitUnmatchedEmulHfPlusTau2D_;
+  MonitorElement *rctBitUnmatchedDataHfPlusTau2D_;
+  MonitorElement *rctBitHfPlusTauEff2D_;
+  MonitorElement *rctBitHfPlusTauIneff2D_;
+  MonitorElement *rctBitHfPlusTauOvereff2D_;
 
   // end bit information
 

@@ -29,6 +29,20 @@ void ThresholdVetoFromTransverse::centerOn(double eta, double phi) { }
 
 ///////////////////////////////////////////////////////////////////////////
 
+bool AbsThresholdVeto::veto(double eta, double phi, float value) const {
+    return ( fabs(value) <= threshold_);
+}
+void AbsThresholdVeto::centerOn(double eta, double phi) { }
+
+///////////////////////////////////////////////////////////////////////////
+
+bool AbsThresholdVetoFromTransverse::veto(double eta, double phi, float value) const {
+  return ( fabs(value/sin(2*atan(exp(-eta))))  <= threshold_);  // convert Et to E
+}
+void AbsThresholdVetoFromTransverse::centerOn(double eta, double phi) { }
+
+///////////////////////////////////////////////////////////////////////////
+
 bool ConeThresholdVeto::veto(double eta, double phi, float value) const {
   return (value <= threshold_) || ( vetoDir_.deltaR2(Direction(eta,phi)) < dR2_ );
 }

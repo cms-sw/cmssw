@@ -12,7 +12,6 @@
 
 using namespace pos;
 
-//====================================================================================
 PixelHdwAddress::PixelHdwAddress():
     mfec_(0),
     mfecchannel_(0),
@@ -25,7 +24,6 @@ PixelHdwAddress::PixelHdwAddress():
 {}
 
 
-//====================================================================================
 PixelHdwAddress::PixelHdwAddress(int fecnumber, int mfec, int mfecchannel,
 				 int hubaddress, int portaddress, int rocid,
 				 int fednumber, int fedchannel, 
@@ -44,7 +42,11 @@ PixelHdwAddress::PixelHdwAddress(int fecnumber, int mfec, int mfecchannel,
     //std::cout << *this << std::endl;
 }
 
-//====================================================================================
+
+
+
+
+
 std::ostream& pos::operator<<(std::ostream& s, const PixelHdwAddress& pixelroc){
 
     s<< "[PixelHdwAddress::operator<<]"           <<std::endl;
@@ -61,18 +63,18 @@ std::ostream& pos::operator<<(std::ostream& s, const PixelHdwAddress& pixelroc){
     return s;
 }
 
-//====================================================================================
+
 const PixelHdwAddress& PixelHdwAddress::operator=(const PixelHdwAddress& aROC){
     
-    fecnumber_	 = aROC.fecnumber_   ;
-    mfec_     	 = aROC.mfec_        ;
-    mfecchannel_ = aROC.mfecchannel_ ;
-    portaddress_ = aROC.portaddress_ ;
-    hubaddress_  = aROC.hubaddress_  ;
-    rocid_       = aROC.rocid_       ;
-    fednumber_   = aROC.fednumber_   ;
-    fedchannel_  = aROC.fedchannel_  ;
-    fedrocnumber_= aROC.fedrocnumber_;
+    fecnumber_=aROC.fecnumber_;
+    mfec_=aROC.mfec_;
+    mfecchannel_=aROC.mfecchannel_;
+    portaddress_=aROC.portaddress_;
+    hubaddress_=aROC.hubaddress_;
+    rocid_=aROC.rocid_;
+    fednumber_=aROC.fednumber_;
+    fedchannel_=aROC.fedchannel_;
+    fedrocnumber_=aROC.fedrocnumber_;
 
     return *this;
 
@@ -108,45 +110,12 @@ void PixelHdwAddress::setAddress(std::string what, int value)
     }
 }
 
-//====================================================================================
-void PixelHdwAddress::compare(std::string what, bool &changed, unsigned int newValue, unsigned int &oldValue)
-{
-    changed  = false ;
-    oldValue = 0 ;
-    
-    if(         what == "fecnumber"   )
-    {
-      if( fecnumber_ != newValue)       {changed = true; oldValue = fecnumber_;    return ;}
-    } else if(  what == "mfec"        ) { 
-      if( mfec_          != newValue)   {changed = true; oldValue = mfec_;	   return ;}
-    } else if(  what == "mfecchannel" ) {
-      if( mfecchannel_   != newValue)   {changed = true; oldValue = mfecchannel_;  return ;}
-    } else if(  what == "portaddress" ) {
-      if( portaddress_   != newValue)   {changed = true; oldValue = portaddress_;  return ;}
-    } else if(  what == "hubaddress"  ) {
-      if( hubaddress_    != newValue)   {changed = true; oldValue = hubaddress_;   return ;}
-    } else if(  what == "rocid"       ) {
-      if( rocid_         != newValue)   {changed = true; oldValue = rocid_;	   return ;}
-    } else if(  what == "fednumber"   ) {
-      if( fednumber_     != newValue)   {changed = true; oldValue = fednumber_;    return ;}
-    } else if(  what == "fedchannel"  ) {
-      if( fedchannel_    != newValue)   {changed = true; oldValue = fedchannel_;   return ;}
-    } else if(  what == "fedrocnumber") {
-      if( fedrocnumber_  != newValue)   {changed = true; oldValue = fedrocnumber_; return ;}
-    } else {
-      std::cout << "[PixelHdwAddress::compare()]\tCould not compare value for " << what 
-                << " (invalid keyword)" << std::endl ;
-      assert(0) ;
-    }
-}
-
-//====================================================================================
 bool PixelHdwAddress::operator()(const PixelHdwAddress& roc1, const PixelHdwAddress& roc2) const{
 
-  if (roc1.fednumber_  < roc2.fednumber_ ) return true;
-  if (roc1.fednumber_  > roc2.fednumber_ ) return false;
-  if (roc1.fedchannel_ < roc2.fedchannel_) return true;
-  if (roc1.fedchannel_ > roc2.fedchannel_) return false;
+  if (roc1.fednumber_<roc2.fednumber_) return true;
+  if (roc1.fednumber_>roc2.fednumber_) return false;
+  if (roc1.fedchannel_<roc2.fedchannel_) return true;
+  if (roc1.fedchannel_>roc2.fedchannel_) return false;
 
   return (roc1.fedrocnumber_<roc2.fedrocnumber_);
 

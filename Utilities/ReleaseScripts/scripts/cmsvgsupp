@@ -16,8 +16,8 @@
 #
 #############################################################################
 
-   $devarea = $ENV{'CMSSW_RELEASE_BASE'};
-   $baserelease = $ENV{'CMSSW_BASE'};
+   $devarea = $ENV{'CMSSW_BASE'};
+   $baserelease = $ENV{'CMSSW_RELEASE_BASE'};
    $suppfile = "Utilities/ReleaseScripts/data/cms-valgrind-memcheck.supp";
 
   if (-e "$devarea/src/$suppfile") {

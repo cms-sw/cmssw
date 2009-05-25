@@ -1,5 +1,5 @@
 //
-// $Id: Tau.cc,v 1.10 2008/09/19 21:13:17 cbern Exp $
+// $Id: Tau.cc,v 1.11.2.1 2009/02/10 10:38:08 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
@@ -67,13 +67,17 @@ Tau::~Tau() {
 
 
 /// override the TauType::isolationTracks method, to access the internal storage of the track
-reco::TrackRefVector Tau::isolationTracks() const {
+const reco::TrackRefVector & Tau::isolationTracks() const {
   if (embeddedIsolationTracks_) {
-    reco::TrackRefVector trackRefVec;
-    for (unsigned int i = 0; i < isolationTracks_.size(); i++) {
-      trackRefVec.push_back(reco::TrackRef(&isolationTracks_, i));
+    if (!isolationTracksTransientRefVectorFixed_) {
+        reco::TrackRefVector trackRefVec;
+        for (unsigned int i = 0; i < isolationTracks_.size(); i++) {
+          trackRefVec.push_back(reco::TrackRef(&isolationTracks_, i));
+        }
+        isolationTracksTransientRefVector_.swap(trackRefVec);
+        isolationTracksTransientRefVectorFixed_ = true;
     }
-    return trackRefVec;
+    return isolationTracksTransientRefVector_;
   } else {
     return TauType::isolationTracks();
   }
@@ -91,13 +95,17 @@ reco::TrackRef Tau::leadTrack() const {
 
 
 /// override the TauType::track method, to access the internal storage of the track
-reco::TrackRefVector Tau::signalTracks() const {
+const reco::TrackRefVector & Tau::signalTracks() const {
   if (embeddedSignalTracks_) {
     reco::TrackRefVector trackRefVec;
-    for (unsigned int i = 0; i < signalTracks_.size(); i++) {
-      trackRefVec.push_back(reco::TrackRef(&signalTracks_, i));
+    if (!signalTracksTransientRefVectorFixed_) {
+        for (unsigned int i = 0; i < signalTracks_.size(); i++) {
+          trackRefVec.push_back(reco::TrackRef(&signalTracks_, i));
+        }
+        signalTracksTransientRefVector_.swap(trackRefVec);
+        signalTracksTransientRefVectorFixed_ = true;
     }
-    return trackRefVec;
+    return signalTracksTransientRefVector_;
   } else {
     return TauType::signalTracks();
   }
@@ -179,4 +187,11 @@ const pat::tau::TauPFSpecific & Tau::pfSpecific() const {
 const pat::tau::TauCaloSpecific & Tau::caloSpecific() const {
   if (!isCaloTau()) throw cms::Exception("Type Error") << "Requesting a CaloTau-specific information from a pat::Tau which wasn't made from a CaloTau.\n";
   return caloSpecific_[0]; 
+}
+
+
+void Tau::setDecayMode(int decayMode)
+{
+  if (!isPFTau()) throw cms::Exception("Type Error") << "Requesting a PFTau-specific information from a pat::Tau which wasn't made from a PFTau.\n";
+  pfSpecific_[0].decayMode_ = decayMode;
 }

@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2008/04/22 05:55:41 $
- * $Revision: 1.34 $
+ * $Date: 2008/12/04 06:22:48 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  *
 */
@@ -146,7 +146,7 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
 
   bool isData = true;
   bool enable = false;
-  map<int, EcalDCCHeaderBlock> dccMap;
+  int runType[18] = { -1 };
 
   Handle<EcalRawDataCollection> dcchs;
 
@@ -154,23 +154,18 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      EcalDCCHeaderBlock dcch = (*dcchItr);
+      if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( dcch ) != EcalBarrel ) continue;
+      int ism = Numbers::iSM( *dcchItr, EcalEndcap );
 
-      int ism = Numbers::iSM( dcch, EcalBarrel );
+      runType[ism-1] = dcchItr->getRunType();
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
-      if ( i != dccMap.end() ) continue;
-
-      dccMap[ ism ] = dcch;
-
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::MTCC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) enable = true;
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::COSMIC ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::MTCC ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) enable = true;
 
     }
 
@@ -196,8 +191,7 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
-      EcalUncalibratedRecHit hit = (*hitItr);
-      EEDetId id = hit.id();
+      EEDetId id = hitItr->id();
 
       int ix = id.ix();
       int iy = id.iy();
@@ -210,15 +204,14 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
       float xiy = iy - 0.5;
 
       if ( isData ) {
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-      if ( i == dccMap.end() ) continue;
 
-      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMIC ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::MTCC ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) ) continue;
+        if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::COSMIC ||
+                 runType[ism-1] == EcalDCCHeaderBlock::MTCC ||
+                 runType[ism-1] == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+                 runType[ism-1] == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+                 runType[ism-1] == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+                 runType[ism-1] == EcalDCCHeaderBlock::PHYSICS_LOCAL ) ) continue;
+
       }
 
       LogDebug("EETimingTask") << " det id = " << id;
@@ -230,11 +223,11 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
       meTimeMap = meTimeMap_[ism-1];
       meTimeAmpli = meTimeAmpli_[ism-1];
 
-      float xval = hit.amplitude();
+      float xval = hitItr->amplitude();
       if ( xval <= 0. ) xval = 0.0;
-      float yval = hit.jitter() + 5.0;
+      float yval = hitItr->jitter() + 5.0;
       if ( yval <= 0. ) yval = 0.0;
-      float zval = hit.pedestal();
+      float zval = hitItr->pedestal();
       if ( zval <= 0. ) zval = 0.0;
 
       LogDebug("EETimingTask") << " hit amplitude " << xval;

@@ -15,12 +15,11 @@
 //
 // Original Author:  Monica Vazquez Acosta - CERN
 //         Created:  Tue Jun 13 12:19:32 CEST 2006
-// $Id: EgammaHLTTrackIsolation.h,v 1.3 2007/03/07 09:07:53 monicava Exp $
+// $Id: EgammaHLTTrackIsolation.h,v 1.2 2006/10/24 10:58:18 monicava Exp $
 //
 
 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
@@ -76,7 +75,6 @@ class EgammaHLTTrackIsolation
 
   /// Get number of tracks and Pt sum of tracks inside an isolation cone for electrons
   std::pair<int,float> electronIsolation(const reco::Track * const tr, const reco::TrackCollection* isoTracks);
-  std::pair<int,float> electronIsolation(const reco::Track * const tr, const reco::ElectronCollection* allEle, const reco::TrackCollection* isoTracks);
   std::pair<int,float> electronIsolation(const reco::Track * const tr, const reco::TrackCollection* isoTracks, GlobalPoint vertex);
   
   /// Get number of tracks and Pt sum of tracks inside an isolation cone for photons
@@ -104,8 +102,6 @@ class EgammaHLTTrackIsolation
   {return electronIsolation(tr,isoTracks).second;}
   float electronPtSum(const reco::Track * const tr, const reco::TrackCollection* isoTracks, GlobalPoint vertex)
   {return electronIsolation(tr,isoTracks,vertex).second;}
-  float electronPtSum(const reco::Track * const tr, const reco::ElectronCollection* allEle ,const reco::TrackCollection* isoTracks)
-  {return electronIsolation(tr,allEle,isoTracks).second;} 
 
   /// Get Pt sum of tracks inside an isolation cone for photons
   /// set useVertex=true to use Photon vertex from EgammaPhotonVtxFinder
@@ -130,8 +126,8 @@ class EgammaHLTTrackIsolation
    private:
   // Call track reconstruction
   std::pair<int,float> findIsoTracks(GlobalVector mom, GlobalPoint vtx, const reco::TrackCollection* isoTracks, bool isElectron, bool useVertex=true);
-  std::pair<int,float> findIsoTracksWithoutEle(GlobalVector mom, GlobalPoint vtx, const reco::ElectronCollection* allEle, const reco::TrackCollection* isoTracks);
 
+  
   // Parameters of isolation cone geometry.
   double ptMin;
   double conesize;

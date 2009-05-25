@@ -5,7 +5,7 @@
 
 RootInputFileSequence: This is an InputSource
 
-$Id: RootInputFileSequence.h,v 1.19 2008/10/02 18:47:11 wdd Exp $
+$Id: RootInputFileSequence.h,v 1.22 2008/12/01 20:29:54 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -89,7 +89,8 @@ namespace edm {
     std::vector<FileCatalogItem>::const_iterator fileIterEnd_;
     std::vector<FileCatalogItem>::const_iterator fileIter_;
     RootFileSharedPtr rootFile_;
-    BranchDescription::MatchMode matchMode_;
+    BranchDescription::MatchMode parametersMustMatch_;
+    BranchDescription::MatchMode branchesMustMatch_;
     CLHEP::RandFlat * flatDistribution_;
     std::vector<boost::shared_ptr<FileIndex> > fileIndexes_;
 
@@ -111,6 +112,8 @@ namespace edm {
     bool primarySequence_;
     bool randomAccess_;
     boost::shared_ptr<edm::DuplicateChecker> duplicateChecker_;
+
+    bool dropDescendants_;
   }; // class RootInputFileSequence
 }
 #endif

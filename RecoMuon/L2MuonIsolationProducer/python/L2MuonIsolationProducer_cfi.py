@@ -38,4 +38,3 @@ L2MuonIsolations = cms.EDProducer("L2MuonIsolationProducer",
 )
 
 
-

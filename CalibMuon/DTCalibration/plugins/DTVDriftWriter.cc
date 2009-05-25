@@ -2,13 +2,14 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/03 08:34:49 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/01/18 17:48:39 $
+ *  $Revision: 1.3 $
  *  \author M. Giunta
  */
 
 #include "CalibMuon/DTCalibration/plugins/DTVDriftWriter.h"
 #include "CalibMuon/DTCalibration/interface/DTMeanTimerFitter.h"
+//#include "CalibMuon/DTCalibration/plugins/vDriftHistos.h"
 #include "CalibMuon/DTCalibration/interface/vDriftHistos.h"
 #include "CalibMuon/DTCalibration/plugins/DTCalibrationMap.h"
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
@@ -120,11 +121,10 @@ void DTVDriftWriter::analyze(const Event & event, const EventSetup& eventSetup) 
       }
       calibValuesFile.addCell(calibValuesFile.getKey(wireId), newConstants);
 
-      // vdrift is cm/ns , resolution is cm
       theMTime->set(slId,
 		    vDriftAndReso[0],
 		    vDriftAndReso[1],
-		    DTVelocityUnits::cm_per_ns);
+		    DTTimeUnits::ns);
       if(debug) {
 	cout << " SL: " << slId
 	     << " vDrift = " << vDriftAndReso[0]

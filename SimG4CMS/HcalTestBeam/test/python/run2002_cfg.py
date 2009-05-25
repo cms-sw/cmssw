@@ -107,22 +107,19 @@ process.VtxSmeared.MeanZ = -340.11
 process.VtxSmeared.SigmaX = 0.000001
 process.VtxSmeared.SigmaY = 0.000001
 process.VtxSmeared.SigmaZ = 0.000001
-process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP'
 process.g4SimHits.CaloSD = cms.PSet(
     process.common_beam_direction_parameters,
     process.common_heavy_suppression,
     EminTrack      = cms.double(1.0),
-    TmaxHit        = cms.double(1000.0),
-    EminHits       = cms.vdouble(0.0),
-    HCNames        = cms.vstring('HcalHits'),
     SuppressHeavy  = cms.bool(False),
-    CheckHits      = cms.untracked.int32(25),
-    UseMap         = cms.untracked.bool(True),
-    Verbosity      = cms.untracked.int32(0),
+    TmaxHit        = cms.double(1000.0),
     DetailedTiming = cms.untracked.bool(False),
-    CorrectTOFBeam = cms.untracked.bool(False)
+    Verbosity      = cms.untracked.int32(0),
+    CheckHits      = cms.untracked.int32(25),
+    CorrectTOFBeam = cms.untracked.bool(False),
+    UseMap         = cms.untracked.bool(True)
 )
 process.g4SimHits.HCalSD.ForTBH2 = True
 process.g4SimHits.CaloTrkProcessing.TestBeam = True

@@ -2,8 +2,8 @@
  *
  * Digi for CLCT trigger primitives.
  *
- * $Date: 2007/07/23 12:08:20 $
- * $Revision: 1.12 $
+ * $Date: 2007/03/21 15:50:43 $
+ * $Revision: 1.11 $
  *
  * \author N. Terentiev, CMU
  */
@@ -11,7 +11,8 @@
 #include <DataFormats/CSCDigi/interface/CSCCLCTDigi.h>
 
 #include <iomanip>
-#include <iostream>
+
+using namespace std;
 
 /// Constructors
 CSCCLCTDigi::CSCCLCTDigi(const int valid, const int quality, const int pattern,
@@ -177,32 +178,18 @@ void CSCCLCTDigi::print() const {
     char stripType = (getStripType() == 0) ? 'D' : 'H';
     char bend      = (getBend()      == 0) ? 'L' : 'R';
 
-    std::cout << " CSC CLCT #"    << std::setw(1) << getTrknmb()
-	      << ": Valid = "     << std::setw(1) << isValid()
-	      << " Key Strip = "  << std::setw(3) << getKeyStrip()
-	      << " Strip = "      << std::setw(2) << getStrip()
-	      << " Quality = "    << std::setw(1) << getQuality()
-	      << " Pattern = "    << std::setw(1) << getPattern()
-	      << " Bend = "       << std::setw(1) << bend
-	      << " Strip type = " << std::setw(1) << stripType
-	      << " CFEB ID = "    << std::setw(1) << getCFEB()
-	      << " BX = "         << std::setw(1) << getBX() << std::endl;
+    std::cout << " CSC CLCT #"    << setw(1) << getTrknmb()
+	      << ": Valid = "     << setw(1) << isValid()
+	      << " Key Strip = "  << setw(3) << getKeyStrip()
+	      << " Strip = "      << setw(2) << getStrip()
+	      << " Quality = "    << setw(1) << getQuality()
+	      << " Pattern = "    << setw(1) << getPattern()
+	      << " Bend = "       << setw(1) << bend
+	      << " Strip type = " << setw(1) << stripType
+	      << " CFEB ID = "    << setw(1) << getCFEB()
+	      << " BX = "         << setw(1) << getBX() << std::endl;
   }
   else {
     std::cout << "Not a valid Cathode LCT." << std::endl;
   }
 }
-
-std::ostream & operator<<(std::ostream & o, const CSCCLCTDigi& digi) {
-  return o << "CSC CLCT #"    << digi.getTrknmb()
-           << ": Valid = "    << digi.isValid()
-           << " Quality = "   << digi.getQuality()
-           << " Pattern = "   << digi.getPattern()
-           << " StripType = " << digi.getStripType()
-           << " Bend = "      << digi.getBend()
-           << " Strip = "     << digi.getStrip()
-           << " KeyStrip = "  << digi.getKeyStrip()
-           << " CFEB = "      << digi.getCFEB()
-           << " BX = "        << digi.getBX();
-}
-

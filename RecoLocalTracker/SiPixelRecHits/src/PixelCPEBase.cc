@@ -42,8 +42,7 @@ const float degsPerRad = 57.29578;
 PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, const SiPixelLorentzAngle* lorentzAngle)
   : theDet(0), nRecHitsTotal_(0), nRecHitsUsedEdge_(0),
     cotAlphaFromCluster_(-99999.0), cotBetaFromCluster_(-99999.0),
-    probabilityX_(-99999.0), probabilityY_(-99999.0), qBin_(-99999.0),
-    clusterProbComputationFlag_(0)
+    probabilityX_(-99999.0), probabilityY_(-99999.0), qBin_(-99999.0)
 {
   //--- Lorentz angle tangent per Tesla
 //   theTanLorentzAnglePerTesla =
@@ -63,16 +62,6 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
 
   //-- Switch on/off E.B 
   alpha2Order = conf.getParameter<bool>("Alpha2Order");
-
-  //--- A flag that could be used to change the behavior of
-  //--- clusterProbability() in TSiPixelRecHit (the *transient* one).  
-  //--- The problem is that the transient hits are made after the CPE runs
-  //--- and they don't get the access to the PSet, so we pass it via the
-  //--- CPE itself...
-  //
-  clusterProbComputationFlag_ 
-    = (unsigned int) conf.getParameter<int>("ClusterProbComputationFlag");
-
 }
 
 //-----------------------------------------------------------------------------
@@ -245,7 +234,6 @@ computeAnglesFromDetPosition(const SiPixelCluster & cl,
   cotalpha_ = gv_dot_gvx / gv_dot_gvz;
   cotbeta_  = gv_dot_gvy / gv_dot_gvz;
 
-  with_track_angle = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -286,8 +274,6 @@ computeAnglesFromTrajectory( const SiPixelCluster & cl,
   trk_lp_x = trk_lp.x();
   trk_lp_y = trk_lp.y();
     
-  with_track_angle = true;
-
 }
 
 //-----------------------------------------------------------------------------
@@ -586,47 +572,4 @@ PixelCPEBase::computeLorentzShifts() const
 //     cout << "Lorentz Drift (in cm) along X = " << lorentzShiftInCmX_ << endl;
 //     cout << "Lorentz Drift (in cm) along Y = " << lorentzShiftInCmY_ << endl;
   }
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-//! A convenience method to fill a whole SiPixelRecHitQuality word in one shot.
-//! This way, we can keep the details of what is filled within the pixel
-//! code and not expose the Transient SiPixelRecHit to it as well.  The name
-//! of this function is chosen to match the one in SiPixelRecHit.
-//-----------------------------------------------------------------------------
-SiPixelRecHitQuality::QualWordType 
-PixelCPEBase::rawQualityWord() const
-{
-  SiPixelRecHitQuality::QualWordType qualWord;
-
-  SiPixelRecHitQuality::thePacking.setCotAlphaFromCluster( cotAlphaFromCluster_ , 
-							   qualWord );
-
-  SiPixelRecHitQuality::thePacking.setCotBetaFromCluster ( cotBetaFromCluster_ ,
-							   qualWord );
-
-  SiPixelRecHitQuality::thePacking.setProbabilityX( probabilityX_ ,
-						    qualWord );
-
-  SiPixelRecHitQuality::thePacking.setProbabilityY( probabilityY_ , 
-						    qualWord );
-
-  SiPixelRecHitQuality::thePacking.setQBin         ( qBin_, 
-					             qualWord );
-
-  //--- &&& We're not computing these three yet...
-  //--- &&& But we should!
-  // SiPixelRecHitQuality::thePacking.setIsOnEdge     ( flag, 
-  //						        qualWord );
-
-  // SiPixelRecHitQuality::thePacking.setHasBadPixels ( flag, 
-  //					                qualWord );
-
-  // SiPixelRecHitQuality::thePacking.setSpansTwoROCs ( flag, 
-  //   					                qualWord );
-
-  return qualWord;
 }

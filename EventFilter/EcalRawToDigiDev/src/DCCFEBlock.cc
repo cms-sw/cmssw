@@ -77,28 +77,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
         <<"\n => Skipping to next FE block...";
      } 
 
-    // in case of EB, FE is one-to-one with TT
-    // use those EcalElectronicsId for simplicity
-    if(NUMB_SM_EB_MIN_MIN<=activeDCC && activeDCC<=NUMB_SM_EB_PLU_MAX){
-      EcalElectronicsId  *  eleTp = mapper_->getTTEleIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
-      (*invalidTTIds_)->push_back(*eleTp);
-    }// EE
-    else if ( (NUMB_SM_EE_MIN_MIN <=activeDCC && activeDCC<=NUMB_SM_EE_MIN_MAX) ||
-	      (NUMB_SM_EE_PLU_MIN <=activeDCC && activeDCC<=NUMB_SM_EE_PLU_MAX) )
-      {
-	EcalElectronicsId * scEleId = mapper_->getSCElectronicsPointer(activeDCC, expTowerID_);
-	(*invalidTTIds_)->push_back(*scEleId);
-      }
-    else
-      {
-        if( ! DCCDataUnpacker::silentMode_ ){
-  	  edm::LogWarning("EcalRawToDigiDevChId")
-	    <<"\n For event "<<event_->l1A()<<" there's fed: "<< mapper_->getActiveDCC()
-	    <<" activeDcc: "<<mapper_->getActiveSM()
-	    <<" but that activeDcc is not valid.";
-        }
-      }
-    
+     fillEcalElectronicsError(invalidTTIds_); 
     
     updateEventPointers();
     return SKIP_BLOCK_UNPACKING;
@@ -184,8 +163,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
           <<"\n => Skipping to next fed block...";
        }
 
-      EcalElectronicsId  *  eleTp = mapper_->getTTEleIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
-      (*invalidBlockLengths_)->push_back(*eleTp);
+      fillEcalElectronicsError(invalidBlockLengths_) ;
 
       //Safer approach...  - why pointers do not navigate in this case?
       return STOP_EVENT_UNPACKING;	  
@@ -200,8 +178,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
         <<"\n => Skipping to next fed block...";
      }
 
-    EcalElectronicsId  *  eleTp = mapper_->getTTEleIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
-    (*invalidBlockLengths_)->push_back(*eleTp);
+    fillEcalElectronicsError(invalidBlockLengths_) ;
 
     //Safer approach... - why pointers do not navigate in this case?
     return STOP_EVENT_UNPACKING;

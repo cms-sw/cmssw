@@ -1,18 +1,27 @@
 #ifndef DQM_HCALMONITORTASKS_HCALDATAFORMATMONITOR_H
 #define DQM_HCALMONITORTASKS_HCALDATAFORMATMONITOR_H
 
-#define  IETAMIN -43
-#define  IETAMAX 43
-#define  IPHIMIN 0
-#define  IPHIMAX 71
+#define  IETAMIN     -43
+#define  IETAMAX      43
+#define  IPHIMIN       0
+#define  IPHIMAX      71
 #define  HBHE_LO_DCC 700
 #define  HBHE_HI_DCC 717
 #define  HF_LO_DCC   718
 #define  HF_HI_DCC   724
 #define  HO_LO_DCC   725
 #define  HO_HI_DCC   731
+#define  NUMDCCS      32
 #define  HTRCHANMAX   24
-
+//The four Data Integrity Plots & Arrays
+#define  RCDIX        55
+#define  RCDIY        22
+#define  HHDIX        97
+#define  HHDIY        61
+#define  CSDIX        97
+// CSDIY == HHDIY.
+#define  CIX          73
+#define  CIY          46
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
@@ -23,8 +32,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2008/10/13 19:40:32 $
- * $Revision: 1.36 $
+ * $Date: 2008/12/05 16:25:15 $
+ * $Revision: 1.38 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -83,6 +92,7 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   //int cratenum_;
 
   int prtlvl_;
+  int dfmon_checkNevents;
 
  private:  //Monitoring elements
    
@@ -128,6 +138,11 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   MonitorElement* meDCC_DataIntegrityCheck_;
   MonitorElement* meHalfHTR_DataIntegrityCheck_;
   MonitorElement* meChannSumm_DataIntegrityCheck_;
+  float DCC_DataIntegrityCheck_      [RCDIX][RCDIY];	  
+  float HalfHTR_DataIntegrityCheck_  [HHDIX][HHDIY];  
+  float ChannSumm_DataIntegrityCheck_[CSDIX][HHDIY];
+  float Chann_DataIntegrityCheck_    [NUMDCCS][CIX][CIY];
+  void UpdateMEs ();  //Prescalable copy into MonitorElements
 
   //Histogram labelling functions
   void label_ySpigots(MonitorElement* me_ptr,int ybins);

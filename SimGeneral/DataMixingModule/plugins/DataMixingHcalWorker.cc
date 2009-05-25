@@ -47,14 +47,10 @@ namespace edm
 
     // Hcal 
 
-    HBHErechitCollectionSig_  = ps.getParameter<edm::InputTag>("HBHEProducerSig");
-    HOrechitCollectionSig_    = ps.getParameter<edm::InputTag>("HOProducerSig");
-    HFrechitCollectionSig_    = ps.getParameter<edm::InputTag>("HFProducerSig");
-    ZDCrechitCollectionSig_   = ps.getParameter<edm::InputTag>("ZDCrechitCollectionSig");
-    HBHErechitCollectionPile_  = ps.getParameter<edm::InputTag>("HBHEProducerPile");
-    HOrechitCollectionPile_    = ps.getParameter<edm::InputTag>("HOProducerPile");
-    HFrechitCollectionPile_    = ps.getParameter<edm::InputTag>("HFProducerPile");
-    ZDCrechitCollectionPile_   = ps.getParameter<edm::InputTag>("ZDCrechitCollectionPile");
+    HBHErechitCollection_  = ps.getParameter<edm::InputTag>("HBHEProducer");
+    HOrechitCollection_    = ps.getParameter<edm::InputTag>("HOProducer");
+    HFrechitCollection_    = ps.getParameter<edm::InputTag>("HFProducer");
+    ZDCrechitCollection_   = ps.getParameter<edm::InputTag>("ZDCrechitCollection");
 
     HBHERecHitCollectionDM_ = ps.getParameter<std::string>("HBHERecHitCollectionDM");
     HORecHitCollectionDM_   = ps.getParameter<std::string>("HORecHitCollectionDM");
@@ -81,7 +77,7 @@ namespace edm
 
    const HBHERecHitCollection*  HBHERecHits = 0;
 
-   if( e.getByLabel( HBHErechitCollectionSig_.label(), pHBHERecHits) ) {
+   if( e.getByLabel( HBHErechitCollection_.label(), pHBHERecHits) ) {
      HBHERecHits = pHBHERecHits.product(); // get a ptr to the product
      LogDebug("DataMixingHcalWorker") << "total # HBHE rechits: " << HBHERecHits->size();
    } 
@@ -110,7 +106,7 @@ namespace edm
 
    const HORecHitCollection*  HORecHits = 0;
 
-   if( e.getByLabel( HOrechitCollectionSig_.label(), pHORecHits) ){
+   if( e.getByLabel( HOrechitCollection_.label(), pHORecHits) ){
      HORecHits = pHORecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HO rechits: " << HORecHits->size();
@@ -141,7 +137,7 @@ namespace edm
 
    const HFRecHitCollection*  HFRecHits = 0;
 
-   if( e.getByLabel( HFrechitCollectionSig_.label(), pHFRecHits) ) {
+   if( e.getByLabel( HFrechitCollection_.label(), pHFRecHits) ) {
      HFRecHits = pHFRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HF rechits: " << HFRecHits->size();
@@ -172,7 +168,7 @@ namespace edm
 
    const ZDCRecHitCollection*  ZDCRecHits = 0;
 
-   if( e.getByLabel( ZDCrechitCollectionSig_.label(), pZDCRecHits) ) {
+   if( e.getByLabel( ZDCrechitCollection_.label(), pZDCRecHits) ) {
      ZDCRecHits = pZDCRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # ZDC rechits: " << ZDCRecHits->size();
@@ -210,7 +206,7 @@ namespace edm
    Handle< HBHERecHitCollection > pHBHERecHits;
    const HBHERecHitCollection*  HBHERecHits = 0;
 
-   if( e->getByLabel( HBHErechitCollectionPile_.label(), pHBHERecHits) ) {
+   if( e->getByLabel( HBHErechitCollection_.label(), pHBHERecHits) ) {
      HBHERecHits = pHBHERecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HEHB rechits: " << HBHERecHits->size();
@@ -238,7 +234,7 @@ namespace edm
    Handle< HORecHitCollection > pHORecHits;
    const HORecHitCollection*  HORecHits = 0;
 
-   if( e->getByLabel( HOrechitCollectionPile_.label(), pHORecHits) ) {
+   if( e->getByLabel( HOrechitCollection_.label(), pHORecHits) ) {
      HORecHits = pHORecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HO rechits: " << HORecHits->size();
@@ -267,7 +263,7 @@ namespace edm
    Handle< HFRecHitCollection > pHFRecHits;
    const HFRecHitCollection*  HFRecHits = 0;
 
-   if( e->getByLabel( HFrechitCollectionPile_.label(), pHFRecHits) ) {
+   if( e->getByLabel( HFrechitCollection_.label(), pHFRecHits) ) {
      HFRecHits = pHFRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HF rechits: " << HFRecHits->size();
@@ -296,7 +292,7 @@ namespace edm
    Handle< ZDCRecHitCollection > pZDCRecHits;
    const ZDCRecHitCollection*  ZDCRecHits = 0;
 
-   if( e->getByLabel( ZDCrechitCollectionPile_.label(), pZDCRecHits) ) {
+   if( e->getByLabel( ZDCrechitCollection_.label(), pZDCRecHits) ) {
      ZDCRecHits = pZDCRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # ZDC rechits: " << ZDCRecHits->size();
@@ -335,6 +331,8 @@ namespace edm
     DetId currentID;
     float ESum = 0.;
     float HBTime = 0.;
+    HBHERecHit OldHit;
+    int nmatch=0;
 
     // HB first...
 
@@ -346,26 +344,40 @@ namespace edm
       currentID = iHB->first; 
 
       if (currentID == formerID) { // we have to add these rechits together
+	nmatch++;                  // use this to avoid using the "count" function
+	ESum+=(iHB->second).energy();          // on every element...
 
-	ESum+=(iHB->second).energy();  
-
+	iHBchk = iHB;
+	if((iHBchk++) == HBHERecHitStorage_.end()) {  //make sure not to lose the last one
+	  HBHERecHit aHit(formerID, ESum, HBTime);
+	  HBHErechits->push_back( aHit );	  
+	  // reset energy sum, nmatch
+	  ESum = 0 ;
+	  nmatch=0;	  
+	}
       }
       else {
-	if(formerID>0) {
-	  // cutoff for ESum?                                                                                 
+	if(nmatch>0) {
 	  HBHERecHit aHit(formerID, ESum, HBTime);
-	  HBHErechits->push_back( aHit );
+	  HBHErechits->push_back( aHit );	  
+	  // reset energy sum, nmatch
+	  ESum = 0 ;
+	  nmatch=0;	  
 	}
-	//save pointers for next iteration                                                                    
+	else {
+	  if(formerID>0) HBHErechits->push_back( OldHit );
+	}
+	
+	iHBchk = iHB;
+	if((iHBchk++) == HBHERecHitStorage_.end()) {  //make sure not to lose the last one
+	  HBHErechits->push_back( iHB->second );
+	}
+
+	// save pointers for next iteration
+	OldHit = iHB->second;
 	formerID = currentID;
 	ESum = (iHB->second).energy();
 	HBTime = (iHB->second).time();  // take time of first hit in sequence - is this ok?
-      }
-
-      iHBchk = iHB;
-      if((++iHBchk) == HBHERecHitStorage_.end()) {  //make sure not to lose the last one  
-        HBHERecHit aHit(formerID, ESum, HBTime);
-        HBHErechits->push_back( aHit );
       }
     }
 
@@ -375,6 +387,8 @@ namespace edm
     formerID = 0;
     ESum = 0.;
     float HOTime = 0.;
+    HORecHit HOOldHit;
+    nmatch=0;
 
     HORecHitMap::const_iterator iHOchk;
 
@@ -384,29 +398,42 @@ namespace edm
       currentID = iHO->first; 
 
       if (currentID == formerID) { // we have to add these rechits together
+	nmatch++;                  // use this to avoid using the "count" function
+	ESum+=(iHO->second).energy();          // on every element...
 
-	ESum+=(iHO->second).energy();  
-
+	iHOchk = iHO;
+	if((iHOchk++) == HORecHitStorage_.end()) {  //make sure not to lose the last one
+	  HORecHit aHit(formerID, ESum, HOTime);
+	  HOrechits->push_back( aHit );	  
+	  // reset energy sum, nmatch
+	  ESum = 0 ;
+	  nmatch=0;	  
+	}
       }
       else {
-	if(formerID>0) {
-	  // cutoff for ESum?                                                                                 
+	if(nmatch>0) {
 	  HORecHit aHit(formerID, ESum, HOTime);
-	  HOrechits->push_back( aHit );
+	  HOrechits->push_back( aHit );	  
+	  // reset energy sum, nmatch
+	  ESum = 0 ;
+	  nmatch=0;	  
 	}
-	//save pointers for next iteration                                                                    
+	else {
+	  if(formerID>0) HOrechits->push_back( HOOldHit );
+	}
+	
+	iHOchk = iHO;
+	if((iHOchk++) == HORecHitStorage_.end()) {  //make sure not to lose the last one
+	  HOrechits->push_back( iHO->second );
+	}
+
+	// save pointers for next iteration
+	HOOldHit = iHO->second;
 	formerID = currentID;
 	ESum = (iHO->second).energy();
 	HOTime = (iHO->second).time();  // take time of first hit in sequence - is this ok?
       }
-
-      iHOchk = iHO;
-      if((++iHOchk) == HORecHitStorage_.end()) {  //make sure not to lose the last one  
-        HORecHit aHit(formerID, ESum, HOTime);
-        HOrechits->push_back( aHit );
-      }
     }
-
 
     // HF next...
 
@@ -415,6 +442,7 @@ namespace edm
     ESum = 0.;
     float HFTime = 0.;
     HFRecHit HFOldHit;
+    nmatch=0;
 
     HFRecHitMap::const_iterator iHFchk;
 
@@ -424,26 +452,40 @@ namespace edm
       currentID = iHF->first; 
 
       if (currentID == formerID) { // we have to add these rechits together
+	nmatch++;                  // use this to avoid using the "count" function
+	ESum+=(iHF->second).energy();          // on every element...
 
-	ESum+=(iHF->second).energy();  
-
+	iHFchk = iHF;
+	if((iHFchk++) == HFRecHitStorage_.end()) {  //make sure not to lose the last one
+	  HFRecHit aHit(formerID, ESum, HFTime);
+	  HFrechits->push_back( aHit );	  
+	  // reset energy sum, nmatch
+	  ESum = 0 ;
+	  nmatch=0;	  
+	}
       }
       else {
-	if(formerID>0) {
-	  // cutoff for ESum?                                                                                 
+	if(nmatch>0) {
 	  HFRecHit aHit(formerID, ESum, HFTime);
-	  HFrechits->push_back( aHit );
+	  HFrechits->push_back( aHit );	  
+	  // reset energy sum, nmatch
+	  ESum = 0 ;
+	  nmatch=0;	  
 	}
-	//save pointers for next iteration                                                                    
+	else {
+	  if(formerID>0) HFrechits->push_back( HFOldHit );
+	}
+	
+	iHFchk = iHF;
+	if((iHFchk++) == HFRecHitStorage_.end()) {  //make sure not to lose the last one
+	  HFrechits->push_back( iHF->second );
+	}
+
+	// save pointers for next iteration
+	HFOldHit = iHF->second;
 	formerID = currentID;
 	ESum = (iHF->second).energy();
 	HFTime = (iHF->second).time();  // take time of first hit in sequence - is this ok?
-      }
-
-      iHFchk = iHF;
-      if((++iHFchk) == HFRecHitStorage_.end()) {  //make sure not to lose the last one  
-        HFRecHit aHit(formerID, ESum, HBTime);
-        HFrechits->push_back( aHit );
       }
     }
 
@@ -454,6 +496,7 @@ namespace edm
     ESum = 0.;
     float ZDCTime = 0.;
     ZDCRecHit ZOldHit;
+    nmatch=0;
 
     ZDCRecHitMap::const_iterator iZDCchk;
 
@@ -463,30 +506,42 @@ namespace edm
       currentID = iZDC->first; 
 
       if (currentID == formerID) { // we have to add these rechits together
+	nmatch++;                  // use this to avoid using the "count" function
+	ESum+=(iZDC->second).energy();          // on every element...
 
-	ESum+=(iZDC->second).energy();  
-	
+	iZDCchk = iZDC;
+	if((iZDCchk++) == ZDCRecHitStorage_.end()) {  //make sure not to lose the last one
+	  ZDCRecHit aHit(formerID, ESum, ZDCTime);
+	  ZDCrechits->push_back( aHit );	  
+	  // reset energy sum, nmatch
+	  ESum = 0 ;
+	  nmatch=0;	  
+	}
       }
       else {
-	if(formerID>0) {
-	  // cutoff for ESum?                                                                                 
+	if(nmatch>0) {
 	  ZDCRecHit aHit(formerID, ESum, ZDCTime);
-	  ZDCrechits->push_back( aHit );
+	  ZDCrechits->push_back( aHit );	  
+	  // reset energy sum, nmatch
+	  ESum = 0 ;
+	  nmatch=0;	  
 	}
-	//save pointers for next iteration                                                                    
+	else {
+	  if(formerID>0) ZDCrechits->push_back( ZOldHit );
+	}
+	
+	iZDCchk = iZDC;
+	if((iZDCchk++) == ZDCRecHitStorage_.end()) {  //make sure not to lose the last one
+	  ZDCrechits->push_back( iZDC->second );
+	}
+
+	// save pointers for next iteration
+	ZOldHit = iZDC->second;
 	formerID = currentID;
 	ESum = (iZDC->second).energy();
 	ZDCTime = (iZDC->second).time();  // take time of first hit in sequence - is this ok?
       }
-      
-      iZDCchk = iZDC;
-      if((++iZDCchk) == ZDCRecHitStorage_.end()) {  //make sure not to lose the last one  
-	ZDCRecHit aHit(formerID, ESum, HBTime);
-	ZDCrechits->push_back( aHit );
-      }
-    } 
-  
-   //done merging
+    }
 
     // put the collection of recunstructed hits in the event   
     LogInfo("DataMixingHcalWorker") << "total # HBHE Merged rechits: " << HBHErechits->size() ;

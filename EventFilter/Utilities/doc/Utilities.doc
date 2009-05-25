@@ -30,9 +30,6 @@ href="https://twiki.cern.ch/twiki/bin/view/CMS/EventFilterUtilities">here</a>.
 i2oEvfMsgs.h defines the I2O communication protocoll between the
 broker and the storage manager.
 
-The classes EPStateMachine, RunBase, ShutDownListener, and
-ShutDownNotifier are obsolete and might soon be removed.
-
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
@@ -43,6 +40,8 @@ ShutDownNotifier are obsolete and might soon be removed.
 - MicroStateService
 - ModuleWeb
 - ModuleWebRegistry
+- ServiceWeb
+- ServiceWebRegistry
 - ParameterSetRetriever
 - Crc
 - Css
@@ -52,8 +51,11 @@ ShutDownNotifier are obsolete and might soon be removed.
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
-No modules are defined in this package.
 
+- ErrorStreamSource (an edm::Source to read ErrorStream files)
+- ExceptionGenerator (an edm::Analyzer to generate artificial faults in the Event Processing flow)
+- GlobalNumberAnalyzer (an edm::Analyzer to verify event info from the L1)
+- Stepper (an edm::Service which blocks the execution flow and allows step-by-step execution of a schedule) 
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
@@ -65,6 +67,7 @@ stable
 
 <hr>
 Last updated:
+@DATE@  Author: <a href="mailto:emilio.meschi@cern.ch">Emilio Meschi</a>
 @DATE@  Author: <a href="mailto:philipp.schieferdecker@cern.ch">Philipp Schieferdecker</a>
 */
 

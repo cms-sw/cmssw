@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/08/26 10:57:16 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/11/17 15:19:57 $
+ *  $Revision: 1.11 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -55,10 +55,10 @@ void MuonTrackResidualsTest::beginJob(const edm::EventSetup& context){
   metname = "trackResidualsTest";
   theDbe->setCurrentFolder("Muons/Tests/trackResidualsTest");
 
-  cout<<"[MuonTrackResidualsTest] Parameters initialization"<<endl;
+  LogTrace(metname) << "[MuonTrackResidualsTest] Parameters initialization"<<endl;
  
 
-  string histName, MeanHistoName, SigmaHistoName;
+  string histName, MeanHistoName, SigmaHistoName,  MeanHistoTitle, SigmaHistoTitle;
   vector<string> type;
   type.push_back("eta");
   type.push_back("theta");
@@ -69,6 +69,9 @@ void MuonTrackResidualsTest::beginJob(const edm::EventSetup& context){
 
     MeanHistoName =  "MeanTest_" + type[c]; 
     SigmaHistoName =  "SigmaTest_" + type[c];
+
+    MeanHistoTitle =  "Mean of the #" + type[c] + " residuals distribution"; 
+    SigmaHistoTitle =  "Sigma of the #" + type[c] + " residuals distribution"; 
  
     histName = "Res_GlbSta_"+type[c];
     histoNames[type[c]].push_back(histName);
@@ -78,13 +81,13 @@ void MuonTrackResidualsTest::beginJob(const edm::EventSetup& context){
     histoNames[type[c]].push_back(histName);
 
     
-    MeanHistos[type[c]] = theDbe->book1D(MeanHistoName.c_str(),MeanHistoName.c_str(),3,0.5,3.5);
+    MeanHistos[type[c]] = theDbe->book1D(MeanHistoName.c_str(),MeanHistoTitle.c_str(),3,0.5,3.5);
     (MeanHistos[type[c]])->setBinLabel(1,"Res_StaGlb",1);
     (MeanHistos[type[c]])->setBinLabel(2,"Res_TkGlb",1);
     (MeanHistos[type[c]])->setBinLabel(3,"Res_TkSta",1);
     
     
-    SigmaHistos[type[c]] = theDbe->book1D(SigmaHistoName.c_str(),SigmaHistoName.c_str(),3,0.5,3.5);
+    SigmaHistos[type[c]] = theDbe->book1D(SigmaHistoName.c_str(),SigmaHistoTitle.c_str(),3,0.5,3.5);
     (SigmaHistos[type[c]])->setBinLabel(1,"Res_StaGlb",1);  
     (SigmaHistos[type[c]])->setBinLabel(2,"Res_TkGlb",1);
     (SigmaHistos[type[c]])->setBinLabel(3,"Res_TkSta",1);
@@ -117,7 +120,7 @@ void MuonTrackResidualsTest::analyze(const edm::Event& e, const edm::EventSetup&
 
 void MuonTrackResidualsTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  cout<<"[MuonTrackResidualsTest]: End of LS transition, performing the DQM client operation"<<endl;
+  LogTrace(metname)<<"[MuonTrackResidualsTest]: End of LS transition, performing the DQM client operation"<<endl;
 
   // counts number of lumiSegs 
   nLumiSegs = lumiSeg.id().luminosityBlock();
@@ -142,13 +145,11 @@ void MuonTrackResidualsTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
 						   "ResidualsDistributionGaussianTest");
 	const QReport * GaussianReport = res_histo->getQReport(GaussianCriterionName);
 	if(GaussianReport){
-	  cout<< "-------- histo : "<<(*histo).second[type]<<"  "<<GaussianReport->getMessage()<<" ------- "<<GaussianReport->getStatus()<<endl;
+	  LogTrace(metname) << "-------- histo : "<<(*histo).second[type]<<"  "<<GaussianReport->getMessage()<<" ------- "<<GaussianReport->getStatus();
 	}
 	int BinNumber = type+1;
 	float mean = (*res_histo).getMean(1);
 	float sigma = (*res_histo).getRMS(1);
-	cout<<"mean: "<<mean<<endl;
-	cout<<"sigma: "<<sigma<<endl;
 	MeanHistos.find((*histo).first)->second->setBinContent(BinNumber, mean);	
 	SigmaHistos.find((*histo).first)->second->setBinContent(BinNumber, sigma);
       }
@@ -166,9 +167,9 @@ void MuonTrackResidualsTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
       vector<dqm::me_util::Channel> badChannels = theMeanQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
-	cout << "type:"<<(*hMean).first<<" Bad mean channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents()<<endl;
+	LogTrace(metname)<< "type:"<<(*hMean).first<<" Bad mean channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents()<<endl;
       }
-      cout << "-------- type: "<<(*hMean).first<<"  "<<theMeanQReport->getMessage()<<" ------- "<<theMeanQReport->getStatus()<<endl; 
+      LogTrace(metname)<< "-------- type: "<<(*hMean).first<<"  "<<theMeanQReport->getMessage()<<" ------- "<<theMeanQReport->getStatus()<<endl; 
     }
   }
   
@@ -182,9 +183,9 @@ void MuonTrackResidualsTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
       vector<dqm::me_util::Channel> badChannels = theSigmaQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
-	cout << "type:"<<(*hSigma).first<<" Bad sigma channels: "<<(*channel).getBin()<<" Contents : "<<(*channel).getContents()<<endl;
+	LogTrace(metname)<< "type:"<<(*hSigma).first<<" Bad sigma channels: "<<(*channel).getBin()<<" Contents : "<<(*channel).getContents()<<endl;
       }
-      cout<< "-------- type: "<<(*hSigma).first<<"  "<<theSigmaQReport->getMessage()<<" ------- "<<theSigmaQReport->getStatus()<<endl;
+      LogTrace(metname) << "-------- type: "<<(*hSigma).first<<"  "<<theSigmaQReport->getMessage()<<" ------- "<<theSigmaQReport->getStatus()<<endl;
     }
   }
 }

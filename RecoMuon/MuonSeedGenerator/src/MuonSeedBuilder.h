@@ -8,7 +8,7 @@
  * stations a.k.a. layers), for DT+overlap and CSC regions, in that order.  
  * The protoTrack is then passed to the seed creator to create CSC, overlap and/or DT seeds.
  *
- * \author Shih-Chuan Kao, Dominique Fortin - UCR
+ * \author Dominique Fortin - UCR
  *
  */
 
@@ -25,7 +25,6 @@ class DetLayer;
 class MuonDetLayerGeometry;
 class MagneticField;
 class MuonSeedCreator;
-class MuonSeedCleaner;
 
 typedef std::vector<TrajectorySeed> SeedContainer;
 
@@ -74,31 +73,29 @@ class MuonSeedBuilder
 
   
   /// group the seeds 
-  //std::vector<SeedContainer> GroupSeeds( std::vector<TrajectorySeed>& seeds );
+  std::vector<SeedContainer> GroupSeeds( std::vector<TrajectorySeed>& seeds );
   /// pick the seed by better parameter error
-  //TrajectorySeed BetterDirection( std::vector<TrajectorySeed>& seeds ) ;
-  //TrajectorySeed BetterChi2( std::vector<TrajectorySeed>& seeds );
+  TrajectorySeed BetterDirection( std::vector<TrajectorySeed>& seeds ) ;
+  TrajectorySeed BetterChi2( std::vector<TrajectorySeed>& seeds );
   /// filter out the bad pt seeds, if all are bad pt seeds then keep all    
-  //bool MomentumFilter(std::vector<TrajectorySeed>& seeds );
-
-
+  bool MomentumFilter(std::vector<TrajectorySeed>& seeds );
   /// collect long seeds
-  //SeedContainer LengthFilter(std::vector<TrajectorySeed>& seeds );
+  SeedContainer LengthFilter(std::vector<TrajectorySeed>& seeds );
   /// pick the seeds w/ 1st layer information and w/ more than 1 segments 
-  //SeedContainer SeedCandidates( std::vector<TrajectorySeed>& seeds, bool good );
+  SeedContainer SeedCandidates( std::vector<TrajectorySeed>& seeds, bool good );
   /// check overlapping segment for seeds
-  //unsigned int OverlapSegments( TrajectorySeed seed1, TrajectorySeed seed2 );
+  unsigned int OverlapSegments( TrajectorySeed seed1, TrajectorySeed seed2 );
 
   /// retrieve number of rechits& normalized chi2 of associated segments of a seed
-  //int NRecHitsFromSegment( const TrackingRecHit& rhit );
-  //int NRecHitsFromSegment( MuonTransientTrackingRecHit *rhit );
+  int NRecHitsFromSegment( const TrackingRecHit& rhit );
+  int NRecHitsFromSegment( MuonTransientTrackingRecHit *rhit );
   //int NRecHitsFromSegment( const MuonTransientTrackingRecHit& rhit );
-  //double NChi2OfSegment( const TrackingRecHit& rhit );
+  double NChi2OfSegment( const TrackingRecHit& rhit );
 
   /// retrieve seed global position
-  //GlobalPoint SeedPosition( TrajectorySeed seed );
+  GlobalPoint SeedPosition( TrajectorySeed seed );
   /// retrieve seed global momentum 
-  //GlobalVector SeedMomentum( TrajectorySeed seed );
+  GlobalVector SeedMomentum( TrajectorySeed seed );
 
   // This Producer private debug flag
   bool debug;
@@ -135,7 +132,6 @@ class MuonSeedBuilder
 
   /// Create seed according to region (CSC, DT, Overlap)
   MuonSeedCreator* muonSeedCreate_;
-  MuonSeedCleaner* muonSeedClean_;
 
   // Cache geometry for current event
   const MuonDetLayerGeometry* muonLayers;

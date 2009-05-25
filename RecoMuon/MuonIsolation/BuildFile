@@ -1,15 +1,17 @@
-<use name="DataFormats/Candidate">
-<use name="DataFormats/RecoCandidate">
-<use name="DataFormats/TrackReco">
-<use name="FWCore/MessageLogger">
-<use name="FWCore/ParameterSet">
-<use name="PhysicsTools/IsolationAlgos">
+<use name=DataFormats/MuonReco>
+<use name=DataFormats/TrackReco>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/PluginManager>
+<use name=PhysicsTools/IsolationAlgos>
 <export>
-  <use name="DataFormats/Candidate">
-  <use name="DataFormats/RecoCandidate">
-  <use name="DataFormats/TrackReco">
-  <use name="FWCore/MessageLogger">
-  <use name="FWCore/ParameterSet">
-  <use name="PhysicsTools/IsolationAlgos">
-  <lib name="RecoMuonMuonIsolation">
+  <use name=DataFormats/MuonReco>
+  <use name=DataFormats/TrackReco>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=FWCore/PluginManager>
+  <use name=PhysicsTools/IsolationAlgos>
+  <lib name=RecoMuonMuonIsolation>
 </export>
+

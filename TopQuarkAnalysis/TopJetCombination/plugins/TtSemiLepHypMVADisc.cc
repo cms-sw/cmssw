@@ -1,5 +1,6 @@
+#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypMVADisc.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepEvtPartons.h"
+
 
 TtSemiLepHypMVADisc::TtSemiLepHypMVADisc(const edm::ParameterSet& cfg):
   TtSemiLepHypothesis( cfg ) { }
@@ -8,10 +9,10 @@ TtSemiLepHypMVADisc::~TtSemiLepHypMVADisc() { }
 
 void
 TtSemiLepHypMVADisc::buildHypo(edm::Event& evt,
-				   const edm::Handle<edm::View<reco::RecoCandidate> >& leps, 
-				   const edm::Handle<std::vector<pat::MET> >& mets, 
-				   const edm::Handle<std::vector<pat::Jet> >& jets, 
-				   std::vector<int>& match)
+			       const edm::Handle<edm::View<reco::RecoCandidate> >& leps, 
+			       const edm::Handle<std::vector<pat::MET> >& mets, 
+			       const edm::Handle<std::vector<pat::Jet> >& jets, 
+			       std::vector<int>& match, const unsigned int iComb)
 {
   // -----------------------------------------------------
   // add jets
@@ -36,6 +37,7 @@ TtSemiLepHypMVADisc::buildHypo(edm::Event& evt,
   // -----------------------------------------------------
   if( !leps->empty() )
     setCandidate(leps, 0, lepton_);
+  match.push_back( 0 );
   
   // -----------------------------------------------------
   // add neutrino

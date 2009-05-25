@@ -50,14 +50,10 @@ namespace edm
       // data specifiers
 
       // Hcal
-      edm::InputTag HBHErechitCollectionSig_; // secondary name given to collection of EB rechits
-      edm::InputTag HOrechitCollectionSig_  ; // secondary name given to collection of EB rechits
-      edm::InputTag HFrechitCollectionSig_  ; // secondary name given to collection of EB rechits
-      edm::InputTag ZDCrechitCollectionSig_ ; // secondary name given to collection of EB rechits
-      edm::InputTag HBHErechitCollectionPile_; // secondary name given to collection of EB rechits
-      edm::InputTag HOrechitCollectionPile_  ; // secondary name given to collection of EB rechits
-      edm::InputTag HFrechitCollectionPile_  ; // secondary name given to collection of EB rechits
-      edm::InputTag ZDCrechitCollectionPile_ ; // secondary name given to collection of EB rechits
+      edm::InputTag HBHErechitCollection_; // secondary name given to collection of EB rechits
+      edm::InputTag HOrechitCollection_  ; // secondary name given to collection of EB rechits
+      edm::InputTag HFrechitCollection_  ; // secondary name given to collection of EB rechits
+      edm::InputTag ZDCrechitCollection_ ; // secondary name given to collection of EB rechits
       std::string HBHERecHitCollectionDM_; // secondary name to be given to EB collection of hits
       std::string HORecHitCollectionDM_  ; // secondary name to be given to EB collection of hits
       std::string HFRecHitCollectionDM_  ; // secondary name to be given to EB collection of hits

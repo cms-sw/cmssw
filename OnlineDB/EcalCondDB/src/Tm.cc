@@ -1,4 +1,4 @@
-// $Id: Tm.cc,v 1.2 2006/11/17 08:38:53 egeland Exp $
+// $Id: Tm.cc,v 1.1 2006/03/01 23:39:52 egeland Exp $
 
 #include <time.h>
 #include <iostream>
@@ -89,7 +89,7 @@ uint64_t Tm::microsTime() const
   uint64_t result = 0;
   
   result += (uint64_t)ceil((m_tm.tm_year + 1900 - 1970) * 365.25) * 24 * 3600;
-  result += (m_tm.tm_yday-1) * 24 * 3600;
+  result += m_tm.tm_yday * 24 * 3600;
   result += m_tm.tm_hour * 3600;
   result += m_tm.tm_min * 60;
   result += m_tm.tm_sec;

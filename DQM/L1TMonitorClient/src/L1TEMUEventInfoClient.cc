@@ -7,7 +7,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/Core/interface/QReport.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "TRandom.h"
 #include <TF1.h>
 #include <stdio.h>
@@ -17,9 +16,8 @@
 #include <TProfile2D.h>
 #include <memory>
 #include <iostream>
-#include <iomanip>
-#include <map>
 #include <vector>
+#include <iomanip>
 #include <string>
 #include <fstream>
 #include "TROOT.h"
@@ -58,8 +56,21 @@ void L1TEMUEventInfoClient::initialize(){
   prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
   if(verbose_) cout << "DQM event prescale = " << prescaleEvt_ << " events(s)"<< endl;
   
+  //tbd should revert to regular order as defined in hardwarevalidation
+  // + use std labels defined in traits therein
+  std::string syslabel   [nsysmon_]=
+    {"DTTF","DTTPG","CSCTF","CSCTPG","RPC","GMT", "ECAL","HCAL","RCT","GCT","GT"};
+  std::string syslabelext[nsysmon_]=
+    {"DTF","DTP","CTF","CTP","RPC","GMT", "ETP","HTP","RCT","GCT","GLT"};
+  std::vector<unsigned int> sysmask(0,nsysmon_); 
+  sysmask = parameters_.getUntrackedParameter<std::vector<unsigned int> >("maskedSystems", sysmask);
 
-      
+  for(int i=0; i<nsysmon_; i++) {
+    syslabel_[i] = syslabel[i];
+    syslabelext_[i] = syslabelext[i];
+    sysmask_[i] = sysmask[i];
+  }
+  
 }
 
 //--------------------------------------------------------
@@ -83,44 +94,21 @@ void L1TEMUEventInfoClient::beginJob(const EventSetup& context){
 
   dbe_->setCurrentFolder("L1TEMU/EventInfo/reportSummaryContents");
 
-  int nSubsystems = 20;
-  
-  char histo[100];
-  
-  for (int i = 0; i < nSubsystems; i++) {    
+  char lbl[100];  
 
-    switch(i){
-    case 0 :   sprintf(histo,"L1TEMU_DTTF");    break;
-    case 1 :   sprintf(histo,"L1TEMU_DTTPG");   break;
-    case 2 :   sprintf(histo,"L1TEMU_CSCTF");   break;
-    case 3 :   sprintf(histo,"L1TEMU_CSCTPG");  break;
-    case 4 :   sprintf(histo,"L1TEMU_RPC");     break;
-    case 5 :   sprintf(histo,"L1TEMU_GMT");     break;
-    case 6 :   sprintf(histo,"L1TEMU_ECAL");    break;
-    case 7 :   sprintf(histo,"L1TEMU_HCAL");    break;
-    case 8 :   sprintf(histo,"L1TEMU_RCT");     break;
-    case 9 :   sprintf(histo,"L1TEMU_GCT");     break;
-    case 10 :  sprintf(histo,"L1TEMU_GT");      break;
-    case 11 :  sprintf(histo,"L1TEMU_EMUL");    break;
-    case 12 :  sprintf(histo,"L1TEMU_Test1");   break;
-    case 13 :  sprintf(histo,"L1TEMU_Test2");   break;
-    case 14 :  sprintf(histo,"L1TEMU_Test3");   break;
-    case 15 :  sprintf(histo,"L1TEMU_Test4");   break;
-    case 16 :  sprintf(histo,"L1TEMU_Test5");   break;
-    case 17 :  sprintf(histo,"L1TEMU_Test6");   break;
-    case 18 :  sprintf(histo,"L1TEMU_Test7");   break;
-    case 19 :  sprintf(histo,"L1TEMU_Test8");   break;
-    }  
-//  if( reportSummaryContent_[i] = dbe_->get("L1T/EventInfo/reportSummaryContents/" + histo) ) 
-//  {
-//       dbe_->removeElement(reportSummaryContent_[i]->getName());
-//   }
-  
-   reportSummaryContent_[i] = dbe_->bookFloat(histo);
+  for (int i=0; i<nsys_; i++) {    
+    
+    if(i<nsysmon_)
+      sprintf(lbl,"L1TEMU_%s",syslabelext_[i].data());
+    else 
+      sprintf(lbl,"L1TEMU_dummy%d",i-nsysmon_+1);
+
+    reportSummaryContent_[i] = dbe_->bookFloat(lbl);
+    //if(reportSummaryContent_[i] = dbe_->get("L1T/EventInfo/reportSummaryContents/" + histo)) dbe_->removeElement(reportSummaryContent_[i]->getName());
   }
 
   //initialize reportSummaryContents to 1
-  for (int k = 0; k < nSubsystems; k++) {
+  for (int k=0; k<nsys_; k++) {
     summaryContent[k] = 1;
     reportSummaryContent_[k]->Fill(1.);
   }  
@@ -128,29 +116,16 @@ void L1TEMUEventInfoClient::beginJob(const EventSetup& context){
   dbe_->setCurrentFolder("L1TEMU/EventInfo");
 
   if ( reportSummaryMap_ = dbe_->get("L1TEMU/EventInfo/reportSummaryMap") ) {
-  dbe_->removeElement(reportSummaryMap_->getName());
+    dbe_->removeElement(reportSummaryMap_->getName());
   }
 
-  //reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 5, 0.,5., 4, 0., 4.);
-  //reportSummaryMap_->setAxisTitle("Subsystem Index", 1);
-  //reportSummaryMap_->setAxisTitle("Subsystem Index", 2);
-  reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 1, 1, 2, 11, 1, 12);
+  reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 1, 1, 2, 11, 1, nsysmon_+1);
+  for(int i=0; i<nsysmon_; i++) {
+    reportSummaryMap_->setBinLabel(i+1,syslabelext_[i],2);
+  }
   reportSummaryMap_->setAxisTitle("", 1);
   reportSummaryMap_->setAxisTitle("", 2);
-  reportSummaryMap_->setBinLabel(1,"DTTF",2);
-  reportSummaryMap_->setBinLabel(2,"DTTPG",2);
-  reportSummaryMap_->setBinLabel(3,"CSCTF",2);
-  reportSummaryMap_->setBinLabel(4,"CSCTPG",2);
-  reportSummaryMap_->setBinLabel(5,"RPC",2);
-  reportSummaryMap_->setBinLabel(6,"GMT",2);
-  reportSummaryMap_->setBinLabel(7,"ECAL",2);
-  reportSummaryMap_->setBinLabel(8,"HCAL",2);
-  reportSummaryMap_->setBinLabel(9,"RCT",2);
-  reportSummaryMap_->setBinLabel(10,"GCT",2);
-  reportSummaryMap_->setBinLabel(11,"GT",2);
   reportSummaryMap_->setBinLabel(1," ",1);
-
-
 
 }
 
@@ -166,172 +141,36 @@ void L1TEMUEventInfoClient::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
 void L1TEMUEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                           const edm::EventSetup& c){
 
-  int nSubsystems = 20; 
-  for (int i = 0; i < nSubsystems; i++) {
+  for (int i = 0; i < nsys_; i++) {
     summaryContent[i] = 1;    
     reportSummaryContent_[i]->Fill(1.);
   }
   summarySum = 0;
-  
-  MonitorElement *DTTF_QHist = dbe_->get("L1TEMU/DTTF/DTFErrorFlag");
-  MonitorElement *DTTPG_QHist = dbe_->get("L1TEMU/DTTPG/DTPErrorFlag");
-  MonitorElement *CSCTF_QHist = dbe_->get("L1TEMU/CSCTF/CTFErrorFlag");
-  MonitorElement *CSCTPG_QHist = dbe_->get("L1TEMU/CSCTPG/CTPErrorFlag");
-  MonitorElement *RPC_QHist = dbe_->get("L1TEMU/RPC/RPCErrorFlag");
-  MonitorElement *GMT_QHist = dbe_->get("L1TEMU/GMT/GMTErrorFlag");
-  MonitorElement *ECAL_QHist = dbe_->get("L1TEMU/ECAL/ETPErrorFlag");
-  MonitorElement *HCAL_QHist = dbe_->get("L1TEMU/HCAL/HTPErrorFlag");
-  MonitorElement *RCT_QHist = dbe_->get("L1TEMU/RCT/RCTErrorFlag");
-  MonitorElement *GCT_QHist = dbe_->get("L1TEMU/GCT/GCTErrorFlag");
-  MonitorElement *GT_QHist = dbe_->get("L1TEMU/GT/GLTErrorFlag");
 
-  if(DTTF_QHist){
-//    if (DTTF_QHist){
-//      if(!DTTF_QHist->getEntries())  summaryContent[0] = 0; //histogram is empty
-//     else {
-//        const QReport *DTTF_QReport = DTTF_QHist->getQReport("deDiffInXRange_ErrorFlag");
-//        if (DTTF_QReport){
-//          int DTTF_nBadCh = DTTF_QReport->getBadChannels().size();
-//          cout << "DTTF_nBadCh = " << DTTF_nBadCh << endl;
-//	  cout << "getStatus: " << DTTF_QReport->getStatus() << endl;
-//          cout << "getMessage: " << DTTF_QReport->getMessage() << endl;
-//	  const QCriterion *test = DTTF_QReport->getQCriterion();
-//	  float testint = test->runtest();
-//        }
-//     }
-//    }
-
-    if(DTTF_QHist->getEntries())
-      summaryContent[0] = (DTTF_QHist->getBinContent(1)) / (DTTF_QHist->getEntries());
-    else summaryContent[0] = 0;
-    reportSummaryContent_[0]->Fill( summaryContent[0] );
+  MonitorElement* QHist[nsysmon_];   
+  std::string lbl("");  
+  for(int i=0; i<nsysmon_; i++) {
+    lbl.clear();
+    lbl+="L1TEMU/"; lbl+=syslabel_[i]; lbl+="/"; 
+    lbl+=syslabelext_[i]; lbl+="ErrorFlag";
+    QHist[i]=dbe_->get(lbl.data());
+    float pv = -1.;
+    if(!sysmask_[i])
+      pv = setSummary(QHist[i]);
+    summaryContent[i] = pv;
+    reportSummaryContent_[i]->Fill(pv);
   }
 
-  if(DTTPG_QHist){
-
-//    if (DTTPG_QHist){
-//      const QReport *DTTPG_QReport = DTTPG_QHist->getQReport("deDiffInXRange_ErrorFlag");
-//      if (DTTPG_QReport){
-//        int DTTPG_nBadCh = DTTPG_QReport->getBadChannels().size();
-//        cout << "DTTPG_nBadCh = " << DTTPG_nBadCh << endl;
-//      }
-//    }
-
-//    if(DTTPG_QHist->getEntries())
-//      summaryContent[1] = (DTTPG_QHist->getBinContent(1)) / (DTTPG_QHist->getEntries());
-//    else summaryContent[1] = 1;
-    summaryContent[1] = -1;
-    reportSummaryContent_[1]->Fill( summaryContent[1] );
-  }
-
-  if(CSCTF_QHist){
-//    if(CSCTF_QHist->getEntries())
-//      summaryContent[2] = (CSCTF_QHist->getBinContent(1)) / (CSCTF_QHist->getEntries());
-//    else summaryContent[2] = 1;
-    summaryContent[2] = -1;
-    reportSummaryContent_[2]->Fill( summaryContent[2] );
-  }
-
-  if(CSCTPG_QHist){
-    if(CSCTPG_QHist->getEntries())
-      summaryContent[3] = (CSCTPG_QHist->getBinContent(1)) / (CSCTPG_QHist->getEntries());
-    else summaryContent[3] = 0;
-    reportSummaryContent_[3]->Fill( summaryContent[3] );
-  }
-
-  if(RPC_QHist){
-    if(RPC_QHist->getEntries())
-      summaryContent[4] = (RPC_QHist->getBinContent(1)) / (RPC_QHist->getEntries());
-    else summaryContent[4] = 0;
-    reportSummaryContent_[4]->Fill( summaryContent[4] );
-  }
-
-  if(GMT_QHist){
-    if(GMT_QHist->getEntries())
-      summaryContent[5] = (GMT_QHist->getBinContent(1)) / (GMT_QHist->getEntries());
-    else summaryContent[5] = 0;
-    reportSummaryContent_[5]->Fill( summaryContent[5] );
-  }
-
-
-  if(ECAL_QHist){
-//    if(ECAL_QHist->getEntries())
-//     summaryContent[6] = (ECAL_QHist->getBinContent(1)) / (ECAL_QHist->getEntries());
-//    else summaryContent[6] = 1;
-    summaryContent[6] = -1;
-    reportSummaryContent_[6]->Fill( summaryContent[6] );
-  }
- 
- //double ECAL_nEnt = ECAL_QHist->;
-//  if (ECAL_QHist){
-//    const QReport *ECAL_QReport = ECAL_QHist->getQReport("deDiffInXRange_ErrorFlag");
-//    int ECAL_nBadCh = ECAL_QReport->getBadChannels().size();
-//    cout << "RPC_nBadCh = " << ECAL_nBadCh << endl;
-//  }
-
- 
-  if(HCAL_QHist){
-//    if(HCAL_QHist->getEntries())
-//    summaryContent[7] = (HCAL_QHist->getBinContent(1)) / (HCAL_QHist->getEntries());
-//    else summaryContent[7] = 1;
-    summaryContent[7] = -1;
-    reportSummaryContent_[7]->Fill( summaryContent[7] );
-  }
-  
-  if(RCT_QHist){
-    if(RCT_QHist->getEntries())
-      summaryContent[8] = (RCT_QHist->getBinContent(1)) / (RCT_QHist->getEntries());
-    else summaryContent[8] = 0;
-    reportSummaryContent_[8]->Fill( summaryContent[8] );
-  }
-  
-  if(GCT_QHist){
-    if(GCT_QHist->getEntries())
-      summaryContent[9] = (GCT_QHist->getBinContent(1)) / (GCT_QHist->getEntries());
-    else summaryContent[9] = 0;
-    reportSummaryContent_[9]->Fill( summaryContent[9] );
-  }
-
-  if(GT_QHist){
-//    if(GT_QHist->getEntries())
-//      summaryContent[10] = (GT_QHist->getBinContent(1)) / (GT_QHist->getEntries());
-//    else summaryContent[10] = 1;
-    summaryContent[10] = -1;
-    reportSummaryContent_[10]->Fill( summaryContent[10] );
-  }
-  
-
-  for (int i = 0; i < nSubsystems; i++) {    
+  for (int i = 0; i < nsys_; i++) {    
     if(summaryContent[i] != -1)  summarySum += summaryContent[i];
   }
   
-  reportSummary = summarySum / nSubsystems;
-  //cout << "reportSummary " << reportSummary << endl;
+  reportSummary = summarySum / nsys_;
   if (reportSummary_) reportSummary_->Fill(reportSummary);
-
-  //5x4 map
-//   int jcount = 0;
-
-//   //fill the known systems
-//   for (int i = 0; i < nSubsystems; i++) {
-//     cout << "summaryContent[" << i << "]" << summaryContent[i] << endl;
-//     if((i%5)==0)jcount++;
-//     reportSummaryMap_->setBinContent(i%5+1,jcount, summaryContent[i]);
-//   }
-
 
    //12x1 summary map
   for (int i=0; i< 11; i++)
     reportSummaryMap_->setBinContent(1,i+1,summaryContent[i]);
-
-//   //fill the rest
-//   for (int i = 0; i < 5; i++) {    
-//     for (int j = 0; j < 4; j++) {    
-
-//      reportSummaryMap_->setBinContent( i, j, 1. );
-//     }
-//   }
-
 
 }
 
@@ -343,22 +182,6 @@ void L1TEMUEventInfoClient::analyze(const Event& e, const EventSetup& context){
    if (prescaleEvt_>0 && counterEvt_%prescaleEvt_ != 0) return;
 
    if(verbose_) cout << "L1TEMUEventInfoClient::analyze" << endl;
-
-/*
-  MonitorElement *NonIsoEmDeadEtaChannels = dbe_->get("L1T/L1TGCT/NonIsoEmOccEta");
-  int nXChannels = NonIsoEmDeadEtaChannels->getNbinsX();
-  int nYChannels = NonIsoEmDeadEtaChannels->getNbinsY();
-  if(nYChannels) nChannels = nXChannels*nYChannels;
-  
-  if (NonIsoEmDeadEtaChannels){
-    const QReport *NonIsoEmDeadEtaQReport = NonIsoEmDeadEtaChannels->getQReport("DeadChannels");
-    if (NonIsoEmDeadEtaQReport) {
-      int nBadChannels = NonIsoEmDeadEtaQReport->getBadChannels().size();
-      reportSummary = nBadChannels/nChannels;
-    } 
-  }   
-*/ 
-
 }
 
 //--------------------------------------------------------
@@ -369,7 +192,17 @@ void L1TEMUEventInfoClient::endRun(const Run& r, const EventSetup& context){
 void L1TEMUEventInfoClient::endJob(){
 }
 
-
+//set subsystem pv in summary map
+Float_t L1TEMUEventInfoClient::setSummary(MonitorElement* QHist) {
+  bool isempty = QHist->getEntries()==0;
+  //errflag bins: agree, loc agree, loc disagree, data only, emul only
+  if(!isempty)
+    for(int i=1; i<5; i++) 
+      if(QHist->getBinContent(i)>0) 
+	{isempty=false;continue;}
+  return isempty ? -1. : 
+    (QHist->getBinContent(1)) / (QHist->getEntries());
+}
 
 TH1F * L1TEMUEventInfoClient::get1DHisto(string meName, DQMStore * dbi)
 {

@@ -5,13 +5,12 @@
  *
  *  Digi for CSC DCC info available in DDU
  *  
- *  $Date: 2008/02/28 17:54:26 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/07/23 12:08:19 $
+ *  $Revision: 1.4 $
  *
  */
 
 #include <vector>
-#include <iosfwd>
 
 class CSCDCCStatusDigi{
 
@@ -37,6 +36,13 @@ private:
   uint32_t errorFlag_;
 };
 
-std::ostream & operator<<(std::ostream & o, const CSCDCCStatusDigi& digi);
+#include<iostream>
+/// needed by COBRA
+inline std::ostream & operator<<(std::ostream & o, const CSCDCCStatusDigi& digi) {
+  o << " "; 
+  o <<"\n";
+ 
+  return o;
+}
 
 #endif

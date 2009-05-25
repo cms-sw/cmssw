@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <ostream>
 
 #include <boost/shared_ptr.hpp>
 

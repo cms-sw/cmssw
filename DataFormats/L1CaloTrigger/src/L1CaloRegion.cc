@@ -30,13 +30,7 @@ L1CaloRegion::L1CaloRegion(unsigned et, bool fineGrain, unsigned crate, unsigned
 }
 
 // construct from global eta, phi indices
-L1CaloRegion::L1CaloRegion(unsigned et,
-			   bool overFlow, 
-			   bool fineGrain, 
-			   bool mip, 
-			   bool quiet, 
-			   unsigned ieta, 
-			   unsigned iphi) :
+L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet, unsigned ieta, unsigned iphi) :
   m_id(ieta, iphi),
   m_data(0), // over-ridden below
   m_bx(0)
@@ -55,69 +49,6 @@ L1CaloRegion::L1CaloRegion(uint16_t data, unsigned ieta, unsigned iphi, int16_t 
 
 // destructor
 L1CaloRegion::~L1CaloRegion() { }
-
-// named ctors
-
-// for HB/HE from RCT indices
-L1CaloRegion L1CaloRegion::makeHBHERegion(unsigned et, 
-					  bool overFlow, 
-					  bool tauVeto, 
-					  bool mip, 
-					  bool quiet, 
-					  unsigned crate, 
-					  unsigned card, 
-					  unsigned rgn) {
-  L1CaloRegion r;
-  r.setRegionId( L1CaloRegionDetId(crate, card, rgn) );
-  r.setBx(0);
-  r.pack(et, overFlow, tauVeto, mip, quiet);
-  return r;
-}
-
-// for HF from RCT indices
-L1CaloRegion L1CaloRegion::makeHFRegion(unsigned et, 
-					 bool fineGrain, 
-					 unsigned crate, 
-					 unsigned rgn) {
-  L1CaloRegion r;
-  r.setRegionId( L1CaloRegionDetId(crate, 999, rgn) );
-  r.setBx(0);
-  r.pack((et & 0xff), (et >= 0xff), fineGrain, false, false);
-  return r;
-}
-
-// HB/HE/HF from GCT indices
-L1CaloRegion L1CaloRegion::makeRegionFromGctIndices(unsigned et, 
-						    bool overFlow, 
-						    bool fineGrain, 
-						    bool mip, 
-						    bool quiet, 
-						    unsigned ieta, 
-						    unsigned iphi) {
-  L1CaloRegion r;
-  r.setRegionId( L1CaloRegionDetId(ieta, iphi) );
-  r.setBx(0);
-  r.pack(et, overFlow, fineGrain, mip, quiet);
-  return r;
-}
-
-L1CaloRegion L1CaloRegion::makeGctJetRegion(const unsigned et, 
-						 const bool overFlow, 
-						 const bool fineGrain,
-						 const unsigned ieta, 
-						 const unsigned iphi,
-						 const int16_t bx) {
-
-  L1CaloRegion r;
-  r.setRegionId( L1CaloRegionDetId(ieta, iphi) );
-  r.setBx(bx);
-  r.pack12BitsEt(et, overFlow, fineGrain, false, false);
-  return r;
-
-}
-
-
-
 
 // set BX
 void L1CaloRegion::setBx(int16_t bx) {
@@ -140,16 +71,6 @@ void L1CaloRegion::pack(unsigned et, bool overFlow, bool fineGrain, bool mip, bo
   bool checkOvF = overFlow || (et>=0x400);
   m_data = 
     (et & 0x3ff) | 
-    ((checkOvF)  ? 0x400  : 0x0) |
-    ((fineGrain) ? 0x800  : 0x0) |
-    ((mip)       ? 0x1000 : 0x0) |
-    ((quiet)     ? 0x2000 : 0x0);
-}
-
-void L1CaloRegion::pack12BitsEt(unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet) {
-  bool checkOvF = overFlow || (et>=0x400);
-  m_data = 
-    (et & 0xfff) | 
     ((checkOvF)  ? 0x400  : 0x0) |
     ((fineGrain) ? 0x800  : 0x0) |
     ((mip)       ? 0x1000 : 0x0) |

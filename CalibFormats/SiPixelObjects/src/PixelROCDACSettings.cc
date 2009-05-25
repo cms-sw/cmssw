@@ -339,7 +339,7 @@ void PixelROCDACSettings::writeXML(ofstream *out) const {
   std::string mthn = "[PixelROCDACSettings::writeXML()]\t\t\t    " ;
 
   *out << "  <DATA>"                                                  << endl ;
-  *out << "   <ROC_NAME>"    << rocid_.rocname()  << "</ROC_NAME>"    << endl ;
+  *out << "   <NAME_LABEL>"  << rocid_.rocname()  << "</NAME_LABEL>"  << endl ;
   *out << "   <VDD>"	     << (int)Vdd_	  << "</VDD>"	      << endl ;
   *out << "   <VANA>"	     << (int)Vana_	  << "</VANA>"        << endl ;
   *out << "   <VSF>"	     << (int)Vsf_	  << "</VSF>"	      << endl ;
@@ -396,7 +396,6 @@ int PixelROCDACSettings::read(std::istringstream& in, const PixelROCName& rocid)
     unsigned int tmp;
     string tag;
 
-    //    cout << "[PixelROCDACSettings::read()] |" << in.str() << "|" << endl ;
     in >> tag; 
     checkTag(tag,k_DACName_Vdd,rocid);
     in >> tmp; Vdd_=tmp;

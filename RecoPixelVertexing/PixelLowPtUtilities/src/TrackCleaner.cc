@@ -192,7 +192,7 @@ TracksWithRecHits TrackCleaner::cleanTracks
                       tracks[i].second.end(),*recHit) == tracks[i].second.end())
                 tracks[i].second.push_back(*recHit);
 
-            LogTrace("MinBiasTracking") << "   Merge #" << i << " #" << j;
+            LogTrace("MinBiasTracking") << " merge " << i << " " << j;
   
             // Remove second track
             keep[j] = false;
@@ -206,7 +206,7 @@ TracksWithRecHits TrackCleaner::cleanTracks
             else
               keep[i] = false;
 
-            LogTrace("MinBiasTracking") << "   Merge #" << i << " #" << j << " and keep lower chi2";
+            LogTrace("MinBiasTracking") << " merge + keep lower chi2 " << i << " " << j;
   
             changes++;
           }
@@ -220,14 +220,14 @@ TracksWithRecHits TrackCleaner::cleanTracks
               if(tracks[i].second.size() > tracks[j].second.size()) 
                 keep[j] = false; else keep[i] = false; 
               changes++;
-            LogTrace("MinBiasTracking") << "   Sharing " << (*sharing).second << " remove by size";
+            LogTrace("MinBiasTracking") << " sharing " << (*sharing).second << " remove by size";
             }
             else
             { 
               if(tracks[i].first->chi2() < tracks[j].first->chi2())
                 keep[j] = false; else keep[i] = false; 
               changes++;
-            LogTrace("MinBiasTracking") << "   Sharing " << (*sharing).second << " remove by chi2";
+            LogTrace("MinBiasTracking") << " sharing " << (*sharing).second << " remove by chi2";
             } 
           }
         }

@@ -4,8 +4,8 @@
 /*
  * \file EESelectiveReadoutTask.h
  *
- * $Date: 2008/07/28 14:53:43 $
- * $Revision: 1.5 $
+ * $Date: 2008/07/30 16:22:22 $
+ * $Revision: 1.6 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -238,7 +238,7 @@ edm::InputTag EEUnsuppressedDigiCollection_;
 edm::InputTag EcalRecHitCollection_;
 edm::InputTag EESRFlagCollection_;
 edm::InputTag EcalTrigPrimDigiCollection_;
-edm::InputTag EcalFEDRawCollection_;
+edm::InputTag FEDRawDataCollection_;
 
 MonitorElement* EEDccEventSize_;
 MonitorElement* EEReadoutUnitForcedBitMap_[2];

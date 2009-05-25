@@ -1,15 +1,15 @@
 /** \class SteppingHelixStateInfo
  *  Implementation part of the stepping helix propagator state data structure
  *
- *  $Date: 2007/07/20 15:47:14 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/10/09 01:33:10 $
+ *  $Revision: 1.11 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.cc,v 1.10 2007/07/20 15:47:14 slava77 Exp $
+// $Id: SteppingHelixStateInfo.cc,v 1.11 2007/10/09 01:33:10 slava77 Exp $
 //
 //
 
@@ -63,7 +63,11 @@ TrajectoryStateOnSurface SteppingHelixStateInfo::getStateOnSurface(const Surface
   FreeTrajectoryState fts(tPars, tCov, tCCov);
   if (! hasErrorPropagated_) fts = FreeTrajectoryState(tPars);
 
-  return TrajectoryStateOnSurface(fts, returnTangentPlane ? *surf.tangentPlane(fts.position()) : surf);
+
+  SurfaceSideDefinition::SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface;
+  if ( dir > 0 ) side =  SurfaceSideDefinition::beforeSurface;
+  if ( dir < 0 ) side =  SurfaceSideDefinition::afterSurface;
+  return TrajectoryStateOnSurface(fts, returnTangentPlane ? *surf.tangentPlane(fts.position()) : surf, side);
 }
 
 

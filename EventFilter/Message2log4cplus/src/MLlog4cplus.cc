@@ -5,14 +5,18 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: MLlog4cplus.cc,v 1.8 2007/08/08 08:00:10 meschi Exp $
+// $Id: MLlog4cplus.cc,v 1.7 2007/07/25 22:50:56 wmtan Exp $
 //
 
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageService/interface/NamedDestination.h"
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "EventFilter/Message2log4cplus/interface/ELlog4cplus.h"
 #include "EventFilter/Message2log4cplus/interface/MLlog4cplus.h"
 
+#include <iostream>
 
 
 using namespace edm;

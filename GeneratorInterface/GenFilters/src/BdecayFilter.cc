@@ -109,7 +109,7 @@ bool BdecayFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if( (numChildren==2) && ((jpsi = findParticle(outVertex, firstDaughter.type))!=0) && 
 	((phi = findParticle(outVertex, secondDaughter.type))!=0)) {
       
-      cout << jpsi->momentum().mag() <<" "<<jpsi->momentum().eta() <<" "<<phi->momentum().mag()<<" "<<phi->momentum().eta()<<endl;
+      cout << jpsi->momentum()<<" "<<jpsi->momentum().eta() <<" "<<phi->momentum()<<" "<<phi->momentum().eta()<<endl;
       //cout <<"bs dec trouve"<<endl;
       if (cuts(phi, secondDaughter) && cuts(jpsi, firstDaughter)) {
         cout <<"decay found"<<endl;

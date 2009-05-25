@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/25 08:21:37 $
- *  $Revision: 1.25 $
+ *  $Date: 2008/10/07 14:26:43 $
+ *  $Revision: 1.26 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -36,6 +36,7 @@ using namespace std;
 DTLocalTriggerTest::DTLocalTriggerTest(const edm::ParameterSet& ps){
 
   setConfig(ps,"DTLocalTrigger");
+  baseFolder = "DT/03-LocalTrigger/";
 
 }
 
@@ -137,13 +138,10 @@ void DTLocalTriggerTest::runClientDiagnostic() {
 		double trigsFlag2nd = Flag1st->GetBinContent(2);
 		double trigs = Flag1st->GetEntries();
 		double besttrigs = BestQual->GetEntries();
-		double besttrigsCorr = 0;
+		double besttrigsCorr = BestQual->Integral(5,7,"");
 		delete BXHH;
 		delete Flag1st;
-
-		for (int i=5;i<=7;++i)
-		  besttrigsCorr+=BestQual->GetBinContent(i);
-
+		
 		double corrFrac   = besttrigsCorr/besttrigs;
 		double secondFrac = trigsFlag2nd/trigs;
 		if (corrFrac < parameters.getUntrackedParameter<double>("corrFracError",.5)){

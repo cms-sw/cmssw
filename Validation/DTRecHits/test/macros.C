@@ -124,6 +124,7 @@ void drawGFit(TH1 * h1, float min, float max){
 // Fit a histogram in the range (minfit, maxfit) with a gaussian and
 // draw it in the range (min, max)
 void drawGFit(TH1 * h1, float min, float max, float minfit, float maxfit) {
+  cout << "h1 " << h1<< endl;
   setStyle(h1);
   static int i = 0;
   i++;

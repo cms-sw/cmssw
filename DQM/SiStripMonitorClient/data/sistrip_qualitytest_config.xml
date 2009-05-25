@@ -57,18 +57,6 @@
      <PARAM name="xmin">0.0</PARAM>
      <PARAM name="xmax">15.0</PARAM>
 </QTEST>
-<QTEST name="Comp2RefChi2:TrkEta">
-        <TYPE>Comp2RefChi2</TYPE>
-        <PARAM name="testparam">0</PARAM>
-        <PARAM name="error">0.20</PARAM>
-        <PARAM name="warning">0.30</PARAM>
-</QTEST>
-<QTEST name="Comp2RefChi2:TrkPhi">
-        <TYPE>Comp2RefChi2</TYPE>
-        <PARAM name="testparam">0</PARAM>
-        <PARAM name="error">0.20</PARAM>
-        <PARAM name="warning">0.30</PARAM>
-</QTEST>
 <LINK name="*NumberOfDigis__det__*"> 
   <TestName activate="true">MeanWithinExpectedRange:Digi</TestName> 
 </LINK>
@@ -89,11 +77,5 @@
 </LINK>
 <LINK name="*Chi2overDoF_*">
   <TestName activate="true">XrangeWithin:TrkRecHit</TestName>
-</LINK>
-<LINK name="*TrackEta_*">
-  <TestName activate="true">Comp2RefChi2:TrkEta</TestName>
-</LINK>
-<LINK name="*TrackPhi_*">
-  <TestName activate="true">Comp2RefChi2:TrkPhi</TestName>
 </LINK>
 </TESTCONFIGURATION>

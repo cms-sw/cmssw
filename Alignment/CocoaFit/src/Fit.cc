@@ -28,7 +28,6 @@
 #include "Alignment/CocoaModel/interface/ErrorCorrelation.h"
 #include "Alignment/CocoaModel/interface/FittedEntriesReader.h"
 #include "Alignment/CocoaDaq/interface/CocoaDaqReader.h"
-#include "Alignment/CocoaFit/interface/CocoaDBMgr.h"
 #include <stdlib.h>
 #include <iomanip>
 #include <math.h>
@@ -59,8 +58,6 @@ ALIdouble Fit::theRelativeFitQualityCut = -1;
 ALIint Fit::theNoFitIterations;
 ALIint Fit::MaxNoFitIterations = -1;
 ALIdouble Fit::theMinDaFactor = 1.e-8;
-
-ALIuint Fit::nEvent = 1;
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@  Gets the only instance of Model
@@ -102,43 +99,32 @@ Fit& Fit::getInstance()
 void Fit::startFit()
 { 
   //  Model::setCocoaStatus( COCOA_InitFit );
-  NtupleManager* NTmgr = NtupleManager::getInstance();
-  if(GlobalOptionMgr::getInstance()->GlobalOptions()["rootResults"] > 0) {
-    NTmgr->BookNtuple();
-  }
 
+  NtupleManager* NTmgr = NtupleManager::getInstance();
+  NTmgr->BookNtuple();
+
+  ALIuint nEvent = 0;
   ALIUtils::setFirstTime( 1 );
 
   WriteVisualisationFiles();
 
-  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
   for(;;) {
 
-    bool bend = fitNextEvent( nEvent );
-    if(gomgr->GlobalOptions()["writeDBOptAlign"] > 0 || gomgr->GlobalOptions()["writeDBAlign"] > 0) {
-      CocoaDBMgr::getInstance()->DumpCocoaResults();
-    }
-
-    if( !bend ){
-      if ( ALIUtils::debug >= 1) std::cout << "@@@ Fit::startFit  ended  n events = " << nEvent << std::endl;
-      break;
-    }
+    if( !fitNextEvent( nEvent ) ) break;
 
     //-    if ( ALIUtils::debug >= 0) std::cout << " FIT STATUS " << Model::printCocoaStatus( Model::getCocoaStatus() ) << std::endl;
-
-    nEvent++;
 
   }
 
   //---------- Program ended, fill histograms of fitted entries
+  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
   if(gomgr->GlobalOptions()["histograms"] > 0) {
     FittedEntriesManager* FEmgr = FittedEntriesManager::getInstance();
     FEmgr->MakeHistos();
   }
 
-  if(GlobalOptionMgr::getInstance()->GlobalOptions()["rootResults"] > 0) {
-    NTmgr->WriteNtuple();
-  }  
+  NTmgr->WriteNtuple();
+
 }
 
 
@@ -170,10 +156,10 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
   ALIbool moreDataSets = 1;
   if(CocoaDaqReader::GetDaqReader() != 0) moreDataSets = CocoaDaqReader::GetDaqReader()->ReadNextEvent();
   
-  if(ALIUtils::debug >= 5)  std::cout << CocoaDaqReader::GetDaqReader() << "$$$$$$$$$$$$$$$ More Data Sets to be processed: " << moreDataSets << std::endl;
+  if(ALIUtils::debug >= 2)  std::cout << CocoaDaqReader::GetDaqReader() << "$$$$$$$$$$$$$$$ moreData Sets " << moreDataSets << std::endl;
   
   if( moreDataSets ) {
-    if( ALIUtils::debug >= 2 ) std::cout << std::endl << "@@@@@@@@@@@@@@@@@@ Starting data set fit : " << nEvent << std::endl;
+    if( ALIUtils::debug >= 2 ) std::cout << "@@@@@@@@@@@@@@@@@@ Starting data set fit ..." << nEvent << std::endl;
 
     //----- Count entries to be fitted, and set their order in theFitPos
     setFittableEntries();
@@ -194,10 +180,6 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
     double daFactor = 1.;
     Model::setCocoaStatus(COCOA_FirstIterationInEvent );
     for(;; ){
-      if(ALIUtils::debug >= 2) {
-	std::cout << std::endl << "Fit iteration " << theNoFitIterations << " ..." << std::endl;
-      }
-      
     //---------- Calculate the original simulated values of each Measurement (when all entries have their read in values)
       calculateSimulatedMeasurementsWithOriginalValues(); //?? original changed atfer each iteration
    
@@ -206,13 +188,8 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
 
       //-      evaluateFitQuality( fq, daFactor );
 
-      if(ALIUtils::debug >= 2) {
-	std::cout << std::endl << "@@@@ Check fit quality for iteration " << theNoFitIterations << std::endl;
-      }
-
       //----- Check if new iteration must be done
       if( fq == FQsmallDistanceToMinimum ) {
-	if(ALIUtils::debug >= 2) std::cout << std::endl << "@@@@ Fit quality: distance SMALLER than mininum " << std::endl;
 	addDaMatrixToEntries();
 	if(ALIUtils::report >= 1) dumpFittedValues( ALIFileOut::getInstance( Model::ReportFName() ), TRUE, TRUE );
 	//--- Print entries in all ancestor frames
@@ -222,7 +199,6 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
 
 	break;  // No more iterations
       } else if( fq == FQbigDistanceToMinimum ) {
-	if(ALIUtils::debug >= 2) std::cout << std::endl << "@@@@ Fit quality: distance BIGGER than mininum " << std::endl;
 	addDaMatrixToEntries();
 	if(ALIUtils::report >= 1) dumpFittedValues( ALIFileOut::getInstance( Model::ReportFName() ), TRUE, TRUE );
 
@@ -232,7 +208,7 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
 
 	//----- Too many iterations: end event here
 	if( theNoFitIterations >= MaxNoFitIterations ) {
-	  if(ALIUtils::debug >= 1) std::cerr << "!!!! WARNING: Too many iterations " << theNoFitIterations << "  and fit DOES NOT CONVERGE " << std::endl;
+	  std::cerr << "!!!! WARNING: Too many iterations " << theNoFitIterations << "  and fit DOES NOT CONVERGE " << std::endl;
  
 	  if(ALIUtils::report >= 2) {
 	    ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
@@ -243,11 +219,8 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
 	}
 
       } else if( fq == FQchiSquareWorsened ) {
-	if(ALIUtils::debug >= 1) {
 	//----- Recalculate fit quality with decreasing values of Da
-	  std::cerr << "!! WARNING: fit quality has worsened, Recalculate fit quality with decreasing values of Da " << std::endl;
-	  std::cout << " quality daFactor= " << daFactor << " minimum= " << theMinDaFactor << std::endl;
-	}
+	//	std::cout << " quality daFactor " << daFactor << " " << theMinDaFactor << std::endl;
 	daFactor *= 0.5;      
 	if( daFactor > theMinDaFactor ){
 	  substractLastDisplacementToEntries( 0.5 );
@@ -278,15 +251,13 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
        FittedEntriesManager::getInstance()->AddFittedEntriesSet( new FittedEntriesSet( AtWAMatrix ) );
     }
     
-    if(GlobalOptionMgr::getInstance()->GlobalOptions()["rootResults"] > 0) {
-      NtupleManager* ntupleMgr = NtupleManager::getInstance();
-      ntupleMgr->InitNtuple();
-      ntupleMgr->FillChi2();
-      ntupleMgr->FillOptObjects(AtWAMatrix);
-      ntupleMgr->FillMeasurements();
-      ntupleMgr->FillFitParameters(AtWAMatrix);
-      ntupleMgr->FillNtupleTree();
-    }
+    NtupleManager* ntupleMgr = NtupleManager::getInstance();
+    ntupleMgr->InitNtuple();
+    ntupleMgr->FillChi2();
+    ntupleMgr->FillOptObjects(AtWAMatrix);
+    ntupleMgr->FillMeasurements();
+    ntupleMgr->FillFitParameters(AtWAMatrix);
+    ntupleMgr->FillNtupleTree();
 
     //- only if not stopped in worsening quality state        if(ALIUtils::report >= 0) dumpFittedValues( ALIFileOut::getInstance( Model::ReportFName() ));
     
@@ -299,33 +270,20 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
     //-      std::cout << " Measurement::measurementsFileName() " << Measurement::measurementsFileName() << " Measurement::measurementsFileName()" <<std::endl;
     if( CocoaDaqReader::GetDaqReader() == 0 ) {
       //m    if( Measurement::measurementsFileName() == "" ) {
-  if( ALIUtils::debug >= 1 ) std::cout << std::endl << "@@@@@@@@@@@@@@@@@@ Fit has ended : only one measurement " << nEvent << std::endl;
       lastEvent = 1;
       return !lastEvent;
     }
     
     //-      std::cout << "  Measurement::only1" <<  Measurement::only1 << std::endl;
     if( Measurement::only1 ) {
-      if( ALIUtils::debug >= 1 ) std::cout << std::endl << "@@@@@@@@@@@@@@@@@@ Fit has ended : 'Measurement::only1'  is set" << std::endl;
-
       lastEvent = 1;
       return !lastEvent;
     }
-
-    if(GlobalOptionMgr::getInstance()->GlobalOptions()["maxEvents"] <= nEvent ){
-      if( ALIUtils::debug >= 1 ) std::cout << std::endl << "@@@@@@@@@@@@@@@@@@ Fit has ended : 'Number of events exhausted " << nEvent << std::endl;
-
-      lastEvent = 1;
-      return !lastEvent;
-    }
-
+    nEvent++;
   } else {
     lastEvent = 1;
-    if( ALIUtils::debug >= 1 ) std::cout << std::endl << "@@@@@@@@@@@@@@@@@@ Fit has ended : ´no more data sets' " << nEvent << std::endl;
     return !lastEvent;
   }
-
-  if( ALIUtils::debug >= 1 ) std::cout << std::endl << "@@@@@@@@@@@@@@@@@@ Fit has ended : " << nEvent << std::endl;
 
   return !lastEvent;
 }
@@ -365,7 +323,7 @@ void Fit::setFittableEntries()
 
   GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
   theMinimumEntryQuality = int(gomgr->GlobalOptions()[ALIstring("calcul_type")]) + 1;
-  if ( ALIUtils::debug >= 3) std::cout << "@@@ Fit::setFittableEntries: total Entry List size= " << Model::EntryList().size() << std::endl;
+  if ( ALIUtils::debug >= 4) std::cout << "Fit::setFittableEntries: total Entry List size= " << Model::EntryList().size() << std::endl;
 
   int No_entry_to_fit = 0;
   for ( vecite = Model::EntryList().begin();
@@ -388,9 +346,13 @@ void Fit::setFittableEntries()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 FitQuality Fit::fitParameters( const double daFactor )
 {
-  if(ALIUtils::debug >= 3) std::cout << "@@@ Fit::fitParameters: Fit quality daFactor " << daFactor << std::endl;
-
   redoMatrices();
+
+  if(ALIUtils::debug >= 2) std::cout << " Fit quality daFactor " << daFactor << std::endl;
+
+  if(ALIUtils::debug >= 0) {
+    std::cout << std::endl << "Fit iteration " << theNoFitIterations << " ..." << std::endl;
+  }
 
 
   //---- Get chi2 of first iteration
@@ -425,8 +387,6 @@ FitQuality Fit::fitParameters( const double daFactor )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Fit::redoMatrices()
 {
-  if(ALIUtils::debug >= 3) std::cout << "@@@ Fit::redoMatrices" << std::endl;
-
   deleteMatrices(); 
 
   calculateSimulatedMeasurementsWithOriginalValues();
@@ -442,7 +402,6 @@ void Fit::redoMatrices()
 //cocoaStatus
 void Fit::PropagateErrors()
 {
-  if(ALIUtils::debug >= 3) std::cout << "@@@ Fit::PropagateErrors" << std::endl;
 
   //----- Create empty matrices of appropiate size
   CreateMatrices();
@@ -458,7 +417,7 @@ void Fit::PropagateErrors()
 
   //---- count running time
   now = clock();
-  if(ALIUtils::debug >= 2) std::cout << "TIME:MAT_MEAS_FILLED: " << now << " " << difftime(now, ALIUtils::time_now())/1.E6 << std::endl;
+  if(ALIUtils::debug >= 0) std::cout << "TIME:MAT_MEAS_FILLED: " << now << " " << difftime(now, ALIUtils::time_now())/1.E6 << std::endl;
   ALIUtils::set_time_now(now); 
 
   //----- Fill the A, W & y matrices with the calibrated parameters
@@ -503,6 +462,7 @@ void Fit::PropagateErrors()
 
   if( ALIUtils::getFirstTime() == 1) ALIUtils::setFirstTime( 0 );
 
+
 }
 
 
@@ -516,7 +476,7 @@ void Fit::calculateSimulatedMeasurementsWithOriginalValues()
   //---------- Set DeviationsFromFileSensor2D::apply true
   DeviationsFromFileSensor2D::setApply( 1 );
 
-  if(ALIUtils::debug >= 3) std::cout << "@@@ Fit::calculateSimulatedMeasurementsWithOriginalValues" <<std::endl;
+  if(ALIUtils::debug >= 2) std::cout << "Fit::calculateSimulatedMeasurementsWithOriginalValues" <<std::endl;
   //---------- Loop Measurements
   std::vector< Measurement* >::const_iterator vmcite;
   for ( vmcite = Model::MeasurementList().begin(); vmcite != Model::MeasurementList().end(); vmcite++) {
@@ -622,7 +582,6 @@ void Fit::CreateMatrices()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Fit::FillMatricesWithMeasurements() 
 {
-  if(ALIUtils::debug >= 3) std::cout << "@@@ Fit::FillMatricesWithMeasurements" << std::endl;
 
   int Aline = 0; 
 
@@ -705,8 +664,6 @@ void Fit::FillMatricesWithMeasurements()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Fit::FillMatricesWithCalibratedParameters() 
 {
-  if(ALIUtils::debug >= 3) std::cout << "@@@ Fit::FillMatricesWithCalibratedParameters" << std::endl;
-
   //---------- Count how many measurements 
   ALIint NolinMes = 0;
   std::vector<Measurement*>::const_iterator vmcite;
@@ -766,8 +723,6 @@ void Fit::FillMatricesWithCalibratedParameters()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Fit::setCorrelationsInWMatrix()
 {  
-  if(ALIUtils::debug >= 3) std::cout << "@@@ Fit::setCorrelationsInWMatrix" << std::endl;
-
   //----- Check if there are correlations to input
   ErrorCorrelationMgr* corrMgr = ErrorCorrelationMgr::getInstance();
   ALIint siz = corrMgr->getNumberOfCorrelations();
@@ -817,7 +772,7 @@ void Fit::setCorrelationFromParamFitted( const ALIint fit_pos1, const ALIint fit
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Fit::multiplyMatrices() 
 {
-  if(ALIUtils::debug >= 3) std::cout << "@@@ Fit::multiplyMatrices " << std::endl;
+  if(ALIUtils::debug >= 4) std::cout << "@@Multiplying matrices " << std::endl;
   //---------- Calculate transpose of A
   AtMatrix = new ALIMatrix( *AMatrix );
   if(ALIUtils::debug >= 5) AtMatrix->Dump("AtMatrix=A");
@@ -896,7 +851,6 @@ void Fit::multiplyMatrices()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 FitQuality Fit::getFitQuality( const ALIbool canBeGood ) 
 {
-  if(ALIUtils::debug >= 3) std::cout << "@@@ Fit::getFitQuality" << std::endl;
 
   double fit_quality = GetSChi2(1);
 
@@ -936,7 +890,6 @@ FitQuality Fit::getFitQuality( const ALIbool canBeGood )
 
   //-  double fit_quality_cut = thePreviousIterationFitQuality - fit_quality;
   //- double fit_quality_cut = fit_quality;
-  //-  std::cout << "  fit_quality_cut " <<  fit_quality_cut << " fit_quality " << fit_quality << std::endl;
   
   //----- Check quality 
   time_t now;
@@ -950,38 +903,34 @@ FitQuality Fit::getFitQuality( const ALIbool canBeGood )
   //    if( theNoFitIterations != 0 && fit_quality_cut > 0. ) {
   if( fit_quality_cut < 0. ) {
     fitQuality = FQchiSquareWorsened;
-    if(ALIUtils::debug >= 1) std::cerr << "!!WARNING: Fit quality has worsened: Fit Quality now = " << fit_quality
+   if(ALIUtils::debug >= 0) std::cerr << "!!WARNING: Fit quality has worsened: Fit Quality now = " << fit_quality
 	      << " before " << thePreviousIterationFitQuality << " diff " << fit_quality - thePreviousIterationFitQuality << std::endl;
 
   //----- Chi2 is smaller, check if we make another iteration    
   } else {
-    ALIdouble rel_fit_quality = fabs(thePreviousIterationFitQuality - fit_quality)/fit_quality;
-   //----- Small chi2 change: end
-    if( (fit_quality_cut < theFitQualityCut || rel_fit_quality < theRelativeFitQualityCut ) && canBeGood ) {
-      if(ALIUtils::debug >= 2) std::cout << "$$ Fit::getFitQuality good " << fit_quality_cut << " <? " << theFitQualityCut 
-					 << " || " << rel_fit_quality << " <? " << theRelativeFitQualityCut << " GOOD " << canBeGood << std::endl; 
+    //----- Small chi2 change: end
+    if( (fit_quality_cut < theFitQualityCut || fabs(thePreviousIterationFitQuality - fit_quality_cut )/fit_quality_cut < theRelativeFitQualityCut ) && canBeGood ) {
       fitQuality = FQsmallDistanceToMinimum;
       if(ALIUtils::report >= 1) {
 	ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
-	fileout << "STOP: SMALL IMPROVEMENT IN ITERATION " << theNoFitIterations << " = " << fit_quality_cut << " < " << theFitQualityCut << " OR (RELATIVE) " << rel_fit_quality << " < " << theRelativeFitQualityCut << std::endl;
+	fileout << "STOP: SMALL IMPROVEMENT IN ITERATION " << theNoFitIterations << " = " << fit_quality_cut << " < " << theFitQualityCut << std::endl;
       }
       if(ALIUtils::debug >= 4) {
-	std::cout << "STOP: SMALL IMPROVEMENT IN ITERATION " << theNoFitIterations << " = " << fit_quality_cut << " < " << theFitQualityCut << " OR (RELATIVE) " << rel_fit_quality << " < " << theRelativeFitQualityCut << std::endl;
+	std::cout << "STOP: SMALL IMPROVEMENT IN ITERATION " << theNoFitIterations << " = " << fit_quality_cut << " < " << theFitQualityCut << std::endl;
       }
       
       //----- Big chi2 change: go to next iteration
     } else {
-      if(ALIUtils::debug >= 2) std::cout << "$$ Fit::getFitQuality bad " << fit_quality_cut << " <? " << theFitQualityCut << " || " << rel_fit_quality << " <? " << theRelativeFitQualityCut << " GOOD " << canBeGood << std::endl; 
       fitQuality = FQbigDistanceToMinimum;
       //----- set thePreviousIterationFitQuality for next iteration 
       thePreviousIterationFitQuality = fit_quality;     
       
       if(ALIUtils::report >= 2) {
 	ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
-	fileout << "CONTINUE: BIG IMPROVEMENT IN ITERATION " << theNoFitIterations << " = " << fit_quality_cut << " >= " << theFitQualityCut << " AND (RELATIVE) " << rel_fit_quality << " >= " << theRelativeFitQualityCut << std::endl;
+	fileout << "CONTINUE: BIG IMPROVEMENT IN ITERATION " << theNoFitIterations << " = " << fit_quality_cut << " >= " << theFitQualityCut << std::endl;
       }
       if(ALIUtils::debug >= 4) {
-	std::cout << "CONTINUE: BIG IMPROVEMENT IN ITERATION " << theNoFitIterations << " = " << fit_quality_cut << " >= " << theFitQualityCut << " AND (RELATIVE) " << rel_fit_quality << " >= " << theRelativeFitQualityCut << std::endl;
+	std::cout << "CONTINUE: BIG IMPROVEMENT IN ITERATION " << theNoFitIterations << " = " << fit_quality_cut << " >= " << theFitQualityCut << std::endl;
       } 
     }
   }
@@ -993,8 +942,6 @@ FitQuality Fit::getFitQuality( const ALIbool canBeGood )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ALIdouble Fit::GetSChi2( ALIbool useDa )
 {
-  if(ALIUtils::debug >= 3) std::cout << "@@@ Fit::GetSChi2  useDa= " << useDa << std::endl;
-
   ALIMatrix* SMat = 0;
   if( useDa ){
     //----- Calculate variables to check quality of this set of parameters
@@ -1044,7 +991,7 @@ ALIdouble Fit::GetSChi2( ALIbool useDa )
   }
   ALIdouble fit_quality = (*SMat)(0,0);
   delete SMat;
-  if(ALIUtils::debug >= 5) std::cout << " GetSChi2 = " << fit_quality << std::endl;
+  if(ALIUtils::debug >= 5) std::cout << " GetSChi2 " << useDa << " = " << fit_quality << std::endl;
 
   PrintChi2( fit_quality, !useDa );
 
@@ -1142,7 +1089,7 @@ void Fit::dumpFittedValues( ALIFileOut& fileout, ALIbool printErrors, ALIbool pr
 {
   //---------- print
   if(ALIUtils::debug >= 0) {
-    std::cout << "SRPRPOS " << "               Optical Object  " 
+    std::cout << "SRPARPOS " << "               Optical Object  " 
          << "      Parameter" <<  " Fit.Value " << " Orig.Value" << std::endl;
   }
   //---------- Dump header
@@ -1478,7 +1425,7 @@ void Fit::PrintChi2( ALIdouble fit_quality, ALIbool isFirst )
       nMeas++;
       double c2 = ( (*vmcite)->value(ii) - (*vmcite)->valueSimulated(ii) ) / (*vmcite)->sigma(ii);
       chi2meas += c2*c2; 
-      if( ALIUtils::debug >= 2) {
+      if( ALIUtils::debug >= 0) {
 	std::cout << c2 << " adding chi2meas "  << chi2meas << " " << (*vmcite)->name() << ": " << ii << " (mm)R: " << (*vmcite)->value(ii)*1000. << " S: " << (*vmcite)->valueSimulated(ii)*1000. << " Diff= " << ((*vmcite)->value(ii) - (*vmcite)->valueSimulated(ii))*1000. << std::endl;
       }
     }
@@ -1493,7 +1440,7 @@ void Fit::PrintChi2( ALIdouble fit_quality, ALIbool isFirst )
       double c2 = (*veite)->valueDisplacementByFitting() / (*veite)->sigma();
       //double c2 = (*veite)->value() / (*veite)->sigma();
       chi2cal += c2*c2;
-      if( ALIUtils::debug >= 2) std::cout << c2 << " adding chi2cal "  << chi2cal << " " << (*veite)->OptOCurrent()->name() << " " << (*veite)->name() << std::endl;
+      if( ALIUtils::debug >= 0) std::cout << c2 << " adding chi2cal "  << chi2cal << " " << (*veite)->OptOCurrent()->name() << " " << (*veite)->name() << std::endl;
       //-	std::cout << " valueDisplacementByFitting " << (*veite)->valueDisplacementByFitting() << " sigma " << (*veite)->sigma() << std::endl;
     }
   }
@@ -1509,7 +1456,7 @@ void Fit::PrintChi2( ALIdouble fit_quality, ALIbool isFirst )
     //    double fit_quality_change = thePreviousIterationFitQuality - fit_quality;
     
     if(ALIUtils::debug >= 0) { 
-      std::cout << std::endl << "@@@@ Fit iteration " << theNoFitIterations << " ..." << std::endl;
+      std::cout << std::endl << "Fit iteration " << theNoFitIterations << " ..." << std::endl;
       //      std::cout << theNoFitIterations << " Chi2 improvement in this iteration = " << fit_quality_change << std::endl;
     }
     if( ALIUtils::report >= 1 ) {
@@ -1532,8 +1479,6 @@ void Fit::PrintChi2( ALIdouble fit_quality, ALIbool isFirst )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Fit::CheckIfFitPossible()
 {   
-  if(ALIUtils::debug >= 3) std::cout << "@@@ Fit::CheckIfFitPossible" << std::endl;
-
   //----- Check if there is an unknown parameter that is not affecting any measurement
   ALIint NolinMes = 0;
   std::vector<Measurement*>::const_iterator vmcite;
@@ -1544,17 +1489,17 @@ void Fit::CheckIfFitPossible()
   
   std::vector< Entry* >::const_iterator vecite;
   for ( vecite = Model::EntryList().begin(); vecite != Model::EntryList().end(); vecite++ ) {
-    if( ALIUtils::debug >= 4 ) std::cout << "Fit::CheckIfFitPossible looping for entry " << (*vecite)->longName() << std::endl;
+    if( ALIUtils::debug >= 3 ) std::cout << "Fit::CheckFitIsPossible looping for entry " << (*vecite)->longName() << std::endl;
     if ( (*vecite)->quality() == 2 ) {
       ALIint nCol =  (*vecite)->fitPos();
       //--- Check all measurements
       ALIbool noDepend = TRUE;
-      if( ALIUtils::debug >= 4 ) std::cout << "Fit::CheckIfFitPossible looping for entry " << nCol << std::endl;
+      if( ALIUtils::debug >= 3 ) std::cout << "Fit::CheckFitIsPossible looping for entry " << nCol << std::endl;
       for( ALIint ii = 0; ii < NolinMes; ii++ ) {
-        if( ALIUtils::debug >= 5 ) std::cout << " Derivative= (" << ii << "," << nCol << ") = " << (*AMatrix)(ii,nCol)  << std::endl;
+        if( ALIUtils::debug >= 4 ) std::cout << ii << "Derivative " <<  (*AMatrix)(ii,nCol)  << std::endl;
 
         if( fabs((*AMatrix)(ii,nCol)) > ALI_DBL_MIN ) {
-          if( ALIUtils::debug >= 5 ) std::cout << "Fit::CheckIfFitIsPossible " << nCol << " " << ii << " = " << (*AMatrix)(ii,nCol) << std::endl;
+          if( ALIUtils::debug >= 3 ) std::cout << "Fit::CheckIfFitIsPossible " << nCol << " " << ii << " = " << (*AMatrix)(ii,nCol) << std::endl;
           noDepend = FALSE;
           break;
         }

@@ -1,8 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import MuonServiceProxy
+from Validation.RecoMuon.selectors_cff import muonTPSet
 
-recoMuonValidator = cms.EDFilter("RecoMuonValidator",
+recoMuonValidator = cms.EDAnalyzer("RecoMuonValidator",
     MuonServiceProxy,
+    tpSelector = muonTPSet,
 
     simLabel = cms.InputTag("mergedtruth","MergedTrackTruth"),
     trkMuLabel = cms.InputTag("generalTracks"),

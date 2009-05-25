@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <utility>
+#include <cstring>
 #include <string>
 #include <vector>
 #include <map>
@@ -31,10 +32,10 @@ TreeReader::TreeReader(const TreeReader &orig)
 	this->operator = (orig);
 }
 
-TreeReader::TreeReader(TTree *tree) :
+TreeReader::TreeReader(TTree *tree, bool skipTarget, bool skipWeight) :
 	tree(tree), upToDate(false)
 {
-	automaticAdd();
+	automaticAdd(skipTarget, skipWeight);
 }
 
 TreeReader::~TreeReader()
@@ -237,7 +238,7 @@ void TreeReader::addTypeMulti(AtomicId name, const void *value, char type)
 	upToDate = false;
 }
 
-void TreeReader::automaticAdd()
+void TreeReader::automaticAdd(bool skipTarget, bool skipWeight)
 {
 	if (!tree)
 		throw cms::Exception("NoTreeAvailable")
@@ -249,6 +250,14 @@ void TreeReader::automaticAdd()
 	while((obj = iter())) {
 		TBranch *branch = dynamic_cast<TBranch*>(obj);
 		if (!branch)
+			continue;
+
+		if (skipTarget &&
+		    !std::strcmp(branch->GetName(), "__TARGET__"))
+			continue;
+
+		if (skipWeight &&
+		    !std::strcmp(branch->GetName(), "__WEIGHT__"))
 			continue;
 
 		addBranch(branch);

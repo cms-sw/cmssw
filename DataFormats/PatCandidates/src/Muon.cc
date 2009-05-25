@@ -1,9 +1,9 @@
 //
-// $Id: Muon.cc,v 1.14 2008/10/10 13:55:55 lowette Exp $
+// $Id: Muon.cc,v 1.15.2.2 2009/03/19 17:33:27 lusito Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
-
+#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace pat;
 
@@ -14,8 +14,12 @@ Muon::Muon() :
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
-    embeddedPFCandidate_(false),
-    pfCandidateRef_()
+    embeddedPickyMuon_(false),
+    embeddedTpfmsMuon_(false),
+    pickyMuonRef_(),
+    tpfmsMuonRef_(),
+    embeddedPFCandidate_(false)
+    //pfCandidateRef_()
 {
 }
 
@@ -26,8 +30,12 @@ Muon::Muon(const MuonType & aMuon) :
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
-    embeddedPFCandidate_(false),
-    pfCandidateRef_()
+    embeddedPickyMuon_(false),
+    embeddedTpfmsMuon_(false),
+    pickyMuonRef_(),
+    tpfmsMuonRef_(),
+    embeddedPFCandidate_(false)
+    //pfCandidateRef_()
 {
 }
 
@@ -38,8 +46,12 @@ Muon::Muon(const edm::RefToBase<MuonType> & aMuonRef) :
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
-    embeddedPFCandidate_(false),
-    pfCandidateRef_()
+    embeddedPickyMuon_(false),
+    embeddedTpfmsMuon_(false),
+    pickyMuonRef_(),
+    tpfmsMuonRef_(),
+    embeddedPFCandidate_(false)
+    //pfCandidateRef_()
 {
 }
 
@@ -50,8 +62,12 @@ Muon::Muon(const edm::Ptr<MuonType> & aMuonRef) :
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
-    embeddedPFCandidate_(false),
-    pfCandidateRef_()
+    embeddedPickyMuon_(false),
+    embeddedTpfmsMuon_(false),
+    pickyMuonRef_(),
+    tpfmsMuonRef_(),
+    embeddedPFCandidate_(false)
+    //pfCandidateRef_()
 {
 }
 
@@ -90,15 +106,42 @@ reco::TrackRef Muon::combinedMuon() const {
   }
 }
 
+/// reference to Track reconstructed using hits in the tracker + "good" muon hits
+reco::TrackRef Muon::pickyMuon() const {
+  if (embeddedPickyMuon_) {
+    return reco::TrackRef(&pickyMuon_, 0);
+  } else {
+    return pickyMuonRef_;
+  }
+}
+
+/// reference to Track reconstructed using hits in the tracker + info from the first muon station that has hits
+reco::TrackRef Muon::tpfmsMuon() const {
+  if (embeddedTpfmsMuon_) {
+    return reco::TrackRef(&tpfmsMuon_, 0);
+  } else {
+    return tpfmsMuonRef_;
+  }
+}
 
 /// reference to the source IsolatedPFCandidates
-reco::IsolatedPFCandidateRef Muon::pfCandidateRef() const {
+reco::PFCandidateRef Muon::pfCandidateRef() const {
   if (embeddedPFCandidate_) {
-    return reco::IsolatedPFCandidateRef(&pfCandidate_, 0);
+    return reco::PFCandidateRef(&pfCandidate_, 0);
   } else {
     return pfCandidateRef_;
   }
 }
+
+/// embed the IsolatedPFCandidate pointed to by pfCandidateRef_
+void Muon::embedPFCandidate() {
+  pfCandidate_.clear();
+  if ( pfCandidateRef_.isAvailable() && pfCandidateRef_.isNonnull()) {
+    pfCandidate_.push_back( *pfCandidateRef_ );
+    embeddedPFCandidate_ = true;
+  }
+}
+
 
 
 /// embed the Track reconstructed in the tracker only
@@ -111,14 +154,6 @@ void Muon::embedTrack() {
 }
 
 
-/// embed the Track reconstructed in the muon detector only
-void Muon::embedStandAloneMuon() {
-  standAloneMuon_.clear();
-  if (MuonType::outerTrack().isNonnull()) {
-      standAloneMuon_.push_back(*MuonType::outerTrack());
-      embeddedStandAloneMuon_ = true;
-  }
-}
 
 
 /// embed the Track reconstructed in both tracked and muon detector
@@ -130,13 +165,30 @@ void Muon::embedCombinedMuon() {
   }
 }
 
-
-/// embed the IsolatedPFCandidate pointed to by pfCandidateRef_
-void Muon::embedPFCandidate() {
-  pfCandidate_.clear();
-  if ( pfCandidateRef_.isAvailable() && pfCandidateRef_.isNonnull()) {
-    pfCandidate_.push_back( *pfCandidateRef_ );
-    embeddedPFCandidate_ = true;
+/// embed the picky Track
+void Muon::embedPickyMuon() {
+  pickyMuon_.clear();
+  if (pickyMuonRef_.isNonnull()) {
+      pickyMuon_.push_back(*pickyMuonRef_);
+      embeddedPickyMuon_ = true;
   }
 }
 
+/// embed the tpfms Track
+void Muon::embedTpfmsMuon() {
+  tpfmsMuon_.clear();
+  if (tpfmsMuonRef_.isNonnull()) {
+      tpfmsMuon_.push_back(*tpfmsMuonRef_);
+      embeddedTpfmsMuon_ = true;
+  }
+}
+
+
+/// embed the Track reconstructed in the muon detector only	 
+void Muon::embedStandAloneMuon() {	 
+  standAloneMuon_.clear();	 
+  if (MuonType::outerTrack().isNonnull()) {	 
+      standAloneMuon_.push_back(*MuonType::outerTrack());	 
+      embeddedStandAloneMuon_ = true;	 
+  }	 
+}

@@ -12,10 +12,9 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/Candidate/interface/ShallowClonePtrCandidate.h"
 
-#include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
-
 
 class TtSemiLepHypothesis : public edm::EDProducer {
 
@@ -31,8 +30,8 @@ class TtSemiLepHypothesis : public edm::EDProducer {
   /// reset candidate pointers before hypo build process
   void resetCandidates();
   /// use one object in a collection to set a ShallowClonePtrCandidate
-  template <typename O, template<typename> class C>
-  void setCandidate(const edm::Handle<C<O> >&, const int&, reco::ShallowClonePtrCandidate*&);
+  template <typename C>
+  void setCandidate(const edm::Handle<C>& handle, const int& idx, reco::ShallowClonePtrCandidate*& clone);
   /// return key
   int key() const { return key_; };
   /// return event hypothesis
@@ -52,7 +51,8 @@ class TtSemiLepHypothesis : public edm::EDProducer {
 			 const edm::Handle<edm::View<reco::RecoCandidate> >& lepton, 
 			 const edm::Handle<std::vector<pat::MET> >& neutrino, 
 			 const edm::Handle<std::vector<pat::Jet> >& jets, 
-			 std::vector<int>& jetPartonAssociation) = 0;
+			 std::vector<int>& jetPartonAssociation,
+			 const unsigned int iComb) = 0;
 
  protected:
 
@@ -61,7 +61,7 @@ class TtSemiLepHypothesis : public edm::EDProducer {
   edm::InputTag jets_;
   edm::InputTag leps_;
   edm::InputTag mets_;
-  edm::InputTag match_;  
+  edm::InputTag match_;
 
   int key_;
 
@@ -73,11 +73,12 @@ class TtSemiLepHypothesis : public edm::EDProducer {
   reco::ShallowClonePtrCandidate *lepton_;
 };
 
-// unfortunately this has to be placed in the header since otherwise the function template
+// has to be placed in the header since otherwise the function template
 // would cause unresolved references in classes derived from this base class
-template <typename O, template<typename> class C>
+template<typename C>
 void
-TtSemiLepHypothesis::setCandidate(const edm::Handle<C<O> >& handle, const int& idx, reco::ShallowClonePtrCandidate* &clone) {
+TtSemiLepHypothesis::setCandidate(const edm::Handle<C>& handle, const int& idx, reco::ShallowClonePtrCandidate* &clone) {
+  typedef typename C::value_type O;
   edm::Ptr<O> ptr = edm::Ptr<O>(handle, idx);
   clone = new reco::ShallowClonePtrCandidate( ptr, ptr->charge(), ptr->p4(), ptr->vertex() );
 }

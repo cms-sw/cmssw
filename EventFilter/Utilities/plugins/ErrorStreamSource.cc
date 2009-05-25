@@ -22,6 +22,8 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include "interface/shared/fed_header.h"
+#include "interface/shared/fed_trailer.h"
 
 
 class ErrorStreamSource : public edm::ExternalInputSource
@@ -124,6 +126,7 @@ void ErrorStreamSource::setRunAndEventInfo()
 //______________________________________________________________________________
 bool ErrorStreamSource::produce(edm::Event& e)
 {
+  unsigned int totalEventSize = 0;
   if (!fin_.is_open()) return false;
   
   auto_ptr<FEDRawDataCollection> result(new FEDRawDataCollection());
@@ -131,12 +134,24 @@ bool ErrorStreamSource::produce(edm::Event& e)
   uint32_t fedSize[1024];
   fin_.read((char*)fedSize,1024*sizeof(uint32_t));
   for (unsigned int i=0;i<1024;i++) {
-    if (fedSize[i]==0) continue;
-    FEDRawData& fedData=result->FEDData(i);
-    fedData.resize(fedSize[i]);
-    fin_.read((char*)fedData.data(),fedSize[i]);
+    totalEventSize += fedSize[i];
+  }
+  char *event = new char[totalEventSize];
+  fin_.read(event,totalEventSize);
+  while(totalEventSize>0) {
+    totalEventSize -= 8;
+    fedt_t *fedt = (fedt_t*)(event+totalEventSize);
+    unsigned int fedsize = FED_EVSZ_EXTRACT(fedt->eventsize);
+    fedsize *= 8; // fed size in bytes
+    totalEventSize -= (fedsize - 8);
+    fedh_t *fedh = (fedh_t *)(event+totalEventSize);
+    unsigned int soid = FED_SOID_EXTRACT(fedh->sourceid);
+    FEDRawData& fedData=result->FEDData(soid);
+    fedData.resize(fedsize);
+    memcpy(fedData.data(),event+totalEventSize,fedsize);
   }
   e.put(result);
+  delete[] event;
   return true;
 }
 

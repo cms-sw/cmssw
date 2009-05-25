@@ -5,4 +5,6 @@ from Validation.MuonHits.muonHitsValidation_cfi import *
 from Validation.MuonDTDigis.dtDigiValidation_cfi import *
 from Validation.MuonCSCDigis.cscDigiValidation_cfi import *
 from Validation.MuonRPCDigis.validationMuonRPCDigis_cfi import *
-muonSimValid = cms.Sequence(validSimHit+muondtdigianalyzer+cscDigiValidation+validationMuonRPCDigis)
+from Validation.RecoMuon.muonValidation_cff import *
+
+muonSimValid = cms.Sequence(validSimHit+muondtdigianalyzer+cscDigiValidation+validationMuonRPCDigis+recoMuonValidation)

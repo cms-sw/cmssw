@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2008/09/06 08:01:50 $
- * $Revision: 1.111 $
+ * $Date: 2008/09/06 09:52:43 $
+ * $Revision: 1.113 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -66,6 +66,7 @@ EBTriggerTowerClient::EBTriggerTowerClient(const ParameterSet& ps) {
     l01_[ism-1] = 0;
     m01_[ism-1] = 0;
     n01_[ism-1] = 0;
+    o01_[ism-1] = 0;
 
     meh01_ = 0;
     meh02_ = 0;
@@ -78,6 +79,7 @@ EBTriggerTowerClient::EBTriggerTowerClient(const ParameterSet& ps) {
     mel01_[ism-1] = 0;
     mem01_[ism-1] = 0;
     men01_[ism-1] = 0;
+    meo01_[ism-1] = 0;
 
 //     for (int j=0; j<68; j++) {
 //
@@ -101,6 +103,7 @@ EBTriggerTowerClient::EBTriggerTowerClient(const ParameterSet& ps) {
       me_j02_[ism-1][j] = 0;
       me_m01_[ism-1][j] = 0;
     }
+    me_o01_[ism-1] = 0;
 
   }
 
@@ -208,6 +211,11 @@ void EBTriggerTowerClient::setup(void) {
       me_m01_[ism-1][j]->setAxisTitle("ieta'", 1);
       me_m01_[ism-1][j]->setAxisTitle("iphi'", 2);
     }
+    if ( me_o01_[ism-1] ) dqmStore_->removeElement( me_o01_[ism-1]->getName() );
+    sprintf(histo, "EBTTT Trigger Primitives Timing %s", Numbers::sEB(ism).c_str());
+    me_o01_[ism-1] = dqmStore_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
+    me_o01_[ism-1]->setAxisTitle("ieta'", 1);
+    me_o01_[ism-1]->setAxisTitle("iphi'", 2);
 
   }
 
@@ -227,6 +235,7 @@ void EBTriggerTowerClient::setup(void) {
       if ( me_j02_[ism-1][j] ) me_j02_[ism-1][j]->Reset();
       if ( me_m01_[ism-1][j] ) me_m01_[ism-1][j]->Reset();
     }
+    if ( me_o01_[ism-1] ) me_o01_[ism-1]->Reset();
 
   }
 
@@ -256,6 +265,7 @@ void EBTriggerTowerClient::cleanup(void) {
       if ( l01_[ism-1] ) delete l01_[ism-1];
       if ( m01_[ism-1] ) delete m01_[ism-1];
       if ( n01_[ism-1] ) delete n01_[ism-1];
+      if ( o01_[ism-1] ) delete o01_[ism-1];
     }
 
     i01_[ism-1] = 0;
@@ -266,6 +276,7 @@ void EBTriggerTowerClient::cleanup(void) {
     l01_[ism-1] = 0;
     m01_[ism-1] = 0;
     n01_[ism-1] = 0;
+    o01_[ism-1] = 0;
 
     meh01_ = 0;
     meh02_ = 0;
@@ -278,6 +289,7 @@ void EBTriggerTowerClient::cleanup(void) {
     mel01_[ism-1] = 0;
     mem01_[ism-1] = 0;
     men01_[ism-1] = 0;
+    meo01_[ism-1] = 0;
 
 //     for (int j=0; j<68; j++) {
 //
@@ -322,6 +334,8 @@ void EBTriggerTowerClient::cleanup(void) {
       if ( me_m01_[ism-1][j] ) dqmStore_->removeElement( me_m01_[ism-1][j]->getName() );
       me_m01_[ism-1][j] = 0;
     }
+    if ( me_o01_[ism-1] ) dqmStore_->removeElement( me_o01_[ism-1]->getName() );
+    me_o01_[ism-1] = 0;
 
   }
 
@@ -431,6 +445,11 @@ void EBTriggerTowerClient::analyze(const char* nameext,
       n01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, n01_[ism-1] );
       men01_[ism-1] = me;
 
+      sprintf(histo, (prefixME_ + "/%s/EBTTT EmulMatch %s").c_str(), folder, Numbers::sEB(ism).c_str());
+      me = dqmStore_->get(histo);
+      o01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, o01_[ism-1] );
+      meo01_[ism-1] = me;
+
     }
 
 //     for (int j=0; j<68; j++) {
@@ -459,6 +478,7 @@ void EBTriggerTowerClient::analyze(const char* nameext,
       if ( me_j02_[ism-1][j] ) me_j02_[ism-1][j]->Reset();
       if ( me_m01_[ism-1][j] ) me_m01_[ism-1][j]->Reset();
     }
+    if ( me_o01_[ism-1] ) me_o01_[ism-1]->Reset();
 
     for (int ie = 1; ie <= 17; ie++) {
       for (int ip = 1; ip <= 4; ip++) {
@@ -507,6 +527,21 @@ void EBTriggerTowerClient::analyze(const char* nameext,
               me_m01_[ism-1][j]->Fill(ie-0.5, ip-0.5, m01_[ism-1]->GetBinContent(ie, ip, j+2));
               me_m01_[ism-1][j]->Fill(ie-0.5, ip-0.5, m01_[ism-1]->GetBinContent(ie, ip, j+3));
             }
+          }
+        }
+        if ( o01_[ism-1] ) {
+          float index=-1;
+          double max=0;
+          for (int j=0; j<6; j++) {
+            double sampleEntries = o01_[ism-1]->GetBinContent(ie, ip, j+1);
+            if(sampleEntries > max) {
+              index=j;
+              max = sampleEntries;
+            }
+          }
+          if ( max > 0 ) {
+            if ( index == 0 ) me_o01_[ism-1]->setBinContent(ie, ip, -1);
+            else me_o01_[ism-1]->setBinContent(ie, ip, index );
           }
         }
 

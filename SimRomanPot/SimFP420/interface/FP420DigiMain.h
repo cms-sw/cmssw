@@ -169,7 +169,7 @@ public:
   //  int numStripsMax;    // max number of strips in the module
   float moduleThickness; // plate thickness 
 
-  FP420NumberingScheme * theFP420NumberingScheme;
+    FP420NumberingScheme * theFP420NumberingScheme;
 
   void push_digis(const DigitalMapType&,
                   const HitToDigisMapType&,
@@ -203,7 +203,7 @@ public:
 
 
 //  std::vector<HDigiFP420> digitize(StripGeomDetUnit *det);    // AZ
-//  int rn0,pn0,sn0;                                                                                          
+                                                                                                  
                                                                                                   
 };
                                                                                                   

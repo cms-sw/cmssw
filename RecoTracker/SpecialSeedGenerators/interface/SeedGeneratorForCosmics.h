@@ -59,6 +59,11 @@ class SeedGeneratorForCosmics{
   float seedpt;
   OrderedHitPairs HitPairs;
   OrderedHitTriplets HitTriplets;
+
+  //***top-bottom
+  bool positiveYOnly;
+  bool negativeYOnly;
+  //***
 };
 #endif
 

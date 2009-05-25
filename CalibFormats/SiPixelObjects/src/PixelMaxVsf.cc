@@ -6,7 +6,6 @@
 //
 
 #include "CalibFormats/SiPixelObjects/interface/PixelMaxVsf.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelTimeFormatter.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -23,26 +22,23 @@ PixelMaxVsf::PixelMaxVsf(std::vector< std::vector< std::string > > &tableMat):Pi
   std::map<std::string , int > colM;
   std::vector<std::string > colNames;
   /**
-  
-  EXTENSION_TABLE_NAME: ROC_MAXVSF (VIEW: CONF_KEY_ROC_MAXVSF_V)
-  
-  CONFIG_KEY				    NOT NULL VARCHAR2(80)
-  KEY_TYPE				    NOT NULL VARCHAR2(80)
-  KEY_ALIAS				    NOT NULL VARCHAR2(80)
-  VERSION					     VARCHAR2(40)
-  KIND_OF_COND  			    NOT NULL VARCHAR2(40)
-  ROC_NAME					     VARCHAR2(200)
-  MAXVSF				    NOT NULL NUMBER(38)
+
+  View's name: CONF_KEY_ROC_MAXVSF_MV
+  CONFIG_KEY_ID                                      NUMBER(38)
+  CONFG_KEY                                          VARCHAR2(80)
+  VERSION                                            VARCHAR2(40)
+  KIND_OF_COND                                       VARCHAR2(40)
+  ROC_NAME                                           VARCHAR2(187)
+  MAXVSF                                             NUMBER(38)
   */
 
-  colNames.push_back("CONFIG_KEY"  );
-  colNames.push_back("KEY_TYPE"    );
-  colNames.push_back("KEY_ALIAS"   );
-  colNames.push_back("VERSION"     );
-  colNames.push_back("KIND_OF_COND");
-  colNames.push_back("ROC_NAME"    );
-  colNames.push_back("MAXVSF"	   );
-
+  colNames.push_back("CONFIG_KEY_ID");
+  colNames.push_back("CONFG_KEY"    );
+  colNames.push_back("VERSION"      );
+  colNames.push_back("KIND_OF_COND" );
+  colNames.push_back("ROC_NAME"     );
+  colNames.push_back("MAXVSF"       );
+  
   for(unsigned int c = 0 ; c < tableMat[0].size() ; c++)
     {
       for(unsigned int n=0; n<colNames.size(); n++)
@@ -163,79 +159,5 @@ void PixelMaxVsf::writeASCII(std::string dir) const {
 
 }
 
-//=============================================================================================
-void PixelMaxVsf::writeXMLHeader(pos::PixelConfigKey key, 
-                                 int version, 
-                                 std::string path, 
-                                 std::ofstream *outstream,
-                                 std::ofstream *out1stream,
-                                 std::ofstream *out2stream) const
-{
-  std::string mthn = "[PixelMaxVsf::writeXMLHeader()]\t\t\t    " ;
-  std::stringstream maskFullPath ;
 
-  maskFullPath << path << "/Pixel_RocMaxVsf_" << PixelTimeFormatter::getmSecTime() << ".xml";
-  std::cout << mthn << "Writing to: " << maskFullPath.str() << std::endl ;
 
-  outstream->open(maskFullPath.str().c_str()) ;
-  
-  *outstream << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"                                 << std::endl ;
-  *outstream << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 		 	          << std::endl ;
-  *outstream << ""                                                                                        << std::endl ; 
-  *outstream << " <HEADER>"                                                                               << std::endl ; 
-  *outstream << "  <TYPE>"                                                                                << std::endl ; 
-  *outstream << "   <EXTENSION_TABLE_NAME>ROC_MAXVSF</EXTENSION_TABLE_NAME>"                              << std::endl ; 
-  *outstream << "   <NAME>ROC MaxVsf Settings</NAME>"                                                     << std::endl ; 
-  *outstream << "  </TYPE>"                                                                               << std::endl ; 
-  *outstream << "  <RUN>"                                                                                 << std::endl ; 
-  *outstream << "   <RUN_TYPE>ROC MaxVsf Settings</RUN_TYPE>"                                             << std::endl ; 
-  *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                           << std::endl ; 
-  *outstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>"   << std::endl ; 
-  *outstream << "   <COMMENT_DESCRIPTION>ROC MaxVsf Settings</COMMENT_DESCRIPTION>"                       << std::endl ; 
-  *outstream << "   <LOCATION>CERN TAC</LOCATION>"                                                        << std::endl ; 
-  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"                                 << std::endl ; 
-  *outstream << "  </RUN>"                                                                                << std::endl ; 
-  *outstream << " </HEADER>"                                                                              << std::endl ; 
-  *outstream << ""                                                                                        << std::endl ; 
-  *outstream << " <DATA_SET>"                                                                             << std::endl ;
-  *outstream << ""                                                                                        << std::endl ;
-  *outstream << "  <VERSION>" << version << "</VERSION>"                                                  << std::endl ;
-  *outstream << ""                                                                                        << std::endl ;
-  *outstream << "  <PART>"                                                                                << std::endl ;
-  *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                              << std::endl ;      
-  *outstream << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                           << std::endl ;         
-  *outstream << "  </PART>"                                                                               << std::endl ;
-
-}
-
-//=============================================================================================
-void PixelMaxVsf::writeXML( std::ofstream *outstream,
-                            std::ofstream *out1stream,
-                            std::ofstream *out2stream) const 
-{
-  std::string mthn = "[PixelMaxVsf::writeXML()]\t\t\t    " ;
-
-  std::map<PixelROCName, unsigned int>::const_iterator irocs = rocs_.begin();
-  for(; irocs != rocs_.end() ; irocs++){
-    *outstream << "  <DATA>"                                                   << std::endl ;
-    *outstream << "   <ROC_NAME>" << (irocs->first).rocname() << "</ROC_NAME>" << std::endl ;
-    *outstream << "   <MAXVSF>"   << irocs->second            << "</MAXVSF>"   << std::endl ;
-    *outstream << "  </DATA>"                                                  << std::endl ;
-    *outstream                                                                 << std::endl ;
-  }
-}
-
-//=============================================================================================
-void PixelMaxVsf::writeXMLTrailer(std::ofstream *outstream,
-                             	  std::ofstream *out1stream,
-                             	  std::ofstream *out2stream ) const 
-{
-  std::string mthn = "[PixelMaxVsf::writeXMLTrailer()]\t\t\t    " ;
-  
-  *outstream << " </DATA_SET>"		 								  << std::endl ;
-  *outstream << "</ROOT>"  		 								  << std::endl ;
-  
-  outstream->close() ;
-  std::cout << mthn << "Data written "   								  << std::endl ;
-
-}

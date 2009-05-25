@@ -168,7 +168,7 @@ public:
   QCriterion *			getQCriterion(const std::string &qtname) const;
   QCriterion *			createQTest(const std::string &algoname, const std::string &qtname);
   void				useQTest(const std::string &dir, const std::string &qtname);
-  void				useQTestByMatch(const std::string &pattern, const std::string &qtname);
+  int				useQTestByMatch(const std::string &pattern, const std::string &qtname);
   void				runQTests(void);
   int				getStatus(const std::string &path = "") const;
 

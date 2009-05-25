@@ -21,13 +21,16 @@ namespace reco {
 	rhs_ = selStack.back(); selStack.pop_back();
 	lhs_ = selStack.back(); selStack.pop_back();
       }
-      virtual bool operator()(const ROOT::Reflex::Object& o) const {
-	return op_((*lhs_)(o), (*rhs_)(o));
-      }
+      virtual bool operator()(const ROOT::Reflex::Object& o) const ;
       private:
       Op op_;
       SelectorPtr lhs_, rhs_;
     };
+
+template <>
+bool LogicalBinaryOperator<std::logical_and<bool> >::operator()(const ROOT::Reflex::Object &o) const ;
+template <>
+bool LogicalBinaryOperator<std::logical_or<bool> >::operator()(const ROOT::Reflex::Object &o) const ;
   }
 }
 

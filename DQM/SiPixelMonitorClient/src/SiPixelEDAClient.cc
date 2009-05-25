@@ -59,22 +59,8 @@ using namespace std;
 //
 SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
   ModuleWeb("SiPixelEDAClient"){
- //cout<<"Entering  SiPixelEDAClient::SiPixelEDAClient: "<<endl;
+// cout<<"Entering  SiPixelEDAClient::SiPixelEDAClient: "<<endl;
  
-  string localPath = string("DQM/SiPixelMonitorClient/test/loader.html");
-  ifstream fin(edm::FileInPath(localPath).fullPath().c_str(), ios::in);
-  char buf[BUF_SIZE];
-  
-  if (!fin) {
-    cerr << "Input File: loader.html"<< " could not be opened!" << endl;
-    return;
-  }
-
-  while (fin.getline(buf, BUF_SIZE, '\n')) { // pops off the newline character 
-    html_out_ << buf ;
-  }
-  fin.close();
-
   edm::LogInfo("SiPixelEDAClient") <<  " Creating SiPixelEDAClient " << "\n" ;
   
   bei_ = Service<DQMStore>().operator->();
@@ -91,12 +77,30 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
   noiseRateDenominator_  = ps.getUntrackedParameter<int>("NEventsForNoiseCalculation",100000);
   Tier0Flag_             = ps.getUntrackedParameter<bool>("Tier0Flag",false);
   
+  if(!Tier0Flag_){
+    string localPath = string("DQM/SiPixelMonitorClient/test/loader.html");
+    ifstream fin(edm::FileInPath(localPath).fullPath().c_str(), ios::in);
+    char buf[BUF_SIZE];
+  
+    if (!fin) {
+      cerr << "Input File: loader.html"<< " could not be opened!" << endl;
+      return;
+    }
+
+    while (fin.getline(buf, BUF_SIZE, '\n')) { // pops off the newline character 
+      html_out_ << buf ;
+    }
+    fin.close();
+
+  }
+  
   // instantiate web interface
   sipixelWebInterface_ = new SiPixelWebInterface(bei_,offlineXMLfile_);
+  //instantiate the two work horses of the client:
   sipixelInformationExtractor_ = new SiPixelInformationExtractor(offlineXMLfile_);
   sipixelActionExecutor_ = new SiPixelActionExecutor(offlineXMLfile_);
   
- //cout<<"...leaving  SiPixelEDAClient::SiPixelEDAClient. "<<endl;
+// cout<<"...leaving  SiPixelEDAClient::SiPixelEDAClient. "<<endl;
 }
 //
 // -- Destructor
@@ -120,7 +124,7 @@ SiPixelEDAClient::~SiPixelEDAClient(){
 // -- Begin Job
 //
 void SiPixelEDAClient::beginJob(const edm::EventSetup& eSetup){
-  //cout<<"Entering SiPixelEDAClient::beginJob: "<<endl;
+//  cout<<"Entering SiPixelEDAClient::beginJob: "<<endl;
 
   // Read the summary configuration file
   if (!sipixelWebInterface_->readConfiguration(tkMapFrequency_,summaryFrequency_)) {
@@ -133,8 +137,19 @@ void SiPixelEDAClient::beginJob(const edm::EventSetup& eSetup){
   }
   nLumiSecs_ = 0;
   nEvents_   = 0;
+  
+  bei_->setCurrentFolder("Pixel/");
+  // Setting up QTests:
+  sipixelActionExecutor_->setupQTests(bei_);
+  // Creating Summary Histos:
+  sipixelActionExecutor_->createSummary(bei_);
+  // Creating occupancy plots:
+  sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
+  // Booking summary report ME's:
+  sipixelInformationExtractor_->bookGlobalQualityFlag(bei_, noiseRate_,Tier0Flag_);
+  if(!Tier0Flag_) nFEDs_ = 40;
 
-  //cout<<"...leaving SiPixelEDAClient::beginJob. "<<endl;
+//  cout<<"...leaving SiPixelEDAClient::beginJob. "<<endl;
 }
 //
 // -- Begin Run
@@ -160,31 +175,23 @@ void SiPixelEDAClient::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
 void SiPixelEDAClient::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
 //  cout<<"[SiPixelEDAClient::analyze()] "<<endl;
   nEvents_++;  
-  if(nEvents_==evtOffsetForInit_){
-//  cout<<"Doing the initializing now!"<<endl;
-    //cout << " Setting up QTests " << endl;
-    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::setupQTest);
-    sipixelWebInterface_->performAction();
-    //cout << " Creating Summary Histos" << endl;
-    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
-    sipixelWebInterface_->performAction();
-    //cout << " Creating occupancy plots" << endl;
-    sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
-    //cout << " Booking summary report ME's" << endl;
-    sipixelInformationExtractor_->bookGlobalQualityFlag(bei_, noiseRate_,Tier0Flag_);
-    // check if any Pixel FED is in readout:
-    edm::Handle<FEDRawDataCollection> rawDataHandle;
-    e.getByLabel("source", rawDataHandle);
-    const FEDRawDataCollection& rawDataCollection = *rawDataHandle;
-    nFEDs_ = 0;
-    for(int i = 0; i != 40; i++){
-      if(rawDataCollection.FEDData(i).size() && rawDataCollection.FEDData(i).data()) nFEDs_++;
+  if(!Tier0Flag_){
+   
+    if(nEvents_==1){
+      // check if any Pixel FED is in readout:
+      edm::Handle<FEDRawDataCollection> rawDataHandle;
+      e.getByLabel("source", rawDataHandle);
+      const FEDRawDataCollection& rawDataCollection = *rawDataHandle;
+      nFEDs_ = 0;
+      for(int i = 0; i != 40; i++){
+        if(rawDataCollection.FEDData(i).size() && rawDataCollection.FEDData(i).data()) nFEDs_++;
+      }
     }
-    //cout<<"nFEDs_= "<<nFEDs_<<endl; 
+    
+    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::CreatePlots);
+    sipixelWebInterface_->performAction();
   }
-  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::CreatePlots);
-  sipixelWebInterface_->performAction();
-
+  
 }
 //
 // -- End Luminosity Block

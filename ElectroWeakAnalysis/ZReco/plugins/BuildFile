@@ -1,4 +1,0 @@
-<use name=ElectroWeakAnalysis/ZReco>
-<library file="*.cc" name=ElectroWeakAnalysisZRecoPlugins>
-<flags EDM_PLUGIN=1>
-</library>

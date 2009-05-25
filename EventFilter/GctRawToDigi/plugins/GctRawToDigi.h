@@ -16,12 +16,14 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.20 2008/03/20 16:38:10 jbrooke Exp $
+// $Id: GctRawToDigi.h,v 1.30 2009/04/21 15:33:16 frazier Exp $
 //
 //
 
 // system include files
 #include <memory>
+#include <ostream>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -32,7 +34,8 @@
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
-#include "EventFilter/GctRawToDigi/src/GctBlockUnpackerBase.h"
+#include "EventFilter/GctRawToDigi/src/GctUnpackCollections.h"
+#include "EventFilter/GctRawToDigi/src/GctFormatTranslateBase.h"
 
 
 // *******************************************************************
@@ -51,37 +54,38 @@ private: // methods
 
   virtual void beginJob(const edm::EventSetup&) ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
   
   /// Unpacks the raw data
   /*! \param invalidDataFlag - if true, then won't attempt unpack but just output empty collecions. */
-  void unpack(const FEDRawData& d, edm::Event& e, const bool invalidDataFlag=false);
+  void unpack(const FEDRawData& d, edm::Event& e, GctUnpackCollections * const colls);
 
+  /// Looks at the firmware version header in the S-Link packet and instantiates relevant format translator.
+  /*! Returns false if it fails to instantiate a Format Translator */
+  bool autoDetectRequiredFormatTranslator(const unsigned char * data);
+
+  /// Prints out a list of blocks and the various numbers of trigger objects that have been unpacked from them.
+  void doVerboseOutput(const GctBlockHeaderCollection& bHdrs, const GctUnpackCollections * const colls) const;
+
+  virtual void endJob();
 
 private: // members
 
   /// The maximum number of blocks we will try to unpack before thinking something is wrong
   static const unsigned MAX_BLOCKS = 256;
 
-  edm::InputTag inputLabel_;  // FED collection label.
-  int fedId_;                 // GCT FED ID.
-  const bool verbose_;        // If true, then debug print out for each event.
+  edm::InputTag inputLabel_;  ///< FED collection label.
+  int fedId_;                 ///< GCT FED ID.
 
   // unpacking options
-  const bool hltMode_;  // If true, only outputs the GT output data, and only BX = 0.
-  const bool grenCompatibilityMode_;  // If true, use old-style (GREN07 era) block headers & pipe format.
-  const bool doEm_;
-  const bool doJets_;
-  const bool doEtSums_;
-  const bool doInternEm_;
-  const bool doInternJets_;
-  const bool doRct_;
-  const bool doFibres_;
+  const bool hltMode_;  ///< If true, only outputs the GT output data, and only BX = 0.
+  const bool unpackSharedRegions_;  ///< Commissioning option: if true, where applicable the shared RCT calo regions will also be unpacked.
+  const unsigned formatVersion_;  ///< Defines unpacker verison to be used (e.g.: "Auto-detect", "MCLegacy", "V35", etc).
+  const bool verbose_;  ///< If true, then debug print out for each event.
 
   // Block to Digi converter
-  GctBlockUnpackerBase * blockUnpacker_;
+  GctFormatTranslateBase * formatTranslator_;
 
-  unsigned unpackFailures_;
+  unsigned unpackFailures_;  ///< To count the total number of GCT unpack failures.  
 };
 
 #endif

@@ -13,7 +13,7 @@
 //
 // Original Author:  Suchandra Dutta
 //      Created:  Thu Oct 19 09:02:32 CEST 2006
-// $Id: InvariantMass.cc,v 1.11 2007/10/07 13:05:27 fwyzard Exp $
+// $Id: InvariantMass.cc,v 1.10 2007/10/07 13:01:05 fwyzard Exp $
 //
 //
 
@@ -54,8 +54,10 @@ InvariantMass::InvariantMass(const edm::ParameterSet& iConfig)
 
   m_algo = new InvariantMassAlgorithm(iConfig);
   
-  produces<reco::JetTagCollection>();
-  produces<reco::TauMassTagInfoCollection>();
+  produces<reco::JetTagCollection>();  //Several producer so I put a label
+  produces<reco::TauMassTagInfoCollection>();   //Only one producer
+
+
 }
 
 

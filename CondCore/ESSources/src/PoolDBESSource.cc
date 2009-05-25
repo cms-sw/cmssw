@@ -8,7 +8,7 @@
 //     <Notes on implementation>
 //
 // Author:      Zhen Xie
-// $Id: PoolDBESSource.cc,v 1.105 2008/10/03 15:53:15 xiezhen Exp $
+// $Id: PoolDBESSource.cc,v 1.105.2.1 2008/12/02 17:50:10 xiezhen Exp $
 //
 // system include files
 #include "boost/shared_ptr.hpp"
@@ -93,7 +93,7 @@ fillRecordToTypeMap(std::multimap<std::string, std::string>& oToFill){
 //static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
 
 PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
-  m_session( new cond::DBSession )
+  m_session( new cond::DBSession ),m_serviceReg()
 {		
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   /*parameter set parsing and pool environment setting
@@ -190,7 +190,11 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
 	nm.labelname=itToGet->getUntrackedParameter<std::string>("label","");
 	nm.tag=itToGet->getUntrackedParameter<std::string>("tag");
 	nm.pfn=itToGet->getUntrackedParameter<std::string>("connect");
-	nm.objectname="";
+	std::multimap<std::string, std::string>::iterator itFound=m_recordToTypes.find(nm.recordname);
+	if(itFound == m_recordToTypes.end()){
+	  throw cond::Exception("NoRecord")<<" The record \""<<nm.recordname<<"\" is not known by the PoolDBESSource";
+	}
+	nm.objectname=itFound->second;
 	std::string k=nm.recordname+"@"+nm.labelname;
 	replacement.insert(std::make_pair<std::string,cond::TagMetadata>(k,nm));
       }
@@ -241,6 +245,10 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
 PoolDBESSource::~PoolDBESSource()
 {
   delete m_session;
+  for(std::map<std::string,cond::IOVService*>::iterator iS=m_serviceReg.begin();
+      iS!=m_serviceReg.end();++iS){
+    if(iS->second)delete iS->second;
+  }
 }
 //
 // member functions
@@ -276,47 +284,48 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   cond::Time_t abtime;
   if( timetype == cond::timestamp ){
     abtime=(cond::Time_t)iTime.time().value();
-  }else if( timetype == cond::runnumber){
-    abtime=(cond::Time_t)iTime.eventID().run();
-  }else if( timetype ==  cond::lumiid ){
-    edm::LuminosityBlockID lum(iTime.eventID().run(), iTime.luminosityBlockNumber());
-    abtime=(cond::Time_t)lum.value();
   }else{
-    throw cond::Exception("invalid timetype");
+    abtime=(cond::Time_t)iTime.eventID().run();
   }
   //std::cout<<"abtime "<<abtime<<std::endl;
   cond::Connection* c=cond::ConnectionHandler::Instance().getConnection(pos->second.begin()->pfn);
   //std::cout<<"leading pfn "<< pos->second.front().pfn <<std::endl;
   cond::PoolTransaction& pooldb=c->poolTransaction();
-  cond::IOVService iovservice(pooldb);  
+  //cond::IOVService iovservice(pooldb);
+  cond::IOVService* service = 0;
+  std::string regKey(leadingToken);
+  regKey.append(pos->second.begin()->pfn);
+  std::map<std::string,cond::IOVService*>::iterator iS=m_serviceReg.find(regKey);
+  if(iS==m_serviceReg.end()){
+    service = new cond::IOVService(pooldb);
+    m_serviceReg.insert(std::make_pair(regKey,service));
+  } else 
+  {
+    service = iS->second;
+  }
+  
+  
   pooldb.start(true);
   std::ostringstream os;
-  if( !iovservice.isValid(leadingToken,abtime) ){
+  if( !service->isValid(leadingToken,abtime) ){
     os<<abtime;
     //throw cond::noDataForRequiredTimeException("PoolDBESSource::setIntervalFor",iKey.name(),os.str());
     pooldb.commit();
     oInterval = edm::ValidityInterval::invalidInterval();
     return;
   }
-  std::pair<cond::Time_t, cond::Time_t> validity=iovservice.validity(leadingToken,abtime);
+  std::pair<cond::Time_t, cond::Time_t> validity=service->validity(leadingToken,abtime);
   edm::IOVSyncValue start,stop;
   if( timetype == cond::timestamp ){
     start=edm::IOVSyncValue( edm::Timestamp(validity.first) );
     stop=edm::IOVSyncValue( edm::Timestamp(validity.second) );
-  }else if( timetype == cond::runnumber ){
+  }else{
     start=edm::IOVSyncValue( edm::EventID(validity.first,0) );
     stop=edm::IOVSyncValue( edm::EventID(validity.second,edm::EventID::maxEventNumber()) );
-  }else if( timetype == cond::lumiid ){
-    edm::LuminosityBlockID lumstart((boost::uint64_t)validity.first);
-    start=edm::IOVSyncValue(edm::EventID(lumstart.run(),0), lumstart.luminosityBlock());
-    edm::LuminosityBlockID lumstop((boost::uint64_t)validity.second);
-    stop=edm::IOVSyncValue(edm::EventID(lumstop.run(),edm::EventID::maxEventNumber()), lumstop.luminosityBlock());
-  }else{
-    throw cond::Exception("invalid timetype");
   }
   //std::cout<<"setting validity "<<validity.first<<" "<<validity.second<<" for ibtime "<<abtime<< std::endl;
   oInterval = edm::ValidityInterval( start, stop );
-  std::string payloadToken=iovservice.payloadToken(leadingToken,abtime);
+  std::string payloadToken=service->payloadToken(leadingToken,abtime);
   std::string datumName=recordname+"@"+objectname+"@"+leadingLable;
   m_datumToToken[datumName]=payloadToken;  
   pooldb.commit();
@@ -327,9 +336,17 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
       std::string datumName=recordname+"@"+objectname+"@"+itProxy->label;
       cond::Connection* c=cond::ConnectionHandler::Instance().getConnection(itProxy->pfn);
       cond::PoolTransaction& labelpooldb=c->poolTransaction();
-      cond::IOVService labeliovservice(labelpooldb);  
+      std::string regKey2(itProxy->token);
+      regKey2.append(itProxy->pfn);
+      std::map<std::string,cond::IOVService*>::iterator iS=m_serviceReg.find(regKey2);
+      if(iS==m_serviceReg.end()){
+        service = new cond::IOVService(labelpooldb);
+        m_serviceReg.insert(std::make_pair(regKey2,service));
+      } else {
+        service = iS->second;
+      }
       labelpooldb.start(true);
-      std::string payloadToken=labeliovservice.payloadToken(itProxy->token,abtime);
+      std::string payloadToken=service->payloadToken(itProxy->token,abtime);
       labelpooldb.commit();
       m_datumToToken[datumName]=payloadToken;  
     }
@@ -441,12 +458,20 @@ void
 PoolDBESSource::fillTagCollectionFromDB( cond::CoralTransaction& coraldb, 
 					 const std::string& roottag,
 					 std::map<std::string,cond::TagMetadata>& replacement){
+  //  std::cout<<"fillTagCollectionFromDB"<<std::endl;
   std::set< cond::TagMetadata > tagcoll;
   cond::TagCollectionRetriever tagRetriever( coraldb );
   tagRetriever.getTagCollection(roottag,tagcoll);
+ 
   std::set<cond::TagMetadata>::iterator it;
   std::set<cond::TagMetadata>::iterator itBeg=tagcoll.begin();
   std::set<cond::TagMetadata>::iterator itEnd=tagcoll.end();
+  if( replacement.size()==0 ){
+    for(it=itBeg; it!=itEnd; ++it){
+      m_tagCollection.insert(*it);
+    }
+    return;
+  }
   for(it=itBeg; it!=itEnd; ++it){
     std::string k=it->recordname+"@"+it->labelname;
     std::map<std::string,cond::TagMetadata>::iterator fid=replacement.find(k);
@@ -458,8 +483,20 @@ PoolDBESSource::fillTagCollectionFromDB( cond::CoralTransaction& coraldb,
       m.tag=fid->second.tag;
       m.objectname=it->objectname;
       m_tagCollection.insert(m);
+      replacement.erase(fid);
     }else{
       m_tagCollection.insert(*it);
     }
+  }
+  std::map<std::string,cond::TagMetadata>::iterator itrep;
+  std::map<std::string,cond::TagMetadata>::iterator itrepBeg=replacement.begin();
+  std::map<std::string,cond::TagMetadata>::iterator itrepEnd=replacement.end();
+  for(itrep=itrepBeg; itrep!=itrepEnd; ++itrep){
+    //std::cout<<"appending"<<std::endl;
+    //std::cout<<"pfn "<<itrep->second.pfn<<std::endl;
+    //std::cout<<"objectname "<<itrep->second.objectname<<std::endl;
+    //std::cout<<"tag "<<itrep->second.tag<<std::endl;
+    //std::cout<<"recordname "<<itrep->second.recordname<<std::endl;
+    m_tagCollection.insert(itrep->second);
   }
 }

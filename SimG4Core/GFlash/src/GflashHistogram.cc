@@ -14,23 +14,25 @@ GflashHistogram::GflashHistogram() :
 {
 }
 
-void GflashHistogram::bookHistogram(std::string histFileName) 
+void GflashHistogram::bookHistogram(TString histFileName) 
 {
-  histFile_ = new TFile(histFileName.c_str(),"RECREATE");
+  histFile_ = new TFile(histFileName,"RECREATE");
 
   TH1::AddDirectory(kTRUE);
 
   histFile_->mkdir("GflashEMShowerProfile");
   histFile_->cd("GflashEMShowerProfile");
 
-  em_incE       = new TH1F("em_incE","Incoming energy at Ecal;E (GeV);Number of Events",500,0.0,500.0);
-  em_ssp_rho    = new TH1F("em_ssp_rho","Shower starting position;#rho (cm);Number of Events",100,100.0,200.0);
-  em_ssp_z      = new TH1F("em_ssp_z","Shower starting position;z (cm);Number of Events",800,-400.0,400.0);
-  em_long       = new TH1F("em_long","Longitudinal Profile;Radiation Length;Number of Spots",100,0.0,50.0);
-  em_lateral    = new TH2F("em_lateral","Lateral Profile vs. Shower Depth;Radiation Length;Moliere Radius",100,0.0,50.0,100,0.0,3.0);
-  em_long_sd    = new TH1F("em_long_sd","Longitudinal Profile in Sensitive Detector;Radiation Length;Number of Spots",100,0.0,50.0);
-  em_lateral_sd = new TH2F("em_lateral_sd","Lateral Profile vs. Shower Depth in Sensitive Detector;Radiation Length;Moliere Radius",100,0.0,50.0,100,0.0,3.0);
-  em_nSpots_sd  = new TH1F("em_nSpots_sd","Number of Gflash Spots in Sensitive Detector;Number of Spots;Number of Events",1000,0.0,100000);
+  incE_atEcal = new TH1F("incE_atEcal","Incoming energy at Ecal;E (GeV);Number of electrons",50,0.0,50.0);
+  dEdz        = new TH2F("dEdz","longitudinal profile;z (X_{0});E (GeV)",100,0.0,50.0,100,0.0,1.0);
+  dEdz_p      = new TH1F("dEdz_p","longitudinal profile;z (X_{0});E (GeV)",100,0.0,50.0);
+  dndz_spot   = new TH1F("dndz_spot","longitudinal profile;z (X_{0});Number of spots",30,0.0,30.0);
+  rxry        = new TH2F("rxry","lateral profile;x (Moliere);y (Moliere)",100,-5.0,5.0,100,-5.0,5.0);
+  dx          = new TH1F("dx","lateral profile;r (Moliere);Number of spots",200,-5.0,5.0);
+  xdz         = new TH2F("xdz","Total shower profile;z (X_{0});r (Moliere)",30,0.0,30.0,200,-5.0,5.0);
+  rzSpots     = new TH2F("rzSpots","r-z of spots in global coordinate;z (cm);r (cm)",1000,-500.0,500.0,200,0.0,200.0);
+  rho_ssp     = new TH1F("rho_ssp","Shower starting position;#rho (cm);Number of electrons",100,100.0,200.0);
+  rArm        = new TH1F("rArm","lateral profile of abs radius;r (Moliere);Number of spots",100,0.0,5.0);
 
   histFile_->mkdir("GflashHadronShowerModel");
   histFile_->cd("GflashHadronShowerModel");
@@ -40,7 +42,6 @@ void GflashHistogram::bookHistogram(std::string histFileName)
   deltaStep        = new TH1F("deltaStep","Delta Step",200,0.0,100.);
   kineticEnergy    = new TH1F("kineticEnergy","Kinetic Energy",200,0.0,200.);
   energyLoss       = new TH1F("energyLoss","Energy Loss",200,0.0,200.);
-  energyRatio      = new TH1F("energyRatio","energyLeading/energyTotal",200,0.0,1.);
 
   histFile_->mkdir("GflashHadronShowerProfile");
   histFile_->cd("GflashHadronShowerProfile");
