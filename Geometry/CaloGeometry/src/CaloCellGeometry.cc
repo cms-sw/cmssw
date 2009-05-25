@@ -28,45 +28,45 @@ std::ostream& operator<<( std::ostream& s, const CaloCellGeometry& cell )
    return s ;
 }
 
-HepTransform3D
-CaloCellGeometry::getTransform( std::vector<HepPoint3D>* lptr ) const 
+HepGeom::Transform3D
+CaloCellGeometry::getTransform( std::vector<HepGeom::Point3D<double> >* lptr ) const 
 {
    const GlobalPoint& p ( CaloCellGeometry::getPosition() ) ;
-   const HepPoint3D   gFront ( p.x(), p.y(), p.z() ) ;
+   const HepGeom::Point3D<double>    gFront ( p.x(), p.y(), p.z() ) ;
 
-   HepPoint3D lFront ;
+   HepGeom::Point3D<double>  lFront ;
    assert(                               0 != param() ) ;
-   std::vector<HepPoint3D> lc ( vocalCorners( param(), lFront ) ) ;
+   std::vector<HepGeom::Point3D<double> > lc ( vocalCorners( param(), lFront ) ) ;
 
-   HepPoint3D lBack  ( 0.25*(lc[4]+lc[5]+lc[6]+lc[7]) ) ;
+   HepGeom::Point3D<double>  lBack  ( 0.25*(lc[4]+lc[5]+lc[6]+lc[7]) ) ;
 
-   const HepPoint3D lOne  ( lc[0] ) ;
+   const HepGeom::Point3D<double>  lOne  ( lc[0] ) ;
 
    const CornersVec& cor ( getCorners() ) ;
-   std::vector<HepPoint3D> kor ( 8, HepPoint3D(0,0,0) ) ;
+   std::vector<HepGeom::Point3D<double> > kor ( 8, HepGeom::Point3D<double> (0,0,0) ) ;
    for( unsigned int i ( 0 ) ; i != 8 ; ++i )
    {
-      kor[i] = HepPoint3D( cor[i].x(), cor[i].y(), cor[i].z() ) ;
+      kor[i] = HepGeom::Point3D<double> ( cor[i].x(), cor[i].y(), cor[i].z() ) ;
    }
 
-   HepPoint3D gBack ( 0.25*( kor[4]+kor[5]+kor[6]+kor[7] ) ) ;
+   HepGeom::Point3D<double>  gBack ( 0.25*( kor[4]+kor[5]+kor[6]+kor[7] ) ) ;
 
-   const HepVector3D gAxis ( (gBack-gFront).unit() ) ;
+   const HepGeom::Vector3D<double>  gAxis ( (gBack-gFront).unit() ) ;
 
    gBack = ( gFront + (lBack-lFront).mag()*gAxis ) ;
-   const HepPoint3D gOneT ( gFront + ( lOne - lFront ).mag()*( kor[0] - gFront ).unit() ) ;
+   const HepGeom::Point3D<double>  gOneT ( gFront + ( lOne - lFront ).mag()*( kor[0] - gFront ).unit() ) ;
 
    const double langle ( ( lBack - lFront).angle( lOne - lFront ) ) ;
    const double gangle ( ( gBack - gFront).angle( gOneT- gFront ) ) ;
    const double dangle ( langle - gangle ) ;
 
-   const HepPlane3D gPl (  gFront, gOneT, gBack ) ;
-   const HepPoint3D p2  ( gFront + gPl.normal().unit() ) ;
+   const HepGeom::Plane3D<double>  gPl (  gFront, gOneT, gBack ) ;
+   const HepGeom::Point3D<double>  p2  ( gFront + gPl.normal().unit() ) ;
 
-   const HepPoint3D gOne ( gFront + HepRotate3D( -dangle, gFront, p2 )*
-			   HepVector3D( gOneT - gFront ) ) ;
+   const HepGeom::Point3D<double>  gOne ( gFront + HepGeom::Rotate3D( -dangle, gFront, p2 )*
+			   HepGeom::Vector3D<double> ( gOneT - gFront ) ) ;
 
-   const HepTransform3D tr ( lFront , lBack , lOne ,
+   const HepGeom::Transform3D tr ( lFront , lBack , lOne ,
 			     gFront , gBack , gOne    ) ;
 
    if( 0 != lptr ) (*lptr) = lc ;

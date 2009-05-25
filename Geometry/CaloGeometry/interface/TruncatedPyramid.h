@@ -17,16 +17,16 @@
    
 */
 
-typedef HepGeom::Point3D<double> HepPoint3D;
-typedef HepGeom::Plane3D<double> HepPlane3D;
-typedef HepGeom::Vector3D<double> HepVector3D;
-typedef HepGeom::Rotate3D        HepRotate3D;
+
+
+
+
 
 class TruncatedPyramid : public CaloCellGeometry
 {
    public:
 
-      typedef std::vector< HepPlane3D > BoundaryVec ;
+      typedef std::vector< HepGeom::Plane3D<double>  > BoundaryVec ;
 
       TruncatedPyramid( const CornersMgr*  cMgr ,
 			const GlobalPoint& fCtr ,
@@ -35,14 +35,14 @@ class TruncatedPyramid : public CaloCellGeometry
 			const double*      parV   ) :
 	 CaloCellGeometry ( fCtr, cMgr, parV ) ,
 	 m_axis           ( ( bCtr - fCtr ).unit() ) ,
-	 m_corOne         ( new HepPoint3D( cor1.x(), cor1.y(), cor1.z() ) )
+	 m_corOne         ( new HepGeom::Point3D<double> ( cor1.x(), cor1.y(), cor1.z() ) )
       {} 
 
       TruncatedPyramid( const CornersVec& corn,
 			const double*     par  ) :
 	 CaloCellGeometry ( corn, par   ) , 
 	 m_axis           ( makeAxis() ) ,
-	 m_corOne         ( new HepPoint3D( corn[0].x(),
+	 m_corOne         ( new HepGeom::Point3D<double> ( corn[0].x(),
 					    corn[0].y(),
 					    corn[0].z()  ) )    {} 
 
@@ -71,22 +71,22 @@ class TruncatedPyramid : public CaloCellGeometry
 
       // for geometry creation in other classes
       static void createCorners( const std::vector<double>&  pv ,
-				 const HepTransform3D&       tr ,
+				 const HepGeom::Transform3D&       tr ,
 				 CornersVec&                 co   ) ;
 
-      virtual std::vector<HepPoint3D> vocalCorners( const double* pv,
-						    HepPoint3D&   ref ) const
+      virtual std::vector<HepGeom::Point3D<double> > vocalCorners( const double* pv,
+						    HepGeom::Point3D<double> &   ref ) const
       { return localCorners( pv, ref ) ; }
 
-      static std::vector<HepPoint3D> localCorners( const double* pv,
-						   HepPoint3D&   ref ) ;
-      static std::vector<HepPoint3D> localCornersReflection( const double* pv,
-							     HepPoint3D&   ref ) ;
+      static std::vector<HepGeom::Point3D<double> > localCorners( const double* pv,
+						   HepGeom::Point3D<double> &   ref ) ;
+      static std::vector<HepGeom::Point3D<double> > localCornersReflection( const double* pv,
+							     HepGeom::Point3D<double> &   ref ) ;
 
-      static std::vector<HepPoint3D> localCornersSwap( const double* pv,
-						       HepPoint3D&   ref ) ;
+      static std::vector<HepGeom::Point3D<double> > localCornersSwap( const double* pv,
+						       HepGeom::Point3D<double> &   ref ) ;
 
-      virtual HepTransform3D getTransform( std::vector<HepPoint3D>* lptr ) const ;
+      virtual HepGeom::Transform3D getTransform( std::vector<HepGeom::Point3D<double> >* lptr ) const ;
 
    private:
 
@@ -109,7 +109,7 @@ class TruncatedPyramid : public CaloCellGeometry
       
       GlobalVector         m_axis ;
 
-      mutable HepPoint3D*  m_corOne ;
+      mutable HepGeom::Point3D<double> *  m_corOne ;
 };
 
 std::ostream& operator<<( std::ostream& s, const TruncatedPyramid& cell ) ;

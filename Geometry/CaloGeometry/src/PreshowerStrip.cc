@@ -49,9 +49,9 @@ std::ostream& operator<<( std::ostream& s, const PreshowerStrip& cell )
    return s;
 }
 
-std::vector<HepPoint3D>
+std::vector<HepGeom::Point3D<double> >
 PreshowerStrip::localCorners( const double* pv,
-			      HepPoint3D&   ref )
+			      HepGeom::Point3D<double> &   ref )
 {
    assert( 0 != pv ) ;
 
@@ -59,18 +59,18 @@ PreshowerStrip::localCorners( const double* pv,
    const double dy ( pv[1] ) ;
    const double dz ( pv[2] ) ;
 
-   std::vector<HepPoint3D> lc ( 8, HepPoint3D(0,0,0) ) ;
+   std::vector<HepGeom::Point3D<double> > lc ( 8, HepGeom::Point3D<double> (0,0,0) ) ;
 
-   lc[0] = HepPoint3D( -dx, -dy, -dz ) ;
-   lc[1] = HepPoint3D( -dx,  dy, -dz ) ;
-   lc[2] = HepPoint3D(  dx,  dy, -dz ) ;
-   lc[3] = HepPoint3D(  dx, -dy, -dz ) ;
-   lc[4] = HepPoint3D( -dx, -dy,  dz ) ;
-   lc[5] = HepPoint3D( -dx,  dy,  dz ) ;
-   lc[6] = HepPoint3D(  dx,  dy,  dz ) ;
-   lc[7] = HepPoint3D(  dx, -dy,  dz ) ;
+   lc[0] = HepGeom::Point3D<double> ( -dx, -dy, -dz ) ;
+   lc[1] = HepGeom::Point3D<double> ( -dx,  dy, -dz ) ;
+   lc[2] = HepGeom::Point3D<double> (  dx,  dy, -dz ) ;
+   lc[3] = HepGeom::Point3D<double> (  dx, -dy, -dz ) ;
+   lc[4] = HepGeom::Point3D<double> ( -dx, -dy,  dz ) ;
+   lc[5] = HepGeom::Point3D<double> ( -dx,  dy,  dz ) ;
+   lc[6] = HepGeom::Point3D<double> (  dx,  dy,  dz ) ;
+   lc[7] = HepGeom::Point3D<double> (  dx, -dy,  dz ) ;
 
-   ref   = HepPoint3D(0,0,0) ;
+   ref   = HepGeom::Point3D<double> (0,0,0) ;
 
    return lc ;
 }

@@ -13,14 +13,14 @@
 
 Abstract base class for an individual cell's geometry.
     
-$Date: 2009/01/02 22:28:30 $
-$Revision: 1.15 $
+$Date: 2009/01/23 15:03:24 $
+$Revision: 1.16 $
 \author J. Mans, P. Meridiani
 */
 
-typedef HepGeom::Transform3D HepTransform3D;
-typedef HepGeom::Point3D<double> HepPoint3D;
-typedef HepGeom::Translate3D  HepTranslate3D;
+
+
+
 
 class CaloCellGeometry 
 {
@@ -61,11 +61,11 @@ class CaloCellGeometry
 
 
 //----------- only needed by specific utility; overloaded when needed ----
-      virtual HepTransform3D getTransform( std::vector<HepPoint3D>* lptr ) const ;
+      virtual HepGeom::Transform3D getTransform( std::vector<HepGeom::Point3D<double> >* lptr ) const ;
 //------------------------------------------------------------------------
 
-      virtual std::vector<HepPoint3D> vocalCorners( const double* pv,
-						    HepPoint3D&   ref ) const = 0 ;
+      virtual std::vector<HepGeom::Point3D<double> > vocalCorners( const double* pv,
+						    HepGeom::Point3D<double> &   ref ) const = 0 ;
 
    protected:
 

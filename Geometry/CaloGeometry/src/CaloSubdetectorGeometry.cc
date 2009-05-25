@@ -182,21 +182,21 @@ CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
    for( CellCont::const_iterator i ( cellGeometries().begin() ) ; 
 	i != cellGeometries().end() ; ++i )
    {
-      HepTransform3D tr ( (*i)->getTransform( ( std::vector<HepPoint3D>* ) 0 ) ) ;
+      HepGeom::Transform3D tr ( (*i)->getTransform( ( std::vector<HepGeom::Point3D<double> >* ) 0 ) ) ;
 
-      if( HepTransform3D() == tr ) // for preshower there is no rotation
+      if( HepGeom::Transform3D() == tr ) // for preshower there is no rotation
       {
 	 const GlobalPoint& gp ( (*i)->getPosition() ) ; 
-	 tr = HepTranslate3D( gp.x(), gp.y(), gp.z() ) ;
+	 tr = HepGeom::Translate3D( gp.x(), gp.y(), gp.z() ) ;
       }
 
-      const Hep3Vector  tt ( tr.getTranslation() ) ;
+      const CLHEP::Hep3Vector  tt ( tr.getTranslation() ) ;
       tVec.push_back( tt.x() ) ;
       tVec.push_back( tt.y() ) ;
       tVec.push_back( tt.z() ) ;
       if( 6 == numberOfTransformParms() )
       {
-	 const HepRotation rr ( tr.getRotation() ) ;
+	 const CLHEP::HepRotation rr ( tr.getRotation() ) ;
 	 const ROOT::Math::Transform3D rtr ( rr.xx(), rr.xy(), rr.xz(), tt.x(),
 					     rr.yx(), rr.yy(), rr.yz(), tt.y(),
 					     rr.zx(), rr.zy(), rr.zz(), tt.z()  ) ;

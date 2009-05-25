@@ -30,9 +30,9 @@ namespace calogeom
 			  z                            ) ;
    }
 
-   std::vector<HepPoint3D>
+   std::vector<HepGeom::Point3D<double> >
    IdealZPrism::localCorners( const double* pv  ,
-			      HepPoint3D&   ref   )
+			      HepGeom::Point3D<double> &   ref   )
    {
       assert( 0 != pv ) ;
 
@@ -43,7 +43,7 @@ namespace calogeom
       const double z    ( pv[4] ) ;
 
       std::vector<GlobalPoint> gc ( 8, GlobalPoint(0,0,0) ) ;
-      std::vector<HepPoint3D>  lc ( 8, HepPoint3D( 0,0,0) ) ;
+      std::vector<HepGeom::Point3D<double> >  lc ( 8, HepGeom::Point3D<double> ( 0,0,0) ) ;
 
       const GlobalPoint p ( etaPhiZ( eta, 0, z ) ) ;
 
@@ -60,7 +60,7 @@ namespace calogeom
 
       for( unsigned int i ( 0 ) ; i != 8 ; ++i )
       {
-	 lc[i] = HepPoint3D( gc[i].x(), gc[i].y(), gc[i].z() ) ;
+	 lc[i] = HepGeom::Point3D<double> ( gc[i].x(), gc[i].y(), gc[i].z() ) ;
       }
 
       ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;

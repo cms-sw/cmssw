@@ -5,23 +5,23 @@
 
 //----------------------------------------------------------------------
 
-HepTransform3D
-TruncatedPyramid::getTransform( std::vector<HepPoint3D>* lptr ) const 
+HepGeom::Transform3D
+TruncatedPyramid::getTransform( std::vector<HepGeom::Point3D<double> >* lptr ) const 
 {
    const GlobalPoint& p ( CaloCellGeometry::getPosition() ) ;
-   const HepPoint3D   gFront ( p.x(), p.y(), p.z() ) ;
+   const HepGeom::Point3D<double>    gFront ( p.x(), p.y(), p.z() ) ;
 
    const double dz ( param()[0] ) ;
 
-   HepPoint3D lFront ;
+   HepGeom::Point3D<double>  lFront ;
    assert(                               0 != param() ) ;
-   std::vector<HepPoint3D> lc ( 11.2 > dz ?
+   std::vector<HepGeom::Point3D<double> > lc ( 11.2 > dz ?
 				localCorners( param(), lFront ) :
 				localCornersSwap( param(), lFront )  ) ;
 
    // figure out if reflction volume or not
 
-   HepPoint3D lBack  ( 0.25*(lc[4]+lc[5]+lc[6]+lc[7]) ) ;
+   HepGeom::Point3D<double>  lBack  ( 0.25*(lc[4]+lc[5]+lc[6]+lc[7]) ) ;
 
    assert( 0 != m_corOne ) ;
 
@@ -39,25 +39,25 @@ TruncatedPyramid::getTransform( std::vector<HepPoint3D>* lptr ) const
       lBack  = 0.25*( lc[4] + lc[5] + lc[6] + lc[7] ) ;
    }
 
-   const HepPoint3D lOne  ( lc[0] ) ;
+   const HepGeom::Point3D<double>  lOne  ( lc[0] ) ;
 
-   const HepVector3D gAxis ( axis().x(), axis().y(), axis().z() ) ;
+   const HepGeom::Vector3D<double>  gAxis ( axis().x(), axis().y(), axis().z() ) ;
 
 
-   const HepPoint3D gBack ( gFront + (lBack-lFront).mag()*gAxis ) ;
-   const HepPoint3D gOneT ( gFront + ( lOne - lFront ).mag()*( (*m_corOne) - gFront ).unit() ) ;
+   const HepGeom::Point3D<double>  gBack ( gFront + (lBack-lFront).mag()*gAxis ) ;
+   const HepGeom::Point3D<double>  gOneT ( gFront + ( lOne - lFront ).mag()*( (*m_corOne) - gFront ).unit() ) ;
 
    const double langle ( ( lBack - lFront).angle( lOne - lFront ) ) ;
    const double gangle ( ( gBack - gFront).angle( gOneT- gFront ) ) ;
    const double dangle ( langle - gangle ) ;
 
-   const HepPlane3D gPl (  gFront, gOneT, gBack ) ;
-   const HepPoint3D p2  ( gFront + gPl.normal().unit() ) ;
+   const HepGeom::Plane3D<double>  gPl (  gFront, gOneT, gBack ) ;
+   const HepGeom::Point3D<double>  p2  ( gFront + gPl.normal().unit() ) ;
 
-   const HepPoint3D gOne ( gFront + HepRotate3D( -dangle, gFront, p2 )*
-			   HepVector3D( gOneT - gFront ) ) ;
+   const HepGeom::Point3D<double>  gOne ( gFront + HepGeom::Rotate3D( -dangle, gFront, p2 )*
+			   HepGeom::Vector3D<double> ( gOneT - gFront ) ) ;
 
-   const HepTransform3D tr ( lFront , lBack , lOne ,
+   const HepGeom::Transform3D tr ( lFront , lBack , lOne ,
 			     gFront , gBack , gOne    ) ;
 
    if( 0 != lptr ) (*lptr) = lc ;
@@ -73,13 +73,13 @@ TruncatedPyramid::getCorners() const
    {
       CornersVec& corners ( setCorners() ) ;
 
-      std::vector<HepPoint3D> lc ;
+      std::vector<HepGeom::Point3D<double> > lc ;
 
-      const HepTransform3D tr ( getTransform( &lc ) ) ;
+      const HepGeom::Transform3D tr ( getTransform( &lc ) ) ;
 
       for( unsigned int i ( 0 ) ; i != 8 ; ++i )
       {
-	 const HepPoint3D corn ( tr*lc[i] ) ;
+	 const HepGeom::Point3D<double>  corn ( tr*lc[i] ) ;
 	 corners[i] = GlobalPoint( corn.x(), corn.y(), corn.z() ) ;
       }
 
@@ -91,20 +91,20 @@ TruncatedPyramid::getCorners() const
 
 namespace truncPyr
 {
-   HepPoint3D refl( const HepPoint3D& p )
+   HepGeom::Point3D<double>  refl( const HepGeom::Point3D<double> & p )
    {
-      return HepPoint3D( -p.x(), p.y(), p.z() ) ;
+      return HepGeom::Point3D<double> ( -p.x(), p.y(), p.z() ) ;
    }
 }
 
-std::vector<HepPoint3D>
+std::vector<HepGeom::Point3D<double> >
 TruncatedPyramid::localCornersReflection( const double* pv,
-					  HepPoint3D&   ref )
+					  HepGeom::Point3D<double> &   ref )
 {
    using namespace truncPyr ;
 
-   std::vector<HepPoint3D> lc ( localCorners( pv, ref ) ) ;
-   HepPoint3D tmp ;
+   std::vector<HepGeom::Point3D<double> > lc ( localCorners( pv, ref ) ) ;
+   HepGeom::Point3D<double>  tmp ;
 /*
    tmp   = lc[0] ;
    lc[0] = refl( lc[2] ) ;
@@ -133,9 +133,9 @@ TruncatedPyramid::localCornersReflection( const double* pv,
    return lc ;
 }
 
-std::vector<HepPoint3D>
+std::vector<HepGeom::Point3D<double> >
 TruncatedPyramid::localCorners( const double* pv,
-				HepPoint3D&   ref )
+				HepGeom::Point3D<double> &   ref )
 {
    assert( 0 != pv ) ;
 
@@ -160,29 +160,29 @@ TruncatedPyramid::localCorners( const double* pv,
 
    const unsigned int off ( h1<h2 ? 0 :  4 ) ;
 
-   std::vector<HepPoint3D> lc ( 8, HepPoint3D(0,0,0) ) ;
+   std::vector<HepGeom::Point3D<double> > lc ( 8, HepGeom::Point3D<double> (0,0,0) ) ;
 
-   lc[0+off] = HepPoint3D( -dz*tthcp - h1*ta1 - b1, -dz*tthsp - h1 , -dz ); // (-,-,-)
-   lc[1+off] = HepPoint3D( -dz*tthcp + h1*ta1 - t1, -dz*tthsp + h1 , -dz ); // (-,+,-)
-   lc[2+off] = HepPoint3D( -dz*tthcp + h1*ta1 + t1, -dz*tthsp + h1 , -dz ); // (+,+,-)
-   lc[3+off] = HepPoint3D( -dz*tthcp - h1*ta1 + b1, -dz*tthsp - h1 , -dz ); // (+,-,-)
-   lc[4-off] = HepPoint3D(  dz*tthcp - h2*ta2 - b2,  dz*tthsp - h2 ,  dz ); // (-,-,+)
-   lc[5-off] = HepPoint3D(  dz*tthcp + h2*ta2 - t2,  dz*tthsp + h2 ,  dz ); // (-,+,+)
-   lc[6-off] = HepPoint3D(  dz*tthcp + h2*ta2 + t2,  dz*tthsp + h2 ,  dz ); // (+,+,+)
-   lc[7-off] = HepPoint3D(  dz*tthcp - h2*ta2 + b2,  dz*tthsp - h2 ,  dz ); // (+,-,+)
+   lc[0+off] = HepGeom::Point3D<double> ( -dz*tthcp - h1*ta1 - b1, -dz*tthsp - h1 , -dz ); // (-,-,-)
+   lc[1+off] = HepGeom::Point3D<double> ( -dz*tthcp + h1*ta1 - t1, -dz*tthsp + h1 , -dz ); // (-,+,-)
+   lc[2+off] = HepGeom::Point3D<double> ( -dz*tthcp + h1*ta1 + t1, -dz*tthsp + h1 , -dz ); // (+,+,-)
+   lc[3+off] = HepGeom::Point3D<double> ( -dz*tthcp - h1*ta1 + b1, -dz*tthsp - h1 , -dz ); // (+,-,-)
+   lc[4-off] = HepGeom::Point3D<double> (  dz*tthcp - h2*ta2 - b2,  dz*tthsp - h2 ,  dz ); // (-,-,+)
+   lc[5-off] = HepGeom::Point3D<double> (  dz*tthcp + h2*ta2 - t2,  dz*tthsp + h2 ,  dz ); // (-,+,+)
+   lc[6-off] = HepGeom::Point3D<double> (  dz*tthcp + h2*ta2 + t2,  dz*tthsp + h2 ,  dz ); // (+,+,+)
+   lc[7-off] = HepGeom::Point3D<double> (  dz*tthcp - h2*ta2 + b2,  dz*tthsp - h2 ,  dz ); // (+,-,+)
 
    ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;
 
    return lc ;
 }
 
-std::vector<HepPoint3D>
+std::vector<HepGeom::Point3D<double> >
 TruncatedPyramid::localCornersSwap( const double* pv,
-				    HepPoint3D&   ref )
+				    HepGeom::Point3D<double> &   ref )
 {
-   std::vector<HepPoint3D> lc ( localCorners( pv, ref ) ) ;
+   std::vector<HepGeom::Point3D<double> > lc ( localCorners( pv, ref ) ) ;
 
-   HepPoint3D tmp ;
+   HepGeom::Point3D<double>  tmp ;
    tmp   = lc[0] ;
    lc[0] = lc[3] ;
    lc[3] = tmp   ;
@@ -207,7 +207,7 @@ TruncatedPyramid::localCornersSwap( const double* pv,
 
 void 
 TruncatedPyramid::createCorners( const std::vector<double>&    pv ,
-				 const HepTransform3D&         tr ,
+				 const HepGeom::Transform3D&         tr ,
 				 CaloCellGeometry::CornersVec& co   )
 {
    assert( 11 == pv.size() ) ;
@@ -218,17 +218,17 @@ TruncatedPyramid::createCorners( const std::vector<double>&    pv ,
    const double dz ( pv[0] ) ;
    const double h1 ( pv[3] ) ;
    const double h2 ( pv[7] ) ;
-   std::vector<HepPoint3D> ko ( 8, HepPoint3D(0,0,0) ) ;
+   std::vector<HepGeom::Point3D<double> > ko ( 8, HepGeom::Point3D<double> (0,0,0) ) ;
 
    // if reflection, different things for barrel and endcap
-   static const HepVector3D x ( 1, 0, 0 ) ;
-   static const HepVector3D y ( 0, 1, 0 ) ;
-   static const HepVector3D z ( 0, 0, 1 ) ;
+   static const HepGeom::Vector3D<double>  x ( 1, 0, 0 ) ;
+   static const HepGeom::Vector3D<double>  y ( 0, 1, 0 ) ;
+   static const HepGeom::Vector3D<double>  z ( 0, 0, 1 ) ;
    const bool refl ( ( ( tr*x ).cross( tr*y ) ).dot( tr*z ) < 0 ) ; // has reflection!
 
 
-   HepPoint3D tmp ;
-   std::vector<HepPoint3D> to ( localCorners( &pv.front(), tmp ) ) ;
+   HepGeom::Point3D<double>  tmp ;
+   std::vector<HepGeom::Point3D<double> > to ( localCorners( &pv.front(), tmp ) ) ;
 
    for( unsigned int i ( 0 ) ; i != 8 ; ++i )
    {
@@ -278,7 +278,7 @@ TruncatedPyramid::createCorners( const std::vector<double>&    pv ,
    }
    for( unsigned int i ( 0 ) ; i != 8 ; ++i )
    {
-      const HepPoint3D& p ( ko[i] ) ;
+      const HepGeom::Point3D<double> & p ( ko[i] ) ;
       co[ i ] = GlobalPoint( p.x(), p.y(), p.z() ) ;
    }
 }
@@ -288,25 +288,25 @@ bool
 TruncatedPyramid::inside( const GlobalPoint& point ) const
 {
    bool ans ( false ) ;
-   const HepPoint3D p ( point.x(), point.y(), point.z() ) ;
+   const HepGeom::Point3D<double>  p ( point.x(), point.y(), point.z() ) ;
    const CornersVec& cog ( getCorners() ) ;
-   HepPoint3D co[8] ;
+   HepGeom::Point3D<double>  co[8] ;
    for( unsigned int i ( 0 ) ; i != 8 ; ++i )
    {
-      co[i] = HepPoint3D( cog[i].x(), cog[i].y(), cog[i].z() ) ;
+      co[i] = HepGeom::Point3D<double> ( cog[i].x(), cog[i].y(), cog[i].z() ) ;
    }
 
-   const HepPlane3D AA ( co[0], co[1], co[2] ) ; // z<0
-   const HepPlane3D BB ( co[6], co[5], co[4] ) ; // z>0
+   const HepGeom::Plane3D<double>  AA ( co[0], co[1], co[2] ) ; // z<0
+   const HepGeom::Plane3D<double>  BB ( co[6], co[5], co[4] ) ; // z>0
 
    if( AA.distance(p)*BB.distance(p) >= 0 )
    {
-     const HepPlane3D CC ( co[0], co[4], co[5] ) ; // x<0
-     const HepPlane3D DD ( co[2], co[6], co[7] ) ; // x>0
+     const HepGeom::Plane3D<double>  CC ( co[0], co[4], co[5] ) ; // x<0
+     const HepGeom::Plane3D<double>  DD ( co[2], co[6], co[7] ) ; // x>0
      if( CC.distance(p)*DD.distance(p) >= 0 )
      {
-       const HepPlane3D EE ( co[3], co[7], co[4] ) ; // y<0
-       const HepPlane3D FF ( co[1], co[5], co[6] ) ; // y>0
+       const HepGeom::Plane3D<double>  EE ( co[3], co[7], co[4] ) ; // y<0
+       const HepGeom::Plane3D<double>  FF ( co[1], co[5], co[6] ) ; // y>0
        if( EE.distance(p)*FF.distance(p) >= 0 )
        {
 	   ans = true ;

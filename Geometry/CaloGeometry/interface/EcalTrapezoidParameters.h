@@ -62,8 +62,8 @@
 
 // forward declarations
 
-typedef HepGeom::Point3D<double> HepPoint3D;
-template class std::vector<HepPoint3D> ;
+
+template class std::vector<HepGeom::Point3D<double> > ;
 
 class EcalTrapezoidParameters
 {
@@ -71,7 +71,7 @@ class EcalTrapezoidParameters
    public:
       // ---------- constants, enums and typedefs --------------
 
-      typedef std::vector<HepPoint3D> VertexList ;
+      typedef std::vector<HepGeom::Point3D<double> > VertexList ;
 
       // ---------- Constructors and destructor ----------------
 

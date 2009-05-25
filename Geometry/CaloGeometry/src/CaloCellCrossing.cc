@@ -19,8 +19,8 @@ CaloCellCrossing::CaloCellCrossing( const GlobalPoint&              gp ,
    m_entr .reserve( k_rlen ) ;
    m_exit .reserve( k_rlen ) ;
 //------------------------------------------------------------
-   const HepLine3D line ( HepPoint3D(  gp.x(), gp.y(), gp.z() ), 
-			  HepVector3D( gv.x(), gv.y(), gv.z() ), eps ) ;
+   const HepLine3D line ( HepGeom::Point3D<double> (  gp.x(), gp.y(), gp.z() ), 
+			  HepGeom::Vector3D<double> ( gv.x(), gv.y(), gv.z() ), eps ) ;
 
 //   std::cout<<"*** Line: pt="<<line.pt()<<", unitvec="<<line.uv()<<std::endl ;
 
@@ -32,26 +32,26 @@ CaloCellCrossing::CaloCellCrossing( const GlobalPoint&              gp ,
       unsigned int found ( 0 ) ;
       const CaloCellGeometry& cg ( *sg->getGeometry( dId ) ) ;
       const CaloCellGeometry::CornersVec& gc ( cg.getCorners() ) ;
-      const HepPoint3D fr ( cg.getPosition().x(),
+      const HepGeom::Point3D<double>  fr ( cg.getPosition().x(),
 			    cg.getPosition().y(),
 			    cg.getPosition().z()  ) ;
       const double bCut2 ( ( gc[0] - gc[6] ).mag2() ) ;
 
       if( ( !onewayonly ||
-	    eps < HepVector3D( fr - line.pt() ).dot( line.uv() ) ) &&
+	    eps < HepGeom::Vector3D<double> ( fr - line.pt() ).dot( line.uv() ) ) &&
 	  bCut2 > line.dist2( fr ) ) // first loose cut
       {
 //	 std::cout<<"*** fr="<<fr<<", bCut ="<<sqrt(bCut2)<<", dis="<<line.dist(fr)<<std::endl ;
-	 const HepPoint3D cv[8] = 
-	    { HepPoint3D( gc[0].x(), gc[0].y(), gc[0].z() ) ,
-	      HepPoint3D( gc[1].x(), gc[1].y(), gc[1].z() ) ,
-	      HepPoint3D( gc[2].x(), gc[2].y(), gc[2].z() ) ,
-	      HepPoint3D( gc[3].x(), gc[3].y(), gc[3].z() ) ,
-	      HepPoint3D( gc[4].x(), gc[4].y(), gc[4].z() ) ,
-	      HepPoint3D( gc[5].x(), gc[5].y(), gc[5].z() ) ,
-	      HepPoint3D( gc[6].x(), gc[6].y(), gc[6].z() ) ,
-	      HepPoint3D( gc[7].x(), gc[7].y(), gc[7].z() ) } ;
-	 const HepPoint3D ctr ( 0.125*(cv[0]+cv[1]+cv[2]+cv[3]+
+	 const HepGeom::Point3D<double>  cv[8] = 
+	    { HepGeom::Point3D<double> ( gc[0].x(), gc[0].y(), gc[0].z() ) ,
+	      HepGeom::Point3D<double> ( gc[1].x(), gc[1].y(), gc[1].z() ) ,
+	      HepGeom::Point3D<double> ( gc[2].x(), gc[2].y(), gc[2].z() ) ,
+	      HepGeom::Point3D<double> ( gc[3].x(), gc[3].y(), gc[3].z() ) ,
+	      HepGeom::Point3D<double> ( gc[4].x(), gc[4].y(), gc[4].z() ) ,
+	      HepGeom::Point3D<double> ( gc[5].x(), gc[5].y(), gc[5].z() ) ,
+	      HepGeom::Point3D<double> ( gc[6].x(), gc[6].y(), gc[6].z() ) ,
+	      HepGeom::Point3D<double> ( gc[7].x(), gc[7].y(), gc[7].z() ) } ;
+	 const HepGeom::Point3D<double>  ctr ( 0.125*(cv[0]+cv[1]+cv[2]+cv[3]+
 				       cv[4]+cv[5]+cv[6]+cv[7]) ) ;
 	 const double dCut2 ( bCut2/4. ) ;
 	 if( dCut2 > line.dist2( ctr ) ) // tighter cut
@@ -65,9 +65,9 @@ CaloCellCrossing::CaloCellCrossing( const GlobalPoint&              gp ,
 	    for( unsigned int face ( 0 ) ; face != 6 ; ++face )
 	    {
 	       const unsigned int* ic ( &nc[face][0] ) ;
-	       const HepPlane3D pl ( cv[ic[0]], cv[ic[1]], cv[ic[2]] ) ;
-	       HepBoolean parallel ;
-	       const HepPoint3D pt ( line.point( pl, parallel ) ) ;
+	       const HepGeom::Plane3D<double>  pl ( cv[ic[0]], cv[ic[1]], cv[ic[2]] ) ;
+	       bool parallel ;
+	       const HepGeom::Point3D<double>  pt ( line.point( pl, parallel ) ) ;
 //	       std::cout<<"***Face: "<<face<<", pt="<<pt<<std::endl ;
 	       if( !parallel )
 	       {
@@ -104,11 +104,11 @@ CaloCellCrossing::CaloCellCrossing( const GlobalPoint&              gp ,
 			   else
 			   {
 			      const double dist1 (
-				 ( pt - HepPoint3D( m_entr.back().x(),
+				 ( pt - HepGeom::Point3D<double> ( m_entr.back().x(),
 						    m_entr.back().y(),
 						    m_entr.back().z() ) ).mag() ) ;
 			      const double dist2 ( 
-				 ( pt - HepPoint3D( m_exit.back().x(),
+				 ( pt - HepGeom::Point3D<double> ( m_exit.back().x(),
 						    m_exit.back().y(),
 						    m_exit.back().z() ) ).mag() ) ;
 			      if( eps < dist1 && 

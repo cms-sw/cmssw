@@ -122,11 +122,11 @@ EcalTrapezoidParameters::EcalTrapezoidParameters(
    }
    m_hCc = z7*sin( gc7 ) ;
 
-   const HepPoint3D fc ( m_bl2 + m_h2*tanalp2, m_h2, 0 ) ;
-   const HepPoint3D v5 ( m_x15 , m_y15 , -m_L ) ;
-   const HepPoint3D bc ( v5 +
-		   HepPoint3D( m_bl1 + m_h1*tanalp1, m_h1, 0 ) ) ;
-   const HepPoint3D dc ( fc - bc ) ;
+   const HepGeom::Point3D<double>  fc ( m_bl2 + m_h2*tanalp2, m_h2, 0 ) ;
+   const HepGeom::Point3D<double>  v5 ( m_x15 , m_y15 , -m_L ) ;
+   const HepGeom::Point3D<double>  bc ( v5 +
+		   HepGeom::Point3D<double> ( m_bl1 + m_h1*tanalp1, m_h1, 0 ) ) ;
+   const HepGeom::Point3D<double>  dc ( fc - bc ) ;
 
    m_th  = dc.theta() ;
    m_ph  = dc.phi()   ;
@@ -205,7 +205,7 @@ EcalTrapezoidParameters::vertexList() const
    const double dztanth ( dz()*tan( theta() ) ) ;
 
    const double ph ( phi() ) ;
-   const HepPoint3D fc ( dztanth*cos(ph), dztanth*sin(ph), dz() ) ;
+   const HepGeom::Point3D<double>  fc ( dztanth*cos(ph), dztanth*sin(ph), dz() ) ;
 
    const double h_ ( h() ) ;
    const double H_ ( H() ) ;
@@ -222,22 +222,22 @@ EcalTrapezoidParameters::vertexList() const
 
    const double tana1   ( tan( a1() - M_PI_2 )  ) ;
 
-   const HepPoint3D f1 ( -HepPoint3D( bl2() + h2()*tanalp2,  h2(), 0 ) ) ;
+   const HepGeom::Point3D<double>  f1 ( -HepGeom::Point3D<double> ( bl2() + h2()*tanalp2,  h2(), 0 ) ) ;
 
-   const HepPoint3D f2 ( HepPoint3D( -h_*tana1, h_, 0 ) + f1 ) ;
+   const HepGeom::Point3D<double>  f2 ( HepGeom::Point3D<double> ( -h_*tana1, h_, 0 ) + f1 ) ;
 
-   const HepPoint3D f3 ( f2 + HepPoint3D( b_,0,0 ) ) ;
+   const HepGeom::Point3D<double>  f3 ( f2 + HepGeom::Point3D<double> ( b_,0,0 ) ) ;
 
-   const HepPoint3D f4 ( HepPoint3D( a_,0,0 ) + f1 ) ;
+   const HepGeom::Point3D<double>  f4 ( HepGeom::Point3D<double> ( a_,0,0 ) + f1 ) ;
 
 
-   const HepPoint3D f5 ( -HepPoint3D( bl1() + h1()*tanalp1,  h1(),      0 ) ) ;
+   const HepGeom::Point3D<double>  f5 ( -HepGeom::Point3D<double> ( bl1() + h1()*tanalp1,  h1(),      0 ) ) ;
 
-   const HepPoint3D f6 ( HepPoint3D( -H_*tana1, H_, 0 ) + f5 ) ;
+   const HepGeom::Point3D<double>  f6 ( HepGeom::Point3D<double> ( -H_*tana1, H_, 0 ) + f5 ) ;
 
-   const HepPoint3D f7 ( f6 + HepPoint3D( B_,0,0 ) ) ;
+   const HepGeom::Point3D<double>  f7 ( f6 + HepGeom::Point3D<double> ( B_,0,0 ) ) ;
 
-   const HepPoint3D f8 ( HepPoint3D( A_,0,0 ) + f5 ) ;
+   const HepGeom::Point3D<double>  f8 ( HepGeom::Point3D<double> ( A_,0,0 ) + f5 ) ;
 
    vtx.push_back(  fc + f1 ) ;
    vtx.push_back(  fc + f2 ) ;

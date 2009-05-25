@@ -24,8 +24,8 @@ namespace calogeom {
   is encoded in the sign of the thickness.  (positive = parallel to
   z-axis, negative = perpendicular)
 
-  $Date: 2008/11/10 15:20:15 $
-  $Revision: 1.6 $
+  $Date: 2009/01/23 15:03:24 $
+  $Revision: 1.7 $
   \author J. Mans - Minnesota
   */
    class IdealObliquePrism : public CaloCellGeometry 
@@ -49,11 +49,11 @@ namespace calogeom {
 	 double eta()   const { return param()[3] ; }
 	 double z()     const { return param()[4] ; }
 
-	 static std::vector<HepPoint3D> localCorners( const double* pv,
-						      HepPoint3D&   ref ) ;
+	 static std::vector<HepGeom::Point3D<double> > localCorners( const double* pv,
+						      HepGeom::Point3D<double> &   ref ) ;
 
-	 virtual std::vector<HepPoint3D> vocalCorners( const double* pv,
-						       HepPoint3D&   ref ) const 
+	 virtual std::vector<HepGeom::Point3D<double> > vocalCorners( const double* pv,
+						       HepGeom::Point3D<double> &   ref ) const 
 	 { return localCorners( pv, ref ) ; }
 
       private:
