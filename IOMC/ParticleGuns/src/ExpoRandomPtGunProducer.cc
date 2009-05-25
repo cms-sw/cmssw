@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/02/17 11:03:48 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/02/19 21:52:40 $
+ *  $Revision: 1.4 $
  *  \author Jean-Roch Vlimant
  */
 
@@ -39,7 +39,7 @@ ExpoRandomPtGunProducer::ExpoRandomPtGunProducer(const ParameterSet& pset) :
    produces<GenEventInfoProduct>();
 
    //the explonential generator
-   fRandomExpoGenerator = new RandExponential(fRandomEngine,fMeanPt);
+   fRandomExpoGenerator = new CLHEP::RandExponential(fRandomEngine,fMeanPt);
    
 }
 

@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/02/19 21:52:40 $
- *  $Revision: 1.18 $
+ *  $Date: 2009/03/19 11:33:55 $
+ *  $Revision: 1.19 $
  *  \author Julia Yarba
  */
 
@@ -28,7 +28,7 @@ using namespace std;
 using namespace CLHEP;
 
 namespace {
-  HepRandomEngine& getEngineReference()
+  CLHEP::HepRandomEngine& getEngineReference()
   {
 
    Service<RandomNumberGenerator> rng;
@@ -93,7 +93,7 @@ BaseFlatGunSource::BaseFlatGunSource( const ParameterSet& pset,
   fVerbosity = pset.getUntrackedParameter<int>( "Verbosity",0 ) ;
 
 // The Service has already instantiated an engine.  Use it.
-   fRandomGenerator = new RandFlat(fRandomEngine) ;
+   fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
    fAddAntiParticle = pset.getUntrackedParameter<bool>("AddAntiParticle",false);
    
 }

@@ -49,7 +49,7 @@ FlatBaseThetaGunProducer::FlatBaseThetaGunProducer(const edm::ParameterSet& pset
   fVerbosity = pset.getUntrackedParameter<int>( "Verbosity",0 ) ;
 
   // The Service has already instantiated an engine.  Use it.
-   fRandomGenerator = new RandFlat(fRandomEngine) ;
+   fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
    fAddAntiParticle = pset.getParameter<bool>("AddAntiParticle") ;
 
    produces<GenRunInfoProduct, InRun>();

@@ -66,8 +66,8 @@ namespace edm
             	    	
     int              fVerbosity ;
 
-    HepRandomEngine& fRandomEngine ;
-    RandFlat*        fRandomGenerator; 
+    CLHEP::HepRandomEngine& fRandomEngine ;
+    CLHEP::RandFlat*        fRandomGenerator; 
     
     bool             fAddAntiParticle;
     

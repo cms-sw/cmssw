@@ -150,7 +150,7 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
           << " does not correspond to a supported engine." ;
       }
   
-  // For the RanecuEngine case, require a seed set containing exactly two seeds.
+  // For the CLHEP::RanecuEngine case, require a seed set containing exactly two seeds.
   
       if(engineName == std::string("RanecuEngine")) {
         if(secondary.exists("initialSeedSet")) {
@@ -169,7 +169,7 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
           } else {
             seedMap_[*it] = initialSeedSet;
           }
-          boost::shared_ptr<CLHEP::HepRandomEngine> engine(new RanecuEngine());
+          boost::shared_ptr<CLHEP::HepRandomEngine> engine(new CLHEP::RanecuEngine());
           if(source) {
             engineMap_[sourceLabel] = engine;
           } else {
@@ -178,7 +178,7 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
           if (initialSeedSet[0] > std::numeric_limits<uint32_t>::max() ||
               initialSeedSet[1] > std::numeric_limits<uint32_t>::max()) {  // They need to fit in a 32 bit integer
             throw edm::Exception(edm::errors::Configuration)
-              << "The RanecuEngine seeds should be in the range 0 to " << std::numeric_limits<uint32_t>::max() << " .\n"
+              << "The CLHEP::RanecuEngine seeds should be in the range 0 to " << std::numeric_limits<uint32_t>::max() << " .\n"
               << "The seeds passed to the RandomNumberGenerationService from the\n"
                  "configuration file were " << initialSeedSet[0] << " and " << initialSeedSet[1]
               << " (or one was negative\nor larger "
@@ -224,7 +224,7 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
         if(engineName == "HepJamesRandom") {
           if (initialSeed > 900000000) {
             throw edm::Exception(edm::errors::Configuration)
-              << "The HepJamesRandom engine seed should be in the range 0 to 900000000.\n"
+              << "The CLHEP::HepJamesRandom engine seed should be in the range 0 to 900000000.\n"
               << "The seed passed to the RandomNumberGenerationService from the\n"
                  "configuration file was " << initialSeed
               << " or negative or larger\n"
@@ -232,7 +232,7 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
               << "the module with label " << *it << ".";
           }
           long int seedL = static_cast<long int>(initialSeed);
-          boost::shared_ptr<CLHEP::HepRandomEngine> engine(new HepJamesRandom(seedL));
+          boost::shared_ptr<CLHEP::HepRandomEngine> engine(new CLHEP::HepJamesRandom(seedL));
           if(source) {
             engineMap_[sourceLabel] = engine;
           } else {
@@ -1235,7 +1235,7 @@ RandomNumberGeneratorService::oldStyleConfig(const ParameterSet& iPSet)
     // It is OK if this is missing.
 
   // Loop over the engines where the seed(s) were specified and see
-  // if the engine is also specified.  If not, default to HepJamesRandom.
+  // if the engine is also specified.  If not, default to CLHEP::HepJamesRandom.
   // Create the engines and fill the map.
 
   for (std::map<std::string, std::vector<uint32_t> >::iterator seedIter  = seedMap_.begin();
@@ -1279,7 +1279,7 @@ RandomNumberGeneratorService::oldStyleConfig(const ParameterSet& iPSet)
 
         if (seedIter->second[0] > 900000000) {
           throw edm::Exception(edm::errors::Configuration)
-            << "The HepJamesRandom engine seed should be in the range 0 to 900000000.\n"
+            << "The CLHEP::HepJamesRandom engine seed should be in the range 0 to 900000000.\n"
             << "The seed passed to the RandomNumberGenerationService from the\n"
                "configuration file was " << seedIter->second[0]
             << " or negative or larger\n"
@@ -1302,7 +1302,7 @@ RandomNumberGeneratorService::oldStyleConfig(const ParameterSet& iPSet)
         if (seedIter->second[0] > std::numeric_limits<uint32_t>::max() ||
             seedIter->second[1] > std::numeric_limits<uint32_t>::max()) {  // They need to fit in a 31 bit integer
           throw edm::Exception(edm::errors::Configuration)
-            << "The RanecuEngine seeds should be in the range 0 to " << std::numeric_limits<uint32_t>::max() << ".\n"
+            << "The CLHEP::RanecuEngine seeds should be in the range 0 to " << std::numeric_limits<uint32_t>::max() << ".\n"
             << "The seeds passed to the RandomNumberGenerationService from the\n"
    	       "configuration file were " << seedIter->second[0] << " and " << seedIter->second[1]
             << " (or one was negative\nor larger "
@@ -1334,7 +1334,7 @@ RandomNumberGeneratorService::oldStyleConfig(const ParameterSet& iPSet)
              "create an unknown random engine type named \""
           << engineName
           << "\"\nfor " << outputString
-          << "\nCurrently the only valid types are HepJamesRandom, RanecuEngine and TRandom3";
+          << "\nCurrently the only valid types are CLHEP::HepJamesRandom, CLHEP::RanecuEngine and TRandom3";
       }
     }
   }

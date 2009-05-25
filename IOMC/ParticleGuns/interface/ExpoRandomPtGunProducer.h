@@ -30,7 +30,7 @@ namespace edm
     double            fMinPt   ;
     double            fMaxPt   ;
     double            fMeanPt ;
-    RandExponential * fRandomExpoGenerator;
+    CLHEP::RandExponential * fRandomExpoGenerator;
 
   };
 } 

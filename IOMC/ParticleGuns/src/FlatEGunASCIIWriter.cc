@@ -94,9 +94,9 @@ void FlatEGunASCIIWriter::analyze( const Event& ,
    //
    for ( unsigned int ip=0; ip<fPartIDs.size(); ip++ )
    {
-       double energy = RandFlat::shoot( fMinE, fMaxE ) ;
-       double eta    = RandFlat::shoot( fMinEta, fMaxEta ) ;
-       double phi    = RandFlat::shoot( fMinPhi, fMaxPhi ) ;
+       double energy = CLHEP::RandFlat::shoot( fMinE, fMaxE ) ;
+       double eta    = CLHEP::RandFlat::shoot( fMinEta, fMaxEta ) ;
+       double phi    = CLHEP::RandFlat::shoot( fMinPhi, fMaxPhi ) ;
        const HepPDT::ParticleData* 
           PData = fPDGTable->particle(HepPDT::ParticleID(abs(fPartIDs[ip]))) ;
        double mass   = PData->mass().value() ;

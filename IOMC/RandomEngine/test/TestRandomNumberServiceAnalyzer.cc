@@ -13,7 +13,7 @@ service.  Prints them to an output file named testRandomNumberService.txt.
 //
 // Original Author:  Chris Jones, David Dagenhart
 //         Created:  Tue Mar  7 11:57:09 EST 2006
-// $Id: TestRandomNumberServiceAnalyzer.cc,v 1.4 2008/04/29 20:03:55 marafino Exp $
+// $Id: TestRandomNumberServiceAnalyzer.cc,v 1.5 2008/05/06 14:10:34 marafino Exp $
 //
 //
 
@@ -162,7 +162,7 @@ TestRandomNumberServiceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   // in CLHEP.  Here we use the exponential distribution.  CLHEP provides
   // 9 other possible distributions.
   // It is very important to use the "fire" method not "shoot".
-  RandExponential expDist(engine);
+  CLHEP::RandExponential expDist(engine);
   double mean = 10.0;  // Mean of the exponential
 
 #ifdef ORIGINAL
