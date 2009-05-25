@@ -20,8 +20,8 @@
 // * statement, and all its terms.                                    *
 // ********************************************************************
 //
-// $Id: SiG4UniversalFluctuation.cc,v 1.5 2006/11/13 14:24:35 fambrogl Exp $
-// GEANT4 tag $Name:  $
+// $Id: SiG4UniversalFluctuation.cc,v 1.6 2007/05/10 08:55:16 fambrogl Exp $
+// GEANT4 tag $Name: V02-00-00 $
 //
 // -------------------------------------------------------------------
 //
@@ -53,8 +53,8 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandPoisson.h"
 #include "CLHEP/Random/RandFlat.h"
