@@ -170,10 +170,10 @@ EcalPreshowerGeometry::getClosestCellInPlane( const GlobalPoint& point,
 	   present( esid )    ? esid : DetId(0) ) ;
 }
 
-std::vector<HepPoint3D> 
+std::vector<HepGeom::Point3D<double> > 
 EcalPreshowerGeometry::localCorners( const double* pv,
 				     unsigned int  i,
-				     HepPoint3D&   ref )
+				     HepGeom::Point3D<double> &   ref )
 {
    return ( PreshowerStrip::localCorners( pv, ref ) ) ;
 }

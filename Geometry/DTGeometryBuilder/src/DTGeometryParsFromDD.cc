@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/02/02 15:56:41 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/04/22 18:38:59 $
+ *  $Revision: 1.3 $
  *  \author Stefano Lacaprara  <lacaprara@pd.infn.it>  INFN LNL
  */
 
@@ -18,7 +18,7 @@
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/DTNumberingScheme.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"

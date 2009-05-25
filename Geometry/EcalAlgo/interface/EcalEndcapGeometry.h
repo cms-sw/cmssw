@@ -76,9 +76,9 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
 
       static unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
 
-      static std::vector<HepPoint3D> localCorners( const double* pv,
+      static std::vector<HepGeom::Point3D<double> > localCorners( const double* pv,
 						   unsigned int  i,
-						   HepPoint3D&   ref ) ;
+						   HepGeom::Point3D<double> &   ref ) ;
 
       static CaloCellGeometry* newCell( const GlobalPoint& f1 ,
 					const GlobalPoint& f2 ,

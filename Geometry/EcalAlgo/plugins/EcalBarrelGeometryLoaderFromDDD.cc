@@ -19,7 +19,7 @@ template <>
 void 
 EcalBGL::fillGeom( EcalBarrelGeometry*     geom ,
 		   const EcalBGL::ParmVec& vv ,
-		   const HepTransform3D&   tr ,
+		   const HepGeom::Transform3D&   tr ,
 		   const DetId&            id    )
 {
    std::vector<double> pv ;

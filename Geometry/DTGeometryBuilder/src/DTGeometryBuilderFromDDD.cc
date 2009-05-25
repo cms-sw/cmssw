@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/01/16 11:11:46 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/03/10 14:57:01 $
+ *  $Revision: 1.12 $
  *  \author N. Amapane - CERN. 
  */
 
@@ -17,7 +17,7 @@
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/DTNumberingScheme.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"

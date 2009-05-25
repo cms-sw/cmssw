@@ -125,10 +125,10 @@ EcalBarrelGeometry::getClosestCell(const GlobalPoint& r) const
       if (!present(myCell))
 	return DetId(0);
       
-      HepPoint3D  A;
-      HepPoint3D  B;
-      HepPoint3D  C;
-      HepPoint3D  point(r.x(),r.y(),r.z());
+      HepGeom::Point3D<double>   A;
+      HepGeom::Point3D<double>   B;
+      HepGeom::Point3D<double>   C;
+      HepGeom::Point3D<double>   point(r.x(),r.y(),r.z());
 
       // D.K. : equation of plane : AA*x+BB*y+CC*z+DD=0;
       // finding equation for each edge
@@ -153,10 +153,10 @@ EcalBarrelGeometry::getClosestCell(const GlobalPoint& r) const
 	  // compute the distance of the point with respect of the 4 crystal lateral planes
 	  for (short i=0; i < 4 ; ++i)
 	    {
-	      A = HepPoint3D(corners[i%4].x(),corners[i%4].y(),corners[i%4].z());
-	      B = HepPoint3D(corners[(i+1)%4].x(),corners[(i+1)%4].y(),corners[(i+1)%4].z());
-	      C = HepPoint3D(corners[4+(i+1)%4].x(),corners[4+(i+1)%4].y(),corners[4+(i+1)%4].z());
-	      HepPlane3D plane(A,B,C);
+	      A = HepGeom::Point3D<double> (corners[i%4].x(),corners[i%4].y(),corners[i%4].z());
+	      B = HepGeom::Point3D<double> (corners[(i+1)%4].x(),corners[(i+1)%4].y(),corners[(i+1)%4].z());
+	      C = HepGeom::Point3D<double> (corners[4+(i+1)%4].x(),corners[4+(i+1)%4].y(),corners[4+(i+1)%4].z());
+	      HepGeom::Plane3D<double>  plane(A,B,C);
 	      plane.normalize();
 	      double distance = plane.distance(point);
 	      if(plane.d()>0.) distance=-distance;
@@ -423,10 +423,10 @@ EcalBarrelGeometry::getClosestEndcapCells( EBDetId id ) const
    return ptr ;
 }
 
-std::vector<HepPoint3D> 
+std::vector<HepGeom::Point3D<double> > 
 EcalBarrelGeometry::localCorners( const double* pv, 
 				  unsigned int  i,
-				  HepPoint3D&   ref )
+				  HepGeom::Point3D<double> &   ref )
 {
    const bool negz ( EBDetId::kSizeForDenseIndexing/2 >  i ) ;
    const bool odd  ( 1 == i%2 ) ;

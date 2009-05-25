@@ -23,7 +23,7 @@
 #include <CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h>
 #include <CondFormats/GeometryObjects/interface/RecoIdealGeometry.h>
 
-#include <CLHEP/Units/SystemOfUnits.h>
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <FWCore/Utilities/interface/Exception.h>

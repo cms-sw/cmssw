@@ -24,7 +24,7 @@ template <>
 void 
 EcalPGL::fillGeom( EcalPreshowerGeometry*  geom ,
 		   const EcalPGL::ParmVec& pv ,
-		   const HepTransform3D&   tr ,
+		   const HepGeom::Transform3D&   tr ,
 		   const DetId&            id     )
 {
    std::vector<double> vv ;
@@ -37,7 +37,7 @@ EcalPGL::fillGeom( EcalPreshowerGeometry*  geom ,
 						    geom->parMgr(), 
 						    geom->parVecVec() ) ) ;
    
-   const HepPoint3D ctr ( tr*HepPoint3D(0,0,0) ) ;
+   const HepGeom::Point3D<double>  ctr ( tr*HepGeom::Point3D<double> (0,0,0) ) ;
 
    const GlobalPoint refPoint ( ctr.x(), ctr.y(), ctr.z() ) ;
 

@@ -21,7 +21,7 @@
 #include <DataFormats/MuonDetId/interface/DTSuperLayerId.h>
 #include <DataFormats/MuonDetId/interface/DTLayerId.h>
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 /* C++ Headers */
 #include <iostream>
