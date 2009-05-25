@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/03/09 16:56:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/17 13:33:02 $
+ *  $Revision: 1.2 $
  *  \author G. Bevilacqua, N. Amapane - INFN Torino
  */
 
@@ -60,11 +60,11 @@ double asymGausSample(double mean, double sigma1, double sigma2) {
   double f = sigma1/(sigma1+sigma2);
   double t;
 
-  if (RandFlat::shoot() <= f) {
-    t = RandGaussQ::shoot(mean,sigma1);
+  if (CLHEP::RandFlat::shoot() <= f) {
+    t = CLHEP::RandGaussQ::shoot(mean,sigma1);
     return mean - fabs(t - mean);
   } else {
-    t = RandGaussQ::shoot(mean,sigma2);
+    t = CLHEP::RandGaussQ::shoot(mean,sigma2);
     return mean + fabs(t - mean);    
   }
 }

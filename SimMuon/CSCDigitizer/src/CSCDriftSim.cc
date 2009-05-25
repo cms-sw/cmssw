@@ -10,7 +10,8 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "Math/GenVector/RotationZ.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"  
 #include <cmath>
 #include <iostream>
 

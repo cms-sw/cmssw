@@ -5,7 +5,7 @@
 #include "SimMuon/CSCDigitizer/src/CSCBaseElectronicsSim.h"
 #include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 #include<list>
@@ -45,7 +45,7 @@ CSCBaseElectronicsSim::~CSCBaseElectronicsSim()
 void CSCBaseElectronicsSim::setRandomEngine(CLHEP::HepRandomEngine& engine)
 {
   if(theRandGaussQ) delete theRandGaussQ;
-  theRandGaussQ = new RandGaussQ(engine);
+  theRandGaussQ = new CLHEP::RandGaussQ(engine);
 }
 
 

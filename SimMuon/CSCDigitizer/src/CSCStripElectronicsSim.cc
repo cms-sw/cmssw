@@ -10,7 +10,8 @@
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 #include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"  
 #include <list>
 #include <cassert>
 

@@ -5,7 +5,8 @@
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"  
 #include <iostream>
 
 
