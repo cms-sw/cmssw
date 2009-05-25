@@ -14,7 +14,7 @@ fixedMatrixSuperClustersWithPreshower = cms.EDProducer("PreshowerClusterProducer
     preshClusterCollectionX = cms.string('preshowerXClusters'),
     preshCalibPlaneY = cms.double(0.7),
     preshCalibPlaneX = cms.double(1.0),
-    preshCalibMIP = cms.double(80.1e-06), ## 78.5e-6
+    preshCalibMIP = cms.double(81.1e-06), ## 78.5e-6
 
     endcapSClusterProducer = cms.InputTag("fixedMatrixSuperClusters","fixedMatrixEndcapSuperClusters"),
     preshNclust = cms.int32(4),
