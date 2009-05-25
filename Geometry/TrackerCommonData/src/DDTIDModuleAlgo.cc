@@ -13,8 +13,8 @@
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/TrackerCommonData/interface/DDTIDModuleAlgo.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 
 DDTIDModuleAlgo::DDTIDModuleAlgo() {

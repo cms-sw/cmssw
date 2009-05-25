@@ -23,8 +23,8 @@
 #include "DetectorDescription/Core/interface/DDConstant.h"
 #include "Geometry/TrackerCommonData/interface/DDPixFwdBlades.h"
 #include "CLHEP/Vector/RotationInterfaces.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
   // -- Input geometry parameters :  -----------------------------------------------------
 

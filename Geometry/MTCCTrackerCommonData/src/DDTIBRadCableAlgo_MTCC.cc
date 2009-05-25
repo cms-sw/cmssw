@@ -16,8 +16,8 @@
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/MTCCTrackerCommonData/interface/DDTIBRadCableAlgo_MTCC.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 DDTIBRadCableAlgo_MTCC::DDTIBRadCableAlgo_MTCC(): layRin(0),cableMat(0),strucMat(0), layers(0) {
   LogDebug("TIBGeom") << "DDTIBRadCableAlgo_MTCC info: Creating an instance";

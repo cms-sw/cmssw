@@ -15,8 +15,8 @@
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/MTCCTrackerCommonData/interface/DDTIBLayerAlgo_MTCC.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 DDTIBLayerAlgo_MTCC::DDTIBLayerAlgo_MTCC(): ribW(0),ribPhi(0) {
   LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC info: Creating an instance";

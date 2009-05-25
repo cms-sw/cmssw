@@ -15,8 +15,8 @@
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/TrackerCommonData/interface/DDTECCoolAlgo.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 
 DDTECCoolAlgo::DDTECCoolAlgo(): phiPosition(0),coolInsert(0) {
