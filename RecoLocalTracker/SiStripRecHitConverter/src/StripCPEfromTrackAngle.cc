@@ -20,10 +20,10 @@ localParameters( const SiStripCluster& cluster, const LocalTrajectoryParameters&
   const unsigned N = cluster.amplitudes().size();
   const float uProj = p.coveredStrips( track+p.drift, ltp.position());
   const float uerr2 = stripErrorSquared( N, fabs(uProj) );
-  const float position = p.driftCorrected( cluster.barycenter(), ltp.position());
+  const float strip = p.driftCorrected( cluster.barycenter(), ltp.position());
 
-  return std::make_pair( p.topology->localPosition(position),
-			 p.topology->localError(position, uerr2) );
+  return std::make_pair( p.topology->localPosition(strip),
+			 p.topology->localError(strip, uerr2) );
 }
 
 inline

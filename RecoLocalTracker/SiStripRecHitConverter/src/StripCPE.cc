@@ -15,9 +15,9 @@ StripCPE::StripCPE( edm::ParameterSet & conf,
 StripClusterParameterEstimator::LocalValues StripCPE::
 localParameters( const SiStripCluster& cluster) const {
   StripCPE::Param const & p = param(DetId(cluster.geographicalId()));
-  const float position = p.driftCorrected( cluster.barycenter() );
-  return std::make_pair( p.topology->localPosition(position),
-			 p.topology->localError(position, 1/12.) );
+  const float strip = p.driftCorrected( cluster.barycenter() );
+  return std::make_pair( p.topology->localPosition(strip),
+			 p.topology->localError(strip, 1/12.) );
 }
 
 float StripCPE::Param::
@@ -71,6 +71,7 @@ fillParam(StripCPE::Param & p, const GeomDetUnit *  det) {
   p.drift = driftDirection(stripdet) * p.thickness;
   p.topology=(StripTopology*)(&stripdet->topology());    
   p.nstrips = p.topology->nstrips(); 
+  p.subdet = SiStripDetId(stripdet->geographicalId()).subDetector();
   
   return p;
 }

@@ -35,6 +35,7 @@ public:
     float thickness;
     float maxLength;
     int nstrips;
+    SiStripDetId::SubDetector subdet;
     float coveredStrips(const LocalVector&, const LocalPoint&) const;
     float driftCorrected(const float& strip, const LocalPoint&) const;
     float driftCorrected(const float& strip) const;

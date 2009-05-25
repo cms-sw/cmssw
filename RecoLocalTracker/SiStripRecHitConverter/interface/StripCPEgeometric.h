@@ -18,23 +18,51 @@ class StripCPEgeometric : public StripCPE
 		     const MagneticField* mag, 
 		     const TrackerGeometry* geom, 
 		     const SiStripLorentzAngle* LorentzAngle)
-    : StripCPE(conf, mag, geom, LorentzAngle ) {}
+    : StripCPE(conf, mag, geom, LorentzAngle ),
+    invsqrt12(1/sqrt(12)),
+    crossoverRate(15)
+    {
+      edgeRatioCut.resize(7,0);
+      edgeRatioCut[SiStripDetId::TIB] = 0.058;
+      edgeRatioCut[SiStripDetId::TID] = 0.111;
+      edgeRatioCut[SiStripDetId::TOB] = 0.090;
+      edgeRatioCut[SiStripDetId::TEC] = 0.111;
+
+      tandriftangle.resize(7,0);
+      tandriftangle[SiStripDetId::TIB] = 0.01;
+      tandriftangle[SiStripDetId::TID] = 0.01;
+      tandriftangle[SiStripDetId::TOB] = 0.01;
+      tandriftangle[SiStripDetId::TEC] = 0.01;
+    }
 
  private:
 
-  typedef vector<uint8_t>::const_iterator chargeIt_t;
-  std::pair<float,float> position_sigma_inStrips( uint16_t, chargeIt_t, chargeIt_t, float,SiStripDetId::SubDetector) const;
-  bool useNMinusOne(chargeIt_t, chargeIt_t,float, SiStripDetId::SubDetector) const;
-  bool hasMultiPeak(chargeIt_t, chargeIt_t) const;
+  class WrappedCluster {
+   public:
+    WrappedCluster(const SiStripCluster&);
+    uint16_t N;
+    SiStripDetId::SubDetector type;
+    float eta() const;
+    float middle() const;
+    float dedxRatio(const float&) const;
+    float smallEdgeRatio() const;
+    float centroid() const;
+    void dropSmallerEdgeStrip();
+   private:
+    vector<uint8_t>::const_iterator first, last;
+    uint16_t firstStrip;
+    float sumQ;
+  };
 
-  static const float TOBeta, TIBeta, invsqrt12, tandriftangle;
-  static const unsigned crossoverRate;
+  std::pair<float,float> strip_stripErrorSquared( const SiStripCluster&, const float&) const;
+  bool isMultiPeaked(const SiStripCluster&, const float&) const;
+  bool useNMinusOne(const WrappedCluster&, const float&) const;
+  float mix(const float&, const float&, const float&) const;
+
+  std::vector<float> edgeRatioCut;
+  std::vector<float> tandriftangle;
+  const float invsqrt12;
+  const unsigned crossoverRate;
 };
-
-const unsigned StripCPEgeometric::crossoverRate=15;
-const float StripCPEgeometric::TOBeta=0.835;
-const float StripCPEgeometric::TIBeta=0.890;
-const float StripCPEgeometric::invsqrt12=1/sqrt(12);
-const float StripCPEgeometric::tandriftangle=0.01;
 
 #endif
