@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcLikelihood.cc,v 1.11 2008/04/22 16:29:52 saout Exp $
+// $Id: ProcLikelihood.cc,v 1.12 2008/04/24 22:18:03 saout Exp $
 //
 
 #include <vector>
@@ -236,9 +236,16 @@ void ProcLikelihood::eval(ValueIterator iter, unsigned int n) const
 					else
 						iter << (std::log(signalProb) -
 						         std::log(backgroundProb));
-				} else
-					iter << (signalProb /
-					         (signalProb + backgroundProb));
+				} else {
+					double sum =
+						signalProb + backgroundProb;
+					if (sum > 1.0e-9)
+						iter << (signalProb / sum);
+					else if (neverUndefined)
+						iter << 0.5;
+					else
+						iter();
+				}
 			} else {
 				signal *= signalProb;
 				background *= backgroundProb;
