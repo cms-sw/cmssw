@@ -11,7 +11,7 @@
 #include "CLHEP/Random/RandFlat.h"
 #include <cmath>
 
-#include "CLHEP/config/CLHEP.h"
+//#include "CLHEP/config/CLHEP.h"
 #include "CLHEP/Random/Random.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoissonQ.h"
