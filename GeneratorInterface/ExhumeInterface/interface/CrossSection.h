@@ -15,7 +15,7 @@
 #include <utility>
 #include <vector>
 
-#include "CLHEP/config/CLHEP.h"
+//#include "CLHEP/config/CLHEP.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Vector/ThreeVector.h"
 
@@ -88,11 +88,11 @@ namespace Exhume{
       return(fg2Map);
     };
 
-    inline HepLorentzVector GetProton1(){
+    inline CLHEP::HepLorentzVector GetProton1(){
       return(Proton1);
     };
 
-    inline HepLorentzVector GetProton2(){
+    inline CLHEP::HepLorentzVector GetProton2(){
       return(Proton2);
     };
 
@@ -272,11 +272,11 @@ namespace Exhume{
     double root_s,
       s, Invs;
 
-    HepLorentzVector CentralVector;
-    HepLorentzVector Proton1, Proton2, P1In, P2In;
+    CLHEP::HepLorentzVector CentralVector;
+    CLHEP::HepLorentzVector Proton1, Proton2, P1In, P2In;
     /*
     struct Particle {
-      HepLorentzVector p;
+      CLHEP::HepLorentzVector p;
       int id;
     };
     */

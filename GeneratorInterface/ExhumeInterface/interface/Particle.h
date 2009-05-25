@@ -5,7 +5,7 @@
 #ifndef PARTICLE_HH
 #define PARTICLE_HH
 
-#include "CLHEP/config/CLHEP.h"
+//#include "CLHEP/config/CLHEP.h"
 #include "CLHEP/Vector/LorentzVector.h"
 
 namespace Exhume{
@@ -15,7 +15,7 @@ namespace Exhume{
      
     }
     
-    Particle(HepLorentzVector _p,HepLorentzVector _vtx, int _id,
+    Particle(CLHEP::HepLorentzVector _p,CLHEP::HepLorentzVector _vtx, int _id,
 	     int _Colour,int _AntiColour): p(_p),vtx(_vtx),id(_id),
 					   Colour(_Colour),
 					   AntiColour(_AntiColour){
@@ -24,8 +24,8 @@ namespace Exhume{
     
     ~Particle(){};
     //should make these private??????
-    HepLorentzVector p;
-    HepLorentzVector vtx;
+    CLHEP::HepLorentzVector p;
+    CLHEP::HepLorentzVector vtx;
     int id;
     int Colour;
     int AntiColour;

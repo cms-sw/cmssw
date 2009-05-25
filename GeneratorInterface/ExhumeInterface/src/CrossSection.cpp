@@ -474,7 +474,7 @@ SetKinematics(const double &SqrtsHat_, const double &y_,
   x1 = x1x2 * ey;
   x2 = x1x2 / ey;
 
-  HepLorentzVector Glu1, Glu2;
+  CLHEP::HepLorentzVector Glu1, Glu2;
   
   Glu1.setE(x1 * P1In.e());
   Glu2.setE(x2 * P2In.e());
@@ -565,7 +565,7 @@ void Exhume::CrossSection::Hadronise(){
     pyjoin(njoin, ijoin);
     int ip1 =3; 
     int ip2 =4;
-    HepLorentzVector b_COM = Partons[0].p.boost(CentralVector.findBoostToCM());
+    CLHEP::HepLorentzVector b_COM = Partons[0].p.boost(CentralVector.findBoostToCM());
     //HepLorentzVector bb_COM = Partons[1].p.boost(CentralVector.findBoostToCM());
     //std::cout<<b_COM.perp()<<"\t"<<bb_COM.perp()<<std::endl;
     ps_scale = 2*b_COM.et(); //Q^2 = 4pt^2 for final state parton showering

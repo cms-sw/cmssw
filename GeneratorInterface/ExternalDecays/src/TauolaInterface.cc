@@ -53,8 +53,8 @@ void TauolaInterface::init( const edm::EventSetup& es )
 /*
    Service<RandomNumberGenerator> rng;
    long seed = (long)(rng->mySeed()) ;
-   fRandomEngine = new HepJamesRandom(seed) ;
-   fRandomGenerator = new RandFlat(fRandomEngine) ;
+   fRandomEngine = new CLHEP::HepJamesRandom(seed) ;
+   fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
 */   
 	cout << "----------------------------------------------" << endl;
         cout << "Initializing Tauola" << endl;

@@ -1,7 +1,7 @@
 //
 // Original Author:  Filippo Ambroglini
 //         Created:  Fri Sep 29 17:10:41 CEST 2006
-// $Id: MinimumBiasFilter.cc,v 1.1 2007/03/28 14:04:44 fabstoec Exp $
+// $Id: MinimumBiasFilter.cc,v 1.2 2008/01/22 20:58:38 muzaffar Exp $
 //
 //
 // system include files
@@ -29,7 +29,7 @@ bool MinimumBiasFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
    * a random one 
   */
 
-  float rnd = RandFlat::shoot(0.,1.);
+  float rnd = CLHEP::RandFlat::shoot(0.,1.);
   
   if(rnd<=theEventFraction)
     return true;

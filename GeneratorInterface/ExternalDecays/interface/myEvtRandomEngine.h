@@ -6,7 +6,7 @@
 // this is an EvtRandomEngine
 // It is used as an interface of the random number engine provided
 // by the random number generator service and EvtGen
-// Its "random()" method uses the "Flat()" method of the HepRandomEngine
+// Its "random()" method uses the "Flat()" method of the CLHEP::HepRandomEngine
 // provided by the Random Number Generator Service
 //
 // Modification history:
@@ -18,7 +18,7 @@
 #ifndef MYEVTRANDOMENGINE_HH
 #define MYEVTRANDOMENGINE_HH
 
-#include "CLHEP/config/CLHEP.h"
+//#include "CLHEP/config/CLHEP.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "EvtGenBase/EvtRandomEngine.hh"
 
