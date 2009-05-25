@@ -1,5 +1,5 @@
 
-// $Id: BeamProfileVtxGenerator.cc,v 1.7 2008/10/02 19:11:36 sunanda Exp $
+// $Id: BeamProfileVtxGenerator.cc,v 1.8 2009/04/01 22:43:01 sunanda Exp $
 
 #include "IOMC/EventVertexGenerators/interface/BeamProfileVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -9,8 +9,8 @@
 
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "HepMC/SimpleVector.h"
 
 #include<fstream>

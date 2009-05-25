@@ -1,5 +1,5 @@
 
-// $Id: BetafuncEvtVtxGenerator.cc,v 1.8 2008/04/04 21:38:25 yumiceva Exp $
+// $Id: BetafuncEvtVtxGenerator.cc,v 1.9 2009/05/07 09:01:59 fabiocos Exp $
 /*
 ________________________________________________________________________
 
@@ -24,8 +24,8 @@ ________________________________________________________________________
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 //#include "CLHEP/Vector/ThreeVector.h"
 #include "HepMC/SimpleVector.h"
 

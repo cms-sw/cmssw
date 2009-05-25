@@ -1,7 +1,7 @@
 
 /*
-*  $Date: 2008/05/28 16:40:45 $
-*  $Revision: 1.12 $
+*  $Date: 2008/12/10 09:36:52 $
+*  $Revision: 1.13 $
 */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
@@ -54,7 +54,7 @@ BaseEvtVtxGenerator::BaseEvtVtxGenerator( const ParameterSet& pset )
           "in the configuration file or remove the modules that require it.";
    }
 
-   HepRandomEngine& engine = rng->getEngine();
+   CLHEP::HepRandomEngine& engine = rng->getEngine();
    fEngine = &engine;
 
       

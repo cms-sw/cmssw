@@ -1,5 +1,5 @@
 
-// $Id: GaussEvtVtxGenerator.cc,v 1.4 2007/09/14 08:31:57 fabiocos Exp $
+// $Id: GaussEvtVtxGenerator.cc,v 1.5 2008/04/04 21:38:25 yumiceva Exp $
 
 #include "IOMC/EventVertexGenerators/interface/GaussEvtVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -7,8 +7,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 //#include "CLHEP/Vector/ThreeVector.h"
 #include "HepMC/SimpleVector.h"
 

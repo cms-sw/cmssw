@@ -1,5 +1,5 @@
 
-// $Id: FlatEvtVtxGenerator.cc,v 1.3 2007/03/22 02:28:46 yarba Exp $
+// $Id: FlatEvtVtxGenerator.cc,v 1.4 2008/04/04 21:38:25 yumiceva Exp $
 
 #include "IOMC/EventVertexGenerators/interface/FlatEvtVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -7,8 +7,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 //#include "CLHEP/Vector/ThreeVector.h"
 #include "HepMC/SimpleVector.h"
 
