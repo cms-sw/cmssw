@@ -6,7 +6,7 @@
 #include "DetectorDescription/Core/interface/DDExpandedNode.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <boost/bind.hpp>
 

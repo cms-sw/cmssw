@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: GeometricDetAnalyzer.cc,v 1.3 2006/10/24 11:36:44 fambrogl Exp $
+// $Id: GeometricDetAnalyzer.cc,v 1.4 2007/06/04 16:29:17 case Exp $
 //
 //
 
@@ -108,9 +108,9 @@ GeometricDetAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
      // VERY unsure about this change.
 //      DDRotationMatrix res = (*it)->rotation();
 
-//      Hep3Vector colx(res.xx(),res.xy(),res.xz());
-//      Hep3Vector coly(res.yx(),res.yy(),res.yz());
-//      Hep3Vector colz(res.zx(),res.zy(),res.zz());
+//      CLHEP::Hep3Vector colx(res.xx(),res.xy(),res.xz());
+//      CLHEP::Hep3Vector coly(res.yx(),res.yy(),res.yz());
+//      CLHEP::Hep3Vector colz(res.zx(),res.zy(),res.zz());
 
 //      DDRotationMatrix result(colx,coly,colz);
 
