@@ -1,7 +1,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: Z2muAnalyzer.cc,v 1.2 2007/04/25 12:50:31 antoniov Exp $
+// $Id: Z2muAnalyzer.cc,v 1.3 2008/01/22 21:10:24 muzaffar Exp $
 //
 // Modified for PomwigInterface test for Z/gamma* -> 2mu
 // 02/2007
@@ -60,7 +60,7 @@ Z2muAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    double inv_mass = 0.0;
    std::cout<<muons.size()<<std::endl;
    if(muons.size()>=2) {
-     HepLorentzVector tot_momentum(muons[0]->momentum().px() + muons[1]->momentum().px(),
+     CLHEP::HepLorentzVector tot_momentum(muons[0]->momentum().px() + muons[1]->momentum().px(),
 				   muons[0]->momentum().py() + muons[1]->momentum().py(),
 				   muons[0]->momentum().pz() + muons[1]->momentum().pz(),
 				   muons[0]->momentum().e() + muons[1]->momentum().e());	 	
