@@ -459,31 +459,25 @@ void SiStripQualityChecker::fillFaultyModuleStatus(DQMStore* dqm_store) {
   string mdir = "MechanicalView"; 
   if (!SiStripUtility::goToDir(dqm_store, mdir)) return;
   string mechanicalview_dir = dqm_store->pwd();
-  for (map<string, string>::const_iterator it = SubDetFolderMap.begin(); 
-       it != SubDetFolderMap.end(); it++) {
-    string subdet_name   = it->first;
-    string subdet_folder = it->second;
+  for (map<uint32_t,uint16_t>::const_iterator it =  badModuleList.begin() ; it != badModuleList.end(); it++) {
+    uint32_t detId =  it->first;
+    string subdet_folder;
+    SiStripUtility::getSubDetectorFolder(detId,subdet_folder);\
     string dname = mechanicalview_dir + "/" + subdet_folder;
     if (!dqm_store->dirExists(dname)) continue;
     string bad_module_folder = dname + "/" + "BadModuleList";
-    dqm_store->cd(dname);
-    for (map<uint32_t,uint16_t>::const_iterator it =  badModuleList.begin() ; it != badModuleList.end(); it++) {
-      uint32_t detId =  it->first;
-      string subdet_tag;
-      SiStripUtility::getSubDetectorTag(detId,subdet_tag);
-      if (subdet_tag == (subdet_name)) {
-        // Check if the ME exists otherwise book it
-	dqm_store->setCurrentFolder(bad_module_folder);
-	ostringstream detid_str;
-	detid_str << detId;
-	string full_path = bad_module_folder + "/" + detid_str.str();
-	MonitorElement* me = dqm_store->get(full_path);
-	if (me) me->Reset();
-	else me = dqm_store->bookInt(detid_str.str());
-	me->Fill(it->second);
-      }
-    }
+    dqm_store->setCurrentFolder(bad_module_folder);
+
+    ostringstream detid_str;
+    detid_str << detId;
+    string full_path = bad_module_folder + "/" + detid_str.str();
+    MonitorElement* me = dqm_store->get(full_path);
+    if (me) me->Reset();
+    else me = dqm_store->bookInt(detid_str.str());
+    me->Fill(it->second);
+    
   }
+  dqm_store->cd();
 }
 //
 // -- Set Bad Channel Flag from hname

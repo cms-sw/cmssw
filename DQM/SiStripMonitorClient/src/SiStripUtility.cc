@@ -110,6 +110,32 @@ void SiStripUtility::getMEStatusColor(int status, int& icol, string& tag) {
   }     
 }
 //
+// -- Get Color code from Status
+//
+void SiStripUtility::getDetectorStatusColor(int status, int& rval, int&gval, int& bval) {
+  rval = 255;
+  if (status%2 == 1) {
+    if (status == 1) {
+      gval = 0;   bval = 0;
+    } else if (status == 3) { 
+      gval = 50;   bval = 0;
+    } else if (status == 5) {
+      gval = 50;   bval = 25; 
+    } else if (status == 7) {
+      gval = 50;   bval = 50; 
+    }
+  } else {
+    if (status == 2) {
+      gval = 100;   bval = 0;
+    } else if (status == 4) {
+      gval = 100;   bval = 50;
+    } else if (status == 6) {
+      gval = 100;   bval = 50;
+    }
+  }
+}
+
+//
 // -- Get Status of Monitor Element
 //
 int SiStripUtility::getMEStatus(MonitorElement* me) {
@@ -231,6 +257,46 @@ void SiStripUtility::getSubDetectorTag(uint32_t det_id, string& subdet_tag) {
 	  subdet_tag = "TECF";
 	}  else if (tecId.side() == 1) {
 	  subdet_tag = "TECB";	
+	}
+	break;       
+      }
+    }
+}
+//
+// -- Get Sub Detector Folder Name from DetId
+//
+void SiStripUtility::getSubDetectorFolder(uint32_t det_id, string& subdet_folder) {
+  StripSubdetector subdet(det_id);
+  subdet_folder = "";
+  switch (subdet.subdetId()) 
+    {
+    case StripSubdetector::TIB:
+      {
+	subdet_folder = "TIB";
+	break;
+      }
+    case StripSubdetector::TID:
+      {
+	TIDDetId tidId(det_id);
+	if (tidId.side() == 2) {
+	  subdet_folder = "TID/side_2";
+	}  else if (tidId.side() == 1) {
+	  subdet_folder = "TID/side_1";
+	}
+	break;       
+      }
+    case StripSubdetector::TOB:
+      {
+	subdet_folder = "TOB";
+	break;
+      }
+    case StripSubdetector::TEC:
+      {
+	TECDetId tecId(det_id);
+	if (tecId.side() == 2) {
+	  subdet_folder = "TEC/side_2";
+	}  else if (tecId.side() == 1) {
+	  subdet_folder = "TEC/side_1";	
 	}
 	break;       
       }

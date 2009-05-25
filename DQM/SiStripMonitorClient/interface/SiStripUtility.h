@@ -5,8 +5,8 @@
  * *
  *  Class that handles the SiStrip Quality Tests
  * 
- *  $Date: 2009/05/04 19:18:32 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/05/06 21:05:18 $
+ *  $Revision: 1.10 $
  *  \author Suchandra Dutta
   */
 
@@ -29,6 +29,7 @@ class SiStripUtility
  static void split(const std::string& str, std::vector<std::string>& tokens, 
              const std::string& delimiters=" ");
  static void getMEStatusColor(int status, int& rval, int&gval, int& bval);
+ static void getDetectorStatusColor(int status, int& rval, int&gval, int& bval);
  static void getMEStatusColor(int status, int& icol, std::string& tag);
  static int getMEStatus(MonitorElement* me);
  static int getMEStatus(MonitorElement* me, int& bad_channels);
@@ -36,6 +37,7 @@ class SiStripUtility
  static void getMEValue(MonitorElement* me, std::string & val);
  static bool goToDir(DQMStore * dqm_store, std::string name);
  static void getSubDetectorTag(uint32_t det_id, std::string& subdet_tag);
+ static void getSubDetectorFolder(uint32_t det_id, std::string& subdet_folder);
 };
 
 #endif
