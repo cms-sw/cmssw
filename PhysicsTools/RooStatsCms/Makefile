@@ -19,7 +19,7 @@ clean:
 	rm -rf lib
 	rm -rf obj/*
 	rm -rf obj
-	rm -rf bin/*.exe
+	rm -rf bin/
 exe: 
 	$(MAKE) -C $(SRC) exe
 

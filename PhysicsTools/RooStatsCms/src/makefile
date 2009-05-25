@@ -42,7 +42,7 @@ OBJS          = $(addprefix ${OBJ}/,${OBJS_TMP2})
 
 ICCS          = $(wildcard *.icc)
 
-BINS	      = $(wildcard ../bin/*.cpp)
+BINS	      = $(wildcard ../test/*.cpp)
 PROGRAM_TMP       = $(BINS:.cpp=.exe)
 PROGRAM_TMP2       = $(notdir $(PROGRAM_TMP))
 PROGRAM		= $(addprefix ../bin/,${PROGRAM_TMP2})
