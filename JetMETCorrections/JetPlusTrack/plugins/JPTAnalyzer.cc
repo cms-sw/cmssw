@@ -17,7 +17,7 @@
 //
 // MC info
 #include "CLHEP/Vector/LorentzVector.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 //#include "CLHEP/HepPDT/DefaultConfig.hh"
@@ -214,7 +214,7 @@ JPTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // initialize vector containing two highest Et gen jets > 20 GeV
    // in this example they are checked not to be leptons from Z->ll decay (DR match)
-   vector<HepLorentzVector> gjets;
+   vector<CLHEP::HepLorentzVector> gjets;
    gjets.clear();
 
    // initialize tree variables
@@ -250,8 +250,8 @@ JPTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    //  iEvent.getByLabel( "VtxSmeared", EvtHandle ) ;
 
    // l1 and l2 are leptons from Z->ll to be checked they are not gen jets (DR match)
-   HepLorentzVector l1(0.,0.,1.,1.);
-   HepLorentzVector l2(0.,0.,1.,1.);
+   CLHEP::HepLorentzVector l1(0.,0.,1.,1.);
+   CLHEP::HepLorentzVector l2(0.,0.,1.,1.);
  
   //
      
@@ -275,16 +275,16 @@ JPTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    */
 
    /*
-   vector<HepLorentzVector> cjetsRaw;
+   vector<CLHEP::HepLorentzVector> cjetsRaw;
    cjetsRaw.clear();
 
-   vector<HepLorentzVector> cjetsMCJ;
+   vector<CLHEP::HepLorentzVector> cjetsMCJ;
    cjetsMCJ.clear();
 
-   vector<HepLorentzVector> cjetsZSP;
+   vector<CLHEP::HepLorentzVector> cjetsZSP;
    cjetsZSP.clear();
 
-   vector<HepLorentzVector> cjetsJPT;
+   vector<CLHEP::HepLorentzVector> cjetsJPT;
    cjetsJPT.clear();
    */
 
@@ -295,7 +295,7 @@ JPTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    for(GenJetCollection::const_iterator gjet = genjets->begin(); 
        gjet != genjets->end(); ++gjet ) {
      if(gjet->pt() >= 20.) {
-       HepLorentzVector jet(gjet->px(), gjet->py(), gjet->pz(), gjet->energy());
+       CLHEP::HepLorentzVector jet(gjet->px(), gjet->py(), gjet->pz(), gjet->energy());
        double drjl1 = l1.deltaR(jet);
        double drjl2 = l2.deltaR(jet);
        /*
@@ -353,7 +353,7 @@ JPTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        for( CaloJetCollection::const_iterator cjet = calojets->begin(); 
 	    cjet != calojets->end(); ++cjet ){ 
 	 //
-	 HepLorentzVector cjetc(cjet->px(), cjet->py(), cjet->pz(), cjet->energy());
+	 CLHEP::HepLorentzVector cjetc(cjet->px(), cjet->py(), cjet->pz(), cjet->energy());
 	 /*
 	 cout <<" ==> calo jet Et = " << cjet->pt()
 	      <<" eta = " << cjet->eta()
@@ -362,7 +362,7 @@ JPTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 CaloJetCollection::const_iterator zspjet;
 	 for( zspjet = zspjets->begin(); 
 	      zspjet != zspjets->end(); ++zspjet ){ 
-	   HepLorentzVector zspjetc(zspjet->px(), zspjet->py(), zspjet->pz(), zspjet->energy());
+	   CLHEP::HepLorentzVector zspjetc(zspjet->px(), zspjet->py(), zspjet->pz(), zspjet->energy());
 	   double dr = zspjetc.deltaR(cjetc);
 	   /*
 	   cout <<"      zspjet Et = " << zspjet->pt()

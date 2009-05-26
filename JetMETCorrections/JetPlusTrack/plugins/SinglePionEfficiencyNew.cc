@@ -39,7 +39,7 @@
 //
 // MC info
 #include "CLHEP/Vector/LorentzVector.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 // #include "CLHEP/HepPDT/DefaultConfig.hh"
@@ -364,13 +364,13 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
    ESHandle<ParticleDataTable> pdt;
    iSetup.getData( pdt );
 
-   vector<HepLorentzVector> genpions;
+   vector<CLHEP::HepLorentzVector> genpions;
    genpions.clear();
 
    for ( HepMC::GenEvent::particle_const_iterator p = evt->particles_begin();
 	 p != evt->particles_end(); ++p ) {
      
-     HepLorentzVector pion((*p)->momentum().px(),(*p)->momentum().py(),(*p)->momentum().pz(),(*p)->momentum().e());
+     CLHEP::HepLorentzVector pion((*p)->momentum().px(),(*p)->momentum().py(),(*p)->momentum().pz(),(*p)->momentum().e());
      genpions.push_back(pion);
      /*
      cout <<" status : " << (*p)->status() 
@@ -552,7 +552,7 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
 	    <<" eta = " << eta
 	    <<" et = " << et << endl;
 
-       HepLorentzVector tower(candidate->px(),
+       CLHEP::HepLorentzVector tower(candidate->px(),
 			      candidate->py(),
 			      candidate->pz(),
 			      candidate->energy());
@@ -813,7 +813,7 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
 	//	cout <<"  !!!!  no HepMC particles associated with this pixel triplet " << endl;
       }
       // matching tracks with gen pions
-      HepLorentzVector tracki(track->px(), track->py(), track->pz(), track->p());
+      CLHEP::HepLorentzVector tracki(track->px(), track->py(), track->pz(), track->p());
       double DR1 = genpions[0].deltaR(tracki);
       if(DR1 < drTrk1) {
         ptTrk1     = tracki.perp();
@@ -962,7 +962,7 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
 	//	cout <<"  !!!!  no HepMC particles associated with this pixel triplet " << endl;
       }
       // matching tracks with gen pions
-      HepLorentzVector pxltracki(pxltrack->px(), pxltrack->py(), pxltrack->pz(), pxltrack->p());
+      CLHEP::HepLorentzVector pxltracki(pxltrack->px(), pxltrack->py(), pxltrack->pz(), pxltrack->p());
       double DR1 = genpions[0].deltaR(pxltracki);
       if(DR1 < drPxl1) {
         ptPxl1     = pxltracki.perp();
