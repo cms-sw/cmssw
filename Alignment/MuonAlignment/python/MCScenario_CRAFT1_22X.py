@@ -169,6 +169,8 @@ def define_scenario():
     # chambers (we assume that the unaligned chambers have
     # misalignments on the same scale)
 
+    # Also, superlayer z uncertainty is 0.054 cm
+
     # Before starting, let's build a list of chambers
     DTchambers = []
     for wheel in -2, -1, 0, 1, 2:
@@ -178,7 +180,7 @@ def define_scenario():
             for sector in range(1, nsectors+1):
                 DTchambers.append(DTChamber(wheel = wheel, station = station, sector = sector))
 
-    # First, the superlayer uncertainties: 0.054 cm in z
+    # the superlayers
     for dtchamber in DTchambers:
         for superlayer in 1, 2, 3:
             if superlayer == 2 and dtchamber.station == 4: continue
@@ -228,12 +230,12 @@ def define_scenario():
         position = Position(x = errx, y = erry, z = errz, phix = errphix, phiy = errphiy, phiz = errphiz)
         scenario.append(Operation(alignable, position))
 
-    # Uncertainty in CSC chamber positions comes in  parts:
+    # Uncertainty in CSC chamber positions comes in 5 parts:
     #    1. 0.0092 cm layer x misalignments observed with beam-halo tracks
-    #    1. isotropic photogrammetry uncertainty of 0.03 cm (x, y, z) and 0.00015 rad in phiz
-    #    2. 0.0023 rad phiy misalignment observed with beam-halo tracks
-    #    3. 0.1438 cm z and 0.00057 rad phix uncertainty between rings from SLM (from comparison in 0T data with PG)
-    #    4. 0.5 cm (x, y, z) disk misalignments and 0.001 rad rotation around beamline
+    #    2. isotropic photogrammetry uncertainty of 0.03 cm (x, y, z) and 0.00015 rad in phiz
+    #    3. 0.0023 rad phiy misalignment observed with beam-halo tracks
+    #    4. 0.1438 cm z and 0.00057 rad phix uncertainty between rings from SLM (from comparison in 0T data with PG)
+    #    5. 0.5 cm (x, y, z) disk misalignments and 0.001 rad rotation around beamline
 
     # Before starting, let's build a list of chambers
     CSCchambers = []
