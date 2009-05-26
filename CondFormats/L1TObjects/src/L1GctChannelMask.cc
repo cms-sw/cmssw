@@ -97,5 +97,5 @@ std::ostream& operator << (std::ostream& os, const L1GctChannelMask obj) {
       }
     }
   }
-
+  return os;
 }
