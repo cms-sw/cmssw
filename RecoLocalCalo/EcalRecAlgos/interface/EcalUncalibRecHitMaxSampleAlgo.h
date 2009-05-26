@@ -40,7 +40,7 @@ EcalUncalibRecHitMaxSampleAlgo<C>::makeRecHit(const C& dataFrame, const double* 
   pedestal_  = 4095;
   jitter_    = -1;
   chi2_      = -1;
-  bool isSaturated = 0;
+  //bool isSaturated = 0;
   uint32_t flags = 0;
   for(int16_t iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
     
