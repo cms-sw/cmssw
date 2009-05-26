@@ -959,6 +959,8 @@ if __name__ == "__main__":
             self.assertEqual(len(a), 5)
             self.assertEqual(a[0], "")
             self.assertEqual(a[3], "Sarah")
+            ps = PSet(v = vstring('a', 'b'))
+            ps.v = ['loose']
         def testUntracked(self):
             p=untracked(int32(1))
             self.assertRaises(TypeError,untracked,(1),{})
