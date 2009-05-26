@@ -201,7 +201,7 @@ namespace popcon{
 	    float RmsTick  = 55.;
 
       
-	    float tick =  RandGauss::shoot(MeanTick,RmsTick);
+	    float tick =  CLHEP::RandGauss::shoot(MeanTick,RmsTick);
 
 	  
 	    

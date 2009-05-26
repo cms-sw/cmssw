@@ -198,10 +198,10 @@ namespace popcon{
 	    float MeanNoise = 5;
 	    float RmsNoise  = 1;
       
-	    float noise =  RandGauss::shoot(MeanNoise,RmsNoise);
+	    float noise =  CLHEP::RandGauss::shoot(MeanNoise,RmsNoise);
 	  
 	    //double badStripProb = .5;
-	    //bool disable = (RandFlat::shoot(1.) < badStripProb ? true:false);
+	    //bool disable = (CLHEP::RandFlat::shoot(1.) < badStripProb ? true:false);
 	  
 	    obj->setData(noise,theSiStripVector);
 	    if (count<6)
