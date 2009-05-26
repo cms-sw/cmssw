@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.36 2009/03/15 04:22:17 dmytro Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.37 2009/03/30 11:59:30 arizzi Exp $
 //
 //
 
@@ -626,7 +626,7 @@ FreeTrajectoryState TrackDetectorAssociator::getFreeTrajectoryState( const edm::
    
    GlobalTrajectoryParameters tPars(vertex, momentum, charge, &*bField);
    
-   HepSymMatrix covT(6,1); covT *= 1e-6; // initialize to sigma=1e-3
+   CLHEP::HepSymMatrix covT(6,1); covT *= 1e-6; // initialize to sigma=1e-3
    CartesianTrajectoryError tCov(covT);
    
    return FreeTrajectoryState(tPars, tCov);
@@ -648,7 +648,7 @@ FreeTrajectoryState TrackDetectorAssociator::getFreeTrajectoryState( const edm::
    // FIX THIS !!!
    // need to convert from perigee to global or helix (curvilinear) frame
    // for now just an arbitrary matrix.
-   HepSymMatrix covT(6,1); covT *= 1e-6; // initialize to sigma=1e-3
+   CLHEP::HepSymMatrix covT(6,1); covT *= 1e-6; // initialize to sigma=1e-3
    CartesianTrajectoryError tCov(covT);
    
    return FreeTrajectoryState(tPars, tCov);

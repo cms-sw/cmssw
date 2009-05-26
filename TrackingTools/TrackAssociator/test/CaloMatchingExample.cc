@@ -11,7 +11,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CaloMatchingExample.cc,v 1.8 2008/05/15 17:04:50 heltsley Exp $
+// $Id: CaloMatchingExample.cc,v 1.10 2008/08/07 01:49:37 dmytro Exp $
 //
 //
 
@@ -147,7 +147,7 @@ class CaloMatchingExample : public edm::EDAnalyzer {
 
 CaloMatchingExample::CaloMatchingExample(const edm::ParameterSet& iConfig)
 {
-   HepRandom::createInstance();
+   CLHEP::HepRandom::createInstance();
    file_ = new TFile( iConfig.getParameter<std::string>("outputfile").c_str(), "recreate");
    tree_ = new TTree( "calomatch","calomatch" );
    tree_->Branch("nTracks",&nTracks_,"nTracks/I");
@@ -255,7 +255,7 @@ void CaloMatchingExample::analyze( const edm::Event& iEvent, const edm::EventSet
       LogTrace("TrackAssociator") << "===========================================================================\nDetails:\n" ;
       TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *recoTrack, parameters_);
       // get some noise info (random direction)
-      ROOT::Math::RhoEtaPhiVector randomVector(10,(HepRandom::getTheEngine()->flat()-0.5)*6,(HepRandom::getTheEngine()->flat()-0.5)*2*M_PI);
+      ROOT::Math::RhoEtaPhiVector randomVector(10,(CLHEP::HepRandom::getTheEngine()->flat()-0.5)*6,(CLHEP::HepRandom::getTheEngine()->flat()-0.5)*2*M_PI);
       TrackDetMatchInfo infoRandom = trackAssociator_.associate(iEvent, iSetup,      
 								GlobalVector(randomVector.x(),randomVector.y(),randomVector.z()),
 								GlobalPoint(0,0,0),
