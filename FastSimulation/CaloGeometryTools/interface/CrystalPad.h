@@ -23,7 +23,7 @@ class CrystalPad
 
   CrystalPad() { dummy_ = true;};
   /// Order matters. 1234 2341 3412 4123 are ok but not 1324 ....
-  CrystalPad(unsigned number, const std::vector<Hep2Vector>& corners);
+  CrystalPad(unsigned number, const std::vector<CLHEP::Hep2Vector>& corners);
   /// Constructor from space points, with the description of the local 
   /// frame (origin,vec1,vec2) where vec1 is normal to the plane and vec2 
   /// in the plane
@@ -45,15 +45,15 @@ class CrystalPad
   ~CrystalPad(){;};
   
   /// Check that the point (in the local frame) is inside the crystal. 
-  bool inside(const Hep2Vector & point,bool debug=false) const;
+  bool inside(const CLHEP::Hep2Vector & point,bool debug=false) const;
   /// Check that the point (in the global frame) is inside the crystal. 
   //  bool globalinside(XYZPoint) const;
 
   /// coordinates of the point in the local frame
-  //  Hep2Vector localPoint(XYZPoint point) const;
+  //  CLHEP::Hep2Vector localPoint(XYZPoint point) const;
 
   /// get the corners 
-  inline const std::vector<Hep2Vector> & getCorners() const {return corners_;}
+  inline const std::vector<CLHEP::Hep2Vector> & getCorners() const {return corners_;}
 
   /// Rescale the Quad to allow for some inaccuracy ...
   void resetCorners();
@@ -66,17 +66,17 @@ class CrystalPad
   inline void setSurvivalProbability(double val) {survivalProbability_=val;};
 
   /// access to the corners in direction iside; n=0,1
-  Hep2Vector& edge(unsigned iside,int n) ;
+  CLHEP::Hep2Vector& edge(unsigned iside,int n) ;
 
   /// access to one corner (NE,NW,SE,SW)
-  Hep2Vector & edge(CaloDirection);
+  CLHEP::Hep2Vector & edge(CaloDirection);
 
   /// access to the number
   inline unsigned getNumber() const{return number_;};
 
   /// get the coordinates in the original frame
   /*
-  inline XYZPoint originalCoordinates(Hep2Vector point) const
+  inline XYZPoint originalCoordinates(CLHEP::Hep2Vector point) const
     {
       XYZPoint p(point.x(),point.y(),0.);
       return trans_.Inverse() * p;
@@ -98,7 +98,7 @@ class CrystalPad
   void extrems(double &xmin,double& xmax,double &ymin, double& ymax) const;
 
   ///get the center
-  inline const Hep2Vector& center() const {return center_;}
+  inline const CLHEP::Hep2Vector& center() const {return center_;}
 
   /// for graphic debugging
   void getDrawingCoordinates(std::vector<float>&x, std::vector<float>&y) const;   
@@ -106,16 +106,16 @@ class CrystalPad
   
  private:
 
-  static std::vector<Hep2Vector> aVector;
+  static std::vector<CLHEP::Hep2Vector> aVector;
 
-  std::vector<Hep2Vector> corners_;
-  std::vector<Hep2Vector> dir_;
+  std::vector<CLHEP::Hep2Vector> corners_;
+  std::vector<CLHEP::Hep2Vector> dir_;
   unsigned number_; 
   Transform3D trans_;
   ROOT::Math::Rotation3D rotation_;
   XYZVector translation_;
   double survivalProbability_;
-  Hep2Vector center_;
+  CLHEP::Hep2Vector center_;
   double epsilon_;
   bool dummy_;
   double yscalefactor_;

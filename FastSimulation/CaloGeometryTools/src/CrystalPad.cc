@@ -2,7 +2,7 @@
 
 #include <iostream> 
 
-std::vector<Hep2Vector> CrystalPad::aVector(4);
+std::vector<CLHEP::Hep2Vector> CrystalPad::aVector(4);
 
 
 CrystalPad::CrystalPad(const CrystalPad& right) 
@@ -31,7 +31,7 @@ CrystalPad::operator = (const CrystalPad& right ) {
 }
 
 CrystalPad::CrystalPad(unsigned number, 
-		       const std::vector<Hep2Vector>& corners) 
+		       const std::vector<CLHEP::Hep2Vector>& corners) 
   :
   corners_(corners),
   dir_(aVector),
@@ -102,7 +102,7 @@ CrystalPad::CrystalPad(unsigned number, int onEcal,
 	  //	  std::cout << corners[ic]<< " " ;
 	  XYZPoint corner = rotation_(corners[ic])+translation_;
 	  //	  std::cout << corner << std::endl ;
-	  corners_[ic] = Hep2Vector(corner.X(),corner.Y());
+	  corners_[ic] = CLHEP::Hep2Vector(corner.X(),corner.Y());
 	  center_+=corners_[ic];
 	}
       for(unsigned ic=0;ic<4;++ic)
@@ -150,7 +150,7 @@ CrystalPad::CrystalPad(unsigned number,
 
 	  XYZPoint corner=rotation_(corners[ic])+translation_;
 	  //	  std::cout << corner << std::endl ;
-	  corners_[ic] = Hep2Vector(corner.X(),corner.Y()*yscalefactor_);
+	  corners_[ic] = CLHEP::Hep2Vector(corner.X(),corner.Y()*yscalefactor_);
 	  center_+=corners_[ic];
 	}
       for(unsigned ic=0;ic<4;++ic)
@@ -162,7 +162,7 @@ CrystalPad::CrystalPad(unsigned number,
 }
 
 bool 
-CrystalPad::inside(const Hep2Vector & ppoint,bool debug) const
+CrystalPad::inside(const CLHEP::Hep2Vector & ppoint,bool debug) const
 {
 //  std::cout << "Inside " << ppoint <<std::endl;
 //  std::cout << "Corners " << corners_.size() << std::endl;
@@ -171,10 +171,10 @@ CrystalPad::inside(const Hep2Vector & ppoint,bool debug) const
 //  std::cout << corners_[2] << std::endl;
 //  std::cout << corners_[3] << std::endl;
 //  std::cout << " Got the 2D point " << std::endl;
-  Hep2Vector pv0(ppoint-corners_[0]);
-  Hep2Vector pv2(ppoint-corners_[2]);
-  Hep2Vector n1(pv0-(pv0*dir_[0])*dir_[0]);
-  Hep2Vector n2(pv2-(pv2*dir_[2])*dir_[2]);
+  CLHEP::Hep2Vector pv0(ppoint-corners_[0]);
+  CLHEP::Hep2Vector pv2(ppoint-corners_[2]);
+  CLHEP::Hep2Vector n1(pv0-(pv0*dir_[0])*dir_[0]);
+  CLHEP::Hep2Vector n2(pv2-(pv2*dir_[2])*dir_[2]);
 
   //  double N1(n1.mag());
   //  double N2(n2.mag());
@@ -195,10 +195,10 @@ CrystalPad::inside(const Hep2Vector & ppoint,bool debug) const
 //  
 //  if(!close1&&!inside1) return false;
   //  std::cout << " First calculation " << std::endl;
-  Hep2Vector pv1(ppoint-corners_[1]);
-  Hep2Vector pv3(ppoint-corners_[3]);
-  Hep2Vector n3(pv1-(pv1*dir_[1])*dir_[1]);
-  Hep2Vector n4(pv3-(pv3*dir_[3])*dir_[3]);
+  CLHEP::Hep2Vector pv1(ppoint-corners_[1]);
+  CLHEP::Hep2Vector pv3(ppoint-corners_[3]);
+  CLHEP::Hep2Vector n3(pv1-(pv1*dir_[1])*dir_[1]);
+  CLHEP::Hep2Vector n4(pv3-(pv3*dir_[3])*dir_[3]);
   //  double N3(n3.mag());
   //  double N4(n4.mag());
   //  bool close2=(N3<epsilon_||N4<epsilon_);
@@ -233,7 +233,7 @@ CrystalPad::globalinside(XYZPoint point) const
   point = rotation_(point)+translation_;
   //  std::cout << point << std::endl;
   //  print();
-  Hep2Vector ppoint(point.X(),point.Y());
+  CLHEP::Hep2Vector ppoint(point.X(),point.Y());
   bool result=inside(ppoint);
   //  std::cout << " Result " << result << std::endl;
   return result;
@@ -251,20 +251,20 @@ void CrystalPad::print() const
 }
 
 /*
-Hep2Vector 
+CLHEP::Hep2Vector 
 CrystalPad::localPoint(XYZPoint point) const
 {
   point = rotation_(point)+translation_;
-  return Hep2Vector(point.X(),point.Y());
+  return CLHEP::Hep2Vector(point.X(),point.Y());
 }
 */
 
-Hep2Vector& CrystalPad::edge(unsigned iside,int n) 
+CLHEP::Hep2Vector& CrystalPad::edge(unsigned iside,int n) 
 {
   return corners_[(iside+n)%4];
 }
 
-Hep2Vector & CrystalPad::edge(CaloDirection dir)
+CLHEP::Hep2Vector & CrystalPad::edge(CaloDirection dir)
 {
   switch(dir)
     {
@@ -308,7 +308,7 @@ void
 CrystalPad::resetCorners() {
 
   // Find the centre-of-gravity of the Quad (after re-organization)
-  center_ = Hep2Vector(0.,0.);
+  center_ = CLHEP::Hep2Vector(0.,0.);
   for(unsigned ic=0;ic<4;++ic) center_ += corners_[ic];
   center_ *= 0.25;
 

@@ -136,7 +136,7 @@ EcalHitMaker::addHitDepth(double r,double phi,double depth)
   depth+=X0depthoffset_;
   double sp(1.);
   r*=radiusFactor_;
-  Hep2Vector point(r*std::cos(phi),r*std::sin(phi));
+  CLHEP::Hep2Vector point(r*std::cos(phi),r*std::sin(phi));
 
   unsigned xtal=fastInsideCell(point,sp);  
   //  if(cellid.isZero()) std::cout << " cell is Zero " << std::endl;
@@ -196,7 +196,7 @@ EcalHitMaker::addHit(double r,double phi,unsigned layer)
   double sp(1.);
   //  std::cout << " Trying to add " << r << " " << phi << " " << radiusFactor_ << std::endl; 
   r*=radiusFactor_;
-  Hep2Vector point(r*std::cos(phi),r*std::sin(phi));
+  CLHEP::Hep2Vector point(r*std::cos(phi),r*std::sin(phi));
   //  std::cout << "point " << point << std::endl;
   //  CellID cellid=insideCell(point,sp);
   unsigned xtal=fastInsideCell(point,sp);  
@@ -238,7 +238,7 @@ EcalHitMaker::addHit(double r,double phi,unsigned layer)
 
 
 unsigned 
-EcalHitMaker::fastInsideCell(const Hep2Vector & point,double & sp,bool debug) 
+EcalHitMaker::fastInsideCell(const CLHEP::Hep2Vector & point,double & sp,bool debug) 
 {
 
   //  debug = true;
@@ -1254,7 +1254,7 @@ EcalHitMaker::reorganizePads()
 }
 
 //dir 2 = N,E,W,S
-Hep2Vector & 
+CLHEP::Hep2Vector & 
 EcalHitMaker::correspondingEdge(neighbour& myneighbour,CaloDirection dir2 ) 
 {
   CaloDirection dir=CaloDirectionOperations::oppositeSide(myneighbour.first);
@@ -1263,7 +1263,7 @@ EcalHitMaker::correspondingEdge(neighbour& myneighbour,CaloDirection dir2 )
   return padsatdepth_[myneighbour.second].edge(corner);  
 }
 
-bool EcalHitMaker::diagonalEdge(unsigned myPad, CaloDirection dir,Hep2Vector & point)
+bool EcalHitMaker::diagonalEdge(unsigned myPad, CaloDirection dir,CLHEP::Hep2Vector & point)
 {
   unsigned idir=CaloDirectionOperations::neighbourDirection(dir);
   if(regionOfInterest_[myPad].crystalNeighbour(idir).status()<0)
@@ -1352,7 +1352,7 @@ EcalHitMaker::gapsLifting(std::vector<neighbour>& gaps,unsigned iq)
 	  }
 	CaloDirection corner0=CaloDirectionOperations::add2d(gaps[0].first,gaps[1].first);
 
-	Hep2Vector point(0.,0.);
+	CLHEP::Hep2Vector point(0.,0.);
 	if(corner0!=NONE&&diagonalEdge(iq,corner0,point))
 	  {
 	    CaloDirection corner1=CaloDirectionOperations::add2d(CaloDirectionOperations::oppositeSide(gaps[0].first),gaps[1].first);
@@ -1401,7 +1401,7 @@ EcalHitMaker::gapsLifting(std::vector<neighbour>& gaps,unsigned iq)
 	  // in this case the four corners have to be changed 
 	  unsigned iubd,idir1,idir2;
 	  CaloDirection diag;
-	  Hep2Vector point(0.,0.);
+	  CLHEP::Hep2Vector point(0.,0.);
 	  //	  std::cout << " Yes : 3 gaps" << std::endl;
 	  if(unbalancedDirection(gaps,iubd,idir1,idir2))		
 	    {
@@ -1428,7 +1428,7 @@ EcalHitMaker::gapsLifting(std::vector<neighbour>& gaps,unsigned iq)
 	    //	    std::cout << " Waouh :4 gaps" << std::endl;
 	    //	    std::cout << " Avant " << std::endl;
 	    //	    std::cout << myPad<< std::endl;
-	    Hep2Vector point(0.,0.);
+	    CLHEP::Hep2Vector point(0.,0.);
 	    if(diagonalEdge(iq,NORTHEAST,point)) 
 	      myPad.edge(NORTHEAST)=point;
 	    if(diagonalEdge(iq,NORTHWEST,point)) 
@@ -1450,7 +1450,7 @@ EcalHitMaker::cracksPads(std::vector<neighbour> & cracks, unsigned iq)
   CrystalPad & myPad = padsatdepth_[iq];
   for(unsigned ic=0;ic<ncracks;++ic)
     {
-      //      std::vector<Hep2Vector> mycorners;
+      //      std::vector<CLHEP::Hep2Vector> mycorners;
       //      mycorners.reserve(4);
       switch(cracks[ic].first)
 	{

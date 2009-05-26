@@ -105,7 +105,7 @@ class EcalHitMaker: public CaloHitMaker
    
   bool addHit(double r,double phi,unsigned layer=0) ;
 
-  unsigned fastInsideCell(const Hep2Vector & point,double & sp,bool debug=false) ;
+  unsigned fastInsideCell(const CLHEP::Hep2Vector & point,double & sp,bool debug=false) ;
 
   inline void setSpotEnergy(double e) { spotEnergy=e;}
   
@@ -169,10 +169,10 @@ class EcalHitMaker: public CaloHitMaker
 
  // retrieves the coordinates of a corner belonging to the neighbour
  typedef std::pair<CaloDirection,unsigned > neighbour;
- Hep2Vector & correspondingEdge(neighbour& myneighbour,CaloDirection dir2 ) ;
+ CLHEP::Hep2Vector & correspondingEdge(neighbour& myneighbour,CaloDirection dir2 ) ;
 
  // almost the same
- bool diagonalEdge(unsigned myPad, CaloDirection dir,Hep2Vector & point);
+ bool diagonalEdge(unsigned myPad, CaloDirection dir,CLHEP::Hep2Vector & point);
 
  // check if there is an unbalanced direction in the input vertor. If the result is true, 
  // the cooresponding directions are returned dir1+dir2=unb
@@ -288,7 +288,7 @@ class EcalHitMaker: public CaloHitMaker
   bool hitmaphasbeencalculated_ ;
 
   // A local vector of corners, to avoid reserving, newing and mallocing
-  std::vector<Hep2Vector> mycorners;
+  std::vector<CLHEP::Hep2Vector> mycorners;
   std::vector<XYZPoint> corners;
 
 
