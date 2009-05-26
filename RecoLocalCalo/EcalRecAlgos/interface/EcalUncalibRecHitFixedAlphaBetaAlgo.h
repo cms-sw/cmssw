@@ -182,14 +182,13 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
   
   InitFitParameters(frame, imax);
   chi2_ = PerformAnalyticFit(frame,imax);
-  //uint32_t flags = 0;
-  //if (isSaturated) flags = EcalUncalibratedRecHit::kSaturated;
+  uint32_t flags = 0;
+  if (isSaturated) flags = EcalUncalibratedRecHit::kSaturated;
 
   /*    std::cout << "separate fits\nA: " << fAmp_max_  << ", ResidualPed: " <<  fPed_max_
               <<", pedestal: "<<pedestal << ", tPeak " << fTim_max_ << std::endl;
   */
-  return EcalUncalibratedRecHit( dataFrame.id(),fAmp_max_, pedestal+fPed_max_, fTim_max_ - 5 , chi2_);
-  //return EcalUncalibratedRecHit( dataFrame.id(),fAmp_max_, pedestal+fPed_max_, fTim_max_ - 5 , chi2_, flags );
+  return EcalUncalibratedRecHit( dataFrame.id(),fAmp_max_, pedestal+fPed_max_, fTim_max_ - 5 , chi2_, flags );
 }
 
 template<class C> double EcalUncalibRecHitFixedAlphaBetaAlgo<C>::pulseShapeFunction(double t){
