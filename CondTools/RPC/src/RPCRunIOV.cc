@@ -33,13 +33,13 @@ RPCRunIOV::getImon() {
   std::cout << std::endl << "=============================================" << std::endl << std::endl;
   std::vector<RPCObImon::I_Item>::iterator first;
   first = mycond.begin();
-  min = this->toUNIX(first->day, first->time);
-  max = min;
+  min_I = this->toUNIX(first->day, first->time);
+  max_I = min_I;
   unsigned long long value;
   for(icond = mycond.begin(); icond < mycond.end(); ++icond){
     value = this->toUNIX(icond->day, icond->time);
-    if (value < min) min = value;
-    if (value > max) max = value;
+    if (value < min_I) min_I = value;
+    if (value > max_I) max_I = value;
   }
   return mycond;
 }
@@ -67,13 +67,13 @@ RPCRunIOV::getVmon() {
   std::cout << std::endl << "=============================================" << std::endl << std::endl;
   std::vector<RPCObVmon::V_Item>::iterator first;
   first = mycond.begin();
-  min = this->toUNIX(first->day, first->time);
-  max = min;
+  min_V = this->toUNIX(first->day, first->time);
+  max_V = min_I;
   unsigned long long value;
   for(icond = mycond.begin(); icond < mycond.end(); ++icond){
     value = this->toUNIX(icond->day, icond->time);
-    if (value < min) min = value;
-    if (value > max) max = value;
+    if (value < min_V) min_V = value;
+    if (value > max_V) max_V = value;
   }
   return mycond;
 }
@@ -101,13 +101,13 @@ RPCRunIOV::getTemp() {
   std::cout << std::endl << "=============================================" << std::endl << std::endl;
   std::vector<RPCObTemp::T_Item>::iterator first;
   first = mycond.begin();
-  min = this->toUNIX(first->day, first->time);
-  max = min;
+  min_T = this->toUNIX(first->day, first->time);
+  max_T = min_T;
   unsigned long long value;
   for(icond = mycond.begin(); icond < mycond.end(); ++icond){
     value = this->toUNIX(icond->day, icond->time);
-    if (value < min) min = value;
-    if (value > max) max = value;
+    if (value < min_T) min_T = value;
+    if (value > max_T) max_T = value;
   }
   return mycond;
 }
@@ -156,13 +156,6 @@ RPCRunIOV::getPVSSMap()
 
 RPCRunIOV::~RPCRunIOV(){}
 
-bool
-RPCRunIOV::isReadingNeeded(unsigned long long value)
-{
-  if (value < min || value > max) return true;
-
-  return false;
-}
 
 
 unsigned long long 

@@ -5,8 +5,8 @@
  * \class RPCRunIOV
  *  Reads data from ORCOFF and sqlite file
  *
- *  $Date: 2009/05/24 17:47:46 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/05/26 15:18:43 $
+ *  $Revision: 1.7 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -43,8 +43,12 @@ public:
   unsigned long long toDAQ(unsigned long long);
   unsigned long long toUNIX(int, int);
   std::vector<RPCObImon::I_Item> filterIMON(std::vector<RPCObImon::I_Item>, unsigned long long, unsigned long long);
-  unsigned long long min;
-  unsigned long long max;
+  unsigned long long min_I;
+  unsigned long long max_I;
+  unsigned long long min_V;
+  unsigned long long max_V;
+  unsigned long long min_T;
+  unsigned long long max_T;
 
 private:
   const edm::EventSetup* eventSetup;

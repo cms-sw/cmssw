@@ -1,7 +1,7 @@
 //
 // Original Author:  Davide Pagano
 //         Created:  Wed May 20 12:47:20 CEST 2009
-// $Id: RiovTest.cc,v 1.8 2009/05/24 17:46:16 dpagano Exp $
+// $Id: RiovTest.cc,v 1.9 2009/05/26 15:19:03 dpagano Exp $
 //
 //
 
@@ -40,8 +40,12 @@ private:
   std::vector<RPCObImon::I_Item> filtImon;
   std::vector<unsigned long long> listIOV;
   std::map<int, RPCObPVSSmap::Item> pvssMap;
-  unsigned long long min;
-  unsigned long long max;
+  unsigned long long min_I;
+  unsigned long long max_I;
+  unsigned long long min_V;
+  unsigned long long max_V;
+  unsigned long long min_T;
+  unsigned long long max_T;
   unsigned long long RunStart;
   unsigned long long RunStop;
 };
@@ -84,38 +88,38 @@ RiovTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    // get current
    if (imon.size() == 0) {
      imon = list->getImon();
-     min = list->min;
-     max = list->max;
-   } else if (timeU < min || timeU > max) {
+     min_I = list->min_I;
+     max_I = list->max_I;
+   } else if (timeU < min_I || timeU > max_I) {
      imon_ = list->getImon();
      for(std::vector<RPCObImon::I_Item>::iterator it = imon_.begin(); it < imon_.end(); ++it)
        imon.push_back(*it);
-     if (min > list->min) min = list->min;
-     if (max < list->max) max = list->max;
+     if (min_I > list->min_I) min_I = list->min_I;
+     if (max_I < list->max_I) max_I = list->max_I;
    }
    // get high voltage
    if (vmon.size() == 0) {
      vmon = list->getVmon();
-     min = list->min;
-     max = list->max;
-   } else if (timeU < min || timeU > max) {
+     min_V = list->min_V;
+     max_V = list->max_V;
+   } else if (timeU < min_V || timeU > max_V) {
      vmon_ = list->getVmon();
      for(std::vector<RPCObVmon::V_Item>::iterator itV = vmon_.begin(); itV < vmon_.end(); ++itV)
        vmon.push_back(*itV);
-     if (min > list->min) min = list->min;
-     if (max < list->max) max = list->max;
+     if (min_V > list->min_V) min_V = list->min_I;
+     if (max_V < list->max_V) max_V = list->max_I;
    }
    // get temperature
    if (temp.size() == 0) {
      temp = list->getTemp();
-     min = list->min;
-     max = list->max;
-   } else if (timeU < min || timeU > max) {
+     min_T = list->min_T;
+     max_T = list->max_T;
+   } else if (timeU < min_T || timeU > max_T) {
      temp_ = list->getTemp();
      for(std::vector<RPCObTemp::T_Item>::iterator itT = temp_.begin(); itT < temp_.end(); ++itT)
        temp.push_back(*itT);
-     if (min > list->min) min = list->min;
-     if (max < list->max) max = list->max;
+     if (min_T > list->min_T) min_T = list->min_T;
+     if (max_T < list->max_T) max_T = list->max_T;
    }
 
 
@@ -146,11 +150,11 @@ RiovTest::endJob() {
   if (imon.size() > 0) {
     std::cout << ">>> Object IMON" << std::endl;
     std::cout << "    size " << imon.size() << std::endl;
-    std::cout << "    from " << min << " to " << max << std::endl;
+    std::cout << "    from " << min_I << " to " << max_I << std::endl;
     
     // filtering has to be here
     RPCRunIOV* filter = new RPCRunIOV();
-    filtImon = filter->filterIMON(imon, min+1000, max-1000);
+    filtImon = filter->filterIMON(imon, min_I+1000, max_I-1000);
     std::cout << ">>> Filtered IMON" << std::endl;
     std::cout << "    size " << filtImon.size() << std::endl;
   }
