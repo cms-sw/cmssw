@@ -436,6 +436,9 @@ class _ValidatingListBase(list):
                 raise TypeError("can not insert the type "+str(type(value))+" in container "+self._labelIfAny())
         super(_ValidatingListBase,self).__setitem__(key,value)
     def _isValid(self,seq):
+        # see if strings get reinterpreted as lists
+        if isinstance(seq, str):
+            return False
         for item in seq:
             if not self._itemIsValid(item):
                 return False
