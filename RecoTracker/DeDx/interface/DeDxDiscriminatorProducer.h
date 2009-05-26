@@ -34,10 +34,10 @@
 #include <ext/hash_map>
 
 
-using namespace edm;
-using namespace reco;
-using namespace std;
-using namespace __gnu_cxx;
+// using namespace edm;
+// using namespace reco;
+// using namespace std;
+// using namespace __gnu_cxx;
 
 
 
@@ -80,8 +80,8 @@ private:
   double       MaxTrackChiOverNdf;
 
   unsigned int Formula;
-  string       Reccord;
-  string       ProbabilityMode;
+  std::string       Reccord;
+  std::string       ProbabilityMode;
 
 
   TH3D*        Prob_ChargePath;
@@ -96,7 +96,7 @@ private:
                  template <class T> bool operator () (const T& PseudoDetId1, const T& PseudoDetId2) { return PseudoDetId1==PseudoDetId2; }
       };
 
-      hash_map<unsigned int, stModInfo*,  hash<unsigned int>, isEqual > MODsColl;
+  __gnu_cxx::hash_map<unsigned int, stModInfo*,  __gnu_cxx::hash<unsigned int>, isEqual > MODsColl;
 };
 
 #endif

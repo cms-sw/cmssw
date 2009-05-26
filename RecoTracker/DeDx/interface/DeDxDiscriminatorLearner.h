@@ -22,10 +22,10 @@
 #include "TH3F.h"
 #include <ext/hash_map>
 
-using namespace edm;
-using namespace reco;
-using namespace std;
-using namespace __gnu_cxx;
+//using namespace edm;
+//using namespace reco;
+//using namespace std;
+//using namespace __gnu_cxx;
 
 
 class DeDxDiscriminatorLearner : public ConditionDBWriter<PhysicsTools::Calibration::HistogramD3D> {
@@ -76,8 +76,8 @@ private:
   int    Charge_NBins;
 
 
-  string       algoMode;
-  string       HistoFile;
+  std::string       algoMode;
+  std::string       HistoFile;
 
   TH3F*        Charge_Vs_Path;
 
@@ -89,7 +89,7 @@ private :
     template <class T> bool operator () (const T& PseudoDetId1, const T& PseudoDetId2) { return PseudoDetId1==PseudoDetId2; }
   };
 
-  hash_map<unsigned int, stModInfo*,  hash<unsigned int>, isEqual > MODsColl;
+  __gnu_cxx::hash_map<unsigned int, stModInfo*,  __gnu_cxx::hash<unsigned int>, isEqual > MODsColl;
 };
 
 #endif

@@ -20,11 +20,11 @@
 namespace DeDxDiscriminatorTools
 {
 
-   using namespace std;
+  //   using namespace std;
 
    bool   IsSpanningOver2APV   (unsigned int FirstStrip, unsigned int ClusterSize);
-   bool   IsSaturatingStrip    (const vector<uint8_t>& Ampls);
-   double charge               (const vector<uint8_t>& Ampls);
+  bool   IsSaturatingStrip    (const std::vector<uint8_t>& Ampls);
+  double charge               (const std::vector<uint8_t>& Ampls);
    double path                 (double cosine, double thickness);
 
    bool   IsFarFromBorder      (TrajectoryStateOnSurface trajState, const GeomDetUnit* it);

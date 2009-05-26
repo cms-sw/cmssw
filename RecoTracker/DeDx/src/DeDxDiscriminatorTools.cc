@@ -3,6 +3,7 @@
 
 namespace DeDxDiscriminatorTools {
 
+using namespace std;
 
 bool IsSpanningOver2APV(unsigned int FirstStrip, unsigned int ClusterSize)
 {  
