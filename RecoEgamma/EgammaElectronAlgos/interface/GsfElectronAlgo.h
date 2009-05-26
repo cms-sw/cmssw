@@ -25,6 +25,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -122,7 +123,10 @@ class GsfElectronAlgo {
 
     void preselectElectrons( GsfElectronPtrCollection &, GsfElectronPtrCollection & outEle, const reco::BeamSpot& ) ;
 
-    void resolveElectrons( GsfElectronPtrCollection &, reco::GsfElectronCollection & outEle ) ;
+    //void resolveElectrons( GsfElectronPtrCollection &, reco::GsfElectronCollection & outEle ) ;
+    void resolveElectrons( GsfElectronPtrCollection &, reco::GsfElectronCollection & outEle,
+       edm::Handle<EcalRecHitCollection> & reducedEBRecHits,
+       edm::Handle<EcalRecHitCollection> & reducedEERecHits );
 
     //Gsf mode calculations
     GlobalVector computeMode(const TrajectoryStateOnSurface &tsos);
@@ -137,6 +141,14 @@ class GsfElectronAlgo {
     // of shared hits in Pixels and the inner strip tracker with the electron Track
     std::pair<reco::TrackRef,float> getCtfTrackRef
      ( const reco::GsfTrackRef &, edm::Handle<reco::TrackCollection> ctfTracksH ) ;
+    int sharedHits ( const reco::GsfTrackRef &, const reco::GsfTrackRef & ) ;
+    int sharedDets ( const reco::GsfTrackRef &, const reco::GsfTrackRef & ) ;
+    float sharedEnergy ( const reco::CaloCluster *, const reco::CaloCluster*, 
+       edm::Handle<EcalRecHitCollection> & reducedEBRecHits,
+       edm::Handle<EcalRecHitCollection> & reducedEERecHits );
+    float sharedEnergy ( const reco::SuperClusterRef &, const reco::SuperClusterRef &, 
+       edm::Handle<EcalRecHitCollection> & reducedEBRecHits,
+       edm::Handle<EcalRecHitCollection> & reducedEERecHits );
 
     // intermediate calculations
     bool calculateTSOS(const reco::GsfTrack &t,const reco::SuperCluster & theClus, const
@@ -298,6 +310,40 @@ class GsfElectronAlgo {
     unsigned long long cacheIDMagField_;
 
  } ;
+
+struct innermost_electron {
+
+  innermost_electron(edm::ESHandle<TrackerGeometry> &geom): trackerHandle_(geom) {}
+
+  bool operator()( const reco::GsfElectron * e1, const reco::GsfElectron * e2 )
+   { 
+    reco::HitPattern gsfHitPattern1 = e1->gsfTrack()->hitPattern();
+    reco::HitPattern gsfHitPattern2 = e2->gsfTrack()->hitPattern();
+    // retreive first valid hit
+    int gsfHitCounter1 = 1;
+    for(trackingRecHit_iterator elHitsIt1 = e1->gsfTrack()->recHitsBegin();
+          elHitsIt1 != e1->gsfTrack()->recHitsEnd(); elHitsIt1++, gsfHitCounter1++) {
+	if(((**elHitsIt1).isValid())) break;
+    }
+    int gsfHitCounter2 = 1;
+    for(trackingRecHit_iterator elHitsIt2 = e2->gsfTrack()->recHitsBegin();
+          elHitsIt2 != e2->gsfTrack()->recHitsEnd(); elHitsIt2++, gsfHitCounter2++) {
+	if(((**elHitsIt2).isValid())) break;
+    } 
+    uint32_t gsfHit1 = gsfHitPattern1.getHitPattern(gsfHitCounter1);
+    uint32_t gsfHit2 = gsfHitPattern2.getHitPattern(gsfHitCounter2);
+    if (gsfHitPattern1.getSubStructure(gsfHit1)!=gsfHitPattern2.getSubStructure(gsfHit2)) {
+     return (gsfHitPattern1.getSubStructure(gsfHit1)<gsfHitPattern2.getSubStructure(gsfHit2)); 
+    } else if (gsfHitPattern1.getLayer(gsfHit1)!=gsfHitPattern2.getLayer(gsfHit2)) {
+     return gsfHitPattern1.getLayer(gsfHit1)<gsfHitPattern2.getLayer(gsfHit2);
+    } else {
+    return (fabs(e1->eSuperClusterOverP()-1)<fabs(e2->eSuperClusterOverP()-1));
+   }
+ }
+
+ edm::ESHandle<TrackerGeometry> trackerHandle_;
+ 
+};
 
 #endif // GsfElectronAlgo_H
 
