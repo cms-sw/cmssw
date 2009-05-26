@@ -1,4 +1,4 @@
-// $Id: RPCWheelMap.cc,v 1.3 2009/05/16 19:43:32 aosorio Exp $
+// $Id: RPCWheelMap.cc,v 1.4 2009/05/24 21:45:39 aosorio Exp $
 // Include files 
 
 
@@ -17,9 +17,9 @@
 // Standard constructor, initializes variables
 //=============================================================================
 RPCWheelMap::RPCWheelMap( int wheelid ) {
-
-  //... considering that we have a bxing in the range [-3,+3]
+  
   m_maxBx = 7;
+  m_maxBxWindow = 3; //... considering that we have a bxing in the range [-3,+3]
   m_maxSectors = 12;
   
   int maxMaps = m_maxBx * m_maxSectors;
@@ -35,7 +35,7 @@ RPCWheelMap::RPCWheelMap( int wheelid ) {
   for(int i=0; i < maxMaps; ++i)
     m_wheelMapBx[i].reset();
   
-  m_debug = true;
+  m_debug = false;
   
 }
 //=============================================================================
@@ -54,7 +54,7 @@ void RPCWheelMap::addHit( int bx, int sec, int layer)
 {
   
   // |--12--|--12--|--12--|--12--|--12--|--12--|--12--| (12 sectors x 6 layers x  7 bx)
-  int indx1 = bx + 3;
+  int indx1 = bx + m_maxBxWindow;
   int indx2 = sec + indx1*m_maxSectors;
   m_wheelMapBx[ indx2 ].set( layer-1, 1);
   
@@ -69,7 +69,7 @@ void RPCWheelMap::prepareData()
       
       int indx = i + bx*m_maxSectors;
       
-      m_ttuinVec[bx].m_bx = ( bx-3 );
+      m_ttuinVec[bx].m_bx = ( bx - m_maxBxWindow );
       m_wheelMap[i] = m_wheelMapBx[ indx ];
       m_ttuinVec[bx].input_sec[i] = m_wheelMap[i]; 
       

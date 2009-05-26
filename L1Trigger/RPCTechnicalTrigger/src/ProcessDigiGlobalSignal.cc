@@ -1,4 +1,4 @@
-// $Id: ProcessDigiGlobalSignal.cc,v 1.3 2009/05/16 19:43:31 aosorio Exp $
+// $Id: ProcessDigiGlobalSignal.cc,v 1.4 2009/05/24 21:45:39 aosorio Exp $
 // Include files 
 
 
@@ -25,8 +25,9 @@ ProcessDigiGlobalSignal::ProcessDigiGlobalSignal( const edm::ESHandle<RPCGeometr
   m_wmin = dynamic_cast<RPCInputSignal*>( new TTUGlobalSignal( &m_data ) );
 
   m_maxBx = 7;
-  
-  m_debug = true;
+  m_maxBxWindow = 3;
+    
+  m_debug = false;
   
 }
 //=============================================================================
@@ -61,6 +62,12 @@ int ProcessDigiGlobalSignal::next()
     
     m_digiItr = (*m_detUnitItr ).second.first;
     int bx = (*m_digiItr).bx();
+
+    if ( abs(bx) > m_maxBxWindow ) {
+      if ( m_debug )  std::cout << "ProcessDigiGlobalSignal> found a bx bigger than max allowed: "
+                                << bx << std::endl;
+      continue;
+    }
     
     const RPCDetId & id  = (*m_detUnitItr).first;
     const RPCRoll * roll = dynamic_cast<const RPCRoll* >( (*m_ptr_rpcGeom)->roll(id));
@@ -119,7 +126,7 @@ int ProcessDigiGlobalSignal::next()
     
     for( int k = 0; k < m_maxBx; ++k ) {
       
-      bx   = k-3;
+      bx   = k - m_maxBxWindow;
       
       if ( bx != 0 ) bxsign = ( bx / abs(bx) );
       else bxsign = 1;
@@ -139,17 +146,17 @@ int ProcessDigiGlobalSignal::next()
   
 }
 
-int ProcessDigiGlobalSignal::getBarrelLayer( const int & _layer, const int & _station )
+int ProcessDigiGlobalSignal::getBarrelLayer( const int & layer, const int & station )
 {
   
   //... Calculates the generic Barrel Layer (1 to 6)
   int blayer(0);
   
-  if ( _station < 3 ) {
-    blayer = ( (_station-1) * 2 ) + _layer;
+  if ( station < 3 ) {
+    blayer = ( (station - 1) * 2 ) + layer;
   }
   else {
-    blayer = _station + 2;
+    blayer = station + 2;
   }
   
   return blayer;

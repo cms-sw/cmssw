@@ -1,4 +1,4 @@
-// $Id: RPCWheelMap.h,v 1.1 2009/05/16 19:43:30 aosorio Exp $
+// $Id: RPCWheelMap.h,v 1.2 2009/05/24 21:45:39 aosorio Exp $
 #ifndef RPCWHEELMAP_H 
 #define RPCWHEELMAP_H 1
 
@@ -39,6 +39,7 @@ private:
   int m_wheelid;
   int m_maxBx;
   int m_maxSectors;
+  int m_maxBxWindow;
   
   std::bitset<6> * m_wheelMap;
   std::bitset<6> * m_wheelMapBx;

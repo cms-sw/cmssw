@@ -1,4 +1,4 @@
-// $Id: ProcessDigiGlobalSignal.h,v 1.1 2009/05/16 19:43:30 aosorio Exp $
+// $Id: ProcessDigiGlobalSignal.h,v 1.2 2009/05/24 21:45:38 aosorio Exp $
 #ifndef PROCESSDIGIGLOBALSIGNAL_H 
 #define PROCESSDIGIGLOBALSIGNAL_H 1
 
@@ -76,7 +76,7 @@ private:
   RPCDigiCollection::DigiRangeIterator m_detUnitItr;
 
   int m_maxBx;
-    
+  int m_maxBxWindow;
   bool m_debug;
         
 };
