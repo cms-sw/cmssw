@@ -344,7 +344,7 @@ bool KalmanAlignmentTrackRefitter::rejectTrack( const Track* track ) const
   double minChi2Prob = 0;//1e-6;
   double maxChi2Prob = 1.0;
 
-  GENFUNCTION cumulativeChi2 = CumulativeChiSquare( ndof );
+  GENFUNCTION cumulativeChi2 = Genfun::CumulativeChiSquare( ndof );
   double chi2Prob = 1. - cumulativeChi2( trackChi2 );
   return ( chi2Prob < minChi2Prob ) || ( chi2Prob > maxChi2Prob ); 
 }
@@ -359,7 +359,7 @@ void KalmanAlignmentTrackRefitter::debugTrackData( const string identifier,
   double trackChi2 = track->chi2();
   if ( ( trackChi2 > 0. ) && ( ndof > 0 ) )
   {
-    GENFUNCTION cumulativeChi2 = CumulativeChiSquare( ndof );
+    GENFUNCTION cumulativeChi2 = Genfun::CumulativeChiSquare( ndof );
     KalmanAlignmentDataCollector::fillHistogram( identifier + string("_CumChi2"), 1. - cumulativeChi2( trackChi2 ) );
   } else if ( ndof == 0 ) {
     KalmanAlignmentDataCollector::fillHistogram( identifier + string("_CumChi2"), -1. );

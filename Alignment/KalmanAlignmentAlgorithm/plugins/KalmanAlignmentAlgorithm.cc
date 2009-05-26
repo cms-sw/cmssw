@@ -236,8 +236,8 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
   bool addPositionError = false;// = initConfig.getUntrackedParameter< bool >( "AddPositionError", true );
 
   int seed  = initConfig.getUntrackedParameter< int >( "RandomSeed", 1726354 );
-  HepRandom::createInstance();
-  HepRandom::setTheSeed( seed );
+  CLHEP::HepRandom::createInstance();
+  CLHEP::HepRandom::setTheSeed( seed );
 
   bool applyXShifts =  initConfig.getUntrackedParameter< bool >( "ApplyXShifts", false );
   bool applyYShifts =  initConfig.getUntrackedParameter< bool >( "ApplyYShifts", false );
@@ -363,9 +363,9 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
 	continue;
       }
 
-      displacement[0] = applyXShifts ? sigmaXShift*RandGauss::shoot() : 0.;
-      displacement[1] = applyYShifts ? sigmaZShift*RandGauss::shoot() : 0.;
-      displacement[2] = applyZShifts ? sigmaYShift*RandGauss::shoot() : 0.;
+      displacement[0] = applyXShifts ? sigmaXShift*CLHEP::RandGauss::shoot() : 0.;
+      displacement[1] = applyYShifts ? sigmaZShift*CLHEP::RandGauss::shoot() : 0.;
+      displacement[2] = applyZShifts ? sigmaYShift*CLHEP::RandGauss::shoot() : 0.;
 
       if ( applyShifts ) 
       {
@@ -376,9 +376,9 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
 
       align::EulerAngles eulerAngles( 3 );
 
-      eulerAngles[0] = applyXRots ? sigmaXRot*RandGauss::shoot() : 0.;
-      eulerAngles[1] = applyYRots ? sigmaYRot*RandGauss::shoot() : 0.;
-      eulerAngles[2] = applyZRots ? sigmaZRot*RandGauss::shoot() : 0.;
+      eulerAngles[0] = applyXRots ? sigmaXRot*CLHEP::RandGauss::shoot() : 0.;
+      eulerAngles[1] = applyYRots ? sigmaYRot*CLHEP::RandGauss::shoot() : 0.;
+      eulerAngles[2] = applyZRots ? sigmaZRot*CLHEP::RandGauss::shoot() : 0.;
 
       if ( applyRots )
       {
@@ -465,7 +465,7 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
 
 	  for ( int iParam = 0; iParam < randomStartParameters.num_row(); ++iParam )
 	  {
-	    randomStartParameters[iParam] += sqrt(randSig[iParam])*RandGauss::shoot();
+	    randomStartParameters[iParam] += sqrt(randSig[iParam])*CLHEP::RandGauss::shoot();
 	    //randomStartErrors[iParam][iParam] += randSig[iParam]*randSig[iParam];
 	  }
 
