@@ -63,7 +63,7 @@ EcalPreshowerMonitorClient::~EcalPreshowerMonitorClient()
 }
 
 
-void EcalPreshowerMonitorClient::beginJob(){
+void EcalPreshowerMonitorClient::beginJob(const EventSetup &c){
 
 	if(debug_){ 
 		cout<<"beginJob() is called"<<endl;
@@ -88,7 +88,7 @@ void EcalPreshowerMonitorClient::beginJob(){
 		dqmStore_ = Service<DQMStore>().operator->();
 
 	}
-
+	
 	if ( ! enableMonitorDaemon_ ) {
 		if ( inputFile_.size() != 0 ) {
 			if ( dqmStore_ ) {
@@ -162,7 +162,9 @@ void EcalPreshowerMonitorClient::analyze(void){
 
 	if ( enableMonitorDaemon_ ) mui_->doMonitoring();
 
-	cout<<"Run Client at "<<EvtperRun_<<"th Event of the run & "<<EvtperJob_<<"th event of the job."<<endl;
+	if(debug_){ 
+		cout<<"Run Client at "<<EvtperRun_<<"th Event of the run & "<<EvtperJob_<<"th event of the job."<<endl;
+	}
 
 	PedestalClient_->analyze();
 	IntegrityClient_->analyze();
@@ -176,6 +178,7 @@ void EcalPreshowerMonitorClient::analyze(const Event & e, const EventSetup & c) 
 	EvtperRun_++;
 
 	if(debug_) cout<<" analyze(const Event & e, const EventSetup & c) is called"<<endl;
+
 	if ( prescaleFactor_ > 0 ) {
 		if ( EvtperJob_ % prescaleFactor_ == 0 ) this->analyze();
 	}

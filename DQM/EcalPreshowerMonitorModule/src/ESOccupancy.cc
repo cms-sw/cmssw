@@ -221,7 +221,7 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
 }
 
 
-void ESOccupancyTask::beginJob()
+void ESOccupancyTask::beginJob(const edm::EventSetup & c)
 {
 }
 

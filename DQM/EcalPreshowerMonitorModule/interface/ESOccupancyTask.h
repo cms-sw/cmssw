@@ -19,9 +19,9 @@ class ESOccupancyTask : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob() ;
+      virtual void beginJob(const edm::EventSetup & c) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void endJob(void) ;
 
       // ----------member data ---------------------------
       edm::InputTag rechitlabel_;

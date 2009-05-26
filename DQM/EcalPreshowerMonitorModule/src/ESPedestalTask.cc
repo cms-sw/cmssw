@@ -96,13 +96,7 @@ ESPedestalTask::ESPedestalTask(const edm::ParameterSet& ps)
 ESPedestalTask::~ESPedestalTask(){}
 
 
-//
-// member functions
-//
-
-// ------------ method called to for each event  ------------
-	void
-ESPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup)
+void ESPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup)
 {
 
 	runNum_ = e.id().run();
@@ -193,15 +187,11 @@ ESPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup)
 }
 
 
-// ------------ method called once each job just before starting event loop  ------------
-	void 
-ESPedestalTask::beginJob()
+void ESPedestalTask::beginJob(const edm::EventSetup & c)
 {
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-ESPedestalTask::endJob() {
+void ESPedestalTask::endJob() {
 
 	if(outputFile_.size() != 0){
 	cout<<"Save result to "<<outputFile_<<endl;
