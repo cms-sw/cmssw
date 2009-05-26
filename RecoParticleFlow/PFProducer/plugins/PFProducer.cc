@@ -201,6 +201,12 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 				      factors45);
   
   
+  //MIKE: Vertex Parameters
+  vertices_ = iConfig.getParameter<edm::InputTag>("vertexCollection");
+  useVerticesForNeutral_ = iConfig.getParameter<bool>("useVerticesForNeutral");
+
+
+
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
 
@@ -232,6 +238,19 @@ PFProducer::produce(Event& iEvent,
 			<<iEvent.id().event()
 			<<" in run "<<iEvent.id().run()<<endl;
   
+
+  // Get The vertices from the event
+  // and assign dynamic vertex parameters
+  edm::Handle<reco::VertexCollection> vertices;
+  bool gotVertices = iEvent.getByLabel(vertices_,vertices);
+  if(!gotVertices) {
+    ostringstream err;
+    err<<"Cannot find vertices for this event.Continuing Without them ";
+    LogError("PFSimParticleProducer")<<err.str()<<endl;
+  }
+
+  //Assign the PFAlgo Parameters
+  pfAlgo_->setPFVertexParameters(useVerticesForNeutral_,*vertices);
 
   // get the collection of blocks 
 

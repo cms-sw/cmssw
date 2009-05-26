@@ -21,6 +21,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "RecoParticleFlow/PFProducer/interface/PFCandConnector.h"
 
 /// \brief Particle Flow Algorithm
@@ -68,6 +69,10 @@ class PFAlgo {
 			  bool usePFElectrons);
 
   void setPFConversionParameters( bool usePFConversions );
+  
+  //MIKEB : Parameters for the vertices..
+  void setPFVertexParameters(bool useVertex,
+			   const reco::VertexCollection& primaryVertices);			   
   
   /// reconstruct particles (full framework case)
   /// will keep track of the block handle to build persistent references,
@@ -198,6 +203,10 @@ class PFAlgo {
   double nSigmaTRACK_;
   double ptError_;
   std::vector<double> factors45_;
+
+  //MIKE -May19th: Add option for the vertices....
+  reco::Vertex       primaryVertex_;
+  bool               useVertices_; 
 
 };
 

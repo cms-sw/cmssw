@@ -37,12 +37,18 @@ class PFProducer : public edm::EDProducer {
  private:
 
   edm::InputTag  inputTagBlocks_;
+  edm::InputTag  vertices_;
   std::string electronOutputCol_;
 
   /// verbose ?
-  bool                       verbose_;
+  bool  verbose_;
 
+  // Use PF electrons ?
   bool usePFElectrons_;
+
+  // Use vertices for Neutral particles ?
+  bool useVerticesForNeutral_;
+
   
   /// particle flow algorithm
   std::auto_ptr<PFAlgo>      pfAlgo_;

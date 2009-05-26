@@ -5,6 +5,10 @@ particleFlow = cms.EDProducer("PFProducer",
     # PF Blocks label
     blocks = cms.InputTag("particleFlowBlock"),
 
+    # Vertices label
+    vertexCollection = cms.InputTag("offlinePrimaryVertices"),
+    useVerticesForNeutral = cms.bool(True),
+
     # Algorithm type ?
     algoType = cms.uint32(0),
 

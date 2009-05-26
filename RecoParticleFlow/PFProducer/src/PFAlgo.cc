@@ -13,6 +13,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
@@ -48,7 +49,8 @@ PFAlgo::PFAlgo()
     nSigmaHCAL_(1),
     algo_(1),
     debug_(false),
-    pfele_(0)
+    pfele_(0),
+    useVertices_(false)
 {}
 
 PFAlgo::~PFAlgo() {
@@ -111,11 +113,33 @@ PFAlgo::setPFMuonAndFakeParameters(std::vector<double> muonHCAL,
 }
   
 
-void PFAlgo::setPFConversionParameters(bool usePFConversions ) {
+void 
+PFAlgo::setPFConversionParameters(bool usePFConversions ) {
 
   usePFConversions_ = usePFConversions;
   pfConversion_ = new PFConversionAlgo();
 
+
+}
+
+
+void
+PFAlgo::setPFVertexParameters(bool useVertex,
+			      const reco::VertexCollection& primaryVertices) {
+  useVertices_ = useVertex;
+  //Now find the primary vertex!
+  bool primaryVertexFound = false;
+  for (unsigned short i=0 ;i<primaryVertices.size();++i)
+    {
+      if(primaryVertices[i].isValid()&&(!primaryVertices[i].isFake()))
+	{
+	  primaryVertex_ = primaryVertices[i];
+	  primaryVertexFound = true;
+          break;
+	}
+    }
+  //Use vertices if the user wants to but only if it exists a good vertex 
+  useVertices_ = useVertex && primaryVertexFound; 
 
 }
 
@@ -911,7 +935,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       reco::MuonRef muonRef = elements[iTrack].muonRef();
       bool thisIsAMuon = PFMuonAlgo::isMuon(elements[iTrack]);
       bool thisIsALooseMuon = PFMuonAlgo::isLooseMuon(elements[iTrack]);
-      if ( thisIsAMuon ) { 
+      if ( thisIsAMuon ) {
 	if ( debug_ ) { 
 	  std::cout << "\t\tThis track is identified as a muon - remove it from the stack" << std::endl;
 	  std::cout << "\t\t" << elements[iTrack] << std::endl;
@@ -1955,8 +1979,42 @@ PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
 
   // need to convert the math::XYZPoint data member of the PFCluster class=
   // to a displacement vector: 
-  math::XYZVector clusterPos( cluster.position().X(), cluster.position().Y(),cluster.position().Z() );
-  math::XYZVector particleDirection ( particleX, particleY, particleZ );
+
+  // Transform particleX,Y,Z to a position at ECAL/HCAL entrance
+  double factor = 1.;
+  if ( useDirection ) { 
+    switch( cluster.layer() ) {
+    case PFLayer::ECAL_BARREL:
+    case PFLayer::HCAL_BARREL1:
+      factor = std::sqrt(cluster.position().Perp2()/(particleX*particleX+particleY*particleY));
+      break;
+    case PFLayer::ECAL_ENDCAP:
+    case PFLayer::HCAL_ENDCAP:
+    case PFLayer::HF_HAD:
+    case PFLayer::HF_EM:
+      factor = cluster.position().Z()/particleZ;
+      break;
+    default:
+      assert(0);
+    }
+  }
+  //MIKE First of all let's check if we have vertex.
+  math::XYZPoint vertexPos; 
+  if(useVertices_)
+    vertexPos = math::XYZPoint(primaryVertex_.x(),primaryVertex_.y(),primaryVertex_.z());
+  else
+    vertexPos = math::XYZPoint(0.0,0.0,0.0);
+
+
+  math::XYZVector clusterPos( cluster.position().X()-vertexPos.X(), 
+			      cluster.position().Y()-vertexPos.Y(),
+			      cluster.position().Z()-vertexPos.Z());
+  math::XYZVector particleDirection ( particleX*factor-vertexPos.X(), 
+				      particleY*factor-vertexPos.Y(), 
+				      particleZ*factor-vertexPos.Z() );
+
+  //math::XYZVector clusterPos( cluster.position().X(), cluster.position().Y(),cluster.position().Z() );
+  //math::XYZVector particleDirection ( particleX, particleY, particleZ );
 
   clusterPos = useDirection ? particleDirection.Unit() : clusterPos.Unit();
   clusterPos *= particleEnergy;
@@ -1965,6 +2023,17 @@ PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
   // with a magnitude equal to the cluster energy.
   
   double mass = 0;
+  ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > 
+    momentum( clusterPos.X(), clusterPos.Y(), clusterPos.Z(), mass); 
+  // mathcore is a piece of #$%
+  math::XYZTLorentzVector  tmp;
+  // implicit constructor not allowed
+  tmp = momentum;
+
+  // Charge
+  int charge = 0;
+
+  // Type
   switch( cluster.layer() ) {
   case PFLayer::ECAL_BARREL:
   case PFLayer::ECAL_ENDCAP:
@@ -1985,20 +2054,20 @@ PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
   }
 
 
-  ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > 
-    momentum( clusterPos.X(), clusterPos.Y(), clusterPos.Z(), mass); 
-
-  int charge = 0;
-
-  // mathcore is a piece of #$%
-  math::XYZTLorentzVector  tmp;
-
-  // implicit constructor not allowed
-  tmp = momentum;
-
+  // The pf candidate
   pfCandidates_->push_back( PFCandidate( charge, 
                                          tmp, 
                                          particleType ) );
+
+  // The position at ECAL entrance (well: watch out, it is not true
+  // for HCAL clusters... to be fixed)
+  pfCandidates_->back().
+    setPositionAtECALEntrance(math::XYZPointF(cluster.position().X(),
+					      cluster.position().Y(),
+					      cluster.position().Z()));
+
+  //Set the cnadidate Vertex
+  pfCandidates_->back().setVertex(vertexPos);  
 
   if(debug_) 
     cout<<"** candidate: "<<pfCandidates_->back()<<endl; 
