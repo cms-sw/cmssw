@@ -1,5 +1,5 @@
 //
-// $Id: TrackerIsolationPt.cc,v 1.3 2008/02/28 14:54:25 llista Exp $
+// $Id: TrackerIsolationPt.cc,v 1.4 2008/03/03 16:45:29 lowette Exp $
 //
 
 #include "PhysicsTools/PatUtils/interface/TrackerIsolationPt.h"
@@ -43,9 +43,9 @@ float TrackerIsolationPt::calculate(const reco::Track & theTrack, const edm::Vie
   float closestDRPt = 10000, closestDR = 10000;
   // use all these pointless vector conversions because the momenta from tracks
   // are completely unusable; bah, these math-vectors are worthless!
-  HepLorentzVector lepton(theTrack.px(), theTrack.py(), theTrack.pz(), theTrack.p());
+  CLHEP::HepLorentzVector lepton(theTrack.px(), theTrack.py(), theTrack.pz(), theTrack.p());
   for (edm::View<reco::Track>::const_iterator itTrack = theTracks.begin(); itTrack != theTracks.end(); itTrack++) {
-    HepLorentzVector track(itTrack->px(), itTrack->py(), itTrack->pz(), itTrack->p());
+    CLHEP::HepLorentzVector track(itTrack->px(), itTrack->py(), itTrack->pz(), itTrack->p());
     float dR = lepton.deltaR(track);
     if (dR < isoCone) {
       isoPtLepton += track.perp();

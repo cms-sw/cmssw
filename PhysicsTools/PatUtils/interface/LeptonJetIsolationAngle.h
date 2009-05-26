@@ -1,5 +1,5 @@
 //
-// $Id: LeptonJetIsolationAngle.h,v 1.2 2008/01/21 16:26:19 lowette Exp $
+// $Id: LeptonJetIsolationAngle.h,v 1.3 2008/03/05 14:51:02 fronga Exp $
 //
 
 #ifndef PhysicsTools_PatUtils_LeptonJetIsolationAngle_h
@@ -14,7 +14,7 @@
    CMS Note 2006/024
 
   \author   Steven Lowette
-  \version  $Id: LeptonJetIsolationAngle.h,v 1.2 2008/01/21 16:26:19 lowette Exp $
+  \version  $Id: LeptonJetIsolationAngle.h,v 1.3 2008/03/05 14:51:02 fronga Exp $
 */
 
 
@@ -43,8 +43,8 @@ namespace pat {
 
     private:
 
-      float calculate(const HepLorentzVector & aLepton, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent);
-      float spaceAngle(const HepLorentzVector & aLepton, const reco::CaloJet & aJet);
+      float calculate(const CLHEP::HepLorentzVector & aLepton, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent);
+      float spaceAngle(const CLHEP::HepLorentzVector & aLepton, const reco::CaloJet & aJet);
 
     private:
 

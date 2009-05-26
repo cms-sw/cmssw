@@ -1,5 +1,5 @@
 //
-// $Id: LeptonJetIsolationAngle.cc,v 1.3 2008/04/03 14:04:58 gpetrucc Exp $
+// $Id: LeptonJetIsolationAngle.cc,v 1.4 2008/11/28 22:06:31 lowette Exp $
 //
 
 #include "PhysicsTools/PatUtils/interface/LeptonJetIsolationAngle.h"
@@ -26,17 +26,17 @@ LeptonJetIsolationAngle::~LeptonJetIsolationAngle() {
 
 // calculate the JetIsoA for the lepton object
 float LeptonJetIsolationAngle::calculate(const Electron & theElectron, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent) {
-  HepLorentzVector theElectronHLV(theElectron.px(), theElectron.py(), theElectron.pz(), theElectron.energy());
+  CLHEP::HepLorentzVector theElectronHLV(theElectron.px(), theElectron.py(), theElectron.pz(), theElectron.energy());
   return this->calculate(theElectronHLV, trackHandle, iEvent);
 }
 float LeptonJetIsolationAngle::calculate(const Muon & theMuon, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent) {
-  HepLorentzVector theMuonHLV(theMuon.px(), theMuon.py(), theMuon.pz(), theMuon.energy());
+  CLHEP::HepLorentzVector theMuonHLV(theMuon.px(), theMuon.py(), theMuon.pz(), theMuon.energy());
   return this->calculate(theMuonHLV, trackHandle, iEvent);
 }
 
 
 // calculate the JetIsoA for the lepton's HLV
-float LeptonJetIsolationAngle::calculate(const HepLorentzVector & aLepton, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent) {
+float LeptonJetIsolationAngle::calculate(const CLHEP::HepLorentzVector & aLepton, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent) {
   // FIXME: this is an ugly temporary workaround, JetMET+egamma should come up with a better tool
   // retrieve the jets
   edm::Handle<reco::CaloJetCollection> jetHandle;
@@ -78,7 +78,7 @@ float LeptonJetIsolationAngle::calculate(const HepLorentzVector & aLepton, const
 
 
 // calculate the angle between two vectors in 3d eucledian space
-float LeptonJetIsolationAngle::spaceAngle(const HepLorentzVector & aLepton, const reco::CaloJet & aJet) {
+float LeptonJetIsolationAngle::spaceAngle(const CLHEP::HepLorentzVector & aLepton, const reco::CaloJet & aJet) {
   return acos(sin(aJet.theta()) * cos(aJet.phi()) * sin(aLepton.theta()) * cos(aLepton.phi())
             + sin(aJet.theta()) * sin(aJet.phi()) * sin(aLepton.theta()) * sin(aLepton.phi())
             + cos(aJet.theta()) * cos(aLepton.theta()));
