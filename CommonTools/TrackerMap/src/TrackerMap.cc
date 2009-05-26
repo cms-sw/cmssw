@@ -1120,24 +1120,24 @@ void TrackerMap::printonline(){
   std::ifstream * ifilename;
   std::ostringstream ofname;
   std::string ifname;
+  std::string command;
   string line;
   string outputfilename="dqmtmap";
   ifilename=findfile("viewerHeader.xhtml");
-  ofname << outputfilename << "viewer.xhtml";
+  ofname << outputfilename << "viewer.html";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
 *ofilename <<"    var tmapname=\"" <<outputfilename << "\""<<endl;
 *ofilename <<"    var ncrates=" <<ncrates << ";"<<endl;
   ifilename=findfile("viewerTrailer.xhtml");
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
+  ofilename -> close();
+   command = "sed -i \"s/XtmapnameX/"+outputfilename+"/g\" "+ ofname.str();
+    cout << "Executing " << command << endl;
+    system(command.c_str());
   ofname.str("");
-  ifilename=findfile("viewer.css");
-  ofname <<  "viewer.css";
-  ofilename = new ofstream(ofname.str().c_str(),ios::out);
-  while (getline( *ifilename, line )) { *ofilename << line << endl; }
-  ofname.str("");
-  ifilename=findfile("viewer.js");
-  ofname << "viewer.js";
+  ifilename=findfile("jqviewer.js");
+  ofname << "jqviewer.js";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
   ofname.str("");
@@ -1231,22 +1231,23 @@ void TrackerMap::printall(bool print_total, float minval, float maxval, string o
   std::ostringstream ofname;
   std::string ifname;
   string line;
+  std::string command;
   ifilename=findfile("viewerHeader.xhtml");
-  ofname << outputfilename << "viewer.xhtml";
+  ofname << outputfilename << "viewer.html";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
 *ofilename <<"    var tmapname=\"" <<outputfilename << "\""<<endl;
 *ofilename <<"    var ncrates=" <<ncrates << ";"<<endl;
   ifilename=findfile("viewerTrailer.xhtml");
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
+  ofilename -> close();
+   command = "sed -i \"s/XtmapnameX/"+outputfilename+"/g\" "+ ofname.str();
+    cout << "Executing " << command << endl;
+    system(command.c_str());
+  
   ofname.str("");
-  ifilename=findfile("viewer.css");
-  ofname <<  "viewer.css";
-  ofilename = new ofstream(ofname.str().c_str(),ios::out);
-  while (getline( *ifilename, line )) { *ofilename << line << endl; }
-  ofname.str("");
-  ifilename=findfile("viewer.js");
-  ofname << "viewer.js";
+  ifilename=findfile("jqviewer.js");
+  ofname << "jqviewer.js";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
   ofname.str("");
@@ -1259,6 +1260,14 @@ void TrackerMap::printall(bool print_total, float minval, float maxval, string o
   ofname <<  "layer.js";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
+  
+   command = "scp -r ../../DQM/TrackerCommon/test/jquery/ .";
+    cout << "Executing " << command << endl;
+    system(command.c_str());
+   command = "scp -r ../../CommonTools/TrackerMap/data/images/ .";
+    cout << "Executing " << command << endl;
+    system(command.c_str());
+ 
   
     ostringstream outs,outs1,outs2;
     outs << outputfilename<<".png";

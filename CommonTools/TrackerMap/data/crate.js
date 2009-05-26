@@ -27,7 +27,8 @@ TrackerCrate.showData = function (evt) {
 	    var crate = Math.floor(id/1000000);
 opacity=0.4;
 myPoly.setAttribute("style","fill-opacity: "+opacity+"; stroke: black; stroke-width: 2") ;
-	    parent.document.getElementById('print2').setAttribute("src",parent.servername+parent.tmapname+"crate"+crate+".html#"+detid);
+	//    parent.document.getElementById('print2').setAttribute("src",parent.servername+parent.tmapname+"crate"+crate+".html#"+detid);
+      parent.window.setip1(parent.servername+parent.tmapname+"crate"+crate+".html#"+detid);
 	    //alert(top.document.getElementById('print1'));
 	    
      }

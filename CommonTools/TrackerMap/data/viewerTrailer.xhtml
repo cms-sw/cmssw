@@ -1,98 +1,39 @@
 
-    var tabs = new Tabs("#ffc","#fff");
-    var dragObject;
-    var tmapObject;
-    var mouseOffset;
-    var layer;
-    var crate;
-    var zoomAmount;
-    var zoomFactor;
-    var imageWidth,imageHeight;
-    var remotewin;
+//]]>
+</script>
+<script type="text/javascript" src="jqviewer.js"></script>
+</head>
 
-    // capture mouse events
+<body>
+<div id="tabs">
+			<ul>
 
-    document.addEventListener('mouseup',mouseUp,false);
-    document.addEventListener('mousemove',mouseMove,false);
-    layer=1;crate=1;
-    window.addEventListener("load",setUpTabs,false);
-    // make detached window
-    function makeRemote(){
-    remote=window.open("","remote window",width=500,height=500);
-    remote.location.href=servername+tmapname+"crate1.xml";
-    if(remote.opener==null) remote.opener=window;
-    remote.opener.name="opener";
-    return remote;
-    }
-    remotewin=makeRemote();
-
-
-    //]]>
-    </script>
-  </head>
-  <body>
-    <div class="container">
-      <div class="tab">
-        <div class="name">
-          Geometric:
-        </div>
-        <div class="name" >
-          Fed:
-        </div>
-      </div>
-      <div class="elements">
-        <div class="content" id="one" >
-
-<fieldset>
-<button onclick="zoomIt('&lt;');">&lt;</button>
-<button onclick="zoomIt('&gt;');">&gt;</button>
-<button onclick="zoomIt('+');">+</button>
-<button onclick="zoomIt('-');">-</button>
-<button onclick="zoomIt('Home');">Home</button>
-<button onclick="zoomIt('Full');">Full</button>
-<button onclick="zoomIt('SVG');">Single layer</button>
-<button onclick="zoomIt('TIB');">TIB</button>
-<button onclick="zoomIt('TOB');">TOB</button>
-<button onclick="zoomIt('TID+z');">TID+z</button>
-<button onclick="zoomIt('TID-z');">TID-z</button>
-<button onclick="zoomIt('TEC+z');">TEC+z</button>
-<button onclick="zoomIt('TEC-z');">TEC-z</button>
-<button onclick="zoomIt('PIXB');">PIXB</button>
-<button onclick="zoomIt('FPIX+z');">FPIX+z</button>
-<button onclick="zoomIt('FPIX-z');">FPIX-z</button>
-</fieldset>
-        <div class="map" id="trackermap" >
-
-<div id="div1" STYLE="display: ;position:absolute;top:120px;left:10px;overflow:hidden">
-<img id="img1" src="about:blank" alt="trackermap" STYLE="display: ;position:absolute;top:120px;left:10px;overflow:hidden" width="1000" height="600" />
+				<li><a href="#tabs-1">Geometric:</a></li>
+				<li><a href="#tabs-2">Fedtrackermap:</a></li>
+			</ul>
+			<div id="tabs-1">
+<div id="draggable" class="ui-widget-content" style="position:absolute;top:60px;left:900px;z-index:8;">
+	<p>Detail window</p>
+<div id="controls"> </div>
+<iframe id="detail"  width="600" height="600"   STYLE="position:absolute;top:15px;left:0px;z-index:8;display:none"> </iframe>
 </div>
-<iframe id="layer1"  width="600" height="600"  STYLE="display:none;position:absolute;top:100px;left:100px;z-index:2" />
-<iframe id="print1"  width="300" height="600"  STYLE="display:none;position:absolute;top:100px;left:600px;z-index:2" />
-     
-        </div>
-        </div>
-        <div class="content" id="two">
-<fieldset>
-<button onclick="zoomIt('&lt;');">&lt;</button>
-<button onclick="zoomIt('&gt;');">&gt;</button>
-<button onclick="zoomIt('+');">+</button>
-<button onclick="zoomIt('-');">-</button>
-<button onclick="zoomIt('Home');">Home</button>
-<button onclick="zoomIt('Full');">Full</button>
-<button onclick="zoomIt('SVG');">Single crate</button>
-</fieldset>
-<div class="map" id="fedtrackermap" >
-
-<div id="div2" STYLE="display: ;position:absolute;top:100px;left:10px">
-<img id="img2" src="about:blank" alt="fed trackermap" STYLE="display: ;position:absolute;top:100px;left:10px;overflow:hidden"  width="1000" height="600"/>
+<iframe id="ctip" width="600" height="600" src="XtmapnameXlayer1.html" style="position:absolute;top:60px;left:100px;z-index:8;display:none;background:#FFFFFF"></iframe>
+<img id="content1" style="margin-top:100px;margin-left:100px;"  src="XtmapnameX.png"  width="750" height="400" />
+<div id="icons"> </div>
+<div id="place"> </div>
 </div>
-<iframe id="layer2"  width="650" height="600"  STYLE="display:none;position:absolute;top:100px;left:100px;z-index:2" />
-<iframe id="print2"  width="300" height="600"  STYLE="display:none;position:absolute;top:100px;left:650px;z-index:2" />
-     
-        </div>
-      </div>
-      </div>
-      </div>
-											  
-  </body>
-</html>
+			<div id="tabs-2">
+<div id="draggable1" class="ui-widget-content" style="position:absolute;top:60px;left:900px;z-index:8;">
+	<p>Detail window</p>
+<div id="ccontrols"> </div>
+<iframe id="cdetail"  width="700" height="600"   STYLE="position:absolute;top:15px;left:0px;z-index:8;display:none"> </iframe>
+</div>
+<iframe id="ctip1" width="600" height="600" src="XtmapnameXcrate1.html" style="position:absolute;top:60px;left:100px;z-index:8;display:none;background:#FFFFFF"></iframe>
+<img id="content2" style="margin-top:100px;margin-left:100px;"  src="XtmapnameXfed.png"  width="750" height="400" />
+<div id="cicons"> </div>
+<div id="cplace"> </div>
+</div>
+
+		</div>
+</body></html>
+

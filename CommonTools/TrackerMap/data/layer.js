@@ -23,7 +23,6 @@ TrackerLayer.showData = function (evt) {
        textfield.firstChild.nodeValue=myTracker2;
        textfield=document.getElementById('line4');
        textfield.firstChild.nodeValue=myMessage;
-
         opacity=0.2;
         myPoly.setAttribute("style","cursor:crosshair; fill-opacity: "+opacity) ;
       //top.document.getElementById('currentElementText').setAttribute("value",myTracker);
@@ -50,7 +49,8 @@ TrackerLayer.showData = function (evt) {
 	    if(parent.remotewin.document.getElementById(apvaddr1)!=null) {styledef=parent.remotewin.document.getElementById(apvaddr1).getAttribute("style");if(styledef==null||styledef=="")parent.remotewin.document.getElementById(apvaddr1).setAttribute("style"," stroke: black; stroke-width: 1") ; else parent.remotewin.document.getElementById(apvaddr1).setAttribute("style",""); }
 	    if(apvaddr2!=""&&parent.remotewin.document.getElementById(apvaddr2)!=null) {styledef=parent.remotewin.document.getElementById(apvaddr2).getAttribute("style");if(styledef==null||styledef=="")parent.remotewin.document.getElementById(apvaddr2).setAttribute("style"," stroke: black; stroke-width: 1") ; else parent.remotewin.document.getElementById(apvaddr2).setAttribute("style",""); }
 	    if(apvaddr3!=""&&parent.remotewin.document.getElementById(apvaddr3)!=null) {styledef=parent.remotewin.document.getElementById(apvaddr3).getAttribute("style");if(styledef==null||styledef=="")parent.remotewin.document.getElementById(apvaddr3).setAttribute("style"," stroke: black; stroke-width: 1") ; else parent.remotewin.document.getElementById(apvaddr3).setAttribute("style",""); }
-	    parent.document.getElementById('print1').setAttribute("src",parent.servername+parent.tmapname+"layer"+layer+".html#"+detid);
+	    //parent.document.getElementById('print1').setAttribute("src",parent.servername+parent.tmapname+"layer"+layer+".html#"+detid);
+	    parent.window.setip(parent.servername+parent.tmapname+"layer"+layer+".html#"+detid);
 	    //alert(top.document.getElementById('print1'));
 	    
      }
