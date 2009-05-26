@@ -112,15 +112,16 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
   
   //  double Gain12Equivalent[4]={0,1,2,12};
   double frame[C::MAXSAMPLES];// will contain the ADC values
-  double pedestal =0;
+  double pedestal =0;     // carries pedestal for gain12 i.e. gainId==1
   
-  int gainId0 = 1;
-  int iGainSwitch = 0;
-  int GainId= 0;
-  double maxsample(-1);
-  int imax(-1);
+  int gainId0 = 1;        // expected gainId at the beginning of dataFrame 
+  int iGainSwitch = 0;    // flags whether there's any gainId other than gainId0
+  int GainId= 0;          // stores gainId at every sample
+  double maxsample(-1);   // ADC value of maximal ped-subtracted sample
+  int imax(-1);           // sample number of maximal ped-subtracted sample
   bool external_pede = false;
-  bool isSaturated = 0;
+  bool isSaturated = 0;   // flag reporting whether gain0 has been found
+
   // Get time samples checking for Gain Switch and pedestals
   if(pedestals){
     external_pede = true;
@@ -131,12 +132,14 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
 	GainId = dataFrame.sample(iSample).gainId();
 
 	// FIX-ME: warning: the vector pedestal is supposed to have in the order G12, G6 and G1
+        // if GainId is zero treat it as 3 temporarily to protect against undefined
+	// frame will be set to ~max of gain1
 	if ( GainId == 0 )
 	  { 
 	    GainId = 3;
 	    isSaturated = 1;
 	  }
-	//Gain12Equivalent[GainId];
+
 	if (GainId != gainId0) iGainSwitch = 1;
 
 	if(GainId==gainId0){frame[iSample] = double(dataFrame.sample(iSample).adc())-pedestal ;}
@@ -151,6 +154,7 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
   else {// pedestal from pre-sample
     external_pede = false;
     pedestal = (double(dataFrame.sample(0).adc()) + double(dataFrame.sample(1).adc()))/2.;
+
     for(int iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
       //create frame in adc gain 12 equivalent
       GainId = dataFrame.sample(iSample).gainId();
@@ -162,6 +166,7 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
 	}
 
       frame[iSample] = double(dataFrame.sample(iSample).adc())-pedestal ;
+      // if gain has switched but no pedestals are available, no much good you can do...
       if (GainId > gainId0) iGainSwitch = 1;
       if( frame[iSample]>maxsample ) {
 	maxsample = frame[iSample];
@@ -170,7 +175,8 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
     } 
   }
 
-  if(iGainSwitch==1 && external_pede==false){
+  if( (iGainSwitch==1 && external_pede==false) ||  // ... thus you return dummy rechit
+      imax ==-1 ){                                 // protect against all frames being <-1
     return EcalUncalibratedRecHit( dataFrame.id(), -1., -100., -1. , -1.);
   }
   
