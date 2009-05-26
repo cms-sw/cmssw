@@ -1,8 +1,8 @@
 /** \file LaserBeamsTEC2.cc
  *  
  *
- *  $Date: 2007/06/11 14:44:29 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/12/04 23:53:08 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
@@ -62,7 +62,7 @@ LaserBeamsTEC2::LaserBeamsTEC2(G4int nPhotonsInGun, G4int nPhotonsInBeam, G4doub
   setOptPhotonPolar(90.0);
 
   // initialize the random number engine
-  theDRand48Engine = new DRand48Engine();
+  theDRand48Engine = new CLHEP::DRand48Engine();
 }
 
 LaserBeamsTEC2::~LaserBeamsTEC2()
@@ -122,8 +122,8 @@ void LaserBeamsTEC2::GeneratePrimaries(G4Event* myEvent)
 	  for (int theParticle = 0; theParticle < thenParticle; theParticle++)
 	    {
 	      // get randomnumbers  and calculate the position
-	      RandGaussQ aGaussObjX( *theDRand48Engine, LaserPositionX, LaserRingSigmaX[theRing] );
-	      RandGaussQ aGaussObjY( *theDRand48Engine, LaserPositionY, LaserRingSigmaY[theRing] );
+	      CLHEP::RandGaussQ aGaussObjX( *theDRand48Engine, LaserPositionX, LaserRingSigmaX[theRing] );
+	      CLHEP::RandGaussQ aGaussObjY( *theDRand48Engine, LaserPositionY, LaserRingSigmaY[theRing] );
 
 	      G4double theXPosition = aGaussObjX.fire();
 	      G4double theYPosition = aGaussObjY.fire();

@@ -4,8 +4,8 @@
 /** \class LaserBeamsBarrel
  *  Define the LaserBeams which connect both TECs and TIB and TOB with eachother
  *
- *  $Date: 2007/03/20 12:00:59 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/06/11 14:44:28 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
@@ -43,7 +43,7 @@ class LaserBeamsBarrel : public G4VUserPrimaryGeneratorAction
   G4ParticleGun * theParticleGun;
 
   // Unique random number generator
-  DRand48Engine* theDRand48Engine;
+  CLHEP::DRand48Engine* theDRand48Engine;
 };
 #endif
 

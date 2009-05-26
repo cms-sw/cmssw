@@ -1,8 +1,8 @@
 /** \file LaserBeamsBarrel.cc
  *  
  *
- *  $Date: 2007/06/11 14:44:29 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/12/04 23:53:07 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
@@ -62,7 +62,7 @@ LaserBeamsBarrel::LaserBeamsBarrel(G4int nPhotonsInGun, G4int nPhotonsInBeam, G4
   setOptPhotonPolar(90.0);
 
   // initialize the random number engine
-  theDRand48Engine = new DRand48Engine();
+  theDRand48Engine = new CLHEP::DRand48Engine();
 
 }
 
@@ -122,8 +122,8 @@ void LaserBeamsBarrel::GeneratePrimaries(G4Event * myEvent)
       for (int theParticle = 0; theParticle < thenParticle; theParticle++)
 	{
 	  // get randomnumbers  and calculate the position
-	  RandGaussQ aGaussObjX( *theDRand48Engine, LaserPositionX, LaserBeamSigmaX );
-	  RandGaussQ aGaussObjY( *theDRand48Engine, LaserPositionY, LaserBeamSigmaY );
+	  CLHEP::RandGaussQ aGaussObjX( *theDRand48Engine, LaserPositionX, LaserBeamSigmaX );
+	  CLHEP::RandGaussQ aGaussObjY( *theDRand48Engine, LaserPositionY, LaserBeamSigmaY );
 	  
 	  G4double theXPosition = aGaussObjX.fire();
 	  G4double theYPosition = aGaussObjY.fire();
