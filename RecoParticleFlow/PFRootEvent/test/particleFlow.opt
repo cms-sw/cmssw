@@ -84,7 +84,10 @@ root genParticleforJets_branch	recoGenParticlesRefs_genParticlesForJets__PROD.ob
 root caloTowerBaseCandidates_branch  recoCandidatesOwned_caloTowers__PROD.obj
 
 // Particle Flow Candidates
-root ParticleFlowCandbranch    recoCandidatesOwned_particleFlowJetCandidates__PROD.obj
+root particleFlowCand_branch    recoCandidatesOwned_particleFlowJetCandidates__PROD.obj
+
+// Primary vertices
+root primaryVertex_branch    recoVertexs_offlinePrimaryVertices__PROD.obj
 
 
 //---------------

@@ -1049,6 +1049,16 @@ void PFRootEventManager::connect( const char* infilename ) {
         <<recTracksbranchname<< endl;
   }
 
+
+  string primaryVertexbranchname;
+  options_->GetOpt("root","primaryVertex_branch", primaryVertexbranchname);
+
+  primaryVertexBranch_ = tree_->GetBranch(primaryVertexbranchname.c_str());
+  if(!primaryVertexBranch_) {
+    cerr<<"PFRootEventManager::ReadOptions : primaryVertex_branch not found : "
+        <<primaryVertexbranchname<< endl;
+  }
+
   string stdTracksbranchname;
   options_->GetOpt("root","stdTracks_branch", stdTracksbranchname);
 
@@ -1271,6 +1281,7 @@ void PFRootEventManager::setAddresses() {
   if( clustersPSBranch_ ) clustersPSBranch_->SetAddress( clustersPS_.get() );
 //   if( clustersIslandBarrelBranch_ ) 
 //     clustersIslandBarrelBranch_->SetAddress(&clustersIslandBarrel_);
+  if( primaryVertexBranch_ ) primaryVertexBranch_->SetAddress(&primaryVertices_);
   if( recTracksBranch_ ) recTracksBranch_->SetAddress(&recTracks_);
   if( stdTracksBranch_ ) stdTracksBranch_->SetAddress(&stdTracks_);
   if( gsfrecTracksBranch_ ) gsfrecTracksBranch_->SetAddress(&gsfrecTracks_); 
@@ -1341,6 +1352,7 @@ bool PFRootEventManager::processEntry(int entry) {
   if( outEvent_ ) outEvent_->setNumber(entry);
 
   if(verbosity_ == VERBOSE  || 
+     // entry < 3000 ||
      entry < 100 && entry%10 == 0 || 
      entry < 1000 && entry%100 == 0 || 
      entry%1000 == 0 ) 
@@ -1349,6 +1361,7 @@ bool PFRootEventManager::processEntry(int entry) {
   bool goodevent =  readFromSimulation(entry);
 
   if(verbosity_ == VERBOSE ) {
+    cout<<"number of vertices       : "<<primaryVertices_.size()<<endl;
     cout<<"number of recTracks      : "<<recTracks_.size()<<endl;
     cout<<"number of gsfrecTracks   : "<<gsfrecTracks_.size()<<endl;
     cout<<"number of muons          : "<<muons_.size()<<endl;
@@ -1579,6 +1592,9 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   if(caloTowersBranch_) {
     caloTowersBranch_->GetEntry(entry);
   } 
+  if(primaryVertexBranch_) {
+    primaryVertexBranch_->GetEntry(entry);
+  }
   if(recTracksBranch_) {
     recTracksBranch_->GetEntry(entry);
   }
@@ -2155,6 +2171,7 @@ void PFRootEventManager::particleFlow() {
     //  <<reco::PFBlockElement::instanceCounter()<<endl;
   }
 
+
   edm::OrphanHandle< reco::PFRecTrackCollection > trackh( &recTracks_, 
                                                           edm::ProductID(1) );  
   
@@ -2188,6 +2205,9 @@ void PFRootEventManager::particleFlow() {
   edm::OrphanHandle< reco::PFV0Collection > v0( &v0_, 
 						edm::ProductID(9) );
 
+  edm::OrphanHandle< reco::VertexCollection > vertexh( &primaryVertices_, 
+						       edm::ProductID(10) );  
+  
   vector<bool> trackMask;
   fillTrackMask( trackMask, recTracks_ );
   vector<bool> gsftrackMask;
@@ -2211,7 +2231,7 @@ void PFRootEventManager::particleFlow() {
 
   pfBlocks_ = pfBlockAlgo_.transferBlocks();
 
-
+  pfAlgo_.setPFVertexParameters(true, primaryVertices_); 
 
   pfAlgo_.reconstructParticles( *pfBlocks_.get() );
   //   pfAlgoOther_.reconstructParticles( blockh );

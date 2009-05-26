@@ -15,6 +15,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
 
@@ -428,6 +429,9 @@ class PFRootEventManager {
   /// calotowers
   TBranch* caloTowersBranch_;
   
+  /// reconstructed primary vertices  
+  TBranch*   primaryVertexBranch_;          
+  
   /// reconstructed tracks branch  
   TBranch*   recTracksBranch_;          
   
@@ -527,6 +531,10 @@ class PFRootEventManager {
   /// to the objects in caloTowers_
   /// has to be global to have a lifetime = lifetime of PFJets
   reco::CandidatePtrVector caloTowersPtrs_;
+
+
+  /// reconstructed primary vertices
+  reco::VertexCollection primaryVertices_;
 
   /// reconstructed tracks
   reco::PFRecTrackCollection    recTracks_;

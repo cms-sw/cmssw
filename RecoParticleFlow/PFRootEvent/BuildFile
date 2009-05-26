@@ -12,6 +12,7 @@
 <use name="DataFormats/Provenance">
 <use name="DataFormats/RecoCandidate">
 <use name="DataFormats/TrackReco">
+<use name="DataFormats/VertexReco">
 <use name="FWCore/FWLite">
 <use name="FWCore/Framework">
 <use name="FWCore/MessageLogger">
@@ -42,6 +43,7 @@
   <use name="DataFormats/Provenance">
   <use name="DataFormats/RecoCandidate">
   <use name="DataFormats/TrackReco">
+  <use name="DataFormats/VertexReco">
   <use name="FWCore/FWLite">
   <use name="FWCore/Framework">
   <use name="FWCore/MessageLogger">

@@ -28,9 +28,9 @@ etaPF.push_back( (TH1F*)(etaPF2->ProjectionY("",100,125)->Clone()));
 etaPF.push_back( (TH1F*)(etaPF2->ProjectionY("",125,150)->Clone()));
 etaPF.push_back( (TH1F*)(etaPF2->ProjectionY("",150,200)->Clone()));
 etaPF.push_back( (TH1F*)(etaPF2->ProjectionY("",200,250)->Clone()));
-//etaPF.push_back( (TH1F*)(etaPF2->ProjectionY("",250,350)->Clone()));
-//etaPF.push_back( (TH1F*)(etaPF2->ProjectionY("",350,500)->Clone()));
-//etaPF.push_back( (TH1F*)(etaPF2->ProjectionY("",500,1000)->Clone()));
+etaPF.push_back( (TH1F*)(etaPF2->ProjectionY("",250,350)->Clone()));
+etaPF.push_back( (TH1F*)(etaPF2->ProjectionY("",350,500)->Clone()));
+etaPF.push_back( (TH1F*)(etaPF2->ProjectionY("",500,1000)->Clone()));
 //etaPF.push_back( (TH1F*)(etaPF2->ProjectionY("",1000,2500)->Clone()));
 
 phiPF.push_back( (TH1F*)(phiPF2->ProjectionY("",7,10)->Clone()));
@@ -44,9 +44,9 @@ phiPF.push_back( (TH1F*)(phiPF2->ProjectionY("",100,125)->Clone()));
 phiPF.push_back( (TH1F*)(phiPF2->ProjectionY("",125,150)->Clone()));
 phiPF.push_back( (TH1F*)(phiPF2->ProjectionY("",150,200)->Clone()));
 phiPF.push_back( (TH1F*)(phiPF2->ProjectionY("",200,250)->Clone()));
-//phiPF.push_back( (TH1F*)(phiPF2->ProjectionY("",250,350)->Clone()));
-//phiPF.push_back( (TH1F*)(phiPF2->ProjectionY("",350,500)->Clone()));
-//phiPF.push_back( (TH1F*)(phiPF2->ProjectionY("",500,1000)->Clone()));
+phiPF.push_back( (TH1F*)(phiPF2->ProjectionY("",250,350)->Clone()));
+phiPF.push_back( (TH1F*)(phiPF2->ProjectionY("",350,500)->Clone()));
+phiPF.push_back( (TH1F*)(phiPF2->ProjectionY("",500,1000)->Clone()));
 //phiPF.push_back( (TH1F*)(phiPF2->ProjectionY("",1000,2500)->Clone()));
 
 pts.push_back(17);
@@ -60,9 +60,9 @@ pts.push_back(225);
 pts.push_back(275);
 pts.push_back(350);
 pts.push_back(450);
-//pts.push_back(600);
-//pts.push_back(850);
-//pts.push_back(1500);
+pts.push_back(600);
+pts.push_back(850);
+pts.push_back(1500);
 //pts.push_back(3500);
 
 vector<Float_t> sigmaEtaPF;
@@ -95,7 +95,7 @@ TCanvas* c1 = new TCanvas();
 FormatPad(c1,false);
 c1->cd();
 
-TH2F *h = new TH2F("h","", 100, 15., 700, 10, 0.0, 0.05 );
+TH2F *h = new TH2F("h","", 100, 15., 2000, 10, 0.0, 0.05 );
 FormatHisto(h,sback);
 h->SetTitle( "CMS Preliminary" );
 h->SetXTitle( "p_{T} (GeV/c)" );
@@ -107,10 +107,10 @@ gPad->SetLogx();
 gPad->SetGridx();
 gPad->SetGridy();
 
-TF1* pf2 = new TF1("pf2","[0]+[1]*exp(-x/[2])",15,700);
+TF1* pf2 = new TF1("pf2","[0]+[1]*exp(-x/[2])",15,2000);
 pf2->SetParameters(0.01,0.03,10);
 pf2->SetLineColor(2);
-grPF2->Fit("pf2","","",15,700);
+grPF2->Fit("pf2","","",15,2000);
 
 grPF2->SetMarkerStyle(22);						
 grPF2->SetMarkerColor(2);						
@@ -139,7 +139,7 @@ TCanvas* c2 = new TCanvas();
 FormatPad(c2,false);
 c2->cd();
 
-TH2F *h2 = new TH2F("h2","", 100, 15., 700, 10, 0.0, 0.05 );
+TH2F *h2 = new TH2F("h2","", 100, 15., 2000, 10, 0.0, 0.05 );
 FormatHisto(h2,sback);
 h2->SetTitle( "CMS Preliminary" );
 h2->SetXTitle( "p_{T} (GeV/c)" );
@@ -151,10 +151,10 @@ gPad->SetLogx();
 gPad->SetGridx();
 gPad->SetGridy();
 
-TF1* pf4 = new TF1("pf4","[0]+[1]*exp(-x/[2])",15,700);
+TF1* pf4 = new TF1("pf4","[0]+[1]*exp(-x/[2])",15,2000);
 pf4->SetParameters(0.01,0.03,10);
 pf4->SetLineColor(2);
-grPF4->Fit("pf4","","",15,700);
+grPF4->Fit("pf4","","",15,2000);
 
 grPF4->SetMarkerStyle(22);						
 grPF4->SetMarkerColor(2);						
