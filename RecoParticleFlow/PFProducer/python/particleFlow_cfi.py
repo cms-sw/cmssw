@@ -77,8 +77,19 @@ particleFlow = cms.EDProducer("PFProducer",
     ecalHcalEcalEndcap = cms.vdouble(0.46,    3.0,    1.10,    0.40,   -0.020,    1.4),
     ecalHcalHcalBarrel = cms.vdouble(0.46,    3.0,    1.15,    0.30,   -0.020,    1.4),
     ecalHcalHcalEndcap = cms.vdouble(0.460,    3.0,    1.10,   0.30,  -0.02,    1.4),
-    pfcluster_etaCorrection = cms.vdouble(1.01,   -1.02e-02,   5.17e-02,      0.563,     -0.425,     0.110)
+    pfcluster_etaCorrection = cms.vdouble(1.01,   -1.02e-02,   5.17e-02,      0.563,     -0.425,     0.110),
 
+    # calibration parameters for HF:
+    calibHF_use = cms.bool(False),
+    calibHF_eta_step  = cms.vdouble(0.0,2.90,3.00,3.20,4.20,4.40,4.60,4.80,5.20,5.40),
+#    calibHF_a_EMonly  = cms.vdouble(10.00,10.00,10.00,10.00,10.00,10.00,10.00,10.00,10.00,10.00,10.00),
+#    calibHF_b_HADonly = cms.vdouble(10.00,10.00,10.00,10.00,10.00,10.00,10.00,10.00,10.00,10.00,10.00),
+#    calibHF_a_EMHAD   = cms.vdouble(10.00,10.00,10.00,10.00,10.00,10.00,10.00,10.00,10.00,10.00,10.00),
+#    calibHF_b_EMHAD   = cms.vdouble(10.00,10.00,10.00,10.00,10.00,10.00,10.00,10.00,10.00,10.00,10.00)
+    calibHF_a_EMonly  = cms.vdouble(0.96945,0.96701,0.76309,0.82268,0.87583,0.89718,0.98674,1.4681,1.4580,1.4580),
+    calibHF_b_HADonly = cms.vdouble(1.27541,0.85361,0.86333,0.89091,0.94348,0.94348,0.94370,1.0034,1.0444,1.0444),
+    calibHF_a_EMHAD   = cms.vdouble(1.42215,1.00496,0.68961,0.81656,0.98504,0.98504,1.00802,1.0593,1.4576,1.4576),
+    calibHF_b_EMHAD   = cms.vdouble(1.27541,0.85361,0.86333,0.89091,0.94348,0.94348,0.94370,1.0034,1.0444,1.0444)
 )
 
 

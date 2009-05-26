@@ -329,6 +329,24 @@ particle_flow 	calib_HCAL_damping  2.49
 // particle_flow 	calib_HCAL_damping  0.00
 // Calibration ntuple -END
 
+//--------------- calibration factors for HF: Erec = a Eem + b Ehad
+//calib_calibHF_use = use these factor or not.
+particle_flow calib_calibHF_use	0 
+//eta ranges
+particle_flow calib_calibHF_eta_step	0.00	2.90	3.00	3.20	4.20	4.40	4.60	4.80	5.20	5.40
+//particle_flow calib_calibHF_a_EMonly	1.00	1.00	1.00	1.00	1.00	1.00	1.00	1.00	1.00	1.00
+//particle_flow calib_calibHF_b_HADonly	1.00	1.00	1.00	1.00	1.00	1.00	1.00	1.00	1.00	1.00
+//particle_flow calib_calibHF_a_EMHAD	1.00	1.00	1.00	1.00	1.00	1.00	1.00	1.00	1.00	1.00
+//particle_flow calib_calibHF_b_EMHAD	1.00	1.00	1.00	1.00	1.00	1.00	1.00	1.00	1.00	1.00
+particle_flow calib_calibHF_a_EMonly	0.96945	0.96701	0.76309	0.82268	0.87583	0.89718	0.98674	1.4681	1.4580	1.4580
+particle_flow calib_calibHF_b_HADonly	1.27541	0.85361	0.86333	0.89091	0.94348	0.94348	0.94370	1.0034	1.0444	1.0444
+particle_flow calib_calibHF_a_EMHAD	1.42215	1.00496	0.68961	0.81656	0.98504	0.98504	1.00802	1.0593	1.4576	1.4576
+particle_flow calib_calibHF_b_EMHAD	1.27541	0.85361	0.86333	0.89091	0.94348	0.94348	0.94370	1.0034	1.0444	1.0444
+    
+
+
+
+
 
 particle_flow  newCalib 2
 

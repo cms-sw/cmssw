@@ -15,6 +15,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class PFAlgo;
+class PFEnergyCalibrationHF;
 
 /**\class PFProducer 
 \brief Producer for particle flow reconstructed particles (PFCandidates)

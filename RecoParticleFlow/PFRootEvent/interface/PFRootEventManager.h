@@ -97,6 +97,7 @@ class PFBlockElement;
 
 class EventColin;
 class PFEnergyCalibration;
+class PFEnergyCalibrationHF;
 class PFEnergyResolution;
 
 namespace pftools { 
@@ -785,6 +786,8 @@ class PFRootEventManager {
   // Needed for single particle calibration rootTuple
   boost::shared_ptr<pftools::PFClusterCalibration> clusterCalibration_;
   boost::shared_ptr<PFEnergyCalibration> calibration_;
+  boost::shared_ptr<PFEnergyCalibrationHF> thepfEnergyCalibrationHF_;
+
   std::ofstream* calibFile_; 
   
   std::auto_ptr<METManager>   metManager_; 

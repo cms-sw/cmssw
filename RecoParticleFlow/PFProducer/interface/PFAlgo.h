@@ -32,6 +32,7 @@
 
 
 class PFEnergyCalibration;
+class PFEnergyCalibrationHF;
 class PFElectronAlgo;
 class PFConversionAlgo;
 
@@ -57,6 +58,7 @@ class PFAlgo {
                      double nSigmaHCAL, 
                      const boost::shared_ptr<PFEnergyCalibration>& calibration,
                      const boost::shared_ptr<pftools::PFClusterCalibration>& clusterCalibration,
+		     const boost::shared_ptr<PFEnergyCalibrationHF>& thepfEnergyCalibrationHF,
 		     unsigned int newCalib);
   
   void setPFMuonAndFakeParameters(std::vector<double> muonHCAL,
@@ -181,6 +183,7 @@ class PFAlgo {
   
   boost::shared_ptr<PFEnergyCalibration>  calibration_;
   boost::shared_ptr<pftools::PFClusterCalibration>  clusterCalibration_;
+  boost::shared_ptr<PFEnergyCalibrationHF>  thepfEnergyCalibrationHF_;
   unsigned int newCalib_;
 
   // std::vector<unsigned> hcalBlockUsed_;

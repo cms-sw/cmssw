@@ -3,7 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h"
-
+#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibrationHF.h"
 
 #include <sstream>
 
@@ -77,6 +77,23 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   //std::cout  << *clusterCalibration << std::endl;
 
   //Done with PFClusterCalibration //
+
+  //--ab: get calibration factors for HF:
+  bool calibHF_use;
+  std::vector<double>  calibHF_eta_step;
+  std::vector<double>  calibHF_a_EMonly;
+  std::vector<double>  calibHF_b_HADonly;
+  std::vector<double>  calibHF_a_EMHAD;
+  std::vector<double>  calibHF_b_EMHAD;
+  calibHF_use =     iConfig.getParameter<bool>("calibHF_use");
+  calibHF_eta_step  = iConfig.getParameter<std::vector<double> >("calibHF_eta_step");
+  calibHF_a_EMonly  = iConfig.getParameter<std::vector<double> >("calibHF_a_EMonly");
+  calibHF_b_HADonly = iConfig.getParameter<std::vector<double> >("calibHF_b_HADonly");
+  calibHF_a_EMHAD   = iConfig.getParameter<std::vector<double> >("calibHF_a_EMHAD");
+  calibHF_b_EMHAD   = iConfig.getParameter<std::vector<double> >("calibHF_b_EMHAD");
+  shared_ptr<PFEnergyCalibrationHF>  
+    thepfEnergyCalibrationHF ( new PFEnergyCalibrationHF(calibHF_use,calibHF_eta_step,calibHF_a_EMonly,calibHF_b_HADonly,calibHF_a_EMHAD,calibHF_b_EMHAD) ) ;
+  //-----------------
 
   inputTagBlocks_ 
     = iConfig.getParameter<InputTag>("blocks");
@@ -166,6 +183,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 			  nSigmaHCAL,
 			  calibration,
 			  clusterCalibration,
+			  thepfEnergyCalibrationHF,
 			  newCalib);
 
   //PFElectrons: call the method setpfeleparameters

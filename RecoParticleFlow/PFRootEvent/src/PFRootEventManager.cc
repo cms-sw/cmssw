@@ -26,6 +26,7 @@
 #include "RecoParticleFlow/PFRootEvent/interface/METManager.h"
 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibrationHF.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
 
@@ -614,7 +615,28 @@ void PFRootEventManager::readOptions(const char* file,
 					  newCalib) );
   calibration_ = calibration;
 
+  //--ab: get calibration factors for HF:
+  bool calibHF_use = false;
+  std::vector<double>  calibHF_eta_step;
+  std::vector<double>  calibHF_a_EMonly;
+  std::vector<double>  calibHF_b_HADonly;
+  std::vector<double>  calibHF_a_EMHAD;
+  std::vector<double>  calibHF_b_EMHAD;
 
+  options_->GetOpt("particle_flow","calib_calibHF_use",calibHF_use);
+  options_->GetOpt("particle_flow","calib_calibHF_eta_step",calibHF_eta_step);
+  options_->GetOpt("particle_flow","calib_calibHF_a_EMonly",calibHF_a_EMonly);
+  options_->GetOpt("particle_flow","calib_calibHF_b_HADonly",calibHF_b_HADonly);
+  options_->GetOpt("particle_flow","calib_calibHF_a_EMHAD",calibHF_a_EMHAD);
+  options_->GetOpt("particle_flow","calib_calibHF_b_EMHAD",calibHF_b_EMHAD);
+
+  shared_ptr<PFEnergyCalibrationHF>  thepfEnergyCalibrationHF
+    ( new PFEnergyCalibrationHF(calibHF_use,calibHF_eta_step,calibHF_a_EMonly,calibHF_b_HADonly,calibHF_a_EMHAD,calibHF_b_EMHAD) ) ;
+
+  thepfEnergyCalibrationHF_ = thepfEnergyCalibrationHF;
+
+
+  //----------------------------------------
   double nSigmaECAL = 99999;
   options_->GetOpt("particle_flow", "nsigma_ECAL", nSigmaECAL);
   double nSigmaHCAL = 99999;
@@ -667,7 +689,7 @@ void PFRootEventManager::readOptions(const char* file,
   try {
     pfAlgo_.setParameters( nSigmaECAL, nSigmaHCAL, 
                            calibration,
-			   clusterCalibration, newCalib);
+			   clusterCalibration,thepfEnergyCalibrationHF_, newCalib);
   }
   catch( std::exception& err ) {
     cerr<<"exception setting PFAlgo parameters: "

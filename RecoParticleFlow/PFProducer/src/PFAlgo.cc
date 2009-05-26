@@ -4,6 +4,7 @@
 #include "RecoParticleFlow/PFProducer/interface/PFConversionAlgo.h"  
 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibrationHF.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h" 
 
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
@@ -64,6 +65,7 @@ PFAlgo::setParameters(double nSigmaECAL,
                       double nSigmaHCAL, 
                       const shared_ptr<PFEnergyCalibration>& calibration,
                       const shared_ptr<pftools::PFClusterCalibration>& clusterCalibration,
+		      const shared_ptr<PFEnergyCalibrationHF>&  thepfEnergyCalibrationHF,
 		      unsigned int newCalib) {
 
   nSigmaECAL_ = nSigmaECAL;
@@ -71,6 +73,7 @@ PFAlgo::setParameters(double nSigmaECAL,
 
   calibration_ = calibration;
   clusterCalibration_ = clusterCalibration;
+  thepfEnergyCalibrationHF_ = thepfEnergyCalibrationHF;
   newCalib_ = newCalib;
   // std::cout << "Cluster calibration parameters : " << *clusterCalibration_ << std::endl;
 
@@ -748,6 +751,12 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       case PFLayer::HF_EM:
 	// do EM-only calibration here
 	energyHF = clusterRef->energy();
+	if(thepfEnergyCalibrationHF_->getcalibHF_use()==true){
+	  double uncalibratedenergyHF = energyHF;
+	  energyHF = thepfEnergyCalibrationHF_->energyEm(uncalibratedenergyHF,
+							 clusterRef->positionREP().Eta(),
+							 clusterRef->positionREP().Phi()); 
+	}
 	tmpi = reconstructCluster( *clusterRef, energyHF );     
 	(*pfCandidates_)[tmpi].setEcalEnergy( energyHF );
 	(*pfCandidates_)[tmpi].setHcalEnergy( 0.);
@@ -759,6 +768,12 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       case PFLayer::HF_HAD:
 	// do HAD-only calibration here
 	energyHF = clusterRef->energy();
+	if(thepfEnergyCalibrationHF_->getcalibHF_use()==true){
+	  double uncalibratedenergyHF = energyHF;
+	  energyHF = thepfEnergyCalibrationHF_->energyHad(uncalibratedenergyHF,
+							 clusterRef->positionREP().Eta(),
+							 clusterRef->positionREP().Phi()); 
+	}
 	tmpi = reconstructCluster( *clusterRef, energyHF );     
 	(*pfCandidates_)[tmpi].setHcalEnergy( energyHF );
 	(*pfCandidates_)[tmpi].setEcalEnergy( 0.);
@@ -788,6 +803,19 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	// do EM+HAD calibration here
 	double energyHfEm = cem->energy();
 	double energyHfHad = chad->energy();
+	if(thepfEnergyCalibrationHF_->getcalibHF_use()==true){
+	  double uncalibratedenergyHFEm = energyHfEm;
+	  double uncalibratedenergyHFHad = energyHfHad;
+
+	  energyHfEm = thepfEnergyCalibrationHF_->energyEmHad(uncalibratedenergyHFEm,
+							     0.0,
+							     c0->positionREP().Eta(),
+							     c0->positionREP().Phi()); 
+	  energyHfHad = thepfEnergyCalibrationHF_->energyEmHad(0.0,
+							      uncalibratedenergyHFHad,
+							      c1->positionREP().Eta(),
+							      c1->positionREP().Phi()); 
+	}
 	unsigned tmpi = reconstructCluster( *chad, energyHfEm+energyHfHad );     
 	(*pfCandidates_)[tmpi].setEcalEnergy( energyHfEm );
 	(*pfCandidates_)[tmpi].setHcalEnergy( energyHfHad);
