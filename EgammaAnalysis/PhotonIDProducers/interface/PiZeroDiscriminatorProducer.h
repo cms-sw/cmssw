@@ -1,9 +1,9 @@
 #ifndef RecoEcal_EgammaClusterProducers_PiZeroDiscriminatorProducer_h
 #define RecoEcal_EgammaClusterProducers_PiZeroDiscriminatorProducer_h
 
-// $Author: akyriaki $
-// $Id: PiZeroDiscriminatorProducer.h,v 1.1 2007/12/07 09:42:51 akyriaki Exp $
-// $Date: 2007/12/07 09:42:51 $
+// $Author: ferriff $
+// $Id: PiZeroDiscriminatorProducer.h,v 1.2 2008/06/17 10:44:25 ferriff Exp $
+// $Date: 2008/06/17 10:44:25 $
 
 #include <memory>
 
@@ -49,6 +49,14 @@ class PiZeroDiscriminatorProducer : public edm::EDProducer {
 
   edm::InputTag barrelRecHitCollection_;
   edm::InputTag endcapRecHitCollection_;
+
+  int EScorr_; 
+
+  int preshNst_;  
+  
+  double preshStripECut_;
+  
+  double w0_; 
 
   EndcapPiZeroDiscriminatorAlgo * presh_pi0_algo; // algorithm doing the real work
 

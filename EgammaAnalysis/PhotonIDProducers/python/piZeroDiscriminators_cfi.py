@@ -1,20 +1,24 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: piZeroDiscriminators_cfi.py,v 1.2 2008/04/21 01:42:22 rpw Exp $
+# $Id: piZeroDiscriminators_cfi.py,v 1.3 2008/06/17 10:44:25 ferriff Exp $
 # Preshower cluster producer
 piZeroDiscriminators = cms.EDProducer("PiZeroDiscriminatorProducer",
     # building preshower clusters
     preshClusterShapeProducer = cms.string('preshowerClusterShape'),
-    corrPhoProducer = cms.string('correctedPhotons'),
+    corrPhoProducer = cms.string('photons'),
     correctedPhotonCollection = cms.string(''),
     preshStripEnergyCut = cms.double(0.0),
+    w0 = cms.double(4.2),
+    EScorr = cms.int32(1),
     Pi0Association = cms.string('PhotonPi0DiscriminatorAssociationMap'),
     preshPi0Nstrip = cms.int32(5),
-    # DEBUG: very verbose  INFO: minimal printout
-    debugLevel = cms.string('INFO'),
+    preshClusterShapeCollectionX = cms.string('preshowerXClustersShape'),    
     preshClusterShapeCollectionY = cms.string('preshowerYClustersShape'),
-    barrelRecHitCollection = cms.InputTag('reducedRecHitCollectionEB'),
-    endcapRecHitCollection = cms.InputTag('reducedRecHitCollectionEE')
+    barrelRecHitCollection = cms.InputTag('reducedEcalRecHitsEB'),
+    endcapRecHitCollection = cms.InputTag('reducedEcalRecHitsEE'),
+    # DEBUG: very verbose  INFO: minimal printout
+    debugLevel = cms.string('INFO')
+    #debugLevel = cms.string('DEBUG')
 )
 
 
