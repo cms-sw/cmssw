@@ -81,6 +81,9 @@ class CSCCFEBTimeSlice {
 
   unsigned calcCRC() const;
 
+  /// =VB= Set calculated CRC value for simulated CFEB Time Slice data
+  void setCRC() { crc=calcCRC(); dummy=0x7FFF-crc;}
+
   friend std::ostream & operator<<(std::ostream & os, const CSCCFEBTimeSlice &);
 
 

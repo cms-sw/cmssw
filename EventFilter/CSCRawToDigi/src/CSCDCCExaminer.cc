@@ -1144,9 +1144,12 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	  ( ((buf2[3]&0xFF00) == 0xAF00 ) 
 	  || 
      (( buf2[3]&0xFF00) == 0xA000 && (buf2[0]&0x0003) == 0x0) ) ){
-	if(fDCC_Trailer){
+        // =VB= Added check that there is no DCCHeader detected to set missing DCC Header error
+	if(!fDCC_Header || fDCC_Trailer){
 	  fERROR[26] = true;
 	  bERROR|=0x4000000;
+	  fERROR[0] = true;
+          bERROR|=0x1;
 	} // DCC Header is missing
 	fDCC_Trailer=true;
 	fDCC_Header=false;

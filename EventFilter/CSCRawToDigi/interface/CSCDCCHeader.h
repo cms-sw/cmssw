@@ -11,7 +11,7 @@
 class CSCDCCHeader {
 
  public:
-  CSCDCCHeader(int bx, int l1a, int sourceId);
+  CSCDCCHeader(int bx, int l1a, int sourceId, int version=0);
   CSCDCCHeader();
   CSCDCCHeader(const CSCDCCStatusDigi & digi);
 
