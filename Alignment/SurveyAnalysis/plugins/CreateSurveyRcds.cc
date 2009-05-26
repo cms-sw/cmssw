@@ -92,12 +92,12 @@ void CreateSurveyRcds::setGeometry(Alignable* ali)
 		if (subdetlevel > 0){
 			AlgebraicVector value = getStructureErrors(level, subdetlevel);
 
-			double value0 = RandGauss::shoot(0,value[0]);
-			double value1 = RandGauss::shoot(0,value[1]);
-			double value2 = RandGauss::shoot(0,value[2]);
-			double value3 = RandGauss::shoot(0,value[3]);
-			double value4 = RandGauss::shoot(0,value[4]);
-			double value5 = RandGauss::shoot(0,value[5]);
+			double value0 = CLHEP::RandGauss::shoot(0,value[0]);
+			double value1 = CLHEP::RandGauss::shoot(0,value[1]);
+			double value2 = CLHEP::RandGauss::shoot(0,value[2]);
+			double value3 = CLHEP::RandGauss::shoot(0,value[3]);
+			double value4 = CLHEP::RandGauss::shoot(0,value[4]);
+			double value5 = CLHEP::RandGauss::shoot(0,value[5]);
 			
 			//move/rotate the surface
 			align::LocalVector diffR(value0,value1,value2);
@@ -118,12 +118,12 @@ void CreateSurveyRcds::setGeometry(Alignable* ali)
 			const double constMis = m_inputSimpleMis;
 			const double dAngle = constMis/ali->surface().length();
 			//std::cout << "Shift: " << constMis << ", Rot: " << dAngle << std::endl;
-			double value0 = RandGauss::shoot(0, constMis);
-			double value1 = RandGauss::shoot(0, constMis);
-			double value2 = RandGauss::shoot(0, constMis);
-			double value3 = RandGauss::shoot(0, dAngle);
-			double value4 = RandGauss::shoot(0, dAngle);
-			double value5 = RandGauss::shoot(0, dAngle);
+			double value0 = CLHEP::RandGauss::shoot(0, constMis);
+			double value1 = CLHEP::RandGauss::shoot(0, constMis);
+			double value2 = CLHEP::RandGauss::shoot(0, constMis);
+			double value3 = CLHEP::RandGauss::shoot(0, dAngle);
+			double value4 = CLHEP::RandGauss::shoot(0, dAngle);
+			double value5 = CLHEP::RandGauss::shoot(0, dAngle);
 			
 			align::LocalVector diffR(value0,value1,value2);
 			ali->move(ali->surface().toGlobal(diffR));

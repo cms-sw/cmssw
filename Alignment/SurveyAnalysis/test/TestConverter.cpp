@@ -212,7 +212,7 @@ TestConverter::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
 		  
 		  if ((*it).rawId() == (*iGeomDet).rawId()) {
 		  
-		    HepRotation fromAngles = (*iGeomDet).rotation() ;
+		    CLHEP::HepRotation fromAngles = (*iGeomDet).rotation() ;
 		    align::RotationType rotation( fromAngles.xx(), fromAngles.xy(), fromAngles.xz(),
 						  fromAngles.yx(), fromAngles.yy(), fromAngles.yz(),
 						  fromAngles.zx(), fromAngles.zy(), fromAngles.zz() );
@@ -230,7 +230,7 @@ TestConverter::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
 		    dnx_     = rotation.zx() - align_params[18];
 		    dny_     = rotation.zy() - align_params[19];
 		    dnz_     = rotation.zz() - align_params[20];
-                    HepSymMatrix errMat = (*it).matrix();
+                    CLHEP::HepSymMatrix errMat = (*it).matrix();
                     errx_    = sqrt(errMat[0][0]); 
 		    erry_    = sqrt(errMat[1][1]);
 		    errz_    = sqrt(errMat[2][2]); 
