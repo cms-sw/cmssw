@@ -663,7 +663,11 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	    for( std::multimap<double, unsigned int>::iterator it = kfEtraElems.begin();
 		 it != kfEtraElems.end();it++) {
 	      unsigned int index = it->second;
-	      if(localactive[index] == true) {
+	      bool thisIsAMuon = false;
+	      thisIsAMuon =  PFMuonAlgo::isMuon(elements[index]);
+	      if (DebugSetLinksDetailed && thisIsAMuon)
+		cout << " This is a Muon: index " << index << endl;
+	      if(localactive[index] == true && !thisIsAMuon) {
 		if(index != KfGsf_index) {
 		  // Check that this track is not closer to another ECAL cluster
 		  // Not Sure here I need this step
@@ -1082,9 +1086,9 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 		unsigned int Algo = trackref->algo() < 5 ? 
 		  trackref->algo()-1 : trackref->algo()-5;
 		if(Algo < 3) {
-		  
 		  if(DebugIDOutputs) 
 		    cout << " The ecalGsf cluster is not isolated: >0 KF extra with algo < 3" << endl;
+
 		  float p_trk = trackref->p();
 		  SumExtraKfP += p_trk;
 		  iextratrack++;
