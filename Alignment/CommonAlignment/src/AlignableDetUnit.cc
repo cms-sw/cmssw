@@ -132,8 +132,8 @@ Alignments* AlignableDetUnit::alignments() const
   RotationType rot( this->globalRotation() );
   
   // Get alignments (position, rotation, detId)
-  Hep3Vector clhepVector( globalPosition().x(), globalPosition().y(), globalPosition().z() );
-  HepRotation clhepRotation( HepRep3x3( rot.xx(), rot.xy(), rot.xz(),
+  CLHEP::Hep3Vector clhepVector( globalPosition().x(), globalPosition().y(), globalPosition().z() );
+  CLHEP::HepRotation clhepRotation( CLHEP::HepRep3x3( rot.xx(), rot.xy(), rot.xz(),
 										rot.yx(), rot.yy(), rot.yz(),
 										rot.zx(), rot.zy(), rot.zz() ) );
   uint32_t detId = this->geomDetId().rawId();
@@ -156,7 +156,7 @@ AlignmentErrors* AlignableDetUnit::alignmentErrors() const
   
   uint32_t detId = this->geomDetId().rawId();
  
-  HepSymMatrix clhepSymMatrix(3,0);
+  CLHEP::HepSymMatrix clhepSymMatrix(3,0);
   if ( theAlignmentPositionError ) // Might not be set
     clhepSymMatrix = theAlignmentPositionError->globalError().matrix();
   

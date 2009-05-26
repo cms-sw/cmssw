@@ -16,7 +16,7 @@
 AlignableModifier::AlignableModifier( void )
 {
 
-  theDRand48Engine = new DRand48Engine();
+  theDRand48Engine = new CLHEP::DRand48Engine();
 
 }
 
@@ -412,9 +412,9 @@ AlignableModifier::gaussianRandomVector( float sigmaX, float sigmaY, float sigma
   }
 
   // Pass by reference, otherwise pointer is deleted!
-  RandGauss aGaussObjX( *theDRand48Engine, 0., sigmaX );
-  RandGauss aGaussObjY( *theDRand48Engine, 0., sigmaY );
-  RandGauss aGaussObjZ( *theDRand48Engine, 0., sigmaZ );
+  CLHEP::RandGauss aGaussObjX( *theDRand48Engine, 0., sigmaX );
+  CLHEP::RandGauss aGaussObjY( *theDRand48Engine, 0., sigmaY );
+  CLHEP::RandGauss aGaussObjZ( *theDRand48Engine, 0., sigmaZ );
 
   std::vector<float> randomVector;
   randomVector.push_back( aGaussObjX.fire() );
@@ -445,9 +445,9 @@ AlignableModifier::flatRandomVector( float sigmaX,float sigmaY, float sigmaZ ) c
     sigmaZ = std::abs(sigmaZ);
   }
 
-  RandFlat aFlatObjX( *theDRand48Engine, -sigmaX, sigmaX );
-  RandFlat aFlatObjY( *theDRand48Engine, -sigmaY, sigmaY );
-  RandFlat aFlatObjZ( *theDRand48Engine, -sigmaZ, sigmaZ );
+  CLHEP::RandFlat aFlatObjX( *theDRand48Engine, -sigmaX, sigmaX );
+  CLHEP::RandFlat aFlatObjY( *theDRand48Engine, -sigmaY, sigmaY );
+  CLHEP::RandFlat aFlatObjZ( *theDRand48Engine, -sigmaZ, sigmaZ );
 
   std::vector<float> randomVector;
   randomVector.push_back( aFlatObjX.fire() );
