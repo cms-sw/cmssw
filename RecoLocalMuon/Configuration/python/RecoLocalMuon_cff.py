@@ -21,6 +21,8 @@ from RecoLocalMuon.DTSegment.dt2DSegments_CombPatternReco2D_LinearDriftFromDB_cf
 #	include "RecoLocalMuon/DTSegment/data/dt4DSegments_CombPatternReco4D_LinearDrift.cfi"
 #	include "RecoLocalMuon/DTSegment/data/dt4DSegments_CombPatternReco4D_LinearDriftFromDB.cfi"
 from RecoLocalMuon.DTSegment.dt4DSegments_CombPatternReco4D_LinearDriftFromDB_cfi import *
+# 4D segments with t0 correction
+from RecoLocalMuon.DTSegment.dt4DSegments_ApplyT0Correction_cfi import *
 #------------------------------------ CSC -----------------------------------------------
 # 2D RecHit	
 from RecoLocalMuon.CSCRecHitD.cscRecHitD_cfi import *
@@ -36,11 +38,13 @@ from RecoLocalMuon.RPCRecHit.rpcRecHits_cfi import *
 dtlocalreco = cms.Sequence(dt1DRecHits*dt4DSegments)
 # DT sequence with the 2D segment reconstruction
 dtlocalreco_with_2DSegments = cms.Sequence(dt1DRecHits*dt2DSegments*dt4DSegments)
+# DT sequence with T0seg correction
+dtlocalrecoT0Seg = cms.Sequence(dtlocalreco*dt4DSegmentsT0Seg)
 # CSC sequence
 csclocalreco = cms.Sequence(csc2DRecHits*cscSegments)
 # DT, CSC and RPC together
 muonlocalreco_with_2DSegments = cms.Sequence(dtlocalreco_with_2DSegments+csclocalreco+rpcRecHits)
+# DT, CSC and RPC together (with t0seg correction for DTs)
+muonlocalrecoT0Seg = cms.Sequence(dtlocalrecoT0Seg+csclocalreco+rpcRecHits)
 # DT, CSC and RPC together (correct sequence for the standard path)
 muonlocalreco = cms.Sequence(dtlocalreco+csclocalreco+rpcRecHits)
-
-
