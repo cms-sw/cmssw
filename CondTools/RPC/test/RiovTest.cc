@@ -1,7 +1,7 @@
 //
 // Original Author:  Davide Pagano
 //         Created:  Wed May 20 12:47:20 CEST 2009
-// $Id: RiovTest.cc,v 1.7 2009/05/24 14:51:19 dpagano Exp $
+// $Id: RiovTest.cc,v 1.8 2009/05/24 17:46:16 dpagano Exp $
 //
 //
 
@@ -33,6 +33,10 @@ private:
 
   std::vector<RPCObImon::I_Item> imon;
   std::vector<RPCObImon::I_Item> imon_;
+  std::vector<RPCObVmon::V_Item> vmon;
+  std::vector<RPCObVmon::V_Item> vmon_;
+  std::vector<RPCObTemp::T_Item> temp;
+  std::vector<RPCObTemp::T_Item> temp_;
   std::vector<RPCObImon::I_Item> filtImon;
   std::vector<unsigned long long> listIOV;
   std::map<int, RPCObPVSSmap::Item> pvssMap;
@@ -84,15 +88,38 @@ RiovTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      max = list->max;
    } else if (timeU < min || timeU > max) {
      imon_ = list->getImon();
-     //     std::cout << "Before [size] " << imon.size();  
      for(std::vector<RPCObImon::I_Item>::iterator it = imon_.begin(); it < imon_.end(); ++it)
        imon.push_back(*it);
-     //     std::cout << " <--> After [size] " << imon.size() << std::endl;  
      if (min > list->min) min = list->min;
      if (max < list->max) max = list->max;
    }
-   //   std::cout << "MIN = " << min << std::endl;
-   //   std::cout << "MAX = " << max << std::endl;
+   // get high voltage
+   if (vmon.size() == 0) {
+     vmon = list->getVmon();
+     min = list->min;
+     max = list->max;
+   } else if (timeU < min || timeU > max) {
+     vmon_ = list->getVmon();
+     for(std::vector<RPCObVmon::V_Item>::iterator itV = vmon_.begin(); itV < vmon_.end(); ++itV)
+       vmon.push_back(*itV);
+     if (min > list->min) min = list->min;
+     if (max < list->max) max = list->max;
+   }
+   // get temperature
+   if (temp.size() == 0) {
+     temp = list->getTemp();
+     min = list->min;
+     max = list->max;
+   } else if (timeU < min || timeU > max) {
+     temp_ = list->getTemp();
+     for(std::vector<RPCObTemp::T_Item>::iterator itT = temp_.begin(); itT < temp_.end(); ++itT)
+       temp.push_back(*itT);
+     if (min > list->min) min = list->min;
+     if (max < list->max) max = list->max;
+   }
+
+
+
 }
 
 

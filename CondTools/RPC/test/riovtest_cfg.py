@@ -21,6 +21,25 @@ process.rimon = cms.ESSource("PoolDBESSource",
     ))
 )
 
+process.rvmon = cms.ESSource("PoolDBESSource",
+    process.CondDBCommon,
+    timetype = cms.string('timestamp'),
+    toGet = cms.VPSet(cms.PSet(
+        record = cms.string('RPCObVmonRcd'),
+        tag = cms.string('Vmon_v3')
+    ))
+)
+
+process.rtemp = cms.ESSource("PoolDBESSource",
+    process.CondDBCommon,
+    timetype = cms.string('timestamp'),
+    toGet = cms.VPSet(cms.PSet(
+        record = cms.string('RPCObTempRcd'),
+        tag = cms.string('Temp_v3')
+    ))
+)
+
+
 process.rpvss = cms.ESSource("PoolDBESSource",
     process.CondDBCommon,
     timetype = cms.string('timestamp'),
@@ -29,6 +48,7 @@ process.rpvss = cms.ESSource("PoolDBESSource",
         tag = cms.string('PVSS_v3')
     ))
 )
+
 
 
 process.source = cms.Source("PoolSource",

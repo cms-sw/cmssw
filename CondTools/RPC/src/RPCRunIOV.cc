@@ -11,6 +11,7 @@ RPCRunIOV::RPCRunIOV(const edm::EventSetup& evtSetup)
 }
 
 
+
 std::vector<RPCObImon::I_Item>
 RPCRunIOV::getImon() {
 
@@ -31,6 +32,74 @@ RPCRunIOV::getImon() {
   
   std::cout << std::endl << "=============================================" << std::endl << std::endl;
   std::vector<RPCObImon::I_Item>::iterator first;
+  first = mycond.begin();
+  min = this->toUNIX(first->day, first->time);
+  max = min;
+  unsigned long long value;
+  for(icond = mycond.begin(); icond < mycond.end(); ++icond){
+    value = this->toUNIX(icond->day, icond->time);
+    if (value < min) min = value;
+    if (value > max) max = value;
+  }
+  return mycond;
+}
+
+
+
+std::vector<RPCObVmon::V_Item>
+RPCRunIOV::getVmon() {
+
+  edm::ESHandle<RPCObVmon> condRcd;
+  eventSetup->get<RPCObVmonRcd>().get(condRcd);
+   
+  std::cout << std::endl << "=============================================" << std::endl;
+  std::cout << std::endl << "===============  VMON READER  ===============" << std::endl;
+  std::cout << std::endl << "=============================================" << std::endl << std::endl;
+  
+  
+  const RPCObVmon* cond = condRcd.product();
+  std::vector<RPCObVmon::V_Item> mycond = cond->ObVmon_rpc; 
+  std::vector<RPCObVmon::V_Item>::iterator icond;
+  
+  std::cout << ">>> Object VMON" << std::endl;
+  std::cout << "    size " << mycond.size() << std::endl;
+  
+  std::cout << std::endl << "=============================================" << std::endl << std::endl;
+  std::vector<RPCObVmon::V_Item>::iterator first;
+  first = mycond.begin();
+  min = this->toUNIX(first->day, first->time);
+  max = min;
+  unsigned long long value;
+  for(icond = mycond.begin(); icond < mycond.end(); ++icond){
+    value = this->toUNIX(icond->day, icond->time);
+    if (value < min) min = value;
+    if (value > max) max = value;
+  }
+  return mycond;
+}
+
+
+
+std::vector<RPCObTemp::T_Item>
+RPCRunIOV::getTemp() {
+
+  edm::ESHandle<RPCObTemp> condRcd;
+  eventSetup->get<RPCObTempRcd>().get(condRcd);
+
+  std::cout << std::endl << "=============================================" << std::endl;
+  std::cout << std::endl << "===============  TEMP READER  ===============" << std::endl;
+  std::cout << std::endl << "=============================================" << std::endl << std::endl;
+
+
+  const RPCObTemp* cond = condRcd.product();
+  std::vector<RPCObTemp::T_Item> mycond = cond->ObTemp_rpc;
+  std::vector<RPCObTemp::T_Item>::iterator icond;
+
+  std::cout << ">>> Object TEMPERATURE" << std::endl;
+  std::cout << "    size " << mycond.size() << std::endl;
+
+  std::cout << std::endl << "=============================================" << std::endl << std::endl;
+  std::vector<RPCObTemp::T_Item>::iterator first;
   first = mycond.begin();
   min = this->toUNIX(first->day, first->time);
   max = min;
