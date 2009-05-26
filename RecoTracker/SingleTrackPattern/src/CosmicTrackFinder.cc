@@ -159,6 +159,11 @@ namespace cms
 
 	*/
 
+	AlgebraicSymMatrix55 C = AlgebraicMatrixID();
+	TSOS startingState( firstState.localParameters(), LocalTrajectoryError(C),
+			    firstState.surface(),
+			    firstState.magneticField() );
+
 	// protection againt invalid initial states
 	if (! firstState.isValid()) {
 	  edm::LogWarning("CosmicTrackFinder") << "invalid innerState, will not make TrackCandidate";
@@ -173,7 +178,7 @@ namespace cms
 	  return;
 	}
 
-	PTrajectoryStateOnDet* state = TrajectoryStateTransform().persistentState( firstState, firstId);
+	PTrajectoryStateOnDet* state = TrajectoryStateTransform().persistentState( startingState, firstId);
 	
 	
 	output->push_back(TrackCandidate(recHits,theTraj.seed(),*state,theTraj.seedRef() ) );
