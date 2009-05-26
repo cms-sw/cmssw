@@ -28,7 +28,11 @@ class CSCChamberMap{
   /// slink id for given DetId
   int slink(const CSCDetId&) const;
 
+  /// ddu slot for given DetId
   int dduSlot(const CSCDetId&) const;
+
+  /// ddu input for given DetId
+  int dduInput(const CSCDetId&) const;
 
   /// Data are public. @@Should be private?
   typedef std::map< int, CSCMapItem::MapItem > CSCMap;

@@ -53,3 +53,9 @@ int CSCChamberMap::dduSlot( const CSCDetId& id ) const {
   return mitem.ddu_slot;
 }
 
+int CSCChamberMap::dduInput( const CSCDetId& id ) const {
+  int igor = dbIndex( id );
+  CSCMapItem::MapItem mitem = this->item( igor );
+  return mitem.ddu_input;
+}
+
