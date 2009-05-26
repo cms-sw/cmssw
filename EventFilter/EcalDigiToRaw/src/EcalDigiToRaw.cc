@@ -13,7 +13,7 @@
 //
 // Original Author:  Emmanuelle Perez
 //         Created:  Sat Nov 25 13:59:51 CET 2006
-// $Id: EcalDigiToRaw.cc,v 1.9 2008/07/23 18:17:34 franzoni Exp $
+// $Id: EcalDigiToRaw.cc,v 1.10 2009/02/17 16:29:40 muzaffar Exp $
 //
 //
 
@@ -142,6 +142,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      // iEvent.getByType(ecalTrigPrim);
 	iEvent.getByLabel(labelTT_, ecalTrigPrim);
 
+     // loop on TP's and add one by one to the block
      for (EcalTrigPrimDigiCollection::const_iterator it = ecalTrigPrim -> begin();
 			   it != ecalTrigPrim -> end(); it++) {
 
@@ -155,7 +156,8 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            int FEDid = FEDNumbering::MINECALFEDID + iDCC;
 
            FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
-
+	   
+	   // adding the primitive to the block
 	   TCCblockformatter_ -> DigiToRaw(trigprim, rawdata, TheMapping);
 
      }   // end loop on ecalTrigPrim
