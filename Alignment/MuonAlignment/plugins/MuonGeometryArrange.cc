@@ -536,11 +536,11 @@ void MuonGeometryArrange::compareGeometries(Alignable* refAli,
   int nComp = refComp.size();
   int nUsed = 0;
  // Use the total displacements here:
-  Hep3Vector TotalX, TotalL;
+  CLHEP::Hep3Vector TotalX, TotalL;
   TotalX.set(0.,0.,0.);   TotalL.set(0., 0., 0.);
-//  Hep3Vector* Rsubtotal, Wsubtotal, DRsubtotal, DWsubtotal;
-  std::vector<Hep3Vector> Positions;
-  std::vector<Hep3Vector> DelPositions;
+//  CLHEP::Hep3Vector* Rsubtotal, Wsubtotal, DRsubtotal, DWsubtotal;
+  std::vector<CLHEP::Hep3Vector> Positions;
+  std::vector<CLHEP::Hep3Vector> DelPositions;
 
   double xrcenter=0.;
   double yrcenter=0.;
@@ -623,16 +623,16 @@ void MuonGeometryArrange::compareGeometries(Alignable* refAli,
       if(!align::readModuleList(curComp[ich]->id(), curComp[ich]->id(), _weightByIdVector))
          continue;
     }
-      Hep3Vector Rtotal, Wtotal;
+      CLHEP::Hep3Vector Rtotal, Wtotal;
       Rtotal.set(0.,0.,0.); Wtotal.set(0.,0.,0.);
       for (int i = 0; i < 100; i++){
         AlgebraicVector diff = align::diffAlignables(refComp[ich],curComp[ich],
                            _weightBy, _weightById, _weightByIdVector);
-        Hep3Vector dR(diff[0],diff[1],diff[2]);
+        CLHEP::Hep3Vector dR(diff[0],diff[1],diff[2]);
         Rtotal+=dR;
-        Hep3Vector dW(diff[3],diff[4],diff[5]);
-        HepRotation rot(Wtotal.unit(),Wtotal.mag());
-        HepRotation drot(dW.unit(),dW.mag());
+        CLHEP::Hep3Vector dW(diff[3],diff[4],diff[5]);
+        CLHEP::HepRotation rot(Wtotal.unit(),Wtotal.mag());
+        CLHEP::HepRotation drot(dW.unit(),dW.mag());
         rot*=drot;
         Wtotal.set(rot.axis().x()*rot.delta(),
 	           rot.axis().y()*rot.delta(), rot.axis().z()*rot.delta());
@@ -674,7 +674,7 @@ void MuonGeometryArrange::compareGeometries(Alignable* refAli,
    const std::vector<Alignable*>& curComp2 = curAli->components();
 
   for(int ich=0; ich<nComp; ich++){
-     Hep3Vector Rtotal, Wtotal;
+     CLHEP::Hep3Vector Rtotal, Wtotal;
      Rtotal.set(0.,0.,0.); Wtotal.set(0.,0.,0.);
      if(_weightById){
        if(!align::readModuleList(curComp[ich]->id(), curComp[ich]->id(), _weightByIdVector))
@@ -684,11 +684,11 @@ void MuonGeometryArrange::compareGeometries(Alignable* refAli,
      for (int i = 0; i < 100; i++){
        AlgebraicVector diff = align::diffAlignables(refComp[ich],curComp2[ich],
                           _weightBy, _weightById, _weightByIdVector);
-       Hep3Vector dR(diff[0],diff[1],diff[2]);
+       CLHEP::Hep3Vector dR(diff[0],diff[1],diff[2]);
        Rtotal+=dR;
-       Hep3Vector dW(diff[3],diff[4],diff[5]);
-       HepRotation rot(Wtotal.unit(),Wtotal.mag());
-       HepRotation drot(dW.unit(),dW.mag());
+       CLHEP::Hep3Vector dW(diff[3],diff[4],diff[5]);
+       CLHEP::HepRotation rot(Wtotal.unit(),Wtotal.mag());
+       CLHEP::HepRotation drot(dW.unit(),dW.mag());
        rot*=drot;
        Wtotal.set(rot.axis().x()*rot.delta(), rot.axis().y()*rot.delta(),
                   rot.axis().z()*rot.delta());
