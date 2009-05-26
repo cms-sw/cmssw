@@ -246,9 +246,9 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
     rot.GetComponents (xx, xy, xz,
                  yx, yy, yz,
                  zx, zy, zz);
-    Hep3Vector colX(xx,xy,xz);
-    Hep3Vector colY(yx,yy,yz);
-    Hep3Vector colZ(zx,zy,zz);
+    CLHEP::Hep3Vector colX(xx,xy,xz);
+    CLHEP::Hep3Vector colY(yx,yy,yz);
+    CLHEP::Hep3Vector colZ(zx,zy,zz);
     CLHEP::HepRotation rotclhep( colX, colY, colZ );
     std::vector<double> angles = ALIUtils::getRotationAnglesFromMatrix( rotclhep,0., 0., 0. );
 

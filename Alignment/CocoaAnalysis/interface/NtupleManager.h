@@ -38,7 +38,7 @@ public:
 private:
   static NtupleManager* instance;
 
-  void GetGlobalAngles(const HepRotation& rmGlob, double *theta);
+  void GetGlobalAngles(const CLHEP::HepRotation& rmGlob, double *theta);
  
   TFile *theRootFile;
 

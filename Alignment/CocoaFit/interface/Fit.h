@@ -176,9 +176,9 @@ private:
   //FOR LINK..................
 private:
     //
-  //-  void AddSigma( Hep3Vector& vori, Hep3Vector& vadd );
-  //-  Hep3Vector atanVectorSigma( Hep3Vector& tanvs, const Hep3Vector& tanv );
-  //-  Hep3Vector atanVector( Hep3Vector& tanv );
+  //-  void AddSigma( CLHEP::Hep3Vector& vori, CLHEP::Hep3Vector& vadd );
+  //-  CLHEP::Hep3Vector atanVectorSigma( CLHEP::Hep3Vector& tanvs, const CLHEP::Hep3Vector& tanv );
+  //-  CLHEP::Hep3Vector atanVector( CLHEP::Hep3Vector& tanv );
 
   //----- The minimum quality an entry must have to be inhcluded in the fit
   static ALIint theMinimumEntryQuality; 

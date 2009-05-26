@@ -143,7 +143,7 @@ void FittedEntriesManager::GetDifferentBetweenLasers()
     lite2 = lite1; lite2++;
     for( ; lite2 != lrays.end(); lite2++ ){
       if( lite1 == lite2 ) continue;
-      Hep3Vector dirdiff = ((*lite1).second->direction() - (*lite2).second->direction());
+      CLHEP::Hep3Vector dirdiff = ((*lite1).second->direction() - (*lite2).second->direction());
       if(ALIUtils::debug >= 0) {
         std::cout << "LASER DIFF " << (*lite1).first << " & " << (*lite2).first << " " << dirdiff.mag()*180./M_PI << "o " << dirdiff.mag() << " rad " << dirdiff << std::endl;
       

@@ -180,7 +180,7 @@ OpticalAlignInfo CocoaDBMgr::GetOptAlignInfoFromOptO( OpticalObject* opto )
   data.name_=opto->name();
 
   //----- Centre in local coordinates
-  Hep3Vector centreLocal = opto->centreGlob() - opto->parent()->centreGlob();
+  CLHEP::Hep3Vector centreLocal = opto->centreGlob() - opto->parent()->centreGlob();
   CLHEP::HepRotation parentRmGlobInv = inverseOf( opto->parent()->rmGlob() );
   centreLocal = parentRmGlobInv * centreLocal;
 
@@ -342,11 +342,11 @@ AlignTransformError* CocoaDBMgr::GetAlignInfoErrorFromOptO( OpticalObject* opto 
 		  0.,
 		  1.);
  //double(dx*dx),  0., double(dy*dy),     0., 0., double(dz*dz) ) ;
-  HepSymMatrix errms = gerr.matrix();
+  CLHEP::HepSymMatrix errms = gerr.matrix();
   AlignTransformError* alignError = new AlignTransformError( errms, cmsswID );
   return alignError;
 
-  HepMatrix errm(3,3);
+  CLHEP::HepMatrix errm(3,3);
   const std::vector< Entry* > theCoordinateEntryVector = opto->CoordinateEntryList();
 std::cout << "@@@ CocoaDBMgr::GetAlignInfoFromOptOfill errm " << opto->name() << std::endl;
   errm(0,0) = GetEntryError( theCoordinateEntryVector[0] ) / 100.; // in cm
@@ -360,7 +360,7 @@ std::cout << "@@@ CocoaDBMgr::GetAlignInfoFromOptOfill errm " << opto->name() <<
   // errm(2,1) = errm(1,2);
 
 std::cout << "@@@ CocoaDBMgr::GetAlignInfoFromOptO errm filled" << opto->name() << std::endl;
-//  HepSymMatrix errms(3);
+//  CLHEP::HepSymMatrix errms(3);
 //  errms.assign(errm); 
   
 std::cout << "@@@ CocoaDBMgr::GetAlignInfoFromOptO errms filled " << opto->name() << std::endl;

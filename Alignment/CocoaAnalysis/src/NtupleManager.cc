@@ -379,7 +379,7 @@ void NtupleManager::FillMeasurements()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ Get global angles from global matrix rotation
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void NtupleManager::GetGlobalAngles(const HepRotation& rmGlob, double *theta)
+void NtupleManager::GetGlobalAngles(const CLHEP::HepRotation& rmGlob, double *theta)
 {
 
   double xx = rmGlob.xx(); if (fabs(xx)<1.e-08) xx = 0.;

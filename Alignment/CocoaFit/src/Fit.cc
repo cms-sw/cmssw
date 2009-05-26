@@ -1250,7 +1250,7 @@ void Fit::dumpFittedValuesInAllAncestorFrames( ALIFileOut& fileout, ALIbool prin
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Fit::printCentreInOptOFrame( const OpticalObject* opto, const OpticalObject* optoAncestor, ALIFileOut& fileout, ALIbool printErrors, ALIbool printOrig )
 {
-  Hep3Vector centreLocal;
+  CLHEP::Hep3Vector centreLocal;
   if( optoAncestor->type() == "system" ) {
     centreLocal = opto->centreGlob();
   } else {
