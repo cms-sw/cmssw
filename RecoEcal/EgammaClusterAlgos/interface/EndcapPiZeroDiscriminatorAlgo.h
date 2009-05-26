@@ -44,7 +44,7 @@ class EndcapPiZeroDiscriminatorAlgo {
    float getNNoutput(int sel_wfile);
 
    bool calculateNNInputVariables(std::vector<float>& vph1, std::vector<float>& vph2,
-                                          float pS1_max, float pS9_max, float pS25_max);
+                                          float pS1_max, float pS9_max, float pS25_max, int EScorr);
 
    void calculateBarrelNNInputVariables(float et, double s1, double s9, double s25, double m2, double cee, double cep,
    					double cpp, double s4, double s6, double ratio, double xcog, double ycog);  
