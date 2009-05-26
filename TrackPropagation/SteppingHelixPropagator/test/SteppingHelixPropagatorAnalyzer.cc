@@ -17,7 +17,7 @@
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.17 2008/02/01 22:47:13 slava77 Exp $
+// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.18 2008/06/16 05:19:51 slava77 Exp $
 //
 //
 
@@ -71,8 +71,8 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 #include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Matrix/DiagMatrix.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+//#include "CLHEP/Matrix/DiagMatrix.h"
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
@@ -102,22 +102,22 @@ protected:
     const PSimHit* hit;
     const Surface* surf;
     DetId id;
-    Hep3Vector r3;
-    Hep3Vector p3;
+    CLHEP::Hep3Vector r3;
+    CLHEP::Hep3Vector p3;
   };
 
 
   void loadNtVars(int ind, int eType,  int pStatus, 
 		  int id,//defs offset: 0 for R, 1*3 for Z and, 2*3 for P
-		  const Hep3Vector& p3, const Hep3Vector& r3, 
-		  const Hep3Vector& p3R, const Hep3Vector& r3R, 
+		  const CLHEP::Hep3Vector& p3, const CLHEP::Hep3Vector& r3, 
+		  const CLHEP::Hep3Vector& p3R, const CLHEP::Hep3Vector& r3R, 
 		  int charge, const AlgebraicSymMatrix66& cov);
 
-  FreeTrajectoryState getFromCLHEP(const Hep3Vector& p3, const Hep3Vector& r3, 
+  FreeTrajectoryState getFromCLHEP(const CLHEP::Hep3Vector& p3, const CLHEP::Hep3Vector& r3, 
 				   int charge, const AlgebraicSymMatrix66& cov,
 				   const MagneticField* field);
   void getFromFTS(const FreeTrajectoryState& fts,
-		  Hep3Vector& p3, Hep3Vector& r3, 
+		  CLHEP::Hep3Vector& p3, CLHEP::Hep3Vector& r3, 
 		  int& charge, AlgebraicSymMatrix66& cov);
 
   void addPSimHits(const edm::Event& iEvent,
@@ -318,16 +318,16 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
       }
       continue;
     }
-    Hep3Vector p3T(tracksCI->momentum().x(), tracksCI->momentum().y(), tracksCI->momentum().z());
+    CLHEP::Hep3Vector p3T(tracksCI->momentum().x(), tracksCI->momentum().y(), tracksCI->momentum().z());
     if (p3T.mag()< 2.) continue;
 
     int vtxInd = tracksCI->vertIndex();
     uint trkInd = tracksCI->genpartIndex() - trkIndOffset_;
-    Hep3Vector r3T(0.,0.,0.);
+    CLHEP::Hep3Vector r3T(0.,0.,0.);
     if (vtxInd < 0){
       std::cout<<"Track with no vertex, defaulting to (0,0,0)"<<std::endl;      
     } else {
-      r3T = Hep3Vector((*simVertices)[vtxInd].position().x(),
+      r3T = CLHEP::Hep3Vector((*simVertices)[vtxInd].position().x(),
 		       (*simVertices)[vtxInd].position().y(),
 		       (*simVertices)[vtxInd].position().z());
 
@@ -335,7 +335,7 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     AlgebraicSymMatrix66 covT = AlgebraicMatrixID(); 
     covT *= 1e-20; // initialize to sigma=1e-10 .. should get overwhelmed by MULS
 
-    Hep3Vector p3F,r3F; //propagated state
+    CLHEP::Hep3Vector p3F,r3F; //propagated state
     AlgebraicSymMatrix66 covF;
     int charge = trkPDG > 0 ? -1 : 1; //works for muons
 
@@ -473,8 +473,8 @@ void SteppingHelixPropagatorAnalyzer::endJob() {
 }
 
 void SteppingHelixPropagatorAnalyzer::loadNtVars(int ind, int eType, int pStatus, int id,
-						 const Hep3Vector& p3, const Hep3Vector& r3, 
-						 const Hep3Vector& p3R, const Hep3Vector& r3R, 
+						 const CLHEP::Hep3Vector& p3, const CLHEP::Hep3Vector& r3, 
+						 const CLHEP::Hep3Vector& p3R, const CLHEP::Hep3Vector& r3R, 
 						 int charge, const AlgebraicSymMatrix66& cov){
   p3_[ind][eType*3+0] = p3.x();  p3_[ind][eType*3+1] = p3.y();  p3_[ind][eType*3+2] = p3.z();
   r3_[ind][eType*3+0] = r3.x();  r3_[ind][eType*3+1] = r3.y();  r3_[ind][eType*3+2] = r3.z();
@@ -494,7 +494,7 @@ void SteppingHelixPropagatorAnalyzer::loadNtVars(int ind, int eType, int pStatus
 }
 
 FreeTrajectoryState
-SteppingHelixPropagatorAnalyzer::getFromCLHEP(const Hep3Vector& p3, const Hep3Vector& r3, 
+SteppingHelixPropagatorAnalyzer::getFromCLHEP(const CLHEP::Hep3Vector& p3, const CLHEP::Hep3Vector& r3, 
 					      int charge, const AlgebraicSymMatrix66& cov,
 					      const MagneticField* field){
 
@@ -508,7 +508,7 @@ SteppingHelixPropagatorAnalyzer::getFromCLHEP(const Hep3Vector& p3, const Hep3Ve
 }
 
 void SteppingHelixPropagatorAnalyzer::getFromFTS(const FreeTrajectoryState& fts,
-						 Hep3Vector& p3, Hep3Vector& r3, 
+						 CLHEP::Hep3Vector& p3, CLHEP::Hep3Vector& r3, 
 						 int& charge, AlgebraicSymMatrix66& cov){
   GlobalVector p3GV = fts.momentum();
   GlobalPoint r3GP = fts.position();

@@ -6,15 +6,15 @@
 /** \class SteppingHelixStateInfo
  *  Holder of SteppingHelixState information
  *
- *  $Date: 2007/06/12 22:45:00 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/10/09 01:33:09 $
+ *  $Revision: 1.14 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.h,v 1.13 2007/06/12 22:45:00 slava77 Exp $
+// $Id: SteppingHelixStateInfo.h,v 1.14 2007/10/09 01:33:09 slava77 Exp $
 //
 //
 
@@ -35,8 +35,8 @@ class FreeTrajectoryState;
 class SteppingHelixStateInfo {
   friend class SteppingHelixPropagator;
  public:
-  typedef Hep3Vector Vector;
-  typedef Hep3Vector  Point;
+  typedef CLHEP::Hep3Vector Vector;
+  typedef CLHEP::Hep3Vector  Point;
   
   enum Result {
     OK=0,

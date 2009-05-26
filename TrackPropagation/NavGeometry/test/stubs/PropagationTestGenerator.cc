@@ -78,15 +78,15 @@ void PropagationTestGenerator::generateStartValues () {
   //
   // generate random position (gaussian smearing)
   //
-  currentPosition = VectorTypeExtended(sigVx*RandGauss::shoot(),
-				       sigVy*RandGauss::shoot(),
-				       sigVz*RandGauss::shoot());
+  currentPosition = VectorTypeExtended(sigVx*CLHEP::RandGauss::shoot(),
+				       sigVy*CLHEP::RandGauss::shoot(),
+				       sigVz*CLHEP::RandGauss::shoot());
   //
   // generate momentum vector from azimuthal angle, pseudo-
   // rapidity and transverse momentum
   //
-  ExtendedDouble aPhi = RandFlat::shoot(phiMin,phiMax);
-  ExtendedDouble aEta = RandFlat::shoot(etaMin,etaMax);
+  ExtendedDouble aPhi = CLHEP::RandFlat::shoot(phiMin,phiMax);
+  ExtendedDouble aEta = CLHEP::RandFlat::shoot(etaMin,etaMax);
   ExtendedDouble aTheta = 2.*atan(exp(-aEta));
   currentDirection = VectorTypeExtended(sin(aTheta)*cos(aPhi),
 					sin(aTheta)*sin(aPhi),
@@ -103,9 +103,9 @@ PropagationTestGenerator::randomStepForward(const float maxStep) {
   if ( !initialised )  throw PropagationException("PropagationTestGenerator: attempt to use uninitialized trajectory");
   ExtendedDouble step;
   if ( useLogStep )
-    step = exp(RandFlat::shoot(log(1.e-5),log(maxStep)));
+    step = exp(CLHEP::RandFlat::shoot(log(1.e-5),log(maxStep)));
   else
-    step = RandFlat::shoot(0.,maxStep);
+    step = CLHEP::RandFlat::shoot(0.,maxStep);
   return bidirectionalStep(step);
 }
 
@@ -115,9 +115,9 @@ PropagationTestGenerator::randomStepBackward(const float maxStep) {
   if ( !initialised )  throw PropagationException("PropagationTestGenerator: attempt to use uninitialized trajectory");
   ExtendedDouble step;
   if ( useLogStep )
-    step = exp(RandFlat::shoot(log(1.e-5),maxStep));
+    step = exp(CLHEP::RandFlat::shoot(log(1.e-5),maxStep));
   else
-    step = RandFlat::shoot(0.,maxStep);
+    step = CLHEP::RandFlat::shoot(0.,maxStep);
   return bidirectionalStep(-step);
 }
 

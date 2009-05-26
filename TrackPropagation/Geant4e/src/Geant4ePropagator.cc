@@ -22,7 +22,7 @@
 #include "G4SteppingControl.hh"
 
 //CLHEP
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 
 /** Constructor. 
@@ -73,12 +73,12 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   GlobalVector normalPlane = pDest.toGlobal(LocalVector(0,0,1.)); 
   normalPlane = normalPlane.unit();
 
-  //* Transform this into HepPoint3D and HepNormal3D that define a plane for
+  //* Transform this into HepGeom::Point3D<double>  and HepGeom::Normal3D<double>  that define a plane for
   //  Geant4e.
   //  CMS uses cm and GeV while Geant4 uses mm and MeV
-  HepPoint3D  surfPos  = 
+  HepGeom::Point3D<double>   surfPos  = 
     TrackPropagation::globalPointToHepPoint3D(posPlane);
-  HepNormal3D surfNorm = 
+  HepGeom::Normal3D<double>  surfNorm = 
     TrackPropagation::globalVectorToHepNormal3D(normalPlane);
 
   //DEBUG
@@ -109,14 +109,14 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   // Find initial point
   //
 
-  // * Get the starting point and direction and convert them to Hep3Vector 
+  // * Get the starting point and direction and convert them to CLHEP::Hep3Vector 
   //   for G4. CMS uses cm and GeV while Geant4 uses mm and MeV
   GlobalPoint  cmsInitPos = ftsStart.position();
   GlobalVector cmsInitMom = ftsStart.momentum();
 
-  Hep3Vector g4InitPos = 
+  CLHEP::Hep3Vector g4InitPos = 
     TrackPropagation::globalPointToHep3Vector(cmsInitPos);
-  Hep3Vector g4InitMom = 
+  CLHEP::Hep3Vector g4InitMom = 
     TrackPropagation::globalVectorToHep3Vector(cmsInitMom*GeV);
 
   //DEBUG
@@ -222,8 +222,8 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   // and points, and build global trajectory parameters.
   // CMS uses cm and GeV while Geant4 uses mm and MeV
   //
-  HepPoint3D posEnd = g4eTrajState->GetPosition();
-  HepVector3D momEnd = g4eTrajState->GetMomentum();
+  HepGeom::Point3D<double>  posEnd = g4eTrajState->GetPosition();
+  HepGeom::Vector3D<double>  momEnd = g4eTrajState->GetMomentum();
 
   GlobalPoint  posEndGV = TrackPropagation::hepPoint3DToGlobalPoint(posEnd);
   GlobalVector momEndGV = TrackPropagation::hep3VectorToGlobalVector(momEnd)/GeV;
@@ -319,14 +319,14 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
 		      << "G4e -  Destination G4  cylinder rotation:" << rotCyl << "\n";
 
 
-  //Get the starting point and direction and convert them to Hep3Vector for G4
+  //Get the starting point and direction and convert them to CLHEP::Hep3Vector for G4
   //CMS uses cm and GeV while Geant4 uses mm and MeV
   GlobalPoint  cmsInitPos = ftsStart.position();
   GlobalVector cmsInitMom = ftsStart.momentum();
 
-  Hep3Vector g4InitMom = 
+  CLHEP::Hep3Vector g4InitMom = 
     TrackPropagation::globalVectorToHep3Vector(cmsInitMom*GeV);
-  Hep3Vector g4InitPos = 
+  CLHEP::Hep3Vector g4InitPos = 
     TrackPropagation::globalPointToHep3Vector(cmsInitPos);
 
   //DEBUG
@@ -412,8 +412,8 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   // Retrieve the state in the end from Geant4e, converte them to CMS vectors
   // and points, and build global trajectory parameters
   // CMS uses cm and GeV while Geant4 uses mm and MeV
-  HepPoint3D posEnd = g4eTrajState->GetPosition();
-  HepVector3D momEnd = g4eTrajState->GetMomentum();
+  HepGeom::Point3D<double>  posEnd = g4eTrajState->GetPosition();
+  HepGeom::Vector3D<double>  momEnd = g4eTrajState->GetMomentum();
 
   GlobalPoint  posEndGV = TrackPropagation::hepPoint3DToGlobalPoint(posEnd);
   GlobalVector momEndGV = TrackPropagation::hep3VectorToGlobalVector(momEnd)/GeV;

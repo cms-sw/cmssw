@@ -445,7 +445,7 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
     
     //- Get momentum, but only use tracks with P > 2 GeV
     GlobalVector p3T = 
-      TrackPropagation::hep3VectorToGlobalVector(Hep3Vector(simTracksIt->momentum().x(),
+      TrackPropagation::hep3VectorToGlobalVector(CLHEP::Hep3Vector(simTracksIt->momentum().x(),
                                                             simTracksIt->momentum().y(),
                                                             simTracksIt->momentum().z()));
     if (p3T.perp() < 2.) {
@@ -472,7 +472,7 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
       LogDebug("Geant4e") << "Track with no vertex, defaulting to (0,0,0)";
     else
       //seems to be stored in mm --> convert to cm
-      r3T = TrackPropagation::hep3VectorToGlobalPoint(Hep3Vector((*simVertices)[vtxInd].position().x(),
+      r3T = TrackPropagation::hep3VectorToGlobalPoint(CLHEP::Hep3Vector((*simVertices)[vtxInd].position().x(),
                                                                  (*simVertices)[vtxInd].position().y(),
                                                                  (*simVertices)[vtxInd].position().z()));
 
