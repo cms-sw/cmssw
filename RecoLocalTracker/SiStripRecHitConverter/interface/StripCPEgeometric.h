@@ -17,24 +17,7 @@ class StripCPEgeometric : public StripCPE
   StripCPEgeometric( edm::ParameterSet& conf, 
 		     const MagneticField* mag, 
 		     const TrackerGeometry* geom, 
-		     const SiStripLorentzAngle* LorentzAngle)
-    : StripCPE(conf, mag, geom, LorentzAngle ),
-    invsqrt12(1/sqrt(12)),
-    crossoverRate(15)
-    {
-      edgeRatioCut.resize(7,0);
-      edgeRatioCut[SiStripDetId::TIB] = 0.058;
-      edgeRatioCut[SiStripDetId::TID] = 0.111;
-      edgeRatioCut[SiStripDetId::TOB] = 0.090;
-      edgeRatioCut[SiStripDetId::TEC] = 0.111;
-
-      tandriftangle.resize(7,0);
-      tandriftangle[SiStripDetId::TIB] = 0.01;
-      tandriftangle[SiStripDetId::TID] = 0.01;
-      tandriftangle[SiStripDetId::TOB] = 0.01;
-      tandriftangle[SiStripDetId::TEC] = 0.01;
-    }
-
+		     const SiStripLorentzAngle* LorentzAngle);
  private:
 
   class WrappedCluster {
@@ -42,7 +25,7 @@ class StripCPEgeometric : public StripCPE
     WrappedCluster(const SiStripCluster&);
     uint16_t N;
     SiStripDetId::SubDetector type;
-    float eta() const;
+    float eta(const float& xtalk=0) const;
     float middle() const;
     float dedxRatio(const float&) const;
     float smallEdgeRatio() const;
@@ -58,10 +41,15 @@ class StripCPEgeometric : public StripCPE
   bool isMultiPeaked(const SiStripCluster&, const float&) const;
   bool useNMinusOne(const WrappedCluster&, const float&) const;
   float mix(const float&, const float&, const float&) const;
+  struct edgeRatioFromCrosstalk{
+    edgeRatioFromCrosstalk(float s) : xtalksigma(s) {}
+    float operator()(float xtalk) {float y=xtalk+xtalksigma;  return y/(1-2*y);}
+    const float xtalksigma;
+  };
 
+  std::vector<float> crosstalk;
   std::vector<float> edgeRatioCut;
-  std::vector<float> tandriftangle;
-  const float invsqrt12;
+  const float invsqrt12, crosstalksigma,tandriftangle;
   const unsigned crossoverRate;
 };
 
