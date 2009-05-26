@@ -8,7 +8,6 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/MessageService>
 <use name=FWCore/ParameterSet>
-<use name=Geometry/CaloEventSetup>
 <use name=RecoLocalCalo/EcalDeadChannelRecoveryAlgos>
 <use name=RecoLocalCalo/EcalRecAlgos>
 <use name=clhep>
