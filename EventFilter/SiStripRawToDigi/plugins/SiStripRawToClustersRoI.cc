@@ -145,7 +145,7 @@ bool SiStripRawToClustersRoI::physicalLayer(SubDet& subdet, uint32_t& layer) con
 void SiStripRawToClustersRoI::random(RefGetter& refgetter, edm::Handle<LazyGetter>& lazygetter) const {
   
   uint32_t total = cabling_->getRegionCabling().size();
-  uint32_t required = static_cast<uint32_t>(RandFlat::shoot()*(total+1));
+  uint32_t required = static_cast<uint32_t>(CLHEP::RandFlat::shoot()*(total+1));
   for (uint32_t iregion = 0; iregion < required; iregion++) {
     for (uint32_t isubdet = 0; isubdet < SiStripRegionCabling::ALLSUBDETS; isubdet++) {
       SubDet subdet = static_cast<SubDet>(isubdet);

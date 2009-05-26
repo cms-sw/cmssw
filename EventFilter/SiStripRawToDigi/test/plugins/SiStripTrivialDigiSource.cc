@@ -91,8 +91,8 @@ void SiStripTrivialDigiSource::produce( edm::Event& event,
       
       // Random number of digis
       double tmp = 0.; 
-      float rdm = 2.56 * RandGauss::shoot( meanOcc_, rmsOcc_ );
-      bool extra = ( RandFlat::shoot() > modf(rdm,&tmp) );
+      float rdm = 2.56 * CLHEP::RandGauss::shoot( meanOcc_, rmsOcc_ );
+      bool extra = ( CLHEP::RandFlat::shoot() > modf(rdm,&tmp) );
       uint16_t ndigi = static_cast<uint16_t>(rdm) + static_cast<uint16_t>(extra);
 
       // Create DetSet
@@ -110,8 +110,8 @@ void SiStripTrivialDigiSource::produce( edm::Event& event,
       while ( idigi < ndigi ) {
 	
 	// Random values
-	uint16_t str = static_cast<uint16_t>( 256. * RandFlat::shoot() );
-	uint16_t adc = static_cast<uint16_t>( 256. * RandFlat::shoot() );
+	uint16_t str = static_cast<uint16_t>( 256. * CLHEP::RandFlat::shoot() );
+	uint16_t adc = static_cast<uint16_t>( 256. * CLHEP::RandFlat::shoot() );
 	
 	// Generate and check strip number
 	uint16_t nstrips = iconn->nDetStrips();

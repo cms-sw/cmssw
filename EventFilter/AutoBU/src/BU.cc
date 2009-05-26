@@ -764,7 +764,7 @@ bool BU::generateEvent(BUEvent* evt)
       unsigned int fedId(validFedIds_[i]);
       unsigned int fedSize(fedSizeMean_);
       if (!useFixedFedSize_) {
-	double logFedSize=RandGauss::shoot(gaussianMean_,gaussianWidth_);
+	double logFedSize=CLHEP::RandGauss::shoot(gaussianMean_,gaussianWidth_);
 	fedSize=(unsigned int)(std::exp(logFedSize));
 	if (fedSize<fedSizeMin)  fedSize=fedSizeMin;
 	if (fedSize>fedSizeMax_) fedSize=fedSizeMax_;
