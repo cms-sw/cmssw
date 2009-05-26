@@ -69,9 +69,9 @@ LightRay::LightRay( OpticalObject* opto1, OpticalObject* opto2)
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-LightRay::LightRay( Hep3Vector& vec1, Hep3Vector& vec2 )
+LightRay::LightRay( CLHEP::Hep3Vector& vec1, CLHEP::Hep3Vector& vec2 )
 {
-  Hep3Vector dir = vec2 - vec1;
+  CLHEP::Hep3Vector dir = vec2 - vec1;
   dir *= 1./dir.mag();
   setDirection( dir );
   setPoint( vec1 );

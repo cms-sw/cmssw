@@ -58,7 +58,7 @@ int ALIUtils::IsNumber( const ALIstring& str)
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ Dump a Hep3DVector with the chosen precision
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void ALIUtils::dump3v( const Hep3Vector& vec, const std::string& msg) 
+void ALIUtils::dump3v( const CLHEP::Hep3Vector& vec, const std::string& msg) 
 {
   //  double phicyl = atan( vec.y()/vec.x() );
   std::cout << msg << std::setprecision(8) << vec;
@@ -74,7 +74,7 @@ void ALIUtils::dump3v( const Hep3Vector& vec, const std::string& msg)
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void ALIUtils::dumprm( const HepRotation& rm, const std::string& msg, std::ostream& out) 
+void ALIUtils::dumprm( const CLHEP::HepRotation& rm, const std::string& msg, std::ostream& out) 
 {
 
   out << msg << " xx=" << rm.xx() << " xy=" << rm.xy() << " xz=" << rm.xz() << std::endl;
@@ -559,7 +559,7 @@ ALIdouble ALIUtils::getDimensionValue( const ALIstring& dim, const ALIstring& di
 
 /*
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-std::ostream& operator << (std::ostream& os, const HepRotation& rm)
+std::ostream& operator << (std::ostream& os, const CLHEP::HepRotation& rm)
 {
 
   return os << " xx=" << rm.xx() << " xy=" << rm.xy() << " xz=" << rm.xz() << std::endl

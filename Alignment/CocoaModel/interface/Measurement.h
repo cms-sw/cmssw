@@ -156,10 +156,10 @@ public:
     return theCurrentTime;
   }
 
-  const Hep3Vector& getLightRayPosition( ) const{
+  const CLHEP::Hep3Vector& getLightRayPosition( ) const{
     return theLightRayPosition; 
   }
-  const Hep3Vector& getLightRayDirection( ) const{ 
+  const CLHEP::Hep3Vector& getLightRayDirection( ) const{ 
     return theLightRayDirection; 
   }
 
@@ -219,9 +219,9 @@ public:
    //-   std::cout << " dsetting file name " << filename << std::endl;
  }
 
- void setLightRayPosition( const Hep3Vector& lightRayPosition )
+ void setLightRayPosition( const CLHEP::Hep3Vector& lightRayPosition )
    { theLightRayPosition = lightRayPosition; }
- void setLightRayDirection( const Hep3Vector& lightRayDirection )
+ void setLightRayDirection( const CLHEP::Hep3Vector& lightRayDirection )
    { theLightRayDirection = lightRayDirection; }
 
  protected:  
@@ -257,8 +257,8 @@ private:
   //----- List of OptOs Measured and their ancestors
   std::vector<Entry*> theAffectingEntryList;
 
-  Hep3Vector theLightRayPosition;
-  Hep3Vector theLightRayDirection;
+  CLHEP::Hep3Vector theLightRayPosition;
+  CLHEP::Hep3Vector theLightRayDirection;
   static ALIstring theMeasurementsFileName;
 
   static ALIstring theCurrentDate;  

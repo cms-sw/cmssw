@@ -1,6 +1,6 @@
  
 #include "Alignment/CocoaModel/interface/ALIUnitsTable.h"
-#include <CLHEP/Units/SystemOfUnits.h>
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <iomanip>
 #include <cstdlib>

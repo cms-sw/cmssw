@@ -148,7 +148,7 @@ void CocoaToDDLMgr::writePhysicalVolumes()
 void CocoaToDDLMgr::writeRotations()
 {
   newSectPre_ro("");
-  std::vector<HepRotation>::const_iterator ite;
+  std::vector<CLHEP::HepRotation>::const_iterator ite;
   int nc = 0;
   for( ite = theRotationList.begin(); ite != theRotationList.end(); ite++) {
     //-  std::cout << nc << " rot size " <<  theRotationList.size() << std::endl;
@@ -541,9 +541,9 @@ void CocoaToDDLMgr::pv(OpticalObject * opto)
    
    if( rotNumber != -1 ) file_ << "  <rRotation name=\"R" << rotNumber << "\"/>" << std::endl;
 
-   Hep3Vector t =  opto->centreLocal();
-   if(t != Hep3Vector()) { //if (0,0,0) write nothing
-     const Hep3Vector t = opto->centreLocal();
+   CLHEP::Hep3Vector t =  opto->centreLocal();
+   if(t != CLHEP::Hep3Vector()) { //if (0,0,0) write nothing
+     const CLHEP::Hep3Vector t = opto->centreLocal();
 
      file_ << "  <Translation x=\"" <<  UC(t[0],"Length") << "\""
            <<               " y=\"" << UC(t[1],"Length") << "\""
@@ -574,10 +574,10 @@ void CocoaToDDLMgr::newSectPre_ro(std::string name)
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // handlers reflections and rotations ...
-void CocoaToDDLMgr::ro(const HepRotation& ro, int n)
+void CocoaToDDLMgr::ro(const CLHEP::HepRotation& ro, int n)
 {
    
-   HepRotation roinv = inverseOf(ro);
+   CLHEP::HepRotation roinv = inverseOf(ro);
   //-    G4ThreeVector v(1.,1.,1.);
   //-     G4ThreeVector a;
   //-   a = (*ro)*v;
@@ -824,7 +824,7 @@ ALIint CocoaToDDLMgr::buildRotationNumber( OpticalObject* opto )
 
   if(opto->rmLocal().isIdentity() ) return rotnum;
 
-  std::vector<HepRotation>::const_iterator ite;
+  std::vector<CLHEP::HepRotation>::const_iterator ite;
 
   int nc = 0;
   for( ite = theRotationList.begin(); ite != theRotationList.end(); ite++) {

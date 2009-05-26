@@ -18,20 +18,20 @@ class ALILine {
 public:
   ALILine(){ };  
   ~ALILine(){ };  
-  ALILine( const Hep3Vector& point, const Hep3Vector& direction );  
+  ALILine( const CLHEP::Hep3Vector& point, const CLHEP::Hep3Vector& direction );  
 // Next 1 line was added with 22 Mar 2001 
-//  Hep3Vector ALILine( const ALILine& l2, bool notParallel = 0);
+//  CLHEP::Hep3Vector ALILine( const ALILine& l2, bool notParallel = 0);
 //0
-  Hep3Vector intersect( const ALILine& l2, bool notParallel = 0); 
-  Hep3Vector intersect( const ALIPlane& plane, bool notParallel = 1);
-  const Hep3Vector& pt() const {return _point;};
-  const Hep3Vector& vec() const {return _direction;};
+  CLHEP::Hep3Vector intersect( const ALILine& l2, bool notParallel = 0); 
+  CLHEP::Hep3Vector intersect( const ALIPlane& plane, bool notParallel = 1);
+  const CLHEP::Hep3Vector& pt() const {return _point;};
+  const CLHEP::Hep3Vector& vec() const {return _direction;};
 
   friend std::ostream& operator << (std::ostream&, const ALILine& li);
 
 private:
-  Hep3Vector _point;
-  Hep3Vector _direction;
+  CLHEP::Hep3Vector _point;
+  CLHEP::Hep3Vector _direction;
 
 };
 

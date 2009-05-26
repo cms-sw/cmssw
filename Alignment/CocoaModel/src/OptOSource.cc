@@ -14,7 +14,7 @@
 #include "Alignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #endif
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeTubs.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 

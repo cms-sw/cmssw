@@ -41,7 +41,7 @@
 
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <stdlib.h>
 #include <iostream>
@@ -643,9 +643,9 @@ void OpticalObject::setGlobalRM()
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void OpticalObject::setGlobalRMOriginalOriginal(const HepRotation& rmorioriLocal )
+void OpticalObject::setGlobalRMOriginalOriginal(const CLHEP::HepRotation& rmorioriLocal )
 {
-  HepRotation rmorioriold = rmGlobOriginalOriginal();
+  CLHEP::HepRotation rmorioriold = rmGlobOriginalOriginal();
   if ( ALIUtils::debug >= 5 ) {
     std::cout << " setGlobalRMOriginalOriginal OptO " << name() << std::endl;
     ALIUtils::dumprm(rmorioriLocal," setGlobalRMOriginalOriginal new local");
@@ -673,7 +673,7 @@ void OpticalObject::setGlobalRMOriginalOriginal(const HepRotation& rmorioriLocal
   }
   std::vector<OpticalObject*>::const_iterator vocite;
   for (vocite = vopto.begin(); vocite != vopto.end(); vocite++) {
-    HepRotation rmorioriLocalChild = (*vocite)->buildRmFromEntryValuesOriginalOriginal();
+    CLHEP::HepRotation rmorioriLocalChild = (*vocite)->buildRmFromEntryValuesOriginalOriginal();
     (*vocite)->setGlobalRMOriginalOriginal( rmorioriLocalChild );
     //    (*vocite)->propagateGlobalRMOriginalOriginalChangeToChildren( rmorioriold, rmGlobOriginalOriginal() );
   }
@@ -682,7 +682,7 @@ void OpticalObject::setGlobalRMOriginalOriginal(const HepRotation& rmorioriLocal
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void OpticalObject::propagateGlobalRMOriginalOriginalChangeToChildren( const HepRotation& rmorioriold, const HepRotation& rmoriorinew )
+void OpticalObject::propagateGlobalRMOriginalOriginalChangeToChildren( const CLHEP::HepRotation& rmorioriold, const CLHEP::HepRotation& rmoriorinew )
 {
   std::cout << " propagateGlobalRMOriginalOriginalChangeToChildren OptO " << name() << std::endl;
   ALIUtils::dumprm(rmGlobOriginalOriginal()," setGlobalRMOriginalOriginal old ");
@@ -699,16 +699,16 @@ void OpticalObject::propagateGlobalRMOriginalOriginalChangeToChildren( const Hep
   }
   std::vector<OpticalObject*>::const_iterator vocite;
   for (vocite = vopto.begin(); vocite != vopto.end(); vocite++) {
-    //    HepRotation rmoriorid = buildRmFromEntryValues();
+    //    CLHEP::HepRotation rmoriorid = buildRmFromEntryValues();
     (*vocite)->propagateGlobalRMOriginalOriginalChangeToChildren( rmorioriold, rmoriorinew );
   }  
 
 } 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-HepRotation OpticalObject::buildRmFromEntryValuesOriginalOriginal()
+CLHEP::HepRotation OpticalObject::buildRmFromEntryValuesOriginalOriginal()
 {
-  HepRotation rm;
+  CLHEP::HepRotation rm;
   const OpticalObject* opto_par = this;
   //  if(Model::GlobalOptions()["rotateAroundLocal"] == 0) {
   if(ALIUtils::debug >= 55) std::cout << "rotate with parent: before X " << opto_par->parent()->name() <<" " <<  parent()->getEntryRMangle(XCoor) <<std::endl;
@@ -839,7 +839,7 @@ void OpticalObject::SetRMGlobFromRMLocal()
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void OpticalObject::SetRMGlobFromRMLocalOriginalOriginal( HepRotation rmoriori )
+void OpticalObject::SetRMGlobFromRMLocalOriginalOriginal( CLHEP::HepRotation rmoriori )
 {
 
   theRmGlobOriginalOriginal = rmoriori;
@@ -1731,9 +1731,9 @@ std::ostream& operator << (std::ostream& os, const OpticalObject& c) {
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-const HepRotation OpticalObject::rmLocal() const
+const CLHEP::HepRotation OpticalObject::rmLocal() const
 {
-  HepRotation rm;
+  CLHEP::HepRotation rm;
   rm.rotateX( theCoordinateEntryVector[3]->value() );
   rm.rotateY( theCoordinateEntryVector[4]->value() );
   rm.rotateZ( theCoordinateEntryVector[5]->value() );

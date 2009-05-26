@@ -35,7 +35,7 @@ public:
   virtual void fastTraversesLightRay( LightRay& lightray );
 
   // Get intersection in local coordinates
-  ALIdouble* convertPointToLocalCoordinates( const Hep3Vector& point);
+  ALIdouble* convertPointToLocalCoordinates( const CLHEP::Hep3Vector& point);
 
 #ifdef COCOA_VIS
   virtual void fillVRML();
@@ -44,7 +44,7 @@ public:
   void constructSolidShape();
 
  private:
-  ALIdouble getMeasFromInters( ALILine& line_xhair, ALILine& ccd, Hep3Vector& cops_line );
+  ALIdouble getMeasFromInters( ALILine& line_xhair, ALILine& ccd, CLHEP::Hep3Vector& cops_line );
   // Deviation values read from file
   DeviationsFromFileSensor2D* deviFromFile;
   ALIbool fdevi_from_file;

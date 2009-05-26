@@ -82,32 +82,32 @@ class OpticalObject
   }
 
  // ACCESS CENTRE AND ROTATION DATA MEMBERS
-  const Hep3Vector& centreGlob() const {
+  const CLHEP::Hep3Vector& centreGlob() const {
     return theCentreGlob;
   }
 
-  const Hep3Vector& centreGlobal() const {
+  const CLHEP::Hep3Vector& centreGlobal() const {
     return centreGlob();
   }
 
-  const Hep3Vector centreLocal() const;
+  const CLHEP::Hep3Vector centreLocal() const;
 
-  const Hep3Vector& centreGlobOriginal() const {
+  const CLHEP::Hep3Vector& centreGlobOriginal() const {
     return theCentreGlobOriginal;
   }
-  const Hep3Vector& centreGlobOriginalOriginal() const {
+  const CLHEP::Hep3Vector& centreGlobOriginalOriginal() const {
     return theCentreGlobOriginalOriginal;
   }
-  const HepRotation& rmGlob() const {
+  const CLHEP::HepRotation& rmGlob() const {
     return theRmGlob;
   }
 
-  const HepRotation rmLocal() const;
+  const CLHEP::HepRotation rmLocal() const;
 
-  const HepRotation& rmGlobOriginal() const {
+  const CLHEP::HepRotation& rmGlobOriginal() const {
     return theRmGlobOriginal;
   }
-  const HepRotation& rmGlobOriginalOriginal() const {
+  const CLHEP::HepRotation& rmGlobOriginalOriginal() const {
     return theRmGlobOriginalOriginal;
   }
 
@@ -124,14 +124,14 @@ class OpticalObject
   void setID( uint32_t id ) { theCmsswID = id; }
 
   // SET DATA METHODS
-  void setRmGlobalOriginal( const HepRotation& rm ){
+  void setRmGlobalOriginal( const CLHEP::HepRotation& rm ){
     theRmGlobOriginal = rm; 
   }
-  void setGlobalRMOriginalOriginal(const HepRotation& rmoriori );
-  void propagateGlobalRMOriginalOriginalChangeToChildren( const HepRotation& rmorioriold, const HepRotation& rmoriorinew );
-   HepRotation buildRmFromEntryValuesOriginalOriginal();
+  void setGlobalRMOriginalOriginal(const CLHEP::HepRotation& rmoriori );
+  void propagateGlobalRMOriginalOriginalChangeToChildren( const CLHEP::HepRotation& rmorioriold, const CLHEP::HepRotation& rmoriorinew );
+   CLHEP::HepRotation buildRmFromEntryValuesOriginalOriginal();
 
-  void setRmGlobal( const HepRotation& rm ){
+  void setRmGlobal( const CLHEP::HepRotation& rm ){
     theRmGlob = rm; 
   }
 
@@ -177,9 +177,9 @@ class OpticalObject
   virtual void userDefinedBehaviour( LightRay& lightray, Measurement& meas, const ALIstring& behav);
 
   //---------- Obtain the Z Axis of the OptO (ZAxis rotated with the OptO rotation matrix)
-  Hep3Vector getZAxis() {
-    Hep3Vector ZAxis(0.,0.,1.);
-    HepRotation rmt = rmGlob();
+  CLHEP::Hep3Vector getZAxis() {
+    CLHEP::Hep3Vector ZAxis(0.,0.,1.);
+    CLHEP::HepRotation rmt = rmGlob();
     ZAxis = rmt*ZAxis;
     return ZAxis;
   }
@@ -189,8 +189,8 @@ class OpticalObject
   //---------- Displacements to get the derivative of a measurement w.r.t an entry
   //----- Displace the centre coordinate 'coor'
   void displaceCentreGlob( const XYZcoor coor, const  ALIdouble disp);
-  Hep3Vector getDisplacementInLocalCoordinates( const XYZcoor coor, const ALIdouble disp );
-   void displaceCentreGlob( const Hep3Vector& dispVec);
+  CLHEP::Hep3Vector getDisplacementInLocalCoordinates( const XYZcoor coor, const ALIdouble disp );
+   void displaceCentreGlob( const CLHEP::Hep3Vector& dispVec);
   //----- Rotate around axis 'coor' 
   void displaceRmGlobAroundGlobal(OpticalObject* opto1stRotated, const XYZcoor coor, const ALIdouble disp);
   void displaceRmGlobAroundLocal(OpticalObject* opto1stRotated, const XYZcoor coor, const ALIdouble disp);
@@ -202,9 +202,9 @@ class OpticalObject
   //----------- every new iteration of the non linear fit
   //----- Displace the centre coordinate 'coor'
   void displaceCentreGlobOriginal( const XYZcoor coor, const ALIdouble disp);
-  void displaceCentreGlobOriginal( const Hep3Vector& dispVec);
+  void displaceCentreGlobOriginal( const CLHEP::Hep3Vector& dispVec);
   void displaceCentreGlobOriginalOriginal( const XYZcoor coor, const ALIdouble disp);
-  void displaceCentreGlobOriginalOriginal( const Hep3Vector& dispVec);
+  void displaceCentreGlobOriginalOriginal( const CLHEP::Hep3Vector& dispVec);
   //----- Rotate around axis 'coor' 
   void displaceRmGlobOriginal( const OpticalObject* opto1stRotated, const XYZcoor coor, const ALIdouble disp);
   void displaceRmGlobOriginalOriginal( const OpticalObject* opto1stRotated, const XYZcoor coor, const ALIdouble disp);
@@ -244,14 +244,14 @@ class OpticalObject
 
   std::vector<double> getRotationAnglesInOptOFrame( const OpticalObject* optoAncestor, std::vector< Entry* > entries ) const;
   std::vector<double> getLocalRotationAngles(  std::vector< Entry* > entries ) const;
-  std::vector<double> getRotationAnglesFromMatrix( HepRotation& rmLocal, std::vector< Entry* > entries ) const;
+  std::vector<double> getRotationAnglesFromMatrix( CLHEP::HepRotation& rmLocal, std::vector< Entry* > entries ) const;
   double diff2pi( double ang1, double ang2 );
   bool eq2ang( double ang1, double ang2 );
   double approxTo0( double val );
   double addPii( double val );
-  int checkMatrixEquations( double angleX, double angleY, double angleZ, HepRotation* rot = 0);
+  int checkMatrixEquations( double angleX, double angleY, double angleZ, CLHEP::HepRotation* rot = 0);
 
-  //-  Hep3Vector GetAxisForDisplacement( const XYZcoor coor );
+  //-  CLHEP::Hep3Vector GetAxisForDisplacement( const XYZcoor coor );
   void setGlobalCoordinates();
   void setOriginalEntryValues();
 
@@ -298,7 +298,7 @@ private:
   void SetCentreGlobFromCentreLocal();
   void SetRMLocalFromEntryValues();
   void SetRMGlobFromRMLocal();
-  void SetRMGlobFromRMLocalOriginalOriginal( HepRotation rmoriori );
+  void SetRMGlobFromRMLocalOriginalOriginal( CLHEP::HepRotation rmoriori );
   // Calculate local rot axis with new rm glob
   void calculateLocalRotationAxisInGlobal();
 
@@ -309,7 +309,7 @@ private:
 template<class T>
   void rotateItAroundGlobal( T& object, const XYZcoor coor, const double disp );
 
- Hep3Vector getDispVec( const XYZcoor coor, const ALIdouble disp);
+ CLHEP::Hep3Vector getDispVec( const XYZcoor coor, const ALIdouble disp);
 
  void SetCentreIsGlobal( ALIbool isG ) {
    centreIsGlobal = isG; }
@@ -325,13 +325,13 @@ private:
   ALIbool fcopyData;
 
   //----- Global centre and rotation matrix
-  Hep3Vector theCentreGlob;
-  HepRotation theRmGlob;
+  CLHEP::Hep3Vector theCentreGlob;
+  CLHEP::HepRotation theRmGlob;
   //----- Original global centre and rotation matrix (for backup when they are changed to get derivatives)
-  Hep3Vector theCentreGlobOriginal;
-  HepRotation theRmGlobOriginal;
-  Hep3Vector theCentreGlobOriginalOriginal;
-  HepRotation theRmGlobOriginalOriginal;
+  CLHEP::Hep3Vector theCentreGlobOriginal;
+  CLHEP::HepRotation theRmGlobOriginal;
+  CLHEP::Hep3Vector theCentreGlobOriginalOriginal;
+  CLHEP::HepRotation theRmGlobOriginalOriginal;
 
   // Lists of entries
   std::vector< Entry* > theCoordinateEntryVector;
@@ -348,9 +348,9 @@ private:
 
   Measurement* theCurrentMeas;
 
-  Hep3Vector axisXLocalInGlobal;
-  Hep3Vector axisYLocalInGlobal;
-  Hep3Vector axisZLocalInGlobal;
+  CLHEP::Hep3Vector axisXLocalInGlobal;
+  CLHEP::Hep3Vector axisYLocalInGlobal;
+  CLHEP::Hep3Vector axisZLocalInGlobal;
 
   uint32_t theCmsswID;
 

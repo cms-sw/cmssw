@@ -126,18 +126,18 @@ ALIdouble EntryAngleAffAngles::valueDisplaced() const
   std::cout << " localrot " << localrot[0] << " " << localrot[1] << " " << localrot[2] << std::endl;
   std::cout << " localrotorig " << localrotorig[0] << " " << localrotorig[1] << " " << localrotorig[2] << std::endl;
   ALIdouble diff;
-  Hep3Vector Xaxis(0.,0.,1.);
+  CLHEP::Hep3Vector Xaxis(0.,0.,1.);
   Xaxis = OptOCurrent()->parent()->rmGlob() * Xaxis;
-  Hep3Vector XaxisOrig(0.,0.,1.);
+  CLHEP::Hep3Vector XaxisOrig(0.,0.,1.);
   XaxisOrig = OptOCurrent()->parent()->rmGlobOriginal() * XaxisOrig;
 
   diff = fabs( checkDiff( Xaxis, XaxisOrig, localrot, localrotorig ) );
 
   //maybe X is not a good axis because the rotation is done precisely around X
   if( diff <= 1.E-9 ){
-    Hep3Vector Yaxis(0.,1.,0.);
+    CLHEP::Hep3Vector Yaxis(0.,1.,0.);
     Yaxis = OptOCurrent()->parent()->rmGlob() * Yaxis;
-    Hep3Vector YaxisOrig(0.,1.,0.);
+    CLHEP::Hep3Vector YaxisOrig(0.,1.,0.);
     YaxisOrig = OptOCurrent()->parent()->rmGlobOriginal() * YaxisOrig;
     
     diff = fabs( checkDiff( Yaxis, YaxisOrig, localrot, localrotorig ) );
@@ -149,7 +149,7 @@ ALIdouble EntryAngleAffAngles::valueDisplaced() const
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-ALIdouble EntryAngleAffAngles::checkDiff( Hep3Vector axis, Hep3Vector axisOrig, std::vector<double> localrot, std::vector<double> localrotorig ) const
+ALIdouble EntryAngleAffAngles::checkDiff( CLHEP::Hep3Vector axis, CLHEP::Hep3Vector axisOrig, std::vector<double> localrot, std::vector<double> localrotorig ) const
 {
   int inam = 0;
   if( name() == "angles_X" ) {

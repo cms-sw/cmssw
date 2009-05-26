@@ -105,7 +105,7 @@ class CocoaBestUnit
 public:  // with description
 
     CocoaBestUnit(ALIdouble internalValue, const ALIstring& category);
-    CocoaBestUnit(const Hep3Vector& internalValue, const ALIstring& category);    
+    CocoaBestUnit(const CLHEP::Hep3Vector& internalValue, const ALIstring& category);    
       // These constructors convert a physical quantity from its internalValue
       // into the most appropriate unit of the same category.
       // In practice it builds an object VU = (newValue, newUnit)
@@ -127,7 +127,7 @@ public:  // with description
 private:
 
     ALIdouble   Value[3];        // value in the internal system of units
-    ALIint      nbOfVals;        // ALIdouble=1; Hep3Vector=3
+    ALIint      nbOfVals;        // ALIdouble=1; CLHEP::Hep3Vector=3
     ALIstring   Category;        // dimensional family: Length,Volume,Energy ...
     size_t IndexOfCategory;     // position of Category in UnitsTable
 };

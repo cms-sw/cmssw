@@ -24,7 +24,7 @@ public:
   LightRay();
 // Make a light ray out of the centre_glob points of two OptO:'source' and 'pointLens'
   LightRay( OpticalObject* p1, OpticalObject* p2);
-  LightRay( Hep3Vector& vec1, Hep3Vector& vec2 );
+  LightRay( CLHEP::Hep3Vector& vec1, CLHEP::Hep3Vector& vec2 );
   ~LightRay() {};
 
 //@@@@@@@@@@@@@@@@@@@@ Methods for each OptO
@@ -49,19 +49,19 @@ public:
    // void shiftAndDeviateWhileTraversing( ALIdouble shiftAxis1, ALIdouble shiftAxis2, ALIdouble deviAxis1, ALIdouble deviAxis2 );
 
 // ACCESS DATA MEMBERS
-  const Hep3Vector& point() const{
+  const CLHEP::Hep3Vector& point() const{
       return _point;
   } 
-  const Hep3Vector& direction() const{
+  const CLHEP::Hep3Vector& direction() const{
       return _direction;
   } 
   void dumpData(const ALIstring& str) const;
 
  // SET DATA MEMBERS
-  void setDirection( const Hep3Vector& direc) {
+  void setDirection( const CLHEP::Hep3Vector& direc) {
        _direction = direc;
   } 
-  void setPoint( const Hep3Vector& point) {
+  void setPoint( const CLHEP::Hep3Vector& point) {
        _point = point;
   } 
   
@@ -70,13 +70,13 @@ private:
   //-------------- Methods common to several OptO
 // Intersect a LightRay with the X-Y plane of the GlobalVectorFrame of an OptO
  public:
-  Hep3Vector IntersectWithOptOPlane( const OpticalObject* optoplane);
-  Hep3Vector IntersectWithPlane(const Hep3Vector& plane_point,
-             const Hep3Vector& plane_normal);
+  CLHEP::Hep3Vector IntersectWithOptOPlane( const OpticalObject* optoplane);
+  CLHEP::Hep3Vector IntersectWithPlane(const CLHEP::Hep3Vector& plane_point,
+             const CLHEP::Hep3Vector& plane_normal);
 
  // private DATA MEMBERS
-  Hep3Vector _direction;
-  Hep3Vector _point;
+  CLHEP::Hep3Vector _direction;
+  CLHEP::Hep3Vector _point;
 };
 
 

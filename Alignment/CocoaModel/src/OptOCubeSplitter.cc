@@ -9,7 +9,7 @@
 #include "Alignment/CocoaModel/interface/LightRay.h"
 #include "Alignment/CocoaModel/interface/ALIPlane.h" 
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #ifdef COCOA_VIS
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #include "Alignment/CocoaVisMgr/interface/ALIColour.h"

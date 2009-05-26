@@ -9,7 +9,7 @@
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #ifdef COCOA_VIS
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #include "Alignment/CocoaVisMgr/interface/ALIColour.h"

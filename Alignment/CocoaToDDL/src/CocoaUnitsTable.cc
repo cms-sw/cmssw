@@ -1,6 +1,6 @@
  
 #include "Alignment/CocoaToDDL/interface/CocoaUnitsTable.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <iomanip>
 #include <math.h>
@@ -347,7 +347,7 @@ CocoaBestUnit::CocoaBestUnit(ALIdouble value, const ALIstring& category)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
        
-CocoaBestUnit::CocoaBestUnit(const Hep3Vector& value, const ALIstring& category)
+CocoaBestUnit::CocoaBestUnit(const CLHEP::Hep3Vector& value, const ALIstring& category)
 {
  // find the category
     CocoaUnitsTable& theUnitsTable = CocoaUnitDefinition::GetUnitsTable();

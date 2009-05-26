@@ -79,7 +79,7 @@ void ParameterMgr::addParameter( const ALIstring& name, const ALIstring& valstr 
 
 void ParameterMgr::setRandomSeed( const long seed )
 {
-  HepRandom::setTheSeed( seed );
+  CLHEP::HepRandom::setTheSeed( seed );
 }
 
 
@@ -91,7 +91,7 @@ void ParameterMgr::addRandomGaussParameter( const ALIstring& name, const ALIstri
   } else {
     ALIdouble mean = getVal( valMean );
     ALIdouble stddev = getVal( valStdDev );
-    ALIdouble val = RandGauss::shoot( mean, stddev );
+    ALIdouble val = CLHEP::RandGauss::shoot( mean, stddev );
     theParameters[name] = val;
     if( ALIUtils::debug >= -2 ) std::cout << " addRandomGaussParameter "  << name << " " << valMean << " " << valStdDev << " = " << val << std::endl;
   }
@@ -107,7 +107,7 @@ void ParameterMgr::addRandomFlatParameter( const ALIstring& name, const ALIstrin
   } else {
     ALIdouble mean = getVal( valMean );
     ALIdouble interval = getVal( valInterval );
-    ALIdouble val = HepRandom::getTheEngine()->flat();
+    ALIdouble val = CLHEP::HepRandom::getTheEngine()->flat();
     // flat between ]mean-interval, mean+interval[
     val = val * 2*interval + mean-interval;
     theParameters[name] = val;
