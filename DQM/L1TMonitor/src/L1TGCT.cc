@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2008/11/11 13:20:32 $
- * $Revision: 1.37 $
+ * $Date: 2009/02/24 13:01:42 $
+ * $Revision: 1.38 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.38  2009/02/24 13:01:42  jad
+ * Updated MET_PHI histogram to obey the correct limits
+ *
  * Revision 1.37  2008/11/11 13:20:32  tapper
  * A whole list of house keeping:
  * 1. New shifter histogram with central and forward jets together.
@@ -145,6 +148,10 @@ const float METPHIMAX = 71.5;
 const unsigned int PHIBINS = 18;
 const float PHIMIN = -0.5;
 const float PHIMAX = 17.5;
+
+const unsigned int OFBINS = 2;
+const float OFMIN = -0.5;
+const float OFMAX = 1.5;
 
 // Ranks 6, 10 and 12 bits
 const unsigned int R6BINS = 64;
@@ -299,8 +306,11 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
     // Energy sums
     l1GctEtMiss_    = dbe->book1D("EtMiss", "MISSING E_{T}", R12BINS, R12MIN, R12MAX);
     l1GctEtMissPhi_ = dbe->book1D("EtMissPhi", "MISSING E_{T} #phi", METPHIBINS, METPHIMIN, METPHIMAX);
+    l1GctEtMissOf_  = dbe->book1D("EtMissOf", "MISSING E_{T} OVERFLOW", OFBINS, OFMIN, OFMAX);
     l1GctEtTotal_   = dbe->book1D("EtTotal", "TOTAL E_{T}", R12BINS, R12MIN, R12MAX);
+    l1GctEtTotalOf_ = dbe->book1D("EtTotalOf", "TOTAL E_{T} OVERFLOW", OFBINS, OFMIN, OFMAX);
     l1GctEtHad_     = dbe->book1D("EtHad", "TOTAL HAD E_{T}", R12BINS, R12MIN, R12MAX);
+    l1GctEtHadOf_   = dbe->book1D("EtHadOf", "TOTAL HAD E_{T} OVERFLOW", OFBINS, OFMIN, OFMAX);
 
     // More detailed quantities
     l1GctIsoEmRankCand0_ = dbe->book1D("IsoEmRankCand0","ISO EM RANK CAND 0", R6BINS, R6MIN, R6MAX);
@@ -480,8 +490,12 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   // Missing ET
   if (l1EtMiss.isValid()) { 
     if (l1EtMiss->size()) {
-      l1GctEtMiss_->Fill(l1EtMiss->at(0).et());
-      l1GctEtMissPhi_->Fill(l1EtMiss->at(0).phi());
+      if (l1EtMiss->at(0).overFlow() == 0 && l1EtMiss->at(0).et() > 0) {
+        //Avoid problems with met=0 candidates affecting MET_PHI plots
+        l1GctEtMiss_->Fill(l1EtMiss->at(0).et());
+        l1GctEtMissPhi_->Fill(l1EtMiss->at(0).phi());
+      }
+      l1GctEtMissOf_->Fill(l1EtMiss->at(0).overFlow());
     }
   } else {
     edm::LogWarning("DataNotFound") << " Could not find l1EtMiss label was " << gctEnergySumsSource_ ;    
@@ -490,7 +504,8 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   // HT 
   if (l1EtHad.isValid()) {
     if (l1EtHad->size()) { 
-      l1GctEtHad_->Fill(l1EtHad->at(0).et());
+      if (l1EtHad->at(0).overFlow() == 0) l1GctEtHad_->Fill(l1EtHad->at(0).et());
+      l1GctEtHadOf_->Fill(l1EtHad->at(0).overFlow());
     }
   } else {
     edm::LogWarning("DataNotFound") << " Could not find l1EtHad label was " << gctEnergySumsSource_ ;    
@@ -499,7 +514,8 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   // Total ET
   if (l1EtTotal.isValid()) {
     if (l1EtTotal->size()) { 
-      l1GctEtTotal_->Fill(l1EtTotal->at(0).et());
+      if (l1EtTotal->at(0).overFlow() == 0) l1GctEtTotal_->Fill(l1EtTotal->at(0).et());
+      l1GctEtTotalOf_->Fill(l1EtTotal->at(0).overFlow());
     }
   } else {
     edm::LogWarning("DataNotFound") << " Could not find l1EtTotal label was " << gctEnergySumsSource_ ;    

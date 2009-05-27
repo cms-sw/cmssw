@@ -5,11 +5,19 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2008/09/21 14:33:12 $
- * $Revision: 1.15 $
+ * $Date: 2008/11/11 13:20:31 $
+ * $Revision: 1.16 $
  * \author J. Berryhill
- * $Id: L1TGCT.h,v 1.15 2008/09/21 14:33:12 jad Exp $
+ * $Id: L1TGCT.h,v 1.16 2008/11/11 13:20:31 tapper Exp $
  * $Log: L1TGCT.h,v $
+ * Revision 1.16  2008/11/11 13:20:31  tapper
+ * A whole list of house keeping:
+ * 1. New shifter histogram with central and forward jets together.
+ * 2. Relabelled Ring 0 and Ring 1 to Ring 1 and Ring 2 for HF rings.
+ * 3. Tidied up some histograms names to make all consistent.
+ * 4. Switched eta and phi in 2D plots to match RCT.
+ * 5. Removed 1D eta and phi plots. Will not be needed for Qtests in future.
+ *
  * Revision 1.15  2008/09/21 14:33:12  jad
  * updated HF Sums & Counts and added individual Jet Candidates and differences
  *
@@ -141,8 +149,11 @@ private:
 
   MonitorElement* l1GctEtMiss_;
   MonitorElement* l1GctEtMissPhi_;
+  MonitorElement* l1GctEtMissOf_;
   MonitorElement* l1GctEtTotal_;
+  MonitorElement* l1GctEtTotalOf_;
   MonitorElement* l1GctEtHad_;
+  MonitorElement* l1GctEtHadOf_;
   
   //HF Rings stuff
   MonitorElement* l1GctHFRing1PosEtaNegEta_;
