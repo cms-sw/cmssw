@@ -15,8 +15,48 @@ process.eegeom = cms.ESSource("EmptyESSource",
     firstValid = cms.vuint32(1)
 )
 
-# Get hardcoded conditions the same used for standard digitization
-process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
+# to read from orcon
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
+#process.CondDBCommon.connect = 'oracle://cms_orcon_prod/CMS_COND_ECAL'
+process.CondDBCommon.connect = 'sqlite_file:DB.db'
+process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/xiezhen/conddb'
+ 
+ 
+process.PoolDBESSource = cms.ESSource("PoolDBESSource",
+    process.CondDBCommon,
+    timetype = cms.untracked.string('runnumber'),
+    toGet = cms.VPSet(
+     cms.PSet(
+        record = cms.string('EcalPedestalsRcd'),
+        tag = cms.string('EcalPedestals_mc')
+     ),
+     cms.PSet(
+        record = cms.string('EcalADCToGeVConstantRcd'),
+        tag = cms.string('EcalADCToGeVConstant_mc')
+     ),
+     cms.PSet(
+        record = cms.string('EcalChannelStatusRcd'),
+        tag = cms.string('EcalChannelStatus_mc')
+     ),
+     cms.PSet(
+        record = cms.string('EcalIntercalibConstantsRcd'),
+        tag = cms.string('EcalIntercalibConstants_mc')
+     ),
+     cms.PSet(
+        record = cms.string('EcalGainRatiosRcd'),
+        tag = cms.string('EcalGainRatios_mc')
+     ),
+        cms.PSet(
+            record = cms.string('EcalWeightXtalGroupsRcd'),
+            tag = cms.string('EcalWeightXtalGroups_mc')
+        ), 
+        cms.PSet(
+            record = cms.string('EcalTBWeightsRcd'),
+            tag = cms.string('EcalTBWeights_mc')
+        ))
+)
+
+
 
 #########################
 process.source = cms.Source("EmptySource")
@@ -28,19 +68,21 @@ process.maxEvents = cms.untracked.PSet(
 process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
 
     #### inputs/ouputs control ####
-    readFromDB = cms.bool(False),
-    writeToDB  = cms.bool(False),
+    readFromDB = cms.bool(True),
+    writeToDB  = cms.bool(True),
     allowDBEE  = cms.bool(False),
 
-    DBsid   = cms.string('ecalh4db'),
-    DBuser  = cms.string('test09'),
-    DBpass  = cms.string('oratest09'),
-    DBport  = cms.uint32(1521),
+    DBsid   = cms.string('cms_omds_lb'),
+    DBuser  = cms.string('cms_ecal_conf_test'),
+    DBpass  = cms.string('*************'),
+    DBport  = cms.uint32(10121),
     DBrunNb = cms.uint32(29000),
 
-    writeToFiles = cms.bool(True),
-    outFile = cms.string('TPG_startup.txt'),
-
+    writeToFiles = cms.bool(False),
+    outFile = cms.string('TPG_startupTest.txt'),
+   #### TPG config tag and version (if not given it will be automatically given ) ####
+    TPGtag = cms.string('CRAFT'),
+    TPGversion = cms.uint32(1),
                                         
    #### TPG calculation parameters ####
     useTransverseEnergy = cms.bool(True),   ## true when TPG computes transverse energy, false for energy
