@@ -19,7 +19,8 @@
 
 
 #include "DQM/EcalPreshowerMonitorClient/interface/EcalPreshowerMonitorClient.h"
-//#include "DQM/EcalPreshowerMonitorClient/interface/ESPedestalClient.h"
+#include "DQM/EcalPreshowerMonitorClient/interface/ESPedestalClient.h"
+#include "DQM/EcalPreshowerMonitorClient/interface/ESIntegrityClient.h"
 
 
 using namespace cms;
@@ -29,6 +30,7 @@ using namespace std;
 EcalPreshowerMonitorClient::EcalPreshowerMonitorClient(const edm::ParameterSet& ps){
 
 
+	verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
 	outputFile_	= ps.getUntrackedParameter<string>("OutputFile","");
 	inputFile_	= ps.getUntrackedParameter<string>("InputFile","");
 	prefixME_	= ps.getUntrackedParameter<string>("prefixME", "EcalPreshower");
@@ -36,6 +38,22 @@ EcalPreshowerMonitorClient::EcalPreshowerMonitorClient(const edm::ParameterSet& 
 
 	prescaleFactor_ = ps.getUntrackedParameter<int>("prescaleFactor", 1);
 
+
+	//Initial enabledClients
+	enabledClients_.push_back("Integrity");
+	enabledClients_.push_back("Pedestal");
+
+	enabledClients_ = ps.getUntrackedParameter<vector<string> >("enabledClients", enabledClients_);	
+
+	if ( verbose_ ) {
+		cout << " Enabled Clients:" << endl;
+		for ( unsigned int i = 0; i < enabledClients_.size(); i++ ) {
+			cout << " " << enabledClients_[i];
+		}
+		cout << endl;
+	}
+
+	//enableMonitorDaemon
 	enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 	clientName_ = ps.getUntrackedParameter<string>("clientName", "EcalPreshowerMonitorClient");
 
@@ -45,8 +63,15 @@ EcalPreshowerMonitorClient::EcalPreshowerMonitorClient(const edm::ParameterSet& 
 	}
 
 
-	PedestalClient_ = new ESPedestalClient(ps);
-	IntegrityClient_ = new ESIntegrityClient(ps);
+
+	//Setup Clients
+	if ( find(enabledClients_.begin(), enabledClients_.end(), "Integrity" ) != enabledClients_.end() ){
+		clients_.push_back( new ESIntegrityClient(ps) );
+	}
+
+	if ( find(enabledClients_.begin(), enabledClients_.end(), "Pedestal" ) != enabledClients_.end() ){
+		clients_.push_back( new ESPedestalClient(ps) );
+	}
 
 
 	if(debug_){
@@ -57,8 +82,13 @@ EcalPreshowerMonitorClient::EcalPreshowerMonitorClient(const edm::ParameterSet& 
 
 EcalPreshowerMonitorClient::~EcalPreshowerMonitorClient()
 {
-	delete PedestalClient_;
-	delete IntegrityClient_;
+
+	if ( verbose_ ) cout << "Finish EcalPreshowerMonitorClient" << endl;
+
+	for ( unsigned int i=0; i<clients_.size(); i++ ) {
+		delete clients_[i];
+	}
+
 	if ( enableMonitorDaemon_ ) delete mui_;
 }
 
@@ -88,7 +118,7 @@ void EcalPreshowerMonitorClient::beginJob(const EventSetup &c){
 		dqmStore_ = Service<DQMStore>().operator->();
 
 	}
-	
+
 	if ( ! enableMonitorDaemon_ ) {
 		if ( inputFile_.size() != 0 ) {
 			if ( dqmStore_ ) {
@@ -97,11 +127,10 @@ void EcalPreshowerMonitorClient::beginJob(const EventSetup &c){
 		}
 	}
 
-	PedestalClient_->beginJob(dqmStore_);
-	PedestalClient_->setup();
-	IntegrityClient_->beginJob(dqmStore_);
-	IntegrityClient_->setup();
-
+	for ( unsigned int i=0; i<clients_.size(); i++ ) {
+		clients_[i]->beginJob(dqmStore_);
+		clients_[i]->setup();
+	}
 }
 
 
@@ -117,9 +146,9 @@ void EcalPreshowerMonitorClient::beginRun(void){
 	begin_run_ = true;
 	end_run_   = false;
 
-	PedestalClient_->beginRun();
-	IntegrityClient_->beginRun();
-
+	for ( unsigned int i=0; i<clients_.size(); i++ ) {
+		clients_[i]->beginRun();
+	}
 }
 
 
@@ -152,8 +181,9 @@ void EcalPreshowerMonitorClient::endRun() {
 	begin_run_ = false;
 	end_run_   = true;
 
-	PedestalClient_->endRun();
-	IntegrityClient_->endRun();
+	for ( unsigned int i=0; i<clients_.size(); i++ ) {
+		clients_[i]->endRun();
+	}
 
 }
 
@@ -166,10 +196,9 @@ void EcalPreshowerMonitorClient::analyze(void){
 		cout<<"Run Client at "<<EvtperRun_<<"th Event of the run & "<<EvtperJob_<<"th event of the job."<<endl;
 	}
 
-	PedestalClient_->analyze();
-	IntegrityClient_->analyze();
-
-
+	for ( unsigned int i=0; i<clients_.size(); i++ ) {
+		clients_[i]->analyze();
+	}
 }
 
 void EcalPreshowerMonitorClient::analyze(const Event & e, const EventSetup & c) {

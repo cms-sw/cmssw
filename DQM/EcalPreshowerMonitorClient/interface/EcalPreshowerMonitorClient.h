@@ -7,9 +7,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-//#include "DQM/EcalPreshowerMonitorClient/interface/ESClient.h"
-#include "DQM/EcalPreshowerMonitorClient/interface/ESPedestalClient.h"
-#include "DQM/EcalPreshowerMonitorClient/interface/ESIntegrityClient.h"
+#include "DQM/EcalPreshowerMonitorClient/interface/ESClient.h"
 
 
 class DQMOldReceiver;
@@ -51,13 +49,14 @@ class EcalPreshowerMonitorClient : public edm::EDAnalyzer{
 		bool begin_run_;
 		bool end_run_;
 		bool debug_;
+		bool verbose_;
 
 		int prescaleFactor_;		
                 int EvtperJob_;
                 int EvtperRun_;
 
-		ESPedestalClient* PedestalClient_;
-		ESIntegrityClient* IntegrityClient_;
+		std::vector<std::string> enabledClients_;
+		std::vector<ESClient*> clients_;
 
 		int nLines_, runNum_;
 		int runtype_, seqtype_, dac_, gain_, precision_;
