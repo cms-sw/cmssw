@@ -13,7 +13,7 @@
 //
 // Original Author:  J. Troconiz - UAM Madrid
 //         Created:  Fri Apr  3 00:26:52 CEST 2009
-// $Id: DTTFMasksOnlineProd.cc,v 1.4 2008/11/24 14:43:35 troco Exp $
+// $Id: DTTFMasksOnlineProd.cc,v 1.2 2009/05/18 08:22:25 troco Exp $
 //
 //
 
@@ -74,6 +74,8 @@ DTTFMasksOnlineProd::newObject( const std::string& objectKey )
 
      boost::shared_ptr< L1MuDTTFMasks > pDTTFMasks(
        new L1MuDTTFMasks() ) ;
+
+     pDTTFMasks->reset() ;
 
      std::string dttfSchema = "CMS_DT_TF" ;
 
