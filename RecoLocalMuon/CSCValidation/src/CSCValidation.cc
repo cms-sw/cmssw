@@ -987,8 +987,8 @@ void CSCValidation::doResolution(edm::Handle<CSCSegmentCollection> cscSegments, 
     std::vector<CSCRecHit2D> theseRecHits = (*dSiter).specificRecHits();
     int nRH = (*dSiter).nRecHits();
     int jRH = 0;
-    HepMatrix sp(6,1);
-    HepMatrix se(6,1);
+    CLHEP::HepMatrix sp(6,1);
+    CLHEP::HepMatrix se(6,1);
     for ( vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
       jRH++;
       CSCDetId idRH = (CSCDetId)(*iRH).cscDetId();
@@ -1138,7 +1138,7 @@ int CSCValidation::chamberSerial( CSCDetId id ) {
 // and removes hit in layer 3.  It then returns the expected position value in layer 3
 // based on the fit.
 //-------------------------------------------------------------------------------------
-float CSCValidation::fitX(HepMatrix points, HepMatrix errors){
+float CSCValidation::fitX(CLHEP::HepMatrix points, CLHEP::HepMatrix errors){
 
   float S   = 0;
   float Sx  = 0;

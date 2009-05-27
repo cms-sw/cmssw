@@ -230,8 +230,8 @@ std::vector<CSCSegment> CSCSegAlgoHitPruning::pruneBadHits(const CSCChamber* aCh
  *
  */
 void CSCSegAlgoHitPruning::fitSlopes() {
-  HepMatrix M(4,4,0);
-  HepVector B(4,0);
+  CLHEP::HepMatrix M(4,4,0);
+  CLHEP::HepVector B(4,0);
   ChamberHitContainer::const_iterator ih = protoSegment.begin();
   for (ih = protoSegment.begin(); ih != protoSegment.end(); ++ih) {
     const CSCRecHit2D& hit = (**ih);
@@ -243,7 +243,7 @@ void CSCSegAlgoHitPruning::fitSlopes() {
     double v = lp.y();
     double z = lp.z();
     // ptc: Covariance matrix of local errors 
-    HepMatrix IC(2,2);
+    CLHEP::HepMatrix IC(2,2);
     IC(1,1) = hit.localPositionError().xx();
     IC(1,2) = hit.localPositionError().xy();
     IC(2,2) = hit.localPositionError().yy();
@@ -280,7 +280,7 @@ void CSCSegAlgoHitPruning::fitSlopes() {
     M(4,4) += IC(2,2) * z * z;
     B(4)   += ( u * IC(2,1) + v * IC(2,2) ) * z;
   }
-  HepVector p = solve(M, B);
+  CLHEP::HepVector p = solve(M, B);
   
   // Update member variables 
   // Note that origin has local z = 0
@@ -314,7 +314,7 @@ void CSCSegAlgoHitPruning::fillChiSquared() {
     double du = protoIntercept.x() + protoSlope_u * z - u;
     double dv = protoIntercept.y() + protoSlope_v * z - v;
     
-    HepMatrix IC(2,2);
+    CLHEP::HepMatrix IC(2,2);
     IC(1,1) = hit.localPositionError().xx();
     IC(1,2) = hit.localPositionError().xy();
     IC(2,2) = hit.localPositionError().yy();
@@ -390,11 +390,11 @@ AlgebraicSymMatrix CSCSegAlgoHitPruning::weightMatrix() const {
 /* derivativeMatrix
  *
  */
-HepMatrix CSCSegAlgoHitPruning::derivativeMatrix() const {
+CLHEP::HepMatrix CSCSegAlgoHitPruning::derivativeMatrix() const {
   
   ChamberHitContainer::const_iterator it;
   int nhits = protoSegment.size();
-  HepMatrix matrix(2*nhits, 4);
+  CLHEP::HepMatrix matrix(2*nhits, 4);
   int row = 0;
   
   for(it = protoSegment.begin(); it != protoSegment.end(); ++it) {

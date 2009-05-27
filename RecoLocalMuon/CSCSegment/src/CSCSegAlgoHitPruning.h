@@ -39,7 +39,7 @@ class CSCSegAlgoHitPruning {
   void fitSlopes(void);
   void fillChiSquared(void);
   void fillLocalDirection(void);
-  HepMatrix derivativeMatrix(void) const;
+  CLHEP::HepMatrix derivativeMatrix(void) const;
   AlgebraicSymMatrix weightMatrix(void) const;
   AlgebraicSymMatrix calculateError(void) const;
   void flipErrors(AlgebraicSymMatrix&) const;

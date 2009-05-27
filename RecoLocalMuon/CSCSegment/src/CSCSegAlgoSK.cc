@@ -1,8 +1,8 @@
 /**
  * \file CSCSegAlgoSK.cc
  *
- *  $Date: 2007/03/08 14:15:45 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/03/09 12:50:42 $
+ *  $Revision: 1.13 $
  *  \author M. Sani
  */
  
@@ -533,8 +533,8 @@ void CSCSegAlgoSK::fitSlopes() {
   // and the RecHit itself only knows its local position w.r.t.
   // the LAYER, so we must explicitly transform global position.
   
-  HepMatrix M(4,4,0);
-  HepVector B(4,0);
+  CLHEP::HepMatrix M(4,4,0);
+  CLHEP::HepVector B(4,0);
   
   ChamberHitContainer::const_iterator ih = proto_segment.begin();
   
@@ -551,7 +551,7 @@ void CSCSegAlgoSK::fitSlopes() {
     double z = lp.z();
     
     // ptc: Covariance matrix of local errors 
-    HepMatrix IC(2,2);
+    CLHEP::HepMatrix IC(2,2);
     IC(1,1) = hit.localPositionError().xx();
     IC(1,2) = hit.localPositionError().xy();
     IC(2,1) = IC(1,2); // since Cov is symmetric
@@ -595,7 +595,7 @@ void CSCSegAlgoSK::fitSlopes() {
   
   // Solve the matrix equation using CLHEP's 'solve'
   //@@ ptc: CAN solve FAIL?? UNCLEAR FROM (LACK OF) CLHEP DOC
-  HepVector p = solve(M, B);
+  CLHEP::HepVector p = solve(M, B);
   
   // Update member variables uz, vz, theOrigin
   // Note it has local z = 0
@@ -629,7 +629,7 @@ void CSCSegAlgoSK::fillChiSquared() {
     double du = u0 + uz * hz - hu;
     double dv = v0 + vz * hz - hv;
     
-    HepMatrix IC(2,2);
+    CLHEP::HepMatrix IC(2,2);
     IC(1,1) = hit.localPositionError().xx();
     IC(1,2) = hit.localPositionError().xy();
     IC(2,1) = IC(1,2);
@@ -751,11 +751,11 @@ void CSCSegAlgoSK::increaseProtoSegment(const CSCRecHit2D* h, int layer) {
   }			
 }		
 
-HepMatrix CSCSegAlgoSK::derivativeMatrix() const {
+CLHEP::HepMatrix CSCSegAlgoSK::derivativeMatrix() const {
   
   ChamberHitContainer::const_iterator it;
   int nhits = proto_segment.size();
-  HepMatrix matrix(2*nhits, 4);
+  CLHEP::HepMatrix matrix(2*nhits, 4);
   int row = 0;
   
   for(it = proto_segment.begin(); it != proto_segment.end(); ++it) {

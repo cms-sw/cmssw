@@ -138,7 +138,7 @@ private:
 
   // some useful functions
   bool   filterEvents(edm::Handle<CSCRecHit2DCollection> recHits);
-  float  fitX(HepMatrix sp, HepMatrix ep);
+  float  fitX(CLHEP::HepMatrix sp, CLHEP::HepMatrix ep);
   float  getTiming(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
   float  getSignal(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
   float  getthisSignal(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);

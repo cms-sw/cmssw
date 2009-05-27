@@ -18,8 +18,8 @@
  *
  * Ported to CMSSW 2006-04-03: Matteo.Sani@cern.ch <BR>
  *
- * $Date: 2006/11/21 23:22:13 $
- * $Revision: 1.5 $
+ * $Date: 2006/11/22 22:59:10 $
+ * $Revision: 1.6 $
  * \author M. Sani
  * 
  */
@@ -83,7 +83,7 @@ class CSCSegAlgoTC : public CSCSegmentAlgorithm {
   void compareProtoSegment(const CSCRecHit2D* h, int layer);
   void increaseProtoSegment(const CSCRecHit2D* h, int layer);
   AlgebraicSymMatrix calculateError() const;
-  HepMatrix derivativeMatrix() const;
+  CLHEP::HepMatrix derivativeMatrix() const;
   AlgebraicSymMatrix weightMatrix() const;
   void flipErrors(AlgebraicSymMatrix&) const;
   

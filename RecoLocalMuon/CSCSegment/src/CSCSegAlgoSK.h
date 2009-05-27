@@ -21,8 +21,8 @@
  * Reimplemented in terms of layer index, and bug fix: Tim.Cox@cern.ch <BR>
  * Ported to CMSSW 2006-04-03: Matteo.Sani@cern.ch <BR>
  *
- *  $Date: 2006/11/21 19:07:23 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/03/07 14:40:46 $
+ *  $Revision: 1.9 $
  *  \author M. Sani
  */
 
@@ -122,7 +122,7 @@ private:
     bool replaceHit(const CSCRecHit2D* h, int layer);
     void compareProtoSegment(const CSCRecHit2D* h, int layer);
     void increaseProtoSegment(const CSCRecHit2D* h, int layer);
-    HepMatrix derivativeMatrix(void) const;
+    CLHEP::HepMatrix derivativeMatrix(void) const;
     AlgebraicSymMatrix weightMatrix(void) const;
     AlgebraicSymMatrix calculateError(void) const;
     void flipErrors(AlgebraicSymMatrix&) const;

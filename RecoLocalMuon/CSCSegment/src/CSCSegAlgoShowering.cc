@@ -321,8 +321,8 @@ bool CSCSegAlgoShowering::addHit(const CSCRecHit2D* aHit, int layer) {
 void CSCSegAlgoShowering::updateParameters() {
 
   // Compute slope from Least Square Fit    
-  HepMatrix M(4,4,0);
-  HepVector B(4,0);
+  CLHEP::HepMatrix M(4,4,0);
+  CLHEP::HepVector B(4,0);
 
   ChamberHitContainer::const_iterator ih;
   
@@ -338,7 +338,7 @@ void CSCSegAlgoShowering::updateParameters() {
     double z = lp.z();
     
     // ptc: Covariance matrix of local errors 
-    HepMatrix IC(2,2);
+    CLHEP::HepMatrix IC(2,2);
     IC(1,1) = hit.localPositionError().xx();
     IC(1,2) = hit.localPositionError().xy();
     IC(2,2) = hit.localPositionError().yy();
@@ -376,7 +376,7 @@ void CSCSegAlgoShowering::updateParameters() {
     B(4)   += ( u * IC(2,1) + v * IC(2,2) ) * z;
   }
   
-  HepVector p = solve(M, B);
+  CLHEP::HepVector p = solve(M, B);
   
   // Update member variables 
   // Note that origin has local z = 0
@@ -403,7 +403,7 @@ void CSCSegAlgoShowering::updateParameters() {
     double du = protoIntercept.x() + protoSlope_u * z - u;
     double dv = protoIntercept.y() + protoSlope_v * z - v;
     
-    HepMatrix IC(2,2);
+    CLHEP::HepMatrix IC(2,2);
     IC(1,1) = hit.localPositionError().xx();
     IC(1,2) = hit.localPositionError().xy();
     IC(2,2) = hit.localPositionError().yy();
