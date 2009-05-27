@@ -66,10 +66,9 @@ strip_stripErrorSquared( const SiStripCluster& cluster, const float& projection)
 	case 6: sigma = invsqrt12;                                 break; */
   default: sigma = invsqrt12;                                 break;
   }
-  const float eta = wc.eta(crosstalk[wc.type]);
-  const float crossoverPoint = projection - wc.N/(1+fabs(eta));
-  const float offset = mix(   0.5*eta*projection,   wc.centroid(),   crossoverPoint);
-  const float sigma2 = mix(          sigma*sigma,           1/12.,   crossoverPoint);                     
+  const float crossoverPoint = projection - wc.maxProjection(crosstalk);
+  const float offset = mix(   0.5*projection*wc.eta(crosstalk),   wc.centroid(),   crossoverPoint);
+  const float sigma2 = mix(                        sigma*sigma,           1/12.,   crossoverPoint);                     
 
   return std::make_pair( wc.middle() + offset,  sigma2 );
 }
@@ -97,13 +96,19 @@ isMultiPeaked(const SiStripCluster& cluster, const float& projection) const {
 inline
 bool StripCPEgeometric::
 useNMinusOne(const WrappedCluster& wc, const float& projection) const {
-  if( projection < wc.N-2) return true;
-  if( wc.N-1 < projection) return false;
-  if( wc.N==2 || wc.N==3)  return wc.smallEdgeRatio() < edgeRatioCut[wc.type];
+  if( projection < wc.N-2) 
+    return true;
 
   WrappedCluster wcTest(wc);  
   wcTest.dropSmallerEdgeStrip();
-  return   fabs(  wcTest.dedxRatio(projection)-1 )   <   fabs(  wc.dedxRatio(projection)-1 ); 
+
+  if( projection > wcTest.maxProjection(crosstalk) ) 
+    return false;
+
+  if( wc.N==2 || wc.N==3)  
+    return wc.smallEdgeRatio() < edgeRatioCut[wc.type];
+
+  return fabs(  wcTest.dedxRatio(projection)-1 )   <   fabs(  wc.dedxRatio(projection)-1 ); 
 }
 
 inline
@@ -126,13 +131,14 @@ WrappedCluster(const SiStripCluster& cluster)
 
 inline
 float StripCPEgeometric::WrappedCluster::
-eta(const float& xtalk) const { 
+eta(const std::vector<float>& xtalk) const { 
+  const float x = xtalk[type];
   switch(N) {   /*   (Q_r-Q_l)/sumQ   */
   case  1: return 0;
-  case  2: return (1-xtalk)/(1-3*xtalk) * (*last-*first)/sumQ; 
-  case  3: return (1-2*xtalk-2*xtalk*xtalk/(1-2*xtalk)) * (*last-*first) / ((1-3*xtalk)*sumQ - xtalk* *(first+1));
-  default: return ((1-2*xtalk)*(*last-*first)-xtalk*(*(last-1)-*(first+1)+xtalk*xtalk*(*(last-2)-*(first+2)))) / 
-	     ((pow(1-2*xtalk,2)-xtalk*xtalk)*(sumQ-xtalk/(1-2*xtalk) * (*last+*first)));
+  case  2: return (1-x)/(1-3*x) * (*last-*first)/sumQ; 
+  case  3: return (1-2*x-2*x*x/(1-2*x)) * (*last-*first) / ((1-3*x)*sumQ - x* *(first+1));
+  default: return ((1-2*x)*(*last-*first)-x*(*(last-1)-*(first+1)+x*x*(*(last-2)-*(first+2)))) / 
+	     ((pow(1-2*x,2)-x*x)*(sumQ-x/(1-2*x) * (*last+*first)));
   }
 }
 
@@ -140,6 +146,11 @@ inline
 float StripCPEgeometric::WrappedCluster::
 middle() const 
 { return firstStrip + N/2.;}
+
+inline
+float StripCPEgeometric::WrappedCluster::
+maxProjection(const std::vector<float>& xtalk) const
+{ return N/(1+fabs(eta(xtalk))); }
 
 inline
 float StripCPEgeometric::WrappedCluster::
@@ -161,14 +172,8 @@ centroid() const {
 inline
 void StripCPEgeometric::WrappedCluster::
 dropSmallerEdgeStrip() {
-  if(*first<*last) {
-    firstStrip++;
-    sumQ-= *first;
-    first++;
-  }  else {
-    sumQ-= *last;
-    last--;
-  }
-  N--;
-  return;
+  if(*first == *last)   { sumQ-= *first; first++; firstStrip++; 
+                          sumQ-=  *last;  last--;                N-=2; } 
+  else if(*first<*last) { sumQ-= *first; first++; firstStrip++;  N-=1; }
+  else                  { sumQ-=  *last;  last--;                N-=1; }
 }

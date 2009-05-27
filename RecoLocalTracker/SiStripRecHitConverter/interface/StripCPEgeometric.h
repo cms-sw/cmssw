@@ -25,7 +25,8 @@ class StripCPEgeometric : public StripCPE
     WrappedCluster(const SiStripCluster&);
     uint16_t N;
     SiStripDetId::SubDetector type;
-    float eta(const float& xtalk=0) const;
+    float eta(const std::vector<float>&) const;
+    float maxProjection(const std::vector<float>&) const;
     float middle() const;
     float dedxRatio(const float&) const;
     float smallEdgeRatio() const;
