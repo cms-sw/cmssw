@@ -522,7 +522,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
       
       GsfElemIndex.insert(GsfElemIndex.end(),keyBremIndex.begin(),keyBremIndex.end());
       associatedToGsf_.insert(pair<unsigned int, vector<unsigned int> >(gsfIs[iEle],GsfElemIndex));
-      
+          
 
       // The BremMap
       for(unsigned int i =0;i<keyBremIndex.size();i++) {

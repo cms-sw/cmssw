@@ -33,11 +33,11 @@ particleFlow = cms.EDProducer("PFProducer",
 
     # Treatment of potential fake tracks
     # Number of sigmas for fake track detection
-    nsigma_TRACK = cms.double(3.0),
+    nsigma_TRACK = cms.double(2.0),
     # Absolute pt error to detect fake tracks in the first three iterations
     pt_Error = cms.double(1.0),
     # Factors to be applied in the four and fifth steps to the pt error
-    factors_45 = cms.vdouble(1.,1.),
+    factors_45 = cms.vdouble(10.,100.),
 
     # number of sigmas for neutral energy detection
     pf_nsigma_ECAL = cms.double(0.0),

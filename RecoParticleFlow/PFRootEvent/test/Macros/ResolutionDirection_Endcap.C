@@ -8,8 +8,8 @@
 
 
 TFile* filePF = new TFile("pfjetBenchmark.root");
-TH2F* etaPF2 = (TH2F*) filePF->Get("BDEtavsPt");
-TH2F* phiPF2 = (TH2F*) filePF->Get("BDPhivsPt");
+TH2F* etaPF2 = (TH2F*) filePF->Get("EDEtavsPt");
+TH2F* phiPF2 = (TH2F*) filePF->Get("EDPhivsPt");
 
 gStyle->SetOptStat(0);
 
@@ -72,6 +72,8 @@ vector<Float_t> rmsPhiPF;
 Int_t n = pts.size();
 for( unsigned i=0; i<n; ++i) {
 
+  etaPF[i]->Rebin(2);
+  phiPF[i]->Rebin(2);
   rmsEtaPF.push_back(etaPF[i]->GetRMS());    
   rmsPhiPF.push_back(phiPF[i]->GetRMS());    
 
@@ -147,8 +149,8 @@ text.SetTextColor(1);
 text.SetTextSize(0.03);
 text.DrawLatex(150,0.095,"0 < |#eta| < 1.5");
 
-gPad->SaveAs("EtaResolution.png");
-gPad->SaveAs("EtaResolution.pdf");
+gPad->SaveAs("EtaResolution_Endcap.png");
+gPad->SaveAs("EtaResolution_Endcap.pdf");
 
 
 
@@ -204,7 +206,7 @@ leg->Draw();
 
 text.DrawLatex(150,0.095,"0 < |#eta| < 1.5");
  
-gPad->SaveAs("PhiResolution.png");
-gPad->SaveAs("PhiResolution.pdf");
+gPad->SaveAs("PhiResolution_Endcap.png");
+gPad->SaveAs("PhiResolution_Endcap.pdf");
 
 }

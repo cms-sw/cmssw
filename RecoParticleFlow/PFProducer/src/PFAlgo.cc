@@ -1325,10 +1325,30 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	// Only active tracks
 	if ( !active[iTrack] ) continue;
 	// Consider only bad tracks
-	if ( fabs(it->first) < ptError_ ) break;
+	const reco::TrackRef& trackref = elements[it->second.first].trackRef();
+	double blowError = 1.;
+	switch (trackref->algo()) {
+	case TrackBase::ctf:
+	case TrackBase::iter0:
+	case TrackBase::iter1:
+	case TrackBase::iter2:
+	case TrackBase::iter3:
+	  blowError = 1.;
+	  break;
+	case TrackBase::iter4:
+	  blowError = factors45_[0];
+	  break;
+	case TrackBase::iter5:
+	  blowError = factors45_[1];
+	  break;
+	default:
+	  blowError = 1E9;
+	  break;
+	}
+	if ( fabs(it->first) * blowError < ptError_ ) break;
 	// What would become the block charged momentum if this track were removed
 	double wouldBeTotalChargedMomentum = 
-	  totalChargedMomentum - elements[it->second.first].trackRef()->p();
+	  totalChargedMomentum - trackref->p();
 	// Reject worst tracks, as long as the total charged momentum 
 	// is larger than the calo energy
 	if ( wouldBeTotalChargedMomentum > caloEnergy ) { 
@@ -1336,15 +1356,17 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  totalChargedMomentum = wouldBeTotalChargedMomentum;
 	  if ( debug_ )
 	    std::cout << "\tElement  " << elements[iTrack] 
-		      << " rejected (DPt = " << -it->first << " GeV/c)" << std::endl;
+		      << " rejected (DPt = " << -it->first 
+		      << " GeV/c, algo = " << trackref->algo() << ")" << std::endl;
 	// Just rescale the nth worst track momentum to equalize the calo energy
 	} else {	
 	  corrTrack = iTrack;
 	  corrFact = (caloEnergy - wouldBeTotalChargedMomentum)/elements[it->second.first].trackRef()->p();
-	  totalChargedMomentum -= elements[it->second.first].trackRef()->p()*(1.-corrFact);
+	  totalChargedMomentum -= trackref->p()*(1.-corrFact);
 	  if ( debug_ ) 
 	    std::cout << "\tElement  " << elements[iTrack] 
-		      << " rescaled by " << corrFact << std::endl;
+		      << " (algo = " << trackref->algo() 
+		      << ") rescaled by " << corrFact << std::endl;
 	  break;
 	}
       }
