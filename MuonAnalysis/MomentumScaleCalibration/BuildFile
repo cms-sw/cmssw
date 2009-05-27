@@ -29,7 +29,6 @@
 <export>
   <lib name=MuonAnalysisMomentumScaleCalibration>
   <use name=FWCore/Framework>
-  <use name=SimDataFormats/HepMCProduct>
   <use name=SimGeneral/HepPDTRecord>
   <use name=FWCore/Utilities>
   <use name=FWCore/ParameterSet>
