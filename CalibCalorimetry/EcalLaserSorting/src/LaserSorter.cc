@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-
 /*
- * $Id: LaserSorter.cc,v 1.9 2009/02/02 15:40:14 CalibCalorimetry Exp $
+ * $Id: LaserSorter.cc,v 1.1 2009/02/25 17:34:05 pgras Exp $
  */
 
 /***************************************************
@@ -606,7 +606,7 @@ LaserSorter::createOutStream(int fedId,
       cout << "[LaserSorter] Copying " << finalName << " to " << tmpName << endl;
       while(!in.eof()
             && (toRead > 0)
-            && (nread=in.readsome(buffer, min(toRead, sizeof(buffer))))!=0){
+            && (nread=in.readsome(buffer, min(toRead, (uint32_t)sizeof(buffer))))!=0){
 //         cout << "Writing " << nread << " bytes to file "
 //              << tmpName.c_str() << "\n";
         toRead -= nread;
