@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.30 2008/10/27 11:15:24 chamont Exp $
+// $Id: PixelHitMatcher.cc,v 1.31 2009/03/26 00:08:14 charlot Exp $
 //
 //
 
@@ -29,7 +29,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/PerpendicularBoundPlaneBuilder.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <typeinfo>  
@@ -117,8 +117,8 @@ class PhiCheck
      float refPhi_ ;
   } ;
       
-Hep3Vector point_to_vector( const GlobalPoint & p )
- { return Hep3Vector(p.x(),p.y(),p.z()) ; }
+CLHEP::Hep3Vector point_to_vector( const GlobalPoint & p )
+ { return CLHEP::Hep3Vector(p.x(),p.y(),p.z()) ; }
  
 //========================= compatible hits =========================
 
@@ -165,7 +165,7 @@ PixelHitMatcher::compatibleHits
        if(localDphi>CLHEP::pi)localDphi-=(2*CLHEP::pi);
        if(localDphi<-CLHEP::pi)localDphi+=(2*CLHEP::pi);
        if(fabs(localDphi)>2.5)continue;
-	Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
+	CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 			      m->forwardPredictedState().globalPosition().y(),
 			      m->forwardPredictedState().globalPosition().z());
 	LogDebug("") << "[PixelHitMatcher::compatibleHits] compatible hit position " << m->recHit()->globalPosition();
@@ -197,7 +197,7 @@ PixelHitMatcher::compatibleHits
 	if(localDphi>CLHEP::pi)localDphi-=(2*CLHEP::pi);
 	if(localDphi<-CLHEP::pi)localDphi+=(2*CLHEP::pi);
 	if(fabs(localDphi)>2.5)continue;
-        Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
+        CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 			      m->forwardPredictedState().globalPosition().y(),
 			      m->forwardPredictedState().globalPosition().z());
 	pred1Meas.push_back( prediction);
@@ -240,7 +240,7 @@ PixelHitMatcher::compatibleHits
 	  if(localDphi>CLHEP::pi)localDphi-=(2*CLHEP::pi);
 	  if(localDphi<-CLHEP::pi)localDphi+=(2*CLHEP::pi);
 	  if(fabs(localDphi)>2.5)continue;
-	  Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
+	  CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 				m->forwardPredictedState().globalPosition().y(),
 				m->forwardPredictedState().globalPosition().z());
 	  pred1Meas.push_back( prediction);
@@ -263,7 +263,7 @@ PixelHitMatcher::compatibleHits
 	    if(localDphi>CLHEP::pi)localDphi-=(2*CLHEP::pi);
 	    if(localDphi<-CLHEP::pi)localDphi+=(2*CLHEP::pi);
 	    if(fabs(localDphi)>2.5)continue;
-	    Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
+	    CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 				  m->forwardPredictedState().globalPosition().y(),
 				  m->forwardPredictedState().globalPosition().z());
 	    pred1Meas.push_back( prediction);
@@ -305,7 +305,7 @@ PixelHitMatcher::compatibleHits
     
     PixelMatchNextLayers secondHit(theLayerMeasurements, newLayer, secondFTS,
 				   prop2ndLayer, &meas2ndBLayer,&meas2ndFLayer,searchInTIDTEC_);
-    vector<Hep3Vector> predictions = secondHit.predictionInNextLayers();
+    vector<CLHEP::Hep3Vector> predictions = secondHit.predictionInNextLayers();
 
     for (unsigned it = 0; it < predictions.size(); it++) pred2Meas.push_back(predictions[it]); 
 
@@ -338,12 +338,12 @@ PixelHitMatcher::compatibleHits
 }
 
 
-vector<Hep3Vector> PixelHitMatcher::predicted1Hits() {
+vector<CLHEP::Hep3Vector> PixelHitMatcher::predicted1Hits() {
 
   return pred1Meas;
 }
 
-vector<Hep3Vector> PixelHitMatcher::predicted2Hits() {
+vector<CLHEP::Hep3Vector> PixelHitMatcher::predicted2Hits() {
 
   return pred2Meas;
 }

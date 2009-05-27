@@ -64,7 +64,7 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
     std::cout << " First track has no vertex " << std::endl;
   }
   
-  // HepLorentzVector primVtxPos= primVtx.position(); 
+  // CLHEP::HepLorentzVector primVtxPos= primVtx.position(); 
   math::XYZTLorentzVectorD primVtxPos(primVtx.position().x(),
                                       primVtx.position().y(),
                                       primVtx.position().z(),
@@ -158,9 +158,9 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
     
     
     // build pizero MC thruth
-    HepLorentzVector tmpMom( (*iPizTk).momentum().px(), (*iPizTk).momentum().py(),
+    CLHEP::HepLorentzVector tmpMom( (*iPizTk).momentum().px(), (*iPizTk).momentum().py(),
                              (*iPizTk).momentum().pz(), (*iPizTk).momentum().e() ) ;
-    HepLorentzVector tmpPos( primVtx.position().x(), primVtx.position().y(),
+    CLHEP::HepLorentzVector tmpPos( primVtx.position().x(), primVtx.position().y(),
                              primVtx.position().z(), primVtx.position().t() ) ;
     result.push_back( PizeroMCTruth (  tmpMom, photonsFromPizero, tmpPos ) );
     

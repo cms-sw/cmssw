@@ -17,7 +17,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.h,v 1.21 2008/10/27 11:15:23 chamont Exp $
+// $Id: PixelHitMatcher.h,v 1.22 2009/01/12 16:18:29 chamont Exp $
 //
 //
 
@@ -143,8 +143,8 @@ class PixelHitMatcher{
     ( TrajectorySeedCollection * seeds, const GlobalPoint & xmeas,
       const GlobalPoint & vprim, float energy, float charge ) ;
    
-  std::vector<Hep3Vector> predicted1Hits();
-  std::vector<Hep3Vector> predicted2Hits();
+  std::vector<CLHEP::Hep3Vector> predicted1Hits();
+  std::vector<CLHEP::Hep3Vector> predicted2Hits();
 
   void set1stLayer (float dummyphi1min, float dummyphi1max);
   void set1stLayerZRange (float zmin1, float zmax1);
@@ -156,8 +156,8 @@ class PixelHitMatcher{
 
   RecHitContainer hitsInTrack;
 
-  std::vector<Hep3Vector> pred1Meas;
-  std::vector<Hep3Vector> pred2Meas; 
+  std::vector<CLHEP::Hep3Vector> pred1Meas;
+  std::vector<CLHEP::Hep3Vector> pred2Meas; 
   FTSFromVertexToPointFactory myFTS;
   BarrelMeasurementEstimator meas1stBLayer;
   BarrelMeasurementEstimator meas2ndBLayer;

@@ -12,7 +12,7 @@
  *  This class stores all the MC truth information needed about the
  *  electrons
  * 
- *  $Date: $
+ *  $Date: 2007/06/08 10:48:59 $
  *  $Revision  $
  *  \author N. Marinelli  University of Notre Dame
 */
@@ -21,30 +21,30 @@ class ElectronMCTruth {
 
   public:
     ElectronMCTruth();
-    ElectronMCTruth( HepLorentzVector&  v, 
+    ElectronMCTruth( CLHEP::HepLorentzVector&  v, 
 		     int vertIndex,
-		     std::vector<Hep3Vector>& bremPos, 
-		     std::vector<HepLorentzVector>& pBrem, 
+		     std::vector<CLHEP::Hep3Vector>& bremPos, 
+		     std::vector<CLHEP::HepLorentzVector>& pBrem, 
 		     std::vector<float>& xbrem, 
-		     HepLorentzVector& pV,  
+		     CLHEP::HepLorentzVector& pV,  
 		     SimTrack& eTrack );
 
 
-    HepLorentzVector fourMomentum() const {return theElectron_;} 
-    HepLorentzVector primaryVertex() const {return thePrimaryVertex_;} 
-    std::vector<Hep3Vector> bremVertices() const { return theBremPosition_;}
-    std::vector<HepLorentzVector> bremMomentum() const { return theBremMomentum_;}
+    CLHEP::HepLorentzVector fourMomentum() const {return theElectron_;} 
+    CLHEP::HepLorentzVector primaryVertex() const {return thePrimaryVertex_;} 
+    std::vector<CLHEP::Hep3Vector> bremVertices() const { return theBremPosition_;}
+    std::vector<CLHEP::HepLorentzVector> bremMomentum() const { return theBremMomentum_;}
     std::vector<float>  eloss() const {return theELoss_;}
     SimTrack simTracks() const {return eTrack_;}     
     int vertexInd() const {return theVertexIndex_;}
 
  private:
-    HepLorentzVector theElectron_;
+    CLHEP::HepLorentzVector theElectron_;
     int theVertexIndex_;
-    std::vector<Hep3Vector> theBremPosition_;
-    std::vector<HepLorentzVector> theBremMomentum_;
+    std::vector<CLHEP::Hep3Vector> theBremPosition_;
+    std::vector<CLHEP::HepLorentzVector> theBremMomentum_;
     std::vector<float> theELoss_;
-    HepLorentzVector thePrimaryVertex_;
+    CLHEP::HepLorentzVector thePrimaryVertex_;
     SimTrack eTrack_;
 
 

@@ -12,8 +12,8 @@
  *  This class stores all the MC truth information needed about the
  *  conversion
  * 
- *  $Date: 2007/06/08 10:53:08 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/08/21 09:51:21 $
+ *  $Revision: 1.8 $
  *  \author N. Marinelli  University of Notre Dame
  *
  */
@@ -26,43 +26,43 @@ public:
   PhotonMCTruth() : isAConversion_(0),thePhoton_(0.,0.,0.), 
                        theConvVertex_(0.,0.,0.) {};
 
-  PhotonMCTruth(HepLorentzVector v) : thePhoton_(v) {};
+  PhotonMCTruth(CLHEP::HepLorentzVector v) : thePhoton_(v) {};
 
 
   PhotonMCTruth(int isAConversion,
-		HepLorentzVector v,
+		CLHEP::HepLorentzVector v,
                 int vertIndex,
                 int trackId,
                 int motherId,
-		HepLorentzVector mothMom, 
-		HepLorentzVector mothVtx, 
-		HepLorentzVector convVertex, 
-		HepLorentzVector pV, 
+		CLHEP::HepLorentzVector mothMom, 
+		CLHEP::HepLorentzVector mothVtx, 
+		CLHEP::HepLorentzVector convVertex, 
+		CLHEP::HepLorentzVector pV, 
 		std::vector<ElectronMCTruth>& electrons );
   
 
- HepLorentzVector primaryVertex() const {return thePrimaryVertex_;}
+ CLHEP::HepLorentzVector primaryVertex() const {return thePrimaryVertex_;}
  int isAConversion() const { return isAConversion_;}
- HepLorentzVector fourMomentum() const {return thePhoton_;}
+ CLHEP::HepLorentzVector fourMomentum() const {return thePhoton_;}
  int vertexInd() const {return theVertexIndex_;}
- HepLorentzVector vertex() const {return theConvVertex_;}
+ CLHEP::HepLorentzVector vertex() const {return theConvVertex_;}
  std::vector<ElectronMCTruth> electrons() const {return theElectrons_;} 
  int trackId() const {return theTrackId_;}  
  int motherType() const {return theMotherId_;}
- HepLorentzVector motherMomentum() const {return theMotherMom_;}
- HepLorentzVector motherVtx() const {return theMotherVtx_;}
+ CLHEP::HepLorentzVector motherMomentum() const {return theMotherMom_;}
+ CLHEP::HepLorentzVector motherVtx() const {return theMotherVtx_;}
 
  private:
 
   int isAConversion_;
-  HepLorentzVector thePhoton_;
+  CLHEP::HepLorentzVector thePhoton_;
   int theVertexIndex_;
   int theTrackId_;
   int theMotherId_;
-  HepLorentzVector theMotherMom_;
-  HepLorentzVector theMotherVtx_;
-  HepLorentzVector theConvVertex_;
-  HepLorentzVector thePrimaryVertex_;
+  CLHEP::HepLorentzVector theMotherMom_;
+  CLHEP::HepLorentzVector theMotherVtx_;
+  CLHEP::HepLorentzVector theConvVertex_;
+  CLHEP::HepLorentzVector thePrimaryVertex_;
   std::vector<ElectronMCTruth> theElectrons_;
 
 };

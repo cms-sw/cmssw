@@ -68,7 +68,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
     
   }
   
-  // HepLorentzVector primVtxPos= primVtx.position();
+  // CLHEP::HepLorentzVector primVtxPos= primVtx.position();
   math::XYZTLorentzVectorD primVtxPos(primVtx.position().x(),
                                        primVtx.position().y(),
                                        primVtx.position().z(),
@@ -207,8 +207,8 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
 	   
 	   //std::cout << " Parent to this vertex   motherId " << motherId << " mother type " <<  motherType << " Sim track ID " <<  theSimTracks[motherId].trackId() << std::endl;
 
-	   std::vector<Hep3Vector> bremPos;  
-	   std::vector<HepLorentzVector> pBrem;
+	   std::vector<CLHEP::Hep3Vector> bremPos;  
+	   std::vector<CLHEP::HepLorentzVector> pBrem;
 	   std::vector<float> xBrem;
 	   
 	   if ( theSimTracks[motherId].trackId() == (*iPhoTk).trackId() ) {
@@ -280,11 +280,11 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
 		     motherMomentum = (*iSimTk).momentum();
 		     
 		     
-		     pBrem.push_back( HepLorentzVector(trLast.momentum().px(),
+		     pBrem.push_back( CLHEP::HepLorentzVector(trLast.momentum().px(),
 		                                       trLast.momentum().py(),
 						       trLast.momentum().pz(),
 						       trLast.momentum().e()) );
-		     bremPos.push_back( HepLorentzVector(vertex1.position().x(),
+		     bremPos.push_back( CLHEP::HepLorentzVector(vertex1.position().x(),
 		                                         vertex1.position().y(),
 							 vertex1.position().z(),
 							 vertex1.position().t()) );
@@ -306,9 +306,9 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
 	     //std::cout << " Going to build the ElectronMCTruth for this electron from converted photon: pBrem size " << pBrem.size() << std::endl;
 	     /// here fill the electron
 
-	     HepLorentzVector tmpEleMom(primEleMom.px(),primEleMom.py(),
+	     CLHEP::HepLorentzVector tmpEleMom(primEleMom.px(),primEleMom.py(),
 	                                primEleMom.pz(),primEleMom.e() );
-	     HepLorentzVector tmpVtxPos(primVtxPos.x(),primVtxPos.y(),
+	     CLHEP::HepLorentzVector tmpVtxPos(primVtxPos.x(),primVtxPos.y(),
 	                                primVtxPos.z(),primVtxPos.t() );
 	     electronsFromConversions.push_back ( 
 	        ElectronMCTruth( tmpEleMom, eleVtxIndex,  bremPos, pBrem, 
@@ -328,8 +328,8 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
        //std::cout << " DEBUG trkFromConversion.size() " << trkFromConversion.size() << " electronsFromConversions.size() " << electronsFromConversions.size() << std::endl;
 
        math::XYZTLorentzVectorD motherVtxPosition(0.,0.,0.,0.);
-       HepLorentzVector phoMotherMom(0.,0.,0.,0.);
-       HepLorentzVector phoMotherVtx(0.,0.,0.,0.); 
+       CLHEP::HepLorentzVector phoMotherMom(0.,0.,0.,0.);
+       CLHEP::HepLorentzVector phoMotherVtx(0.,0.,0.,0.); 
 
        if ( phoMotherId >= 0) {
 	
@@ -370,10 +370,10 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
          
 	   
          //result.push_back( PhotonMCTruth(isAconversion, (*iPhoTk).momentum(), photonVertexIndex, phoTrkId, vtxPosition,   primVtx.position(), trkFromConversion ));
-	 HepLorentzVector tmpPhoMom( (*iPhoTk).momentum().px(), (*iPhoTk).momentum().py(),
+	 CLHEP::HepLorentzVector tmpPhoMom( (*iPhoTk).momentum().px(), (*iPhoTk).momentum().py(),
 	                             (*iPhoTk).momentum().pz(), (*iPhoTk).momentum().e() ) ;
-	 HepLorentzVector tmpVertex( vtxPosition.x(), vtxPosition.y(), vtxPosition.z(), vtxPosition.t() );
-	 HepLorentzVector tmpPrimVtx( primVtxPos.x(), primVtxPos.y(), primVtxPos.z(), primVtxPos.t() ) ;
+	 CLHEP::HepLorentzVector tmpVertex( vtxPosition.x(), vtxPosition.y(), vtxPosition.z(), vtxPosition.t() );
+	 CLHEP::HepLorentzVector tmpPrimVtx( primVtxPos.x(), primVtxPos.y(), primVtxPos.z(), primVtxPos.t() ) ;
 
 
 
@@ -384,9 +384,9 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
          isAconversion=0;
 	 //std::cout  << " UNCONVERTED photon " <<   "\n";    
 	 CLHEP::HepLorentzVector vtxPosition(0.,0.,0.,0.);
-	 HepLorentzVector tmpPhoMom( (*iPhoTk).momentum().px(), (*iPhoTk).momentum().py(),
+	 CLHEP::HepLorentzVector tmpPhoMom( (*iPhoTk).momentum().px(), (*iPhoTk).momentum().py(),
 	                             (*iPhoTk).momentum().pz(), (*iPhoTk).momentum().e() ) ;
-	 HepLorentzVector tmpPrimVtx( primVtxPos.x(), primVtxPos.y(), primVtxPos.z(), primVtxPos.t() ) ;
+	 CLHEP::HepLorentzVector tmpPrimVtx( primVtxPos.x(), primVtxPos.y(), primVtxPos.z(), primVtxPos.t() ) ;
 	 //	 result.push_back( PhotonMCTruth(isAconversion, (*iPhoTk).momentum(),  photonVertexIndex, phoTrkId, vtxPosition,   primVtx.position(), trkFromConversion ));
 	 result.push_back( PhotonMCTruth(isAconversion, tmpPhoMom,  photonVertexIndex, phoTrkId, phoMotherType, phoMotherMom, phoMotherVtx, vtxPosition,   
 	 tmpPrimVtx, electronsFromConversions ));

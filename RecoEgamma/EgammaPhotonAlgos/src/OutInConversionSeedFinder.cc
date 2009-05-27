@@ -20,8 +20,10 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 
 //
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Geometry/Point3D.h"
+#include "CLHEP/Geometry/Vector3D.h" 
+ #include "CLHEP/Geometry/Transform3D.h"  
 #include <cfloat>
 
 
@@ -207,8 +209,8 @@ std::pair<FreeTrajectoryState,bool>  OutInConversionSeedFinder::makeTrackState(i
 
   GlobalPoint  gpOrigine(theBeamSpot_.position().x(),theBeamSpot_.position().y(),theBeamSpot_.position().z()); 
   GlobalVector gvBcRadius = theBCPosition_ - gpOrigine ;
-  HepPoint3D radiusBc(gvBcRadius.x(),gvBcRadius.y(),gvBcRadius.z()) ;
-  HepPoint3D momentumWithoutCurvature = radiusBc.unit() * theBCEnergy_ ;
+  HepGeom::Point3D<double>  radiusBc(gvBcRadius.x(),gvBcRadius.y(),gvBcRadius.z()) ;
+  HepGeom::Point3D<double>  momentumWithoutCurvature = radiusBc.unit() * theBCEnergy_ ;
 
   // compute momentum direction at calo
   double curvature = theMF_->inTesla(theBCPosition_).z() * c_light * 1.e-3 / momentumWithoutCurvature.perp() ;
@@ -235,13 +237,13 @@ std::pair<FreeTrajectoryState,bool>  OutInConversionSeedFinder::makeTrackState(i
 
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeTrackState charge " << charge << " R " << R << " u/R " << u/R << " asin(0.5*u/R) " << asin(sinAlpha) << "\n";
 
-  HepTransform3D rotation =  HepRotate3D(newdphi, HepVector3D(0., 0. ,1.));
+  HepGeom::Transform3D rotation =  HepGeom::Rotate3D(newdphi, HepGeom::Vector3D<double> (0., 0. ,1.));
 
 
-  HepPoint3D momentumInTracker = momentumWithoutCurvature.transform(rotation) ;
+  HepGeom::Point3D<double>  momentumInTracker = momentumWithoutCurvature.transform(rotation) ;
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeTrackState  R " << R << " r " << r << " rho " << rho  << " d " << d  << " u " << u << " newdphi " << newdphi << " momentumInTracker " <<  momentumInTracker << "\n";
 
-  HepPoint3D hepStartingPoint(gpOrigine.x(), gpOrigine.y(), gpOrigine.z()) ;
+  HepGeom::Point3D<double>  hepStartingPoint(gpOrigine.x(), gpOrigine.y(), gpOrigine.z()) ;
 
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeTrackState hepStartingPoint " << hepStartingPoint << "\n";
 

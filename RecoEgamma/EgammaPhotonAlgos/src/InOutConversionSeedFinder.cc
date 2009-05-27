@@ -23,7 +23,7 @@
 //
 #include "FWCore/Framework/interface/EventSetup.h"
 //
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Geometry/Point3D.h"
 
 InOutConversionSeedFinder::InOutConversionSeedFinder( const edm::ParameterSet& conf ):

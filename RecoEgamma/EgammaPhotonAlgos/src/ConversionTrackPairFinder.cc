@@ -13,7 +13,7 @@
 
 #include "DataFormats/EgammaTrackReco/interface/TrackCaloClusterAssociation.h"
 //
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include <TMath.h>
 #include <vector>
 #include <map>

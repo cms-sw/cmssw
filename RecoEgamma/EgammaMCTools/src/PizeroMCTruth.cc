@@ -10,9 +10,9 @@ PizeroMCTruth::PizeroMCTruth() {
 }
 
 
-PizeroMCTruth::PizeroMCTruth( const HepLorentzVector& pizeroFourMomentum, 
+PizeroMCTruth::PizeroMCTruth( const CLHEP::HepLorentzVector& pizeroFourMomentum, 
 			      std::vector<PhotonMCTruth>& photons,
-			      const HepLorentzVector& pV):  
+			      const CLHEP::HepLorentzVector& pV):  
 			      
   thePizero_(pizeroFourMomentum), thePhotons_(photons), thePrimaryVertex_(pV) {}
 

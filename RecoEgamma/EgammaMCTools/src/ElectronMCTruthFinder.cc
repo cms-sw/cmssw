@@ -57,7 +57,7 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
     //std::cout << " First track has no vertex " << std::endl;
   }
   
-  // HepLorentzVector primVtxPos= primVtx.position(); 
+  // CLHEP::HepLorentzVector primVtxPos= primVtx.position(); 
   math::XYZTLorentzVectorD primVtxPos(primVtx.position().x(),
                                       primVtx.position().y(),
                                       primVtx.position().z(),
@@ -121,8 +121,8 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
 
 
   /// Now store the electron truth 
-  std::vector<Hep3Vector> bremPos;  
-  std::vector<HepLorentzVector> pBrem;
+  std::vector<CLHEP::Hep3Vector> bremPos;  
+  std::vector<CLHEP::HepLorentzVector> pBrem;
   std::vector<float> xBrem;
  
   
@@ -134,8 +134,8 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
     SimTrack trLast =(*iEleTk); 
     int eleId = (*iEleTk).trackId();
     float remainingEnergy =trLast.momentum().e();
-//    HepLorentzVector motherMomentum = (*iEleTk).momentum();
-//    HepLorentzVector primEleMom = (*iEleTk).momentum();
+//    CLHEP::HepLorentzVector motherMomentum = (*iEleTk).momentum();
+//    CLHEP::HepLorentzVector primEleMom = (*iEleTk).momentum();
     math::XYZTLorentzVectorD motherMomentum((*iEleTk).momentum().x(),
                                             (*iEleTk).momentum().y(),
                                             (*iEleTk).momentum().z(),
@@ -193,9 +193,9 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
 	    motherMomentum = (*iSimTk).momentum();
 	    
 	    
-	    pBrem.push_back( HepLorentzVector(trLast.momentum().px(),trLast.momentum().py(),
+	    pBrem.push_back( CLHEP::HepLorentzVector(trLast.momentum().px(),trLast.momentum().py(),
 	                                      trLast.momentum().pz(),trLast.momentum().e()) );
-	    bremPos.push_back( HepLorentzVector(vertex1.position().x(),vertex1.position().y(),
+	    bremPos.push_back( CLHEP::HepLorentzVector(vertex1.position().x(),vertex1.position().y(),
 	                                        vertex1.position().z(),vertex1.position().t()) );
 	    xBrem.push_back(eLoss);
 	    
@@ -214,9 +214,9 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
     } // End loop over all SimTracks 
     //std::cout << " Going to build the ElectronMCTruth: pBrem size " << pBrem.size() << std::endl;
     /// here fill the electron
-    HepLorentzVector tmpEleMom(primEleMom.px(),primEleMom.py(),
+    CLHEP::HepLorentzVector tmpEleMom(primEleMom.px(),primEleMom.py(),
                                primEleMom.pz(),primEleMom.e() ) ;
-    HepLorentzVector tmpVtxPos(primVtxPos.x(),primVtxPos.y(),primVtxPos.z(),primVtxPos.t());
+    CLHEP::HepLorentzVector tmpVtxPos(primVtxPos.x(),primVtxPos.y(),primVtxPos.z(),primVtxPos.t());
     result.push_back ( ElectronMCTruth( tmpEleMom, eleVtxIndex,  bremPos, pBrem, xBrem,  tmpVtxPos,(*iEleTk)  )  ) ;
 
     

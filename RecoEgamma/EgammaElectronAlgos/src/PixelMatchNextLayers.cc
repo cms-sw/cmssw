@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchNextLayers.cc,v 1.10 2008/04/09 15:22:23 charlot Exp $
+// $Id: PixelMatchNextLayers.cc,v 1.11 2008/10/02 13:12:53 charlot Exp $
 //
 //
 
@@ -76,7 +76,7 @@ PixelMatchNextLayers::PixelMatchNextLayers(const LayerMeasurements * theLayerMea
 	    }
 	    for (aMeas m=pixelMeasurements.begin(); m!=pixelMeasurements.end(); m++){
 	      if (m == pixelMeasurements.begin()){
-		Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
+		CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 				      m->forwardPredictedState().globalPosition().y(),
 				      m->forwardPredictedState().globalPosition().z());
 		predictionHere.push_back( prediction);
@@ -105,7 +105,7 @@ PixelMatchNextLayers::PixelMatchNextLayers(const LayerMeasurements * theLayerMea
 		  if (TIDDetId(m->recHit()->geographicalId()).ring() > 1) continue;
 		  if (m == pixelMeasurements.begin())
 		    {
-		      Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
+		      CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 					    m->forwardPredictedState().globalPosition().y(),
 					    m->forwardPredictedState().globalPosition().z());
 		      predictionHere.push_back( prediction);
@@ -132,7 +132,7 @@ PixelMatchNextLayers::PixelMatchNextLayers(const LayerMeasurements * theLayerMea
 		  if (TECDetId(m->recHit()->geographicalId()).wheel() > 3) continue;
 		  if (m == pixelMeasurements.begin())
 		    {
-		      Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
+		      CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 					    m->forwardPredictedState().globalPosition().y(),
 					    m->forwardPredictedState().globalPosition().z());
 		      predictionHere.push_back( prediction);
@@ -169,7 +169,7 @@ TransientTrackingRecHit::RecHitContainer PixelMatchNextLayers::hitsInNextLayers(
   return hitsHere;
 }
 
-std::vector<Hep3Vector> PixelMatchNextLayers::predictionInNextLayers() const {
+std::vector<CLHEP::Hep3Vector> PixelMatchNextLayers::predictionInNextLayers() const {
 
   return predictionHere;
 }

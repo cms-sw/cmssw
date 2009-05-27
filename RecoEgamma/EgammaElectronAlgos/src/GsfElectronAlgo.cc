@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.64 2009/05/20 13:57:40 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.65 2009/05/26 23:38:05 charlot Exp $
 //
 //
 
@@ -66,7 +66,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include <TMath.h>
 #include <Math/VectorUtil.h>
 #include <Math/Point3D.h>
