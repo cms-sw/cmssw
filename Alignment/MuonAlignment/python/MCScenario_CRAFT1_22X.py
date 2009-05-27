@@ -235,7 +235,7 @@ def define_scenario():
     #    2. isotropic photogrammetry uncertainty of 0.03 cm (x, y, z) and 0.00015 rad in phiz
     #    3. 0.0023 rad phiy misalignment observed with beam-halo tracks
     #    4. 0.1438 cm z and 0.00057 rad phix uncertainty between rings from SLM (from comparison in 0T data with PG)
-    #    5. 0.5 cm (x, y, z) disk misalignments and 0.001 rad rotation around beamline
+    #    5. 0.05 cm (x, y, z) disk misalignments and 0.0001 rad rotation around beamline
 
     # Before starting, let's build a list of chambers
     CSCchambers = []
@@ -285,7 +285,7 @@ def define_scenario():
     for endcap in 1, 2:
         for station in 1, 2, 3, 4:
             alignable = Alignable("CSCStation", endcap = endcap, station = station)
-            position = Position(x = random.gauss(0, 0.5), y = random.gauss(0, 0.5), z = random.gauss(0, 0.5), phix = 0., phiy = 0., phiz = random.gauss(0, 0.001))
+            position = Position(x = random.gauss(0, 0.05), y = random.gauss(0, 0.05), z = random.gauss(0, 0.05), phix = 0., phiy = 0., phiz = random.gauss(0, 0.0001))
             scenario.append(Operation(alignable, position))
 
     return scenario
