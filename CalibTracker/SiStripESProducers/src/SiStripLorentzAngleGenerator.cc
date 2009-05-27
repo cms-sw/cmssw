@@ -97,7 +97,7 @@ bool SiStripLorentzAngleGenerator::setEstimatedValues(const vector<double> & est
 
 void SiStripLorentzAngleGenerator::setHallMobility(const double * estimatedValue, const double & stdDev, const bool uniform)
 {
-  if( uniform ) hallMobility_ = RandFlat::shoot(estimatedValue[0], estimatedValue[1]);
-  else if( stdDev > 0 ) hallMobility_ = RandGauss::shoot(estimatedValue[0], stdDev);
+  if( uniform ) hallMobility_ = CLHEP::RandFlat::shoot(estimatedValue[0], estimatedValue[1]);
+  else if( stdDev > 0 ) hallMobility_ = CLHEP::RandGauss::shoot(estimatedValue[0], stdDev);
   else hallMobility_ = estimatedValue[0];
 }

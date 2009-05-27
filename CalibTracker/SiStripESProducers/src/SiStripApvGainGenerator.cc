@@ -45,7 +45,7 @@ void SiStripApvGainGenerator::createObject(){
       if(genMode=="default")
 	gainValue=1.;
       else{
-	gainValue = RandGauss::shoot(meanGain_, sigmaGain_);
+	gainValue = CLHEP::RandGauss::shoot(meanGain_, sigmaGain_);
 	if(gainValue<=minimumPosValue_) gainValue=minimumPosValue_;
       } 
 	
