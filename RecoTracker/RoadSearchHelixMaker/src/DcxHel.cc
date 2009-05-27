@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxHel.cc,v 1.3 2006/03/31 23:28:42 gutsche Exp $
+// 	$Id: DcxHel.cc,v 1.4 2006/04/10 22:06:41 stevew Exp $
 //
 // Description:
 //	Class Implementation for |DcxHel|
@@ -243,8 +243,8 @@ DcxHel::Doca( double wx, double wy, double wz,
 {
   // describe wire
 //  edm::LogInfo("RoadSearch") << " In Doca, xi = " << xi << " yi = " << yi << " zi = " << zi ;
-  Hep3Vector ivec(xi,yi,zi); 
-  wvec=Hep3Vector(wx,wy,wz);
+  CLHEP::Hep3Vector ivec(xi,yi,zi); 
+  wvec=CLHEP::Hep3Vector(wx,wy,wz);
 //  edm::LogInfo("RoadSearch") << " In Doca, wx = " << wx << " wy = " << wy << " wz = " << wz ;
   //  calculate len to doca
   double zd,xd=xi,yd=yi;
@@ -279,13 +279,13 @@ DcxHel::Doca( double wx, double wy, double wz,
       if ( (0.0==wx) && (0.0==wy) )break; if (dlen < 0.000001)break; itry--;
     }else{len=(xi-xref)*cphi0+(yi-yref)*sphi0; zh=z0+tanl*len; phi=phi0; break;}
   }
-  //  Hep3Vector Dvec(xd,yd,zd);
-  xh=Xh(len); yh=Yh(len); Hep3Vector hvec(xh,yh,zh);
+  //  CLHEP::Hep3Vector Dvec(xd,yd,zd);
+  xh=Xh(len); yh=Yh(len); CLHEP::Hep3Vector hvec(xh,yh,zh);
 //  edm::LogInfo("RoadSearch") << " In Doca, xh = " << xh << " yh = " << yh << " zh = " << zh ;
   double lamb=atan(tanl); cosl=cos(lamb); sinl=sin(lamb);
   tx=cosl*cos(phi); ty=cosl*sin(phi); tz=sinl; 
-  tvec=Hep3Vector(tx,ty,tz); 
-  Hep3Vector vvec=wvec.cross(tvec); 
+  tvec=CLHEP::Hep3Vector(tx,ty,tz); 
+  CLHEP::Hep3Vector vvec=wvec.cross(tvec); 
   vhat=vvec.unit(); vx=vhat.x(); vy=vhat.y(); vz=vhat.z();
 //  edm::LogInfo("RoadSearch") << " In Doca, vx = " << vx << " vy = " << vy << " vz = " << vz ;
   dvec=ivec-hvec; double doca=dvec*vhat;

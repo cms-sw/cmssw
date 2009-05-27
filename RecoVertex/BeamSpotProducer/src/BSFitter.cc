@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BSFitter.cc,v 1.4 2007/03/29 16:56:05 yumiceva Exp $
+ version $Id: BSFitter.cc,v 1.5 2009/03/18 14:39:41 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -16,7 +16,7 @@ ________________________________________________________________**/
 #include "Minuit2/MnPrint.h"
 #include "Minuit2/MnMigrad.h"
 #include "Minuit2/MnUserParameterState.h"
-#include "CLHEP/config/CLHEP.h"
+//#include "CLHEP/config/CLHEP.h"
 
 // C++ standard
 #include <vector>

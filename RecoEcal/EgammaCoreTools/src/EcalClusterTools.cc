@@ -347,7 +347,7 @@ std::vector<EcalClusterTools::EcalClusterEnergyDeposition> EcalClusterTools::get
         // in the transverse plane, axis perpendicular to clusterDir
         CLHEP::Hep3Vector theta_axis(clDir.y(),-clDir.x(),0.0);
         theta_axis *= 1.0/theta_axis.mag();
-        Hep3Vector phi_axis = theta_axis.cross(clDir);
+        CLHEP::Hep3Vector phi_axis = theta_axis.cross(clDir);
 
         std::vector< std::pair<DetId, float> > clusterDetIds = cluster.hitsAndFractions();
 

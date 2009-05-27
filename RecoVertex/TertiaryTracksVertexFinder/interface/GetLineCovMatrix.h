@@ -23,8 +23,8 @@ class GetLineCovMatrix {
 
   GlobalPoint PointOne;
   GlobalPoint PointTwo;
-  HepMatrix CombinedErrorMatrix; // CombinedErrorMatrix of the two points that define the straight line   
-  HepMatrix B;                   // derivatives of the linear equation
+  CLHEP::HepMatrix CombinedErrorMatrix; // CombinedErrorMatrix of the two points that define the straight line   
+  CLHEP::HepMatrix B;                   // derivatives of the linear equation
 
 };
 

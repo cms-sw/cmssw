@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxHel.hh,v 1.15 2004/08/06 05:58:22 bartoldu Exp $
+// 	$Id: DcxHel.hh,v 1.2 2006/03/22 22:47:37 stevew Exp $
 //
 // Description:
 //	Class Header for |DcxHel| and |DcxFittedHel| - helix fitting classes
@@ -167,7 +167,7 @@ int  turnflag;
 //invisible data (calculated by Doca; used by other fcns which first call
 //Doca or assume Doca is already called)
 double len,phi,xh,yh,zh,vx,vy,vz,cosl,sinl,f0,tx,ty,tz;
-Hep3Vector wvec,tvec,vhat,dvec;
+CLHEP::Hep3Vector wvec,tvec,vhat,dvec;
 int samb,wamb; double eang;
 
 //utility functions

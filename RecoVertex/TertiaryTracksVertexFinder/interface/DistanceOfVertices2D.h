@@ -14,7 +14,7 @@ public:
   virtual ~DistanceOfVertices2D () {}
 
   virtual Measurement1D distance       ( const TransientVertex & , const TransientVertex &                )  ;
-  virtual Measurement1D signedDistance ( const TransientVertex & , const TransientVertex & , const Hep3Vector & )  ;
+  virtual Measurement1D signedDistance ( const TransientVertex & , const TransientVertex & , const CLHEP::Hep3Vector & )  ;
 
  private:
   

@@ -170,7 +170,7 @@ pair<double,Measurement1D> SignedImpactParameter3D::distanceWithJetAxis(const Tr
 
     GlobalVector H((jetVector.cross(dir).unit()));
     
-    HepVector Hh(3);
+    CLHEP::HepVector Hh(3);
     Hh[0] = H.x();
     Hh[1] = H.y();
     Hh[2] = H.z();

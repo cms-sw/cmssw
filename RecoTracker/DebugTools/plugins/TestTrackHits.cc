@@ -535,7 +535,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      AlgebraicSymMatrix ger = rhit->globalPositionError().matrix();
 	      GlobalPoint gps = surf->toGlobal(m->localPosition());
 	      LogVerbatim("TestTrackHits") << gpr << " " << gps << " " << ger;
-	      HepVector delta(3);
+	      CLHEP::HepVector delta(3);
 	      delta[0]=gpr.x()-gps.x();
 	      delta[1]=gpr.y()-gps.y();
 	      delta[2]=gpr.z()-gps.z();

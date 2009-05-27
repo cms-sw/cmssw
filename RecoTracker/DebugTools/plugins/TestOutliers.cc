@@ -13,7 +13,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Mon Sep 17 10:31:30 CEST 2007
-// $Id: TestOutliers.cc,v 1.5 2009/03/04 13:34:24 vlimant Exp $
+// $Id: TestOutliers.cc,v 1.6 2009/03/08 01:57:25 dlange Exp $
 //
 //
 
@@ -757,7 +757,7 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 		      //AlgebraicSymMatrix ger = rhit->globalPositionError().matrix();
 		      GlobalPoint gps = theG->idToDet((*itHit)->geographicalId())->surface().toGlobal(m->localPosition());
 		      //LogTrace("TestOutliers") << gpr << " " << gps << " " << ger;
-		      HepVector delta(3);
+		      CLHEP::HepVector delta(3);
 		      delta[0]=gpos.x()-gps.x();
 		      delta[1]=gpos.y()-gps.y();
 		      delta[2]=gpos.z()-gps.z();

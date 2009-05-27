@@ -28,11 +28,11 @@ Measurement1D DistanceOfVertices2D::distance ( const TransientVertex & v1 , cons
 }
 
 
-Measurement1D DistanceOfVertices2D::signedDistance ( const TransientVertex & v1 , const TransientVertex & v2 , const Hep3Vector & direction ) {
+Measurement1D DistanceOfVertices2D::signedDistance ( const TransientVertex & v1 , const TransientVertex & v2 , const CLHEP::Hep3Vector & direction ) {
   // give a sign to the distance of Vertices v1 and v2:
   // + if (v2-v1) is along direction, - if in opposite direction
   
-  Hep3Vector v1ToV2 = deltaV2V1 ( v1, v2 ) ;
+  CLHEP::Hep3Vector v1ToV2 = deltaV2V1 ( v1, v2 ) ;
   int sign2d = -1 ;
   if ( ( direction.x()*v1ToV2.x() + direction.y()*v1ToV2.y() ) > 0 )  sign2d = 1 ;
   

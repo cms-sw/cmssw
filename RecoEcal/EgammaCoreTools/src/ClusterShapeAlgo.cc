@@ -14,7 +14,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 ClusterShapeAlgo::ClusterShapeAlgo(const std::map<std::string,double> & passedParameterMap) : parameterMap_(passedParameterMap) {}
 
@@ -606,7 +606,7 @@ void ClusterShapeAlgo::Calculate_EnergyDepTopology (const reco::BasicCluster &pa
   // in the transverse plane, axis perpendicular to clusterDir
   CLHEP::Hep3Vector theta_axis(clDir.y(),-clDir.x(),0.0);
   theta_axis *= 1.0/theta_axis.mag();
-  Hep3Vector phi_axis = theta_axis.cross(clDir);
+  CLHEP::Hep3Vector phi_axis = theta_axis.cross(clDir);
 
   std::vector< std::pair<DetId, float> > clusterDetIds = passedCluster.hitsAndFractions();
 
