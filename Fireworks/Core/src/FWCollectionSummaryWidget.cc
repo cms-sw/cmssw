@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:32 CST 2009
-// $Id: FWCollectionSummaryWidget.cc,v 1.10 2009/05/01 02:01:34 dmytro Exp $
+// $Id: FWCollectionSummaryWidget.cc,v 1.11 2009/05/20 20:42:13 chrjones Exp $
 //
 
 // system include files
@@ -333,9 +333,10 @@ FWCollectionSummaryWidget::itemChanged()
 }
 
 void 
-FWCollectionSummaryWidget::colorChangeRequested(Pixel_t iPixel)
+FWCollectionSummaryWidget::colorChangeRequested(Int_t iIndex)
 {
-   Color_t color(TColor::GetColor(iPixel));
+   FWColorManager* cm = m_collection->colorManager();
+   Color_t color =cm->indexToColor(iIndex);
    if(-1 == m_indexForColor) {
       const FWDisplayProperties changeProperties(color, m_collection->defaultDisplayProperties().isVisible());
       m_collection->setDefaultDisplayProperties(changeProperties);
@@ -436,7 +437,7 @@ FWCollectionSummaryWidget::createColorPopup()
       
       m_colorPopup = new FWColorPopup(gClient->GetDefaultRoot(), selection);
       m_colorPopup->InitContent(m_collection->name().c_str(), colors);
-      m_colorPopup->Connect("ColorBookkeeping(Int_t)","FWCollectionSummaryWidget", this, "colorChangeRequested(Pixel_t)");
+      m_colorPopup->Connect("ColorBookkeeping(Int_t)","FWCollectionSummaryWidget", this, "colorChangeRequested(Int_t)");
    }   
 }
 

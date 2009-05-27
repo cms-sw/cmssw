@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:30 CST 2009
-// $Id: FWCollectionSummaryWidget.h,v 1.1 2009/03/04 16:40:50 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.h,v 1.2 2009/04/09 21:17:52 chrjones Exp $
 //
 
 // system include files
@@ -63,7 +63,7 @@ public:
    //pass true if white or false if black
    void setBackgroundToWhite(bool);
    
-   void colorChangeRequested(Pixel_t);
+   void colorChangeRequested(Int_t iColorIndex);
    void toggleItemVisible();
    void toggleShowHide();
    void colorClicked();
