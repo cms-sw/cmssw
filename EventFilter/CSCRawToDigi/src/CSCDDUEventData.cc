@@ -32,9 +32,9 @@ CSCDDUEventData::~CSCDDUEventData()
 }
 
 
-void CSCDDUEventData::add(CSCEventData & cscData, int dmbId, int dduId) 
+void CSCDDUEventData::add(CSCEventData & cscData, int dmbId, int dduInput) 
 {
-  theDDUHeader.setDMBDAV(dduId);
+  theDDUHeader.setDMBDAV(dduInput);
   //@@ Tim: The following sets the word which is supposed to be CSCs in error, with bit 15 set for DMB Full
   //@@ so I think sim should not set it at all
   //@@  theDDUTrailer.setDMBDAV(dmbId);

@@ -1,6 +1,10 @@
-/// CSCDCCEventData.cc
-/// 01/20/05 
-/// A.Tumanov
+/** \file CSCDCCEventData.cc
+ *
+ *  $Date: 2009/05/20 09:31:43 $
+ *  $Revision: 1.29 $
+ *  \author A. Tumanov - Rice - But long, long ago...
+ *
+ */
 
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -93,7 +97,7 @@ bool CSCDCCEventData::check() const
 }
 
 
-void CSCDCCEventData::addChamber(CSCEventData & chamber, int dduID, int dduSlot, int dmbID)
+void CSCDCCEventData::addChamber(CSCEventData & chamber, int dduID, int dduSlot, int dduInput, int dmbID)
 {
   // first, find this DDU
   std::vector<CSCDDUEventData>::iterator dduItr;
@@ -112,7 +116,7 @@ void CSCDCCEventData::addChamber(CSCEventData & chamber, int dduID, int dduSlot,
     dduIndex = nDDUs;
     dccHeader().setDAV(dduSlot);
   }
-  theDDUData[dduIndex].add(chamber, dmbID, dduID);
+  theDDUData[dduIndex].add( chamber, dmbID, dduInput );
 }
  
 

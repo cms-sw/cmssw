@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/04/15 11:29:49 $
- *  $Revision: 1.37 $
+ *  $Date: 2009/05/20 09:31:43 $
+ *  $Revision: 1.38 $
  *  \author A. Tumanov - Rice
  *  But long, long ago...
  */
@@ -213,18 +213,19 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
       int indexDCC = mapping->slink(chamberItr->first);
       if(indexDCC == idcc)
       {
-        //FIXME
+        //FIXME (What does this mean? Is something wrong?)
         std::map<int, CSCDCCEventData>::iterator dccMapItr = dccMap.find(indexDCC);
         if(dccMapItr == dccMap.end())
         {
           throw cms::Exception("CSCDigiToRaw") << "Bad DCC number:" << indexDCC;
         } 
-        // get ddu id based on ChamberId from mapping
+        // get id's based on ChamberId from mapping
 
-        int dduId = mapping->ddu(chamberItr->first);
-        int dduSlot = mapping->dduSlot(chamberItr->first);
-        int dmbId = mapping->dmb(chamberItr->first);
-        dccMapItr->second.addChamber(chamberItr->second, dduId, dduSlot, dmbId);
+        int dduId    = mapping->ddu(chamberItr->first);
+        int dduSlot  = mapping->dduSlot(chamberItr->first);
+        int dduInput = mapping->dduInput(chamberItr->first);
+        int dmbId    = mapping->dmb(chamberItr->first);
+        dccMapItr->second.addChamber(chamberItr->second, dduId, dduSlot, dduInput, dmbId);
       }
     }
   }
