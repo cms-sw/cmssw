@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.23 2009/05/17 14:12:16 mulders Exp $
+// $Id: MuonSimHitProducer.cc,v 1.24 2009/05/20 09:03:02 mulders Exp $
 //
 //
 
@@ -70,7 +70,7 @@
 // #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
 //for debug only 
-//#define FAMOS_DEBUG
+#define FAMOS_DEBUG
 
 //
 // constructors and destructor
@@ -120,8 +120,8 @@ MuonSimHitProducer::beginRun(edm::Run & run, const edm::EventSetup & es) {
   edm::ESHandle<Propagator>             propagator;
 
   es.get<IdealMagneticFieldRecord>().get(magField);
-  es.get<MuonGeometryRecord>().get(dtGeometry);
-  es.get<MuonGeometryRecord>().get(cscGeometry);
+  es.get<MuonGeometryRecord>().get("MisAligned",dtGeometry);
+  es.get<MuonGeometryRecord>().get("MisAligned",cscGeometry);
   es.get<MuonGeometryRecord>().get(rpcGeometry);
 
   magfield = &(*magField);

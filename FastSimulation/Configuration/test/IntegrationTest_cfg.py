@@ -41,6 +41,8 @@ process.hfreco.doMiscalib = True
 # Apply Tracker misalignment
 process.famosSimHits.ApplyAlignment = True
 process.misalignedTrackerGeometry.applyAlignment = True
+process.misalignedDTGeometry.applyAlignment = True
+process.misalignedCSCGeometry.applyAlignment = True
 
 #  Attention ! for the HCAL IDEAL==STARTUP
 #process.caloRecHits.RecHitsFactory.HCAL.Refactor = 1.0
