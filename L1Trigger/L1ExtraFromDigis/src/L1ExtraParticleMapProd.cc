@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 16 23:19:38 EDT 2006
-// $Id: L1ExtraParticleMapProd.cc,v 1.28 2007/08/08 03:49:05 wsun Exp $
+// $Id: L1ExtraParticleMapProd.cc,v 1.29 2009/03/26 03:58:28 wsun Exp $
 //
 //
 
@@ -1848,7 +1848,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
       {
 //	 if( prescaleCounters_[ itrig ] % prescales_[ itrig ] )
 
-	 double rand = RandFlat::shoot() * ( double ) prescales_[ itrig ] ;
+	 double rand = CLHEP::RandFlat::shoot() * ( double ) prescales_[ itrig ] ;
 	 if( rand > 1. )
 	 {
 	    decision = false ;
