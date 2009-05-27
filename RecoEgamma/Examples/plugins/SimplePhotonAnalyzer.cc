@@ -1,7 +1,7 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: 2008/12/08 22:33:47 $
- ** $Revision: 1.18 $
+ ** $Date: 2009/03/06 12:42:16 $
+ ** $Revision: 1.19 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 
@@ -23,7 +23,7 @@
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 //
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "TFile.h"
 
 //========================================================================

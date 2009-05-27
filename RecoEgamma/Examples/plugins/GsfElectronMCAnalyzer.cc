@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.18 2009/04/14 13:05:26 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.19 2009/04/15 14:24:50 charlot Exp $
 //
 //
 
@@ -34,7 +34,7 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include <iostream>
 #include "TMath.h"
 #include "TFile.h"

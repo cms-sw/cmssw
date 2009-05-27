@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronFakeAnalyzer.cc,v 1.14 2009/04/14 13:05:26 charlot Exp $
+// $Id: GsfElectronFakeAnalyzer.cc,v 1.15 2009/04/15 14:24:50 charlot Exp $
 //
 //
 
@@ -35,7 +35,7 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include <iostream>
 #include "TMath.h"
 #include "TFile.h"
