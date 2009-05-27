@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.77 2009/05/17 06:15:43 jmuelmen Exp $
+// $Id: CmsShowMain.cc,v 1.78 2009/05/17 12:29:29 amraktad Exp $
 //
 
 // system include files
@@ -217,7 +217,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
             printf("No configiguration is loaded, show everything.\n");
             m_configFileName = "";
          } else {
-            m_configFileName = "src/Fireworks/Core/data/default.fwc";
+            m_configFileName = "src/Fireworks/Core/macros/default.fwc";
          }
       }
 
@@ -637,6 +637,7 @@ CmsShowMain::setupConfiguration()
    } else {
       char* whereConfig = gSystem->Which(TROOT::GetMacroPath(), m_configFileName.c_str(), kReadPermission);
       if(0==whereConfig) {
+         std::cerr <<"unable to load configuration file '"<<m_configFileName<<"' will load default instead"<<std::endl;
          m_configFileName = "default.fwc";
       }
 
