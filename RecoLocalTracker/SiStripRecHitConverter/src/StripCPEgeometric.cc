@@ -36,7 +36,7 @@ localParameters( const SiStripCluster& cluster, const LocalTrajectoryParameters&
   track *=   (track.z()<0) ?  fabs(p.thickness/track.z()) : 
              (track.z()>0) ? -fabs(p.thickness/track.z()) :  
                               p.maxLength/track.mag() ;
-  const float projection = std::max( 2*p.thickness*tandriftangle,
+  const float projection = std::max( 2*p.thickness*tandriftangle/p.topology->localPitch(ltp.position()),
 				     fabs( p.coveredStrips( track+p.drift, ltp.position() )) );
 
   const std::pair<float,float> s_se2 = strip_stripErrorSquared( cluster, projection);
