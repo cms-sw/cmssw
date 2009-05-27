@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialObjectAnalyzer.cc,v 1.20 2009/03/20 16:18:29 ferriff Exp $
+// $Id: EcalTrivialObjectAnalyzer.cc,v 1.21 2009/04/03 09:51:11 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -253,8 +253,8 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
 //                 << ", WeightsAfterGainSwitch.size: " << mat2.size() << std::endl;
 
 
-      HepMatrix clmat1(3,10,0);
-      HepMatrix clmat2(3,10,0);
+      CLHEP::HepMatrix clmat1(3,10,0);
+      CLHEP::HepMatrix clmat2(3,10,0);
       for(int irow=0; irow<3; irow++) {
        for(int icol=0; icol<10; icol++) {
          clmat1[irow][icol] = mat1(irow,icol);
@@ -397,8 +397,8 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
 
 /*
     std::cout << "make CLHEP matrices from vector<vector<Ecalweight>>" << std::endl;
-    HepMatrix clmat1(3,8,0);
-    HepMatrix clmat2(3,8,0);
+    CLHEP::HepMatrix clmat1(3,8,0);
+    CLHEP::HepMatrix clmat2(3,8,0);
     for(int irow=0; irow<3; irow++) {
      for(int icol=0; icol<8; icol++) {
        clmat1[irow][icol] = (mat1[irow])[icol]();

@@ -1,6 +1,6 @@
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbHardcode.cc,v 1.20 2008/01/22 19:07:19 muzaffar Exp $
+// $Id: HcalDbHardcode.cc,v 1.21 2009/03/24 16:11:34 rofierzy Exp $
 //
 #include <vector>
 #include <string>
@@ -15,8 +15,8 @@ HcalPedestal HcalDbHardcode::makePedestal (HcalGenericDetId fId, bool fSmear) {
   float value [4] = {value0, value0, value0, value0};
   if (fSmear) {
     for (int i = 0; i < 4; i++) {
-      value [i] = RandGauss::shoot (value0, width.getWidth (i) / 100.); // ignore correlations, assume 10K pedestal run 
-      while (value [i] <= 0) value [i] = RandGauss::shoot (value0, width.getWidth (i));
+      value [i] = CLHEP::RandGauss::shoot (value0, width.getWidth (i) / 100.); // ignore correlations, assume 10K pedestal run 
+      while (value [i] <= 0) value [i] = CLHEP::RandGauss::shoot (value0, width.getWidth (i));
     }
   }
   HcalPedestal result (fId.rawId (), 
@@ -50,7 +50,7 @@ HcalGain HcalDbHardcode::makeGain (HcalGenericDetId fId, bool fSmear) {
     else if (HcalDetId(fId).depth() == 2) value0 = 0.3375;
   }
   float value [4] = {value0, value0, value0, value0};
-  if (fSmear) for (int i = 0; i < 4; i++) value [i] = RandGauss::shoot (value0, width.getValue (i)); 
+  if (fSmear) for (int i = 0; i < 4; i++) value [i] = CLHEP::RandGauss::shoot (value0, width.getValue (i)); 
   HcalGain result (fId.rawId (), value[0], value[1], value[2], value[3]);
   return result;
 }
