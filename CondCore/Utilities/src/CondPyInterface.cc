@@ -200,6 +200,7 @@ namespace cond {
     //topinit();
     session->configuration().setAuthenticationMethod( cond::XML );
     session->configuration().setMessageLevel( cond::Error );
+    session->configuration().setBlobStreamer( "COND/Services/TBufferBlobStreamingService" );
     session->open();
   }
   RDBMS::~RDBMS() {}
@@ -209,6 +210,7 @@ namespace cond {
     session->configuration().setAuthenticationPath(authPath);
     session->configuration().setAuthenticationMethod( cond::XML );
     session->configuration().setMessageLevel( cond::Error );
+    session->configuration().setBlobStreamer( "COND/Services/TBufferBlobStreamingService" );
     session->open();
   }
   
@@ -220,6 +222,7 @@ namespace cond {
     ::putenv(const_cast<char*>(passenv.c_str()));
     session->configuration().setAuthenticationMethod( cond::Env );
     session->configuration().setMessageLevel( cond::Error );
+    session->configuration().setBlobStreamer( "COND/Services/TBufferBlobStreamingService" );
     session->open();
   }
 
