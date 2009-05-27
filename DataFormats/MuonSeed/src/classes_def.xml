@@ -30,4 +30,5 @@
     
       <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<L3MuonTrajectorySeed>,L3MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L3MuonTrajectorySeed>,L3MuonTrajectorySeed> > >"/>
       <class name="edm::reftobase::Holder<L3MuonTrajectorySeed,edm::Ref<std::vector<L3MuonTrajectorySeed>,L3MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L3MuonTrajectorySeed>,L3MuonTrajectorySeed> > >"/>
+      <class name="edm::reftobase::Holder<TrajectorySeed, edm::Ref<std::vector<L3MuonTrajectorySeed>,L3MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L3MuonTrajectorySeed>,L3MuonTrajectorySeed> > >"/>
 </lcgdict>

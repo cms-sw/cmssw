@@ -37,5 +37,6 @@ namespace {
     edm::reftobase::IndirectHolder<L3MuonTrajectorySeed> ihs2;
     edm::reftobase::Holder< L3MuonTrajectorySeed, edm::Ref<L3MuonTrajectorySeedCollection> > rbh2;
     edm::reftobase::RefHolder< edm::Ref<L3MuonTrajectorySeedCollection> > rbrh2;
+    edm::reftobase::Holder<TrajectorySeed, L3MuonTrajectorySeedRef> rbrh23;
   };
 }

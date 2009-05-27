@@ -12,5 +12,6 @@
 #include <vector>
 
 typedef std::vector<L3MuonTrajectorySeed> L3MuonTrajectorySeedCollection;
+typedef edm::Ref<L3MuonTrajectorySeedCollection> L3MuonTrajectorySeedRef;
 
 #endif
