@@ -223,7 +223,7 @@ namespace edm
 		 }
 		 else 
 		 {
-		    workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,checktof_,true));  
+		    workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,checktof_,mixProdStep2_,true));  
 
 		    // here we have to give the opposite selector too (low for high, high for low)
 		    int slow=(subdets[ii]).find("LowTof");
@@ -322,7 +322,7 @@ namespace edm
 		workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,checktof_,mixProdStep2_));  
 		LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
 	      }else {
-		workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,checktof_,true));  
+		workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,checktof_,mixProdStep2_,true));  
 		// here we have to give the opposite selector too (low for high, high for low)
 		int slow=(subdets[ii]).find("LowTof");
 		int iend=(subdets[ii]).size();
