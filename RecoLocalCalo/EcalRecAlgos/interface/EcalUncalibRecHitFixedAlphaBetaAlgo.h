@@ -58,7 +58,7 @@ template<class C> class EcalUncalibRecHitFixedAlphaBetaAlgo : public EcalUncalib
   double pulseShapeFunction(double t);
   float PerformAnalyticFit(double* samples, int max_sample);
   void InitFitParameters(double* samples, int max_sample);
-  HepSymMatrix DM1_ ; HepVector temp_;
+  CLHEP::HepSymMatrix DM1_ ; CLHEP::HepVector temp_;
    public:
 
   EcalUncalibRecHitFixedAlphaBetaAlgo<C>():fAlpha_(0.),fBeta_(0.),fAmp_max_(-1.),fTim_max_(-1),fPed_max_(0),alfabeta_(0),fNb_iter_(4),fNum_samp_bef_max_(1),fNum_samp_after_max_(3),fSigma_ped(1.1),DM1_(3),temp_(3){
@@ -248,7 +248,7 @@ template<class C> float EcalUncalibRecHitFixedAlphaBetaAlgo<C>::PerformAnalyticF
   double chi2=-1 , db[3] ;
   
 
-  //HepSymMatrix DM1(3) ; HepVector temp(3) ;
+  //HepSymMatrix DM1(3) ; CLHEP::HepVector temp(3) ;
 
   int num_fit_min =(int)(max_sample - fNum_samp_bef_max_ ) ;
   int num_fit_max =(int)(max_sample + fNum_samp_after_max_) ;
@@ -327,7 +327,7 @@ template<class C> float EcalUncalibRecHitFixedAlphaBetaAlgo<C>::PerformAnalyticF
 /*     } */
 /*     std::cout<<"vector temp: "<< temp[0]<<" "<<temp[1]<<" "<<temp[2]<<std::endl; */
     //! compute variations of parameters fAmp_max and fTim_max 
-    HepVector PROD = DM1_*temp_ ;
+    CLHEP::HepVector PROD = DM1_*temp_ ;
     //    std::cout<<"vector PROD: "<< PROD[0]<<" "<<PROD[1]<<" "<<PROD[2]<<std::endl;
 
     // Probably the fastest way to protect against
