@@ -1,10 +1,10 @@
 How to install:
 
-cmsrel CMSSW_2_1_12
+cmsrel CMSSW_2_1_12 (or any other release - RateEff package is independent of CMSSW)
 cd CMSSW_2_1_12/src
 project CMSSW
 
-cvs co -r V00-00-00 HLTrigger/HLTanalyzers/test/RateEff
+cvs co -r RateEff-02-00-02 HLTrigger/HLTanalyzers/test/RateEff
 cd HLTrigger/HLTanalyzers/test/RateEff
 
 tar xvzf libconfig-1.3.tar.gz
@@ -16,7 +16,7 @@ cd ../
 make
 
 source setup.sh
-./OHltRateEff hltmenu_1E31_2008Dec04.cfg
+./OHltRateEff hltmenu_8E29_2009May11.cfg
 
 
 
