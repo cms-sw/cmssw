@@ -412,8 +412,8 @@ void CSCXonStrip_MatchGatti::setupMatrix() {
 */
   //---- Find the inverted XTalk matrix and apply it to the charge (3x3)
   //---- Thus the charge before the XTalk is obtained
-  HepMatrix cross_talks(3,3);
-  HepMatrix cross_talks_inv(3,3);
+  CLHEP::HepMatrix cross_talks(3,3);
+  CLHEP::HepMatrix cross_talks_inv(3,3);
   int err = 0;
   //---- q_sum is 3 time bins summed; L, C, R - left, central, right strips
   q_sum = q_sumL = q_sumC = q_sumR = 0.;

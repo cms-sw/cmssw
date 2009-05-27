@@ -75,7 +75,7 @@
 #include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
-#include "CLHEP/Matrix/DiagMatrix.h"
+//#include "CLHEP/Matrix/DiagMatrix.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "CLHEP/Matrix/Vector.h"
 #include "CLHEP/Vector/ThreeVector.h"
@@ -235,10 +235,10 @@ public:
   void returnTypes(CSCDetId & id, int &ec, int &st, int &rg, int &ch, int &secondRing);
   //  
   void getFromFTS(const FreeTrajectoryState& fts,
-		  Hep3Vector& p3, Hep3Vector& r3,
+		  CLHEP::Hep3Vector& p3, CLHEP::Hep3Vector& r3,
 		  int& charge, AlgebraicSymMatrix66& cov);
   
-  FreeTrajectoryState getFromCLHEP(const Hep3Vector& p3, const Hep3Vector& r3,
+  FreeTrajectoryState getFromCLHEP(const CLHEP::Hep3Vector& p3, const CLHEP::Hep3Vector& r3,
 				   int charge, const AlgebraicSymMatrix66& cov,
 				   const MagneticField* field);
 
@@ -248,7 +248,7 @@ public:
   double lineParameter(double initZPosition, double destZPosition, double initZDirection);
   bool inSensitiveLocalRegion(double xLocal, double yLocal, int station, int ring);
   bool checkLocal(double yLocal, double yBoundary, int station, int ring);
-  void chooseDirection(Hep3Vector & innerPosition, Hep3Vector & outerPosition);
+  void chooseDirection(CLHEP::Hep3Vector & innerPosition, CLHEP::Hep3Vector & outerPosition);
   const Propagator* propagator(std::string propagatorName) const ;
   TrajectoryStateOnSurface propagate(FreeTrajectoryState & ftsStart, const BoundPlane &bp);
   bool applyTrigger(edm::Handle<edm::TriggerResults> &hltR);

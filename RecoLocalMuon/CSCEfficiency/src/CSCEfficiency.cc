@@ -183,12 +183,12 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
 
     passTheEvent = true; 
     if (printalot) std::cout<<"good Track"<<std::endl;
-    Hep3Vector r3T_inner(track->innerPosition().x(),track->innerPosition().y(),track->innerPosition().z());
-    Hep3Vector r3T(track->outerPosition().x(),track->outerPosition().y(),track->outerPosition().z());
+    CLHEP::Hep3Vector r3T_inner(track->innerPosition().x(),track->innerPosition().y(),track->innerPosition().z());
+    CLHEP::Hep3Vector r3T(track->outerPosition().x(),track->outerPosition().y(),track->outerPosition().z());
     chooseDirection(r3T_inner, r3T);// for non-IP
 
-    Hep3Vector p3T(track->outerMomentum().x(),track->outerMomentum().y(),track->outerMomentum().z());
-    Hep3Vector p3_propagated, r3_propagated;
+    CLHEP::Hep3Vector p3T(track->outerMomentum().x(),track->outerMomentum().y(),track->outerMomentum().z());
+    CLHEP::Hep3Vector p3_propagated, r3_propagated;
     AlgebraicSymMatrix66 cov_propagated, covT;
     covT *= 1e-20;
     cov_propagated *= 1e-20;
@@ -1277,7 +1277,7 @@ void CSCEfficiency::returnTypes(CSCDetId & id, int &ec, int &st, int &rg, int &c
 
 //
 void CSCEfficiency::getFromFTS( const FreeTrajectoryState& fts,
-				Hep3Vector& p3, Hep3Vector& r3,
+				CLHEP::Hep3Vector& p3, CLHEP::Hep3Vector& r3,
 				int& charge, AlgebraicSymMatrix66& cov){
   
   GlobalVector p3GV = fts.momentum();
@@ -1291,7 +1291,7 @@ void CSCEfficiency::getFromFTS( const FreeTrajectoryState& fts,
 
 }
 
-FreeTrajectoryState CSCEfficiency::getFromCLHEP(const Hep3Vector& p3, const Hep3Vector& r3,
+FreeTrajectoryState CSCEfficiency::getFromCLHEP(const CLHEP::Hep3Vector& p3, const CLHEP::Hep3Vector& r3,
                                                        int charge, const AlgebraicSymMatrix66& cov,
                                                        const MagneticField* field){
 
@@ -1324,7 +1324,7 @@ double CSCEfficiency::lineParameter(double initZPosition, double destZPosition, 
   return paramLine;
 }
 //
-void CSCEfficiency::chooseDirection(Hep3Vector & innerPosition, Hep3Vector & outerPosition){
+void CSCEfficiency::chooseDirection(CLHEP::Hep3Vector & innerPosition, CLHEP::Hep3Vector & outerPosition){
 
   //---- Be careful with trigger conditions too
   if(!isIPdata){
