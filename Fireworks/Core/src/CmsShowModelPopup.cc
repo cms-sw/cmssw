@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.17 2009/04/14 13:44:30 chrjones Exp $
+// $Id: CmsShowModelPopup.cc,v 1.18 2009/04/15 21:54:10 chrjones Exp $
 //
 
 // system include file
@@ -91,7 +91,7 @@ CmsShowModelPopup::CmsShowModelPopup(FWDetailViewManager* iManager,
    AddFrame(m_openDetailedViewButton);
    m_openDetailedViewButton->Connect("Clicked()","CmsShowModelPopup", this, "openDetailedView()");
 
-   m_colorSelectWidget->Connect("ColorSelected(Pixel_t)", "CmsShowModelPopup", this, "changeModelColor(Pixel_t)");
+   m_colorSelectWidget->Connect("ColorChosen(Color_t)", "CmsShowModelPopup", this, "changeModelColor(Color_t)");
    m_isVisibleButton->Connect("Toggled(Bool_t)", "CmsShowModelPopup", this, "toggleModelVisible(Bool_t)");
 
 
@@ -207,8 +207,7 @@ CmsShowModelPopup::disconnectAll() {
 }
 
 void
-CmsShowModelPopup::changeModelColor(Pixel_t pixel) {
-   Color_t color(TColor::GetColor(pixel));
+CmsShowModelPopup::changeModelColor(Color_t color) {
    const FWEventItem* item;
    if(m_models.size()) {
       FWChangeSentry sentry(*(m_models.begin()->item()->changeManager()));

@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.23 2009/04/14 13:44:30 chrjones Exp $
+// $Id: CmsShowEDI.cc,v 1.24 2009/04/15 21:54:17 chrjones Exp $
 //
 
 // system include files
@@ -205,7 +205,7 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    m_tabs->AddTab("Data", dataFrame);
    AddFrame(m_tabs, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0));
 
-   m_colorSelectWidget->Connect("ColorSelected(Pixel_t)", "CmsShowEDI", this, "changeItemColor(Pixel_t)");
+   m_colorSelectWidget->Connect("ColorChosen(Color_t)", "CmsShowEDI", this, "changeItemColor(Color_t)");
    m_isVisibleButton->Connect("Toggled(Bool_t)", "CmsShowEDI", this, "toggleItemVisible(Bool_t)");
    m_filterExpressionEntry->Connect("ReturnPressed()", "CmsShowEDI", this, "runFilter()");
    m_filterButton->Connect("Clicked()", "CmsShowEDI", this, "runFilter()");
@@ -386,8 +386,7 @@ CmsShowEDI::disconnectAll() {
 }
 
 void
-CmsShowEDI::changeItemColor(Pixel_t pixel) {
-   Color_t color(TColor::GetColor(pixel));
+CmsShowEDI::changeItemColor(Color_t color) {
    const FWDisplayProperties changeProperties(color, m_item->defaultDisplayProperties().isVisible());
    m_item->setDefaultDisplayProperties(changeProperties);
 }

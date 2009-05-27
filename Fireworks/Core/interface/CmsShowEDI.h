@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:42 EDT 2008
-// $Id: CmsShowEDI.h,v 1.10 2009/04/13 21:19:57 chrjones Exp $
+// $Id: CmsShowEDI.h,v 1.11 2009/05/20 16:33:39 amraktad Exp $
 //
 
 // system include files
@@ -65,7 +65,7 @@ public:
    void updateDisplay();
    void updateFilter();
    void disconnectAll();
-   void changeItemColor(Pixel_t pixel = 0x000000);
+   void changeItemColor(Color_t color );
    void toggleItemVisible(Bool_t on = kTRUE);
    void runFilter();
    void runSelection();
