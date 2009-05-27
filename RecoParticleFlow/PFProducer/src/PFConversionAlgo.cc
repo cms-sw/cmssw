@@ -13,7 +13,7 @@
 #include "RecoParticleFlow/PFProducer/interface/Utils.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 using namespace std;
 using namespace reco;

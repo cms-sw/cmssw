@@ -7,8 +7,8 @@
  *   L2 muon reconstruction
  *
  *
- *   $Date: 2007/12/17 17:23:06 $
- *   $Revision: 1.10 $
+ *   $Date: 2008/10/17 09:57:55 $
+ *   $Revision: 1.11 $
  *
  *   \author  A.Everett, R.Bellan, J. Alcaraz
  *
@@ -173,7 +173,7 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     const DetLayer *detLayer = 0;
     float radius = 0.;
   
-    Hep3Vector vec(0.,1.,0.);
+    CLHEP::Hep3Vector vec(0.,1.,0.);
     vec.setTheta(theta);
     vec.setPhi(phi);
 	

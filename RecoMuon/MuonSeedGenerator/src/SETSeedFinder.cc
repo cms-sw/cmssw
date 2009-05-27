@@ -428,7 +428,7 @@ fillSeedCandidates(std::vector <MuonRecHitContainer> & allValidSets){
     //}
 
 
-    Hep3Vector momEstimate;
+    CLHEP::Hep3Vector momEstimate;
     int chargeEstimate;
     estimateMomentum(allValidSets[iSet], momEstimate, chargeEstimate);
     MuonRecHitContainer MuonRecHitContainer_theSet_prep;
@@ -445,7 +445,7 @@ fillSeedCandidates(std::vector <MuonRecHitContainer> & allValidSets){
 }
 
 void SETSeedFinder::estimateMomentum(const MuonRecHitContainer & validSet,
-                                     Hep3Vector & momEstimate, int & charge) const
+                                     CLHEP::Hep3Vector & momEstimate, int & charge) const
 {
   int firstMeasurement = -1;
   int lastMeasurement = -1;
@@ -590,20 +590,20 @@ void SETSeedFinder::estimateMomentum(const MuonRecHitContainer & validSet,
   // finally set the return vector
 
   // try out the reco info:
-  momEstimate = Hep3Vector(pT*cosPhiH, pT*sinPhiH, pT/TMath::Tan(thetaInner)); // should used into to theta directly here (rather than tan(atan2(...)))
+  momEstimate = CLHEP::Hep3Vector(pT*cosPhiH, pT*sinPhiH, pT/TMath::Tan(thetaInner)); // should used into to theta directly here (rather than tan(atan2(...)))
   //Hep3Vector momEstimate(6.97961,      5.89732,     -50.0855);
   if (momEstimate.mag()<10.){
     int sign = (pT<0.) ? -1: 1;
     pT = sign * (fabs(pT)+1);
-    Hep3Vector momEstimate2(pT*cosPhiH, pT*sinPhiH, pT/TMath::Tan(thetaInner));
+    CLHEP::Hep3Vector momEstimate2(pT*cosPhiH, pT*sinPhiH, pT/TMath::Tan(thetaInner));
     momEstimate = momEstimate2;
     if (momEstimate.mag()<10.){
       pT = sign * (fabs(pT)+1);
-      Hep3Vector momEstimate3(pT*cosPhiH, pT*sinPhiH, pT/TMath::Tan(thetaInner));
+      CLHEP::Hep3Vector momEstimate3(pT*cosPhiH, pT*sinPhiH, pT/TMath::Tan(thetaInner));
       momEstimate = momEstimate3;
       if (momEstimate.mag()<10.){
         pT = sign * (fabs(pT)+1);
-        Hep3Vector momEstimate4(pT*cosPhiH, pT*sinPhiH, pT/TMath::Tan(thetaInner));
+        CLHEP::Hep3Vector momEstimate4(pT*cosPhiH, pT*sinPhiH, pT/TMath::Tan(thetaInner));
         momEstimate = momEstimate4;
       }
     }

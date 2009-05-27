@@ -231,7 +231,7 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_pt
 		  }	  
 		  for(int electrode=0; electrode < numStrips; ++electrode){
 		    //   discard  randomly  bad  electrode with probability BadElectrodeProbability_
-		    bool badFlag= RandFlat::shoot(1.) < BadElectrodeProbability_ ? true : false;
+		    bool badFlag= CLHEP::RandFlat::shoot(1.) < BadElectrodeProbability_ ? true : false;
 		    theElectrodData.setData(noise,badFlag);
 		    vnoise.push_back(theElectrodData);// fill vector vnoise
 		  } // for

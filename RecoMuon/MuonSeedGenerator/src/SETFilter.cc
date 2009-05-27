@@ -111,7 +111,7 @@ bool SETFilter::fwfit_SET(std::vector < SeedCandidate> & validSegmentsSet_in,
   for(unsigned int iSet = 0; iSet<validSegmentsSet_in.size(); ++iSet){
     //std::cout<<"   iSET = "<<iSet<<std::endl;
     //---- start fit from the origin
-    Hep3Vector origin (0.,0.,0.);
+    CLHEP::Hep3Vector origin (0.,0.,0.);
     Trajectory::DataContainer trajectoryMeasurementsInTheSet_tmp;
     //---- Find minimum chi2 (corresponding to a specific 3D-momentum)    
     chi2AllCombinations[iSet]  = findMinChi2(iSet, origin, validSegmentsSet_in[iSet], lastUpdatedTSOS_Vect,
@@ -192,7 +192,7 @@ bool SETFilter::transform(Trajectory::DataContainer &measurements_segments,
     hitContainer.insert(hitContainer.end(),sortedHits.begin(),sortedHits.end());    
   }
 
-  Hep3Vector p3_propagated,r3_propagated;
+  CLHEP::Hep3Vector p3_propagated,r3_propagated;
   AlgebraicSymMatrix66 cov_propagated, covT;//---- how to disable error propagation?
   covT *= 1e-20;
   cov_propagated *= 1e-20;
@@ -242,7 +242,7 @@ bool SETFilter::transformLight(Trajectory::DataContainer &measurements_segments,
 
 
 void SETFilter::getFromFTS(const FreeTrajectoryState& fts,
-                                      Hep3Vector& p3, Hep3Vector& r3,
+                                      CLHEP::Hep3Vector& p3, CLHEP::Hep3Vector& r3,
                                       int& charge, AlgebraicSymMatrix66& cov){
 
   GlobalVector p3GV = fts.momentum();
@@ -256,7 +256,7 @@ void SETFilter::getFromFTS(const FreeTrajectoryState& fts,
 
 }
 
-FreeTrajectoryState SETFilter::getFromCLHEP(const Hep3Vector& p3, const Hep3Vector& r3,
+FreeTrajectoryState SETFilter::getFromCLHEP(const CLHEP::Hep3Vector& p3, const CLHEP::Hep3Vector& r3,
                                                        int charge, const AlgebraicSymMatrix66& cov,
                                                        const MagneticField* field){
 
@@ -270,7 +270,7 @@ FreeTrajectoryState SETFilter::getFromCLHEP(const Hep3Vector& p3, const Hep3Vect
 }
 
 double SETFilter::findChi2(double pX, double pY, double pZ,
-                                      const Hep3Vector& r3T,
+                                      const CLHEP::Hep3Vector& r3T,
                                       SeedCandidate & muonCandidate,
                                       TrajectoryStateOnSurface  &lastUpdatedTSOS,
 			   Trajectory::DataContainer & trajectoryMeasurementsInTheSet,
@@ -284,8 +284,8 @@ double SETFilter::findChi2(double pX, double pY, double pZ,
   }
 
   int charge =  muonCandidate.charge;
-  Hep3Vector p3T(pX,pY,pZ);
-  Hep3Vector p3_propagated,r3_propagated;
+  CLHEP::Hep3Vector p3T(pX,pY,pZ);
+  CLHEP::Hep3Vector p3_propagated,r3_propagated;
   AlgebraicSymMatrix66 cov_propagated, covT;//---- how to disable error propagation?
   covT *= 1e-20;
   cov_propagated *= 1e-20;
@@ -328,12 +328,12 @@ double SETFilter::findChi2(double pX, double pY, double pZ,
 
     //
     //---- chi2 calculated in local system; correlation taken into accont
-    HepMatrix dist(1,2);//, distT(2,1);
+    CLHEP::HepMatrix dist(1,2);//, distT(2,1);
     double  chi2_intermed = -9;
     int ierr = 0;
     dist(1,1) = locPropPos.x() - locHitPos.x();
     dist(1,2) = locPropPos.y() - locHitPos.y();
-    HepMatrix IC(2,2);
+    CLHEP::HepMatrix IC(2,2);
     IC(1,1) = locHitErr.xx();
     IC(2,1) = locHitErr.xy();
     IC(2,2) = locHitErr.yy();
@@ -375,7 +375,7 @@ double SETFilter::findChi2(double pX, double pY, double pZ,
   return chi2_loc;
 }
 
-double SETFilter::findMinChi2(unsigned int iSet, const Hep3Vector& r3T,
+double SETFilter::findMinChi2(unsigned int iSet, const CLHEP::Hep3Vector& r3T,
                                          SeedCandidate & muonCandidate,
                                          std::vector < TrajectoryStateOnSurface > &lastUpdatedTSOS_Vect,// delete 
                                          Trajectory::DataContainer & trajectoryMeasurementsInTheSet){
@@ -414,19 +414,19 @@ double SETFilter::findMinChi2(unsigned int iSet, const Hep3Vector& r3T,
 
   const int nDim = 3; // invP, theta, phi
   //---- Now choose nDim + 1 points
-  std::vector <Hep3Vector> feet(nDim+1);
+  std::vector <CLHEP::Hep3Vector> feet(nDim+1);
   std::vector <double> chi2Feet(nDim+1);
   std::vector <TrajectoryStateOnSurface*> lastUpdatedTSOS_pointer(nDim+1);// probably not needed; to be deleted
    
   //---- The minimization procedure strats from these nDim+1 points (feet)
 
-  Hep3Vector foot1(invP, theta, phi);// well obviuosly it is not a real Hep3Vector; better change it to a simple vector
+  CLHEP::Hep3Vector foot1(invP, theta, phi);// well obviuosly it is not a real Hep3Vector; better change it to a simple vector
   feet[0] = foot1;
   chi2Feet[0] = chi2AtSpecificStep(feet[0], r3T, muonCandidate, lastUpdatedTSOS,
                                        trajectoryMeasurementsInTheSet, detailedOutput);
   lastUpdatedTSOS_pointer[0] = &lastUpdatedTSOS;
 
-  std::vector <Hep3Vector> morePoints =
+  std::vector <CLHEP::Hep3Vector> morePoints =
     find3MoreStartingPoints(feet[0], r3T, muonCandidate);
   feet[1] = morePoints[0];
   feet[2] = morePoints[1];
@@ -501,7 +501,7 @@ double SETFilter::findMinChi2(unsigned int iSet, const Hep3Vector& r3T,
   double best_pX = pMag_updated*sin_theta*cos_phi;
   double best_pY = pMag_updated*sin_theta*sin_phi;
   double best_pZ = pMag_updated*cos_theta;
-  Hep3Vector bestP(best_pX, best_pY, best_pZ);
+  CLHEP::Hep3Vector bestP(best_pX, best_pY, best_pZ);
   //---- update the best momentum estimate  
   //if(minChi2<999999. && pMag_updated>0.){//fit failed?! check
   muonCandidate.momentum = bestP;
@@ -517,8 +517,8 @@ double SETFilter::findMinChi2(unsigned int iSet, const Hep3Vector& r3T,
 }
 
 double SETFilter::
-chi2AtSpecificStep(Hep3Vector &foot,
-                   const Hep3Vector& r3T,
+chi2AtSpecificStep(CLHEP::Hep3Vector &foot,
+                   const CLHEP::Hep3Vector& r3T,
                    SeedCandidate & muonCandidate,
                    TrajectoryStateOnSurface  &lastUpdatedTSOS,
                    Trajectory::DataContainer & trajectoryMeasurementsInTheSet,
@@ -542,13 +542,13 @@ chi2AtSpecificStep(Hep3Vector &foot,
   return chi2;
 }   
 
-std::vector <Hep3Vector> SETFilter::
-find3MoreStartingPoints(Hep3Vector &key_foot,
-                   const Hep3Vector& r3T,
+std::vector <CLHEP::Hep3Vector> SETFilter::
+find3MoreStartingPoints(CLHEP::Hep3Vector &key_foot,
+                   const CLHEP::Hep3Vector& r3T,
                    SeedCandidate & muonCandidate){
   // SIMPLEX uses nDim + 1 starting points; 
   // so here we need 3 more (one we already have)
-  std::vector <Hep3Vector> morePoints;// again - Hep3Vector is not a good choice here
+  std::vector <CLHEP::Hep3Vector> morePoints;// again - CLHEP::Hep3Vector is not a good choice here
   double invP = key_foot.x();
   double theta = key_foot.y();
   double phi = key_foot.z();
@@ -640,22 +640,22 @@ find3MoreStartingPoints(Hep3Vector &key_foot,
     if(fabs(newPhi - phi)<0.02){// too close?
       newPhi = phi + 0.02;
     }
-    Hep3Vector foot2(invP, theta, result_phi.first);
-    Hep3Vector foot3(invP, result_theta.first , phi);
+    CLHEP::Hep3Vector foot2(invP, theta, result_phi.first);
+    CLHEP::Hep3Vector foot3(invP, result_theta.first , phi);
     double newInvP = result_pInv.first;
     if(fabs(newInvP - invP)<0.001){//too close
       newInvP = invP + 0.001;
     }
-    Hep3Vector foot4(result_pInv.first, theta, phi);
+    CLHEP::Hep3Vector foot4(result_pInv.first, theta, phi);
     morePoints.push_back(foot2);
     morePoints.push_back(foot3);
     morePoints.push_back(foot4);
   }
   else{
     // the points
-    Hep3Vector foot2(invP, theta, phi-deltaPhi_init);
-    Hep3Vector foot3(invP, theta-deltaTheta_init, phi);
-    Hep3Vector foot4(invP-deltaInvP_init, theta, phi);
+    CLHEP::Hep3Vector foot2(invP, theta, phi-deltaPhi_init);
+    CLHEP::Hep3Vector foot3(invP, theta-deltaTheta_init, phi);
+    CLHEP::Hep3Vector foot4(invP-deltaInvP_init, theta, phi);
     morePoints.push_back(foot2);
     morePoints.push_back(foot3);
     morePoints.push_back(foot4);
@@ -671,10 +671,10 @@ std::pair <double,double> SETFilter::findParabolaMinimum(std::vector <double> &q
   double paramAtMin = -99.;
   std::vector <double> quadratic_param(3);
 
-  HepMatrix denominator(3,3);
-  HepMatrix enumerator_1(3,3);
-  HepMatrix enumerator_2(3,3);
-  HepMatrix enumerator_3(3,3);
+  CLHEP::HepMatrix denominator(3,3);
+  CLHEP::HepMatrix enumerator_1(3,3);
+  CLHEP::HepMatrix enumerator_2(3,3);
+  CLHEP::HepMatrix enumerator_3(3,3);
 
   for(int iCol=1;iCol<4;++iCol){
     denominator(1,iCol) = 1;
@@ -699,7 +699,7 @@ std::pair <double,double> SETFilter::findParabolaMinimum(std::vector <double> &q
   enumerator_2*=mult;
   enumerator_3*=mult;
 
-  std::vector <HepMatrix> enumerator;
+  std::vector <CLHEP::HepMatrix> enumerator;
   enumerator.push_back(enumerator_1);
   enumerator.push_back(enumerator_2);
   enumerator.push_back(enumerator_3);
@@ -741,15 +741,15 @@ void SETFilter::pickElements(std::vector <double> &chi2Feet,
   return;
 }
 
-Hep3Vector SETFilter::reflectFoot(std::vector <Hep3Vector> & feet,
+CLHEP::Hep3Vector SETFilter::reflectFoot(std::vector <CLHEP::Hep3Vector> & feet,
                                                  unsigned int key_foot, double scale ){
   // a SIMPLEX function
-  Hep3Vector newPosition(0.,0.,0.);
+  CLHEP::Hep3Vector newPosition(0.,0.,0.);
   if(scale==0.5){
     //std::cout<<" STA muon: scale parameter for simplex method incorrect : "<<scale<<std::endl;
     return newPosition;
   }
-  Hep3Vector centroid(0,0,0);
+  CLHEP::Hep3Vector centroid(0,0,0);
   for(unsigned int iFoot = 0; iFoot<feet.size();++iFoot){
     if(iFoot==key_foot){
       continue;
@@ -757,12 +757,12 @@ Hep3Vector SETFilter::reflectFoot(std::vector <Hep3Vector> & feet,
     centroid += feet[iFoot];
   }
   centroid/=(feet.size()-1);
-  Hep3Vector displacement = 2.*(centroid - feet[key_foot]);
+  CLHEP::Hep3Vector displacement = 2.*(centroid - feet[key_foot]);
   newPosition = feet[key_foot] + scale * displacement;
   return newPosition;
 }
 
-void SETFilter::nDimContract(std::vector <Hep3Vector> & feet, unsigned int low){
+void SETFilter::nDimContract(std::vector <CLHEP::Hep3Vector> & feet, unsigned int low){
   for(unsigned int iFoot = 0; iFoot<feet.size();++iFoot){
     // a SIMPLEX function
     if(iFoot==low){

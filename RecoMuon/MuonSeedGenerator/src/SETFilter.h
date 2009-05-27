@@ -13,7 +13,7 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
-#include "CLHEP/Matrix/DiagMatrix.h"
+//#include "CLHEP/Matrix/DiagMatrix.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "CLHEP/Matrix/Vector.h"
 #include "CLHEP/Vector/ThreeVector.h"
@@ -33,7 +33,7 @@
 // used in the SET algorithm
 struct SeedCandidate{
   MuonTransientTrackingRecHit::MuonRecHitContainer theSet;
-  Hep3Vector momentum;
+  CLHEP::Hep3Vector momentum;
   int charge;
   double weight;
   Trajectory::DataContainer trajectoryMeasurementsInTheSet;
@@ -129,36 +129,36 @@ private:
   //---- SET
   // FTS <-> parameters
   void getFromFTS(const FreeTrajectoryState& fts,
-                  Hep3Vector& p3, Hep3Vector& r3,
+                  CLHEP::Hep3Vector& p3, CLHEP::Hep3Vector& r3,
                   int& charge, AlgebraicSymMatrix66& cov);
 
-  FreeTrajectoryState getFromCLHEP(const Hep3Vector& p3, const Hep3Vector& r3,
+  FreeTrajectoryState getFromCLHEP(const CLHEP::Hep3Vector& p3, const CLHEP::Hep3Vector& r3,
                                    int charge, const AlgebraicSymMatrix66& cov,
                                    const MagneticField* field);
 
   // chi2 functions (calculate chi2)
   double findChi2(double pX, double pY, double pZ,
-                    const Hep3Vector& r3T,
+                    const CLHEP::Hep3Vector& r3T,
                     SeedCandidate & muonCandidate,
                     TrajectoryStateOnSurface  &lastUpdatedTSOS,
                     Trajectory::DataContainer & trajectoryMeasurementsInTheSet,
                     bool detailedOutput);
 
-  double findMinChi2(unsigned int iSet, const Hep3Vector& r3T,
+  double findMinChi2(unsigned int iSet, const CLHEP::Hep3Vector& r3T,
                  SeedCandidate & muonCandidate,
                  std::vector < TrajectoryStateOnSurface > &lastUpdatedTSOS_Vect,
                  Trajectory::DataContainer & trajectoryMeasurementsInTheSet);
 
-  double chi2AtSpecificStep(Hep3Vector &foot,
-                            const Hep3Vector& r3T,
+  double chi2AtSpecificStep(CLHEP::Hep3Vector &foot,
+                            const CLHEP::Hep3Vector& r3T,
                             SeedCandidate & muonCandidate,
                             TrajectoryStateOnSurface  &lastUpdatedTSOS,
                             Trajectory::DataContainer & trajectoryMeasurementsInTheSet,
                             bool detailedOutput);
 
   // find initial points for the SIMPLEX minimization
-  std::vector <Hep3Vector> find3MoreStartingPoints(Hep3Vector &key_foot,
-                                                   const Hep3Vector& r3T,
+  std::vector <CLHEP::Hep3Vector> find3MoreStartingPoints(CLHEP::Hep3Vector &key_foot,
+                                                   const CLHEP::Hep3Vector& r3T,
                                                    SeedCandidate & muonCandidate);
 
   std::pair <double,double> findParabolaMinimum(std::vector <double> &quadratic_var,
@@ -168,10 +168,10 @@ private:
   void pickElements(std::vector <double> &chi2Feet,
                    unsigned int & high, unsigned int & second_high, unsigned int & low);
 
-  Hep3Vector reflectFoot(std::vector <Hep3Vector> & feet,
+  CLHEP::Hep3Vector reflectFoot(std::vector <CLHEP::Hep3Vector> & feet,
                          unsigned int key_foot, double scale );
 
-  void nDimContract(std::vector <Hep3Vector> & feet, unsigned int low);
+  void nDimContract(std::vector <CLHEP::Hep3Vector> & feet, unsigned int low);
   //---- SET
   
   /// the propagator name

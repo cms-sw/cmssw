@@ -47,7 +47,7 @@ public:
   fillSeedCandidates(std::vector <MuonRecHitContainer> & allValidSets);
 
   void estimateMomentum(const MuonRecHitContainer & validSet, 
-                        Hep3Vector & momentum, int & charge) const;
+                        CLHEP::Hep3Vector & momentum, int & charge) const;
 
   TrajectorySeed makeSeed(const TrajectoryStateOnSurface & tsos, 
                           const TransientTrackingRecHit::ConstRecHitContainer & hits) const;

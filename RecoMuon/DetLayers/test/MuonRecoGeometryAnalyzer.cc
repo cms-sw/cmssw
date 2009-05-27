@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/10/26 07:45:06 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/06/15 01:19:52 $
+ *  $Revision: 1.8 $
  */
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>
@@ -193,8 +193,8 @@ void MuonRecoGeometryAnalyzer::testDTLayers(const MuonDetLayerGeometry* geo,cons
     double halfZ = cyl.bounds().length()/2.;
 
     // Generate a random point on the cylinder
-    double aPhi = RandFlat::shoot(-Geom::pi(),Geom::pi());
-    double aZ = RandFlat::shoot(-halfZ, halfZ);
+    double aPhi = CLHEP::RandFlat::shoot(-Geom::pi(),Geom::pi());
+    double aZ = CLHEP::RandFlat::shoot(-halfZ, halfZ);
     GlobalPoint gp(GlobalPoint::Cylindrical(cyl.radius(), aPhi, aZ));  
 
     // Momentum: 10 GeV, straight from the origin
@@ -248,8 +248,8 @@ void MuonRecoGeometryAnalyzer::testCSCLayers(const MuonDetLayerGeometry* geo,con
     const BoundDisk& disk = layer->specificSurface();
 
     // Generate a random point on the disk
-    double aPhi = RandFlat::shoot(-Geom::pi(),Geom::pi());
-    double aR = RandFlat::shoot(disk.innerRadius(), disk.outerRadius());
+    double aPhi = CLHEP::RandFlat::shoot(-Geom::pi(),Geom::pi());
+    double aR = CLHEP::RandFlat::shoot(disk.innerRadius(), disk.outerRadius());
     GlobalPoint gp(GlobalPoint::Cylindrical(aR, aPhi, disk.position().z()));  
 
     // Momentum: 10 GeV, straight from the origin

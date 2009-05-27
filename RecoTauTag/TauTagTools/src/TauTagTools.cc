@@ -200,7 +200,7 @@ void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){
     // FIX THIS !!!
     // need to convert from perigee to global or helix (curvilinear) frame
     // for now just an arbitrary matrix.
-    HepSymMatrix covM_HepSM(6,1); covM_HepSM*=1e-6; // initialize to sigma=1e-3
+    CLHEP::HepSymMatrix covM_HepSM(6,1); covM_HepSM*=1e-6; // initialize to sigma=1e-3
     CartesianTrajectoryError cov_CTE(covM_HepSM);
     FreeTrajectoryState Track_initialFTS(theTrack_initialGTPs,cov_CTE);
     // ***
