@@ -70,9 +70,6 @@ ELcollected::~ELcollected()  {
   #ifdef ELcollectedCONSTRUCTOR_TRACE
     std::cout << "Destructor for ELcollected)\n";
   #endif
-
-  delete sender;
-
 }  // ~ELcollected()
 
 

@@ -100,8 +100,7 @@ void
       throw ex;
     }
   }  else {
-    Place_for_passing_exception_ptr epp = 
-    				new Pointer_to_new_exception_on_heap(0);
+    Place_for_passing_exception_ptr epp(new Pointer_to_new_exception_on_heap());
     ConfigurationHandshake h(operand,epp);
     SingleConsumerQ::ProducerBuffer b(buf);
     char * slot_p = static_cast<char *>(b.buffer());
@@ -121,7 +120,6 @@ void
     }
     if ( ep ) {
       edm::Exception ex(*ep);
-      delete ep;
       ex << "\n The preceding exception was thrown in MessageLoggerScribe\n";
       ex << "and forwarded to the main thread from the Messages thread.";
       std::cerr << "exception from MessageLoggerQ::" 

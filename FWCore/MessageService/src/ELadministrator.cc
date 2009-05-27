@@ -128,8 +128,7 @@ ELstring ELadministrator::swapProcess( const ELstring & process )  {
 
 void ELadministrator::setContextSupplier( const ELcontextSupplier & supplier )  {
 
-  delete context_;
-  context_ = supplier.clone();
+  context_.reset(supplier.clone());
 
 }  // setContextSupplier()
 
@@ -143,7 +142,7 @@ const ELcontextSupplier & ELadministrator::getContextSupplier() const  {
 ELcontextSupplier & ELadministrator::swapContextSupplier
                                         (ELcontextSupplier & cs)  {
   ELcontextSupplier & save = *(context_);
-  context_ = &cs;
+  context_.reset(&cs);
   return save;
 } // swapContextSupplier
 
@@ -162,7 +161,7 @@ void ELadministrator::setExitThreshold( const ELseverityLevel & sev )  {
 
 ELdestControl ELadministrator::attach( const ELdestination & sink )  {
 
-  ELdestination * dest = sink.clone();
+  boost::shared_ptr<ELdestination> dest(sink.clone());
   sinks().push_back( dest );
   return ELdestControl( dest );
 
@@ -170,7 +169,7 @@ ELdestControl ELadministrator::attach( const ELdestination & sink )  {
 
 ELdestControl ELadministrator::attach(  const ELdestination & sink,
                                         const ELstring & name )     {
-  ELdestination * dest = sink.clone();
+  boost::shared_ptr<ELdestination> dest(sink.clone());
   attachedDestinations[name] = dest;
   sinks().push_back( dest );
   return ELdestControl( dest );
@@ -262,7 +261,7 @@ const ELseverityLevel & ELadministrator::exitThreshold() const  {
   return exitThreshold_;
 }
 
-std::list<ELdestination *> & ELadministrator::sinks()  { return sinks_; }
+std::list<boost::shared_ptr<ELdestination> > & ELadministrator::sinks()  { return sinks_; }
 
 
 const ELseverityLevel & ELadministrator::highSeverity() const  {
@@ -324,7 +323,7 @@ void ELadministrator::finishMsg()  {
     std::cerr << "=:=:=: finshMsg() returns from editErrorObj( msg ) \n";
   #endif
 
-  std::list<ELdestination *>::iterator d;
+  std::list<boost::shared_ptr<ELdestination> >::iterator d;
   bool mrt;
   #ifdef ELadTRACE_FINISH
     int destCounter = 0;
@@ -332,7 +331,7 @@ void ELadministrator::finishMsg()  {
   if ( sinks().begin() == sinks().end() )  {                   // $$ JV:1
     std::cerr << "\nERROR LOGGED WITHOUT DESTINATION!\n";
     std::cerr << "Attaching destination \"cerr\" to ELadministrator by default\n\n";
-    ELdestination * dest = new ELoutput(cerr);
+    boost::shared_ptr<ELdestination> dest(new ELoutput(cerr));
     this->sinks().push_back(dest);
   }
   for ( d = sinks().begin();  d != sinks().end();  ++d )  {
@@ -371,7 +370,7 @@ void ELadministrator::clearMsg()  {
 
 void ELadministrator::setThresholds( const ELseverityLevel & sev )  {
 
-  std::list<ELdestination *>::iterator d;
+  std::list<boost::shared_ptr<ELdestination> >::iterator d;
   for ( d = sinks().begin();  d != sinks().end();  ++d )
     (*d)->threshold = sev;
 
@@ -380,7 +379,7 @@ void ELadministrator::setThresholds( const ELseverityLevel & sev )  {
 
 void ELadministrator::setLimits( const ELstring & id, int limit )  {
 
-  std::list<ELdestination *>::iterator d;
+  std::list<boost::shared_ptr<ELdestination> >::iterator d;
   for ( d = sinks().begin();  d != sinks().end();  ++d )
     (*d)->limits.setLimit( id, limit );
 
@@ -390,7 +389,7 @@ void ELadministrator::setLimits( const ELstring & id, int limit )  {
 void ELadministrator::setIntervals
 			( const ELseverityLevel & sev, int interval )  {
 
-  std::list<ELdestination *>::iterator d;
+  std::list<boost::shared_ptr<ELdestination> >::iterator d;
   for ( d = sinks().begin();  d != sinks().end();  ++d )
     (*d)->limits.setInterval( sev, interval );
 
@@ -398,7 +397,7 @@ void ELadministrator::setIntervals
 
 void ELadministrator::setIntervals( const ELstring & id, int interval )  {
 
-  std::list<ELdestination *>::iterator d;
+  std::list<boost::shared_ptr<ELdestination> >::iterator d;
   for ( d = sinks().begin();  d != sinks().end();  ++d )
     (*d)->limits.setInterval( id, interval );
 
@@ -407,7 +406,7 @@ void ELadministrator::setIntervals( const ELstring & id, int interval )  {
 
 void ELadministrator::setLimits( const ELseverityLevel & sev, int limit )  {
 
-  std::list<ELdestination *>::iterator d;
+  std::list<boost::shared_ptr<ELdestination> >::iterator d;
   for ( d = sinks().begin();  d != sinks().end();  ++d )
     (*d)->limits.setLimit( sev, limit );
 
@@ -416,7 +415,7 @@ void ELadministrator::setLimits( const ELseverityLevel & sev, int limit )  {
 
 void ELadministrator::setTimespans( const ELstring & id, int seconds )  {
 
-  std::list<ELdestination *>::iterator d;
+  std::list<boost::shared_ptr<ELdestination> >::iterator d;
   for ( d = sinks().begin();  d != sinks().end();  ++d )
     (*d)->limits.setTimespan( id, seconds );
 
@@ -425,7 +424,7 @@ void ELadministrator::setTimespans( const ELstring & id, int seconds )  {
 
 void ELadministrator::setTimespans( const ELseverityLevel & sev, int seconds )  {
 
-  std::list<ELdestination *>::iterator d;
+  std::list<boost::shared_ptr<ELdestination> >::iterator d;
   for ( d = sinks().begin();  d != sinks().end();  ++d )
     (*d)->limits.setTimespan( sev, seconds );
 
@@ -434,7 +433,7 @@ void ELadministrator::setTimespans( const ELseverityLevel & sev, int seconds )  
 
 void ELadministrator::wipe()  {
 
-  std::list<ELdestination *>::iterator d;
+  std::list<boost::shared_ptr<ELdestination> >::iterator d;
   for ( d = sinks().begin();  d != sinks().end();  ++d )
     (*d)->limits.wipe();
 
@@ -442,7 +441,7 @@ void ELadministrator::wipe()  {
 
 void ELadministrator::finish()  {
 
-  std::list<ELdestination *>::iterator d;
+  std::list<boost::shared_ptr<ELdestination> >::iterator d;
   for ( d = sinks().begin();  d != sinks().end();  ++d )
     (*d)->finish();
 
@@ -549,12 +548,7 @@ ELadministrator::~ELadministrator()  {
 
   finishMsg();
 
-  while ( sinks().size() > 0 )  {
-    delete sinks().back();
-    sinks().pop_back();
-  }
-
-  delete context_;
+  sinks().clear();
 
 }  // ~ELadministrator()
 

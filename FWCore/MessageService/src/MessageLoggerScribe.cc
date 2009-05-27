@@ -316,8 +316,8 @@ void
 	catch(edm::Exception& e)
 	  {
 	    Place_for_passing_exception_ptr epp = h_p->epp;
-	    if ( *epp == 0 ) { 
-	      *epp = new edm::Exception(e);
+	    if (!(*epp)) { 
+	      *epp = boost::shared_ptr<edm::Exception>(new edm::Exception(e));
 	    } else {
 	      Pointer_to_new_exception_on_heap ep = *epp;
 	      (*ep) << "\n and another exception: \n" << e.what();

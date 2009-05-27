@@ -56,6 +56,8 @@
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 
+#include "boost/shared_ptr.hpp"
+
 namespace edm {       
 namespace service {       
 
@@ -137,7 +139,7 @@ protected:
   ELcontextSupplier           & context() const;
   const ELseverityLevel       & abortThreshold() const;
   const ELseverityLevel       &  exitThreshold() const;
-  std::list<ELdestination *>  & sinks();
+  std::list<boost::shared_ptr<ELdestination> >  & sinks();
   const ELseverityLevel       & highSeverity() const;
   int                           severityCounts( int lev ) const;
 
@@ -156,21 +158,21 @@ private:
   // ---  reach the actual (single) ELadministrator's instantiation
   // ---  (the instance() method records the ELadminDestroyer object):
   //
-  static ELadministrator * instance_;
+  static ELadministrator* instance_;
 
   // ---  traditional member data:
   //
   ELstring                   process_;	     
-  ELcontextSupplier *        context_;	     
+  boost::shared_ptr<ELcontextSupplier> context_;	     
   ELseverityLevel            abortThreshold_; 
   ELseverityLevel            exitThreshold_; 
-  std::list<ELdestination *> sinks_;		
+  std::list<boost::shared_ptr<ELdestination> > sinks_;		
   ELseverityLevel            highSeverity_;
   int                        severityCounts_[ ELseverityLevel::nLevels ];
   edm::ErrorObj              msg;
   bool                       msgIsActive;
 
-  std::map < ELstring, ELdestination* > attachedDestinations;
+  std::map < ELstring, boost::shared_ptr<ELdestination> > attachedDestinations;
 
 };  // ELadministrator
 

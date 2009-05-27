@@ -326,7 +326,7 @@ void ELtsErrorLog::dispatch ( edm::ErrorObj & msg )  {
               << std::endl;
     a->attach(ELoutput(std::cerr));
   }
-  std::list<ELdestination *>::iterator d;
+  std::list<boost::shared_ptr<ELdestination> >::iterator d;
   for ( d = a->sinks().begin();  d != a->sinks().end();  ++d )
     if (  (*d)->log( msg )  )
       msg.setReactedTo (true );
