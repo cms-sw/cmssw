@@ -434,7 +434,7 @@ void MuIsoValidation::NormalizeHistos() {
     //underflow -> bin #0.  overflow -> bin #(nbins+1)
     //0th bin doesn't need changed
     
-    int entries = GetTH1FromMonitorElement(h_1D[var])->GetEntries();
+    double entries = GetTH1FromMonitorElement(h_1D[var])->GetEntries();
     
     int n_max = int(param[var][0])+1;
     for(int n=1; n<=n_max; ++n){
@@ -454,6 +454,7 @@ void MuIsoValidation::NormalizeHistos() {
 
 void MuIsoValidation::FillHistos() {
   
+  int overFlowBin;
   double overFlow = 0;
   
   //----------Fill 1D histograms---------------
@@ -462,8 +463,9 @@ void MuIsoValidation::FillHistos() {
     cd_plots[var]->Fill(theData[var]);//right now, this is a regular PDF (just like h_1D)
     if (theData[var] > param[var][2]) {
       // fill the overflow bin
-      overFlow = GetTH1FromMonitorElement(h_1D[var])->GetBinContent(param[var][0] + 1);
-      GetTH1FromMonitorElement(h_1D[var])->SetBinContent(param[var][0] + 1,overFlow + 1);
+      overFlowBin = (int) param[var][0] + 1;
+      overFlow = GetTH1FromMonitorElement(h_1D[var])->GetBinContent(overFlowBin);
+      GetTH1FromMonitorElement(h_1D[var])->SetBinContent(overFlowBin, overFlow + 1);
     }
   }//Finish 1D
   
