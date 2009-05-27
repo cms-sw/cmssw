@@ -11,39 +11,36 @@ import string
 
 #Reference release
 
-RefRelease='CMSSW_3_1_0_pre4'
+RefRelease='CMSSW_3_1_0_pre7'
 
 #Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_3_1_0_pre6'
+NewRelease='CMSSW_3_1_0_pre7'
 
 # startup and ideal sample list
-#This are the standard relvals
+
+#This are the standard relvals (startup)
 startupsamples= ['RelValTTbar', 'RelValMinBias', 'RelValQCD_Pt_3000_3500']
 
 #This is pileup sample
 #startupsamples= ['RelValTTbar_Tauola']
 
-#tests
-#startupsamples= []
 
-#This are the standard relvals
-#idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValQCD_Pt_3000_3500','RelValMinBias']
-#idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_3000_3500','RelValMinBias']
+
+#This are the standard relvals (ideal)
+idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_3000_3500','RelValMinBias']
 
 #This is pileup sample
 #idealsamples= ['RelValZmumuJets_Pt_20_300_GEN']
 
-#Tests
-#idealsamples= [ 'RelValSingleElectronPt35']
-idealsamples= ['RelValTTbar']
+
 
 
 
 # track algorithm name and quality. Can be a list.
-#Algos= ['ootb']
-Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5']
-#Qualities=['']
-Qualities=['', 'highPurity']
+Algos= ['ootb']
+#Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5']
+Qualities=['']
+#Qualities=['', 'highPurity']
 
 #Leave unchanged unless the track collection name changes
 Tracksname=''
@@ -68,8 +65,8 @@ StartupTag='STARTUP_31X'
 PileUp='noPU'
 
 # Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
-ReferenceSelection='IDEAL_30X_'+PileUp
-StartupReferenceSelection='STARTUP_30X_'+PileUp
+ReferenceSelection='IDEAL_31X_'+PileUp
+StartupReferenceSelection='STARTUP_31X_'+PileUp
 
 # Default label is GlobalTag_noPU__Quality_Algo. Change this variable if you want to append an additional string.
 NewSelectionLabel=''
@@ -113,9 +110,9 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
     global Sequence, RefSelection, RefRepository, NewSelection, NewRepository, defaultNevents, Events
     global cfg, macro, Tracksname
     print 'Tag: ' + GlobalTag
-    tracks_map = { 'ootb':'general_AssociatorByHits','iter0':'cutsRecoZero_AssociatorByHits','iter1':'cutsRecoFirst_AssociatorByHits','iter2':'cutsRecoSecond_AssociatorByHits','iter3':'cutsRecoThird_AssociatorByHits','iter4':'cutsRecoFourth_AssociatorByHits','iter5':'cutsRecoFifth_AssociatorByHits'}
-    tracks_map_hp = { 'ootb':'cutsRecoHp_AssociatorByHits','iter0':'cutsRecoZeroHp_AssociatorByHits','iter1':'cutsRecoFirstHp_AssociatorByHits','iter2':'cutsRecoSecondHp_AssociatorByHits','iter3':'cutsRecoThirdHp_AssociatorByHits','iter4':'cutsRecoFourthHp_AssociatorByHits','iter5':'cutsRecoFifthHp_AssociatorByHits'}
-    if(trackalgorithm=='ctf' or trackalgorithm=='ootb'):
+    tracks_map = { 'ootb':'general_AssociatorByHitsRecoDenom','iter0':'cutsRecoZero_AssociatorByHitsRecoDenom','iter1':'cutsRecoFirst_AssociatorByHitsRecoDenom','iter2':'cutsRecoSecond_AssociatorByHitsRecoDenom','iter3':'cutsRecoThird_AssociatorByHitsRecoDenom','iter4':'cutsRecoFourth_AssociatorByHitsRecoDenom','iter5':'cutsRecoFifth_AssociatorByHitsRecoDenom'}
+    tracks_map_hp = { 'ootb':'cutsRecoHp_AssociatorByHitsRecoDenom','iter0':'cutsRecoZeroHp_AssociatorByHitsRecoDenom','iter1':'cutsRecoFirstHp_AssociatorByHitsRecoDenom','iter2':'cutsRecoSecondHp_AssociatorByHitsRecoDenom','iter3':'cutsRecoThirdHp_AssociatorByHitsRecoDenom','iter4':'cutsRecoFourthHp_AssociatorByHitsRecoDenom','iter5':'cutsRecoFifthHp_AssociatorByHitsRecoDenom'}
+    if(trackalgorithm=='iter0' or trackalgorithm=='ootb'):
         mineff='0.5'
         maxeff='1.025'
         maxfake='0.7'

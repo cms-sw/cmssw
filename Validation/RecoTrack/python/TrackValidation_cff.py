@@ -1,11 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi import *
-from SimTracker.TrackAssociation.TrackAssociatorByHits_cfi import *
+import SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi 
+import SimTracker.TrackAssociation.TrackAssociatorByHits_cfi 
 from Validation.RecoTrack.MultiTrackValidator_cfi import *
 from Validation.RecoTrack.PostProcessorTracker_cfi import *
 import PhysicsTools.RecoAlgos.recoTrackSelector_cfi
 
+TrackAssociatorByHitsRecoDenom= SimTracker.TrackAssociation.TrackAssociatorByHits_cfi.TrackAssociatorByHits.clone(
+    ComponentName = cms.string('TrackAssociatorByHitsRecoDenom'),  
+    SimToRecoDenominator = cms.string('reco')
+    )
 # Validation iterative steps
 cutsRecoTracksZero = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
 cutsRecoTracksZero.algorithm=cms.vstring("iter0")

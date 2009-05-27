@@ -50,7 +50,7 @@ multiTrackValidator = cms.EDFilter("MultiTrackValidator",
     #                                   
     sim = cms.string('g4SimHits'),
     # 
-    associators = cms.vstring('TrackAssociatorByHits'),
+    associators = cms.vstring('TrackAssociatorByHitsRecoDenom'),
     max = cms.double(2.5),
     maxpT = cms.double(50.0),
     nint = cms.int32(50),

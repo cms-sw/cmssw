@@ -32,6 +32,8 @@ process.load("DQMServices.Components.EDMtoMEConverter_cff")
 
 process.load("Validation.Configuration.postValidation_cff")
 
+process.TrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
+
 ### configuration MultiTrackValidator ###
 process.multiTrackValidator.outputFile = 'val.SAMPLE.root'
 
