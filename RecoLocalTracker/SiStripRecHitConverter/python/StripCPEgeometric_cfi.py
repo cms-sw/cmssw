@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 StripCPEgeometricESProducer =cms.ESProducer("StripCPEESProducer",
                ComponentName = cms.string('StripCPEgeometric'),
                APVpeakmode             = cms.bool(False),
-               TanDriftAngle           = cms.double(0.01),
+               TanDriftAngle           = cms.double(0.0),
                #---Crosstalk
                CouplingConstantSpread  = cms.double(0.055),
                # Deconvolution Mode
