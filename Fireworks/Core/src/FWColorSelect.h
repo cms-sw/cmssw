@@ -20,8 +20,6 @@ enum FWCSelConstants
    kHLOffsetX = 3,  kHLExtraWidth  = 5,
    kHLOffsetY = 3,  kHLExtraHeight = 5,
 
-   kFirstRow = 1, kSecondRow = 2,
-
    kCROffsetX = 5,   kCRPadAbove = 3,
    kCROffsetY = 5,   kCRPadBelow = 6,
 
@@ -50,6 +48,7 @@ public:
    Int_t GetIndex() const {
       return fIndex;
    }
+   //sends the index
    void ColorSelected(Int_t frameindex); // *SIGNAL*
 
    ClassDef(FWColorFrame, 0);
@@ -91,12 +90,16 @@ public:
    Int_t GetRowIndex() {
       return fRowIndex;
    }
+   void SetRowIndex(Int_t iRow) {
+      fRowIndex=iRow;
+   }
    Int_t GetSelectedIndex() {
       return fSelectedIndex;
    }
    Pixel_t GetSelectedColor() {
       return fSelectedColor;
    }
+   //sends the sum rowindex+column
    void ColorChanged(Int_t newcolor); // *SIGNAL*
 
    ClassDef(FWColorRow, 0);
@@ -116,6 +119,7 @@ protected:
    FWColorRow *fFirstRow, *fSecondRow, *fSelectedRow;
    Int_t fSelectedIndex;
    TGLabel *fLabel;
+   Int_t fNumColors;
 
 public:
    FWColorPopup(const TGWindow *p = 0, Pixel_t color = 0);
@@ -154,10 +158,12 @@ public:
 
    virtual Bool_t HandleButton(Event_t *event);
 
-   void CatchSignal(Pixel_t newcolor);
+   void CatchSignal(Int_t newindex);
 
    void SetColorByIndex(UInt_t iColor, Bool_t iSendSignal);
    void UpdateColors();
+   
+   void ColorChosen(Color_t); // *SIGNAL*
    
    ClassDef(FWColorSelect, 0);
 

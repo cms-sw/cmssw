@@ -154,7 +154,7 @@ void FWColorRow::ColorChanged(Int_t newcolor)
 {
    fIsActive = kTRUE;
    SetActive(newcolor);
-   Emit("ColorChanged(Int_t)", fRowIndex);
+   Emit("ColorChanged(Int_t)", fRowIndex+newcolor);
 }
 
 //------------------------------FWColorPopup------------------------------//
@@ -173,9 +173,10 @@ FWColorPopup::FWColorPopup(const TGWindow *p, Pixel_t color) :
    fSelectedIndex = -1;
    fSelectedColor = color;
    fLabel = 0;
+   fNumColors=0;
 
-   fFirstRow = new FWColorRow(this, kFirstRow);
-   fSecondRow = new FWColorRow(this, kSecondRow);
+   fFirstRow = new FWColorRow(this, 0);
+   fSecondRow = new FWColorRow(this, 0);
    fFirstRow->Connect("ColorChanged(Int_t)", "FWColorPopup", this, "ColorBookkeeping(Int_t)");
    fSecondRow->Connect("ColorChanged(Int_t)", "FWColorPopup", this, "ColorBookkeeping(Int_t)");
 }
@@ -220,6 +221,7 @@ void FWColorPopup::InitContent(const char *name, const std::vector<Pixel_t>& col
 
 void FWColorPopup::SetColors(const std::vector<Pixel_t>& colors, bool backgroundIsBlack)
 {
+   fNumColors=colors.size();
    for (UInt_t i = 0; i < colors.size() / 2; i++)
    {
       fFirstRow->AddColor(colors.at(i));
@@ -230,6 +232,7 @@ void FWColorPopup::SetColors(const std::vector<Pixel_t>& colors, bool background
       }
    }
    fFirstRow->SetBackgroundToBlack(backgroundIsBlack);
+   fSecondRow->SetRowIndex(colors.size()/2);
    for (UInt_t i = colors.size() / 2; i < colors.size(); i++)
    {
       fSecondRow->AddColor(colors.at(i));
@@ -246,12 +249,14 @@ void FWColorPopup::SetColors(const std::vector<Pixel_t>& colors, bool background
 
 void FWColorPopup::ResetColors(const std::vector<Pixel_t>& colors, bool backgroundIsBlack)
 {
+   fNumColors=colors.size();
    for (UInt_t i = 0; i < colors.size() / 2; i++)
    {
       fFirstRow->ResetColor(i,colors.at(i));
    }
    fFirstRow->SetBackgroundToBlack(backgroundIsBlack);
    UInt_t index = 0;
+   fSecondRow->SetRowIndex(colors.size()/2);
    for (UInt_t i = colors.size() / 2; i < colors.size(); i++, ++index)
    {
       fSecondRow->ResetColor(index,colors.at(i));
@@ -319,7 +324,7 @@ void FWColorPopup::SetSelection(Pixel_t iColor)
 
 void FWColorPopup::ColorBookkeeping(Int_t row)
 {
-   if (row != fSelectedRow->GetRowIndex())
+   if (row < fSelectedRow->GetRowIndex() || row > fSelectedRow->GetRowIndex()+fNumColors/2)
    {
       fSelectedRow->RowActive(kFALSE);
       if (fSelectedRow == fFirstRow)
@@ -334,7 +339,7 @@ void FWColorPopup::ColorBookkeeping(Int_t row)
    }
    fSelectedIndex = fSelectedRow->GetSelectedIndex();
    fSelectedColor = fSelectedRow->GetSelectedColor();
-   Emit("ColorBookkeeping(Int_t)", fSelectedColor);
+   Emit("ColorBookkeeping(Int_t)", row);
    UnmapWindow(); // close the popup...
 }
 
@@ -350,6 +355,7 @@ fColorManager(iManager)
 {
    fLabel = *label;
    fPalette.reserve(iManager->numberOfIndicies());
+   fIndex = 0;
 
    std::vector<Pixel_t> colors;
    colors.reserve(iManager->numberOfIndicies());
@@ -361,7 +367,7 @@ fColorManager(iManager)
    
    fFireworksPopup = new FWColorPopup(gClient->GetDefaultRoot(), fColor);
    fFireworksPopup->InitContent(fLabel.c_str(), colors);
-   fFireworksPopup->Connect("ColorBookkeeping(Int_t)","FWColorSelect", this, "CatchSignal(Pixel_t)");
+   fFireworksPopup->Connect("ColorBookkeeping(Int_t)","FWColorSelect", this, "CatchSignal(Int_t)");
    fColorManager->colorsHaveChanged_.connect(boost::bind(&FWColorSelect::UpdateColors,this));
 
 }
@@ -423,8 +429,13 @@ Bool_t FWColorSelect::HandleButton(Event_t *event)
 void 
 FWColorSelect::SetColorByIndex(UInt_t iColor, Bool_t iSendSignal)
 {
-   fIndex=iColor;
-   SetColor(static_cast<Pixel_t>(gVirtualX->GetPixel(fPalette[fIndex])),iSendSignal);
+   if(fIndex < fPalette.size()) {
+      fIndex=iColor;
+      SetColor(static_cast<Pixel_t>(gVirtualX->GetPixel(fPalette[fIndex])),iSendSignal);
+      if(iSendSignal) {
+         ColorChosen(fPalette[fIndex]);
+      }
+   }
 }
 
 void FWColorSelect::UpdateColors()
@@ -432,17 +443,16 @@ void FWColorSelect::UpdateColors()
    SetColorByIndex(fIndex,kFALSE);
 }
 
-void FWColorSelect::CatchSignal(Pixel_t newcolor)
+void FWColorSelect::CatchSignal(Int_t index)
 {
-   UInt_t index=0;
-   for(std::vector<Color_t>::const_iterator it=fPalette.begin(), itEnd = fPalette.end();
-       it!=itEnd; ++it,++index) {
-      if (newcolor == static_cast<Pixel_t>(gVirtualX->GetPixel(*it))) {
-         break;
-      }
-   }
    if(index < fPalette.size()) {
       fIndex=index;
       SetColorByIndex(index, kTRUE);
-   }
+   }   
+}
+
+void 
+FWColorSelect::ColorChosen(Color_t iColor)
+{
+   Emit("ColorChosen(Color_t)", iColor);
 }
