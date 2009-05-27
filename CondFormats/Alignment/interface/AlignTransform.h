@@ -16,7 +16,7 @@ public:
   typedef CLHEP::HepEulerAngles EulerAngles;
   typedef CLHEP::Hep3Vector     Translation;
   typedef CLHEP::HepRotation    Rotation;
-  typedef HepTransform3D Transform;
+  typedef HepGeom::Transform3D Transform;
 
   /// Default constructor
   AlignTransform(){}
