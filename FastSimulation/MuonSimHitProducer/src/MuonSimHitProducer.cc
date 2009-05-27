@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.24 2009/05/20 09:03:02 mulders Exp $
+// $Id: MuonSimHitProducer.cc,v 1.25 2009/05/27 08:34:32 azzi Exp $
 //
 //
 
@@ -70,7 +70,7 @@
 // #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
 //for debug only 
-#define FAMOS_DEBUG
+//#define FAMOS_DEBUG
 
 //
 // constructors and destructor

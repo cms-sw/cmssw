@@ -80,6 +80,8 @@ process.GlobalTag.globaltag = "IDEAL_31X::All"
 # Apply Tracker misalignment
 process.famosSimHits.ApplyAlignment = True
 process.misalignedTrackerGeometry.applyAlignment = True
+process.misalignedDTGeometry.applyAlignment = True
+process.misalignedCSCGeometry.applyAlignment = True
 
 # Apply HCAL miscalibration (not ideal in that case).
 # Choose between hcalmiscalib_startup.xml , hcalmiscalib_1pb.xml , hcalmiscalib_10pb.xml (startup is the default)
