@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/11/07 08:50:57 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/02/26 21:24:46 $
+ *  $Revision: 1.1 $
  *  \author Philippe Gras CEA/Saclay
  */
 
@@ -392,8 +392,8 @@ std::string LmfSource::toString(TimeValue_t& t) const{
   const int secTousec = 1000*1000;
   time_t tsec = t/secTousec;
   uint32_t tusec = (uint32_t)(t-tsec);
-  strftime(buf, sizeof(buf), "%F<BR>%R %S s", localtime(&tsec));
-  buf[sizeof(buf)] = 0;
+  strftime(buf, sizeof(buf), "%F %R %S s", localtime(&tsec));
+  buf[sizeof(buf)-1] = 0;
   stringstream buf2;
   buf2 << (tusec+500)/1000;
   return string(buf) + " " + buf2.str() + " ms";
