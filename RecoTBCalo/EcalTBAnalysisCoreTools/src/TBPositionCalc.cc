@@ -23,7 +23,7 @@ TBPositionCalc::~TBPositionCalc()
   if (theTestMap) delete theTestMap;
 }
 
-Hep3Vector TBPositionCalc::CalculateTBPos(std::vector<EBDetId> passedDetIds, int myCrystal, EcalRecHitCollection const *passedRecHitsMap) {
+CLHEP::Hep3Vector TBPositionCalc::CalculateTBPos(std::vector<EBDetId> passedDetIds, int myCrystal, EcalRecHitCollection const *passedRecHitsMap) {
   
   // throw an error if the cluster was not initialized properly  
   if(passedRecHitsMap == NULL)
@@ -41,21 +41,21 @@ Hep3Vector TBPositionCalc::CalculateTBPos(std::vector<EBDetId> passedDetIds, int
   passedDetIds = validDetIds;
   
   // computing the position in the cms frame
-  Hep3Vector cmsPos = CalculateCMSPos(passedDetIds, myCrystal, passedRecHitsMap);
+  CLHEP::Hep3Vector cmsPos = CalculateCMSPos(passedDetIds, myCrystal, passedRecHitsMap);
 
   // computing the rotation matrix (from CMS to TB)
-  HepRotation *CMStoTB = new HepRotation();
+  CLHEP::HepRotation *CMStoTB = new CLHEP::HepRotation();
   computeRotation(myCrystal, (*CMStoTB));
 
   // moving to testbeam frame
-  Hep3Vector tbPos = (*CMStoTB)*cmsPos;
+  CLHEP::Hep3Vector tbPos = (*CMStoTB)*cmsPos;
   delete CMStoTB;
 
   return tbPos;
 } 
 
 
-Hep3Vector TBPositionCalc::CalculateCMSPos(std::vector<EBDetId> passedDetIds, int myCrystal, EcalRecHitCollection const *passedRecHitsMap) {
+CLHEP::Hep3Vector TBPositionCalc::CalculateCMSPos(std::vector<EBDetId> passedDetIds, int myCrystal, EcalRecHitCollection const *passedRecHitsMap) {
   
   // Calculate the total energy
   double thisEne = 0;
@@ -123,11 +123,11 @@ Hep3Vector TBPositionCalc::CalculateCMSPos(std::vector<EBDetId> passedDetIds, in
   double ypos = radius*sin(cluster_phi)*sin(cluster_theta); 
   double zpos = radius*cos(cluster_theta);
 
-  return Hep3Vector(xpos, ypos, zpos);
+  return CLHEP::Hep3Vector(xpos, ypos, zpos);
 }
 
 // rotation matrix to move from the CMS reference frame to the test beam one  
-void TBPositionCalc::computeRotation(int MyCrystal, HepRotation &CMStoTB){
+void TBPositionCalc::computeRotation(int MyCrystal, CLHEP::HepRotation &CMStoTB){
   
   // taking eta/phi of the crystal
 
@@ -138,13 +138,13 @@ void TBPositionCalc::computeRotation(int MyCrystal, HepRotation &CMStoTB){
   myTheta = 2.0*atan(exp(-myEta));
 
   // matrix
-  HepRotation * fromCMStoTB = new HepRotation();
+  CLHEP::HepRotation * fromCMStoTB = new CLHEP::HepRotation();
   double angle1 = 90.*deg - myPhi;
-  HepRotationZ * r1 = new HepRotationZ(angle1);
+  CLHEP::HepRotationZ * r1 = new CLHEP::HepRotationZ(angle1);
   double angle2 = myTheta;
-  HepRotationX * r2 = new HepRotationX(angle2);
+  CLHEP::HepRotationX * r2 = new CLHEP::HepRotationX(angle2);
   double angle3 = 90.*deg;
-  HepRotationZ * r3 = new HepRotationZ(angle3);
+  CLHEP::HepRotationZ * r3 = new CLHEP::HepRotationZ(angle3);
   (*fromCMStoTB) *= (*r3);
   (*fromCMStoTB) *= (*r2);
   (*fromCMStoTB) *= (*r1);

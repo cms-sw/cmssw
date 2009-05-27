@@ -20,6 +20,7 @@
 #include "Geometry/EcalTestBeam/interface/EcalTBCrystalMap.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h" 
 
 
 class TBPositionCalc
@@ -32,11 +33,11 @@ class TBPositionCalc
 
   ~TBPositionCalc();
 
-  Hep3Vector CalculateTBPos(std::vector<EBDetId> passedDetIds, int myCrystal, EcalRecHitCollection const *passedRecHitsMap);
+  CLHEP::Hep3Vector CalculateTBPos(std::vector<EBDetId> passedDetIds, int myCrystal, EcalRecHitCollection const *passedRecHitsMap);
   
-  Hep3Vector CalculateCMSPos(std::vector<EBDetId> passedDetIds, int myCrystal, EcalRecHitCollection const *passedRecHitsMap);
+  CLHEP::Hep3Vector CalculateCMSPos(std::vector<EBDetId> passedDetIds, int myCrystal, EcalRecHitCollection const *passedRecHitsMap);
   
-  void computeRotation(int myCrystal, HepRotation & CMStoTB );
+  void computeRotation(int myCrystal, CLHEP::HepRotation & CMStoTB );
     
 
  private:

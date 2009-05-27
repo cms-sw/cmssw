@@ -3,8 +3,8 @@
  * 
  * Analyzer to test Shower Containment Corrections
  *   
- * $Date: 2007/07/16 14:15:01 $
- * $Revision: 1.1 $
+ * $Date: 2008/05/14 18:57:00 $
+ * $Revision: 1.2 $
  * \author S. Argiro'
  *
 */
@@ -378,7 +378,7 @@ EcalShowerContainmentAnalyzer::contCorrection(const edm::Event& iEvent,
 
   vector<EBDetId> myDets = Xtals3x3(iEvent,centerXtal);
   
-  Hep3Vector clusterPos;
+  CLHEP::Hep3Vector clusterPos;
   try {
     clusterPos = pos.CalculateTBPos(myDets, 
 				    centerXtal.ic(), 
