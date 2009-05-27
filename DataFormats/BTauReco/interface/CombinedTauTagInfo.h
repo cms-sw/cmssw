@@ -150,8 +150,8 @@ namespace reco {
    double neutralE_ratio()const{return(theneutralE_ratio);} // NaN : neutralECALClus_number()=0;
    void setneutralE_ratio(double x){theneutralE_ratio=x;}
 
-   HepLorentzVector alternatrecJet_HepLV()const{return(thealternatrecJet_HepLV);} // rec. pi+/- candidates + neutral ECAL clus. combined;   
-   void setalternatrecJet_HepLV(HepLorentzVector x){thealternatrecJet_HepLV=x;}
+   CLHEP::HepLorentzVector alternatrecJet_HepLV()const{return(thealternatrecJet_HepLV);} // rec. pi+/- candidates + neutral ECAL clus. combined;   
+   void setalternatrecJet_HepLV(CLHEP::HepLorentzVector x){thealternatrecJet_HepLV=x;}
 
    // EtECAL*/Ptlead.tk        *using ECAL cell hits inside a DR cone around lead tk ECAL impact point direction;
    double ECALEt_o_leadTkPt()const{return(theECALEt_o_leadTkPt);} // NaN : failure when trying to find the lead. tk contact on ECAL surface point; 
@@ -182,7 +182,7 @@ namespace reco {
    double theneutralE_o_TksEneutralE;
    double theisolneutralE_o_TksEneutralE;
    double theneutralE_ratio;
-   HepLorentzVector thealternatrecJet_HepLV;
+   CLHEP::HepLorentzVector thealternatrecJet_HepLV;
    double theECALEt_o_leadTkPt;
    double theHCALEt_o_leadTkPt;
  };

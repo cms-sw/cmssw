@@ -9,9 +9,9 @@
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Matrix/SymMatrix.h"
 
-typedef HepVector      AlgebraicVector;
-typedef HepMatrix      AlgebraicMatrix;
-typedef HepSymMatrix   AlgebraicSymMatrix;
+typedef CLHEP::HepVector      AlgebraicVector;
+typedef CLHEP::HepMatrix      AlgebraicMatrix;
+typedef CLHEP::HepSymMatrix   AlgebraicSymMatrix;
 
 #include "DataFormats/CLHEP/interface/Migration.h" //INCLUDECHECKER:SKIP
 

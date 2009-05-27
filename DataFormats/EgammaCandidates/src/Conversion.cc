@@ -1,7 +1,7 @@
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/TrackReco/interface/Track.h" 
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h" 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 using namespace reco;
 
