@@ -96,18 +96,14 @@ isMultiPeaked(const SiStripCluster& cluster, const float& projection) const {
 inline
 bool StripCPEgeometric::
 useNMinusOne(const WrappedCluster& wc, const float& projection) const {
-  if( projection < wc.N-2) 
-    return true;
+  WrappedCluster wcTest(wc); wcTest.dropSmallerEdgeStrip();
 
-  WrappedCluster wcTest(wc);  
-  wcTest.dropSmallerEdgeStrip();
-
-  if( projection > wcTest.maxProjection(crosstalk) ) 
-    return false;
+  if( wc.N == 1 ) return false;
+  if( projection < wc.N-2) return true;
+  if( projection >= wcTest.maxProjection(crosstalk) ) return false;
 
   if( wc.N==2 || wc.N==3)  
     return wc.smallEdgeRatio() < edgeRatioCut[wc.type];
-
   return fabs(  wcTest.dedxRatio(projection)-1 )   <   fabs(  wc.dedxRatio(projection)-1 ); 
 }
 
