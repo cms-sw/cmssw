@@ -66,7 +66,7 @@ ExcludePrepassAndPrefail = False
 # If greater than zero, require that either the lead track or lead pion have pt greater 
 #  than the value supplied
 RequireLeadPionPt = 5.0
-LeadPionRequirementString = "(MainTrackPt > %f || Alt$(TrackPt[0],0) > %f || Alt$(PiZeroPt[0], 0) > %f)" % (RequireLeadPionPt,RequireLeadPionPt,RequireLeadPionPt)
+LeadPionRequirementString = "( (MainTrackPt > %f && MainTrackAngle < 0.1) || (Alt$(TrackPt[0],0) > %f && Alt$(TrackAngle[0], 20) < 0.1) || (Alt$(PiZeroPt[0], 0) > %f && Alt$(PiZeroAngle[0], 20) < 0.1) )" % (RequireLeadPionPt,RequireLeadPionPt,RequireLeadPionPt)
 
 """
 Example of multiple algorithms

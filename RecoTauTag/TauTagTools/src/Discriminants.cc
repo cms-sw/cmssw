@@ -47,7 +47,7 @@ Pt::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
 void
 Eta::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
 {
-   result.push_back(input->getDecayMode()->eta());
+   result.push_back(abs(input->getDecayMode()->eta()));
 }
 
 void

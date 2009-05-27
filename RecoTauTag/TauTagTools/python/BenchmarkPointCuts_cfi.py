@@ -1,28 +1,28 @@
 CutSet_TaNC_OnePercent = {}
-CutSet_TaNC_OnePercent['OneProngNoPiZero']		 = 0.614995
-CutSet_TaNC_OnePercent['OneProngOnePiZero']		 = 0.477588
-CutSet_TaNC_OnePercent['OneProngTwoPiZero']		 = 0.415238
-CutSet_TaNC_OnePercent['ThreeProngNoPiZero']		 = 0.699172
-CutSet_TaNC_OnePercent['ThreeProngOnePiZero']		 = 0.915289
+CutSet_TaNC_OnePercent['OneProngNoPiZero']		 = 0.529969
+CutSet_TaNC_OnePercent['OneProngOnePiZero']		 = 0.399394
+CutSet_TaNC_OnePercent['OneProngTwoPiZero']		 = 0.544462
+CutSet_TaNC_OnePercent['ThreeProngNoPiZero']		 = 0.810142
+CutSet_TaNC_OnePercent['ThreeProngOnePiZero']		 = 0.847799
 
 CutSet_TaNC_HalfPercent = {}
-CutSet_TaNC_HalfPercent['OneProngNoPiZero']		 = 0.789452
-CutSet_TaNC_HalfPercent['OneProngOnePiZero']		 = 0.774469
-CutSet_TaNC_HalfPercent['OneProngTwoPiZero']		 = 0.700873
-CutSet_TaNC_HalfPercent['ThreeProngNoPiZero']		 = 0.855643
-CutSet_TaNC_HalfPercent['ThreeProngOnePiZero']		 = 0.953714
+CutSet_TaNC_HalfPercent['OneProngNoPiZero']		 = 0.817575
+CutSet_TaNC_HalfPercent['OneProngOnePiZero']		 = 0.741429
+CutSet_TaNC_HalfPercent['OneProngTwoPiZero']		 = 0.843586
+CutSet_TaNC_HalfPercent['ThreeProngNoPiZero']		 = 0.890383
+CutSet_TaNC_HalfPercent['ThreeProngOnePiZero']		 = 0.897713
 
 CutSet_TaNC_QuarterPercent = {}
-CutSet_TaNC_QuarterPercent['OneProngNoPiZero']		 = 0.921054
-CutSet_TaNC_QuarterPercent['OneProngOnePiZero']		 = 0.878768
-CutSet_TaNC_QuarterPercent['OneProngTwoPiZero']		 = 0.814843
-CutSet_TaNC_QuarterPercent['ThreeProngNoPiZero']		 = 0.912964
-CutSet_TaNC_QuarterPercent['ThreeProngOnePiZero']		 = 0.978436
+CutSet_TaNC_QuarterPercent['OneProngNoPiZero']		 = 0.907937
+CutSet_TaNC_QuarterPercent['OneProngOnePiZero']		 = 0.881686
+CutSet_TaNC_QuarterPercent['OneProngTwoPiZero']		 = 0.929039
+CutSet_TaNC_QuarterPercent['ThreeProngNoPiZero']		 = 0.920814
+CutSet_TaNC_QuarterPercent['ThreeProngOnePiZero']		 = 0.988130
 
 CutSet_TaNC_TenthPercent = {}
-CutSet_TaNC_TenthPercent['OneProngNoPiZero']		 = 0.960007
-CutSet_TaNC_TenthPercent['OneProngOnePiZero']		 = 0.946266
-CutSet_TaNC_TenthPercent['OneProngTwoPiZero']		 = 0.918536
-CutSet_TaNC_TenthPercent['ThreeProngNoPiZero']		 = 0.959982
-CutSet_TaNC_TenthPercent['ThreeProngOnePiZero']		 = 1.010823
+CutSet_TaNC_TenthPercent['OneProngNoPiZero']		 = 0.918768
+CutSet_TaNC_TenthPercent['OneProngOnePiZero']		 = 0.982706
+CutSet_TaNC_TenthPercent['OneProngTwoPiZero']		 = 0.942555
+CutSet_TaNC_TenthPercent['ThreeProngNoPiZero']		 = 0.975003
+CutSet_TaNC_TenthPercent['ThreeProngOnePiZero']		 = 1.046931
 
