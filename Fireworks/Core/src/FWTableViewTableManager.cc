@@ -1,4 +1,4 @@
-// $Id: FWTableViewTableManager.cc,v 1.4 2009/05/09 01:43:32 jmuelmen Exp $
+// $Id: FWTableViewTableManager.cc,v 1.5 2009/05/20 20:42:48 chrjones Exp $
 
 #include <math.h>
 #include "TClass.h"
@@ -163,7 +163,7 @@ namespace {
      void doSort(const FWEventItem& iItem,
 		 int iCol,
 		 const std::vector<FWExpressionEvaluator> &evaluators,
-		 std::map<std::pair<bool, double>, int, S>& iMap,
+		 std::multimap<std::pair<bool, double>, int, S>& iMap,
 		 std::vector<int>& oNewSort) 
      {
 	  int size = iItem.size();
@@ -182,7 +182,7 @@ namespace {
 				index));
 	  }
 	  std::vector<int>::iterator itVec = oNewSort.begin();
-	  for(typename std::map<std::pair<bool, double>,int,S>::iterator 
+	  for(typename std::multimap<std::pair<bool, double>,int,S>::iterator 
 		   it = iMap.begin(), 
 		   itEnd = iMap.end();
 	      it != itEnd;
@@ -199,10 +199,10 @@ void FWTableViewTableManager::implSort(int iCol, bool iSortOrder)
 	  return;
 //      printf("sorting %s\n", iSortOrder == sort_down ? "down" : "up");
      if (iSortOrder == sort_down) {
-	  std::map<std::pair<bool, double>, int, itemOrderGt> s;
+	  std::multimap<std::pair<bool, double>, int, itemOrderGt> s;
 	  doSort(*m_view->item(), iCol, m_evaluators, s, m_sortedToUnsortedIndices);
      } else {
-	  std::map<std::pair<bool, double>, int, itemOrderLt> s;
+	  std::multimap<std::pair<bool, double>, int, itemOrderLt> s;
 	  doSort(*m_view->item(), iCol, m_evaluators, s, m_sortedToUnsortedIndices);
      }
      m_view->m_tableWidget->dataChanged();
