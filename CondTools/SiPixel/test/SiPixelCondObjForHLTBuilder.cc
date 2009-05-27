@@ -128,14 +128,14 @@ SiPixelCondObjForHLTBuilder::analyze(const edm::Event& iEvent, const edm::EventS
 	   } 
 	   else{
 	     if(deadFraction_>0){
-	       double val= RandFlat::shoot();
+	       double val= CLHEP::RandFlat::shoot();
 	       if( val < deadFraction_){
 		 isDead=true;
 		 //		 std::cout << "dead pixel " << detid << " " << i << "," << j << " " << val << std::endl;
 	       }
 	     }
 	     if(deadFraction_>0 && !isDead){
-	       double val= RandFlat::shoot();
+	       double val= CLHEP::RandFlat::shoot();
 	       if( val < noisyFraction_){
 		 isNoisy=true;
 		 //		 std::cout << "noisy pixel " << detid << " " << i << "," << j << " " << val << std::endl;
@@ -143,16 +143,16 @@ SiPixelCondObjForHLTBuilder::analyze(const edm::Event& iEvent, const edm::EventS
 	     }
 	     
 	     if(rmsPed_>0) {
-	       ped  = RandGauss::shoot( meanPed_  , rmsPed_  );
+	       ped  = CLHEP::RandGauss::shoot( meanPed_  , rmsPed_  );
 	       while(ped<minped || ped>maxped)
-		 ped= RandGauss::shoot( meanPed_  , rmsPed_  );
+		 ped= CLHEP::RandGauss::shoot( meanPed_  , rmsPed_  );
 	     }
 	     else
 	       ped = meanPed_;
 	     if(rmsGain_>0){
-	       gain = RandGauss::shoot( meanGain_ , rmsGain_ );
+	       gain = CLHEP::RandGauss::shoot( meanGain_ , rmsGain_ );
 	       while(gain<mingain || gain>maxgain)
-		 gain = RandGauss::shoot( meanGain_ , rmsGain_ );
+		 gain = CLHEP::RandGauss::shoot( meanGain_ , rmsGain_ );
 	     }
 	     else
 	       gain = meanGain_;

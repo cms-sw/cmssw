@@ -101,17 +101,17 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	   } 
 	   else {
 	     if(rmsPed_>0) {
-	       ped  = RandGauss::shoot( meanPed_  , rmsPed_  );
+	       ped  = CLHEP::RandGauss::shoot( meanPed_  , rmsPed_  );
 	       while(minped>ped || maxped<ped)
-		 ped  = RandGauss::shoot( meanPed_  , rmsPed_  );
+		 ped  = CLHEP::RandGauss::shoot( meanPed_  , rmsPed_  );
 		 
 	     }
 	     else
 	       ped = meanPed_;
 	     if(rmsGain_>0){
-	       gain = RandGauss::shoot( meanGain_ , rmsGain_ );
+	       gain = CLHEP::RandGauss::shoot( meanGain_ , rmsGain_ );
 	       while(mingain>gain || maxgain<gain)
-		 gain = RandGauss::shoot( meanGain_ , rmsGain_ );
+		 gain = CLHEP::RandGauss::shoot( meanGain_ , rmsGain_ );
 	     }
 	     else
 	       gain = meanGain_;

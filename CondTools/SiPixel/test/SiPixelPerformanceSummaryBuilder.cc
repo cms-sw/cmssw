@@ -31,9 +31,9 @@ void SiPixelPerformanceSummaryBuilder::analyze(const edm::Event& iEvent, const e
   
   for (std::vector<uint32_t>::const_iterator iDet=detectorModules_.begin(); // fill object
        iDet!=detectorModules_.end(); ++iDet) {
-    float nDigisMean = (float)RandGauss::shoot(50.,20.); // generate random values for each detId
-    float nDigisRMS = (float)RandGauss::shoot(20.,4.);
-    float emptyFraction = (float)RandGauss::shoot(.5,.2);
+    float nDigisMean = (float)CLHEP::RandGauss::shoot(50.,20.); // generate random values for each detId
+    float nDigisRMS = (float)CLHEP::RandGauss::shoot(20.,4.);
+    float emptyFraction = (float)CLHEP::RandGauss::shoot(.5,.2);
     
     performanceSummary->setNumberOfDigis(*iDet, nDigisMean, nDigisRMS, emptyFraction); // set values
   }
