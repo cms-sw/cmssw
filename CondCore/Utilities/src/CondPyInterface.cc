@@ -51,7 +51,7 @@ namespace cond {
   namespace impl {
     struct FWMagic {
       // A.  Instantiate a plug-in manager first.
-      edm::AssertHandler ah;
+      //edm::AssertHandler ah;
       boost::shared_ptr<edm::ServiceRegistry::Operate> operate;
     };
   }
@@ -65,12 +65,12 @@ namespace cond {
     //     In particular, the job hangs as soon as the output buffer fills up.
     //     That's because, without the message service, there is no mechanism for
     //     emptying the buffers.
-    boost::shared_ptr<edm::Presence> theMessageServicePresence;
-    theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
-      makePresence("MessageServicePresence").release());
+    //boost::shared_ptr<edm::Presence> theMessageServicePresence;
+    //theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
+    //  makePresence("MessageServicePresence").release());
 
     // C.  Manufacture a configuration and establish it.
-    std::string config =
+    /*std::string config =
       "process x = {"
       "service = MessageLogger {"
       "untracked vstring destinations = {'infos.mlog','warnings.mlog'}"
@@ -105,18 +105,18 @@ namespace cond {
     
     // E.  Make the services available.
     magic->operate.reset(new edm::ServiceRegistry::Operate(tempToken));
-    
+    */
   }
 
   //------------------------------------------------------------
 
 
   CondDB::CondDB() : me(0){
-    topinit();    
+    //topinit();    
   }
   CondDB::CondDB(cond::Connection * conn, boost::shared_ptr<cond::Logger> ilog) :
     me(conn), logger(ilog) {
-    topinit();
+    //topinit();
   }
 
   // move ownership....
@@ -197,7 +197,7 @@ namespace cond {
 
 
   RDBMS::RDBMS() : session(new DBSession) {
-    topinit();
+    //topinit();
     session->configuration().setAuthenticationMethod( cond::XML );
     session->configuration().setMessageLevel( cond::Error );
     session->open();
@@ -205,7 +205,7 @@ namespace cond {
   RDBMS::~RDBMS() {}
 
   RDBMS::RDBMS(std::string const & authPath) : session(new DBSession) {
-    topinit();
+    //topinit();
     session->configuration().setAuthenticationPath(authPath);
     session->configuration().setAuthenticationMethod( cond::XML );
     session->configuration().setMessageLevel( cond::Error );
@@ -213,7 +213,7 @@ namespace cond {
   }
   
   RDBMS::RDBMS(std::string const & user,std::string const & pass) : session(new DBSession) {
-    topinit();
+    //topinit();
     std::string userenv(std::string("CORAL_AUTH_USER=")+user);
     std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
     ::putenv(const_cast<char*>(userenv.c_str()));
