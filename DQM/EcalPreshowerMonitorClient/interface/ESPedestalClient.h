@@ -38,6 +38,8 @@ class ESPedestalClient : public ESClient{
 		int EvtperJob_;
 		int EvtperRun_;
 		bool enableCleanup_;
+		bool verbose_;
+		bool debug_;
 
 		edm::FileInPath lookup_;
 		std::string prefixME_;

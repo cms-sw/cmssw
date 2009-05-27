@@ -21,6 +21,8 @@ using namespace std;
 ESPedestalClient::ESPedestalClient(const edm::ParameterSet& ps){
 
 
+  	verbose_       = ps.getUntrackedParameter<bool>("verbose", true);
+	debug_         = ps.getUntrackedParameter<bool>("debug", false);
 	prefixME_	= ps.getUntrackedParameter<string>("prefixME", "EcalPreshower");
 	lookup_		= ps.getUntrackedParameter<FileInPath>("LookupTable");
 	enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -48,6 +50,8 @@ void ESPedestalClient::beginJob(DQMStore* dqmStore) {
 
 	dqmStore_ = dqmStore;
 
+  	if ( debug_ ) cout << "ESPedestalClient: beginJob" << endl;
+
 	EvtperRun_ = 0;
 	EvtperJob_ = 0;
 
@@ -56,21 +60,24 @@ void ESPedestalClient::beginJob(DQMStore* dqmStore) {
 void ESPedestalClient::beginRun(void) {
 
 	EvtperRun_ = 0;
+ 
+	if ( debug_ ) cout << "ESPedestalClient: beginRun" << endl;
 
 	this->setup();
-
 }
 
 void ESPedestalClient::endJob(void) {
 
-	this->cleanup();
+  	if ( debug_ ) cout << "ESPedestalClient: endJob"<< endl;
 
+	this->cleanup();
 }
 
 void ESPedestalClient::endRun(void) {
 
-	this->cleanup();
+  	if ( debug_ ) cout << "ESPedestalClient: endRun"<< endl;
 
+	this->cleanup();
 }
 
 void ESPedestalClient::setup(void) {
