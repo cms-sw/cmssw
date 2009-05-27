@@ -9,7 +9,7 @@
 <flags EDM_PLUGIN=1>
 </library>
 
-<library file=" L1TriggerScalerPyWrapper.cc" name= L1TriggerScalerPyInterface>
+<library file="L1TriggerScalerPyWrapper.cc" name= L1TriggerScalerPyInterface>
 <use name=CondCore/Utilities>
 <use name=CondFormats/RunInfo>
 <use name=boost>
@@ -20,7 +20,7 @@
 </library>
 
 
-<library file=" RunSummaryPyWrapper.cc" name= RunSummaryPyInterface>
+<library file="RunSummaryPyWrapper.cc" name= RunSummaryPyInterface>
 <use name=CondCore/Utilities>
 <use name=CondFormats/RunInfo>
 <use name=boost>
@@ -31,7 +31,27 @@
 </library>
 
 
-<library file=" RunInfoPyWrapper.cc" name= RunInfoPyInterface>
+<library file="RunInfoPyWrapper.cc" name= RunInfoPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/RunInfo>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+<library file="HLTScalerPyWrapper.cc" name= HLTScalerPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/RunInfo>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+<library file="LuminosityInfoPyWrapper.cc" name= LuminosityInfoPyInterface>
 <use name=CondCore/Utilities>
 <use name=CondFormats/RunInfo>
 <use name=boost>

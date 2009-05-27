@@ -1,12 +1,9 @@
-<use name=FWCore/Framework>
 <use name=CondFormats/RunInfo>
 <use name=CondCore/PluginSystem>
 <use name=CondFormats/DataRecord>
-
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=CondCoreRunInfoPlugins>
-   <use name=FWCore/Framework>
    <use name=CondFormats/RunInfo>
    <use name=CondCore/PluginSystem>
    <use name=CondFormats/DataRecord>
