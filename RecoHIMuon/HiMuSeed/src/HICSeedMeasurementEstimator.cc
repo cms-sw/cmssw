@@ -1,5 +1,5 @@
 #include "RecoHIMuon/HiMuSeed/interface/HICSeedMeasurementEstimator.h"
-#include <CLHEP/Units/PhysicalConstants.h>
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 //#define DEBUG
 

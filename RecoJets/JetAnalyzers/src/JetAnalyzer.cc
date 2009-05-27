@@ -1486,7 +1486,7 @@ void JetAnalyzer::fillMCParticlesInsideJet(const HepMC::GenEvent genEvent,const 
 	  
 	    int NumParticle(0);
 
-  	    HepLorentzVector P4Jet(0,0,0,0);
+  	    CLHEP::HepLorentzVector P4Jet(0,0,0,0);
 
 
 	    std::vector <const GenParticle*> jetconst = ijet->getGenConstituents() ;
@@ -1496,7 +1496,7 @@ void JetAnalyzer::fillMCParticlesInsideJet(const HepMC::GenEvent genEvent,const 
 
 	      NumParticle++;
 
-	      HepLorentzVector p (jetconst[i]->px(),jetconst[i]->py(),jetconst[i]->pz(),jetconst[i]->energy());
+	      CLHEP::HepLorentzVector p (jetconst[i]->px(),jetconst[i]->py(),jetconst[i]->pz(),jetconst[i]->energy());
 
 	      P4Jet +=p;
                               
@@ -3106,7 +3106,7 @@ template <typename T> void JetAnalyzer::fillRecHitHists(const CaloGeometry& calo
   double sumPz(0);
   sumEnergy=0.0;
 
-  HepLorentzVector sumP4(0.,0.,0.,0.);
+  CLHEP::HepLorentzVector sumP4(0.,0.,0.,0.);
 
   for(iter theRecHit=RecHits.begin();theRecHit!=RecHits.end();theRecHit++){
     double energy = theRecHit->energy();

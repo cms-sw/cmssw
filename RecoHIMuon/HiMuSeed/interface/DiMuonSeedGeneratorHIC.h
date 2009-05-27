@@ -51,7 +51,7 @@
 #include "RecoHIMuon/HiMuSeed/interface/HICConst.h"
 
 // CLHEP includes
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 //#include "CLHEP/Vector/ThreeVector.h"
 //#include <CLHEP/Vector/LorentzVector.h>
 

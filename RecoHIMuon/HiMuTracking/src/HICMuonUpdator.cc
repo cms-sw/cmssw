@@ -3,7 +3,7 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include <cmath>
 #include <stdlib.h>
 #include <string>

@@ -25,7 +25,7 @@
 
 //CLHEP includes
 #include <CLHEP/Vector/LorentzVector.h>
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include <cmath>
 #include <stdlib.h>
