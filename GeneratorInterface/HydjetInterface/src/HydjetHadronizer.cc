@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetHadronizer.cc,v 1.6 2009/02/17 16:44:07 saout Exp $
+ * $Id: HydjetHadronizer.cc,v 1.1 2009/05/20 23:16:22 yilmaz Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -214,6 +214,8 @@ bool HydjetHadronizer::generatePartonsAndHadronize()
 	 ++ntry;
       }
    }
+
+   if(hyjpar.nhsel < 3) nsub_++;
 
    // event information
    HepMC::GenEvent *evt = new HepMC::GenEvent();
