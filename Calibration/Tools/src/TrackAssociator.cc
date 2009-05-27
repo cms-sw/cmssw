@@ -14,7 +14,7 @@
 // Original Author:  Dmytro Kovalskyi
 // Modified for ECAL+HCAL by:  Michal Szleper
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.cc,v 1.5 2008/05/27 16:36:33 heltsley Exp $
+// $Id: TrackAssociator.cc,v 1.6 2009/03/30 15:02:13 argiro Exp $
 //
 //
 
@@ -631,7 +631,7 @@ FreeTrajectoryState HTrackAssociator::getFreeTrajectoryState( const edm::EventSe
    int charge = track.type( )> 0 ? -1 : 1;
    GlobalTrajectoryParameters tPars(point, vector, charge, &*bField);
    
-   HepSymMatrix covT(6,1); covT *= 1e-6; // initialize to sigma=1e-3
+   CLHEP::HepSymMatrix covT(6,1); covT *= 1e-6; // initialize to sigma=1e-3
    CartesianTrajectoryError tCov(covT);
    
    return FreeTrajectoryState(tPars, tCov);
@@ -653,7 +653,7 @@ FreeTrajectoryState HTrackAssociator::getFreeTrajectoryState( const edm::EventSe
    // FIX THIS !!!
    // need to convert from perigee to global or helix (curvilinear) frame
    // for now just an arbitrary matrix.
-   HepSymMatrix covT(6,1); covT *= 1e-6; // initialize to sigma=1e-3
+   CLHEP::HepSymMatrix covT(6,1); covT *= 1e-6; // initialize to sigma=1e-3
    CartesianTrajectoryError tCov(covT);
    
    return FreeTrajectoryState(tPars, tCov);

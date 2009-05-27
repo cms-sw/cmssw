@@ -1,11 +1,11 @@
 /** \class matrixSaver
 
-    \brief save (read) HepMatrix to (from) text files 
+    \brief save (read) CLHEP::HepMatrix to (from) text files 
 
-    $Date: 2008/01/23 10:59:54 $
-    $Revision: 1.1.2.1 $
-    $Id: matrixSaver.h,v 1.1.2.1 2008/01/23 10:59:54 govoni Exp $ 
-    \author $Author: govoni $
+    $Date: 2008/02/25 17:40:25 $
+    $Revision: 1.2 $
+    $Id: matrixSaver.h,v 1.2 2008/02/25 17:40:25 malberti Exp $ 
+    \author $Author: malberti $
 */
 
 #ifndef __CINT__

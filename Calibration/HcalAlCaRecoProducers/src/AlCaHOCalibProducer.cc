@@ -53,7 +53,7 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Fri Jul  6 17:17:21 CEST 2007
-// $Id: AlCaHOCalibProducer.cc,v 1.18 2009/02/09 16:31:28 kodolova Exp $
+// $Id: AlCaHOCalibProducer.cc,v 1.19 2009/04/17 15:03:25 argiro Exp $
 //
 //
 
@@ -630,8 +630,8 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       
       PositionType trkpos(posx, posy, posz);
       
-      Hep3Vector tmpmuon3v(posx, posy, posz);
-      Hep3Vector tmpmuondir(momx, momy, momz);
+      CLHEP::Hep3Vector tmpmuon3v(posx, posy, posz);
+      CLHEP::Hep3Vector tmpmuondir(momx, momy, momz);
       
       bool samedir = (tmpmuon3v.dot(tmpmuondir) >0) ? true : false;
       for (int i=0; i<3; i++) {tmpHOCalib.caloen[i] = 0.0;}
@@ -640,14 +640,14 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  ncosmcor != cosmicmuon->end();  ++ncosmcor) {
 	if (ncosmcor==ncosm) continue;
 	
-	Hep3Vector tmpmuon3vcor;
-	Hep3Vector tmpmom3v;
+	CLHEP::Hep3Vector tmpmuon3vcor;
+	CLHEP::Hep3Vector tmpmom3v;
 	if (iiner==1) {
-	  tmpmuon3vcor = Hep3Vector((*ncosmcor).innerPosition().X(),(*ncosmcor).innerPosition().Y(),(*ncosmcor).innerPosition().Z());
-	  tmpmom3v = Hep3Vector((*ncosmcor).innerMomentum().X(),(*ncosmcor).innerMomentum().Y(),(*ncosmcor).innerMomentum().Z());
+	  tmpmuon3vcor = CLHEP::Hep3Vector((*ncosmcor).innerPosition().X(),(*ncosmcor).innerPosition().Y(),(*ncosmcor).innerPosition().Z());
+	  tmpmom3v = CLHEP::Hep3Vector((*ncosmcor).innerMomentum().X(),(*ncosmcor).innerMomentum().Y(),(*ncosmcor).innerMomentum().Z());
 	} else {
-	  tmpmuon3vcor = Hep3Vector((*ncosmcor).outerPosition().X(),(*ncosmcor).outerPosition().Y(),(*ncosmcor).outerPosition().Z());
-	  tmpmom3v = Hep3Vector((*ncosmcor).outerMomentum().X(),(*ncosmcor).outerMomentum().Y(),(*ncosmcor).outerMomentum().Z());	
+	  tmpmuon3vcor = CLHEP::Hep3Vector((*ncosmcor).outerPosition().X(),(*ncosmcor).outerPosition().Y(),(*ncosmcor).outerPosition().Z());
+	  tmpmom3v = CLHEP::Hep3Vector((*ncosmcor).outerMomentum().X(),(*ncosmcor).outerMomentum().Y(),(*ncosmcor).outerMomentum().Z());	
 	  
 	}
 	if (tmpmom3v.mag()<0.2 || (*ncosmcor).ndof()<5) continue;
@@ -675,7 +675,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  double ith = (*calt).momentum().theta();
 	  double iph = (*calt).momentum().phi();
 	  
-	  Hep3Vector calo3v(sin(ith)*cos(iph), sin(ith)*sin(iph), cos(ith));
+	  CLHEP::Hep3Vector calo3v(sin(ith)*cos(iph), sin(ith)*sin(iph), cos(ith));
 	  
 	  double angle = tmpmuon3v.angle(calo3v);
 	  
@@ -777,7 +777,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if (steppingHelixstateinfo_.isValid()) {
 
 	    GlobalVector hotrkpos2(steppingHelixstateinfo_.position().x(), steppingHelixstateinfo_.position().y(), steppingHelixstateinfo_.position().z());
-	    Hep3Vector hotrkdir2(steppingHelixstateinfo_.momentum().x(), steppingHelixstateinfo_.momentum().y(),steppingHelixstateinfo_.momentum().z());
+	    CLHEP::Hep3Vector hotrkdir2(steppingHelixstateinfo_.momentum().x(), steppingHelixstateinfo_.momentum().y(),steppingHelixstateinfo_.momentum().z());
 	    
 	    LocalVector lclvt0 = (*aPlane).toLocal(hotrkpos2);
 	    
@@ -804,7 +804,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		xhor1 = xx; //lclvt0.x();
 		yhor1 = yy; //lclvt0.y();
 		
-		tmpHOCalib.hoang = Hep3Vector(zLocal.x(),zLocal.y(),zLocal.z()).dot(hotrkdir2.unit());
+		tmpHOCalib.hoang = CLHEP::Hep3Vector(zLocal.x(),zLocal.y(),zLocal.z()).dot(hotrkdir2.unit());
 		break;
 	      default : break;
 	      }

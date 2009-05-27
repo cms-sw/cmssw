@@ -3,7 +3,7 @@
 // Class:      SiStripGainCosmicCalculator
 // Original Author:  G. Bruno, D. Kcira
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripGainCosmicCalculator.cc,v 1.7 2008/04/23 08:46:48 querten Exp $
+// $Id: SiStripGainCosmicCalculator.cc,v 1.8 2008/04/23 08:47:10 querten Exp $
 #include "CalibTracker/SiStripChannelGain/plugins/SiStripGainCosmicCalculator.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
@@ -428,7 +428,7 @@ TH1F *CorrectionOfEachAPVPairControlView = new TH1F("CorrectionOfEachAPVPairCont
 
 //       //      if(sigmaGain_/meanGain_ < 0.00001) gain = meanGain_;
 //       //      else{
-//       gain = RandGauss::shoot(meanGain_, sigmaGain_);
+//       gain = CLHEP::RandGauss::shoot(meanGain_, sigmaGain_);
 //       if(gain<=minimumPosValue_) gain=minimumPosValue_;
 //       //      }
 

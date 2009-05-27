@@ -3,7 +3,7 @@
 // Class:      SiStripGainRandomCalculator
 // Original Author:  G. Bruno
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripGainRandomCalculator.cc,v 1.4 2007/06/13 14:03:35 gbruno Exp $
+// $Id: SiStripGainRandomCalculator.cc,v 1.5 2008/01/22 18:49:04 muzaffar Exp $
 
 #include "CalibTracker/SiStripChannelGain/plugins/SiStripGainRandomCalculator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -104,7 +104,7 @@ SiStripApvGain * SiStripGainRandomCalculator::getNewObject() {
 
       //      if(sigmaGain_/meanGain_ < 0.00001) gain = meanGain_;
       //      else{
-      gain = RandGauss::shoot(meanGain_, sigmaGain_);
+      gain = CLHEP::RandGauss::shoot(meanGain_, sigmaGain_);
       if(gain<=minimumPosValue_) gain=minimumPosValue_;
       //      }
 
