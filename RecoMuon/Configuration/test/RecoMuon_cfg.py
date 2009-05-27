@@ -24,8 +24,8 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:muPt10_1.root')
-)
+                            fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre7/RelValSingleMuPt10/GEN-SIM-RECO/IDEAL_31X_v1/0004/B89FA4AB-CC41-DE11-8348-000423D98B28.root')
+                            )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(2)
@@ -34,9 +34,10 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('RecoMuons.root')
 )
 
-process.p = cms.Path(process.RawToDigi*process.trackerlocalreco*process.ckftracks*process.muonreco_plus_isolation*process.muoncosmicreco)
+process.p = cms.Path(process.muonreco_plus_isolation)
+
 process.this_is_the_end = cms.EndPath(process.out)
 
-process.GlobalTag.globaltag = 'IDEAL_V9::All'
+process.GlobalTag.globaltag = 'IDEAL_31X::All'
 
 
