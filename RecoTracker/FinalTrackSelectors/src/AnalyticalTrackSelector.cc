@@ -122,6 +122,7 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
                         trk.seedDirection(), trk.seedRef() ) );
             selTracks_->back().setExtra( TrackExtraRef( rTrackExtras_, selTrackExtras_->size() - 1) );
             TrackExtra & tx = selTrackExtras_->back();
+	    tx.setResiduals(trk.residuals());
             // TrackingRecHits
             for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
                 selHits_->push_back( (*hit)->clone() );

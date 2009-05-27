@@ -8,8 +8,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: vlimant $
-// $Date: 2009/05/14 15:06:08 $
-// $Revision: 1.21 $
+// $Date: 2009/05/18 10:14:28 $
+// $Revision: 1.22 $
 //
 
 #include <memory>
@@ -537,6 +537,7 @@ namespace cms
 	  seedsRefs[current]=origSeedRef;
           outputTrks->back().setExtra( reco::TrackExtraRef( refTrkExtras, outputTrkExtras->size() - 1) );
           reco::TrackExtra & tx = outputTrkExtras->back();
+	  tx.setResiduals(theTrack.residuals());
           // fill TrackingRecHits
           std::vector<const TrackingRecHit*>& iHits = rh1[track]; 
           unsigned nh1 = iHits.size();
@@ -654,6 +655,7 @@ namespace cms
 	  seedsRefs[current]=origSeedRef;
           outputTrks->back().setExtra( reco::TrackExtraRef( refTrkExtras, outputTrkExtras->size() - 1) );
           reco::TrackExtra & tx = outputTrkExtras->back();
+	  tx.setResiduals(theTrack.residuals());
           // fill TrackingRecHits
           std::vector<const TrackingRecHit*>& jHits = rh2[track]; 
           unsigned nh2 = jHits.size();

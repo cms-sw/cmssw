@@ -147,6 +147,7 @@ void TrackMultiSelector::produce( edm::Event& evt, const edm::EventSetup& es )
                     trk.seedDirection(), trk.seedRef() ) );
         selTracks_[where]->back().setExtra( TrackExtraRef( rTrackExtras_[where], selTrackExtras_[where]->size() - 1) );
         TrackExtra & tx = selTrackExtras_[where]->back();
+	tx.setResiduals(trk.residuals());
         // TrackingRecHits
         for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
             selHits_[where]->push_back( (*hit)->clone() );
