@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.117 $"
+__version__ = "$Revision: 1.118 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -488,7 +488,13 @@ class ConfigBuilder(object):
     def prepare_HLT(self, sequence = None):
         """ Enrich the schedule with the HLT simulation step"""
 	if not sequence:
-            self.loadAndRemember(self.HLTDefaultCFF)
+	    #horible hack!!! hardwire based on global tag to sync with l1 
+	    if 'IDEAL' in self._options.conditions: 	
+		print 'loading 1e31 menu'    
+		self.loadAndRemember("HLTrigger/Configuration/HLT_1E31_cff")
+	    else:
+		print 'loading 8e29 menu'    
+		self.loadAndRemember("HLTrigger/Configuration/HLT_8E29_cff")
         else:
             # let the HLT package decide for the scenarios available
             from HLTrigger.Configuration.ConfigBuilder import getConfigsForScenario
@@ -605,10 +611,10 @@ class ConfigBuilder(object):
         if sequence in ('all','allWithHLTFiltering',''):
 	    #horible hack!!! hardwire based on global tag to sync with l1 
 	    if 'IDEAL' in self._options.conditions: 	
-		print 'loading 1e31'    
+		print 'loading 1e31 menu'    
 		self.loadAndRemember("FastSimulation/Configuration/HLT_1E31_cff")
 	    else:
-		print 'loading 8e29'    
+		print 'loading 8e29 menu'    
 		self.loadAndRemember("FastSimulation/Configuration/HLT_8E29_cff")
 
             # no need to repeat the definition later on in the created file 
@@ -665,7 +671,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.117 $"),
+              (version=cms.untracked.string("$Revision: 1.118 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
