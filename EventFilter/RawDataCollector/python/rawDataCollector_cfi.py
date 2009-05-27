@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 # This switch is needed in case a FEDRawDataCollection is already 
 # present but is not wanted 
 rawDataCollector = cms.EDFilter("RawDataCollectorModule",
-    currentProcessOnly = cms.bool(False)
+    currentProcessOnly = cms.bool(True)
 )
 
 
