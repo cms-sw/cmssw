@@ -1,8 +1,9 @@
 #ifndef _CB_LINE_SHAPE_HH_
 #define _CB_LINE_SHAPE_HH_
 
-#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-#include <vector>
+namespace edm {
+  class ParameterSet;
+}
 
 class RooRealVar;
 class RooAddPdf;

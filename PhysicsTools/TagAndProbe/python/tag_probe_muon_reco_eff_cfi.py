@@ -85,5 +85,3 @@ passProbeMuonMatch = cms.EDFilter("MCTruthDeltaRMatcherNew",
 )
 
 muon_cands = cms.Sequence(allTracks+staTracks*tagCands+tkProbeCands+staCands*TkStaMap*TkStaMatched+TkStaUnmatched+muonTagProbeMap+tagMuonMatch+allProbeMuonMatch+passProbeMuonMatch)
-
-

@@ -1,7 +1,7 @@
 #include "PhysicsTools/TagAndProbe/interface/CMSBkgLineShape.hh"
 #include "PhysicsTools/TagAndProbe/interface/RooCMSShapePdf.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <RooRealVar.h>
 #include <RooAddPdf.h>

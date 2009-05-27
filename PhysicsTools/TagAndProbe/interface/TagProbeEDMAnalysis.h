@@ -4,7 +4,7 @@
 //
 // Original Author: Nadia Adam (Princeton University) 
 //         Created:  Fri May 16 16:48:24 CEST 2008
-// $Id: TagProbeEDMAnalysis.h,v 1.15 2009/05/18 12:33:56 ahunt Exp $
+// $Id: TagProbeEDMAnalysis.h,v 1.16 2009/05/19 11:39:31 ahunt Exp $
 //
 //
 // Kalanand Mishra: July 1, 2008 
@@ -18,12 +18,9 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-class TH1F;
-class TFile;
-class TTree;
-class TH2F;
 
 class EffTableLoader;
+class SideBandSubtraction;
 
 class ZLineShape;
 class CBLineShape;
@@ -34,6 +31,11 @@ class CMSBkgLineShape;
 class RooRealVar;
 class RooAddPdf;
 
+class TH1F;
+class TFile;
+class TTree;
+class TH2F;
+
 class TagProbeEDMAnalysis : public edm::EDAnalyzer{
 
    public:
@@ -41,13 +43,11 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer{
       ~TagProbeEDMAnalysis();
 
    private:
-      virtual void beginJob() ;
+      virtual void beginJob() {}
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
-      int SaveHistogram(TH1F& Histo, std::string outFileName, int LogY);
-
-      void SideBandSubtraction(const TH1F& Total, TH1F& Result, double Peak, double SD);
+      int SaveHistogram(TH1F& Histo, std::string outFileName, int LogY = 0);
       void TPEffFitter( std::string &fileName, std::string &bvar, std::vector<double> bins,
 			 std::string &bvar2, double bvar2Lo, double bvar2Hi );
       void TPEffFitter2D( std::string &fileName, std::string &bvar1, std::vector<double> bins1,
@@ -58,25 +58,29 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer{
 			std::string &bvar2, std::vector<double> bins2 );
       void makeSignalPdf();
       void makeBkgPdf();
-      void doFit( std::string &bvar1, std::vector< double > bins1, int bin1, 
-		  std::string &bvar2, std::vector<double> bins2, int bin2, 
-                  double &eff, double &err, bool is2D = false );
+
+      void doFit( const std::string &bvar1, const std::vector< double >& bins1, const int bin1,
+		  const std::string &bvar2, const std::vector< double >& bins2, const int bin2,
+		  double &eff, double &hierr, double &loerr, double &chi2Val, double& quality, const bool is2D = false );
 
       void TPEffMCTruth();
       void TPEffMCTruth2D();
 
       void CalculateEfficiencies();
 
-      void FillFitTree(const edm::Event&);
+      void CreateFitTree();
+      void FillFitTree(const edm::Event& iEvent);
 
-      void ConfigureGaussLineShape(const edm::ParameterSet&);
-      void ConfigurePolynomialShape(const edm::ParameterSet&);
-      void ConfigureCMSBackgroundLineShape(const edm::ParameterSet&);
+      void CreateMCTree();
+      void FillMCTree(const edm::Event& iEvent);
 
       void InitializeMCHistograms();
       void ReadMCHistograms();
       void CleanUpMCHistograms();
       void WriteMCHistograms();
+
+      void ConfigureQuantityHistograms(const edm::ParameterSet& QuantPSet);
+      void CreateQuantityHistograms(const edm::Event& iEvent);
 
       void cleanFitVariables();
 
@@ -108,21 +112,21 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer{
       bool do2DFit_;            // Do the 2D fit as well
       bool useRecoVarsForTruthMatchedCands_; // use reco vars for calcEffsTruth
 
-      int massNbins_;           // Number of bins in the fit
+      unsigned int massNbins_;           // Number of bins in the fit
       double massLow_;          // Lower bound for fit range
       double massHigh_;         // Upper bound for fit range
       double inweight_;
       
       std::string var1Name_;          // Name of variable one (default pt)
       std::string var1NameUp_;        // Name of variable one uppercase (default Pt)
-      int var1Nbins_;                 // Number of var1 eff bins
+      unsigned int var1Nbins_;                 // Number of var1 eff bins
       double var1Low_;                // Lower bound for var1 eff range
       double var1High_;               // Upper bound for var1 eff range
       std::vector<double> var1Bins_;  // Bin boundaries for var1 if non-uniform desired
 
       std::string var2Name_;         // Name of variable two (default eta)
       std::string var2NameUp_;       // Name of variable two uppercase (default Eta)
-      int var2Nbins_;                // Number of var2 eff bins
+      unsigned int var2Nbins_;                // Number of var2 eff bins
       double var2Low_;               // Lower bound for var2 eff range
       double var2High_;              // Upper bound for var2 eff range
       std::vector<double> var2Bins_; // Bin boundaries for var2 if non-uniform desired
@@ -148,8 +152,8 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer{
       std::vector<double> numBkgPass_;       // Background events passing from fit
       std::vector<double> numBkgFail_;       // Background events failing from fit
 
-      double SBSPeak_;                       // Sideband sub peak
-      double SBSStanDev_;                    // Sideband sub standard deviation
+      SideBandSubtraction* SBS_;
+      
 
       std::string mode_;                     // Mode of operation (Normal,Read,Write)  
       std::string fitFileName_;              // Name of the root file to write to
@@ -157,11 +161,14 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer{
 
       TFile *outRootFile_;
       TTree *fitTree_;
+      TTree *mcTree_;
       int    ProbePass_;
       double Mass_;
       double Var1_;
       double Var2_;
       double Weight_;
+      double MCVar1_;
+      double MCVar2_;
 
       // True MC Truth
       TH1F *var1Pass_;
@@ -182,8 +189,6 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer{
 
       TH2F *var1var2BiasPass_;
       TH2F *var1var2BiasAll_;
-
-      TH1F* Histograms_;
 
       int* NumEvents_;
 

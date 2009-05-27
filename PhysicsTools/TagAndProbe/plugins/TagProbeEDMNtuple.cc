@@ -13,7 +13,7 @@
 //
 // Original Author:  Nadia Adam
 //         Created:  Mon May  5 08:47:29 CDT 2008
-// $Id: TagProbeEDMNtuple.cc,v 1.12 2009/03/24 19:32:38 ahunt Exp $
+// $Id: TagProbeEDMNtuple.cc,v 1.13 2009/04/06 19:18:36 ahunt Exp $
 //
 //
 // Kalanand Mishra: October 7, 2008 
@@ -548,7 +548,7 @@ void TagProbeEDMNtuple::fillMCInfo()
 
 	    int nmc = 0;
 
-	    for( unsigned int i=0; i<genparticles->size(); i++ )
+	    for( unsigned int i=0; i<genparticles->size(); ++i)
 	    {
 	       int pdg = (*genparticles)[i].pdgId();
 	       
@@ -605,7 +605,7 @@ void TagProbeEDMNtuple::fillMCInfo()
 		     mc_phi_->push_back( phi );
 		     mc_eta_->push_back( eta );
 
-		     nmc++;
+		     ++nmc;
 		  }
 	    }
 
@@ -957,25 +957,25 @@ TagProbeEDMNtuple::fillTagProbeInfo()
 	    // Now look for deltaR between tag & nearest CaloJet
 	    Handle<reco::CaloJetCollection> jetsColl;
 	    if ( !m_event->getByLabel(jetTags_, jetsColl) ) {
-	      LogWarning("Z") << "Could not extract jet with input tag " << jetTags_;}
-	    if ( !jetsColl->size() == 0){
-	      double totaljets = 0.;
-	      double dRjet_probe_min = 99.;
-	      int iCounter = 0;
-	      for (CaloJetCollection::const_iterator jet = jetsColl->begin(); 
-		   jet != jetsColl->end(); ++jet) {
-		++iCounter;
-		if (jet->et() < 0.5 ) continue ;
-		double dRjet_probe = deltaR(deta, dphi, jet->eta(), jet->phi());
-		if(iCounter == 1) dRjet_probe_min = dRjet_probe;
-		if (dRjet_probe < dRjet_probe_min) {
-		  dRjet_probe_min = dRjet_probe;
+	      LogWarning("Z") << "Could not extract jet with input tag " << jetTags_;
+	      if ( !jetsColl->size() == 0){
+		double totaljets = 0.;
+		double dRjet_probe_min = 99.;
+		int iCounter = 0;
+		for (CaloJetCollection::const_iterator jet = jetsColl->begin(); 
+		     jet != jetsColl->end(); ++jet) {
+		  ++iCounter;
+		  if (jet->et() < 0.5 ) continue ;
+		  double dRjet_probe = deltaR(deta, dphi, jet->eta(), jet->phi());
+		  if(iCounter == 1) dRjet_probe_min = dRjet_probe;
+		  if (dRjet_probe < dRjet_probe_min) {
+		    dRjet_probe_min = dRjet_probe;
+		  }
+		  ++totaljets;
 		}
-		++totaljets;
-	      }
-	      tp_probe_jetDeltaR_->push_back(  dRjet_probe_min );
-	      tp_probe_totJets_->push_back(  totaljets);}
-
+		tp_probe_jetDeltaR_->push_back(  dRjet_probe_min );
+		tp_probe_totJets_->push_back(  totaljets);}
+	    }  
 	    ++nrtp;
 	 }
       }
@@ -1142,7 +1142,7 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 			    << "with input tag " << passProbeTruthMatchMapTags_[itype];
 	 }
 
-	 for( unsigned int i=0; i<genparticles->size(); i++ )
+	 for( unsigned int i=0; i<genparticles->size(); ++i )
 	 {
 	    int pdg_id = (*genparticles)[i].pdgId();
 
@@ -1437,7 +1437,7 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 	    cnd_Detphi_->push_back( Detphi );
 	    cnd_Deteta_->push_back( Deteta );
 
-	    ncnd++;
+	    ++ncnd;
 	 }
       }
    }

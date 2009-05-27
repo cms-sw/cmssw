@@ -1,4 +1,5 @@
 #include "PhysicsTools/TagAndProbe/interface/CBLineShape.hh"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <RooRealVar.h>
 #include <RooCBShape.h>

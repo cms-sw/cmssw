@@ -1,6 +1,6 @@
 #include "PhysicsTools/TagAndProbe/interface/ZLineShape.hh"
 
-#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <RooRealVar.h>
 #include <RooBifurGauss.h>

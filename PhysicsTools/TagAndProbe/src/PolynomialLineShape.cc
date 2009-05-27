@@ -1,7 +1,7 @@
 #include "PhysicsTools/TagAndProbe/interface/PolynomialLineShape.hh"
 
 // CMSSW
-#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
  
 // RooFit
 #include <RooRealVar.h>
