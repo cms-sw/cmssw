@@ -16,13 +16,13 @@ void SiStripPerformanceSummaryBuilder::analyze(const edm::Event& iEvent, const e
  
   for(std::vector<uint32_t>::const_iterator idet = reader.getAllDetIds().begin(); idet != reader.getAllDetIds().end(); ++idet){
     // generate random values for each detId
-    float clusterSizeMean = (float) RandGauss::shoot(4.,2.);
-    float clusterSizeRMS  = (float) RandGauss::shoot(2.,1.);
-    float clusterChargeMean = (float) RandGauss::shoot(70.,10.);
-    float clusterChargeRMS  = (float) RandGauss::shoot(10.,1.);
-    float occupancyMean = (float) RandGauss::shoot(50.,20.);
-    float occupancyRMS  = (float) RandGauss::shoot(20.,4.);
-    float noisyStrips = (float) RandGauss::shoot(7.,1.);
+    float clusterSizeMean = (float) CLHEP::RandGauss::shoot(4.,2.);
+    float clusterSizeRMS  = (float) CLHEP::RandGauss::shoot(2.,1.);
+    float clusterChargeMean = (float) CLHEP::RandGauss::shoot(70.,10.);
+    float clusterChargeRMS  = (float) CLHEP::RandGauss::shoot(10.,1.);
+    float occupancyMean = (float) CLHEP::RandGauss::shoot(50.,20.);
+    float occupancyRMS  = (float) CLHEP::RandGauss::shoot(20.,4.);
+    float noisyStrips = (float) CLHEP::RandGauss::shoot(7.,1.);
     // set values
     psummary->setClusterSize(*idet, clusterSizeMean, clusterSizeRMS);
     psummary->setClusterCharge(*idet, clusterChargeMean, clusterChargeRMS);

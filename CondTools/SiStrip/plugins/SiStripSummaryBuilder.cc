@@ -75,7 +75,7 @@ void SiStripSummaryBuilder::analyze(const edm::Event& evt, const edm::EventSetup
   {  
 
      SiStripSummary::InputVector values;
-     for (unsigned int i=0; i<userDBContent.size(); i++) values.push_back((float) RandGauss::shoot(50.,30.));
+     for (unsigned int i=0; i<userDBContent.size(); i++) values.push_back((float) CLHEP::RandGauss::shoot(50.,30.));
      
      ss2<< "\n\tdetid " << detid;
      for(size_t j=0;j<values.size();++j)  ss2 << "\n\t\t "<< userDBContent[j] <<" "<< values[j];

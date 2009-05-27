@@ -30,7 +30,7 @@ void SiStripPedestalsBuilder::analyze(const edm::Event& evt, const edm::EventSet
       float MeanPed   = 100;
       float RmsPed    = 5;
 
-      float ped = RandGauss::shoot(MeanPed,RmsPed);
+      float ped = CLHEP::RandGauss::shoot(MeanPed,RmsPed);
 
       if ( count<static_cast<int>(printdebug_))
 	edm::LogInfo("SiStripPedestalsBuilder") << "detid "  << it->first << " \t"
