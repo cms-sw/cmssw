@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.65 2009/05/26 23:38:05 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.64 2009/05/20 13:57:40 chamont Exp $
 //
 //
 
@@ -49,8 +49,6 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
-
-#include "TrackingTools/TransientTrackingRecHit/interface/RecHitComparatorByPosition.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
@@ -294,8 +292,7 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
 
   if (applyAmbResolution_)
    {
-    //resolveElectrons(tempEle1, outEle);
-    resolveElectrons(tempEle1, outEle, pEBRecHits, pEERecHits);
+    resolveElectrons(tempEle1, outEle);
 
     std::ostringstream str2 ;
 
@@ -805,20 +802,15 @@ bool  GsfElectronAlgo::calculateTSOS(const GsfTrack &t,const SuperCluster & theC
 bool better_electron( const reco::GsfElectron * e1, const reco::GsfElectron * e2 )
  { return (fabs(e1->eSuperClusterOverP()-1)<fabs(e2->eSuperClusterOverP()-1)) ; }
 
-//void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::GsfElectronCollection & outEle)
-void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::GsfElectronCollection & outEle,
-       edm::Handle<EcalRecHitCollection> & reducedEBRecHits,
-       edm::Handle<EcalRecHitCollection> & reducedEERecHits )
+void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::GsfElectronCollection & outEle )
  {
   GsfElectronPtrCollection::iterator e1, e2 ;
-  //inEle.sort(better_electron) ;
-  inEle.sort(innermost_electron(trackerHandle_)) ;
+  inEle.sort(better_electron) ;
 
   // resolve when e/g SC is found
   for( e1 = inEle.begin() ;  e1 != inEle.end() ; ++e1 )
    {
     SuperClusterRef scRef1 = (*e1)->superCluster();
-    CaloClusterPtr eleClu1 = getEleBasicCluster((*e1)->gsfTrack(),&(*scRef1));
     LogDebug("GsfElectronAlgo")
       << "Blessing electron with E/P " << (*e1)->eSuperClusterOverP()
       << ", cluster " << scRef1.get()
@@ -827,12 +819,7 @@ void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::
     for( e2 = e1, ++e2 ;  e2 != inEle.end() ; )
      {
       SuperClusterRef scRef2 = (*e2)->superCluster();
-      CaloClusterPtr eleClu2 = getEleBasicCluster((*e2)->gsfTrack(),&(*scRef2));
-//      if (scRef1==scRef2)
-      if (sharedEnergy(&(*eleClu1),&(*eleClu2),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta()) ||
-        (sharedEnergy(&(*scRef1->seed()),&(*eleClu2),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta())) ||
-        (sharedEnergy(&(*eleClu1),&(*scRef2->seed()),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta())) ||
-        (sharedEnergy(&(*scRef1->seed()),&(*scRef2->seed()),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta())))
+      if (scRef1==scRef2)
        {
         LogDebug("GsfElectronAlgo")
           << "Discarding electron with E/P " << (*e2)->eSuperClusterOverP()
@@ -855,6 +842,45 @@ void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::
     outEle.push_back(**e1) ;
    }
 
+//   // next resolve when pflow only SC is found
+//   for( e1 = inEle.begin() ;  e1 != inEle.end() ; ++e1 )
+//    {
+//     SuperClusterRef scRef1 = (*e1)->superCluster();
+//     SuperClusterRef pfscRef1 = (*e1)->pflowSuperCluster();
+//     if (!scRef1.isNull() || pfscRef1.isNull()) continue;
+//
+//     LogDebug("GsfElectronAlgo")
+//       << "Blessing electron with E/P " << (*e1)->eSuperClusterOverP()
+//       << ", cluster " << pfscRef1.get()
+//       << " & track " << (*e1)->gsfTrack().get() ;
+//
+//     for( e2 = e1, ++e2 ;  e2 != inEle.end() ; )
+//      {
+//       SuperClusterRef scRef2 = (*e2)->superCluster();
+//       SuperClusterRef pfscRef2 = (*e2)->pflowSuperCluster();
+//       if (!scRef2.isNull() || pfscRef2.isNull()) continue;
+//       if (pfscRef1==pfscRef2)
+//        {
+//         LogDebug("GsfElectronAlgo")
+//           << "Discarding electron with E/P " << (*e2)->eSuperClusterOverP()
+//           << ", cluster " << pfscRef2.get()
+//           << " and track " << (*e2)->gsfTrack().get() ;
+//         (*e1)->addAmbiguousGsfTrack((*e2)->gsfTrack()) ;
+//         e2 = inEle.erase(e2) ;
+//        }
+//       else if ((*e1)->gsfTrack()==(*e2)->gsfTrack())
+//        {
+//         LogDebug("GsfElectronAlgo")
+//           << "Forgetting electron with E/P " << (*e2)->eSuperClusterOverP()
+//           << ", cluster " << pfscRef2.get()
+//           << " and track " << (*e2)->gsfTrack().get() ;
+//         e2 = inEle.erase(e2) ;
+//        }
+//       else
+//        { ++e2 ; }
+//      }
+//     outEle.push_back(**e1) ;
+//    }
  }
 
 
@@ -947,145 +973,3 @@ pair<TrackRef,float> GsfElectronAlgo::getCtfTrackRef(const GsfTrackRef& gsfTrack
 
   return make_pair(ctfTrackRef,maxFracShared) ;
  }
-
-int GsfElectronAlgo::sharedHits(const GsfTrackRef& gsfTrackRef1, const
-GsfTrackRef& gsfTrackRef2 ) {
-
-  //get the Hit Pattern for the gsfTracks
-  const HitPattern& gsfHitPattern1 = gsfTrackRef1->hitPattern();
-  const HitPattern& gsfHitPattern2 = gsfTrackRef2->hitPattern();
-  
-  unsigned int shared = 0;
-
-  int gsfHitCounter1 = 0;
-  for(trackingRecHit_iterator elHitsIt1 = gsfTrackRef1->recHitsBegin();
-      elHitsIt1 != gsfTrackRef1->recHitsEnd(); elHitsIt1++, gsfHitCounter1++) {
-    if(!((**elHitsIt1).isValid()))  //count only valid Hits
-      continue;
-    //if (gsfHitCounter1>1) continue; // test only the first hit of the track 1
-    uint32_t gsfHit = gsfHitPattern1.getHitPattern(gsfHitCounter1);
-    if(!(gsfHitPattern1.pixelHitFilter(gsfHit) 
-	 || gsfHitPattern1.stripTIBHitFilter(gsfHit) 
-	 || gsfHitPattern1.stripTOBHitFilter(gsfHit) 
-	 || gsfHitPattern1.stripTECHitFilter(gsfHit) 
-	 || gsfHitPattern1.stripTIDHitFilter(gsfHit) ) 
-    ) continue;
-    int gsfHitsCounter2 = 0;
-    for(trackingRecHit_iterator gsfHitsIt2 = gsfTrackRef2->recHitsBegin();
-        gsfHitsIt2 != gsfTrackRef2->recHitsEnd(); gsfHitsIt2++, gsfHitsCounter2++) {
-      if(!((**gsfHitsIt2).isValid())) //count only valid Hits!
-	continue;
-
-      uint32_t gsfHit2 = gsfHitPattern2.getHitPattern(gsfHitsCounter2);
-      if(!(gsfHitPattern2.pixelHitFilter(gsfHit2) 
-	 || gsfHitPattern2.stripTIBHitFilter(gsfHit2) 
-	 || gsfHitPattern2.stripTOBHitFilter(gsfHit2) 
-	 || gsfHitPattern2.stripTECHitFilter(gsfHit2) 
-	 || gsfHitPattern2.stripTIDHitFilter(gsfHit2) ) 
-      ) continue;
-      if( (**elHitsIt1).sharesInput(&(**gsfHitsIt2), TrackingRecHit::some) ) {
-//        if (comp.equals(&(**elHitsIt1),&(**gsfHitsIt2))) {
-        //std::cout << "found shared hit " << gsfHit2 << std::endl;
-  	shared++;
-      }
-    }//gsfHits2 iterator
-  }//gsfHits1 iterator
-     
-  //std::cout << "[sharedHits] number of shared hits " << shared << std::endl;  
-  return shared;
-
-}
-
-int GsfElectronAlgo::sharedDets(const GsfTrackRef& gsfTrackRef1, const
- GsfTrackRef& gsfTrackRef2 ) {
-
-  //get the Hit Pattern for the gsfTracks
-  const HitPattern& gsfHitPattern1 = gsfTrackRef1->hitPattern();
-  const HitPattern& gsfHitPattern2 = gsfTrackRef2->hitPattern();
-  
-  unsigned int shared = 0;
-
-  int gsfHitCounter1 = 0;
-  for(trackingRecHit_iterator elHitsIt1 = gsfTrackRef1->recHitsBegin();
-      elHitsIt1 != gsfTrackRef1->recHitsEnd(); elHitsIt1++, gsfHitCounter1++) {
-    if(!((**elHitsIt1).isValid()))  //count only valid Hits
-      continue;
-    //if (gsfHitCounter1>1) continue; // to test only the first hit of the track 1
-    uint32_t gsfHit = gsfHitPattern1.getHitPattern(gsfHitCounter1);
-    if(!(gsfHitPattern1.pixelHitFilter(gsfHit) 
-	 || gsfHitPattern1.stripTIBHitFilter(gsfHit) 
-	 || gsfHitPattern1.stripTOBHitFilter(gsfHit) 
-	 || gsfHitPattern1.stripTECHitFilter(gsfHit) 
-	 || gsfHitPattern1.stripTIDHitFilter(gsfHit) ) 
-    ) continue;
-    int gsfHitsCounter2 = 0;
-    for(trackingRecHit_iterator gsfHitsIt2 = gsfTrackRef2->recHitsBegin();
-        gsfHitsIt2 != gsfTrackRef2->recHitsEnd(); gsfHitsIt2++, gsfHitsCounter2++) {
-      if(!((**gsfHitsIt2).isValid())) //count only valid Hits!
-	continue;
-
-      uint32_t gsfHit2 = gsfHitPattern2.getHitPattern(gsfHitsCounter2);
-      if(!(gsfHitPattern2.pixelHitFilter(gsfHit2) 
-	   || gsfHitPattern2.stripTIBHitFilter(gsfHit2) 
-	   || gsfHitPattern1.stripTOBHitFilter(gsfHit2) 
-	   || gsfHitPattern2.stripTECHitFilter(gsfHit2) 
-	   || gsfHitPattern2.stripTIDHitFilter(gsfHit2) ) 
-      ) continue;
-      if ((**elHitsIt1).geographicalId() == (**gsfHitsIt2).geographicalId()) shared++;
-    }//gsfHits2 iterator
-  }//gsfHits1 iterator
-     
-  //std::cout << "[sharedHits] number of shared dets " << shared << std::endl; 
-  //return shared/min(gsfTrackRef1->numberOfValidHits(),gsfTrackRef2->numberOfValidHits());
-  return shared;
-
-}
-
-float GsfElectronAlgo::sharedEnergy(const CaloCluster *clu1, const CaloCluster *clu2,
-       edm::Handle<EcalRecHitCollection> & reducedEBRecHits,
-       edm::Handle<EcalRecHitCollection> & reducedEERecHits ) {
-
-  double fractionShared = 0;
-
-  std::vector< std::pair<DetId, float> > v_id1 = clu1->hitsAndFractions();
-  std::vector< std::pair<DetId, float> > v_id2 = clu2->hitsAndFractions();
-  std::vector< std::pair<DetId, float> >::iterator ih1;
-  std::vector< std::pair<DetId, float> >::iterator ih2;
-
-  for(ih1 = v_id1.begin();ih1 != v_id1.end(); ih1++) {
-
-    for(ih2 = v_id2.begin();ih2 != v_id2.end(); ih2++) {
-
-      if ( (*ih1).first != (*ih2).first ) continue;
-
-      // here we have common Xtal id	
-      EcalRecHitCollection::const_iterator itt;
-      if ((*ih1).first.subdetId() == EcalBarrel) {
-	if ((itt=reducedEBRecHits->find((*ih1).first))!=reducedEBRecHits->end())
-	fractionShared += itt->energy();
-      } else if ((*ih1).first.subdetId() == EcalEndcap) {
-	if ((itt=reducedEERecHits->find((*ih1).first))!=reducedEERecHits->end())
-	fractionShared += itt->energy();
-      }
-
-    }
-  }
-  
-  //std::cout << "[sharedEnergy] shared energy /min(energy1,energy2) " << fractionShared << std::endl;       
-  return fractionShared;
-
-}
-
-float GsfElectronAlgo::sharedEnergy(const SuperClusterRef& sc1, const SuperClusterRef& sc2,
-       edm::Handle<EcalRecHitCollection> & reducedEBRecHits,
-       edm::Handle<EcalRecHitCollection> & reducedEERecHits ) {
-
-  double energyShared = 0;
-  for(CaloCluster_iterator icl1=sc1->clustersBegin();icl1!=sc1->clustersEnd(); icl1++) {   
-    for(CaloCluster_iterator icl2=sc2->clustersBegin();icl2!=sc2->clustersEnd(); icl2++) {
-      energyShared += sharedEnergy(&(**icl1),&(**icl2),reducedEBRecHits,reducedEERecHits );	
-    }
-  }
-  return energyShared;
-  
-}
