@@ -216,14 +216,14 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 		for (int i = 0; i < nEntries1; ++i){
 			
 			_inputTree1->GetEntry(i);
-			Hep3Vector translation1(inputX1, inputY1, inputZ1);
-			HepEulerAngles eulerangles1(inputAlpha1,inputBeta1,inputGamma1);
+			CLHEP::Hep3Vector translation1(inputX1, inputY1, inputZ1);
+			CLHEP::HepEulerAngles eulerangles1(inputAlpha1,inputBeta1,inputGamma1);
 			uint32_t detid1 = inputRawId1;
 			AlignTransform transform1(translation1, eulerangles1, detid1);
 			alignments1->m_align.push_back(transform1);
 			
 			//dummy errors
-			HepSymMatrix clhepSymMatrix(3,0);
+			CLHEP::HepSymMatrix clhepSymMatrix(3,0);
 			AlignTransformError transformError(clhepSymMatrix, detid1);
 			alignmentErrors1->m_alignError.push_back(transformError);
 		}		
@@ -251,14 +251,14 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 		for (int i = 0; i < nEntries2; ++i){
 			
 			_inputTree2->GetEntry(i);
-			Hep3Vector translation2(inputX2, inputY2, inputZ2);
-			HepEulerAngles eulerangles2(inputAlpha2,inputBeta2,inputGamma2);
+			CLHEP::Hep3Vector translation2(inputX2, inputY2, inputZ2);
+			CLHEP::HepEulerAngles eulerangles2(inputAlpha2,inputBeta2,inputGamma2);
 			uint32_t detid2 = inputRawId2;
 			AlignTransform transform2(translation2, eulerangles2, detid2);
 			alignments2->m_align.push_back(transform2);
 			
 			//dummy errors
-			HepSymMatrix clhepSymMatrix(3,0);
+			CLHEP::HepSymMatrix clhepSymMatrix(3,0);
 			AlignTransformError transformError(clhepSymMatrix, detid2);
 			alignmentErrors2->m_alignError.push_back(transformError);
 		}			
@@ -323,16 +323,16 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* cur
 		//std::cout << "ali identifiers: " << refAli->id() << ", " << refAli->alignableObjectId() << std::endl;
 		//std::cout << "diff pos" << (refAli->globalPosition() - curAli->globalPosition()) << std::endl;
 		//std::cout <<"z";
-	        Hep3Vector Rtotal, Wtotal, lRtotal, lWtotal;
+	        CLHEP::Hep3Vector Rtotal, Wtotal, lRtotal, lWtotal;
 		Rtotal.set(0.,0.,0.); Wtotal.set(0.,0.,0.);
 		lRtotal.set(0.,0.,0.); lWtotal.set(0.,0.,0.);
 		for (int i = 0; i < 100; i++){
 			AlgebraicVector diff = align::diffAlignables(refAli,curAli, _weightBy, _weightById, _weightByIdVector);
-			Hep3Vector dR(diff[0],diff[1],diff[2]);
+			CLHEP::Hep3Vector dR(diff[0],diff[1],diff[2]);
 			Rtotal+=dR;
-			Hep3Vector dW(diff[3],diff[4],diff[5]);
-			HepRotation rot(Wtotal.unit(),Wtotal.mag());
-			HepRotation drot(dW.unit(),dW.mag());
+			CLHEP::Hep3Vector dW(diff[3],diff[4],diff[5]);
+			CLHEP::HepRotation rot(Wtotal.unit(),Wtotal.mag());
+			CLHEP::HepRotation drot(dW.unit(),dW.mag());
 			rot*=drot;
 			Wtotal.set(rot.axis().x()*rot.delta(), rot.axis().y()*rot.delta(), rot.axis().z()*rot.delta());
 			// local coordinates
@@ -415,16 +415,16 @@ void TrackerGeometryCompare::diffCommonTrackerSystem(Alignable *refAli, Alignabl
 	}
 	
 	if (useLevel){
-		Hep3Vector Rtotal, Wtotal;
+		CLHEP::Hep3Vector Rtotal, Wtotal;
 		Rtotal.set(0.,0.,0.); Wtotal.set(0.,0.,0.);
 		
 		for (int i = 0; i < 100; i++){
 			AlgebraicVector diff = align::diffAlignables(refAli,curAli, _weightBy, _weightById, _weightByIdVector);
-			Hep3Vector dR(diff[0],diff[1],diff[2]);
+			CLHEP::Hep3Vector dR(diff[0],diff[1],diff[2]);
 			Rtotal+=dR;
-			Hep3Vector dW(diff[3],diff[4],diff[5]);
-			HepRotation rot(Wtotal.unit(),Wtotal.mag());
-			HepRotation drot(dW.unit(),dW.mag());
+			CLHEP::Hep3Vector dW(diff[3],diff[4],diff[5]);
+			CLHEP::HepRotation rot(Wtotal.unit(),Wtotal.mag());
+			CLHEP::HepRotation drot(dW.unit(),dW.mag());
 			rot*=drot;
 			Wtotal.set(rot.axis().x()*rot.delta(), rot.axis().y()*rot.delta(), rot.axis().z()*rot.delta());
 			//std::cout << "a";
@@ -587,10 +587,10 @@ void TrackerGeometryCompare::surveyToTracker(AlignableTracker* ali, Alignments* 
 		const SurveyDet* surveyInfo = (*k)->survey();
 		align::PositionType pos(surveyInfo->position());
 		align::RotationType rot(surveyInfo->rotation());
-		Hep3Vector clhepVector(pos.x(),pos.y(),pos.z());
-		HepRotation clhepRotation( HepRep3x3(rot.xx(),rot.xy(),rot.xz(),rot.yx(),rot.yy(),rot.yz(),rot.zx(),rot.zy(),rot.zz()));
+		CLHEP::Hep3Vector clhepVector(pos.x(),pos.y(),pos.z());
+		CLHEP::HepRotation clhepRotation( CLHEP::HepRep3x3(rot.xx(),rot.xy(),rot.xz(),rot.yx(),rot.yy(),rot.yz(),rot.zx(),rot.zy(),rot.zz()));
 		AlignTransform transform(clhepVector, clhepRotation, (*k)->id());
-		AlignTransformError transformError(HepSymMatrix(3,1), (*k)->id());
+		AlignTransformError transformError(CLHEP::HepSymMatrix(3,1), (*k)->id());
 		alignVals->m_align.push_back(transform);
 		alignErrors->m_alignError.push_back(transformError);
 	}
