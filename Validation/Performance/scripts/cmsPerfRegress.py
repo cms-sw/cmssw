@@ -192,7 +192,13 @@ def getSimpleMemLogData(logfile_name,startevt, candle):
     #print candle
     #print CandFname[candle]
     #Get the step from log filename:
-    stepreg = re.compile("%s_([^_]*(_PILEUP)?)_%s((.log)|(.gz))?" % (CandFname[candle],"TimingReport"))
+
+    #Catching the case of command line use in which the candle is unknown (and the log name does not match the perfsuite naming convention
+    if candle:
+        stepreg = re.compile("%s_([^_]*(_PILEUP)?)_%s((.log)|(.gz))?" % (CandFname[candle],"TimingReport"))
+    else:
+        stepreg = re.compile("([^_]*(_PILEUP)?)_%s((.log)|(.gz))?"%"TimingReport")
+        
     #print logfile_name
     found=stepreg.search(logfile_name)
     if found:
