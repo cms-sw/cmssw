@@ -86,7 +86,7 @@ process.ALCARECOStreamMuAlCalIsolatedMu = cms.OutputModule("PoolOutputModule",
 )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/recoT0DQM_EvContent_wAlca_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with DQM with Mag field at 0T')
 )
@@ -96,8 +96,7 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) ) #
 # Conditions (Global Tag is used here):
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRAFT_30X::All"
-process.prefer("GlobalTag")
+process.GlobalTag.globaltag = "CRAFT_31X::All"
 
 # Magnetic fiuld: force mag field to be 0 tesla
 process.load("Configuration.StandardSequences.MagneticField_0T_cff")
