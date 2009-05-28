@@ -9,7 +9,7 @@ generator = cms.EDFilter("HydjetGeneratorFilter",
                         firstEvent = cms.untracked.uint32(1),
                         firstRun = cms.untracked.uint32(1),
                     
-                        comEnergy = cms.double(5500.0),
+                        comEnergy = cms.double(4000.0),
                         sigmaInelNN = cms.double(58),
                         aBeamTarget = cms.double(208.0),
 
@@ -36,7 +36,7 @@ generator = cms.EDFilter("HydjetGeneratorFilter",
                         qgpInitialTemperature = cms.double(1.),
                         qgpProperTimeFormation = cms.double(0.1),
                     PythiaParameters = cms.PSet(pyquenPythiaDefaultBlock,
-                                                parameterSets = cms.vstring('pythiaDefault','pythiaJets','pythiaPromptPhotons','pythiaWeakBosons','pythiaCharmoniumNRQCD','pythiaBottomoniumNRQCD'),
+                                                parameterSets = cms.vstring('pythiaDefault','pythiaJets','pythiaPromptPhotons','pythiaWeakBosons','pythiaCharmoniumNRQCD','pythiaBottomoniumNRQCD','pythiaQuarkoniaSettings'),
                                                 ),
                     cFlag = cms.int32(0),
                     bFixed = cms.double(0),
@@ -47,8 +47,8 @@ generator = cms.EDFilter("HydjetGeneratorFilter",
                     )
 
 configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.8 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/GeneratorInterface/HydjetInterface/python/hydjetSourceDefault_cfi.py,v $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/GeneratorInterface/HydjetInterface/python/hydjetDefault_cfi.py,v $'),
     annotation = cms.untracked.string('PYTHIA6-MinBias at 10TeV')
     )
 

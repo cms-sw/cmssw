@@ -1,7 +1,7 @@
 #ifndef HydjetHadronizer_h
 #define HydjetHadronizer_h
 
-// $Id: HydjetHadronizer.h,v 1.1 2009/05/20 23:16:22 yilmaz Exp $
+// $Id: HydjetHadronizer.h,v 1.2 2009/05/21 16:01:07 yilmaz Exp $
 
 /** \class HydjetHadronizer
 *
@@ -32,6 +32,8 @@ class HepRandomEngine;
 
 namespace gen
 {
+   class Pythia6Service;
+
   class HydjetHadronizer : public BaseHadronizer {
   public:
     HydjetHadronizer(const edm::ParameterSet &);
@@ -117,6 +119,8 @@ namespace gen
     double            signn_;                 // inelastic nucleon nucleon cross section [mb]
                                               // DEFAULT= 58 mb
     CLHEP::HepRandomEngine* fRandomEngine;
+    Pythia6Service* pythia6Service_;
+
   };
 
 double HydjetHadronizer::nuclear_radius() const

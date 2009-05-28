@@ -3,7 +3,7 @@
  * Generates PYQUEN HepMC events
  *
  * Original Author: Camelia Mironov
- * $Id: PyquenHadronizer.cc,v 1.9 2009/05/20 21:54:32 yilmaz Exp $
+ * $Id: PyquenHadronizer.cc,v 1.1 2009/05/21 03:38:51 yilmaz Exp $
 */
 
 #include <iostream>
@@ -13,6 +13,7 @@
 #include "GeneratorInterface/PyquenInterface/interface/PYR.h"
 #include "GeneratorInterface/PyquenInterface/interface/PyquenWrapper.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
+#include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
@@ -55,7 +56,7 @@ qgptau0_(pset.getParameter<double>("qgpProperTimeFormation")),
 maxEventsToPrint_(pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
 pythiaHepMCVerbosity_(pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
 pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0)),
-eventNumber_(0)
+   pythia6Service_(new Pythia6Service(pset))
 {
   // Default constructor
   // Verbosity Level
@@ -79,6 +80,9 @@ PyquenHadronizer::~PyquenHadronizer()
 {
   // distructor
   call_pystat(1);
+
+  delete pythia6Service_;
+
 }
 
 
@@ -86,10 +90,10 @@ PyquenHadronizer::~PyquenHadronizer()
 void PyquenHadronizer::add_heavy_ion_rec(HepMC::GenEvent *evt)
 {
   HepMC::HeavyIon *hi = new HepMC::HeavyIon(
-    -1,                                 // Ncoll_hard
+    1,                                 // Ncoll_hard
     -1,                                 // Npart_proj
     -1,                                 // Npart_targ
-    -1,                                 // Ncoll
+    1,                                 // Ncoll
     -1,                                 // spectator_neutrons
     -1,                                 // spectator_protons
     -1,                                 // N_Nwounded_collisions
@@ -109,8 +113,9 @@ void PyquenHadronizer::add_heavy_ion_rec(HepMC::GenEvent *evt)
 //_____________________________________________________________________
 bool PyquenHadronizer::generatePartonsAndHadronize()
 {
+   Pythia6Service::InstanceWrapper guard(pythia6Service_);
 
-   //Get Parameters from the background Pb+Pb event if necessary
+   //Get Parameters from the background Pb+Pb event if switched on
    double evtPlane = 0;
 
    // Not possible to retrieve impact paramter and event plane info
@@ -159,8 +164,6 @@ bool PyquenHadronizer::generatePartonsAndHadronize()
 
   evt->set_event_scale(pypars.pari[16]);           // Q^2
 
-  ++eventNumber_;
-  evt->set_event_number(eventNumber_);
   if(embedding_) rotateEvtPlane(evt,evtPlane);
   add_heavy_ion_rec(evt);
 
@@ -170,6 +173,10 @@ bool PyquenHadronizer::generatePartonsAndHadronize()
 }
 
 bool PyquenHadronizer::initializeForInternalPartons(){
+
+   Pythia6Service::InstanceWrapper guard(pythia6Service_);
+   pythia6Service_->setGeneralParams();
+
    //Proton to Nucleon fraction
    pfrac_ = 1./(1.98+0.015*pow(abeamtarget_,2./3));
 
@@ -189,12 +196,23 @@ bool PyquenHadronizer::initializeForInternalPartons(){
 //_____________________________________________________________________
 bool PyquenHadronizer::pyqpythia_init(const ParameterSet & pset)
 {
+
+   //Turn Hadronization Off if there is quenching  
+   if(doquench_){
+      string sHadOff("MSTP(111)=0");
+      gen::call_pygive(sHadOff);
+   }
+
   //initialize PYTHIA
 
-  //random number seed
+   /*
+
+ //random number seed
   edm::Service<RandomNumberGenerator> rng;
   randomEngine = fRandomEngine = &(rng->getEngine());
   uint32_t seed = rng->mySeed();
+
+
   ostringstream sRandomSet;
   sRandomSet << "MRPY(1)=" << seed;
   gen::call_pygive(sRandomSet.str());
@@ -236,6 +254,8 @@ bool PyquenHadronizer::pyqpythia_init(const ParameterSet & pset)
       }
     }
   }
+
+   */
 
   return true;
 }

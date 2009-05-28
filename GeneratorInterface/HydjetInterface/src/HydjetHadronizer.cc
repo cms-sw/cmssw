@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetHadronizer.cc,v 1.1 2009/05/20 23:16:22 yilmaz Exp $
+ * $Id: HydjetHadronizer.cc,v 1.2 2009/05/27 18:45:04 yilmaz Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -24,7 +24,7 @@
 #include "GeneratorInterface/HydjetInterface/interface/PYR.h"
 #include "GeneratorInterface/HydjetInterface/interface/HydjetWrapper.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
-
+#include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
 
 #include "HepMC/PythiaWrapper6_2.h"
 #include "HepMC/GenEvent.h"
@@ -84,7 +84,8 @@ HydjetHadronizer::HydjetHadronizer(const ParameterSet &pset) :
     cosphi0_(1.),
     rotate_(pset.getParameter<bool>("rotateEventPlane")),
     shadowingswitch_(pset.getParameter<int>("shadowingSwitch")),
-    signn_(pset.getParameter<double>("sigmaInelNN"))
+    signn_(pset.getParameter<double>("sigmaInelNN")),
+    pythia6Service_(new Pythia6Service(pset))
 {
   // Default constructor
 
@@ -105,6 +106,8 @@ HydjetHadronizer::~HydjetHadronizer()
 {
   // destructor
   call_pystat(1);
+  delete pythia6Service_;
+
 }
 
 
@@ -178,9 +181,13 @@ HepMC::GenVertex* HydjetHadronizer::build_hyjet_vertex(int i,int id)
    return vertex;
 }
 
+//___________________________________________________________________
 
 bool HydjetHadronizer::generatePartonsAndHadronize()
 {
+
+   Pythia6Service::InstanceWrapper guard(pythia6Service_);
+
    // generate single event
    if(rotate_) rotateEvtPlane();
 
@@ -402,6 +409,8 @@ bool HydjetHadronizer::hyjpythia_init(const ParameterSet &pset)
 {
   //Set PYTHIA parameters
 
+   /*
+
   //random number seed
   edm::Service<RandomNumberGenerator> rng;
   uint32_t seed = rng->mySeed();
@@ -409,7 +418,7 @@ bool HydjetHadronizer::hyjpythia_init(const ParameterSet &pset)
   sRandomSet << "MRPY(1)=" << seed;
   gen::call_pygive(sRandomSet.str());
 
-    // Set PYTHIA parameters in a single ParameterSet
+  // Set PYTHIA parameters in a single ParameterSet
   ParameterSet pythia_params = pset.getParameter<ParameterSet>("PythiaParameters") ;
   // The parameter sets to be read 
   vector<string> setNames = pythia_params.getParameter<vector<string> >("parameterSets");
@@ -439,6 +448,8 @@ bool HydjetHadronizer::hyjpythia_init(const ParameterSet &pset)
     }
   }
 
+   */
+
   return true;
 }
 
@@ -446,6 +457,9 @@ bool HydjetHadronizer::hyjpythia_init(const ParameterSet &pset)
 //_____________________________________________________________________
 
 bool HydjetHadronizer::initializeForInternalPartons(){
+
+   Pythia6Service::InstanceWrapper guard(pythia6Service_);
+   pythia6Service_->setGeneralParams();
 
    // the input impact parameter (bxx_) is in [fm]; transform in [fm/RA] for hydjet usage
    const float ra = nuclear_radius();
