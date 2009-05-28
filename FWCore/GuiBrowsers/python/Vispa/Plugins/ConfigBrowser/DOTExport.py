@@ -284,7 +284,9 @@ class DotExport(FileExportPlugin):
     'color_schedule':('Schedule Color','color','#00ffff'),
     'url':('Include URLs','boolean',False), #this is only purposeful for png+map mode
     'urlprocess':('Postprocess URL (for client-side imagemaps)','boolean',False), #see processMap documentation; determines whether to treat 'urlbase' as a dictionary for building a more complex imagemap or a simple URL
-    'urlbase':('URL to generate','string',"{'split_x':1,'split_y':2,'scale_x':1.,'scale_y':1.,'cells':[{'top':0,'left':0,'width':1,'height':1,'html_href':'http://cmslxr.fnal.gov/lxr/ident/?i=$classname','html_alt':'LXR','html_class':'LXR'},{'top':1,'left':0,'width':1,'height':1,'html_href':'http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/$pypath?view=markup#l$pyline','html_alt':'CVS','html_class':'CVS'}]}") #CVS markup view doesn't allow line number links, only annotate view (which doesn't then highlight the code...)
+    'urlbase':('URL to generate','string',"{'split_x':1,'split_y':2,'scale_x':1.,'scale_y':1.,'cells':[{'top':0,'left':0,'width':1,'height':1,'html_href':'http://cmslxr.fnal.gov/lxr/ident/?i=$classname','html_alt':'LXR','html_class':'LXR'},{'top':1,'left':0,'width':1,'height':1,'html_href':'http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/$pypath?view=markup#l$pyline','html_alt':'CVS','html_class':'CVS'}]}"), #CVS markup view doesn't allow line number links, only annotate view (which doesn't then highlight the code...)
+    'node_graphs':('Produce individual graphs focussing on each node','boolean',False),
+    'node_depth':('Search depth for individual node graphs','int',1)
   }
   plugin_name='DOT Export'
   file_types=('bmp','dot','eps','gif','jpg','pdf','png','ps','svg','tif','png+map')
@@ -321,6 +323,66 @@ class DotExport(FileExportPlugin):
         newdot += spaces(depth)+line+'\n'
     return newdot
   
+  def selectNode(self,dotdata,node,depth):
+    depth = int(depth)
+    re_link = re.compile(r'^\s*?(\w*?)->(\w*?)(?:\[.*?\])?$',re.MULTILINE)
+    re_nodedef = re.compile(r'^\s*?(\w*?)(?:\[.*?\])?$',re.MULTILINE)
+    re_title = re.compile(r'^label=\"(.*?)\"$',re.MULTILINE)
+    re_nodeprops = re.compile(r'^\s*?('+node+r')\[(.*?)\]$',re.MULTILINE)
+    
+    nodes = re_nodedef.findall(dotdata)
+    if not node in nodes:
+      raise Exception, "Selected node (%s) not found" % (node)
+    links_l = re_link.findall(dotdata)
+    links = {}
+    for link in links_l:
+      if link[0] in links:
+        links[link[0]] += [link[1]]
+      else:
+        links[link[0]] = [link[1]]
+      if link[1] in links:
+          links[link[1]] += [link[0]]
+      else:
+        links[link[1]] = [link[0]]
+      
+    def node_recursor(links,depthleft,start):
+      if start in links:
+        if depthleft==0:
+          return links[start]+[start]
+        else:
+          result = [start]
+          for l in links[start]:
+            result.extend(node_recursor(links,depthleft-1,l))
+          return result
+      else:
+        return [start]
+    
+    
+    include_nodes = set(node_recursor(links,depth-1,node))
+    include_nodes.add(node)
+    
+    class link_replacer:
+      def __init__(self,include_nodes):
+        self.include_nodes=include_nodes
+      def __call__(self,match):
+        if match.group(1) in self.include_nodes and match.group(2) in self.include_nodes:
+          return match.group(0)
+        return ''
+    class node_replacer:
+      def __init__(self,include_nodes):
+        self.include_nodes=include_nodes
+      def __call__(self,match):
+        if match.group(1) in self.include_nodes:
+          return match.group(0)
+        return ''
+    
+    dotdata = re_link.sub(link_replacer(include_nodes),dotdata)
+    dotdata = re_nodedef.sub(node_replacer(include_nodes),dotdata)
+    dotdata = re_title.sub(r'label="\g<1>\\nDepth '+str(depth)+r' from node ' +node+r'"',dotdata,1)
+    dotdata = re_nodeprops.sub('\\g<1>[\\g<2>,color="red"]',dotdata,1)
+    
+    return dotdata
+   
   def processMap(self,mapdata):
     """
     Re-process the client-side image-map produces when png+map is selected.
@@ -396,9 +458,21 @@ class DotExport(FileExportPlugin):
     #  raise "DOTExport requires a cms.Process object"  
     
     #dot = self.produceDOT(data)
-    dot = DotProducer(data,self.options,self.shapes)()
-    dot = self.dotIndenter(dot)
+    dot_producer = DotProducer(data,self.options,self.shapes)
+    dot = dot_producer()
     
+    if self.options['node_graphs']:
+      nodes = [n for n in dot_producer.nodes if data.type(dot_producer.nodes[n]['obj']) in ('EDAnalyzer','EDFilter','EDProducer','OutputModule')]
+      for n in nodes:
+        node_dot = self.selectNode(dot,n,self.options['node_depth'])
+        self.write_output(node_dot,filename.replace('.','_%s.'%n),filetype)
+    
+    dot = self.dotIndenter(dot)
+    self.write_output(dot,filename,filetype)
+    
+    
+    
+  def write_output(self,dot,filename,filetype):
     #don't use try-except-finally here, we want any errors passed on so the enclosing program can decide how to handle them
     if filetype=='dot':
       dotfile = open(filename,'w')
