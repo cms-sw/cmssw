@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
@@ -23,19 +24,17 @@ using namespace std::rel_ops;
 namespace edmtest 
 {
 
-  ViewAnalyzer::ViewAnalyzer(ParameterSet const&) 
-  { }
+  ViewAnalyzer::ViewAnalyzer(ParameterSet const&) {
+  }
 
-  ViewAnalyzer::~ViewAnalyzer() 
-  { }
+  ViewAnalyzer::~ViewAnalyzer() {
+  }
 
-  template <class P, class V = typename P::value_type>
-  struct
-  tester
-  {
+  template <typename P, typename V = typename P::value_type>
+  struct tester {
     static void call(ViewAnalyzer const* va, 
 		     Event const& e,
-		     const char* moduleLabel)
+		     char const* moduleLabel)
     {
       va->template testProduct<P,V>(e, moduleLabel);
     }
@@ -44,8 +43,7 @@ namespace edmtest
 
   void 
   ViewAnalyzer::analyze(Event const& e, 
-			EventSetup const& /* unused */)
-  {
+			EventSetup const& /* unused */) {
     assert(e.size() > 0);
 
     tester<std::vector<int> >::call(this, e, "intvec");
@@ -65,6 +63,7 @@ namespace edmtest
     testProductWithBaseClass(e, "ovsimple");
     testRefVector(e, "intvecrefvec");
     testRefToBaseVector(e, "intvecreftbvec");
+    testPtrVector(e, "intvecptrvec");
     
     //See if InputTag works
     {
@@ -81,11 +80,10 @@ namespace edmtest
     }
   }
 
-  template <class P, class V>
+  template <typename P, typename V>
   void
   ViewAnalyzer::testProduct(Event const& e,
- 			    std::string const& moduleLabel) const
-  {
+ 			    std::string const& moduleLabel) const {
     typedef P                               sequence_t;
     typedef V                               value_t;
     typedef View<value_t>                   view_t;
@@ -108,27 +106,24 @@ namespace edmtest
     typename view_t::const_iterator     i_view = hview->begin();
     typename view_t::const_iterator     e_view = hview->end();
     size_t slot = 0;
-    while ( i_product != e_product && i_view != e_view)
-      {
+    while (i_product != e_product && i_view != e_view) {
 	value_t const& product_item = *i_product;
 	value_t const& view_item = *i_view;
         assert(product_item == view_item);
 	++i_product; ++i_view; ++slot;
-      }
+    }
 
     // Make sure the references are right.
     size_t numElements = hview->size();
-    for (size_t i = 0; i < numElements; ++i)
-      {
+    for (size_t i = 0; i < numElements; ++i) {
     	RefToBase<value_t> ref = hview->refAt(i);
 	assert(ref.isNonnull());
-      }	  
+    }	  
   }
 
   void
   ViewAnalyzer::testDSVProduct(Event const& e,
- 			    std::string const& moduleLabel) const
-  {
+ 			    std::string const& moduleLabel) const {
     typedef edmtest::DSVSimpleProduct sequence_t;
     typedef sequence_t::value_type    value_t;
     typedef View<value_t>             view_t;
@@ -151,15 +146,14 @@ namespace edmtest
     view_t::const_iterator     i_view = hview->begin();
     view_t::const_iterator     e_view = hview->end();
 
-    while ( i_prod != e_prod && i_view != e_view)
-      {
+    while (i_prod != e_prod && i_view != e_view) {
 	value_t const& prod = *i_prod;
 	value_t const& view = *i_view;
         assert(prod.detId() == view.detId());
         assert(prod.data == view.data);
 
 	++i_prod; ++i_view;
-      }
+    }
   }
 
   // The point of this one is to test that a one can get
@@ -168,8 +162,7 @@ namespace edmtest
   // inherits from "Simple" and is named "SimpleDerived"
   void
   ViewAnalyzer::testProductWithBaseClass(Event const& e,
- 			    std::string const& moduleLabel) const
-  {
+ 			    std::string const& moduleLabel) const {
     typedef OVSimpleDerivedProduct          sequence_t;
     typedef Simple                          value_t;
     typedef View<value_t>                   view_t;
@@ -192,20 +185,18 @@ namespace edmtest
     view_t::const_iterator     i_view = hview->begin();
     view_t::const_iterator     e_view = hview->end();
 
-    while ( i_prod != e_prod && i_view != e_view)
-      {
+    while (i_prod != e_prod && i_view != e_view) {
 	SimpleDerived const& prod = *i_prod;
 	Simple const& view = *i_view;
         assert(prod == view);
 
 	++i_prod; ++i_view;
-      }
+    }
   }
 
   void
   ViewAnalyzer::testRefVector(Event const& e,
-			      std::string const& moduleLabel) const
-  {
+			      std::string const& moduleLabel) const {
     typedef RefVector<std::vector<int> >   sequence_t;
     typedef int                       value_t;
     typedef View<value_t>             view_t;
@@ -228,19 +219,17 @@ namespace edmtest
     view_t::const_iterator     i_view = hview->begin();
     view_t::const_iterator     e_view = hview->end();
     size_t slot = 0;
-    while ( i_product != e_product && i_view != e_view)
-      {
+    while (i_product != e_product && i_view != e_view) {
 	value_t const& product_item = **i_product;
 	value_t const& view_item = *i_view;
         assert(product_item == view_item);
 	++i_product; ++i_view; ++slot;
-      }
+    }
   }
 
   void
   ViewAnalyzer::testRefToBaseVector(Event const& e,
-				    std::string const& moduleLabel) const
-  {
+				    std::string const& moduleLabel) const {
     typedef RefToBaseVector<int>      sequence_t;
     typedef int                       value_t;
     typedef View<value_t>             view_t;
@@ -263,13 +252,45 @@ namespace edmtest
     view_t::const_iterator     i_view = hview->begin();
     view_t::const_iterator     e_view = hview->end();
     size_t slot = 0;
-    while ( i_product != e_product && i_view != e_view)
-      {
+    while (i_product != e_product && i_view != e_view) {
 	value_t const& product_item = **i_product;
 	value_t const& view_item = *i_view;
         assert(product_item == view_item);
 	++i_product; ++i_view; ++slot;
-      }
+    }
+  }
+
+  void
+  ViewAnalyzer::testPtrVector(Event const& e,
+			      std::string const& moduleLabel) const {
+    typedef PtrVector<int>            sequence_t;
+    typedef int                       value_t;
+    typedef View<value_t>             view_t;
+    
+    Handle<sequence_t> hproduct;
+    e.getByLabel(moduleLabel, hproduct);
+    assert(hproduct.isValid());
+
+    Handle<view_t> hview;
+    e.getByLabel(moduleLabel, hview);
+    assert(hview.isValid());
+    
+    assert(hproduct.id() == hview.id());
+    assert(*hproduct.provenance() == *hview.provenance());
+    
+    assert(hproduct->size() == hview->size());
+
+    sequence_t::const_iterator i_product = hproduct->begin();
+    sequence_t::const_iterator e_product = hproduct->end();
+    view_t::const_iterator     i_view = hview->begin();
+    view_t::const_iterator     e_view = hview->end();
+    size_t slot = 0;
+    while (i_product != e_product && i_view != e_view) {
+	value_t const& product_item = **i_product;
+	value_t const& view_item = *i_view;
+        assert(product_item == view_item);
+	++i_product; ++i_view; ++slot;
+    }
   }
 }
 

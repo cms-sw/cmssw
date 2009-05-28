@@ -32,11 +32,14 @@
  <class name="edm::Ref<std::vector<int>,int,edm::refhelper::FindUsingAdvance<std::vector<int>,int> >"/>
  <class name="edm::RefVector<std::vector<int>,int,edm::refhelper::FindUsingAdvance<std::vector<int>,int> >"/>
  <class name="edm::RefToBaseVector<int>"/>
+ <class name="edm::PtrVector<int>"/>
+ <class name="edm::Ptr<int>"/>
  <class name="edm::reftobase::BaseVectorHolder<int>"/>
  <class name="edm::reftobase::RefVectorHolderBase"/>
  <class name="edm::reftobase::IndirectVectorHolder<int>"/>
  <class name="edm::reftobase::VectorHolder<int, edm::RefVector<std::vector<int>,int,edm::refhelper::FindUsingAdvance<std::vector<int>,int> > >"/>
  <class name="edm::Wrapper<edm::RefToBaseVector<int> >" splitLevel="0"/>
+ <class name="edm::Wrapper<edm::PtrVector<int> >" splitLevel="0"/>
  <class name="edm::Wrapper<edm::RefVector<std::vector<int>,int,edm::refhelper::FindUsingAdvance<std::vector<int>,int> > >" splitLevel="0"/>
  <class name="std::vector<edm::RefItem<unsigned int> >"/>
  <class name="std::vector<edm::RefItem<unsigned long> >"/>

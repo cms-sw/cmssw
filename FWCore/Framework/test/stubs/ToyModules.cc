@@ -15,6 +15,7 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
@@ -732,6 +733,44 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
+  // Produces an edm::PtrVector<int> instance.
+  // This requires that an instance of IntVectorProducer be run *before*
+  // this producer. The input collection is read as an edm::View<int>
+  class IntVecPtrVectorProducer : public edm::EDProducer {
+    typedef edm::PtrVector<int> product_type;
+
+  public:
+    explicit IntVecPtrVectorProducer(edm::ParameterSet const& p) :
+      target_(p.getParameter<std::string>("target"))
+    {
+      produces<product_type>();
+    }
+    virtual ~IntVecPtrVectorProducer() { }
+    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+
+  private:
+    std::string target_;
+  };
+
+  void
+  IntVecPtrVectorProducer::produce(edm::Event& e, edm::EventSetup const&) {
+    // EventSetup is not used.
+    // Get our input:
+    edm::Handle<edm::View<int> > input;
+    e.getByLabel(target_, input);
+    assert(input.isValid());
+
+    std::auto_ptr<product_type> prod(new product_type());
+    
+    typedef product_type::value_type ref;
+    for (size_t i = 0, sz =input->size(); i!=sz; ++i) 
+      prod->push_back(ref(input, i));
+
+    e.put(prod);
+  }
+
+  //--------------------------------------------------------------------
+  //
   // Produces an Prodigal instance.
   //
   class ProdigalProducer : public edm::EDProducer {
@@ -932,6 +971,7 @@ using edmtest::IntDequeProducer;
 using edmtest::IntSetProducer;
 using edmtest::IntVecRefVectorProducer;
 using edmtest::IntVecRefToBaseVectorProducer;
+using edmtest::IntVecPtrVectorProducer;
 using edmtest::ProdigalProducer;
 DEFINE_FWK_MODULE(FailingProducer);
 DEFINE_FWK_MODULE(NonProducer);
@@ -954,5 +994,6 @@ DEFINE_FWK_MODULE(IntDequeProducer);
 DEFINE_FWK_MODULE(IntSetProducer);
 DEFINE_FWK_MODULE(IntVecRefVectorProducer);
 DEFINE_FWK_MODULE(IntVecRefToBaseVectorProducer);
+DEFINE_FWK_MODULE(IntVecPtrVectorProducer);
 DEFINE_FWK_MODULE(ProdigalProducer);
 

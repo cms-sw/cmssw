@@ -6,18 +6,16 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-namespace edmtest 
-{
+namespace edmtest {
   
-  class ViewAnalyzer : public edm::EDAnalyzer
-  {
+  class ViewAnalyzer : public edm::EDAnalyzer {
   public:
     explicit ViewAnalyzer(edm::ParameterSet const& /* no parameters*/);
     virtual ~ViewAnalyzer();
     virtual void analyze(edm::Event const& e,
 			 edm::EventSetup const& /* unused */ );
 
-    template <class P, class V>
+    template <typename P, typename V>
     void testProduct(edm::Event const& e,
 		     std::string const& moduleLabel) const;
 
@@ -31,6 +29,9 @@ namespace edmtest
 		       std::string const& moduleLabel) const;
 
     void testRefToBaseVector(edm::Event const& e,
+			     std::string const& moduleLabel) const;
+
+    void testPtrVector(edm::Event const& e,
 			     std::string const& moduleLabel) const;
   };
   

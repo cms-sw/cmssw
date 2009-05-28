@@ -1,4 +1,6 @@
 #include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/PtrVector.h"
+#include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/CopyPolicy.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/HLTGlobalStatus.h"
@@ -36,6 +38,8 @@ namespace {
     
     edm::Wrapper<edm::RefVector<std::vector<int> > > dummyx20;
     edm::Wrapper<edm::RefToBaseVector<int> > dummyx21;
+    edm::Wrapper<edm::PtrVector<int> > dummyx21_3;
+    edm::Ptr<int> dummyx21_4;
     edm::reftobase::RefVectorHolderBase * dummyx21_0;
     edm::reftobase::IndirectVectorHolder<int> dummyx21_1;
     edm::reftobase::VectorHolder<int, edm::RefVector<std::vector<int> > > dummyx21_2;
