@@ -16,15 +16,18 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     timetype = cms.untracked.string('runnumber'),
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('PedestalsRcd'),
+        record = cms.string('a'),
         tag = cms.string('ped_tag')
     ), cms.PSet(
-        record = cms.string('mySiStripNoisesRcd'),
+        record = cms.string('b'),
         tag = cms.string('noise_tag')
     ))
 )
 
-process.mytest = cms.EDAnalyzer("writeMultipleRecords")
+process.mytest = cms.EDAnalyzer("writeMultipleRecords",
+                  PedCallerName=cms.string('a'),
+                  StripCallerName=cms.string('b')
+)
 
 process.p = cms.Path(process.mytest)
 
