@@ -61,7 +61,6 @@ PCrossingFrame<T>::PCrossingFrame(const CrossingFrame<T>& cf)
  PmaxNbSources_= cf.getMaxNbSources();
  PbunchSpace_ = cf.getBunchSpace();
  Pid_ = cf.getEventID();
- std::cout << " Pid_ = " << Pid_ << std::endl;
  firstPCrossing_ = cf.getBunchRange().first;
  lastPCrossing_ = cf.getBunchRange().second;
  PCFpileups_ = cf.getPileups();
