@@ -207,6 +207,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         Aperture        = cms.double(0.33),
         ApertureTrapped = cms.double(0.22),
         Gain            = cms.double(0.33),
+        OnlyLong        = cms.bool(False),
         CheckSurvive    = cms.bool(False)
     ),
     HFShowerLibrary = cms.PSet(
