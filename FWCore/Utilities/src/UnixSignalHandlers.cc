@@ -119,7 +119,7 @@ namespace edm {
 #if defined(__linux__)
       edm::disableRTSigs();
 #endif
-      edm::installSig(signum,edm::ep_sigusr2);
+      edm::installSig(signum,func);
       edm::reenableSigs(&oldset);
     }
 
