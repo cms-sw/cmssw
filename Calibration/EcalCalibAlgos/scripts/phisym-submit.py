@@ -23,7 +23,7 @@ def main():
  runlist = None
  dryrun = 0
  
- logdir = "/tmp/"
+ logdir = "./"
  destdir = None
  have_destdir = 0
  
