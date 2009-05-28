@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.8 2009/05/28 07:10:10 arizzi Exp $
+#  $Id: EventContent_cff.py,v 1.9 2009/05/28 07:12:29 arizzi Exp $
 #
 #
 #
@@ -198,7 +198,7 @@ FEVTDEBUGHLTEventContent = cms.PSet(
 # RECOSIMDEBUG Data Tier definition
 #
 #
-RECOSIMDEBUGEventContent = cms.PSet(
+RECODEBUGEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
         'keep *_logErrorHarvester_*_*')
 )
@@ -215,8 +215,6 @@ HLTDEBUGEventContent = cms.PSet(
         'keep *_logErrorHarvester_*_*')
 )
 HLTDEBUGEventContent.outputCommands.extend(block_hltDebugOutput.outputCommands)
-
-
 
 RAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 RAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
@@ -353,23 +351,9 @@ FEVTSIMEventContent.outputCommands.extend(SimMuonRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
-RAWDEBUGEventContent.outputCommands.extend(RAWEventContent.outputCommands)
-RAWDEBUGEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
-RAWDEBUGEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
-RAWDEBUGEventContent.outputCommands.extend(SimMuonRAW.outputCommands)
-RAWDEBUGEventContent.outputCommands.extend(SimCalorimetryRAW.outputCommands)
-RAWDEBUGEventContent.outputCommands.extend(SimGeneralRAW.outputCommands)
-RAWDEBUGEventContent.outputCommands.extend(GeneratorInterfaceRAW.outputCommands)
-RAWDEBUGEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
-RAWDEBUGEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
-RAWDEBUGEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
-RAWDEBUGEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
-RAWDEBUGEventContent.outputCommands.extend(IOMCRAW.outputCommands)
-RAWDEBUGEventContent.outputCommands.extend(L1TriggerFEVTDEBUG.outputCommands)
+RAWDEBUGEventContent.outputCommands.extend(RAWSIMEventContent.outputCommands)
+RAWDEBUGEventContent.outputCommands.extend(SimTrackerDEBUG.outputCommands)
 RAWDEBUGEventContent.outputCommands.extend(SimGeneralFEVTDEBUG.outputCommands)
-RAWDEBUGEventContent.outputCommands.extend(SimTrackerFEVTDEBUG.outputCommands)
-RAWDEBUGEventContent.outputCommands.extend(SimMuonFEVTDEBUG.outputCommands)
-RAWDEBUGEventContent.outputCommands.extend(SimCalorimetryFEVTDEBUG.outputCommands)
 RAWDEBUGHLTEventContent.outputCommands.extend(RAWDEBUGEventContent.outputCommands)
 RAWDEBUGHLTEventContent.outputCommands.extend(HLTDebugRAW.outputCommands)
 FEVTDEBUGEventContent.outputCommands.extend(FEVTSIMEventContent.outputCommands)
@@ -380,10 +364,6 @@ FEVTDEBUGEventContent.outputCommands.extend(SimMuonFEVTDEBUG.outputCommands)
 FEVTDEBUGEventContent.outputCommands.extend(SimCalorimetryFEVTDEBUG.outputCommands)
 FEVTDEBUGHLTEventContent.outputCommands.extend(FEVTDEBUGEventContent.outputCommands)
 FEVTDEBUGHLTEventContent.outputCommands.extend(HLTDebugFEVT.outputCommands)
-
-RECOSIMDEBUGEventContent.outputCommands.extend(RECOSIMEventContent.outputCommands)
-RECOSIMDEBUGEventContent.outputCommands.extend(L1TriggerFEVTDEBUG.outputCommands)
-RECOSIMDEBUGEventContent.outputCommands.extend(SimGeneralFEVTDEBUG.outputCommands)
-RECOSIMDEBUGEventContent.outputCommands.extend(SimTrackerFEVTDEBUG.outputCommands)
-RECOSIMDEBUGEventContent.outputCommands.extend(SimMuonFEVTDEBUG.outputCommands)
-RECOSIMDEBUGEventContent.outputCommands.extend(SimCalorimetryFEVTDEBUG.outputCommands)
+RECODEBUGEventContent.outputCommands.extend(RECOSIMEventContent.outputCommands)
+RECODEBUGEventContent.outputCommands.extend(SimGeneralFEVTDEBUG.outputCommands)
+RECODEBUGEventContent.outputCommands.extend(SimTrackerDEBUG.outputCommands)
