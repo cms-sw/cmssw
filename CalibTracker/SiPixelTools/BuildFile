@@ -5,7 +5,6 @@
 <use name=FWCore/ServiceRegistry>
 <use name=DataFormats/FEDRawData> 
 <use name=DataFormats/SiPixelDigi>
-<use name=CondTools/SiPixel>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/SiPixelObjects>
 <use name=CondCore/DBOutputService>
@@ -25,7 +24,6 @@
    <use name=FWCore/ServiceRegistry>
    <use name=FWCore/MessageLogger>
    <use name=DataFormats/FEDRawData>
-   <use name=CondTools/SiPixel>
    <use name=PhysicsTools/UtilAlgos>
    <use name=DataFormats/SiPixelDigi>
    <use name=CondFormats/DataRecord>
