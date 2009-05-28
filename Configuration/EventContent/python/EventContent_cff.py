@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.7 2009/05/13 09:31:53 arizzi Exp $
+#  $Id: EventContent_cff.py,v 1.8 2009/05/28 07:10:10 arizzi Exp $
 #
 #
 #
@@ -181,6 +181,8 @@ FEVTDEBUGEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
         'keep *_logErrorHarvester_*_*')
 )
+
+
 #
 #
 # FEVTDEBUGHLT Data Tier definition
@@ -190,6 +192,17 @@ FEVTDEBUGHLTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
         'keep *_logErrorHarvester_*_*')
 )
+
+#
+#
+# RECOSIMDEBUG Data Tier definition
+#
+#
+RECOSIMDEBUGEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep *_logErrorHarvester_*_*')
+)
+
 
 #
 ## HLTDEBUG tier definition
