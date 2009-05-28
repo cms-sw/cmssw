@@ -47,6 +47,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
+process.siStripLorentzAngleDummyDBWriter.record=process.PoolDBOutputService.toPut[0].record
+
 # Three possible generations:
 # - give two values = (min,max)                     -> uniform distribution
 # - give one value and PerCent_Err != 0             -> gaussian distribution

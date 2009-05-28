@@ -47,7 +47,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
-
+process.siStripNoisesDummyDBWriter.record=process.PoolDBOutputService.toPut[0].record
 process.p1 = cms.Path(process.siStripNoisesDummyDBWriter)
 
 

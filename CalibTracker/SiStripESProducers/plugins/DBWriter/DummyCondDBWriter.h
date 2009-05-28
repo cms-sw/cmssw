@@ -16,7 +16,7 @@
 
 
 
-template< typename TObject , typename TObjectO , typename TRecord, typename RecordName>
+template< typename TObject , typename TObjectO , typename TRecord>
 class DummyCondDBWriter : public edm::EDAnalyzer {
 
 public:
@@ -32,22 +32,24 @@ public:
   unsigned long long cacheID;
 };
 
-template< typename TObject , typename TObjectO ,typename TRecord, typename RecordName>
-DummyCondDBWriter<TObject,TObjectO,TRecord,RecordName>::DummyCondDBWriter(const edm::ParameterSet& iConfig):iConfig_(iConfig),cacheID(0){
+template< typename TObject , typename TObjectO ,typename TRecord>
+DummyCondDBWriter<TObject,TObjectO,TRecord>::DummyCondDBWriter(const edm::ParameterSet& iConfig):iConfig_(iConfig),cacheID(0){
   edm::LogInfo("DummyCondDBWriter") << "DummyCondDBWriter constructor for typename " << typeid(TObject).name() << " and record " << typeid(TRecord).name() << std::endl;
 }
 
 
-template< typename TObject , typename TObjectO ,typename TRecord , typename RecordName>
-DummyCondDBWriter<TObject,TObjectO,TRecord,RecordName>::~DummyCondDBWriter(){
+template< typename TObject , typename TObjectO ,typename TRecord >
+DummyCondDBWriter<TObject,TObjectO,TRecord>::~DummyCondDBWriter(){
  edm::LogInfo("DummyCondDBWriter") << "DummyCondDBWriter::~DummyCondDBWriter()" << std::endl;
 }
 
-template< typename TObject , typename TObjectO ,typename TRecord , typename RecordName>
-void DummyCondDBWriter<TObject,TObjectO,TRecord,RecordName>::endRun(const edm::Run & run, const edm::EventSetup & es){
+template< typename TObject , typename TObjectO ,typename TRecord >
+void DummyCondDBWriter<TObject,TObjectO,TRecord>::endRun(const edm::Run & run, const edm::EventSetup & es){
+
+  std::string rcdName=iConfig_.getParameter<std::string>("record");
 
   if( cacheID == es.get<TRecord>().cacheIdentifier()){
-      edm::LogInfo("DummyCondDBWriter") << "not needed to store objects with Record "<< RecordName::name() << " at run " << run.run() << std::endl;    return;
+      edm::LogInfo("DummyCondDBWriter") << "not needed to store objects with Record "<< rcdName << " at run " << run.run() << std::endl;    return;
   }
   cacheID = es.get<TRecord>().cacheIdentifier();
 
@@ -68,14 +70,7 @@ void DummyCondDBWriter<TObject,TObjectO,TRecord,RecordName>::endRun(const edm::R
     else
       Time_=iConfig_.getUntrackedParameter<uint32_t>("OpenIovAtTime",1);
     
-    //if first time tag is populated
-    if( dbservice->isNewTagRequest(RecordName::name())){
-      edm::LogInfo("DummyCondDBWriter") << "first request for storing objects with Record "<< RecordName::name() << " at time " << Time_ << std::endl;
-      dbservice->createNewIOV<TObjectO>(obj, Time_ ,dbservice->endOfTime(), RecordName::name());      
-    } else {
-      edm::LogInfo("DummyCondDBWriter") << "appending a new object to existing tag " <<RecordName::name() <<" in since mode at time " << Time_ << std::endl;
-      dbservice->appendSinceTime<TObjectO>(obj, Time_, RecordName::name()); 
-    }    
+    dbservice->writeOne(obj, 0, Time_, rcdName);
   } else{
     edm::LogError("SiStripFedCablingBuilder")<<"Service is unavailable"<<std::endl;
   }
