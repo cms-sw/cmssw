@@ -4,7 +4,7 @@
 /** \class PyquenHadronizer
  *
  * Generates PYTHIA+PYQUEN ==> HepMC events
- * $Id: PyquenHadronizer.h,v 1.1 2009/05/21 03:38:50 yilmaz Exp $
+ * $Id: PyquenHadronizer.h,v 1.2 2009/05/28 17:36:52 yilmaz Exp $
  *
  * Camelia Mironov                                  
  *   for the Generator Interface. March 2007
@@ -16,9 +16,12 @@
 #include <string>
 #include "HepMC/GenEvent.h"
 
+/*
 namespace CLHEP {
    class HepRandomEngine;
 }
+*/
+
 
 namespace gen
 {
@@ -80,7 +83,7 @@ namespace gen
     bool             pythiaHepMCVerbosity_;   //! HepMC verbosity flag
     unsigned int     pythiaPylistVerbosity_;  //! Pythia PYLIST Verbosity flag 
 
-    CLHEP::HepRandomEngine* fRandomEngine;
+    //    CLHEP::HepRandomEngine* fRandomEngine;
     Pythia6Service* pythia6Service_;
 
   };

@@ -4,6 +4,7 @@
 <use name=FWCore/Framework>
 <use name=SimDataFormats/GeneratorProducts>
 <use name=SimDataFormats/HiGenData>
+<use name=GeneratorInterface/Pythia6Interface>
 <use name=GeneratorInterface/PyquenInterface>
 <use name=f77compiler>
 <use name=GeneratorInterface/ExternalDecays>

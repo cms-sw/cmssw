@@ -1,7 +1,7 @@
 #ifndef HydjetHadronizer_h
 #define HydjetHadronizer_h
 
-// $Id: HydjetHadronizer.h,v 1.2 2009/05/21 16:01:07 yilmaz Exp $
+// $Id: HydjetHadronizer.h,v 1.3 2009/05/28 17:36:40 yilmaz Exp $
 
 /** \class HydjetHadronizer
 *
@@ -26,9 +26,12 @@ namespace HepMC {
   class GenParticle;
   class GenVertex;
 }
+
+/*
 namespace CLHEP {
 class HepRandomEngine;
 }
+*/
 
 namespace gen
 {
@@ -118,7 +121,7 @@ namespace gen
                                               // 1-ON, 0-OFF
     double            signn_;                 // inelastic nucleon nucleon cross section [mb]
                                               // DEFAULT= 58 mb
-    CLHEP::HepRandomEngine* fRandomEngine;
+    //    CLHEP::HepRandomEngine* fRandomEngine;
     Pythia6Service* pythia6Service_;
 
   };

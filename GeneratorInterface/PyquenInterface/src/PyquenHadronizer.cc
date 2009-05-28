@@ -3,14 +3,14 @@
  * Generates PYQUEN HepMC events
  *
  * Original Author: Camelia Mironov
- * $Id: PyquenHadronizer.cc,v 1.1 2009/05/21 03:38:51 yilmaz Exp $
+ * $Id: PyquenHadronizer.cc,v 1.2 2009/05/28 17:36:53 yilmaz Exp $
 */
 
 #include <iostream>
 #include "time.h"
 
 #include "GeneratorInterface/PyquenInterface/interface/PyquenHadronizer.h"
-#include "GeneratorInterface/PyquenInterface/interface/PYR.h"
+//#include "GeneratorInterface/PyquenInterface/interface/PYR.h"
 #include "GeneratorInterface/PyquenInterface/interface/PyquenWrapper.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
@@ -27,7 +27,7 @@
 #include "HepMC/IO_HEPEVT.h"
 #include "HepMC/PythiaWrapper.h"
 
-#include "CLHEP/Random/RandomEngine.h"
+//#include "CLHEP/Random/RandomEngine.h"
 
 using namespace gen;
 using namespace edm;
@@ -140,7 +140,7 @@ bool PyquenHadronizer::generatePartonsAndHadronize()
   // generate single partonic PYTHIA jet event
 
   // Take into account whether it's a nn or pp or pn interaction
-  if(doIsospin_) call_pyinit("CMS", nucleon(), nucleon(), comenergy);
+   if(doIsospin_) call_pyinit("CMS", nucleon(), nucleon(), comenergy);
   call_pyevnt();
 
   // call PYQUEN to apply parton rescattering and energy loss 
@@ -298,7 +298,7 @@ bool PyquenHadronizer::pyquen_init(const ParameterSet &pset)
 
 char* PyquenHadronizer::nucleon(){
   int* dummy;
-  double random = pyr_(dummy);
+  double random = gen::pyr_(dummy);
   char* nuc;
   if(random > pfrac_) nuc = "n";
   else nuc = "p";

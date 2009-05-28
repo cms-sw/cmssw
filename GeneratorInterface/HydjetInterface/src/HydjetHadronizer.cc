@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetHadronizer.cc,v 1.2 2009/05/27 18:45:04 yilmaz Exp $
+ * $Id: HydjetHadronizer.cc,v 1.3 2009/05/28 17:36:40 yilmaz Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -18,10 +18,11 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "CLHEP/Random/RandomEngine.h"
+//#include "CLHEP/Random/RandomEngine.h"
+#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
 
 #include "GeneratorInterface/HydjetInterface/interface/HydjetHadronizer.h"
-#include "GeneratorInterface/HydjetInterface/interface/PYR.h"
+//#include "GeneratorInterface/HydjetInterface/interface/PYR.h"
 #include "GeneratorInterface/HydjetInterface/interface/HydjetWrapper.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
@@ -339,10 +340,11 @@ bool HydjetHadronizer::hydjet_init(const ParameterSet &pset)
 {
   // set hydjet options
 
-  edm::Service<RandomNumberGenerator> rng;
-  randomEngine = fRandomEngine = &(rng->getEngine());
-  uint32_t seed = rng->mySeed();
-  ludatr.mrlu[0]=seed;
+   //  edm::Service<RandomNumberGenerator> rng;
+   //  uint32_t seed = rng->
+
+   long seed = gen::getEngineReference().getSeed();
+   ludatr.mrlu[0]=seed;
 
   // hydjet running mode mode
   // kHydroOnly --- nhsel=0 jet production off (pure HYDRO event), nhsel=0
@@ -499,7 +501,7 @@ bool HydjetHadronizer::declareStableParticles( std::vector<int> pdg )
 void HydjetHadronizer::rotateEvtPlane(){
 
    int * dummy;
-   phi0_ = 2.*pi*pyr_(dummy) - pi;
+   phi0_ = 2.*pi*gen::pyr_(dummy) - pi;
    sinphi0_ = sin(phi0_);
    cosphi0_ = cos(phi0_);
 }
