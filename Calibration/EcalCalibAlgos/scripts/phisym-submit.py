@@ -93,7 +93,9 @@ def main():
       filenamelist = str(inputfilefrag)
       filenamelist = filenamelist.replace("["," ")
       filenamelist = filenamelist.replace("]"," ")
-      filenamelist = filenamelist.replace(",",",\n")   
+      filenamelist = filenamelist.replace(",",",\n")
+      #we ended the input files
+      if len(filenamelist) < 3 : continue
       data = data.replace("INPUTFILES", filenamelist)
       data = data.replace("NUMBER",str(jobcount+1))
       conffile = configfile_basename+str(jobcount)+".cfg"
