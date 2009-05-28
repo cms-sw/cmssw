@@ -66,106 +66,126 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                 const EcalRecHitCollection * hit_collection = &result;
                 EcalDeadChannelRecoveryAlgos deadChannelCorrector(caloTopology_.product());
                 EcalRecHit hit = deadChannelCorrector.correct( detId, hit_collection, singleRecoveryMethod_, singleRecoveryThreshold_ );
-                hit.setFlags( EcalRecHit::kNeighboursRecovered );
-                result.push_back( hit );
+                if ( hit.energy() != 0 ) {
+                        hit.setFlags( EcalRecHit::kNeighboursRecovered );
+                } else {
+                        hit.setFlags( EcalRecHit::kDead );
+                }
+                EcalRecHitCollection::iterator it = result.find( detId );
+                if ( it == result.end() ) {
+                        result.push_back( hit );
+                } else {
+                        *it = hit;
+                }
         } else if ( flags == 2 ) {
-                // recover as dead TT
-                const EcalRecHitCollection * hits = &result;
-                EcalRecHitCollection::const_iterator it = hits->find( detId );
-                if ( it == hits->end() ) {
-                        EcalTrigTowerDetId ttDetId( detId );
-                        edm::Handle<EcalTrigPrimDigiCollection> pTPDigis;
-                        evt.getByLabel(tpDigiCollection_, pTPDigis);
-                        const EcalTrigPrimDigiCollection * tpDigis = pTPDigis.product();
-                        EcalTrigPrimDigiCollection::const_iterator tp = tpDigis->find( ttDetId );
-                        if ( tp->id().subDet() == EcalBarrel ) {
-                                // recover the whole trigger tower
-                                if ( tp != tpDigis->end() ) {
-                                        //std::vector<DetId> vid = ecalMapping_->dccTowerConstituents( ecalMapping_->DCCid( ttDetId ), ecalMapping_->iTT( ttDetId ) );
-                                        std::vector<DetId> vid = ttMap_->constituentsOf( ttDetId );
-                                        // democratic energy sharing
-                                        for ( std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); ++dit ) {
-                                                float theta = 0;
-                                                theta = ebGeom_->getGeometry(*dit)->getPosition().theta();
-                                                float tpEt  = ecalScale_.getTPGInGeV( tp->compressedEt(), tp->id() );
-                                                EcalRecHit hit( *dit, tpEt / (float)vid.size() / sin(theta), 0., EcalRecHit::kTowerRecovered );
-                                                // paranoic: verify the hit is not in the collection
-                                                if ( result.find( *dit ) == result.end() ) {
-                                                        // insert the hit in the collection
-                                                        result.push_back( hit );
-                                                } else {
-                                                        // error
-                                                }
-                                        }
-                                } else {
-                                        //error...
-                                }
-                        } else if ( tp->id().subDet() == EcalEndcap ) {
-                                // Structure for recovery:
-                                // ** SC --> EEDetId constituents (eeC) --> associated Trigger Towers (aTT) --> EEDetId constituents (aTTC)
-                                // ** energy for a SC EEDetId = [ sum_aTT(energy) - sum_aTTC(energy) ] / N_eeC
-                                // .. i.e. the total energy of the TTs covering the SC minus 
-                                // .. the energy of the recHits in the TTs but not in the SC
+                ////////////// recover as dead TT
+                ////////////const EcalRecHitCollection * hits = &result;
+                ////////////EcalRecHitCollection::const_iterator it = hits->find( detId );
+                ////////////if ( it == hits->end() ) {
+                EcalTrigTowerDetId ttDetId( detId.rawId() );
+                edm::Handle<EcalTrigPrimDigiCollection> pTPDigis;
+                evt.getByLabel(tpDigiCollection_, pTPDigis);
+                const EcalTrigPrimDigiCollection * tpDigis = 0;
+                if ( pTPDigis.isValid() ) {
+                        tpDigis = pTPDigis.product();
+                } else {
+                        edm::LogError("EcalRecHitWorkerRecover") << "Can't get the product " << tpDigiCollection_.instance() 
+                                << " with label " << tpDigiCollection_.label();
+                        return false;
+                }
+                EcalTrigPrimDigiCollection::const_iterator tp = tpDigis->find( ttDetId );
+                if ( tp->id().subDet() == EcalBarrel ) {
+                        // recover the whole trigger tower
+                        if ( tp != tpDigis->end() ) {
                                 //std::vector<DetId> vid = ecalMapping_->dccTowerConstituents( ecalMapping_->DCCid( ttDetId ), ecalMapping_->iTT( ttDetId ) );
-                                /* --- NOT YET VALIDATED
-                                EcalScDetId sc( detId );
-                                std::vector<DetId> eeC;
-                                for(int dx=1; dx<=5; ++dx){
-                                        for(int dy=1; dy<=5; ++dy){
-                                                int ix = (sc.ix()-1)/5 + dx;
-                                                int iy = (sc.iy()-1)/5 + dy;
-                                                int iz = sc.zside();
-                                                if(EEDetId::validDetId(ix, iy, iz)){
-                                                        eeC.push_back(EEDetId(ix, iy, iz));
-                                                }
-                                        }
-                                }
-                                // associated trigger towers
-                                std::set<EcalTrigTowerDetId> aTT;
-                                float totE = 0;
-                                for ( size_t i = 0; i < eeC.size(); ++i ) {
-                                        float theta = eeGeom_->getGeometry( eeC[i] )->getPosition().theta();
-                                        totE += ecalScale_.getTPGInGeV( tp->compressedEt(), tp->id() ) / sin(theta);
-                                        aTT.insert( ttMap_->towerOf( eeC[i] ) );
-                                }
-                                // associated trigger towers: EEDetId constituents
-                                std::set<DetId> aTTC;
-                                for ( std::set<EcalTrigTowerDetId>::const_iterator it = aTT.begin(); it != aTT.end(); ++it ) {
-                                        std::vector<DetId> v = ttMap_->constituentsOf( *it );
-                                        for ( size_t j = 0; j < v.size(); ++j ) {
-                                                aTTC.insert( v[j] );
-                                        }
-                                }
-                                // remove crystals of dead SC
-                                // (this step is not needed if sure that SC crystals are not 
-                                // in the recHit collection)
-                                for ( size_t i = 0; i < eeC.size(); ++i ) {
-                                        aTTC.erase( eeC[i] );
-                                }
-                                // compute the total energy for the dead SC
-                                for ( std::set<DetId>::const_iterator it = aTTC.begin(); it != aTTC.end(); ++it ) {
-                                        EcalRecHitCollection::const_iterator jt = hits->find( *it );
-                                        if ( jt != hits->end() ) {
-                                                float theta = eeGeom_->getGeometry( *it )->getPosition().theta();
-                                                totE -= (*jt).energy() / sin(theta);
-                                        }
-                                }
-                                // assign the energy to the SC crystals
-                                for ( size_t i = 0; i < eeC.size(); ++i ) {
-                                        EcalRecHit hit( eeC[i], totE / (float)eeC.size(), 0., EcalRecHit::kTowerRecovered );
+                                std::vector<DetId> vid = ttMap_->constituentsOf( ttDetId );
+                                // democratic energy sharing
+                                for ( std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); ++dit ) {
+                                        float theta = 0;
+                                        theta = ebGeom_->getGeometry(*dit)->getPosition().theta();
+                                        float tpEt  = ecalScale_.getTPGInGeV( tp->compressedEt(), tp->id() );
+                                        EcalRecHit hit( *dit, tpEt / (float)vid.size() / sin(theta), 0., EcalRecHit::kTowerRecovered );
                                         // paranoic: verify the hit is not in the collection
-                                        if ( result.find( eeC[i] ) == result.end() ) {
+                                        EcalRecHitCollection::iterator it = result.find( *dit );
+                                        if ( it == result.end() ) {
                                                 // insert the hit in the collection
                                                 result.push_back( hit );
                                         } else {
-                                                // error
+                                                // overwrite existing recHit
+                                                *it = hit;
                                         }
                                 }
-                                */
+                        } else {
+                                //error...
                         }
-                } else {
-                        // dead channel is in recHit collection ?!?
+                } else if ( tp->id().subDet() == EcalEndcap ) {
+                        // Structure for recovery:
+                        // ** SC --> EEDetId constituents (eeC) --> associated Trigger Towers (aTT) --> EEDetId constituents (aTTC)
+                        // ** energy for a SC EEDetId = [ sum_aTT(energy) - sum_aTTC(energy) ] / N_eeC
+                        // .. i.e. the total energy of the TTs covering the SC minus 
+                        // .. the energy of the recHits in the TTs but not in the SC
+                        //std::vector<DetId> vid = ecalMapping_->dccTowerConstituents( ecalMapping_->DCCid( ttDetId ), ecalMapping_->iTT( ttDetId ) );
+                        /* --- NOT YET VALIDATED
+                           EcalScDetId sc( detId );
+                           std::vector<DetId> eeC;
+                           for(int dx=1; dx<=5; ++dx){
+                           for(int dy=1; dy<=5; ++dy){
+                           int ix = (sc.ix()-1)/5 + dx;
+                           int iy = (sc.iy()-1)/5 + dy;
+                           int iz = sc.zside();
+                           if(EEDetId::validDetId(ix, iy, iz)){
+                           eeC.push_back(EEDetId(ix, iy, iz));
+                           }
+                           }
+                           }
+                        // associated trigger towers
+                        std::set<EcalTrigTowerDetId> aTT;
+                        float totE = 0;
+                        for ( size_t i = 0; i < eeC.size(); ++i ) {
+                        float theta = eeGeom_->getGeometry( eeC[i] )->getPosition().theta();
+                        totE += ecalScale_.getTPGInGeV( tp->compressedEt(), tp->id() ) / sin(theta);
+                        aTT.insert( ttMap_->towerOf( eeC[i] ) );
+                        }
+                        // associated trigger towers: EEDetId constituents
+                        std::set<DetId> aTTC;
+                        for ( std::set<EcalTrigTowerDetId>::const_iterator it = aTT.begin(); it != aTT.end(); ++it ) {
+                        std::vector<DetId> v = ttMap_->constituentsOf( *it );
+                        for ( size_t j = 0; j < v.size(); ++j ) {
+                        aTTC.insert( v[j] );
+                        }
+                        }
+                        // remove crystals of dead SC
+                        // (this step is not needed if sure that SC crystals are not 
+                        // in the recHit collection)
+                        for ( size_t i = 0; i < eeC.size(); ++i ) {
+                        aTTC.erase( eeC[i] );
+                        }
+                        // compute the total energy for the dead SC
+                        for ( std::set<DetId>::const_iterator it = aTTC.begin(); it != aTTC.end(); ++it ) {
+                        EcalRecHitCollection::const_iterator jt = hits->find( *it );
+                        if ( jt != hits->end() ) {
+                        float theta = eeGeom_->getGeometry( *it )->getPosition().theta();
+                        totE -= (*jt).energy() / sin(theta);
+                        }
+                        }
+                        // assign the energy to the SC crystals
+                        for ( size_t i = 0; i < eeC.size(); ++i ) {
+                        EcalRecHit hit( eeC[i], totE / (float)eeC.size(), 0., EcalRecHit::kTowerRecovered );
+                        EcalRecHitCollection::iterator it = result.find( eeC[i] );
+                        // paranoic: verify the hit is not in the collection
+                        if ( it == result.end() ) {
+                        // insert the hit in the collection
+                        result.push_back( hit );
+                        } else {
+                        // overwrite existing recHit
+                         *it = hit;
+                         }
+                         }
+                         */
                 }
+                /////////} else {
+                /////////        // dead channel is in recHit collection ?!?
+                /////////}
         }
         return true;
 }
