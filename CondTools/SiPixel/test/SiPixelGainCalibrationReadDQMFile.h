@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya BLEKMAN
 //         Created:  Tue Aug  5 16:22:46 CEST 2008
-// $Id: SiPixelGainCalibrationReadDQMFile.h,v 1.6 2008/10/15 14:58:29 fblekman Exp $
+// $Id: SiPixelGainCalibrationReadDQMFile.h,v 1.1 2009/02/04 16:05:55 rougny Exp $
 //
 //
 
@@ -34,7 +34,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationOffline.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationService.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 

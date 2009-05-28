@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjForHLTBuilder.h,v 1.3 2008/04/21 08:15:28 friis Exp $
+// $Id: SiPixelCondObjForHLTBuilder.h,v 1.4 2009/02/20 15:53:15 rougny Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -25,7 +25,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationForHLTService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationForHLTService.h"
 #include "CondFormats/SiPixelObjects/interface/PixelIndices.h"
 #include <string>
 

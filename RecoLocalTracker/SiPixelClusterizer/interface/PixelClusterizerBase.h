@@ -5,7 +5,7 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationServiceBase.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationServiceBase.h"
 #include <vector>
 
 class PixelGeomDetUnit;

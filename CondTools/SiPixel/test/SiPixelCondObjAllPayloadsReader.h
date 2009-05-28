@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjAllPayloadsReader.h,v 1.2 2008/03/25 22:11:55 fblekman Exp $
+// $Id: SiPixelCondObjAllPayloadsReader.h,v 1.3 2008/11/12 14:13:06 heyburn Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -28,10 +28,10 @@
 //#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationServiceBase.h"
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineService.h"
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationForHLTService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationServiceBase.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationForHLTService.h"
 
 #include "TROOT.h"
 #include "TFile.h"

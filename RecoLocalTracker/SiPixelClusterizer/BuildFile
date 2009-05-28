@@ -9,7 +9,7 @@
 <use name=DataFormats/SiPixelDigi>
 <use name=DataFormats/SiPixelCluster>
 <use name=DataFormats/DetId>
-<use name=CondTools/SiPixel>
+<use name=CalibTracker/SiPixelESProducers>
 <export>
   <lib name=RecoLocalTrackerSiPixelClusterizer>
   <use name=DataFormats/Common>
@@ -23,5 +23,5 @@
   <use name=DataFormats/SiPixelDigi>
   <use name=DataFormats/SiPixelCluster>
   <use name=DataFormats/DetId>
-  <use name=CondTools/SiPixel>
+  <use name=CalibTracker/SiPixelESProducers>
 </export>

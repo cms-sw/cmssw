@@ -1,6 +1,6 @@
 #include "CondTools/SiPixel/test/SiPixelCPEGenericErrorParmReader.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelCPEGenericErrorParm.h"
-#include "CondTools/SiPixel/interface/SiPixelCPEGenericDBErrorParametrization.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelCPEGenericDBErrorParametrization.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 

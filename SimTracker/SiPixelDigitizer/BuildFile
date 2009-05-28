@@ -16,7 +16,7 @@
 <use name=clhep>
 <use name=MagneticField/Records>
 <use name=MagneticField/Engine>
-<use name=CondTools/SiPixel>
+<use name=CalibTracker/SiPixelESProducers>
 <export>
    <lib name=SimTrackerSiPixelDigitizer>
    <use name=FWCore/Framework>
@@ -36,6 +36,6 @@
    <use name=clhep>
    <use name=MagneticField/Records>
    <use name=MagneticField/Engine>
-   <use name=CondTools/SiPixel>
+   <use name=CalibTracker/SiPixelESProducers>
 #    <use name=Geometry/Surface>
 </export>

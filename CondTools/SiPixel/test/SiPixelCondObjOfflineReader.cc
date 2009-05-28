@@ -1,8 +1,8 @@
 #include <memory>
 
 #include "CondTools/SiPixel/test/SiPixelCondObjOfflineReader.h"
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineService.h"
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineSimService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineSimService.h"
 
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"

@@ -8,7 +8,7 @@
 <use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/DetId>
 <use name=CondFormats/SiPixelObjects>
-<use name=CondTools/SiPixel>
+<use name=CalibTracker/SiPixelESProducers>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=Geometry/TrackerTopology>

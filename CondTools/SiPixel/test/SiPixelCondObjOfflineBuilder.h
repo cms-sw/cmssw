@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjOfflineBuilder.h,v 1.4 2009/01/21 13:14:01 fblekman Exp $
+// $Id: SiPixelCondObjOfflineBuilder.h,v 1.5 2009/02/19 22:20:56 rougny Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -25,7 +25,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineService.h"
 #include "CondFormats/SiPixelObjects/interface/PixelIndices.h"
 #include <string>
 

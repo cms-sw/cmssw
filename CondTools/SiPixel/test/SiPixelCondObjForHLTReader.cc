@@ -8,8 +8,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationForHLTService.h"
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationForHLTSimService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationForHLTService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationForHLTSimService.h"
 
 namespace cms{
 SiPixelCondObjForHLTReader::SiPixelCondObjForHLTReader(const edm::ParameterSet& conf): 

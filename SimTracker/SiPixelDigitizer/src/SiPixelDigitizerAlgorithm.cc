@@ -56,7 +56,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineSimService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineSimService.h"
  
 // Accessing dead pixel modules from the DB:
 #include "DataFormats/DetId/interface/DetId.h"

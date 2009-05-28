@@ -31,7 +31,7 @@
 // of the pixel algorithm.
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
-#include "CondTools/SiPixel/interface/SiPixelCPEGenericDBErrorParametrization.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelCPEGenericDBErrorParametrization.h"
 
 // Already defined in the base class
 //#include "Geometry/CommonDetUnit/interface/GeomDetType.h"

@@ -30,7 +30,7 @@
 #include "CondFormats/SiPixelObjects/interface/PixelIndices.h"
 
 // pixel gain payload access (offline version for Simulation)
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineSimService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineSimService.h"
 
 // Accessing Pixel Lorentz Angle from the DB:
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"

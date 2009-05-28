@@ -25,9 +25,9 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 // Database payloads
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineService.h"
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationForHLTService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationForHLTService.h"
 
 // Framework
 #include "DataFormats/Common/interface/Handle.h"
