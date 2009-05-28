@@ -204,9 +204,13 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDelt
 
 
   TIter next( gROOT->GetListOfFiles() );
-  while ( TFile *file = (TFile *)next() )
-    cout<<"file "<<file->GetName()<<endl;
 
+  const bool debug=false;
+
+  while ( TFile *file = (TFile *)next() )
+  {
+    if (debug) cout<<"file "<<file->GetName()<<endl;
+  }
   if (DQM)
   {
     cout<<"DQM subdir"<<endl;
@@ -215,9 +219,11 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDelt
     DQM->cd( DQM->pwd() );
   }
 
-  cout<<"current dir"<<endl;
-  gDirectory->pwd();
-  
+  if (debug)
+  {
+    cout<<"current dir"<<endl;
+    gDirectory->pwd();
+  }
   
 
   oldpwd->cd();

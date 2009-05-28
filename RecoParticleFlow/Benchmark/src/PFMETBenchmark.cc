@@ -66,7 +66,7 @@ void PFMETBenchmark::setup(
   file_ = NULL;
   dbe_ = dbe_store;
   // print parameters
-  cout<< "PFMETBenchmark Setup parameters =============================================="<<endl;
+  //cout<< "PFMETBenchmark Setup parameters =============================================="<<endl;
   cout << "Filename to write histograms " << Filename<<endl;
   cout << "PFMETBenchmark debug " << debug_<< endl;
   cout << "plotAgainstReco " << plotAgainstReco_ << endl;
