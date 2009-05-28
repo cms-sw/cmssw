@@ -57,7 +57,6 @@ namespace edm
 	    if (tags.size()>0) tag=tags[0];
             std::string label;
             branchesActivate(TypeID(typeid(PCrossingFrame<SimTrack>)).friendlyClassName(),std::string(""),tag,label);
-	    std::cout << " SimTrack label = " << label << " tag = " << tag << std::endl; 
             
 	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
 
@@ -76,8 +75,7 @@ namespace edm
 	   
 	       branchesActivate(TypeID(typeid(std::vector<SimTrack>)).friendlyClassName(),std::string(""),tagCF,labelCF);
 	       workers_.push_back(new MixingWorker<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,checktof_,mixProdStep2_));  
-
-	       std::cout << " SimTrack labelCF = " << labelCF << " tagCF = " << tagCF << std::endl; 	     
+	     
 	       produces<CrossingFrame<SimTrack> >(labelCF);
 	    }
 	    
@@ -182,10 +180,8 @@ namespace edm
               branchesActivate(TypeID(typeid(PCrossingFrame<PSimHit>)).friendlyClassName(),subdets[ii],tag,label);
 	   
 	      if ((subdets[ii].find("HighTof")==std::string::npos) && (subdets[ii].find("LowTof")==std::string::npos)) {
-		//workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,maxNbSources_,tag,checktof_,mixProdStep2_));  	            
 		LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be"<<label;
 	      }else {
-	        //workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,maxNbSources_,tag,checktof_,true));  
 		// here we have to give the opposite selector too (low for high, high for low)
 		int slow=(subdets[ii]).find("LowTof");
 		int iend=(subdets[ii]).size();
@@ -195,10 +191,6 @@ namespace edm
 		}else{
 		  productInstanceNameOpp=tag.instance().substr(0,iend-7)+"LowTof";
 		}
-		/*InputTag tagOpp(tag.label(),productInstanceNameOpp,tag.process());
-		workers_[workers_.size()-1]->setOppositeTag(tagOpp);
-		workers_[workers_.size()-1]->setCheckTof(checktof_);
-		*/
 		LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
 	      }
 	      
