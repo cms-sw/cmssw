@@ -17,12 +17,12 @@ dimuonsEventContent = cms.PSet(
         'keep *_dimuonsOneStandAloneMuon_*_*', 
         'keep *_muonMatch_*_*', 
         'keep *_trackMuMatch_*_*', 
-        'keep *_allDimuonsMCMatch_*_*'
-#        'keep patTriggerObjects_patTrigger_*_*',
-#        'keep patTriggerFilters_patTrigger_*_*',
-#        'keep patTriggerPaths_patTrigger_*_*',
-#        'keep patTriggerEvent_patTriggerEvent_*_*',
-#        'keep *_selectedLayer1MuonsTriggerMatch_*_*'
+        'keep *_allDimuonsMCMatch_*_*',
+        'keep patTriggerObjects_patTrigger_*_*',
+        'keep patTriggerFilters_patTrigger_*_*',
+        'keep patTriggerPaths_patTrigger_*_*',
+        'keep patTriggerEvent_patTriggerEvent_*_*',
+        'keep *_selectedLayer1MuonsTriggerMatch_*_*'
         )
 )
 dimuonsEventSelection = cms.PSet(

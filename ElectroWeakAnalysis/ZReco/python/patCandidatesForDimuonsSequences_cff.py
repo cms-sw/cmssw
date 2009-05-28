@@ -70,12 +70,11 @@ allLayer1Muons.isolation.tracker = cms.PSet(
     threshold = cms.double(1.5)
 )
 allLayer1Muons.addTrigMatch = cms.bool(False)
-allLayer1Muons.trigPrimMatch = cms.VInputTag(cms.InputTag("muonTrigMatchHLT1MuonNonIso"))
 
 from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import *
 selectedLayer1Muons.cut = 'pt > 0. & abs(eta) < 100.0'
 
-# trigger info #### WAITING FOR A RECIPE
+# trigger info
 from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import *
 
 muonTriggerMatchHLTMuons = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
@@ -129,7 +128,7 @@ patLayer1 = cms.Sequence(
 
 goodMuonRecoForDimuon = cms.Sequence(
     beforePatLayer1 *
-    patLayer1  *
+    patLayer1 *
     patTriggerSequence
 )
 
