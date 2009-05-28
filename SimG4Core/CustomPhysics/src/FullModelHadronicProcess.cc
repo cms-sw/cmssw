@@ -72,6 +72,9 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
 							  const G4Step&  aStep)
 {
   //  G4cout<<"*****************    Entering FullModelHadronicProcess::PostStepDoIt       **********************"<<G4endl;
+
+  const G4TouchableHandle thisTouchable(aTrack.GetTouchableHandle());
+
   // A little setting up
   aParticleChange.Initialize(aTrack);
   //  G4DynamicParticle* OrgPart = const_cast<G4DynamicParticle*>(aTrack.GetDynamicParticle());
@@ -564,7 +567,18 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
       G4Track* Trackn = new G4Track(pa,
 				    aTrack.GetGlobalTime(),
 				    aPosition);
+      Trackn->SetTouchableHandle(thisTouchable);
       aParticleChange.AddSecondary(Trackn);
+
+      // debug 
+
+//       G4cerr << "FullModelHadronicProcess: New secondary " << i 
+//              << " ID " << Trackn->GetTrackID() 
+//              << " PDG " << Trackn->GetDefinition()->GetParticleName() 
+//              << " position " << Trackn->GetPosition() 
+//              << " volume " << Trackn->GetTouchable() 
+//              << " handle " << Trackn->GetTouchableHandle() << G4endl;
+
       delete vec[i];
     } 
 
