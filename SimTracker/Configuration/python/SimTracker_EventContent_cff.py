@@ -1,17 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-#save digis
-
-#save match with GenParticles 
-
-#save match with TrackingParticles 
-
-#save match with GenParticles 
-
-#save match with GenParticles 
-
-#save match with GenParticles 
-
 import FWCore.ParameterSet.Config as cms
 
 #Full Event content with DIGI
@@ -25,6 +11,12 @@ SimTrackerFEVTDEBUG = cms.PSet(
         'keep *_assoc2GsfTracks_*_*', 
         'keep *_assocOutInConversionTracks_*_*', 
         'keep *_assocInOutConversionTracks_*_*')
+)
+
+SimTrackerDEBUG = cms.PSet(
+    outputCommands = cms.untracked.vstring('keep PixelDigiSimLinkedmDetSetVector_simSiPixelDigis_*_*', 
+        'keep StripDigiSimLinkedmDetSetVector_simSiStripDigis_*_*', 
+        'keep *_allTrackMCMatch_*_*')
 )
 #RAW content 
 SimTrackerRAW = cms.PSet(
