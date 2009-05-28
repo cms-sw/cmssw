@@ -92,13 +92,13 @@ isolationSumsCalculator = cms.PSet(
     EcalRecHitOuterRadiusA_Endcap = cms.double(0.4),
     EcalRecHitEtaSliceA_Endcap = cms.double(0.04),
     EcalRecHitThreshEA_Endcap = cms.double(0.0),
-    EcalRecHitThreshEtA_Endcap = cms.double(0.01),
+    EcalRecHitThreshEtA_Endcap = cms.double(0.1),
 #
     EcalRecHitInnerRadiusB_Endcap = cms.double(0.06),
     EcalRecHitOuterRadiusB_Endcap = cms.double(0.3),
     EcalRecHitEtaSliceB_Endcap = cms.double(0.04),
     EcalRecHitThreshEB_Endcap = cms.double(0.0),
-    EcalRecHitThreshEtB_Endcap = cms.double(0.01),
+    EcalRecHitThreshEtB_Endcap = cms.double(0.1),
     #Hcal towers
     HcalTowerInnerRadiusA_Endcap = cms.double(0.15),
     HcalTowerOuterRadiusA_Endcap = cms.double(0.4),
