@@ -1,6 +1,42 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
+namespace muon {
+SelectionType selectionTypeFromString( std::string &label )
+{
+   static SelectionTypeStringToEnum selectionTypeStringToEnumMap[] = {
+      { "All", All },
+      { "AllGlobalMuons", AllGlobalMuons },
+      { "AllStandAloneMuons", AllStandAloneMuons },
+      { "AllTrackerMuons", AllTrackerMuons },
+      { "TrackerMuonArbitrated", TrackerMuonArbitrated },
+      { "AllArbitrated", AllArbitrated },
+      { "GlobalMuonPromptTight", GlobalMuonPromptTight },
+      { "TMLastStationLoose", TMLastStationLoose },
+      { "TMLastStationTight", TMLastStationTight },
+      { "TM2DCompatibilityLoose", TM2DCompatibilityLoose },
+      { "TM2DCompatibilityTight", TM2DCompatibilityTight },
+      { "TMOneStationLoose", TMOneStationLoose },
+      { "TMOneStationTight", TMOneStationTight },
+      { "TMLastStationOptimizedLowPtLoose", TMLastStationOptimizedLowPtLoose },
+      { "TMLastStationOptimizedLowPtTight", TMLastStationOptimizedLowPtTight },
+      { 0, (SelectionType)-1 }
+   };
+
+   SelectionType value = (SelectionType)-1;
+   bool found = false;
+   for(int i = 0; selectionTypeStringToEnumMap[i].label && (! found); ++i)
+      if (! strcmp(label.c_str(), selectionTypeStringToEnumMap[i].label)) {
+         found = true;
+         value = selectionTypeStringToEnumMap[i].value;
+      }
+
+   // in case of unrecognized selection type
+   if (! found) throw cms::Exception("ConfigurationError") << label << " is not a recognized SelectionType";
+   return value;
+}
+}
+
 unsigned int muon::RequiredStationMask( const reco::Muon& muon,
 					  double maxChamberDist,
 					  double maxChamberDistPull,
