@@ -5,8 +5,8 @@
 //   L1 DT Track Finder Raw-to-Digi
 //
 //
-//   $Date: 2008/08/05 11:12:08 $
-//   $Revision: 1.12 $
+//   $Date: 2008/10/13 07:43:52 $
+//   $Revision: 1.13 $
 //
 //   Author :
 //   J. Troconiz  UAM Madrid
@@ -261,46 +261,95 @@ void DTTFFEDReader::process(edm::Event& e) {
 
       int posALL, posBTI[7];
 
-      posALL    =  ~(*DTTFiterator)&0x7F;
-      posBTI[0] =  ~(*DTTFiterator)&0x01;
-      posBTI[1] = (~(*DTTFiterator)&0x02)>>1;
-      posBTI[2] = (~(*DTTFiterator)&0x04)>>2;
-      posBTI[3] = (~(*DTTFiterator)&0x08)>>3;
-      posBTI[4] = (~(*DTTFiterator)&0x10)>>4;
-      posBTI[5] = (~(*DTTFiterator)&0x20)>>5;
-      posBTI[6] = (~(*DTTFiterator)&0x40)>>6;
+      if ( wheelTh == -2 || wheelTh == -1 || 
+	   ( wheelTh == 0 && (sectorID == 0 || sectorID == 3 || sectorID == 4 || sectorID == 7 || sectorID == 8 || sectorID == 11) ) ) {
 
-      if(posALL){
-        theSegments.push_back(
-		    L1MuDTChambThDigi( bxID, wheelTh, sectorID, 1, posBTI) );
+	posALL    =  ~(*DTTFiterator)&0x7F;
+	posBTI[0] =  ~(*DTTFiterator)&0x01;
+	posBTI[1] = (~(*DTTFiterator)&0x02)>>1;
+	posBTI[2] = (~(*DTTFiterator)&0x04)>>2;
+	posBTI[3] = (~(*DTTFiterator)&0x08)>>3;
+	posBTI[4] = (~(*DTTFiterator)&0x10)>>4;
+	posBTI[5] = (~(*DTTFiterator)&0x20)>>5;
+	posBTI[6] = (~(*DTTFiterator)&0x40)>>6;
+
+	if(posALL){
+	  theSegments.push_back(
+		      L1MuDTChambThDigi( bxID, wheelTh, sectorID, 1, posBTI) );
+	}
+
+	posALL    =  ~(*DTTFiterator)&0x3F80;
+	posBTI[0] = (~(*DTTFiterator)&0x0080)>>7;
+	posBTI[1] = (~(*DTTFiterator)&0x0100)>>8;
+	posBTI[2] = (~(*DTTFiterator)&0x0200)>>9;
+	posBTI[3] = (~(*DTTFiterator)&0x0400)>>10;
+	posBTI[4] = (~(*DTTFiterator)&0x0800)>>11;
+	posBTI[5] = (~(*DTTFiterator)&0x1000)>>12;
+	posBTI[6] = (~(*DTTFiterator)&0x2000)>>13;
+
+	if(posALL){
+	  theSegments.push_back(
+		      L1MuDTChambThDigi( bxID, wheelTh, sectorID, 2, posBTI) );
+	}
+
+	posALL    =  ~(*DTTFiterator)&0x1FC000;
+	posBTI[0] = (~(*DTTFiterator)&0x004000)>>14;
+	posBTI[1] = (~(*DTTFiterator)&0x008000)>>15;
+	posBTI[2] = (~(*DTTFiterator)&0x010000)>>16;
+	posBTI[3] = (~(*DTTFiterator)&0x020000)>>17;
+	posBTI[4] = (~(*DTTFiterator)&0x040000)>>18;
+	posBTI[5] = (~(*DTTFiterator)&0x080000)>>19;
+	posBTI[6] = (~(*DTTFiterator)&0x100000)>>20;
+
+	if(posALL){
+	  theSegments.push_back(
+		      L1MuDTChambThDigi( bxID, wheelTh, sectorID, 3, posBTI) );
+	}
       }
 
-      posALL    =  ~(*DTTFiterator)&0x3F80;
-      posBTI[0] = (~(*DTTFiterator)&0x0080)>>7;
-      posBTI[1] = (~(*DTTFiterator)&0x0100)>>8;
-      posBTI[2] = (~(*DTTFiterator)&0x0200)>>9;
-      posBTI[3] = (~(*DTTFiterator)&0x0400)>>10;
-      posBTI[4] = (~(*DTTFiterator)&0x0800)>>11;
-      posBTI[5] = (~(*DTTFiterator)&0x1000)>>12;
-      posBTI[6] = (~(*DTTFiterator)&0x2000)>>13;
+      else {
 
-      if(posALL){
-        theSegments.push_back(
-		    L1MuDTChambThDigi( bxID, wheelTh, sectorID, 2, posBTI) );
-      }
+	posALL    =  ~(*DTTFiterator)&0x7F;
+	posBTI[6] =  ~(*DTTFiterator)&0x01;
+	posBTI[5] = (~(*DTTFiterator)&0x02)>>1;
+	posBTI[4] = (~(*DTTFiterator)&0x04)>>2;
+	posBTI[3] = (~(*DTTFiterator)&0x08)>>3;
+	posBTI[2] = (~(*DTTFiterator)&0x10)>>4;
+	posBTI[1] = (~(*DTTFiterator)&0x20)>>5;
+	posBTI[0] = (~(*DTTFiterator)&0x40)>>6;
 
-      posALL    =  ~(*DTTFiterator)&0x1FC000;
-      posBTI[0] = (~(*DTTFiterator)&0x004000)>>14;
-      posBTI[1] = (~(*DTTFiterator)&0x008000)>>15;
-      posBTI[2] = (~(*DTTFiterator)&0x010000)>>16;
-      posBTI[3] = (~(*DTTFiterator)&0x020000)>>17;
-      posBTI[4] = (~(*DTTFiterator)&0x040000)>>18;
-      posBTI[5] = (~(*DTTFiterator)&0x080000)>>19;
-      posBTI[6] = (~(*DTTFiterator)&0x100000)>>20;
+	if(posALL){
+	  theSegments.push_back(
+		      L1MuDTChambThDigi( bxID, wheelTh, sectorID, 1, posBTI) );
+	}
 
-      if(posALL){
-        theSegments.push_back(
-		    L1MuDTChambThDigi( bxID, wheelTh, sectorID, 3, posBTI) );
+	posALL    =  ~(*DTTFiterator)&0x3F80;
+	posBTI[6] = (~(*DTTFiterator)&0x0080)>>7;
+	posBTI[5] = (~(*DTTFiterator)&0x0100)>>8;
+	posBTI[4] = (~(*DTTFiterator)&0x0200)>>9;
+	posBTI[3] = (~(*DTTFiterator)&0x0400)>>10;
+	posBTI[2] = (~(*DTTFiterator)&0x0800)>>11;
+	posBTI[1] = (~(*DTTFiterator)&0x1000)>>12;
+	posBTI[0] = (~(*DTTFiterator)&0x2000)>>13;
+
+	if(posALL){
+	  theSegments.push_back(
+		      L1MuDTChambThDigi( bxID, wheelTh, sectorID, 2, posBTI) );
+	}
+
+	posALL    =  ~(*DTTFiterator)&0x1FC000;
+	posBTI[6] = (~(*DTTFiterator)&0x004000)>>14;
+	posBTI[5] = (~(*DTTFiterator)&0x008000)>>15;
+	posBTI[4] = (~(*DTTFiterator)&0x010000)>>16;
+	posBTI[3] = (~(*DTTFiterator)&0x020000)>>17;
+	posBTI[2] = (~(*DTTFiterator)&0x040000)>>18;
+	posBTI[1] = (~(*DTTFiterator)&0x080000)>>19;
+	posBTI[0] = (~(*DTTFiterator)&0x100000)>>20;
+
+	if(posALL){
+	  theSegments.push_back(
+		      L1MuDTChambThDigi( bxID, wheelTh, sectorID, 3, posBTI) );
+	}
       }
     }
     //Input
@@ -349,14 +398,14 @@ void DTTFFEDReader::process(edm::Event& e) {
 
       etaALL =  ~(*DTTFiterator)&0x007F;
       if (etaALL) {
-        etTrack[bxID+1][sectorID][wheelTh][0] =  ~(*DTTFiterator)&0x003F;
-        efTrack[bxID+1][sectorID][wheelTh][0] = (~(*DTTFiterator)&0x0040)>>6;
+        etTrack[bxID+1][sectorID][wheelTh][0] =  (*DTTFiterator)&0x003F;
+        efTrack[bxID+1][sectorID][wheelTh][0] = ((*DTTFiterator)&0x0040)>>6;
       }
 
       etaALL =  (~(*DTTFiterator)&0x3F80)>>7;
       if (etaALL) {
-        etTrack[bxID+1][sectorID][wheelTh][1]= (~(*DTTFiterator)&0x1F80)>>7;
-        efTrack[bxID+1][sectorID][wheelTh][1]= (~(*DTTFiterator)&0x2000)>>13;
+        etTrack[bxID+1][sectorID][wheelTh][1]= ((*DTTFiterator)&0x1F80)>>7;
+        efTrack[bxID+1][sectorID][wheelTh][1]= ((*DTTFiterator)&0x2000)>>13;
       }
     }
     //Output
