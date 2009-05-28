@@ -5,8 +5,8 @@
 //   L1 DT Track Finder Raw-to-Digi
 //
 //
-//   $Date: 2008/10/13 07:43:52 $
-//   $Revision: 1.13 $
+//   $Date: 2009/05/28 15:54:29 $
+//   $Revision: 1.14 $
 //
 //   Author :
 //   J. Troconiz  UAM Madrid
@@ -398,14 +398,14 @@ void DTTFFEDReader::process(edm::Event& e) {
 
       etaALL =  ~(*DTTFiterator)&0x007F;
       if (etaALL) {
-        etTrack[bxID+1][sectorID][wheelTh][0] =  (*DTTFiterator)&0x003F;
-        efTrack[bxID+1][sectorID][wheelTh][0] = ((*DTTFiterator)&0x0040)>>6;
+        etTrack[bxID+1][sectorID][wheelTh][0] =   (*DTTFiterator)&0x003F;
+        efTrack[bxID+1][sectorID][wheelTh][0] = (~(*DTTFiterator)&0x0040)>>6;
       }
 
       etaALL =  (~(*DTTFiterator)&0x3F80)>>7;
       if (etaALL) {
-        etTrack[bxID+1][sectorID][wheelTh][1]= ((*DTTFiterator)&0x1F80)>>7;
-        efTrack[bxID+1][sectorID][wheelTh][1]= ((*DTTFiterator)&0x2000)>>13;
+        etTrack[bxID+1][sectorID][wheelTh][1]= ( (*DTTFiterator)&0x1F80)>>7;
+        efTrack[bxID+1][sectorID][wheelTh][1]= (~(*DTTFiterator)&0x2000)>>13;
       }
     }
     //Output
