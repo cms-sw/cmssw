@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.9 2009/05/28 07:12:29 arizzi Exp $
+#  $Id: EventContent_cff.py,v 1.10 2009/05/28 08:56:15 fambrogl Exp $
 #
 #
 #
@@ -82,6 +82,12 @@ from HLTrigger.Configuration.HLTrigger_EventContent_cff import *
 #
 #
 from DQMOffline.Configuration.DQMOffline_EventContent_cff import *
+#
+#
+# ALCA
+#
+#
+from Configuration.EventContent.AlCaRecoOutput_cff import *
 #
 #
 # RAW Data Tier definition
@@ -203,6 +209,14 @@ RECODEBUGEventContent = cms.PSet(
         'keep *_logErrorHarvester_*_*')
 )
 
+#
+#
+# ALCARECO Data Tier definition
+#
+#
+ALCARECOEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *')
+)
 
 #
 ## HLTDEBUG tier definition
@@ -367,3 +381,35 @@ FEVTDEBUGHLTEventContent.outputCommands.extend(HLTDebugFEVT.outputCommands)
 RECODEBUGEventContent.outputCommands.extend(RECOSIMEventContent.outputCommands)
 RECODEBUGEventContent.outputCommands.extend(SimGeneralFEVTDEBUG.outputCommands)
 RECODEBUGEventContent.outputCommands.extend(SimTrackerDEBUG.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlZMuMu.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmics.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmicsHLT.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmics0T.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmics0THLT.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlLAS.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlMuonIsolated.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlJpsiMuMu.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlUpsilonMuMu.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlMinBias.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlBeamHalo.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOSiStripCalZeroBias.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOEcalCalPhiSym.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOEcalCalElectron.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOEcalCalPi0Calib.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOEcalCalEtaCalib.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalDijets.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalGammaJet.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalIsoTrk.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalIsoTrkNoHLT.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalMinBias.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalHO.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalHOCosmics.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalNoise.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlStandAloneCosmics.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlGlobalCosmics.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlCalIsolatedMu.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlZMuMu.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlOverlaps.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHaloOverlaps.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHalo.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECORpcCalHLT.outputCommands)
