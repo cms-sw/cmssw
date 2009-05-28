@@ -70,37 +70,37 @@ allLayer1Muons.isolation.tracker = cms.PSet(
     threshold = cms.double(1.5)
 )
 allLayer1Muons.addTrigMatch = cms.bool(False)
-#allLayer1Muons.trigPrimMatch = cms.VInputTag(cms.InputTag("muonTrigMatchHLT1MuonNonIso"))
+allLayer1Muons.trigPrimMatch = cms.VInputTag(cms.InputTag("muonTrigMatchHLT1MuonNonIso"))
 
 from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import *
 selectedLayer1Muons.cut = 'pt > 0. & abs(eta) < 100.0'
 
 # trigger info #### WAITING FOR A RECIPE
-#from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import *
-#
-#muonTriggerMatchHLTMuons = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-#    src     = cms.InputTag( "selectedLayer1Muons" ),
-#    matched = cms.InputTag( "patTrigger" ),
-#    andOr          = cms.bool( False ),
-#    filterIdsEnum  = cms.vstring( 'TriggerMuon' ), # 'TriggerMuon' is the enum from trigger::TriggerObjectType for HLT muons
-#    filterIds      = cms.vuint32( 0 ),
-#    filterLabels   = cms.vstring( '*' ),
-#    pathNames      = cms.vstring( '*' ),
-#    collectionTags = cms.vstring( '*' ),
-#    maxDPtRel = cms.double( 1.0 ),
-#    maxDeltaR = cms.double( 0.2 ),
-#    resolveAmbiguities    = cms.bool( True ),
-#    resolveByMatchQuality = cms.bool( False )
-#)
-#
-#from PhysicsTools.PatAlgos.triggerLayer1.triggerEventProducer_cfi import *
-#patTriggerEvent.patTriggerMatches  = ( "muonTriggerMatchHLTMuons" )
-#
-#patTriggerSequence = cms.Sequence(
-#    patTrigger *
-#    muonTriggerMatchHLTMuons *
-#    patTriggerEvent
-#)
+from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import *
+
+muonTriggerMatchHLTMuons = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
+    src     = cms.InputTag( "selectedLayer1Muons" ),
+    matched = cms.InputTag( "patTrigger" ),
+    andOr          = cms.bool( False ),
+    filterIdsEnum  = cms.vstring( 'TriggerMuon' ), # 'TriggerMuon' is the enum from trigger::TriggerObjectType for HLT muons
+    filterIds      = cms.vuint32( 0 ),
+    filterLabels   = cms.vstring( '*' ),
+    pathNames      = cms.vstring( '*' ),
+    collectionTags = cms.vstring( '*' ),
+    maxDPtRel = cms.double( 1.0 ),
+    maxDeltaR = cms.double( 0.2 ),
+    resolveAmbiguities    = cms.bool( True ),
+    resolveByMatchQuality = cms.bool( False )
+)
+
+from PhysicsTools.PatAlgos.triggerLayer1.triggerEventProducer_cfi import *
+patTriggerEvent.patTriggerMatches  = [ "muonTriggerMatchHLTMuons" ]
+
+patTriggerSequence = cms.Sequence(
+    patTrigger *
+    muonTriggerMatchHLTMuons *
+    patTriggerEvent
+)
 
 # pat sequences
 
@@ -110,7 +110,7 @@ beforeLayer1Tracks = cms.Sequence(
 )
 
 beforeLayer1Muons = cms.Sequence(
-    muonMatch #+
+    muonMatch # +
 #    patTrigMatch
 )
 
@@ -129,7 +129,7 @@ patLayer1 = cms.Sequence(
 
 goodMuonRecoForDimuon = cms.Sequence(
     beforePatLayer1 *
-    patLayer1 # *
-#    patTriggerSequence
+    patLayer1  *
+    patTriggerSequence
 )
 
