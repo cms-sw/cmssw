@@ -22,7 +22,7 @@ void MuonResiduals1DOFFitter_FCN(int &npar, double *gin, double &fval, double *p
     const double residsigma = par[MuonResiduals1DOFFitter::kSigma];
     const double residgamma = par[MuonResiduals1DOFFitter::kGamma];
 
-    double weight = 1./redchi2;
+    double weight = (1./redchi2) * MuonResiduals1DOFFitter_number_of_hits / MuonResiduals1DOFFitter_sum_of_weights;
     if (TMath::Prob(redchi2*8, 8) < 0.99) {  // no spikes allowed
       if (fitter->residualsModel() == MuonResidualsFitter::kPureGaussian) {
 	fval += -weight * MuonResidualsFitter_logPureGaussian(residual, residpeak, residsigma);

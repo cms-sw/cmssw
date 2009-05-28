@@ -75,7 +75,7 @@ void MuonResiduals6DOFrphiFitter_FCN(int &npar, double *gin, double &fval, doubl
     double residpeak = MuonResiduals6DOFrphiFitter_residual(alignx, aligny, alignz, alignphix, alignphiy, alignphiz, positionX, positionY, angleX, angleY, MuonResiduals6DOFrphiFitter_effectiveR(positionX, positionY), alpha, resslope);
     double resslopepeak = MuonResiduals6DOFrphiFitter_resslope(alignx, aligny, alignz, alignphix, alignphiy, alignphiz, positionX, positionY, angleX, angleY, MuonResiduals6DOFrphiFitter_effectiveR(positionX, positionY));
 
-    double weight = 1./redchi2;
+    double weight = (1./redchi2) * MuonResiduals6DOFrphiFitter_number_of_hits / MuonResiduals6DOFrphiFitter_sum_of_weights;
     if (TMath::Prob(redchi2*6, 6) < 0.99) {  // no spikes allowed
 
       if (fitter->residualsModel() == MuonResidualsFitter::kPureGaussian) {

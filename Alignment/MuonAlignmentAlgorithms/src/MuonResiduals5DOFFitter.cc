@@ -56,7 +56,7 @@ void MuonResiduals5DOFFitter_FCN(int &npar, double *gin, double &fval, double *p
     double residpeak = MuonResiduals5DOFFitter_residual(alignx, alignz, alignphix, alignphiy, alignphiz, positionX, positionY, angleX, angleY, alpha, resslope);
     double resslopepeak = MuonResiduals5DOFFitter_resslope(alignx, alignz, alignphix, alignphiy, alignphiz, positionX, positionY, angleX, angleY);
 
-    double weight = 1./redchi2;
+    double weight = (1./redchi2) * MuonResiduals5DOFFitter_number_of_hits / MuonResiduals5DOFFitter_sum_of_weights;
     if (TMath::Prob(redchi2*8, 8) < 0.99) {  // no spikes allowed
 
       if (fitter->residualsModel() == MuonResidualsFitter::kPureGaussian) {
