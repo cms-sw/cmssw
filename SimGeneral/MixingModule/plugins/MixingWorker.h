@@ -172,8 +172,8 @@ template <>
 
 template <class T>
     void MixingWorker<T>::copyPCrossingFrame(const PCrossingFrame<T> *PCF)
-    {
-      //crFrame_->setEventID(PCF->getEventID());
+    {  
+      crFrame_->setEventID(PCF->getEventID());
       crFrame_->setPileups(PCF->getPileups());
       crFrame_->setBunchSpace(PCF->getBunchSpace());
       crFrame_->setMaxNbSources(PCF->getMaxNbSources());
