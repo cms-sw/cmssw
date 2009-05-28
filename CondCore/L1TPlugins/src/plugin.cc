@@ -1,138 +1,180 @@
 #include "CondCore/PluginSystem/interface/registration_macros.h"
-#include "CondTools/L1Trigger/interface/WriterProxy.h"
 
 DEFINE_SEAL_MODULE();
 
-// // Central L1 records
-// #include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
-// #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
+// Central L1 records
+#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
 
-// REGISTER_PLUGIN(L1TriggerKeyRcd, L1TriggerKey);
-// REGISTER_L1_WRITER(L1TriggerKeyRcd, L1TriggerKey);
+REGISTER_PLUGIN(L1TriggerKeyRcd, L1TriggerKey);
 
-// // L1 scales
-// #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
-// #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
-// #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TriggerKeyList.h"
 
-// REGISTER_PLUGIN(L1JetEtScaleRcd, L1CaloEtScale);
-// REGISTER_L1_WRITER(L1JetEtScaleRcd, L1CaloEtScale);
+REGISTER_PLUGIN(L1TriggerKeyListRcd, L1TriggerKeyList);
 
-// REGISTER_PLUGIN(L1EmEtScaleRcd, L1CaloEtScale);
-// REGISTER_L1_WRITER(L1EmEtScaleRcd, L1CaloEtScale);
+// L1 scales
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
 
-// #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
-// #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
+REGISTER_PLUGIN(L1JetEtScaleRcd, L1CaloEtScale);
+REGISTER_PLUGIN(L1EmEtScaleRcd, L1CaloEtScale);
+REGISTER_PLUGIN(L1HtMissScaleRcd, L1CaloEtScale);
+REGISTER_PLUGIN(L1HfRingEtScaleRcd, L1CaloEtScale);
 
-// REGISTER_PLUGIN(L1MuTriggerScalesRcd, L1MuTriggerScales);
-// REGISTER_L1_WRITER(L1MuTriggerScalesRcd, L1MuTriggerScales);
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
 
-// #include "CondFormats/L1TObjects/interface/L1MuGMTScales.h"
-// #include "CondFormats/DataRecord/interface/L1MuGMTScalesRcd.h"
+REGISTER_PLUGIN(L1MuTriggerScalesRcd, L1MuTriggerScales);
 
-// REGISTER_PLUGIN(L1MuGMTScalesRcd, L1MuGMTScales);
-// REGISTER_L1_WRITER(L1MuGMTScalesRcd, L1MuGMTScales);
+#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
 
-// // DT TPG records
-// #include "CondFormats/L1TObjects/interface/DTConfigManager.h"
-// #include "CondFormats/DataRecord/interface/DTConfigManagerRcd.h"
+REGISTER_PLUGIN(L1MuTriggerPtScaleRcd, L1MuTriggerPtScale);
 
-// REGISTER_PLUGIN(DTConfigManagerRcd, DTConfigManager);
-// REGISTER_L1_WRITER(DTConfigManagerRcd, DTConfigManager);
+#include "CondFormats/L1TObjects/interface/L1MuGMTScales.h"
+#include "CondFormats/DataRecord/interface/L1MuGMTScalesRcd.h"
 
-// // DT TF records
-// //#include "CondFormats/L1TObjects/interface/"
-// //#include "CondFormats/DataRecord/interface/"
+REGISTER_PLUGIN(L1MuGMTScalesRcd, L1MuGMTScales);
 
-// //REGISTER_PLUGIN();
-// //REGISTER_L1_WRITER();
+// DT TF records
+#include "CondFormats/L1TObjects/interface/L1MuDTEtaPatternLut.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTExtLut.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTPhiLut.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTPtaLut.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTQualPatternLut.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTTFMasks.h"
+#include "CondFormats/DataRecord/interface/L1MuDTEtaPatternLutRcd.h"
+#include "CondFormats/DataRecord/interface/L1MuDTExtLutRcd.h"
+#include "CondFormats/DataRecord/interface/L1MuDTPhiLutRcd.h"
+#include "CondFormats/DataRecord/interface/L1MuDTPtaLutRcd.h"
+#include "CondFormats/DataRecord/interface/L1MuDTQualPatternLutRcd.h"
+#include "CondFormats/DataRecord/interface/L1MuDTTFParametersRcd.h"
+#include "CondFormats/DataRecord/interface/L1MuDTTFMasksRcd.h"
 
-// // CSC TPG records
-// #include "CondFormats/DataRecord/interface/L1CSCTPParametersRcd.h"
-// #include "CondFormats/L1TObjects/interface/L1CSCTPParameters.h"
+REGISTER_PLUGIN(L1MuDTEtaPatternLutRcd, L1MuDTEtaPatternLut);
+REGISTER_PLUGIN(L1MuDTExtLutRcd, L1MuDTExtLut);
+REGISTER_PLUGIN(L1MuDTPhiLutRcd, L1MuDTPhiLut);
+REGISTER_PLUGIN(L1MuDTPtaLutRcd, L1MuDTPtaLut);
+REGISTER_PLUGIN(L1MuDTQualPatternLutRcd, L1MuDTQualPatternLut);
+REGISTER_PLUGIN(L1MuDTTFParametersRcd, L1MuDTTFParameters);
+REGISTER_PLUGIN(L1MuDTTFMasksRcd, L1MuDTTFMasks);
 
-// REGISTER_PLUGIN(L1CSCTPParametersRcd, L1CSCTPParameters);
-// REGISTER_L1_WRITER(L1CSCTPParametersRcd, L1CSCTPParameters);
+// CSC TF records
+#include "CondFormats/L1TObjects/interface/L1MuCSCTFConfiguration.h"
+#include "CondFormats/L1TObjects/interface/L1MuCSCTFAlignment.h"
+#include "CondFormats/L1TObjects/interface/L1MuCSCPtLut.h"
+#include "CondFormats/DataRecord/interface/L1MuCSCTFConfigurationRcd.h"
+#include "CondFormats/DataRecord/interface/L1MuCSCTFAlignmentRcd.h"
+#include "CondFormats/DataRecord/interface/L1MuCSCPtLutRcd.h"
 
-// // CSC TF records
-// //#include "CondFormats/L1TObjects/interface/"
-// //#include "CondFormats/DataRecord/interface/"
+REGISTER_PLUGIN(L1MuCSCTFConfigurationRcd, L1MuCSCTFConfiguration);
+REGISTER_PLUGIN(L1MuCSCTFAlignmentRcd, L1MuCSCTFAlignment);
+REGISTER_PLUGIN(L1MuCSCPtLutRcd, L1MuCSCPtLut);
 
-// //REGISTER_PLUGIN();
-// //REGISTER_L1_WRITER();
+// RPC records
+#include "CondFormats/L1TObjects/interface/L1RPCConfig.h"
+#include "CondFormats/DataRecord/interface/L1RPCConfigRcd.h"
 
-// // GMT records
-// #include "CondFormats/L1TObjects/interface/L1MuGMTParameters.h"
-// #include "CondFormats/DataRecord/interface/L1MuGMTParametersRcd.h"
+REGISTER_PLUGIN(L1RPCConfigRcd, L1RPCConfig);
 
-// REGISTER_PLUGIN(L1MuGMTParametersRcd, L1MuGMTParameters);
-// REGISTER_L1_WRITER(L1MuGMTParametersRcd, L1MuGMTParameters);
+#include "CondFormats/L1TObjects/interface/L1RPCConeDefinition.h"
+#include "CondFormats/DataRecord/interface/L1RPCConeDefinitionRcd.h"
 
-// // RCT records
-// #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
-// #include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
+REGISTER_PLUGIN(L1RPCConeDefinitionRcd, L1RPCConeDefinition);
 
-// REGISTER_PLUGIN(L1RCTParametersRcd, L1RCTParameters);
-// REGISTER_L1_WRITER(L1RCTParametersRcd, L1RCTParameters);
+// GMT records
+#include "CondFormats/L1TObjects/interface/L1MuGMTParameters.h"
+#include "CondFormats/DataRecord/interface/L1MuGMTParametersRcd.h"
 
-// // GCT records
-// #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
-// #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
+REGISTER_PLUGIN(L1MuGMTParametersRcd, L1MuGMTParameters);
 
-// REGISTER_PLUGIN(L1GctJetFinderParamsRcd, L1GctJetFinderParams);
-// REGISTER_L1_WRITER(L1GctJetFinderParamsRcd, L1GctJetFinderParams);
+#include "CondFormats/L1TObjects/interface/L1MuGMTChannelMask.h"
+#include "CondFormats/DataRecord/interface/L1MuGMTChannelMaskRcd.h"
 
-// #include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
-// #include "CondFormats/DataRecord/interface/L1GctJetCalibFunRcd.h"
+REGISTER_PLUGIN(L1MuGMTChannelMaskRcd, L1MuGMTChannelMask);
 
-// REGISTER_PLUGIN(L1GctJetCalibFunRcd, L1GctJetEtCalibrationFunction);
-// REGISTER_L1_WRITER(L1GctJetCalibFunRcd, L1GctJetEtCalibrationFunction);
+// RCT records
+#include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
+#include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
 
-// #include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
-// #include "CondFormats/DataRecord/interface/L1GctJetCounterNegativeEtaRcd.h"
-// #include "CondFormats/DataRecord/interface/L1GctJetCounterPositiveEtaRcd.h"
+REGISTER_PLUGIN(L1RCTParametersRcd, L1RCTParameters);
 
-// REGISTER_PLUGIN(L1GctJetCounterNegativeEtaRcd, L1GctJetCounterSetup);
-// REGISTER_L1_WRITER(L1GctJetCounterNegativeEtaRcd, L1GctJetCounterSetup);
+#include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
+#include "CondFormats/DataRecord/interface/L1RCTChannelMaskRcd.h"
 
-// REGISTER_PLUGIN(L1GctJetCounterPositiveEtaRcd, L1GctJetCounterSetup);
-// REGISTER_L1_WRITER(L1GctJetCounterPositiveEtaRcd, L1GctJetCounterSetup);
+REGISTER_PLUGIN(L1RCTChannelMaskRcd, L1RCTChannelMask);
 
+#include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
+#include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
 
+REGISTER_PLUGIN(L1CaloEcalScaleRcd, L1CaloEcalScale);
 
-// // GT records
-// #include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
-// #include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
+#include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
+#include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
 
-// REGISTER_PLUGIN(L1GtBoardMapsRcd, L1GtBoardMaps);
-// REGISTER_L1_WRITER(L1GtBoardMapsRcd, L1GtBoardMaps);
+REGISTER_PLUGIN(L1CaloHcalScaleRcd, L1CaloHcalScale);
 
-// #include "CondFormats/L1TObjects/interface/L1GtParameters.h"
-// #include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
+// GCT records
+#include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
+#include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
 
-// REGISTER_PLUGIN(L1GtParametersRcd, L1GtParameters);
-// REGISTER_L1_WRITER(L1GtParametersRcd, L1GtParameters);
+REGISTER_PLUGIN(L1GctChannelMaskRcd, L1GctChannelMask);
 
-// #include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
-// #include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsRcd.h"
+#include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
+#include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 
-// REGISTER_PLUGIN(L1GtPrescaleFactorsRcd, L1GtPrescaleFactors);
-// REGISTER_L1_WRITER(L1GtPrescaleFactorsRcd, L1GtPrescaleFactors);
+REGISTER_PLUGIN(L1GctJetFinderParamsRcd, L1GctJetFinderParams);
 
-// #include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
-// #include "CondFormats/DataRecord/interface/L1GtStableParametersRcd.h"
+// GT records
+#include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
+#include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
 
-// REGISTER_PLUGIN(L1GtStableParametersRcd, L1GtStableParameters);
-// REGISTER_L1_WRITER(L1GtStableParametersRcd, L1GtStableParameters);
+REGISTER_PLUGIN(L1GtBoardMapsRcd, L1GtBoardMaps);
 
-// #include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
-// #include "CondFormats/DataRecord/interface/L1GtTriggerMaskRcd.h"
+#include "CondFormats/L1TObjects/interface/L1GtParameters.h"
+#include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
 
-// REGISTER_PLUGIN(L1GtTriggerMaskRcd, L1GtTriggerMask);
-// REGISTER_L1_WRITER(L1GtTriggerMaskRcd, L1GtTriggerMask);
+REGISTER_PLUGIN(L1GtParametersRcd, L1GtParameters);
 
-// #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
-// #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+#include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
+#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsTechTrigRcd.h"
 
-// REGISTER_PLUGIN(L1GtTriggerMenuRcd, L1GtTriggerMenu);
-// REGISTER_L1_WRITER(L1GtTriggerMenuRcd, L1GtTriggerMenu);
+REGISTER_PLUGIN(L1GtPrescaleFactorsAlgoTrigRcd, L1GtPrescaleFactors);
+REGISTER_PLUGIN(L1GtPrescaleFactorsTechTrigRcd, L1GtPrescaleFactors);
+
+#include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
+#include "CondFormats/DataRecord/interface/L1GtStableParametersRcd.h"
+
+REGISTER_PLUGIN(L1GtStableParametersRcd, L1GtStableParameters);
+
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskVetoAlgoTrigRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskVetoTechTrigRcd.h"
+
+REGISTER_PLUGIN(L1GtTriggerMaskAlgoTrigRcd, L1GtTriggerMask);
+REGISTER_PLUGIN(L1GtTriggerMaskTechTrigRcd, L1GtTriggerMask);
+REGISTER_PLUGIN(L1GtTriggerMaskVetoAlgoTrigRcd, L1GtTriggerMask);
+REGISTER_PLUGIN(L1GtTriggerMaskVetoTechTrigRcd, L1GtTriggerMask);
+
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+
+REGISTER_PLUGIN(L1GtTriggerMenuRcd, L1GtTriggerMenu);
+
+#include "CondFormats/L1TObjects/interface/L1GtPsbSetup.h"
+#include "CondFormats/DataRecord/interface/L1GtPsbSetupRcd.h"
+
+REGISTER_PLUGIN(L1GtPsbSetupRcd, L1GtPsbSetup);
+
+#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
+#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
+
+REGISTER_PLUGIN(L1CaloGeometryRecord, L1CaloGeometry);

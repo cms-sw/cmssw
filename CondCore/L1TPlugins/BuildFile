@@ -1,8 +1,6 @@
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
-<use name=CondCore/DBCommon>
 <use name=CondCore/PluginSystem>
-<use name=CondTools/L1Trigger>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
 
@@ -11,9 +9,7 @@
    <lib name=CondCoreL1TPlugins>
    <use name=FWCore/Framework>
    <use name=FWCore/PluginManager>
-   <use name=CondCore/DBCommon>
    <use name=CondCore/PluginSystem>
-   <use name=CondTools/L1Trigger>
    <use name=CondFormats/L1TObjects>
    <use name=CondFormats/DataRecord>
 </export>
