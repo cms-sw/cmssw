@@ -33,5 +33,5 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     eeFEToBeRecovered = cms.InputTag("ecalDetIdToBeRecovered:eeFE"),
     singleChannelRecoveryMethod = cms.string("NeuralNetworks"),
     singleChannelRecoveryThreshold = cms.double(0),
-    triggerPrimitiveDigiCollection = cms.InputTag("ecalDigis")
+    triggerPrimitiveDigiCollection = cms.InputTag("ecalDigis:EcalTriggerPrimitives")
 )
