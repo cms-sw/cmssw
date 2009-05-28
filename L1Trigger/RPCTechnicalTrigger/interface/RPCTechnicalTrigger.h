@@ -59,6 +59,11 @@ Implementation:
 #include "CondFormats/RPCObjects/interface/TTUBoardSpecs.h"
 #include "CondFormats/DataRecord/interface/TTUBoardSpecsRcd.h"
 
+//Technical trigger bits
+#include <DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTrigger.h>
+#include <DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTriggerRecord.h>
+
+
 //...........................................................................
 
 class RPCTechnicalTrigger : public edm::EDProducer {
@@ -73,7 +78,7 @@ private:
   virtual void beginRun(edm::Run&, const edm::EventSetup&);
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob();
-  
+
   //...........................................................................
   
   void printinfo();

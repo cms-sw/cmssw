@@ -1,4 +1,4 @@
-// $Id: ProcessDigiGlobalSignal.cc,v 1.4 2009/05/24 21:45:39 aosorio Exp $
+// $Id: ProcessDigiGlobalSignal.cc,v 1.5 2009/05/26 17:40:38 aosorio Exp $
 // Include files 
 
 
@@ -141,6 +141,8 @@ int ProcessDigiGlobalSignal::next()
   }
   
   //...
+  
+  if ( m_data.size() <= 0 ) return 0;
   
   return 1;
   

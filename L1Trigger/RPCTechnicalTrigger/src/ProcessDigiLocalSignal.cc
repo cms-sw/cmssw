@@ -1,4 +1,4 @@
-// $Id: ProcessDigiLocalSignal.cc,v 1.3 2009/05/16 19:43:31 aosorio Exp $
+// $Id: ProcessDigiLocalSignal.cc,v 1.4 2009/05/24 21:45:39 aosorio Exp $
 // Include files 
 
 
@@ -68,6 +68,8 @@ ProcessDigiLocalSignal::ProcessDigiLocalSignal(  const edm::ESHandle<RPCGeometry
   m_layermap[30223]   = 3;  //RB23Fw
   m_layermap[30221]   = 10; //RB23Bw
   
+  m_maxBxWindow = 3;
+
 }
 
 //=============================================================================
@@ -98,6 +100,12 @@ int ProcessDigiLocalSignal::next() {
     
     m_digiItr = (*m_detUnitItr ).second.first;
     int bx = (*m_digiItr).bx();
+    
+    if ( abs(bx) > m_maxBxWindow ) {
+      if ( m_debug )  std::cout << "ProcessDigiLocalSignal> found a bx bigger than max allowed: "
+                                << bx << std::endl;
+      continue;
+    }
     
     const RPCDetId & id  = (*m_detUnitItr).first;
     const RPCRoll * roll = dynamic_cast<const RPCRoll* >( (*m_ptr_rpcGeom)->roll(id));
@@ -164,6 +172,8 @@ int ProcessDigiLocalSignal::next() {
     std::cout << "after reset" << std::endl;
     print_output();
   }
+
+  if ( m_data.size() <= 0 ) return 0;
   
   return 1;
   

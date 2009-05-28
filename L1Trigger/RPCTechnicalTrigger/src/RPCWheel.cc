@@ -1,4 +1,4 @@
-// $Id: RPCWheel.cc,v 1.3 2009/05/16 19:43:32 aosorio Exp $
+// $Id: RPCWheel.cc,v 1.4 2009/05/24 21:45:39 aosorio Exp $
 // Include files 
 
 
@@ -23,7 +23,7 @@ RPCWheel::RPCWheel() {
   m_maxlayers  = 6;
   m_maxsectors = 12;
   
-  m_debug = true;
+  m_debug = false;
   
   m_sec1id.push_back(1);
   m_sec2id.push_back(12);
@@ -54,8 +54,6 @@ void RPCWheel::setProperties( int wid ) {
     m_RBCE[k]->setid( wid, bisector );
   }
   
-  m_debug = false;
-  
 }
 
 
@@ -73,8 +71,6 @@ void RPCWheel::setProperties( int wid, const char * logic_type) {
     m_RBCE[k]->setid( wid, bisector );
   }
   
-  m_debug = false;
-  
 }
 
 void RPCWheel::setProperties( int wid, const char * f_name, const char * logic_type) {
@@ -91,7 +87,6 @@ void RPCWheel::setProperties( int wid, const char * f_name, const char * logic_t
     m_RBCE[k]->setid( wid, bisector );
   }
   
-  m_debug = false;
   
 }
 

@@ -27,9 +27,7 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
-//Technical trigger bits
-#include <DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTrigger.h>
-#include <DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTriggerRecord.h>
+
 
 //=============================================================================
 // Standard constructor, initializes variables
@@ -115,7 +113,8 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   
   edm::Handle<RPCDigiCollection> pIn;
   
-  std::vector<L1GtTechnicalTrigger> ttVec( m_ttBits.size() );
+  //std::vector<L1GtTechnicalTrigger> ttVec( m_ttBits.size() );
+  //std::vector<L1GtTechnicalTrigger> ttVec();
   std::auto_ptr<L1GtTechnicalTriggerRecord> output(new L1GtTechnicalTriggerRecord());
   
   iEvent.getByLabel(m_rpcDigiLabel, pIn);
@@ -123,7 +122,7 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   if ( !pIn.isValid() ) {
     edm::LogError("RPCTechnicalTrigger") << "can't find RPCDigiCollection with label: " 
                                          << m_rpcDigiLabel << '\n';
-    output->setGtTechnicalTrigger(ttVec);    
+    //output->setGtTechnicalTrigger(ttVec);    
     iEvent.put(output);
     return;
   }
@@ -152,7 +151,7 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       
     default:
       edm::LogError("RPCTechnicalTrigger") << "Trigger mode not implemented: " << m_triggerMode << '\n';
-      output->setGtTechnicalTrigger(ttVec);
+      //output->setGtTechnicalTrigger(ttVec);
       iEvent.put(output);
       return;
       
@@ -162,9 +161,15 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   
   bool status(false);
   status = m_signal->next();
-  if ( !status) return;
-  
+  if ( !status)  { 
+    if( m_debugMode == 0 ) delete m_signal;
+    //output->setGtTechnicalTrigger(ttVec);    
+    iEvent.put(output);
+    return;
+  }
+
   RPCInputSignal * input = m_signal->retrievedata();
+  std::vector<L1GtTechnicalTrigger> ttVec( m_ttBits.size() );
   
   //. distribute data to different TTU emulators and process it
   
@@ -236,14 +241,15 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   iEvent.put(output);
   
   //... reset data map for next event
+
   
   input->clear();
   m_triggerbits.reset();
+
   std::vector<TTUResults*>::iterator itrRes;
   for( itrRes=m_serializedInfo.begin(); itrRes!=m_serializedInfo.end(); ++itrRes)
     delete (*itrRes);
   m_serializedInfo.clear();
-  
   if( m_debugMode == 0 ) delete m_signal;
   
   //.... all done
@@ -293,6 +299,8 @@ void RPCTechnicalTrigger::beginRun(edm::Run& iRun, const edm::EventSetup& evtSet
   
   
 }
+
+
 
 
 // ------------ method called once each job just after ending the event loop  ------------

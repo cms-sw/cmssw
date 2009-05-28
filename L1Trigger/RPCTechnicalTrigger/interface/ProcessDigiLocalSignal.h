@@ -1,4 +1,4 @@
-// $Id: ProcessDigiLocalSignal.h,v 1.1 2009/05/16 19:43:30 aosorio Exp $
+// $Id: ProcessDigiLocalSignal.h,v 1.2 2009/05/24 21:45:39 aosorio Exp $
 #ifndef PROCESSDIGILOCALSIGNAL_H 
 #define PROCESSDIGILOCALSIGNAL_H 1
 
@@ -90,7 +90,8 @@ private:
   std::map<int, std::vector<RPCData*> > m_vecDataperBx;
   
   bool m_debug;
-
+  int m_maxBxWindow;
+  
   std::vector<int> m_wheelid;
   std::vector<int> m_sec1id;
   std::vector<int> m_sec2id;
