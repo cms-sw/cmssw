@@ -5,7 +5,6 @@
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=DataFormats/SiPixelDigi>
 <use name=CalibTracker/SiPixelTools>
-<use name=CondTools/SiPixel>
 <use name=Geometry/Records>
 <use name=Geometry/CommonDetUnit>
 <flags EDM_PLUGIN=1>
