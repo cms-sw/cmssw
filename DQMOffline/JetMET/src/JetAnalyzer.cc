@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/21 13:47:34 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/03/30 16:51:15 $
+ *  $Revision: 1.9 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -82,6 +82,8 @@ void JetAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   mConstituents            = dbe->book1D("Constituents", "# of Constituents", 100, 0, 100);
   mHFrac                   = dbe->book1D("HFrac", "HFrac", 120, -0.1, 1.1);
   mEFrac                   = dbe->book1D("EFrac", "EFrac", 120, -0.1, 1.1);
+  //
+  mPhiVSEta                     = dbe->book2D("PhiVSEta", "PhiVSEta", 50, etaMin, etaMax, 24, phiMin, phiMax);
 
   // Low and high pt trigger paths
   mPt_Lo                  = dbe->book1D("Pt_Lo", "Pt Lo", 100, 0, 100);
@@ -261,6 +263,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if (mPt_3) mPt_3->Fill (jet.pt());
   if (mEta)  mEta->Fill (jet.eta());
   if (mPhi)  mPhi->Fill (jet.phi());
+
+  if (mPhiVSEta) mPhiVSEta->Fill(jet.eta(),jet.phi());
+
   if (mConstituents) mConstituents->Fill (jet.nConstituents());
   if (mHFrac)        mHFrac->Fill (jet.energyFractionHadronic());
   if (mEFrac)        mEFrac->Fill (jet.emEnergyFraction());

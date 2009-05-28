@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFlow Jets
  *
- *  $Date: 2008/04/30 02:14:44 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/12/08 12:07:46 $
+ *  $Revision: 1.2 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -125,6 +125,7 @@ class PFJetAnalyzer : public PFJetAnalyzerBase {
   MonitorElement* mConstituents;
   MonitorElement* mHFrac;
   MonitorElement* mEFrac;
+  MonitorElement* mPhiVSEta;
 
   MonitorElement* mPt_Barrel;
   MonitorElement* mEta_Barrel;

@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for Calo Jets
  *
- *  $Date: 2008/10/21 13:47:34 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/03/30 16:51:38 $
+ *  $Revision: 1.8 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -144,6 +144,7 @@ class JetAnalyzer : public JetAnalyzerBase {
   MonitorElement* mConstituents;
   MonitorElement* mHFrac;
   MonitorElement* mEFrac;
+  MonitorElement* mPhiVSEta;
 
   MonitorElement* mPt_Barrel;
   MonitorElement* mEta_Barrel;

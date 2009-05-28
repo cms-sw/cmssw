@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/08 12:07:12 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/03/30 17:03:17 $
+ *  $Revision: 1.4 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -79,6 +79,8 @@ void PFJetAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   mConstituents            = dbe->book1D("Constituents", "# of Constituents", 100, 0, 100);
   mHFrac                   = dbe->book1D("HFrac", "HFrac", 120, -0.1, 1.1);
   mEFrac                   = dbe->book1D("EFrac", "EFrac", 120, -0.1, 1.1);
+ //
+  mPhiVSEta                     = dbe->book2D("PhiVSEta", "PhiVSEta", 50, etaMin, etaMax, 24, phiMin, phiMax);
 
   // Low and high pt trigger paths
   mPt_Lo                  = dbe->book1D("Pt_Lo", "Pt Lo", 100, 0, 100);
@@ -246,6 +248,8 @@ void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (mPt_3) mPt_3->Fill (jet.pt());
   if (mEta)  mEta->Fill (jet.eta());
   if (mPhi)  mPhi->Fill (jet.phi());
+  if (mPhiVSEta) mPhiVSEta->Fill(jet.eta(),jet.phi());
+
   if (mConstituents) mConstituents->Fill (jet.nConstituents());
   if (mHFrac)        mHFrac->Fill (jet.chargedHadronEnergyFraction()+jet.neutralHadronEnergyFraction());
   if (mEFrac)        mEFrac->Fill (jet.chargedEmEnergyFraction() +jet.neutralEmEnergyFraction());
