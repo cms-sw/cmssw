@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelFakeGainOfflineReader.h,v 1.1 2007/08/17 16:50:00 chiochia Exp $
+// $Id: SiPixelFakeGainOfflineReader.h,v 1.1 2008/02/11 15:24:17 friis Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -27,7 +27,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationOffline.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineService.h"
 
 #include "TROOT.h"
 #include "TFile.h"

@@ -7,7 +7,7 @@
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/SiPixelDigi>
 <use name=DataFormats/SiPixelRawData>
-<use name=CondTools/SiPixel>
+<use name=CalibTracker/SiPixelESProducers>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/SiPixelObjects>
 <use name=CondCore/DBOutputService>
