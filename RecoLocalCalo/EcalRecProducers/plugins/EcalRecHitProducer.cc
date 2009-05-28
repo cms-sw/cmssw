@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.2 2009/04/09 13:41:29 ferriff Exp $
- *  $Date: 2009/04/09 13:41:29 $
- *  $Revision: 1.2 $
+ *  $Id: EcalRecHitProducer.cc,v 1.3 2009/04/09 14:13:08 ferriff Exp $
+ *  $Date: 2009/04/09 14:13:08 $
+ *  $Revision: 1.3 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -130,7 +130,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
                 }
                 if ( detIds ) {
                         for( std::set<EBDetId>::const_iterator it = detIds->begin(); it != detIds->end(); ++it ) {
-                                EcalUncalibratedRecHit urh( *it, 0, 0, 0, 1 ); // uses the EcalUncalibratedRecHit to pass the DetId info
+                                EcalUncalibratedRecHit urh( *it, 0, 0, 0, 0, 1 ); // uses the EcalUncalibratedRecHit to pass the DetId info
                                 workerRecover_->run( evt, urh, *ebRecHits );
                         }
                 }
@@ -150,7 +150,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
                 }
                 if ( detIds ) {
                         for( std::set<EEDetId>::const_iterator it = detIds->begin(); it != detIds->end(); ++it ) {
-                                EcalUncalibratedRecHit urh( *it, 0, 0, 0, 1 ); // uses the EcalUncalibratedRecHit to pass the DetId info
+                                EcalUncalibratedRecHit urh( *it, 0, 0, 0, 0, 1 ); // uses the EcalUncalibratedRecHit to pass the DetId info
                                 workerRecover_->run( evt, urh, *eeRecHits );
                         }
                 }
