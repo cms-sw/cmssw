@@ -48,7 +48,7 @@ private:
   HFShowerLibrary*      showerLibrary;
   HFFibre*              fibre;
   double                pePerGeV, edMin;
-  bool                  trackEM;
+  bool                  trackEM, onlyLong;
   G4int                 emPDG, epPDG, gammaPDG;
   std::vector<double>   gpar;
 };

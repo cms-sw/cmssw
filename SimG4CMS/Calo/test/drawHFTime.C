@@ -254,12 +254,50 @@ void plotBERT(char name[10]="Hit0", char filx[10]="minbias", bool logy=true,
   char head[40];
   if      (filx == "ttbar") sprintf (head, "t#bar{t}");
   else if (filx == "zee")   sprintf (head, "Z#rightarrowe^{+}e^{-}");
-  else                     sprintf (head, "Minimum Bias");
+  else                      sprintf (head, "Minimum Bias");
   leg1->SetHeader(head); leg1->SetFillColor(0); leg1->SetTextSize(0.03);
   leg1->AddEntry(hist1,lego1,"F");
   leg1->AddEntry(hist2,lego2,"F");
   leg1->Draw();
 }
+
+void plotHF(char name[10]="Dist", char beam[10]="elec", char ener[10]="100",
+	    char tag[10]="SL", bool logy=true, int bin=10) {
+
+  setTDRStyle();
+  TCanvas *myc = new TCanvas("myc","",800,600);
+  tdrStyle->SetOptStat(0);
+  if (logy) gPad->SetLogy(1);
+  char file[50], head[60], lego1[32], lego2[32], name1[12], name2[12];
+  sprintf (file, "%s%s_%s.root", beam, ener, tag);
+  if (beam == "elec")   sprintf (lego1, "electron");
+  else                  sprintf (lego1, "pion");
+  if      (tag == "SL") sprintf (head, "%s GeV %s with Shower Library", ener, lego1);
+  else if (tag == "PSL")sprintf (head, "%s GeV %s with parametrization using SL", ener, lego1);
+  else                  sprintf (head, "%s GeV %s with parametrization using SL (new)", ener, lego1);
+  sprintf (name1, "HCalSD%s5", name); sprintf (lego1, "Long  Fibre");
+  sprintf (name2, "HCalSD%s6", name); sprintf (lego2, "Short Fibre");
+
+  std::cout << "Open " << file << "\n";
+  TFile* File1 = new TFile(file);
+  TDirectory *d1 = (TDirectory*)File1->Get("g4SimHits");
+  TH1F* hist1 = (TH1F*) d1->Get(name1);
+  TH1F* hist2 = (TH1F*) d1->Get(name2);
+  hist1->Rebin(bin); hist1->SetLineStyle(1); hist1->SetLineWidth(3); hist1->SetLineColor(2);
+  hist2->Rebin(bin); hist2->SetLineStyle(2); hist2->SetLineWidth(3); hist2->SetLineColor(4);
+
+  if (logy) hist1->SetMinimum(1);
+  else      hist1->SetMinimum(0);
+  hist1->Draw(); hist2->Draw("sames");
+
+  TLegend *leg1 = new TLegend(0.35,0.75,0.90,0.90);
+  leg1->SetHeader(head); leg1->SetFillColor(0); leg1->SetTextSize(0.03);
+  leg1->SetBorderSize(1);
+  leg1->AddEntry(hist1,lego1,"F");
+  leg1->AddEntry(hist2,lego2,"F");
+  leg1->Draw();
+}
+
 
 void setTDRStyle() {
   TStyle *tdrStyle = new TStyle("tdrStyle","Style for P-TDR");

@@ -27,10 +27,12 @@ HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
   trackEM                 = m_HF.getParameter<bool>("TrackEM");
   bool useShowerLibrary   = m_HF.getParameter<bool>("UseShowerLibrary");
   edMin                   = m_HF.getParameter<double>("EminLibrary");
+  onlyLong                = m_HF.getParameter<bool>("OnlyLong");
   edm::LogInfo("HFShower") << "HFShowerParam::Use of shower library is set to "
 			   << useShowerLibrary << " P.E. per GeV " << pePerGeV
 			   << " and Track EM Flag " << trackEM << " edMin "
-			   << edMin << " GeV";
+			   << edMin << " GeV and use of Short fibre info in"
+			   << " shower library set to " << !(onlyLong);
   
   G4String attribute = "ReadOutName";
   G4String value     = name;
@@ -115,7 +117,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
     }
     if (edep > 0) {
       if (showerLibrary && kill && pin > edMin) {
-	std::vector<HFShowerLibrary::Hit> hitSL = showerLibrary->getHits(aStep,kill);
+	std::vector<HFShowerLibrary::Hit> hitSL = showerLibrary->getHits(aStep,kill, onlyLong);
 	for (unsigned int i=0; i<hitSL.size(); i++) {
 	  hit.position = hitSL[i].position;
 	  hit.depth    = hitSL[i].depth;

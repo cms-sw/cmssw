@@ -19,6 +19,7 @@
 #include "G4String.hh"
 #include <map>
 #include <string>
+#include <TH1F.h>
 
 class DDCompactView;
 class DDFilteredView;
@@ -62,6 +63,8 @@ private:
   int                           setTrackID(G4Step * step);
   void                          readWeightFromFile(std::string);
   double                        layerWeight(int, G4ThreeVector, int, int);
+  void                          plotProfile(G4Step* step, G4ThreeVector pos, 
+					    double edep, double time, int id);
 
   HcalNumberingFromDDD*         numberingFromDDD;
   HcalNumberingScheme*          numberingScheme;
@@ -85,6 +88,7 @@ private:
   std::vector<G4LogicalVolume*> pmtLV;
   std::vector<G4String>         pmtNames;
   std::map<uint32_t,double>     layerWeights;
+  TH1F                          *hit_[9], *time_[9], *dist_[9];
 
 };
 

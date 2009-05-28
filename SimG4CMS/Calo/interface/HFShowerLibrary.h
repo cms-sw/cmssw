@@ -44,7 +44,7 @@ public:
   };
 
   void                initRun(G4ParticleTable * theParticleTable);
-  std::vector<Hit>    getHits(G4Step * aStep, bool & ok);
+  std::vector<Hit>    getHits(G4Step * aStep, bool & ok, bool onlyLong=false);
 
 protected:
 

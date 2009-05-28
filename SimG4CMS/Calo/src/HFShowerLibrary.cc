@@ -185,7 +185,8 @@ void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable) {
 
 
 std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
-							   bool & ok) {
+							   bool & ok,
+							   bool onlyLong) {
 
   G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
   G4StepPoint * postStepPoint = aStep->GetPostStepPoint(); 
@@ -224,7 +225,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
 #ifdef DebugLog
   G4ThreeVector localPos = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
   double zoff   = localPos.z() + 0.5*gpar[1];
-  if (zoff < 0) zoff = 0;
+  //  if (zoff < 0) zoff = 0;
   LogDebug("HFShower") << "HFShowerLibrary: getHits " << partType
 		       << " of energy " << pin/GeV << " GeV"
 		       << "  dir.orts " << momDir.x() << ", " << momDir.y() 
@@ -251,14 +252,15 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
   int nHit = 0;
   HFShowerLibrary::Hit oneHit;
   for (int i = 0; i < npe; i++) {
-#ifdef DebugLog
-    LogDebug("HFShower") << "HFShowerLibrary: Hit " << i << " " << pe[i];
-#endif
     double zv = std::abs(pe[i].z()); // abs local z  
-    if (zv <= gpar[1] && pe[i].lambda() > 0 &&
-	(pe[i].z() >= 0 || zv > gpar[0])) {
+#ifdef DebugLog
+    LogDebug("HFShower") << "HFShowerLibrary: Hit " << i << " " << pe[i] << " zv " << zv;
+#endif
+    if (zv <= gpar[1] && pe[i].lambda() > 0 && 
+	(pe[i].z() >= 0 || (zv > gpar[0] && (!onlyLong)))) {
       int depth = 1;
-      if(backward == 0) {            // fully valid only for "front" particles
+      if (onlyLong) {
+      } else if (backward == 0) {    // fully valid only for "front" particles
 	if (pe[i].z() < 0) depth = 2;// with "front"-simulated shower lib.
       } else {                       // for "backward" particles - almost equal
 	double r = G4UniformRand();  // share between L and S fibers
@@ -318,7 +320,8 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
 			   << (zz <= gpar[4]+gpar[1]);   
 #endif
       if (rInside(r) && r1 <= exp(-p*zv) && r2 <= probMax && dfir > gpar[5] &&
-	  zz >= gpar[4] && zz <= gpar[4]+gpar[1] && r3 <= backProb ){
+	  zz >= gpar[4] && zz <= gpar[4]+gpar[1] && r3 <= backProb &&
+	  (depth != 2 || zz >= gpar[4]+gpar[0])) {
 	oneHit.position = pos;
 	oneHit.depth    = depth;
 	oneHit.time     = (tSlice+(pe[i].t())+(fibre->tShift(lpos,depth,1)));
@@ -333,6 +336,22 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
 #ifdef DebugLog
       else  LogDebug("HFShower") << "HFShowerLibrary: REJECTED !!!";
 #endif
+      if (onlyLong && zz >= gpar[4]+gpar[0] && zz <= gpar[4]+gpar[1]) {
+	r1    = G4UniformRand();
+	r2    = G4UniformRand();
+	if (rInside(r) && r1 <= exp(-p*zv) && r2 <= probMax && dfir > gpar[5]){
+	  oneHit.position = pos;
+	  oneHit.depth    = 2;
+	  oneHit.time     = (tSlice+(pe[i].t())+(fibre->tShift(lpos,2,1)));
+	  hit.push_back(oneHit);
+#ifdef DebugLog
+	  LogDebug("HFShower") << "HFShowerLibrary: Final Hit " << nHit 
+			       <<" position " << (hit[nHit].position) <<" Depth "
+			       <<(hit[nHit].depth) <<" Time " <<(hit[nHit].time);
+#endif
+	  nHit++;
+	}
+      }
     }
   }
 
@@ -340,7 +359,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
   LogDebug("HFShower") << "HFShowerLibrary: Total Hits " << nHit
 		       << " out of " << npe << " PE";
 #endif
-  if (nHit > npe)
+  if (nHit > npe && !onlyLong)
     edm::LogWarning("HFShower") << "HFShowerLibrary: Hit buffer " << npe 
 				<< " smaller than " << nHit << " Hits";
   return hit;

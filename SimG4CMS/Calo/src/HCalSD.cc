@@ -15,6 +15,9 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+
 #include "G4LogicalVolumeStore.hh"
 #include "G4LogicalVolume.hh"
 #include "G4Step.hh"
@@ -233,6 +236,39 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   mumPDG = mupPDG = 0;
   
   if (useLayerWt) readWeightFromFile(file);
+
+  for (int i=0;  i<9; i++) {
+    hit_[i] = time_[i]= dist_[i] = 0;
+  }
+
+#ifdef DebugLog
+  edm::Service<TFileService> tfile;
+
+  if ( tfile.isAvailable() ) {
+    static std::string labels[9] = {"HB", "HE", "HO", "HF Absorber", "HF PMT", "HF Absorber Long", "HF Absorber Short", "HF PMT Long", "HF PMT Short"};
+    char name[20], title[60];
+    for (int i=0; i<9; i++) {
+      sprintf (title, "Hit energy in %s", labels[i].c_str());
+      sprintf (name, "HCalSDHit%d", i);
+      hit_[i] = tfile->make<TH1F>(name, title, 2000, 0., 2000.);
+      sprintf (title, "Energy (MeV)");
+      hit_[i]->GetXaxis()->SetTitle(title);
+      hit_[i]->GetYaxis()->SetTitle("Hits");
+      sprintf (title, "Time of the hit in %s", labels[i].c_str());
+      sprintf (name, "HCalSDTime%d", i);
+      time_[i] = tfile->make<TH1F>(name, title, 2000, 0., 2000.);
+      sprintf (title, "Time (ns)");
+      time_[i]->GetXaxis()->SetTitle(title);
+      time_[i]->GetYaxis()->SetTitle("Hits");
+      sprintf (title, "Longitudinal profile in %s", labels[i].c_str());
+      sprintf (name, "HCalSDDist%d", i);
+      dist_[i] = tfile->make<TH1F>(name, title, 2000, 0., 2000.);
+      sprintf (title, "Distance (mm)");
+      dist_[i]->GetXaxis()->SetTitle(title);
+      dist_[i]->GetYaxis()->SetTitle("Hits");
+    }
+  }
+#endif
 }
 
 HCalSD::~HCalSD() { 
@@ -302,6 +338,12 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
                           << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
 #endif
       if (getStepInfo(aStep)) {
+#ifdef DebugLog
+	if (edepositEM+edepositHAD > 0) 
+	  plotProfile(aStep, aStep->GetPreStepPoint()->GetPosition(), 
+		      edepositEM+edepositHAD, 
+		      aStep->GetPostStepPoint()->GetGlobalTime(), 0);
+#endif
         if (hitExists() == false && edepositEM+edepositHAD>0.) 
           currentHit = createNewHit();
       }
@@ -570,6 +612,9 @@ void HCalSD::getFromLibrary (G4Step* aStep) {
     double time            = hits[i].time;
     unsigned int unitID    = setDetUnitId(det, hitPoint, depth);
     currentID.setID(unitID, time, primaryID, 0);
+#ifdef DebugLog
+    plotProfile(aStep, hitPoint, 1.0*GeV, time, depth);
+#endif
    
     // check if it is in the same unit and timeslice as the previous one
     if (currentID == previousID) {
@@ -623,7 +668,9 @@ void HCalSD::hitForFibre (G4Step* aStep) {
     for (unsigned int i=0; i<hits.size(); i++) {
       double time            = hits[i].time;
       currentID.setID(unitID, time, primaryID, 0);
-
+#ifdef DebugLog
+      plotProfile(aStep, hitPoint, 1.0*GeV, time, depth);
+#endif
       // check if it is in the same unit and timeslice as the previous one
       if (currentID == previousID) {
         updateHit(currentHit);
@@ -661,6 +708,9 @@ void HCalSD::getFromParam (G4Step* aStep) {
       currentID.setID(unitID, time, primaryID, 0);
       edepositEM             = hits[i].edep*GeV; 
       edepositHAD            = 0;
+#ifdef DebugLog
+      plotProfile(aStep, hitPoint, edepositEM, time, depth);
+#endif
 
       // check if it is in the same unit and timeslice as the previous one
       if (currentID == previousID) {
@@ -720,6 +770,7 @@ void HCalSD::getHitPMT (G4Step* aStep) {
     edepositHAD = aStep->GetTotalEnergyDeposit();
     edepositEM  =-edepositHAD + (edep*GeV);
 #ifdef DebugLog
+    plotProfile(aStep, hitPoint, edep*GeV, time, depth);
     double beta = preStepPoint->GetBeta();
     LogDebug("HcalSim") << "HCalSD::getHitPMT 1 hit for " << GetName() 
                         << " of " << primaryID << " with " 
@@ -804,4 +855,45 @@ double HCalSD::layerWeight(int det, G4ThreeVector pos, int depth, int lay) {
 #endif
   }
   return wt;
+}
+
+void HCalSD::plotProfile(G4Step* aStep, G4ThreeVector global, double edep, 
+			 double time, int id) { 
+
+  const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
+  static G4String modName[8] = {"HEModule", "HVQF", "HBModule", "MBAT", "MBBT", "MBBTC", "MBBT_R1P", "MBBT_R1M"};
+  G4ThreeVector local;
+  bool found=false;
+  double depth=-2000;
+  int idx = 4;
+  for (int n=0; n<touch->GetHistoryDepth(); n++) {
+    G4String name = touch->GetVolume(n)->GetName();
+    LogDebug("HcalSim") << "plotProfile Depth " << n << " Name " << name;
+    for (unsigned int ii=0; ii<8; ii++) {
+      if (name == modName[ii]) {
+	found = true;
+	int dn = touch->GetHistoryDepth() - n;
+	local = touch->GetHistory()->GetTransform(dn).TransformPoint(global);
+	if      (ii == 0) {depth = local.z() - 4006.5; idx = 1;}
+	else if (ii == 1) {depth = local.z() + 825.0;  idx = 3;}
+	else if (ii == 2) {depth = local.x() - 1775.;  idx = 0;}
+	else              {depth = local.y() + 15.;    idx = 2;}
+	break;
+      }
+    }
+    if (found) break;
+  }
+  if (!found) depth = std::abs(global.z()) - 11500;
+  LogDebug("HcalSim") << "plotProfile Found " << found << " Global " << global << " Local " << local << " depth " << depth << " ID " << id << " EDEP " << edep << " Time " << time;
+
+  if (hit_[idx]  != 0) hit_[idx]->Fill(edep);
+  if (time_[idx] != 0) time_[idx]->Fill(time,edep);
+  if (dist_[idx] != 0) dist_[idx]->Fill(depth,edep);
+  int jd = 2*idx + id - 7;
+  if (jd >= 0 && jd < 4) {
+    jd += 5;
+    if (hit_[jd]  != 0) hit_[jd]->Fill(edep);
+    if (time_[jd] != 0) time_[jd]->Fill(time,edep);
+    if (dist_[jd] != 0) dist_[jd]->Fill(depth,edep);
+  }
 }

@@ -103,7 +103,6 @@ HFShowerPMT::~HFShowerPMT() {
 
 double HFShowerPMT::getHits(G4Step * aStep) {
 
-  double edep = aStep->GetTotalEnergyDeposit();
   indexR = indexF = -1;
 
   G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
@@ -119,6 +118,7 @@ double HFShowerPMT::getHits(G4Step * aStep) {
   }
 
 #ifdef DebugLog
+  double edep = aStep->GetTotalEnergyDeposit();
   LogDebug("HFShower") << "HFShowerPMT: Box " << boxNo << " PMT "
 		       << pmtNo << " Mapped Indices " << indexR << ", "
 		       << indexF << " Edeposit " << edep/MeV << " MeV; PE "
