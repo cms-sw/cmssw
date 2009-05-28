@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Mar 10 16:37:40 CDT 2008
-// $Id: MuonAlignmentInputXML.cc,v 1.11 2009/03/30 16:50:54 pivarski Exp $
+// $Id: MuonAlignmentInputXML.cc,v 1.12 2009/04/16 08:53:56 flucke Exp $
 //
 
 // system include files
@@ -406,6 +406,10 @@ AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup& iS
 
 	    else if (XMLString::equals(node->getNodeName(), str_rotatelocal)) {
 	       do_rotatelocal((DOMElement*)(node), aliset, alitoideal);
+	    }
+
+	    else if (XMLString::equals(node->getNodeName(), str_rotatebeamline)) {
+	       do_rotatebeamline((DOMElement*)(node), aliset, alitoideal);
 	    }
 
 	    else {
