@@ -4,7 +4,7 @@
 //
 // Original Author: Nadia Adam (Princeton University) 
 //         Created:  Fri May 16 16:48:24 CEST 2008
-// $Id: TagProbeEDMAnalysis.h,v 1.16 2009/05/19 11:39:31 ahunt Exp $
+// $Id: TagProbeEDMAnalysis.h,v 1.17 2009/05/27 12:39:42 ahunt Exp $
 //
 //
 // Kalanand Mishra: July 1, 2008 
@@ -17,7 +17,6 @@
 // Also, fixed the problem with RooDataSet declaration.
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 
 class EffTableLoader;
 class SideBandSubtraction;
@@ -153,7 +152,6 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer{
       std::vector<double> numBkgFail_;       // Background events failing from fit
 
       SideBandSubtraction* SBS_;
-      
 
       std::string mode_;                     // Mode of operation (Normal,Read,Write)  
       std::string fitFileName_;              // Name of the root file to write to
@@ -180,22 +178,10 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer{
       TH2F *var1var2Pass_;
       TH2F *var1var2All_;
 
-      // Tag-Probe biased MC Truth
-      TH1F *var1BiasPass_;
-      TH1F *var1BiasAll_;
-      
-      TH1F *var2BiasPass_;
-      TH1F *var2BiasAll_;
-
-      TH2F *var1var2BiasPass_;
-      TH2F *var1var2BiasAll_;
-
       int* NumEvents_;
 
-      unsigned int numQuantities_;
       bool doAnalyze_;
 
-      std::stringstream roofitstream;
 };
 
 #endif
