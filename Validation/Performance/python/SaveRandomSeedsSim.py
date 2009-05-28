@@ -13,7 +13,7 @@ def customise(process):
     #del process.randomEngineStateProducer
     process.rndmStore=cms.EDProducer("RandomEngineStateProducer")
     #Adding the RandomEngine seeds to the content
-    process.out_step.outputCommands.append("keep RandomEngineStates_*_*_*")
+    process.output.outputCommands.append("keep RandomEngineStates_*_*_*")
     process.rndmStore_step=cms.Path(process.rndmStore)
     #Modifying the schedule:
     #First delete the current one:
@@ -21,7 +21,7 @@ def customise(process):
     #Then add the wanted sequences
     process.schedule.append(process.simulation_step)
     process.schedule.append(process.rndmStore_step)
-    process.schedule.append(process.outpath)
+    process.schedule.append(process.out_step)
     #Adding SimpleMemoryCheck service:
     process.SimpleMemoryCheck=cms.Service("SimpleMemoryCheck",
                                           ignoreTotal=cms.untracked.int32(1),

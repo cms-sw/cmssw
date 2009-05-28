@@ -24,15 +24,15 @@ def customise(process):
     #This line is necessary to eliminate the "theSource" (i.e. source seed) in the python configuration!
     del process.RandomNumberGeneratorService.theSource
     #Adding the RandomEngine seeds to the content
-    process.out_step.outputCommands.append("drop *_*_*_Sim")
-    process.out_step.outputCommands.append("keep RandomEngineStates_*_*_*")
+    process.output.outputCommands.append("drop *_*_*_Sim")
+    process.output.outputCommands.append("keep RandomEngineStates_*_*_*")
     process.g4SimHits_step=cms.Path(process.g4SimHits)
     #Modifying the schedule:
     #First delete the current one:
     del process.schedule[:]
     #Then add the wanted sequences
     process.schedule.append(process.g4SimHits_step)
-    process.schedule.append(process.outpath)
+    process.schedule.append(process.out_step)
     #Adding SimpleMemoryCheck service:
     process.SimpleMemoryCheck=cms.Service("SimpleMemoryCheck",
                                           ignoreTotal=cms.untracked.int32(1),

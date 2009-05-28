@@ -25,18 +25,25 @@ def customise(process):
     del process.RandomNumberGeneratorService.theSource
     #Adding the RandomEngine seeds to the content
     #process.out_step.outputCommands.append("drop *_*_*_Sim")
-    process.out_step.outputCommands.append("keep RandomEngineStates_*_*_*")
+    process.output.outputCommands.append("keep RandomEngineStates_*_*_*")
     #process.g4SimHits_step=cms.Path(process.g4SimHits)
     #Modifying the schedule:
     #First delete the current one:
     del process.schedule[:]
     #Then add the wanted sequences
     process.schedule.append(process.digitisation_step)
-    process.schedule.append(process.outpath)
+    process.schedule.append(process.out_step)
     #Adding SimpleMemoryCheck service:
     process.SimpleMemoryCheck=cms.Service("SimpleMemoryCheck",
                                           ignoreTotal=cms.untracked.int32(1),
                                           oncePerEventMode=cms.untracked.bool(True))
     #Adding Timing service:
     process.Timing=cms.Service("Timing")
+
+    #Add these 3 lines to put back the summary for timing information at the end of the logfile
+    #(needed for TimeReport report)
+    process.options = cms.untracked.PSet(
+        wantSummary = cms.untracked.bool(True)
+        )
+    
     return(process)
