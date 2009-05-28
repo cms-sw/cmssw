@@ -112,11 +112,10 @@ namespace edm {
     template<typename U>
     Ptr(Ptr<U> const& iOther, typename boost::enable_if_c<boost::is_base_of<T, U>::value>::type * = 0):
     core_(iOther.id(), 
-          (iOther.hasCache()? static_cast<T const*>(iOther.get()): static_cast<T const*>(0)),
+          (iOther.hasProductCache() ? static_cast<T const*>(iOther.get()): static_cast<T const*>(0)),
           iOther.productGetter(),
 	  iOther.isTransient()),
-    key_(iOther.key())
-    {
+    key_(iOther.key()) {
     }
     
     template<typename U>
@@ -126,8 +125,7 @@ namespace edm {
           dynamic_cast<T const*>(iOther.get()),
           0,
 	  iOther.isTransient()),
-    key_(iOther.key())
-    {
+    key_(iOther.key()) {
     }
     
     /// Destructor
@@ -170,11 +168,12 @@ namespace edm {
     
     key_type key() const {return key_;}
     
-    bool hasCache() const { return 0!=core_.productPtr(); }
+    bool hasProductCache() const { return 0 != core_.productPtr(); }
 
     RefCore const& refCore() const {return core_;}
     // ---------- member functions ---------------------------
     
+    void const* product() const {return 0;}
   private:
     //Ptr(Ptr const&); // stop default
 
@@ -189,20 +188,20 @@ namespace edm {
     T const* getItem_(C const* product, key_type iKey);
     
     void getData_() const { 
-      if(!hasCache() && 0 != productGetter()) {
+      if(!hasProductCache() && 0 != productGetter()) {
         void const* ad = 0;
-         const EDProduct* prod = productGetter()->getIt(core_.id());
-         if(prod==0) {
+        EDProduct const* prod = productGetter()->getIt(core_.id());
+        if(prod == 0) {
             throw edm::Exception(errors::ProductNotFound)
             << "A request to resolve an edm::Ptr to a product containing items of type: "
             << typeid(T).name()
             << " with ProductID "<<core_.id()
             << "\ncan not be satisfied because the product cannot be found."
             << "\nProbably the branch containing the product is not stored in the input file.\n";
-         }
-         prod->setPtr(typeid(T),
-                      key_,
-                      ad);
+        }
+        prod->setPtr(typeid(T),
+                     key_,
+                     ad);
         core_.setProductPtr(ad);
       }
     }
@@ -213,8 +212,7 @@ namespace edm {
   
   template<typename T>
   template<typename C>
-  T const* Ptr<T>::getItem_(C const* product, key_type iKey)
-  {
+  T const* Ptr<T>::getItem_(C const* product, key_type iKey) {
     assert (product != 0);
     typename C::const_iterator it = product->begin();
     advance(it,iKey);

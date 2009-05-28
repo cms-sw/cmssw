@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Oct 24 15:26:45 EDT 2007
-// $Id: PtrVectorBase.h,v 1.7 2008/05/09 08:33:20 gpetrucc Exp $
 //
 
 // system include files
@@ -35,6 +34,10 @@ namespace edm {
     typedef unsigned long key_type;
     typedef key_type size_type;
     
+    explicit PtrVectorBase(ProductID const& productID, void const* prodPtr = 0,
+                           EDProductGetter const* prodGetter = 0) :
+      core_(productID, prodPtr, prodGetter, false), indicies_() {}
+
     virtual ~PtrVectorBase();
     
     // ---------- const member functions ---------------------
@@ -55,10 +58,12 @@ namespace edm {
     EDProductGetter const* productGetter() const {return core_.productGetter();}
     
     bool hasCache() const { return !cachedItems_.empty(); }
+
+    bool hasProductCache() const { return 0 == core_.productPtr(); }
     
     /// True if the data is in memory or is available in the Event
     /// No type checking is done.
-    bool isAvailable() const{ return core_.isAvailable(); }
+    bool isAvailable() const { return core_.isAvailable(); }
 
     /// Is the RefVector empty
     bool empty() const {return indicies_.empty();}
@@ -82,6 +87,10 @@ namespace edm {
     void setProductGetter(EDProductGetter* iGetter) const { core_.setProductGetter(iGetter); }
 
     bool isTransient() const {return core_.isTransient();}
+
+    void const* product() const {
+       return 0;
+    }
 
   protected:
     PtrVectorBase();
@@ -130,7 +139,7 @@ namespace edm {
     
   private:
     void getProduct_() const;
-    virtual std::type_info const& typeInfo() const=0;
+    virtual std::type_info const& typeInfo() const = 0;
     // ---------- member data --------------------------------
     RefCore core_;
     std::vector<key_type> indicies_;

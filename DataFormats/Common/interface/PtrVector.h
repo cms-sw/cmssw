@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Oct 24 15:26:50 EDT 2007
-// $Id: PtrVector.h,v 1.3 2008/02/15 05:57:03 wmtan Exp $
 //
 
 // system include files
@@ -36,7 +35,7 @@ namespace edm {
   template <typename T>
   class PtrHolder {
   public:
-    PtrHolder(Ptr<T> const& iPtr) :ptr_(iPtr) {}
+    PtrHolder(Ptr<T> const& iPtr) : ptr_(iPtr) {}
     
     Ptr<T> const& operator*() const {
       return ptr_;
@@ -106,9 +105,11 @@ namespace edm {
     typedef PtrVectorItr<T> const_iterator;
     typedef PtrVectorItr<T> iterator; // make boost::sub_range happy (std allows this)
     typedef Ptr<T> value_type;
+    typedef void collection_type;
     
     friend class PtrVectorItr<T>;
-    PtrVector() {}
+    PtrVector() : PtrVectorBase() {}
+    explicit PtrVector(ProductID const& id) : PtrVectorBase(id) {}
     PtrVector(PtrVector<T> const& iOther): PtrVectorBase(iOther) {}
     
     template <typename U>
@@ -136,7 +137,7 @@ namespace edm {
     void push_back(Ptr<T> const& iPtr) {
       this->push_back_base(iPtr.refCore(),
 			   iPtr.key(),
-			   iPtr.hasCache() ? iPtr.operator->() : static_cast<void const*>(0));
+			   iPtr.hasProductCache() ? iPtr.operator->() : static_cast<void const*>(0));
     }
 
     template<typename U>
@@ -145,7 +146,7 @@ namespace edm {
       BOOST_STATIC_ASSERT( (boost::is_base_of<T, U>::value) );
       this->push_back_base(iPtr.refCore(),
 			   iPtr.key(),
-			   iPtr.hasCache() ? iPtr.operator->() : static_cast<void const*>(0));
+			   iPtr.hasProductCache() ? iPtr.operator->() : static_cast<void const*>(0));
     }
 
     void swap(PtrVector& other) {
@@ -157,6 +158,8 @@ namespace edm {
       this->swap(temp);
       return *this;
     }
+
+    void fillView(std::vector<void const*>& pointers) const;
 
   private:
     
@@ -170,6 +173,29 @@ namespace edm {
     
   };
   
+  template <typename T>
+  void
+  PtrVector<T>::fillView(std::vector<void const*>& pointers) const {
+    pointers.reserve(this->size());
+    for (const_iterator i = begin(), e = end(); i != e; ++i) {
+      Ptr<T> ref = *i;
+      T const* address = ref.isNull() ? 0 : &*ref;
+      pointers.push_back(address);
+    }
+  }
+
+  // NOTE: the following implementation has unusual signature!
+  template <typename T>
+  inline void fillView(PtrVector<T> const& obj,
+		       std::vector<void const*>& pointers) {
+    obj.fillView(pointers);
+  }
+
+  template <typename T>
+  struct has_fillView<PtrVector<T> > {
+    static bool const value = true;
+  };
+
   // Free swap function
   template <typename T>
   inline

@@ -311,7 +311,7 @@ void testPtr::getTest() {
    OrphanHandle<IntCollection> handle(wptr, pid);
 
    Ptr<IntValue> ref0(pid, 0,&tester);
-   CPPUNIT_ASSERT( !ref0.hasCache());
+   CPPUNIT_ASSERT( !ref0.hasProductCache());
 
    Ptr<IntValue> ref1(pid, 1, &tester);
 
@@ -319,7 +319,7 @@ void testPtr::getTest() {
 
    CPPUNIT_ASSERT(ref0.isAvailable());
    CPPUNIT_ASSERT(0 == ref0->value_);
-   CPPUNIT_ASSERT(ref0.hasCache());
+   CPPUNIT_ASSERT(ref0.hasProductCache());
    CPPUNIT_ASSERT(1 == ref1->value_);
    CPPUNIT_ASSERT(1 == ref2->value_);
    CPPUNIT_ASSERT(1 == (*ref1).value_);
@@ -344,14 +344,14 @@ void testPtr::getTest() {
      OrphanHandle<SDCollection> handle(wptr, pid);
      
      Ptr<IntValue> ref0(pid, 0,&tester);
-     CPPUNIT_ASSERT( !ref0.hasCache());
+     CPPUNIT_ASSERT( !ref0.hasProductCache());
      
      Ptr<IntValue> ref1(pid, 1, &tester);
      
      Ptr<IntValue> ref2(pid, 1, &tester);
      
      CPPUNIT_ASSERT(0 == ref0->value_);
-     CPPUNIT_ASSERT(ref0.hasCache());
+     CPPUNIT_ASSERT(ref0.hasProductCache());
      CPPUNIT_ASSERT(1 == ref1->value_);
      CPPUNIT_ASSERT(1 == ref2->value_);
      CPPUNIT_ASSERT(1 == (*ref1).value_);

@@ -19,12 +19,13 @@ Wrapper: A template wrapper around EDProducts to hold the product ID.
 #include "boost/mpl/if.hpp"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/RefVectorHolder.h"
+#include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
    
-  template <class T>
+  template <typename T>
   class Wrapper : public EDProduct {
   public:
     typedef T value_type;
@@ -32,12 +33,12 @@ namespace edm {
     Wrapper() : EDProduct(), present(false), obj() {}
     explicit Wrapper(std::auto_ptr<T> ptr);
     virtual ~Wrapper() {}
-    T const * product() const {return (present ? &obj : 0);}
-    T const * operator->() const {return product();}
+    T const* product() const {return (present ? &obj : 0);}
+    T const* operator->() const {return product();}
 
     //these are used by FWLite
-    static const std::type_info& productTypeInfo() { return typeid(T);}
-    static const std::type_info& typeInfo() { return typeid(Wrapper<T>);}
+    static std::type_info const& productTypeInfo() { return typeid(T);}
+    static std::type_info const& typeInfo() { return typeid(Wrapper<T>);}
     
     /**REFLEX must call the following constructor
         the constructor takes ownership of T* */
@@ -53,12 +54,12 @@ namespace edm {
 #endif
     virtual void do_fillView(ProductID const& id,
 			     std::vector<void const*>& pointers,
-			     helper_vector_ptr & helpers) const;
-    virtual void do_setPtr(const std::type_info& iToType,
+			     helper_vector_ptr& helpers) const;
+    virtual void do_setPtr(std::type_info const& iToType,
                            unsigned long iIndex,
                            void const*& oPtr) const;
-    virtual void do_fillPtrVector(const std::type_info& iToType,
-                             const std::vector<unsigned long>& iIndicies,
+    virtual void do_fillPtrVector(std::type_info const& iToType,
+                             std::vector<unsigned long> const& iIndices,
                              std::vector<void const*>& oPtr) const;
     
     // We wish to disallow copy construction and assignment.
@@ -77,23 +78,20 @@ namespace edm {
 
 namespace edm {
 
-  template <class T>
-  struct DoFillView
-  {
+  template <typename T>
+  struct DoFillView {
     void operator()(T const& obj,
 		    ProductID const& id,
 		    std::vector<void const*>& pointers,
 		    helper_vector_ptr & helpers) const;
   };
 
-  template <class T>
-  struct DoNotFillView
-  {
+  template <typename T>
+  struct DoNotFillView {
     void operator()(T const&,
 		    ProductID const&,
 		    std::vector<void const*>&,
-		    helper_vector_ptr& ) const 
-    {
+		    helper_vector_ptr&) const {
       throw Exception(errors::ProductDoesNotSupportViews)
 	<< "The product type " 
 	<< typeid(T).name()
@@ -105,8 +103,7 @@ namespace edm {
   inline
   void Wrapper<T>::do_fillView(ProductID const& id,
                                std::vector<void const*>& pointers,
-                               helper_vector_ptr& helpers) const
-  {
+                               helper_vector_ptr& helpers) const {
     typename boost::mpl::if_c<has_fillView<T>::value,
     DoFillView<T>,
     DoNotFillView<T> >::type maybe_filler;
@@ -114,37 +111,33 @@ namespace edm {
   }
   
   
-  template <class T>
-  struct DoSetPtr
-  {
+  template <typename T>
+  struct DoSetPtr {
     void operator()(T const& obj,
-                    const std::type_info& iToType,
+                    std::type_info const& iToType,
                     unsigned long iIndex,
                     void const*& oPtr) const;
     void operator()(T const& obj,
-                    const std::type_info& iToType,
-                    const std::vector<unsigned long>& iIndex,
+                    std::type_info const& iToType,
+                    std::vector<unsigned long> const& iIndex,
                     std::vector<void const*>& oPtr) const;
   };
   
-  template <class T>
-  struct DoNotSetPtr
-  {
+  template <typename T>
+  struct DoNotSetPtr {
     void operator()(T const&,
-                    const std::type_info&,
+                    std::type_info const&,
                     unsigned long,
-                    void const*& oPtr) const 
-    {
+                    void const*& oPtr) const {
       throw Exception(errors::ProductDoesNotSupportPtr)
       << "The product type " 
       << typeid(T).name()
       << "\ndoes not support edm::Ptr\n";
     }
     void operator()(T const& obj,
-                    const std::type_info& iToType,
-                    const std::vector<unsigned long>& iIndex,
-                    std::vector<void const*>& oPtr) const
-    {
+                    std::type_info const& iToType,
+                    std::vector<unsigned long> const& iIndex,
+                    std::vector<void const*>& oPtr) const {
       throw Exception(errors::ProductDoesNotSupportPtr)
       << "The product type " 
       << typeid(T).name()
@@ -154,10 +147,9 @@ namespace edm {
   
   template <typename T>
   inline
-  void Wrapper<T>::do_setPtr(const std::type_info& iToType,
+  void Wrapper<T>::do_setPtr(std::type_info const& iToType,
                              unsigned long iIndex,
-                             void const*& oPtr) const
-  {
+                             void const*& oPtr) const {
     typename boost::mpl::if_c<has_setPtr<T>::value,
     DoSetPtr<T>,
     DoNotSetPtr<T> >::type maybe_filler;
@@ -165,14 +157,13 @@ namespace edm {
   }
   
   template <typename T>
-  void Wrapper<T>::do_fillPtrVector(const std::type_info& iToType,
-                                       const std::vector<unsigned long>& iIndicies,
-                                       std::vector<void const*>& oPtr) const
-  {
+  void Wrapper<T>::do_fillPtrVector(std::type_info const& iToType,
+                                       std::vector<unsigned long> const& iIndices,
+                                       std::vector<void const*>& oPtr) const {
     typename boost::mpl::if_c<has_setPtr<T>::value,
     DoSetPtr<T>,
     DoNotSetPtr<T> >::type maybe_filler;
-    maybe_filler(this->obj,iToType,iIndicies,oPtr);
+    maybe_filler(this->obj,iToType,iIndices,oPtr);
   }
   
   // This is an attempt to optimize for speed, by avoiding the copying
@@ -181,63 +172,53 @@ namespace edm {
   // 'swap' rather than copying the object.
 
   template <typename T>
-  struct DoSwap
-  {
+  struct DoSwap {
     void operator()(T& a, T& b) { a.swap(b); }
   };
 
   template <typename T>
-  struct DoAssign
-  {
+  struct DoAssign {
     void operator()(T& a, T& b) { a = b; }
   };
 
 #ifndef __REFLEX__
   template <typename T>
-  struct IsMergeable
-  {
+  struct IsMergeable {
     bool operator()(T const& a) const { return true; }
   };
 
   template <typename T>
-  struct IsNotMergeable
-  {
+  struct IsNotMergeable {
     bool operator()(T const& a) const { return false; }
   };
 
   template <typename T>
-  struct DoMergeProduct
-  {
-    bool operator()(T & a, T const& b) { return a.mergeProduct(b); }
+  struct DoMergeProduct {
+    bool operator()(T& a, T const& b) { return a.mergeProduct(b); }
   };
 
   template <typename T>
-  struct DoNotMergeProduct
-  {
-    bool operator()(T & a, T const& b) { return true; }
+  struct DoNotMergeProduct {
+    bool operator()(T& a, T const& b) { return true; }
   };
 
   template <typename T>
-  struct DoHasIsProductEqual
-  {
+  struct DoHasIsProductEqual {
     bool operator()(T const& a) const { return true; }
   };
 
   template <typename T>
-  struct DoNotHasIsProductEqual
-  {
+  struct DoNotHasIsProductEqual {
     bool operator()(T const& a) const { return false; }
   };
 
   template <typename T>
-  struct DoIsProductEqual
-  {
+  struct DoIsProductEqual {
     bool operator()(T const& a, T const& b) const { return a.isProductEqual(b); }
   };
 
   template <typename T>
-  struct DoNotIsProductEqual
-  {
+  struct DoNotIsProductEqual {
     bool operator()(T const& a, T const& b) const { return true; }
   };
 #endif
@@ -247,8 +228,7 @@ namespace edm {
   // Wrapper constructor
   //
 
-  namespace detail 
-  {
+  namespace detail {
     typedef char (& no_tag)[1]; // type indicating FALSE
     typedef char (& yes_tag)[2]; // type indicating TRUE
 
@@ -259,43 +239,39 @@ namespace edm {
     template <typename T> yes_tag has_swap_helper(swap_function<T, &T::swap> * dummy);
 
     template<typename T>
-    struct has_swap_function
-    {
+    struct has_swap_function {
       static bool const value = 
 	sizeof(has_swap_helper<T>(0)) == sizeof(yes_tag);
     };
 
 #ifndef __REFLEX__
-    template <typename T, bool (T::*)(T const &)>  struct mergeProduct_function;
+    template <typename T, bool (T::*)(T const&)>  struct mergeProduct_function;
     template <typename T> no_tag  has_mergeProduct_helper(...);
     template <typename T> yes_tag has_mergeProduct_helper(mergeProduct_function<T, &T::mergeProduct> * dummy);
 
     template<typename T>
-    struct has_mergeProduct_function
-    {
+    struct has_mergeProduct_function {
       static bool const value = 
 	sizeof(has_mergeProduct_helper<T>(0)) == sizeof(yes_tag);
     };
 
-    template <typename T, bool (T::*)(T const &)>  struct isProductEqual_function;
+    template <typename T, bool (T::*)(T const&)> struct isProductEqual_function;
     template <typename T> no_tag  has_isProductEqual_helper(...);
     template <typename T> yes_tag has_isProductEqual_helper(isProductEqual_function<T, &T::isProductEqual> * dummy);
 
     template<typename T>
-    struct has_isProductEqual_function
-    {
+    struct has_isProductEqual_function {
       static bool const value = 
 	sizeof(has_isProductEqual_helper<T>(0)) == sizeof(yes_tag);
     };
 #endif
   }
 
-  template <class T>
+  template <typename T>
   Wrapper<T>::Wrapper(std::auto_ptr<T> ptr) :
     EDProduct(), 
     present(ptr.get() != 0),
-    obj()
-  { 
+    obj() { 
     if (present) {
       // The following will call swap if T has such a function,
       // and use assignment if T has no such function.
@@ -306,12 +282,11 @@ namespace edm {
     }
   }
 
-  template <class T>
+  template <typename T>
   Wrapper<T>::Wrapper(T* ptr) :
   EDProduct(), 
   present(ptr != 0),
-  obj()
-  { 
+  obj() { 
      std::auto_ptr<T> temp(ptr);
      if (present) {
         // The following will call swap if T has such a function,
@@ -325,19 +300,17 @@ namespace edm {
   }
    
 #ifndef __REFLEX__
-  template <class T>
-  bool Wrapper<T>::isMergeable_() const
-  { 
+  template <typename T>
+  bool Wrapper<T>::isMergeable_() const { 
     typename boost::mpl::if_c<detail::has_mergeProduct_function<T>::value, 
       IsMergeable<T>, 
       IsNotMergeable<T> >::type is_mergeable;
     return is_mergeable(obj);
   }
 
-  template <class T>
-  bool Wrapper<T>::mergeProduct_(EDProduct const* newProduct)
-  { 
-    Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const* >(newProduct);
+  template <typename T>
+  bool Wrapper<T>::mergeProduct_(EDProduct const* newProduct) { 
+    Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const*>(newProduct);
     if (wrappedNewProduct == 0) return false;
     typename boost::mpl::if_c<detail::has_mergeProduct_function<T>::value, 
       DoMergeProduct<T>, 
@@ -345,19 +318,17 @@ namespace edm {
     return merge_product(obj, wrappedNewProduct->obj);
   }
 
-  template <class T>
-  bool Wrapper<T>::hasIsProductEqual_() const
-  { 
+  template <typename T>
+  bool Wrapper<T>::hasIsProductEqual_() const { 
     typename boost::mpl::if_c<detail::has_isProductEqual_function<T>::value, 
       DoHasIsProductEqual<T>, 
       DoNotHasIsProductEqual<T> >::type has_is_equal;
     return has_is_equal(obj);
   }
 
-  template <class T>
-  bool Wrapper<T>::isProductEqual_(EDProduct const* newProduct) const
-  { 
-    Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const* >(newProduct);
+  template <typename T>
+  bool Wrapper<T>::isProductEqual_(EDProduct const* newProduct) const { 
+    Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const*>(newProduct);
     if (wrappedNewProduct == 0) return false;
     typename boost::mpl::if_c<detail::has_isProductEqual_function<T>::value, 
       DoIsProductEqual<T>, 
@@ -381,13 +352,13 @@ namespace edm {
 	/// the following shoudl work also if T is a RefVector<C>
 	typedef Ref<T> ref;
 	typedef RefVector<T, typename ref::value_type, typename ref::finder_type> ref_vector;
-	helpers = helper_vector_ptr( new reftobase::RefVectorHolder<ref_vector> );
+	helpers = helper_vector_ptr(new reftobase::RefVectorHolder<ref_vector>);
 	// fillView is the name of an overload set; each concrete
 	// collection T should supply a fillView function, in the same
 	// namespace at that in which T is defined, or in the 'edm'
 	// namespace.
 	fillView(obj, id, pointers, * helpers);
-	assert( pointers.size() == helpers->size());
+	assert(pointers.size() == helpers->size());
      }
     };
 
@@ -398,11 +369,27 @@ namespace edm {
 		       std::vector<void const*>& pointers,
 		       helper_vector_ptr & helpers) {
 	std::auto_ptr<helper_vector> h = obj.vectorHolder();
-	if( h.get() != 0 ) {
-	  pointers.reserve( h->size() );
+	if(h.get() != 0) {
+	  pointers.reserve(h->size());
 	  // NOTE: the following implementation has unusual signature!
-	  fillView( obj, pointers );
-	  helpers = helper_vector_ptr( h );
+	  fillView(obj, pointers);
+	  helpers = helper_vector_ptr(h);
+	}
+      }
+    };
+
+    template<typename T>
+    struct ViewFiller<PtrVector<T> > {
+      static void fill(PtrVector<T> const& obj,
+		       ProductID const& id,
+		       std::vector<void const*>& pointers,
+		       helper_vector_ptr & helpers) {
+	std::auto_ptr<helper_vector> h(new reftobase::RefVectorHolder<PtrVector<T> >(obj));
+	if(h.get() != 0) {
+	  pointers.reserve(obj.size());
+	  // NOTE: the following implementation has unusual signature!
+	  fillView(obj, pointers);
+	  helpers = helper_vector_ptr(h);
 	}
       }
     };
@@ -410,7 +397,7 @@ namespace edm {
     template<typename T>
       struct PtrSetter {
         static void set(T const& obj,
-                         const std::type_info& iToType,
+                         std::type_info const& iToType,
                          unsigned long iIndex,
                          void const*& oPtr) {
           // setPtr is the name of an overload set; each concrete
@@ -421,8 +408,8 @@ namespace edm {
         }
 
         static void fill(T const& obj,
-                         const std::type_info& iToType,
-                         const std::vector<unsigned long>& iIndex,
+                         std::type_info const& iToType,
+                         std::vector<unsigned long> const& iIndex,
                          std::vector<void const*>& oPtr) {
           // fillPtrVector is the name of an overload set; each concrete
           // collection T should supply a fillPtrVector function, in the same
@@ -433,28 +420,28 @@ namespace edm {
       };
   }
 
-  template <class T>
+  template <typename T>
   void DoFillView<T>::operator()(T const& obj,
 				 ProductID const& id,
 				 std::vector<void const*>& pointers,
-				 helper_vector_ptr & helpers) const  {
-    helpers::ViewFiller<T>::fill( obj, id, pointers, helpers );
+				 helper_vector_ptr& helpers) const {
+    helpers::ViewFiller<T>::fill(obj, id, pointers, helpers);
   }
 
-  template <class T>
+  template <typename T>
   void DoSetPtr<T>::operator()(T const& obj,
-                               const std::type_info& iToType,
+                               std::type_info const& iToType,
                                unsigned long iIndex,
-                               void const*& oPtr) const  {
-    helpers::PtrSetter<T>::set( obj, iToType, iIndex, oPtr );
+                               void const*& oPtr) const {
+    helpers::PtrSetter<T>::set(obj, iToType, iIndex, oPtr);
   }
 
-  template <class T>
+  template <typename T>
   void DoSetPtr<T>::operator()(T const& obj,
-                               const std::type_info& iToType,
-                               const std::vector<unsigned long>& iIndicies,
-                               std::vector<void const*>& oPtr) const  {
-    helpers::PtrSetter<T>::fill( obj, iToType, iIndicies, oPtr );
+                               std::type_info const& iToType,
+                               std::vector<unsigned long> const& iIndices,
+                               std::vector<void const*>& oPtr) const {
+    helpers::PtrSetter<T>::fill(obj, iToType, iIndices, oPtr);
   }
   
 }
