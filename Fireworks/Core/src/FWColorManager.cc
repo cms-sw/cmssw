@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.10 2009/05/15 13:57:40 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.11 2009/05/19 10:21:07 amraktad Exp $
 //
 
 // system include files
@@ -159,7 +159,8 @@ static const float s_geomForWhite[][3] ={
 {0.57,1.,0.26},
 {0.8, 0.8, 0.8}, // calo3d grid
 {0.8, 0.8, 0.8}, // lego grid
-{0.6, 0.6, 0.6} // lego font
+{0.6, 0.6, 0.6}, // lego boundrary
+{0.4, 0.4, 0.4} // lego font
 };
 
 static const float s_geomForBlack[][3] ={
@@ -170,6 +171,7 @@ static const float s_geomForBlack[][3] ={
 {0.,0x7f/256.,0.},
 {0.34, 0.34, 0.34}, // calo3d grid
 {0.17, 0.17, 0.17},  // lego grid
+{0.3, 0.3, 0.3}, // lego boundrary
 {0.7, 0.7, 0.7}   // lego font
 };
 

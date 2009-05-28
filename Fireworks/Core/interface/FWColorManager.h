@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:07:58 CET 2009
-// $Id: FWColorManager.h,v 1.9 2009/05/19 10:21:07 amraktad Exp $
+// $Id: FWColorManager.h,v 1.10 2009/05/21 16:34:43 dmytro Exp $
 //
 
 // system include files
@@ -37,6 +37,7 @@ enum FWGeomColorIndex {
    kFWTrackerColorIndex,
    kFWCalo3DFrameColorIndex,
    kFWLegoFrameColorIndex,
+   kFWLegoBoundraryColorIndex,
    kFWLegoFontColorIndex
 };
 

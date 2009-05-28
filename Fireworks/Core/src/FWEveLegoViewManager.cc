@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.27 2009/04/14 18:53:36 chrjones Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.28 2009/05/13 20:26:05 amraktad Exp $
 //
 
 // system include files
@@ -348,7 +348,7 @@ FWEveLegoViewManager::setGridColors()
    if(m_lego) {
           m_lego->SetFontColor(colorManager().geomColor(kFWLegoFontColorIndex));
           m_lego->SetGridColor(colorManager().geomColor(kFWLegoFrameColorIndex));
-          m_boundaries->SetLineColor(colorManager().geomColor(kFWLegoFrameColorIndex));
+          m_boundaries->SetLineColor(colorManager().geomColor(kFWLegoBoundraryColorIndex));
    }
 }
 
