@@ -9,6 +9,34 @@ HLTriggerOfflineFourVectorClient = cms.EDFilter("FourVectorHLTClient",
     effpaths = cms.VPSet(
              cms.PSet(
               pathname = cms.string("HLT_Mu11"),
+              denompathname = cms.string(""),  
+             ),
+             cms.PSet(
+              pathname = cms.string("HLT_Ele10_SW_L1R"),
+              denompathname = cms.string(""),  
+             ),
+             cms.PSet(
+              pathname = cms.string("HLT_Photon15_L1R"),
+              denompathname = cms.string(""),  
+             ),
+             cms.PSet(
+              pathname = cms.string("HLT_MET25"),
+              denompathname = cms.string(""),  
+             ),
+             cms.PSet(
+              pathname = cms.string("HLT_HT250"),
+              denompathname = cms.string(""),  
+             ),
+             cms.PSet(
+              pathname = cms.string("HLT_BTagMu_Jet20"),
+              denompathname = cms.string(""),  
+             ),
+             cms.PSet(
+              pathname = cms.string("HLT_Jet30"),
+              denompathname = cms.string(""),  
+             ),
+             cms.PSet(
+              pathname = cms.string("HLT_Mu11"),
               denompathname = cms.string("HLT_L1Jet15"),  
              ),
              cms.PSet(

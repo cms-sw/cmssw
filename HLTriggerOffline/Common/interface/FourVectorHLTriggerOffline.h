@@ -16,7 +16,9 @@
 //
 // Original Author:  Jeffrey Berryhill
 //         Created:  June 2008
-// $Id: FourVectorHLTriggerOffline.h,v 1.9 2009/03/26 21:44:47 berryhil Exp $
+// Rewritten by: Vladimir Rekovic
+//         Date:  May 2009
+// $Id: FourVectorHLTriggerOffline.h,v 1.10 2009/03/27 01:31:26 berryhil Exp $
 //
 //
 
@@ -24,6 +26,7 @@
 // system include files
 #include <memory>
 #include <unistd.h>
+#include <vector>
 
 
 // user include files
@@ -42,15 +45,124 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+// added VR
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+//#include "HLTriggerOffline/Common/interface/FourVectorHLTriggerOffline.h"
+
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/TauReco/interface/CaloTauFwd.h"
+#include "DataFormats/TauReco/interface/CaloTau.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/METReco/interface/GenMETCollection.h"
+#include "DataFormats/METReco/interface/GenMET.h"
+#include "DataFormats/Math/interface/deltaR.h"
+
+#include "DQMServices/Core/interface/MonitorElement.h"
+
 #include <iostream>
 #include <fstream>
 #include <vector>
+
+// $Id: FourVectorHLTriggerOffline.cc,v 1.17 2009/03/27 22:10:06 rekovic Exp $
+// See header file for information. 
+/*
+#include "TMath.h"
+
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+*/
+
+/*
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/TauReco/interface/CaloTauFwd.h"
+#include "DataFormats/TauReco/interface/CaloTau.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+*/
+/*
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+*/
+/*
+#include "DataFormats/METReco/interface/GenMETCollection.h"
+*/
+/*
+#include "DataFormats/METReco/interface/GenMET.h"
+*/
+
+/*
+#include "DataFormats/Math/interface/deltaR.h"
+
+#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include <map>
+#include <utility>
+*/
+
+using namespace std;
+using namespace edm;
+using namespace trigger;
+
+typedef multimap<float,int> fimmap ;
+typedef set<fimmap , less<fimmap> > mmset;
+
 
 class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
    public:
       explicit FourVectorHLTriggerOffline(const edm::ParameterSet&);
       ~FourVectorHLTriggerOffline();
 
+      void cleanDRMatchSet(mmset& tempSet);
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
@@ -147,6 +259,9 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
                        MonitorElement* const NL1Mc, 
                        MonitorElement* const mcEtL1Mc, 
 		       MonitorElement* const mcEtavsmcPhiL1Mc,
+                       MonitorElement* const NOffMc, 
+                       MonitorElement* const mcEtOffMc, 
+		       MonitorElement* const mcEtavsmcPhiOffMc,
                        MonitorElement* const NOnMc, 
                        MonitorElement* const mcEtOnMc, 
 		       MonitorElement* const mcEtavsmcPhiOnMc,
@@ -162,6 +277,9 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
                        MonitorElement* const NL1McUM, 
                        MonitorElement* const mcEtL1McUM, 
 		       MonitorElement* const mcEtavsmcPhiL1McUM,
+                       MonitorElement* const NOffMcUM, 
+                       MonitorElement* const mcEtOffMcUM, 
+		       MonitorElement* const mcEtavsmcPhiOffMcUM,
                        MonitorElement* const NOnMcUM, 
                        MonitorElement* const mcEtOnMcUM, 
 		       MonitorElement* const mcEtavsmcPhiOnMcUM) {
@@ -189,6 +307,9 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
           NL1Mc_ = NL1Mc;
 	  mcEtL1Mc_ = mcEtL1Mc;
 	  mcEtavsmcPhiL1Mc_ = mcEtavsmcPhiL1Mc;
+          NOffMc_ = NOffMc;
+	  mcEtOffMc_ = mcEtOffMc;
+	  mcEtavsmcPhiOffMc_ = mcEtavsmcPhiOffMc;
           NOnMc_ = NOnMc;
 	  mcEtOnMc_ = mcEtOnMc;
 	  mcEtavsmcPhiOnMc_ = mcEtavsmcPhiOnMc;
@@ -204,6 +325,9 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
           NL1McUM_ = NL1McUM;
 	  mcEtL1McUM_ = mcEtL1McUM;
 	  mcEtavsmcPhiL1McUM_ = mcEtavsmcPhiL1McUM;
+          NOffMcUM_ = NOffMcUM;
+	  mcEtOffMcUM_ = mcEtOffMcUM;
+	  mcEtavsmcPhiOffMcUM_ = mcEtavsmcPhiOffMcUM;
           NOnMcUM_ = NOnMcUM;
 	  mcEtOnMcUM_ = mcEtOnMcUM;
 	  mcEtavsmcPhiOnMcUM_ = mcEtavsmcPhiOnMcUM;
@@ -280,6 +404,17 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
 	MonitorElement * getMcEtaVsMcPhiL1McHisto() {
 	  return mcEtavsmcPhiL1Mc_;
 	}
+
+	MonitorElement * getNOffMcHisto() {
+	  return NOffMc_;
+	}
+	MonitorElement * getMcEtOffMcHisto() {
+	  return mcEtOffMc_;
+	}
+	MonitorElement * getMcEtaVsMcPhiOffMcHisto() {
+	  return mcEtavsmcPhiOffMc_;
+	}
+
 	MonitorElement * getNOnMcHisto() {
 	  return NOnMc_;
 	}
@@ -325,6 +460,17 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
 	MonitorElement * getMcEtaVsMcPhiL1McUMHisto() {
 	  return mcEtavsmcPhiL1McUM_;
 	}
+
+	MonitorElement * getNOffMcUMHisto() {
+	  return NOffMcUM_;
+	}
+	MonitorElement * getMcEtOffMcUMHisto() {
+	  return mcEtOffMcUM_;
+	}
+	MonitorElement * getMcEtaVsMcPhiOffMcUMHisto() {
+	  return mcEtavsmcPhiOffMcUM_;
+	}
+
 	MonitorElement * getNOnMcUMHisto() {
 	  return NOnMcUM_;
 	}
@@ -373,11 +519,13 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
 	  NL1Off_(0), offEtL1Off_(0), offEtavsoffPhiL1Off_(0),
 	  NOnOff_(0), offEtOnOff_(0), offEtavsoffPhiOnOff_(0),
 	  NL1Mc_(0), mcEtL1Mc_(0), mcEtavsmcPhiL1Mc_(0),
+	  NOffMc_(0), mcEtOffMc_(0), mcEtavsmcPhiOffMc_(0),
 	  NOnMc_(0), mcEtOnMc_(0), mcEtavsmcPhiOnMc_(0),
           NL1OnUM_(0), l1EtL1OnUM_(0), l1Etavsl1PhiL1OnUM_(0),
 	  NL1OffUM_(0), offEtL1OffUM_(0), offEtavsoffPhiL1OffUM_(0),
 	  NOnOffUM_(0), offEtOnOffUM_(0), offEtavsoffPhiOnOffUM_(0),
 	  NL1McUM_(0), mcEtL1McUM_(0), mcEtavsmcPhiL1McUM_(0),
+	  NOffMcUM_(0), mcEtOffMcUM_(0), mcEtavsmcPhiOffMcUM_(0),
 	  NOnMcUM_(0), mcEtOnMcUM_(0), mcEtavsmcPhiOnMcUM_(0),
 	  ptmin_(ptmin), ptmax_(ptmax)
 	  {
@@ -407,6 +555,9 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
 		   MonitorElement *NL1Mc,
 		   MonitorElement *mcEtL1Mc,
 		   MonitorElement *mcEtavsmcPhiL1Mc,
+		   MonitorElement *NOffMc,
+		   MonitorElement *mcEtOffMc,
+		   MonitorElement *mcEtavsmcPhiOffMc,
 		   MonitorElement *NOnMc,
 		   MonitorElement *mcEtOnMc,
 		   MonitorElement *mcEtavsmcPhiOnMc,
@@ -422,6 +573,9 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
 		   MonitorElement *NL1McUM,
 		   MonitorElement *mcEtL1McUM,
 		   MonitorElement *mcEtavsmcPhiL1McUM,
+		   MonitorElement *NOffMcUM,
+		   MonitorElement *mcEtOffMcUM,
+		   MonitorElement *mcEtavsmcPhiOffMcUM,
 		   MonitorElement *NOnMcUM,
 		   MonitorElement *mcEtOnMcUM,
 		   MonitorElement *mcEtavsmcPhiOnMcUM,
@@ -436,11 +590,13 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
 	    NL1Off_(NL1Off), offEtL1Off_(offEtL1Off), offEtavsoffPhiL1Off_(offEtavsoffPhiL1Off),
 	    NOnOff_(NOnOff), offEtOnOff_(offEtOnOff), offEtavsoffPhiOnOff_(offEtavsoffPhiOnOff),
 	    NL1Mc_(NL1Mc), mcEtL1Mc_(mcEtL1Mc), mcEtavsmcPhiL1Mc_(mcEtavsmcPhiL1Mc),
+	    NOffMc_(NOffMc), mcEtOffMc_(mcEtOffMc), mcEtavsmcPhiOffMc_(mcEtavsmcPhiOffMc),
 	    NOnMc_(NOnMc), mcEtOnMc_(mcEtOnMc), mcEtavsmcPhiOnMc_(mcEtavsmcPhiOnMc),
             NL1OnUM_(NL1OnUM), l1EtL1OnUM_(l1EtL1OnUM), l1Etavsl1PhiL1OnUM_(l1Etavsl1PhiL1OnUM),
 	    NL1OffUM_(NL1OffUM), offEtL1OffUM_(offEtL1OffUM), offEtavsoffPhiL1OffUM_(offEtavsoffPhiL1OffUM),
 	    NOnOffUM_(NOnOffUM), offEtOnOffUM_(offEtOnOffUM), offEtavsoffPhiOnOffUM_(offEtavsoffPhiOnOffUM),
 	    NL1McUM_(NL1McUM), mcEtL1McUM_(mcEtL1McUM), mcEtavsmcPhiL1McUM_(mcEtavsmcPhiL1McUM),
+	    NOffMcUM_(NOffMcUM), mcEtOffMcUM_(mcEtOffMcUM), mcEtavsmcPhiOffMcUM_(mcEtavsmcPhiOffMcUM),
 	    NOnMcUM_(NOnMcUM), mcEtOnMcUM_(mcEtOnMcUM), mcEtavsmcPhiOnMcUM_(mcEtavsmcPhiOnMcUM),
 	    ptmin_(ptmin), ptmax_(ptmax)
 	    {};
@@ -459,18 +615,20 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
 
 	  // we don't own this data
 	  MonitorElement *NMc_, *mcEtMc_, *mcEtavsmcPhiMc_;
-          MonitorElement *NOn_, *onEtOn_, *onEtavsonPhiOn_;
+    MonitorElement *NOn_, *onEtOn_, *onEtavsonPhiOn_;
 	  MonitorElement *NOff_, *offEtOff_, *offEtavsoffPhiOff_;
 	  MonitorElement *NL1_, *l1EtL1_, *l1Etavsl1PhiL1_;
 	  MonitorElement *NL1On_, *l1EtL1On_, *l1Etavsl1PhiL1On_;
 	  MonitorElement *NL1Off_, *offEtL1Off_, *offEtavsoffPhiL1Off_;
 	  MonitorElement *NOnOff_, *offEtOnOff_, *offEtavsoffPhiOnOff_;
 	  MonitorElement *NL1Mc_, *mcEtL1Mc_, *mcEtavsmcPhiL1Mc_;
+	  MonitorElement *NOffMc_, *mcEtOffMc_, *mcEtavsmcPhiOffMc_;
 	  MonitorElement *NOnMc_, *mcEtOnMc_, *mcEtavsmcPhiOnMc_;
 	  MonitorElement *NL1OnUM_, *l1EtL1OnUM_, *l1Etavsl1PhiL1OnUM_;
 	  MonitorElement *NL1OffUM_, *offEtL1OffUM_, *offEtavsoffPhiL1OffUM_;
 	  MonitorElement *NOnOffUM_, *offEtOnOffUM_, *offEtavsoffPhiOnOffUM_;
 	  MonitorElement *NL1McUM_, *mcEtL1McUM_, *mcEtavsmcPhiL1McUM_;
+	  MonitorElement *NOffMcUM_, *mcEtOffMcUM_, *mcEtavsmcPhiOffMcUM_;
 	  MonitorElement *NOnMcUM_, *mcEtOnMcUM_, *mcEtavsmcPhiOnMcUM_;
 
 	  float ptmin_, ptmax_;
@@ -499,4 +657,735 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
 
 
 };
+
+template <class T> 
+class objMon {
+public:
+    objMon() { EtaMax_= 2.5; EtMin_=3.0; }
+		void setLimits(float etaMax, float etMin, float drMatch) 
+		{
+		 EtaMax_= etaMax; 
+		 EtMin_= etMin; 
+		 DRMatch_= drMatch;
+		}
+		void setTriggerType(vector<int> trigType) { triggerType_ = trigType; }
+		void setL1TriggerType(vector<int> trigType) { l1triggerType_ = trigType; }
+		void setPath(FourVectorHLTriggerOffline::PathInfoCollection::iterator v) { v_ = v; }
+		void setReco(Handle<T> offColl) { offColl_ = offColl; }
+		void setMC(Handle<GenParticleCollection> genParticles, int pdgId, int status) 
+		{
+
+      genParticles_ = genParticles;
+			pdgId_ = pdgId;
+			pdgStatus_ = status;
+			
+		}
+
+    void fillMC();
+    void fillOff();
+		void fillL1(const Vids & idtype, const Keys & l1k, const TriggerObjectCollection & toc);
+    void monitorDenominator(FourVectorHLTriggerOffline::PathInfoCollection::iterator v, bool l1accept, const Vids & idtype, const Keys & l1k, const TriggerObjectCollection& toc);
+
+		void fillL1Off(FourVectorHLTriggerOffline* fv);
+		void fillL1MC(FourVectorHLTriggerOffline* fv);
+		void fillL1Match(FourVectorHLTriggerOffline* fv)
+		{
+		  fillL1Off(fv);
+		  fillL1MC(fv);
+		}
+
+		void monitorOnline(const Vids & idtype, const Keys & l1k, Keys::const_iterator ki, const TriggerObjectCollection & toc, int & NOn);
+    void monitorOffline(FourVectorHLTriggerOffline* fv);
+		void fillOnOff(FourVectorHLTriggerOffline* fv);
+		void fillOnMC(FourVectorHLTriggerOffline* fv);
+		void fillOnL1(FourVectorHLTriggerOffline* fv, const Keys & l1k,  const TriggerObjectCollection & toc);
+		void fillOnlineMatch(FourVectorHLTriggerOffline* fv, const Keys & l1k,  const TriggerObjectCollection & toc)
+		{
+      if(! isTriggerType(v_->getObjectType()) ) return;
+	    fillOnOff(fv);
+	    fillOnMC(fv);
+	    fillOnL1(fv, l1k, toc);
+	  }
+
+    void fillOffMC(FourVectorHLTriggerOffline* fv);
+		void fillOffMatch(FourVectorHLTriggerOffline* fv)
+		{
+      if(! isTriggerType(v_->getObjectType()) ) return;
+		  fillOffMC(fv);
+		}
+		void clearSets();
+
+		bool isTriggerType(int t);
+		bool isL1TriggerType(int t);
+
+    mmset L1OffDRMatchSet;
+    mmset L1MCDRMatchSet;
+    mmset OnOffDRMatchSet;
+    mmset OnMCDRMatchSet;
+    mmset OnL1DRMatchSet;
+    mmset OffMCDRMatchSet;
+
+private:
+		int   pdgId_;
+		int   pdgStatus_;
+
+    float EtaMax_;
+    float EtMin_;
+
+		float DRMatch_;
+
+		vector<int> triggerType_;
+		vector<int> l1triggerType_;
+
+    Handle<T> offColl_;
+
+    Handle<GenParticleCollection> genParticles_;
+    FourVectorHLTriggerOffline::PathInfoCollection::iterator v_;
+
+};
+
+template <class T> 
+bool objMon<T>::isTriggerType(int t)
+{
+  bool rc = false;
+
+  for(vector<int>::const_iterator it = triggerType_.begin(); it != triggerType_.end(); ++it)
+	{
+        //LogTrace("FourVectorHLTriggerOffline") << " monitorDenominator()::isTriggerTypeC()::  path type = " << t << "  trigger type = " << *it  << endl;
+
+	 if(t == *it) { rc = true; break; }
+
+  } // end for
+
+	return rc;
+
+}
+
+
+template <class T> 
+bool objMon<T>::isL1TriggerType(int t)
+{
+  bool rc = false;
+
+  for(vector<int>::const_iterator it = l1triggerType_.begin(); it != l1triggerType_.end(); ++it)
+	{
+
+	 if(t == *it) { rc = true; break; }
+
+  } // end for
+
+	return rc;
+
+}
+
+template <class T> 
+void objMon<T>::monitorDenominator(FourVectorHLTriggerOffline::PathInfoCollection::iterator v, bool l1accept, const Vids & idtype, const Keys & l1k, const TriggerObjectCollection& toc)
+{
+        //LogTrace("FourVectorHLTriggerOffline") << " monitorDenominator()  "  << endl;
+
+        //LogTrace("FourVectorHLTriggerOffline") << " monitorDenominator()::setPath(v)  "  << endl;
+        setPath(v);
+				
+        //LogTrace("FourVectorHLTriggerOffline") << " monitorDenominator()::isTriggerType()  "  << endl;
+				if(! isTriggerType(v_->getObjectType()) ) return;
+
+        //LogTrace("FourVectorHLTriggerOffline") << " monitorDenominator()::fillMC()  "  << endl;
+	      fillMC();
+        //LogTrace("FourVectorHLTriggerOffline") << " monitorDenominator()::fillOff()  "  << endl;
+
+	      fillOff();
+
+        if (l1accept) fillL1(idtype, l1k, toc);
+
+
+}
+
+template <class T> 
+void objMon<T>::fillOff()
+{
+
+ int NOff = 0;
+ if(! offColl_.isValid()) return;
+
+ typedef typename T::const_iterator const_iterator;
+ for( const_iterator iter = offColl_->begin(), iend = offColl_->end(); iter != iend; ++iter )
+ {
+
+	 NOff++;
+
+   if (fabs(iter->eta()) <= EtaMax_ && iter->pt() >=  EtMin_ )
+   {
+	   
+
+     v_->getOffEtOffHisto()->Fill(iter->pt());
+     v_->getOffEtaVsOffPhiOffHisto()->Fill(iter->eta(), iter->phi());
+     //std::cout << iter->first << "-->" << iter->second << std::endl;
+
+   }
+
+	 /*
+   if (genParticles_.isValid())
+ 	 {
+     //LogTrace("FourVectorHLTriggerOffline") << " fillOff() genParticles_ is valid "  << endl;
+
+     fimmap OffMCDRMatchMap;
+     for(size_t i = 0; i < genParticles_->size(); ++ i) 
+ 		{
+
+        const GenParticle & p = (*genParticles_)[i];
+        if (abs(p.pdgId()) == pdgId_ && p.status() == pdgStatus_ && fabs(p.eta()) <= EtaMax_ && p.pt() >= EtMin_)
+ 			 { 
+
+ 		     // fill UM histos (no matching required)
+ 		     if(NOff == 1) {
+
+            v_->getMcEtOffMcUMHisto()->Fill(p.pt());
+            v_->getMcEtaVsMcPhiOffMcUMHisto()->Fill(p.eta(),p.phi());
+
+ 				 }
+
+ 				 // make maps of matched objects
+          float dR = reco::deltaR(p.eta(),p.phi(),iter->eta(),iter->phi());
+          if (dR < DRMatch_) 
+ 				 {
+
+           //LogTrace("FourVectorHLTriggerOffline") << " filling Off-MC map  "  << endl;
+           OffMCDRMatchMap.insert(pair<float,int>(dR,i));
+
+ 				 }
+
+        } // end if pdg, status, eta, pt
+     } // end for
+
+     if(! OffMCDRMatchMap.empty()) OffMCDRMatchSet.insert(OffMCDRMatchMap);
+
+   } // end if genParticle_
+	 */
+ }
+
+ return;
+
+}
+
+template <class T> 
+void objMon<T>::fillMC()
+{
+
+ if(! genParticles_.isValid()) return;
+
+ for(size_t i = 0; i < genParticles_->size(); ++ i) {
+
+   const GenParticle & p = (*genParticles_)[i];
+   if (abs(p.pdgId()) == pdgId_ && p.status() == pdgStatus_ && fabs(p.eta()) <= EtaMax_ && p.pt() >= EtMin_ ){
+    
+		//   NMc++;
+    v_->getMcEtMcHisto()->Fill(p.pt());
+    v_->getMcEtaVsMcPhiMcHisto()->Fill(p.eta(),p.phi());
+
+	 }
+
+ } // end for
+
+ return;
+
+}
+
+template <class T> 
+void objMon<T>::fillL1(const Vids & idtype, const Keys & l1k, const TriggerObjectCollection& toc)
+{
+
+ int NL1=0;
+ //LogTrace("FourVectorHLTriggerOffline") << " fillL1()  "  << endl;
+ Vids::const_iterator idtypeiter = idtype.begin(); 
+ for (Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
+   //LogTrace("FourVectorHLTriggerOffline") << "fillL1(): idtype = " << *idtypeiter << " TriggerL1Mu = " <<  TriggerL1Mu << endl;
+
+	 TriggerObject l1FV = toc[*l1ki];
+	 if(isL1TriggerType(*idtypeiter))
+	 {
+
+			NL1++;
+
+      //LogTrace("FourVectorHLTriggerOffline") << "fillL1(): eta = " << fabs(toc[*l1ki].eta()) <<  " pt = " <<  toc[*l1ki].pt() << endl;
+
+      if (fabs(l1FV.eta()) <= EtaMax_ && l1FV.pt() >= EtMin_)
+      { 
+		  
+
+        //LogTrace("FourVectorHLTriggerOffline") << " filling L1 histos  "  << endl;
+        v_->getL1EtL1Histo()->Fill(l1FV.pt());
+	      v_->getL1EtaVsL1PhiL1Histo()->Fill(l1FV.eta(), l1FV.phi());
+
+	    }
+
+	    if (offColl_.isValid())
+      {
+
+        //LogTrace("FourVectorHLTriggerOffline") << " fillL1() offColl_ is valid "  << endl;
+        fimmap L1OffDRMatchMap;
+	      int j=0;
+        typedef typename T::const_iterator const_iterator;
+        for( const_iterator iter = offColl_->begin(), iend = offColl_->end(); iter != iend; ++iter )
+        {
+
+          if (fabs(iter->eta()) <= EtaMax_ && iter->pt() >=  EtMin_ )
+          {
+
+				    // fill UM histos (no matching required)
+				    if(NL1 == 1) {
+
+	            v_->getOffEtL1OffUMHisto()->Fill((*iter).pt());
+	            v_->getOffEtaVsOffPhiL1OffUMHisto()->Fill((*iter).eta(),(*iter).phi());
+
+						}
+
+						// make maps of matched objects
+	          float dR = reco::deltaR((*iter).eta(),(*iter).phi(),l1FV.eta(),l1FV.phi());
+	          if ( dR < DRMatch_) 
+						{
+
+             //LogTrace("FourVectorHLTriggerOffline") << " filling L1-Off map  "  << endl;
+		         L1OffDRMatchMap.insert(std::pair<float,int>(dR,j));
+
+						}
+
+          }
+
+	        j++;
+
+        }
+
+        if(! L1OffDRMatchMap.empty())  L1OffDRMatchSet.insert(L1OffDRMatchMap);
+
+	     }
+
+	    if (genParticles_.isValid())
+			{
+        //LogTrace("FourVectorHLTriggerOffline") << " fillL1() genParticles_ is valid "  << endl;
+
+	      fimmap L1MCDRMatchMap;
+        for(size_t i = 0; i < genParticles_->size(); ++ i) 
+				{
+
+           const GenParticle & p = (*genParticles_)[i];
+           if (abs(p.pdgId()) == pdgId_ && p.status() == pdgStatus_ && fabs(p.eta()) <= EtaMax_ && p.pt() >= EtMin_)
+					 { 
+
+				     // fill UM histos (no matching required)
+				     if(NL1 == 1) {
+
+	             v_->getMcEtL1McUMHisto()->Fill(p.pt());
+	             v_->getMcEtaVsMcPhiL1McUMHisto()->Fill(p.eta(),p.phi());
+
+						 }
+
+						 // make maps of matched objects
+	           float dR = reco::deltaR(p.eta(),p.phi(),l1FV.eta(),l1FV.phi());
+	           if (dR < DRMatch_) 
+						 {
+
+              //LogTrace("FourVectorHLTriggerOffline") << " filling L1-MC map  "  << endl;
+		          L1MCDRMatchMap.insert(pair<float,int>(dR,i));
+
+						 }
+
+	         } // end if pdg, status, eta, pt
+        } // end for
+
+        if(! L1MCDRMatchMap.empty()) L1MCDRMatchSet.insert(L1MCDRMatchMap);
+
+	    } // end if genParticle_
+
+	   } // end if isL1TriggerType
+     ++idtypeiter;
+
+	 } // end for l1ki
+
+}
+
+template <class T> 
+void objMon<T>::monitorOnline(const Vids & idtype, const Keys & l1k, Keys::const_iterator ki, const TriggerObjectCollection & toc, int & NOn)
+{
+
+		 if(! isTriggerType(v_->getObjectType()) ) return;
+
+		 TriggerObject onlineFV = toc[*ki];
+
+	   NOn++;    
+
+     if (fabs(onlineFV.eta()) <= EtaMax_ && onlineFV.pt() >= EtMin_)
+     { 
+
+       v_->getOnEtOnHisto()->Fill(onlineFV.pt());
+	     v_->getOnEtaVsOnPhiOnHisto()->Fill(onlineFV.eta(), onlineFV.phi());
+
+	   }
+
+	   if (offColl_.isValid())
+     {
+
+
+        fimmap OnOffDRMatchMap;
+	      int j=0;
+        typedef typename T::const_iterator const_iterator;
+        for( const_iterator iter = offColl_->begin(), iend = offColl_->end(); iter != iend; ++iter )
+        {
+
+          if (fabs(iter->eta()) <= EtaMax_ && iter->pt() >=  EtMin_ )
+          {
+
+				    // fill UM histos (no matching required)
+				    if(NOn == 1) {
+
+	            v_->getOffEtOnOffUMHisto()->Fill((*iter).pt());
+	            v_->getOffEtaVsOffPhiOnOffUMHisto()->Fill((*iter).eta(),(*iter).phi());
+
+						}
+
+						 // make maps of matched objects
+	          float dR = reco::deltaR((*iter).eta(),(*iter).phi(),onlineFV.eta(),onlineFV.phi());
+	          if ( dR < DRMatch_)
+						{
+
+		          OnOffDRMatchMap.insert(std::pair<float,int>(dR,j));
+
+						}
+
+          }
+
+	        j++;
+
+
+        }
+
+        if(! OnOffDRMatchMap.empty())  OnOffDRMatchSet.insert(OnOffDRMatchMap);
+
+	     }
+
+
+       fimmap OnL1DRMatchMap;
+	     int j=0;
+       Vids::const_iterator idtypeiter = idtype.begin(); 
+       for (Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) 
+			 {
+
+			   
+
+	       if(isL1TriggerType(*idtypeiter))
+	       {
+
+		       TriggerObject l1FV = toc[*l1ki];
+
+	         if ( fabs(l1FV.eta()) <= EtaMax_ && l1FV.pt() >= EtMin_ )
+           {
+
+				      // fill UM histos (no matching required)
+				      if(NOn == 1) {
+
+	             v_->getL1EtL1OnUMHisto()->Fill(l1FV.pt());
+	             v_->getL1EtaVsL1PhiL1OnUMHisto()->Fill(l1FV.eta(),l1FV.phi());
+
+						   }
+
+
+               float dR = reco::deltaR(l1FV.eta(),l1FV.phi(),onlineFV.eta(),onlineFV.phi());
+
+	             if ( dR < DRMatch_) 
+						   {
+
+	               OnL1DRMatchMap.insert(std::pair<float,int>(dR,j));
+
+						   }
+
+						 } // end if l1FV eta, pt
+
+          } // end if isL1TriggerType
+
+	        ++idtypeiter;
+	        j++;
+
+	    } // end for
+
+      if(! OnL1DRMatchMap.empty()) OnL1DRMatchSet.insert(OnL1DRMatchMap);
+
+
+	    if (genParticles_.isValid())
+			{
+
+	      fimmap OnMCDRMatchMap;
+        for(size_t i = 0; i < genParticles_->size(); ++ i) 
+				{
+
+           const GenParticle & p = (*genParticles_)[i];
+           if (abs(p.pdgId()) == pdgId_ && p.status() == pdgStatus_ && fabs(p.eta()) <= EtaMax_ && p.pt() >= EtMin_)
+					 { 
+
+				     // fill UM histos (no matching required)
+				     if(NOn == 1) {
+
+	             v_->getMcEtOnMcUMHisto()->Fill(p.pt());
+	             v_->getMcEtaVsMcPhiOnMcUMHisto()->Fill(p.eta(),p.phi());
+
+						 }
+
+						 // make maps of matched objects
+	           float dR = reco::deltaR(p.eta(),p.phi(),onlineFV.eta(),onlineFV.phi());
+	           if (dR < DRMatch_)
+						 {
+
+		          OnMCDRMatchMap.insert(pair<float,int>(dR,i));
+	            //NOnMc++;
+
+						 }
+	         } // end if
+        } // end for
+
+        if(! OnMCDRMatchMap.empty()) OnMCDRMatchSet.insert(OnMCDRMatchMap);
+
+	    } 
+
+}
+
+template <class T> 
+void objMon<T>::monitorOffline(FourVectorHLTriggerOffline* fv)
+{
+
+ if(! isTriggerType(v_->getObjectType()) ) return;
+
+ int numNOff = 0;
+ if(! offColl_.isValid()) return;
+
+ typedef typename T::const_iterator const_iterator;
+ for( const_iterator iter = offColl_->begin(), iend = offColl_->end(); iter != iend; ++iter )
+ {
+
+					numNOff++;
+          if (genParticles_.isValid())
+ 	        {
+            //LogTrace("FourVectorHLTriggerOffline") << " fillOff() genParticles_ is valid "  << endl;
+
+            fimmap OffMCDRMatchMap;
+            for(size_t i = 0; i < genParticles_->size(); ++ i) 
+ 	         {
+
+               const GenParticle & p = (*genParticles_)[i];
+               if (abs(p.pdgId()) == pdgId_ && p.status() == pdgStatus_ && fabs(p.eta()) <= EtaMax_ && p.pt() >= EtMin_)
+ 	         	 { 
+
+ 	              // fill UM histos (no matching required)
+ 	              if(numNOff == 1) {
+
+                   v_->getMcEtOffMcUMHisto()->Fill(p.pt());
+                   v_->getMcEtaVsMcPhiOffMcUMHisto()->Fill(p.eta(),p.phi());
+
+ 	         		 }
+
+ 	         		 // make maps of matched objects
+                 float dR = reco::deltaR(p.eta(),p.phi(),iter->eta(),iter->phi());
+                 if (dR < DRMatch_) 
+ 	         		 {
+
+                  //LogTrace("FourVectorHLTriggerOffline") << " filling Off-MC map  "  << endl;
+                  OffMCDRMatchMap.insert(pair<float,int>(dR,i));
+
+ 	         		 }
+
+               } // end if pdg, status, eta, pt
+            } // end for
+
+            if(! OffMCDRMatchMap.empty()) OffMCDRMatchSet.insert(OffMCDRMatchMap);
+
+          } // end if genParticle_
+
+ } // end for offline objects
+
+}
+template <class T> 
+void objMon<T>::fillL1Off(FourVectorHLTriggerOffline* fv)
+{
+
+ if(! offColl_.isValid()) return;
+
+
+	// clean the set L1-Off
+  if(L1OffDRMatchSet.size() > 1) fv->cleanDRMatchSet(L1OffDRMatchSet);
+	// now fill histos
+  for ( mmset::iterator setIter = L1OffDRMatchSet.begin( ); setIter != L1OffDRMatchSet.end( ); setIter++ ) 
+  {
+
+       fimmap tempMap = *setIter;
+         
+       fimmap::iterator it = tempMap.begin(); 
+       int i  = (*it).second ;
+
+       typedef typename T::const_iterator const_iterator;
+			 const_iterator iter = offColl_->begin();
+       for (int count = 0; count < i; count++) iter++;
+
+       //LogTrace("FourVectorHLTriggerOffline") << " Filling Electron L1Off   LOffDRMatchMap.insert(std::pair<float,int>(dR,j)): pt = " << iter->pt() << endl;
+
+	     //NL1Off++;
+	     v_->getOffEtL1OffHisto()->Fill(iter->pt());
+	     v_->getOffEtaVsOffPhiL1OffHisto()->Fill(iter->eta(),iter->phi());
+
+	}
+
+  return;
+}
+
+template <class T> 
+void objMon<T>::fillL1MC(FourVectorHLTriggerOffline* fv)
+{
+
+	if(! genParticles_.isValid()) return;
+
+	// clean the set L1-MC
+	if(L1MCDRMatchSet.size() > 1) fv->cleanDRMatchSet(L1MCDRMatchSet);
+
+	// now fill histos
+  for ( mmset::iterator setIter = L1MCDRMatchSet.begin( ); setIter != L1MCDRMatchSet.end( ); setIter++ ) 
+  {
+
+     fimmap tempMap = *setIter;
+       
+     fimmap::iterator it = tempMap.begin(); 
+     int i  = (*it).second ;
+          
+     const GenParticle & p = (*genParticles_)[i];
+	   //NL1Mc++;
+	   v_->getMcEtL1McHisto()->Fill(p.pt());
+	   v_->getMcEtaVsMcPhiL1McHisto()->Fill(p.eta(),p.phi());
+
+	}
+
+}
+
+template <class T> 
+void objMon<T>::fillOnOff(FourVectorHLTriggerOffline* fv)
+{
+
+ if(! offColl_.isValid()) return;
+
+
+	// clean the set L1-Off
+  if(OnOffDRMatchSet.size() > 1) fv->cleanDRMatchSet(OnOffDRMatchSet);
+	// now fill histos
+  for ( mmset::iterator setIter = OnOffDRMatchSet.begin( ); setIter != OnOffDRMatchSet.end( ); setIter++ ) 
+  {
+
+       fimmap tempMap = *setIter;
+         
+       fimmap::iterator it = tempMap.begin(); 
+       int i  = (*it).second ;
+
+       typedef typename T::const_iterator const_iterator;
+			 const_iterator iter = offColl_->begin();
+       for (int count = 0; count < i; count++) iter++;
+
+	     //NL1Off++;
+	     v_->getOffEtOnOffHisto()->Fill(iter->pt());
+	     v_->getOffEtaVsOffPhiOnOffHisto()->Fill(iter->eta(),iter->phi());
+
+	}
+
+  return;
+
+}
+
+template <class T> 
+void objMon<T>::fillOnMC(FourVectorHLTriggerOffline* fv)
+{
+
+	if(! genParticles_.isValid()) return;
+
+	// clean the set L1-MC
+	if(OnMCDRMatchSet.size() > 1) fv->cleanDRMatchSet(OnMCDRMatchSet);
+
+	// now fill histos
+  for ( mmset::iterator setIter = OnMCDRMatchSet.begin( ); setIter != OnMCDRMatchSet.end( ); setIter++ ) 
+  {
+
+     fimmap tempMap = *setIter;
+       
+     fimmap::iterator it = tempMap.begin(); 
+     int i  = (*it).second ;
+          
+     const GenParticle & p = (*genParticles_)[i];
+	   //NL1Mc++;
+	   v_->getMcEtOnMcHisto()->Fill(p.pt());
+	   v_->getMcEtaVsMcPhiOnMcHisto()->Fill(p.eta(),p.phi());
+
+	}
+
+}
+
+template <class T> 
+void objMon<T>::fillOffMC(FourVectorHLTriggerOffline* fv)
+{
+
+	if(! genParticles_.isValid()) return;
+
+  if(! offColl_.isValid()) return;
+
+	// clean the set L1-MC
+	if(OffMCDRMatchSet.size() > 1) fv->cleanDRMatchSet(OffMCDRMatchSet);
+
+	// now fill histos
+  for ( mmset::iterator setIter = OffMCDRMatchSet.begin( ); setIter != OffMCDRMatchSet.end( ); setIter++ ) 
+  {
+
+     fimmap tempMap = *setIter;
+       
+     fimmap::iterator it = tempMap.begin(); 
+     int i  = (*it).second ;
+          
+     const GenParticle & p = (*genParticles_)[i];
+	   //NL1Mc++;
+	   v_->getMcEtOffMcHisto()->Fill(p.pt());
+	   v_->getMcEtaVsMcPhiOffMcHisto()->Fill(p.eta(),p.phi());
+
+	}
+
+}
+
+template <class T> 
+void objMon<T>::fillOnL1(FourVectorHLTriggerOffline* fv, const Keys & l1k,  const TriggerObjectCollection & toc)
+{
+
+	// clean the set On-L1
+	if(OnL1DRMatchSet.size() > 1) fv->cleanDRMatchSet(OnL1DRMatchSet);
+	// now fill histos
+  for ( mmset::iterator setIter = OnL1DRMatchSet.begin( ); setIter != OnL1DRMatchSet.end( ); setIter++ ) 
+  {
+
+    fimmap tempMap = *setIter;
+      
+    fimmap::iterator it = tempMap.begin(); 
+    int i  = (*it).second ;
+    trigger::Keys::const_iterator l1ki = l1k.begin();
+    for (int count = 0; count < i; count++) l1ki++;
+
+	  //NL1On++;
+	  v_->getL1EtL1OnHisto()->Fill(toc[*l1ki].pt());
+	  v_->getL1EtaVsL1PhiL1OnHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
+
+	}
+
+
+}
+
+template <class T> 
+void objMon<T>::clearSets()
+{
+
+     L1OffDRMatchSet.clear();
+     L1MCDRMatchSet.clear();
+     OnOffDRMatchSet.clear();
+     OnMCDRMatchSet.clear();
+     OnL1DRMatchSet.clear();
+     OffMCDRMatchSet.clear();
+
+}
+
+
 #endif
