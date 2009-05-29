@@ -15,6 +15,9 @@ from RecoMuon.GlobalMuonProducer.tevMuons_cfi import *
 # Muon Id producer
 from RecoMuon.MuonIdentification.muonIdProducerSequence_cff import *
 
+#Muon Id isGood flag ValueMap producer sequence
+from RecoMuon.MuonIdentification.muonSelectionTypeValueMapProducer_cff import *
+
 # Muon Isolation sequence
 from RecoMuon.MuonIsolationProducers.muIsolation_cff import *
 muontracking = cms.Sequence(standAloneMuonSeeds*standAloneMuons*globalMuons)
@@ -40,6 +43,14 @@ muonreco_with_SET = cms.Sequence(muontracking_with_SET)
 # Muon Reconstruction plus Isolation
 muonreco_plus_isolation = cms.Sequence(muonrecowith_TeVRefinemen*muIsolation)
 muonreco_plus_isolation_plus_SET = cms.Sequence(muonrecowith_TeVRefinemen*muonreco_with_SET*muIsolation)
+
+# .. plus muIDmaps
+# this makes me wonder if we should make this a new default name (drop all _plusX)
+muonreco_plus_isolation_plus_SET_plus_muIDmaps = cms.Sequence(muonreco_plus_isolation_plus_SET*muonSelectionTypeSequence)
+
+muonrecoComplete = cms.Sequence(muonreco_plus_isolation_plus_SET*muonSelectionTypeSequence)
+muonrecoComplete_minus_muIDmaps = cms.Sequence(muonreco_plus_isolation_plus_SET)
+muonrecoComplete_minus_SET_minus_muIDmaps = cms.Sequence(muonrecowith_TeVRefinemen*muIsolation)
 
 ########################################################
 
