@@ -83,7 +83,7 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   thePhotonIsolationCalculator_ = new PhotonIsolationCalculator();
   edm::ParameterSet isolationSumsCalculatorSet = conf_.getParameter<edm::ParameterSet>("isolationSumsCalculatorSet"); 
   thePhotonIsolationCalculator_->setup(isolationSumsCalculatorSet);
-
+  energyCorrectionF = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection", conf_);
 
   // Register the product
   produces< reco::PhotonCollection >(PhotonCollection_);
@@ -154,7 +154,10 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   // get the geometry from the event setup:
   theEventSetup.get<CaloGeometryRecord>().get(theCaloGeom_);
-  
+
+  //
+  // update energy correction function
+  energyCorrectionF->init(theEventSetup);  
 
   edm::ESHandle<CaloTopology> pTopology;
   theEventSetup.get<CaloTopologyRecord>().get(theCaloTopo_);
@@ -221,6 +224,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
 
     reco::PhotonCoreRef coreRef(reco::PhotonCoreRef(photonCoreHandle, lSC));
     reco::SuperClusterRef scRef=coreRef->superCluster();
+    const reco::SuperCluster* pClus=&(*scRef);
     iSC++;
 
     int subdet = scRef->seed()->hitsAndFractions()[0].first.subdetId();
@@ -274,6 +278,9 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     double photonEnergy=0;
     if (r9>minR9) {
       caloPosition = unconvPos;
+      // f(eta) correction to e5x5
+      double deltaE = energyCorrectionF->getValue(*pClus, 1);
+      double e5x5 = e5x5 * (1.0 +  deltaE/scRef->rawEnergy() );
       photonEnergy=e5x5 + scRef->preshowerEnergy() ;
     } else {
       caloPosition = scRef->position();

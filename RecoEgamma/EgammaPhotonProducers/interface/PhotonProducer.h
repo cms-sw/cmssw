@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.34 2009/03/25 11:21:27 nancy Exp $ 
- **  $Date: 2009/03/25 11:21:27 $ 
- **  $Revision: 1.34 $
+ **  $Id: PhotonProducer.h,v 1.35 2009/05/12 16:45:17 nancy Exp $ 
+ **  $Date: 2009/05/12 16:45:17 $ 
+ **  $Revision: 1.35 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -30,6 +30,9 @@
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
+#include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h" 
 
 // PhotonProducer inherits from EDProducer, so it can be a module:
 class PhotonProducer : public edm::EDProducer {
@@ -98,7 +101,8 @@ class PhotonProducer : public edm::EDProducer {
 
   std::vector<double>  preselCutValuesBarrel_; 
   std::vector<double>  preselCutValuesEndcap_; 
-  //int nEvt_;
+
+  EcalClusterFunctionBaseClass* energyCorrectionF;
 
 };
 #endif
