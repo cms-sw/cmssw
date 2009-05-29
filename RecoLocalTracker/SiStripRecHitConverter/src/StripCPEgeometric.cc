@@ -59,13 +59,13 @@ strip_stripErrorSquared( const SiStripCluster& cluster, const float& projection)
   const float eta = wc.eta(crosstalk);
   float sigma;
   switch( wc.N ) {
-  case 1: sigma = invsqrt12*( 1-0.82*projection );           break;
-  case 2: sigma = 0.013+0.06*(1-eta*eta)*projection*projection*sqrt(0.5*(abs(projection-2)-(projection-2))); break;
-    /*	case 3: sigma = invsqrt12;                                 break;
-	case 4: sigma = invsqrt12;                                 break;
-	case 5: sigma = invsqrt12;                                 break;
-	case 6: sigma = invsqrt12;                                 break; */
-  default: sigma = invsqrt12;                                 break;
+  case 1: sigma = invsqrt12*( 1-0.82*projection );                                                               break;
+  case 2: sigma =  0.013 + 0.060*projection*projection*(1-eta*eta)*sqrt(0.5*(abs(projection-2)-(projection-2))); break;
+  case 3: sigma = -0.040 + 0.060*projection + invsqrt12/(1+exp(10*(projection-2*eta-0.8)));                      break;
+  case 4: sigma = -0.078 + 0.060*projection + invsqrt12/(1+exp(15*(projection-2.1)));                            break;
+  case 5: sigma = -0.190 + 0.075*projection + invsqrt12/(1+exp(15*(projection-3.2)));                            break;
+  case 6: sigma = -0.350 + 0.095*projection + invsqrt12/(1+exp(15*(projection-4.3)));                            break;
+  default: sigma = 0.150 + 0.100*(projection-wc.N+1);                                                            break;
   }
   const float crossoverPoint = projection - wc.maxProjection(crosstalk);
   const float offset = mix(   0.5*projection*eta,   wc.centroid(),   crossoverPoint);
