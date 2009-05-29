@@ -26,6 +26,9 @@ enum globalFieds{
   CH_LINKERR           = 5,
   CH_LENGTHERR         = 6,
   CH_SUPPRESS          = 7,
+  CH_IFIFOFULL         = 8,
+  CH_L1AIFIFOFULL      = 0xC,
+
 
   SRP_NREAD            = 0,
   SRP_NUMBFLAGS        = 68,
