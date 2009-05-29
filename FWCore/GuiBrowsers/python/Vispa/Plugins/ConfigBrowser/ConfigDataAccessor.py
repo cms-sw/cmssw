@@ -368,18 +368,23 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         return text
         
     def pypackage(self,object):
-      match = re.match(r'(?:^|.*?/)([A-Za-z0-9_]*)/([A-Za-z0-9_]*)/(?:test|python)/((?:[A-Za-z0-9_]*/)*)([A-Za-z0-9_]*)\.py$',self.fullFilename(object))
-      if match:
-        return '%s.%s.%s%s' % (match.group(1),match.group(2),match.group(3).replace('/','.'),match.group(4))
-      else:
-        return ''
+      match_compiled = re.match(r'(?:^|.*?/)CMSSW[0-9_]*/python/((?:\w*/)*\w*)\.py$',self.fullFilename(object))
+      if match_compiled:
+        return match_compiled.group(1).replace('/','.')
+      
+      match_norm = re.match(r'(?:^|.*?/)(\w*)/(\w*)/(?:test|python)/((?:\w*/)*)(\w*)\.py$',self.fullFilename(object))
+      if match_norm:
+        return '%s.%s.%s%s' % (match_norm.group(1),match_norm.group(2),match_norm.group(3).replace('/','.'),match_norm.group(4))
+      return ''
 
     def pypath(self,object):
-      match = re.match(r'(?:^|.*?/)([A-Za-z0-9_]*/[A-Za-z0-9_]*/(?:test|python)/(?:[A-Za-z0-9_]*/)*[A-Za-z0-9_]*\.py)$',self.fullFilename(object))
-      if match:
-        return match.group(1)
-      else:
-        return ''
+      match_compiled = re.match(r'(?:^|.*?/)CMSSW[0-9_]*/python/((?:\w*/){2})((?:\w*/)*)(\w*\.py)$',self.fullFilename(object))
+      if match_compiled:
+        return '%spython/%s%s' % (match_compiled.group(1),match_compiled.group(2),match_compiled.group(3))
+      match_norm = re.match(r'(?:^|.*?/)(\w*/\w*/(?:test|python)/(?:\w*/)*\w*\.py)$',self.fullFilename(object))
+      if match_norm:
+        return match_norm.group(1)
+      return ''
 
     def package(self, object):
         """ Get Package of an object file """

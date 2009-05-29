@@ -66,8 +66,8 @@ class DotProducer(object):
     if children:
       seqlabel = self.data.label(obj)
       if self.options['file']:
-        seqlabel += '\\n%s:%s' % (self.data.pypath(obj),self.data.lineNumber(obj))
-      result='subgraph clusterSeq%s {\nlabel="Sequence %s"\ncolor="%s"\nfontcolor="%s"\n' % (self.data.label(obj),seqlabel,self.options['color_sequence'],self.options['color_sequence'])
+        seqlabel += '\\n%s:%s' % (self.data.pypackage(obj),self.data.lineNumber(obj))
+      result='subgraph clusterSeq%s {\nlabel="Sequence %s"\ncolor="%s"\nfontcolor="%s"\nfontname="%s"\nfontsize=%s\n' % (self.data.label(obj),seqlabel,self.options['color_sequence'],self.options['color_sequence'],self.options['font_name'],self.options['font_size'])
       for c in children:
         result += self.seqRecurseChildren(c)
       result+='}\n'
@@ -92,7 +92,7 @@ class DotProducer(object):
     if self.options['class']:
       result += '\\n%s'%self.data.classname(obj)
     if self.options['file']:
-      result += '\\n%s:%s'%(self.data.pypath(obj),self.data.lineNumber(obj))
+      result += '\\n%s:%s'%(self.data.pypackage(obj),self.data.lineNumber(obj))
     return result
     
     #generate an appropriate URL by replacing placeholders in baseurl
@@ -107,11 +107,11 @@ class DotProducer(object):
     children = self.recurseChildren(path)
     pathlabel = self.data.label(path)
     if self.options['file']:
-      pathlabel += '\\n%s:%s'%(self.data.pypath(path),self.data.lineNumber(path))
+      pathlabel += '\\n%s:%s'%(self.data.pypackage(path),self.data.lineNumber(path))
     if endpath:
-      pathresult = 'subgraph cluster%s {\nlabel="%s"\ncolor="%s"\nfontcolor="%s"\n' % (self.data.label(path),pathlabel,self.options['color_endpath'],self.options['color_endpath'])
+      pathresult = 'subgraph cluster%s {\nlabel="%s"\ncolor="%s"\nfontcolor="%s"\nfontname="%s"\nfontsize=%s\n' % (self.data.label(path),pathlabel,self.options['color_endpath'],self.options['color_endpath'],self.options['font_name'],self.options['font_size'])
     else:
-      pathresult = 'subgraph cluster%s {\nlabel="%s"\ncolor="%s"\nfontcolor="%s"\n' % (self.data.label(path),pathlabel,self.options['color_path'],self.options['color_path'])
+      pathresult = 'subgraph cluster%s {\nlabel="%s"\ncolor="%s"\nfontcolor="%s"\nfontname="%s"\nfontsize=%s\n' % (self.data.label(path),pathlabel,self.options['color_path'],self.options['color_path'],self.options['font_name'],self.options['font_size'])
     if self.options['seqconnect']:
       if endpath:
         self.endstarts.append('endstart_%s'%self.data.label(path))
@@ -175,7 +175,7 @@ class DotProducer(object):
     connections = self.data.connections()
     for c in connections:
       if self.options['taglabel']:
-        result += '%s->%s[label="%s",color="%s",fontcolor="%s"]\n' % (c[0],c[2],c[3],self.options['color_inputtag'],self.options['color_inputtag'])
+        result += '%s->%s[label="%s",color="%s",fontcolor="%s",fontsize=%s,fontname="%s"]\n' % (c[0],c[2],c[3],self.options['color_inputtag'],self.options['color_inputtag'],self.options['font_size'],self.options['font_name'])
       else:
         result += '%s->%s[color="%s"]\n' % (c[0],c[2],self.options['color_inputtag'])
     return result
@@ -227,6 +227,8 @@ class DotProducer(object):
   def produceNodes(self):
     result=''
     for n in self.nodes:
+      self.nodes[n]['n_fontname']=self.options['font_name']
+      self.nodes[n]['n_fontsize']=self.options['font_size']
       if self.options['url']:
         self.nodes[n]['n_URL']=self.nodeURL(nodes[n]['obj'])
       result += "%s[%s]\n" % (n,','.join(['%s="%s"' % (k[2:],v) for k,v in self.nodes[n].items() if k[0:2]=='n_']))
@@ -253,10 +255,10 @@ class DotProducer(object):
       if self.options['es'] or self.options['services']:
         blocks += [self.produceServices()]
       blocks += [self.produceNodes()]
-      return 'digraph configbrowse {\nsubgraph clusterProcess {\nlabel="%s\\n%s"\n%s\n}\n}\n' % (self.data.process().name_(),self.data._filename,'\n'.join(blocks))
+      return 'digraph configbrowse {\nsubgraph clusterProcess {\nlabel="%s\\n%s"\nfontsize=%s\nfontname="%s"\n%s\n}\n}\n' % (self.data.process().name_(),self.data._filename,self.options['font_size'],self.options['font_name'],'\n'.join(blocks))
     else:
       blocks += [self.produceNodes()]
-      return 'digraph configbrowse {\nsubgraph clusterCFF {\nlabel="%s"\n%s\n}\n}\n' % (self.data._filename,'\n'.join(blocks))
+      return 'digraph configbrowse {\nsubgraph clusterCFF {\nlabel="%s"\nfontsize=%s\nfontname="%s"\n%s\n}\n}\n' % (self.data._filename,self.options['font_size'],self.options['font_name'],'\n'.join(blocks))
   
   
 
@@ -286,7 +288,9 @@ class DotExport(FileExportPlugin):
     'urlprocess':('Postprocess URL (for client-side imagemaps)','boolean',False), #see processMap documentation; determines whether to treat 'urlbase' as a dictionary for building a more complex imagemap or a simple URL
     'urlbase':('URL to generate','string',"{'split_x':1,'split_y':2,'scale_x':1.,'scale_y':1.,'cells':[{'top':0,'left':0,'width':1,'height':1,'html_href':'http://cmslxr.fnal.gov/lxr/ident/?i=$classname','html_alt':'LXR','html_class':'LXR'},{'top':1,'left':0,'width':1,'height':1,'html_href':'http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/$pypath?view=markup#l$pyline','html_alt':'CVS','html_class':'CVS'}]}"), #CVS markup view doesn't allow line number links, only annotate view (which doesn't then highlight the code...)
     'node_graphs':('Produce individual graphs focussing on each node','boolean',False),
-    'node_depth':('Search depth for individual node graphs','int',1)
+    'node_depth':('Search depth for individual node graphs','int',1),
+    'font_name':('Font name','string','Times-Roman'),
+    'font_size':('Font size','int',8)
   }
   plugin_name='DOT Export'
   file_types=('bmp','dot','eps','gif','jpg','pdf','png','ps','svg','tif','png+map')
