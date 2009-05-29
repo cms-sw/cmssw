@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.18 2008/07/09 16:27:48 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.19 2009/05/29 12:58:50 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/plugins/SiStripCommissioningOfflineDbClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -31,7 +31,7 @@ SiStripCommissioningOfflineDbClient::SiStripCommissioningOfflineDbClient( const 
     uploadFecSettings_( pset.getUntrackedParameter<bool>("UploadFecSettings",true) ),
     uploadFedSettings_( pset.getUntrackedParameter<bool>("UploadFedSettings",true) ),
     disableDevices_( pset.getUntrackedParameter<bool>("DisableDevices",false) ),
-    disableStrips_( pset.getUntrackedParameter<bool>("DisableStrips",false) )
+    disableBadStrips_( pset.getUntrackedParameter<bool>("DisableBadStrips",false) )
 {
   LogTrace(mlDqmClient_)
     << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
@@ -141,7 +141,7 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
     tmp->doUploadConf( uploadConf_ ); 
     tmp->doUploadAnal( uploadAnal_ ); 
     tmp->disableDevices( disableDevices_ );
-    tmp->disableStrips( disableStrips_ );
+    tmp->disableBadStrips( disableBadStrips_ );
     std::stringstream ss;
     ss << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]" 
        << std::endl
@@ -155,7 +155,7 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
        << ( tmp->disableDevices() ? "true" : "false" )
        << std::endl
        << " Disable dead/noisy strips?            : " 
-       << ( tmp->disableStrips() ? "true" : "false" );
+       << ( tmp->disableBadStrips() ? "true" : "false" );
     edm::LogVerbatim(mlDqmClient_) << ss.str();
   } else {
     edm::LogError(mlDqmClient_) 

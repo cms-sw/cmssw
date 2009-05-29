@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.15 2009/04/06 16:52:42 lowette Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.16 2009/05/29 12:58:18 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
@@ -26,7 +26,9 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
     detInfo_(),
     disabled_(),
     uploadAnal_(true),
-    uploadConf_(false)
+    uploadConf_(false),
+    disableDevices_(false),
+    disableBadStrips_(false)
 {
   LogTrace(mlDqmClient_) 
     << "[" << __PRETTY_FUNCTION__ << "]"
@@ -69,7 +71,9 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
     detInfo_(),
     disabled_(),
     uploadAnal_(true),
-    uploadConf_(false)
+    uploadConf_(false),
+    disableDevices_(false),
+    disableBadStrips_(false)
 {
   LogTrace(mlDqmClient_) 
     << "[" << __PRETTY_FUNCTION__ << "]"
@@ -110,7 +114,9 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb()
     detInfo_(),
     disabled_(),
     uploadAnal_(false),
-    uploadConf_(false)
+    uploadConf_(false),
+    disableDevices_(false),
+    disableBadStrips_(false)
 {
   LogTrace(mlDqmClient_) 
     << "[" << __PRETTY_FUNCTION__ << "]"

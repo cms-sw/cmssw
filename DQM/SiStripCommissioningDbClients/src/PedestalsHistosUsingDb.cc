@@ -1,4 +1,4 @@
-// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.20 2009/04/06 16:52:42 lowette Exp $
+// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.21 2009/05/29 12:59:24 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedestalsAnalysis.h"
@@ -148,7 +148,7 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
 					       high_threshold, 
 					       low_threshold, 
 					       anal->noise()[iapv][istr],
-					       disableStrips() && disable_strip );
+					       disableBadStrips() && disable_strip );
 	    Fed9U::Fed9UAddress addr( ichan, iapv, istr );
 
 	    std::stringstream ss;
