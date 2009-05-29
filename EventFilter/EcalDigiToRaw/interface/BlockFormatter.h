@@ -46,6 +46,7 @@ class BlockFormatter {
 	int* porbit_number_;
 	int* pbx_;
 	int* plv1_;
+	int* dccFOV_;
 	int* prunnumber_;
 
 
