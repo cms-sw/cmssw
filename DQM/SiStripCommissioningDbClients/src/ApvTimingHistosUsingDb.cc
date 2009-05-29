@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.23 2008/07/09 16:25:07 bainbrid Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.24 2009/04/06 16:52:42 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
@@ -213,8 +213,8 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
     if ( coarse != sistrip::invalid_ && 
 	 fine != sistrip::invalid_ ) { 
       
+      std::stringstream ss;
       if ( edm::isDebugEnabled() ) {
-	std::stringstream ss;
 	ss << "[ApvTimingHistosUsingDb::" << __func__ << "]"
 	   << " Updating coarse/fine PLL settings"
 	   << " for crate/FEC/ring/CCU/module "
@@ -226,15 +226,17 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
 	   << " from "
 	   << static_cast<uint16_t>( desc->getDelayCoarse() ) << "/" 
 	   << static_cast<uint16_t>( desc->getDelayFine() );
-	desc->setDelayCoarse(coarse);
-	desc->setDelayFine(fine);
-	updated++;
+      }
+      desc->setDelayCoarse(coarse);
+      desc->setDelayFine(fine);
+      updated++;
+      if ( edm::isDebugEnabled() ) {
 	ss << " to "
 	   << static_cast<uint16_t>( desc->getDelayCoarse() ) << "/" 
 	   << static_cast<uint16_t>( desc->getDelayFine() );
 	LogTrace(mlDqmClient_) << ss.str();
       }
-
+      
     } else {
       edm::LogWarning(mlDqmClient_) 
 	<< "[ApvTimingHistosUsingDb::" << __func__ << "]"
