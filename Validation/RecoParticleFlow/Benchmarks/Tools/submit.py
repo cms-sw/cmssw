@@ -7,6 +7,8 @@ import shutil, sys, os, valtools
 from optparse import OptionParser
 
 
+    
+
 parser = OptionParser()
 parser.usage = "usage: %prog"
 
@@ -20,6 +22,8 @@ parser.add_option("-f", "--force", dest="force",action="store_true",
 
 
 (options,args) = parser.parse_args()
+
+
  
 if len(args)!=0:
     parser.print_help()
@@ -28,23 +32,46 @@ if len(args)!=0:
 
 website = valtools.website()
 bench = valtools.benchmark( options.extension ) 
-
 print 'submitting benchmark:', bench
+
+comparisons = website.listComparisons( bench )
+if len(comparisons)>0:
+    print 'You are about to make the following list of comparison pages obsolete. These pages will thus be removed:' 
+    print comparisons
+
+    answer = None
+    while answer != 'y' and answer != 'n':
+        answer = raw_input('do you agree? [y/n]')
+
+        if answer == 'n':
+            sys.exit(0)
 
 # check that the user can write in the website
 website.writeAccess()
 bench.makeRelease( website )
 
 
-if( bench.exists( website ) == True and options.force == False ):
-    print 'please use the -e option to choose another extension'
-    print '  e.g: submit.py -e Feb10'
-    print 'or force it using the -f option'
-else:
-    print bench, bench.benchmarkOnWebSite(website)
-    if(options.force==True):
+if bench.exists( website ) == True:
+    if options.force == False:
+        print 'please use the -e option to choose another extension'
+        print '  e.g: submit.py -e Feb10'
+        print 'or force it.'
+        sys.exit(1)
+    else:
+        print 'overwriting...'
         shutil.rmtree(bench.benchmarkOnWebSite(website))
-    shutil.copytree(bench.__str__(), bench.benchmarkOnWebSite(website) ) 
-    print 'done. Access your benchmark here:'
-    print bench.benchmarkUrl( website )
+
+
+# local benchmark. this one does not have an extension!
+localBench = valtools.benchmark()
+
+shutil.copytree(localBench.fullName(), bench.benchmarkOnWebSite(website) )
+print 'done. Access your benchmark here:'
+print bench.benchmarkUrl( website )
+    
+# removing comparisons
+# COMPARISONS COULD ALSO BE REDONE. 
+for comparison in comparisons:
+    rm = 'rm -rf '+comparison
+    os.system(rm)
     

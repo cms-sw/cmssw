@@ -228,7 +228,8 @@ public:
   const TLegend& Legend() {return legend_;}
   
   // set the styles for further plots
-  void SetStyles( Style* s0, Style* s1,
+  void SetStyles( Style* s0, 
+		  Style* s1,
 		  const char* leg0,
 		  const char* leg1) { 
     s0_ = s0; 
