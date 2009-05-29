@@ -34,7 +34,7 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('RecoMuons.root')
 )
 
-process.p = cms.Path(process.muonreco_plus_isolation)
+process.p = cms.Path(process.muonrecoComplete)
 
 process.this_is_the_end = cms.EndPath(process.out)
 
