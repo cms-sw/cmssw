@@ -1,7 +1,9 @@
 #ifndef GsfElectronAlgo_H
 #define GsfElectronAlgo_H
 
-/** \class GsfElectronAlgo
+/************************************************************
+
+  \class GsfElectronAlgo
 
   Top algorithm producing GsfElectron objects from supercluster driven Gsf tracking
 
@@ -12,10 +14,25 @@
  ************************************************************/
 
 //class ElectronHcalHelper ;
+class MultiTrajectoryStateTransform ;
+class MultiTrajectoryStateMode ;
 
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/GsfTracking/interface/GsfConstraintAtVertex.h"
+
+#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
@@ -26,34 +43,17 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Event.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include <list>
-
-class MultiTrajectoryStateTransform;
-class MultiTrajectoryStateMode;
-//class GsfConstraintAtVertex;
-#include "TrackingTools/GsfTracking/interface/GsfConstraintAtVertex.h"
 
 class GsfElectronAlgo {
 
   public:
 
-    GsfElectronAlgo(
+    GsfElectronAlgo
+     (
       const edm::ParameterSet & conf,
       double minSCEtBarrel, double minSCEtEndcaps,
       double maxEOverPBarrel, double maxEOverPEndcaps,
@@ -77,13 +77,16 @@ class GsfElectronAlgo {
       double maxFbremBarrelPflow, double maxFbremEndcapsPflow,
       bool isBarrelPflow, bool isEndcapsPflow, bool isFiducialPflow,
       double minMVAPflow, double maxTIPPflow,
-      bool applyPreselection, bool applyEtaCorrection, bool applyAmbResolution,
+      bool applyPreselection, bool applyEtaCorrection,
+
       bool addPflowElectrons,
       double intRadiusTk, double ptMinTk, double maxVtxDistTk, double maxDrbTk,
       double intRadiusHcal, double etMinHcal,
       double intRadiusEcalBarrel, double intRadiusEcalEndcaps, double jurassicWidth,
       double etMinBarrel, double eMinBarrel, double etMinEndcaps, double eMinEndcaps,
-      bool vetoClustered, bool useNumCrystals) ;
+      bool vetoClustered, bool useNumCrystals,
+      bool applyAmbResolution, unsigned ambSortingStrategy =1, unsigned ambClustersOverlapStrategy =1
+     ) ;
 
     ~GsfElectronAlgo() ;
 
@@ -92,22 +95,20 @@ class GsfElectronAlgo {
 
   private :
 
-    // temporary collection of electrons
+    // for temporary collection of electrons
     typedef std::list<reco::GsfElectron *> GsfElectronPtrCollection ;
 
     // create electrons from superclusters, tracks and Hcal rechits
     void process
-     ( //edm::Handle<reco::GsfTrackCollection> gsfTracksH,
-       edm::Handle<reco::GsfElectronCoreCollection> coresH,
+     ( edm::Handle<reco::GsfElectronCoreCollection> coresH,
        edm::Handle<reco::TrackCollection> ctfTracksH,
        edm::Handle<edm::ValueMap<float> > pfMVAH,
        edm::Handle<CaloTowerCollection> towersH,
        edm::Handle<EcalRecHitCollection> reducedEBRecHits,
        edm::Handle<EcalRecHitCollection> reducedEERecHits,
        const reco::BeamSpot &bs,
-       GsfElectronPtrCollection & outEle);
+       GsfElectronPtrCollection & outEle ) ;
 
-    // interface to be improved...
     void createElectron
      ( const reco::GsfElectronCoreRef & coreRef,
        const reco::CaloClusterPtr & elbcRef,
@@ -121,34 +122,25 @@ class GsfElectronAlgo {
        edm::Handle<EcalRecHitCollection> reducedEBRecHits,edm::Handle<EcalRecHitCollection> reducedEERecHits,
        float mva, GsfElectronPtrCollection & outEle ) ;
 
-    void preselectElectrons( GsfElectronPtrCollection &, GsfElectronPtrCollection & outEle, const reco::BeamSpot& ) ;
+    void preselectElectrons( GsfElectronPtrCollection & inEle, GsfElectronPtrCollection & outEle, const reco::BeamSpot& ) ;
 
-    //void resolveElectrons( GsfElectronPtrCollection &, reco::GsfElectronCollection & outEle ) ;
     void resolveElectrons( GsfElectronPtrCollection &, reco::GsfElectronCollection & outEle,
        edm::Handle<EcalRecHitCollection> & reducedEBRecHits,
-       edm::Handle<EcalRecHitCollection> & reducedEERecHits );
+       edm::Handle<EcalRecHitCollection> & reducedEERecHits ) ;
 
     //Gsf mode calculations
-    GlobalVector computeMode(const TrajectoryStateOnSurface &tsos);
+    GlobalVector computeMode( const TrajectoryStateOnSurface & tsos ) ;
 
     // associations
-    const reco::SuperClusterRef getTrSuperCluster(const reco::GsfTrackRef & trackRef);
+    const reco::SuperClusterRef getTrSuperCluster(const reco::GsfTrackRef & trackRef );
 
-    const reco::CaloClusterPtr getEleBasicCluster(const reco::GsfTrackRef &
-     trackRef, const reco::SuperCluster *scRef);
+    const reco::CaloClusterPtr getEleBasicCluster(const reco::GsfTrackRef & trackRef,
+      const reco::SuperCluster * scRef) ;
 
     // From Puneeth Kalavase : returns the CTF track that has the highest fraction
     // of shared hits in Pixels and the inner strip tracker with the electron Track
     std::pair<reco::TrackRef,float> getCtfTrackRef
      ( const reco::GsfTrackRef &, edm::Handle<reco::TrackCollection> ctfTracksH ) ;
-    int sharedHits ( const reco::GsfTrackRef &, const reco::GsfTrackRef & ) ;
-    int sharedDets ( const reco::GsfTrackRef &, const reco::GsfTrackRef & ) ;
-    float sharedEnergy ( const reco::CaloCluster *, const reco::CaloCluster*, 
-       edm::Handle<EcalRecHitCollection> & reducedEBRecHits,
-       edm::Handle<EcalRecHitCollection> & reducedEERecHits );
-    float sharedEnergy ( const reco::SuperClusterRef &, const reco::SuperClusterRef &, 
-       edm::Handle<EcalRecHitCollection> & reducedEBRecHits,
-       edm::Handle<EcalRecHitCollection> & reducedEERecHits );
 
     // intermediate calculations
     bool calculateTSOS(const reco::GsfTrack &t,const reco::SuperCluster & theClus, const
@@ -249,8 +241,11 @@ class GsfElectronAlgo {
     // of the cluster level corrections
     bool applyEtaCorrection_;
 
-    // if this parameter is true, "double" electrons are resolved
-    bool applyAmbResolution_;
+    // ambiguity solving
+    bool applyAmbResolution_ ; // if not true, ambiguity solving is not applied
+    unsigned ambSortingStrategy_ ; // 0:isBetter, 1:isInnerMost (the default)
+    unsigned ambClustersOverlapStrategy_ ; // 0:adresses, 1:basic shared energy (the default)
+
 
     // if this parameter is true, trackerDriven electrons are added
     bool addPflowElectrons_;
@@ -310,40 +305,6 @@ class GsfElectronAlgo {
     unsigned long long cacheIDMagField_;
 
  } ;
-
-struct innermost_electron {
-
-  innermost_electron(edm::ESHandle<TrackerGeometry> &geom): trackerHandle_(geom) {}
-
-  bool operator()( const reco::GsfElectron * e1, const reco::GsfElectron * e2 )
-   { 
-    reco::HitPattern gsfHitPattern1 = e1->gsfTrack()->hitPattern();
-    reco::HitPattern gsfHitPattern2 = e2->gsfTrack()->hitPattern();
-    // retreive first valid hit
-    int gsfHitCounter1 = 1;
-    for(trackingRecHit_iterator elHitsIt1 = e1->gsfTrack()->recHitsBegin();
-          elHitsIt1 != e1->gsfTrack()->recHitsEnd(); elHitsIt1++, gsfHitCounter1++) {
-	if(((**elHitsIt1).isValid())) break;
-    }
-    int gsfHitCounter2 = 1;
-    for(trackingRecHit_iterator elHitsIt2 = e2->gsfTrack()->recHitsBegin();
-          elHitsIt2 != e2->gsfTrack()->recHitsEnd(); elHitsIt2++, gsfHitCounter2++) {
-	if(((**elHitsIt2).isValid())) break;
-    } 
-    uint32_t gsfHit1 = gsfHitPattern1.getHitPattern(gsfHitCounter1);
-    uint32_t gsfHit2 = gsfHitPattern2.getHitPattern(gsfHitCounter2);
-    if (gsfHitPattern1.getSubStructure(gsfHit1)!=gsfHitPattern2.getSubStructure(gsfHit2)) {
-     return (gsfHitPattern1.getSubStructure(gsfHit1)<gsfHitPattern2.getSubStructure(gsfHit2)); 
-    } else if (gsfHitPattern1.getLayer(gsfHit1)!=gsfHitPattern2.getLayer(gsfHit2)) {
-     return gsfHitPattern1.getLayer(gsfHit1)<gsfHitPattern2.getLayer(gsfHit2);
-    } else {
-    return (fabs(e1->eSuperClusterOverP()-1)<fabs(e2->eSuperClusterOverP()-1));
-   }
- }
-
- edm::ESHandle<TrackerGeometry> trackerHandle_;
- 
-};
 
 #endif // GsfElectronAlgo_H
 

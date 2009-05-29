@@ -12,18 +12,19 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.66 2009/05/27 07:31:22 fabiocos Exp $
+// $Id: GsfElectronAlgo.cc,v 1.68 2009/05/27 14:08:24 fabiocos Exp $
 //
 //
 
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/EgAmbiguityTools.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronClassification.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronMomentumCorrector.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronEnergyCorrector.h"
 //#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
 
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
@@ -102,13 +103,15 @@ GsfElectronAlgo::GsfElectronAlgo
    double maxFbremBarrelPflow, double maxFbremEndcapsPflow,
    bool isBarrelPflow, bool isEndcapsPflow, bool isFiducialPflow,
    double minMVAPflow, double maxTIPPflow,
-   bool applyPreselection, bool applyEtaCorrection, bool applyAmbResolution,
+   bool applyPreselection, bool applyEtaCorrection,
    bool addPflowElectrons,
    double intRadiusTk, double ptMinTk, double maxVtxDistTk, double maxDrbTk,
    double intRadiusHcal, double etMinHcal,
    double intRadiusEcalBarrel, double intRadiusEcalEndcaps, double jurassicWidth,
    double etMinBarrel, double eMinBarrel, double etMinEndcaps, double eMinEndcaps,
-   bool vetoClustered, bool useNumCrystals)
+   bool vetoClustered, bool useNumCrystals,
+   bool applyAmbResolution, unsigned ambSortingStrategy, unsigned ambClustersOverlapStrategy
+ )
  : minSCEtBarrel_(minSCEtBarrel), minSCEtEndcaps_(minSCEtEndcaps), maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps),
    minEOverPBarrel_(minEOverPBarrel), minEOverPEndcaps_(minEOverPEndcaps),
    maxDeltaEtaBarrel_(maxDeltaEtaBarrel), maxDeltaEtaEndcaps_(maxDeltaEtaEndcaps),
@@ -130,13 +133,14 @@ GsfElectronAlgo::GsfElectronAlgo
    maxFbremBarrelPflow_(maxFbremBarrelPflow), maxFbremEndcapsPflow_(maxFbremEndcapsPflow),
    isBarrelPflow_(isBarrelPflow), isEndcapsPflow_(isEndcapsPflow), isFiducialPflow_(isFiducialPflow),
    minMVAPflow_(minMVAPflow), maxTIPPflow_(maxTIPPflow),
-   applyPreselection_(applyPreselection), applyEtaCorrection_(applyEtaCorrection), applyAmbResolution_(applyAmbResolution),
+   applyPreselection_(applyPreselection), applyEtaCorrection_(applyEtaCorrection),
    addPflowElectrons_(addPflowElectrons),
    intRadiusTk_(intRadiusTk), ptMinTk_(ptMinTk),  maxVtxDistTk_(maxVtxDistTk),  maxDrbTk_(maxDrbTk),
    intRadiusHcal_(intRadiusHcal), etMinHcal_(etMinHcal), intRadiusEcalBarrel_(intRadiusEcalBarrel),  intRadiusEcalEndcaps_(intRadiusEcalEndcaps),  jurassicWidth_(jurassicWidth),
    etMinBarrel_(etMinBarrel),  eMinBarrel_(eMinBarrel),  etMinEndcaps_(etMinEndcaps),  eMinEndcaps_(eMinEndcaps),
    vetoClustered_(vetoClustered), useNumCrystals_(useNumCrystals),
-   cacheIDGeom_(0),cacheIDTopo_(0),cacheIDTDGeom_(0),cacheIDMagField_(0)
+   cacheIDGeom_(0),cacheIDTopo_(0),cacheIDTDGeom_(0),cacheIDMagField_(0),
+   applyAmbResolution_(applyAmbResolution), ambSortingStrategy_(ambSortingStrategy), ambClustersOverlapStrategy_(ambClustersOverlapStrategy)
  {
   // this is the new version allowing to configurate the algo
   // interfaces still need improvement!!
@@ -812,7 +816,7 @@ void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::
  {
   GsfElectronPtrCollection::iterator e1, e2 ;
   //inEle.sort(better_electron) ;
-  inEle.sort(innermost_electron(trackerHandle_)) ;
+  inEle.sort(EgAmbiguityTools::isInnerMost(trackerHandle_)) ;
 
   // resolve when e/g SC is found
   for( e1 = inEle.begin() ;  e1 != inEle.end() ; ++e1 )
@@ -829,10 +833,10 @@ void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::
       SuperClusterRef scRef2 = (*e2)->superCluster();
       CaloClusterPtr eleClu2 = getEleBasicCluster((*e2)->gsfTrack(),&(*scRef2));
 //      if (scRef1==scRef2)
-      if (sharedEnergy(&(*eleClu1),&(*eleClu2),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta()) ||
-        (sharedEnergy(&(*scRef1->seed()),&(*eleClu2),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta())) ||
-        (sharedEnergy(&(*eleClu1),&(*scRef2->seed()),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta())) ||
-        (sharedEnergy(&(*scRef1->seed()),&(*scRef2->seed()),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta())))
+      if (EgAmbiguityTools::sharedEnergy(&(*eleClu1),&(*eleClu2),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta()) ||
+        (EgAmbiguityTools::sharedEnergy(&(*scRef1->seed()),&(*eleClu2),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta())) ||
+        (EgAmbiguityTools::sharedEnergy(&(*eleClu1),&(*scRef2->seed()),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta())) ||
+        (EgAmbiguityTools::sharedEnergy(&(*scRef1->seed()),&(*scRef2->seed()),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta())))
        {
         LogDebug("GsfElectronAlgo")
           << "Discarding electron with E/P " << (*e2)->eSuperClusterOverP()
@@ -948,144 +952,3 @@ pair<TrackRef,float> GsfElectronAlgo::getCtfTrackRef(const GsfTrackRef& gsfTrack
   return make_pair(ctfTrackRef,maxFracShared) ;
  }
 
-int GsfElectronAlgo::sharedHits(const GsfTrackRef& gsfTrackRef1, const
-GsfTrackRef& gsfTrackRef2 ) {
-
-  //get the Hit Pattern for the gsfTracks
-  const HitPattern& gsfHitPattern1 = gsfTrackRef1->hitPattern();
-  const HitPattern& gsfHitPattern2 = gsfTrackRef2->hitPattern();
-  
-  unsigned int shared = 0;
-
-  int gsfHitCounter1 = 0;
-  for(trackingRecHit_iterator elHitsIt1 = gsfTrackRef1->recHitsBegin();
-      elHitsIt1 != gsfTrackRef1->recHitsEnd(); elHitsIt1++, gsfHitCounter1++) {
-    if(!((**elHitsIt1).isValid()))  //count only valid Hits
-      continue;
-    //if (gsfHitCounter1>1) continue; // test only the first hit of the track 1
-    uint32_t gsfHit = gsfHitPattern1.getHitPattern(gsfHitCounter1);
-    if(!(gsfHitPattern1.pixelHitFilter(gsfHit) 
-	 || gsfHitPattern1.stripTIBHitFilter(gsfHit) 
-	 || gsfHitPattern1.stripTOBHitFilter(gsfHit) 
-	 || gsfHitPattern1.stripTECHitFilter(gsfHit) 
-	 || gsfHitPattern1.stripTIDHitFilter(gsfHit) ) 
-    ) continue;
-    int gsfHitsCounter2 = 0;
-    for(trackingRecHit_iterator gsfHitsIt2 = gsfTrackRef2->recHitsBegin();
-        gsfHitsIt2 != gsfTrackRef2->recHitsEnd(); gsfHitsIt2++, gsfHitsCounter2++) {
-      if(!((**gsfHitsIt2).isValid())) //count only valid Hits!
-	continue;
-
-      uint32_t gsfHit2 = gsfHitPattern2.getHitPattern(gsfHitsCounter2);
-      if(!(gsfHitPattern2.pixelHitFilter(gsfHit2) 
-	 || gsfHitPattern2.stripTIBHitFilter(gsfHit2) 
-	 || gsfHitPattern2.stripTOBHitFilter(gsfHit2) 
-	 || gsfHitPattern2.stripTECHitFilter(gsfHit2) 
-	 || gsfHitPattern2.stripTIDHitFilter(gsfHit2) ) 
-      ) continue;
-      if( (**elHitsIt1).sharesInput(&(**gsfHitsIt2), TrackingRecHit::some) ) {
-//        if (comp.equals(&(**elHitsIt1),&(**gsfHitsIt2))) {
-        //std::cout << "found shared hit " << gsfHit2 << std::endl;
-  	shared++;
-      }
-    }//gsfHits2 iterator
-  }//gsfHits1 iterator
-     
-  //std::cout << "[sharedHits] number of shared hits " << shared << std::endl;  
-  return shared;
-
-}
-
-int GsfElectronAlgo::sharedDets(const GsfTrackRef& gsfTrackRef1, const
- GsfTrackRef& gsfTrackRef2 ) {
-
-  //get the Hit Pattern for the gsfTracks
-  const HitPattern& gsfHitPattern1 = gsfTrackRef1->hitPattern();
-  const HitPattern& gsfHitPattern2 = gsfTrackRef2->hitPattern();
-  
-  unsigned int shared = 0;
-
-  int gsfHitCounter1 = 0;
-  for(trackingRecHit_iterator elHitsIt1 = gsfTrackRef1->recHitsBegin();
-      elHitsIt1 != gsfTrackRef1->recHitsEnd(); elHitsIt1++, gsfHitCounter1++) {
-    if(!((**elHitsIt1).isValid()))  //count only valid Hits
-      continue;
-    //if (gsfHitCounter1>1) continue; // to test only the first hit of the track 1
-    uint32_t gsfHit = gsfHitPattern1.getHitPattern(gsfHitCounter1);
-    if(!(gsfHitPattern1.pixelHitFilter(gsfHit) 
-	 || gsfHitPattern1.stripTIBHitFilter(gsfHit) 
-	 || gsfHitPattern1.stripTOBHitFilter(gsfHit) 
-	 || gsfHitPattern1.stripTECHitFilter(gsfHit) 
-	 || gsfHitPattern1.stripTIDHitFilter(gsfHit) ) 
-    ) continue;
-    int gsfHitsCounter2 = 0;
-    for(trackingRecHit_iterator gsfHitsIt2 = gsfTrackRef2->recHitsBegin();
-        gsfHitsIt2 != gsfTrackRef2->recHitsEnd(); gsfHitsIt2++, gsfHitsCounter2++) {
-      if(!((**gsfHitsIt2).isValid())) //count only valid Hits!
-	continue;
-
-      uint32_t gsfHit2 = gsfHitPattern2.getHitPattern(gsfHitsCounter2);
-      if(!(gsfHitPattern2.pixelHitFilter(gsfHit2) 
-	   || gsfHitPattern2.stripTIBHitFilter(gsfHit2) 
-	   || gsfHitPattern1.stripTOBHitFilter(gsfHit2) 
-	   || gsfHitPattern2.stripTECHitFilter(gsfHit2) 
-	   || gsfHitPattern2.stripTIDHitFilter(gsfHit2) ) 
-      ) continue;
-      if ((**elHitsIt1).geographicalId() == (**gsfHitsIt2).geographicalId()) shared++;
-    }//gsfHits2 iterator
-  }//gsfHits1 iterator
-     
-  //std::cout << "[sharedHits] number of shared dets " << shared << std::endl; 
-  //return shared/min(gsfTrackRef1->numberOfValidHits(),gsfTrackRef2->numberOfValidHits());
-  return shared;
-
-}
-
-float GsfElectronAlgo::sharedEnergy(const CaloCluster *clu1, const CaloCluster *clu2,
-       edm::Handle<EcalRecHitCollection> & reducedEBRecHits,
-       edm::Handle<EcalRecHitCollection> & reducedEERecHits ) {
-
-  double fractionShared = 0;
-
-  std::vector< std::pair<DetId, float> > v_id1 = clu1->hitsAndFractions();
-  std::vector< std::pair<DetId, float> > v_id2 = clu2->hitsAndFractions();
-  std::vector< std::pair<DetId, float> >::iterator ih1;
-  std::vector< std::pair<DetId, float> >::iterator ih2;
-
-  for(ih1 = v_id1.begin();ih1 != v_id1.end(); ih1++) {
-
-    for(ih2 = v_id2.begin();ih2 != v_id2.end(); ih2++) {
-
-      if ( (*ih1).first != (*ih2).first ) continue;
-
-      // here we have common Xtal id	
-      EcalRecHitCollection::const_iterator itt;
-      if ((*ih1).first.subdetId() == EcalBarrel) {
-	if ((itt=reducedEBRecHits->find((*ih1).first))!=reducedEBRecHits->end())
-	fractionShared += itt->energy();
-      } else if ((*ih1).first.subdetId() == EcalEndcap) {
-	if ((itt=reducedEERecHits->find((*ih1).first))!=reducedEERecHits->end())
-	fractionShared += itt->energy();
-      }
-
-    }
-  }
-  
-  //std::cout << "[sharedEnergy] shared energy /min(energy1,energy2) " << fractionShared << std::endl;       
-  return fractionShared;
-
-}
-
-float GsfElectronAlgo::sharedEnergy(const SuperClusterRef& sc1, const SuperClusterRef& sc2,
-       edm::Handle<EcalRecHitCollection> & reducedEBRecHits,
-       edm::Handle<EcalRecHitCollection> & reducedEERecHits ) {
-
-  double energyShared = 0;
-  for(CaloCluster_iterator icl1=sc1->clustersBegin();icl1!=sc1->clustersEnd(); icl1++) {   
-    for(CaloCluster_iterator icl2=sc2->clustersBegin();icl2!=sc2->clustersEnd(); icl2++) {
-      energyShared += sharedEnergy(&(**icl1),&(**icl2),reducedEBRecHits,reducedEERecHits );	
-    }
-  }
-  return energyShared;
-  
-}
