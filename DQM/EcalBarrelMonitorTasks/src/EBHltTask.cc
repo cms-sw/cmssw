@@ -1,8 +1,8 @@
 /*
  * \file EBHltTask.cc
  *
- * $Date: 2008/12/03 12:55:49 $
- * $Revision: 1.8 $
+ * $Date: 2009/05/29 16:57:06 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -81,7 +81,7 @@ void EBHltTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/FEDIntegrity");
   }
 
-  initGeometry(c, false);
+  initGeometry(c);
 
 }
 
@@ -161,6 +161,7 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
+  // ECAL barrel FEDs
   int EBFirstFED=610;
 
   int FedsSizeErrors[36];
@@ -188,7 +189,6 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
   if ( e.getByLabel(FEDRawDataCollection_, allFedRawData) ) {
 
-    // ECAL barrel FEDs
     for ( int ism=1; ism<=36; ism++ ) {
       
       const FEDRawData& fedData = allFedRawData->FEDData( EBFirstFED + ism - 1 );
@@ -404,11 +404,9 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
 //-------------------------------------------------------------------------
 
-void EBHltTask::initGeometry( const edm::EventSetup& setup, bool verbose ) {
+void EBHltTask::initGeometry( const edm::EventSetup& setup ) {
 
   if( initGeometry_ ) return;
-
-  if ( verbose ) std::cout << "Initializing EcalElectronicsMapping ..." << std::endl;
 
   initGeometry_ = true;
 
@@ -416,29 +414,22 @@ void EBHltTask::initGeometry( const edm::EventSetup& setup, bool verbose ) {
   setup.get< EcalMappingRcd >().get(handle);
   map = handle.product();
 
-  if ( verbose ) std::cout << "done." << std::endl;
+  if( ! map ) LogWarning("EBHltTask") << "EcalElectronicsMapping not available";
 
 }
 
 int EBHltTask::iSM( const EBDetId& id ) {
 
-  if( map ) {
+  if( ! map ) return -1;
 
-    EcalElectronicsId eid = map->getElectronicsId(id);
-    int idcc = eid.dccId();
+  EcalElectronicsId eid = map->getElectronicsId(id);
+  int idcc = eid.dccId();
 
-    // EB-/EB+
-    if( idcc >= 10 && idcc <= 45 ) return( idcc - 9 );
+  // EB-/EB+
+  if( idcc >= 10 && idcc <= 45 ) return( idcc - 9 );
 
-    LogWarning("EBHltTask") << "Wrong DCC id: dcc = " << idcc;
-    return -1;
-
-  } else {
-
-    LogWarning("EBHltTask") << "ECAL Geometry not available";
-    return -1;
-
-  }
+  LogWarning("EBHltTask") << "Wrong DCC id: dcc = " << idcc;
+  return -1;
 
 }
 
@@ -448,11 +439,9 @@ int EBHltTask::iSM( const EcalElectronicsId& id ) {
 
   // EB-/EB+
   if( idcc >= 10 && idcc <= 45 ) return( idcc - 9 );
-  else {
-    LogWarning("EBHltTask") << "Wrong DCC id: dcc = " << idcc;
-    return -1;
-  }
+
+  LogWarning("EBHltTask") << "Wrong DCC id: dcc = " << idcc;
+  return -1;
 
 }
 
-//-------------------------------------------------------------------------

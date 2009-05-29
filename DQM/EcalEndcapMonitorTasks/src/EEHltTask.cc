@@ -1,8 +1,8 @@
 /*
  * \file EEHltTask.cc
  *
- * $Date: 2008/12/03 12:55:49 $
- * $Revision: 1.9 $
+ * $Date: 2009/05/29 16:58:10 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -81,7 +81,7 @@ void EEHltTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/FEDIntegrity");
   }
 
-  initGeometry(c, false);
+  initGeometry(c);
 
 }
 
@@ -186,7 +186,6 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 //    LogWarning("EEHltTask") << EEDetIdCollection0_ << " not available";
 
   }
-
 
   edm::Handle<FEDRawDataCollection> allFedRawData;
 
@@ -424,11 +423,9 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
 //-------------------------------------------------------------------------
 
-void EEHltTask::initGeometry( const edm::EventSetup& setup, bool verbose ) {
+void EEHltTask::initGeometry( const edm::EventSetup& setup ) {
 
   if( initGeometry_ ) return;
-
-  if ( verbose ) std::cout << "Initializing EcalElectronicsMapping ..." << std::endl;
 
   initGeometry_ = true;
 
@@ -436,32 +433,25 @@ void EEHltTask::initGeometry( const edm::EventSetup& setup, bool verbose ) {
   setup.get< EcalMappingRcd >().get(handle);
   map = handle.product();
 
-  if ( verbose ) std::cout << "done." << std::endl;
+  if( ! map ) LogWarning("EEHltTask") << "EcalElectronicsMapping not available";
 
 }
 
 int EEHltTask::iSM( const EEDetId& id ) {
 
-  if( map ) {
+  if( ! map ) return -1;
 
-    EcalElectronicsId eid = map->getElectronicsId(id);
-    int idcc = eid.dccId();
+  EcalElectronicsId eid = map->getElectronicsId(id);
+  int idcc = eid.dccId();
 
-    // EE-
-    if( idcc >=  1 && idcc <=  9 ) return( idcc );
+  // EE-
+  if( idcc >=  1 && idcc <=  9 ) return( idcc );
 
-    // EE+
-    if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
+  // EE+
+  if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
 
-    LogWarning("EEHltTask") << "Wrong DCC id: dcc = " << idcc;
-    return -1;
-
-  } else {
-
-    LogWarning("EEHltTask") << "ECAL Geometry not available";
-    return -1;
-
-  }
+  LogWarning("EEHltTask") << "Wrong DCC id: dcc = " << idcc;
+  return -1;
 
 }
 
@@ -473,13 +463,10 @@ int EEHltTask::iSM( const EcalElectronicsId& id ) {
   if( idcc >=  1 && idcc <=  9 ) return( idcc );
 
   // EE+
-  else if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
+  if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
 
-  else {
-    LogWarning("EEHltTask") << "Wrong DCC id: dcc = " << idcc;
-    return -1;
-  }
+  LogWarning("EEHltTask") << "Wrong DCC id: dcc = " << idcc;
+  return -1;
 
 }
 
-//-------------------------------------------------------------------------
