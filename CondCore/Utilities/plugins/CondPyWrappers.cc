@@ -139,6 +139,9 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
     .def("head", &cond::IOVProxy::head)
     .def("tail", &cond::IOVProxy::tail)
     .def("timetype", &cond::IOVProxy::timetype)
+    .def("payloadContainerName", &cond::IOVProxy::payloadContainerName)
+    .def("comment", &cond::IOVProxy::comment)
+    .def("revision",&cond::IOVProxy::revision)
     .add_property("elements", range( &cond::IOVProxy::begin,  &cond::IOVProxy::end))
     ;
   

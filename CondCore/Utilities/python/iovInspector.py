@@ -99,7 +99,12 @@ class Iov :
        
        def timetype(self):
            return  self.__me.timetype()
-           
+       def comment(self):
+           return self.__me.comment()
+       def revision(self):
+           return self.__me.revision()
+       def payloadContainerName(self):
+           return self.__me.payloadContainerName()
 class PayLoad :
     def __init__(self, db, token) :
         self.__db = db
