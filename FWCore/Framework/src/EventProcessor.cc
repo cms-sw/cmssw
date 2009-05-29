@@ -1432,7 +1432,7 @@ namespace edm {
   }
 
   void EventProcessor::closeInputFile() {
-    input_->closeFile();
+    input_->closeFile(fb_);
     FDEBUG(1) << "\tcloseInputFile\n";
   }
 

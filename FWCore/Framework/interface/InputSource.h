@@ -106,7 +106,7 @@ namespace edm {
     boost::shared_ptr<FileBlock> readFile();
 
     /// close current file
-    void closeFile();
+    void closeFile(boost::shared_ptr<FileBlock>);
 
     /// Skip the number of events specified.
     /// Offset may be negative.

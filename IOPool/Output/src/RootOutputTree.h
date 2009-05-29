@@ -105,14 +105,16 @@ namespace edm {
 	return unclonedReadBranchNames_.find(branchName) != unclonedReadBranchNames_.end();
     }
 
+    void close();
+
   private:
     static void fillTTree(TTree *tree, std::vector<TBranch *> const& branches);
 // We use bare pointers for pointers to some ROOT entities.
 // Root owns them and uses bare pointers internally.
 // Therefore,using smart pointers here will do no good.
     boost::shared_ptr<TFile> filePtr_;
-    TTree *const tree_;
-    TTree *const metaTree_;
+    TTree * tree_;
+    TTree * metaTree_;
     TBranch * auxBranch_;
     TBranch * branchEntryInfoBranch_;
     std::vector<TBranch *> producedBranches_; // does not include cloned branches

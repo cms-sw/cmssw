@@ -82,7 +82,7 @@ namespace edm {
       tree->SetEntries(-1);
     }
     setRefCoreStreamer(true);
-    tree->AutoSave("FlushBaskets");
+    tree->AutoSave();
   }
 
   void
@@ -137,5 +137,18 @@ namespace edm {
       } else {
         readBranches_.push_back(branch);
       }
+  }
+
+  void
+  RootOutputTree::close() {
+    // The TFile was just closed.
+    // Just to play it safe, zero all pointers to quantities in the file.
+    auxBranch_ = branchEntryInfoBranch_ = 0;
+    producedBranches_.clear();
+    metaBranches_.clear();
+    readBranches_.clear();
+    unclonedReadBranches_.clear();
+    tree_ = metaTree_ = 0;
+    filePtr_.reset();
   }
 }

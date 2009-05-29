@@ -146,6 +146,16 @@ namespace edm {
     tree_->LoadTree(theEntryNumber);
   }
 
+
+  void
+  RootTree::close () {
+    // The TFile was just closed.
+    // Just to play it safe, zero all pointers to quantities in the file.
+    auxBranch_  = branchEntryInfoBranch_ = statusBranch_ = 0;
+    tree_ = metaTree_ = infoTree_ = 0;
+    filePtr_.reset();
+  }
+
   namespace input {
     Int_t
     getEntry(TBranch* branch, EntryNumber entryNumber) {

@@ -209,8 +209,10 @@ namespace edm {
   }
 
   void
-  InputSource::closeFile() {
-    return closeFile_();
+  InputSource::closeFile(boost::shared_ptr<FileBlock> fb) {
+    fb->close();
+    closeFile_();
+    return;
   }
 
   // Return a dummy file block.

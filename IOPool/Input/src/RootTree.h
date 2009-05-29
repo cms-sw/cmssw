@@ -43,6 +43,7 @@ namespace edm {
     bool previous() {return --entryNumber_ >= 0;} 
     bool current() {return entryNumber_ < entries_ && entryNumber_ >= 0;} 
     void rewind() {entryNumber_ = 0;} 
+    void close();
     EntryNumber const& entryNumber() const {return entryNumber_;}
     EntryNumber const& entries() const {return entries_;}
     void setEntryNumber(EntryNumber theEntryNumber);
@@ -76,11 +77,11 @@ namespace edm {
 // We use bare pointers for pointers to some ROOT entities.
 // Root owns them and uses bare pointers internally.
 // Therefore,using smart pointers here will do no good.
-    TTree *const tree_;
-    TTree *const metaTree_;
+    TTree * tree_;
+    TTree * metaTree_;
     BranchType branchType_;
-    TBranch *const auxBranch_;
-    TBranch *const branchEntryInfoBranch_;
+    TBranch * auxBranch_;
+    TBranch * branchEntryInfoBranch_;
     EntryNumber entries_;
     EntryNumber entryNumber_;
     std::vector<std::string> branchNames_;
@@ -89,8 +90,8 @@ namespace edm {
     // below for backward compatibility
     std::vector<ProductStatus> productStatuses_; // backward compatibility
     std::vector<ProductStatus>* pProductStatuses_; // backward compatibility
-    TTree *const infoTree_; // backward compatibility
-    TBranch *const statusBranch_; // backward compatibility
+    TTree * infoTree_; // backward compatibility
+    TBranch * statusBranch_; // backward compatibility
   };
 
   template <typename T>

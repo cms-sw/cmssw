@@ -399,6 +399,12 @@ namespace edm {
     }
 
     // close the file -- mfp
+    // Just to play it safe, zero all pointers to objects in the TFile to be closed.
+    metaDataTree_ = parentageTree_ = eventHistoryTree_ = 0;
+    for (RootOutputTreePtrArray::iterator it = treePointers_.begin(), itEnd = treePointers_.end(); it != itEnd; ++it) {
+      (*it)->close();
+      (*it) = 0;
+    }
     filePtr_->Close();
     filePtr_.reset();
 
