@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.8 2009/05/15 04:36:08 jmuelmen Exp $
+// $Id: FWTableView.cc,v 1.9 2009/05/15 13:56:05 amraktad Exp $
 //
 
 // system include files
@@ -292,11 +292,11 @@ FWTableView::FWTableView (TEveWindowSlot* iParent, FWTableViewManager *manager)
      TGLabel *name_label = new TGLabel(column_control_fields, "Title");
      TGLabel *expr_label = new TGLabel(column_control_fields, "Expression");
      TGLabel *prec_label = new TGLabel(column_control_fields, "Precision");
-     column_control_fields->AddFrame(name_label, new TGLayoutHints);
+     column_control_fields->AddFrame(name_label, new TGLayoutHints(kLHintsBottom, 1, 1, 2, 2));
      column_control_fields->AddFrame(m_column_name_field, new TGLayoutHints(kLHintsExpandX));
-     column_control_fields->AddFrame(expr_label, new TGLayoutHints);
+     column_control_fields->AddFrame(expr_label, new TGLayoutHints(kLHintsBottom, 1, 1, 2, 2));
      column_control_fields->AddFrame(m_column_expr_field, new TGLayoutHints(kLHintsExpandX));
-     column_control_fields->AddFrame(prec_label, new TGLayoutHints);
+     column_control_fields->AddFrame(prec_label, new TGLayoutHints( kLHintsBottom, 1, 1, 2, 2)); 
      column_control_fields->AddFrame(m_column_prec_field, new TGLayoutHints(kLHintsExpandX));
      TGTextButton *add_button = new TGTextButton(column_control_fields, "Add");
      TGTextButton *del_button = new TGTextButton(column_control_fields, "Delete");
