@@ -4,14 +4,15 @@
 /*
  * \file EEHltTask.h
  *
- * $Date: 2009/05/29 16:58:10 $
- * $Revision: 1.2 $
+ * $Date: 2009/05/29 18:23:17 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
@@ -60,7 +61,6 @@ void setup(void);
 /// Cleanup
 void cleanup(void);
 
-/// From DQM/EcalCommon/interface/Numbers.h: Geometry utils
 void initGeometry( const edm::EventSetup& setup );
 
 EcalSubdetector subDet( const EEDetId& id ) { return( id.subdet() ); }

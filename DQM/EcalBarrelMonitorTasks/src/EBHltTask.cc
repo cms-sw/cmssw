@@ -1,8 +1,8 @@
 /*
  * \file EBHltTask.cc
  *
- * $Date: 2009/05/29 16:57:06 $
- * $Revision: 1.9 $
+ * $Date: 2009/05/29 18:23:17 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -404,7 +404,7 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
 //-------------------------------------------------------------------------
 
-void EBHltTask::initGeometry( const edm::EventSetup& setup ) {
+void EBHltTask::initGeometry( const EventSetup& setup ) {
 
   if( initGeometry_ ) return;
 
