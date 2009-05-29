@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sun Sep 16 14:52 CEST 2007
-// $Id: ProcSort.cc,v 1.4 2007/07/15 22:31:46 saout Exp $
+// $Id: ProcSort.cc,v 1.1 2007/09/16 22:55:34 saout Exp $
 //
 
 #include <stdlib.h>
@@ -64,7 +64,7 @@ void ProcSort::configure(ConfIterator iter, unsigned int n)
 	if (leader >= n)
 		return;
 
-	iter << Variable::FLAG_ALL;
+	iter << iter;
 	while(iter)
 		iter << iter++(Variable::FLAG_ALL);
 }
