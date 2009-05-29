@@ -12,7 +12,7 @@ ESUnpacker::ESUnpacker(const ParameterSet& ps)
 {
 
   debug_ = pset_.getUntrackedParameter<bool>("debugMode", false);
-  lookup_ = ps.getUntrackedParameter<FileInPath>("LookupTable");
+  lookup_ = ps.getParameter<FileInPath>("LookupTable");
 
   m1  = ~(~Word64(0) << 1);
   m2  = ~(~Word64(0) << 2);
