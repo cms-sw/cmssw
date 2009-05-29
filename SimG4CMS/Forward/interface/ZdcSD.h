@@ -32,6 +32,7 @@ private:
 
   int verbosity;
   bool  useShowerLibrary,useShowerHits; 
+  int   setTrackID(G4Step * step);
   double thFibDir;
   double zdcHitEnergyCut;
   ZdcShowerLibrary *    showerLibrary;

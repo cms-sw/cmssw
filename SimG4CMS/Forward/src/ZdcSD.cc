@@ -10,7 +10,7 @@
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4VProcess.hh"
-
+ #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandPoissonQ.h"
@@ -32,18 +32,17 @@ ZdcSD::ZdcSD(G4String name, const DDCompactView & cpv,
   verbosity  = m_ZdcSD.getParameter<int>("Verbosity");
   int verbn  = verbosity/10;
   verbosity %= 10;
-
   ZdcNumberingScheme* scheme;
   scheme = new ZdcNumberingScheme(verbn);
   setNumberingScheme(scheme);
-
+  
   edm::LogInfo("ForwardSim")
     << "***************************************************\n"
     << "*                                                 *\n"
     << "* Constructing a ZdcSD  with name " << name <<"   *\n"
     << "*                                                 *\n"
     << "***************************************************";
-  
+
   edm::LogInfo("ForwardSim")
      << "\nUse of shower library is set to " 
      << useShowerLibrary 
@@ -54,8 +53,7 @@ ZdcSD::ZdcSD(G4String name, const DDCompactView & cpv,
      << "\nEnergy Threshold Cut set to " 
      << zdcHitEnergyCut/GeV
      <<" (GeV)";
-
-
+  
   if(useShowerLibrary){
     showerLibrary = new ZdcShowerLibrary(name, cpv, p);
   }
@@ -105,22 +103,23 @@ void ZdcSD::getFromLibrary (G4Step* aStep) {
   theTrack      = aStep->GetTrack();   
 
   double etrack    = preStepPoint->GetKineticEnergy();
-  int    primaryID = 0;
-  
+  int primaryID = setTrackID(aStep);  
+
   hits.clear();
-  
-  if (etrack >= zdcHitEnergyCut) {
+
+  /*
+    if (etrack >= zdcHitEnergyCut) {
     primaryID    = theTrack->GetTrackID();
-  } else {
+    } else {
     primaryID    = theTrack->GetParentID();
     if (primaryID == 0) primaryID = theTrack->GetTrackID();
-  }
-  
-  
+    }
+  */
+    
   // Reset entry point for new primary
   posGlobal = preStepPoint->GetPosition();
   resetForNewPrimary(posGlobal, etrack);
-  //  int primaryID = setTrackID(aStep);
+
   if (etrack >= zdcHitEnergyCut){
     // create hits only if above threshold
 
@@ -176,6 +175,11 @@ void ZdcSD::getFromLibrary (G4Step* aStep) {
   //Now kill the current track
   if (ok) {
     theTrack->SetTrackStatus(fStopAndKill);
+    G4TrackVector tv = *(aStep->GetSecondary());
+    for (unsigned int kk=0; kk<tv.size(); kk++) {
+      if (tv[kk]->GetVolume() == preStepPoint->GetPhysicalVolume())
+	tv[kk]->SetTrackStatus(fStopAndKill);
+    }
   }
 }
 
@@ -444,3 +448,19 @@ void ZdcSD::setNumberingScheme(ZdcNumberingScheme* scheme) {
 
 
 
+int ZdcSD::setTrackID (G4Step* aStep) {
+  theTrack     = aStep->GetTrack();
+  double etrack = preStepPoint->GetKineticEnergy();
+  TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
+  int primaryID = trkInfo->getIDonCaloSurface();
+  if (primaryID == 0) {
+#ifdef DebugLog
+    LogDebug("ZdcSD") << "ZdcSD: Problem with primaryID **** set by force "
+			<< "to TkID **** " << theTrack->GetTrackID();
+#endif
+    primaryID = theTrack->GetTrackID();
+    }
+  if (primaryID != previousID.trackID())
+      resetForNewPrimary(preStepPoint->GetPosition(), etrack); 
+  return primaryID;
+}
