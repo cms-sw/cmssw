@@ -60,7 +60,7 @@ strip_stripErrorSquared( const SiStripCluster& cluster, const float& projection)
   float sigma;
   switch( wc.N ) {
   case 1: sigma = invsqrt12*( 1-0.82*projection );                                                               break;
-  case 2: sigma =  0.013 + 0.060*projection*projection*(1-eta*eta)*sqrt(0.5*(abs(projection-2)-(projection-2))); break;
+  case 2: sigma =  0.013 + 0.060*projection*projection*(1-eta*eta)*sqrt(0.5*(fabs(projection-2)-(projection-2))); break;
   case 3: sigma = -0.040 + 0.060*projection + invsqrt12/(1+exp(10*(projection-2*eta-0.8)));                      break;
   case 4: sigma = -0.078 + 0.060*projection + invsqrt12/(1+exp(15*(projection-2.1)));                            break;
   case 5: sigma = -0.190 + 0.075*projection + invsqrt12/(1+exp(15*(projection-3.2)));                            break;
