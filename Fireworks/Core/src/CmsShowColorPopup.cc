@@ -72,7 +72,7 @@ CmsShowColorPopup::changeBackgroundColor()
 {
    if(FWColorManager::kBlackIndex == m_colorManager->backgroundColorIndex()) {
       m_colorManager->setBackgroundColorIndex(FWColorManager::kWhiteIndex);
-      m_bgButton->SetText("Set Black Boackground");
+      m_bgButton->SetText("Set Black Background");
    } else {
       m_colorManager->setBackgroundColorIndex(FWColorManager::kBlackIndex);
       m_bgButton->SetText("Set White Background");
@@ -97,6 +97,6 @@ CmsShowColorPopup::setModel(FWColorManager* mng)
 {
    m_colorManager = mng;
    bool bgBlack =   (FWColorManager::kBlackIndex == m_colorManager->backgroundColorIndex());
-   m_bgButton->SetText(bgBlack ? " Set White Boackground " : " Set Black Background ");
+   m_bgButton->SetText(bgBlack ? " Set White Background " : " Set Black Background ");
    m_slider->SetPosition(m_colorManager->brightness());
 }
