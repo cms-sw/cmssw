@@ -6,8 +6,8 @@
 
 /** \class CaloTPGTranscoderULUT
   *  
-  * $Date: 2008/05/01 20:50:23 $
-  * $Revision: 1.10 $
+  * $Date: 2008/09/05 05:06:24 $
+  * $Revision: 1.12 $
   * \author J. Mans - Minnesota
   */
 class CaloTPGTranscoderULUT : public CaloTPGTranscoder {
@@ -61,8 +61,8 @@ public:
   std::string DecompressionFile;
 };
 
-const int CaloTPGTranscoderULUT::ietal[NR] = { 1, 21, 27, 29};
-const int CaloTPGTranscoderULUT::ietah[NR] = {20, 26, 28, 32};
+const int CaloTPGTranscoderULUT::ietal[NR] = { 1, 18, 27, 29};
+const int CaloTPGTranscoderULUT::ietah[NR] = {17, 26, 28, 32};
 const int CaloTPGTranscoderULUT::ZS[NR]    = { 4,  2,  1,  0};
 const int CaloTPGTranscoderULUT::LUTfactor[NR] = { 1,  2,  5,  0};
 const double CaloTPGTranscoderULUT::nominal_gain = 0.177;
