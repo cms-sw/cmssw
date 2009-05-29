@@ -107,6 +107,8 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       // Admit also status=1 && end_vertex for long vertex special decay treatment 
       if ((*pitr)->status()==1) {
         qvtx=true;
+        if ( verbose > 2 ) std::cout << "SimG4CoreGenerator: GenVertex barcode = " << (*vitr)->barcode() 
+                                     << " selected for GenParticle barcode = " << (*pitr)->barcode() << std::endl;
         break;
       }  
       // The selection is made considering if the partcile with status = 2 have the end_vertex
@@ -121,6 +123,8 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
           double r_dd=std::sqrt(xx*xx+yy*yy);
           if (r_dd>theRDecLenCut){
             qvtx=true;
+            if ( verbose > 2 ) std::cout << "SimG4CoreGenerator: GenVertex barcode = " << (*vitr)->barcode() 
+                                         << " selected for GenParticle barcode = " << (*pitr)->barcode() << " radius = " << r_dd << std::endl;
             break;
           }
         }
@@ -184,18 +188,21 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
           continue ;
         }
         toBeAdded = true;
+        if ( verbose > 2 ) std::cout << "SimG4CoreGenerator: barcode = " << (*vpitr)->barcode() << " passed case 1" << std::endl;
       }
       
       // Decay chain entering exiting the fiducial cylinder defined by theRDecLenCut
       else if((*vpitr)->status() == 2 && r_decay_length > theRDecLenCut  && 
          fabs(zimpact) < Z_hector ) {
         toBeAdded=true;
+        if ( verbose > 2 ) std::cout << "SimG4CoreGenerator: barcode = " << (*vpitr)->barcode() << " passed case 2" << std::endl;
       }
       
       // Particles trasnported along the beam pipe for forward detectors (HECTOR)
       // Always pass to Geant4 without cuts (to be checked)
       else if( (*vpitr)->status() == 1 && fabs(zimpact) >= Z_hector && fabs(z1) >= Z_hector) {
         toBeAdded = true;
+        if ( verbose > 2 ) std::cout << "SimG4CoreGenerator: barcode = " << (*vpitr)->barcode() << " passed case 3" << std::endl;
       }
 
       if(toBeAdded){
