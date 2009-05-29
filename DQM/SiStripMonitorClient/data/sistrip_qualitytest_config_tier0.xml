@@ -151,7 +151,7 @@
 <LINK name="*Summary_ClusterStoNCorr__OnTrack__TID__side__2__wheel__*">
   <TestName activate="true">MeanWithinExpectedRange:StoNTID</TestName>
 </LINK>
-<LINK name="*Tracking/Run summary/TrackParameters/NumberOfTracks_CKFTk">
+<LINK name="*TrackParameters/NumberOfTracks_CKFTk">
   <TestName activate="true">MeanWithinExpectedRange:TrkRate</TestName>
 </LINK>
 
