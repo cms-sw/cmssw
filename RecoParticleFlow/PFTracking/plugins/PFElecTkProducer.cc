@@ -118,8 +118,30 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
         
 	if(useFifthStep_ == false) {
 	  TrackRef kfref = kf_ref->trackRef();
-	  unsigned int Algo = kfref->algo() < 5 ? kfref->algo()-1 : kfref->algo()-5;
-	  if ( Algo >= 4 ) {
+	  unsigned int Algo = 0; 
+	  switch (kfref->algo()) {
+	  case TrackBase::ctf:
+	  case TrackBase::iter0:
+	  case TrackBase::iter1:
+	    Algo = 0;
+	    break;
+	  case TrackBase::iter2:
+	    Algo = 1;
+	    break;
+	  case TrackBase::iter3:
+	    Algo = 2;
+	    break;
+	  case TrackBase::iter4:
+	    Algo = 3;
+	    break;
+	  case TrackBase::iter5:
+	    Algo = 4;
+	    break;
+	  default:
+	    Algo = 5;
+	    break;
+	  }
+	  if ( Algo > 4 ) {
 	    continue;
 	  }
 	}
