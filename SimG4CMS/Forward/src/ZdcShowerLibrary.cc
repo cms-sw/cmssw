@@ -70,9 +70,7 @@ std::vector<ZdcShowerLibrary::Hit> & ZdcShowerLibrary::getHits(G4Step * aStep, b
   hits.clear();
  
   ok = false;
-  if (parCode == pi0PDG || parCode == etaPDG || parCode == nuePDG ||
-      parCode == numuPDG || parCode == nutauPDG || parCode == anuePDG ||
-      parCode == anumuPDG || parCode == anutauPDG || parCode == geantinoPDG) 
+  if (parCode == geantinoPDG)
     return hits;
   ok = true;
   
