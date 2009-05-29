@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.8 2009/04/23 09:13:52 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.9 2009/05/12 19:22:57 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -88,15 +88,11 @@ void LumiProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 }
 
 void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::EventSetup const &iSetup) {
-  std::cout<<"beginLuminosityBlock"<<std::endl;
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("LuminosityInfoRcd"));
   if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
     //record not found
     std::cout <<"Record \"LuminosityInfoRcd"<<"\" does not exist "<<std::endl;
   }
-  std::cout<<"lumiblock id value "<<iLBlock.id().value()<<std::endl;
-  std::cout<<"lumiblock in run "<<iLBlock.run()<<std::endl;
-  std::cout<<"lumiblock number "<<iLBlock.id().luminosityBlock()<<std::endl;
   
   edm::ESHandle<lumi::LuminosityInfo> pLumi;
   iSetup.get<LuminosityInfoRcd>().get(pLumi);
