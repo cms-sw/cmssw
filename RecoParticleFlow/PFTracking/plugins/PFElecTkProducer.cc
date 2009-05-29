@@ -141,7 +141,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	    Algo = 5;
 	    break;
 	  }
-	  if ( Algo > 4 ) {
+	  if ( Algo >= 4 ) {
 	    continue;
 	  }
 	}
