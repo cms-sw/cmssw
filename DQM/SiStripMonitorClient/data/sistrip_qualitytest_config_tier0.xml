@@ -127,8 +127,7 @@
 <LINK name="*TkHMap_FractionOfBadChannels*">
   <TestName activate="true">ContentsWithinExpected:TkHistoFedError</TestName>
 </LINK>
-<LINK 
-name="*TkHMap_NumberOfDigi_*">
+<LINK name="*TkHMap_NumberOfDigi_*">
   <TestName activate="true">ContentsWithinExpected:TkHistoDigi</TestName>
 </LINK>
 <LINK name="*TkHMap_NumberOfCluster_*">
@@ -152,7 +151,7 @@ name="*TkHMap_NumberOfDigi_*">
 <LINK name="*Summary_ClusterStoNCorr__OnTrack__TID__side__2__wheel__*">
   <TestName activate="true">MeanWithinExpectedRange:StoNTID</TestName>
 </LINK>
-<LINK name="Tracking/TrackParameters/NumberOfTracks_CKFTk">
+<LINK name="*Tracking/Run summary/TrackParameters/NumberOfTracks_CKFTk">
   <TestName activate="true">MeanWithinExpectedRange:TrkRate</TestName>
 </LINK>
 
