@@ -62,5 +62,5 @@ doAlldEdXEstimatorsCosmicTF = cms.Sequence(dedxTruncated40CosmicTF + dedxMedianC
 doAlldEdXEstimatorsCTFP5LHC = cms.Sequence(dedxTruncated40CTFP5LHC + dedxMedianCTFP5LHC + dedxHarmonic2CTFP5LHC)
 
 
-doAlldEdXEstimators = cms.Sequence( doAlldEdXEstimatorsCTF + doAlldEdXEstimatorsRS + doAlldEdXEstimatorsCosmicTF + doAlldEdXEstimatorsCTFP5LHC)
+doAllCosmicdEdXEstimators = cms.Sequence( doAlldEdXEstimatorsCTF + doAlldEdXEstimatorsRS + doAlldEdXEstimatorsCosmicTF + doAlldEdXEstimatorsCTFP5LHC)
 
