@@ -128,7 +128,7 @@ process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHit
 
 process.ecalBarrelMonitorModule.mergeRuns = True
 process.ecalBarrelMonitorModule.EBDigiCollection = 'simEcalDigis:ebDigis'
-process.ecalBarrelMonitorModule.runType = 3 # MTCC/PHYSICS
+process.ecalBarrelMonitorModule.runType = 13 # PHYSICS_GLOBAL
 
 process.simEcalTriggerPrimitiveDigis.Label = 'simEcalDigis'
 process.simEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'

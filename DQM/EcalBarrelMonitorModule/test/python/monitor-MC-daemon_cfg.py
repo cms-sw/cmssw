@@ -125,7 +125,7 @@ process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHit
 
 process.ecalBarrelMonitorModule.mergeRuns = True
 process.ecalBarrelMonitorModule.EBDigiCollection = 'simEcalDigis:ebDigis'
-process.ecalBarrelMonitorModule.runType = 3 # MTCC/PHYSICS
+process.ecalBarrelMonitorModule.runType = 13 # PHYSICS_GLOBAL
 process.ecalBarrelMonitorModule.EcalTrigPrimDigiCollection = 'ecalTriggerPrimitiveDigis'
 
 process.ecalBarrelOccupancyTask.EBDigiCollection = 'simEcalDigis:ebDigis'

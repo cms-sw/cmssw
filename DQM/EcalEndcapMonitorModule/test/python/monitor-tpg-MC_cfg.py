@@ -110,7 +110,7 @@ process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHit
 
 process.ecalEndcapMonitorModule.mergeRuns = True
 process.ecalEndcapMonitorModule.EEDigiCollection = 'simEcalDigis:eeDigis'
-process.ecalEndcapMonitorModule.runType = 3 # MTCC/PHYSICS
+process.ecalEndcapMonitorModule.runType = 13 # PHYSICS_GLOBAL
 
 process.simEcalTriggerPrimitiveDigis.Label = 'simEcalDigis'
 process.simEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
