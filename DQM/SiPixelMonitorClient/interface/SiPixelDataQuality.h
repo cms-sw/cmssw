@@ -138,8 +138,10 @@ class SiPixelDataQuality {
   MonitorElement * ResidualYRMSEndcap;
   
   // RechitError Cuts:
-  MonitorElement * RecHitErrorsBarrel;
-  MonitorElement * RecHitErrorsEndcap;
+  MonitorElement * RecHitErrorXBarrel;
+  MonitorElement * RecHitErrorYBarrel;
+  MonitorElement * RecHitErrorXEndcap;
+  MonitorElement * RecHitErrorYEndcap;
   
 };
 #endif
