@@ -1,8 +1,8 @@
 /*
  * \file EBHltTask.cc
  *
- * $Date: 2008/12/03 10:28:10 $
- * $Revision: 1.7 $
+ * $Date: 2008/12/03 12:55:49 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -13,6 +13,8 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -26,8 +28,6 @@
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
-
 #include <DQM/EcalBarrelMonitorTasks/interface/EBHltTask.h>
 
 using namespace cms;
@@ -37,6 +37,8 @@ using namespace std;
 EBHltTask::EBHltTask(const ParameterSet& ps){
 
   init_ = false;
+
+  initGeometry_ = false;
 
   dqmStore_ = Service<DQMStore>().operator->();
 
@@ -61,6 +63,8 @@ EBHltTask::EBHltTask(const ParameterSet& ps){
   meEBFedsOccupancy_ = 0;
   meEBFedsSizeErrors_ = 0;
   meEBFedsIntegrityErrors_ = 0;
+
+  map = 0;
   
 }
 
@@ -77,7 +81,7 @@ void EBHltTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/FEDIntegrity");
   }
 
-  Numbers::initGeometry(c, false);
+  initGeometry(c, false);
 
 }
 
@@ -168,9 +172,9 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EBDetIdCollection::const_iterator idItr = ids0->begin(); idItr != ids0->end(); ++idItr ) {
 
-      int ism = Numbers::iSM( *idItr );
+      int ism = iSM( *idItr );
 
-      FedsSizeErrors[ism-1]++;
+      if ( ism > -1 ) FedsSizeErrors[ism-1]++;
 
     }
 
@@ -228,9 +232,9 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EBDetIdCollection::const_iterator idItr = ids1->begin(); idItr != ids1->end(); ++idItr ) {
 
-      int ism = Numbers::iSM( *idItr );
+      int ism = iSM( *idItr );
 
-      meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, 1./1700.);
+      if( ism > -1 ) meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, 1./1700.);
 
     }
 
@@ -246,9 +250,9 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EBDetIdCollection::const_iterator idItr = ids2->begin(); idItr != ids2->end(); ++idItr ) {
 
-      int ism = Numbers::iSM( *idItr );
+      int ism = iSM( *idItr );
 
-      meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, 1./1700.);
+      if ( ism > -1 ) meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, 1./1700.);
 
     }
 
@@ -264,9 +268,9 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EBDetIdCollection::const_iterator idItr = ids3->begin(); idItr != ids3->end(); ++idItr ) {
 
-      int ism = Numbers::iSM( *idItr );
+      int ism = iSM( *idItr );
 
-      meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, 1./1700.);
+      if ( ism > -1 ) meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, 1./1700.);
 
     }
 
@@ -282,11 +286,11 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids4->begin(); idItr != ids4->end(); ++idItr ) {
 
-      if ( Numbers::subDet( *idItr ) != EcalBarrel ) continue;
+      if ( subDet( *idItr ) != EcalBarrel ) continue;
 
-      int ismt = Numbers::iSM( *idItr );
+      int ism = iSM( *idItr );
 
-      meEBFedsIntegrityErrors_->Fill( EBFirstFED + ismt - 1, 1./68.);
+      if ( ism > -1 ) meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, 1./68.);
 
     }
 
@@ -302,11 +306,11 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids5->begin(); idItr != ids5->end(); ++idItr ) {
 
-      if ( Numbers::subDet( *idItr ) != EcalBarrel ) continue;
+      if ( subDet( *idItr ) != EcalBarrel ) continue;
 
-      int ism = Numbers::iSM( *idItr );
+      int ism = iSM( *idItr );
 
-      meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, 1./1700.);
+      if ( ism > -1 ) meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, 1./1700.);
 
     }
 
@@ -322,11 +326,11 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++idItr ) {
 
-      if ( Numbers::subDet( *idItr ) != EcalBarrel ) continue;
+      if ( subDet( *idItr ) != EcalBarrel ) continue;
 
-      int ismt = Numbers::iSM( *idItr );
+      int ism = iSM( *idItr );
 
-      meEBFedsIntegrityErrors_->Fill( EBFirstFED + ismt - 1, 1./68.);
+      if ( ism > -1 ) meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, 1./68.);
 
     }
 
@@ -342,11 +346,11 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids7->begin(); idItr != ids7->end(); ++idItr ) {
 
-      if ( Numbers::subDet( *idItr ) != EcalBarrel ) continue;
+      if ( subDet( *idItr ) != EcalBarrel ) continue;
 
-      int ism = Numbers::iSM( *idItr );
+      int ism = iSM( *idItr );
 
-      meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, 1./1700.);
+      if ( ism > -1 ) meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, 1./1700.);
 
     }
 
@@ -362,11 +366,11 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids8->begin(); idItr != ids8->end(); ++idItr ) {
 
-      if ( Numbers::subDet( *idItr ) != EcalBarrel ) continue;
+      if ( subDet( *idItr ) != EcalBarrel ) continue;
 
-      int ism = Numbers::iSM( *idItr );
+      int ism = iSM( *idItr );
 
-      meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, 1./1700.);
+      if ( ism > -1 ) meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, 1./1700.);
 
     }
 
@@ -382,11 +386,11 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids9->begin(); idItr != ids9->end(); ++idItr ) {
 
-      if ( Numbers::subDet( *idItr ) != EcalBarrel ) continue;
+      if ( subDet( *idItr ) != EcalBarrel ) continue;
 
-      int ism = Numbers::iSM( *idItr );
+      int ism = iSM( *idItr );
 
-      meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, 1./1700.);
+      if ( ism > -1 ) meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, 1./1700.);
 
     }
 
@@ -398,3 +402,57 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
 }
 
+//-------------------------------------------------------------------------
+
+void EBHltTask::initGeometry( const edm::EventSetup& setup, bool verbose ) {
+
+  if( initGeometry_ ) return;
+
+  if ( verbose ) std::cout << "Initializing EcalElectronicsMapping ..." << std::endl;
+
+  initGeometry_ = true;
+
+  edm::ESHandle< EcalElectronicsMapping > handle;
+  setup.get< EcalMappingRcd >().get(handle);
+  map = handle.product();
+
+  if ( verbose ) std::cout << "done." << std::endl;
+
+}
+
+int EBHltTask::iSM( const EBDetId& id ) {
+
+  if( map ) {
+
+    EcalElectronicsId eid = map->getElectronicsId(id);
+    int idcc = eid.dccId();
+
+    // EB-/EB+
+    if( idcc >= 10 && idcc <= 45 ) return( idcc - 9 );
+
+    LogWarning("EBHltTask") << "Wrong DCC id: dcc = " << idcc;
+    return -1;
+
+  } else {
+
+    LogWarning("EBHltTask") << "ECAL Geometry not available";
+    return -1;
+
+  }
+
+}
+
+int EBHltTask::iSM( const EcalElectronicsId& id ) {
+
+  int idcc = id.dccId();
+
+  // EB-/EB+
+  if( idcc >= 10 && idcc <= 45 ) return( idcc - 9 );
+  else {
+    LogWarning("EBHltTask") << "Wrong DCC id: dcc = " << idcc;
+    return -1;
+  }
+
+}
+
+//-------------------------------------------------------------------------
