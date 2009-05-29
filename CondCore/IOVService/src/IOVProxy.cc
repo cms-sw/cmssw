@@ -113,7 +113,7 @@ namespace cond {
     return iov().timeType();     
   }
 
-
+  
   std::string 
   IOVProxy::payloadContainerName() const{
     // FIXME move to metadata
@@ -123,4 +123,12 @@ namespace cond {
     return theTok.contID();
   }
 
+  std::string 
+  IOVProxy::comment() const{
+    return iov().comment();
+  }
+  int 
+  IOVProxy::revision() const{
+    return iov().revision();
+  }
 }

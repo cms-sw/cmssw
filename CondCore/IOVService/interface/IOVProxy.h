@@ -101,9 +101,10 @@ namespace cond {
     int size() const;
     IOV const & iov() const;
     TimeType timetype() const;
-
     std::string payloadContainerName() const;
-    
+    std::string comment() const;
+    int revision() const;
+
   private:
     boost::shared_ptr<impl::IOVImpl> m_iov;
     mutable int m_low;
