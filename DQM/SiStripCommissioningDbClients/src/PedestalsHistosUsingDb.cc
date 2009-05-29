@@ -1,4 +1,4 @@
-// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.19 2009/02/23 15:17:47 lowette Exp $
+// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.20 2009/04/06 16:52:42 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedestalsAnalysis.h"
@@ -72,7 +72,7 @@ void PedestalsHistosUsingDb::uploadConfigurations() {
   } else {
     edm::LogWarning(mlDqmClient_) 
       << "[PedestalsHistosUsingDb::" << __func__ << "]"
-      << " TEST only! No pedestals/noise values will be uploaded to DB...";
+      << " TEST! No pedestals/noise values will be uploaded to DB...";
   }
   
 }
@@ -137,14 +137,53 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
 	    
 	    static float high_threshold = 5.;
 	    static float low_threshold  = 2.;
-	    static bool  disable_strip  = false;
+
+	    bool disable_strip = false;
+	    PedestalsAnalysis::VInt dead = anal->dead()[iapv];
+	    if ( find( dead.begin(), dead.end(), istr ) != dead.end() ) { disable_strip = true; }
+	    PedestalsAnalysis::VInt noisy = anal->noisy()[iapv];
+	    if ( find( noisy.begin(), noisy.end(), istr ) != noisy.end() ) { disable_strip = true; }
+	    
 	    Fed9U::Fed9UStripDescription data( static_cast<uint32_t>( anal->peds()[iapv][istr]-pedshift ), 
 					       high_threshold, 
 					       low_threshold, 
 					       anal->noise()[iapv][istr],
-					       disable_strip );
+					       disableStrips() && disable_strip );
 	    Fed9U::Fed9UAddress addr( ichan, iapv, istr );
+
+	    std::stringstream ss;
+	    if ( data.getDisable() && edm::isDebugEnabled() ) {
+	      Fed9U::Fed9UStripDescription temp = (*ifed)->getFedStrips().getStrip( addr );
+	      ss << "[PedestalsHistosUsingDb::" << __func__ << "]"
+		 << " Disabling strip in Fed9UStripDescription object..." << std::endl
+		 << " for FED id/channel and APV/strip : "
+		 << fed_key.fedId() << "/"
+		 << fed_key.fedChannel() << " "
+		 << iapv << "/"
+		 << istr << std::endl 
+		 << " and crate/FEC/ring/CCU/module    : "
+		 << fec_key.fecCrate() << "/"
+		 << fec_key.fecSlot() << "/"
+		 << fec_key.fecRing() << "/"
+		 << fec_key.ccuAddr() << "/"
+		 << fec_key.ccuChan() << std::endl 
+		 << " from ped/noise/high/low/disable  : "
+		 << static_cast<uint16_t>( temp.getPedestal() ) << "/" 
+		 << static_cast<uint16_t>( temp.getHighThreshold() ) << "/" 
+		 << static_cast<uint16_t>( temp.getLowThreshold() ) << "/" 
+		 << static_cast<uint16_t>( temp.getNoise() ) << "/" 
+		 << static_cast<uint16_t>( temp.getDisable() ) << std::endl;
+	    }
 	    (*ifed)->getFedStrips().setStrip( addr, data );
+	    if ( data.getDisable() && edm::isDebugEnabled() ) {
+	      ss << " to ped/noise/high/low/disable    : "
+		 << static_cast<uint16_t>( data.getPedestal() ) << "/" 
+		 << static_cast<uint16_t>( data.getHighThreshold() ) << "/" 
+		 << static_cast<uint16_t>( data.getLowThreshold() ) << "/" 
+		 << static_cast<uint16_t>( data.getNoise() ) << "/" 
+		 << static_cast<uint16_t>( data.getDisable() ) << std::endl;
+	      LogTrace(mlDqmClient_) << ss.str();
+	    }
 	    
 	  }
 	}
