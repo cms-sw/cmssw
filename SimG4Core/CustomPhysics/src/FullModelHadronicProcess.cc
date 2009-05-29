@@ -480,6 +480,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
       G4Track* Track0 = new G4Track(p0,
 				    aTrack.GetGlobalTime(),
 				    aPosition);
+      Track0->SetTouchableHandle(thisTouchable);
       aParticleChange.AddSecondary(Track0);
       /*
       G4cout<<"Adding a particle "<<p0->GetDefinition()->GetParticleName()<<G4endl;
@@ -547,6 +548,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
       G4Track* Track1 = new G4Track(p1,
 				    aTrack.GetGlobalTime(),
 				    aPosition);
+      Track1->SetTouchableHandle(thisTouchable); 
       aParticleChange.AddSecondary(Track1);
     }
   G4DynamicParticle *pa;

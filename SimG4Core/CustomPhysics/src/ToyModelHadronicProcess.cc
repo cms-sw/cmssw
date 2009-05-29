@@ -80,6 +80,8 @@ G4double ToyModelHadronicProcess::GetMeanFreePath(const G4Track& aTrack, G4doubl
 G4VParticleChange* ToyModelHadronicProcess::PostStepDoIt(const G4Track& track,
 							const G4Step& /*  step*/)
 {
+
+  const G4TouchableHandle thisTouchable(track.GetTouchableHandle());
   
   // A little setting up
   G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
@@ -333,6 +335,7 @@ G4VParticleChange* ToyModelHadronicProcess::PostStepDoIt(const G4Track& track,
 	  G4Track* productTrack = new G4Track(productDynParticle,
 					      track.GetGlobalTime(),
 					      position);
+      productTrack->SetTouchableHandle(thisTouchable);
 	  //Append to the result
 	  if(m_verboseLevel >= 3) std::cout  << "ToyModelHadronicProcess::PostStepDoIt   Add secondary with 4-Momentum " << productDynParticle->Get4Momentum()/GeV << std::endl;
 	  m_particleChange.AddSecondary(productTrack);
