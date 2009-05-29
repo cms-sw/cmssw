@@ -23,6 +23,7 @@ process.db_client = cms.EDAnalyzer("SiStripCommissioningOfflineDbClient",
     UploadHwConfig = cms.untracked.bool(False),
     UploadAnalyses = cms.untracked.bool(False),
     DisableDevices = cms.untracked.bool(False),
+    DisableStrips  = cms.untracked.bool(False),
     SaveClientFile = cms.untracked.bool(True)
 )
 

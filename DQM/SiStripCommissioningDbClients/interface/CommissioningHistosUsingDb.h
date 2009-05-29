@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.h,v 1.10 2008/05/06 12:38:06 bainbrid Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.h,v 1.11 2008/07/01 12:49:11 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H
@@ -40,12 +40,16 @@ class CommissioningHistosUsingDb : public virtual CommissioningHistograms {
   bool doUploadConf() const;
 
   bool disableDevices() const;
+
+  bool disableStrips() const;
   
   void doUploadAnal( bool );
   
   void doUploadConf( bool );
   
   void disableDevices( bool );
+  
+  void disableStrips( bool );
   
   // ---------- protected methods ----------
 
@@ -112,15 +116,19 @@ class CommissioningHistosUsingDb : public virtual CommissioningHistograms {
   
   bool disableDevices_;
   
+  bool disableStrips_;
+  
 };
 
 inline void CommissioningHistosUsingDb::doUploadConf( bool upload ) { uploadConf_ = upload; }
 inline void CommissioningHistosUsingDb::doUploadAnal( bool upload ) { uploadAnal_ = upload; }
 inline void CommissioningHistosUsingDb::disableDevices( bool disable ) { disableDevices_ = disable; }
+inline void CommissioningHistosUsingDb::disableStrips( bool disable ) { disableStrips_ = disable; }
 
 inline bool CommissioningHistosUsingDb::doUploadAnal() const { return uploadAnal_; }
 inline bool CommissioningHistosUsingDb::doUploadConf() const { return uploadConf_; }
 inline bool CommissioningHistosUsingDb::disableDevices() const { return disableDevices_; }
+inline bool CommissioningHistosUsingDb::disableStrips() const { return disableStrips_; }
 
 inline SiStripConfigDb* const CommissioningHistosUsingDb::db() const { return db_; } 
 inline SiStripFedCabling* const CommissioningHistosUsingDb::cabling() const { return cabling_; }

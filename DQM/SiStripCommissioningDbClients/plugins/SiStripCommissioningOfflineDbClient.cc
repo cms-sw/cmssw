@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.17 2008/07/01 14:35:17 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.18 2008/07/09 16:27:48 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/plugins/SiStripCommissioningOfflineDbClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -30,7 +30,8 @@ SiStripCommissioningOfflineDbClient::SiStripCommissioningOfflineDbClient( const 
     uploadConf_( pset.getUntrackedParameter<bool>("UploadHwConfig",false) ),
     uploadFecSettings_( pset.getUntrackedParameter<bool>("UploadFecSettings",true) ),
     uploadFedSettings_( pset.getUntrackedParameter<bool>("UploadFedSettings",true) ),
-    disableDevices_( pset.getUntrackedParameter<bool>("DisableDevices",false) )
+    disableDevices_( pset.getUntrackedParameter<bool>("DisableDevices",false) ),
+    disableStrips_( pset.getUntrackedParameter<bool>("DisableStrips",false) )
 {
   LogTrace(mlDqmClient_)
     << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
@@ -140,6 +141,7 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
     tmp->doUploadConf( uploadConf_ ); 
     tmp->doUploadAnal( uploadAnal_ ); 
     tmp->disableDevices( disableDevices_ );
+    tmp->disableStrips( disableStrips_ );
     std::stringstream ss;
     ss << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]" 
        << std::endl
@@ -150,7 +152,10 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
        << ( tmp->doUploadAnal() ? "true" : "false" )
        << std::endl
        << " Disable problematic devices?          : " 
-       << ( tmp->disableDevices() ? "true" : "false" );
+       << ( tmp->disableDevices() ? "true" : "false" )
+       << std::endl
+       << " Disable dead/noisy strips?            : " 
+       << ( tmp->disableStrips() ? "true" : "false" );
     edm::LogVerbatim(mlDqmClient_) << ss.str();
   } else {
     edm::LogError(mlDqmClient_) 
@@ -164,7 +169,7 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
     temp->uploadPllSettings( uploadFecSettings_ );
     temp->uploadFedSettings( uploadFedSettings_ );
   }
-  
+
 }
 
 // -----------------------------------------------------------------------------
