@@ -4,26 +4,35 @@
 
 #include <string>
 #include <fstream>
+#include <sstream>
 
 namespace cond {
+  
+  //implement my helper Extractor class
+  template<>
+  struct ExtractWhat<lumi::LuminosityInfo>{
+  };
 
   template<>
   class ValueExtractor<lumi::LuminosityInfo>: public  BaseValueExtractor<lumi::LuminosityInfo> {
   public:
-
-    typedef lumi::LuminosityInfo Class;
-    typedef ExtractWhat<Class> What;
-    static What what() { return What();}
-
-    ValueExtractor(){}
-    ValueExtractor(What const & what)
-    {
-
+    
+    typedef ExtractWhat<lumi::LuminosityInfo > What;
+    static What what() { 
+      return What();
     }
-    void compute(Class const & it){
+    
+    ValueExtractor(){}
+    ValueExtractor(What const & what):m_what(what)
+    {
+      
+    }
+    void compute( lumi::LuminosityInfo const& payload){
+      //for now, no fancy, we are interested only in lumi average
+      this->add(payload.lumiAverage());
     }
   private:
-  
+    What m_what;
   };
 
 
@@ -52,4 +61,18 @@ namespace cond {
   }
 }
 
+namespace condPython{
+  //expose payload from c++ to python a class(type) What by implementing the defineWhat method of InspectorPythonWrapper. Code based on boost::python. 
+  //helper classes extractor
+  template<>
+  void defineWhat<lumi::LuminosityInfo>(){
+    typedef cond::ExtractWhat<lumi::LuminosityInfo> What;
+    //boost::python binding expose methods in What
+    class_<What>("What",init<>())
+      ;
+  }
+}//ns condPython
+
+
+//define C++ class , Plugin name
 PYTHON_WRAPPER(lumi::LuminosityInfo,LuminosityInfo);
