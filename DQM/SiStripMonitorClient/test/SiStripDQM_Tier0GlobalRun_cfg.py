@@ -16,8 +16,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 #-----------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-#       '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/006945C8-40A5-DD11-BD7E-001617DBD556.root'
-      '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/00BAAF73-52A5-DD11-9351-001D09F23A84.root'
+       '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/006945C8-40A5-DD11-BD7E-001617DBD556.root'
+#      '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/00BAAF73-52A5-DD11-9351-001D09F23A84.root'
 
     )
 )
@@ -54,7 +54,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 #--------------------------
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect = "frontier://FrontierInt/CMS_COND_30X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRAFT_30X::All"
+process.GlobalTag.globaltag = "CRAFT_31X::All"
 process.prefer("GlobalTag")
 
 #-----------------------
@@ -72,7 +72,7 @@ process.load("DQM.SiStripMonitorClient.SiStripDQMTier0GlobalRun_cff")
 # output module
 #----------------------
 process.myOut = cms.OutputModule("PoolOutputModule",
-                                  fileName = cms.untracked.string('sistrip_reco2.root'),
+                                  fileName = cms.untracked.string('sistrip_reco1.root'),
                                   outputCommands = cms.untracked.vstring('drop *', 'keep *_MEtoEDMConverter_*_*')
                                 )
 #--------------------------

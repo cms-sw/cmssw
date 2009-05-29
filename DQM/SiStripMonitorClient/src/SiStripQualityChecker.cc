@@ -456,16 +456,13 @@ const std::map<uint32_t,uint16_t> & SiStripQualityChecker::getBadModuleList(DQMS
 void SiStripQualityChecker::fillFaultyModuleStatus(DQMStore* dqm_store) {
   if (badModuleList.size() == 0) return;
   dqm_store->cd();
-  string mdir = "MechanicalView"; 
-  if (!SiStripUtility::goToDir(dqm_store, mdir)) return;
-  string mechanicalview_dir = dqm_store->pwd();
+  SiStripFolderOrganizer folder_organizer;
   for (map<uint32_t,uint16_t>::const_iterator it =  badModuleList.begin() ; it != badModuleList.end(); it++) {
     uint32_t detId =  it->first;
     string subdet_folder;
-    SiStripUtility::getSubDetectorFolder(detId,subdet_folder);\
-    string dname = mechanicalview_dir + "/" + subdet_folder;
-    if (!dqm_store->dirExists(dname)) continue;
-    string bad_module_folder = dname + "/" + "BadModuleList";
+    folder_organizer.getSubDetFolder(detId,subdet_folder);
+    if (!dqm_store->dirExists(subdet_folder)) continue;
+    string bad_module_folder = subdet_folder + "/" + "BadModuleList";
     dqm_store->setCurrentFolder(bad_module_folder);
 
     ostringstream detid_str;
