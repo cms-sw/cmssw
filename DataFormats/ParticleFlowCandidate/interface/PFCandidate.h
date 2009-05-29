@@ -146,6 +146,18 @@ namespace reco {
     /// return corrected Hcal energy
     double hcalEnergy() const { return hcalEnergy_;}
 
+    /// set corrected Ecal energy 
+    void setRawEcalEnergy( float ee ) {rawEcalEnergy_ = ee;}
+
+    /// return corrected Ecal energy
+    double rawEcalEnergy() const { return rawEcalEnergy_;}
+    
+    /// set corrected Hcal energy 
+    void setRawHcalEnergy( float eh ) {rawHcalEnergy_ = eh;}
+
+    /// return corrected Hcal energy
+    double rawHcalEnergy() const { return rawHcalEnergy_;}
+
     /// set corrected PS1 energy
     void setPs1Energy( float e1 ) {ps1Energy_ = e1;}
 
@@ -307,6 +319,12 @@ namespace reco {
 
     /// corrected HCAL energy
     float       hcalEnergy_;
+
+    /// raw ECAL energy
+    float       rawEcalEnergy_;
+
+    /// raw HCAL energy
+    float       rawHcalEnergy_;
 
     /// corrected PS1 energy
     float       ps1Energy_;

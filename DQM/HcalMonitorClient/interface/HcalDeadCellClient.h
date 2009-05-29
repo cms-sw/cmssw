@@ -41,9 +41,6 @@ class HcalDeadCellClient : public HcalBaseClient {
   /// Cleanup
   void cleanup(void);
   
-  void getSJ6histos( const char* dir, const char* name, TH2F* h[6]);
-  void getSJ6histos( const char* dir, const char* name, TH1F* h[6]);
-
   /// HtmlOutput
   void htmlOutput(int run, string htmlDir, string htmlName);
   void htmlExpertOutput(int run, string htmlDir, string htmlName);
@@ -64,12 +61,14 @@ private:
   bool deadclient_makeDiagnostics_;
 
   bool deadclient_test_occupancy_;
+  bool deadclient_test_rechit_occupancy_;
   bool deadclient_test_pedestal_;
   bool deadclient_test_neighbor_;
   bool deadclient_test_energy_;
 
   int deadclient_checkNevents_;
   int deadclient_checkNevents_occupancy_;
+  int deadclient_checkNevents_rechit_occupancy_;
   int deadclient_checkNevents_pedestal_;
   int deadclient_checkNevents_neighbor_;
   int deadclient_checkNevents_energy_;
@@ -78,6 +77,7 @@ private:
   TH2F* ProblemDeadCells;
   TH2F* ProblemDeadCellsByDepth[6];
   TH2F* UnoccupiedDeadCellsByDepth[6];
+  TH2F* UnoccupiedRecHitsByDepth[6];
   TH2F* BelowPedestalDeadCellsByDepth[6];
   TH2F* BelowNeighborsDeadCellsByDepth[6];
   TH2F* BelowEnergyThresholdCellsByDepth[6];

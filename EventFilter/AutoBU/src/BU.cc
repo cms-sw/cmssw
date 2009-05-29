@@ -136,13 +136,12 @@ BU::BU(xdaq::ApplicationStub *s)
   xgi::bind(this,&evf::BU::customWebPage,"customWebPage");
   
   
-  // determine valid fed ids
-  for (unsigned int i=0;i<(unsigned int)FEDNumbering::lastFEDId()+1;i++)
-    if (FEDNumbering::inRange(i)) validFedIds_.push_back(i);
-  
   // export parameters to info space(s)
   exportParameters();
 
+  // findRcmsStateListener
+  fsm_.findRcmsStateListener();
+  
   // compute parameters for fed size generation (a la Emilio)
   gaussianMean_ =std::log((double)fedSizeMean_);
   gaussianWidth_=std::sqrt(std::log
@@ -196,6 +195,16 @@ bool BU::enabling(toolbox::task::WorkLoop* wl)
   isHalting_=false;
   try {
     LOG4CPLUS_INFO(log_,"Start enabling ...");
+    // determine valid fed ids (assumes Playback EP is already configured hence PBRDP::instance 
+    // not null in case we are playing back)
+    if (0!=PlaybackRawDataProvider::instance()) {
+      for (unsigned int i=0;i<(unsigned int)FEDNumbering::MAXFEDID+1;i++)
+	if (FEDNumbering::inRange(i)) validFedIds_.push_back(i);
+    }
+    else{
+      for (unsigned int i=0;i<(unsigned int)FEDNumbering::MAXFEDID+1;i++)
+	if (FEDNumbering::inRangeNoGT(i)) validFedIds_.push_back(i);
+    }
     if (!isBuilding_) startBuildingWorkLoop();
     if (!isSending_)  startSendingWorkLoop();
     LOG4CPLUS_INFO(log_,"Finished enabling!");
@@ -643,6 +652,8 @@ void BU::exportParameters()
   gui_->addStandardParam("fedSizeWidth",      &fedSizeWidth_);
   gui_->addStandardParam("useFixedFedSize",   &useFixedFedSize_);
   gui_->addStandardParam("monSleepSec",       &monSleepSec_);
+  gui_->addStandardParam("rcmsStateListener",     fsm_.rcmsStateListener());
+  gui_->addStandardParam("foundRcmsStateListener",fsm_.foundRcmsStateListener());
 
   
   gui_->exportParameters();

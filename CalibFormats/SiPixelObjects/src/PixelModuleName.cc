@@ -87,7 +87,7 @@ void PixelModuleName::check(bool check, const string& name){
 
   if (check) return;
 
-  cout << "[PixelModuleName::check()]\t\t\t\t    ERROR tried to parse string:'"<<name;
+  cout << "ERROR tried to parse string:'"<<name;
   cout << "' as a module name. Will terminate."<<endl;
 
   ::abort();

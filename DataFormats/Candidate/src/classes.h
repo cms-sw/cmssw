@@ -23,6 +23,7 @@
 #include "DataFormats/Common/interface/Holder.h"
 #include "DataFormats/Common/interface/RefVectorHolder.h"
 #include "DataFormats/Common/interface/VectorHolder.h"
+#include "DataFormats/Common/interface/BaseVectorHolder.h"
 
 namespace {
   namespace {
@@ -35,6 +36,7 @@ namespace {
     reco::CandidateRef r1;
     reco::CandidatePtr ptr1;
     reco::CandidateBaseRef r2;
+    reco::CompositeCandidateRef ccr1;
     reco::CompositeCandidateRefVector r3;
     std::vector<reco::CandidateBaseRef> rv2;
     edm::reftobase::IndirectHolder<reco::Candidate> rbih1;
@@ -43,6 +45,7 @@ namespace {
     edm::reftobase::RefVectorHolder<reco::CandidateRefVector> rh2;
     edm::reftobase::Holder<reco::Candidate, reco::CandidateRef> rhcr1;
     edm::reftobase::VectorHolder<reco::Candidate, reco::CandidateRefVector> rhcr2;
+    edm::reftobase::VectorHolder<reco::Candidate, reco::CandidateRefVector>::const_iterator_imp_specific rhcri1;
     edm::Wrapper<reco::CandidateRefVector> wrv1;
     edm::Wrapper<reco::CandidateBaseRefVector> wrv2;
     edm::Wrapper<std::vector<reco::CandidateBaseRef> > wrv21;
@@ -92,5 +95,5 @@ namespace {
     edm::reftobase::RefHolder<reco::NamedCompositeCandidateRef> hcc10;
     edm::reftobase::VectorHolder<reco::Candidate, reco::NamedCompositeCandidateRefVector> hcc11;
     edm::reftobase::RefVectorHolder<reco::NamedCompositeCandidateRefVector> hcc12;
-  }
+ }
 }

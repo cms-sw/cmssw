@@ -56,6 +56,8 @@ class Herwig6Hadronisation : public Hadronisation {
 	std::auto_ptr<HepMC::GenEvent> doHadronisation();
 	void newRunInfo(const boost::shared_ptr<LHERunInfo> &runInfo);
 
+	std::set<std::string> capabilities() const;
+
 	int				herwigVerbosity;
 	int				maxEventsToPrint;
 	bool				useJimmy;
@@ -331,12 +333,19 @@ std::auto_ptr<HepMC::GenEvent> Herwig6Hadronisation::doHadronisation()
 
 			bool vetoed = false;	// matching and veto
 			if (wantsShoweredEvent() && !hwevnt.IERROR) {
-				// save HEPEVT since repair_hepevt breaks it
-				std::memcpy(buffer, hepevt.data, hepevtSize());
-				boost::shared_ptr<HepMC::GenEvent>
-						event(conv.read_next_event());
-				std::memcpy(hepevt.data, buffer, hepevtSize());
-				fixupStatus(event.get());
+				boost::shared_ptr<HepMC::GenEvent> event;
+
+				if (wantsShoweredEventAsHepMC()) {
+					// save HEPEVT since repair_hepevt breaks it
+					std::memcpy(buffer, hepevt.data,
+					            hepevtSize());
+					event.reset(conv.read_next_event());
+					std::memcpy(hepevt.data, buffer,
+					            hepevtSize());
+
+					fixupStatus(event.get());
+				}
+
 				if (showeredEvent(event)) {
 					hwevnt.IERROR = 198;
 					vetoed = true;
@@ -1258,6 +1267,14 @@ static bool setRngSeeds(int mseed)
 	return true;
 }
 
+std::set<std::string> Herwig6Hadronisation::capabilities() const
+{
+	std::set<std::string> result;
+	result.insert("showeredEvent");
+	result.insert("hepevt");
+	return result;
+}
+
 void Herwig6Hadronisation::fillHeader()
 {
 	const HEPRUP *heprup = getRawEvent()->getHEPRUP();
@@ -1270,6 +1287,8 @@ void Herwig6Hadronisation::fillHeader()
 		heprup_.pdfsup[0] = -1;
 		heprup_.pdfsup[1] = -1;
 	}
+
+	onInit().emit();
 }
 
 void Herwig6Hadronisation::fillEvent()
@@ -1277,6 +1296,8 @@ void Herwig6Hadronisation::fillEvent()
 	const HEPEUP *hepeup = getRawEvent()->getHEPEUP();
 
 	CommonBlocks::fillHEPEUP(hepeup);
+
+	onBeforeHadronisation().emit();
 }
 
 DEFINE_LHE_HADRONISATION_PLUGIN(Herwig6Hadronisation);

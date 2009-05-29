@@ -1,7 +1,7 @@
 /** \class CSCTMBData
  *
- *  $Date: 2008/07/29 21:02:09 $
- *  $Revision: 1.26 $
+ *  $Date: 2008/11/06 10:54:54 $
+ *  $Revision: 1.28 $
  *  \author A. Tumanov - Rice
  */
 
@@ -19,7 +19,7 @@ bool CSCTMBData::debug =false;
 CSCTMBData::CSCTMBData() 
   : theOriginalBuffer(0), 
     theTMBHeader(2007, 0x50c3),
-    theCLCTData(),
+    theCLCTData(&theTMBHeader),
     theTMBScopeIsPresent(false), 
     theTMBScope(0),
     theTMBTrailer(theTMBHeader.sizeInWords()+theCLCTData.sizeInWords(), 2007),
@@ -33,13 +33,33 @@ CSCTMBData::CSCTMBData()
 CSCTMBData::CSCTMBData(unsigned short *buf) 
   : theOriginalBuffer(buf), 
     theTMBHeader(2007, 0x50c3),
-    theCLCTData(),
+    theCLCTData(&theTMBHeader),
     theTMBScopeIsPresent(false), 
     theTMBScope(0), 
     theTMBTrailer(theTMBHeader.sizeInWords()+theCLCTData.sizeInWords(), 2007),
     theRPCDataIsPresent(false){
   size_ = UnpackTMB(buf);
 } 
+
+// Explicitly-defined copy constructor is needed when the scope data is
+// present, to prevent the same pointer from being deleted twice. -SV.
+CSCTMBData::CSCTMBData(const CSCTMBData& data):
+  theOriginalBuffer(data.theOriginalBuffer),
+  theB0CLine(data.theB0CLine), theE0FLine(data.theE0FLine),
+  theTMBHeader(data.theTMBHeader),
+  theCLCTData(data.theCLCTData), theRPCData(data.theRPCData),
+  theTMBScopeIsPresent(data.theTMBScopeIsPresent), 
+  theTMBTrailer(data.theTMBTrailer),
+  size_(data.size_), cWordCnt(data.cWordCnt),
+  theRPCDataIsPresent(data.theRPCDataIsPresent)
+{
+  if (theTMBScopeIsPresent) {
+    theTMBScope = new CSCTMBScope(*(data.theTMBScope));
+  }
+  else {
+    theTMBScope = 0;
+  }
+}
 
 CSCTMBData::~CSCTMBData(){
   if (theTMBScopeIsPresent) {
@@ -181,10 +201,17 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
     int b05Line = currentPosition;
     LogTrace("CSCTMBData|CSCRawToDigi") << "found scope!";
     int e05Line = findLine(buf, 0x6e05, currentPosition, TotTMBReadout-currentPosition);
-    if(e05Line != -1){     
+    if(e05Line != -1){
       theTMBScopeIsPresent = true;
       theTMBScope = new CSCTMBScope(buf,b05Line, e05Line);
-      currentPosition+=theTMBScope->sizeInWords();
+      // The size of the TMB scope data can vary, and I see no good reasons
+      // not to determine it dynamically.  -SV, 5 Nov 2008.
+      //currentPosition+=theTMBScope->sizeInWords();
+      currentPosition+=(e05Line-b05Line+1);
+    }
+    else {
+      LogTrace("CSCTMBData|CSCRawToDigi")
+	<< "+++ CSCTMBData warning: found 0x6b05 line, but not 0x6e05! +++";
     }
   }
   
@@ -209,15 +236,17 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
   else 
     {
       theTMBTrailer = CSCTMBTrailer(buf+e0cLine, firmwareVersion);
+      LogTrace("CSCTMBData|CSCRawToDigi")
+	<< "TMB trailer size: " << theTMBTrailer.sizeInWords();
     }
 
   checkSize();
 
   // Dump of TMB; format proposed by JK.
 #ifdef TMBDUMP
-  LogTrace("CSCTMBData|CSCRawToDigi|TMB") << "Dump of TMB data:\n";
-  for (int line = b0cLine; line <= maxLine+1; line++) {
-    LogTrace("CSCTMBData|CSCRawToDigi|TMB")
+  LogTrace("CSCTMBData") << "Dump of TMB data:";
+  for (int line = b0cLine; line <= maxLine+3; line++) {
+    LogTrace("CSCTMBData")
       << "Adr= " << std::setw(4) << line
       << " Data= " << std::setfill('0') << std::setw(5)
       << std::uppercase << std::hex << buf[line] << std::dec << std::endl;

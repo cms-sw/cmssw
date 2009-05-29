@@ -51,6 +51,8 @@ namespace evf{
 
   void MicroStateService::postEventProcessing(const edm::Event& e, const edm::EventSetup&)
   {
+    boost::mutex::scoped_lock sl(lock_);
+    microstate2_ = "IN";
   }
   void MicroStateService::preSource()
   {

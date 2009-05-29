@@ -1,6 +1,6 @@
 /** \class HLTEgammaEtFilter
  *
- * $Id: HLTEgammaEtFilter.cc,v 1.7 2007/12/07 14:41:33 ghezzi Exp $
+ * $Id: HLTEgammaEtFilter.cc,v 1.9 2009/01/15 14:31:49 covarell Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -22,7 +22,8 @@
 HLTEgammaEtFilter::HLTEgammaEtFilter(const edm::ParameterSet& iConfig)
 {
    inputTag_ = iConfig.getParameter< edm::InputTag > ("inputTag");
-   etcut_  = iConfig.getParameter<double> ("etcut");
+   etcutEB_  = iConfig.getParameter<double> ("etcutEB");
+   etcutEE_  = iConfig.getParameter<double> ("etcutEE");
    ncandcut_  = iConfig.getParameter<int> ("ncandcut");
    store_ = iConfig.getUntrackedParameter<bool> ("SaveTag",false) ;
    relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
@@ -64,13 +65,14 @@ HLTEgammaEtFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (unsigned int i=0; i<recoecalcands.size(); i++) {
     
     ref = recoecalcands[i] ;
-
-    if ( ref->et()  >= etcut_) {
+    
+    if( ( fabs(ref->eta()) < 1.479 &&  ref->et()  >= etcutEB_ ) || ( fabs(ref->eta()) >= 1.479 &&  ref->et()  >= etcutEE_ ) ){
       n++;
+      // std::cout << "Passed eta: " << ref->eta() << std::endl;
       filterproduct->addObject(TriggerCluster, ref);
     }
   }
-
+  
   
   // filter decision
   bool accept(n>=ncandcut_);

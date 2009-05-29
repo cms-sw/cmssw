@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 # (using old values from TQAF, january 2008)
 #
 muonMatch = cms.EDFilter("MCMatcher", # cut on deltaR, deltaPt/Pt; pick best by deltaR
-    src     = cms.InputTag("allLayer0Muons"), # RECO objects to match  
+    src     = cms.InputTag("muons"), # RECO objects to match  
     matched = cms.InputTag("genParticles"),   # mc-truth particle collection
     mcPdgId     = cms.vint32(13), # one or more PDG ID (13 = muon); absolute values (see below)
     checkCharge = cms.bool(True), # True = require RECO and MC objects to have the same charge

@@ -6,8 +6,8 @@
  *  shared surfaces. Build MagVolume6Faces and organise them in a hierarchical
  *  structure. Build MagGeometry out of it.
  *
- *  $Date: 2008/03/10 16:26:36 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/01/21 12:05:14 $
+ *  $Revision: 1.11 $
  *  \author N. Amapane - INFN Torino
  */
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h" 
@@ -25,16 +25,26 @@ class MagESector;
 class MagVolume6Faces;
 namespace magneticfield {
   class VolumeBasedMagneticFieldESProducer;
+  class AutoMagneticFieldESProducer;
 }
 
 
 class MagGeoBuilderFromDDD  {
 public:
-  /// Constructor
-  MagGeoBuilderFromDDD(std::string version_, bool debug=false);
+  /// Constructor. 
+  /// overrideMasterSector is a hack to allow switching between 
+  /// phi-symmetric maps and maps with sector-specific tables. 
+  /// It won't be necessary anymore once the geometry is decoupled from 
+  /// the specification of tables, ie when tables will come from the DB.
+  MagGeoBuilderFromDDD(std::string version_, bool debug=false, bool overrideMasterSector=false);
 
   /// Destructor
   virtual ~MagGeoBuilderFromDDD();
+
+  ///  Set scaling factors for individual volumes. 
+  /// "keys" is a vector of 100*volume number + sector (sector 0 = all sectors)
+  /// "values" are the corresponding scaling factors 
+  void setScaling(std::vector<int> keys, std::vector<double> values);
 
   /// Get barrel layers
   std::vector<MagBLayer*> barrelLayers() const;
@@ -51,12 +61,15 @@ private:
 
   // Build the geometry. 
   //virtual void build();
-  virtual void build(const DDCompactView & cpv) ;
+  virtual void build(const DDCompactView & cpv);
+
 
   // FIXME: only for temporary tests and debug, to be removed
   friend class TestMagVolume;
   friend class MagGeometry;
   friend class magneticfield::VolumeBasedMagneticFieldESProducer;
+  friend class magneticfield::AutoMagneticFieldESProducer;
+
 
   std::vector<MagVolume6Faces*> barrelVolumes() const;  
   std::vector<MagVolume6Faces*> endcapVolumes() const;
@@ -113,6 +126,10 @@ private:
 
   std::string version; // Version of the data files to be used
   
+  std::map<int, double> theScalingFactors;
+
+  bool overrideMasterSector; // see comment on ctor
+
   static bool debug;
 
 };

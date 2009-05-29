@@ -6,7 +6,9 @@
 #include <boost/shared_ptr.hpp>
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
 
@@ -26,9 +28,17 @@ namespace {
 
 MVATrainerLooper::Trainer::Trainer(const edm::ParameterSet &params)
 {
-	std::string trainDescription =
-			params.getUntrackedParameter<std::string>(
-							"trainDescription");
+	const edm::Entry *entry = params.retrieveUntracked("trainDescription");
+	if (!entry)
+		throw edm::Exception(edm::errors::Configuration,
+		                     "MissingParameter:")
+			<< "The required parameter 'trainDescription' "
+			   "was not specified." << std::endl;;
+	std::string trainDescription;
+	if (entry->typeCode() == 'F')
+		trainDescription = entry->getFileInPath().fullPath();
+	else
+		trainDescription = entry->getString();
 	bool doLoad = params.getUntrackedParameter<bool>("loadState", false);
 	bool doSave = params.getUntrackedParameter<bool>("saveState", false);
 	bool doMonitoring = params.getUntrackedParameter<bool>("monitoring", false);

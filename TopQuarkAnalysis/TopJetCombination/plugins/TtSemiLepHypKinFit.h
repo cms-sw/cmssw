@@ -19,10 +19,13 @@ class TtSemiLepHypKinFit : public TtSemiLepHypothesis  {
 			 const edm::Handle<edm::View<reco::RecoCandidate> >&,
 			 const edm::Handle<std::vector<pat::MET> >&,
 			 const edm::Handle<std::vector<pat::Jet> >&,
-			 std::vector<int>&);
+			 std::vector<int>&, const unsigned int iComb);
 
   edm::InputTag status_;
-  edm::InputTag partons_;
+  edm::InputTag partonsHadP_;
+  edm::InputTag partonsHadQ_;
+  edm::InputTag partonsHadB_;
+  edm::InputTag partonsLepB_;
   edm::InputTag leptons_;
   edm::InputTag neutrinos_;
 

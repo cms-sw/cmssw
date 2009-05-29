@@ -1,4 +1,4 @@
-// $Id: FragmentCollector.cc,v 1.42 2008/10/08 19:49:51 biery Exp $
+// $Id: FragmentCollector.cc,v 1.42.2.5 2008/11/15 20:02:49 biery Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/ProgressMarker.h"
@@ -10,6 +10,8 @@
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
 
 #include "boost/bind.hpp"
+
+#include "log4cplus/loggingmacros.h"
 
 #include <algorithm>
 #include <utility>
@@ -45,6 +47,7 @@ namespace stor
 
 
   FragmentCollector::FragmentCollector(HLTInfo& h,Deleter d,
+				       log4cplus::Logger& applicationLogger,
                                        const string& config_str):
     cmd_q_(&(h.getCommandQueue())),
     evtbuf_q_(&(h.getEventQueue())),
@@ -52,7 +55,10 @@ namespace stor
     buffer_deleter_(d),
     prods_(0),
     info_(&h), 
+    lastStaleCheckTime_(time(0)),
+    staleFragmentTimeout_(30),
     disks_(0),
+    applicationLogger_(applicationLogger),
     writer_(new edm::ServiceManager(config_str)),
     dqmServiceManager_(new stor::DQMServiceManager())
   {
@@ -61,6 +67,7 @@ namespace stor
     event_area_.reserve(7000000);
   }
   FragmentCollector::FragmentCollector(std::auto_ptr<HLTInfo> info,Deleter d,
+				       log4cplus::Logger& applicationLogger,
                                        const string& config_str):
     cmd_q_(&(info.get()->getCommandQueue())),
     evtbuf_q_(&(info.get()->getEventQueue())),
@@ -68,7 +75,10 @@ namespace stor
     buffer_deleter_(d),
     prods_(0),
     info_(info.get()), 
+    lastStaleCheckTime_(time(0)),
+    staleFragmentTimeout_(30),
     disks_(0),
+    applicationLogger_(applicationLogger),
     writer_(new edm::ServiceManager(config_str)),
     dqmServiceManager_(new stor::DQMServiceManager())
   {
@@ -163,11 +173,7 @@ namespace stor
 	      processErrorEvent(entry);
 	      break;
 	    }
-          // 03-Sep-2008, KAB: the use of the NEW_INIT_AVAILABLE message code
-          // here is a hack until the new FILE_CLOSE_REQUEST message code is
-          // ready (in IOPool/Streamer/MsgHeader).  As soon as FILE_CLOSE_REQUEST
-          // is ready, it should replace NEW_INIT_AVAILABLE.
-	  case Header::NEW_INIT_AVAILABLE:
+	  case Header::FILE_CLOSE_REQUEST:
 	    {
               FR_DEBUG << "FragColl: Got a File Close Request message" << endl;
               writer_->closeFilesIfNeeded();
@@ -220,42 +226,73 @@ namespace stor
 	return;
     } // end of single segment test
 
+    // verify that the segment number of the fragment is valid
+    if (entry->segNumber_ < 1 || entry->segNumber_ > entry->totalSegs_)
+    {
+      LOG4CPLUS_ERROR(applicationLogger_,
+                      "Invalid fragment ID received for event " << entry->id_
+                      << " in run " << entry->run_ << " with output module ID of "
+                      << entry->secondaryId_ << ", FU PID = "
+                      << entry->originatorPid_ << ", FU GUID = "
+                      << entry->originatorGuid_  << ".  Fragment id is "
+                      << entry->segNumber_ << ", total number of fragments is "
+                      << entry->totalSegs_ << ".");
+      (*buffer_deleter_)(entry);
+      return;
+    }
+
+    // add a new entry to the fragment area (Collection) based on this
+    // fragment's key (or fetch the existing entry if a fragment with the
+    // same key has already been processed)
     pair<Collection::iterator,bool> rc =
-      fragment_area_.insert(make_pair(FragKey(entry->code_, entry->run_, entry->id_, entry->secondaryId_), Fragments()));
-    
-    rc.first->second.push_back(*entry);
-    FR_DEBUG << "FragColl: added fragment" << endl;
-    
-    if((int)rc.first->second.size()==entry->totalSegs_)
+      fragment_area_.insert(make_pair(FragKey(entry->code_, entry->run_, entry->id_,
+                                              entry->secondaryId_, entry->originatorPid_,
+                                              entry->originatorGuid_),
+                                      FragmentContainer()));
+
+    // add this fragment to the map of fragments for this event
+    // (fragment map has key/value of fragment/segment ID and FragEntry)
+    FragmentContainer& fragContainer = rc.first->second;
+    std::map<int, FragEntry>& eventFragmentMap = fragContainer.fragmentMap_;
+    pair<std::map<int, FragEntry>::iterator, bool> fragInsertResult =
+      eventFragmentMap.insert(make_pair(entry->segNumber_, *entry));
+    bool duplicateEntry = ! fragInsertResult.second;
+
+    // if the specified fragment/segment ID already existed in the
+    // map, complain and clean up
+    if (duplicateEntry)
+    {
+      LOG4CPLUS_ERROR(applicationLogger_,
+                      "Duplicate fragment ID received for event " << entry->id_
+                      << " in run " << entry->run_ << " with output module ID of "
+                      << entry->secondaryId_ << ", FU PID = "
+                      << entry->originatorPid_ << ", FU GUID = "
+                      << entry->originatorGuid_  << ".  Fragment id is "
+                      << entry->segNumber_ << ", total number of fragments is "
+                      << entry->totalSegs_ << ".");
+      (*buffer_deleter_)(entry);
+      return;
+    }
+    // otherwise, we update the last fragment time for this event
+    else {
+      fragContainer.lastFragmentTime_ = time(0);
+    }
+
+    FR_DEBUG << "FragColl: added fragment with segment number "
+             << entry->segNumber_ << endl;
+
+    if((int)eventFragmentMap.size()==entry->totalSegs_)
     {
 	FR_DEBUG << "FragColl: completed an event with "
 		 << entry->totalSegs_ << " segments" << endl;
-        // we are done with this event so assemble parts
-        // but first make sure we have enough room; use an overestimate
-        unsigned int max_sizePerFrame = rc.first->second.begin()->buffer_size_;
-        if((entry->totalSegs_ * max_sizePerFrame) > event_area_.capacity()) {
-          event_area_.resize(entry->totalSegs_ * max_sizePerFrame);
-        }
-        unsigned char* pos = (unsigned char*)&event_area_[0];
-	
-	int sum=0;
-	unsigned int lastpos=0;
-	Fragments::iterator
-	  i(rc.first->second.begin()),e(rc.first->second.end());
 
-	for(;i!=e;++i)
-	{
-	    int dsize = i->buffer_size_;
-	    sum+=dsize;
-	    unsigned char* from=(unsigned char*)i->buffer_address_;
-	    copy(from,from+dsize,pos+lastpos);
-            lastpos = lastpos + dsize;
-	    // ask deleter to kill off the buffer
-	    (*buffer_deleter_)(&(*i));
-	}
+        // the assembleFragments method has several side-effects:
+        // - the event_area_ is filled, and it may be resized
+        // - the fragment entries are deleted using the buffer_deleter_
+        int assembledSize = assembleFragments(eventFragmentMap);
 
         EventMsgView emsg(&event_area_[0]);
-        FR_DEBUG << "FragColl: writing event size " << sum << endl;
+        FR_DEBUG << "FragColl: writing event size " << assembledSize << endl;
         writer_->manageEventMsg(emsg);
 
         if (eventServer_.get() != NULL)
@@ -265,23 +302,249 @@ namespace stor
 
 	// remove the entry from the map
 	fragment_area_.erase(rc.first);
+
+        // check for stale fragments
+        removeStaleFragments();
     }
     ProgressMarker::instance()->processing(false);
   }
 
   void FragmentCollector::processHeader(FragEntry* entry)
   {
-    // This does not yet handle fragmented INIT messages, so one should
-    // probably really test for entry->totalSegs_==1 in case fragments
-    // are passed through. (Should eventually handle fragments as the
-    // fragment queue design was to make it thread-safe. Currently
-    // any fragmented INIT messages are done differently).
+    ProgressMarker::instance()->processing(true);
+    if(entry->totalSegs_==1)
+    {
+      FR_DEBUG << "FragColl: Got an INIT message with one segment" << endl;
+      FR_DEBUG << "FragColl: Output Module ID " << entry->secondaryId_ << endl;
 
-    InitMsgView msg(entry->buffer_address_);
+      // send immediately
+      InitMsgView msg(entry->buffer_address_);
+      FR_DEBUG << "FragColl: writing INIT size " << entry->buffer_size_ << endl;
+      writer_->manageInitMsg(catalog_, disks_, sourceId_, msg, *initMsgCollection_);
 
-    FR_DEBUG << "FragColl: writing INIT size " << entry->buffer_size_ << endl;
+      try
+      {
+        if (initMsgCollection_->addIfUnique(msg))
+        {
+          // check if any currently connected consumers did not specify
+          // an HLT output module label and we now have multiple, different,
+          // INIT messages.  If so, we need to complain because the
+          // SelectHLTOutput parameter needs to be specified when there
+          // is more than one HLT output module (and correspondingly, more
+          // than one INIT message)
+          if (initMsgCollection_->size() > 1)
+          {
+            std::map< uint32, boost::shared_ptr<ConsumerPipe> > consumerTable = 
+              eventServer_->getConsumerTable();
+            std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator 
+              consumerIter;
+            for (consumerIter = consumerTable.begin();
+                 consumerIter != consumerTable.end();
+                 ++consumerIter)
+            {
+              boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
 
-    writer_->manageInitMsg(catalog_, disks_, sourceId_, msg, *initMsgCollection_);
+              // for regular consumers, we need to test whether the consumer
+              // configuration specified an HLT output module
+              if (! consPtr->isProxyServer())
+              {
+                if (consPtr->getHLTOutputSelection().empty())
+                {
+                  // store a warning message in the consumer pipe to be
+                  // sent to the consumer at the next opportunity
+                  std::string errorString;
+                  errorString.append("ERROR: The configuration for this ");
+                  errorString.append("consumer does not specify an HLT output ");
+                  errorString.append("module.\nPlease specify one of the HLT ");
+                  errorString.append("output modules listed below as the ");
+                  errorString.append("SelectHLTOutput parameter ");
+                  errorString.append("in the InputSource configuration.\n");
+                  errorString.append(initMsgCollection_->getSelectionHelpString());
+                  errorString.append("\n");
+                  consPtr->setRegistryWarning(errorString);
+                }
+              }
+            }
+          }
+        }
+      }
+      catch(cms::Exception& excpt)
+      {
+        char tidString[32];
+        sprintf(tidString, "%d", entry->hltTid_);
+        std::string logMsg = "receiveRegistryMessage: Error processing a ";
+        logMsg.append("registry message from URL ");
+        logMsg.append(entry->hltURL_);
+        logMsg.append(" and Tid ");
+        logMsg.append(tidString);
+        logMsg.append(":\n");
+        logMsg.append(excpt.what());
+        logMsg.append("\n");
+        logMsg.append(initMsgCollection_->getSelectionHelpString());
+        FDEBUG(9) << logMsg << std::endl;
+        LOG4CPLUS_ERROR(applicationLogger_, logMsg);
+
+        throw excpt;
+      }
+
+      smRBSenderList_->registerDataSender(&entry->hltURL_[0], &entry->hltClassName_[0],
+                                          entry->hltLocalId_, entry->hltInstance_, entry->hltTid_,
+                                          entry->segNumber_, entry->totalSegs_, msg.size(),
+                                          msg.outputModuleLabel(), msg.outputModuleId(),
+                                          entry->rbBufferID_);
+
+      // make sure the buffer properly released
+      (*buffer_deleter_)(entry);
+      return;
+    } // end of single segment test
+
+    // verify that the segment number of the fragment is valid
+    if (entry->segNumber_ < 1 || entry->segNumber_ > entry->totalSegs_)
+    {
+      LOG4CPLUS_ERROR(applicationLogger_,
+                      "Invalid fragment ID received for INIT " << entry->id_
+                      << " in run " << entry->run_ << " with output module ID of "
+                      << entry->secondaryId_ << ", FU PID = "
+                      << entry->originatorPid_ << ", FU GUID = "
+                      << entry->originatorGuid_  << ".  Fragment id is "
+                      << entry->segNumber_ << ", total number of fragments is "
+                      << entry->totalSegs_ << ".");
+      (*buffer_deleter_)(entry);
+      return;
+    }
+
+    // add a new entry to the fragment area (Collection) based on this
+    // fragment's key (or fetch the existing entry if a fragment with the
+    // same key has already been processed)
+    pair<Collection::iterator,bool> rc =
+      fragment_area_.insert(make_pair(FragKey(entry->code_, entry->run_, entry->id_,
+                                              entry->secondaryId_, entry->originatorPid_,
+                                              entry->originatorGuid_),
+                                      FragmentContainer()));
+
+    // add this fragment to the map of fragments for this event
+    // (fragment map has key/value of fragment/segment ID and FragEntry)
+    FragmentContainer& fragContainer = rc.first->second;
+    std::map<int, FragEntry>& eventFragmentMap = fragContainer.fragmentMap_;
+    pair<std::map<int, FragEntry>::iterator, bool> fragInsertResult =
+      eventFragmentMap.insert(make_pair(entry->segNumber_, *entry));
+    bool duplicateEntry = ! fragInsertResult.second;
+
+    // if the specified fragment/segment ID already existed in the
+    // map, complain and clean up
+    if (duplicateEntry)
+    {
+      LOG4CPLUS_ERROR(applicationLogger_,
+                      "Duplicate fragment ID received for INIT " << entry->id_
+                      << " in run " << entry->run_ << " with output module ID of "
+                      << entry->secondaryId_ << ", FU PID = "
+                      << entry->originatorPid_ << ", FU GUID = "
+                      << entry->originatorGuid_  << ".  Fragment id is "
+                      << entry->segNumber_ << ", total number of fragments is "
+                      << entry->totalSegs_ << ".");
+      (*buffer_deleter_)(entry);
+      return;
+    }
+    // otherwise, we update the last fragment time for this event
+    else {
+      fragContainer.lastFragmentTime_ = time(0);
+    }
+
+    FR_DEBUG << "FragColl: added INIT fragment with segment number "
+             << entry->segNumber_ << endl;
+
+    if((int)eventFragmentMap.size()==entry->totalSegs_)
+    {
+      FR_DEBUG << "FragColl: completed an INIT message with "
+               << entry->totalSegs_ << " segments" << endl;
+
+      // the assembleFragments method has several side-effects:
+      // - the event_area_ is filled, and it may be resized
+      // - the fragment entries are deleted using the buffer_deleter_
+      int assembledSize = assembleFragments(eventFragmentMap);
+
+      InitMsgView msg(&event_area_[0]);
+      FR_DEBUG << "FragColl: writing INIT size " << assembledSize << endl;
+      writer_->manageInitMsg(catalog_, disks_, sourceId_, msg, *initMsgCollection_);
+
+      try
+      {
+        if (initMsgCollection_->addIfUnique(msg))
+        {
+          // check if any currently connected consumers did not specify
+          // an HLT output module label and we now have multiple, different,
+          // INIT messages.  If so, we need to complain because the
+          // SelectHLTOutput parameter needs to be specified when there
+          // is more than one HLT output module (and correspondingly, more
+          // than one INIT message)
+          if (initMsgCollection_->size() > 1)
+          {
+            std::map< uint32, boost::shared_ptr<ConsumerPipe> > consumerTable = 
+              eventServer_->getConsumerTable();
+            std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator 
+              consumerIter;
+            for (consumerIter = consumerTable.begin();
+                 consumerIter != consumerTable.end();
+                 ++consumerIter)
+            {
+              boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
+
+              // for regular consumers, we need to test whether the consumer
+              // configuration specified an HLT output module
+              if (! consPtr->isProxyServer())
+              {
+                if (consPtr->getHLTOutputSelection().empty())
+                {
+                  // store a warning message in the consumer pipe to be
+                  // sent to the consumer at the next opportunity
+                  std::string errorString;
+                  errorString.append("ERROR: The configuration for this ");
+                  errorString.append("consumer does not specify an HLT output ");
+                  errorString.append("module.\nPlease specify one of the HLT ");
+                  errorString.append("output modules listed below as the ");
+                  errorString.append("SelectHLTOutput parameter ");
+                  errorString.append("in the InputSource configuration.\n");
+                  errorString.append(initMsgCollection_->getSelectionHelpString());
+                  errorString.append("\n");
+                  consPtr->setRegistryWarning(errorString);
+                }
+              }
+            }
+          }
+        }
+      }
+      catch(cms::Exception& excpt)
+      {
+        char tidString[32];
+        sprintf(tidString, "%d", entry->hltTid_);
+        std::string logMsg = "receiveRegistryMessage: Error processing a ";
+        logMsg.append("registry message from URL ");
+        logMsg.append(entry->hltURL_);
+        logMsg.append(" and Tid ");
+        logMsg.append(tidString);
+        logMsg.append(":\n");
+        logMsg.append(excpt.what());
+        logMsg.append("\n");
+        logMsg.append(initMsgCollection_->getSelectionHelpString());
+        FDEBUG(9) << logMsg << std::endl;
+        LOG4CPLUS_ERROR(applicationLogger_, logMsg);
+
+        throw excpt;
+      }
+
+      smRBSenderList_->registerDataSender(&entry->hltURL_[0], &entry->hltClassName_[0],
+                                          entry->hltLocalId_, entry->hltInstance_, entry->hltTid_,
+                                          entry->segNumber_, entry->totalSegs_, msg.size(),
+                                          msg.outputModuleLabel(), msg.outputModuleId(),
+                                          entry->rbBufferID_);
+
+      // remove the entry from the map
+      fragment_area_.erase(rc.first);
+
+      // check for stale fragments
+      removeStaleFragments();
+    }
+    ProgressMarker::instance()->processing(false);
   }
 
   void FragmentCollector::processDQMEvent(FragEntry* entry)
@@ -295,153 +558,84 @@ namespace stor
       FR_DEBUG << "FragColl: DQM_Event folderID " << entry->secondaryId_ << endl;
 
       DQMEventMsgView dqmEventView(entry->buffer_address_);
-      /*  do not deserialize even for debug output but keep this for now
-      // temporary debug output
-      std::cout << "  DQM Message data:" << std::endl; 
-      std::cout << "    protocol version = "
-                << dqmEventView.protocolVersion() << std::endl; 
-      std::cout << "    header size = "
-                << dqmEventView.headerSize() << std::endl; 
-      std::cout << "    run number = "
-                << dqmEventView.runNumber() << std::endl; 
-      std::cout << "    event number = "
-                << dqmEventView.eventNumberAtUpdate() << std::endl; 
-      std::cout << "    lumi section = "
-                << dqmEventView.lumiSection() << std::endl; 
-      std::cout << "    update number = "
-                << dqmEventView.updateNumber() << std::endl; 
-      std::cout << "    compression flag = "
-                << dqmEventView.compressionFlag() << std::endl; 
-      std::cout << "    reserved word = "
-                << dqmEventView.reserved() << std::endl; 
-      std::cout << "    release tag = "
-                << dqmEventView.releaseTag() << std::endl; 
-      std::cout << "    top folder name = "
-                << dqmEventView.topFolderName() << std::endl; 
-      std::cout << "    sub folder count = "
-                << dqmEventView.subFolderCount() << std::endl; 
-      edm::StreamDQMDeserializer deserializeWorker;
-      std::auto_ptr<DQMEvent::TObjectTable> toTablePtr =
-        deserializeWorker.deserializeDQMEvent(dqmEventView);
-      DQMEvent::TObjectTable::const_iterator toIter;
-      for (toIter = toTablePtr->begin();
-           toIter != toTablePtr->end(); toIter++) {
-        std::string subFolderName = toIter->first;
-        std::cout << "  folder = " << subFolderName << std::endl;
-        std::vector<TObject *> toList = toIter->second;
-        for (int tdx = 0; tdx < (int) toList.size(); tdx++) {
-          TObject *toPtr = toList[tdx];
-          string cls = toPtr->IsA()->GetName();
-          string nm = toPtr->GetName();
-          std::cout << "    TObject class = " << cls
-                    << ", name = " << nm << std::endl;
-        }
-      }
-      */
-      // Manage this DQMEvent, temporarily just stick it in the DQMEventServer
-      //if (DQMeventServer_.get() != NULL)
-      //{
-      //  DQMeventServer_->processDQMEvent(dqmEventView);
-      //}
       dqmServiceManager_->manageDQMEventMsg(dqmEventView);
-
-      // do the appropriate thing with this DQM_Event
-      //std::cout << "FragColl: Got a DQM_Event with one segment" 
-      //          << " DQM_Event size " << entry->buffer_size_
-      //          << " DQM_Event ID " << entry->id_
-      //          << " DQM_Event folderID " << entry->secondaryId_ << std::endl;
-      // properly release (delete) the buffer
       (*buffer_deleter_)(entry);
       return;
     } // end of single segment test
 
+    // verify that the segment number of the fragment is valid
+    if (entry->segNumber_ < 1 || entry->segNumber_ > entry->totalSegs_)
+    {
+      LOG4CPLUS_ERROR(applicationLogger_,
+                      "Invalid fragment ID received for DQM event " << entry->id_
+                      << " in run " << entry->run_ << " with folder ID of "
+                      << entry->secondaryId_ << ", FU PID = "
+                      << entry->originatorPid_ << ", FU GUID = "
+                      << entry->originatorGuid_  << ".  Fragment id is "
+                      << entry->segNumber_ << ", total number of fragments is "
+                      << entry->totalSegs_ << ".");
+      (*buffer_deleter_)(entry);
+      return;
+    }
+
+    // add a new entry to the fragment area (Collection) based on this
+    // fragment's key (or fetch the existing entry if a fragment with the
+    // same key has already been processed)
     pair<Collection::iterator,bool> rc =
-      fragment_area_.insert(make_pair(FragKey(entry->code_, entry->run_, entry->id_, entry->secondaryId_), Fragments()));
-    
-    rc.first->second.push_back(*entry);
+      fragment_area_.insert(make_pair(FragKey(entry->code_, entry->run_, entry->id_,
+                                              entry->secondaryId_, entry->originatorPid_,
+                                              entry->originatorGuid_),
+                                      FragmentContainer()));
+
+    // add this fragment to the map of fragments for this event
+    // (fragment map has key/value of fragment/segment ID and FragEntry)
+    FragmentContainer& fragContainer = rc.first->second;
+    std::map<int, FragEntry>& eventFragmentMap = fragContainer.fragmentMap_;
+    pair<std::map<int, FragEntry>::iterator, bool> fragInsertResult =
+      eventFragmentMap.insert(make_pair(entry->segNumber_, *entry));
+    bool duplicateEntry = ! fragInsertResult.second;
+
+    // if the specified fragment/segment ID already existed in the
+    // map, complain and clean up
+    if (duplicateEntry)
+    {
+      LOG4CPLUS_ERROR(applicationLogger_,
+                      "Duplicate fragment ID received for DQM event " << entry->id_
+                      << " in run " << entry->run_ << " with folder ID of "
+                      << entry->secondaryId_ << ", FU PID = "
+                      << entry->originatorPid_ << ", FU GUID = "
+                      << entry->originatorGuid_  << ".  Fragment id is "
+                      << entry->segNumber_ << ", total number of fragments is "
+                      << entry->totalSegs_ << ".");
+      (*buffer_deleter_)(entry);
+      return;
+    }
+    // otherwise, we update the last fragment time for this event
+    else {
+      fragContainer.lastFragmentTime_ = time(0);
+    }
+
     FR_DEBUG << "FragColl: added DQM fragment" << endl;
     
-    if((int)rc.first->second.size()==entry->totalSegs_)
+    if((int)eventFragmentMap.size()==entry->totalSegs_)
     {
       FR_DEBUG << "FragColl: completed a DQM_event with "
        << entry->totalSegs_ << " segments" << endl;
-      // we are done with this event so assemble parts
-      // but first make sure we have enough room; use an overestimate
-      unsigned int max_sizePerFrame = rc.first->second.begin()->buffer_size_;
-      if((entry->totalSegs_ * max_sizePerFrame) > event_area_.capacity()) {
-        event_area_.resize(entry->totalSegs_ * max_sizePerFrame);
-      }
-      unsigned char* pos = (unsigned char*)&event_area_[0];
 
-      int sum=0;
-      unsigned int lastpos=0;
-      Fragments::iterator
-        i(rc.first->second.begin()),e(rc.first->second.end());
+      // the assembleFragments method has several side-effects:
+      // - the event_area_ is filled, and it may be resized
+      // - the fragment entries are deleted using the buffer_deleter_
+      assembleFragments(eventFragmentMap);
 
-      for(;i!=e;++i)
-      {
-        int dsize = i->buffer_size_;
-        sum+=dsize;
-        unsigned char* from=(unsigned char*)i->buffer_address_;
-        copy(from,from+dsize,pos+lastpos);
-        lastpos = lastpos + dsize;
-        // ask deleter to kill off the buffer
-        (*buffer_deleter_)(&(*i));
-      }
       // the reformed DQM data is now in event_area_ deal with it
       DQMEventMsgView dqmEventView(&event_area_[0]);
-      /* do not deserialize even for debug output but keep this for now
-      // temporary debug output
-      std::cout << "  DQM Message data:" << std::endl; 
-      std::cout << "    protocol version = "
-                << dqmEventView.protocolVersion() << std::endl; 
-      std::cout << "    header size = "
-                << dqmEventView.headerSize() << std::endl; 
-      std::cout << "    run number = "
-                << dqmEventView.runNumber() << std::endl; 
-      std::cout << "    event number = "
-                << dqmEventView.eventNumberAtUpdate() << std::endl; 
-      std::cout << "    lumi section = "
-                << dqmEventView.lumiSection() << std::endl; 
-      std::cout << "    update number = "
-                << dqmEventView.updateNumber() << std::endl; 
-      std::cout << "    compression flag = "
-                << dqmEventView.compressionFlag() << std::endl; 
-      std::cout << "    reserved word = "
-                << dqmEventView.reserved() << std::endl; 
-      std::cout << "    release tag = "
-                << dqmEventView.releaseTag() << std::endl; 
-      std::cout << "    top folder name = "
-                << dqmEventView.topFolderName() << std::endl; 
-      std::cout << "    sub folder count = "
-                << dqmEventView.subFolderCount() << std::endl; 
-      edm::StreamDQMDeserializer deserializeWorker;
-      std::auto_ptr<DQMEvent::TObjectTable> toTablePtr =
-        deserializeWorker.deserializeDQMEvent(dqmEventView);
-      DQMEvent::TObjectTable::const_iterator toIter;
-      for (toIter = toTablePtr->begin();
-           toIter != toTablePtr->end(); toIter++) {
-        std::string subFolderName = toIter->first;
-        std::cout << "  folder = " << subFolderName << std::endl;
-        std::vector<TObject *> toList = toIter->second;
-        for (int tdx = 0; tdx < (int) toList.size(); tdx++) {
-          TObject *toPtr = toList[tdx];
-          string cls = toPtr->IsA()->GetName();
-          string nm = toPtr->GetName();
-          std::cout << "    TObject class = " << cls
-                    << ", name = " << nm << std::endl;
-        }
-      }
-      */
-      // Manage this DQMEvent, temporarily just stick it in the DQMEventServer
-      //if (DQMeventServer_.get() != NULL)
-      //{
-      //  DQMeventServer_->processDQMEvent(dqmEventView);
-      //}
       dqmServiceManager_->manageDQMEventMsg(dqmEventView);
 
       // remove the entry from the map
       fragment_area_.erase(rc.first);
+
+      // check for stale fragments
+      removeStaleFragments();
     }
     ProgressMarker::instance()->processing(false);
   }
@@ -465,48 +659,193 @@ namespace stor
 	return;
     } // end of single segment test
 
+    // verify that the segment number of the fragment is valid
+    if (entry->segNumber_ < 1 || entry->segNumber_ > entry->totalSegs_)
+    {
+      LOG4CPLUS_ERROR(applicationLogger_,
+                      "Invalid fragment ID received for Error event " << entry->id_
+                      << " in run " << entry->run_ << " with output module ID of "
+                      << entry->secondaryId_ << ", FU PID = "
+                      << entry->originatorPid_ << ", FU GUID = "
+                      << entry->originatorGuid_  << ".  Fragment id is "
+                      << entry->segNumber_ << ", total number of fragments is "
+                      << entry->totalSegs_ << ".");
+      (*buffer_deleter_)(entry);
+      return;
+    }
+
+    // add a new entry to the fragment area (Collection) based on this
+    // fragment's key (or fetch the existing entry if a fragment with the
+    // same key has already been processed)
     pair<Collection::iterator,bool> rc =
-      fragment_area_.insert(make_pair(FragKey(entry->code_, entry->run_, entry->id_, entry->secondaryId_), Fragments()));
+      fragment_area_.insert(make_pair(FragKey(entry->code_, entry->run_, entry->id_,
+                                              entry->secondaryId_, entry->originatorPid_,
+                                              entry->originatorGuid_),
+                                      FragmentContainer()));
+
+    // add this fragment to the map of fragments for this event
+    // (fragment map has key/value of fragment/segment ID and FragEntry)
+    FragmentContainer& fragContainer = rc.first->second;
+    std::map<int, FragEntry>& eventFragmentMap = fragContainer.fragmentMap_;
+    pair<std::map<int, FragEntry>::iterator, bool> fragInsertResult =
+      eventFragmentMap.insert(make_pair(entry->segNumber_, *entry));
+    bool duplicateEntry = ! fragInsertResult.second;
+
+    // if the specified fragment/segment ID already existed in the
+    // map, complain and clean up
+    if (duplicateEntry)
+    {
+      LOG4CPLUS_ERROR(applicationLogger_,
+                      "Duplicate fragment ID received for Error event " << entry->id_
+                      << " in run " << entry->run_ << " with output module ID of "
+                      << entry->secondaryId_ << ", FU PID = "
+                      << entry->originatorPid_ << ", FU GUID = "
+                      << entry->originatorGuid_  << ".  Fragment id is "
+                      << entry->segNumber_ << ", total number of fragments is "
+                      << entry->totalSegs_ << ".");
+      (*buffer_deleter_)(entry);
+      return;
+    }
+    // otherwise, we update the last fragment time for this event
+    else {
+      fragContainer.lastFragmentTime_ = time(0);
+    }
+
+    FR_DEBUG << "FragColl: added Error event fragment" << endl;
     
-    rc.first->second.push_back(*entry);
-    FR_DEBUG << "FragColl: added fragment" << endl;
-    
-    if((int)rc.first->second.size()==entry->totalSegs_)
+    if((int)eventFragmentMap.size()==entry->totalSegs_)
     {
 	FR_DEBUG << "FragColl: completed an error event with "
 		 << entry->totalSegs_ << " segments" << endl;
-        // we are done with this error event so assemble parts
-        // but first make sure we have enough room; use an overestimate
-        unsigned int max_sizePerFrame = rc.first->second.begin()->buffer_size_;
-        if((entry->totalSegs_ * max_sizePerFrame) > event_area_.capacity()) {
-          event_area_.resize(entry->totalSegs_ * max_sizePerFrame);
-        }
-        unsigned char* pos = (unsigned char*)&event_area_[0];
-	
-	int sum=0;
-	unsigned int lastpos=0;
-	Fragments::iterator
-	  i(rc.first->second.begin()),e(rc.first->second.end());
 
-	for(;i!=e;++i)
-	{
-	    int dsize = i->buffer_size_;
-	    sum+=dsize;
-	    unsigned char* from=(unsigned char*)i->buffer_address_;
-	    copy(from,from+dsize,pos+lastpos);
-            lastpos = lastpos + dsize;
-	    // ask deleter to kill off the buffer
-	    (*buffer_deleter_)(&(*i));
-	}
+        // the assembleFragments method has several side-effects:
+        // - the event_area_ is filled, and it may be resized
+        // - the fragment entries are deleted using the buffer_deleter_
+        int assembledSize = assembleFragments(eventFragmentMap);
 
         FRDEventMsgView emsg(&event_area_[0]);
-        FR_DEBUG << "FragColl: writing error event size " << sum << endl;
+        FR_DEBUG << "FragColl: writing error event size " << assembledSize << endl;
         writer_->manageErrorEventMsg(catalog_, disks_, sourceId_, emsg);
 
 	// remove the entry from the map
 	fragment_area_.erase(rc.first);
+
+        // check for stale fragments
+        removeStaleFragments();
     }
     ProgressMarker::instance()->processing(false);
   }
 
+  /**
+   * This method copies the data from the fragments contained in the
+   * specified fragmentMap to the event_area_ attribute of this class.
+   * The fragment map is keyed by the fragment number, where the fragment
+   * number runs from 1 to N (the number of fragments). 
+   * This method has several side-effects:  it changes the contents of
+   * the event_area_ attribute, it may resize the event_area_ attribute if
+   * it needs to be made larger (to handle all of the fragments, and
+   * the fragment buffers are deleted using the buffer_deleter_ attribute
+   * of this class.
+   *
+   * @return the number of bytes copied into the event_area_.
+   */
+  int FragmentCollector::assembleFragments(std::map<int, FragEntry>& fragmentMap)
+  {
+    // first make sure we have enough room; use an overestimate
+    unsigned int max_sizePerFrame = fragmentMap[1].buffer_size_;
+    if((fragmentMap.size() * max_sizePerFrame) > event_area_.capacity())
+    {
+      event_area_.resize(fragmentMap.size() * max_sizePerFrame);
+    }
+    unsigned char* pos = (unsigned char*)&event_area_[0];
+	
+    int sum=0;
+    unsigned int lastpos=0;
+    for (unsigned int idx = 1; idx <= fragmentMap.size(); ++idx)
+    {
+      FragEntry& workingEntry = fragmentMap[idx];
+      int dsize = workingEntry.buffer_size_;
+      sum+=dsize;
+      unsigned char* from=(unsigned char*)workingEntry.buffer_address_;
+      copy(from,from+dsize,pos+lastpos);
+      lastpos = lastpos + dsize;
+      // ask deleter to kill off the buffer
+      (*buffer_deleter_)(&workingEntry);
+    }
+
+    return sum;
+  }
+
+  /**
+   * This method removes stale fragments from the fragment_area_ (Collection).
+   * Obviously, it has the side-effect of modifying the fragment_area_
+   *
+   * @return the number of events (fragmentContainers, actually) that
+   *         were removed from the fragment_area_.
+   */
+  int FragmentCollector::removeStaleFragments()
+  {
+    // if there are no entries in the fragment_area_, we know
+    // right away that there are no stale fragments
+    if (fragment_area_.size() == 0) {return 0;}
+
+    // check if it is time to look for stale fragments
+    // (we could have a separate interval specified for how often
+    // to run the test, but for now, we'll just use an interval
+    // of the stale timeout.  So, the staleFragmentTimeout is doing
+    // double duty - it tells us how old fragments must be before
+    // we delete them and it tells us how often to run the test of
+    // whether any stale fragments exist.
+    time_t now = time(0);
+    if ((now - lastStaleCheckTime_) < staleFragmentTimeout_) {return 0;}
+
+    lastStaleCheckTime_ = now;
+    //LOG4CPLUS_INFO(applicationLogger_,
+    //               "Running the stale fragment test at " << now
+    //               << ", number of entries in the fragment area is "
+    //               << fragment_area_.size() << ".");
+
+    //  build up a list of events that need to be removed
+    std::vector<FragKey> staleList;
+    Collection::iterator areaIter;
+    for (areaIter = fragment_area_.begin();
+         areaIter != fragment_area_.end();
+         ++areaIter)
+    {
+      FragmentContainer& fragContainer = areaIter->second;
+      std::map<int, FragEntry>::iterator fragIter =
+        fragContainer.fragmentMap_.begin();
+      FragEntry& workingEntry = fragIter->second;
+      //LOG4CPLUS_INFO(applicationLogger_,
+      //               "Testing if the fragments for event " << workingEntry.id_
+      //               << " in run " << workingEntry.run_ << " are stale.  "
+      //               << "Now = " << now << ", lastFragmentTime = "
+      //               << fragContainer.lastFragmentTime_ << ".");
+      // remember, the granularity of the times is a (large) one second
+      if (fragContainer.lastFragmentTime_ > 0 &&
+          fragContainer.lastFragmentTime_ >= fragContainer.creationTime_ &&
+          (now - fragContainer.lastFragmentTime_) > staleFragmentTimeout_)
+      {
+        LOG4CPLUS_WARN(applicationLogger_,
+                       "Deleting a stale fragment set for event "
+                       << workingEntry.id_ << " in run " << workingEntry.run_
+                       << " with secondary ID of " << workingEntry.secondaryId_
+                       << ", FU PID = " << workingEntry.originatorPid_
+                       << ", FU GUID = " << workingEntry.originatorGuid_
+                       << ".  The number of fragments received was "
+                       << fragContainer.fragmentMap_.size()
+                       << ", and the total number of fragments expected was "
+                       << workingEntry.totalSegs_ << ".");
+        staleList.push_back(areaIter->first);
+      }
+    }
+
+    // actually do the removal
+    for (unsigned int idx = 0; idx < staleList.size(); ++idx)
+    {
+      fragment_area_.erase(staleList[idx]);
+    }
+
+    return staleList.size();
+  }
 }

@@ -35,9 +35,6 @@
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
-#include "CondFormats/EcalObjects/interface/EcalMappingElectronics.h"
-#include "CondFormats/DataRecord/interface/EcalMappingElectronicsRcd.h"
-
 // #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
 
@@ -53,4 +50,3 @@ REGISTER_PLUGIN(EcalLaserAlphasRcd,EcalFloatCondObjectContainer);
 REGISTER_PLUGIN(EcalLaserAPDPNRatiosRcd,EcalLaserAPDPNRatios);
 REGISTER_PLUGIN(EcalLaserAPDPNRatiosRefRcd,EcalFloatCondObjectContainer);
 REGISTER_PLUGIN(EcalChannelStatusRcd,EcalChannelStatus);
-REGISTER_PLUGIN(EcalMappingElectronicsRcd,EcalMappingElectronics);

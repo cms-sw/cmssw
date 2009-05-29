@@ -22,6 +22,8 @@
 // DDCore dependencies
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDException.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 // Root Math dependencies
@@ -29,6 +31,7 @@
 #include <Math/RotationY.h>
 #include <Math/RotationZ.h>
 
+#include <string>
 
 // Default constructor
 DDLRotationByAxis::DDLRotationByAxis() 

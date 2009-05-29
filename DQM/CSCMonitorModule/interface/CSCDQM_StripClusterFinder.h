@@ -18,8 +18,12 @@ namespace cscdqm {
 
 using namespace std;
 
-class StripClusterFinder
-{
+/**
+ * @class StripClusterFinder
+ * @brief Object used to find Strip Clusters
+ */
+class StripClusterFinder {
+
  public:
   StripClusterFinder(int l, int s, int cf, int st );
   void DoAction(int layerId,float *cathodes);

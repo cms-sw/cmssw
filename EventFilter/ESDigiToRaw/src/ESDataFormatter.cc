@@ -17,7 +17,7 @@ const int ESDataFormatter::bDVMINOR  = 8;
 const int ESDataFormatter::bDCH      = 4; 
 const int ESDataFormatter::bDOPTO    = 8;
 
-const int ESDataFormatter::sDHEAD    = 28;
+const int ESDataFormatter::sDHEAD    = 26;
 const int ESDataFormatter::sDH       = 24;
 const int ESDataFormatter::sDEL      = 0;
 const int ESDataFormatter::sDERR     = bDEL + sDEL;
@@ -168,27 +168,27 @@ FEDRawData * ESDataFormatter::DigiToRaw(int fedId, const Digis & digis) {
   
   // DCC words
   vector<Word64> DCCwords;
-  word2 = (3 << sDHEAD) | (1 <<sDH) | (run_number_ << sDRUN);
+  word2 = (0 << sDHEAD) | (1 <<sDH) | (run_number_ << sDRUN);
   word1 = (dataSize << sDEL);
   word  = (Word64(word2) << 32 ) | Word64(word1);
   DCCwords.push_back(word);
-  word2 = (3 << sDHEAD) | (2 <<sDH);
+  word2 = (0 << sDHEAD) | (2 <<sDH);
   word1 = 0;
   word  = (Word64(word2) << 32 ) | Word64(word1);
   DCCwords.push_back(word);
-  word2 = (3 << sDHEAD) | (3 <<sDH) | (1 << sDVMAJOR) | (1 << sDVMINOR); 
+  word2 = (0 << sDHEAD) | (3 <<sDH) | (1 << sDVMAJOR) | (1 << sDVMINOR); 
   word1 = (orbit_number_ << sDORBIT);
   word  = (Word64(word2) << 32 ) | Word64(word1);
   DCCwords.push_back(word);
-  word2 = (3 << sDHEAD) | (4 <<sDH);
+  word2 = (0 << sDHEAD) | (4 <<sDH);
   word1 = 0;
   word  = (Word64(word2) << 32 ) | Word64(word1);
   DCCwords.push_back(word);
-  word2 = (3 << sDHEAD) | (5 <<sDH);
+  word2 = (0 << sDHEAD) | (5 <<sDH);
   word1 = 0;
   word  = (Word64(word2) << 32 ) | Word64(word1);
   DCCwords.push_back(word);
-  word2 = (3 << sDHEAD) | (6 <<sDH);
+  word2 = (0 << sDHEAD) | (6 <<sDH);
   word1 = 0;
   word  = (Word64(word2) << 32 ) | Word64(word1);
   DCCwords.push_back(word);
@@ -380,27 +380,27 @@ FEDRawData * ESDataFormatter::DigiToRawTB(int fedId, const Digis & digis) {
 
   // DCC words
   vector<Word64> DCCwords;
-  word2 = (3 << sDHEAD) | (1 <<sDH) | (run_number_ << sDRUN);
+  word2 = (0 << sDHEAD) | (1 <<sDH) | (run_number_ << sDRUN);
   word1 = (dataSize << sDEL);
   word  = (Word64(word2) << 32 ) | Word64(word1);
   DCCwords.push_back(word);
-  word2 = (3 << sDHEAD) | (2 <<sDH);
+  word2 = (0 << sDHEAD) | (2 <<sDH);
   word1 = 0;
   word  = (Word64(word2) << 32 ) | Word64(word1);
   DCCwords.push_back(word);
-  word2 = (3 << sDHEAD) | (3 <<sDH) | (1 << sDVMAJOR) | (1 << sDVMINOR); 
+  word2 = (0 << sDHEAD) | (3 <<sDH) | (1 << sDVMAJOR) | (1 << sDVMINOR); 
   word1 = (orbit_number_ << sDORBIT);
   word  = (Word64(word2) << 32 ) | Word64(word1);
   DCCwords.push_back(word);
-  word2 = (3 << sDHEAD) | (4 <<sDH);
+  word2 = (0 << sDHEAD) | (4 <<sDH);
   word1 = 0;
   word  = (Word64(word2) << 32 ) | Word64(word1);
   DCCwords.push_back(word);
-  word2 = (3 << sDHEAD) | (5 <<sDH);
+  word2 = (0 << sDHEAD) | (5 <<sDH);
   word1 = 0;
   word  = (Word64(word2) << 32 ) | Word64(word1);
   DCCwords.push_back(word);
-  word2 = (3 << sDHEAD) | (6 <<sDH);
+  word2 = (0 << sDHEAD) | (6 <<sDH);
   word1 = 0;
   word  = (Word64(word2) << 32 ) | Word64(word1);
   DCCwords.push_back(word);

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/02/19 15:15:34 $
- *  $Revision: 1.1 $
+ *  $Date: $
+ *  $Revision: $
  *  \author S. Bolognesi
  */
 
@@ -53,7 +53,7 @@ DTTPDeadWriter::~DTTPDeadWriter(){
     cout << "[DTTPDeadWriter]Destructor called!" << endl;
 }
 
-void DTTPDeadWriter::beginRun(const edm::Run&, const EventSetup& setup) {
+void DTTPDeadWriter::beginJob(const EventSetup& setup) {
    // Get the t0 map  
    ESHandle<DTT0> t0;
    setup.get<DTT0Rcd>().get(t0);
@@ -92,10 +92,10 @@ void DTTPDeadWriter::analyze(const Event & event, const EventSetup& eventSetup) 
 	DTWireId wireId(layerId,wire);
 	float t0 = 0;
 	float t0rms = 0;
-	tZeroMap->get(wireId,
-		      t0,
-		      t0rms,
-		      DTTimeUnits::ns);
+	tZeroMap->cellT0(wireId,
+			 t0,
+			 t0rms,
+			 DTTimeUnits::ns);
 
 	//If no t0 stored then is a tp dead channel
 	if(!t0){

@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/16 16:30:03 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/03/25 16:21:15 $
+ *  $Revision: 1.10 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -44,6 +44,7 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
   : name(fv.logicalPart().name().name()),
     copyno(fv.copyno()),
     magVolume(0),
+    masterSector(1),
     theRN(0.),
     theRMin(0.),
     theRMax(0.),
@@ -52,7 +53,8 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
     center_(GlobalPoint(fv.translation().x()/cm,
 			fv.translation().y()/cm,
 			fv.translation().z()/cm)),
-    expand(expand2Pi)
+    expand(expand2Pi),
+    isIronFlag(false)
 {
   for (int i=0; i<6; ++i) {
     isAssigned[i] = false;
@@ -82,11 +84,12 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
     cout << "volumeHandle ctor: Unexpected solid: " << (int) solid.shape() << endl;
   }
 
-      
+
+  DDsvalues_type sv(fv.mergedSpecifics());
+    
   { // Extract the name of associated field file.
     std::vector<std::string> temp;
-    std::string pname = "mfield_";
-    pname += fv.logicalPart().name().name();
+    std::string pname = "table";
     DDValue val(pname);
     DDsvalues_type sv(fv.mergedSpecifics());
     if (DDfetch(&sv,val)) {
@@ -101,6 +104,26 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
     }
   }
 
+  { // Extract the number of the master sector.
+    std::vector<double> temp;
+    const std::string pname = "masterSector";
+    DDValue val(pname);
+    if (DDfetch(&sv,val)) {
+      temp = val.doubles();
+      if (temp.size() != 1) {
+ 	cout << "*** WARNING: volume has > 1 SpecPar " << pname << endl;
+      }
+      masterSector = int(temp[0]+.5);
+    } else {
+      cout << "*** WARNING: volume does not have a SpecPar " << pname << endl;
+      cout << " DDsvalues_type:  " << fv.mergedSpecifics() << endl;
+    }  
+  }
+  
+  // Get material for this volume
+  if (fv.logicalPart().material().name().name() == "Iron") isIronFlag=true;  
+
+
   if (MagGeoBuilderFromDDD::debug) {  
     cout << " RMin =  " << theRMin <<endl;
     cout << " RMax =  " << theRMax <<endl;
@@ -114,7 +137,9 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
 	 << " R " << center().perp()
 	 << " phi " << center().phi()
 	 << " magFile " << magFile
-	 << " Material= " << fv.logicalPart().material().name();
+	 << " Material= " << fv.logicalPart().material().name()
+	 << " isIron= " << isIronFlag
+	 << " masterSector= " << masterSector << std::endl;
 
     cout << " Orientation of surfaces:";
     std::string sideName[3] =  {"positiveSide", "negativeSide", "onSurface"};

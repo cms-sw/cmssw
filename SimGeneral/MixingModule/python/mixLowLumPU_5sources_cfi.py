@@ -45,7 +45,6 @@ mix = cms.EDFilter("MixingModule",
     ),
     maxBunch = cms.int32(3),
     playback = cms.untracked.bool(False),
-    useCurrentProcessOnly = cms.bool(False),
     minBunch = cms.int32(-5), ## in units of 25 nsec
 
     bunchspace = cms.int32(25), ## nsec

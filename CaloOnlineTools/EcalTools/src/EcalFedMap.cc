@@ -8,15 +8,15 @@ EcalFedMap::~EcalFedMap(){}
 EcalFedMap::EcalFedMap(){
 
   // EE-
-  fedToSliceMap_.insert( std::make_pair(601, "EE-07") );
-  fedToSliceMap_.insert( std::make_pair(602, "EE-08") );
-  fedToSliceMap_.insert( std::make_pair(603, "EE-09") );
-  fedToSliceMap_.insert( std::make_pair(604, "EE-01") );
-  fedToSliceMap_.insert( std::make_pair(605, "EE-02") );
-  fedToSliceMap_.insert( std::make_pair(606, "EE-03") );
-  fedToSliceMap_.insert( std::make_pair(607, "EE-04") );
-  fedToSliceMap_.insert( std::make_pair(608, "EE-05") );
-  fedToSliceMap_.insert( std::make_pair(609, "EE-06") );
+  fedToSliceMap_.insert( std::make_pair(601, "EE-01") );
+  fedToSliceMap_.insert( std::make_pair(602, "EE-02") );
+  fedToSliceMap_.insert( std::make_pair(603, "EE-03") );
+  fedToSliceMap_.insert( std::make_pair(604, "EE-04") );
+  fedToSliceMap_.insert( std::make_pair(605, "EE-05") );
+  fedToSliceMap_.insert( std::make_pair(606, "EE-06") );
+  fedToSliceMap_.insert( std::make_pair(607, "EE-07") );
+  fedToSliceMap_.insert( std::make_pair(608, "EE-08") );
+  fedToSliceMap_.insert( std::make_pair(609, "EE-09") );
 
   // EB-
   fedToSliceMap_.insert( std::make_pair(610, "EB-01") );
@@ -59,15 +59,15 @@ EcalFedMap::EcalFedMap(){
   fedToSliceMap_.insert( std::make_pair(645, "EB+18") );
 
   // EE+
-  fedToSliceMap_.insert( std::make_pair(646, "EE+07") );
-  fedToSliceMap_.insert( std::make_pair(647, "EE+08") );
-  fedToSliceMap_.insert( std::make_pair(648, "EE+09") );
-  fedToSliceMap_.insert( std::make_pair(649, "EE+01") );
-  fedToSliceMap_.insert( std::make_pair(650, "EE+02") );
-  fedToSliceMap_.insert( std::make_pair(651, "EE+03") );
-  fedToSliceMap_.insert( std::make_pair(652, "EE+04") );
-  fedToSliceMap_.insert( std::make_pair(653, "EE+05") );
-  fedToSliceMap_.insert( std::make_pair(654, "EE+06") );
+  fedToSliceMap_.insert( std::make_pair(646, "EE+01") );
+  fedToSliceMap_.insert( std::make_pair(647, "EE+02") );
+  fedToSliceMap_.insert( std::make_pair(648, "EE+03") );
+  fedToSliceMap_.insert( std::make_pair(649, "EE+04") );
+  fedToSliceMap_.insert( std::make_pair(650, "EE+05") );
+  fedToSliceMap_.insert( std::make_pair(651, "EE+06") );
+  fedToSliceMap_.insert( std::make_pair(652, "EE+07") );
+  fedToSliceMap_.insert( std::make_pair(653, "EE+08") );
+  fedToSliceMap_.insert( std::make_pair(654, "EE+09") );
 
 
   std::map<int, std::string>::iterator it;

@@ -9,16 +9,16 @@ process SiStripCommissioningOfflineDbClient = {
     replace SiStripConfigDb.ConfDb     = ""
     replace SiStripConfigDb.Partitions.PrimaryPartition.PartitionName = "PARTITION"
     replace SiStripConfigDb.Partitions.PrimaryPartition.RunNumber     = RUNNUMBER
-     
+
     include "IORawData/SiStripInputSources/data/EmptySource.cff"
     replace maxEvents.input = 2
     
     module db_client = SiStripCommissioningOfflineDbClient
     {
-        untracked string     FilePath       = "./"
+        untracked string     FilePath       = "./input"
         untracked uint32     RunNumber      = RUNNUMBER
         untracked bool       UseClientFile  = false
-        untracked FileInPath SummaryXmlFile = "summaryScan.xml"
+        untracked FileInPath SummaryXmlFile = "./summaryScan.xml"
         untracked bool       UploadHwConfig = false
         untracked bool       UploadAnalyses = false
     }

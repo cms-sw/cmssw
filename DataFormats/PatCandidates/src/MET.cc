@@ -1,5 +1,5 @@
 //
-// $Id: MET.cc,v 1.11 2008/10/07 18:22:18 lowette Exp $
+// $Id: MET.cc,v 1.12 2008/10/08 18:26:16 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/MET.h"
@@ -52,12 +52,26 @@ void MET::setGenMET(const reco::GenMET & gm) {
 //! return uncorrrection related stuff
 unsigned int MET::nCorrections() const { checkUncor_(); return nCorrections_; }
 
-float MET::corEx(UncorrectionType ix) const { checkUncor_(); return uncorInfo_[ix].corEx; }
-float MET::corEy(UncorrectionType ix) const { checkUncor_(); return uncorInfo_[ix].corEy; }
-float MET::corSumEt(UncorrectionType ix) const { checkUncor_(); return uncorInfo_[ix].corSumEt; }
-float MET::uncorrectedPt(UncorrectionType ix) const { checkUncor_(); return uncorInfo_[ix].pt; }
-float MET::uncorrectedPhi(UncorrectionType ix) const { checkUncor_(); return uncorInfo_[ix].phi; }
-
+float MET::corEx(UncorrectionType ix) const { 
+  if (ix == uncorrNONE) return 0;
+  checkUncor_(); return uncorInfo_[ix].corEx; 
+}
+float MET::corEy(UncorrectionType ix) const { 
+  if (ix == uncorrNONE) return 0;
+  checkUncor_(); return uncorInfo_[ix].corEy; 
+}
+float MET::corSumEt(UncorrectionType ix) const { 
+  if (ix == uncorrNONE) return 0;
+  checkUncor_(); return uncorInfo_[ix].corSumEt; 
+}
+float MET::uncorrectedPt(UncorrectionType ix) const { 
+  if (ix == uncorrNONE) return pt();
+  checkUncor_(); return uncorInfo_[ix].pt; 
+}
+float MET::uncorrectedPhi(UncorrectionType ix) const { 
+  if (ix == uncorrNONE) return phi();
+  checkUncor_(); return uncorInfo_[ix].phi; 
+}
 
 //! check and set transients
 void MET::checkUncor_() const {
@@ -103,6 +117,16 @@ void MET::checkUncor_() const {
   }
   setPtPhi_(uncorInfo_[ix]);
 
+  //! TAU
+  ix = uncorrTAU;
+  uncorInfo_[ix] = UncorInfo();
+  if (nCorrections_ >=3 ){
+    unsigned int iC = 1;
+    uncorInfo_[ix].corEx +=    corrs[iC].mex;
+    uncorInfo_[ix].corEy +=    corrs[iC].mey;
+    uncorInfo_[ix].corSumEt += corrs[iC].sumet;
+  }
+  setPtPhi_(uncorInfo_[ix]);
 }
 
 void MET::setPtPhi_(UncorInfo& uci) const {

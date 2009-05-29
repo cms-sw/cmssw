@@ -24,28 +24,6 @@ void CSCMonitorModule::updateFracHistos() {
   MonitorElement *me1 = NULL, *me2 = NULL, *me3 = NULL;
 
   //
-  // Calculate Aggregate Histograms
-  //
-
-#ifdef CMSSW20
-
-  if (MEEMU("DMB_Reporting", me1) && MEEMU("DMB_Format_Errors", me2) && MEEMU("DMB_Unpacked", me3)) {
-    me1->getTH1()->Add(me2->getTH1(), me3->getTH1());
-    if (MEEMU("DMB_Unpacked_with_errors", me2)) {
-      me1->getTH1()->Add(me2->getTH1(), -1);
-    }
-  }
-
-  if (MEEMU("CSC_Reporting", me1) && MEEMU("CSC_Format_Errors", me2) && MEEMU("CSC_Unpacked", me3)) {
-    me1->getTH1()->Add(me2->getTH1(), me3->getTH1());
-    if (MEEMU("CSC_Unpacked_with_errors", me2)) {
-      me1->getTH1()->Add(me2->getTH1(), -1);
-    }
-  }
- 
-#endif  
-
-  //
   // Calculate Fractional Histograms
   //
 
@@ -91,35 +69,14 @@ void CSCMonitorModule::updateFracHistos() {
   if (MEEMU("DMB_input_timeout_Fract", me1) && MEEMU("DMB_Reporting", me2) && MEEMU("DMB_input_timeout", me3)) 
     me1->getTH1()->Divide(me3->getTH1(), me2->getTH1());
 
-#ifdef CMSSW21
+  if (MEEMU("CSC_L1A_out_of_sync_Fract", me1) && MEEMU("CSC_Reporting", me2) && MEEMU("CSC_L1A_out_of_sync", me3)) 
+    me1->getTH1()->Divide(me3->getTH1(), me2->getTH1());
 
   if (MEEMU("DMB_Format_Warnings_Fract", me1) && MEEMU("DMB_Reporting", me2) && MEEMU("DMB_Format_Warnings", me3))
     me1->getTH1()->Divide(me3->getTH1(), me2->getTH1());
 
   if (MEEMU("CSC_Format_Warnings_Fract", me1) && MEEMU("CSC_Reporting", me2) && MEEMU("CSC_Format_Warnings", me3))
     me1->getTH1()->Divide(me3->getTH1(), me2->getTH1());
-
-#endif
-
-#ifdef CMSSW20
-
-  if (MEEMU("DMB_Format_Warnings_Fract", me1) && MEEMU("DMB_Format_Warnings", me2) && MEEMU("DMB_Unpacked", me3)) {
-    TH1* tmp=dynamic_cast<TH1*>(me3->getTH1()->Clone());
-    tmp->Add(me2->getTH1());
-    if (MEEMU("DMB_Unpacked_with_warnings", me3)) tmp->Add(me3->getTH1(), -1);
-    me1->getTH1()->Divide(me2->getTH1(), tmp);
-    delete tmp;
-  }
-
-  if (MEEMU("CSC_Format_Warnings_Fract", me1) && MEEMU("CSC_Format_Warnings", me2) && MEEMU("CSC_Unpacked", me3)) {
-    TH1* tmp=dynamic_cast<TH1*>(me3->getTH1()->Clone());
-    tmp->Add(me2->getTH1());
-    if (MEEMU("CSC_Unpacked_with_warnings", me3)) tmp->Add(me3->getTH1(), -1);
-    me1->getTH1()->Divide(me2->getTH1(), tmp);
-    delete tmp;
-  }
-
-#endif
 
   //
   // Set detector information
@@ -128,8 +85,8 @@ void CSCMonitorModule::updateFracHistos() {
   if (MEEMU("CSC_Reporting", me1)) {
 
     // Getting reference and reporting histograms for CSC_Reporting
-    TH2* ref = dynamic_cast<TH2*>(me1->getRefRootObject());
-    TH2* rep = dynamic_cast<TH2*>(me1->getTH1());
+    const TH2* ref = dynamic_cast<const TH2*>(me1->getRefRootObject());
+    const TH2* rep = dynamic_cast<const TH2*>(me1->getTH1());
     if (ref) {
       summary.ReadReportingChambersRef(rep, ref, 
         effParameters.getUntrackedParameter<double>("threshold_cold", 0.1), 
@@ -144,22 +101,22 @@ void CSCMonitorModule::updateFracHistos() {
     double sigfail   = effParameters.getUntrackedParameter<double>("sigfail_err", 5.0);
 
     if (MEEMU("CSC_Format_Errors", me2)) {
-      TH2* err = dynamic_cast<TH2*>(me2->getTH1());
+      const TH2* err = dynamic_cast<TH2*>(me2->getTH1());
       summary.ReadErrorChambers(rep, err, cscdqm::FORMAT_ERR, threshold, sigfail);
     }
 
     if (MEEMU("CSC_L1A_out_of_sync", me2)) {
-      TH2* err = dynamic_cast<TH2*>(me2->getTH1());
+      const TH2* err = dynamic_cast<const TH2*>(me2->getTH1());
       summary.ReadErrorChambers(rep, err, cscdqm::L1SYNC_ERR, threshold, sigfail);
     }
 
     if (MEEMU("CSC_DMB_input_fifo_full", me2)) {
-      TH2* err = dynamic_cast<TH2*>(me2->getTH1());
+      const TH2* err = dynamic_cast<const TH2*>(me2->getTH1());
       summary.ReadErrorChambers(rep, err, cscdqm::FIFOFULL_ERR, threshold, sigfail);
     }
 
     if (MEEMU("CSC_DMB_input_timeout", me2)) {
-      TH2* err = dynamic_cast<TH2*>(me2->getTH1());
+      const TH2* err = dynamic_cast<const TH2*>(me2->getTH1());
       summary.ReadErrorChambers(rep, err, cscdqm::INPUTTO_ERR, threshold, sigfail);
     }
 
@@ -167,22 +124,22 @@ void CSCMonitorModule::updateFracHistos() {
     sigfail   = effParameters.getUntrackedParameter<double>("sigfail_nodata", 5.0);
 
     if (MEEMU("CSC_wo_ALCT", me2)) {
-      TH2* err = dynamic_cast<TH2*>(me2->getTH1());
+      const TH2* err = dynamic_cast<const TH2*>(me2->getTH1());
       summary.ReadErrorChambers(rep, err, cscdqm::NODATA_ALCT, threshold, sigfail);
     }
 
     if (MEEMU("CSC_wo_CLCT", me2)) {
-      TH2* err = dynamic_cast<TH2*>(me2->getTH1());
+      const TH2* err = dynamic_cast<const TH2*>(me2->getTH1());
       summary.ReadErrorChambers(rep, err, cscdqm::NODATA_CLCT, threshold, sigfail);
     }
 
     if (MEEMU("CSC_wo_CFEB", me2)) {
-      TH2* err = dynamic_cast<TH2*>(me2->getTH1());
+      const TH2* err = dynamic_cast<const TH2*>(me2->getTH1());
       summary.ReadErrorChambers(rep, err, cscdqm::NODATA_CFEB, threshold, sigfail);
     }
 
     if (MEEMU("CSC_Format_Warnings", me2)) {
-      TH2* err = dynamic_cast<TH2*>(me2->getTH1());
+      const TH2* err = dynamic_cast<const TH2*>(me2->getTH1());
       summary.ReadErrorChambers(rep, err, cscdqm::CFEB_BWORDS, threshold, sigfail);
     }
   }
@@ -199,8 +156,8 @@ void CSCMonitorModule::updateFracHistos() {
 
   if (MEEMU("CSC_STATS_occupancy", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
-    summary.WriteChamberState(tmp, 0x4, 4, true, false);
-    summary.WriteChamberState(tmp, 0x8, 1, false, false);
+    summary.WriteChamberState(tmp, 0x4, 2, true, false);
+    summary.WriteChamberState(tmp, 0x8, 4, false, false);
   }
 
   if (MEEMU("CSC_STATS_format_err", me1)){

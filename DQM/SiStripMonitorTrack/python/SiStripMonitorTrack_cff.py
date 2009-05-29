@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi import *
 # TrackInfo ####
-from RecoTracker.TrackProducer.RefitterWithMaterial_cff import *
+from RecoTracker.TrackProducer.TrackRefitters_cff import *
 #-----------------------
 #  Reconstruction Modules
 #-----------------------

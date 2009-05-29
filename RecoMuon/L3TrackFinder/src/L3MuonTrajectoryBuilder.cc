@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/09/05 08:47:20 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/02/26 05:15:35 $
+ *  $Revision: 1.8 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -48,6 +48,8 @@
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonTrackMatcher.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -67,14 +69,23 @@ using namespace edm;
 //----------------
 
 L3MuonTrajectoryBuilder::L3MuonTrajectoryBuilder(const edm::ParameterSet& par,
-							 const MuonServiceProxy* service) : GlobalTrajectoryBuilderBase(par, service) {
+							 const MuonServiceProxy* service) : GlobalTrajectoryBuilderBase(par, service), theTkSeedGenerator(0) {
 
   theFirstEvent = true;
-    
+  
+  //
+  // start seed generator;
+  //
+   ParameterSet seedGenPSet = par.getParameter<ParameterSet>("SeedGeneratorParameters");
+  std::string seedGenName = seedGenPSet.getParameter<std::string>("ComponentName");
+  theTkSeedGenerator = TrackerSeedGeneratorFactory::get()->create(seedGenName, seedGenPSet);
+  theTkSeedGenerator->init(GlobalTrajectoryBuilderBase::service());
+  
   theTkBuilderName = par.getParameter<std::string>("TkTrackBuilder");
 
   theTrajectoryCleaner = new TrajectoryCleanerBySharedHits();    
 
+  theSeedName = par.getParameter<edm::InputTag>("l3SeedLabel");
   theTkCollName = par.getParameter<edm::InputTag>("tkTrajLabel");
 
 }
@@ -107,8 +118,10 @@ void L3MuonTrajectoryBuilder::setEvent(const edm::Event& event) {
     
   theTkBuilder->setEvent(event);
     
+  theTkSeedGenerator->setEvent(event);
+
+  theSeedsAvailable = event.getByLabel(theSeedName,theSeedCollection);
   theTrajsAvailable = event.getByLabel(theTkCollName,theTkTrajCollection);
-  LogDebug(category)<<"theTrajsAvailableFlag " << theTrajsAvailable ;
   theTkCandsAvailable = event.getByLabel(theTkCollName,theTkTrackCandCollection);
   
 }
@@ -150,9 +163,7 @@ MuonCandidate::CandidateContainer L3MuonTrajectoryBuilder::trajectories(const Tr
       Trajectory refittedTkTraj = *(*tkt).first;
       refittedTk = refitTrajectory(*(*tkt).first);
       if(refittedTk.size() == 1) refittedTkTraj = refittedTk.front();
- 
-      LogDebug(category)<< "seedRef " << refittedTkTraj.seedRef().isNonnull();
-
+      
       MuonCandidate* muonCand = new MuonCandidate( 0 ,staCand.second,(*tkt).second, new Trajectory(refittedTkTraj));
       tkTrajs.push_back(muonCand);
       LogTrace(category) << "tpush";
@@ -199,15 +210,95 @@ vector<L3MuonTrajectoryBuilder::TrackCand> L3MuonTrajectoryBuilder::makeTkCandCo
     LogDebug(category) << "Found " << theTkTrajCollection->size() <<" tkCands";
     for (TC::const_iterator tt=theTkTrajCollection->begin();tt!=theTkTrajCollection->end();++tt){
       tkCandColl.push_back(TrackCand(new Trajectory(*tt),reco::TrackRef()));
-      LogDebug(category)<< "seedRef " << tkCandColl.back().first->seedRef().isNonnull();
     } 
     LogTrace(category) << "Found " << tkCandColl.size() << " tkCands from seeds";
     return tkCandColl;
+  }
+  
+  // Tracks not available, make seeds and trajectories
+  // std::vector<L3MuonTrajectorySeed> useSeeds;
+  std::vector<TrajectorySeed> tkSeeds;
+  if( theSeedsAvailable ) {
+    L3MuonTrajectorySeedCollection::const_iterator l3Seed;
+    for(l3Seed=theSeedCollection->begin(); l3Seed != theSeedCollection->end(); ++l3Seed) {
+      const reco::TrackRef & l2FromSeed = l3Seed->l2Track();
+      if(staCand.second == l2FromSeed) tkSeeds.push_back(*l3Seed);
+    }    
   } else {
-    LogDebug(category) << "theTrajsAvailable is FALSE";
+    
+    LogTrace(category) << "Making Seeds";
+    
+    RectangularEtaPhiTrackingRegion region = defineRegionOfInterest((staCand.second));
+    theTkSeedGenerator->trackerSeeds(staCand, region, tkSeeds);    
   }
 
+  LogTrace(category) << "Found " << tkSeeds.size() << " tracker seeds";
+
+  TC allTkTrajs = makeTrajsFromSeeds(tkSeeds);
+  
+  for (TC::const_iterator tt=allTkTrajs.begin();tt!=allTkTrajs.end();++tt){
+    tkCandColl.push_back(TrackCand(new Trajectory(*tt),reco::TrackRef()));
+  } 
+  
+  LogTrace(category) << "Found " << tkCandColl.size() << " tkCands from seeds";
+
   return tkCandColl;
+
+}
+
+
+//
+// build a tracker Trajectory from a seed
+//
+L3MuonTrajectoryBuilder::TC L3MuonTrajectoryBuilder::makeTrajsFromSeeds(const vector<TrajectorySeed>& tkSeeds) const {
+
+  // retrieve navigation school
+  edm::ESHandle<NavigationSchool> nav;
+  GlobalTrajectoryBuilderBase::service()->eventSetup().get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
+  // set the correct navigation
+  NavigationSetter setter(*nav.product());
+
+  const std::string category = "Muon|RecoMuon|L3MuonTrajectoryBuilder|makeTrajsFromSeeds";
+  TC result;
+  
+  LogInfo(category) << "Tracker Seeds from L2/STA Muon: " << tkSeeds.size();
+  
+  int nseed = 0;
+  vector<Trajectory> rawResult;
+  std::vector<TrajectorySeed>::const_iterator seed;
+  for (seed = tkSeeds.begin(); seed != tkSeeds.end(); ++seed) {
+    nseed++;
+    LogTrace(category) << "Building a trajectory from seed " << nseed;
+    
+    TC tkTrajs;
+
+    tkTrajs = theTkBuilder->trajectories(*seed);
+
+    LogTrace(category) << "Trajectories from Seed " << tkTrajs.size();
+    
+    theTrajectoryCleaner->clean(tkTrajs);
+    
+    for(vector<Trajectory>::const_iterator it=tkTrajs.begin();
+	it!=tkTrajs.end(); it++){
+      if( it->isValid() ) {
+	rawResult.push_back(*it);
+      }
+    }
+    LogTrace(category) << "Trajectories from Seed after cleaning " << rawResult.size();
+    
+  }
+
+  theTrajectoryCleaner->clean(rawResult);
+  
+  for (vector<Trajectory>::const_iterator itraw = rawResult.begin();
+       itraw != rawResult.end(); itraw++) {
+    if((*itraw).isValid()) result.push_back( *itraw);
+  }
+ 
+
+  LogInfo(category) << "Trajectories from all seeds " << result.size();
+  return result;
+
 }
 
 

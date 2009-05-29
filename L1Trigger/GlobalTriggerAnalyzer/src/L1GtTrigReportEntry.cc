@@ -1,14 +1,14 @@
 /**
  * \class L1GtTrigReportEntry
- * 
- * 
- * Description: L1 Trigger report.  
+ *
+ *
+ * Description: L1 Trigger report.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -74,15 +74,9 @@ L1GtTrigReportEntry::L1GtTrigReportEntry& L1GtTrigReportEntry::operator=(
 bool L1GtTrigReportEntry::operator==(const L1GtTrigReportEntry& repEntry) const
 {
 
-    if (m_triggerMenuName != repEntry.m_triggerMenuName) {
-        return false;
-    }
+    // faster comparisons first
 
-    if (m_algoName != repEntry.m_algoName) {
-        return false;
-    }
-
-    if (m_prescaleFactor != repEntry.m_prescaleFactor) {
+    if (m_daqPartition != repEntry.m_daqPartition) {
         return false;
     }
 
@@ -90,9 +84,18 @@ bool L1GtTrigReportEntry::operator==(const L1GtTrigReportEntry& repEntry) const
         return false;
     }
 
-    if (m_daqPartition != repEntry.m_daqPartition) {
+    if (m_prescaleFactor != repEntry.m_prescaleFactor) {
         return false;
     }
+
+    if (m_algoName != repEntry.m_algoName) {
+        return false;
+    }
+
+    if (m_triggerMenuName != repEntry.m_triggerMenuName) {
+        return false;
+    }
+
 
     // all members identical
     return true;
@@ -120,17 +123,17 @@ void L1GtTrigReportEntry::addValidEntry(const bool algResultAfterMask,
     else {
         m_nrEventsReject++;
     }
-    
+
     if (algResultBeforeMask) {
         m_nrEventsAcceptBeforeMask++;
     }
     else {
         m_nrEventsRejectBeforeMask++;
     }
-        
+
 }
 
-/// increase # of events with error 
+/// increase # of events with error
 void L1GtTrigReportEntry::addErrorEntry() {
 
     m_nrEventsError++;

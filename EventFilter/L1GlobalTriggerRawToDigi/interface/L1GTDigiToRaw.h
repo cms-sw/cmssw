@@ -3,16 +3,16 @@
 
 /**
  * \class L1GTDigiToRaw
- * 
- * 
- * Description: generate raw data from digis.  
+ *
+ *
+ * Description: generate raw data from digis.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
- * \author: Vasile Mihai Ghete - HEPHY Vienna -  GT 
+ *
+ * \author: Vasile Mihai Ghete - HEPHY Vienna -  GT
  * \author: Ivan Mikulec       - HEPHY Vienna - GMT
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -99,7 +99,7 @@ private:
 
     /// FED Id for GT DAQ record
     /// default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
-    int m_daqGtFedId;  
+    int m_daqGtFedId;
 
     /// input tag for GT DAQ record
     edm::InputTag m_daqGtInputTag;
@@ -121,6 +121,11 @@ private:
     /// assume symmetrical number of BX around L1Accept
     int m_maxBxInEvent;
 
+private:
+
+    /// verbosity level
+    int m_verbosity;
+    bool m_isDebugEnabled;
 
 };
 

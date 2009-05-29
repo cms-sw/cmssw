@@ -69,7 +69,7 @@ void Summary::Reset() {
  * @param  h2 Histogram to read
  * @return 
  */
-void Summary::ReadReportingChambers(TH2*& h2, const double threshold) {
+void Summary::ReadReportingChambers(const TH2*& h2, const double threshold) {
 
   if(h2->GetXaxis()->GetXmin() <= 1 && h2->GetXaxis()->GetXmax() >= 36 &&
      h2->GetYaxis()->GetXmin() <= 1 && h2->GetYaxis()->GetXmax() >= 18) {
@@ -89,6 +89,8 @@ void Summary::ReadReportingChambers(TH2*& h2, const double threshold) {
         }
       }
     }
+  } else {
+    LOG_WARN << "cscdqm::Summary.ReadReportingChambers routine. Wrong histogram dimensions!";
   }
 }
 
@@ -101,7 +103,7 @@ void Summary::ReadReportingChambers(TH2*& h2, const double threshold) {
  * @param  Sfail Significance threshold for failure report
  * @return 
  */
-void Summary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double cold_coef, const double cold_Sfail, const double hot_coef, const double hot_Sfail) {
+void Summary::ReadReportingChambersRef(const TH2*& h2, const TH2*& refh2, const double cold_coef, const double cold_Sfail, const double hot_coef, const double hot_Sfail) {
 
   if(h2->GetXaxis()->GetXmin() <= 1 && h2->GetXaxis()->GetXmax() >= 36 &&
      h2->GetYaxis()->GetXmin() <= 1 && h2->GetYaxis()->GetXmax() >= 18 &&
@@ -109,12 +111,14 @@ void Summary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double cold_
      refh2->GetYaxis()->GetXmin() <= 1 && refh2->GetYaxis()->GetXmax() >= 18) {
 
     // Rate Factor calculation
-    double num = 0.0, denum = 0.0;
+    double num = 1.0, denum = 1.0;
     for(unsigned int x = 1; x <= 36; x++) {
       for(unsigned int y = 1; y <= 18; y++) {
-        num += refh2->GetBinContent(x, y);
-        if (h2->GetBinContent(x, y) > 0) {
-          denum += (refh2->GetBinContent(x, y) * refh2->GetBinContent(x, y)) / h2->GetBinContent(x, y);
+        double Nij = h2->GetBinContent(x, y);
+        double Nrefij = refh2->GetBinContent(x, y);
+        if (Nij > 0) {
+          num += Nrefij;
+          denum += pow(Nrefij, 2.0) / Nij;
         }
       }
     }
@@ -139,33 +143,71 @@ void Summary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double cold_
           std::cout << "adr = " << detector.AddressName(adr);
           std::cout << ", x = " << x << ", y = " << y;
           std::cout << ", value = " << GetValue(adr);
+          std::cout << ", refh2 = " << refh2->GetBinContent(x, y);
+          std::cout << ", factor = " << factor;
+          std::cout << ", N = " << N;
+          std::cout << ", n = " << n;
+          std::cout << ", num = " << num;
+          std::cout << ", denum = " << denum;
           std::cout << "\n";
           */
 
-          // No data? Still not reporting...
           if (n == 0) {
             ReSetValue(adr, DATA);
-          } else if (N > 0) {
+          } else {
             SetValue(adr, DATA);
+          }
+
+          if (N > 0) {
 
             eps_meas = (1.0 * n) / (1.0 * N);
             double S = 0;
 
             // Chamber is cold? It means error!
             if (eps_meas < cold_coef) {
+
               S = SignificanceLevel(N, n, cold_coef);
+
               if (S > cold_Sfail) {
+
+                /*
+                std::cout << "!COLD!";
+                std::cout << "adr = " << detector.AddressName(adr);
+                std::cout << ", n = " << n << ", N = " << N;
+                std::cout << ", eps_meas = " << eps_meas;
+                std::cout << ", cold_coef = " << cold_coef;
+                std::cout << ", cold_Sfail = " << cold_Sfail;
+                std::cout << ", S = " << S;
+                std::cout << "\n";
+                */
+
                 SetValue(adr, COLD);
               }
-            } else
+            } else {
             
-            // Chamber is hot? It means error!
-            if (eps_meas > hot_coef) {
-              S = SignificanceLevelHot(N, n);
-              if (S > hot_Sfail) {
-                SetValue(adr, HOT);
+              // Chamber is hot? It means error!
+              if (eps_meas > hot_coef) {
+
+                S = SignificanceLevelHot(N, n);
+
+                if (S > hot_Sfail) {
+
+                  /*
+                  std::cout << "!HOT!";
+                  std::cout << "adr = " << detector.AddressName(adr);
+                  std::cout << ", n = " << n << ", N = " << N;
+                  std::cout << ", eps_meas = " << eps_meas;
+                  std::cout << ", hot_coef = " << hot_coef;
+                  std::cout << ", hot_Sfail = " << hot_Sfail;
+                  std::cout << ", S = " << S;
+                  std::cout << "\n";
+                  */
+
+                  SetValue(adr, HOT);
+                }
               }
             }
+
 
           }
 
@@ -174,6 +216,8 @@ void Summary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double cold_
       }
     }
 
+  } else {
+    LOG_WARN << "cscdqm::Summary.ReadReportingChambersRef routine. Wrong histogram dimensions!";
   }
 }
 
@@ -186,7 +230,7 @@ void Summary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double cold_
  * @param  Sfail Significance threshold for failure report
  * @return 
  */
-void Summary::ReadErrorChambers(TH2*& evs, TH2*& err, const HWStatusBit bit, const double eps_max, const double Sfail) {
+void Summary::ReadErrorChambers(const TH2*& evs, const TH2*& err, const HWStatusBit bit, const double eps_max, const double Sfail) {
 
   if(evs->GetXaxis()->GetXmin() <= 1 && evs->GetXaxis()->GetXmax() >= 36 &&
      evs->GetYaxis()->GetXmin() <= 1 && evs->GetYaxis()->GetXmax() >= 18 &&
@@ -212,6 +256,8 @@ void Summary::ReadErrorChambers(TH2*& evs, TH2*& err, const HWStatusBit bit, con
         }
       }
     }
+  } else {
+    LOG_WARN << "cscdqm::Summary.ReadErrorChambers routine. Wrong histogram dimensions!";
   }
 }
 
@@ -317,6 +363,8 @@ void Summary::WriteMap(TH2*& h2) {
       }
     }
 
+  } else {
+    LOG_WARN << "cscdqm::Summary.WriteMap routine. Wrong histogram dimensions!";
   }
 
   TString title = Form("EMU Status: Physics Efficiency %.2f%%", (csc_el == 0 ? 0.0 : (1.0 * rep_el) / csc_el) * 100.0);
@@ -334,6 +382,7 @@ void Summary::WriteMap(TH2*& h2) {
  * @return 
  */
 void Summary::WriteChamberState(TH2*& h2, const int mask, const int value, const bool reset, const bool op_any) const {
+
   if(h2->GetXaxis()->GetXmin() <= 1 && h2->GetXaxis()->GetXmax() >= 36 &&
      h2->GetYaxis()->GetXmin() <= 1 && h2->GetYaxis()->GetXmax() >= 18) {
 
@@ -360,7 +409,10 @@ void Summary::WriteChamberState(TH2*& h2, const int mask, const int value, const
       }
     }
 
+  } else {
+    LOG_WARN << "cscdqm::Summary.WriteChamberState routine. Wrong histogram dimensions!";
   }
+
 }
 
 /**
@@ -729,29 +781,6 @@ const HWStatusBitSet Summary::GetValue(Address adr) const {
 
   return map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][adr.layer - 1][adr.cfeb - 1][adr.hv - 1];
 
-  /*
-   * Old variation of get value operation
-  if ( adr.mask.side && adr.mask.station && adr.mask.ring && 
-      adr.mask.chamber && adr.mask.cfeb && adr.mask.hv &&
-      adr.side > 0 && adr.side <= N_SIDES && 
-      adr.station > 0 && adr.station <= N_STATIONS && 
-      adr.ring > 0 && adr.ring <= N_RINGS && 
-      adr.chamber > 0 && adr.chamber <= N_CHAMBERS && 
-      adr.cfeb > 0 && adr.cfeb <= N_CFEBS && 
-      adr.hv > 0 && adr.hv <= N_HVS) {
-
-    if (adr.mask.layer) {
-      if (adr.layer > 0 && adr.layer <= N_LAYERS) {
-        return map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][adr.layer - 1][adr.cfeb - 1][adr.hv - 1];
-      }
-    } else {
-      for (unsigned int layer = 1; layer < N_LAYERS; layer++) {
-        status |= map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][layer - 1][adr.cfeb - 1][adr.hv - 1];
-      }
-    }
-  }
-  */
-
 }
 
 /**
@@ -902,6 +931,8 @@ const bool Summary::ChamberAddressToCoords(const Address& adr, unsigned int& x, 
  */
 const double Summary::SignificanceLevel(const unsigned int N, const unsigned int n, const double eps) const {
 
+  //std::cout << "N = " << N << ", n = " << n << ", eps = " << eps << "\n";
+
   double l_eps = eps;
   if (l_eps <= 0.0) l_eps = 0.000001;
   if (l_eps >= 1.0) l_eps = 0.999999;
@@ -913,7 +944,7 @@ const double Summary::SignificanceLevel(const unsigned int N, const unsigned int
     for (unsigned int r = 0; r < n; r++) a = a * (eps_meas / l_eps);
   }
 
-  if (n > 0 && n < N) {
+  if (n < N) {
     for (unsigned int r = 0; r < (N - n); r++) b = b * (1 - eps_meas) / (1 - l_eps);
   }
 

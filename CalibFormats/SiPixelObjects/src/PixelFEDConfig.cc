@@ -5,7 +5,6 @@
 //
 
 #include "CalibFormats/SiPixelObjects/interface/PixelFEDConfig.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelTimeFormatter.h"
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -18,32 +17,10 @@ PixelFEDConfig::PixelFEDConfig(std::vector<std::vector<std::string> >& tableMat 
   std::vector< std::string > ins = tableMat[0];
   std::map<std::string , int > colM;
    std::vector<std::string > colNames;
-/*
-   EXTENSION_TABLE_NAME: FED_CRATE_CONFIG (VIEW: CONF_KEY_FED_CRATE_CONFIGV)
-   
-   CONFIG_KEY				     NOT NULL VARCHAR2(80)
-   KEY_TYPE				     NOT NULL VARCHAR2(80)
-   KEY_ALIAS				     NOT NULL VARCHAR2(80)
-   VERSION					      VARCHAR2(40)
-   KIND_OF_COND 			     NOT NULL VARCHAR2(40)
-   PIXEL_FED				     NOT NULL NUMBER(38)
-   CRATE_NUMBER 			     NOT NULL NUMBER(38)
-   VME_ADDR				     NOT NULL VARCHAR2(200)
-*/
-
-    colNames.push_back("CONFIG_KEY"  );
-    colNames.push_back("KEY_TYPE"    );
-    colNames.push_back("KEY_ALIAS"   );
-    colNames.push_back("VERSION"     );
-    colNames.push_back("KIND_OF_COND");
-    colNames.push_back("PIXEL_FED"   );
-    colNames.push_back("CRATE_NUMBER");
-    colNames.push_back("VME_ADDR"    );
-/*
    colNames.push_back("PIXEL_FED"    ); //0
    colNames.push_back("CRATE_NUMBER" ); //1
    colNames.push_back("VME_ADDRS_HEX"); //2
-*/
+
    for(unsigned int c = 0 ; c < tableMat[0].size() ; c++)
      {
        for(unsigned int n=0; n<colNames.size(); n++)
@@ -277,74 +254,4 @@ unsigned int PixelFEDConfig::FEDNumberFromCrateAndVMEBaseAddress(unsigned int cr
 
   return 0;
 
-}
-
-//=============================================================================================
-void PixelFEDConfig::writeXMLHeader(pos::PixelConfigKey key, 
-                                    int version, 
-                                    std::string path, 
-                                    std::ofstream *outstream,
-                                    std::ofstream *out1stream,
-                                    std::ofstream *out2stream) const 
-{
-  std::string mthn = "[PixelFEDConfig::::writeXMLHeader()]\t\t\t    " ;
-  std::stringstream fullPath ;
-  fullPath << path << "/Pixel_FedCrateConfig_" << PixelTimeFormatter::getmSecTime() << ".xml" ;
-  cout << mthn << "Writing to: " << fullPath.str() << endl ;
-  
-  outstream->open(fullPath.str().c_str()) ;
-  *outstream << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"			 	     	     << endl ;
-  *outstream << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 		 	             	     << endl ;
-  *outstream << " <HEADER>"								         	     	     << endl ;
-  *outstream << "  <TYPE>"								         	     	     << endl ;
-  *outstream << "   <EXTENSION_TABLE_NAME>FED_CRATE_CONFIG</EXTENSION_TABLE_NAME>"          	             	     << endl ;
-  *outstream << "   <NAME>Pixel FED Crate Configuration</NAME>"				         	     	     << endl ;
-  *outstream << "  </TYPE>"								         	     	     << endl ;
-  *outstream << "  <RUN>"								         	     	     << endl ;
-  *outstream << "   <RUN_NAME>Pixel FED Crate Configuration</RUN_NAME>" 		                     	     << endl ;
-  *outstream << "   <RUN_BEGIN_TIMESTAMP>" << pos::PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" 	     << endl ;
-  *outstream << "   <COMMENT_DESCRIPTION>Pixel FED Crate Configuration</COMMENT_DESCRIPTION>"      	     	     << endl ;
-  *outstream << "   <LOCATION>CERN TAC</LOCATION>"					         	     	     << endl ;
-  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"			 	     	     << endl ;
-  *outstream << "  </RUN>"								         	     	     << endl ;
-  *outstream << " </HEADER>"								         	     	     << endl ;
-  *outstream << "  "								         	             	     << endl ;
-  *outstream << " <DATA_SET>"								         	     	     << endl ;
-  *outstream << "  <PART>"                                                                                   	     << endl ;
-  *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                                 	     << endl ;
-  *outstream << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                              	     << endl ;
-  *outstream << "  </PART>"                                                                                  	     << endl ;
-  *outstream << "  <VERSION>" << version << "</VERSION>"				         	     	     << endl ;
-  *outstream << "  "								         	             	     << endl ;
-}  
-
-//=============================================================================================
-void PixelFEDConfig::writeXML(std::ofstream *outstream,
-                              std::ofstream *out1stream,
-                              std::ofstream *out2stream) const 
-{
-  std::string mthn = "[PixelFEDConfig::writeXML()]\t\t\t    " ;
-  
-  for(unsigned int i=0;i<fedconfig_.size();i++){
-      *outstream << "  <DATA>" 								 	      	             << endl ;
-      *outstream << "   <PIXEL_FED>"    	    << fedconfig_[i].getFEDNumber()             << "</PIXEL_FED>"    << endl ;
-      *outstream << "   <CRATE_NUMBER>" 	    << fedconfig_[i].getCrate()	                << "</CRATE_NUMBER>" << endl ;
-      *outstream << "   <VME_ADDR>"  << "0x" << hex << fedconfig_[i].getVMEBaseAddress() << dec << "</VME_ADDR>"     << endl ;
-      *outstream << "  </DATA>"	 							 	      	     	     << endl ;
-      *outstream << ""								         	      	     	     << endl ;
-  }
-
-}
-
-//=============================================================================================
-void PixelFEDConfig::writeXMLTrailer(std::ofstream *outstream,
-                                     std::ofstream *out1stream,
-                                     std::ofstream *out2stream) const 
-{
-  std::string mthn = "[PixelFEDConfig::writeXMLTrailer()]\t\t\t    " ;
-  
-  *outstream << " </DATA_SET>" 						    	 	              	     	     << endl ;
-  *outstream << "</ROOT> "								              	     	     << endl ;
-
-  outstream->close() ;
 }

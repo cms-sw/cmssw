@@ -11,5 +11,5 @@ import copy
 from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
 # generate CTF track candidates ############
 ckfTrackCandidatesCombinedSeeds = copy.deepcopy(ckfTrackCandidates)
-ckfTrackCandidatesCombinedSeeds.src = cms.InputTag('globalCombinedSeeds')
+ckfTrackCandidatesCombinedSeeds.SeedProducer = 'globalCombinedSeeds'
 

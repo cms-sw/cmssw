@@ -53,15 +53,11 @@ void ProcSplitter::configure(DOMElement *elem)
 	while(node && node->getNodeType() != DOMNode::ELEMENT_NODE)
 		node = node->getNextSibling();
 
-	if (!node)
+	if (!node ||
+	    std::strcmp(XMLSimpleStr(node->getNodeName()), "select") != 0)
 		throw cms::Exception("ProcSplitter")
 			<< "Expected select tag in config section."
 			<< std::endl;
-
-	if (std::strcmp(XMLSimpleStr(node->getNodeName()), "select") != 0)
-		throw cms::Exception("ProcSplitter")
-				<< "Expected select tag in config section."
-				<< std::endl;
 
 	elem = static_cast<DOMElement*>(node);
 

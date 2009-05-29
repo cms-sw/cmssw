@@ -28,10 +28,7 @@ class L2TauIsolationSelector : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
-
-
-
-	edm::InputTag associationInput_;  
+      edm::InputTag associationInput_;  
       
       //Create vars for Cuts
       double ECALIsolEt_;

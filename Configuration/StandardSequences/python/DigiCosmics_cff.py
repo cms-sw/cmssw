@@ -38,9 +38,10 @@ EcalTrigPrimESProducer.DatabaseFile = cms.untracked.string("TPG_cosmics_ZS.txt.g
 simEcalDigis.ebDccAdcToGeV = cms.double(0.00875)
 simEcalDigis.srpBarrelLowInterestChannelZS = cms.double(0.0153125)
 
-simHcalDigis.hbhe.level = cms.int32(-10000)
-simHcalDigis.ho.level   = cms.int32(-10000)
-simHcalDigis.hf.level   = cms.int32(-10000)
+simHcalDigis.HBlevel = cms.int32(-10000)
+simHcalDigis.HElevel = cms.int32(-10000)
+simHcalDigis.HOlevel   = cms.int32(-10000)
+simHcalDigis.HFlevel   = cms.int32(-10000)
 
 doAllDigi = cms.Sequence(trDigi+calDigi+muonDigi)
 pdigi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi*trackingParticles)

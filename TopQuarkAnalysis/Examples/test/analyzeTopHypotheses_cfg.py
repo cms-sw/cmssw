@@ -10,6 +10,11 @@ process = cms.Process("TEST")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')
 process.MessageLogger.categories = cms.untracked.vstring('TEST')
+process.MessageLogger.categories.append('TtSemiLeptonicEvent')
+process.MessageLogger.cerr.INFO = cms.untracked.PSet(
+    default             = cms.untracked.PSet( limit = cms.untracked.int32( 0) ),
+    TtSemiLeptonicEvent = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+)
 
 #-------------------------------------------------
 # process configuration
@@ -55,25 +60,39 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #-------------------------------------------------
 # tqaf configuration; if the TQAF Layer 1 is
-# already in place yuo can comment the following
+# already in place you can comment the following
 # two lines
 #-------------------------------------------------
 
+## to apply jet correction factors different from
+## the pat default uncomment this; needs to be
+## called bevor pat/tqafLayer1 is produced
+#process.load("TopQuarkAnalysis.TopObjectProducers.tools.switchJetCorrections_cff")
+
 ## std sequence for tqaf layer1
-process.load("TopQuarkAnalysis.TopObjectProducers.tqafLayer1_full_cff")
+process.load("TopQuarkAnalysis.TopObjectProducers.tqafLayer1_cff")
 process.p0 = cms.Path(process.tqafLayer1)
+
+## necessary fixes to run 2.2.X on 2.1.X data
+## comment this when running on samples produced
+## with 22X
+from PhysicsTools.PatAlgos.tools.cmsswVersionTools import run22XonSummer08AODSIM
+run22XonSummer08AODSIM(process)
 
 #-------------------------------------------------
 # to produce TQAF relevant Layer 2 parts if not
-# already place uncomment the following three
-# lines
+# already in place uncomment the following lines
 #-------------------------------------------------
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff")
+## enable additional per-event printout from the TtSemiLeptonicEvent
+#process.ttSemiLepEvent.verbosity = 1
+## change maximum number of jets taken into account per event (default: 4)
+#process.ttSemiLepEvent.maxNJets = 5
 process.p1 = cms.Path(process.makeGenEvt * process.makeTtSemiLepEvent)
 
 #-------------------------------------------------
-# analyze jets
+# analyze hypotheses
 #-------------------------------------------------
 process.load("TopQuarkAnalysis.Examples.HypothesisAnalyzer_cff")
 

@@ -250,8 +250,8 @@ void HistoElectron::fill( const reco::ShallowClonePtrCandidate * pshallow, uint 
 {
 
   // Get the underlying object that the shallow clone represents
-  const pat::Electron * electron = dynamic_cast<const pat::Electron*>(&*(pshallow->masterClonePtr()));
-  
+  const pat::Electron * electron = dynamic_cast<const pat::Electron*>(pshallow);
+
   if ( electron == 0 ) {
     cout << "Error! Was passed a shallow clone that is not at heart a electron" << endl;
     return;

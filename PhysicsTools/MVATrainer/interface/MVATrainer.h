@@ -94,6 +94,8 @@ class MVATrainer {
 	findUntrainedComputers(std::vector<AtomicId> &compute,
 	                       std::vector<AtomicId> &train) const;
 
+	std::vector<AtomicId> findFinalProcessors() const;
+
 	std::map<AtomicId, Source*>		sources;
 	std::vector<SourceVariable*>		variables;
 	std::vector<AtomicId>			processors;
