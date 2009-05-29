@@ -218,7 +218,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
 	{continue;}
       
       // issuiung messages for problematic cases, even though handled by the DCC
-      else if( chStatus == CH_TIMEOUT || chStatus == CH_HEADERERR || chStatus == CH_LINKERR || chStatus == CH_LENGTHERR)
+      else if( chStatus == CH_TIMEOUT || chStatus == CH_HEADERERR || chStatus == CH_LINKERR || chStatus == CH_LENGTHERR || chStatus == CH_IFIFOFULL || chStatus == CH_L1AIFIFOFULL)
 	{
 	  if( ! DCCDataUnpacker::silentMode_ ){ 
             edm::LogWarning("EcalRawToDigiDev") << "In fed: " << fedId_ << " at LV1: " << l1_
