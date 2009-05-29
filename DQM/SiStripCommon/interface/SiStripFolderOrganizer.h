@@ -17,7 +17,7 @@
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:49:46 CET 2006
 
-// $Id: SiStripFolderOrganizer.h,v 1.10 2009/03/30 17:00:46 giordano Exp $
+// $Id: SiStripFolderOrganizer.h,v 1.11 2009/04/01 15:01:50 dutta Exp $
 
 //
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
@@ -63,10 +63,13 @@ class SiStripFolderOrganizer
       // detector folders
       void setDetectorFolder(uint32_t rawdetid=0);
       void getFolderName(int32_t rawdetid, std::string& lokal_folder);
-      void getSubDetLayerFolderName(std::stringstream& ss, SiStripDetId::SubDetector subDet, uint32_t layer, uint32_t side=0);
 
       // layer folders
       void setLayerFolder(uint32_t rawdetid=0,int32_t layer=0,bool ring_flag = 0);
+      void getLayerFolderName(std::stringstream& ss, uint32_t rawdetid,bool ring_flag = 0);
+      void getSubDetLayerFolderName(std::stringstream& ss, SiStripDetId::SubDetector subDet, uint32_t layer, uint32_t side=0);
+      // SubDetector Folder
+      void getSubDetFolder(const uint32_t& detid, std::string& folder_name);
    private:
       SiStripFolderOrganizer(const SiStripFolderOrganizer&); // stop default
       const SiStripFolderOrganizer& operator=(const SiStripFolderOrganizer&); // stop default
