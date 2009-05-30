@@ -5,7 +5,7 @@ cmsenv
 rehash
 
 setenv HLTmaster /dev/CMSSW_3_1_0/pre6
-setenv HLTversion V54
+setenv HLTversion V62
 
 echo "ConfDB path of master: $HLTmaster/HLT/$HLTversion"
 
@@ -17,6 +17,7 @@ if ($1 == CVS) then
   ./getHLT.py $HLTmaster/HLT/$HLTversion  FULL GEN-HLT
   ./getHLT.py $HLTmaster/8E29_$HLTversion 8E29 GEN-HLT
   ./getHLT.py $HLTmaster/1E31_$HLTversion 1E31 GEN-HLT
+  ./getHLT.py $HLTmaster/1E31_$HLTversion HIon GEN-HLT
 
   /bin/ls -l HLT_????_cff.py
   /bin/mv -f HLT_????_cff.py ../python
@@ -28,6 +29,7 @@ else
   ./getHLT.py $HLTmaster/HLT/$HLTversion  FULL
   ./getHLT.py $HLTmaster/8E29_$HLTversion 8E29
   ./getHLT.py $HLTmaster/1E31_$HLTversion 1E31
+  ./getHLT.py $HLTmaster/HIon_$HLTversion HIon
 
 endif
 

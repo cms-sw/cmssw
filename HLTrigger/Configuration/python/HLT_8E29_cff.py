@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre6/8E29_V51/V2 (CMSSW_3_1_X_2009-05-25-1900)
+# /dev/CMSSW_3_1_0/pre6/8E29_V62/V2 (CMSSW_3_1_X_2009-05-25-1900)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre6/8E29_V51/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre6/8E29_V62/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -36,6 +36,12 @@ MCJetCorrectorIcone5 = cms.ESSource( "JetCorrectionServiceChain",
     'L3AbsoluteJetCorrector' )
 )
 
+AnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
+  ComponentName = cms.string( "AnalyticalPropagator" ),
+  PropagationDirection = cms.string( "alongMomentum" ),
+  MaxDPhi = cms.double( 1.6 ),
+  appendToDataLabel = cms.string( "" )
+)
 AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   ComponentName = cms.string( "AnyDirectionAnalyticalPropagator" ),
   PropagationDirection = cms.string( "anyDirection" ),
@@ -47,6 +53,12 @@ CaloTopologyBuilder = cms.ESProducer( "CaloTopologyBuilder",
 )
 CaloTowerConstituentsMapBuilder = cms.ESProducer( "CaloTowerConstituentsMapBuilder",
   MapFile = cms.untracked.string( "Geometry/CaloTopology/data/CaloTowerEEGeometric.map.gz" ),
+  appendToDataLabel = cms.string( "" )
+)
+Chi2EstimatorForRefit = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
+  ComponentName = cms.string( "Chi2EstimatorForRefit" ),
+  MaxChi2 = cms.double( 100000.0 ),
+  nSigma = cms.double( 3.0 ),
   appendToDataLabel = cms.string( "" )
 )
 Chi2MeasurementEstimator = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
@@ -189,6 +201,22 @@ GroupedCkfTrajectoryBuilder = cms.ESProducer( "GroupedCkfTrajectoryBuilderESProd
   minNrOfHitsForRebuild = cms.int32( 5 ),
   appendToDataLabel = cms.string( "" )
 )
+HITTRHBuilderWithoutRefit = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
+  ComponentName = cms.string( "HITTRHBuilderWithoutRefit" ),
+  StripCPE = cms.string( "Fake" ),
+  PixelCPE = cms.string( "Fake" ),
+  Matcher = cms.string( "Fake" ),
+  ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
+)
+KFFitterForRefitInsideOut = cms.ESProducer( "KFTrajectoryFitterESProducer",
+  ComponentName = cms.string( "KFFitterForRefitInsideOut" ),
+  Propagator = cms.string( "SmartPropagatorAny" ),
+  Updator = cms.string( "KFUpdator" ),
+  Estimator = cms.string( "Chi2EstimatorForRefit" ),
+  minHits = cms.int32( 3 ),
+  appendToDataLabel = cms.string( "" )
+)
 KFFitterSmootherForL2Muon = cms.ESProducer( "KFFittingSmootherESProducer",
   ComponentName = cms.string( "KFFitterSmootherForL2Muon" ),
   Fitter = cms.string( "KFTrajectoryFitterForL2Muon" ),
@@ -206,6 +234,15 @@ KFSmootherForMuonTrackLoader = cms.ESProducer( "KFTrajectorySmootherESProducer",
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2" ),
   errorRescaling = cms.double( 10.0 ),
+  minHits = cms.int32( 3 ),
+  appendToDataLabel = cms.string( "" )
+)
+KFSmootherForRefitInsideOut = cms.ESProducer( "KFTrajectorySmootherESProducer",
+  ComponentName = cms.string( "KFSmootherForRefitInsideOut" ),
+  Propagator = cms.string( "SmartPropagatorAnyOpposite" ),
+  Updator = cms.string( "KFUpdator" ),
+  Estimator = cms.string( "Chi2EstimatorForRefit" ),
+  errorRescaling = cms.double( 100.0 ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
 )
@@ -1686,7 +1723,8 @@ hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     readBadChambers = cms.bool( False ),
     UseAverageTime = cms.bool( False ),
     UseParabolaFit = cms.bool( False ),
-    UseFivePoleFit = cms.bool( True )
+    UseFivePoleFit = cms.bool( True ),
+    UseFourPoleFit = cms.bool( True )
 )
 hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
     inputObjects = cms.InputTag( "hltCsc2DRecHits" ),
