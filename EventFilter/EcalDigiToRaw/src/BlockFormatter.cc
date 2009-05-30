@@ -81,7 +81,7 @@ void BlockFormatter::DigiToRaw(FEDRawDataCollection* productRawData) {
                 for (int i=16; i <= 22; i++) {             // DCC header 2  ranges (word 3)
                  pData[i] = 0;    // to be filled for local data taking or calibration
                 }
-		std::cout << "dccFOV is: "<<  dccFOV_ << std::endl;//GF
+		if (debug_) std::cout << "dccFOV is: "<<  dccFOV_ << std::endl;
 		// DCC_FOV is bits 51-48 of word 3, within pData[21];
 		pData[22] = dccFOV & 0xFF;
 
