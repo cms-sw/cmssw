@@ -592,16 +592,17 @@ void SETSeedFinder::estimateMomentum(const MuonRecHitContainer & validSet,
   // try out the reco info:
   momEstimate = CLHEP::Hep3Vector(pT*cosPhiH, pT*sinPhiH, pT/TMath::Tan(thetaInner)); // should used into to theta directly here (rather than tan(atan2(...)))
   //Hep3Vector momEstimate(6.97961,      5.89732,     -50.0855);
-  if (momEstimate.mag()<10.){
+  const float minMomenum = 5.; //hardcoded - remove it! same in SETFilter
+  if (momEstimate.mag()<minMomenum){
     int sign = (pT<0.) ? -1: 1;
     pT = sign * (fabs(pT)+1);
     CLHEP::Hep3Vector momEstimate2(pT*cosPhiH, pT*sinPhiH, pT/TMath::Tan(thetaInner));
     momEstimate = momEstimate2;
-    if (momEstimate.mag()<10.){
+    if (momEstimate.mag()<minMomenum){
       pT = sign * (fabs(pT)+1);
       CLHEP::Hep3Vector momEstimate3(pT*cosPhiH, pT*sinPhiH, pT/TMath::Tan(thetaInner));
       momEstimate = momEstimate3;
-      if (momEstimate.mag()<10.){
+      if (momEstimate.mag()<minMomenum){
         pT = sign * (fabs(pT)+1);
         CLHEP::Hep3Vector momEstimate4(pT*cosPhiH, pT*sinPhiH, pT/TMath::Tan(thetaInner));
         momEstimate = momEstimate4;

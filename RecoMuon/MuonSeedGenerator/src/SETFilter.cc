@@ -396,8 +396,8 @@ double SETFilter::findMinChi2(unsigned int iSet, const CLHEP::Hep3Vector& r3T,
 
   //---- Fit Parameters
 
-  if(pMag<10.){// hardcoded - remove it! 
-    pMag = 10.;// GeV
+  if(pMag<5.){// hardcoded - remove it! same in SETSeedFinder
+    pMag = 5.;// GeV
   }
   //---- This offset helps the minimization to go faster (in the specific case)
   pMag *=1.2;
