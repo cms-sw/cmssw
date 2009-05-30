@@ -15,6 +15,7 @@
 <use name=DQM/SiPixelCommon>
 <use name=DQM/TrackerCommon>
 <use name=boost>
+<use name=qt>
 <flags EDM_PLUGIN=1>
 <export>
 <lib name=DQMSiPixelMonitorClient>
