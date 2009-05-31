@@ -238,6 +238,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
                            std::list<reco::PFBlockRef>& hcalBlockRefs, 
                            std::list<reco::PFBlockRef>& ecalBlockRefs ) { 
   
+  // debug_ = false;
   assert(!blockref.isNull() );
   const reco::PFBlock& block = *blockref;
 
@@ -433,7 +434,74 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     block.associatedElements( iTrack,  linkData,
                               hcalElems,
                               reco::PFBlockElement::HCAL,
-                              reco::PFBlock::LINKTEST_ALL ); 
+                              reco::PFBlock::LINKTEST_ALL );
+
+    // When a track has no HCAL cluster linked, but another track is linked to the same
+    // ECAL cluster and an HCAL cluster, link the track to the HCAL cluster for 
+    // later analysis
+    if ( hcalElems.empty() && !ecalElems.empty() ) {
+      // debug_ = true;
+      unsigned ntt = 1;
+      unsigned index = ecalElems.begin()->second;
+      std::multimap<double, unsigned> sortedTracks;
+      block.associatedElements( index,  linkData,
+				sortedTracks,
+				reco::PFBlockElement::TRACK,
+				reco::PFBlock::LINKTEST_ALL );
+      // std::cout << "The ECAL is linked to " << sortedTracks.size() << std::endl;
+
+      // Loop over all tracks
+      for(IE ie = sortedTracks.begin(); ie != sortedTracks.end(); ++ie ) {
+	unsigned jTrack = ie->second;
+	// std::cout << "Track " << jTrack << std::endl;
+	// Track must be active
+	if ( !active[jTrack] ) continue;
+	//std::cout << "Active " << std::endl;
+	
+	// The loop is on the other tracks !
+	if ( jTrack == iTrack ) continue;
+	//std::cout << "A different track ! " << std::endl;
+	
+	// Check if the ECAL closest to this track is the current ECAL
+	// Otherwise ignore this track in the neutral energy determination
+	std::multimap<double, unsigned> sortedECAL;
+	block.associatedElements( jTrack,  linkData,
+				  sortedECAL,
+				  reco::PFBlockElement::ECAL,
+				  reco::PFBlock::LINKTEST_ALL );
+	if ( sortedECAL.begin()->second != index ) continue;
+	//std::cout << "With closest ECAL identical " << std::endl;
+
+	
+	// Check if this track is also linked to an HCAL 
+	std::multimap<double, unsigned> sortedHCAL;
+	block.associatedElements( jTrack,  linkData,
+				  sortedHCAL,
+				  reco::PFBlockElement::HCAL,
+				  reco::PFBlock::LINKTEST_ALL );
+	if ( !sortedHCAL.size() ) continue;
+	//std::cout << "With an HCAL cluster " << sortedHCAL.begin()->first << std::endl;
+	ntt++;
+	
+	// In that case establish a link with the first track 
+	block.setLink( iTrack, 
+		       sortedHCAL.begin()->second, 
+		       sortedECAL.begin()->first, 
+		       linkData,
+		       PFBlock::LINKTEST_RECHIT );
+	
+      } // End other tracks
+      
+      // Redefine HCAL elements 
+      block.associatedElements( iTrack,  linkData,
+				hcalElems,
+				reco::PFBlockElement::HCAL,
+				reco::PFBlock::LINKTEST_ALL );
+
+      if ( debug_ && hcalElems.size() ) 
+	std::cout << "Track linked back to HCAL due to ECAL sharing with other tracks" << std::endl;
+    }
+ 
     //MICHELE 
     //TEMPORARY SOLUTION FOR ELECTRON REJECTION IN PFTAU
     //COLINFEB16 
@@ -493,23 +561,79 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     // are reconstructed now. 
 
     if( hcalElems.empty() ) {
-
-      if ( debug_ ) std::cout << "Now deals with tracks linked to no HCAL clusters" << std::endl; 
+      
+      if ( debug_ ) 
+	std::cout << "Now deals with tracks linked to no HCAL clusters" << std::endl; 
       // vector<unsigned> elementIndices;
       // elementIndices.push_back(iTrack); 
 
       // The track momentum
       double trackMomentum = elements[iTrack].trackRef()->p();      
-      if ( debug_ ) std::cout << "Track momentum = " << trackMomentum << " GeV." << std::endl; 
+      if ( debug_ ) 
+	std::cout << "Track momentum = " << trackMomentum << " GeV." << std::endl; 
       
       // Is it a "tight" muon ?
       bool thisIsAMuon = PFMuonAlgo::isMuon(elements[iTrack]);
       if ( thisIsAMuon ) trackMomentum = 0.;
       
       // Create a track candidate       
-      unsigned tmpi = reconstructTrack( elements[iTrack] );
+      // unsigned tmpi = reconstructTrack( elements[iTrack] );
+      //active[iTrack] = false;
+      std::vector<unsigned> tmpi;
+      std::vector<unsigned> kTrack;
+      tmpi.push_back(reconstructTrack( elements[iTrack]));
+      kTrack.push_back(iTrack);
       active[iTrack] = false;
+
+      // No ECAL cluster either ... continue...
+      if ( ecalElems.empty() ) continue;
       
+      // Look for closest ECAL cluster
+      unsigned thisEcal = ecalElems.begin()->second;
+      reco::PFClusterRef clusterRef = elements[thisEcal].clusterRef();
+
+      // Consider charged particles closest to the same ECAL cluster
+      std::multimap<double, unsigned> sortedTracks;
+      block.associatedElements( thisEcal,  linkData,
+				sortedTracks,
+				reco::PFBlockElement::TRACK,
+				reco::PFBlock::LINKTEST_ALL );
+
+      for(IE ie = sortedTracks.begin(); ie != sortedTracks.end(); ++ie ) {
+	unsigned jTrack = ie->second;
+
+	// Don't consider already used tracks
+	if ( !active[jTrack] ) continue;
+
+	// The loop is on the other tracks !
+	if ( jTrack == iTrack ) continue;
+	
+	// Check if the ECAL cluster closest to this track is 
+	// indeed the current ECAL cluster. Only tracks not 
+	// linked to an HCAL cluster are considered here
+	std::multimap<double, unsigned> sortedECAL;
+	block.associatedElements( jTrack,  linkData,
+				  sortedECAL,
+				  reco::PFBlockElement::ECAL,
+				  reco::PFBlock::LINKTEST_ALL );
+	if ( sortedECAL.begin()->second != thisEcal ) continue;
+	
+	// Otherwise, add this track momentum to the total track momentum
+	/* */
+	reco::TrackRef trackRef = elements[jTrack].trackRef();
+	if ( debug_ ) 
+	  std::cout << "Track momentum increased from " << trackMomentum << " GeV "; 
+	trackMomentum += trackRef->p();
+	if ( debug_ ) 
+	  std::cout << "to " << trackMomentum << " GeV." << std::endl; 
+	
+	// And create a charged particle candidate !
+	tmpi.push_back(reconstructTrack( elements[jTrack] ));
+	kTrack.push_back(jTrack);
+	active[jTrack] = false;
+
+      }
+
       double slopeEcal = 1.;
       bool connectedToEcal = false;
       unsigned iEcal = 99999;
@@ -517,7 +641,6 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       double calibHcal = 0.;
       double totalEcal = thisIsAMuon ? -muonECAL_[0] : 0.;
       double totalHcal = 0.;
-      std::multimap<double, unsigned> sortedTracks;
 
       // Loop over all ECAL linked clusters ordered by increasing distance.
       for(IE ie = ecalElems.begin(); ie != ecalElems.end(); ++ie ) {
@@ -530,12 +653,17 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	if ( ! active[index] ) continue;
 
 	// Just skip this cluster if it's closer to another track
+	/* */
 	block.associatedElements( index,  linkData,
 				  sortedTracks,
-				  reco::PFBlockElement::TRACK,
+			 	  reco::PFBlockElement::TRACK,
 				  reco::PFBlock::LINKTEST_ALL );
-	if ( sortedTracks.begin()->second != iTrack ) continue;  
-	
+	bool skip = true;
+	for (unsigned ic=0; ic<kTrack.size();++ic)  
+	  if ( sortedTracks.begin()->second == kTrack[ic] ) skip = false;
+	if ( skip ) continue;
+	/* */
+	  	
 	// The corresponding PFCluster and energy
 	reco::PFClusterRef clusterRef = elements[index].clusterRef();
 	assert( !clusterRef.isNull() );
@@ -610,12 +738,12 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  // Turn this last cluster in a photon 
 	  // (The PS clusters are already locked in "associatePSClusters")
 	  active[index] = false;
-	  unsigned tmpi = reconstructCluster( *clusterRef, ecalEnergy ); 
-	  (*pfCandidates_)[tmpi].setEcalEnergy( ecalEnergy );
-	  (*pfCandidates_)[tmpi].setHcalEnergy( 0 );
-	  (*pfCandidates_)[tmpi].setPs1Energy( ps1Ene[0] );
-	  (*pfCandidates_)[tmpi].setPs2Energy( ps2Ene[0] );
-	  (*pfCandidates_)[tmpi].addElementInBlock( blockref, index );
+	  unsigned tmpe = reconstructCluster( *clusterRef, ecalEnergy ); 
+	  (*pfCandidates_)[tmpe].setEcalEnergy( ecalEnergy );
+	  (*pfCandidates_)[tmpe].setHcalEnergy( 0 );
+	  (*pfCandidates_)[tmpe].setPs1Energy( ps1Ene[0] );
+	  (*pfCandidates_)[tmpe].setPs2Energy( ps2Ene[0] );
+	  (*pfCandidates_)[tmpe].addElementInBlock( blockref, index );
 	  break;
 	}
 
@@ -623,24 +751,28 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	connectedToEcal = true;
 	iEcal = index;
 	active[index] = false;
+	for (unsigned ic=0; ic<tmpi.size();++ic)  
+	  (*pfCandidates_)[tmpi[ic]].addElementInBlock( blockref, iEcal ); 
+
 
       } // Loop ecal elements
 
       
-
-      (*pfCandidates_)[tmpi].setEcalEnergy( calibEcal );
-      (*pfCandidates_)[tmpi].setHcalEnergy( 0 );
-      (*pfCandidates_)[tmpi].setPs1Energy( 0 );
-      (*pfCandidates_)[tmpi].setPs2Energy( 0 );
-      (*pfCandidates_)[tmpi].addElementInBlock( blockref, iTrack ); 
-
+      for (unsigned ic=0; ic<tmpi.size();++ic) { 
+	(*pfCandidates_)[tmpi[ic]].setEcalEnergy( calibEcal );
+	(*pfCandidates_)[tmpi[ic]].setHcalEnergy( 0 );
+	(*pfCandidates_)[tmpi[ic]].setPs1Energy( 0 );
+	(*pfCandidates_)[tmpi[ic]].setPs2Energy( 0 );
+	(*pfCandidates_)[tmpi[ic]].addElementInBlock( blockref, kTrack[ic] );
+      }
+      
       // Create a photon if the ecal energy is too large
       if( connectedToEcal ) {
 	reco::PFClusterRef pivotalRef = elements[iEcal].clusterRef();
-	(*pfCandidates_)[tmpi].addElementInBlock( blockref, iEcal ); 
 
 	double neutralEnergy = calibEcal - trackMomentum;
 
+	/*
 	// Check if there are other tracks linked to that ECAL
 	for(IE ie = sortedTracks.begin(); ie != sortedTracks.end() && neutralEnergy > 0; ++ie ) {
 	  unsigned jTrack = ie->second;
@@ -671,6 +803,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  neutralEnergy -= trackRef->p();
 
 	} // End other tracks
+	*/
 	
 	// Add a photon is the energy excess is large enough
 	if ( neutralEnergy > nSigmaECAL_*neutralHadronEnergyResolution(trackMomentum,pivotalRef->positionREP().Eta()) ) { 
@@ -681,25 +814,16 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  (*pfCandidates_)[tmpj].setPs1Energy( -1 );
 	  (*pfCandidates_)[tmpj].setPs2Energy( -1 );
 	  (*pfCandidates_)[tmpj].addElementInBlock(blockref, iEcal);
-	  (*pfCandidates_)[tmpj].addElementInBlock( blockref, iTrack ); 
+	  for (unsigned ic=0; ic<kTrack.size();++ic) 
+	    (*pfCandidates_)[tmpj].addElementInBlock( blockref, kTrack[ic] ); 
 	} // End neutral energy
       } // End connected ECAL
       
-      //MICHELE 
-      //TEMPORARY SOLUTION FOR ELECTRON REJECTION IN PFTAU
-      //COLINFEB16 
-      // in case particle flow electrons are not reconstructed, 
-      // the mva_e_pi of the charged hadron will be set to 1 
-      // if a GSF element is associated to the current TRACK element
-      if (usePFElectrons_ == false) 
-	(*pfCandidates_)[tmpi].set_mva_e_pi(gsfElems.size()>0);
     }
 
 
-    //COLINFEB16 
     // In case several HCAL elements are linked to this track, 
     // unlinking all of them except the closest. 
-    // BUG?? currently forgetting to unlink the distance link!!
     for(IE ie = hcalElems.begin(); ie != hcalElems.end(); ++ie ) {
       
       unsigned index = ie->second;
@@ -1598,14 +1722,13 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	}
 	
 	// ... and assign the remaining excess to a neutral hadron
+	mergedNeutralHadronEnergy = eNeutralHadron-calibEcal;
 	pivotalClusterRef.push_back(hclusterref);
-	particleEnergy.push_back(eNeutralHadron-calibEcal);
+	particleEnergy.push_back(mergedNeutralHadronEnergy);
 	particleDirection.push_back(hadronAtECAL);
 	ecalEnergy.push_back(0.);
-	hcalEnergy.push_back(eNeutralHadron-calibEcal);
-	iPivotal.push_back(iHcal);
-	
-	mergedNeutralHadronEnergy = eNeutralHadron-calibEcal;
+	hcalEnergy.push_back(mergedNeutralHadronEnergy);
+	iPivotal.push_back(iHcal);	
 	
       }
 	
@@ -1959,7 +2082,10 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
   // Except if it is a muon, of course !
   bool thisIsAMuon = PFMuonAlgo::isMuon(elt);
   if ( thisIsAMuon ) { 
-    reco::TrackRef combinedMu = muonRef->combinedMuon();
+    reco::TrackRef combinedMu = muonRef->isTrackerMuon() || 
+      muonRef->combinedMuon()->normalizedChi2() < muonRef->standAloneMuon()->normalizedChi2() ?
+      muonRef->combinedMuon() : 
+      muonRef->standAloneMuon() ;
     px = combinedMu->px();
     py = combinedMu->py();
     pz = combinedMu->pz();
