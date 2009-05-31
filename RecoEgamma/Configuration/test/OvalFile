@@ -10,11 +10,11 @@ process.source = cms.Source ("PoolSource",
 	secondaryFileNames = cms.untracked.vstring()
 )
 process.source.fileNames.extend(dbs_discovery.search())
-process.gsfElectrons.addPflowElectrons = cms.bool(True)
+process.gsfElectrons....
 
 
 
-<var name="DBS_RELEASE" value="CMSSW_3_1_0_pre6">
+<var name="DBS_RELEASE" value="CMSSW_3_1_0_pre8">
 <var name="DBS_LIKE" value="*IDEAL_31X_v1*-*RAW*">
 
 <diffline expr="(Begin processing the \S* record)">
