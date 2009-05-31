@@ -80,7 +80,6 @@ void PFRecoTauDiscriminationByIsolation::produce(Event& iEvent,const EventSetup&
     
     if (ApplyDiscriminationByECALIsolation_){
       
-      cout<<"H1"<<endl;
       // optional selection by an ECAL isolation : ask for 0 gamma PFCand in an isolation annulus around a leading PFCand
       double theECALIsolationDiscriminator =1.;
       const PFCandidateRefVector& pfIsoGammaCands = thePFTau.isolationPFGammaCands();
