@@ -38,13 +38,13 @@ PFMuonAlgo::isMuon( const reco::MuonRef& muonRef ) {
 
   if ( !muonRef.isNonnull() ) return false;
   if ( !muonRef->isGlobalMuon() ) return false;
-  if ( !muonRef->isTrackerMuon() ) return false;
+  // if ( !muonRef->isTrackerMuon() ) return false;
   if ( !muonRef->isStandAloneMuon() ) return false;
 
   reco::TrackRef standAloneMu = muonRef->standAloneMuon();
   reco::TrackRef combinedMu = muonRef->combinedMuon();
   reco::TrackRef trackerMu = muonRef->track();
-
+ 
   /*
   std::cout << " Global  Muon pt error " 
 	    << combinedMu->ptError()/combinedMu->pt() << " " 
@@ -60,35 +60,88 @@ PFMuonAlgo::isMuon( const reco::MuonRef& muonRef ) {
 	    << std::endl; 
   */
 
-  double sigmaCombined = combinedMu->ptError()/(combinedMu->pt()*combinedMu->pt());
-  double sigmaTracker = trackerMu->ptError()/(trackerMu->pt()*trackerMu->pt());
-  double sigmaStandAlone = standAloneMu->ptError()/(standAloneMu->pt()*standAloneMu->pt());
+  if ( muonRef->isTrackerMuon() ) { 
+    double sigmaCombined = combinedMu->ptError()/(combinedMu->pt()*combinedMu->pt());
+    double sigmaTracker = trackerMu->ptError()/(trackerMu->pt()*trackerMu->pt());
+    double sigmaStandAlone = standAloneMu->ptError()/(standAloneMu->pt()*standAloneMu->pt());
+    
+    bool combined = combinedMu->ptError()/combinedMu->pt() < 0.20;
+    bool tracker = trackerMu->ptError()/trackerMu->pt() < 0.20;
+    bool standAlone = standAloneMu->ptError()/standAloneMu->pt() < 0.20;
+    
+    double delta1 =  combined && tracker ?
+      fabs(1./combinedMu->pt() -1./trackerMu->pt())
+      /sqrt(sigmaCombined*sigmaCombined + sigmaTracker*sigmaTracker) : 100.; 
+    double delta2 = combined && standAlone ?
+      fabs(1./combinedMu->pt() -1./standAloneMu->pt())
+      /sqrt(sigmaCombined*sigmaCombined + sigmaStandAlone*sigmaStandAlone) : 100.;
+    double delta3 = standAlone && tracker ?
+      fabs(1./standAloneMu->pt() -1./trackerMu->pt())
+      /sqrt(sigmaStandAlone*sigmaStandAlone + sigmaTracker*sigmaTracker) : 100.;
+    
+    double delta = std::min(delta3,std::min(delta1,delta2));
+    // std::cout << "delta = " << delta << std::endl;
+    
+    double ratio = 
+      combinedMu->ptError()/combinedMu->pt()
+      / (trackerMu->ptError()/trackerMu->pt());
+    //if ( ratio > 2. && delta < 3. ) std::cout << "ALARM ! " << ratio << ", " << delta << std::endl;
+    
+    bool result =  ( combinedMu->pt() < 50. || ratio < 2. ) && delta < 3.;
+    result = result && muon::isGoodMuon(*muonRef,muon::GlobalMuonPromptTight);
+    return result;
 
-  bool combined = combinedMu->ptError()/combinedMu->pt() < 0.20;
-  bool tracker = trackerMu->ptError()/trackerMu->pt() < 0.20;
-  bool standAlone = standAloneMu->ptError()/standAloneMu->pt() < 0.20;
+  } else {
+    // No tracker muon -> Request a perfect stand-alone muon, or an even better global muon
+    bool result = false;
+    // Check the quality of the stand-alone muon : 
+    // good chi**2 and large number of hits and good pt error
+    if ( standAloneMu->normalizedChi2() > 10. ||
+	 ( standAloneMu->hitPattern().numberOfValidMuonDTHits() < 22 &&
+	   standAloneMu->hitPattern().numberOfLostMuonCSCHits() < 11 ) ||
+	 standAloneMu->ptError()/standAloneMu->pt() > 0.20 ) {
+      result = false;
+    } else { 
+      // If the stand-alone muon is good, check the global muon
+      if ( combinedMu->normalizedChi2() > standAloneMu->normalizedChi2() ) {
+	// If the combined muon is worse than the stand-alone, it 
+	// means that either the corresponding tracker track was not 
+	// reconstructed, or that the sta muon comes from a late 
+	// pion decay (hence with a momentum smaller than the track)
+	// Take the stand-alone muon only if its momentum is larger
+	// than that of the track
+	result = standAloneMu->pt() > trackerMu->pt() ;
+      } else { 
+	// If the combined muon is better (and good enough), take the 
+	// global muon
+	result = 
+	  combinedMu->ptError()/combinedMu->pt() < 
+	  std::min(20.,standAloneMu->ptError()/standAloneMu->pt());
+      }
+    }      
+    /*
+    if ( result ) 
+      std::cout << " pt (STA/TRA) : " << standAloneMu->pt() 
+		<< " +/- " << standAloneMu->ptError()/standAloneMu->pt() 
+		<< " and " << trackerMu->pt() 
+		<< " +/- " << trackerMu->ptError()/trackerMu->pt() 
+		<< " and " << combinedMu->pt() 
+		<< " +/- " << combinedMu->ptError()/combinedMu->pt() 
+		<< " eta : " << standAloneMu->eta() << std::endl
+		<< " DT Hits : " << standAloneMu->hitPattern().numberOfValidMuonDTHits()
+		<< "/" << standAloneMu->hitPattern().numberOfLostMuonDTHits()
+		<< " CSC Hits : " << standAloneMu->hitPattern().numberOfValidMuonCSCHits()
+		<< "/" << standAloneMu->hitPattern().numberOfLostMuonCSCHits()
+		<< " RPC Hits : " << standAloneMu->hitPattern().numberOfValidMuonRPCHits()
+		<< "/" << standAloneMu->hitPattern().numberOfLostMuonRPCHits() << std::endl
+		<< " chi**2 STA : " << standAloneMu->normalizedChi2()
+		<< " chi**2 GBL : " << combinedMu->normalizedChi2()
+		<< std::endl << std::endl;
+    */
+    return result;    
+  }
 
-  double delta1 =  combined && tracker ?
-    fabs(1./combinedMu->pt() -1./trackerMu->pt())
-    /sqrt(sigmaCombined*sigmaCombined + sigmaTracker*sigmaTracker) : 100.; 
-  double delta2 = combined && standAlone ?
-    fabs(1./combinedMu->pt() -1./standAloneMu->pt())
-    /sqrt(sigmaCombined*sigmaCombined + sigmaStandAlone*sigmaStandAlone) : 100.;
-  double delta3 = standAlone && tracker ?
-    fabs(1./standAloneMu->pt() -1./trackerMu->pt())
-    /sqrt(sigmaStandAlone*sigmaStandAlone + sigmaTracker*sigmaTracker) : 100.;
-
-  double delta = std::min(delta3,std::min(delta1,delta2));
-  // std::cout << "delta = " << delta << std::endl;
-
-  double ratio = 
-    combinedMu->ptError()/combinedMu->pt()
-    / (trackerMu->ptError()/trackerMu->pt());
-  //if ( ratio > 2. && delta < 3. ) std::cout << "ALARM ! " << ratio << ", " << delta << std::endl;
- 
-  bool result =  ( combinedMu->pt() < 50. || ratio < 2. ) && delta < 3.;
-  result = result && muon::isGoodMuon(*muonRef,muon::GlobalMuonPromptTight);
-  return result;
+  return false;
 
 }
 
