@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.68 2009/05/27 14:08:24 fabiocos Exp $
+// $Id: GsfElectronAlgo.cc,v 1.69 2009/05/29 14:09:12 chamont Exp $
 //
 //
 
@@ -104,13 +104,13 @@ GsfElectronAlgo::GsfElectronAlgo
    bool isBarrelPflow, bool isEndcapsPflow, bool isFiducialPflow,
    double minMVAPflow, double maxTIPPflow,
    bool applyPreselection, bool applyEtaCorrection,
+   bool applyAmbResolution, unsigned ambSortingStrategy, unsigned ambClustersOverlapStrategy,
    bool addPflowElectrons,
    double intRadiusTk, double ptMinTk, double maxVtxDistTk, double maxDrbTk,
    double intRadiusHcal, double etMinHcal,
    double intRadiusEcalBarrel, double intRadiusEcalEndcaps, double jurassicWidth,
    double etMinBarrel, double eMinBarrel, double etMinEndcaps, double eMinEndcaps,
-   bool vetoClustered, bool useNumCrystals,
-   bool applyAmbResolution, unsigned ambSortingStrategy, unsigned ambClustersOverlapStrategy
+   bool vetoClustered, bool useNumCrystals
  )
  : minSCEtBarrel_(minSCEtBarrel), minSCEtEndcaps_(minSCEtEndcaps), maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps),
    minEOverPBarrel_(minEOverPBarrel), minEOverPEndcaps_(minEOverPEndcaps),
@@ -134,13 +134,13 @@ GsfElectronAlgo::GsfElectronAlgo
    isBarrelPflow_(isBarrelPflow), isEndcapsPflow_(isEndcapsPflow), isFiducialPflow_(isFiducialPflow),
    minMVAPflow_(minMVAPflow), maxTIPPflow_(maxTIPPflow),
    applyPreselection_(applyPreselection), applyEtaCorrection_(applyEtaCorrection),
+   applyAmbResolution_(applyAmbResolution), ambSortingStrategy_(ambSortingStrategy), ambClustersOverlapStrategy_(ambClustersOverlapStrategy),
    addPflowElectrons_(addPflowElectrons),
    intRadiusTk_(intRadiusTk), ptMinTk_(ptMinTk),  maxVtxDistTk_(maxVtxDistTk),  maxDrbTk_(maxDrbTk),
    intRadiusHcal_(intRadiusHcal), etMinHcal_(etMinHcal), intRadiusEcalBarrel_(intRadiusEcalBarrel),  intRadiusEcalEndcaps_(intRadiusEcalEndcaps),  jurassicWidth_(jurassicWidth),
    etMinBarrel_(etMinBarrel),  eMinBarrel_(eMinBarrel),  etMinEndcaps_(etMinEndcaps),  eMinEndcaps_(eMinEndcaps),
    vetoClustered_(vetoClustered), useNumCrystals_(useNumCrystals),
-   cacheIDGeom_(0),cacheIDTopo_(0),cacheIDTDGeom_(0),cacheIDMagField_(0),
-   applyAmbResolution_(applyAmbResolution), ambSortingStrategy_(ambSortingStrategy), ambClustersOverlapStrategy_(ambClustersOverlapStrategy)
+   cacheIDGeom_(0),cacheIDTopo_(0),cacheIDTDGeom_(0),cacheIDMagField_(0)
  {
   // this is the new version allowing to configurate the algo
   // interfaces still need improvement!!
@@ -815,14 +815,18 @@ void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::
        edm::Handle<EcalRecHitCollection> & reducedEERecHits )
  {
   GsfElectronPtrCollection::iterator e1, e2 ;
-  //inEle.sort(better_electron) ;
-  inEle.sort(EgAmbiguityTools::isInnerMost(trackerHandle_)) ;
+  if (ambSortingStrategy_==0)
+   { inEle.sort(EgAmbiguityTools::isBetter) ; }
+  else if (ambSortingStrategy_==1)
+   { inEle.sort(EgAmbiguityTools::isInnerMost(trackerHandle_)) ; }
+  else
+   { edm::LogError("GsfElectronAlgo")<<"unknown ambSortingStrategy "<<ambSortingStrategy_ ; }
 
   // resolve when e/g SC is found
   for( e1 = inEle.begin() ;  e1 != inEle.end() ; ++e1 )
    {
     SuperClusterRef scRef1 = (*e1)->superCluster();
-    CaloClusterPtr eleClu1 = getEleBasicCluster((*e1)->gsfTrack(),&(*scRef1));
+    CaloClusterPtr eleClu1 = (*e1)->electronCluster();
     LogDebug("GsfElectronAlgo")
       << "Blessing electron with E/P " << (*e1)->eSuperClusterOverP()
       << ", cluster " << scRef1.get()
@@ -831,12 +835,25 @@ void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::
     for( e2 = e1, ++e2 ;  e2 != inEle.end() ; )
      {
       SuperClusterRef scRef2 = (*e2)->superCluster();
-      CaloClusterPtr eleClu2 = getEleBasicCluster((*e2)->gsfTrack(),&(*scRef2));
-//      if (scRef1==scRef2)
-      if (EgAmbiguityTools::sharedEnergy(&(*eleClu1),&(*eleClu2),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta()) ||
-        (EgAmbiguityTools::sharedEnergy(&(*scRef1->seed()),&(*eleClu2),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta())) ||
-        (EgAmbiguityTools::sharedEnergy(&(*eleClu1),&(*scRef2->seed()),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta())) ||
-        (EgAmbiguityTools::sharedEnergy(&(*scRef1->seed()),&(*scRef2->seed()),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta())))
+      CaloClusterPtr eleClu2 = (*e2)->electronCluster();
+
+      // search if same cluster
+      bool sameCluster = false ;
+      if (ambClustersOverlapStrategy_==0)
+       { sameCluster = (scRef1==scRef2) ; }
+      else if (ambClustersOverlapStrategy_==1)
+       {
+    	sameCluster =
+         ( (EgAmbiguityTools::sharedEnergy(&(*eleClu1),&(*eleClu2),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta())) ||
+    	   (EgAmbiguityTools::sharedEnergy(&(*scRef1->seed()),&(*eleClu2),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta())) ||
+    	   (EgAmbiguityTools::sharedEnergy(&(*eleClu1),&(*scRef2->seed()),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta())) ||
+    	   (EgAmbiguityTools::sharedEnergy(&(*scRef1->seed()),&(*scRef2->seed()),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta())) ) ;
+       }
+      else
+       { edm::LogError("GsfElectronAlgo")<<"unknown ambClustersOverlapStrategy_ "<<ambClustersOverlapStrategy_ ; }
+
+      // main instructions
+      if (sameCluster)
        {
         LogDebug("GsfElectronAlgo")
           << "Discarding electron with E/P " << (*e2)->eSuperClusterOverP()

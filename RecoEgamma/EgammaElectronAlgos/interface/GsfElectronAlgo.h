@@ -78,14 +78,13 @@ class GsfElectronAlgo {
       bool isBarrelPflow, bool isEndcapsPflow, bool isFiducialPflow,
       double minMVAPflow, double maxTIPPflow,
       bool applyPreselection, bool applyEtaCorrection,
-
+      bool applyAmbResolution, unsigned ambSortingStrategy, unsigned ambClustersOverlapStrategy,
       bool addPflowElectrons,
       double intRadiusTk, double ptMinTk, double maxVtxDistTk, double maxDrbTk,
       double intRadiusHcal, double etMinHcal,
       double intRadiusEcalBarrel, double intRadiusEcalEndcaps, double jurassicWidth,
       double etMinBarrel, double eMinBarrel, double etMinEndcaps, double eMinEndcaps,
-      bool vetoClustered, bool useNumCrystals,
-      bool applyAmbResolution, unsigned ambSortingStrategy =1, unsigned ambClustersOverlapStrategy =1
+      bool vetoClustered, bool useNumCrystals
      ) ;
 
     ~GsfElectronAlgo() ;
@@ -243,8 +242,8 @@ class GsfElectronAlgo {
 
     // ambiguity solving
     bool applyAmbResolution_ ; // if not true, ambiguity solving is not applied
-    unsigned ambSortingStrategy_ ; // 0:isBetter, 1:isInnerMost (the default)
-    unsigned ambClustersOverlapStrategy_ ; // 0:adresses, 1:basic shared energy (the default)
+    unsigned ambSortingStrategy_ ; // 0:isBetter, 1:isInnerMost
+    unsigned ambClustersOverlapStrategy_ ; // 0:sc adresses, 1:bc shared energy
 
 
     // if this parameter is true, trackerDriven electrons are added

@@ -58,10 +58,12 @@
 #include <sstream>
 #include <algorithm>
 
-using namespace EgAmbiguityTools ;
 using namespace edm ;
 using namespace std ;
 using namespace reco ;
+
+namespace EgAmbiguityTools
+ {
 
 bool isBetter( const reco::GsfElectron * e1, const reco::GsfElectron * e2 )
  { return (fabs(e1->eSuperClusterOverP()-1)<fabs(e2->eSuperClusterOverP()-1)) ; }
@@ -226,16 +228,18 @@ float sharedEnergy(const CaloCluster *clu1, const CaloCluster *clu2,
 
 }
 
-//float sharedEnergy(const SuperClusterRef& sc1, const SuperClusterRef& sc2,
-//       edm::Handle<EcalRecHitCollection> & reducedEBRecHits,
-//       edm::Handle<EcalRecHitCollection> & reducedEERecHits ) {
-//
-//  double energyShared = 0;
-//  for(CaloCluster_iterator icl1=sc1->clustersBegin();icl1!=sc1->clustersEnd(); icl1++) {
-//    for(CaloCluster_iterator icl2=sc2->clustersBegin();icl2!=sc2->clustersEnd(); icl2++) {
-//      energyShared += sharedEnergy(&(**icl1),&(**icl2),reducedEBRecHits,reducedEERecHits );
-//    }
-//  }
-//  return energyShared;
-//
-//}
+float sharedEnergy(const SuperClusterRef& sc1, const SuperClusterRef& sc2,
+       edm::Handle<EcalRecHitCollection> & reducedEBRecHits,
+       edm::Handle<EcalRecHitCollection> & reducedEERecHits ) {
+
+  double energyShared = 0;
+  for(CaloCluster_iterator icl1=sc1->clustersBegin();icl1!=sc1->clustersEnd(); icl1++) {
+    for(CaloCluster_iterator icl2=sc2->clustersBegin();icl2!=sc2->clustersEnd(); icl2++) {
+      energyShared += sharedEnergy(&(**icl1),&(**icl2),reducedEBRecHits,reducedEERecHits );
+    }
+  }
+  return energyShared;
+
+}
+
+}

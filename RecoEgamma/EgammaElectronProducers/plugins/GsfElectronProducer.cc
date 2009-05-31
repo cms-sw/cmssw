@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronProducer.cc,v 1.21 2009/05/18 16:50:18 chamont Exp $
+// $Id: GsfElectronProducer.cc,v 1.22 2009/05/29 14:09:23 chamont Exp $
 //
 //
 
@@ -90,6 +90,9 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& iConfig)
 		    iConfig.getParameter<double>("maxTIPPflow"),
 		    iConfig.getParameter<bool>("applyPreselection"),
 		    iConfig.getParameter<bool>("applyEtaCorrection"),
+		    iConfig.getParameter<bool>("applyAmbResolution"),
+		    iConfig.getParameter<unsigned>("ambSortingStrategy"),
+		    iConfig.getParameter<unsigned>("ambClustersOverlapStrategy"),
 		    iConfig.getParameter<bool>("addPflowElectrons"),
 		    iConfig.getParameter<double>("intRadiusTk"),
 		    iConfig.getParameter<double>("ptMinTk"),
@@ -105,8 +108,7 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& iConfig)
 		    iConfig.getParameter<double>("etMinEndcaps"),
 		    iConfig.getParameter<double>("eMinEndcaps"),
 		    iConfig.getParameter<bool>("vetoClustered"),
-		    iConfig.getParameter<bool>("useNumCrystals"),
-		    iConfig.getParameter<bool>("applyAmbResolution"),1,1
+		    iConfig.getParameter<bool>("useNumCrystals")
 		    );
 
 }

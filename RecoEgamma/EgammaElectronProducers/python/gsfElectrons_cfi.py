@@ -18,6 +18,8 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     applyPreselection = cms.bool(True),
     applyEtaCorrection = cms.bool(False),
     applyAmbResolution = cms.bool(True),
+    ambSortingStrategy = cms.uint32(1),
+    ambClustersOverlapStrategy = cms.uint32(1),
     addPflowElectrons = cms.bool(True),
     
     # preselection parameters (ecal driven electrons)
