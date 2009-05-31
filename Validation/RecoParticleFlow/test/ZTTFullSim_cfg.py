@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5)
+    input = cms.untracked.int32(200)
 )
 
 process.load("Configuration/Generator/ZTT_Tauola_All_hadronic_cfi")
@@ -21,13 +21,12 @@ process.load("Configuration/Generator/ZTT_Tauola_All_hadronic_cfi")
 #
 process.load("Configuration.StandardSequences.Services_cff")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryExtended_cff")
 
-#process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "IDEAL_V9::All"
+process.GlobalTag.globaltag = "IDEAL_31X::All"
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
@@ -102,7 +101,7 @@ process.display = cms.OutputModule("PoolOutputModule",
 
 process.load("RecoParticleFlow.PFProducer.particleFlowSimParticle_cff")
 
-process.p0 = cms.Path(process.generator)
+process.p0 = cms.Path(process.generator+process.pgen)
 process.p1 = cms.Path(process.psim)
 process.p2 = cms.Path(process.pdigi)
 process.p3 = cms.Path(process.L1Emulator)

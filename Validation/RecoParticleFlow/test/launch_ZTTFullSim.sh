@@ -2,9 +2,9 @@
 
 castorDir=/castor/cern.ch/user/g/gennai/CMSSW_310pre8/
 
-cmsswDir=/afs/cern.ch/user/g/gennai/scratch0/
+cmsswDir=/afs/cern.ch/user/g/gennai/scratch0/CMSSW_3_1_0_pre8/src/
 
-for ((job=1;job<=5;job++));
+for ((job=1;job<=50;job++));
   do
   echo "JOB "$job
   name="ZTT_Full_"${job}
