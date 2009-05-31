@@ -125,9 +125,9 @@ SetTestFileToPlot(process, testRootFile)
 SetReferenceFileToPlot(process, refRootFile)
 
 # Switch to 22X style names if desired
-from Validation.RecoTau.RecoTauValidation_cfi import UseLegacyProductNames
 from Validation.RecoTau.RecoTauValidation_cfi import SetCompareToLegacyProductNames
 if options.usesLegacyProdNames == 1:
+   from Validation.RecoTau.RecoTauValidation_cfi import UseLegacyProductNames
    # remove the tanc from the sequence
    process.plotTauValidation = cms.Sequence(process.plotTauValidationNoTanc)
    UseLegacyProductNames(process.plotTauValidation)
