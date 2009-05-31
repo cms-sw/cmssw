@@ -1,11 +1,16 @@
 #include "EventFilter/CastorRawToDigi/interface/CastorPacker.h"
-#include "EventFilter/CastorRawToDigi/interface/CastorCollections.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "FWCore/Utilities/interface/CRC16.h"
+
+CastorPacker::Collections::Collections() {
+  castorCont=0;
+  tpCont=0;
+  calibCont=0;
+}
 
 template <class Coll, class DetIdClass> 
 int process(const Coll* pt, const DetId& did, unsigned short* buffer, int& presamples) {
@@ -21,7 +26,7 @@ int process(const Coll* pt, const DetId& did, unsigned short* buffer, int& presa
   return size;
 }
 
-int CastorPacker::findSamples(const DetId& did, const CastorCollections& inputs,
+int CastorPacker::findSamples(const DetId& did, const Collections& inputs,
 			    unsigned short* buffer, int &presamples) {
 
   if (did.det()!=DetId::Calo) return 0;
@@ -35,7 +40,7 @@ int CastorPacker::findSamples(const DetId& did, const CastorCollections& inputs,
 
 void CastorPacker::pack(int fedid, int dccnumber,
 		      int nl1a, int orbitn, int bcn,
-		      const CastorCollections& inputs, 
+		      const Collections& inputs, 
 		      const CastorElectronicsMap& emap,
 		      FEDRawData& output) {
   std::vector<unsigned short> precdata(HcalHTRData::CHANNELS_PER_SPIGOT*HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL);
