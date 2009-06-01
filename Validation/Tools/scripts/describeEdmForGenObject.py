@@ -182,15 +182,21 @@ if __name__ == "__main__":
 
     regex1 = re.compile (r'class')
     regex2 = re.compile (r'^__', re.IGNORECASE)
-    print "load first event"
-    event = events[0]
-    print "get muons"
-    muons = event.getProduct ("recoMuons")
-    print "getMuon"
-    muon = muons[0]
+    obj = ''
+    for event in events:
+        event = events[0]
+        objects = event.getProduct (alias)
+        if len (objects):
+            print "object"
+            obj = objects[0]
+            print obj
+            break
+    if not obj:
+        print "Can't find any '%s'.  Aborting." % alias
+        sys.exit()
 
     print "get muon attributes"
-    mylist = getObjectList (muon, "muon")
+    mylist = getObjectList (obj, "muon")
     #sys.exit()
     #pprint.pprint (mylist)
     targetFile = open (outputFile, 'w')
