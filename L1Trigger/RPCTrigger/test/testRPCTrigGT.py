@@ -6,7 +6,7 @@ process = cms.Process("rpctest")
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger = cms.Service("MessageLogger",
     log = cms.untracked.PSet( threshold = cms.untracked.string("DEBUG") ),
-    debugModules = cms.untracked.vstring("l1RpcEmulDigis"),
+    debugModules = cms.untracked.vstring("rpcTriggerDigis"),
     destinations = cms.untracked.vstring('log')
 )
 
@@ -20,9 +20,8 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = useGlobalTag + '::All'
 
 # emulation
-process.load("L1Trigger.RPCTrigger.RPCConeConfig_cff")
-process.load("L1Trigger.RPCTrigger.l1RpcEmulDigis_cfi")
-process.l1RpcEmulDigis.label = cms.string('simMuonRPCDigis')
+process.load("L1Trigger.RPCTrigger.rpcTriggerDigis_cff")
+process.rpcTriggerDigis.label = cms.string('simMuonRPCDigis')
 
 # rpc r2d
 #process.load("EventFilter.RPCRawToDigi.RPCSQLiteCabling_cfi")
@@ -42,4 +41,4 @@ process.source = cms.Source("PoolSource",
 )
 
 #process.a = cms.Path(process.rpcunpacker*process.l1RpcEmulDigis)
-process.a = cms.Path(process.l1RpcEmulDigis)
+process.a = cms.Path(process.rpcTriggerDigis)
