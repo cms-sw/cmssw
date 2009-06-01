@@ -4,7 +4,7 @@
 //
 // Original Author: Nadia Adam (Princeton University) 
 //         Created:  Fri May 16 16:48:24 CEST 2008
-// $Id: TagProbeEDMAnalysis.h,v 1.17 2009/05/27 12:39:42 ahunt Exp $
+// $Id: TagProbeEDMAnalysis.h,v 1.18 2009/05/28 05:22:53 ahunt Exp $
 //
 //
 // Kalanand Mishra: July 1, 2008 
@@ -133,6 +133,7 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer{
       bool doTextDefinedBins_;         // Allow the 2-D bins to be read in from a text file into 1-D regions
       std::string textBinsFile_;       // This is the name of the file that holds the 2D bin information
       EffTableLoader* effBinsFromTxt_; // This holds the efficiency bins information
+      SideBandSubtraction* SBS_;
 
       ZLineShape* zLineShape_;
       CBLineShape* cbLineShape_;
@@ -150,8 +151,6 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer{
       std::vector<double> numSignal_;        // Signal events from fit
       std::vector<double> numBkgPass_;       // Background events passing from fit
       std::vector<double> numBkgFail_;       // Background events failing from fit
-
-      SideBandSubtraction* SBS_;
 
       std::string mode_;                     // Mode of operation (Normal,Read,Write)  
       std::string fitFileName_;              // Name of the root file to write to

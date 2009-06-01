@@ -73,7 +73,9 @@
 #include <vector>
 #include <string>
 
-TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig): zLineShape_(NULL),
+TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig): effBinsFromTxt_(NULL),
+									    SBS_(NULL),
+									    zLineShape_(NULL),
 									    cbLineShape_(NULL),
 									    gaussLineShape_(NULL),
 									    polyBkgLineShape_(NULL),
@@ -84,8 +86,8 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig): zLin
 									    var2Pass_(NULL),
 									    var2All_(NULL),
 									    var1var2Pass_(NULL),
-									    var1var2All_(NULL),
-									    effBinsFromTxt_(NULL){
+									    var1var2All_(NULL) {
+
   
   // Efficiency input variables
   tagProbeType_   = iConfig.getUntrackedParameter< int >("TagProbeType",0);
@@ -1582,7 +1584,7 @@ void TagProbeEDMAnalysis::doFit(const std::string &bvar1, const std::vector< dou
       RooAbsPdf* pdf =  totalPdf.getPdf(type->GetName());
       RooAbsData* dset = (RooAbsData*) dsetList->FindObject(type->GetName());
      
-      if (pdf && dset && dset->numEntries(kTRUE)!=0.) 
+      if (pdf && dset && dset->numEntries() != 0.0) 
       {               
 	 edm::LogInfo("TagProbeEDMAnalysis") << "GOF Entries " << dset->numEntries() << " " 
 	      << type->GetName() << std::endl;
