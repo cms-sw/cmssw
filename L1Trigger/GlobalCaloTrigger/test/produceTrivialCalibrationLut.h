@@ -1,9 +1,10 @@
-#include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 
 #include <vector>
 
 #include "boost/shared_ptr.hpp"
+
+class L1GctJetFinderParams;
 
 class produceTrivialCalibrationLut
 {
@@ -18,7 +19,9 @@ class produceTrivialCalibrationLut
   void setPowerSeriesCorrectionType();
   void setOrcaStyleCorrectionType();
 
-  lutPtrVector produce();
+  const lutPtrVector produce() const;
+
+  const L1GctJetFinderParams* jfPars() const { return m_jfPars; }
 
  private:
 
@@ -34,11 +37,13 @@ class produceTrivialCalibrationLut
   std::vector<double> m_jetEtThresholds;
 
   unsigned m_corrFunType; 
+  L1GctJetFinderParams* m_jfPars;
     
   /// member functions to set up the ORCA-style calibrations (if needed)
   /// (Copied from L1TriggerConfig/GctConfigProducers
   void setOrcaStyleParams();
   void setOrcaStyleParamsForBin(std::vector<double>& paramsForBin);
 
+  void setupJfPars();
 };
 
