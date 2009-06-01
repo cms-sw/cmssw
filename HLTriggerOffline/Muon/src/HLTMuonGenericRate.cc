@@ -3,8 +3,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/02/27 17:57:34 $
- *  $Revision: 1.63 $
+ *  $Date: 2009/04/29 22:00:30 $
+ *  $Revision: 1.64 $
  */
 
 
@@ -621,8 +621,8 @@ void HLTMuonGenericRate::begin()
         hNumOrphansGen->setBinLabel( i + 1, binLabels[i].c_str() );
       hNumOrphansGen->getTH1()->LabelsDeflate("X");
 
-      hPassMaxPtGen.push_back( bookIt( "genPassMaxPt_All", "pt of Leading Gen Muon", theMaxPtParameters) );
-      hPassMaxPtGen.push_back( bookIt( "genPassMaxPt_" + myLabel, "pt of Leading Gen Muon, if matched to " + myLabel, theMaxPtParameters) );
+      hPassMaxPtGen.push_back( bookTurnOn( "genPassMaxPt_All", "pt of Leading Gen Muon") );
+      hPassMaxPtGen.push_back( bookTurnOn( "genPassMaxPt_" + myLabel, "pt of Leading Gen Muon, if matched to " + myLabel) );
       hPassEtaGen.push_back( bookIt( "genPassEta_All", "#eta of Gen Muons", theEtaParameters) );
       hPassEtaGen.push_back( bookIt( "genPassEta_" + myLabel, "#eta of Gen Muons matched to " + myLabel, theEtaParameters) );
       hPassPhiGen.push_back( bookIt( "genPassPhi_All", "#phi of Gen Muons", thePhiParameters) );
@@ -637,8 +637,8 @@ void HLTMuonGenericRate::begin()
         hNumOrphansRec->setBinLabel( i + 1, binLabels[i].c_str() );
       hNumOrphansRec->getTH1()->LabelsDeflate("X");
 
-      hPassMaxPtRec.push_back( bookIt( "recPassMaxPt_All", "pt of Leading Reco Muon" + myLabel,  theMaxPtParameters) );
-      hPassMaxPtRec.push_back( bookIt( "recPassMaxPt_" + myLabel, "pt of Leading Reco Muon, if matched to " + myLabel,  theMaxPtParameters) );
+      hPassMaxPtRec.push_back( bookTurnOn( "recPassMaxPt_All", "pt of Leading Reco Muon" + myLabel) );
+      hPassMaxPtRec.push_back( bookTurnOn( "recPassMaxPt_" + myLabel, "pt of Leading Reco Muon, if matched to " + myLabel) );
       hPassEtaRec.push_back( bookIt( "recPassEta_All", "#eta of Reco Muons", theEtaParameters) );
       hPassEtaRec.push_back( bookIt( "recPassEta_" + myLabel, "#eta of Reco Muons matched to " + myLabel, theEtaParameters) );
       hPassPhiRec.push_back( bookIt( "recPassPhi_All", "#phi of Reco Muons", thePhiParameters) );
@@ -661,7 +661,7 @@ void HLTMuonGenericRate::begin()
 
       if ( useMuonFromGenerator ) {
 
-        hPassMaxPtGen.push_back( bookIt( "genPassMaxPt_" + myLabel, "pt of Leading Gen Muon, if matched to " + myLabel, theMaxPtParameters) );   
+        hPassMaxPtGen.push_back( bookTurnOn( "genPassMaxPt_" + myLabel, "pt of Leading Gen Muon, if matched to " + myLabel) );   
         hPassEtaGen.push_back( bookIt( "genPassEta_" + myLabel, "#eta of Gen Muons matched to " + myLabel, theEtaParameters) );
         hPassPhiGen.push_back( bookIt( "genPassPhi_" + myLabel, "#phi of Gen Muons matched to " + myLabel, thePhiParameters) );
 
@@ -669,7 +669,7 @@ void HLTMuonGenericRate::begin()
 
       if ( useMuonFromReco ) {
 
-        hPassMaxPtRec.push_back( bookIt( "recPassMaxPt_" + myLabel, "pt of Leading Reco Muon, if matched to " + myLabel, theMaxPtParameters) );     
+        hPassMaxPtRec.push_back( bookTurnOn( "recPassMaxPt_" + myLabel, "pt of Leading Reco Muon, if matched to " + myLabel) );     
         hPassEtaRec.push_back( bookIt( "recPassEta_" + myLabel, "#eta of Reco Muons matched to " + myLabel, theEtaParameters) );
         hPassPhiRec.push_back( bookIt( "recPassPhi_" + myLabel, "#phi of Reco Muons matched to " + myLabel, thePhiParameters) );
       }
@@ -690,6 +690,20 @@ MonitorElement* HLTMuonGenericRate::bookIt
   double min = parameters[1];
   double max = parameters[2];
   TH1F *h = new TH1F( name, title, nBins, min, max );
+  h->Sumw2();
+  return dbe_->book1D( name.Data(), h );
+  delete h;
+}
+
+MonitorElement* HLTMuonGenericRate::bookTurnOn
+( TString name, TString title )
+{
+  LogTrace("HLTMuonVal") << "Directory " << dbe_->pwd() << " Name " << 
+                            name << " Title:" << title;
+  const size_t nBins = theMaxPtParameters.size() - 1;
+  float *edges = new float[nBins + 1];
+  for (size_t i = 0; i < nBins + 1; i++) edges[i] = theMaxPtParameters[i];
+  TH1F *h = new TH1F( name, title, nBins, edges );
   h->Sumw2();
   return dbe_->book1D( name.Data(), h );
   delete h;

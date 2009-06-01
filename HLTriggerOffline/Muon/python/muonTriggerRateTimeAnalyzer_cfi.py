@@ -19,7 +19,12 @@ muonTriggerRateTimeAnalyzer = cms.EDAnalyzer("MuonTriggerRateTimeAnalyzer",
     RootFileName       = cms.untracked.string(''),
 
     # Set the ranges and numbers of bins for histograms
-    MaxPtParameters    = cms.vdouble(40,0.,40.),
+    MaxPtParameters =  cms.vdouble(0,
+                          1,  2,  3,  4,  5,  6,  7,  8,  9, 10,
+                         11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+                         22, 24, 26, 28, 30, 32, 34, 36, 38, 40,
+                         45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100
+                       ),                       
     PtParameters       = cms.vdouble(50,0.,1000.),
     EtaParameters      = cms.vdouble(50,-2.1,2.1),
     PhiParameters      = cms.vdouble(50,-3.15,3.15),
