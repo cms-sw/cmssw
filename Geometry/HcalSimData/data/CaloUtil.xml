@@ -10,23 +10,44 @@
    <Parameter name="Calorimeter" value="VCAL"       eval="false"/>
    <Parameter name="Calorimeter" value="MBAT"       eval="false"/>
    <Parameter name="Calorimeter" value="MBBT"       eval="false"/>
+   <Parameter name="Calorimeter" value="MBBTC"      eval="false"/>
+   <Parameter name="Calorimeter" value="MBBT_R1P"   eval="false"/>
+   <Parameter name="Calorimeter" value="MBBT_R1M"   eval="false"/>
+   <Parameter name="Calorimeter" value="CAST"       eval="false"/>
+   <Parameter name="Calorimeter" value="ZDC"        eval="false"/>
    <Parameter name="Levels"      value="3"          eval="true"/>
    <Parameter name="Levels"      value="3"          eval="true"/>
    <Parameter name="Levels"      value="6"          eval="true"/>
    <Parameter name="Levels"      value="6"          eval="true"/>
+   <Parameter name="Levels"      value="6"          eval="true"/>
+   <Parameter name="Levels"      value="6"          eval="true"/>
+   <Parameter name="Levels"      value="6"          eval="true"/>
+   <Parameter name="Levels"      value="4"          eval="true"/>
+   <Parameter name="Levels"      value="3"          eval="true"/>
    <Parameter name="Neighbours"  value="4"          eval="true"/>
    <Parameter name="Neighbours"  value="3"          eval="true"/>
    <Parameter name="Neighbours"  value="1"          eval="true"/>
+   <Parameter name="Neighbours"  value="1"          eval="true"/>
+   <Parameter name="Neighbours"  value="1"          eval="true"/>
+   <Parameter name="Neighbours"  value="1"          eval="true"/>
+   <Parameter name="Neighbours"  value="1"          eval="true"/>
+   <Parameter name="Neighbours"  value="2"          eval="true"/>
    <Parameter name="Neighbours"  value="1"          eval="true"/>
    <Parameter name="Inside"      value="BEAM"       eval="false"/>
    <Parameter name="Inside"      value="Tracker"    eval="false"/>
    <Parameter name="Inside"      value="MUON"       eval="false"/>
    <Parameter name="Inside"      value="NotFound"   eval="false"/>
-   <Parameter name="Inside"      value="BEAM"       eval="false"/>
+   <Parameter name="Inside"      value="BEAM2"      eval="false"/>
    <Parameter name="Inside"      value="MUON"       eval="false"/>
    <Parameter name="Inside"      value="NotFound"   eval="false"/>
    <Parameter name="Inside"      value="MB"         eval="false"/>
    <Parameter name="Inside"      value="MB"         eval="false"/>
+   <Parameter name="Inside"      value="MB"         eval="false"/>
+   <Parameter name="Inside"      value="MB"         eval="false"/>
+   <Parameter name="Inside"      value="MB"         eval="false"/>
+   <Parameter name="Inside"      value="BEAM2"      eval="false"/>
+   <Parameter name="Inside"      value="NotFound"   eval="false"/>
+   <Parameter name="Inside"      value="NotFound"   eval="false"/>
    <Parameter name="InsideLevel" value="3"          eval="true"/>
    <Parameter name="InsideLevel" value="3"          eval="true"/>
    <Parameter name="InsideLevel" value="3"          eval="true"/>
@@ -36,6 +57,12 @@
    <Parameter name="InsideLevel" value="3"          eval="true"/>
    <Parameter name="InsideLevel" value="4"          eval="true"/>
    <Parameter name="InsideLevel" value="4"          eval="true"/>
+   <Parameter name="InsideLevel" value="4"          eval="true"/>
+   <Parameter name="InsideLevel" value="4"          eval="true"/>
+   <Parameter name="InsideLevel" value="4"          eval="true"/>
+   <Parameter name="InsideLevel" value="3"          eval="true"/>
+   <Parameter name="InsideLevel" value="3"          eval="true"/>
+   <Parameter name="InsideLevel" value="3"          eval="true"/>
   </SpecPar>  
   <SpecPar name="hf">
    <PartSelector path="//HVQX" />
