@@ -87,9 +87,33 @@ PFMuonAlgo::isMuon( const reco::MuonRef& muonRef ) {
       / (trackerMu->ptError()/trackerMu->pt());
     //if ( ratio > 2. && delta < 3. ) std::cout << "ALARM ! " << ratio << ", " << delta << std::endl;
     
+    // Quality check on the hits in the muon chambers (at least two stations hit)
+    bool quality = true;
+    if ( standAloneMu->hitPattern().numberOfValidMuonDTHits() < 22 &&
+	 standAloneMu->hitPattern().numberOfValidMuonCSCHits() < 11 ) quality = false;
+
     bool result =  ( combinedMu->pt() < 50. || ratio < 2. ) && delta < 3.;
     result = result && muon::isGoodMuon(*muonRef,muon::GlobalMuonPromptTight);
-    return result;
+    /*
+    if ( result && !quality ) 
+      std::cout << " pt (STA/TRA) : " << standAloneMu->pt() 
+		<< " +/- " << standAloneMu->ptError()/standAloneMu->pt() 
+		<< " and " << trackerMu->pt() 
+		<< " +/- " << trackerMu->ptError()/trackerMu->pt() 
+		<< " and " << combinedMu->pt() 
+		<< " +/- " << combinedMu->ptError()/combinedMu->pt() 
+		<< " eta : " << standAloneMu->eta() << std::endl
+		<< " DT Hits : " << standAloneMu->hitPattern().numberOfValidMuonDTHits()
+		<< "/" << standAloneMu->hitPattern().numberOfLostMuonDTHits()
+		<< " CSC Hits : " << standAloneMu->hitPattern().numberOfValidMuonCSCHits()
+		<< "/" << standAloneMu->hitPattern().numberOfLostMuonCSCHits()
+		<< " RPC Hits : " << standAloneMu->hitPattern().numberOfValidMuonRPCHits()
+		<< "/" << standAloneMu->hitPattern().numberOfLostMuonRPCHits() << std::endl
+		<< " chi**2 STA : " << standAloneMu->normalizedChi2()
+		<< " chi**2 GBL : " << combinedMu->normalizedChi2()
+		<< std::endl << std::endl;
+    */
+    return result && quality;
 
   } else {
     // No tracker muon -> Request a perfect stand-alone muon, or an even better global muon
@@ -98,7 +122,7 @@ PFMuonAlgo::isMuon( const reco::MuonRef& muonRef ) {
     // good chi**2 and large number of hits and good pt error
     if ( standAloneMu->normalizedChi2() > 10. ||
 	 ( standAloneMu->hitPattern().numberOfValidMuonDTHits() < 22 &&
-	   standAloneMu->hitPattern().numberOfLostMuonCSCHits() < 11 ) ||
+	   standAloneMu->hitPattern().numberOfValidMuonCSCHits() < 15 ) ||
 	 standAloneMu->ptError()/standAloneMu->pt() > 0.20 ) {
       result = false;
     } else { 
