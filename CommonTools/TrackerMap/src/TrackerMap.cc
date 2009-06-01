@@ -155,6 +155,7 @@ void TrackerMap::init() {
   palette = 1;
   printflag=false;
   temporary_file=false;
+  gminvalue=0.; gmaxvalue=0.;//default global range for online rendering
 
   ndet = 3; // number of detectors: pixel, inner silicon, outer silicon
   npart = 3; // number of detector parts: endcap -z, barrel, endcap +z
@@ -1128,11 +1129,15 @@ void TrackerMap::printonline(){
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
 *ofilename <<"    var tmapname=\"" <<outputfilename << "\""<<endl;
+*ofilename <<"    var tmaptitle=\"" <<title << "\""<<endl;
 *ofilename <<"    var ncrates=" <<ncrates << ";"<<endl;
   ifilename=findfile("viewerTrailer.xhtml");
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
   ofilename -> close();
    command = "sed -i \"s/XtmapnameX/"+outputfilename+"/g\" "+ ofname.str();
+    cout << "Executing " << command << endl;
+    system(command.c_str());
+   command = "sed -i \"s/XtmaptitleX/"+title+"/g\" "+ ofname.str();
     cout << "Executing " << command << endl;
     system(command.c_str());
   ofname.str("");
@@ -1153,9 +1158,9 @@ void TrackerMap::printonline(){
   
     ostringstream outs,outs1,outs2;
     outs << outputfilename<<".png";
-save(true,0.,0.,outs.str(),3000,1600);
+save(true,gminvalue,gmaxvalue,outs.str(),3000,1600);
 temporary_file=false;
-printlayers(true,0.,0.,outputfilename);
+printlayers(true,gminvalue,gmaxvalue,outputfilename);
 
 //Now print a text file for each layer 
   ofstream * txtfile;
@@ -1191,9 +1196,9 @@ for (int layer=1; layer < 44; layer++){
                 }
 if(enableFedProcessing){
     outs1 << outputfilename<<"fed.png";
-save_as_fedtrackermap(true,0.,0.,outs1.str(),6000,3200);
+save_as_fedtrackermap(true,gminvalue,gmaxvalue,outs1.str(),6000,3200);
     outs2 << outputfilename<<".xml";
-save_as_fedtrackermap(true,0.,0.,outs2.str(),3000,1600);
+save_as_fedtrackermap(true,gminvalue,gmaxvalue,outs2.str(),3000,1600);
 //And a text file for each crate 
   std::map<int , int>::iterator i_fed;
   ofstream * txtfile;
@@ -1237,11 +1242,15 @@ void TrackerMap::printall(bool print_total, float minval, float maxval, string o
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
 *ofilename <<"    var tmapname=\"" <<outputfilename << "\""<<endl;
+*ofilename <<"    var tmaptitle=\"" <<title << "\""<<endl;
 *ofilename <<"    var ncrates=" <<ncrates << ";"<<endl;
   ifilename=findfile("viewerTrailer.xhtml");
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
   ofilename -> close();
    command = "sed -i \"s/XtmapnameX/"+outputfilename+"/g\" "+ ofname.str();
+    cout << "Executing " << command << endl;
+    system(command.c_str());
+   command = "sed -i \"s/XtmaptitleX/"+title+"/g\" "+ ofname.str();
     cout << "Executing " << command << endl;
     system(command.c_str());
   

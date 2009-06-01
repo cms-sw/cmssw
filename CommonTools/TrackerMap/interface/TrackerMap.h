@@ -51,6 +51,8 @@ class TrackerMap {
   void setPalette(int numpalette){palette=numpalette;} 
   void drawPalette(std::ofstream * file); 
   void showPalette(bool printflag1){printflag=printflag1;}; 
+  void setTitle(std::string s){title=s;};
+  void setRange(float min,float max){gminvalue=min;gmaxvalue=max;};
   void load(std::string s="tmap.svg"); 
   int getxsize(){return xsize;};
   int getysize(){return ysize;};
@@ -334,6 +336,7 @@ void defwindow(int num_lay){
   std::ofstream * savefile;
   std::ifstream * jsfile;
   std::ifstream * inputfile;
+  float gminvalue,gmaxvalue;
   float minvalue,maxvalue;
   int number_modules;
   bool temporary_file; 
