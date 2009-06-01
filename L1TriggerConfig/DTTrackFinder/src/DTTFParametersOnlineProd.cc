@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Fri Oct  3 00:26:52 CEST 2008
-// $Id: DTTFParametersOnlineProd.cc,v 1.4 2008/11/24 14:43:35 troco Exp $
+// $Id: DTTFParametersOnlineProd.cc,v 1.6 2009/05/18 08:22:25 troco Exp $
 //
 //
 
@@ -74,6 +74,8 @@ DTTFParametersOnlineProd::newObject( const std::string& objectKey )
 
      boost::shared_ptr< L1MuDTTFParameters > pDTTFParameters(
        new L1MuDTTFParameters() ) ;
+
+     pDTTFParameters->reset() ;
 
      std::string dttfSchema = "CMS_DT_TF" ;
 
