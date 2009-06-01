@@ -350,7 +350,11 @@ void OptoScanAlgorithm::analyse() {
     // Set link noise
     uint16_t bin_number = sistrip::invalid_;
     if ( anal->threshold_[igain] < sistrip::valid_ ) {
-      bin_number = static_cast<uint16_t>( anal->threshold_[igain] / 0.45 ); 
+      // Old calculation, used in commissioning in 2008
+      //   always leads to zero link noise
+      //   bin_number = static_cast<uint16_t>( anal->threshold_[igain] / 0.45 ); 
+      // New calculation asked by Karl et al, for commissioning in 2009
+      bin_number = (uint16_t) (lift_off + width / 3.);
     }
     if ( bin_number < sistrip::valid_ ) {
       if ( bin_number < noise_contents.size() ) { 
