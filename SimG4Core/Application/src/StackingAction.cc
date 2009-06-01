@@ -44,7 +44,7 @@ StackingAction::StackingAction(const edm::ParameterSet & p): tracker(0),
 				       << " ns";
   for (unsigned int i=0; i<maxTrackTimes.size(); i++) {
     maxTrackTimes[i] *= ns;
-    edm::LogInfo("SimG4CoreApplication") << "SteppingAction::MaxTrackTime for "
+    edm::LogInfo("SimG4CoreApplication") << "StackingAction::MaxTrackTime for "
 					 << maxTimeNames[i] << " is " 
 					 << maxTrackTimes[i];
   }

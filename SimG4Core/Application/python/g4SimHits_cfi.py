@@ -10,8 +10,8 @@ common_heavy_suppression = cms.PSet(
 
 common_maximum_time = cms.PSet(
     MaxTrackTime  = cms.double(500.0),
-    MaxTimeNames  = cms.vstring('ZDCRegion','CastorRegion','QuadRegion'),
-    MaxTrackTimes = cms.vdouble(2000.0,0.,0.)
+    MaxTimeNames  = cms.vstring('ZDCRegion','CastorRegion','QuadRegion','InterimRegion'),
+    MaxTrackTimes = cms.vdouble(2000.0,0.,0.,0.)
 )
 
 g4SimHits = cms.EDProducer("OscarProducer",
