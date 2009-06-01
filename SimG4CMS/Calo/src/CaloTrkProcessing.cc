@@ -97,44 +97,47 @@ CaloTrkProcessing::CaloTrkProcessing(G4String name,
   std::vector<G4LogicalVolume *>::const_iterator lvcite;
   int istart = 0;
   for (unsigned int i=0; i<caloNames.size(); i++) {
-    G4LogicalVolume* lv   = 0;
-    G4String         name = caloNames[i];
-    for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) 
+    G4LogicalVolume* lv     = 0;
+    G4String         name   = caloNames[i];
+    int              number = static_cast<int>(neighbours[i]);
+    for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
       if ((*lvcite)->GetName() == name) {
 	lv = (*lvcite);
 	break;
       }
-    CaloTrkProcessing::Detector detector;
-    detector.name  = name;
-    detector.lv    = lv;
-    detector.level = static_cast<int>(levels[i]);
-    int number    = static_cast<int>(neighbours[i]);
-    if (istart+number > (int)(insideNames.size())) {
-      edm::LogError("CaloSim") << "CaloTrkProcessing: # of InsideNames bins " 
-			       << insideNames.size() << " too few compaerd to "
-			       << istart+number << " requested ==> illegal ";
-      throw cms::Exception("Unknown", "CaloTrkProcessing")
-	<< "InsideNames array size does not match with list of neighbours\n";
     }
-    std::vector<std::string>      inside;
-    std::vector<G4LogicalVolume*> insideLV;
-    std::vector<int>              insideLevels;
-    for (int k = 0; k < number; k++) {
-      lv   = 0;
-      name = insideNames[istart+k];
-      for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) 
-	if ((*lvcite)->GetName() == name) {
-	  lv = (*lvcite);
-	  break;
-	}
-      inside.push_back(name);
-      insideLV.push_back(lv);
-      insideLevels.push_back(static_cast<int>(insideLevel[istart+k]));
+    if (lv != 0) {
+     CaloTrkProcessing::Detector detector;
+     detector.name  = name;
+     detector.lv    = lv;
+     detector.level = static_cast<int>(levels[i]);
+     if (istart+number > (int)(insideNames.size())) {
+       edm::LogError("CaloSim") << "CaloTrkProcessing: # of InsideNames bins " 
+	 		        << insideNames.size() <<" too few compaerd to "
+		 	        << istart+number << " requested ==> illegal ";
+       throw cms::Exception("Unknown", "CaloTrkProcessing")
+	 << "InsideNames array size does not match with list of neighbours\n";
+     }
+     std::vector<std::string>      inside;
+     std::vector<G4LogicalVolume*> insideLV;
+     std::vector<int>              insideLevels;
+     for (int k = 0; k < number; k++) {
+       lv   = 0;
+       name = insideNames[istart+k];
+       for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) 
+	 if ((*lvcite)->GetName() == name) {
+	   lv = (*lvcite);
+	   break;
+	 }
+       inside.push_back(name);
+       insideLV.push_back(lv);
+       insideLevels.push_back(static_cast<int>(insideLevel[istart+k]));
+     }
+     detector.fromDets   = inside;
+     detector.fromDetL   = insideLV;
+     detector.fromLevels = insideLevels;
+     detectors.push_back(detector);
     }
-    detector.fromDets   = inside;
-    detector.fromDetL   = insideLV;
-    detector.fromLevels = insideLevels;
-    detectors.push_back(detector);
     istart += number;
   }
 
