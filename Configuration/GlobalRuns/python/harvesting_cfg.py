@@ -12,6 +12,7 @@ process.prefer("GlobalTag")
 process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.load("DQMOffline.Configuration.DQMOffline_SecondStep_cff")
+process.load("DQMOffline.Configuration.DQMOffline_Certification_cff")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -39,5 +40,5 @@ process.DQMStore.collateHistograms = False
 process.EDMtoMEConverter.convertOnEndLumi = True
 process.EDMtoMEConverter.convertOnEndRun = False
 
-process.p1 = cms.Path(process.EDMtoMEConverter*process.DQMOffline_SecondStep*process.dqmSaver)
+process.p1 = cms.Path(process.EDMtoMEConverter*process.DQMOffline_SecondStep*process.DQMOffline_Certification*process.dqmSaver)
 

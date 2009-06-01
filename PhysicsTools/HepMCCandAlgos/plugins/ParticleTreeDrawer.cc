@@ -2,6 +2,8 @@
  *
  * \author Luca Lista, INFN
  */
+#include <sstream>
+
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -12,6 +14,7 @@ class ParticleTreeDrawer : public edm::EDAnalyzer {
 public:
   ParticleTreeDrawer( const edm::ParameterSet & );
 private:
+  std::string getParticleName( int id ) const;
   void analyze( const edm::Event &, const edm::EventSetup & );
   edm::InputTag src_;
   void printDecay( const reco::Candidate &, const std::string & pre ) const;
@@ -66,6 +69,17 @@ bool ParticleTreeDrawer::hasValidDaughters( const reco::Candidate & c ) const {
   return false;
 }
 
+std::string ParticleTreeDrawer::getParticleName(int id) const
+{
+  const ParticleData * pd = pdt_->particle( id );
+  if (!pd) {
+    std::ostringstream ss;
+    ss << "P" << id;
+    return ss.str();
+  } else
+    return pd->name();
+}
+
 void ParticleTreeDrawer::analyze( const Event & event, const EventSetup & es ) {  
   es.getData( pdt_ );
   Handle<View<Candidate> > particles;
@@ -102,9 +116,7 @@ void ParticleTreeDrawer::printInfo( const Candidate & c ) const {
 }
 
 void ParticleTreeDrawer::printDecay( const Candidate & c, const string & pre ) const {
-  int id = c.pdgId();
-  const ParticleData * pd = pdt_->particle( id );  
-  cout << (pd != 0? pd->name():"???") << endl; 
+  cout << getParticleName( c.pdgId() );
   printInfo( c );
   cout << endl;
 
@@ -112,7 +124,7 @@ void ParticleTreeDrawer::printDecay( const Candidate & c, const string & pre ) c
   for( size_t i = 0; i < ndau; ++ i )
     if ( accept( * c.daughter( i ) ) )
       ++ validDau;
-    if ( validDau == 0 ) return;
+  if ( validDau == 0 ) return;
   
   bool lastLevel = true;
   for( size_t i = 0; i < ndau; ++ i ) {
@@ -128,8 +140,7 @@ void ParticleTreeDrawer::printDecay( const Candidate & c, const string & pre ) c
     for( size_t i = 0; i < ndau; ++ i ) {
       const Candidate * d = c.daughter( i );
       if ( accept( * d ) ) {
-	const ParticleData * pd = pdt_->particle( d->pdgId() );  
-	cout << (pd != 0? pd->name():"???") << endl; 
+	cout << getParticleName( d->pdgId() );
 	printInfo( * d );
 	if ( vd != validDau - 1 )
 	  cout << " ";

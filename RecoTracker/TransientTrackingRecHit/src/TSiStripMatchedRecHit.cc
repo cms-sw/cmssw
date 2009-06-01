@@ -73,7 +73,7 @@ TSiStripMatchedRecHit::clone( const TrajectoryStateOnSurface& ts) const
 	StripClusterParameterEstimator::LocalValues lvMono = 
 	  theCPE->localParameters( monoclust, *gdet->monoDet(), ts.localParameters());
 	StripClusterParameterEstimator::LocalValues lvStereo = 
-	  theCPE->localParameters( stereoclust, *gdet->stereoDet(), gluedToStereo(ts, gdet));
+	  theCPE->localParameters( stereoclust, *gdet->stereoDet(), ts.localParameters());
 	
 	SiStripRecHit2D monoHit = SiStripRecHit2D( lvMono.first, lvMono.second,
 						   gdet->monoDet()->geographicalId(),

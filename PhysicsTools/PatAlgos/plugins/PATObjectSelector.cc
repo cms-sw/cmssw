@@ -9,7 +9,7 @@ DEFINE_FWK_MODULE(PATTauSelector);
 DEFINE_FWK_MODULE(PATPhotonSelector);
 DEFINE_FWK_MODULE(PATJetSelector);
 DEFINE_FWK_MODULE(PATMETSelector);
-DEFINE_FWK_MODULE(PATParticleSelector);
+DEFINE_FWK_MODULE(PATPFParticleSelector);
 DEFINE_FWK_MODULE(PATGenericParticleSelector);
 
 
@@ -19,7 +19,7 @@ DEFINE_FWK_MODULE(PATTauRefSelector);
 DEFINE_FWK_MODULE(PATPhotonRefSelector);
 DEFINE_FWK_MODULE(PATJetRefSelector);
 DEFINE_FWK_MODULE(PATMETRefSelector);
-DEFINE_FWK_MODULE(PATParticleRefSelector);
+DEFINE_FWK_MODULE(PATPFParticleRefSelector);
 DEFINE_FWK_MODULE(PATGenericParticleRefSelector);
 
 

@@ -5,7 +5,7 @@
 // Engine to store HPD noise events in the library
 // Project: HPD noise library
 // Author: F.Ratnikov UMd, Jan. 15, 2008
-// $Id: HPDNoiseMaker.h,v 1.2 2008/01/17 23:35:52 fedor Exp $
+// $Id: HPDNoiseMaker.h,v 1.1 2008/01/16 02:12:38 fedor Exp $
 // --------------------------------------------------------
 
 #include <string>
@@ -23,8 +23,8 @@ class HPDNoiseMaker {
 
   /// define new HPD instance
   int addHpd (const std::string& fName);
-  /// set noise rate for the instance by using different processes
-  void setRate (const std::string& fName, float fDischargeRate, float fIonFeedbackFirstPeakRate, float fIonFeedbackSecondPeakRate, float fElectronEmissionRate);
+  /// set noise rate for the instance
+  void setRate (const std::string& fName, float fRate);
   /// add new HPD noise event by HPD name
   void newHpdEvent (const std::string& mName, const HPDNoiseData& mData);
   /// add new HPD noise event by HPD index

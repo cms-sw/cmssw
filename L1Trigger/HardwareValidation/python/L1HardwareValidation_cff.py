@@ -4,14 +4,18 @@ import FWCore.ParameterSet.Config as cms
 #
 # J. Brooke, N. Leonardo
 #
-# These sequences assume RawToDigi has run
-# Note that the emulator configuration also needs to be supplied
-# Either from dummy ES producers, or DB
+# included here:
+# - emulator sequences
+# - specification of emulator inputs
+# - definition of validation sequences
+#
+# these sequences assume RawToDigi has run
+#
+# note that the emulator configuration also needs to be supplied
+#  either from dummy ES producers, or DB
+# note fake conditions for ECAL/HCAL - should be moved out of here
+#  and into Fake/FrontierConditions
 
-# ECAL sequence
-# requires ecalDigis only
-# fake conditions for ECAL/HCAL - should be moved out of here
-# and into Fake/rontierConditions
 from SimCalorimetry.EcalTrigPrimProducers.ecalTrigPrimESProducer_cff import *
 import SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi
 valEcalTriggerPrimitiveDigis = SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi.simEcalTriggerPrimitiveDigis.clone()
@@ -78,14 +82,19 @@ valGtDigis = L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone()
 valEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
 valEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
 valEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
+
 valHcalTriggerPrimitiveDigis.inputLabel = 'hcalDigis'
-valRctDigis.ecalDigisLabel = 'valEcalTriggerPrimitiveDigis'
-valRctDigis.hcalDigisLabel = 'valHcalTriggerPrimitiveDigis'
+
+valRctDigis.ecalDigisLabel = 'ecalDigis:EcalTriggerPrimitives'
+valRctDigis.hcalDigisLabel = 'hcalDigis'
+
 valGctDigis.inputLabel = 'gctDigis'
+
 #valDtTriggerPrimitiveDigis.inputLabel = 'muonDTDigis'
 valDttfDigis.DTDigi_Source = 'dttfDigis'
 valDttfDigis.CSCStub_Source = 'valCsctfTrackDigis'
 muonDtMon.CSCinput = 'dttfDigis'
+
 valCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag("muonCSCDigis","MuonCSCComparatorDigi")
 valCscTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag("muonCSCDigis","MuonCSCWireDigi")
 valCsctfTrackDigis.SectorReceiverInput = 'csctfDigis'
@@ -93,13 +102,26 @@ valCsctfTrackDigis.SectorReceiverInput = 'csctfDigis'
 valCsctfTrackDigis.DTproducer = 'dttfDigis'
 valCsctfDigis.CSCTrackProducer = 'valCsctfTrackDigis'
 muonCscMon.CSCinput = 'csctfDigis'
+
 valRpcTriggerDigis.label = 'muonRPCDigis'
+
 valGmtDigis.DTCandidates = cms.InputTag("gtDigis","DT")
 valGmtDigis.CSCCandidates = cms.InputTag("gtDigis","CSC")
 valGmtDigis.RPCbCandidates = cms.InputTag("gtDigis","RPCb")
 valGmtDigis.RPCfCandidates = cms.InputTag("gtDigis","RPCf")
+valGmtDigis.MipIsoData = 'gctDigis'
+
 valGtDigis.GmtInputTag = 'gtDigis'
 valGtDigis.GctInputTag = 'gctDigis'
+
+#Emulator settings
+valHcalTriggerPrimitiveDigis.FG_threshold = cms.uint32(12)
+EcalTrigPrimESProducer.DatabaseFile = 'TPG_startup.txt.gz'
+HcalTPGCoderULUT.read_Ascii_LUTs = True
+HcalTPGCoderULUT.inputLUTs = 'L1Trigger/HardwareValidation/hwtest/globrun/HcalCRAFTPhysicsV2.dat'
+valRctDigis.UseMCAsInput = False
+valRctDigis.HFShift = -2
+valRctDigis.HBShift = 1
 
 # the comparator module
 # parameters are specified in cfi

@@ -4,38 +4,50 @@
 /** \class CSCStripHitData
  *
  * Hold strip hit data while building strip hit clusters.
- * Only 4 timebins of the SCA adc pulseheights are stored.
  *
- * tmax() returns the bin with max pulseheight, and we store
- * bins tmax-1 to tmax+2. Therefore the peak bin is the 2nd.
+ * Note that the peak is set to occur at y1
  *
+ * \author Dominique Fortin
+ * modified - Stoyan Stoynev
  */	
-
-#include <vector>
 
 class CSCStripHitData
 {	
  public:	
 
-	CSCStripHitData() : istrip_(-1), tmax_(-1), ph_(std::vector<float>()), phRaw_(ph_){};
+  CSCStripHitData() : x_(-1.),  y0_(0.),  y1_(0.),  y2_(0.),  y3_(0.), 
+    y0Raw_(0.),  y1Raw_(0.),  y2Raw_(0.),  y3Raw_(0.), t_(-1) {};
+  CSCStripHitData(    float x, float y0, float y1, float y2, float y3, 
+		      float y0Raw, float y1Raw, float y2Raw, float y3Raw, int t)   : 
+                        x_(x),  y0_(y0),  y1_(y1),  y2_(y2),  y3_(y3),  
+    y0Raw_(y0Raw),  y1Raw_(y1Raw),  y2Raw_(y2Raw),  y3Raw_(y3Raw), t_(t) {};
   
-  CSCStripHitData( int istrip, int tmax, std::vector<float> ph,  std::vector<float> phRaw ) :
-           istrip_(istrip), tmax_(tmax), ph_(ph),  phRaw_(phRaw){};
-  
-  int strip() const {return istrip_;}
-  int tmax() const {return  tmax_;}
-	std::vector<float> ph() const { return ph_;}
-	std::vector<float> phRaw() const { return phRaw_;}
+  float  x()   const {return  x_;}
+  float y0()   const {return y0_;}
+  float y1()   const {return y1_;}
+  float y2()   const {return y2_;}
+  float y3()   const {return y3_;}
+  float y0Raw()   const {return y0Raw_;}
+  float y1Raw()   const {return y1Raw_;}
+  float y2Raw()   const {return y2Raw_;}
+  float y3Raw()   const {return y3Raw_;}
+  int    t()   const {return  t_;}
 
-  /// Order by 2nd ph bin
-  bool operator<( const CSCStripHitData & data ) const { return ph_[1] < data.ph_[1]; }
+  bool operator<( const CSCStripHitData & data ) const { return y1_ < data.y1_; }
 
+ 
  private:
   
-  int istrip_;
-  int tmax_;
-	std::vector<float> ph_;
-	std::vector<float> phRaw_;
+  float   x_;
+  float  y0_;
+  float  y1_;
+  float  y2_;
+  float  y3_;
+  float  y0Raw_;
+  float  y1Raw_;
+  float  y2Raw_;
+  float  y3Raw_;
+  int     t_;
   
 };
 

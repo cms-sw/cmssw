@@ -4,9 +4,6 @@
 <use name=AnalysisDataFormats/TopObjects>
 
 <export>
-  <use name=root>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
   <lib name=TopQuarkAnalysisTopTools>
 </export>
 

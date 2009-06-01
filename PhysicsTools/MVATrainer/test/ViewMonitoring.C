@@ -90,12 +90,12 @@ void ViewMonitoring(TString fileName = "train_monitoring.root")
 	SetStyle();
 	style->cd();
 
-	main->AddButton("input variables", "ShowMenu(\"input\")",
-	                "plots input variables for variable processors",
+	main->AddButton("Input Variables", "ShowMenu(\"input\")",
+	                "plot input variables for variable processors",
 	                "button");
 
-	main->AddButton("discriminator && performance", "ShowOutput()",
-	                "plots discriminator output & efficiency/purity curve",
+	main->AddButton("Discriminator && Performance", "ShowOutput()",
+	                "plot discriminator output & efficiency/purity curve",
 	                "button");
 
 	main->AddButton("ProcNormalize", "ShowMenu(\"ProcNormalize\")",
@@ -110,14 +110,29 @@ void ViewMonitoring(TString fileName = "train_monitoring.root")
 	main->AddButton("ProcMatrix", "ShowMenu(\"ProcMatrix\")",
 	                "show correlation matrix", "button");
 
+	main->AddButton("Draw All", "DrawAll()",
+	                "draw all plots", "button");
+
+	main->AddButton("Options", "ShowMenu(\"options\")",
+	                "set options for output", "button");
+
+	main->AddButton("Quit", ".q",
+	                "quit", "button");
+
 	main->Show();
 }
+
+bool printPS  = true;
+bool printEPS = false;
+bool printPDF = false;
+bool printPNG = false;
 
 void DrawInputs(TDirectory *dir);
 void DrawOutput(TDirectory *dir);
 void DrawProcNormalize(TDirectory *dir);
 void DrawProcLikelihood(TDirectory *dir, int mode);
 void DrawProcMatrix(TDirectory *dir);
+void DrawAll();
 
 void ShowOutput()
 {
@@ -126,27 +141,51 @@ void ShowOutput()
 
 SelectMenu::SelectMenu(TString what, int idx) : mode(what), index(idx)
 {
-	AddLabel(what + " plots");
-	AddSeparator();
+	if (what == "options") {
 
-	unsigned int n = 0;
-	TIter iter(file->GetListOfKeys());
-	TObject *obj = 0;
-	while((obj = iter.Next()) != 0) {
-		TString name = obj->GetName();
-		if (!name.BeginsWith(what + "_"))
-			continue;
+	        AddLabel("output options");
+	        AddSeparator();
 
-		entries.Add(new TObjString(name));
+        	unsigned int n = 0;
+		entries.Add(new TObjString("common ps-file"));
+		AddEntry("common ps-file", n++);
+		if ( printPS ) CheckEntry(n-1);
+		entries.Add(new TObjString("individual eps-files"));
+		AddEntry("individual eps-files", n++);
+		if ( printEPS ) CheckEntry(n-1);
+		entries.Add(new TObjString("individual pdf-files"));
+		AddEntry("individual pdf-files", n++);
+		if ( printPDF ) CheckEntry(n-1);
+		entries.Add(new TObjString("individual png-files"));
+		AddEntry("individual png-files",n++);
+		if ( printPNG ) CheckEntry(n-1);
 
-		Int_t len = what.Length();
-		name = name(len + 1, name.Length() - (len + 1));
-
-		AddEntry(name, n++);
 	}
+	else {
 
-	if (!n)
-		AddEntry("no entry", -1);
+        	AddLabel(what + " plots");
+        	AddSeparator();
+        
+        	unsigned int n = 0;
+        	TIter iter(file->GetListOfKeys());
+        	TObject *obj = 0;
+        	while((obj = iter.Next()) != 0) {
+        		TString name = obj->GetName();
+        		if (!name.BeginsWith(what + "_"))
+        			continue;
+        
+        		entries.Add(new TObjString(name));
+        
+        		Int_t len = what.Length();
+        		name = name(len + 1, name.Length() - (len + 1));
+        
+        		AddEntry(name, n++);
+        	}
+        
+        	if (!n)
+        		AddEntry("no entry", -1);
+
+	}
 
 	Connect("Activated(Int_t)", "SelectMenu", this, "HandleMenu(Int_t)");
 }
@@ -177,15 +216,32 @@ void SelectMenu::HandleMenu(Int_t id)
 
 	TString name = ((TObjString*)entries.At(id))->GetString();
 
-	TDirectory *dir = dynamic_cast<TDirectory*>(file->Get(name));
-	if (mode == "input")
-		DrawInputs(dir);
-	else if (mode == "ProcNormalize")
-		DrawProcNormalize(dir);
-	else if (mode == "ProcLikelihood")
-		DrawProcLikelihood(dir, index);
-	else if (mode == "ProcMatrix")
-		DrawProcMatrix(dir);
+	if (mode == "options") {
+
+	          if (name == "common ps-file")
+		          printPS = !printPS;
+	          else if (name == "individual eps-files")
+		          printEPS = !printEPS;
+	          else if (name == "individual pdf-files")
+		          printPDF = !printPDF;
+	          else if (name == "individual png-files")
+		          printPNG = !printPNG;
+	          break;
+
+	}
+	else {
+
+        	TDirectory *dir = dynamic_cast<TDirectory*>(file->Get(name));
+        	if (mode == "input")
+        		DrawInputs(dir);
+        	else if (mode == "ProcNormalize")
+        		DrawProcNormalize(dir);
+        	else if (mode == "ProcLikelihood")
+        		DrawProcLikelihood(dir, index);
+        	else if (mode == "ProcMatrix")
+        		DrawProcMatrix(dir);
+
+	}
 }
 
 class PadService {
@@ -194,6 +250,8 @@ class PadService {
 	~PadService();
 
 	TVirtualPad *Next();
+
+        TList canvases;
 
     private:
 	TCanvas	*last;
@@ -238,12 +296,12 @@ TVirtualPad *PadService::Next()
 		                        ++count),
 		                   title, count * 50 + 200, count * 20,
 		                   width, height);
+		canvases.Add(last);
 		last->SetBorderSize(2);
 		last->SetFrameFillColor(0);
 		last->SetHighLightColor(0);
 		last->Divide(nPadsX, nPadsY);
 		index = 0;
-		count++;
 	}
 
 	last->cd(++index);
@@ -262,9 +320,22 @@ void Save(TVirtualPad *pad, TDirectory *dir, TString name = "")
 	if (name.Length())
 		baseName += "_" + name;
 
-	pad->Print(baseName + ".eps");
-	pad->Print(baseName + ".pdf");
-	pad->Print(baseName + ".png");
+	if ( printEPS )
+                pad->Print(baseName + ".eps");
+	if ( printPDF )
+	        pad->Print(baseName + ".pdf");
+	if ( printPNG )
+	        pad->Print(baseName + ".png");
+}
+
+void Save(PadService &padService)
+{
+        if ( !printPS ) return;
+
+	gSystem->mkdir("plots");
+
+	for(unsigned int i = 0; i < padService.canvases.GetEntries(); i++)
+	      padService.canvases.At(i)->Print("plots/summary.ps");
 }
 
 void DrawInputs(TDirectory *dir)
@@ -343,6 +414,8 @@ void DrawInputs(TDirectory *dir)
 		pad->RedrawAxis();
 		Save(pad, dir, name);
 	}
+
+	Save(pads);
 }
 
 static void FindRange(TH1 *histo, Int_t &b1, Int_t &b2,
@@ -401,11 +474,13 @@ void DrawOutput(TDirectory *dir)
 
 	TH1 *bkg_ = (TH1*)bkg->Clone(name + "_tmpO1");
 	bkg_->Rebin(8);
-	bkg_->SetNormFactor(bkg_->Integral() / bkg_->Integral("width"));
+	if (bkg_->Integral("width") != 0.)
+	        bkg_->SetNormFactor(bkg_->Integral() / bkg_->Integral("width"));
 
 	TH1 *sig_ = (TH1*)sig->Clone(name + "_tmpO2");
 	sig_->Rebin(8);
-	sig_->SetNormFactor(sig_->Integral() / sig_->Integral("width"));
+	if (sig_->Integral("width") != 0.)
+	        sig_->SetNormFactor(sig_->Integral() / sig_->Integral("width"));
 
 	Double_t y = Max(bkg_->GetMaximum(), sig_->GetMaximum());
 	bkg_->SetStats(0);
@@ -599,6 +674,8 @@ void DrawOutput(TDirectory *dir)
 
 	pad->RedrawAxis();
 	Save(pad, dir, name + "_effsigbkg");
+	
+	Save(pads);
 }
 
 void DrawProcNormalize(TDirectory *dir)
@@ -624,7 +701,8 @@ void DrawProcNormalize(TDirectory *dir)
 
 		pdf = (TH1*)pdf->Clone(name + "_tmpPN1");
 		pdf->SetXTitle(name);
-		pdf->SetNormFactor(pdf->Integral() / pdf->Integral("width"));
+		if (pdf->Integral("width") != 0.)
+		        pdf->SetNormFactor(pdf->Integral() / pdf->Integral("width"));
 		pdf->SetStats(0);
 		pdf->SetFillColor(4);
 		pdf->SetLineColor(4);
@@ -640,6 +718,8 @@ void DrawProcNormalize(TDirectory *dir)
 		pad->RedrawAxis();
 		Save(pad, dir, name);
 	}
+
+	Save(pads);
 }
 
 void DrawProcLikelihood(TDirectory *dir, int mode)
@@ -762,6 +842,8 @@ void DrawProcLikelihood(TDirectory *dir, int mode)
 		pad->RedrawAxis();
 		Save(pad, dir, name);
 	}
+
+	Save(pads);
 }
 
 void DrawProcMatrix(TDirectory *dir)
@@ -770,7 +852,7 @@ void DrawProcMatrix(TDirectory *dir)
 	name = name(11, name.Length() - 11);
 
 	PadService pads(dir->GetName(),
-	                "\"" + name + "\" correlation matrix", 1);
+	                "\"" + name + "\" correlation matrix", 2);
 
 	TVirtualPad *pad = pads.Next();
 
@@ -789,4 +871,125 @@ void DrawProcMatrix(TDirectory *dir)
 
 	pad->RedrawAxis();
 	Save(pad, dir);
+
+	Save(pads);
+}
+
+void DrawAll()
+{
+
+        TCanvas *dummyCanvas = new TCanvas("dummyCanvas", "MVA Trainer Monitoring Summary", 0, 0, 800, 440);
+
+	TPaveText paveText(0.1, 0.6, 0.9, 0.9);
+	paveText.SetFillColor(0);
+	paveText.SetBorderSize(0);
+
+        gSystem->mkdir("plots");
+
+	if ( printPS )
+	        dummyCanvas->Print("plots/summary.ps[", "Landscape");
+
+	paveText.AddText("MVA Trainer Monitoring:");
+	paveText.AddText("discriminator output & efficiency/purity curve");
+	paveText.Draw();
+	if ( printPS )
+	        dummyCanvas->Print("plots/summary.ps");
+
+	DrawOutput((TDirectory*)file->Get("output"));
+
+	paveText.Clear();
+	paveText.AddText("MVA Trainer Monitoring:");
+	paveText.AddText("input variables for variable processors");
+	paveText.Draw();
+	if ( printPS )
+	        dummyCanvas->Print("plots/summary.ps");
+
+	TIter iter(file->GetListOfKeys());
+	TObject *obj = 0;
+	while((obj = iter.Next()) != 0) {
+	  TString name = obj->GetName();
+	  if (!name.BeginsWith("input_"))
+	    continue;
+
+	    TDirectory *dir = dynamic_cast<TDirectory*>(file->Get(name));
+	    DrawInputs(dir);
+	}
+
+	paveText.Clear();
+	paveText.AddText("MVA Trainer Monitoring:");
+	paveText.AddText("normalizer PDF distributions");
+	paveText.Draw();
+	if ( printPS )
+	        dummyCanvas->Print("plots/summary.ps");
+
+	TIter iter(file->GetListOfKeys());
+	TObject *obj = 0;
+	while((obj = iter.Next()) != 0) {
+	  TString name = obj->GetName();
+	  if (!name.BeginsWith("ProcNormalize_"))
+	    continue;
+
+	    TDirectory *dir = dynamic_cast<TDirectory*>(file->Get(name));
+	    DrawProcNormalize(dir);
+	}
+
+	paveText.Clear();
+	paveText.AddText("MVA Trainer Monitoring:");
+	paveText.AddText("correlation matrix");
+	paveText.Draw();
+	if ( printPS )
+	        dummyCanvas->Print("plots/summary.ps");
+
+	TIter iter(file->GetListOfKeys());
+	TObject *obj = 0;
+	while((obj = iter.Next()) != 0) {
+	  TString name = obj->GetName();
+	  if (!name.BeginsWith("ProcMatrix_"))
+	    continue;
+
+	    TDirectory *dir = dynamic_cast<TDirectory*>(file->Get(name));
+	    DrawProcMatrix(dir);
+	}
+
+	paveText.Clear();
+	paveText.AddText("MVA Trainer Monitoring:");
+	paveText.AddText("likelihood ratio PDF distributions");
+	paveText.Draw();
+	if ( printPS )
+	        dummyCanvas->Print("plots/summary.ps");
+
+	TIter iter(file->GetListOfKeys());
+	TObject *obj = 0;
+	while((obj = iter.Next()) != 0) {
+	  TString name = obj->GetName();
+	  if (!name.BeginsWith("ProcLikelihood_"))
+	    continue;
+
+	    TDirectory *dir = dynamic_cast<TDirectory*>(file->Get(name));
+	    DrawProcLikelihood(dir, 1);
+	}
+
+	paveText.Clear();
+	paveText.AddText("MVA Trainer Monitoring:");
+	paveText.AddText("likelihood ratio S/(S+B) distributions");
+	paveText.Draw();
+	if ( printPS )
+	        dummyCanvas->Print("plots/summary.ps");
+
+	TIter iter(file->GetListOfKeys());
+	TObject *obj = 0;
+	while((obj = iter.Next()) != 0) {
+	  TString name = obj->GetName();
+	  if (!name.BeginsWith("ProcLikelihood_"))
+	    continue;
+
+	    TDirectory *dir = dynamic_cast<TDirectory*>(file->Get(name));
+	    DrawProcLikelihood(dir, 0);
+	}
+
+        if ( printPS )
+	        dummyCanvas->Print("plots/summary.ps]");
+
+	dummyCanvas->Close();
+
 }

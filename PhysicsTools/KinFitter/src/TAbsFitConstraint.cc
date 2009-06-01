@@ -13,8 +13,9 @@
 using namespace std;
 
 #include "PhysicsTools/KinFitter/interface/TAbsFitConstraint.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include <iomanip>
 #include "TClass.h"
 
 
@@ -66,9 +67,9 @@ void TAbsFitConstraint::setCovMatrix(const TMatrixD* theCovMatrix) {
   } else if (theCovMatrix->GetNcols() ==_nPar && theCovMatrix->GetNrows() ==_nPar) {
     _covMatrix = (*theCovMatrix);
   } else {
-    cout << GetName() 
-	 << "::setCovMatrix()  Something is wrong with the definition of the covariance matrix" 
-	 << endl;
+    edm::LogError ("WrongMatrixSize")
+      << GetName() << "::setCovMatrix - Measured alpha covariance matrix needs to be a "
+      << _nPar << "x" << _nPar << " matrix.";
   }
 
 }
@@ -82,9 +83,9 @@ void TAbsFitConstraint::setCovMatrixFit(const TMatrixD* theCovMatrixFit) {
   } else if (theCovMatrixFit->GetNcols() ==_nPar && theCovMatrixFit->GetNrows() ==_nPar) {
     _covMatrixFit = (*theCovMatrixFit);
   } else {
-    cout << GetName()
-	 << "::setCovMatrixFit()  Something is wrong with the definition of the fit covariance matrix"
-	 << endl;
+    edm::LogError ("WrongMatrixSize")
+      << GetName() << "::setCovMatrixFit - Fitted covariance matrix needs to be a "
+      << _nPar << "x" << _nPar << " matrix.";
   }
 
 }
@@ -96,10 +97,9 @@ void TAbsFitConstraint::calcCovMatrixDeltaAlpha() {
   _covMatrixDeltaAlpha = _covMatrix;
   if(_covMatrixFit.GetNrows() == _nPar && _covMatrixFit.GetNcols() == _nPar)
     _covMatrixDeltaAlpha -= _covMatrixFit;
-  else 
-    cout << GetName()
-	 << "calcCovMatrixDeltaAlpha()::  _covMatrixFit probably not set" 
-	 << endl;  
+  else
+    edm::LogError ("WrongMatrixSize")
+      << GetName() << "::calcCovMatrixDeltaAlpha - _covMatrixFit probably not set.";
 }
 
 
@@ -120,8 +120,8 @@ void TAbsFitConstraint::setParIni(const TMatrixD* parini) {
 	   parini->GetNcols() == _iniparameters.GetNcols() )
     _iniparameters = (*parini) ;
   else {
-    cout << GetName() << "::setParIni()  Matrices don't fit" 
-	 << endl;
+    edm::LogError ("WrongMatrixSize")
+      << GetName() << "::setParIni - Matrices don't fit.";
     return;
   }
 
@@ -135,13 +135,27 @@ const TMatrixD* TAbsFitConstraint::getCovMatrixDeltaAlpha() {
 
 }
 
+TString TAbsFitConstraint::getInfoString() {
+  // Collect information to be used for printout
+
+  stringstream info;
+  info << scientific << setprecision(6);
+
+  info << "__________________________" << endl
+       << endl;
+  info <<"OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << endl;
+  
+  info << "initial value: " << getInitValue() << endl;
+  info << "current value: " << getCurrentValue() << endl;
+
+  return info.str();
+
+}
+
 void TAbsFitConstraint::print() {
+  // Print constraint contents
 
-  cout << "__________________________" << endl << endl;
-  cout <<"OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << endl;
-
-  cout << "initial value: " << getInitValue() << endl;
-  cout << "current value: " << getCurrentValue() << endl;
+  edm::LogVerbatim("KinFitter") << this->getInfoString();
 
 }
 

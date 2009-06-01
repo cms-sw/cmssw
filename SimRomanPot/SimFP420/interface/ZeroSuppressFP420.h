@@ -14,9 +14,9 @@ class ZeroSuppressFP420 : public ZSuppressFP420{
   /* calculates the lower and high signal thresholds using the noise */
   void initParams(const edm::ParameterSet& conf_);
  
-  ZSuppressFP420::DigitalMapType zeroSuppress(const DigitalMapType&,int);
+  ZSuppressFP420::DigitalMapType zeroSuppress(const DigitalMapType&);
   
-  ZSuppressFP420::DigitalMapType trkFEDclusterizer(const DigitalMapType&,int); 
+  ZSuppressFP420::DigitalMapType trkFEDclusterizer(const DigitalMapType&); 
   
  private:
   float noiseInAdc;

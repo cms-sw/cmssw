@@ -16,7 +16,7 @@
 
 
 namespace {
-  namespace {
+  struct dictionary {
 
     reco::HLTResult< 8> h1;
     reco::HLTResult<16> h2;
@@ -58,5 +58,5 @@ namespace {
     edm::Wrapper<trigger::TriggerEvent> wte;
     edm::Wrapper<trigger::TriggerEventWithRefs> wtewr;
 
-  }
+  };
 }

@@ -18,15 +18,15 @@ TrackAssociatorByHits = cms.ESProducer("TrackAssociatorByHitsESProducer",
         'TrackerHitsPixelEndcapLowTof', 
         'TrackerHitsPixelEndcapHighTof'),
     UseSplitting = cms.bool(True),
-    ComponentName = cms.string('TrackAssociatorByHits'),
+    ComponentName = cms.string('TrackAssociatorByHits'),                                                
     UsePixels = cms.bool(True),
     ThreeHitTracksAreSpecial = cms.bool(True),
     AbsoluteNumberOfHits = cms.bool(False),
     associateStrip = cms.bool(True),
     Purity_SimToReco = cms.double(0.75),
-    Cut_RecoToSim = cms.double(0.75),
+    Cut_RecoToSim = cms.double(0.75),           
     SimToRecoDenominator = cms.string('sim') ##"reco"
-
+                                       
 )
 
 

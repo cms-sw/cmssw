@@ -42,7 +42,6 @@ namespace cms
       //const CandidateCollection* convert( const reco::CaloJetCollection* );
       virtual void produce(edm::Event&, const edm::EventSetup&);
     private:
-      edm::ParameterSet conf_;
       METAlgo alg_; 
       edm::InputTag inputLabel;
       std::string inputType;
@@ -50,6 +49,7 @@ namespace cms
       std::string alias;
       bool noHF;
       double globalThreshold;
+      edm::ParameterSet conf_;
       //CandidateCollection tempCol;
     };
 }

@@ -20,8 +20,8 @@
 #include <string>
 #include "HepMC/GenEvent.h"
 
-#include "GeneratorInterface/Pythia6Interface/interface/PtYDistributor.h"
 #include "GeneratorInterface/CommonInterface/interface/TauolaInterface.h"
+#include "GeneratorInterface/Pythia6Interface/interface/PtYDistributor.h"
 
 class Run;
 namespace CLHEP {

@@ -13,9 +13,21 @@ from RecoMuon.GlobalTrackingTools.GlobalTrajectoryBuilderCommon_cff import *
 GlobalTrajectoryBuilderCommon.TrackRecHitBuilder = 'WithoutRefit'
 GlobalTrajectoryBuilderCommon.TrackTransformer.TrackerRecHitBuilder = 'WithoutRefit'
 
-## The condDB setup (the global tag refers to DevDB, IntDB or ProDB whenever needed)
-from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
+# The condDB setup (the global tag refers to DevDB, IntDB or ProDB whenever needed)
+from Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi import *
+es_prefer_GlobalTag = cms.ESPrefer("PoolDBESSource","GlobalTag")
 
+
+hcal_db_producer = cms.ESProducer("HcalDbProducer",
+    dump = cms.untracked.vstring(''),
+    file = cms.untracked.string('')
+)
+
+es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
+    toGet = cms.untracked.vstring('GainWidths', 
+        'channelQuality', 
+        'ZSThresholds')
+)
 
 
 

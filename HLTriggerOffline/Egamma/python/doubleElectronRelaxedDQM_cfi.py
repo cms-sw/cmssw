@@ -6,7 +6,7 @@ doubleElectronRelaxedDQM = cms.EDFilter("EmDQM",
     reqNum = cms.uint32(2),
     filters = cms.VPSet(cms.PSet(
         PlotBounds = cms.vdouble(0.0, 0.0),
-        HLTCollectionLabels = cms.InputTag("hltL1seedRelaxedDouble","","HLT"),
+        HLTCollectionLabels = cms.InputTag("hltL1sRelaxedDoubleEgamma","","HLT"),
         IsoCollections = cms.VInputTag(cms.InputTag("none")),
         theHLTOutputTypes = cms.uint32(82)
     ), 

@@ -3,7 +3,11 @@
 
 /** \class HLTMuonGenericRate
  *  Get L1/HLT efficiency/rate plots
+ *  Documentation available on the CMS TWiki:
+ *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
+ *  $Date: 2009/02/08 21:51:20 $
+ *  $Revision: 1.29 $
  *  \author  M. Vander Donckt, J. Klukas  (copied from J. Alcaraz)
  */
 
@@ -26,9 +30,16 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "DataFormats/Math/interface/LorentzVector.h"
+
 #include <vector>
 #include "TFile.h"
 #include "TNtuple.h"
+
+
+
+typedef math::XYZTLorentzVector LorentzVector;
+
 
 
 class HLTMuonGenericRate {
@@ -36,7 +47,8 @@ class HLTMuonGenericRate {
 public:
 
   /// Constructor
-  HLTMuonGenericRate(const edm::ParameterSet& pset, int triggerIndex);
+  HLTMuonGenericRate( const edm::ParameterSet& pset, std::string triggerName,
+		      std::vector<std::string> moduleNames );
 
   // Operations
   void            begin  ( );
@@ -49,10 +61,11 @@ private:
   // Struct and methods for matching
 
   struct MatchStruct {
-    const reco::GenParticle*       genCand;
-    const reco::Track*             recCand;
-    const l1extra::L1MuonParticle* l1Cand;
-    std::vector<const reco::RecoChargedCandidate*> hltCands;
+    const reco::GenParticle*   genCand;
+    const reco::Track*         recCand;
+    LorentzVector              l1Cand;
+    std::vector<LorentzVector> hltCands;
+    std::vector<const reco::RecoChargedCandidate*> hltTracks;
   };
 
   const reco::Candidate* findMother( const reco::Candidate* );
@@ -63,24 +76,27 @@ private:
   
   // Data members
 
-  bool    m_makeNtuple;
-  float   theNtupleParameters[50]; 
+  bool    makeNtuple;
+  float   theNtuplePars[100]; 
   TNtuple *theNtuple;
   TFile   *theFile;
 
   // Input from cfg file
 
   std::string              theHltProcessName;
+  std::string              theTriggerName;
   std::string              theL1CollectionLabel;
   std::vector<std::string> theHltCollectionLabels;
-  double                   theL1ReferenceThreshold;
-  double                   theHltReferenceThreshold;
   unsigned int             theNumberOfObjects;
 
-  bool         m_useMuonFromGenerator;
-  bool         m_useMuonFromReco;
+  bool         useMuonFromGenerator;
+  bool         useMuonFromReco;
   std::string  theGenLabel;
   std::string  theRecoLabel;
+
+  bool         useAod;
+  std::string  theAodL1Label;
+  std::string  theAodL2Label;
 
   std::vector<double> theMaxPtParameters;
   std::vector<double> thePtParameters;
@@ -98,25 +114,27 @@ private:
   std::string  theNtupleFileName;
   std::string  theNtuplePath;
 
+  // Book-keeping information
+
+  int          eventNumber;
+  unsigned int numHltLabels;
+  bool         isIsolatedPath;
+
   // Monitor Elements (Histograms and ints)
 
   DQMStore* dbe_;
 
   std::vector <MonitorElement*> hPassMaxPtGen;
-  std::vector <MonitorElement*> hPassPtGen;
   std::vector <MonitorElement*> hPassEtaGen;
   std::vector <MonitorElement*> hPassPhiGen;
   std::vector <MonitorElement*> hPassMaxPtRec;
-  std::vector <MonitorElement*> hPassPtRec;
   std::vector <MonitorElement*> hPassEtaRec;
   std::vector <MonitorElement*> hPassPhiRec;
 
-  MonitorElement *NumberOfEvents;
-  MonitorElement *NumberOfL1Events;
-  MonitorElement *MinPtCut;
-  MonitorElement *MaxEtaCut;
-  int theEventNumber;
-  int theNumberOfL1Events;
+  MonitorElement *hNumObjects;
+  MonitorElement *hNumOrphansGen;
+  MonitorElement *hNumOrphansRec;
+  MonitorElement *meNumberOfEvents;
 
 };
 #endif

@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.h,v 1.12 2008/09/30 21:33:06 srappocc Exp $
+// $Id: PATTauProducer.h,v 1.16 2009/04/09 14:51:58 veelken Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATTauProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of TauType.
 
   \author   Steven Lowette, Christophe Delaere
-  \version  $Id: PATTauProducer.h,v 1.12 2008/09/30 21:33:06 srappocc Exp $
+  \version  $Id: PATTauProducer.h,v 1.16 2009/04/09 14:51:58 veelken Exp $
 */
 
 
@@ -43,8 +43,6 @@
 
 namespace pat {
 
-  class ObjectResolutionCalc;
-
   class PATTauProducer : public edm::EDProducer {
 
     public:
@@ -72,14 +70,11 @@ namespace pat {
       bool          addTrigMatch_;
       std::vector<edm::InputTag> trigMatchSrc_;
       bool          addResolutions_;
-      bool          useNNReso_;
-      std::string   tauResoFile_;
       bool          addTauID_;
       typedef std::pair<std::string, edm::InputTag> NameTag;
       std::vector<NameTag> tauIDSrcs_;
 
       // tools
-      ObjectResolutionCalc * theResoCalc_;
       GreaterByPt<Tau>       pTTauComparator_;
 
       pat::helper::MultiIsolator isolator_; 
@@ -94,6 +89,8 @@ namespace pat {
 
       template <typename TauCollectionType, typename TauDiscrType> float getTauIdDiscriminator(const edm::Handle<TauCollectionType>&, size_t, const edm::Handle<TauDiscrType>&);
 
+      bool          addDecayMode_;
+      edm::InputTag decayModeSrc_;
   };
 
 }

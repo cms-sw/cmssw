@@ -4,7 +4,7 @@
 #include <map>
 #include <vector>
 #include <string>
-#include "TH1D.h"
+#include "TH1F.h"
 
 class RPCRawDataCounts {
 public:
@@ -23,8 +23,15 @@ public:
   void addReadoutError(int error, int weight=1);
   void operator+= (const RPCRawDataCounts& );
   std::string print() const;
-  TH1D recordTypeHisto(int fedid) const;
-  TH1D readoutErrorHisto() const;
+
+  void recordTypeVector(int fedid, std::vector<double>& out) const;
+  void readoutErrorVector(std::vector<double>& out) const;
+  
+  TH1F * recordTypeHisto(int fedid) const;
+  TH1F * readoutErrorHisto() const;
+
+  static std::string readoutErrorName(const ReadoutError & code); 
+
 private:
    std::map<int, std::vector<int> > theRecordTypes; 
    std::map<int,int> theReadoutErrors; 

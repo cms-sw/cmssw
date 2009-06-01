@@ -5,14 +5,13 @@
  *
  * Digi for ALCT trigger primitives. 
  *
- * $Date: 2007/03/21 15:50:52 $
- * $Revision: 1.11 $
+ * $Date: 2006/12/01 19:05:48 $
+ * $Revision: 1.10 $
  *
  * \author N. Terentiev, CMU
  */
 
 #include <boost/cstdint.hpp>
-#include <iosfwd>
 
 class CSCALCTDigi {
 
@@ -89,5 +88,14 @@ class CSCALCTDigi {
   uint16_t fullbx_     ;
 };
 
-std::ostream & operator<<(std::ostream & o, const CSCALCTDigi& digi);
+#include<iostream>
+inline std::ostream & operator<<(std::ostream & o, const CSCALCTDigi& digi) {
+  return o << "CSC ALCT #"         << digi.getTrknmb()
+	   << ": Valid = "         << digi.isValid()
+           << " Quality = "        << digi.getQuality()
+           << " Accel. = "         << digi.getAccelerator()
+           << " PatternB = "       << digi.getCollisionB()
+           << " Key wire group = " << digi.getKeyWG()
+           << " BX = "             << digi.getBX();
+}
 #endif

@@ -257,7 +257,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
     // FIXME remove the following line and uncomment the line above
     //       when the L1CastorRecord is available
     //       until then, all CASTOR conditions are set to false
-    bool castorConditionFlag = false;
+    //bool castorConditionFlag = false;
 
     //edm::Handle<L1CastorRecord > castorData;
     //iEvent.getByLabel(castorInputTag, castorData);

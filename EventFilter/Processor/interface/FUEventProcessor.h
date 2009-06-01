@@ -94,10 +94,9 @@ namespace evf
     void spotlightWebPage(xgi::Input *,xgi::Output *)
       throw(xgi::exception::Exception);
     void moduleWeb(xgi::Input *in,xgi::Output *out) throw(xgi::exception::Exception);
+    void serviceWeb(xgi::Input *in,xgi::Output *out) throw(xgi::exception::Exception);
     void modulePs(xgi::Input  *in, xgi::Output *out)throw(xgi::exception::Exception);
     void microState(xgi::Input *in,xgi::Output *out)throw(xgi::exception::Exception);
-    void jsGen(xgi::Input *in,xgi::Output *out,std::string url) 
-      throw (xgi::exception::Exception);
     void css(xgi::Input *in,xgi::Output *out) throw (xgi::exception::Exception)
     {
       css_.css(in,out);
@@ -157,7 +156,9 @@ namespace evf
     xdata::Boolean                   hasShMem_;
     xdata::Boolean                   hasPrescaleService_;
     xdata::Boolean                   hasModuleWebRegistry_;
+    xdata::Boolean                   hasServiceWebRegistry_;
     xdata::Boolean                   isRunNumberSetter_;
+    xdata::Boolean                   isPython_;
     bool                             outprev_;
     std::vector<edm::ModuleDescription const*> descs_; //module description array
     std::map<std::string,int>        modmap_;
@@ -202,8 +203,13 @@ namespace evf
     // flahslist variables, scalers
     xdata::InfoSpace                *scalersInfoSpace_;
     xdata::Table                     scalersComplete_;
+    xdata::UnsignedInteger32         localLsIncludingTimeOuts_;
     xdata::UnsignedInteger32         lsTimeOut_;
-    bool                             lastLumiTimedOut_; 
+    unsigned int                     firstLsTimeOut_;
+    unsigned int                     residualTimeOut_;
+    bool                             lastLsTimedOut_; 
+    unsigned int                     lastLsWithEvents_;
+    unsigned int                     lastLsWithTimeOut_;
     // flashlist variables, squids
     xdata::Boolean                   squidPresent_; 
 
@@ -224,11 +230,14 @@ namespace evf
     unsigned int                     allPastLumiProcessed_;
     unsigned int                     rollingLsIndex_;
     bool                             rollingLsWrap_;
+    static const unsigned int        lsRollSize_ = 20;
     SquidNet                         squidnet_;
     std::vector<std::string>         logRing_;
     unsigned int                     logRingIndex_;
+    static const unsigned int        logRingSize_ = 50;
     bool                             logWrap_;
     std::string                      lsidAsString_;
+    std::string                      lsidTimedOutAsString_;
     std::string                      psidAsString_;
   };
   

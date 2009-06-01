@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloTask.cc
  *
- * $Date: 2008/04/08 18:11:27 $
- * $Revision: 1.30 $
+ * $Date: 2008/12/03 14:44:52 $
+ * $Revision: 1.35 $
  * \author A. Ghezzi
  *
  */
@@ -419,7 +419,6 @@ void EEBeamCaloTask::endJob(void){
 void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
   bool enable = false;
-  map<int, EcalDCCHeaderBlock> dccMap;
 
   Handle<EcalRawDataCollection> dcchs;
 
@@ -427,12 +426,10 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      EcalDCCHeaderBlock dcch = (*dcchItr);
+      if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( dcch ) != EcalEndcap ) continue;
-
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::BEAMH4 ||
-           dcch.getRunType() == EcalDCCHeaderBlock::BEAMH2 ) enable = true;
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::BEAMH4 ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::BEAMH2 ) enable = true;
     }
 
   } else {
@@ -702,12 +699,7 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
   for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-    EBDataFrame dataframe = (*digiItr);
-    EBDetId id = dataframe.id();
-
-    //int ism = Numbers::iSM( id );
-    // FIX this if can not work on the 2004 data since they do not fill in the  EcalDCCHeaderBlock
-    //if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::BEAMH4 ) continue;//FIX ME add the autoscan runtype
+    EBDetId id = digiItr->id();
 
     int ic = id.ic();
     int ie = (ic-1)/20;
@@ -735,10 +727,11 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
     if( i_in_array < 0 || i_in_array > 8 ){continue;}
 
+    EBDataFrame dataframe = (*digiItr);
+
     for (int i = 0; i < 10; i++) {
-      EcalMGPASample sample = dataframe.sample(i);
-      int adc = sample.adc();
-      int gainid = sample.gainId();
+      int adc = dataframe.sample(i).adc();
+      int gainid = dataframe.sample(i).gainId();
       //if( (ievt_ == 15400 || ievt_ == 15600 || ievt_ == 15700 ) &&   i_in_array == 4 && i == 4){ gainid =2;}
       //if( (ievt_ == 15400 || ievt_ == 15600 || ievt_ == 15700 ) &&   i_in_array == 6 && i == 6){ gainid =3;}
 
@@ -802,12 +795,7 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   float cryInBeamEne =0;
   for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
-    EcalUncalibratedRecHit hit = (*hitItr);
-    EBDetId id = hit.id();
-
-    //int ism = Numbers::iSM( id );
-    // FIX this if can not work on the 2004 data since they do not fill in the  EcalDCCHeaderBlock
-    //if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::BEAMH4 ) continue;//FIX ME add the autoscan runtype
+    EBDetId id = hitItr->id();
 
     int ic = id.ic();
     int ie = (ic-1)/20;
@@ -822,7 +810,7 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     //LogDebug("EEBeamCaloTask") << " rechits sm, ieta, iphi " << ism << " " << ie << " " << ip;
     //LogDebug("EEBeamCaloTask") << " rechits deta, dphi, i_in_array" << deta_c  << " " <<  dphi_c << " " <<i_in_array;
 
-    float R_ene = hit.amplitude();
+    float R_ene = hitItr->amplitude();
     if ( R_ene <= 0. ) R_ene = 0.0;
     if(R_ene > maxEne){
       maxEne=R_ene;

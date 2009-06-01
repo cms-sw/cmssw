@@ -15,5 +15,5 @@ from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
 ckfTrackCandidatesTIFTOBTEC = copy.deepcopy(ckfTrackCandidates)
 ckfTrackCandidatesTIFTOBTEC.NavigationSchool = 'CosmicNavigationSchool'
 ckfTrackCandidatesTIFTOBTEC.TrajectoryBuilder = 'GroupedCkfTrajectoryBuilderTIFTOBTEC'
-ckfTrackCandidatesTIFTOBTEC.src = cms.InputTag('combinatorialcosmicseedfinderTIFTOBTEC')
+ckfTrackCandidatesTIFTOBTEC.SeedProducer = 'combinatorialcosmicseedfinderTIFTOBTEC'
 

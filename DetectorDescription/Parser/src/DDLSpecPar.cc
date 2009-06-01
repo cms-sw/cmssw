@@ -16,17 +16,23 @@
 // Parser parts
 #include "DDLSpecPar.h"
 #include "DDLElementRegistry.h"
+#include "DDXMLElement.h"
 
 // DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDPartSelection.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDValuePair.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
 // CLHEP dependencies
+#include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
+#include <string>
 #include <sstream>
 
 // Default constructor

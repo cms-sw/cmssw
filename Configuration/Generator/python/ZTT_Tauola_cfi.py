@@ -32,13 +32,9 @@ source = cms.Source("PythiaSource",
             'MDME( 186,1) = 1    !Z decay into tau- tau+', 
             'MDME( 187,1) = 0    !Z decay into nu_tau nu_taubar', 
             'CKIN( 1)     = 40.  !(D=2. GeV)', 
-            'CKIN( 2)     = -1.  !(D=-1. GeV)', 
-            'MDME(89,1)   = 0    ! no tau->electron', 
-            'MDME(90,1)   = 0    ! no tau->muon'),
+            'CKIN( 2)     = -1.  !(D=-1. GeV)'), 
         # This is a vector of ParameterSet names to be read, in this order
         parameterSets = cms.vstring('pythiaUESettings', 
             'processParameters')
     )
 )
-
-

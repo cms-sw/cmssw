@@ -124,9 +124,10 @@ public:
   void setJetEtCalibrationLuts(const lutPtrVector& jfluts);
 
   /// Check setup is Ok
-  bool setupOk() const { return m_gotNeighbourPointers
-                             && m_gotJetFinderParams
-                             && m_gotJetEtCalLuts; }
+  bool setupOk() const { return m_idInRange
+			   && m_gotNeighbourPointers
+			   && m_gotJetFinderParams
+			   && m_gotJetEtCalLuts; }
 
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctJetFinderBase& algo);
@@ -186,6 +187,9 @@ public:
 	
   /// Store neighbour pointers
   std::vector<L1GctJetFinderBase*> m_neighbourJetFinders;
+  
+  /// Remember whether range check on the input ID was ok
+  bool m_idInRange;
   
   /// Remember whether the neighbour pointers have been stored
   bool m_gotNeighbourPointers;

@@ -5,8 +5,8 @@
  *
  */
 
-#ifndef L1TRIGGERRATES_H
-#define L1TRIGGERRATES_H
+#ifndef DATAFORMATS_SCALERS_L1TRIGGERRATES_H
+#define DATAFORMATS_SCALERS_L1TRIGGERRATES_H
 
 #include <ostream>
 #include <vector>

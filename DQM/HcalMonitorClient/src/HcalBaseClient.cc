@@ -1,17 +1,23 @@
 #include <DQM/HcalMonitorClient/interface/HcalBaseClient.h>
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include <math.h>
+#include <iostream>
 
-HcalBaseClient::HcalBaseClient(){
+HcalBaseClient::HcalBaseClient()
+{
   dbe_ =NULL;
   clientName_ = "GenericHcalClient";
 }
 
 HcalBaseClient::~HcalBaseClient(){}
 
-void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe, string clientName)
+void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe, 
+			  string clientName)
 {
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
+  dqmReportMapErr_.clear(); 
+  dqmReportMapWarn_.clear(); 
+  dqmReportMapOther_.clear();
   dqmQtests_.clear();
   
   dbe_ = dbe;
@@ -30,6 +36,9 @@ void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
 
   // DQM default process name
   process_ = ps.getUntrackedParameter<string>("processName", "Hcal/");
+
+  //Decide whether or not to fill unphysical iphi cells
+  fillUnphysical_ = ps.getUntrackedParameter<bool>("fillUnphysicalIphi",true);
   
   vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
   for(int i=0; i<4; i++)
@@ -114,35 +123,100 @@ void HcalBaseClient::getTestResults(int& totalTests,
 
   return;
 }
-/*
-void HcalBaseClient::getSJ6histos(char* dir, char* name, TH2F* &h)
+
+
+// ************************************************************************************************************ //
+
+bool HcalBaseClient::validDetId(HcalSubdetector sd, int ies, int ip, int dp)
 {
-  TH2F* dummy;
+  // inputs are (subdetector, ieta, iphi, depth)
+  // stolen from latest version of DataFormats/HcalDetId/src/HcalDetId.cc (not yet available in CMSSW_2_1_9)
+
+  const int ie ( abs( ies ) ) ;
+
+  return ( ( ip >=  1         ) &&
+	   ( ip <= 72         ) &&
+	   ( dp >=  1         ) &&
+	   ( ie >=  1         ) &&
+	   ( ( ( sd == HcalBarrel ) &&
+	       ( ( ( ie <= 14         ) &&
+		   ( dp ==  1         )    ) ||
+		 ( ( ( ie == 15 ) || ( ie == 16 ) ) && 
+		   ( dp <= 2          )                ) ) ) ||
+	     (  ( sd == HcalEndcap ) &&
+		( ( ( ie == 16 ) &&
+		    ( dp ==  3 )          ) ||
+		  ( ( ie == 17 ) &&
+		    ( dp ==  1 )          ) ||
+		  ( ( ie >= 18 ) &&
+		    ( ie <= 20 ) &&
+		    ( dp <=  2 )          ) ||
+		  ( ( ie >= 21 ) &&
+		    ( ie <= 26 ) &&
+		    ( dp <=  2 ) &&
+		    ( ip%2 == 1 )         ) ||
+		  ( ( ie >= 27 ) &&
+		    ( ie <= 28 ) &&
+		    ( dp <=  3 ) &&
+		    ( ip%2 == 1 )         ) ||
+		  ( ( ie == 29 ) &&
+		    ( dp <=  2 ) &&
+		    ( ip%2 == 1 )         )          )      ) ||
+	     (  ( sd == HcalOuter ) &&
+		( ie <= 15 ) &&
+		( dp ==  4 )           ) ||
+	     (  ( sd == HcalForward ) &&
+		( dp <=  2 )          &&
+		( ( ( ie >= 29 ) &&
+		    ( ie <= 39 ) &&
+		    ( ip%2 == 1 )    ) ||
+		  ( ( ie >= 40 ) &&
+		    ( ie <= 41 ) &&
+		    ( ip%4 == 3 )         )  ) ) ) ) ;
+
+
+
+} // bool  HcalBaseClient::validDetId(HcalSubdetector sd, int ies, int ip, int dp)
+
+
+
+
+void HcalBaseClient::getSJ6histos(char* dir, char* name, TH2F* h[6])
+{
+  if (debug_>2) cout <<"HcalBaseClient::getting SJ6histos (2D)"<<endl;
+  TH2F* dummy = new TH2F();
   ostringstream hname;
   hname <<process_.c_str()<<dir<<"HB HF Depth 1 "<<name;
+  if (debug_>3) cout <<"name = "<<hname.str()<<endl;
   h[0]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   hname.str("");
   hname <<process_.c_str()<<dir<<"HB HF Depth 2 "<<name;
   h[1]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  if (debug_>3) cout <<"name = "<<hname.str()<<endl;
   hname.str("");
   hname <<process_.c_str()<<dir<<"HE Depth 3 "<<name;
   h[2]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  if (debug_>3) cout <<"name = "<<hname.str()<<endl;
   hname.str("");
   hname <<process_.c_str()<<dir<<"HO ZDC "<<name;
   h[3]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  if (debug_>3) cout <<"name = "<<hname.str()<<endl;
   hname.str("");
   hname <<process_.c_str()<<dir<<"HE Depth 1 "<<name;
   h[4]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  if (debug_>3) cout <<"name = "<<hname.str()<<endl;
   hname.str("");
   hname <<process_.c_str()<<dir<<"HE Depth 2 "<<name;
   h[5]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  if (debug_>3) cout <<"name = "<<hname.str()<<endl;
   hname.str("");
+  if (debug_>2) cout <<"Finished with getSJ6histos(2D)"<<endl;
   return;
 } // void HcalBaseClient::getSJ6histos(2D)
 
-void HcalBaseClient::getSJ6histos(char* dir, char* name, TH1F* &h)
+void HcalBaseClient::getSJ6histos(char* dir, char* name, TH1F* h[6])
 {
-  TH1F* dummy;
+  TH1F* dummy = new TH1F();
   ostringstream hname;
   hname <<process_.c_str()<<dir<<"HB HF Depth 1 "<<name;
   h[0]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
@@ -164,4 +238,7 @@ void HcalBaseClient::getSJ6histos(char* dir, char* name, TH1F* &h)
   hname.str("");
   return;
 } // void HcalBaseClient::getSJ6histos(1D)
-*/
+
+
+
+

@@ -1,14 +1,14 @@
 /**
  * \class L1GlobalTriggerEvmReadoutRecord
- * 
- * 
- * Description: see header file.  
+ *
+ *
+ * Description: see header file.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -37,7 +37,6 @@ L1GlobalTriggerEvmReadoutRecord::L1GlobalTriggerEvmReadoutRecord()
 
     // reserve just one L1GtFdlWord
     m_gtFdlWord.reserve(1);
-    m_gtFdlWord.assign(1, L1GtFdlWord());
 
 }
 

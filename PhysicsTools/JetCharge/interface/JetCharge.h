@@ -83,15 +83,18 @@ double JetCharge::getWeight(const LorentzVector &lv, const T& obj) const {
     double ret;
     switch (var_) {
         case Pt: 
-            ret = obj.pt(); break;
+            ret = obj.pt(); 
+            break;
         case DeltaR: 
             ret = ROOT::Math::VectorUtil::DeltaR(lv.Vect(), obj.momentum());
+            break;
         case RelPt: 
         case RelEta: 
             ret =  lv.Vect().Dot(obj.momentum())/(lv.P() * obj.p()); // cos(theta)
             ret =  (var_ == RelPt ? 
                 std::sqrt(1 - ret*ret) * obj.p() :    // p * sin(theta) = pt
             - 0.5 * std::log((1-ret)/(1+ret)));   // = - log tan theta/2 = eta
+            break;
         case Unit:
         default:
             ret = 1.0;

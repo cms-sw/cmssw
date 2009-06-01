@@ -15,10 +15,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
-#include "RecoEgamma/PhotonIdentification/interface/CutBasedPhotonID.h"
 
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
 #include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
@@ -56,7 +54,6 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   risolveAmbiguity_ = conf_.getParameter<bool>("risolveConversionAmbiguity");
 
  
- 
   // Parameters for the position calculation:
   std::map<std::string,double> providedParameters;
   providedParameters.insert(std::make_pair("LogWeighted",conf_.getParameter<bool>("posCalc_logweight")));
@@ -66,11 +63,6 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   providedParameters.insert(std::make_pair("W0",conf_.getParameter<double>("posCalc_w0")));
   providedParameters.insert(std::make_pair("X0",conf_.getParameter<double>("posCalc_x0")));
   posCalculator_ = PositionCalc(providedParameters);
-  //
-  thePhotonIDCalculator_ = new CutBasedPhotonIDAlgo();
-  edm::ParameterSet cutBaseIDPSet = conf_.getParameter<edm::ParameterSet>("cutBasedIDPSet"); 
-  thePhotonIDCalculator_->setup(cutBaseIDPSet   );
-
 
   // Register the product
   produces< reco::PhotonCollection >(PhotonCollection_);
@@ -80,7 +72,7 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
 PhotonProducer::~PhotonProducer() {
 
   delete theLikelihoodCalc_;
-  delete thePhotonIDCalculator_;
+
 }
 
 
@@ -89,11 +81,8 @@ void  PhotonProducer::beginJob (edm::EventSetup const & theEventSetup) {
   edm::FileInPath path_mvaWeightFile(likelihoodWeights_.c_str() );
   theLikelihoodCalc_->setWeightsFile(path_mvaWeightFile.fullPath().c_str());
 
-
   // nEvt_=0;
 }
-
-
 
 
 void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
@@ -148,7 +137,6 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   // get the geometry from the event setup:
   theEventSetup.get<CaloGeometryRecord>().get(theCaloGeom_);
-  const CaloGeometry* geometry = theCaloGeom_.product();
   const CaloSubdetectorGeometry *barrelGeometry = theCaloGeom_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   const CaloSubdetectorGeometry *endcapGeometry = theCaloGeom_->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
   const CaloSubdetectorGeometry *preshowerGeometry = theCaloGeom_->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
@@ -218,8 +206,8 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   int iSC=0; // index in photon collection
   // Loop over barrel and endcap SC collections and fill the  photon collection
-  if ( validBarrelSCHandle) fillPhotonCollection(theEvent,theEventSetup,scBarrelHandle,geometry, barrelGeometry,preshowerGeometry,topology,&barrelRecHits,mhbhe.get(),conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
-  if ( validEndcapSCHandle) fillPhotonCollection(theEvent,theEventSetup,scEndcapHandle,geometry, endcapGeometry,preshowerGeometry,topology,&endcapRecHits,mhbhe.get(),conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
+  if ( validBarrelSCHandle) fillPhotonCollection(scBarrelHandle,barrelGeometry,preshowerGeometry,topology,&barrelRecHits,mhbhe.get(),conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
+  if ( validEndcapSCHandle) fillPhotonCollection(scEndcapHandle,endcapGeometry,preshowerGeometry,topology,&endcapRecHits,mhbhe.get(),conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
 
   // put the product in the event
   edm::LogInfo("PhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
@@ -228,20 +216,18 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
 }
 
-void PhotonProducer::fillPhotonCollection(edm::Event& evt,
-					  edm::EventSetup const & es,
-					  const edm::Handle<reco::SuperClusterCollection> & scHandle,
-					  const CaloGeometry *geometry,
-					  const CaloSubdetectorGeometry *subDetGeometry,
-					  const CaloSubdetectorGeometry *geometryES,
-					  const CaloTopology *topology,
-					  const EcalRecHitCollection* hits,
-					  HBHERecHitMetaCollection *mhbhe,
-					  const edm::Handle<reco::ConversionCollection> & conversionHandle,
-					  const reco::ElectronPixelSeedCollection& pixelSeeds,
-					  math::XYZPoint & vtx,
-					  reco::PhotonCollection & outputPhotonCollection, int& iSC) {
-  
+void PhotonProducer::fillPhotonCollection(
+		   const edm::Handle<reco::SuperClusterCollection> & scHandle,
+		   const CaloSubdetectorGeometry *geometry,
+		   const CaloSubdetectorGeometry *geometryES,
+		   const CaloTopology *topology,
+		   const EcalRecHitCollection* hits,
+		   HBHERecHitMetaCollection *mhbhe,
+                   const edm::Handle<reco::ConversionCollection> & conversionHandle,
+		   const reco::ElectronPixelSeedCollection& pixelSeeds,
+		   math::XYZPoint & vtx,
+		   reco::PhotonCollection & outputPhotonCollection, int& iSC) {
+
 
   reco::ElectronPixelSeedCollection::const_iterator pixelSeedItr;
   for(unsigned int lSC=0; lSC < scHandle->size(); lSC++) {
@@ -257,24 +243,16 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     double HoE=theHoverEcalc_(pClus,mhbhe);
     if (HoE>=maxHOverE_)  continue;
     
+    
+    
     // recalculate position of seed BasicCluster taking shower depth for unconverted photon
-    math::XYZPoint unconvPos = posCalculator_.Calculate_Location(scRef->seed()->getHitsByDetId(),hits,subDetGeometry,geometryES);
-
-
-    /// Careful with e1x5. The name mismatch between my local variable and the one from the tools is because in the tools
-    // there are two implementations, one which gives 1 phy* 5 eta ( called e1x5) and another which gives 1 eta * 5 phi ( called e5x1 just to be distiguished )
-    float e1x5 =   EcalClusterTools::e5x1(  *(scRef->seed()), &(*hits), &(*topology)); 
-    float e2x5 =   EcalClusterTools::e2x5Max(  *(scRef->seed()), &(*hits), &(*topology)); 
-    float e3x3 =   EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology)); 
-    float e5x5 = EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology)); 
-    std::vector<float> cov =  EcalClusterTools::covariances( *(scRef->seed()), &(*hits), &(*topology), geometry); 
-    float covEtaEta = cov[0];
-    std::vector<float> locCov =  EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology)); 
-    float covIetaIeta = locCov[0];
-
-
-    float r9 =e3x3/(scRef->rawEnergy());
+    math::XYZPoint unconvPos = posCalculator_.Calculate_Location(scRef->seed()->getHitsByDetId(),hits,geometry,geometryES);
+    
     // compute position of ECAL shower
+    float e3x3=   EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology)); 
+    float r9 =e3x3/(scRef->rawEnergy());
+    float e5x5= EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology)); 
+
     math::XYZPoint caloPosition;
     double photonEnergy=0;
     if (r9>minR9_) {
@@ -302,46 +280,18 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     math::XYZVector momentum = direction.unit() * photonEnergy ;
 
     const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), photonEnergy );
+
     
     reco::Photon newCandidate(p4, caloPosition, scRef, HoE, hasSeed, vtx);
-    newCandidate.setShowerShapeVariables ( e1x5, e2x5,  e3x3, e5x5, covEtaEta,  covIetaIeta );
-    std::cout << " PhotonProducer e1x5 " << newCandidate.e1x5() << " e5x5 " <<   newCandidate.e5x5() << std::endl;
-    PhotonFiducialFlags fidFlags;
-    PhotonIsolationVariables isolVarR03, isolVarR04;
-    CutBasedPhotonID idOutput;
-    thePhotonIDCalculator_-> calculate ( &newCandidate,evt,es,fidFlags,isolVarR04, isolVarR03,idOutput);
-//    std::cout << " ID flags " << idOutput.isLooseEM << " " << idOutput.isLoosePhoton << " " << idOutput.isTightPhoton << std::endl;
-    newCandidate.setFiducialVolumeFlags (fidFlags.isEBPho, 
-					 fidFlags.isEEPho, 
-					 fidFlags.isEBGap, 
-					 fidFlags.isEEGap, 
-					 fidFlags.isEBEEGap  );    
-    newCandidate.setIsolationVariablesCone04 (isolVarR04.isolationEcalRecHit, 
-					      isolVarR04.isolationHcalTower, 
-					      isolVarR04.isolationSolidTrkCone,
-					      isolVarR04.isolationHollowTrkCone,
-					      isolVarR04.nTrkSolidCone,
-					      isolVarR04.nTrkHollowCone);    
-    newCandidate.setIsolationVariablesCone03 (isolVarR03.isolationEcalRecHit, 
-					      isolVarR03.isolationHcalTower, 
-					      isolVarR03.isolationSolidTrkCone,
-					      isolVarR03.isolationHollowTrkCone,
-					      isolVarR03.nTrkSolidCone,
-					      isolVarR03.nTrkHollowCone);    
-					      
 
-    newCandidate.setCutBasedIDOutput (idOutput.isLooseEM, idOutput.isLoosePhoton, idOutput.isTightPhoton  );    
-
-    if ( idOutput.isLooseEM) {
+    if ( validConversions_) {
       
-      if ( validConversions_) {
-	
       if ( risolveAmbiguity_ ) { 
 	
         reco::ConversionRef bestRef=solveAmbiguity( conversionHandle , scRef);	
-	
+
 	if (bestRef.isNonnull() ) newCandidate.addConversion(bestRef);	
-	
+		
 	
       } else {
 	
@@ -360,10 +310,10 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
       
     }
 
-   
+
     outputPhotonCollection.push_back(newCandidate);
     
-    }    
+    
   }
 
 }

@@ -1,5 +1,5 @@
 //
-// $Id: PATObject.h,v 1.20 2008/10/08 15:11:33 srappocc Exp $
+// $Id: PATObject.h,v 1.5.2.4 2009/04/16 12:42:38 vadler Exp $
 //
 
 #ifndef DataFormats_PatCandidates_PATObject_h
@@ -15,7 +15,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Volker Adler, Sal Rappoccio
-  \version  $Id: PATObject.h,v 1.20 2008/10/08 15:11:33 srappocc Exp $
+  \version  $Id: PATObject.h,v 1.5.2.4 2009/04/16 12:42:38 vadler Exp $
 */
 
 
@@ -26,6 +26,7 @@
 #include <string>
 
 #include "DataFormats/PatCandidates/interface/TriggerPrimitive.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/PatCandidates/interface/LookupTableRecord.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -33,6 +34,7 @@
 #include "DataFormats/PatCandidates/interface/UserData.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
+#include "DataFormats/PatCandidates/interface/CandKinResolution.h"
 
 namespace pat {
 
@@ -61,11 +63,19 @@ namespace pat {
       /// reference to original object. Returns a null reference if not available
       const edm::Ptr<reco::Candidate> & originalObjectRef() const;
 
-      /// trigger matches
+      /// old trigger matches
       const std::vector<TriggerPrimitive> & triggerMatches() const;
       const std::vector<TriggerPrimitive> triggerMatchesByFilter(const std::string & aFilt) const;
-      /// add a trigger match
+      /// add an old trigger match
       void addTriggerMatch(const pat::TriggerPrimitive & aTrigPrim);
+      /// embedded trigger matches
+      const TriggerObjectStandAloneCollection & triggerObjectMatches() const;
+      const TriggerObjectStandAloneCollection   triggerObjectMatchesByFilterID( const unsigned id ) const; // filter IDs are defined in enum trigger::TriggerObjectType (DataFormats/HLTReco/interface/TriggerTypeDefs.h)
+      const TriggerObjectStandAloneCollection   triggerObjectMatchesByCollection( const std::string & coll ) const; // filter IDs are defined in enum trigger::TriggerObjectType (DataFormats/HLTReco/interface/TriggerTypeDefs.h)
+      const TriggerObjectStandAloneCollection   triggerObjectMatchesByFilter( const std::string & labelFilter ) const;
+      const TriggerObjectStandAloneCollection   triggerObjectMatchesByPath( const std::string & namePath ) const;
+      /// add a trigger match
+      void addTriggerObjectMatch( const TriggerObjectStandAlone & trigObj );
 
       /// Returns an efficiency given its name
       const pat::LookupTableRecord       & efficiency(const std::string &name) const ;
@@ -116,6 +126,18 @@ namespace pat {
       /// Note that generator level particles can only be all embedded or all not embedded.
       void embedGenParticle() ;
 
+      /// Returns true if there was at least one overlap for this test label
+      bool hasOverlaps(const std::string &label) const ;
+      /// Return the list of overlaps for one label (can be empty)
+      /// The original ordering of items is kept (usually it's by increasing deltaR from this item)
+      const reco::CandidatePtrVector & overlaps(const std::string &label) const ;
+      /// Returns the labels of the overlap tests that found at least one overlap
+      const std::vector<std::string> & overlapLabels() const { return overlapLabels_; }
+      /// Sets the list of overlapping items for one label 
+      /// Note that adding an empty PtrVector has no effect at all
+      /// Items within the list should already be sorted appropriately (this method won't sort them)
+      void setOverlaps(const std::string &label, const reco::CandidatePtrVector & overlaps) ;
+
       /// Returns user-defined data. Returns NULL if the data is not present, or not of type T.
       template<typename T> const T * userData(const std::string &key) const {
           const pat::UserData * data = userDataObject_(key);
@@ -160,6 +182,7 @@ namespace pat {
       }
       
       /// Get user-defined float
+      /// Note: it will return 0.0 if the key is not found; you can check if the key exists with 'hasUserFloat' method.
       float userFloat( const std::string & key ) const;
       /// Set user-defined float
       void addUserFloat( const  std::string & label, float data );
@@ -170,6 +193,7 @@ namespace pat {
         return std::find(userFloatLabels_.begin(), userFloatLabels_.end(), key) != userFloatLabels_.end();
       }
       /// Get user-defined int
+      /// Note: it will return 0 if the key is not found; you can check if the key exists with 'hasUserInt' method.
       int32_t userInt( const std::string & key ) const;
       /// Set user-defined int
       void addUserInt( const std::string & label,  int32_t data );
@@ -179,13 +203,64 @@ namespace pat {
       bool hasUserInt( const std::string & key ) const {
         return std::find(userIntLabels_.begin(), userIntLabels_.end(), key) != userIntLabels_.end();
       }
- 
+
+      // === New Kinematic Resolutions
+      /// Return the kinematic resolutions associated to this object, possibly specifying a label for it.
+      /// If not present, it will throw an exception.
+      const pat::CandKinResolution & getKinResolution(const std::string &label="") const ;
+
+      /// Check if the kinematic resolutions are stored into this object (possibly specifying a label for them)
+      bool hasKinResolution(const std::string &label="") const ;
+      
+      /// Add a kinematic resolution to this object (possibly with a label)
+      void setKinResolution(const pat::CandKinResolution &resol, const std::string &label="") ;
+
+      /// Resolution on eta, possibly with a label to specify which resolution to use
+      double resolEta(const std::string &label="") const { return getKinResolution(label).resolEta(this->p4()); }
+
+      /// Resolution on theta, possibly with a label to specify which resolution to use
+      double resolTheta(const std::string &label="") const { return getKinResolution(label).resolTheta(this->p4()); }
+
+      /// Resolution on phi, possibly with a label to specify which resolution to use
+      double resolPhi(const std::string &label="") const { return getKinResolution(label).resolPhi(this->p4()); }
+
+      /// Resolution on energy, possibly with a label to specify which resolution to use
+      double resolE(const std::string &label="") const { return getKinResolution(label).resolE(this->p4()); }
+
+      /// Resolution on et, possibly with a label to specify which resolution to use
+      double resolEt(const std::string &label="") const { return getKinResolution(label).resolEt(this->p4()); }
+
+      /// Resolution on p, possibly with a label to specify which resolution to use
+      double resolP(const std::string &label="") const { return getKinResolution(label).resolP(this->p4()); }
+
+      /// Resolution on pt, possibly with a label to specify which resolution to use
+      double resolPt(const std::string &label="") const { return getKinResolution(label).resolPt(this->p4()); }
+
+      /// Resolution on 1/p, possibly with a label to specify which resolution to use
+      double resolPInv(const std::string &label="") const { return getKinResolution(label).resolPInv(this->p4()); }
+
+      /// Resolution on px, possibly with a label to specify which resolution to use
+      double resolPx(const std::string &label="") const { return getKinResolution(label).resolPx(this->p4()); }
+
+      /// Resolution on py, possibly with a label to specify which resolution to use
+      double resolPy(const std::string &label="") const { return getKinResolution(label).resolPy(this->p4()); }
+
+      /// Resolution on pz, possibly with a label to specify which resolution to use
+      double resolPz(const std::string &label="") const { return getKinResolution(label).resolPz(this->p4()); }
+
+      /// Resolution on mass, possibly with a label to specify which resolution to use
+      /// Note: this will be zero if a mass-constrained parametrization is used for this object 
+      double resolM(const std::string &label="") const { return getKinResolution(label).resolM(this->p4()); }
+
+
     protected:
       // reference back to the original object
       edm::Ptr<reco::Candidate> refToOrig_;
 
-      /// vector of trigger matches
+      /// vector of old trigger matches
       std::vector<pat::TriggerPrimitive> triggerMatches_;
+      /// vector of trigger matches
+      TriggerObjectStandAloneCollection triggerObjectMatchesEmbedded_;
 
       /// vector of the efficiencies (values)
       std::vector<pat::LookupTableRecord> efficiencyValues_;
@@ -197,6 +272,11 @@ namespace pat {
       /// vector to hold an embedded generator level particle
       std::vector<reco::GenParticle>    genParticleEmbedded_; 
 
+      /// Overlapping test labels (only if there are any overlaps)
+      std::vector<std::string> overlapLabels_;
+      /// Overlapping items (sorted by distance)
+      std::vector<reco::CandidatePtrVector> overlapItems_;
+
       /// User data object
       std::vector<std::string>      userDataLabels_;
       pat::UserDataCollection       userDataObjects_;
@@ -206,6 +286,12 @@ namespace pat {
       // User int values
       std::vector<std::string>      userIntLabels_;
       std::vector<int32_t>          userInts_;
+
+      /// Kinematic resolutions.
+      std::vector<pat::CandKinResolution> kinResolutions_;
+      /// Labels for the kinematic resolutions. 
+      /// if (kinResolutions_.size() == kinResolutionLabels_.size()+1), then the first resolution has no label.
+      std::vector<std::string>            kinResolutionLabels_;
 
     private:
       const pat::UserData *  userDataObject_(const std::string &key) const ;
@@ -263,6 +349,50 @@ namespace pat {
   template <class ObjectType>
   void PATObject<ObjectType>::addTriggerMatch(const pat::TriggerPrimitive & aTrigPrim) {
     triggerMatches_.push_back(aTrigPrim);
+  }
+
+  template <class ObjectType>
+  const TriggerObjectStandAloneCollection & PATObject<ObjectType>::triggerObjectMatches() const { return triggerObjectMatchesEmbedded_; }
+
+  template <class ObjectType>
+  const TriggerObjectStandAloneCollection PATObject<ObjectType>::triggerObjectMatchesByFilterID( const unsigned id ) const {
+    TriggerObjectStandAloneCollection matches;
+    for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
+      if ( triggerObjectMatches().at( i ).hasFilterId( id ) ) matches.push_back( triggerObjectMatches().at( i ) );
+    }
+    return matches;
+  }
+
+  template <class ObjectType>
+  const TriggerObjectStandAloneCollection PATObject<ObjectType>::triggerObjectMatchesByCollection( const std::string & coll ) const {
+    TriggerObjectStandAloneCollection matches;
+    for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
+      if ( triggerObjectMatches().at( i ).collection() == coll ) matches.push_back( triggerObjectMatches().at( i ) );
+    }
+    return matches;
+  }
+
+  template <class ObjectType>
+  const TriggerObjectStandAloneCollection PATObject<ObjectType>::triggerObjectMatchesByFilter( const std::string & labelFilter ) const {
+    TriggerObjectStandAloneCollection matches;
+    for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
+      if ( triggerObjectMatches().at( i ).hasFilterLabel( labelFilter ) ) matches.push_back( triggerObjectMatches().at( i ) );
+    }
+    return matches;
+  }
+
+  template <class ObjectType>
+  const TriggerObjectStandAloneCollection PATObject<ObjectType>::triggerObjectMatchesByPath( const std::string & namePath ) const {
+    TriggerObjectStandAloneCollection matches;
+    for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
+      if ( triggerObjectMatches().at( i ).hasPathName( namePath ) ) matches.push_back( triggerObjectMatches().at( i ) );
+    }
+    return matches;
+  }
+
+  template <class ObjectType>
+  void PATObject<ObjectType>::addTriggerObjectMatch( const TriggerObjectStandAlone & trigObj ) {
+    triggerObjectMatchesEmbedded_.push_back( trigObj );
   }
 
   template <class ObjectType>
@@ -355,6 +485,31 @@ namespace pat {
         return reco::GenParticleRef();
   }
 
+  template <class ObjectType>
+  bool PATObject<ObjectType>::hasOverlaps(const std::string &label) const {
+        return std::find(overlapLabels_.begin(), overlapLabels_.end(), label) != overlapLabels_.end();
+  }
+
+  template <class ObjectType>
+  const reco::CandidatePtrVector & PATObject<ObjectType>::overlaps(const std::string &label) const {
+        static const reco::CandidatePtrVector EMPTY;
+        std::vector<std::string>::const_iterator match = std::find(overlapLabels_.begin(), overlapLabels_.end(), label);
+        if (match == overlapLabels_.end()) return EMPTY;
+        return overlapItems_[match - overlapLabels_.begin()];
+  }
+
+  template <class ObjectType>
+  void PATObject<ObjectType>::setOverlaps(const std::string &label, const reco::CandidatePtrVector & overlaps) {
+        if (!overlaps.empty()) {
+            std::vector<std::string>::const_iterator match = std::find(overlapLabels_.begin(), overlapLabels_.end(), label);
+            if (match == overlapLabels_.end()) {
+                overlapLabels_.push_back(label);
+                overlapItems_.push_back(overlaps);
+            } else {
+                overlapItems_[match - overlapLabels_.begin()] = overlaps;
+            }
+        }
+  }
 
   template <class ObjectType>
   const pat::UserData * PATObject<ObjectType>::userDataObject_( const std::string & key ) const
@@ -402,6 +557,75 @@ namespace pat {
     userIntLabels_.push_back(label);
     userInts_.push_back( data );
   }
+
+  template <class ObjectType>
+  const pat::CandKinResolution & PATObject<ObjectType>::getKinResolution(const std::string &label) const {
+    if (label.empty()) {
+        if (kinResolutionLabels_.size()+1 == kinResolutions_.size()) {
+            return kinResolutions_[0];
+        } else {
+            throw cms::Exception("Missing Data", "This object does not contain an un-labelled kinematic resolution");
+        }
+    } else {
+        std::vector<std::string>::const_iterator match = std::find(kinResolutionLabels_.begin(), kinResolutionLabels_.end(), label);
+        if (match == kinResolutionLabels_.end()) {
+            cms::Exception ex("Missing Data");
+            ex << "This object does not contain a kinematic resolution with name '" << label << "'.\n";
+            ex << "The known labels are: " ;
+            for (std::vector<std::string>::const_iterator it = kinResolutionLabels_.begin(); it != kinResolutionLabels_.end(); ++it) {
+                ex << "'" << *it << "' ";
+            }
+            ex << "\n";
+            throw ex;
+        } else {
+            if (kinResolutionLabels_.size()+1 == kinResolutions_.size()) {
+                // skip un-labelled resolution
+                return kinResolutions_[match - kinResolutionLabels_.begin() + 1];
+            } else {
+                // all are labelled, so this is the real index
+                return kinResolutions_[match - kinResolutionLabels_.begin()];
+            }
+        }
+    }
+  }
+
+  template <class ObjectType>
+  bool PATObject<ObjectType>::hasKinResolution(const std::string &label) const {
+    if (label.empty()) {
+        return (kinResolutionLabels_.size()+1 == kinResolutions_.size());
+    } else {
+        std::vector<std::string>::const_iterator match = std::find(kinResolutionLabels_.begin(), kinResolutionLabels_.end(), label);
+        return match != kinResolutionLabels_.end();
+    }
+  }
+
+  template <class ObjectType>
+  void PATObject<ObjectType>::setKinResolution(const pat::CandKinResolution &resol, const std::string &label) {
+    if (label.empty()) {
+        if (kinResolutionLabels_.size()+1 == kinResolutions_.size()) {
+            // There is already an un-labelled object. Replace it
+            kinResolutions_[0] = resol;
+        } else {
+            // Insert. Note that the un-labelled is always the first, so we need to insert before begin()
+            // (for an empty vector, this should not cost more than push_back)
+            kinResolutions_.insert(kinResolutions_.begin(), resol);
+        }
+    } else {
+        std::vector<std::string>::iterator match = std::find(kinResolutionLabels_.begin(), kinResolutionLabels_.end(), label);
+        if (match != kinResolutionLabels_.end()) {
+            // Existing object: replace
+            if (kinResolutionLabels_.size()+1 == kinResolutions_.size()) {
+                kinResolutions_[(match - kinResolutionLabels_.begin())+1] = resol;
+            } else {
+                kinResolutions_[(match - kinResolutionLabels_.begin())] = resol;
+            }
+        } else {
+            kinResolutionLabels_.push_back(label);
+            kinResolutions_.push_back(resol);
+        }
+    }
+  }
+
 
 
 }

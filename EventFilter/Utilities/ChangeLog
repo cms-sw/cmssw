@@ -1,3 +1,40 @@
+2009-01-09  Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-15-05
+	* put back BxNumberFilter.cc in plugins tag
+
+2009-01-09  Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-15-04
+	* get header file for StateMachine from HEAD (spotted by Pete)
+	* re-instate RunBase as its use in StorageManager is unclear
+
+2009-01-08  Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-15-03
+	* merge of HEAD and online branch
+	* cleaned up obsolete classes
+	* added ServiceWeb access and Stepper
+	* synchronized EVB/SM protocol to HEAD for 300
+	* updated doc
+
+	
+2008-11-20  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-15-01
+	* change StateMachine::findRcmsStateListener(), don't call it in
+	StateMachine::initialize() anymore, must be called by clients (BU,
+	RB, EP, SM) after declaring RCMS state notifier parameters to
+	application infospace!
+
+
+2008-10-17  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-14-16-01
+	* mods to ModuleWeb/ModuleWebRegistry to support timeout
+	* mods to GlobalEventNumbers to extract info from gtpe
+
+
 2008-10-14  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-15-00

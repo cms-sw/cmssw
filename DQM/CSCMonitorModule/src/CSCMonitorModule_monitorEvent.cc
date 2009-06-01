@@ -36,7 +36,10 @@ void CSCMonitorModule::monitorEvent(const edm::Event& e){
   // Get a handle to the FED data collection
   // actualy the FED_EVENT_LABEL part of the event
   edm::Handle<FEDRawDataCollection> rawdata;
-  e.getByLabel( inputObjectsTag, rawdata);
+  if (!e.getByLabel( inputObjectsTag, rawdata)) {
+    // LOGWARNING("e.getByLabel") << "No product: " << inputObjectsTag << " in FEDRawDataCollection";
+    return; 
+  }
 
   // Lets run through the DCC's 
   for (int id = FEDNumbering::getCSCFEDIds().first; id <= FEDNumbering::getCSCFEDIds().second; ++id) {
@@ -60,7 +63,7 @@ void CSCMonitorModule::monitorEvent(const edm::Event& e){
     // construct the DCC data object
     const FEDRawData& fedData = rawdata->FEDData(id);
 
-    LOGDEBUG("MonitorEvent") << "Event No." << nEvents << " size = " << fedData.size() << std::endl;
+    // LOGWARNING("MonitorEvent") << "Event No." << nEvents << " size = " << fedData.size() << std::endl;
 
     //if fed has data then unpack it
     if ( fedData.size() >= 32 ) {
@@ -90,7 +93,7 @@ void CSCMonitorModule::monitorEvent(const edm::Event& e){
         monitorDCC(dccData);
       } 
 
-     LOGDEBUG("MonitorEvent") << "Event No." << nEvents << " is " << std::boolalpha << goodEvent << std::endl;
+     // LOGWARNING("MonitorEvent") << "Event No." << nEvents << " is " << std::boolalpha << goodEvent << std::endl;
 
     }
   }
@@ -131,8 +134,6 @@ bool CSCMonitorModule::monitorExaminer(CSCDCCExaminer& examiner) {
     goodEvent = false;
   }
 
-#ifdef CMSSW21
-
   std::map<int,long> payloads = examiner.payloadDetailed();
   for(std::map<int,long>::const_iterator chamber = payloads.begin(); chamber != payloads.end(); chamber++) {
 
@@ -140,13 +141,13 @@ bool CSCMonitorModule::monitorExaminer(CSCDCCExaminer& examiner) {
     int CrateID = (chamber->first>>4) & 0xFF;
     int DMBSlot = chamber->first & 0xF;
 
-    if (CrateID ==255) { continue; }
+    if (CrateID == 255) { continue; }
 
     if (MEEMU("DMB_Reporting", me)) me->Fill(CrateID, DMBSlot);
 
     int CSCtype   = 0;
     int CSCposition = 0;
-    getCSCFromMap(CrateID, DMBSlot, CSCtype, CSCposition );
+    if (!getCSCFromMap(CrateID, DMBSlot, CSCtype, CSCposition )) continue;
 
     if (CSCtype && CSCposition && MEEMU("CSC_Reporting", me)) me->Fill(CSCposition, CSCtype);
 
@@ -172,8 +173,6 @@ bool CSCMonitorModule::monitorExaminer(CSCDCCExaminer& examiner) {
       
   }
 
-#endif
-
   if ((examiner.errors() != 0) || (examiner.warnings() != 0)) {
 
     std::map<int,long> checkerErrors = examiner.errorsDetailed();
@@ -184,7 +183,6 @@ bool CSCMonitorModule::monitorExaminer(CSCDCCExaminer& examiner) {
       int DMBSlot = chamber->first & 0xF;
 
       if ((CrateID == 255) || (chamber->second & 0x80)) continue; // = Skip chamber detection if DMB header is missing (Error code 6)
-      if (CrateID > 60 || DMBSlot > 10) continue;
 
       bool isCSCError = false;
       for(int bit=5; bit<24; bit++) {
@@ -206,7 +204,7 @@ bool CSCMonitorModule::monitorExaminer(CSCDCCExaminer& examiner) {
 
       int CSCtype   = 0;
       int CSCposition = 0;
-      getCSCFromMap(CrateID, DMBSlot, CSCtype, CSCposition);
+      if (!getCSCFromMap(CrateID, DMBSlot, CSCtype, CSCposition)) continue;
 
       if (isCSCError && CSCtype && CSCposition && MEEMU("CSC_Format_Errors", me)) {
         me->Fill(CSCposition, CSCtype);
@@ -218,46 +216,8 @@ bool CSCMonitorModule::monitorExaminer(CSCDCCExaminer& examiner) {
 
     }
 
-#ifdef CMSSW20
-
-    std::map<int,long> checkerWarnings  = examiner.warningsDetailed();
-    for( std::map<int,long>::const_iterator chamber = checkerWarnings.begin(); chamber != checkerWarnings.end() ; chamber++ ){
-
-      //int ChamberID = chamber->first;
-      int CrateID = (chamber->first>>4) & 0xFF;
-      int DMBSlot = chamber->first & 0xF;
-
-      if (CrateID ==255) continue;
-
-      bool isCSCWarning = false;
-      for(int bit=1; bit<2; bit++) {
-        if( chamber->second & (1<<bit) ) {
-          isCSCWarning = true;
-        }
-      }
-
-      if (isCSCWarning && MEEMU("DMB_Format_Warnings", me)) {
-        me->Fill(CrateID, DMBSlot);
-      }
-
-      int CSCtype   = 0;
-      int CSCposition = 0;
-      getCSCFromMap(CrateID, DMBSlot, CSCtype, CSCposition );
-      if (isCSCWarning && CSCtype && CSCposition && MEEMU("CSC_Format_Warnings", me)) {
-        me->Fill(CSCposition, CSCtype);
-      }
-
-      if (goodEvent && isCSCWarning && CSCtype && CSCposition && MEEMU("CSC_Unpacked_with_warnings", me)) {
-        me->Fill(CSCposition, CSCtype);
-      }
-    }
-
-#endif
-
   }
   
-#ifdef CMSSW21
-
   std::map<int,long> statuses = examiner.statusDetailed();
   for(std::map<int,long>::const_iterator chamber = statuses.begin(); chamber != statuses.end(); chamber++) {
 
@@ -269,7 +229,7 @@ bool CSCMonitorModule::monitorExaminer(CSCDCCExaminer& examiner) {
     
     int CSCtype   = 0;
     int CSCposition = 0;
-    getCSCFromMap(CrateID, DMBSlot, CSCtype, CSCposition );
+    if (!getCSCFromMap(CrateID, DMBSlot, CSCtype, CSCposition )) continue;
 
     int anyInputFull = chamber->second & 0x3F;
     if(anyInputFull){
@@ -289,8 +249,6 @@ bool CSCMonitorModule::monitorExaminer(CSCDCCExaminer& examiner) {
     }
 
   }
-
-#endif  
 
   return goodEvent;
 }

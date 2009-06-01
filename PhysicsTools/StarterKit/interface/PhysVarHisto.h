@@ -41,13 +41,12 @@ namespace pat {
 	       std::string units = "",
 	       std::string type  = "D",
 	       bool        saveHist = true,
-	       bool        saveNtup = false,
-	       bool        isMC     = false );
+	       bool        saveNtup = false );
 
     virtual ~PhysVarHisto() { };  //!  Note we don't delete histograms!
 
     //--- Make one TH1 (may need more than one); all decorations should be done in this call.
-    virtual void makeTH1(int nameId = -1);
+    virtual void makeTH1();
 
     //--- Fill one of the histograms in histos_ vector.
     virtual void fill( double x,
@@ -87,7 +86,6 @@ namespace pat {
     double      xlow_ ;   //!< min value
     double      xhigh_ ;  //!< max value
     std::string units_ ;  //!< "GeV/c^{2}" etc. for axis labels
-    bool        isMC_;    //!< Is this for Gen Particles?
 
     //--- Cache to make histograms
     std::vector<TH1D *> histos_ ;   // maybe use a base class TH1* ?
@@ -97,7 +95,6 @@ namespace pat {
     double      value_ ;        // our own cache
     void *      value_ext_ ;    // cache is in a struct elsewhere, for TBranch
     std::vector<double> valueColl_; // our own cache of a list of values
-    std::vector<int>    indices_; // Used for GenParticles, this is the index map
 
     //--- Flags to control behavior
     // bool        active_ ;    // no clear use case to have this flag...

@@ -12,6 +12,8 @@ class Cylinder;
 class Surface;
 class MagneticField;
 
+namespace reco{class BeamSpot;}
+
 /** Basic tool for "propagation" of trajectory states to surfaces.
  *  If the starting state has an error matrix the errors will be also
  *  propagated. If you want to propagate just the parameters,
@@ -74,6 +76,10 @@ public:
 
   virtual TrajectoryStateOnSurface 
   propagate (const TrajectoryStateOnSurface&, const Cylinder&) const;
+  
+  virtual FreeTrajectoryState 
+  propagate(const FreeTrajectoryState&, 
+	    const reco::BeamSpot&) const;
 
   /** The methods propagateWithPath() are identical to the corresponding
    *  methods propagate() in what concerns the resulting 
@@ -111,6 +117,10 @@ public:
 
   virtual std::pair< TrajectoryStateOnSurface, double> 
   propagateWithPath (const TrajectoryStateOnSurface&, const Cylinder&) const;
+
+  virtual std::pair<FreeTrajectoryState, double> 
+    propagateWithPath(const FreeTrajectoryState&, 
+                      const GlobalPoint&, const GlobalPoint&) const;
 
   /** The propagation direction can now be set for every propagator.
    *  There is no more distinction between unidirectional and bidirectional 

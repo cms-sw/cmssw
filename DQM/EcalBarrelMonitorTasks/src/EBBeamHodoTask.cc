@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2008/04/08 15:35:11 $
- * $Revision: 1.58 $
+ * $Date: 2008/12/03 10:28:10 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -367,12 +367,10 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      EcalDCCHeaderBlock dcch = (*dcchItr);
+      if ( Numbers::subDet( *dcchItr ) != EcalBarrel ) continue;
 
-      if ( Numbers::subDet( dcch ) != EcalBarrel ) continue;
-
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::BEAMH4
-	   || dcch.getRunType() == EcalDCCHeaderBlock::BEAMH2  ) enable = true;
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::BEAMH4 ||
+	   dcchItr->getRunType() == EcalDCCHeaderBlock::BEAMH2  ) enable = true;
     }
 
   } else {
@@ -632,7 +630,7 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
       unsigned int column= icry %5;
       if ( EBDetId::validDetId(maxHitId.ieta()+column-2,maxHitId.iphi()+row-2) ) {
 	Xtals5x5[icry]=EBDetId(maxHitId.ieta()+column-2,maxHitId.iphi()+row-2,EBDetId::ETAPHIMODE);
-	double e = (*  pUncalRH->find( Xtals5x5[icry] )  ).amplitude();
+	double e = ( *pUncalRH->find( Xtals5x5[icry] )  ).amplitude();
 	if ( e <= 0. ) e = 0.0;
 	ene5x5[icry] =e;
 	e25 +=e;
@@ -670,8 +668,8 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 
   meCaloVsHodoXPos_->Fill( recHodo->posX()-caloX );
   meCaloVsHodoYPos_->Fill( recHodo->posY()-caloY );
-  meCaloVsTDCTime_->Fill( (*  pUncalRH->find( maxHitId )  ).jitter()  -  recTDC->offset() - 3);
-  LogDebug("EcalBeamTask")<< "jiitter from uncalRecHit: " <<  (*  pUncalRH->find( maxHitId )  ).jitter();
+  meCaloVsTDCTime_->Fill( (*pUncalRH->find( maxHitId )  ).jitter()  -  recTDC->offset() - 3);
+  LogDebug("EcalBeamTask")<< "jiitter from uncalRecHit: " <<  (*pUncalRH->find( maxHitId )  ).jitter();
 
 }
 

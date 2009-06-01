@@ -13,17 +13,11 @@ SiStripMonitorDigi.SelectAllDetectors = True
 SiStripMonitorDigi.TProfTotalNumberOfDigis.subdetswitchon = True
 
 # SiStripMonitorCluster ####
-# Clone for Sim Data
 import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
 SiStripMonitorClusterReal = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.SiStripMonitorCluster.clone()
 SiStripMonitorClusterReal.OutputMEsInRootFile = False
 SiStripMonitorClusterReal.SelectAllDetectors = True
-# Clone for Real Data
-import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
-SiStripMonitorClusterSim = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.SiStripMonitorCluster.clone()
-SiStripMonitorClusterSim.OutputMEsInRootFile = False
-SiStripMonitorClusterSim.SelectAllDetectors = True
-SiStripMonitorClusterSim.StripQualityLabel = 'test1'
+SiStripMonitorClusterReal.TProfTotalNumberOfClusters.subdetswitchon = True
 
 # SiStripMonitorTrack ####
 # Clone for Cosmic Track Finder

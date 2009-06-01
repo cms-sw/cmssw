@@ -5,7 +5,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <memory>
@@ -62,7 +61,7 @@ private:
   TProfile2D * get2DProfile(string meName, DQMStore * dbi);
   TProfile * get1DProfile(string meName, DQMStore * dbi);
   edm::ParameterSet parameters_;
-
+  
   DQMStore* dbe_;  
   std::string monitorDir_;
   bool verbose_;
@@ -71,14 +70,22 @@ private:
   int prescaleLS_;     ///units of lumi sections
   int prescaleEvt_;    ///prescale on number of events
   int nChannels;
+
+  Float_t setSummary(MonitorElement*);
+  static const int nsys_=20;
+  static const int nsysmon_=11;
+
   Float_t reportSummary;
   Float_t summarySum;
-  Float_t summaryContent[20];
+  Float_t summaryContent[nsys_];
+  std::string syslabel_   [nsysmon_];
+  std::string syslabelext_[nsysmon_];
+  bool sysmask_[nsysmon_];
 
   // -------- member data --------
 
   MonitorElement * reportSummary_;
-  MonitorElement * reportSummaryContent_[20];
+  MonitorElement * reportSummaryContent_[nsys_];
   MonitorElement * reportSummaryMap_;
 
 

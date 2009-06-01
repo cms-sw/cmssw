@@ -1,8 +1,8 @@
  /* 
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/04 17:46:03 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/02/28 15:35:49 $
+ *  $Revision: 1.8 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -26,6 +26,7 @@ using namespace edm;
  
   
 RPCRecHitValid::RPCRecHitValid(const ParameterSet& pset){
+  cout << "--- [RPCRecHitValid] Constructor called" << endl;
   rootFileName = pset.getUntrackedParameter<string>("rootFileName", "rpcRecHitValidPlots.root");
   //simHitLabel = pset.getUntrackedParameter<string>("g4SimHits", "MuonRPCHits");
   //recHitLabel = pset.getUntrackedParameter<string>("recHitLabel", "RPCRecHitProducer");
@@ -73,6 +74,7 @@ void RPCRecHitValid::beginJob(const edm::EventSetup& evs) {}
 
 // Destructor
 RPCRecHitValid::~RPCRecHitValid(){
+  cout << "--- [RPCRecHitValid] Destructor called" << endl;
 }
 
 void RPCRecHitValid::endJob() {
@@ -82,6 +84,8 @@ void RPCRecHitValid::endJob() {
 
 
 void RPCRecHitValid::analyze(const Event & event, const EventSetup& eventSetup){
+  cout << endl <<"--- [RPCRecHitValid] Analysing Event: #Run: " << event.id().run()
+       << " #Event: " << event.id().event() << endl;
   
   // Get the RPC Geometry
   ESHandle<RPCGeometry> rpcGeom;
@@ -230,7 +234,7 @@ void RPCRecHitValid::analyze(const Event & event, const EventSetup& eventSetup){
       nrecplu2 = nrecplu2 + 1;
     }
   }
-  //cout << " --> Found " << nrec << " rechit in event " << event.id().event() << endl;
+  cout << " --> Found " << nrec << " rechit in event " << event.id().event() << endl;
    
   // Global rechit mapping
   int i = 0;
@@ -350,7 +354,7 @@ void RPCRecHitValid::analyze(const Event & event, const EventSetup& eventSetup){
      
     }
   }
-  //cout << " --> Found " << nsim <<" simhits in event " << event.id().event() << endl;
+  cout << " --> Found " << nsim <<" simhits in event " << event.id().event() << endl;
 
   // Global simhit mapping
   i = 0;

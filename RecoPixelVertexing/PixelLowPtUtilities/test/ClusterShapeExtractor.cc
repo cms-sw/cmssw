@@ -35,24 +35,15 @@
 #include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-
 #include "TROOT.h"
 #include "TFile.h"
-#include "TH2F.h"
 #include "TNtuple.h"
+//#include "TTree.h"
 
 #include <utility>
 #include <vector>
 #include <fstream>
 using namespace std;
-
-// pixel
-#define exMax  5
-#define eyMax 15
-
-// strip
-#define ewMax 40
 
 /*****************************************************************************/
 class ClusterShapeExtractor : public edm::EDAnalyzer
@@ -61,24 +52,21 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
    explicit ClusterShapeExtractor(const edm::ParameterSet& pset);
    ~ClusterShapeExtractor();
    virtual void beginJob(const edm::EventSetup& es);
-   void analyzeSimHits (const edm::Event& ev, const edm::EventSetup& es);
-   void analyzeRecHits (const edm::Event& ev, const edm::EventSetup& es);
    virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
    virtual void endJob() { }
 
  private:
    bool isSuitable(const PSimHit* simHit);
    bool getOrientation(const SiStripRecHit2D& recHit, float& tangent, int& nstrips, bool& isBarrel);
-
-   // Sim
    void process(const SiPixelRecHit*   recHit, vector<PSimHit> simHits);
    void process(const SiStripRecHit2D* recHit, vector<PSimHit> simHits);
 
-   // Rec
-   void process(LocalVector ldir, const SiPixelRecHit*   recHit);
-   void process(LocalVector ldir, const SiStripRecHit2D* recHit);
 
    TFile * file;
+   TNtuple * pixelShape;
+   TNtuple * stripShape;
+//   TTree * pixelShape;
+//   TTree * stripShape;
 
    const TrackerGeometry* theTracker;
    const MagneticField* theMagneticField;
@@ -87,18 +75,8 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
    const SiPixelRecHitCollection* recHits_;
 
    edm::ParameterSet theConfig;
-
-   string trackProducer;
-   bool hasSimInfo;
-
    int nhits;
    TrackerHitAssociator * theHitAssociator;
-
-   std::vector<TH2F *> hspc; // simulated pixel cluster
-   std::vector<TH1F *> hssc; // simulated strip cluster
-
-   std::vector<TH2F *> hrpc; // reconstructed pixel cluster
-   std::vector<TH1F *> hrsc; // reconstructed strip cluster
 };
 
 /*****************************************************************************/
@@ -118,73 +96,29 @@ void ClusterShapeExtractor::beginJob(const edm::EventSetup& es)
   edm::ESHandle<SiStripLorentzAngle>   lorentzAngle;
   es.get<SiStripLorentzAngleRcd>().get(lorentzAngle);
   theLorentzAngle =                    lorentzAngle.product();
-
-  // Declare histograms
-  char histName[256];
-
-  // pixel
-  for(int subdet = 0; subdet <= 1; subdet++)
-  {
-    for(int ex = 0; ex <= exMax; ex++)
-    for(int ey = 0; ey <= eyMax; ey++)
-    {
-      sprintf(histName,"hspc_%d_%d_%d",subdet, ex,ey);
-      hspc.push_back(new TH2F(histName,histName, 
-                         10 * 2 * (exMax+2), -(exMax+2),(exMax+2),
-                         10 * 2 * (eyMax+2), -(eyMax+2),(eyMax+2)));
-
-      sprintf(histName,"hrpc_%d_%d_%d",subdet, ex,ey);
-      hrpc.push_back(new TH2F(histName,histName, 
-                         10 * 2 * (exMax+2), -(exMax+2),(exMax+2),
-                         10 * 2 * (eyMax+2), -(eyMax+2),(eyMax+2)));
-    }
-  }
-
-  // strip
-  for(int ew = 0; ew <= ewMax; ew++)
-  {
-    sprintf(histName,"hssc_%d", ew);
-    hssc.push_back(new TH1F(histName,histName,
-                       10 * 2 * (ewMax*2), -(ewMax*2),(ewMax*2)));
-
-    sprintf(histName,"hrsc_%d", ew);
-    hrsc.push_back(new TH1F(histName,histName,
-                       10 * 2 * (ewMax*2), -(ewMax*2),(ewMax*2)));
-  }
 }
 
 /*****************************************************************************/
 ClusterShapeExtractor::ClusterShapeExtractor
   (const edm::ParameterSet& pset) : theConfig(pset)
 {
-  trackProducer = pset.getParameter<string>("trackProducer"); 
-  hasSimInfo    = pset.getParameter<bool>("hasSimInfo"); 
-
   file = new TFile("clusterShape.root","RECREATE");
   file->cd();
 
-  // pixel: subdet=0-1, ex=0-5, ey=0-13
-  //        mx=, my=
-  // strip: mw=0-6,
-  //        condition: fs >= 2 && fs + mw - 1 <= ns - 2
-  //        pw + orient * dw
+  pixelShape = new TNtuple("pixelShape","pixelShape", "nh:subdet:ex:ey:mx:my");
+  stripShape = new TNtuple("stripShape","stripShape", "mw:pw:fs:ns:dw:orient");
+
+//  pixelShape = new TTree("pixelShape","pixelShape");
+//  stripShape = new TTree("stripShape","stripShape");
 }
 
 /*****************************************************************************/
 ClusterShapeExtractor::~ClusterShapeExtractor()
 {
-  typedef vector<TH2F *>::const_iterator H2I;
-  typedef vector<TH1F *>::const_iterator H1I;
-
   file->cd();
 
-  // simulated
-  for(H2I h = hspc.begin(); h!= hspc.end(); h++) (*h)->Write();
-  for(H1I h = hssc.begin(); h!= hssc.end(); h++) (*h)->Write();
-
-  // reconstructed
-  for(H2I h = hrpc.begin(); h!= hrpc.end(); h++) (*h)->Write();
-  for(H1I h = hrsc.begin(); h!= hrsc.end(); h++) (*h)->Write();
+  pixelShape->Write();
+  stripShape->Write();
 
   file->Close();
 }
@@ -204,12 +138,12 @@ bool ClusterShapeExtractor::isSuitable(const PSimHit* simHit)
 
   // Is it from a relevant process and particle
   bool isRelevant;
-  if(simHit->processType() == 2 || // Primary
-    (simHit->processType() == 3 && // Hadronic
+  if(simHit->processType() == 2 || // fElectromagnetic
+    (simHit->processType() == 3 && // fOptical
      simHit->particleType() != -100 &&
      simHit->particleType() != -101 &&
      simHit->particleType() != -102) ||
-     simHit->processType() == 4) // Decay
+     simHit->processType() == 4)
     isRelevant = true;
   else
     isRelevant = false;
@@ -270,15 +204,16 @@ void ClusterShapeExtractor::process(const SiStripRecHit2D* recHit,
     // Take first
     const PSimHit* simHit = &(simHits[0]);
 
-    if(isSuitable(simHit)) // isBarrel
+    if(isSuitable(simHit) && isBarrel)
     {
       int orient = (isNormalOriented ? 1 : -1);
 
       LocalVector ldir = simHit->exitPoint() - simHit->entryPoint();
       float predictedWidth  = ldir.x() / (fabs(ldir.z()) * tangent);
 
-      int   mw = measuredWidth;
-      float pw = predictedWidth;
+      vector<float> result;
+      result.push_back( measuredWidth); // mw
+      result.push_back(predictedWidth); // pw
 
       DetId id = recHit->geographicalId();
       LocalPoint  lpos = recHit->localPosition();
@@ -294,68 +229,13 @@ void ClusterShapeExtractor::process(const SiStripRecHit2D* recHit,
       float dir_z = -1.;
       float driftWidth = dir_x / (fabs(dir_z) * tangent);
 
-      int fs = firstStrip;
-      int ns = nstrips;
+      result.push_back(firstStrip); // fs
+      result.push_back(nstrips);    // ns
 
-      float dw = driftWidth;
+      result.push_back(driftWidth); // dw
+      result.push_back(orient);     // orient
 
-      if(fs >= 2 && fs + mw - 1 <= ns - 2)
-      if(mw <= ewMax)
-      {
-        int i = mw;
-        hssc[i]->Fill(pw + orient * dw);
-      }
-    }
-  }
-}
-
-/*****************************************************************************/
-void ClusterShapeExtractor::process
-  (LocalVector ldir, const SiStripRecHit2D* recHit)
-{
-  int measuredWidth = recHit->cluster()->amplitudes().size();
-  int   firstStrip  = recHit->cluster()->firstStrip();
-
-  float tangent;
-  int nstrips;
-  bool isBarrel;
-  bool isNormalOriented =
-    getOrientation(*recHit, tangent, nstrips, isBarrel);
-
-  // Cluster should have only one association
-  // isBarrel
-  {
-    int orient = (isNormalOriented ? 1 : -1);
-
-    float predictedWidth  = ldir.x() / (fabs(ldir.z()) * tangent);
-
-    int   mw = measuredWidth;
-    float pw = predictedWidth;
-
-    DetId id = recHit->geographicalId();
-    LocalPoint  lpos = recHit->localPosition();
-    GlobalPoint gpos = theTracker->idToDet(id)->toGlobal(lpos);
-
-    GlobalVector bfld = theMagneticField->inTesla(gpos);
-    LocalVector Bfield = theTracker->idToDet(id)->toLocal(bfld);
-
-    double theTanLorentzAnglePerTesla =
-      theLorentzAngle->getLorentzAngle(id.rawId());
-
-    float dir_x =  theTanLorentzAnglePerTesla * Bfield.y();
-    float dir_z = -1.;
-    float driftWidth = dir_x / (fabs(dir_z) * tangent);
-
-    int fs = firstStrip;
-    int ns = nstrips;
-
-    float dw = driftWidth;
-
-    if(fs >= 2 && fs + mw - 1 <= ns - 2)
-    if(mw <= ewMax)
-    {
-      int i = mw;
-      hrsc[i]->Fill(pw + orient * dw);
+      stripShape->Fill(&result[0]);
     }
   }
 }
@@ -394,67 +274,21 @@ void ClusterShapeExtractor::process(const SiPixelRecHit* recHit,
 
       int subdet = (data.isInBarrel ? 0 : 1);
 
-      int ex = data.size.first;
-      int ey = data.size.second;
-      float mx = move.first;
-      float my = move.second;
+      vector<float> result;
+      result.push_back(nhits);
+      result.push_back(subdet);
+      result.push_back(data.size.first );
+      result.push_back(data.size.second);
+      result.push_back(move.first );
+      result.push_back(move.second);
 
-      if(ey < 0)
-      { ey = -ey; my = -my; }
-
-      if(ex <= exMax && ey >= 0. && ey <= eyMax)
-      {
-        int i = (subdet * (exMax + 1) + ex) * (eyMax + 1) + (ey);
-        hspc[i]->Fill(mx,my);
-      }
+      pixelShape->Fill(&result[0]);
     }
   }
 }
 
 /*****************************************************************************/
-void ClusterShapeExtractor::process
-  (LocalVector ldir, const SiPixelRecHit* recHit)
-{
-  DetId id = recHit->geographicalId();
-  const PixelGeomDetUnit* pixelDet =
-    dynamic_cast<const PixelGeomDetUnit*> (theTracker->idToDet(id));
-
-  ClusterShape theClusterShape;
-  ClusterData data;
-  theClusterShape.getExtra(*pixelDet, *recHit, data);
-
-  // Cluster should be straight, complete and only one association
-  if(data.isStraight && data.isComplete)
-  {
-    int orient = (data.isNormalOriented ? 1 : -1);
-
-    pair<float,float> move;
-
-    move.first  =
-      ldir.x() / (fabs(ldir.z()) * data.tangent.first ) * orient;
-    move.second =
-      ldir.y() / (fabs(ldir.z()) * data.tangent.second) * orient;
-
-    int subdet = (data.isInBarrel ? 0 : 1);
-
-    int ex = data.size.first;
-    int ey = data.size.second;
-    float mx = move.first;
-    float my = move.second;
-
-    if(ey < 0)
-    { ey = -ey; my = -my; }
-
-    if(ex <= exMax && ey >= 0. && ey <= eyMax)
-    {
-      int i = (subdet * (exMax + 1) + ex) * (eyMax + 1) + (ey);
-      hrpc[i]->Fill(mx,my);
-    }
-  }
-}
-
-/*****************************************************************************/
-void ClusterShapeExtractor::analyzeSimHits
+void ClusterShapeExtractor::analyze
   (const edm::Event& ev, const edm::EventSetup& es)
 {
   // Get associator
@@ -516,84 +350,6 @@ void ClusterShapeExtractor::analyzeSimHits
   }
 
   delete theHitAssociator;
-}
-
-/*****************************************************************************/
-void ClusterShapeExtractor::analyzeRecHits
-  (const edm::Event& ev, const edm::EventSetup& es)
-{
-  // Get trajectory collection
-  edm::Handle<vector<Trajectory> > trajeHandle;
-  ev.getByLabel(trackProducer,     trajeHandle);
-  const vector<Trajectory> & trajeCollection = *(trajeHandle.product());
-
-  // Take all trajectories
-  for(vector<Trajectory>::const_iterator trajectory = trajeCollection.begin();
-                                         trajectory!= trajeCollection.end();
-                                         trajectory++)
-  for(vector<TrajectoryMeasurement>::const_iterator
-      meas = trajectory->measurements().begin();
-      meas!= trajectory->measurements().end(); meas++)
-  {
-    const TrackingRecHit* recHit = meas->recHit()->hit();
-    DetId id = recHit->geographicalId();
-
-    if(recHit->isValid())
-    {
-      LocalVector ldir = meas->updatedState().localDirection();
-
-      if(theTracker->idToDet(id)->subDetector() ==
-           GeomDetEnumerators::PixelBarrel ||
-         theTracker->idToDet(id)->subDetector() ==
-           GeomDetEnumerators::PixelEndcap)
-      {
-        // Pixel
-        const SiPixelRecHit* pixelRecHit =
-          dynamic_cast<const SiPixelRecHit *>(recHit);
-
-        if(pixelRecHit != 0)
-          process(ldir, pixelRecHit);
-      }
-      else
-      {
-        // Strip
-        const SiStripMatchedRecHit2D* stripMatchedRecHit =
-          dynamic_cast<const SiStripMatchedRecHit2D *>(recHit);
-        const ProjectedSiStripRecHit2D* stripProjectedRecHit =
-          dynamic_cast<const ProjectedSiStripRecHit2D *>(recHit);
-        const SiStripRecHit2D* stripRecHit =
-          dynamic_cast<const SiStripRecHit2D *>(recHit);
-
-        pair<double,double> v;
-
-        if(stripMatchedRecHit != 0)
-        {
-          process(ldir,stripMatchedRecHit->monoHit()  );
-          process(ldir,stripMatchedRecHit->stereoHit());
-        }
-
-        if(stripProjectedRecHit != 0)
-          process(ldir,&(stripProjectedRecHit->originalHit()));
-
-        if(stripRecHit != 0)
-          process(ldir,stripRecHit);
-      }
-    }
-  }
-}
-
-/*****************************************************************************/
-void ClusterShapeExtractor::analyze
-  (const edm::Event& ev, const edm::EventSetup& es)
-{
-  if(hasSimInfo)
-  {
-    LogTrace("MinBiasTracking") << "[ClusterShape] analyze simHits";
-    analyzeSimHits(ev, es);
-  } 
-
-  LogTrace("MinBiasTracking") << "[ClusterShape] analyze recHits";
-  analyzeRecHits(ev,es);
 }
 
 DEFINE_FWK_MODULE(ClusterShapeExtractor);

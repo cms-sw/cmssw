@@ -9,7 +9,7 @@ OpticalObjectMgr* OpticalObjectMgr::getInstance()
 {
   if( !theInstance ) {
     theInstance = new OpticalObjectMgr;
-    theInstance->theLastCmsSwID = 1;
+    theInstance->theLastCmsSwID = 0;
     //    theInstance->verbose = ALIUtils::verbosity();
   }
   return theInstance;
