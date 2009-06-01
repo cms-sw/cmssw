@@ -141,8 +141,8 @@ def switchJetCollection(process,jetCollection,doJTA=True,doBTagging=True,jetCorr
         switchJECParameters(process.jetCorrFactors, jetCorrLabel[0], jetCorrLabel[1], oldalgo='IC5',oldtype='Calo')
         process.jetCorrFactors.jetSource = jetCollection
         if doType1MET:
-            process.corMetType1Icone5.inputUncorJetsLabel = jetCollection.value() # FIXME it's corMetType1Icone5 that's broken
-            process.corMetType1Icone5.corrector           = 'L2L3JetCorrector%s%s' % jetCorrLabel
+            process.metJESCorIC5CaloJet.inputUncorJetsLabel = jetCollection.value() # FIXME it's metJESCorIC5CaloJet that's broken
+            process.metJESCorIC5CaloJet.corrector           = 'L2L3JetCorrector%s%s' % jetCorrLabel
     else:
         process.patJetMETCorrections.remove(process.jetCorrFactors)
         process.allLayer1Jets.addJetCorrFactors = False
@@ -237,10 +237,10 @@ def addJetCollection(process,jetCollection,postfixLabel,
         switchJECParameters( getattr(process,'jetCorrFactors'+postfixLabel), jetCorrLabel[0], jetCorrLabel[1], oldalgo='IC5',oldtype='Calo' )
         fixVInputTag(l1Jets.jetCorrFactorsSource)
         if doType1MET:
-            addClone('corMetType1Icone5', inputUncorJetsLabel = jetCollection.value(),
+            addClone('metJESCorIC5CaloJet', inputUncorJetsLabel = jetCollection.value(),
                                           corrector = cms.string('L2L3JetCorrector%s%s' % jetCorrLabel))
-            addClone('corMetType1Icone5Muons', uncorMETInputTag = cms.InputTag("corMetType1Icone5"+postfixLabel))
-            addClone('layer1METs',              metSource = cms.InputTag("corMetType1Icone5Muons"+postfixLabel))
+            addClone('metJESCorIC5CaloJetMuons', uncorMETInputTag = cms.InputTag("metJESCorIC5CaloJet"+postfixLabel))
+            addClone('layer1METs',              metSource = cms.InputTag("metJESCorIC5CaloJetMuons"+postfixLabel))
             l1MET = getattr(process, 'layer1METs'+postfixLabel)
             process.allLayer1Summary.candidates += [ cms.InputTag('layer1METs'+postfixLabel) ]
     else:

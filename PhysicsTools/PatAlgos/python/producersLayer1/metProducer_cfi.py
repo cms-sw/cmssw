@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 layer1METs = cms.EDProducer("PATMETProducer",
     # input 
-    metSource  = cms.InputTag("corMetType1Icone5Muons"),
+    metSource  = cms.InputTag("metJESCorIC5CaloJetMuons"),
 
     # add user data
     userData = cms.PSet(
