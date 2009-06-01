@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Apr  9 14:03:40 CEST 2008
-// $Id: DumpL1RPCConfig.cc,v 1.1 2009/04/04 10:56:20 fruboes Exp $
+// $Id: DumpL1RPCConfig.cc,v 1.1 2009/04/06 12:52:37 fruboes Exp $
 //
 //
 
@@ -111,12 +111,12 @@ DumpL1RPCConfig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
                                                   it!= l1RPCConfig->m_quals.end();
                                                 ++it)
      {
-       m_outfile<< "QTN " << it->m_QualityTabNumber
-         << " fp " << it->m_FiredPlanes
-         << " val " <<  it->m_QualityValue
-         << " tw " <<  it->m_tower
-         << " sc " <<  it->m_logsector
-         << " sg " <<  it->m_logsegment
+       m_outfile<< "QTN " << (int)it->m_QualityTabNumber
+         << " fp " << (int)it->m_FiredPlanes
+         << " val " <<  (int)it->m_QualityValue
+         << " tw " <<  (int)it->m_tower
+         << " sc " <<  (int)it->m_logsector
+         << " sg " <<  (int)it->m_logsegment
          << std::endl;
        
      
@@ -135,7 +135,7 @@ DumpL1RPCConfig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
        << " pt " << it->getCode()
        << " s " << it->getSign()
        << " n " << it->getNumber()
-       << " t " << it->getPatternType()
+       << " t " << (int)it->getPatternType()
        << " rg " << it->getRefGroup()
        << " QTN " << it->getQualityTabNumber();
        for (int lp=0;lp<RPCPattern::m_LOGPLANES_COUNT;++lp){
