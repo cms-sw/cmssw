@@ -887,7 +887,9 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("print", "PFCandidates", printPFCandidates_ );
   
   printPFJets_ = true;
+  printPFPt_ = 0.;
   options_->GetOpt("print", "jets", printPFJets_ );
+  options_->GetOpt("print", "ptjets", printPFPt_ );
  
   printSimParticles_ = true;
   options_->GetOpt("print", "simParticles", printSimParticles_ );
@@ -1489,6 +1491,7 @@ bool PFRootEventManager::processEntry(int entry) {
       // recomputed pfMET vs GenMET
       metManager_->setMET2(*pfCandidates_);
       metManager_->FillHisto("recompPF");
+      metManager_->coutTailEvents(entry,DeltaMETcut,DeltaPhicut, MET1cut);
     }
 
     if (JECinCaloMet_)
@@ -3126,12 +3129,14 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
     out<<"Jets  ====================================================="<<endl;
     out<<"Particle Flow: "<<endl;
     for(unsigned i=0; i<pfJets_.size(); i++) {      
-      out<<i<<pfJets_[i].print()<<endl;
+      if (pfJets_[i].pt() > printPFPt_ )
+	out<<i<<pfJets_[i].print()<<endl;
     }    
     out<<endl;
     out<<"Generated: "<<endl;
-    for(unsigned i=0; i<genJets_.size(); i++) {      
-      out<<i<<genJets_[i].print()<<endl;
+    for(unsigned i=0; i<genJets_.size(); i++) {
+      if (genJets_[i].pt() > printPFPt_ )
+	out<<i<<genJets_[i].print()<<endl;
       // <<" invisible energy = "<<genJets_[i].invisibleEnergy()<<endl;
     }        
     out<<endl;

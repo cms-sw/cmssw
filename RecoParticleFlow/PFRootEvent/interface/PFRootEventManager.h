@@ -699,6 +699,7 @@ class PFRootEventManager {
 
   /// print PFJets yes/no
   bool                     printPFJets_;
+  double                   printPFPt_;
   
   /// print true particles yes/no
   bool                     printSimParticles_;

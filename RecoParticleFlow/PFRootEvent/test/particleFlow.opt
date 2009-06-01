@@ -392,6 +392,7 @@ print PFBlocks     0
 print PFCandidates  0
 // print jets yes/no
 print jets 0
+print ptjets 100.
 //print Sim Particles yes/no
 print simParticles 0
 // print Gen particles yes/no
@@ -439,10 +440,10 @@ pfjet_benchmark deltaRMax 0.1
 
 //PFMET benchmark options ---------------------------------------------------
 
-pfmet_benchmark	on/off	0
+pfmet_benchmark	on/off	1
 
 // propagate the Jet Energy Corrections to the caloMET on/off
-pfmet_benchmark JECinCaloMET 1
+pfmet_benchmark JECinCaloMET 0
 
 //debug yes/no
 pfmet_benchmark debug 0
@@ -457,10 +458,10 @@ pfmet_benchmark PlotAgainstReco 0
 pfmet_benchmark truemetcut 10.0
 
 //MET cut (absolute value)
-pfmet_benchmark deltametcut 30.0
+pfmet_benchmark deltametcut 200.0
 
 //phi cut (absolute value)
-pfmet_benchmark deltaphicut 0.8
+pfmet_benchmark deltaphicut 3.8
 
 // FWLITE CMSSW Jet Algorithm options --------------------------------------
 
