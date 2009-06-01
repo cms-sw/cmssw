@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Apr  9 14:03:40 CEST 2008
-// $Id: DumpL1RPCConfig.cc,v 1.1 2009/04/06 12:52:37 fruboes Exp $
+// $Id: DumpL1RPCConfig.cc,v 1.2 2009/06/01 09:35:31 fruboes Exp $
 //
 //
 
@@ -55,7 +55,6 @@ class DumpL1RPCConfig : public edm::EDAnalyzer {
       virtual void endJob() ;
 
       
-      std::ofstream m_outfile;
       // ----------member data ---------------------------
 };
 
@@ -76,7 +75,6 @@ DumpL1RPCConfig::DumpL1RPCConfig(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
 
- m_outfile.open(iConfig.getParameter<std::string>("fileName").c_str());
 
 }
 
@@ -103,15 +101,15 @@ DumpL1RPCConfig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    edm::ESHandle<L1RPCConfig> l1RPCConfig;
    iSetup.get<L1RPCConfigRcd>().get(l1RPCConfig);
    
-   m_outfile<< "Pacs per tower: " << l1RPCConfig->getPPT() << std::endl;
+   LogDebug("DumpL1RPCConfig")<< "Pacs per tower: " << l1RPCConfig->getPPT() << std::endl;
    
-   m_outfile<< "Quality table:"<< std::endl;
+   LogDebug("DumpL1RPCConfig")<< "Quality table:"<< std::endl;
    {
      for (RPCPattern::TQualityVec::const_iterator it = l1RPCConfig->m_quals.begin();
                                                   it!= l1RPCConfig->m_quals.end();
                                                 ++it)
      {
-       m_outfile<< "QTN " << (int)it->m_QualityTabNumber
+       LogDebug("DumpL1RPCConfig") << "QTN " << (int)it->m_QualityTabNumber
          << " fp " << (int)it->m_FiredPlanes
          << " val " <<  (int)it->m_QualityValue
          << " tw " <<  (int)it->m_tower
@@ -123,13 +121,13 @@ DumpL1RPCConfig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
      }
    }
    
-   m_outfile<< "Patterns:"<< std::endl;
+   LogDebug("DumpL1RPCConfig")<< "Patterns:"<< std::endl;
    {
      for (RPCPattern::RPCPatVec::const_iterator it =l1RPCConfig->m_pats.begin();
                                                 it!=l1RPCConfig->m_pats.end();
                                               ++it)
      {
-       m_outfile << "tw " <<it->getTower()
+       LogDebug("DumpL1RPCConfig") << "tw " <<it->getTower()
        << " sc " << it->getLogSector()
        << " sg " << it->getLogSegment()
        << " pt " << it->getCode()
@@ -139,12 +137,12 @@ DumpL1RPCConfig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
        << " rg " << it->getRefGroup()
        << " QTN " << it->getQualityTabNumber();
        for (int lp=0;lp<RPCPattern::m_LOGPLANES_COUNT;++lp){
-         m_outfile<< " (LP" <<lp
+         LogDebug("DumpL1RPCConfig")<< " (LP" <<lp
            << " " << it->getStripFrom(lp)
            << " " << it->getStripTo(lp)
            << ")";
        }
-       m_outfile<<std::endl;
+       LogDebug("DumpL1RPCConfig")<<std::endl;
      
      }
    

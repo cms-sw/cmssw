@@ -4,10 +4,39 @@ process = cms.Process("dump")
 
 # process.load("L1TriggerConfig.RPCTriggerConfig.L1RPCConfig_cff")
 
-useGlobalTag = 'IDEAL_30X'
+useGlobalTag = 'IDEAL_31X'
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = useGlobalTag + '::All'
 
+#process.MessageLogger = cms.Service("MessageLogger",
+#    log = cms.untracked.PSet( threshold = cms.untracked.string("DEBUG") ),
+#    debugModules = cms.untracked.vstring("*"),
+#    destinations = cms.untracked.vstring('logDumpL1RPCConfig')
+#)
+
+
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger.debugModules = ['*']
+process.MessageLogger.cout = cms.untracked.PSet(
+    threshold=cms.untracked.string('DEBUG'),
+    #threshold = cms.untracked.string('INFO'),
+    #threshold = cms.untracked.string('ERROR'),
+    DEBUG=cms.untracked.PSet(
+        limit=cms.untracked.int32(-1)
+    ),
+    INFO=cms.untracked.PSet(
+        limit=cms.untracked.int32(-1)
+    ),
+    WARNING=cms.untracked.PSet(
+        limit=cms.untracked.int32(-1)
+    ),
+    ERROR=cms.untracked.PSet(
+        limit=cms.untracked.int32(-1)
+    ),
+    default = cms.untracked.PSet( 
+        limit=cms.untracked.int32(-1)  
+    )
+)
 
 
 
@@ -19,7 +48,6 @@ process.maxEvents = cms.untracked.PSet(
 
 
 process.write = cms.EDAnalyzer("DumpL1RPCConfig",
-          fileName = cms.string("L1RPCConfigDump.txt"),
 )
 
 

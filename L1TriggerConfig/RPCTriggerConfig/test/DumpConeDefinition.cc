@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Apr  9 14:03:40 CEST 2008
-// $Id: DumpConeDefinition.cc,v 1.2 2008/06/24 10:28:59 michals Exp $
+// $Id: DumpConeDefinition.cc,v 1.1 2009/04/04 10:56:20 fruboes Exp $
 //
 //
 
@@ -57,7 +57,6 @@ class DumpConeDefinition : public edm::EDAnalyzer {
       virtual void endJob() ;
 
       
-      std::ofstream m_outfile;
       // ----------member data ---------------------------
 };
 
@@ -78,7 +77,6 @@ DumpConeDefinition::DumpConeDefinition(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
 
- m_outfile.open(iConfig.getParameter<std::string>("fileName").c_str());
 
 }
 
@@ -112,9 +110,9 @@ DumpConeDefinition::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
      L1RPCConeDefinition::TLPSizeVec::const_iterator itEnd 
          = l1RPCConeDefinition->getLPSizeVec().end();
          
-     m_outfile << "log plane sizes dump: " << std::endl;
+     LogDebug("DumpConeDefinition") << "log plane sizes dump: " << std::endl;
      for (;it!=itEnd;++it){
-       m_outfile << "Tw " << (int)it->m_tower
+       LogDebug("DumpConeDefinition") << "Tw " << (int)it->m_tower
          << " lp " << (int)it->m_LP
          << " size "<< (int)it->m_size 
          << std::endl;
@@ -123,7 +121,7 @@ DumpConeDefinition::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    }
    
    {
-     m_outfile << "Ring to tower connections dump: " << std::endl;
+     LogDebug("DumpConeDefinition") << "Ring to tower connections dump: " << std::endl;
      L1RPCConeDefinition::TRingToTowerVec::const_iterator it
      = l1RPCConeDefinition->getRingToTowerVec().begin();
      
@@ -131,7 +129,7 @@ DumpConeDefinition::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
      = l1RPCConeDefinition->getRingToTowerVec().end();
      
      for (;it != itEnd; ++it){ 
-       m_outfile << "EP " << (int)it->m_etaPart
+       LogDebug("DumpConeDefinition") << "EP " << (int)it->m_etaPart
          << " hwPL " << (int)it->m_hwPlane
          << " tw " << (int)it->m_tower
          << " index " << (int)it->m_index
