@@ -749,7 +749,7 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
 
       //create cluster
       theClusters[trackID].push_back(
-                                      new FastTrackerCluster(position, error, det,
+                                      new FastTrackerCluster(LocalPoint(position.x(), 0.0, 0.0), error, det,
                                                               simHitCounter, trackID,
                                                               eeID,
 							      //(*isim).energyLoss())
@@ -759,7 +759,7 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
       //       std::cout << "CLUSTER for simhit " << simHitCounter << "\t energy loss = " <<chargeADC << std::endl;
       
       // std::cout << "Error as reconstructed " << error.xx() << " " << error.xy() << " " << error.yy() << std::endl;
-
+      
       // create rechit
       temporaryRecHits[trackID].push_back(
 		 new SiTrackerGSRecHit2D(position, error, det, 
