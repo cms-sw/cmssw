@@ -6,6 +6,7 @@
 #include <vector>
 #include <utility>
 #include <string>
+#include <iostream>
 #include <boost/cstdint.hpp>
 
 class RPCEMap {
@@ -24,7 +25,6 @@ public:
   };
   struct tbItem {
     int theNum;
-    uint32_t theMaskedLinks;
     int nLinks;
   };
   struct linkItem {
@@ -39,24 +39,9 @@ public:
   };
   struct febItem {
     int theLinkBoardInputNum;
-    mutable uint32_t theRawId;
-    char cmsEtaPartition;
-    char positionInCmsEtaPartition;
-    char localEtaPartition;
-    char positionInLocalEtaPartition;
-    char diskOrWheel;
-    char layer;
-    int sector;
-    char subsector;
-    char febZOrnt;
-    char febZRadOrnt;
-    char barrelOrEndcap;
+    int thePartition;
+    int theChamber;
     int nStrips;
-  };
-  struct stripItem {
-    int cablePinNumber;
-    int chamberStripNumber;
-    int cmsStripNumber;
   };
 
   std::vector<dccItem> theDccs;
@@ -64,7 +49,7 @@ public:
   std::vector<linkItem> theLinks;
   std::vector<lbItem> theLBs;
   std::vector<febItem> theFebs;
-  std::vector<stripItem> theStrips;
+  std::vector<int> theStrips;
 
   RPCReadOutMapping* convert() const {
     RPCReadOutMapping* cabling = new RPCReadOutMapping(theVersion);
@@ -82,11 +67,25 @@ public:
           for (int ilb=lastLB; ilb<lastLB+theLinks[ilink].nLBs; ilb++) {
             LinkBoardSpec lb(theLBs[ilb].theMaster,theLBs[ilb].theLinkBoardNumInLink,theLBs[ilb].theCode);
             for (int ifeb=lastFeb; ifeb<lastFeb+theLBs[ilb].nFebs; ifeb++) {
-              ChamberLocationSpec chamber={theFebs[ifeb].diskOrWheel,theFebs[ifeb].layer,theFebs[ifeb].sector,theFebs[ifeb].subsector,theFebs[ifeb].febZOrnt,theFebs[ifeb].febZRadOrnt,theFebs[ifeb].barrelOrEndcap};
-              FebLocationSpec afeb={theFebs[ifeb].cmsEtaPartition,theFebs[ifeb].positionInCmsEtaPartition,theFebs[ifeb].localEtaPartition,theFebs[ifeb].positionInLocalEtaPartition};
+              int sector=(theFebs[ifeb].theChamber)%100;
+              char subsector=((theFebs[ifeb].theChamber)/100)%10-2;
+              char febZRadOrnt=((theFebs[ifeb].theChamber)/1000)%5;
+              char febZOrnt=((theFebs[ifeb].theChamber)/5000)%2;
+              char diskOrWheel=((theFebs[ifeb].theChamber)/10000)%10-3;
+              char layer=((theFebs[ifeb].theChamber)/100000)%10;
+              char barrelOrEndcap=(theFebs[ifeb].theChamber)/1000000;
+              ChamberLocationSpec chamber={diskOrWheel,layer,sector,subsector,febZOrnt,febZRadOrnt,barrelOrEndcap};
+              char cmsEtaPartition=(theFebs[ifeb].thePartition)/1000;
+              char positionInCmsEtaPartition=((theFebs[ifeb].thePartition)%1000)/100;
+              char localEtaPartition=((theFebs[ifeb].thePartition)%100)/10;
+              char positionInLocalEtaPartition=(theFebs[ifeb].thePartition)%10;
+              FebLocationSpec afeb={cmsEtaPartition,positionInCmsEtaPartition,localEtaPartition,positionInLocalEtaPartition};
               FebConnectorSpec febConnector(theFebs[ifeb].theLinkBoardInputNum,chamber,afeb);
               for (int istrip=lastStrip; istrip<lastStrip+theFebs[ifeb].nStrips; istrip++) {
-                ChamberStripSpec strip={theStrips[istrip].cablePinNumber,theStrips[istrip].chamberStripNumber,theStrips[istrip].cmsStripNumber};
+                int cablePinNumber=(theStrips[istrip])/10000;
+                int chamberStripNumber=((theStrips[istrip])%10000)/100;
+                int cmsStripNumber=(theStrips[istrip])%100;
+                ChamberStripSpec strip={cablePinNumber,chamberStripNumber,cmsStripNumber};
                 febConnector.add(strip);
               }
               lb.add(febConnector);

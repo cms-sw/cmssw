@@ -35,8 +35,7 @@
   <class name="std::vector<RPCEMap::lbItem>"/>
   <class name="RPCEMap::febItem"/>
   <class name="std::vector<RPCEMap::febItem>"/>
-  <class name="RPCEMap::stripItem"/>
-  <class name="std::vector<RPCEMap::stripItem>"/>
+  <class name="std::vector<int>"/>
 
   <class name="L1RPCConeBuilder"/>
 
@@ -77,22 +76,10 @@
   <class name="RPCObFebmap"/>
   <class name="RPCObFebmap::Feb_Item"/>
   <class name="std::vector<RPCObFebmap::Feb_Item>"/>
-	
+
   <class name="RPCObGasmap"/>
   <class name="RPCObGasmap::GasMap_Item"/>
   <class name="std::vector<RPCObGasmap::GasMap_Item>"/>
-
-  <class name="RPCObAlignment"/>
-  <class name="RPCObAlignment::Alignment_Item"/>
-  <class name="std::vector<RPCObAlignment::Alignment_Item>"/>
-
-  <class name="RPCRunIOV"/>
-  <class name="RPCRunIOV::RunIOV_Item"/>
-  <class name="std::vector<RPCRunIOV::RunIOV_Item>"/>
-
-  <class name="RPCObFebAssmap"/>
-  <class name="RPCObFebAssmap::FebAssmap_Item"/>
-  <class name="std::vector<RPCObFebAssmap::FebAssmap_Item>"/>
 
   <class name="RPCTechTriggerConfig"/>
   <class name="RBCBoardSpecs"/>

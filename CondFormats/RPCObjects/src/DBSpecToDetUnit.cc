@@ -39,5 +39,6 @@ uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch,
     if (debug) LogDebug ("CondFormas/DBSpecToDetInit") 
       <<" Problem with RPCDetId, got exception!! " 
       <<"DB Chamber "<<ch.chamberLocationName()<<" roll "<<nroll;
+    return 0;
   }
 }
