@@ -147,7 +147,6 @@ void popcon::RPCEMapSourceHandler::readEMap0()
     }
     for(unsigned int iTB=0;iTB<theTB.size();iTB++) {
       thisTB.theNum=theTB[iTB].second;
-      thisTB.theMaskedLinks=0;
       std::vector<std::pair<int,int> > theLink;
 // get links
       RPCEMap::linkItem thisLink;
@@ -262,14 +261,16 @@ void popcon::RPCEMapSourceHandler::readEMap0()
           for(unsigned int iFEB=0; iFEB<theFEB.size(); iFEB++) {
             std::string temp=theFEB[iFEB].localEtaPart;
             std::string localEtaVal[6]={"Forward","Central","Backward","A","B","C"};
-            for (int i=0; i<6; i++) if (temp==localEtaVal[i]) thisFeb.localEtaPartition=i+1;
-            thisFeb.positionInLocalEtaPartition=theFEB[iFEB].posInLocalEtaPart;
+            char localEtaPartition=0;
+            for (int i=0; i<6; i++) if (temp==localEtaVal[i]) localEtaPartition=i+1;
+            char positionInLocalEtaPartition=theFEB[iFEB].posInLocalEtaPart;
             temp=theFEB[iFEB].cmsEtaPart;
             std::string cmsEtaVal[6]={"1","2","3","A","B","C"};
-            for (int i=0; i<6; i++) if (temp==cmsEtaVal[i]) thisFeb.cmsEtaPartition=i+1;
-            thisFeb.positionInCmsEtaPartition=theFEB[iFEB].posInCmsEtaPart;
+            char cmsEtaPartition=0;
+            for (int i=0; i<6; i++) if (temp==cmsEtaVal[i]) cmsEtaPartition=i+1;
+            char positionInCmsEtaPartition=theFEB[iFEB].posInCmsEtaPart;
+            thisFeb.thePartition=positionInLocalEtaPartition+10*localEtaPartition+100*positionInCmsEtaPartition+1000*cmsEtaPartition;
             thisFeb.theLinkBoardInputNum=theFEB[iFEB].lbInputNum;
-            FebLocationSpec febLocation = {thisFeb.cmsEtaPartition,theFEB[iFEB].posInCmsEtaPart,thisFeb.localEtaPartition,theFEB[iFEB].posInLocalEtaPart};
             // Get chamber 
             sqlQuery = "SELECT DiskOrWheel, Layer, Sector, Subsector,";
             sqlQuery += " ChamberLocationName,";
@@ -280,27 +281,26 @@ void popcon::RPCEMapSourceHandler::readEMap0()
             stmt->setSQL(sqlQuery.c_str());
             rset = stmt->executeQuery();
             while (rset->next()) {
-              thisFeb.diskOrWheel=rset->getInt(1);
-              thisFeb.layer=rset->getInt(2);
-              thisFeb.sector=rset->getInt(3);
+              char diskOrWheel=rset->getInt(1)+3;
+              char layer=rset->getInt(2);
+              int sector=rset->getInt(3);
               temp=rset->getString(4);
               std::string subsVal[5]={"--","-","","+","++"};
-              for (int i=0; i<5; i++) if (temp==subsVal[i]) thisFeb.subsector=i-2;
+              char subsector=0;
+              for (int i=0; i<5; i++) if (temp==subsVal[i]) subsector=i;
               temp=rset->getString(6);
-              thisFeb.febZOrnt=-1;
-              if (temp=="+z") thisFeb.febZOrnt=1;
+              char febZOrnt=0;
+              if (temp=="+z") febZOrnt=1;
               temp=rset->getString(7);
+              char febZRadOrnt=0;
               std::string febZRVal[3]={"","IN","OUT"};
-              for (int i=0; i<3; i++) if (temp==febZRVal[i]) thisFeb.febZRadOrnt=i;
+              for (int i=0; i<3; i++) if (temp==febZRVal[i]) febZRadOrnt=i;
               temp=rset->getString(8);
-              thisFeb.barrelOrEndcap=1;
-              if (temp=="Endcap") thisFeb.barrelOrEndcap=2;
-              ChamberLocationSpec chamber = {thisFeb.diskOrWheel,thisFeb.layer,thisFeb.sector,thisFeb.subsector,thisFeb.febZOrnt,thisFeb.febZRadOrnt,thisFeb.barrelOrEndcap};
-              DBSpecToDetUnit toDU;
-              thisFeb.theRawId=toDU(chamber,febLocation);
+              char barrelOrEndcap=0;
+              if (temp=="Barrel") barrelOrEndcap=1;
+              thisFeb.theChamber=sector+100*subsector+1000*febZRadOrnt+5000*febZOrnt+10000*diskOrWheel+100000*layer+1000000*barrelOrEndcap;
             }
             // Get Strips
-            RPCEMap::stripItem thisStrip;
             sqlQuery = "SELECT CableChannelNum, ChamberStripNumber, CmsStripNumber";
             sqlQuery += " FROM ChamberStrip ";
             sqlQuery += " WHERE FC_FEBConnectorId= ";
@@ -310,9 +310,10 @@ void popcon::RPCEMapSourceHandler::readEMap0()
             rset = stmt->executeQuery();
             int nstrips=0;
             while (rset->next()) {
-              thisStrip.cablePinNumber=rset->getInt(1);
-              thisStrip.chamberStripNumber=rset->getInt(2);
-              thisStrip.cmsStripNumber=rset->getInt(3);
+              int cablePinNumber=rset->getInt(1);
+              int chamberStripNumber=rset->getInt(2);
+              int cmsStripNumber=rset->getInt(3);
+              int thisStrip=cablePinNumber*10000+chamberStripNumber*100+cmsStripNumber;
               eMap->theStrips.push_back(thisStrip);
               nstrips++;
             }
@@ -390,7 +391,6 @@ void popcon::RPCEMapSourceHandler::readEMap1()
     delete query2;
     for(unsigned int iTB=0;iTB<theTB.size();iTB++) {
       thisTB.theNum=theTB[iTB].second;
-      thisTB.theMaskedLinks=0;
       std::vector<std::pair<int,int> > theLink;
 // get links
       RPCEMap::linkItem thisLink;
@@ -516,14 +516,16 @@ void popcon::RPCEMapSourceHandler::readEMap1()
           for(unsigned int iFEB=0; iFEB<theFEB.size(); iFEB++) {
             std::string temp=theFEB[iFEB].localEtaPart;
             std::string localEtaVal[6]={"Forward","Central","Backward","A","B","C"};
-            for (int i=0; i<6; i++) if (temp==localEtaVal[i]) thisFeb.localEtaPartition=i+1;
-            thisFeb.positionInLocalEtaPartition=theFEB[iFEB].posInLocalEtaPart;
+            char localEtaPartition=0;
+            for (int i=0; i<6; i++) if (temp==localEtaVal[i]) localEtaPartition=i+1;
+            char positionInLocalEtaPartition=theFEB[iFEB].posInLocalEtaPart;
             temp=theFEB[iFEB].cmsEtaPart;
             std::string cmsEtaVal[6]={"1","2","3","A","B","C"};
-            for (int i=0; i<6; i++) if (temp==cmsEtaVal[i]) thisFeb.cmsEtaPartition=i+1;
-            thisFeb.positionInCmsEtaPartition=theFEB[iFEB].posInCmsEtaPart;
+            char cmsEtaPartition=0;
+            for (int i=0; i<6; i++) if (temp==cmsEtaVal[i]) cmsEtaPartition=i+1;
+            char positionInCmsEtaPartition=theFEB[iFEB].posInCmsEtaPart;
+            thisFeb.thePartition=positionInLocalEtaPartition+10*localEtaPartition+100*positionInCmsEtaPartition+1000*cmsEtaPartition;
             thisFeb.theLinkBoardInputNum=theFEB[iFEB].lbInputNum;
-            FebLocationSpec febLocation = {thisFeb.cmsEtaPartition,theFEB[iFEB].posInCmsEtaPart,thisFeb.localEtaPartition,theFEB[iFEB].posInLocalEtaPart};
             // Get chamber 
             coral::IQuery* query7 = schema.newQuery();
             query7->addToTableList("CHAMBERLOCATION");
@@ -540,28 +542,36 @@ void popcon::RPCEMapSourceHandler::readEMap1()
             coral::ICursor& cursor7 = query7->execute();
             while (cursor7.next()) {
               const coral::AttributeList& row = cursor7.currentRow();
-              thisFeb.diskOrWheel=row["DISKORWHEEL"].data<short>();
-              thisFeb.layer=row["LAYER"].data<short>();
-              thisFeb.sector=row["SECTOR"].data<short>();
+              char diskOrWheel=row["DISKORWHEEL"].data<short>()+3;
+              char layer=row["LAYER"].data<short>();
+              int sector=row["SECTOR"].data<short>();
               temp=row["SUBSECTOR"].data<std::string>();
+// TEMPORARY TO CORRECT A LITTLE BUG IN OMDS
+//              std::string chname=row["NAME"].data<std::string>();
+//              if (layer==6 && (sector==9 || sector==11)) {
+//                if (temp=="+") {
+//                  temp="";
+//                  std::cout<<"Changed subsector + to null for "<<chname<<std::endl;
+//                }
+//              }
+//
               std::string subsVal[5]={"--","-","","+","++"};
-              for (int i=0; i<5; i++) if (temp==subsVal[i]) thisFeb.subsector=i-2;
+              char subsector=0;
+              for (int i=0; i<5; i++) if (temp==subsVal[i]) subsector=i;
               temp=row["FEBZORNT"].data<std::string>();
-              thisFeb.febZOrnt=-1;
-              if (temp=="+z") thisFeb.febZOrnt=1;
+              char febZOrnt=0;
+              if (temp=="+z") febZOrnt=1;
               temp=row["FEBRADORNT"].data<std::string>();
+              char febZRadOrnt=0;
               std::string febZRVal[3]={"","IN","OUT"};
-              for (int i=0; i<3; i++) if (temp==febZRVal[i]) thisFeb.febZRadOrnt=i;
+              for (int i=0; i<3; i++) if (temp==febZRVal[i]) febZRadOrnt=i;
               temp=row["BARRELORENDCAP"].data<std::string>();
-              thisFeb.barrelOrEndcap=1;
-              if (temp=="Endcap") thisFeb.barrelOrEndcap=2;
-              ChamberLocationSpec chamber = {thisFeb.diskOrWheel,thisFeb.layer,thisFeb.sector,thisFeb.subsector,thisFeb.febZOrnt,thisFeb.febZRadOrnt,thisFeb.barrelOrEndcap};
-              DBSpecToDetUnit toDU;
-              thisFeb.theRawId=toDU(chamber,febLocation);
+              char barrelOrEndcap=0;
+              if (temp=="Barrel") barrelOrEndcap=1;
+              thisFeb.theChamber=sector+100*subsector+1000*febZRadOrnt+5000*febZOrnt+10000*diskOrWheel+100000*layer+1000000*barrelOrEndcap;
             }
             delete query7;
             // Get Strips
-            RPCEMap::stripItem thisStrip;
             coral::IQuery* query8 = schema.newQuery();
             query8->addToTableList("CHAMBERSTRIP");
             query8->addToOutputList("CHAMBERSTRIP.CABLECHANNELNUM","CABLECHANNELNUM");
@@ -574,9 +584,10 @@ void popcon::RPCEMapSourceHandler::readEMap1()
             int nstrips=0;
             while (cursor8.next()) {
               const coral::AttributeList& row = cursor8.currentRow();
-              thisStrip.cablePinNumber=row["CABLECHANNELNUM"].data<short>();
-              thisStrip.chamberStripNumber=row["CHAMBERSTRIPNUM"].data<int>();
-              thisStrip.cmsStripNumber=row["CMSSTRIPNUM"].data<int>();
+              int cablePinNumber=row["CABLECHANNELNUM"].data<short>();
+              int chamberStripNumber=row["CHAMBERSTRIPNUM"].data<int>();
+              int cmsStripNumber=row["CMSSTRIPNUM"].data<int>();
+              int thisStrip=cablePinNumber*10000+chamberStripNumber*100+cmsStripNumber;
               eMap->theStrips.push_back(thisStrip);
               nstrips++;
             }
