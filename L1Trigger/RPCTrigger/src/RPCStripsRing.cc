@@ -8,14 +8,14 @@
 //
 // Original Author:  Tomasz Fruboes
 //         Created:  Tue Feb 26 15:13:10 CET 2008
-// $Id: RPCStripsRing.cc,v 1.3 2008/12/12 14:13:59 fruboes Exp $
+// $Id: RPCStripsRing.cc,v 1.5 2009/04/10 15:36:40 fruboes Exp $
 //
 
 // system include files
 
 // user include files
 //#include "L1TriggerConfig/RPCConeBuilder/interface/RPCStripsRing.h"
-#include "L1TriggerConfig/RPCTriggerConfig/interface/RPCStripsRing.h"
+#include "L1Trigger/RPCTrigger/interface/RPCStripsRing.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"

@@ -1,11 +1,11 @@
-#ifndef L1TriggerConfig_RPCConeBuilder_RPCStripsRing_h
-#define L1TriggerConfig_RPCConeBuilder_RPCStripsRing_h
+#ifndef L1Trigger_RPCConeBuilder_RPCStripsRing_h
+#define L1Trigger_RPCConeBuilder_RPCStripsRing_h
 // -*- C++ -*-
 //
 // Package:     RPCConeBuilder
 // Class  :     RPCStripsRing
 // 
-/**\class RPCStripsRing RPCStripsRing.h L1TriggerConfig/RPCConeBuilder/interface/RPCStripsRing.h
+/**\class RPCStripsRing RPCStripsRing.h L1Trigger/RPCTrigger/interface/RPCStripsRing.h
 
  Description: <one line class summary>
 
@@ -16,7 +16,7 @@
 //
 // Original Author:  Tomasz Fruboes
 //         Created:  Tue Feb 26 15:13:17 CET 2008
-// $Id: RPCStripsRing.h,v 1.2 2008/12/12 14:13:58 fruboes Exp $
+// $Id: RPCStripsRing.h,v 1.4 2009/04/10 15:36:35 fruboes Exp $
 //
 
 #include <map>

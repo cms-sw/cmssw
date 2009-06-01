@@ -3,7 +3,7 @@
 // Package:    RPCConeBuilder
 // Class:      RPCConeBuilder
 // 
-/**\class RPCConeBuilder RPCConeBuilder.h L1TriggerConfig/RPCConeBuilder/src/RPCConeBuilder.cc
+/**\class RPCConeBuilder RPCConeBuilder.h L1Trigger/RPCTriggerConfig/src/RPCConeBuilder.cc
 
  Description: <one line class summary>
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Fri Feb 22 13:57:06 CET 2008
-// $Id: RPCConeBuilder.cc,v 1.7 2009/03/20 10:28:30 fruboes Exp $
+// $Id: RPCConeBuilder.cc,v 1.9 2009/04/10 15:36:40 fruboes Exp $
 //
 //
 
@@ -22,17 +22,15 @@
 
 // user include files
 
-#include "L1TriggerConfig/RPCTriggerConfig/interface/RPCConeBuilder.h"
-#include "L1TriggerConfig/RPCTriggerConfig/interface/RPCStripsRing.h"
+#include "L1Trigger/RPCTrigger/interface/RPCConeBuilder.h"
+#include "L1Trigger/RPCTrigger/interface/RPCStripsRing.h"
 
 //#include "L1TriggerConfig/RPCConeBuilder/interface/RPCConeBuilder.h"
 //#include "L1TriggerConfig/RPCConeBuilder/interface/RPCStripsRing.h"
 
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
-
-
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "CondFormats/DataRecord/interface/L1RPCConeDefinitionRcd.h"
 
@@ -511,5 +509,4 @@ std::pair<int, int> RPCConeBuilder::areConnected(RPCStripsRing::TIdToRindMap::it
 }
 
 
-//define this as a plug-in
-DEFINE_FWK_EVENTSETUP_MODULE(RPCConeBuilder);
+

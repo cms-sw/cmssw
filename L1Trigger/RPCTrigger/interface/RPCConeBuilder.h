@@ -1,11 +1,11 @@
-#ifndef L1TriggerConfig_RPCConeBuilder_RPCConeBuilder_h
-#define L1TriggerConfig_RPCConeBuilder_RPCConeBuilder_h
+#ifndef L1Trigger_RPCConeBuilder_RPCConeBuilder_h
+#define L1Trigger_RPCConeBuilder_RPCConeBuilder_h
 // -*- C++ -*-
 //
 // Package:     RPCConeBuilder
 // Class  :     RPCConeBuilder
 // 
-/**\class RPCConeBuilder RPCConeBuilder.h L1TriggerConfig/RPCConeBuilder/interface/RPCConeBuilder.h
+/**\class RPCConeBuilder RPCConeBuilder.h L1Trigger/RPCTrigger/interface/RPCConeBuilder.h
 
  Description: <one line class summary>
 
@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 25 12:06:44 CET 2008
-// $Id: RPCConeBuilder.h,v 1.3 2009/03/19 12:41:27 fruboes Exp $
+// $Id: RPCConeBuilder.h,v 1.4 2009/03/20 15:25:15 michals Exp $
 //
 #include <memory>
 #include "boost/shared_ptr.hpp"
@@ -31,7 +31,7 @@
 
 #include <map>
 //#include "L1TriggerConfig/RPCConeBuilder/interface/RPCStripsRing.h"
-#include "L1TriggerConfig/RPCTriggerConfig/interface/RPCStripsRing.h"
+#include "L1Trigger/RPCTrigger/interface/RPCStripsRing.h"
 
 #include "CondFormats/DataRecord/interface/L1RPCConeDefinitionRcd.h"
 class RPCConeBuilder : public edm::ESProducer {
