@@ -265,7 +265,8 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     float e1x5    =   EcalClusterTools::e1x5(  *(scRef->seed()), &(*hits), &(*topology)); 
     float e2x5    =   EcalClusterTools::e2x5Max(  *(scRef->seed()), &(*hits), &(*topology)); 
     float e3x3    =   EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology)); 
-    float e5x5    =   EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology)); 
+    float e5x5uncor    =   EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology)); 
+    double e5x5=0;
     std::vector<float> cov =  EcalClusterTools::covariances( *(scRef->seed()), &(*hits), &(*topology), geometry); 
     float sigmaEtaEta = sqrt(cov[0]);
     std::vector<float> locCov =  EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology)); 
@@ -280,13 +281,15 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
       caloPosition = unconvPos;
       // f(eta) correction to e5x5
       double deltaE = energyCorrectionF->getValue(*pClus, 1);
-      double e5x5 = e5x5 * (1.0 +  deltaE/scRef->rawEnergy() );
+      e5x5 = e5x5uncor * (1.0 +  deltaE/scRef->rawEnergy() );
       photonEnergy=e5x5 + scRef->preshowerEnergy() ;
     } else {
       caloPosition = scRef->position();
       photonEnergy=scRef->energy();
     }
     
+
+    //std::cout << " dete " << subdet << " r9 " << r9 <<  " uncorrected e5x5 " <<  e5x5uncor << " corrected e5x5 " << e5x5 << " photon energy " << photonEnergy << std::endl;
     
     // compute momentum vector of photon from primary vertex and cluster position
     math::XYZVector direction = caloPosition - vtx;
