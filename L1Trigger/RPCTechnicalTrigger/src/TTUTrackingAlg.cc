@@ -1,4 +1,4 @@
-// $Id: TTUTrackingAlg.cc,v 1.2 2009/05/08 10:24:05 aosorio Exp $
+// $Id: TTUTrackingAlg.cc,v 1.3 2009/05/16 19:43:32 aosorio Exp $
 // Include files 
 
 
@@ -54,7 +54,7 @@ TTUTrackingAlg::~TTUTrackingAlg() {
 } 
 
 //=============================================================================
-bool TTUTrackingAlg::process( const TTUInput & _inmap )
+bool TTUTrackingAlg::process( const TTUInput & inmap )
 {
   
   if( m_debug) std::cout << "TTUTrackingAlg::process starts" << std::endl;
@@ -64,7 +64,7 @@ bool TTUTrackingAlg::process( const TTUInput & _inmap )
   Track * _initTrk = new Track();
   
   //.
-  runSeedBuster( _inmap );
+  runSeedBuster( inmap );
   
   if ( m_initialseeds.size() > 0 ) 
     _initTrk->add( m_initialseeds[0] );
@@ -131,11 +131,11 @@ bool TTUTrackingAlg::process( const TTUInput & _inmap )
   
   if( m_debug ) std::cout << "TTUTrackingAlg>process ends" << std::endl;
   
-  return false;
+  return true;
   
 }
 
-void TTUTrackingAlg::runSeedBuster( const TTUInput & _inmap )
+void TTUTrackingAlg::runSeedBuster( const TTUInput & inmap )
 {
   
   int _idx(0);
@@ -144,7 +144,7 @@ void TTUTrackingAlg::runSeedBuster( const TTUInput & _inmap )
   for(int i=0; i < 12; ++i) 
   {
     _idx = (m_SEscanorder[i] - 1);
-    std::bitset<6> _station = _inmap.input_sec[_idx];
+    std::bitset<6> _station = inmap.input_sec[_idx];
     
     if ( ! _station.any() ) continue;
     

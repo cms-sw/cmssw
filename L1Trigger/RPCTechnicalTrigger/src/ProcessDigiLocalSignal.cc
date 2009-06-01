@@ -1,4 +1,4 @@
-// $Id: ProcessDigiLocalSignal.cc,v 1.4 2009/05/24 21:45:39 aosorio Exp $
+// $Id: ProcessDigiLocalSignal.cc,v 1.5 2009/05/28 15:58:47 aosorio Exp $
 // Include files 
 
 
@@ -122,16 +122,16 @@ int ProcessDigiLocalSignal::next() {
     int blayer  = getBarrelLayer( layer, station );     // 1 to 6
     int rollid  = id.roll();
     
-    int digipos = (station * 100) + (layer * 10) + rollid;
+    int digipos = (station * 100) + (blayer * 10) + rollid;
     
-    if ( (wheel == -1 || wheel == 0 || wheel == 1) && station == 2 && layer == 1 )
+    if ( (wheel == -1 || wheel == 0 || wheel == 1) && station == 2 && blayer == 1 )
       digipos = 30000 + digipos;
-    if ( (wheel == -2 || wheel == 2) && station == 2 && layer == 2 )
+    if ( (wheel == -2 || wheel == 2) && station == 2 && blayer == 2 )
       digipos = 30000 + digipos;
     
-    if ( (wheel == -1 || wheel == 0 || wheel == 1) && station == 2 && layer == 2 )
+    if ( (wheel == -1 || wheel == 0 || wheel == 1) && station == 2 && blayer == 2 )
       digipos = 20000 + digipos;
-    if ( (wheel == -2 || wheel == 2) && station == 2 && layer == 1 )
+    if ( (wheel == -2 || wheel == 2) && station == 2 && blayer == 1 )
       digipos = 20000 + digipos;
     
     if ( m_debug ) std::cout << "Bx: "      << bx      << '\t'

@@ -1,4 +1,4 @@
-// $Id: TTULogicUnit.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
+// $Id: TTULogicUnit.cc,v 1.2 2009/05/08 10:24:05 aosorio Exp $
 // Include files 
 
 
@@ -62,14 +62,14 @@ bool TTULogicUnit::initialise()
   
 }
 
-void TTULogicUnit::setlogic( const char * _logic )
+void TTULogicUnit::setlogic( const char * logic )
 {
-  m_logtype = std::string( _logic );
+  m_logtype = std::string( logic );
 }
 
-void TTULogicUnit::run( const TTUInput & _input )
+void TTULogicUnit::run( const TTUInput & input )
 {
  
-  m_logic->process( _input );
+  m_logic->process( input );
  
 }

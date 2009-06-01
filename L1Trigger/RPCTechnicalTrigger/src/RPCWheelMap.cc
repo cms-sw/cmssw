@@ -1,4 +1,4 @@
-// $Id: RPCWheelMap.cc,v 1.4 2009/05/24 21:45:39 aosorio Exp $
+// $Id: RPCWheelMap.cc,v 1.5 2009/05/26 17:40:38 aosorio Exp $
 // Include files 
 
 
@@ -63,8 +63,12 @@ void RPCWheelMap::addHit( int bx, int sec, int layer)
 void RPCWheelMap::prepareData()
 {
   
+  bool anyHits(false);
+  
   for(int bx=0; bx < m_maxBx; ++bx) {
-    
+  
+    anyHits = false;
+      
     for(int i=0; i < m_maxSectors; ++i) {
       
       int indx = i + bx*m_maxSectors;
@@ -72,14 +76,18 @@ void RPCWheelMap::prepareData()
       m_ttuinVec[bx].m_bx = ( bx - m_maxBxWindow );
       m_wheelMap[i] = m_wheelMapBx[ indx ];
       m_ttuinVec[bx].input_sec[i] = m_wheelMap[i]; 
+    
+      anyHits |= m_wheelMap[i].any();
       
       if( m_debug ) {
         std::string test;
         test = m_wheelMap[i].to_string<char,std::char_traits<char>,std::allocator<char> >();
-        std::cout << "prepareData> sec: " << i << " " << test << std::endl;
+        std::cout << "prepareData> sec: " << i << " " << test << " anyHits " << anyHits << std::endl;
       }
       
     }
+    
+    m_ttuinVec[bx].m_hasHits = anyHits;
     
   }
   

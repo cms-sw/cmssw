@@ -1,4 +1,4 @@
-// $Id: TTUEmulator.h,v 1.1 2009/05/16 19:43:30 aosorio Exp $
+// $Id: TTUEmulator.h,v 1.2 2009/05/24 21:45:39 aosorio Exp $
 #ifndef TTUEMULATOR_H 
 #define TTUEMULATOR_H 1
 
@@ -62,6 +62,8 @@ public:
   
   void setSpecifications( const TTUBoardSpecs *, const RBCBoardSpecs *);
   
+  void clearTriggerResponse();
+  
   int mode() {
     return m_mode;
   };
@@ -76,6 +78,26 @@ public:
   RPCWheel * m_Wheels;
   std::bitset<2> m_trigger;
   std::map<int, std::bitset<2> > m_triggerBx;
+
+  class TriggerResponse 
+  {
+  public:
+    
+    TriggerResponse() { m_bx = 0; m_trigger.reset(); };
+    ~TriggerResponse() {;};
+    
+    void setTriggerBits( int bx , const std::bitset<2> & inbits )
+    {
+      m_bx = bx;
+      m_trigger = inbits;
+    };
+    
+    int m_bx;
+    std::bitset<2> m_trigger;
+    
+  };
+  
+  std::vector<TriggerResponse*> m_triggerBxVec;
   
 protected:
   

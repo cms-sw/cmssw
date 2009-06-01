@@ -1,4 +1,4 @@
-// $Id: RPCWheel.cc,v 1.4 2009/05/24 21:45:39 aosorio Exp $
+// $Id: RPCWheel.cc,v 1.5 2009/05/28 15:58:47 aosorio Exp $
 // Include files 
 
 
@@ -183,14 +183,14 @@ bool RPCWheel::process( int bx, const std::map<int,TTUInput*> & data )
   
   int key = bxsign*( 1000000 * abs(bx) + (m_id+2)*10000 );
   
-  if( m_debug ) std::cout << "RPCWheel::process> " << data.size() << std::endl;
-  
   itr = data.find( key );
   
   if ( itr != data.end() )  {
     if( m_debug ) std::cout << "RPCWheel::process> found data at: " <<  key << '\t' 
                             << ( itr->second ) << std::endl;
 
+    if ( ! (*itr).second->m_hasHits ) return false;
+    
     for( int k=0; k < m_maxsectors; ++k ) {
       m_wheelmap[k]     = & (*itr).second->input_sec[k];
       status = true;

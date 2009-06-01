@@ -1,4 +1,4 @@
-// $Id: TTUInput.h,v 1.3 2009/05/10 00:33:18 aosorio Exp $
+// $Id: TTUInput.h,v 1.4 2009/05/24 21:45:39 aosorio Exp $
 #ifndef INTERFACE_TTUINPUT_H 
 #define INTERFACE_TTUINPUT_H 1
 
@@ -27,6 +27,7 @@ public:
   TTUInput( const TTUInput & in )
   {
     m_bx = in.m_bx;
+    m_hasHits = in.m_hasHits;
     input_sec = new std::bitset<6>[12];
     for(int i=0; i < 12; ++i) 
       input_sec[i] = in.input_sec[i];
@@ -36,6 +37,7 @@ public:
   {
     if (this == &rhs) return (*this);
     (*this).m_bx = rhs.m_bx;
+    (*this).m_hasHits = rhs.m_hasHits;
     (*this).input_sec = new std::bitset<6>[12];
     for(int i=0; i < 12; ++i)
       (*this).input_sec[i] = rhs.input_sec[i];
@@ -45,6 +47,7 @@ public:
   void reset();
   
   int m_bx;
+  bool m_hasHits;
   std::bitset<6> * input_sec;
   
   void mask ( const std::vector<int> & );

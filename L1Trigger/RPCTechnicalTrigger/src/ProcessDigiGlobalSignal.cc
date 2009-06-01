@@ -1,4 +1,4 @@
-// $Id: ProcessDigiGlobalSignal.cc,v 1.5 2009/05/26 17:40:38 aosorio Exp $
+// $Id: ProcessDigiGlobalSignal.cc,v 1.6 2009/05/28 15:58:47 aosorio Exp $
 // Include files 
 
 
@@ -54,7 +54,9 @@ int ProcessDigiGlobalSignal::next()
   reset();
     
   RPCWheelMap * wheelmap;
-  
+
+  int ndigis(0);
+    
   for (m_detUnitItr = (*m_ptr_digiColl)->begin(); 
        m_detUnitItr != (*m_ptr_digiColl)->end(); ++m_detUnitItr ) {
     
@@ -98,17 +100,21 @@ int ProcessDigiGlobalSignal::next()
       if ( m_debug ) std::cout << "Configuring for a new Wheel" << wheel << std::endl;
       wheelmap = new RPCWheelMap ( wheel );
       m_wheelMapVec[wheel] = wheelmap;
-      wheelmap->addHit( bx, sector, layer );
+      wheelmap->addHit( bx, sector, blayer );
     }
     else {
       wheelmap = (*itr).second;
-      wheelmap->addHit( bx, sector, layer );
+      wheelmap->addHit( bx, sector, blayer );
     }
     
     if ( m_debug ) std::cout << "looping over digis 2 ..." << std::endl;
-    
-  }
+  
+    ++ndigis;
       
+  }
+  
+  if ( m_debug ) std::cout << "ProcessDigiGlobalSignal: " << ndigis << std::endl;
+        
   //... set up data to be processed
   int bx(0);
   int code(0);
@@ -132,6 +138,8 @@ int ProcessDigiGlobalSignal::next()
       else bxsign = 1;
       code = bxsign * ( 1000000*abs(bx) + 10000*wheel );
       
+      if ( ! (*itr).second->m_ttuinVec[k].m_hasHits ) continue;
+      
       TTUInput * signal = & (*itr).second->m_ttuinVec[k];
       
       m_data.insert( std::make_pair( code , signal ) );
@@ -144,6 +152,7 @@ int ProcessDigiGlobalSignal::next()
   
   if ( m_data.size() <= 0 ) return 0;
   
+
   return 1;
   
 }

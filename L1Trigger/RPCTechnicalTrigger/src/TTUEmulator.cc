@@ -1,4 +1,4 @@
-// $Id: TTUEmulator.cc,v 1.5 2009/05/16 19:43:32 aosorio Exp $
+// $Id: TTUEmulator.cc,v 1.6 2009/05/24 21:45:39 aosorio Exp $
 // Include files 
 
 
@@ -269,7 +269,7 @@ void TTUEmulator::processglobal( RPCInputSignal * signal )
     if ( (*inItr).first < 0 ) bx = (int) ceil( (*inItr).first / 1000000.0 );
     else bx = (int) floor( (*inItr).first / 1000000.0 );
     
-    if( m_debug ) std::cout << "starting analysis for bx: " << bx << std::endl;
+    TriggerResponse * triggerResponse = new TriggerResponse();
     
     for( int k=0; k < m_maxWheels; ++k )
     {
@@ -290,7 +290,8 @@ void TTUEmulator::processglobal( RPCInputSignal * signal )
         
         m_trigger.set(k,trg);
         
-        if( m_debug ) std::cout << "TTUEmulator::processglobal ttuid: " << m_id 
+        if( m_debug ) std::cout << "TTUEmulator::processglobal ttuid: " << m_id
+                                << " bx: "          << bx
                                 << " wheel: "       << m_Wheels[k].getid()
                                 << " response: "    << trg << std::endl;
         
@@ -298,18 +299,27 @@ void TTUEmulator::processglobal( RPCInputSignal * signal )
       
     }
     
+    triggerResponse->setTriggerBits( bx , m_trigger );
+    m_triggerBxVec.push_back( triggerResponse );
+    
     m_triggerBx[bx] = m_trigger;
     
   }
   
-  if( m_debug ) std::cout << "TTUEmulator::processglobal> size of trigger map " 
-                          << m_triggerBx.size() << std::endl;
-  
-
-  if( m_debug ) std::cout << "TTUEmulator::processglobal> done with this TTU: " << m_id << std::endl;
+  if( m_debug ) std::cout << "TTUEmulator::processglobal> Done. Size of trigger map " 
+                          << m_triggerBx.size() << " TTU id " << m_id << std::endl;
   
 }
 
+void TTUEmulator::clearTriggerResponse()
+{
+  
+  std::vector<TriggerResponse*>::iterator itr;
+  for ( itr = m_triggerBxVec.begin(); itr != m_triggerBxVec.end(); ++itr)
+    if ( (*itr) ) delete (*itr);
+  m_triggerBxVec.clear();
+  
+}
 
 //.................................................................
 

@@ -177,7 +177,9 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   
   int indx(0);
   
-  std::map<int,std::bitset<2> >::const_iterator outItr;
+  std::vector<TTUEmulator::TriggerResponse*>::const_iterator outItr;
+  
+  //std::map<int,std::bitset<2> >::const_iterator outItr;
   
   for(int k=0; k < m_maxTtuBoards; ++k) {
     
@@ -196,14 +198,18 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       
     case 1:
       m_ttu[k]->processglobal( input );
-      for( outItr  = m_ttu[k]->m_triggerBx.begin(); outItr != m_ttu[k]->m_triggerBx.end(); ++outItr )
-        m_serializedInfo.push_back( new TTUResults( k, (*outItr).first, (*outItr).second[0], (*outItr).second[1] ) );
+      //std::cout << "TriggerResponseVec: " << m_ttu[k]->m_triggerBxVec.size() << std::endl;
+      for( outItr  = m_ttu[k]->m_triggerBxVec.begin(); outItr != m_ttu[k]->m_triggerBxVec.end(); ++outItr )
+        m_serializedInfo.push_back( new TTUResults( k, (*outItr)->m_bx, (*outItr)->m_trigger[0], (*outItr)->m_trigger[1] ) );
+      m_ttu[k]->clearTriggerResponse();
       break;
       
     case 2:
       m_ttu[k]->processlocal( input );
-      for( outItr  = m_ttu[k]->m_triggerBx.begin(); outItr != m_ttu[k]->m_triggerBx.end(); ++outItr )
-        m_serializedInfo.push_back( new TTUResults( k, (*outItr).first, (*outItr).second[0], (*outItr).second[1] ) );
+      //std::cout << "TriggerResponseVec: " << m_ttu[k]->m_triggerBxVec.size() << std::endl;
+      for( outItr  = m_ttu[k]->m_triggerBxVec.begin(); outItr != m_ttu[k]->m_triggerBxVec.end(); ++outItr )
+        m_serializedInfo.push_back( new TTUResults( k, (*outItr)->m_bx, (*outItr)->m_trigger[0], (*outItr)->m_trigger[1] ) );
+      m_ttu[k]->clearTriggerResponse();
       break;
       
     default:
@@ -228,6 +234,13 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     m_triggerbits.set(4, m_serializedInfo[k+2]->m_trigWheel2);
     
     bx = m_serializedInfo[k]->m_bx;
+    
+    //std::cout << "TriggerResponseVec> " << bx << '\t'
+    //          << m_serializedInfo[k]->m_trigWheel1 << '\t'
+    //          << m_serializedInfo[k]->m_trigWheel2 << '\t'
+    //          << m_serializedInfo[k+1]->m_trigWheel1 << '\t'
+    //          << m_serializedInfo[k+2]->m_trigWheel1 << '\t'
+    //          << m_serializedInfo[k+2]->m_trigWheel2 << '\n';
     
     for(int i = 0; i < m_maxBits; ++i) {
       ttVec.at(i)=L1GtTechnicalTrigger(m_ttNames.at(i), m_ttBits.at(i), bx, m_triggerbits[i] ) ;
