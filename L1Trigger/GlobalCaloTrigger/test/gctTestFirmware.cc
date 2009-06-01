@@ -56,11 +56,12 @@ bool gctTestFirmware::checkJetFinder(const L1GlobalCaloTrigger* gct) const
 
   // Diagnostics if we've found an error
   if (!testPass) {
+    cout << "checkJetFinder() failed" << endl;
     unsigned jf = 0;
     for (int jlc=0; jlc<L1GlobalCaloTrigger::N_JET_LEAF_CARDS; ++jlc) {
       for (int i=0; i<3; i++) {
 	JetsVector jetlist1, jetlist2;
-	cout << "Jet Finder " << jf;
+	cout << "Jet Finder " << jf <<endl;
 	jetlist1 = jetsFromFile.at(jf++);
 	switch (i) {
 	case 0 :
@@ -70,16 +71,22 @@ bool gctTestFirmware::checkJetFinder(const L1GlobalCaloTrigger* gct) const
 	case 2 :
 	  jetlist2 = gct->getJetLeafCards().at(jlc)->getJetFinderC()->getRawJets(); break;
 	}
-	bool ok = true;
-	for (unsigned j=0; j<L1GctJetFinderBase::MAX_JETS_OUT; j++) {
-	  if (jetlist1.at(j)!=jetlist2.at(j)) {
-	    cout << "\nJet Number " << j;
-	    cout << "\nexpected " << jetlist1.at(j);
-	    cout << "\nfound    " << jetlist2.at(j) << endl;
-	    ok = false;
+	unsigned numOfBx = jetlist1.size() / L1GctJetFinderBase::MAX_JETS_OUT;
+	unsigned jj=0;
+	for (unsigned i=0; i<numOfBx; i++) {
+	  cout << "   Bunch crossing " << i;
+	  bool ok = true;
+	  for (unsigned j=0; j<L1GctJetFinderBase::MAX_JETS_OUT; j++) {
+	    if (jetlist1.at(jj)!=jetlist2.at(jj)) {
+	      cout << "\nJet Number " << j;
+	      cout << "\nexpected " << jetlist1.at(jj);
+	      cout << "\nfound    " << jetlist2.at(jj) << endl;
+	      ok = false;
+	    }
+	    ++jj;
 	  }
+	  if (ok) { cout << " all ok!" << endl; }
 	}
-	if (ok) { cout << " all ok!" << endl; }
       }
     }
   }
