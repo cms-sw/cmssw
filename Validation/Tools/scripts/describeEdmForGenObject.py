@@ -184,7 +184,6 @@ if __name__ == "__main__":
     regex2 = re.compile (r'^__', re.IGNORECASE)
     obj = ''
     for event in events:
-        event = events[0]
         objects = event.getProduct (alias)
         if len (objects):
             print "object"
