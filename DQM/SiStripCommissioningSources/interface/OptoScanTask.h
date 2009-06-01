@@ -9,34 +9,25 @@
 */
 class OptoScanTask : public CommissioningTask {
 
- public:
-  
-  OptoScanTask( DQMStore*, const FedChannelConnection& );
-  virtual ~OptoScanTask();
-  
- private:
-  
-  virtual void book();
-  virtual void fill( const SiStripEventSummary&,
-		     const edm::DetSet<SiStripRawDigi>& );
-  virtual void update();
-  
-  void locateTicks( const edm::DetSet<SiStripRawDigi>& scope_mode_data,
-		    std::pair<float,float>& digital_range, 
-		    std::vector<float>& baseline,
-		    float& baseline_rms );
-  
-  void deprecated( const edm::DetSet<SiStripRawDigi>& scope_mode_data,
-		   std::pair< uint16_t, uint16_t >& digital_range, 
-		   bool first_tick_only = false );
-  
-  /** "Histo sets" for the various gain settings and digital 0 and 1
-      levels. First index is gain (0->3) and the second index is the
-      digital level ("0" or "1"). */
-  std::vector< std::vector<HistoSet> > opto_;
-  
-  uint16_t nBins_;
-  
+  public:
+
+    OptoScanTask( DQMStore * dqm, const FedChannelConnection & conn );
+    virtual ~OptoScanTask();
+
+  private:
+
+    virtual void book();
+    virtual void fill( const SiStripEventSummary & summary,
+                       const edm::DetSet<SiStripRawDigi> & digis );
+    virtual void update();
+    void locateTicks( const edm::DetSet<SiStripRawDigi> & scope_mode_data,
+                      std::pair<float,float> & digital_range, 
+                      std::vector<float> & baseline,
+                      float & baseline_rms );
+
+    std::vector< std::vector<HistoSet> > opto_;
+    uint16_t nBins_;
+
 };
 
 #endif // DQM_SiStripCommissioningSources_OptoScanTask_H
