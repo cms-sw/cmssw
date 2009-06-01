@@ -11,7 +11,7 @@ import optparse
 defsDict = {
     'int'    : '%-40s : form=%%8d   type=int',
     'float'  : '%-40s : form=%%7.2f prec=0.001',
-    'string' : '%-40s : form=%%20s  type=string',
+    'str'    : '%-40s : form=%%20s  type=string',
     'long'   : '%-40s : form=%%10d  type=long',    
     }
 
