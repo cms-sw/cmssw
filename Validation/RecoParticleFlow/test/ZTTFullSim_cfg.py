@@ -21,7 +21,7 @@ process.load("Configuration/Generator/ZTT_Tauola_All_hadronic_cfi")
 #
 process.load("Configuration.StandardSequences.Services_cff")
 
-process.load("Configuration.StandardSequences.GeometryExtended_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
@@ -44,7 +44,7 @@ process.load("Configuration.StandardSequences.Generator_cff")
 #
 process.load("Configuration.StandardSequences.Simulation_cff")
 
-process.RandomNumberGeneratorService.theSource.initialSeed= ==SEED==
+process.RandomNumberGeneratorService.generator.initialSeed= ==SEED==
 #process.RandomNumberGeneratorService.theSource.initialSeed= 1414
 
 # please note the IMPORTANT: 
