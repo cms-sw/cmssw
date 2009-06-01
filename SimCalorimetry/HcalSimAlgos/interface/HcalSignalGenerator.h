@@ -29,7 +29,7 @@ public:
   typedef typename HCALDIGITIZERTRAITS::DigiCollection COLLECTION;
 
   HcalSignalGenerator(const edm::InputTag & inputTag)
-  : theInputTag(inputTag) {}
+  : theEvent(0), theEventPrincipal(0), theShape(0), theInputTag(inputTag) {}
 
   virtual ~HcalSignalGenerator() {}
 
@@ -40,18 +40,41 @@ public:
     theShape = theConditions->getHcalShape (); // this one is generic
   }
 
+  /// some users use EventPrincipals, not Events.  We support both
+  void initializeEvent(const edm::EventPrincipal * eventPrincipal, const edm::EventSetup * eventSetup)
+  {
+    theEventPrincipal = eventPrincipal;
+    eventSetup->get<HcalDbRecord>().get(theConditions);
+    theShape = theConditions->getHcalShape (); // this one is generic
+  }
+
   virtual void fill()
   {
     theNoiseSignals.clear();
     edm::Handle<COLLECTION> pDigis;
     const COLLECTION *  digis = 0;
-    if( theEvent->getByLabel(theInputTag, pDigis) ) {
-      digis = pDigis.product(); // get a ptr to the product
-      LogTrace("HcalSignalGenerator") << "total # digis  for "  << theInputTag << " " <<  digis->size();
+
+    // try accessing by whatever is set, Event or EventPrincipal
+    if(theEvent) 
+     {
+      if( theEvent->getByLabel(theInputTag, pDigis) ) {
+        digis = pDigis.product(); // get a ptr to the product
+        LogTrace("HcalSignalGenerator") << "total # digis  for "  << theInputTag << " " <<  digis->size();
+      }
+      else
+      {
+        throw cms::Exception("HcalSignalGenerator") << "Cannot find input data " << theInputTag;
+      }
+    }
+    else if(theEventPrincipal)
+    {
+       boost::shared_ptr<edm::Wrapper<COLLECTION>  const> digisPTR =
+          edm::getProductByTag<COLLECTION>(*theEventPrincipal, theInputTag );
+       if(digisPTR) digis = digisPTR->product();
     }
     else
     {
-       throw cms::Exception("HcalSignalGenerator") << "Cannot find input data " << theInputTag;
+      throw cms::Exception("HcalSignalGenerator") << "No Event or EventPrincipal was set";
     }
 
     if (digis)
@@ -91,6 +114,7 @@ private:
 
   /// these fields are set in initializeEvent()
   const edm::Event * theEvent;
+  const edm::EventPrincipal * theEventPrincipal;
   edm::ESHandle<HcalDbService> theConditions;
   const HcalQIEShape* theShape;
 
