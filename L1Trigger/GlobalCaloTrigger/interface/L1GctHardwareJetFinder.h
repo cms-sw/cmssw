@@ -64,9 +64,14 @@ private:
 
   /// The number of local Maxima/clusters found at each stage of clustering
   unsigned m_numberOfClusters;
+
+  // Additional clusters to avoid double counting of jets across eta=0
+  RegionsVector m_localMax00;
+  RegionsVector  m_cluster00;
   
   /// The first stage of clustering, called by fetchInput()
   void findProtoJets();  
+  L1GctRegion makeProtoJet(L1GctRegion localMax);
   /// The second stage of clustering, called by process()
   void findJets();  
 
