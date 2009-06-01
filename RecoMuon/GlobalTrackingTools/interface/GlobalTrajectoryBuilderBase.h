@@ -14,8 +14,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2009/02/27 02:04:19 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/05/13 19:21:28 $
+ *  $Revision: 1.15 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -128,7 +128,7 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
     RefitDirection checkRecHitsOrdering(const ConstRecHitContainer&) const;
 
     /// build a global trajectory from tracker and muon hits
-    std::vector<Trajectory> glbTrajectory(const TrajectorySeed& seed,
+    std::vector<Trajectory> glbTrajectory(const edm::RefToBase<TrajectorySeed>& seed,
                                           const ConstRecHitContainer& trackerhits,
                                           const ConstRecHitContainer& muonhits,
                                           const TrajectoryStateOnSurface& firstPredTsos) const;

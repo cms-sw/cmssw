@@ -12,10 +12,10 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2009/02/24 07:05:54 $
- *  $Revision: 1.31 $
- *  $Date: 2009/02/24 07:05:54 $
- *  $Revision: 1.31 $
+ *  $Date: 2009/05/20 10:50:16 $
+ *  $Revision: 1.32 $
+ *  $Date: 2009/05/20 10:50:16 $
+ *  $Revision: 1.32 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -237,6 +237,8 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
       reco::TransientTrack tTT((*it)->trackerTrack(),&*theService->magneticField(),theService->trackingGeometry());
       TrajectoryStateOnSurface innerTsos = tTT.innermostMeasurementState();
 
+      edm::RefToBase<TrajectorySeed> tmpSeed;
+      if((*it)->trackerTrack()->seedRef().isAvailable()) tmpSeed = (*it)->trackerTrack()->seedRef();
 
       if ( !innerTsos.isValid() ) {
 	    LogTrace(theCategory) << "inner Trajectory State is invalid. ";
@@ -247,25 +249,25 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
       TC refitted0,refitted1,refitted2,refitted3;
       vector<Trajectory*> refit(4);
       MuonCandidate* finalTrajectory = 0;
-      
+
       // tracker only track
       if ( ! ((*it)->trackerTrajectory() && (*it)->trackerTrajectory()->isValid()) ) refitted0 =  theTrackTransformer->transform((*it)->trackerTrack()) ;
 
 
       // full track with all muon hits
       if ( theMuonHitsOption == 1 || theMuonHitsOption == 3 || theMuonHitsOption == 4 ||  theMuonHitsOption == 5 ) {
-        refitted1 = glbTrajectory(*(*it)->trackerTrack()->seedRef(),trackerRecHits, muonRecHits1,innerTsos);
+        refitted1 = glbTrajectory(tmpSeed, trackerRecHits, muonRecHits1,innerTsos);
       }
 
       // only first muon hits
       if ( theMuonHitsOption == 2 || theMuonHitsOption == 4 || theMuonHitsOption == 5 ) {
-        refitted2 = glbTrajectory(*(*it)->trackerTrack()->seedRef(),trackerRecHits, muonRecHits2,innerTsos);
+        refitted2 = glbTrajectory(tmpSeed,trackerRecHits, muonRecHits2,innerTsos);
       }
 
       // only selected muon hits
       if ( (theMuonHitsOption == 3 || theMuonHitsOption == 4 || theMuonHitsOption == 5) && refitted1.size() == 1 ) {
         muonRecHits3 = selectMuonHits(*refitted1.begin(),stationHits);
-        refitted3 = glbTrajectory(*(*it)->trackerTrack()->seedRef(),trackerRecHits, muonRecHits3,innerTsos);
+        refitted3 = glbTrajectory(tmpSeed,trackerRecHits, muonRecHits3,innerTsos);
       }
 
       refit[0] = ( refitted0.empty() ) ? 0 : &(*refitted0.begin());
@@ -276,6 +278,7 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
       if((*it)->trackerTrajectory() && (*it)->trackerTrajectory()->isValid() ) refit[0] = (*it)->trackerTrajectory();
 
       if (refit[0]) refit[0]->setSeedRef((*it)->trackerTrack()->seedRef());
+
       Trajectory * refitTkTraj = refit[0];
 
       const Trajectory* chosenTrajectory = chooseTrajectory(refit, theMuonHitsOption);
@@ -843,7 +846,7 @@ GlobalTrajectoryBuilderBase::checkRecHitsOrdering(const TransientTrackingRecHit:
 //  build a global trajectory from tracker and muon hits
 //
 vector<Trajectory> 
-GlobalTrajectoryBuilderBase::glbTrajectory(const TrajectorySeed& seed,
+GlobalTrajectoryBuilderBase::glbTrajectory(const edm::RefToBase<TrajectorySeed>& seed,
                                            const ConstRecHitContainer& tkhits,
                                            const ConstRecHitContainer& muonhits,
                                            const TrajectoryStateOnSurface& firstPredTsos) const {
@@ -852,8 +855,8 @@ GlobalTrajectoryBuilderBase::glbTrajectory(const TrajectorySeed& seed,
   hits.insert(hits.end(), muonhits.begin(), muonhits.end());
 
   if ( hits.empty() ) return vector<Trajectory>();
-
-  PTrajectoryStateOnDet PTSOD = seed.startingState();
+  LogDebug(theCategory) << seed.isNull();
+  PTrajectoryStateOnDet PTSOD = ( !seed.isNull() ) ? seed->startingState() : PTrajectoryStateOnDet();
 
   edm::OwnVector<TrackingRecHit> garbage2;
 
