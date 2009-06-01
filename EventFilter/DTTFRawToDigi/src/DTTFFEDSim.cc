@@ -5,8 +5,8 @@
 //   L1 DT Track Finder Digi-to-Raw
 //
 //
-//   $Date: 2008/03/17 08:53:11 $
-//   $Revision: 1.9 $
+//   $Date: 2008/08/05 11:12:08 $
+//   $Revision: 1.10 $
 //
 //   Author :
 //   J. Troconiz  UAM Madrid
@@ -148,9 +148,12 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
         tsthe != thtrig->getContainer()->end();
         tsthe++ ) {
 
-    int channelNr = channel(0, tsthe->scNum(), tsthe->bxNum());
+    int wheelTh  = tsthe->whNum();
+    int sectorID = tsthe->scNum();
+
+    int channelNr = channel(0, sectorID, tsthe->bxNum());
     if ( channelNr == 255 ) continue;
-    int TSId = tsthe->whNum()+2;
+    int TSId = wheelTh+2;
 
     *dataWord1 = ((channelNr&0xFF)<<24)
                + 0x00FFFFFF;
@@ -160,7 +163,11 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
 
     int stationID = tsthe->stNum()-1;
     for ( int bti = 0; bti < 7; bti++ )
-      *dataWord2 -= (tsthe->position(bti)&0x1)<<(stationID*7+bti);
+      if ( wheelTh == -2 || wheelTh == -1 || 
+	   ( wheelTh == 0 && (sectorID == 0 || sectorID == 3 || sectorID == 4 || sectorID == 7 || sectorID == 8 || sectorID == 11) ) )
+	*dataWord2 -= (tsthe->position(bti)&0x1)<<(stationID*7+bti);
+      else
+	*dataWord2 -= (tsthe->position(6-bti)&0x1)<<(stationID*7+bti);
 
     calcCRC(*dataWord1, *dataWord2, newCRC);
     LineFED+=4;
@@ -225,12 +232,12 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
 
     if ( tstrk->TrkTag() == 0 ) {
       *dataWord2 +=                            0x3F80
-                 + (      ~tstrk->eta_packed()&0x003F)
+                 + (       tstrk->eta_packed()&0x003F)
                  + ((~tstrk->finehalo_packed()&0x0001)<<6);
     }
     else {
       *dataWord2 +=                            0x007F
-                 + (     (~tstrk->eta_packed()&0x003F)<<7)
+                 + (     ( tstrk->eta_packed()&0x003F)<<7)
                  + ((~tstrk->finehalo_packed()&0x0001)<<13);
     }
 
