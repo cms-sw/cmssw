@@ -570,12 +570,42 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       // The track momentum
       double trackMomentum = elements[iTrack].trackRef()->p();      
       if ( debug_ ) 
-	std::cout << "Track momentum = " << trackMomentum << " GeV." << std::endl; 
+	std::cout << elements[iTrack] << std::endl; 
       
       // Is it a "tight" muon ?
       bool thisIsAMuon = PFMuonAlgo::isMuon(elements[iTrack]);
       if ( thisIsAMuon ) trackMomentum = 0.;
-      
+       
+      // Is it a fake track ?
+      bool rejectFake = false;
+      if ( !thisIsAMuon && elements[iTrack].trackRef()->ptError() > ptError_ ) { 
+
+	double deficit = trackMomentum; 
+	double resol = neutralHadronEnergyResolution(trackMomentum,
+						     elements[iTrack].trackRef()->eta());
+	resol *= trackMomentum;
+
+	if ( !ecalElems.empty() ) { 
+	  unsigned thisEcal = ecalElems.begin()->second;
+	  reco::PFClusterRef clusterRef = elements[thisEcal].clusterRef();
+	  deficit -= clusterRef->energy();
+	  resol = neutralHadronEnergyResolution(trackMomentum,
+						clusterRef->positionREP().Eta());
+	  resol *= trackMomentum;
+	}
+
+	if ( deficit > nSigmaTRACK_*resol ) { 
+	  rejectFake = true;
+	  active[iTrack] = false;
+	  if ( debug_ )  
+	    std::cout << elements[iTrack] << std::endl
+		      << "is probably a fake (1) --> lock the track" 
+		      << std::endl;
+	}
+      }
+
+      if ( rejectFake ) continue;
+
       // Create a track candidate       
       // unsigned tmpi = reconstructTrack( elements[iTrack] );
       //active[iTrack] = false;
@@ -591,6 +621,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       // Look for closest ECAL cluster
       unsigned thisEcal = ecalElems.begin()->second;
       reco::PFClusterRef clusterRef = elements[thisEcal].clusterRef();
+      if ( debug_ ) std::cout << " is associated to " << elements[thisEcal] << std::endl;
 
       // Consider charged particles closest to the same ECAL cluster
       std::multimap<double, unsigned> sortedTracks;
@@ -617,16 +648,39 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				  reco::PFBlockElement::ECAL,
 				  reco::PFBlock::LINKTEST_ALL );
 	if ( sortedECAL.begin()->second != thisEcal ) continue;
+
+	// Check if this track is not a fake
+	bool rejectFake = false;
+	reco::TrackRef trackRef = elements[jTrack].trackRef();
+	if ( trackRef->ptError() > ptError_ ) { 
+	  double deficit = trackMomentum + trackRef->p() - clusterRef->energy();
+	  double resol = nSigmaTRACK_*neutralHadronEnergyResolution(trackMomentum+trackRef->p(),
+								    clusterRef->positionREP().Eta());
+	  resol *= (trackMomentum+trackRef->p());
+	  if ( deficit > nSigmaTRACK_*resol ) { 
+ 	    rejectFake = true;
+	    kTrack.push_back(jTrack);
+	    active[jTrack] = false;
+	    if ( debug_ )  
+	      std::cout << elements[jTrack] << std::endl
+			<< "is probably a fake (2) --> lock the track" 
+			<< std::endl; 
+	  }
+	}
+	if ( rejectFake ) continue;
+	
 	
 	// Otherwise, add this track momentum to the total track momentum
 	/* */
-	reco::TrackRef trackRef = elements[jTrack].trackRef();
+	// reco::TrackRef trackRef = elements[jTrack].trackRef();
 	if ( debug_ ) 
 	  std::cout << "Track momentum increased from " << trackMomentum << " GeV "; 
 	trackMomentum += trackRef->p();
-	if ( debug_ ) 
+	if ( debug_ ) {
 	  std::cout << "to " << trackMomentum << " GeV." << std::endl; 
-	
+	  std::cout << "with " << elements[jTrack] << std::endl;
+	}
+
 	// And create a charged particle candidate !
 	tmpi.push_back(reconstructTrack( elements[jTrack] ));
 	kTrack.push_back(jTrack);
@@ -642,14 +696,17 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       double totalEcal = thisIsAMuon ? -muonECAL_[0] : 0.;
       double totalHcal = 0.;
 
+      if ( debug_ ) std::cout << "Loop over all associated ECAL clusters" << std::endl; 
       // Loop over all ECAL linked clusters ordered by increasing distance.
       for(IE ie = ecalElems.begin(); ie != ecalElems.end(); ++ie ) {
 	
 	unsigned index = ie->second;
 	PFBlockElement::Type type = elements[index].type();
 	assert( type == PFBlockElement::ECAL );
-
+	if ( debug_ ) std::cout << elements[index] << std::endl;
+	
 	// Just skip clusters already taken
+	if ( debug_ && ! active[index] ) std::cout << "is not active  - ignore " << std::endl;
 	if ( ! active[index] ) continue;
 
 	// Just skip this cluster if it's closer to another track
@@ -659,8 +716,13 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 			 	  reco::PFBlockElement::TRACK,
 				  reco::PFBlock::LINKTEST_ALL );
 	bool skip = true;
-	for (unsigned ic=0; ic<kTrack.size();++ic)  
-	  if ( sortedTracks.begin()->second == kTrack[ic] ) skip = false;
+	for (unsigned ic=0; ic<kTrack.size();++ic) {
+	  if ( sortedTracks.begin()->second == kTrack[ic] ) { 
+	    skip = false;
+	    break;
+	  }
+	}
+	if ( debug_ && skip ) std::cout << "is closer to another track - ignore " << std::endl;
 	if ( skip ) continue;
 	/* */
 	  	
@@ -806,7 +868,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	*/
 	
 	// Add a photon is the energy excess is large enough
-	if ( neutralEnergy > nSigmaECAL_*neutralHadronEnergyResolution(trackMomentum,pivotalRef->positionREP().Eta()) ) { 
+	double resol = neutralHadronEnergyResolution(trackMomentum,pivotalRef->positionREP().Eta());
+	resol *= trackMomentum;
+	if ( neutralEnergy > nSigmaECAL_*resol ) {
 	  neutralEnergy /= slopeEcal;
 	  unsigned tmpj = reconstructCluster( *pivotalRef, neutralEnergy ); 
 	  (*pfCandidates_)[tmpj].setEcalEnergy( neutralEnergy );
