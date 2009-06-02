@@ -27,10 +27,10 @@ start() {
 
 stop() {
   echo -n $"Stopping $prog: "
-  killproc $path1/$prog
+  pkill -u $user -f 'perl '$path1/$prog
   echo
   echo -n $"Stopping $prog: "
-  killproc $path2/$prog
+  pkill -u $user -f 'perl '$path2/$prog
   echo
 }  
 
