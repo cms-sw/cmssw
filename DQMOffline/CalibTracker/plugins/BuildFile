@@ -12,6 +12,7 @@
 <use name=DataFormats/SiStripDetId>
 <use name=CalibTracker/Records>
 <use name=CalibTracker/SiStripQuality>
+<use name=CondCore/PopCon>
 
 <use name=DataFormats/SiStripCluster>
 <use name=DataFormats/TrackReco>
@@ -21,6 +22,7 @@
 
 <use name=DQM/SiStripCommon>
 <use name=DQMServices/Core>
+#<use name=DQMServices/Diagnostic>
 
 <library file="*.cc" name=DQMOfflineCalibTrackerplugins>
 	<flags EDM_PLUGIN=1>	
