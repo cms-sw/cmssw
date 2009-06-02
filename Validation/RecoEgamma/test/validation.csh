@@ -16,48 +16,60 @@
 #which can then be viewed in a web browser using validation.html.
 
 #=============BEGIN CONFIGURATION=================
+setenv TYPE Photons
+setenv CMSSWver 3_1_0
+setenv OLDRELEASE 310
+setenv NEWRELEASE 310
+setenv OLDPRERELEASE pre4
+setenv NEWPRERELEASE pre8
 
-#Input root trees for the two cases to be compared 
-
-#setenv OLDFILE /data/test/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_SingleGammaPt10New.root
-#setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_SingleGammaPt10New.root
-
-
-setenv OLDFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_SingleGammaPt10New.root
-setenv NEWFILE /data/test/CMSSW_3_1_0_pre5/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre5_SingleGammaPt10.root
-
-#setenv OLDFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_SingleGammaPt35New.root
-#setenv NEWFILE /data/test/CMSSW_3_1_0_pre5/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre5_SingleGammaPt35.root
+setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
+setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
 
 
-#setenv OLDFILE /tmp/nancy/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_SingleGammaPt35New.root
-#setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_SingleGammaPt35New.root
-
-#setenv OLDFILE /tmp/nancy/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_H130GGgluonfusionNew.root
-#setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_H130GGgluonfusionNew.root
-
-#setenv OLDFILE /data/test/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_GammaJets_Pt_80_120New.root
-#setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_GammaJets_Pt_80_120New.root
-
-#setenv OLDFILE /data/test/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_QCD_Pt_80_120.root
-#setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_QCD_Pt_80_120.root
-
-
-#setenv OLDRELEASE 221IDEAL
-setenv OLDRELEASE 310pre4
-setenv NEWRELEASE 310pre5
 #Name of sample (affects output directory name and htmldescription only) 
-setenv SAMPLE SingleGammaPt10IDEAL
+#setenv SAMPLE SingleGammaPt10IDEAL
 #setenv SAMPLE SingleGammaPt35IDEAL
 #setenv SAMPLE SingleGammaFlatPt10_100
 #setenv SAMPLE H130GGgluonfusionSTARTUP
-#setenv SAMPLE GammaJets_Pt_80_120STARTUP
+setenv SAMPLE GammaJets_Pt_80_120STARTUP
 #setenv SAMPLE QCD_Pt_80_120STARTUP
 #TYPE must be one ofPixelMatchGsfElectron, Photon 
-setenv TYPE Photon
-
 
 #==============END BASIC CONFIGURATION==================
+
+
+#Input root trees for the two cases to be compared 
+
+if ($SAMPLE == SingleGammaPt10IDEAL) then
+
+setenv OLDFILE /data/test/CMSSW_${CMSSWver}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt10New.root
+setenv NEWFILE /data/test/CMSSW_${CMSSWver}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt10.root
+
+else if ($SAMPLE == SingleGammaPt35IDEAL) then 
+
+setenv OLDFILE /data/test/CMSSW_${CMSSWver}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt35New.root
+setenv NEWFILE /data/test/CMSSW_${CMSSWver}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35.root
+
+else if ($SAMPLE == H130GGgluonfusionSTARTUP) then 
+
+setenv OLDFILE /data/test/CMSSW_${CMSSWver}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_H130GGgluonfusionNew.root
+setenv NEWFILE /data/test/CMSSW_${CMSSWver}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_H130GGgluonfusion.root
+
+else if ($SAMPLE ==  GammaJets_Pt_80_120STARTUP) then 
+
+setenv OLDFILE /data/test/CMSSW_${CMSSWver}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_GammaJets_Pt_80_120New.root
+setenv NEWFILE /data/test/CMSSW_${CMSSWver}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_GammaJets_Pt_80_120.root
+
+else if ($SAMPLE == QCD_Pt_80_120STARTUP) then 
+
+setenv OLDFILE /data/test/CMSSW_${CMSSWver}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_QCD_Pt_80_120.root
+setenv NEWFILE /data/test/CMSSW_${CMSSWver}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_80_120.root
+
+
+endif
+
+
 
 #Location of output.  The default will put your output in:
 #http://cmsdoc.cern.ch/Physics/egamma/www/validation/
@@ -69,8 +81,15 @@ if (! -d $NEWRELEASE) then
   mkdir $NEWRELEASE
 endif
 setenv OUTPATH $OUTPATH/$NEWRELEASE
+cd $OUTPATH
+if (! -d ${TYPE}_vs${OLDRELEASE}) then
+  mkdir ${TYPE}_vs${OLDRELEASE}
+endif
+setenv OUTPATH $OUTPATH/${TYPE}_vs${OLDRELEASE}
 
-setenv OUTDIR $OUTPATH/${SAMPLE}_${NEWRELEASE}_${OLDRELEASE}
+#setenv OUTDIR $OUTPATH/${SAMPLE}_${NEWRELEASE}_${OLDRELEASE}
+
+setenv OUTDIR $OUTPATH/${SAMPLE}
 if (! -d $OUTDIR) then
   cd $OUTPATH
   mkdir $OUTDIR
@@ -117,7 +136,7 @@ cat > unscaledhistos <<EOF
   h_ele_eta_showerFrac 
 EOF
 
-else if ( $TYPE == Photon ) then
+else if ( $TYPE == Photons ) then
 
 
 cat > efficiencyForPhotons <<EOF
@@ -722,7 +741,7 @@ rm end.C
 if ( $TYPE == PixelMatchGsfElectron ) then
   setenv ANALYZER PixelMatchGsfElectronAnalyzer
   setenv CFG read_gsfElectrons
-else if ( $TYPE == Photon ) then
+else if ( $TYPE == Photons ) then
   setenv ANALYZER PhotonValidator
   setenv CFG PhotonValidator_cfg
 endif
