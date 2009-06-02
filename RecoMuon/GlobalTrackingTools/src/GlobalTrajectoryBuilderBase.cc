@@ -12,10 +12,10 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2009/05/20 10:50:16 $
- *  $Revision: 1.32 $
- *  $Date: 2009/05/20 10:50:16 $
- *  $Revision: 1.32 $
+ *  $Date: 2009/06/01 20:17:06 $
+ *  $Revision: 1.33 $
+ *  $Date: 2009/06/01 20:17:06 $
+ *  $Revision: 1.33 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -277,14 +277,14 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
 
       if((*it)->trackerTrajectory() && (*it)->trackerTrajectory()->isValid() ) refit[0] = (*it)->trackerTrajectory();
 
-      if (refit[0]) refit[0]->setSeedRef((*it)->trackerTrack()->seedRef());
+      if (refit[0]) refit[0]->setSeedRef(tmpSeed);
 
       Trajectory * refitTkTraj = refit[0];
 
       const Trajectory* chosenTrajectory = chooseTrajectory(refit, theMuonHitsOption);
       if (chosenTrajectory && refitTkTraj) {
 	    Trajectory *tmpTrajectory = new Trajectory(*chosenTrajectory);
-	    tmpTrajectory->setSeedRef((*it)->trackerTrack()->seedRef());
+	    tmpTrajectory->setSeedRef(tmpSeed);
 	    finalTrajectory = new MuonCandidate(tmpTrajectory, (*it)->muonTrack(), (*it)->trackerTrack(), new Trajectory(*refitTkTraj));
       } else {
 	    LogWarning(theCategory)<<"could not choose a valid trajectory. skipping the muon. no final trajectory.";
