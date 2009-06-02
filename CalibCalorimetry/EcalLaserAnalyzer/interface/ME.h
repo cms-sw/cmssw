@@ -51,6 +51,7 @@ public:
   static std::vector<ME::LMMid>        lmmodFromLmr( ME::LMRid ilmr );
   static std::vector<ME::DCCid>          memFromDcc( ME::DCCid idcc ); 
   static std::vector<ME::LMMid>        lmmodFromDcc( ME::DCCid idcc );
+  static std::vector< int>             apdRefChannels( ME::LMMid ilmmod , ME::LMRid ilmr);
 
   // ECAL Region names
   static TString region[4];

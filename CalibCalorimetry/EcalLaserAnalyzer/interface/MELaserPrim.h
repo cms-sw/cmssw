@@ -23,7 +23,7 @@ class MELaserPrim
 public:
 
   // Julie's ntuple variables
-  enum { iAPD, iAPDoPN, iAPDoPNA, iAPDoPNB, iTime, iSizeArray_apdpn }; 
+  enum { iAPD, iAPDoPN, iAPDoPNA, iAPDoPNB, iAPDoAPDA, iAPDoAPDB, iTime, iSizeArray_apdpn }; 
   enum { iMean, iRMS, iM3, iNevt, iMin, iMax, iSize_apdpn }; 
   enum { iShapeCor, iSizeExtra_apdpn };
   enum { iAlpha, iBeta, iWidth, iChi2, iSize_ab };

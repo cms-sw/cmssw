@@ -10,7 +10,7 @@ using namespace std;
 //GHM ClassImp(MEEEGeom)
 
 bool 
-MEEEGeom::pnTheory = false;
+MEEEGeom::pnTheory = true;
 
 int 
 MEEEGeom::quadrant( SuperCrysCoord iX, SuperCrysCoord iY )
@@ -935,6 +935,15 @@ MEEEGeom::near( int ilmr )
   return ( idee==2 || idee==3 );  
 }
 
+int 
+MEEEGeom::side( SuperCrysCoord iX, SuperCrysCoord iY, int iz )
+{
+  int side = 0;
+  int ilmr = lmr( iX, iY, iz );
+  if ( ilmr == 81 || ilmr == 91 ) side=1;
+
+  return side;
+}
 vector<int>
 MEEEGeom::lmmodFromLmr( int ilmr )
 {
@@ -992,3 +1001,130 @@ MEEEGeom::lmmodFromLmr( int ilmr )
     }
   return vec;
 }
+
+int
+MEEEGeom::apdRefTower( int ilmr, int ilmmod )
+{
+  int ilmr10=ilmr%10;
+  int tower=0;
+
+  if( ilmr10==3 ){      
+    switch( ilmmod ){
+    case   9:  tower=77; break;
+    case   10: tower=55; break;
+    case   11: tower=37; break;
+    case   12: tower=310; break;
+    case   13: tower=294; break;
+    default:
+      abort();
+    }
+  }else if( ilmr10==4 ){
+    switch( ilmmod ){
+    case   5: tower=52; break;
+    case   6: tower=41; break;
+    case   7: tower=18; break;
+    case   8: tower=65; break;
+    default:
+      abort();
+    }
+  }else if( ilmr10==5 ){
+    
+    switch( ilmmod ){
+    case   1: tower=45; break;
+    case   2: tower=53; break; 
+    case   3: tower=42; break;
+    case   4: tower=32; break; 
+    default:
+      abort();
+    }
+  }else if( ilmr10==6 ){ 
+    switch( ilmmod ){
+    case   1: tower=124; break;
+    case   2: tower=132; break;
+    case   3: tower=121; break;
+    case   4: tower=111; break;
+    default:
+      abort();
+    }
+  }else if( ilmr10==7 ){ 
+    switch( ilmmod ){
+    case   5: tower=147; break;
+    case   6: tower=135; break;
+    case   7: tower=117; break;
+    case   8: tower=158; break; 
+    default:
+      abort();
+    }
+    
+  }else if( ilmr10==8 ){ 
+    switch( ilmmod ){
+    case   9: tower=156; break;
+    case  10: tower=214; break;
+    case  11: tower=197; break;
+    case  12: tower=237; break; 
+    case  13: tower=224; break; 
+    default:
+      abort();
+    }  
+  }else if( ilmr10==9 ){ 
+    switch( ilmmod ){
+    case  14: tower=234; break; 
+    case  15: tower=220; break;
+    case  16: tower=212; break; 
+    case  17: tower=189; break;
+    default:
+      abort();
+    } 
+  }else if( ilmr10==0 ){ 
+    switch( ilmmod ){
+    case  18: tower=185; break; 
+    case  19: tower=172; break;
+    default:
+      abort();
+    }
+  }else if( ilmr10==1 ){ 
+    switch( ilmmod ){
+    case  18: tower=264; break; 
+    case  19: tower=251; break;
+    default:
+      abort();
+    }
+  }
+  return tower; 
+}
+
+std::vector< int>
+MEEEGeom::apdRefChannels( int ilmmod )
+{
+
+  std::vector< int> vec;
+  switch( ilmmod )
+    {
+    case   1: vec.push_back(0); vec.push_back(1); break;
+    case   2: vec.push_back(0); vec.push_back(1); break;
+    case   3: vec.push_back(0); vec.push_back(1); break;
+    case   4: vec.push_back(0); vec.push_back(1); break;
+    case   5: vec.push_back(0); vec.push_back(1); break;
+    case   6: vec.push_back(0); vec.push_back(1); break;
+    case   7: vec.push_back(0); vec.push_back(1); break;
+    case   8: vec.push_back(0); vec.push_back(1); break;
+    case   9: vec.push_back(0); vec.push_back(1); break;
+    case  10: vec.push_back(0); vec.push_back(1); break;
+    case  11: vec.push_back(0); vec.push_back(1); break;
+    case  12: vec.push_back(0); vec.push_back(1); break;
+    case  13: vec.push_back(0); vec.push_back(1); break;
+    case  14: vec.push_back(0); vec.push_back(1); break;
+    case  15: vec.push_back(0); vec.push_back(1); break;
+    case  16: vec.push_back(0); vec.push_back(1); break;
+    case  17: vec.push_back(0); vec.push_back(1); break;
+    case  18: vec.push_back(0); vec.push_back(1); break;
+    case  19: vec.push_back(0); vec.push_back(1); break;
+    case  20: vec.push_back(0); vec.push_back(1); break;
+    case  21: vec.push_back(0); vec.push_back(1); break;
+
+    default:
+      abort();
+    }
+  return vec;
+}
+

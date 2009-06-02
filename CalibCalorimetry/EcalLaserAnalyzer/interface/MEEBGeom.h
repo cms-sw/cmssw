@@ -43,6 +43,9 @@ public:
   static std::pair<int,int> memFromLmr( int ilmr );
   static std::vector<int> lmmodFromLmr( int ilmr );
 
+  static int apdRefTower( int ilmmod );
+  static std::vector<int> apdRefChannels( int ilmmod );
+
   // get local from crystal number
   static XYCoord   localCoord( int icr );
 

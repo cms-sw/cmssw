@@ -520,4 +520,56 @@ MEEBGeom::lmmodFromLmr( int ilmr )
   return vec;
 }
 
+int
+MEEBGeom::apdRefTower( int ilmmod )
+{
+  switch( ilmmod )
+    {
+      /* case   1: return 1;
+    case   2: return 5; 
+    case   3: return 7;
+    case   4: return 21; 
+    case   5: return 23;
+    case   6: return 37;
+    case   7: return 39;
+    case   8: return 53;
+    case   9: return 55;
+      */
+    case   1: return 2;
+    case   2: return 6; 
+    case   3: return 8;
+    case   4: return 22; 
+    case   5: return 24;
+    case   6: return 38;
+    case   7: return 40;
+    case   8: return 54;
+    case   9: return 56;
+    default:
+      abort();
+    }
+  return 0;
+}
+
+
+std::vector< int >
+MEEBGeom::apdRefChannels( int ilmmod )
+{
+  
+  std::vector< int > vec;
+  switch( ilmmod )
+    {
+    case   1:  vec.push_back(0); vec.push_back(24); break;
+    case   2:  vec.push_back(0); vec.push_back(24); break;
+    case   3:  vec.push_back(0); vec.push_back(24); break;
+    case   4:  vec.push_back(0); vec.push_back(24); break;
+    case   5:  vec.push_back(0); vec.push_back(24); break;
+    case   6:  vec.push_back(0); vec.push_back(24); break;
+    case   7:  vec.push_back(0); vec.push_back(24); break;
+    case   8:  vec.push_back(0); vec.push_back(24); break;
+    case   9:  vec.push_back(0); vec.push_back(24); break;
+    default:
+      abort();
+    }
+  return vec;
+}
 

@@ -584,6 +584,15 @@ ME::memFromLmr( int ilmr )
     return MEEEGeom::memFromLmr( ilmr );
   return pair<int,int>();
 }
+std::vector< int>
+ME::apdRefChannels( int ilmmod , int ilmr)
+{
+  if( isBarrel( ilmr ) )
+    return MEEBGeom::apdRefChannels( ilmmod );
+  else
+    return MEEEGeom::apdRefChannels( ilmmod );
+  return std::vector< int>();
+}
 
 vector<int>
 ME::lmmodFromLmr( int ilmr )

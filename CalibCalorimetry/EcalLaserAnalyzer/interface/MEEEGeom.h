@@ -33,6 +33,7 @@ public:
   static int         sc( SuperCrysCoord iX, SuperCrysCoord iY         );
   static int        dcc( SuperCrysCoord iX, SuperCrysCoord iY, int iz );
   static int        lmr( SuperCrysCoord iX, SuperCrysCoord iY, int iz );
+  static int       side( SuperCrysCoord iX, SuperCrysCoord iY, int iz );
 
   static int crystal_in_sc( CrysCoord ix, CrysCoord iy );
   static int       crystal( CrysCoord ix, CrysCoord iy );
@@ -49,6 +50,8 @@ public:
   static std::pair<int,int> memFromLmr( int ilmr );
   static std::vector<int> lmmodFromLmr( int ilmr );
   static int deeFromMem( int imem );
+  static int apdRefTower(  int ilmr, int ilmmod );
+  static std::vector<int> apdRefChannels( int ilmmod );
 
   static TGraph* getGraphBoundary( int type, int num, int iz=-1, int xside=0 );
   static void getBoundary( std::list< std::pair< float, float > >& l, int type, int num, int iz=-1, int xside=0 );

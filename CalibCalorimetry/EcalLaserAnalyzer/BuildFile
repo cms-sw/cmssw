@@ -4,6 +4,7 @@
 <use name=rootgraphics>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalRecHit>
+<use name=Geometry/EcalMapping>
 <export>
    <lib name=CalibCalorimetryEcalLaserAnalyzer>
    <use name=FWCore/Framework>
@@ -13,4 +14,6 @@
    <use name=rootgraphics>
    <use name=DataFormats/EcalDigi>
    <use name=DataFormats/EcalRecHit>
+   <use name=Geometry/EcalMapping>
 </export>
+

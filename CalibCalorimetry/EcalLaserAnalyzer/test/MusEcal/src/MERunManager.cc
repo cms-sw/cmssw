@@ -899,6 +899,12 @@ MERunManager::setLaserFlags()
 	      varVector_->setFlag( t_, ME::iAPD_OVER_PN_MEAN, false );
 	      varVector_->setFlag( t_, ME::iAPD_OVER_PN_RMS, false );
 	      varVector_->setFlag( t_, ME::iAPD_OVER_PN_M3, false );
+	      varVector_->setFlag( t_, ME::iAPD_OVER_APDA_MEAN, false ); // JM
+	      varVector_->setFlag( t_, ME::iAPD_OVER_APDA_RMS, false ); // JM
+	      varVector_->setFlag( t_, ME::iAPD_OVER_APDA_M3, false ); // JM
+	      varVector_->setFlag( t_, ME::iAPD_OVER_APDB_MEAN, false ); // JM
+	      varVector_->setFlag( t_, ME::iAPD_OVER_APDB_RMS, false ); // JM
+	      varVector_->setFlag( t_, ME::iAPD_OVER_APDB_M3, false ); // JM
 	      varVector_->setFlag( t_, ME::iAPD_TIME_MEAN, false );
 	      varVector_->setFlag( t_, ME::iAPD_TIME_RMS, false );
 	      varVector_->setFlag( t_, ME::iAPD_TIME_M3, false );
