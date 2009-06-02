@@ -28,9 +28,11 @@ start() {
 stop() {
   echo -n $"Stopping $prog: "
   pkill -u $user -f 'perl '$path1/$prog
+  [ "$0" -eq 0 ] && success || failure
   echo
   echo -n $"Stopping $prog: "
   pkill -u $user -f 'perl '$path2/$prog
+  [ "$0" -eq 0 ] && success || failure
   echo
 }  
 
