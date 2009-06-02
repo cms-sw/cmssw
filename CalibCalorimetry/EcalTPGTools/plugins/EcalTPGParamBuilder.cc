@@ -297,7 +297,11 @@ std::cout <<"we get the pedestals from online DB"<<endl;
   vector<EcalLogicID> my_TTEcalLogicId;
   vector<EcalLogicID> my_StripEcalLogicId;
   EcalLogicID my_EcalLogicId_EB;
+    // Endcap identifiers
   EcalLogicID my_EcalLogicId_EE;
+  vector<EcalLogicID> my_TTEcalLogicId_EE;
+  vector<EcalLogicID> my_StripEcalLogicId_EE;
+  
   if (writeToDB_ || readFromDB_){
     std::cout<<"going to get the ecal logic id set"<< endl;
 
@@ -316,6 +320,23 @@ std::cout <<"we get the pedestals from online DB"<<endl;
 						    "EB_trigger_tower",12 );
     my_StripEcalLogicId = db_->getEcalLogicIDSetOrdered( "EB_VFE",   1, 36,   1, 68,   1,5 ,  "EB_VFE",12 );
     std::cout<<"got the 3 ecal barrel logic id set"<< endl;
+
+    // EE Strip identifiers
+    // TTC=72 TT = 1440 EEstrip = 5
+    my_StripEcalLogicId_EE = db_->getEcalLogicIDSetOrdered( "EE_trigger_strip",   
+    							1, 72,   
+							1, 1440,   
+							1,5 ,  
+							"EE_trigger_strip",123 );
+    
+    // TTC=72 TT = 1440
+    my_TTEcalLogicId_EE = db_->getEcalLogicIDSetOrdered( "EE_trigger_tower",
+						    1, 72,
+						    1, 1440,
+						    EcalLogicID::NULLID,EcalLogicID::NULLID,
+						    "EE_trigger_tower",12 );
+
+    std::cout<<"got the end cap logic id set"<< endl;
 
   }
 
@@ -583,10 +604,16 @@ std::cout <<"we get the pedestals from online DB"<<endl;
 	dataset2[my_StripEcalLogicId[ich]] = wut;
       }
 
-      // endcap loop missing ... FIXME 
-      //
-      //
-      //
+      // endcap loop
+      for (int ich=0; ich<my_StripEcalLogicId_EE.size() ; ich++){
+       	std::cout << " endcap weight = " << ich << std::endl;
+	FEConfigWeightDat wut;
+	int igroup=0;
+	wut.setWeightGroupId(igroup);
+	// Fill the dataset
+	dataset2[my_StripEcalLogicId_EE[ich]] = wut;
+      }
+
 
       // Insert the dataset
       ostringstream wtag;
@@ -651,10 +678,18 @@ std::cout <<"we get the pedestals from online DB"<<endl;
 	dataset2[my_TTEcalLogicId[ich]] = wut;
       }
 
-      // endcap loop missing ... FIXME 
-      //
-      //
-      //
+      // endcap loop
+      for (int ich=0; ich<my_TTEcalLogicId_EE.size() ; ich++){
+	std::cout << " endcap FGR " << std::endl;
+	FEConfigFgrDat wut;
+	int igroup=0;
+	wut.setFgrGroupId(igroup);
+	// Fill the dataset
+	// the logic ids are ordered by .... ?  
+	// you have to calculate the right index here 
+	dataset2[my_TTEcalLogicId_EE[ich]] = wut;
+      }
+      
 
       // Insert the dataset
       ostringstream wtag;
@@ -677,10 +712,17 @@ std::cout <<"we get the pedestals from online DB"<<endl;
 	dataset[my_StripEcalLogicId[ich]] = wut;
       }
 
-      // endcap loop missing ... FIXME 
-      //
-      //
-      //
+      // endcap loop
+      for (int ich=0; ich<my_StripEcalLogicId_EE.size() ; ich++){
+	std::cout << " endcap Sliding" << std::endl;
+	FEConfigSlidingDat wut;
+	wut.setSliding(sliding_);
+	// Fill the dataset
+	// the logic ids are ordered by ... ? 
+	// you have to calculate the right index here 
+	dataset[my_StripEcalLogicId_EE[ich]] = wut;
+      }
+      
 
       // Insert the dataset
       ostringstream wtag;
@@ -751,10 +793,16 @@ std::cout <<"we get the pedestals from online DB"<<endl;
       dataset2[my_TTEcalLogicId[ich]] = lut;
     }
 
-    // endcap loop missing ... FIXME 
-    //
-    //
-    //
+    // endcap loop 
+    for (int ich=0; ich<my_TTEcalLogicId_EE.size() ; ich++){
+      std::cout << " endcap LUTDat" << std::endl;
+      FEConfigLUTDat lut;
+      int igroup=0;
+      lut.setLUTGroupId(igroup);
+      // calculate the right TT  
+      // Fill the dataset
+      dataset2[my_TTEcalLogicId_EE[ich]] = lut;
+    }    
 
     // Insert the dataset
     ostringstream ltag;
