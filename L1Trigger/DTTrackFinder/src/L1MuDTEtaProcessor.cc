@@ -402,7 +402,7 @@ void L1MuDTEtaProcessor::runEtaMatchingUnit(const edm::EventSetup& c) {
     int adr1 = m_address[idx1];
     int adr2 = m_address[idx2];
     if ( adr1 == 0 || adr2 == 0 ) continue;
-    if ( adr1 == adr2 ) {
+    if ( adr1 == adr2 && !m_mask ) {
       // both tracks get coarse (default) eta value
       m_eta[idx1]  = theQualPatternLUT->getCoarseEta(i+1,adr1);
       if ( m_eta[idx1] == 99 ) m_eta[idx1] = 32;
