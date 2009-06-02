@@ -73,8 +73,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/05/12 18:11:47 $ 
- **  $Revision: 1.28 $
+ **  $Date: 2009/05/25 15:18:17 $ 
+ **  $Revision: 1.29 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -529,7 +529,7 @@ void  PhotonValidator::beginJob() {
     //
     histname = "sigmaIetaIeta";
     h_sigmaIetaIeta_[0][0] = dbe_->book1D(histname+"All",   "sigmaIetaIeta: All Ecal",100,0., 0.1) ;
-    h_sigmaIetaIeta_[0][1] = dbe_->book1D(histname+"Barrel","sigmaIetaIeta: Barrel ", 100,0., 0.1) ;
+    h_sigmaIetaIeta_[0][1] = dbe_->book1D(histname+"Barrel","sigmaIetaIeta: Barrel ", 100,0., 0.05) ;
     h_sigmaIetaIeta_[0][2] = dbe_->book1D(histname+"Endcap","sigmaIetaIeta: Endcap ", 100,0., 0.1) ;
     //
     histname="sigmaIetaIetaVsEta";
