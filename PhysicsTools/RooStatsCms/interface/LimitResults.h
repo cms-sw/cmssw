@@ -4,8 +4,8 @@
 
 /**
 \class LimitResults
-$Revision: 1.4 $
-$Date: 2009/04/15 12:42:44 $
+$Revision: 1.5 $
+$Date: 2009/05/15 09:55:43 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 The objects of this class store and access with lightweight methods the 
@@ -48,6 +48,9 @@ class LimitResults : public StatisticalMethod {
 
     /// Default Constructor 
     LimitResults();
+
+    /// Copy Constructor
+    LimitResults(LimitResults& other);
 
     /// Destructor
     ~LimitResults();
