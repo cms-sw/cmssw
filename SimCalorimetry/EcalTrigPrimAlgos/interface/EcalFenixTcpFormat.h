@@ -6,6 +6,7 @@
 
 class EcalTPGLutGroup ;
 class EcalTPGLutIdMap;
+class EcalTPGTowerStatus;
 
 /** 
     \class EcalFenixStripFormat
@@ -24,10 +25,11 @@ class EcalFenixTcpFormat  {
   virtual ~EcalFenixTcpFormat();
   virtual std::vector<int> process(std::vector<int>,std::vector<int>) {  std::vector<int> v;return v;}
   void process(std::vector<int> &Et, std::vector<int> &fgvb,  int eTTotShift, std::vector<EcalTriggerPrimitiveSample> & out, std::vector<EcalTriggerPrimitiveSample> & outTcc, bool isInInnerRings) ;
-  void setParameters(uint32_t towid,const EcalTPGLutGroup *ecaltpgLutGroup,const EcalTPGLutIdMap *ecaltpgLut);
+  void setParameters(uint32_t towid,const EcalTPGLutGroup *ecaltpgLutGroup,const EcalTPGLutIdMap *ecaltpgLut, const EcalTPGTowerStatus *ecaltpgbadTT);
 
  private:
   const unsigned int * lut_ ;
+  const uint16_t * badTTStatus_;
   bool tcpFormat_;
   bool debug_;
   bool famos_;

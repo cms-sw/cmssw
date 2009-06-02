@@ -2,6 +2,7 @@
 
 #include <CondFormats/EcalObjects/interface/EcalTPGLinearizationConst.h>
 #include <CondFormats/EcalObjects/interface/EcalTPGPedestals.h>
+#include <CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -13,19 +14,26 @@ EcalFenixLinearizer::EcalFenixLinearizer(bool famos)
 EcalFenixLinearizer::~EcalFenixLinearizer(){
 }
 
-void EcalFenixLinearizer::setParameters(uint32_t raw, const EcalTPGPedestals * ecaltpPed, const EcalTPGLinearizationConst * ecaltpLin)
+void EcalFenixLinearizer::setParameters(uint32_t raw, const EcalTPGPedestals * ecaltpPed, const EcalTPGLinearizationConst * ecaltpLin, const EcalTPGCrystalStatus * ecaltpBadX)
 {
   const EcalTPGLinearizationConstMap & linMap = ecaltpLin->getMap() ; 
-
   EcalTPGLinearizationConstMapIterator it=linMap.find(raw);
   if (it!=linMap.end()) {
     linConsts_=&(*it);
   }
   else edm::LogWarning("EcalTPG")<<" could not find EcalTPGLinearizationConstMap entry for "<<raw;
+  
   const EcalTPGPedestalsMap & pedMap = ecaltpPed->getMap() ; 
   EcalTPGPedestalsMapIterator itped=pedMap.find(raw);
   if (itped!=pedMap.end())   peds_=&(*itped);
   else edm::LogWarning("EcalTPG")<<" could not find EcalTPGPedestalsMap entry for "<<raw;
+
+  const EcalTPGCrystalStatusMap & badXMap = ecaltpBadX->getMap();
+  EcalTPGCrystalStatusMapIterator itbadX=badXMap.find(raw); 
+  if (itbadX!=badXMap.end()) {
+    badXStatus_=&(*itbadX);
+  }
+  else edm::LogWarning("EcalTPG")<<" could not find EcalTPGCrystalStatusMap entry for "<<raw;	
 }
 
 int EcalFenixLinearizer::process()
@@ -50,18 +58,42 @@ int EcalFenixLinearizer::setInput(const EcalMGPASample &RawSam)
 
   if (gainID_==1) {
     base_ = peds_ -> mean_x12; 
-    mult_ = linConsts_ -> mult_x12;
     shift_ = linConsts_ -> shift_x12;
+    
+    // take into account the badX
+    // check if the badX has a status code=0 or 1  
+    if (badXStatus_->getStatusCode()==0){
+      mult_ = 0;
+    }
+    else{ 
+      mult_ = linConsts_ -> mult_x12;
+    }
   }
   else if (gainID_==2) {
     base_ = peds_ -> mean_x6;
-    mult_ = linConsts_ -> mult_x6;
-    shift_ = linConsts_ -> shift_x6;  
+    shift_ = linConsts_ -> shift_x6;
+    
+    // take into account the badX
+    // check if the badX has a status code=0 or 1 
+    if (badXStatus_->getStatusCode()==0){
+      mult_ = 0;
+    }
+    else{
+      mult_ = linConsts_ -> mult_x6;
+    }  
   }
   else if (gainID_==3){
-    base_ = peds_-> mean_x1;
-    mult_ = linConsts_ -> mult_x1;
-    shift_ = linConsts_ -> shift_x1; 
+    base_ = peds_-> mean_x1; 
+    shift_ = linConsts_ -> shift_x1;
+    
+    // take into account the badX 
+    // check if the badX has a status code=0 or 1
+    if (badXStatus_->getStatusCode()==0){
+      mult_ = 0;
+    }
+    else{
+      mult_ = linConsts_ -> mult_x1;
+    } 
   }
 
   if (famos_) base_=200; //FIXME by preparing a correct TPG.txt for Famos

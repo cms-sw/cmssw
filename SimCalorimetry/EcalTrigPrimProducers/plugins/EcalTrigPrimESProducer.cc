@@ -76,6 +76,8 @@ EcalTrigPrimESProducer::EcalTrigPrimESProducer(const edm::ParameterSet& iConfig)
   setWhatProduced(this, &EcalTrigPrimESProducer::produceLutGroup) ;
   setWhatProduced(this, &EcalTrigPrimESProducer::produceFineGrainEBGroup) ;
   setWhatProduced(this, &EcalTrigPrimESProducer::producePhysicsConst) ;
+  setWhatProduced(this, &EcalTrigPrimESProducer::produceBadX) ;
+  setWhatProduced(this, &EcalTrigPrimESProducer::produceBadTT) ;
   //now do what ever other initialization is needed
 }
 
@@ -263,6 +265,39 @@ std::auto_ptr<EcalTPGPhysicsConst> EcalTrigPrimESProducer::producePhysicsConst(c
   return prod;
 }
 
+std::auto_ptr<EcalTPGCrystalStatus> EcalTrigPrimESProducer::produceBadX(const EcalTPGCrystalStatusRcd & iRecord)
+{
+  std::auto_ptr<EcalTPGCrystalStatus> prod(new EcalTPGCrystalStatus());
+  
+  std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
+  for (it = mapXtal_.begin() ; it != mapXtal_.end() ; it++) {
+    
+    EcalTPGCrystalStatusCode badXValue;
+    badXValue.setStatusCode(1);
+    prod->setValue(it->first,badXValue) ;
+  }
+  return prod;
+  
+}
+
+std::auto_ptr<EcalTPGTowerStatus> EcalTrigPrimESProducer::produceBadTT(const EcalTPGTowerStatusRcd & iRecord)
+{
+  std::auto_ptr<EcalTPGTowerStatus> prod(new EcalTPGTowerStatus());
+  
+  std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
+  //Barrel
+  for (it = mapTower_[0].begin() ; it != mapTower_[0].end() ; it++) {
+    //set the BadTT status to 0
+    prod->setValue(it->first,1) ;
+  }
+  //Endcap
+  for (it = mapTower_[1].begin() ; it != mapTower_[1].end() ; it++) {
+    //set the BadTT status to 0
+    prod->setValue(it->first,1) ;
+  }
+  
+  return prod; 
+}
 
 void EcalTrigPrimESProducer::parseTextFile()
 {

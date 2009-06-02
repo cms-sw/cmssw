@@ -4,6 +4,8 @@
 #include <DataFormats/EcalDigi/interface/EcalMGPASample.h>
 #include <CondFormats/EcalObjects/interface/EcalTPGPedestals.h>
 #include <CondFormats/EcalObjects/interface/EcalTPGLinearizationConst.h>
+#include <CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h>
+
 #include <vector> 
 
   /** 
@@ -28,7 +30,8 @@
 
     const EcalTPGLinearizationConstant  *linConsts_;
     const EcalTPGPedestal *peds_;
-
+    const EcalTPGCrystalStatusCode *badXStatus_;
+     	
     int setInput(const EcalMGPASample &RawSam) ;
     int process() ;
 
@@ -39,7 +42,7 @@
 
     template <class T>  
       void process(const T &, std::vector<int>&); 
-    void setParameters(uint32_t raw, const EcalTPGPedestals * ecaltpPed,const EcalTPGLinearizationConst * ecaltpLin) ;
+    void setParameters(uint32_t raw, const EcalTPGPedestals * ecaltpPed,const EcalTPGLinearizationConst * ecaltpLin, const EcalTPGCrystalStatus * ecaltpBadX) ;
 };
 
 template <class T> 

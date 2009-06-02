@@ -71,6 +71,7 @@ class EcalFenixStrip {
   const EcalTPGWeightGroup *ecaltpgWeightGroup_;
   const EcalTPGSlidingWindow *ecaltpgSlidW_;
   const EcalTPGFineGrainStripEE *ecaltpgFgStripEE_;
+  const EcalTPGCrystalStatus *ecaltpgBadX_;
 
  public:
 
@@ -79,7 +80,8 @@ class EcalFenixStrip {
 		     const EcalTPGWeightIdMap *ecaltpgWeightMap,
 		     const EcalTPGWeightGroup *ecaltpgWeightGroup,
 		     const EcalTPGSlidingWindow *ecaltpgSlidW,
-		     const EcalTPGFineGrainStripEE *ecaltpgFgStripEE)
+		     const EcalTPGFineGrainStripEE *ecaltpgFgStripEE,
+		     const EcalTPGCrystalStatus *ecaltpgBadX)
     {
       ecaltpPed_=ecaltpPed;
       ecaltpLin_=ecaltpLin;
@@ -87,6 +89,7 @@ class EcalFenixStrip {
       ecaltpgWeightGroup_= ecaltpgWeightGroup;
       ecaltpgSlidW_=ecaltpgSlidW;
       ecaltpgFgStripEE_=ecaltpgFgStripEE;
+      ecaltpgBadX_=ecaltpgBadX;
     }
 
   // main methods
@@ -123,7 +126,7 @@ class EcalFenixStrip {
     }
     const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(samples[0].id());
     uint32_t stripid=elId.rawId() & 0xfffffff8;   //from Pascal
-    process_part1(samples,nrXtals,stripid,ecaltpPed_,ecaltpLin_,ecaltpgWeightMap_,ecaltpgWeightGroup_);//templated part
+    process_part1(samples,nrXtals,stripid,ecaltpPed_,ecaltpLin_,ecaltpgWeightMap_,ecaltpgWeightGroup_,ecaltpgBadX_);//templated part
     process_part2_barrel(stripid,ecaltpgSlidW_);//part different for barrel/endcap
     out=format_out_;
   }
@@ -137,14 +140,15 @@ class EcalFenixStrip {
    }
    const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(samples[0].id());
    uint32_t stripid=elId.rawId() & 0xfffffff8;   //from Pascal
-   process_part1(samples,nrXtals,stripid,ecaltpPed_,ecaltpLin_,ecaltpgWeightMap_,ecaltpgWeightGroup_); //templated part
+   process_part1(samples,nrXtals,stripid,ecaltpPed_,ecaltpLin_,ecaltpgWeightMap_,ecaltpgWeightGroup_,ecaltpgBadX_); //templated part
    process_part2_endcap(stripid,ecaltpgSlidW_,ecaltpgFgStripEE_);
    out=format_out_; //FIXME: timing
    return;
  }
 
  template <class T> 
- void  process_part1(std::vector<T> & df,int nrXtals, uint32_t stripid, const EcalTPGPedestals * ecaltpPed, const EcalTPGLinearizationConst *ecaltpLin,const EcalTPGWeightIdMap * ecaltpgWeightMap,const EcalTPGWeightGroup * ecaltpgWeightGroup)
+ void  process_part1(std::vector<T> & df,int nrXtals, uint32_t stripid, const EcalTPGPedestals * ecaltpPed, const
+ EcalTPGLinearizationConst *ecaltpLin,const EcalTPGWeightIdMap * ecaltpgWeightMap,const EcalTPGWeightGroup * ecaltpgWeightGroup, const EcalTPGCrystalStatus * ecaltpBadX)
    {
   
       if(debug_)  std::cout<<"\n\nEcalFenixStrip input is a vector of size: "<<nrXtals<< std::endl;
@@ -160,7 +164,7 @@ class EcalFenixStrip {
 	  std::cout<<std::endl;
 	}
 	// call linearizer
-	this->getLinearizer(cryst)->setParameters(df[cryst].id().rawId(),ecaltpPed,ecaltpLin) ; 
+	this->getLinearizer(cryst)->setParameters(df[cryst].id().rawId(),ecaltpPed,ecaltpLin,ecaltpBadX) ; 
 	this->getLinearizer(cryst)->process(df[cryst],lin_out_[cryst]);
       }
 
