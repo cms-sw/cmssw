@@ -51,11 +51,11 @@ void SiPixelDcsInfo::beginLuminosityBlock(const LuminosityBlock& lumiBlock, cons
     //Fill active dcs fraction ME's
 //    if(NumberOfFeds_>0){
       //all Pixel:
-      DcsFraction_->Fill(-1.);
+      DcsFraction_->Fill(1.);
       //Barrel:
-      DcsFractionBarrel_->Fill(-1.);
+      DcsFractionBarrel_->Fill(1.);
       //Endcap:
-      DcsFractionEndcap_->Fill(-1.);
+      DcsFractionEndcap_->Fill(1.);
 /*    }else{
       DaqFraction_->Fill(-1);
       DaqFractionBarrel_->Fill(-1);

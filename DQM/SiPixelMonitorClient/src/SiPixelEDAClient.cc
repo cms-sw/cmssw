@@ -149,7 +149,7 @@ void SiPixelEDAClient::beginJob(const edm::EventSetup& eSetup){
   sipixelInformationExtractor_->bookNoisyPixels(bei_, noiseRate_, Tier0Flag_);
   // Booking summary report ME's:
   sipixelDataQuality_->bookGlobalQualityFlag(bei_, Tier0Flag_);
-  if(!Tier0Flag_) nFEDs_ = 40;
+  if(Tier0Flag_) nFEDs_ = 40;
 
 //  cout<<"...leaving SiPixelEDAClient::beginJob. "<<endl;
 }
