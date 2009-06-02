@@ -183,7 +183,7 @@ void popcon::EcalTPGFineGrainEBGroupHandler::getNewObjects()
 		std::string S="";
 		S.insert(0,identTT);
 		
-		unsigned towerEEId = 0;
+		unsigned int towerEEId = 0;
 		towerEEId = atoi(S.c_str());
 				
                 fgrMap->setValue(towerEEId, rd_fgr.getFgrGroupId());
