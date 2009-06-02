@@ -32,7 +32,9 @@ if len(args)!=0:
 
 website = valtools.website()
 bench = valtools.benchmark( options.extension ) 
-print 'submitting benchmark:', bench
+localBench = valtools.benchmark()
+print 'submitting  from local: ', localBench
+print '                    to: ', bench
 
 comparisons = website.listComparisons( bench )
 if len(comparisons)>0:
@@ -63,7 +65,6 @@ if bench.exists( website ) == True:
 
 
 # local benchmark. this one does not have an extension!
-localBench = valtools.benchmark()
 
 shutil.copytree(localBench.fullName(), bench.benchmarkOnWebSite(website) )
 print 'done. Access your benchmark here:'

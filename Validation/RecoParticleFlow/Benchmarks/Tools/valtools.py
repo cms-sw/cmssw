@@ -96,12 +96,16 @@ class website:
         for bench in glob.glob(self.website_ + '/' + pattern):
             # strip off the root path of the website
             p = re.compile('^%s/(\S+)$' % self.website_);
-            m = p.match( bench)
+            m = p.match( bench )
             if m:
+                (release, benchName, extension) = decodePath( m.group(1) )
+                if release == None:
+                    # this is a comparison
+                    continue
                 print
+                bench = benchmark(m.group(1))
                 print bcolors.OKGREEN + m.group(1) + bcolors.ENDC
-                if afs or url:
-                    bench = benchmark(m.group(1))
+                if afs or url:                        
                     if afs: print '  ',bench.benchmarkOnWebSite( self )
                     if url: print '  ',bench.benchmarkUrl( self )
         
@@ -202,7 +206,7 @@ class benchmark:
             m = p.match(line)
             indexFileTmp.write(line)
             if m:
-                link = '<A href="%s">%s</A><BR>' % (url, url)
+                link = '<A href="%s">%s</A><BR>\n' % (url, url)
                 indexFileTmp.write(link)
         shutil.move( indexTmp, index)
 
@@ -233,11 +237,17 @@ class comparison:
                 print 'submission cancelled. run with -h for a solution.'
                 return False
         else:
-            os.makedirs( self.comparisonOnWebSite(website) )
-        
+            print 'comparison directory does not yet exist. creating it.'
+            mkdir = 'mkdir -p ' + self.comparisonOnWebSite(website)
+            print mkdir    
+            if os.system( mkdir ):
+                print 'problem creating the output directory on the website. Aborting.'
+                return False
         cp = 'cp %s %s' % (self.path_ + '/*',
                            self.comparisonOnWebSite(website))
-        os.system(cp)
+        if os.system(cp):
+            print 'problem copying the files to the website aborting'
+            return False
 
         print 'access your comparison here:'
         print '  ', self.comparisonUrl(website)

@@ -113,7 +113,7 @@ ofile2 = open( '%s/infoNotFound.html' % webpage.outputDir_, 'w' )
 ofile2.write( subst2 )
 ofile2.close()
 
-# if submission is forced, the user does want
+# if submission is forced, it means that the user does want
 # to submit. 
 if  webpage.options_.submitForce:
     webpage.options_.submit = True
