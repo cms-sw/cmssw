@@ -63,9 +63,9 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
   if (aTrack->GetCreatorProcess()==0 || aTrack->GetParentID()==0) {
     newTA.primary(aTrack);
   } else if (aTrack->GetTouchable() == 0) {
-    edm::LogError("SimG4CoreApplication") 
-      << "StackingAction: no touchable for track " << aTrack->GetTrackID() 
-      << " from " << aTrack->GetParentID() 
+    edm::LogError("SimG4CoreApplication")
+      << "StackingAction: no touchable for track " << aTrack->GetTrackID()
+      << " from " << aTrack->GetParentID()
       << " with PDG code " << aTrack->GetDefinition()->GetParticleName();
     classification = fKill;
   } else {
@@ -116,7 +116,7 @@ void StackingAction::initPointer() {
     for (pvcite = pvs->begin(); pvcite != pvs->end(); pvcite++) {
       if (savePDandCinTracker) {
         if ((*pvcite)->GetName() == "Tracker") tracker = (*pvcite);
-        if ((*pvcite)->GetName() == "Beam")    beam    = (*pvcite);
+        if ((*pvcite)->GetName() == "BEAM")    beam    = (*pvcite);
       }
       if (savePDandCinCalo) {
         if ((*pvcite)->GetName() == "CALO")    calo    = (*pvcite);

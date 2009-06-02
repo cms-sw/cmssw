@@ -33,8 +33,8 @@ bool ExceptionHandler::Notify(const char* exceptionOrigin,const char* exceptionC
     case FatalException:
         if ( aps==G4State_EventProc && exceptionOrigin==string("G4HadronicProcess") )
         {
-        cout << "*** Fatal exception *** (will be fixed in v4.8.3) ***" << endl;
-        throw SimG4Exception( "SimG4CoreApplication: Bug in G4HadronicProcess will be fixed in G4.8.3" ) ;
+        cout << "*** Fatal exception *** " << endl;
+        throw SimG4Exception( "SimG4CoreApplication: Bug in G4HadronicProcess" ) ;
         }
         else
         {

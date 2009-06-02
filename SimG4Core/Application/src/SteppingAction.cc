@@ -235,6 +235,9 @@ bool SteppingAction::initPointer() {
 					 << " with code " << ekinPDG[i]
 					 << " and KE cut off " << ekinMins[i];
   }
+  if (!flag) edm::LogInfo("SimG4CoreApplication") << "SteppingAction fails to"
+						  << " initialize some the "
+						  << "LV pointers correctly";
 
   const G4RegionStore * rs = G4RegionStore::GetInstance();
   num = maxTimeNames.size();
@@ -253,7 +256,6 @@ bool SteppingAction::initPointer() {
 	if (tofs.size() == num) break;
       }
     }
-    if (tofs.size() != num) flag = false;
     for (unsigned int i=0; i<tofs.size(); i++) {
       maxTrackTimes[i] = tofs[i];
       G4String name = "Unknown";
@@ -262,10 +264,11 @@ bool SteppingAction::initPointer() {
 					   << maxTimeRegions[i]<<" KE cut off "
 					   << maxTrackTimes[i];
     }
+    if (tofs.size() != num) 
+      edm::LogInfo("SimG4CoreApplication") << "SteppingAction fails to "
+					   << "initialize some the region "
+					   << "pointers correctly";
   }
-  if (!flag) edm::LogInfo("SimG4CoreApplication") << "SteppingAction fails to"
-						  << " initialize some pointer"
-						  << " correctly";
   return true;
 }
 
