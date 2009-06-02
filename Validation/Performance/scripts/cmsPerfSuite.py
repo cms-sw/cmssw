@@ -180,7 +180,7 @@ class PerfSuite:
 
         #Adding a filein option to use pre-processed RAW file for RECO and HLT:
         parser.add_option('--filein'             , type='string', dest='userInputFile' , metavar='<FILE>', #default="",
-            help = 'specify input RAW root file for HLT and RAW2DIGI-RECO')
+            help = 'specify input RAW root file for HLT and RAW2DIGI-RECO (list the files in the same order as the candles for the tests)')
                 
         #####################
         #    
@@ -358,6 +358,7 @@ class PerfSuite:
         IgProfPUCandles=[]
         CallgrindPUCandles=[]
         MemcheckPUCandles=[]
+        userInputRootFiles=[]
         if RunTimeSize:
             TimeSizeCandles = RunTimeSize.split(",")
         if RunIgProf:
@@ -396,6 +397,8 @@ class PerfSuite:
             #Some smart removal of duplicates from the list!
             temp=set(MemcheckPUCandles)
             MemcheckPUCandles=list(temp) #Doing it in 2 steps to avoid potential issues with type of arguments
+        if userInputFile:
+           userInputRootFiles=userInputFile.split(",")
 
 
         #############
@@ -440,7 +443,7 @@ class PerfSuite:
                 CallgrindPUCandles,
                 MemcheckPUCandles ,
                 PUInputFile     ,
-                userInputFile)
+                userInputRootFiles)
     
     #def usage(self):
     #    return __doc__
@@ -689,7 +692,7 @@ class PerfSuite:
     ##############
     # Prepares the profiling directory and runs all the selected profiles (if this is not a unit test)
     #
-    def simpleGenReport(self,cpus,perfdir,NumEvents,candles,cmsdriverOptions,stepOptions,Name,profilers,bypasshlt,userInputFile):
+    def simpleGenReport(self,cpus,perfdir,NumEvents,candles,cmsdriverOptions,stepOptions,Name,profilers,bypasshlt,userInputRootFiles):
         callgrind = Name == "Callgrind"
         memcheck  = Name == "Memcheck"
     
@@ -717,12 +720,21 @@ class PerfSuite:
                     #print "PUPUPU %s"%adir
                 else:
                     adir=self.mkCandleDir(pfdir,candle,Name)       
-
                 if self._unittest:
                     # Run cmsDriver.py
-                    self.runCmsInput(cpu,adir,NumEvents,candle,cmsdriverOptions,stepOptions,profiles,bypasshlt,userInputFile)
+                    if userInputRootFiles:
+                       print userInputRootFiles
+                       userInputFile=userInputRootFiles[0]
+                    else:
+                       userInputFile=""
+                    self.runCmsInput(cpu,adir,NumEvents,candle,cmsdriverOptions,stepOptions,profiles,bypasshlt,userInputFile) 
                     self.testCmsDriver(cpu,adir,candle)
                 else:
+                    if userInputRootFiles:
+                       print "Variable userInputRootFiles is %s"%userInputRootFiles
+                       userInputFile=userInputRootFiles[candles.index(candle)]
+                    else:
+                       userInputFile=""
                     self.runCmsInput(cpu,adir,NumEvents,candle,cmsdriverOptions,stepOptions,profiles,bypasshlt,userInputFile)            
                     #Here where the no_exec option kicks in (do everything but do not launch cmsRelvalreport.py, it also prevents cmsScimark spawning...):
                     if self._noexec:
