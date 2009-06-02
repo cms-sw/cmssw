@@ -35,14 +35,17 @@ class GenObject (object):
     ## Static Member Data ##
     ########################
 
-    types              = Enumerate ("float int string", "type")
+    types              = Enumerate ("float int long string", "type")
     _objFunc           = Enumerate ("obj func", "of")
     _cppType           = dict ( {types.float  : 'double',
                                  types.int    : 'int',
+                                 types.long   : 'long',
                                  types.string : 'std::string' } )
-    _basicSet          = set( [types.float, types.int, types.string] )
+    _basicSet          = set( [types.float, types.int, types.float,
+                               types.string] )
     _defaultValue      = dict ( {types.float  : 0.,
                                  types.int    : 0,
+                                 types.long   : 0L,
                                  types.string : '""' } )
     _objsDict          = {} # info about GenObjects
     _equivDict         = {} # hold info about 'equivalent' muons
@@ -221,7 +224,7 @@ class GenObject (object):
                     diffClass   += "         %s (%s)" % (otherKey, default)
                     diffDataDec += "      %s %s;\n" % (cppType, otherKey)
                 else:
-                    # float or int
+                    # float, long, or int
                     deltaKey = 'delta_' + key
                     diffClass   += "         %s (%s)" % (deltaKey, default)
                     diffDataDec += "      %s %s;\n" % (cppType, deltaKey)
@@ -323,6 +326,16 @@ class GenObject (object):
         by GenObject."""
         GenObject._tofillGenObject()
         GenObject._loadGoRootLibrary()
+
+
+    @staticmethod
+    def loadConfigFileNew (configFile):
+        """Loads configuration file"""
+        objName    = ""
+        tupleName  = ""
+        tofillName = ""
+        modeEnum   = Enumerate ("none define tofill ntuple", "mode")
+        mode       = modeEnum.none
 
 
     @staticmethod
@@ -598,7 +611,7 @@ class GenObject (object):
                     # agree
                     setattr( rootObj, otherName, '' )
             else:
-                # float or int
+                # float, long, or int
                 deltaName = 'delta_' + varName
                 setattr( rootObj, deltaName,
                          obj2 (varName) - obj1 (varName) )
@@ -1225,7 +1238,7 @@ class GenObject (object):
     @staticmethod
     def _convertStringToParameters (string):
         """Convert comma-separated string into a python list of
-        parameters.  Currently only understands strings, floats, and
+        parameters.  Currently only understands strings, floats,  and
         integers."""
         retval = []        
         words = GenObject._commaRE.split (string)
@@ -1314,8 +1327,18 @@ class GenObject (object):
                     # representations of integers.
                     value = int (value)
                 except:
+                    try:
                     # This works with string representations of floats
                     value = int( float( value ) )
+            elif GenObject.types.long == varType:
+                try:
+                    # This will work with integers, floats, and string
+                    # representations of integers.
+                    value = long (value)
+                except:
+                    try:
+                    # This works with string representations of floats
+                    value = long( float( value ) )
             elif GenObject.types.float == varType:
                 # Make sure it's a float
                 value = float (value)
