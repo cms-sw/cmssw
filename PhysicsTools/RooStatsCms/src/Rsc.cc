@@ -113,7 +113,7 @@ namespace Rsc
         int current_bin=initial_maxbin;
         double bincontent=0;
         // right
-        while(bincontent==0){
+        while(bincontent==0 && current_bin < histo->GetNbinsX()){
             current_bin++;
             bincontent=histo->GetBinContent(current_bin);
             }
