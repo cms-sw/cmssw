@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTF.cc
  *
- * $Date: 2009/03/24 14:13:57 $
- * $Revision: 1.27 $
+ * $Date: 2009/03/26 14:07:54 $
+ * $Revision: 1.28 $
  * \author J. Berryhill
  *
  */
@@ -349,9 +349,14 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
     
           if (verbose_) cout << "RPCTFCand bx " << ECItr->bx() << endl;
           
+          int tower = ECItr->eta_packed();
+          if (tower > 16) {
+            tower = - ( (~tower & 63) + 1);
+          }
+
           rpctfbx->Fill(ECItr->bx());
     
-          rpctfetavalue[bxindex]->Fill(ECItr->etaValue());
+          rpctfetavalue[bxindex]->Fill(tower);
           if (verbose_) cout << "\tRPCTFCand eta value " << ECItr->etaValue() << endl;
   
           rpctfphivalue[bxindex]->Fill(ECItr->phi_packed());
@@ -366,10 +371,6 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
           rpctfquality[bxindex]->Fill(ECItr->quality());
           if (verbose_) cout << "\tRPCTFCand quality " << ECItr->quality() << endl;
           
-          int tower = ECItr->eta_packed();
-          if (tower > 16) {
-            tower = - ( (~tower & 63) + 1);
-          }
 
           m_qualVsEta[bxindex]->Fill(tower, ECItr->quality());
           m_muonsEtaPhi[bxindex]->Fill(tower, ECItr->phi_packed());
@@ -412,12 +413,12 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
 
    for(unsigned int i = 0; i < all_bxdelays.size(); i++) {
 
-     int sector= ((all_bxdelays[i].phi_p+ 2)%144)/12;
+     int sector= ((all_bxdelays[i].phi_p+ 142)%144)/12;
      if (sector>11 || sector < 0) continue;
      int eta_tower = all_bxdelays[i].eta_t;
      for(unsigned int j = 0; j < all_bxdelays.size(); j++) {
        if(i == j) continue;
-       int sector2= ((all_bxdelays[j].phi_p + 2)%144)/12;
+       int sector2= ((all_bxdelays[j].phi_p + 142)%144)/12;
  
        int distance_cut = 1;
        int distance = ((sector+12)-sector2)%12;
