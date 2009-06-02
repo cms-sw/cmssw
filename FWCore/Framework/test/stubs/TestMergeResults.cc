@@ -1,5 +1,5 @@
 
-// $Id: TestMergeResults.cc,v 1.13 2008/12/18 04:49:04 wmtan Exp $
+// $Id: TestMergeResults.cc,v 1.14 2009/05/05 02:02:05 chrjones Exp $
 //
 // Reads some simple test objects in the event, run, and lumi
 // principals.  Then checks to see if the values in these
@@ -36,44 +36,40 @@ namespace edm {
   class EventSetup;
 }
 
-using namespace edm;
+namespace edmtest {
 
-namespace edmtest
-{
-
-  class TestMergeResults : public edm::EDAnalyzer
-  {
+  class TestMergeResults : public edm::EDAnalyzer {
   public:
 
     explicit TestMergeResults(edm::ParameterSet const&);
     virtual ~TestMergeResults();
 
     virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
-    virtual void beginRun(Run const&, EventSetup const&);
-    virtual void endRun(Run const&, EventSetup const&);
-    virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&);
-    virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&);
-    virtual void respondToOpenInputFile(FileBlock const& fb);
-    virtual void respondToCloseInputFile(FileBlock const& fb);
-    virtual void respondToOpenOutputFiles(FileBlock const& fb);
-    virtual void respondToCloseOutputFiles(FileBlock const& fb);
+    virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+    virtual void endRun(edm::Run const&, edm::EventSetup const&);
+    virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+    virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+    virtual void respondToOpenInputFile(edm::FileBlock const& fb);
+    virtual void respondToCloseInputFile(edm::FileBlock const& fb);
+    virtual void respondToOpenOutputFiles(edm::FileBlock const& fb);
+    virtual void respondToCloseOutputFiles(edm::FileBlock const& fb);
     void endJob();
 
   private:
 
     void checkExpectedLumiProducts(unsigned int index,
                                    std::vector<int> const& expectedValues,
-                                   InputTag const& tag,
-                                   const char* functionName,
-                                   LuminosityBlock const& lumi);
+                                   edm::InputTag const& tag,
+                                   char const* functionName,
+                                   edm::LuminosityBlock const& lumi);
 
     void checkExpectedRunProducts(unsigned int index,
                                   std::vector<int> const& expectedValues,
-                                  InputTag const& tag,
-                                  const char* functionName,
-                                  Run const& run);
+                                  edm::InputTag const& tag,
+                                  char const* functionName,
+                                  edm::Run const& run);
 
-    void abortWithMessage(const char* whichFunction, const char* type, edm::InputTag const& tag,
+    void abortWithMessage(char const* whichFunction, char const* type, edm::InputTag const& tag,
                           int expectedValue, int actualValue) const;
 
     std::vector<int> default_;
@@ -161,25 +157,21 @@ namespace edmtest
     index5_(0),
     index6_(0),
     index7_(0),
-    parentIndex_(0)
-
-  {
+    parentIndex_(0) {
   }
 
   // -----------------------------------------------------------------
 
-  TestMergeResults::~TestMergeResults()
-  {
+  TestMergeResults::~TestMergeResults() {
   }
 
   // -----------------------------------------------------------------
 
-  void TestMergeResults::analyze(edm::Event const& e,edm::EventSetup const&)
-  {
+  void TestMergeResults::analyze(edm::Event const& e,edm::EventSetup const&) {
     if (verbose_) edm::LogInfo("TestMergeResults") << "analyze";
 
-    Run const& run = e.getRun();
-    LuminosityBlock const& lumi = e.getLuminosityBlock();
+    edm::Run const& run = e.getRun();
+    edm::LuminosityBlock const& lumi = e.getLuminosityBlock();
 
     edm::InputTag tag0("thingWithMergeProducer", "beginRun", "PROD");
     checkExpectedRunProducts(index0_, expectedBeginRunProd_, tag0, "analyze", run);
@@ -227,12 +219,12 @@ namespace edmtest
       edm::InputTag tag("thingWithMergeProducer", "event", "PROD");
       e.getByLabel(tag, h_thing);
       std::string expectedParent = expectedParents_[parentIndex_];
-      BranchID actualParentBranchID = h_thing.provenance()->parentage().parents()[0];
+      edm::BranchID actualParentBranchID = h_thing.provenance()->parentage().parents()[0];
 
       // There ought to be a get that uses the BranchID as an argument, but
       // there is not at the moment so we get the Provenance first and use that
       // find the actual parent
-      Provenance prov = e.getProvenance(actualParentBranchID);
+      edm::Provenance prov = e.getProvenance(actualParentBranchID);
       assert(expectedParent == prov.moduleLabel());
       edm::InputTag tagparent(prov.moduleLabel(), prov.productInstanceName(), prov.processName());
       e.getByLabel(tagparent, h_thing);
@@ -241,7 +233,7 @@ namespace edmtest
     }
   }
 
-  void TestMergeResults::beginRun(Run const& run, EventSetup const&) {
+  void TestMergeResults::beginRun(edm::Run const& run, edm::EventSetup const&) {
 
     index0_ += 3;
     index4_ += 3;
@@ -266,7 +258,7 @@ namespace edmtest
     }
   }
 
-  void TestMergeResults::endRun(Run const& run, EventSetup const&) {
+  void TestMergeResults::endRun(edm::Run const& run, edm::EventSetup const&) {
 
     index0_ += 3;
     index4_ += 3;
@@ -291,7 +283,7 @@ namespace edmtest
     }
   }
 
-  void TestMergeResults::beginLuminosityBlock(LuminosityBlock const& lumi, EventSetup const&) {
+  void TestMergeResults::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) {
 
     index2_ += 3;
     index6_ += 3;
@@ -322,7 +314,7 @@ namespace edmtest
     }
   }
 
-  void TestMergeResults::endLuminosityBlock(LuminosityBlock const& lumi, EventSetup const&) {
+  void TestMergeResults::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) {
 
     index2_ += 3;
     index6_ += 3;
@@ -353,7 +345,7 @@ namespace edmtest
     }
   }
 
-  void TestMergeResults::respondToOpenInputFile(FileBlock const& fb) {
+  void TestMergeResults::respondToOpenInputFile(edm::FileBlock const& fb) {
 
     index0_ += 3;
     index1_ += 3;
@@ -379,17 +371,17 @@ namespace edmtest
     ++nRespondToOpenInputFile_;
   }
 
-  void TestMergeResults::respondToCloseInputFile(FileBlock const& fb) {
+  void TestMergeResults::respondToCloseInputFile(edm::FileBlock const& fb) {
     if (verbose_) edm::LogInfo("TestMergeResults") << "respondToCloseInputFile";
     ++nRespondToCloseInputFile_;
   }
 
-  void TestMergeResults::respondToOpenOutputFiles(FileBlock const& fb) {
+  void TestMergeResults::respondToOpenOutputFiles(edm::FileBlock const& fb) {
     if (verbose_) edm::LogInfo("TestMergeResults") << "respondToOpenOutputFiles";
     ++nRespondToOpenOutputFiles_;
   }
 
-  void TestMergeResults::respondToCloseOutputFiles(FileBlock const& fb) {
+  void TestMergeResults::respondToCloseOutputFiles(edm::FileBlock const& fb) {
     if (verbose_) edm::LogInfo("TestMergeResults") << "respondToCloseOutputFiles";
     ++nRespondToCloseOutputFiles_;
   }
@@ -426,9 +418,9 @@ namespace edmtest
   void
   TestMergeResults::checkExpectedRunProducts(unsigned int index,
                                              std::vector<int> const& expectedValues,
-                                             InputTag const& tag,
-                                             const char* functionName,
-                                             Run const& run) {
+                                             edm::InputTag const& tag,
+                                             char const* functionName,
+                                             edm::Run const& run) {
 
     if ((index + 2) < expectedValues.size()) {
 
@@ -458,9 +450,9 @@ namespace edmtest
   void
   TestMergeResults::checkExpectedLumiProducts(unsigned int index,
                                               std::vector<int> const& expectedValues,
-                                              InputTag const& tag,
-                                              const char* functionName,
-                                              LuminosityBlock const& lumi) {
+                                              edm::InputTag const& tag,
+                                              char const* functionName,
+                                              edm::LuminosityBlock const& lumi) {
 
     if ((index + 2) < expectedValues.size()) {
 
@@ -487,7 +479,7 @@ namespace edmtest
     }
   }
 
-  void TestMergeResults::abortWithMessage(const char* whichFunction, const char* type, edm::InputTag const& tag,
+  void TestMergeResults::abortWithMessage(char const* whichFunction, char const* type, edm::InputTag const& tag,
                                           int expectedValue, int actualValue) const {
     std::cerr << "Error while testing merging of run/lumi products in TestMergeResults.cc\n"
               << "In function " << whichFunction << " looking for product of type " << type << "\n"

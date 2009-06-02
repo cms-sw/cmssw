@@ -78,12 +78,20 @@ namespace edm {
       void reorderIfNecessary(BranchType, ProcessHistory const&, std::string const& iNewProcessName);
       
       void fillFrom(FillFromMap const&);
+
+      const_iterator begin() const {return productLookupIndexList_.begin();}
+
+      const_iterator end() const {return productLookupIndexList_.end();}
+
+      int fillCount() const {return fillCount_;}
+
    private:
       // ---------- member data --------------------------------
       TypeInBranchTypeLookup branchLookup_;
       ProductLookupIndexList productLookupIndexList_;
       std::vector<ProcessHistoryID> historyIDsForBranchType_;
       std::vector<std::vector<std::string> > processNameOrderingForBranchType_;
+      int fillCount_;
    };
    
 }

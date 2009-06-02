@@ -188,7 +188,9 @@ namespace edm {
   Principal::getByLabel(TypeID const& productType,
 			std::string const& label,
 			std::string const& productInstanceName,
-			std::string const& processName) const {
+			std::string const& processName,
+			size_t& cachedOffset,
+			int& fillCount) const {
 
     BasicHandle result;
     
@@ -197,6 +199,8 @@ namespace edm {
                                   label,
                                   productInstanceName,
                                   processName,
+			          cachedOffset,
+			          fillCount,
                                   result);
 
     if (!found) {
@@ -398,14 +402,23 @@ namespace edm {
 			      std::string const& moduleLabel,
 			      std::string const& productInstanceName,
 			      std::string const& processName,
+			      size_t& cachedOffset,
+			      int& fillCount,
 			      BasicHandle& result) const {
     assert(!result.isValid());
 
     typedef TransientProductLookupMap TypeLookup;
-    // A class without a dictionary cannot be in an Event/Lumi/Run.
-    // First, we check if the class has a dictionary.  If it does not,
-    // we return immediately.
-    std::pair<TypeLookup::const_iterator, TypeLookup::const_iterator> const range = typeLookup.equal_range(TypeInBranchType(typeID,branchType_), moduleLabel, productInstanceName);
+    bool isCached = (fillCount > 0  && fillCount == typeLookup.fillCount());
+    bool toBeCached = (fillCount >= 0 && !isCached);
+
+    std::pair<TypeLookup::const_iterator, TypeLookup::const_iterator> const range =
+        (isCached ? std::make_pair(typeLookup.begin() + cachedOffset, typeLookup.end()) : typeLookup.equal_range(TypeInBranchType(typeID,branchType_), moduleLabel, productInstanceName));
+
+    if (toBeCached) {
+      cachedOffset = range.first - typeLookup.begin();
+      fillCount = typeLookup.fillCount();
+    }
+
     if(range.first == range.second) {
       return false;
     }

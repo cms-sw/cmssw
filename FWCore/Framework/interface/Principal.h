@@ -78,7 +78,9 @@ namespace edm {
     BasicHandle  getByLabel(TypeID const& tid,
 			    std::string const& label,
 			    std::string const& productInstanceName,
-			    std::string const& processName) const;
+			    std::string const& processName,
+			    size_t& cachedOffset,
+			    int& fillCount) const;
 
     void getMany(TypeID const& tid, 
 		 SelectorBase const&,
@@ -122,7 +124,7 @@ namespace edm {
     // merge Principals containing different groups.
     void recombine(Principal & other, std::vector<BranchID> const& bids);
 
-    size_t  size() const { return size_; }
+    size_t size() const { return size_; }
 
     const_iterator begin() const {return boost::make_filter_iterator<FilledGroupPtr>(groups_.begin(), groups_.end());}
     const_iterator end() const {return  boost::make_filter_iterator<FilledGroupPtr>(groups_.end(), groups_.end());}
@@ -179,6 +181,8 @@ namespace edm {
 			  std::string const& moduleLabel,
 			  std::string const& productInstanceName,
 			  std::string const& processName,
+			  size_t& cachedOffset,
+			  int& fillCount,
 			  BasicHandle& result) const;
 
     size_t findGroups(TypeID const& typeID,
@@ -223,7 +227,7 @@ namespace edm {
   inline
   boost::shared_ptr<Wrapper<PROD> const> 	 
   getProductByTag(Principal const& ep, InputTag const& tag) {
-    return boost::dynamic_pointer_cast<Wrapper<PROD> const>(ep.getByLabel(TypeID(typeid(PROD)), tag.label(), tag.instance(), tag.process()).product());
+    return boost::dynamic_pointer_cast<Wrapper<PROD> const>(ep.getByLabel(TypeID(typeid(PROD)), tag.label(), tag.instance(), tag.process(), tag.cachedOffset(), tag.fillCount()).product());
   }
 }
 #endif

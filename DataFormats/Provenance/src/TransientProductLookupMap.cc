@@ -58,8 +58,11 @@ namespace edm {
   // constructors and destructor
   //
   TransientProductLookupMap::TransientProductLookupMap() :
+      branchLookup_(),
+      productLookupIndexList_(),
       historyIDsForBranchType_(static_cast<unsigned int>(NumBranchTypes), ProcessHistoryID()),
-      processNameOrderingForBranchType_(static_cast<unsigned int>(NumBranchTypes), std::vector<std::string>()) {
+      processNameOrderingForBranchType_(static_cast<unsigned int>(NumBranchTypes), std::vector<std::string>()),
+      fillCount_() {
   }
   
   // TransientProductLookupMap::TransientProductLookupMap(TransientProductLookupMap const& rhs) {
@@ -129,7 +132,7 @@ namespace edm {
            std::string const& rhs = iRHS.branchDescription()->processName();
            if(lhs == rhs) {return false;}
            //NOTE: names in the vector are oldest to newest and we want to order by newest
-           for(std::vector<std::string>::const_reverse_iterator it = list_->rbegin(), itEnd =list_->rend();
+           for(std::vector<std::string>::const_reverse_iterator it = list_->rbegin(), itEnd = list_->rend();
                it != itEnd;
                ++it){
               if(*it == lhs) {return true;}
@@ -268,10 +271,10 @@ namespace edm {
         return;
      }
      //convert this into Index iterators since that is the structure we must reorder
-     ProductLookupIndexList::iterator itIndex = productLookupIndexList_.begin()+branchRange.first->second;
+     ProductLookupIndexList::iterator itIndex = productLookupIndexList_.begin() + branchRange.first->second;
      ProductLookupIndexList::iterator itIndexEnd = productLookupIndexList_.end();
      if(branchRange.second != branchLookup_.end()) {
-        itIndexEnd = productLookupIndexList_.begin()+branchRange.second->second;
+        itIndexEnd = productLookupIndexList_.begin() + branchRange.second->second;
      }
      
      while(itIndex != itIndexEnd) {
@@ -286,15 +289,18 @@ namespace edm {
      }
      
      //Now that we know all the IDs time to set the values
-     fillInProcessIndexes(productLookupIndexList_.begin()+branchRange.first->second, itIndexEnd, processNameOrdering);
+     fillInProcessIndexes(productLookupIndexList_.begin() + branchRange.first->second, itIndexEnd, processNameOrdering);
   
   }
   
   void 
   TransientProductLookupMap::fillFrom(FillFromMap const& iMap) {
 
-     assert(processNameOrderingForBranchType_.size()==historyIDsForBranchType_.size());
+     assert(processNameOrderingForBranchType_.size() == historyIDsForBranchType_.size());
   
+     //Increment the fill count so users can check if the map has been modified.
+     ++fillCount_;
+
      productLookupIndexList_.clear();
      productLookupIndexList_.reserve(iMap.size());
      branchLookup_.clear();

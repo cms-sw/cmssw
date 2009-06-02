@@ -194,6 +194,15 @@ namespace edm {
 		std::string const& productInstanceName,
 		std::string const& processName) const;
 
+    BasicHandle 
+    getByLabel_(TypeID const& tid,
+		std::string const& label,
+		std::string const& productInstanceName,
+		std::string const& processName,
+		TypeID& typeID,
+		size_t& cachedOffset,
+		int& fillCount) const;
+
     void 
     getMany_(TypeID const& tid, 
 	     SelectorBase const& sel, 
@@ -262,8 +271,7 @@ namespace edm {
   template <typename PROD>
   inline
   std::ostream& 
-  operator<<(std::ostream& os, Handle<PROD> const& h)
-  {
+  operator<<(std::ostream& os, Handle<PROD> const& h) {
     os << h.product() << " " << h.provenance() << " " << h.id();
     return os;
   }
@@ -283,8 +291,7 @@ namespace edm {
   // member function (with the right signature), and 'false' if T has
   // no such member function.
 
-  namespace detail 
-  {
+  namespace detail {
     typedef char (& no_tag )[1]; // type indicating FALSE
     typedef char (& yes_tag)[2]; // type indicating TRUE
 
@@ -296,11 +303,10 @@ namespace edm {
 
 
     template<typename T>
-    struct has_postinsert
-    {
+    struct has_postinsert {
       static bool const value = 
 	sizeof(has_postinsert_helper<T>(0)) == sizeof(yes_tag) &&
-	!boost::is_base_of<edm::DoNotSortUponInsertion, T>::value;
+	!boost::is_base_of<DoNotSortUponInsertion, T>::value;
     };
 
 
@@ -308,10 +314,9 @@ namespace edm {
     // record parentage for type T, and false otherwise.
 
     template <typename T>
-    struct has_donotrecordparents
-    {
+    struct has_donotrecordparents {
       static bool const value = 
-	boost::is_base_of<edm::DoNotRecordParents,T>::value;
+	boost::is_base_of<DoNotRecordParents,T>::value;
     };
 
   }
@@ -323,14 +328,12 @@ namespace edm {
   // post_insert function (if it has one), or to do nothing (if it
   // does not have a post_insert function).
   template <typename T>
-  struct DoPostInsert
-  {
+  struct DoPostInsert {
     void operator()(T* p) const { p->post_insert(); }
   };
 
   template <typename T>
-  struct DoNotPostInsert
-  {
+  struct DoNotPostInsert {
     void operator()(T*) const { }
   };
 
@@ -342,8 +345,7 @@ namespace edm {
   inline
   bool 
   DataViewImpl::get(SelectorBase const& sel,
-		    Handle<PROD>& result) const
-  {
+		    Handle<PROD>& result) const {
     result.clear();
     BasicHandle bh = this->get_(TypeID(typeid(PROD)),sel);
     convert_handle(bh, result);  // throws on conversion error
@@ -357,8 +359,7 @@ namespace edm {
   inline
   bool
   DataViewImpl::getByLabel(std::string const& label,
-			   Handle<PROD>& result) const
-  {
+			   Handle<PROD>& result) const {
     result.clear();
     return getByLabel(label, std::string(), result);
   }
@@ -366,10 +367,9 @@ namespace edm {
   template <typename PROD>
   inline
   bool
-  DataViewImpl::getByLabel(InputTag const& tag, Handle<PROD>& result) const
-  {
+  DataViewImpl::getByLabel(InputTag const& tag, Handle<PROD>& result) const {
     result.clear();
-    BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), tag.label(), tag.instance(), tag.process());
+    BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), tag.label(), tag.instance(), tag.process(), tag.typeID(), tag.cachedOffset(), tag.fillCount());
     convert_handle(bh, result);  // throws on conversion error
     if (bh.failedToGet()) {
       return false;
@@ -382,8 +382,7 @@ namespace edm {
   bool
   DataViewImpl::getByLabel(std::string const& label,
 			   std::string const& productInstanceName,
-			   Handle<PROD>& result) const
-  {
+			   Handle<PROD>& result) const {
     result.clear();
     BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, std::string());
     convert_handle(bh, result);  // throws on conversion error
@@ -397,8 +396,7 @@ namespace edm {
   inline
   void 
   DataViewImpl::getMany(SelectorBase const& sel,
-			std::vector<Handle<PROD> >& results) const
-  { 
+			std::vector<Handle<PROD> >& results) const { 
     BasicHandleVec bhv;
     this->getMany_(TypeID(typeid(PROD)), sel, bhv);
     
@@ -431,8 +429,7 @@ namespace edm {
   template <typename PROD>
   inline
   bool
-  DataViewImpl::getByType(Handle<PROD>& result) const
-  {
+  DataViewImpl::getByType(Handle<PROD>& result) const {
     result.clear();
     BasicHandle bh = this->getByType_(TypeID(typeid(PROD)));
     convert_handle(bh, result);  // throws on conversion error
@@ -445,8 +442,7 @@ namespace edm {
   template <typename PROD>
   inline
   void 
-  DataViewImpl::getManyByType(std::vector<Handle<PROD> >& results) const
-  { 
+  DataViewImpl::getManyByType(std::vector<Handle<PROD> >& results) const { 
     BasicHandleVec bhv;
     this->getManyByType_(TypeID(typeid(PROD)), bhv);
     

@@ -42,8 +42,7 @@ Test of the EventPrincipal class.
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
-class test_ep: public CppUnit::TestFixture 
-{
+class test_ep: public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(test_ep);
   CPPUNIT_TEST(failgetbyIdTest);
   CPPUNIT_TEST(failgetbySelectorTest);
@@ -102,8 +101,7 @@ test_ep::fake_single_module_process(std::string const& tag,
 				    std::string const& processName,
 				    edm::ParameterSet const& moduleParams,
 				    std::string const& release,
-				    std::string const& pass)
-{
+				    std::string const& pass) {
   edm::ParameterSet processParams;
   processParams.addParameter(processName, moduleParams);
   processParams.addParameter<std::string>("@process_name",
@@ -119,8 +117,7 @@ test_ep::fake_single_module_process(std::string const& tag,
 boost::shared_ptr<edm::BranchDescription>
 test_ep::fake_single_process_branch(std::string const& tag, 
 				    std::string const& processName,
-				    std::string const& productInstanceName)
-{
+				    std::string const& productInstanceName) {
   std::string moduleLabel = processName + "dummyMod";
   std::string moduleClass("DummyModule");
   edm::TypeID dummyType(typeid(edmtest::DummyProduct));
@@ -146,8 +143,7 @@ test_ep::fake_single_process_branch(std::string const& tag,
   return result;
 }
 
-void test_ep::setUp()
-{
+void test_ep::setUp() {
   edm::BranchIDListHelper::clearRegistries();
 
   // Making a functional EventPrincipal is not trivial, so we do it
@@ -180,7 +176,7 @@ void test_ep::setUp()
     edm::BranchKey const bk(branch);
     edm::ProductRegistry::ProductList::const_iterator it = pl.find(bk);
 
-    const edm::ConstBranchDescription branchFromRegistry(it->second);
+    edm::ConstBranchDescription const branchFromRegistry(it->second);
 
     boost::shared_ptr<edm::Parentage> entryDescriptionPtr(new edm::Parentage);
     std::auto_ptr<edm::ProductProvenance> branchEntryInfoPtr(
@@ -207,14 +203,12 @@ void test_ep::setUp()
 }
 
 template <class MAP>
-void clear_map(MAP& m)
-{
+void clear_map(MAP& m) {
   for (typename MAP::iterator i = m.begin(), e = m.end(); i != e; ++i)
     i->second.reset();
 }
 
-void test_ep::tearDown()
-{
+void test_ep::tearDown() {
 
   clear_map(branchDescriptions_);
   clear_map(processConfigurations_);
@@ -230,8 +224,7 @@ void test_ep::tearDown()
 // Test functions
 //----------------------------------------------------------------------
 
-void test_ep::failgetbyIdTest() 
-{
+void test_ep::failgetbyIdTest() {
   edm::ProductID invalid;
   CPPUNIT_ASSERT_THROW(pEvent_->getByProductID(invalid), edm::Exception);
 
@@ -240,8 +233,7 @@ void test_ep::failgetbyIdTest()
   CPPUNIT_ASSERT(h.failedToGet());
 }
 
-void test_ep::failgetbySelectorTest()
-{
+void test_ep::failgetbySelectorTest() {
   // We don't put ProductIDs into the EventPrincipal,
   // so that's a type sure not to match any product.
   edm::ProductID dummy;
@@ -252,8 +244,7 @@ void test_ep::failgetbySelectorTest()
   CPPUNIT_ASSERT(h.failedToGet());
 }
 
-void test_ep::failgetbyLabelTest() 
-{
+void test_ep::failgetbyLabelTest() {
   // We don't put ProductIDs into the EventPrincipal,
   // so that's a type sure not to match any product.
   edm::ProductID dummy;
@@ -261,12 +252,13 @@ void test_ep::failgetbyLabelTest()
 
   std::string label("this does not exist");
 
-  edm::BasicHandle h(pEvent_->getByLabel(tid, label, std::string(), std::string()));
+  size_t cachedOffset = 0;
+  int fillCount = 0;
+  edm::BasicHandle h(pEvent_->getByLabel(tid, label, std::string(), std::string(), cachedOffset, fillCount));
   CPPUNIT_ASSERT(h.failedToGet());
 }
 
-void test_ep::failgetManyTest() 
-{
+void test_ep::failgetManyTest() {
   // We don't put ProductIDs into the EventPrincipal,
   // so that's a type sure not to match any product.
   edm::ProductID dummy;
@@ -278,16 +270,14 @@ void test_ep::failgetManyTest()
   CPPUNIT_ASSERT(handles.empty());
 }
 
-void test_ep::failgetbyTypeTest() 
-{
+void test_ep::failgetbyTypeTest() {
   edm::ProductID dummy;
   edm::TypeID tid(dummy);
   edm::BasicHandle h(pEvent_->getByType(tid));
   CPPUNIT_ASSERT(h.failedToGet());
 }
 
-void test_ep::failgetManybyTypeTest() 
-{
+void test_ep::failgetManybyTypeTest() {
   // We don't put ProductIDs into the EventPrincipal,
   // so that's a type sure not to match any product.
   edm::ProductID dummy;
@@ -299,8 +289,7 @@ void test_ep::failgetManybyTypeTest()
   CPPUNIT_ASSERT(handles.empty());
 }
 
-void test_ep::failgetbyInvalidIdTest() 
-{
+void test_ep::failgetbyInvalidIdTest() {
   //put_a_dummy_product("HLT");
   //put_a_product<edmtest::DummyProduct>(pProdConfig_, label);
 
@@ -308,8 +297,7 @@ void test_ep::failgetbyInvalidIdTest()
   CPPUNIT_ASSERT_THROW(pEvent_->getByProductID(id), edm::Exception);
 }
 
-void test_ep::failgetProvenanceTest() 
-{
+void test_ep::failgetProvenanceTest() {
   edm::BranchID id;
   CPPUNIT_ASSERT_THROW(pEvent_->getProvenance(id), edm::Exception);
 }

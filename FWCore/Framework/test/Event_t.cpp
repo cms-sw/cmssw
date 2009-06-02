@@ -53,8 +53,7 @@ using namespace edm;
 
 // This is a gross hack, to allow us to test the event
 namespace edm {
-  class EDProducer
-  {
+  class EDProducer {
   public:
     static void commitEvent(Event& e) { e.commit_(); }
     
@@ -62,8 +61,7 @@ namespace edm {
 }
 
 
-class testEvent: public CppUnit::TestFixture
-{
+class testEvent: public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testEvent);
   CPPUNIT_TEST(emptyEvent);
   CPPUNIT_TEST(getBySelectorFromEmpty);
@@ -108,8 +106,7 @@ class testEvent: public CppUnit::TestFixture
   void registerProduct(std::string const& tag,
 		       std::string const& moduleLabel,
 		       std::string const& moduleClassName,
-		       std::string const& processName)
-  {
+		       std::string const& processName) {
     std::string productInstanceName;
     registerProduct<T>(tag, moduleLabel, moduleClassName, processName, 
 		       productInstanceName);
@@ -142,8 +139,7 @@ testEvent::registerProduct(std::string const& tag,
 			   std::string const& moduleLabel,
  			   std::string const& moduleClassName,
  			   std::string const& processName,
-			   std::string const& productInstanceName)
-{
+			   std::string const& productInstanceName) {
   if (!availableProducts_)
     availableProducts_.reset(new ProductRegistry());
   
@@ -183,8 +179,7 @@ template <class T>
 ProductID
 testEvent::addProduct(std::auto_ptr<T> product,
 		      std::string const& tag,
-		      std::string const& productLabel)
-{
+		      std::string const& productLabel) {
   iterator_t description = moduleDescriptions_.find(tag);
   if (description == moduleDescriptions_.end())
     throw edm::Exception(errors::LogicError)
@@ -203,8 +198,7 @@ testEvent::testEvent() :
   principal_(),
   currentEvent_(),
   currentModuleDescription_(),
-  moduleDescriptions_()
-{
+  moduleDescriptions_() {
   BranchIDListHelper::clearRegistries();
 
   typedef edmtest::IntProduct prod_t;
@@ -350,17 +344,14 @@ testEvent::tearDown() {
   principal_.reset();
 }
 
-void testEvent::emptyEvent()
-
-{
+void testEvent::emptyEvent() {
   CPPUNIT_ASSERT(currentEvent_);
   CPPUNIT_ASSERT(currentEvent_->id() == make_id());
   CPPUNIT_ASSERT(currentEvent_->time() == make_timestamp());
   CPPUNIT_ASSERT(currentEvent_->size() == 0);  
 }
 
-void testEvent::getBySelectorFromEmpty()
-{
+void testEvent::getBySelectorFromEmpty() {
   ModuleLabelSelector byModuleLabel("mod1");
   Handle<int> nonesuch;
   CPPUNIT_ASSERT(!nonesuch.isValid());
@@ -371,8 +362,7 @@ void testEvent::getBySelectorFromEmpty()
 		       cms::Exception);
 }
 
-void testEvent::putAnIntProduct()
-{
+void testEvent::putAnIntProduct() {
   std::auto_ptr<edmtest::IntProduct> three(new edmtest::IntProduct(3));
   currentEvent_->put(three, "int1");
   CPPUNIT_ASSERT(currentEvent_->size() == 1);
@@ -380,8 +370,7 @@ void testEvent::putAnIntProduct()
   CPPUNIT_ASSERT(currentEvent_->size() == 1);
 }
 
-void testEvent::putAndGetAnIntProduct()
-{
+void testEvent::putAndGetAnIntProduct() {
   std::auto_ptr<edmtest::IntProduct> four(new edmtest::IntProduct(4));
   currentEvent_->put(four, "int1");
   EDProducer::commitEvent(*currentEvent_);
@@ -396,8 +385,7 @@ void testEvent::putAndGetAnIntProduct()
   CPPUNIT_ASSERT_THROW(*h, cms::Exception);
 }
 
-void testEvent::getByProductID()
-{
+void testEvent::getByProductID() {
   
   typedef edmtest::IntProduct product_t;
   typedef std::auto_ptr<product_t> ap_t;
@@ -436,8 +424,7 @@ void testEvent::getByProductID()
   CPPUNIT_ASSERT_THROW(*h, cms::Exception);
 }
 
-void testEvent::transaction()
-{
+void testEvent::transaction() {
   // Put a product into an Event, and make sure that if we don't
   // commit, there is no product in the EventPrincipal afterwards.
   CPPUNIT_ASSERT(principal_->size() == 0);
@@ -457,8 +444,7 @@ void testEvent::transaction()
   CPPUNIT_ASSERT(principal_->size() == 0);  
 }
 
-void testEvent::getByInstanceName()
-{
+void testEvent::getByInstanceName() {
   typedef edmtest::IntProduct product_t;
   typedef std::auto_ptr<product_t> ap_t;
   typedef Handle<product_t> handle_t;
@@ -499,8 +485,7 @@ void testEvent::getByInstanceName()
   CPPUNIT_ASSERT(nomatches.empty());
 }
 
-void testEvent::getBySelector()
-{
+void testEvent::getBySelector() {
   typedef edmtest::IntProduct product_t;
   typedef std::auto_ptr<product_t> ap_t;
   typedef Handle<product_t> handle_t;
@@ -582,8 +567,7 @@ void testEvent::getBySelector()
   CPPUNIT_ASSERT(sum == 306);
 }
 
-void testEvent::getByLabel()
-{
+void testEvent::getByLabel() {
   typedef edmtest::IntProduct product_t;
   typedef std::auto_ptr<product_t> ap_t;
   typedef Handle<product_t> handle_t;
@@ -625,11 +609,14 @@ void testEvent::getByLabel()
   CPPUNIT_ASSERT(currentEvent_->getByLabel(inputTag, h));
   CPPUNIT_ASSERT(h->value == 200);
 
+  size_t cachedOffset = 0;
+  int findCount = 0;
+
   BasicHandle bh =
-    principal_->getByLabel(TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "LATE");
+    principal_->getByLabel(TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "LATE", cachedOffset, findCount);
   convert_handle(bh, h);
   CPPUNIT_ASSERT(h->value == 100);
-  BasicHandle bh2(principal_->getByLabel(TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "nomatch"));
+  BasicHandle bh2(principal_->getByLabel(TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "nomatch", cachedOffset, findCount));
   CPPUNIT_ASSERT(!bh2.isValid());
 
   boost::shared_ptr<Wrapper<edmtest::IntProduct> const> ptr = getProductByTag<edmtest::IntProduct>(*principal_, inputTag);
@@ -637,8 +624,7 @@ void testEvent::getByLabel()
 }
 
 
-void testEvent::getByType()
-{
+void testEvent::getByType() {
   typedef edmtest::IntProduct product_t;
   typedef std::auto_ptr<product_t> ap_t;
   typedef Handle<product_t> handle_t;
@@ -689,8 +675,7 @@ void testEvent::getByType()
   CPPUNIT_ASSERT(sum == 310);
 }
 
-void testEvent::printHistory()
-{
+void testEvent::printHistory() {
   ProcessHistory const& history = currentEvent_->processHistory();
   std::ofstream out("history.log");
   

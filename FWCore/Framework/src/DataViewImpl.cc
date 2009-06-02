@@ -19,8 +19,8 @@ namespace edm {
     putProducts_(),
     principal_(pcpl),
     md_(md),
-    branchType_(branchType)
-  {  }
+    branchType_(branchType) {
+  }
 
   DataViewImpl::~DataViewImpl() {
   }
@@ -31,16 +31,14 @@ namespace edm {
   }
 
   BasicHandle
-  DataViewImpl::get_(TypeID const& tid, SelectorBase const& sel) const
-  {
+  DataViewImpl::get_(TypeID const& tid, SelectorBase const& sel) const {
     return principal_.getBySelector(tid, sel);
   }
 
   void
   DataViewImpl::getMany_(TypeID const& tid,
 		  SelectorBase const& sel,
-		  BasicHandleVec& results) const
-  {
+		  BasicHandleVec& results) const {
     principal_.getMany(tid, sel, results);
   }
 
@@ -48,21 +46,37 @@ namespace edm {
   DataViewImpl::getByLabel_(TypeID const& tid,
                      std::string const& label,
   	             std::string const& productInstanceName,
-  	             std::string const& processName) const
-  {
-    return principal_.getByLabel(tid, label, productInstanceName, processName);
+  	             std::string const& processName) const {
+    size_t cachedOffset = 0;
+    int fillCount = -1;
+    return principal_.getByLabel(tid, label, productInstanceName, processName, cachedOffset, fillCount);
   }
 
   BasicHandle
-  DataViewImpl::getByType_(TypeID const& tid) const
-  {
+  DataViewImpl::getByLabel_(TypeID const& tid,
+                     std::string const& label,
+  	             std::string const& productInstanceName,
+  	             std::string const& processName,
+		     TypeID& typeID,
+		     size_t& cachedOffset,
+		     int& fillCount) const {
+
+    if (typeID != tid) {
+      fillCount = 0;
+      cachedOffset = 0U;
+      typeID = tid;
+    }
+    return principal_.getByLabel(tid, label, productInstanceName, processName, cachedOffset, fillCount);
+  }
+
+  BasicHandle
+  DataViewImpl::getByType_(TypeID const& tid) const {
     return principal_.getByType(tid);
   }
 
   void
   DataViewImpl::getManyByType_(TypeID const& tid,
-		  BasicHandleVec& results) const
-  {
+		  BasicHandleVec& results) const {
     principal_.getManyByType(tid, results);
   }
 
@@ -106,8 +120,7 @@ namespace edm {
   }
 
   ProcessHistory const&
-  DataViewImpl::processHistory() const
-  {
+  DataViewImpl::processHistory() const {
     return principal_.processHistory();
   }
 
