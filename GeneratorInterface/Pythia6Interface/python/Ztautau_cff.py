@@ -1,20 +1,21 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Generator.PythiaUESettings_cfi import *
-from GeneratorInterface.Pythia6Interface.TauolaSettings_cff import *
-source = cms.Source("PythiaSource",
+### from GeneratorInterface.Pythia6Interface.TauolaSettings_cff import *
+from GeneratorInterface.ExternalDecays.TauolaSettings_cff import *
+generator = cms.EDFilter("Pythia6GeneratorFilter",
     maxEventsToPrint = cms.untracked.int32(5),
     pythiaPylistVerbosity = cms.untracked.int32(1),
     filterEfficiency = cms.untracked.double(1.0),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
-    ExternalGenerators = cms.PSet(
+    comEnergy = cms.double(10000.0),
+    ExternalDecays = cms.PSet(
         Tauola = cms.untracked.PSet(
             TauolaPolar,
-            TauolaDefaultInputForSource
+	    TauolaDefaultInputCards
         ),
         parameterSets = cms.vstring('Tauola')
     ),
-    UseExternalGenerators = cms.untracked.bool(True),
     PythiaParameters = cms.PSet(
         pythiaUESettingsBlock,
         ZtautauParameters = cms.vstring('MSEL         = 11 ', 

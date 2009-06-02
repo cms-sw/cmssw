@@ -28,7 +28,7 @@ from Configuration.Generator.PythiaUESettings_cfi import *
 from GeneratorInterface.ExternalDecays.TauolaSettings_cff import *
 
 process.generator = cms.EDFilter("Pythia6GeneratorFilter",
-    pythiaHepMCVerbosity = cms.untracked.bool(True),
+    pythiaHepMCVerbosity = cms.untracked.bool(False),
     maxEventsToPrint = cms.untracked.int32(3),
     pythiaPylistVerbosity = cms.untracked.int32(1),
     comEnergy = cms.double(10000.0),
@@ -39,15 +39,15 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 # native variables jak1 & jak2 (jak1/jak2=4 means that both tau's
 # decay into the rho-mode
 #
-#	     UseTauolaPolarization = cms.bool(True),
-#	     InputCards = cms.PSet
-#	     ( 
-#	        pjak1 = cms.int32(4),
-#		pjak2 = cms.int32(4), 
-#		mdtau = cms.int32(1) 
-#	     )
-           TauolaDefaultInputCards,
-	   TauolaPolar
+	     UseTauolaPolarization = cms.bool(True),
+	     InputCards = cms.PSet
+	     ( 
+	        pjak1 = cms.int32(0),
+		pjak2 = cms.int32(0), 
+		mdtau = cms.int32(214) 
+	     )
+#           TauolaDefaultInputCards,
+#	   TauolaPolar
 	),
         parameterSets = cms.vstring('Tauola')
     ),
