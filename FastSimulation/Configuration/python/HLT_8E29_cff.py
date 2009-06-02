@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_1_0/pre6/8E29_V49/V2 (CMSSW_3_1_X_2009-05-21-0800_HLT2)
+# /dev/CMSSW_3_1_0/pre6/8E29_V64/V2 (CMSSW_3_1_X_2009-05-25-1900)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -28,7 +28,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre6/8E29_V49/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre6/8E29_V64/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -55,6 +55,12 @@ MCJetCorrectorIcone5 = cms.ESSource( "JetCorrectionServiceChain",
 )
 SiStripQualityFakeESSource = cms.ESSource( "SiStripQualityFakeESSource" )
 
+AnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
+  ComponentName = cms.string( "AnalyticalPropagator" ),
+  PropagationDirection = cms.string( "alongMomentum" ),
+  MaxDPhi = cms.double( 1.6 ),
+  appendToDataLabel = cms.string( "" )
+)
 AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   ComponentName = cms.string( "AnyDirectionAnalyticalPropagator" ),
   PropagationDirection = cms.string( "anyDirection" ),
@@ -136,6 +142,14 @@ FastSteppingHelixPropagatorOpposite = cms.ESProducer( "SteppingHelixPropagatorES
   useEndcapShiftsInZ = cms.bool( False ),
   endcapShiftInZPos = cms.double( 0.0 ),
   endcapShiftInZNeg = cms.double( 0.0 ),
+  appendToDataLabel = cms.string( "" )
+)
+HITTRHBuilderWithoutRefit = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
+  ComponentName = cms.string( "HITTRHBuilderWithoutRefit" ),
+  StripCPE = cms.string( "Fake" ),
+  PixelCPE = cms.string( "Fake" ),
+  Matcher = cms.string( "Fake" ),
+  ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
   appendToDataLabel = cms.string( "" )
 )
 KFFitterSmootherForL2Muon = cms.ESProducer( "KFFittingSmootherESProducer",
@@ -983,7 +997,8 @@ hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     readBadChambers = cms.bool( False ),
     UseAverageTime = cms.bool( False ),
     UseParabolaFit = cms.bool( False ),
-    UseFivePoleFit = cms.bool( True )
+    UseFivePoleFit = cms.bool( True ),
+    UseFourPoleFit = cms.bool( True )
 )
 hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
     inputObjects = cms.InputTag( "hltCsc2DRecHits" ),
