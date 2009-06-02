@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre6/HIon_V63/V2 (CMSSW_3_1_X_2009-05-25-1900)
+# /dev/CMSSW_3_1_0/pre6/HIon_V64/V2 (CMSSW_3_1_X_2009-05-25-1900)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre6/HIon_V63/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre6/HIon_V64/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
