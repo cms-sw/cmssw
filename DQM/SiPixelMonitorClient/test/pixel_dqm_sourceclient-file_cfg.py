@@ -98,7 +98,7 @@ process.LockService = cms.Service("LockService",
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect ="sqlite_file:/afs/cern.ch/user/m/malgeri/public/globtag/CRZT210_V1.db"
 #process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRAFT_31X::All"
+process.GlobalTag.globaltag = "CRAFT_ALL_V12::All"
 ## this next line is needed for xdaq running outside P5 network:
 #process.SiteLocalConfigService = cms.Service("SiteLocalConfigService")
 
@@ -150,7 +150,6 @@ process.source = cms.Source("PoolSource",
         #'/store/data/Commissioning08/Cosmics/RAW/v1/000/069/046/C46E1F53-9FA9-DD11-9D04-001D09F24498.root',
         #'/store/data/Commissioning08/Cosmics/RAW/v1/000/069/046/C2D160D9-8FA9-DD11-8C52-000423D985B0.root',
         #'/store/data/Commissioning08/Cosmics/RAW/v1/000/069/046/C2980351-9FA9-DD11-89B5-00304879FBB2.root'
-
 
     )
 )
