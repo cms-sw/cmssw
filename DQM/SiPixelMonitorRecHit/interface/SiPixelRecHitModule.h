@@ -18,7 +18,7 @@ detector segment (detID)
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitModule.h,v 1.5 2008/08/08 14:26:15 merkelp Exp $
+// $Id: SiPixelRecHitModule.h,v 1.6 2009/03/16 08:14:27 wehrlilu Exp $
 //
 //  Adapted by: Keith Rose
 //  for use in SiPixelMonitorRecHit package
@@ -47,7 +47,9 @@ class SiPixelRecHitModule {
   /// Book histograms
   void book(const edm::ParameterSet& iConfig, int type=0, bool twoD=true);
   /// Fill histograms
-  void fill(const float& rechit_x, const float& rechit_y, const int& sizeX, const int& sizeY, const float& lerr_x, const float& lerr_y, bool modon=true, bool ladon=false, bool layon=false, bool phion=false, bool bladeon=false, bool diskon=false, bool ringon=false, bool twoD=true);
+  void fill(const float& rechit_x, const float& rechit_y, const int& sizeX, const int& sizeY, 
+            const float& lerr_x, const float& lerr_y, bool modon=true, bool ladon=false, bool layon=false, 
+	    bool phion=false, bool bladeon=false, bool diskon=false, bool ringon=false, bool twoD=true);
   void nfill(const int& nrec, bool modon=true, bool ladon=false, bool layon=false, bool phion=false, bool bladeon=false, bool diskon=false, bool ringon=false);  
 
  private:

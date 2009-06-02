@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.cc,v 1.16 2009/02/25 17:42:45 merkelp Exp $
+// $Id: SiPixelRecHitSource.cc,v 1.17 2009/03/16 08:14:28 wehrlilu Exp $
 //
 //
 // Adapted by:  Keith Rose
@@ -120,17 +120,16 @@ void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetu
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     uint32_t TheID = (*struct_iter).first;
 
-    SiPixelRecHitCollection::const_iterator match = recHitColl->find(TheID);
+    SiPixelRecHitCollection::range pixelrechitRange = (recHitColl.product())->get(TheID);
+    SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.first;
+    
+    SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorEnd = pixelrechitRange.second;
+    SiPixelRecHitCollection::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
 
       // if( pixelrechitRangeIteratorBegin == pixelrechitRangeIteratorEnd) {cout << "oops" << endl;}
       float rechit_x = 0;
       float rechit_y = 0;
       int rechit_count = 0;
-      if (match != recHitColl->end()) {
-       SiPixelRecHitCollection::DetSet pixelrechitRange = *match;
-       SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.begin();
-       SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorEnd = pixelrechitRange.end();
-       SiPixelRecHitCollection::DetSet::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
        for ( ; pixeliter != pixelrechitRangeIteratorEnd; pixeliter++) 
 	 {
 	  
@@ -149,13 +148,9 @@ void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetu
 	  LocalError lerr = pixeliter->localPositionError();
 	  float lerr_x = sqrt(lerr.xx());
 	  float lerr_y = sqrt(lerr.yy());
-	  //std::cout << "errors " << lerr_x << " " << lerr_y << std::endl;
-	  //cout << "hh" << endl;
 	  (*struct_iter).second->fill(rechit_x, rechit_y, sizeX, sizeY, lerr_x, lerr_y, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn, twoDimOn);
-	  //cout << "ii" << endl;
 	
 	}
-      }
       if(rechit_count > 0) (*struct_iter).second->nfill(rechit_count, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);
     
   }
