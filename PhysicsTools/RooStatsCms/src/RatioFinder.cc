@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: RatioFinder.cc,v 1.6 2009/05/15 09:55:59 dpiparo Exp $
+// @(#)root/hist:$Id: RatioFinder.cc,v 1.7 2009/05/15 11:49:19 schott Exp $
 // Author: Danilo.Piparo@cern.ch   07/10/2008
 
 #include "assert.h"
@@ -47,9 +47,11 @@ RatioFinder::RatioFinder(const char* name,
     m_sb_model(sb_model),
     m_b_model(b_model),
     m_c_array(c_array),
+    m_dump_plots(false),
     m_is_lumi(false),
     m_max_attempts(100),
-    m_nbins(100){
+    m_nbins(100),
+    m_results(0) {
 
     m_variables.add(variables);
 
@@ -166,7 +168,8 @@ RatioFinderResults* RatioFinder::findRatio(unsigned int n_toys,
 
         plot_name.ReplaceAll(" ","");
 
-        p->dumpToImage(plot_name.Data());
+	if (m_dump_plots)
+            p->dumpToImage(plot_name.Data());
 
         delete p;
         delete res;
@@ -182,8 +185,8 @@ RatioFinderResults* RatioFinder::findRatio(unsigned int n_toys,
                   << init_lower_ratio << " and "
                   << init_upper_ratio << std::endl;
 
-    double upper_CL = m_get_CLs(init_lower_ratio,n_toys,m2lnQ);
-    double lower_CL = m_get_CLs(init_upper_ratio,n_toys,m2lnQ);
+    double upper_CL = m_get_CLs(init_lower_ratio,n_toys,m2lnQ, n_sigma);
+    double lower_CL = m_get_CLs(init_upper_ratio,n_toys,m2lnQ, n_sigma);
 
     double lower_ratio = init_lower_ratio;
     double upper_ratio = init_upper_ratio;
@@ -260,7 +263,7 @@ RatioFinderResults* RatioFinder::findRatio(unsigned int n_toys,
         else
             std::cout << "Not averaging!\n";
         // Reassign the new value
-        temp_CL = m_get_CLs(temp_ratio,n_toys,m2lnQ);
+        temp_CL = m_get_CLs(temp_ratio,n_toys,m2lnQ, n_sigma);
 
         if (temp_CL <= CL_level){
             std::cout << "temp_CL <= CL_level\n";
@@ -350,7 +353,8 @@ Set the new value of the ratio variable and calculate the CLs value.
 **/
 double RatioFinder::m_get_CLs(double ratio,
                               unsigned int n_toys,
-                              double& m2lnQ_on_data){
+                              double& m2lnQ_on_data,
+			      double n_sigma){
 
     if (is_verbose())
         std::cout << "\nGetting Cls with:\n"
@@ -368,10 +372,30 @@ double RatioFinder::m_get_CLs(double ratio,
     LimitPlot* p = res->getPlot("temp","temp",m_nbins);
     p->draw();
     TH1F* b_histo = p->getBhisto();
-    m2lnQ_on_data = Rsc::getMedian(b_histo);
-    if (is_verbose())
-        std::cout << "-2lnQ was calculated as the median of the"
-                    << " b distribution.\n --> -2lnQ = "<< m2lnQ_on_data <<"\n";
+    
+    if (fabs(n_sigma) < 0.0001){
+            m2lnQ_on_data = Rsc::getMedian(b_histo);
+            if (is_verbose())
+		    std::cout << " -> we take the median, which is located in "
+			      << m2lnQ_on_data << std::endl;
+    }
+
+    else{
+            int index=0;
+	    
+            if (n_sigma<0)
+		    index=1;
+
+            double CL = TMath::Erf(fabs(n_sigma))*2-1;
+            double* d = Rsc::getHistoPvals(b_histo,CL);
+            m2lnQ_on_data=d[index];
+	    
+            if (is_verbose())
+		    std::cout << " -> we take the value located in "
+			      << m2lnQ_on_data << std::endl;
+            delete d;
+    }
+
     delete p;
 
     // Put the -2lnQ value
@@ -394,11 +418,17 @@ double RatioFinder::m_get_CLs(double ratio,
 
     p->draw();
 
-    p->dumpToImage((plot_name+".png").Data());
+    if (m_dump_plots)
+        p->dumpToImage((plot_name+".png").Data());
 
     // end of the control plots creation
 
     double CLs=res->getCLs();
+
+    if (m_results) {
+	    LimitResults *copy = new LimitResults(*res);
+	    m_results->Add(copy);
+    }
 
     std::cout << "For ratio " << ratio << " CLs is " << CLs << std::endl;
 
