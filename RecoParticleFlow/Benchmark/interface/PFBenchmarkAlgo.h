@@ -164,8 +164,24 @@ double PFBenchmarkAlgo::deltaPhi(const T *c1, const U *c2) {
   // while (phi > M_PI) phi -= 2 * M_PI;
   // while (phi <= - M_PI) phi += 2 * M_PI;
 
-  return ( (fabs(phi1 - phi2)<M_PI)?(phi1-phi2):(2*M_PI - fabs(phi1 - phi2) ) );
-
+  double deltaphi=-999.0;
+  if (fabs(phi1 - phi2)<M_PI)
+  {
+    deltaphi=(phi1-phi2);
+  }
+  else
+  {
+    if ((phi1-phi2)>0.0)
+    {
+      deltaphi=(2*M_PI - fabs(phi1 - phi2));
+    }
+    else
+    {
+      deltaphi=-(2*M_PI - fabs(phi1 - phi2));
+    }
+  }
+  return deltaphi;
+  //return ( (fabs(phi1 - phi2)<M_PI)?(phi1-phi2):(2*M_PI - fabs(phi1 - phi2) ) ); // FL: wrong
 }
  
 // Calculate Delta-R for Candidates 
