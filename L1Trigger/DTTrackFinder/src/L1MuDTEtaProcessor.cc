@@ -126,6 +126,8 @@ void L1MuDTEtaProcessor::reset() {
 
   m_foundPattern.clear();
 
+  m_mask = true;
+
 } 
 
 
@@ -240,6 +242,8 @@ void L1MuDTEtaProcessor::receiveData(int bx, const edm::Event& e, const edm::Eve
       if ( stat == 1 ) masked = msks->get_etsoc_chdis_st1(lwheel, sector);
       if ( stat == 2 ) masked = msks->get_etsoc_chdis_st2(lwheel, sector);
       if ( stat == 3 ) masked = msks->get_etsoc_chdis_st3(lwheel, sector);
+
+      if ( !masked ) m_mask = false;
 
       if ( tseta && !masked ) {
 
@@ -358,7 +362,7 @@ void L1MuDTEtaProcessor::runEtaMatchingUnit(const edm::EventSetup& c) {
     int sp = i/2 + 1;       //sector processor [1,6]
     
     // assign coarse eta value
-    m_eta[i] = theQualPatternLUT->getCoarseEta(sp,adr);
+    if ( !m_mask ) m_eta[i] = theQualPatternLUT->getCoarseEta(sp,adr);
     if ( m_eta[i] == 99 ) m_eta[i] = 32;
     if ( m_eta[i] > 31 ) m_eta[i] -= 64;
     m_eta[i] += 32;
@@ -389,7 +393,7 @@ void L1MuDTEtaProcessor::runEtaMatchingUnit(const edm::EventSetup& c) {
   }
   
   // if both tracks from one sector processor deliver the same track address
-  // the second track gets only a coarse eta value!  
+  // both tracks get only a coarse eta value!  
   
   // loop over sector processors
   for ( int i = 0; i < 6; i++ ) {
@@ -399,7 +403,13 @@ void L1MuDTEtaProcessor::runEtaMatchingUnit(const edm::EventSetup& c) {
     int adr2 = m_address[idx2];
     if ( adr1 == 0 || adr2 == 0 ) continue;
     if ( adr1 == adr2 ) {
-      // second track gets coarse (default) eta value
+      // both tracks get coarse (default) eta value
+      m_eta[idx1]  = theQualPatternLUT->getCoarseEta(i+1,adr1);
+      if ( m_eta[idx1] == 99 ) m_eta[idx1] = 32;
+      if ( m_eta[idx1] > 31 ) m_eta[idx1] -= 64;
+      m_eta[idx1] += 32;
+      m_pattern[idx1] = 0;
+      m_fine[idx1] = false; 
       m_eta[idx2]  = theQualPatternLUT->getCoarseEta(i+1,adr2);
       if ( m_eta[idx2] == 99 ) m_eta[idx2] = 32;
       if ( m_eta[idx2] > 31 ) m_eta[idx2] -= 64;

@@ -107,6 +107,8 @@ class L1MuDTEtaProcessor {
     const L1MuDTTrackFinder&                  m_tf;
     int                                       m_epid;
 
+    int                                       m_mask;
+
     int                                       m_eta[12];
     bool                                      m_fine[12];
     
