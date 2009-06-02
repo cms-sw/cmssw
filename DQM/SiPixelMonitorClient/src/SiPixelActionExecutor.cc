@@ -163,6 +163,7 @@ void SiPixelActionExecutor::createSummary(DQMStore* bei) {
   string localPath;
   if(offlineXMLfile_) localPath = string("DQM/SiPixelMonitorClient/test/sipixel_tier0_config.xml");
   else localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
+  //cout<<"*********************ATTENTION! LOCALPATH= "<<localPath<<endl;
   if (configParser_ == 0) {
     configParser_ = new SiPixelConfigParser();
     configParser_->getDocument(edm::FileInPath(localPath).fullPath());
@@ -172,7 +173,7 @@ void SiPixelActionExecutor::createSummary(DQMStore* bei) {
     return;
   }
   configParser_->getSourceType(source_type_); 
-
+  //cout<<"++++++++++++++++++++++++++SOURCE TYPE= "<<source_type_<<endl;
   bei->setCurrentFolder("Pixel/");
   //bei->cd();
   fillSummary(bei, barrel_structure_name, barrel_me_names, true); // Barrel
@@ -392,7 +393,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 					if(tname.find("FREQ")!=string::npos) tname = "ndigis_";
 					if (((*im)).find(tname) == 0) {
 						string fullpathname = bei->pwd() + "/" + (*im); 
-						
+					//cout<<"!!!!!!!!!!!!!!!!!!!!!!SNAME= "<<sname<<endl;	
 	    MonitorElement *  me = bei->get(fullpathname);
 
 	    if (me){ 
@@ -652,8 +653,8 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
                                                          vector<string>& me_names) {
   //printing cout<<"Entering SiPixelActionExecutor::fillGrandBarrelSummaryHistos..."<<endl;
   vector<MonitorElement*> gsum_mes;
-  string path_name = bei->pwd();
   string currDir = bei->pwd();
+  string path_name = bei->pwd();
   string dir_name =  path_name.substr(path_name.find_last_of("/")+1);
   if ((dir_name.find("DQMData") == 0) ||
       (dir_name.find("Pixel") == 0) ||
@@ -873,8 +874,8 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
                                                          vector<string>& me_names) {
   //printing cout<<"Entering SiPixelActionExecutor::fillGrandEndcapSummaryHistos..."<<endl;
   vector<MonitorElement*> gsum_mes;
-  string path_name = bei->pwd();
   string currDir = bei->pwd();
+  string path_name = bei->pwd();
   string dir_name =  path_name.substr(path_name.find_last_of("/")+1);
   if ((dir_name.find("DQMData") == 0) ||
       (dir_name.find("Pixel") == 0) ||
@@ -1253,7 +1254,7 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore* bei, bool isbarrel)
   //occupancyprinting cout<<"entering SiPixelActionExecutor::fillOccupancy..."<<std::endl;
   if(Tier0Flag_) return;
   string currDir = bei->pwd();
-  QString dname = QString::fromStdString(currDir.substr(currDir.find_last_of("/")+1));
+  string dname = currDir.substr(currDir.find_last_of("/")+1);
   QRegExp rx("Module_");
   //occupancyprinting cout<<"currDir= "<<currDir<< " , dname= "<<dname<<std::endl;
 	
@@ -1546,7 +1547,7 @@ void SiPixelActionExecutor::dumpBarrelModIds(DQMStore * bei){
 	   im != contents.end(); im++) {
 	if(first_me) break;
 	QRegExp rx("(\\w+)_(\\w+)_(\\d+)") ;
-	QString mEName = QString::fromStdString(*im);
+	QString mEName = (*im);
 	if(rx.search(mEName) != -1 ) detId = rx.cap(3).toInt() ;
       }
       bei->goUp();
@@ -1583,7 +1584,7 @@ void SiPixelActionExecutor::dumpEndcapModIds(DQMStore * bei){
 	   im != contents.end(); im++) {
 	if(first_me) break;
 	QRegExp rx("(\\w+)_(\\w+)_(\\d+)") ;
-	QString mEName = QString::fromStdString(*im);
+	QString mEName = (*im);
 	if(rx.search(mEName) != -1 ) detId = rx.cap(3).toInt() ;
       }
       bei->goUp();
