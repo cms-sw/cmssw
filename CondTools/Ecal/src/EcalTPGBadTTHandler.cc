@@ -152,26 +152,25 @@ void popcon::EcalTPGBadTTHandler::getNewObjects()
 	    
 	       ++icells;
 	     }
-	    else if (ecid_name=="EE_trigger_tower"){
-	      // Check
-	      // EE data
-	    /*
-	      int sm_num=rd_badTT.getSMId();
-	      int xt_num=rd_badTT.getTTId();
+	     else if (ecid_name=="EE_trigger_tower"){
+	       // Check
+	       // EE data
+	    
+	       int sm_num=rd_badTT.getTCCId();
+	       int xt_num=rd_badTT.getTTId();
 
-		  char identTT[6];
-	  	  sprintf(identTT,"%d%d", sm_num, xt_num);
-	  	  str.assign(identTT);
+	       char identTT[6];
+	       sprintf(identTT,"%d%d", sm_num, xt_num);
+	       str.assign(identTT);
 		
-	  	  std::map <std::string, int>::const_iterator it; 
-	  	  it=mapEE.find(str);
-	        
-	  	  int eeDetId = 0; 
-	  	  eeDetId = it->second;
-
-		  //rd_badTT.getId();
-		  towerStatus->setValue(eeDetId,rd_badTT.getStatus());
-	    */
+	       std::string S="";
+	       S.insert(0,identTT);
+	       		        
+	       int eeDetId = 0; 
+	       eeDetId = atoi(S.c_str());
+                 
+	       towerStatus->setValue(eeDetId,rd_badTT.getStatus());
+	    
 	      ++icells;
 		
 	    }
