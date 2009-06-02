@@ -54,6 +54,7 @@
 
   TCanvas c2a("c2a", "MEX");
   FormatPad( &c2a, false );
+  comp.SetAxis(2,-100,100);
   comp.Draw("ExRec", mode);
   SavePlot("MEX", outdir.c_str() );
 
