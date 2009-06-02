@@ -87,7 +87,7 @@
 //
 // Original Author:  E. Sexton-Kennedy
 //         Created:  Tue Apr 11 13:43:16 CDT 2006
-// $Id: EnableFloatingPointExceptions.h,v 1.8 2007/05/31 14:59:22 marafino Exp $
+// $Id: EnableFloatingPointExceptions.h,v 1.9 2007/06/14 21:03:39 wmtan Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -109,22 +109,26 @@ public:
          void postModule(const ModuleDescription&);
 
 private:
-	 void controlFpe();
-	 void echoState();
+	typedef std::string              String;
+	typedef std::vector<std::string> VString;
+	typedef ParameterSet             PSet;
 
-         bool enableDivByZeroEx_;
-         bool enableInvalidEx_;
-         bool enableOverFlowEx_;
-	 bool enableUnderFlowEx_;
+	void controlFpe(bool divByZero, bool invalid, bool overflow, bool underflow, bool precisiondouble, fenv_t& result) const;
+	void echoState();
+	void establishDefaultEnvironment(bool);
+	void establishModuleEnvironments(PSet const&, bool);
 
-         bool setPrecisionDouble_;
+//          bool enableDivByZeroEx_;
+//          bool enableInvalidEx_;
+//          bool enableOverFlowEx_;
+// 	 bool enableUnderFlowEx_;
+
+//          bool setPrecisionDouble_;
 
 	 bool reportSettings_;
 
-	 typedef std::string              String;
-	 typedef std::vector<std::string> VString;
-	 typedef ParameterSet             PSet;
 	 fenv_t fpuState_;
+	 fenv_t defaultState_;
 	 fenv_t OSdefault_;
          std::map<String, fenv_t> stateMap_;
 	 std::stack<fenv_t> stateStack_;
