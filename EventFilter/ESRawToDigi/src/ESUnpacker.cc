@@ -174,7 +174,8 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
     }
   }
   if (vmajor_ < 4) {
-    edm::LogWarning("Invalid Data")<<"Invalid ES data format : "<<vmajor_<<" "<<vminor_;
+    if (debug_) 
+      edm::LogWarning("Invalid Data")<<"Invalid ES data format : "<<vmajor_<<" "<<vminor_;
     return;
   }
   if (dccHeaderCount != 6) {
