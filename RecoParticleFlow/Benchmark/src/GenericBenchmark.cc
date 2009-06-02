@@ -138,8 +138,8 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDelt
   
   BOOK1D(PhiRec,"Rec #phi",100,-3.5,3.5);
   BOOK1D(EtRec,"Rec E_{T}",nbinsEt, minEt, maxEt);
-  BOOK1D(ExRec,"Rec E_{X}",nbinsEt, minEt, maxEt);
-  BOOK1D(EyRec,"Rec E_{Y}",nbinsEt, minEt, maxEt);
+  BOOK1D(ExRec,"Rec E_{X}",nbinsEt, -maxEt, maxEt);
+  BOOK1D(EyRec,"Rec E_{Y}",nbinsEt, -maxEt, maxEt);
 
   BOOK2D(EtRecvsEt,"Rec E_{T} vs E_{T}",
 	 nbinsEt, minEt, maxEt,
