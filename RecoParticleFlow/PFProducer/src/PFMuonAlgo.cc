@@ -87,10 +87,11 @@ PFMuonAlgo::isMuon( const reco::MuonRef& muonRef ) {
       / (trackerMu->ptError()/trackerMu->pt());
     //if ( ratio > 2. && delta < 3. ) std::cout << "ALARM ! " << ratio << ", " << delta << std::endl;
     
-    // Quality check on the hits in the muon chambers (at least two stations hit)
+    // Quality check on the hits in the muon chambers 
+    // (at least two stations hit)
     bool quality = true;
-    if ( standAloneMu->hitPattern().numberOfValidMuonDTHits() < 22 &&
-	 standAloneMu->hitPattern().numberOfValidMuonCSCHits() < 11 ) quality = false;
+    if ( standAloneMu->hitPattern().numberOfValidMuonDTHits() < 13 &&
+	 standAloneMu->hitPattern().numberOfValidMuonCSCHits() < 7 ) quality = false;
 
     bool result =  ( combinedMu->pt() < 50. || ratio < 2. ) && delta < 3.;
     result = result && muon::isGoodMuon(*muonRef,muon::GlobalMuonPromptTight);
@@ -140,7 +141,7 @@ PFMuonAlgo::isMuon( const reco::MuonRef& muonRef ) {
 	// global muon
 	result = 
 	  combinedMu->ptError()/combinedMu->pt() < 
-	  std::min(20.,standAloneMu->ptError()/standAloneMu->pt());
+	  std::min(0.20,standAloneMu->ptError()/standAloneMu->pt());
       }
     }      
     /*
@@ -194,3 +195,4 @@ PFMuonAlgo::isLooseMuon( const reco::MuonRef& muonRef ) {
   return true;
 
 }
+
