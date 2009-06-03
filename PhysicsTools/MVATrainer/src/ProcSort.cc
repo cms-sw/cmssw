@@ -40,9 +40,6 @@ class ProcSort : public TrainProcessor {
 	ProcSort(const char *name, const AtomicId *id, MVATrainer *trainer);
 	virtual ~ProcSort();
 
-	virtual Variable::Flags getDefaultFlags() const
-	{ return Variable::FLAG_ALL; }
-
 	virtual void configure(DOMElement *elem);
 	virtual Calibration::VarProcessor *getCalibration() const;
 

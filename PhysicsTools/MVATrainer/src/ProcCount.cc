@@ -25,9 +25,6 @@ class ProcCount : public TrainProcessor {
 	          MVATrainer *trainer);
 	virtual ~ProcCount();
 
-	virtual Variable::Flags getDefaultFlags() const
-	{ return Variable::FLAG_ALL; }
-
 	virtual void configure(DOMElement *elem);
 	virtual Calibration::VarProcessor *getCalibration() const;
 

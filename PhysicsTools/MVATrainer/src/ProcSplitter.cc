@@ -25,9 +25,6 @@ class ProcSplitter : public TrainProcessor {
 	             MVATrainer *trainer);
 	virtual ~ProcSplitter();
 
-	virtual Variable::Flags getDefaultFlags() const
-	{ return Variable::FLAG_ALL; }
-
 	virtual void configure(DOMElement *elem);
 	virtual Calibration::VarProcessor *getCalibration() const;
 

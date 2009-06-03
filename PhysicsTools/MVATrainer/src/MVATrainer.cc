@@ -196,7 +196,7 @@ InitInterceptor::configure(const MVAComputer *computer, unsigned int n,
                            const std::vector<Variable::Flags> &flags)
 {
 	calib->configured(this);
-	return std::vector<Variable::Flags>(n, Variable::FLAG_NONE);
+	return std::vector<Variable::Flags>(n, Variable::FLAG_ALL);
 }
 
 double

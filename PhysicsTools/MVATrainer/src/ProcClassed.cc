@@ -30,9 +30,6 @@ class ProcClassed : public TrainProcessor {
 	ProcClassed(const char *name, const AtomicId *id, MVATrainer *trainer);
 	virtual ~ProcClassed();
 
-	virtual Variable::Flags getDefaultFlags() const
-	{ return Variable::FLAG_ALL; }
-
 	virtual void configure(DOMElement *elem);
 	virtual Calibration::VarProcessor *getCalibration() const;
 
