@@ -60,6 +60,8 @@ my (
     my $setuppedejob_variable;
     my $njobs_variable;
     my $appendmillejob_variable;
+    my $milleclass_variable;
+    my $pedeclass_variable;
     my $batchclass_variable;
 # Variables for mps_fire
     my $firemerge_variable;
@@ -318,15 +320,28 @@ $ZWIDGETS{'batchclass_label'} = $MW->Label(
    -sticky     => 'ew',
   );
 
-# Widget batchclass_menu isa Optionmenu
-$ZWIDGETS{'batchclass_menu'} = $MW->Optionmenu(
-        -options => [["8nm"=>"8nm"], ["1nh"=>"1nh"], ["8nh"=>"8nh"], ["1nd"=>"1nd"], ["2nd"=>"2nd"], ["1nw"=>"1nw"], ["2nw"=>"2nw"], ["cmscaf"=>"cmscaf"], ["cmscaf:cmscafspec"=>"cmscaf:cmscafspec"] ],
-        -variable => \$batchclass_variable,
+# Widget milleclass_menu isa Optionmenu
+$ZWIDGETS{'milleclass_menu'} = $MW->Optionmenu(
+        -options => [ ["(Choose mille queue)"=>""], ["8nm"=>"8nm"], ["1nh"=>"1nh"], ["8nh"=>"8nh"], ["1nd"=>"1nd"], ["2nd"=>"2nd"], ["1nw"=>"1nw"], ["2nw"=>"2nw"], ["cmscaf1h"=>"cmscaf1h"], ["cmscaf8h"=>"cmscaf8h"], ["cmscaf1w"=>"cmscaf1w"] ],
+        -variable => \$milleclass_variable,
+        -command => \&createbatchclass,
 	)->grid(
    -row        => $row_offset+4,
    -column     => 2,
    -sticky     => 'ew',
   );
+
+# Widget pedeclass_menu isa Optionmenu
+$ZWIDGETS{'pedeclass_menu'} = $MW->Optionmenu(
+        -options => [ ["(Choose pede queue)"=>""], ["8nm"=>"8nm"], ["1nh"=>"1nh"], ["8nh"=>"8nh"], ["1nd"=>"1nd"], ["2nd"=>"2nd"], ["1nw"=>"1nw"], ["2nw"=>"2nw"], ["cmscaf1h"=>"cmscaf1h"], ["cmscaf8h"=>"cmscaf8h"], ["cmscaf1w"=>"cmscaf1w"], ["cmscafspec1h"=>"cmscafspec1h"], ["cmscafspec8h"=>"cmscafspec8h"], ["cmscafspec1w"=>"cmscafspec1w"] ],
+        -variable => \$pedeclass_variable,
+        -command => \&createbatchclass,
+	)->grid(
+   -row        => $row_offset+5,
+   -column     => 2,
+   -sticky     => 'ew',
+  );
+
   
 # Widget batchclass_entry isa Entry
 $ZWIDGETS{'batchclass_entry'} = $MW->Entry(
@@ -334,7 +349,7 @@ $ZWIDGETS{'batchclass_entry'} = $MW->Entry(
         -background => 'white',
 	)->grid(
 
-   -row        => $row_offset+5,
+   -row        => $row_offset+6,
    -column     => 2,
    -sticky => 'ew',
   );
@@ -344,7 +359,7 @@ $ZWIDGETS{'batchclass_entry'} = $MW->Entry(
 $ZWIDGETS{'jobname_label'} = $MW->Label(
    -text => 'Jobname for batch system:',
   )->grid(
-   -row    => $row_offset+6,
+   -row    => $row_offset+7,
    -column => 2,
    -sticky => 'ew',
   );
@@ -355,7 +370,7 @@ $ZWIDGETS{'jobaname_entry'} = $MW->Entry(
 	-textvariable => \$jobname_variable,
         -background => 'white',
 	)->grid(
-   -row    => $row_offset+7,
+   -row    => $row_offset+8,
    -column => 2,
    -sticky => 'ew',
   );
@@ -663,6 +678,7 @@ $ZWIDGETS{'quit_button'} = $MW->Button(
 
 reset_var(); # Reset all variables
 MainLoop;
+printf "Prova\n";
 
 #######################
 #
@@ -710,10 +726,13 @@ sub reset_var {
   $pathcfg_variable         =$cfgTemplate;
   $pathdata_variable        =$infiList;
   $pathpedescript_variable  =$mergeScript;
-  $pathcastor_variable      =$mssDirPool.":".$mssDir; # ':' as delimter "defined" in mps_setup.pl
+  $pathcastor_variable      =$mssDir;
   $jobname_variable         =$addFiles;
   $njobs_variable           =$nJobs;
-  $batchclass_variable      =$class;
+#
+  $batchclass_variable =$class;
+  $milleclass_variable ="";
+  $pedeclass_variable  ="";
 #
   $setuppedejob_variable    ="1"; #The default is "yes".
   $appendmillejob_variable  ="2"; #The default is "no".
@@ -822,4 +841,26 @@ sub mpsfetch_cmd {
 #This should clean the text output window, right now is not implemented in any button or call
 sub cleanwindow{
   $ZWIDGETS{'ROText1'}->delete("1.0", 'end');
+}
+
+#Create $batchclass_variable from $milleclass_variable and $pedeclass_variable
+sub createbatchclass{
+#  if (!defined($milleclass_variable)) {$milleclass_variable="";}
+#  if (!defined($pedeclass_variable))  {$pedeclass_variable="";}
+
+  if (!defined($milleclass_variable)) {return;}
+  if (!defined($pedeclass_variable))  {return;}
+
+  if ($milleclass_variable ne "" && $pedeclass_variable ne "") {
+    $batchclass_variable=$milleclass_variable .":". $pedeclass_variable;
+  } elsif ($milleclass_variable ne "") {
+    $batchclass_variable=$milleclass_variable;
+  } elsif ($pedeclass_variable ne "") {
+    $batchclass_variable=$pedeclass_variable;
+  }
+}
+
+#Test routine
+sub prova{
+  printf "Prova.\n";
 }
