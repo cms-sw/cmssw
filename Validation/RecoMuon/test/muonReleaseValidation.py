@@ -10,14 +10,14 @@ import string
 ######### User variables
 
 #Reference release
-NewRelease='CMSSW_3_1_0_pre6'
+NewRelease='CMSSW_3_1_0_pre9'
 
 # startup and ideal sample list
-startupsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
-#startupsamples= []
+#startupsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
+startupsamples= []
 
-idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
-#idealsamples= ['RelValTTbar']
+#idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
+idealsamples= ['RelValSingleMuPt100']
 
 
 
@@ -39,43 +39,45 @@ Tracksname=''
 #   -harvesting
 
 #Sequence='only_validation_and_TP'
-Sequence='harvesting'
+Sequence='only_val'
+
+SearchContent="*GEN-SIM-RECO*"
+DriverSteps="HARVESTING:validationHarvesting"
+if(Sequence=="harvesting"):
+    SearchContent="*GEN-SIM-RECO*"
+    DriverSteps="HARVESTING:validationHarvesting"
+if(Sequence=="reco_and_val"):
+    SearchContent="*GEN-SIM*HLTDEBUG*"
+    DriverSteps="RAW2DIGI,RECO,POSTRECO,VALIDATION"
+if(Sequence=="only_val"):
+    SearchContent="*GEN-SIM-RECO*"
+    DriverSteps="POSTRECO,VALIDATION"
+
+print Sequence+' '+SearchContent
 
 Submit=False
-DBS=True
+DBS=False
 OneAtATime=False
 
 # Ideal and Statup tags
-IdealTag='IDEAL'
-StartupTag='STARTUP'
-
-IdealTagUse='IDEAL_30X'
-StartupTagUse='STARTUP_30X'
-
-# Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
-ReferenceSelection='IDEAL_30X_noPU'
-StartupReferenceSelection='STARTUP_30X_noPU'
+IdealTag='IDEAL_31X'
+StartupTag='STARTUP_31X_v1'
 
 # Default label is GlobalTag_noPU__Quality_Algo. Change this variable if you want to append an additional string.
 NewSelectionLabel=''
 
 #WorkDirBase = '/tmp/'
-WorkDirBase = '/tmp/aperrott'
-#WorkDirBase = '/afs/cern.ch/user/a/aeverett/scratch0'
-
-#Reference and new repository
-RefRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
-NewRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
+#WorkDirBase = '/tmp/aperrott'
+WorkDirBase = '/uscms/home/aeverett/scratch0'
 
 #Default Nevents
-defaultNevents ='-1'
+defaultNevents ='100'
 
 #Put here the number of event to be processed for specific samples (numbers must be strings) if not specified is -1:
 Events={} #{ 'RelValZMM':'5000', 'RelValTTbar':'5000'}
 
 # template file names. Usually should not be changed.
 cfg='muonReleaseValidation_cfg.py'
-macro='macro/TrackValHistoPublisher.C'
 
 
 #########################################################################
@@ -96,9 +98,11 @@ def replace(map, filein, fileout):
 ############################################
 
     
-def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
-    global Sequence, RefSelection, RefRepository, NewSelection, NewRepository, defaultNevents, Events, GlobalTagUse
-    global cfg, macro, Tracksname
+def do_validation(samples, GlobalTagUse, trackquality, trackalgorithm):
+    global Sequence, NewSelection, defaultNevents, Events
+    global cfg, Tracksname,SearchContent,DriverSteps
+    splitResult = GlobalTagUse.split('_')
+    GlobalTag = splitResult[0]
     print 'Search Tag: ' + GlobalTag
     print 'Tag to use: ' + GlobalTagUse
 
@@ -124,7 +128,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
     for sample in samples :
         print 'Get information from DBS for sample', sample
 
-        newdir=NewRepository+'/'+NewRelease+'/'+NewSelection+'/'+sample 
+#        newdir=NewRepository+'/'+NewRelease+'/'+NewSelection+'/'+sample 
 
         WorkDir = WorkDirBase+'/'+NewRelease+'/'+NewSelection+'/'+sample
 
@@ -133,103 +137,143 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 
         
         #chech if the sample is already done
-        if(os.path.isfile(newdir+'/val.'+sample+'.rootytootie' )!=True):    
-            
-            #search the primary dataset
-            cmd='python $DBSCMD_HOME/dbsCommandLine.py "find dataset where dataset like *'
-            #search for correct EventContent (and site)
-#            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* AND site like *cern* "'
-            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* AND site like *cern* "'
-            cmd+='|grep '+sample+'|grep -v FastSim |sort| tail -1 | cut -d "," -f1 '
+        #if(os.path.isfile(newdir+'/val.'+sample+'.rootytootie' )!=True):    
+        if(True):
+            ## start new
+            cmd='dbsql "find  dataset.createdate, dataset where dataset like *'
+            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+SearchContent+' "'
+            #cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM*HLTDEBUG* "'
+            #cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* "'
+            cmd+='|grep '+sample+'|grep -v test|sort|tail -1|cut -f2 '
             print cmd
-            dataset= os.popen(cmd).readline()
+            dataset= os.popen(cmd).readline().strip()
             print 'DataSet:  ', dataset, '\n'
-            
             #Check if a dataset is found
             if(dataset!="" or DBS==False):
-                print 'dataset found ', dataset[:-1]
+		
                 #Find and format the list of files
-                cmd2='python $DBSCMD_HOME/dbsCommandLine.py "find file where dataset like '+ dataset[:-1] +'"|grep ' + sample 
+                cmd2='dbsql "find file where dataset like '+ dataset +'"|grep ' + sample
                 thisFile=0
-                for thisFilename in os.popen(cmd2).readlines():
-
+                filenames='import FWCore.ParameterSet.Config as cms\n'
+                filenames+='readFiles = cms.untracked.vstring()\n'
+                filenames+='secFiles = cms.untracked.vstring()\n'
+                filenames+='source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)\n'
+                filenames+='readFiles.extend( [\n'
+                first=True
+                print cmd2
+                for line in os.popen(cmd2).readlines():
+                    filename=line.strip()
                     templatecfgFile = open(cfg, 'r')
                     thisFile=thisFile+1
-                    filenames='import FWCore.ParameterSet.Config as cms\n\n'
-                    filenames+='readFiles = cms.untracked.vstring()\n'
-                    filenames+='secFiles = cms.untracked.vstring()\n'
-                    filenames+='source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)\n'
-                    filenames+='readFiles.extend( [\n'
-                    if dataset!="":
-                        if (OneAtATime==False):
-                            for filename in os.popen(cmd2).readlines():
-                                filenames+='"'+filename[:-1]+'",'
-                        else:
-                            filenames+='"'+thisFilename+'",'
-                    filenames+=']);\n'
-
-                
+                    if first==True:
+                        filenames+="'"
+                        filenames+=filename
+                        filenames+="'"
+                        first=False
+                    else :
+                        filenames+=",\n'"
+                        filenames+=filename
+                        filenames+="'"
+                filenames+=']);\n'
+				
                 # if not harvesting find secondary file names
-                    if(dataset!="" and Sequence!="harvesting"):
-                        print 'Getting secondary files'
-                        cmd3='python $DBSCMD_HOME/dbsCommandLine.py "find dataset.parent where dataset like '+ dataset[:-1] +'"|grep ' + sample
+                if(Sequence!="harvesting" or Sequence!="reco_and_val"):
+                        cmd3='dbsql  "find dataset.parent where dataset like '+ dataset +'"|grep ' + sample
                         parentdataset=os.popen(cmd3).readline()
                         print 'Parent DataSet:  ', parentdataset, '\n'
                     
-                        #Check if a dataset is found
+                    #Check if a dataset is found
                         if parentdataset!="":
-                            cmd4='python $DBSCMD_HOME/dbsCommandLine.py "find file where dataset like '+ parentdataset[:-1] +'"|grep ' + sample 
+                            cmd4='dbsql  "find file where dataset like '+ parentdataset +'"|grep ' + sample 
                             filenames+='secFiles.extend( [\n'
-                            first=True                        
+                            first=True
+		
                             for line in os.popen(cmd4).readlines():
-                                filenames+='"'+line[:-1]+'",'
+                                secfilename=line.strip()
+                                if first==True:
+                                    filenames+="'"
+                                    filenames+=secfilename
+                                    filenames+="'"
+                                    first=False
+                                else :
+                                    filenames+=",\n'"
+                                    filenames+=secfilename
+                                    filenames+="'"
                             filenames+=']);\n'
                         else :
                             print "No primary dataset found skipping sample: ", sample
-                            continue
-                    else :
-                        filenames+='secFiles.extend( (               ) )\n'
+                            filenames+='secFiles.extend( (               ) )'
 
-                    cfgFileName=('%s_%d') % (sample,thisFile)
-                    print 'cfgFileName ' + cfgFileName
-                    cfgFile = open(cfgFileName+'.py' , 'w' )
-                    cfgFile.write(filenames)
+                            #continue
+                else :
+                        filenames+='secFiles.extend( (               ) )'
 
-                    if (Events.has_key(sample)!=True):
-                        Nevents=defaultNevents
-                    else:
-                        Nevents=Events[sample]
-                    print 'line 199'
-                    symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTagUse, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':trackalgorithm, 'QUALITY':trackquality, 'TRACKS':Tracks}
+            ## end new
 
 
-                    cfgFile = open(cfgFileName+'.py' , 'a' )
-                    replace(symbol_map, templatecfgFile, cfgFile)
+                cfgFileName=('%s_%d') % (sample,thisFile)
+                print 'cfgFileName ' + cfgFileName
+                cfgFile = open(cfgFileName+'.py' , 'w' )
+                cfgFile.write(filenames)
+                print 'line 220'
+                #sampleFileName=('sample_%s_%d') % (sample,thisFile)
+                sampleFileName='sample'
+                sampleFile = open(sampleFileName+'.py','w' )
+                sampleFile.write(filenames)
+                print 'line 225'
+                if (Events.has_key(sample)!=True):
+                    Nevents=defaultNevents
+                else:
+                    Nevents=Events[sample]
+                print 'line 230'
+                symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTagUse, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':trackalgorithm, 'QUALITY':trackquality, 'TRACKS':Tracks}
 
-                    cmdrun='cmsRun ' + WorkDir +'/'+cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
+                print 'line 233'
+                cfgFile = open(cfgFileName+'.py' , 'a' )
+                replace(symbol_map, templatecfgFile, cfgFile)
+                print 'line 236'
+                cmdrun='cmsRun ' + WorkDir +'/'+cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
 
-                    print cmdrun
+                print cmdrun
+                
+                lancialines='#!/usr/local/bin/bash \n'
+                lancialines+='cd '+ProjectBase+'/src \n'
+                lancialines+='eval `scramv1 run -sh` \n\n'
+                lancialines+='cd '+WorkDir+'\n'
+                lancialines+='cmsRun '+cfgFileName+'.py  >&  ' + cfgFileName + '.log < /dev/zero \n'
+                lancialines+='mv  DQM_V0001_R000000001__' + GlobalTagUse+ '__' + sample + '__Validation.root' + ' ' + 'val.' +sample+'.root \n'
+                
+                lanciaName=('lancia_%s_%s_%d') % (GlobalTag,sample,thisFile)
+                lanciaFile = open(lanciaName,'w')
+                lanciaFile.write(lancialines)
+                lanciaFile.close()
+                print 'line 252'
+                if(Sequence=="harvesting"):
+                    print 'line 254'
+                    print 'NOTE: a harvesting configuration can also be accomplished by executng this command'
+                    driverCmd='cmsDriver.py harvest -s '+DriverSteps+' --mc  --conditions FrontierConditions_GlobalTag,'+GlobalTagUse+'::All --harvesting AtJobEnd --filein file:step2_VALIDATION.root --fileout harvest_out.root --customise=Validation/RecoMuon/customise.py --python_filename=new_'+cfgFileName+'.py --no_exec'
+                    print driverCmd
+                if(Sequence=="reco_and_val"):
+                    print 'line 259'
+                    driverCmd='cmsDriver.py step2 -s '+DriverSteps+' --mc -n100 --conditions FrontierConditions_GlobalTag,'+GlobalTagUse+'::All --filein file:step1.root --fileout step2_RECO_VALIDATION.root --eventcontent RECOSIM  --datatier GEN-SIM-RECO   --customise=Validation/RecoMuon/customise.py --python_filename=new_'+cfgFileName+'.py --no_exec'
+                    print driverCmd
+                if(Sequence=="only_val"):
+                    print 'line 263'
+                    driverCmd='cmsDriver.py step2 -s '+DriverSteps+' --mc -n100 --conditions FrontierConditions_GlobalTag,'+GlobalTagUse+'::All --filein file:step2.root --fileout step2_VALIDATION.root --eventcontent RECOSIM  --datatier GEN-SIM-RECO   --customise=Validation/RecoMuon/customise.py --python_filename=new_'+cfgFileName+'.py --no_exec'
+                    print driverCmd
 
-                    lancialines='#!/usr/local/bin/bash \n'
-                    lancialines+='cd '+ProjectBase+'/src \n'
-                    lancialines+='eval `scramv1 run -sh` \n\n'
-                    lancialines+='cd '+WorkDir+'\n'
-                    lancialines+='cmsRun '+cfgFileName+'.py  >&  ' + cfgFileName + '.log < /dev/zero \n'
-                    lancialines+='mv  DQM_V0001_R000000001__' + GlobalTagUse+ '__' + sample + '__Validation.root' + ' ' + 'val.' +sample+'.root \n'
+                iii=os.system(driverCmd)
                     
-                    lanciaName=('lancia_%s_%s_%d') % (GlobalTag,sample,thisFile)
-                    lanciaFile = open(lanciaName,'w')
-                    lanciaFile.write(lancialines)
-                    lanciaFile.close()
-                    
-                    print ("copying py file for sample: %s %s") % (sample,lanciaName)
-                    iii = os.system('mv '+lanciaName+' '+WorkDir+'/.')
-                    print iii
-                    iii = os.system('mv '+cfgFileName+'.py '+WorkDir)
-                    print iii
-                    if(OneAtATime==False):
-                        break
-
+                print ("copying py file for sample: %s %s") % (sample,lanciaName)
+                iii = os.system('mv '+lanciaName+' '+WorkDir+'/.')
+                print iii
+                iii = os.system('mv '+cfgFileName+'.py '+WorkDir)
+                print iii
+                iii = os.system('mv '+sampleFileName+'.py '+WorkDir)
+                iii = os.system('mv new_'+cfgFileName+'.py '+WorkDir)
+                if(OneAtATime==False):
+                    break
+                
                 retcode=0
 
                 if(Submit):
@@ -282,15 +326,6 @@ except KeyError:
 
 if os.path.isfile( 'dbsCommandLine.py')!=True:
     print >>sys.stderr, "Failed to find the file ($DBSCMD_HOME/dbsCommandLine.py)"
-#if os.path.isfile( 'DDSearchCLI.py')!=True:
-#    e =os.system("wget --no-check-certificate https://cmsweb.cern.ch/dbs_discovery/aSearchCLI -O DDSearchCLI.py")
-#    if  e != 0:
-#        print >>sys.stderr, "Failed to dowload dbs aSearch file (https://cmsweb.cern.ch/dbs_discovery/aSearchCLI)"
-#        print >>sys.stderr, "Child was terminated by signal", e
-#        os.remove('DDSearchCLI.py')
-#        sys.exit()
-#    else:
-#        os.system('chmod +x DDSearchCLI.py')
 
 NewSelection=''
 
@@ -298,26 +333,6 @@ for algo in Algos:
     print 'algo ' + algo
     for quality in Qualities:
         print 'quality ' + quality
-        RefSelection=ReferenceSelection
-        print 'Before RefSelection: ' + RefSelection
-        if( quality !=''):
-            RefSelection+='_'+quality
-        if(algo!=''):
-            RefSelection+='_'+algo
-        if(quality =='') and (algo==''):
-            RefSelection+='_ootb'
-        print 'After RefSelection: ' + RefSelection
-        GlobalTagUse=IdealTagUse
         do_validation(idealsamples, IdealTag, quality , algo)
-        RefSelection=StartupReferenceSelection
-        print 'Before StartupRefSelection: ' + RefSelection
-        if( quality !=''):
-            RefSelection+='_'+quality
-        if(algo!=''):
-            RefSelection+='_'+algo
-        if(quality =='') and (algo==''):
-            RefSelection+='_ootb'
-        print 'After StartupRefSelection: ' + RefSelection
-        GlobalTagUse=StartupTagUse
         do_validation(startupsamples, StartupTag, quality , algo)
 
