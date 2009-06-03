@@ -23,8 +23,6 @@ using std::endl;
 HectorProducer::HectorProducer(edm::ParameterSet const & parameters): eventsAnalysed(0) {
   
   
-  //  produces<edm::HepMCProduct>();
-  
   // TransportHector
   
   m_InTag          = parameters.getParameter<std::string>("HepMCProductLabel") ;
@@ -33,7 +31,7 @@ HectorProducer::HectorProducer(edm::ParameterSet const & parameters): eventsAnal
   m_ZDCTransport   = parameters.getParameter<bool>("ZDCTransport");
   
   produces<edm::HepMCProduct>();
-  //  hector = new Hector( parameters );
+
   hector = new Hector(parameters, 
 		      m_verbosity,
 		      m_FP420Transport,
@@ -58,64 +56,49 @@ HectorProducer::HectorProducer(edm::ParameterSet const & parameters): eventsAnal
 
 HectorProducer::~HectorProducer(){
   
-  //if ( hector ) delete hector;
-  
   if(m_verbosity) {
     cout << "===================================================================" << endl;  
     cout << "=== Start delete HectorProducer                               =====" << endl;
     cout << "=== Number of events analysed: " << eventsAnalysed << endl;
   }
-  //  delete hector;
 
-   if(m_verbosity) {
+  if(m_verbosity) {
     cout << "=== DONE                              =====" << endl;
     cout << "===================================================================" << endl;  
   }
- 
+  
 }
 
 void HectorProducer::beginJob(const edm::EventSetup & es)
 {
-  //  cout << "HectorProducer::beginJob" << std::endl;
-  //  cout << "" << std::endl;
 }
 
 void HectorProducer::endJob()
 {
-  //    std::cout << " HectorProducer terminating " << std::endl;
 }
 
 
 void HectorProducer::produce(edm::Event & iEvent, const edm::EventSetup & es){
-  //  cout << "HectorProducer::produce" << std::endl;
+
   using namespace edm;
   using namespace std;
-  //   using namespace HepMC;
-  //   using namespace CLHEP;
   
   eventsAnalysed++;
   
-  //   vector< Handle<HepMCProduct> > AllHepMCEvt ;   
-  //   iEvent.getManyByType( AllHepMCEvt ) ;
   Handle<HepMCProduct>  HepMCEvt;   
   iEvent.getByLabel( m_InTag, HepMCEvt ) ;
   
-  //   for ( unsigned int i=0; i<HepMCEvt.size(); ++i )
-  //   {
   if ( !HepMCEvt.isValid() )
     {
-      // in principal, should never happen, as it's taken care of bt Framework
       throw cms::Exception("InvalidReference")
-	<< "Invalid reference to HepMCProduct\n";
+        << "Invalid reference to HepMCProduct\n";
     }
   
-  if ( HepMCEvt.provenance()->moduleLabel() == "HectorTrasported" )
+  if ( HepMCEvt.provenance()->moduleLabel() == "LHCTransport" )
     {
       throw cms::Exception("LogicError")
-	<< "HectorTrasported HepMCProduce already exists\n";
+        << "HectorTrasported HepMCProduce already exists\n";
     }
-  
-  //   }
   
   evt_ = new HepMC::GenEvent( *HepMCEvt->GetEvent() );
   hector->clearApertureFlags();
@@ -139,12 +122,9 @@ void HectorProducer::produce(edm::Event & iEvent, const edm::EventSetup & es){
     evt_->print();
   }
   
-  // OK, create a product and put in into edm::Event
-  //
   auto_ptr<HepMCProduct> NewProduct(new HepMCProduct()) ;
   NewProduct->addHepMCData( evt_ ) ;
   
-  //   iEvent.put( NewProduct, "HectorTrasported" ) ;
   iEvent.put( NewProduct ) ;
 }
 
