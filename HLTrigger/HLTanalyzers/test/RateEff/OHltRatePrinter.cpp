@@ -247,6 +247,12 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu) {
     eventsize->GetXaxis()->SetBinLabel(i+1,menu->GetTriggerName(i));      
   }
 
+  for (unsigned int i=0;i<menu->GetTriggerSize();i++) {  
+    for (unsigned int j=0;j<menu->GetTriggerSize();j++) {  
+      overlap->SetBinContent(i,j,coMa[i][j]); 
+    } 
+  } 
+
   individual->SetStats(0); individual->SetYTitle("Rate (Hz)");
   individual->SetTitle("Individual trigger rate");
   cumulative->SetStats(0); cumulative->SetYTitle("Rate (Hz)");

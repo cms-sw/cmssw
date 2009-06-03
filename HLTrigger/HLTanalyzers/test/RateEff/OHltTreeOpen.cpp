@@ -19,6 +19,11 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
     } 
   } 
+  if (menu->GetTriggerName(it).CompareTo("OpenL1_EG5_HTT100") == 0) { 
+    if(map_BitOfStandardHLTPath.find("OpenL1_EG5_HTT100")->second == 1) {   
+      if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
+    }   
+  } 
 
   //////////////////////////////////////////////////////////////////
   // Example for pass through triggers, e.g. to be used for L1 seed rates ...
@@ -49,27 +54,62 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
     }    
   }    
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet15") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet15U") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(OpenHlt1JetPassed(15.)>=1) {
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
       }    
     }
   }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet30") == 0) {    
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet30U") == 0) {    
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(OpenHlt1JetPassed(30.)>=1) {
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
       }    
     }
   }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet50") == 0) {    
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet50U") == 0) {    
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(OpenHlt1JetPassed(50.)>=1) {
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
       }    
     }
   }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet30") == 0) {    
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHlt1CorJetPassed(30)>=1) { 
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
+      }    
+    }    
+  }    
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet50") == 0) {     
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHlt1CorJetPassed(50)>=1) { 
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }    
+      }     
+    }     
+  }     
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet80") == 0) {      
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHlt1CorJetPassed(80)>=1) { 
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
+      }      
+    }      
+  }      
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet110") == 0) {      
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHlt1CorJetPassed(110)>=1) {      
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
+      }      
+    }      
+  }      
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet180") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHlt1CorJetPassed(180)>=1) { 
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
+      } 
+    } 
+  } 
  
   /* DiJetAve */
   if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve15") == 0) {   
@@ -88,20 +128,34 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }
 
   /* Forward & MultiJet */
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_FwdJet20") == 0) {      
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_FwdJet20U") == 0) {      
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(OpenHltFwdJetPassed(20.)>=1) {      
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
       }      
     }      
   }      
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_QuadJet15") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_QuadJet15U") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(OpenHltQuadJetPassed(15.)>=1) {    
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
       }    
     }    
   }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_FwdJet40") == 0) {       
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHltFwdCorJetPassed(40.)>=1) {       
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
+      }       
+    }       
+  }       
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_QuadJet30") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHltQuadCorJetPassed(30.)>=1) {     
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }    
+      }     
+    }     
+  } 
 
   /* MET */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1MET20") == 0) {       
@@ -109,6 +163,13 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
     }     
   }       
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET25") == 0) {  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(recoMetCal > 25.) {  
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
+      }  
+    }  
+  }  
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET35") == 0) {         
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(recoMetCal > 35.) {         
@@ -116,6 +177,20 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       }         
     }         
   }         
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET50") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(recoMetCal > 50.) { 
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
+      } 
+    } 
+  } 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET65") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(recoMetCal > 65.) { 
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
+      } 
+    } 
+  } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET100") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(recoMetCal > 100.) { 
@@ -124,20 +199,56 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     } 
   } 
 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT300_MHT100") == 0) {  
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT300_MHT100") == 0) {   
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if(recoHTCalSum > 300. && recoHTCal > 200.) {
-	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
-      }
-    }
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT250") == 0) {   
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if(recoHTCalSum > 250.) { 
+      if(recoHTCal > 200. && (OpenHltSumHTPassed(300., 30.) == 1)) { 
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
       } 
     } 
   } 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT200_JT20") == 0) {     
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {   
+      if(OpenHltSumHTPassed(200., 20.) == 1) { 
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
+      }   
+    }   
+  }   
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT200") == 0) {      
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {    
+      if(OpenHltSumHTPassed(200., 30.) == 1) {  
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
+      }    
+    }    
+  }    
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT200_JT40") == 0) {      
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {    
+      if(OpenHltSumHTPassed(200., 40.) == 1) {  
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
+      }    
+    }    
+  }    
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT250_JT20") == 0) {    
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {     
+      if(OpenHltSumHTPassed(250., 20.) == 1) { 
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }    
+      }  
+    }  
+  }  
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT250") == 0) {     
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {     
+      if(OpenHltSumHTPassed(250., 30.) == 1) {  
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
+      }   
+    }   
+  }   
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT250_JT40") == 0) {     
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {     
+      if(OpenHltSumHTPassed(250., 40.) == 1) {  
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
+      }   
+    }   
+  }   
+
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SumET120") == 0) {      
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(recoMetCalSum > 120.) {
@@ -184,7 +295,29 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
     }         
-  }        
+  }    
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu25") == 0) {            
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      int rc = 0;   
+      for(int i=0;i<NL1OpenMu;i++) {   
+        if(L1OpenMuPt[i] > 25.0)  
+          rc++;   
+      }   
+      if(rc > 0)   
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }           
+    }            
+  }           
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu30") == 0) {           
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      int rc = 0;  
+      for(int i=0;i<NL1OpenMu;i++) {  
+        if(L1OpenMuPt[i] > 30.0) 
+          rc++;  
+      }  
+      if(rc > 0)  
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }          
+    }           
+  }          
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu9") == 0) {          
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       int rc = 0;
@@ -218,10 +351,6 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       }  
     }  
   }  
-  // JH. Muon group requests the L1/L2/L3 thresholds be changed from   
-  // 5/3/5 to 3/4/5. This is implemented here for the emulated trigger  
-  // (i.e. the definition is different than that used in the HLT_Mu5 trigger  
-  // bit). 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5") == 0) {   
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1) {   
@@ -231,7 +360,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }   
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu7") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if(OpenHlt1MuonPassed(7.,5.,7.,2.,0)>=1) {  
+      if(OpenHlt1MuonPassed(5.,5.,7.,2.,0)>=1) {  
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
       }  
     }  
@@ -293,19 +422,6 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       }   
     }   
   } 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu11") == 0) {           
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      int rc = 0; 
-      for(int i = 0; i < NohMuL2; i++) { 
-	if(ohMuL2Pt[i] > 11.) { 
-	  rc++; 
-	} 
-      } 
-      if(rc>0) { 
-        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
-      }           
-    }           
-  }           
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14") == 0) {         
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
@@ -355,6 +471,13 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       }
     }
   }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_SW_EleId_L1R") == 0) {   
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {   
+      if(OpenHlt1ElectronEleIDPassed(15.,0,9999.,9999.)>=1) {   
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
+      }        
+    } 
+  } 
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele20_LW_L1R") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(OpenHlt1LWElectronPassed(20.,0,9999.,9999.)>=1) {
@@ -368,7 +491,22 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
       }
     }
-  }
+  }  
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleEle5_SW_Jpsi_L1R") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) { 
+      if(OpenHlt2ElectronMassWinPassed(5.0, 0, 9.0, 2.0, 4.5)>=1) {
+	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
+      }
+    }
+  }  
+    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleEle5_SW_Upsilon_L1R") == 0) {  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) { 
+      if(OpenHlt2ElectronMassWinPassed(5.0, 0, 9.0, 8.0, 11.0)>=1) {
+	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
+      }
+    }
+  }  
+
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleEle5_SW_L1R") == 0) {      
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(OpenHlt1ElectronPassed(5.,0,9999.,9999.)>=2) {       
@@ -390,7 +528,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
               if (ohElePixelSeedsLW[i]>0) { 
                 if ( ohEleTisoLW[i] < Tiso && ohEleTisoLW[i] != -999.) { 
                   if ( ohEleL1isoLW[i] >= L1iso ) {  // L1iso is 0 or 1  
-					if( ohEleLWL1Dupl[i] == false) { // JH - remove double-counted L1 SCs
+		    if( ohEleLWL1Dupl[i] == false) { // remove double-counted L1 SCs
                     for(int j=0;j<NohEleLW && j != i;j++) { 
                       if(ohEleEtLW[j] > 10.) { 
                         rc++;        
@@ -461,11 +599,29 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }      
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_SW_LooseTrackIso_L1R") == 0) {       
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if(OpenHlt1ElectronPassed(15.,0,0.12,9999.)>=1) {       
-        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }       
-      }       
-    }       
+    float Et = 15.;  
+    int L1iso = 0;   
+    float Tiso = 8.0;   
+    float Hiso = 9999.; 
+    float Tisoratio = 0.5; 
+    int rc = 0; 
+    
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {       
+      for (int i=0;i<NohEle;i++) {  
+        if ( ohEleEt[i] > Et) {  
+          if ( ohEleHiso[i] < Hiso || ohEleHiso[i]/ohEleEt[i] < 0.05)  
+            if (ohEleNewSC[i]==1)  
+              if (ohElePixelSeeds[i]>0)  
+                if ( (ohEleTiso[i] < Tisoratio || (ohEleTiso[i]*ohEleEt[i]) < Tiso) && ohEleTiso[i] != -999.)  
+                  if ( ohEleL1iso[i] >= L1iso )   // L1iso is 0 or 1  
+                    if( ohEleL1Dupl[i] == false) // remove double-counted L1 SCs    
+                      rc++;        
+        }  
+      }  
+      
+      if(rc > 0) 
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
+    }        
   }  
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoEle18_L1R") == 0) {       
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
@@ -517,53 +673,25 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }       
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_SC15_SW_LooseTrackIso_L1R") == 0) {        
-    float Et = 15.;
-    int L1iso = 0; 
-    float Tiso = 0.12; 
-    float Hiso = 9999.;
-    int rc = 0;
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      for (int i=0;i<NohEle;i++) { 
-	if ( ohEleEt[i] > Et) { 
-	  if ( ohEleHiso[i] < Hiso || ohEleHiso[i]/ohEleEt[i] < 0.05) {
-	    if (ohEleNewSC[i]==1) {
-	      if (ohElePixelSeeds[i]>0) {
-		if ( ohEleTiso[i] < Tiso && ohEleTiso[i] != -999.) {
-		  if ( ohEleL1iso[i] >= L1iso ) {  // L1iso is 0 or 1 
-		    for(int j=0;j<NohEle && j != i;j++) {
-		      if(ohEleEt[j] > 15.) {
-			rc++;       
-		      }
-		    }
-		  }
-		}
-	      }
-	    }
-	  }
-	}
-      }
-    }
-    if(rc > 0) {
-      if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
-    }        
-  }        
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele20_SC15_SW_L1R") == 0) {         
-    float Et = 20.; 
+    float Et = 15.; 
     int L1iso = 0;  
-    float Tiso = 9999.;  
+    float Tiso = 8.0;  
     float Hiso = 9999.; 
+    float Tisoratio = 0.5;  
     int rc = 0; 
+
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       for (int i=0;i<NohEle;i++) {  
         if ( ohEleEt[i] > Et) {  
           if ( ohEleHiso[i] < Hiso || ohEleHiso[i]/ohEleEt[i] < 0.05) { 
             if (ohEleNewSC[i]==1) { 
               if (ohElePixelSeeds[i]>0) { 
-                if ( ohEleTiso[i] < Tiso && ohEleTiso[i] != -999.) { 
+                if ( (ohEleTiso[i] < Tisoratio || (ohEleTiso[i]*ohEleEt[i]) < Tiso) && ohEleTiso[i] != -999.) { 
                   if ( ohEleL1iso[i] >= L1iso ) {  // L1iso is 0 or 1  
                     for(int j=0;j<NohEle && j != i;j++) { 
                       if(ohEleEt[j] > 15.) { 
-                        rc++;        
+                        if( ohEleL1Dupl[i] == false && ohEleL1Dupl[j] == false) // remove double-counted L1 SCs 
+                          rc++;        
                       } 
                     } 
                   } 
@@ -572,12 +700,109 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
             } 
           } 
         } 
-      }
-    }
-    if(rc >= 1) { 
+      } 
+    } 
+    if(rc > 0) { 
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }         
-    }
+    }         
+  }        
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_SC15_SW_EleId_L1R") == 0) {   
+    float Et = 15.;   
+    int rc = 0;   
+ 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      for (int i=0;i<NohEle;i++) {   
+	if ( ohEleEt[i] > Et) {   
+	  if (ohEleNewSC[i]==1) {  
+	    if (ohElePixelSeeds[i]>0) {  
+	      if ( (TMath::Abs(ohPhotEta[i]) < 1.5 && ohEleClusShap[i] < 0.015) ||   
+		   (1.5 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.5 && ohEleClusShap[i] < 0.04) ) { 
+		if ( (ohEleDeta[i] < 0.008) && (ohEleDphi[i] < 0.1) ) { 
+		  for(int j=0;j<NohEle && j != i;j++) {  
+		    if(ohEleEt[j] > 15.) {  
+		      if( ohEleL1Dupl[i] == false && ohEleL1Dupl[j] == false) // remove double-counted L1 SCs  
+			rc++;         
+		    }  
+		  }  
+		}  
+	      }  
+	    }  
+	  }  
+	}  
+      }  
+    }  
+    if(rc > 0) {  
+      if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }          
+    }    
+  } 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele20_SC15_SW_L1R") == 0) {         
+    float Et = 20.;  
+    int L1iso = 0;   
+    float Hiso = 9999.;  
+    int rc = 0;  
+ 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      for (int i=0;i<NohEle;i++) {   
+        if ( ohEleEt[i] > Et) {   
+          if ( ohEleHiso[i] < Hiso || ohEleHiso[i]/ohEleEt[i] < 0.05) {  
+            if (ohEleNewSC[i]==1) {  
+              if (ohElePixelSeeds[i]>0) {  
+                  if ( ohEleL1iso[i] >= L1iso ) {  // L1iso is 0 or 1   
+                    for(int j=0;j<NohEle && j != i;j++) {  
+                      if(ohEleEt[j] > 15.) {  
+                        if( ohEleL1Dupl[i] == false && ohEleL1Dupl[j] == false) // remove double-counted L1 SCs  
+                          rc++;         
+                      }  
+                    }  
+                  }  
+                  //                }  
+              }  
+            }  
+          }  
+        }  
+      } 
+    } 
+    if(rc >= 1) {  
+      if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }          
+    } 
   }  
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele25_SW_EleId_LooseTrackIso_L1R") == 0) {    
+    float Et = 25.;    
+    float Tiso = 8.0;    
+    float Hiso = 9999.;  
+    float Tisoratio = 0.5;  
+    int L1iso = 0; 
+    int rc = 0;    
+  
+    if ( map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) { 
+      for (int i=0;i<NohEle;i++) {   
+        if ( ohEleEt[i] > Et) {   
+          if ( ohEleHiso[i] < Hiso || ohEleHiso[i]/ohEleEt[i] < 0.05)   
+            if (ohEleNewSC[i]==1)   
+              if (ohElePixelSeeds[i]>0)   
+                if ( (ohEleTiso[i] < Tisoratio || (ohEleTiso[i]*ohEleEt[i]) < Tiso) && ohEleTiso[i] != -999.)   
+                  if ( ohEleL1iso[i] >= L1iso )   // L1iso is 0 or 1   
+                    if ( (TMath::Abs(ohPhotEta[i]) < 1.5 && ohEleClusShap[i] < 0.015) ||   
+                         (1.5 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.5 && ohEleClusShap[i] < 0.04) )    
+                      if ( (ohEleDeta[i] < 0.008) && (ohEleDphi[i] < 0.1) )   
+                        if( ohEleL1Dupl[i] == false) // remove double-counted L1 SCs     
+                          rc++;         
+        }   
+      }   
+      if(rc > 0) {   
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }           
+      }     
+    }  
+  } 
+  
+ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_SiStrip_L1R") == 0) {   
+   if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {   
+      // JH: This is just a placeholder for now until strip-seeded electrons are available  
+      if(1) {    
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
+      }        
+    } 
+  } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_JPsiUpsilonEE") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       TLorentzVector e1;  
@@ -933,9 +1158,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   
   /* AlCa */
   else if (menu->GetTriggerName(it).CompareTo("OpenAlCa_HcalPhiSym") == 0) {
-    if(map_BitOfStandardHLTPath.find("L1_SingleEG1")->second == 1 ||   
-       map_BitOfStandardHLTPath.find("L1_SingleEG2")->second == 1 || 
-       map_BitOfStandardHLTPath.find("L1_DoubleEG1")->second == 1) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(ohHighestEnergyHFRecHit > 0 || ohHighestEnergyHBHERecHit > 0) {
 	// Require one RecHit with E > 0 MeV in any HCAL subdetector
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }         
@@ -1065,7 +1288,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   // SGL - lepton+jet cross-triggers. These are for 1E31, so the *corrected* 
   // jets are used at HLT. 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu9_1JetU15") == 0){ 
-    if((map_BitOfStandardHLTPath.find("L1_Mu5_Jet6")->second == 1)) {      // L1 Seed  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       int rc = 0; 
       if(OpenHlt1CorJetPassed(30)>=1){ // Require 1 corrected jet above threshold
 	for(int i = 0; i < NohMuL2; i++) { 
@@ -1080,7 +1303,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     } 
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_SW_L1R_3Jet30_3JetL1") == 0){
-    if((map_BitOfStandardHLTPath.find("L1_EG5_TripleJet6")->second == 1)) {      // L1 Seed 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       int rc = 0;
       if(OpenHlt1CorJetPassed(30)>=3){
 	if(OpenHlt1ElectronPassed(10.,0,9999.,9999.)>=1) {
@@ -1103,33 +1326,90 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
 
   // Exotica mu + e/gamma, mu + jet, and mu + MET L1-passthrough cross-triggers
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1SingleEG10") == 0){
-    //if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-    //if (L1_SingleMu14>0 && L1_SingleEG10>0) {
-    if (map_BitOfStandardHLTPath.find("L1_SingleMu14")->second==1 && map_BitOfStandardHLTPath.find("L1_SingleEG10")->second==1) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
     }
   }
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1SingleJet6") == 0){ 
-    //if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-    //if (L1_SingleMu14>0 && L1_SingleJet6>0) {
-    if (map_BitOfStandardHLTPath.find("L1_SingleMu14")->second==1 && map_BitOfStandardHLTPath.find("L1_SingleJet6")->second==1) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
     } 
   } 
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1SingleJet15") == 0){ 
-    //if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-    //if (L1_SingleMu14>0 && L1_SingleJet15>0) {
-    if (map_BitOfStandardHLTPath.find("L1_SingleMu14")->second==1 && map_BitOfStandardHLTPath.find("L1_SingleJet15")->second==1) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
     } 
   } 
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1ETM30") == 0){ 
-    //if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-    //if (L1_SingleMu14>0 && L1_ETM30>0) {
-    if (map_BitOfStandardHLTPath.find("L1_SingleMu14")->second==1 && map_BitOfStandardHLTPath.find("L1_ETM30")->second==1) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
     } 
   }
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1ETM40") == 0){  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
+    }  
+  } 
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_HT50") == 0){ 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {    
+      if(OpenHltSumHTPassed(50., 30.) == 1) { 
+        if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1)     
+          if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }         
+      } 
+    } 
+  } 
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_HT80") == 0){   
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {      
+      if(OpenHltSumHTPassed(80., 30.) == 1) {   
+        if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1)       
+          if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }           
+      }   
+    }   
+  }   
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Mu8_HT50") == 0){  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {     
+      if(OpenHltSumHTPassed(50., 30.) == 1) {  
+        if(OpenHlt1MuonPassed(3.,4.,8.,2.,0)>=1)      
+          if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }          
+      }  
+    }  
+  }  
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu8_HT50") == 0){   
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {      
+      if(OpenHltSumHTPassed(50., 30.) == 1) {   
+        if(ohMuL2Pt[0] > 8.0) { 
+          if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }           
+        }   
+      }   
+    }   
+  } 
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_LW_L1R_HT150") == 0){ 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {   
+      if(OpenHltSumHTPassed(180., 30.) == 1) { 
+        if(OpenHlt1LWElectronPassed(10.,0,9999.,9999.)>=1) { 
+          if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
+        } 
+      }          
+    }          
+  } 
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_LW_L1R_HT180") == 0){   
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {     
+      if(OpenHltSumHTPassed(180., 30.) == 1) {   
+        if(OpenHlt1LWElectronPassed(10.,0,9999.,9999.)>=1) {   
+          if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }          
+        }   
+      }            
+    }            
+  }   
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_LW_L1R_HT200") == 0){  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {    
+      if(OpenHltSumHTPassed(200., 30.) == 1) {  
+        if(OpenHlt1LWElectronPassed(10.,0,9999.,9999.)>=1) {  
+          if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }         
+        }  
+      }           
+    }           
+  }  
   // triple jet b-tag trigger for top
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_BTagIP_TripleJet20U") == 0){
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
@@ -1154,7 +1434,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   // Lepton+jet triggers for... top? exotica? b-tagging?
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu9_DiJet30") == 0) {
     int njetswithmu = 0;
-    if(map_BitOfStandardHLTPath.find("L1_Mu5QE8_Jet15")->second == 1){      // L1 Seed   
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(OpenHlt1L2MuonPassed(9.,9.,2.)>=1) {
 	for(int i = 0; i < NrecoJetCal; i++) {
 	  if(recoJetCorCalPt[i] > 30.) { // Cut on corrected jet energy
@@ -1168,7 +1448,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_SW_L1R_TripleJet30") == 0) {
     int njetswithe = 0; 
-    if(map_BitOfStandardHLTPath.find("L1_EG5_TripleJet15")->second == 1){      // L1 Seed    
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(OpenHlt1ElectronPassed(10.,0,9999.,9999.)>=1) {
         for(int i = 0; i < NrecoJetCal; i++) { 
           if(recoJetCorCalPt[i] > 30.) { // Cut on corrected jet energy 
@@ -1450,7 +1730,7 @@ int OHltTree::OpenHlt1ElectronPassed(float Et, int L1iso, float Tiso, float Hiso
 	  if (ohElePixelSeeds[i]>0)
 	    if ( ohEleTiso[i] < Tiso && ohEleTiso[i] != -999.)
 	      if ( ohEleL1iso[i] >= L1iso )   // L1iso is 0 or 1
-		if( ohEleL1Dupl[i] == false) // JH - remove double-counted L1 SCs  
+		if( ohEleL1Dupl[i] == false) // remove double-counted L1 SCs  
 		  rc++;      
     }
   }
@@ -1469,7 +1749,7 @@ int OHltTree::OpenHlt1LWElectronPassed(float Et, int L1iso, float Tiso, float Hi
 	  if (ohElePixelSeedsLW[i]>0) 
 	    if ( ohEleTisoLW[i] < Tiso && ohEleTisoLW[i] != -999.) 
 	      if ( ohEleL1isoLW[i] >= L1iso )   // L1iso is 0 or 1 
-		if( ohEleLWL1Dupl[i] == false) // JH - remove double-counted L1 SCs
+		if( ohEleLWL1Dupl[i] == false) // remove double-counted L1 SCs
 		  rc++;       
     } 
   }
@@ -1488,7 +1768,7 @@ int OHltTree::OpenHlt1EleIdLWElectronPassed(float Et, int L1iso, float Tiso, flo
 	  if (ohElePixelSeedsLW[i]>0) 
 	    if ( ohEleTisoLW[i] < Tiso && ohEleTisoLW[i] != -999.) 
 	      if ( ohEleL1isoLW[i] >= L1iso )   // L1iso is 0 or 1 
-		if( ohEleLWL1Dupl[i] == false) // JH - remove double-counted L1 SCs
+		if( ohEleLWL1Dupl[i] == false) // remove double-counted L1 SCs
 		  if ( ohEleDetaLW[i] < 0.01 && ohEleDphiLW[i] < 0.09 )
 		    if (
 			(ohEleClusShapLW[i] < 0.014 && ohEleEtaLW[i] < 1.475) ||
@@ -1499,6 +1779,28 @@ int OHltTree::OpenHlt1EleIdLWElectronPassed(float Et, int L1iso, float Tiso, flo
   }
   
   return rc; 
+} 
+
+int OHltTree::OpenHlt1ElectronEleIDPassed(float Et,int L1iso,float Tiso,float Hiso) 
+{ 
+  int rc = 0;  
+  // Loop over all oh electrons  
+  for (int i=0;i<NohEle;i++) {  
+    if ( ohEleEt[i] > Et) {  
+      if ( ohEleHiso[i] < Hiso || ohEleHiso[i]/ohEleEt[i] < 0.05)  
+        if (ohEleNewSC[i]==1)  
+          if (ohElePixelSeeds[i]>0)  
+            if ( ohEleTiso[i] < Tiso && ohEleTiso[i] != -999.)  
+              if ( ohEleL1iso[i] >= L1iso )   // L1iso is 0 or 1  
+                if ( (TMath::Abs(ohPhotEta[i]) < 1.5 && ohEleClusShap[i] < 0.015) ||  
+                     (1.5 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.5 && ohEleClusShap[i] < 0.04) )   
+                  if ( (ohEleDeta[i] < 0.008) && (ohEleDphi[i] < 0.1) )  
+                    if( ohEleL1Dupl[i] == false) // remove double-counted L1 SCs    
+                      rc++;        
+    }  
+  }  
+   
+  return rc;  
 } 
 
 
@@ -1514,7 +1816,7 @@ int  OHltTree::OpenHlt1PhotonLooseEcalIsoPassed(float Et, int L1iso, float Tiso,
 	    if( (TMath::Abs(ohPhotEta[i]) < 1.5 && ohPhotHiso[i] < HisoBR )  ||
 		(1.5 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.5 && ohPhotHiso[i] < HisoEC ) || 
 		(ohPhotHiso[i]/ohPhotEt[i] < 0.05) ) {
-	      if( ohPhotL1Dupl[i] == false) // JH - remove double-counted L1 SCs 
+	      if( ohPhotL1Dupl[i] == false) // remove double-counted L1 SCs 
 		rc++;
 	    }
 	  }
@@ -1538,7 +1840,7 @@ int  OHltTree::OpenHlt1PhotonVeryLooseEcalIsoPassed(float Et, int L1iso, float T
             if( (TMath::Abs(ohPhotEta[i]) < 1.5 && ohPhotHiso[i] < HisoBR )  ||  
                 (1.5 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.5 && ohPhotHiso[i] < HisoEC ) ||   
                 (ohPhotHiso[i]/ohPhotEt[i] < 0.05) ) {  
-              if( ohPhotL1Dupl[i] == false) // JH - remove double-counted L1 SCs  
+              if( ohPhotL1Dupl[i] == false) // remove double-counted L1 SCs  
 		rc++;  
             }  
           }  
@@ -1562,7 +1864,7 @@ int  OHltTree::OpenHlt1PhotonPassed(float Et, int L1iso, float Tiso, float Eiso,
 	    if( (TMath::Abs(ohPhotEta[i]) < 1.5 && ohPhotHiso[i] < HisoBR )  ||
 		(1.5 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.5 && ohPhotHiso[i] < HisoEC ) || 
 		(ohPhotHiso[i]/ohPhotEt[i] < 0.05) ) {
-              if( ohPhotL1Dupl[i] == false) // JH - remove double-counted L1 SCs  
+              if( ohPhotL1Dupl[i] == false) // remove double-counted L1 SCs  
 		rc++;
 	    }
 	  }
@@ -1586,7 +1888,7 @@ int  OHltTree::OpenHlt2PhotonMassWinPassed(float Et, int L1iso, float Tiso, floa
 	    if( (TMath::Abs(ohPhotEta[i]) < 1.5 && ohPhotHiso[i] < HisoBR )  ||
 		(1.5 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.5 && ohPhotHiso[i] < HisoEC ) || 
 		(ohPhotHiso[i]/ohPhotEt[i] < 0.05) ) {
-              if( ohPhotL1Dupl[i] == false) // JH - remove double-counted L1 SCs  
+              if( ohPhotL1Dupl[i] == false) // remove double-counted L1 SCs  
 		rc++;
 	    }
 	  }
@@ -1616,6 +1918,43 @@ int  OHltTree::OpenHlt2PhotonMassWinPassed(float Et, int L1iso, float Tiso, floa
     return 0;
 }
 
+int  OHltTree::OpenHlt2ElectronMassWinPassed(float Et, int L1iso, float Hiso, float massLow, float massHigh)
+{
+      TLorentzVector e1;   
+      TLorentzVector e2;   
+      TLorentzVector meson;  
+       
+      int rc = 0;  
+       
+      for (int i=0;i<NohEle;i++) {  
+        for (int j=0;j<NohEle && j != i;j++) {   
+          if ( ohEleEt[i] > Et && ohEleEt[j] > Et) {  
+            if ( ((ohEleHiso[i] < Hiso) || (ohEleHiso[i]/ohEleEt[i] < 0.2)) && ((ohEleHiso[j] < Hiso) || (ohEleHiso[j]/ohEleEt[j] < 0.2)) ){ 
+              if (ohEleNewSC[i]==1 && ohEleNewSC[j]==1) { 
+                if (ohElePixelSeeds[i]>0 && ohElePixelSeeds[j]>0 ) { 
+		  if ( ohEleL1iso[i] >= L1iso && ohEleL1iso[j] >= L1iso ) {  // L1iso is 0 or 1  
+		    if( ohEleL1Dupl[i] == false && ohEleL1Dupl[j] == false) { // remove double-counted L1 SCs    
+		      e1.SetPtEtaPhiM(ohEleEt[i],ohEleEta[i],ohElePhi[i],0.0);  
+		      e2.SetPtEtaPhiM(ohEleEt[j],ohEleEta[j],ohElePhi[j],0.0);  
+		      meson = e1 + e2;  
+		      
+		      float mesonmass = meson.M();   
+		      if(mesonmass > massLow && mesonmass < massHigh) 
+			rc++; 
+		    } 
+		  } 
+                } 
+              } 
+            } 
+          } 
+        } 
+      } 
+      
+      if (rc>0)
+	return 1;
+      else
+	return 0;
+}
 
 int OHltTree::OpenHlt1MuonPassed(double ptl1, double ptl2, double ptl3, double dr, int iso)
 {
@@ -1985,3 +2324,21 @@ int OHltTree::OpenHltFwdJetPassed(double esum)
 
   return rc;  
 }
+
+int OHltTree::OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold) 
+{ 
+  int rc = 0;   
+  double sumHT = 0.;   
+  
+  // Loop over all oh jets, sum up the energy  
+  for (int i=0;i<NrecoJetCorCal;i++) {     
+    if(recoJetCorCalPt[i] >= jetthreshold) { 
+      sumHT+=recoJetCorCalPt[i];   
+    }     
+  }      
+   
+  if(sumHT >= sumHTthreshold) 
+    rc = 1; 
+   
+  return rc;    
+} 
