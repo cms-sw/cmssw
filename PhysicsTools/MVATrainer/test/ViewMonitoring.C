@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <stdlib.h>
 
 #include <RVersion.h>
@@ -894,7 +895,11 @@ void DrawProcMatrix(TDirectory *dir)
 		rank->SetStats(0);
 		rank->SetFillColor(kGreen);
 		rank->Draw("hbar2");
-		for(unsigned int i = 1; i <= rank->GetNbinsX(); i++) {
+		std::cout << std::endl
+			  << "====================================================" << std::endl
+			  << "             Result of Variable Ranking             " << std::endl
+			  << "----------------------------------------------------" << std::endl;
+		for(unsigned int i = rank->GetNbinsX(); i >= 1; i--) {
 			double v = fabs(rank->GetBinContent(i + 1) -
 			                rank->GetBinContent(i));
 			TString text = labels[i - 1] +
@@ -902,7 +907,13 @@ void DrawProcMatrix(TDirectory *dir)
 			double off = rank->GetMaximum() * 0.1;
 			TText *t = new TText(off, i - 0.5, text);
 			t->Draw();
+			std::cout << std::setw(4) << rank->GetXaxis()->GetBinLabel(i) << " "
+				  << std::setw(38) << std::setiosflags(ios::left) << labels[i - 1]
+				  << std::setiosflags(ios::right) << " +" 
+				  << std::setw(5) << std::setprecision(2) << std::setiosflags(ios::fixed)
+				  << (v * 100.0) << "%" << std::endl;
 		}
+		std::cout << "====================================================" << std::endl;
 		delete[] labels;
 	}
 
