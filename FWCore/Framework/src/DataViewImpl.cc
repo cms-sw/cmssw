@@ -126,37 +126,39 @@ namespace edm {
   ConstBranchDescription const&
   DataViewImpl::getBranchDescription(TypeID const& type,
 				     std::string const& productInstanceName) const {
-    std::string friendlyClassName = type.friendlyClassName();
-        BranchKey bk(friendlyClassName, md_.moduleLabel(), productInstanceName, md_.processName());
-    ProductRegistry::ConstProductList const& pl = principal_.productRegistry().constProductList();
-    ProductRegistry::ConstProductList::const_iterator it = pl.find(bk);
-    if (it == pl.end()) {
+    const TransientProductLookupMap& tplm = principal_.productRegistry().productLookup();
+    std::pair<TransientProductLookupMap::const_iterator, TransientProductLookupMap::const_iterator> range = 
+     tplm.equal_range(TypeInBranchType(type,branchType()),md_.moduleLabel(),productInstanceName);
+   
+    //NOTE: getBranchDescription should only be called by a EDProducer and therefore the processName should
+    // match the first one returned by equal_range since they are ordered by time. However, there is one test
+    // which violates this rule (FWCore/Framework/test/Event_t.cpp.  I do not see a go way to 'fix' it so
+    // I'll allow the same behavior it depends upon
+    bool foundMatch = false;
+    if(range.first !=range.second) {
+       foundMatch=true;
+       while(md_.processName() != range.first->branchDescription()->processName()) {
+          ++range.first;
+          if(range.first == range.second || range.first->isFirst()) {
+             foundMatch=false;
+             break;
+          }
+       }
+    }
+    if(!foundMatch) {
       throw edm::Exception(edm::errors::InsertFailure)
 	<< "Illegal attempt to 'put' an unregistered product.\n"
 	<< "No product is registered for\n"
-	<< "  process name:                '" << bk.processName_ << "'\n"
-	<< "  module label:                '" << bk.moduleLabel_ << "'\n"
-	<< "  product friendly class name: '" << bk.friendlyClassName_ << "'\n"
-	<< "  product instance name:       '" << bk.productInstanceName_ << "'\n"
+	<< "  process name:                '" << md_.processName() << "'\n"
+	<< "  module label:                '" << md_.moduleLabel() << "'\n"
+	<< "  product friendly class name: '" << type.friendlyClassName() << "'\n"
+	<< "  product instance name:       '" << productInstanceName << "'\n"
 
 	<< "The ProductRegistry contains:\n"
 	<< principal_.productRegistry()
 	<< '\n';
     }
-    if(it->second.branchType() != branchType()) {
-        throw edm::Exception(edm::errors::InsertFailure,"Not Registered")
-          << "put: Problem found while adding product. "
-          << "The product for ("
-          << bk.friendlyClassName_ << ","
-          << bk.moduleLabel_ << ","
-          << bk.productInstanceName_ << ","
-          << bk.processName_
-          << ")\n"
-          << "is registered for a(n) " << it->second.branchType()
-          << " instead of for a(n) " << branchType()
-          << ".\n";
-    }
-    return it->second;
+    return *(range.first->branchDescription());
   }
 
   EDProductGetter const*
