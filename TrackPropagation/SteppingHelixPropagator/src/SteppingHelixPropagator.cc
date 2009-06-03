@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2008/12/04 00:27:02 $
- *  $Revision: 1.60 $
+ *  $Date: 2009/03/27 23:08:39 $
+ *  $Revision: 1.61 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.60 2008/12/04 00:27:02 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.61 2009/03/27 23:08:39 slava77 Exp $
 //
 //
 
@@ -397,7 +397,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
       //use pre-computed values if it's the first step
       if (! isFirstStep) refToDest(type, (*svCurrent), pars, dist, tanDist, refDirection);
       // constrain allowed path for a tangential approach
-      if (fabs(tanDist/dist) > 4) tanDist *= fabs(dist/tanDist*4.);
+      if (fabs(tanDist/(fabs(dist)+1e-24)) > 4) tanDist *= tanDist == 0 ? 0 :fabs(dist/tanDist*4.);
 
       tanDistNextCheck = fabs(tanDist)*0.5 - 0.5; //need a better guess (to-do)
       //reasonable limit
@@ -1697,7 +1697,7 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
   }
 
   double tanDistConstrained = tanDist;
-  if (fabs(tanDist/dist) > 4) tanDistConstrained *= fabs(dist/tanDist*4.);
+  if (fabs(tanDist/(fabs(dist)+1e-24)) > 4) tanDistConstrained *= tanDist == 0 ? 0 : fabs(dist/tanDist*4.);
 
   if (debug_){
     LogTrace(metname)<<"refToDest input: dest"<<dest<<" pars[]: ";
