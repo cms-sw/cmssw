@@ -127,8 +127,15 @@ namespace cond {
   IOVProxy::comment() const{
     return iov().comment();
   }
+
   int 
   IOVProxy::revision() const{
     return iov().revision();
   }
+
+  cond::PoolTransaction & IOVProxy::db() const {
+    m_iov->pooldb();
+  }
+
+
 }

@@ -297,6 +297,7 @@ namespace cond{
       // 
       void tagInfo(const std::string& EventSetupRecordName,
 		   cond::TagInfo& result );
+
       virtual ~PoolDBOutputService();  
 
     private:

@@ -105,6 +105,9 @@ namespace cond {
     std::string comment() const;
     int revision() const;
 
+    PoolTransaction & db() const;
+ 
+
   private:
     boost::shared_ptr<impl::IOVImpl> m_iov;
     mutable int m_low;

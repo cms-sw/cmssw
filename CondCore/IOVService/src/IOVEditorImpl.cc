@@ -13,6 +13,23 @@ namespace cond {
 				  m_isActive(false){
   }
   
+  IOVSequence & IOVEditorImpl::iov(){ return *m_iov;}
+
+  // create empty default sequence
+  void IOVEditorImpl::create(cond::TimeType timetype) {
+    if(!m_token.empty()){
+      // problem??
+      throw cond::Exception("cond::IOVEditorImpl::create cannot create a IOV using an initialized Editor");
+    }
+
+    m_iov=cond::TypedRef<cond::IOVSequence>(*m_pooldb,new cond::IOVSequence(timetype));
+					    
+    m_iov.markWrite(cond::IOVNames::container());
+    m_token=m_iov.token();
+    m_isActive=true;
+
+  }
+
   void IOVEditorImpl::create(cond::TimeType timetype,cond::Time_t lastTill) {
 
     if(!m_token.empty()){
@@ -39,7 +56,6 @@ namespace cond {
     if(m_token.empty()){
       // problem?
       throw cond::Exception("cond::IOVEditorImpl::init cannot init w/o token change");
-      
     }
     
     m_iov=cond::TypedRef<cond::IOVSequence>(*m_pooldb, m_token); 
