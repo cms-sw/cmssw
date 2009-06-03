@@ -36,14 +36,14 @@ cp -p *.log.gz $RUNDIR
 cp -p *.root $RUNDIR
 
 # Copy MillePede binary file to Castor
-# Must use different command for the cmscaf pool
-if [ "$MSSDIRPOOL" != "cmscaf" ]; then
-# Not using cmscaf pool => rfcp command must be used
+# Must use different command for the cmscafuser pool
+if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
+# Not using cmscafuser pool => rfcp command must be used
   nsrm -f $MSSDIR/milleBinaryISN.dat
   echo "rfcp milleBinaryISN.dat $MSSDIR/"
   rfcp milleBinaryISN.dat $MSSDIR/
 else
-# Using cmscaf pool => cmsStageOut command must be used
+# Using cmscafuser pool => cmsStageOut command must be used
   . /afs/cern.ch/cms/caf/setup.sh
   MSSCAFDIR=`echo $MSSDIR | awk 'sub("/castor/cern.ch/cms","")'`
   echo "cmsStageOut milleBinaryISN.dat $MSSCAFDIR/milleBinaryISN.dat"

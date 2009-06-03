@@ -14,12 +14,12 @@ BATCH_DIR=$(pwd)
 echo "Running at $(date) \n        on $HOST \n        in directory $BATCH_DIR."
 
 # stage and copy the binary file(s), first set castor pool for binary files in $MSSDIR area
-if [ "$MSSDIRPOOL" != "cmscaf" ]; then
-# Not using cmscaf pool => rfcp command must be used
+if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
+# Not using cmscafuser pool => rfcp command must be used
   stager_get -M $MSSDIR/milleBinaryISN.dat
   rfcp $MSSDIR/milleBinaryISN.dat $BATCH_DIR
 else
-# Using cmscaf pool => cmsStageIn command must be used
+# Using cmscafuser pool => cmsStageIn command must be used
   . /afs/cern.ch/cms/caf/setup.sh
   MSSCAFDIR=`echo $MSSDIR | awk 'sub("/castor/cern.ch/cms","")'`
   echo "cmsStageIn $MSSCAFDIR/milleBinaryISN.dat milleBinaryISN.dat"
