@@ -41,11 +41,15 @@ eidCutBased = cms.EDFilter("EleIdCutBasedRef",
         barrel = cms.vdouble(0.015, 0.0092, 0.020, 0.0025,-1,-1),
         endcap = cms.vdouble(0.018, 0.025, 0.020, 0.0040,-1,-1)
     ),
-    robusttightEleIDCuts = cms.PSet(
-        barrel = cms.vdouble(0.015, 0.0092, 0.020, 0.0025,-1,-1),
-        endcap = cms.vdouble(0.018, 0.025, 0.020, 0.0040,-1,-1)
+    robusttightEleIDCutsV01 = cms.PSet(
+        barrel = cms.vdouble(0.01, 0.0099, 0.025, 0.0040,-1,-1),
+        endcap = cms.vdouble(0.01, 0.028, 0.020, 0.0066,-1,-1)
     ),
-   
+    robusttightEleIDCuts = cms.PSet(
+        barrel = cms.vdouble(0.01, 0.0099, 0.025, 0.0040,-1,-1),
+        endcap = cms.vdouble(0.01, 0.028, 0.020, 0.0066,-1,-1)
+    ),
+
     #Robust High Energy Cuts
     #V00 CMSSW16X optimization 
     #V01 CMSSW22X optimization 
