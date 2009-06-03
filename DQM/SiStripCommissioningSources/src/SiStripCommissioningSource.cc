@@ -69,7 +69,8 @@ SiStripCommissioningSource::SiStripCommissioningSource( const edm::ParameterSet&
   tasksExist_(false),
   cablingTask_(false),
   updateFreq_( pset.getUntrackedParameter<int>("HistoUpdateFreq",1) ),
-  base_("")
+  base_(""),
+  view_( pset.getUntrackedParameter<std::string>("View", "FecView") )
 {
   LogTrace(mlDqmSource_)
     << "[SiStripCommissioningSource::" << __func__ << "]"
@@ -615,7 +616,7 @@ void SiStripCommissioningSource::fillHistos( const SiStripEventSummary* const su
       for ( ; iconn != conns.end(); iconn++ ) {
 
         if ( !(iconn->fedId()) || iconn->fedId() > sistrip::valid_ ) { continue; }
-
+     
         //       // Create FED key and check if non-zero
         //       uint32_t fed_key = SiStripFedKey( iconn->fedId(), 
         // 					SiStripFedKey::feUnit(iconn->fedCh()),
@@ -625,6 +626,7 @@ void SiStripCommissioningSource::fillHistos( const SiStripEventSummary* const su
         // note: the key is not computed using the same formula as in commissioning histograms.
         // beware that changes here must match changes in raw2digi and in SiStripFineDelayHit
         uint32_t fed_key = ( ( iconn->fedId() & sistrip::invalid_ ) << 16 ) | ( iconn->fedCh() & sistrip::invalid_ );
+
 
         // Retrieve digis for given FED key and check if found
         std::vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = raw.find( fed_key ); 
@@ -960,19 +962,27 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type, const e
                                SiStripFedKey::feChan(iconn->fedCh()) );
         if ( !iconn->isConnected() ) { continue; }
 
-        // Create FEC key
-        SiStripFecKey fec_key( iconn->fecCrate(), 
-                               iconn->fecSlot(), 
-                               iconn->fecRing(), 
-                               iconn->ccuAddr(), 
-                               iconn->ccuChan() );
-
-        // Set working directory prior to booking histograms 
+        // define the view in which to work and paths for histograms
+        //   currently FecView (control view) and FedView (readout view)
+        //   planned DetView (detector view)
         std::stringstream dir;
-        dir << base_;
-        if ( run_type == sistrip::FAST_CABLING ) { dir << fed_key.path(); }
-        else { dir << fec_key.path(); }
-        dqm()->setCurrentFolder( dir.str() );
+        if (view_ == "FecView") { // default
+          // Create FEC key
+          SiStripFecKey fec_key( iconn->fecCrate(), 
+                                 iconn->fecSlot(), 
+                                 iconn->fecRing(), 
+                                 iconn->ccuAddr(), 
+                                 iconn->ccuChan() );
+          // Set working directory prior to booking histograms 
+          dir << base_;
+          if ( run_type == sistrip::FAST_CABLING ) { dir << fed_key.path(); }
+          else { dir << fec_key.path(); }
+          dqm()->setCurrentFolder( dir.str() );
+        } else if (view_ == "FedView") {
+          // Set working directory prior to booking histograms 
+          dir << base_ << fed_key.path();
+          dqm()->setCurrentFolder( dir.str() );
+        } // end if view_ == ...
 
         // Create commissioning task objects
         if ( !tasks_[iconn->fedId()][iconn->fedCh()] ) { 

@@ -135,6 +135,9 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   /** */
   std::string base_;
 
+  /** flag for choosing the organizational 'view' the DQM histogram tree */
+  std::string view_;
+
 };
 
 #endif // DQM_SiStripCommissioningSources_SiStripCommissioningSource_H

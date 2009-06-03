@@ -5,7 +5,8 @@ CommissioningHistos = cms.EDAnalyzer("SiStripCommissioningSource",
     SummaryInputModuleLabel = cms.string('FedChannelDigis'),
     HistoUpdateFreq         = cms.untracked.int32(10),
     RootFileName            = cms.untracked.string('SiStripCommissioningSource'),
-    CommissioningTask       = cms.untracked.string('UNDEFINED')
+    CommissioningTask       = cms.untracked.string('UNDEFINED'),
+    View                    = cms.untracked.string('FedView')
 )
 
 
