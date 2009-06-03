@@ -29,10 +29,10 @@ simSiPixelDigis = cms.EDFilter("SiPixelDigitizer",
     AddNoise = cms.bool(True),
     GainSmearing = cms.double(0.0),
     GeometryType = cms.string('idealForDigi'),                           
-    useDB = cms.bool(False),
+    useDB = cms.bool(True),
     LorentzAngle_DB = cms.bool(True),
-    DeadModules_DB = cms.bool(False),
-    killModules = cms.bool(False),
+    DeadModules_DB = cms.bool(True),
+    killModules = cms.bool(True),
     DeadModules = cms.VPSet()
 )
 
