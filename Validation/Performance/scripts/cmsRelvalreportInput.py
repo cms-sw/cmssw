@@ -576,10 +576,10 @@ def writeCommands(simcandles,
             #else:
             #    start = AllSteps.index(steps[0])
             lst = - 1
-            #if "-" in steps[-1]:
-            lst   = AllSteps.index(steps[-1].split("-")[1].split(":")[0]) #here we are assuming that - is always between two steps no GEN-SIM-DIGI, this is GEN-DIGI
-            #else:
-            #    lst   = AllSteps.index(steps[-1])
+            if "-" in steps[-1]:
+                lst   = AllSteps.index(steps[-1].split("-")[1].split(":")[0]) #here we are assuming that - is always between two steps no GEN-SIM-DIGI, this is GEN-DIGI
+            else:
+                lst   = AllSteps.index(steps[-1])
             runSteps = AllSteps[start:lst]
             numOfSteps = (lst - start) + 1
             stopIndex = start + numOfSteps
