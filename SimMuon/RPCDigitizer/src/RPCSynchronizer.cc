@@ -74,8 +74,8 @@ RPCSynchronizer::RPCSynchronizer(const edm::ParameterSet& config){
 
 RPCSynchronizer::~RPCSynchronizer(){
   delete flatDistribution_;
-//   if(gaussian_ != 0)  delete gaussian_; 
-//   if(poissonDistribution_ != 0) delete poissonDistribution_;
+  // if(gaussian_ != 0)  delete gaussian_; 
+  // if(poissonDistribution_ != 0) delete poissonDistribution_;
 }
 
 
@@ -99,10 +99,10 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
       "in the configuration file or remove the modules that require it.";
   }
   CLHEP::HepRandomEngine& engine = rnd->getEngine();
-
+  
   //automatic variable to prevent memory leak
   CLHEP::RandGaussQ gaussian1(engine,0.,resEle);
-
+  
   float rr_el = gaussian1.fire();
   
   RPCDetId SimDetId(simhit->detUnitId());
@@ -187,3 +187,4 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
 
   return bx;
 }
+
