@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 simSiPixelDigis = cms.EDFilter("SiPixelDigitizer",
-    ReadoutNoiseInElec = cms.double(500.0),
+    ReadoutNoiseInElec = cms.double(350.0),
     DeltaProductionCut = cms.double(0.03),
     ROUList = cms.vstring('g4SimHitsTrackerHitsPixelBarrelLowTof', 
         'g4SimHitsTrackerHitsPixelBarrelHighTof', 

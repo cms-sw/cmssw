@@ -42,7 +42,7 @@ process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(10000)
 )
 
 #process.MessageLogger = cms.Service("MessageLogger",
@@ -59,9 +59,23 @@ process.maxEvents = cms.untracked.PSet(
 
 
 # get the files from DBS:
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_0_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RECO/IDEAL_30X_v3/0005/1EF32A82-57E2-DD11-A475-000423D6B444.root','/store/relval/CMSSW_3_0_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RECO/IDEAL_30X_v3/0005/28804479-4BE2-DD11-A32D-000423D98EA8.root','/store/relval/CMSSW_3_0_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RECO/IDEAL_30X_v3/0005/44067402-4BE2-DD11-BD29-0030487C6090.root','/store/relval/CMSSW_3_0_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RECO/IDEAL_30X_v3/0005/6CCDD56F-4BE2-DD11-9078-001D09F27067.root','/store/relval/CMSSW_3_0_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RECO/IDEAL_30X_v3/0005/888637D0-4AE2-DD11-B5AD-000423D6CA6E.root','/store/relval/CMSSW_3_0_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RECO/IDEAL_30X_v3/0005/B6E15573-4BE2-DD11-B754-001D09F24E39.root','/store/relval/CMSSW_3_0_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RECO/IDEAL_30X_v3/0005/B8148F8C-4BE2-DD11-B0C8-001D09F28D54.root','/store/relval/CMSSW_3_0_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RECO/IDEAL_30X_v3/0005/D4855570-4BE2-DD11-8793-000423D98930.root')
-)
+#process.source = cms.Source("PoolSource",
+#    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre6/RelValSingleMuPt10/GEN-SIM-RECO/IDEAL_31X_v1/0002/B2B57D9D-1933-DE11-A285-000423D99CEE.root','/store/relval/CMSSW_3_1_0_pre6/RelValSingleMuPt10/GEN-SIM-RECO/IDEAL_31X_v1/0002/7A24F69D-D332-DE11-92D9-000423D98B28.root','/store/relval/CMSSW_3_1_0_pre6/RelValSingleMuPt10/GEN-SIM-RECO/IDEAL_31X_v1/0002/6429D792-D232-DE11-9C8D-001617E30D12.root')
+#)
+
+# get the files from DBS:
+
+readFiles = cms.untracked.vstring()
+secFiles = cms.untracked.vstring()
+process.source = cms.Source("PoolSource", fileNames = readFiles, secondaryFileNames = secFiles)
+
+readFiles.extend( ['/store/relval/CMSSW_3_1_0_pre6/RelValSingleMuPt10/GEN-SIM-RECO/IDEAL_31X_v1/0002/B2B57D9D-1933-DE11-A285-000423D99CEE.root','/store/relval/CMSSW_3_1_0_pre6/RelValSingleMuPt10/GEN-SIM-RECO/IDEAL_31X_v1/0002/7A24F69D-D332-DE11-92D9-000423D98B28.root','/store/relval/CMSSW_3_1_0_pre6/RelValSingleMuPt10/GEN-SIM-RECO/IDEAL_31X_v1/0002/6429D792-D232-DE11-9C8D-001617E30D12.root'] );
+
+
+secFiles.extend( ['/store/relval/CMSSW_3_1_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0002/F0729414-D232-DE11-BEF0-000423D99AAA.root','/store/relval/CMSSW_3_1_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0002/EAC3BFE3-D232-DE11-B8BC-000423D6006E.root','/store/relval/CMSSW_3_1_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0002/E0F4659D-D332-DE11-B811-000423D944FC.root','/store/relval/CMSSW_3_1_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0002/C6D67814-D232-DE11-B23D-000423D94E1C.root','/store/relval/CMSSW_3_1_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0002/A668A8AA-D132-DE11-A169-001617C3B6DC.root','/store/relval/CMSSW_3_1_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0002/94408742-1733-DE11-BEFC-001617C3B78C.root','/store/relval/CMSSW_3_1_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0002/0E0103FD-D332-DE11-9632-000423D98800.root'] )
+
+
+
 
 #process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 #    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
@@ -81,7 +95,7 @@ process.source = cms.Source("PoolSource",
 # Choose the global tag here:
 #process.GlobalTag.globaltag = 'COSMMC_21X_V1::All'
 #process.GlobalTag.globaltag = 'IDEAL_30X::All'
-process.GlobalTag.globaltag = 'STARTUP_30X::All'
+process.GlobalTag.globaltag = 'IDEAL_31X::All'
 #process.GlobalTag.globaltag = 'CRAFT_30X::All'
 
 
@@ -89,8 +103,11 @@ process.GlobalTag.globaltag = 'STARTUP_30X::All'
 #rfio:/castor/cern.ch/user/v/vesna/test.root
 
 process.o1 = cms.OutputModule("PoolOutputModule",
-            fileName = cms.untracked.string('file:/afs/cern.ch/user/v/vesna/DigitizerWork/CMSSW_3_0_0_pre6/src/SimTracker/SiPixelDigitizer/test/Digis_test.root')                              
+            outputCommands = cms.untracked.vstring('drop *','keep *_*_*_DigiTest'),
+#            fileName = cms.untracked.string('file:/afs/cern.ch/user/v/vesna/DigitizerWork/CMSSW_3_1_X_2009-06-02-0700/src/SimTracker/SiPixelDigitizer/test/Digis_test.root')
+            fileName = cms.untracked.string('file:/afs/cern.ch/user/v/vesna/scratch0/Digi_test.root')  
 )
+
 
 process.Timing = cms.Service("Timing")
 
@@ -106,21 +123,25 @@ process.digis = cms.Sequence(process.simSiPixelDigis*process.pixelDigisValid)
 #process.rechits = cms.Sequence(process.pixeltrackerlocalreco*process.pixRecHitsValid)
 process.rechits = cms.Sequence(process.pixeltrackerlocalreco*process.siStripMatchedRecHits*process.pixRecHitsValid)
 
+#process.simSiPixelDigis.ChargeVCALSmearing=True
 process.tracks = cms.Sequence(process.offlineBeamSpot*process.recopixelvertexing*process.trackingParticles*process.trackingTruthValid*process.ckftracks*process.trackerRecHitsValidation)
 process.trackinghits = cms.Sequence(process.TrackRefitter*process.trackingRecHitsValid)
 
 # To use when you want to look at Residuals and Pulls:
 #process.p1 = cms.Path(process.mix*process.digis*process.siPixelRawData*process.siPixelDigis*process.rechits*process.tracks*process.trackinghits)
 
+#process.p1 = cms.Path(process.mix*process.digis*process.siPixelRawData*process.siPixelDigis*process.pixeltrackerlocalreco)
 
 #This process to get events to be used to make DQM occupancy maps (run the Pixel_occupancy_digi.py after you ran testPixelDigitizer.py):
-#process.p1 = cms.Path(process.mix*process.simSiPixelDigis*process.siPixelRawData*process.siPixelDigis)
+process.p1 = cms.Path(process.mix*process.simSiPixelDigis*process.siPixelRawData*process.siPixelDigis)
 
 #This process is to run the digis validation:
 #process.p1 = cms.Path(process.mix*process.simSiPixelDigis*process.pixelDigisValid)
 
 #This process is to run the digitizer:
-process.p1 = cms.Path(process.mix*process.simSiPixelDigis)
+#process.p1 = cms.Path(process.mix*process.simSiPixelDigis)
+
+#process.p1 = cms.Path(process.mix*process.digis*process.siPixelRawData*process.siPixelDigis)
 
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.Generator.HepMCProductLabel = 'source'
