@@ -4,7 +4,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.h,v 1.9 2008/12/30 22:21:40 chlebana Exp $
+// $Id: CaloJetTester.h,v 1.10 2009/03/28 04:57:58 hatake Exp $
 
 #include <string>
 
@@ -153,14 +153,22 @@ private:
   MonitorElement* mEScale_pt10;  //new
   MonitorElement* mEScaleFineBin;  //new
 
-  MonitorElement* mpTScaleB;
-  MonitorElement* mpTScaleE;
-  MonitorElement* mpTScaleF;
+  MonitorElement* mpTScaleB_s;
+  MonitorElement* mpTScaleE_s;
+  MonitorElement* mpTScaleF_s;
+  MonitorElement* mpTScaleB_d;
+  MonitorElement* mpTScaleE_d;
+  MonitorElement* mpTScaleF_d;
+
+
   MonitorElement* mpTScale_60_120;
   MonitorElement* mpTScale_2700_3500;
-  MonitorElement* mpTScale1DB;
-  MonitorElement* mpTScale1DE;
-  MonitorElement* mpTScale1DF;
+  MonitorElement* mpTScale1DB_60_120;
+  MonitorElement* mpTScale1DE_60_120;
+  MonitorElement* mpTScale1DF_60_120;
+  MonitorElement* mpTScale1DB_2700_3500;
+  MonitorElement* mpTScale1DE_2700_3500;
+  MonitorElement* mpTScale1DF_2700_3500;
   MonitorElement* mpTScale1D_60_120;
   MonitorElement* mpTScale1D_2700_3500;
 

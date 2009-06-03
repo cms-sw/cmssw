@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.cc,v 1.10 2009/03/28 04:57:47 hatake Exp $
+// $Id: CaloJetTester.cc,v 1.11 2009/03/31 06:18:18 hatake Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -78,9 +78,9 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     = mDeltaEta = mDeltaPhi = mEScale = mlinEScale = mDeltaE
     = mHadEnergyProfile = mEmEnergyProfile = mJetEnergyProfile = mHadJetEnergyProfile = mEMJetEnergyProfile
     = mEScale_pt10 = mEScaleFineBin
-    = mpTScaleB = mpTScaleE = mpTScaleF
+    = mpTScaleB_s = mpTScaleE_s = mpTScaleF_s = mpTScaleB_d = mpTScaleE_d = mpTScaleF_d
     = mpTScale_60_120 = mpTScale_2700_3500
-    = mpTScale1DB = mpTScale1DE = mpTScale1DF
+    = mpTScale1DB_60_120 = mpTScale1DE_60_120 = mpTScale1DF_60_120 = mpTScale1DB_2700_3500 = mpTScale1DE_2700_3500 = mpTScale1DF_2700_3500
     = mpTScale1D_60_120 = mpTScale1D_2700_3500
     = mHBEne = mHBTime = mHEEne = mHETime = mHFEne = mHFTime = mHOEne = mHOTime
     = mEBEne = mEBTime = mEEEne = mEETime 
@@ -266,21 +266,35 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     }
 
 
-    mpTScaleB = dbe->bookProfile("pTScaleB", "pTScale_0<|eta|<1.3",
-				 log10PtBins, log10PtMin, log10PtMax, 100, 0, 2, "s");
-    mpTScaleE = dbe->bookProfile("pTScaleE", "pTScale_1.3<|eta|<3.0",
-				 log10PtBins, log10PtMin, log10PtMax, 100, 0, 2, "s");
-    mpTScaleF = dbe->bookProfile("pTScaleF", "pTScale_3.0<|eta|<5.0",
-				 log10PtBins, log10PtMin, log10PtMax, 100, 0, 2, "s");
+    mpTScaleB_s = dbe->bookProfile("pTScaleB_s", "pTScale_s_0<|eta|<1.3",
+					  100, 0, 4000, 100, 0, 2, "s");
+    mpTScaleE_s = dbe->bookProfile("pTScaleE_s", "pTScale_s_1.3<|eta|<3.0",
+					  100, 0, 4000, 100, 0, 2, "s");
+    mpTScaleF_s = dbe->bookProfile("pTScaleF_s", "pTScale_s_3.0<|eta|<5.0",
+					  100, 0, 4000, 100, 0, 2, "s");
+    mpTScaleB_d = dbe->bookProfile("pTScaleB_d", "pTScale_d_0<|eta|<1.3",
+					  100, 0, 4000, 100, 0, 2);
+    mpTScaleE_d = dbe->bookProfile("pTScaleE_d", "pTScale_d_1.3<|eta|<3.0",
+					  100, 0, 4000, 100, 0, 2);
+    mpTScaleF_d = dbe->bookProfile("pTScaleF_d", "pTScale_d_3.0<|eta|<5.0",
+					  100, 0, 4000, 100, 0, 2);
+
+
     mpTScale_60_120    = dbe->bookProfile("pTScale_60_120", "pTScale_60<pT<120",
 					  etaBins, etaMin, etaMax, log10PtBins, log10PtMin, log10PtMax, "s");
     mpTScale_2700_3500 = dbe->bookProfile("pTScale_2700_3500", "pTScale_2700<pt<3500",
                                           etaBins, etaMin, etaMax, log10PtBins, log10PtMin, log10PtMax, "s");
-    mpTScale1DB = dbe->book1D("pTScale1DB", "pTScale_distribution_for_0<|eta|<1.3",
+    mpTScale1DB_60_120 = dbe->book1D("pTScale1DB_60_120", "pTScale_distribution_for_0<|eta|<1.3_60_120",
 				   100, 0, 2);
-    mpTScale1DE = dbe->book1D("pTScale1DE", "pTScale_distribution_for_1.3<|eta|<3.0",
+    mpTScale1DE_60_120 = dbe->book1D("pTScale1DE_60_120", "pTScale_distribution_for_1.3<|eta|<3.0_60_120",
 				   100, 0, 2);
-    mpTScale1DF = dbe->book1D("pTScale1DF", "pTScale_distribution_for_3.0<|eta|<5.0",
+    mpTScale1DF_60_120 = dbe->book1D("pTScale1DF_60_120", "pTScale_distribution_for_3.0<|eta|<5.0_60_120",
+				   100, 0, 2);
+    mpTScale1DB_2700_3500 = dbe->book1D("pTScale1DB_2700_3500", "pTScale_distribution_for_0<|eta|<1.3_2700_3500",
+				   100, 0, 2);
+    mpTScale1DE_2700_3500 = dbe->book1D("pTScale1DE_2700_3500", "pTScale_distribution_for_1.3<|eta|<3.0_2700_3500",
+				   100, 0, 2);
+    mpTScale1DF_2700_3500 = dbe->book1D("pTScale1DF_2700_3500", "pTScale_distribution_for_3.0<|eta|<5.0_2700_3500",
 				   100, 0, 2);
     mpTScale1D_60_120    = dbe->book1D("pTScale1D_60_120", "pTScale_distribution_for_60<pT<120",
 					    100, 0, 2);
@@ -741,18 +755,39 @@ void CaloJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::Cal
   }
 
   if (fabs(fGenJet.eta())<1.3) {
-    mpTScaleB->Fill (logPtGen, PtCalo/PtGen);
-    mpTScale1DB->Fill (fCaloJet.pt()/fGenJet.pt());
+
+    mpTScaleB_s->Fill (PtGen, PtCalo/PtGen);
+    mpTScaleB_d->Fill (PtGen, PtCalo/PtGen);
+    if (PtGen>60.0 && PtGen<120.0) {
+      mpTScale1DB_60_120->Fill (fCaloJet.pt()/fGenJet.pt());
+    }
+    if (PtGen>2700.0 && PtGen<3500.0) {
+      mpTScale1DB_2700_3500->Fill (fCaloJet.pt()/fGenJet.pt());
+    }
   }
 
   if (fabs(fGenJet.eta())>1.3 && fabs(fGenJet.eta())<3.0) {
-    mpTScaleE->Fill (logPtGen,fCaloJet.pt()/fGenJet.pt());
-    mpTScale1DE->Fill (fCaloJet.pt()/fGenJet.pt());
+
+    mpTScaleE_s->Fill (PtGen, PtCalo/PtGen);
+    mpTScaleE_d->Fill (PtGen, PtCalo/PtGen);
+    if (PtGen>60.0 && PtGen<120.0) {
+      mpTScale1DE_60_120->Fill (fCaloJet.pt()/fGenJet.pt());
+    }
+    if (PtGen>2700.0 && PtGen<3500.0) {
+      mpTScale1DE_2700_3500->Fill (fCaloJet.pt()/fGenJet.pt());
+    }
   }
 
   if (fabs(fGenJet.eta())>3.0 && fabs(fGenJet.eta())<5.0) {
-    mpTScaleF->Fill (logPtGen,fCaloJet.pt()/fGenJet.pt());
-    mpTScale1DF->Fill (fCaloJet.pt()/fGenJet.pt());
+
+    mpTScaleF_s->Fill (PtGen, PtCalo/PtGen);
+    mpTScaleF_d->Fill (PtGen, PtCalo/PtGen);
+    if (PtGen>60.0 && PtGen<120.0) {
+      mpTScale1DF_60_120->Fill (fCaloJet.pt()/fGenJet.pt());
+    }
+    if (PtGen>2700.0 && PtGen<3500.0) {
+      mpTScale1DF_2700_3500->Fill (fCaloJet.pt()/fGenJet.pt());
+    }
   }
 
   if (fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
