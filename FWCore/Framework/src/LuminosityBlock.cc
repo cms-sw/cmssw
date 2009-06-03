@@ -6,7 +6,7 @@
 namespace edm {
 
   LuminosityBlock::LuminosityBlock(LuminosityBlockPrincipal& lbp, ModuleDescription const& md) :
-	DataViewImpl(lbp, md, InLumi),
+	DataViewImpl(lbp, md),
 	aux_(lbp.aux()),
 	run_(lbp.runPrincipalSharedPtr() ? new Run(lbp.runPrincipal(), md) : 0) {
   }

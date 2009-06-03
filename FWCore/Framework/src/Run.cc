@@ -10,7 +10,7 @@
 namespace edm {
 
   Run::Run(RunPrincipal& rp, ModuleDescription const& md) :
-	DataViewImpl(rp, md, InRun),
+	DataViewImpl(rp, md),
 	aux_(rp.aux()) {
   }
 

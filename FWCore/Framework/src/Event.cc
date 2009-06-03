@@ -9,7 +9,7 @@
 namespace edm {
 
     Event::Event(EventPrincipal& ep, ModuleDescription const& md) :
-	DataViewImpl(ep, md, InEvent),
+	DataViewImpl(ep, md),
 	aux_(ep.aux()),
         luminosityBlock_(ep.luminosityBlockPrincipalSharedPtr() ? new LuminosityBlock(ep.luminosityBlockPrincipal(), md) : 0),
 	gotBranchIDs_(),

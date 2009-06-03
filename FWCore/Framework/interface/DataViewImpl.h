@@ -117,8 +117,7 @@ namespace edm {
   class DataViewImpl {
   public:
     DataViewImpl(Principal & pcpl,
-		 ModuleDescription const& md,
-		 BranchType const& branchType);
+		 ModuleDescription const& md);
 
     ~DataViewImpl();
 
@@ -195,13 +194,7 @@ namespace edm {
 		std::string const& processName) const;
 
     BasicHandle 
-    getByLabel_(TypeID const& tid,
-		std::string const& label,
-		std::string const& productInstanceName,
-		std::string const& processName,
-		TypeID& typeID,
-		size_t& cachedOffset,
-		int& fillCount) const;
+    getByLabel_(TypeID const& tid, InputTag const& tag) const;
 
     void 
     getMany_(TypeID const& tid, 
@@ -244,6 +237,9 @@ namespace edm {
     DataViewImpl(DataViewImpl const&);                  // not implemented
     DataViewImpl const& operator=(DataViewImpl const&);   // not implemented
 
+    // Is this an Event, a LuminosityBlock, or a Run.
+    BranchType const& branchType() const;
+
   private:
     //------------------------------------------------------------
     // Data members
@@ -264,8 +260,6 @@ namespace edm {
     // "transaction" which the DataViewImpl represents.
     ModuleDescription const& md_;
 
-    // Is this an Event, a LuminosityBlock, or a Run.
-    BranchType const branchType_;
   };
 
   template <typename PROD>
@@ -369,7 +363,7 @@ namespace edm {
   bool
   DataViewImpl::getByLabel(InputTag const& tag, Handle<PROD>& result) const {
     result.clear();
-    BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), tag.label(), tag.instance(), tag.process(), tag.typeID(), tag.cachedOffset(), tag.fillCount());
+    BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), tag);
     convert_handle(bh, result);  // throws on conversion error
     if (bh.failedToGet()) {
       return false;

@@ -14,15 +14,18 @@
 namespace edm {
 
   DataViewImpl::DataViewImpl(Principal & pcpl,
-	ModuleDescription const& md,
-	BranchType const& branchType)  :
+	ModuleDescription const& md)  :
     putProducts_(),
     principal_(pcpl),
-    md_(md),
-    branchType_(branchType) {
+    md_(md) {
   }
 
   DataViewImpl::~DataViewImpl() {
+  }
+
+  BranchType const&
+  DataViewImpl::branchType() const {
+    return principal_.branchType();
   }
 
   size_t
@@ -54,19 +57,15 @@ namespace edm {
 
   BasicHandle
   DataViewImpl::getByLabel_(TypeID const& tid,
-                     std::string const& label,
-  	             std::string const& productInstanceName,
-  	             std::string const& processName,
-		     TypeID& typeID,
-		     size_t& cachedOffset,
-		     int& fillCount) const {
+                     InputTag const& tag) const {
 
-    if (typeID != tid) {
-      fillCount = 0;
-      cachedOffset = 0U;
-      typeID = tid;
+    if (tag.typeID() != tid || tag.branchType() != branchType()) {
+      tag.fillCount() = 0;
+      tag.cachedOffset() = 0U;
+      tag.typeID() = tid;
+      tag.branchType() = branchType();
     }
-    return principal_.getByLabel(tid, label, productInstanceName, processName, cachedOffset, fillCount);
+    return principal_.getByLabel(tid, tag.label(), tag.instance(), tag.process(), tag.cachedOffset(), tag.fillCount());
   }
 
   BasicHandle
@@ -144,7 +143,7 @@ namespace edm {
 	<< principal_.productRegistry()
 	<< '\n';
     }
-    if(it->second.branchType() != branchType_) {
+    if(it->second.branchType() != branchType()) {
         throw edm::Exception(edm::errors::InsertFailure,"Not Registered")
           << "put: Problem found while adding product. "
           << "The product for ("
@@ -154,7 +153,7 @@ namespace edm {
           << bk.processName_
           << ")\n"
           << "is registered for a(n) " << it->second.branchType()
-          << " instead of for a(n) " << branchType_
+          << " instead of for a(n) " << branchType()
           << ".\n";
     }
     return it->second;

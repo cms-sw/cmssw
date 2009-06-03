@@ -135,6 +135,8 @@ namespace edm {
     void
     getAllProvenance(std::vector<Provenance const*> & provenances) const;
 
+    BranchType const& branchType() const {return branchType_;}
+
   protected:
     // ----- Add a new Group
     // *this takes ownership of the Group, which in turn owns its
