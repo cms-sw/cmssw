@@ -15,7 +15,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
     timetype = cms.untracked.string('hash'),
     withWrapper = cms.untracked.bool(True),
-    outOfOrder =  = cms.untracked.bool(True),
+    outOfOrder = cms.untracked.bool(True),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('uniqueCrappyName'),
         tag = cms.string('KeyTest')
