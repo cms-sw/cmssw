@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTriggerOffline.cc,v 1.21 2009/05/29 12:38:12 rekovic Exp $
+// $Id: FourVectorHLTriggerOffline.cc,v 1.22 2009/05/29 14:08:33 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -296,16 +296,12 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   eleMon.setMC(genParticles, 11, 1);
   eleMon.setLimits(electronEtaMax_, electronEtMin_, electronDRMatch_);
   
-  vector<int> eleTriggerType;
-  eleTriggerType.push_back(TriggerElectron);
-  eleTriggerType.push_back(TriggerL1NoIsoEG);
-  eleTriggerType.push_back(TriggerL1IsoEG);
-  eleMon.setTriggerType(eleTriggerType);
+  eleMon.pushTriggerType(TriggerElectron);
+  eleMon.pushTriggerType(TriggerL1NoIsoEG);
+  eleMon.pushTriggerType(TriggerL1IsoEG);
 
-  vector<int> l1_eleTriggerType;
-  l1_eleTriggerType.push_back(TriggerL1NoIsoEG);
-  l1_eleTriggerType.push_back(TriggerL1IsoEG);
-  eleMon.setL1TriggerType(l1_eleTriggerType);
+  eleMon.pushL1TriggerType(TriggerL1NoIsoEG);
+  eleMon.pushL1TriggerType(TriggerL1IsoEG);
 
   // muon Monitor
 	// ------------
@@ -356,8 +352,21 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   l1_phoTriggerType.push_back(TriggerL1IsoEG);
   phoMon.setL1TriggerType(l1_phoTriggerType);
 
-      //if (triggertype == trigger::TriggerTau || triggertype == trigger::TriggerL1TauJet)
-	    //if (*idtypeiter == trigger::TriggerL1TauJet || *idtypeiter == trigger::TriggerL1ForJet)
+  // jet Monitor
+	// ------------
+  objMon<reco::CaloJetCollection> jetMon;
+  jetMon.setReco(jetHandle);
+  jetMon.setGenJets(true, genJets);
+  jetMon.setLimits(jetEtaMax_, jetEtMin_, jetDRMatch_);
+
+  jetMon.pushTriggerType(TriggerJet);
+  jetMon.pushTriggerType(TriggerL1CenJet);
+  jetMon.pushTriggerType(TriggerL1ForJet);
+  
+  jetMon.pushL1TriggerType(TriggerL1CenJet);
+  jetMon.pushL1TriggerType(TriggerL1ForJet);
+  jetMon.pushL1TriggerType(TriggerL1TauJet);
+
 
  
     for(PathInfoCollection::iterator v = hltPaths_.begin();
@@ -403,6 +412,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
       muoMon.clearSets();
       tauMon.clearSets();
       phoMon.clearSets();
+      jetMon.clearSets();
 
       //cout << " New hltPath  and denompassed" << endl;
       // set to keep maps of DR matches of each L1 objects with each Off object
@@ -432,6 +442,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 			  muoMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
 			  tauMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
 			  phoMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
+			  jetMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
 
   		eleMon.fillL1Match(this);
 
@@ -440,6 +451,8 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   		tauMon.fillL1Match(this);
 
   		phoMon.fillL1Match(this);
+
+  		jetMon.fillL1Match(this);
 
       v->getNMcHisto()->Fill(NMc);      
       v->getNOffHisto()->Fill(NOff);      
@@ -1370,6 +1383,8 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
         tauMon.monitorOnline(idtype, l1k, ki, toc, NOn);
 
         phoMon.monitorOnline(idtype, l1k, ki, toc, NOn);
+
+        jetMon.monitorOnline(idtype, l1k, ki, toc, NOn);
 			/*
          
         double tocEtaMax = 2.5;
@@ -2002,6 +2017,8 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 
       phoMon.fillOnlineMatch(this, l1k, toc);
 
+      jetMon.fillOnlineMatch(this, l1k, toc);
+
 
   		eleMon.monitorOffline(this);
 
@@ -2011,6 +2028,8 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 
   		phoMon.monitorOffline(this);
 
+  		jetMon.monitorOffline(this);
+
 
   		eleMon.fillOffMatch(this);
 
@@ -2019,6 +2038,8 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   		tauMon.fillOffMatch(this);
 
   		phoMon.fillOffMatch(this);
+
+  		jetMon.fillOffMatch(this);
 
 	/*
 	// clean the set On-Off
@@ -2520,6 +2541,8 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
 	MonitorElement *NL1McUM, *mcEtL1McUM, *mcEtavsmcPhiL1McUM=0;
 	MonitorElement *NOffMcUM, *mcEtOffMcUM, *mcEtavsmcPhiOffMcUM=0;
 	MonitorElement *NOnMcUM, *mcEtOnMcUM, *mcEtavsmcPhiOnMcUM=0;
+  MonitorElement *mcDRL1Mc, *mcDROnMc, *mcDROffMc,
+                   *offDRL1Off, *offDROnOff, *l1DRL1On=0;
 	std::string labelname("dummy");
         labelname = v->getPath() + "_wrt_" + v->getDenomPath();
 	std::string histoname(labelname+"_NOn");
@@ -2901,7 +2924,38 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
 				nBins2D,-histEtaMax,histEtaMax,
 				nBins2D,-TMath::Pi(), TMath::Pi());
 
-	v->setHistos( NMc, mcEtMc, mcEtavsmcPhiMc, NOn, onEtOn, onEtavsonPhiOn, NOff, offEtOff, offEtavsoffPhiOff, NL1, l1EtL1, l1Etavsl1PhiL1, NL1On, l1EtL1On, l1Etavsl1PhiL1On, NL1Off, offEtL1Off, offEtavsoffPhiL1Off, NOnOff, offEtOnOff, offEtavsoffPhiOnOff, NL1Mc, mcEtL1Mc, mcEtavsmcPhiL1Mc, NOffMc, mcEtOffMc, mcEtavsmcPhiOffMc, NOnMc, mcEtOnMc, mcEtavsmcPhiOnMc, NL1OnUM, l1EtL1OnUM, l1Etavsl1PhiL1OnUM, NL1OffUM, offEtL1OffUM, offEtavsoffPhiL1OffUM, NOnOffUM, offEtOnOffUM, offEtavsoffPhiOnOffUM, NL1McUM, mcEtL1McUM, mcEtavsmcPhiL1McUM, NOffMcUM, mcEtOffMcUM, mcEtavsmcPhiOffMcUM, NOnMcUM, mcEtOnMcUM, mcEtavsmcPhiOnMcUM
+	histoname = labelname+"_l1DRL1On";
+	title = labelname+" l1DR L1+online";
+	l1DRL1On =  dbe->book1D(histoname.c_str(),
+			   title.c_str(),nBins_, 0, 1.);
+
+	histoname = labelname+"_offDRL1Off";
+	title = labelname+" offDR L1+offline";
+	offDRL1Off =  dbe->book1D(histoname.c_str(),
+			   title.c_str(),nBins_, 0, 1.);
+
+	histoname = labelname+"_offDROnOff";
+	title = labelname+" offDR online+offline";
+	offDROnOff =  dbe->book1D(histoname.c_str(),
+			   title.c_str(),nBins_, 0, 1.);
+
+	histoname = labelname+"_mcDRL1Mc";
+	title = labelname+" mcDR L1+MC truth";
+	mcDRL1Mc =  dbe->book1D(histoname.c_str(),
+			   title.c_str(),nBins_, 0, 1.);
+
+	histoname = labelname+"_mcDROffMc";
+	title = labelname+" mcDR Off+MC truth";
+	mcDROffMc =  dbe->book1D(histoname.c_str(),
+			   title.c_str(),nBins_, 0, 1.);
+
+	histoname = labelname+"_mcDROnMc";
+	title = labelname+" mcDR online+MC truth";
+	mcDROnMc =  dbe->book1D(histoname.c_str(),
+			   title.c_str(),nBins_, 0, 1.);
+
+
+	v->setHistos( NMc, mcEtMc, mcEtavsmcPhiMc, NOn, onEtOn, onEtavsonPhiOn, NOff, offEtOff, offEtavsoffPhiOff, NL1, l1EtL1, l1Etavsl1PhiL1, NL1On, l1EtL1On, l1Etavsl1PhiL1On, NL1Off, offEtL1Off, offEtavsoffPhiL1Off, NOnOff, offEtOnOff, offEtavsoffPhiOnOff, NL1Mc, mcEtL1Mc, mcEtavsmcPhiL1Mc, NOffMc, mcEtOffMc, mcEtavsmcPhiOffMc, NOnMc, mcEtOnMc, mcEtavsmcPhiOnMc, NL1OnUM, l1EtL1OnUM, l1Etavsl1PhiL1OnUM, NL1OffUM, offEtL1OffUM, offEtavsoffPhiL1OffUM, NOnOffUM, offEtOnOffUM, offEtavsoffPhiOnOffUM, NL1McUM, mcEtL1McUM, mcEtavsmcPhiL1McUM, NOffMcUM, mcEtOffMcUM, mcEtavsmcPhiOffMcUM, NOnMcUM, mcEtOnMcUM, mcEtavsmcPhiOnMcUM, mcDRL1Mc, mcDROnMc, mcDROffMc, offDRL1Off, offDROnOff, l1DRL1On
 );
 
 
@@ -2936,7 +2990,7 @@ void FourVectorHLTriggerOffline::cleanDRMatchSet(mmset& tempSet)
 
  cleanedOneMap=false;
 
- LogTrace("FourVectorHLTriggerOffline") << "cleaning: size of the set  = " << tempSet.size() << " maps." << endl;
+ //LogTrace("FourVectorHLTriggerOffline") << "cleaning: size of the set  = " << tempSet.size() << " maps." << endl;
 
  int imap = 0;
  for ( mmset::iterator setIter_i = tempSet.begin( ); setIter_i != tempSet.end( ); setIter_i++ ) 
@@ -2944,12 +2998,12 @@ void FourVectorHLTriggerOffline::cleanDRMatchSet(mmset& tempSet)
 
       fimmap tempMap_j = *setIter_i;
 
-      LogTrace("FourVectorHLTriggerOffline") << " map " << imap << endl;
-      LogTrace("FourVectorHLTriggerOffline") << " --------" << endl;
+      //LogTrace("FourVectorHLTriggerOffline") << " map " << imap << endl;
+      //LogTrace("FourVectorHLTriggerOffline") << " --------" << endl;
       for (fimmap::iterator it = tempMap_j.begin(); it != tempMap_j.end(); ++it)
       {
 
-        LogTrace("FourVectorHLTriggerOffline") << " " <<   (*it).first << " :  " << (*it).second << endl;
+        //LogTrace("FourVectorHLTriggerOffline") << " " <<   (*it).first << " :  " << (*it).second << endl;
 
       }
 
@@ -2964,7 +3018,7 @@ void FourVectorHLTriggerOffline::cleanDRMatchSet(mmset& tempSet)
     fimmap tempMap_i = *setIter_i;
     fimmap::iterator it = tempMap_i.begin();
     int topValue = (*it).second;
-    LogTrace("FourVectorHLTriggerOffline") << " topValue = " << topValue << endl;
+    //LogTrace("FourVectorHLTriggerOffline") << " topValue = " << topValue << endl;
 
     
     mmset::iterator tempIter_i = setIter_i;
@@ -2975,7 +3029,7 @@ void FourVectorHLTriggerOffline::cleanDRMatchSet(mmset& tempSet)
     {
 
       fimmap tempMap_j = *setIter_j;
-      LogTrace("FourVectorHLTriggerOffline") << "  size of the map  = " << tempMap_j.size() << endl;
+      //LogTrace("FourVectorHLTriggerOffline") << "  size of the map  = " << tempMap_j.size() << endl;
 
       for (fimmap::iterator it = tempMap_j.begin(); it != tempMap_j.end(); ++it)
       {
@@ -2983,7 +3037,7 @@ void FourVectorHLTriggerOffline::cleanDRMatchSet(mmset& tempSet)
         if(topValue == (*it).second) 
 	{
 				  
-          LogTrace("FourVectorHLTriggerOffline") << "   Ridding map of a doubly-matched object." << endl;
+          //LogTrace("FourVectorHLTriggerOffline") << "   Ridding map of a doubly-matched object." << endl;
 	  tempMap_j.erase(it);
 
 	  cleanedOneMap = true;
@@ -3029,7 +3083,7 @@ void FourVectorHLTriggerOffline::cleanDRMatchSet(mmset& tempSet)
 
 } // end while
 
- LogTrace("FourVectorHLTriggerOffline") << "cleaned: size of the set  = " << tempSet.size() << " maps." << endl;
+ //LogTrace("FourVectorHLTriggerOffline") << "cleaned: size of the set  = " << tempSet.size() << " maps." << endl;
  int jmap = 0;
 
  for ( mmset::iterator setIter_i = tempSet.begin( ); setIter_i != tempSet.end( ); setIter_i++ ) 
@@ -3037,13 +3091,13 @@ void FourVectorHLTriggerOffline::cleanDRMatchSet(mmset& tempSet)
 
       fimmap tempMap_j = *setIter_i;
 
-      LogTrace("FourVectorHLTriggerOffline") << " map " << jmap << endl;
-      LogTrace("FourVectorHLTriggerOffline") << " --------" << endl;
+      //LogTrace("FourVectorHLTriggerOffline") << " map " << jmap << endl;
+      //LogTrace("FourVectorHLTriggerOffline") << " --------" << endl;
 
       for (fimmap::iterator it = tempMap_j.begin(); it != tempMap_j.end(); ++it)
       {
 
-        LogTrace("FourVectorHLTriggerOffline") << " " <<   (*it).first << " :  " << (*it).second << endl;
+        //LogTrace("FourVectorHLTriggerOffline") << " " <<   (*it).first << " :  " << (*it).second << endl;
       
       }
 

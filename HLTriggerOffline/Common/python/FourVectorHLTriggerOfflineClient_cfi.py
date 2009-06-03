@@ -8,6 +8,14 @@ HLTriggerOfflineFourVectorClient = cms.EDFilter("FourVectorHLTClient",
     customEffDir = cms.untracked.string('custom-eff'),
     effpaths = cms.VPSet(
              cms.PSet(
+              pathname = cms.string("HLT_Mu5"),
+              denompathname = cms.string(""),  
+             ),
+             cms.PSet(
+              pathname = cms.string("HLT_Mu9"),
+              denompathname = cms.string(""),  
+             ),
+             cms.PSet(
               pathname = cms.string("HLT_Mu11"),
               denompathname = cms.string(""),  
              ),
@@ -32,7 +40,35 @@ HLTriggerOfflineFourVectorClient = cms.EDFilter("FourVectorHLTClient",
               denompathname = cms.string(""),  
              ),
              cms.PSet(
+              pathname = cms.string("HLT_Jet10U"),
+              denompathname = cms.string(""),  
+             ),
+             cms.PSet(
+              pathname = cms.string("HLT_Jet15U"),
+              denompathname = cms.string(""),  
+             ),
+             cms.PSet(
+              pathname = cms.string("HLT_Jet30U"),
+              denompathname = cms.string(""),  
+             ),
+             cms.PSet(
+              pathname = cms.string("HLT_Jet50U"),
+              denompathname = cms.string(""),  
+             ),
+             cms.PSet(
               pathname = cms.string("HLT_Jet30"),
+              denompathname = cms.string(""),  
+             ),
+             cms.PSet(
+              pathname = cms.string("HLT_Jet50"),
+              denompathname = cms.string(""),  
+             ),
+             cms.PSet(
+              pathname = cms.string("HLT_Jet80"),
+              denompathname = cms.string(""),  
+             ),
+             cms.PSet(
+              pathname = cms.string("HLT_Jet110"),
               denompathname = cms.string(""),  
              ),
              cms.PSet(
