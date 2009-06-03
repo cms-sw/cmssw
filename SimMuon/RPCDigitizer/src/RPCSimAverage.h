@@ -65,8 +65,8 @@ class RPCSimAverage : public RPCSim
  
   RPCSynchronizer* _rpcSync;
 
-  CLHEP::HepRandomEngine* rndEngine;
-  CLHEP::RandFlat* flatDistribution;
+  //  CLHEP::HepRandomEngine* rndEngine;
+  CLHEP::RandFlat* flatDistribution_;
   CLHEP::RandPoissonQ *poissonDistribution_;
 };
 #endif

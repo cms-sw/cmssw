@@ -40,8 +40,8 @@ class RPCSimTriv : public RPCSim
   double rate;
   double gate;
 
-  CLHEP::HepRandomEngine* rndEngine;
-  CLHEP::RandFlat* flatDistribution;
-  CLHEP::RandPoissonQ *poissonDistribution_;
+  //  CLHEP::HepRandomEngine* rndEngine;
+  //  CLHEP::RandFlat* flatDistribution;
+  //  CLHEP::RandPoissonQ *poissonDistribution_;
 };
 #endif

@@ -66,10 +66,18 @@ RPCSynchronizer::RPCSynchronizer(const edm::ParameterSet& config){
       "in the configuration file or remove the modules that require it.";
   }
   
-  rndEngine = &(rng->getEngine());
+  CLHEP::HepRandomEngine& rndEngine = rng->getEngine();
   flatDistribution_ = new CLHEP::RandFlat(rndEngine);
 
 }
+
+
+RPCSynchronizer::~RPCSynchronizer(){
+  delete flatDistribution_;
+//   if(gaussian_ != 0)  delete gaussian_; 
+//   if(poissonDistribution_ != 0) delete poissonDistribution_;
+}
+
 
 int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
 {
@@ -81,9 +89,22 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
   int bx = -999;
   LocalPoint simHitPos = simhit->localPosition();
   float tof = simhit->timeOfFlight();
-  gaussian_ = new CLHEP::RandGaussQ(rndEngine,0.,resEle);
-  float rr_el = gaussian_->fire();
 
+  //Defining a new engine local to this method for the two distributions defined below
+  edm::Service<edm::RandomNumberGenerator> rnd;
+  if ( ! rnd.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "RPCDigitizer requires the RandomNumberGeneratorService\n"
+      "which is not present in the configuration file.  You must add the service\n"
+      "in the configuration file or remove the modules that require it.";
+  }
+  CLHEP::HepRandomEngine& engine = rnd->getEngine();
+
+  //automatic variable to prevent memory leak
+  CLHEP::RandGaussQ gaussian1(engine,0.,resEle);
+
+  float rr_el = gaussian1.fire();
+  
   RPCDetId SimDetId(simhit->detUnitId());
 
   const RPCRoll* SimRoll = 0;
@@ -124,8 +145,11 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
 
 
     float prop_time =  distanceFromEdge/sspeed;
-    gaussian_ = new CLHEP::RandGaussQ(rndEngine,0.,resRPC);
-    double rr_tim1 = gaussian_->fire();
+
+    //automatic variable to prevent memory leak
+    CLHEP::RandGaussQ gaussian2(engine,0.,resEle); 
+
+    double rr_tim1 = gaussian2.fire();
     double total_time = tof + prop_time + timOff + rr_tim1 + rr_el;
     
     // Bunch crossing assignment
@@ -163,9 +187,3 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
 
   return bx;
 }
-
-RPCSynchronizer::~RPCSynchronizer(){
- if(gaussian_ != 0)  delete gaussian_; 
- if(poissonDistribution_ != 0) delete poissonDistribution_;
-}
-

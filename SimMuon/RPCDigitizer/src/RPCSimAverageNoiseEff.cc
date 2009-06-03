@@ -94,6 +94,7 @@ RPCSimAverageNoiseEff::~RPCSimAverageNoiseEff()
 {
   //Deleting the distribution defined in the constructor
   delete flatDistribution;
+  delete _rpcSync;
 }
 
 int RPCSimAverageNoiseEff::getClSize(float posX)

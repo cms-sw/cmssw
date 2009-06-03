@@ -50,8 +50,8 @@ class RPCSimParam : public RPCSim
 
   RPCSynchronizer* _rpcSync;
 
-  CLHEP::HepRandomEngine* rndEngine;
-  CLHEP::RandFlat* flatDistribution;
-  CLHEP::RandPoissonQ *poissonDistribution_;
+  //  CLHEP::HepRandomEngine* rndEngine;
+  CLHEP::RandFlat* flatDistribution_;
+  //  CLHEP::RandPoissonQ *poissonDistribution_;
 };
 #endif

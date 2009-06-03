@@ -48,11 +48,17 @@ RPCSimParam::RPCSimParam(const edm::ParameterSet& config) : RPCSim(config){
       "which is not present in the configuration file.  You must add the service\n"
       "in the configuration file or remove the modules that require it.";
   }
-  
+
   _rpcSync = new RPCSynchronizer(config);
 
-  rndEngine = &(rng->getEngine());
-  flatDistribution = new CLHEP::RandFlat(rndEngine);
+  CLHEP::HepRandomEngine& rndEngine = rng->getEngine();
+  flatDistribution_ = new CLHEP::RandFlat(rndEngine);
+}
+
+
+RPCSimParam::~RPCSimParam(){
+  delete flatDistribution_;
+  delete _rpcSync;
 }
 
 
@@ -75,14 +81,14 @@ RPCSimParam::simulate(const RPCRoll* roll,
     int time_hit = _rpcSync->getSimHitBx(&(*_hit));
 
     // Effinciecy
-    float eff = flatDistribution->fire(1);
+    float eff = flatDistribution_->fire(1);
     if (eff < aveEff) {
 
       int centralStrip = topology.channel(entr)+1;  
       int fstrip=centralStrip;
       int lstrip=centralStrip;
       // Compute the cluster size
-      double w = flatDistribution->fire(1);
+      double w = flatDistribution_->fire(1);
       if (w < 1.e-10) w=1.e-10;
       int clsize = static_cast<int>( -1.*aveCls*log(w)+1.);
       std::vector<int> cls;
@@ -127,7 +133,6 @@ RPCSimParam::simulate(const RPCRoll* roll,
   }
 }
 
-RPCSimParam::~RPCSimParam(){}
 
 void RPCSimParam::simulateNoise(const RPCRoll* roll)
 {
@@ -153,20 +158,33 @@ void RPCSimParam::simulateNoise(const RPCRoll* roll)
       float striplength = (top_->stripLength());
       area = striplength*(xmax-xmin);
     }
+
+  //Defining a new engine local to this method for the two distributions defined below
+  edm::Service<edm::RandomNumberGenerator> rnd;
+  if ( ! rnd.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "RPCDigitizer requires the RandomNumberGeneratorService\n"
+      "which is not present in the configuration file.  You must add the service\n"
+      "in the configuration file or remove the modules that require it.";
+  }
+  
+  CLHEP::HepRandomEngine& engine = rnd->getEngine();
+  //Taking the flatDistribution1 and flatDistribution2 out of the for loop since it does not depend on
+  //loop variables and deleting it outside or the larger for loop
+  //Renaming it since it has same name as the one defined in the constructor and
+  //used in getClSize and simulate methods.
   
   double ave = rate*nbxing*gate*area*1.0e-9;
-  poissonDistribution_ = new CLHEP::RandPoissonQ(rndEngine, ave);
-  N_hits = poissonDistribution_->fire();
 
-  for (int i = 0; i < N_hits; i++ ){
+  CLHEP::RandPoissonQ poissonDistribution(engine, ave);
+  N_hits = poissonDistribution.fire();
+  CLHEP::RandFlat flatDistribution1(engine, 1, nstrips);
+  CLHEP::RandFlat flatDistribution2(engine, (nbxing*gate)/gate);
 
-    flatDistribution = new CLHEP::RandFlat(rndEngine, 1, nstrips);
-    int strip = static_cast<int>(flatDistribution->fire());
+  for (int i = 0; i < N_hits; i++ ){   
+    int strip = static_cast<int>(flatDistribution1.fire());
     int time_hit;
-
-    flatDistribution = new CLHEP::RandFlat(rndEngine, (nbxing*gate)/gate);
-    time_hit = (static_cast<int>(flatDistribution->fire())) - nbxing/2;
-    
+    time_hit = (static_cast<int>(flatDistribution2.fire())) - nbxing/2;
     std::pair<int, int> digi(strip,time_hit);
     strips.insert(digi);
   }

@@ -65,7 +65,7 @@ class RPCSynchronizer
 
   bool cosmics;
 
-  CLHEP::HepRandomEngine* rndEngine;
+  //  CLHEP::HepRandomEngine* rndEngine;
   CLHEP::RandGaussQ *gaussian_;
   CLHEP::RandPoissonQ *poissonDistribution_;
   CLHEP::RandFlat *flatDistribution_;
