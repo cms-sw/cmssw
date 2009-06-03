@@ -253,7 +253,7 @@ void test_ep::failgetbyLabelTest() {
   std::string label("this does not exist");
 
   size_t cachedOffset = 0;
-  int fillCount = 0;
+  int fillCount = -1;
   edm::BasicHandle h(pEvent_->getByLabel(tid, label, std::string(), std::string(), cachedOffset, fillCount));
   CPPUNIT_ASSERT(h.failedToGet());
 }

@@ -610,13 +610,13 @@ void testEvent::getByLabel() {
   CPPUNIT_ASSERT(h->value == 200);
 
   size_t cachedOffset = 0;
-  int findCount = 0;
+  int fillCount = -1;
 
   BasicHandle bh =
-    principal_->getByLabel(TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "LATE", cachedOffset, findCount);
+    principal_->getByLabel(TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "LATE", cachedOffset, fillCount);
   convert_handle(bh, h);
   CPPUNIT_ASSERT(h->value == 100);
-  BasicHandle bh2(principal_->getByLabel(TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "nomatch", cachedOffset, findCount));
+  BasicHandle bh2(principal_->getByLabel(TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "nomatch", cachedOffset, fillCount));
   CPPUNIT_ASSERT(!bh2.isValid());
 
   boost::shared_ptr<Wrapper<edmtest::IntProduct> const> ptr = getProductByTag<edmtest::IntProduct>(*principal_, inputTag);
