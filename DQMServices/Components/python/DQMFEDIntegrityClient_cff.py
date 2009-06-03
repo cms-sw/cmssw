@@ -4,7 +4,8 @@ dqmFEDIntegrity = cms.EDFilter("DQMFEDIntegrityClient",
    fillOnEndRun = cms.untracked.bool(False),
    fillOnEndLumi = cms.untracked.bool(True),
    fillOnEndJob = cms.untracked.bool(False),
-   fillInEventloop = cms.untracked.bool(True)
+   fillInEventloop = cms.untracked.bool(True),
+   moduleName = cms.untracked.string('FED')
    )
 
 dqmQTestDQMFED = cms.EDFilter("QualityTester",

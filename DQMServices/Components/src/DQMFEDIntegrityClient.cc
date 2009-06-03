@@ -3,8 +3,8 @@
  * \file DQMFEDIntegrityClient.cc
  * \author M. Marienfeld
  * Last Update:
- * $Date: 2008/11/10 19:25:47 $
- * $Revision: 1.4 $
+ * $Date: 2008/11/15 15:44:50 $
+ * $Revision: 1.5 $
  * $Author: ameyer $
  *
  * Description: Summing up FED entries from all subdetectors.
@@ -33,6 +33,7 @@ DQMFEDIntegrityClient::DQMFEDIntegrityClient( const edm::ParameterSet& ps ) {
   fillOnEndRun = ps.getUntrackedParameter<bool>("fillOnEndRun",false);
   fillOnEndJob = ps.getUntrackedParameter<bool>("fillOnEndJob",false);
   fillOnEndLumi = ps.getUntrackedParameter<bool>("fillOnEndLumi",true);
+  moduleName = ps.getUntrackedParameter<string>("moduleName", "FED") ;
 
 }
 
@@ -59,7 +60,11 @@ void DQMFEDIntegrityClient::beginJob(const EventSetup& context) {
   dbe_ = Service<DQMStore>().operator->();
 
   // ----------------------------------------------------------------------------------
-  dbe_->setCurrentFolder("FED/FEDIntegrity");
+  string subFolder = "/FEDIntegrity";
+  string currentFolder = moduleName + subFolder;
+
+  //  dbe_->setCurrentFolder("FED/FEDIntegrity");
+  dbe_->setCurrentFolder(currentFolder.c_str());
 
   FedEntries  = dbe_->book1D("FedEntries",  "FED Entries",          NBINS, XMIN, XMAX);
   FedFatal    = dbe_->book1D("FedFatal",    "FED Fatal Errors",     NBINS, XMIN, XMAX);
@@ -107,15 +112,23 @@ void DQMFEDIntegrityClient::beginJob(const EventSetup& context) {
   FedNonFatal->setBinLabel(804, "L1T",   1);
 
   //-----------------------------------------------------------------------------------
-  dbe_->setCurrentFolder("FED/EventInfo");
-  
+  subFolder = "/EventInfo";
+  currentFolder = moduleName + subFolder;
+
+  //  dbe_->setCurrentFolder("FED/EventInfo");
+  dbe_->setCurrentFolder(currentFolder.c_str());
+
   reportSummary = dbe_->bookFloat("reportSummary");
 
   int nSubsystems = 11;
 
   if(reportSummary) reportSummary->Fill(1.);
 
-  dbe_->setCurrentFolder("FED/EventInfo/reportSummaryContents");
+  subFolder = "/EventInfo/reportSummaryContents";
+  currentFolder = moduleName + subFolder;
+
+  //  dbe_->setCurrentFolder("FED/EventInfo/reportSummaryContents");
+  dbe_->setCurrentFolder(currentFolder.c_str());
 
   reportSummaryContent[0]  = dbe_->bookFloat("CSC FEDs");
   reportSummaryContent[1]  = dbe_->bookFloat("DT FEDs");
@@ -135,7 +148,11 @@ void DQMFEDIntegrityClient::beginJob(const EventSetup& context) {
     reportSummaryContent[i]->Fill(1.);
   }
 
-  dbe_->setCurrentFolder("FED/EventInfo");
+  subFolder = "/EventInfo";
+  currentFolder = moduleName + subFolder;
+
+  //  dbe_->setCurrentFolder("FED/EventInfo");
+  dbe_->setCurrentFolder(currentFolder.c_str());
 
   reportSummaryMap = dbe_->book2D("reportSummaryMap", "FED Report Summary Map", 1, 1, 2, 11, 1, 12);
 
