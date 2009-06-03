@@ -210,12 +210,13 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
     EBEnergy_ += isim->energy();
     nEBHits++;
     meEBhitEnergy_->Fill(isim->energy());
-    meEBhitLog10Energy_->Fill(log10(isim->energy()));
+    if( isim->energy() > 0 ) {
+      meEBhitLog10Energy_->Fill(log10(isim->energy()));
+      int log10i = int( ( log10(isim->energy()) + 10. ) * 10. );
+      if( log10i >=0 && log10i < 140 ) econtr[log10i] += isim->energy();
+    }
     meEBhitEnergy2_->Fill(isim->energy());
     
-    int log10i = int( ( log10(isim->energy()) + 10. ) * 10. );
-    if( log10i >=0 && log10i < 140 ) econtr[log10i] += isim->energy();
-
   }
 
   if (menEBCrystals_) menEBCrystals_->Fill(ebmap.size());
@@ -246,8 +247,10 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
 
     for( unsigned i=0; i<25; i++ ) {
       for( unsigned int j=0; j<CaloHitMap[ids25[i]].size(); j++ ) {
-	int log10i = int( ( log10( CaloHitMap[ids25[i]][j]->energy()) + 10. ) * 10. );
-	if( log10i >=0 && log10i < 140 ) econtr25[log10i] += CaloHitMap[ids25[i]][j]->energy();
+	if( CaloHitMap[ids25[i]][j]->energy() > 0 ) {
+	  int log10i = int( ( log10( CaloHitMap[ids25[i]][j]->energy()) + 10. ) * 10. );
+	  if( log10i >=0 && log10i < 140 ) econtr25[log10i] += CaloHitMap[ids25[i]][j]->energy();
+	}
       }
     }
 

@@ -237,12 +237,14 @@ void EcalEndcapSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
     }
 
     if (meEEHitEnergy_) meEEHitEnergy_->Fill(isim->energy());
-    if( meEEhitLog10Energy_ ) meEEhitLog10Energy_->Fill(log10(isim->energy()));
+    if( isim->energy() > 0 ) {
+      if( meEEhitLog10Energy_ ) meEEhitLog10Energy_->Fill(log10(isim->energy()));
+      int log10i = int( ( log10(isim->energy()) + 10. ) * 10. );
+      if( log10i >=0 && log10i < 140 ) econtr[log10i] += isim->energy();
+    }
     if (meEEHitEnergy2_) meEEHitEnergy2_->Fill(isim->energy());
     eemap[crystid] += isim->energy();
 
-    int log10i = int( ( log10(isim->energy()) + 10. ) * 10. );
-    if( log10i >=0 && log10i < 140 ) econtr[log10i] += isim->energy();
 
   }
   
@@ -279,8 +281,10 @@ void EcalEndcapSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
 
     for( unsigned i=0; i<25; i++ ) {
       for( unsigned int j=0; j<CaloHitMap[ids25[i]].size(); j++ ) {
-	int log10i = int( ( log10( CaloHitMap[ids25[i]][j]->energy()) + 10. ) * 10. );
-	if( log10i >=0 && log10i < 140 ) econtr25[log10i] += CaloHitMap[ids25[i]][j]->energy();
+	if( CaloHitMap[ids25[i]][j]->energy() > 0 ) {
+	  int log10i = int( ( log10( CaloHitMap[ids25[i]][j]->energy()) + 10. ) * 10. );
+	  if( log10i >=0 && log10i < 140 ) econtr25[log10i] += CaloHitMap[ids25[i]][j]->energy();
+	}
       }
     }
 

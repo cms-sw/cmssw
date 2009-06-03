@@ -1,7 +1,7 @@
 /*
  * \file EcalRecHitsValidation.cc
  *
- * $Date: 2008/12/11 08:49:15 $
+ * $Date: 2008/12/11 12:27:22 $
  * \author C. Rovelli
  *
 */
@@ -250,7 +250,10 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   if ( ! skipMC ) {
     for ( HepMC::GenEvent::particle_const_iterator p = MCEvt->GetEvent()->particles_begin(); p != MCEvt->GetEvent()->particles_end(); ++p )  {      
       double htheta = (*p)->momentum().theta();
-      double heta = -log(tan(htheta * 0.5));
+      double heta = -99999.;
+      if( tan(htheta * 0.5) > 0 ) {
+	heta = -log(tan(htheta * 0.5));
+      }
       double hphi = (*p)->momentum().phi();
       hphi = (hphi>=0) ? hphi : hphi+2*M_PI;
       hphi = hphi / M_PI * 180.;
@@ -311,9 +314,11 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
       
       // Fill log10(Energy) stuff...   
       ebtotal += myRecHit->energy();
-      if( myRecHit->energy() > 0 ) meEBRecHitLog10Energy_->Fill( log10( myRecHit->energy() ) );
-      int log10i = int( ( log10( myRecHit->energy() ) + 5. ) * 10. );
-      if( log10i >=0 and log10i < ebcSize ) ebcontr[ log10i ] += myRecHit->energy();
+      if( myRecHit->energy() > 0 ) {
+	meEBRecHitLog10Energy_->Fill( log10( myRecHit->energy() ) );
+	int log10i = int( ( log10( myRecHit->energy() ) + 5. ) * 10. );
+	if( log10i >=0 and log10i < ebcSize ) ebcontr[ log10i ] += myRecHit->energy();
+      }
     
       // comparison Rec/Sim hit
       if ( ebSimMap[EBid.rawId()] != 0. ) {
@@ -344,8 +349,10 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     for ( unsigned int i = 0; i < crystalMatrix.size(); i++ ) {
       e5x5rec += ebRecMap[crystalMatrix[i]];
       e5x5sim += ebSimMap[crystalMatrix[i]];
-      int log10i25 = int( ( log10( ebRecMap[crystalMatrix[i]] ) + 5. ) * 10. );
-      if( log10i25 >=0 && log10i25 < ebcSize ) ebcontr25[ log10i25 ] += ebRecMap[crystalMatrix[i]];
+      if( ebRecMap[crystalMatrix[i]] > 0 ) {
+	int log10i25 = int( ( log10( ebRecMap[crystalMatrix[i]] ) + 5. ) * 10. );
+	if( log10i25 >=0 && log10i25 < ebcSize ) ebcontr25[ log10i25 ] += ebRecMap[crystalMatrix[i]];
+      }
     }
     
     meEBe5x5_->Fill(e5x5rec);
@@ -409,10 +416,11 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
       // Fill log10(Energy) stuff...
       eetotal += myRecHit->energy();   
-      if( myRecHit->energy() > 0 ) meEERecHitLog10Energy_->Fill( log10( myRecHit->energy() ) );
-
-      int log10i = int( ( log10( myRecHit->energy() ) + 5. ) * 10. );
-      if( log10i >=0 and log10i < eecSize ) eecontr[ log10i ] += myRecHit->energy();
+      if( myRecHit->energy() > 0 ) {
+	meEERecHitLog10Energy_->Fill( log10( myRecHit->energy() ) );
+	int log10i = int( ( log10( myRecHit->energy() ) + 5. ) * 10. );
+	if( log10i >=0 and log10i < eecSize ) eecontr[ log10i ] += myRecHit->energy();
+      }
 
       // comparison Rec/Sim hit
       if ( eeSimMap[EEid.rawId()] != 0. ) {
@@ -443,8 +451,10 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     for ( unsigned int i = 0; i < crystalMatrix.size(); i++ ) {
       e5x5rec += eeRecMap[crystalMatrix[i]];
       e5x5sim += eeSimMap[crystalMatrix[i]];
-      int log10i25 = int( ( log10( eeRecMap[crystalMatrix[i]] ) + 5. ) * 10. );
-      if( log10i25 >=0 && log10i25 < eecSize ) eecontr25[ log10i25 ] += eeRecMap[crystalMatrix[i]];
+      if( eeRecMap[crystalMatrix[i]] > 0 ) {
+	int log10i25 = int( ( log10( eeRecMap[crystalMatrix[i]] ) + 5. ) * 10. );
+	if( log10i25 >=0 && log10i25 < eecSize ) eecontr25[ log10i25 ] += eeRecMap[crystalMatrix[i]];
+      }
     }
     
     meEEe5x5_->Fill(e5x5rec);
@@ -504,10 +514,11 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 	
 	// Fill log10(Energy) stuff...
 	estotal += recHit->energy();   
-	if( recHit->energy() > 0 ) meESRecHitLog10Energy_->Fill( log10( recHit->energy() ) );
-
-	int log10i = int( ( log10( recHit->energy() ) + 5. ) * 10. );
-	if( log10i >=0 and log10i < escSize ) escontr[ log10i ] += recHit->energy();
+	if( recHit->energy() > 0 ) {
+	  meESRecHitLog10Energy_->Fill( log10( recHit->energy() ) );
+	  int log10i = int( ( log10( recHit->energy() ) + 5. ) * 10. );
+	  if( log10i >=0 and log10i < escSize ) escontr[ log10i ] += recHit->energy();
+	}
 
 	if (meESRecHitSimHitRatio_) { 
 	  meESRecHitSimHitRatio_ ->Fill(recHit->energy()/esSimMap[ESid.rawId()]); 

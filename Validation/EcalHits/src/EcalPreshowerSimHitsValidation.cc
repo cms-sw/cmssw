@@ -187,11 +187,12 @@ void EcalPreshowerSimHitsValidation::analyze(const edm::Event& e, const edm::Eve
       << " Energy = " << isim->energy();
     
     ESEnergy_ += isim->energy();
-    meEShitLog10Energy_->Fill(log10(isim->energy()));
-  
-    int log10i = int( ( log10(isim->energy()) + 10. ) * 10. );
-    if( log10i >=0 && log10i < 140 ) econtr[log10i] += isim->energy();
-  
+    if( isim->energy() > 0 ) {
+      meEShitLog10Energy_->Fill(log10(isim->energy()));
+      int log10i = int( ( log10(isim->energy()) + 10. ) * 10. );
+      if( log10i >=0 && log10i < 140 ) econtr[log10i] += isim->energy();
+    }
+
     if (esid.plane() == 1 ) { 
       if (esid.zside() > 0 ) {
 	nESHits1zp++ ;
@@ -236,8 +237,11 @@ void EcalPreshowerSimHitsValidation::analyze(const edm::Event& e, const edm::Eve
 	p != MCEvt->GetEvent()->particles_end(); ++p ) {
     
     double htheta = (*p)->momentum().theta();
-    double heta = -log(tan(htheta * 0.5));
-    
+    double heta = -99999.;
+    if( tan(htheta * 0.5) > 0 ) {
+      heta = -log(tan(htheta * 0.5));
+    }
+
     if ( heta > 1.653 && heta < 2.6 ) {
 
       if (meE1alphaE2zp_) meE1alphaE2zp_->Fill(ESet1zp_+0.7*ESet2zp_);
