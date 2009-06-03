@@ -2,8 +2,7 @@
 #include <string>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondCore/DBOutputService/interface/KeyedElement"
-#inlucde <sstream>
+#include "CondCore/DBOutputService/interface/KeyedElement.h"
 
 class writeKeyed : public edm::EDAnalyzer {
  public:
@@ -41,7 +40,7 @@ writeKeyed::endJob() {
   
   for ( int i=0; i<dict.size();i++)
     for (int j=0;j<7;j++) {
-      KeyedElement k(new BaseKeyed,dict[i]+nums[j]);
+      cond::KeyedElement k(new cond::BaseKeyed(),dict[i]+nums[j]);
       outdb->writeOne(k.m_obj,k.m_sum,k.m_key,crapName);
     }
 }

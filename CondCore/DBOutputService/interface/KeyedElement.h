@@ -12,7 +12,7 @@ namespace cond{
    KeyedElement(BaseKeyed * obj, std::string key) : 
       m_obj(obj), 
       m_sum(new cond::GenericSummary(key)), 
-      m_key(cond::hash64(&key[0],key.size(),0) {}
+      m_key(cond::hash64( (unsigned char*)(&key[0]),key.size(),0)) {}
 
     BaseKeyed * m_obj;
     cond::Summary * m_sum;
