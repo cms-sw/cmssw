@@ -31,7 +31,7 @@ namespace cond{
 	std::string("<Primitive column=\"NOTORDERED\" name=\"m_notOrdered\" />\n")+
 	std::string("<Primitive column=\"METADATA\" name=\"m_metadata\" />\n")+
 	std::string("<PoolPolymorphicPointer rid_column=\"DESCRIPTION\" name=\"m_description\" metadata_column=\"RID_DESCRIPTION\" />\n")+
-	std::string("<PoolPolymorphicPointer rid_column=\"PROVENANCE\" name=\"m+provenance\" metadata_column=\"RID_PROVENANCE\" />\n")+
+	std::string("<PoolPolymorphicPointer rid_column=\"PROVENANCE\" name=\"m_provenance\" metadata_column=\"RID_PROVENANCE\" />\n")+
 	std::string("<PoolPolymorphicPointer rid_column=\"USERMETADATA\" name=\"m_userMetadata\" metadata_column=\"RID_USERMETADATA\" />\n")+
         std::string("<PoolArray table=\"IOV_DATA\" id_columns=\"ID\" name=\"m_iovs\" position_column=\"POS\" >\n")+
 	std::string("<Object name=\"value_type\" >\n")+
