@@ -23,34 +23,32 @@ process = cms.Process("analyzer")
 # Message Logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(  "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_1.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_10.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_11.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_12.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_14.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_15.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_16.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_17.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_18.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_19.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_2.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_20.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_21.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_22.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_24.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_25.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_26.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_27.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_28.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_29.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_3.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_30.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_4.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_5.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_6.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_7.root",
-	    "rfio:/dpm/in2p3.fr/home/cms/jandrea/QCDFastSimAOD_184_80_120/QCDFastSimAOD_184_80_120_9.root"
+    fileNames = cms.untracked.vstring( 
+        '/store/relval/CMSSW_2_2_1/RelValQCD_Pt_50_80/GEN-SIM-RECO/IDEAL_V9_v1/0003/78F7179F-FDC4-DD11-AC0A-000423D986A8.root',
+        '/store/relval/CMSSW_2_2_1/RelValQCD_Pt_50_80/GEN-SIM-RECO/IDEAL_V9_v1/0003/26AB4F4E-F6C4-DD11-A590-000423D94E1C.root',
+        '/store/relval/CMSSW_2_2_1/RelValQCD_Pt_50_80/GEN-SIM-RECO/IDEAL_V9_v1/0001/F2A14CDA-D3C3-DD11-98D8-001617C3B654.root',
+        '/store/relval/CMSSW_2_2_1/RelValQCD_Pt_50_80/GEN-SIM-RECO/IDEAL_V9_v1/0001/EE8A920A-D3C3-DD11-A27C-0019DB29C614.root',
+        '/store/relval/CMSSW_2_2_1/RelValQCD_Pt_50_80/GEN-SIM-RECO/IDEAL_V9_v1/0001/E2A3FA7A-D4C3-DD11-8EBD-000423D6CA72.root',
+        '/store/relval/CMSSW_2_2_1/RelValQCD_Pt_50_80/GEN-SIM-RECO/IDEAL_V9_v1/0001/E0494347-DAC3-DD11-B0D0-000423D986A8.root',
+        '/store/relval/CMSSW_2_2_1/RelValQCD_Pt_50_80/GEN-SIM-RECO/IDEAL_V9_v1/0001/CE846D00-D3C3-DD11-86D9-001617C3B66C.root',
+        '/store/relval/CMSSW_2_2_1/RelValQCD_Pt_50_80/GEN-SIM-RECO/IDEAL_V9_v1/0001/CC6CBB0B-D5C3-DD11-994D-001617DBD556.root',
+        '/store/relval/CMSSW_2_2_1/RelValQCD_Pt_50_80/GEN-SIM-RECO/IDEAL_V9_v1/0001/CA94737C-DBC3-DD11-8333-000423D99660.root',
+        '/store/relval/CMSSW_2_2_1/RelValQCD_Pt_50_80/GEN-SIM-RECO/IDEAL_V9_v1/0001/CA1DE0E4-F5C3-DD11-BCFA-001617E30D06.root',
+        '/store/relval/CMSSW_2_2_1/RelValQCD_Pt_50_80/GEN-SIM-RECO/IDEAL_V9_v1/0001/BEA0916D-F4C3-DD11-B972-000423D6006E.root',
+        '/store/relval/CMSSW_2_2_1/RelValQCD_Pt_50_80/GEN-SIM-RECO/IDEAL_V9_v1/0001/8E0C0DDB-DEC3-DD11-AC37-000423D6CA6E.root',
+        '/store/relval/CMSSW_2_2_1/RelValQCD_Pt_50_80/GEN-SIM-RECO/IDEAL_V9_v1/0001/8614520B-ECC3-DD11-8C12-000423D9870C.root',
+        '/store/relval/CMSSW_2_2_1/RelValQCD_Pt_50_80/GEN-SIM-RECO/IDEAL_V9_v1/0001/78BF379C-E7C3-DD11-A131-000423D6B48C.root',
+        '/store/relval/CMSSW_2_2_1/RelValQCD_Pt_50_80/GEN-SIM-RECO/IDEAL_V9_v1/0001/68493222-D9C3-DD11-83F0-000423D95220.root',
+        '/store/relval/CMSSW_2_2_1/RelValQCD_Pt_50_80/GEN-SIM-RECO/IDEAL_V9_v1/0001/560EED0E-E3C3-DD11-ACE8-001617E30CD4.root',
+        '/store/relval/CMSSW_2_2_1/RelValQCD_Pt_50_80/GEN-SIM-RECO/IDEAL_V9_v1/0001/4CBB799F-D7C3-DD11-8D56-000423D6CAF2.root',
+        '/store/relval/CMSSW_2_2_1/RelValQCD_Pt_50_80/GEN-SIM-RECO/IDEAL_V9_v1/0001/2C362288-D2C3-DD11-AB5E-000423D98EC4.root',
+        '/store/relval/CMSSW_2_2_1/RelValQCD_Pt_50_80/GEN-SIM-RECO/IDEAL_V9_v1/0001/2A015C80-F0C3-DD11-AF8C-000423D986C4.root',
+        '/store/relval/CMSSW_2_2_1/RelValQCD_Pt_50_80/GEN-SIM-RECO/IDEAL_V9_v1/0001/1E542E1B-DDC3-DD11-8224-001617C3B6C6.root',
+        '/store/relval/CMSSW_2_2_1/RelValQCD_Pt_50_80/GEN-SIM-RECO/IDEAL_V9_v1/0001/18C00976-E1C3-DD11-9C7B-001617DBCF6A.root',
+        '/store/relval/CMSSW_2_2_1/RelValQCD_Pt_50_80/GEN-SIM-RECO/IDEAL_V9_v1/0001/0A9B4208-D1C3-DD11-BB64-001617C3B77C.root' 
     )
 )
 
