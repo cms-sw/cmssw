@@ -45,7 +45,7 @@ class TrainProcessor : public Source,
 	virtual ~TrainProcessor();
 
 	virtual Variable::Flags getDefaultFlags() const
-	{ return Variable::FLAG_NONE; }
+	{ return Variable::FLAG_ALL; }
 
 	virtual void
 	configure(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *config) {}
