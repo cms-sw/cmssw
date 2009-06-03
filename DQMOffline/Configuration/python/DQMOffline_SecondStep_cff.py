@@ -14,5 +14,5 @@ from DQMOffline.EGamma.photonOfflineDQMClient_cff import *
 
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
 
-DQMOffline_SecondStep = cms.Sequence(ecal_dqm_client_offline*muonQualityTests*hcalOfflineDQMClient*sipixelEDAClient*triggerOfflineDQMClient*bTagCollectorSequence*SiStripOfflineDQMClient*dtClients*hltOfflineDQMClient*rpcTier0Client*photonOfflineDQMClient*DQMFEDIntegrityClient)
+DQMOffline_SecondStep = cms.Sequence(ecal_dqm_client_offline*muonQualityTests*hcalOfflineDQMClient*sipixelEDAClient*triggerOfflineDQMClient*bTagCollectorSequence*SiStripOfflineDQMClient*dtClients*hltOfflineDQMClient*rpcTier0Client*photonOfflineDQMClient*dqmFEDIntegrityClient)
 

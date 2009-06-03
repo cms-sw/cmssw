@@ -13,5 +13,5 @@ from DQMOffline.EGamma.photonOfflineDQMClient_cff import *
 
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
 
-DQMOfflineCosmics_SecondStep = cms.Sequence(ecal_dqm_client_offline*cosmicMuonQualityTests*hcalOfflineDQMClient*sipixelEDAClient*triggerOfflineDQMClient*SiStripOfflineDQMClient*dtClients*hltOfflineDQMClient*rpcTier0Client*photonOfflineDQMClient*DQMFEDIntegrityClient)
+DQMOfflineCosmics_SecondStep = cms.Sequence(ecal_dqm_client_offline*cosmicMuonQualityTests*hcalOfflineDQMClient*sipixelEDAClient*triggerOfflineDQMClient*SiStripOfflineDQMClient*dtClients*hltOfflineDQMClient*rpcTier0Client*photonOfflineDQMClient*dqmFEDIntegrityClient)
 
