@@ -22,11 +22,17 @@ namespace cond{
 	std::string("<!DOCTYPE PoolDatabase SYSTEM \"InMemory\">\n")+
         std::string("<PoolDatabase >\n")+
         std::string("<PoolContainer name=\"cond::IOVSequence\" >\n")+
-	std::string("<Class table=\"IOV\" id_columns=\"ID\" name=\"cond::IOVSequence\" mapping_version=\"CONDIOV_4.0\" >\n")+
+	std::string("<Class table=\"IOV\" id_columns=\"ID\" name=\"cond::IOVSequence\" mapping_version=\"CONDIOV_5.0\" >\n")+
+	std::string("<Primitive column=\"COMMENT\" name=\"cond::UpdateStamp::m_comment\" />\n")+
+	std::string("<Primitive column=\"REVISION\" name=\"cond::UpdateStamp::m_revision\" />\n")+
+	std::string("<Primitive column=\"TIMESTAMP\" name=\"cond::UpdateStamp::m_timestamp\" />\n")+
     	std::string("<Primitive column=\"LASTTILL\" name=\"m_lastTill\" />\n")+
 	std::string("<Primitive column=\"TIMETYPE\" name=\"m_timetype\" />\n")+
 	std::string("<Primitive column=\"NOTORDERED\" name=\"m_notOrdered\" />\n")+
 	std::string("<Primitive column=\"METADATA\" name=\"m_metadata\" />\n")+
+	std::string("<PoolPolymorphicPointer rid_column=\"DESCRIPTION\" name=\"m_description\" metadata_column=\"RID_DESCRIPTION\" />\n")+
+	std::string("<PoolPolymorphicPointer rid_column=\"PROVENANCE\" name=\"m+provenance\" metadata_column=\"RID_PROVENANCE\" />\n")+
+	std::string("<PoolPolymorphicPointer rid_column=\"USERMETADATA\" name=\"m_userMetadata\" metadata_column=\"RID_USERMETADATA\" />\n")+
         std::string("<PoolArray table=\"IOV_DATA\" id_columns=\"ID\" name=\"m_iovs\" position_column=\"POS\" >\n")+
 	std::string("<Object name=\"value_type\" >\n")+
         std::string("<Primitive column=\"IOV_TIME\" name=\"m_sinceTime\" />\n")+
