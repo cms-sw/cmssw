@@ -15,6 +15,7 @@
  ************************************************************/
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Selector.h"
 
@@ -46,7 +47,7 @@ namespace edm
 
       void putSiPixel(edm::Event &e) ;
       void addSiPixelSignals(const edm::Event &e); 
-      void addSiPixelPileups(const int bcr, edm::Event*,unsigned int EventId);
+      void addSiPixelPileups(const int bcr, edm::EventPrincipal*,unsigned int EventId);
 
 
     private:

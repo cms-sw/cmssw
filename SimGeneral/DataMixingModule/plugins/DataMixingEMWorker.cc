@@ -48,15 +48,17 @@ namespace edm
     EBProducerSig_ = ps.getParameter<edm::InputTag>("EBProducerSig");
     EEProducerSig_ = ps.getParameter<edm::InputTag>("EEProducerSig");
     ESProducerSig_ = ps.getParameter<edm::InputTag>("ESProducerSig");
-    EBProducerPile_ = ps.getParameter<edm::InputTag>("EBProducerPile");
-    EEProducerPile_ = ps.getParameter<edm::InputTag>("EEProducerPile");
-    ESProducerPile_ = ps.getParameter<edm::InputTag>("ESProducerPile");
+
+
     EBrechitCollectionSig_ = ps.getParameter<edm::InputTag>("EBrechitCollectionSig");
     EErechitCollectionSig_ = ps.getParameter<edm::InputTag>("EErechitCollectionSig");
     ESrechitCollectionSig_ = ps.getParameter<edm::InputTag>("ESrechitCollectionSig");
-    EBrechitCollectionPile_ = ps.getParameter<edm::InputTag>("EBrechitCollectionPile");
-    EErechitCollectionPile_ = ps.getParameter<edm::InputTag>("EErechitCollectionPile");
-    ESrechitCollectionPile_ = ps.getParameter<edm::InputTag>("ESrechitCollectionPile");
+
+    EBPileRecHitInputTag_ = ps.getParameter<edm::InputTag>("EBPileRecHitInputTag");
+    EEPileRecHitInputTag_ = ps.getParameter<edm::InputTag>("EEPileRecHitInputTag");
+    ESPileRecHitInputTag_ = ps.getParameter<edm::InputTag>("ESPileRecHitInputTag");
+
+
     EBRecHitCollectionDM_        = ps.getParameter<std::string>("EBRecHitCollectionDM");
     EERecHitCollectionDM_        = ps.getParameter<std::string>("EERecHitCollectionDM");
     ESRecHitCollectionDM_        = ps.getParameter<std::string>("ESRecHitCollectionDM");
@@ -173,99 +175,87 @@ namespace edm
     
   } // end of addEMSignals
 
-  void DataMixingEMWorker::addEMPileups(const int bcr, Event *e, unsigned int eventNr) {
+  void DataMixingEMWorker::addEMPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr) {
   
-    LogInfo("DataMixingEMWorker") <<"\n===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
+    LogInfo("DataMixingEMWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events
 
     // EB first
 
-   Handle< EBRecHitCollection > pEBRecHits;
-   const EBRecHitCollection*  EBRecHits = 0;
+    boost::shared_ptr<Wrapper<EBRecHitCollection>  const> EBRecHitsPTR =
+      getProductByTag<EBRecHitCollection>(*ep, EBPileRecHitInputTag_ );
 
-  
-   if( e->getByLabel(EBProducerPile_.label(),EBrechitCollectionPile_.label(), pEBRecHits) ){
-     EBRecHits = pEBRecHits.product(); // get a ptr to the product
+    if(EBRecHitsPTR ) {
+
+      const EBRecHitCollection*  EBRecHits = const_cast< EBRecHitCollection * >(EBRecHitsPTR->product());
+
+      LogDebug("DataMixingEMWorker") << "total # EB rechits: " << EBRecHits->size();
+
+      // loop over digis, adding these to the existing maps                                         
+      for(EBRecHitCollection::const_iterator it  = EBRecHits->begin();
+	  it != EBRecHits->end(); ++it) {
+
+	EBRecHitStorage_.insert(EBRecHitMap::value_type( (it->id()), *it ));
+
 #ifdef DEBUG
-     LogDebug("DataMixingEMWorker") << "total # EB rechits: " << EBRecHits->size();
+	LogDebug("DataMixingEMWorker") << "processed EBRecHit with rawId: "
+					   << it->id().rawId() << "\n"
+					   << " rechit energy: " << it->energy();
 #endif
-   } 
-   
- 
-   if (EBRecHits)
-     {
-       // loop over rechits, adding these to the existing maps
-       for(EBRecHitCollection::const_iterator it  = EBRecHits->begin();
-	   it != EBRecHits->end(); ++it) {
+      }
+    }
 
-	 EBRecHitStorage_.insert(EBRecHitMap::value_type( (it->id()), *it ));
-	 
-#ifdef DEBUG	 
-	 LogDebug("DataMixingEMWorker") << "processed EBRecHit with rawId: "
-				      << it->id().rawId() << "\n"
-				      << " rechit energy: " << it->energy();
-#endif
-       }
-     }
     // EE Next
 
-   Handle< EERecHitCollection > pEERecHits;
-   const EERecHitCollection*  EERecHits = 0;
+    boost::shared_ptr<Wrapper<EERecHitCollection>  const> EERecHitsPTR =
+      getProductByTag<EERecHitCollection>(*ep, EEPileRecHitInputTag_ );
 
-   
-   if( e->getByLabel( EEProducerPile_.label(),EErechitCollectionPile_.label(), pEERecHits) ){
-     EERecHits = pEERecHits.product(); // get a ptr to the product
+    if(EERecHitsPTR ) {
+
+      const EERecHitCollection*  EERecHits = const_cast< EERecHitCollection * >(EERecHitsPTR->product());
+
+      LogDebug("DataMixingEMWorker") << "total # EE rechits: " << EERecHits->size();
+
+      // loop over digis, adding these to the existing maps                                         
+      for(EERecHitCollection::const_iterator it  = EERecHits->begin();
+          it != EERecHits->end(); ++it) {
+
+        EERecHitStorage_.insert(EERecHitMap::value_type( (it->id()), *it ));
+
 #ifdef DEBUG
-     LogDebug("DataMixingEMWorker") << "total # EE rechits: " << EERecHits->size();
+        LogDebug("DataMixingEMWorker") << "processed EERecHit with rawId: "
+				       << it->id().rawId() << "\n"
+				       << " rechit energy: " << it->energy();
 #endif
-   }
-   
- 
-   if (EERecHits)
-     {
-       // loop over rechits, adding these to the existing maps
-       for(EERecHitCollection::const_iterator it  = EERecHits->begin();
-	   it != EERecHits->end(); ++it) {
+      }
+    }
 
-	 EERecHitStorage_.insert(EERecHitMap::value_type( (it->id()), *it ));
-	 
-#ifdef DEBUG	 
-	 LogDebug("DataMixingEMWorker") << "processed EERecHit with rawId: "
-				      << it->id().rawId() << "\n"
-				      << " rechit energy: " << it->energy();
-#endif
-       }
-     }
     // ES Next
 
-   Handle< ESRecHitCollection > pESRecHits;
-   const ESRecHitCollection*  ESRecHits = 0;
+    boost::shared_ptr<Wrapper<ESRecHitCollection>  const> ESRecHitsPTR =
+      getProductByTag<ESRecHitCollection>(*ep, ESPileRecHitInputTag_ );
 
-   
-   if( e->getByLabel( ESProducerPile_.label(),ESrechitCollectionPile_.label(), pESRecHits) ){
-     ESRecHits = pESRecHits.product(); // get a ptr to the product
+    if(ESRecHitsPTR ) {
+
+      const ESRecHitCollection*  ESRecHits = const_cast< ESRecHitCollection * >(ESRecHitsPTR->product());
+
+      LogDebug("DataMixingEMWorker") << "total # ES rechits: " << ESRecHits->size();
+
+      // loop over digis, adding these to the existing maps                                         
+      for(ESRecHitCollection::const_iterator it  = ESRecHits->begin();
+          it != ESRecHits->end(); ++it) {
+
+        ESRecHitStorage_.insert(ESRecHitMap::value_type( (it->id()), *it ));
+
 #ifdef DEBUG
-     LogDebug("DataMixingEMWorker") << "total # ES rechits: " << ESRecHits->size();
+        LogDebug("DataMixingEMWorker") << "processed ESRecHit with rawId: "
+				       << it->id().rawId() << "\n"
+				       << " rechit energy: " << it->energy();
 #endif
-   } 
-   
- 
-   if (ESRecHits)
-     {
-       // loop over rechits, adding these to the existing maps
-       for(ESRecHitCollection::const_iterator it  = ESRecHits->begin();
-	   it != ESRecHits->end(); ++it) {
+      }
+    }
 
-	 ESRecHitStorage_.insert(ESRecHitMap::value_type( (it->id()), *it ));
-	 
-#ifdef DEBUG	 
-	 LogDebug("DataMixingEMWorker") << "processed ESRecHit with rawId: "
-				      << it->id().rawId() << "\n"
-				      << " rechit energy: " << it->energy();
-#endif
-       }
-     }
 
   }
  

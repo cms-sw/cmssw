@@ -14,14 +14,14 @@ using namespace std;
 namespace edm {
   // Constructor 
   DataMixingHcalDigiWorkerProd::DataMixingHcalDigiWorkerProd(const edm::ParameterSet& ps) : 
-    HBHEdigiCollectionPile_(ps.getParameter<edm::InputTag>("HBHEdigiCollectionPile")),
-    HOdigiCollectionPile_(ps.getParameter<edm::InputTag>("HOdigiCollectionPile")),
-    HFdigiCollectionPile_(ps.getParameter<edm::InputTag>("HFdigiCollectionPile")),
-    ZDCdigiCollectionPile_(ps.getParameter<edm::InputTag>("ZDCdigiCollectionPile")),
-    theHBHESignalGenerator(HBHEdigiCollectionPile_),
-    theHOSignalGenerator(HOdigiCollectionPile_),
-    theHFSignalGenerator(HFdigiCollectionPile_),
-    theZDCSignalGenerator(ZDCdigiCollectionPile_),
+    HBHEPileInputTag_(ps.getParameter<edm::InputTag>("HBHEPileInputTag")),
+    HOPileInputTag_(ps.getParameter<edm::InputTag>("HOPileInputTag")),
+    HFPileInputTag_(ps.getParameter<edm::InputTag>("HFPileInputTag")),
+    ZDCPileInputTag_(ps.getParameter<edm::InputTag>("ZDCPileInputTag")),
+    theHBHESignalGenerator(HBHEPileInputTag_),
+    theHOSignalGenerator(HOPileInputTag_),
+    theHFSignalGenerator(HFPileInputTag_),
+    theZDCSignalGenerator(ZDCPileInputTag_),
     label_(ps.getParameter<std::string>("Label"))
   {                                                         
 
@@ -70,14 +70,14 @@ namespace edm {
 
   } // end of addHcalSignals
 
-  void DataMixingHcalDigiWorkerProd::addHcalPileups(const int bcr, Event *e, unsigned int eventNr,const edm::EventSetup& ES) {
+  void DataMixingHcalDigiWorkerProd::addHcalPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr,const edm::EventSetup& ES) {
   
-    LogDebug("DataMixingHcalDigiWorkerProd") <<"\n===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
+    LogDebug("DataMixingHcalDigiWorkerProd") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
-    theHBHESignalGenerator.initializeEvent(e, &ES);
-    theHOSignalGenerator.initializeEvent(e, &ES);
-    theHFSignalGenerator.initializeEvent(e, &ES);
-    theZDCSignalGenerator.initializeEvent(e, &ES);
+    theHBHESignalGenerator.initializeEvent(ep, &ES);
+    theHOSignalGenerator.initializeEvent(ep, &ES);
+    theHFSignalGenerator.initializeEvent(ep, &ES);
+    theZDCSignalGenerator.initializeEvent(ep, &ES);
 
     theHBHESignalGenerator.fill();
     theHOSignalGenerator.fill();

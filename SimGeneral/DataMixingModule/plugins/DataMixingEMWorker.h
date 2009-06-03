@@ -15,6 +15,7 @@
  ************************************************************/
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Selector.h"
 
@@ -47,7 +48,7 @@ namespace edm
 
       void putEM(edm::Event &e) ;
       void addEMSignals(const edm::Event &e); 
-      void addEMPileups(const int bcr, edm::Event*,unsigned int EventId);
+      void addEMPileups(const int bcr, edm::EventPrincipal*,unsigned int EventId);
 
 
     private:
@@ -56,16 +57,18 @@ namespace edm
       edm::InputTag EBProducerSig_; // primary? name given to collection of EB calib rechits
       edm::InputTag EEProducerSig_; // primary? name given to collection of EE calib rechits
       edm::InputTag ESProducerSig_; // primary? name given to collection of ES calib rechits
-      edm::InputTag EBProducerPile_; // primary? name given to collection of EB calib rechits
-      edm::InputTag EEProducerPile_; // primary? name given to collection of EE calib rechits
-      edm::InputTag ESProducerPile_; // primary? name given to collection of ES calib rechits
 
       edm::InputTag EBrechitCollectionSig_; // secondary name given to collection of EB calib rechits
       edm::InputTag EErechitCollectionSig_; // secondary name given to collection of EE calib rechits
       edm::InputTag ESrechitCollectionSig_; // secondary name given to collection of ES calib rechits
-      edm::InputTag EBrechitCollectionPile_; // secondary name given to collection of EB calib rechits
-      edm::InputTag EErechitCollectionPile_; // secondary name given to collection of EE calib rechits
-      edm::InputTag ESrechitCollectionPile_; // secondary name given to collection of ES calib rechits
+
+      edm::InputTag EBPileRecHitInputTag_; // full InputTag for pileup EB calib rechits
+      edm::InputTag EEPileRecHitInputTag_; // full InputTag for pileup EE calib rechits
+      edm::InputTag ESPileRecHitInputTag_; // full InputTag for pileup ES calib rechits
+
+
+
+
       std::string EBRecHitCollectionDM_; // secondary name to be given to EB collection of hits
       std::string EERecHitCollectionDM_; // secondary name to be given to EE collection of hits
       std::string ESRecHitCollectionDM_; // secondary name to be given to ES collection of hits

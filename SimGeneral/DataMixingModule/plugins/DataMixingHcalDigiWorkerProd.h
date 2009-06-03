@@ -15,6 +15,7 @@
  ************************************************************/
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Selector.h"
@@ -49,7 +50,7 @@ namespace edm
 
       void putHcal(edm::Event &e,const edm::EventSetup& ES);
       void addHcalSignals(const edm::Event &e,const edm::EventSetup& ES); 
-      void addHcalPileups(const int bcr, edm::Event*,unsigned int EventId,const edm::EventSetup& ES);
+      void addHcalPileups(const int bcr, edm::EventPrincipal*,unsigned int EventId,const edm::EventSetup& ES);
 
 
     private:
@@ -60,10 +61,10 @@ namespace edm
       // edm::InputTag HOdigiCollectionSig_  ; // secondary name given to collection of digis
       //edm::InputTag HFdigiCollectionSig_  ; // secondary name given to collection of digis
       //edm::InputTag ZDCdigiCollectionSig_ ; // secondary name given to collection of digis
-      edm::InputTag HBHEdigiCollectionPile_; // secondary name given to collection of digis
-      edm::InputTag HOdigiCollectionPile_  ; // secondary name given to collection of digis
-      edm::InputTag HFdigiCollectionPile_  ; // secondary name given to collection of digis
-      edm::InputTag ZDCdigiCollectionPile_ ; // secondary name given to collection of digis
+      edm::InputTag HBHEPileInputTag_; // InputTag for Pileup Digis collection  
+      edm::InputTag HOPileInputTag_  ; // InputTag for Pileup Digis collection
+      edm::InputTag HFPileInputTag_  ; // InputTag for Pileup Digis collection
+      edm::InputTag ZDCPileInputTag_ ; // InputTag for Pileup Digis collection
       std::string HBHEDigiCollectionDM_; // secondary name to be given to collection of digis
       std::string HODigiCollectionDM_  ; // secondary name to be given to collection of digis
       std::string HFDigiCollectionDM_  ; // secondary name to be given to collection of digis

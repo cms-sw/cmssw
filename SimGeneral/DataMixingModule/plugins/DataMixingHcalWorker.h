@@ -15,6 +15,7 @@
  ************************************************************/
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Selector.h"
 
@@ -43,7 +44,7 @@ namespace edm
 
       void putHcal(edm::Event &e) ;
       void addHcalSignals(const edm::Event &e); 
-      void addHcalPileups(const int bcr, edm::Event*,unsigned int EventId);
+      void addHcalPileups(const int bcr, edm::EventPrincipal*,unsigned int EventId);
 
 
     private:
@@ -54,10 +55,12 @@ namespace edm
       edm::InputTag HOrechitCollectionSig_  ; // secondary name given to collection of EB rechits
       edm::InputTag HFrechitCollectionSig_  ; // secondary name given to collection of EB rechits
       edm::InputTag ZDCrechitCollectionSig_ ; // secondary name given to collection of EB rechits
-      edm::InputTag HBHErechitCollectionPile_; // secondary name given to collection of EB rechits
-      edm::InputTag HOrechitCollectionPile_  ; // secondary name given to collection of EB rechits
-      edm::InputTag HFrechitCollectionPile_  ; // secondary name given to collection of EB rechits
-      edm::InputTag ZDCrechitCollectionPile_ ; // secondary name given to collection of EB rechits
+
+      edm::InputTag HBHEPileRecHitInputTag_ ; // InputTag for HB RecHits for Pileup
+      edm::InputTag HOPileRecHitInputTag_   ; // InputTag for HO RecHits for Pileup 
+      edm::InputTag HFPileRecHitInputTag_   ; // InputTag for HF RecHits for Pileup 
+      edm::InputTag ZDCPileRecHitInputTag_  ; // InputTag for ZDC RecHits for Pileup 
+
       std::string HBHERecHitCollectionDM_; // secondary name to be given to EB collection of hits
       std::string HORecHitCollectionDM_  ; // secondary name to be given to EB collection of hits
       std::string HFRecHitCollectionDM_  ; // secondary name to be given to EB collection of hits

@@ -48,12 +48,6 @@ namespace edm
     MergeEMDigis_ = (ps.getParameter<std::string>("EcalMergeType")=="Digis");
 
     if(MergeEMDigis_) {
-      EBdigiCollectionSig_ = ps.getParameter<edm::InputTag>("EBdigiCollectionSig");
-      EEdigiCollectionSig_ = ps.getParameter<edm::InputTag>("EEdigiCollectionSig");
-      ESdigiCollectionSig_ = ps.getParameter<edm::InputTag>("ESdigiCollectionSig");
-      EBdigiCollectionPile_ = ps.getParameter<edm::InputTag>("EBdigiCollectionPile");
-      EEdigiCollectionPile_ = ps.getParameter<edm::InputTag>("EEdigiCollectionPile");
-      ESdigiCollectionPile_ = ps.getParameter<edm::InputTag>("ESdigiCollectionPile");
       EBDigiCollectionDM_        = ps.getParameter<std::string>("EBDigiCollectionDM");
       EEDigiCollectionDM_        = ps.getParameter<std::string>("EEDigiCollectionDM");
       ESDigiCollectionDM_        = ps.getParameter<std::string>("ESDigiCollectionDM");
@@ -65,13 +59,7 @@ namespace edm
 
       EMDigiWorker_ = new DataMixingEMDigiWorker(ps);
     }
-    else { // merge RecHits
-      EBrechitCollectionSig_ = ps.getParameter<edm::InputTag>("EBrechitCollectionSig");
-      EErechitCollectionSig_ = ps.getParameter<edm::InputTag>("EErechitCollectionSig");
-      ESrechitCollectionSig_ = ps.getParameter<edm::InputTag>("ESrechitCollectionSig");
-      EBrechitCollectionPile_ = ps.getParameter<edm::InputTag>("EBrechitCollectionPile");
-      EErechitCollectionPile_ = ps.getParameter<edm::InputTag>("EErechitCollectionPile");
-      ESrechitCollectionPile_ = ps.getParameter<edm::InputTag>("ESrechitCollectionPile");
+    else { // merge RecHits 
       EBRecHitCollectionDM_        = ps.getParameter<std::string>("EBRecHitCollectionDM");
       EERecHitCollectionDM_        = ps.getParameter<std::string>("EERecHitCollectionDM");
       ESRecHitCollectionDM_        = ps.getParameter<std::string>("ESRecHitCollectionDM");
@@ -88,15 +76,6 @@ namespace edm
     MergeHcalDigis_ = (ps.getParameter<std::string>("HcalMergeType")=="Digis");
 
     if(MergeHcalDigis_){
-      HBHEdigiCollectionSig_  = ps.getParameter<edm::InputTag>("HBHEdigiCollectionSig");
-      HOdigiCollectionSig_    = ps.getParameter<edm::InputTag>("HOdigiCollectionSig");
-      HFdigiCollectionSig_    = ps.getParameter<edm::InputTag>("HFdigiCollectionSig");
-      ZDCdigiCollectionSig_   = ps.getParameter<edm::InputTag>("ZDCdigiCollectionSig");
-      HBHEdigiCollectionPile_  = ps.getParameter<edm::InputTag>("HBHEdigiCollectionPile");
-      HOdigiCollectionPile_    = ps.getParameter<edm::InputTag>("HOdigiCollectionPile");
-      HFdigiCollectionPile_    = ps.getParameter<edm::InputTag>("HFdigiCollectionPile");
-      ZDCdigiCollectionPile_   = ps.getParameter<edm::InputTag>("ZDCdigiCollectionPile");
-
       HBHEDigiCollectionDM_ = ps.getParameter<std::string>("HBHEDigiCollectionDM");
       HODigiCollectionDM_   = ps.getParameter<std::string>("HODigiCollectionDM");
       HFDigiCollectionDM_   = ps.getParameter<std::string>("HFDigiCollectionDM");
@@ -118,16 +97,6 @@ namespace edm
 
     }
     else{
-
-      HBHErechitCollectionSig_  = ps.getParameter<edm::InputTag>("HBHErechitCollectionSig");
-      HOrechitCollectionSig_    = ps.getParameter<edm::InputTag>("HOrechitCollectionSig");
-      HFrechitCollectionSig_    = ps.getParameter<edm::InputTag>("HFrechitCollectionSig");
-      ZDCrechitCollectionSig_   = ps.getParameter<edm::InputTag>("ZDCrechitCollectionSig");
-      HBHErechitCollectionPile_  = ps.getParameter<edm::InputTag>("HBHErechitCollectionPile");
-      HOrechitCollectionPile_    = ps.getParameter<edm::InputTag>("HOrechitCollectionPile");
-      HFrechitCollectionPile_    = ps.getParameter<edm::InputTag>("HFrechitCollectionPile");
-      ZDCrechitCollectionPile_   = ps.getParameter<edm::InputTag>("ZDCrechitCollectionPile");
-
       HBHERecHitCollectionDM_ = ps.getParameter<std::string>("HBHERecHitCollectionDM");
       HORecHitCollectionDM_   = ps.getParameter<std::string>("HORecHitCollectionDM");
       HFRecHitCollectionDM_   = ps.getParameter<std::string>("HFRecHitCollectionDM");
@@ -143,15 +112,6 @@ namespace edm
 
     // Muons
 
-    DTdigi_collectionSig_   = ps.getParameter<edm::InputTag>("DTdigiCollectionSig");
-    RPCdigi_collectionSig_  = ps.getParameter<edm::InputTag>("RPCdigiCollectionSig");
-    CSCstripdigi_collectionSig_   = ps.getParameter<edm::InputTag>("CSCstripdigiCollectionSig");
-    CSCwiredigi_collectionSig_    = ps.getParameter<edm::InputTag>("CSCwiredigiCollectionSig");
-    DTdigi_collectionPile_   = ps.getParameter<edm::InputTag>("DTdigiCollectionPile");
-    RPCdigi_collectionPile_  = ps.getParameter<edm::InputTag>("RPCdigiCollectionPile");
-    CSCstripdigi_collectionPile_   = ps.getParameter<edm::InputTag>("CSCstripdigiCollectionPile");
-    CSCwiredigi_collectionPile_    = ps.getParameter<edm::InputTag>("CSCwiredigiCollectionPile");
-
     DTDigiCollectionDM_  = ps.getParameter<std::string>("DTDigiCollectionDM");
     RPCDigiCollectionDM_ = ps.getParameter<std::string>("RPCDigiCollectionDM");
     CSCStripDigiCollectionDM_ = ps.getParameter<std::string>("CSCStripDigiCollectionDM");
@@ -166,9 +126,6 @@ namespace edm
 
     // Si-Strips
 
-    Sistripdigi_collectionSig_   = ps.getParameter<edm::InputTag>("SistripdigiCollectionSig");
-    Sistripdigi_collectionPile_   = ps.getParameter<edm::InputTag>("SistripdigiCollectionPile");
-
     SiStripDigiCollectionDM_  = ps.getParameter<std::string>("SiStripDigiCollectionDM");
 
 
@@ -177,9 +134,6 @@ namespace edm
     SiStripWorker_ = new DataMixingSiStripWorker(ps);
 
     // Pixels
-
-    pixeldigi_collectionSig_   = ps.getParameter<edm::InputTag>("pixeldigiCollectionSig");
-    pixeldigi_collectionPile_   = ps.getParameter<edm::InputTag>("pixeldigiCollectionPile");
 
     PixelDigiCollectionDM_  = ps.getParameter<std::string>("PixelDigiCollectionDM");
 
@@ -283,35 +237,35 @@ namespace edm
   
 
 
-  void DataMixingModule::addPileups(const int bcr, Event *e, unsigned int eventNr, unsigned int worker, const edm::EventSetup& ES) {  
+  void DataMixingModule::addPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr, unsigned int worker, const edm::EventSetup& ES) {  
 
 
-    LogDebug("DataMixingModule") <<"\n===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
+    LogDebug("DataMixingModule") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events
 
     // Ecal
-    if(MergeEMDigis_) {    EMDigiWorker_->addEMPileups(bcr, e, eventNr, ES);}
-    else {EMWorker_->addEMPileups(bcr, e, eventNr); }
+    if(MergeEMDigis_) {    EMDigiWorker_->addEMPileups(bcr, ep, eventNr, ES);}
+    else {EMWorker_->addEMPileups(bcr, ep, eventNr); }
 
     // Hcal
     if(MergeHcalDigis_) {    
       if(MergeHcalDigisProd_) {    
-	HcalDigiWorkerProd_->addHcalPileups(bcr, e, eventNr, ES);
+	HcalDigiWorkerProd_->addHcalPileups(bcr, ep, eventNr, ES);
       }
       else{
-	HcalDigiWorker_->addHcalPileups(bcr, e, eventNr, ES);}
+	HcalDigiWorker_->addHcalPileups(bcr, ep, eventNr, ES);}
     }
-    else {HcalWorker_->addHcalPileups(bcr, e, eventNr);}
+    else {HcalWorker_->addHcalPileups(bcr, ep, eventNr);}
 
     // Muon
-    MuonWorker_->addMuonPileups(bcr, e, eventNr);
+    MuonWorker_->addMuonPileups(bcr, ep, eventNr);
 
     // SiStrips
-    SiStripWorker_->addSiStripPileups(bcr, e, eventNr);
+    SiStripWorker_->addSiStripPileups(bcr, ep, eventNr);
 
     // SiPixels
-    SiPixelWorker_->addSiPixelPileups(bcr, e, eventNr);
+    SiPixelWorker_->addSiPixelPileups(bcr, ep, eventNr);
 
   }
 
@@ -334,8 +288,6 @@ namespace edm
   void DataMixingModule::put(edm::Event &e,const edm::EventSetup& ES) {
 
     // individual workers...
-
-    cout << "made it to put" << endl;
 
     // Ecal
     if(MergeEMDigis_) {EMDigiWorker_->putEM(e,ES);}

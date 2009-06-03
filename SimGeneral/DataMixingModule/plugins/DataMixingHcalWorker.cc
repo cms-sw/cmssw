@@ -51,10 +51,11 @@ namespace edm
     HOrechitCollectionSig_    = ps.getParameter<edm::InputTag>("HOProducerSig");
     HFrechitCollectionSig_    = ps.getParameter<edm::InputTag>("HFProducerSig");
     ZDCrechitCollectionSig_   = ps.getParameter<edm::InputTag>("ZDCrechitCollectionSig");
-    HBHErechitCollectionPile_  = ps.getParameter<edm::InputTag>("HBHEProducerPile");
-    HOrechitCollectionPile_    = ps.getParameter<edm::InputTag>("HOProducerPile");
-    HFrechitCollectionPile_    = ps.getParameter<edm::InputTag>("HFProducerPile");
-    ZDCrechitCollectionPile_   = ps.getParameter<edm::InputTag>("ZDCrechitCollectionPile");
+
+    HBHEPileRecHitInputTag_ = ps.getParameter<edm::InputTag>("HBHEPileRecHitInputTag");
+    HOPileRecHitInputTag_ = ps.getParameter<edm::InputTag>("HOPileRecHitInputTag");
+    HFPileRecHitInputTag_ = ps.getParameter<edm::InputTag>("HFPileRecHitInputTag");
+    ZDCPileRecHitInputTag_ = ps.getParameter<edm::InputTag>("ZDCPileRecHitInputTag");
 
     HBHERecHitCollectionDM_ = ps.getParameter<std::string>("HBHERecHitCollectionDM");
     HORecHitCollectionDM_   = ps.getParameter<std::string>("HORecHitCollectionDM");
@@ -199,126 +200,112 @@ namespace edm
     
   } // end of addEMSignals
 
-  void DataMixingHcalWorker::addHcalPileups(const int bcr, Event *e, unsigned int eventNr) {
+  void DataMixingHcalWorker::addHcalPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr) {
   
-    LogDebug("DataMixingHcalWorker") <<"\n===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
+    LogDebug("DataMixingHcalWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events
 
     // HBHE first
 
-   Handle< HBHERecHitCollection > pHBHERecHits;
-   const HBHERecHitCollection*  HBHERecHits = 0;
+    boost::shared_ptr<Wrapper<HBHERecHitCollection>  const> HBHERecHitsPTR =
+      getProductByTag<HBHERecHitCollection>(*ep, HBHEPileRecHitInputTag_ );
 
-   if( e->getByLabel( HBHErechitCollectionPile_.label(), pHBHERecHits) ) {
-     HBHERecHits = pHBHERecHits.product(); // get a ptr to the product
+    if(HBHERecHitsPTR ) {
+
+      const HBHERecHitCollection*  HBHERecHits = const_cast< HBHERecHitCollection * >(HBHERecHitsPTR->product());
+
+      LogDebug("DataMixingEMWorker") << "total # HBHE rechits: " << HBHERecHits->size();
+
+      // loop over digis, adding these to the existing maps                                                     
+      for(HBHERecHitCollection::const_iterator it  = HBHERecHits->begin();
+          it != HBHERecHits->end(); ++it) {
+
+        HBHERecHitStorage_.insert(HBHERecHitMap::value_type( (it->id()), *it ));
+
 #ifdef DEBUG
-     LogDebug("DataMixingHcalWorker") << "total # HEHB rechits: " << HBHERecHits->size();
+        LogDebug("DataMixingEMWorker") << "processed HBHERecHit with rawId: "
+				       << it->id().rawId() << "\n"
+				       << " rechit energy: " << it->energy();
 #endif
-   } 
-   
- 
-   if (HBHERecHits)
-     {
-       // loop over rechits, adding these to the existing maps
-       for(HBHERecHitCollection::const_iterator it  = HBHERecHits->begin();
-	   it != HBHERecHits->end(); ++it) {
+      }
+    }
 
-	 HBHERecHitStorage_.insert(HBHERecHitMap::value_type( (it->id()), *it ));
-	 
-#ifdef DEBUG	 
-	 LogDebug("DataMixingHcalWorker") << "processed HBHERecHit with rawId: "
-				      << it->id() << "\n"
-				      << " rechit energy: " << it->energy();
-#endif
-       }
-     }
     // HO Next
 
-   Handle< HORecHitCollection > pHORecHits;
-   const HORecHitCollection*  HORecHits = 0;
+    boost::shared_ptr<Wrapper<HORecHitCollection>  const> HORecHitsPTR =
+      getProductByTag<HORecHitCollection>(*ep, HOPileRecHitInputTag_ );
 
-   if( e->getByLabel( HOrechitCollectionPile_.label(), pHORecHits) ) {
-     HORecHits = pHORecHits.product(); // get a ptr to the product
+    if(HORecHitsPTR ) {
+
+      const HORecHitCollection*  HORecHits = const_cast< HORecHitCollection * >(HORecHitsPTR->product());
+
+      LogDebug("DataMixingEMWorker") << "total # HO rechits: " << HORecHits->size();
+
+      // loop over digis, adding these to the existing maps                                                     
+      for(HORecHitCollection::const_iterator it  = HORecHits->begin();
+          it != HORecHits->end(); ++it) {
+
+        HORecHitStorage_.insert(HORecHitMap::value_type( (it->id()), *it ));
+
 #ifdef DEBUG
-     LogDebug("DataMixingHcalWorker") << "total # HO rechits: " << HORecHits->size();
+        LogDebug("DataMixingEMWorker") << "processed HORecHit with rawId: "
+				       << it->id().rawId() << "\n"
+				       << " rechit energy: " << it->energy();
 #endif
-   } 
-   
- 
-   if (HORecHits)
-     {
-       // loop over rechits, adding these to the existing maps
-       for(HORecHitCollection::const_iterator it  = HORecHits->begin();
-	   it != HORecHits->end(); ++it) {
-
-	 HORecHitStorage_.insert(HORecHitMap::value_type( (it->id()), *it ));
-	 
-#ifdef DEBUG	 
-	 LogDebug("DataMixingHcalWorker") << "processed HORecHit with rawId: "
-				      << it->id() << "\n"
-				      << " rechit energy: " << it->energy();
-#endif
-       }
-     }
+      }
+    }
 
     // HF Next
 
-   Handle< HFRecHitCollection > pHFRecHits;
-   const HFRecHitCollection*  HFRecHits = 0;
+    boost::shared_ptr<Wrapper<HFRecHitCollection>  const> HFRecHitsPTR =
+      getProductByTag<HFRecHitCollection>(*ep, HFPileRecHitInputTag_ );
 
-   if( e->getByLabel( HFrechitCollectionPile_.label(), pHFRecHits) ) {
-     HFRecHits = pHFRecHits.product(); // get a ptr to the product
+    if(HFRecHitsPTR ) {
+
+      const HFRecHitCollection*  HFRecHits = const_cast< HFRecHitCollection * >(HFRecHitsPTR->product());
+
+      LogDebug("DataMixingEMWorker") << "total # HF rechits: " << HFRecHits->size();
+
+      // loop over digis, adding these to the existing maps                                                     
+      for(HFRecHitCollection::const_iterator it  = HFRecHits->begin();
+          it != HFRecHits->end(); ++it) {
+
+        HFRecHitStorage_.insert(HFRecHitMap::value_type( (it->id()), *it ));
+
 #ifdef DEBUG
-     LogDebug("DataMixingHcalWorker") << "total # HF rechits: " << HFRecHits->size();
+        LogDebug("DataMixingEMWorker") << "processed HFRecHit with rawId: "
+				       << it->id().rawId() << "\n"
+				       << " rechit energy: " << it->energy();
 #endif
-   } 
-   
- 
-   if (HFRecHits)
-     {
-       // loop over rechits, adding these to the existing maps
-       for(HFRecHitCollection::const_iterator it  = HFRecHits->begin();
-	   it != HFRecHits->end(); ++it) {
-
-	 HFRecHitStorage_.insert(HFRecHitMap::value_type( (it->id()), *it ));
-	 
-#ifdef DEBUG	 
-	 LogDebug("DataMixingHcalWorker") << "processed HFRecHit with rawId: "
-				      << it->id() << "\n"
-				      << " rechit energy: " << it->energy();
-#endif
-       }
-     }
+      }
+    }
 
     // ZDC Next
 
-   Handle< ZDCRecHitCollection > pZDCRecHits;
-   const ZDCRecHitCollection*  ZDCRecHits = 0;
+    boost::shared_ptr<Wrapper<ZDCRecHitCollection>  const> ZDCRecHitsPTR =
+      getProductByTag<ZDCRecHitCollection>(*ep, ZDCPileRecHitInputTag_ );
 
-   if( e->getByLabel( ZDCrechitCollectionPile_.label(), pZDCRecHits) ) {
-     ZDCRecHits = pZDCRecHits.product(); // get a ptr to the product
+    if(ZDCRecHitsPTR ) {
+
+      const ZDCRecHitCollection*  ZDCRecHits = const_cast< ZDCRecHitCollection * >(ZDCRecHitsPTR->product());
+
+      LogDebug("DataMixingEMWorker") << "total # ZDC rechits: " << ZDCRecHits->size();
+
+      // loop over digis, adding these to the existing maps                                                     
+      for(ZDCRecHitCollection::const_iterator it  = ZDCRecHits->begin();
+          it != ZDCRecHits->end(); ++it) {
+
+        ZDCRecHitStorage_.insert(ZDCRecHitMap::value_type( (it->id()), *it ));
+
 #ifdef DEBUG
-     LogDebug("DataMixingHcalWorker") << "total # ZDC rechits: " << ZDCRecHits->size();
+        LogDebug("DataMixingEMWorker") << "processed ZDCRecHit with rawId: "
+				       << it->id().rawId() << "\n"
+				       << " rechit energy: " << it->energy();
 #endif
-   } 
-   
- 
-   if (ZDCRecHits)
-     {
-       // loop over rechits, adding these to the existing maps
-       for(ZDCRecHitCollection::const_iterator it  = ZDCRecHits->begin();
-	   it != ZDCRecHits->end(); ++it) {
+      }
+    }
 
-	 ZDCRecHitStorage_.insert(ZDCRecHitMap::value_type( (it->id()), *it ));
-	 
-#ifdef DEBUG	 
-	 LogDebug("DataMixingHcalWorker") << "processed ZDCRecHit with rawId: "
-				      << it->id() << "\n"
-				      << " rechit energy: " << it->energy();
-#endif
-       }
-     }
 
   }
  

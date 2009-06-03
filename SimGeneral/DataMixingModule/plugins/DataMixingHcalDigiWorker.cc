@@ -59,10 +59,11 @@ namespace edm
     HOdigiCollectionSig_    = ps.getParameter<edm::InputTag>("HOdigiCollectionSig");
     HFdigiCollectionSig_    = ps.getParameter<edm::InputTag>("HFdigiCollectionSig");
     ZDCdigiCollectionSig_   = ps.getParameter<edm::InputTag>("ZDCdigiCollectionSig");
-    HBHEdigiCollectionPile_  = ps.getParameter<edm::InputTag>("HBHEdigiCollectionPile");
-    HOdigiCollectionPile_    = ps.getParameter<edm::InputTag>("HOdigiCollectionPile");
-    HFdigiCollectionPile_    = ps.getParameter<edm::InputTag>("HFdigiCollectionPile");
-    ZDCdigiCollectionPile_   = ps.getParameter<edm::InputTag>("ZDCdigiCollectionPile");
+
+    HBHEPileInputTag_ = ps.getParameter<edm::InputTag>("HBHEPileInputTag");
+    HOPileInputTag_ = ps.getParameter<edm::InputTag>("HOPileInputTag");
+    HFPileInputTag_ = ps.getParameter<edm::InputTag>("HFPileInputTag");
+    ZDCPileInputTag_ = ps.getParameter<edm::InputTag>("ZDCPileInputTag");
 
     HBHEDigiCollectionDM_ = ps.getParameter<std::string>("HBHEDigiCollectionDM");
     HODigiCollectionDM_   = ps.getParameter<std::string>("HODigiCollectionDM");
@@ -259,11 +260,11 @@ namespace edm
        }
      }
     
-  } // end of addEMSignals
+  } // end of addHCalSignals
 
-  void DataMixingHcalDigiWorker::addHcalPileups(const int bcr, Event *e, unsigned int eventNr,const edm::EventSetup& ES) {
+  void DataMixingHcalDigiWorker::addHcalPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr,const edm::EventSetup& ES) {
   
-    LogDebug("DataMixingHcalDigiWorker") <<"\n===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
+    LogDebug("DataMixingHcalDigiWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
     // get conditions                                                                                                             
     edm::ESHandle<HcalDbService> conditions;
@@ -275,19 +276,15 @@ namespace edm
 
     // HBHE first
 
-   Handle< HBHEDigiCollection > pHBHEDigis;
-   const HBHEDigiCollection*  HBHEDigis = 0;
-
-   if( e->getByLabel( HBHEdigiCollectionPile_.label(), pHBHEDigis) ) {
-     HBHEDigis = pHBHEDigis.product(); // get a ptr to the product
-#ifdef DEBUG
-     LogDebug("DataMixingHcalDigiWorker") << "total # HEHB digis: " << HBHEDigis->size();
-#endif
-   } 
-   
+    boost::shared_ptr<Wrapper<HBHEDigiCollection>  const> HBHEDigisPTR = 
+          getProductByTag<HBHEDigiCollection>(*ep, HBHEPileInputTag_ );
  
-   if (HBHEDigis)
-     {
+    if(HBHEDigisPTR ) {
+
+     const HBHEDigiCollection*  HBHEDigis = const_cast< HBHEDigiCollection * >(HBHEDigisPTR->product());
+
+     LogInfo("DataMixingHcalDigiWorker") << "total # HBHE digis: " << HBHEDigis->size();
+
        // loop over digis, adding these to the existing maps
        for(HBHEDigiCollection::const_iterator it  = HBHEDigis->begin();
 	   it != HBHEDigis->end(); ++it) {
@@ -309,22 +306,18 @@ namespace edm
 				      << " digi energy: " << it->energy();
 #endif
        }
-     }
+    }
     // HO Next
 
-   Handle< HODigiCollection > pHODigis;
-   const HODigiCollection*  HODigis = 0;
-
-   if( e->getByLabel( HOdigiCollectionPile_.label(), pHODigis) ) {
-     HODigis = pHODigis.product(); // get a ptr to the product
-#ifdef DEBUG
-     LogDebug("DataMixingHcalDigiWorker") << "total # HO digis: " << HODigis->size();
-#endif
-   } 
-   
+    boost::shared_ptr<Wrapper<HODigiCollection>  const> HODigisPTR = 
+          getProductByTag<HODigiCollection>(*ep, HOPileInputTag_ );
  
-   if (HODigis)
-     {
+    if(HODigisPTR ) {
+
+     const HODigiCollection*  HODigis = const_cast< HODigiCollection * >(HODigisPTR->product());
+
+     LogDebug("DataMixingHcalDigiWorker") << "total # HO digis: " << HODigis->size();
+
        // loop over digis, adding these to the existing maps
        for(HODigiCollection::const_iterator it  = HODigis->begin();
 	   it != HODigis->end(); ++it) {
@@ -346,23 +339,20 @@ namespace edm
 				      << " digi energy: " << it->energy();
 #endif
        }
-     }
+    }
+
 
     // HF Next
 
-   Handle< HFDigiCollection > pHFDigis;
-   const HFDigiCollection*  HFDigis = 0;
-
-   if( e->getByLabel( HFdigiCollectionPile_.label(), pHFDigis) ) {
-     HFDigis = pHFDigis.product(); // get a ptr to the product
-#ifdef DEBUG
-     LogDebug("DataMixingHcalDigiWorker") << "total # HF digis: " << HFDigis->size();
-#endif
-   } 
-   
+    boost::shared_ptr<Wrapper<HFDigiCollection>  const> HFDigisPTR = 
+          getProductByTag<HFDigiCollection>(*ep, HFPileInputTag_ );
  
-   if (HFDigis)
-     {
+    if(HFDigisPTR ) {
+
+     const HFDigiCollection*  HFDigis = const_cast< HFDigiCollection * >(HFDigisPTR->product());
+
+     LogDebug("DataMixingHcalDigiWorker") << "total # HF digis: " << HFDigis->size();
+
        // loop over digis, adding these to the existing maps
        for(HFDigiCollection::const_iterator it  = HFDigis->begin();
 	   it != HFDigis->end(); ++it) {
@@ -384,23 +374,20 @@ namespace edm
 				      << " digi energy: " << it->energy();
 #endif
        }
-     }
+    }
+
 
     // ZDC Next
 
-   Handle< ZDCDigiCollection > pZDCDigis;
-   const ZDCDigiCollection*  ZDCDigis = 0;
-
-   if( e->getByLabel( ZDCdigiCollectionPile_.label(), pZDCDigis) ) {
-     ZDCDigis = pZDCDigis.product(); // get a ptr to the product
-#ifdef DEBUG
-     LogDebug("DataMixingHcalDigiWorker") << "total # ZDC digis: " << ZDCDigis->size();
-#endif
-   } 
-   
+    boost::shared_ptr<Wrapper<ZDCDigiCollection>  const> ZDCDigisPTR = 
+          getProductByTag<ZDCDigiCollection>(*ep, ZDCPileInputTag_ );
  
-   if (ZDCDigis)
-     {
+    if(ZDCDigisPTR ) {
+
+     const ZDCDigiCollection*  ZDCDigis = const_cast< ZDCDigiCollection * >(ZDCDigisPTR->product());
+
+     LogDebug("DataMixingHcalDigiWorker") << "total # ZDC digis: " << ZDCDigis->size();
+
        // loop over digis, adding these to the existing maps
        for(ZDCDigiCollection::const_iterator it  = ZDCDigis->begin();
 	   it != ZDCDigis->end(); ++it) {
@@ -422,7 +409,9 @@ namespace edm
 				      << " digi energy: " << it->energy();
 #endif
        }
-     }
+    }
+
+
 
   }
  
@@ -450,9 +439,6 @@ namespace edm
     double fC_new;
     double fC_old;
     double fC_sum;
-    uint16_t data;
-    uint16_t OldUpAdd;
-
 
     // HB first...
 

@@ -53,21 +53,21 @@ namespace edm
     CSCDigiTagSig_                = ps.getParameter<edm::InputTag>("CSCDigiTagSig");
     CSCstripdigi_collectionSig_   = ps.getParameter<edm::InputTag>("CSCstripdigiCollectionSig");
     CSCwiredigi_collectionSig_    = ps.getParameter<edm::InputTag>("CSCwiredigiCollectionSig");
+    CSCCompdigi_collectionSig_    = ps.getParameter<edm::InputTag>("CSCCompdigiCollectionSig");
 
-    DTDigiTagPile_           = ps.getParameter<edm::InputTag>("DTDigiTagPile");
-    DTdigi_collectionPile_   = ps.getParameter<edm::InputTag>("DTdigiCollectionPile");
-    RPCDigiTagPile_          = ps.getParameter<edm::InputTag>("RPCDigiTagPile");
-    RPCdigi_collectionPile_  = ps.getParameter<edm::InputTag>("RPCdigiCollectionPile");
+    DTPileInputTag_       = ps.getParameter<edm::InputTag>("DTPileInputTag");
+    RPCPileInputTag_      = ps.getParameter<edm::InputTag>("RPCPileInputTag");
+    CSCWirePileInputTag_  = ps.getParameter<edm::InputTag>("CSCWirePileInputTag");
+    CSCStripPileInputTag_ = ps.getParameter<edm::InputTag>("CSCStripPileInputTag");
+    CSCCompPileInputTag_  = ps.getParameter<edm::InputTag>("CSCCompPileInputTag");
 
-    CSCDigiTagPile_                = ps.getParameter<edm::InputTag>("CSCDigiTagPile");
-    CSCstripdigi_collectionPile_   = ps.getParameter<edm::InputTag>("CSCstripdigiCollectionPile");
-    CSCwiredigi_collectionPile_    = ps.getParameter<edm::InputTag>("CSCwiredigiCollectionPile");
-
+    // outputs:
 
     DTDigiCollectionDM_  = ps.getParameter<std::string>("DTDigiCollectionDM");
     RPCDigiCollectionDM_ = ps.getParameter<std::string>("RPCDigiCollectionDM");
     CSCStripDigiCollectionDM_ = ps.getParameter<std::string>("CSCStripDigiCollectionDM");
     CSCWireDigiCollectionDM_  = ps.getParameter<std::string>("CSCWireDigiCollectionDM");
+    CSCComparatorDigiCollectionDM_  = ps.getParameter<std::string>("CSCComparatorDigiCollectionDM");
 
 
   }
@@ -191,36 +191,63 @@ namespace edm
       }
     }
 
+    // CSCComparators
+    // 
+
+    OurCSCComparatorDigis_ = new CSCComparatorDigiCollection();
+
+    // Get the digis from the event
+    Handle<CSCComparatorDigiCollection> pCSCComparatordigis; 
+
+    if( e.getByLabel(CSCDigiTagSig_.label(),CSCCompdigi_collectionSig_.label(), pCSCComparatordigis) ) {
+   
+
+    //if(pCSCWiredigis.isValid() ) { cout << "Signal: have CSCWireDigis" << endl;}
+    //else { cout << "Signal: NO CSCWireDigis" << endl;}
+    
+    // Loop over digis, copying them to our own local storage
+
+      const CSCComparatorDigiCollection* CSCComparatordigis = pCSCComparatordigis.product();
+      CSCComparatorDigiCollection::DigiRangeIterator CWLayerIt;
+      for (CWLayerIt = CSCComparatordigis->begin(); CWLayerIt != CSCComparatordigis->end(); ++CWLayerIt) {
+	// The layerId
+	const CSCDetId& layerId = (*CWLayerIt).first;
+
+	// Get the iterators over the digis associated with this LayerId
+	const CSCComparatorDigiCollection::Range& range = (*CWLayerIt).second;
+
+	OurCSCComparatorDigis_->put(range, layerId);
+      
+      }
+    }
+
     
   } // end of addMuonSignals
 
-  void DataMixingMuonWorker::addMuonPileups(const int bcr, Event *e, unsigned int eventNr) {
+  void DataMixingMuonWorker::addMuonPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr) {
   
-    LogDebug("DataMixingMuonWorker") <<"\n===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
+    LogDebug("DataMixingMuonWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events
 
     // DT
     // 
-
-    Handle<DTDigiCollection> pDTdigis;
-
     // Get the digis from the event
-    if( e->getByLabel(DTDigiTagPile_.label(), pDTdigis) ) {
 
-    //if(pDTdigis.isValid() ) { cout << "Overlay: have DTDigis" << endl;}
-    //else { cout << "Overlay: no DTDigis" << endl;}
+   boost::shared_ptr<Wrapper<DTDigiCollection>  const> DTDigisPTR = 
+          getProductByTag<DTDigiCollection>(*ep, DTPileInputTag_ );
+ 
+   if(DTDigisPTR ) {
 
-    // Loop over digis, copying them to our own local storage
+     const DTDigiCollection*  DTDigis = const_cast< DTDigiCollection * >(DTDigisPTR->product());
 
-      const DTDigiCollection* DTdigis = pDTdigis.product();
-      DTDigiCollection::DigiRangeIterator DLayerIt;
-      for (DLayerIt = DTdigis->begin(); DLayerIt != DTdigis->end(); ++DLayerIt) {
+     DTDigiCollection::DigiRangeIterator DTLayerIt;
+     for (DTLayerIt = DTDigis->begin(); DTLayerIt != DTDigis->end(); ++DTLayerIt) {
 	// The layerId
-	const DTLayerId& layerId = (*DLayerIt).first;
+	const DTLayerId& layerId = (*DTLayerIt).first;
 
-	// Get the iterators over the digis associated with this LayerId
-	const DTDigiCollection::Range& range = (*DLayerIt).second;
+	// Get the iterators over the Digis associated with this LayerId
+	const DTDigiCollection::Range& range = (*DTLayerIt).second;
 
 	OurDTDigis_->put(range, layerId);
       
@@ -230,77 +257,104 @@ namespace edm
     // 
 
     // Get the digis from the event
-    Handle<RPCDigiCollection> pRPCdigis;
 
-    if( e->getByLabel(RPCDigiTagPile_.label(), pRPCdigis) ) {
 
-    //if(pRPCdigis.isValid() ) { cout << "Overlay: have RPDCigis" << endl;}
-    //else { cout << "Overlay: no RPDCigis" << endl;}
+   boost::shared_ptr<Wrapper<RPCDigiCollection>  const> RPCDigisPTR = 
+          getProductByTag<RPCDigiCollection>(*ep, RPCPileInputTag_ );
+ 
+   if(RPCDigisPTR ) {
 
-    // Loop over digis, copying them to our own local storage
+     const RPCDigiCollection*  RPCDigis = const_cast< RPCDigiCollection * >(RPCDigisPTR->product());
 
-      const RPCDigiCollection* RPCdigis = pRPCdigis.product();
-      RPCDigiCollection::DigiRangeIterator RLayerIt;
-      for (RLayerIt = RPCdigis->begin(); RLayerIt != RPCdigis->end(); ++RLayerIt) {
+     RPCDigiCollection::DigiRangeIterator RPCLayerIt;
+     for (RPCLayerIt = RPCDigis->begin(); RPCLayerIt != RPCDigis->end(); ++RPCLayerIt) {
 	// The layerId
-	const RPCDetId& layerId = (*RLayerIt).first;
+	const RPCDetId& layerId = (*RPCLayerIt).first;
 
 	// Get the iterators over the digis associated with this LayerId
-	const RPCDigiCollection::Range& range = (*RLayerIt).second;
+	const RPCDigiCollection::Range& range = (*RPCLayerIt).second;
 
 	OurRPCDigis_->put(range, layerId);
       
       }
     }
+
     // CSCStrip
     // 
 
     // Get the digis from the event
-    Handle<CSCStripDigiCollection> pCSCStripdigis;
 
-    if( e->getByLabel(CSCDigiTagPile_.label(),CSCstripdigi_collectionPile_.label(), pCSCStripdigis) ) {
+   boost::shared_ptr<Wrapper<CSCStripDigiCollection>  const> CSCStripDigisPTR = 
+          getProductByTag<CSCStripDigiCollection>(*ep, CSCStripPileInputTag_ );
+ 
+   if(CSCStripDigisPTR ) {
 
-    //if(pCSCStripdigis.isValid() ) { cout << "Overlay: have CSCStripDigis" << endl;}
-    //else {cout << "Overlay: no CSCStripDigis" << endl;}
+     const CSCStripDigiCollection*  CSCStripDigis = const_cast< CSCStripDigiCollection * >(CSCStripDigisPTR->product());
 
-    // Loop over digis, copying them to our own local storage
-
-      const CSCStripDigiCollection* CSCStripdigis = pCSCStripdigis.product();
-      CSCStripDigiCollection::DigiRangeIterator CSLayerIt;
-      for (CSLayerIt = CSCStripdigis->begin(); CSLayerIt != CSCStripdigis->end(); ++CSLayerIt) {
+     CSCStripDigiCollection::DigiRangeIterator CSCStripLayerIt;
+     for (CSCStripLayerIt = CSCStripDigis->begin(); CSCStripLayerIt != CSCStripDigis->end(); ++CSCStripLayerIt) {
 	// The layerId
-	const CSCDetId& layerId = (*CSLayerIt).first;
+	const CSCDetId& layerId = (*CSCStripLayerIt).first;
 
 	// Get the iterators over the digis associated with this LayerId
-	const CSCStripDigiCollection::Range& range = (*CSLayerIt).second;
+	const CSCStripDigiCollection::Range& range = (*CSCStripLayerIt).second;
 
 	OurCSCStripDigis_->put(range, layerId);
       
       }
     }
+
     // CSCWire
     // 
 
     // Get the digis from the event
-    Handle<CSCWireDigiCollection> pCSCWiredigis;
 
-    if( e->getByLabel(CSCDigiTagPile_.label(),CSCwiredigi_collectionPile_.label(), pCSCWiredigis) ) {
+   boost::shared_ptr<Wrapper<CSCWireDigiCollection>  const> CSCWireDigisPTR = 
+          getProductByTag<CSCWireDigiCollection>(*ep, CSCWirePileInputTag_ );
+ 
+   if(CSCWireDigisPTR ) {
 
-    // Loop over digis, copying them to our own local storage
+     const CSCWireDigiCollection*  CSCWireDigis = const_cast< CSCWireDigiCollection * >(CSCWireDigisPTR->product());
 
-      const CSCWireDigiCollection* CSCWiredigis = pCSCWiredigis.product();
-      CSCWireDigiCollection::DigiRangeIterator CWLayerIt;
-      for (CWLayerIt = CSCWiredigis->begin(); CWLayerIt != CSCWiredigis->end(); ++CWLayerIt) {
+     CSCWireDigiCollection::DigiRangeIterator CSCWireLayerIt;
+     for (CSCWireLayerIt = CSCWireDigis->begin(); CSCWireLayerIt != CSCWireDigis->end(); ++CSCWireLayerIt) {
 	// The layerId
-	const CSCDetId& layerId = (*CWLayerIt).first;
+	const CSCDetId& layerId = (*CSCWireLayerIt).first;
 
 	// Get the iterators over the digis associated with this LayerId
-	const CSCWireDigiCollection::Range& range = (*CWLayerIt).second;
+	const CSCWireDigiCollection::Range& range = (*CSCWireLayerIt).second;
 
 	OurCSCWireDigis_->put(range, layerId);
       
       }
     }
+
+   // CSCComparators
+   //
+
+   // Get the digis from the event
+
+   boost::shared_ptr<Wrapper<CSCComparatorDigiCollection>  const> CSCComparatorDigisPTR =
+     getProductByTag<CSCComparatorDigiCollection>(*ep, CSCCompPileInputTag_ );
+
+   if(CSCComparatorDigisPTR ) {
+
+     const CSCComparatorDigiCollection*  CSCComparatorDigis = const_cast< CSCComparatorDigiCollection * >(CSCComparatorDigisPTR->product());
+
+     CSCComparatorDigiCollection::DigiRangeIterator CSCComparatorLayerIt;
+     for (CSCComparatorLayerIt = CSCComparatorDigis->begin(); CSCComparatorLayerIt != CSCComparatorDigis->end(); ++CSCComparatorLayerIt) {
+       // The layerId
+       const CSCDetId& layerId = (*CSCComparatorLayerIt).first;
+
+       // Get the iterators over the digis associated with this LayerId
+       const CSCComparatorDigiCollection::Range& range = (*CSCComparatorLayerIt).second;
+
+       OurCSCComparatorDigis_->put(range, layerId);
+
+     }
+   }
+
+
   }
  
   void DataMixingMuonWorker::putMuon(edm::Event &e) {

@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Selector.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -51,7 +52,7 @@ namespace edm
 
       void putEM(edm::Event &e,const edm::EventSetup& ES) ;
       void addEMSignals(const edm::Event &e,const edm::EventSetup& ES); 
-      void addEMPileups(const int bcr, edm::Event*,unsigned int EventId,const edm::EventSetup& ES);
+      void addEMPileups(const int bcr, edm::EventPrincipal*,unsigned int EventId,const edm::EventSetup& ES);
 
 
     private:
@@ -68,16 +69,15 @@ namespace edm
       edm::InputTag EBProducerSig_; // primary? name given to collection of EB calib digis
       edm::InputTag EEProducerSig_; // primary? name given to collection of EE calib digis
       edm::InputTag ESProducerSig_; // primary? name given to collection of ES calib digis
-      edm::InputTag EBProducerPile_; // primary? name given to collection of EB calib digis
-      edm::InputTag EEProducerPile_; // primary? name given to collection of EE calib digis
-      edm::InputTag ESProducerPile_; // primary? name given to collection of ES calib digis
 
       edm::InputTag EBdigiCollectionSig_; // secondary name given to collection of EB calib digis
       edm::InputTag EEdigiCollectionSig_; // secondary name given to collection of EE calib digis
       edm::InputTag ESdigiCollectionSig_; // secondary name given to collection of ES calib digis
-      edm::InputTag EBdigiCollectionPile_; // secondary name given to collection of EB calib digis
-      edm::InputTag EEdigiCollectionPile_; // secondary name given to collection of EE calib digis
-      edm::InputTag ESdigiCollectionPile_; // secondary name given to collection of ES calib digis
+
+      edm::InputTag EBPileInputTag_; // complete input tag for EB pileup digis
+      edm::InputTag EEPileInputTag_; // complete input tag for EE pileup digis
+      edm::InputTag ESPileInputTag_; // complete input tag for ES pileup digis
+
       std::string EBDigiCollectionDM_; // secondary name to be given to EB collection of hits
       std::string EEDigiCollectionDM_; // secondary name to be given to EE collection of hits
       std::string ESDigiCollectionDM_; // secondary name to be given to ES collection of hits
