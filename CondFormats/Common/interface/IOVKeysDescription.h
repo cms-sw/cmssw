@@ -13,7 +13,7 @@ namespace cond {
   public:
     IOVKeysDescription(){}
     explicit IOVKeysDescription(std::vector<std::string> const & idict, std::string const & itag) :
-      dict_m(idict) : m_tag(itag){}
+      dict_m(idict), m_tag(itag){}
 
     virtual ~IOVKeysDescription(){}
     virtual IOVKeysDescription * clone() const { return new  IOVKeysDescription(*this);}
