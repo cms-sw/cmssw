@@ -3,20 +3,11 @@
 
 #include <string>
 /*----------------------------------------------------------------------
-  
-BranchType: The type of a Branch (Event, LuminosityBlock, or Run)
-
 ----------------------------------------------------------------------*/
 
-namespace edm {
-  // Note: These enum values are used as subscripts for a fixed size array, so they must not change.
-  enum BranchType {
-    InEvent = 0,
-    InLumi = 1,
-    InRun = 2,
-    NumBranchTypes
-  };
+#include "FWCore/Utilities/interface/BranchType.h"
 
+namespace edm {
   std::string const& BranchTypeToString(BranchType const& branchType);
 
   std::string const& BranchTypeToProductTreeName(BranchType const& branchType);
