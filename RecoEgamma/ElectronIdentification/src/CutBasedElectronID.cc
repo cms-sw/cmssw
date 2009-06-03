@@ -95,7 +95,7 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
     if (fabs(deltaEtaIn) > cut[3]) 
       return 0.;    
     
-    if (e25Maxoe55 > cut[4] || e15oe55 < cut[5])
+    if (e25Maxoe55 < cut[4] || e15oe55 < cut[5])
          return 0.;
     
     return 1.;
