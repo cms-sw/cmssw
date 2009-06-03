@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcMLP.cc,v 1.2 2007/05/17 15:04:08 saout Exp $
+// $Id: ProcMLP.cc,v 1.3 2007/07/15 22:31:46 saout Exp $
 //
 
 #include <stdlib.h>
@@ -42,6 +42,8 @@ class ProcMLP : public VarProcessor {
 
 	virtual void configure(ConfIterator iter, unsigned int n);
 	virtual void eval(ValueIterator iter, unsigned int n) const;
+	virtual std::vector<double> deriv(
+				ValueIterator iter, unsigned int n) const;
 
     private:
 	struct Layer {
@@ -143,6 +145,57 @@ void ProcMLP::eval(ValueIterator iter, unsigned int n) const
 
 	for(const double *pos = &tmp[flip ? maxTmp : 0]; pos < output; pos++)
 		iter(*pos);
+}
+
+std::vector<double> ProcMLP::deriv(ValueIterator iter, unsigned int n) const
+{
+	std::vector<double> prevValues, nextValues;
+	std::vector<double> prevMatrix, nextMatrix;
+
+	while(iter)
+		nextValues.push_back(*iter++);
+
+	unsigned int size = nextValues.size();
+	nextMatrix.resize(size * size);
+	for(unsigned int i = 0; i < size; i++)
+		nextMatrix[i * size + i] = 1.;
+
+	for(std::vector<Layer>::const_iterator layer = layers.begin();
+	    layer != layers.end(); layer++) {
+		prevValues.clear();
+		std::swap(prevValues, nextValues);
+		prevMatrix.clear();
+		std::swap(prevMatrix, nextMatrix);
+
+		std::vector<double>::const_iterator coeff =
+							layer->coeffs.begin();
+		for(unsigned int i = 0; i < layer->neurons; i++) {
+			double sum = *coeff++;
+			for(unsigned int j = 0; j < layer->inputs; j++)
+				sum += prevValues[j] * *coeff++;
+
+			double deriv;
+			if (layer->sigmoid) {
+				double e = std::exp(-sum);
+				sum = 1.0 / (e + 1.0);
+				deriv = 1.0 / (e + 1.0/e + 2.0);
+			} else
+				deriv = 1.0;
+
+			nextValues.push_back(sum);
+
+			for(unsigned int k = 0; k < size; k++) {
+				sum = 0.0;
+				coeff -= layer->inputs;
+				for(unsigned int j = 0; j < layer->inputs; j++)
+					sum += prevMatrix[j * size + k] *
+					       *coeff++;
+				nextMatrix.push_back(sum * deriv);
+			}
+		}
+	}
+
+	return nextMatrix;
 }
 
 } // anonymous namespace

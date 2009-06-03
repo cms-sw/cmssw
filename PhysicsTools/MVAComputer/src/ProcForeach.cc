@@ -10,7 +10,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcForeach.cc,v 1.1 2007/05/25 16:37:59 saout Exp $
+// $Id: ProcForeach.cc,v 1.2 2007/07/15 22:31:46 saout Exp $
 //
 
 #include <algorithm>
@@ -41,6 +41,8 @@ class ProcForeach : public VarProcessor {
 	              ConfigCtx::iterator cur, ConfigCtx::iterator end);
 
 	virtual void eval(ValueIterator iter, unsigned int n) const;
+	virtual std::vector<double> deriv(
+				ValueIterator iter, unsigned int n) const;
 	virtual LoopStatus loop(double *output, int *conf,
 	                        unsigned int nOutput,
 	                        unsigned int &nOffset) const;
@@ -114,6 +116,24 @@ void ProcForeach::eval(ValueIterator iter, unsigned int n) const
 		iter(value);
 		iter++;
 	}
+}
+
+std::vector<double> ProcForeach::deriv(
+				ValueIterator iter, unsigned int n) const
+{
+	std::vector<unsigned int> offsets;
+	unsigned int in = 0, out = 0;
+	while(iter) {
+		offsets.push_back(in + offset);
+		in += (iter++).size();
+		out++;
+	}
+
+	std::vector<double> result((out + 1) * in, 0.0);
+	for(unsigned int i = 0; i < out; i++)
+		result[(i + 1) * in + offsets[i]] = 1.0;
+
+	return result;
 }
 
 VarProcessor::LoopStatus

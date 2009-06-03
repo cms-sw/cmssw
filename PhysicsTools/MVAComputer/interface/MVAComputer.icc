@@ -8,12 +8,13 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.icc,v 1.3 2007/05/25 16:37:58 saout Exp $
+// $Id: MVAComputer.icc,v 1.4 2007/05/26 19:01:12 saout Exp $
 //
 
 
 #include <stdlib.h>
 #include <cstring>
+#include <vector>
 
 #include "PhysicsTools/MVAComputer/interface/MVAComputer.h"
 
@@ -77,12 +78,61 @@ double MVAComputer::eval(Iterator_t first, Iterator_t last) const
 		values[conf[id + 1]++] = cur->getValue();
 	}
 
-	eval(values, conf, n);
+	EvalContext ctx(values, conf, n);
+	evalInternal(ctx);
 
-	return values[conf[output]];
+	return ctx.output(output);
 }
 
 #undef __TMP_ALLOC
+
+template<typename Iterator_t>
+double MVAComputer::deriv(Iterator_t first, Iterator_t last) const
+{
+	unsigned int size = inputVariables.size();
+
+	DerivContext ctx;
+	ctx.conf_.resize(nVars + 2);
+
+	// collect information about variables:
+	// * count values in input variables and store in conf array
+	// * estimate maximal size of value array
+	unsigned int max = nVars;
+	for(Iterator_t cur = first; cur < last; ++cur) {
+		int id = getVariableId(cur->getName());
+		ctx.conf_[id + 1]++;
+		max += inputVariables[id].multiplicity;
+		ctx.n_++;
+	}
+
+	// integrate entries conf array to compute value offsets
+	unsigned int sum = 0;
+	for(unsigned int i = 1; i <= size; i++) {
+		unsigned int tmp = ctx.conf_[i];
+		ctx.conf_[i] = sum;
+		sum += tmp;
+	}
+
+	// allocate value array and fill input variables
+	ctx.values_.resize(max + 1);
+	ctx.deriv_.reserve((max + 1) * ctx.n_);
+	for(Iterator_t cur = first; cur < last; ++cur) {
+		int id = getVariableId(cur->getName());
+		ctx.values_[ctx.conf_[id + 1]++] = cur->getValue();
+	}
+
+	evalInternal(ctx);
+
+	std::vector<double> deriv;
+	double value = ctx.output(output, deriv);
+
+	for(Iterator_t cur = first; cur < last; ++cur) {
+		int id = getVariableId(cur->getName());
+		cur->setValue(deriv[ctx.conf_[id]++]);
+	}
+
+	return value;
+}
 
 } // namespace PhysicsTools
 

@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: VarProcessor.h,v 1.7 2009/03/27 14:33:38 saout Exp $
+// $Id: VarProcessor.h,v 1.8 2009/05/11 16:01:16 saout Exp $
 //
 
 #include <algorithm>
@@ -103,6 +103,11 @@ class VarProcessor :
 		                   output, outConf, loop, offset);
 		eval(iter, nInputVars);
 	}
+
+	/// run the processor evaluation pass on this processor and compute derivatives
+	void deriv(double *input, int *conf, double *output, int *outConf,
+	           int *loop, unsigned int offset, unsigned int in,
+	           unsigned int out, std::vector<double> &deriv) const;
 
 	enum LoopStatus { kStop, kNext, kReset, kSkip };
 
@@ -282,6 +287,11 @@ class VarProcessor :
 
 	/// virtual evaluation method, implemented in actual processor
 	virtual void eval(ValueIterator iter, unsigned int n) const = 0;
+
+	/// virtual derivative evaluation method, implemented in actual processor
+	virtual std::vector<double> deriv(ValueIterator iter,
+	                                  unsigned int n) const
+	{ return std::vector<double>(); }
 
     protected:
 	const MVAComputer	*computer;

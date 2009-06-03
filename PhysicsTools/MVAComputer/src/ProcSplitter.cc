@@ -10,7 +10,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcSplitter.cc,v 1.2 2007/05/25 16:37:59 saout Exp $
+// $Id: ProcSplitter.cc,v 1.3 2007/07/15 22:31:46 saout Exp $
 //
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -34,6 +34,8 @@ class ProcSplitter : public VarProcessor {
 
 	virtual void configure(ConfIterator iter, unsigned int n);
 	virtual void eval(ValueIterator iter, unsigned int n) const;
+	virtual std::vector<double> deriv(
+				ValueIterator iter, unsigned int n) const;
 
     private:
 	unsigned int	count;
@@ -72,6 +74,20 @@ void ProcSplitter::eval(ValueIterator iter, unsigned int n) const
 		iter();
 		iter++;
 	}
+}
+
+std::vector<double> ProcSplitter::deriv(
+				ValueIterator iter, unsigned int n) const
+{
+	unsigned int size = 0;
+	for(ValueIterator iter2 = iter; iter2; ++iter2)
+		size += iter2.size();
+
+	std::vector<double> result(size * size);
+	for(unsigned int i = 0; i < size; i++)
+		result[i * size + i] = 1.0;
+
+	return result;
 }
 
 } // anonymous namespace

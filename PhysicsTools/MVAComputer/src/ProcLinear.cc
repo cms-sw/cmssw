@@ -10,7 +10,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcLinear.cc,v 1.3 2007/07/15 22:31:46 saout Exp $
+// $Id: ProcLinear.cc,v 1.4 2007/12/07 15:04:44 saout Exp $
 //
 
 #include <vector>
@@ -34,6 +34,8 @@ class ProcLinear : public VarProcessor {
 
 	virtual void configure(ConfIterator iter, unsigned int n);
 	virtual void eval(ValueIterator iter, unsigned int n) const;
+	virtual std::vector<double> deriv(
+				ValueIterator iter, unsigned int n) const;
 
     private:
 	std::vector<double>	coeffs;
@@ -73,6 +75,19 @@ void ProcLinear::eval(ValueIterator iter, unsigned int n) const
 	}
 
 	iter(sum);
+}
+
+std::vector<double> ProcLinear::deriv(ValueIterator iter, unsigned int n) const
+{
+	std::vector<double> result;
+
+	for(std::vector<double>::const_iterator coeff = coeffs.begin();
+	    coeff != coeffs.end(); coeff++, ++iter) {
+		if (!iter.empty())
+			result.push_back(*coeff);
+	}
+
+	return result;
 }
 
 } // anonymous namespace

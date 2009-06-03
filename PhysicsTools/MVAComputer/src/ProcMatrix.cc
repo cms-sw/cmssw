@@ -11,7 +11,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcMatrix.cc,v 1.2 2007/05/17 15:04:08 saout Exp $
+// $Id: ProcMatrix.cc,v 1.3 2007/07/15 22:31:46 saout Exp $
 //
 
 #include <stdlib.h>
@@ -35,6 +35,8 @@ class ProcMatrix : public VarProcessor {
 
 	virtual void configure(ConfIterator iter, unsigned int n);
 	virtual void eval(ValueIterator iter, unsigned int n) const;
+	virtual std::vector<double> deriv(ValueIterator iter,
+	                                  unsigned int n) const;
 
     private:
 	class Matrix {
@@ -95,6 +97,19 @@ void ProcMatrix::eval(ValueIterator iter, unsigned int n) const
 
 	for(unsigned int row = 0; row < matrix.getRows(); row++)
 		iter(sums[row]);
+}
+
+std::vector<double> ProcMatrix::deriv(ValueIterator iter,
+                                      unsigned int n) const
+{
+	std::vector<double> result;
+	result.reserve(matrix.getRows() * matrix.getCols());
+
+	for(unsigned int row = 0; row < matrix.getRows(); row++)
+		for(unsigned int col = 0; col < matrix.getCols(); col++)
+			result.push_back(matrix(row, col));
+
+	return result;
 }
 
 } // anonymous namespace

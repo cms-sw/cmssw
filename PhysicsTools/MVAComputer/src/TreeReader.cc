@@ -318,12 +318,33 @@ uint64_t TreeReader::loop(const MVAComputer *mva)
 double TreeReader::fill(const MVAComputer *mva)
 {
 	for(std::map<AtomicId, Value>::const_iterator iter = valueMap.begin();
-	    iter != valueMap.end(); iter++) {
+	    iter != valueMap.end(); iter++)
 		iter->second.fill(iter->first, this);
-	}
 
 	double result = mva->eval(values);
 	values.clear();
+
+	return result;
+}
+
+Variable::ValueList TreeReader::fill()
+{
+	for(std::map<AtomicId, Value>::const_iterator iter = valueMap.begin();
+	    iter != valueMap.end(); iter++)
+		iter->second.fill(iter->first, this);
+
+	Variable::ValueList result = values;
+	values.clear();
+
+	return result;
+}
+
+std::vector<AtomicId> TreeReader::variables() const
+{
+	std::vector<AtomicId> result;
+	for(std::map<AtomicId, Value>::const_iterator iter = valueMap.begin();
+	    iter != valueMap.end(); iter++)
+		result.push_back(iter->first);
 
 	return result;
 }

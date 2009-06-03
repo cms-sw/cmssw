@@ -50,6 +50,10 @@ class TreeReader {
 
 	double fill(const MVAComputer *mva);
 
+	Variable::ValueList fill();
+
+	std::vector<AtomicId> variables() const;
+
 	static const double	kOptVal;
 
     private:

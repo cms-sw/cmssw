@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: Spline.h,v 1.3 2007/07/15 22:31:46 saout Exp $
+// $Id: Spline.h,v 1.4 2007/10/07 02:48:38 saout Exp $
 //
 
 namespace PhysicsTools {
@@ -40,6 +40,9 @@ class Spline {
 	/// compute y coordinate at x coordinate \a x
 	double eval(double x) const;
 
+	/// compute the derivate at x coordinate \a x
+	double deriv(double x) const;
+
 	/// compute integral under curve between 0 and \a x
 	double integral(double x) const;
 
@@ -56,6 +59,7 @@ class Spline {
 		double area;
 
 		double eval(double x) const;
+		double deriv(double x) const;
 		double integral(double x) const;
 	};
 

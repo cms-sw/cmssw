@@ -12,11 +12,12 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcLikelihood.cc,v 1.12 2008/04/24 22:18:03 saout Exp $
+// $Id: ProcLikelihood.cc,v 1.13 2009/05/25 21:43:13 saout Exp $
 //
 
 #include <vector>
 #include <memory>
+#include <cmath>
 
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram.h"  
 #include "PhysicsTools/MVAComputer/interface/VarProcessor.h"
@@ -39,11 +40,14 @@ class ProcLikelihood : public VarProcessor {
 
 	virtual void configure(ConfIterator iter, unsigned int n);
 	virtual void eval(ValueIterator iter, unsigned int n) const;
+	virtual std::vector<double> deriv(
+				ValueIterator iter, unsigned int n) const;
 
     private:
 	struct PDF {
 		virtual ~PDF() {}
 		virtual double eval(double value) const = 0;
+		virtual double deriv(double value) const = 0;
 
 		double	norm;
 	};
@@ -60,6 +64,7 @@ class ProcLikelihood : public VarProcessor {
 		}
 
 		virtual double eval(double value) const;
+		virtual double deriv(double value) const;
 
 		double		min, width;
 		Spline		spline;
@@ -70,6 +75,7 @@ class ProcLikelihood : public VarProcessor {
 			histo(calib) {}
 
 		virtual double eval(double value) const;
+		virtual double deriv(double value) const;
 
 		const Calibration::HistogramF	*histo;
 	};
@@ -98,6 +104,10 @@ class ProcLikelihood : public VarProcessor {
 		std::auto_ptr<PDF>	background;
 	};
 
+	int findPDFs(ValueIterator iter, unsigned int n,
+	             std::vector<SigBkg>::const_iterator &begin,
+	             std::vector<SigBkg>::const_iterator &end) const;
+
 	std::vector<SigBkg>	pdfs;
 	std::vector<double>	bias;
 	int			categoryIdx;
@@ -116,9 +126,20 @@ double ProcLikelihood::SplinePDF::eval(double value) const
 	return spline.eval(value) * norm / spline.getArea();
 }
 
+double ProcLikelihood::SplinePDF::deriv(double value) const
+{
+	value = (value - min) / width;
+	return spline.deriv(value) * norm / spline.getArea();
+}
+
 double ProcLikelihood::HistogramPDF::eval(double value) const
 {
 	return histo->normalizedValue(value) * norm;
+}
+
+double ProcLikelihood::HistogramPDF::deriv(double value) const
+{
+	return 0;
 }
 
 ProcLikelihood::ProcLikelihood(const char *name,
@@ -177,11 +198,10 @@ void ProcLikelihood::configure(ConfIterator iter, unsigned int n)
 		                        : Variable::FLAG_OPTIONAL);
 }
 
-void ProcLikelihood::eval(ValueIterator iter, unsigned int n) const
+int ProcLikelihood::findPDFs(ValueIterator iter, unsigned int n,
+                             std::vector<SigBkg>::const_iterator &begin,
+                             std::vector<SigBkg>::const_iterator &end) const
 {
-	std::vector<SigBkg>::const_iterator pdf;
-	std::vector<SigBkg>::const_iterator last;
-
 	int cat;
 	if (categoryIdx >= 0) {
 		ValueIterator iter2 = iter;
@@ -189,26 +209,41 @@ void ProcLikelihood::eval(ValueIterator iter, unsigned int n) const
 			++iter2;
 
 		cat = (int)*iter2;
-		if (cat < 0 || (unsigned int)cat >= nCategories) {
-			iter();
-			return;
-		}
+		if (cat < 0 || (unsigned int)cat >= nCategories)
+			return -1;
 
-		pdf = pdfs.begin() + cat * (n - 1);
-		last = pdf + (n - 1);
+		begin = pdfs.begin() + cat * (n - 1);
+		end = begin + (n - 1);
 	} else {
 		cat = 0;
-		pdf = pdfs.begin();
-		last = pdfs.end();
+		begin = pdfs.begin();
+		end = pdfs.end();
 	}		
 
+	return cat;
+}
+
+void ProcLikelihood::eval(ValueIterator iter, unsigned int n) const
+{
+	std::vector<SigBkg>::const_iterator pdf, last;
+	int cat = findPDFs(iter, n, pdf, last);
 	int vars = 0;
 	long double signal = bias.empty() ? 1.0 : bias[cat];
 	long double background = 1.0;
 
+	if (cat < 0) {
+		if (individual)
+			for(unsigned int i = 0; i < n; i++)
+				iter();
+		else
+			iter();
+		return;
+	}
+
 	for(int i = 0; pdf != last; ++iter, i++) {
 		if (i == categoryIdx)
 			continue;
+
 		for(double *value = iter.begin();
 		    value < iter.end(); value++) {
 			double signalProb =
@@ -243,8 +278,6 @@ void ProcLikelihood::eval(ValueIterator iter, unsigned int n) const
 						iter << (signalProb / sum);
 					else if (neverUndefined)
 						iter << 0.5;
-					else
-						iter();
 				}
 			} else {
 				signal *= signalProb;
@@ -269,8 +302,7 @@ void ProcLikelihood::eval(ValueIterator iter, unsigned int n) const
 					iter(0.0);
 				else
 					iter();
-			}
-			else if (signal < 1.0e-9)
+			} else if (signal < 1.0e-9)
 				iter(-99999.0);
 			else if (background < 1.0e-9)
 				iter(+99999.0);
@@ -279,6 +311,145 @@ void ProcLikelihood::eval(ValueIterator iter, unsigned int n) const
 		} else
 			iter(signal / (signal + background));
 	}
+}
+
+std::vector<double> ProcLikelihood::deriv(ValueIterator iter,
+                                          unsigned int n) const
+{
+	std::vector<SigBkg>::const_iterator pdf, last;
+	int cat = findPDFs(iter, n, pdf, last);
+	int vars = 0;
+	long double signal = bias.empty() ? 1.0 : bias[cat];
+	long double background = 1.0;
+
+	std::vector<double> result;
+	if (cat < 0)
+		return result;
+
+	unsigned int size = 0;
+	for(ValueIterator iter2 = iter; iter2; ++iter2)
+		size += iter2.size();
+
+	// The logic whether a variable is used or net depends on the
+	// evaluation, so FFS copy the whole ****
+
+	if (!individual)
+		result.resize(size);
+
+	unsigned int j = 0;
+	for(int i = 0; pdf != last; ++iter, i++) {
+		if (i == categoryIdx) {
+			j += iter.size();
+			continue;
+		}
+
+		for(double *value = iter.begin();
+		    value < iter.end(); value++, j++) {
+			double signalProb = pdf->signal->eval(*value);
+			double signalDiff = pdf->signal->deriv(*value);
+			if (signalProb < 0.0)
+				signalProb = signalDiff = 0.0;
+
+			double backgroundProb = pdf->background->eval(*value);
+			double backgroundDiff = pdf->background->deriv(*value);
+			if (backgroundProb < 0.0)
+				backgroundProb = backgroundDiff = 0.0;
+
+			if (!keepEmpty && !individual &&
+			    signalProb + backgroundProb < 1.0e-20)
+				continue;
+			vars++;
+
+			if (individual) {
+				signalProb *= signal;
+				signalDiff *= signal;
+				backgroundProb *= background;
+				backgroundDiff *= background;
+				if (logOutput) {
+					if (signalProb < 1.0e-9 &&
+					    backgroundProb < 1.0e-9) {
+						if (!neverUndefined)
+							continue;
+						result.resize(result.size() +
+						              size);
+					} else if (signalProb < 1.0e-9 ||
+					           backgroundProb < 1.0e-9)
+						result.resize(result.size() +
+						              size);
+					else {
+						result.resize(result.size() +
+						              size);
+						result[result.size() -
+						       size + j] =
+							signalDiff /
+								signalProb -
+							backgroundDiff /
+								backgroundProb;
+					}
+				} else {
+					double sum =
+						signalProb + backgroundProb;
+					if (sum > 1.0e-9) {
+						result.resize(result.size() +
+						              size);
+						result[result.size() -
+						       size + j] =
+							(signalDiff *
+							 backgroundProb -
+							 signalProb *
+							 backgroundDiff) /
+							(sum * sum);
+					} else if (neverUndefined)
+						result.resize(result.size() +
+						              size);
+				}
+			} else {
+				signal *= signalProb;
+				background *= backgroundProb;
+				double s = signalDiff / signalProb;
+				if (std::isinf(s) || std::isnan(s))
+					s = 0.0;
+				double b = backgroundDiff / backgroundProb;
+				if (std::isinf(b) || std::isnan(b))
+					b = 0.0;
+
+				result[j] = s - b;
+			}
+		}
+
+		++pdf;
+	}
+
+	if (!individual) {
+		if (!vars || signal + background < std::exp(-7 * vars - 3)) {
+			if (neverUndefined)
+				std::fill(result.begin(), result.end(), 0.0);
+			else
+				result.clear();
+		} else if (logOutput) {
+			if (signal < 1.0e-9 && background < 1.0e-9) {
+				if (neverUndefined)
+					std::fill(result.begin(),
+					          result.end(), 0.0);
+				else
+					result.clear();
+			} else if (signal < 1.0e-9 ||
+			           background < 1.0e-9)
+				std::fill(result.begin(), result.end(), 0.0);
+			else {
+				// should be ok
+			}
+		} else {
+			double factor = signal * background /
+			                ((signal + background) *
+			                 (signal + background));
+			for(std::vector<double>::iterator p = result.begin();
+			    p != result.end(); ++p)
+				*p *= factor;
+		}
+	}
+
+	return result;
 }
 
 } // anonymous namespace

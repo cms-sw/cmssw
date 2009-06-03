@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.h,v 1.5 2007/12/08 16:11:11 saout Exp $
+// $Id: MVAComputer.h,v 1.6 2009/01/12 14:18:41 hegner Exp $
 //
 
 #include <iostream>
@@ -51,12 +51,23 @@ class MVAComputer {
 	template<typename Iterator_t>
 	double eval(Iterator_t first, Iterator_t last) const;
 
+	template<typename Iterator_t>
+	double deriv(Iterator_t first, Iterator_t last) const;
+
 	/// evaluate variables in iterable container \a values
 	template<typename Container_t>
 	inline double eval(const Container_t &values) const
 	{
 		typedef typename Container_t::const_iterator Iterator_t;
 		return this->template eval<Iterator_t>(
+						values.begin(), values.end());
+	}
+
+	template<typename Container_t>
+	inline double deriv(Container_t &values) const
+	{
+		typedef typename Container_t::iterator Iterator_t;
+		return this->template deriv<Iterator_t>(
 						values.begin(), values.end());
 	}
 
@@ -124,6 +135,47 @@ class MVAComputer {
 		unsigned int				nOutput;
 	};
 
+	struct EvalContext {
+		EvalContext(double *values, int *conf, unsigned int n) :
+			values_(values), conf_(conf), n_(n) {}
+
+		inline void eval(const VarProcessor *proc, int *outConf,
+		                 double *output, int *loop,
+		                 unsigned int offset, unsigned int out) const
+		{ proc->eval(values_, conf_, output, outConf, loop, offset); }
+
+		inline double output(unsigned int output) const
+		{ return values_[conf_[output]]; }
+
+		inline double *values() const { return values_; }
+		inline int *conf() const { return conf_; }
+		inline unsigned int n() const { return n_; }
+
+		double		*values_;
+		int		*conf_;
+		unsigned int	n_;
+	};
+
+	struct DerivContext {
+		DerivContext() : n_(0) {}
+
+		void eval(const VarProcessor *proc, int *outConf,
+		          double *output, int *loop,
+		          unsigned int offset, unsigned int out) const;
+
+		double output(unsigned int output,
+		              std::vector<double> &derivs) const;
+
+		inline double *values() const { return &values_.front(); }
+		inline int *conf() const { return &conf_.front(); }
+		inline unsigned int n() const { return n_; }
+
+		mutable std::vector<double>	values_;
+		mutable std::vector<double>	deriv_;
+		mutable std::vector<int>	conf_;
+		unsigned int			n_;
+	};
+	
 	/// construct processors from calibration and setup variables
 	void setup(const Calibration::MVAComputer *calib);
 
@@ -131,7 +183,7 @@ class MVAComputer {
 	unsigned int getVariableId(AtomicId name) const;
 
 	/// evaluate discriminator from flattened variable array
-	void eval(double *values, int *conf, unsigned int n) const;
+	template<class T> void evalInternal(T &ctx) const;
 
 	/// vector of input variables
 	std::vector<InputVar>	inputVariables;
