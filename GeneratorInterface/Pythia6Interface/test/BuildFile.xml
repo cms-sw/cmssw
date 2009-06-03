@@ -1,0 +1,10 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+
+<library file="HZZ4muAnalyzer.cc" name="HZZ4muAnalyzer">
+  <use name="root"/>
+  <use name="hepmc"/>
+  <use name="SimDataFormats/GeneratorProducts"/> 
+   <use name="PhysicsTools/UtilAlgos"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
