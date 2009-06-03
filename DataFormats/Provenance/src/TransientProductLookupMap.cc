@@ -222,6 +222,8 @@ namespace edm {
      }
   
      //must re-sort
+     //Increment the fill count so users can check if the map has been modified.
+     ++fillCount_;
      historyID = iHistory.id();
      std::vector<std::string> temp(processNameOrdering.size(), std::string());
      

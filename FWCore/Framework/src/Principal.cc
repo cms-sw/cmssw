@@ -411,7 +411,7 @@ namespace edm {
     bool isCached = (fillCount > 0  && fillCount == typeLookup.fillCount());
     bool toBeCached = (fillCount >= 0 && !isCached);
 
-    std::pair<TypeLookup::const_iterator, TypeLookup::const_iterator> const range =
+    std::pair<TypeLookup::const_iterator, TypeLookup::const_iterator> range =
         (isCached ? std::make_pair(typeLookup.begin() + cachedOffset, typeLookup.end()) : typeLookup.equal_range(TypeInBranchType(typeID,branchType_), moduleLabel, productInstanceName));
 
     if (toBeCached) {
@@ -421,6 +421,31 @@ namespace edm {
 
     if(range.first == range.second) {
       return false;
+    }
+
+    if (!processName.empty()) {
+      if (isCached) {
+        assert(processName == range.first->branchDescription()->processName());
+        range.second = range.first + 1;
+      } else if (toBeCached) {
+	bool processFound = false;
+	for(TypeLookup::const_iterator it = range.first; it != range.second; ++it) {
+          if (it->isFirst() && it != range.first) {
+	    break;
+          }
+	  if (processName == it->branchDescription()->processName()) {
+            processFound = true;
+	    range.first = it;
+            cachedOffset = range.first - typeLookup.begin();
+            range.second = range.first + 1;
+	    break;
+	  }
+	}
+	if (!processFound) {
+          cachedOffset = typeLookup.end() - typeLookup.begin();
+	  return false;
+	}
+      } // end if(toBeCached)
     }
 
     for(TypeLookup::const_iterator it = range.first; it != range.second; ++it) {
