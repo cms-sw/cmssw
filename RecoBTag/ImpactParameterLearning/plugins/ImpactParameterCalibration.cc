@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremy Andrea/Andrea Rizzi
 //         Created:  Mon Aug  6 16:10:38 CEST 2007
-// $Id: ImpactParameterCalibration.cc,v 1.9 2008/03/06 08:18:49 tboccali Exp $
+// $Id: ImpactParameterCalibration.cc,v 1.10 2008/04/06 14:33:01 jandrea Exp $
 //
 //
 // system include files
@@ -194,13 +194,19 @@ ImpactParameterCalibration::analyze(const edm::Event& iEvent, const edm::EventSe
             if(found!=it_end) 
               found->histogram.fill(-ipsig);
             else
-              std::cout << "No category for this track!!" << std::endl;
+              {std::cout << "No category for this track!!" << std::endl;
+              std::cout << "p       "  <<(*selTracks[j]).p ()  << std::endl;
+              std::cout << "eta     " << (*selTracks[j]).eta() << std::endl;
+              std::cout << "NHit    " << (*selTracks[j]).numberOfValidHits() << std::endl;
+              std::cout << "NPixHit " << (*selTracks[j]).hitPattern().numberOfValidPixelHits() << std::endl;
+              std::cout << "FPIXHIT " << (*selTracks[j]).hitPattern().hasValidHitInFirstPixelBarrel() << std::endl;}
+	      
            }
          }
       } 
      }  
       
-      
+         
   
 }
 
@@ -228,16 +234,19 @@ ImpactParameterCalibration::beginJob(const edm::EventSetup & iSetup)
   if(categories == "HardCoded")
   {
    vector<TrackProbabilityCategoryData> v;
-  v.push_back(createCategory(0,5000,0,2.4,8,50,1,1,0,5,0));
-  v.push_back(createCategory(0,5000,0,2.4,8,50,2,5,2.5,5,0));
-  v.push_back(createCategory(0,8,0,0.8,8,50,3,5,0,2.5,0));
-  v.push_back(createCategory(0,8,0.8,1.6,8,50,3,5,0,2.5,0));
-  v.push_back(createCategory(0,8,1.6,2.4,8,50,3,5,0,2.5,0));
-  v.push_back(createCategory(0,8,0,2.4,8,50,2,2,0,2.5,0));
-  v.push_back(createCategory(8,5000,0,0.8,8,50,3,5,0,2.5,0));
-  v.push_back(createCategory(8,5000,0.8,1.6,8,50,3,5,0,2.5,0));
-  v.push_back(createCategory(8,5000,1.6,2.4,8,50,3,5,0,2.5,0));
-  v.push_back(createCategory(8,5000,0,2.4,8,50,2,2,0,2.5,0));
+    //TrackProbabilityCategoryData {pMin, pMax, etaMin, etaMax,
+    //nHitsMin, nHitsMax, nPixelHitsMin, nPixelHitsMax, chiMin,chiMax, withFirstPixel;
+    //trackQuality;
+  v.push_back(createCategory(0, 5000, 0  , 2.5, 8 , 50, 1, 1, 0  , 5  , 0));
+  v.push_back(createCategory(0, 5000, 0  , 2.5, 8 , 50, 2, 8, 2.5, 5  , 0));
+  v.push_back(createCategory(0, 8   , 0  , 0.8, 8 , 50, 3, 8, 0  , 2.5, 0));
+  v.push_back(createCategory(0, 8   , 0.8, 1.6, 8 , 50, 3, 8, 0  , 2.5, 0));
+  v.push_back(createCategory(0, 8   , 1.6, 2.5, 8 , 50, 3, 8, 0  , 2.5, 0));
+  v.push_back(createCategory(0, 8   , 0  , 2.5, 8 , 50, 2, 8, 0  , 2.5, 0));
+  v.push_back(createCategory(8, 5000, 0  , 0.8, 8 , 50, 3, 8, 0  , 2.5, 0));
+  v.push_back(createCategory(8, 5000, 0.8, 1.6, 8 , 50, 3, 8, 0  , 2.5, 0));
+  v.push_back(createCategory(8, 5000, 1.6, 2.5, 8 , 50, 3, 8, 0  , 2.5, 0));
+  v.push_back(createCategory(8, 5000, 0  , 2.5, 8 , 50, 2 ,2, 0  , 2.5, 0));
   for(unsigned int i=minLoop;i <=maxLoop ;i++)
    for(unsigned int j=0;j<v.size() ; j++)
     {
