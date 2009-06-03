@@ -41,6 +41,7 @@ writeKeyed::endJob() {
   for ( int i=0; i<dict.size();i++)
     for (int j=0;j<7;j++) {
       cond::KeyedElement k(new cond::BaseKeyed(),dict[i]+nums[j]);
+      std::cout << (*k.m_sum) << " " << k.m_key << std::endl;
       outdb->writeOne(k.m_obj,k.m_sum,k.m_key,crapName);
     }
 }
