@@ -83,19 +83,46 @@ metTrigMatchHLT1MET65.src = cms.InputTag( myMET )
 
 # replaces for Taus --------------------------------------------------
 
-#taus = "pfTaus"
+oldTaus = "allLayer0Taus"
+allLayer0TauDiscriminationByLeadingTrackFinding = pfRecoTauDiscriminationByLeadingTrackFinding.clone()
+allLayer0TauDiscriminationByLeadingTrackFinding.PFTauProducer = cms.InputTag( oldTaus )
+taus = "cleanLayer0Taus"
+cleanLayer0Taus =  cms.EDFilter("PATPFTauCleaner",
+    tauSource              = cms.InputTag( oldTaus ),
+    tauDiscriminatorSource = cms.InputTag("allLayer0TauDiscriminationByLeadingTrackFinding"),#it should be dummy condition
 
-#allLayer1Taus.tauSource = cms.InputTag( all )
-#tauMatch.src = cms.InputTag( taus )
-#tauGenJetMatch.src = cms.InputTag( taus )
+    removeOverlaps = cms.PSet(
+        electrons = cms.PSet( 
+            collection = cms.InputTag("allLayer0Electrons"), 
+            deltaR = cms.double(0.3),
+            cut = cms.string('pt > 10'),
+            flags = cms.vstring('Isolation/All'), #request the item to be marked as isolated
+                                                  #by the PATElectronCleaner
+            ),
+        markItems    = cms.bool(True),
+        bitsToIgnore = cms.vstring(),
+        saveRejected = cms.string(''),
+        saveAll      = cms.string(''),
+    )
+)
+
+tauMatch.src = cms.InputTag( taus )
+tauGenJetMatch.src = cms.InputTag( taus )
 #tauTrigMatchHLT1Tau.src = cms.InputTag( taus )
+patPFRecoTauDiscriminationByIsolation.PFTauProducer = cms.InputTag( taus )
+patPFRecoTauDiscriminationByLeadingTrackFinding.PFTauProducer = cms.InputTag( taus )
+patPFRecoTauDiscriminationByLeadingTrackPtCut.PFTauProducer = cms.InputTag( taus )
+patPFRecoTauDiscriminationByTrackIsolation.PFTauProducer = cms.InputTag( taus )
+patPFRecoTauDiscriminationByECALIsolation.PFTauProducer = cms.InputTag( taus )
+patPFRecoTauDiscriminationAgainstElectron.PFTauProducer = cms.InputTag( taus )
+patPFRecoTauDiscriminationAgainstMuon.PFTauProducer = cms.InputTag( taus )
+allLayer1Taus.tauSource = cms.InputTag( taus )
 
 tauIDSources = cms.PSet(
     byIsolation = cms.InputTag("patPFRecoTauDiscriminationByIsolation"),
     againstElectron = cms.InputTag("patPFRecoTauDiscriminationAgainstElectron"),
     againstMuon = cms.InputTag("patPFRecoTauDiscriminationAgainstMuon")
 )
-
 
 
 # replaces for Muons -------------------------------------------------
@@ -180,6 +207,9 @@ patFromPF2PAT = cms.Sequence (
 #    patTrigMatch +
     #layer-0 jets after topProjection and PAT-electron cleanings 
     allLayer0PFJets + 
+    #layer-0 taus after topProjection and PAT-electron cleanings
+    allLayer0TauDiscriminationByLeadingTrackFinding*
+    cleanLayer0Taus +
     #stuff for e-gamma electrons after level0
     patElectronId + 
     patLayer0ElectronIsolation + 
