@@ -69,6 +69,11 @@ namespace cond {
     std::string const & metadataToken() const { return m_metadata;}
 
 
+    void set_description(cond::IOVDescription * id) { m_description = id;}
+
+    cond::IOVDescription const & description() const {return *m_description;}
+
+
     void loadAll() const;
 
   private:

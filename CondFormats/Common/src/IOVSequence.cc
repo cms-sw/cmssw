@@ -43,6 +43,12 @@ namespace cond {
     return *this;
   }
 
+
+  void IOVSequence::loadAll() const {
+    m_provenance.get();
+    m_description.get();
+    m_userMetadata.get();
+  }
   
   IOVSequence::Container const & IOVSequence::iovs() const {
     if (m_sorted) return *m_sorted;
