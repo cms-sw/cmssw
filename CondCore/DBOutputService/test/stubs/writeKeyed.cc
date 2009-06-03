@@ -46,7 +46,7 @@ writeKeyed::endJob() {
 }
 
 writeKeyed::writeKeyed(const edm::ParameterSet& iConfig ) :
-  crapName("uniqueCarppyName"){}
+  crapName("uniqueCrappyName"){}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(writeKeyed);
