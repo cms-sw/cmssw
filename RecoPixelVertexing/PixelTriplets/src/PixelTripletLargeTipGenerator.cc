@@ -103,7 +103,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(
       ip != pairs.end(); ++ip) {
 
     GlobalPoint gp1 = ip->inner()->globalPosition();
-    GlobalPoint gp2 = ip->inner()->globalPosition();
+    GlobalPoint gp2 = ip->outer()->globalPosition();
 
     PixelRecoLineRZ line(gp1, gp2);
     PixelRecoPointRZ point2(gp2.perp(), gp2.z());
