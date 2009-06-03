@@ -87,20 +87,25 @@ CaloSubdetectorGeometry::getClosestCell( const GlobalPoint& r ) const
    for( CellCont::const_iterator i ( cBeg ); 
 	i != m_cellG.end() ; ++i ) 
    {
-      const GlobalPoint& p ( (*i)->getPosition() ) ;
-      const double eta0 ( p.eta() ) ;
-      const double phi0 ( p.phi() ) ;
-      const double dR2 ( reco::deltaR2( eta0, phi0, eta, phi ) ) ;
-      if( dR2 < closest ) 
+      if( 0 != *i )
       {
-	 closest = dR2 ;
-	 index   = i - cBeg ;
+	 const GlobalPoint& p ( (*i)->getPosition() ) ;
+	 const double eta0 ( p.eta() ) ;
+	 const double phi0 ( p.phi() ) ;
+	 const double dR2 ( reco::deltaR2( eta0, phi0, eta, phi ) ) ;
+	 if( dR2 < closest ) 
+	 {
+	    closest = dR2 ;
+	    index   = i - cBeg ;
+	 }
       }
    }   
    const DetId tid ( m_validIds.front() ) ;
-   return ( closest > 0.9e9 ? DetId(0) : CaloGenericDetId( tid.det(),
-							   tid.subdetId(),
-							   index           ) ) ;
+   return ( closest > 0.9e9 ||
+	    ~0 == index       ? DetId(0) :
+	    CaloGenericDetId( tid.det(),
+			      tid.subdetId(),
+			      index           ) ) ;
 }
 
 CaloSubdetectorGeometry::DetIdSet 
@@ -119,20 +124,23 @@ CaloSubdetectorGeometry::getCells( const GlobalPoint& r,
       for( CellCont::const_iterator i ( m_cellG.begin() ); 
 	   i != m_cellG.end() ; ++i ) 
       {
-	 const GlobalPoint& p ( (*i)->getPosition() ) ;
-	 const double eta0 ( p.eta() ) ;
-	 if( fabs( eta - eta0 ) < dR )
+	 if( 0 != *i )
 	 {
-	    const double phi0 ( p.phi() ) ;
-	    double delp ( fabs( phi - phi0 ) ) ;
-	    if( delp > M_PI ) delp = 2*M_PI - delp ;
-	    if( delp < dR )
+	    const GlobalPoint& p ( (*i)->getPosition() ) ;
+	    const double eta0 ( p.eta() ) ;
+	    if( fabs( eta - eta0 ) < dR )
 	    {
-	       const double dist2 ( reco::deltaR2( eta0, phi0, eta, phi ) ) ;
-	       const DetId tid ( m_validIds.front() ) ;
-	       if( dist2 < dR2 ) dss.insert( CaloGenericDetId( tid.det(),
-							       tid.subdetId(),
-							       i - cBeg )     ) ;
+	       const double phi0 ( p.phi() ) ;
+	       double delp ( fabs( phi - phi0 ) ) ;
+	       if( delp > M_PI ) delp = 2*M_PI - delp ;
+	       if( delp < dR )
+	       {
+		  const double dist2 ( reco::deltaR2( eta0, phi0, eta, phi ) ) ;
+		  const DetId tid ( m_validIds.front() ) ;
+		  if( dist2 < dR2 ) dss.insert( CaloGenericDetId( tid.det(),
+								  tid.subdetId(),
+								  i - cBeg )     ) ;
+	       }
 	    }
 	 }
       }   

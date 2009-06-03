@@ -48,46 +48,52 @@ EcalEndcapGeometry::initializeParms()
 
   for( uint32_t i ( 0 ) ; i != cellGeometries().size() ; ++i )
   {
+     if( 0 != cellGeometries()[i] )
+     {
 //      addCrystalToZGridmap(i->first,dynamic_cast<const TruncatedPyramid*>(i->second));
-     float z=dynamic_cast<const TruncatedPyramid*>(cellGeometries()[i])->getPosition(0.).z();
-     if(z>0.)
-     {
-	zeP+=z;
-	++nP;
+	float z=dynamic_cast<const TruncatedPyramid*>(cellGeometries()[i])->getPosition(0.).z();
+	if(z>0.)
+	{
+	   zeP+=z;
+	   ++nP;
+	}
+	else
+	{
+	   zeN+=z;
+	   ++nN;
+	}
+	const EEDetId myId ( EEDetId::detIdFromDenseIndex(i) ) ;
+	const unsigned int ix ( myId.ix() ) ;
+	const unsigned int iy ( myId.iy() ) ;
+	if( abs( ix ) > m_nref ) m_nref = abs( ix ) ;
+	if( abs( iy ) > m_nref ) m_nref = abs( iy ) ;
      }
-     else
-     {
-	zeN+=z;
-	++nN;
-     }
-     const EEDetId myId ( EEDetId::detIdFromDenseIndex(i) ) ;
-     const unsigned int ix ( myId.ix() ) ;
-     const unsigned int iy ( myId.iy() ) ;
-     if( abs( ix ) > m_nref ) m_nref = abs( ix ) ;
-     if( abs( iy ) > m_nref ) m_nref = abs( iy ) ;
   }
-  zeP/=(float)nP;
-  zeN/=(float)nN;
+  if( 0 > nP ) zeP/=(float)nP;
+  if( 0 > nN ) zeN/=(float)nN;
 
   m_href = 0 ;
   for( uint32_t i ( 0 ) ; i != cellGeometries().size() ; ++i )
   {
-     const EEDetId myId ( EEDetId::detIdFromDenseIndex(i) ) ;
-     const unsigned int ix ( myId.ix() ) ;
-     const unsigned int iy ( myId.iy() ) ;
-     if( ix == m_nref ) 
+     if( 0 != cellGeometries()[i] )
      {
-	const GlobalPoint p ( dynamic_cast<const TruncatedPyramid*>
-			      (cellGeometries()[i])->getPosition(0.)  ) ;
-	const float x ( p.x()*fabs(zeP/p.z()) ) ;
-	if( m_href < x ) m_href = x ;
-     }
-     if( iy == m_nref ) 
-     {
-	const GlobalPoint p ( dynamic_cast<const TruncatedPyramid*>
-			      (cellGeometries()[i])->getPosition(0.)  ) ;
-	const float x ( p.y()*fabs(zeP/p.z()) ) ;
-	if( m_href < x ) m_href = x ;
+	const EEDetId myId ( EEDetId::detIdFromDenseIndex(i) ) ;
+	const unsigned int ix ( myId.ix() ) ;
+	const unsigned int iy ( myId.iy() ) ;
+	if( ix == m_nref ) 
+	{
+	   const GlobalPoint p ( dynamic_cast<const TruncatedPyramid*>
+				 (cellGeometries()[i])->getPosition(0.)  ) ;
+	   const float x ( p.x()*fabs(zeP/p.z()) ) ;
+	   if( m_href < x ) m_href = x ;
+	}
+	if( iy == m_nref ) 
+	{
+	   const GlobalPoint p ( dynamic_cast<const TruncatedPyramid*>
+				 (cellGeometries()[i])->getPosition(0.)  ) ;
+	   const float x ( p.y()*fabs(zeP/p.z()) ) ;
+	   if( m_href < x ) m_href = x ;
+	}
      }
   }
   m_href = m_href*(1.*m_nref)/( 1.*m_nref - 1. ) ;
@@ -174,80 +180,85 @@ EcalEndcapGeometry::getClosestCell( const GlobalPoint& r ) const
 	 std::vector<double> SS;
       
 	 // compute the distance of the point with respect of the 4 crystal lateral planes
-	 const GlobalPoint& myPosition=getGeometry(mycellID)->getPosition();
+
 	 
-	 x=myPosition.x();
-	 y=myPosition.y();
-	 z=myPosition.z();
-	 
-	 offset=0;
-	 // This will disappear when Andre has applied his fix
-	 zsign=1;
-	 
-	 if(z>0)
+	 if( 0 != getGeometry(mycellID) )
 	 {
-	    if(x>0&&y>0)
-	       offset=1;
-	    else  if(x<0&&y>0)
-	       offset=2;
-	    else if(x>0&&y<0)
-	       offset=0;
-	    else if (x<0&&y<0)
-	       offset=3;
+	    const GlobalPoint& myPosition=getGeometry(mycellID)->getPosition();
+	 
+	    x=myPosition.x();
+	    y=myPosition.y();
+	    z=myPosition.z();
+	 
+	    offset=0;
+	    // This will disappear when Andre has applied his fix
 	    zsign=1;
-	 }
-	 else
-	 {
-	    if(x>0&&y>0)
-	       offset=3;
-	    else if(x<0&&y>0)
-	       offset=2;
-	    else if(x>0&&y<0)
-	       offset=0;
-	    else if(x<0&&y<0)
-	       offset=1;
-	    zsign=-1;
-	 }
-	 std::vector<GlobalPoint> corners;
-	 corners.clear();
-	 corners.resize(8);
-	 for(unsigned ic=0;ic<4;++ic)
-	 {
-	    corners[ic]=getGeometry(mycellID)->getCorners()[(unsigned)((zsign*ic+offset)%4)];
-	    corners[4+ic]=getGeometry(mycellID)->getCorners()[(unsigned)(4+(zsign*ic+offset)%4)];
-	 }
 	 
-	 for (short i=0; i < 4 ; ++i)
-	 {
-	    A = HepGeom::Point3D<double> (corners[i%4].x(),corners[i%4].y(),corners[i%4].z());
-	    B = HepGeom::Point3D<double> (corners[(i+1)%4].x(),corners[(i+1)%4].y(),corners[(i+1)%4].z());
-	    C = HepGeom::Point3D<double> (corners[4+(i+1)%4].x(),corners[4+(i+1)%4].y(),corners[4+(i+1)%4].z());
-	    HepGeom::Plane3D<double>  plane(A,B,C);
-	    plane.normalize();
-	    double distance = plane.distance(point);
-	    if (corners[0].z()<0.) distance=-distance;
-	    SS.push_back(distance);
-	 }
+	    if(z>0)
+	    {
+	       if(x>0&&y>0)
+		  offset=1;
+	       else  if(x<0&&y>0)
+		  offset=2;
+	       else if(x>0&&y<0)
+		  offset=0;
+	       else if (x<0&&y<0)
+		  offset=3;
+	       zsign=1;
+	    }
+	    else
+	    {
+	       if(x>0&&y>0)
+		  offset=3;
+	       else if(x<0&&y>0)
+		  offset=2;
+	       else if(x>0&&y<0)
+		  offset=0;
+	       else if(x<0&&y<0)
+		  offset=1;
+	       zsign=-1;
+	    }
+	    std::vector<GlobalPoint> corners;
+	    corners.clear();
+	    corners.resize(8);
+	    for(unsigned ic=0;ic<4;++ic)
+	    {
+	       corners[ic]=getGeometry(mycellID)->getCorners()[(unsigned)((zsign*ic+offset)%4)];
+	       corners[4+ic]=getGeometry(mycellID)->getCorners()[(unsigned)(4+(zsign*ic+offset)%4)];
+	    }
+	    
+	    for (short i=0; i < 4 ; ++i)
+	    {
+	       A = HepGeom::Point3D<double> (corners[i%4].x(),corners[i%4].y(),corners[i%4].z());
+	       B = HepGeom::Point3D<double> (corners[(i+1)%4].x(),corners[(i+1)%4].y(),corners[(i+1)%4].z());
+	       C = HepGeom::Point3D<double> (corners[4+(i+1)%4].x(),corners[4+(i+1)%4].y(),corners[4+(i+1)%4].z());
+	       HepGeom::Plane3D<double>  plane(A,B,C);
+	       plane.normalize();
+	       double distance = plane.distance(point);
+	       if (corners[0].z()<0.) distance=-distance;
+	       SS.push_back(distance);
+	    }
 	 
-	 // Only one move in necessary direction
+	    // Only one move in necessary direction
 	 
-	 const bool yout ( 0 > SS[0]*SS[2] ) ;
-	 const bool xout ( 0 > SS[1]*SS[3] ) ;
+	    const bool yout ( 0 > SS[0]*SS[2] ) ;
+	    const bool xout ( 0 > SS[1]*SS[3] ) ;
 	 
-	 if( yout || xout )
-	 {
-	    const int ydel ( !yout ? 0 :  ( 0 < SS[0] ? -1 : 1 ) ) ;
-	    const int xdel ( !xout ? 0 :  ( 0 < SS[1] ? -1 : 1 ) ) ;
-	    const unsigned int ix ( mycellID.ix() + xdel ) ;
-	    const unsigned int iy ( mycellID.iy() + ydel ) ;
-	    const unsigned int iz ( mycellID.zside()     ) ;
-	    if( EEDetId::validDetId( ix, iy, iz ) ) 
-	       mycellID = EEDetId( ix, iy, iz ) ;
-	 }
+	    if( yout || xout )
+	    {
+	       const int ydel ( !yout ? 0 :  ( 0 < SS[0] ? -1 : 1 ) ) ;
+	       const int xdel ( !xout ? 0 :  ( 0 < SS[1] ? -1 : 1 ) ) ;
+	       const unsigned int ix ( mycellID.ix() + xdel ) ;
+	       const unsigned int iy ( mycellID.iy() + ydel ) ;
+	       const unsigned int iz ( mycellID.zside()     ) ;
+	       if( EEDetId::validDetId( ix, iy, iz ) ) 
+		  mycellID = EEDetId( ix, iy, iz ) ;
+	    }
   
-	 return mycellID;
+	    return mycellID;
+	 }
+	 return DetId(0);
       }
-      return DetId(0);
    }
    catch ( cms::Exception &e ) 
    { 
@@ -337,7 +348,8 @@ const EcalEndcapGeometry::OrderedListOfEBDetId*
 EcalEndcapGeometry::getClosestBarrelCells( EEDetId id ) const
 {
    OrderedListOfEBDetId* ptr ( 0 ) ;
-   if( 0 != id.rawId() )
+   if( 0 != id.rawId() &&
+       0 != getGeometry( id ) )
    {
       const float phi ( 370. +
 			getGeometry( id )->getPosition().phi().degrees() );
