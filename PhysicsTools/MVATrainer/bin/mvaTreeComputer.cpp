@@ -45,20 +45,12 @@ TTree *getTree(const std::string &arg)
 	if (pos == std::string::npos) {
 		TIter next(file->GetListOfKeys());
 		TObject *obj;
+		TString treeName;
 		while((obj = next())) {
 			TString name = static_cast<TKey*>(obj)->GetName();
 			TTree *cur = dynamic_cast<TTree*>(file->Get(name));
-			if (!cur)
+			if (!cur || name == treeName)
 				continue;
-			int pos = name.Last(';');
-			if (pos >= 0) {
-				int i;
-				for(i = pos + 1; i < name.Length(); i++)
-					if (name[i] < '0' || name[i] > '9')
-						break;
-				if (i == name.Length())
-					continue;
-			}
 
 			if (tree) {
 				std::cerr << "ROOT file \"" << fileName
@@ -69,6 +61,7 @@ TTree *getTree(const std::string &arg)
 			}
 
 			tree = cur;
+			treeName = name;
 		}
 	} else {
 		TString name(arg.substr(0, pos).c_str());
@@ -109,6 +102,8 @@ int main(int argc, char **argv)
 		std::vector<TTree*> trees;
 		for(int i = 3; i < argc; i++) {
 			TTree *tree = getTree(argv[i]);
+			if (!tree)
+				return 1;
 			trees.push_back(tree);
 		}
 
@@ -165,7 +160,7 @@ int main(int argc, char **argv)
 		}
 
 		outTree->Write();
-	} catch(cms::Exception e) {
+	} catch(const cms::Exception &e) {
 		std::cerr << e.what() << std::endl;
 	}
 
