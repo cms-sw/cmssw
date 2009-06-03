@@ -6,6 +6,11 @@
 #include <vector>
 #include <string>
 #include "POOLCore/PVector.h"
+#include "POOLCore/Ptr.h"
+
+#include "CondFormats/Common/interface/IOVProvenance.h"
+#include "CondFormats/Common/interface/IOVDescription.h"
+#include "CondFormats/Common/interface/IOVUserMetaData.h"
 
 
 namespace cond {
@@ -58,6 +63,9 @@ namespace cond {
     
     std::string const & metadataToken() const { return m_metadata;}
 
+
+    void loadAll() const;
+
   private:
     
     // the real persistent container...
@@ -77,8 +85,16 @@ namespace cond {
 
     bool m_notOrdered;
 
-    std::string m_metadata; // FIXME change in Pool::Ptr???
+    std::string m_metadata; // FIXME not used???
 
+    // to describe history and be used as provenance
+    pool::PolyPtr<cond::IOVProvenance> m_provenance;
+
+    // keep list of types, list of keywords, 
+    pool::PolyPtr<cond::IOVDescription> m_description;
+
+    // for the user
+    pool::PolyPtr<cond::IOVUserMetadata> m_userMetadata;
 
     mutable Container * m_sorted;
 

@@ -19,6 +19,7 @@ namespace cond {
       m_sinceTime(it),m_wrapper(iwrapper){}
 
     cond::Time_t sinceTime() const {return m_sinceTime;}
+    std::string const & token()  const {return m_wrapper;}
     std::string const & wrapperToken()  const {return m_wrapper;}
 
     bool operator==(IOVElement const & rh) const {
