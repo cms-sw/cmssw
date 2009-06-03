@@ -5,6 +5,7 @@
 #include <iosfwd>
 
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/BranchType.h"
 
 namespace edm {
 
@@ -31,6 +32,8 @@ namespace edm {
 
     TypeID& typeID() const {return typeID_;}
 
+    BranchType& branchType() const {return branchType_;}
+
     size_t& cachedOffset() const {return cachedOffset_;}
 
     int& fillCount() const {return fillCount_;}
@@ -39,6 +42,7 @@ namespace edm {
     std::string label_;
     std::string instance_;
     std::string process_;
+    mutable BranchType branchType_;
     mutable TypeID typeID_;
     mutable size_t cachedOffset_;
     mutable int fillCount_;

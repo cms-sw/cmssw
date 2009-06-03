@@ -8,6 +8,7 @@ namespace edm {
   : label_(""),
     instance_(""),
     process_(),
+    branchType_(NumBranchTypes),
     typeID_(),
     cachedOffset_(0U),
     fillCount_(0) {
@@ -18,6 +19,7 @@ namespace edm {
   : label_(label),
     instance_(instance),
     process_(processName),
+    branchType_(NumBranchTypes),
     typeID_(),
     cachedOffset_(0U),
     fillCount_(0) {
@@ -27,6 +29,7 @@ namespace edm {
   : label_(label),
     instance_(instance),
     process_(processName),
+    branchType_(NumBranchTypes),
     typeID_(),
     cachedOffset_(0U),
     fillCount_(0) {
