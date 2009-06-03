@@ -13,7 +13,7 @@ namespace cond {
     BaseKeyed(){}
     virtual ~BaseKeyed(){}
 
-  }
+  };
 
 }
 #endif
