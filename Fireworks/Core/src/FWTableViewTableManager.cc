@@ -1,4 +1,4 @@
-// $Id: FWTableViewTableManager.cc,v 1.5 2009/05/20 20:42:48 chrjones Exp $
+// $Id: FWTableViewTableManager.cc,v 1.6 2009/05/27 06:13:34 jmuelmen Exp $
 
 #include <math.h>
 #include "TClass.h"
@@ -7,6 +7,7 @@
 #include "Fireworks/Core/interface/FWTableViewManager.h"
 #include "Fireworks/Core/interface/FWTableView.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
 
 FWTableViewTableManager::FWTableViewTableManager (const FWTableView *view)
@@ -104,7 +105,11 @@ FWTableCellRendererBase *FWTableViewTableManager::cellRenderer(int iSortedRowNum
 		    m_graphicsContext->
 			 SetForeground(gVirtualX->GetPixel(m_view->item()->modelInfo(realRowNumber).
 							   displayProperties().color()));
-	       else m_graphicsContext->SetForeground(0x404040);
+	       else {
+		    if (m_view->m_manager->colorManager().background() == kBlack)
+			 m_graphicsContext->SetForeground(0x404040);
+		    else m_graphicsContext->SetForeground(0xe0e0e0);
+	       }
 	       m_renderer->setGraphicsContext(m_graphicsContext);
 	  } else {
 // 	       m_graphicsContext->
