@@ -57,7 +57,7 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     = mEta = mEtaFineBin = mPhi = mPhiFineBin = mE = mE_80 = mE_3000
     = mP = mP_80 = mP_3000 = mPt = mPt_80 = mPt_3000
     = mMass = mMass_80 = mMass_3000 = mConstituents = mConstituents_80
-    = mEtaFirst = mPhiFirst = mEFirst = mEFirst_80 = mEFirst_3000 = mPtFirst 
+    = mEtaFirst = mPhiFirst = mEFirst = mEFirst_80 = mEFirst_3000 = mPtFirst = mPtFirst_80 = mPtFirst_3000
     = mMjj = mMjj_3000 = mDelEta = mDelPhi = mDelPt 
     = mMaxEInEmTowers = mMaxEInHadTowers 
     = mHadEnergyInHO = mHadEnergyInHB = mHadEnergyInHF = mHadEnergyInHE 
@@ -126,7 +126,10 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mEFirst           = dbe->book1D("EFirst", "EFirst", 100, 0, 1000); 
     mEFirst_80        = dbe->book1D("EFirst_80", "EFirst_80", 100, 0, 180); 
     mEFirst_3000      = dbe->book1D("EFirst_3000", "EFirst_3000", 100, 0, 4000); 
-    mPtFirst          = dbe->book1D("PtFirst", "PtFirst", 100, 0, 500); 
+    mPtFirst          = dbe->book1D("PtFirst", "PtFirst", 100, 0, 50); 
+    mPtFirst_80       = dbe->book1D("PtFirst_80", "PtFirst_80", 100, 0, 140);
+    mPtFirst_3000     = dbe->book1D("PtFirst_3000", "PtFirst_3000", 100, 0, 4000);
+
     //
     mMjj              = dbe->book1D("Mjj", "Mjj", 100, 0, 2000); 
     mMjj_3000         = dbe->book1D("Mjj_3000", "Mjj_3000", 100, 0, 10000); 
@@ -543,6 +546,8 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
       if (mEFirst_80) mEFirst_80->Fill (jet->energy());
       if (mEFirst_3000) mEFirst_3000->Fill (jet->energy());
       if (mPtFirst) mPtFirst->Fill (jet->pt());
+      if (mPtFirst_80) mPtFirst->Fill (jet->pt());
+      if (mPtFirst_3000) mPtFirst->Fill (jet->pt());
     }
     if (jetIndex == 0) {
       nJet++;
