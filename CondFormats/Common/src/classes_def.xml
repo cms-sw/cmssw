@@ -17,6 +17,10 @@
  <class name="cond::IOVUserMetadata"/>
 
 
+<class name="cond::SmallWORMDict"/>
+<class name="cond::IOVKeysDescription"/>
+ 
+
  <class name="cond::PayloadWrapper"/>
  <class name="cond::Summary"/>
  <class name="pool::PolyPtr<cond::Summary>"/>
@@ -27,10 +31,15 @@
 <class name="std::vector<int>"/>
 <class name="std::vector<float>"/>
  <class name="std::vector<double>"/>
+ <class name="std::vector<unsigned long long>"/>
  <class name="pool::PolyPtr<std::vector<int> >"/>
  <class name="cond::DataWrapper<std::vector<int> >"/>
  >
  <class name="pool::PolyPtr<std::vector<double> >"/>
  <class name="cond::DataWrapper<std::vector<double> >"/>
+
+ <class name="pool::PolyPtr<std::vector<unsigned long long> >"/>
+ <class name="cond::DataWrapper<std::vector<unsigned long long> >"/>
+
 
 </lcgdict>   
