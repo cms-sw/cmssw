@@ -36,11 +36,11 @@ void testMVATrainerAnalysis()
 
 	TH2F *g = new TH2F("dx", "dD/dx", 200, -10, 10, 200, -10, 10);
 	g->SetXTitle("x");
-	g->SetYTitle("dD/dx");
+	g->SetYTitle("y");
 
 	TH2F *h = new TH2F("dy", "dD/dy", 200, -10, 10, 200, -10, 10);
-	h->SetXTitle("y");
-	h->SetYTitle("dD/dy");
+	h->SetXTitle("x");
+	h->SetYTitle("y");
 
 	for(double x = -10 + 0.05; x < 10; x += 0.1)  {
 		for(double y = -10 + 0.05; y < 10; y += 0.1) {
