@@ -16,16 +16,24 @@ import inspect
 import ROOT
 ROOT.gROOT.SetBatch()
 
+# regex for reducing 'warn()' filenames
+filenameRE = re.compile (r'.+/Validation/Tools/')
+
 def warn (*args):
     """print out warning with line number and rest of arguments"""
     frame = inspect.stack()[1]
+    filename = frame[1]
+    lineNum  = frame[2]
+    #print filename, filenameRE
+    filename = filenameRE.sub ('', filename)
+    #print "after '%s'" % filename
     if len (args):
-        print "%s (%s)" % (frame[1], frame[2]),
+        print "%s (%s)" % (filename, lineNum),
         for arg in args:
             print arg,
         print
     else:
-        print "%s (%s)" % (frame[1], frame[2])
+        print "%s (%s)" % (filename, lineNum)
 
 
 class GenObject (object):
@@ -62,20 +70,25 @@ class GenObject (object):
     ####################
     ## Compile Regexs ##
     ####################
-    _singleColonRE = re.compile (r'(.+?):(.+)')
-    _doubleColonRE = re.compile (r'(.+?):(.+?):(.+)')
-    _parenRE       = re.compile (r'(.+)\((.*)\)')
-    _spacesRE      = re.compile (r'\s+')
-    _dotRE         = re.compile (r'\s*\.\s*')
-    _commaRE       = re.compile (r'\s*,\s*')
-    _singleQuoteRE = re.compile (r'^\'(.+)\'$')
-    _doubleQuoteRE = re.compile (r'^\"(.+)\"$')
-    _aliasRE       = re.compile (r'alias=(\S+)',   re.IGNORECASE)
-    _singletonRE   = re.compile (r'singleton',     re.IGNORECASE)
-    _typeRE        = re.compile (r'type=(\S+)',    re.IGNORECASE)
-    _defaultRE     = re.compile (r'default=(\S+)', re.IGNORECASE)
-    _precRE        = re.compile (r'prec=(\S+)',    re.IGNORECASE)
-    _formRE        = re.compile (r'form=(\S+)',    re.IGNORECASE)
+    _nonSpacesRE      = re.compile (r'\S')
+    _colonRE          = re.compile (r'\s*:\s*')
+    _singleColonRE    = re.compile (r'(.+?):(.+)')
+    _doubleColonRE    = re.compile (r'(.+?):(.+?):(.+)')
+    _doublePercentRE  = re.compile (r'%%')    
+    _parenRE          = re.compile (r'(.+)\((.*)\)')
+    _spacesRE         = re.compile (r'\s+')
+    _dotRE            = re.compile (r'\s*\.\s*')
+    _commaRE          = re.compile (r'\s*,\s*')
+    _singleQuoteRE    = re.compile (r'^\'(.+)\'$')
+    _doubleQuoteRE    = re.compile (r'^\"(.+)\"$')
+    _bracketRE        = re.compile (r'\[\s*(.+?)\s*\]')
+    _commentRE        = re.compile (r'#.+$')
+    _aliasRE          = re.compile (r'alias=(\S+)',   re.IGNORECASE)
+    _singletonRE      = re.compile (r'singleton',     re.IGNORECASE)
+    _typeRE           = re.compile (r'type=(\S+)',    re.IGNORECASE)
+    _defaultRE        = re.compile (r'default=(\S+)', re.IGNORECASE)
+    _precRE           = re.compile (r'prec=(\S+)',    re.IGNORECASE)
+    _formRE           = re.compile (r'form=(\S+)',    re.IGNORECASE)
     
     #############################
     ## Static Member Functions ##
@@ -229,7 +242,7 @@ class GenObject (object):
                     diffClass   += "         %s (%s)" % (deltaKey, default)
                     diffDataDec += "      %s %s;\n" % (cppType, deltaKey)
             else:
-                raise RuntimeException, "Shouldn't be here yet."
+                raise RuntimeError, "Shouldn't be here yet."
             # definition
         # do contClass
         if GenObject.isSingleton (objName):
@@ -329,18 +342,210 @@ class GenObject (object):
 
 
     @staticmethod
-    def loadConfigFileNew (configFile):
+    def loadConfigFile (configFile):
         """Loads configuration file"""
         objName    = ""
         tupleName  = ""
         tofillName = ""
         modeEnum   = Enumerate ("none define tofill ntuple", "mode")
         mode       = modeEnum.none
-
+        try:
+            config = open (configFile, 'r')
+        except:
+            raise RuntimeError, "Can't open configuration '%s'" % configFile
+        for fullLine in config:
+            fullLine = fullLine.strip()
+            # get rid of comments
+            line = GenObject._commentRE.sub ('', fullLine)
+            # Is there anything on this line?
+            if not GenObject._nonSpacesRE.search (line):
+                # Nothing to see here folks.  Keep moving....
+                continue
+            bracketMatch = GenObject._bracketRE.search (line)
+            if bracketMatch:
+                # a header
+                section = bracketMatch.group(1)
+                words = GenObject._spacesRE.split( section )
+                if len (words) < 1:
+                    raise RuntimeError, "Don't understand line '%s'" \
+                          % fullLine                
+                # The first word is the object name
+                # reset the rest of the list
+                objName = words[0]
+                words = words[1:]
+                colonWords = GenObject._colonRE.split (objName)
+                if len (colonWords) > 3:
+                    raise RuntimeError, "Don't understand line '%s'" \
+                          % fullLine
+                if len (colonWords) == 1:
+                    ##########################
+                    ## GenObject Definition ##
+                    ##########################
+                    mode = modeEnum.define
+                    for word in words:
+                        if GenObject._singletonRE.match (word):
+                            #GenObject._singletonSet.add (objName)
+                            objsDict = GenObject._objsDict.\
+                                       setdefault (objName, {})
+                            objsDict['_singleton'] = True
+                            continue
+                        # If we're still here, then we didn't have a valid
+                        # option.  Complain vociferously
+                        print "I don't understand '%s' in section '%s' : %s" \
+                              % (word, section, mode)
+                        raise RuntimeError, "Config file parsing error"
+                elif len (colonWords) == 2:
+                    #######################
+                    ## Ntuple Definition ##
+                    #######################
+                    mode = modeEnum.ntuple
+                    ntupleDict = GenObject._ntupleDict.\
+                                setdefault (colonWords[0], {})
+                    ntupleDict['_tree'] = colonWords[1]
+                else:
+                    ##########################
+                    ## Object 'tofill' Info ##
+                    ##########################
+                    mode = modeEnum.tofill
+                    objName    = colonWords [0]
+                    tupleName  = colonWords [1]
+                    tofillName = colonWords [2]
+                    ntupleDict = GenObject._ntupleDict.\
+                                 setdefault (tupleName, {})
+                    ntupleDict[objName] = tofillName
+                    for word in words:
+                        aliasMatch = GenObject._aliasRE.search (word)
+                        if aliasMatch:
+                            myTuple = (tofillName, aliasMatch.group (1))
+                            ntupleDict.setdefault ('_alias', {}).\
+                                                  setdefault (tofillName,
+                                                              aliasMatch.\
+                                                              group(1))
+                            continue
+                        # If we're still here, then we didn't have a valid
+                        # option.  Complain vociferously
+                        print "I don't understand '%s' in section '%s' : %s" \
+                              % (word, section, mode)
+                        raise RuntimeError, "Config file parsing error"
+            else:
+                # a variable
+                if modeEnum.none == mode:
+                    # Poorly formatted 'section' tag
+                    print "I don't understand line '%s'." % fullLine
+                    raise RuntimeError, "Config file parsing error"
+                colonWords = GenObject._colonRE.split (line, 2)
+                if len (colonWords) < 2:
+                    # Poorly formatted 'section' tag
+                    print "I don't understand line '%s'." % fullLine
+                    raise RuntimeError, "Config file parsing error"
+                varName = colonWords[0]
+                option  = colonWords[1]
+                if option:
+                    pieces = GenObject._spacesRE.split (option)
+                else:
+                    pieces = []
+                if modeEnum.define == mode:
+                    #########################
+                    ## Variable Definition ##
+                    #########################
+                    # is this a variable or an option?
+                    if varName.startswith("-"):
+                        # this is an option
+                        if "-equiv" == varName.lower():
+                            for part in pieces:
+                                halves = part.split (",")
+                                if 2 != len (halves):
+                                    print "Problem with -equiv '%s' in '%s'" % \
+                                          (part, section)
+                                    raise RuntimeError, \
+                                          "Config file parsing error"
+                                if halves[1]:
+                                    halves[1] = float (halves[1])
+                                    if not halves[1] > 0:
+                                        print "Problem with -equiv ",\
+                                              "'%s' in '%s'" % \
+                                              (part, section)
+                                        raise RuntimeError, \
+                                              "Config file parsing error"
+                                GenObject.setEquivExpression (section,
+                                                              halves[0],
+                                                              halves[1])
+                        continue
+                    # If we're here, then this is a variable
+                    optionsDict = {}
+                    for word in pieces:
+                        typeMatch = GenObject._typeRE.search (word)
+                        if typeMatch and \
+                               GenObject.types.isValidKey (typeMatch.group(1)):
+                            varType = typeMatch.group(1).lower()
+                            optionsDict['varType'] = GenObject.types (varType)
+                            continue
+                        defaultMatch = GenObject._defaultRE.search (word)
+                        if defaultMatch:
+                            optionsDict['default'] = defaultMatch.group(1)
+                            continue
+                        precMatch = GenObject._precRE.search (word)
+                        if precMatch:
+                            optionsDict['prec'] = float (precMatch.group (1))
+                            continue
+                        formMatch = GenObject._formRE.search (word)
+                        if formMatch:
+                            form = GenObject._doublePercentRE.\
+                                   sub ('%', formMatch.group (1))
+                            optionsDict['form'] = form
+                            continue
+                        # If we're still here, then we didn't have a valid
+                        # option.  Complain vociferously
+                        print "I don't understand '%s' in section '%s'." \
+                              % (word, option)
+                        raise RuntimeError, "Config file parsing error"
+                    GenObject.addObjectVariable (objName, varName, \
+                                                 **optionsDict)
+                else: # if modeEnum.define != mode
+                    ############################
+                    ## Variable 'tofill' Info ##
+                    ############################
+                    if len (pieces) < 1:
+                        continue
+                    fillname, pieces = pieces[0], pieces[1:]
+                    parts = GenObject._dotRE.split (fillname)
+                    partsList = []
+                    for part in parts:
+                        parenMatch = GenObject._parenRE.search (part)
+                        mode   = GenObject._objFunc.obj
+                        parens = []
+                        if parenMatch:
+                            part   = parenMatch.group (1)
+                            mode   = GenObject._objFunc.func
+                            parens = \
+                                   GenObject._convertStringToParameters \
+                                   (parenMatch.group (2))
+                        partsList.append(  (part, mode, parens) )
+                    # I don't yet have any options available here, but
+                    # I'm keeping the code here for when I add them.
+                    optionsDict = {}
+                    for word in pieces:
+                        # If we're still here, then we didn't have a valid
+                        # option.  Complain vociferously
+                        print "I don't understand '%s' in section '%s'." \
+                              % (word, option)
+                        raise RuntimeError, "Config file parsing error"
+                    tofillDict = GenObject._tofillDict.\
+                                 setdefault (tupleName, {}).\
+                                 setdefault (objName, {})
+                    tofillDict[varName] = [partsList, optionsDict]
+        # for line
+        for objName in GenObject._objsDict:
+            # if this isn't a singleton, add 'index' as a variable
+            if not GenObject.isSingleton (objName):
+                GenObject.addObjectVariable (objName, 'index',
+                                             varType = GenObject.types.int,
+                                             form = '%3d')
+        
 
     @staticmethod
-    def loadConfigFile (configFile):
-        """Loads configuration file"""
+    def oldLoadConfigFile (configFile):
+        """Loads configuration file using ConfigParser."""
         objName    = ""
         tupleName  = ""
         tofillName = ""
@@ -1327,7 +1532,6 @@ class GenObject (object):
                     # representations of integers.
                     value = int (value)
                 except:
-                    try:
                     # This works with string representations of floats
                     value = int( float( value ) )
             elif GenObject.types.long == varType:
@@ -1336,7 +1540,6 @@ class GenObject (object):
                     # representations of integers.
                     value = long (value)
                 except:
-                    try:
                     # This works with string representations of floats
                     value = long( float( value ) )
             elif GenObject.types.float == varType:

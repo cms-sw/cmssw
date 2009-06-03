@@ -68,13 +68,18 @@ if __name__ == "__main__":
     optionsGroup.add_option ('--compRoot', dest='compRoot', type='string',
                              default='',
                              help="Write out root file for file comparisons")
+    optionsGroup.add_option ('--oldLoad', dest='oldLoad', action='store_true',
+                             help="Use old loading routine (DEBUGGING ONLY)")
     parser.add_option_group (modeGroup)
     parser.add_option_group (tupleGroup)
     parser.add_option_group (optionsGroup)
     (options, args) = parser.parse_args()
     # Here we go
     random.seed( os.getpid() )
-    GenObject.loadConfigFile (options.config)
+    if options.oldLoad:
+        GenObject.oldLoadConfigFile (options.config)
+    else:
+        GenObject.loadConfigFile (options.config)
     ROOT.gSystem.Load("libFWCoreFWLite.so")
     ROOT.AutoLibraryLoader.enable()
     # Let's parse any args
