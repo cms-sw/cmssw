@@ -25,6 +25,9 @@
  <class name="cond::Summary"/>
  <class name="pool::PolyPtr<cond::Summary>"/>
 
+ <class name="cond::DataWrapper<cond::BaseKeyed>"/>
+ <class name="pool::PolyPtr<cond::BaseKeyed>"/>
+ <class name="cond::BaseKeyed"/>
 
 <class name="pool::PolyPtr<std::basic_string<char> >"/>
  

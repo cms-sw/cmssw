@@ -35,9 +35,9 @@ namespace cond {
       return dynamic_cast<T const *>(elem(ikey));
     }
     
-    BaseKeys const * elem(char const * ikey) const;
+    BaseKeyed const * elem(char const * ikey) const;
 
-    BaseKeys const * elem(std::string const & ikey) const;
+    BaseKeyed const * elem(std::string const & ikey) const;
 
   private:
     // tag and dict

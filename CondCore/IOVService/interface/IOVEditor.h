@@ -29,7 +29,7 @@ namespace cond{
     virtual void create(cond::TimeType timetype, cond::Time_t lastTill) = 0;
 
     // return the current sequence
-    virtual IOVSequence & iov() =0
+    virtual IOVSequence & iov() =0;
 
 
     /// Assign a payload with till time. Returns the payload index in the iov sequence
