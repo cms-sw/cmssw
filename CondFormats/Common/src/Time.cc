@@ -14,7 +14,7 @@ namespace cond{
   
   std::string const & timeTypeNames(int i) {
     static const std::string local[]=
-    {"runnumber","timestamp","lumiid","userid"};
+      {"runnumber","timestamp","lumiid","hash","userid"};
     return local[i];
   }
 
