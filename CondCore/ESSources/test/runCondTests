@@ -34,5 +34,10 @@ diff mapping1.xml mapping2.xml
 echo "read back blob"
 cmsRun $runbasedir/src/CondCore/ESSources/test/python/load_ped_strip_cfg.py
 
+echo "test Keyed sequence"
+
+cmsRun $runbasedir/src/CondCore/DBOutputService/test/python/writeKeyed_cfg.py
+cmscond_list_iov -c sqlite:keys.db -t KeyTest -s
+
 cd ..
 exit 0
