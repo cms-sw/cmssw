@@ -17,7 +17,7 @@ namespace cond {
     virtual ~IOVKeysDescription(){}
     virtual IOVKeysDescription * clone() const { return new  IOVKeysDescription(*this);}
 
-    SmallWORMDict const & dict { return dict_m;}
+    SmallWORMDict const & dict() const { return dict_m;}
 
   private:
 

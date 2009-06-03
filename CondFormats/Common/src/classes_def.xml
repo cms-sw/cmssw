@@ -10,11 +10,11 @@
  </class>
 
  <class name="pool::PolyPtr<cond::IOVProvenance>"/>
- <class name="pool::PolyPtr<cond::IOVDescription"/>
- <class name="pool::PolyPtr<cond::IOVUserMetadata>"/>
+ <class name="pool::PolyPtr<cond::IOVDescription>"/>
+ <class name="pool::PolyPtr<cond::IOVUserMetaData>"/>
  <class name="cond::IOVProvenance"/>
  <class name="cond::IOVDescription"/>
- <class name="cond::IOVUserMetadata"/>
+ <class name="cond::IOVUserMetaData"/>
 
 
 <class name="cond::SmallWORMDict"/>

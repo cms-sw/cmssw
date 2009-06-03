@@ -1,4 +1,5 @@
 #include "CondFormats/Common/interface/IOVSequence.h"
+#include "CondFormats/Common/interface/Time.h"
 #include <algorithm>
 #include <boost/bind.hpp>
 
@@ -8,7 +9,7 @@ namespace cond {
   
   IOVSequence::IOVSequence() : m_notOrdered(false), m_sorted(0) {}
   
-  IOVSequence(cond::TimeType ttype) :
+  IOVSequence::IOVSequence(cond::TimeType ttype) :
     m_timetype(ttype), m_lastTill(timeTypeSpecs[ttype].endValue),
     m_notOrdered(false), m_metadata(" "),  m_sorted(0) {}
     

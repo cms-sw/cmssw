@@ -99,7 +99,7 @@ namespace cond {
     pool::PolyPtr<cond::IOVDescription> m_description;
 
     // for the user
-    pool::PolyPtr<cond::IOVUserMetadata> m_userMetadata;
+    pool::PolyPtr<cond::IOVUserMetaData> m_userMetadata;
 
     mutable Container * m_sorted;
 
