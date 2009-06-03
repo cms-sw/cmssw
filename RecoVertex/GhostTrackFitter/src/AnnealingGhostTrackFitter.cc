@@ -34,8 +34,9 @@ void AnnealingGhostTrackFitter::postFit(
 		if (ndof == 0. || firstStep)
 			continue;
 
-		double weight = annealing->weight(chi2 / state->weight());
-// std::cout << "chi2 = " << chi2 << ", weight = " << weight << std::endl;
+		double weight = 0.;
+		if (state->weight() > 1.0e-9)
+			weight = annealing->weight(chi2 / state->weight());
 
 		state->setWeight(weight);
 	}
