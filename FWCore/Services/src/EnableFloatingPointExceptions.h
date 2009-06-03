@@ -18,8 +18,7 @@
     anywhere (FP exceptions will not cause a crash).  Add something like the following
     to the configuration file to enable to the exceptions:
 
-    service = EnableFloatingPointExceptions 
-          {
+    service = EnableFloatingPointExceptions {
           untracked bool reportSettings = false
 
           untracked vstring moduleNames = {  "default" 
@@ -68,8 +67,7 @@
 
     One can also control the precision of floating point operations in x87 FP processor.
 
-      service = EnableFloatingPointExceptions 
-      {
+      service = EnableFloatingPointExceptions {
           untracked bool setPrecisionDouble = true
       }
 
@@ -87,7 +85,6 @@
 //
 // Original Author:  E. Sexton-Kennedy
 //         Created:  Tue Apr 11 13:43:16 CDT 2006
-// $Id: EnableFloatingPointExceptions.h,v 1.9 2007/06/14 21:03:39 wmtan Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -101,12 +98,12 @@ namespace edm {
    namespace service {
       class EnableFloatingPointExceptions {
 public:
-         EnableFloatingPointExceptions(const ParameterSet&,ActivityRegistry&);
+         EnableFloatingPointExceptions(ParameterSet const&,ActivityRegistry&);
          
 	 void postEndJob();
 
-         void preModule(const ModuleDescription&);
-         void postModule(const ModuleDescription&);
+         void preModule(ModuleDescription const&);
+         void postModule(ModuleDescription const&);
 
 private:
 	typedef std::string              String;
@@ -121,7 +118,7 @@ private:
 //          bool enableDivByZeroEx_;
 //          bool enableInvalidEx_;
 //          bool enableOverFlowEx_;
-// 	 bool enableUnderFlowEx_;
+// 	    bool enableUnderFlowEx_;
 
 //          bool setPrecisionDouble_;
 

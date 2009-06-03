@@ -126,7 +126,7 @@ namespace edm {
   ConstBranchDescription const&
   DataViewImpl::getBranchDescription(TypeID const& type,
 				     std::string const& productInstanceName) const {
-    const TransientProductLookupMap& tplm = principal_.productRegistry().productLookup();
+    TransientProductLookupMap const& tplm = principal_.productRegistry().productLookup();
     std::pair<TransientProductLookupMap::const_iterator, TransientProductLookupMap::const_iterator> range = 
      tplm.equal_range(TypeInBranchType(type,branchType()),md_.moduleLabel(),productInstanceName);
    
@@ -135,12 +135,12 @@ namespace edm {
     // which violates this rule (FWCore/Framework/test/Event_t.cpp.  I do not see a go way to 'fix' it so
     // I'll allow the same behavior it depends upon
     bool foundMatch = false;
-    if(range.first !=range.second) {
-       foundMatch=true;
+    if(range.first != range.second) {
+       foundMatch = true;
        while(md_.processName() != range.first->branchDescription()->processName()) {
           ++range.first;
           if(range.first == range.second || range.first->isFirst()) {
-             foundMatch=false;
+             foundMatch = false;
              break;
           }
        }
