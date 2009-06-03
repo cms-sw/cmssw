@@ -55,11 +55,11 @@ eidCutBasedExt = cms.EDProducer("EleIdCutBasedExtProducer",
         endcap = cms.vdouble(0.100, 0.0275, 0.090, 0.007,-1,-1)
     ),
     robusthighenergyEleIDCutsV01 = cms.PSet(
-        barrel = cms.vdouble(0.050, -1, 0.090, 0.005,0.94,0.83),
+        barrel = cms.vdouble(0.050, 9999, 0.090, 0.005,0.94,0.83),
         endcap = cms.vdouble(0.050, 0.0275, 0.090, 0.007,-1,-1)
     ),
     robusthighenergyEleIDCuts = cms.PSet(
-        barrel = cms.vdouble(0.050, -1, 0.090, 0.005,0.94,0.83),
+        barrel = cms.vdouble(0.050, 9999, 0.090, 0.005,0.94,0.83),
         endcap = cms.vdouble(0.050, 0.0275, 0.090, 0.007,-1,-1)
     ),
 
@@ -94,7 +94,7 @@ eidCutBasedExt = cms.EDProducer("EleIdCutBasedExtProducer",
     classbasedtightEleIDCutsV00 = cms.PSet(
         deltaEtaIn   = cms.vdouble(0.0055, 0.003, 0.0065, 0.0, 0.006, 0.0055, 0.0075, 0.0),
         deltaPhiIn   = cms.vdouble(0.032, 0.016, 0.0525, 0.09, 0.025, 0.035, 0.065, 0.092),
-	     eSeedOverPin = cms.vdouble(0.24, 0.94, 0.11, 0.0, 0.32, 0.83, 0.0, 0.0),
+	eSeedOverPin = cms.vdouble(0.24, 0.94, 0.11, 0.0, 0.32, 0.83, 0.0, 0.0),
         hOverE       = cms.vdouble(0.05, 0.042, 0.045, 0.0, 0.055, 0.037, 0.05, 0.0),
         sigmaEtaEta  = cms.vdouble(0.0125, 0.011, 0.01, 0.0, 0.0265, 0.0252, 0.026, 0.0)
     ),
