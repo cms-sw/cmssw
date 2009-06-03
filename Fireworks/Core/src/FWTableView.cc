@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.9 2009/05/15 13:56:05 amraktad Exp $
+// $Id: FWTableView.cc,v 1.10 2009/05/29 10:02:12 amraktad Exp $
 //
 
 // system include files
@@ -230,6 +230,8 @@ const TGPicture* arrow_down_disabled(bool iBackgroundIsBlack)
 static const std::string kTableView = "TableView";
 static const std::string kCollection = "collection";
 static const std::string kColumns = "columns";
+static const std::string kSortColumn = "sortColumn";
+static const std::string kDescendingSort = "descendingSort";
 
 //
 // constructors and destructor
@@ -383,6 +385,10 @@ FWTableView::addTo(FWConfiguration& iTo) const
      const std::string &collectionName = m_manager->items()[m_iColl]->name();
      FWConfiguration collection(collectionName);
      main.addKeyValue(kCollection, collection);
+     FWConfiguration sortColumn(m_tableWidget->sortedColumn());
+     main.addKeyValue(kSortColumn, sortColumn);
+     FWConfiguration descendingSort(m_tableWidget->descendingSort());
+     main.addKeyValue(kDescendingSort, descendingSort);
 //      FWConfiguration columns(1);
 //      for (std::vector<FWTableViewManager::TableEntry>::const_iterator 
 // 	       i = m_tableManager->m_tableFormats->begin(),
@@ -432,6 +438,14 @@ FWTableView::setFrom(const FWConfiguration& iFrom)
 		    m_collection->Select(it - m_manager->items().begin(), true);
 		    break;
 	       }
+	  }
+	  const FWConfiguration *sortColumn = main->valueForKey(kSortColumn);
+	  const FWConfiguration *descendingSort = main->valueForKey(kDescendingSort);
+	  if (sortColumn != 0 && descendingSort != 0) {
+	       unsigned int sort = sortColumn->version();
+	       bool descending = descendingSort->version();
+	       if (sort < m_tableManager->numberOfColumns())
+		    m_tableWidget->sort(sort, descending);
 	  }
      } catch (...) {
 	  // configuration doesn't contain info for the table.  Be forgiving.

@@ -18,7 +18,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:47 EST 2009
-// $Id: FWTableWidget.h,v 1.6 2009/04/09 21:16:12 chrjones Exp $
+// $Id: FWTableWidget.h,v 1.7 2009/04/23 04:15:42 jmuelmen Exp $
 //
 
 // system include files
@@ -81,6 +81,9 @@ class FWTableWidget : public TGCompositeFrame
 
      void buttonPressedInRowHeader(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY);
      void buttonReleasedInRowHeader(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY);
+
+     int sortedColumn () const { return m_sortedColumn; }
+     bool descendingSort () const { return m_descendingSort; }
 
    private:
       //FWTableWidget(const FWTableWidget&); // stop default
