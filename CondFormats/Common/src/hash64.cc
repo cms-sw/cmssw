@@ -37,7 +37,7 @@ This implies that a hash using mix64 has no funnels.  There may be
 
 typedef  unsigned long  long ub8;   /* unsigned 8-byte quantities */
 typedef  unsigned long  int  ub4;   /* unsigned 4-byte quantities */
-typedef  unsigned long  long ub1;
+typedef  unsigned       char ub1;
 
 
 namespace cond {
