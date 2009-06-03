@@ -28,6 +28,11 @@ namespace cond {
     typedef Container::const_iterator const_iterator;
 
     IOVSequence();
+
+    // the real default constructor...
+    explicit IOVSequence(cond::TimeType ttype);
+
+    // constructor for the editor
     IOVSequence(int type, cond::Time_t till, std::string const& imetadata);
 
     ~IOVSequence();
