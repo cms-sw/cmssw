@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_1_0/pre6/8E29_V64/V2 (CMSSW_3_1_X_2009-05-25-1900)
+# /dev/CMSSW_3_1_0/pre8/8E29_V8/V2 (CMSSW_3_1_X_2009-05-25-1900)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -28,7 +28,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre6/8E29_V64/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/8E29_V8/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -3277,7 +3277,7 @@ hltBLifetimeL3FilterStartupU = cms.EDFilter( "HLTJetTag",
 hltL1sStoppedHSCP8E29 = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet6U" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet10U_NotBptxC" ),
     L1GtReadoutRecordTag = cms.InputTag( "gtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "gtDigis" ),
     L1CollectionsTag = cms.InputTag( "l1extraParticles" ),
