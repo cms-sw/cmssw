@@ -15,4 +15,4 @@ dqmQTestDQMFED = cms.EDFilter("QualityTester",
    qtestOnEndRun = cms.untracked.bool(True)
    )
 
-DQMFEDIntegrityClient = cms.Sequence(dqmFEDIntegrity*dqmQTestDQMFED)
+dqmFEDIntegrityClient = cms.Sequence(dqmFEDIntegrity*dqmQTestDQMFED)
