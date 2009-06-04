@@ -18,7 +18,7 @@
 //         Created:  June 2008
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
-// $Id: FourVectorHLTriggerOffline.h,v 1.11 2009/05/29 12:38:12 rekovic Exp $
+// $Id: FourVectorHLTriggerOffline.h,v 1.12 2009/06/03 23:38:10 rekovic Exp $
 //
 //
 
@@ -90,7 +90,7 @@
 #include <fstream>
 #include <vector>
 
-// $Id: FourVectorHLTriggerOffline.h,v 1.11 2009/05/29 12:38:12 rekovic Exp $
+// $Id: FourVectorHLTriggerOffline.h,v 1.12 2009/06/03 23:38:10 rekovic Exp $
 // See header file for information. 
 /*
 #include "TMath.h"
@@ -766,6 +766,7 @@ public:
 
 		bool isTriggerType(int t);
 		bool isL1TriggerType(int t);
+    bool hasBPartonInCone(GenJetCollection::const_iterator gjet, float coneSize);
 
     mmset L1OffDRMatchSet;
     mmset L1MCDRMatchSet;
@@ -780,7 +781,7 @@ public:
 		  GenJetsFlag_ = flag;  
 			genJets_ = genJets; 
 		}
-		void setBJets(bool flag) 
+		void setBJetsFlag(bool flag) 
 		{ 
 		  BJetsFlag_ = flag; 
 		}
@@ -907,9 +908,20 @@ void objMon<T>::fillMC()
 
     if (fabs(gjet->eta()) <= EtaMax_ && gjet->pt() >= EtMin_ ){
 
-      //NMc++; 
-      v_->getMcEtMcHisto()->Fill(gjet->pt());
-      v_->getMcEtaVsMcPhiMcHisto()->Fill(gjet->eta(),gjet->phi());
+			  if (BJetsFlag_) {
+			 
+				 // this jet must have b in the cone
+         if( !hasBPartonInCone(gjet,0.7)) {
+
+				   continue;
+
+				 }
+				}
+
+
+        //NMc++; 
+        v_->getMcEtMcHisto()->Fill(gjet->pt());
+        v_->getMcEtaVsMcPhiMcHisto()->Fill(gjet->eta(),gjet->phi());
 
     }
 
@@ -982,13 +994,13 @@ void objMon<T>::monitorL1(const Vids & idtype, const Keys & l1k, const TriggerOb
 				    // fill UM histos (no matching required)
 				    if(NL1 == 1) {
 
-	            v_->getOffEtL1OffUMHisto()->Fill((*iter).pt());
-	            v_->getOffEtaVsOffPhiL1OffUMHisto()->Fill((*iter).eta(),(*iter).phi());
+	            v_->getOffEtL1OffUMHisto()->Fill(iter->pt());
+	            v_->getOffEtaVsOffPhiL1OffUMHisto()->Fill(iter->eta(),iter->phi());
 
 						}
 
 						// make maps of matched objects
-	          float dR = reco::deltaR((*iter).eta(),(*iter).phi(),l1FV.eta(),l1FV.phi());
+	          float dR = reco::deltaR(iter->eta(),iter->phi(),l1FV.eta(),l1FV.phi());
 	          if ( dR < 1.0) 
 						{
 
@@ -1020,7 +1032,17 @@ void objMon<T>::monitorL1(const Vids & idtype, const Keys & l1k, const TriggerOb
         for(GenJetCollection::const_iterator gjet=genJets_->begin(); gjet!=genJets_->end(); gjet++) {
        
           if (fabs(gjet->eta()) <= EtaMax_ && gjet->pt() >= EtMin_ ){
-       
+
+			       if (BJetsFlag_) { 
+						  
+							 // this jet must have b in the cone
+						   if(! hasBPartonInCone(gjet,0.7)) {
+							  
+								continue;
+
+							 }
+						 }
+
 				     // fill UM histos (no matching required)
 				     if(NL1 == 1) {
 
@@ -1034,10 +1056,10 @@ void objMon<T>::monitorL1(const Vids & idtype, const Keys & l1k, const TriggerOb
 	           if ( dR < 1.0) 
 						 {
 
-              //LogTrace("FourVectorHLTriggerOffline") << " filling L1-MC map  "  << endl;
 		          L1MCDRMatchMap.insert(pair<float,int>(dR,j));
 
 						 }
+
        
           } // end if eta, Et
 
@@ -1122,19 +1144,35 @@ void objMon<T>::monitorOnline(const Vids & idtype, const Keys & l1k, Keys::const
         for( const_iterator iter = offColl_->begin(), iend = offColl_->end(); iter != iend; ++iter )
         {
 
+					/*
+					float recoEta;
+					float recoPhi;
+					float recoPt;
+
+			    if (BJetsFlag_) { 
+
+					  recoEta = (*iter).first->eta();
+					  recoPhi = (*iter).first->phi();
+					  recoPt = (*iter).first->pt();
+
+						continue;
+
+
+					}
+					*/
           if (fabs(iter->eta()) <= EtaMax_ && iter->pt() >=  EtMin_ )
           {
 
 				    // fill UM histos (no matching required)
 				    if(NOn == 1) {
 
-	            v_->getOffEtOnOffUMHisto()->Fill((*iter).pt());
-	            v_->getOffEtaVsOffPhiOnOffUMHisto()->Fill((*iter).eta(),(*iter).phi());
+	            v_->getOffEtOnOffUMHisto()->Fill(iter->pt());
+	            v_->getOffEtaVsOffPhiOnOffUMHisto()->Fill(iter->eta(),iter->phi());
 
 						}
 
 						 // make maps of matched objects
-	          float dR = reco::deltaR((*iter).eta(),(*iter).phi(),onlineFV.eta(),onlineFV.phi());
+	          float dR = reco::deltaR(iter->eta(),iter->phi(),onlineFV.eta(),onlineFV.phi());
 	          if ( dR < 1.0)
 						{
 
@@ -1213,6 +1251,15 @@ void objMon<T>::monitorOnline(const Vids & idtype, const Keys & l1k, Keys::const
        
           if (fabs(gjet->eta()) <= EtaMax_ && gjet->pt() >= EtMin_ ){
        
+			       if (BJetsFlag_) { 
+						  
+							 // this jet must have b in the cone
+						   if(! hasBPartonInCone(gjet,0.7)) {
+							  
+								continue;
+
+							 }
+						 }
 				     // fill UM histos (no matching required)
 				     if(NOn == 1) {
 
@@ -1304,6 +1351,16 @@ void objMon<T>::monitorOffline(FourVectorHLTriggerOffline* fv)
             
                if (fabs(gjet->eta()) <= EtaMax_ && gjet->pt() >= EtMin_ ){
             
+			           if (BJetsFlag_) { 
+						  
+							     // this jet must have b in the cone
+						       if(! hasBPartonInCone(gjet,0.7)) {
+							    
+								     continue;
+
+							     }
+						     }
+
 		       	     // fill UM histos (no matching required)
  	               if(numNOff == 1) {
 
@@ -1676,6 +1733,33 @@ void objMon<T>::fillOnL1Match(FourVectorHLTriggerOffline* fv, const Keys & l1k, 
 
 	}
 
+
+}
+
+template <class T> 
+bool objMon<T>::hasBPartonInCone(GenJetCollection::const_iterator gjet, float coneSize)
+{
+
+  bool rc = false;
+  if (! genParticles_.isValid()) return rc;
+
+  for(size_t i = 0; i < genParticles_->size(); ++ i) {
+	
+    const GenParticle & p = (*genParticles_)[i];
+    if (abs(p.pdgId()) == 5){ 
+
+	    if (reco::deltaR(p.eta(),p.phi(),gjet->eta(),gjet->phi()) < 0.7){
+
+        rc = true;
+
+	    }
+
+		 }
+
+	}
+  
+
+	return rc;
 
 }
 

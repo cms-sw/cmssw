@@ -1,9 +1,11 @@
-// $Id: FourVectorHLTriggerOffline.cc,v 1.23 2009/06/03 23:38:10 rekovic Exp $
+// $Id: FourVectorHLTriggerOffline.cc,v 1.24 2009/06/04 00:02:55 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
-
 #include "HLTriggerOffline/Common/interface/FourVectorHLTriggerOffline.h"
 
+
+
+/*
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -42,6 +44,9 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
+*/
+
+
 
 
 #include <map>
@@ -249,7 +254,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
  edm::Handle<reco::JetTagCollection> bTagIPHandle;
  iEvent.getByLabel("jetProbabilityBJetTags", bTagIPHandle);
  if (!bTagIPHandle.isValid()) {
-    edm::LogInfo("FourVectorHLTriggerOffline") << "bTagIPHandle trackCountingHighEffJetTags not found, ";
+    edm::LogInfo("FourVectorHLTriggerOffline") << "mTagIPHandle trackCountingHighEffJetTags not found, ";
       //"skipping event"; 
       //return;
   }
@@ -355,6 +360,19 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   jetMon.pushL1TriggerType(TriggerL1ForJet);
   jetMon.pushL1TriggerType(TriggerL1TauJet);
 
+  // bjet Monitor - NOTICE: we use genJets for MC
+	// -------------------------------------------
+  //objMon<reco::JetTagCollection> bjetMon;
+  objMon<reco::CaloJetCollection> bjetMon;
+  //bjetMon.setReco(bTagIPHandle);
+  bjetMon.setGenJets(true, genJets);
+  bjetMon.setBJetsFlag(true);
+
+  bjetMon.pushTriggerType(TriggerBJet);
+
+  bjetMon.pushL1TriggerType(TriggerL1CenJet);
+  bjetMon.pushL1TriggerType(TriggerL1ForJet);
+  bjetMon.pushL1TriggerType(TriggerL1TauJet);
 
  
     for(PathInfoCollection::iterator v = hltPaths_.begin();
@@ -401,6 +419,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
       tauMon.clearSets();
       phoMon.clearSets();
       jetMon.clearSets();
+      bjetMon.clearSets();
 
       //cout << " New hltPath  and denompassed" << endl;
       // set to keep maps of DR matches of each L1 objects with each Off object
@@ -431,6 +450,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 			  tauMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
 			  phoMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
 			  jetMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
+			  bjetMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
 
   		eleMon.fillL1Match(this);
 
@@ -441,6 +461,8 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   		phoMon.fillL1Match(this);
 
   		jetMon.fillL1Match(this);
+
+  		bjetMon.fillL1Match(this);
 
       v->getNMcHisto()->Fill(NMc);      
       v->getNOffHisto()->Fill(NOff);      
@@ -1373,6 +1395,8 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
         phoMon.monitorOnline(idtype, l1k, ki, toc, NOn);
 
         jetMon.monitorOnline(idtype, l1k, ki, toc, NOn);
+
+        bjetMon.monitorOnline(idtype, l1k, ki, toc, NOn);
 			/*
          
         double tocEtaMax = 2.5;
@@ -2007,6 +2031,8 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 
       jetMon.fillOnlineMatch(this, l1k, toc);
 
+      bjetMon.fillOnlineMatch(this, l1k, toc);
+
 
   		eleMon.monitorOffline(this);
 
@@ -2018,6 +2044,8 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 
   		jetMon.monitorOffline(this);
 
+  		bjetMon.monitorOffline(this);
+
 
   		eleMon.fillOffMatch(this);
 
@@ -2028,6 +2056,8 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   		phoMon.fillOffMatch(this);
 
   		jetMon.fillOffMatch(this);
+
+  		bjetMon.fillOffMatch(this);
 
 	/*
 	// clean the set On-Off
@@ -2250,7 +2280,8 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
       objectType = trigger::TriggerJet;    
     if (pathname.find("BTag") != std::string::npos) 
       objectType = trigger::TriggerBJet;    
-    if (pathname.find("Mu") != std::string::npos) 
+    if (pathname.find("Mu") != std::string::npos &&
+	 	    pathname.find("BTag") == std::string::npos) 
       objectType = trigger::TriggerMuon;    
     if (pathname.find("Ele") != std::string::npos) 
       objectType = trigger::TriggerElectron;    
@@ -2272,7 +2303,8 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
       denomobjectType = trigger::TriggerJet;    
     if (denompathname.find("BTag") != std::string::npos) 
       denomobjectType = trigger::TriggerBJet;    
-    if (denompathname.find("Mu") != std::string::npos) 
+    if (pathname.find("Mu") != std::string::npos &&
+	 	    pathname.find("BTag") == std::string::npos) 
       denomobjectType = trigger::TriggerMuon;    
     if (denompathname.find("Ele") != std::string::npos) 
       denomobjectType = trigger::TriggerElectron;    
@@ -2336,7 +2368,8 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
       objectType = trigger::TriggerJet;    
     if (pathname.find("BTag") != std::string::npos) 
       objectType = trigger::TriggerBJet;    
-    if (pathname.find("Mu") != std::string::npos) 
+    if (pathname.find("Mu") != std::string::npos &&
+	 	    pathname.find("BTag") == std::string::npos) 
       objectType = trigger::TriggerMuon;    
     if (pathname.find("Ele") != std::string::npos) 
       objectType = trigger::TriggerElectron;    
@@ -2358,7 +2391,8 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
       denomobjectType = trigger::TriggerJet;    
     if (denompathname.find("BTag") != std::string::npos) 
       denomobjectType = trigger::TriggerBJet;    
-    if (denompathname.find("Mu") != std::string::npos) 
+    if (pathname.find("Mu") != std::string::npos &&
+	 	    pathname.find("BTag") == std::string::npos) 
       denomobjectType = trigger::TriggerMuon;    
     if (denompathname.find("Ele") != std::string::npos) 
       denomobjectType = trigger::TriggerElectron;    
@@ -2452,7 +2486,8 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
       objectType = trigger::TriggerJet;    
     if (pathname.find("BTag") != std::string::npos) 
       objectType = trigger::TriggerBJet;    
-    if (pathname.find("Mu") != std::string::npos) 
+    if (pathname.find("Mu") != std::string::npos &&
+	 	    pathname.find("BTag") == std::string::npos) 
       objectType = trigger::TriggerMuon;    
     if (pathname.find("Ele") != std::string::npos) 
       objectType = trigger::TriggerElectron;    
