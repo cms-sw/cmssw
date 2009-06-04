@@ -1,4 +1,4 @@
-// $Id: FWTableViewTableManager.cc,v 1.6 2009/05/27 06:13:34 jmuelmen Exp $
+// $Id: FWTableViewTableManager.cc,v 1.7 2009/06/03 15:17:05 jmuelmen Exp $
 
 #include <math.h>
 #include "TClass.h"
@@ -216,11 +216,22 @@ void FWTableViewTableManager::implSort(int iCol, bool iSortOrder)
 void
 FWTableViewTableManager::dataChanged() 
 {
+     std::vector<int> visible;
+     visible.reserve(m_view->item()->size());
+     std::vector<int> invisible;
+     invisible.reserve(m_view->item()->size());
      m_sortedToUnsortedIndices.clear();
      m_sortedToUnsortedIndices.reserve(m_view->item()->size());
      for(int i=0; i< static_cast<int>(m_view->item()->size()); ++i) {
-	  m_sortedToUnsortedIndices.push_back(i);
+	  if (m_view->item()->modelInfo(i).displayProperties().isVisible()) 
+	       visible.push_back(i);
+	  else invisible.push_back(i);
      }
+     m_sortedToUnsortedIndices.insert(m_sortedToUnsortedIndices.end(),
+				      visible.begin(), visible.end());
+     m_sortedToUnsortedIndices.insert(m_sortedToUnsortedIndices.end(),
+				      invisible.begin(), invisible.end());
+     assert(m_sortedToUnsortedIndices.size() == m_view->item()->size());
      FWTableManagerBase::dataChanged();
 }
 
