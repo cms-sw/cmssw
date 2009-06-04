@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/06/04 16:04:14 $
-//  $Revision: 1.43 $
+//  $Date: 2009/06/04 16:16:29 $
+//  $Revision: 1.44 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -154,7 +154,7 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset )
   ParameterSet serviceParameters = pset.getParameter<ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
 
-  if (theMuonType_<1 || theMuonType_>3) {
+  if ((theMuonType_<1 || theMuonType_>3) && theMuonType_!=10) {
     cout << "[MuScleFit]: Unknown muon type! Aborting." << endl;
     abort();
   }
