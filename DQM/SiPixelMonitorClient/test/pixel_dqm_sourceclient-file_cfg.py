@@ -7,17 +7,19 @@ process = cms.Process("SIPIXELDQM")
 #process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 #process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load("Configuration.StandardSequences.MagneticField_0T_cff")
 #process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 ##----## Reco:
-##process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
+#process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
 
-process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
-process.siPixelDigis.InputLabel = 'source'
-process.siPixelDigis.IncludeErrors = True
+#process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
+#process.siPixelDigis.InputLabel = 'source'
+#process.siPixelDigis.IncludeErrors = True
+process.load("Configuration.StandardSequences.RawToDigi_cff")
 
 #process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
 
@@ -36,6 +38,9 @@ process.load("RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
 process.load("RecoTracker.Configuration.RecoTrackerP5_cff")
+
+##new##
+process.load("Configuration.StandardSequences.Simulation_cff")
 
 
 
@@ -183,3 +188,4 @@ process.p = cms.Path(process.Reco*process.RecoStrips*process.trackReconstruction
 #process.p = cms.Path(process.Reco*process.dqmEnv*process.siPixelOfflineDQM_source_woTrack*process.qTester*process.PixelOfflineDQMClientWithDataCertification*process.dqmSaver)
 #process.p = cms.Path(process.siPixelDigis*process.siPixelClusters*process.trackReconstruction*process.dqmEnv*process.siPixelP5DQM_cosmics_source*process.PixelP5DQMClient*process.dqmSaver)
 
+process.p = cms.Path( process.RawToDigi * process.reconstruction * process.dqmEnv*process.siPixelP5DQM_source*process.PixelP5DQMClient*process.dqmSaver)
