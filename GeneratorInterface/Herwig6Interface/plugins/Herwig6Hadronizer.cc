@@ -143,11 +143,10 @@ Herwig6Hadronizer::Herwig6Hadronizer(const edm::ParameterSet &params) :
 	numTrials(params.getUntrackedParameter<int>("numTrialsMPI", 100)),
 	readMCatNLOfile(false)
 {
-
-        fConvertToPDG = false;
-        if ( params.exists( "doPDGConvert" ) )
-           fConvertToPDG = params.getParameter<bool>("doPDGConvert");
-
+  
+  fConvertToPDG = false;
+  if ( params.exists( "doPDGConvert" ) )
+    fConvertToPDG = params.getParameter<bool>("doPDGConvert");
 }
 
 Herwig6Hadronizer::~Herwig6Hadronizer()
@@ -332,7 +331,27 @@ bool Herwig6Hadronizer::initialize(const lhef::HEPRUP *heprup)
 
 	// HERWIG preparations ...
 	call(hwuinc);
-	markStable(111);	//FIXME?	only pi0?
+	markStable(13);	         // MU+
+	markStable(-13);	 // MU-
+	markStable(3112);	 // SIGMA+
+	markStable(-3112);	 // SIGMABAR+
+	markStable(3222);	 // SIGMA-
+	markStable(-3222);	 // SIGMABAR-
+	markStable(3122);	 // LAMBDA0
+	markStable(-3122);	 // LAMBDABAR0
+	markStable(3312);	 // XI-
+	markStable(-3312);	 // XIBAR+
+	markStable(3322);	 // XI0
+	markStable(-3322);	 // XI0BAR
+	markStable(3334);	 // OMEGA-
+	markStable(-3334);	 // OMEGABAR+
+	markStable(211);	 // PI+
+	markStable(-211);	 // PI-
+	markStable(321);	 // K+
+	markStable(-321);	 // K-
+	markStable(310);	 // K_S0
+	markStable(130);	 // K_L0
+
 	// better: merge with declareStableParticles
 	// and get the list from configuration / Geant4 / Core somewhere
 
