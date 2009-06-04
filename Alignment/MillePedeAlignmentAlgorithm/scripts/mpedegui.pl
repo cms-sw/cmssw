@@ -322,7 +322,7 @@ $ZWIDGETS{'batchclass_label'} = $MW->Label(
 
 # Widget milleclass_menu isa Optionmenu
 $ZWIDGETS{'milleclass_menu'} = $MW->Optionmenu(
-        -options => [ ["(Choose mille queue)"=>""], ["8nm"=>"8nm"], ["1nh"=>"1nh"], ["8nh"=>"8nh"], ["1nd"=>"1nd"], ["2nd"=>"2nd"], ["1nw"=>"1nw"], ["2nw"=>"2nw"], ["cmscaf1h"=>"cmscaf1h"], ["cmscaf8h"=>"cmscaf8h"], ["cmscaf1w"=>"cmscaf1w"] ],
+        -options => [ ["(Choose mille queue)"=>""], ["8nm"=>"8nm"], ["1nh"=>"1nh"], ["8nh"=>"8nh"], ["1nd"=>"1nd"], ["2nd"=>"2nd"], ["1nw"=>"1nw"], ["2nw"=>"2nw"], ["cmscaf1nh"=>"cmscaf1nh"], ["cmscaf8nh"=>"cmscaf8nh"], ["cmscaf1nw"=>"cmscaf1nw"] ],
         -variable => \$milleclass_variable,
         -command => \&createbatchclass,
 	)->grid(
@@ -333,7 +333,7 @@ $ZWIDGETS{'milleclass_menu'} = $MW->Optionmenu(
 
 # Widget pedeclass_menu isa Optionmenu
 $ZWIDGETS{'pedeclass_menu'} = $MW->Optionmenu(
-        -options => [ ["(Choose pede queue)"=>""], ["8nm"=>"8nm"], ["1nh"=>"1nh"], ["8nh"=>"8nh"], ["1nd"=>"1nd"], ["2nd"=>"2nd"], ["1nw"=>"1nw"], ["2nw"=>"2nw"], ["cmscaf1h"=>"cmscaf1h"], ["cmscaf8h"=>"cmscaf8h"], ["cmscaf1w"=>"cmscaf1w"], ["cmscafspec1h"=>"cmscafspec1h"], ["cmscafspec8h"=>"cmscafspec8h"], ["cmscafspec1w"=>"cmscafspec1w"] ],
+        -options => [ ["(Choose pede queue)"=>""], ["8nm"=>"8nm"], ["1nh"=>"1nh"], ["8nh"=>"8nh"], ["1nd"=>"1nd"], ["2nd"=>"2nd"], ["1nw"=>"1nw"], ["2nw"=>"2nw"], ["cmscaf1nh"=>"cmscaf1nh"], ["cmscaf8nh"=>"cmscaf8nh"], ["cmscaf1nw"=>"cmscaf1nw"], ["cmscafspec1nh"=>"cmscafspec1nh"], ["cmscafspec8nh"=>"cmscafspec8nh"], ["cmscafspec1nw"=>"cmscafspec1nw"] ],
         -variable => \$pedeclass_variable,
         -command => \&createbatchclass,
 	)->grid(
@@ -727,6 +727,9 @@ sub reset_var {
   $pathdata_variable        =$infiList;
   $pathpedescript_variable  =$mergeScript;
   $pathcastor_variable      =$mssDir;
+  if ($mssDirPool ne "") {
+    $pathcastor_variable    =$mssDirPool.":".$pathcastor_variable;
+  }
   $jobname_variable         =$addFiles;
   $njobs_variable           =$nJobs;
 #

@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     08-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.16 $
-#     $Date: 2009/05/13 13:55:19 $
+#     $Revision: 1.17 $
+#     $Date: 2009/06/03 16:43:23 $
 #
 #  Setup local mps database
 #  
@@ -12,8 +12,8 @@
 #  mps_setup.pl batchScript cfgTemplate infiList nJobs class[:classMerge] jobname [mergeScript [pool:]mssDir]
 #
 # class can be - any of the normal LSF queues (8nm,1nh,8nh,1nd,2nd,1nw,2nw)
-#              - special CAF queues (cmscaf1h, cmscaf8h, cmscaf1w)
-#              - special CAF queues, for pede job (cmscafspec1h, cmscafspec8h, cmscafspec1w). E.g. cmscafspec1h corresponds to "-q cmscaf1h -R cmscafspec"
+#              - special CAF queues (cmscaf1nh, cmscaf8nh, cmscaf1nw)
+#              - special CAF queues, for pede job (cmscafspec1nh, cmscafspec8nh, cmscafspec1nw). E.g. cmscafspec1nh corresponds to "-q cmscaf1nh -R cmscafspec"
 # If class contains a ':', it will be split:
 #              - the part before the ':' defines the class for Mille jobs,
 #              - the part behind the class for the Pede job.
@@ -21,7 +21,7 @@
 # If mssDir contains a ':', it will be split:
 #              - the part before ':' defines the pool,
 #              - the part behind it the directory.
-#              (eg cmscaf:/castor/cern.ch/cms/store/...)
+#              (eg cmscafuser:/castor/cern.ch/cms/store/...)
 
 BEGIN {
 use File::Basename;
@@ -37,7 +37,7 @@ $class = "S";
 $addFiles = "";
 $driver = "";
 $mergeScript = "";
-$castorPool = "";
+$mssDirPool = "";
 $mssDir = "";
 $append = 0;
 
@@ -115,11 +115,11 @@ unless (-r $infiList) {
   print "Bad input list file $infiList\n";
   exit 1;
 }
-unless (index(" lxplus cmscaf1h cmscaf8h cmscaf1w cmscafspec1h cmscafspec8h cmscafspec1w 8nm 1nh 8nh 1nd 2nd 1nw 2nw "," ".get_class("mille")." ")>-1) {
+unless (index(" lxplus cmscaf1nh cmscaf8nh cmscaf1nw cmscafspec1nh cmscafspec8nh cmscafspec1nw 8nm 1nh 8nh 1nd 2nd 1nw 2nw "," ".get_class("mille")." ")>-1) {
   print "Bad job class for mille in class '$class'\n";
   exit 1;
 }
-unless (index(" lxplus cmscaf1h cmscaf8h cmscaf1w cmscafspec1h cmscafspec8h cmscafspec1w 8nm 1nh 8nh 1nd 2nd 1nw 2nw "," ".get_class("pede")." ")>-1) {
+unless (index(" lxplus cmscaf1nh cmscaf8nh cmscaf1nw cmscafspec1nh cmscafspec8nh cmscafspec1nw 8nm 1nh 8nh 1nd 2nd 1nw 2nw "," ".get_class("pede")." ")>-1) {
   print "Bad job class for pede in class '$class'\n";
   exit 1;
 }
@@ -134,11 +134,10 @@ if ($driver eq "merge") {
   }
 }
 
-$mssDirOrig = $mssDir; # First store the original value of $mssDir
 if ($mssDir ne "") {
   if ($mssDir =~ /:/) { # ':' as delimeter also used in mpedegui.pl
-    $castorPool = $mssDir;
-    $castorPool =~ s/:.+?$//; # Remove all that follows ":"
+    $mssDirPool = $mssDir;
+    $mssDirPool =~ s/:.+?$//; # Remove all that follows ":"
 
     $mssDir =~ s/^.+?://; # Remove all the precedes ":"
   }
@@ -248,8 +247,8 @@ for ($j = 1; $j <= $nJobs; ++$j) {
   print "mps_splice.pl $cfgTemplate jobData/$theJobDir/theSplit jobData/$theJobDir/the.py $theIsn\n";
   system "mps_splice.pl $cfgTemplate jobData/$theJobDir/theSplit jobData/$theJobDir/the.py $theIsn";
   # create the run script
-  print "mps_script.pl $batchScript  jobData/$theJobDir/theScript.sh $theJobData/$theJobDir the.py jobData/$theJobDir/theSplit $theIsn $mssDir $castorPool\n";
-  system "mps_script.pl $batchScript  jobData/$theJobDir/theScript.sh $theJobData/$theJobDir the.py jobData/$theJobDir/theSplit $theIsn $mssDir $castorPool";
+  print "mps_script.pl $batchScript  jobData/$theJobDir/theScript.sh $theJobData/$theJobDir the.py jobData/$theJobDir/theSplit $theIsn $mssDir $mssDirPool\n";
+  system "mps_script.pl $batchScript  jobData/$theJobDir/theScript.sh $theJobData/$theJobDir the.py jobData/$theJobDir/theSplit $theIsn $mssDir $mssDirPool";
 }
 
 # create the merge job entry. This is always done. Whether it is used depends on the "merge" option.
@@ -282,8 +281,8 @@ if ($driver eq "merge") {
   system "mps_merge.pl $cfgTemplate jobData/jobm/alignment_merge.py $theJobData/jobm $nJobsMerge";
 
   # create merge job script
-  print "mps_scriptm.pl $mergeScript jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.py $nJobsMerge $mssDir $castorPool\n";
-  system "mps_scriptm.pl $mergeScript jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.py $nJobsMerge $mssDir $castorPool";
+  print "mps_scriptm.pl $mergeScript jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.py $nJobsMerge $mssDir $mssDirPool\n";
+  system "mps_scriptm.pl $mergeScript jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.py $nJobsMerge $mssDir $mssDirPool";
 }
 
 # Create a backup of batchScript, cfgTemplate, infiList (and mergeScript)
@@ -304,7 +303,6 @@ system "rm -rf jobData/$ScriptCfg";
 
 # Write to DB
 
-$mssDir = $mssDirOrig; # First restore original value of $mssDir...
-write_db(); # ... then save to DB
+write_db();
 read_db();
 print_memdb();
