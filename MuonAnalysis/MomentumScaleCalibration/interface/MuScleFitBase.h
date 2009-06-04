@@ -22,6 +22,7 @@ public:
     theMuonType_( iConfig.getParameter<int>( "MuonType" ) ),
     theMuonLabel_( iConfig.getParameter<edm::InputTag>( "MuonLabel" ) ),
     theRootFileName_( iConfig.getUntrackedParameter<string>("OutputFileName") ),
+    theGenInfoRootFileName_( iConfig.getUntrackedParameter<string>("OutputGenInfoFileName") ),
     debug_( iConfig.getUntrackedParameter<int>("debug",0) ),
     useType_( iConfig.getUntrackedParameter<unsigned int>("UseType",0) )
   {}
@@ -48,6 +49,7 @@ protected:
   int theMuonType_;
   edm::InputTag theMuonLabel_;
   string theRootFileName_;
+  string theGenInfoRootFileName_;
 
   int debug_;
 

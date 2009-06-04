@@ -1,8 +1,8 @@
 //  \class MuScleFitPlotter
 //  Plotter for simulated,generated and reco info of muons
 //
-//  $Date: 2009/04/28 12:54:29 $
-//  $Revision: 1.4 $
+//  $Date: 2009/05/12 12:43:42 $
+//  $Revision: 1.5 $
 //  \author  C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 // ----------------------------------------------------------------------------------
@@ -37,8 +37,8 @@ using namespace reco; // For AODSIM MC objects
 
 // Constructor
 // ----------
-MuScleFitPlotter::MuScleFitPlotter(){
-  outputFile = new TFile("genSimRecoPlots.root","RECREATE");
+MuScleFitPlotter::MuScleFitPlotter(string theGenInfoRootFileName){
+  outputFile = new TFile(theGenInfoRootFileName.c_str(),"RECREATE");
   fillHistoMap();
 }
 
