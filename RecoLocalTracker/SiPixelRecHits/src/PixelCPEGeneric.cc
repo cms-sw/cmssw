@@ -425,6 +425,9 @@ generic_position_formula( int size,                //!< Size of this projection.
   //--- Finally, compute the position in this projection
   double Qdiff = Q_l - Q_f;
   double Qsum  = Q_l + Q_f;
+
+	//--- Temporary fix for clusters with both first and last pixel with charge = 0
+	if(Qsum==0) Qsum=1.0;
   double hit_pos = geom_center + 0.5*(Qdiff/Qsum) * W_eff + half_lorentz_shift;
 
   //--- Debugging output
