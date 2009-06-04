@@ -195,8 +195,8 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mHadTiming        = dbe->book1D("HadTiming", "HadTiming", 25, 0, 25);
     mEmTiming         = dbe->book1D("EMTiming", "EMTiming", 15, 0 , 15);
     //
-    mNJetsEtaC        = dbe->book1D("NJetsEtaC_Pt5", "NJetsEtaC_Pt5", 15, 0, 15);
-    mNJetsEtaF        = dbe->book1D("NJetsEtaF_Pt5", "NJetsEtaF_Pt5", 15, 0, 15);
+    mNJetsEtaC        = dbe->book1D("NJetsEtaC_Pt10", "NJetsEtaC_Pt10", 15, 0, 15);
+    mNJetsEtaF        = dbe->book1D("NJetsEtaF_Pt10", "NJetsEtaF_Pt10", 15, 0, 15);
 
     mNJets1           = dbe->bookProfile("NJets1", "NJets1", 100, 0, 200,  100, 0, 50, "s");
     mNJets2           = dbe->bookProfile("NJets2", "NJets2", 100, 0, 4000, 100, 0, 50, "s");
