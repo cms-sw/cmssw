@@ -179,7 +179,7 @@ int ZdcShowerLibrary::getEnergyFromLibrary(G4ThreeVector hitPoint, G4ThreeVector
     <<" xin : "<<hitPoint.x()
     <<" yin : "<<hitPoint.y()
     <<" zin : "<<hitPoint.z()
-    <<" en: " <<energy<< "(GeV)"
+    <<" track en: " <<energy<< "(GeV)"
     <<" section: "<<section
     <<" side: "<<side
     <<" channel: "<< channel
@@ -198,8 +198,11 @@ int ZdcShowerLibrary::getEnergyFromLibrary(G4ThreeVector hitPoint, G4ThreeVector
   double esig = 0.;
   double edis = 0.;
 
+  // parametrizations are not normalized:
+  // eav for 100 GeV neutron is 400 with esig 86
+  // eav for 100 GeV gamma or e+,e- is 4213 esig 312
 
-  if (iparCode==0){      
+ if (iparCode==0){      
     eav = ((((((-0.0002*xin-2.e-13)*xin+0.0022)*xin+1.e-11)*xin-0.0217)*xin-3.e-10)*xin+1.0028)*
       (((0.0001*yin + 0.0056)*yin + 0.0508)*yin + 1)*44.*pow(energy,0.99);       // EM
     esig = ((((((0.0005*xin - 1.e-12)*xin - 0.0052)*xin + 5.e-11)*xin + 0.032)*xin - 
@@ -220,51 +223,44 @@ int ZdcShowerLibrary::getEnergyFromLibrary(G4ThreeVector hitPoint, G4ThreeVector
     if(channel == 3)fact = 0.24;
     if(channel == 4)fact = 0.08;
   }
-  if(section == 1){
-    
-										
+  if(section == 1){							
     if(channel < 5 )
       if(((theXChannelBoundaries[channel-1]/10.)< (xin + X0/10.)) && ((xin + X0/10.)<= theXChannelBoundaries[channel]/10.))fact= 1.;
     if(channel ==5 )
-      if(theXChannelBoundaries[channel-1]< xin + X0/10.)fact = 1.0;
+      if(theXChannelBoundaries[channel-1]/10.< xin + X0/10.)fact = 1.0;
   }
 
-  // The energy functions seem to be off by a factor or 10; review later with calibrations
-  eav = eav*0.1;
-  esig= esig*0.1;
-  
-  nphotons = (int)(fact*photonFluctuation(eav, esig, edis)*GeV);
+  // Convert to MeV for the code
+  eav = fabs(eav)*GeV;
+  esig= fabs(esig)*GeV;
+
+  nphotons = (int)(fact*photonFluctuation(eav, esig, edis));
 
   LogDebug("ZdcShower") 
     //std::cout
-    <<" eaverage: "<<eav << " (GeV)"
-    <<" esigma: "<<esig << " (GeV)"
-    <<" edist: "<<edis
-    <<" dE hit: "<<nphotons<< " (MeV)";
-  
+    <<" eaverage: "<<eav/GeV << " (GeV)"
+    <<" esigma: "<<esig/GeV << "  (GeV)"
+    <<" edist: "<<edis/GeV  << " (GeV)"
+    <<" dE hit: "<<nphotons/GeV<<  " (GeV)";
   return nphotons; 
 }
 
 int ZdcShowerLibrary::photonFluctuation(double eav, double esig,double edis){
   int nphot=0;
   double efluct = 0.;
-
   if(edis == 1.0) efluct = eav+esig*CLHEP::RandGaussQ::shoot();
   if(edis == 3.0) efluct = eav+esig*CLHEP::RandLandau::shoot();
   nphot = int(efluct);
+  if(nphot<0)nphot = 0;
   return nphot;
 }
 
 int ZdcShowerLibrary::encodePartID(G4int parCode){
-
   G4int iparCode = 1;
-
   if (parCode == emPDG ||
       parCode == epPDG ||
       parCode == gammaPDG) {
     iparCode = 0;
   } else { return iparCode; }
-
   return iparCode;
-
 }
