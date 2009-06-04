@@ -231,7 +231,7 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples,
 	  output[ibin2]=sum[ibin2+firstTPSample_];//just pass value
 	}
       outcoder_->compress(output, finegrain, result);
-      runZS(result);
+      //runZS(result);
     }   
 }
 
@@ -275,7 +275,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples,
     }
   //cout<<endl;
   outcoder_->compress(output, finegrain, result);
-  runZS(result);
+  //runZS(result);
 }
 
 void HcalTriggerPrimitiveAlgo::runZS(HcalTriggerPrimitiveDigi & tp){
