@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/05/04 12:53:01 $
-//  $Revision: 1.39 $
+//  $Date: 2009/05/27 14:35:43 $
+//  $Revision: 1.40 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -238,6 +238,10 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset )
 
   // Option to skip simTracks comparison
   compareToSimTracks_ = pset.getParameter<bool>("compareToSimTracks");
+  simTracksCollection_ = pset.getUntrackedParameter<InputTag>("SimTracksCollection", InputTag("g4SimHits"));
+
+  // This must be set to true if using events generated with Sherpa
+  MuScleFitUtils::sherpa_ = pset.getUntrackedParameter<bool>("Sherpa", false);
 
   // Read the Probs file from database. If false it searches the root file in
   // MuonAnalysis/MomentumScaleCalibration/test of the active release.
@@ -461,7 +465,7 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 
     if( compareToSimTracks_ ) {
       try {
-        event.getByLabel ("g4SimHits",simTracks);
+        event.getByLabel (simTracksCollection_, simTracks);
         plotter->fillSim(simTracks);
         if(ifGen && loopCounter == 0){
           plotter->fillGenSim(evtMC,simTracks);
