@@ -1,4 +1,4 @@
-// $Id: TTULogicUnit.cc,v 1.2 2009/05/08 10:24:05 aosorio Exp $
+// $Id: TTULogicUnit.cc,v 1.3 2009/06/01 12:57:20 aosorio Exp $
 // Include files 
 
 
@@ -64,7 +64,16 @@ bool TTULogicUnit::initialise()
 
 void TTULogicUnit::setlogic( const char * logic )
 {
+
   m_logtype = std::string( logic );
+
+}
+
+void TTULogicUnit::setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & boardSpcs )
+{
+  
+  m_logic->setBoardSpecs ( boardSpcs );
+  
 }
 
 void TTULogicUnit::run( const TTUInput & input )

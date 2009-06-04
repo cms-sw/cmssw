@@ -1,4 +1,4 @@
-// $Id: TTUTrackingAlg.cc,v 1.3 2009/05/16 19:43:32 aosorio Exp $
+// $Id: TTUTrackingAlg.cc,v 1.4 2009/06/01 12:57:20 aosorio Exp $
 // Include files 
 
 
@@ -29,9 +29,8 @@ TTUTrackingAlg::TTUTrackingAlg(  ) {
   }
   
   m_triggersignal = false;
-  
-  m_mintrklength = 3;
-  
+  m_mintrklength = 4;
+
   m_debug = false;
   
 }
@@ -54,6 +53,13 @@ TTUTrackingAlg::~TTUTrackingAlg() {
 } 
 
 //=============================================================================
+void TTUTrackingAlg::setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & boardspecs ) 
+{
+  
+  m_mintrklength = boardspecs.m_TrackLength;
+  
+}
+
 bool TTUTrackingAlg::process( const TTUInput & inmap )
 {
   

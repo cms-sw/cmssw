@@ -1,4 +1,4 @@
-// $Id: TTUBasicConfig.cc,v 1.2 2009/05/08 10:24:05 aosorio Exp $
+// $Id: TTUBasicConfig.cc,v 1.3 2009/05/16 19:43:32 aosorio Exp $
 // Include files 
 
 
@@ -24,9 +24,9 @@ TTUBasicConfig::TTUBasicConfig( const TTUBoardSpecs * ttuspecs ) {
     
 }
 
-TTUBasicConfig::TTUBasicConfig( const char * _logic  ) {
+TTUBasicConfig::TTUBasicConfig( const char * logic  ) {
 
-  m_ttulogic = new TTULogicUnit( _logic );
+  m_ttulogic = new TTULogicUnit( logic );
 
   m_debug = false;
     
@@ -59,9 +59,10 @@ bool TTUBasicConfig::initialise()
   m_ttulogic->setlogic( (*itr).m_LogicType.c_str() );
   
   status = m_ttulogic->initialise();
-
-  // get mask and force vectors
   
+  m_ttulogic->setBoardSpecs( (*itr) );
+  
+  // get mask and force vectors
   m_vecmask.assign( (*itr).m_MaskedSectors.begin(), (*itr).m_MaskedSectors.end() );
   m_vecforce.assign( (*itr).m_ForcedSectors.begin(), (*itr).m_ForcedSectors.end() );
   

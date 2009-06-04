@@ -1,4 +1,4 @@
-// $Id: TTUTrackingAlg.h,v 1.2 2009/05/08 10:24:05 aosorio Exp $
+// $Id: TTUTrackingAlg.h,v 1.1 2009/05/16 19:43:31 aosorio Exp $
 #ifndef TTUTRACKINGALG_H 
 #define TTUTRACKINGALG_H 1
 
@@ -29,6 +29,15 @@ public:
   TTUTrackingAlg( ); 
   
   virtual ~TTUTrackingAlg( ); ///< Destructor
+
+
+  //... for the TTULogic interface:
+  
+  bool process( const TTUInput & );
+  
+  void setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & );
+  
+  //...
   
   class Seed 
   {
@@ -72,14 +81,14 @@ public:
       m_seeds.clear();
     };
     
-    Track( const Track & _trk ) 
+    Track( const Track & trk ) 
     {
-      m_seeds = _trk.m_seeds;
-      m_tracklength = _trk.m_tracklength;
+      m_seeds = trk.m_seeds;
+      m_tracklength = trk.m_tracklength;
     };
     
-    void add( Seed * _sd ) { 
-      m_seeds.push_back(_sd); 
+    void add( Seed * sd ) { 
+      m_seeds.push_back(sd); 
       ++m_tracklength;
     };
     
@@ -105,12 +114,10 @@ public:
   
   typedef std::vector<Seed*>::iterator SeedsItr;
   typedef std::vector<Track*>::iterator TracksItr;
-  
-  bool process( const TTUInput & );
 
-  void setMinTrkLength( int _val ) 
+  void setMinTrkLength( int val ) 
   {
-    m_mintrklength = _val;
+    m_mintrklength = val;
   };
   
   template< class T>
@@ -118,8 +125,7 @@ public:
   {
     bool operator( )( T* a, T* b ) { return (*a) < (*b) ; }
   };
-  
-  
+    
 protected:
   
 private:
@@ -146,10 +152,10 @@ private:
   
   std::vector<Seed*>  m_initialseeds;
   
-  inline void print( const std::vector<Seed*> & _seeds ) 
+  inline void print( const std::vector<Seed*> & seeds ) 
   {
     std::vector<Seed*>::const_iterator itr;
-    for( itr = _seeds.begin(); itr != _seeds.end(); ++itr)
+    for( itr = seeds.begin(); itr != seeds.end(); ++itr)
       std::cout << (*itr) << '\t';
     std::cout << '\n';
   };

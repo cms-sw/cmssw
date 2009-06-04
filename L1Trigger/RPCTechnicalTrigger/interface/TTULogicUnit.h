@@ -1,4 +1,4 @@
-// $Id: TTULogicUnit.h,v 1.2 2009/05/08 10:24:04 aosorio Exp $
+// $Id: TTULogicUnit.h,v 1.3 2009/05/16 19:43:30 aosorio Exp $
 #ifndef TTULOGICUNIT_H 
 #define TTULOGICUNIT_H 1
 
@@ -7,6 +7,8 @@
 #include "L1Trigger/RPCTechnicalTrigger/interface/RPCLogicUnit.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTULogic.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUInput.h"
+
+#include "CondFormats/RPCObjects/interface/TTUBoardSpecs.h"
 
 #include <bitset>
 
@@ -29,6 +31,8 @@ public:
   bool initialise();
   
   void setlogic( const char * );
+  
+  void setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & );
   
   void run( const TTUInput & );
   

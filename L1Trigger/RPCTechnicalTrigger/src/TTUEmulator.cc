@@ -1,4 +1,4 @@
-// $Id: TTUEmulator.cc,v 1.6 2009/05/24 21:45:39 aosorio Exp $
+// $Id: TTUEmulator.cc,v 1.7 2009/06/01 12:57:20 aosorio Exp $
 // Include files 
 
 
@@ -122,6 +122,9 @@ void TTUEmulator::setSpecifications( const TTUBoardSpecs * ttuspecs, const RBCBo
   itr = m_ttuconf->m_ttuboardspecs->m_boardspecs.begin();
   
   m_mode = (*itr).m_triggerMode;
+
+  
+
   
 }
 

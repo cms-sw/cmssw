@@ -52,10 +52,10 @@ Implementation:
 // Local to project
 #include "L1Trigger/RPCTechnicalTrigger/interface/ProcessInputSignal.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUEmulator.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/TTUConfigurator.h"
 
 #include "CondFormats/RPCObjects/interface/RBCBoardSpecs.h"
 #include "CondFormats/DataRecord/interface/RBCBoardSpecsRcd.h"
-
 #include "CondFormats/RPCObjects/interface/TTUBoardSpecs.h"
 #include "CondFormats/DataRecord/interface/TTUBoardSpecsRcd.h"
 
@@ -95,12 +95,15 @@ private:
   
   int m_verbosity;
   int m_debugMode;
+  int m_useDatabase;
   int m_triggerMode;
   std::string m_testFile;
+  std::string m_configFile;
   std::vector<unsigned> m_ttBits;
   std::vector<std::string> m_ttNames;
   edm::InputTag m_rpcDigiLabel;
-    
+  
+  TTUConfigurator * m_readConfig;
   const TTUBoardSpecs * m_ttuspecs;
   const RBCBoardSpecs * m_rbcspecs;
   
@@ -110,7 +113,8 @@ private:
   int m_nWheels[3];
   int m_maxTtuBoards;
   int m_maxBits;
-
+  bool m_hasConfig;
+  
   class TTUResults {
   public:
     TTUResults() {;}

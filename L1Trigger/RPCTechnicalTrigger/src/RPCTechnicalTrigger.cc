@@ -43,6 +43,8 @@ RPCTechnicalTrigger::RPCTechnicalTrigger(const edm::ParameterSet& iConfig) {
   m_rpcDigiLabel = iConfig.getParameter<edm::InputTag>("RPCDigiLabel");
   m_ttBits = iConfig.getParameter< std::vector<unsigned> >("BitNumbers");
   m_ttNames = iConfig.getParameter< std::vector<std::string> >("BitNames");
+  m_useDatabase = iConfig.getUntrackedParameter<int>("UseDatabase", 1);
+  m_configFile = iConfig.getUntrackedParameter<std::string>("ConfigFile", std::string("hardware-pseudoconfig.txt"));
   
   if ( m_verbosity ) {
     LogTrace("RPCTechnicalTrigger")
@@ -85,6 +87,7 @@ RPCTechnicalTrigger::RPCTechnicalTrigger(const edm::ParameterSet& iConfig) {
   m_cand = 0;
   m_maxTtuBoards = 3;
   m_maxBits = 5;
+  m_hasConfig = false;
   
   produces<L1GtTechnicalTriggerRecord>();
   
@@ -95,10 +98,17 @@ RPCTechnicalTrigger::~RPCTechnicalTrigger()
 {
   
   LogDebug("RPCTechnicalTrigger") << "RPCTechnicalTrigger: object starts deletion" << std::endl;
-  
-  delete m_ttu[0];
-  delete m_ttu[1];
-  delete m_ttu[2];
+
+  if ( m_hasConfig ) {
+    
+    delete m_ttu[0];
+    delete m_ttu[1];
+    delete m_ttu[2];
+    
+    if ( m_readConfig )
+      delete m_readConfig;
+    
+  }
   
   if ( m_debugMode == 1) {
     if (m_signal) delete m_signal;
@@ -113,16 +123,19 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   
   edm::Handle<RPCDigiCollection> pIn;
   
-  //std::vector<L1GtTechnicalTrigger> ttVec( m_ttBits.size() );
-  //std::vector<L1GtTechnicalTrigger> ttVec();
   std::auto_ptr<L1GtTechnicalTriggerRecord> output(new L1GtTechnicalTriggerRecord());
   
   iEvent.getByLabel(m_rpcDigiLabel, pIn);
+
+  if ( ! m_hasConfig ) {
+    edm::LogError("RPCTechnicalTrigger") << "cannot read hardware configuration \n";
+    iEvent.put(output);
+    return;
+  }
   
   if ( !pIn.isValid() ) {
     edm::LogError("RPCTechnicalTrigger") << "can't find RPCDigiCollection with label: " 
                                          << m_rpcDigiLabel << '\n';
-    //output->setGtTechnicalTrigger(ttVec);    
     iEvent.put(output);
     return;
   }
@@ -151,7 +164,6 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       
     default:
       edm::LogError("RPCTechnicalTrigger") << "Trigger mode not implemented: " << m_triggerMode << '\n';
-      //output->setGtTechnicalTrigger(ttVec);
       iEvent.put(output);
       return;
       
@@ -163,7 +175,6 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   status = m_signal->next();
   if ( !status)  { 
     if( m_debugMode == 0 ) delete m_signal;
-    //output->setGtTechnicalTrigger(ttVec);    
     iEvent.put(output);
     return;
   }
@@ -178,8 +189,6 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   int indx(0);
   
   std::vector<TTUEmulator::TriggerResponse*>::const_iterator outItr;
-  
-  //std::map<int,std::bitset<2> >::const_iterator outItr;
   
   for(int k=0; k < m_maxTtuBoards; ++k) {
     
@@ -198,7 +207,6 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       
     case 1:
       m_ttu[k]->processglobal( input );
-      //std::cout << "TriggerResponseVec: " << m_ttu[k]->m_triggerBxVec.size() << std::endl;
       for( outItr  = m_ttu[k]->m_triggerBxVec.begin(); outItr != m_ttu[k]->m_triggerBxVec.end(); ++outItr )
         m_serializedInfo.push_back( new TTUResults( k, (*outItr)->m_bx, (*outItr)->m_trigger[0], (*outItr)->m_trigger[1] ) );
       m_ttu[k]->clearTriggerResponse();
@@ -206,7 +214,6 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       
     case 2:
       m_ttu[k]->processlocal( input );
-      //std::cout << "TriggerResponseVec: " << m_ttu[k]->m_triggerBxVec.size() << std::endl;
       for( outItr  = m_ttu[k]->m_triggerBxVec.begin(); outItr != m_ttu[k]->m_triggerBxVec.end(); ++outItr )
         m_serializedInfo.push_back( new TTUResults( k, (*outItr)->m_bx, (*outItr)->m_trigger[0], (*outItr)->m_trigger[1] ) );
       m_ttu[k]->clearTriggerResponse();
@@ -224,7 +231,7 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   
   infoSize = m_serializedInfo.size();
   std::sort( m_serializedInfo.begin(), m_serializedInfo.end(), sortByBx() );
-
+  
   for(int k = 0; k < infoSize; k+=m_maxTtuBoards) {
     
     m_triggerbits.set(0, m_serializedInfo[k]->m_trigWheel1);
@@ -234,13 +241,6 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     m_triggerbits.set(4, m_serializedInfo[k+2]->m_trigWheel2);
     
     bx = m_serializedInfo[k]->m_bx;
-    
-    //std::cout << "TriggerResponseVec> " << bx << '\t'
-    //          << m_serializedInfo[k]->m_trigWheel1 << '\t'
-    //          << m_serializedInfo[k]->m_trigWheel2 << '\t'
-    //          << m_serializedInfo[k+1]->m_trigWheel1 << '\t'
-    //          << m_serializedInfo[k+2]->m_trigWheel1 << '\t'
-    //          << m_serializedInfo[k+2]->m_trigWheel2 << '\n';
     
     for(int i = 0; i < m_maxBits; ++i) {
       ttVec.at(i)=L1GtTechnicalTrigger(m_ttNames.at(i), m_ttBits.at(i), bx, m_triggerbits[i] ) ;
@@ -255,10 +255,9 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   
   //... reset data map for next event
 
-  
   input->clear();
   m_triggerbits.reset();
-
+  
   std::vector<TTUResults*>::iterator itrRes;
   for( itrRes=m_serializedInfo.begin(); itrRes!=m_serializedInfo.end(); ++itrRes)
     delete (*itrRes);
@@ -266,7 +265,7 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   if( m_debugMode == 0 ) delete m_signal;
   
   //.... all done
-
+  
   ++m_ievt;
   LogDebug("RPCTechnicalTrigger") << "RPCTechnicalTrigger> end of event loop" << std::endl;
   
@@ -286,22 +285,52 @@ void RPCTechnicalTrigger::beginRun(edm::Run& iRun, const edm::EventSetup& evtSet
   
   //..  Get Board Specifications (hardware configuration)
   
-  edm::ESHandle<RBCBoardSpecs> pRBCSpecs;
-  evtSetup.get<RBCBoardSpecsRcd>().get(pRBCSpecs);
-  m_rbcspecs = pRBCSpecs.product();
+  if ( m_useDatabase >= 1 ) {
+    
+    edm::ESHandle<RBCBoardSpecs> pRBCSpecs;
+    evtSetup.get<RBCBoardSpecsRcd>().get(pRBCSpecs);
+
+    edm::ESHandle<TTUBoardSpecs> pTTUSpecs;
+    evtSetup.get<TTUBoardSpecsRcd>().get(pTTUSpecs);
+    
+    if ( !pRBCSpecs.isValid() ||  !pTTUSpecs.isValid() ) {
+      edm::LogError("RPCTechnicalTrigger") << "can't find RBC/TTU BoardSpecsRcd" << '\n';
+      m_hasConfig = false;
+    }
+    else  {
+      m_rbcspecs = pRBCSpecs.product();
+      m_ttuspecs = pTTUSpecs.product();
+      m_hasConfig = true;
+    }
+    
+  } else {
+    
+    // read hardware configuration from file
+    m_readConfig = new TTUConfigurator( m_configFile.c_str() );
+    
+    if ( m_readConfig->m_hasConfig ) {
+      m_readConfig->process();
+      m_rbcspecs = m_readConfig->getRbcSpecs();
+      m_ttuspecs = m_readConfig->getTtuSpecs();
+      m_hasConfig = true;
+    }
+    
+    else m_hasConfig = false;
+    
+  }
   
-  edm::ESHandle<TTUBoardSpecs> pTTUSpecs;
-  evtSetup.get<TTUBoardSpecsRcd>().get(pTTUSpecs);
+  if ( m_hasConfig ) {
+    
+
+    for (int k=0; k < m_maxTtuBoards; ++k )
+      m_ttu[k]->setSpecifications( m_ttuspecs, m_rbcspecs );
   
-  m_ttuspecs = pTTUSpecs.product();
+    //... Initialize all
   
-  for (int k=0; k < m_maxTtuBoards; ++k )
-    m_ttu[k]->setSpecifications( m_ttuspecs, m_rbcspecs );
-  
-  //... Initialize all
-  
-  for (int k=0; k < m_maxTtuBoards; ++k )
-    status = m_ttu[k]->initialise();
+    for (int k=0; k < m_maxTtuBoards; ++k )
+      status = m_ttu[k]->initialise();
+    
+  }
   
   //..........
   
@@ -310,11 +339,8 @@ void RPCTechnicalTrigger::beginRun(edm::Run& iRun, const edm::EventSetup& evtSet
     m_signal  = dynamic_cast<ProcessInputSignal*>(new ProcessTestSignal( m_testFile.c_str()) );
   }
   
-  
+
 }
-
-
-
 
 // ------------ method called once each job just after ending the event loop  ------------
 
