@@ -70,9 +70,6 @@ class SiPixelDataQuality {
   bool  offlineXMLfile_;
   
   
-  TH2F * allmodsEtaPhi;
-  TH2F * errmodsEtaPhi;
-  TH2F * goodmodsEtaPhi;
   TH2F * allmodsMap;
   TH2F * errmodsMap;
   TH2F * goodmodsMap;
@@ -102,40 +99,54 @@ class SiPixelDataQuality {
   MonitorElement * NErrorsBarrel;
   MonitorElement * NErrorsEndcap;
   MonitorElement * NErrorsFEDs;
+  MonitorElement * NErrorsFEDMap;
+  MonitorElement * NErrorsMap;
   int n_errors_barrel_, n_errors_endcap_, n_errors_feds_;
   float barrel_error_flag_, endcap_error_flag_, feds_error_flag_;
   
   // Digis Cuts:
   MonitorElement * NDigisBarrel;
   MonitorElement * NDigisEndcap;
+  MonitorElement * NDigisMap;
   MonitorElement * DigiChargeBarrel;
   MonitorElement * DigiChargeEndcap;
+  MonitorElement * DigiChargeMap;
   
   // OnTrackCluster Cuts:
   MonitorElement * OnTrackClusterSizeBarrel;
   MonitorElement * OnTrackClusterSizeEndcap;
+  MonitorElement * OnTrackClusterSizeMap;
   MonitorElement * OnTrackClusterChargeBarrel;
   MonitorElement * OnTrackClusterChargeEndcap;
+  MonitorElement * OnTrackClusterChargeMap;
   MonitorElement * OnTrackNClustersBarrel;
   MonitorElement * OnTrackNClustersEndcap;
+  MonitorElement * OnTrackNClustersMap;
   
   // OffTrackCluster Cuts:
   MonitorElement * OffTrackClusterSizeBarrel;
   MonitorElement * OffTrackClusterSizeEndcap;
+  MonitorElement * OffTrackClusterSizeMap;
   MonitorElement * OffTrackClusterChargeBarrel;
   MonitorElement * OffTrackClusterChargeEndcap;
+  MonitorElement * OffTrackClusterChargeMap;
   MonitorElement * OffTrackNClustersBarrel;
   MonitorElement * OffTrackNClustersEndcap;
+  MonitorElement * OffTrackNClustersMap;
   
   // Residual Cuts:
   MonitorElement * ResidualXMeanBarrel;
   MonitorElement * ResidualXMeanEndcap;
+  MonitorElement * ResidualXMeanMap;
   MonitorElement * ResidualXRMSBarrel;
   MonitorElement * ResidualXRMSEndcap;
+  MonitorElement * ResidualXRMSMap;
   MonitorElement * ResidualYMeanBarrel;
   MonitorElement * ResidualYMeanEndcap;
+  MonitorElement * ResidualYMeanMap;
   MonitorElement * ResidualYRMSBarrel;
   MonitorElement * ResidualYRMSEndcap;
+  MonitorElement * ResidualYRMSMap;
   
   // RechitError Cuts:
   MonitorElement * RecHitErrorXBarrel;
