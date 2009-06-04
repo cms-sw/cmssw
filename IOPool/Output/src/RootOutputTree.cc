@@ -3,7 +3,9 @@
 
 #include "TFile.h"
 #include "TBranch.h"
+#include "TBranchElement.h"
 #include "TTreeCloner.h"
+#include "TCollection.h"
 #include "Rtypes.h"
 
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
@@ -37,31 +39,76 @@ namespace edm {
     return assignTTree(filePtr, tree);
   }
 
-  bool RootOutputTree::checkSplitLevelAndBasketSize(TTree *inputTree) const {
+  namespace {
+    bool checkMatchingBranches(TBranchElement *inputBranch, TBranchElement *outputBranch) {
+      if (inputBranch->GetStreamerType() != outputBranch->GetStreamerType()) {
+        return false;
+      }
+      TObjArray *inputArray = inputBranch->GetListOfBranches();
+      TObjArray *outputArray = outputBranch->GetListOfBranches();
+
+      if(outputArray->GetSize() < inputArray->GetSize()) {
+        return false;
+      }
+      TIter iter(outputArray);
+      TObject *obj = 0;
+      while (obj = iter.Next()) {
+        TBranchElement *outBranch = dynamic_cast<TBranchElement *>(obj);
+        if (outBranch) {
+	  TBranchElement *inBranch = dynamic_cast<TBranchElement *>(inputBranch->FindBranch(outputBranch->GetName()));
+	  if (!inBranch) {
+	    return false;
+	  }
+	  return checkMatchingBranches(inBranch, outBranch);
+        }
+      }
+      return true;
+    }
+  }
+
+  bool RootOutputTree::checkIfFastClonable(TTree *inputTree) const {
 
     if (inputTree == 0) return false;
 
     // Do the split level and basket size match in the input and output?
-    for (std::vector<TBranch *>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end();
-      it != itEnd; ++it) {
+    for (std::vector<TBranch *>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end(); it != itEnd; ++it) {
 
       TBranch* outputBranch = *it;
       if (outputBranch != 0) {
         TBranch* inputBranch = inputTree->GetBranch(outputBranch->GetName());
 
         if (inputBranch != 0) {
-          if (inputBranch->GetSplitLevel() != outputBranch->GetSplitLevel() ||
-              inputBranch->GetBasketSize() != outputBranch->GetBasketSize()) {
+          if (inputBranch->GetSplitLevel() != outputBranch->GetSplitLevel()) {
             LogInfo("FastCloning")
-              << "Fast Cloning disabled because split level or basket size do not match";
+              << "Fast Cloning disabled because input and output split levels do not match for branch: " << inputBranch->GetName() << "\n.";
+            return false;
+          }
+          if (inputBranch->GetBasketSize() != outputBranch->GetBasketSize()) {
+            LogInfo("FastCloning")
+              << "Fast Cloning disabled because input and output basket sizes do not match for branch: " << inputBranch->GetName() << "\n.";
             return false;
           }
         }
       }
     }
+    // Do the sub-branches match in the input and output.  Extra sub-branches in the input are OK for fast cloning, but not in the output.
+    for (std::vector<TBranch *>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end(); it != itEnd; ++it) {
+      TBranchElement* outputBranch = dynamic_cast<TBranchElement *>(*it);
+      if (outputBranch != 0) {
+	TBranchElement* inputBranch = dynamic_cast<TBranchElement *>(inputTree->GetBranch(outputBranch->GetName()));
+        if (inputBranch != 0) {
+	  // We have a matching top level branch. Do the recursive check on subbranches.
+	  bool match = checkMatchingBranches(inputBranch, outputBranch);
+	  if (!match) {
+            LogInfo("FastCloning")
+              << "Fast Cloning disabled because a data member has been added to  split branch: " << inputBranch->GetName() << "\n.";
+	    return false;
+	  }
+	}
+      }
+    }
     return true;
   }
-
 
   void
   RootOutputTree::fastCloneTTree(TTree *in, TTree *out) {

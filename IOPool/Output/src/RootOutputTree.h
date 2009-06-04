@@ -75,7 +75,7 @@ namespace edm {
     void addBranch(BranchDescription const& prod,
 		   void const*& pProd, bool produced);
 
-    bool checkSplitLevelAndBasketSize(TTree *inputTree) const;
+    bool checkIfFastClonable(TTree *inputTree) const;
 
     void fastCloneTree(TTree *tree);
 
