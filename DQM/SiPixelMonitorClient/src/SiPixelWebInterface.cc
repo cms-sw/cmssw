@@ -173,6 +173,23 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
     theActionFlag = NoAction;
     infoExtractor_->readModuleAndHistoList(bei_, out);    
 
+  } else if (requestID == "GetTkMap") { 
+    theActionFlag = NoAction;	 
+    
+    ifstream fin("dqmtmapviewer.xhtml");
+    char buf[BUF_SIZE];
+    std::ostringstream html_out;
+    if (!fin) {
+      std::cerr << "Input File: dqmtmapviewer.xhtml "<< " could not be opened!" << std::endl;
+      return;
+    }
+    while (fin.getline(buf, BUF_SIZE, '\n')) { // pops off the newline character 
+      html_out << buf << std::endl;
+    }
+    fin.close();
+    
+    out->getHTTPResponseHeader().addHeader("Content-type","application/xhtml+xml");
+    *out << html_out.str();
   } else if (requestID == "periodicTrackerMapUpdate") {
    theActionFlag = NoAction;
    periodicTkMapUpdate(out) ;
@@ -198,12 +215,14 @@ void SiPixelWebInterface::performAction() {
   case SiPixelWebInterface::CreateTkMap :
     {
      if (createTkMap()) {
+//     cout<<"calling the dtor before this?"<<endl;
        tkMapCreated = true;
 //       theOut->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
 //      *theOut << "<?xml version=\"1.0\" ?>"	     << endl;
 //      *theOut << "<TkMap>"			     << endl;
 //      *theOut << " <Response>Successfull</Response>" << endl;
 //      *theOut << "</TkMap>"			     << endl;
+//cout<<"Done creating the TkMap in WI::performAction, what now?!"<<endl;
      }
       break;
     }
@@ -280,7 +299,6 @@ void SiPixelWebInterface::performAction() {
     }
   case SiPixelWebInterface::dumpModIds  :
     {
-      actionExecutor_->dumpModIds(bei_);
       break;
     }
   case SiPixelWebInterface::ComputeGlobalQualityFlag :

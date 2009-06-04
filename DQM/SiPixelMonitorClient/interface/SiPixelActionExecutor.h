@@ -7,6 +7,14 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigParser.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigWriter.h"
 #include "DQMServices/ClientConfig/interface/QTestHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
 #include <fstream>
 #include <map>
 #include <vector>
@@ -46,9 +54,12 @@ class SiPixelActionExecutor {
  void createLayout(     	    DQMStore    		 * bei);
  void fillLayout(       	    DQMStore    		 * bei);
  int getTkMapMENames(               std::vector<std::string>	 & names);
- void dumpModIds(                   DQMStore     		 * bei);
- void dumpBarrelModIds(             DQMStore     		 * bei);
- void dumpEndcapModIds(             DQMStore     		 * bei);
+ void dumpModIds(                   DQMStore     		 * bei,
+                                    edm::EventSetup const        & eSetup);
+ void dumpBarrelModIds(             DQMStore     		 * bei,
+                                    edm::EventSetup const        & eSetup);
+ void dumpEndcapModIds(             DQMStore     		 * bei,
+                                    edm::EventSetup const        & eSetup);
  
 
 
@@ -81,6 +92,7 @@ private:
 
   SiPixelConfigParser* configParser_;
   SiPixelConfigWriter* configWriter_;
+  edm::ESHandle<SiPixelFedCablingMap> theCablingMap;
   
   std::vector<std::string> summaryMENames;
   std::vector<std::string> tkMapMENames;

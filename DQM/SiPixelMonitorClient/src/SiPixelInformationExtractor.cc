@@ -155,6 +155,7 @@ void SiPixelInformationExtractor::getTrackerMapHistos(DQMStore* bei,
 
 //  cout << __LINE__ << ACYellow << ACBold 
 //       << "[SiPixelInformationExtractor::getTrackerMapHistos] " << ACPlain << endl ;
+//  cout<<"I am in this dir: "<<bei->pwd()<<endl;
   vector<string> hlist;
   string tkmap_name;
   SiPixelConfigParser config_parser;
@@ -193,7 +194,11 @@ void SiPixelInformationExtractor::getTrackerMapHistos(DQMStore* bei,
   
   SiPixelFolderOrganizer folder_organizer;
   string path;
-  folder_organizer.getModuleFolder(detId,path);   
+  
+  folder_organizer.getModuleFolder(detId,path);
+  string currDir = bei->pwd();   
+//  cout<<"detId= "<<detId<<" , path= "<<path<<" , and now I am in "<<currDir<<endl;
+  
 /*
   if((bei->pwd()).find("Module_") == string::npos &&
      (bei->pwd()).find("FED_") == string::npos){
@@ -209,35 +214,37 @@ void SiPixelInformationExtractor::getTrackerMapHistos(DQMStore* bei,
   vector<MonitorElement*> all_mes = bei->getContents(path);
   setXMLHeader(out);
 
-//  cout << __LINE__ << ACCyan << ACBold 
-//       << " [SiPixelInformationExtractor::getTrackerMapHistos()] path "
-//       << ACPlain << path << endl ; 
-//  cout << __LINE__ << ACCyan << ACBold 
-//       << " [SiPixelInformationExtractor::getTrackerMapHistos()] all_mes.size() "
-//       << ACPlain << all_mes.size() << endl ; 
-
+/*  cout << __LINE__ << ACCyan << ACBold 
+       << " [SiPixelInformationExtractor::getTrackerMapHistos()] path "
+       << ACPlain << path << endl ; 
+  cout << __LINE__ << ACCyan << ACBold 
+       << " [SiPixelInformationExtractor::getTrackerMapHistos()] all_mes.size() "
+       << ACPlain << all_mes.size() << endl ; 
+*/
   QRegExp rx("(\\w+)_(siPixel|ctfWithMaterialTracks)") ;
   QString theME ;
 
   *out << "<pathList>" << endl ;
   for (vector<string>::iterator ih = hlist.begin();
        ih != hlist.end(); ih++) {
+       //cout<<"ih iterator (hlist): "<<(*ih)<<endl;
     for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
 	 it!= all_mes.end(); it++) {
       MonitorElement * me = (*it);
       if (!me) 
       { 
-//       cout << __LINE__ << ACCyan << ACBold 
-//            << " [SiPixelInformationExtractor::getTrackerMapHistos()] skipping "
-//        	       << ACPlain << *ih << endl ; 
+       cout << __LINE__ << ACCyan << ACBold 
+            << " [SiPixelInformationExtractor::getTrackerMapHistos()] skipping "
+        	       << ACPlain << *ih << endl ; 
        continue;
       }
       theME = me->getName();
+      //cout<<"ME iterator (all_mes): "<<theME<<endl; 
       string temp_s ; 
       if( rx.search(theME) != -1 ) { temp_s = rx.cap(1).latin1() ; }
-//      cout << __LINE__ << ACCyan << ACBold 
-//           << " [SiPixelInformationExtractor::getTrackerMapHistos()] temp_s "
-//           << ACPlain << temp_s << " <--> " << *ih << " |" << theME << "|" << endl ; 
+      //cout << __LINE__ << ACCyan << ACBold 
+      //     << " [SiPixelInformationExtractor::getTrackerMapHistos()] temp_s "
+      //     << ACPlain << temp_s << " <--> " << *ih << " |" << theME << "|" << endl ; 
       if (temp_s == (*ih)) {
 	string full_path = path + "/" + me->getName();
 	histoPlotter_->setNewPlot(full_path, opt, width, height);
@@ -277,6 +284,7 @@ std::string  SiPixelInformationExtractor::getMEType(MonitorElement * theMe)
 void SiPixelInformationExtractor::readModuleAndHistoList(DQMStore* bei, 
                                                          xgi::Output * out) {
 //cout<<"entering SiPixelInformationExtractor::readModuleAndHistoList"<<endl;
+   bei->cd("Pixel");
    std::map<std::string,std::string> hnames;
    std::vector<std::string> mod_names;
    fillModuleAndHistoList(bei, mod_names, hnames);
@@ -315,10 +323,11 @@ void SiPixelInformationExtractor::fillModuleAndHistoList(DQMStore * bei,
 							 map<string,string>    & histos) {
 //cout<<"entering SiPixelInformationExtractor::fillModuleAndHistoList"<<endl;
   string currDir = bei->pwd();
+  //cout<<"currDir= "<<currDir<<endl;
   if (currDir.find("Module_") != string::npos ||
       currDir.find("FED_") != string::npos)  {
     if (histos.size() == 0) {
-      //cout<<"currDir="<<currDir<<endl;
+      
 
       vector<string> contents = bei->getMEs();
           
@@ -327,7 +336,7 @@ void SiPixelInformationExtractor::fillModuleAndHistoList(DQMStore * bei,
 	string hname          = (*it).substr(0, (*it).find("_siPixel"));
 	if (hname==" ") hname = (*it).substr(0, (*it).find("_ctfWithMaterialTracks"));
         string fullpathname   = bei->pwd() + "/" + (*it); 
-
+       // cout<<"fullpathname="<<fullpathname<<endl;
         MonitorElement * me   = bei->get(fullpathname);
 	
         string htype          = "undefined" ;
@@ -336,17 +345,19 @@ void SiPixelInformationExtractor::fillModuleAndHistoList(DQMStore * bei,
 	 htype = me->getRootObject()->IsA()->GetName() ;
 	}
 	//cout<<"hname="<<hname<<endl;
-        histos[hname] = htype ;
-        string mId=" ";
-	if(hname.find("ndigis")                !=string::npos) mId = (*it).substr((*it).find("ndigis_siPixelDigis_")+20, 9);
-	if(mId==" " && hname.find("nclusters") !=string::npos) mId = (*it).substr((*it).find("nclusters_siPixelClusters_")+26, 9);
-        if(mId==" " && hname.find("residualX") !=string::npos) mId = (*it).substr((*it).find("residualX_ctfWithMaterialTracks_")+32, 9);
-        if(mId==" " && hname.find("NErrors") !=string::npos) mId = (*it).substr((*it).find("NErrors_siPixelDigis_")+21, 9);
-        if(mId==" " && hname.find("ClustX") !=string::npos) mId = (*it).substr((*it).find("ClustX_siPixelRecHit_")+21, 9);
-        if(mId==" " && hname.find("pixelAlive") !=string::npos) mId = (*it).substr((*it).find("pixelAlive_siPixelCalibDigis_")+29, 9);
-        if(mId==" " && hname.find("Gain1d") !=string::npos) mId = (*it).substr((*it).find("Gain1d_siPixelCalibDigis_")+25, 9);
-        if(mId!=" ") modules.push_back(mId);
-        //cout<<"mId="<<mId<<endl;
+	//if(htype=="TH1F" || htype=="TH1D"){
+          histos[hname] = htype ;
+          string mId=" ";
+	  if(hname.find("ndigis")                !=string::npos) mId = (*it).substr((*it).find("ndigis_siPixelDigis_")+20, 9);
+	  if(mId==" " && hname.find("nclusters") !=string::npos) mId = (*it).substr((*it).find("nclusters_siPixelClusters_")+26, 9);
+          if(mId==" " && hname.find("residualX") !=string::npos) mId = (*it).substr((*it).find("residualX_ctfWithMaterialTracks_")+32, 9);
+          if(mId==" " && hname.find("NErrors") !=string::npos) mId = (*it).substr((*it).find("NErrors_siPixelDigis_")+21, 9);
+          if(mId==" " && hname.find("ClustX") !=string::npos) mId = (*it).substr((*it).find("ClustX_siPixelRecHit_")+21, 9);
+          if(mId==" " && hname.find("pixelAlive") !=string::npos) mId = (*it).substr((*it).find("pixelAlive_siPixelCalibDigis_")+29, 9);
+          if(mId==" " && hname.find("Gain1d") !=string::npos) mId = (*it).substr((*it).find("Gain1d_siPixelCalibDigis_")+25, 9);
+          if(mId!=" ") modules.push_back(mId);
+          //cout<<"mId="<<mId<<endl;
+	//}
       }    
     }
   } else {  
@@ -1095,17 +1106,17 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(DQMStore  * bei,
 
   QRegExp rx("\\w+_\\w+_(\\d+)");
   
-//   cout << ACYellow << ACBold
-//        << "[SiPixelInformationExtractor::sendTkUpdatedStatus()] "
-//        << ACPlain
-//        << "Preparing color map update for " 
-//        << theMEName
-//        << " type "
-//        << theTKType
-//        << " - List size: "
-//        << me_list.size() 
-//        << endl ;
-  
+/*   cout << ACYellow << ACBold
+	<< "[SiPixelInformationExtractor::sendTkUpdatedStatus()] "
+	<< ACPlain
+	<< "Preparing color map update for " 
+	<< theMEName
+	<< " type "
+	<< theTKType
+	<< " - List size: "
+	<< me_list.size() 
+	<< endl ;
+*/  
   int maxEntries = 0 ;
   if( theTKType == "Entries") // In this case find the ME with the highest number of entries
   {			      // first and use that as a vertical scale normalization
@@ -1173,14 +1184,14 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(DQMStore  * bei,
 
 //  delete random ;
   
-//   cout << ACYellow << ACBold
-//        << "[SiPixelInformationExtractor::sendTkUpdatedStatus()] "
-//        << ACPlain
-//        << "Color map consists of "
-//        << colorMap.size()
-//        << " snippets: start shipping back"
-//        << endl ;
-
+/*   cout << ACYellow << ACBold
+	<< "[SiPixelInformationExtractor::sendTkUpdatedStatus()] "
+	<< ACPlain
+	<< "Color map consists of "
+	<< colorMap.size()
+	<< " snippets: start shipping back"
+	<< endl ;
+*/
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
   *out << "<?xml version=\"1.0\" ?>" << endl;
   *out << "<TrackerMapUpdate>"       << endl;
@@ -1199,14 +1210,15 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(DQMStore  * bei,
   *out << "</TrackerMapUpdate>"              
        << endl;
 
-//   cout << ACYellow << ACBold
-//        << "[SiPixelInformationExtractor::sendTkUpdatedStatus()] "
-//        << ACPlain
-//        << "Color map updated within range " 
-//        << norm.first
-//        << "-"
-//        << norm.second
-//        << endl ;
+/*   cout << ACYellow << ACBold
+	<< "[SiPixelInformationExtractor::sendTkUpdatedStatus()] "
+	<< ACPlain
+	<< "Color map updated within range " 
+	<< norm.first
+	<< "-"
+	<< norm.second
+	<< endl ;
+*/
 }
 
 //------------------------------------------------------------------------------

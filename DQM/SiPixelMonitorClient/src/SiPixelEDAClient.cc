@@ -275,6 +275,10 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
     //cout << " Checking for new noisy pixels " << endl;
     init=true;
     if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, noiseRateDenominator_, eSetup);
+
+    // On demand, dump module ID's and stuff on the screen:
+    //sipixelActionExecutor_->dumpModIds(bei_,eSetup);
+  
   }
   
   //cout<<"...leaving SiPixelEDAClient::endRun. "<<endl;

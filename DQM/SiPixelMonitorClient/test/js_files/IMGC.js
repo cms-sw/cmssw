@@ -1251,10 +1251,11 @@ IMGC.processImageURLs = function (ajax)
  var imageURLs;
  var url = IMGC.getApplicationURL();
 // var url = "";
-
+//alert("application url: " + url);
  try	 
  { 
   imageURLs = ajax.responseText.split(/\s+/) ;
+  //alert("imageURLs: " + imageURLs);
  } catch(errorMessage) {
   alert('[IMGC.js::IMGC.processImageURLs()]\nImage URLs list load failed. Reason: '+error.errorMessage);
   return 0;	  
@@ -1270,7 +1271,7 @@ IMGC.processImageURLs = function (ajax)
   		      // This was rather tricky... (Dario)
   date = date.toString() ;
   date = date.replace(/\s+/g,"_") ;
-
+//alert("date= " + date);
   var canvasW		  = window.innerWidth * IMGC.GLOBAL_RATIO ;
   IMGC.DEF_IMAGE_WIDTH    = parseInt(canvasW);
   IMGC.BASE_IMAGE_WIDTH   = IMGC.DEF_IMAGE_WIDTH;
@@ -1278,14 +1279,28 @@ IMGC.processImageURLs = function (ajax)
   IMGC.THUMB_IMAGE_WIDTH  = parseInt(IMGC.BASE_IMAGE_WIDTH  / IMGC.IMAGES_PER_ROW);
   IMGC.THUMB_IMAGE_HEIGHT = parseInt(IMGC.BASE_IMAGE_HEIGHT / IMGC.IMAGES_PER_COL);
  
-  var theFolder = imageURLs[0] ;
+  var theFolder = imageURLs[5] ;
+  theFolder = theFolder.substring(6);
+  var endOfPath = theFolder.indexOf("Module_") + 8;
+  theFolder = theFolder.substring(0,endOfPath);
+  //alert("how is the corrected path now: " + theFolder);
   var tempURLs  = new Array() ;
   var tempTitles = new Array() ;
-  for( var i=1; i<imageURLs.length-1; i++)
+  var plotCounter = 0;
+  for( var i=5; i<imageURLs.length-1; i++)
   {
-    var fullPath = theFolder + "/" + imageURLs[i] ;
-    tempURLs[i-1] = url + "RequestID=getIMGCPlot&Path=" + fullPath + "&Date=" + date ;
+    var histoName = imageURLs[i];
+    var endOfPath = histoName.indexOf("Module_") + 9;    
+    histoName = histoName.substring(endOfPath);
+    var endOfName = histoName.indexOf("'");
+    histoName = histoName.substring(0,endOfName);
+    var fullPath = theFolder + "/" + histoName ;
+//alert("image number: " + i + " +++ fullPath= " + fullPath);
+    tempURLs[i-5-(plotCounter*2)] = url + "RequestID=getIMGCPlot&Path=" + fullPath + "&Date=" + date ;
+//alert("tempURLs: " + tempURLs[i-1]);
     tempTitles[i-1] = theFolder + "|" + imageURLs[i] ; 
+    i = i+2;
+    plotCounter++;
   }
 
   $('imageCanvas').imageList	 = tempURLs;

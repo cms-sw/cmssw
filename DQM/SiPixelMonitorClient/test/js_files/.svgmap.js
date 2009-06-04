@@ -84,6 +84,7 @@
      var doc        = WebLib.http_request.responseXML;
      var root       = doc.documentElement;
      var dets       = root.getElementsByTagName("DetInfo") ;
+   //alert("dets = " + dets);
      var minEntries = 9999999999 ;
      var maxEntries = 0 ;
      var theMinId  ;
@@ -94,13 +95,16 @@
      var theMaxID  ;
      for (var i = 0; i < dets.length; i++) 
      {
+   //alert("loop index = " + i);
       var detId      = dets[i].getAttribute("DetId") ;
       //var detId = 302057988;
       var red	     = dets[i].getAttribute("red"  ) ;
       var green      = dets[i].getAttribute("green") ;
       var blue       = dets[i].getAttribute("blue" ) ;
-      var thePolygon = document.getElementById(detId) ;
       var rgb	     = "rgb(" + red + "," + green + "," + blue + ")" ;
+    //alert("detId = "+detId +" , rgb = "+rgb);
+      var thePolygon = document.getElementById(detId) ;
+    //alert("thePolygon = " + thePolygon);
       thePolygon.setAttribute("fill",rgb) ;
       var entries    = parseInt(dets[i].getAttribute("entries" )) ;
       var opacity    = parseFloat(entries) / 100 + .1 ;
@@ -256,28 +260,30 @@
   if (evt.type == "click") //   <-------------------------------- C l i c k -------
   {
    SvgMap.drawMarker("black") ;
-   var leftDoc  = top.left.document ;  
-   var rightDoc = top.right.document ; // Fetch a pointer to the right frame
+//   var leftDoc  = top.left.document ;  
+//   var rightDoc = top.right.document ; // Fetch a pointer to the right frame
       
-   var theImages                  = new Array() ;
-   var theRightInnerFrame         = top.right.frames ;
-   var theRightInnerFrameElements = theRightInnerFrame[0].document.getElementsByTagName("div") ;
+//   var theImages                  = new Array() ;
+//   var theRightInnerFrame         = top.right.frames ;
+//   var theRightInnerFrameElements = theRightInnerFrame[0].document.getElementsByTagName("div") ;
 
    var moduleId     = evt.currentTarget.getAttribute("detid"); 
    var theMEList    = top.opener.document.getElementById("monitoring_element_list") ;
    var selME	    =  theMEList.options[theMEList.selectedIndex].value;
    var destId	    = 0 ;
    var url_serv     = WebLib.getApplicationURL2();
+   var parea  = parent.plotArea;
+   var canvas = parea.IMGC;
    var queryString  = "RequestID=PlotTkMapHistogram";
        queryString += "&ModId=" + moduleId;
        queryString += "&width=800&height=600" ;
    url_serv	   += queryString;
 
-   var makePlots = new Ajax.Request(url_serv,                    
+   var makePlots = new parent.plotArea.Ajax.Request(url_serv,                    
  	 		            {			     
  	 		             method:	 'get',      
  			             parameters: '', 
- 			             onComplete: SvgMap.processImage // <-- call-back function
+ 			             onComplete: canvas.processImageURLs // <-- call-back function
  			            });
 
   }

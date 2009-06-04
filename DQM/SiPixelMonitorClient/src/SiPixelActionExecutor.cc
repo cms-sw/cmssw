@@ -10,6 +10,19 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 #include <qstring.h>
 #include <qregexp.h>
@@ -146,13 +159,14 @@ void SiPixelActionExecutor::createTkMap(DQMStore* bei,
   SiPixelTrackerMapCreator tkmap_creator(mEName,theTKType,offlineXMLfile_);
   tkmap_creator.create(bei);
 	
-  //   cout << ACYellow << ACBold 
-  //        << "[SiPixelActionExecutor::createTkMap()]"
-  //        << ACPlain
-  //        << " Tracker map created (type:" 
-  //        << theTKType
-  //        << ")"
-  //        << endl;
+/*     cout << ACYellow << ACBold 
+  	  << "[SiPixelActionExecutor::createTkMap()]"
+  	  << ACPlain
+  	  << " Tracker map created (type:" 
+  	  << theTKType
+  	  << ")"
+  	  << endl;
+*/
 }
 
 //=============================================================================================================
@@ -1517,21 +1531,23 @@ int SiPixelActionExecutor::getTkMapMENames(std::vector<std::string>& names) {
 
 //=============================================================================================================
 ///// Dump Module paths and IDs on screen:
-void SiPixelActionExecutor::dumpModIds(DQMStore * bei){
+void SiPixelActionExecutor::dumpModIds(DQMStore * bei, edm::EventSetup const& eSetup){
   //printing cout<<"Going to dump module IDs now!"<<endl;
   bei->cd();
-  dumpBarrelModIds(bei);
+  dumpBarrelModIds(bei,eSetup);
   bei->cd();
-  dumpEndcapModIds(bei);
+  dumpEndcapModIds(bei,eSetup);
   bei->cd();
   //printing cout<<"Done dumping module IDs!"<<endl;
 }
 
 
 //=============================================================================================================
-void SiPixelActionExecutor::dumpBarrelModIds(DQMStore * bei){
+void SiPixelActionExecutor::dumpBarrelModIds(DQMStore * bei, edm::EventSetup const& eSetup){
   string currDir = bei->pwd();
   string dir_name = "Ladder_";
+  eSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
+  int fedId=-1; int linkId=-1;
   if (currDir.find(dir_name) != string::npos)  {
     vector<string> subdirs = bei->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin();
@@ -1539,7 +1555,10 @@ void SiPixelActionExecutor::dumpBarrelModIds(DQMStore * bei){
       if ( (*it).find("Module_") == string::npos) continue;
       bei->cd(*it);
       ndet_++;
-      cout<<"Ndet: "<<ndet_<<"  ,  Module: "<<bei->pwd();  
+      // long version:
+      //cout<<"Ndet: "<<ndet_<<"  ,  Module: "<<bei->pwd();  
+      // short version:
+      cout<<bei->pwd();  
       vector<string> contents = bei->getMEs(); 
       bool first_me = false;
       int detId = -999;
@@ -1551,7 +1570,28 @@ void SiPixelActionExecutor::dumpBarrelModIds(DQMStore * bei){
 	if(rx.search(mEName) != -1 ) detId = rx.cap(3).toInt() ;
       }
       bei->goUp();
-      cout<<"  , detector ID: "<<detId<<endl;
+      // long version:
+      //cout<<"  , detector ID: "<<detId;
+      // short version:
+      cout<<" "<<detId;
+      for(int fedid=0; fedid<=40; ++fedid){
+        SiPixelFrameConverter converter(theCablingMap.product(),fedid);
+        uint32_t newDetId = detId;
+        if(converter.hasDetUnit(newDetId)){
+          fedId=fedid;
+          break;   
+        }
+      }
+      if(fedId==-1) continue; 
+      sipixelobjects::ElectronicIndex cabling; 
+      SiPixelFrameConverter formatter(theCablingMap.product(),fedId);
+      sipixelobjects::DetectorIndex detector = {detId, 1, 1};	   
+      formatter.toCabling(cabling,detector);
+      linkId = cabling.link;
+      // long version:
+      //cout<<"  , FED ID: "<<fedId<<"  , Link ID: "<<linkId<<endl;
+      // short version:
+      cout<<" "<<fedId<<" "<<linkId<<endl;
     }
   } else {  
     vector<string> subdirs = bei->getSubdirs();
@@ -1559,16 +1599,18 @@ void SiPixelActionExecutor::dumpBarrelModIds(DQMStore * bei){
 	 it != subdirs.end(); it++) {
       if((*it).find("Endcap")!=string::npos) continue;
       bei->cd(*it);
-      dumpBarrelModIds(bei);
+      dumpBarrelModIds(bei,eSetup);
       bei->goUp();
     }
   }
 }
 
 //=============================================================================================================
-void SiPixelActionExecutor::dumpEndcapModIds(DQMStore * bei){
+void SiPixelActionExecutor::dumpEndcapModIds(DQMStore * bei, edm::EventSetup const& eSetup){
   string currDir = bei->pwd();
   string dir_name = "Panel_";
+  eSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
+  int fedId=-1; int linkId=-1;
   if (currDir.find(dir_name) != string::npos)  {
     vector<string> subdirs = bei->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin();
@@ -1576,7 +1618,10 @@ void SiPixelActionExecutor::dumpEndcapModIds(DQMStore * bei){
       if ( (*it).find("Module_") == string::npos) continue;
       bei->cd(*it);
       ndet_++;
-      cout<<"Ndet: "<<ndet_<<"  ,  Module: "<<bei->pwd();  
+      // long version:
+      //cout<<"Ndet: "<<ndet_<<"  ,  Module: "<<bei->pwd();  
+      // short version:
+      cout<<bei->pwd();  
       vector<string> contents = bei->getMEs(); 
       bool first_me = false;
       int detId = -999;
@@ -1588,7 +1633,28 @@ void SiPixelActionExecutor::dumpEndcapModIds(DQMStore * bei){
 	if(rx.search(mEName) != -1 ) detId = rx.cap(3).toInt() ;
       }
       bei->goUp();
-      cout<<"  , detector ID: "<<detId<<endl;
+      // long version:
+      //cout<<"  , detector ID: "<<detId;
+      // short version:
+      cout<<" "<<detId;
+      for(int fedid=0; fedid<=40; ++fedid){
+        SiPixelFrameConverter converter(theCablingMap.product(),fedid);
+        uint32_t newDetId = detId;
+        if(converter.hasDetUnit(newDetId)){
+          fedId=fedid;
+          break;   
+        }
+      }
+      if(fedId==-1) continue; 
+      sipixelobjects::ElectronicIndex cabling; 
+      SiPixelFrameConverter formatter(theCablingMap.product(),fedId);
+      sipixelobjects::DetectorIndex detector = {detId, 1, 1};	   
+      formatter.toCabling(cabling,detector);
+      linkId = cabling.link;
+      // long version:
+      //cout<<"  , FED ID: "<<fedId<<"  , Link ID: "<<linkId<<endl;
+      // short version:
+      cout<<" "<<fedId<<" "<<linkId<<endl;
     }
   } else {  
     vector<string> subdirs = bei->getSubdirs();
@@ -1597,7 +1663,7 @@ void SiPixelActionExecutor::dumpEndcapModIds(DQMStore * bei){
       if((bei->pwd()).find("Barrel")!=string::npos) bei->goUp();
       bei->cd((*it));
       if((*it).find("Barrel")!=string::npos) continue;
-      dumpEndcapModIds(bei);
+      dumpEndcapModIds(bei,eSetup);
       bei->goUp();
     }
   }

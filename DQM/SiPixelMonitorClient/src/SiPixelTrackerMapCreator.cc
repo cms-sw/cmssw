@@ -24,13 +24,13 @@ SiPixelTrackerMapCreator::SiPixelTrackerMapCreator(string themEName,
                                                    string theTKType,
 						   bool   offlineXMLfile_) 
 {
-  cout << ACYellow << ACBold 
-       << "[SiPixelTrackerMapCreator::SiPixelTrackerMapCreator()]" 
-       << ACPlain << " ctor" << endl ;
+//  cout << ACYellow << ACBold 
+//       << "[SiPixelTrackerMapCreator::SiPixelTrackerMapCreator()]" 
+//       << ACPlain << " ctor" << endl ;
        
   mEName = themEName ;
   TKType = theTKType ;
-
+//cout<<"ME and type for new TrackerMap are: "<<themEName<<" , "<<theTKType<<endl;
   stringstream title ;
   title.str("") ; 
   title << themEName ;
@@ -44,11 +44,11 @@ SiPixelTrackerMapCreator::SiPixelTrackerMapCreator(string themEName,
 //
 SiPixelTrackerMapCreator::~SiPixelTrackerMapCreator() 
 {
-  if (trackerMap)     delete trackerMap;
-  if (infoExtractor_) delete infoExtractor_;
-  cout << ACYellow << ACBold 
-       << "[SiPixelTrackerMapCreator::~SiPixelTrackerMapCreator()]" 
-       << ACPlain << " dtor" << endl ;
+//  if (trackerMap)     delete trackerMap;
+//  if (infoExtractor_) delete infoExtractor_;
+//  cout << ACYellow << ACBold 
+//       << "[SiPixelTrackerMapCreator::~SiPixelTrackerMapCreator()]" 
+//       << ACPlain << " dtor" << endl ;
 }
 
 //------------------------------------------------------------------------------
@@ -58,11 +58,11 @@ SiPixelTrackerMapCreator::~SiPixelTrackerMapCreator()
 void SiPixelTrackerMapCreator::create(DQMStore * bei) 
 {
 //   cout << ACYellow << ACBold
-//        << "[SiPixelTrackerMapCreator::create()] "
-//        << ACPlain 
-//        << " Creating tracker map for ME: " 
-//        << mEName 
-//        << endl;
+//	<< "[SiPixelTrackerMapCreator::create()] "
+//	<< ACPlain 
+//	<< " Creating tracker map for ME: " 
+//	<< mEName 
+//	<< endl;
 
   vector<MonitorElement*> mEList ;
   map<string, int>        mEHash ;
@@ -78,7 +78,7 @@ void SiPixelTrackerMapCreator::create(DQMStore * bei)
   }
 
   trackerMap->print(true, TKType);  
-
+//cout<<"Going to create inner frame now! Still in TMC::create"<<endl;
   ofstream innerFrame ;
 
   innerFrame.open( "rightEmbedded.html", ios::out );
@@ -97,7 +97,7 @@ void SiPixelTrackerMapCreator::create(DQMStore * bei)
   innerFrame << "<html>					    				   " << "\n"
              << "<!--									   " << "\n"
              << " Author: D. Menasce							   " << "\n"
-             << " Test widget for the Pixel Tracker Map 				   " << "\n"
+             << " Pixel Tracker Map 				   " << "\n"
              << "-->									   " << "\n"
              << "									   " << "\n"
              << "<meta http-equiv='pragma'						   " << "\n"
@@ -161,7 +161,8 @@ void SiPixelTrackerMapCreator::create(DQMStore * bei)
              << "	 src ='js_files/wz_tooltip.js'> 				   " << "\n"
  	     << "</script>								   " << "\n"
  	     << "</html>								   " << endl ;
-  innerFrame.close() ;    								    
+  innerFrame.close() ; 
+//  cout<<"leaving TMC::create."<<endl;   								    
 }
 
 //==============================================================================
@@ -171,6 +172,7 @@ void SiPixelTrackerMapCreator::paintTkMap(MonitorElement * mE)
 {
 //  double sts;
 //  int    rval, gval, bval, detId;
+//  cout<<"Inside SiPixelTrackerMapCreator::paintTkMap: me= "<<mE->getName()<<endl;
 }
 
 //==============================================================================
