@@ -23,6 +23,9 @@ bTagCommonBlock = cms.PSet(
     etaMin = cms.double(0.0),
     # parton pt
     ptPartonMin = cms.double(0.0),
+    # lepton momentum to jet energy ratio
+    ratioMin = cms.double(-1.0),
+    ratioMax = cms.double(0.8),
     # CHOOSE, IF YOU WANT TO DEFINE THE PT/ETA BINS USING THE UNDERLYING PARTON OR
     # THE RECONSTRUCTED JET
     # BE CAREFUL CHOOSING THE PARTON KINEMATICS WHEN USING THE ALGORITHMIC DEFINITION
@@ -39,6 +42,7 @@ bTagCommonBlock = cms.PSet(
         mcSource = cms.string('source')
     ),
     jetMCSrc = cms.InputTag("mcJetFlavour"),
+    softLeptonInfo = cms.InputTag("softElectronTagInfos"),
     ptRanges = cms.vdouble(50.0, 80.0, 120.0),
     # eta and pt ranges
     etaRanges = cms.vdouble(0.0, 1.4, 2.4),

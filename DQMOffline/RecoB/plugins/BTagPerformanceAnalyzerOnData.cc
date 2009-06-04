@@ -46,6 +46,8 @@ void BTagPerformanceAnalyzerOnData::bookHistos(const edm::ParameterSet& pSet)
   jetSelector.setPtRecJetMax       ( ptRecJetMax ) ;
   jetSelector.setPRecJetMin        ( pRecJetMin  ) ;
   jetSelector.setPRecJetMax        ( pRecJetMax  ) ;
+  jetSelector.setRatioMin          ( ratioMin) ;
+  jetSelector.setRatioMax          ( ratioMax) ;
 
   // iterate over ranges:
   const int iEtaStart = -1                   ;  // this will be the inactive one
@@ -217,12 +219,17 @@ void BTagPerformanceAnalyzerOnData::init(const edm::ParameterSet& iConfig)
   ptRecJetMin = iConfig.getParameter<double>("ptRecJetMin");
   ptRecJetMax = iConfig.getParameter<double>("ptRecJetMax");
 
+  // ratio of largest lepton momentum in jet to jet energy
+  ratioMin = iConfig.getParameter<double>("ratioMin");
+  ratioMax = iConfig.getParameter<double>("ratioMax");
+
   // DEFINITION OF BINS
 
   // eta and pt ranges (bins for differential plots)
   etaRanges = iConfig.getParameter< vector<double> >("etaRanges");
   ptRanges = iConfig.getParameter< vector<double> >("ptRanges");
 
+  slInfoTag = iConfig.getParameter<edm::InputTag>("softLeptonInfo");
 }
 
 
@@ -255,6 +262,9 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
   //
   //no flavour map needed here
 
+  edm::Handle<reco::SoftLeptonTagInfoCollection> infoHandle;
+  iEvent.getByLabel(slInfoTag, infoHandle);
+
 // Look first at the jetTags
 
   for (unsigned int iJetLabel = 0; iJetLabel != jetTagInputTags.size(); ++iJetLabel) {
@@ -277,7 +287,7 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
 	 tagI != tagColl.end(); ++tagI) {
       // Identify parton associated to jet.
 
-      if (!jetSelector(*(tagI->first), -1)) continue;
+      if (!jetSelector(*(tagI->first), -1, infoHandle)) continue;
       for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
 	bool inBin = false;
           inBin = binJetTagPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(*tagI->first);
@@ -351,7 +361,7 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
         baseTagInfos[iTagInfo] = &baseTagInfo;
       }
 
-      if (!jetSelector(*jetRef, -1))
+      if (!jetSelector(*jetRef, -1, infoHandle))
         continue;
 
       for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {

@@ -17,7 +17,7 @@ BaseTagInfoPlotter*  TagInfoPlotterFactory::buildPlotter(string dataFormatType, 
   } else if (dataFormatType == "TrackProbability") {
     return new TrackProbabilityTagPlotter(tagName, etaPtBin, pSet, update, mc, wf);
   } else if (dataFormatType == "SoftLepton") {
-    return new SoftLeptonTagPlotter(tagName, etaPtBin, pSet, update, mc);
+    return new SoftLeptonTagPlotter(tagName, etaPtBin, pSet, mc, update);
   } else if (dataFormatType == "TrackIP") {
     return new TrackIPTagPlotter(tagName, etaPtBin, pSet, update, mc,wf);
   } else if (dataFormatType == "TaggingVariable") {

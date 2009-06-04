@@ -1,4 +1,6 @@
 #include "DQMOffline/RecoB/interface/AcceptJet.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include<iostream>
 
@@ -22,11 +24,14 @@ AcceptJet::AcceptJet()
 
   pRecJetMin  = 9999.9;
   pRecJetMax  = 0.0;
+
+  ratioMin = -1.0;
+  ratioMax = 9999.9;
 }
 // 'global' event selection based on basic variables
 
 
-bool AcceptJet::operator() (const reco::Jet & jet, const int & jetFlavour) const
+bool AcceptJet::operator() (const reco::Jet & jet, const int & jetFlavour, const edm::Handle<reco::SoftLeptonTagInfoCollection> & infos) const
 {
 
   bool accept = true;
@@ -49,5 +54,38 @@ bool AcceptJet::operator() (const reco::Jet & jet, const int & jetFlavour) const
   if ( jet.p() < pRecJetMin ||
        jet.p() > pRecJetMax ) accept = false;
 
+  if ( !infos.isValid() ) {
+    edm::LogWarning("infos not valid") << "A valid SoftLeptonTagInfoCollection was not found!"
+                                     << " Skipping ratio check.";
+  }
+  else {
+    double pToEratio = ratio( jet, infos );
+    if ( pToEratio < ratioMin ||
+         pToEratio > ratioMax ) accept = false;
+  }
+
   return accept;
+}
+
+double AcceptJet::ratio(const reco::Jet & jet, const edm::Handle<reco::SoftLeptonTagInfoCollection>& infos) const
+{
+  double jetRatio = 0.0;
+  reco::SoftLeptonTagInfoCollection::const_iterator infoiter = infos->begin();
+  for( ; infoiter != infos->end(); ++infoiter)
+  {
+    if( reco::deltaR(jet.eta(), jet.phi(), infoiter->jet()->eta(), infoiter->jet()->phi()) > 1e-4 )
+      continue;
+
+    if( infoiter->leptons() == 0 )
+      break;
+
+    for( unsigned int k = 0; k != infoiter->leptons(); ++k )
+    {
+      double tempRatio = infoiter->properties(k).ratio;
+      if( tempRatio > jetRatio )
+        jetRatio = tempRatio;
+    }
+  }
+
+  return jetRatio;
 }

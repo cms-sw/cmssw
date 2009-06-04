@@ -60,6 +60,7 @@ class BTagPerformanceAnalyzerOnData : public edm::EDAnalyzer {
   bool partonKinematics;
   double etaMin, etaMax;
   double ptRecJetMin, ptRecJetMax;
+  double ratioMin, ratioMax;
   AcceptJet jetSelector;   // Decides if jet and parton satisfy kinematic cuts.
   std::vector<double> etaRanges, ptRanges;
   bool produceEps, producePs;
@@ -67,6 +68,7 @@ class BTagPerformanceAnalyzerOnData : public edm::EDAnalyzer {
   bool update, allHisto;
   bool finalize;
   bool finalizeOnly;
+  edm::InputTag slInfoTag;
 
   vector< vector<JetTagPlotter*> > binJetTagPlotters;
   vector< vector<BaseTagInfoPlotter*> > binTagInfoPlotters;
