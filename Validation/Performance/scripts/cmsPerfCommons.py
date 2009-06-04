@@ -87,7 +87,7 @@ configs   = ['MinBias.cfi',
              'SingleElectronE1000.cfi',
              'SingleMuPt10.cfi',
              'SinglePiE1000.cfi',
-             'TTbar.cfi',               
+             'TTbar_Tauola.cfi',               
              'QCD_Pt_80_120.cfi',
              #Example addition of a new candle:
              'QCD_Pt_3000_3500.cfi'
