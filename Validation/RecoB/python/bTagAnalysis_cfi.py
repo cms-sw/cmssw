@@ -78,7 +78,6 @@ bTagValidation = cms.EDFilter("BTagPerformanceAnalyzerMC",
             bTagSoftLeptonByPtAnalysisBlock,
             label = cms.InputTag("softMuonByPtBJetTags")
         ), 
-
         cms.PSet(
             bTagSoftLeptonByIPAnalysisBlock,
             label = cms.InputTag("softElectronByIP3dBJetTags")

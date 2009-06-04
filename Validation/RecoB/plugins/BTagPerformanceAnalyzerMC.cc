@@ -53,6 +53,8 @@ void BTagPerformanceAnalyzerMC::bookHistos(const edm::ParameterSet& pSet)
   jetSelector.setPtRecJetMax       ( ptRecJetMax ) ;
   jetSelector.setPRecJetMin        ( pRecJetMin  ) ;
   jetSelector.setPRecJetMax        ( pRecJetMax  ) ;
+  jetSelector.setRatioMin          ( ratioMin) ;
+  jetSelector.setRatioMax          ( ratioMax) ;
 
   // iterate over ranges:
   const int iEtaStart = -1                   ;  // this will be the inactive one
@@ -227,6 +229,10 @@ void BTagPerformanceAnalyzerMC::init(const edm::ParameterSet& iConfig)
   ptPartonMin = iConfig.getParameter<double>("ptPartonMin");
   ptPartonMax = iConfig.getParameter<double>("ptPartonMax");
 
+  // ratio of largest lepton momentum in jet to jet energy
+  ratioMin = iConfig.getParameter<double>("ratioMin");
+  ratioMax = iConfig.getParameter<double>("ratioMax");
+
   // DEFINITION OF BINS
 
   // eta and pt ranges (bins for differential plots)
@@ -234,6 +240,7 @@ void BTagPerformanceAnalyzerMC::init(const edm::ParameterSet& iConfig)
   ptRanges = iConfig.getParameter< vector<double> >("ptRanges");
 
   jetMCSrc = iConfig.getParameter<edm::InputTag>("jetMCSrc");
+  slInfoTag = iConfig.getParameter<edm::InputTag>("softLeptonInfo");
 
 
   jetCorrector = CorrectJet(iConfig.getParameter<std::string>("jetCorrection"));
@@ -285,6 +292,9 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
     flavours.insert(FlavourMap::value_type(iter->first, fl));
   }
 
+  edm::Handle<reco::SoftLeptonTagInfoCollection> infoHandle;
+  iEvent.getByLabel(slInfoTag, infoHandle);
+
 // Look first at the jetTags
 
   for (unsigned int iJetLabel = 0; iJetLabel != jetTagInputTags.size(); ++iJetLabel) {
@@ -301,7 +311,7 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
       JetWithFlavour jetWithFlavour;
       if (!getJetWithFlavour(tagI->first, flavours, jetWithFlavour, iSetup))
         continue;
-      if (!jetSelector(jetWithFlavour.first, abs(jetWithFlavour.second.getFlavour())))
+      if (!jetSelector(jetWithFlavour.first, abs(jetWithFlavour.second.getFlavour()), infoHandle))
         continue;
 
       for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
@@ -378,7 +388,7 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
       JetWithFlavour jetWithFlavour;
       if (!getJetWithFlavour(jetRef, flavours, jetWithFlavour, iSetup))
         continue;
-      if (!jetSelector(jetWithFlavour.first, abs(jetWithFlavour.second.getFlavour())))
+      if (!jetSelector(jetWithFlavour.first, abs(jetWithFlavour.second.getFlavour()), infoHandle))
         continue;
 
       for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {

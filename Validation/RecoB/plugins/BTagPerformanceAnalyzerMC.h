@@ -77,6 +77,7 @@ typedef std::map<edm::RefToBase<reco::Jet>, unsigned int, JetRefCompare> Flavour
   double etaMin, etaMax;
   double ptRecJetMin, ptRecJetMax;
   double ptPartonMin, ptPartonMax;
+  double ratioMin, ratioMax;
   AcceptJet jetSelector;   // Decides if jet and parton satisfy kinematic cuts.
   std::vector<double> etaRanges, ptRanges;
   bool produceEps, producePs;
@@ -85,6 +86,7 @@ typedef std::map<edm::RefToBase<reco::Jet>, unsigned int, JetRefCompare> Flavour
   bool finalize;
   bool finalizeOnly;
   edm::InputTag jetMCSrc;
+  edm::InputTag slInfoTag;
 
   vector< vector<JetTagPlotter*> > binJetTagPlotters;
   vector< vector<BaseTagInfoPlotter*> > binTagInfoPlotters;
