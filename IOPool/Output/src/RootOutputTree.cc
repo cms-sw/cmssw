@@ -59,7 +59,9 @@ namespace edm {
 	  if (!inBranch) {
 	    return false;
 	  }
-	  return checkMatchingBranches(inBranch, outBranch);
+	  if (!checkMatchingBranches(inBranch, outBranch)) {
+	    return false;
+	  }
         }
       }
       return true;
@@ -98,8 +100,7 @@ namespace edm {
 	TBranchElement* inputBranch = dynamic_cast<TBranchElement *>(inputTree->GetBranch(outputBranch->GetName()));
         if (inputBranch != 0) {
 	  // We have a matching top level branch. Do the recursive check on subbranches.
-	  bool match = checkMatchingBranches(inputBranch, outputBranch);
-	  if (!match) {
+	  if (!checkMatchingBranches(inputBranch, outputBranch)) {
             LogInfo("FastCloning")
               << "Fast Cloning disabled because a data member has been added to  split branch: " << inputBranch->GetName() << "\n.";
 	    return false;
