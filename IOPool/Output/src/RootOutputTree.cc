@@ -55,7 +55,7 @@ namespace edm {
       while (obj = iter.Next()) {
         TBranchElement *outBranch = dynamic_cast<TBranchElement *>(obj);
         if (outBranch) {
-	  TBranchElement *inBranch = dynamic_cast<TBranchElement *>(inputBranch->FindBranch(outputBranch->GetName()));
+	  TBranchElement *inBranch = dynamic_cast<TBranchElement *>(inputBranch->FindBranch(outBranch->GetName()));
 	  if (!inBranch) {
 	    return false;
 	  }
