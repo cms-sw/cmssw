@@ -1,8 +1,8 @@
 /** 
-    $Date: 2008/02/25 17:52:25 $
-    $Revision: 1.2 $
-    $Id: BlockSolver.cc,v 1.2 2008/02/25 17:52:25 malberti Exp $ 
-    \author $Author: malberti $
+    $Date: 2008/01/23 11:04:55 $
+    $Revision: 1.1.2.1 $
+    $Id: BlockSolver.cc,v 1.1.2.1 2008/01/23 11:04:55 govoni Exp $ 
+    \author $Author: govoni $
 */
 
 #include "Calibration/EcalCalibAlgos/interface/BlockSolver.h"
@@ -61,7 +61,7 @@ BlockSolver::shrink (const CLHEP::HepMatrix & matrix,
     {
       if (row == *whereRows) 
         {
-//          std::cerr << "        DEBUG shr hole found " << std::endl ;
+          edm::LogWarning ("solving")<<"shrinking"<< *whereRows << std::endl ; 
           ++offsetRow ;
           ++whereRows ;
           continue ;

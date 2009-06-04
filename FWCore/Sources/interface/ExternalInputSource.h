@@ -2,7 +2,7 @@
 #define FWCore_Sources_ExternalInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ExternalInputSource.h,v 1.3 2007/08/06 19:53:06 wmtan Exp $
+$Id: ExternalInputSource.h,v 1.4 2008/03/14 03:46:24 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -15,7 +15,7 @@ $Id: ExternalInputSource.h,v 1.3 2007/08/06 19:53:06 wmtan Exp $
 namespace edm {
   class ExternalInputSource : public ConfigurableInputSource {
   public:
-    explicit ExternalInputSource(ParameterSet const& pset, InputSourceDescription const& desc);
+    ExternalInputSource(ParameterSet const& pset, InputSourceDescription const& desc, bool realData = true);
     virtual ~ExternalInputSource();
 
   std::vector<std::string> const& logicalFileNames() const {return catalog_.logicalFileNames();}

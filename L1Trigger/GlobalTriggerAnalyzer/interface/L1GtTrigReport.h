@@ -3,15 +3,15 @@
 
 /**
  * \class L1GtTrigReport
- * 
- * 
- * Description: L1 Trigger report.  
+ *
+ *
+ * Description: L1 Trigger report.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -64,7 +64,7 @@ private:
     virtual void endJob();
 
 private:
-    
+
     /// cached stuff
 
     /// stable parameters
@@ -80,30 +80,30 @@ private:
     /// number of DAQ partitions
     unsigned int m_numberDaqPartitions;
     unsigned int m_numberDaqPartitionsMax;
-    
+
     /// prescale factors
     const L1GtPrescaleFactors* m_l1GtPfAlgo;
     unsigned long long m_l1GtPfAlgoCacheID;
 
     const L1GtPrescaleFactors* m_l1GtPfTech;
     unsigned long long m_l1GtPfTechCacheID;
-       
+
     const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrig;
     const std::vector<std::vector<int> >* m_prescaleFactorsTechTrig;
 
     /// trigger masks & veto masks
     const L1GtTriggerMask* m_l1GtTmAlgo;
     unsigned long long m_l1GtTmAlgoCacheID;
- 
+
     const L1GtTriggerMask* m_l1GtTmTech;
     unsigned long long m_l1GtTmTechCacheID;
-    
+
     const L1GtTriggerMask* m_l1GtTmVetoAlgo;
     unsigned long long m_l1GtTmVetoAlgoCacheID;
- 
+
     const L1GtTriggerMask* m_l1GtTmVetoTech;
     unsigned long long m_l1GtTmVetoTechCacheID;
-    
+
     std::vector<unsigned int> m_triggerMaskAlgoTrig;
     std::vector<unsigned int> m_triggerMaskTechTrig;
 
@@ -113,7 +113,7 @@ private:
     // trigger menu
     const L1GtTriggerMenu* m_l1GtMenu;
     unsigned long long m_l1GtMenuCacheID;
-   
+
 
 private:
 
@@ -140,14 +140,18 @@ private:
     /// global number of events accepted by any of the L1 algorithm in any menu
     std::vector<int> m_globalNrAccepts;
 
-    /// list of individual entries in the report
+    /// list of individual entries in the report for physics algorithms
     std::list<L1GtTrigReportEntry*> m_entryList;
+
+    /// list of individual entries in the report for technical triggers
+    std::list<L1GtTrigReportEntry*> m_entryListTechTrig;
+
     typedef std::list<L1GtTrigReportEntry*>::const_iterator CItEntry;
     typedef std::list<L1GtTrigReportEntry*>::iterator ItEntry;
-    
+
     /// index of physics DAQ partition
     unsigned int m_physicsDaqPartition;
-    
+
 };
 
 #endif /*GlobalTriggerAnalyzer_L1GtTrigReport_h*/

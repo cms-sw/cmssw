@@ -22,10 +22,10 @@ public:
   bJetSelector(const edm::ParameterSet& cfg);
   bool IsbTag(const pat::Jet& JetCand,
               const std::string& operpoint,
-              const std::string& tagger);
+              const std::string& tagger) const;
   bool IsbTag(const pat::Jet& JetCand,
-              const std::string& operpoint);
-  bool IsbTag(const pat::Jet& JetCand);
+              const std::string& operpoint) const;
+  bool IsbTag(const pat::Jet& JetCand) const;
 //
 private:
   std::map <std::string,std::map<std::string,double> > discCut;    //map to associate cuts and taggers

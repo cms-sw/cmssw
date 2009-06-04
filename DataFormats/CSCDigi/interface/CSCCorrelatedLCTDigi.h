@@ -5,14 +5,13 @@
  *
  * Digi for Correlated LCT trigger primitives. 
  *
- * $Date: 2008/02/29 17:01:30 $
- * $Revision: 1.14 $
+ * $Date: 2008/02/15 15:08:17 $
+ * $Revision: 1.13 $
  *
  * \author L. Gray, UF
  */
 
 #include <boost/cstdint.hpp>
-#include <iosfwd>
 
 class CSCCorrelatedLCTDigi 
 {
@@ -100,6 +99,21 @@ class CSCCorrelatedLCTDigi
   uint16_t cscID;
 };
 
-std::ostream & operator<<(std::ostream & o, const CSCCorrelatedLCTDigi& digi);
-
+#include<iostream>
+inline std::ostream & operator<<(std::ostream & o,
+				 const CSCCorrelatedLCTDigi& digi) {
+  return o << "CSC LCT #"   << digi.getTrknmb()
+	   << ": Valid = "  << digi.isValid()
+	   << " Quality = " << digi.getQuality() 
+	   << " MPC Link = " << digi.getMPCLink() << "\n"
+	   <<"  cathode info: Strip = "    << digi.getStrip()
+	   <<" ("           << ((digi.getStripType() == 0) ? 'D' : 'H') << ")"
+	   << " Bend = "    << ((digi.getBend() == 0) ? 'L' : 'R')
+	   << " Pattern = " << digi.getCLCTPattern() << "\n"
+ 	   <<"    anode info: Key wire = " << digi.getKeyWG()
+	   << " BX = "      << digi.getBX() 
+	   << " bx0= "      << digi.getBX0()
+	   << " syncErr = " << digi.getSyncErr()
+	   << " cscID= "    << digi.getCSCID() << "\n";
+}
 #endif

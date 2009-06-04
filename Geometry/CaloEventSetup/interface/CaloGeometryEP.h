@@ -11,7 +11,6 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -33,19 +32,26 @@ class CaloGeometryEP : public edm::ESProducer
       typedef typename LoaderType::PtrType   PtrType    ;
 
       CaloGeometryEP<T>( const edm::ParameterSet& ps ) :
+	 m_cpv    ( 0 ) ,
 	 m_applyAlignment ( ps.getUntrackedParameter<bool>("applyAlignment", false) )
       {
 	 setWhatProduced( this,
 			  &CaloGeometryEP<T>::produceAligned,
-//			  dependsOn( &CaloGeometryEP<T>::idealRecordCallBack ),
+			  dependsOn( &CaloGeometryEP<T>::idealRecordCallBack ),
 			  edm::es::Label( T::producerName() ) ) ;
+
+// disable
+//	 setWhatProduced( this, 
+//			  &CaloGeometryEP<T>::produceIdeal,
+//			  edm::es::Label( T::producerName() ) ) ;
       }
 
       virtual ~CaloGeometryEP<T>() {}
       PtrType produceAligned( const typename T::AlignedRecord& iRecord ) 
       {
-	 const Alignments*     alignPtr  ( 0 ) ;
-	 const AlignTransform* globalPtr ( 0 ) ;
+	 assert( 0 != m_cpv ) ;     // should have been filled by call to callback method below
+
+	 const Alignments* alignPtr ( 0 ) ;
 	 if( m_applyAlignment ) // get ptr if necessary
 	 {
 	    edm::ESHandle< Alignments >                                      alignments ;
@@ -54,25 +60,33 @@ class CaloGeometryEP : public edm::ESProducer
 	    assert( alignments.isValid() && // require valid alignments and expected size
 		    ( alignments->m_align.size() == T::numberOfAlignments() ) ) ;
 	    alignPtr = alignments.product() ;
-
-	    edm::ESHandle< Alignments >                          globals   ;
-	    iRecord.template getRecord<GlobalPositionRcd>().get( globals ) ;
-    
-	    if( globals.isValid()                                    &&
-		T::whichGlobal() < globals.product()->m_align.size()    )
-	       globalPtr = &globals.product()->m_align[ T::whichGlobal() ] ;
 	 }
-	 edm::ESHandle< DDCompactView > cpv ;
-	 iRecord.template getRecord<IdealGeometryRecord>().get( cpv ) ;
-
 	 LoaderType loader ;
-	 PtrType ptr ( loader.load( &(*cpv), alignPtr, globalPtr ) ) ; // no temporaries for shared+ptr!! 
-
+	 PtrType ptr ( loader.load( m_cpv, alignPtr ) ) ; // no temporaries for shared+ptr!! 
 	 return ptr ; 
+      }
+
+      PtrType produceIdeal(     const typename T::IdealRecord& iRecord )
+      {
+	 assert( !m_applyAlignment ) ;
+	 idealRecordCallBack( iRecord ) ; // must call manually because is same record
+	 assert( 0 != m_cpv ) ;
+	 LoaderType loader ;
+	 PtrType ptr ( loader.load( m_cpv ) ) ; // no temporaries for shared+ptr!! 
+	 return ptr ; 
+      }
+
+      void idealRecordCallBack( const typename T::IdealRecord& iRecord )
+      {
+	 edm::ESHandle< DDCompactView > cpv ;
+	 iRecord.get( cpv ) ;
+
+	 m_cpv = &( *cpv ) ;
       }
 
    private:
 
+      const DDCompactView* m_cpv ;
 
       bool        m_applyAlignment ;
 };

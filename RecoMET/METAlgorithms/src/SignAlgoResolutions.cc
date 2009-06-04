@@ -14,11 +14,11 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignAlgoResolutions.cc,v 1.3 2008/07/30 17:02:54 fblekman Exp $
+// $Id$
 //
 //
-#include "FWCore/Framework/interface/EventSetup.h"
 #include <math.h>
+
 
 double metsig::SignAlgoResolutions::eval(const resolutionType & type, const resolutionFunc & func, const double & et, const double & phi, const double & eta) const {
 
@@ -40,67 +40,48 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
   functionPars phiparameters(1,0);
   // set the parameters per function:
   // ECAL, BARREL:
-  std::vector<double> ebet = iConfig.getParameter<std::vector<double> >("EB_EtResPar");
-  std::vector<double> ebphi = iConfig.getParameter<std::vector<double> >("EB_PhiResPar");
-
-
-  etparameters[0]=ebet[0];
-  etparameters[1]=ebet[1];
-  etparameters[2]=ebet[2];
-  phiparameters[0]=ebphi[0];
+  etparameters[0]=0.2;
+  etparameters[1]=0.03;
+  etparameters[2]=0.005;
+  phiparameters[0]=0.0174;
   addfunction(caloEB,ET,etparameters);
   addfunction(caloEB,PHI,phiparameters);
  // ECAL, ENDCAP:
-  std::vector<double> eeet = iConfig.getParameter<std::vector<double> >("EE_EtResPar");
-  std::vector<double> eephi = iConfig.getParameter<std::vector<double> >("EE_PhiResPar");
-
-  etparameters[0]=eeet[0];
-  etparameters[1]=eeet[1];
-  etparameters[2]=eeet[2];
-  phiparameters[0]=eephi[0];
+  etparameters[0]=0.2;
+  etparameters[1]=0.03;
+  etparameters[2]=0.005;
+  phiparameters[0]=0.087;
   addfunction(caloEE,ET,etparameters);
   addfunction(caloEE,PHI,phiparameters);
  // HCAL, BARREL:
-  std::vector<double> hbet = iConfig.getParameter<std::vector<double> >("HB_EtResPar");
-  std::vector<double> hbphi = iConfig.getParameter<std::vector<double> >("HB_PhiResPar");
-
-  etparameters[0]=hbet[0];
-  etparameters[1]=hbet[1];
-  etparameters[2]=hbet[2];
-  phiparameters[0]=hbphi[0];
+  etparameters[0]=0.;
+  etparameters[1]=1.22;
+  etparameters[2]=0.05;
+  phiparameters[0]=0.087;
   addfunction(caloHB,ET,etparameters);
   addfunction(caloHB,PHI,phiparameters);
  // HCAL, ENDCAP:
-  std::vector<double> heet = iConfig.getParameter<std::vector<double> >("HE_EtResPar");
-  std::vector<double> hephi = iConfig.getParameter<std::vector<double> >("HE_PhiResPar");
-
-  etparameters[0]=heet[0];
-  etparameters[1]=heet[1];
-  etparameters[2]=heet[2];
-  phiparameters[0]=hephi[0];
+  etparameters[0]=0.;
+  etparameters[1]=1.3;
+  etparameters[2]=0.05;
+  phiparameters[0]=0.087;
   addfunction(caloHE,ET,etparameters);
   addfunction(caloHE,PHI,phiparameters);
  // HCAL, Outer
-  std::vector<double> hoet = iConfig.getParameter<std::vector<double> >("HO_EtResPar");
-  std::vector<double> hophi = iConfig.getParameter<std::vector<double> >("HO_PhiResPar");
-
-
-  etparameters[0]=hoet[0];
-  etparameters[1]=hoet[1];
-  etparameters[2]=hoet[2];
-  phiparameters[0]=hophi[0];
+  etparameters[0]=0.;
+  etparameters[1]=1.3;
+  etparameters[2]=0.005;
+  phiparameters[0]=0.087;
   addfunction(caloHO,ET,etparameters);
   addfunction(caloHO,PHI,phiparameters);
  // HCAL, Forward
-  std::vector<double> hfet = iConfig.getParameter<std::vector<double> >("HF_EtResPar");
-  std::vector<double> hfphi = iConfig.getParameter<std::vector<double> >("HF_PhiResPar");
-
-  etparameters[0]=hfet[0];
-  etparameters[1]=hfet[1];
-  etparameters[2]=hfet[2];
-  phiparameters[0]=hfphi[0];
+  etparameters[0]=0.;
+  etparameters[1]=1.82;
+  etparameters[2]=0.09;
+  phiparameters[0]=0.174;
   addfunction(caloHF,ET,etparameters);
   addfunction(caloHF,PHI,phiparameters);
+
   return;
 }
 
@@ -131,7 +112,7 @@ double metsig::SignAlgoResolutions::getfunc(const metsig::resolutionType & type,
   else if(func==metsig::PHI)
     result = PhiFunction(x,values);
   
-  //  std::cout << "returning function " << type << " " << func << " " << result << " " << x[0] << std::endl; 
+  // std::cout << "returning function " << type << " " << func << " " << result << " " << x[0] << std::endl; 
 
   return result;
 }

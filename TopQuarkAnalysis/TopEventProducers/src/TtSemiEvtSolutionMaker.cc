@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolutionMaker.cc,v 1.39 2008/08/28 00:38:51 rwolf Exp $
+// $Id: TtSemiEvtSolutionMaker.cc,v 1.40.2.3 2009/04/15 20:00:53 rwolf Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
@@ -109,7 +109,7 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
   bool jetsFound = false;
   edm::Handle<std::vector<pat::Jet> > jets;
   iEvent.getByLabel(jetSrc_, jets);
-  if (jets->size() >= 4) jetsFound = true;
+  if (jets->size() >=4) jetsFound = true;
 
   //
   // Build Event solutions according to the ambiguity in the jet combination
@@ -145,10 +145,9 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
 		if(matchToGenEvt_){
 		  edm::Handle<TtGenEvent> genEvt;
 		  iEvent.getByLabel ("genEvt",genEvt); 
-		  if (genEvt->numberOfBQuarks() == 2 &&  // FIXME: in rare cases W->bc decay, resulting in a wrong filled genEvt leading to a segmentation fault 
-		      genEvt->numberOfLeptons() == 1) {  // FIXME: temporary solution to avoid crash in JetPartonMatching for non semi-leptonic events
+		  if( genEvt->isSemiLeptonic(false) ){
 		    asol.setGenEvt(genEvt);   
-		  
+		    
 		  }
 		}
                 // these lines calculate the observables to be used in the TtSemiSignalSelection LR
@@ -161,9 +160,8 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
 
                 // these lines calculate the observables to be used in the TtSemiJetCombination LR
                 //(*myLRJetCombObservables)(asol);
-		
 		(*myLRJetCombObservables)(asol, iEvent);
-                
+
 		// if asked for, calculate with these observable values the LRvalue and 
                 // (depending on the configuration) probability a jet combination is correct
                 if(addLRJetComb_) (*myLRJetCombCalc)(asol);
@@ -180,20 +178,18 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
         } 
       }
     }
-
     // if asked for, match the event solutions to the gen Event
     if(matchToGenEvt_){
       int bestSolution = -999; 
       int bestSolutionChangeWQ = -999;
       edm::Handle<TtGenEvent> genEvt;
       iEvent.getByLabel ("genEvt",genEvt); 
-      if (genEvt->numberOfBQuarks() == 2 &&   // FIXME: in rare cases W->bc decay, resulting in a wrong filled genEvt leading to a segmentation fault
-          genEvt->numberOfLeptons() == 1) {   // FIXME: temporary solution to avoid crash in JetPartonMatching for non semi-leptonic events
+      if( genEvt->isSemiLeptonic(false) ){
         vector<const reco::Candidate*> quarks;
         const reco::Candidate & genp  = *(genEvt->hadronicDecayQuark());
         const reco::Candidate & genq  = *(genEvt->hadronicDecayQuarkBar());
-        const reco::Candidate & genbh = *(genEvt->hadronicDecayB());
-        const reco::Candidate & genbl = *(genEvt->leptonicDecayB());
+        const reco::Candidate & genbh = *(genEvt->hadronicDecayB(false));
+        const reco::Candidate & genbl = *(genEvt->leptonicDecayB(false));
         quarks.push_back( &genp );
         quarks.push_back( &genq );
         quarks.push_back( &genbh );
@@ -209,13 +205,15 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
           recjets.push_back( &jetq );
           recjets.push_back( &jetbh );
           recjets.push_back( &jetbl );
+
           JetPartonMatching aMatch(quarks, recjets, matchingAlgo_, useMaxDist_, useDeltaR_, maxDist_);   
           (*evtsols)[s].setGenEvt(genEvt);   
-          (*evtsols)[s].setMCBestSumAngles(aMatch.getSumAngles());
-          (*evtsols)[s].setMCBestAngleHadp(aMatch.getAngleForParton(0));
-          (*evtsols)[s].setMCBestAngleHadq(aMatch.getAngleForParton(1));
-          (*evtsols)[s].setMCBestAngleHadb(aMatch.getAngleForParton(2));
-          (*evtsols)[s].setMCBestAngleLepb(aMatch.getAngleForParton(3));
+          (*evtsols)[s].setMCBestSumAngles(aMatch.getSumDistances());
+          (*evtsols)[s].setMCBestAngleHadp(aMatch.getDistanceForParton(0));
+          (*evtsols)[s].setMCBestAngleHadq(aMatch.getDistanceForParton(1));
+          (*evtsols)[s].setMCBestAngleHadb(aMatch.getDistanceForParton(2));
+          (*evtsols)[s].setMCBestAngleLepb(aMatch.getDistanceForParton(3));
+
           if(aMatch.getMatchForParton(2) == 2 && aMatch.getMatchForParton(3) == 3){
             if(aMatch.getMatchForParton(0) == 0 && aMatch.getMatchForParton(1) == 1) {
               bestSolution = s;
@@ -236,7 +234,6 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
     // add TtSemiSimpleBestJetComb to solutions
     int simpleBestJetComb = (*mySimpleBestJetComb)(*evtsols);
     for(size_t s=0; s<evtsols->size(); s++) (*evtsols)[s].setSimpleBestJetComb(simpleBestJetComb);
-
     // choose the best jet combination according to LR value
     if (addLRJetComb_ && evtsols->size()>0) {
       float bestLRVal = -1000000;
@@ -251,7 +248,6 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
         (*evtsols)[s].setLRBestJetComb(bestSol);
       }
     }
-
     //store the vector of solutions to the event     
     std::auto_ptr<std::vector<TtSemiEvtSolution> > pOut(evtsols);
     iEvent.put(pOut);

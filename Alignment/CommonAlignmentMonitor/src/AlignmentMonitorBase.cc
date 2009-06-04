@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar 30 12:21:07 CDT 2007
-// $Id: AlignmentMonitorBase.cc,v 1.7 2008/04/26 03:09:32 pivarski Exp $
+// $Id: AlignmentMonitorBase.cc,v 1.6 2008/04/26 01:45:39 pivarski Exp $
 //
 
 // system include files
@@ -84,8 +84,8 @@ void AlignmentMonitorBase::startingNewLoop() {
    book();
 }
 
-void AlignmentMonitorBase::duringLoop(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection &iTrajTracks) {
-   event(iEvent, iSetup, iTrajTracks);
+void AlignmentMonitorBase::duringLoop(const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection &iTrajTracks) {
+   event(iSetup, iTrajTracks);
 }
 
 void AlignmentMonitorBase::endOfLoop(const edm::EventSetup &iSetup) {

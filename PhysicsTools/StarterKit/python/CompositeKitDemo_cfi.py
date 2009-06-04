@@ -15,8 +15,6 @@ CompositeKitDemo = cms.EDProducer("CompositeKit",
     jetSrc = cms.InputTag("selectedLayer1Jets"),
     photonSrc = cms.InputTag("selectedLayer1Photons"),
     METSrc = cms.InputTag("selectedLayer1METs"),
-    trackSrc = cms.InputTag("allTrackCandidates"),
-    genParticleSrc = cms.InputTag("genParticles"),                                  
     muonAxis     = kinAxis(0, 200, 0, 200),
     electronAxis = kinAxis(0, 200, 0, 200),
     tauAxis      = kinAxis(0, 200, 0, 200),
@@ -24,7 +22,6 @@ CompositeKitDemo = cms.EDProducer("CompositeKit",
     METAxis      = kinAxis(0, 200, 0, 200),
     photonAxis   = kinAxis(0, 200, 0, 200),
     trackAxis    = kinAxis(0, 200, 0, 200),
-    genParticleAxis = kinAxis(0, 200, 0, 200),
     compositeAxis= kinAxis(0, 100, 0, 300)
 )
 

@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.h,v 1.4 2007/12/07 15:04:41 saout Exp $
+// $Id: MVAComputer.h,v 1.5 2007/12/08 16:11:11 saout Exp $
 //
 
 #include <iostream>
@@ -113,6 +113,9 @@ class MVAComputer {
 
 		inline Processor(const Processor &orig)
 		{ processor = orig.processor; nOutput = orig.nOutput; }
+
+		inline Processor &operator = (const Processor &orig)
+		{ processor = orig.processor; nOutput = orig.nOutput; return *this; }
 
 		/// owned variable processor instance
 		mutable std::auto_ptr<VarProcessor>	processor;

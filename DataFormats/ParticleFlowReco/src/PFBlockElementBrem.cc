@@ -10,7 +10,8 @@ using namespace reco;
 using namespace std;
 
 
-PFBlockElementBrem::PFBlockElementBrem(const GsfPFRecTrackRef& gsfref, const double DeltaP, const double SigmaDeltaP, const uint indTrajPoint):
+PFBlockElementBrem::PFBlockElementBrem(const GsfPFRecTrackRef& gsfref, const double DeltaP, 
+				       const double SigmaDeltaP, const unsigned int indTrajPoint):
   PFBlockElement( BREM ),
   GsftrackRefPF_( gsfref ), 
   GsftrackRef_( gsfref->gsfTrackRef() ),

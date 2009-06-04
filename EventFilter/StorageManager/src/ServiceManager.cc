@@ -1,10 +1,11 @@
-// $Id: ServiceManager.cc,v 1.17 2008/10/08 19:49:51 biery Exp $
+// $Id: ServiceManager.cc,v 1.18 2008/10/13 13:05:36 hcheung Exp $
 
 #include <EventFilter/StorageManager/interface/ServiceManager.h>
 #include "EventFilter/StorageManager/interface/Configurator.h"
 #include <EventFilter/StorageManager/interface/EventStreamService.h>
 #include <EventFilter/StorageManager/interface/FRDStreamService.h>
 #include "FWCore/Framework/interface/EventSelector.h"
+#include "FWCore/ParameterSet/interface/PythonProcessDesc.h"
 #include <FWCore/Utilities/interface/Exception.h>
 #include <typeinfo>
 
@@ -333,9 +334,10 @@ void ServiceManager::collectStreamerPSets(const std::string& config)
 
      try{
        
-       ProcessDesc  pdesc(config.c_str());
-       
-       boost::shared_ptr<ParameterSet> procPset = pdesc.getProcessPSet();
+       PythonProcessDesc py_pdesc(config.c_str());
+       boost::shared_ptr<ProcessDesc> pdesc = py_pdesc.processDesc();
+
+       boost::shared_ptr<ParameterSet> procPset = pdesc->getProcessPSet();
        
         ParameterSet allTrigPaths = procPset->
 	 getUntrackedParameter<ParameterSet>("@trigger_paths");

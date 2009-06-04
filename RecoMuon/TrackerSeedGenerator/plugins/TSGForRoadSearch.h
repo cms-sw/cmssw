@@ -74,8 +74,12 @@ private:
   /// get the FTS for a Track: adjusting the error matrix if requested
   bool IPfts(const reco::Track &, FreeTrajectoryState &);
 
-  /// adjust the state at IP or where it is defined for the seed
+  /// adjust the error matrix of the FTS
+  void adjust(FreeTrajectoryState &);
+  /// adjust the error matrix of the TSOS
+  void adjust(TrajectoryStateOnSurface &);
   bool theAdjustAtIp;
+  bool theScale;
 
   /// add the seed(s) to the collection of seeds
   void pushTrajectorySeed(const reco::Track & muon, std::vector<DetLayer::DetWithState > & compatible, PropagationDirection direction, std::vector<TrajectorySeed>& result)const;

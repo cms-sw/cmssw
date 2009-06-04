@@ -15,8 +15,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "EventFilter/Utilities/interface/GlobalEventNumber.h"
-#include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
+#include "EventFilter/FEDInterface/interface/GlobalEventNumber.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include <vector>
 
@@ -61,7 +61,7 @@ bool BxNumberFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
    Handle<FEDRawDataCollection> rawdata;
    iEvent.getByLabel(inputLabel, rawdata);  
    const FEDRawData& data = rawdata->FEDData(GTEVMId);
-
+   evf::evtn::evm_board_setformat(data.size());
    // loop over the predefined BX's
    for (vector<int>::const_iterator i = goldenBXIds.begin(); i != goldenBXIds.end(); i++) {
 

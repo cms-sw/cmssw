@@ -4,7 +4,6 @@ import FWCore.ParameterSet.Config as cms
 from DQM.SiStripMonitorHardware.buffer_hack_cfi import *
 HardwareMonitor.rootFile = ''
 HardwareMonitor.buildAllHistograms = False
-HardwareMonitor.preSwapOn = False
 
 # Pedestal Monitor ###
 from DQM.SiStripMonitorPedestals.SiStripMonitorPedestals_cfi import *

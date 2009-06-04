@@ -24,7 +24,9 @@ class HLTPhotonTrackIsolFilter : public HLTFilter {
       edm::InputTag candTag_; // input tag identifying product contains filtered photons
       edm::InputTag isoTag_; // input tag identifying product contains track isolation map
       edm::InputTag nonIsoTag_; // input tag identifying product contains track isolation map
-      double numtrackisolcut_;   // Number of Tracks in cone around candidate
+      double ptOrNumtrackisolcut_;   // number of Tracks OR pT in cone around candidate (see isolation producers)
+      double pttrackisolOverEcut_;   // (pt of Tracks in cone around candidate)/pt_ele
+      double pttrackisolOverE2cut_;   // (pt of Tracks in cone around candidate)/pt_ele^2
       int    ncandcut_;        // number of photons required
       bool doIsolated_;
 

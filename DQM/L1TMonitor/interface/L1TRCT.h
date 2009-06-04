@@ -5,11 +5,14 @@
 /*
  * \file L1TRCT.h
  *
- * $Date: 2008/03/01 00:40:00 $
- * $Revision: 1.4 $
+ * $Date: 2008/07/02 16:53:20 $
+ * $Revision: 1.5 $
  * \author P. Wittich
- * $Id: L1TRCT.h,v 1.4 2008/03/01 00:40:00 lat Exp $
+ * $Id: L1TRCT.h,v 1.5 2008/07/02 16:53:20 asavin Exp $
  * $Log: L1TRCT.h,v $
+ * Revision 1.5  2008/07/02 16:53:20  asavin
+ * new L1TRCT.h
+ *
  * Revision 1.4  2008/03/01 00:40:00  lat
  * DQM core migration.
  *
@@ -102,7 +105,7 @@ private:
   MonitorElement* rctTauVetoEtaPhi_;
   MonitorElement* rctMipEtaPhi_;
   MonitorElement* rctQuietEtaPhi_;
-  MonitorElement* rctFineGrainEtaPhi_;
+  MonitorElement* rctHfPlusTauEtaPhi_;
 
   // Bx
   MonitorElement *rctRegionBx_;

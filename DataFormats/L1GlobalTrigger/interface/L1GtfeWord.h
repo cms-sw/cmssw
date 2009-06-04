@@ -3,15 +3,15 @@
 
 /**
  * \class L1GtfeWord
- * 
- * 
- * Description: L1 Global Trigger - GTFE words in the readout record.  
+ *
+ *
+ * Description: L1 Global Trigger - GTFE words in the readout record.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -40,10 +40,12 @@ public:
     /// constructor from unpacked values;
     L1GtfeWord(
         boost::uint16_t boardIdValue,
+        boost::uint16_t recordLength1Value,
         boost::uint16_t recordLengthValue,
         boost::uint16_t bxNrValue,
         boost::uint32_t setupVersionValue,
         boost::uint16_t activeBoardsValue,
+        boost::uint16_t altNrBxBoardValue,
         boost::uint32_t totalTriggerNrValue
     );
 
@@ -81,7 +83,26 @@ public:
     void setBoardIdWord64(boost::uint64_t& word64, int iWord);
 
 
-    /// get/set record length: 3 bx for standard, 5 bx for debug
+    /// get/set record length for alternative 1
+    inline const boost::uint16_t recordLength1() const
+    {
+        return m_recordLength1;
+    }
+
+    void setRecordLength1(boost::uint16_t recordLengthValue)
+    {
+        m_recordLength1 = recordLengthValue;
+    }
+
+    void setRecordLength1(const boost::uint64_t& word64);
+
+    /// set the RecordLength value in a 64-bits word, having the index iWord
+    /// in the GTFE raw record
+    void setRecordLength1Word64(boost::uint64_t& word64, int iWord);
+
+
+
+    /// get/set record length for alternative 0
     inline const boost::uint16_t recordLength() const
     {
         return m_recordLength;
@@ -116,6 +137,7 @@ public:
     /// in the GTFE raw record
     void setBxNrWord64(boost::uint64_t& word64, int iWord);
 
+
     /// get/set setup version
     inline const boost::uint32_t setupVersion() const
     {
@@ -132,6 +154,12 @@ public:
     /// set the SetupVersion value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
     void setSetupVersionWord64(boost::uint64_t& word64, int iWord);
+
+
+    /// get / set BST flag: 0 or 1 - via setup version (no private member)
+    const int bstFlag() const;
+    void setBstFlag(const int);
+
 
     /// get/set boards contributing to EVM respectively DAQ record
     inline const boost::uint16_t activeBoards() const
@@ -154,6 +182,32 @@ public:
     /// in the GTFE raw record from the value activeBoardsValue
     void setActiveBoardsWord64(boost::uint64_t& word64, int iWord,
                                boost::int16_t activeBoardsValue);
+
+
+
+    /// get/set alternative for number of BX per board
+    inline const boost::uint16_t altNrBxBoard() const
+    {
+        return m_altNrBxBoard;
+    }
+
+    void setAltNrBxBoard(boost::uint16_t altNrBxBoardValue)
+    {
+        m_altNrBxBoard = altNrBxBoardValue;
+    }
+
+    void setAltNrBxBoard(const boost::uint64_t& word64);
+
+    /// set the AltNrBxBoard value in a 64-bits word, having the index iWord
+    /// in the GTFE raw record
+    void setAltNrBxBoardWord64(boost::uint64_t& word64, int iWord);
+
+    /// set the AltNrBxBoard value in a 64-bits word, having the index iWord
+    /// in the GTFE raw record from the value altNrBxBoardValue
+    void setAltNrBxBoardWord64(boost::uint64_t& word64, int iWord,
+                               boost::int16_t altNrBxBoardValue);
+
+
 
     /// get/set total number of L1A sent since start of run
     inline const boost::uint32_t totalTriggerNr() const
@@ -201,46 +255,66 @@ private:
     static const int BlockSize;
 
     static const int BoardIdWord;
+    static const int RecordLength1Word;
     static const int RecordLengthWord;
     static const int BxNrWord;
     static const int SetupVersionWord;
 
     static const boost::uint64_t BoardIdMask;
+    static const boost::uint64_t RecordLength1Mask;
     static const boost::uint64_t RecordLengthMask;
     static const boost::uint64_t BxNrMask;
     static const boost::uint64_t SetupVersionMask;
 
+    static const boost::uint32_t BstFlagMask;
+
     // shifts could be computed from masks...
     static const int BoardIdShift;
+    static const int RecordLength1Shift;
     static const int RecordLengthShift;
     static const int BxNrShift;
     static const int SetupVersionShift;
 
     //
     static const int ActiveBoardsWord;
+    static const int AltNrBxBoardWord;
     static const int TotalTriggerNrWord;
 
     static const boost::uint64_t ActiveBoardsMask;
+    static const boost::uint64_t AltNrBxBoardMask;
     static const boost::uint64_t TotalTriggerNrMask;
 
     static const int ActiveBoardsShift;
+    static const int AltNrBxBoardShift;
     static const int TotalTriggerNrShift;
 
 
 private:
 
-    // first number in the comment represents number of bits
+    /// board identifier
+    boost::uint16_t m_boardId;
 
-    boost::uint16_t m_boardId;        //  8: board identifier
+    /// record length for alternative 1
+    boost::uint16_t m_recordLength1;
 
-    boost::uint16_t m_recordLength;   //  5: record length: 3 bx for standard, 5 bx for debug
+    /// record length  for alternative 0
+    boost::uint16_t m_recordLength;
 
-    boost::uint16_t m_bxNr;           // 12: bunch cross number as counted in the GTFE board
-    boost::uint32_t m_setupVersion;   // 32:
-    //
-    boost::uint16_t m_activeBoards;   // 16: boards contributing to EVM respectively DAQ record
+    /// bunch cross number as counted in the GTFE board
+    boost::uint16_t m_bxNr;
+    boost::uint32_t m_setupVersion;
 
-    boost::uint32_t m_totalTriggerNr; // 32: total number of L1A sent since start of run
+    /// active boards contributing to EVM respectively DAQ record
+    boost::uint16_t m_activeBoards;
+
+    /// alternative for number of BX per board
+    ///     correlated with active boards
+    ///     bit value is 0: take alternative 0
+    ///     bit value is 1: take alternative 1
+    boost::uint16_t m_altNrBxBoard;
+
+    /// total number of L1A sent since start of run
+    boost::uint32_t m_totalTriggerNr;
 
 };
 

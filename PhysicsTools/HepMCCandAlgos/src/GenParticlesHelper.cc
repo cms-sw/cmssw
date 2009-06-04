@@ -77,10 +77,26 @@ namespace GenParticlesHelper {
     }
   }
 
+  bool 
+  isDirect(const reco::GenParticleRef& particle) {
+    assert( (particle->status() != 0) && (particle->status() < 4 ) );
+    if( particle->status() == 3 )
+      return true;
+    else {
+      assert( particle->numberOfMothers() > 0 );
+  
+      // get first mother 
+      const GenParticleRefVector& mothers = particle->motherRefVector();
+      if( mothers[0]->status() == 3 )
+	return true;
+      else
+	return false;
+    }
+  }
+
 
   bool hasAncestor( const reco::GenParticle* particle,
-		    int pdgId, int status )  {
-    
+		    int pdgId, int status )  {    
  
     if( particle->pdgId() == pdgId && 
 	particle->status() == status )

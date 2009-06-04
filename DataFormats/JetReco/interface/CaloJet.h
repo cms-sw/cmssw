@@ -18,7 +18,7 @@
  *
  * \version   May 3, 2006, F.Ratnikov, include all different
  *            energy components separately
- * \version   $Id: CaloJet.h,v 1.37 2008/05/26 11:22:12 arizzi Exp $
+ * \version   $Id: CaloJet.h,v 1.36 2008/05/10 09:29:15 fedor Exp $
  ************************************************************/
 
 
@@ -118,21 +118,17 @@ class CaloJet : public Jet {
   int n60() const {return nCarrying (0.6);}
 
   /// Physics Eta (use jet Z and kinematics only)
-    //  float physicsEtaQuick (float fZVertex) const;
+  float physicsEtaQuick (float fZVertex) const;
   /// Physics Eta (use jet Z and kinematics only)
-    //float physicsEta (float fZVertex) const {return physicsEtaQuick (fZVertex);}
+  float physicsEta (float fZVertex) const {return physicsEtaQuick (fZVertex);}
   /// Physics p4 (use jet Z and kinematics only)
-    //LorentzVector physicsP4 (float fZVertex) const;
-  /// Physics p4 for full 3d vertex corretion
-  LorentzVector physicsP4 (const Particle::Point &vertex) const;
-  /// detector p4 for full 3d vertex correction.
-  LorentzVector detectorP4 () const;
+  LorentzVector physicsP4 (float fZVertex) const;
   
   /// Physics Eta (loop over constituents)
-    //float physicsEtaDetailed (float fZVertex) const;
+  float physicsEtaDetailed (float fZVertex) const;
 
   /// Detector Eta (default for CaloJets)
-    //float detectorEta () const {return eta();}
+  float detectorEta () const {return eta();}
 
 
   /// get specific constituent

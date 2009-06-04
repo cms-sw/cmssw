@@ -747,7 +747,7 @@ void HistoPhoton::fill( const reco::ShallowClonePtrCandidate * pshallow, uint iE
 
 
   // Get the underlying object that the shallow clone represents
-  const pat::Photon * photon = dynamic_cast<const pat::Photon*>(&*(pshallow->masterClonePtr()));
+  const pat::Photon * photon = dynamic_cast<const pat::Photon*>(pshallow);
 
   if ( photon == 0 ) {
     cout << "Error! Was passed a shallow clone that is not at heart a photon" << endl;

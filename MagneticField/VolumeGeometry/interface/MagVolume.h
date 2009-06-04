@@ -21,8 +21,10 @@ public:
   typedef GloballyPositioned<float>::GlobalVector   GlobalVector;
 
   MagVolume( const PositionType& pos, const RotationType& rot, 
-	     DDSolidShape shape, const MagneticFieldProvider<float> * mfp) :
-    Base(pos,rot), MagneticField(), theShape(shape), theProvider( mfp) {}
+	     DDSolidShape shape, const MagneticFieldProvider<float> * mfp,
+	     double sf=1.) :
+    Base(pos,rot), MagneticField(), theShape(shape), theProvider(mfp), 
+    theScalingFactor(sf), isIronFlag(false) {}
 
   virtual ~MagVolume() {}
 
@@ -39,16 +41,23 @@ public:
   const MagneticFieldProvider<float>* provider() const {return theProvider;}
 
   /// Access to volume faces
-  virtual std::vector<VolumeSide> faces() const = 0;
+  virtual const std::vector<VolumeSide>& faces() const = 0;
 
   virtual ::GlobalVector inTesla ( const ::GlobalPoint& gp) const {
     return fieldInTesla( gp);
   }
 
+  /// Temporary hack to pass information on material. Will eventually be replaced!
+  bool isIron() const {return isIronFlag;}
+  void setIsIron(bool iron) {isIronFlag = iron;}
+
 private:
 
   DDSolidShape theShape;
   const MagneticFieldProvider<float> * theProvider;
+  double theScalingFactor;
+  // Temporary hack to keep information on material. Will eventually be replaced!
+  bool isIronFlag;
 
 };
 

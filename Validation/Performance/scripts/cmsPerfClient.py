@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 import socket, xml, xmlrpclib, os, sys, threading, Queue, time, random, pickle, exceptions
 import optparse as opt
-
+#Documentation needs to follow... but for now just know that
+#a template file for cmsPerfClient.py -f option is BencmarkCfg.py in Validation/Performance/python dir.
 PROG_NAME = os.path.basename(sys.argv[0])
 # list of valid options for the configuration file
-validPerfSuitKeys= ["castordir", "perfsuitedir" ,"TimeSizeEvents", "IgProfEvents", "ValgrindEvents", "cmsScimark", "cmsScimarkLarge",
+validPerfSuitKeys= ["castordir", "perfsuitedir" ,"TimeSizeEvents", "TimeSizeCandles","IgProfEvents", "IgProfCandles", "CallgrindEvents", "CallgrindCandles", "MemcheckEvents","MemcheckCandles","cmsScimark", "cmsScimarkLarge",
                     "cmsdriverOptions", "stepOptions", "quicktest", "profilers", "cpus", "cores", "prevrel", "isAllCandles", "candles",
                     "bypasshlt", "runonspare", "logfile"]
 #################
@@ -28,19 +29,29 @@ def optionparse():
                 for key in item:
                     out = out and key in validPerfSuitKeys
                     if   key == "cpus":
-                        out = out and type(item[key]) == type([])
+                        out = out and type(item[key]) == type("") #has to be a string not a list!
                     elif key == "cores":
-                        out = out and type(item[key]) == type(123)
+                        out = out and type(item[key]) == type("")
                     elif key == "castordir":
                         out = out and type(item[key]) == type("")
                     elif key == "perfsuitedir":
                         out = out and type(item[key]) == type("")
                     elif key == "TimeSizeEvents":
                         out = out and type(item[key]) == type(123)
-                    elif key == "ValgrindEvents":
+                    elif key == "TimeSizeCandles":
+                        out = out and type(item[key]) == type("")
+                    elif key == "CallgrindEvents":
                         out = out and type(item[key]) == type(123)
+                    elif key == "CallgrindCandles":
+                        out = out and type(item[key]) == type("")
                     elif key == "IgProfEvents":
                         out = out and type(item[key]) == type(123)
+                    elif key == "IgProfCandles":
+                        out = out and type(item[key]) == type("")
+                    elif key == "MemcheckEvents":
+                        out = out and type(item[key]) == type(123)
+                    elif key == "MemcheckCandles":
+                        out = out and type(item[key]) == type("")
                     elif key == "cmsScimark":
                         out = out and type(item[key]) == type(123)
                     elif key == "cmsScimarkLarge":
@@ -58,7 +69,7 @@ def optionparse():
                     elif key == "isAllCandles":
                         out = out and type(item[key]) == type(False)
                     elif key == "candles":
-                        out = out and type(item[key]) == type([])
+                        out = out and type(item[key]) == type("")#has to be a string not a list!
                     elif key == "bypasshlt":
                         out = out and type(item[key]) == type(False)
                     elif key == "runonspare":
@@ -244,6 +255,9 @@ class Worker(threading.Thread):
     def run(self):
         try:
             data = request_benchmark(self.__perfcmds, self.__host, self.__port)
+            #Debugging
+            print "data is %s"%data
+            print "Puttin it in the queue as (%s,%s)"%(self.__host,data)
             self.__queue.put((self.__host, data))
         except (exceptions.Exception, xmlrpclib.Fault), detail:
             print "Exception was thrown when receiving/submitting job information to host", self.__host, ". Exception information:"
@@ -279,6 +293,7 @@ def runclient(perfcmds, hosts, port, outfile, cmdindex):
             presentBenchmarkData(queue,outfile)
             raise
     print "All job results received"
+    print "The size with the queue containing all data is: %s "%queue.qsize()
     presentBenchmarkData(queue,outfile)    
 
 ########################################
@@ -301,12 +316,14 @@ def runclient(perfcmds, hosts, port, outfile, cmdindex):
 # We now massage the data
 #
 def presentBenchmarkData(q,outfile):
-    print "Pickling data to file..."
+    print "Pickling data to file %s"%outfile
     out = []            # match up the commands with each
                         # command that was passed in the config file
     while not q.empty():
+        print "Queue size is still %s"%q.qsize()
         (host, data) = q.get()
         out.append((host,data))
+    print "Dumping at screen the output!\n%s"%out
     oh = open(outfile,"wb")
     pickle.dump(out,oh)
     oh.close() 

@@ -2,12 +2,12 @@
    \file
    Test suit for EcalDetId
 
-   \version $Id: testEcalDetId.cpp,v 1.14 2008/01/31 10:39:44 muzaffar Exp $
+   \version $Id: testEcalDetId.cpp,v 1.12 2007/07/31 15:20:01 ratnik Exp $
 
    \note This test is not exaustive     
 */
 
-static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.14 2008/01/31 10:39:44 muzaffar Exp $";
+static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.12 2007/07/31 15:20:01 ratnik Exp $";
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -56,7 +56,7 @@ void testEcalDetId::testEBDetId(){
 
   EBDetId smId;
 
-  std::vector<unsigned int> detIds(EBDetId::kSizeForDenseIndexing,0);
+  std::vector<unsigned int> detIds(EBDetId::SIZE_HASH,0);
 
   for (int ieta=EBDetId::MIN_IETA;ieta<=EBDetId::MAX_IETA;ieta++)
     for (int iphi=EBDetId::MIN_IPHI;iphi<=EBDetId::MAX_IPHI;iphi++)
@@ -121,7 +121,7 @@ void testEcalDetId::testEBDetId(){
 	  }
       }
   
-  for (int i=0;i!=EBDetId::kSizeForDenseIndexing;++i) {
+  for (int i=0;i!=EBDetId::SIZE_HASH;++i) {
     CPPUNIT_ASSERT(detIds[i]!=0);
     CPPUNIT_ASSERT(EBDetId(detIds[i]).hashedIndex()==i);
     CPPUNIT_ASSERT(EBDetId::unhashIndex(i)==detIds[i]);
@@ -131,7 +131,7 @@ void testEcalDetId::testEBDetId(){
 
 void testEcalDetId::testEEDetId(){
 
-  std::vector<unsigned int> detIds(EEDetId::kSizeForDenseIndexing,0);
+  std::vector<unsigned int> detIds(EEDetId::SIZE_HASH,0);
   
   
   for (int ix=EEDetId::IX_MIN;ix<=EEDetId::IX_MAX;ix++)
@@ -171,15 +171,15 @@ void testEcalDetId::testEEDetId(){
 	}
 
   int holes=0;
-  for (int i=0;i!=EEDetId::kSizeForDenseIndexing;++i) {
+  for (int i=0;i!=EEDetId::SIZE_HASH;++i) {
     // CPPUNIT_ASSERT(detIds[i]!=0);
     if (detIds[i]==0) { holes++; continue; }// there are holes...
     CPPUNIT_ASSERT(EEDetId(detIds[i]).hashedIndex()==i);
     CPPUNIT_ASSERT(EEDetId::unhashIndex(i)==detIds[i]);
   }
   //FIXME hope a better test...
-  CPPUNIT_ASSERT(holes>EEDetId::kSizeForDenseIndexing/100);
-  CPPUNIT_ASSERT(holes<EEDetId::kSizeForDenseIndexing/10);
+  CPPUNIT_ASSERT(holes>EEDetId::SIZE_HASH/100);
+  CPPUNIT_ASSERT(holes<EEDetId::SIZE_HASH/10);
 }
 
 void testEcalDetId::testESDetId(){

@@ -48,6 +48,7 @@ Description: Producer for EcalRecHits to be used for pi0 ECAL calibration. ECAL 
 
 
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 
 //
@@ -84,8 +85,7 @@ class HLTPi0RecHitsFilter : public HLTFilter {
       std::vector<int> ListOfFEDS(double etaLow, double etaHigh, double phiLow,
                                     double phiHigh, double etamargin, double phimargin);
 	
-	
-	
+           	
 
       virtual bool filter(edm::Event &, const edm::EventSetup&);
    private:
@@ -98,135 +98,173 @@ class HLTPi0RecHitsFilter : public HLTFilter {
 
       std::string pi0BarrelHits_;
       std::string pi0EndcapHits_;
+      std::string etaBarrelHits_;
+      std::string etaEndcapHits_;
+      
+      ///interal use
+      std::string BarrelHits_;
+      std::string EndcapHits_;
       
       
       
+      int gammaCandEtaSize_;
+      int gammaCandPhiSize_;
       
+      double clusSeedThr_;
+      double clusSeedThrEndCap_;
       
- int gammaCandEtaSize_;
- int gammaCandPhiSize_;
+      int clusEtaSize_;
+      int clusPhiSize_;
+      double seleXtalMinEnergy_;
+      double seleXtalMinEnergyEndCap_;
+      int seleNRHMax_;
+      
 
- double clusSeedThr_;
- int clusEtaSize_;
- int clusPhiSize_;
-
- double clusSeedThrEndCap_;
+      //// for pi0->gg barrel 
+      bool doSelForPi0Barrel_; 
+      double selePtGamma_;
+      double selePtPi0_;
+      double seleMinvMaxPi0_;
+      double seleMinvMinPi0_;
+      double seleS4S9Gamma_;
+      double selePi0BeltDR_;
+      double selePi0BeltDeta_;
+      double selePi0Iso_;
+      double ptMinForIsolation_; 
+      bool storeIsoClusRecHitPi0EB_; 
+      
+      
+      ///for pi0->gg endcap
+      bool doSelForPi0Endcap_; 
+      double selePtGammaEndCap_;
+      double selePtPi0EndCap_;
+      double seleMinvMaxPi0EndCap_;
+      double seleMinvMinPi0EndCap_;
+      double seleS4S9GammaEndCap_;
+      double selePi0IsoEndCap_;
+      double selePi0BeltDREndCap_;
+      double selePi0BeltDetaEndCap_;
+      double ptMinForIsolationEndCap_; 
+      bool storeIsoClusRecHitPi0EE_;    
  
-
- double selePtGammaOne_;
- double selePtGammaTwo_;
- double selePtPi0_;
- double seleMinvMaxPi0_;
- double seleMinvMinPi0_;
- double seleXtalMinEnergy_;
-
-
-
- double selePtGammaEndCap_;
- double selePtPi0EndCap_;
- double seleMinvMaxPi0EndCap_;
- double seleMinvMinPi0EndCap_;
-
-
-
- int seleNRHMax_;
- //New criteria
- double seleS4S9GammaOne_;
- double seleS4S9GammaTwo_;
-
- double seleS4S9GammaEndCap_;
+      
+      ///for eta->gg barrel
+      bool doSelForEtaBarrel_; 
+      double selePtGammaEta_;
+      double selePtEta_;
+      double seleS4S9GammaEta_; 
+      double seleS9S25GammaEta_; 
+      double seleMinvMaxEta_; 
+      double seleMinvMinEta_; 
+      double ptMinForIsolationEta_; 
+      double seleEtaIso_; 
+      double seleEtaBeltDR_; 
+      double seleEtaBeltDeta_; 
+      bool removePi0CandidatesForEta_; 
+      double massLowPi0Cand_; 
+      double massHighPi0Cand_; 
+      bool store5x5RecHitEtaEB_;
+      bool storeIsoClusRecHitEtaEB_;
 
 
+      ///for eta->gg endcap
+      bool doSelForEtaEndcap_; 
+      double selePtGammaEtaEndCap_;
+      double seleS4S9GammaEtaEndCap_;
+      double seleS9S25GammaEtaEndCap_;
+      double selePtEtaEndCap_;
+      double seleMinvMaxEtaEndCap_;
+      double seleMinvMinEtaEndCap_;
+      double ptMinForIsolationEtaEndCap_;
+      double seleEtaIsoEndCap_;
+      double seleEtaBeltDREndCap_;
+      double seleEtaBeltDetaEndCap_;
+      bool storeIsoClusRecHitEtaEE_;
+      bool store5x5RecHitEtaEE_;
+      
+       
+      
+      bool doBarrel; 
+      bool doEndcap; 
+      
 
- double selePi0BeltDR_;
- double selePi0BeltDeta_;
- double selePi0Iso_;
- bool ParameterLogWeighted_;
- double ParameterX0_;
- double ParameterT0_barl_;
- double ParameterT0_endc_;
- double ParameterT0_endcPresh_;
- double ParameterW0_;
- // double detaL1_;
- // double dphiL1_;
- // bool UseMatchedL1Seed_;
- double selePi0IsoEndCap_;
+      bool ParameterLogWeighted_;
+      double ParameterX0_;
+      double ParameterT0_barl_;
+      double ParameterT0_endc_;
+      double ParameterT0_endcPresh_;
+      double ParameterW0_;
+      
+
+      edm::InputTag l1IsolatedTag_;
+      edm::InputTag l1NonIsolatedTag_;
+      edm::InputTag l1SeedFilterTag_;
 
 
-  edm::InputTag l1IsolatedTag_;
-  edm::InputTag l1NonIsolatedTag_;
-  edm::InputTag l1SeedFilterTag_;
+      /// std::map<DetId, EcalRecHit> *recHitsEB_map;
+      ///replace by two vectors. 
 
-
-  /// std::map<DetId, EcalRecHit> *recHitsEB_map;
-  ///replace by two vectors. 
-
- std::vector<EBDetId> detIdEBRecHits; 
- std::vector<EcalRecHit> EBRecHits; 
+      std::vector<EBDetId> detIdEBRecHits; 
+      std::vector<EcalRecHit> EBRecHits; 
  
   
- std::vector<EEDetId> detIdEERecHits; 
- std::vector<EcalRecHit> EERecHits; 
+      std::vector<EEDetId> detIdEERecHits; 
+      std::vector<EcalRecHit> EERecHits; 
 
 
  
- double ptMinForIsolation_; 
- bool storeIsoClusRecHit_; 
-
- double ptMinForIsolationEndCap_; 
+      bool Jets_; 
+ 
+      edm::InputTag CentralSource_;
+      edm::InputTag ForwardSource_;
+      edm::InputTag TauSource_;
+      bool JETSdoCentral_ ;
+      bool JETSdoForward_ ;
+      bool JETSdoTau_ ;
+      double Ptmin_jets_; 
+      double Ptmin_taujets_; 
+      double JETSregionEtaMargin_;
+      double JETSregionPhiMargin_;
  
  
 
- bool useEndCapEG_;
+      int debug_; 
+      bool first_; 
+      double EMregionEtaMargin_;
+      double EMregionPhiMargin_;
+ 
+ 
+      std::map<std::string,double> providedParameters;  
+      
+ 
+      
+      std::vector<int> FEDListUsed; ///by regional objects.  ( em, jet, etc)
 
- bool Jets_; 
- 
- edm::InputTag CentralSource_;
- edm::InputTag ForwardSource_;
- edm::InputTag TauSource_;
- bool JETSdoCentral_ ;
- bool JETSdoForward_ ;
- bool JETSdoTau_ ;
- double Ptmin_jets_; 
- double Ptmin_taujets_; 
- double JETSregionEtaMargin_;
- double JETSregionPhiMargin_;
- 
- 
+      std::vector<int> FEDListUsedBarrel; 
+      std::vector<int> FEDListUsedEndcap; 
 
- int debug_; 
- bool first_; 
- double EMregionEtaMargin_;
- double EMregionPhiMargin_;
+      bool RegionalMatch_;
  
+      
+      double ptMinEMObj_ ; 
  
- std::map<std::string,double> providedParameters;  
- 
- 
+      
 
- std::vector<int> FEDListUsed; ///by regional objects.  ( em, jet, etc)
 
- std::vector<int> FEDListUsedBarrel; 
- std::vector<int> FEDListUsedEndcap; 
 
- bool RegionalMatch_;
+      EcalElectronicsMapping* TheMapping;
  
 
- double ptMinEMObj_ ; 
- 
- EcalElectronicsMapping* TheMapping;
- 
-
- const CaloSubdetectorGeometry *geometry_eb;
- const CaloSubdetectorGeometry *geometry_ee;
- const CaloSubdetectorGeometry *geometry_es;
- const CaloSubdetectorTopology *topology_eb;
- const CaloSubdetectorTopology *topology_ee;
+      const CaloSubdetectorGeometry *geometry_eb;
+      const CaloSubdetectorGeometry *geometry_ee;
+      const CaloSubdetectorGeometry *geometry_es;
+      const CaloSubdetectorTopology *topology_eb;
+      const CaloSubdetectorTopology *topology_ee;
 
  
- PositionCalc posCalculator_;
+      PositionCalc posCalculator_;
  
- static const int MAXCLUS = 2000;
- static const int MAXPI0S = 200;
+      static const int MAXCLUS = 2000;
+      static const int MAXPI0S = 200;
 
 };

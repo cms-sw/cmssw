@@ -1,8 +1,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.
  *
- *  $Date: 2008/09/30 15:30:41 $
- *  $Revision: 1.25 $
+ *  $Date: 2007/12/19 15:43:35 $
+ *  $Revision: 1.23 $
  *  \author C. Liu, R. Bellan, N. Amapane
  *
  */
@@ -53,7 +53,7 @@ MuonTransientTrackingRecHit::MuonRecHitContainer MuonDetLayerMeasurements::recHi
     
     // Create the ChamberId
     DTChamberId chamberId(geoId.rawId());
-    // LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "(DT): "<<chamberId<<std::endl;
+    LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "(DT): "<<chamberId<<std::endl;
     
     // Get the DT-Segment which relies on this chamber
     DTRecSegment4DCollection::range range = dtRecHits->get(chamberId);
@@ -72,7 +72,7 @@ MuonTransientTrackingRecHit::MuonRecHitContainer MuonDetLayerMeasurements::recHi
 
     // Create the chamber Id
     CSCDetId chamberId(geoId.rawId());
-    //    LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "(CSC): "<<chamberId<<std::endl;
+    LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "(CSC): "<<chamberId<<std::endl;
 
     // Get the CSC-Segment which relies on this chamber
     CSCSegmentCollection::range range = cscSegments->get(chamberId);
@@ -91,7 +91,7 @@ MuonTransientTrackingRecHit::MuonRecHitContainer MuonDetLayerMeasurements::recHi
     
     // Create the chamber Id
     RPCDetId chamberId(geoId.rawId());
-    // LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "(RPC): "<<chamberId<<std::endl;
+    LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "(RPC): "<<chamberId<<std::endl;
     
     // Get the RPC-Segment which relies on this chamber
     RPCRecHitCollection::range range = rpcRecHits->get(chamberId);
@@ -233,10 +233,6 @@ MuonDetLayerMeasurements::groupedMeasurements(const DetLayer* layer,
   // if we want to use the concept of InvalidRecHits,
   // we can reuse LayerMeasurements from TrackingTools/MeasurementDet
   std::vector<DetGroup> groups(layer->groupedCompatibleDets(startingState, prop, est));
-
-  // this should be fixed either in RecoMuon/MeasurementDet/MuonDetLayerMeasurements or
-  // RecoMuon/DetLayers/MuRingForwardDoubleLayer
-  // and removed the reverse operation in StandAloneMuonFilter::findBestMeasurements
 
   for (std::vector<DetGroup>::const_iterator grp=groups.begin(); grp!=groups.end(); ++grp) {
     

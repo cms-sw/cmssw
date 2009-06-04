@@ -43,8 +43,8 @@ SiPixelLorentzAngle::SiPixelLorentzAngle(edm::ParameterSet const& conf) :
 	width_ = 0.0285;
 	min_depth_ = -100.;
 	max_depth_ = 400.;
-	min_drift_ = -1000.; //-200.;
-	max_drift_ = 1000.; //400.;
+	min_drift_ = -200.;
+	max_drift_ = 400.;
 	event_counter_ = 0;
 	hits_layer1_module7_ = 0;
 }
@@ -54,8 +54,6 @@ SiPixelLorentzAngle::~SiPixelLorentzAngle() {  }
 
 void SiPixelLorentzAngle::beginJob(const edm::EventSetup& c)
 {
-
-// 	cout << "started SiPixelLorentzAngle" << endl;
 	ntracks = 200;
   	hFile_ = new TFile (filename_.c_str(), "RECREATE" );
 	int bufsize = 64000;
@@ -246,42 +244,37 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 					bool large_pix = false;
 					for (int j = 0; j <  pixinfo_.npix; j++){
 						int colpos = static_cast<int>(pixinfo_.col[j]-0.5);
-						if (pixinfo_.row[j] == 0 || pixinfo_.row[j] == 79 || pixinfo_.row[j] == 80 || pixinfo_.row[j] == 159 || colpos % 52 == 0 || colpos % 52 == 51 ){
+						if (pixinfo_.row[j] == 0.5 || pixinfo_.row[j] == 79.5 || pixinfo_.row[j] == 80.5 || pixinfo_.row[j] == 159.5 || colpos % 52 == 0 || colpos % 52 == 51 ){
 							large_pix = true;	
 						}
 					}
 
-					double residual = TMath::Sqrt( (trackhit_.x - rechit_.x) * (trackhit_.x - rechit_.x) + (trackhit_.y - rechit_.y) * (trackhit_.y - rechit_.y) );
 					// "good hit?"
 					// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 					// remove cut on number of hits !!!!!!!!!!!!!!!!!!
 					// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // 					if( !large_pix && (chi2_/ndof_) < 2. && (cluster->charge())/1000. < 120. && cluster->sizeY() >= 4 && hits_layer1_module7_ < ntracks){
-// 					if( !large_pix && (chi2_/ndof_) < 2. && (cluster->charge())/1000. < 120. && cluster->sizeY() >= 4){
-					if( !large_pix && (chi2_/ndof_) < 2. && (cluster->charge())/1000. < 120. && cluster->sizeY() >= 4 && (residual < 0.005)){
+// 					if( !large_pix && (chi2_/ndof_) < 10. && (cluster->charge())/1000. < 200. && cluster->sizeY() >= 4){
+					if( !large_pix && (chi2_/ndof_) < 2. && (cluster->charge())/1000. < 120. && cluster->sizeY() >= 4){
 						SiPixelLorentzAngleTree_->Fill();
 						// iterate over pixels in hit
 						for (int j = 0; j <  pixinfo_.npix; j++){
 							// use trackhits
 							float dx = (pixinfo_.x[j]  - (trackhit_.x - width_/2. / TMath::Tan(trackhit_.alpha))) * 10000.;
 							float dy = (pixinfo_.y[j]  - (trackhit_.y - width_/2. / TMath::Tan(trackhit_.beta))) * 10000.;
-// 							if (dx > 300){
-// 								cout << "event " << "dx =" << dx<< endl;
-// 								cout << "simhit x: " << simhit_.x << ", trackhit x: " << trackhit_.x << ", chi2_: " << chi2_ << ", ndof: " << ndof_ <<", rechit x " << rechit_.x << " pix x: " << pixinfo_.x[j] << ", pix row " << pixinfo_.row[j]<< ", pix col " << pixinfo_.col[j]<<endl;
-// 							}
 							float depth = dy * tan(trackhit_.beta);
 							float drift = dx - dy * tan(trackhit_.gamma);
 							_h_drift_depth_adc_[module_ + (layer_ -1) * 8]->Fill(drift, depth, pixinfo_.adc[j]);
 							_h_drift_depth_adc2_[module_ + (layer_ -1) * 8]->Fill(drift, depth, pixinfo_.adc[j]*pixinfo_.adc[j]);
 							_h_drift_depth_noadc_[module_ + (layer_ -1) * 8]->Fill(drift, depth);		
-							if( layer_ == 3 && module_==1 && isflipped_){
-								float dx_rot = dx * TMath::Cos(trackhit_.gamma) + dy * TMath::Sin(trackhit_.gamma);
-								float dy_rot = dy * TMath::Cos(trackhit_.gamma) - dx * TMath::Sin(trackhit_.gamma) ;
-								h_cluster_shape_adc_->Fill(dx, dy, pixinfo_.adc[j]);
-								h_cluster_shape_noadc_->Fill(dx, dy);
-								h_cluster_shape_adc_rot_->Fill(dx_rot, dy_rot, pixinfo_.adc[j]);
-								h_cluster_shape_noadc_rot_->Fill(dx_rot, dy_rot);
-							}				
+// 							if( layer_ == 1 && module_==7 && !isflipped_){
+// 								float dx_rot = dx * TMath::Cos(trackhit_.gamma) + dy * TMath::Sin(trackhit_.gamma);
+// 								float dy_rot = dy * TMath::Cos(trackhit_.gamma) - dx * TMath::Sin(trackhit_.gamma) ;
+// 								h_cluster_shape_adc_->Fill(dx, dy, pixinfo_.adc[j]);
+// 								h_cluster_shape_noadc_->Fill(dx, dy);
+// 								h_cluster_shape_adc_rot_->Fill(dx_rot, dy_rot, pixinfo_.adc[j]);
+// 								h_cluster_shape_noadc_rot_->Fill(dx_rot, dy_rot);
+// 							}				
 						} // end iteration over pixels in hit
 // 						if( layer_ == 1 && module_==7) hits_layer1_module7_++;
 // 						if(hits_layer1_module7_ == ntracks) events_needed_ = event_counter_;
@@ -339,10 +332,6 @@ void SiPixelLorentzAngle::endJob()
 			_h_mean_[i_module + (i_layer -1) * 8]->Write();
 		}
 	}
-	h_cluster_shape_adc_->Write();
-	h_cluster_shape_noadc_->Write();
-	h_cluster_shape_adc_rot_->Write();
-	h_cluster_shape_noadc_rot_->Write();
 	
 	hFile_->Write();
 	hFile_->Close();
@@ -359,7 +348,7 @@ void SiPixelLorentzAngle::fillPix(const SiPixelCluster & LocPix, const Rectangul
 		pixinfo_.row[pixinfo_.npix] = holdpix.x;
 		pixinfo_.col[pixinfo_.npix] = holdpix.y;
 		pixinfo_.adc[pixinfo_.npix] = holdpix.adc;
-		LocalPoint lp = topol->localPosition(MeasurementPoint(holdpix.x + 0.5, holdpix.y+0.5));
+		LocalPoint lp = topol->localPosition(MeasurementPoint(holdpix.x, holdpix.y));
 		pixinfo_.x[pixinfo_.npix] = lp.x();
 		pixinfo_.y[pixinfo_.npix]= lp.y();
 	}

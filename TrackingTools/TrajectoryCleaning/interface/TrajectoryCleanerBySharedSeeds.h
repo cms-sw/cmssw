@@ -10,7 +10,7 @@ class TrajectoryCleanerBySharedSeeds : public TrajectoryCleaner
 public:
   typedef std::vector<Trajectory*> TrajectoryPointerContainer;
 
-  TrajectoryCleanerBySharedSeeds(const edm::ParameterSet & iConfig){};
+  TrajectoryCleanerBySharedSeeds(){};
   virtual ~TrajectoryCleanerBySharedSeeds(){};
 
   using TrajectoryCleaner::clean;

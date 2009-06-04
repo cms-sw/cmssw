@@ -3,27 +3,28 @@
 
 #include <memory>
 #include <vector>
+#include <string>
+#include <set>
+
+#include <boost/shared_ptr.hpp>
 
 #include <HepMC/GenEvent.h>
 #include <HepMC/SimpleVector.h>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 namespace lhef {
 
+class LHERunInfo;
+class LHEEvent;
 class JetInput;
 class JetClustering;
 
 class JetMatching {
     public:
-	~JetMatching();
-
-	double match(const HepMC::GenEvent *partonLevel,
-	             const HepMC::GenEvent *finalState,
-	             bool showeredFinalState = false);
-
-	static std::auto_ptr<JetMatching> create(
-					const edm::ParameterSet &params);
+	JetMatching(const edm::ParameterSet &params);
+	virtual ~JetMatching();
 
 	struct JetPartonMatch {
 		JetPartonMatch(const HepMC::FourVector	&parton,
@@ -50,33 +51,32 @@ class JetMatching {
 		int			pdgId;
 	};
 
+	virtual void init(const boost::shared_ptr<LHERunInfo> &runInfo);
+	virtual void beforeHadronisation(
+				const boost::shared_ptr<LHEEvent> &event);
+
+	virtual double match(const HepMC::GenEvent *partonLevel,
+	                     const HepMC::GenEvent *finalState,
+	                     bool showeredFinalState = false) = 0;
+
+	virtual std::set<std::string> capabilities() const;
+
 	const std::vector<JetPartonMatch> &getMatchSummary() const
 	{ return matchSummary; }
 
-    private:
-	enum MatchMode {
-		kExclusive = 0,
-		kInclusive
-	};
+	static std::auto_ptr<JetMatching> create(
+					const edm::ParameterSet &params);
 
-	JetMatching();
-	JetMatching(const edm::ParameterSet &params);
+	typedef edmplugin::PluginFactory<JetMatching*(
+					const edm::ParameterSet &)> Factory;
 
-	const double			maxDeltaR;
-	const double			minJetPt;
-	double				maxEta;
-	double				matchPtFraction;
-	bool				useEt;
-	MatchMode			matchMode;
-
-	std::auto_ptr<JetInput>		partonInput;
-	std::auto_ptr<JetInput>		jetInput;
-	std::auto_ptr<JetClustering>	jetClustering;
-
+    protected:
 	std::vector<JetPartonMatch>	matchSummary;
-
 };
 
 } // namespace lhef
+
+#define DEFINE_LHE_JETMATCHING_PLUGIN(T) \
+	DEFINE_EDM_PLUGIN(lhef::JetMatching::Factory, T, #T)
 
 #endif // GeneratorCommon_LHEInterface_JetMatching_h

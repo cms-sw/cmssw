@@ -13,6 +13,9 @@ DEFINE_ANOTHER_FWK_MODULE(DTEfficiencyTest);
 #include <DQM/DTMonitorClient/src/DTChamberEfficiencyTest.h>
 DEFINE_ANOTHER_FWK_MODULE(DTChamberEfficiencyTest);
 
+#include <DQM/DTMonitorClient/src/DTChamberEfficiencyClient.h>
+DEFINE_ANOTHER_FWK_MODULE(DTChamberEfficiencyClient);
+
 #include <DQM/DTMonitorClient/src/DTDataIntegrityTest.h>
 DEFINE_ANOTHER_FWK_MODULE(DTDataIntegrityTest);
 
@@ -37,6 +40,9 @@ DEFINE_ANOTHER_FWK_MODULE(DTLocalTriggerEfficiencyTest);
 #include "DQM/DTMonitorClient/src/DTLocalTriggerLutTest.h"
 DEFINE_ANOTHER_FWK_MODULE(DTLocalTriggerLutTest);
 
+#include "DQM/DTMonitorClient/src/DTLocalTriggerTPTest.h"
+DEFINE_ANOTHER_FWK_MODULE(DTLocalTriggerTPTest);
+
 #include "DQM/DTMonitorClient/src/DTCreateSummaryHistos.h"
 DEFINE_ANOTHER_FWK_MODULE(DTCreateSummaryHistos);
 
@@ -49,3 +55,8 @@ DEFINE_ANOTHER_FWK_MODULE(DTSummaryClients);
 #include "DQM/DTMonitorClient/src/DTOfflineSummaryClients.h"
 DEFINE_ANOTHER_FWK_MODULE(DTOfflineSummaryClients);
 
+#include <DQM/DTMonitorClient/src/DTResolutionAnalysisTest.h>
+DEFINE_ANOTHER_FWK_MODULE(DTResolutionAnalysisTest);
+
+#include <DQM/DTMonitorClient/src/DTDAQInfo.h>
+DEFINE_ANOTHER_FWK_MODULE(DTDAQInfo);

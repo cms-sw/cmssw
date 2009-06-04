@@ -1,126 +1,82 @@
 #ifndef TopObjects_TtSemiLeptonicEvent_h
 #define TopObjects_TtSemiLeptonicEvent_h
 
-#include <vector>
-#include <string>
+#include "AnalysisDataFormats/TopObjects/interface/TtEvent.h"
 
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/RefProd.h"
 
-#include "DataFormats/PatCandidates/interface/Tau.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/PatCandidates/interface/MET.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
-
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
-
-#include "DataFormats/Candidate/interface/CompositeCandidate.h"
-#include "DataFormats/Candidate/interface/ShallowClonePtrCandidate.h"
-
-namespace TtSemiDaughter{
-  // semileptonic daughter names
-  static const std::string Nu  ="Nu",   Lep ="Lep",  LepW="LepW", LepB="LepB", LepTop="LepTop";
+namespace TtSemiLepDaughter{
+  /// semi-leptonic daughter names for common
+  /// use and use with the hypotheses
+  static const std::string Nu  ="Nu"  , Lep ="Lep" , LepW="LepW", LepB="LepB", LepTop="LepTop";
   static const std::string HadQ="HadQ", HadP="HadP", HadW="HadW", HadB="HadB", HadTop="HadTop"; 
 }
 
-class TtSemiLeptonicEvent {
+// ----------------------------------------------------------------------
+// derived class for: 
+//
+//  * TtFullLeptonicEvent
+//
+//  the structure holds information on the leptonic decay channels, 
+//  all event hypotheses of different classes (user defined during
+//  production) and a reference to the TtGenEvent (if available) 
+//  and provides access and administration; the derived class 
+//  contains a few additional getters with respect to its base class
+// ----------------------------------------------------------------------
+
+class TtSemiLeptonicEvent: public TtEvent {
   
  public:
 
-  // semiletponic decay channels
-  enum Decay {kNone, kElec, kMuon, kTau};
-
-  // supported EventHypotheses
-  enum HypoKey {kGeom, kWMassMaxSumPt, kMaxSumPtWMass, kGenMatch, kMVADisc, kKinFit};
-
- public:
-
-  TtSemiLeptonicEvent();
+  /// empty constructor
+  TtSemiLeptonicEvent(){};
+  /// default destructor
   virtual ~TtSemiLeptonicEvent(){};
 
-  // access decay 
-  Decay decay() const { return decay_;}
+  /// get hadronic top of the given hypothesis
+  const reco::Candidate* hadronicTop(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : eventHypo  (key,cmb). daughter(TtSemiLepDaughter::HadTop); };
+  /// get hadronic b of the given hypothesis
+  const reco::Candidate* hadronicB  (const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : hadronicTop(key,cmb)->daughter(TtSemiLepDaughter::HadB  ); };
+  /// get hadronic W of the given hypothesis
+  const reco::Candidate* hadronicW  (const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : hadronicTop(key,cmb)->daughter(TtSemiLepDaughter::HadW  ); };
+  /// get hadronic light quark of the given hypothesis
+  const reco::Candidate* lightQuarkP(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : hadronicW  (key,cmb)->daughter(TtSemiLepDaughter::HadP  ); };
+  /// get hadronic light quark of the given hypothesis
+  const reco::Candidate* lightQuarkQ(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : hadronicW  (key,cmb)->daughter(TtSemiLepDaughter::HadQ  ); };
+  /// get leptonic top of the given hypothesis
+  const reco::Candidate* leptonicTop(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : eventHypo  (key,cmb). daughter(TtSemiLepDaughter::LepTop); };
+  /// get leptonic b of the given hypothesis
+  const reco::Candidate* leptonicB  (const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : leptonicTop(key,cmb)->daughter(TtSemiLepDaughter::LepB  ); };
+  /// get leptonic W of the given hypothesis
+  const reco::Candidate* leptonicW  (const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : leptonicTop(key,cmb)->daughter(TtSemiLepDaughter::LepW  ); };
+  /// get leptonic light quark of the given hypothesis
+  const reco::Candidate* neutrino   (const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : leptonicW  (key,cmb)->daughter(TtSemiLepDaughter::Nu    ); };
+  /// get leptonic light quark of the given hypothesis
+  const reco::Candidate* lepton     (const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : leptonicW  (key,cmb)->daughter(TtSemiLepDaughter::Lep   ); };
 
-  // access objects according to corresponding EventHypothesis
-  const reco::CompositeCandidate& eventHypo(const HypoKey& key) const { return evtHyp_.find(key)->second; };
-  const reco::Candidate* eventHypoCandidate(const HypoKey& key, const std::string& name) const { return eventHypo(key).daughter(name); };
-  // warning: since access by string to the daughters of a daughter is not yet possible, for the time being
-  //          daughters have to be added always in the same order to their mothers before adding these to the
-  //          event hypothesis in order to have the correct objects returned by the following functions
-  // (for top quarks: first W, then b quark; for the hadr. decaying W: first quark, then anti-quark;
-  //                                         for the lept. decaying W: first lepton, then neutrino)
-  const reco::Candidate* hadronicTop(const HypoKey& key) const { return !isHypoValid(key) ? 0 : eventHypo(key).   daughter(TtSemiDaughter::HadTop); };
-  const reco::Candidate* hadronicB  (const HypoKey& key) const { return !isHypoValid(key) ? 0 : hadronicTop(key)->daughter(1);                      };
-  const reco::Candidate* hadronicW  (const HypoKey& key) const { return !isHypoValid(key) ? 0 : hadronicTop(key)->daughter(0);                      };
-  const reco::Candidate* lightQuarkP(const HypoKey& key) const { return !isHypoValid(key) ? 0 : hadronicW(key)->  daughter(1);                      };
-  const reco::Candidate* lightQuarkQ(const HypoKey& key) const { return !isHypoValid(key) ? 0 : hadronicW(key)->  daughter(0);                      };
-  const reco::Candidate* leptonicTop(const HypoKey& key) const { return !isHypoValid(key) ? 0 : eventHypo(key).   daughter(TtSemiDaughter::LepTop); };
-  const reco::Candidate* leptonicB  (const HypoKey& key) const { return !isHypoValid(key) ? 0 : leptonicTop(key)->daughter(1);                      };
-  const reco::Candidate* leptonicW  (const HypoKey& key) const { return !isHypoValid(key) ? 0 : leptonicTop(key)->daughter(0);                      };
-  const reco::Candidate* neutrino   (const HypoKey& key) const { return !isHypoValid(key) ? 0 : leptonicW(key)->  daughter(1);                      };
-  const reco::Candidate* lepton     (const HypoKey& key) const { return !isHypoValid(key) ? 0 : leptonicW(key)->  daughter(0);                      };
-
-  // access the matched gen particles
-  const edm::RefProd<TtGenEvent> & genEvent() const { return genEvt_; };
+  /// get hadronic top of the TtGenEvent
   const reco::GenParticle* genHadronicTop() const { return (!genEvt_ ? 0 : this->genEvent()->hadronicDecayTop()); };
+  /// get hadronic b of the TtGenEvent
   const reco::GenParticle* genHadronicW()   const { return (!genEvt_ ? 0 : this->genEvent()->hadronicDecayW()); };
+  /// get hadronic W of the TtGenEvent
   const reco::GenParticle* genHadronicB()   const { return (!genEvt_ ? 0 : this->genEvent()->hadronicDecayB()); };
-  const reco::GenParticle* genHadronicP()   const { return (!genEvt_ ? 0 : this->genEvent()->hadronicDecayQuarkBar()); };
-  const reco::GenParticle* genHadronicQ()   const { return (!genEvt_ ? 0 : this->genEvent()->hadronicDecayQuark()); };
+  /// get hadronic light quark of the TtGenEvent
+  const reco::GenParticle* genHadronicP()   const { return (!genEvt_ ? 0 : this->genEvent()->hadronicDecayQuark()); };
+  /// get hadronic light quark of the TtGenEvent
+  const reco::GenParticle* genHadronicQ()   const { return (!genEvt_ ? 0 : this->genEvent()->hadronicDecayQuarkBar()); };
+  /// get leptonic top of the TtGenEvent
   const reco::GenParticle* genLeptonicTop() const { return (!genEvt_ ? 0 : this->genEvent()->leptonicDecayTop()); };
+  /// get leptonic b of the TtGenEvent
   const reco::GenParticle* genLeptonicW()   const { return (!genEvt_ ? 0 : this->genEvent()->leptonicDecayW()); };
+  /// get leptonic W of the TtGenEvent
   const reco::GenParticle* genLeptonicB()   const { return (!genEvt_ ? 0 : this->genEvent()->leptonicDecayB()); };
+  /// get lepton top of the TtGenEvent
   const reco::GenParticle* genLepton()      const { return (!genEvt_ ? 0 : this->genEvent()->singleLepton());   };
+  /// get neutrino of the TtGenEvent
   const reco::GenParticle* genNeutrino()    const { return (!genEvt_ ? 0 : this->genEvent()->singleNeutrino()); };
   
-  // access meta information
-  bool isHypoValid(const HypoKey& key) const { return isHypoAvailable(key) ? !eventHypo(key).roles().empty() : false;}
-  bool isHypoAvailable(const HypoKey& key) const { return (evtHyp_.find(key)!=evtHyp_.end());};
-  unsigned int numberOfAvailableHypos() const { return evtHyp_.size();};
-  std::vector<int> jetMatch(const HypoKey& key) const { return jetMatch_.find(key)->second; };
-  double genMatchSumPt() const { return genMatchSumPt_; };
-  double genMatchSumDR() const { return genMatchSumDR_; };
-  std::string mvaMethod() const { return mvaDisc_.first; }
-  double mvaDisc() const { return mvaDisc_.second; }
-  double fitChi2() const { return fitChi2_; }
-  double fitProb() const { return fitProb_; }
-
- public:
-
-  // set decay
-  void setDecay(const Decay& dec) { decay_=dec; };
-
-  // set the generated event
-  void setGenEvent(const edm::Handle<TtGenEvent>& evt) { genEvt_=edm::RefProd<TtGenEvent>(evt); };
-
-  // add EventHypotheses
-  void addEventHypo(const HypoKey& key, reco::CompositeCandidate hyp) { evtHyp_[key]=hyp; };
-  
-  // set meta information
-  void addJetMatch(const HypoKey& key, const std::vector<int>& match) { jetMatch_[key]=match; };
-  void setGenMatchSumPt(const double& val) {genMatchSumPt_=val;};
-  void setGenMatchSumDR(const double& val) {genMatchSumDR_=val;};
-  void setMvaDiscAndMethod(const std::string& name, const double& val) {mvaDisc_=std::pair<std::string, double>(name, val);};
-  void setFitChi2(const double& val) { fitChi2_=val; };
-  void setFitProb(const double& val) { fitProb_=val; };
-
- private:
-
-  // event content
-  Decay decay_;
-  edm::RefProd<TtGenEvent> genEvt_;
-  std::map<HypoKey, reco::CompositeCandidate> evtHyp_;
-  
-  //meta information
-  std::map<HypoKey, std::vector<int> > jetMatch_;
-  double fitChi2_;                          // result of kinematic fit
-  double fitProb_;                          // result of kinematic fit
-  double genMatchSumPt_;                    // result of gen match
-  double genMatchSumDR_;                    // result of gen match
-  std::pair<std::string, double> mvaDisc_;  // result of MVA discriminant
+  /// print full content of the structure as formated 
+  /// LogInfo to the MessageLogger output for debugging
+  void print();
 };
 
 #endif

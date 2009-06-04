@@ -624,10 +624,10 @@ void CSCOfflineMonitor::analyze(const Event & event, const EventSetup& eventSetu
     float yreco = rhitlocal.y();
 
     // Find the strip containing this hit
-    CSCRecHit2D::ChannelContainer hitstrips = (*recIt).channels();
-    int nStrips     =  hitstrips.size();
-    int centerid    =  nStrips/2 + 1;
-    int centerStrip =  hitstrips[centerid - 1];
+    //CSCRecHit2D::ChannelContainer hitstrips = (*recIt).channels();
+    //int nStrips     =  hitstrips.size();
+    //int centerid    =  nStrips/2 + 1;
+    //int centerStrip =  hitstrips[centerid - 1];
 
     // Find the charge associated with this hit
 
@@ -647,16 +647,16 @@ void CSCOfflineMonitor::analyze(const Event & event, const EventSetup& eventSetu
     if (adcsize != 12) rHratioQ = -99;
 
     // Get the signal timing of this hit
-    //float rHtime = (*recIt).tpeak();
-    float rHtime = getTiming(*strips, idrec, centerStrip);
+    float rHtime = (*recIt).tpeak()/50;
+    //float rHtime = getTiming(*strips, idrec, centerStrip);
 
     // Get pointer to the layer:
-    const CSCLayer* csclayer = cscGeom->layer( idrec );
+    //const CSCLayer* csclayer = cscGeom->layer( idrec );
 
     // Transform hit position from local chamber geometry to global CMS geom
-    GlobalPoint rhitglobal= csclayer->toGlobal(rhitlocal);
-    float grecx   =  rhitglobal.x();
-    float grecy   =  rhitglobal.y();
+    //GlobalPoint rhitglobal= csclayer->toGlobal(rhitlocal);
+    //float grecx   =  rhitglobal.x();
+    //float grecy   =  rhitglobal.y();
 
     
     // Simple occupancy variables
@@ -876,21 +876,27 @@ float CSCOfflineMonitor::fitX(HepMatrix points, HepMatrix errors){
 float CSCOfflineMonitor::getTiming(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip){
 
   float ADC[8];
-  float timing = 0;
+  for (int i = 0; i < 8; i++){
+    ADC[i] = 0;
+  }
+  float timing = -1;
+
+  if (idRH.station() == 1 && idRH.ring() == 4){
+    while(centerStrip> 16) centerStrip -= 16;
+  }
 
   // Loop over strip digis responsible for this recHit and sum charge
-  CSCStripDigiCollection::DigiRangeIterator sIt;
-
-  for (sIt = stripdigis.begin(); sIt != stripdigis.end(); sIt++){
-    CSCDetId id = (CSCDetId)(*sIt).first;
+  CSCStripDigiCollection::DigiRangeIterator gTstripIter;
+  for (gTstripIter = stripdigis.begin(); gTstripIter != stripdigis.end(); gTstripIter++){
+    CSCDetId id = (CSCDetId)(*gTstripIter).first;
     if (id == idRH){
-      vector<CSCStripDigi>::const_iterator digiItr = (*sIt).second.first;
-      vector<CSCStripDigi>::const_iterator last = (*sIt).second.second;
-      for ( ; digiItr != last; ++digiItr ) {
-        int thisStrip = digiItr->getStrip();
+      vector<CSCStripDigi>::const_iterator STiter = (*gTstripIter).second.first;
+      vector<CSCStripDigi>::const_iterator lastS = (*gTstripIter).second.second;
+      for ( ; STiter != lastS; ++STiter ) {
+        int thisStrip = STiter->getStrip();
         if (thisStrip == (centerStrip)){
           float diff = 0;
-          vector<int> myADCVals = digiItr->getADCCounts();
+          vector<int> myADCVals = STiter->getADCCounts();
           float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
           for (unsigned int iCount = 0; iCount < myADCVals.size(); iCount++) {
             diff = (float)myADCVals[iCount]-thisPedestal;
@@ -898,14 +904,12 @@ float CSCOfflineMonitor::getTiming(const CSCStripDigiCollection& stripdigis, CSC
           }
         }
       }
-
     }
-
   }
 
   timing = (ADC[2]*2 + ADC[3]*3 + ADC[4]*4 + ADC[5]*5 + ADC[6]*6)/(ADC[2] + ADC[3] + ADC[4] + ADC[5] + ADC[6]);
-  return timing;
 
+  return timing;
 
 }
 

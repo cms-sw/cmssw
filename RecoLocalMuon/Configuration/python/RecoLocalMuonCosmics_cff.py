@@ -21,6 +21,12 @@ import RecoLocalMuon.DTRecHit.dt1DRecHits_NoDrift_CosmicData_cfi
 dt1DRecHitsNoDrift = RecoLocalMuon.DTRecHit.dt1DRecHits_NoDrift_CosmicData_cfi.dt1DRecHits.clone()
 import RecoLocalMuon.DTSegment.dt4DSegments_CombPatternReco4D_NoDrift_CosmicData_cfi
 dt4DSegmentsNoDrift = RecoLocalMuon.DTSegment.dt4DSegments_CombPatternReco4D_NoDrift_CosmicData_cfi.dt4DSegments.clone()
+
+# T0 seg correction
+import RecoLocalMuon.DTSegment.dt4DSegments_CombPatternReco4D_T0Seg_LinearDriftFromDB_CosmicData_cfi
+dt4DSegmentsT0Seg = RecoLocalMuon.DTSegment.dt4DSegments_CombPatternReco4D_T0Seg_LinearDriftFromDB_CosmicData_cfi.dt4DSegments.clone()
+
+
 #------------------------------------ CSC -----------------------------------------------
 # 2D RecHit	
 from RecoLocalMuon.CSCRecHitD.cscRecHitD_cfi import *
@@ -29,7 +35,6 @@ from RecoLocalMuon.CSCSegment.cscSegments_cfi import *
 #------------------------------------ RPC -----------------------------------------------
 # 1D RecHits
 from RecoLocalMuon.RPCRecHit.rpcRecHits_cfi import *
-dtlocalrecoNoDrift = cms.Sequence(dt1DRecHitsNoDrift*dt4DSegmentsNoDrift)
 #----------------------------------------------------------------------------------------
 # DT sequence for the standard reconstruction chain 
 # The reconstruction of the 2D segments are not required for the 4D segments reconstruction, they are used
@@ -37,6 +42,10 @@ dtlocalrecoNoDrift = cms.Sequence(dt1DRecHitsNoDrift*dt4DSegmentsNoDrift)
 dtlocalreco = cms.Sequence(dt1DRecHits*dt4DSegments)
 # DT sequence with the 2D segment reconstruction
 dtlocalreco_with_2DSegments = cms.Sequence(dt1DRecHits*dt2DSegments*dt4DSegments)
+# DT sequence with T0seg correction
+dtlocalrecoT0Seg = cms.Sequence(dt1DRecHits*dt4DSegmentsT0Seg)
+# DT sequence with no-drift  algo
+dtlocalrecoNoDrift = cms.Sequence(dt1DRecHitsNoDrift*dt4DSegmentsNoDrift)
 # CSC sequence
 csclocalreco = cms.Sequence(csc2DRecHits*cscSegments)
 # DT, CSC and RPC together
@@ -45,7 +54,10 @@ muonlocalreco_with_2DSegments = cms.Sequence(dtlocalreco_with_2DSegments+cscloca
 muonlocalreco = cms.Sequence(dtlocalreco+csclocalreco+rpcRecHits)
 # DT, CSC and RPC together (correct sequence for the standard path)
 muonlocalrecoNoDrift = cms.Sequence(dtlocalrecoNoDrift+csclocalreco+rpcRecHits)
-muonLocalRecoGR = cms.Sequence(muonlocalreco+muonlocalrecoNoDrift)
+# DT, CSC and RPC together (with t0seg correction for DTs)
+muonlocalrecoT0Seg = cms.Sequence(dtlocalrecoT0Seg+csclocalreco+rpcRecHits)
+# all sequences to be used for GR
+muonLocalRecoGR = cms.Sequence(muonlocalreco+muonlocalrecoNoDrift+muonlocalrecoT0Seg)
 #DTLinearDriftAlgo_CosmicData.recAlgoConfig.hitResolution = 0.05
 DTLinearDriftFromDBAlgo_CosmicData.recAlgoConfig.tTrigModeConfig.kFactor = -1.00
 #dt1DRecHits.dtDigiLabel = 'muonDTDigis'

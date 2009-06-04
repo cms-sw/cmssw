@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.34 2008/09/15 15:32:39 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.33 2008/09/15 14:05:22 fblekman Exp $
 //
 //
 
@@ -52,7 +52,6 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   recordName_(conf_.getParameter<std::string>("record")),
   appendMode_(conf_.getUntrackedParameter<bool>("appendMode",true)),
   listofdetids_(conf_.getUntrackedParameter<std::vector<uint32_t> >("listOfDetIDs")),
-  ignoreMode_(conf_.getUntrackedParameter<bool>("ignoreMode",false)),
   theGainCalibrationDbInput_(0),
   theGainCalibrationDbInputOffline_(0),
   theGainCalibrationDbInputHLT_(0),
@@ -100,8 +99,6 @@ bool
 SiPixelGainCalibrationAnalysis::checkCorrectCalibrationType()
 {
   if(calibrationMode_=="GainCalibration")
-    return true;
-  else if(ignoreMode_==true)
     return true;
   else if(calibrationMode_=="unknown"){
     edm::LogInfo("SiPixelGainCalibrationAnalysis") <<  "calibration mode is: " << calibrationMode_ << ", continuing anyway..." ;

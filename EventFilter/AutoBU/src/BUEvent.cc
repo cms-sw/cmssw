@@ -18,7 +18,7 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
-
+#include <cstring>
 
 using namespace std;
 using namespace evf;

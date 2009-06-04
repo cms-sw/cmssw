@@ -17,10 +17,11 @@
 #include <sstream>
 #include <fstream>
 
-#define SHM_KEYPATH          "/dev/null" /* Path used on ftok for shmget key  */
+#include <cstdlib>
+#include <cstring>
+
 #define SHM_DESCRIPTOR_KEYID           1 /* Id used on ftok for 1. shmget key */
 #define SHM_KEYID                      2 /* Id used on ftok for 2. shmget key */
-#define SEM_KEYPATH          "/dev/null" /* Path used on ftok for semget key  */
 #define SEM_KEYID                      1 /* Id used on ftok for semget key    */
 
 #define NSKIP_MAX                    100
@@ -28,6 +29,11 @@
 
 using namespace std;
 using namespace evf;
+
+const char* FUShmBuffer::shmKeyPath_ =
+  (getenv("FUSHM_KEYFILE") == NULL ? "/dev/null" : getenv("FUSHM_KEYFILE"));
+const char* FUShmBuffer::semKeyPath_ =
+  (getenv("FUSEM_KEYFILE") == NULL ? "/dev/null" : getenv("FUSEM_KEYFILE"));
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -161,7 +167,7 @@ void FUShmBuffer::initialize(unsigned int shmid,unsigned int semid)
     int    shmKeyId=666;
     key_t* keyAddr =(key_t*)((unsigned int)this+rawCellOffset_);
     for (unsigned int i=0;i<nRawCells_;i++) {
-      *keyAddr     =ftok("/dev/null",shmKeyId++);
+      *keyAddr     =ftok(shmKeyPath_,shmKeyId++);
       int   shmid  =shm_create(*keyAddr,rawCellTotalSize_);
       void* shmAddr=shm_attach(shmid);
       new (shmAddr) FUShmRawCell(rawCellPayloadSize_);
@@ -170,7 +176,7 @@ void FUShmBuffer::initialize(unsigned int shmid,unsigned int semid)
     }
     keyAddr =(key_t*)((unsigned int)this+recoCellOffset_);
     for (unsigned int i=0;i<nRecoCells_;i++) {
-      *keyAddr     =ftok("/dev/null",shmKeyId++);
+      *keyAddr     =ftok(shmKeyPath_,shmKeyId++);
       int   shmid  =shm_create(*keyAddr,recoCellTotalSize_);
       void* shmAddr=shm_attach(shmid);
       new (shmAddr) FUShmRecoCell(recoCellPayloadSize_);
@@ -179,7 +185,7 @@ void FUShmBuffer::initialize(unsigned int shmid,unsigned int semid)
     }
     keyAddr =(key_t*)((unsigned int)this+dqmCellOffset_);
     for (unsigned int i=0;i<nDqmCells_;i++) {
-      *keyAddr     =ftok("/dev/null",shmKeyId++);
+      *keyAddr     =ftok(shmKeyPath_,shmKeyId++);
       int   shmid  =shm_create(*keyAddr,dqmCellTotalSize_);
       void* shmAddr=shm_attach(shmid);
       new (shmAddr) FUShmDqmCell(dqmCellPayloadSize_);
@@ -855,9 +861,9 @@ bool FUShmBuffer::releaseSharedMemory()
 {
   // get bookkeeping shared memory segment
   int   size   =sizeof(unsigned int)*7;
-  int   shmidd =shm_get(FUShmBuffer::getShmDescriptorKey(),size);if(shmidd<0)return 0;
+  int   shmidd =shm_get(FUShmBuffer::getShmDescriptorKey(),size); if(shmidd<0) return false;
   void* shmAddr=shm_attach(shmidd); if (0==shmAddr) return false;
-  
+
   unsigned int*p=(unsigned int*)shmAddr;
   bool         segmentationMode=*p++;
   unsigned int nRawCells       =*p++;
@@ -875,14 +881,22 @@ bool FUShmBuffer::releaseSharedMemory()
 			      rawCellSize,recoCellSize,dqmCellSize);
   int shmid=shm_get(FUShmBuffer::getShmKey(),size);if (shmid<0)    return false;
   int semid=sem_get(FUShmBuffer::getSemKey(),9);   if (semid<0)    return false;
-  shmAddr  =shm_attach(shmid);                     if (0==shmAddr) return false;
-  
-  if (shm_nattch(shmid)>1) {
-    cout<<"FUShmBuffer::releaseSharedMemory(): nattch="<<shm_nattch(shmid)
-	<<", don't release shared memory."<<endl;
-    return false;
-  }
-  
+  shmAddr  =shm_attach(shmid);                     if (0==shmAddr) return false; 
+
+  int att = 0;
+  for(; att <10; att++)
+    {
+      if(shm_nattch(shmid)>1) {
+	cout << att << " FUShmBuffer::releaseSharedMemory(): nattch="<<shm_nattch(shmid)
+	     <<", failed attempt to release shared memory."<<endl;
+	::sleep(1);
+      }
+      else
+	break;
+    }
+
+  if(att>=10) return false;
+
   if (segmentationMode) {
     FUShmBuffer* buffer=
       new (shmAddr) FUShmBuffer(segmentationMode,
@@ -903,7 +917,6 @@ bool FUShmBuffer::releaseSharedMemory()
     }
   }
   shmdt(shmAddr);
-
   if (sem_destroy(semid)==-1)  return false;
   if (shm_destroy(shmid)==-1)  return false;
   if (shm_destroy(shmidd)==-1) return false;
@@ -950,9 +963,9 @@ unsigned int FUShmBuffer::size(bool         segmentationMode,
 //______________________________________________________________________________
 key_t FUShmBuffer::getShmDescriptorKey()
 {
-  key_t result=ftok(SHM_KEYPATH,SHM_DESCRIPTOR_KEYID);
-  if (result==(key_t)-1)
-    cout<<"FUShmBuffer::getShmDescriptorKey: ftok() failed!"<<endl;
+  key_t result=ftok(shmKeyPath_,SHM_DESCRIPTOR_KEYID);
+  if (result==(key_t)-1) cout<<"FUShmBuffer::getShmDescriptorKey: ftok() failed "
+			     <<"for file "<<shmKeyPath_<<"!"<<endl;
   return result;
 }
 
@@ -960,8 +973,9 @@ key_t FUShmBuffer::getShmDescriptorKey()
 //______________________________________________________________________________
 key_t FUShmBuffer::getShmKey()
 {
-  key_t result=ftok(SHM_KEYPATH,SHM_KEYID);
-  if (result==(key_t)-1) cout<<"FUShmBuffer::getShmKey: ftok() failed!"<<endl;
+  key_t result=ftok(shmKeyPath_,SHM_KEYID);
+  if (result==(key_t)-1) cout<<"FUShmBuffer::getShmKey: ftok() failed "
+			     <<"for file "<<shmKeyPath_<<"!"<<endl;
   return result;
 }
 
@@ -969,8 +983,9 @@ key_t FUShmBuffer::getShmKey()
 //______________________________________________________________________________
 key_t FUShmBuffer::getSemKey()
 {
-  key_t result=ftok(SEM_KEYPATH,SEM_KEYID);
-  if (result==(key_t)-1) cout<<"FUShmBuffer::getSemKey: ftok() failed!"<<endl;
+  key_t result=ftok(semKeyPath_,SEM_KEYID);
+  if (result==(key_t)-1) cout<<"FUShmBuffer::getSemKey: ftok() failed "
+			     <<"for file "<<semKeyPath_<<"!"<<endl;
   return result;
 }
 

@@ -63,7 +63,8 @@ namespace edm {
 		     bool dropMetaData,
 		     GroupSelectorRules const& groupSelectorRules,
                      bool dropMergeable,
-                     boost::shared_ptr<edm::DuplicateChecker> duplicateChecker) :
+                     boost::shared_ptr<edm::DuplicateChecker> duplicateChecker,
+                     bool dropDescendants) :
       file_(fileName),
       logicalFile_(logicalFileName),
       catalog_(catalogName),
@@ -104,7 +105,8 @@ namespace edm {
       eventHistoryTree_(0),
       branchChildren_(new BranchChildren),
       nextIDfixup_(false),
-      duplicateChecker_(duplicateChecker) {
+      duplicateChecker_(duplicateChecker),
+      dropDescendants_(dropDescendants) {
     eventTree_.setCacheSize(treeCacheSize);
 
     eventTree_.setTreeMaxVirtualSize(treeMaxVirtualSize);
@@ -233,7 +235,11 @@ namespace edm {
         it != itEnd; ++it) {
       BranchDescription const& prod = it->second;
       if(!selected(prod)) {
-        branchChildren_->appendToDescendents(prod.branchID(), branchesToDrop);
+        if (dropDescendants_) {
+          branchChildren_->appendToDescendants(prod.branchID(), branchesToDrop);
+        } else {
+          branchesToDrop.insert(prod.branchID());
+        }
       }
     }
 

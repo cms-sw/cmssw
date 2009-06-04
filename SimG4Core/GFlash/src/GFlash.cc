@@ -2,8 +2,7 @@
 #include "SimG4Core/GFlash/interface/ParametrisedPhysics.h"
 #include "SimG4Core/GFlash/interface/HadronPhysicsQGSP_WP.h"
 #include "SimG4Core/GFlash/interface/HadronPhysicsQGSP_BERT_WP.h"
-//#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics71.h"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4DecayPhysics.hh"
@@ -28,8 +27,7 @@ GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map, const edm::ParameterSet &
   RegisterPhysics(new ParametrisedPhysics("parametrised",thePar)); 
 
   // EM Physics
-  //  RegisterPhysics( new CMSEmStandardPhysics("standard EM",ver));
-  RegisterPhysics( new CMSEmStandardPhysics71("standard EM v71",ver));
+  RegisterPhysics( new CMSEmStandardPhysics("standard EM",ver));
 
   // Synchroton Radiation & GN Physics
   RegisterPhysics(new G4EmExtraPhysics("extra EM"));
@@ -69,7 +67,7 @@ GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map, const edm::ParameterSet &
   theHisto = GflashHistogram::instance();
   if(thePar.getParameter<bool>("GflashHistogram")) {
     theHisto->setStoreFlag(true);
-    theHisto->bookHistogram(thePar.getParameter<std::string>("GflashHistogramName"));
+    theHisto->bookHistogram();
   }
 
 }

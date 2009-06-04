@@ -29,4 +29,5 @@
 <use name=DataFormats/L1Trigger>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/L1TObjects>
+<use name=DataFormats/CSCDigi>
 <flags EDM_PLUGIN=1>

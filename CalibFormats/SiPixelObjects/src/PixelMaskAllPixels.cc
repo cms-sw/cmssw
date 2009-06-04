@@ -12,8 +12,6 @@
 #include <sstream>
 #include "CalibFormats/SiPixelObjects/interface/PixelModuleName.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelMaskAllPixels.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelTimeFormatter.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelBase64.h"
 #include <fstream>
 #include <map>
 #include <iostream>
@@ -22,34 +20,28 @@
 using namespace pos;
 using namespace std;
 
-//================================================================================================================
 PixelMaskAllPixels::PixelMaskAllPixels(std::vector< std::vector<std::string> >& tableMat) : PixelMaskBase("","","")
 {
- std::string mthn = "[PixelMaskAllPixels::PixelMaskAllPixels()]\t\t    " ;
- std::cout<< mthn << "Table Size in const:"<<tableMat.size()<<std::endl;
+
+  std::cout<<"Table Size in const:"<<tableMat.size()<<std::endl;
 
  std::vector< std::string > ins = tableMat[0];
  std::map<std::string , int > colM;
  std::vector<std::string > colNames;
 
-/*
- EXTENSION_TABLE_NAME: ROC_MASKS (VIEW: CONF_KEY_ROC_MASKS_V)
+ colNames.push_back("CONFIG_KEY_ID" );
+ colNames.push_back("CONFG_KEY"     );
+ colNames.push_back("VERSION"       );
+ colNames.push_back("KIND_OF_COND"  );
+ colNames.push_back("ROC_NAME"      );
+ colNames.push_back("HUB_ADDRS"     );
+ colNames.push_back("PORT_NUMBER"   );
+ colNames.push_back("ROC_I2C_ADDR"  );
+ colNames.push_back("GEOM_ROC_NUM"  );
+ colNames.push_back("DATA_FILE"     );
+ colNames.push_back("MASK_CLOB"     );
 
- CONFIG_KEY				   NOT NULL VARCHAR2(80)
- KEY_TYPE				   NOT NULL VARCHAR2(80)
- KEY_ALIAS				   NOT NULL VARCHAR2(80)
- VERSION					    VARCHAR2(40)
- KIND_OF_COND				   NOT NULL VARCHAR2(40)
- ROC_NAME				   NOT NULL VARCHAR2(200)
- KILL_MASK				   NOT NULL VARCHAR2(4000) colNames.push_back("CONFIG_KEY_ID" );
-*/
- colNames.push_back("CONFIG_KEY"  );
- colNames.push_back("KEY_TYPE"    );
- colNames.push_back("KEY_ALIAS"   );
- colNames.push_back("VERSION"	  );
- colNames.push_back("KIND_OF_COND");
- colNames.push_back("ROC_NAME"    );
- colNames.push_back("KILL_MASK"   );
+
   
  for(unsigned int c = 0 ; c < ins.size() ; c++)
    {
@@ -66,7 +58,7 @@ PixelMaskAllPixels::PixelMaskAllPixels(std::vector< std::vector<std::string> >& 
    {
      if(colM.find(colNames[n]) == colM.end())
        {
-	 std::cerr << mthn << "Couldn't find in the database the column with name " << colNames[n] << std::endl;
+	 std::cerr << "[PixelMaskAllPixels::PixelMaskAllPixels()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
 	 assert(0);
        }
    }
@@ -75,22 +67,26 @@ PixelMaskAllPixels::PixelMaskAllPixels(std::vector< std::vector<std::string> >& 
     std::string currentRocName = tableMat[r][colM["ROC_NAME"]]  ;               
     PixelROCName rocid(currentRocName);
     PixelROCMaskBits tmp;
-    tmp.read(rocid,base64_decode(tableMat[r][colM["KILL_MASK"]])) ; // decode back from specially base64-encoded data for XML 
+    std::istringstream istring ;
+    istring.str(tableMat[r][colM["MASK_CLOB"]]) ;
+    tmp.read(rocid,istring);
     maskbits_.push_back(tmp);
-  }                                                      //end for r 
+  }//end for r 
+//std::cout<<maskbits_.size()<<std::endl;
 }
 
-//================================================================================================================
 // modified by MR on 18-04-2008 10:02:00
 PixelMaskAllPixels::PixelMaskAllPixels():PixelMaskBase("","",""){;}
 
-//================================================================================================================
 void PixelMaskAllPixels::addROCMaskBits(PixelROCMaskBits bits)
 {
   maskbits_.push_back(bits);
 }
 
-//================================================================================================================
+//**********************************************************************
+
+
+
 PixelMaskAllPixels::PixelMaskAllPixels(std::string filename):
   PixelMaskBase("","",""){
 
@@ -196,14 +192,12 @@ PixelMaskAllPixels::PixelMaskAllPixels(std::string filename):
 	
     }
     
-//================================================================================================================
 const PixelROCMaskBits& PixelMaskAllPixels::getMaskBits(int ROCId) const {
 
   return maskbits_[ROCId];
 
 }
 
-//================================================================================================================
 PixelROCMaskBits* PixelMaskAllPixels::getMaskBits(PixelROCName name) {
 
   for(unsigned int i=0;i<maskbits_.size();i++){
@@ -214,7 +208,6 @@ PixelROCMaskBits* PixelMaskAllPixels::getMaskBits(PixelROCName name) {
 
 }
 
-//================================================================================================================
 void PixelMaskAllPixels::writeBinary(std::string filename) const{
 
   
@@ -227,7 +220,7 @@ void PixelMaskAllPixels::writeBinary(std::string filename) const{
 
 }
 
-//================================================================================================================
+
 void PixelMaskAllPixels::writeASCII(std::string dir) const{
 
   if (dir!="") dir+="/";
@@ -240,78 +233,6 @@ void PixelMaskAllPixels::writeASCII(std::string dir) const{
 	maskbits_[i].writeASCII(out);
     }
 
-
-}
-
-//=============================================================================================
-void PixelMaskAllPixels::writeXMLHeader(pos::PixelConfigKey key, 
-                                  	int version, 
-                                  	std::string path, 
-                                  	std::ofstream *outstream,
-                                  	std::ofstream *out1stream,
-                                   	std::ofstream *out2stream) const
-{
-  std::string mthn = "[PixelMaskAllPixels::writeXMLHeader()]\t\t\t    " ;
-  std::stringstream maskFullPath ;
-
-  maskFullPath << path << "/Pixel_RocMasks_" << PixelTimeFormatter::getmSecTime() << ".xml";
-  std::cout << mthn << "Writing to: " << maskFullPath.str() << std::endl ;
-
-  outstream->open(maskFullPath.str().c_str()) ;
-  
-  *outstream << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"                               << std::endl ;
-  *outstream << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 		 	        << std::endl ;
-  *outstream << ""                                                                                      << std::endl ; 
-  *outstream << " <HEADER>"                                                                             << std::endl ; 
-  *outstream << "  <TYPE>"                                                                              << std::endl ; 
-  *outstream << "   <EXTENSION_TABLE_NAME>ROC_MASKS</EXTENSION_TABLE_NAME>"                             << std::endl ; 
-  *outstream << "   <NAME>ROC Mask Bits</NAME>"                                                         << std::endl ; 
-  *outstream << "  </TYPE>"                                                                             << std::endl ; 
-  *outstream << "  <RUN>"                                                                               << std::endl ; 
-  *outstream << "   <RUN_TYPE>ROC Mask Bits</RUN_TYPE>"                                                 << std::endl ; 
-  *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                         << std::endl ; 
-  *outstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << std::endl ; 
-  *outstream << "   <COMMENT_DESCRIPTION>ROC Mask Bits</COMMENT_DESCRIPTION>"                           << std::endl ; 
-  *outstream << "   <LOCATION>CERN TAC</LOCATION>"                                                      << std::endl ; 
-  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"                               << std::endl ; 
-  *outstream << "  </RUN>"                                                                              << std::endl ; 
-  *outstream << " </HEADER>"                                                                            << std::endl ; 
-  *outstream << ""                                                                                      << std::endl ; 
-  *outstream << " <DATA_SET>"                                                                           << std::endl ;
-  *outstream << ""                                                                                      << std::endl ;
-  *outstream << "  <VERSION>" << version << "</VERSION>"                                                << std::endl ;
-  *outstream << ""                                                                                      << std::endl ;
-  *outstream << "  <PART>"                                                                              << std::endl ;
-  *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                            << std::endl ;      
-  *outstream << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                         << std::endl ;         
-  *outstream << "  </PART>"                                                                             << std::endl ;
-  *outstream << "  "                                                                                    << std::endl ;
-
-}
-//=============================================================================================
-void PixelMaskAllPixels::writeXML( std::ofstream *outstream,
-                             	   std::ofstream *out1stream,
-                             	   std::ofstream *out2stream) const 
-{
-  std::string mthn = "[PixelMaskAllPixels::writeXML()]\t\t\t    " ;
-
-  for(unsigned int i=0;i<maskbits_.size();i++){
-      maskbits_[i].writeXML(outstream);
-  }
-}
-//=============================================================================================
-void PixelMaskAllPixels::writeXMLTrailer(std::ofstream *outstream,
-                             	   	 std::ofstream *out1stream,
-                             	   	 std::ofstream *out2stream ) const 
-{
-  std::string mthn = "[PixelMaskAllPixels::writeXMLTrailer()]\t\t\t    " ;
-  
-  *outstream << "  "                                                                                    << std::endl ;
-  *outstream << " </DATA_SET>"		 								<< std::endl ;
-  *outstream << "</ROOT>"  		 								<< std::endl ;
-  
-  outstream->close() ;
-  std::cout << mthn << "Data written "   								<< std::endl ;
 
 }
 

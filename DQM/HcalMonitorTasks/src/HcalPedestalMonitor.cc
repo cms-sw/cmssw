@@ -32,6 +32,8 @@ void HcalPedestalMonitor::clearME()
 
 void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 {
+  HcalBaseMonitor::setup(ps,dbe);
+
   if (showTiming)
     {
       cpu_timer.reset(); cpu_timer.start();
@@ -40,8 +42,7 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
   if (fVerbosity)
     cout <<"<HcalPedestalMonitor::setup>  Setting up histograms"<<endl;
 
-  HcalBaseMonitor::setup(ps,dbe);
-  baseFolder_ = rootFolder_+"PedestalMonitor";
+  baseFolder_ = rootFolder_+"PedestalMonitor_Hcal";
 
   // Pedestal Monitor - specific cfg variables
 
@@ -143,7 +144,7 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 	{
 	  for (int phi=0;phi<PHIBINS;++phi)
 	    {
-	      for (int depth=0;depth<4;++depth)
+	      for (int depth=0;depth<6;++depth)
 		{
 		  pedcounts[eta][phi][depth]=0;
 		  rawpedsum[eta][phi][depth]=0;
@@ -181,7 +182,6 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 				       //const ZDCDigiCollection& zdc, // ZDCs not yet added
 				       const HcalDbService& cond)
 {
-
   if (showTiming)
     {
       cpu_timer.reset(); cpu_timer.start();
@@ -217,9 +217,13 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  int iPhi   = digi.id().iphi();
 	  int iDepth = digi.id().depth();
 
+	  // Offset HBHE depths 1 and 2 by +4 so they don't overlap with HF
+	  if (digi.id().subdet()==HcalEndcap && iDepth!=3)
+	    iDepth+=4;
+	
 	  channelCoder_ = cond.getHcalCoder(digi.id());
 	  HcalCoderDb coderDB(*channelCoder_, *shape_);
-	  coderDB.adc2fC(digi,tool);
+	  coderDB.adc2fC(digi,tool);  // convert digi ADC counts to fC in tool
 	  	  
 	  // Now loop over digi slices
 	  for (int k=0;k<digi.size();++k)
@@ -237,30 +241,24 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	      fC_rawpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=tool[k]*tool[k];
 	  	      
 	      // Form subtracted pedestals
-	      if (doFCpeds_) // Pedestals in fC; convert digi ADC to fC for subtraction
-		{
-		  fC_myval=tool[k]-calibs_.pedestal(capid);
-		  //  HcalQIECoder->adc takes (shape, charge, capid) and returns adc value
-		  ADC_myval=digi.sample(k).adc()-(int)(channelCoder_->adc(*shape_,(float)calibs_.pedestal(capid), capid));
-		  //cout <<digi.sample(k).adc()<<"  "<<channelCoder_->adc(*shape_,(float)calibs_.pedestal(capid), capid)<<"  ADC = "<<ADC_myval<<endl;
-		}
-	      else
-		{
-		  ADC_myval=digi.sample(k).adc()-calibs_.pedestal(capid);
-		  // HcalQIECoder->charge takes (shape, ADC, capId) and returns charge
-		  fC_myval=tool[k]-(float)(channelCoder_->charge(*shape_,(int)calibs_.pedestal(capid), capid));
-		}
+	      // calibration object ALWAYS returns pedestals in fC, according to Radek (11 Feb 2009)
+
+	      fC_myval=tool[k]-calibs_.pedestal(capid);  // digi value in fC - pedestal (fC) for this capid
+	      //  HcalQIECoder->adc takes (shape, charge, capid) and returns adc value
+	      ADC_myval=digi.sample(k).adc()-(int)(channelCoder_->adc(*shape_,(float)calibs_.pedestal(capid), capid));
+	      
+	      //cout <<digi.sample(k).adc()<<"  "<<channelCoder_->adc(*shape_,(float)calibs_.pedestal(capid), capid)<<"  ADC = "<<ADC_myval<<endl;
 	      subpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=ADC_myval;
 	      subpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=ADC_myval*ADC_myval;
 	      fC_subpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=fC_myval;
 	      fC_subpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=fC_myval*fC_myval;
-	      
 	    } // for (int k=0;k<digi.size();++k)
 	} // loop over digis
     } // try loop
   catch (...)
     {
-      cout <<"<HcalPedestalMonitor::processEvent>  No HBHE Digis."<<endl;
+      if (fVerbosity>0)
+	cout <<"<HcalPedestalMonitor::processEvent>  No HBHE Digis."<<endl;
     }
   
   
@@ -278,13 +276,12 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  int iEta   = digi.id().ieta();
 	  int iPhi   = digi.id().iphi();
 	  int iDepth = digi.id().depth();
-	      
-	  if(doFCpeds_){
-	    channelCoder_ = cond.getHcalCoder(digi.id());
-	    HcalCoderDb coderDB(*channelCoder_, *shape_);
-	    coderDB.adc2fC(digi,tool);
-	  } // if (doFCpeds_)
-	      
+	  
+	  // Convert digi ADC value to fC (stored in tool)
+	  channelCoder_ = cond.getHcalCoder(digi.id());
+	  HcalCoderDb coderDB(*channelCoder_, *shape_);
+	  coderDB.adc2fC(digi,tool);
+	  	      
 	  // Now loop over digi slices
 	  for (int k=0;k<digi.size();++k)
 	    {
@@ -302,18 +299,10 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	      fC_rawpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=tool[k]*tool[k];
 
 	      // Form subtracted pedestals
-	      if (doFCpeds_) // Pedestals in fC; convert digi ADC to fC for subtraction
-		{
-		  fC_myval=tool[k]-calibs_.pedestal(capid);
-		  //  HcalQIECoder->adc takes (shape, charge, capid) and returns adc value
-		  ADC_myval=digi.sample(k).adc()-channelCoder_->adc(*shape_,(float)calibs_.pedestal(capid), capid);
-		}
-	      else
-		{
-		  ADC_myval=digi.sample(k).adc()-calibs_.pedestal(capid);
-		  // HcalQIECoder->charge takes (shape, ADC, capId) and returns charge
-		  fC_myval=tool[k]-channelCoder_->charge(*shape_,(int)calibs_.pedestal(capid), capid);
-		}
+	      fC_myval=tool[k]-calibs_.pedestal(capid);
+	      //  HcalQIECoder->adc takes (shape, charge, capid) and returns adc value
+	      ADC_myval=digi.sample(k).adc()-(int)channelCoder_->adc(*shape_,(float)calibs_.pedestal(capid), capid);
+
 	      subpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=ADC_myval;
 	      subpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=ADC_myval*ADC_myval;
 	      fC_subpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=fC_myval;
@@ -324,7 +313,8 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
     } // try loop
   catch (...)
     {
-      cout <<"<HcalPedestalMonitor::processEvent>  No HO Digis."<<endl;
+      if (fVerbosity > 0)
+	cout <<"<HcalPedestalMonitor::processEvent>  No HO Digis."<<endl;
     }
 
 
@@ -342,12 +332,10 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  int iPhi   = digi.id().iphi();
 	  int iDepth = digi.id().depth();
 	      
-	  if(doFCpeds_){
-	    channelCoder_ = cond.getHcalCoder(digi.id());
-	    HcalCoderDb coderDB(*channelCoder_, *shape_);
-	    coderDB.adc2fC(digi,tool);
-	  } // if (doFCpeds_)
-	      
+	  channelCoder_ = cond.getHcalCoder(digi.id());
+	  HcalCoderDb coderDB(*channelCoder_, *shape_);
+	  coderDB.adc2fC(digi,tool);
+	  	      
 	  // Now loop over digi slices
 	  for (int k=0;k<digi.size();++k)
 	    {
@@ -360,25 +348,18 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
 	      // Depth values increased by 2 to avoid overlap with HE at |eta|=29
 
-	      pedcounts[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth+1]++;
+	      pedcounts[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]++;
 	      ADC_myval=digi.sample(k).adc();
-	      rawpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth+1]+= ADC_myval;
-	      rawpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth+1]+=ADC_myval*ADC_myval;
-	      fC_rawpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth+1]+= tool[k];
-	      fC_rawpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth+1]+=tool[k]*tool[k];
+	      rawpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+= ADC_myval;
+	      rawpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=ADC_myval*ADC_myval;
+	      fC_rawpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+= tool[k];
+	      fC_rawpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=tool[k]*tool[k];
 
-	      if (doFCpeds_) // Pedestals in fC; convert digi ADC to fC for subtraction
-		{
-		  fC_myval=tool[k]-calibs_.pedestal(capid);
-		  //  HcalQIECoder->adc takes (shape, charge, capid) and returns adc value
-		  ADC_myval=digi.sample(k).adc()-channelCoder_->adc(*shape_,(float)calibs_.pedestal(capid), capid);
-		}
-	      else
-		{
-		  ADC_myval=digi.sample(k).adc()-calibs_.pedestal(capid);
-		  // HcalQIECoder->charge takes (shape, ADC, capId) and returns charge
-		  fC_myval=tool[k]-channelCoder_->charge(*shape_,(int)calibs_.pedestal(capid), capid);
-		}
+	      // calibs_.pedestal values are always in fC
+	      fC_myval=tool[k]-calibs_.pedestal(capid);
+	      //  HcalQIECoder->adc takes (shape, charge, capid) and returns adc value
+	      ADC_myval=digi.sample(k).adc()-(int)channelCoder_->adc(*shape_,(float)calibs_.pedestal(capid), capid);
+
 	      subpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=ADC_myval;
 	      subpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=ADC_myval*ADC_myval;
 	      fC_subpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=fC_myval;
@@ -389,9 +370,9 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
     } // try loop
   catch (...)
     {
-      cout <<"<HcalPedestalMonitor::processEvent>  No HF Digis."<<endl;
+      if (fVerbosity>0)
+	cout <<"<HcalPedestalMonitor::processEvent>  No HF Digis."<<endl;
     }
-
 
   // Should we allow each subdetector to get filled separately?  (Fill hfHists every 1000 events, hoHists every 2000, etc.?)
 
@@ -421,7 +402,7 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
     }
 
   // Fills pedestal histograms
-  if (fVerbosity) 
+  if (fVerbosity>0) 
     cout <<"<HcalPedestalMonitor::fillPedestalHistos> Entered fillPedestalHistos routine"<<endl;
   
   // Set value to be filled in problem histograms to be checkNevents (or remainder of ievt_/pedmon_checkNevents_)
@@ -436,19 +417,16 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
     {
       for (int phi=0;phi<72;++phi)
 	{
-	  for (int depth=0;depth<4;++depth) // this is one unit less "true" depth (for indexing purposes) 
+	  for (int depth=0;depth<6;++depth) // this is one unit less "true" depth (for indexing purposes) 
 	    {
-	      if (fabs(eta-int((etaBins_-2)/2))>28 && depth>1) // shift HF cells back to their appropriate depths
-		mydepth=depth-2;
-	      else mydepth=depth;
-
+	      mydepth=depth;
+	      
 	      // Skip events that don't contain required number of events
 	      if (pedcounts[eta][phi][depth] < minEntriesPerPed_) continue;
 	      
 	      // fillvalue = fraction of events used for pedestal determination
 	      // a small fillvalue causes the problem plots to get filled with a smaller value than a large fillvalue
 	      fillvalue = 1.*pedcounts[eta][phi][depth]/((endingTimeSlice_-startingTimeSlice_+1)*ievt_);
-
 
 	      // Compute mean and RMS for raw and subtracted pedestals in units of fC and ADC (phew!)
 
@@ -476,261 +454,71 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
 	      // Also, first bins around eta,phi are empty.
 	      // Thus, eta,phi must be shifted by +2 (+1 for bin count, +1 to ignore empty row)
 
-	      if (fabs(eta-int((etaBins_-2)/2))==29 )  // ETA BIN WITH HE, HF OVERLAP
+	      // raw pedestals for HF
+	      rawADCPedestalMean[mydepth]->setBinContent(eta+2,phi+2,ADC_myval);
+	      rawADCPedestalRMS[mydepth]->setBinContent(eta+2,phi+2,ADC_RMS);
+	      rawADCPedestalMean_1D[mydepth]->Fill(ADC_myval);
+	      rawADCPedestalRMS_1D[mydepth]->Fill(ADC_RMS);
+	      rawFCPedestalMean[mydepth]->setBinContent(eta+2,phi+2,fC_myval);
+	      rawFCPedestalMean_1D[mydepth]->Fill(fC_myval);
+	      rawFCPedestalRMS[mydepth]->setBinContent(eta+2,phi+2,fC_RMS);
+	      rawFCPedestalRMS_1D[mydepth]->Fill(fC_RMS);
+	      
+	      //subtracted pedestals
+	      subADCPedestalMean[mydepth]->setBinContent(eta+2,phi+2,ADC_sub_myval);
+	      subADCPedestalRMS[mydepth]->setBinContent(eta+2,phi+2,ADC_sub_RMS);
+	      subADCPedestalMean_1D[mydepth]->Fill(ADC_sub_myval);
+	      subADCPedestalRMS_1D[mydepth]->Fill(ADC_sub_RMS);
+	      subFCPedestalMean[mydepth]->setBinContent(eta+2,phi+2,fC_sub_myval);
+	      subFCPedestalRMS[mydepth]->setBinContent(eta+2,phi+2,fC_sub_RMS);
+	      subFCPedestalMean_1D[mydepth]->Fill(fC_sub_myval);
+	      subFCPedestalRMS_1D[mydepth]->Fill(fC_sub_RMS);
+	      
+	      // Overall plots by depth
+	      MeanMapByDepth[mydepth]->setBinContent(eta+2,phi+2,ADC_myval);
+	      RMSMapByDepth[mydepth]->setBinContent(eta+2,phi+2,ADC_RMS);
+	      
+	      // Problem Cells
+	      // Problem Cells currently determined by checking ADC counts against
+	      // nominal expectations of (mean=3 ADC counts, RMS = 1 count)
+	      // We may instead want to compare the values to the database values in order to determine problems?
+	      if  (fillvalue>pedmon_minErrorFlag_ 
+		   && (fabs(ADC_myval-nominalPedMeanInADC_)>maxPedMeanDiffADC_ 
+		       || fabs(ADC_RMS-nominalPedWidthInADC_)>maxPedWidthDiffADC_))
 		{
-		  // This value of eta is shared by HE, HF -- treat each separately
-		  if( depth>=2) // depth = 3,4 corresponds to HF (shifted by +2)
-		    {
-		      // raw pedestals for HF
-		      rawADCPedestalMean[mydepth]->setBinContent(eta+2,phi+2,ADC_myval);
-		      rawADCPedestalRMS[mydepth]->setBinContent(eta+2,phi+2,ADC_RMS);
-		      rawADCPedestalMean_1D[mydepth]->Fill(ADC_myval);
-		      rawADCPedestalRMS_1D[mydepth]->Fill(ADC_RMS);
-		      rawFCPedestalMean[mydepth]->setBinContent(eta+2,phi+2,fC_myval);
-		      rawFCPedestalMean_1D[mydepth]->Fill(fC_myval);
-		      rawFCPedestalRMS[mydepth]->setBinContent(eta+2,phi+2,fC_RMS);
-		      rawFCPedestalRMS_1D[mydepth]->Fill(fC_RMS);
-			
-		      //subtracted pedestals
-		      subADCPedestalMean[mydepth]->setBinContent(eta+2,phi+2,ADC_sub_myval);
-		      subADCPedestalRMS[mydepth]->setBinContent(eta+2,phi+2,ADC_sub_RMS);
-		      subADCPedestalMean_1D[mydepth]->Fill(ADC_sub_myval);
-		      subADCPedestalRMS_1D[mydepth]->Fill(ADC_sub_RMS);
-		      subFCPedestalMean[mydepth]->setBinContent(eta+2,phi+2,fC_sub_myval);
-		      subFCPedestalRMS[mydepth]->setBinContent(eta+2,phi+2,fC_sub_RMS);
-		      subFCPedestalMean_1D[mydepth]->Fill(fC_sub_myval);
-		      subFCPedestalRMS_1D[mydepth]->Fill(fC_sub_RMS);
-
-		      // Overall plots by depth
-		      MeanMapByDepth[mydepth]->setBinContent(eta+2,phi+2,ADC_myval);
-		      RMSMapByDepth[mydepth]->setBinContent(eta+2,phi+2,ADC_RMS);
-			
-		      // Problem Cells
-		      if  (fillvalue>pedmon_minErrorFlag_ 
-			   && (fabs(ADC_myval-nominalPedMeanInADC_)>maxPedMeanDiffADC_ 
-			       || fabs(ADC_RMS-nominalPedWidthInADC_)>maxPedWidthDiffADC_))
-			{
-			  ProblemPedestals->setBinContent(eta+2,phi+2,fillvalue);
-			  ProblemPedestalsByDepth[mydepth]->setBinContent(eta+2,phi+2,fillvalue);
-			}
-    
-
-		    } // if (depth>=2) (i.e. "true" depth is 3 or 4)
-		    
-		  else // ( "true" depth =1,2) ==>  HE  (no depth=3 for HE at |eta| = 29)
-		    {
-		      // HE depth 1-2 entries are stored in index [4] for depth 1 and [5] for depth 2
-
-		      // raw pedestals for HE
-		      rawADCPedestalMean[4+mydepth]->setBinContent(eta+2,phi+2,ADC_myval);
-		      rawADCPedestalRMS[4+mydepth]->setBinContent(eta+2,phi+2,ADC_RMS);
-		      rawADCPedestalMean_1D[4+mydepth]->Fill(ADC_myval);
-		      rawADCPedestalRMS_1D[4+mydepth]->Fill(ADC_RMS);
-		      rawFCPedestalMean[4+mydepth]->setBinContent(eta+2,phi+2,fC_myval);
-		      rawFCPedestalMean_1D[4+mydepth]->Fill(fC_myval);
-		      rawFCPedestalRMS[4+mydepth]->setBinContent(eta+2,phi+2,fC_RMS);
-		      rawFCPedestalRMS_1D[4+mydepth]->Fill(fC_RMS);
-		      
-		      //subtracted pedestals
-		      subADCPedestalMean[4+mydepth]->setBinContent(eta+2,phi+2,ADC_sub_myval);
-		      subADCPedestalRMS[4+mydepth]->setBinContent(eta+2,phi+2,ADC_sub_RMS);
-		      subADCPedestalMean_1D[4+mydepth]->Fill(ADC_sub_myval);
-		      subADCPedestalRMS_1D[4+mydepth]->Fill(ADC_sub_RMS);
-		      subFCPedestalMean[4+mydepth]->setBinContent(eta+2,phi+2,fC_sub_myval);
-		      subFCPedestalRMS[4+mydepth]->setBinContent(eta+2,phi+2,fC_sub_RMS);
-		      subFCPedestalMean_1D[4+mydepth]->Fill(fC_sub_myval);
-		      subFCPedestalRMS_1D[4+mydepth]->Fill(fC_sub_RMS);
-		      
-		      // Overall depth plots:
-		      MeanMapByDepth[4+mydepth]->setBinContent(eta+2,phi+2,ADC_myval);
-		      RMSMapByDepth[4+mydepth]->setBinContent(eta+2,phi+2,ADC_RMS);
-
-		      // Problem Cells
-		      if (fillvalue>pedmon_minErrorFlag_ 
-			  && (fabs(ADC_myval-nominalPedMeanInADC_)>maxPedMeanDiffADC_ 
-			      || fabs(ADC_RMS-nominalPedWidthInADC_)>maxPedWidthDiffADC_))
-			{
-			  ProblemPedestals->setBinContent(eta+2,phi+2,fillvalue);
-			  ProblemPedestalsByDepth[4+mydepth]->setBinContent(eta+2,phi+2,fillvalue);
-			}
-
-		    } // else (depth=0,1) -- HE block
-		} // if (|ETA| == 29)
-
-	      else // |ETA| <> 29 ==>  NO OVERLAPPING BINS
-		{
-		  // HB
-		  if (fabs(eta-int((etaBins_-2)/2))<17 && mydepth<2) // HB has depth 1-2 for |eta|<=16
-		    {
-		      rawADCPedestalMean[mydepth]->setBinContent(eta+2,phi+2,ADC_myval);
-		      rawADCPedestalRMS[mydepth]->setBinContent(eta+2,phi+2,ADC_RMS);
-		      rawADCPedestalMean_1D[mydepth]->Fill(ADC_myval);
-		      rawADCPedestalRMS_1D[mydepth]->Fill(ADC_RMS);
-		      rawFCPedestalMean[mydepth]->setBinContent(eta+2,phi+2,fC_myval);
-		      rawFCPedestalMean_1D[mydepth]->Fill(fC_myval);
-		      rawFCPedestalRMS[mydepth]->setBinContent(eta+2,phi+2,fC_RMS);
-		      rawFCPedestalRMS_1D[mydepth]->Fill(fC_RMS);
-
-		      //subtracted pedestals
-		      subADCPedestalMean[mydepth]->setBinContent(eta+2,phi+2,ADC_sub_myval);
-		      subADCPedestalRMS[mydepth]->setBinContent(eta+2,phi+2,ADC_sub_RMS);
-		      subADCPedestalMean_1D[mydepth]->Fill(ADC_sub_myval);
-		      subADCPedestalRMS_1D[mydepth]->Fill(ADC_sub_RMS);
-		      subFCPedestalMean[mydepth]->setBinContent(eta+2,phi+2,fC_sub_myval);
-		      subFCPedestalRMS[mydepth]->setBinContent(eta+2,phi+2,fC_sub_RMS);
-		      subFCPedestalMean_1D[mydepth]->Fill(fC_sub_myval);
-		      subFCPedestalRMS_1D[mydepth]->Fill(fC_sub_RMS);
-
-		      // Overall depth plots
-
-		      MeanMapByDepth[mydepth]->setBinContent(eta+2,phi+2,ADC_myval);
-		      RMSMapByDepth[mydepth]->setBinContent(eta+2,phi+2,ADC_RMS);
-
-		      // Problem plots
-		      if (fillvalue>pedmon_minErrorFlag_ 
-			  && (fabs(ADC_myval-nominalPedMeanInADC_) > maxPedMeanDiffADC_ 
-			      || fabs(ADC_RMS-nominalPedWidthInADC_) > maxPedWidthDiffADC_))
-			{
-			  ProblemPedestals->setBinContent(eta+2,phi+2,fillvalue);
-			  ProblemPedestalsByDepth[mydepth]->setBinContent(eta+2,phi+2,fillvalue);
-			}
-		    } // HB loop
-
-		  // HE -- layer 29 already taken care of above
-		  else if (
-			   (fabs(eta-int((etaBins_-2)/2))==16 && mydepth==2) 
-			   || (fabs(eta-int((etaBins_-2)/2))>16 && fabs(eta-int((etaBins_-2)/2))<27  
-			       && mydepth<2) 
-			   || (fabs(eta-int((etaBins_-2)/2))>26 && fabs(eta-int((etaBins_-2)/2))<29  
-			       && mydepth<3)
-			   )
-		    
-		    {
-		      //raw pedestals
-		      int hedepth;
-		      // need to treat depth 3 (mydepth=2) differently from depths 1,2 (which get shifted up to indices 5-6)
-		      mydepth==2 ? hedepth=mydepth: hedepth=4+mydepth;
-		      rawADCPedestalMean[hedepth]->setBinContent(eta+2,phi+2,ADC_myval);
-		      rawADCPedestalRMS[hedepth]->setBinContent(eta+2,phi+2,ADC_RMS);
-		      rawADCPedestalMean_1D[hedepth]->Fill(ADC_myval);
-		      rawADCPedestalRMS_1D[hedepth]->Fill(ADC_RMS);
-		      rawFCPedestalMean[hedepth]->setBinContent(eta+2,phi+2,fC_myval);
-		      rawFCPedestalMean_1D[hedepth]->Fill(fC_myval);
-		      rawFCPedestalRMS[hedepth]->setBinContent(eta+2,phi+2,fC_RMS);
-		      rawFCPedestalRMS_1D[hedepth]->Fill(fC_RMS);
-		      
-		      //subtracted pedestals
-		      subADCPedestalMean[hedepth]->setBinContent(eta+2,phi+2,ADC_sub_myval);
-		      subADCPedestalRMS[hedepth]->setBinContent(eta+2,phi+2,ADC_sub_RMS);
-		      subADCPedestalMean_1D[hedepth]->Fill(ADC_sub_myval);
-		      subADCPedestalRMS_1D[hedepth]->Fill(ADC_sub_RMS);
-		      subFCPedestalMean[hedepth]->setBinContent(eta+2,phi+2,fC_sub_myval);
-		      subFCPedestalRMS[hedepth]->setBinContent(eta+2,phi+2,fC_sub_RMS);
-		      subFCPedestalMean_1D[hedepth]->Fill(fC_sub_myval);
-		      subFCPedestalRMS_1D[hedepth]->Fill(fC_sub_RMS);
-		      
-		      // Overall depth plots
-		      MeanMapByDepth[hedepth]->setBinContent(eta+2,phi+2,ADC_myval);
-		      RMSMapByDepth[ hedepth]->setBinContent(eta+2,phi+2,ADC_RMS);
-
-		      // Problem Cells
-		      if (fillvalue>pedmon_minErrorFlag_ 
-			  && (fabs(ADC_myval-nominalPedMeanInADC_)>maxPedMeanDiffADC_ 
-			      || fabs(ADC_RMS-nominalPedWidthInADC_)>maxPedWidthDiffADC_) )
-		      {
-			  ProblemPedestals->setBinContent(eta+2,phi+2,fillvalue);
-			  ProblemPedestalsByDepth[hedepth]->setBinContent(eta+2,phi+2,fillvalue);
-			}
-		    } // else if (HE loop for |eta|<29)
-		  
-		  // H0
-		  else if (fabs(eta-int((etaBins_-2)/2))<16 && mydepth==3)
-		    {
-		      // raw pedestals
-		      rawADCPedestalMean[mydepth]->setBinContent(eta+2,phi+2,ADC_myval);
-		      rawADCPedestalRMS[mydepth]->setBinContent(eta+2,phi+2,ADC_RMS);
-		      rawADCPedestalMean_1D[mydepth]->Fill(ADC_myval);
-		      rawADCPedestalRMS_1D[mydepth]->Fill(ADC_RMS);
-		      rawFCPedestalMean[mydepth]->setBinContent(eta+2,phi+2,fC_myval);
-		      rawFCPedestalMean_1D[mydepth]->Fill(fC_myval);
-		      rawFCPedestalRMS[mydepth]->setBinContent(eta+2,phi+2,fC_RMS);
-		      rawFCPedestalRMS_1D[mydepth]->Fill(fC_RMS);
-			
-		      //subtracted pedestals
-		      subADCPedestalMean[mydepth]->setBinContent(eta+2,phi+2,ADC_sub_myval);
-		      subADCPedestalRMS[mydepth]->setBinContent(eta+2,phi+2,ADC_sub_RMS);
-		      subADCPedestalMean_1D[mydepth]->Fill(ADC_sub_myval);
-		      subADCPedestalRMS_1D[mydepth]->Fill(ADC_sub_RMS);
-		      subFCPedestalMean[mydepth]->setBinContent(eta+2,phi+2,fC_sub_myval);
-		      subFCPedestalRMS[mydepth]->setBinContent(eta+2,phi+2,fC_sub_RMS);
-		      subFCPedestalMean_1D[mydepth]->Fill(fC_sub_myval);
-		      subFCPedestalRMS_1D[mydepth]->Fill(fC_sub_RMS);
-
-		      // Overall depth plotsx
-		      MeanMapByDepth[mydepth]->setBinContent(eta+2,phi+2,ADC_myval);
-		      RMSMapByDepth[mydepth]->setBinContent(eta+2,phi+2,ADC_RMS);
-
-		      // Problem Cells
-		      if (fillvalue>pedmon_minErrorFlag_ 
-			  && (fabs(ADC_myval-nominalPedMeanInADC_)>maxPedMeanDiffADC_ 
-			      || fabs(ADC_RMS-nominalPedWidthInADC_)>maxPedWidthDiffADC_))
-		      {
-			  ProblemPedestals->setBinContent(eta+2,phi+2,fillvalue);
-			  ProblemPedestalsByDepth[mydepth]->setBinContent(eta+2,phi+2,fillvalue);
-			}
-
-		    } // else if (fabs(eta-int((etaBins_-2)/2))<16 ...)   HO LOOP
-
-		  //HF -- layer 29 already taken care of above
-		  else if (fabs(eta-int((etaBins_-2)/2))>29 
-			   && fabs(eta-int((etaBins_-2)/2))<42 
-			   && mydepth<2)
-		    {
-		      // raw pedestals
-		      rawADCPedestalMean[mydepth]->setBinContent(eta+2,phi+2,ADC_myval);
-		      rawADCPedestalRMS[mydepth]->setBinContent(eta+2,phi+2,ADC_RMS);
-		      rawADCPedestalMean_1D[mydepth]->Fill(ADC_myval);
-		      rawADCPedestalRMS_1D[mydepth]->Fill(ADC_RMS);
-		      rawFCPedestalMean[mydepth]->setBinContent(eta+2,phi+2,fC_myval);
-		      rawFCPedestalMean_1D[mydepth]->Fill(fC_myval);
-		      rawFCPedestalRMS[mydepth]->setBinContent(eta+2,phi+2,fC_RMS);
-		      rawFCPedestalRMS_1D[mydepth]->Fill(fC_RMS);
-			
-		      //subtracted pedestals
-		      subADCPedestalMean[mydepth]->setBinContent(eta+2,phi+2,ADC_sub_myval);
-		      subADCPedestalRMS[mydepth]->setBinContent(eta+2,phi+2,ADC_sub_RMS);
-		      subADCPedestalMean_1D[mydepth]->Fill(ADC_sub_myval);
-		      subADCPedestalRMS_1D[mydepth]->Fill(ADC_sub_RMS);
-		      subFCPedestalMean[mydepth]->setBinContent(eta+2,phi+2,fC_sub_myval);
-		      subFCPedestalRMS[mydepth]->setBinContent(eta+2,phi+2,fC_sub_RMS);
-		      subFCPedestalMean_1D[mydepth]->Fill(fC_sub_myval);
-		      subFCPedestalRMS_1D[mydepth]->Fill(fC_sub_RMS);
-
-		      // Overall depth plots
-		      MeanMapByDepth[mydepth]->setBinContent(eta+2,phi+2,ADC_myval);
-		      RMSMapByDepth[mydepth]->setBinContent(eta+2,phi+2,ADC_RMS);
-
-		      // Problem plots
-		      if (fillvalue>pedmon_minErrorFlag_ 
-			  && (fabs(ADC_myval-nominalPedMeanInADC_)>maxPedMeanDiffADC_ 
-			      || fabs(ADC_RMS-nominalPedWidthInADC_)>maxPedWidthDiffADC_))
-		      { 
-			  ProblemPedestals->setBinContent(eta+2,phi+2,fillvalue);
-			  ProblemPedestalsByDepth[mydepth]->setBinContent(eta+2,phi+2,fillvalue);
-			}
-		    } // else if (...)  // HF loop 
-
+		  ProblemPedestals->setBinContent(eta+2,phi+2,fillvalue);
+		  ProblemPedestalsByDepth[mydepth]->setBinContent(eta+2,phi+2,fillvalue);
+		}
+	      
 		  // ZDC still to be added
 		  /*
 		    ADD ZDC HERE AT SOME POINT!
 		  */
-
-		} // else // not eta bin 29
 	      
 	    } // for (int depth)
 	} // for (int phi)
     } // for (int eta)
   
+  // Fill unphysical cells
+  FillUnphysicalHEHFBins(rawADCPedestalMean);
+  FillUnphysicalHEHFBins(rawADCPedestalRMS);
+  FillUnphysicalHEHFBins(rawFCPedestalMean); 
+  FillUnphysicalHEHFBins(rawFCPedestalRMS);  
+  
+  //subtracted pedestals
+  FillUnphysicalHEHFBins(subADCPedestalMean);
+  FillUnphysicalHEHFBins(subADCPedestalRMS); 
+  
+  FillUnphysicalHEHFBins(subFCPedestalMean); 
+  FillUnphysicalHEHFBins(subFCPedestalRMS);  
+  
+  // Overall plots by depth
+  FillUnphysicalHEHFBins(MeanMapByDepth);    
+  FillUnphysicalHEHFBins(RMSMapByDepth);     
+  
+  FillUnphysicalHEHFBins(ProblemPedestalsByDepth); 
+  FillUnphysicalHEHFBins(ProblemPedestals);
+
   if (showTiming)
     {
       cpu_timer.stop();  cout <<"TIMER:: HcalPedestalHistos DIGI FILLPEDESTALHISTOS -> "<<cpu_timer.cpuTime()<<endl;
@@ -768,6 +556,10 @@ void HcalPedestalMonitor::fillDBValues(const HcalDbService& cond)
   if(!shape_) shape_ = cond.getHcalShape(); // this one is generic
   
   int fill_offset=0;
+  double ADC_ped=0;
+  double ADC_width=0;
+  double fC_ped=0;
+  double fC_width=0;
   for (int subdet=1; subdet<=4;++subdet)
     {
       for (int depth=1;depth<=4;++depth)
@@ -778,59 +570,63 @@ void HcalPedestalMonitor::fillDBValues(const HcalDbService& cond)
 		{
 		  //if (!hcal.validDetId((HcalSubdetector)(subdet), ieta, iphi, depth)) continue; // implement once this is available in future version of HcalDetId.h
 		  if (!validDetId((HcalSubdetector)(subdet), ieta, iphi, depth)) continue;
-		  HcalDetId hcal((HcalSubdetector)(subdet), ieta, iphi, depth);
+		  HcalDetId detid((HcalSubdetector)(subdet), ieta, iphi, depth);
 
-		  float ADC_ped=0;
-		  float ADC_width=0;
-		  float fC_ped=0;
-		  float fC_width=0;
-		  calibs_= cond.getHcalCalibrations(hcal);  
-		  const HcalPedestalWidth* pedw = cond.getPedestalWidth(hcal);
+		  ADC_ped=0;
+		  ADC_width=0;
+		  fC_ped=0;
+		  fC_width=0;
+		  calibs_= cond.getHcalCalibrations(detid);  
+		  const HcalPedestalWidth* pedw = cond.getPedestalWidth(detid);
+		  channelCoder_ = cond.getHcalCoder(detid);
+		  
 		  // Loop over capIDs
 		  for (unsigned int capid=0;capid<4;++capid)
 		    {
 		      // Still need to determine how to convert widths to ADC or fC
+		      // calibs_.pedestal value is always in fC, according to Radek
+		      fC_ped+=calibs_.pedestal(capid);
+		      // convert to ADC from fC
+		      ADC_ped+=channelCoder_->adc(*shape_,
+						  (float)calibs_.pedestal(capid),
+						  capid);
+
 		      if (doFCpeds_)
 			{
-			  fC_ped+=calibs_.pedestal(capid);
-			  fC_width+=pedw->getWidth(capid);
-			  //ADC_width+=pedw->getWidth(capid);
-			  channelCoder_ = cond.getHcalCoder(hcal);
-			  ADC_ped+=channelCoder_->adc(*shape_,
-						      (float)calibs_.pedestal(capid),
-						      capid);
-
+			  fC_width+=pedw->getSigma(capid,capid);
+			  ADC_width+=pedw->getSigma(capid,capid)*pow(1.*channelCoder_->adc(*shape_,(float)calibs_.pedestal(capid),capid)/calibs_.pedestal(capid),2);
 			}
 		      else
 			{
-			  ADC_ped+=calibs_.pedestal(capid);
-			  ADC_width+=pedw->getWidth(capid);
-			  channelCoder_ = cond.getHcalCoder(hcal);
-			  fC_ped+=channelCoder_->charge(*shape_,
-							(int)calibs_.pedestal(capid),
-			  				capid);
+			  ADC_width+=pedw->getSigma(capid,capid);
+			  fC_width+=pedw->getSigma(capid,capid)*pow(1.*calibs_.pedestal(capid)/channelCoder_->adc(*shape_,(float)calibs_.pedestal(capid),capid),2);
 			}
 		    }//capid loop
 
-		  // getWidth returns width^2; need to take square root
-		  // (Still need a good way to convert units)
+		  // Pedestal values are average over four cap IDs
+		  // widths are sqrt(SUM [sigma_ii^2])/4.
+		  fC_ped/=4.;
+		  ADC_ped/=4.;
+		  fC_width=pow(fC_width,0.5)/4.;
+		  ADC_width=pow(ADC_width,0.5)/4.;
+
 		  if (fVerbosity>1)
 		    {
 		      cout <<"<HcalPedestalMonitor::fillDBValues> HcalDet ID = "<<(HcalSubdetector)subdet<<": ("<<ieta<<", "<<iphi<<", "<<depth<<")"<<endl;
-		      cout <<"\tADC pedestal = "<<ADC_ped/4.<<" +/- "<<pow((double)ADC_width/4.,0.5)<<endl;
-		      cout <<"\tfC pedestal = "<<fC_ped/4.<<" +/- "<<pow((double)fC_width/4.,0.5)<<endl;
+		      cout <<"\tADC pedestal = "<<ADC_ped<<" +/- "<<ADC_width<<endl;
+		      cout <<"\tfC pedestal = "<<fC_ped<<" +/- "<<fC_width<<endl;
 		    }
-		  ADC_PedestalFromDB->Fill(ieta,iphi,ADC_ped/4.);
-		  ADC_WidthFromDB->Fill(ieta,iphi,pow((double)ADC_width/4.,0.5));
-		  fC_PedestalFromDB->Fill(ieta,iphi,fC_ped/4.);
-		  fC_WidthFromDB->Fill(ieta,iphi,pow((double)fC_width/4.,0.5));
+		  ADC_PedestalFromDB->Fill(ieta,iphi,ADC_ped);
+		  ADC_WidthFromDB->Fill(ieta,iphi,ADC_width);
+		  fC_PedestalFromDB->Fill(ieta,iphi,fC_ped);
+		  fC_WidthFromDB->Fill(ieta,iphi,fC_width);
 
 		  if (((HcalSubdetector)(subdet)==HcalEndcap) && depth<3) fill_offset=4;
 		  else fill_offset=0;
-		  ADC_PedestalFromDBByDepth[depth-1+fill_offset]->Fill(ieta,iphi,ADC_ped/4.);
-		  ADC_WidthFromDBByDepth[depth-1+fill_offset]->Fill(ieta, iphi, ADC_width/4.);
-		  fC_PedestalFromDBByDepth[depth-1+fill_offset]->Fill(ieta,iphi,fC_ped/4.);
-		  fC_WidthFromDBByDepth[depth-1+fill_offset]->Fill(ieta, iphi, fC_width/4.);
+		  ADC_PedestalFromDBByDepth[depth-1+fill_offset]->Fill(ieta,iphi,ADC_ped);
+		  ADC_WidthFromDBByDepth[depth-1+fill_offset]->Fill(ieta, iphi, ADC_width);
+		  fC_PedestalFromDBByDepth[depth-1+fill_offset]->Fill(ieta,iphi,fC_ped);
+		  fC_WidthFromDBByDepth[depth-1+fill_offset]->Fill(ieta, iphi, fC_width);
 		} // iphi loop
 	    } // ieta loop
 	} //depth loop

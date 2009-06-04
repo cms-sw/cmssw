@@ -11,7 +11,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
-
 class HypothesisAnalyzer : public edm::EDAnalyzer {
 
  public:
@@ -26,7 +25,7 @@ class HypothesisAnalyzer : public edm::EDAnalyzer {
   virtual void endJob();
 
   edm::InputTag semiLepEvt_;
-  edm::InputTag hypoKey_;
+  edm::InputTag hypoClassKey_;
 
   TH1F* hadWPt_;
   TH1F* hadWMass_;

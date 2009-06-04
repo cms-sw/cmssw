@@ -68,17 +68,17 @@ EcalPGL::extraStuff( EcalPreshowerGeometry* geom )
    float z1 ( 0 ) ;
    float z2 ( 0 ) ;
    const Cont& con ( geom->cellGeometries() ) ;
-   for( int i ( 0 ) ; i != con.size() ; ++i )
+   for( Cont::const_iterator i ( con.begin() ) ; i != con.end() ; ++i )
    {
-      const ESDetId esid ( geom->getValidDetIds()[i] ) ;
+      const ESDetId esid ( i->first ) ;
       if( 1 == esid.plane() )
       {
-	 z1 += fabs( con[i]->getPosition().z() ) ;
+	 z1 += fabs( i->second->getPosition().z() ) ;
 	 ++n1 ;
       }
       if( 2 == esid.plane() )
       {
-	 z2 += fabs( con[i]->getPosition().z() ) ;
+	 z2 += fabs( i->second->getPosition().z() ) ;
 	 ++n2 ;
       }
 //      if( 0 == z1 && 1 == esid.plane() ) z1 = fabs( i->second->getPosition().z() ) ;

@@ -15,10 +15,7 @@
 #include "RecoJets/JetAnalyzers/interface/JetToDigiDump.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
-//in CaloJet: #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-// just for the CaloTowerPtr declaration:
-// in CaloTowerCollection: #include "DataFormats/CaloTowers/interface/CaloTower.h"
-// in CaloTowerCollection: #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
@@ -28,7 +25,6 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <TROOT.h>
@@ -42,9 +38,7 @@ using namespace std;
 
 JetToDigiDump::JetToDigiDump( const ParameterSet & cfg ) :
   DumpLevel( cfg.getParameter<string>( "DumpLevel" ) ),
-  CaloJetAlg( cfg.getParameter<string>( "CaloJetAlg" ) ),
-  DebugLevel( cfg.getParameter<int>( "DebugLevel" ) ),
-  ShowECal( cfg.getParameter<bool>( "ShowECal" ) )
+  CaloJetAlg( cfg.getParameter<string>( "CaloJetAlg" ) )  
   {
 }
 
@@ -70,7 +64,6 @@ void JetToDigiDump::beginJob( const EventSetup & ) {
     Dump=4;
   }
   cout << "Jet Algorithm being dumped is " << CaloJetAlg << endl;
-  cout<<"Debug level is " << DebugLevel << endl;
   //Initialize some stuff
   evtCount = 0;
 }
@@ -88,63 +81,45 @@ void JetToDigiDump::analyze( const Event& evt, const EventSetup& es ) {
   Handle<HBHEDigiCollection> HBHEDigis;
   Handle<HODigiCollection> HODigis;
   Handle<HFDigiCollection> HFDigis;
-  Handle<EEDigiCollection> EEDigis;
-  Handle<EBDigiCollection> EBDigis;
-  // Old:
-  //Handle<edm::SortedCollection<EBDataFrame> > EBDigis;
-  //Handle<edm::SortedCollection<EBDataFrame> > EEDigis;
+  Handle<edm::SortedCollection<EBDataFrame> > EBDigis;
    
   //Find the CaloTowers in leading CaloJets
-  if (DebugLevel) cout<<"Getting caloJets"<<endl;
-
   evt.getByLabel( CaloJetAlg, caloJets );
-  if (Dump >= 2) evt.getByLabel( "towerMaker", caloTowers );
-  if (Dump >= 3) {
-    if (DebugLevel) cout<<"Getting recHits"<<endl;
-    evt.getByLabel( "hbhereco", HBHERecHits );
-    evt.getByLabel( "horeco", HORecHits );
-    evt.getByLabel( "hfreco", HFRecHits );
-    evt.getByLabel( "ecalRecHit", "EcalRecHitsEB", EBRecHits );
-    evt.getByLabel( "ecalRecHit", "EcalRecHitsEE", EERecHits );
-    if (DebugLevel) cout<<"# of hits gotten - HBHE: "<<HBHERecHits->size()<<endl;
-    evt.getByLabel( "hcalDigis", HBHEDigis );
-    evt.getByLabel( "hcalDigis", HODigis );
-    evt.getByLabel( "hcalDigis", HFDigis );
-    if (DebugLevel) cout<<"# of digis gotten - HBHE: "<<HBHEDigis->size()<<endl;
-    if (ShowECal) {
-      evt.getByLabel( "ecalDigis", "ebDigis", EBDigis );
-      evt.getByLabel( "ecalDigis", "eeDigis", EEDigis );
-    }
-  }
+  evt.getByLabel( "towerMaker", caloTowers );
+  evt.getByLabel( "hbhereco", HBHERecHits );
+  evt.getByLabel( "horeco", HORecHits );
+  evt.getByLabel( "hfreco", HFRecHits );
+  evt.getByLabel( "ecalRecHit", "EcalRecHitsEB", EBRecHits );
+  evt.getByLabel( "ecalRecHit", "EcalRecHitsEE", EERecHits );
+  evt.getByLabel( "hcaldigi", HBHEDigis );
+  evt.getByLabel( "hcaldigi", HODigis );
+  evt.getByLabel( "hcaldigi", HFDigis );
+  evt.getByLabel( "ecalSelectiveReadout", "ebDigis", EBDigis );
     
   cout << endl << "Evt: "<<evtCount <<", Num Jets=" <<caloJets->end() - caloJets->begin() << endl;
   if(Dump>=1)cout <<"   *********************************************************" <<endl;
   jetInd = 0;
   if(Dump>=1)for( CaloJetCollection::const_iterator jet = caloJets->begin(); jet != caloJets->end(); ++ jet ) {
-    //2_1_?    std::vector <CaloTowerPtr> towers = jet->getCaloConstituents ();
-    //2_0_7"
-    std::vector <CaloTowerPtr> towers = jet->getCaloConstituents ();
-    int nConstituents= towers.size();
     cout <<"   Jet: "<<jetInd<<", eta="<<jet->eta()<<", phi="<<jet->phi()<<", pt="<<jet->pt()<<\
     ",E="<<jet->energy()<<", EB E="<<jet->emEnergyInEB()<<" ,HB E="<<jet->hadEnergyInHB()<<\
     ", HO E="<<jet->hadEnergyInHO()<<" ,EE E="<< jet->emEnergyInEE()\
-     <<", HE E="<<jet->hadEnergyInHE()<<", HF E="<<jet->hadEnergyInHF()+jet->emEnergyInHF()<<", Num Towers="<<nConstituents<<endl;
+     <<", HE E="<<jet->hadEnergyInHE()<<", HF E="<<jet->hadEnergyInHF()+jet->emEnergyInHF()<<", Num Towers="<<jet->nConstituents()<<endl;
     if(Dump>=2)cout <<"      ====================================================="<<endl;
     float sumTowerE = 0.0;
-    if(Dump>=2)for (int i = 0; i <nConstituents ; i++) {
-       CaloTowerCollection::const_iterator theTower=caloTowers->find(towers[i]->id());  //Find the tower from its CaloTowerDetID	
-       if (theTower == caloTowers->end()) {cerr<<"Bug? Can't find the tower"<<endl; return;}
-       int ietaTower = towers[i]->id().ieta();
-       int iphiTower = towers[i]->id().iphi();
-       sumTowerE += theTower->energy();
-       size_t numRecHits = theTower->constituentsSize();
-       cout << "      Tower " << i <<": ieta=" << ietaTower <<  ", eta=" << theTower->eta() <<", iphi=" << iphiTower << ", phi=" << theTower->phi() << \
-       ", energy=" << theTower->energy() << ", EM=" << theTower->emEnergy()<< ", HAD=" << theTower->hadEnergy()\
-       << ", HO=" << theTower->outerEnergy() <<",  Num Rec Hits =" << numRecHits << endl;
+
+    if(Dump>=2)for (int i = 0; i <jet->nConstituents(); i++) {
+       const CaloTower& tower = *(jet->getCaloConstituent (i));
+       int ietaTower = tower.id().ieta();
+       int iphiTower = tower.id().iphi();
+       sumTowerE += tower.energy();
+       size_t numRecHits = tower.constituentsSize();
+       cout << "      Tower " << i <<": ieta=" << ietaTower <<  ", eta=" << tower.eta() <<", iphi=" << iphiTower << ", phi=" << tower.phi() << \
+       ", energy=" << tower.energy() << ", EM=" << tower.emEnergy()<< ", HAD=" << tower.hadEnergy()\
+       << ", HO=" << tower.outerEnergy() <<",  Num Rec Hits =" << numRecHits << endl;
        if(Dump>=3)cout << "         ------------------------------------------------"<<endl;
        float sumRecHitE = 0.0;
        if(Dump>=3)for(size_t j = 0; j <numRecHits ; j++) {
-          DetId RecHitDetID=theTower->constituent(j);
+          DetId RecHitDetID=tower.constituent(j);
           DetId::Detector DetNum=RecHitDetID.det();
           if( DetNum == DetId::Hcal ){
 	    //cout << "RecHit " << j << ": Detector = " << DetNum << ": Hcal " << endl;
@@ -245,18 +220,17 @@ void JetToDigiDump::analyze( const Event& evt, const EventSetup& es ) {
               if(Dump>=4)cout << "            ......................................"<<endl;
            }	                 	      
           }
-          if( ShowECal && DetNum == DetId::Ecal ){
+          if( DetNum == DetId::Ecal ){
             int EcalNum =  RecHitDetID.subdetId();
             if( EcalNum == 1 ){
 	      EBDetId EcalID = RecHitDetID;
               EBRecHitCollection::const_iterator theRecHit=EBRecHits->find(EcalID);	    
-              EBDigiCollection::const_iterator theDigis=EBDigis->find(EcalID);
+              edm::SortedCollection<EBDataFrame>::const_iterator theDigis=EBDigis->find(EcalID);
 	      sumRecHitE += theRecHit->energy();
 	      cout << "         RecHit " << j << ": EB, ieta=" << EcalID.ieta() <<  ", iphi=" << EcalID.iphi() <<  ", SM=" << EcalID.ism() << ", energy=" << theRecHit->energy() <<", All Digis=" << theDigis->size()<< endl;
               if(Dump>=4)cout << "            ......................................"<<endl;
-              if(Dump>=4)for(unsigned int k=0; k<theDigis->size(); k++){
-		EBDataFrame frame (*theDigis);
-                const EcalMGPASample MGPA = frame.sample(k);
+              if(Dump>=4)for(int k=0; k<theDigis->size(); k++){
+                const EcalMGPASample MGPA = theDigis->sample(k);
 		cout << "            Digi: " << k <<   ": ADC Sample = " << MGPA.adc() << ", Gain ID = "<< MGPA.gainId() <<endl;
 	      }
               if(Dump>=4)cout << "            ......................................"<<endl;
@@ -264,25 +238,17 @@ void JetToDigiDump::analyze( const Event& evt, const EventSetup& es ) {
             else if(  EcalNum == 2 ){
 	      EEDetId EcalID = RecHitDetID;
               EERecHitCollection::const_iterator theRecHit=EERecHits->find(EcalID);	    
-	      EEDigiCollection::const_iterator theDigis=EEDigis->find(EcalID);
 	      sumRecHitE += theRecHit->energy();
-	      cout << "         RecHit " << j << ": EE, ix=" << EcalID.ix() <<  ", iy=" << EcalID.iy() << ", energy=" << theRecHit->energy() << ", All Digis=" << theDigis->size()<< endl;
-              if(Dump>=4)cout << "            ......................................"<<endl;
-              if(Dump>=4)for(unsigned int k=0; k<theDigis->size(); k++){
-		EEDataFrame frame (*theDigis);
-                const EcalMGPASample MGPA = frame.sample(k);
-		cout << "            Digi: " << k <<   ": ADC Sample = " << MGPA.adc() << ", Gain ID = "<< MGPA.gainId() <<endl;
-	      }
-              if(Dump>=4)cout << "            ......................................"<<endl;
+	      cout << "         RecHit " << j << ": EE, ix=" << EcalID.ix() <<  ", iy=" << EcalID.iy() << ", energy=" << theRecHit->energy() <<  endl;
 	    }
           }
        }
        if(Dump>=3){
          if( abs(ietaTower)==28||abs(ietaTower)==29){
-             cout << "         Splitted Sum of RecHit Energies=" << sumRecHitE <<", CaloTower energy=" << theTower->energy() <<  endl;
+             cout << "         Splitted Sum of RecHit Energies=" << sumRecHitE <<", CaloTower energy=" << tower.energy() <<  endl;
          }
 	 else{
-             cout << "         Sum of RecHit Energies=" << sumRecHitE <<", CaloTower energy=" << theTower->energy() <<  endl;
+             cout << "         Sum of RecHit Energies=" << sumRecHitE <<", CaloTower energy=" << tower.energy() <<  endl;
          }
        }
        if(Dump>=3)cout << "         ------------------------------------------------"<<endl;

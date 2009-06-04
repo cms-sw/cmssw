@@ -40,7 +40,8 @@ namespace edm {
       unsigned int getPrescale(unsigned int lvl1Index,
 			       const std::string&prescaledPath)throw(cms::Exception);
       unsigned int getPrescale(const std::string&prescaledPath)throw(cms::Exception);
-      
+
+      void setIndex(unsigned int lvl1Index){iLvl1IndexDefault_ = lvl1Index;}
       
       void postBeginJob() {;}
       void postEndJob() {;}

@@ -53,7 +53,7 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
    // note: the hard-coded range values are also used in random generation. That is why they're defined here
    
    float minped=0.;
-   float maxped=255;
+   float maxped=50.;
    float mingain=0.;
    float maxgain=10.;
    SiPixelGainCalibration_ = new SiPixelGainCalibrationOffline(minped,maxped,mingain,maxgain);

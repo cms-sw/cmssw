@@ -21,10 +21,12 @@ NavigationSetter::~NavigationSetter()
 {
   //remove any link from the detlyaer in the system which has been set
   cleanState();
-  edm::LogInfo("NavigationSetter")<<"NavigationSchool settings are totally reset in the destructor of NavigationSetter.\n"
-				  <<"this is the designed behavior. If you do not get track reconstruction, please refer to\n"
-				  <<"https://twiki.cern.ch/twiki/bin/view/CMS/NavigationSchool \n"
-				  <<"to properly use the NavigationSetter.";
+  /*  
+      LogDebug("NavigationSetter")<<"NavigationSchool settings are totally reset in the destructor of NavigationSetter.\n"
+      <<"this is the designed behavior. If you do not get track reconstruction, please refer to\n"
+      <<"https://twiki.cern.ch/twiki/bin/view/CMS/NavigationSchool \n"
+      <<"to properly use the NavigationSetter.";
+  */
 
   //restore the previous layer DetLayer settings within the system which has been set.
   setState( theSavedState);

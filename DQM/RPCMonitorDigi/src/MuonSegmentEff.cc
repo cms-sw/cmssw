@@ -5,15 +5,28 @@ Universidad de los Andes Bogota Colombia
 camilo.carrilloATcern.ch
 ****************************************/
 
+
 #include "DQM/RPCMonitorDigi/interface/MuonSegmentEff.h"
+
+// system include files
 #include <memory>
+
+// user include files
+
 #include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+
 #include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
-#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
-#include <DataFormats/MuonDetId/interface/RPCDetId.h>
+
+#include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+#include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
+#include <Geometry/DTGeometry/interface/DTGeometry.h>
+#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
+
 #include <DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h>
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
-#include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
+
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
@@ -27,222 +40,27 @@ camilo.carrilloATcern.ch
 #include "TAxis.h"
 #include "TString.h"
 
-int mySegment(RPCDetId rpcId){
-  int seg=0;
-  int nsec=36;
-  int nsub=6;
-  if (rpcId.ring()==1 && rpcId.station() > 1) {
-    nsub=3;
-    nsec=18;
-  }
-  seg =rpcId.subsector()+nsub*(rpcId.sector()-1);
-  if(seg==nsec+1)seg=1;
-  return seg;
-}
 
-void MuonSegmentEff::beginJob(){
+void MuonSegmentEff::beginJob(const edm::EventSetup& iSetup){
+  std::cout<<"Begin beginJob"<<std::endl;
   
-}
-
-MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig){
-  incldt=iConfig.getUntrackedParameter<bool>("incldt",true);
-  incldtMB4=iConfig.getUntrackedParameter<bool>("incldtMB4",true);
-  inclcsc=iConfig.getUntrackedParameter<bool>("inclcsc",true);
-  debug=iConfig.getUntrackedParameter<bool>("debug",false);
-  inves=iConfig.getUntrackedParameter<bool>("inves");
- 
-  rangestrips = iConfig.getUntrackedParameter<double>("rangestrips",1.);
-  rangestripsRB4=iConfig.getUntrackedParameter<double>("rangestripsRB4",4.);
-  dupli = iConfig.getUntrackedParameter<int>("DuplicationCorrection",2); 
-  MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.9999);
-  MaxD=iConfig.getUntrackedParameter<double>("MaxD",20.);
-  MaxDrb4=iConfig.getUntrackedParameter<double>("MaxDrb4",30.);
-  muonRPCDigis=iConfig.getUntrackedParameter<std::string>("muonRPCDigis","muonRPCDigis");
-  cscSegments=iConfig.getUntrackedParameter<std::string>("cscSegments","cscSegments");
-  dt4DSegments=iConfig.getUntrackedParameter<std::string>("dt4DSegments","dt4DSegments");
-
-  nameInLog = iConfig.getUntrackedParameter<std::string>("moduleLogName", "RPC_Eff");
-  EffSaveRootFile  = iConfig.getUntrackedParameter<bool>("EffSaveRootFile", false); 
-  EffRootFileName  = iConfig.getUntrackedParameter<std::string>("EffRootFileName", "MuonSegmentEff.root"); 
-
-  //Interface
-
-  dbe = edm::Service<DQMStore>().operator->();
-  
-  std::string folder = "Muons/MuonSegEff/";
-  dbe->setCurrentFolder(folder);
-  statistics = dbe->book1D("Statistics","All Statistics",33,0.5,33.5);
-  
-  if(debug) std::cout<<"booking Global histograms"<<std::endl;
-
-  statistics->setBinLabel(1,"Events ",1);
-  statistics->setBinLabel(2,"Events with DT segments",1);
-  statistics->setBinLabel(3,"Events with 1 DT segment",1);
-  statistics->setBinLabel(4,"Events with 2 DT segments",1);
-  statistics->setBinLabel(5,"Events with 3 DT segments",1);
-  statistics->setBinLabel(6,"Events with 4 DT segments",1);
-  statistics->setBinLabel(7,"Events with 5 DT segments",1);
-  statistics->setBinLabel(8,"Events with 6 DT segments",1);
-  statistics->setBinLabel(9,"Events with 7 DT segments",1);
-  statistics->setBinLabel(10,"Events with 8 DT segments",1);
-  statistics->setBinLabel(11,"Events with 9 DT segments",1);
-  statistics->setBinLabel(12,"Events with 10 DT segments",1);
-  statistics->setBinLabel(13,"Events with 11 DT segments",1);
-  statistics->setBinLabel(14,"Events with 12 DT segments",1);
-  statistics->setBinLabel(15,"Events with 13 DT segments",1);
-  statistics->setBinLabel(16,"Events with 14 DT segments",1);
-  statistics->setBinLabel(17,"Events with 15 DT segments",1);
-  statistics->setBinLabel(18,"Events with CSC segments",1);
-  statistics->setBinLabel(16+3,"Events with 1 CSC segment",1);
-  statistics->setBinLabel(16+4,"Events with 2 CSC segments",1);
-  statistics->setBinLabel(16+5,"Events with 3 CSC segments",1);
-  statistics->setBinLabel(16+6,"Events with 4 CSC segments",1);
-  statistics->setBinLabel(16+7,"Events with 5 CSC segments",1);
-  statistics->setBinLabel(16+8,"Events with 6 CSC segments",1);
-  statistics->setBinLabel(16+9,"Events with 7 CSC segments",1);
-  statistics->setBinLabel(16+10,"Events with 8 CSC segments",1);
-  statistics->setBinLabel(16+11,"Events with 9 CSC segments",1);
-  statistics->setBinLabel(16+12,"Events with 10 CSC segments",1);
-  statistics->setBinLabel(16+13,"Events with 11 CSC segments",1);
-  statistics->setBinLabel(16+14,"Events with 12 CSC segments",1);
-  statistics->setBinLabel(16+15,"Events with 13 CSC segments",1);
-  statistics->setBinLabel(16+16,"Events with 14 CSC segments",1);
-  statistics->setBinLabel(16+17,"Events with 15 CSC segments",1);
-  
-  if(debug) std::cout<<"booking Global histograms Change statistics"<<std::endl;
-
-  folder = "Muons/MuonSegEff/Residuals/Investigation";
-  dbe->setCurrentFolder(folder);
-
-  //Paper TH1Fs
-
-  DistBorderClu1La1 = dbe->book1D("DistBorderClu1La1","Distance to the Border of the Strip Layer 1 Cluster Size 1",50,-2.,3.);
-  DistBorderClu1La2 = dbe->book1D("DistBorderClu1La2","Distance to the Border of the Strip Layer 2 Cluster Size 1",50,-2.,3.);
-  DistBorderClu1La3 = dbe->book1D("DistBorderClu1La3","Distance to the Border of the Strip Layer 3 Cluster Size 1",50,-2.,3.);
-  DistBorderClu1La4 = dbe->book1D("DistBorderClu1La4","Distance to the Border of the Strip Layer 4 Cluster Size 1",50,-2.,3.);
-  DistBorderClu1La5 = dbe->book1D("DistBorderClu1La5","Distance to the Border of the Strip Layer 5 Cluster Size 1",50,-2.,3.);
-  DistBorderClu1La6 = dbe->book1D("DistBorderClu1La6","Distance to the Border of the Strip Layer 6 Cluster Size 1",50,-2.,3.);
-
-  DistBorderClu2La1 = dbe->book1D("DistBorderClu2La1","Distance to the Border of the Strip Layer 1 Cluster Size 2",50,-2.,3.);
-  DistBorderClu2La2 = dbe->book1D("DistBorderClu2La2","Distance to the Border of the Strip Layer 2 Cluster Size 2",50,-2.,3.);
-  DistBorderClu2La3 = dbe->book1D("DistBorderClu2La3","Distance to the Border of the Strip Layer 3 Cluster Size 2",50,-2.,3.);
-  DistBorderClu2La4 = dbe->book1D("DistBorderClu2La4","Distance to the Border of the Strip Layer 4 Cluster Size 2",50,-2.,3.);
-  DistBorderClu2La5 = dbe->book1D("DistBorderClu2La5","Distance to the Border of the Strip Layer 5 Cluster Size 2",50,-2.,3.);
-  DistBorderClu2La6 = dbe->book1D("DistBorderClu2La6","Distance to the Border of the Strip Layer 6 Cluster Size 2",50,-2.,3.);
-
-  DistBorderClu3La1 = dbe->book1D("DistBorderClu3La1","Distance to the Border of the Strip Layer 1 Cluster Size 3",50,-2.,3.);
-  DistBorderClu3La2 = dbe->book1D("DistBorderClu3La2","Distance to the Border of the Strip Layer 2 Cluster Size 3",50,-2.,3.);
-  DistBorderClu3La3 = dbe->book1D("DistBorderClu3La3","Distance to the Border of the Strip Layer 3 Cluster Size 3",50,-2.,3.);
-  DistBorderClu3La4 = dbe->book1D("DistBorderClu3La4","Distance to the Border of the Strip Layer 4 Cluster Size 3",50,-2.,3.);
-  DistBorderClu3La5 = dbe->book1D("DistBorderClu3La5","Distance to the Border of the Strip Layer 5 Cluster Size 3",50,-2.,3.);
-  DistBorderClu3La6 = dbe->book1D("DistBorderClu3La6","Distance to the Border of the Strip Layer 6 Cluster Size 3",50,-2.,3.);
-  
-  //Ang Dependence
-  float pi = 3.14159265;
-  AngClu1La1 = dbe->book1D("AngClu1La1","Angle of incident Muon Layer 1 Cluster Size 1",50,0.,pi);
-  AngClu1La2 = dbe->book1D("AngClu1La2","Angle of incident Muon Layer 2 Cluster Size 1",50,0.,pi);
-  AngClu1La3 = dbe->book1D("AngClu1La3","Angle of incident Muon Layer 3 Cluster Size 1",50,0.,pi);
-  AngClu1La4 = dbe->book1D("AngClu1La4","Angle of incident Muon Layer 4 Cluster Size 1",50,0.,pi);
-  AngClu1La5 = dbe->book1D("AngClu1La5","Angle of incident Muon Layer 5 Cluster Size 1",50,0.,pi);
-  AngClu1La6 = dbe->book1D("AngClu1La6","Angle of incident Muon Layer 6 Cluster Size 1",50,0.,pi);
-  
-  AngClu2La1 = dbe->book1D("AngClu2La1","Angle of incident Muon Layer 1 Cluster Size 2",50,0.,pi);
-  AngClu2La2 = dbe->book1D("AngClu2La2","Angle of incident Muon Layer 2 Cluster Size 2",50,0.,pi);
-  AngClu2La3 = dbe->book1D("AngClu2La3","Angle of incident Muon Layer 3 Cluster Size 2",50,0.,pi);
-  AngClu2La4 = dbe->book1D("AngClu2La4","Angle of incident Muon Layer 4 Cluster Size 2",50,0.,pi);
-  AngClu2La5 = dbe->book1D("AngClu2La5","Angle of incident Muon Layer 5 Cluster Size 2",50,0.,pi);
-  AngClu2La6 = dbe->book1D("AngClu2La6","Angle of incident Muon Layer 6 Cluster Size 2",50,0.,pi);
-  
-  AngClu3La1 = dbe->book1D("AngClu3La1","Angle of incident Muon Layer 1 Cluster Size 3",50,0.,pi);
-  AngClu3La2 = dbe->book1D("AngClu3La2","Angle of incident Muon Layer 2 Cluster Size 3",50,0.,pi);
-  AngClu3La3 = dbe->book1D("AngClu3La3","Angle of incident Muon Layer 3 Cluster Size 3",50,0.,pi);
-  AngClu3La4 = dbe->book1D("AngClu3La4","Angle of incident Muon Layer 4 Cluster Size 3",50,0.,pi);
-  AngClu3La5 = dbe->book1D("AngClu3La5","Angle of incident Muon Layer 5 Cluster Size 3",50,0.,pi);
-  AngClu3La6 = dbe->book1D("AngClu3La6","Angle of incident Muon Layer 6 Cluster Size 3",50,0.,pi);
-
-  folder = "Muons/MuonSegEff/Residuals/Barrel";
-  dbe->setCurrentFolder(folder);
-
-  //Barrel
-  hGlobalResClu1La1 = dbe->book1D("GlobalResidualsClu1La1","RPC Residuals Layer 1 Cluster Size 1",101,-10.,10.);
-  hGlobalResClu1La2 = dbe->book1D("GlobalResidualsClu1La2","RPC Residuals Layer 2 Cluster Size 1",101,-10.,10.);
-  hGlobalResClu1La3 = dbe->book1D("GlobalResidualsClu1La3","RPC Residuals Layer 3 Cluster Size 1",101,-10.,10.);
-  hGlobalResClu1La4 = dbe->book1D("GlobalResidualsClu1La4","RPC Residuals Layer 4 Cluster Size 1",101,-10.,10.);
-  hGlobalResClu1La5 = dbe->book1D("GlobalResidualsClu1La5","RPC Residuals Layer 5 Cluster Size 1",101,-10.,10.);
-  hGlobalResClu1La6 = dbe->book1D("GlobalResidualsClu1La6","RPC Residuals Layer 6 Cluster Size 1",101,-10.,10.);
-
-  hGlobalResClu2La1 = dbe->book1D("GlobalResidualsClu2La1","RPC Residuals Layer 1 Cluster Size 2",101,-10.,10.);
-  hGlobalResClu2La2 = dbe->book1D("GlobalResidualsClu2La2","RPC Residuals Layer 2 Cluster Size 2",101,-10.,10.);
-  hGlobalResClu2La3 = dbe->book1D("GlobalResidualsClu2La3","RPC Residuals Layer 3 Cluster Size 2",101,-10.,10.);
-  hGlobalResClu2La4 = dbe->book1D("GlobalResidualsClu2La4","RPC Residuals Layer 4 Cluster Size 2",101,-10.,10.);
-  hGlobalResClu2La5 = dbe->book1D("GlobalResidualsClu2La5","RPC Residuals Layer 5 Cluster Size 2",101,-10.,10.);
-  hGlobalResClu2La6 = dbe->book1D("GlobalResidualsClu2La6","RPC Residuals Layer 6 Cluster Size 2",101,-10.,10.);
-
-  hGlobalResClu3La1 = dbe->book1D("GlobalResidualsClu3La1","RPC Residuals Layer 1 Cluster Size 3",101,-10.,10.);
-  hGlobalResClu3La2 = dbe->book1D("GlobalResidualsClu3La2","RPC Residuals Layer 2 Cluster Size 3",101,-10.,10.);
-  hGlobalResClu3La3 = dbe->book1D("GlobalResidualsClu3La3","RPC Residuals Layer 3 Cluster Size 3",101,-10.,10.);
-  hGlobalResClu3La4 = dbe->book1D("GlobalResidualsClu3La4","RPC Residuals Layer 4 Cluster Size 3",101,-10.,10.);
-  hGlobalResClu3La5 = dbe->book1D("GlobalResidualsClu3La5","RPC Residuals Layer 5 Cluster Size 3",101,-10.,10.);
-  hGlobalResClu3La6 = dbe->book1D("GlobalResidualsClu3La6","RPC Residuals Layer 6 Cluster Size 3",101,-10.,10.);
-
-  if(debug) std::cout<<"Booking Residuals for EndCap"<<std::endl;
-  folder = "Muons/MuonSegEff/Residuals/EndCap";
-  dbe->setCurrentFolder(folder);
-
-  //Endcap  
-  hGlobalResClu1R3C = dbe->book1D("GlobalResidualsClu1R3C","RPC Residuals Ring 3 Roll C Cluster Size 1",101,-10.,10.);
-  hGlobalResClu1R3B = dbe->book1D("GlobalResidualsClu1R3B","RPC Residuals Ring 3 Roll B Cluster Size 1",101,-10.,10.);
-  hGlobalResClu1R3A = dbe->book1D("GlobalResidualsClu1R3A","RPC Residuals Ring 3 Roll A Cluster Size 1",101,-10.,10.);
-  hGlobalResClu1R2C = dbe->book1D("GlobalResidualsClu1R2C","RPC Residuals Ring 2 Roll C Cluster Size 1",101,-10.,10.);
-  hGlobalResClu1R2B = dbe->book1D("GlobalResidualsClu1R2B","RPC Residuals Ring 2 Roll B Cluster Size 1",101,-10.,10.);
-  hGlobalResClu1R2A = dbe->book1D("GlobalResidualsClu1R2A","RPC Residuals Ring 2 Roll A Cluster Size 1",101,-10.,10.);
-
-  hGlobalResClu2R3C = dbe->book1D("GlobalResidualsClu2R3C","RPC Residuals Ring 3 Roll C Cluster Size 2",101,-10.,10.);
-  hGlobalResClu2R3B = dbe->book1D("GlobalResidualsClu2R3B","RPC Residuals Ring 3 Roll B Cluster Size 2",101,-10.,10.);
-  hGlobalResClu2R3A = dbe->book1D("GlobalResidualsClu2R3A","RPC Residuals Ring 3 Roll A Cluster Size 2",101,-10.,10.);
-  hGlobalResClu2R2C = dbe->book1D("GlobalResidualsClu2R2C","RPC Residuals Ring 2 Roll C Cluster Size 2",101,-10.,10.);
-  hGlobalResClu2R2B = dbe->book1D("GlobalResidualsClu2R2B","RPC Residuals Ring 2 Roll B Cluster Size 2",101,-10.,10.);
-  hGlobalResClu2R2A = dbe->book1D("GlobalResidualsClu2R2A","RPC Residuals Ring 2 Roll A Cluster Size 2",101,-10.,10.);
-
-  hGlobalResClu3R3C = dbe->book1D("GlobalResidualsClu3R3C","RPC Residuals Ring 3 Roll C Cluster Size 3",101,-10.,10.);
-  hGlobalResClu3R3B = dbe->book1D("GlobalResidualsClu3R3B","RPC Residuals Ring 3 Roll B Cluster Size 3",101,-10.,10.);
-  hGlobalResClu3R3A = dbe->book1D("GlobalResidualsClu3R3A","RPC Residuals Ring 3 Roll A Cluster Size 3",101,-10.,10.);
-  hGlobalResClu3R2C = dbe->book1D("GlobalResidualsClu3R2C","RPC Residuals Ring 2 Roll C Cluster Size 3",101,-10.,10.);
-  hGlobalResClu3R2B = dbe->book1D("GlobalResidualsClu3R2B","RPC Residuals Ring 2 Roll B Cluster Size 3",101,-10.,10.);
-  hGlobalResClu3R2A = dbe->book1D("GlobalResidualsClu3R2A","RPC Residuals Ring 2 Roll A Cluster Size 3",101,-10.,10.);
-
-  
-  if(debug) ofrej.open("rejected.txt");
-
-  if(debug) std::cout<<"Rejected done"<<std::endl;
-
-}
-
-void MuonSegmentEff::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
-
+  std::cout <<"\t Getting the RPC Geometry"<<std::endl;
+  edm::ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
-  iSetup.get<MuonGeometryRecord>().get(dtGeo);
-  iSetup.get<MuonGeometryRecord>().get(cscGeo);
-
+  
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-    if(dynamic_cast< RPCChamber* >( *it ) != 0 ){
+    if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
       RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
       std::vector< const RPCRoll*> roles = (ch->rolls());
       for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
 	RPCDetId rpcId = (*r)->id();
+	
+	if(rpcId.region()==0)allrollstoreBarrel.insert(rpcId);
+	
 	int region=rpcId.region();
-	//booking all histograms
-	RPCGeomServ rpcsrv(rpcId);
-	std::string nameRoll = rpcsrv.name();
-	//std::cout<<"Booking for "<<nameRoll<<std::endl;
-
 	
 	if(region==0&&(incldt||incldtMB4)){
-	  const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&((*r)->topology()));
-	  float stripl = top_->stripLength();
-	  float stripw = top_->pitch();
-	  meCollection[nameRoll] = bookDetUnitSeg(rpcId,(*r)->nstrips(),stripw,stripl);
-	  //std::cout<<"--Filling the dtstore"<<rpcId<<std::endl;
+	  std::cout<<"--Filling the dtstore"<<rpcId<<std::endl;
 	  int wheel=rpcId.ring();
 	  int sector=rpcId.sector();
 	  int station=rpcId.station();
@@ -251,1060 +69,868 @@ void MuonSegmentEff::beginRun(const edm::Run& run, const edm::EventSetup& iSetup
 	  if (rollstoreDT.find(ind)!=rollstoreDT.end()) myrolls=rollstoreDT[ind];
 	  myrolls.insert(rpcId);
 	  rollstoreDT[ind]=myrolls;
-
 	}
-	if(region!=0 && inclcsc){
-	  const TrapezoidalStripTopology* topE_=dynamic_cast<const TrapezoidalStripTopology*>(&((*r)->topology()));
-	  float stripl = topE_->stripLength();
-	  float stripw = topE_->pitch();
-	  meCollection[nameRoll] = bookDetUnitSeg(rpcId,(*r)->nstrips(),stripw,stripl);
-	  //std::cout<<"--Filling the cscstore"<<rpcId<<std::endl;
+	else if(inclcsc){
+	  std::cout<<"--Filling the cscstore"<<rpcId<<std::endl;
 	  int region=rpcId.region();
           int station=rpcId.station();
           int ring=rpcId.ring();
           int cscring=ring;
           int cscstation=station;
 	  RPCGeomServ rpcsrv(rpcId);
-	  int rpcsegment = mySegment(rpcId); //This replace rpcsrv.segment();
-	  //std::cout<<"My segment="<<mySegment(rpcId)<<" GeomServ="<<rpcsrv.segment()<<std::endl;
-	  int cscchamber = rpcsegment;//FIX THIS ACCORDING TO RPCGeomServ::segment()Definition
+	  int rpcsegment = rpcsrv.segment();
+	  int cscchamber = rpcsegment;
           if((station==2||station==3)&&ring==3){//Adding Ring 3 of RPC to the CSC Ring 2
             cscring = 2;
           }
-	  
-	  CSCStationIndex ind(region,cscstation,cscring,cscchamber);
+	  if((station==4)&&(ring==2||ring==3)){//RE4 have just ring 1
+            cscstation=3;
+            cscring=2;
+          }
+          CSCStationIndex ind(region,cscstation,cscring,cscchamber);
           std::set<RPCDetId> myrolls;
 	  if (rollstoreCSC.find(ind)!=rollstoreCSC.end()){
             myrolls=rollstoreCSC[ind];
           }
+          
           myrolls.insert(rpcId);
           rollstoreCSC[ind]=myrolls;
-
-	}
-      }
-    }
-  }
-
-  //Now filling in order to extrapolate to other wheels.
-  /*
-  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-    if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
-
-      RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
-      std::vector< const RPCRoll*> roles = (ch->rolls());
-      for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-	RPCDetId rpcId = (*r)->id();
-	
-	int region=rpcId.region();
-	
-	if(region==0&&(incldt||incldtMB4)&&rpcId.ring()!=0&&rpcId.station()!=4){
-	  //std::cout<<"--Filling the dtstore for statistics"<<rpcId<<std::endl;
-	  
-	  int sidewheel = 0;
-	  
-	  if(rpcId.ring()==-2){
-	    sidewheel=-1;
-	  }
-	  else if(rpcId.ring()==-1){
-	    sidewheel=0;
-	  }
-	  else if(rpcId.ring()==1){
-	    sidewheel=0;
-	  }
-	  else if(rpcId.ring()==2){
-	    sidewheel=1;
-	  }
-	  int wheel= sidewheel;
-	  int sector=rpcId.sector();
-	  int station=rpcId.station();
-	  DTStationIndex ind(region,wheel,sector,station);
-	  std::set<RPCDetId> myrolls;
-	  if (rollstoreDT.find(ind)!=rollstoreDT.end()) myrolls=rollstoreDT[ind];
-	  myrolls.insert(rpcId);
-	  rollstoreDT[ind]=myrolls;
-	}
-	if(region!=0 && inclcsc && (rpcId.ring()==2 || rpcId.ring()==3)){
-	  int region=rpcId.region();
-          int station=rpcId.station();
-          int ring=rpcId.ring();
-	  int sidering = 0;
-	  if(ring==2)sidering =3;
-	  else if(ring==3) sidering =2;
-	  
-          int cscring=sidering;
-          int cscstation=station;
-	  RPCGeomServ rpcsrv(rpcId);
-	  int rpcsegment = mySegment(rpcId);
-	  
-	  if((station==2||station==3)&&ring==3) cscring = 2; //CSC Ring 2 covers rpc ring 2 & 3
-          	  
-	  int cscchamber = rpcsegment+1;
-	  if(cscchamber==37)cscchamber=1;
-	  CSCStationIndex ind(region,cscstation,cscring,cscchamber);
-          std::set<RPCDetId> myrolls;
-	  if (rollstoreCSC.find(ind)!=rollstoreCSC.end())myrolls=rollstoreCSC[ind];          
-          myrolls.insert(rpcId);
-          rollstoreCSC[ind]=myrolls;
-	  
-	  cscchamber = rpcsegment-1;
-	  if(cscchamber==0)cscchamber=36;
-	  CSCStationIndex indDos(region,cscstation,cscring,cscchamber);
-          std::set<RPCDetId> myrollsDos;
-	  if (rollstoreCSC.find(indDos)!=rollstoreCSC.end())myrollsDos=rollstoreCSC[indDos];          
-          myrollsDos.insert(rpcId);
-          rollstoreCSC[indDos]=myrolls;
-	  
-
         }
       }
     }
   }
-  */
-  //booking global histograms
+}
 
- 
-}//beginRun
+
+MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig){
+  std::cout<<"Begin Constructor"<<std::endl;
+  
+  std::map<RPCDetId, int> buff;
+  counter.clear();
+  counter.reserve(3);
+  counter.push_back(buff);
+  counter.push_back(buff);
+  counter.push_back(buff);
+  totalcounter.clear();
+  totalcounter.reserve(3);
+  totalcounter[0]=0;
+  totalcounter[1]=0;
+  totalcounter[2]=0;
+
+  incldt=iConfig.getUntrackedParameter<bool>("incldt",true);
+  incldtMB4=iConfig.getUntrackedParameter<bool>("incldtMB4",true);
+  inclcsc=iConfig.getUntrackedParameter<bool>("inclcsc",true);
+  prodImages=iConfig.getUntrackedParameter<bool>("prodImages",false);
+  calcEffi=iConfig.getUntrackedParameter<bool>("calcEffi",true);
+  mydqm=iConfig.getUntrackedParameter<bool>("mydqm",true);
+  MinimalResidual= iConfig.getUntrackedParameter<double>("MinimalResidual",2.);
+  MinimalResidualRB4=iConfig.getUntrackedParameter<double>("MinimalResidualRB4",4.);
+  MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.9999);
+  MaxD=iConfig.getUntrackedParameter<double>("MaxD",20.);
+  MaxDrb4=iConfig.getUntrackedParameter<double>("MaxDrb4",30.);
+  MaxStripToCountInAverage=iConfig.getUntrackedParameter<double>("MaxStripToCountInAverage",5.);
+  MaxStripToCountInAverageRB4=iConfig.getUntrackedParameter<double>("MaxStripToCountInAverageRB4",7.);
+  muonRPCDigis=iConfig.getUntrackedParameter<std::string>("muonRPCDigis","muonRPCDigis");
+  cscSegments=iConfig.getUntrackedParameter<std::string>("cscSegments","cscSegments");
+  dt4DSegments=iConfig.getUntrackedParameter<std::string>("dt4DSegments","dt4DSegments");
+  rejected=iConfig.getUntrackedParameter<std::string>("rejected","rejected.txt");
+  rollseff=iConfig.getUntrackedParameter<std::string>("rollseff","rollseff.txt");
+  GlobalRootLabel= iConfig.getUntrackedParameter<std::string>("GlobalRootFileName","GlobalEfficiencyFromTrack.root");
+
+  std::cout<<rejected<<std::endl;
+  std::cout<<rollseff<<std::endl;
+  
+  ofrej.open(rejected.c_str());
+  ofeff.open(rollseff.c_str());
+
+  // Giuseppe
+  nameInLog = iConfig.getUntrackedParameter<std::string>("moduleLogName", "RPC_Eff");
+  EffSaveRootFile  = iConfig.getUntrackedParameter<bool>("EffSaveRootFile", true); 
+  EffSaveRootFileEventsInterval  = iConfig.getUntrackedParameter<int>("EffEventsInterval", 10000); 
+  EffRootFileName  = iConfig.getUntrackedParameter<std::string>("EffRootFileName", "CMSRPCEff.root"); 
+  //Interface
+  dbe = edm::Service<DQMStore>().operator->();
+  _idList.clear(); 
+
+  //GLOBAL
+  std::cout<<"Booking the Global Histograms"<<std::endl;
+  
+  fOutputFile  = new TFile(GlobalRootLabel.c_str(), "RECREATE" );
+
+  if(mydqm){
+    mydqmHbxdistro = new TH1F("BXDistribution","Bunch Crossing Distribution",11,-5.5,5.5);
+    mydqmHdigisdistro = new TH1F("DigisDistribution","Number of Digis per event",20,-0.5,20.5);
+  }
+
+  hGlobalRes = new TH1F("GlobalResiduals","All RPC Residuals",250,-10.,10.);
+  statistics = new TH1F("Statistics","All Statistics",20,0.5,20.5);
+
+  hGlobalResLa1 = new TH1F("GlobalResidualsLa1","RPC Residuals Layer 1",250,-10.,10.);
+  hGlobalResLa2 = new TH1F("GlobalResidualsLa2","RPC Residuals Layer 2",250,-10.,10.);
+  hGlobalResLa3 = new TH1F("GlobalResidualsLa3","RPC Residuals Layer 3",250,-10.,10.);
+  hGlobalResLa4 = new TH1F("GlobalResidualsLa4","RPC Residuals Layer 4",250,-10.,10.);
+  hGlobalResLa5 = new TH1F("GlobalResidualsLa5","RPC Residuals Layer 5",250,-10.,10.);
+  hGlobalResLa6 = new TH1F("GlobalResidualsLa6","RPC Residuals Layer 6",250,-10.,10.);
+
+  hGlobalResClu1La1 = new TH1F("GlobalResidualsClu1La1","RPC Residuals Layer 1 Cluster Size 1",250,-10.,10.);
+  hGlobalResClu1La2 = new TH1F("GlobalResidualsClu1La2","RPC Residuals Layer 2 Cluster Size 1",250,-10.,10.);
+  hGlobalResClu1La3 = new TH1F("GlobalResidualsClu1La3","RPC Residuals Layer 3 Cluster Size 1",250,-10.,10.);
+  hGlobalResClu1La4 = new TH1F("GlobalResidualsClu1La4","RPC Residuals Layer 4 Cluster Size 1",250,-10.,10.);
+  hGlobalResClu1La5 = new TH1F("GlobalResidualsClu1La5","RPC Residuals Layer 5 Cluster Size 1",250,-10.,10.);
+  hGlobalResClu1La6 = new TH1F("GlobalResidualsClu1La6","RPC Residuals Layer 6 Cluster Size 1",250,-10.,10.);
+
+  hGlobalResClu2La1 = new TH1F("GlobalResidualsClu2La1","RPC Residuals Layer 1 Cluster Size 2",250,-10.,10.);
+  hGlobalResClu2La2 = new TH1F("GlobalResidualsClu2La2","RPC Residuals Layer 2 Cluster Size 2",250,-10.,10.);
+  hGlobalResClu2La3 = new TH1F("GlobalResidualsClu2La3","RPC Residuals Layer 3 Cluster Size 2",250,-10.,10.);
+  hGlobalResClu2La4 = new TH1F("GlobalResidualsClu2La4","RPC Residuals Layer 4 Cluster Size 2",250,-10.,10.);
+  hGlobalResClu2La5 = new TH1F("GlobalResidualsClu2La5","RPC Residuals Layer 5 Cluster Size 2",250,-10.,10.);
+  hGlobalResClu2La6 = new TH1F("GlobalResidualsClu2La6","RPC Residuals Layer 6 Cluster Size 2",250,-10.,10.);
+
+  hGlobalResClu3La1 = new TH1F("GlobalResidualsClu3La1","RPC Residuals Layer 1 Cluster Size 3",250,-10.,10.);
+  hGlobalResClu3La2 = new TH1F("GlobalResidualsClu3La2","RPC Residuals Layer 2 Cluster Size 3",250,-10.,10.);
+  hGlobalResClu3La3 = new TH1F("GlobalResidualsClu3La3","RPC Residuals Layer 3 Cluster Size 3",250,-10.,10.);
+  hGlobalResClu3La4 = new TH1F("GlobalResidualsClu3La4","RPC Residuals Layer 4 Cluster Size 3",250,-10.,10.);
+  hGlobalResClu3La5 = new TH1F("GlobalResidualsClu3La5","RPC Residuals Layer 5 Cluster Size 3",250,-10.,10.);
+  hGlobalResClu3La6 = new TH1F("GlobalResidualsClu3La6","RPC Residuals Layer 6 Cluster Size 3",250,-10.,10.);
+
+  hGlobalResY = new TH1F("GlobalResidualsY","Global RPC Residuals Y",500,-100.,100);
+
+  hGlobalYResLa1 = new TH1F("GlobalYResidualsLa1","RPC Residuals in Y Layer 1",250,-60.,60.);
+  hGlobalYResLa2 = new TH1F("GlobalYResidualsLa2","RPC Residuals in Y Layer 2",250,-60.,60.);
+  hGlobalYResLa3 = new TH1F("GlobalYResidualsLa3","RPC Residuals in Y Layer 3",250,-60.,60.);
+  hGlobalYResLa4 = new TH1F("GlobalYResidualsLa4","RPC Residuals in Y Layer 4",250,-60.,60.);
+  hGlobalYResLa5 = new TH1F("GlobalYResidualsLa5","RPC Residuals in Y Layer 5",250,-60.,60.);
+  hGlobalYResLa6 = new TH1F("GlobalYResidualsLa6","RPC Residuals in Y Layer 6",250,-60.,60.);
+  
+  //wheel-2
+  OGlobWm2 = new TH1F("GlobOcupancyWheel_-2","Global Ocupancy Wheel -2",205,0.5,205.5);
+  PGlobWm2 = new TH1F("GlobExpectedWheel_-2","Global Expected Wheel -2",205,0.5,205.5);
+  EffGlobWm2 = new TH1F("GlobEfficiencyWheel_-2","Global Efficiency Wheel -2",205,0.5,205.5);
+  EffGlobm2s1 = new TH1F("GlobEfficiencyWheel_m2_Sec1","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm2s2 = new TH1F("GlobEfficiencyWheel_m2_Sec2","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm2s3 = new TH1F("GlobEfficiencyWheel_m2_Sec3","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm2s4 = new TH1F("GlobEfficiencyWheel_m2_Sec4","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm2s5 = new TH1F("GlobEfficiencyWheel_m2_Sec5","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm2s6 = new TH1F("GlobEfficiencyWheel_m2_Sec6","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm2s7 = new TH1F("GlobEfficiencyWheel_m2_Sec7","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm2s8 = new TH1F("GlobEfficiencyWheel_m2_Sec8","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm2s9 = new TH1F("GlobEfficiencyWheel_m2_Sec9","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm2s10 = new TH1F("GlobEfficiencyWheel_m2_Sec10","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm2s11 = new TH1F("GlobEfficiencyWheel_m2_Sec11","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm2s12 = new TH1F("GlobEfficiencyWheel_m2_Sec12","Eff. vs. roll",20,0.5,20.5);
+
+  //wheel-1
+  OGlobWm1 = new TH1F("GlobOcupancyWheel_-1","Global Ocupancy Wheel -1",205,0.5,205.5);
+  PGlobWm1 = new TH1F("GlobExpectedWheel_-1","Global Expected Wheel -1",205,0.5,205.5);
+  EffGlobWm1 = new TH1F("GlobEfficiencyWheel_-1","Global Efficiency Wheel -1",205,0.5,205.5);
+  EffGlobm1s1 = new TH1F("GlobEfficiencyWheel_m1_Sec1","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm1s2 = new TH1F("GlobEfficiencyWheel_m1_Sec2","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm1s3 = new TH1F("GlobEfficiencyWheel_m1_Sec3","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm1s4 = new TH1F("GlobEfficiencyWheel_m1_Sec4","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm1s5 = new TH1F("GlobEfficiencyWheel_m1_Sec5","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm1s6 = new TH1F("GlobEfficiencyWheel_m1_Sec6","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm1s7 = new TH1F("GlobEfficiencyWheel_m1_Sec7","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm1s8 = new TH1F("GlobEfficiencyWheel_m1_Sec8","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm1s9 = new TH1F("GlobEfficiencyWheel_m1_Sec9","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm1s10 = new TH1F("GlobEfficiencyWheel_m1_Sec10","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm1s11 = new TH1F("GlobEfficiencyWheel_m1_Sec11","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm1s12 = new TH1F("GlobEfficiencyWheel_m1_Sec12","Eff. vs. roll",20,0.5,20.5);
+  
+  //wheel0
+  OGlobW0 = new TH1F("GlobOcupancyWheel_0","Global Ocupancy Wheel 0",205,0.5,205.5);
+  PGlobW0 = new TH1F("GlobExpectedWheel_0","Global Expected Wheel 0",205,0.5,205.5);
+  EffGlobW0 = new TH1F("GlobEfficiencyWheel_0","Global Efficiency Wheel 0",205,0.5,205.5);
+  EffGlob1 = new TH1F("GlobEfficiencyWheel_0_Sec1","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2 = new TH1F("GlobEfficiencyWheel_0_Sec2","Eff. vs. roll",20,0.5,20.5);
+  EffGlob3 = new TH1F("GlobEfficiencyWheel_0_Sec3","Eff. vs. roll",20,0.5,20.5);
+  EffGlob4 = new TH1F("GlobEfficiencyWheel_0_Sec4","Eff. vs. roll",20,0.5,20.5);
+  EffGlob5 = new TH1F("GlobEfficiencyWheel_0_Sec5","Eff. vs. roll",20,0.5,20.5);
+  EffGlob6 = new TH1F("GlobEfficiencyWheel_0_Sec6","Eff. vs. roll",20,0.5,20.5);
+  EffGlob7 = new TH1F("GlobEfficiencyWheel_0_Sec7","Eff. vs. roll",20,0.5,20.5);
+  EffGlob8 = new TH1F("GlobEfficiencyWheel_0_Sec8","Eff. vs. roll",20,0.5,20.5);
+  EffGlob9 = new TH1F("GlobEfficiencyWheel_0_Sec9","Eff. vs. roll",20,0.5,20.5);
+  EffGlob10 = new TH1F("GlobEfficiencyWheel_0_Sec10","Eff. vs. roll",20,0.5,20.5);
+  EffGlob11 = new TH1F("GlobEfficiencyWheel_0_Sec11","Eff. vs. roll",20,0.5,20.5);
+  EffGlob12 = new TH1F("GlobEfficiencyWheel_0_Sec12","Eff. vs. roll",20,0.5,20.5);
+
+  //wheel1
+  OGlobW1 = new TH1F("GlobOcupancyWheel_1","Global Ocupancy Wheel 1",205,0.5,205.5);
+  PGlobW1 = new TH1F("GlobExpectedWheel_1","Global Expected Wheel 1",205,0.5,205.5);
+  EffGlobW1 = new TH1F("GlobEfficiencyWheel_1","Global Efficiency Wheel 1",205,0.5,205.5);
+  EffGlob1s1 = new TH1F("GlobEfficiencyWheel_1_Sec1","Eff. vs. roll",20,0.5,20.5);
+  EffGlob1s2 = new TH1F("GlobEfficiencyWheel_1_Sec2","Eff. vs. roll",20,0.5,20.5);
+  EffGlob1s3 = new TH1F("GlobEfficiencyWheel_1_Sec3","Eff. vs. roll",20,0.5,20.5);
+  EffGlob1s4 = new TH1F("GlobEfficiencyWheel_1_Sec4","Eff. vs. roll",20,0.5,20.5);
+  EffGlob1s5 = new TH1F("GlobEfficiencyWheel_1_Sec5","Eff. vs. roll",20,0.5,20.5);
+  EffGlob1s6 = new TH1F("GlobEfficiencyWheel_1_Sec6","Eff. vs. roll",20,0.5,20.5);
+  EffGlob1s7 = new TH1F("GlobEfficiencyWheel_1_Sec7","Eff. vs. roll",20,0.5,20.5);
+  EffGlob1s8 = new TH1F("GlobEfficiencyWheel_1_Sec8","Eff. vs. roll",20,0.5,20.5);
+  EffGlob1s9 = new TH1F("GlobEfficiencyWheel_1_Sec9","Eff. vs. roll",20,0.5,20.5);
+  EffGlob1s10 = new TH1F("GlobEfficiencyWheel_1_Sec10","Eff. vs. roll",20,0.5,20.5);
+  EffGlob1s11 = new TH1F("GlobEfficiencyWheel_1_Sec11","Eff. vs. roll",20,0.5,20.5);
+  EffGlob1s12 = new TH1F("GlobEfficiencyWheel_1_Sec12","Eff. vs. roll",20,0.5,20.5);
+  
+  //wheel2
+  OGlobW2 = new TH1F("GlobOcupancyWheel_2","Global Ocupancy Wheel 2",205,0.5,205.5);
+  PGlobW2 = new TH1F("GlobExpectedWheel_2","Global Expected Wheel 2",205,0.5,205.5);
+  EffGlobW2 = new TH1F("GlobEfficiencyWheel_2","Global Efficiency Wheel 2",205,0.5,205.5);
+  EffGlob2s1 = new TH1F("GlobEfficiencyWheel_2_Sec1","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2s2 = new TH1F("GlobEfficiencyWheel_2_Sec2","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2s3 = new TH1F("GlobEfficiencyWheel_2_Sec3","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2s4 = new TH1F("GlobEfficiencyWheel_2_Sec4","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2s5 = new TH1F("GlobEfficiencyWheel_2_Sec5","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2s6 = new TH1F("GlobEfficiencyWheel_2_Sec6","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2s7 = new TH1F("GlobEfficiencyWheel_2_Sec7","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2s8 = new TH1F("GlobEfficiencyWheel_2_Sec8","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2s9 = new TH1F("GlobEfficiencyWheel_2_Sec9","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2s10 = new TH1F("GlobEfficiencyWheel_2_Sec10","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2s11 = new TH1F("GlobEfficiencyWheel_2_Sec11","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2s12 = new TH1F("GlobEfficiencyWheel_2_Sec12","Eff. vs. roll",20,0.5,20.5);
+}
 
 
 MuonSegmentEff::~MuonSegmentEff()
 {
+  std::cout<<"Begin Destructor "<<std::endl;
 
+  fOutputFile->WriteTObject(hGlobalRes);
+
+  //-------------Statistics---------------
+  statistics->GetXaxis()->SetBinLabel(1,"Events ");
+  statistics->GetXaxis()->SetBinLabel(2,"Events with DT segments");
+  statistics->GetXaxis()->SetBinLabel(3,"Events with 1 DT segment");
+  statistics->GetXaxis()->SetBinLabel(4,"Events with 2 DT segments");
+  statistics->GetXaxis()->SetBinLabel(5,"Events with 3 DT segments");
+  statistics->GetXaxis()->SetBinLabel(6,"Events with 4 DT segments");
+  statistics->GetXaxis()->SetBinLabel(7,"Events with 5 DT segments");
+  statistics->GetXaxis()->SetBinLabel(8,"Events with 6 DT segments");
+  statistics->GetXaxis()->SetBinLabel(9,"Events with 7 DT segments");
+  statistics->GetXaxis()->SetBinLabel(10,"Events with 8 DT segments");
+  statistics->GetXaxis()->SetBinLabel(11,"Events with 9 DT segments");
+  statistics->GetXaxis()->SetBinLabel(12,"Events with 10 DT segments");
+  statistics->GetXaxis()->SetBinLabel(13,"Events with 11 DT segments");
+  statistics->GetXaxis()->SetBinLabel(14,"Events with 12 DT segments");
+  statistics->GetXaxis()->SetBinLabel(15,"Events with 13 DT segments");
+  statistics->GetXaxis()->SetBinLabel(16,"Events with 14 DT segments");
+  statistics->GetXaxis()->SetBinLabel(17,"Events with 15 DT segments");
+  statistics->GetXaxis()->SetBinLabel(18,"Events with CSC segments");
+
+
+  statistics->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(statistics);
+  //--------------------------------------
+  
+  fOutputFile->WriteTObject(mydqmHdigisdistro);
+  fOutputFile->WriteTObject(mydqmHbxdistro);
+
+  fOutputFile->WriteTObject(hGlobalResLa1);
+  fOutputFile->WriteTObject(hGlobalResLa2);
+  fOutputFile->WriteTObject(hGlobalResLa3);
+  fOutputFile->WriteTObject(hGlobalResLa4);
+  fOutputFile->WriteTObject(hGlobalResLa5);
+  fOutputFile->WriteTObject(hGlobalResLa6);
+  
+  fOutputFile->WriteTObject(hGlobalResY);
+
+  fOutputFile->WriteTObject(hGlobalYResLa1);
+  fOutputFile->WriteTObject(hGlobalYResLa2);
+  fOutputFile->WriteTObject(hGlobalYResLa3);
+  fOutputFile->WriteTObject(hGlobalYResLa4);
+  fOutputFile->WriteTObject(hGlobalYResLa5);
+  fOutputFile->WriteTObject(hGlobalYResLa6);
+
+  fOutputFile->WriteTObject(hGlobalResClu1La1);
+  fOutputFile->WriteTObject(hGlobalResClu1La2);
+  fOutputFile->WriteTObject(hGlobalResClu1La3);
+  fOutputFile->WriteTObject(hGlobalResClu1La4);
+  fOutputFile->WriteTObject(hGlobalResClu1La5);
+  fOutputFile->WriteTObject(hGlobalResClu1La6);
+
+  fOutputFile->WriteTObject(hGlobalResClu2La1);
+  fOutputFile->WriteTObject(hGlobalResClu2La2);
+  fOutputFile->WriteTObject(hGlobalResClu2La3);
+  fOutputFile->WriteTObject(hGlobalResClu2La4);
+  fOutputFile->WriteTObject(hGlobalResClu2La5);
+  fOutputFile->WriteTObject(hGlobalResClu2La6);
+
+  fOutputFile->WriteTObject(hGlobalResClu3La1);
+  fOutputFile->WriteTObject(hGlobalResClu3La2);
+  fOutputFile->WriteTObject(hGlobalResClu3La3);
+  fOutputFile->WriteTObject(hGlobalResClu3La4);
+  fOutputFile->WriteTObject(hGlobalResClu3La5);
+  fOutputFile->WriteTObject(hGlobalResClu3La6);
+  
+  //wheel-2
+  std::cout<<"Writing PGlobWm2"<<std::endl;
+  
+  OGlobWm2->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(PGlobWm2);
+  PGlobWm2->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(OGlobWm2); 
+  EffGlobWm2->GetXaxis()->LabelsOption("v");   fOutputFile->WriteTObject(EffGlobWm2);  
+  EffGlobm2s1->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobm2s1);
+  EffGlobm2s2->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobm2s2);
+  EffGlobm2s3->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobm2s3);
+  EffGlobm2s4->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobm2s4);
+  EffGlobm2s5->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobm2s5);
+  EffGlobm2s6->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobm2s6);
+  EffGlobm2s7->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobm2s7);
+  EffGlobm2s8->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobm2s8);
+  EffGlobm2s9->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobm2s9);  
+  EffGlobm2s10->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobm2s10);
+  EffGlobm2s11->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobm2s11);
+  EffGlobm2s12->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobm2s12);
+
+  //wheel-1
+  std::cout<<"Writing PGlobWm1"<<std::endl;
+  OGlobWm1->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(PGlobWm1); 
+  PGlobWm1->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(OGlobWm1); 
+  EffGlobWm1->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobWm1);  
+  EffGlobm1s1->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobm1s1); 
+  EffGlobm1s2->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobm1s2); 
+  EffGlobm1s3->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobm1s3); 
+  EffGlobm1s4->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobm1s4); 
+  EffGlobm1s5->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobm1s5); 
+  EffGlobm1s6->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobm1s6); 
+  EffGlobm1s7->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobm1s7); 
+  EffGlobm1s8->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobm1s8); 
+  EffGlobm1s9->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobm1s9); 
+  EffGlobm1s10->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobm1s10);  
+  EffGlobm1s11->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobm1s11); 
+  EffGlobm1s12->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobm1s12); 
+  
+  //wheel0
+  std::cout<<"Writing PGlobW0"<<std::endl;
+  OGlobW0->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(PGlobW0); 
+  PGlobW0->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(OGlobW0); 
+  EffGlobW0->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobW0);
+  EffGlob1->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlob1); 
+  EffGlob2->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlob2); 
+  EffGlob3->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlob3); 
+  EffGlob4->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlob4); 
+  EffGlob5->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlob5); 
+  EffGlob6->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlob6); 
+  EffGlob7->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlob7); 
+  EffGlob8->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlob8); 
+  EffGlob9->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlob9); 
+  EffGlob10->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob10); 
+  EffGlob11->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob11);	
+  EffGlob12->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob12);	
+
+  //wheel1
+  std::cout<<"Writing PGlobW1"<<std::endl;
+  OGlobW1->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(PGlobW1); 
+  PGlobW1->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(OGlobW1); 
+  EffGlobW1->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobW1);  
+  EffGlob1s1->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob1s1); 
+  EffGlob1s2->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob1s2); 
+  EffGlob1s3->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob1s3); 
+  EffGlob1s4->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob1s4); 
+  EffGlob1s5->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob1s5); 
+  EffGlob1s6->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob1s6); 
+  EffGlob1s7->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob1s7); 
+  EffGlob1s8->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob1s8); 
+  EffGlob1s9->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob1s9); 
+  EffGlob1s10->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob1s10); 
+  EffGlob1s11->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob1s11); 
+  EffGlob1s12->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob1s12); 
+  
+  //wheel2
+  std::cout<<"Writing PGlobW2"<<std::endl;
+  OGlobW2->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(PGlobW2); 
+  PGlobW2->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(OGlobW2); 
+  EffGlobW2->GetXaxis()->LabelsOption("v");   fOutputFile->WriteTObject(EffGlobW2);  
+  EffGlob2s1->GetXaxis()->LabelsOption("v");  fOutputFile->WriteTObject(EffGlob2s1); 
+  EffGlob2s2->GetXaxis()->LabelsOption("v");  fOutputFile->WriteTObject(EffGlob2s2); 
+  EffGlob2s3->GetXaxis()->LabelsOption("v");  fOutputFile->WriteTObject(EffGlob2s3); 
+  EffGlob2s4->GetXaxis()->LabelsOption("v");  fOutputFile->WriteTObject(EffGlob2s4); 
+  EffGlob2s5->GetXaxis()->LabelsOption("v");  fOutputFile->WriteTObject(EffGlob2s5); 
+  EffGlob2s6->GetXaxis()->LabelsOption("v");  fOutputFile->WriteTObject(EffGlob2s6); 
+  EffGlob2s7->GetXaxis()->LabelsOption("v");  fOutputFile->WriteTObject(EffGlob2s7); 
+  EffGlob2s8->GetXaxis()->LabelsOption("v");  fOutputFile->WriteTObject(EffGlob2s8); 
+  EffGlob2s9->GetXaxis()->LabelsOption("v");  fOutputFile->WriteTObject(EffGlob2s9); 
+  EffGlob2s10->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlob2s10);
+  EffGlob2s11->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlob2s11);
+  EffGlob2s12->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlob2s12);
+
+  std::cout<<"Closing File"<<std::endl;
+  fOutputFile->Close();
 }
+
+
 
 void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
-  statistics->Fill(1);
   using namespace edm;
   
+  std::map<RPCDetId, int> buff;
+
   char layerLabel[128];
   char meIdRPC [128];
   char meIdDT [128];
+  char meRPC [128];
   char meIdCSC [128];
 
-  //-------------Filling Other Histograms for correlations -----------
+  std::cout<<"New Event "<<iEvent.id().event()<<std::endl;
+  statistics->Fill(1);
   
-  if(debug) std::cout <<"Digi Getting the RPC Digis"<<std::endl;
+  std::cout <<"\t Getting the RPC Geometry"<<std::endl;
+  edm::ESHandle<RPCGeometry> rpcGeo;
+  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
+  
+  std::cout <<"\t Getting the RPC Digis"<<std::endl;
   edm::Handle<RPCDigiCollection> rpcDigis;
   iEvent.getByLabel(muonRPCDigis, rpcDigis);
-  char detUnitLabel[128];
-  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-    if(dynamic_cast< RPCChamber* >( *it ) != 0 ){
-      RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
-      std::vector< const RPCRoll*> roles = (ch->rolls());
-      for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-	RPCDetId rpcId = (*r)->id();
-	RPCGeomServ rpcsrv(rpcId);
-	std::string nameRoll = rpcsrv.name();
-	std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
-	sprintf(detUnitLabel ,"%s",nameRoll.c_str());
 
-	sprintf(layerLabel ,"%s",nameRoll.c_str());
-	RPCDigiCollection::Range rpcRangeDigi=rpcDigis->get(rpcId);
-	for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
-	  int stripDetected=digiIt->strip();
-	  sprintf(meIdRPC,"BXDistribution_%s",detUnitLabel);
-	  meMap[meIdRPC]->Fill(digiIt->bx());
-	  if(rpcId.region()==0){
-	    sprintf(meIdRPC,"RealDetectedOccupancyFromDT_%s",detUnitLabel);
-	  }else {
-	    sprintf(meIdRPC,"RealDetectedOccupancyFromCSC_%s",detUnitLabel);
-	  }
-	  meMap[meIdRPC]->Fill(stripDetected); //have a look to this!
-	  
-	}
+  if(mydqm){
+    int digis=0;
+
+    RPCDigiCollection::DigiRangeIterator collectionItr;
+    
+    for(collectionItr=rpcDigis->begin(); collectionItr!=rpcDigis->end(); ++collectionItr){
+      RPCDigiCollection::const_iterator digiIt; 
+      for (digiIt = ((*collectionItr ).second).first;digiIt!=((*collectionItr).second).second; ++digiIt){
+	digis++;
+	int bxs=(*digiIt).bx();
+	mydqmHbxdistro->Fill(bxs);
       }
     }
+    mydqmHdigisdistro->Fill(digis);
   }
-  
-  //------------------------------------------------------------------------------------
-  
-  if(debug) std::cout <<"\t Getting the RPC RecHits"<<std::endl;
-  Handle<RPCRecHitCollection> rpcHits;
-  iEvent.getByType(rpcHits);
 
+  
   if(incldt){
-    if(debug) std::cout<<"\t Getting the DT Segments"<<std::endl;
-    edm::Handle<DTRecSegment4DCollection> all4DSegments;
-    iEvent.getByLabel(dt4DSegments, all4DSegments);
-    if(all4DSegments->size()>0){
-      if(all4DSegments->size()<=16) statistics->Fill(2);
-
-      if(debug) std::cout<<"\t Number of DT Segments in this event = "<<all4DSegments->size()<<std::endl;
-  
-      std::map<DTChamberId,int> DTSegmentCounter;
-      DTRecSegment4DCollection::const_iterator segment;  
-  
-      for (segment = all4DSegments->begin();segment!=all4DSegments->end(); ++segment){
-	DTSegmentCounter[segment->chamberId()]++;
-      }    
-  
-      statistics->Fill(all4DSegments->size()+2);
-
-      if(debug) std::cout<<"\t Loop over all the 4D Segments"<<std::endl;
-      for (segment = all4DSegments->begin(); segment != all4DSegments->end(); ++segment){ 
-    
-	DTChamberId DTId = segment->chamberId();
-
-	
-	if(debug) std::cout<<"DT  \t \t This Segment is in Chamber id: "<<DTId<<std::endl;
-	if(debug) std::cout<<"DT  \t \t Number of segments in this DT = "<<DTSegmentCounter[DTId]<<std::endl;
-	if(debug) std::cout<<"DT  \t \t Is the only one in this DT? and is not in the 4th Station?"<<std::endl;
-
-    
-	if(DTSegmentCounter[DTId]==1 && DTId.station()!=4){	
- 
-	  int dtWheel = DTId.wheel();
-	  int dtStation = DTId.station();
-	  int dtSector = DTId.sector();      
-
-	  LocalPoint segmentPosition= segment->localPosition();
-	  LocalVector segmentDirection=segment->localDirection();
-      
-	  const GeomDet* gdet=dtGeo->idToDet(segment->geographicalId());
-	  const BoundPlane & DTSurface = gdet->surface();
-      
-	  //check if the dimension of the segment is 4 
-
-	  if(debug) std::cout<<"DT  \t \t Is the segment 4D?"<<std::endl;
-      
-	  if(segment->dimension()==4){
-
-	    if(debug) std::cout<<"DT  \t \t yes"<<std::endl;
-	    if(debug) std::cout<<"DT  \t \t DT Segment Dimension "<<segment->dimension()<<std::endl; 
-	
-	    float Xo=segmentPosition.x();
-	    float Yo=segmentPosition.y();
-	    float Zo=segmentPosition.z();
-	    float dx=segmentDirection.x();
-	    float dy=segmentDirection.y();
-	    float dz=segmentDirection.z();
-	    
-	    std::set<RPCDetId> rollsForThisDT = rollstoreDT[DTStationIndex(0,dtWheel,dtSector,dtStation)];
-
-	    if(debug) std::cout<<"DT  \t \t Number of rolls for this DT = "<<rollsForThisDT.size()<<std::endl;
-       
-	    assert(rollsForThisDT.size()>=1);
-
-	    if(debug) std::cout<<"DT  \t \t Loop over all the rolls asociated to this DT"<<std::endl;
-	    for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++){
-	      const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
-	      RPCDetId rpcId = rollasociated->id();
-	      const BoundPlane & RPCSurface = rollasociated->surface(); 
-	      
-	      RPCGeomServ rpcsrv(rpcId);
-	      std::string nameRoll = rpcsrv.name();
-
-	      if(debug) std::cout<<"DT  \t \t \t RollName: "<<nameRoll<<std::endl;
-	      if(debug) std::cout<<"DT  \t \t \t Doing the extrapolation to this roll"<<std::endl;
-	      if(debug) std::cout<<"DT  \t \t \t DT Segment Direction in DTLocal "<<segmentDirection<<std::endl;
-	      if(debug) std::cout<<"DT  \t \t \t DT Segment Point in DTLocal "<<segmentPosition<<std::endl;
-	  
-	      GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
-
-	      LocalPoint CenterRollinDTFrame = DTSurface.toLocal(CenterPointRollGlobal);
-
-	      if(debug) std::cout<<"DT  \t \t \t Center (0,0,0) Roll In DTLocal"<<CenterRollinDTFrame<<std::endl;
-	      if(debug) std::cout<<"DT  \t \t \t Center (0,0,0) of the Roll in Global"<<CenterPointRollGlobal<<std::endl;
-
-	      float D=CenterRollinDTFrame.z();
-	  
-	      float X=Xo+dx*D/dz;
-	      float Y=Yo+dy*D/dz;
-	      float Z=D;
-	
-	      const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&(rollasociated->topology()));
-	      LocalPoint xmin = top_->localPosition(0.);
-	      if(debug) std::cout<<"DT  \t \t \t xmin of this  Roll "<<xmin<<"cm"<<std::endl;
-	      LocalPoint xmax = top_->localPosition((float)rollasociated->nstrips());
-	      if(debug) std::cout<<"DT  \t \t \t xmax of this  Roll "<<xmax<<"cm"<<std::endl;
-	      float rsize = fabs( xmax.x()-xmin.x() );
-	      if(debug) std::cout<<"DT  \t \t \t Roll Size "<<rsize<<"cm"<<std::endl;
-	      float stripl = top_->stripLength();
-	      float stripw = top_->pitch();
-	  	  
-	      if(debug) std::cout<<"DT  \t \t \t Strip Lenght "<<stripl<<"cm"<<std::endl;
-	      if(debug) std::cout<<"DT  \t \t \t Strip Width "<<stripw<<"cm"<<std::endl;
-	      if(debug) std::cout<<"DT  \t \t \t X Predicted in DTLocal= "<<X<<"cm"<<std::endl;
-	      if(debug) std::cout<<"DT  \t \t \t Y Predicted in DTLocal= "<<Y<<"cm"<<std::endl;
-	      if(debug) std::cout<<"DT  \t \t \t Z Predicted in DTLocal= "<<Z<<"cm"<<std::endl;
-
-	      float extrapolatedDistance = sqrt((X-Xo)*(X-Xo)+(Y-Yo)*(Y-Yo)+(Z-Zo)*(Z-Zo));
-
-	      if(debug) std::cout<<"DT  \t \t \t Is the distance of extrapolation less than MaxD? ="<<extrapolatedDistance<<"cm"<<"MaxD="<<MaxD<<"cm"<<std::endl;
-
-	      if(extrapolatedDistance<=MaxD){ 
-		if(debug) std::cout<<"DT  \t \t \t yes"<<std::endl;   
-		GlobalPoint GlobalPointExtrapolated = DTSurface.toGlobal(LocalPoint(X,Y,Z));
-		if(debug) std::cout<<"DT  \t \t \t Point ExtraPolated in Global"<<GlobalPointExtrapolated<< std::endl;
-		LocalPoint PointExtrapolatedRPCFrame = RPCSurface.toLocal(GlobalPointExtrapolated);
-	    
-		if(debug) std::cout<<"DT  \t \t \t Point Extrapolated in RPCLocal"<<PointExtrapolatedRPCFrame<< std::endl;
-		if(debug) std::cout<<"DT  \t \t \t Corner of the Roll = ("<<rsize*0.5<<","<<stripl*0.5<<")"<<std::endl;
-		if(debug) std::cout<<"DT \t \t \t Info About the Point Extrapolated in X Abs ("<<fabs(PointExtrapolatedRPCFrame.x())<<","
-				   <<fabs(PointExtrapolatedRPCFrame.y())<<","<<fabs(PointExtrapolatedRPCFrame.z())<<")"<<std::endl;
-		if(debug) std::cout<<"DT  \t \t \t Does the extrapolation go inside this roll?"<<std::endl;
-
-		if(fabs(PointExtrapolatedRPCFrame.z()) < 10. && 
-		   fabs(PointExtrapolatedRPCFrame.x()) < rsize*0.5 && 
-		   fabs(PointExtrapolatedRPCFrame.y()) < stripl*0.5){
-		  
-		  if(debug) std::cout<<"DT  \t \t \t \t yes"<<std::endl;	
-
-		  RPCDetId  rollId = rollasociated->id();
-		  
-		  RPCGeomServ rpcsrv(rollId);
-		  std::string nameRoll = rpcsrv.name();
-		  if(debug) std::cout<<"DT  \t \t \t \t The RPCName is "<<nameRoll<<std::endl;		    
-		  const float stripPredicted = 
-		    rollasociated->strip(LocalPoint(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y(),0.)); 
-		  
-		  if(debug) std::cout<<"DT  \t \t \t \t Candidate (from DT Segment) STRIP---> "<<stripPredicted<< std::endl;		  
-		  //---- HISTOGRAM STRIP PREDICTED FROM DT ----
-		  char detUnitLabel[128];
-		  sprintf(detUnitLabel ,"%s",nameRoll.c_str());
-		  sprintf(layerLabel ,"%s",nameRoll.c_str());
-		    
-		  std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
-		    
-
-		  if(debug) std::cout<<"DT \t \t \t \t Filling Expected for "<<meIdDT<<" with "<<stripPredicted<<std::endl;
-		  if(fabs(stripPredicted-rollasociated->nstrips())<1.) if(debug) std::cout<<"DT \t \t \t \t Extrapolating near last strip, Event"<<iEvent.id()<<" stripPredicted="<<stripPredicted<<" Number of strips="<<rollasociated->nstrips()<<std::endl;
-		  if(fabs(stripPredicted)<1.) if(debug) std::cout<<"DT \t \t \t \t Extrapolating near first strip, Event"<<iEvent.id()<<" stripPredicted="<<stripPredicted<<" Number of strips="<<rollasociated->nstrips()<<std::endl;
-		  
-		  sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
-		  meMap[meIdDT]->Fill(stripPredicted);
-		  
-		  sprintf(meIdDT,"ExpectedOccupancy2DFromDT_%s",detUnitLabel);
-		  meMap[meIdDT]->Fill(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y());
-
-		  
-		  //-----------------------------------------------------
-		  
-
-		  //-------RecHitPart Just For Residual--------
-		  int countRecHits = 0;
-		  int cluSize = 0;
-		  float minres = 3000.;
-		  
-		  if(debug) std::cout<<"DT  \t \t \t \t Getting RecHits in Roll Asociated"<<std::endl;
-		  typedef std::pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
-		  rangeRecHits recHitCollection =  rpcHits->get(rollasociated->id());
-		  RPCRecHitCollection::const_iterator recHit;
-		  
-		  for (recHit = recHitCollection.first; recHit != recHitCollection.second ; recHit++) {
-		    countRecHits++;
-		    LocalPoint recHitPos=recHit->localPosition();
-		    float res=PointExtrapolatedRPCFrame.x()- recHitPos.x();	    
-		    if(debug) std::cout<<"DT  \t \t \t \t \t Found Rec Hit at "<<res<<"cm of the prediction."<<std::endl;
-		    if(fabs(res)<fabs(minres)){
-		      minres=res;
-		      cluSize = recHit->clusterSize();
-		      if(debug) std::cout<<"DT  \t \t \t \t \t \t New Min Res "<<res<<"cm."<<std::endl;
-		    }
-		  }
-		  
-		  bool anycoincidence=false;
-	
-		  if(countRecHits==0){
-		    if(debug) std::cout <<"DT \t \t \t \t \t THIS ROLL DOESN'T HAVE ANY RECHIT"<<std::endl;
-		  }else{
-		    assert(minres!=3000);     
-		    
-		    if(debug) std::cout<<"DT  \t \t \t \t \t PointExtrapolatedRPCFrame.x="<<PointExtrapolatedRPCFrame.x()<<" Minimal Residual="<<minres<<std::endl;
-		    if(debug) std::cout<<"DT  \t \t \t \t \t Minimal Residual less than stripw*rangestrips? minres="<<minres<<" range="<<rangestrips<<" stripw="<<stripw<<" cluSize"<<cluSize<<" <=compare minres with"<<(rangestrips+cluSize*0.5)*stripw<<std::endl;
-		    if(fabs(minres)<=(rangestrips+cluSize*0.5)*stripw){
-		      if(debug) std::cout<<"DT  \t \t \t \t \t \t True!"<<std::endl;
-		      anycoincidence=true;
-		    }
-		  }
-		  if(anycoincidence){
-		    if(debug) std::cout<<"DT  \t \t \t \t \t At least one RecHit inside the range, Predicted="<<stripPredicted<<" minres="<<minres<<"cm range="<<rangestrips<<"strips stripw="<<stripw<<"cm"<<std::endl;
-		    if(debug) std::cout<<"DT  \t \t \t \t \t Norm of Cosine Directors="<<dx*dx+dy*dy+dz*dz<<"~1?"<<std::endl;
-		    
-		    //-----RESIDUALS----------
-		    if(inves){
-		      float cosal = dx/sqrt(dx*dx+dz*dz);
-		      if(debug) std::cout<<"DT \t \t \t \t \t Angle="<<acos(cosal)*180/3.1415926<<" degree"<<std::endl;
-		      if(debug) std::cout<<"DT \t \t \t \t \t Filling the Residuals Histogram for globals with "<<minres<<"And the angular incidence with Cos Alpha="<<cosal<<std::endl;
-		      if(rollId.station()==1&&rollId.layer()==1)     { if(cluSize==1*dupli) {hGlobalResClu1La1->Fill(minres); AngClu1La1->Fill(acos(cosal)); DistBorderClu1La1->Fill(minres/stripw+0.5);}if(cluSize==2*dupli){ hGlobalResClu2La1->Fill(minres);  AngClu2La1->Fill(acos(cosal));DistBorderClu2La1->Fill(minres/stripw+0.5);} if(cluSize==3*dupli){ hGlobalResClu3La1->Fill(minres);  AngClu3La1->Fill(acos(cosal));} DistBorderClu3La1->Fill(minres/stripw+0.5);}
-		      else if(rollId.station()==1&&rollId.layer()==2){ if(cluSize==1*dupli) {hGlobalResClu1La2->Fill(minres); AngClu1La2->Fill(acos(cosal)); DistBorderClu1La2->Fill(minres/stripw+0.5);}if(cluSize==2*dupli){ hGlobalResClu2La2->Fill(minres);  AngClu2La2->Fill(acos(cosal));DistBorderClu2La2->Fill(minres/stripw+0.5);} if(cluSize==3*dupli){ hGlobalResClu3La2->Fill(minres);  AngClu3La2->Fill(acos(cosal));} DistBorderClu3La2->Fill(minres/stripw+0.5);}
-		      else if(rollId.station()==2&&rollId.layer()==1){ if(cluSize==1*dupli) {hGlobalResClu1La3->Fill(minres); AngClu1La3->Fill(acos(cosal)); DistBorderClu1La3->Fill(minres/stripw+0.5);}if(cluSize==2*dupli){ hGlobalResClu2La3->Fill(minres);  AngClu2La3->Fill(acos(cosal));DistBorderClu2La3->Fill(minres/stripw+0.5);} if(cluSize==3*dupli){ hGlobalResClu3La3->Fill(minres);  AngClu3La3->Fill(acos(cosal));} DistBorderClu3La3->Fill(minres/stripw+0.5);}
-		      else if(rollId.station()==2&&rollId.layer()==2){ if(cluSize==1*dupli) {hGlobalResClu1La4->Fill(minres); AngClu1La4->Fill(acos(cosal)); DistBorderClu1La4->Fill(minres/stripw+0.5);}if(cluSize==2*dupli){ hGlobalResClu2La4->Fill(minres);  AngClu2La4->Fill(acos(cosal));DistBorderClu2La4->Fill(minres/stripw+0.5);} if(cluSize==3*dupli){ hGlobalResClu3La4->Fill(minres);  AngClu3La4->Fill(acos(cosal));} DistBorderClu3La4->Fill(minres/stripw+0.5);}
-		      else if(rollId.station()==3)                   { if(cluSize==1*dupli) {hGlobalResClu1La5->Fill(minres); AngClu1La5->Fill(acos(cosal)); DistBorderClu1La5->Fill(minres/stripw+0.5);}if(cluSize==2*dupli){ hGlobalResClu2La5->Fill(minres);  AngClu2La5->Fill(acos(cosal));DistBorderClu2La5->Fill(minres/stripw+0.5);} if(cluSize==3*dupli){ hGlobalResClu3La5->Fill(minres);  AngClu3La5->Fill(acos(cosal));} DistBorderClu3La5->Fill(minres/stripw+0.5);}
-		      //------------------------
-		    }
-
-		    sprintf(meIdRPC,"RPCResidualsFromDT_%s",detUnitLabel);
-		    meMap[meIdRPC]->Fill(minres);
-
-		    sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
-		    meMap[meIdRPC]->Fill(stripPredicted);
-		    
-		    sprintf(meIdRPC,"RPCDataOccupancy2DFromDT_%s",detUnitLabel);
-		    meMap[meIdRPC]->Fill(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y());
-		    
-		    if(debug) std::cout<<"DT \t \t \t \t \t COINCIDENCE!!! Event="<<iEvent.id()<<" Filling RPC Data Occupancy for "<<meIdRPC<<" with "<<stripPredicted<<std::endl; 		    
-		  }
-		  else{
-		    RPCGeomServ rpcsrv(rollasociated->id());
-		    std::string nameRoll = rpcsrv.name();
-		    if(debug) std::cout<<"DT \t \t \t \t \t A roll was ineficient in event "<<iEvent.id().event()<<std::endl;
-		    if(debug) ofrej<<"DTs \t Wh "<<dtWheel
-				   <<"\t St "<<dtStation
-				   <<"\t Se "<<dtSector
-				   <<"\t Roll "<<nameRoll
-				   <<"\t Event "
-				   <<iEvent.id().event()
-				   <<"\t Run "	
-				   <<iEvent.id().run()	
-				   <<std::endl;
-		  }
-		}else {
-		  if(debug) std::cout<<"DT \t \t \t \t No the prediction is outside of this roll"<<std::endl;
-		}//Condition for the right match
-	      }else{
-		if(debug) std::cout<<"DT \t \t \t No, Exrtrapolation too long!, canceled"<<std::endl;
-	      }//D so big
-	    }//loop over all the rolls asociated
-	  }//Is the segment 4D?
-	}else {
-	  if(debug) std::cout<<"DT \t \t More than one segment in this chamber, or we are in Station 4"<<std::endl;
-	}
-      }
-    }
-    else {
-      if(debug) std::cout<<"DT This Event doesn't have any DT4DDSegment"<<std::endl; //is ther more than 1 segment in this event?
-    }
+#include "dtpart.inl"
   }
   
   if(incldtMB4){
-    if(debug) std::cout <<"MB4 \t Getting ALL the DT Segments"<<std::endl;
-    edm::Handle<DTRecSegment4DCollection> all4DSegments;
-    iEvent.getByLabel(dt4DSegments, all4DSegments);
-    
-    if(all4DSegments->size()>0){
-  
-      std::map<DTChamberId,int> DTSegmentCounter;
-      DTRecSegment4DCollection::const_iterator segment;  
-  
-      for (segment = all4DSegments->begin();segment!=all4DSegments->end(); ++segment){
-	DTSegmentCounter[segment->chamberId()]++;
-      }    
-
-      if(debug) std::cout<<"MB4 \t \t Loop Over all4DSegments"<<std::endl;
-      for (segment = all4DSegments->begin(); segment != all4DSegments->end(); ++segment){ 
-    
-	DTChamberId DTId = segment->chamberId();
-
-	if(debug) std::cout<<"MB4 \t \t \t Is the only one in the chamber? and is in the Station 4?"<<std::endl;
-
-	if(DTSegmentCounter[DTId] == 1 && DTId.station()==4){
-
-	  if(debug) std::cout<<"MB4 \t \t \t yes"<<std::endl;
-	  int dtWheel = DTId.wheel();
-	  int dtStation = DTId.station();
-	  int dtSector = DTId.sector();
-      
-	  LocalPoint segmentPosition= segment->localPosition();
-	  LocalVector segmentDirection=segment->localDirection();
-            
-	  //check if the dimension of the segment is 2 and the station is 4
-	  
-	  
-	  if(debug) std::cout<<"MB4 \t \t \t \t The Segment in MB4 is 2D?"<<std::endl;
-	  if(segment->dimension()==2){
-	    if(debug) std::cout<<"MB4 \t \t \t \t yes"<<std::endl;
-	    LocalVector segmentDirectionMB4=segmentDirection;
-	    LocalPoint segmentPositionMB4=segmentPosition;
-	
-	    bool compatiblesegments=false;
-	    float dx=segmentDirectionMB4.x();
-	    float dz=segmentDirectionMB4.z();
-	    
-	    const BoundPlane& DTSurface4 = dtGeo->idToDet(DTId)->surface();
-	    
-	    DTRecSegment4DCollection::const_iterator segMB3;  
-	    
-	    if(debug) std::cout<<"MB4 \t \t \t \t Loop on segments in =sector && MB3 && adjacent Wheel && y dim=4"<<std::endl;
-	    for(segMB3=all4DSegments->begin();segMB3!=all4DSegments->end();++segMB3){
-	      
-	      DTChamberId dtid3 = segMB3->chamberId();  
-	      
-	      if(dtid3.sector()==DTId.sector() 
-		 && dtid3.station()==3
-		 && abs(dtid3.wheel()-DTId.wheel())<2
-		 && DTSegmentCounter[dtid3] == 1
-		 && segMB3->dimension()==4){
-
-		const GeomDet* gdet3=dtGeo->idToDet(segMB3->geographicalId());
-		const BoundPlane & DTSurface3 = gdet3->surface();
-	      
-		float dx3=segMB3->localDirection().x();
-		float dy3=segMB3->localDirection().y();
-		float dz3=segMB3->localDirection().z();
-	    
-		LocalVector segDirMB4inMB3Frame=DTSurface3.toLocal(DTSurface4.toGlobal(segmentDirectionMB4));
-		
-		double cosAng=fabs(dx*dx3+dz*dz3/sqrt((dx3*dx3+dz3*dz3)*(dx*dx+dz*dz)));
-		if(fabs(cosAng)>1.){
-		  std::cout<<"dx="<<dx<<" dz="<<dz<<std::endl;
-		  std::cout<<"dx3="<<dx3<<" dz3="<<dz<<std::endl;
-		  std::cout<<cosAng<<std::endl;
-		}
-		
-		if(cosAng>MinCosAng){
-		  compatiblesegments=true;
-		  if(dtSector==13){
-		    dtSector=4;
-		  }
-		  if(dtSector==14){
-		    dtSector=10;
-		  }
-		  
-		  std::set<RPCDetId> rollsForThisDT = rollstoreDT[DTStationIndex(0,dtWheel,dtSector,4)]; //It should be always 4
-	      
-		  assert(rollsForThisDT.size()>=1);
-     	      
-		  for (std::set<RPCDetId>::iterator iteraRoll=rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++){
-		    const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll); //roll asociado a MB4
-		    const BoundPlane & RPCSurfaceRB4 = rollasociated->surface(); //surface MB4
-		    const GeomDet* gdet=dtGeo->idToDet(segMB3->geographicalId()); 
-		    const BoundPlane & DTSurfaceMB3 = gdet->surface(); // surface MB3
-		
-		    GlobalPoint CenterPointRollGlobal=RPCSurfaceRB4.toGlobal(LocalPoint(0,0,0));
-		
-		    LocalPoint CenterRollinMB3Frame = DTSurfaceMB3.toLocal(CenterPointRollGlobal);
-
-		    float D=CenterRollinMB3Frame.z();
-		
-		    float Xo3=segMB3->localPosition().x();
-		    float Yo3=segMB3->localPosition().y();
-		    float Zo3=segMB3->localPosition().z();
-
-		    float X=Xo3+dx3*D/dz3;
-		    float Y=Yo3+dy3*D/dz3;
-		    float Z=D;
-
-		
-		    const RectangularStripTopology* top_
-		      =dynamic_cast<const RectangularStripTopology*>(&(rollasociated->topology())); //Topology roll asociated MB4
-		    LocalPoint xmin = top_->localPosition(0.);
-		    LocalPoint xmax = top_->localPosition((float)rollasociated->nstrips());
-		    float rsize = fabs( xmax.x()-xmin.x() );
-		    float stripl = top_->stripLength();
-		    float stripw = top_->pitch();
-
-		    
-		    if(debug) std::cout<<"MB4 \t \t \t Strip Lenght "<<stripl<<"cm"<<std::endl;
-		    if(debug) std::cout<<"MB4 \t \t \t Strip Width "<<stripw<<"cm"<<std::endl;
-
-		    if(debug) std::cout<<"MB4 \t \t \t X Predicted in MB3Local= "<<X<<"cm"<<std::endl;
-		    if(debug) std::cout<<"MB4 \t \t \t Y Predicted in MB3DTLocal= "<<Y<<"cm"<<std::endl;
-		    if(debug) std::cout<<"MB4 \t \t \t Z Predicted in MB3DTLocal= "<<Z<<"cm"<<std::endl;
-
-		    float extrapolatedDistance = sqrt((X-Xo3)*(X-Xo3)+(Y-Yo3)*(Y-Yo3)+(Z-Zo3)*(Z-Zo3));
-
-		    if(extrapolatedDistance<=MaxDrb4){ 
-		      if(debug) std::cout<<"MB4 \t \t \t yes"<<std::endl;
-
-		      GlobalPoint GlobalPointExtrapolated = DTSurfaceMB3.toGlobal(LocalPoint(X,Y,Z));
-		      
-		      if(debug) std::cout<<"MB4 \t \t \t Point ExtraPolated in Global"<<GlobalPointExtrapolated<< std::endl;
-		      
-		      LocalPoint PointExtrapolatedRPCFrame = RPCSurfaceRB4.toLocal(GlobalPointExtrapolated);
-
-		      if(debug) std::cout<<"MB4 \t \t \t Point Extrapolated in RPCLocal"<<PointExtrapolatedRPCFrame<< std::endl;
-		      if(debug) std::cout<<"MB4 \t \t \t Corner of the Roll = ("<<rsize*0.5<<","<<stripl*0.5<<")"<<std::endl;
-		      if(debug) std::cout<<"MB4 \t \t \t Info About the Point Extrapolated in X Abs ("<<fabs(PointExtrapolatedRPCFrame.x())<<","
-					 <<fabs(PointExtrapolatedRPCFrame.y())<<","<<fabs(PointExtrapolatedRPCFrame.z())<<")"<<std::endl;
-	
-		      if(debug) std::cout<<"MB4 \t \t \t Does the extrapolation go inside this roll?"<<std::endl;
-		
-		      if(fabs(PointExtrapolatedRPCFrame.z()) < 10.  &&
-			 fabs(PointExtrapolatedRPCFrame.x()) < rsize*0.5 &&
-			 fabs(PointExtrapolatedRPCFrame.y()) < stripl*0.5){
-
-			if(debug) std::cout<<"MB4 \t \t \t \t yes"<<std::endl;
-			
-			RPCDetId  rollId = rollasociated->id();
-
-			RPCGeomServ rpcsrv(rollId);
-			std::string nameRoll = rpcsrv.name();
-			if(debug) std::cout<<"MB4 \t \t \t \t \t The RPCName is "<<nameRoll<<std::endl;
-			const float stripPredicted=
-			  rollasociated->strip(LocalPoint(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y(),0.)); 
-		  
-			if(debug) std::cout<<"MB4 \t \t \t \t Candidate (from DT Segment) STRIP---> "<<stripPredicted<< std::endl;
-			//--------- HISTOGRAM STRIP PREDICTED FROM DT  MB4 -------------------
-			char detUnitLabel[128];
-			sprintf(detUnitLabel ,"%s",nameRoll.c_str());
-			sprintf(layerLabel ,"%s",nameRoll.c_str());
-			
-			std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
-			
-			if(debug) std::cout<<"MB4 \t \t \t \t \t Filling Expected"<<std::endl;
-			
-			sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
-			meMap[meIdDT]->Fill(stripPredicted);
-
-			sprintf(meIdDT,"ExpectedOccupancy2DFromDT_%s",detUnitLabel);
-			meMap[meIdDT]->Fill(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y());
-
-			//-------------------------------------------------
-			
-
-			//-------RecHitPart Just For Residual--------
-			int countRecHits = 0;
-			int cluSize = 0;
-			float minres = 3000.;
-			
-			if(debug) std::cout<<"MB4 \t \t \t \t Getting RecHits in Roll Asociated"<<std::endl;
-			typedef std::pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
-			rangeRecHits recHitCollection =  rpcHits->get(rollasociated->id());
-			RPCRecHitCollection::const_iterator recHit;
-			
-			for (recHit = recHitCollection.first; recHit != recHitCollection.second ; recHit++) {
-			  countRecHits++;
-			  LocalPoint recHitPos=recHit->localPosition();
-			  float res=PointExtrapolatedRPCFrame.x()- recHitPos.x();	    
-			  if(debug) std::cout<<"DT  \t \t \t \t \t Found Rec Hit at "<<res<<"cm of the prediction."<<std::endl;
-			  if(fabs(res)<fabs(minres)){
-			    minres=res;
-			    cluSize = recHit->clusterSize();
-			  }
-			}		
-
-			bool anycoincidence=false;
-			
-			if(countRecHits==0){
-			  if(debug) std::cout <<"MB4 \t \t \t \t \t \t THIS ROLL DOESN'T HAVE ANY RECHIT"<<std::endl;
-			}else{     
-			  assert(minres!=3000); 
-
-			  if(debug) std::cout<<"MB4 \t \t \t \t \t \t PointExtrapolatedRPCFrame.x="<<PointExtrapolatedRPCFrame.x()<<" Minimal Residual ="<<minres<<std::endl;
-			  if(debug) std::cout<<"MB4 \t \t \t \t \t \t Minimal Residual less than stripw*rangestrips? minres="<<minres<<" range="<<rangestrips<<" stripw="<<stripw<<" cluSize"<<cluSize<<" <=compare minres with"<<(rangestrips+cluSize*0.5)*stripw<<std::endl;
-			  if(fabs(minres)<=(rangestrips+cluSize*0.5)*stripw){
-			    if(debug) std::cout<<"MB4 \t \t \t \t \t \t \t True!"<<std::endl;
-			    anycoincidence=true;
-			  }
-			}
-			if(anycoincidence){
-			  if(debug) std::cout<<"MB4  \t \t \t \t \t At least one RecHit inside the range, Predicted="<<stripPredicted<<" minres="<<minres<<"cm range="<<rangestrips<<"strips stripw="<<stripw<<"cm"<<std::endl;
-			  if(debug) std::cout<<"MB4  \t \t \t \t \t Norm of Cosine Directors="<<dx3*dx3+dy3*dy3+dz3*dz3<<"~1?"<<std::endl;
-		   
-			  //-----RESIDUALS----------
-			  if(inves){
-			    float cosal = dx/sqrt(dx*dx+dz*dz);
-			    if(debug) std::cout<<"MB4 \t \t \t \t \t Angle="<<acos(cosal)*180/3.1415926<<" degree"<<std::endl;
-			    if(debug) std::cout<<"MB4 \t \t \t \t \t Filling the Residuals Histogram for globals with "<<minres<<"And the angular incidence with Cos Theta="<<-1*dz<<std::endl;
-			    assert(rollId.station()==4);
-			    if(cluSize==1*dupli){ hGlobalResClu1La6->Fill(minres); if(minres<0.005*stripw) AngClu1La6->Fill(acos(cosal)); if(fabs(minres)<stripw*0.5) DistBorderClu1La6->Fill(minres/stripw+0.5);}
-			    else if(cluSize==2*dupli){ hGlobalResClu2La6->Fill(minres); if(minres<0.005*stripw) AngClu2La6->Fill(acos(cosal));}
-			    else if(cluSize==3*dupli){ hGlobalResClu3La6->Fill(minres); if(minres<0.005*stripw) AngClu3La6->Fill(acos(cosal));}
-			  }
-			  //--------------------------------
-			  
-			  sprintf(meIdRPC,"RPCResidualsFromDT_%s",detUnitLabel);
-			  meMap[meIdRPC]->Fill(minres);
-
-			  sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
-			  meMap[meIdRPC]->Fill(stripPredicted);
-
-			  sprintf(meIdRPC,"RPCDataOccupancy2DFromDT_%s",detUnitLabel);
-			  meMap[meIdRPC]->Fill(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y());
-
-			  if(debug) std::cout<<"MB4 \t \t \t \t \t \t COINCIDENCE!!! Event="<<iEvent.id()<<"Filling RPC Data Occupancy for "<<meIdRPC<<" with "<<stripPredicted<<std::endl; 
-			}
-			else{
-			  RPCGeomServ rpcsrv(rollasociated->id());
-			  std::string nameRoll = rpcsrv.name();
-			  if(debug) std::cout<<"MB4 \t \t \t \t \t \t A roll was ineficient in event"<<iEvent.id().event()<<std::endl;
-			  if(debug) ofrej<<"MB4 \t Wh "<<dtWheel
-					 <<"\t St "<<dtStation
-					 <<"\t Se "<<dtSector
-					 <<"\t Roll "<<nameRoll
-					 <<"\t Event "
-					 <<iEvent.id().event()
-					 <<"\t Run "
-					 <<iEvent.id().run()
-					 <<std::endl;
-			}
-		      }else{
-			if(debug) std::cout<<"MB4 \t \t \t \t No the prediction is outside of this roll"<<std::endl;
-		      }
-		    }//Condition for the right match
-		    else{
-		      if(debug) std::cout<<"MB4 \t \t \t No, Exrtrapolation too long!, canceled"<<std::endl;
-		    }
-		  }//loop over all the rollsasociated
-		}else{
-		  compatiblesegments=false;
-		  if(debug) std::cout<<"MB4 \t \t \t \t I found segments in MB4 and MB3 adjacent or same wheel and sector but not compatibles Diferent Directions"<<std::endl;
-		}
-	      }else{//if dtid3.station()==3&&dtid3.sector()==DTId.sector()&&dtid3.wheel()==DTId.wheel()&&segMB3->dim()==4
-		if(debug) std::cout<<"MB4 \t \t \t No the same station or same wheel or segment dim in mb3 not 4D"<<std::endl;
-	      }
-	    }//loop over all the segments looking for one in MB3 
-	  }else{
-	    if(debug) std::cout<<"MB4 \t \t \t Is NOT a 2D Segment"<<std::endl;
-	  }
-	}else{
-	  if(debug) std::cout<<"MB4 \t \t \t \t There is not just one segment or is not in station 4"<<std::endl;
-	}//De aca para abajo esta en dtpart.inl
-      }
-    }else{
-      if(debug) std::cout<<"MB4 \t This event doesn't have 4D Segment"<<std::endl;
-    }
+#include "rb4part.inl"
   }
-
+  
   if(inclcsc){
-    if(debug) std::cout <<"\t Getting the CSC Segments"<<std::endl;
-    edm::Handle<CSCSegmentCollection> allCSCSegments;
-    iEvent.getByLabel(cscSegments, allCSCSegments);
-    
-    if(allCSCSegments->size()>0){
-      statistics->Fill(18);
-
-      if(debug) std::cout<<"CSC \t Number of CSC Segments in this event = "<<allCSCSegments->size()<<std::endl;
-      
-      std::map<CSCDetId,int> CSCSegmentsCounter;
-      CSCSegmentCollection::const_iterator segment;
-      
-      int segmentsInThisEventInTheEndcap=0;
-      
-      for (segment = allCSCSegments->begin();segment!=allCSCSegments->end(); ++segment){
-	CSCSegmentsCounter[segment->cscDetId()]++;
-	segmentsInThisEventInTheEndcap++;
-      }    
-      
-      statistics->Fill(allCSCSegments->size()+18);
-      
-      
-      if(debug) std::cout<<"CSC \t loop over all the CSCSegments "<<std::endl;
-      for (segment = allCSCSegments->begin();segment!=allCSCSegments->end(); ++segment){
-	CSCDetId CSCId = segment->cscDetId();
-	
-	if(debug) std::cout<<"CSC \t \t This Segment is in Chamber id: "<<CSCId<<std::endl;
-	if(debug) std::cout<<"CSC \t \t Number of segments in this CSC = "<<CSCSegmentsCounter[CSCId]<<std::endl;
-	if(debug) std::cout<<"CSC \t \t Is the only one in this CSC? is not ind the ring 1 or station 4? Are there more than 2 segments in the event?"<<std::endl;
-
-    	if(CSCSegmentsCounter[CSCId]==1 && CSCId.station()!=4 && CSCId.ring()!=1 && allCSCSegments->size()>=2){
-	  if(debug) std::cout<<"CSC \t \t yes"<<std::endl;
-    	  int cscEndCap = CSCId.endcap();
-	  int cscStation = CSCId.station();
-	  int cscRing = CSCId.ring();
-	  int cscChamber = CSCId.chamber();
-	  int rpcRegion = 1; if(cscEndCap==2) rpcRegion= -1;//Relacion entre las endcaps
-	  int rpcRing = cscRing;
-	  if(cscRing==4)rpcRing =1;
-	  int rpcStation = cscStation;
-	  int rpcSegment = 0;
-	
-	  if(cscStation!=1&&cscRing==1){//las de 18 CSC
-	    rpcSegment = CSCId.chamber();
-	  }
-	  else{//las de 36 CSC
-	    rpcSegment = (CSCId.chamber()==1) ? 36 : CSCId.chamber()-1;
-	  }
-     
-	  LocalPoint segmentPosition= segment->localPosition();
-	  LocalVector segmentDirection=segment->localDirection();
-	  float dz=segmentDirection.z();
-	
-	  if(debug) std::cout<<"CSC \t \t Is a good Segment? dim = 4, 4 <= nRecHits <= 10 Incident angle int range 45 < "<<acos(dz)*180/3.1415926<<" < 135? "<<std::endl;
-
-	  if(segment->dimension()==4 && (segment->nRecHits()<=10 && segment->nRecHits()>=4)&& acos(dz)*180/3.1415926 > 45. && acos(dz)*180/3.1415926 < 160. ){ 
-	    
-	    //&& segment->chi2()< ??)Add 3 segmentes in the endcaps???
-
-	    if(debug) std::cout<<"CSC \t \t yes"<<std::endl;
-	    if(debug) std::cout<<"CSC \t \t CSC Segment Dimension "<<segment->dimension()<<std::endl; 
-	    
-	    float Xo=segmentPosition.x();
-	    float Yo=segmentPosition.y();
-	    float Zo=segmentPosition.z();
-	    float dx=segmentDirection.x();
-	    float dy=segmentDirection.y();
-	    float dz=segmentDirection.z();
-
-	    
-	    if(debug) std::cout<<"CSC \t \t Getting chamber from Geometry"<<std::endl;
-	    const CSCChamber* TheChamber=cscGeo->chamber(CSCId); 
-	    if(debug) std::cout<<"CSC \t \t Getting ID from Chamber"<<std::endl;
-	    const CSCDetId TheId=TheChamber->id();
-	    if(debug) std::cout<<"CSC \t \t Printing The Id"<<TheId<<std::endl;
-	    std::set<RPCDetId> rollsForThisCSC = rollstoreCSC[CSCStationIndex(rpcRegion,rpcStation,rpcRing,rpcSegment)];
-	    if(debug) std::cout<<"CSC \t \t Number of rolls for this CSC = "<<rollsForThisCSC.size()<<std::endl;
-
-	    if(debug) std::cout<<"CSC \t \t Loop over all the rolls asociated to this CSC"<<std::endl;	    
-
-	    if(rpcRing!=1&&rpcStation!=4){
-	  
-	      if(rollsForThisCSC.size()==0){
-		if(debug) std::cout<<"CSC Fail for CSCId="<<TheId<<" rpcRegion="<<rpcRegion<<" rpcStation="<<rpcStation<<" rpcRing="<<rpcRing<<" rpcSegment="<<rpcSegment<<std::endl;
-	      }
-	      
-	      assert(rollsForThisCSC.size()>=1);
-
-	      //Loop over all the rolls
-	      for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisCSC.begin();iteraRoll != rollsForThisCSC.end(); iteraRoll++){
-		const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
-		RPCDetId rpcId = rollasociated->id();
-		
-		if(debug) std::cout<<"CSC \t \t \t We are in the roll getting the surface"<<rpcId<<std::endl;
-		const BoundPlane & RPCSurface = rollasociated->surface(); 
-
-		if(debug) std::cout<<"CSC \t \t \t RollID: "<<rpcId<<std::endl;
-		
-		if(debug) std::cout<<"CSC \t \t \t Doing the extrapolation to this roll"<<std::endl;
-		if(debug) std::cout<<"CSC \t \t \t CSC Segment Direction in CSCLocal "<<segmentDirection<<std::endl;
-		if(debug) std::cout<<"CSC \t \t \t CSC Segment Point in CSCLocal "<<segmentPosition<<std::endl;  
-		
-		GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
-		if(debug) std::cout<<"CSC \t \t \t Center (0,0,0) of the Roll in Global"<<CenterPointRollGlobal<<std::endl;
-		GlobalPoint CenterPointCSCGlobal = TheChamber->toGlobal(LocalPoint(0,0,0));
-		if(debug) std::cout<<"CSC \t \t \t Center (0,0,0) of the CSC in Global"<<CenterPointCSCGlobal<<std::endl;
-		GlobalPoint segmentPositionInGlobal=TheChamber->toGlobal(segmentPosition); //new way to convert to global
-		if(debug) std::cout<<"CSC \t \t \t Segment Position in Global"<<segmentPositionInGlobal<<std::endl;
-		LocalPoint CenterRollinCSCFrame = TheChamber->toLocal(CenterPointRollGlobal);
-
-		if(debug){//to check CSC RPC phi relation!
-		  float rpcphi=0;
-		  float cscphi=0;
-		  
-		  (CenterPointRollGlobal.barePhi()<0)? 
-		    rpcphi = 2*3.141592+CenterPointRollGlobal.barePhi():rpcphi=CenterPointRollGlobal.barePhi();
-		  
-		  (CenterPointCSCGlobal.barePhi()<0)? 
-		    cscphi = 2*3.1415926536+CenterPointCSCGlobal.barePhi():cscphi=CenterPointCSCGlobal.barePhi();
-
-		  float df=fabs(cscphi-rpcphi); 
-		  float dr=fabs(CenterPointRollGlobal.perp()-CenterPointCSCGlobal.perp());
-		  float diffz=CenterPointRollGlobal.z()-CenterPointCSCGlobal.z();
-		  float dfg=df*180./3.14159265;
-
-		  if(debug) std::cout<<"CSC \t \t \t z of RPC="<<CenterPointRollGlobal.z()<<"z of CSC"<<CenterPointCSCGlobal.z()<<" dfg="<<dfg<<std::endl;
-
-
-		  RPCGeomServ rpcsrv(rpcId);
-
-		  
-		  if(dr>200.||fabs(dz)>55.||dfg>1.){ 
-		    //if(rpcRegion==1&&dfg>1.&&dr>100.){  
-		    if (debug) std::cout
-		      <<"\t \t \t CSC Station= "<<CSCId.station()
-		      <<" Ring= "<<CSCId.ring()
-		      <<" Chamber= "<<CSCId.chamber()
-		      <<" cscphi="<<cscphi*180/3.14159265
-		      <<"\t RPC Station= "<<rpcId.station()
-		      <<" ring= "<<rpcId.ring()
-		      <<" segment =-> "<<mySegment(rpcId)
-		      <<" rollphi="<<rpcphi*180/3.14159265
-		      <<"\t dfg="<<dfg
-		      <<" dz="<<diffz
-		      <<" dr="<<dr
-		      <<std::endl;
-		    
-		  }
-		}
-
-
-
-	    
-		float D=CenterRollinCSCFrame.z();
-	  	  
-		float X=Xo+dx*D/dz;
-		float Y=Yo+dy*D/dz;
-		float Z=D;
-
-		const TrapezoidalStripTopology* top_=dynamic_cast<const TrapezoidalStripTopology*>(&(rollasociated->topology()));
-		LocalPoint xmin = top_->localPosition(0.);
-		if(debug) std::cout<<"CSC \t \t \t xmin of this  Roll "<<xmin<<"cm"<<std::endl;
-		LocalPoint xmax = top_->localPosition((float)rollasociated->nstrips());
-		if(debug) std::cout<<"CSC \t \t \t xmax of this  Roll "<<xmax<<"cm"<<std::endl;
-		float rsize = fabs( xmax.x()-xmin.x() );
-		if(debug) std::cout<<"CSC \t \t \t Roll Size "<<rsize<<"cm"<<std::endl;
-		float stripl = top_->stripLength();
-		float stripw = top_->pitch();
-
-		if(debug) std::cout<<"CSC \t \t \t Strip Lenght "<<stripl<<"cm"<<std::endl;
-		if(debug) std::cout<<"CSC \t \t \t Strip Width "<<stripw<<"cm"<<std::endl;
-
-		if(debug) std::cout<<"CSC \t \t \t X Predicted in CSCLocal= "<<X<<"cm"<<std::endl;
-		if(debug) std::cout<<"CSC \t \t \t Y Predicted in CSCLocal= "<<Y<<"cm"<<std::endl;
-		if(debug) std::cout<<"CSC \t \t \t Z Predicted in CSCLocal= "<<Z<<"cm"<<std::endl;
-	  
-		float extrapolatedDistance = sqrt((X-Xo)*(X-Xo)+(Y-Yo)*(Y-Yo)+(Z-Zo)*(Z-Zo));
-
-		if(debug) std::cout<<"CSC \t \t \t Is the distance of extrapolation less than MaxD? ="<<extrapolatedDistance<<"cm"<<"MaxD="<<MaxD<<"cm"<<std::endl;
-	  
-		if(extrapolatedDistance<=MaxD){ 
-
-		  if(debug) std::cout<<"CSC \t \t \t yes"<<std::endl;
-
-		  GlobalPoint GlobalPointExtrapolated=TheChamber->toGlobal(LocalPoint(X,Y,Z));
-		  if(debug) std::cout<<"CSC \t \t \t Point ExtraPolated in Global"<<GlobalPointExtrapolated<< std::endl;
-
-	      
-		  LocalPoint PointExtrapolatedRPCFrame = RPCSurface.toLocal(GlobalPointExtrapolated);
-
-		  if(debug) std::cout<<"CSC \t \t \t Point Extrapolated in RPCLocal"<<PointExtrapolatedRPCFrame<< std::endl;
-		  if(debug) std::cout<<"CSC \t \t \t Corner of the Roll = ("<<rsize*0.5<<","<<stripl*0.5<<")"<<std::endl;
-		  if(debug) std::cout<<"CSC \t \t \t Info About the Point Extrapolated in X Abs ("<<fabs(PointExtrapolatedRPCFrame.x())<<","
-				     <<fabs(PointExtrapolatedRPCFrame.y())<<","<<fabs(PointExtrapolatedRPCFrame.z())<<")"<<std::endl;
-		  if(debug) std::cout<<"CSC \t \t \t dz="
-				     <<fabs(PointExtrapolatedRPCFrame.z())<<" dx="
-				     <<fabs(PointExtrapolatedRPCFrame.x())<<" dy="
-				     <<fabs(PointExtrapolatedRPCFrame.y())<<std::endl;
-		  
-		  if(debug) std::cout<<"CSC \t \t \t Does the extrapolation go inside this roll????"<<std::endl;
-
-		  if(fabs(PointExtrapolatedRPCFrame.z()) < 10. && 
-		     fabs(PointExtrapolatedRPCFrame.x()) < rsize*0.5 && 
-		     fabs(PointExtrapolatedRPCFrame.y()) < stripl*0.5){ 
-		    
-		    if(debug) std::cout<<"CSC \t \t \t \t yes"<<std::endl;
-
-		    RPCDetId  rollId = rollasociated->id();
-		    
-		    RPCGeomServ rpcsrv(rollId);
-		    std::string nameRoll = rpcsrv.name();
-		    if(debug) std::cout<<"CSC \t \t \t \t The RPCName is "<<nameRoll<<std::endl;
-
-		    const float stripPredicted = 
-		      rollasociated->strip(LocalPoint(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y(),0.)); 
-
-		    if(debug) std::cout<<"CSC  \t \t \t \t \t Candidate"<<rollId<<" "<<"(from CSC Segment) STRIP---> "<<stripPredicted<< std::endl;
-		    //--------- HISTOGRAM STRIP PREDICTED FROM CSC  -------------------
-		    
-		    char detUnitLabel[128];
-		    sprintf(detUnitLabel ,"%s",nameRoll.c_str());
-		    sprintf(layerLabel ,"%s",nameRoll.c_str());
-		    
-		    std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
-		    
-		    if(debug) std::cout<<"CSC \t \t \t \t Filling Expected"<<std::endl;
-		    
-		    sprintf(meIdCSC,"ExpectedOccupancyFromCSC_%s",detUnitLabel);
-		    meMap[meIdCSC]->Fill(stripPredicted);
-		    
-		    sprintf(meIdDT,"ExpectedOccupancy2DFromCSC_%s",detUnitLabel);
-		    meMap[meIdDT]->Fill(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y());
-
-		    
-		    //--------------------------------------------------------------------
-	    		
-		    
-		    //-------RecHitPart Just For Residual--------
-		    int cluSize = 0;
-		    int countRecHits = 0;
-		    float minres = 3000.;
-		    
-		    if(debug) std::cout<<"CSC  \t \t \t \t \t Getting RecHits in Roll Asociated"<<std::endl;
-		    typedef std::pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
-		    rangeRecHits recHitCollection =  rpcHits->get(rollasociated->id());
-		    RPCRecHitCollection::const_iterator recHit;
-
-		    for (recHit = recHitCollection.first; recHit != recHitCollection.second ; recHit++) {
-		      countRecHits++;
-		      LocalPoint recHitPos=recHit->localPosition();
-		      float res=PointExtrapolatedRPCFrame.x()- recHitPos.x();
-		      if(debug) std::cout<<"CSC  \t \t \t \t \t \t Found Rec Hit at "<<res<<"cm of the prediction."<<std::endl;
-		      if(fabs(res)<fabs(minres)){
-			minres=res;
-			cluSize = recHit->clusterSize();
-			if(debug) std::cout<<"CSC  \t \t \t \t \t \t \t New Min Res "<<res<<"cm."<<std::endl;
-		      }
-		    }
-		    
-		    bool anycoincidence = false;
-		    
-		    if(countRecHits==0){
-		      if(debug) std::cout <<"CSC \t \t \t \t \t THIS ROLL DOESN'T HAVE ANY RECHIT"<<std::endl;
-		    }else{  
-		      assert(minres!=3000); 
-		      
-		      if(debug) std::cout<<"CSC \t \t \t \t \t PointExtrapolatedRPCFrame.x="<<PointExtrapolatedRPCFrame.x()<<" Minimal Residual"<<minres<<std::endl;
-		      if(debug) std::cout<<"CSC  \t \t \t \t \t Minimal Residual less than stripw*rangestrips? minres="<<minres<<" range="<<rangestrips<<" stripw="<<stripw<<" cluSize"<<cluSize<<" <=compare minres with"<<(rangestrips+cluSize*0.5)*stripw<<std::endl;
-		      if(fabs(minres)<=(rangestrips+cluSize*0.5)*stripw){
-			if(debug) std::cout<<"CSC  \t \t \t \t \t \t True!"<<std::endl;
-			anycoincidence=true;
-		      }
-		    }
-		    if(anycoincidence){
-		      if(debug) std::cout<<"CSC  \t \t \t \t \t At least one RecHit inside the range, Predicted="<<stripPredicted<<" minres="<<minres<<"cm range="<<rangestrips<<"strips stripw="<<stripw<<"cm"<<std::endl;
-		      if(debug) std::cout<<"CSC  \t \t \t \t \t Norm of Cosine Directors="<<dx*dx+dy*dy+dz*dz<<"~1?"<<std::endl;
-
-		      //----RESIDUALS----
-		      if(inves){
-			float cosal = dx/sqrt(dx*dx+dz*dz);
-			if(debug) std::cout<<"CSC \t \t \t \t \t Angle="<<acos(cosal)*180/3.1415926<<" degree"<<std::endl;
-			if(debug) std::cout<<"CSC \t \t \t \t \t Filling the Residuals Histogram for globals with "<<minres<<"And the angular incidence with Cos Theta="<<-1*dz<<std::endl;
-			if(rollId.ring()==2&&rollId.roll()==1){if(cluSize==1*dupli) hGlobalResClu1R2A->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R2A->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R2A->Fill(minres);}
-			if(rollId.ring()==2&&rollId.roll()==2){if(cluSize==1*dupli) hGlobalResClu1R2B->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R2B->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R2B->Fill(minres);}
-			if(rollId.ring()==2&&rollId.roll()==3){if(cluSize==1*dupli) hGlobalResClu1R2C->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R2C->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R2C->Fill(minres);}
-			if(rollId.ring()==3&&rollId.roll()==1){if(cluSize==1*dupli) hGlobalResClu1R3A->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R3A->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R3A->Fill(minres);}
-			if(rollId.ring()==3&&rollId.roll()==2){if(cluSize==1*dupli) hGlobalResClu1R3B->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R3B->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R3B->Fill(minres);}
-			if(rollId.ring()==3&&rollId.roll()==3){if(cluSize==1*dupli) hGlobalResClu1R3C->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R3C->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R3C->Fill(minres);}
-		      }
-		      //------------------------
-
-		      sprintf(meIdRPC,"RPCResidualsFromCSC_%s",detUnitLabel);
-		      meMap[meIdRPC]->Fill(minres);
-		      
-		      sprintf(meIdRPC,"RPCDataOccupancyFromCSC_%s",detUnitLabel);
-		      meMap[meIdRPC]->Fill(stripPredicted);
-		      
-		      sprintf(meIdRPC,"RPCDataOccupancy2DFromCSC_%s",detUnitLabel);
-		      meMap[meIdRPC]->Fill(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y());
-
-		      if(debug) std::cout <<"CSC \t \t \t \t \t \t COINCEDENCE!!! Event="<<iEvent.id()<<"Filling Filling RPC Data Occupancy for "<<meIdRPC<<" with "<<stripPredicted<<std::endl;
-		    }
-		    else{
-		      RPCGeomServ rpcsrv(rollasociated->id());
-		      std::string nameRoll = rpcsrv.name();
-		      if(debug) std::cout<<"CSC \t \t \t \t \t \t A roll was ineficient in event"<<iEvent.id().event()<<std::endl;
-		      if(debug) ofrej<<"CSC \t EndCap "<<rpcRegion
-				     <<"\t cscStation "<<cscStation
-				     <<"\t cscRing "<<cscRing			   
-				     <<"\t cscChamber "<<cscChamber
-				     <<"\t Roll "<<nameRoll
-				     <<"\t Event "<<iEvent.id().event()
-				     <<"\t CSCId "<<CSCId
-				     <<"\t Event "	
-				     <<iEvent.id().event()
-				     <<"\t Run "
-				     <<iEvent.id().run()
-				     <<std::endl;
-		    }
-		  }else{
-		    if(debug) std::cout<<"CSC \t \t \t \t No the prediction is outside of this roll"<<std::endl;
-		  }//Condition for the right match
-		}else{//if extrapolation distance D is not too long
-		  if(debug) std::cout<<"CSC \t \t \t No, Exrtrapolation too long!, canceled"<<std::endl;
-		}//D so big
-	      }//loop over the rolls asociated 
-	    }//Condition over the startup geometry!!!!
-	  }//Is the segment 4D?
-	}else{
-	  if(debug) std::cout<<"CSC \t \t More than one segment in this chamber, or we are in Station Ring 1 or in Station 4"<<std::endl;
-	}
-      }
-    }else{
-      if(debug) std::cout<<"CSC This Event doesn't have any CSCSegment"<<std::endl;
-    }
-  }
-}
-
-void MuonSegmentEff::endRun(const edm::Run& r, const edm::EventSetup& iSetup){
-  if (EffSaveRootFile){
-    dbe->save(EffRootFileName);
+#include "cscpart.inl"
   }
 }
 
 
 void MuonSegmentEff::endJob()
 {
-  dbe =0;
+  std::cout<<"Begin End Job"<<std::endl;
+  
+  int indexm2[13];
+  int indexm1[13];
+  int index0[13];
+  int index1[13];
+  int index2[13];
+  std::cout<<"Starging loop 1"<<std::endl;
+  for(int j=0;j<13;j++){
+    indexm2[j]=1;
+    indexm1[j]=1;
+    index0[j]=1;
+    index1[j]=1;
+    index2[j]=1;
+  }
+
+  std::cout<<"Starging loop 2"<<std::endl;
+  int indexWheel[5];
+  for(int j=0;j<5;j++){
+    indexWheel[j]=1;
+  }
+  
+  std::ofstream oftwiki;
+  oftwiki.open("tabletotwiki.txt");
+  std::cout<<"Printing twiki header "<<std::endl;
+  oftwiki <<"|  RPC Name  |  Observed  |  Predicted  |  Efficiency %  |  Error %  |";
+  
+
+  std::map<RPCDetId, int> pred = counter[0];
+  std::map<RPCDetId, int> obse = counter[1];
+  std::map<RPCDetId, int> reje = counter[2];
+  std::map<RPCDetId, int>::iterator irpc;
+
+  //Comparing final container with all geometry
+
+  for (std::set<RPCDetId>::iterator iteraRoll = allrollstoreBarrel.begin();iteraRoll != allrollstoreBarrel.end(); iteraRoll++){
+    bool is = false;
+    for (irpc=pred.begin(); irpc!=pred.end();irpc++){
+      RPCDetId idtmp=irpc->first;
+      if(idtmp.rawId()==(*iteraRoll).rawId()){
+	is=true;
+      }
+    }
+    
+    RPCDetId id = (*iteraRoll);
+    RPCGeomServ RPCname(id);
+    std::string nameRoll = RPCname.name();
+
+    int p=0; 
+    int o=0; 
+    int r=0; 
+    
+    if(is){
+      std::cout<<"In Final container"<<RPCname.name()<<std::endl;
+      p=pred[id]; 
+      o=obse[id]; 
+      r=reje[id]; 
+      assert(p==o+r);
+    }
+    else{
+      std::cout<<"NOT in Final container"<<RPCname.name()<<std::endl;
+    }
+    
+    std::string wheel;
+    std::string rpc;
+    std::string partition;
+    
+    //-----------------------Fillin Global Histograms----------------------------------------
+    
+    
+    //std::cout<<"Doing Global Histograms "<<std::endl;
+    
+    if(id.region()==0){
+      float ef =0;
+      float er =0;
+      
+      if(p!=0){
+	ef = float(o)/float(p); 
+	er = sqrt(ef*(1.-ef)/float(p));
+      }
+      
+      ef=ef*100;
+      er=er*100;
+      
+      char cam[128];	
+      sprintf(cam,"%s",nameRoll.c_str());
+      TString camera = (TString)cam;
+      int Ring=id.ring();
+      int Sector=id.sector();
+	
+      //std::cout<<"p!=0 now going into ifs... "<<std::endl;
+
+      if(Ring==-2){
+	indexWheel[0]++;  EffGlobWm2->SetBinContent(indexWheel[0],ef);  EffGlobWm2->SetBinError(indexWheel[0],er);  EffGlobWm2->GetXaxis()->SetBinLabel(indexWheel[0],camera);
+	OGlobWm2->SetBinContent(indexWheel[0],o); OGlobWm2->GetXaxis()->SetBinLabel(indexWheel[0],camera); 
+	PGlobWm2->SetBinContent(indexWheel[0],p); PGlobWm2->GetXaxis()->SetBinLabel(indexWheel[0],camera); 
+	if(Sector==1)indexm2[1]++;  EffGlobm2s1->SetBinContent(indexm2[1],ef);  EffGlobm2s1->SetBinError(indexm2[1],er);  EffGlobm2s1->GetXaxis()->SetBinLabel(indexm2[1],camera);  
+	if(Sector==2)indexm2[2]++;  EffGlobm2s2->SetBinContent(indexm2[2],ef);  EffGlobm2s2->SetBinError(indexm2[2],er);  EffGlobm2s2->GetXaxis()->SetBinLabel(indexm2[2],camera);
+	if(Sector==3)indexm2[3]++;  EffGlobm2s3->SetBinContent(indexm2[3],ef);  EffGlobm2s3->SetBinError(indexm2[3],er);  EffGlobm2s3->GetXaxis()->SetBinLabel(indexm2[3],camera);
+	if(Sector==4)indexm2[4]++;  EffGlobm2s4->SetBinContent(indexm2[4],ef);  EffGlobm2s4->SetBinError(indexm2[4],er);  EffGlobm2s4->GetXaxis()->SetBinLabel(indexm2[4],camera);
+	if(Sector==5)indexm2[5]++;  EffGlobm2s5->SetBinContent(indexm2[5],ef);  EffGlobm2s5->SetBinError(indexm2[5],er);  EffGlobm2s5->GetXaxis()->SetBinLabel(indexm2[5],camera);
+	if(Sector==6)indexm2[6]++;  EffGlobm2s6->SetBinContent(indexm2[6],ef);  EffGlobm2s6->SetBinError(indexm2[6],er);  EffGlobm2s6->GetXaxis()->SetBinLabel(indexm2[6],camera);
+	if(Sector==7)indexm2[7]++;  EffGlobm2s7->SetBinContent(indexm2[7],ef);  EffGlobm2s7->SetBinError(indexm2[7],er);  EffGlobm2s7->GetXaxis()->SetBinLabel(indexm2[7],camera);
+	if(Sector==8)indexm2[8]++;  EffGlobm2s8->SetBinContent(indexm2[8],ef);  EffGlobm2s8->SetBinError(indexm2[8],er);  EffGlobm2s8->GetXaxis()->SetBinLabel(indexm2[8],camera);
+	if(Sector==9)indexm2[9]++;  EffGlobm2s9->SetBinContent(indexm2[9],ef);  EffGlobm2s9->SetBinError(indexm2[9],er);  EffGlobm2s9->GetXaxis()->SetBinLabel(indexm2[9],camera);
+	if(Sector==10)indexm2[10]++;  EffGlobm2s10->SetBinContent(indexm2[10],ef);  EffGlobm2s10->SetBinError(indexm2[10],er);  EffGlobm2s10->GetXaxis()->SetBinLabel(indexm2[10],camera);  
+	if(Sector==11)indexm2[11]++;  EffGlobm2s11->SetBinContent(indexm2[11],ef);  EffGlobm2s11->SetBinError(indexm2[11],er);  EffGlobm2s11->GetXaxis()->SetBinLabel(indexm2[11],camera);  
+	if(Sector==12)indexm2[12]++;  EffGlobm2s12->SetBinContent(indexm2[12],ef);  EffGlobm2s12->SetBinError(indexm2[12],er);  EffGlobm2s12->GetXaxis()->SetBinLabel(indexm2[12],camera);  
+      }
+
+      if(Ring==-1){
+	indexWheel[1]++;  EffGlobWm1->SetBinContent(indexWheel[1],ef);  EffGlobWm1->SetBinError(indexWheel[1],er);  EffGlobWm1->GetXaxis()->SetBinLabel(indexWheel[1],camera);  EffGlobWm1->GetXaxis()->LabelsOption("v");
+	OGlobWm1->SetBinContent(indexWheel[1],o);  OGlobWm1->GetXaxis()->SetBinLabel(indexWheel[1],camera); OGlobWm1->GetXaxis()->LabelsOption("v"); 
+	PGlobWm1->SetBinContent(indexWheel[1],p);  PGlobWm1->GetXaxis()->SetBinLabel(indexWheel[1],camera); PGlobWm1->GetXaxis()->LabelsOption("v"); 
+	if(Sector==1)indexm1[1]++;  EffGlobm1s1->SetBinContent(indexm1[1],ef);  EffGlobm1s1->SetBinError(indexm1[1],er);  EffGlobm1s1->GetXaxis()->SetBinLabel(indexm1[1],camera);  
+	if(Sector==2)indexm1[2]++;  EffGlobm1s2->SetBinContent(indexm1[2],ef);  EffGlobm1s2->SetBinError(indexm1[2],er);  EffGlobm1s2->GetXaxis()->SetBinLabel(indexm1[2],camera);  
+	if(Sector==3)indexm1[3]++;  EffGlobm1s3->SetBinContent(indexm1[3],ef);  EffGlobm1s3->SetBinError(indexm1[3],er);  EffGlobm1s3->GetXaxis()->SetBinLabel(indexm1[3],camera);  
+	if(Sector==4)indexm1[4]++;  EffGlobm1s4->SetBinContent(indexm1[4],ef);  EffGlobm1s4->SetBinError(indexm1[4],er);  EffGlobm1s4->GetXaxis()->SetBinLabel(indexm1[4],camera);  
+	if(Sector==5)indexm1[5]++;  EffGlobm1s5->SetBinContent(indexm1[5],ef);  EffGlobm1s5->SetBinError(indexm1[5],er);  EffGlobm1s5->GetXaxis()->SetBinLabel(indexm1[5],camera);  
+	if(Sector==6)indexm1[6]++;  EffGlobm1s6->SetBinContent(indexm1[6],ef);  EffGlobm1s6->SetBinError(indexm1[6],er);  EffGlobm1s6->GetXaxis()->SetBinLabel(indexm1[6],camera);  
+	if(Sector==7)indexm1[7]++;  EffGlobm1s7->SetBinContent(indexm1[7],ef);  EffGlobm1s7->SetBinError(indexm1[7],er);  EffGlobm1s7->GetXaxis()->SetBinLabel(indexm1[7],camera);  
+	if(Sector==8)indexm1[8]++;  EffGlobm1s8->SetBinContent(indexm1[8],ef);  EffGlobm1s8->SetBinError(indexm1[8],er);  EffGlobm1s8->GetXaxis()->SetBinLabel(indexm1[8],camera);  
+	if(Sector==9)indexm1[9]++;  EffGlobm1s9->SetBinContent(indexm1[9],ef);  EffGlobm1s9->SetBinError(indexm1[9],er);  EffGlobm1s9->GetXaxis()->SetBinLabel(indexm1[9],camera);  
+	if(Sector==10)indexm1[10]++;  EffGlobm1s10->SetBinContent(indexm1[10],ef);  EffGlobm1s10->SetBinError(indexm1[10],er);  EffGlobm1s10->GetXaxis()->SetBinLabel(indexm1[10],camera);  
+	if(Sector==11)indexm1[11]++;  EffGlobm1s11->SetBinContent(indexm1[11],ef);  EffGlobm1s11->SetBinError(indexm1[11],er);  EffGlobm1s11->GetXaxis()->SetBinLabel(indexm1[11],camera);  
+	if(Sector==12)indexm1[12]++;  EffGlobm1s12->SetBinContent(indexm1[12],ef);  EffGlobm1s12->SetBinError(indexm1[12],er);  EffGlobm1s12->GetXaxis()->SetBinLabel(indexm1[12],camera);  
+      }
+
+      if(Ring==0){
+	indexWheel[2]++;  EffGlobW0->SetBinContent(indexWheel[2],ef);  EffGlobW0->SetBinError(indexWheel[2],er);  EffGlobW0->GetXaxis()->SetBinLabel(indexWheel[2],camera);  EffGlobW0->GetXaxis()->LabelsOption("v");
+	OGlobW0->SetBinContent(indexWheel[2],o);  OGlobW0->GetXaxis()->SetBinLabel(indexWheel[2],camera); OGlobW0->GetXaxis()->LabelsOption("v"); 
+	PGlobW0->SetBinContent(indexWheel[2],p);  PGlobW0->GetXaxis()->SetBinLabel(indexWheel[2],camera); PGlobW0->GetXaxis()->LabelsOption("v"); 
+	if(Sector==1)index0[1]++;  EffGlob1->SetBinContent(index0[1],ef);  EffGlob1->SetBinError(index0[1],er);  EffGlob1->GetXaxis()->SetBinLabel(index0[1],camera);  
+	if(Sector==2)index0[2]++;  EffGlob2->SetBinContent(index0[2],ef);  EffGlob2->SetBinError(index0[2],er);  EffGlob2->GetXaxis()->SetBinLabel(index0[2],camera);  
+	if(Sector==3)index0[3]++;  EffGlob3->SetBinContent(index0[3],ef);  EffGlob3->SetBinError(index0[3],er);  EffGlob3->GetXaxis()->SetBinLabel(index0[3],camera);  
+	if(Sector==4)index0[4]++;  EffGlob4->SetBinContent(index0[4],ef);  EffGlob4->SetBinError(index0[4],er);  EffGlob4->GetXaxis()->SetBinLabel(index0[4],camera);  
+	if(Sector==5)index0[5]++;  EffGlob5->SetBinContent(index0[5],ef);  EffGlob5->SetBinError(index0[5],er);  EffGlob5->GetXaxis()->SetBinLabel(index0[5],camera);  
+	if(Sector==6)index0[6]++;  EffGlob6->SetBinContent(index0[6],ef);  EffGlob6->SetBinError(index0[6],er);  EffGlob6->GetXaxis()->SetBinLabel(index0[6],camera);  
+	if(Sector==7)index0[7]++;  EffGlob7->SetBinContent(index0[7],ef);  EffGlob7->SetBinError(index0[7],er);  EffGlob7->GetXaxis()->SetBinLabel(index0[7],camera);  
+	if(Sector==8)index0[8]++;  EffGlob8->SetBinContent(index0[8],ef);  EffGlob8->SetBinError(index0[8],er);  EffGlob8->GetXaxis()->SetBinLabel(index0[8],camera);  
+	if(Sector==9)index0[9]++;  EffGlob9->SetBinContent(index0[9],ef);  EffGlob9->SetBinError(index0[9],er);  EffGlob9->GetXaxis()->SetBinLabel(index0[9],camera);  
+	if(Sector==10)index0[10]++;  EffGlob10->SetBinContent(index0[10],ef);  EffGlob10->SetBinError(index0[10],er);  EffGlob10->GetXaxis()->SetBinLabel(index0[10],camera);  
+	if(Sector==11)index0[11]++;  EffGlob11->SetBinContent(index0[11],ef);  EffGlob11->SetBinError(index0[11],er);  EffGlob11->GetXaxis()->SetBinLabel(index0[11],camera);  
+	if(Sector==12)index0[12]++;  EffGlob12->SetBinContent(index0[12],ef);  EffGlob12->SetBinError(index0[12],er);  EffGlob12->GetXaxis()->SetBinLabel(index0[12],camera);  
+      }
+	
+      if(Ring==1){
+	indexWheel[3]++;  EffGlobW1->SetBinContent(indexWheel[3],ef);  EffGlobW1->SetBinError(indexWheel[3],er);  EffGlobW1->GetXaxis()->SetBinLabel(indexWheel[3],camera);  EffGlobW1->GetXaxis()->LabelsOption("v");
+	OGlobW1->SetBinContent(indexWheel[3],o);  OGlobW1->GetXaxis()->SetBinLabel(indexWheel[3],camera); OGlobW1->GetXaxis()->LabelsOption("v"); 
+	PGlobW1->SetBinContent(indexWheel[3],p);  PGlobW1->GetXaxis()->SetBinLabel(indexWheel[3],camera); PGlobW1->GetXaxis()->LabelsOption("v"); 
+	if(Sector==1)index1[1]++;  EffGlob1s1->SetBinContent(index1[1],ef);  EffGlob1s1->SetBinError(index1[1],er);  EffGlob1s1->GetXaxis()->SetBinLabel(index1[1],camera);  
+	if(Sector==2)index1[2]++;  EffGlob1s2->SetBinContent(index1[2],ef);  EffGlob1s2->SetBinError(index1[2],er);  EffGlob1s2->GetXaxis()->SetBinLabel(index1[2],camera);  
+	if(Sector==3)index1[3]++;  EffGlob1s3->SetBinContent(index1[3],ef);  EffGlob1s3->SetBinError(index1[3],er);  EffGlob1s3->GetXaxis()->SetBinLabel(index1[3],camera);  
+	if(Sector==4)index1[4]++;  EffGlob1s4->SetBinContent(index1[4],ef);  EffGlob1s4->SetBinError(index1[4],er);  EffGlob1s4->GetXaxis()->SetBinLabel(index1[4],camera);  
+	if(Sector==5)index1[5]++;  EffGlob1s5->SetBinContent(index1[5],ef);  EffGlob1s5->SetBinError(index1[5],er);  EffGlob1s5->GetXaxis()->SetBinLabel(index1[5],camera);  
+	if(Sector==6)index1[6]++;  EffGlob1s6->SetBinContent(index1[6],ef);  EffGlob1s6->SetBinError(index1[6],er);  EffGlob1s6->GetXaxis()->SetBinLabel(index1[6],camera);  
+	if(Sector==7)index1[7]++;  EffGlob1s7->SetBinContent(index1[7],ef);  EffGlob1s7->SetBinError(index1[7],er);  EffGlob1s7->GetXaxis()->SetBinLabel(index1[7],camera);  
+	if(Sector==8)index1[8]++;  EffGlob1s8->SetBinContent(index1[8],ef);  EffGlob1s8->SetBinError(index1[8],er);  EffGlob1s8->GetXaxis()->SetBinLabel(index1[8],camera);  
+	if(Sector==9)index1[9]++;  EffGlob1s9->SetBinContent(index1[9],ef);  EffGlob1s9->SetBinError(index1[9],er);  EffGlob1s9->GetXaxis()->SetBinLabel(index1[9],camera);  
+	if(Sector==10)index1[10]++;  EffGlob1s10->SetBinContent(index1[10],ef);  EffGlob1s10->SetBinError(index1[10],er);  EffGlob1s10->GetXaxis()->SetBinLabel(index1[10],camera);  
+	if(Sector==11)index1[11]++;  EffGlob1s11->SetBinContent(index1[11],ef);  EffGlob1s11->SetBinError(index1[11],er);  EffGlob1s11->GetXaxis()->SetBinLabel(index1[11],camera);  
+	if(Sector==12)index1[12]++;  EffGlob1s12->SetBinContent(index1[12],ef);  EffGlob1s12->SetBinError(index1[12],er);  EffGlob1s12->GetXaxis()->SetBinLabel(index1[12],camera);  
+      }
+
+	
+      if(Ring==2){
+	indexWheel[4]++;  EffGlobW2->SetBinContent(indexWheel[4],ef);  EffGlobW2->SetBinError(indexWheel[4],er);  EffGlobW2->GetXaxis()->SetBinLabel(indexWheel[4],camera);  EffGlobW2->GetXaxis()->LabelsOption("v");
+	OGlobW2->SetBinContent(indexWheel[4],o);  OGlobW2->GetXaxis()->SetBinLabel(indexWheel[4],camera); OGlobW2->GetXaxis()->LabelsOption("v"); 
+	PGlobW2->SetBinContent(indexWheel[4],p);  PGlobW2->GetXaxis()->SetBinLabel(indexWheel[4],camera); PGlobW2->GetXaxis()->LabelsOption("v"); 
+	if(Sector==1)index2[1]++;  EffGlob2s1->SetBinContent(index2[1],ef);  EffGlob2s1->SetBinError(index2[1],er);  EffGlob2s1->GetXaxis()->SetBinLabel(index2[1],camera);  
+	if(Sector==2)index2[2]++;  EffGlob2s2->SetBinContent(index2[2],ef);  EffGlob2s2->SetBinError(index2[2],er);  EffGlob2s2->GetXaxis()->SetBinLabel(index2[2],camera);  
+	if(Sector==3)index2[3]++;  EffGlob2s3->SetBinContent(index2[3],ef);  EffGlob2s3->SetBinError(index2[3],er);  EffGlob2s3->GetXaxis()->SetBinLabel(index2[3],camera);  
+	if(Sector==4)index2[4]++;  EffGlob2s4->SetBinContent(index2[4],ef);  EffGlob2s4->SetBinError(index2[4],er);  EffGlob2s4->GetXaxis()->SetBinLabel(index2[4],camera);  
+	if(Sector==5)index2[5]++;  EffGlob2s5->SetBinContent(index2[5],ef);  EffGlob2s5->SetBinError(index2[5],er);  EffGlob2s5->GetXaxis()->SetBinLabel(index2[5],camera);  
+	if(Sector==6)index2[6]++;  EffGlob2s6->SetBinContent(index2[6],ef);  EffGlob2s6->SetBinError(index2[6],er);  EffGlob2s6->GetXaxis()->SetBinLabel(index2[6],camera);  
+	if(Sector==7)index2[7]++;  EffGlob2s7->SetBinContent(index2[7],ef);  EffGlob2s7->SetBinError(index2[7],er);  EffGlob2s7->GetXaxis()->SetBinLabel(index2[7],camera);  
+	if(Sector==8)index2[8]++;  EffGlob2s8->SetBinContent(index2[8],ef);  EffGlob2s8->SetBinError(index2[8],er);  EffGlob2s8->GetXaxis()->SetBinLabel(index2[8],camera);  
+	if(Sector==9)index2[9]++;  EffGlob2s9->SetBinContent(index2[9],ef);  EffGlob2s9->SetBinError(index2[9],er);  EffGlob2s9->GetXaxis()->SetBinLabel(index2[9],camera);  
+	if(Sector==10)index2[10]++;  EffGlob2s10->SetBinContent(index2[10],ef);  EffGlob2s10->SetBinError(index2[10],er);  EffGlob2s10->GetXaxis()->SetBinLabel(index2[10],camera);  
+	if(Sector==11)index2[11]++;  EffGlob2s11->SetBinContent(index2[11],ef);  EffGlob2s11->SetBinError(index2[11],er);  EffGlob2s11->GetXaxis()->SetBinLabel(index2[11],camera);  
+	if(Sector==12)index2[12]++;  EffGlob2s12->SetBinContent(index2[12],ef);  EffGlob2s12->SetBinError(index2[12],er);  EffGlob2s12->GetXaxis()->SetBinLabel(index2[12],camera);  
+      }
+    }
+  
+    
+    //-----------------------Done Global Histogram for item in loop-------------------
+
+    if(p!=0){
+      float ef = float(o)/float(p); 
+      float er = sqrt(ef*(1.-ef)/float(p));
+      std::cout <<"\n "<<id<<"\t Predicted "<<p<<"\t Observed "<<o<<"\t Eff = "<<ef*100.<<" % +/- "<<er*100.<<" %";
+      ofeff <<"\n "<<id<<"\t Predicted "<<p<<"\t Observed "<<o<<"\t Eff = "<<ef*100.<<" % +/- "<<er*100.<<" %";
+      RPCGeomServ RPCname(id);
+      oftwiki <<"\n |  "<<RPCname.name()<<"  |  "<<o<<"  |  "<<p<<"  |  "<<ef*100.<<"  |  "<<er*100<<"  |";
+      //if(ef<0.8){
+      //std::cout<<"\t \t Warning!";
+      //ofeff<<"\t \t Warning!";
+      //} 
+    }
+    else{
+      std::cout<<"No predictions in this file p=0"<<std::endl;
+      ofeff<<"No predictions in this file p=0"<<std::endl;
+    }
+  }
+
+  //-----------------------Done Global Histograms-------------------
+  
+  
+  if(totalcounter[0]!=0){
+    float tote = float(totalcounter[1])/float(totalcounter[0]);
+    float totr = sqrt(tote*(1.-tote)/float(totalcounter[0]));
+    
+    std::cout <<"\n\n \t \t TOTAL EFFICIENCY \t Predicted "<<totalcounter[0]<<"\t Observed "<<totalcounter[1]<<"\t Eff = "<<tote*100.<<"\t +/- \t"<<totr*100.<<" %"<<std::endl;
+    std::cout <<totalcounter[1]<<" "<<totalcounter[0]<<" flagcode"<<std::endl;
+    
+    ofeff <<"\n\n \t \t TOTAL EFFICIENCY \t Predicted "<<totalcounter[0]<<"\t Observed "<<totalcounter[1]<<"\t Eff = "<<tote*100.<<"\t +/- \t"<<totr*100.<<" %"<<std::endl;
+    ofeff <<totalcounter[1]<<" "<<totalcounter[0]<<" flagcode"<<std::endl;
+    
+  }
+  else{
+    std::cout<<"No predictions in this file = 0!!!"<<std::endl;
+    ofeff <<"No predictions in this file = 0!!!"<<std::endl;
+  }
+  
+  std::vector<std::string>::iterator meIt;
+  int k = 0;
+ 
+  if(EffSaveRootFile==true){
+    for(meIt = _idList.begin(); meIt != _idList.end(); ++meIt){
+      k++;
+      const char * rpcname = (*meIt).c_str();
+
+      ///DT
+      std::cout<<rpcname[0]<<std::endl;
+      char detUnitLabel[128];
+      
+      if(rpcname[0]==87){
+	char meIdRPC [128];
+	char meIdDT [128];
+	char effIdRPC_DT [128];
+	char meIdRPC_2D [128];
+	char meIdDT_2D [128];
+	char effIdRPC_DT_2D [128];
+
+
+	sprintf(detUnitLabel ,"%s",(*meIt).c_str());
+	std::cout<<"Creating Efficiency Root File #"<<k<<" for "<<detUnitLabel<<std::endl;
+	sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
+	sprintf(meIdRPC_2D,"RPCDataOccupancy2DFromDT_%s",detUnitLabel);
+	sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
+	sprintf(meIdDT_2D,"ExpectedOccupancy2DFromDT_%s",detUnitLabel);
+	sprintf(effIdRPC_DT,"EfficienyFromDTExtrapolation_%s",detUnitLabel);
+	sprintf(effIdRPC_DT_2D,"EfficienyFromDT2DExtrapolation_%s",detUnitLabel);
+	
+	std::cout<<"done sprints now declaring map"<<std::endl;
+	
+	std::map<std::string, MonitorElement*> meMap=meCollection[*meIt];
+	
+	for(unsigned int i=1;i<=100;++i){
+	  if(meMap[meIdDT]->getBinContent(i) != 0){
+	    float eff = meMap[meIdRPC]->getBinContent(i)/meMap[meIdDT]->getBinContent(i);
+	    float erreff = sqrt(eff*(1-eff)/meMap[meIdDT]->getBinContent(i));
+	    meMap[effIdRPC_DT]->setBinContent(i,eff*100.);
+	    meMap[effIdRPC_DT]->setBinError(i,erreff*100.);
+	  }
+	}
+	for(unsigned int i=1;i<=100;++i){
+	  for(unsigned int j=1;j<=200;++j){
+	    if(meMap[meIdDT_2D]->getBinContent(i,j) != 0){
+	      float eff = meMap[meIdRPC_2D]->getBinContent(i,j)/meMap[meIdDT_2D]->getBinContent(i,j);
+	      float erreff = sqrt(eff*(1-eff)/meMap[meIdDT_2D]->getBinContent(i,j));
+	      meMap[effIdRPC_DT_2D]->setBinContent(i,j,eff*100.);
+	      meMap[effIdRPC_DT_2D]->setBinError(i,j,erreff*100.);
+	    }
+	  }
+	}
+      }else{
+	char meRPC [128];
+	char meIdCSC [128];
+	char effIdRPC_CSC [128];
+	  
+	char meRPC_2D [128];
+	char meIdCSC_2D [128];
+	char effIdRPC_CSC_2D [128];
+	
+	sprintf(detUnitLabel ,"%s",(*meIt).c_str());
+	
+	sprintf(meRPC,"RPCDataOccupancyFromCSC_%s",detUnitLabel);
+	sprintf(meRPC_2D,"RPCDataOccupancy2DFromCSC_%s",detUnitLabel);
+	
+	sprintf(meIdCSC,"ExpectedOccupancyFromCSC_%s",detUnitLabel);
+	sprintf(meIdCSC_2D,"ExpectedOccupancy2DFromCSC_%s",detUnitLabel);
+	  
+	sprintf(effIdRPC_CSC,"EfficienyFromCSCExtrapolation_%s",detUnitLabel);
+	sprintf(effIdRPC_CSC_2D,"EfficienyFromCSC2DExtrapolation_%s",detUnitLabel);
+	
+	std::map<std::string, MonitorElement*> meMap=meCollection[*meIt];
+	
+	for(unsigned int i=1;i<=100;++i){
+	  
+	  if(meMap[meIdCSC]->getBinContent(i) != 0){
+	    float eff = meMap[meRPC]->getBinContent(i)/meMap[meIdCSC]->getBinContent(i);
+	    float erreff = sqrt(eff*(1-eff)/meMap[meIdCSC]->getBinContent(i));
+	    meMap[effIdRPC_CSC]->setBinContent(i,eff*100.);
+	    meMap[effIdRPC_CSC]->setBinError(i,erreff*100.);
+	  }
+	}
+	for(unsigned int i=1;i<=100;++i){
+	  for(unsigned int j=1;j<=200;++j){
+	    if(meMap[meIdCSC_2D]->getBinContent(i,j) != 0){
+	      float eff = meMap[meRPC_2D]->getBinContent(i,j)/meMap[meIdCSC_2D]->getBinContent(i,j);
+	      float erreff = sqrt(eff*(1-eff)/meMap[meIdCSC_2D]->getBinContent(i,j));
+	      meMap[effIdRPC_CSC_2D]->setBinContent(i,j,eff*100.);
+	      meMap[effIdRPC_CSC_2D]->setBinError(i,j,erreff*100.);
+	    }
+	  }
+	}
+      }
+    }
+    std::cout<<"Saving RootFile"<<std::endl;
+    dbe->save(EffRootFileName);
+  }
+  
+  if(prodImages){
+    Ca2 = new TCanvas("Ca2","Residuals",800,600);
+
+    std::cout<<"My DQM Images"<<std::endl;
+    
+    mydqmHbxdistro->Draw();
+    mydqmHbxdistro->GetXaxis()->SetTitle("bx");
+    Ca2->SaveAs("BXDistribution.png");
+    Ca2->Clear();
+
+    mydqmHdigisdistro->Draw();
+    mydqmHdigisdistro->GetXaxis()->SetTitle("Number of digis per event");
+    Ca2->SaveAs("DigisPerEvent.png");
+    Ca2->Clear();
+
+    std::cout<<"Creating Residuals for Different Layers"<<std::endl;
+    hGlobalResLa1->Draw();
+    hGlobalResLa1->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsLayer1.png");
+    Ca2->Clear();
+
+    hGlobalResLa2->Draw();
+    hGlobalResLa2->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsLayer2.png");
+    Ca2->Clear();
+
+    hGlobalResLa3->Draw();
+    hGlobalResLa3->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsLayer3.png");
+    Ca2->Clear();
+
+    hGlobalResLa4->Draw();
+    hGlobalResLa4->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsLayer4.png");
+    Ca2->Clear();
+  
+    hGlobalResLa5->Draw();
+    hGlobalResLa5->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsLayer5.png");
+    Ca2->Clear();
+
+    hGlobalResLa6->Draw();
+    hGlobalResLa6->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsLayer6.png");
+    Ca2->Clear();
+  
+    hGlobalResClu1La1->Draw(); hGlobalResClu1La1->GetXaxis()->SetTitle("Residuals (cm)"); Ca2->SaveAs("ResidualsClu1La1.png"); Ca2->Clear();
+    hGlobalResClu1La2->Draw(); hGlobalResClu1La2->GetXaxis()->SetTitle("Residuals (cm)"); Ca2->SaveAs("ResidualsClu1La2.png"); Ca2->Clear();
+    hGlobalResClu1La3->Draw(); hGlobalResClu1La3->GetXaxis()->SetTitle("Residuals (cm)"); Ca2->SaveAs("ResidualsClu1La3.png"); Ca2->Clear();
+    hGlobalResClu1La4->Draw(); hGlobalResClu1La4->GetXaxis()->SetTitle("Residuals (cm)"); Ca2->SaveAs("ResidualsClu1La4.png"); Ca2->Clear();
+    hGlobalResClu1La5->Draw(); hGlobalResClu1La5->GetXaxis()->SetTitle("Residuals (cm)"); Ca2->SaveAs("ResidualsClu1La5.png"); Ca2->Clear();
+    hGlobalResClu1La6->Draw(); hGlobalResClu1La6->GetXaxis()->SetTitle("Residuals (cm)"); Ca2->SaveAs("ResidualsClu1La6.png"); Ca2->Clear();
+
+    hGlobalResClu2La1->Draw(); hGlobalResClu2La1->GetXaxis()->SetTitle("Residuals (cm)"); Ca2->SaveAs("ResidualsClu2La1.png"); Ca2->Clear();
+    hGlobalResClu2La2->Draw(); hGlobalResClu2La2->GetXaxis()->SetTitle("Residuals (cm)"); Ca2->SaveAs("ResidualsClu2La2.png"); Ca2->Clear();
+    hGlobalResClu2La3->Draw(); hGlobalResClu2La3->GetXaxis()->SetTitle("Residuals (cm)"); Ca2->SaveAs("ResidualsClu2La3.png"); Ca2->Clear();
+    hGlobalResClu2La4->Draw(); hGlobalResClu2La4->GetXaxis()->SetTitle("Residuals (cm)"); Ca2->SaveAs("ResidualsClu2La4.png"); Ca2->Clear();
+    hGlobalResClu2La5->Draw(); hGlobalResClu2La5->GetXaxis()->SetTitle("Residuals (cm)"); Ca2->SaveAs("ResidualsClu2La5.png"); Ca2->Clear();
+    hGlobalResClu2La6->Draw(); hGlobalResClu2La6->GetXaxis()->SetTitle("Residuals (cm)"); Ca2->SaveAs("ResidualsClu2La6.png"); Ca2->Clear();
+  
+    hGlobalResClu3La1->Draw(); hGlobalResClu3La1->GetXaxis()->SetTitle("Residuals (cm)"); Ca2->SaveAs("ResidualsClu3La1.png"); Ca2->Clear();
+    hGlobalResClu3La2->Draw(); hGlobalResClu3La2->GetXaxis()->SetTitle("Residuals (cm)"); Ca2->SaveAs("ResidualsClu3La2.png"); Ca2->Clear();
+    hGlobalResClu3La3->Draw(); hGlobalResClu3La3->GetXaxis()->SetTitle("Residuals (cm)"); Ca2->SaveAs("ResidualsClu3La3.png"); Ca2->Clear();
+    hGlobalResClu3La4->Draw(); hGlobalResClu3La4->GetXaxis()->SetTitle("Residuals (cm)"); Ca2->SaveAs("ResidualsClu3La4.png"); Ca2->Clear();
+    hGlobalResClu3La5->Draw(); hGlobalResClu3La5->GetXaxis()->SetTitle("Residuals (cm)"); Ca2->SaveAs("ResidualsClu3La5.png"); Ca2->Clear();
+    hGlobalResClu3La6->Draw(); hGlobalResClu3La6->GetXaxis()->SetTitle("Residuals (cm)"); Ca2->SaveAs("ResidualsClu3La6.png"); Ca2->Clear();
+
+    std::ofstream layertableClu1;
+    layertableClu1.open("layertableClu1.txt");
+    layertableClu1<<"|  Layer  |  RMS for Cluster Size =1  |  Strip Width / sqrt(12)  |"<<std::endl;
+    layertableClu1<<"|  1  |  "<<hGlobalResClu1La1->GetRMS()<<"  |    | "<<std::endl; 
+    layertableClu1<<"|  2  |  "<<hGlobalResClu1La2->GetRMS()<<"  |    | "<<std::endl; 
+    layertableClu1<<"|  3  |  "<<hGlobalResClu1La3->GetRMS()<<"  |    | "<<std::endl; 
+    layertableClu1<<"|  4  |  "<<hGlobalResClu1La4->GetRMS()<<"  |    | "<<std::endl; 
+    layertableClu1<<"|  5  |  "<<hGlobalResClu1La5->GetRMS()<<"  |    | "<<std::endl; 
+    layertableClu1<<"|  6  |  "<<hGlobalResClu1La6->GetRMS()<<"  |    | "<<std::endl; 
+  
+    layertableClu1.close();
+
+    std::ofstream layertableClu3;
+    layertableClu3.open("layertableClu3.txt");
+    layertableClu3<<"|  Layer  |  RMS for Cluster Size =1  |  Strip Width / sqrt(12)  |"<<std::endl;
+    layertableClu3<<"|  1  |  "<<hGlobalResClu3La1->GetRMS()<<"  |    | "<<std::endl; 
+    layertableClu3<<"|  2  |  "<<hGlobalResClu3La2->GetRMS()<<"  |    | "<<std::endl; 
+    layertableClu3<<"|  3  |  "<<hGlobalResClu3La3->GetRMS()<<"  |    | "<<std::endl; 
+    layertableClu3<<"|  4  |  "<<hGlobalResClu3La4->GetRMS()<<"  |    | "<<std::endl; 
+    layertableClu3<<"|  5  |  "<<hGlobalResClu3La5->GetRMS()<<"  |    | "<<std::endl; 
+    layertableClu3<<"|  6  |  "<<hGlobalResClu3La6->GetRMS()<<"  |    | "<<std::endl; 
+  
+    layertableClu3.close();
+  }
+
+ 
+  //fOutputFile->Close();//??? Parece que esto borra el contenido del archivo!!!
+
+  ofeff.close();
+  oftwiki.close();
+  ofrej.close();
 }

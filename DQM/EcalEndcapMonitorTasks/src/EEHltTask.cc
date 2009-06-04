@@ -1,8 +1,8 @@
 /*
  * \file EEHltTask.cc
  *
- * $Date: 2008/09/15 11:02:49 $
- * $Revision: 1.6 $
+ * $Date: 2009/05/29 16:58:10 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -13,6 +13,8 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -26,8 +28,6 @@
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
-
 #include <DQM/EcalEndcapMonitorTasks/interface/EEHltTask.h>
 
 using namespace cms;
@@ -37,6 +37,8 @@ using namespace std;
 EEHltTask::EEHltTask(const ParameterSet& ps){
 
   init_ = false;
+
+  initGeometry_ = false;
 
   dqmStore_ = Service<DQMStore>().operator->();
 
@@ -61,6 +63,8 @@ EEHltTask::EEHltTask(const ParameterSet& ps){
   meEEFedsOccupancy_ = 0;
   meEEFedsSizeErrors_ = 0;
   meEEFedsIntegrityErrors_ = 0;
+
+  map = 0;
   
 }
 
@@ -77,7 +81,7 @@ void EEHltTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/FEDIntegrity");
   }
 
-  Numbers::initGeometry(c, false);
+  initGeometry(c);
 
 }
 
@@ -171,11 +175,9 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EEDetIdCollection::const_iterator idItr = ids0->begin(); idItr != ids0->end(); ++idItr ) {
 
-      EEDetId id = (*idItr);
+      int ism = iSM( *idItr );
 
-      int ism = Numbers::iSM( id );
-
-      FedsSizeErrors[ism-1]++;
+      if ( ism > -1 ) FedsSizeErrors[ism-1]++;
 
     }
 
@@ -184,7 +186,6 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 //    LogWarning("EEHltTask") << EEDetIdCollection0_ << " not available";
 
   }
-
 
   edm::Handle<FEDRawDataCollection> allFedRawData;
 
@@ -206,7 +207,7 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 	  
 	  uint64_t * pData = (uint64_t *)(fedData.data());
 	  uint64_t * fedTrailer = pData + (length - 1);
-	  bool crcError = (*fedTrailer >> 2 ) & 0x1; 
+	  bool crcError = (*fedTrailer >> 2 ) & 0x1;
 	  
 	  if (crcError) FedsSizeErrors[ism-1]++;
 	  
@@ -241,12 +242,10 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EEDetIdCollection::const_iterator idItr = ids1->begin(); idItr != ids1->end(); ++idItr ) {
 
-      EEDetId id = (*idItr);
-
-      int ism = Numbers::iSM( id );
+      int ism = iSM( *idItr );
       int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
       
-      meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
+      if ( ism > -1 ) meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
 
     }
 
@@ -262,12 +261,10 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EEDetIdCollection::const_iterator idItr = ids2->begin(); idItr != ids2->end(); ++idItr ) {
 
-      EEDetId id = (*idItr);
-
-      int ism = Numbers::iSM( id );
+      int ism = iSM( *idItr );
       int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
 
-      meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
+      if ( ism > -1 ) meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
 
     }
 
@@ -283,12 +280,10 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EEDetIdCollection::const_iterator idItr = ids3->begin(); idItr != ids3->end(); ++idItr ) {
 
-      EEDetId id = (*idItr);
-
-      int ism = Numbers::iSM( id );
+      int ism = iSM( *idItr );
       int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
 
-      meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
+      if ( ism > -1 ) meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
 
     }
 
@@ -304,14 +299,12 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids4->begin(); idItr != ids4->end(); ++idItr ) {
 
-      EcalElectronicsId id = (*idItr);
+      if ( subDet( *idItr ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
+      int ism = iSM( *idItr );
+      int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
 
-      int ismt = Numbers::iSM( id );
-      int fednumber = ( ismt < 10 ) ? 600 + ismt : 636 + ismt;
-
-      meEEFedsIntegrityErrors_->Fill( fednumber, 1./34.);
+      if ( ism > -1 ) meEEFedsIntegrityErrors_->Fill( fednumber, 1./34.);
 
     }
 
@@ -327,14 +320,12 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids5->begin(); idItr != ids5->end(); ++idItr ) {
 
-      EcalElectronicsId id = (*idItr);
+      if ( subDet( *idItr ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
-
-      int ism = Numbers::iSM( id );
+      int ism = iSM( *idItr );
       int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
 
-      meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
+      if ( ism > -1 ) meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
 
     }
 
@@ -350,14 +341,12 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++idItr ) {
 
-      EcalElectronicsId id = (*idItr);
+      if ( subDet( *idItr ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
+      int ism = iSM( *idItr );
+      int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
 
-      int ismt = Numbers::iSM( id );
-      int fednumber = ( ismt < 10 ) ? 600 + ismt : 636 + ismt;
-
-      meEEFedsIntegrityErrors_->Fill( fednumber, 1./34.);
+      if ( ism > -1 ) meEEFedsIntegrityErrors_->Fill( fednumber, 1./34.);
 
     }
 
@@ -373,14 +362,12 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids7->begin(); idItr != ids7->end(); ++idItr ) {
 
-      EcalElectronicsId id = (*idItr);
+      if ( subDet( *idItr ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
-
-      int ism = Numbers::iSM( id );
+      int ism = iSM( *idItr );
       int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
 
-      meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
+      if ( ism > -1 ) meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
 
     }
 
@@ -396,14 +383,12 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids8->begin(); idItr != ids8->end(); ++idItr ) {
 
-      EcalElectronicsId id = (*idItr);
+      if ( subDet( *idItr ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
-
-      int ism = Numbers::iSM( id );
+      int ism = iSM( *idItr );
       int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
 
-      meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
+      if ( ism > -1 ) meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
 
     }
 
@@ -419,14 +404,12 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids9->begin(); idItr != ids9->end(); ++idItr ) {
 
-      EcalElectronicsId id = (*idItr);
+      if ( subDet( *idItr ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
-
-      int ism = Numbers::iSM( id );
+      int ism = iSM( *idItr );
       int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
 
-      meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
+      if ( ism > -1 ) meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
 
     }
 
@@ -435,6 +418,55 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
     LogWarning("EEHltTask") << EcalElectronicsIdCollection6_ << " not available";
 
   }
+
+}
+
+//-------------------------------------------------------------------------
+
+void EEHltTask::initGeometry( const edm::EventSetup& setup ) {
+
+  if( initGeometry_ ) return;
+
+  initGeometry_ = true;
+
+  edm::ESHandle< EcalElectronicsMapping > handle;
+  setup.get< EcalMappingRcd >().get(handle);
+  map = handle.product();
+
+  if( ! map ) LogWarning("EEHltTask") << "EcalElectronicsMapping not available";
+
+}
+
+int EEHltTask::iSM( const EEDetId& id ) {
+
+  if( ! map ) return -1;
+
+  EcalElectronicsId eid = map->getElectronicsId(id);
+  int idcc = eid.dccId();
+
+  // EE-
+  if( idcc >=  1 && idcc <=  9 ) return( idcc );
+
+  // EE+
+  if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
+
+  LogWarning("EEHltTask") << "Wrong DCC id: dcc = " << idcc;
+  return -1;
+
+}
+
+int EEHltTask::iSM( const EcalElectronicsId& id ) {
+
+  int idcc = id.dccId();
+
+  // EE-
+  if( idcc >=  1 && idcc <=  9 ) return( idcc );
+
+  // EE+
+  if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
+
+  LogWarning("EEHltTask") << "Wrong DCC id: dcc = " << idcc;
+  return -1;
 
 }
 

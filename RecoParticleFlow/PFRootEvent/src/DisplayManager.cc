@@ -1291,14 +1291,16 @@ void DisplayManager::loadGPFBlocks()
     edm::OwnVector< reco::PFBlockElement >::const_iterator iter;
     for( iter =((*(em_->pfBlocks_))[ibl].elements()).begin();
          iter != ((*(em_->pfBlocks_))[ibl].elements()).end();iter++) {
-      //std::cout<<"elem index "<<(*iter).index()<<"-type:"
-      //      <<(*iter).type()<<std::flush<<std::endl;
+
+      //COLIN
+//       std::cout<<"elem index "<<(*iter).index()<<"-type:"
+//            <<(*iter).type()<<std::flush<<std::endl;
       int ident=-1;  
        
       reco::PFBlockElement::Type type = (*iter).type();
       switch (type) {
       case reco::PFBlockElement::NONE :
-        std::cout<<"unknown PFBlock element"<<std::endl;
+	assert(0);
         break;
       case reco::PFBlockElement::TRACK:
         {
@@ -1341,7 +1343,7 @@ void DisplayManager::loadGPFBlocks()
         }
       break;
       default: 
-        std::cout<<"unknown PFBlock element"<<std::endl;
+        std::cout<<"unknown PFBlock element of type "<<type<<std::endl;
         break; 
       } //end switch 
       pair <int, int> idElem;

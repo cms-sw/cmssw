@@ -7,8 +7,8 @@ KFFittingSmoother = cms.ESProducer("KFFittingSmootherESProducer",
     Smoother = cms.string('KFSmoother'),
     ComponentName = cms.string('KFFittingSmoother'),
     RejectTracks = cms.bool(True),
-    BreakTrajWith2ConsecutiveMissing = cms.bool(True),
-    NoInvalidHitsBeginEnd  = cms.bool(True)
+    BreakTrajWith2ConsecutiveMissing = cms.bool(False),
+    NoInvalidHitsBeginEnd  = cms.bool(False)
 )
 
 

@@ -26,6 +26,9 @@ namespace edm {
     void dropUnwantedBranches(std::vector<std::string> const& wantedBranches) {
       input_->dropUnwantedBranches(wantedBranches);
     }
+    void endJob () {
+      input_->doEndJob();
+    }
 
   private:
     std::string const type_;

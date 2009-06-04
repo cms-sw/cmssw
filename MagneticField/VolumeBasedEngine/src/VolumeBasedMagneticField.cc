@@ -6,15 +6,41 @@ VolumeBasedMagneticField::VolumeBasedMagneticField( const edm::ParameterSet& con
 						    std::vector<MagBLayer *> theBLayers,
 						    std::vector<MagESector *> theESectors,
 						    std::vector<MagVolume6Faces*> theBVolumes,
-						    std::vector<MagVolume6Faces*> theEVolumes, float rMax, float zMax, const MagneticField* param) : 
+						    std::vector<MagVolume6Faces*> theEVolumes, 
+						    float rMax, float zMax, 
+						    const MagneticField* param,
+						    bool isParamFieldOwned) : 
   field(new MagGeometry(config,theBLayers,theESectors,theBVolumes,theEVolumes)), 
   maxR(rMax),
   maxZ(zMax),
-  paramField(param)
-{}
+  paramField(param),
+  magGeomOwned(true),
+  paramFieldOwned(isParamFieldOwned)
+{ 
+  theNominalValue = MagneticField::nominalValue();
+}
+
+
+VolumeBasedMagneticField::VolumeBasedMagneticField(const VolumeBasedMagneticField& vbf) : 
+  field(vbf.field),
+  maxR(vbf.maxR),
+  maxZ(vbf.maxZ),
+  paramField(vbf.paramField),
+  magGeomOwned(false),
+  paramFieldOwned(false),
+  theNominalValue(vbf.theNominalValue) {
+  // std::cout << "VolumeBasedMagneticField::clone() (shallow copy)" << std::endl;
+}
+
+
+MagneticField* VolumeBasedMagneticField::clone() const {
+  return new VolumeBasedMagneticField(*this);
+}
+
 
 VolumeBasedMagneticField::~VolumeBasedMagneticField(){
-  delete field;
+  if(magGeomOwned) delete field;
+  if(paramFieldOwned) delete paramField;
 }
 
 GlobalVector VolumeBasedMagneticField::inTesla (const GlobalPoint& gp) const {

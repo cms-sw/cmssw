@@ -1,6 +1,6 @@
 /** \class HLTPhotonTrackIsolFilter
  *
- * $Id: HLTPhotonTrackIsolFilter.cc,v 1.7 2007/12/07 14:41:33 ghezzi Exp $
+ * $Id: HLTPhotonTrackIsolFilter.cc,v 1.9 2009/01/20 11:30:38 covarell Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -15,6 +15,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -26,15 +28,17 @@ HLTPhotonTrackIsolFilter::HLTPhotonTrackIsolFilter(const edm::ParameterSet& iCon
   candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
   isoTag_ = iConfig.getParameter< edm::InputTag > ("isoTag");
   nonIsoTag_ = iConfig.getParameter< edm::InputTag > ("nonIsoTag");
-  numtrackisolcut_  = iConfig.getParameter<double> ("numtrackisolcut");
+  ptOrNumtrackisolcut_  = iConfig.getParameter<double> ("ptOrNumtrackisolcut");
+  pttrackisolOverEcut_ = iConfig.getParameter<double> ("pttrackisolOverEcut");
+  pttrackisolOverE2cut_ = iConfig.getParameter<double> ("pttrackisolOverE2cut");
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
   doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
 
-   store_ = iConfig.getUntrackedParameter<bool> ("SaveTag",false) ;
-   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
-   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
+  store_ = iConfig.getUntrackedParameter<bool> ("SaveTag",false) ;
+  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
+  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
 
-  //register your products
+//register your products
 produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
@@ -85,8 +89,15 @@ HLTPhotonTrackIsolFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
     }
 
     float vali = mapi->val;
-    
-    if ( vali < numtrackisolcut_) {
+    float energy = ref->superCluster()->energy();
+
+    if ( vali <= ptOrNumtrackisolcut_) {
+      n++;
+      filterproduct->addObject(TriggerPhoton, ref);
+      continue;
+    }
+    if (energy > 0.)
+      if ( vali/energy <= pttrackisolOverEcut_ || vali/(energy*energy) <= pttrackisolOverE2cut_ ) {
       n++;
       filterproduct->addObject(TriggerPhoton, ref);
     }

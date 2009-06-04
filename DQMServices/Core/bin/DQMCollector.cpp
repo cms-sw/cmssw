@@ -4,6 +4,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include "TROOT.h"
+#include <cstdlib>
 
 sig_atomic_t s_stop = 0;
 static void interrupt (int sig) 

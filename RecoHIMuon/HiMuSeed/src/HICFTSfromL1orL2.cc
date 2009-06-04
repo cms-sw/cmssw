@@ -19,8 +19,10 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL1(vector<L1MuGMTExte
   vector<FreeTrajectoryState> ftsL1;
 
   int ngmt = gmt.size();
+#ifdef DEBUG
   cout << "Number of muons found by the L1 Global Muon TRIGGER : "
        << ngmt << endl;
+#endif
   if(ngmt<0) {
     return ftsL1;
   } 
@@ -47,8 +49,10 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL2(const RecoChargedC
   RecoChargedCandidateCollection::const_iterator recmuon = recmuons.begin();
 
   int nrec = recmuons.size();
+#ifdef DEBUG
   cout << "Number of muons found by the L2 TRIGGER : "
        << nrec << endl;
+#endif
   for(recmuon=recmuons.begin(); recmuon!=recmuons.end(); recmuon++)
   {
   ftsL2.push_back(FTSfromL2((*recmuon)));
@@ -70,8 +74,10 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromStandAlone(const Trac
   TrackCollection::const_iterator recmuon = recmuons.begin();
 
   int nrec = recmuons.size();
+#ifdef DEBUG
   cout << "Number of muons found by the StandAlone : "
        << nrec << endl;
+#endif
   for(recmuon=recmuons.begin(); recmuon!=recmuons.end(); recmuon++)
   {
   ftsL2.push_back(FTSfromStandAlone((*recmuon)));
@@ -92,8 +98,10 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL2(const TrackCollect
   TrackCollection::const_iterator recmuon = recmuons.begin();
 
   int nrec = recmuons.size();
+#ifdef DEBUG
   cout << "Number of muons found by the StandAlone : "
        << nrec << endl;
+#endif
   for(recmuon=recmuons.begin(); recmuon!=recmuons.end(); recmuon++)
   {
   ftsL2.push_back(FTSfromStandAlone((*recmuon)));

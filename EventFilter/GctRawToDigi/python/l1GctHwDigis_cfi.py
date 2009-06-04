@@ -4,15 +4,16 @@ l1GctHwDigis = cms.EDProducer("GctRawToDigi",
     inputLabel = cms.InputTag("source"),
     gctFedId = cms.int32(745),
     hltMode = cms.bool(False),
-    grenCompatibilityMode = cms.bool(False),
-    unpackRct = cms.untracked.bool(True),
-    unpackInternEm = cms.untracked.bool(False),
-    unpackInternJets = cms.untracked.bool(False),
-    unpackFibres = cms.untracked.bool(False),
-    unpackEm = cms.untracked.bool(True),
-    unpackJets = cms.untracked.bool(True),
-    unpackEtSums = cms.untracked.bool(True),
+    unpackSharedRegions = cms.bool(False),
+    unpackerVersion = cms.uint32(0), #  ** SEE BELOW FOR DETAILS OF THIS OPTION **
     verbose = cms.untracked.bool(False)
 )
 
-
+# Details of "unpackerVersion" option:
+# 
+#   value   |                        Unpacker/RAW Format Version 
+#-----------|---------------------------------------------------------------------------------
+#     0     |   Auto-detects RAW Format in use - the recommended option.
+#     1     |   Force usage of the Monte-Carlo Legacy unpacker (unpacks DigiToRaw events).
+#     2     |   Force usage of the RAW Format V35 unpacker.
+#     3     |   Force usage of the RAW Format V38 unpacker.

@@ -3,7 +3,6 @@
 #define __LASENDCAPALGORITHM_H
 
 #include <iostream>
-#include <iomanip>
 #include <vector>
 #include <cmath>
 

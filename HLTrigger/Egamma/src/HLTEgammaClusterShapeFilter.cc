@@ -1,6 +1,6 @@
 /** \class HLTEgammaClusterShapeFilter
  *
- * $Id: HLTEgammaClusterShapeFilter.cc,v 1.11 2008/04/25 15:18:51 ghezzi Exp $
+ * $Id: HLTEgammaClusterShapeFilter.cc,v 1.2 2009/01/15 14:31:49 covarell Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -18,23 +18,23 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
+
 //////////////////////////////////////////////////////
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 //
 // constructors and destructor
 //
 HLTEgammaClusterShapeFilter::HLTEgammaClusterShapeFilter(const edm::ParameterSet& iConfig)
 {
   candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
-  
-  ecalRechitEBTag_ = iConfig.getParameter< edm::InputTag > ("ecalRechitEB");
-  ecalRechitEETag_ = iConfig.getParameter< edm::InputTag > ("ecalRechitEE");
+  isoTag_ = iConfig.getParameter< edm::InputTag > ("isoTag");
+  nonIsoTag_ = iConfig.getParameter< edm::InputTag > ("nonIsoTag");
 
   thresholdEB_ = iConfig.getParameter<double> ("BarrelThreshold");
   thresholdEE_ = iConfig.getParameter<double> ("EndcapThreshold");
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
-  //doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
+  doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
 
   store_ = iConfig.getUntrackedParameter<bool> ("SaveTag",false) ;
   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
@@ -66,39 +66,42 @@ HLTEgammaClusterShapeFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;       
   PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
 
-  EcalClusterLazyTools lazyTools( iEvent, iSetup, ecalRechitEBTag_, ecalRechitEETag_ );
+  // retrieve cluster shape association map (iso)
+  edm::Handle<reco::RecoEcalCandidateIsolationMap> depMap;
+  iEvent.getByLabel (isoTag_,depMap);
+  
+  // retrieve cluster shape association map (non iso)
+  edm::Handle<reco::RecoEcalCandidateIsolationMap> depNonIsoMap;
+  if (!doIsolated_) iEvent.getByLabel (nonIsoTag_,depNonIsoMap);
+
   // look at all SC,  check cuts and add to filter object
   int n = 0;
   
   for (unsigned int i=0; i<recoecalcands.size(); i++) {
 
-     ref = recoecalcands[i] ;
+    ref = recoecalcands[i] ;
      
-    //std::cout<<"MARCO HLTEgammaClusterShapeFilter i "<<i<<" "<<std::endl;
-    //std::cout<<"MARCO HLTEgammaClusterShapeFilter candref "<<(long) ref<<" "<<std::endl;    
-     //  reco::RecoEcalCandidateRef recr = ref.castTo<reco::RecoEcalCandidateRef>();
-    //std::cout<<"MARCO HLTEgammaClusterShapeFilter recr "<<recr<<" "<<std::endl;
-    
-       //for(reco::SuperClusterCollection::const_iterator SCit = scHandle->begin(); SCit != scHandle->end(); SCit++) {
-    std::vector<float> vCov = lazyTools.covariances( *(ref->superCluster()->seed()) );
-    
-    double sigmaee = sqrt(vCov[0]);
+    reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*depMap).find( ref );
+    if( mapi == (*depMap).end() && !doIsolated_) mapi = (*depNonIsoMap).find( ref ); 
+
     float EtaSC = fabs(ref->eta());
-    if(EtaSC < 1.479 ) {//Barrel
+    float sigmaee = mapi->val;
+
+    if(EtaSC < 1.479 ) {  // Barrel
       if (sigmaee < thresholdEB_ ) {
 	n++;
-	filterproduct->addObject(TriggerCluster, ref);
-      }
-    }
-    else {//Endcap
-      sigmaee = sigmaee - 0.02*(EtaSC - 2.3);
+	filterproduct->addObject(TriggerCluster, ref); 
+      } 
+    } 
+    else {  //Endcap
+      // sigmaee = sigmaee - 0.02*(EtaSC - 2.3);  // correction moved to producer
       if (sigmaee < thresholdEE_ ) {
 	n++;
-	filterproduct->addObject(TriggerCluster, ref);
-      }     
-    }
-    
-  }//end of loop ofver recoecalcands
+	filterproduct->addObject(TriggerCluster, ref); 
+      }      
+    } 
+     
+  }//end of loop ofver recoecalcands 
   
    // filter decision
    bool accept(n>=ncandcut_);
