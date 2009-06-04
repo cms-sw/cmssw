@@ -59,6 +59,8 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid, int type)
      if(type==0) sfolder << "/" <<smodule;
      //if(type==3) sfolder << "/all_" << smodule;
      
+     //std::cout<<"set barrel folder: "<<rawdetid<<" : "<<sfolder.str().c_str()<<std::endl;
+     
      dbe_->setCurrentFolder(sfolder.str().c_str());
      flag = true;
    } 
@@ -95,6 +97,9 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid, int type)
 //       if(type==6){
 // 	sfolder << "/" << spanel << "_all_" << smodule;
 //       }
+     
+     //std::cout<<"set endcap folder: "<<rawdetid<<" : "<<sfolder.str().c_str()<<std::endl;
+     
       dbe_->setCurrentFolder(sfolder.str().c_str());
       flag = true;
 
@@ -122,6 +127,7 @@ void SiPixelFolderOrganizer::getModuleFolder(const uint32_t& rawdetid,
                                              std::string& path) {
 
   path = rootFolder;
+  //std::cout<<"rawdetis: "<<rawdetid<<" , path= "<<path<<std::endl;
   if(rawdetid == 0) {
     return;
   }else if(DetId::DetId(rawdetid).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
@@ -131,16 +137,24 @@ void SiPixelFolderOrganizer::getModuleFolder(const uint32_t& rawdetid,
     int DBladder = PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).ladderName();
     int DBmodule = PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).moduleName();
     
-    char sshell[80];  sprintf(sshell, "Shell_%i",   DBshell);
+    //char sshell[80];  sprintf(sshell, "Shell_%i",   DBshell);
     char slayer[80];  sprintf(slayer, "Layer_%i",   DBlayer);
     char sladder[80]; sprintf(sladder,"Ladder_%02i",DBladder);
     char smodule[80]; sprintf(smodule,"Module_%i",  DBmodule);
     
-    path = path + "/" + subDetectorFolder + "/" + sshell + "/" + slayer + "/" + sladder;
-    if(PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).isHalfModule() )
-      path = path + "H"; 
-    else path = path + "F";
-    path = path + smodule;
+    std::ostringstream sfolder;
+    sfolder << rootFolder << "/" << subDetectorFolder << "/Shell_" <<DBshell << "/" << slayer << "/" << sladder;
+    if ( PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).isHalfModule() ) sfolder <<"H"; 
+    else sfolder <<"F";
+    sfolder << "/" <<smodule;
+    path = sfolder.str().c_str();
+   
+    //path = path + "/" + subDetectorFolder + "/" + sshell + "/" + slayer + "/" + sladder;
+    //if(PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).isHalfModule() )
+    //  path = path + "H"; 
+    //else path = path + "F";
+    //path = path + "/" + smodule;
+
   }else if(DetId::DetId(rawdetid).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
     std::string subDetectorFolder = "Endcap";
     PixelEndcapName::HalfCylinder side = PixelEndcapName::PixelEndcapName(DetId::DetId(rawdetid)).halfCylinder();
@@ -149,13 +163,22 @@ void SiPixelFolderOrganizer::getModuleFolder(const uint32_t& rawdetid,
     int panel  = PixelEndcapName::PixelEndcapName(DetId::DetId(rawdetid)).pannelName();
     int module = PixelEndcapName::PixelEndcapName(DetId::DetId(rawdetid)).plaquetteName();
 
-    char shc[80];  sprintf(shc,  "HalfCylinder_%i",side);
+    //char shc[80];  sprintf(shc,  "HalfCylinder_%i",side);
     char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
     char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
     char spanel[80]; sprintf(spanel, "Panel_%i",panel);
     char smodule[80];sprintf(smodule,"Module_%i",module);
-    path = path + "/" + subDetectorFolder + "/" + shc + "/" + sdisk + "/" + sblade + "/" + spanel + "/" + smodule;
+
+    std::ostringstream sfolder;
+    sfolder <<rootFolder <<"/" << subDetectorFolder << "/HalfCylinder_" << side << "/" << sdisk << "/" << sblade << "/" << spanel << "/" << smodule;
+    path = sfolder.str().c_str();
+    
+    //path = path + "/" + subDetectorFolder + "/" + shc + "/" + sdisk + "/" + sblade + "/" + spanel + "/" + smodule;
+
   }else throw cms::Exception("LogicError")
      << "[SiPixelFolderOrganizer::getModuleFolder] Not a Pixel detector DetId ";
+     
+  //std::cout<<"resulting final path name: "<<path<<std::endl;   
+     
   return;
 }
