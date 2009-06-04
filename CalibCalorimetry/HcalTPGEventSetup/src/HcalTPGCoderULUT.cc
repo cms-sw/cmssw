@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Fri Sep 15 11:49:44 CDT 2006
-// $Id: HcalTPGCoderULUT.cc,v 1.6 2008/01/30 08:44:17 tulika Exp $
+// $Id: HcalTPGCoderULUT.cc,v 1.7 2009/03/28 19:12:07 tulika Exp $
 //
 //
 
@@ -56,6 +56,7 @@ private:
   bool read_Ascii;
   bool read_XML;
   bool LUTGenerationMode;
+  bool DumpL1TriggerObjects;
   std::string TagName;
   std::string AlgoName;
 
@@ -91,6 +92,7 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig)
   else ifilename_=new edm::FileInPath(iConfig.getParameter<edm::FileInPath>("filename"));
 
   LUTGenerationMode = iConfig.getParameter<bool>("LUTGenerationMode");
+  DumpL1TriggerObjects = iConfig.getParameter<bool>("DumpL1TriggerObjects");
   TagName = iConfig.getParameter<std::string>("TagName");
   AlgoName = iConfig.getParameter<std::string>("AlgoName");
 
@@ -110,7 +112,7 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig)
    else {
      edm::LogInfo("HCAL") << "Using " << ifilename_->fullPath() << " for HcalTPGCoderULUT initialization";
      theCoder=new HcaluLUTTPGCoder(ifilename_->fullPath().c_str());
-	  theCoder->SetLUTGenerationMode(LUTGenerationMode);
+	  theCoder->SetLUTGenerationMode(LUTGenerationMode, DumpL1TriggerObjects);
 	  theCoder->SetLUTInfo(TagName,AlgoName);
      coder_=ReturnType(theCoder);
    }  

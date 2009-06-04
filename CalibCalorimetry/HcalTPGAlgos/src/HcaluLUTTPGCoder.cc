@@ -44,6 +44,7 @@ HcaluLUTTPGCoder::HcaluLUTTPGCoder(const char* filename, bool read_Ascii_LUTs, b
 //  CaloTPGTranscoderULUT("CalibCalorimetry/CaloTPG/data/outputLUTtranscoder_CRUZET_part3_v2.dat","");
 //  CaloTPGTranscoderULUT();
 	LUTGenerationMode = false;
+      DumpL1TriggerObjects = false;
 	TagName = "";
 	AlgoName = "";
 }
@@ -599,7 +600,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
      }
    }
 
-	if(LUTGenerationMode){
+	if(LUTGenerationMode && DumpL1TriggerObjects){
 		//Test Dump HcalL1TriggerObjects
 		HcalL1TrigObjCol->setTagString(TagName);
 		HcalL1TrigObjCol->setAlgoString(AlgoName);

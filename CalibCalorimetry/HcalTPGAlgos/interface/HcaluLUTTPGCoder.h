@@ -23,8 +23,8 @@ class HcalDbService;
   * [LUT 1(127)] [LUT 2(127)] ...
   * </pre>
   *
-  * $Date: 2008/05/01 20:43:29 $
-  * $Revision: 1.15 $
+  * $Date: 2009/03/28 19:12:06 $
+  * $Revision: 1.16 $
   * \author M. Weinberger -- TAMU
   * \author Tulika Bose and Greg Landsberg -- Brown
   */
@@ -44,7 +44,10 @@ public:
   void update(const char* filename);
   void updateXML(const char* filename);
   void PrintTPGMap();
-  void SetLUTGenerationMode(bool b){ LUTGenerationMode = b; };
+  void SetLUTGenerationMode(bool gen, bool dump=false){ 
+     LUTGenerationMode = gen; 
+     DumpL1TriggerObjects = dump;
+  };
   void SetLUTInfo(const std::string& tag, const std::string& algo){
 	  TagName = tag;
 	  AlgoName = algo;
@@ -65,6 +68,7 @@ private:
   float *_ped;
   static const float nominal_gain;              // Nominal HB/HE gain in GeV/fC
   bool LUTGenerationMode;
+  bool DumpL1TriggerObjects;
   std::string TagName;
   std::string AlgoName;
 };
