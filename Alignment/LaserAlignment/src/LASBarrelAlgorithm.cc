@@ -355,10 +355,10 @@ void fcn( int &npar, double *gin, double &f, double *par, int iflag )  {
   // the z positions of the halfbarrel_end_faces / outer_TEC_disks (in mm);
   // parameters are: det, side(0=+/1=-), z(lower/upper). TECs have no side (use side = 0)
   std::vector<std::vector<std::vector<double> > > endFaceZPositions( 4, std::vector<std::vector<double> >( 2, std::vector<double>( 2, 0. ) ) );
-  endFaceZPositions.at( 0 ).at( 0 ).at( 0 ) = 1250.;  // TEC+, *, disk1 ///
-  endFaceZPositions.at( 0 ).at( 0 ).at( 1 ) = 2595.;  // TEC+, *, disk9 /// SIDE INFORMATION
-  endFaceZPositions.at( 1 ).at( 0 ).at( 0 ) = -2595.; // TEC-, *, disk1 /// MEANINGLESS FOR TEC -> USE .at(0)!
-  endFaceZPositions.at( 1 ).at( 0 ).at( 1 ) = -1250.; // TEC-, *, disk9 ///
+  endFaceZPositions.at( 0 ).at( 0 ).at( 0 ) = 1322.5;  // TEC+, *, disk1 ///
+  endFaceZPositions.at( 0 ).at( 0 ).at( 1 ) = 2667.5;  // TEC+, *, disk9 /// SIDE INFORMATION
+  endFaceZPositions.at( 1 ).at( 0 ).at( 0 ) = -2667; // TEC-, *, disk1 /// MEANINGLESS FOR TEC -> USE .at(0)!
+  endFaceZPositions.at( 1 ).at( 0 ).at( 1 ) = -1322.5; // TEC-, *, disk9 ///
   endFaceZPositions.at( 2 ).at( 1 ).at( 0 ) = -700.;  // TIB,  -, small z
   endFaceZPositions.at( 2 ).at( 1 ).at( 1 ) = -300.;  // TIB,  -, large z
   endFaceZPositions.at( 2 ).at( 0 ).at( 0 ) = 300.;   // TIB,  +, small z
@@ -370,8 +370,8 @@ void fcn( int &npar, double *gin, double &f, double *par, int iflag )  {
 
   // the z positions of the virtual planes at which the beam parameters are measured
   std::vector<double> disk9EndFaceZPositions( 2, 0. );
-  disk9EndFaceZPositions.at( 0 ) = -2595.; // TEC- disk9
-  disk9EndFaceZPositions.at( 1 ) =  2595.; // TEC+ disk9
+  disk9EndFaceZPositions.at( 0 ) = -2667.5; // TEC- disk9
+  disk9EndFaceZPositions.at( 1 ) =  2667.5; // TEC+ disk9
   
   // reduced z positions of the beam spots ( z'_{k,j}, z"_{k,j} )
   double detReducedZ[2] = { 0., 0. };

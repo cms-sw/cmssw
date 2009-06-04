@@ -67,8 +67,6 @@ LASBarrelAlignmentParameterSet LASAlignmentTubeAlgorithm::CalculateParameters( L
 
   // the z positions of the virtual planes at which the beam parameters are measured
   std::vector<double> disk9EndFaceZPositions( 2, 0. );
-//   disk9EndFaceZPositions.at( 0 ) = -2595.; // TEC- disk9
-//   disk9EndFaceZPositions.at( 1 ) =  2595.; // TEC+ disk9
   disk9EndFaceZPositions.at( 0 ) = -2667.5; // TEC- disk9
   disk9EndFaceZPositions.at( 1 ) =  2667.5; // TEC+ disk9
 

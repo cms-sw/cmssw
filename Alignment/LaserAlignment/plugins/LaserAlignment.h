@@ -6,8 +6,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2009/02/13 12:50:46 $
- *  $Revision: 1.22 $
+ *  $Date: 2009/05/11 14:31:16 $
+ *  $Revision: 1.23 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -62,6 +62,7 @@
 #include "Alignment/LaserAlignment/src/LASPeakFinder.h"
 #include "Alignment/LaserAlignment/src/LASCoordinateSet.h"
 #include "Alignment/LaserAlignment/src/LASGeometryUpdater.h"
+#include "Alignment/LaserAlignment/src/LASConstants.h"
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
@@ -130,6 +131,12 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   /// for debugging only, will disappear
   void DumpHitmaps( LASGlobalData<int> );
 
+  /// apply endcap correction to masked modules in TEC
+    void ApplyEndcapMaskingCorrections( LASGlobalData<LASCoordinateSet>&, LASGlobalData<LASCoordinateSet>&, LASEndcapAlignmentParameterSet& );
+
+  /// get global phi correction from alignment parameters for a tec module
+  double GetAlignmentParameterCorrection( int, int, int, int, LASGlobalData<LASCoordinateSet>&, LASEndcapAlignmentParameterSet& );
+
   /// counter for the total number of events processed
   int theEvents;
 
@@ -138,6 +145,9 @@ class LaserAlignment : public edm::EDProducer, public TObject {
 
   /// config switch
   bool theUseMinuitAlgorithm;
+
+  /// config switch
+  bool theApplyBeamKinkCorrections;
 
   /// config parameter
   double peakFinderThreshold;
@@ -175,6 +185,9 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   // this object can judge if 
   // a LASModuleProfile is usable for position measurement
   LASProfileJudge judge;
+
+  // colection of constants
+  LASConstants theLasConstants;
 
   // the detector ids for all the modules
   LASGlobalData<unsigned int> detectorId;

@@ -3,13 +3,54 @@
 
 
 ///
+/// constructor providing access to the nominal coordinates and the constants -
+/// for the moment, both objects are passed here, later it
+/// should be sufficient to pass only the constants and to fill
+/// the nominalCoordinates locally from that
 ///
-///
-LASGeometryUpdater::LASGeometryUpdater( LASGlobalData<LASCoordinateSet>& aNominalCoordinates ) {
+LASGeometryUpdater::LASGeometryUpdater( LASGlobalData<LASCoordinateSet>& aNominalCoordinates, LASConstants& aLasConstants ) {
   
   nominalCoordinates = aNominalCoordinates;
   isReverseDirection = false;
+  lasConstants = aLasConstants;
 
+}
+
+
+
+
+
+///
+/// this function reads the beam kinks from the lasConstants
+/// and applies them to the set of measured global phi positions
+///
+void LASGeometryUpdater::ApplyBeamKinkCorrections( LASGlobalData<LASCoordinateSet>& measuredCoordinates ) const {
+
+  /// first we apply the endcap beamsplitter kink corrections
+  /// for TEC+/- in one go
+  for( unsigned int det = 0; det < 2; ++det ) {
+    for( unsigned int ring = 0; ring < 2; ++ring ) {
+      for( unsigned int beam = 0; beam < 8; ++beam ) {
+
+	// corrections have different sign for TEC+/-
+	const double endcapSign = det==0 ? 1.: -1.;
+
+	// the correction is applied to the last 4 disks
+	for( unsigned int disk = 5; disk < 9; ++disk ) {
+
+	  measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhi(
+	     measuredCoordinates.GetTECEntry( det, ring, beam, disk ).GetPhi() - 
+	     tan( lasConstants.GetEndcapBsKink( det, ring, beam ) ) / lasConstants.GetTecRadius( ring ) *
+	     ( lasConstants.GetTecZPosition( det, disk ) - endcapSign * lasConstants.GetTecBsZPosition( det ) )
+	  );
+	
+	}
+      }
+    }
+  }
+
+  /// alignment tube beamsplitter & mirror kink corrections
+  /// TBD.
 }
 
 

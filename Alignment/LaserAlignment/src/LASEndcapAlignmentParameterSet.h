@@ -30,7 +30,7 @@ class LASEndcapAlignmentParameterSet {
   LASEndcapAlignmentParameterSet();
   std::pair<double,double>& GetDiskParameter( int aSubdetector, int aDisk, int aParameter );
   std::pair<double,double>& GetGlobalParameter( int aSubdetector, int aParameter );
-  std::pair<double,double>& GetBeamParameter( int aSubdetector, int aBeam, int aParameter );
+  std::pair<double,double>& GetBeamParameter( int aSubdetector, int aRing, int aBeam, int aParameter );
   void Print( void );
 
  private:
@@ -40,8 +40,8 @@ class LASEndcapAlignmentParameterSet {
   std::vector<std::vector<std::pair<double,double> > > tecMinusDiskParameters;
   std::vector<std::pair<double,double> > tecPlusGlobalParameters;
   std::vector<std::pair<double,double> > tecMinusGlobalParameters;
-  std::vector<std::vector<std::pair<double,double> > > tecPlusBeamParameters;
-  std::vector<std::vector<std::pair<double,double> > > tecMinusBeamParameters;
+  std::vector<std::vector<std::vector<std::pair<double,double> > > > tecPlusBeamParameters;
+  std::vector<std::vector<std::vector<std::pair<double,double> > > > tecMinusBeamParameters;
 
 };
 

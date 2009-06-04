@@ -30,18 +30,18 @@ LASEndcapAlignmentParameterSet LASEndcapAlgorithm::CalculateParameters( LASGloba
 
   // vector containing the z positions of the disks in mm;
   // outer vector: TEC+/-, inner vector: 9 disks
-  const double zPositions[9] = { 1250., 1390., 1530., 1670., 1810., 1985., 2175., 2380., 2595. };
+  const double zPositions[9] = { 1322.5,  1462.5,  1602.5,  1742.5,  1882.5,  2057.5,  2247.5,  2452.5,  2667.5 };
   std::vector<std::vector<double> > diskZPositions( 2, std::vector<double>( 9, 0. ) );
-  for( det = 0; det < 2; ++ det ) {
+  for( det = 0; det < 2; ++det ) {
     for( disk = 0; disk < 9; ++disk ) {
-      diskZPositions.at( det ).at( disk ) = ( det==0 ? zPositions[disk] : -1. * zPositions[disk] );
+      // sign depends on side of course
+      diskZPositions.at( det ).at( disk ) = ( det==0 ? zPositions[disk] : -1. * zPositions[disk] ); 
     }
   }
 
   // vector containing the phi positions of the beam in rad;
   // outer vector: TEC+/-, inner vector: 8 beams
-  const double phiPositions[8] = { 0.392699, 1.178097, 1.963495, 2.748894, 3.534292, 4.319690, 5.105088, 5.890486 }; // new values calculated by maple
-  //  const double phiPositions[8] = { 0.3927, 1.1781, 1.9635, 2.74889, 3.53429, 4.31969, 5.10509, 5.89049 }; // NOT YET TO FULL PRECISION...
+  const double phiPositions[8] = { 0.392699, 1.178097, 1.963495, 2.748894, 3.534292, 4.319690, 5.105088, 5.890486 };
   std::vector<std::vector<double> > beamPhiPositions( 2, std::vector<double>( 8, 0. ) );
   for( det = 0; det < 2; ++ det ) {
     for( beam = 0; beam < 8; ++beam ) {
@@ -106,7 +106,7 @@ LASEndcapAlignmentParameterSet LASEndcapAlgorithm::CalculateParameters( LASGloba
   // now calculate the sums
   det = 0; ring = 0; beam = 0; disk = 0;
   do {
-    
+    if( ring == 1 ) continue; //################################################################################################### BOUND TO RING6
     // current radius, depends on the ring
     const double radius = nominalCoordinates.GetTECEntry( det, ring, beam, disk ).GetR();
 
@@ -190,65 +190,68 @@ LASEndcapAlignmentParameterSet LASEndcapAlgorithm::CalculateParameters( LASGloba
     // deltaPhi_0
     // here we use the phi-sums to eliminate the radius
     deltaPhi0.at( det ) = ( sumOverZSquared.at( det ) * doubleSumOverPhi.at( det ) - sumOverZ.at( det ) * doubleSumOverPhiZ.at( det ) )
-      / ( 8. * ( pow( sumOverZ.at( det ), 2 ) - 9. * sumOverZSquared.at( det ) ) ) / 2.;
+      / ( 8. * ( pow( sumOverZ.at( det ), 2 ) - 9. * sumOverZSquared.at( det ) ) ); // / 2.; // @@@@@@@
 
     // deltaPhi_t
     // again use the phi-sums
     deltaPhiT.at( det ) = endcapLength * ( 9. * doubleSumOverPhiZ.at( det ) - sumOverZ.at( det ) * doubleSumOverPhi.at( det ) )
-      / ( 8. * ( pow( sumOverZ.at( det ), 2 ) - 9. * sumOverZSquared.at( det ) ) ) / 2.;
+      / ( 8. * ( pow( sumOverZ.at( det ), 2 ) - 9. * sumOverZSquared.at( det ) ) ); // / 2.; // @@@@@@@
 
     // deltaPhi_k (k=0..8)
     // again use the phi-sums
     for( disk = 0; disk < 9; ++disk ) {
       deltaPhiK.at( det ).at( disk ) = ( -1. * diskZPositions.at( det ).at( disk ) * deltaPhiT.at( det ) / endcapLength )
-	-  ( deltaPhi0.at( det ) )  -  sumOverPhi.at( det ).at( disk ) / 8. / 2.;
+	-  ( deltaPhi0.at( det ) )  -  sumOverPhi.at( det ).at( disk ) / 8.;// / 2.; // @@@@@@@
     }
     
     // deltaX_0
     deltaX0.at( det ) = 2. * ( sumOverZ.at( det ) * doubleSumOverSinThetaYZ.at( det ) - sumOverZSquared.at( det ) * doubleSumOverSinThetaY.at( det ) )
-      / ( 8. * ( pow( sumOverZ.at( det ), 2 ) - 9. * sumOverZSquared.at( det ) ) ) / 2.;
+      / ( 8. * ( pow( sumOverZ.at( det ), 2 ) - 9. * sumOverZSquared.at( det ) ) );// / 2.; // @@@@@@@
 
     // deltaX_t
     deltaXT.at( det ) = 2. * endcapLength * ( sumOverZ.at( det ) * doubleSumOverSinThetaY.at( det ) - 9. * doubleSumOverSinThetaYZ.at( det ) )
-      / ( 8. * ( pow( sumOverZ.at( det ), 2 ) - 9. * sumOverZSquared.at( det ) ) ) / 2.;
+      / ( 8. * ( pow( sumOverZ.at( det ), 2 ) - 9. * sumOverZSquared.at( det ) ) );// / 2.; // @@@@@@@
 
     // deltaX_k (k=0..8)
     for( disk = 0; disk < 9; ++disk ) {
       deltaXK.at( det ).at( disk ) =  ( -1. * diskZPositions.at( det ).at( disk ) * deltaXT.at( det ) / endcapLength )
-	-  ( deltaX0.at( det ) )  +  2. * sumOverSinThetaY.at( det ).at( disk ) / 8. / 2.;
+	-  ( deltaX0.at( det ) )  +  2. * sumOverSinThetaY.at( det ).at( disk ) / 8.;// / 2.; // @@@@@@@
     }
 
     // deltaY_0
     deltaY0.at( det ) = 2. * ( sumOverZSquared.at( det ) * doubleSumOverCosThetaY.at( det ) - sumOverZ.at( det ) * doubleSumOverCosThetaYZ.at( det ) )
-      / ( 8. * ( pow( sumOverZ.at( det ), 2 ) - 9. * sumOverZSquared.at( det ) ) ) / 2.;
+      / ( 8. * ( pow( sumOverZ.at( det ), 2 ) - 9. * sumOverZSquared.at( det ) ) );// / 2.; // @@@@@@@
 
     // deltaY_t
     deltaYT.at( det ) = 2. * endcapLength * ( 9. * doubleSumOverCosThetaYZ.at( det ) - sumOverZ.at( det ) * doubleSumOverCosThetaY.at( det ) )
-      / ( 8. * ( pow( sumOverZ.at( det ), 2 ) - 9. * sumOverZSquared.at( det ) ) ) / 2.;
+      / ( 8. * ( pow( sumOverZ.at( det ), 2 ) - 9. * sumOverZSquared.at( det ) ) );// / 2.; // @@@@@@@
 
     // deltaY_k (k=0..8)
     for( disk = 0; disk < 9; ++disk ) {
       deltaYK.at( det ).at( disk ) =  ( -1. * diskZPositions.at( det ).at( disk ) * deltaYT.at( det ) / endcapLength )
- 	-  ( deltaY0.at( det ) )  -  2. * sumOverCosThetaY.at( det ).at( disk ) / 8. / 2.;
+ 	-  ( deltaY0.at( det ) )  -  2. * sumOverCosThetaY.at( det ).at( disk ) / 8.;// / 2.; // @@@@@@@
     }
-  
+
+
     // the beam parameters deltaTA & deltaTB
     for( beam = 0; beam < 8; ++beam ) {
 
       deltaTA.at( det ).at( beam ) = deltaPhi0.at( det ) 
 	- ( kSumOverPhi.at( det ).at( beam ) * sumOverZSquared.at( det ) - kSumOverPhiZ.at( det ).at( beam ) * sumOverZ.at( det ) )
-	/ ( 8. * ( pow( sumOverZ.at( det ), 2 ) - 9. * sumOverZSquared.at( det ) ) )
-	+ cos( beamPhiPositions.at( det ).at( beam ) ) * deltaY0.at( det ) - sin( beamPhiPositions.at( det ).at( beam ) ) * deltaX0.at( det );
+	/ ( pow( sumOverZ.at( det ), 2 ) - 9. * sumOverZSquared.at( det ) )
+	+ ( cos( beamPhiPositions.at( det ).at( beam ) ) * deltaY0.at( det ) - sin( beamPhiPositions.at( det ).at( beam ) ) * deltaX0.at( det ) ) / radius.at( 0 ); // for ring 4..
+        // + ( cos( beamPhiPositions.at( det ).at( beam ) ) * deltaY0.at( det ) - sin( beamPhiPositions.at( det ).at( beam ) ) * deltaX0.at( det ) ) / radius.at( 1 ); // ...and ring 6
+
 
       deltaTB.at( det ).at( beam ) = -1. * deltaPhiT.at( det ) - deltaPhi0.at( det )
 	- ( kSumOverPhi.at( det ).at( beam ) * sumOverZ.at( det ) - 9. * kSumOverPhiZ.at( det ).at( beam ) )
-	/ endcapLength / ( 8. * ( pow( sumOverZ.at( det ), 2 ) - 9. * sumOverZSquared.at( det ) ) )
+	* endcapLength / ( pow( sumOverZ.at( det ), 2 ) - 9. * sumOverZSquared.at( det ) )
 	- ( kSumOverPhiZ.at( det ).at( beam ) * sumOverZ.at( det ) -  kSumOverPhi.at( det ).at( beam ) * sumOverZSquared.at( det ) )
-	/ ( 8. * ( pow( sumOverZ.at( det ), 2 ) - 9. * sumOverZSquared.at( det ) ) )
+	/ ( pow( sumOverZ.at( det ), 2 ) - 9. * sumOverZSquared.at( det ) )
 	+ ( ( deltaXT.at( det ) + deltaX0.at( det ) ) * sin( beamPhiPositions.at( det ).at( beam ) ) - ( deltaYT.at( det ) + deltaY0.at( det ) ) * cos( beamPhiPositions.at( det ).at( beam ) ) )
-	/ radius.at( 0 )  // for ring4..
-	+ ( ( deltaXT.at( det ) + deltaX0.at( det ) ) * sin( beamPhiPositions.at( det ).at( beam ) ) - ( deltaYT.at( det ) + deltaY0.at( det ) ) * cos( beamPhiPositions.at( det ).at( beam ) ) )
-	/ radius.at( 1 ); // ..and ring6
+	/ radius.at( 0 ); // for ring4..
+      // + ( ( deltaXT.at( det ) + deltaX0.at( det ) ) * sin( beamPhiPositions.at( det ).at( beam ) ) - ( deltaYT.at( det ) + deltaY0.at( det ) ) * cos( beamPhiPositions.at( det ).at( beam ) ) )
+      // / radius.at( 1 ); // ..and ring6
 
     }
 
@@ -286,8 +289,8 @@ LASEndcapAlignmentParameterSet LASEndcapAlgorithm::CalculateParameters( LASGloba
   // beam parameters
   for( int det = 0; det < 2; ++det ) {
     for( int beam = 0; beam < 8; ++beam ) {
-      theResult.GetBeamParameter( det, beam, 0 ).first = deltaTA.at( det ).at( beam );
-      theResult.GetBeamParameter( det, beam, 1 ).first = deltaTB.at( det ).at( beam );
+      theResult.GetBeamParameter( det, 1 /*R6*/, beam, 0 ).first = deltaTA.at( det ).at( beam ); ////////////////////////////////////////////
+      theResult.GetBeamParameter( det, 1 /*R6*/, beam, 1 ).first = deltaTB.at( det ).at( beam );////////////////////////////////////////////
     }
   }
 

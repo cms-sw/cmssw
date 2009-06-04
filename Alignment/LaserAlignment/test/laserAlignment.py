@@ -41,7 +41,7 @@ process.trackerAlignment = cms.ESSource( "PoolDBESSource",
       tag = cms.string( 'AlignmentErrors' )
     )
   ),
-  connect = cms.string( 'sqlite_file:/afs/cern.ch/user/o/olzem/cms/cmssw/CMSSW_2_2_6/src/Alignment/LaserAlignment/test/Alignments_R2.db' )
+  connect = cms.string( 'sqlite_file:/afs/cern.ch/user/o/olzem/cms/cmssw/CMSSW_2_2_6/src/Alignment/LaserAlignment/test/ttt.db' )
 )
 
 ## prefer these alignment record
@@ -52,10 +52,28 @@ process.TrackerDigiGeometryESModule.applyAlignment = True
 
 
 ## fast standalone reco output: an sql file
-process.load( "CondCore.DBCommon.CondDBCommon_cfi" )
-process.CondDBCommon.connect = 'sqlite_file:Alignments.db'
+#process.load( "CondCore.DBCommon.CondDBCommon_cfi" )
+#process.CondDBCommon.connect = 'sqlite_file:Alignments.db'
+#process.PoolDBOutputService = cms.Service( "PoolDBOutputService",
+#  process.CondDBCommon,
+#  toPut = cms.VPSet(
+#    cms.PSet(
+#      record = cms.string( 'TrackerAlignmentRcd' ),
+#      tag = cms.string( 'Alignments' )
+#    ), 
+#    cms.PSet(
+#      record = cms.string( 'TrackerAlignmentErrorRcd' ),
+#      tag = cms.string( 'AlignmentErrors' )
+#    )
+#  )
+#)
+
+# Database output service
+import CondCore.DBCommon.CondDBSetup_cfi
 process.PoolDBOutputService = cms.Service( "PoolDBOutputService",
-  process.CondDBCommon,
+  CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup,
+  timetype = cms.untracked.string( 'runnumber' ),
+  connect = cms.string( 'sqlite_file:Alignments.db' ),
   toPut = cms.VPSet(
     cms.PSet(
       record = cms.string( 'TrackerAlignmentRcd' ),
@@ -67,6 +85,7 @@ process.PoolDBOutputService = cms.Service( "PoolDBOutputService",
     )
   )
 )
+process.PoolDBOutputService.DBParameters.messageLevel = 2
 
 
 ## input files
@@ -106,13 +125,14 @@ process.LaserAlignment.DigiProducersList = cms.VPSet(
     DigiType = cms.string( 'Processed' )
   )
 )
-process.LaserAlignment.SaveToDbase = False
+process.LaserAlignment.SaveToDbase = True
 process.LaserAlignment.SaveHistograms = True
 process.LaserAlignment.SubtractPedestals = False
 process.LaserAlignment.UpdateFromInputGeometry = False
 process.LaserAlignment.EnableJudgeZeroFilter = True
-process.LaserAlignment.JudgeOverdriveThreshold = 220
+process.LaserAlignment.JudgeOverdriveThreshold = 200
 process.LaserAlignment.PeakFinderThreshold = 2.
+process.LaserAlignment.ApplyBeamKinkCorrections = True
 process.LaserAlignment.MaskTECModules = (
   # CRAFT run 70664:
   # no-signal modules (dead power groups)
@@ -133,6 +153,8 @@ process.LaserAlignment.MaskTECModules = (
   470046344, 470062728, 470079112, 470095496, 470111880, 470128264, 470144648, 470161032, 470177416
 )
 
+
+
 ## special parameters for LaserAlignment
 process.LaserAlignment.ForceFitterToNominalStrips = False
 
@@ -146,6 +168,8 @@ process.out = cms.OutputModule( "PoolOutputModule",
     "keep TkLasBeams_*_*_*"
   )
 )
+
+
 
 
 ## for debugging

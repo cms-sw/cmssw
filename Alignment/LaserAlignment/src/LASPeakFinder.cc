@@ -93,8 +93,8 @@ bool LASPeakFinder::FindPeakIn( const LASModuleProfile& aProfile, std::pair<doub
   fitFunction.SetParLimits( 2, 0.5, 8. ); // reasonable width
   
 
-  // and go
-  histogram->Fit( &fitFunction, "QWB", "", largestAmplitude.first - 12, largestAmplitude.first + 12 );
+  // fit options: Quiet / all Weights=1 / better Errors / enable fix&Bounds on parameters
+  histogram->Fit( &fitFunction, "QWEB", "", largestAmplitude.first - 12, largestAmplitude.first + 12 );
 
   // prepare output
   result.first = fitFunction.GetParameter( 1 );

@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 
 # main configuration for LaserAlignment reconstruction module
 
-LaserAlignment = cms.EDFilter( "LaserAlignment",
 
+LaserAlignment = cms.EDFilter( "LaserAlignment",
 
     ### USER OPTIONS:
 
@@ -48,6 +48,9 @@ LaserAlignment = cms.EDFilter( "LaserAlignment",
     # if true run the MINUIT based AT algorithm rather than the analytical one
     RunMinuitAlignmentTubeAlgorithm = cms.untracked.bool( False ),
 
+    # apply beam kink corrections                               
+    ApplyBeamKinkCorrections = cms.untracked.bool( True ),                               
+
     # detIDs of modules in the TECs (internal beams only!) which should not be considered
     # by the TEC algorithm can be specified here
     MaskTECModules = cms.untracked.vuint32(),
@@ -56,9 +59,16 @@ LaserAlignment = cms.EDFilter( "LaserAlignment",
     ### TESTING OPTIONS (EXPERTS ONLY):
 
     # override LASPeakFinder results and set hit strip numbers to nominal                               
-    ForceFitterToNominalStrips = cms.untracked.bool( False ) # NOT YET IN USE
+    ForceFitterToNominalStrips = cms.untracked.bool( False ), # NOT YET IN USE
 
-                               
+
+    ### STANDARD OPTIONS (DO NOT EDIT)
+
+    # various LAS constants read from LaserAlignmentConstants_cff
+    LaserAlignmentConstants = cms.untracked.VPSet()
+
+
 )
 
-
+from Alignment.LaserAlignment.LaserAlignmentConstants_cff import *
+LaserAlignment.LaserAlignmentConstants.extend( LaserAlignmentConstants )
