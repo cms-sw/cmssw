@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTriggerOffline.cc,v 1.22 2009/05/29 14:08:33 rekovic Exp $
+// $Id: FourVectorHLTriggerOffline.cc,v 1.23 2009/06/03 23:38:10 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -310,14 +310,10 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   muoMon.setMC(genParticles, 13, 1);
   muoMon.setLimits(muonEtaMax_, muonEtMin_, muonDRMatch_);
   
-  vector<int> muoTriggerType;
-  muoTriggerType.push_back(TriggerMuon);
-  muoTriggerType.push_back(TriggerL1Mu);
-  muoMon.setTriggerType(muoTriggerType);
+  muoMon.pushTriggerType(TriggerMuon);
+  muoMon.pushTriggerType(TriggerL1Mu);
 
-  vector<int> l1_muoTriggerType;
-  l1_muoTriggerType.push_back(TriggerL1Mu);
-  muoMon.setL1TriggerType(l1_muoTriggerType);
+  muoMon.pushL1TriggerType(TriggerL1Mu);
 	
   // tau Monitor
 	// ------------
@@ -326,15 +322,11 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   tauMon.setMC(genParticles, 15, 1);
   tauMon.setLimits(tauEtaMax_, tauEtMin_, tauDRMatch_);
   
-  vector<int> tauTriggerType;
-  tauTriggerType.push_back(TriggerTau);
-  tauTriggerType.push_back(TriggerL1TauJet);
-  tauMon.setTriggerType(tauTriggerType);
+  tauMon.pushTriggerType(TriggerTau);
+  tauMon.pushTriggerType(TriggerL1TauJet);
 
-  vector<int> l1_tauTriggerType;
-  l1_tauTriggerType.push_back(TriggerL1TauJet);
-  l1_tauTriggerType.push_back(TriggerL1ForJet);
-  tauMon.setL1TriggerType(l1_tauTriggerType);
+  tauMon.pushL1TriggerType(TriggerL1TauJet);
+  tauMon.pushL1TriggerType(TriggerL1ForJet);
 	
   // photon Monitor
 	// ------------
@@ -343,17 +335,13 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   phoMon.setMC(genParticles, 22, 1);
   phoMon.setLimits(photonEtaMax_, photonEtMin_, photonDRMatch_);
   
-  vector<int> phoTriggerType;
-  phoTriggerType.push_back(TriggerPhoton);
-  phoMon.setTriggerType(phoTriggerType);
+  phoMon.pushTriggerType(TriggerPhoton);
 
-  vector<int> l1_phoTriggerType;
-  l1_phoTriggerType.push_back(TriggerL1NoIsoEG);
-  l1_phoTriggerType.push_back(TriggerL1IsoEG);
-  phoMon.setL1TriggerType(l1_phoTriggerType);
+  phoMon.pushL1TriggerType(TriggerL1NoIsoEG);
+  phoMon.pushL1TriggerType(TriggerL1IsoEG);
 
-  // jet Monitor
-	// ------------
+  // jet Monitor - NOTICE: we use genJets for MC
+	// -------------------------------------------
   objMon<reco::CaloJetCollection> jetMon;
   jetMon.setReco(jetHandle);
   jetMon.setGenJets(true, genJets);
