@@ -133,9 +133,7 @@ void ZdcSD::getFromLibrary (G4Step* aStep) {
       << theTrack->GetDefinition()->GetParticleName() << " of " 
       << preStepPoint->GetKineticEnergy()<< " MeV\n"; 
     
-    hits.swap(showerLibrary->getHits(aStep, ok));
-  
-    
+    hits.swap(showerLibrary->getHits(aStep, ok));    
   }
  
   for (unsigned int i=0; i<hits.size(); i++) {
@@ -147,31 +145,30 @@ void ZdcSD::getFromLibrary (G4Step* aStep) {
       double eEM        = hits[i].DeEM;
       currentID.setID(unitID, time, primaryID);
       
-      // check if it is in the same unit and timeslice as the previous on
-      
+      // check if it is in the same unit and timeslice as the previous on    
       if (currentID == previousID) {
-	updateHit(currentHit);
-	
+	updateHit(currentHit);	
       } else {
 	currentHit = createNewHit();
       }
-        
+      
       currentHit->setPosition(hitPoint.x(),hitPoint.y(),hitPoint.z());
       currentHit->setEM(eEM);
       currentHit->setHadr(eHAD);
       currentHit->setIncidentEnergy(etrack);
       currentHit->setEntryLocal(hitEntry.x(),hitEntry.y(),hitEntry.z());
       
-      /**   std::cout<<"Final Hit number:"<<i<<"-->"
+      /** std::cout<<"Final Hit number:"<<i<<"-->"
 	       <<"New HitID: "<<currentHit->getUnitID()
-	       <<" New EM Energy: "<<currentHit->getEM()
-	       <<" New HAD Energy: "<<currentHit->getHadr()
+	       <<" New Hit trackID: "<<currentHit->getTrackID()
+	       <<" New EM Energy: "<<currentHit->getEM()/GeV
+	       <<" New HAD Energy: "<<currentHit->getHadr()/GeV
 	       <<" New HitEntryPoint: "<<currentHit->getEntryLocal()
-	       <<" New IncidentEnergy: "<<currentHit->getIncidentEnergy()
+	       <<" New IncidentEnergy: "<<currentHit->getIncidentEnergy()/GeV
 	       <<" New HitPosition: "<<hitPoint<<std::endl;
       **/
-    }
-         
+  }
+  
   //Now kill the current track
   if (ok) {
     theTrack->SetTrackStatus(fStopAndKill);
@@ -445,8 +442,6 @@ void ZdcSD::setNumberingScheme(ZdcNumberingScheme* scheme) {
     numberingScheme = scheme;
   }
 }
-
-
 
 int ZdcSD::setTrackID (G4Step* aStep) {
   theTrack     = aStep->GetTrack();
