@@ -5,7 +5,7 @@
    date of first version: Sept 2008
 
 */
-//$Id: FourVectorHLTClient.cc,v 1.10 2009/02/26 18:05:24 rekovic Exp $
+//$Id: FourVectorHLTClient.cc,v 1.11 2009/03/27 22:19:34 rekovic Exp $
 
 #include "DQMOffline/Trigger/interface/FourVectorHLTClient.h"
 
@@ -346,11 +346,19 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
        TH1F* effHist = (TH1F*) numHist->Clone(newHistName.Data());
 
        effHist->SetTitle(newHistTitle.Data());
-       effHist->Sumw2(); 
+       //effHist->Sumw2(); 
 			 //denHist->Sumw2();
+       //effHist->Divide(numHist,denHist);
        effHist->Divide(numHist,denHist,1.,1.);
+	     for (int i=0;i<=effHist->GetNbinsX();i++) {
+			  float err = 0;
+				if(numHist->GetBinContent(i)>0) err = 1./sqrt(numHist->GetBinContent(i));   // 1/sqrt(number of total)
+		    effHist->SetBinError(i,err);
+			 }
+			 /*
+			 */
        //effHist->Divide(numHist,denHist,1.,1.,"B");
-			// calculateRatio(effHist, denHist);
+			 //calculateRatio(effHist, denHist);
 
 			 //TGraph effTGraph;
 			 
@@ -482,9 +490,10 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
        TH2F* effHist = (TH2F*) numHist->Clone(newHistName.Data());
 
        effHist->SetTitle(newHistTitle.Data());
-       //effHist->Sumw2(); 
+       effHist->Sumw2(); 
 			 //denHist->Sumw2();
-       effHist->Divide(numHist,denHist,1.,1.,"B");
+       //effHist->Divide(numHist,denHist,1.,1.,"B");
+       effHist->Divide(numHist,denHist,1.,1.);
        
    
        //reportSummaryMap_ = dbe_->book2D(numHist->Divide(denHist));
@@ -588,9 +597,13 @@ void FourVectorHLTClient::calculateRatio(TH1F* effHist, TH1F* denHist) {
 		float ratio;
 		float err;;
 
-		if(k > N) k = N;    // pass must always be leq to N
+		if(k > N) {
 
-		if(N == 0) {      
+		  ratio = k/N;
+		  err = 1.;
+
+		}
+		else if(N == 0) {      
 
 		  ratio = 0;;
 		  err = 0;
@@ -599,7 +612,8 @@ void FourVectorHLTClient::calculateRatio(TH1F* effHist, TH1F* denHist) {
 		else {
 
 		  ratio = k/N;
-		  err = (1.0/N)*sqrt(k*(1-k/N));
+		  //err = (1.0/N)*sqrt(k*(1-k/N));
+		  err = (1.0/sqrt(N));
 		
 		}
 
