@@ -79,6 +79,6 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 process.p = cms.Path(process.mix*process.doAllDigi*process.L1Emulator*process.DigiToRaw*process.RawToDigi*process.reconstruct_PbPb)
 process.outpath = cms.EndPath(process.output)
-process.output.outputCommands.append('keep *_*_*_RECO')
+#process.output.outputCommands.append('keep *_*_*_RECO')
 
 
