@@ -382,7 +382,8 @@ class Profile:
         Valgrind Memcheck profile launcher
         '''
         profiler_line=''
-        valgrind_options='time valgrind --tool=memcheck `cmsvgsupp` '+\ #Adding cms suppression of useless messages
+        #Adding cms suppression of useless messages (cmsvgsupp)
+        valgrind_options='time valgrind --tool=memcheck `cmsvgsupp` '+\
                                '--leak-check=yes '+\
                                '--show-reachable=yes '+\
                                '--num-callers=20 '+\
