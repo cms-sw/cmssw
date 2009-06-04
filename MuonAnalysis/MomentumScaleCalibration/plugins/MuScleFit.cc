@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/06/04 10:42:25 $
-//  $Revision: 1.42 $
+//  $Date: 2009/06/04 16:04:14 $
+//  $Revision: 1.43 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -497,6 +497,8 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 	// to avoid double counting of the same muon
 	if(muon->isGlobalMuon() && theMuonType_==1)
 	  tracks.push_back(*(muon->globalTrack()));
+	else if(muon->isGlobalMuon() && theMuonType_==10) //particular case!!
+	  tracks.push_back(*(muon->innerTrack()));
 	else if(muon->isStandAloneMuon() && theMuonType_==2)
 	  tracks.push_back(*(muon->outerTrack()));
 	else if(muon->isTrackerMuon() && theMuonType_==3)
