@@ -28,9 +28,11 @@ HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
   bool useShowerLibrary   = m_HF.getParameter<bool>("UseShowerLibrary");
   edMin                   = m_HF.getParameter<double>("EminLibrary");
   onlyLong                = m_HF.getParameter<bool>("OnlyLong");
+  ref_index               = m_HF.getParameter<double>("RefIndex");
   edm::LogInfo("HFShower") << "HFShowerParam::Use of shower library is set to "
 			   << useShowerLibrary << " P.E. per GeV " << pePerGeV
-			   << " and Track EM Flag " << trackEM << " edMin "
+			   << ", ref. index of fibre " << ref_index 
+			   << ", Track EM Flag " << trackEM << ", edMin "
 			   << edMin << " GeV and use of Short fibre info in"
 			   << " shower library set to " << !(onlyLong);
   
@@ -103,20 +105,30 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
   std::vector<HFShowerParam::Hit> hits;
   HFShowerParam::Hit hit;
   hit.position = hitPoint;
-  // take only e+-/gamma
+
+  // look for other charged particles
+  bool other = false;
+  if (particleCode != emPDG && particleCode != epPDG && particleCode != gammaPDG ) {
+    double pBeta    = track->GetDynamicParticle()->GetTotalMomentum() 
+      / track->GetDynamicParticle()->GetTotalEnergy();
+    if (track->GetDefinition()->GetPDGCharge() != 0 && pBeta > (1/ref_index) &&
+	aStep->GetTotalEnergyDeposit() > 0) other = true;
+  }
+
+  // take only e+-/gamma/or special particles
   if (particleCode == emPDG || particleCode == epPDG ||
-      particleCode == gammaPDG ) {
+      particleCode == gammaPDG || other) {
     // Leave out the last part
     double edep = 0.;
     bool   kill = false;
-    if ((!trackEM) && (zz < (gpar[1]-gpar[2]))) {
+    if ((!trackEM) && (zz < (gpar[1]-gpar[2])) && (!other)) {
       edep = pin;
       kill = true;
     } else {
       edep = (aStep->GetTotalEnergyDeposit())/GeV;
     }
     if (edep > 0) {
-      if (showerLibrary && kill && pin > edMin) {
+      if (showerLibrary && kill && pin > edMin && (!other)) {
 	std::vector<HFShowerLibrary::Hit> hitSL = showerLibrary->getHits(aStep,kill, onlyLong);
 	for (unsigned int i=0; i<hitSL.size(); i++) {
 	  hit.position = hitSL[i].position;
