@@ -5,23 +5,45 @@ import sys
 import fileinput
 import string
 
-NewRelease='CMSSW_3_1_0_pre4'
-RefRelease='CMSSW_3_1_0_pre3'
+NewRelease='CMSSW_3_1_0_pre9'
+RefRelease='CMSSW_3_1_0_pre7'
 
 samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar']
+#samples= ['RelValTTbar','RelValZMM']
 
 Submit=True
 Publish=False
 
-NewTag='IDEAL'
-#NewTag='IDEAL_noPU_ootb_FSIM'  # Add "_FSIM" for FastSim
-RefTag='IDEAL'
+FastSim=False
 
-NewLabel='IDEAL_30X'
-RefLabel='IDEAL_30X'
+GetFilesFromCastor=True
+CastorRepository = '/castor/cern.ch/user/n/nuno/relval/harvest'
 
-#ReferenceSelection='IDEAL_V5_noPU'
-#StartupReferenceSelection='STARTUP_V4_noPU'
+NewCondition='IDEAL'
+RefCondition='IDEAL'
+#NewCondition='STARTUP'
+#RefCondition='STARTUP'
+
+if (FastSim):
+    NewTag = NewCondition+'_noPU_ootb_FSIM'
+    RefTag = RefCondition+'_noPU_ootb_FSIM'
+else:
+    NewTag = NewCondition+'_noPU_ootb'
+    RefTag = RefCondition+'_noPU_ootb'
+
+if (FastSim):
+    NewLabel=NewCondition+'_31X_FastSim_v1'
+    RefLabel=RefCondition+'_31X_FastSim_v1'
+else:
+    NewLabel=NewCondition+'_31X_v1'
+    RefLabel=RefCondition+'_31X_v1'
+
+if (FastSim):
+    NewFormat='GEN-SIM-DIGI-RECO'
+    RefFormat='GEN-SIM-DIGI-RECO'
+else:
+    NewFormat='GEN-SIM-RECO'
+    RefFormat='GEN-SIM-RECO'
 
 RefRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
 NewRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
@@ -50,21 +72,23 @@ for sample in samples :
      newdir=NewRepository+'/'+NewRelease+'/'+NewTag+'/'+sample 
 
 
-
      if(os.path.exists(NewRelease+'/'+NewTag+'/'+sample)==False):
          os.makedirs(NewRelease+'/'+NewTag+'/'+sample)
 
      if(os.path.exists(RefRelease+'/'+RefTag+'/'+sample)==False):
          os.makedirs(RefRelease+'/'+RefTag+'/'+sample)
 
-
-     if(os.path.isfile(NewRelease+'/'+NewTag+'/'+sample+'/building.pdf')!=True):
+#     if(os.path.isfile(NewRelease+'/'+NewTag+'/'+sample+'/building.pdf')!=True):
+     if(os.path.isfile(NewRelease+'/'+NewTag+'/'+sample+'/globalMuons_tpToGlbAssociation.pdf')!=True):
          newSample=NewRepository+'/'+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root'
          refSample=RefRepository+'/'+RefRelease+'/'+RefTag+'/'+sample+'/'+'val.'+sample+'.root'
+         if (GetFilesFromCastor):
+             os.system('rfcp '+CastorRepository+'/'+NewRelease+'/DQM_V0001_R000000001__'+sample+'__'+NewRelease+'_'+NewLabel+'__'+NewFormat+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
          if (os.path.isfile(NewRelease+'/'+NewTag+'/'+sample+'/val'+sample+'.root')==False and os.path.isfile(newSample)) :
              os.system('cp '+newSample+' '+NewRelease+'/'+NewTag+'/'+sample)
          if (os.path.isfile(RefRelease+'/'+RefTag+'/'+sample+'/val'+sample+'.root')==False and os.path.isfile(refSample)) :
-             os.system('cp '+refSample+' '+RefRelease+'/'+RefTag+'/'+sample)
+#             os.system('cp '+refSample+' '+RefRelease+'/'+RefTag+'/'+sample)
+             os.system('ln -s '+refSample+' '+RefRelease+'/'+RefTag+'/'+sample)
 
          cfgFileName=sample+'_'+NewRelease+'_'+RefRelease
          hltcfgFileName='HLT'+sample+'_'+NewRelease+'_'+RefRelease
