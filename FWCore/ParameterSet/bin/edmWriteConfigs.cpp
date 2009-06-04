@@ -18,7 +18,7 @@
 //
 // Original Author:  W. David Dagenhart
 //         Created:  10 December 2008
-// $Id: edmWriteConfigs.cpp,v 1.1 2009/01/09 22:34:11 wdd Exp $
+// $Id: edmWriteConfigs.cpp,v 1.2 2009/04/08 16:16:33 wdd Exp $
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
@@ -28,21 +28,30 @@
 #include "FWCore/PluginManager/interface/PluginInfo.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerBase.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/PluginManager/interface/SharedLibrary.h"
+#include "FWCore/PluginManager/interface/PluginFactoryBase.h"
+#include "FWCore/PluginManager/interface/PluginFactoryManager.h"
 
 #include <boost/program_options.hpp>
 #include <boost/filesystem/path.hpp>
-#include "boost/bind.hpp"
+#include <boost/filesystem/operations.hpp>
+#include <boost/bind.hpp>
+#include <boost/mem_fn.hpp>
 
 #include <string>
 #include <iostream>
 #include <vector>
 #include <exception>
 #include <memory>
+#include <utility>
+#include "sigc++/signal.h"
 
-static char const* const kLibraryOpt = "library";
-static char const* const kLibraryCommandOpt = "library,l";
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
+static char const* const kLibraryOpt = "library";
+static char const* const kLibraryCommandOpt = "library,l";
+static char const* const kPathOpt = "path";
+static char const* const kPathCommandOpt = "path,p";
 
 namespace {
   void getMatchingPluginNames(edmplugin::PluginInfo const& pluginInfo,
@@ -93,21 +102,62 @@ namespace {
         throw toThrow;
     }
   }
+
+  struct Listener {
+
+    typedef std::pair< std::string, std::string> NameAndType;
+    typedef std::vector< NameAndType > NameAndTypes;
+
+    void newFactory(const edmplugin::PluginFactoryBase* iBase) {
+      iBase->newPluginAdded_.connect(boost::bind(boost::mem_fn(&Listener::newPlugin),this,_1,_2));
+    }
+    void newPlugin(const std::string& iCategory, const edmplugin::PluginInfo& iInfo) {
+      nameAndTypes_.push_back(NameAndType(iInfo.name_,iCategory));
+    }    
+    NameAndTypes nameAndTypes_;
+  };
+
+  void getPluginsMatchingCategory(Listener::NameAndType const& nameAndType,
+                                  std::vector<std::string> & pluginNames,
+                                  std::string const& category) {
+    if (category == nameAndType.second){
+      pluginNames.push_back(nameAndType.first);
+    }
+  }
 }
 
 int main (int argc, char **argv)
 {
+  boost::filesystem::path initialWorkingDirectory =
+    boost::filesystem::initial_path<boost::filesystem::path>();
+
   // Process the command line arguments
   std::string descString(argv[0]);
   descString += " [options] [--";
   descString += kLibraryOpt;
-  descString += "] library_filename\nAllowed options";
+  descString += "] library_filename\n\n";
+  descString += "Generates and writes configuration files which have the suffix _cfi.py.\n";
+  descString += "One configuration file is written for each configuration defined with a\n";
+  descString += "module label in the fillDescriptions functions of the plugins in the library.\n";
+  descString += "Silently does nothing if the library is not in the edmplugincache, does not\n";
+  descString += "exist at all, or the plugins in the library have not defined any configurations.\n\n";
+  descString += "Allowed options";
   boost::program_options::options_description desc(descString);   
   desc.add_options()
                   (kHelpCommandOpt, "produce help message")
                   (kLibraryCommandOpt,
                    boost::program_options::value<std::string>(),
-                   "library file name");
+                   "library filename")
+                  (kPathCommandOpt, "When this option is set, the library filename "
+                   "is interpreted as a relative or absolute path. If there are no directories in "
+                   "the library filename, then it looks for the library file in the current directory. "
+                   "Fails with an error message if the path does not lead to a library file that exists "
+                   "or can be loaded. "
+                   "If this option is not set, then the library filename should only be "
+                   "a filename without any directories.  In that case, it is assumed "
+                   "the build system has already put the library file in the "
+                   "appropriate place, built the edmplugincache, and the PluginManager "
+                   "is used to find and load the library.");
 
   boost::program_options::positional_options_description p;
   p.add(kLibraryOpt, -1);
@@ -140,33 +190,76 @@ int main (int argc, char **argv)
         << "No library specified";
     }
 
-    // From the PluginManager get a reference to a
-    // a vector of PlugInInfo's for plugins defining ParameterSetDescriptions.
-    // Each PlugInInfo contains the plugin name and library name.
-    edmplugin::PluginManager::configure(edmplugin::standard::config());
-    typedef edmplugin::PluginManager::CategoryToInfos CatToInfos;
-    CatToInfos const& catToInfos 
-      = edmplugin::PluginManager::get()->categoryToInfos();
-    edm::ParameterSetDescriptionFillerPluginFactory* factory =
-      edm::ParameterSetDescriptionFillerPluginFactory::get();
-    CatToInfos::const_iterator itPlugins = catToInfos.find(factory->category());
-
-    // No plugins in this category at all
-    if(itPlugins == catToInfos.end() ) return 0;
-
-    std::vector<edmplugin::PluginInfo> const& infos = itPlugins->second;
+    edm::ParameterSetDescriptionFillerPluginFactory* factory;
     std::vector<std::string> pluginNames;
-    std::string previousName;
 
-    edm::for_all(infos, boost::bind(&getMatchingPluginNames,
-                                    _1,
-                                    boost::ref(pluginNames),
-                                    boost::ref(previousName),
-                                    boost::cref(library)));
+    // If using the PluginManager to find the library
+    if(!vm.count(kPathOpt)) {
+
+      // From the PluginManager get a reference to a
+      // a vector of PlugInInfo's for plugins defining ParameterSetDescriptions.
+      // Each PlugInInfo contains the plugin name and library name.
+      edmplugin::PluginManager::configure(edmplugin::standard::config());
+      typedef edmplugin::PluginManager::CategoryToInfos CatToInfos;
+      CatToInfos const& catToInfos 
+        = edmplugin::PluginManager::get()->categoryToInfos();
+      factory =
+        edm::ParameterSetDescriptionFillerPluginFactory::get();
+      CatToInfos::const_iterator itPlugins = catToInfos.find(factory->category());
+
+      // No plugins in this category at all
+      if(itPlugins == catToInfos.end() ) return 0;
+
+      std::vector<edmplugin::PluginInfo> const& infos = itPlugins->second;
+      std::string previousName;
+
+      edm::for_all(infos, boost::bind(&getMatchingPluginNames,
+                                      _1,
+                                      boost::ref(pluginNames),
+                                      boost::ref(previousName),
+                                      boost::cref(library)));
+
+    }
+    // the library name is part of a path
+    else {
+
+      Listener listener;
+      edmplugin::PluginFactoryManager* pfm = edmplugin::PluginFactoryManager::get();
+      pfm->newFactory_.connect(boost::bind(boost::mem_fn(&Listener::newFactory),&listener,_1));
+      edm::for_all(*pfm, boost::bind(boost::mem_fn(&Listener::newFactory),&listener,_1));
+
+      boost::filesystem::path loadableFile(library);
+
+      // If it is just a filename without any directories,
+      // then turn it into an absolute path using the current
+      // directory when the program starts.  This prevents
+      // the function that loads the library from using
+      // LD_LIBRARY_PATH or some other location that it searches
+      // to find some library that has the same name, but
+      // was not the intended target.
+      if (loadableFile.filename() == loadableFile.string()) {
+        loadableFile = initialWorkingDirectory / loadableFile;
+      }
+
+      // This really loads the library into the program
+      // The listener records the plugin names and categories as they are loaded
+      edmplugin::SharedLibrary lib(loadableFile);
+
+      // We do not care about PluginCapabilities category so do not bother to try to include them
+
+      factory =
+        edm::ParameterSetDescriptionFillerPluginFactory::get();
+
+      edm::for_all(listener.nameAndTypes_, boost::bind(&getPluginsMatchingCategory,
+                                                       _1,
+                                                       boost::ref(pluginNames),
+                                                       boost::cref(factory->category())));
+    }
 
     edm::for_all(pluginNames, boost::bind(&writeCfisForPlugin,
                                           _1,
                                           factory));
+
   } catch(cms::Exception& e) {
     std::cerr << "The executable \"edmWriteConfigs\" failed while processing library " << library << ".\n"
               << "The following problem occurred:\n" 
