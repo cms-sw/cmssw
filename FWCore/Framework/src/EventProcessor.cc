@@ -1535,6 +1535,9 @@ namespace edm {
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionBegin> >(runPrincipal, es);
     FDEBUG(1) << "\tbeginRun " << run << "\n";
+    if (looper_) {
+      looper_->doBeginRun(runPrincipal, es);
+    }
   }
 
   void EventProcessor::endRun(int run) {
@@ -1546,6 +1549,9 @@ namespace edm {
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionEnd> >(runPrincipal, es);
     FDEBUG(1) << "\tendRun " << run << "\n";
+    if (looper_) {
+      looper_->doEndRun(runPrincipal, es);
+    }
   }
 
   void EventProcessor::beginLumi(int run, int lumi) {
@@ -1556,6 +1562,9 @@ namespace edm {
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionBegin> >(lumiPrincipal, es);
     FDEBUG(1) << "\tbeginLumi " << run << "/" << lumi << "\n";
+    if (looper_) {
+      looper_->doBeginLuminosityBlock(lumiPrincipal, es);
+    }
   }
 
   void EventProcessor::endLumi(int run, int lumi) {
@@ -1569,6 +1578,9 @@ namespace edm {
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionEnd> >(lumiPrincipal, es);
     FDEBUG(1) << "\tendLumi " << run << "/" << lumi << "\n";
+    if (looper_) {
+      looper_->doEndLuminosityBlock(lumiPrincipal, es);
+    }
   }
 
   int EventProcessor::readAndCacheRun() {

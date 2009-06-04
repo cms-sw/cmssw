@@ -5,10 +5,12 @@
 // 
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul  5 11:44:26 EDT 2006
-// $Id: EDLooper.cc,v 1.12 2008/12/20 18:51:38 wmtan Exp $
+// $Id: EDLooper.cc,v 1.13 2009/02/23 20:12:24 chrjones Exp $
 
 #include "FWCore/Framework/interface/EDLooper.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
@@ -71,6 +73,34 @@ namespace edm {
   void EDLooper::beginOfJob() { }
 
   void EDLooper::endOfJob() { }
+
+  void EDLooper::doBeginRun(RunPrincipal& iRP, EventSetup const& iES){
+        edm::ModuleDescription modDesc("EDLooper", "");
+	Run run(iRP, modDesc);
+	beginRun(run,iES);
+  }
+
+  void EDLooper::doEndRun(RunPrincipal& iRP, EventSetup const& iES){
+        edm::ModuleDescription modDesc("EDLooper", "");
+	Run run(iRP, modDesc);
+	endRun(run,iES);
+  }
+  void EDLooper::doBeginLuminosityBlock(LuminosityBlockPrincipal& iLB, EventSetup const& iES){
+    edm::ModuleDescription modDesc("EDLooper", "");
+    LuminosityBlock luminosityBlock(iLB, modDesc);
+    beginLuminosityBlock(luminosityBlock,iES);
+  }
+  void EDLooper::doEndLuminosityBlock(LuminosityBlockPrincipal& iLB, EventSetup const& iES){
+    edm::ModuleDescription modDesc("EDLooper", "");
+    LuminosityBlock luminosityBlock(iLB, modDesc);
+    endLuminosityBlock(luminosityBlock,iES);
+  }
+
+  void EDLooper::beginRun(Run const&, EventSetup const&){}
+  void EDLooper::endRun(Run const&, EventSetup const&){}
+  void EDLooper::beginLuminosityBlock(LuminosityBlock const&, EventSetup const&){}
+  void EDLooper::endLuminosityBlock(LuminosityBlock const&, EventSetup const&){}
+
 
   std::set<eventsetup::EventSetupRecordKey> 
   EDLooper::modifyingRecords() const
