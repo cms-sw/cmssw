@@ -220,7 +220,7 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     sipixelWebInterface_->performAction();
     //cout  << " Checking Pixel quality flags " << endl;;
     bei_->cd();
-    bool init=true;
+//    bool init=true;
 //    sipixelDataQuality_->computeGlobalQualityFlag(bei_,init,nFEDs_,Tier0Flag_);
 //    init=true;
 //    sipixelDataQuality_->fillGlobalQualityPlot(bei_,init,eSetup,nFEDs_,Tier0Flag_);

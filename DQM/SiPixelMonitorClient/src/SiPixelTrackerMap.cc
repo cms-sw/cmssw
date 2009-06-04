@@ -16,7 +16,7 @@
 //
 // Original Author:  Dario Menasce
 //         Created:  
-// $Id: SiPixelTrackerMap.cc,v 1.10 2009/06/02 09:43:27 merkelp Exp $
+// $Id: SiPixelTrackerMap.cc,v 1.11 2009/06/04 14:38:44 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorClient/interface/SiPixelTrackerMap.h"
@@ -150,7 +150,7 @@ void SiPixelTrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_
   bool BPIX_L_3 = false ;
   QRegExp rx("(BPIX|FPIX)") ;
   QRegExp ry("(FPIX\\s+-z\\s+disc\\s+1|FPIX\\s+-z\\s+disc\\s+2|FPIX\\s+\\+z\\s+disc\\s+2|FPIX\\s+\\+z\\s+disc\\s+1|Shell_mI/Layer_1|Shell_mO/Layer_1|Shell_pI/Layer_1|Shell_pO/Layer_1)") ;
-  QString modName = mod->name ;
+  QString modName = QString::fromStdString(mod->name );
   QRegExp rtest("(PixelBarrel|PixelEndcap");
   //cout<<"modName= "<<modName<<endl;
   string moduleName = mod->name;
