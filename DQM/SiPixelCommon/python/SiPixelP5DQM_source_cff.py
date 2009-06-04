@@ -28,6 +28,9 @@ from DQM.SiPixelMonitorTrack.SiPixelMonitorTrack_cfi import *
 SiPixelTrackResidualSource.saveFile = False
 from DQM.SiPixelMonitorTrack.SiPixelMonitorTrack_Cosmics_cfi import *
 SiPixelTrackResidualSource_Cosmics.saveFile = False
+#MC
+SiPixelTrackResidualSource.TrackCandidateProducer = cms.string('newTrackCandidateMaker')
+SiPixelTrackResidualSource.trajectoryInput = cms.InputTag('generalTracks')
 
 ##online/offline
 #RawDataErrors
