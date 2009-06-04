@@ -24,6 +24,8 @@
 #include <iomanip>
 
 #include<map>
+#include<set>
+#include <cmath>
 #include <string>
 
 #include "boost/lexical_cast.hpp"
@@ -77,7 +79,7 @@ L1GtTrigReport::L1GtTrigReport(const edm::ParameterSet& pSet) {
     m_l1GtRecordInputTag = pSet.getParameter<edm::InputTag>("L1GtRecordInputTag");
 
     // print verbosity
-    m_printVerbosity = pSet.getUntrackedParameter<int>("PrintVerbosity", 0);
+    m_printVerbosity = pSet.getUntrackedParameter<int>("PrintVerbosity", 2);
 
     // print output
     m_printOutput = pSet.getUntrackedParameter<int>("PrintOutput", 3);
@@ -152,7 +154,7 @@ L1GtTrigReport::~L1GtTrigReport() {
 
 
 // method called once each job just before starting event loop
-void L1GtTrigReport::beginJob(const edm::EventSetup& evSetup) {
+void L1GtTrigReport::beginJob() {
 
     // empty
 
@@ -817,6 +819,170 @@ void L1GtTrigReport::endJob() {
         }
 
             break;
+        case 2: {
+
+            // get the list of menus for the sample analyzed
+            //
+            std::set<std::string> menuList;
+            typedef std::set<std::string>::const_iterator CItL1Menu;
+
+            for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
+                menuList.insert( ( *itEntry )->gtTriggerMenuName());
+            }
+
+            myCout
+                    << "\nThe following L1 menus were used for this sample: " << std::endl;
+            for (CItL1Menu itMenu = menuList.begin(); itMenu != menuList.end(); itMenu++) {
+                myCout << "  " << ( *itMenu ) << std::endl;
+            }
+            myCout << "\n" << std::endl;
+
+            for (CItL1Menu itMenu = menuList.begin(); itMenu != menuList.end(); itMenu++) {
+
+                myCout << "Report for L1 menu:  " << ( *itMenu ) << "\n"
+                        << std::endl;
+
+                myCout
+                    << std::right << std::setw(35) << "Algorithm Key" << " "
+                    << std::right << std::setw(10) << "Passed" << " "
+                    << std::right << std::setw(10) << "Rejected" << " "
+                    << std::right << std::setw(10) << "Error" << "\n";
+
+                for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
+
+                    if ( ( ( *itEntry )->gtDaqPartition() == m_physicsDaqPartition )
+                            && ( ( *itEntry )->gtTriggerMenuName() == *itMenu )) {
+
+                        int nrEventsAccept = ( *itEntry )->gtNrEventsAccept();
+                        int nrEventsReject = ( *itEntry )->gtNrEventsReject();
+                        int nrEventsError = ( *itEntry )->gtNrEventsError();
+
+                        myCout
+                            << std::right << std::setw(35) << (( *itEntry )->gtAlgoName()) << " "
+                            << std::right << std::setw(10) << nrEventsAccept << " "
+                            << std::right << std::setw(10) << nrEventsReject << " "
+                            << std::right << std::setw(10) << nrEventsError << "\n";
+
+                    }
+                }
+
+                // efficiency and its statistical error
+
+                myCout << "\n\n"
+                    << std::right << std::setw(35) << "Algorithm Key" << "    "
+                    << std::right << std::setw(10) << "Efficiency " << " "
+                    << std::right << std::setw(10) << "Stat error (%)" << "\n";
+
+                for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
+
+                    if ( ( ( *itEntry )->gtDaqPartition() == 0 ) && ( ( *itEntry )->gtTriggerMenuName()
+                            == *itMenu )) {
+
+                        int nrEventsAccept = ( *itEntry )->gtNrEventsAccept();
+                        int nrEventsReject = ( *itEntry )->gtNrEventsReject();
+                        int nrEventsError = ( *itEntry )->gtNrEventsError();
+
+                        int totalEvents = nrEventsAccept + nrEventsReject + nrEventsError;
+
+                        // efficiency and their statistical error
+                        float eff = 0.;
+                        float statErrEff = 0.;
+
+                        if (totalEvents != 0) {
+                            eff = static_cast<float> (nrEventsAccept)
+                                    / static_cast<float> (totalEvents);
+                            statErrEff = sqrt(eff * ( 1.0 - eff )
+                                    / static_cast<float> (totalEvents));
+
+                        }
+
+                        myCout
+                            << std::right << std::setw(35) << (( *itEntry )->gtAlgoName()) << " "
+                            << std::right << std::setw(10) << std::fixed << std::setprecision(2)
+                            << 100.*eff << " +- "
+                            << std::right << std::setw(10) << std::setprecision(2)
+                            << 100.*statErrEff << "\n";
+
+
+                    }
+
+                }
+
+                myCout
+                    << "\n\n"
+                    << std::right << std::setw(35) << "Technical Trigger Key" << " "
+                    << std::right << std::setw(10) << "Passed" << " "
+                    << std::right << std::setw(10) << "Rejected" << " "
+                    << std::right << std::setw(10) << "Error" << "\n";
+
+                for (CItEntry itEntry = m_entryListTechTrig.begin(); itEntry
+                        != m_entryListTechTrig.end(); itEntry++) {
+
+                    if ( ( ( *itEntry )->gtDaqPartition() == m_physicsDaqPartition )
+                            && ( ( *itEntry )->gtTriggerMenuName() == *itMenu )) {
+
+                        int nrEventsAccept = ( *itEntry )->gtNrEventsAccept();
+                        int nrEventsReject = ( *itEntry )->gtNrEventsReject();
+                        int nrEventsError = ( *itEntry )->gtNrEventsError();
+
+                        myCout
+                            << std::right << std::setw(35) << (( *itEntry )->gtAlgoName()) << " "
+                            << std::right << std::setw(10) << nrEventsAccept << " "
+                            << std::right << std::setw(10) << nrEventsReject << " "
+                            << std::right << std::setw(10) << nrEventsError << "\n";
+
+                    }
+                }
+
+                // efficiency and its statistical error
+
+                myCout << "\n\n"
+                    << std::right << std::setw(35) << "Technical Trigger Key" << "    "
+                    << std::right << std::setw(10) << "Efficiency " << " "
+                    << std::right << std::setw(10) << "Stat error (%)" << "\n";
+
+                for (CItEntry itEntry = m_entryListTechTrig.begin(); itEntry
+                        != m_entryListTechTrig.end(); itEntry++) {
+
+                    if ( ( ( *itEntry )->gtDaqPartition() == 0 ) && ( ( *itEntry )->gtTriggerMenuName()
+                            == *itMenu )) {
+
+                        int nrEventsAccept = ( *itEntry )->gtNrEventsAccept();
+                        int nrEventsReject = ( *itEntry )->gtNrEventsReject();
+                        int nrEventsError = ( *itEntry )->gtNrEventsError();
+
+                        int totalEvents = nrEventsAccept + nrEventsReject + nrEventsError;
+
+                        // efficiency and their statistical error
+                        float eff = 0.;
+                        float statErrEff = 0.;
+
+                        if (totalEvents != 0) {
+                            eff = static_cast<float> (nrEventsAccept)
+                                    / static_cast<float> (totalEvents);
+                            statErrEff = sqrt(eff * ( 1.0 - eff )
+                                    / static_cast<float> (totalEvents));
+
+                        }
+
+                        myCout
+                            << std::right << std::setw(35) << (( *itEntry )->gtAlgoName()) << " "
+                            << std::right << std::setw(10) << std::fixed << std::setprecision(2)
+                            << 100.*eff << " +- "
+                            << std::right << std::setw(10) << std::setprecision(2)
+                            << 100.*statErrEff << "\n";
+
+
+                    }
+
+                }
+
+            }
+
+
+        }
+            break;
+
         case 10: {
 
             myCout << "\nL1T-Report " << "---------- L1 Trigger Global Summary - DAQ Partition "

@@ -55,7 +55,7 @@ public:
 
 private:
 
-    virtual void beginJob(const edm::EventSetup&);
+    virtual void beginJob();
 
     /// analyze each event
     virtual void analyze(const edm::Event&, const edm::EventSetup&);

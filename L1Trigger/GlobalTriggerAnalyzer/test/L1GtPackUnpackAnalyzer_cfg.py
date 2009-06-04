@@ -22,7 +22,7 @@ if useRelValSample == True :
     useGlobalTag = 'IDEAL_V12'
     #useGlobalTag='STARTUP_V9'
 else :
-    useGlobalTag = 'CRAFT_ALL_V11'
+    useGlobalTag = 'CRAFT_ALL_V12'
 
 # change to True to use local files
 #     the type of file should match the choice of useRelValSample and useGlobalTag

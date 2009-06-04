@@ -15,6 +15,7 @@ l1GtTrigReport = cms.EDAnalyzer("L1GtTrigReport",
     # print verbosity
     #   Level 0 Physics Partition:  TriggerKey, AlgorithmKey, Passed, Rejected, Error
     #   Level 1 Physics Partition:  Level 0 + PrescaleFactors + Mask
+    #   Level 2 Physics Partition:  Level 0, Efficiency
     #
     #   Level 10 Physics Partition: TriggerKey, AlgorithmKey, PrescaleFactors
     #                               Before masks: Passed, Rejected, 
@@ -25,13 +26,14 @@ l1GtTrigReport = cms.EDAnalyzer("L1GtTrigReport",
     #   Level 100 All Partitions:   TriggerKey, AlgorithmKey, Passed, Rejected, Error
     #   Level 101 All Partitions:   Level 100 + PrescaleFactors + Mask
     #   ... 
-    PrintVerbosity = cms.untracked.int32(0),
+    PrintVerbosity = cms.untracked.int32(2),
     
     # print output
     #   0 std::cout
     #   1 LogTrace
     #   2 LogVerbatim
-    PrintOutput = cms.untracked.int32(0)
+    #   3 LogInfo
+    PrintOutput = cms.untracked.int32(3)
     
 )
 
