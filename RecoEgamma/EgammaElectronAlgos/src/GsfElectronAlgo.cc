@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.70 2009/05/31 15:58:09 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.71 2009/06/04 08:40:33 chamont Exp $
 //
 //
 
@@ -329,7 +329,6 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
 }
 
 void GsfElectronAlgo::process(
-  //edm::Handle<GsfTrackCollection> gsfTracksH,
   edm::Handle<GsfElectronCoreCollection> coresH,
   edm::Handle<TrackCollection> ctfTracksH,
   edm::Handle<edm::ValueMap<float> > pfMVAH,
@@ -339,8 +338,6 @@ void GsfElectronAlgo::process(
   const BeamSpot & bs,
   GsfElectronPtrCollection & outEle )
  {
-
-  const edm::ValueMap<float> & pfmvas = *pfMVAH.product() ;
 
   // Isolation algos
 
@@ -395,8 +392,10 @@ void GsfElectronAlgo::process(
     SuperCluster theClus = *scRef ;
 
     // mva
-    float mva=std::numeric_limits<float>::infinity();
-    if (coreRef->isTrackerDriven()) mva = pfmvas[gsfTrackRef];
+    //const edm::ValueMap<float> & pfmvas = *pfMVAH.product() ;
+    //float mva=std::numeric_limits<float>::infinity();
+    //if (coreRef->isTrackerDriven()) mva = pfmvas[gsfTrackRef];
+    float mva = (*pfMVAH.product())[gsfTrackRef] ;
 
     // electron basic cluster
     CaloClusterPtr elbcRef = getEleBasicCluster(gsfTrackRef,&theClus) ;
@@ -629,6 +628,7 @@ void GsfElectronAlgo::createElectron
   tkExtra.momentumOut = convert(seedMom) ;
   tkExtra.momentumAtEleClus = convert(eleMom) ;
   tkExtra.momentumAtVtxWithConstraint = convert(vtxMomWithConstraint);
+
 
   //=======================================================
   // Closest Ctf Track
