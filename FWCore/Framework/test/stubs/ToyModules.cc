@@ -812,7 +812,7 @@ namespace edmtest {
   public:
     IntTestAnalyzer(const edm::ParameterSet& iPSet) :
       value_(iPSet.getUntrackedParameter<int>("valueMustMatch")),
-      moduleLabel_(iPSet.getUntrackedParameter<std::string>("moduleLabel")) {
+      moduleLabel_(iPSet.getUntrackedParameter<std::string>("moduleLabel"),"") {
       }
      
     void analyze(const edm::Event& iEvent, edm::EventSetup const&) {
@@ -826,7 +826,7 @@ namespace edmtest {
     }
   private:
     int value_;
-    std::string moduleLabel_;
+    edm::InputTag moduleLabel_;
   };
 
 
