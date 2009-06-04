@@ -17,7 +17,9 @@ L1RCTElectronIsolationCard::L1RCTElectronIsolationCard(int crateNumber,
 }
 
 L1RCTElectronIsolationCard::~L1RCTElectronIsolationCard()
-{}
+{
+  regions.clear();
+}
 
 
 void L1RCTElectronIsolationCard::fillElectronCandidates(){
