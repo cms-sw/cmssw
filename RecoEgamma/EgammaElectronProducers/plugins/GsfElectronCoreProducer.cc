@@ -50,12 +50,13 @@ void GsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSetup
       else
        { edm::LogWarning("GsfElectronCoreProducer")<<"Seed CaloCluster is not a SuperCluster, unexpected..." ; }
      }
-    if (ele->isTrackerDriven())
-     {
-      // eventual pflow super cluster.
-      SuperClusterRef pfscRef = (*pfClusterTracksH)[gsfTrackRef];
-      ele->setPflowSuperCluster(pfscRef) ;
-     }
+    //if (ele->isTrackerDriven())
+    // {
+    //  // eventual pflow super cluster.
+    //  SuperClusterRef pfscRef = (*pfClusterTracksH)[gsfTrackRef];
+    //  ele->setPflowSuperCluster(pfscRef) ;
+     //}
+    ele->setPflowSuperCluster((*pfClusterTracksH)[gsfTrackRef]) ;
     if (!(ele->superCluster().isNull()))
      { electrons->push_back(*ele) ; }
     else
