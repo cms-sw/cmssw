@@ -34,7 +34,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   dwToEnd_ = dwToEnd;
   
   uint activeDCC = mapper_->getActiveSM();
- 
+
   if( (*dwToEnd_)<1){
     if( ! DCCDataUnpacker::silentMode_ ){
       edm::LogWarning("EcalRawToDigiTowerSize")

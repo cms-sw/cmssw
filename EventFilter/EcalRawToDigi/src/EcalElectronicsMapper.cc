@@ -349,6 +349,13 @@ uint EcalElectronicsMapper::computeEETCCBlockLength(){
 
 }
 
+bool EcalElectronicsMapper::isTCCExternal(uint TCCId){
+  if(
+     (NUMB_TCC_EE_MIN_EXT_MIN <= TCCId && TCCId<=NUMB_TCC_EE_MIN_EXT_MAX) ||
+     (NUMB_TCC_EE_PLU_EXT_MIN <= TCCId && TCCId<=NUMB_TCC_EE_PLU_EXT_MAX)
+     ) return true;
+  else return false;
+}
 
 uint EcalElectronicsMapper::getDCCId(uint aSMId_) const{
   //get iterator for SM id

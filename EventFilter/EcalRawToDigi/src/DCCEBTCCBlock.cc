@@ -15,7 +15,7 @@ void DCCEBTCCBlock::updateCollectors(){
 }
 
 bool DCCEBTCCBlock::checkTccIdAndNumbTTs(){
-    
+
   expTccId_ = mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB;
 
   if( tccId_ != expTccId_ ){

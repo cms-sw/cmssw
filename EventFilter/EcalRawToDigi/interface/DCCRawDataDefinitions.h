@@ -50,7 +50,7 @@ enum globalFieds{
   NUMB_PSEUDOSTRIPS   = 30, // input1 and input2 of TCC board has at most 30 PS_input (12 of which are duplicated)
   NUMB_TTS_TPG2_DUPL  = 12, //
   NUMB_TTS_TPG1       = 16, // input1 of TCC board has at most 16 TP's
-  NUMB_TTS_TPG2       = 12, // input1 of TCC board has at most 12 TP's
+  NUMB_TTS_TPG2       = 12, // input2 of TCC board has at most 12 TP's
 
   NUMB_SM_EE_MIN_MIN  = 1,
   NUMB_SM_EE_MIN_MAX  = 9,
@@ -65,8 +65,13 @@ enum globalFieds{
   SECTOR_EEM_CCU_JUMP = 8,
   SECTOR_EEP_CCU_JUMP = 53,
   MIN_CCUID_JUMP      = 18,
-  MAX_CCUID_JUMP      = 24
+  MAX_CCUID_JUMP      = 24,
   
+  NUMB_TCC_EE_MIN_EXT_MIN  = 19,     // outer TCC's in EE-
+  NUMB_TCC_EE_MIN_EXT_MAX  = 36,
+  NUMB_TCC_EE_PLU_EXT_MIN  = 73,    // outer TCC's in EE+
+  NUMB_TCC_EE_PLU_EXT_MAX  = 90
+
 };
 
 
@@ -215,6 +220,17 @@ enum srpFields{
    SRP_SRFLAG_MASK     = 0x7,
    SRP_SRVAL_MASK      = 0x3
 
+};
+
+enum dccFOVs{
+  // MC raw data based on CMS NOTE 2005/021
+  // (and raw data when FOV was unassigned, earlier than mid 2008)
+  dcc_FOV_0           = 0,
+
+  // real data since ever FOV was initialized; only 2 used >= June 09 
+  dcc_FOV_1           = 1,
+  dcc_FOV_2           = 2
+ 
 };
 
 

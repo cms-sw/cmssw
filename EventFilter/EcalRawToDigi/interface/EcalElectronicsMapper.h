@@ -9,8 +9,8 @@
  
  * \file EcalElectronicsMapper.h
  *
- * $Date: 2008/02/24 23:43:41 $
- * $Revision: 1.14 $
+ * $Date: 2008/12/11 18:05:57 $
+ * $Revision: 1.1 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -140,6 +140,8 @@ public:
   uint getNumChannelsInDcc(uint aDCCId){return numChannelsInDcc_[aDCCId-1];}
 
   const EcalElectronicsMapping * mapping(){return mappingBuilder_;} 
+
+  bool isTCCExternal(uint TCCId);
   
   /**
    * Print current map
