@@ -37,7 +37,8 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   virtual void endJob() ;
 
  private:
-  
+  double dR(double eta1, double phi1, double eta2, double phi2);
+   
   DQMStore* dbe_;
   std::string outputFile_;
   std::string hcalselector_;
@@ -50,6 +51,11 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   // eta limits to calcualte MET, SET (not to include HF if not needed)
   double etaMax[3];
   double etaMin[3];
+
+  // scan
+  MonitorElement*  emean_vs_ieta_E;
+  MonitorElement*  emean_vs_ieta_H;
+  MonitorElement*  emean_vs_ieta_EH;
 
   // HB
   MonitorElement* meEnergyHcalvsEcal_HB;
