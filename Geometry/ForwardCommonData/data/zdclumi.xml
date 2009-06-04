@@ -10,7 +10,7 @@
 <Constant name = "LUMIPositionZ" value = "34.8500*cm"/>
 <Constant name = "LUMIHalfdX" value = "8.0000*cm"/>
 <Constant name = "LUMIHalfdY" value ="32.0000*cm"/>
-<Constant name = "LUMIHalfdZ" value = "4.7000*cm"/>
+<Constant name = "LUMIHalfdZ" value = "4.9510*cm"/>
 <Constant name = "casePositionX" value =  "0.0000*cm"/>
 <Constant name = "casePositionY" value =  "0.4765*cm"/>
 <Constant name = "casePositionZ" value =  "0.0000*cm"/>
@@ -36,7 +36,7 @@
 <Constant name = "caseTopHalfdY" value = " 0.6350*cm"/>
 <Constant name = "caseTopHalfdZ" value =  "4.9505*cm"/>
 <Constant name = "caseTopPositionX" value =  "1.1000*cm"/>
-<Constant name = "caseTopPositionY" value =  "[box1CaseHalfdY] - [casePositionY] + [caseTopHalfdY]"/>
+<Constant name = "caseTopPositionY" value =  "[box1CaseHalfdY] + [casePositionY] + [caseTopHalfdY]"/>
 <Constant name = "caseTopPositionZ" value =  "0.0000*cm"/>
 <Constant name = "cuCoverZPosHalfdX" value =  "4.3810*cm"/>
 <Constant name = "cuCoverZPosHalfdY" value = "29.7650*cm"/>
@@ -76,21 +76,19 @@
 <Constant name = "boxFrontCoverHalfdY" value =  "5.5000*cm"/>
 <Constant name = "boxFrontCoverHalfdZ" value =  "0.1590*cm"/>
 <Constant name = "boxBackCoverHalfdX" value =  "4.3810*cm"/>
-<Constant name = "boxBackCoverHalfdY" value =  "6.7945*cm"/>
+<Constant name = "boxBackCoverHalfdY" value =  "6.79425*cm"/>
 <Constant name = "boxBackCoverHalfdZ" value =  "0.1825*cm"/>
 <Constant name = "frontCoverPositionX" value =  "0.0000*cm"/>
-<Constant name = "frontCoverPositionY" 
-value="-[boxFrontCoverHalfdY]-[box3CuSupportHalfdY]-[box3CuSupportHalfdY]-[box1CuSupportHalfdY]+[cuSupportPositionY]-[box2CaseBottomHalfdY]"/>
+<Constant name = "frontCoverPositionY" value="-[boxFrontCoverHalfdY]-[box3CuSupportHalfdY]-[box3CuSupportHalfdY]-[box1CuSupportHalfdY]+[cuSupportPositionY]-[box2CaseBottomHalfdY]"/>
 <Constant name = "frontCoverPositionZ" value = "[box1CuSupportHalfdZ] - [boxFrontCoverHalfdZ]"/>
 <Constant name = "backCoverPositionX" value =  "0.0000*cm"/>
-<Constant name = "backCoverPositionY" value =  "-[boxBackCoverHalfdY] - [box1CuSupportHalfdY] + [cuSupportPositionY]"/>
-<Constant name = "backCoverPositionZ" value =  "-[box4CuSupportHalfdZ] - [boxBackCoverHalfdZ] - [boxBackCoverHalfdZ]"/>
+<Constant name = "backCoverPositionY" value =  "[caseBottomPositionY] + [box1CaseBottomHalfdY] - [box2CaseBottomHalfdY] + [boxBackCoverHalfdY]"/>
+<Constant name = "backCoverPositionZ" value =  "-[box1DetectorCoverHalfdZ] - [boxBackCoverHalfdZ]"/>
 <Constant name = "box1DetectorCoverHalfdX" value =  "4.3500*cm"/>
 <Constant name = "box1DetectorCoverHalfdY" value =  "4.8000*cm"/>
 <Constant name = "box1DetectorCoverHalfdZ" value =  "1.6500*cm"/>
 <Constant name = "dtCoverPositionX" value =  "0.0000*cm"/>
-<Constant name = "dtCoverPositionY" 
-value =  "-[box4CuSupportHalfdY] - [box4CuSupportHalfdY] -[box1CuSupportHalfdY] - [box1DetectorCoverHalfdY] + [cuSupportPositionY]"/>
+<Constant name = "dtCoverPositionY" value =  "-[box4CuSupportHalfdY] - [box4CuSupportHalfdY] -[box1CuSupportHalfdY] - [box1DetectorCoverHalfdY] + [cuSupportPositionY]"/>
 <Constant name = "dtCoverPositionZ" value =  "0.0000*cm"/>
 <Constant name = "box1DetectorGasHalfdX" value = "3.9490*cm"/>
 <Constant name = "box1DetectorGasHalfdY" value = "4.3990*cm"/>
