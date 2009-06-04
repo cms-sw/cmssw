@@ -271,7 +271,7 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
     double eH   = cal->hadEnergy();
     double eHO  = cal->outerEnergy();
     double etaT = cal->eta();
-    double phiT = cal->eta();
+    double phiT = cal->phi();
     double en   = cal->energy();
 
     math::RhoEtaPhiVector mom(cal->et(), cal->eta(), cal->phi());
@@ -280,6 +280,7 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
     // cell properties    
     CaloTowerDetId idT = cal->id();
     int ieta = idT.ieta();
+    if(ieta > 0) ieta -= 1;
     int iphi = idT.iphi();
 
 
