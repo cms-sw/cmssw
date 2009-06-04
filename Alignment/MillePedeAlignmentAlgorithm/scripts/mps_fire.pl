@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg      3-Jul-2007
 #     A. Parenti, DESY Hamburg    21-Apr-2008
-#     $Revision: 1.11 $
-#     $Date: 2009/01/07 18:25:38 $
+#     $Revision: 1.12 $
+#     $Date: 2009/06/03 16:24:53 $
 #
 #  Submit jobs that are setup in local mps database
 #  
@@ -71,7 +71,7 @@ if ($fireMerge == 0) {
     # fire the "normal" parallel jobs
     # set the resource string coming from mps.db
     $resources = get_class("mille");
-    if ($resources eq "cmscafspec1h" || $resources eq "cmscafspec8h" || $resources eq "cmscafspec1w") {  # special cmscaf resource
+    if ($resources eq "cmscafspec1nh" || $resources eq "cmscafspec8nh" || $resources eq "cmscafspec1nw") {  # special cmscaf resource
 	print "\nWARNING:\n  Running mille jobs on cmscafspec, intended for pede only!\n\n";
         $queue = $resources;
         $queue =~ s/cmscafspec/cmscaf/;
@@ -115,7 +115,7 @@ else {
     print "fire merge\n";
     # set the resource string coming from mps.db
     $resources = get_class("pede");
-    if ($resources eq "cmscafspec1h" || $resources eq "cmscafspec8h" || $resources eq "cmscafspec1w") {  # special cmscaf resource
+    if ($resources eq "cmscafspec1nh" || $resources eq "cmscafspec8nh" || $resources eq "cmscafspec1nw") {  # special cmscaf resource
         $queue = $resources;
         $queue =~ s/cmscafspec/cmscaf/;
  	$resources = "-q ".$queue." -R cmscafspec";
