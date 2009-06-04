@@ -323,7 +323,11 @@ process.looper = cms.Looper(
     # Set this to false if you do not want to use simTracks.
     # (Note that this is skipped anyway if speedup == True).
     compareToSimTracks = cms.bool(True),
-    # readPdfFromDB = cms.bool(False)
+    
+    # This line is only necessary when running on fastSim
+    # SimTracksCollection = cms.untracked.InputTag("famosSimHits"),
+    # This must be set to true when using events generated with Sherpa
+    # Sherpa = cms.untracked.bool(True),
 )
 
 # Timing information

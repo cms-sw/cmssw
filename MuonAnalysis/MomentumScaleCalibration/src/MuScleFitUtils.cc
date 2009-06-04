@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/05/13 08:52:45 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/05/14 10:52:39 $
+ *  $Revision: 1.11 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -177,6 +177,8 @@ const unsigned int MuScleFitUtils::motherPdgIdArray[] = {23, 200553, 100553, 553
 
 double MuScleFitUtils::leftWindowFactor = 1.;
 double MuScleFitUtils::rightWindowFactor = 1.;
+
+bool MuScleFitUtils::sherpa_ = false;
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 // Find the best simulated resonance from a vector of simulated muons (SimTracks) 
@@ -318,14 +320,21 @@ pair <lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const Hand
   //Loop on generated particles
   for (HepMC::GenEvent::particle_const_iterator part=Evt->particles_begin(); 
        part!=Evt->particles_end(); part++) {
-    if (fabs((*part)->pdg_id())==13 && (*part)->status()==1) {  
+    if (fabs((*part)->pdg_id())==13 && (*part)->status()==1) {
       bool fromRes = false;
       for (HepMC::GenVertex::particle_iterator mother = (*part)->production_vertex()->particles_begin(HepMC::ancestors);
 	   mother != (*part)->production_vertex()->particles_end(HepMC::ancestors); ++mother) {
         unsigned int motherPdgId = (*mother)->pdg_id();
 
-        for( int ires = 0; ires < 6; ++ires ) {
-          if( motherPdgId == motherPdgIdArray[ires] && resfind[ires] ) fromRes = true;
+        // For sherpa the resonance is not saved. The muons from the resonance can be identified
+        // by having as mother a muon of status 3.
+        if( sherpa_ ) {
+          if( motherPdgId == 13 && (*mother)->status() == 3 ) fromRes = true;
+        }
+        else {
+          for( int ires = 0; ires < 6; ++ires ) {
+            if( motherPdgId == motherPdgIdArray[ires] && resfind[ires] ) fromRes = true;
+          }
         }
 
 // 	if ((*mother)->pdg_id()==23  || (*mother)->pdg_id()==443    || (*mother)->pdg_id()==100443 || 
@@ -348,37 +357,40 @@ pair <lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const Hand
 
 pair <lorentzVector, lorentzVector> MuScleFitUtils::findSimMuFromRes( const Handle<HepMCProduct> & evtMC, const Handle<SimTrackContainer> & simTracks ){
   //Loop on simulated tracks
-  pair<lorentzVector, lorentzVector> simMuFromRes;   
+  pair<lorentzVector, lorentzVector> simMuFromRes;
   for (SimTrackContainer::const_iterator simTrack=simTracks->begin(); simTrack!=simTracks->end(); ++simTrack) {
     //Chose muons
     if (fabs((*simTrack).type())==13) {
       //If tracks from IP than find mother
       if ((*simTrack).genpartIndex()>0) {
 	HepMC::GenParticle* gp = evtMC->GetEvent()->barcode_to_particle ((*simTrack).genpartIndex()); 
+        if( gp != 0 ) {
 
-	for (HepMC::GenVertex::particle_iterator mother = gp->production_vertex()->particles_begin(HepMC::ancestors);
-	     mother!=gp->production_vertex()->particles_end(HepMC::ancestors); ++mother) {
+          for (HepMC::GenVertex::particle_iterator mother = gp->production_vertex()->particles_begin(HepMC::ancestors);
+               mother!=gp->production_vertex()->particles_end(HepMC::ancestors); ++mother) {
 
-          bool fromRes = false;
-          unsigned int motherPdgId = (*mother)->pdg_id();
-          for( int ires = 0; ires < 6; ++ires ) {
-            if( motherPdgId == motherPdgIdArray[ires] && resfind[ires] ) fromRes = true;
-          }
+            bool fromRes = false;
+            unsigned int motherPdgId = (*mother)->pdg_id();
+            for( int ires = 0; ires < 6; ++ires ) {
+              if( motherPdgId == motherPdgIdArray[ires] && resfind[ires] ) fromRes = true;
+            }
 //  	  if( ((*mother)->pdg_id() == 23     && resfind[0]) ||
 //               ((*mother)->pdg_id() == 443    && resfind[1]) ||
 //               ((*mother)->pdg_id() == 100443 && resfind[2]) || 
 //  	      ((*mother)->pdg_id() == 553    && resfind[3]) ||
 //               ((*mother)->pdg_id() == 100553 && resfind[4]) ||
 //               ((*mother)->pdg_id() == 200553 && resfind[5]) {
-          if( fromRes ) {
-	    if(gp->pdg_id() == 13)
-	      simMuFromRes.first = lorentzVector(simTrack->momentum().px(),simTrack->momentum().py(),
-                                                 simTrack->momentum().pz(),simTrack->momentum().e());
-	    else
-	      simMuFromRes.second = lorentzVector(simTrack->momentum().px(),simTrack->momentum().py(),
-                                                  simTrack->momentum().pz(),simTrack->momentum().e()); 
-	  }
-	}
+            if( fromRes ) {
+              if(gp->pdg_id() == 13)
+                simMuFromRes.first = lorentzVector(simTrack->momentum().px(),simTrack->momentum().py(),
+                                                   simTrack->momentum().pz(),simTrack->momentum().e());
+              else
+                simMuFromRes.second = lorentzVector(simTrack->momentum().px(),simTrack->momentum().py(),
+                                                    simTrack->momentum().pz(),simTrack->momentum().e()); 
+            }
+          }
+        }
+        else LogDebug("MuScleFitUtils") << "WARNING: no matching genParticle found for simTrack" << endl;
       }
     }
   }
