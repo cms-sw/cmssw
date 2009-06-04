@@ -7,10 +7,10 @@ process = cms.Process("TEST")
 process.load("DQMServices.Core.DQM_cfg")
 
 process.source = cms.Source("PoolSource",
-		            fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre7/RelValZEE/GEN-SIM-RECO/IDEAL_31X_v1/0004/A083C68A-E641-DE11-9169-001D09F28F0C.root',
-                                                              '/store/relval/CMSSW_3_1_0_pre7/RelValZEE/GEN-SIM-RECO/IDEAL_31X_v1/0004/9C5A4F6B-AF41-DE11-9368-000423D99B3E.root',
-                                                              '/store/relval/CMSSW_3_1_0_pre7/RelValZEE/GEN-SIM-RECO/IDEAL_31X_v1/0004/5AA9DD79-B041-DE11-8CDA-001D09F2503C.root',
-                                                              '/store/relval/CMSSW_3_1_0_pre7/RelValZEE/GEN-SIM-RECO/IDEAL_31X_v1/0004/347A0DAC-B241-DE11-B892-001D09F2B2CF.root')
+		            fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre8/RelValZEE/GEN-SIM-RECO/STARTUP_31X_v1/0006/443872D1-DA4D-DE11-87DB-000423D94700.root',
+                                                              '/store/relval/CMSSW_3_1_0_pre8/RelValZEE/GEN-SIM-RECO/STARTUP_31X_v1/0005/C258C2F4-5A4D-DE11-B2EF-001D09F2424A.root',
+                                                              '/store/relval/CMSSW_3_1_0_pre8/RelValZEE/GEN-SIM-RECO/STARTUP_31X_v1/0005/3463063D-614D-DE11-8717-001D09F242EA.root',
+                                                              '/store/relval/CMSSW_3_1_0_pre8/RelValZEE/GEN-SIM-RECO/STARTUP_31X_v1/0005/0AC4EE74-5F4D-DE11-A410-001D09F23944.root')
 
 			    )
 
