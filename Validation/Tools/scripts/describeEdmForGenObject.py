@@ -9,16 +9,11 @@ import inspect
 import optparse
 
 defsDict = {
-    'int'    : '%-40s : form=%%8d   type=int',
-    'float'  : '%-40s : form=%%7.2f prec=0.001',
-    'str'    : '%-40s : form=%%20s  type=string',
-    'long'   : '%-40s : form=%%10d  type=long',    
+    'int'    : '%-40s : form=%%%%8d   type=int',
+    'float'  : '%-40s : form=%%%%7.2f prec=0.001',
+    'str'    : '%-40s : form=%%%%20s  type=string',
+    'long'   : '%-40s : form=%%%%10d  type=long',    
     }
-
-reList = [
-    ('DV3Dcar' , re.compile (r'ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>\(\)_ROOT::Math::Cartesian3D<double>()')),
-    ('DV3D' ,    re.compile (r'ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>\(\)')),
-    ]
 
 dotRE   = re.compile (r'\.')
 nonAlphaRE = re.compile (r'\W')
@@ -38,7 +33,7 @@ def warn (*args):
 
 def getObjectList (baseObj, base):
     """Get a list of interesting things from this object"""
-    #print "In", base
+    print "In", base
     match = lastClassRegex.search (base)
     lastClass = ''
     if match:
@@ -46,6 +41,7 @@ def getObjectList (baseObj, base):
     retval = []
     todoDict = {}
     for objName in dir (baseObj):
+        #print "  ", objName
         skip = False
         for regex in memberReList:            
             if regex.search (objName):
@@ -76,19 +72,25 @@ def getObjectList (baseObj, base):
                 continue
             # if we're here, then we don't know what we've got
             className = value.__class__.__name__
-            if className == lastClass:
+            if objName == lastClass:
                 # don't fall into a recursive trap
                 continue
             skipType = False
             for regex in typeReList:
                 if regex.search (className):
-                    print "skipping type '%s'" % className
+                    #print "skipping type '%s'" % className
                     skipType = True
                     break
-            if not skipType:
-                name = "%s.%s()" % (base, className)
-                todoDict[name] = value
-                #retval.append( ("%s.%s()" % (base, objName), className) )
+            for regex in memberReList:
+                if regex.search (objName):
+                    skipType = True
+                    break
+            if skipType:
+                continue
+            #name = "%s.%s()" % (base, className)
+            name = "%s.%s()" % (base, objName)
+            todoDict[name] = value
+            #retval.append( ("%s.%s()" % (base, objName), className) )
     for name, obj in sorted (todoDict.iteritems()):
         retval.extend( getObjectList (obj, name) )
     return retval
@@ -99,8 +101,6 @@ def genObjNameDef (line):
     words = dotRE.split (line)[1:]
     func = ".".join (words)
     name =  "_".join (words)
-    for to, re in reList:
-        name = re.sub (to, name)
     name = nonAlphaRE.sub ('', name)
     return name, func
     
@@ -164,15 +164,15 @@ if __name__ == "__main__":
     # 'vertex$' because they cause Python/Root to crash.
     print "compiling regex"
     memberSkipList = [r'^__', r'p4$', r'vertex$', r'^set', r'^begin$', r'^end$',
-                r'^clone$', r'^IsA']
+                      r'^clone$', r'^IsA', r'unit', r'Unit']
     memberReList = []
     for skip in memberSkipList:
         memberReList.append( re.compile (skip, re.IGNORECASE) )
 
     lastClassRegex = re.compile (r'([^\.]+)\(\)$')
 
-    # list of types to avoid.
-    typeSkipList = [r'edm::Ref', r'edm::Ptr', r'vector']
+    # list of types and member functions to avoid.
+    typeSkipList   = [r'edm::Ref', r'edm::Ptr', r'vector']    
     typeReList = []
     for skip in typeSkipList:
         typeReList.append( re.compile (skip) )
