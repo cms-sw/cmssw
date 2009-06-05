@@ -1,8 +1,8 @@
 /*
  *  See headers for a description
  *
- *  $Date: 2008/12/12 20:20:05 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/01/04 11:07:26 $
+ *  $Revision: 1.4 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -19,7 +19,8 @@ popcon::RPCObPVSSmapData::RPCObPVSSmapData(const edm::ParameterSet& pset) :
   host(pset.getUntrackedParameter<std::string>("host", "source db host")),
   user(pset.getUntrackedParameter<std::string>("user", "source username")),
   passw(pset.getUntrackedParameter<std::string>("passw", "source password")),
-  m_since(pset.getUntrackedParameter<unsigned long long>("since",5)){
+  m_since(pset.getUntrackedParameter<unsigned long long>("since",5)),
+  m_till(pset.getUntrackedParameter<unsigned long long>("till",0)){
 }
 
 popcon::RPCObPVSSmapData::~RPCObPVSSmapData()
@@ -38,31 +39,21 @@ void popcon::RPCObPVSSmapData::getNewObjects() {
 	    << logDBEntry().usertext << "last record with the correct tag has been written in the db: "
 	    << logDBEntry().destinationDB << std::endl; 
   
-  snc = tagInfo().lastInterval.first;
+//  snc = tagInfo().lastInterval.first;
 
-
-  //--------------------------IOV
-  ::timeval tv;
-  gettimeofday(&tv,0);
-  edm::Timestamp tstamp((unsigned long long)tv.tv_usec);
-  std::cout << "Now ==> UNIX TIME = " << tstamp.value() << std::endl;
-  utime = tstamp.value();
-  //-----------------------------
-
-
-  if (snc > 0) { niov = utime;} else { snc = m_since; niov = utime; }
-
-  std::cout << "New IOV: since is = " << niov << std::endl;
+   std::cout << std::endl << "==========================================" << std::endl;
+   std::cout << std::endl << "===============  PVSS MAP  ===============" << std::endl;
+   std::cout << std::endl << "==========================================" << std::endl << std::endl;
+   snc = m_since;
+   std::cout << ">> Range mode [" << snc << ", " << m_till << "]" << std::endl;
+   std::cout << std::endl << "=============================================" << std::endl << std::endl;
 
   
   RPCFw caen ( host, user, passw );
-
   std::vector<RPCObPVSSmap::Item> IDMapcheck;
 
 
   IDMapcheck = caen.createIDMAP();
-
-
   IDMapdata = new RPCObPVSSmap();
   RPCObPVSSmap::Item Ifill;
   std::vector<RPCObPVSSmap::Item>::iterator Iit;
@@ -73,6 +64,25 @@ void popcon::RPCObPVSSmapData::getNewObjects() {
     }
   std::cout << " >> Final object size: " << IDMapdata->ObIDMap_rpc.size() << std::endl;
 
+   if (IDMapdata->ObIDMap_rpc.size() > 0) {
+     niov = snc;
+   } else {
+     niov = snc;
+     std::cout << "NO DATA TO BE STORED" << std::endl;
+   }
 
+  ::timeval tv;
+  tv.tv_sec = niov;
+  tv.tv_usec = 0;
+  edm::Timestamp tmstamp((unsigned long long)tv.tv_sec*1000000+(unsigned long long)tv.tv_usec);
+  std::cout << "UNIX time = " << tmstamp.value() << std::endl;
+  edm::TimeValue_t daqtime=0LL;
+  daqtime=tv.tv_sec;
+  daqtime=(daqtime<<32)+tv.tv_usec;
+  edm::Timestamp daqstamp(daqtime);
+  edm::TimeValue_t dtime = daqstamp.value();
+  std::cout<<"DAQ time = " << dtime <<std::endl;
+  niov = dtime;
+  std::cout << "===> New IOV: since is = " << niov << std::endl;
   m_to_transfer.push_back(std::make_pair((RPCObPVSSmap*)IDMapdata,niov));
 }

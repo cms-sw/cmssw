@@ -2,8 +2,8 @@
  /* 
  *  See header file for a description of this class.
  *
- *  $Date: 2009/05/20 10:09:56 $
- *  $Revision: 1.17 $
+ *  $Date: 2009/04/13 20:40:38 $
+ *  $Revision: 1.16 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -169,7 +169,6 @@ std::vector<RPCObVmon::V_Item> RPCFw::createVMON(long long since, long long till
       float val = row["VMON"].data<float>();
       coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
       if (isMajor(ts, tlast)) tlast = ts;
-      std::cout <<">> Last Value: "<<ts.day()<<"/"<<ts.month()<<"/"<<ts.year()<<" "<<ts.hour()<<":"<<ts.minute()<<"."<<ts.second()<< std::endl;
       int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
       int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
       Vtemp.dpid = id;
@@ -556,13 +555,22 @@ std::vector<RPCObPVSSmap::Item> RPCFw::createIDMAP()
     std::string sub_s = row["SUBSECTOR"].data<std::string>();
     std::string sup_s = row["SUPPLYTYPE"].data<std::string>();
 
+    std::cout << sup_s << std::endl;
+
     int reg = atoi(reg_s.c_str()); 
     int rin = atoi(rin_s.c_str()); 
     int sta = atoi(sta_s.c_str()); 
     int sec = atoi(sec_s.c_str()); 
     int lay = atoi(lay_s.c_str()); 
-    int sub = atoi(sub_s.c_str()); 
-    int sup = atoi(sup_s.c_str()); 
+    int sub = atoi(sub_s.c_str());
+    int sup = 5;
+
+    if (sup_s == "HV")  sup = 0;
+    if (sup_s == "LVA") sup = 1;
+    if (sup_s == "LVD") sup = 2;
+    if (sup_s == "LB")  sup = 3;
+    if (sup_s == "T")   sup = 4;
+
 
     coral::TimeStamp ts =  row["SINCE"].data<coral::TimeStamp>();
 
@@ -1063,7 +1071,7 @@ coral::TimeStamp RPCFw::UTtoT(long long utime)
 unsigned long long RPCFw::TtoUT(coral::TimeStamp time) 
 {
   
-  long long utime = (time.year()-1970)*31536000+static_cast<int>(trunc((time.year()-1968)/4))*86400+
+  long long utime = (time.year()-1970)*31536000+static_cast<int>(trunc((time.year()-1972)/4))*86400+
     (((time.month()-1)*31)*86400)+((time.day()-1)*86400)+time.hour()*3600+time.minute()*60+time.second();
   
   if (time.month() == 3) utime = utime - 3*86400;

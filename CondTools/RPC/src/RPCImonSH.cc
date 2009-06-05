@@ -38,26 +38,21 @@ void popcon::RpcDataI::getNewObjects() {
 	    << logDBEntry().usertext << "last record with the correct tag has been written in the db: "
 	    << logDBEntry().destinationDB << std::endl; 
   
-  snc = tagInfo().lastInterval.first;
+//   snc = tagInfo().lastInterval.first;
 
    std::cout << std::endl << "=============================================" << std::endl;
    std::cout << std::endl << "===================  IMON  ==================" << std::endl;
    std::cout << std::endl << "=============================================" << std::endl << std::endl;
-
-   if (snc == 0) snc = m_since; 
-   if (m_till > snc) std::cout << ">> Range mode [" << snc << ", " << m_till << "]" << std::endl;
-      else std::cout << ">> Append mode [" << m_since << ", now]" << std::endl;
-
+   snc = m_since;
+   std::cout << ">> Range mode [" << snc << ", " << m_till << "]" << std::endl;
    std::cout << std::endl << "=============================================" << std::endl << std::endl;
    
    
    RPCFw caen ( host, user, passw );
-   
    std::vector<RPCObImon::I_Item> Icheck;
-   
+  
 
    Icheck = caen.createIMON(snc, m_till);
-
    Idata = new RPCObImon();
    RPCObImon::I_Item Ifill;
    std::vector<RPCObImon::I_Item>::iterator Iit;
@@ -69,12 +64,29 @@ void popcon::RpcDataI::getNewObjects() {
    std::cout << ">> Final object size: " << Idata->ObImon_rpc.size() << std::endl;
 
    if (Idata->ObImon_rpc.size() > 0) {
-     niov = caen.N_IOV;
-     std::cout << "===> New IOV: since is = " << niov << std::endl;
+     niov = snc;
    } else {
-     niov = snc + 1;
+     niov = snc;
      std::cout << "NO DATA TO BE STORED" << std::endl;
    }
+
+
+   ::timeval tv;
+   tv.tv_sec = niov;
+   tv.tv_usec = 0;
+   edm::Timestamp tmstamp((unsigned long long)tv.tv_sec*1000000+(unsigned long long)tv.tv_usec);
+   std::cout << "UNIX time = " << tmstamp.value() << std::endl;
+
+   edm::TimeValue_t daqtime=0LL;
+   daqtime=tv.tv_sec;
+   daqtime=(daqtime<<32)+tv.tv_usec;
+   edm::Timestamp daqstamp(daqtime);
+   edm::TimeValue_t dtime = daqstamp.value();
+   std::cout<<"DAQ time = " << dtime <<std::endl;
+
+   niov = dtime;
+
+   std::cout << "===> New IOV: since is = " << niov << std::endl;
    m_to_transfer.push_back(std::make_pair((RPCObImon*)Idata,niov));
 }
 
