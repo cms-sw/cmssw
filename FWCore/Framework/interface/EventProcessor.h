@@ -43,8 +43,7 @@ namespace edm {
     class EventSetupProvider;
   }
 
-  namespace event_processor
-  {  
+  namespace event_processor {  
     /*
       Several of these state are likely to be transitory in
       the offline because they are completly driven by the
@@ -61,8 +60,7 @@ namespace edm {
     class StateSentry;
   }
 
-  class EventProcessor : public IEventProcessor, private boost::noncopyable
-  {
+  class EventProcessor : public IEventProcessor, private boost::noncopyable {
   public:
 
     // The input string 'config' contains the entire contents of a  configuration file.
@@ -221,15 +219,14 @@ namespace edm {
     //
     // Nested classes and structs below.
 
-    struct CommonParams
-    {
+    struct CommonParams {
       CommonParams():
 	processName_(),
 	releaseVersion_(),
 	passID_(),
 	maxEventsInput_(),
-	maxLumisInput_()
-      { }
+	maxLumisInput_() {
+      }
 
       CommonParams(std::string const& processName,
 		   ReleaseVersion const& releaseVersion,
@@ -240,8 +237,8 @@ namespace edm {
 	releaseVersion_(releaseVersion),
 	passID_(passID),
         maxEventsInput_(maxEvents),
-        maxLumisInput_(maxLumis)
-      { }
+        maxLumisInput_(maxLumis) {
+      }
       
       std::string processName_;
       ReleaseVersion releaseVersion_;
@@ -332,8 +329,7 @@ namespace edm {
     virtual void writeLumi(int run, int lumi);
     virtual void deleteLumiFromCache(int run, int lumi);
 
-    virtual void readEvent();
-    virtual void processEvent();
+    virtual void readAndProcessEvent();
     virtual bool shouldWeStop() const;
 
     virtual void setExceptionMessageFiles(std::string& message);
@@ -358,7 +354,7 @@ namespace edm {
 
     StatusCode doneAsync(event_processor::Msg m);
     
-    std::auto_ptr<EventPrincipal> doOneEvent(EventID const& id);
+    bool doOneEvent(EventID const& id);
     void procOneEvent(EventPrincipal *pep);
 
     StatusCode waitForAsyncCompletion(unsigned int timeout_seconds);

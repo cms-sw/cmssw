@@ -1,5 +1,5 @@
 
-// $Id: EPStates.cc,v 1.9 2008/07/29 02:17:36 wmtan Exp $
+// $Id: EPStates.cc,v 1.10 2008/08/04 20:00:45 wdd Exp $
 
 #include "FWCore/Framework/src/EPStates.h"
 #include "FWCore/Framework/interface/IEventProcessor.h"
@@ -746,8 +746,7 @@ namespace statemachine {
 
   void HandleEvent::readAndProcessEvent() {
     markNonEmpty();
-    ep_.readEvent();
-    ep_.processEvent();
+    ep_.readAndProcessEvent();
     if (ep_.shouldWeStop()) post_event(Stop());
   }
 

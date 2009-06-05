@@ -2,8 +2,6 @@
 #define FWCore_Framework_IEventProcessor_h
 
 /*
-$Id: IEventProcessor.h,v 1.9 2008/07/29 02:17:36 wmtan Exp $
-
 Abstract base class for Event Processors
 
 Original Authors: W. David Dagenhart, Marc Paterno
@@ -15,8 +13,7 @@ namespace statemachine {
   class Restart;
 }
 
-namespace edm
-{
+namespace edm {
   class IEventProcessor {
   public:
 
@@ -73,8 +70,7 @@ namespace edm
     virtual void writeLumi(int run, int lumi) = 0;
     virtual void deleteLumiFromCache(int run, int lumi) = 0;
 
-    virtual void readEvent() = 0;
-    virtual void processEvent() = 0;
+    virtual void readAndProcessEvent() = 0;
     virtual bool shouldWeStop() const = 0;
 
     virtual void setExceptionMessageFiles(std::string& message) = 0;
