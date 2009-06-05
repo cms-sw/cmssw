@@ -1326,17 +1326,19 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
     weight_noLx_A.clear();
   }
   
-   if ( min_weight_noLx_A/min_weight_A < hit_drop_limit ) {
-     chosen_weight = min_weight_noLx_A;
-     chosen_ywgt = best_weight_noLx_B;
-     chosen_curv = best_curv_noLx_A;
-     chosen_nlayers = n_layers_occupied_tot-1;
-     chosen_pseg = best_noLx_pseg;
-     chosen_Psegments.clear();
-     chosen_weight_A.clear();
-     chosen_Psegments = (Psegments_noLx);
-     chosen_weight_A = (weight_noLx_A);
-   }
+  if( min_weight_A > 0. ) {
+    if ( min_weight_noLx_A/min_weight_A < hit_drop_limit ) {
+      chosen_weight = min_weight_noLx_A;
+      chosen_ywgt = best_weight_noLx_B;
+      chosen_curv = best_curv_noLx_A;
+      chosen_nlayers = n_layers_occupied_tot-1;
+      chosen_pseg = best_noLx_pseg;
+      chosen_Psegments.clear();
+      chosen_weight_A.clear();
+      chosen_Psegments = (Psegments_noLx);
+      chosen_weight_A = (weight_noLx_A);
+    }
+  }
 
   if(onlyBestSegment) {
     ChooseSegments2a( chosen_Psegments, chosen_pseg );
