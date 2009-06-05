@@ -16,6 +16,16 @@ using namespace std;
 
 template <class T> T sqr( T t) {return t*t;}
 
+inline double cropped_asin(double x) {
+    return abs(x) <= 1 ? asin(x) : (x > 0 ? M_PI/2 : -M_PI/2);
+}
+//#define asin(X) cropped_asin(X)
+double checked_asin(double x, const char *expr, const char *file, int line) {
+    if (fabs(x) >= 1.0) throw cms::Exception("CorruptData") <<  "asin(x) called with x = " << expr << " = " << x << "\n\tat " << file << ":" << line << "\n";
+    return asin(x);
+}
+//#define asin(X) checked_asin(X, #X, __FILE__, __LINE__)
+
 InnerDeltaPhi:: InnerDeltaPhi( const DetLayer& layer,
                  const TrackingRegion & region,
                  const edm::EventSetup& iSetup,
@@ -163,9 +173,8 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
   // this factor should be taken in computation of eror projection
      double cosCross = fabs( dHit.unit().dot(crossing.unit()));
 
-  
-  double alphaHit = asin( dHitmag/(2*theRCurvature));
-  double deltaPhi = fabs( alphaHit - asin( dLayer/(2*theRCurvature)));
+  double alphaHit = cropped_asin( dHitmag/(2*theRCurvature)); 
+  double deltaPhi = fabs( alphaHit - cropped_asin( dLayer/(2*theRCurvature)));
   deltaPhi *= (dLayer/rLayer/cosCross);  
 
   // additinal angle due to not perpendicular stright line crossing  (for displaced beam)
@@ -181,7 +190,7 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
         
 
   // compute additional delta phi due to origin radius
-  double deltaPhiOrig = asin( theROrigin * (dHitmag-dLayer) / (dHitmag*dLayer));
+  double deltaPhiOrig = cropped_asin( theROrigin * (dHitmag-dLayer) / (dHitmag*dLayer));
         deltaPhiOrig *= (dLayer/rLayer/cosCross);
 
   // inner hit error taken as constant
