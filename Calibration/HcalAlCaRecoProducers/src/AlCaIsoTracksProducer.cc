@@ -48,8 +48,8 @@ double getDistInCM(double eta1, double phi1, double eta2, double phi2)
   double dR, Rec;
   double theta1=2*atan(exp(-eta1));
   double theta2=2*atan(exp(-eta2));
-  if (fabs(eta1)<1.479) Rec=129;
-  else Rec=275;
+  if (fabs(eta1)<1.479) Rec=129; //radius of ECAL barrel
+  else Rec=317; //distance from IP to ECAL endcap
   //|vect| times tg of acos(scalar product)
   dR=fabs((Rec/sin(theta1))*tan(acos(sin(theta1)*sin(theta2)*(sin(phi1)*sin(phi2)+cos(phi1)*cos(phi2))+cos(theta1)*cos(theta2))));
   return dR;
