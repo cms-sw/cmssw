@@ -748,6 +748,8 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
     case PFLayer::HCAL_ENDCAP:
     case PFLayer::HF_EM:
     case PFLayer::HF_HAD:
+    case PFLayer::PS1:
+    case PFLayer::PS2:
       p1 = threshEndcap_;
       break;
 
@@ -813,7 +815,7 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
     double fraction =  cluster.rechits_[ic].fraction();
     double recHitEnergy = rh.energy() * fraction;
 
-    double norm = max(0., log(recHitEnergy/p1 ));
+    double norm = fraction < 1E-9 ? 0. : max(0., log(recHitEnergy/p1 ));
     
     const math::XYZPoint& rechitposxyz = rh.position();
     
@@ -960,8 +962,8 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
 	firstrechitposxyz = rechitposxyzcor;
 	maxe = recHitEnergy;
       }
-      
-      double norm = max(0., log(recHitEnergy/p1 ));
+
+      double norm = fraction < 1E-9 ? 0. : max(0., log(recHitEnergy/p1 ));
       
       x += rechitposxyzcor.X() * norm;
       y += rechitposxyzcor.Y() * norm;
