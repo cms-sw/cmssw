@@ -18,7 +18,8 @@ popcon::RpcDataFebmap::RpcDataFebmap(const edm::ParameterSet& pset) :
   host(pset.getUntrackedParameter<std::string>("host", "source db host")),
   user(pset.getUntrackedParameter<std::string>("user", "source username")),
   passw(pset.getUntrackedParameter<std::string>("passw", "source password")),
-  m_since(pset.getUntrackedParameter<unsigned long long>("since",5)){
+  m_since(pset.getUntrackedParameter<unsigned long long>("since",5)),
+  m_till(pset.getUntrackedParameter<unsigned long long>("till",0)){
 }
 
 popcon::RpcDataFebmap::~RpcDataFebmap()
@@ -52,7 +53,7 @@ void popcon::RpcDataFebmap::getNewObjects() {
   RPCFw caen ( host, user, passw );
   std::vector<RPCObFebmap::Feb_Item> Febmapcheck;
 
-  Febmapcheck = caen.createFEB(snc);
+  Febmapcheck = caen.createFEB(snc, m_till);
   Febdata = new RPCObFebmap();
   RPCObFebmap::Feb_Item Febfill;
   std::vector<RPCObFebmap::Feb_Item>::iterator Febit;

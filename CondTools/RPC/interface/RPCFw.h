@@ -51,7 +51,7 @@ public:
   std::vector<RPCObGas::Item> createGAS(long long since, long long till);
   std::vector<RPCObTemp::T_Item> createT(long long since, long long till);
   std::vector<RPCObPVSSmap::Item> createIDMAP();
-  std::vector<RPCObFebmap::Feb_Item> createFEB(long long from);	
+  std::vector<RPCObFebmap::Feb_Item> createFEB(long long since, long long till);	
   bool isMajor(coral::TimeStamp fir, coral::TimeStamp sec);
   
 private:

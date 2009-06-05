@@ -2,8 +2,8 @@
  /* 
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/05 14:34:27 $
- *  $Revision: 1.19 $
+ *  $Date: 2009/04/13 20:40:38 $
+ *  $Revision: 1.16 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -607,10 +607,9 @@ std::vector<RPCObPVSSmap::Item> RPCFw::createIDMAP()
 
 
 //----------------------------- F E B ------------------------------------------------------------------------
-std::vector<RPCObFebmap::Feb_Item> RPCFw::createFEB(long long from)
+std::vector<RPCObFebmap::Feb_Item> RPCFw::createFEB(long long since, long long till)
 {
-
-  tMIN = UTtoT(from);
+  tMIN = UTtoT(since);
   std::cout <<">> Processing since: "<<tMIN.day()<<"/"<<tMIN.month()<<"/"<<tMIN.year()<<" "<<tMIN.hour()<<":"<<tMIN.minute()<<"."<<tMIN.second()<< std::endl;
 
   coral::ISession* session = this->connect( m_connectionString,
@@ -689,233 +688,547 @@ std::vector<RPCObFebmap::Feb_Item> RPCFw::createFEB(long long from)
   queryFTEMP2->addToOutputList( "RPCFEB.CHANGE_DATE", "TSTAMP" );
   queryFTEMP2->addToOutputList( "RPCFEB.TEMPERATURE2", "TEMP1" );
 
-  coral::AttributeList conditionData;
-  conditionData.extend<coral::TimeStamp>( "tmax" );
-  conditionData[0].data<coral::TimeStamp>() = tMIN;
   RPCObFebmap::Feb_Item Itemp;
   std::vector<RPCObFebmap::Feb_Item> febarray;
-
-	
-  std::cout << "Processing VTH1..." << std::endl;
-  std::string conditionVTH1 = "RPCFEB.CHANGE_DATE >:tmax AND RPCFEB.VTH1 is not NULL";
-  queryFVTH1->setCondition( conditionVTH1, conditionData );
-  coral::ICursor& cursorFVTH1 = queryFVTH1->execute();
-  while ( cursorFVTH1.next() ) {
-     Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
-     Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
-     const coral::AttributeList& row = cursorFVTH1.currentRow();
-     float idoub = row["DPID"].data<float>();
-     int id = static_cast<int>(idoub);
-     float vth1 = row["VTH1"].data<float>();
-     coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-     int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
-     int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
-     Itemp.dpid = id;
-     Itemp.thr1 = vth1;
-     Itemp.day = ndate;
-     Itemp.time = ntime;
-     febarray.push_back(Itemp);
+  coral::TimeStamp tlast = tMIN;
+  if (till > since) {
+    tMAX = UTtoT(till);
+    std::cout <<">> Processing till: "<<tMAX.day()<<"/"<<tMAX.month()<<"/"<<tMAX.year()<<" "<<tMAX.hour()<<":"<<tMAX.minute()<<"."<<tMAX.second()<< std::endl;
+    std::cout << "Processing VTH1..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData.extend<coral::TimeStamp>( "tmax" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    conditionData["tmax"].data<coral::TimeStamp>() = tMAX;
+    std::string conditionVTH1 = "RPCFEB.VTH1 IS NOT NULL AND RPCFEB.CHANGE_DATE >:tmin AND RPCFEB.CHANGE_DATE <:tmax";
+    queryFVTH1->setCondition( conditionVTH1, conditionData );
+    coral::ICursor& cursorFVTH1 = queryFVTH1->execute();
+    while ( cursorFVTH1.next() ) {
+      Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
+      Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
+      const coral::AttributeList& row = cursorFVTH1.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float vth1 = row["VTH1"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Itemp.dpid = id;
+      Itemp.thr1 = vth1;
+      Itemp.day = ndate;
+      Itemp.time = ntime;
+      febarray.push_back(Itemp);
+    } 
+  }else {
+    std::cout << ">> Processing VTH1..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    std::string conditionVTH1 = "RPCFEB.VTH1 IS NOT NULL AND RPCFEB.CHANGE_DATE >:tmin";
+    queryFVTH1->setCondition( conditionVTH1, conditionData );
+    coral::ICursor& cursorFVTH1 = queryFVTH1->execute();
+    while ( cursorFVTH1.next() ) {
+      Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
+      Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
+      const coral::AttributeList& row = cursorFVTH1.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float vth1 = row["VTH1"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Itemp.dpid = id;
+      Itemp.thr1 = vth1;
+      Itemp.day = ndate;
+      Itemp.time = ntime;
+      febarray.push_back(Itemp);
+    }
+  }
+  
+  if (till > since) {
+    tMAX = UTtoT(till);
+    std::cout << "Processing VTH2..." << std::endl;
+     coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData.extend<coral::TimeStamp>( "tmax" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    conditionData["tmax"].data<coral::TimeStamp>() = tMAX;
+    std::string conditionVTH2 = "RPCFEB.VTH2 IS NOT NULL AND RPCFEB.CHANGE_DATE >:tmin AND RPCFEB.CHANGE_DATE <:tmax";
+    queryFVTH2->setCondition( conditionVTH2, conditionData );
+    coral::ICursor& cursorFVTH2 = queryFVTH2->execute();
+    while ( cursorFVTH2.next() ) {
+      Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
+      Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
+      const coral::AttributeList& row = cursorFVTH2.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float vth2 = row["VTH2"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Itemp.dpid = id;
+      Itemp.thr2 = vth2;
+      Itemp.day = ndate;
+      Itemp.time = ntime;
+      febarray.push_back(Itemp);
+    }  
+  } else {
+    std::cout << ">> Processing VTH2..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    std::string conditionVTH2 = "RPCFEB.VTH2 IS NOT NULL AND RPCFEB.CHANGE_DATE >:tmin";
+    queryFVTH2->setCondition( conditionVTH2, conditionData );
+    coral::ICursor& cursorFVTH2 = queryFVTH2->execute();
+    while ( cursorFVTH2.next() ) {
+      Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
+      Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
+      const coral::AttributeList& row = cursorFVTH2.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float vth2 = row["VTH2"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Itemp.dpid = id;
+      Itemp.thr2 = vth2;
+      Itemp.day = ndate;
+      Itemp.time = ntime;
+      febarray.push_back(Itemp);
+    }
+  }
+    
+  
+  if (till > since) {
+    tMAX = UTtoT(till);
+    std::cout << "Processing VTH3..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData.extend<coral::TimeStamp>( "tmax" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    conditionData["tmax"].data<coral::TimeStamp>() = tMAX;
+    std::string conditionVTH3 = "RPCFEB.VTH3 IS NOT NULL AND RPCFEB.CHANGE_DATE >:tmin AND RPCFEB.CHANGE_DATE <:tmax";
+    queryFVTH3->setCondition( conditionVTH3, conditionData );
+    coral::ICursor& cursorFVTH3 = queryFVTH3->execute();
+    while ( cursorFVTH3.next() ) {
+      Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
+      Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
+      const coral::AttributeList& row = cursorFVTH3.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float vth3 = row["VTH3"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Itemp.dpid = id;
+      Itemp.thr3 = vth3;
+      Itemp.day = ndate;
+      Itemp.time = ntime;
+      febarray.push_back(Itemp);
+    }
+  } else {
+    std::cout << ">> Processing VTH3..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    std::string conditionVTH3 = "RPCFEB.VTH3 IS NOT NULL AND RPCFEB.CHANGE_DATE >:tmin";
+    queryFVTH3->setCondition( conditionVTH3, conditionData );
+    coral::ICursor& cursorFVTH3 = queryFVTH3->execute();
+    while ( cursorFVTH3.next() ) {
+      Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
+      Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
+      const coral::AttributeList& row = cursorFVTH3.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float vth3 = row["VTH3"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Itemp.dpid = id;
+      Itemp.thr3 = vth3;
+      Itemp.day = ndate;
+      Itemp.time = ntime;
+      febarray.push_back(Itemp);
+    }
   }
   
 
-  std::cout << "Processing VTH2..." << std::endl;
-  std::string conditionVTH2 = "RPCFEB.CHANGE_DATE >:tmax AND RPCFEB.VTH2 is not NULL";
-  queryFVTH2->setCondition( conditionVTH2, conditionData );
-  coral::ICursor& cursorFVTH2 = queryFVTH2->execute();
-  while ( cursorFVTH2.next() ) {
-     Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
-     Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
-     const coral::AttributeList& row = cursorFVTH2.currentRow();
-     float idoub = row["DPID"].data<float>();
-     int id = static_cast<int>(idoub);
-     float vth2 = row["VTH2"].data<float>();
-     coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-     int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
-     int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
-     Itemp.dpid = id;
-     Itemp.thr2 = vth2;
-     Itemp.day = ndate;
-     Itemp.time = ntime;
-     febarray.push_back(Itemp);
-  }  
-
-
-  std::cout << "Processing VTH3..." << std::endl;
-  std::string conditionVTH3 = "RPCFEB.CHANGE_DATE >:tmax AND RPCFEB.VTH3 is not NULL";
-  queryFVTH3->setCondition( conditionVTH3, conditionData );
-  coral::ICursor& cursorFVTH3 = queryFVTH3->execute();
-  while ( cursorFVTH3.next() ) {
-     Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
-     Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
-     const coral::AttributeList& row = cursorFVTH3.currentRow();
-     float idoub = row["DPID"].data<float>();
-     int id = static_cast<int>(idoub);
-     float vth3 = row["VTH3"].data<float>();
-     coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-     int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
-     int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
-     Itemp.dpid = id;
-     Itemp.thr3 = vth3;
-     Itemp.day = ndate;
-     Itemp.time = ntime;
-     febarray.push_back(Itemp);
+  if (till > since) {
+    tMAX = UTtoT(till);
+    std::cout << "Processing VTH4..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData.extend<coral::TimeStamp>( "tmax" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    conditionData["tmax"].data<coral::TimeStamp>() = tMAX;
+    std::string conditionVTH4 = "RPCFEB.VTH4 IS NOT NULL AND RPCFEB.CHANGE_DATE >:tmin AND RPCFEB.CHANGE_DATE <:tmax";
+    queryFVTH4->setCondition( conditionVTH4, conditionData );
+    coral::ICursor& cursorFVTH4 = queryFVTH4->execute();
+    while ( cursorFVTH4.next() ) {
+      Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
+      Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
+      const coral::AttributeList& row = cursorFVTH4.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float vth4 = row["VTH4"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Itemp.dpid = id;
+      Itemp.thr4 = vth4;
+      Itemp.day = ndate;
+      Itemp.time = ntime;
+      febarray.push_back(Itemp);
+    }
+  } else {
+    std::cout << ">> Processing VTH4..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    std::string conditionVTH4 = "RPCFEB.VTH4 IS NOT NULL AND RPCFEB.CHANGE_DATE >:tmin";
+    queryFVTH4->setCondition( conditionVTH4, conditionData );
+    coral::ICursor& cursorFVTH4 = queryFVTH4->execute();
+    while ( cursorFVTH4.next() ) {
+      Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
+      Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
+      const coral::AttributeList& row = cursorFVTH4.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float vth4 = row["VTH4"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Itemp.dpid = id;
+      Itemp.thr4 = vth4;
+      Itemp.day = ndate;
+      Itemp.time = ntime;
+      febarray.push_back(Itemp);
+    }
+  }
+  
+  if (till > since) {
+    tMAX = UTtoT(till);
+    std::cout << "Processing VMON1..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData.extend<coral::TimeStamp>( "tmax" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    conditionData["tmax"].data<coral::TimeStamp>() = tMAX;
+    std::string conditionVMON1 = "RPCFEB.VMON1 IS NOT NULL AND RPCFEB.CHANGE_DATE >:tmin AND RPCFEB.CHANGE_DATE <:tmax";
+    queryFVMON1->setCondition( conditionVMON1, conditionData );
+    coral::ICursor& cursorFVMON1 = queryFVMON1->execute();
+    while ( cursorFVMON1.next() ) {
+      Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
+      Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
+      const coral::AttributeList& row = cursorFVMON1.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float vmon1 = row["VMON1"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Itemp.dpid = id;
+      Itemp.vmon1 = vmon1;
+      Itemp.day = ndate;
+      Itemp.time = ntime;
+      febarray.push_back(Itemp);
+    }
+  } else {
+    std::cout << ">> Processing VMON1..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    std::string conditionVMON1 = "RPCFEB.VMON1 IS NOT NULL AND RPCFEB.CHANGE_DATE >:tmin";
+    queryFVMON1->setCondition( conditionVMON1, conditionData );
+    coral::ICursor& cursorFVMON1 = queryFVMON1->execute();
+    while ( cursorFVMON1.next() ) {
+      Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
+      Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
+      const coral::AttributeList& row = cursorFVMON1.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float vmon1 = row["VMON1"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Itemp.dpid = id;
+      Itemp.vmon1 = vmon1;
+      Itemp.day = ndate;
+      Itemp.time = ntime;
+      febarray.push_back(Itemp);
+    }
+  }
+  
+  
+  
+  if (till > since) {
+    tMAX = UTtoT(till);
+    std::cout << "Processing VMON2..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData.extend<coral::TimeStamp>( "tmax" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    conditionData["tmax"].data<coral::TimeStamp>() = tMAX;
+    std::string conditionVMON2 = "RPCFEB.VMON2 IS NOT NULL AND RPCFEB.CHANGE_DATE >:tmin AND RPCFEB.CHANGE_DATE <:tmax";
+    queryFVMON2->setCondition( conditionVMON2, conditionData );
+    coral::ICursor& cursorFVMON2 = queryFVMON2->execute();
+    while ( cursorFVMON2.next() ) {
+      Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
+      Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
+      const coral::AttributeList& row = cursorFVMON2.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float vmon2 = row["VMON2"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Itemp.dpid = id;
+      Itemp.vmon2 = vmon2;
+      Itemp.day = ndate;
+      Itemp.time = ntime;
+      febarray.push_back(Itemp);
+    }
+  } else {
+    std::cout << ">> Processing VMON2..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    std::string conditionVMON2 = "RPCFEB.VMON2 IS NOT NULL AND RPCFEB.CHANGE_DATE >:tmin";
+    queryFVMON2->setCondition( conditionVMON2, conditionData );
+    coral::ICursor& cursorFVMON2 = queryFVMON2->execute();
+    while ( cursorFVMON2.next() ) {
+      Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
+      Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
+      const coral::AttributeList& row = cursorFVMON2.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float vmon2 = row["VMON2"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Itemp.dpid = id;
+      Itemp.vmon2 = vmon2;
+      Itemp.day = ndate;
+      Itemp.time = ntime;
+      febarray.push_back(Itemp);
+    }
   }
 
 
-  std::cout << "Processing VTH4..." << std::endl;
-  std::string conditionVTH4 = "RPCFEB.CHANGE_DATE >:tmax AND RPCFEB.VTH4 is not NULL";
-  queryFVTH4->setCondition( conditionVTH4, conditionData );
-  coral::ICursor& cursorFVTH4 = queryFVTH4->execute();
-  while ( cursorFVTH4.next() ) {
-     Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
-     Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
-     const coral::AttributeList& row = cursorFVTH4.currentRow();
-     float idoub = row["DPID"].data<float>();
-     int id = static_cast<int>(idoub);
-     float vth4 = row["VTH4"].data<float>();
-     coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-     int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
-     int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
-     Itemp.dpid = id;
-     Itemp.thr4 = vth4;
-     Itemp.day = ndate;
-     Itemp.time = ntime;
-     febarray.push_back(Itemp);
+  if (till > since) {
+    tMAX = UTtoT(till);
+    std::cout << "Processing VMON3..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData.extend<coral::TimeStamp>( "tmax" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    conditionData["tmax"].data<coral::TimeStamp>() = tMAX;
+    std::string conditionVMON3 = "RPCFEB.VMON3 IS NOT NULL AND RPCFEB.CHANGE_DATE >:tmin AND RPCFEB.CHANGE_DATE <:tmax";
+    queryFVMON3->setCondition( conditionVMON3, conditionData );
+    coral::ICursor& cursorFVMON3 = queryFVMON3->execute();
+    while ( cursorFVMON3.next() ) {
+      Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
+      Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
+      const coral::AttributeList& row = cursorFVMON3.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float vmon3 = row["VMON3"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Itemp.dpid = id;
+      Itemp.vmon3 = vmon3;
+      Itemp.day = ndate;
+      Itemp.time = ntime;
+      febarray.push_back(Itemp);
+    }
+  } else {
+    std::cout << ">> Processing VMON3..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    std::string conditionVMON3 = "RPCFEB.VMON3 IS NOT NULL AND RPCFEB.CHANGE_DATE >:tmin";
+    queryFVMON3->setCondition( conditionVMON3, conditionData );
+    coral::ICursor& cursorFVMON3 = queryFVMON3->execute();
+    while ( cursorFVMON3.next() ) {
+      Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
+      Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
+      const coral::AttributeList& row = cursorFVMON3.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float vmon3 = row["VMON3"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Itemp.dpid = id;
+      Itemp.vmon3 = vmon3;
+      Itemp.day = ndate;
+      Itemp.time = ntime;
+      febarray.push_back(Itemp);
+    }
+  }
+  
+
+  if (till > since) {
+    tMAX = UTtoT(till);
+    std::cout << "Processing VMON4..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData.extend<coral::TimeStamp>( "tmax" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    conditionData["tmax"].data<coral::TimeStamp>() = tMAX;
+    std::string conditionVMON4 = "RPCFEB.VMON4 IS NOT NULL AND RPCFEB.CHANGE_DATE >:tmin AND RPCFEB.CHANGE_DATE <:tmax";
+    queryFVMON4->setCondition( conditionVMON4, conditionData );
+    coral::ICursor& cursorFVMON4 = queryFVMON4->execute();
+    while ( cursorFVMON4.next() ) {
+      Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
+      Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
+      const coral::AttributeList& row = cursorFVMON4.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float vmon4 = row["VMON4"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Itemp.dpid = id;
+      Itemp.vmon4 = vmon4;
+      Itemp.day = ndate;
+      Itemp.time = ntime;
+      febarray.push_back(Itemp);
+    }
+  } else {
+    std::cout << ">> Processing VMON4..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    std::string conditionVMON4 = "RPCFEB.VMON4 IS NOT NULL AND RPCFEB.CHANGE_DATE >:tmin";
+    queryFVMON4->setCondition( conditionVMON4, conditionData );
+    coral::ICursor& cursorFVMON4 = queryFVMON4->execute();
+    while ( cursorFVMON4.next() ) {
+      Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
+      Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
+      const coral::AttributeList& row = cursorFVMON4.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float vmon4 = row["VMON4"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Itemp.dpid = id;
+      Itemp.vmon4 = vmon4;
+      Itemp.day = ndate;
+      Itemp.time = ntime;
+      febarray.push_back(Itemp);
+    }
+  }
+  
+  
+  if (till > since) {
+    tMAX = UTtoT(till);
+    std::cout << "Processing TEMP1..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData.extend<coral::TimeStamp>( "tmax" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    conditionData["tmax"].data<coral::TimeStamp>() = tMAX;
+    std::string conditionTEMP1 = "RPCFEB.TEMPERATURE1 IS NOT NULL AND RPCFEB.CHANGE_DATE >:tmin AND RPCFEB.CHANGE_DATE <:tmax";
+    queryFTEMP1->setCondition( conditionTEMP1, conditionData );
+    coral::ICursor& cursorFTEMP1 = queryFTEMP1->execute();
+    while ( cursorFTEMP1.next() ) {
+      Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
+      Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
+      const coral::AttributeList& row = cursorFTEMP1.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float temp1 = row["TEMP1"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Itemp.dpid = id;
+      Itemp.temp1 = temp1;
+      Itemp.day = ndate;
+      Itemp.time = ntime;
+      febarray.push_back(Itemp);
+    }
+  } else {
+    std::cout << ">> Processing TEMP1..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    std::string conditionTEMP1 = "RPCFEB.TEMPERATURE1 IS NOT NULL AND RPCFEB.CHANGE_DATE >:tmin";
+    queryFTEMP1->setCondition( conditionTEMP1, conditionData );
+    coral::ICursor& cursorFTEMP1 = queryFTEMP1->execute();
+    while ( cursorFTEMP1.next() ) {
+      Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
+      Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
+      const coral::AttributeList& row = cursorFTEMP1.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float temp1 = row["TEMP1"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Itemp.dpid = id;
+      Itemp.temp1 = temp1;
+      Itemp.day = ndate;
+      Itemp.time = ntime;
+      febarray.push_back(Itemp);
+    }
   }
 
 
-  std::cout << "Processing VMON1..." << std::endl;
-  std::string conditionVMON1 = "RPCFEB.CHANGE_DATE >:tmax AND RPCFEB.VMON1 is not NULL";
-  queryFVMON1->setCondition( conditionVMON1, conditionData );
-  coral::ICursor& cursorFVMON1 = queryFVMON1->execute();
-  while ( cursorFVMON1.next() ) {
-     Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
-     Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
-     const coral::AttributeList& row = cursorFVMON1.currentRow();
-     float idoub = row["DPID"].data<float>();
-     int id = static_cast<int>(idoub);
-     float vmon1 = row["VMON1"].data<float>();
-     coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-     int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
-     int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
-     Itemp.dpid = id;
-     Itemp.vmon1 = vmon1;
-     Itemp.day = ndate;
-     Itemp.time = ntime;
-     febarray.push_back(Itemp);
+  if (till > since) {
+    tMAX = UTtoT(till);
+    std::cout << "Processing TEMP2..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData.extend<coral::TimeStamp>( "tmax" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    conditionData["tmax"].data<coral::TimeStamp>() = tMAX;
+    std::string conditionTEMP2 = "RPCFEB.TEMPERATURE2 IS NOT NULL AND RPCFEB.CHANGE_DATE >:tmin AND RPCFEB.CHANGE_DATE <:tmax";
+    queryFTEMP2->setCondition( conditionTEMP2, conditionData );
+    coral::ICursor& cursorFTEMP2 = queryFTEMP2->execute();
+    while ( cursorFTEMP2.next() ) {
+      Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
+      Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
+      const coral::AttributeList& row = cursorFTEMP2.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float temp2 = row["TEMP2"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Itemp.dpid = id;
+      Itemp.temp2 = temp2;
+      Itemp.day = ndate;
+      Itemp.time = ntime;
+      febarray.push_back(Itemp);
+    }
+  } else {
+    std::cout << ">> Processing TEMP2..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    std::string conditionTEMP2 = "RPCFEB.TEMPERATURE2 IS NOT NULL AND RPCFEB.CHANGE_DATE >:tmin";
+    queryFTEMP2->setCondition( conditionTEMP2, conditionData );
+    coral::ICursor& cursorFTEMP2 = queryFTEMP2->execute();
+        while ( cursorFTEMP2.next() ) {
+      Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
+      Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
+      const coral::AttributeList& row = cursorFTEMP2.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float temp2 = row["TEMP2"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Itemp.dpid = id;
+      Itemp.temp2 = temp2;
+      Itemp.day = ndate;
+      Itemp.time = ntime;
+      febarray.push_back(Itemp);
+    }
   }
-
-
-  std::cout << "Processing VMON2..." << std::endl;
-  std::string conditionVMON2 = "RPCFEB.CHANGE_DATE >:tmax AND RPCFEB.VMON2 is not NULL";
-  queryFVMON2->setCondition( conditionVMON2, conditionData );
-  coral::ICursor& cursorFVMON2 = queryFVMON2->execute();
-  while ( cursorFVMON2.next() ) {
-     Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
-     Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
-     const coral::AttributeList& row = cursorFVMON2.currentRow();
-     float idoub = row["DPID"].data<float>();
-     int id = static_cast<int>(idoub);
-     float vmon2 = row["VMON2"].data<float>();
-     coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-     int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
-     int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
-     Itemp.dpid = id;
-     Itemp.vmon2 = vmon2;
-     Itemp.day = ndate;
-     Itemp.time = ntime;
-     febarray.push_back(Itemp);
-  }
-
-
-  std::cout << "Processing VMON3..." << std::endl;
-  std::string conditionVMON3 = "RPCFEB.CHANGE_DATE >:tmax AND RPCFEB.VMON3 is not NULL";
-  queryFVMON3->setCondition( conditionVMON3, conditionData );
-  coral::ICursor& cursorFVMON3 = queryFVMON3->execute();
-  while ( cursorFVMON3.next() ) {
-     Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
-     Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
-     const coral::AttributeList& row = cursorFVMON3.currentRow();
-     float idoub = row["DPID"].data<float>();
-     int id = static_cast<int>(idoub);
-     float vmon3 = row["VMON3"].data<float>();
-     coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-     int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
-     int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
-     Itemp.dpid = id;
-     Itemp.vmon3 = vmon3;
-     Itemp.day = ndate;
-     Itemp.time = ntime;
-     febarray.push_back(Itemp);
-  }
-
-
-  std::cout << "Processing VMON4..." << std::endl;
-  std::string conditionVMON4 = "RPCFEB.CHANGE_DATE >:tmax AND RPCFEB.VMON4 is not NULL";
-  queryFVMON4->setCondition( conditionVMON4, conditionData );
-  coral::ICursor& cursorFVMON4 = queryFVMON4->execute();
-  while ( cursorFVMON4.next() ) {
-     Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
-     Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
-     const coral::AttributeList& row = cursorFVMON4.currentRow();
-     float idoub = row["DPID"].data<float>();
-     int id = static_cast<int>(idoub);
-     float vmon4 = row["VMON4"].data<float>();
-     coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-     int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
-     int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
-     Itemp.dpid = id;
-     Itemp.vmon4 = vmon4;
-     Itemp.day = ndate;
-     Itemp.time = ntime;
-     febarray.push_back(Itemp);
-  }
-
-
-  std::cout << "Processing TEMP1..." << std::endl;
-  std::string conditionTEMP1 = "RPCFEB.CHANGE_DATE >:tmax AND RPCFEB.TEMPERATURE1 is not NULL";
-  queryFTEMP1->setCondition( conditionTEMP1, conditionData );
-  coral::ICursor& cursorFTEMP1 = queryFTEMP1->execute();
-  while ( cursorFTEMP1.next() ) {
-     Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
-     Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
-     const coral::AttributeList& row = cursorFTEMP1.currentRow();
-     float idoub = row["DPID"].data<float>();
-     int id = static_cast<int>(idoub);
-     float temp1 = row["TEMP1"].data<float>();
-     coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-     int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
-     int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
-     Itemp.dpid = id;
-     Itemp.temp1 = temp1;
-     Itemp.day = ndate;
-     Itemp.time = ntime;
-     febarray.push_back(Itemp);
-  }
-
-
-  std::cout << "Processing TEMP2..." << std::endl;
-  std::string conditionTEMP2 = "RPCFEB.CHANGE_DATE >:tmax AND RPCFEB.TEMPERATURE2 is not NULL";
-  queryFTEMP2->setCondition( conditionTEMP2, conditionData );
-  coral::ICursor& cursorFTEMP2 = queryFTEMP2->execute();
-  while ( cursorFTEMP2.next() ) {
-     Itemp.thr1=0;Itemp.thr2=0;Itemp.thr3=0;Itemp.thr4=0;Itemp.vmon1=0;Itemp.vmon2=0;Itemp.vmon3=0;
-     Itemp.vmon4=0;Itemp.temp1=0;Itemp.temp2=0;Itemp.noise1=0;Itemp.noise2=0;Itemp.noise3=0;Itemp.noise4=0;
-     const coral::AttributeList& row = cursorFTEMP2.currentRow();
-     float idoub = row["DPID"].data<float>();
-     int id = static_cast<int>(idoub);
-     float temp2 = row["TEMP2"].data<float>();
-     coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-     int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
-     int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
-     Itemp.dpid = id;
-     Itemp.temp2 = temp2;
-     Itemp.day = ndate;
-     Itemp.time = ntime;
-     febarray.push_back(Itemp);
-  }
-
-
 
   std::cout << ">> FEB array --> size: " << febarray.size() << " >> done." << std::endl;
   delete queryFVTH1;
