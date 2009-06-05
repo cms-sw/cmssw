@@ -27,7 +27,8 @@ samples.num   = [1,
 
 paths.Wenu = ['HLT_Ele10_LW_L1RDQM',
               'HLT_Ele15_SW_L1RDQM',
-              'HLT_Ele10_LW_EleId_L1RDQM']
+              'HLT_Ele10_LW_EleId_L1RDQM',
+              'HLT_Ele15_SiStrip_L1RDQM']
 
 paths.Zee = paths.Wenu + ['HLT_DoubleEle5_SW_L1RDQM']
 
@@ -40,6 +41,7 @@ paths.DiGamma  = ['HLT_Photon10_L1R_DQM','HLT_DoublePhoton10_L1R_DQM']
 pathlumi = { 'HLT_Ele10_LW_L1RDQM':'8e29',
              'HLT_Ele15_SW_L1RDQM':'1e31',
              'HLT_Ele10_LW_EleId_L1RDQM':'8e29',
+             'HLT_Ele15_SiStrip_L1RDQM':'8e29',
              'HLT_DoubleEle5_SW_L1RDQM':'8e29',
              'HLT_Photon10_L1R_DQM':'8e29',
              'HLT_Photon15_TrackIso_L1R_DQM':'8e29',
