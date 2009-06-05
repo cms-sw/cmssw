@@ -14,7 +14,8 @@ samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','Rel
 Submit=True
 Publish=False
 
-FastSim=False
+NewFastSim=False
+RefFastSim=False
 
 GetFilesFromCastor=True
 CastorRepository = '/castor/cern.ch/user/n/nuno/relval/harvest'
@@ -24,26 +25,24 @@ RefCondition='IDEAL'
 #NewCondition='STARTUP'
 #RefCondition='STARTUP'
 
-if (FastSim):
+if (NewFastSim):
     NewTag = NewCondition+'_noPU_ootb_FSIM'
-    RefTag = RefCondition+'_noPU_ootb_FSIM'
+    NewLabel=NewCondition+'_31X_FastSim_v1'
+    NewFormat='GEN-SIM-DIGI-RECO'
 else:
     NewTag = NewCondition+'_noPU_ootb'
-    RefTag = RefCondition+'_noPU_ootb'
-
-if (FastSim):
-    NewLabel=NewCondition+'_31X_FastSim_v1'
-    RefLabel=RefCondition+'_31X_FastSim_v1'
-else:
     NewLabel=NewCondition+'_31X_v1'
-    RefLabel=RefCondition+'_31X_v1'
+    NewFormat='GEN-SIM-RECO'
 
-if (FastSim):
-    NewFormat='GEN-SIM-DIGI-RECO'
+if (RefFastSim):
+    RefTag = RefCondition+'_noPU_ootb_FSIM'
+    RefLabel=RefCondition+'_31X_FastSim_v1'
     RefFormat='GEN-SIM-DIGI-RECO'
 else:
-    NewFormat='GEN-SIM-RECO'
+    RefTag = RefCondition+'_noPU_ootb'
+    RefLabel=RefCondition+'_31X_v1'
     RefFormat='GEN-SIM-RECO'
+
 
 RefRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
 NewRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
@@ -78,14 +77,15 @@ for sample in samples :
      if(os.path.exists(RefRelease+'/'+RefTag+'/'+sample)==False):
          os.makedirs(RefRelease+'/'+RefTag+'/'+sample)
 
-#     if(os.path.isfile(NewRelease+'/'+NewTag+'/'+sample+'/building.pdf')!=True):
      if(os.path.isfile(NewRelease+'/'+NewTag+'/'+sample+'/globalMuons_tpToGlbAssociation.pdf')!=True):
          newSample=NewRepository+'/'+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root'
          refSample=RefRepository+'/'+RefRelease+'/'+RefTag+'/'+sample+'/'+'val.'+sample+'.root'
-         if (GetFilesFromCastor):
-             os.system('rfcp '+CastorRepository+'/'+NewRelease+'/DQM_V0001_R000000001__'+sample+'__'+NewRelease+'_'+NewLabel+'__'+NewFormat+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
+
          if (os.path.isfile(NewRelease+'/'+NewTag+'/'+sample+'/val'+sample+'.root')==False and os.path.isfile(newSample)) :
              os.system('cp '+newSample+' '+NewRelease+'/'+NewTag+'/'+sample)
+         else:
+             if (os.path.isfile(NewRelease+'/'+NewTag+'/'+sample+'/val'+sample+'.root')==False and (GetFilesFromCastor)):
+                 os.system('rfcp '+CastorRepository+'/'+NewRelease+'/DQM_V0001_R000000001__'+sample+'__'+NewRelease+'_'+NewLabel+'__'+NewFormat+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')                     
          if (os.path.isfile(RefRelease+'/'+RefTag+'/'+sample+'/val'+sample+'.root')==False and os.path.isfile(refSample)) :
 #             os.system('cp '+refSample+' '+RefRelease+'/'+RefTag+'/'+sample)
              os.system('ln -s '+refSample+' '+RefRelease+'/'+RefTag+'/'+sample)
