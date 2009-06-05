@@ -419,17 +419,23 @@ static std::string escape(const std::string &in)
 	return result;
 }
 
-MVATrainer::MVATrainer(const std::string &fileName, bool useXSLT) :
+MVATrainer::MVATrainer(const std::string &fileName, bool useXSLT,
+	const char *styleSheet) :
 	input(0), output(0), name("MVATrainer"),
 	doAutoSave(true), doCleanup(false),
 	doMonitoring(false), randomSeed(65539), crossValidation(0.0)
 {
 	if (useXSLT) {
-		edm::FileInPath xsltLocation(
-			"PhysicsTools/MVATrainer/data/MVATrainer.xsl");
-		std::string preproc = "xsltproc --xinclude " +
-		                      escape(xsltLocation.fullPath()) + " " +
-		                      escape(fileName);
+		std::string sheet;
+		if (!styleSheet)
+			sheet = edm::FileInPath(
+				"PhysicsTools/MVATrainer/data/MVATrainer.xsl")
+				.fullPath();
+		else
+			sheet = styleSheet;
+
+		std::string preproc = "xsltproc --xinclude " + escape(sheet) +
+		                      " " + escape(fileName);
 		xml.reset(new XMLDocument(fileName, preproc));
 	} else
 		xml.reset(new XMLDocument(fileName));

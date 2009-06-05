@@ -91,6 +91,7 @@ int main(int argc, char **argv)
 	bool monitoring = true;
 	bool weights = true;
 	bool useXSLT = false;
+	const char *styleSheet = 0;
 	char **args = argv + 1;
 	argc--;
 	while(argc > 0 && **args == '-') {
@@ -106,7 +107,10 @@ int main(int argc, char **argv)
 		else if (!std::strcmp(*args, "-w") || 
 		         !std::strcmp(*args, "--no-weights"))
 			weights = false;
-		else if (!std::strcmp(*args, "-x") || 
+		else if (!std::strncmp(*args, "--xslt=", 7)) {
+			useXSLT = true;
+			styleSheet = *args + 7;
+		} else if (!std::strcmp(*args, "-x") || 
 		         !std::strcmp(*args, "--xslt"))
 			useXSLT = true;
 		else
@@ -165,7 +169,7 @@ int main(int argc, char **argv)
 			             "signal and background tree has to be "
 			             "specified." << std::endl;
                             
-		MVATrainer trainer(args[0], useXSLT);
+		MVATrainer trainer(args[0], useXSLT, styleSheet);
 		trainer.setMonitoring(monitoring);
 		trainer.setAutoSave(save);
 		if (load)
