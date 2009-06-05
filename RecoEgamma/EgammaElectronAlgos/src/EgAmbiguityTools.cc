@@ -75,7 +75,7 @@ bool isInnerMost::operator()
   reco::HitPattern gsfHitPattern2 = e2->gsfTrack()->hitPattern() ;
 
   // retreive first valid hit
-  int gsfHitCounter1 = 1 ;
+  int gsfHitCounter1 = 0 ;
   trackingRecHit_iterator elHitsIt1 ;
   for
    ( elHitsIt1 = e1->gsfTrack()->recHitsBegin() ;
@@ -83,7 +83,7 @@ bool isInnerMost::operator()
      elHitsIt1++, gsfHitCounter1++ )
    { if (((**elHitsIt1).isValid())) break ; }
 
-  int gsfHitCounter2 = 1 ;
+  int gsfHitCounter2 = 0 ;
   trackingRecHit_iterator elHitsIt2 ;
   for
    ( elHitsIt2 = e2->gsfTrack()->recHitsBegin() ;
