@@ -121,7 +121,9 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       // calculate certain quantities once and once only
       double hpdenergy=rbx.maxHPD()->recHitEnergy();
       double rbxenergy=rbx.recHitEnergy();
-      double bigratio = rbx.maxHPD()->bigChargeHighest2TS()/rbx.maxHPD()->bigChargeTotal();
+      double bigcharge2ts = rbx.maxHPD()->bigChargeHighest2TS();
+      double bigchargetotal = rbx.maxHPD()->bigChargeTotal();
+      double bigratio = bigchargetotal==0 ? -999 : bigcharge2ts/bigchargetotal;
 
       // find the highest energy rbx
       if(rbxenergy>maxenergy) {
@@ -136,8 +138,7 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       // select certain RBXs to be written
       if(rbxenergy>=minRBXEnergy_ ||
          hpdenergy>=minHPDEnergy_ ||
-	 bigratio<minHPDRatio_ ||
-	 bigratio>maxHPDRatio_ ||
+	 ((bigratio<minHPDRatio_ || bigratio>maxHPDRatio_) && bigratio!=-999) ||
 	 rbx.maxHPD()->numRecHits(minRecHitEnergy_) >=minHPDNumRecHit_ ||
 	 rbx.totalZeros()>=minRBXNumZeros_ ||
 	 rbx.maxZeros()>=minRBXMaxZeros_ ||
