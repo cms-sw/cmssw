@@ -748,26 +748,33 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
       float chargeADC = (*isim).energyLoss()/(GevPerElectron * ElectronsPerADC);
 
       //create cluster
-      theClusters[trackID].push_back(
-                                      new FastTrackerCluster(LocalPoint(position.x(), 0.0, 0.0), error, det,
-                                                              simHitCounter, trackID,
-                                                              eeID,
-							      //(*isim).energyLoss())
-                                                             chargeADC)
-                                    );
-      
+      if(subdet > 2) theClusters[trackID].push_back(
+						    new FastTrackerCluster(LocalPoint(position.x(), 0.0, 0.0), error, det,
+									   simHitCounter, trackID,
+									   eeID,
+									   //(*isim).energyLoss())
+									   chargeADC)
+						    );
+      else theClusters[trackID].push_back(
+					  new FastTrackerCluster(position, error, det,
+								 simHitCounter, trackID,
+								 eeID,
+								 //(*isim).energyLoss())
+								 chargeADC)
+					  );
+    
       //       std::cout << "CLUSTER for simhit " << simHitCounter << "\t energy loss = " <<chargeADC << std::endl;
       
       // std::cout << "Error as reconstructed " << error.xx() << " " << error.xy() << " " << error.yy() << std::endl;
       
       // create rechit
       temporaryRecHits[trackID].push_back(
-		 new SiTrackerGSRecHit2D(position, error, det, 
-					 simHitCounter, trackID, 
-					 eeID, 
-                                         ClusterRef(FastTrackerClusterRefProd, simHitCounter),
-					 alphaMult, betaMult)
-		 );
+					  new SiTrackerGSRecHit2D(position, error, det, 
+								  simHitCounter, trackID, 
+								  eeID, 
+								  ClusterRef(FastTrackerClusterRefProd, simHitCounter),
+								  alphaMult, betaMult)
+					  );
       
        // This a correpondence map between RecHits and SimHits 
       // (for later  use in matchHits)
