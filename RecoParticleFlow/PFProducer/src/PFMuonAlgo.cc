@@ -67,7 +67,7 @@ PFMuonAlgo::isMuon( const reco::MuonRef& muonRef ) {
     
     bool combined = combinedMu->ptError()/combinedMu->pt() < 0.20;
     bool tracker = trackerMu->ptError()/trackerMu->pt() < 0.20;
-    bool standAlone = standAloneMu->ptError()/standAloneMu->pt() < 0.20;
+    bool standAlone = standAloneMu->ptError()/standAloneMu->pt() < 0.20; 
     
     double delta1 =  combined && tracker ?
       fabs(1./combinedMu->pt() -1./trackerMu->pt())
@@ -79,7 +79,10 @@ PFMuonAlgo::isMuon( const reco::MuonRef& muonRef ) {
       fabs(1./standAloneMu->pt() -1./trackerMu->pt())
       /sqrt(sigmaStandAlone*sigmaStandAlone + sigmaTracker*sigmaTracker) : 100.;
     
-    double delta = std::min(delta3,std::min(delta1,delta2));
+    double delta =  
+      standAloneMu->hitPattern().numberOfValidMuonDTHits()+
+      standAloneMu->hitPattern().numberOfValidMuonCSCHits() > 0 ? 
+      std::min(delta3,std::min(delta1,delta2)) : std::max(delta3,std::max(delta1,delta2));
     // std::cout << "delta = " << delta << std::endl;
     
     double ratio = 
@@ -88,10 +91,12 @@ PFMuonAlgo::isMuon( const reco::MuonRef& muonRef ) {
     //if ( ratio > 2. && delta < 3. ) std::cout << "ALARM ! " << ratio << ", " << delta << std::endl;
     
     // Quality check on the hits in the muon chambers 
-    // (at least two stations hit)
-    bool quality = true;
-    if ( standAloneMu->hitPattern().numberOfValidMuonDTHits() < 13 &&
-	 standAloneMu->hitPattern().numberOfValidMuonCSCHits() < 7 ) quality = false;
+    // (at least two stations hit, or last station hit)
+    bool quality =
+      standAloneMu->hitPattern().numberOfValidMuonDTHits() > 12 ||
+      standAloneMu->hitPattern().numberOfValidMuonCSCHits() > 6 ||
+      muon::isGoodMuon(*muonRef,muon::TMLastStationLoose) ||
+      muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtLoose);
 
     bool result =  ( combinedMu->pt() < 50. || ratio < 2. ) && delta < 3.;
     result = result && muon::isGoodMuon(*muonRef,muon::GlobalMuonPromptTight);
@@ -104,6 +109,7 @@ PFMuonAlgo::isMuon( const reco::MuonRef& muonRef ) {
 		<< " and " << combinedMu->pt() 
 		<< " +/- " << combinedMu->ptError()/combinedMu->pt() 
 		<< " eta : " << standAloneMu->eta() << std::endl
+		<< " delta/ratio = " << delta << "/" << ratio << std::endl
 		<< " DT Hits : " << standAloneMu->hitPattern().numberOfValidMuonDTHits()
 		<< "/" << standAloneMu->hitPattern().numberOfLostMuonDTHits()
 		<< " CSC Hits : " << standAloneMu->hitPattern().numberOfValidMuonCSCHits()
@@ -112,7 +118,25 @@ PFMuonAlgo::isMuon( const reco::MuonRef& muonRef ) {
 		<< "/" << standAloneMu->hitPattern().numberOfLostMuonRPCHits() << std::endl
 		<< " chi**2 STA : " << standAloneMu->normalizedChi2()
 		<< " chi**2 GBL : " << combinedMu->normalizedChi2()
-		<< std::endl << std::endl;
+		<< std::endl 
+		<< "TMLastStationLoose               "
+		<< muon::isGoodMuon(*muonRef,muon::TMLastStationLoose) << std::endl       
+		<< "TMLastStationTight               "
+		<< muon::isGoodMuon(*muonRef,muon::TMLastStationTight) << std::endl    
+		<< "TM2DCompatibilityLoose           "
+		<< muon::isGoodMuon(*muonRef,muon::TM2DCompatibilityLoose) << std::endl 
+		<< "TM2DCompatibilityTight           "
+		<< muon::isGoodMuon(*muonRef,muon::TM2DCompatibilityTight) << std::endl
+		<< "TMOneStationLoose                "
+		<< muon::isGoodMuon(*muonRef,muon::TMOneStationLoose) << std::endl       
+		<< "TMOneStationTight                "
+		<< muon::isGoodMuon(*muonRef,muon::TMOneStationTight) << std::endl       
+		<< "TMLastStationOptimizedLowPtLoose " 
+		<< muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtLoose) << std::endl
+		<< "TMLastStationOptimizedLowPtTight " 
+		<< muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtTight) << std::endl 
+		<< std::endl;
+
     */
     return result && quality;
 
@@ -161,7 +185,24 @@ PFMuonAlgo::isMuon( const reco::MuonRef& muonRef ) {
 		<< "/" << standAloneMu->hitPattern().numberOfLostMuonRPCHits() << std::endl
 		<< " chi**2 STA : " << standAloneMu->normalizedChi2()
 		<< " chi**2 GBL : " << combinedMu->normalizedChi2()
-		<< std::endl << std::endl;
+		<< std::endl 
+		<< "TMLastStationLoose               "
+		<< muon::isGoodMuon(*muonRef,muon::TMLastStationLoose) << std::endl       
+		<< "TMLastStationTight               "
+		<< muon::isGoodMuon(*muonRef,muon::TMLastStationTight) << std::endl    
+		<< "TM2DCompatibilityLoose           "
+		<< muon::isGoodMuon(*muonRef,muon::TM2DCompatibilityLoose) << std::endl 
+		<< "TM2DCompatibilityTight           "
+		<< muon::isGoodMuon(*muonRef,muon::TM2DCompatibilityTight) << std::endl
+		<< "TMOneStationLoose                "
+		<< muon::isGoodMuon(*muonRef,muon::TMOneStationLoose) << std::endl       
+		<< "TMOneStationTight                "
+		<< muon::isGoodMuon(*muonRef,muon::TMOneStationTight) << std::endl       
+		<< "TMLastStationOptimizedLowPtLoose " 
+		<< muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtLoose) << std::endl
+		<< "TMLastStationOptimizedLowPtTight " 
+		<< muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtTight) << std::endl 
+		<< std::endl;
     */
     return result;    
   }
