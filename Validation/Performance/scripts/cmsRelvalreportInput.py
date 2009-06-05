@@ -708,7 +708,7 @@ def writeCommands(simcandles,
 
                     #if '--pileup' in cmsDriverOptions:
                     #    stepToWrite = pileupStep
-                    if '--pileup' in cmsDriverOptions and ( stepToWrite=='GEN,SIM' or stepToWrite=='SIM'):
+                    if '--pileup' in cmsDriverOptions and ( stepToWrite=='GEN,SIM' or stepToWrite=='SIM'): 
                         Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s" % (
                                cmsDriver,
                                KeywordToCfi[acandle],
@@ -717,6 +717,17 @@ def writeCommands(simcandles,
                                InputFileOption,
                                OutputFileOption,
                                CustomiseFragment['GEN,SIM'],#Done by hand to avoid silly use of MixinModule.py for pre-digi individual steps
+                               cmsDriverOptions[:cmsDriverOptions.index('--pileup')]
+                           ))
+                    elif '--pileup' in cmsDriverOptions and stepToWrite=='GEN,FASTSIM': #Adding GEN,FASTIM case exception and use the CustomiseFragment['DIGI']
+                        Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s" % (
+                               cmsDriver,
+                               KeywordToCfi[acandle],
+                               NumberOfEvents,
+                               stepToWrite,
+                               InputFileOption,
+                               OutputFileOption,
+                               CustomiseFragment['DIGI'],#Done by hand to avoid silly use of MixinModule.py for pre-digi individual steps
                                cmsDriverOptions[:cmsDriverOptions.index('--pileup')]
                            ))
                     else:
