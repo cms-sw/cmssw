@@ -8,6 +8,8 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     EBrechitCollection = cms.string('EcalRecHitsEB'),
     # channel flags to be exluded from reconstruction, e.g { 1, 2 }
     ChannelStatusToBeExcluded = cms.vint32(),
+    # avoid propagation of dead channels other than after recovery
+    killDeadChannels = cms.bool(True),
     algo = cms.string("EcalRecHitWorkerSimple"),
     # reco flags association to DB flag
     # the vector index corresponds to the DB flag
@@ -25,6 +27,8 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     algoRecover = cms.string("EcalRecHitWorkerRecover"),
     recoverEBIsolatedChannels = cms.bool(True),
     recoverEEIsolatedChannels = cms.bool(True),
+    recoverEBVFE  = cms.bool(True),
+    recoverEEVFE  = cms.bool(True),
     recoverEBFE = cms.bool(True),
     recoverEEFE = cms.bool(True),
     ebDetIdToBeRecovered = cms.InputTag("ecalDetIdToBeRecovered:ebDetId"),
@@ -32,6 +36,6 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     ebFEToBeRecovered = cms.InputTag("ecalDetIdToBeRecovered:ebFE"),
     eeFEToBeRecovered = cms.InputTag("ecalDetIdToBeRecovered:eeFE"),
     singleChannelRecoveryMethod = cms.string("NeuralNetworks"),
-    singleChannelRecoveryThreshold = cms.double(0),
+    singleChannelRecoveryThreshold = cms.double(8),
     triggerPrimitiveDigiCollection = cms.InputTag("ecalDigis:EcalTriggerPrimitives")
 )
