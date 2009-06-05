@@ -86,16 +86,19 @@ void TrackingTruthValid::analyze(const edm::Event& event, const edm::EventSetup&
   using namespace std;
 
   edm::Handle<TrackingParticleCollection>  TruthTrackContainer ;
-  edm::Handle<TrackingVertexCollection>    TruthVertexContainer;
+  //  edm::Handle<TrackingVertexCollection>    TruthVertexContainer;
+
 
   event.getByLabel(src_,TruthTrackContainer );
-  event.getByLabel(src_,TruthVertexContainer);
+
+  //  event.getByLabel(src_,TruthVertexContainer);
 
   //  std::cout << "Using Collection " << src_ << std::endl;
   
-  TrackingParticleCollection *tPC   = const_cast<TrackingParticleCollection*>(TruthTrackContainer.product());
-  const TrackingVertexCollection   *tVC   = TruthVertexContainer.product();
-  
+  const TrackingParticleCollection *tPC   = TruthTrackContainer.product();
+
+  //  const TrackingVertexCollection   *tVC   = TruthVertexContainer.product();
+
   /*
   // Get and print HepMC event for comparison
   edm::Handle<edm::HepMCProduct> hepMC;
@@ -109,26 +112,31 @@ void TrackingTruthValid::analyze(const edm::Event& event, const edm::EventSetup&
 
 // Loop over TrackingParticle's
 
-  for (TrackingParticleCollection::iterator t = tPC -> begin(); t != tPC -> end(); ++t) {
+  for (TrackingParticleCollection::const_iterator t = tPC -> begin(); t != tPC -> end(); ++t) {
     //if(t -> trackerPSimHit().size() ==0) cout << " Track with 0 SimHit " << endl;
 
 
     meTPMass->Fill(t->mass());
+
     meTPCharge->Fill(t->charge() );
+
     meTPId->Fill(t->pdgId());
+
     meTPPt->Fill(sqrt(t->momentum().perp2()));
+
     meTPEta->Fill(t->momentum().eta());
+
     meTPPhi->Fill(t->momentum().Phi());
     std::vector<PSimHit> trackerPSimHit( t->trackPSimHit(DetId::Tracker) );
     meTPAllHits->Fill(trackerPSimHit.size());
     //get the process of the first hit
     if(trackerPSimHit.size() !=0) meTPProc->Fill( trackerPSimHit.front().processType());
     meTPMatchedHits->Fill(t->matchedHit());
-    meTPVtxX->Fill(sqrt(t->vertex().x()));
-    meTPVtxY->Fill(sqrt(t->vertex().y()));
-    meTPVtxZ->Fill(sqrt(t->vertex().z()));
+    meTPVtxX->Fill(t->vx());
+    meTPVtxY->Fill(t->vy());
+    meTPVtxZ->Fill(t->vz());
     meTPtip->Fill(sqrt(t->vertex().perp2()));
-    meTPlip->Fill(sqrt(t->vertex().z()));
+    meTPlip->Fill(t->vz());
 
       /*
    // Compare momenta from sources
