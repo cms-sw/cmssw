@@ -1,8 +1,8 @@
 /*
  *  See headers for a description
  *
- *  $Date: 2008/12/12 20:20:22 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/12/30 10:10:36 $
+ *  $Revision: 1.4 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -37,40 +37,56 @@ void popcon::RpcDataS::getNewObjects() {
 	    << logDBEntry().usertext << "last record with the correct tag has been written in the db: "
 	    << logDBEntry().destinationDB << std::endl; 
   
-  snc = tagInfo().lastInterval.first;
+  //  snc = tagInfo().lastInterval.first;
 
-  //--------------------------IOV
-  std::string str;
-  time_t t;
-  t = time (NULL);
-  std::stringstream ss;
-  ss << t; ss >> str;
-  std::cout << "Now ==> UNIX TIME = " << str << std::endl;
-  utime = atoi (str.c_str());
-  //-----------------------------
+   std::cout << std::endl << "=============================================" << std::endl;
+   std::cout << std::endl << "==================  STATUS  =================" << std::endl;
+   std::cout << std::endl << "=============================================" << std::endl << std::endl;
+   snc = m_since;
+   std::cout << ">> Range mode [" << snc << ", " << m_till << "]" << std::endl;
+   std::cout << std::endl << "=============================================" << std::endl << std::endl;
 
 
-  if (snc > 0) { niov = utime;} else { snc = m_since; niov = utime; }
+   RPCFw caen ( host, user, passw );
+   std::vector<RPCObStatus::S_Item> Scheck;
 
-  std::cout << "New IOV: since is = " << niov << std::endl;
-
-  
-  RPCFw caen ( host, user, passw );
-
-  std::vector<RPCObStatus::S_Item> Scheck;
-
-  Scheck = caen.createSTATUS(snc);
-
-  Sdata = new RPCObStatus();
-  RPCObStatus::S_Item Sfill;
-  std::vector<RPCObStatus::S_Item>::iterator Sit;
-  for(Sit = Scheck.begin(); Sit != Scheck.end(); Sit++)
-    {
+   
+   Scheck = caen.createSTATUS(snc);
+   Sdata = new RPCObStatus();
+   RPCObStatus::S_Item Sfill;
+   std::vector<RPCObStatus::S_Item>::iterator Sit;
+   for(Sit = Scheck.begin(); Sit != Scheck.end(); Sit++)
+     {
       Sfill = *(Sit);
       Sdata->ObStatus_rpc.push_back(Sfill);
-    }
-  std::cout << " >> Final object size: " << Sdata->ObStatus_rpc.size() << std::endl;
+     }
+   std::cout << " >> Final object size: " << Sdata->ObStatus_rpc.size() << std::endl;
 
-  m_to_transfer.push_back(std::make_pair((RPCObStatus*)Sdata,niov));
+
+     if (Sdata->ObStatus_rpc.size() > 0) {
+     niov = snc;
+   } else {
+     niov = snc;
+     std::cout << "NO DATA TO BE STORED" << std::endl;
+   }
+
+
+   ::timeval tv;
+   tv.tv_sec = niov;
+   tv.tv_usec = 0;
+   edm::Timestamp tmstamp((unsigned long long)tv.tv_sec*1000000+(unsigned long long)tv.tv_usec);
+   std::cout << "UNIX time = " << tmstamp.value() << std::endl;
+
+   edm::TimeValue_t daqtime=0LL;
+   daqtime=tv.tv_sec;
+   daqtime=(daqtime<<32)+tv.tv_usec;
+   edm::Timestamp daqstamp(daqtime);
+   edm::TimeValue_t dtime = daqstamp.value();
+   std::cout<<"DAQ time = " << dtime <<std::endl;
+   
+   niov = dtime;
+   
+   std::cout << "===> New IOV: since is = " << niov << std::endl;
+   m_to_transfer.push_back(std::make_pair((RPCObStatus*)Sdata,niov));
 }
 

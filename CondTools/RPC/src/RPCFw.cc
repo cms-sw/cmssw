@@ -2,8 +2,8 @@
  /* 
  *  See header file for a description of this class.
  *
- *  $Date: 2009/04/13 20:40:38 $
- *  $Revision: 1.16 $
+ *  $Date: 2009/06/05 14:34:27 $
+ *  $Revision: 1.19 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -554,8 +554,6 @@ std::vector<RPCObPVSSmap::Item> RPCFw::createIDMAP()
     std::string lay_s = row["LAYER"].data<std::string>();
     std::string sub_s = row["SUBSECTOR"].data<std::string>();
     std::string sup_s = row["SUPPLYTYPE"].data<std::string>();
-
-    std::cout << sup_s << std::endl;
 
     int reg = atoi(reg_s.c_str()); 
     int rin = atoi(rin_s.c_str()); 
