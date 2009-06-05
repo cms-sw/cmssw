@@ -15,8 +15,38 @@ process.eegeom = cms.ESSource("EmptyESSource",
     firstValid = cms.vuint32(1)
 )
 
-# Get hardcoded conditions the same used for standard digitization
-process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
+# Get hardcoded conditions the same used for standard digitization before CMSSW_3_1_x
+## process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
+# or Get DB parameters 
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = "IDEAL_31X::All"
+
+from CondCore.DBCommon.CondDBSetup_cfi import *
+CondDBSetup.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
+process.ecalIntercalibConstants = cms.ESSource("PoolDBESSource",CondDBSetup,
+        connect = cms.string("oracle://cms_orcoff_prep/CMS_COND_31X_ALL"),
+        toGet = cms.VPSet( cms.PSet(
+                record = cms.string("EcalIntercalibConstantsRcd"),
+                tag = cms.string("EcalIntercalibConstants_avg1_ideal")
+                ) )
+)
+process.es_prefer_ecalIntercalibConstants = cms.ESPrefer("PoolDBESSource","ecalIntercalibConstants")
+
+#####CondDBSetup.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
+#####process.ecalADCToGeV = cms.ESSource("PoolDBESSource",CondDBSetup,
+#####        connect = cms.string("oracle://cms_orcoff_prep/CMS_COND_31X_ALL"),
+#####        toGet = cms.VPSet( cms.PSet(
+#####                record = cms.string("EcalADCToGeVConstantRcd"),
+#####                tag = cms.string("EcalADCToGeVConstant_avg1_ideal")
+#####                ) )
+#####)
+#####process.es_prefer_ecalADCToGeV = cms.ESPrefer("PoolDBESSource","ecalADCToGeV")
+
+####process.load("CondCore.DBCommon.CondDBCommon_cfi")
+#####process.CondDBCommon.connect = 'sqlite_file:DB.db'
+####process.CondDBCommon.connect = 'oracle://cms_orcoff_prep/CMS_COND_31X_ALL'
+####process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
+
 
 #########################
 process.source = cms.Source("EmptySource")
@@ -35,7 +65,6 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
     DBuser  = cms.string('test09'),
     DBpass  = cms.string('oratest09'),
     DBport  = cms.uint32(1521),
-    DBrunNb = cms.uint32(29000),
 
     writeToFiles = cms.bool(True),
     outFile = cms.string('TPG_startup.txt'),
@@ -53,7 +82,7 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
     weight_sampleMax = cms.uint32(3),       ## position of the maximum among the 5 samples used by the TPG amplitude filter
 
     forcedPedestalValue = cms.int32(160),   ## use this value instead of getting it from DB or MC (-1 means use DB or MC)
-    forceEtaSlice = cms.bool(True),         ## when true, same linearization coeff for all crystals belonging to a given eta slice (tower)
+    forceEtaSlice = cms.bool(False),        ## when true, same linearization coeff for all crystals belonging to a given eta slice (tower)
 
     LUT_option = cms.string('Linear'),      ## compressed LUT option can be: "Identity", "Linear", "EcalResolution"
     LUT_threshold_EB = cms.double(0.750),   ## All Trigger Primitives <= threshold (in GeV) will be set to 0 

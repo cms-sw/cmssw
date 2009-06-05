@@ -35,7 +35,6 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
     DBuser  = cms.string('test09'),
     DBpass  = cms.string('oratest09'),
     DBport  = cms.uint32(1521),
-    DBrunNb = cms.uint32(29000),
 
     writeToFiles = cms.bool(True),
     outFile = cms.string('TPG_startup.txt'),

@@ -63,17 +63,13 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   string DBuser   = pSet.getParameter<std::string>("DBuser") ;
   string DBpass   = pSet.getParameter<std::string>("DBpass") ;
   uint32_t DBport = pSet.getParameter<unsigned int>("DBport") ;
-  DBrunNb_        = pSet.getParameter<unsigned int>("DBrunNb") ;
 
   tag_   = pSet.getParameter<std::string>("TPGtag") ;
   version_ = pSet.getParameter<unsigned int>("TPGversion") ;
-
-  std::cout << "data will be saved with tag and version="<< tag_<< ".version"<<version_<< endl;
-
-  std::cout << "DB RUN NB="<< DBrunNb_<< endl;
  
   if (writeToDB_) {
     try {
+      std::cout << "data will be saved with tag and version="<< tag_<< ".version"<<version_<< endl;
       db_ = new EcalTPGDBApp(DBsid, DBuser, DBpass) ;
     } catch (exception &e) {
       cout << "ERROR:  " << e.what() << endl;
@@ -367,7 +363,6 @@ std::cout <<"we get the pedestals from online DB"<<endl;
   // loop on EB xtals
   if (writeToFiles_) (*out_file_)<<"COMMENT ====== barrel crystals ====== "<<std::endl ;
   const std::vector<DetId>& ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
-  std::cout <<" number of valid ebcells "<<ebCells.size()<<std::endl;
 
   // special case of eta slices
   for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
@@ -381,6 +376,14 @@ std::cout <<"we get the pedestals from online DB"<<endl;
     int towerInTCC = theMapping_->iTT(towid) ; // from 1 to 68 (EB)
     int stripInTower = elId.pseudoStripId() ;  // from 1 to 5
     int xtalInStrip = elId.channelId() ;       // from 1 to 5
+    const EcalElectronicsId Id = theMapping_->getElectronicsId(id) ;
+    int CCUid = Id.towerId() ;
+    int VFEid = Id.stripId() ;
+    int xtalInVFE = Id.xtalId() ;
+
+    (*geomFile_)<<"dccNb="<<dccNb<<" tccNb="<<tccNb<<" towerInTCC="<<towerInTCC
+		<<" stripInTower="<<stripInTower<<" xtalInStrip="<<xtalInStrip
+		<<" CCUid="<<CCUid<<" VFEid="<<VFEid<<" xtalInVFE="<<xtalInVFE<<endl ;
 
     if (tccNb == 37 && stripInTower == 3 && xtalInStrip == 3 && (towerInTCC-1)%4==0) {
       int etaSlice = towid.ietaAbs() ;
@@ -417,6 +420,11 @@ std::cout <<"we get the pedestals from online DB"<<endl;
     int towerInTCC = theMapping_->iTT(towid) ; // from 1 to 68 (EB)
     int stripInTower = elId.pseudoStripId() ;  // from 1 to 5
     int xtalInStrip = elId.channelId() ;       // from 1 to 5
+    const EcalElectronicsId Id = theMapping_->getElectronicsId(id) ;
+    int CCUid = Id.towerId() ;
+    int VFEid = Id.stripId() ;
+    int xtalInVFE = Id.xtalId() ;
+    int xtalWithinCCUid = 5*(VFEid-1) + xtalInVFE ;
     int etaSlice = towid.ietaAbs() ;
 
     FEConfigPedDat ped ;
@@ -429,7 +437,6 @@ std::cout <<"we get the pedestals from online DB"<<endl;
     getCoeff(coeff, gainMap, id.rawId()) ;
     getCoeff(coeff, pedMapNew, id.rawId()) ;
     
-
     // compute and fill linearization parameters
 
     // case of eta slice
@@ -520,7 +527,6 @@ std::cout <<"we get the pedestals from online DB"<<endl;
       getCoeff(coeff, gainMap, id.rawId()) ;
       getCoeff(coeff, pedMapNew, id.rawId()) ;
       linStruc lin ;
-      std::cout<<"etaSlice="<<etaSlice<<" "<<tccNb<<std::endl ;
       for (int i=0 ; i<3 ; i++) {
 	int mult, shift ;
 	bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EE", mult , shift) ;
