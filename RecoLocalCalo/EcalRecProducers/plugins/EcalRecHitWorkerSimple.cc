@@ -17,6 +17,7 @@ EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps) :
         rechitMaker_ = new EcalRecHitSimpleAlgo();
         v_chstatus_ = ps.getParameter<std::vector<int> >("ChannelStatusToBeExcluded");
         v_DB_reco_flags_ = ps.getParameter<std::vector<int> >("flagsMapDBReco");
+        killDeadChannels_ = ps.getParameter<bool>("killDeadChannels");
 }
 
 
@@ -65,6 +66,7 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
                 edm::LogError("EcalRecHitError") << "Flag " << statusCode 
                         << " in DB exceed the allowed range of " << v_DB_reco_flags_.size();
         }
+        // update flags coming from EcalUncalibRecHit
         uint32_t uflag = uncalibRH.recoFlag();
         if ( uflag == EcalUncalibratedRecHit::kLeadingEdgeRecovered ) {
                 recoFlag = EcalRecHit::kLeadingEdgeRecovered;
@@ -108,7 +110,9 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
         }
 
         // make the rechit and put in the output collection
-        result.push_back(EcalRecHit( rechitMaker_->makeRecHit(uncalibRH, icalconst * lasercalib, itimeconst, recoFlag) ));
+        if ( recoFlag <= EcalRecHit::kSaturated || !killDeadChannels_ ) {
+                result.push_back(EcalRecHit( rechitMaker_->makeRecHit(uncalibRH, icalconst * lasercalib, itimeconst, recoFlag) ));
+        }
         return true;
 }
 
