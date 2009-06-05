@@ -894,6 +894,9 @@ void DrawProcMatrix(TDirectory *dir)
 		}
 		rank->SetStats(0);
 		rank->SetFillColor(kGreen);
+		int showNbins = 10;
+		if (rank->GetNbinsX() > showNbins)
+		        rank->GetXaxis()->SetRange(rank->GetNbinsX() - showNbins + 1, rank->GetNbinsX());
 		rank->Draw("hbar2");
 		std::cout << std::endl
 			  << "====================================================" << std::endl
@@ -906,7 +909,8 @@ void DrawProcMatrix(TDirectory *dir)
 			               Form(": %+1.2f%%", v * 100.0);
 			double off = rank->GetMaximum() * 0.1;
 			TText *t = new TText(off, i - 0.5, text);
-			t->Draw();
+			if ((int) i >= rank->GetNbinsX() - showNbins + 1)
+			        t->Draw();
 			std::cout << std::setw(4) << rank->GetXaxis()->GetBinLabel(i) << " "
 				  << std::setw(38) << std::setiosflags(ios::left) << labels[i - 1]
 				  << std::setiosflags(ios::right) << " +" 
