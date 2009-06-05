@@ -9,7 +9,6 @@
 #include "OnlineDB/EcalCondDB/interface/ODRunConfigSeqInfo.h"
 #include "OnlineDB/EcalCondDB/interface/RunConfigDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunFEConfigDat.h"
-#include "OnlineDB/EcalCondDB/interface/RunTPGConfigDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunModeDef.h"
 #include "OnlineDB/EcalCondDB/interface/RunSeqDef.h"
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
@@ -45,10 +44,6 @@
 #include "OnlineDB/EcalCondDB/interface/ODFEDelaysInfo.h"
 #include "OnlineDB/EcalCondDB/interface/ODFEWeightsInfo.h"
 #include "OnlineDB/EcalCondDB/interface/ODDelaysDat.h"
-#include "OnlineDB/EcalCondDB/interface/ODBadTTInfo.h"
-#include "OnlineDB/EcalCondDB/interface/ODBadTTDat.h"
-#include "OnlineDB/EcalCondDB/interface/ODBadXTInfo.h"
-#include "OnlineDB/EcalCondDB/interface/ODBadXTDat.h"
 #include "OnlineDB/EcalCondDB/interface/ODCond2ConfInfo.h"
 
 

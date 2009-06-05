@@ -5,14 +5,13 @@
  *
  * Digi for CLCT trigger primitives. 
  *
- * $Date: 2008/02/15 15:08:00 $
- * $Revision: 1.11 $
+ * $Date: 2007/03/21 15:50:52 $
+ * $Revision: 1.10 $
  *
  * \author N. Terentiev, CMU
  */
 
 #include <boost/cstdint.hpp>
-#include <iosfwd>
 
 class CSCCLCTDigi {
 
@@ -111,6 +110,17 @@ class CSCCLCTDigi {
 
 };
 
-std::ostream & operator<<(std::ostream & o, const CSCCLCTDigi& digi);
-
+#include<iostream>
+inline std::ostream & operator<<(std::ostream & o, const CSCCLCTDigi& digi) {
+  return o << "CSC CLCT #"    << digi.getTrknmb()
+	   << ": Valid = "    << digi.isValid()
+           << " Quality = "   << digi.getQuality()
+           << " Pattern = "   << digi.getPattern()
+           << " StripType = " << digi.getStripType()
+           << " Bend = "      << digi.getBend()
+           << " Strip = "     << digi.getStrip()
+           << " KeyStrip = "  << digi.getKeyStrip()
+           << " CFEB = "      << digi.getCFEB()
+	   << " BX = "        << digi.getBX();
+}
 #endif

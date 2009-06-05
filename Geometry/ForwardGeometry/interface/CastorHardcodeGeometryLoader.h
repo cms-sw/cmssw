@@ -21,8 +21,8 @@ public:
 private:
   void init();
   void fill(HcalCastorDetId::Section section,CaloSubdetectorGeometry* cg);
-  CaloCellGeometry* makeCell( const HcalCastorDetId &  detId ,
-			      CaloSubdetectorGeometry* geom   ) const;
+  const CaloCellGeometry * makeCell(const HcalCastorDetId & detId,
+				    CaloSubdetectorGeometry* geom) const;
 
   CastorTopology theTopology;
 

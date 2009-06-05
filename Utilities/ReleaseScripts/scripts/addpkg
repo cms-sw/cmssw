@@ -1,9 +1,9 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl
 #
 # Created by: Shahram Rahatlou
 #             University of Rome & INFN
 #             11 September 2006
-#  $Id: addpkg,v 1.7 2008/02/23 17:53:16 dlange Exp $
+#  $Id: addpkg,v 1.13 2008/12/30 10:47:27 hegner Exp $
 #
 use strict;
 use Getopt::Long;
@@ -37,72 +37,34 @@ unless(defined $ENV{"CVSROOT"} ) {
 die "CMSSW_RELEASE_BASE not defined! run scramv1 first!\n" unless defined $ENV{CMSSW_RELEASE_BASE};
 die "CMSSW_BASE not defined! run scramv1 first!\n" unless defined $ENV{CMSSW_BASE};
 
-if(!(defined $file)) {
-    my $currdir=getcwd;
-    chdir("$ENV{'CMSSW_BASE'}/src");
+my $currdir=getcwd;
+chdir("$ENV{'CMSSW_BASE'}/src");
 
 # this is our release
-    die "CMSSW_VERSION not` defined! run scramv1 first!\n" unless defined $ENV{CMSSW_VERSION};
-    my $relver = $ENV{CMSSW_VERSION};
+die "CMSSW_VERSION not` defined! run cmsenv from a scram user area first!\n" unless defined $ENV{CMSSW_VERSION};
+my $relver = $ENV{CMSSW_VERSION};
 
-    my $taglist = "$ENV{CMSSW_RELEASE_BASE}/src/PackageList.cmssw";
-    die "Cannot find release package/tag list at $taglist\n" if (!-e $taglist);
+my $taglist = "$ENV{CMSSW_RELEASE_BASE}/src/PackageList.cmssw";
+die "Cannot find release package/tag list at $taglist\n" if (!-e $taglist);
+
+
+if(!(defined $file)) {
 
 # addpkg <package> : use default tag for the release - 1 argument
 # addpkg <package> <tag>: use tag provided by user. simple cvs co - 2 arguments
-    if(($#ARGV == 0)||($#ARGV == 1)) {
-	my $package = $ARGV[0];
-	my $isSubsystem=0;
-	die "Bad package. You must use Subsystem(/Package) format\n" unless ( ($package =~ m#(.*)/(.*)#) || ($package =~ m#(.*)#));
-									   
-        $isSubsystem=1 unless ( $package =~ m#(.*)/(.*)#);
-        my $tagrel = ""; 
-        my $tagco = ""; 
-        my $tagaction = "";
-# Get the release tag if the user has not provided a tag or if the user
-# is querying the release tag
-
-        if ($#ARGV == 1 && $isSubsystem==0) {
-	    $tagco = $ARGV[1];   # user provided tag
-	    $tagaction = "specified";
-	    $reversePrint ? print "Checking out $tagco $package\n" : print "Checking out $package $tagco\n";
-	    system("cvs $cvsOpt co -r $tagco $package"); 
-	} else {
-	    $tagaction = "release";
-	    open IN, "$taglist";
-	    my $l2="";
-	    my $thepack=""; my $thetag="";
-	    while(my $l = <IN>) {
-		chomp $l;
-		($thepack,$thetag) = split '\s+', $l;
-		(my $thesubsys,my $thesubpack)= split('/',$thepack);
-		if ($thepack eq $package || ( $isSubsystem==1 && $thesubsys eq $package ) ) { 
-		    $tagrel = $thetag; 
-		    if ($#ARGV == 1) {
-			$tagco = $ARGV[1];   # user provided tag
-			print "Checking out $thepack $tagco\n";
-			$reversePrint  ? print "Checking out $tagco $thepack\n" : print "Checking out $thepack $tagco\n";
-		    }
-		    else{
-			if(defined $pkgquery) {
-			    $reversePrint ? print "$tagrel $thepack\n" : print "$thepack $tagrel\n";
-			}	
-			else{
-			    $reversePrint ? print "Checking out $tagrel $thepack\n" : print "Checking out $thepack $tagrel\n";
-			    system("cvs $cvsOpt co -r $tagrel $thepack"); 
-			}
-		    }
-		}
-	    }
-	    close IN;
-	    die "No package <$package> found in the release.\n" if( $tagrel eq "" );
-	}
-	chdir($currdir);
-	exit 0;
+    if ( $#ARGV > 0){
+	addTag($ARGV[0],$ARGV[1]);
     }
+    else{
+	addTag($ARGV[0]);
+    }
+    exit 0;
 }
 else{
 # addpkg -f file: checkout tags provided in the file
+
+#go back to current dir
+chdir($currdir);
 
 # make sure file exists
 unless(-f $file) {
@@ -111,31 +73,31 @@ unless(-f $file) {
 
 # read in packages and tags from file
 my %tags;
-open IN, "<$file";
+open INFILE, "<$file";
 
-my $currdir=getcwd;
 chdir("$ENV{'CMSSW_BASE'}/src");
 
-while(my $line = <IN>) {
-  chomp $line;
+while(my $line = <INFILE>) {
+    chomp $line;
+    my ($tag, $package);
+    $tag="";
+    my @tpS=split(' ',$line);
+    my $len=@tpS;
+    next if ($len<1);
+    $package=$tpS[0];
+    $tag=$tpS[1] if ($len>1);
 
-  my ($tag, $package);
-  ($package,$tag) = split '\s+', $line;
-  if($tag =~ m#(.*)/(.*)#) { # exchange tag w/ package
-    my $tt = $tag;
-    $tag = $package;
-    $package = $tt;
-  }
-  $tags{$package} = $tag;
-
-  # run the cvs command
-  my $cmd = "cvs $cvsOpt co -r $tag $package";
-  if(defined $pkgquery) {
-    print STDOUT "$cmd\n";
-  } else {
-    system("$cmd");
-  }
-
+    if( !(isPackage($package)==1) && !(isSubsystem($package))) { # exchange tag w/ package
+       my $tt = $tag;
+       $tag = $package;
+       $package = $tt;
+   }
+    if ($tag eq "") {
+	addTag($package);
+    }
+    else{
+	addTag($package,$tag);
+    }
 }
 chdir($currdir);
 exit 0;
@@ -171,4 +133,115 @@ addpkg [option]
                                (specification of subsystems with -f is not supported) 
 ENDHELP
 exit 0;
+}
+
+sub isPackage {
+    my $name=@_[0];
+    my $tname=$name;
+    my @sp1=split('/',$name);
+    my $len=@sp1;
+    if ($len>2) {
+	$tname="$sp1[$len-2]/$sp1[$len-1]";
+	print "$tname\n";
+    }
+    if ($tname =~ m#^([a-zA-Z0-9]*)/([a-zA-Z0-9]*)$#) {
+	return 1;
+    }
+    else{
+	return 0;
+    }
+}
+
+sub getPackageName {
+    my $name=@_[0];
+    my $tname=$name;
+    my @sp1=split('/',$name);
+    my $len=@sp1;
+    if ($len>2) {
+	$tname="$sp1[$len-2]/$sp1[$len-1]";
+    }
+    return $tname;
+}
+
+sub isSubsystem {
+    my $name=@_[0];
+#allow one number at most... 
+    if ($name =~ m#^([a-zA-Z]*)([a-zA-Z0-9])([a-zA-Z]*)$#) {
+	return 1;
+    }
+    else{
+	return 0;
+    }
+
+    return 1;
+}
+
+sub addTag {
+    my @args=@_;
+
+    my $package = $args[0];
+    my $isSubsystem=0;
+
+    die "Bad package. You must use Subsystem(/Package) format\n" if( !(isPackage($package)) && !(isSubsystem($package)));
+
+    $isSubsystem= isSubsystem($package);
+    my $tagrel = ""; 
+    my $tagco = ""; 
+    my $tagaction = "";
+# Get the release tag if the user has not provided a tag or if the user
+# is querying the release tag
+
+# user packages must specify a tag so they are simple..
+    my $realPackage=getPackageName($package);
+    if ($realPackage ne $package) {
+	if ( $#args < 1 ) {
+	    die "For packages not in the release, you must specify a tag (package = $package)";
+	}
+	$tagco = $args[1];   # user provided tag
+	$reversePrint ? print "Checking out $tagco $package (into $realPackage)\n" : print "Checking out $package $tagco (into $realPackage)\n";
+	system("cvs $cvsOpt co -r $tagco -d $realPackage $package"); 
+	return 0;
+    }
+
+# user supplies a tag and we have a package not a subsystem
+    if ($#args == 1 && $isSubsystem==0) {
+	$tagco = $args[1];   # user provided tag
+	$tagaction = "specified";
+	$reversePrint ? print "Checking out $tagco $package\n" : print "Checking out $package $tagco\n";
+	system("cvs $cvsOpt co -r $tagco $package"); 
+	return 0;
+    }
+
+#otherwise we have a complicated case - read the list of packages
+#and look for a matching package or subsystem in the release and check out the 
+#right tag
+    $tagaction = "release";
+    open IN, "$taglist";
+    my $l2="";
+    my $thepack=""; my $thetag="";
+    while(my $l = <IN>) {
+	chomp $l;
+	($thepack,$thetag) = split '\s+', $l;
+	(my $thesubsys,my $thesubpack)= split('/',$thepack);
+	if ($thepack eq $package || ( $isSubsystem==1 && $thesubsys eq $package ) ) { 
+	    $tagrel = $thetag; 
+	    if ($#args == 1) {
+		$tagco = $args[1];   # user provided tag
+		$reversePrint  ? print "Checking out $tagco $thepack\n" : print "Checking out $thepack $tagco\n";
+		system("cvs $cvsOpt co -r $tagco $thepack"); 
+	    }
+	    else{
+		if(defined $pkgquery) {
+		    $reversePrint ? print "$tagrel $thepack\n" : print "$thepack $tagrel\n";
+		}	
+		else{
+		    $reversePrint ? print "Checking out $tagrel $thepack\n" : print "Checking out $thepack $tagrel\n";
+		    system("cvs $cvsOpt co -r $tagrel $thepack"); 
+		}
+	    }
+	}
+    }
+    close IN;
+    die "No package <$package> found in the release.\n" if( $tagrel eq "" );
+    return 0;
 }

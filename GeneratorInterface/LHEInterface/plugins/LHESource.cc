@@ -6,7 +6,7 @@
 
 #include <boost/bind.hpp>
 
-#include "FWCore/Framework/interface/GeneratedInputSource.h"
+#include "FWCore/Sources/interface/ExternalInputSource.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -27,19 +27,8 @@ using namespace lhef;
 
 LHESource::LHESource(const edm::ParameterSet &params,
                      const edm::InputSourceDescription &desc) :
-	GeneratedInputSource(params, desc),
-	reader(new LHEReader(params)),
-	skipEvents(params.getUntrackedParameter<unsigned int>("skipEvents", 0))
-{
-	produces<LHEEventProduct>();
-	produces<LHERunInfoProduct, edm::InRun>();
-}
-
-LHESource::LHESource(const edm::ParameterSet &params,
-                     const edm::InputSourceDescription &desc,
-                     lhef::LHEReader *reader) :
-	GeneratedInputSource(params, desc),
-	reader(reader),
+	ExternalInputSource(params, desc, false),
+	reader(new LHEReader(fileNames(), params.getUntrackedParameter<unsigned int>("seekEvent", 0))),
 	skipEvents(params.getUntrackedParameter<unsigned int>("skipEvents", 0))
 {
 	produces<LHEEventProduct>();

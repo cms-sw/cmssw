@@ -4,8 +4,8 @@
 /** \class MagGeometry
  *  Entry point to the geometry of magnetic volumes.
  *
- *  $Date: 2008/04/17 17:45:43 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/04/20 23:22:04 $
+ *  $Revision: 1.9 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -72,7 +72,6 @@ private:
   PeriodicBinFinderInPhi<float> * theEndcapBinFinder;
 
   bool cacheLastVolume;
-  bool timerOn;
   bool v_85l;
 };
 #endif

@@ -3,8 +3,8 @@
 TrajectoryStateClosestToBeamLine::TrajectoryStateClosestToBeamLine
 	(const FreeTrajectoryState& stateAtPCA, const GlobalPoint & pointOnBeamLine,
 	 const reco::BeamSpot& beamSpot) :
-	  valid(true), theFTS(stateAtPCA) , thePointOnBeamLine(pointOnBeamLine),
-	theBeamSpot(beamSpot)
+	theFTS(stateAtPCA) , thePointOnBeamLine(pointOnBeamLine),
+	theBeamSpot(beamSpot), valid(true)
 {}
 
 Measurement1D TrajectoryStateClosestToBeamLine::transverseImpactParameter() const

@@ -11,8 +11,6 @@
 #include "SimG4Core/CustomPhysics/interface/CustomParticleFactory.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/MakeParameterSets.h"
-#include "FWCore/ParameterSet/interface/parse.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

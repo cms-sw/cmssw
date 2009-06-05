@@ -17,12 +17,6 @@ namespace reco{
          hadronicTauDecayIndex = static_cast<hadronicTauDecayModes>( tauDecayOther );
       this->setDecayMode(hadronicTauDecayIndex);
 
-      // combine all candidates
-      // ensure things have been combined correctly
-      AddFourMomenta addP4;
-      addP4.set(chargedPions_);
-      addP4.set(piZeroes_);
-
       // setup Particle base
       for(size_type iCand = 0; iCand < nCharged; ++iCand)
       {
@@ -34,7 +28,9 @@ namespace reco{
          const Candidate* theCandToAdd = piZeroes_.daughter(iCand);
          this->addDaughter( *theCandToAdd );
       }
-      addP4.set(*this);   //set up four vector & charge
+
+      this->setCharge(chargedPions_.charge());
+      this->setP4(chargedPions_.p4() + piZeroes_.p4());
       this->setStatus(2); //decayed
       this->setPdgId(12); //everyone's favorite lepton!
    }
@@ -101,7 +97,7 @@ namespace reco{
       for( size_t iFilteredCand = 0; iFilteredCand < numberOfFilteredObjects; ++iFilteredCand)
       {
          const Candidate* myCand = filteredObjects_.daughter(iFilteredCand);
-         if (absCharge >= 0 && abs(myCand->charge()) == absCharge)
+         if (absCharge < 0 || abs(myCand->charge()) == absCharge)
             output.push_back(myCand);
       }
       return output;

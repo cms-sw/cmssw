@@ -62,12 +62,11 @@ void TrainProcessor::doTrainBegin()
 			pair.underflow[0] = pair.underflow[1] = 0.0;
 			pair.overflow[0] = pair.overflow[1] = 0.0;
 
+			pair.sameBinning = true;	// use as default
 			if (monitoring) {
-				pair.sameBinning = false;
 				pair.min = -std::numeric_limits<double>::infinity();
 				pair.max = +std::numeric_limits<double>::infinity();
 			} else {
-				pair.sameBinning = true;
 				pair.min = -99999.0;
 				pair.max = +99999.0;
 			}

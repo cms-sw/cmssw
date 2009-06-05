@@ -1,8 +1,8 @@
 /** \file
  *  A simple program to print field value.
  *
- *  $Date: 2007/04/30 13:04:24 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/03/10 16:15:23 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
@@ -44,6 +44,8 @@ class queryField : public edm::EDAnalyzer {
    setup.get<IdealMagneticFieldRecord>().get(magfield);
 
    field = magfield.product();
+
+   cout << "Field Nominal Value: " << field->nominalValue() << endl;
 
    double x,y,z;
 

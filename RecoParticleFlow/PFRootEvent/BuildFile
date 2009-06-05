@@ -19,7 +19,6 @@
 <use name=root>
 <use name=rootcore>
 <use name=rootinteractive>
-<lib name=Gui>
 <export>
 <lib name=RecoParticleFlowPFRootEvent>
 <use name=FWCore/Framework>
@@ -36,5 +35,4 @@
 <use name=RecoParticleFlow/PFBlockAlgo> 
 <use name=RecoParticleFlow/PFAlgo>
 <use name=RecoParticleFlow/Benchmark>
-<lib name=Gui>
 </export>

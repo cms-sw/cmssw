@@ -67,6 +67,8 @@ namespace edm {
     void setEndRun() {runEndingFlag_ = true;}
     void resetAfterEndRun();
 
+    bool inputFileTransitionsEachEvent_;
+
   private:
 
     class ProductGetter : public EDProductGetter {

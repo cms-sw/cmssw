@@ -15,7 +15,7 @@ RecoTracktoTP::~RecoTracktoTP()
 }
 
 
-TrackingParticle RecoTracktoTP::TPMother(unsigned short i) const
+TrackingParticle RecoTracktoTP::TPMother(unsigned short i)
 {
     std::vector<TrackingParticle>  result;
 
@@ -52,7 +52,7 @@ TrackingParticle RecoTracktoTP::TPMother(unsigned short i) const
 }
 
 
-int RecoTracktoTP::numTPMothers() const
+int RecoTracktoTP::numTPMothers()
 {
     int count = 0;
     for(TrackingParticleRefVector::iterator si = TP().parentVertex()->sourceTracks_begin();

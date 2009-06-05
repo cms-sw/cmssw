@@ -1,13 +1,13 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepEvtPartons.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtEvent.h"
 #include "TopQuarkAnalysis/Examples/plugins/HypothesisAnalyzer.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
 
 
 HypothesisAnalyzer::HypothesisAnalyzer(const edm::ParameterSet& cfg):
-  semiLepEvt_ (cfg.getParameter<edm::InputTag>("semiLepEvent")),
-  hypoKey_ (cfg.getParameter<edm::InputTag>("hypoKey"  ))
+  semiLepEvt_  (cfg.getParameter<edm::InputTag>("semiLepEvent")),
+  hypoClassKey_(cfg.getParameter<edm::InputTag>("hypoClassKey"))
 {
 }
 
@@ -17,23 +17,23 @@ HypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
   edm::Handle<TtSemiLeptonicEvent> semiLepEvt;
   evt.getByLabel(semiLepEvt_, semiLepEvt);
 
-  edm::Handle<int> hypoKeyHandle;
-  evt.getByLabel(hypoKey_, hypoKeyHandle);
-  TtSemiLeptonicEvent::HypoKey& hypoKey = (TtSemiLeptonicEvent::HypoKey&) *hypoKeyHandle;
+  edm::Handle<int> hypoClassKeyHandle;
+  evt.getByLabel(hypoClassKey_, hypoClassKeyHandle);
+  TtSemiLeptonicEvent::HypoClassKey& hypoClassKey = (TtSemiLeptonicEvent::HypoClassKey&) *hypoClassKeyHandle;
 
-  if( !semiLepEvt->isHypoAvailable(hypoKey) ){
+  if( !semiLepEvt->isHypoAvailable(hypoClassKey) ){
     edm::LogInfo ( "NonValidHyp" ) << "Hypothesis not available for this event";
     return;
   }
-  if( !semiLepEvt->isHypoValid(hypoKey) ){
+  if( !semiLepEvt->isHypoValid(hypoClassKey) ){
     edm::LogInfo ( "NonValidHyp" ) << "Hypothesis not valid for this event";
     return;
   }
   
-  const reco::Candidate* hadTop = semiLepEvt->hadronicTop(hypoKey);
-  const reco::Candidate* hadW   = semiLepEvt->hadronicW  (hypoKey);
-  const reco::Candidate* lepTop = semiLepEvt->leptonicTop(hypoKey);
-  const reco::Candidate* lepW   = semiLepEvt->leptonicW  (hypoKey);
+  const reco::Candidate* hadTop = semiLepEvt->hadronicTop(hypoClassKey);
+  const reco::Candidate* hadW   = semiLepEvt->hadronicW  (hypoClassKey);
+  const reco::Candidate* lepTop = semiLepEvt->leptonicTop(hypoClassKey);
+  const reco::Candidate* lepW   = semiLepEvt->leptonicW  (hypoClassKey);
 
   if(hadTop && hadW && lepTop && lepW){
     hadWPt_    ->Fill( hadW->pt()    );

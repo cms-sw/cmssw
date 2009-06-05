@@ -7,7 +7,7 @@
 class GaussNoiseFP420 : public GNoiseFP420{
  public:
   // GaussNoiseFP420(int,float,float,bool);
-  GaussNoiseFP420(int ns, float nrms, float th, bool aNpixel, int verbosity);
+  GaussNoiseFP420(int ns, float nrms, float th, bool aNpixel);
   PileUpFP420::signal_map_type addNoise(PileUpFP420::signal_map_type);
   void setNumPixels(int in){numPixels = in;}
   void setThreshold(float in){threshold = in;}
@@ -17,6 +17,5 @@ class GaussNoiseFP420 : public GNoiseFP420{
   float noiseRMS;
   float threshold;
   bool addNoisyPixels;
-  int verbosi;
 };
 #endif

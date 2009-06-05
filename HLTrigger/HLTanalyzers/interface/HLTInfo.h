@@ -65,20 +65,20 @@ public:
 
   /** Analyze the Data */
   void analyze(const edm::Handle<edm::TriggerResults>                 & hltresults,
-               const edm::Handle<l1extra::L1EmParticleCollection>     & l1extemi,
-               const edm::Handle<l1extra::L1EmParticleCollection>     & l1extemn,
-               const edm::Handle<l1extra::L1MuonParticleCollection>   & l1extmu,
-               const edm::Handle<l1extra::L1JetParticleCollection>    & l1extjetc,
-               const edm::Handle<l1extra::L1JetParticleCollection>    & l1extjetf,
-               const edm::Handle<l1extra::L1JetParticleCollection>    & l1exttaujet,
-               const edm::Handle<l1extra::L1EtMissParticleCollection> & l1extmet,
-//             const edm::Handle<l1extra::L1ParticleMapCollection>    & l1mapcoll,
-               const edm::Handle<L1GlobalTriggerReadoutRecord>        & l1GTRR,
-               const edm::Handle<L1GlobalTriggerObjectMapRecord>      & l1GTOMRec,
-               const edm::Handle<L1GctJetCountsCollection>            & L1GctCounts,
-               const edm::Handle<L1GctHFBitCounts>                    & l1GctHFBitCounts,
+	       const edm::Handle<l1extra::L1EmParticleCollection>     & l1extemi,
+	       const edm::Handle<l1extra::L1EmParticleCollection>     & l1extemn,
+	       const edm::Handle<l1extra::L1MuonParticleCollection>   & l1extmu,
+	       const edm::Handle<l1extra::L1JetParticleCollection>    & l1extjetc,
+	       const edm::Handle<l1extra::L1JetParticleCollection>    & l1extjetf,
+	       const edm::Handle<l1extra::L1JetParticleCollection>    & l1exttaujet,
+	       const edm::Handle<l1extra::L1EtMissParticleCollection> & l1extmet,
+//	       const edm::Handle<l1extra::L1ParticleMapCollection>    & l1mapcoll,
+	       const edm::Handle<L1GlobalTriggerReadoutRecord>        & l1GTRR,
+	       const edm::Handle<L1GlobalTriggerObjectMapRecord>      & l1GTOMRec,
+	       const edm::Handle<L1GctJetCountsCollection>            & L1GctCounts,
+	       const edm::Handle<L1GctHFBitCounts>                    & l1GctHFBitCounts,
                const edm::Handle<L1GctHFRingEtSums>                   & l1GctHFRingEtSums,
-               TTree* tree);
+	       TTree* tree);
 
 private:
 

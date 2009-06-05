@@ -37,18 +37,16 @@ class CaloGeometryLoader
 
       virtual ~CaloGeometryLoader< T >() {}
  
-      PtrType load( const DDCompactView*  cpv,
-		    const Alignments*     alignments = 0 ,
-		    const AlignTransform* global     = 0  ) ;  
+      PtrType load( const DDCompactView* cpv,
+		    const Alignments*    alignments = 0 ) ;  
 
    private:
 
       unsigned int whichTransform( const DetId& id ) const ;
 
-      void makeGeometry( const DDCompactView*  cpv        , 
-			 T*                    geom       ,
-			 const Alignments*     alignments ,
-			 const AlignTransform* global       ) ;
+      void makeGeometry( const DDCompactView* cpv  , 
+			 T*                   geom ,
+			 const Alignments*    alignments ) ;
       
       void fillNamedParams( DDFilteredView fv,
 			    T*             geom ) ;

@@ -2,13 +2,13 @@
  * 
  *  Digi for CSC DMB info available in DDU
  *
- *  $Date: 2008/02/12 17:40:07 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/07/23 12:08:20 $
+ *  $Revision: 1.3 $
  *
  */
-#include "DataFormats/CSCDigi/interface/CSCDMBStatusDigi.h"
+#include <DataFormats/CSCDigi/interface/CSCDMBStatusDigi.h>
 
-#include <iostream>
+using namespace std;
 
 CSCDMBStatusDigi::CSCDMBStatusDigi(const uint16_t * header, const uint16_t * trailer)
 {
@@ -17,11 +17,3 @@ CSCDMBStatusDigi::CSCDMBStatusDigi(const uint16_t * header, const uint16_t * tra
   memcpy(header_, header, headerSizeInBytes);
   memcpy(trailer_, trailer, trailerSizeInBytes);
 }
-
-std::ostream & operator<<(std::ostream & o, const CSCDMBStatusDigi& digi) {
-  o << " "; 
-  o <<"\n";
- 
-  return o;
-}
-

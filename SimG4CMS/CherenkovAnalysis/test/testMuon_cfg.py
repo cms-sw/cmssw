@@ -37,12 +37,11 @@ process.source = cms.Source("FlatRandomEGunSource",
 )
 
 process.VtxSmeared = cms.EDFilter("GaussEvtVtxGenerator",
-    src   = cms.InputTag("source"),
     MeanX = cms.double(-12.0),
     MeanY = cms.double(0.0),
     MeanZ = cms.double(0.0),
-    SigmaX = cms.double(0.0),
     SigmaY = cms.double(0.0),
+    SigmaX = cms.double(0.0),
     SigmaZ = cms.double(0.0),
     TimeOffset = cms.double(0.0)
 )

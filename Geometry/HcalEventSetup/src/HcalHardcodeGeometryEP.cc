@@ -13,20 +13,12 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: HcalHardcodeGeometryEP.cc,v 1.8 2008/05/19 20:12:41 heltsley Exp $
+// $Id: HcalHardcodeGeometryEP.cc,v 1.7 2008/04/21 22:18:19 heltsley Exp $
 //
 //
 
 #include "Geometry/HcalEventSetup/interface/HcalHardcodeGeometryEP.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/HcalGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalFlexiHardcodeGeometryLoader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-class HcalTopology;
 
 //
 // constants, enums and typedefs
@@ -40,7 +32,9 @@ class HcalTopology;
 // constructors and destructor
 //
 
-HcalHardcodeGeometryEP::HcalHardcodeGeometryEP( const edm::ParameterSet& ps ) 
+HcalHardcodeGeometryEP::HcalHardcodeGeometryEP( const edm::ParameterSet& ps ) :
+   m_loader ( 0 ) ,
+   m_applyAlignment ( ps.getUntrackedParameter<bool>("applyAlignment", false) )
 {
    //the following line is needed to tell the framework what
    // data is being produced
@@ -58,6 +52,7 @@ HcalHardcodeGeometryEP::HcalHardcodeGeometryEP( const edm::ParameterSet& ps )
 
 HcalHardcodeGeometryEP::~HcalHardcodeGeometryEP()
 { 
+   delete m_loader ;
 }
 
 
@@ -75,17 +70,28 @@ HcalHardcodeGeometryEP::idealRecordCallBack( const IdealGeometryRecord& iRecord 
 HcalHardcodeGeometryEP::ReturnType
 HcalHardcodeGeometryEP::produceIdeal( const IdealGeometryRecord& iRecord )
 {
+   assert( !m_applyAlignment ) ;
+
+   //now do what ever other initialization is needed
+   ReturnType ptr ;
    edm::LogInfo("HCAL") << "Using default HCAL topology" ;
    edm::ESHandle<HcalTopology> topology ;
    iRecord.get( topology ) ;
-   HcalFlexiHardcodeGeometryLoader loader;
-   return ReturnType (loader.load (*topology));
+   m_loader = new HcalHardcodeGeometryLoader( *topology ) ;
+   ptr = ReturnType( m_loader->load() ) ;
+   return ptr ;
 }
 
 HcalHardcodeGeometryEP::ReturnType
 HcalHardcodeGeometryEP::produceAligned( const HcalGeometryRecord& iRecord )
 {
-  const IdealGeometryRecord& idealRecord = iRecord.getRecord<IdealGeometryRecord>();
-  return produceIdeal (idealRecord);
-}
+   //now do what ever other initialization is needed
+   ReturnType ptr ;
+   edm::LogInfo("HCAL") << "Using default HCAL topology" ;
 
+   edm::ESHandle<HcalTopology> topology ;
+   iRecord.getRecord<IdealGeometryRecord>().get( topology ) ;
+   if( 0 == m_loader ) m_loader = new HcalHardcodeGeometryLoader( *topology ) ;
+   ptr = ReturnType( m_loader->load() ) ; 
+   return ptr ;
+}

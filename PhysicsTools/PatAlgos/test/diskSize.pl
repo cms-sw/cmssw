@@ -1,4 +1,4 @@
-#!/bin/env perl
+#!/usr/bin/env perl
 
 ## Tool to dig out information about the event size in PAT
 ## 
@@ -18,6 +18,7 @@ use strict;
 use warnings;
 use Data::Dumper;
 use File::Temp qw/tempfile/;
+use File::stat;
 
 my $filename = shift(@ARGV);
 
@@ -25,6 +26,8 @@ if ((!$filename) || ($filename eq "-h")) {
     print STDERR "Usage: diskSize.pl filename.root > filename.html\n";
     exit(1);
 }
+
+my $st = stat($filename);
 
 my ($MACRO, $macrofile) = tempfile( "macroXXXXX", SUFFIX=>'.c' , UNLINK => 1 );
 my ($macroname) = ($macrofile =~ m/(macro.....)\.c/);
@@ -97,13 +100,16 @@ foreach my $item (keys(%survey)) { $survey{$item}->{'num'} = $events if $survey{
 
 foreach (grep( /^PROVENANCE\s+(\S+)/, @lines)) { /^PROVENANCE\s+(\S+)/ and $provenance = $1/1024.0; }
 
+my $allsize = $st->size/1024.0;
+my $s_allsize = sprintf("%.3f Mb, \%d events, %.2f kb/event", $allsize/1024.0, $events, $allsize/$events);
+
 print <<_END_;
 <html>
 <head>
-    <title>$filename : PAT Size</title>
+    <title>$filename : PAT Size ($s_allsize)</title>
     <link rel="stylesheet" type="text/css" href="patsize.css" />
 </head>
-<h1>Summary</h1>
+<h1>Summary ($s_allsize)</h1>
 <table>
 _END_
 print "<tr class='header'><th>".join("</th><th>", "Collection", "items/event", "kb/event", "kb/item", "plot", "%") . "</th></tr>\n";
@@ -118,18 +124,38 @@ foreach (sort({$survey{$b}->{'tot'} <=> $survey{$a}->{'tot'} }
     print sprintf("<td>%.1f%%</td>", $survey{$_}->{'tot'}/$grandtotal * 100.0);
     print "</tr>\n";
 }
-# provenance
-print "<th>EventMetaData + EventHistory</th>";
-foreach my $val (1, $provenance/$events, $provenance/$events) {
-    print sprintf("<td>%.2f</td>", $val);
-}
-print sprintf("<td class=\"img\"><img src='red-dot.gif' width='\%d' height='\%d' /></td>",$provenance/$grandtotal * 200, 10 );
-print sprintf("<td>%.1f%%</td>", $provenance/$grandtotal * 100.0);
+
+# all known data
+print "<th>All Event data</th>";
+print sprintf("<td>&nbsp;</td><td><b>%.2f</b></td><td>&nbsp;</td>" , $grandtotal/$events);
+print sprintf("<td class=\"img\"><img src=\"green-dot.gif\" width='\%d' height='10' />", $grandtotal/$allsize*200.0);
+print sprintf("</td><td>%.1f%%<sup>a</sup></td>", $grandtotal/$allsize*100.0);
 print "</tr>\n";
+
+# per-event provenance
+print "<th>EventMetaData + EventHistory</th>";
+print sprintf("<td>&nbsp;</td><td>%.2f</td><td>&nbsp;</td>", $provenance/$events);
+print sprintf("<td class=\"img\"><img src='red-dot.gif' width='\%d' height='\%d' /></td>",$provenance/$allsize * 200, 10 );
+print sprintf("<td>%.1f%%<sup>a</sup></td>", $provenance/$allsize * 100.0);
+print "</tr>\n";
+
+# other, unknown overhead
+print "<th>Non per-event data or overhead</th>";
+print sprintf("<td>&nbsp;</td><td>%.2f</td><td>&nbsp;</td>", ($allsize-$provenance-$grandtotal)/$events);
+print sprintf("<td class=\"img\"><img src='red-dot.gif' width='\%d' height='\%d' /></td>",($allsize-$provenance-$grandtotal)/$allsize * 200, 10 );
+print sprintf("<td>%.1f%%<sup>a</sup></td>", ($allsize-$provenance-$grandtotal)/$allsize * 100.0);
+print "</tr>\n";
+
+
+# all file
+print "<th>File size</th>";
+print sprintf("<td>&nbsp;</td><td><b>%.2f</b></td><td>&nbsp;</td>" , $allsize/$events);
+print "<td>&nbsp;</td><td>&nbsp;</td></tr>\n";
 
 print <<_END_;
 </table>
-Note: size percentages are relative to the total size of data only, without the per-event provenance (EventMetaData + EventHistory).
+Note: size percentages of individual event products are relative to the total size of Event data only.<br />
+Percentages with <sup>a</sup> are instead relative to the full file size.
 <h1>Detail</h1>
 _END_
 foreach (sort(keys(%survey))) {

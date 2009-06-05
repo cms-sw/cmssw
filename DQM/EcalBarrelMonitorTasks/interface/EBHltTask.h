@@ -4,15 +4,23 @@
 /*
  * \file EBHltTask.h
  *
- * $Date: 2008/05/11 09:35:08 $
- * $Revision: 1.30 $
+ * $Date: 2009/05/29 18:23:16 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
 class MonitorElement;
 class DQMStore;
@@ -53,6 +61,16 @@ void setup(void);
 /// Cleanup
 void cleanup(void);
 
+void initGeometry( const edm::EventSetup& setup );
+
+EcalSubdetector subDet( const EBDetId& id ) { return( id.subdet() ); }
+
+EcalSubdetector subDet( const EcalElectronicsId& id ) { return( id.subdet() ); }
+
+int iSM( const EBDetId& id );
+
+int iSM( const EcalElectronicsId& id );
+
 private:
 
 int ievt_;
@@ -83,6 +101,9 @@ MonitorElement* meEBFedsSizeErrors_;
 MonitorElement* meEBFedsIntegrityErrors_;
 
 bool init_;
+bool initGeometry_;
+
+const EcalElectronicsMapping* map;
 
 };
 

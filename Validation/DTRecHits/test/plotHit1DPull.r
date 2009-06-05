@@ -5,15 +5,15 @@ class HRes4DHit;
 
 void plotHitPull();
 void draw(bool, bool, bool, bool, bool, bool ThreeInOne);
-void plot1DPulls(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeInOne);
-void plot1DPullsVsPos(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeInOne);
+void plot1DPulls(HPull1DHit * h1, HPull1DHit * h2, HPull1DHit * h3, bool ThreeInOne);
+void plot1DPullsVsPos(HPull1DHit * h1, HPull1DHit * h2, HPull1DHit * h3, bool ThreeInOne);
 bool setPreferences(bool& doPulls, bool& doPullsVsPos, bool& doPullsCloseWire, bool&, bool&, bool& ThreeIn1) ;
 
 // This is the main function
 void plotHit1DPull(){
   // Load needed macros and files
   gROOT->LoadMacro("macros.C");     // Load service macros
-  gROOT->LoadMacro("../plugins/Histograms.h"); // Load definition of histograms
+  gROOT->LoadMacro("../src/Histograms.h"); // Load definition of histograms
 
   // Get the style
   TStyle * style = getStyle("tdr");
@@ -158,7 +158,7 @@ void plot1DPulls(HRes1DHit* h1, HRes1DHit* h2, HRes1DHit* h3, bool ThreeInOne) {
   TString N2 = "c_1D_" + h2->name;
   TString N3 = "c_1D_" + h3->name;
   int form = 2;
-  if (ThreeInOne) c1 = newCanvas(N1.Remove(5,2)+"_hPull",3,1,800,400);
+  if (ThreeInOne) c1 = newCanvas(N1.Remove(5,2)+"_hPull",3,1,1200,500);
   else newCanvas(N1+"_hPull",form);
   h1->hPull->SetXTitle("(d_{reco}-d_{sim})/#sigma_{reco}");
   h1->hPull->SetYTitle("# events");
@@ -190,7 +190,7 @@ void plot1DPullsVsPos(HRes1DHit* h1, HRes1DHit* h2, HRes1DHit* h3, bool ThreeInO
   TString N2 = "c_1D_" + h2->name;
   TString N3 = "c_1D_" + h3->name;
   int form = 2;
-  if (ThreeInOne) c1 = newCanvas(N1.Remove(5,2)+"_hPullVsPos",3,1,800,400);
+  if (ThreeInOne) c1 = newCanvas(N1.Remove(5,2)+"_hPullVsPos",3,1,1200,500);
   else newCanvas(N1+"_hPullVsPos",form);
   plotAndProfileXSpread(h1->hPullVsPos,  0.,2.1 ,true);
 
@@ -216,7 +216,7 @@ void plot1DPullsCloseWire(HRes1DHit* h1, HRes1DHit* h2, HRes1DHit* h3, bool Thre
   TString N2 = "c_1D_" + h2->name;
   TString N3 = "c_1D_" + h3->name;
   int form = 2;
-  if (ThreeInOne) c1 = newCanvas(N1.Remove(5,2)+"_hPullVsPos",3,1,800,400);
+  if (ThreeInOne) c1 = newCanvas(N1.Remove(5,2)+"_hPullVsPos",3,1,1200,500);
   else newCanvas(N1+"_hPullCloseWire",form);
   drawCloseWire(h1->hPullVsPos, 10);
 
@@ -253,7 +253,7 @@ void plot1DPullsVsAngle(HRes1DHit* h1, HRes1DHit* h2, HRes1DHit* h3, bool ThreeI
   TString N2 = "c_1D_" + h2->name;
   TString N3 = "c_1D_" + h3->name;
   int form = 2;
-  if (ThreeInOne) c1 = newCanvas(N1.Remove(5,2)+"_hPullVsAngle",3,1,800,400);
+  if (ThreeInOne) c1 = newCanvas(N1.Remove(5,2)+"_hPullVsAngle",3,1,1200,500);
   else newCanvas(N1+"_hPullVsAngle",form);
   plotAndProfileXSpread(h1->hPullVsAngle,  0.,2. ,true);
 
@@ -274,7 +274,7 @@ void plot1DPullsVsFE(HRes1DHit* h1, HRes1DHit* h2, HRes1DHit* h3, bool ThreeInOn
   TString N2 = "c_1D_" + h2->name;
   TString N3 = "c_1D_" + h3->name;
   int form = 2;
-  if (ThreeInOne) c1 = newCanvas(N1.Remove(5,2)+"_hPullVsDistFE",3,1,800,400);
+  if (ThreeInOne) c1 = newCanvas(N1.Remove(5,2)+"_hPullVsDistFE",3,1,1200,500);
   else newCanvas(N1+"_hPullVsDistFE",form);
   plotAndProfileXSpread(h1->hPullVsDistFE,  0.,300. ,true, -5.,5.);
 

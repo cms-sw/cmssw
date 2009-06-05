@@ -12,6 +12,7 @@
  <use name="Geometry/Records">
  <use name="PhysicsTools/IsolationAlgos">
  <use name="RecoMuon/MuonIdentification">
+ <use name="RecoMuon/TrackingTools">
  <use name="TrackingTools/Records">
  <use name="TrackingTools/TrackAssociator">
  <use name="TrackingTools/TransientTrackingRecHit">

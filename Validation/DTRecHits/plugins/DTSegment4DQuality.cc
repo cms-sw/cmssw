@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/10/25 11:58:37 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/06/18 15:56:08 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -59,6 +59,8 @@ DTSegment4DQuality::DTSegment4DQuality(const ParameterSet& pset)  {
   theFile = new TFile(rootFileName.c_str(), "RECREATE");
   theFile->cd();
 
+  if(debug)
+    cout << "[DTSegment4DQuality] Constructor called" << endl;
   h4DHit= new HRes4DHit ("All");
   h4DHit_W0= new HRes4DHit ("W0");
   h4DHit_W1= new HRes4DHit ("W1");
@@ -73,6 +75,8 @@ DTSegment4DQuality::DTSegment4DQuality(const ParameterSet& pset)  {
 // Destructor
 DTSegment4DQuality::~DTSegment4DQuality(){
 
+  if(debug)
+    cout << "[DTSegment4DQuality] Destructor called" << endl;
 }
 
 void DTSegment4DQuality::endJob() {
@@ -99,6 +103,9 @@ void DTSegment4DQuality::endJob() {
 
 // The real analysis
   void DTSegment4DQuality::analyze(const Event & event, const EventSetup& eventSetup){
+    if(debug)
+      cout << "--- [DTSegment4DQuality] Analysing Event: #Run: " << event.id().run()
+        << " #Event: " << event.id().event() << endl;
     theFile->cd();
 
     // Get the DT Geometry

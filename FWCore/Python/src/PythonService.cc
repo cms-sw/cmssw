@@ -8,15 +8,12 @@
 //
 // Original Author:  Benedikt Hegner
 //         Created:  Sun Jul 23 11:31:33 CEST 2006
-// $Id: PythonService.cc,v 1.2 2006/07/26 12:29:44 hegner Exp $
 //
 
 // system include files
 
 // user include files
 #include "FWCore/Python/src/PythonService.h"
-
-#include "boost/python.hpp"
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/EventID.h"

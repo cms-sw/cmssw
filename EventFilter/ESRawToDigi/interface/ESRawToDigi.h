@@ -23,7 +23,9 @@ class ESRawToDigi : public EDProducer {
  private:
 
   edm::InputTag sourceTag_;
+  edm::InputTag fedsListLabel_;
   string ESdigiCollection_;
+  bool regional_;
 
   bool debug_;
 

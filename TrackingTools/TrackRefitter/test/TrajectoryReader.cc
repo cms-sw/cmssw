@@ -82,7 +82,7 @@ void TrajectoryReader::printTrajectoryRecHits(const Trajectory &trajectory,
       const GeomDet* geomDet = trackingGeometry->idToDet((*recHit)->geographicalId());
       double r = geomDet->surface().position().perp();
       double z = geomDet->toGlobal((*recHit)->localPosition()).z();
-      LogTrace(metname) <<  i++ <<" r: "<< r <<" z: "<<z <<" "<<geomDet->toGlobal((*recHit)->localPosition())
+      LogDebug(metname) <<  i++ <<" r: "<< r <<" z: "<<z <<" "<<geomDet->toGlobal((*recHit)->localPosition())
 			<<endl;
     }
 }
@@ -92,15 +92,16 @@ void TrajectoryReader::printTrackRecHits(const reco::Track &track,
 
   const std::string metname = "Reco|TrackingTools|TrajectoryReader";
 
-  LogTrace(metname) << "Valid RecHits: "<<track.found() << " invalid RecHits: " << track.lost();
+  LogDebug(metname) << "Valid RecHits: "<<track.found() << " invalid RecHits: " << track.lost();
   
   int i = 0;
   for(trackingRecHit_iterator recHit = track.recHitsBegin(); recHit != track.recHitsEnd(); ++recHit)
     if((*recHit)->isValid()){
       const GeomDet* geomDet = trackingGeometry->idToDet((*recHit)->geographicalId());
       double r = geomDet->surface().position().perp();
-      double z = geomDet->surface().position().z();
-      LogTrace(metname) << i++ <<" GeomDet position r: "<< r <<" z: "<<z;
+      double z = geomDet->toGlobal((*recHit)->localPosition()).z();
+      LogDebug(metname) << i++ <<" r: "<< r <<" z: "<<z <<" "<<geomDet->toGlobal((*recHit)->localPosition())
+			<<endl;
     }
 }
 
@@ -116,30 +117,26 @@ void TrajectoryReader::analyze(const Event & event, const EventSetup& eventSetup
 
   const std::string metname = "Reco|TrackingTools|TrajectoryReader";
   
-  // Get the RecTrack collection from the event
-  Handle<reco::TrackCollection> tracks;
-  event.getByLabel(theInputLabel.label(),tracks);
-
-  if(tracks->empty()) return;
-  
   // Get the Trajectory collection from the event
   Handle<Trajectories> trajectories;
-  event.getByLabel(theInputLabel,trajectories);
+  event.getByLabel(theInputLabel.label(),trajectories);
   
-  LogTrace(metname) << "looking at: " << theInputLabel;
-
   for(Trajectories::const_iterator trajectory = trajectories->begin(); 
       trajectory != trajectories->end(); ++trajectory)
     printTrajectoryRecHits(*trajectory,trackingGeometry);
 
   
+  // Get the RecTrack collection from the event
+  Handle<reco::TrackCollection> tracks;
+  event.getByLabel(theInputLabel.label(),tracks);
+
   for (reco::TrackCollection::const_iterator tr = tracks->begin(); 
        tr != tracks->end(); ++tr) 
     printTrackRecHits(*tr,trackingGeometry);
   
   
   Handle<TrajTrackAssociationCollection> assoMap;
-  event.getByLabel(theInputLabel,assoMap);
+  event.getByLabel(theInputLabel.label(),assoMap);
 
   for(TrajTrackAssociationCollection::const_iterator it = assoMap->begin();
       it != assoMap->end(); ++it){
@@ -160,7 +157,7 @@ void TrajectoryReader::analyze(const Event & event, const EventSetup& eventSetup
   int track_size = tracks->size();
 
   if(traj_size != track_size){
-    LogTrace(metname)
+    LogDebug(metname)
       <<"Mismatch between the # of Tracks ("<<track_size<<") and the # of Trajectories! ("
       <<traj_size<<")";
   }
@@ -176,11 +173,11 @@ void TrajectoryReader::analyze(const Event & event, const EventSetup& eventSetup
       reco::TransientTrack track(trackRef,&*magField,trackingGeometry);
 
       hDPtIn->Fill(track.innermostMeasurementState().globalMomentum().perp() -
- 		   trajectory->lastMeasurement().updatedState().globalMomentum().perp());
+ 		   trajectory->firstMeasurement().updatedState().globalMomentum().perp());
       hDPtOut->Fill(track.outermostMeasurementState().globalMomentum().perp() -
- 		    trajectory->firstMeasurement().updatedState().globalMomentum().perp());
+ 		    trajectory->lastMeasurement().updatedState().globalMomentum().perp());
 
-      LogTrace(metname)<< "Difference: " <<track.recHitsSize()- trajectory->recHits().size();
+      LogDebug(metname)<< "Difference: " <<track.recHitsSize()- trajectory->recHits().size();
       
     }     
   }

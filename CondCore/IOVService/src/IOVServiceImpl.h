@@ -43,7 +43,7 @@ namespace cond{
 					   cond::Time_t till );
   private:
     cond::PoolTransaction* m_pooldb;
-    std::map< std::string,cond::TypedRef<cond::IOV> > m_iovcache;
+    std::map< std::string,cond::IOV* > m_iovcache;
   };
 
 }//ns cond

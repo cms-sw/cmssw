@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.5 $
- *  $Date: 2007/10/11 16:13:20 $
+ *  $Revision: 1.4 $
+ *  $Date: 2007/03/16 17:03:01 $
  *  (last update by $Author: flucke $)
  */
 
@@ -86,7 +86,7 @@ int MillePedeVariablesIORoot::writeOne(Alignable* ali)
   }
 
   const MillePedeVariables *mpVar = 
-    static_cast<MillePedeVariables*>(ali->alignmentParameters()->userVariables());
+    dynamic_cast<MillePedeVariables*>(ali->alignmentParameters()->userVariables());
   myNumPar = mpVar->size();
   if (myNumPar >= kMaxNumPar) {
     edm::LogError("Alignment") << "@SUB=MillePedeVariablesIORoot::writeOne"
@@ -127,7 +127,7 @@ AlignmentUserVariables* MillePedeVariablesIORoot::readOne(Alignable *ali, int &i
     return 0;
   }
 
-  MillePedeVariables *mpVar = new MillePedeVariables(myNumPar, myLabel);
+  MillePedeVariables *mpVar = new MillePedeVariables(myNumPar);
   for (unsigned int iPar = 0; iPar < myNumPar; ++iPar) {
     mpVar->isValid()[iPar]    = myIsValid[iPar];
     mpVar->diffBefore()[iPar] = myDiffBefore[iPar];
@@ -138,6 +138,7 @@ AlignmentUserVariables* MillePedeVariablesIORoot::readOne(Alignable *ali, int &i
   }
   mpVar->setHitsX(myHitsX);
   mpVar->setHitsY(myHitsY);
+  mpVar->setLabel(myLabel);
   
   return mpVar;
 }

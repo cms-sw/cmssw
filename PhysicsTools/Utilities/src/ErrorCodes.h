@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug 13 10:37:44 EDT 2008
-// $Id$
+// $Id: ErrorCodes.h,v 1.1 2008/08/13 19:38:18 chrjones Exp $
 //
 
 // system include files
@@ -38,7 +38,8 @@ namespace reco {
          kIsDestructor,
          kIsOperator,
          kWrongNumberOfArguments,
-         kWrongArgumentType
+         kWrongArgumentType,
+         kOverloaded
       };
    }
 }

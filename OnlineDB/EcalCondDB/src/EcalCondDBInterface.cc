@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.12 2008/06/16 09:33:02 fra Exp $
+// $Id: EcalCondDBInterface.cc,v 1.11 2008/05/08 13:30:59 fra Exp $
 
 #include <iostream>
 #include <string>
@@ -279,8 +279,6 @@ vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDSetOrdered( string name,
     ss<<"  ORDER BY id3, id1, id2 ";
   } else if (orderedBy==132|| orderedBy==13){ 
     ss<<"  ORDER BY id1, id3, id2 ";
-  } else if (orderedBy==1234 ){ 
-    ss<<"  ORDER BY id1, id2, id3, logic_id ";
   } else if (orderedBy==4) {
     ss<<"  ORDER BY logic_id ";
   } else {

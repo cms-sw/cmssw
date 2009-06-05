@@ -6,6 +6,7 @@
 
 #include "CamacTBDataFormatter.h"
 
+#include <iostream>
 
 
 // pro-memo:

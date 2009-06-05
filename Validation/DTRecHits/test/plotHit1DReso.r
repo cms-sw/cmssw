@@ -13,7 +13,7 @@ bool setPreferences(bool& doRes, bool& doResVsPos, bool& doResCloseWire, bool&, 
 void plotHit1DReso(){
   // Load needed macros and files
   gROOT->LoadMacro("macros.C");     // Load service macros
-  gROOT->LoadMacro("../plugins/Histograms.h"); // Load definition of histograms
+  gROOT->LoadMacro("../src/Histograms.h"); // Load definition of histograms
 
   // Get the style
   TStyle * style = getStyle("tdr");
@@ -154,7 +154,7 @@ void plot1DRes(HRes1DHit* h1, HRes1DHit* h2, HRes1DHit* h3, bool ThreeInOne) {
   TString N2 = "c_1D_" + h2->name;
   TString N3 = "c_1D_" + h3->name;
   int form = 2;
-  if (ThreeInOne) c1 = newCanvas(N1.Remove(5,2)+"_hRes",3,1,800,400);
+  if (ThreeInOne) c1 = newCanvas(N1.Remove(5,2)+"_hRes",3,1,1200,500);
   else newCanvas(N1+"_hRes",form);
   h1->hRes->SetXTitle("(d_{reco}-d_{sim})");
   h1->hRes->SetYTitle("# events");
@@ -186,7 +186,7 @@ void plot1DResVsPos(HRes1DHit* h1, HRes1DHit* h2, HRes1DHit* h3, bool ThreeInOne
   TString N2 = "c_1D_" + h2->name;
   TString N3 = "c_1D_" + h3->name;
   int form = 2;
-  if (ThreeInOne) c1 = newCanvas(N1.Remove(5,2)+"_hResVsPos",3,1,800,400);
+  if (ThreeInOne) c1 = newCanvas(N1.Remove(5,2)+"_hResVsPos",3,1,1200,500);
   else newCanvas(N1+"_hResVsPos",form);
   plotAndProfileXSpread(h1->hResVsPos,  0.,2.1 ,true,-.3,.3);
 
@@ -212,7 +212,7 @@ void plot1DResCloseWire(HRes1DHit* h1, HRes1DHit* h2, HRes1DHit* h3, bool ThreeI
   TString N2 = "c_1D_" + h2->name;
   TString N3 = "c_1D_" + h3->name;
   int form = 2;
-  if (ThreeInOne) c1 = newCanvas(N1.Remove(5,2)+"_hResVsPos",3,1,800,400);
+  if (ThreeInOne) c1 = newCanvas(N1.Remove(5,2)+"_hResVsPos",3,1,1200,500);
   else newCanvas(N1+"_hResCloseWire",form);
   drawCloseWire(h1->hResVsPos, 10);
 
@@ -249,7 +249,7 @@ void plot1DResVsAngle(HRes1DHit* h1, HRes1DHit* h2, HRes1DHit* h3, bool ThreeInO
   TString N2 = "c_1D_" + h2->name;
   TString N3 = "c_1D_" + h3->name;
   int form = 2;
-  if (ThreeInOne) c1 = newCanvas(N1.Remove(5,2)+"_hResVsAngle",3,1,800,400);
+  if (ThreeInOne) c1 = newCanvas(N1.Remove(5,2)+"_hResVsAngle",3,1,1200,500);
   else newCanvas(N1+"_hResVsAngle",form);
   plotAndProfileXSpread(h1->hResVsAngle,  0.,.6 ,true,-0.2,0.2);
 
@@ -270,7 +270,7 @@ void plot1DResVsFE(HRes1DHit* h1, HRes1DHit* h2, HRes1DHit* h3, bool ThreeInOne)
   TString N2 = "c_1D_" + h2->name;
   TString N3 = "c_1D_" + h3->name;
   int form = 2;
-  if (ThreeInOne) c1 = newCanvas(N1.Remove(5,2)+"_hResVsDistFE",3,1,800,400);
+  if (ThreeInOne) c1 = newCanvas(N1.Remove(5,2)+"_hResVsDistFE",3,1,1200,500);
   else newCanvas(N1+"_hResVsDistFE",form);
   plotAndProfileXSpread(h1->hResVsDistFE,  0.,400. ,true,-0.2,0.2);
 

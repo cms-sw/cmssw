@@ -1,5 +1,5 @@
-#ifndef PythonService_h
-#define PythonService_h
+#ifndef FWCore_ParameterSet_PythonService_h
+#define FWCore_ParameterSet_PythonService_h
 // -*- C++ -*-
 //
 // Package:     Python
@@ -16,13 +16,11 @@
 //
 // Original Author:  Benedikt Hegner
 //         Created:  Sun Jul 23 11:31:33 CEST 2006
-// $Id: PythonService.h,v 1.1 2006/07/23 15:41:54 hegner Exp $
 //
 
+#include "FWCore/ParameterSet/interface/BoostPython.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-
-#include "boost/python.hpp"
 
 // subpackage specific includes
 #include "FWCore/Python/src/EventWrapper.h"
@@ -49,4 +47,4 @@ class PythonService {
 
 };
 
-#endif // PythonService_h
+#endif // FWCore_ParameterSet_PythonService_h

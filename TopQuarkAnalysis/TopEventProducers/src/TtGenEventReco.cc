@@ -30,12 +30,13 @@ TtGenEventReco::produce(edm::Event& evt, const edm::EventSetup& setup)
 
   //add TopDecayTree
   reco::GenParticleRefProd cands( parts );
-
   //add InitialStatePartons
   reco::GenParticleRefProd initParts( inits );
 
   //add genEvt to the output stream
   TtGenEvent* genEvt = new TtGenEvent( cands, initParts );
+  //genEvt->dumpEventContent();
+  //phase out the gen event
   std::auto_ptr<TtGenEvent> gen( genEvt );
   evt.put( gen );
 }

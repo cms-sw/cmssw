@@ -1,5 +1,4 @@
-#include "DataFormats/L1CSCTrackFinder/interface/L1Track.h"
-#include <iostream>
+#include <DataFormats/L1CSCTrackFinder/interface/L1Track.h>
 
 namespace csc {
 

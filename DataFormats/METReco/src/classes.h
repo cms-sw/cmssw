@@ -1,3 +1,13 @@
+// File:           classes.h
+// Description:  
+// Author:         Unknown
+// Creation Date:  Unknown
+//
+//--------------------------------------------
+//Modified:     29.10.2008 by R.Cavanaugh, UIC/Fermilab
+//Description:  include Particle Flow MET
+//
+
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/Common/interface/EDProduct.h" 
 #include "Math/Cartesian3D.h" 
@@ -12,6 +22,9 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h" 
 #include "DataFormats/METReco/interface/CaloMETFwd.h" 
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETFwd.h" 
+#include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETFwd.h" 
 #include "DataFormats/METReco/interface/GenMETCollection.h"
@@ -54,9 +67,18 @@ namespace {
     std::vector<reco::MET> dummy17;
     edm::reftobase::Holder<reco::Candidate,reco::METRef> rtb3;
 
-    edm::reftobase::RefHolder<reco::METRef> dummy18;
-    edm::reftobase::RefHolder<reco::CaloMETRef> dummy19;
-    edm::reftobase::RefHolder<reco::GenMETRef> dummy20;
+    PFMETRef r4;
+    PFMETRefProd rp4;
+    PFMETRefVector rv4;
+    edm::Wrapper<reco::PFMET> dummy18;
+    edm::Wrapper<reco::PFMETCollection> dummy19;
+    edm::Wrapper< std::vector<reco::PFMET> > dummy20;
+    std::vector<reco::PFMET> dummy21;
+    edm::reftobase::Holder<reco::Candidate,reco::PFMETRef> rtb4;
+
+    edm::reftobase::RefHolder<reco::METRef> dummy22;
+    edm::reftobase::RefHolder<reco::CaloMETRef> dummy23;
+    edm::reftobase::RefHolder<reco::GenMETRef> dummy24;
 
     // used for backward compatibility
     std::vector<CommonMETData> bcv1;

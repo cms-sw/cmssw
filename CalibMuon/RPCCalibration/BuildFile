@@ -14,10 +14,7 @@
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/RPCObjects>
 
-<use name=oracle>
-
 <use name=clhep>
-#<use name=xdaq>
 
 <use name=DataFormats/FEDRawData> 
 
@@ -38,9 +35,7 @@
    <use name=CondFormats/DataRecord>
    <use name=CondFormats/RPCObjects>
    <use name=CondCore/DBOutputService>
-   <use name=oracle>
    <use name=clhep>
-#   <use name=xdaq>
 
 
 </export>
