@@ -6,10 +6,12 @@
 <use name=MagneticField/Records>
 <use name=MagneticField/Engine>
 <use name=TrackingTools/GeomPropagators>
+<use name=Geometry/CaloTopology>
 <export>
  <lib name=RecoMETMETAlgorithms>
  <use name=DataFormats/METReco>
  <use name=DataFormats/CaloTowers>
  <use name=DataFormats/Common>
+ <use name=Geometry/CaloTopology>
 </export>
 

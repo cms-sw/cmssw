@@ -7,7 +7,7 @@
 //
 //
 
-#include "RecoMET/METProducers/interface/HcalNoiseRBXArray.h"
+#include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
 #include "FWCore/Utilities/interface/CodedException.h"
 
 using namespace reco;
