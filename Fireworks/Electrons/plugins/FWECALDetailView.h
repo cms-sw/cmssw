@@ -10,7 +10,7 @@
 //     views.  The only difference between the two detail views is
 //     whether the track intersections need to be drawn.
 //
-// $Id: FWECALDetailView.h,v 1.2.4.1 2009/04/24 02:18:42 dmytro Exp $
+// $Id: FWECALDetailView.h,v 1.3 2009/04/27 16:53:30 dmytro Exp $
 //
 
 #include "DataFormats/DetId/interface/DetId.h"
@@ -24,11 +24,14 @@ class TEveElementList;
 class TEveCaloDataVec;
 class FWModelId;
 class TGLViewerBase;
+class TGLOverlayElement;
 
 template <typename T> class FWECALDetailView : public FWDetailView<T> {
 public:
      FWECALDetailView ();
      virtual ~FWECALDetailView ();
+
+    virtual  void  clearOverlayElements();
 
 protected:
      void setItem (const FWEventItem *iItem) {
@@ -49,6 +52,8 @@ protected:
 				 int ix, int iy, int iz);
      void getEcalCrystalsBarrel (std::vector<DetId> *, 
 				 int ieta, int iphi);
+    
+     std::vector<TGLOverlayElement*> m_overlays;
 protected:
    // ---------- member data --------------------------------
      const FWEventItem* m_item;

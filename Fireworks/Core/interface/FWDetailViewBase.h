@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan  9 13:35:52 EST 2009
-// $Id: FWDetailViewBase.h,v 1.2 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWDetailViewBase.h,v 1.3 2009/03/29 14:13:38 amraktad Exp $
 //
 
 // system include files
@@ -38,6 +38,7 @@ public:
 
    ///the calling code takes ownership of the returned object
    TEveElement* build (const FWModelId &);
+  virtual void  clearOverlayElements() {}
 
    void         setLatex (TLatex *v) {
       m_latex = v;
@@ -82,9 +83,10 @@ private:
 
    virtual TEveElement* build(const FWModelId&, const void*) = 0;
 
-   TLatex       *m_latex;
+   TLatex          *m_latex;
    TGLViewer    *m_viewer;
-   Double_t m_rotationCenter[3];
+   Double_t         m_rotationCenter[3];
+
 
    FWSimpleProxyHelper m_helper;
 

@@ -8,11 +8,10 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan  9 13:35:56 EST 2009
-// $Id: FWDetailViewBase.cc,v 1.1 2009/01/09 20:58:50 chrjones Exp $
+// $Id: FWDetailViewBase.cc,v 1.2 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
-
 // user include files
 #include "Fireworks/Core/interface/FWDetailViewBase.h"
 #include "Fireworks/Core/interface/FWModelId.h"
@@ -43,6 +42,7 @@ FWDetailViewBase::FWDetailViewBase(const std::type_info& iInfo) :
 FWDetailViewBase::~FWDetailViewBase()
 {
 }
+
 
 //
 // assignment operators

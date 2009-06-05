@@ -1,4 +1,4 @@
-// $Id: FWECALDetailView.icc,v 1.4 2009/05/14 01:27:28 jmuelmen Exp $
+// $Id: FWECALDetailView.icc,v 1.5 2009/05/20 05:24:52 jmuelmen Exp $
 
 // system include files
 #include "TLatex.h"
@@ -53,6 +53,18 @@ FWECALDetailView<T>::~FWECALDetailView ()
 {
 
 }
+
+template <typename T>
+void  FWECALDetailView<T>::clearOverlayElements()
+{
+  TGLViewer* v =  FWDetailViewBase::viewer(); 
+  for(std::vector<TGLOverlayElement* >::iterator it = m_overlays.begin();  it != m_overlays.end(); it++)
+  {
+    v->RemoveOverlayElement(*it);
+  }
+  m_overlays.clear();
+}
+
 
 template <typename T>
 math::XYZPoint FWECALDetailView<T>::trackPositionAtCalo (const T &)
@@ -193,6 +205,7 @@ void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i,
      overlay->SetCaloLego(lego);
      FWDetailViewBase::viewer()->AddOverlayElement(overlay);  
      tList->AddElement(overlay);
+     m_overlays.push_back(overlay);
 
      // set event handler, flip to top view at beginning
      {
