@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("check")
 
+
 # rpc geometry
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
@@ -11,7 +12,7 @@ process.load("L1TriggerConfig.RPCTriggerConfig.RPCConeDefinition_cff")
 # emulation
 
 process.load("L1TriggerConfig.RPCTriggerConfig.L1RPCConfig_cff")
-process.load("L1TriggerConfig.RPCTriggerConfig.RPCConeConfig_cff")
+process.load("L1Trigger.RPCTrigger.RPCConeConfig_cff")
 process.load("L1TriggerConfig.RPCTriggerConfig.RPCHwConfig_cff")
 
 process.load("EventFilter.RPCRawToDigi.RPCSQLiteCabling_cfi")
