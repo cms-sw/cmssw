@@ -1,6 +1,5 @@
 
 /*
-$Id$
 */
 
 #include "FWCore/Framework/interface/IEventProcessor.h"

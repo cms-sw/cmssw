@@ -55,8 +55,7 @@ namespace edm {
 
   namespace event_processor {
 
-    class StateSentry
-    {
+    class StateSentry {
     public:
       StateSentry(EventProcessor* ep) : ep_(ep), success_(false) { }
       ~StateSentry() {if(!success_) ep_->changeState(mException);}
@@ -117,8 +116,7 @@ namespace edm {
     // table if multiple entries for a CurrentState are present.
     // the changeState function does not use the mAny yet!!!
 
-    struct TransEntry
-    {
+    struct TransEntry {
       State current;
       Msg   message;
       State final;
@@ -213,8 +211,7 @@ namespace edm {
 	    EventProcessor::CommonParams const& common,
 	    ProductRegistry& preg,
             boost::shared_ptr<ActivityRegistry> areg,
-	    boost::shared_ptr<ProcessConfiguration> processConfiguration)
-  {
+	    boost::shared_ptr<ProcessConfiguration> processConfiguration) {
     ParameterSet * main_input = params.getPSetForUpdate("@main_input");
     if (main_input == 0) {
       throw edm::Exception(errors::Configuration, "FailedInputSource")
@@ -244,8 +241,7 @@ namespace edm {
   // ---------------------------------------------------------------
   static
   std::auto_ptr<eventsetup::EventSetupProvider>
-  makeEventSetupProvider(ParameterSet const& params)
-  {
+  makeEventSetupProvider(ParameterSet const& params) {
     using namespace edm::eventsetup;
     std::vector<std::string> prefers =
       params.getParameter<std::vector<std::string> >("@all_esprefers");
@@ -264,8 +260,7 @@ namespace edm {
 
     for(std::vector<std::string>::iterator itName = prefers.begin(), itNameEnd = prefers.end();
 	itName != itNameEnd;
-	++itName) 
-      {
+	++itName) {
         recordToData.clear();
 	ParameterSet preferPSet = params.getParameter<ParameterSet>(*itName);
         std::vector<std::string> recordNames = preferPSet.getParameterNames();
@@ -328,8 +323,7 @@ namespace edm {
   void 
   fillEventSetupProvider(edm::eventsetup::EventSetupProvider& cp,
 			 ParameterSet & params,
-			 EventProcessor::CommonParams const& common)
-  {
+			 EventProcessor::CommonParams const& common) {
     using namespace edm::eventsetup;
     std::vector<std::string> providers =
       params.getParameter<std::vector<std::string> >("@all_esmodules");
@@ -366,8 +360,7 @@ namespace edm {
   boost::shared_ptr<edm::EDLooper> 
   fillLooper(edm::eventsetup::EventSetupProvider& cp,
 			 ParameterSet & params,
-			 EventProcessor::CommonParams const& common)
-  {
+			 EventProcessor::CommonParams const& common) {
     using namespace edm::eventsetup;
     boost::shared_ptr<edm::EDLooper> vLooper;
     
@@ -430,8 +423,7 @@ namespace edm {
     looper_(),
     shouldWeStop_(false),
     alreadyHandlingException_(false),
-    forceLooperToEnd_(false)
-  {
+    forceLooperToEnd_(false) {
     boost::shared_ptr<edm::ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, iToken, iLegacy);
@@ -468,8 +460,7 @@ namespace edm {
     looper_(),
     shouldWeStop_(false),
     alreadyHandlingException_(false),
-    forceLooperToEnd_(false)
-  {
+    forceLooperToEnd_(false) {
     boost::shared_ptr<edm::ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
@@ -506,8 +497,7 @@ namespace edm {
     looper_(),
     shouldWeStop_(false),
     alreadyHandlingException_(false),
-    forceLooperToEnd_(false)
-  {
+    forceLooperToEnd_(false) {
     init(processDesc, token, legacy);
   }
 
@@ -541,15 +531,12 @@ namespace edm {
     looper_(),
     shouldWeStop_(false),
     alreadyHandlingException_(false),
-    forceLooperToEnd_(false)
-  {
-    if(isPython)
-    {
+    forceLooperToEnd_(false) {
+    if(isPython) {
       boost::shared_ptr<edm::ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
       init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
     }
-    else
-    {
+    else {
       boost::shared_ptr<edm::ProcessDesc> processDesc(new edm::ProcessDesc(config));
       init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
     }
@@ -642,8 +629,7 @@ namespace edm {
     BranchIDListHelper::updateRegistries(preg_);
   }
 
-  EventProcessor::~EventProcessor()
-  {
+  EventProcessor::~EventProcessor() {
     // Make the services available while everything is being deleted.
     ServiceToken token = getToken();
     ServiceRegistry::Operate op(token); 
@@ -662,11 +648,10 @@ namespace edm {
     try {
       changeState(mDtor);
     }
-    catch(cms::Exception& e)
-      {
-	LogError("System")
-	  << e.explainSelf() << "\n";
-      }
+    catch(cms::Exception& e) {
+      LogError("System")
+	<< e.explainSelf() << "\n";
+    }
 
     // manually destroy all these thing that may need the services around
     esp_.reset();
@@ -678,8 +663,7 @@ namespace edm {
   }
 
   void
-  EventProcessor::rewind()
-  {
+  EventProcessor::rewind() {
     beginJob(); //make sure this was called
     changeState(mStopAsync);
     changeState(mInputRewind);
@@ -699,14 +683,25 @@ namespace edm {
     changeState(mFinished);
   }
 
-  std::auto_ptr<EventPrincipal>
+  bool
   EventProcessor::doOneEvent(EventID const& id) {
     std::auto_ptr<EventPrincipal> pep;
-    {
+    try {
       pep = input_->readEvent(id);
     }
+    catch(cms::Exception& e) {
+      actions::ActionCodes action = act_table_.find(e.rootCause());
+      if (action == actions::Rethrow) {
+ 	throw;
+      } else {
+        LogWarning(e.category())
+          << "an exception occurred and all paths for the event are being skipped: \n"
+          << e.what();
+        return true;
+      }
+    }
     procOneEvent(pep.get());
-    return pep;
+    return (pep.get() != 0);
   }
 
   void
@@ -719,14 +714,12 @@ namespace edm {
   }
 
   EventProcessor::StatusCode
-  EventProcessor::run(int numberEventsToProcess, bool repeatable)
-  {
+  EventProcessor::run(int numberEventsToProcess, bool repeatable) {
     return runEventCount(numberEventsToProcess);
   }
   
   EventProcessor::StatusCode
-  EventProcessor::run(EventID const& id)
-  {
+  EventProcessor::run(EventID const& id) {
     beginJob(); //make sure this was called
     changeState(mRunID);
     StateSentry toerror(this);
@@ -735,7 +728,7 @@ namespace edm {
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
-    if(doOneEvent(id).get() == 0) {
+    if(!doOneEvent(id)) {
       changeState(mInputExhausted);
     } else {
       changeState(mCountComplete);
@@ -747,8 +740,7 @@ namespace edm {
   }
 
   EventProcessor::StatusCode
-  EventProcessor::skip(int numberToSkip)
-  {
+  EventProcessor::skip(int numberToSkip) {
     beginJob(); //make sure this was called
     changeState(mSkip);
     {
@@ -811,8 +803,7 @@ namespace edm {
   }
 
   void
-  EventProcessor::endJob() 
-  {
+  EventProcessor::endJob() {
     // Collects exceptions, so we don't throw before all operations are performed.
     ExceptionCollector c;
 
@@ -835,14 +826,12 @@ namespace edm {
   }
 
   ServiceToken
-  EventProcessor::getToken()
-  {
+  EventProcessor::getToken() {
     return serviceToken_;
   }
 
   void
-  EventProcessor::connectSigs(EventProcessor* ep)
-  {
+  EventProcessor::connectSigs(EventProcessor* ep) {
     // When the FwkImpl signals are given, pass them to the
     // appropriate EventProcessor signals so that the outside world
     // can see the signal.
@@ -851,84 +840,70 @@ namespace edm {
   }
 
   std::vector<ModuleDescription const*>
-  EventProcessor::getAllModuleDescriptions() const
-  {
+  EventProcessor::getAllModuleDescriptions() const {
     return schedule_->getAllModuleDescriptions();
   }
 
   int
-  EventProcessor::totalEvents() const
-  {
+  EventProcessor::totalEvents() const {
     return schedule_->totalEvents();
   }
 
   int
-  EventProcessor::totalEventsPassed() const
-  {
+  EventProcessor::totalEventsPassed() const {
     return schedule_->totalEventsPassed();
   }
 
   int
-  EventProcessor::totalEventsFailed() const
-  {
+  EventProcessor::totalEventsFailed() const {
     return schedule_->totalEventsFailed();
   }
 
   void 
-  EventProcessor::enableEndPaths(bool active)
-  {
+  EventProcessor::enableEndPaths(bool active) {
     schedule_->enableEndPaths(active);
   }
 
   bool 
-  EventProcessor::endPathsEnabled() const
-  {
+  EventProcessor::endPathsEnabled() const {
     return schedule_->endPathsEnabled();
   }
   
   void
-  EventProcessor::getTriggerReport(TriggerReport& rep) const
-  {
+  EventProcessor::getTriggerReport(TriggerReport& rep) const {
     schedule_->getTriggerReport(rep);
   }
 
   void
-  EventProcessor::clearCounters()
-  {
+  EventProcessor::clearCounters() {
     schedule_->clearCounters();
   }
 
 
-  char const* EventProcessor::currentStateName() const
-  {
+  char const* EventProcessor::currentStateName() const {
     return stateName(getState());
   }
 
-  char const* EventProcessor::stateName(State s) const
-  {
+  char const* EventProcessor::stateName(State s) const {
     return stateNames[s];
   }
 
-  char const* EventProcessor::msgName(Msg m) const
-  {
+  char const* EventProcessor::msgName(Msg m) const {
     return msgNames[m];
   }
 
-  State EventProcessor::getState() const
-  {
+  State EventProcessor::getState() const {
     return state_;
   }
 
-  EventProcessor::StatusCode EventProcessor::statusAsync() const
-  {
+  EventProcessor::StatusCode EventProcessor::statusAsync() const {
     // the thread will record exception/error status in the event processor
     // for us to look at and report here
     return last_rc_;
   }
 
   void
-  EventProcessor::setRunNumber(RunNumber_t runNumber)
-  {
+  EventProcessor::setRunNumber(RunNumber_t runNumber) {
     if (runNumber == 0) {
       runNumber = 1;
       LogWarning("Invalid Run")
@@ -945,8 +920,7 @@ namespace edm {
   }
 
   void
-  EventProcessor::declareRunNumber(RunNumber_t runNumber)
-  {
+  EventProcessor::declareRunNumber(RunNumber_t runNumber) {
     // inside of beginJob there is a check to see if it has been called before
     beginJob();
     changeState(mSetRun);
@@ -956,8 +930,7 @@ namespace edm {
   }
 
   EventProcessor::StatusCode 
-  EventProcessor::waitForAsyncCompletion(unsigned int timeout_seconds)
-  {
+  EventProcessor::waitForAsyncCompletion(unsigned int timeout_seconds) {
     bool rc = true;
     boost::xtime timeout;
     boost::xtime_get(&timeout, boost::TIME_UTC); 
@@ -1007,8 +980,7 @@ namespace edm {
   }
 
   EventProcessor::StatusCode 
-  EventProcessor::waitTillDoneAsync(unsigned int timeout_value_secs)
-  {
+  EventProcessor::waitTillDoneAsync(unsigned int timeout_value_secs) {
     StatusCode rc = waitForAsyncCompletion(timeout_value_secs);
     if(rc!=epTimedOut) changeState(mCountComplete);
     else errorState();
@@ -1016,8 +988,7 @@ namespace edm {
   }
 
   
-  EventProcessor::StatusCode EventProcessor::stopAsync(unsigned int secs)
-  {
+  EventProcessor::StatusCode EventProcessor::stopAsync(unsigned int secs) {
     changeState(mStopAsync);
     StatusCode rc = waitForAsyncCompletion(secs);
     if(rc!=epTimedOut) changeState(mFinished);
@@ -1025,8 +996,7 @@ namespace edm {
     return rc;
   }
   
-  EventProcessor::StatusCode EventProcessor::shutdownAsync(unsigned int secs)
-  {
+  EventProcessor::StatusCode EventProcessor::shutdownAsync(unsigned int secs) {
     changeState(mShutdownAsync);
     StatusCode rc = waitForAsyncCompletion(secs);
     if(rc!=epTimedOut) changeState(mFinished);
@@ -1034,14 +1004,12 @@ namespace edm {
     return rc;
   }
   
-  void EventProcessor::errorState()
-  {
+  void EventProcessor::errorState() {
     state_ = sError;
   }
 
   // next function irrelevant now
-  EventProcessor::StatusCode EventProcessor::doneAsync(Msg m)
-  {
+  EventProcessor::StatusCode EventProcessor::doneAsync(Msg m) {
     // make sure to include a timeout here so we don't wait forever
     // I suspect there are still timing issues with thread startup
     // and the setting of the various control variables (stop_count,id_set)
@@ -1049,8 +1017,7 @@ namespace edm {
     return waitForAsyncCompletion(60*2);
   }
   
-  void EventProcessor::changeState(Msg msg)
-  {
+  void EventProcessor::changeState(Msg msg) {
     // most likely need to serialize access to this routine
 
     boost::mutex::scoped_lock sl(state_lock_);
@@ -1080,8 +1047,7 @@ namespace edm {
     state_ = table[rc].final;
   }
 
-  void EventProcessor::runAsync()
-  {
+  void EventProcessor::runAsync() {
     using boost::thread;
     beginJob();
     {
@@ -1108,8 +1074,7 @@ namespace edm {
     }
   }
 
-  void EventProcessor::asyncRun(EventProcessor* me)
-  {
+  void EventProcessor::asyncRun(EventProcessor* me) {
     // set up signals to allow for interruptions
     // ignore all other signals
     // make sure no exceptions escape out
@@ -1615,12 +1580,23 @@ namespace edm {
     FDEBUG(1) << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
   }
 
-  void EventProcessor::readEvent() {
-    sm_evp_ = input_->readEvent(principalCache_.lumiPrincipalPtr());
-    FDEBUG(1) << "\treadEvent\n";
-  }
+  void EventProcessor::readAndProcessEvent() {
+    try {
+      sm_evp_ = input_->readEvent(principalCache_.lumiPrincipalPtr());
+      FDEBUG(1) << "\treadEvent\n";
+    }
+    catch(cms::Exception& e) {
+      actions::ActionCodes action = act_table_.find(e.rootCause());
+      if (action == actions::Rethrow) {
+ 	throw;
+      } else {
+        LogWarning(e.category())
+          << "an exception occurred and all paths for the event are being skipped: \n"
+          << e.what();
+        return;
+      }
+    }
 
-  void EventProcessor::processEvent() {
     IOVSyncValue ts(sm_evp_->id(), sm_evp_->luminosityBlock(), sm_evp_->time());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*sm_evp_, es);

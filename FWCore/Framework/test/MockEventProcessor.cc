@@ -1,6 +1,5 @@
 
 /*
-$Id: MockEventProcessor.cc,v 1.12 2008/07/29 02:17:36 wmtan Exp $
 */
 
 #include "FWCore/Framework/test/MockEventProcessor.h"
@@ -23,9 +22,9 @@ namespace {
 
 namespace edm {
 
-  MockEventProcessor::MockEventProcessor(const std::string& mockData,
+  MockEventProcessor::MockEventProcessor(std::string const& mockData,
                                          std::ostream& output,
-                                         const statemachine::FileMode& fileMode,
+                                         statemachine::FileMode const& fileMode,
                                          bool handleEmptyRuns,
                                          bool handleEmptyLumis) :
     mockData_(mockData),
@@ -58,12 +57,12 @@ namespace edm {
       if (ch == 'r') {
         output_ << "    *** nextItemType: Run " << t.value << " ***\n";
         run_ = t.value;
-        myMachine.process_event( statemachine::Run(t.value) );
+        myMachine.process_event(statemachine::Run(t.value));
       }
       else if (ch == 'l') {
         output_ << "    *** nextItemType: Lumi " << t.value << " ***\n";
         lumi_ = t.value;
-        myMachine.process_event( statemachine::Lumi(t.value) );
+        myMachine.process_event(statemachine::Lumi(t.value));
       }
       else if (ch == 'e') {
         output_ << "    *** nextItemType: Event ***\n";
@@ -75,26 +74,26 @@ namespace edm {
         else {
           shouldWeStop_ = false;
         }
-        myMachine.process_event( statemachine::Event() );
+        myMachine.process_event(statemachine::Event());
       }
       else if (ch == 'f') {
         output_ << "    *** nextItemType: File " << t.value << " ***\n";
         // a special value for test purposes only
         if (t.value == 0) shouldWeCloseOutput_ = false;
         else shouldWeCloseOutput_ = true;
-        myMachine.process_event( statemachine::File() );
+        myMachine.process_event(statemachine::File());
       }
       else if (ch == 's') {
         output_ << "    *** nextItemType: Stop " << t.value << " ***\n";
         // a special value for test purposes only
         if (t.value == 0) shouldWeEndLoop_ = false;
         else shouldWeEndLoop_ = true;
-        myMachine.process_event( statemachine::Stop() );
+        myMachine.process_event(statemachine::Stop());
       }
       else if (ch == 'x') {
         output_ << "    *** nextItemType: Restart " << t.value << " ***\n";
         shouldWeEndLoop_ = t.value;
-        myMachine.process_event( statemachine::Restart() );
+        myMachine.process_event(statemachine::Restart());
       }
 
       if (myMachine.terminated()) {
@@ -218,11 +217,8 @@ namespace edm {
     output_ << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
   }
 
-  void MockEventProcessor::readEvent() {
+  void MockEventProcessor::readAndProcessEvent() {
     output_ << "\treadEvent\n";
-  }
-
-  void MockEventProcessor::processEvent() {
     output_ << "\tprocessEvent\n";
   }
 

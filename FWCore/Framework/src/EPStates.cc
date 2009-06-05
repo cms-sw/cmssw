@@ -1,6 +1,4 @@
 
-// $Id: EPStates.cc,v 1.10 2008/08/04 20:00:45 wdd Exp $
-
 #include "FWCore/Framework/src/EPStates.h"
 #include "FWCore/Framework/interface/IEventProcessor.h"
 #include "FWCore/Utilities/interface/Exception.h"

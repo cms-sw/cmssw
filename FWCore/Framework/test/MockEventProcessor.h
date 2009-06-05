@@ -2,8 +2,6 @@
 #define FWCore_Framework_MockEventProcessor_h
 
 /*
-$Id: MockEventProcessor.h,v 1.10 2008/07/29 02:17:36 wmtan Exp $
-
 Version of the Event Processor used for tests of
 the state machine and other tests.
 
@@ -15,14 +13,13 @@ Original Authors: W. David Dagenhart, Marc Paterno
 #include <iostream>
 #include <string>
 
-namespace edm
-{
+namespace edm {
   class MockEventProcessor : public IEventProcessor {
   public:
 
-    MockEventProcessor(const std::string& mockData,
+    MockEventProcessor(std::string const& mockData,
                        std::ostream& output,
-                       const statemachine::FileMode& fileMode,
+                       statemachine::FileMode const& fileMode,
                        bool handleEmptyRuns,
                        bool handleEmptyLumis);
 
@@ -62,8 +59,7 @@ namespace edm
     virtual void writeLumi(int run, int lumi);
     virtual void deleteLumiFromCache(int run, int lumi);
 
-    virtual void readEvent();
-    virtual void processEvent();
+    virtual void readAndProcessEvent();
     virtual bool shouldWeStop() const;
 
     virtual void setExceptionMessageFiles(std::string& message);
