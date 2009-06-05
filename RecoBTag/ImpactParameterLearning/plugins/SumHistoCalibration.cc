@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremy Andrea
 //         Created:  Wed Mar  5 19:17:38 CEST 2008
-// $Id: SumHistoCalibration.cc,v 1.2 2008/03/05 18:17:51 jandrea Exp $
+// $Id: SumHistoCalibration.cc,v 1.3 2008/04/06 14:33:01 jandrea Exp $
 //
 //
 // system include files
@@ -273,24 +273,30 @@ SumHistoCalibration::endJob() {
     {
       edm::Service<cond::service::PoolDBOutputService> mydbservice;
       if( !mydbservice.isAvailable() ) return;
-      mydbservice->createNewIOV<TrackProbabilityCalibration>(m_calibration[0],  mydbservice->endOfTime(),"BTagTrackProbability3DRcd");
-      mydbservice->createNewIOV<TrackProbabilityCalibration>(m_calibration[1],  mydbservice->endOfTime(),"BTagTrackProbability2DRcd");
+      //mydbservice->createNewIOV<TrackProbabilityCalibration>(m_calibration[0],  mydbservice->endOfTime(),"BTagTrackProbability3DRcd");
+      //mydbservice->createNewIOV<TrackProbabilityCalibration>(m_calibration[1],  mydbservice->endOfTime(),"BTagTrackProbability2DRcd"); 
+      mydbservice->createNewIOV<TrackProbabilityCalibration>(m_calibration[0],  mydbservice->beginOfTime(), mydbservice->endOfTime(),"BTagTrackProbability3DRcd");
+      mydbservice->createNewIOV<TrackProbabilityCalibration>(m_calibration[1],  mydbservice->beginOfTime(), mydbservice->endOfTime(),"BTagTrackProbability2DRcd");
+      
     } 
   
   
   if(config.getParameter<bool>("writeToRootXML"))
     {
+    std::cout << "line " << 274 << std::endl;
       std::ofstream of2("2d.xml");
       TBufferXML b2(TBuffer::kWrite);
       of2 << b2.ConvertToXML(const_cast<void*>(static_cast<const void*>(m_calibration[1])),
 			     TClass::GetClass("TrackProbabilityCalibration"),
 			     kTRUE, kFALSE);
+    std::cout << "line " << 292 << std::endl;
       of2.close();
       std::ofstream of3("3d.xml");
       TBufferXML b3(TBuffer::kWrite);
       of3 << b3.ConvertToXML(const_cast<void*>(static_cast<const void*>(m_calibration[0])),
 			     TClass::GetClass("TrackProbabilityCalibration"),
 			     kTRUE, kFALSE);
+    std::cout << "line " << 299 << std::endl;
       of3.close();
     }
   

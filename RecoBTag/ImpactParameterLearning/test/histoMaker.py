@@ -17,6 +17,9 @@
 
 import FWCore.ParameterSet.Config as cms
 
+from RecoBTag.ImpactParameter.impactParameter_cff import *
+
+
 process = cms.Process("analyzer")
 #   source = EmptySource {untracked uint32 firstRun=1 }
 #untracked PSet maxEvents = {untracked int32 input = 100}
@@ -26,6 +29,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("DQMServices.Core.DQM_cfg")
 
+process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("RecoBTag.Configuration.RecoBTag_cff")
 
 process.load("Validation.RecoB.bTagAnalysis_cfi")
@@ -33,13 +37,19 @@ process.load("PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi")
 process.bTagValidation.jetMCSrc = 'IC5byValAlgo'
 process.bTagValidation.allHistograms = True 
 
+process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
+process.load('Configuration/StandardSequences/GeometryIdeal_cff')
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
-
-
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
-
+#from CondCore.DBCommon.CondDBCommon_cfi import *
 #process.load("RecoBTag.TrackProbability.trackProbabilityFakeCond_cfi")
-#process.trackProbabilityFakeCond.connect = "sqlite_fip:RecoBTag/ImpactParameterLearning/test/btagnew_test_startup.db"
+#process.trackProbabilityFakeCond.connect = "sqlite_fip:btagnew_test_startup.db"
+#process.es_prefer_trackProbabilityFakeCond = cms.ESPrefer("PoolDBESSource","trackProbabilityFakeCond")
+
+
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring( 
@@ -59,38 +69,9 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.ipCalib = cms.EDFilter("ImpactParameterCalibration",
-    writeToDB = cms.bool(False),
-    writeToBinary = cms.bool(False),
-    nBins = cms.int32(10000),
-    maxSignificance = cms.double(50.0),
-    writeToRootXML = cms.bool(True),
-    tagInfoSrc = cms.InputTag("impactParameterTagInfos"),
-    inputCategories = cms.string('HardCoded'),
-    primaryVertexSrc = cms.InputTag("offlinePrimaryVertices")
-)
 
-process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    authenticationMethod = cms.untracked.uint32(1),
-    loadBlobStreamer = cms.untracked.bool(True),
-    catalog = cms.untracked.string('file:mycatalog_new.xml'),
-    DBParameters = cms.PSet(
-        messageLevel = cms.untracked.int32(0),
-        authenticationPath = cms.untracked.string('.')
-    ),
-    timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:btagnew_new.db'),
-    toPut = cms.VPSet(cms.PSet(
-        record = cms.string('BTagTrackProbability2DRcd'),
-        tag = cms.string('probBTagPDF2D_tag')
-    ), 
-        cms.PSet(
-            record = cms.string('BTagTrackProbability3DRcd'),
-            tag = cms.string('probBTagPDF3D_tag')
-        ))
-)
-
-process.p = cms.Path(process.myPartons* process.iterativeCone5Flavour * process.bTagValidation*process.dqmSaver*process.ipCalib)
+process.p = cms.Path(process.myPartons* process.iterativeCone5Flavour *process.impactParameterTagInfos
+   *process.jetProbabilityBJetTags*process.jetBProbabilityBJetTags*process.bTagValidation*process.dqmSaver)
 process.dqmEnv.subSystemFolder = 'BTAG'
 process.dqmSaver.producer = 'DQM'
 process.dqmSaver.workflow = '/POG/BTAG/BJET'
