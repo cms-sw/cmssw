@@ -4,9 +4,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.h,v 1.1 2008/12/10 01:52:41 ferriff Exp $
- *  $Date: 2008/12/10 01:52:41 $
- *  $Revision: 1.1 $
+ *  $Id: EcalRecHitProducer.h,v 1.2 2009/04/09 13:41:29 ferriff Exp $
+ *  $Date: 2009/04/09 13:41:29 $
+ *  $Revision: 1.2 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -36,8 +36,11 @@ class EcalRecHitProducer : public edm::EDProducer {
 
                 bool recoverEBIsolatedChannels_;
                 bool recoverEEIsolatedChannels_;
+                bool recoverEBVFE_;
+                bool recoverEEVFE_;
                 bool recoverEBFE_;
                 bool recoverEEFE_;
+                bool killDeadChannels_;
 
                 edm::InputTag ebDetIdToBeRecovered_;
                 edm::InputTag eeDetIdToBeRecovered_;

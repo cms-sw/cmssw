@@ -4,9 +4,9 @@
 /** \class EcalRecHitSimpleAlgo
   *  Simple algoritm to make rechits from uncalibrated rechits
   *
-  *  $Id: EcalRecHitWorkerRecover.h,v 1.2 2009/03/27 16:59:10 ferriff Exp $
-  *  $Date: 2009/03/27 16:59:10 $
-  *  $Revision: 1.2 $
+  *  $Id: EcalRecHitWorkerRecover.h,v 1.1 2009/04/09 13:39:50 ferriff Exp $
+  *  $Date: 2009/04/09 13:39:50 $
+  *  $Revision: 1.1 $
   *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
   */
 
@@ -18,7 +18,7 @@
 //#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 //#include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
 //#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
-//#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
@@ -29,7 +29,7 @@
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 
 class EcalRecHitWorkerRecover : public EcalRecHitWorkerBaseClass {
-        public:
+        public: 
                 EcalRecHitWorkerRecover(const edm::ParameterSet&);
                 virtual ~EcalRecHitWorkerRecover() {};
 
@@ -41,14 +41,16 @@ class EcalRecHitWorkerRecover : public EcalRecHitWorkerBaseClass {
                 //edm::ESHandle<EcalIntercalibConstants> ical;
                 //edm::ESHandle<EcalTimeCalibConstants> itime;
                 //edm::ESHandle<EcalADCToGeVConstant> agc;
-                //edm::ESHandle<EcalChannelStatus> chStatus;
                 //std::vector<int> v_chstatus_;
+                //edm::ESHandle<EcalChannelStatus> chStatus;
                 edm::ESHandle<EcalLaserDbService> laser;
 
                 // isolated dead channels
                 edm::ESHandle<CaloTopology> caloTopology_;
                 double singleRecoveryThreshold_;
                 std::string singleRecoveryMethod_;
+                bool recoverDeadVFE_;
+                bool killDeadChannels_;
 
                 // dead FE
                 EcalTPGScale ecalScale_;

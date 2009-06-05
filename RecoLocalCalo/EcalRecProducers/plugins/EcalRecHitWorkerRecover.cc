@@ -26,6 +26,7 @@ EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet&ps) :
         // isolated channel recovery
         singleRecoveryMethod_    = ps.getParameter<std::string>("singleChannelRecoveryMethod");
         singleRecoveryThreshold_ = ps.getParameter<double>("singleChannelRecoveryThreshold");
+        killDeadChannels_        = ps.getParameter<bool>("killDeadChannels");
         tpDigiCollection_        = ps.getParameter<edm::InputTag>("triggerPrimitiveDigiCollection");
 }
 
@@ -35,7 +36,7 @@ void EcalRecHitWorkerRecover::set(const edm::EventSetup& es)
         //es.get<EcalIntercalibConstantsRcd>().get(ical);
         //es.get<EcalTimeCalibConstantsRcd>().get(itime);
         //es.get<EcalADCToGeVConstantRcd>().get(agc);
-        ////es.get<EcalChannelStatusRcd>().get(chStatus);
+        //es.get<EcalChannelStatusRcd>().get(chStatus);
         es.get<EcalLaserDbRecord>().get(laser);
         es.get<CaloTopologyRecord>().get(caloTopology_);
         ecalScale_.setEventSetup( es );
@@ -61,15 +62,22 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
         // get laser coefficient
         //float lasercalib = laser->getLaserCorrection( detId, evt.time());
 
-        if ( flags == 1 ) {
+        if ( flags == EcalRecHitWorkerRecover::EB_single ) {
                 // recover as single dead channel
                 const EcalRecHitCollection * hit_collection = &result;
                 EcalDeadChannelRecoveryAlgos deadChannelCorrector(caloTopology_.product());
-                EcalRecHit hit = deadChannelCorrector.correct( detId, hit_collection, singleRecoveryMethod_, singleRecoveryThreshold_ );
-                if ( hit.energy() != 0 ) {
-                        hit.setFlags( EcalRecHit::kNeighboursRecovered );
+
+                // channel recovery
+                EcalRecHit hit( detId, 0., 0., EcalRecHit::kDead );
+                if ( killDeadChannels_ ) {
+                        // do nothing, the channel will be put in the collection
+                        // with zero energy and the flag EcalRecHit::kDead
                 } else {
-                        hit.setFlags( EcalRecHit::kDead );
+                        // handle single dead channel
+                        hit = deadChannelCorrector.correct( detId, hit_collection, singleRecoveryMethod_, singleRecoveryThreshold_ );
+                        if ( hit.energy() != 0 ) {
+                                hit.setFlags( EcalRecHit::kNeighboursRecovered );
+                        }
                 }
                 EcalRecHitCollection::iterator it = result.find( detId );
                 if ( it == result.end() ) {
@@ -77,11 +85,10 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                 } else {
                         *it = hit;
                 }
-        } else if ( flags == 2 ) {
-                ////////////// recover as dead TT
-                ////////////const EcalRecHitCollection * hits = &result;
-                ////////////EcalRecHitCollection::const_iterator it = hits->find( detId );
-                ////////////if ( it == hits->end() ) {
+        } else if ( flags == EcalRecHitWorkerRecover::EB_VFE ) {
+                // recover as dead VFE
+        } else if ( flags == EcalRecHitWorkerRecover::EB_FE || flags == EcalRecHitWorkerRecover::EE_FE ) {
+                // recover as dead TT
                 EcalTrigTowerDetId ttDetId( detId.rawId() );
                 edm::Handle<EcalTrigPrimDigiCollection> pTPDigis;
                 evt.getByLabel(tpDigiCollection_, pTPDigis);
@@ -104,8 +111,12 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                                         float theta = 0;
                                         theta = ebGeom_->getGeometry(*dit)->getPosition().theta();
                                         float tpEt  = ecalScale_.getTPGInGeV( tp->compressedEt(), tp->id() );
-                                        EcalRecHit hit( *dit, tpEt / (float)vid.size() / sin(theta), 0., EcalRecHit::kTowerRecovered );
-                                        // paranoic: verify the hit is not in the collection
+                                        // set the recHit to 0 energy and kDead flag.
+                                        // If recovery is false but kill dead channels is true
+                                        EcalRecHit hit( detId, 0., 0., EcalRecHit::kDead );
+                                        if ( !killDeadChannels_ ) {
+                                                hit = EcalRecHit( *dit, tpEt / (float)vid.size() / sin(theta), 0., EcalRecHit::kTowerRecovered );
+                                        }
                                         EcalRecHitCollection::iterator it = result.find( *dit );
                                         if ( it == result.end() ) {
                                                 // insert the hit in the collection
@@ -125,67 +136,69 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                         // .. i.e. the total energy of the TTs covering the SC minus 
                         // .. the energy of the recHits in the TTs but not in the SC
                         //std::vector<DetId> vid = ecalMapping_->dccTowerConstituents( ecalMapping_->DCCid( ttDetId ), ecalMapping_->iTT( ttDetId ) );
-                        /* --- NOT YET VALIDATED
-                           EcalScDetId sc( detId );
-                           std::vector<DetId> eeC;
-                           for(int dx=1; dx<=5; ++dx){
-                           for(int dy=1; dy<=5; ++dy){
-                           int ix = (sc.ix()-1)/5 + dx;
-                           int iy = (sc.iy()-1)/5 + dy;
-                           int iz = sc.zside();
-                           if(EEDetId::validDetId(ix, iy, iz)){
-                           eeC.push_back(EEDetId(ix, iy, iz));
-                           }
-                           }
-                           }
+                        // --- RECOVERY NOT YET VALIDATED
+                        EcalScDetId sc( detId );
+                        std::vector<DetId> eeC;
+                        for(int dx=1; dx<=5; ++dx){
+                                for(int dy=1; dy<=5; ++dy){
+                                        int ix = (sc.ix()-1)/5 + dx;
+                                        int iy = (sc.iy()-1)/5 + dy;
+                                        int iz = sc.zside();
+                                        if(EEDetId::validDetId(ix, iy, iz)){
+                                                eeC.push_back(EEDetId(ix, iy, iz));
+                                        }
+                                }
+                        }
+                        /*
                         // associated trigger towers
                         std::set<EcalTrigTowerDetId> aTT;
                         float totE = 0;
                         for ( size_t i = 0; i < eeC.size(); ++i ) {
-                        float theta = eeGeom_->getGeometry( eeC[i] )->getPosition().theta();
-                        totE += ecalScale_.getTPGInGeV( tp->compressedEt(), tp->id() ) / sin(theta);
-                        aTT.insert( ttMap_->towerOf( eeC[i] ) );
+                                float theta = eeGeom_->getGeometry( eeC[i] )->getPosition().theta();
+                                totE += ecalScale_.getTPGInGeV( tp->compressedEt(), tp->id() ) / sin(theta);
+                                aTT.insert( ttMap_->towerOf( eeC[i] ) );
                         }
                         // associated trigger towers: EEDetId constituents
                         std::set<DetId> aTTC;
                         for ( std::set<EcalTrigTowerDetId>::const_iterator it = aTT.begin(); it != aTT.end(); ++it ) {
-                        std::vector<DetId> v = ttMap_->constituentsOf( *it );
-                        for ( size_t j = 0; j < v.size(); ++j ) {
-                        aTTC.insert( v[j] );
-                        }
+                                std::vector<DetId> v = ttMap_->constituentsOf( *it );
+                                for ( size_t j = 0; j < v.size(); ++j ) {
+                                        aTTC.insert( v[j] );
+                                }
                         }
                         // remove crystals of dead SC
                         // (this step is not needed if sure that SC crystals are not 
                         // in the recHit collection)
                         for ( size_t i = 0; i < eeC.size(); ++i ) {
-                        aTTC.erase( eeC[i] );
+                                aTTC.erase( eeC[i] );
                         }
                         // compute the total energy for the dead SC
+                        const EcalRecHitCollection * hits = &result;
                         for ( std::set<DetId>::const_iterator it = aTTC.begin(); it != aTTC.end(); ++it ) {
-                        EcalRecHitCollection::const_iterator jt = hits->find( *it );
-                        if ( jt != hits->end() ) {
-                        float theta = eeGeom_->getGeometry( *it )->getPosition().theta();
-                        totE -= (*jt).energy() / sin(theta);
+                                EcalRecHitCollection::const_iterator jt = hits->find( *it );
+                                if ( jt != hits->end() ) {
+                                        float theta = eeGeom_->getGeometry( *it )->getPosition().theta();
+                                        totE -= (*jt).energy() / sin(theta);
+                                }
                         }
-                        }
+                        */
                         // assign the energy to the SC crystals
                         for ( size_t i = 0; i < eeC.size(); ++i ) {
-                        EcalRecHit hit( eeC[i], totE / (float)eeC.size(), 0., EcalRecHit::kTowerRecovered );
-                        EcalRecHitCollection::iterator it = result.find( eeC[i] );
-                        // paranoic: verify the hit is not in the collection
-                        if ( it == result.end() ) {
-                        // insert the hit in the collection
-                        result.push_back( hit );
-                        } else {
-                        // overwrite existing recHit
-                         *it = hit;
-                         }
-                         }
-                         */
+                                EcalRecHit hit( detId, 0., 0., EcalRecHit::kDead );
+                                if ( !killDeadChannels_ ) {
+                                        // not yet validated
+                                        //hit = EcalRecHit( eeC[i], totE / (float)eeC.size(), 0., EcalRecHit::kTowerRecovered );
+                                }
+                                EcalRecHitCollection::iterator it = result.find( eeC[i] );
+                                if ( it == result.end() ) {
+                                        // insert the hit in the collection
+                                        result.push_back( hit );
+                                } else {
+                                        // overwrite existing recHit
+                                        *it = hit;
+                                }
+                        }
                 }
-                /////////} else {
-                /////////        // dead channel is in recHit collection ?!?
-                /////////}
         }
         return true;
 }
