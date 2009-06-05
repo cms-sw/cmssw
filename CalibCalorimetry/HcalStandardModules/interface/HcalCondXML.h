@@ -18,7 +18,31 @@ namespace HcalCondXML {
   bool dumpObject (std::ostream& fOutput,
                    unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
                    const HcalZSThresholds& fObject);
+  //RespCorrs
+  bool dumpObject (std::ostream& fOutput,
+                   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
+                   const HcalRespCorrs& fObject);
 
+  //Gains
+  bool dumpObject (std::ostream& fOutput,
+                   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
+                   const HcalGains& fObject);
+  //GainWidths
+  bool dumpObject (std::ostream& fOutput,
+                   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
+                   const HcalGainWidths& fObject);
+  //QIEData
+  bool dumpObject (std::ostream& fOutput,
+                   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
+                   const HcalQIEData& fObject);
+  //ChannelQuality
+  bool dumpObject (std::ostream& fOutput,
+                   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
+                   const HcalChannelQuality& fObject);
+  //L1TriggerObjects
+  bool dumpObject (std::ostream& fOutput,
+                   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
+                   const HcalL1TriggerObjects& fObject);
 
 } 
 #endif
