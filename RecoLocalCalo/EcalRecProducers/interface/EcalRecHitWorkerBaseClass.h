@@ -11,6 +11,8 @@ namespace edm {
 
 class EcalRecHitWorkerBaseClass {
         public:
+                enum RecoveryFlags { EB_single, EE_single, EB_VFE, EE_VFE, EB_FE, EE_FE };
+
                 EcalRecHitWorkerBaseClass(const edm::ParameterSet&) {};
                 virtual ~EcalRecHitWorkerBaseClass() {};
 
