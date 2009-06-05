@@ -389,13 +389,18 @@ PFElecTkProducer::resolveGsfTracks(const reco::GsfTrackCollection  & GsfCol, uns
   int ncharge = GsfCol[ngsf].chargeMode();
   TrajectoryStateOnSurface outTSOS = mtsTransform_.outerStateOnSurface(GsfCol[ngsf]);
   TrajectoryStateOnSurface inTSOS = mtsTransform_.innerStateOnSurface(GsfCol[ngsf]);
+  GlobalVector ninnMom;
+
   int outCharge = -2;
   int inCharge = -2;
+  float nPin =  GsfCol[ngsf].pMode();
   if(outTSOS.isValid())
     outCharge = mtsMode_->chargeFromMode(outTSOS);	  
-  if(inTSOS.isValid())
+  if(inTSOS.isValid()){
     inCharge = mtsMode_->chargeFromMode(inTSOS);
-  
+    mtsMode_->momentumFromModeCartesian(inTSOS,ninnMom);
+    nPin = ninnMom.mag();
+  }
 
   float nchi2 = GsfCol[ngsf].chi2();
   float neta = GsfCol[ngsf].etaMode();
@@ -414,19 +419,27 @@ PFElecTkProducer::resolveGsfTracks(const reco::GsfTrackCollection  & GsfCol, uns
       float feta = fabs(neta - ieta);
       float fphi = fabs(nphi - iphi);
       if (fphi>TMath::Pi()) fphi-= TMath::TwoPi();     
-
+      const math::XYZPoint ixyz = GsfCol[igsf].innerPosition();
+      float idist = sqrt(ixyz.x()*ixyz.x()+
+			 ixyz.y()*ixyz.y()+
+			 ixyz.z()*ixyz.z());
+      
 
       if(feta < 0.05 && fabs(fphi) < 0.3) {
 
 	TrajectoryStateOnSurface i_outTSOS = mtsTransform_.outerStateOnSurface(GsfCol[igsf]);
 	TrajectoryStateOnSurface i_inTSOS = mtsTransform_.innerStateOnSurface(GsfCol[igsf]);
+	GlobalVector i_innMom;
 	int i_outCharge = -2;
 	int i_inCharge = -2;
+	float iPin = GsfCol[igsf].pMode();
 	if(i_outTSOS.isValid())
 	  i_outCharge = mtsMode_->chargeFromMode(i_outTSOS);	  
-	if(i_inTSOS.isValid())
+	if(i_inTSOS.isValid()){
 	  i_inCharge = mtsMode_->chargeFromMode(i_inTSOS);
-	
+	  mtsMode_->momentumFromModeCartesian(i_inTSOS,i_innMom);  
+	  iPin = i_innMom.mag();
+	}
 
 	if (&(*GsfCol[igsf].seedRef())==0) continue;    
 	ElectronSeedRef iElSeedRef=GsfCol[igsf].extra()->seedRef().castTo<ElectronSeedRef>();
@@ -439,11 +452,11 @@ PFElecTkProducer::resolveGsfTracks(const reco::GsfTrackCollection  & GsfCol, uns
 	    n_keepGsf = false;
 	    return n_keepGsf;
 	  }    
-	  float nEP = nscRef->energy()/GsfCol[ngsf].pMode();
+	  float nEP = nscRef->energy()/nPin;
 	  SuperClusterRef iscRef = iElSeedRef->caloCluster().castTo<SuperClusterRef>();
 	  if(iscRef.isNonnull()) {
 	    if(nscRef == iscRef) {
-	      float iEP =  iscRef->energy()/GsfCol[igsf].pMode();
+	      float iEP =  iscRef->energy()/iPin;
 	     
 	      
 	      trackingRecHit_iterator  nhit=GsfCol[ngsf].recHitsBegin();
@@ -461,15 +474,17 @@ PFElecTkProducer::resolveGsfTracks(const reco::GsfTrackCollection  & GsfCol, uns
 		}
 	      }
 	      if (tmp_sh>0) {
-		if(fabs(iEP-1) < fabs(nEP-1) 
-		   && i_outCharge == i_inCharge
-		   && i_outCharge != -2) {
+		// if same SC take the closest or if same
+		// distance the best E/p
+		if (idist < (ndist-5)) {
 		  n_keepGsf = false;
 		  return n_keepGsf;
 		}
-		if(outCharge != inCharge) {
-		  n_keepGsf = false;
-		  return n_keepGsf;
+		else if(ndist > (idist-5)){
+		  if(fabs(iEP-1) < fabs(nEP-1)) {
+		    n_keepGsf = false;
+		    return n_keepGsf;
+		  }
 		}
 	      }			      
 	    }
@@ -478,10 +493,7 @@ PFElecTkProducer::resolveGsfTracks(const reco::GsfTrackCollection  & GsfCol, uns
 	else {
 	  // Second Case: One Gsf has reference to a SC and the other one not or both not
 	  // Cleaning using: starting point 
-	  const math::XYZPoint ixyz = GsfCol[igsf].innerPosition();
-	  float idist = sqrt(ixyz.x()*ixyz.x()+
-			     ixyz.y()*ixyz.y()+
-			     ixyz.z()*ixyz.z());
+	 
 	  int ihits=GsfCol[igsf].numberOfValidHits();
 	  float ichi2 = GsfCol[igsf].chi2();
 	  int icharge = GsfCol[igsf].chargeMode();
