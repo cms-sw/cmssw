@@ -13,7 +13,7 @@
 //
 // Original Author:  Georgios Daskalakis
 //         Created:  Thu Apr 12 17:02:06 CEST 2007
-// $Id: EcalDeadChannelRecoveryAlgos.cc,v 1.7 2009/04/30 13:35:30 beaucero Exp $
+// $Id: EcalDeadChannelRecoveryAlgos.cc,v 1.8 2009/04/30 14:08:31 ferriff Exp $
 //
 // May 4th 2007 S. Beauceron : modification of MakeNxNMatrice in order to use vectors
 //
@@ -77,19 +77,30 @@ EcalRecHit EcalDeadChannelRecoveryAlgos::correct(const EBDetId Id, const EcalRec
   double MNxN[121];
   int IndDeadChannel[1]={-1};
 
+  double sum8 = MakeNxNMatrice(Id,hit_collection,IndDeadChannel,MNxN);
+
   if(algo_=="Spline"){
      
-    if(MakeNxNMatrice(Id,hit_collection,IndDeadChannel,MNxN)>Sum8Cut){
+    if(sum8>Sum8Cut){
       if(IndDeadChannel[0]>0)NewEnergy = CorrectDeadChannelsClassic(MNxN,Id.ieta());
     }
   }else if(algo_=="NeuralNetworks"){
-    if(MakeNxNMatrice(Id,hit_collection,IndDeadChannel,MNxN)>Sum8Cut){
+    if(sum8>Sum8Cut){
       if(IndDeadChannel[0]>0)NewEnergy = CorrectDeadChannelsNN(MNxN);
     }
   }
   
+  // protect against non physical high values
+  // < sum(energy in neighbours) > = 0.8 * xtal with maximum energy
+  // => can choose 5 as highest possible energy to be assigned to 
+  //    the dead channel
+  uint32_t flag = 0;
+  if ( NewEnergy > 5. * sum8 ) {
+          NewEnergy = 0;
+          //flag = EcalRecHit::kDead;
+  }
 
-  EcalRecHit NewHit(Id,NewEnergy,0);
+  EcalRecHit NewHit(Id,NewEnergy,0, flag);
   return NewHit;
 
 }
