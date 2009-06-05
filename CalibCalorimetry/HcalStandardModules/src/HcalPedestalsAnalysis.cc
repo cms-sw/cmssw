@@ -20,10 +20,10 @@ HcalPedestalsAnalysis::HcalPedestalsAnalysis(const edm::ParameterSet& ps)
 
 HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
 {
-   HcalPedestals* rawPedsItem = new HcalPedestals();
-   HcalPedestalWidths* rawWidthsItem = new HcalPedestalWidths();
-   HcalPedestals* rawPedsItemfc = new HcalPedestals();
-   HcalPedestalWidths* rawWidthsItemfc = new HcalPedestalWidths();
+   HcalPedestals* rawPedsItem = new HcalPedestals(true);
+   HcalPedestalWidths* rawWidthsItem = new HcalPedestalWidths(true);
+   HcalPedestals* rawPedsItemfc = new HcalPedestals(false);
+   HcalPedestalWidths* rawWidthsItemfc = new HcalPedestalWidths(false);
 
    //Calculate pedestal constants
    std::cout << "Calculating Pedestal constants...\n";
@@ -142,7 +142,7 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
 
     if(dumpXML){
        std::ofstream outStream5(XMLfilename.c_str());
-       HcalDbXmlTwo::dumpObject (outStream5, runnum, 0, 2147483647, XMLtag, 1, (*rawPedsItem), (*rawWidthsItem)); 
+       HcalCondXML::dumpObject (outStream5, runnum, 0, 2147483647, XMLtag, 1, (*rawPedsItem), (*rawWidthsItem)); 
     }
 
     if(hiSaveFlag){
