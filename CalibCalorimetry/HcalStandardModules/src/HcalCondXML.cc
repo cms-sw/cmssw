@@ -130,7 +130,7 @@ namespace {
     fOutput << "</DATA> " << std::endl;
   }
 
-  void dumpGainWidthData (std::ostream& fOutput, HcalGain fValue) {
+  void dumpGainWidthData (std::ostream& fOutput, HcalGainWidth fValue) {
     fOutput << "<DATA> "<< std::endl;
     fOutput << "   <CAP0>" << fValue.getValue(0) << "</CAP0> "<< std::endl;
     fOutput << "   <CAP1>" << fValue.getValue(1) << "</CAP1> "<< std::endl;
@@ -181,6 +181,28 @@ namespace {
     fOutput << "   <CAP3_RANGE3_OFFSET>" << fValue.offset(3,3) << "</CAP3_RANGE3_OFFSET>" << std::endl;
     fOutput << "</DATA> " << std::endl;
   }
+
+  void dumpChannelQualityData (std::ostream& fOutput, HcalChannelStatus fValue) {
+    fOutput << "<DATA> "<< std::endl;
+    if(fValue.isBitSet(0))
+    {
+       fOutput << "   <CHANNEL_ON_OFF_STATE>0</CHANNEL_ON_OFF_STATE> "<< std::endl;
+    }else{
+       fOutput << "   <CHANNEL_ON_OFF_STATE>1</CHANNEL_ON_OFF_STATE> "<< std::endl; 
+    }
+    fOutput << "   <CHANNEL_STATUS_WORD>" << fValue.getValue() << "</CHANNEL_STATUS_WORD> "<< std::endl;
+    fOutput << "</DATA> " << std::endl;
+  }
+
+  void dumpL1TriggerData (std::ostream& fOutput, HcalL1TriggerObject fValue) {
+    fOutput << "<DATA> "<< std::endl;
+    fOutput << "   <AVERAGE_PEDESTAL>" << fValue.getPedestal() << "</AVERAGE_PEDESTAL> "<< std::endl;
+    fOutput << "   <RESPONSE_CORRECTED_GAIN>" << fValue.getRespGain() << "</RESPONSE_CORRECTED_GAIN> "<< std::endl;
+    fOutput << "   <FLAG>" << fValue.getFlag() << "</FLAG> "<< std::endl;
+    fOutput << "</DATA> " << std::endl;
+  }
+
+
 }
 bool HcalCondXML::dumpObject (std::ostream& fOutput,
                             unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
@@ -241,4 +263,171 @@ bool HcalCondXML::dumpObject (std::ostream& fOutput,
   return true;
 }
 
+bool HcalCondXML::dumpObject (std::ostream& fOutput,
+                            unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
+                            const HcalRespCorrs& fObject) {
+  const std::string KIND = "HCAL Response corrections [V1]";
+  const std::string TABLE = "HCAL_RESPONSE_CORRECTIONS_V1";
+
+  dumpHeader (fOutput, fRun, TABLE, KIND);
+
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  dumpMapping (fOutput, fRun, KIND, fGMTIOVBegin, fGMTIOVEnd, fTag, fVersion, channels);
+  for (std::vector<DetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       channel++) {
+    DetId chId = *channel;
+    if(fObject.exists(chId))
+    {
+       const HcalRespCorr * item = fObject.getValues(chId);
+       dumpDataset (fOutput, fVersion);
+       dumpChannelId (fOutput,chId);
+       dumpRespCorrData (fOutput, *item);
+       endDataset (fOutput);
+    }
+  }
+
+  dumpFooter (fOutput);
+  return true;
+}
+
+bool HcalCondXML::dumpObject (std::ostream& fOutput,
+                            unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
+                            const HcalGains& fObject) {
+  const std::string KIND = "HCAL Inverse Gains [V1]";
+  const std::string TABLE = "HCAL_INVERSE_GAINS_V1";
+
+  dumpHeader (fOutput, fRun, TABLE, KIND);
+
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  dumpMapping (fOutput, fRun, KIND, fGMTIOVBegin, fGMTIOVEnd, fTag, fVersion, channels);
+  for (std::vector<DetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       channel++) {
+    DetId chId = *channel;
+    if(fObject.exists(chId))
+    {
+       const HcalGain * item = fObject.getValues(chId);
+       dumpDataset (fOutput, fVersion);
+       dumpChannelId (fOutput,chId);
+       dumpGainData (fOutput, *item);
+       endDataset (fOutput);
+    }
+  }
+
+  dumpFooter (fOutput);
+  return true;
+}
+
+bool HcalCondXML::dumpObject (std::ostream& fOutput,
+                            unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
+                            const HcalGainWidths& fObject) {
+  const std::string KIND = "HCAL Inverse Gain Widths [V1]";
+  const std::string TABLE = "HCAL_INVERSE_GAIN_WIDTHS_V1";
+
+  dumpHeader (fOutput, fRun, TABLE, KIND);
+
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  dumpMapping (fOutput, fRun, KIND, fGMTIOVBegin, fGMTIOVEnd, fTag, fVersion, channels);
+  for (std::vector<DetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       channel++) {
+    DetId chId = *channel;
+    if(fObject.exists(chId))
+    {
+       const HcalGainWidth * item = fObject.getValues(chId);
+       dumpDataset (fOutput, fVersion);
+       dumpChannelId (fOutput,chId);
+       dumpGainWidthData (fOutput, *item);
+       endDataset (fOutput);
+    }
+  }
+
+  dumpFooter (fOutput);
+  return true;
+}
+
+bool HcalCondXML::dumpObject (std::ostream& fOutput,
+                            unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
+                            const HcalQIEData& fObject) {
+  const std::string KIND = "QIECARD_ADC_NORMMODE";
+  const std::string TABLE = "XXX need to check XXX";
+
+  dumpHeader (fOutput, fRun, TABLE, KIND);
+
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  dumpMapping (fOutput, fRun, KIND, fGMTIOVBegin, fGMTIOVEnd, fTag, fVersion, channels);
+  for (std::vector<DetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       channel++) {
+    DetId chId = *channel;
+    if(fObject.exists(chId))
+    {
+       const HcalQIECoder * item = fObject.getCoder(chId);
+       dumpDataset (fOutput, fVersion);
+       dumpChannelId (fOutput,chId);
+       dumpQIEData (fOutput, *item);
+       endDataset (fOutput);
+    }
+  }
+
+  dumpFooter (fOutput);
+  return true;
+}
+
+bool HcalCondXML::dumpObject (std::ostream& fOutput,
+                            unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
+                            const HcalChannelQuality& fObject) {
+  const std::string KIND = "HCAL_CHANNEL_QUALITY_V1";
+  const std::string TABLE = "HCAL Channel Quality [V1]";
+
+  dumpHeader (fOutput, fRun, TABLE, KIND);
+
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  dumpMapping (fOutput, fRun, KIND, fGMTIOVBegin, fGMTIOVEnd, fTag, fVersion, channels);
+  for (std::vector<DetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       channel++) {
+    DetId chId = *channel;
+    if(fObject.exists(chId))
+    {
+       const HcalChannelStatus * item = fObject.getValues(chId);
+       dumpDataset (fOutput, fVersion);
+       dumpChannelId (fOutput,chId);
+       dumpChannelQualityData (fOutput, *item);
+       endDataset (fOutput);
+    }
+  }
+
+  dumpFooter (fOutput);
+  return true;
+}
+
+bool HcalCondXML::dumpObject (std::ostream& fOutput,
+                            unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
+                            const HcalL1TriggerObjects& fObject) {
+  const std::string KIND = "HCAL_L1_TRIGGER_OBJECTS_V1";
+  const std::string TABLE = "HCAL L1 Trigger Objects [V1]";
+
+  dumpHeader (fOutput, fRun, TABLE, KIND);
+
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  dumpMapping (fOutput, fRun, KIND, fGMTIOVBegin, fGMTIOVEnd, fTag, fVersion, channels);
+  for (std::vector<DetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       channel++) {
+    DetId chId = *channel;
+    if(fObject.exists(chId))
+    {
+       const HcalL1TriggerObject * item = fObject.getValues(chId);
+       dumpDataset (fOutput, fVersion);
+       dumpChannelId (fOutput,chId);
+       dumpL1TriggerData (fOutput, *item);
+       endDataset (fOutput);
+    }
+  }
+
+  dumpFooter (fOutput);
+  return true;
+}
 
