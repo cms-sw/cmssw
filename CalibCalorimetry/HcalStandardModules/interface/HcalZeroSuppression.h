@@ -33,7 +33,7 @@
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 //#include "CalibCalorimetry/HcalStandardModules/interface/HcalDbXmlTwo.h"
-#include "CalibCalorimetry/HcalStandardModules/interface/HcalZSXML.h"
+#include "CalibCalorimetry/HcalStandardModules/interface/HcalCondXML.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
 
 #include "TFile.h"
@@ -86,6 +86,7 @@ class HcalZeroSuppression : public edm::EDAnalyzer
    int lastTS;
    std::string ROOTfilename;
    std::string ZSfilename;
+   std::string tag;
 
    TH1F *HBMeans;
    TH1F *HBWidths;
