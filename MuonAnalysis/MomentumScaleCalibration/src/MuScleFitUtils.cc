@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/05/14 10:52:39 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/06/04 10:42:31 $
+ *  $Revision: 1.12 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -1212,7 +1212,13 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
 // Method to check if the mass value is within the mass window of the i-th resonance.
 inline bool MuScleFitUtils::checkMassWindow( const double & mass, const int ires )
 {
-  return( mass-ResMass[ires] > -leftWindowFactor*massWindowHalfWidth[ires][MuonType] && mass-ResMass[ires] < rightWindowFactor*massWindowHalfWidth[ires][MuonType] );
+  double massWHW=0;
+  if(MuonType<3)
+    massWHW=massWindowHalfWidth[ires][MuonType];
+  else if(MuonType > 2)
+    massWHW=massWindowHalfWidth[ires][2];
+      
+  return( mass-ResMass[ires] > -leftWindowFactor*massWHW && mass-ResMass[ires] < rightWindowFactor*massWHW );
 }
 
 // Function that returns the weight for a muon pair
