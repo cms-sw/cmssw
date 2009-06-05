@@ -5,8 +5,8 @@
  * \class RPCImonSH
  *  Core of RPC PopCon Appication
  *
- *  $Date: 2008/12/30 10:14:58 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/06/05 14:36:44 $
+ *  $Revision: 1.8 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -22,7 +22,6 @@
 #include "CoralBase/TimeStamp.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "CondTools/RPC/interface/RPCFw.h"
-#include "CondTools/RPC/interface/RPCIOVReader.h"
 #include<string>
 
 

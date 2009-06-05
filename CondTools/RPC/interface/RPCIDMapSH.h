@@ -5,8 +5,8 @@
  * \class RpcIDMapSH
  *  Core of RPC PopCon Appication
  *
- *  $Date: 2008/12/12 20:02:42 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/01/04 11:05:18 $
+ *  $Revision: 1.4 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -44,6 +44,7 @@ namespace popcon{
     std::string user;
     std::string passw;
     unsigned long long m_since;
+    unsigned long long m_till;
 
   };
 }
