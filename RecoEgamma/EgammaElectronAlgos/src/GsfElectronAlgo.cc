@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.71 2009/06/04 08:40:33 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.72 2009/06/04 12:52:01 chamont Exp $
 //
 //
 
@@ -958,7 +958,7 @@ pair<TrackRef,float> GsfElectronAlgo::getCtfTrackRef(const GsfTrackRef& gsfTrack
 
      } //gsfHits iterator
 
-    if (numCtfInnerHits==0)
+    if ((numGsfInnerHits==0)||(numCtfInnerHits==0))
      { continue ; }
 
     if ( static_cast<float>(shared)/min(numGsfInnerHits,numCtfInnerHits) > maxFracShared )
