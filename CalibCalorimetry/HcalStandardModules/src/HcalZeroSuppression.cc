@@ -66,7 +66,7 @@ Off diagonal terms not needed for ZS */
     HcalDbASCIIIO::dumpObject (outStream8, (*ZSItem) );
 
     std::ofstream outStream9(xmlout.c_str());
-    HcalZSXML::dumpObject(outStream9, runnum, 1, -1, "ZS_INDIV", 1, *ZSItem);
+    HcalCondXML::dumpObject(outStream9, runnum, 1, -1, tag, 1, *ZSItem);
 
     theFile->cd();
     for(int n = 0; n != 4; n++)
@@ -141,6 +141,7 @@ HcalZeroSuppression::analyze(const edm::Event& e, const edm::EventSetup& iSetup)
       runnum_string = tempstringout.str();
       ROOTfilename = runnum_string + "-ZSThresholds.root";
       ZSfilename = runnum_string + "-ZSThresholds";
+      tag = "ZS_INDIV_" + runnum_string;
 
       firstTS = 0;
       lastTS = 7;
