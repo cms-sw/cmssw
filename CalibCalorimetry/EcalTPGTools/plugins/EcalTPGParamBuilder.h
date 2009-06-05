@@ -106,7 +106,6 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   std::ofstream * geomFile_ ;
   std::ofstream * geomFile2_ ;
   EcalTPGDBApp * db_ ;
-  bool readFromDB_ ;
   bool writeToDB_ ;
   bool writeToFiles_ ;
   unsigned int DBrunNb_ ;

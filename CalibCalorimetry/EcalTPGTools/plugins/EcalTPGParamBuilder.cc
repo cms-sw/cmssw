@@ -57,7 +57,6 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   tag_="";
   version_=0;
 
-  readFromDB_ = pSet.getParameter<bool>("readFromDB") ;
   writeToDB_  = pSet.getParameter<bool>("writeToDB") ;
   DBEE_ = pSet.getParameter<bool>("allowDBEE") ;
   string DBsid    = pSet.getParameter<std::string>("DBsid") ;
@@ -73,9 +72,8 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
 
   std::cout << "DB RUN NB="<< DBrunNb_<< endl;
  
-  if (readFromDB_ || writeToDB_) {
+  if (writeToDB_) {
     try {
-      cout << "Warning: using the DB is not yet implemented " <<endl ;
       db_ = new EcalTPGDBApp(DBsid, DBuser, DBpass) ;
     } catch (exception &e) {
       cout << "ERROR:  " << e.what() << endl;
@@ -317,7 +315,7 @@ std::cout <<"we get the pedestals from online DB"<<endl;
   vector<EcalLogicID> my_TTEcalLogicId_EE;
   vector<EcalLogicID> my_StripEcalLogicId_EE;
   
-  if (writeToDB_ || readFromDB_){
+  if (writeToDB_){
     std::cout<<"going to get the ecal logic id set"<< endl;
 
     my_EcalLogicId_EB = db_->getEcalLogicID( "EB",EcalLogicID::NULLID,EcalLogicID::NULLID,EcalLogicID::NULLID,"EB");
@@ -424,7 +422,7 @@ std::cout <<"we get the pedestals from online DB"<<endl;
     FEConfigPedDat ped ;
     FEConfigLinDat lin ;
     if (writeToFiles_) (*out_file_)<<"CRYSTAL "<<dec<<id.rawId()<<std::endl ;
-    //  if (writeToDB_ || readFromDB_) logicId = db_->getEcalLogicID ("EB_crystal_number", id.ism(), id.ic()) ;
+    //  if (writeToDB_) logicId = db_->getEcalLogicID ("EB_crystal_number", id.ism(), id.ic()) ;
 
     coeffStruc coeff ;
     getCoeff(coeff, calibMap, id.rawId()) ;
@@ -568,19 +566,16 @@ std::cout <<"we get the pedestals from online DB"<<endl;
     FEConfigPedDat ped ;
     FEConfigLinDat lin ;
     if (writeToFiles_) (*out_file_)<<"CRYSTAL "<<dec<<id.rawId()<<std::endl ;
-    if ((writeToDB_ || readFromDB_) && DBEE_) {
+    if (writeToDB_ && DBEE_) {
       int iz = id.positiveZ() ;
       if (iz ==0) iz = -1 ;
       logicId = db_->getEcalLogicID ("EE_crystal_number", iz, id.ix(), id.iy()) ;
     }
 
-// comment to can write to the OnlineDB at P5    
     coeffStruc coeff ;
-    if (readFromDB_ && DBEE_) {
-      getCoeff(coeff, calibMap, id.rawId()) ;
-      getCoeff(coeff, gainMap, id.rawId()) ;
-      getCoeff(coeff, pedMap, id.rawId()) ;
-    }
+    getCoeff(coeff, calibMap, id.rawId()) ;
+    getCoeff(coeff, gainMap, id.rawId()) ;
+    getCoeff(coeff, pedMap, id.rawId()) ;
   
     // compute and fill linearization parameters
 

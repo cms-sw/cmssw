@@ -28,7 +28,6 @@ process.maxEvents = cms.untracked.PSet(
 process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
 
     #### inputs/ouputs control ####
-    readFromDB = cms.bool(False),
     writeToDB  = cms.bool(False),
     allowDBEE  = cms.bool(False),
 
@@ -40,7 +39,9 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
 
     writeToFiles = cms.bool(True),
     outFile = cms.string('TPG_startup.txt'),
-
+   #### TPG config tag and version (if not given it will be automatically given ) ####
+    TPGtag = cms.string('CRAFT'),
+    TPGversion = cms.uint32(1),
                                         
    #### TPG calculation parameters ####
     useTransverseEnergy = cms.bool(True),   ## true when TPG computes transverse energy, false for energy
