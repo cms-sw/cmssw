@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/21 16:01:05 $
- * $Revision: 1.6 $
+ * $Date: 2006/04/26 14:15:31 $
+ * $Revision: 1.7 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -58,18 +58,31 @@ LocalPoint DTHitPairForFit::localPosition(DTEnums::DTCellSide s) const {
 pair<bool,bool> 
 DTHitPairForFit::isCompatible(const LocalPoint& posIni,
                               const LocalVector& dirIni) const {
-  return std::pair<bool,bool>(isCompatible(posIni, dirIni, DTEnums::Left),
-                              isCompatible(posIni, dirIni, DTEnums::Right));
+  
+  double errorScale = 10.; // FIXME: arbitrary but inherited from history
+  // the error scale is diminished in case both left and right hypothesis are true
+  while(errorScale >= 3.) {
+    bool leftHyp = isCompatible(posIni, dirIni, DTEnums::Left, errorScale);
+    bool rightHyp = isCompatible(posIni, dirIni, DTEnums::Right, errorScale);
+    if(leftHyp && rightHyp) {
+      errorScale--;
+      continue;
+    } else {
+      return make_pair(leftHyp,rightHyp);
+    }
+  }
+  // if we get to this point the trick played into the while didn't work and 
+  // both left and right hypothesis are passed to the building of the candidates
+  return make_pair(true,true);
 }
 
 bool DTHitPairForFit::isCompatible(const LocalPoint& posIni,
                                    const LocalVector& dirIni,
-                                   DTEnums::DTCellSide code) const {
+                                   DTEnums::DTCellSide code,
+				   const double errorScale) const {
   // all is in SL frame
   LocalPoint pos= localPosition(code);
   LocalError err= localPositionError();
-
-  const float errorScale=10.; // to be tuned!!
 
   LocalPoint segPosAtZ=
     posIni+dirIni*(pos.z()-posIni.z())/dirIni.z();

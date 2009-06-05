@@ -8,8 +8,8 @@
  * This class is useful for segment fitting, which is done in SL or Chamber
  * reference frame, while the DT hits live on the layer.
  *
- * $Date: 2006/04/26 14:15:32 $
- * $Revision: 1.4 $
+ * $Date: 2007/03/10 16:14:43 $
+ * $Revision: 1.5 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -84,7 +84,8 @@ class DTHitPairForFit{
 
     bool isCompatible(const LocalPoint& posIni, 
                       const LocalVector& dirIni,
-                      DTEnums::DTCellSide code) const;
+                      DTEnums::DTCellSide code,
+		      const double errorScale) const;
 };
 
 std::ostream& operator<<(std::ostream& out, const DTHitPairForFit& hit) ;
