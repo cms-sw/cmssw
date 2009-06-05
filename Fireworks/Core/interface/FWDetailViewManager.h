@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:43 EST 2008
-// $Id: FWDetailViewManager.h,v 1.12 2009/03/29 14:13:38 amraktad Exp $
+// $Id: FWDetailViewManager.h,v 1.13 2009/03/31 10:45:25 amraktad Exp $
 //
 
 // system include files
@@ -25,12 +25,14 @@
 // user include files
 
 // forward declarations
-class FWModelId;
+class TGLEmbeddedViewer;
 class TEveScene;
 class TEveViewer;
 class TGMainFrame;
-class TLatex;
+class TCanvas;
+
 class FWDetailViewBase;
+class FWModelId;
 
 class FWDetailViewManager
 {
@@ -45,7 +47,6 @@ public:
 
    // ---------- member functions ---------------------------
    void openDetailViewFor(const FWModelId& );
-   void destroyed_wm ();
    void close_button ();
 
 private:
@@ -54,15 +55,20 @@ private:
    const FWDetailViewManager& operator=(const FWDetailViewManager&);    // stop default
 
    std::string findViewerFor(const std::string&) const;
+  void createDetailViewFrame();
+
 protected:
    // ---------- member data --------------------------------
-   TEveScene          *m_scene;
-   TEveViewer         *m_viewer;
-   TGMainFrame        *m_frame;
-   TLatex             *m_latex;
+   FWDetailViewBase *m_detailView;
 
-   std::map<std::string, FWDetailViewBase *>  m_viewers;
-   mutable std::map<std::string, std::string> m_typeToViewers;
+   TEveScene          *m_scene;
+   TGLEmbeddedViewer   *m_viewer;
+
+   TGMainFrame      *m_frame;
+   TCanvas              *m_latexCanvas; 
+
+   std::map<std::string, FWDetailViewBase *>  m_detailViews;
+   mutable std::map<std::string, std::string>    m_typeToViewers;
 };
 
 
