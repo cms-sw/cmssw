@@ -787,7 +787,7 @@ std::cout <<"we get the pedestals from online DB"<<endl;
 	gut.setThreshHigh(highRatio);
 	gut.setRatioLow(lowThreshold);
 	gut.setRatioHigh(highThreshold);
-	gut.setLUTConfId(lutFG);
+	gut.setLUTValue(lutFG);
 	EcalLogicID ecid = EcalLogicID( "DUMMY", ich,ich);
 	// Fill the dataset
 	dataset[ecid] = gut; // we use any logic id but different, because it is in any case ignored... 
