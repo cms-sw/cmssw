@@ -58,7 +58,7 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   ~EcalTPGParamBuilder() ;
   virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) ;
   virtual void beginJob(const edm::EventSetup& evtSetup) ;
-  bool checkIfOK (EcalPedestals::Item item);
+  bool checkIfOK (EcalPedestals::Item item) ;
 
  private:
   bool computeLinearizerParam(double theta, double gainRatio, double calibCoeff, std::string subdet, int & mult , int & shift) ;
@@ -75,6 +75,7 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   void computeFineGrainEBParameters(uint & lowRatio, uint & highRatio,
 				    uint & lowThreshold, uint & highThreshold, uint & lut) ;
   void computeFineGrainEEParameters(uint & threshold, uint & lut_strip, uint & lut_tower) ;
+  int getEtaSlice(int tccId, int towerInTCC) ;
 
   const CaloSubdetectorGeometry * theEndcapGeometry_ ;
   const CaloSubdetectorGeometry * theBarrelGeometry_ ;
@@ -103,6 +104,7 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
 
   std::ofstream * out_file_ ;
   std::ofstream * geomFile_ ;
+  std::ofstream * geomFile2_ ;
   EcalTPGDBApp * db_ ;
   bool readFromDB_ ;
   bool writeToDB_ ;
