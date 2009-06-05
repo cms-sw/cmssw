@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.57 2009/04/26 16:35:53 dutta Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.58 2009/05/20 08:13:27 borrell Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -99,6 +99,9 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) :
 
   edm::ParameterSet ParametersTotClusterTH1 = conf_.getParameter<edm::ParameterSet>("TH1TotalNumberOfClusters");
   subdetswitchtotclusterth1on = ParametersTotClusterTH1.getParameter<bool>("subdetswitchon");
+
+  edm::ParameterSet ParametersClusterApvProf = conf_.getParameter<edm::ParameterSet>("TProfClustersApvCycle");
+  subdetswitchclusterapvprofon = ParametersClusterApvProf.getParameter<bool>("subdetswitchon");
 
   clustertkhistomapon = conf_.getParameter<bool>("TkHistoMap_On");
   createTrendMEs = conf_.getParameter<bool>("CreateTrendMEs");
@@ -222,6 +225,8 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
   //   eventNb = iEvent.id().event();
   eventNb++;
   float iOrbitSec = iEvent.orbitNumber()/11223.0;
+  int bx = iEvent.bunchCrossing();
+  long long tbx = (long long)iEvent.orbitNumber() * 3564 + bx; 
 
   edm::ESHandle<SiStripNoises> noiseHandle;
   iSetup.get<SiStripNoisesRcd>().get(noiseHandle);
@@ -408,6 +413,12 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       else if (it->first == "TOB") subdetmes.SubDetTotClusterProf->Fill(iOrbitSec,nTotClusterTOB);
       else if (it->first == "TID") subdetmes.SubDetTotClusterProf->Fill(iOrbitSec,nTotClusterTID);
       else if (it->first == "TEC") subdetmes.SubDetTotClusterProf->Fill(iOrbitSec,nTotClusterTEC);      
+    }
+    if (subdetswitchclusterapvprofon) {
+      if (it->first == "TIB") subdetmes.SubDetClusterApvProf->Fill(tbx%70,nTotClusterTIB);
+      else if (it->first == "TOB") subdetmes.SubDetClusterApvProf->Fill(tbx%70,nTotClusterTOB);
+      else if (it->first == "TID") subdetmes.SubDetClusterApvProf->Fill(tbx%70,nTotClusterTID);
+      else if (it->first == "TEC") subdetmes.SubDetClusterApvProf->Fill(tbx%70,nTotClusterTEC);      
     }
     if (subdetswitchtotclusterth1on) {
       if (it->first == "TIB") subdetmes.SubDetTotClusterTH1->Fill(nTotClusterTIB);
@@ -628,6 +639,22 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label) {
   subdetMEs.SubDetTotClusterProf->setAxisTitle("Event Time (Seconds)",1);
   if (subdetMEs.SubDetTotClusterProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetTotClusterProf->getTH1()->SetBit(TH1::kCanRebin);
   }
+    // Number of Cluster vs APV cycle - Profile
+    if(subdetswitchclusterapvprofon){
+      edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TProfClustersApvCycle");
+      dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
+      HistoName = "Cluster_vs_ApvCycle_" + label;
+      subdetMEs.SubDetClusterApvProf=dqmStore_->bookProfile(HistoName,HistoName,
+					      Parameters.getParameter<int32_t>("Nbins"),
+					      Parameters.getParameter<double>("xmin"),
+					      Parameters.getParameter<double>("xmax"),
+					      200, //that parameter should not be there !?
+					      Parameters.getParameter<double>("ymin"),
+					      Parameters.getParameter<double>("ymax"),
+					      "" );
+      subdetMEs.SubDetClusterApvProf->setAxisTitle("absolute Bx mod(70)",1);
+      if (subdetMEs.SubDetClusterApvProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetClusterApvProf->getTH1()->SetBit(TH1::kCanRebin);
+    }
 
   if (subdetswitchtotclusterth1on){
     dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
@@ -636,7 +663,6 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label) {
     subdetMEs.SubDetTotClusterTH1->setAxisTitle("Total number of clusters in subdetector");
     subdetMEs.SubDetTotClusterTH1->getTH1()->StatOverflows(kTRUE);  // over/underflows in Mean calculation
   }
-
   SubDetMEsMap[label]=subdetMEs;
   }
 }
