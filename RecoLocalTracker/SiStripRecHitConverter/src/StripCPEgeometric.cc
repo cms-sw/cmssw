@@ -79,18 +79,8 @@ bool StripCPEgeometric::
 isMultiPeaked(const SiStripCluster& cluster, const float& projection) const {
   uint16_t N = cluster.amplitudes().size();
   if(projection > N-2) return false;
+  if(projection < N-4) return true;
 
-  std::vector<uint8_t>::const_iterator first,maxL,maxR;
-  first = cluster.amplitudes().begin();
-  maxL = std::max_element(first,first+N/2);
-  maxR = std::max_element(first+N/2,first+N);
-
-  const float Qbetween = accumulate(maxL+1,maxR,float(0));
-  if(Qbetween>0) {
-    float ratio = (*maxL<*maxR)? *maxL/(*maxR) : *maxR/(*maxL);
-    if( ratio>0.5 && Qbetween/((maxR-maxL)-1) < 0.5*(*maxL+*maxR)/2. )
-      return true;
-  }
   return false;
 }
 
