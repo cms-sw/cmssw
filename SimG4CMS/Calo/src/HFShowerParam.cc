@@ -13,6 +13,7 @@
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4NavigationHistory.hh"
+
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
@@ -107,10 +108,9 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
   hit.position = hitPoint;
 
   // look for other charged particles
-  bool other = false;
+  bool   other = false;
+  double pBeta = track->GetDynamicParticle()->GetTotalMomentum() / track->GetDynamicParticle()->GetTotalEnergy();
   if (particleCode != emPDG && particleCode != epPDG && particleCode != gammaPDG ) {
-    double pBeta    = track->GetDynamicParticle()->GetTotalMomentum() 
-      / track->GetDynamicParticle()->GetTotalEnergy();
     if (track->GetDefinition()->GetPDGCharge() != 0 && pBeta > (1/ref_index) &&
 	aStep->GetTotalEnergyDeposit() > 0) other = true;
   }
@@ -124,7 +124,8 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
     if ((!trackEM) && (zz < (gpar[1]-gpar[2])) && (!other)) {
       edep = pin;
       kill = true;
-    } else {
+    } else if (track->GetDefinition()->GetPDGCharge() != 0 && 
+	       pBeta > (1/ref_index)) {
       edep = (aStep->GetTotalEnergyDeposit())/GeV;
     }
     if (edep > 0) {

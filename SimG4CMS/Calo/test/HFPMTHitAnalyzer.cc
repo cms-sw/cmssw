@@ -30,8 +30,9 @@
 
 HFPMTHitAnalyzer::HFPMTHitAnalyzer(const edm::ParameterSet& iConfig) {
 
-  g4Label  = iConfig.getUntrackedParameter<std::string>("moduleLabel","g4SimHits");
-  hcalHits = iConfig.getUntrackedParameter<std::string>("HitCollection","HcalHits");
+  sourceLabel = iConfig.getUntrackedParameter<std::string>("SourceLabel","generator");
+  g4Label     = iConfig.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits");
+  hcalHits    = iConfig.getUntrackedParameter<std::string>("HitCollection","HcalHits");
 }
 
 
@@ -130,7 +131,7 @@ void HFPMTHitAnalyzer::analyze(const edm::Event& iEvent,
   iEvent.getByLabel (g4Label, Tracks);
 
   edm::Handle<edm::HepMCProduct > EvtHandle;
-  iEvent.getByLabel("source", EvtHandle);
+  iEvent.getByLabel(sourceLabel, EvtHandle);
   const  HepMC::GenEvent* myGenEvent = EvtHandle->GetEvent();
 
   float orig_energy=0;

@@ -23,7 +23,7 @@ private:
   void analyzeHits  (std::vector<PCaloHit> &,const std::vector<SimTrack> &);
 
   //user parameters
-  std::string g4Label, hcalHits;
+  std::string sourceLabel, g4Label, hcalHits;
 
   int event_no;
 

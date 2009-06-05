@@ -45,7 +45,7 @@ protected:
 
 private:
 
-  std::string           g4Label, hitLab[2];
+  std::string           sourceLabel, g4Label, hitLab[2];
   std::vector<PCaloHit> ecalHits, hcalHits;
   double                maxEnergy, scaleEB, scaleHB, scaleHO;
   TH1F                  *hit_[3],  *time_[3], *edepTW_[3], *edepZon_[3];

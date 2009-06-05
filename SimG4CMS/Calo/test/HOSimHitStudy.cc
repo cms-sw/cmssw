@@ -11,7 +11,8 @@
 
 HOSimHitStudy::HOSimHitStudy(const edm::ParameterSet& ps) {
 
-  g4Label   = ps.getUntrackedParameter<std::string>("moduleLabel","g4SimHits");
+  sourceLabel = ps.getUntrackedParameter<std::string>("SourceLabel","generator");
+  g4Label   = ps.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits");
   hitLab[0] = ps.getUntrackedParameter<std::string>("EBCollection","EcalHitsEB");
   hitLab[1] = ps.getUntrackedParameter<std::string>("HCCollection","HcalHits");
   maxEnergy = ps.getUntrackedParameter<double>("MaxEnergy", 200.0);
@@ -100,7 +101,7 @@ void HOSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& ) {
 		       << e.id().event();
 
   edm::Handle<edm::HepMCProduct > EvtHandle;
-  e.getByLabel("source", EvtHandle);
+  e.getByLabel(sourceLabel, EvtHandle);
   const  HepMC::GenEvent* myGenEvent = EvtHandle->GetEvent();
 
   eInc = etaInc = phiInc = 0;

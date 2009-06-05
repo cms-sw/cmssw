@@ -6,7 +6,7 @@
 
 CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
 
-  g4Label   = ps.getUntrackedParameter<std::string>("moduleLabel","g4SimHits");
+  g4Label   = ps.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits");
   hitLab[0] = ps.getUntrackedParameter<std::string>("EBCollection","EcalHitsEB");
   hitLab[1] = ps.getUntrackedParameter<std::string>("EECollection","EcalHitsEE");
   hitLab[2] = ps.getUntrackedParameter<std::string>("ESCollection","EcalHitsES");
