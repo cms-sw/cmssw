@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/06/04 16:16:29 $
-//  $Revision: 1.44 $
+//  $Date: 2009/06/04 16:27:10 $
+//  $Revision: 1.45 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -379,12 +379,6 @@ void MuScleFit::startingNewLoop (unsigned int iLoop) {
 edm::EDLooper::Status MuScleFit::endOfLoop (const edm::EventSetup& eventSetup, unsigned int iLoop) {
 
   cout << "Ending loop # " << iLoop << endl;
-  cout << "Number of events with Z after ewk cuts" << numberOfEwkZ << endl;
-  if (debug_>0) {
-    cout << "Number of Sim tracks:   " << numberOfSimTracks << endl;
-    cout << "Number of Sim muons:    " << numberOfSimMuons << endl;
-    cout << "Number of Sim vertices: " << numberOfSimVertices << endl;
-  }
 
   // Write the histos to file
   // ------------------------
@@ -487,12 +481,13 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     recMu1 = reco::Particle::LorentzVector(0,0,0,0);
     recMu2 = reco::Particle::LorentzVector(0,0,0,0);
     vector<reco::LeafCandidate> muons;
-    if (theMuonType_<5) { // Muons
+    if (theMuonType_<5 || theMuonType_==10) { // Muons
       Handle<reco::MuonCollection> allMuons;
       event.getByLabel (theMuonLabel_, allMuons);
       vector<reco::Track> tracks;
 
       for (vector<reco::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon){
+	cout<<"muon "<<muon->isGlobalMuon()<<muon->isStandAloneMuon()<<muon->isTrackerMuon()<<endl;
 	//NNBB: one muon can be of many kinds at once but with the theMuonType_ we are sure
 	// to avoid double counting of the same muon
 	if(muon->isGlobalMuon() && theMuonType_==1)
@@ -507,7 +502,6 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 	  tracks.push_back(*(muon->innerTrack()));
       }
       muons = fillMuonCollection(tracks);
-
     }
     else if (theMuonType_==5) { // Inner tracker tracks
       Handle<reco::TrackCollection> tracks;
