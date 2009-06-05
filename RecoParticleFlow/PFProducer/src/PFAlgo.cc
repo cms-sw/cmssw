@@ -2323,6 +2323,8 @@ PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
 double 
 PFAlgo::neutralHadronEnergyResolution(double clusterEnergyHCAL, double eta) const {
 
+  // Add a protection
+  if ( clusterEnergyHCAL < 1. ) clusterEnergyHCAL = 1.;
 
   double resol = 0.;
   if ( newCalib_ == 1 ) 
