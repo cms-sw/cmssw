@@ -5,12 +5,8 @@ process = cms.Process("TTrigPreCalibProc")
 process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.load("FrontierConditions_GlobalTag_noesprefer_cff")
 
-process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRAFT_ALL_V4::All"
-#process.dtDBPrefer = cms.ESPrefer("PoolDBESSource","DTMapping")
-
+process.GlobalTag.globaltag = "STARTUP_31X::All"
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
@@ -21,11 +17,7 @@ process.source = cms.Source("PoolSource",
     debugFlag = cms.untracked.bool(True),
     debugVebosity = cms.untracked.uint32(10),
     fileNames = cms.untracked.vstring(
-
-       '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V4_StreamALCARECOMuAlCalIsolatedMu_step2_AlcaReco-v1/0008/001A49E8-93C3-DD11-9720-003048D15CFA.root',
-       '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V4_StreamALCARECOMuAlCalIsolatedMu_step2_AlcaReco-v1/0008/004C94C2-A0C3-DD11-B949-003048D15DB6.root',
-       '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V4_StreamALCARECOMuAlCalIsolatedMu_step2_AlcaReco-v1/0008/005D88AA-E0C3-DD11-BCF4-00304875ABEB.root'
-
+    '/store/relval/CMSSW_3_1_0_pre9/RelValSingleMuPt100/ALCARECO/IDEAL_31X_StreamALCARECORpcCalHLT_v1/0007/FA1A3CD3-514F-DE11-A117-001617E30D12.root'
     )
 )
 
@@ -34,6 +26,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.load("DQMOffline.CalibMuon.dtPreCalibrationTask_cfi")
+process.dtPreCalibTask.minTriggerWidth = cms.untracked.int32(400)
+process.dtPreCalibTask.maxTriggerWidth = cms.untracked.int32(1200)
 
 # if read from RAW
 #process.ttrigcalib.digiLabel = 'dtunpacker'
