@@ -70,11 +70,8 @@ bTagAnalysis = cms.EDFilter("BTagPerformanceAnalyzerOnData",
         cms.PSet(
             bTagSoftLeptonByPtAnalysisBlock,
             label = cms.InputTag("softMuonByPtBJetTags")
-        ), 
-        cms.PSet(
-            bTagSoftLeptonAnalysisBlock,
-            label = cms.InputTag("softElectronBJetTags")
-        )),
+        ) 
+        ),
     mcPlots = cms.bool(False)
 )
 
