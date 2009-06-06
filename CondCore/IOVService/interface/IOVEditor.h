@@ -58,7 +58,11 @@ namespace cond{
 
     /// Update the closure of the iov sequence
     virtual void updateClosure( cond::Time_t newtillTime ) = 0;
-    virtual void deleteEntries( bool withPayload=false ) = 0;
+    // remove last entry
+    virtual unsigned int truncate(bool withPayload=false)=0;
+    // delete all entries
+    virtual void deleteEntries( bool withPayload=false) = 0;
+    // 
     virtual void import( const std::string& sourceIOVtoken ) = 0;
     /// Returns the token of the iov sequence associated with this editor
     virtual std::string token() const = 0;

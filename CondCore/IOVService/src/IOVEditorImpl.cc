@@ -245,6 +245,22 @@ namespace cond {
   }
 
 
+  // remove last entry
+  unsigned int IOVEditorImpl::truncate(bool withPayload) {
+    if( m_token.empty() ) throw cond::Exception("cond::IOVEditorImpl::deleteEntries cannot delete to non-existing IOV sequence");
+    if(!m_isActive) this->init();
+    if (m_iov->piovs().empty()) return -1;
+    if(withPayload){
+      std::string tokenStr = m_iov->piovs().back().wrapperToken();
+      cond::GenericRef ref(*m_pooldb,tokenStr);
+      ref.markDelete();
+      ref.reset();
+    }
+    m_iov.markUpdate();
+    return m_iov->truncate();
+    
+  }
+
 
   void 
   IOVEditorImpl::deleteEntries(bool withPayload){
@@ -253,8 +269,8 @@ namespace cond {
     if(withPayload){
       std::string tokenStr;
       IOVSequence::const_iterator payloadIt;
-      IOVSequence::const_iterator payloadItEnd=m_iov->iovs().end();
-      for(payloadIt=m_iov->iovs().begin();payloadIt!=payloadItEnd;++payloadIt){
+      IOVSequence::const_iterator payloadItEnd=m_iov->piovs().end();
+      for(payloadIt=m_iov->piovs().begin();payloadIt!=payloadItEnd;++payloadIt){
 	tokenStr=payloadIt->wrapperToken();
 	cond::GenericRef ref(*m_pooldb,tokenStr);
 	ref.markDelete();

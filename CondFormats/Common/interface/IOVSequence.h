@@ -80,11 +80,13 @@ namespace cond {
 
     void loadAll() const;
 
-  private:
-    
+  public:
+
     // the real persistent container...
     Container & piovs() { return m_iovs;}
 
+  private:
+    
     // iovs is not in order: take action!
     void disorder();
 
