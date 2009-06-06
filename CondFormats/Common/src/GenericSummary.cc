@@ -1,18 +1,18 @@
-#include "CondFormats/Common/interface/Summary.h"
+#include "CondFormats/Common/interface/GenericSummary.h"
 #include<ostream>
 
 namespace cond {
-  Summary::Summary(){}
+  GenericSummary::GenericSummary(){}
 
-  Summary::~Summary(){}
+  GenericSummary::~GenericSummary(){}
     
-  Summary::Summary(std::string const & s) : m_me(s){}
+  GenericSummary::GenericSummary(std::string const & s) : m_me(s){}
     
-  void Summary::shortMessage(std::ostream & os) const {
+  void GenericSummary::shortMessage(std::ostream & os) const {
     os << m_me;
   }
     
-  void Summary::longMessage(std::ostream & os) const {
+  void GenericSummary::longMessage(std::ostream & os) const {
     os << m_me;
   }
 

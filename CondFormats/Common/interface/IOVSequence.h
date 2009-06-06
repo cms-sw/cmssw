@@ -40,9 +40,13 @@ namespace cond {
     IOVSequence(IOVSequence const & rh);
     IOVSequence & operator=(IOVSequence const & rh);
 
-    // append a new item, return new size
+    // append a new item, return position of last inserted entry
     size_t add(cond::Time_t time, 
 	       std::string const & wrapperToken);
+
+    // remove last entry, return position of last entry still valid
+    size_t truncate();
+
 
     // find IOV for which time is valid (this is not STANDARD std::find!)
     const_iterator find(cond::Time_t time) const;
