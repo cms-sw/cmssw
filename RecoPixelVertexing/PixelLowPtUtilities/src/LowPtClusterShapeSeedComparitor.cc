@@ -58,7 +58,11 @@ vector<GlobalVector> LowPtClusterShapeSeedComparitor::getGlobalDirs
     Global2DVector c (circle.center().x(), circle.center().y());
 
     float rad2 = (p[0] - c).mag2();
-    float a12 = asin(fabsf(areaParallelogram(p[0] - c, p[1] - c)) / rad2);
+    float area = fabsf(areaParallelogram(p[0] - c, p[1] - c));
+
+    float a12;
+    if(area >= rad2) a12 = M_PI/2;
+                else a12 = asin(area / rad2);
 
     float slope = (g[1].z() - g[0].z()) / a12;
 
