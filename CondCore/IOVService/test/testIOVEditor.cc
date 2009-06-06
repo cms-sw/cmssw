@@ -137,7 +137,11 @@ int main(){
     std::cout<<"inserted 20100 payload at position "<<pos<<std::endl;
     pos=editor->append(20123, "payNOtok");
     std::cout<<"inserted 20123 payload at position "<<pos<<std::endl;
-    
+
+    pos=editor->truncate();
+    std::cout<<"truncate. new last position "<<pos<<std::endl;
+     
+
     std::string token=editor->token();
     std::cout<<"iov token "<<token<<std::endl;
     pooldb.commit();
@@ -145,8 +149,6 @@ int main(){
 
     editor=iovmanager.newIOVEditor(token);
     pooldb.start(false);
-    pos=editor->truncate();
-    std::cout<<"truncate. new last position "<<pos<<std::endl;
     editor->updateClosure(900);
     pooldb.commit();
     delete editor;
