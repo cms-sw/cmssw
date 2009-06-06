@@ -24,7 +24,7 @@ metreco_cosmics = cms.Sequence(
             htMetSC5+htMetSC7+htMetKT4+htMetKT6+htMetIC5+muonMETValueMapProducer+corMetGlobalMuons+muonTCMETValueMapProducer+tcMetP5
             )
 
-metrecoPlusHCALNoise_cosmics = cms.Sequence( metreco_cosmics + hcalnoise )
+metrecoPlusHCALNoise_cosmics = cms.Sequence( metreco_cosmics + hcalnoise_cosmics )
 
 
 
