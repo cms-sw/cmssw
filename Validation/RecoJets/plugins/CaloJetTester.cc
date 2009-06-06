@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.cc,v 1.11 2009/03/31 06:18:18 hatake Exp $
+// $Id: CaloJetTester.cc,v 1.14 2009/06/04 00:01:29 chjeong Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -78,10 +78,15 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     = mDeltaEta = mDeltaPhi = mEScale = mlinEScale = mDeltaE
     = mHadEnergyProfile = mEmEnergyProfile = mJetEnergyProfile = mHadJetEnergyProfile = mEMJetEnergyProfile
     = mEScale_pt10 = mEScaleFineBin
-    = mpTScaleB_s = mpTScaleE_s = mpTScaleF_s = mpTScaleB_d = mpTScaleE_d = mpTScaleF_d
-    = mpTScale_60_120 = mpTScale_2700_3500
-    = mpTScale1DB_60_120 = mpTScale1DE_60_120 = mpTScale1DF_60_120 = mpTScale1DB_2700_3500 = mpTScale1DE_2700_3500 = mpTScale1DF_2700_3500
-    = mpTScale1D_60_120 = mpTScale1D_2700_3500
+    = mpTScaleB_s = mpTScaleE_s = mpTScaleF_s 
+    = mpTScaleB_d = mpTScaleE_d = mpTScaleF_d
+    = mpTScale_60_120_s = mpTScale_200_300_s = mpTScale_600_900_s = mpTScale_2700_3500_s
+    = mpTScale_60_120_d = mpTScale_200_300_d = mpTScale_600_900_d = mpTScale_2700_3500_d
+    = mpTScale1DB_60_120    = mpTScale1DE_60_120    = mpTScale1DF_60_120 
+    = mpTScale1DB_200_300   = mpTScale1DE_200_300   = mpTScale1DF_200_300 
+    = mpTScale1DB_600_900   = mpTScale1DE_600_900   = mpTScale1DF_600_900 
+    = mpTScale1DB_2700_3500 = mpTScale1DE_2700_3500 = mpTScale1DF_2700_3500
+    = mpTScale1D_60_120 = mpTScale1D_200_300 = mpTScale1D_600_900 = mpTScale1D_2700_3500
     = mHBEne = mHBTime = mHEEne = mHETime = mHFEne = mHFTime = mHOEne = mHOTime
     = mEBEne = mEBTime = mEEEne = mEETime 
     = 0;
@@ -89,7 +94,9 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
   DQMStore* dbe = &*edm::Service<DQMStore>();
   if (dbe) {
     dbe->setCurrentFolder("RecoJetsV/CaloJetTask_" + mInputCollection.label());
+    //
     numberofevents    = dbe->book1D("numberofevents","numberofevents", 3, 0 , 2);
+    //
     mEta              = dbe->book1D("Eta", "Eta", 100, -5, 5); 
     mEtaFineBin       = dbe->book1D("EtaFineBin_Pt10", "EtaFineBin_Pt10", 500, -5, 5); 
     mEtaFineBin1p     = dbe->book1D("EtaFineBin1p_Pt10", "EtaFineBin1p_Pt10", 100, 0, 1.3); 
@@ -98,38 +105,37 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mEtaFineBin1m     = dbe->book1D("EtaFineBin1m_Pt10", "EtaFineBin1m_Pt10", 100, -1.3, 0); 
     mEtaFineBin2m     = dbe->book1D("EtaFineBin2m_Pt10", "EtaFineBin2m_Pt10", 100, -3, -1.3); 
     mEtaFineBin3m     = dbe->book1D("EtaFineBin3m_Pt10", "EtaFineBin3m_Pt10", 100, -5, -3); 
+    //
     mPhi              = dbe->book1D("Phi", "Phi", 70, -3.5, 3.5); 
     mPhiFineBin       = dbe->book1D("PhiFineBin_Pt10", "PhiFineBin_Pt10", 350, -3.5, 3.5); 
-    //    mPhiFineBin1p     = dbe->book1D("PhiFineBin1p_Pt10", "PhiFineBin1p_Pt10", 350, -3.5, 3.5); 
-    //    mPhiFineBin2p     = dbe->book1D("PhiFineBin2p_Pt10", "PhiFineBin2p_Pt10", 350, -3.5, 3.5); 
-    //    mPhiFineBin3p     = dbe->book1D("PhiFineBin3p_Pt10", "PhiFineBin3p_Pt10", 350, -3.5, 3.5); 
-    //    mPhiFineBin1m     = dbe->book1D("PhiFineBin1m_Pt10", "PhiFineBin1m_Pt10", 350, -3.5, 3.5); 
-    //    mPhiFineBin2m     = dbe->book1D("PhiFineBin2m_Pt10", "PhiFineBin2m_Pt10", 350, -3.5, 3.5); 
-    //    mPhiFineBin3m     = dbe->book1D("PhiFineBin3m_Pt10", "PhiFineBin3m_Pt10", 350, -3.5, 3.5); 
+    //
     mE                = dbe->book1D("E", "E", 100, 0, 500); 
     mE_80             = dbe->book1D("E_80", "E_80", 100, 0, 4500); 
     mE_3000           = dbe->book1D("E_3000", "E_3000", 100, 0, 6000); 
+    //
     mP                = dbe->book1D("P", "P", 100, 0, 500); 
     mP_80             = dbe->book1D("P_80", "P_80", 100, 0, 4500); 
     mP_3000           = dbe->book1D("P_3000", "P_3000", 100, 0, 6000); 
+    //
     mPt               = dbe->book1D("Pt", "Pt", 100, 0, 50); 
     mPt_80            = dbe->book1D("Pt_80", "Pt_80", 100, 0, 140); 
     mPt_3000          = dbe->book1D("Pt_3000", "Pt_3000", 100, 0, 4000); 
+    //
     mMass             = dbe->book1D("Mass", "Mass", 100, 0, 25); 
     mMass_80          = dbe->book1D("Mass_80", "Mass_80", 100, 0, 120); 
-    mMass_3000        = dbe->book1D("Mass_3000", "Mass_3000", 100, 0, 1500); 
+    mMass_3000        = dbe->book1D("Mass_3000", "Mass_3000", 100, 0, 500); 
+    //
     mConstituents     = dbe->book1D("Constituents", "# of Constituents", 100, 0, 100); 
     mConstituents_80  = dbe->book1D("Constituents_80", "# of Constituents_80", 40, 0, 40); 
     //
     mEtaFirst         = dbe->book1D("EtaFirst", "EtaFirst", 100, -5, 5); 
-    mPhiFirst         = dbe->book1D("PhiFirst", "PhiFirst", 70, -3.5, 3.5); 
+    mPhiFirst         = dbe->book1D("PhiFirst", "PhiFirst", 70, -3.5, 3.5);     
     mEFirst           = dbe->book1D("EFirst", "EFirst", 100, 0, 1000); 
     mEFirst_80        = dbe->book1D("EFirst_80", "EFirst_80", 100, 0, 180); 
     mEFirst_3000      = dbe->book1D("EFirst_3000", "EFirst_3000", 100, 0, 4000); 
     mPtFirst          = dbe->book1D("PtFirst", "PtFirst", 100, 0, 50); 
     mPtFirst_80       = dbe->book1D("PtFirst_80", "PtFirst_80", 100, 0, 140);
     mPtFirst_3000     = dbe->book1D("PtFirst_3000", "PtFirst_3000", 100, 0, 4000);
-
     //
     mMjj              = dbe->book1D("Mjj", "Mjj", 100, 0, 2000); 
     mMjj_3000         = dbe->book1D("Mjj_3000", "Mjj_3000", 100, 0, 10000); 
@@ -143,14 +149,14 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mHadEnergyInHB    = dbe->book1D("HadEnergyInHB", "HadEnergyInHB", 100, 0, 50); 
     mHadEnergyInHF    = dbe->book1D("HadEnergyInHF", "HadEnergyInHF", 100, 0, 50); 
     mHadEnergyInHE    = dbe->book1D("HadEnergyInHE", "HadEnergyInHE", 100, 0, 100); 
-
+    //
     mHadEnergyInHO_80    = dbe->book1D("HadEnergyInHO_80", "HadEnergyInHO_80", 100, 0, 50); 
     mHadEnergyInHB_80    = dbe->book1D("HadEnergyInHB_80", "HadEnergyInHB_80", 100, 0, 200); 
     mHadEnergyInHE_80    = dbe->book1D("HadEnergyInHE_80", "HadEnergyInHE_80", 100, 0, 1000); 
     mHadEnergyInHO_3000  = dbe->book1D("HadEnergyInHO_3000", "HadEnergyInHO_3000", 100, 0, 500); 
     mHadEnergyInHB_3000  = dbe->book1D("HadEnergyInHB_3000", "HadEnergyInHB_3000", 100, 0, 3000); 
     mHadEnergyInHE_3000  = dbe->book1D("HadEnergyInHE_3000", "HadEnergyInHE_3000", 100, 0, 2000); 
-
+    //
     mEmEnergyInEB     = dbe->book1D("EmEnergyInEB", "EmEnergyInEB", 100, 0, 50); 
     mEmEnergyInEE     = dbe->book1D("EmEnergyInEE", "EmEnergyInEE", 100, 0, 50); 
     mEmEnergyInHF     = dbe->book1D("EmEnergyInHF", "EmEnergyInHF", 120, -20, 100); 
@@ -160,6 +166,7 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mEmEnergyInEE_3000= dbe->book1D("EmEnergyInEE_3000", "EmEnergyInEE_3000", 100, 0, 2000); 
     mEnergyFractionHadronic = dbe->book1D("EnergyFractionHadronic", "EnergyFractionHadronic", 120, -0.1, 1.1); 
     mEnergyFractionEm = dbe->book1D("EnergyFractionEm", "EnergyFractionEm", 120, -0.1, 1.1); 
+    //
     mHFTotal          = dbe->book1D("HFTotal", "HFTotal", 100, 0, 500);
     mHFTotal_80       = dbe->book1D("HFTotal_80", "HFTotal_80", 100, 0, 3000);
     mHFTotal_3000     = dbe->book1D("HFTotal_3000", "HFTotal_3000", 100, 0, 6000);
@@ -169,6 +176,7 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mHFShort          = dbe->book1D("HFShort", "HFShort", 100, 0, 500);
     mHFShort_80       = dbe->book1D("HFShort_80", "HFShort_80", 100, 0, 200);
     mHFShort_3000     = dbe->book1D("HFShort_3000", "HFShort_3000", 100, 0, 1500);
+    //
     mN90              = dbe->book1D("N90", "N90", 50, 0, 50); 
     //
     mGenEta           = dbe->book1D("GenEta", "GenEta", 100, -5, 5);
@@ -197,10 +205,10 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     //
     mNJetsEtaC        = dbe->book1D("NJetsEtaC_Pt10", "NJetsEtaC_Pt10", 15, 0, 15);
     mNJetsEtaF        = dbe->book1D("NJetsEtaF_Pt10", "NJetsEtaF_Pt10", 15, 0, 15);
-
+    //
     mNJets1           = dbe->bookProfile("NJets1", "NJets1", 100, 0, 200,  100, 0, 50, "s");
     mNJets2           = dbe->bookProfile("NJets2", "NJets2", 100, 0, 4000, 100, 0, 50, "s");
-
+    //
     mHBEne     = dbe->book1D( "HBEne",  "HBEne", 1000, -20, 100 );
     mHBTime    = dbe->book1D( "HBTime", "HBTime", 200, -200, 200 );
     mHEEne     = dbe->book1D( "HEEne",  "HEEne", 1000, -20, 100 );
@@ -213,10 +221,10 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mEBTime    = dbe->book1D( "EBTime", "EBTime", 200, -200, 200 );
     mEEEne     = dbe->book1D( "EEEne",  "EEEne", 1000, -20, 100 );
     mEETime    = dbe->book1D( "EETime", "EETime", 200, -200, 200 );
-
+    //
     double log10PtMin = 0.5; //=3.1622766
     double log10PtMax = 3.75; //=5623.41325
-    int log10PtBins = 13; 
+    int log10PtBins = 26; 
     double etaMin = -5.;
     double etaMax = 5.;
     int etaBins = 50;
@@ -238,7 +246,7 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     //
     if (mTurnOnEverything.compare("yes")==0) {
       mHadEnergyProfile = dbe->bookProfile2D("HadEnergyProfile", "HadEnergyProfile", 82, -41, 41, 73, 0, 73, 100, 0, 10000, "s");
-      mEmEnergyProfile = dbe->bookProfile2D("EmEnergyProfile", "EmEnergyProfile", 82, -41, 41, 73, 0, 73, 100, 0, 10000, "s");
+      mEmEnergyProfile  = dbe->bookProfile2D("EmEnergyProfile", "EmEnergyProfile", 82, -41, 41, 73, 0, 73, 100, 0, 10000, "s");
     }
     mJetEnergyProfile = dbe->bookProfile2D("JetEnergyProfile", "JetEnergyProfile", 50, -5, 5, 36, -3.1415987, 3.1415987, 100, 0, 10000, "s");
     mHadJetEnergyProfile = dbe->bookProfile2D("HadJetEnergyProfile", "HadJetEnergyProfile", 50, -5, 5, 36, -3.1415987, 3.1415987, 100, 0, 10000, "s");
@@ -268,38 +276,69 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
 			    log10PtFineBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 100, 0, 2);
     }
 
-
     mpTScaleB_s = dbe->bookProfile("pTScaleB_s", "pTScale_s_0<|eta|<1.3",
-					  100, 0, 4000, 100, 0, 2, "s");
+				    log10PtBins, log10PtMin, log10PtMax, 0, 2, "s");
     mpTScaleE_s = dbe->bookProfile("pTScaleE_s", "pTScale_s_1.3<|eta|<3.0",
-					  100, 0, 4000, 100, 0, 2, "s");
+				    log10PtBins, log10PtMin, log10PtMax, 0, 2, "s");
     mpTScaleF_s = dbe->bookProfile("pTScaleF_s", "pTScale_s_3.0<|eta|<5.0",
-					  100, 0, 4000, 100, 0, 2, "s");
+				    log10PtBins, log10PtMin, log10PtMax, 0, 2, "s");
     mpTScaleB_d = dbe->bookProfile("pTScaleB_d", "pTScale_d_0<|eta|<1.3",
-					  100, 0, 4000, 100, 0, 2);
+				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
     mpTScaleE_d = dbe->bookProfile("pTScaleE_d", "pTScale_d_1.3<|eta|<3.0",
-					  100, 0, 4000, 100, 0, 2);
+				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
     mpTScaleF_d = dbe->bookProfile("pTScaleF_d", "pTScale_d_3.0<|eta|<5.0",
-					  100, 0, 4000, 100, 0, 2);
+				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
 
+    mpTScale_60_120_s    = dbe->bookProfile("pTScale_60_120_s", "pTScale_s_60<pT<120",
+					  etaBins, etaMin, etaMax, 0., 2., "s");
+    mpTScale_200_300_s   = dbe->bookProfile("pTScale_200_300_s", "pTScale_s_200<pT<300",
+					  etaBins, etaMin, etaMax, 0., 2., "s");
+    mpTScale_600_900_s   = dbe->bookProfile("pTScale_600_900_s", "pTScale_s_600<pT<900",
+					  etaBins, etaMin, etaMax, 0., 2., "s");
+    mpTScale_2700_3500_s = dbe->bookProfile("pTScale_2700_3500_s", "pTScale_s_2700<pt<3500",
+                                          etaBins, etaMin, etaMax, 0., 2., "s");
+    mpTScale_60_120_d    = dbe->bookProfile("pTScale_60_120_d", "pTScale_d_60<pT<120",
+					  etaBins, etaMin, etaMax, 0., 2., " ");
+    mpTScale_200_300_d   = dbe->bookProfile("pTScale_200_300_d", "pTScale_d_200<pT<300",
+					  etaBins, etaMin, etaMax, 0., 2., " ");
+    mpTScale_600_900_d   = dbe->bookProfile("pTScale_600_900_d", "pTScale_d_600<pT<900",
+					  etaBins, etaMin, etaMax, 0., 2., " ");
+    mpTScale_2700_3500_d = dbe->bookProfile("pTScale_2700_3500_d", "pTScale_d_2700<pt<3500",
+                                          etaBins, etaMin, etaMax, 0., 2., " ");
 
-    mpTScale_60_120    = dbe->bookProfile("pTScale_60_120", "pTScale_60<pT<120",
-					  etaBins, etaMin, etaMax, log10PtBins, log10PtMin, log10PtMax, "s");
-    mpTScale_2700_3500 = dbe->bookProfile("pTScale_2700_3500", "pTScale_2700<pt<3500",
-                                          etaBins, etaMin, etaMax, log10PtBins, log10PtMin, log10PtMax, "s");
     mpTScale1DB_60_120 = dbe->book1D("pTScale1DB_60_120", "pTScale_distribution_for_0<|eta|<1.3_60_120",
 				   100, 0, 2);
     mpTScale1DE_60_120 = dbe->book1D("pTScale1DE_60_120", "pTScale_distribution_for_1.3<|eta|<3.0_60_120",
 				   100, 0, 2);
     mpTScale1DF_60_120 = dbe->book1D("pTScale1DF_60_120", "pTScale_distribution_for_3.0<|eta|<5.0_60_120",
 				   100, 0, 2);
+
+    mpTScale1DB_200_300 = dbe->book1D("pTScale1DB_200_300", "pTScale_distribution_for_0<|eta|<1.3_200_300",
+				   100, 0, 2);
+    mpTScale1DE_200_300 = dbe->book1D("pTScale1DE_200_300", "pTScale_distribution_for_1.3<|eta|<3.0_200_300",
+				   100, 0, 2);
+    mpTScale1DF_200_300 = dbe->book1D("pTScale1DF_200_300", "pTScale_distribution_for_3.0<|eta|<5.0_200_300",
+				   100, 0, 2);
+
+    mpTScale1DB_600_900 = dbe->book1D("pTScale1DB_600_900", "pTScale_distribution_for_0<|eta|<1.3_600_900",
+				   100, 0, 2);
+    mpTScale1DE_600_900 = dbe->book1D("pTScale1DE_600_900", "pTScale_distribution_for_1.3<|eta|<3.0_600_900",
+				   100, 0, 2);
+    mpTScale1DF_600_900 = dbe->book1D("pTScale1DF_600_900", "pTScale_distribution_for_3.0<|eta|<5.0_600_900",
+				   100, 0, 2);
+
     mpTScale1DB_2700_3500 = dbe->book1D("pTScale1DB_2700_3500", "pTScale_distribution_for_0<|eta|<1.3_2700_3500",
 				   100, 0, 2);
     mpTScale1DE_2700_3500 = dbe->book1D("pTScale1DE_2700_3500", "pTScale_distribution_for_1.3<|eta|<3.0_2700_3500",
 				   100, 0, 2);
     mpTScale1DF_2700_3500 = dbe->book1D("pTScale1DF_2700_3500", "pTScale_distribution_for_3.0<|eta|<5.0_2700_3500",
 				   100, 0, 2);
+
     mpTScale1D_60_120    = dbe->book1D("pTScale1D_60_120", "pTScale_distribution_for_60<pT<120",
+					    100, 0, 2);
+    mpTScale1D_200_300    = dbe->book1D("pTScale1D_200_300", "pTScale_distribution_for_200<pT<300",
+					    100, 0, 2);
+    mpTScale1D_600_900    = dbe->book1D("pTScale1D_600_900", "pTScale_distribution_for_600<pT<900",
 					    100, 0, 2);
     mpTScale1D_2700_3500 = dbe->book1D("pTScale1D_2700_3500", "pTScale_distribution_for_2700<pt<3500",
 					    100, 0, 2);
@@ -371,13 +410,6 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
   Handle<CaloTowerCollection> caloTowers;
   mEvent.getByLabel( "towerMaker", caloTowers );
   for( CaloTowerCollection::const_iterator cal = caloTowers->begin(); cal != caloTowers->end(); ++ cal ){
-    // std::cout << "ieta/iphi = " <<  cal->ieta() << " / "  << cal->iphi() << std::endl;
-    // std::cout << "hadEnergy/outEnergy = " <<  cal->hadEnergy() << " / " << cal->outerEnergy() << std::endl;
-    //this next line causes crashing, pointers are probably wrong
-    // std::cout << "hadEnergyHeOut/hadEnergyHeInn = " << cal->hadEnergyHeOuterLayer() << " / " << cal->hadEnergyHeInnerLayer() << std::endl;
-    // std::cout << "emEnergy = " << cal->emEnergy() << std::endl;
-    // std::cout << "ecalTime/hcalTime = " << cal->ecalTime() << " / " << cal->hcalTime() << std::endl;
-    // std::cout << "zide = " << cal->zside() << std::endl;
 
     //To compensate for the index
     if (mTurnOnEverything.compare("yes")==0) {
@@ -410,15 +442,6 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
           mHETime->Fill(j->time()); 
         }
 
-        /***
-        std::cout << j->id()     << " "
-                  << j->id().subdet() << " "
-                  << j->id().ieta()   << " "
-                  << j->id().iphi()   << " "
-                  << j->id().depth()  << " "
-                  << j->energy() << " "
-                  << j->time()   << std::endl;
-        ****/
       }
     }
   } catch (...) {
@@ -452,7 +475,6 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
           mHOEne->Fill(j->energy()); 
           mHOTime->Fill(j->time()); 
         }
-        //      std::cout << *j << std::endl;
       }
     }
   } catch (...) {
@@ -465,9 +487,9 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
     for (i=colls.begin(); i!=colls.end(); i++) {
       for (EBRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
         //      if (j->id() == EcalBarrel) {
-          mEBEne->Fill(j->energy()); 
-          mEBTime->Fill(j->time()); 
-          //    }
+	mEBEne->Fill(j->energy()); 
+	mEBTime->Fill(j->time()); 
+	//    }
         //      std::cout << *j << std::endl;
         //      std::cout << j->id() << std::endl;
       }
@@ -483,10 +505,10 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
     for (i=colls.begin(); i!=colls.end(); i++) {
       for (EERecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
         //      if (j->id().subdet() == EcalEndcap) {
-          mEEEne->Fill(j->energy()); 
-          mEETime->Fill(j->time()); 
-          //    }
-        //      std::cout << *j << std::endl;
+	mEEEne->Fill(j->energy()); 
+	mEETime->Fill(j->time()); 
+	//    }
+	//      std::cout << *j << std::endl;
       }
     }
   } catch (...) {
@@ -662,12 +684,12 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
       }
     }
 
-    for (unsigned iGenJet = 0; iGenJet < genJets->size(); ++iGenJet) {                  //****************************************************************
-    //for (unsigned iGenJet = 0; iGenJet < 1; ++iGenJet) {                       // only FIRST Jet !!!!
+    for (unsigned iGenJet = 0; iGenJet < genJets->size(); ++iGenJet) {               //****************************************************************
+    //for (unsigned iGenJet = 0; iGenJet < 1; ++iGenJet) {                           // only FIRST Jet !!!!
       const GenJet& genJet = (*genJets) [iGenJet];
       double genJetPt = genJet.pt();
 
-      //std::cout << iGenJet <<". Genjet: pT = " << genJetPt << "GeV" << std::endl;      //  *****************************************************
+      //std::cout << iGenJet <<". Genjet: pT = " << genJetPt << "GeV" << std::endl;  //  *****************************************************
 
       if (fabs(genJet.eta()) > 5.) continue; // out of detector 
       if (genJetPt < mMatchGenPtThreshold) continue; // no low momentum 
@@ -681,10 +703,12 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
 	for (unsigned iCaloJet = 0; iCaloJet < caloJets->size(); ++iCaloJet) {
 	  double dR = deltaR (genJet.eta(), genJet.phi(), (*caloJets) [iCaloJet].eta(), (*caloJets) [iCaloJet].phi());
 	  if (deltaRBest < mRThreshold && dR < mRThreshold && genJet.pt() > 5.) {
+	    /*
 	    std::cout << "Yet another matched jet for GenJet pt=" << genJet.pt()
 		      << " previous CaloJet pt/dr: " << (*caloJets) [iCaloJetBest].pt() << '/' << deltaRBest
 		      << " new CaloJet pt/dr: " << (*caloJets) [iCaloJet].pt() << '/' << dR
 		      << std::endl;
+	    */
 	  }
 	  if (dR < deltaRBest) {
 	    iCaloJetBest = iCaloJet;
@@ -735,8 +759,7 @@ void CaloJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::Cal
   mMatchedGenJetsPt->Fill (logPtGen);
   mMatchedGenJetsEta->Fill (logPtGen, fGenJet.eta());
 
-
-
+  double PtThreshold = 10.;
 
   if (mTurnOnEverything.compare("yes")==0) {
     mDeltaEta->Fill (logPtGen, fGenJet.eta(), fCaloJet.eta()-fGenJet.eta());
@@ -747,13 +770,13 @@ void CaloJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::Cal
 
     mEScaleFineBin->Fill (logPtGen, fGenJet.eta(), fCaloJet.energy()/fGenJet.energy());
   
-    if (fGenJet.pt()>10) {
+    if (fGenJet.pt()>PtThreshold) {
       mEScale_pt10->Fill (logPtGen, fGenJet.eta(), fCaloJet.energy()/fGenJet.energy());
 
     }
 
   }
-  if (fCaloJet.pt() > 10) {
+  if (fCaloJet.pt() > PtThreshold) {
     mDelEta->Fill (fGenJet.eta()-fCaloJet.eta());
     mDelPhi->Fill (fGenJet.phi()-fCaloJet.phi());
     mDelPt->Fill  ((fGenJet.pt()-fCaloJet.pt())/fGenJet.pt());
@@ -761,10 +784,16 @@ void CaloJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::Cal
 
   if (fabs(fGenJet.eta())<1.3) {
 
-    mpTScaleB_s->Fill (PtGen, PtCalo/PtGen);
-    mpTScaleB_d->Fill (PtGen, PtCalo/PtGen);
+    mpTScaleB_s->Fill (log10(PtGen), PtCalo/PtGen);
+    mpTScaleB_d->Fill (log10(PtGen), PtCalo/PtGen);
     if (PtGen>60.0 && PtGen<120.0) {
       mpTScale1DB_60_120->Fill (fCaloJet.pt()/fGenJet.pt());
+    }
+    if (PtGen>200.0 && PtGen<300.0) {
+      mpTScale1DB_200_300->Fill (fCaloJet.pt()/fGenJet.pt());
+    }
+    if (PtGen>600.0 && PtGen<900.0) {
+      mpTScale1DB_600_900->Fill (fCaloJet.pt()/fGenJet.pt());
     }
     if (PtGen>2700.0 && PtGen<3500.0) {
       mpTScale1DB_2700_3500->Fill (fCaloJet.pt()/fGenJet.pt());
@@ -773,10 +802,16 @@ void CaloJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::Cal
 
   if (fabs(fGenJet.eta())>1.3 && fabs(fGenJet.eta())<3.0) {
 
-    mpTScaleE_s->Fill (PtGen, PtCalo/PtGen);
-    mpTScaleE_d->Fill (PtGen, PtCalo/PtGen);
+    mpTScaleE_s->Fill (log10(PtGen), PtCalo/PtGen);
+    mpTScaleE_d->Fill (log10(PtGen), PtCalo/PtGen);
     if (PtGen>60.0 && PtGen<120.0) {
       mpTScale1DE_60_120->Fill (fCaloJet.pt()/fGenJet.pt());
+    }
+    if (PtGen>200.0 && PtGen<300.0) {
+      mpTScale1DE_200_300->Fill (fCaloJet.pt()/fGenJet.pt());
+    }
+    if (PtGen>600.0 && PtGen<900.0) {
+      mpTScale1DE_600_900->Fill (fCaloJet.pt()/fGenJet.pt());
     }
     if (PtGen>2700.0 && PtGen<3500.0) {
       mpTScale1DE_2700_3500->Fill (fCaloJet.pt()/fGenJet.pt());
@@ -785,10 +820,16 @@ void CaloJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::Cal
 
   if (fabs(fGenJet.eta())>3.0 && fabs(fGenJet.eta())<5.0) {
 
-    mpTScaleF_s->Fill (PtGen, PtCalo/PtGen);
-    mpTScaleF_d->Fill (PtGen, PtCalo/PtGen);
+    mpTScaleF_s->Fill (log10(PtGen), PtCalo/PtGen);
+    mpTScaleF_d->Fill (log10(PtGen), PtCalo/PtGen);
     if (PtGen>60.0 && PtGen<120.0) {
       mpTScale1DF_60_120->Fill (fCaloJet.pt()/fGenJet.pt());
+    }
+    if (PtGen>200.0 && PtGen<300.0) {
+      mpTScale1DF_200_300->Fill (fCaloJet.pt()/fGenJet.pt());
+    }
+    if (PtGen>600.0 && PtGen<900.0) {
+      mpTScale1DF_600_900->Fill (fCaloJet.pt()/fGenJet.pt());
     }
     if (PtGen>2700.0 && PtGen<3500.0) {
       mpTScale1DF_2700_3500->Fill (fCaloJet.pt()/fGenJet.pt());
@@ -796,12 +837,26 @@ void CaloJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::Cal
   }
 
   if (fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
-    mpTScale_60_120->Fill (fGenJet.eta(),fCaloJet.pt()/fGenJet.pt());
+    mpTScale_60_120_s->Fill (fGenJet.eta(),fCaloJet.pt()/fGenJet.pt());
+    mpTScale_60_120_d->Fill (fGenJet.eta(),fCaloJet.pt()/fGenJet.pt());
     mpTScale1D_60_120->Fill (fCaloJet.pt()/fGenJet.pt());
   }
 
+  if (fGenJet.pt()>200.0 && fGenJet.pt()<300.0) {
+    mpTScale_200_300_s->Fill (fGenJet.eta(),fCaloJet.pt()/fGenJet.pt());
+    mpTScale_200_300_d->Fill (fGenJet.eta(),fCaloJet.pt()/fGenJet.pt());
+    mpTScale1D_200_300->Fill (fCaloJet.pt()/fGenJet.pt());
+  }
+
+  if (fGenJet.pt()>600.0 && fGenJet.pt()<900.0) {
+    mpTScale_600_900_s->Fill (fGenJet.eta(),fCaloJet.pt()/fGenJet.pt());
+    mpTScale_600_900_d->Fill (fGenJet.eta(),fCaloJet.pt()/fGenJet.pt());
+    mpTScale1D_600_900->Fill (fCaloJet.pt()/fGenJet.pt());
+  }
+
   if (fGenJet.pt()>2700.0 && fGenJet.pt()<3500.0) {
-    mpTScale_2700_3500->Fill (fGenJet.eta(),fCaloJet.pt()/fGenJet.pt());
+    mpTScale_2700_3500_s->Fill (fGenJet.eta(),fCaloJet.pt()/fGenJet.pt());
+    mpTScale_2700_3500_d->Fill (fGenJet.eta(),fCaloJet.pt()/fGenJet.pt());
     mpTScale1D_2700_3500->Fill (fCaloJet.pt()/fGenJet.pt());
   }
 
