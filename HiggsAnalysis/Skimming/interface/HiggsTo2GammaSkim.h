@@ -42,11 +42,26 @@ class HiggsTo2GammaSkim : public edm::EDFilter {
  private:
   int nEvents, nSelectedEvents;
 
-
   bool debug;
-  float photon1MinPt;
-  float photon2MinPt;
-  int nPhotonMin;
+
+  //note, all loose cuts should be looser than tight cuts
+  float photonLooseMinPt;
+  float photonTightMinPt;
+  float photonLooseMaxEta;
+  float photonTightMaxEta;
+  float photonLooseMaxHoE;
+  float photonTightMaxHoE;
+  float photonLooseMaxHIsol;
+  float photonTightMaxHIsol;
+  float photonLooseMaxEIsol;
+  float photonTightMaxEIsol;
+  float photonLooseMaxTIsol;
+  float photonTightMaxTIsol;
+
+  //float photon2MinPt;
+
+  int nPhotonLooseMin;
+  int nPhotonTightMin;
 
   // Reco samples
   edm::InputTag thePhotonLabel;
