@@ -94,7 +94,7 @@ void SubsystemNeutronWriter::writeHits(int chamberType, edm::PSimHitContainer & 
 {
 
   sort(input.begin(), input.end(), SortByTime());
-  edm::PSimHitContainer current;
+  edm::PSimHitContainer cluster;
   float startTime = -1000.;
   for(size_t i = 0; i < input.size(); ++i) {
     PSimHit hit = input[i];
@@ -107,11 +107,11 @@ std::cout << hit << std::endl;
     if(tof > theNeutronTimeCut) {
       if(tof > (startTime + theTimeWindow) ) { // 1st in cluster
         startTime = tof;
-        if(!current.empty()) {
+        if(!cluster.empty()) {
           LogDebug("SubsystemNeutronWriter") << "filling old cluster";
-          theHitWriter->writeEvent(chamberType, current);
+          theHitWriter->writeCluster(chamberType, cluster);
           updateCount(chamberType);
-          current.clear();
+          cluster.clear();
         }
         LogDebug("SubsystemNeutronWriter") << "starting neutron cluster at time " << startTime 
           << " on detType " << chamberType;
@@ -119,13 +119,13 @@ std::cout << hit << std::endl;
       // set the time to be 0 at start of event
 std::cout << "ADJUST " << startTime << std::endl;
       adjust(hit, -1.*startTime);
-      current.push_back( hit );
+      cluster.push_back( hit );
 std::cout << "NEXT HIT" << std::endl;
     }
   }
 std::cout << "LOOPED OVER HITS " << theHitWriter << std::endl;
-  if(!current.empty()) {
-    theHitWriter->writeEvent(chamberType, current);
+  if(!cluster.empty()) {
+    theHitWriter->writeCluster(chamberType, cluster);
     updateCount(chamberType);
   }
 }

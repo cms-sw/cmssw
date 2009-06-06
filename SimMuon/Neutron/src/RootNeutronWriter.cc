@@ -49,7 +49,7 @@ RootChamberWriter & RootNeutronWriter::chamberWriter(int chamberType)
 }
 
 
-void RootNeutronWriter::writeEvent(int chamberType, const edm::PSimHitContainer & hits) 
+void RootNeutronWriter::writeCluster(int chamberType, const edm::PSimHitContainer & hits) 
 {
 std::cout << "ROOTNEUTRONWRITER " << chamberType << " HITS SIZE " << hits.size() <<std::endl;
   chamberWriter(chamberType).write(hits);

@@ -16,7 +16,7 @@ public:
   virtual ~AsciiNeutronWriter();
 
 protected:
-  virtual void writeEvent(int chamberType, const edm::PSimHitContainer & hits);
+  virtual void writeCluster(int chamberType, const edm::PSimHitContainer & hits);
 
 private:
   std::string theFileNameBase;
