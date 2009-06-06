@@ -1,4 +1,4 @@
-#!/bin/sh 
+m #!/bin/sh 
 
 echo "This script produces all the histograms and plots..."
 echo -e "Enter the REFERNCE.root file, the NEW.root file, the directory name/histogram title and the normalization ([REFERNCE.root] [NEW.root] [title] [normalization]): "
@@ -43,7 +43,10 @@ if [ -n $title ]; then
 		../../../../test/slc4_ia32_gcc345/compareHists $new $reference ${TAG[${i}]} $title y
 		fi
 
+		bash make_thumbnails.sh *.gif
 		mv *.gif $title/${FOLDER[${i}]}
+		mv *.jpg $title/${FOLDER[${i}]}
+		mv html/spacer.gif $title/${FOLDER[${i}]}
 
 		if [ ${FOLDER[${i}]} = ${FOLDER[3]} ]; then
 		    cp html/${FOLDER[${i}]}.html $title/${FOLDER[${i}]}
