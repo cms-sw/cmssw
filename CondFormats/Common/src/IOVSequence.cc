@@ -75,7 +75,14 @@ namespace cond {
     return piovs().size()-1;
   }
   
+  size_t IOVSequence::truncate() {
+    if (m_notOrdered) disorder();
+    piovs().pop_back();
+    return piovs().size()-1;
+  }
   
+
+
   IOVSequence::const_iterator IOVSequence::find(cond::Time_t time) const {
     if (time>=lastTill()) return iovs().end();
     IOVSequence::const_iterator p = std::upper_bound(iovs().begin(),iovs().end(),Item(time),

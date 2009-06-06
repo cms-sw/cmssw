@@ -1,6 +1,6 @@
 #include "CondFormats/Common/interface/IOVSequence.h"
 #include "CondFormats/Common/interface/PayloadWrapper.h"
-#include "CondFormats/Common/interface/Summary.h"
+#include "CondFormats/Common/interface/GenericSummary.h"
 
 #include "CondFormats/Common/interface/BaseKeyed.h"
 #include "CondFormats/Common/interface/IOVKeysDescription.h"

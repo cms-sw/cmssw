@@ -6,8 +6,7 @@
 
 namespace cond {
   
-  /** Short summary of condition payoad
-      FIXME in future polymorfic
+  /** Base class for summary of condition payoad
   */
   class Summary {
   public:
@@ -15,19 +14,12 @@ namespace cond {
     Summary();
     virtual ~Summary();
     
-    //
-    explicit Summary(std::string const & s);
-    
-    // short message (just content to be used in a table)
-    virtual void shortMessage(std::ostream & os) const;
+     // short message (just content to be used in a table)
+    virtual void shortMessage(std::ostream & os) const=0;
     
     // long message (ot be used in pop-up, single views)
-    virtual void longMessage(std::ostream & os) const;
+    virtual void longMessage(std::ostream & os) const=0;
     
-    
-  private:
-    
-    std::string m_me;
     
   };
   

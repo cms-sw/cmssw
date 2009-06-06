@@ -24,6 +24,7 @@
  <class name="cond::PayloadWrapper"/>
  <class name="cond::Summary"/>
  <class name="pool::PolyPtr<cond::Summary>"/>
+ <class name="cond::GenericSummary"/>
 
  <class name="cond::DataWrapper<cond::BaseKeyed>"/>
  <class name="pool::PolyPtr<cond::BaseKeyed>"/>

@@ -27,6 +27,18 @@ int main() {
     if (iov.find(40)!=v.end()-1) std::cerr << "error find 45" << std::endl;
     if (iov.find(45)!=v.end()-1) std::cerr << "error find 45" << std::endl;
 
+    if (iov.add(50,"f")!=4)  std::cerr << "error in add"  << std::endl;
+    if (iov.find(45)!=v.end()-2) std::cerr << "error find 45" << std::endl;
+    if(iov.truncate()!=3)  std::cerr << "error in truncation"  << std::endl;
+    if (iov.find(45)!=v.end()-1) std::cerr << "error find 45" << std::endl;
+
+    if (iov.add(50,"f")!=4)  std::cerr << "error in add"  << std::endl;
+    if (iov.find(45)!=v.end()-2) std::cerr << "error find 45" << std::endl;
+    if(iov.truncate()!=3)  std::cerr << "error in truncation"  << std::endl;
+    if (iov.find(45)!=v.end()-1) std::cerr << "error find 45" << std::endl;
+
+ 
+
   }
 
   if(iov.notOrdered()) std::cerr << "error notOrdered" << std::endl;
