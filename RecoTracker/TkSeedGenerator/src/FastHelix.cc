@@ -34,7 +34,7 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
   GlobalPoint pMid(theMiddleHit);
   GlobalPoint v(theVertex);
   
-  double dydx = 0.;
+  double dydx = 0., dxdy = 0.;
   double pt = 0., px = 0., py = 0.;
   
   //remember (radius rho in cm):
@@ -55,14 +55,23 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
   //=> (dy/dx) = -(x-x0)/sqrt(Q)  if y(x) >= y0
   //   (dy/dx) =  (x-x0)/sqrt(Q)  if y(x) < y0
   //with Q = rho^2 - (x-x0)^2
-  double root = sqrt(rho*rho - (v.x()-theCircle.x0())*(v.x()-theCircle.x0()));
-  if((v.y() - theCircle.y0()) > 0.)
-    dydx = -(v.x() - theCircle.x0()) / root;
-  else
-    dydx = (v.x() - theCircle.x0()) / root;
-  
-  px = pt/sqrt(1. + dydx*dydx);
-  py = px*dydx;
+  // Check approximate slope to determine whether to use dydx or dxdy
+  // Choose the one that goes to 0 rather than infinity.
+  if ( fabs( theCircle.n1()/theCircle.n2() ) < 1.0 ) {
+    if( v.y() > theCircle.y0() )
+      dydx = -(v.x() - theCircle.x0()) / sqrt(rho*rho - (v.x()-theCircle.x0())*(v.x()-theCircle.x0()));
+    else
+      dydx = (v.x() - theCircle.x0()) / sqrt(rho*rho - (v.x()-theCircle.x0())*(v.x()-theCircle.x0()));
+    px = pt/sqrt(1. + dydx*dydx);
+    py = px*dydx;
+  } else {
+    if( v.x() > theCircle.x0() )
+      dxdy = -(v.y() - theCircle.y0()) / sqrt(rho*rho - (v.y()-theCircle.y0())*(v.y()-theCircle.y0()));
+    else
+      dxdy = (v.y() - theCircle.y0()) / sqrt(rho*rho - (v.y()-theCircle.y0())*(v.y()-theCircle.y0()));
+    py = pt/sqrt(1. + dxdy*dxdy);
+    px = py*dxdy;
+  }
   // check sign with scalar product
   if(px*(pMid.x() - v.x()) + py*(pMid.y() - v.y()) < 0.) {
     px *= -1.;
