@@ -22,6 +22,8 @@ DEFINE_ANOTHER_FWK_MODULE( PhotonJetClosure );
 
 #include "PFJetTester.h"
 #include "CaloJetTester.h"
+#include "JetFileSaver.h"
 
 DEFINE_ANOTHER_FWK_MODULE( PFJetTester );
 DEFINE_ANOTHER_FWK_MODULE( CaloJetTester );
+DEFINE_ANOTHER_FWK_MODULE( JetFileSaver );
