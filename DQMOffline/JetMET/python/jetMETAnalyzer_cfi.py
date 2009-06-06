@@ -168,6 +168,7 @@ jetMETAnalyze = cms.EDAnalyzer("JetMETAnalyzer",
 
 
 )
-
-
-jetMETAnalyzer = cms.Sequence(ZSPJetCorrections*JetPlusTrackCorrections*jetMETAnalyze)
+# no JPT :
+jetMETAnalyzer = cms.Sequence(jetMETAnalyze)
+# with JPT take this sequence:
+#jetMETAnalyzer = cms.Sequence(ZSPJetCorrections*JetPlusTrackCorrections*jetMETAnalyze)

@@ -17,7 +17,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Reco")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
-
+process = cms.Process("JetMETAnalysis")
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+#
 #
 # DQM
 #
@@ -27,10 +30,13 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
 # the task
 process.load("DQMOffline.JetMET.jetMETAnalyzer_cfi")
-process.jetMETAnalyzer.OutputMEsInRootFile = cms.bool(True)
+process.jetMETAnalyze.OutputMEsInRootFile = cms.bool(True)
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
+#forMC:    
+#    '/store/relval/CMSSW_3_1_0_pre9/RelValQCD_Pt_80_120/GEN-SIM-RECO/IDEAL_31X_v1/0006/0268E2E0-5D4E-DE11-90B3-001D09F253D4.root'
+# data:
        '/store/data/Commissioning08/Cosmics/RECO/CRUZET4_v1/000/056/591/F2F1483E-416F-DD11-A270-001617E30CE8.root',
        '/store/data/Commissioning08/Cosmics/RECO/CRUZET4_v1/000/057/313/4214986A-196D-DD11-BED7-000423D992DC.root',
        '/store/data/Commissioning08/Cosmics/RECO/CRUZET4_v1/000/057/381/0A45CF4D-336D-DD11-A6EA-000423D6CAF2.root',
@@ -59,31 +65,31 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32( 20000 )
+    input = cms.untracked.int32( 10 )
 )
 process.Timing = cms.Service("Timing")
 
-process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('jetMETAnalyzer'),
-    cout = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        jetMETAnalyzer = cms.untracked.PSet(
-            limit = cms.untracked.int32(10000000)
-        ),
-        noLineBreaks = cms.untracked.bool(True),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        FwkJob = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        threshold = cms.untracked.string('DEBUG')
-    ),
-    categories = cms.untracked.vstring('jetMETAnalyzer'),
-    destinations = cms.untracked.vstring('cout')
-)
+## process.MessageLogger = cms.Service("MessageLogger",
+##     debugModules = cms.untracked.vstring('jetMETAnalyzer'),
+##     cout = cms.untracked.PSet(
+##         default = cms.untracked.PSet(
+##             limit = cms.untracked.int32(0)
+##         ),
+##         jetMETAnalyzer = cms.untracked.PSet(
+##             limit = cms.untracked.int32(10000000)
+##         ),
+##         noLineBreaks = cms.untracked.bool(True),
+##         DEBUG = cms.untracked.PSet(
+##             limit = cms.untracked.int32(0)
+##         ),
+##         FwkJob = cms.untracked.PSet(
+##             limit = cms.untracked.int32(0)
+##         ),
+##         threshold = cms.untracked.string('DEBUG')
+##     ),
+##     categories = cms.untracked.vstring('jetMETAnalyzer'),
+##     destinations = cms.untracked.vstring('cout')
+## )
 
 process.FEVT = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('keep *_MEtoEDMConverter_*_*'),
