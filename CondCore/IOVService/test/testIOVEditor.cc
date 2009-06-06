@@ -129,51 +129,38 @@ int main(){
     }
  
 
-    editor->updateClosure(900);
-    
 
     std::cout<<"delete entry "<<std::endl;
 
-    /*
-    try {
-      pos=editor->deleteEntry(5);
-      std::cout<<"shall not delete payload at position "<<pos<<std::endl;
-    }
-    catch(const cond::Exception& er){
-      std::cout<<"expected error "<<er.what()<<std::endl;
-    }
 
-    try {
-      pos=editor->deleteEntry(5000);
-      std::cout<<"shall not delete payload at position "<<pos<<std::endl;
-    }
-    catch(const cond::Exception& er){
-      std::cout<<"expected error "<<er.what()<<std::endl;
-    }
+    pos=editor->append(20100, "payNOtok");
+    std::cout<<"inserted 20100 payload at position "<<pos<<std::endl;
+    pos=editor->append(20123, "payNOtok");
+    std::cout<<"inserted 20123 payload at position "<<pos<<std::endl;
     
-
-    pos=editor->append(593, "pay593tok");
-    std::cout<<"inserted 193 payload at position "<<pos<<std::endl;
- 
-
-    pos=editor->deleteEntry(593);
-    std::cout<<"deleted entry 593 payload at position "<<pos<<std::endl;
-
-    pos=editor->deleteEntry(160);
-    std::cout<<"deleted entry 160 payload at position "<<pos<<std::endl;
-    pos=editor->deleteEntry(11);
-    std::cout<<"deleted entry 11 payload at position "<<pos<<std::endl;
-    pos=editor->deleteEntry(45);
-    std::cout<<"deleted entry 45 payload at position "<<pos<<std::endl;
-    pos=editor->deleteEntry(141);
-    std::cout<<"deleted entry 141 payload at position "<<pos<<std::endl;
-    */
-
-
     std::string token=editor->token();
     std::cout<<"iov token "<<token<<std::endl;
     pooldb.commit();
     delete editor;
+
+    editor=iovmanager.newIOVEditor(token);
+    pooldb.start(false);
+    pos=editor->truncate();
+    std::cout<<"truncate. new last position "<<pos<<std::endl;
+    editor->updateClosure(900);
+    pooldb.commit();
+    delete editor;
+
+
+    editor=iovmanager.newIOVEditor(token);
+    pooldb.start(false);
+    pos=editor->append(1345, "pay1345tok");
+    std::cout<<"inserted 1345 payload at position "<<pos<<std::endl;
+    editor->updateClosure(2000);
+    pooldb.commit();
+    delete editor;
+
+
 
     cond::IOVIterator* it=iovmanager.newIOVIterator(token);
     std::cout<<"forward iterator "<<std::endl;
@@ -188,6 +175,7 @@ int main(){
     //cond::IOVEditor* bomber=iovmanager.newIOVEditor(token);
     //bomber->deleteEntries();
     pooldb.commit();
+
     myconnection.disconnect();
     delete session;
   }catch(const cond::Exception& er){

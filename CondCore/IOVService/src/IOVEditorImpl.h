@@ -53,6 +53,10 @@ namespace cond{
 
     virtual void deleteEntries( bool withPayload=false );
 
+    // remove last entry
+    virtual unsigned int truncate(bool withPayload);
+
+
     virtual void import( const std::string& sourceIOVtoken );
 
     std::string token() const {

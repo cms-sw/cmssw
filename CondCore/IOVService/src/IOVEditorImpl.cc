@@ -249,7 +249,7 @@ namespace cond {
   unsigned int IOVEditorImpl::truncate(bool withPayload) {
     if( m_token.empty() ) throw cond::Exception("cond::IOVEditorImpl::deleteEntries cannot delete to non-existing IOV sequence");
     if(!m_isActive) this->init();
-    if (m_iov->piovs().empty()) return -1;
+    if (m_iov->piovs().empty()) return 0;
     if(withPayload){
       std::string tokenStr = m_iov->piovs().back().wrapperToken();
       cond::GenericRef ref(*m_pooldb,tokenStr);
