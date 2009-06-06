@@ -3,6 +3,8 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "SimMuon/Neutron/src/AsciiNeutronWriter.h"
 #include "SimMuon/Neutron/src/RootNeutronWriter.h"
+#include "SimMuon/Neutron/src/NeutronWriter.h"
+#include "SimMuon/Neutron/src/EDMNeutronWriter.h"
 #include <algorithm>
 
 using namespace std;
@@ -32,6 +34,11 @@ SubsystemNeutronWriter::SubsystemNeutronWriter(edm::ParameterSet const& pset)
   {
     theHitWriter = new RootNeutronWriter(output);
   }
+  else if (writer == "EDM")
+  {
+    produces<edm::PSimHitContainer>("MuonCSCHits");
+    theHitWriter = new EDMNeutronWriter();
+  }
   else 
   {
     throw cms::Exception("NeutronWriter") << "Bad writer: "
@@ -57,8 +64,9 @@ void SubsystemNeutronWriter::printStats() {
 }
 
 
-void SubsystemNeutronWriter::analyze(edm::Event const& e, edm::EventSetup const& c)
+void SubsystemNeutronWriter::produce(edm::Event & e, edm::EventSetup const& c)
 {
+  theHitWriter->beginEvent(e,c);
   ++theNEvents;
   edm::Handle<edm::PSimHitContainer> hits;
   e.getByLabel(theInputTag, hits);
@@ -79,6 +87,7 @@ void SubsystemNeutronWriter::analyze(edm::Event const& e, edm::EventSetup const&
     int chambertype = chamberType(hitsByChamberItr->first);
     writeHits(chambertype, hitsByChamberItr->second);
   }
+  theHitWriter->endEvent();
 }
 
 
@@ -90,14 +99,14 @@ void SubsystemNeutronWriter::initialize(int chamberType)
 }
 
 
-void SubsystemNeutronWriter::writeHits(int chamberType, edm::PSimHitContainer & input)
+void SubsystemNeutronWriter::writeHits(int chamberType, edm::PSimHitContainer & chamberHits)
 {
 
-  sort(input.begin(), input.end(), SortByTime());
+  sort(chamberHits.begin(), chamberHits.end(), SortByTime());
   edm::PSimHitContainer cluster;
   float startTime = -1000.;
-  for(size_t i = 0; i < input.size(); ++i) {
-    PSimHit hit = input[i];
+  for(size_t i = 0; i < chamberHits.size(); ++i) {
+    PSimHit hit = chamberHits[i];
 std::cout << hit << std::endl;
     float tof = hit.tof();
     LogDebug("SubsystemNeutronWriter") << "found hit from part type " << hit.particleType()
@@ -109,8 +118,7 @@ std::cout << hit << std::endl;
         startTime = tof;
         if(!cluster.empty()) {
           LogDebug("SubsystemNeutronWriter") << "filling old cluster";
-          theHitWriter->writeCluster(chamberType, cluster);
-          updateCount(chamberType);
+          writeCluster(chamberType, cluster);
           cluster.clear();
         }
         LogDebug("SubsystemNeutronWriter") << "starting neutron cluster at time " << startTime 
@@ -125,6 +133,15 @@ std::cout << "NEXT HIT" << std::endl;
   }
 std::cout << "LOOPED OVER HITS " << theHitWriter << std::endl;
   if(!cluster.empty()) {
+    writeCluster(chamberType, cluster);
+  }
+}
+
+
+void SubsystemNeutronWriter::writeCluster(int chamberType, const edm::PSimHitContainer & cluster)
+{
+  if(accept(cluster))
+  {
     theHitWriter->writeCluster(chamberType, cluster);
     updateCount(chamberType);
   }
