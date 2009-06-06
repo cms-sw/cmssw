@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.50 2009/05/14 19:57:24 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.51 2009/05/17 06:15:43 jmuelmen Exp $
 //
 // hacks
 #define private public
@@ -75,6 +75,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    m_manager = m;
    CSGAction *openData = new CSGAction(this, cmsshow::sOpenData.c_str());
    CSGAction *loadConfig = new CSGAction(this, cmsshow::sLoadConfig.c_str());
+   loadConfig->disable();
    CSGAction *saveConfig = new CSGAction(this, cmsshow::sSaveConfig.c_str());
    CSGAction *saveConfigAs = new CSGAction(this, cmsshow::sSaveConfigAs.c_str());
    CSGAction *exportImage = new CSGAction(this, cmsshow::sExportImage.c_str());
