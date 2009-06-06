@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-cscNeutronWriter = cms.EDFilter("CSCNeutronWriter",
+cscNeutronWriter = cms.EDProducer("CSCNeutronWriter",
     timeWindow = cms.double(20.0),
     nChamberTypes = cms.int32(10),
     writer = cms.string('EDM'),
