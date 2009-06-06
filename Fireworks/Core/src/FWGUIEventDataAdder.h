@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:12:36 EDT 2008
-// $Id: FWGUIEventDataAdder.h,v 1.5 2009/01/23 21:35:43 amraktad Exp $
+// $Id: FWGUIEventDataAdder.h,v 1.6 2009/02/04 15:40:47 chrjones Exp $
 //
 
 // system include files
@@ -87,12 +87,12 @@ private:
    TGTransientFrame* m_frame;
    TGTextEntry* m_name;
 
-   TGTextEntry* m_purpose;
+   std::string m_purpose;
 
-   TGTextEntry* m_type;
-   TGTextEntry* m_moduleLabel;
-   TGTextEntry* m_productInstanceLabel;
-   TGTextEntry* m_processName;
+   std::string m_type;
+   std::string m_moduleLabel;
+   std::string m_productInstanceLabel;
+   std::string m_processName;
 
    DataAdderTableManager* m_tableManager;
    FWTableWidget* m_tableWidget;

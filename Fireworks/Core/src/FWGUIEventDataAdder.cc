@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.18 2009/02/04 15:40:47 chrjones Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.19 2009/05/18 05:28:09 dmytro Exp $
 //
 
 // system include files
@@ -262,11 +262,11 @@ FWGUIEventDataAdder::~FWGUIEventDataAdder()
 void
 FWGUIEventDataAdder::addNewItem()
 {
-   TClass* theClass = TClass::GetClass(m_type->GetText());
+   TClass* theClass = TClass::GetClass(m_type.c_str());
    if(0==theClass) {
       return;
    }
-   const std::string moduleLabel = m_moduleLabel->GetText();
+   const std::string moduleLabel = m_moduleLabel;
    if(moduleLabel.empty()) {
       return;
    }
@@ -296,11 +296,11 @@ FWGUIEventDataAdder::addNewItem()
       }
    }
    ++largest;
-   FWPhysicsObjectDesc desc(name, theClass, m_purpose->GetText(),
+   FWPhysicsObjectDesc desc(name, theClass, m_purpose,
                             FWDisplayProperties(),
                             moduleLabel,
-                            m_productInstanceLabel->GetText(),
-                            m_processName->GetText(),
+                            m_productInstanceLabel,
+                            m_processName,
                             "",
                             largest);
    m_manager->add( desc);
@@ -321,6 +321,14 @@ FWGUIEventDataAdder::show()
 void
 FWGUIEventDataAdder::windowIsClosing()
 {
+   m_name->SetText("");
+   m_purpose.clear();
+   m_type.clear();
+   m_moduleLabel.clear();
+   m_processName.clear();
+   m_productInstanceLabel.clear();
+   m_apply->SetEnabled(false);
+   
    m_frame->UnmapWindow();
    m_frame->DontCallClose();
    /*
@@ -346,13 +354,14 @@ FWGUIEventDataAdder::createWindow()
    m_frame->AddFrame(vf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,10,10,10,10));
 
    unsigned int maxWidth = 0;
-   std::vector<TGLayoutHints*> hints(6);
-   std::vector<unsigned int> widths(6);
-   assert(6==hints.size());
+   std::vector<TGLayoutHints*> hints(1);
+   std::vector<unsigned int> widths(1);
+   assert(1==hints.size());
    unsigned int index = 0;
    hints[index]=addToFrame(vf, "Name:", m_name,widths[index]);
    if(widths[index] > maxWidth) {maxWidth = widths[index];}
    ++index;
+   /*
    hints[index]=addToFrame(vf, "Purpose:", m_purpose,widths[index]);
    if(widths[index] > maxWidth) {maxWidth = widths[index];}
    ++index;
@@ -367,7 +376,7 @@ FWGUIEventDataAdder::createWindow()
    ++index;
    hints[index]=addToFrame(vf,"Process name:",m_processName,widths[index]);
    if(widths[index] > maxWidth) {maxWidth = widths[index];}
-
+    */
    std::vector<unsigned int>::iterator itW = widths.begin();
    for(std::vector<TGLayoutHints*>::iterator itH = hints.begin(), itEnd = hints.end();
        itH != itEnd;
@@ -387,6 +396,7 @@ FWGUIEventDataAdder::createWindow()
    m_apply = new TGTextButton(vf,"Add Data");
    vf->AddFrame(m_apply, new TGLayoutHints(kLHintsBottom|kLHintsCenterX));
    m_apply->Connect("Clicked()","FWGUIEventDataAdder",this,"addNewItem()");
+   m_apply->SetEnabled(false);
 
    // Set a name to the main frame
    m_frame->SetWindowName("Add Collection");
@@ -482,11 +492,17 @@ void
 FWGUIEventDataAdder::newIndexSelected(int iSelectedIndex)
 {
    if(-1 != iSelectedIndex) {
-      m_purpose->SetText(m_useableData[iSelectedIndex].purpose_.c_str());
-      m_type->SetText(m_useableData[iSelectedIndex].type_.c_str());
-      m_moduleLabel->SetText(m_useableData[iSelectedIndex].moduleLabel_.c_str());
-      m_productInstanceLabel->SetText(m_useableData[iSelectedIndex].productInstanceLabel_.c_str());
-      m_processName->SetText(m_useableData[iSelectedIndex].processName_.c_str());
+      m_purpose =m_useableData[iSelectedIndex].purpose_;
+      m_type = m_useableData[iSelectedIndex].type_;
+      std::string oldModuleLabel = m_moduleLabel;
+      m_moduleLabel = m_useableData[iSelectedIndex].moduleLabel_;
+      m_productInstanceLabel = m_useableData[iSelectedIndex].productInstanceLabel_;
+      m_processName = m_useableData[iSelectedIndex].processName_;
+      
+      if(strlen(m_name->GetText())==0 || oldModuleLabel == m_name->GetText()) {
+         m_name->SetText(m_moduleLabel.c_str());
+      }
+      m_apply->SetEnabled(true);
       //std::set<int> selectedRows;
       //selectedRows.insert(m_tableManager->selectedRow());
       //m_tableWidget->SelectRows(selectedRows);
