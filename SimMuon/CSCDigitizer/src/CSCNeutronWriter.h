@@ -16,11 +16,15 @@ public:
   explicit CSCNeutronWriter(edm::ParameterSet const& pset);
   virtual ~CSCNeutronWriter();
 
+protected:
   virtual int localDetId(int globalDetId) const;
 
   virtual int chamberType(int globalDetId) const;
 
   virtual int chamberId(int globalDetId) const;
+
+  /// decides whether this cluster is good enough to be included
+  virtual bool accept(const edm::PSimHitContainer & cluster) const;
 
 };
 

@@ -37,3 +37,23 @@ int CSCNeutronWriter::chamberId(int globalDetId) const
   return CSCDetId(globalDetId).chamberId().rawId();
 }
 
+
+bool CSCNeutronWriter::accept(const edm::PSimHitContainer & cluster) const
+{
+  // require at least two layers, to satisfy pretrigger
+  if(cluster.size() < 2) 
+  {
+    unsigned int firstHitDetUnitId = cluster[0].detUnitId();
+    for(edm::PSimHitContainer::const_iterator hitItr = cluster.begin()+1;
+        hitItr != cluster.end(); ++hitItr)
+    {
+      if(hitItr->detUnitId() != firstHitDetUnitId)
+      {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+
