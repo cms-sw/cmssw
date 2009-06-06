@@ -16,6 +16,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoMET.Configuration.RecoMET_cff import *
 
 tcMetP5 = tcMet.clone(trackInputTag = 'ctfWithMaterialTracksP5LHCNavigation')
+hcalnoise_cosmics = hcalnoise.clone(fillTracks = False)
 
 metreco_cosmics = cms.Sequence(
         met+metNoHF+metHO+metNoHFHO+
