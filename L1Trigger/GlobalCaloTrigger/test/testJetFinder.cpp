@@ -1,5 +1,5 @@
 /*! \file testJetFinder.cpp
- * \brief Procedural unit-test code for the L1GctTdrJetFinder class.
+ * \brief Procedural unit-test code for the L1GctHardwareJetFinder class.
  *
  *  This is code that tests each public method of the L1GctTdrJetFinder
  *  class.  It takes data from a file to test the methods against known
@@ -114,13 +114,10 @@ int main(int argc, char **argv)
       myNeighbours.push_back( new L1GctHardwareJetFinder(jfNeigh0) );
       myNeighbours.push_back( new L1GctHardwareJetFinder(jfNeigh1) );
 
-      std::cout << "Sending jet Et Lut to my jf" << std::endl;
       myJetFinder->setJetEtCalibrationLuts(myJetEtCalLut);
       myJetFinder->setJetFinderParams(myJfPars);
-      std::cout << "Sending jet Et Lut to first neighbour" << std::endl;
       myNeighbours.at(0)->setJetEtCalibrationLuts(myJetEtCalLut);
       myNeighbours.at(0)->setJetFinderParams(myJfPars);
-      std::cout << "Sending jet Et Lut to second neighbour" << std::endl;
       myNeighbours.at(1)->setJetEtCalibrationLuts(myJetEtCalLut);
       myNeighbours.at(1)->setJetFinderParams(myJfPars);
 
@@ -138,6 +135,8 @@ int main(int argc, char **argv)
       classTest(myJetFinder,myNeighbours);
     
       //clean up
+      delete myNeighbours.at(0);
+      delete myNeighbours.at(1);
       delete myJetFinder;
     } else { cout << "Invalid jet finder number " << jfNumber << "; should be less than 18" << endl; }
   }
@@ -178,9 +177,6 @@ void classTest(L1GctHardwareJetFinder *myJetFinder, std::vector< L1GctJetFinderB
   //Fill the L1GctJetFinder with regions.
   for(int i = 0; i < numInputRegions; ++i)
   {
-    std::cout << "Setting input region with et " << inputRegions.at(i).et()
-	      << " eta " << inputRegions.at(i).gctEta()
-	      << " phi " << inputRegions.at(i).gctPhi() << std::endl;
     myJetFinder->setInputRegion(inputRegions.at(i));
     myNeighbours.at(0)->setInputRegion(inputRegions.at(i));
     myNeighbours.at(1)->setInputRegion(inputRegions.at(i));
@@ -218,11 +214,6 @@ void classTest(L1GctHardwareJetFinder *myJetFinder, std::vector< L1GctJetFinderB
   outputJets.insert(outputJets.end(),
 		    nJets1.begin(),
 		    nJets1.end());
-  for (unsigned i=0; i<outputJets.size(); i++) {
-    std::cout << "Found jet with Et " << outputJets.at(i).rawsum()
-	      << " eta " << outputJets.at(i).globalEta()
-	      << " phi " << outputJets.at(i).globalPhi() << std::endl;
-  }
   outputHt = myJetFinder->getHtSum().value();
 
   sumOfJetHt = 0;
@@ -417,10 +408,12 @@ L1CaloRegion readSingleRegion(ifstream &fin)
   // Give the two central columns (out of four) the
   // (phi, eta) values corresponding to the required RCT crate number.
   // These depend on the jetfinder number to be tested
-  unsigned localEta = regionComponents[0]%12;
-  unsigned localPhi = regionComponents[0]/12;
+  static const unsigned COL_OFFSET = L1GctJetFinderBase::COL_OFFSET;
+  static const unsigned NEXTRA     = L1GctJetFinderBase::N_EXTRA_REGIONS_ETA00;
+  unsigned localEta = regionComponents[0]%COL_OFFSET;
+  unsigned localPhi = regionComponents[0]/COL_OFFSET;
+  unsigned ieta = ( (jfNumber < 9) ? (10 + NEXTRA - localEta) : (11 - NEXTRA + localEta) );;
   unsigned phiOffset = 43 - 2*jfNumber;
-  unsigned ieta = ( (jfNumber < 9) ? (11 - localEta) : (10 + localEta) );
   unsigned iphi = (phiOffset - localPhi)%18;
   //return object
   L1CaloRegion tempRegion(regionComponents[1],

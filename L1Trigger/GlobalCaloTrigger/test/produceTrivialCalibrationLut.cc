@@ -91,7 +91,7 @@ const produceTrivialCalibrationLut::lutPtrVector produceTrivialCalibrationLut::p
   lutPtrVector lutVector;
   lutPtr nextLut( new L1GctJetEtCalibrationLut() );
 
-  for (unsigned ieta=0; ieta<=L1GctJetFinderParams::NUMBER_ETA_VALUES; ieta++) {
+  for (unsigned ieta=0; ieta<L1GctJetFinderParams::NUMBER_ETA_VALUES; ieta++) {
     nextLut->setEtaBin(ieta);
     nextLut->setFunction(m_jfPars);
     nextLut->setOutputEtScale(jetScale);
