@@ -79,7 +79,7 @@ namespace cond {
 
     // dereference (does not load)
     const DataT & operator()() const {
-      (*m_data); 
+      return (*m_data); 
     }
         
     virtual void invalidateCache() {

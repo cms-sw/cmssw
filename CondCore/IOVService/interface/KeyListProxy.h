@@ -1,6 +1,8 @@
 #ifndef CondCore_IOVService_KeyListProxy_h
 #define CondCore_IOVService_KeyListProxy_h
 
+#include "CondCore/IOVService/interface/PayloadProxy.h"
+#include "CondCore/IOVService/interface/KeyList.h"
 
 
 namespace cond {
