@@ -143,11 +143,12 @@ PFMuonAlgo::isMuon( const reco::MuonRef& muonRef ) {
   } else {
     // No tracker muon -> Request a perfect stand-alone muon, or an even better global muon
     bool result = false;
+      
     // Check the quality of the stand-alone muon : 
     // good chi**2 and large number of hits and good pt error
-    if ( standAloneMu->normalizedChi2() > 10. ||
-	 ( standAloneMu->hitPattern().numberOfValidMuonDTHits() < 22 &&
+    if ( ( standAloneMu->hitPattern().numberOfValidMuonDTHits() < 22 &&
 	   standAloneMu->hitPattern().numberOfValidMuonCSCHits() < 15 ) ||
+	 standAloneMu->normalizedChi2() > 10. || 
 	 standAloneMu->ptError()/standAloneMu->pt() > 0.20 ) {
       result = false;
     } else { 
