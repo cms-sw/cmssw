@@ -77,6 +77,15 @@ namespace {
     edm::ValueMap<reco::MuonMETCorrectionData>::const_iterator rmcd_vmci;
     edm::Wrapper<edm::ValueMap<reco::MuonMETCorrectionData> > rmcd_wvm;
     
+    //Ptrs
+#include "DataFormats/Common/interface/Ptr.h"
+#include "DataFormats/Common/interface/PtrVector.h"
+    edm::Ptr<reco::Muon>                         p_muon;
+    edm::Wrapper<edm::Ptr<reco::Muon> >          w_p_muon;
+
+    edm::PtrVector<reco::Muon>                   pv_muon;
+    edm::Wrapper<edm::PtrVector<reco::Muon> >    w_pv_muon;
+
   };
 }
 

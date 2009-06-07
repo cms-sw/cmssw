@@ -60,5 +60,17 @@
   </class>
   <class name="edm::Wrapper<edm::ValueMap<reco::MuonMETCorrectionData> >"/>
 
+  <!-- 
+  <class name="edm::reftobase::BaseHolder<reco::Muon>" />
+  <class name="edm::reftobase::IndirectVectorHolder<reco::Muon>" />
+  <class name="edm::reftobase::Holder<reco::Muon, reco::MuonRef>" />
+  <class name="edm::reftobase::VectorHolder<reco::Muon, reco::MuonRefVector>" />
+  -->
+
+  <class name="edm::Ptr<reco::Muon>" />
+  <class name="edm::Wrapper<edm::Ptr<reco::Muon> >" />
+  <class name="edm::PtrVector<reco::Muon>" />
+  <class name="edm::Wrapper<edm::PtrVector<reco::Muon> >" />
+
 </lcgdict>
 
