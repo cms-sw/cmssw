@@ -1,4 +1,4 @@
-// $Id: RBCPatternLogic.h,v 1.5 2009/02/05 13:46:21 aosorio Exp $
+// $Id: RBCPatternLogic.h,v 1.1 2009/05/16 19:43:30 aosorio Exp $
 #ifndef RBCPATTERNLOGIC_H 
 #define RBCPATTERNLOGIC_H 1
 
@@ -25,6 +25,8 @@ public:
   virtual ~RBCPatternLogic( ); ///< Destructor
   
   void process(const RBCInput & , std::bitset<2> & );
+
+  void setBoardSpecs( const RBCBoardSpecs::RBCBoardConfig & );
 
   std::bitset<6> * getlayersignal( int _idx ) { return &m_testlayer[_idx];};
   

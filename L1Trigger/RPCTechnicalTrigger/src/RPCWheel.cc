@@ -1,5 +1,5 @@
-// $Id: RPCWheel.cc,v 1.5 2009/05/28 15:58:47 aosorio Exp $
-// Include files 
+// $Id: RPCWheel.cc,v 1.6 2009/06/01 12:57:20 aosorio Exp $
+// Include files
 
 
 
@@ -37,7 +37,9 @@ RPCWheel::RPCWheel() {
   m_sec2id.push_back(9);
   m_sec1id.push_back(10);
   m_sec2id.push_back(11);
-  
+
+  m_wheelmap = new std::bitset<6>[12];
+    
 }
 
 void RPCWheel::setProperties( int wid ) {
@@ -53,6 +55,9 @@ void RPCWheel::setProperties( int wid ) {
     m_RBCE.push_back( new RBCEmulator( ) ); 
     m_RBCE[k]->setid( wid, bisector );
   }
+
+  for( int k=0; k < m_maxsectors; ++k)
+    m_wheelmap[k].reset();
   
 }
 
@@ -70,6 +75,9 @@ void RPCWheel::setProperties( int wid, const char * logic_type) {
     m_RBCE.push_back( new RBCEmulator( logic_type ) ); 
     m_RBCE[k]->setid( wid, bisector );
   }
+
+  for( int k=0; k < m_maxsectors; ++k)
+    m_wheelmap[k].reset();
   
 }
 
@@ -87,6 +95,8 @@ void RPCWheel::setProperties( int wid, const char * f_name, const char * logic_t
     m_RBCE[k]->setid( wid, bisector );
   }
   
+  for( int k=0; k < m_maxsectors; ++k)
+    m_wheelmap[k].reset();
   
 }
 
@@ -103,7 +113,9 @@ RPCWheel::~RPCWheel() {
   m_RBCE.clear();
   m_sec1id.clear();
   m_sec2id.clear();
-  
+
+  if ( m_wheelmap ) delete[] m_wheelmap;
+    
 } 
 
 //=============================================================================
@@ -132,7 +144,7 @@ void RPCWheel::emulate()
   {
     m_RBCE[k]->emulate();
   }
-
+  
 }
 
 bool RPCWheel::process( int bx, const std::map<int,RBCInput*> & data )
@@ -148,6 +160,8 @@ bool RPCWheel::process( int bx, const std::map<int,RBCInput*> & data )
   
   for(int k=0; k < m_maxrbc; ++k) {
     
+    m_RBCE[k]->reset();
+    
     int key = bxsign*( 1000000 * abs(bx)
                        + m_RBCE[k]->m_rbcinfo->wheelIdx()*10000 
                        + m_RBCE[k]->m_rbcinfo->sector(0)*100
@@ -156,14 +170,23 @@ bool RPCWheel::process( int bx, const std::map<int,RBCInput*> & data )
     itr = data.find( key );
     
     if ( itr != data.end() )  {
-      if( m_debug ) std::cout << "RPCWheel::process> found data at: " <<  key << '\t' 
-                              << ( itr->second ) << std::endl;
-      m_RBCE[k]->emulate( ( itr->second ) );
-      status = true;
+      
+      if ( ! (*itr).second->hasData )  { 
+        status |= false;
+        continue;
+      } else {
+        if( m_debug ) std::cout << "RPCWheel::process> found data at: " 
+                                <<  key << '\t' 
+                                << ( itr->second ) << std::endl;
+        m_RBCE[k]->emulate( ( itr->second ) );
+        status |= true;
+      }
+      
     } else {
       if( m_debug ) std::cout << "RPCWheel::process> position not found: " <<  key << std::endl;
-      status = false;
+      status |= false;
     }
+    
   }
   
   return status;
@@ -192,7 +215,7 @@ bool RPCWheel::process( int bx, const std::map<int,TTUInput*> & data )
     if ( ! (*itr).second->m_hasHits ) return false;
     
     for( int k=0; k < m_maxsectors; ++k ) {
-      m_wheelmap[k]     = & (*itr).second->input_sec[k];
+      m_wheelmap[k]     = (*itr).second->input_sec[k];
       status = true;
     }
 
@@ -211,15 +234,21 @@ bool RPCWheel::process( int bx, const std::map<int,TTUInput*> & data )
 void RPCWheel::createWheelMap()
 {
   
-  std::bitset<6> * m_layersignal;
+  std::bitset<6> layersignal;
   
-  for( int k=0; k < m_maxrbc; ++k )
+  layersignal       = * m_RBCE[0]->getlayersignal( 0 );
+  m_wheelmap[0]     = layersignal;
+  
+  for( int k=0; k < (m_maxrbc-1); ++k )
   {
-    m_layersignal       = m_RBCE[k]->getlayersignal( 0 );
-    m_wheelmap[k*2]     = m_layersignal;
-    m_layersignal       = m_RBCE[k]->getlayersignal( 1 );
-    m_wheelmap[(k*2)+1] = m_layersignal;
+    layersignal       = * m_RBCE[k+1]->getlayersignal( 0 );
+    m_wheelmap[(k*2)+1]     = layersignal;
+    layersignal       = * m_RBCE[k+1]->getlayersignal( 1 );
+    m_wheelmap[(k*2)+2] = layersignal;
   }
+  
+  layersignal       = * m_RBCE[0]->getlayersignal( 1 );
+  m_wheelmap[11]     = layersignal;
   
   if( m_debug ) std::cout << "RPCWheel::createWheelMap done" << std::endl;
   
@@ -227,14 +256,14 @@ void RPCWheel::createWheelMap()
 
 void RPCWheel::retrieveWheelMap( TTUInput & output ) 
 {
-
+  
   if( m_debug ) std::cout << "RPCWheel::retrieveWheelMap starts" << std::endl;
   output.reset();
   
   for(int i=0; i < m_maxsectors; ++i ) {
     for( int j=0; j < m_maxlayers; ++j ) 
     {
-      output.input_sec[i].set(j, (*m_wheelmap[i])[j]);
+      output.input_sec[i].set(j, m_wheelmap[i][j]);
     }
   }
   
@@ -257,6 +286,7 @@ void RPCWheel::printinfo()
 
 void RPCWheel::print_wheel(const TTUInput & wmap )
 {
+
   for( int i=0; i < m_maxsectors; ++i) std::cout << '\t' << (i+1);
   std::cout << std::endl;
   

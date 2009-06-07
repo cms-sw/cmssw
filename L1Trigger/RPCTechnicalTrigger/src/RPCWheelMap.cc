@@ -1,4 +1,4 @@
-// $Id: RPCWheelMap.cc,v 1.5 2009/05/26 17:40:38 aosorio Exp $
+// $Id: RPCWheelMap.cc,v 1.6 2009/06/01 12:57:20 aosorio Exp $
 // Include files 
 
 
@@ -54,6 +54,7 @@ void RPCWheelMap::addHit( int bx, int sec, int layer)
 {
   
   // |--12--|--12--|--12--|--12--|--12--|--12--|--12--| (12 sectors x 6 layers x  7 bx)
+  // 0.....11
   int indx1 = bx + m_maxBxWindow;
   int indx2 = sec + indx1*m_maxSectors;
   m_wheelMapBx[ indx2 ].set( layer-1, 1);

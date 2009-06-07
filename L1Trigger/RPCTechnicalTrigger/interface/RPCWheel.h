@@ -1,4 +1,4 @@
-// $Id: RPCWheel.h,v 1.1 2009/05/16 19:43:30 aosorio Exp $
+// $Id: RPCWheel.h,v 1.2 2009/05/24 21:45:39 aosorio Exp $
 #ifndef RPCWHEEL_H 
 #define RPCWHEEL_H 1
 
@@ -69,7 +69,8 @@ private:
   std::vector<int> m_sec2id;
   
   //...
-  std::bitset<6> * m_wheelmap[12];
+  
+  std::bitset<6> * m_wheelmap;
 
   bool m_debug;
     

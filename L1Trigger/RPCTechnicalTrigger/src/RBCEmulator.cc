@@ -1,4 +1,4 @@
-// $Id: RBCEmulator.cc,v 1.7 2009/05/16 19:43:32 aosorio Exp $
+// $Id: RBCEmulator.cc,v 1.8 2009/05/24 21:45:39 aosorio Exp $
 // Include files 
 
 // local
@@ -20,33 +20,48 @@ RBCEmulator::RBCEmulator( ) {
   
   m_signal  = NULL;
   m_logtype = std::string("TestLogic");
-  m_input   = new RBCInput();
   m_rbcinfo = new RBCId();
-  
-  m_debug   = false;
+  m_input   = new RBCInput();
     
+  m_layersignal[0] = new std::bitset<6>();
+  m_layersignal[1] = new std::bitset<6>();
+  m_layersignalVec.push_back( m_layersignal[0] );
+  m_layersignalVec.push_back( m_layersignal[1] );
+
+  m_debug   = false;
+  
 }
 
 RBCEmulator::RBCEmulator( const char * logic_type ) {
   
   m_signal  = NULL;
   m_logtype = std::string( logic_type );
-  m_input   = new RBCInput();
   m_rbcinfo = new RBCId();
+  m_input   = new RBCInput();
   m_rbcconf = dynamic_cast<RBCConfiguration*> (new RBCBasicConfig(logic_type));
   
+  m_layersignal[0] = new std::bitset<6>();
+  m_layersignal[1] = new std::bitset<6>();
+  m_layersignalVec.push_back( m_layersignal[0] );
+  m_layersignalVec.push_back( m_layersignal[1] );
+  
   m_debug   = false;
-
+  
 }
 
 RBCEmulator::RBCEmulator( const char * f_name  , const char * logic_type ) {
   
   m_signal  = dynamic_cast<ProcessInputSignal*>(new RBCProcessTestSignal( f_name ));
   m_logtype = std::string( logic_type );
-  m_input   = new RBCInput();
   m_rbcinfo = new RBCId();
+  m_input   = new RBCInput();
   m_rbcconf = dynamic_cast<RBCConfiguration*> (new RBCBasicConfig(logic_type));
 
+  m_layersignal[0] = new std::bitset<6>();
+  m_layersignal[1] = new std::bitset<6>();
+  m_layersignalVec.push_back( m_layersignal[0] );
+  m_layersignalVec.push_back( m_layersignal[1] );
+  
   m_debug   = false;
   
 }
@@ -60,6 +75,10 @@ RBCEmulator::~RBCEmulator() {
   if (m_rbcconf) delete m_rbcconf;
   if (m_rbcinfo) delete m_rbcinfo;
   if (m_input)   delete m_input;
+
+  std::vector<std::bitset<6>*>::iterator itr;
+  for(itr =  m_layersignalVec.begin(); itr != m_layersignalVec.end(); ++itr)
+    delete (*itr);
   
 } 
 
@@ -131,7 +150,7 @@ void RBCEmulator::emulate( RBCInput * in )
   if( m_debug ) std::cout << "RBCEmulator> copied data" << std::endl;
 
   //.. mask and force as specified in hardware configuration
-  m_rbcconf->preprocess( (*m_input) );   
+  m_rbcconf->preprocess( (*m_input) );
 
   if( m_debug ) std::cout << "RBCEmulator> preprocessing done" << std::endl;
     
@@ -148,6 +167,14 @@ void RBCEmulator::emulate( RBCInput * in )
     std::cout << "RBCEmulator> end emulation" << std::endl;
   }
     
+}
+
+void RBCEmulator::reset()
+{
+  
+  m_layersignal[0]->reset();
+  m_layersignal[1]->reset();
+  
 }
 
 void RBCEmulator::printinfo()

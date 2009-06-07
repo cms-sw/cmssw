@@ -1,4 +1,4 @@
-// $Id: ProcessDigiLocalSignal.cc,v 1.5 2009/05/28 15:58:47 aosorio Exp $
+// $Id: ProcessDigiLocalSignal.cc,v 1.6 2009/06/01 12:57:20 aosorio Exp $
 // Include files 
 
 
@@ -92,6 +92,8 @@ int ProcessDigiLocalSignal::next() {
   //...clean up previous data contents
   
   reset();
+
+  int ndigis(0);
   
   for (m_detUnitItr = (*m_ptr_digiColl)->begin(); 
        m_detUnitItr != (*m_ptr_digiColl)->end(); ++m_detUnitItr ) {
@@ -116,22 +118,22 @@ int ProcessDigiLocalSignal::next() {
     }
     
     int wheel   = roll->id().ring();                    // -2,-1,0,+1,+2
-    int sector  = roll->id().sector();                  // 1 to 12
+    int sector  = roll->id().sector();                  // 1 to 12 -> fix me: there is a different convention w.r.t. GlobalSignal
     int layer   = roll->id().layer();                   // 1,2
     int station = roll->id().station();                 // 1-4
     int blayer  = getBarrelLayer( layer, station );     // 1 to 6
     int rollid  = id.roll();
     
-    int digipos = (station * 100) + (blayer * 10) + rollid;
+    int digipos = (station * 100) + (layer * 10) + rollid;
     
-    if ( (wheel == -1 || wheel == 0 || wheel == 1) && station == 2 && blayer == 1 )
+    if ( (wheel == -1 || wheel == 0 || wheel == 1) && station == 2 && layer == 1 )
       digipos = 30000 + digipos;
-    if ( (wheel == -2 || wheel == 2) && station == 2 && blayer == 2 )
+    if ( (wheel == -2 || wheel == 2) && station == 2 && layer == 2 )
       digipos = 30000 + digipos;
     
-    if ( (wheel == -1 || wheel == 0 || wheel == 1) && station == 2 && blayer == 2 )
+    if ( (wheel == -1 || wheel == 0 || wheel == 1) && station == 2 && layer == 2 )
       digipos = 20000 + digipos;
-    if ( (wheel == -2 || wheel == 2) && station == 2 && blayer == 1 )
+    if ( (wheel == -2 || wheel == 2) && station == 2 && layer == 1 )
       digipos = 20000 + digipos;
     
     if ( m_debug ) std::cout << "Bx: "      << bx      << '\t'
@@ -162,6 +164,8 @@ int ProcessDigiLocalSignal::next() {
     
     if ( m_debug ) std::cout << "looping over digis 2 ..." << std::endl;
     
+    ++ndigis;
+    
   }
   
   if ( m_debug ) std::cout << "size of data vectors: " << m_vecDataperBx.size() << std::endl;
@@ -172,7 +176,10 @@ int ProcessDigiLocalSignal::next() {
     std::cout << "after reset" << std::endl;
     print_output();
   }
-
+  
+  if ( m_debug ) std::cout << "ProcessDigiLocalSignal: DataSize: " << m_data.size() 
+                           << " ndigis " << ndigis << std::endl;
+  
   if ( m_data.size() <= 0 ) return 0;
   
   return 1;
@@ -252,17 +259,19 @@ void ProcessDigiLocalSignal::builddata()
                           + 10000*(*itr)->wheelIdx()
                           + 100  *(*itr)->m_sec1[k]
                           + 1    *(*itr)->m_sec2[k] );
+
         
         RBCInput * signal = & (*itr)->m_orsignals[k];
-        
         signal->needmapping = false;
-        m_data.insert( std::make_pair( code , signal) );
+        
+        if ( signal->hasData )
+          m_data.insert( std::make_pair( code , signal) );
         
       }
     }
     
     ++itr2;
-  
+    
   }
   
   if ( m_debug ) std::cout << "builddata: completed. size of data: " << m_data.size() << std::endl;

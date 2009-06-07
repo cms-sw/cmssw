@@ -1,4 +1,4 @@
-// $Id: RBCChamberORLogic.cc,v 1.3 2009/05/16 19:43:32 aosorio Exp $
+// $Id: RBCChamberORLogic.cc,v 1.4 2009/05/24 21:45:39 aosorio Exp $
 // Include files 
 
 
@@ -40,16 +40,20 @@ RBCChamberORLogic::RBCChamberORLogic(  ) {
 
   m_maxcb    = 13;
   m_maxlevel = 3; // 1 <= m <= 6
+
+  m_layersignal = new std::bitset<6>[2];
+  m_layersignal[0].reset();
+  m_layersignal[1].reset();
   
 }
+
 //=============================================================================
 // Destructor
 //=============================================================================
 RBCChamberORLogic::~RBCChamberORLogic() {
   
+  if ( m_layersignal ) delete[] m_layersignal;
   
-  
-
 } 
 
 //=============================================================================
@@ -59,6 +63,9 @@ void RBCChamberORLogic::process( const RBCInput & _input, std::bitset<2> & _deci
   
   bool status(false);
   //std::cout << "RBCChamberORLogic> Working with chambers OR logic ..." << '\n';
+
+  m_layersignal[0].reset();
+  m_layersignal[1].reset();
   
   for (int k=0; k < 2; ++k ) 
   {
@@ -99,6 +106,13 @@ void RBCChamberORLogic::process( const RBCInput & _input, std::bitset<2> & _deci
 
   //...all done!
   
+}
+
+void RBCChamberORLogic::setBoardSpecs( const RBCBoardSpecs::RBCBoardConfig & specs )
+{
+  
+  m_maxlevel = specs.m_MayorityLevel;
+    
 }
 
 void RBCChamberORLogic::copymap( const std::bitset<15> & _input ) 
@@ -153,6 +167,9 @@ void RBCChamberORLogic::reset()
     ++itr;
   }
   
+  //m_layersignal[0].reset();
+  //m_layersignal[1].reset();
+  
 }
 
 bool RBCChamberORLogic::evaluateLayerOR(const char * _chA, const char *_chB )
@@ -162,9 +179,9 @@ bool RBCChamberORLogic::evaluateLayerOR(const char * _chA, const char *_chB )
   itr2chambers ptr2 = m_chamber.find( std::string(_chB) );
   
   if ( ptr1 == m_chamber.end() || ptr2 == m_chamber.end() ) {
-    //handle error...little the user can do
+    //handle error...
     std::cout << "RBCChamberORLogic> Cannot find a chamber name" << '\n';
-    return 0;
+    return false;
   }
   
   return ( ptr1->second || ptr2->second );

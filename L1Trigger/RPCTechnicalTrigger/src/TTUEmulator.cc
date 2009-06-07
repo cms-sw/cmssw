@@ -1,4 +1,4 @@
-// $Id: TTUEmulator.cc,v 1.7 2009/06/01 12:57:20 aosorio Exp $
+// $Id: TTUEmulator.cc,v 1.8 2009/06/04 11:52:59 aosorio Exp $
 // Include files 
 
 
@@ -105,7 +105,6 @@ TTUEmulator::~TTUEmulator() {
   if ( m_Wheels   ) delete[] m_Wheels;
   if ( m_ttuin    ) delete[] m_ttuin;
   if ( m_ttuconf  ) delete m_ttuconf;
-
   
 } 
 
@@ -122,9 +121,6 @@ void TTUEmulator::setSpecifications( const TTUBoardSpecs * ttuspecs, const RBCBo
   itr = m_ttuconf->m_ttuboardspecs->m_boardspecs.begin();
   
   m_mode = (*itr).m_triggerMode;
-
-  
-
   
 }
 
@@ -170,6 +166,7 @@ void TTUEmulator::processtest( RPCInputSignal * signal )
     if ( m_Wheels[k].process( 0 , (*linkboardin) ) ) {
       
       m_Wheels[k].createWheelMap();
+
       m_Wheels[k].retrieveWheelMap( (m_ttuin[k]) );
       
       //.. execute here the Tracking Algorithm or any other selected logic
@@ -202,24 +199,36 @@ void TTUEmulator::processlocal( RPCInputSignal * signal )
   m_trigger.reset();
   m_triggerBx.clear();
   
+  std::vector<int> bxVec;
+  std::vector<int>::iterator bxItr;
   std::map<int,RBCInput*> * linkboardin;
   std::map<int,RBCInput*>::iterator inItr;
   
   linkboardin = dynamic_cast<RBCLinkBoardGLSignal*>( signal )->m_linkboardin;
   
-  for( inItr = (*linkboardin).begin(); inItr != (*linkboardin).end(); ++inItr) {
-
+  for( inItr = (*linkboardin).begin(); inItr != (*linkboardin).end(); ++inItr) 
+  {
+    
     if ( (*inItr).first < 0 ) bx = (int) ceil( (*inItr).first / 1000000.0 );
     else bx = (int) floor( (*inItr).first / 1000000.0 );
-
-    if( m_debug ) std::cout << "starting analysis for bx: " << bx << std::endl;
+    bxVec.push_back(bx);
+    
+  }
+  
+  bxItr = unique (bxVec.begin(), bxVec.end());
+  bxVec.resize(bxItr - bxVec.begin());
+  
+  for ( bxItr = bxVec.begin(); bxItr != bxVec.end(); ++bxItr) {
+    
+    TriggerResponse * triggerResponse = new TriggerResponse();
     
     for( int k=0; k < m_maxWheels; ++k )
     {
       
-      if ( m_Wheels[k].process( bx , (*linkboardin) ) ) {
+      if ( m_Wheels[k].process( (*bxItr) , (*linkboardin) ) ) {
         
         m_Wheels[k].createWheelMap();
+        
         m_Wheels[k].retrieveWheelMap( (m_ttuin[k]) );
         
         //.. execute here the Tracking Algorithm or any other selected logic
@@ -231,7 +240,7 @@ void TTUEmulator::processlocal( RPCInputSignal * signal )
         m_trigger.set(k,trg);
         
         if( m_debug ) std::cout << "TTUEmulator::processlocal ttuid: " << m_id 
-                                << " bx: "          << bx
+                                << " bx: "          << (*bxItr)
                                 << " wheel: "       << m_Wheels[k].getid()
                                 << " response: "    << trg << std::endl;
         
@@ -239,6 +248,8 @@ void TTUEmulator::processlocal( RPCInputSignal * signal )
       
     }
     
+    triggerResponse->setTriggerBits( bx , m_trigger );
+    m_triggerBxVec.push_back( triggerResponse );
     m_triggerBx[bx] = m_trigger;
     
   }
@@ -248,9 +259,10 @@ void TTUEmulator::processlocal( RPCInputSignal * signal )
   
   
   if( m_debug ) std::cout << "TTUEmulator::processlocal> done with this TTU: " << m_id << std::endl;
-  
-}
 
+  bxVec.clear();
+    
+}
 
 void TTUEmulator::processglobal( RPCInputSignal * signal ) 
 {
@@ -334,3 +346,4 @@ void TTUEmulator::printinfo()
     m_Wheels[k].printinfo();
   
 }
+

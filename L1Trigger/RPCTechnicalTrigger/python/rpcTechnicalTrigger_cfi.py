@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 trigmode    = 1
-usedatabase = 0
+usedatabase = 1
 mytag       = 'test5'
 database    = 'sqlite'
 
@@ -32,7 +32,7 @@ if usedatabase >= 1:
 #...
 rpcTechnicalTrigger  = cms.EDProducer('RPCTechnicalTrigger',
                                       TriggerMode = cms.int32(trigmode),
-                                      RPCDigiLabel = cms.InputTag("muonRPCDigis"),
+                                      RPCDigiLabel = cms.InputTag("simMuonRPCDigis"),
                                       UseDatabase = cms.untracked.int32(usedatabase),
                                       BitNumbers=cms.vuint32(24,25,26,27,28),
                                       BitNames=cms.vstring('L1Tech_rpcBit1',

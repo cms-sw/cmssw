@@ -1,4 +1,4 @@
-// $Id: RBCChamberORLogic.h,v 1.6 2009/05/10 00:33:18 aosorio Exp $
+// $Id: RBCChamberORLogic.h,v 1.1 2009/05/16 19:43:30 aosorio Exp $
 #ifndef RBCCHAMBERORLOGIC_H 
 #define RBCCHAMBERORLOGIC_H 1
 
@@ -34,6 +34,8 @@ public:
       
   void process ( const RBCInput & , std::bitset<2> & );
   
+  void setBoardSpecs( const RBCBoardSpecs::RBCBoardConfig & );
+  
   std::bitset<6> * getlayersignal(int _idx) { return & m_layersignal[_idx]; };
   
   typedef std::vector<std::string>::iterator itr2names;
@@ -49,7 +51,7 @@ public:
   
   void setmaxlevel( int _mx ) { m_maxlevel = _mx;};
   
-  std::bitset<6> m_layersignal[2];
+  std::bitset<6> * m_layersignal;
   
 protected:
   
@@ -60,6 +62,7 @@ private:
   std::map<std::string, bool> m_chamber;
   
   int m_maxcb;
+  
   int m_maxlevel;
   
 };

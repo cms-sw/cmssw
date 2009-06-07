@@ -1,4 +1,4 @@
-// $Id: RBCLogicUnit.h,v 1.2 2009/05/08 10:24:04 aosorio Exp $
+// $Id: RBCLogicUnit.h,v 1.3 2009/05/16 19:43:30 aosorio Exp $
 #ifndef RBCLOGICUNIT_H 
 #define RBCLOGICUNIT_H 1
 
@@ -29,6 +29,8 @@ public:
   bool initialise();
   
   void setlogic( const char * );
+
+  void setBoardSpecs( const RBCBoardSpecs::RBCBoardConfig & );
   
   void run( const RBCInput & , std::bitset<2> & );
   

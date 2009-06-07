@@ -1,4 +1,4 @@
-// $Id: RBCBasicConfig.cc,v 1.2 2009/05/08 10:24:05 aosorio Exp $
+// $Id: RBCBasicConfig.cc,v 1.3 2009/05/16 19:43:31 aosorio Exp $
 // Include files 
 
 
@@ -58,6 +58,8 @@ bool RBCBasicConfig::initialise()
   // initialise logic unit
   m_rbclogic->setlogic( (*itr).m_LogicType.c_str() );
   status = m_rbclogic->initialise();
+  
+  m_rbclogic->setBoardSpecs( (*itr) );
   
   // get mask and force vectors
   

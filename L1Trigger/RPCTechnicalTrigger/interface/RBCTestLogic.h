@@ -1,4 +1,4 @@
-// $Id: RBCTestLogic.h,v 1.1 2009/02/05 13:46:21 aosorio Exp $
+// $Id: RBCTestLogic.h,v 1.1 2009/05/16 19:43:30 aosorio Exp $
 #ifndef RBCTESTLOGIC_H 
 #define RBCTESTLOGIC_H 1
 
@@ -28,6 +28,8 @@ public:
   virtual ~RBCTestLogic( ); ///< Destructor
 
   void process ( const RBCInput & , std::bitset<2> & );
+
+  void setBoardSpecs( const RBCBoardSpecs::RBCBoardConfig & );
 
   std::bitset<6> * getlayersignal( int _idx ) { return &m_testlayer[_idx];};
       

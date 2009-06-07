@@ -1,4 +1,4 @@
-// $Id: RBCPatternLogic.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
+// $Id: RBCPatternLogic.cc,v 1.2 2009/05/16 19:43:32 aosorio Exp $
 // Include files 
 
 
@@ -42,4 +42,13 @@ void RBCPatternLogic::process( const RBCInput & _input, std::bitset<2> & _decisi
   //....
 
 
+}
+
+void RBCPatternLogic::setBoardSpecs( const RBCBoardSpecs::RBCBoardConfig & specs )
+{
+  
+  
+  
+  
+  
 }

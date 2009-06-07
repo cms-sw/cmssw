@@ -1,4 +1,4 @@
-// $Id: RBCLogicUnit.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
+// $Id: RBCLogicUnit.cc,v 1.2 2009/05/08 10:24:05 aosorio Exp $
 // Include files 
 
 
@@ -67,6 +67,12 @@ void RBCLogicUnit::setlogic( const char * _logic )
   m_logtype = std::string(_logic);
 }
 
+void RBCLogicUnit::setBoardSpecs( const RBCBoardSpecs::RBCBoardConfig & specs)
+{
+
+  m_logic->setBoardSpecs( specs );
+  
+}
 
 void RBCLogicUnit::run( const RBCInput & _input , std::bitset<2> & _decision )
 {
@@ -74,5 +80,5 @@ void RBCLogicUnit::run( const RBCInput & _input , std::bitset<2> & _decision )
   m_logic->process( _input , _decision );
   m_layersignal[0] = m_logic->getlayersignal( 0 );
   m_layersignal[1] = m_logic->getlayersignal( 1 );
- 
+  
 }
