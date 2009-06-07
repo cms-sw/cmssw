@@ -17,7 +17,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     withWrapper = cms.untracked.bool(True),
     outOfOrder = cms.untracked.bool(True),
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('uniqueCrappyName'),
+        record = cms.string('keys'),
         tag = cms.string('KeyTest')
     ))
 )

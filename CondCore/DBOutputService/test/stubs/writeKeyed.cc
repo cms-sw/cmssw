@@ -10,7 +10,7 @@ class writeKeyed : public edm::EDAnalyzer {
   virtual void analyze( const edm::Event&, const edm::EventSetup& ){}
   virtual void endJob();
  private:
-  std::string crapName;
+  std::string keys, names;
 };
 
 void
@@ -42,12 +42,12 @@ writeKeyed::endJob() {
     for (int j=0;j<7;j++) {
       cond::KeyedElement k(new cond::BaseKeyed(),dict[i]+nums[j]);
       std::cout << (*k.m_sum) << " " << k.m_key << std::endl;
-      outdb->writeOne(k.m_obj,k.m_sum,k.m_key,crapName);
+      outdb->writeOne(k.m_obj,k.m_sum,k.m_key,keys);
     }
 }
 
 writeKeyed::writeKeyed(const edm::ParameterSet& iConfig ) :
-  crapName("uniqueCrappyName"){}
+  keys("keys") names("names"){}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(writeKeyed);

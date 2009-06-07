@@ -302,6 +302,8 @@ namespace cond{
 
     private:
 
+      void fillRecord( edm::ParameterSet & pset);
+
       void createNewIOV( GetToken const & token, 
 			 cond::Time_t firstSinceTime, 
 			 cond::Time_t firstTillTime,
