@@ -11,7 +11,8 @@
 
 //DEFINE STATICS
 const unsigned int L1GctJetFinderBase::MAX_JETS_OUT = 6;
-const unsigned int L1GctJetFinderBase::COL_OFFSET = ((L1CaloRegionDetId::N_ETA)/2)+1;
+const unsigned int L1GctJetFinderBase::N_EXTRA_REGIONS_ETA00 = 2;
+const unsigned int L1GctJetFinderBase::COL_OFFSET = L1GctJetFinderParams::NUMBER_ETA_VALUES+N_EXTRA_REGIONS_ETA00;
 const unsigned int L1GctJetFinderBase::N_JF_PER_WHEEL = ((L1CaloRegionDetId::N_PHI)/2);
 
 const unsigned int L1GctJetFinderBase::MAX_REGIONS_IN = L1GctJetFinderBase::COL_OFFSET*L1GctJetFinderBase::N_COLS;
@@ -108,7 +109,7 @@ void L1GctJetFinderBase::setJetFinderParams(const L1GctJetFinderParams* jfpars)
 void L1GctJetFinderBase::setJetEtCalibrationLuts(const L1GctJetFinderBase::lutPtrVector& jfluts)
 {
   m_jetEtCalLuts = jfluts;
-  m_gotJetEtCalLuts = (jfluts.size() >= COL_OFFSET);
+  m_gotJetEtCalLuts = (jfluts.size() >= L1GctJetFinderParams::NUMBER_ETA_VALUES);
 }
 
 std::ostream& operator << (std::ostream& os, const L1GctJetFinderBase& algo)
@@ -205,6 +206,7 @@ void L1GctJetFinderBase::setupObjects()
 void L1GctJetFinderBase::setInputRegion(const L1CaloRegion& region)
 {
   static const unsigned NPHI = L1CaloRegionDetId::N_PHI;
+  static const unsigned N_00 = N_EXTRA_REGIONS_ETA00;
   unsigned crate = region.rctCrate();
   // Find the column for this region in a global (eta,phi) array
   // Note the column numbers here are not the same as region->gctPhi()
@@ -215,13 +217,13 @@ void L1GctJetFinderBase::setInputRegion(const L1CaloRegion& region)
     // We are in the right range in phi
     // Now check we are in the right wheel (positive or negative eta)
     if ( (crate/N_JF_PER_WHEEL) == (m_id/N_JF_PER_WHEEL) ) {
-      unsigned i = colRelative*COL_OFFSET + region.rctEta() + 1;
+      unsigned i = colRelative*COL_OFFSET + N_00 + region.rctEta();
       L1GctRegion temp(region);
       m_inputRegions.at(i) = temp;
     } else {
       // Accept neighbouring regions from the other wheel
-      if (region.rctEta() == 0) {
-	unsigned i = colRelative*COL_OFFSET;
+      if (region.rctEta() < N_00) {
+	unsigned i = colRelative*COL_OFFSET + N_00 - (region.rctEta()+1);
         L1GctRegion temp(region);
 	m_inputRegions.at(i) = temp;
       }
@@ -346,19 +348,14 @@ void L1GctJetFinderBase::doEtSums() {
   unsigned et1 = 0;
   bool of = false;
 
-  // Add the Et values from regions 13 to 23 for strip 0,
-  //     the Et values from regions 25 to 35 for strip 1.
+  // Add the Et values from regions  2 to 12 for strip 0,
+  //     the Et values from regions 15 to 25 for strip 1.
   unsigned offset = COL_OFFSET * centralCol0();
-  for (UShort i=1; i < COL_OFFSET; ++i) {
-    offset++;
-    et0 += m_inputRegions.at(offset).et();
-    of  |= m_inputRegions.at(offset).overFlow();
-  }
-  offset++;
-  for (UShort i=1; i < COL_OFFSET; ++i) {
-    offset++;
-    et1 += m_inputRegions.at(offset).et();
-    of  |= m_inputRegions.at(offset).overFlow();
+  for (UShort i=offset+N_EXTRA_REGIONS_ETA00; i < offset+COL_OFFSET; ++i) {
+    et0 += m_inputRegions.at(i).et();
+    of  |= m_inputRegions.at(i).overFlow();
+    et1 += m_inputRegions.at(i+COL_OFFSET).et();
+    of  |= m_inputRegions.at(i+COL_OFFSET).overFlow();
   }
 
   etTotalType etStrip0(et0);

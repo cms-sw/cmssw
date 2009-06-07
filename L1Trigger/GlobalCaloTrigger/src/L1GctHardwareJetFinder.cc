@@ -1,10 +1,9 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctHardwareJetFinder.h"
 
 //DEFINE STATICS
-const unsigned int L1GctHardwareJetFinder::MAX_REGIONS_IN = (((L1CaloRegionDetId::N_ETA)/2)+1)*L1GctHardwareJetFinder::N_COLS;
-
 const unsigned int L1GctHardwareJetFinder::N_COLS = 2;
 const unsigned int L1GctHardwareJetFinder::CENTRAL_COL0 = 0;
+const unsigned int L1GctHardwareJetFinder::MAX_REGIONS_IN = (((L1CaloRegionDetId::N_ETA)/2)+N_EXTRA_REGIONS_ETA00)*L1GctHardwareJetFinder::N_COLS;
 
 L1GctHardwareJetFinder::L1GctHardwareJetFinder(int id):
   L1GctJetFinderBase(id),
@@ -86,70 +85,64 @@ void L1GctHardwareJetFinder::findLocalMaxima()
   UShort centreIndex = COL_OFFSET*this->centralCol0();
   for(UShort column = 0; column <2; ++column)  //Find jets in the central search region
   {
-    for (UShort row = 0; row < COL_OFFSET; ++row)  
+    // The input regions include two extra bins on the other side of eta=0. This allows "seamless" 
+    // jetfinding across the eta=0 boundary. We skip the first input region in each row. We perform 
+    // the full pre-clustering on the next region but store the resulting clusters separately
+    // from the main list of output pre-clusters - they will be used in the final cluster stage to
+    // make sure we do not produce jets in adjacent regions on opposite sides of eta=0. 
+    ++centreIndex;
+    for (UShort row = 1; row < COL_OFFSET; ++row)  
     {
       // Here's the array of greater-than and greater-or-equal tests
       // to ensure each localMaximum appears once and only once in the list
       // It is different for forward and backward eta.
       unsigned JET_THRESHOLD = ( (row > m_EtaBoundry) ? m_FwdJetSeed : m_CenJetSeed);
-      bool localMax = (m_inputRegions.at(centreIndex).et()>=JET_THRESHOLD);
+      bool localMax = !m_inputRegions.at(centreIndex).empty() && (m_inputRegions.at(centreIndex).et()>=JET_THRESHOLD);
       if (m_positiveEtaWheel) {      // Forward eta
-	if (row > 0) {
-	  localMax     &= (m_inputRegions.at(centreIndex).et() >= m_inputRegions.at(centreIndex-1).et());
-	}
+	localMax     &= (m_inputRegions.at(centreIndex).et() >= m_inputRegions.at(centreIndex-1).et());
         if (row < (COL_OFFSET-1)) {
 	  localMax   &= (m_inputRegions.at(centreIndex).et() >  m_inputRegions.at(centreIndex+1).et());
         }
         if (column==0) {
 	  localMax   &= (m_inputRegions.at(centreIndex).et() >  m_inputRegions.at(centreIndex+COL_OFFSET).et());
-	  if (row > 0) {
-	    localMax   &= (m_inputRegions.at(centreIndex).et() >  m_inputRegions.at(centreIndex+COL_OFFSET-1).et());
-	  }
+	  localMax   &= (m_inputRegions.at(centreIndex).et() >  m_inputRegions.at(centreIndex+COL_OFFSET-1).et());
 	  if (row < (COL_OFFSET-1)) {
 	    localMax &= (m_inputRegions.at(centreIndex).et() >  m_inputRegions.at(centreIndex+COL_OFFSET+1).et());
 	  }
         } else {
 	  localMax   &= (m_inputRegions.at(centreIndex).et() >= m_inputRegions.at(centreIndex-COL_OFFSET).et());
-	  if (row > 0) {
-	    localMax   &= (m_inputRegions.at(centreIndex).et() >= m_inputRegions.at(centreIndex-COL_OFFSET-1).et());
-	  }
+	  localMax   &= (m_inputRegions.at(centreIndex).et() >= m_inputRegions.at(centreIndex-COL_OFFSET-1).et());
 	  if (row < (COL_OFFSET-1)) { 
 	    localMax &= (m_inputRegions.at(centreIndex).et() >= m_inputRegions.at(centreIndex-COL_OFFSET+1).et());
 	  }
         }
       } else {      // Backward eta
-	if (row > 0) {
-	  localMax     &= (m_inputRegions.at(centreIndex).et() >  m_inputRegions.at(centreIndex-1).et());
-	}
+	localMax     &= (m_inputRegions.at(centreIndex).et() >  m_inputRegions.at(centreIndex-1).et());
         if (row < (COL_OFFSET-1)) {
 	  localMax   &= (m_inputRegions.at(centreIndex).et() >= m_inputRegions.at(centreIndex+1).et());
         }
         if (column==0) {
 	  localMax   &= (m_inputRegions.at(centreIndex).et() >= m_inputRegions.at(centreIndex+COL_OFFSET).et());
-	  if (row > 0) {
-	    localMax   &= (m_inputRegions.at(centreIndex).et() >= m_inputRegions.at(centreIndex+COL_OFFSET-1).et());
-	  }
+	  localMax   &= (m_inputRegions.at(centreIndex).et() >= m_inputRegions.at(centreIndex+COL_OFFSET-1).et());
 	  if (row < (COL_OFFSET-1)) {
 	    localMax &= (m_inputRegions.at(centreIndex).et() >= m_inputRegions.at(centreIndex+COL_OFFSET+1).et());
 	  }
         } else {
 	  localMax   &= (m_inputRegions.at(centreIndex).et() >  m_inputRegions.at(centreIndex-COL_OFFSET).et());
-	  if (row > 0) {
-	    localMax   &= (m_inputRegions.at(centreIndex).et() >  m_inputRegions.at(centreIndex-COL_OFFSET-1).et());
-	  }
+	  localMax   &= (m_inputRegions.at(centreIndex).et() >  m_inputRegions.at(centreIndex-COL_OFFSET-1).et());
 	  if (row < (COL_OFFSET-1)) {
 	    localMax &= (m_inputRegions.at(centreIndex).et() >  m_inputRegions.at(centreIndex-COL_OFFSET+1).et());
 	  }
         }
       }
       if (localMax) {
-	if (row>0) {
+	if (row>1) {
 	  if (jetNum < MAX_JETS_OUT) {
 	    m_localMaxima.at(jetNum) = m_inputRegions.at(centreIndex);
 	    ++jetNum;
 	  }
 	} 
-	// Treat row 0 as a separate case. It's not required for jetfinding but
+	// Treat row 1 as a separate case. It's not required for jetfinding but
 	// is used for vetoing of jets double counted across the eta=0 boundary
 	else {
 	  unsigned phi = m_inputRegions.at(centreIndex).rctPhi();
@@ -161,7 +154,6 @@ void L1GctHardwareJetFinder::findLocalMaxima()
   }
 
   m_numberOfClusters = jetNum;
-
 }
 
 //  For each local maximum, find the cluster et in a 2x3 region.
@@ -177,7 +169,6 @@ void L1GctHardwareJetFinder::findProtoClusters()
   RegionsVector         topJets(MAX_JETS_OUT),         botJets(MAX_JETS_OUT);
   std::vector<unsigned> topJetsPosition(MAX_JETS_OUT), botJetsPosition(MAX_JETS_OUT);
   unsigned              numberOfTopJets=0,             numberOfBotJets=0;
-
 
   // Loop over local maxima
   for (unsigned j=0; j<m_numberOfClusters; ++j) {
@@ -223,10 +214,9 @@ void L1GctHardwareJetFinder::findProtoClusters()
       m_clusters.at(pos++) = topJets.at(j);
     }
   }
-
   // Finally, deal with eta00 maxima
   if (!m_localMax00.at(0).empty()) m_cluster00.at(0) = makeProtoJet(m_localMax00.at(0));  
-  if (!m_localMax00.at(1).empty()) m_cluster00.at(1) = makeProtoJet(m_localMax00.at(1));  
+  if (!m_localMax00.at(1).empty()) m_cluster00.at(1) = makeProtoJet(m_localMax00.at(1));
 }
 
 
@@ -244,13 +234,34 @@ L1GctRegion L1GctHardwareJetFinder::makeProtoJet(L1GctRegion localMax) {
   bool tauVetoOr = false;
   unsigned rgnsAboveIsoThreshold = 0;
 
-  unsigned rowStart = localEta;
-  unsigned rowEnd = localEta+3;
   // check for row00
   const unsigned midEta=(L1CaloRegionDetId::N_ETA)/2;
-  if (( (!m_positiveEtaWheel) && (eta>=midEta) ) || ( (m_positiveEtaWheel) && (eta<midEta) )) rowEnd = 2;
+  bool wrongEtaWheel = ( (!m_positiveEtaWheel) && (eta>=midEta) ) || ( (m_positiveEtaWheel) && (eta<midEta) );
 
-  for (unsigned row=rowStart; ((row<rowEnd) && (row<COL_OFFSET)); ++row) {
+  // Which rows are we looking over?
+  unsigned rowStart, rowEnd;
+  static const unsigned row0 = N_EXTRA_REGIONS_ETA00 - 1;
+  if (wrongEtaWheel) {
+    if (localEta > row0 - 1) {
+      rowStart = 0;
+    } else {
+      rowStart = row0 - 1 - localEta;
+    }
+    if (localEta > row0 + 2) { // Shouldn't happen, but big problems if it does
+      rowEnd = 0;
+    } else { 
+      rowEnd   = row0 + 2 - localEta;
+    }
+  } else {
+    rowStart = row0 + localEta;
+    if (localEta < COL_OFFSET - row0 - 2) {
+      rowEnd = rowStart + 3;
+    } else {
+      rowEnd = COL_OFFSET;
+    }
+  }
+
+  for (unsigned row=rowStart; row<rowEnd; ++row) {
     for (unsigned column=0; column<2; ++column) {
       unsigned index = column*COL_OFFSET + row;
       etCluster += m_inputRegions.at(index).et();
@@ -325,7 +336,7 @@ void L1GctHardwareJetFinder::findFinalClusters()
 
 		storeJet |= isolated;
 
-		if (storeJet) {
+		if (storeJet) { 
 
 			// Start with the et sum, tau veto and overflow flags of the protoJet (2x3 regions)
 			unsigned etCluster = et0;
@@ -336,10 +347,19 @@ void L1GctHardwareJetFinder::findFinalClusters()
 			// Combine with the corresponding regions from
 			// the local array to make a 3x3 jet cluster 
 			unsigned column=1-localPhi0;
-			unsigned index = COL_OFFSET*(this->centralCol0()+column)+localEta0;
-			for (unsigned row=localEta0; ((row<(localEta0+3)) && (row<COL_OFFSET)); ++row) {
-				etCluster += m_inputRegions.at(index).et();
-				ovrFlowOr |= m_inputRegions.at(index).overFlow();
+			// Which rows are we looking over?
+			unsigned rowStart, rowEnd;
+			static const unsigned row0 = N_EXTRA_REGIONS_ETA00 - 1;
+			rowStart = row0 + localEta0;
+			if (localEta0 < COL_OFFSET - row0 - 2) {
+			  rowEnd = rowStart + 3;
+			} else {
+			  rowEnd = COL_OFFSET;
+			}
+			unsigned index = COL_OFFSET*(this->centralCol0()+column) + rowStart;
+			  for (unsigned row=rowStart; row<rowEnd; ++row) {
+			    etCluster += m_inputRegions.at(index).et();
+			    ovrFlowOr |= m_inputRegions.at(index).overFlow();
 				if (m_useImprovedTauAlgo) {
 				  if (!m_ignoreTauVetoBitsForIsolation) {
 				    tauVetoOr |= m_inputRegions.at(index).tauVeto();
@@ -353,7 +373,7 @@ void L1GctHardwareJetFinder::findFinalClusters()
 				}
 
 				++index;
-			}
+			  }
 
 			// Store the new jet
 			unsigned eta = m_rcvdProtoJets.at(j).gctEta();

@@ -108,6 +108,7 @@ public:
   static const unsigned int MAX_JETS_OUT;  ///< Max of 6 jets found per jetfinder in a 2*11 search area.
   static const unsigned int COL_OFFSET;  ///< The index offset between columns
   static const unsigned int N_JF_PER_WHEEL; ///< No of jetFinders per Wheel
+  static const unsigned int N_EXTRA_REGIONS_ETA00; ///< Number of additional regions to process on the "wrong" side of eta=0 (determines COL_OFFSET) 
     
   /// id is 0-8 for -ve Eta jetfinders, 9-17 for +ve Eta, for increasing Phi.
   L1GctJetFinderBase(int id);
