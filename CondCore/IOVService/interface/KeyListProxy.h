@@ -3,14 +3,15 @@
 
 #include "CondCore/IOVService/interface/PayloadProxy.h"
 #include "CondCore/IOVService/interface/KeyList.h"
-
+#include <vector>
+#include <string>
 
 namespace cond {
 
-  template<> class PayloadProxy<cond::KeyList> : public PayloadProxy<vector<cond::Time_t> > {
+  template<> class PayloadProxy<cond::KeyList> : public PayloadProxy<std::vector<cond::Time_t> > {
   public:
-    typedef vector<cond::Time_t> DataT;
-    typedef Payload<DataT> super;
+    typedef std::vector<cond::Time_t> DataT;
+    typedef PayloadProxy<DataT> super;
 
     PayloadProxy(cond::Connection& conn,
 		 const std::string & token, bool errorPolicy) :
@@ -28,26 +29,23 @@ namespace cond {
     }
 
     virtual void loadMore(CondGetter const & getter){
-      me.init(getter(name));
+      me.init(getter.get(m_name));
     }
 
 
   protected:
     virtual bool load(pool::IDataSvc * svc, std::string const & token) {
-     bool ok = super::load();
+     bool ok = super::load(svc, token);
       me.load(super::operator()());
       return ok;
     }
 
   private:
 
-    std::string m_name
+    std::string m_name;
 
     KeyList me;
 
   };
 }
 #endif
-
-
-}

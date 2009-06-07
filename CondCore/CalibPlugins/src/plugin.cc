@@ -22,4 +22,4 @@ REGISTER_PLUGIN(anotherPedestalsRcd,Pedestals);
 REGISTER_PLUGIN(mySiStripNoisesRcd,mySiStripNoises);
 REGISTER_PLUGIN(ExEfficiencyRcd, condex::Efficiency);
 REGISTER_PLUGIN(ExDwarfRcd, cond::BaseKeyed);
-REGISTER_PLUGIN(ExDwarfListRcd, cond::Keylist);
+REGISTER_PLUGIN(ExDwarfListRcd, cond::KeyList);
