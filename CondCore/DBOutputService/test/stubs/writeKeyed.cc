@@ -49,11 +49,11 @@ writeKeyed::endJob() {
   // populate the master payload
   int run=10;
   for (int j=0;j<7;j++) {
-    std::vector<cond::time_t> * kl = new std::vector<cond::time_t>(dict.size());
+    std::vector<cond::Time_t> * kl = new std::vector<cond::Time_t>(dict.size());
     for ( int i=0; i<dict.size();i++)
       (*kl)[i]=cond::KeyedElement::convert(dict[i]+nums[j]);
     outdb->writeOne(kl,new cond::GenericSummary(nums[j]),run,names);
-	  run+=10;
+    run+=10;
   }
 
 }

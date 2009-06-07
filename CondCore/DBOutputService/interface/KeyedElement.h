@@ -15,7 +15,7 @@ namespace cond{
       m_sum(new cond::GenericSummary(key)), 
       m_key(convert(key)) {}
     
-    static cond::time_t convert(std::string key) {
+    static cond::Time_t convert(std::string key) {
       return cond::hash64( (unsigned char*)(&key[0]),key.size(),0);
     }
 
