@@ -47,12 +47,12 @@ namespace {
     CondGetterFromESSource(PoolDBESSource::ProxyMap const & ip) : m_proxies(ip){}
     virtual ~CondGetterFromESSource(){}
 
-    IOVProxy get(std::string name) const {
+    cond::IOVProxy get(std::string name) const {
       ProxyMap::const_iterator p = m_proxies.find(name);
       if ( p != m_proxies.end())
-	return (*p).second.proxy().iov();
-      return IOVProxy();
-    };
+	return (*p).second->proxy().iov();
+      return cond::IOVProxy();
+    }
 
     PoolDBESSource::ProxyMap const & m_proxies;
   };
@@ -146,7 +146,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     ProxyMap::iterator e= m_proxies.end();
     for (;b!=e;b++) {
 
-      (*b).second.proxy().loadMore(visitor);
+      (*b).second->proxy().loadMore(visitor);
 
       edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType( (*b).first ) );
       if( recordKey.type() != edm::eventsetup::EventSetupRecordKey::TypeTag() ) {

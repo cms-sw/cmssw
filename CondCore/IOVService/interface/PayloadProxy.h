@@ -18,7 +18,7 @@ namespace cond {
   class CondGetter {
   public:
     virtual ~CondGetter(){}
-    IOVProxy get(std::string name) const=0;
+    virtual IOVProxy get(std::string name) const=0;
 
   };
 
@@ -89,6 +89,7 @@ namespace cond {
   protected:
     virtual bool load(pool::IDataSvc * svc, std::string const & token) {
       return m_data.load(svc,token);
+    }
 
   private:
      cond::PayloadRef<DataT> m_data;
