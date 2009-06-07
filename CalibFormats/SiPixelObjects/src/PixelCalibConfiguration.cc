@@ -566,6 +566,7 @@ void PixelCalibConfiguration::buildROCAndModuleLists(const PixelNameTranslation*
   // Build the ROC set from the instructions.
   std::set<PixelROCName> rocSet;
   bool addNext = true;
+  const map<PixelROCName, PixelROCStatus>& iroclist=detconfig->getROCsList();
   for(std::vector<std::string>::iterator rocListInstructions_itr = rocListInstructions_.begin(); rocListInstructions_itr != rocListInstructions_.end(); rocListInstructions_itr++)
 	{
 	  std::string instruction = *rocListInstructions_itr;
@@ -586,7 +587,6 @@ void PixelCalibConfiguration::buildROCAndModuleLists(const PixelNameTranslation*
 	      if ( addNext ) // add all ROCs in the configuration
 		{
 		  const std::vector <PixelModuleName>& moduleList = detconfig->getModuleList();
-		  const map<PixelROCName, PixelROCStatus>& iroclist=detconfig->getROCsList();
 		  for ( std::vector <PixelModuleName>::const_iterator moduleList_itr = moduleList.begin(); moduleList_itr != moduleList.end(); moduleList_itr++ )
 		    {
 		      std::vector<PixelROCName> ROCsOnThisModule = translation->getROCsFromModule( *moduleList_itr );
@@ -623,7 +623,12 @@ void PixelCalibConfiguration::buildROCAndModuleLists(const PixelNameTranslation*
 	      std::vector<PixelROCName> ROCsOnThisModule = translation->getROCsFromModule( modulename );
 	      for ( std::vector<PixelROCName>::iterator ROCsOnThisModule_itr = ROCsOnThisModule.begin(); ROCsOnThisModule_itr != ROCsOnThisModule.end(); ROCsOnThisModule_itr++ )
 		{
-		  if ( addNext ) rocSet.insert(*ROCsOnThisModule_itr);
+		  if ( addNext ) {
+		    map<PixelROCName, PixelROCStatus>::const_iterator it= iroclist.find(*ROCsOnThisModule_itr);
+		    assert(it!=iroclist.end());
+		    PixelROCStatus istatus =  it->second;
+		    if ( !istatus.get(PixelROCStatus::noAnalogSignal) )  rocSet.insert(*ROCsOnThisModule_itr);
+		  }
 		  else           rocSet.erase( *ROCsOnThisModule_itr);
 		}
 	      addNext = true;
@@ -645,7 +650,12 @@ void PixelCalibConfiguration::buildROCAndModuleLists(const PixelNameTranslation*
 			  break;
 			}
 		    }
-		  if (foundIt) rocSet.insert(rocname);
+		  if (foundIt) {
+		    map<PixelROCName, PixelROCStatus>::const_iterator it= iroclist.find(rocname);
+		    assert(it!=iroclist.end());
+		    PixelROCStatus istatus =  it->second;
+		    if ( !istatus.get(PixelROCStatus::noAnalogSignal) ) rocSet.insert(rocname);
+		  }
 		}
 	      else
 		{
