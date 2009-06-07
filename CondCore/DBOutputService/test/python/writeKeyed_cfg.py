@@ -28,7 +28,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     record = cms.string('names'),
     tag = cms.string('ConfTest'),
     timetype = cms.untracked.string('runnumber'),
-    withWrapper = cms.untracked.bool(True),
+    withWrapper = cms.untracked.bool(False),
     outOfOrder = cms.untracked.bool(False)
     )
     )
