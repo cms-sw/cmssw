@@ -113,6 +113,12 @@ void SiStripUtility::getMEStatusColor(int status, int& icol, string& tag) {
 // -- Get Color code from Status
 //
 void SiStripUtility::getDetectorStatusColor(int status, int& rval, int&gval, int& bval) {
+  if (status == 0) {
+    rval = 0;
+    gval = 255;
+    bval = 0;
+    return;
+  }
   rval = 255;
   if (status%2 == 1) {
     if (status == 1) {
@@ -180,7 +186,7 @@ int SiStripUtility::getMEStatus(MonitorElement* me, int& bad_channels) {
     status       = 0;
     bad_channels = -1;
   } else {
-    std::vector<QReport *> qreports = me->getQReports();
+    vector<QReport *> qreports = me->getQReports();
     bad_channels =qreports[0]->getBadChannels().size();
     if (me->hasError()) {
       status = dqm::qstatus::ERROR;
@@ -261,4 +267,25 @@ void SiStripUtility::getSubDetectorTag(uint32_t det_id, string& subdet_tag) {
 	break;       
       }
     }
+}
+//
+// -- Set Bad Channel Flag from hname
+// 
+void SiStripUtility::setBadModuleFlag(string & hname, uint16_t& flg){
+  
+  if (hname.find("FractionOfBadChannels") != string::npos) flg |= (1<<0);
+  else if (hname.find("NumberOfDigi")     != string::npos) flg |= (1<<1);
+  else if (hname.find("NumberOfCluster")  != string::npos) flg |= (1<<2);
+}
+//
+// -- Get the Status Message from Bad Module Flag
+//
+void SiStripUtility::getBadModuleStatus(uint16_t flag, string & message){
+  if (flag == 0) message += "No Error";
+  else {
+    message += " Error from :: "; 
+    if (((flag >>0)  & 0x1) > 0) message += " Fed BadChannel : ";
+    if (((flag >> 1) & 0x1) > 0) message += " # of Digi : ";  
+    if (((flag >> 2) & 0x1) > 0) message += " # of Clusters ";
+  }
 }

@@ -204,11 +204,11 @@ void SiStripQualityChecker::fillDetectorStatus(DQMStore* dqm_store) {
     xbin++;
     float flag;
     fillSubDetStatus(dqm_store, local_mes, xbin,flag);
-    dqm_store->cd();
     global_flag += flag; 
   }
   global_flag = global_flag/xbin*1.0;
   SummaryReportGlobal->Fill(global_flag);
+  dqm_store->cd();
 }
 //
 // -- Fill Tracking Status
@@ -235,6 +235,7 @@ void SiStripQualityChecker::fillTrackingStatus(DQMStore* dqm_store) {
     gstatus = gstatus * status; 
   }
   TrackSummaryReportGlobal->Fill(gstatus);
+  dqm_store->cd();
 }
 //
 // -- Get Errors from Module level histograms
@@ -261,7 +262,7 @@ void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store,int& ndet,int& e
       if (me->getQReports().size() == 0) continue;
       string name = me->getName();
       int istat =  SiStripUtility::getMEStatus((*it)); 
-      if (istat == dqm::qstatus::ERROR) setBadChannelFlag(name,flag);  
+      if (istat == dqm::qstatus::ERROR) SiStripUtility::setBadModuleFlag(name,flag);  
     }
     if (flag > 0) {
       errdet++;
@@ -411,11 +412,11 @@ void SiStripQualityChecker::getModuleStatus(vector<MonitorElement*>& layer_mes, 
       uint16_t flag;
       if (iPos != bad_modules.end()){
 	flag = iPos->second;
-	setBadChannelFlag(name, flag);            
+	SiStripUtility::setBadModuleFlag(name,flag);            
 	iPos->second = flag;
       } else {
         flag = 0;
-	setBadChannelFlag(name, flag);              
+	SiStripUtility::setBadModuleFlag(name,flag);              
 	bad_modules.insert(pair<uint32_t,uint16_t>(detId,flag));
       }
     }
@@ -475,13 +476,4 @@ void SiStripQualityChecker::fillFaultyModuleStatus(DQMStore* dqm_store) {
     
   }
   dqm_store->cd();
-}
-//
-// -- Set Bad Channel Flag from hname
-// 
-void SiStripQualityChecker::setBadChannelFlag(std::string & hname, uint16_t& flg){
-  
-  if (hname.find("FractionOfBadChannels") != string::npos) flg |= (1<<0);
-  else if (hname.find("NumberOfDigi")     != string::npos) flg |= (1<<1);
-  else if (hname.find("NumberOfCluster")  != string::npos) flg |= (1<<2);
 }

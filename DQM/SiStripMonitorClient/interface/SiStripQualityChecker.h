@@ -25,7 +25,7 @@ class SiStripQualityChecker {
   virtual ~SiStripQualityChecker();
 
 
-  void bookStatus(DQMStore* dqm_store);     
+ void bookStatus(DQMStore* dqm_store);     
   void resetStatus();
   void fillDummyStatus();
   void fillStatus(DQMStore* dqm_store);
@@ -49,7 +49,6 @@ class SiStripQualityChecker {
   void getModuleStatus(std::vector<MonitorElement*>& layer_mes, int& ndet, int& errdet);
 
   void fillStatusHistogram(MonitorElement*, int xbin, int ybin, float val);
-  void setBadChannelFlag(std::string & hname, uint16_t& flg);
   
   std::map<std::string, SubDetMEs> SubDetMEsMap;
   std::map<std::string, std::string> SubDetFolderMap;

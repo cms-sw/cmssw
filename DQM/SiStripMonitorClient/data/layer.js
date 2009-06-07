@@ -41,7 +41,6 @@ TrackerLayer.showData = function (evt) {
 	    var apvaddr2 = rest.substring(0,comma);
 	    rest = rest.substring(comma+1);
 	    var apvaddr3 = "";
-            parent.parent.TkMapFrame.requestMPlot(detid);
 	    if (rest.length>5){comma=rest.indexOf(')');apvaddr3 = rest.substring(0,comma);}
 	    //alert(apvaddr1+" "+apvaddr2+" "+apvaddr3);
 	    if(crate!=parent.loaded){parent.loaded=crate;parent.remotewin.location.href=parent.servername+parent.tmapname+"crate"+crate+".xml";}
@@ -50,9 +49,10 @@ TrackerLayer.showData = function (evt) {
 	    if(parent.remotewin.document.getElementById(apvaddr1)!=null) {styledef=parent.remotewin.document.getElementById(apvaddr1).getAttribute("style");if(styledef==null||styledef=="")parent.remotewin.document.getElementById(apvaddr1).setAttribute("style"," stroke: black; stroke-width: 1") ; else parent.remotewin.document.getElementById(apvaddr1).setAttribute("style",""); }
 	    if(apvaddr2!=""&&parent.remotewin.document.getElementById(apvaddr2)!=null) {styledef=parent.remotewin.document.getElementById(apvaddr2).getAttribute("style");if(styledef==null||styledef=="")parent.remotewin.document.getElementById(apvaddr2).setAttribute("style"," stroke: black; stroke-width: 1") ; else parent.remotewin.document.getElementById(apvaddr2).setAttribute("style",""); }
 	    if(apvaddr3!=""&&parent.remotewin.document.getElementById(apvaddr3)!=null) {styledef=parent.remotewin.document.getElementById(apvaddr3).getAttribute("style");if(styledef==null||styledef=="")parent.remotewin.document.getElementById(apvaddr3).setAttribute("style"," stroke: black; stroke-width: 1") ; else parent.remotewin.document.getElementById(apvaddr3).setAttribute("style",""); }
-	    parent.document.getElementById('print1').setAttribute("src",parent.servername+parent.tmapname+"layer"+layer+".html#"+detid);
+	    //parent.document.getElementById('print1').setAttribute("src",parent.servername+parent.tmapname+"layer"+layer+".html#"+detid);
+	    parent.window.setip(parent.servername+parent.tmapname+"layer"+layer+".html#"+detid);
 	    //alert(top.document.getElementById('print1'));
-	    
+            parent.opener.RequestHistos.RequestTkMapHistos(detid);	    
      }
        if (evt.type == "mouseout") {
     var myPoly = evt.currentTarget;

@@ -49,14 +49,14 @@ class SiStripInformationExtractor {
  
   void readStatusMessage(DQMStore* dqm_store, std::multimap<std::string, std::string>& req_map, xgi::Output * out);
   void readGlobalHistoList(DQMStore* dqm_store, std::string& dname, xgi::Output * out);
-  void readLayoutNames(std::multimap<std::string, std::string>& req_map, xgi::Output * out);
+  void readLayoutNames(DQMStore* dqm_store, xgi::Output * out);
 
   void readQTestSummary(DQMStore* dqm_store, std::string type, xgi::Output * out);
 
   void readNonGeomHistoTree(DQMStore* dqm_store, std::string& fld_name, xgi::Output * out);
   
   void createImages(DQMStore* dqm_store);
-  void getIMGCImage(const std::multimap<std::string, std::string>& req_map, xgi::Output * out);
+  void getImage(const std::multimap<std::string, std::string>& req_map, xgi::Output * out);
 
  private:
 

@@ -25,14 +25,17 @@ TrackerCrate.showData = function (evt) {
 	    var detid = myPoly.getAttribute("detid");
 	    var id = myPoly.getAttribute("id");
 	    var crate = Math.floor(id/1000000);
+            var myPos = myPoly.getAttribute("POS");
+            var s0    = myPos.indexOf("(")+1;
+            var s1    = myPos.indexOf(")");
+            var modId = myPos.substring(s0, s1);
+
 opacity=0.4;
 myPoly.setAttribute("style","fill-opacity: "+opacity+"; stroke: black; stroke-width: 2") ;
-	    parent.document.getElementById('print2').setAttribute("src",parent.servername+parent.tmapname+"crate"+crate+".html#"+detid);
+	//    parent.document.getElementById('print2').setAttribute("src",parent.servername+parent.tmapname+"crate"+crate+".html#"+detid);
+      parent.window.setip1(parent.servername+parent.tmapname+"crate"+crate+".html#"+detid);
 	    //alert(top.document.getElementById('print1'));
-            var cmod_name = myPoly.getAttribute("POS");
-            var end = cmod_name.indexOf('Id');
-            var cmod_detid = parseInt(cmod_name.substring(end-12,end-3));
-            parent.parent.TkMapFrame.requestMPlot(cmod_detid);
+       parent.opener.RequestHistos.RequestTkMapHistos(modId);	    	    
      }
        if (evt.type == "mouseout") {
     var myPoly = evt.currentTarget;

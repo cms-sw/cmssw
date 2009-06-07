@@ -5,8 +5,8 @@
  * *
  *  Class that handles the SiStrip Quality Tests
  * 
- *  $Date: 2009/05/25 20:08:37 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/05/29 10:32:42 $
+ *  $Revision: 1.12 $
  *  \author Suchandra Dutta
   */
 
@@ -37,6 +37,8 @@ class SiStripUtility
  static void getMEValue(MonitorElement* me, std::string & val);
  static bool goToDir(DQMStore * dqm_store, std::string name);
  static void getSubDetectorTag(uint32_t det_id, std::string& subdet_tag);
+ static void setBadModuleFlag(std::string & hname, uint16_t& flg);
+ static void getBadModuleStatus(uint16_t flag, std::string& message);   
 };
 
 #endif

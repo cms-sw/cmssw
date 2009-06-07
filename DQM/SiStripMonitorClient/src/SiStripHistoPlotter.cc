@@ -87,9 +87,16 @@ void SiStripHistoPlotter::makePlot(DQMStore* dqm_store, const PlotParameter& par
       if (tproject) tproject->Draw();
       else histo->Draw();
     } else {
+      dopt = ""; 
       string name = histo->GetName();
-      if (name.find("Summary_Mean") != string::npos) histo->SetStats( kFALSE );
-      histo->Draw();
+      if (name.find("Summary_Mean") != string::npos) {
+         histo->SetStats( kFALSE );
+      }	else if (name.find("TkHMap") != string::npos) {
+	dopt = "colzbox";
+      } else {
+	histo->SetFillColor(1);
+      }
+      histo->Draw(dopt.c_str());
     }
     TText tTitle;
     tTitle.SetTextFont(64);

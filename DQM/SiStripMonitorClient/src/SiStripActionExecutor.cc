@@ -90,6 +90,7 @@ void SiStripActionExecutor::createSummaryOffline(DQMStore* dqm_store) {
     if (SiStripUtility::goToDir(dqm_store, dname)) {
       summaryCreator_->createSummary(dqm_store);
     }
+    dqm_store->cd();
   }
 }
 //

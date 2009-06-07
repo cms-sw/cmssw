@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2009/05/04 19:18:32 $
- * $Revision: 1.49 $
+ * $Date: 2009/05/06 21:05:18 $
+ * $Revision: 1.50 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -213,6 +213,16 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
   cout << " ===> Iteration # " << nLumiSecs_ << " " 
                                << lumiSeg.luminosityBlock() << endl;
   cout << "====================================================== " << endl;
+  // Create predefined plots
+  if (staticUpdateFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%staticUpdateFrequency_  == 0) {
+    cout << " Creating predefined plots " << endl;
+    sistripWebInterface_->setActionFlag(SiStripWebInterface::PlotHistogramFromLayout);
+    sistripWebInterface_->performAction();
+  }
+  // Fill Global Status
+  if (globalStatusFilling_ > 0 && trackerFEDsFound_) {
+    actionExecutor_->fillStatus(dqmStore_);
+  }
   // -- Create summary monitor elements according to the frequency
   if (summaryFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%summaryFrequency_ == 0) {
     cout << " Creating Summary " << endl;
@@ -224,25 +234,10 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
     string tkmap_type =  sistripWebInterface_->getTkMapType();
     actionExecutor_->createTkMap(tkMapPSet_, fedCabling_, dqmStore_, tkmap_type);
   }
-  // Create predefined plots
-  if (staticUpdateFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%staticUpdateFrequency_  == 0) {
-    cout << " Creating predefined plots " << endl;
-    sistripWebInterface_->setActionFlag(SiStripWebInterface::PlotHistogramFromLayout);
-    sistripWebInterface_->performAction();
-  }
-  // Fill Global Status
-  if (globalStatusFilling_ > 0 && trackerFEDsFound_) {
-    actionExecutor_->fillStatus(dqmStore_);
-  }
   // Create Shift Report
-  if (shiftReportFrequency_ != -1 && trackerFEDsFound_ && nLumiSecs_%shiftReportFrequency_  == 0) {
-    actionExecutor_->createShiftReport(dqmStore_);
-  }
-  // print list of faulty modules
-  if (printFaultyModuleList_ && trackerFEDsFound_) {
-    std::ostringstream str_val;
-    actionExecutor_->printFaultyModuleList(dqmStore_, str_val);
-  }
+  //  if (shiftReportFrequency_ != -1 && trackerFEDsFound_ && nLumiSecs_%shiftReportFrequency_  == 0) {
+  //    actionExecutor_->createShiftReport(dqmStore_);
+  //  }
 }
 
 //

@@ -72,8 +72,8 @@ void SiStripInformationExtractor::printSummaryHistoList(DQMStore * dqm_store, os
   string currDir = dqm_store->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
   if (dname.find("module_") ==0) return;
-  str_val << "<li><a href=\"#\" id=\"" 
-          << currDir << "\">" << dname << "</a>" << endl;
+  //  str_val << "<li><a href=\"#\" id=\"" << currDir << "\">" << dname << "</a>" << endl;
+  str_val << "<li><span class=\"folder\">" << dname << "</span>" << endl;
   vector<MonitorElement *> meVec = dqm_store->getContents(currDir);
   vector<string> subDirVec = dqm_store->getSubdirs();
   if ( meVec.size()== 0  && subDirVec.size() == 0 ) {
@@ -86,13 +86,9 @@ void SiStripInformationExtractor::printSummaryHistoList(DQMStore * dqm_store, os
     MonitorElement* me = (*it);
     if (!me) continue;
     string name = (*it)->getName();
-    //    if (name.find("Summary") == 0) {
-      str_val << "<li class=\"dhtmlgoodies_sheet.gif\">"
-              << " <a href=\"javascript:RequestHistos.DrawSingleHisto('"
-              << currDir 
-              << "')\">" << name 
-              << "</a></li>" << endl;
-      //    }
+    str_val << "<li> <span class=\"file\"><a href=\"javascript:RequestHistos.DrawSummaryHistogram('" 
+            << currDir
+	    << "')\">" << name << "</a></span></li>" << endl;
   }
 
   string mtag ="Modules: ";  
@@ -108,7 +104,8 @@ void SiStripInformationExtractor::printSummaryHistoList(DQMStore * dqm_store, os
     dqm_store->goUp();
   }
   if (mtag.size() > 10) {
-    str_val << "<li class=\"note.gif\"><a href=\"#\">" << mtag << "</a></li>" << endl;
+    //    str_val << "<li class=\"note.gif\"><a href=\"#\">" << mtag << "</a></li>" << endl;
+    str_val << "<li> <span class=\"file\"><a href=\"#\">" << mtag << "</a></span></li>" << endl;
   }
   str_val << "</ul> "<< endl;  
   str_val << "</li> "<< endl;  
@@ -123,11 +120,10 @@ void SiStripInformationExtractor::printAlarmList(DQMStore * dqm_store, ostringst
   string dname = currDir.substr(currDir.find_last_of("/")+1);
   string image_name;
   selectImage(image_name,dqm_store->getStatus(currDir));
-  str_val << "<li><a href=\"#\" id=\"" 
-          << currDir << "\">" << dname << "</a> <img src=\"" 
-          << image_name << "\"></img>" << endl;
+  str_val << "<li><span class=\"folder\">" 
+          << dname << "<img src=\""
+          << image_name << "\"></span>" << endl;
   vector<string> subDirVec = dqm_store->getSubdirs();
-  //  vector<string> meVec = dqm_store->getMEs(); 
   vector<MonitorElement *> meVec = dqm_store->getContents(currDir);
   
   if (subDirVec.size() == 0 && meVec.size() == 0) {
@@ -145,12 +141,11 @@ void SiStripInformationExtractor::printAlarmList(DQMStore * dqm_store, ostringst
         if (q_reports.size() > 0) {
 	  string image_name1;
 	  selectImage(image_name1,q_reports);
-	  str_val << "<li class=\"dhtmlgoodies_sheet.gif\">"
-		  << " <a href=\"javascript:RequestHistos.ReadStatus('"
-		  << currDir
-		  << "')\">" << me->getName()
-		  << "</a><img src=\"" << image_name1 << "\"></img>"
-	  	  << " </li>" << endl;
+	  str_val << "<li><span class=\"file\"><a href=\"javascript:RequestHistos.ReadAlarmStatus('"
+                  << currDir << "')\">"<<me->getName()
+                  << "</a><img src=\""
+                  << image_name1 << "\">" 
+                  << "</span></li>" << endl;
         }
       }
     }
@@ -185,8 +180,9 @@ void SiStripInformationExtractor::getSingleModuleHistos(DQMStore * dqm_store,
   folder_organizer.getFolderName(detId,path);   
 
   vector<MonitorElement*> all_mes = dqm_store->getContents(path);
-  setHTMLHeader(out);
-  *out << path << " ";
+  setXMLHeader(out);
+  *out << "<HPathAndHNameList>" << endl;
+  *out << "<HPath>" << path << "</HPath>" << endl;
 
   for (vector<string>::const_iterator ih = hlist.begin();
        ih != hlist.end(); ih++) {
@@ -199,10 +195,11 @@ void SiStripInformationExtractor::getSingleModuleHistos(DQMStore * dqm_store,
       if (name == (*ih)) {
 	string full_path = path + "/" + hname;
 	histoPlotter_->setNewPlot(full_path, opt, width, height);
-	*out << hname << " " ;
+	*out << "<HName>" << hname << "</HName>" << endl;
       }
     }
   }
+  *out << "</HPathAndHNameList>" << endl;
 }
 //
 // -- Select Histograms from Global folder
@@ -221,8 +218,9 @@ void SiStripInformationExtractor::getGlobalHistos(DQMStore* dqm_store, const mul
 
   vector<MonitorElement *> all_mes = dqm_store->getContents(path);
 
-  setHTMLHeader(out);
-  *out << path << " ";
+  setXMLHeader(out);
+  *out << "<HPathAndHNameList>" << endl;
+  *out << "<HPath>" << path << "</HPath>" << endl;
 
   for (vector<string>::const_iterator ih = hlist.begin();
        ih != hlist.end(); ih++) {      
@@ -235,10 +233,11 @@ void SiStripInformationExtractor::getGlobalHistos(DQMStore* dqm_store, const mul
       if (name == (*ih)) {
 	string full_path = path + "/" + hname;
 	histoPlotter_->setNewPlot(full_path, opt, width, height);
-	*out << hname << " " ;
+	*out << "<HName>" << name << "</HName>" << endl;
       }
     }
   }
+  *out << "</HPathAndHNameList>" << endl;
 }
 //
 // -- Get All histograms from a Path
@@ -254,18 +253,20 @@ void SiStripInformationExtractor::getHistosFromPath(DQMStore * dqm_store, const 
 
   string opt =" ";
 
-  setHTMLHeader(out);
+  setXMLHeader(out);
+  *out << "<HPathAndHNameList>" << endl;
+  *out << "<HPath>" << path << "</HPath>" << endl;
+
   vector<MonitorElement*> all_mes = dqm_store->getContents(path);
-  *out << path << " " ;
   for(vector<MonitorElement*>::iterator it=all_mes.begin(); it!=all_mes.end(); it++){
     MonitorElement* me = (*it);
     if (!me) continue;
     string name = me->getName();
     string full_path = path + "/" + name;
-
     histoPlotter_->setNewPlot(full_path, opt, width, height);
-    *out << name << " ";
+    *out << "<HName>" << name << "</HName>" << endl;
   }
+  *out << "</HPathAndHNameList>" << endl;
 }
 //
 // plot Histograms from Layout
@@ -274,7 +275,6 @@ void SiStripInformationExtractor::plotHistosFromLayout(DQMStore * dqm_store){
   if (layoutMap.size() == 0) return;
 
   ofstream image_file;
-  ofstream title_file;
   
   for (map<std::string, std::vector< std::string > >::iterator it = layoutMap.begin() ; it != layoutMap.end(); it++) {
     unsigned int ival = 0;
@@ -282,12 +282,7 @@ void SiStripInformationExtractor::plotHistosFromLayout(DQMStore * dqm_store){
     image_file.open(image_list.c_str(), ios::out);
     if (!image_file) return;
 
-    string title_list = "images/" + it->first +"_titles.lis";
-    title_file.open(title_list.c_str(), ios::out);
-    if (!title_file) return;
-
     image_file << "[";
-    title_file << "[";
     for (vector<string>::iterator im = it->second.begin(); 
 	 im != it->second.end(); im++) {  
       string path_name = (*im);
@@ -297,25 +292,17 @@ void SiStripInformationExtractor::plotHistosFromLayout(DQMStore * dqm_store){
       ostringstream  fname, ftitle;
       if (!me) {
         fname << "images/EmptyPlot.png";
-        ftitle << "EmptyPlot";
-        
+        ftitle << "EmptyPlot";                 
       } else {
 	fname << "images/" << it->first << "_" <<ival << ".png";
         ftitle << me->getName();
         histoPlotter_->createStaticPlot(me, fname.str());
       }
-      if (ival != it->second.size()) {
-        image_file << "\"" << fname.str() << "\","<< endl;
-	title_file << "\"" << ftitle.str() << "\","<< endl;
-      } else {
-        image_file << "\"" << fname.str() << "\"" << endl;
-	title_file << "\"" << ftitle.str() << "\""<< endl;
-      }
+      image_file << "["<< "\"" << fname.str() << "\",\"" << path_name << "\"]";
+      if (ival != it->second.size()) image_file << ","<< endl;
     }
     image_file << "]" << endl;
     image_file.close();
-    title_file << "]" << endl;
-    title_file.close();
   }
 }
 //
@@ -323,12 +310,10 @@ void SiStripInformationExtractor::plotHistosFromLayout(DQMStore * dqm_store){
 //
 void SiStripInformationExtractor::getTrackerMapHistos(DQMStore* dqm_store, const std::multimap<std::string, std::string>& req_map, xgi::Output * out) {
 
-
   uint32_t detId = atoi(getItemValue(req_map,"ModId").c_str());
  
   int width  = atoi(getItemValue(req_map, "width").c_str());
   int height = atoi(getItemValue(req_map, "height").c_str());
-  string map_type = getItemValue(req_map, "TkMapType");
 
   string opt =" ";
   
@@ -337,31 +322,21 @@ void SiStripInformationExtractor::getTrackerMapHistos(DQMStore* dqm_store, const
   folder_organizer.getFolderName(detId,path);   
 
   vector<MonitorElement*> all_mes = dqm_store->getContents(path);
-  setHTMLHeader(out);
-  *out << path << " ";
-
+  setXMLHeader(out);
+  *out << "<HPathAndHNameList>" << endl;
+  *out << "<HPath>" << path << "</HPath>" << endl;
   for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
        it!= all_mes.end(); it++) {
     MonitorElement * me = (*it);
     if (!me) continue;
     string hname = me->getName(); 
     string full_path;
-    if (map_type == "QTestAlarm") {
-      if (me->getQReports().size() != 0) {
-	string hname = me->getName(); 
-	full_path = path + "/" + hname;
-	histoPlotter_->setNewPlot(full_path, opt, width, height);
-	*out << hname << " " ;
-      }
-    } else {
-      if (hname.find(map_type) != string::npos) {
-	full_path = path + "/" + hname;
-	*out << hname << " " ;
-	histoPlotter_->setNewPlot(full_path, opt, width, height);
-        break;           
-      }
-    }
-  }   
+    full_path = path + "/" + hname;
+    histoPlotter_->setNewPlot(full_path, opt, width, height);
+    *out << "<HName>" << hname << "</HName>" << endl;
+  }
+  *out << "</HPathAndHNameList>" << endl;   
+
 }
 //
 // -- Select Histograms for a given module
@@ -373,7 +348,7 @@ void SiStripInformationExtractor::getCondDBHistos(DQMStore * dqm_store, bool& pl
   int width  = atoi(getItemValue(req_map, "width").c_str());
   int height = atoi(getItemValue(req_map, "height").c_str());
 
-  string path = "dummy_path";
+  string path = "";
   uint32_t detId;
   if (hasItem(req_map,string("ModId"))) {
     detId = atoi(getItemValue(req_map,"ModId").c_str());
@@ -384,12 +359,14 @@ void SiStripInformationExtractor::getCondDBHistos(DQMStore * dqm_store, bool& pl
   } else {
     if (sname.size() > 0) path = "SiStrip/" + sname;
   }
-  
-  setHTMLHeader(out);
-  *out << path << " ";
+  if (path.size() == 0) path = "dummy_path";
+
+  setXMLHeader(out);
+  *out << "<HPathAndHNameList>" << endl;
+  *out << "<HPath>" << path << "</HPath>" << endl;
   
   if (path == "dummy_path") {
-    *out << "Dummy " ;
+    *out << "<HName>" << "Dummy" << "</HName>" << endl;
     plot_flag = false;
   } else {
     string opt = getItemValue(req_map,"option");
@@ -417,20 +394,20 @@ void SiStripInformationExtractor::getCondDBHistos(DQMStore * dqm_store, bool& pl
     for (vector<string>::const_iterator ih = htypes.begin();
 	 ih != htypes.end(); ih++) {
       if ((*ih).size() > 0) {
-	*out << (*ih)  << " " ;
+	*out << "<HName>" << (*ih)  << "</HName>" << endl;
       }
     }
   }
+  *out << "</HPathAndHNameList>" << endl;
 }
 //
 // -- Get a tagged image 
 //
-void SiStripInformationExtractor::getIMGCImage(const multimap<string, string>& req_map, xgi::Output * out){
+void SiStripInformationExtractor::getImage(const multimap<string, string>& req_map, xgi::Output * out){
   
   string path = getItemValue(req_map,"Path");
   string image;
   histoPlotter_->getNamedImageBuffer(path, image);
-
   out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
   out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
   out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
@@ -441,57 +418,82 @@ void SiStripInformationExtractor::getIMGCImage(const multimap<string, string>& r
 //
 // -- Read Layout Group names
 //
-void SiStripInformationExtractor::readLayoutNames(multimap<string, string>& req_map, xgi::Output * out){
+void SiStripInformationExtractor::readLayoutNames(DQMStore* dqm_store, xgi::Output * out){
+  setXMLHeader(out);
+  *out << "<LayoutAndTKMapList>" << endl;
   if (layoutMap.size() > 0) {
-    setXMLHeader(out);
     *out << "<LayoutList>" << endl;
    for (map<string, vector< string > >::iterator it = layoutMap.begin();
 	it != layoutMap.end(); it++) {
      *out << "<LName>" << it->first << "</LName>" << endl;  
    }
    *out << "</LayoutList>" << endl;
-  }  
+  }
+  dqm_store->cd();
+  *out << "<TKMapOptionList>" << endl;
+  *out << "<TkMapOption>" << "QTestAlarm" << "</TkMapOption>" << endl;
+
+  for (vector<string>::const_iterator isubdet = subdetVec.begin(); isubdet != subdetVec.end(); isubdet++) {
+    string dname = (*isubdet);
+    if (!dqm_store->dirExists(dname)) continue;
+    dqm_store->cd(dname);
+    vector<string> subDirVec = dqm_store->getSubdirs();
+    if (subDirVec.size() == 0) continue;
+    for (vector<string>::const_iterator ilayer = subDirVec.begin(); ilayer != subDirVec.end(); ilayer++) {
+      string lname = (*ilayer);
+      if (lname.find("BadModuleList") != string::npos) continue; 
+      dqm_store->cd(lname);
+      break;
+    }
+    vector<string> meVec = dqm_store->getMEs();
+    for (vector<string>::const_iterator it = meVec.begin();
+	 it != meVec.end(); it++) {
+      string hname = (*it); 
+      if (hname.find("TkHMap_") != string::npos) {
+	string name = hname.substr(hname.find("TkHMap_")+7);
+	name = name.substr(0,name.find_first_of("_")); 
+	*out << "<TkMapOption>" << name << "</TkMapOption>" << endl;
+      }
+    }
+    break;
+  }
+  *out << "</TKMapOptionList>" << endl;      
+  *out << "</LayoutAndTKMapList>" << endl;
+   dqm_store->cd();
 }
 //
 // read the Module And HistoList
 //
-void SiStripInformationExtractor::readModuleAndHistoList(DQMStore* dqm_store, string& sname, const edm::ESHandle<SiStripDetCabling>& detcabling, xgi::Output * out) {
+void SiStripInformationExtractor::readModuleAndHistoList(DQMStore* dqm_store, string& sname, const edm::ESHandle<SiStripDetCabling>& detcabling,xgi::Output * out) {
 
-  std::vector<uint32_t> SelectedDetIds;
-  detcabling->addActiveDetectorsRawIds(SelectedDetIds);
+  string dname = "SiStrip/" + sname;
+  if (!dqm_store->dirExists(dname)) return;
+
+  dqm_store->cd(dname);
+  vector<string> mids; 
+  SiStripUtility::getModuleFolderList(dqm_store, mids);
+  dqm_store->cd();
 
   setXMLHeader(out);
   *out << "<ModuleAndHistoList>" << endl;
-
+  
   // Fill Module List
   *out << "<ModuleList>" << endl;
   uint32_t aDetId  = 0;
-  for (std::vector<uint32_t>::const_iterator idetid=SelectedDetIds.begin(), iEnd=SelectedDetIds.end();idetid!=iEnd;++idetid){    
-    uint32_t detId = *idetid;
-    if (detId == 0 || detId == 0xFFFFFFFF) continue;
-    if (aDetId == 0) aDetId = detId;
-    StripSubdetector subdet(*idetid);
-    if ( (sname == "ALL") ||
-         (sname == "TIB" && subdet.subdetId() == StripSubdetector::TIB) ||
-         (sname == "TOB" && subdet.subdetId() == StripSubdetector::TOB) ||
-         (sname == "TID" && subdet.subdetId() == StripSubdetector::TID) ||
-         (sname == "TEC" && subdet.subdetId() == StripSubdetector::TEC) ) {
-
-      ostringstream detIdStr;
-      detIdStr << detId;
-      *out << "<ModuleNum>" << detIdStr.str() << "</ModuleNum>" << endl;     
-    }
+  for (std::vector<string>::const_iterator it=mids.begin(); it != mids.end(); it++){    
+    string moduleId = (*it);
+    moduleId = moduleId.substr(moduleId.find("module_")+7); 
+    *out << "<ModuleNum>" << moduleId << "</ModuleNum>" << endl;     
+    if (aDetId == 0) aDetId = atoi(moduleId.c_str());
   }
+  
   *out << "</ModuleList>" << endl;
   // Fill Histo list
   *out << "<HistoList>" << endl;
-
-  SiStripFolderOrganizer folder_organizer;
-  string dir_path;
-  folder_organizer.getFolderName(aDetId,dir_path);     
-  vector<MonitorElement*> detector_mes = dqm_store->getContents(dir_path);
+  
+  vector<MonitorElement*> detector_mes = dqm_store->getContents(mids[0]);
   for (vector<MonitorElement *>::const_iterator it = detector_mes.begin();
-       it!= detector_mes.end(); it++) {
+	 it!= detector_mes.end(); it++) {
     MonitorElement * me = (*it);     
     if (!me) continue;
     string hname_full = me->getName();
@@ -500,28 +502,6 @@ void SiStripInformationExtractor::readModuleAndHistoList(DQMStore* dqm_store, st
   }
   *out << "</HistoList>" << endl;
   *out << "</ModuleAndHistoList>" << endl;
-
-  /*   std::vector<std::string> hnames;
-   std::vector<std::string> mod_names;
-   fillModuleAndHistoList(dqm_store, mod_names, hnames);
-   setXMLHeader(out);
-  *out << "<ModuleAndHistoList>" << endl;
-  *out << "<ModuleList>" << endl;
-   for (std::vector<std::string>::iterator im = mod_names.begin();
-        im != mod_names.end(); im++) {
-     *out << "<ModuleNum>" << *im << "</ModuleNum>" << endl;     
-   }
-   *out << "</ModuleList>" << endl;
-   *out << "<HistoList>" << endl;
-
-   for (std::vector<std::string>::iterator ih = hnames.begin();
-        ih != hnames.end(); ih++) {
-     *out << "<Histo>" << *ih << "</Histo>" << endl;     
-
-   }
-   *out << "</HistoList>" << endl;
-   *out << "</ModuleAndHistoList>" << endl;
-*/
 }
 //
 // Global Histogram List
@@ -555,7 +535,7 @@ void SiStripInformationExtractor::readSummaryHistoTree(DQMStore* dqm_store, stri
   string dname = "SiStrip/" + str_name;
   if (dqm_store->dirExists(dname)) {    
     dqm_store->cd(dname);
-    sumtree << "<ul id=\"dhtmlgoodies_tree\" class=\"dhtmlgoodies_tree\">" << endl;
+    sumtree << "<ul id=\"summary_histo_tree\" class=\"filetree\">" << endl;
     printSummaryHistoList(dqm_store,sumtree);
     sumtree <<"</ul>" << endl;   
   } else {
@@ -565,7 +545,7 @@ void SiStripInformationExtractor::readSummaryHistoTree(DQMStore* dqm_store, stri
   }
   setPlainHeader(out);
   *out << sumtree.str();
-   dqm_store->cd();
+  dqm_store->cd();
 }
 //
 // read the Structure And Alarm Tree
@@ -576,7 +556,7 @@ void SiStripInformationExtractor::readAlarmTree(DQMStore* dqm_store,
   string dname = "SiStrip/" + str_name;
   if (dqm_store->dirExists(dname)) {    
     dqm_store->cd(dname);
-    alarmtree << "<ul id=\"dhtmlgoodies_tree\" class=\"dhtmlgoodies_tree\">" << endl;
+    alarmtree << "<ul id=\"alarm_tree\" class=\"filetree\">" << endl;
     printAlarmList(dqm_store,alarmtree);
     alarmtree <<"</ul>" << endl; 
   } else {
@@ -586,7 +566,7 @@ void SiStripInformationExtractor::readAlarmTree(DQMStore* dqm_store,
   }
   setPlainHeader(out);
   *out << alarmtree.str();
-   dqm_store->cd();
+  dqm_store->cd();
 }
 //
 // Get elements from multi map
@@ -712,15 +692,15 @@ void SiStripInformationExtractor::readStatusMessage(DQMStore* dqm_store, std::mu
 	  else if (status == dqm::qstatus::STATUS_OK) test_status << " Ok  ";
 	  else if (status == dqm::qstatus::OTHER) test_status << " Other(" << status << ") ";
 	  string mess_str = (*it)->getMessage();
-	  test_status <<  "&lt;br/&gt;";
+	  test_status <<  " &lt;br/&gt;";
 	  mess_str = mess_str.substr(mess_str.find(" Test")+5);
 	  test_status <<  " QTest Name  : " << mess_str.substr(0, mess_str.find(")")+1) << endl;
-	  test_status << "&lt;br/&gt;";
+	  test_status << " &lt;br/&gt;";
 	  test_status <<  " QTest Detail  : " << mess_str.substr(mess_str.find(")")+2) << endl;
 	} 
 	test_status << " ======================================================== " << endl;
       }
-      *out << "<HPath>" << name << "</HPath>" << endl;         
+      *out << "<HName>" << name << "</HName>" << endl;         
     }    
   }
   *out << "</PathList>" << endl;
@@ -735,96 +715,56 @@ void SiStripInformationExtractor::readStatusMessage(DQMStore* dqm_store, std::mu
 void SiStripInformationExtractor::readQTestSummary(DQMStore* dqm_store, string type, xgi::Output * out) {
 
   int nDetsWithError = 0;
-  int nDetsWithWarning = 0;
-  int nTotalError = 0;
-  int nTotalWarning = 0;
   int nDetsTotal = 0;
   ostringstream qtest_summary, lite_summary;
   
   SiStripFolderOrganizer folder_organizer;
   for (vector<string>::const_iterator isubdet = subdetVec.begin(); isubdet != subdetVec.end(); isubdet++) {
     string dname = (*isubdet);
+    string bad_module_folder = dname + "/" + "BadModuleList";
     if (!dqm_store->dirExists(dname)) continue;
-    qtest_summary << "============"<< endl;  
-    qtest_summary << dname.substr(dname.find("View/")+5) << endl;
-    qtest_summary << "============"<< endl;  
-    qtest_summary << endl;  
 
     dqm_store->cd(dname);
-    int ndet    = 0;
-    int errdet  = 0;       
-    int warndet = 0;
-    vector<string> subDirVec = dqm_store->getSubdirs();
-    for (vector<string>::const_iterator ic = subDirVec.begin();
-	 ic != subDirVec.end(); ic++) {
-      dqm_store->cd((*ic));
-      vector<string> mids;
-      SiStripUtility::getModuleFolderList(dqm_store, mids);
-      ndet += mids.size();
-      for (vector<string>::const_iterator im = mids.begin();
-	   im != mids.end(); im++) {
-        string det_str = (*im);
-        det_str =  det_str.substr(det_str.find("module_")+7);
-	uint32_t detId = atoi((det_str).c_str());
-	vector<MonitorElement*> meVec = dqm_store->getContents((*im));
-	if (meVec.size() == 0) continue;
-	int err_me = 0;
-	int warn_me = 0;
-	for (vector<MonitorElement*>::const_iterator it = meVec.begin();
-	     it != meVec.end(); it++) {
-	  MonitorElement * me = (*it);     
-	  if (!me) continue;
-	  if (me->getQReports().size() == 0) continue;
-          string me_name = me->getName();
-          me_name = me_name.substr(0,me_name.find("__det__"));
-	  int istat =  SiStripUtility::getMEStatus((*it));
-          if (istat == dqm::qstatus::STATUS_OK) continue; 
-	  if (err_me == 0 && warn_me == 0) qtest_summary << " Module Id " << detId << " : "<< endl;
-	  if (istat == dqm::qstatus::ERROR) {
-	    err_me++;
-	    qtest_summary << me_name << " ==> Error  "; 
-	  } else if (istat == dqm::qstatus::WARNING) {
-	    warn_me++;
-	    qtest_summary << me_name << " ==> Warning  "; 
-	  } else if (istat == dqm::qstatus::OTHER) {
-	    qtest_summary << me_name << " ==> Other  "; 
-	  }
-	}
-	if (err_me > 0 || warn_me >0) {
-          qtest_summary << endl;
-	  if (err_me > 0) {
-	    errdet++;
-	    nTotalError += err_me;
-	  }
-          if (warn_me > 0) {
-            warndet++;
-	    nDetsWithWarning++;
-	    nTotalWarning += warn_me;
-          }
-        }
-      }      
-    }
-    qtest_summary << "--------------------------------------------------------------------"<< endl;  
-    qtest_summary << " Detectors :  Total "<< ndet 
-                  << " with Error " << errdet  
-                  << " with Warning " << warndet << endl; 
-    qtest_summary << "--------------------------------------------------------------------"<< endl;  
-    nDetsTotal += ndet;    
-    nDetsWithError += errdet;
-    nDetsWithWarning += warndet;
-  }
-  lite_summary << " Total Detectors " << nDetsTotal << endl;
-  lite_summary << " # of Detectors with Warning " << nDetsWithWarning << endl;
-  lite_summary << " # of Detectors with Error " << nDetsWithError << endl;
-  lite_summary << endl;
-  lite_summary << endl;
-  lite_summary << " Total # MEs with Warning " << nTotalWarning << endl;
-  lite_summary << " Total # MEs with Error "   << nTotalError << endl;
+    vector<string> mids;
+    SiStripUtility::getModuleFolderList(dqm_store, mids);
+  
+    int ndet    = mids.size();
+    int errdet = 0;
+     
+    qtest_summary << dname.substr(dname.find("View/")+5) << " : <br/>";
+    qtest_summary << "=============================="<< "<br/>";
+    if (dqm_store->dirExists(bad_module_folder)) {
 
-  setPlainHeader(out);
+      std::vector<MonitorElement *> meVec = dqm_store->getContents(bad_module_folder);
+      for (std::vector<MonitorElement *>::const_iterator it = meVec.begin();
+           it != meVec.end(); it++) {
+        errdet++;
+        int flag = (*it)->getIntValue();
+	string message;
+	SiStripUtility::getBadModuleStatus(flag, message);
+        qtest_summary << " Module Id " << (*it)->getName() << " has "<< message << "<br/>";
+      }
+    }
+    qtest_summary << "--------------------------------------------------------------------"<< "<br/>";
+    qtest_summary << " Detectors :  Total "<< ndet
+		  << " with Error " << errdet << "<br/>";
+    qtest_summary << "--------------------------------------------------------------------"<< "<br/>";
+    nDetsWithError += errdet;
+    nDetsTotal     += ndet;
+  }
+  qtest_summary << "--------------------------------------------------------------------"<< "<br/>";
+  qtest_summary << "--------------------------------------------------------------------"<< "<br/>";
+  qtest_summary << " Total Detectors " << nDetsTotal;
+  qtest_summary << " # of Detectors with Error " << nDetsWithError << "<br/>";
+  qtest_summary << "--------------------------------------------------------------------"<< "<br/>";
+  qtest_summary << "--------------------------------------------------------------------"<< "<br/>";
+
+  lite_summary << " Total Detectors " << nDetsTotal << "<br/>";
+  lite_summary << " # of Detectors with Error " << nDetsWithError << "<br/>";
+
+  setHTMLHeader(out);
   if (type == "Lite") *out << lite_summary.str();
   else {
-    //   if (nDetsWithWarning == 0 && nDetsWithError ==0)  *out << lite_summary.str();
     *out << qtest_summary.str();
   }
   dqm_store->cd();
@@ -874,7 +814,7 @@ void SiStripInformationExtractor::readNonGeomHistoTree(DQMStore* dqm_store, stri
   string dname = "SiStrip/" + fld_name;
   if (dqm_store->dirExists(dname)) {    
     dqm_store->cd(dname);
-    sumtree << "<ul id=\"dhtmlgoodies_tree\" class=\"dhtmlgoodies_tree\">" << endl;
+    sumtree << "<ul id=\"non_geo_tree\" class=\"filetree\">" << endl;
     printNonGeomHistoList(dqm_store,sumtree);
     sumtree <<"</ul>" << endl;   
   } else {
@@ -884,7 +824,7 @@ void SiStripInformationExtractor::readNonGeomHistoTree(DQMStore* dqm_store, stri
   }
   setPlainHeader(out);
   *out << sumtree.str();
-   dqm_store->cd();
+  dqm_store->cd();
 }
 //
 // --  Fill Readout/Control Histo List
@@ -894,8 +834,7 @@ void SiStripInformationExtractor::printNonGeomHistoList(DQMStore * dqm_store, os
 
   string currDir = dqm_store->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
-  str_val << "<li><a href=\"#\" id=\"" 
-          << currDir << "\">" << dname << "</a>" << endl;
+  str_val << "<li><span class=\"folder\">" << dname << "</span>" << endl;
   vector<MonitorElement *> meVec = dqm_store->getContents(currDir);
   vector<string> subDirVec = dqm_store->getSubdirs();
   if ( meVec.size()== 0  && subDirVec.size() == 0 ) {
@@ -908,11 +847,9 @@ void SiStripInformationExtractor::printNonGeomHistoList(DQMStore * dqm_store, os
     MonitorElement* me = (*it);
     if (!me) continue;
     string name = (*it)->getName();
-      str_val << "<li class=\"dhtmlgoodies_sheet.gif\">"
-              << " <a href=\"javascript:RequestHistos.DrawSingleHisto('"
-              << currDir 
-              << "')\">" << name 
-              << "</a></li>" << endl;
+    str_val << "<li> <span class=\"file\"><a href=\"javascript:RequestHistos.DrawSummaryHistogram('" 
+            << currDir
+	    << "')\">" << name << "</a></span></li>" << endl;
   }
   for (vector<string>::const_iterator ic = subDirVec.begin();
        ic != subDirVec.end(); ic++) {

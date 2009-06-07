@@ -45,7 +45,7 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
   if (requestID == "IsReady") {
     theActionFlag = NoAction;    
     if (niter > 0) {
-      infoExtractor_->readLayoutNames(requestMap_, out);
+      infoExtractor_->readLayoutNames(dqmStore_, out);
     } else {
       returnReplyXml(out, "ReadyState", "wait");
     }
@@ -99,8 +99,8 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
   else if (requestID == "PlotHistogramFromLayout") {
     theActionFlag = PlotHistogramFromLayout;
   } 
-  else if (requestID == "GetIMGCImage") { 
-   infoExtractor_->getIMGCImage(requestMap_, out);
+  else if (requestID == "GetImage") { 
+   infoExtractor_->getImage(requestMap_, out);
   }
   else if (requestID == "GetTkMap") { 
     theActionFlag = NoAction;    

@@ -12,8 +12,9 @@
 #include <string>
 
 class DQMStore;
-
+class TkDetMap;
 class TrackerMap;
+
 class SiStripTrackerMapCreator {
 
  public:
@@ -28,10 +29,13 @@ class SiStripTrackerMapCreator {
 
  private:
 
-  void paintTkMapFromAlarm(int det_id, DQMStore* dqm_store);
-  void paintTkMapFromHistogram(int det_id, DQMStore* dqm_store, std::string& map_type);
+  void paintTkMapFromAlarm(uint32_t det_id, DQMStore* dqm_store);
+  void paintTkMapFromHistogram(uint32_t det_id, DQMStore* dqm_store, std::string& map_type);
+  void setTkMapRange(std::string& map_type);
 
   TrackerMap* trackerMap_;
   std::string tkMapName_;
+
+  TkDetMap* tkDetMap_;
 };
 #endif
