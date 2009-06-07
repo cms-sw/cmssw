@@ -1180,6 +1180,7 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key,
   *fedstream << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 		 	          << std::endl ;
   *fedstream << ""                                                                                        << std::endl ; 
   *fedstream << " <HEADER>"                                                                               << std::endl ; 
+  *fedstream << "  <HINTS mode='load-as-group' /> "                                                       << std::endl ;   
   *fedstream << "  <TYPE>"                                                                                << std::endl ; 
   *fedstream << "   <EXTENSION_TABLE_NAME>FED_CONFIGURATION</EXTENSION_TABLE_NAME>"                       << std::endl ; 
   *fedstream << "   <NAME>Pixel FED Configuration</NAME>"                                                 << std::endl ; 
@@ -1214,7 +1215,7 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key,
   *rocstream << "<ROOT xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"                          << std::endl ;
   *rocstream << ""                                                                                        << std::endl ;
   *rocstream << " <HEADER>"                                                                               << std::endl ;
-  *rocstream << "  <HINTS mode='only-de-root'/>"                                                          << std::endl ;
+  *rocstream << "  <HINTS mode='only-det-root,load-as-group'/>"                                           << std::endl ;
   *rocstream << "  <TYPE>"                                                                                << std::endl ;
   *rocstream << "   <EXTENSION_TABLE_NAME>ROC_ANALOG_LEVELS</EXTENSION_TABLE_NAME>"                       << std::endl ;
   *rocstream << "   <NAME>ROC Analog Levels</NAME>"                                                       << std::endl ;
@@ -1249,7 +1250,7 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key,
   *tbmstream << "<ROOT xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"                          << std::endl ;
   *tbmstream << ""                                                                                        << std::endl ;
   *tbmstream << " <HEADER>"                                                                               << std::endl ;
-  *tbmstream << "  <HINTS mode='only-det-root' />"                                                        << std::endl ;
+  *tbmstream << "  <HINTS mode='only-det-root,load-as-group' />"                                          << std::endl ;
   *tbmstream << "  <TYPE>"                                                                                << std::endl ;
   *tbmstream << "   <EXTENSION_TABLE_NAME>TBM_ANALOG_LEVELS</EXTENSION_TABLE_NAME>"                       << std::endl ;
   *tbmstream << "   <NAME>TBM Analog Levels</NAME>"                                                       << std::endl ;
