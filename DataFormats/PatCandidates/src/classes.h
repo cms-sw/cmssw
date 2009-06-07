@@ -178,9 +178,6 @@ namespace {
                                    Should be elsewhere.
                                    Needed by PAT after reshuffling, at least for Electrons and Photons
        ==========================================================================================================================   */
-  edm::Ptr<reco::Muon>	        ptr_mu;
-  edm::PtrVector<reco::Muon>	ptrv_mu;
-
   edm::Ptr<reco::GsfElectron>	     ptr_e;
   edm::PtrVector<reco::GsfElectron>  ptrv_e;
 

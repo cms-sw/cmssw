@@ -144,8 +144,6 @@
                                    Should be elsewhere.
                                    Needed by PAT for Electrons and Photons after reshuffling.
        ========================================================================================================================== -->
-  <class name="edm::Ptr<reco::Muon>" />
-  <class name="edm::PtrVector<reco::Muon>" />
 
   <class name="edm::Ptr<reco::GsfElectron>" />
   <class name="edm::PtrVector<reco::GsfElectron>" />
