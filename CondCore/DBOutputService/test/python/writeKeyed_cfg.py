@@ -13,13 +13,25 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
-    timetype = cms.untracked.string('hash'),
+    timetype = cms.untracked.string('runnumber'),
     withWrapper = cms.untracked.bool(True),
     outOfOrder = cms.untracked.bool(True),
-    toPut = cms.VPSet(cms.PSet(
-        record = cms.string('keys'),
-        tag = cms.string('KeyTest')
-    ))
+    toPut = cms.VPSet(
+    cms.PSet(
+    record = cms.string('keys'),
+    tag = cms.string('KeyTest').
+    timetype = cms.untracked.string('hash'),
+    withWrapper = cms.untracked.bool(True),
+    outOfOrder = cms.untracked.bool(True)
+    ),
+    cms.PSet(
+    record = cms.string('names'),
+    tag = cms.string('ConfTest').
+    timetype = cms.untracked.string('runnumber'),
+    withWrapper = cms.untracked.bool(True),
+    outOfOrder = cms.untracked.bool(False)
+    )
+    )
 )
 
 process.mytest = cms.EDAnalyzer("writeKeyed")

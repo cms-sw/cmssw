@@ -37,13 +37,25 @@ writeKeyed::endJob() {
 
   edm::Service<cond::service::PoolDBOutputService> outdb;
 
-  
+
+  // populated with the keyed payloads (configurations)
   for ( int i=0; i<dict.size();i++)
     for (int j=0;j<7;j++) {
       cond::KeyedElement k(new cond::BaseKeyed(),dict[i]+nums[j]);
       std::cout << (*k.m_sum) << " " << k.m_key << std::endl;
       outdb->writeOne(k.m_obj,k.m_sum,k.m_key,keys);
     }
+
+  // populate the master payload
+  int run=10;
+  for (int j=0;j<7;j++) {
+    std::vector<cond::time_t> * kl = new std::vector<cond::time_t>(dict.size());
+    for ( int i=0; i<dict.size();i++)
+      (*kl)[i]=cond::KeyedElement::convert(dict[i]+nums[j]);
+    outdb->writeOne(kl,new cond::GenericSummary(nums[j]),run,names);
+	  run+=10;
+  }
+
 }
 
 writeKeyed::writeKeyed(const edm::ParameterSet& iConfig ) :
