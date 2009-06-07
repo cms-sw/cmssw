@@ -48,7 +48,7 @@ namespace {
     virtual ~CondGetterFromESSource(){}
 
     cond::IOVProxy get(std::string name) const {
-      ProxyMap::const_iterator p = m_proxies.find(name);
+      PoolDBESSource::ProxyMap::const_iterator p = m_proxies.find(name);
       if ( p != m_proxies.end())
 	return (*p).second->proxy().iov();
       return cond::IOVProxy();
