@@ -50,7 +50,7 @@ namespace {
     cond::IOVProxy get(std::string name) const {
       PoolDBESSource::ProxyMap::const_iterator p = m_proxies.find(name);
       if ( p != m_proxies.end())
-	return (*p).second->proxy().iov();
+	return (*p).second->proxy()->iov();
       return cond::IOVProxy();
     }
 
@@ -125,7 +125,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     for(it=itBeg;it!=itEnd;++it){
       
       cond::Connection &  conn = *cond::ConnectionHandler::Instance().getConnection(it->pfn);
-      cond::CoralTransaction& coraldb=c.coralTransaction();
+      cond::CoralTransaction& coraldb=conn.coralTransaction();
       cond::MetaData metadata(coraldb);
       coraldb.start(true);
       cond::MetaDataEntry result;
@@ -146,7 +146,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     ProxyMap::iterator e= m_proxies.end();
     for (;b!=e;b++) {
 
-      (*b).second->proxy().loadMore(visitor);
+      (*b).second->proxy()->loadMore(visitor);
 
       edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType( (*b).first ) );
       if( recordKey.type() != edm::eventsetup::EventSetupRecordKey::TypeTag() ) {
