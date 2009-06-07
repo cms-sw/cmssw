@@ -59,7 +59,7 @@ writeKeyed::endJob() {
 }
 
 writeKeyed::writeKeyed(const edm::ParameterSet& iConfig ) :
-  keys("keys") names("names"){}
+  keys("keys"), names("names"){}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(writeKeyed);

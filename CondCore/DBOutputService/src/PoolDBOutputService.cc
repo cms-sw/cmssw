@@ -46,10 +46,10 @@ cond::service::PoolDBOutputService::fillRecord( edm::ParameterSet & pset) {
   thisrecord.m_tag = pset.getParameter<std::string>("tag");
   
   thisrecord.m_withWrapper =  
-    iConfig.getUntrackedParameter<bool>("withWrapper", m_withWrapper);
+    pset.getUntrackedParameter<bool>("withWrapper", m_withWrapper);
  
   thisrecord.m_freeInsert = 
-    iConfig.getUntrackedParameter<bool>("outOfOrder",.m_freeInsert);
+    pset.getUntrackedParameter<bool>("outOfOrder",m_freeInsert);
   
   thisrecord.m_timetype=cond::findSpecs(pset.getUntrackedParameter< std::string >("timetype",m_timetypestr)).type;
 
