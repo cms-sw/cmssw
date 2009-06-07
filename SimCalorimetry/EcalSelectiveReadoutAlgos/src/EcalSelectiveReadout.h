@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-"
 /*
- * $Id: EcalSelectiveReadout.h,v 1.6 2007/02/14 18:37:04 pgras Exp $
+ * $Id: EcalSelectiveReadout.h,v 1.7 2007/06/04 16:09:30 pgras Exp $
  */
 
 #ifndef ECALSELECTIVEREADOUT_H
@@ -13,6 +13,7 @@
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
 #define ECALSELECTIVEREADOUT_NOGEOM //version w/o geometry dependency.
 
@@ -115,6 +116,15 @@ public:
   /** Number of trigger towers in an eta ring
    */
   const static size_t nTriggerTowersInPhi = 72;
+
+  /** Maximum number of DCC channels used from crystal channels
+   * (channel #69 and #70 used for MEM are not counted here)
+   */
+  const static int maxDccChs = 68;
+
+  /** Number of DCC per endcap
+   */
+  const static int nDccPerEe = 9;
   
   //constructor(s) and destructor(s)
 public:
@@ -135,6 +145,13 @@ public:
     theTriggerMap = map;
   }
 
+  /// the electronics map, used to get information about
+  /// the DCC and DCC channel used to read a crystal channel
+  void setElecMap(const EcalElectronicsMapping * map) {
+    theElecMap = map;
+  }
+
+  
 #ifndef ECALSELECTIVEREADOUT_NOGEOM
   void setGeometry(const CaloGeometry * caloGeometry) {
     theGeometry = caloGeometry;
@@ -207,6 +224,20 @@ public:
   
 private:
 
+  /** Get access to eeRuInterest element corresponding
+   * to an EE det Id
+   * @param id the EE det id
+   * @return reference to the eeRuInterest array element
+   */
+  towerInterest_t& eeRuInterest(const EEDetId& id);
+
+  /** Get access to eeRuInterest element corresponding
+   * to an SC det Id
+   * @param id the SC det id
+   * @return reference to the eeRuInterest array element
+   */
+  towerInterest_t eeRuInterest(const EcalScDetId& id) const;
+
   /** Classifies trigger tower in three classes:<UL>
    * <LI> low interest: value 'lowInterest'
    * <LI> middle interest: value 'single'
@@ -217,9 +248,13 @@ private:
   classifyTriggerTowers(const ttFlag_t ttFlags[nTriggerTowersInEta][nTriggerTowersInPhi]);
   
   
-  /** Sets all supercrystal interest flags to 'unknown'
+  // /** Sets all supercrystal interest flags to 'unknown'
+  //  */
+  // void resetSupercrystalInterest();
+
+  /** Sets all endcap RU interest flags to 'unknown'
    */
-  void resetSupercrystalInterest();
+  void resetEeRuInterest();
   
   /** Changes the value of a variable iff that has
    *  the effect to decrease the variable value
@@ -241,16 +276,23 @@ private:
   void setHigher(T& var, T val) const{
     if(val>var) var = val;
   }
+
+  void
+  printDccChMap(std::ostream& os) const;
+
   
   //attribute(s)
 private:
 
   const EcalTrigTowerConstituentsMap * theTriggerMap;
+  const EcalElectronicsMapping* theElecMap;
+  
 #ifndef ECALSELECTIVEREADOUT_NOGEOM
   const CaloGeometry * theGeometry;
 #endif //ECALSELECTIVEREADOUT_NOGEOM not defined
   towerInterest_t towerInterest[nTriggerTowersInEta][nTriggerTowersInPhi];
-  towerInterest_t supercrystalInterest[nEndcaps][nSupercrystalXBins][nSupercrystalYBins];
+  //towerInterest_t supercrystalInterest[nEndcaps][nSupercrystalXBins][nSupercrystalYBins];
+  towerInterest_t eeRuInterest_[nEndcaps][nDccPerEe][maxDccChs];
   int dEta;
   int dPhi;
 

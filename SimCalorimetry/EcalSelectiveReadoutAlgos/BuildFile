@@ -1,5 +1,6 @@
 <use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloTopology>
+<use name=Geometry/EcalMapping>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
 <use name=CondFormats/EcalObjects>
@@ -14,6 +15,7 @@
   <use name=DataFormats/EcalDetId>
   <use name=CondFormats/EcalObjects>
   <use name=CalibFormats/CaloObjects>
+  <use name=Geometry/EcalMapping>
   <use name=boost>
 </export>
 

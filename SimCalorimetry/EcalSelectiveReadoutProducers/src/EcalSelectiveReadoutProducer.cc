@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <memory>
@@ -56,6 +57,7 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
   // check that everything is up-to-date
   checkGeometry(eventSetup);
   checkTriggerMap(eventSetup);
+  checkElecMap(eventSetup);
 
   //gets the trigger primitives:
   EcalTrigPrimDigiCollection emptyTPColl;
@@ -177,6 +179,22 @@ void EcalSelectiveReadoutProducer::checkTriggerMap(const edm::EventSetup & event
   if(pMap!= theTriggerTowerMap) {
     theTriggerTowerMap = pMap;
     suppressor_->setTriggerMap(theTriggerTowerMap);
+  }
+}
+
+
+void EcalSelectiveReadoutProducer::checkElecMap(const edm::EventSetup & eventSetup)
+{
+
+   edm::ESHandle<EcalElectronicsMapping> eElecmap;
+   eventSetup.get<EcalMappingRcd>().get(eElecmap);
+
+   const EcalElectronicsMapping * pMap = &*eElecmap;
+  
+  // see if we need to update
+  if(pMap!= theElecMap) {
+    theElecMap = pMap;
+    suppressor_->setElecMap(theElecMap);
   }
 }
 

@@ -6,6 +6,7 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -30,6 +31,12 @@ public:
    */
   void setTriggerMap(const EcalTrigTowerConstituentsMap * map);
 
+  /** Set the ECAL electronics mapping
+   * @param map the ECAL electronics map
+   */
+  void setElecMap(const EcalElectronicsMapping * map);
+
+  
   /** Sets the geometry of the calorimeters
    */
   void setGeometry(const CaloGeometry * caloGeometry);

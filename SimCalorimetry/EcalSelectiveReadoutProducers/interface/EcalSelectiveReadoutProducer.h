@@ -74,14 +74,19 @@ private:
 
   const EcalTrigPrimDigiCollection*
   getTrigPrims(edm::Event& event) const;
-  
+
+  ///@{
   /// call these once an event, to make sure everything
   /// is up-to-date
   void
   checkGeometry(const edm::EventSetup & eventSetup);
   void
   checkTriggerMap(const edm::EventSetup & eventSetup);
+  void
+  checkElecMap(const edm::EventSetup & eventSetup);
 
+  ///@}
+  
   void
   printTTFlags(const EcalTrigPrimDigiCollection& tp, std::ostream& os) const;
   
@@ -100,6 +105,7 @@ private:
   // store the pointer, so we don't have to update it every event
   const CaloGeometry * theGeometry;
   const EcalTrigTowerConstituentsMap * theTriggerTowerMap;
+  const EcalElectronicsMapping * theElecMap;
   edm::ParameterSet params_;
 
   bool trigPrimBypass_;

@@ -65,6 +65,10 @@ void EcalSelectiveReadoutSuppressor::setTriggerMap(const EcalTrigTowerConstituen
   ecalSelectiveReadout->setTriggerMap(map);
 }
 
+void EcalSelectiveReadoutSuppressor::setElecMap(const EcalElectronicsMapping * map){
+  ecalSelectiveReadout->setElecMap(map);
+}
+
 
 void EcalSelectiveReadoutSuppressor::setGeometry(const CaloGeometry * caloGeometry) 
 {
@@ -307,7 +311,7 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
 	    flag = srFlags[BARREL][interest];
 	  }
 	  eeSrFlags.push_back(EESrFlag(id, flag));
-	} else{
+	} else if(iX < 9 || iX > 12 || iY < 9 || iY >12){ //not an inner partial SC
 	  cout << __FILE__ << ":" << __LINE__ << ": "
 	       <<  "negative interest in EE for SC "
 	       << id << "\n";
