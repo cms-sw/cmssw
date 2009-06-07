@@ -39,7 +39,25 @@ namespace {
   std::string
   buildName( const std::string& iRecordName) {
     return iRecordName+"@NewProxy";
-  }  
+  }
+
+
+  class CondGetterFromESSource : public cond::CondGetter {
+  public:
+    CondGetterFromESSource(PoolDBESSource::ProxyMap const & ip) : m_proxies(ip){}
+    virtual ~CondGetterFromESSource(){}
+
+    IOVProxy get(std::string name) const {
+      ProxyMap::const_iterator p = m_proxies.find(name);
+      if ( p != m_proxies.end())
+	return (*p).second.proxy().iov();
+      return IOVProxy();
+    };
+
+    PoolDBESSource::ProxyMap const & m_proxies;
+  };
+
+
 }
 
 
@@ -105,7 +123,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
 
     cond::ConnectionHandler::Instance().connect(&m_session);
     for(it=itBeg;it!=itEnd;++it){
-
+      
       cond::Connection &  conn = *cond::ConnectionHandler::Instance().getConnection(it->pfn);
       cond::CoralTransaction& coraldb=c.coralTransaction();
       cond::MetaData metadata(coraldb);
@@ -113,20 +131,32 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       cond::MetaDataEntry result;
       metadata.getEntryByTag(it->tag,result);
       coraldb.commit();
-
+      
+      
       cond::DataProxyWrapperBase * pb =  cond::ProxyFactory::get()->create(buildName(it->recordname), conn, 
 									   cond::DataProxyWrapperBase::Args(result.iovtoken, it->labelname));
-
+      
       ProxyP proxy(pb);
       m_proxies[it->recordname] = proxy;
 
-      edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType( it->recordname ) );
+    }
+    
+    CondGetterFromESSource visitor(m_proxies);
+    ProxyMap::iterator b= m_proxies.begin();
+    ProxyMap::iterator e= m_proxies.end();
+    for (;b!=e;b++) {
+
+      (*b).second.proxy().loadMore(visitor);
+
+      edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType( (*b).first ) );
       if( recordKey.type() != edm::eventsetup::EventSetupRecordKey::TypeTag() ) {
 	findingRecordWithKey( recordKey );
 	usingRecordWithKey( recordKey );   
       }
-}
 
+    }
+
+}
 
 
 PoolDBESSource::~PoolDBESSource() {}

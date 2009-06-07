@@ -23,13 +23,17 @@
 
 namespace cond {
    
-   class IOVKeysDescription;
+  class IOVKeysDescription;
 
   class KeyList {
   public:
     typedef cond::DataWrapper<BaseKeyed> Wrapper;
 
-    KeyList(IOVKeysDescription const * idescr);
+    KeyList(IOVKeysDescription const * idescr=0);
+
+    void init(cond::IOVProxy const & seq ) {
+      m_sequence = seq;
+    }
 
     void load(std::vector<unsigned long long> const & keys);
 
@@ -43,6 +47,8 @@ namespace cond {
       return dynamic_cast<T const *>(elem(iname));
     }
     
+    BaseKeyed const * elem(int n) const;
+
     BaseKeyed const * elem(char const * iname) const;
 
     BaseKeyed const * elem(std::string const & iname) const;

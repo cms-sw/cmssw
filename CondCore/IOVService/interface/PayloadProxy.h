@@ -12,6 +12,16 @@ namespace pool{
 
 namespace cond {
 
+  /* get iov by name (key, tag...)
+
+   */
+  class CondGetter {
+  public:
+    virtual ~CondGetter();
+    IOVProxy get(std::string name) const=0;
+
+  };
+
   /* implementation detail: 
     implements the not templated part...
 
@@ -58,11 +68,10 @@ namespace cond {
   template<typename DataT>
   class PayloadProxy : public BasePayloadProxy {
   public:
-    typedef cond::DataWrapper<DataT> DataWrapper;
-
+ 
     PayloadProxy(cond::Connection& conn,
 		 const std::string & token, bool errorPolicy) :
-      BasePayloadProxy(conn, token, errorPolicy), old(false){}
+      BasePayloadProxy(conn, token, errorPolicy) {}
     
     virtual ~PayloadProxy(){}
 
@@ -75,7 +84,7 @@ namespace cond {
       m_data.clear();
     }
 
-  private:
+  protected:
     virtual bool load(pool::IDataSvc * svc, std::string const & token) {
       return m_data.load(svc,token);
 

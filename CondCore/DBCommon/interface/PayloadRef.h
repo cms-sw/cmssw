@@ -16,7 +16,7 @@ namespace cond {
   template<typename DataT>
   class PayloadRef {
   public:
-    PayloadRef(){}
+    PayloadRef() : old(false){}
     ~PayloadRef(){}
 
    // dereference (does not re-load)

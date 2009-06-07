@@ -35,6 +35,10 @@ namespace cond{
 class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
 		       public edm::EventSetupRecordIntervalFinder{
  public:
+  typedef boost::shared_ptr<cond::DataProxyWrapperBase > ProxyP;
+  typedef std::map< std::string,  ProxyP> ProxyMap;
+ 
+
   PoolDBESSource( const edm::ParameterSet& );
   ~PoolDBESSource();
   
@@ -51,8 +55,6 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
   // ----------member data ---------------------------
   cond::DBSession m_session;
  
-  typedef boost::shared_ptr<cond::DataProxyWrapperBase > ProxyP;
-  typedef std::map< std::string,  ProxyP> ProxyMap;
   ProxyMap m_proxies;
 
   typedef std::set< cond::TagMetadata > TagCollection;
