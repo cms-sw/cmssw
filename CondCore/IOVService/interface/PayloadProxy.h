@@ -17,7 +17,7 @@ namespace cond {
    */
   class CondGetter {
   public:
-    virtual ~CondGetter();
+    virtual ~CondGetter(){}
     IOVProxy get(std::string name) const=0;
 
   };
@@ -32,7 +32,7 @@ namespace cond {
     BasePayloadProxy(cond::Connection& conn,
 		     const std::string & token, bool errorPolicy);
     
-    virtual~BasePayloadProxy();
+    virtual ~BasePayloadProxy();
 
     virtual void invalidateCache()=0;
 
@@ -50,6 +50,8 @@ namespace cond {
     TimeType timetype() const { return m_iov.timetype();}
 
     IOVProxy const & iov() const { return m_iov;}
+
+    virtual void loadMore(CondGetter const &){}
 
   private:
     virtual bool load(pool::IDataSvc * svc, std::string const & token) =0;   

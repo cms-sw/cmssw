@@ -16,20 +16,23 @@ namespace cond {
   template<typename DataT>
   class PayloadRef {
   public:
+    typedef cond::DataWrapper<DataT> DataWrapper;
+ 
+
     PayloadRef() : old(false){}
     ~PayloadRef(){}
-
-   // dereference (does not re-load)
+    
+    // dereference (does not re-load)
     const DataT & operator*() const {
       return old ? *m_OldData : m_data->data(); 
     }
     
     
-   void clear() {
+    void clear() {
       m_data.clear();
       m_OldData.clear();
     }
-
+    
     
     bool load(pool::IDataSvc * svc, std::string const & token) {
       old = false;
@@ -59,6 +62,6 @@ namespace cond {
     // Backward compatibility
     pool::Ref<DataT> m_OldData;
   };
-
+  
 }
 #endif // CondCore_IOVService_PayloadProxy_h
