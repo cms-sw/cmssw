@@ -106,7 +106,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     cond::ConnectionHandler::Instance().connect(&m_session);
     for(it=itBeg;it!=itEnd;++it){
 
-      cond::Connection &  c= *cond::ConnectionHandler::Instance().getConnection(it->pfn);
+      cond::Connection &  conn = *cond::ConnectionHandler::Instance().getConnection(it->pfn);
       cond::CoralTransaction& coraldb=c.coralTransaction();
       cond::MetaData metadata(coraldb);
       coraldb.start(true);
@@ -114,20 +114,17 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       metadata.getEntryByTag(it->tag,result);
       coraldb.commit();
 
-      cond::DataProxyWrapperBase * pb =  cond::ProxyFactory::get()->create(buildName(it->recordname), c, 
+      cond::DataProxyWrapperBase * pb =  cond::ProxyFactory::get()->create(buildName(it->recordname), conn, 
 									   cond::DataProxyWrapperBase::Args(result.iovtoken, it->labelname));
 
       ProxyP proxy(pb);
+      m_proxies[it->recordname] = proxy;
 
       edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType( it->recordname ) );
-      if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag() ) {
-	//record not found
-	throw cond::Exception("NoRecord")<<"The record \""<< it->recordname <<"\" does not exist ";
+      if( recordKey.type() != edm::eventsetup::EventSetupRecordKey::TypeTag() ) {
+	findingRecordWithKey( recordKey );
+	usingRecordWithKey( recordKey );   
       }
-      m_proxies[it->recordname] = proxy;
-      findingRecordWithKey( recordKey );
-      usingRecordWithKey( recordKey );   
-    }
 }
 
 
@@ -149,7 +146,9 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     return;
   }
 
+  bool userTime=false;
   cond::TimeType timetype = (*p).second->proxy()->timetype();
+
   cond::Time_t abtime;
   if( timetype == cond::timestamp ){
     abtime=(cond::Time_t)iTime.time().value();
@@ -159,33 +158,33 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     edm::LuminosityBlockID lum(iTime.eventID().run(), iTime.luminosityBlockNumber());
     abtime=(cond::Time_t)lum.value();
   }else{
-    throw cond::Exception("invalid timetype");
+    userTime=true;
   }
   //std::cout<<"abtime "<<abtime<<std::endl;
 
- 
-  cond::ValidityInterval validity = (*p).second->proxy()->setIntervalFor(abtime);
-
-  edm::IOVSyncValue start,stop;
- 
- if( timetype == cond::timestamp ){
-    start=edm::IOVSyncValue( edm::Timestamp(validity.first) );
-    stop=edm::IOVSyncValue( edm::Timestamp(validity.second) );
-  }else if( timetype == cond::runnumber ){
-    start=edm::IOVSyncValue( edm::EventID(validity.first,0) );
-    stop=edm::IOVSyncValue( edm::EventID(validity.second,edm::EventID::maxEventNumber()) );
-  }else if( timetype == cond::lumiid ){
-    edm::LuminosityBlockID lumstart((boost::uint64_t)validity.first);
-    start=edm::IOVSyncValue(edm::EventID(lumstart.run(),0), lumstart.luminosityBlock());
-    edm::LuminosityBlockID lumstop((boost::uint64_t)validity.second);
-    stop=edm::IOVSyncValue(edm::EventID(lumstop.run(),edm::EventID::maxEventNumber()), lumstop.luminosityBlock());
-  }else{
-    throw cond::Exception("invalid timetype");
+  if (!userTime) {
+    
+    cond::ValidityInterval validity = (*p).second->proxy()->setIntervalFor(abtime);
+    
+    edm::IOVSyncValue start,stop;
+    
+    if( timetype == cond::timestamp ){
+      start=edm::IOVSyncValue( edm::Timestamp(validity.first) );
+      stop=edm::IOVSyncValue( edm::Timestamp(validity.second) );
+    }else if( timetype == cond::runnumber ){
+      start=edm::IOVSyncValue( edm::EventID(validity.first,0) );
+      stop=edm::IOVSyncValue( edm::EventID(validity.second,edm::EventID::maxEventNumber()) );
+    }else if( timetype == cond::lumiid ){
+      edm::LuminosityBlockID lumstart((boost::uint64_t)validity.first);
+      start=edm::IOVSyncValue(edm::EventID(lumstart.run(),0), lumstart.luminosityBlock());
+      edm::LuminosityBlockID lumstop((boost::uint64_t)validity.second);
+      stop=edm::IOVSyncValue(edm::EventID(lumstop.run(),edm::EventID::maxEventNumber()), lumstop.luminosityBlock());
+    }
+    
+    //std::cout<<"setting validity "<<validity.first<<" "<<validity.second<<" for ibtime "<<abtime<< std::endl;
+    oInterval = edm::ValidityInterval( start, stop );
+    
   }
-
-  //std::cout<<"setting validity "<<validity.first<<" "<<validity.second<<" for ibtime "<<abtime<< std::endl;
-  oInterval = edm::ValidityInterval( start, stop );
-
   
 }
 

@@ -2,7 +2,7 @@
 #define CondCore_IOVService_PayloadProxy_h
 
 #include "CondCore/IOVService/interface/IOVProxy.h"
-#include "DataSvc/Ref.h"
+#include "CondCore/DBCommon/interface/PayloadRef.h"
 #include "CondFormats/Common/interface/PayloadWrapper.h"
 
 namespace pool{
@@ -39,6 +39,8 @@ namespace cond {
 
     TimeType timetype() const { return m_iov.timetype();}
 
+    IOVProxy const & iov() const { return m_iov;}
+
   private:
     virtual bool load(pool::IDataSvc * svc, std::string const & token) =0;   
 
@@ -66,43 +68,19 @@ namespace cond {
 
     // dereference (does not load)
     const DataT & operator()() const {
-      return old ? *m_OldData : m_data->data(); 
+      (*m_data); 
     }
-    
-    
+        
     virtual void invalidateCache() {
       m_data.clear();
-      m_OldData.clear();
     }
 
   private:
     virtual bool load(pool::IDataSvc * svc, std::string const & token) {
-      old = false;
-      invalidateCache();
-      bool ok = false;
-      // try wrapper, if not try plain
-      pool::Ref<DataWrapper> ref(svc,token);
-      if (ref) {
-	m_data.copyShallow(ref);
-	m_data->data();
-	ok= true;
-      } else {
-	pool::Ref<DataT> refo(svc,token);
-	if (refo) {
-	  old = true;
-	  m_OldData.copyShallow(refo);
-	  ok =  true;
-	}
-      }
-      return ok;
-    }
-    
-    
+      return m_data.load(svc,token);
+
   private:
-    bool old;
-    pool::Ref<DataWrapper> m_data;
-    // Backward compatibility
-    pool::Ref<DataT> m_OldData;
+     cond::PayloadRef<DataT> m_data;
   };
 
 }
