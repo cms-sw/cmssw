@@ -59,25 +59,27 @@ process.dqmSaver = cms.EDAnalyzer("DQMFileSaver",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(150)
 )
-process.source = cms.Source("DAQEcalTBInputService",
+process.source = cms.Source("PoolSource",
+    noEventSort = cms.untracked.bool(True),
+    duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
 #---
-#    fileNames = cms.untracked.vstring('/store/user/dellaric/data/H4-000006100-SM5-COSMIC-STD'),
+#    fileNames = cms.untracked.vstring('/store/user/dellaric/data/H4-000006100-SM5-COSMIC-STD.root'),
 #    runNumber = cms.untracked.uint32(6100),
 #    isBinary = cms.untracked.bool(False)
 #--
-#    fileNames = cms.untracked.vstring('/store/user/dellaric/data/H4-000008203-SM5-PEDESTAL-STD'),
+#    fileNames = cms.untracked.vstring('/store/user/dellaric/data/H4-000008203-SM5-PEDESTAL-STD.root'),
 #    runNumber = cms.untracked.uint32(8203),
 #    isBinary = cms.untracked.bool(False)
 #---
-    fileNames = cms.untracked.vstring('/store/user/dellaric/data/H4-000008205-SM5-TEST_PULSE-MGPA'),
+    fileNames = cms.untracked.vstring('/store/user/dellaric/data/H4-000008205-SM5-TEST_PULSE-MGPA.root'),
     runNumber = cms.untracked.uint32(8205),
     isBinary = cms.untracked.bool(False)
 #---
-#    fileNames = cms.untracked.vstring('/store/user/dellaric/data/H4-000008206-SM5-COSMIC-STD'),
+#    fileNames = cms.untracked.vstring('/store/user/dellaric/data/H4-000008206-SM5-COSMIC-STD.root'),
 #    runNumber = cms.untracked.uint32(8206),
 #    isBinary = cms.untracked.bool(False)
 #---
-#    fileNames = cms.untracked.vstring('/store/user/dellaric/data/H4-000015188-SM5-PEDESTAL-STD'),
+#    fileNames = cms.untracked.vstring('/store/user/dellaric/data/H4-000015188-SM5-COSMIC-STD.root'),
 #    runNumber = cms.untracked.uint32(15188),
 #    isBinary = cms.untracked.bool(True)
 #---
@@ -100,9 +102,6 @@ process.MessageLogger = cms.Service("MessageLogger",
         noLineBreaks = cms.untracked.bool(True),
         noTimeStamps = cms.untracked.bool(True),
         default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        EcalTBInputService = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         EcalTBRawToDigi = cms.untracked.PSet(
@@ -190,8 +189,7 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         )
     ),
-    categories = cms.untracked.vstring('EcalTBInputService', 
-                                       'EcalTBRawToDigi', 
+    categories = cms.untracked.vstring('EcalTBRawToDigi', 
                                        'EcalTBRawToDigiTriggerType', 
                                        'EcalTBRawToDigiTpg', 
                                        'EcalTBRawToDigiNumTowerBlocks', 

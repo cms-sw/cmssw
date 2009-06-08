@@ -85,9 +85,6 @@ process.MessageLogger = cms.Service("MessageLogger",
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        EcalTBInputService = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
         EcalTBRawToDigi = cms.untracked.PSet(
             limit = cms.untracked.int32(1000)
         ),
@@ -173,8 +170,7 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         )
     ),
-    categories = cms.untracked.vstring('EcalTBInputService', 
-                                       'EcalTBRawToDigi', 
+    categories = cms.untracked.vstring('EcalTBRawToDigi', 
                                        'EcalTBRawToDigiTriggerType', 
                                        'EcalTBRawToDigiTpg', 
                                        'EcalTBRawToDigiNumTowerBlocks', 
