@@ -1,5 +1,5 @@
 //
-// $Id: PATMETProducer.h,v 1.7 2009/03/26 20:44:37 vadler Exp $
+// $Id: PATMETProducer.h,v 1.8 2009/04/20 19:49:14 vadler Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMETProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of METType.
 
   \author   Steven Lowette
-  \version  $Id: PATMETProducer.h,v 1.7 2009/03/26 20:44:37 vadler Exp $
+  \version  $Id: PATMETProducer.h,v 1.8 2009/04/20 19:49:14 vadler Exp $
 */
 
 
@@ -41,6 +41,8 @@ namespace pat {
       ~PATMETProducer();
 
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
     private:
 

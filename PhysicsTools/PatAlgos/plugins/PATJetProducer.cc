@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.34 2009/04/01 10:38:44 vadler Exp $
+// $Id: PATJetProducer.cc,v 1.35 2009/04/20 19:49:14 vadler Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -28,6 +28,9 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
+
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "FWCore/Framework/interface/Selector.h"
 
@@ -283,6 +286,70 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   std::auto_ptr<std::vector<Jet> > myJets(patJets);
   iEvent.put(myJets);
 
+}
+
+// ParameterSet description for module
+void PATJetProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
+{
+  edm::ParameterSetDescription iDesc;
+  iDesc.setComment("PAT jet producer module");
+
+  // input source 
+  iDesc.add<edm::InputTag>("jetSource", edm::InputTag("no default"))->setComment("input collection");
+
+  // embedding
+  iDesc.add<bool>("embedCaloTowers", true)->setComment("embed external calo towers");
+
+  // MC matching configurables
+  iDesc.add<bool>("addGenPartonMatch", true)->setComment("add MC matching");
+  iDesc.add<bool>("embedGenPartonMatch", false)->setComment("embed MC matched MC information");
+  iDesc.add<edm::InputTag>("genPartonMatch", edm::InputTag())->setComment("input with MC match information");
+
+  iDesc.add<bool>("addGenJetMatch", true)->setComment("add MC matching");
+  iDesc.add<edm::InputTag>("genJetMatch", edm::InputTag())->setComment("input with MC match information");
+
+  iDesc.add<bool>("addJetCharge", true);
+  iDesc.add<edm::InputTag>("jetChargeSource", edm::InputTag("patJetCharge"));
+
+  iDesc.add<bool>("addPartonJetMatch", false);
+  iDesc.add<edm::InputTag>("partonJetSource", edm::InputTag("NOT IMPLEMENTED"));
+
+  // track association
+  iDesc.add<bool>("addAssociatedTracks", true);
+  iDesc.add<edm::InputTag>("trackAssociationSource", edm::InputTag("ic5JetTracksAssociatorAtVertex"));
+
+  // tag info
+  iDesc.add<bool>("addTagInfos", true);
+  std::vector<edm::InputTag> emptyVInputTags;
+  iDesc.add<std::vector<edm::InputTag> >("tagInfoSources", emptyVInputTags);
+
+  // jet energy corrections
+  iDesc.add<bool>("addJetCorrFactors", true);
+  iDesc.add<std::vector<edm::InputTag> >("jetCorrFactorsSource", emptyVInputTags);
+
+  // btag discriminator tags
+  iDesc.add<bool>("addBTagInfo",true);
+  iDesc.add<bool>("addDiscriminators", true);
+  iDesc.add<std::vector<edm::InputTag> >("discriminatorSources", emptyVInputTags);
+
+  // jet flavour idetification configurables
+  iDesc.add<bool>("getJetMCFlavour", true);
+  iDesc.add<edm::InputTag>("JetPartonMapSource", edm::InputTag("jetFlavourAssociation"));
+
+  iDesc.add<bool>("addResolutions",false);
+
+  // Efficiency configurables
+  edm::ParameterSetDescription efficienciesPSet;
+  efficienciesPSet.setAllowAnything(); // TODO: the pat helper needs to implement a description.
+  iDesc.add("efficiencies", efficienciesPSet);
+  iDesc.add<bool>("addEfficiencies", false);
+
+  // Check to see if the user wants to add user data
+  edm::ParameterSetDescription userDataPSet;
+  userDataPSet.setAllowAnything(); // TODO: the pat helper needs to implement a description.
+  iDesc.addOptional("userData", userDataPSet);
+
+  descriptions.add("PATJetProducer", iDesc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

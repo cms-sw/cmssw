@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.24 2009/04/09 14:51:58 veelken Exp $
+// $Id: PATTauProducer.cc,v 1.25 2009/04/20 19:49:14 vadler Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -19,6 +19,9 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
+
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <vector>
 #include <memory>
@@ -285,6 +288,77 @@ float PATTauProducer::getTauIdDiscriminator(const edm::Handle<TauCollectionType>
   edm::Ref<TauCollectionType> tauRef(tauCollection, tauIdx);
   return (*tauIdDiscr)[tauRef];
 }     
+
+// ParameterSet description for module
+void PATTauProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
+{
+  edm::ParameterSetDescription iDesc;
+  iDesc.setComment("PAT tau producer module");
+
+  // input source 
+  iDesc.add<edm::InputTag>("tauSource", edm::InputTag())->setComment("input collection");
+
+  // embedding
+  iDesc.add<bool>("embedIsolationTracks", false)->setComment("embed external isolation tracks");
+  iDesc.add<bool>("embedLeadTrack", false)->setComment("embed external leading track");
+  iDesc.add<bool>("embedLeadTracks", false)->setComment("embed external signal tracks");
+
+  // MC matching configurables
+  iDesc.add<bool>("addGenMatch", true)->setComment("add MC matching");
+  iDesc.add<bool>("embedGenMatch", false)->setComment("embed MC matched MC information");
+  std::vector<edm::InputTag> emptySourceVector;
+  iDesc.addNode( edm::ParameterDescription<edm::InputTag>("genParticleMatch", edm::InputTag(), true) xor 
+                 edm::ParameterDescription<std::vector<edm::InputTag> >("genParticleMatch", emptySourceVector, true)
+		 )->setComment("input with MC match information");
+
+  // MC jet matching variables
+  iDesc.add<bool>("addGenJetMatch", true)->setComment("add MC jet matching");
+  iDesc.add<bool>("embedGenJetMatch", false)->setComment("embed MC jet matched jet information");
+  iDesc.add<edm::InputTag>("genJetMatch", edm::InputTag("tauGenJetMatch"));
+
+
+  iDesc.add<bool>("addResolutions",false);
+
+  // tau ID configurables
+  iDesc.add<bool>("addTauID", true)->setComment("add tau ID variables");
+  edm::ParameterSetDescription tauIDSourcesPSet;
+  tauIDSourcesPSet.setAllowAnything(); 
+  iDesc.addNode( edm::ParameterDescription<edm::InputTag>("tauIDSource", edm::InputTag(), true) xor
+                 edm::ParameterDescription<edm::ParameterSetDescription>("tauIDSources", tauIDSourcesPSet, true)
+               )->setComment("input with electron ID variables");
+
+  // tau decay mode configurables
+  iDesc.add<bool>("addDecayMode", false)->setComment("add tau ID variables");  
+  iDesc.add<edm::InputTag>("decayModeSrc", edm::InputTag("fixedConePFTauDecayModeProducer"));
+
+  // IsoDeposit configurables
+  edm::ParameterSetDescription isoDepositsPSet;
+  isoDepositsPSet.addOptional<edm::InputTag>("tracker"); 
+  isoDepositsPSet.addOptional<edm::InputTag>("ecal");
+  isoDepositsPSet.addOptional<edm::InputTag>("hcal");
+  isoDepositsPSet.addOptional<edm::InputTag>("pfAllParticles");
+  isoDepositsPSet.addOptional<edm::InputTag>("pfChargedHadron");
+  isoDepositsPSet.addOptional<edm::InputTag>("pfNeutralHadron");
+  isoDepositsPSet.addOptional<edm::InputTag>("pfGamma");
+  isoDepositsPSet.addOptional<std::vector<edm::InputTag> >("user");
+  iDesc.addOptional("isoDeposits", isoDepositsPSet);
+
+  // Efficiency configurables
+  edm::ParameterSetDescription efficienciesPSet;
+  efficienciesPSet.setAllowAnything(); // TODO: the pat helper needs to implement a description.
+  iDesc.add("efficiencies", efficienciesPSet);
+  iDesc.add<bool>("addEfficiencies", false);
+
+  // Check to see if the user wants to add user data
+  edm::ParameterSetDescription userDataPSet;
+  userDataPSet.setAllowAnything(); // TODO: the pat helper needs to implement a description.
+  iDesc.addOptional("userData", userDataPSet);
+
+  edm::ParameterSetDescription isolationPSet;
+  isolationPSet.setAllowAnything(); // TODO: the pat helper needs to implement a description.
+  iDesc.add("isolation", isolationPSet);
+
+}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

@@ -1,11 +1,14 @@
 //
-// $Id: PATMETProducer.cc,v 1.10 2009/04/01 10:38:44 vadler Exp $
+// $Id: PATMETProducer.cc,v 1.11 2009/04/20 19:49:14 vadler Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMETProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DataFormats/Common/interface/View.h"
+
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <memory>
 
@@ -90,6 +93,38 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   // put genEvt object in Event
   std::auto_ptr<std::vector<MET> > myMETs(patMETs);
   iEvent.put(myMETs);
+
+}
+
+// ParameterSet description for module
+void PATMETProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
+{
+  edm::ParameterSetDescription iDesc;
+  iDesc.setComment("PAT MET producer module");
+
+  // input source 
+  iDesc.add<edm::InputTag>("metSource", edm::InputTag("no default"))->setComment("input collection");
+
+  // MC configurations
+  iDesc.add<bool>("addGenMET", false);
+  iDesc.add<edm::InputTag>("genMETSource", edm::InputTag("genMetCalo"));
+
+  iDesc.add<bool>("addResolutions",false);
+
+  // Efficiency configurables
+  edm::ParameterSetDescription efficienciesPSet;
+  efficienciesPSet.setAllowAnything(); // TODO: the pat helper needs to implement a description.
+  iDesc.add("efficiencies", efficienciesPSet);
+  iDesc.add<bool>("addEfficiencies", false);
+
+  // Check to see if the user wants to add user data
+  edm::ParameterSetDescription userDataPSet;
+  userDataPSet.setAllowAnything(); // TODO: the pat helper needs to implement a description.
+  iDesc.addOptional("userData", userDataPSet);
+
+  // muon correction
+  iDesc.add<bool>("addMuonCorrections", false);
+  iDesc.add<edm::InputTag>("muonSource", edm::InputTag("muons"));
 
 }
 

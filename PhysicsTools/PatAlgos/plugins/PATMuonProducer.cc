@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.23 2009/04/01 10:38:44 vadler Exp $
+// $Id: PATMuonProducer.cc,v 1.24 2009/04/20 19:49:14 vadler Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -20,6 +20,9 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "DataFormats/Common/interface/Association.h"
+
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "TMath.h"
 
@@ -293,6 +296,74 @@ void PATMuonProducer::fillMuon( Muon& aMuon,
     efficiencyLoader_.setEfficiencies( aMuon, muonRef );
   }
   
+
+}
+
+// ParameterSet description for module
+void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
+{
+  edm::ParameterSetDescription iDesc;
+  iDesc.setComment("PAT muon producer module");
+
+  // input source 
+  iDesc.add<edm::InputTag>("muonSource", edm::InputTag("no default"))->setComment("input collection");
+
+  // embedding
+  iDesc.add<bool>("embedTrack", true)->setComment("embed external track");
+  iDesc.add<bool>("embedStandAloneMuon", true)->setComment("embed external stand-alone muon");
+  iDesc.add<bool>("embedCombinedMuon", false)->setComment("embed external combined muon");
+  iDesc.add<bool>("embedPickyMuon", false)->setComment("embed external picky muon");
+  iDesc.add<bool>("embedTpfmsMuon", false)->setComment("embed external tpfms muon");
+
+  // pf specific parameters
+  iDesc.add<edm::InputTag>("pfMuonSource", edm::InputTag("pfMuons"))->setComment("particle flow input collection");
+  iDesc.add<bool>("useParticleFlow", false)->setComment("whether to use particle flow or not");
+  iDesc.add<bool>("embedPFCandidate", false)->setComment("embed external particle flow object");
+
+  // TeV refit 
+  iDesc.ifValue( edm::ParameterDescription<bool>("addTeVRefits", true, true),
+                   true >> (edm::ParameterDescription<edm::InputTag>("pickySrc", edm::InputTag(), true) and
+                            edm::ParameterDescription<edm::InputTag>("tpfmsSrc", edm::InputTag(), true)) 
+		   )->setComment("If TeV refits are added, their sources need to be specified");
+
+  // MC matching configurables
+  iDesc.add<bool>("addGenMatch", true)->setComment("add MC matching");
+  iDesc.add<bool>("embedGenMatch", false)->setComment("embed MC matched MC information");
+  std::vector<edm::InputTag> emptySourceVector;
+  iDesc.addNode( edm::ParameterDescription<edm::InputTag>("genParticleMatch", edm::InputTag(), true) xor 
+                 edm::ParameterDescription<std::vector<edm::InputTag> >("genParticleMatch", emptySourceVector, true)
+               )->setComment("input with MC match information");
+
+  iDesc.add<bool>("addResolutions",false);
+
+  // IsoDeposit configurables
+  edm::ParameterSetDescription isoDepositsPSet;
+  isoDepositsPSet.addOptional<edm::InputTag>("tracker"); 
+  isoDepositsPSet.addOptional<edm::InputTag>("ecal");
+  isoDepositsPSet.addOptional<edm::InputTag>("hcal");
+  isoDepositsPSet.addOptional<edm::InputTag>("particle");
+  isoDepositsPSet.addOptional<edm::InputTag>("chargedparticle");
+  isoDepositsPSet.addOptional<edm::InputTag>("neutralparticle");
+  isoDepositsPSet.addOptional<edm::InputTag>("gammaparticle");
+  isoDepositsPSet.addOptional<std::vector<edm::InputTag> >("user");
+  iDesc.addOptional("isoDeposits", isoDepositsPSet);
+
+  // Efficiency configurables
+  edm::ParameterSetDescription efficienciesPSet;
+  efficienciesPSet.setAllowAnything(); // TODO: the pat helper needs to implement a description.
+  iDesc.add("efficiencies", efficienciesPSet);
+  iDesc.add<bool>("addEfficiencies", false);
+
+  // Check to see if the user wants to add user data
+  edm::ParameterSetDescription userDataPSet;
+  userDataPSet.setAllowAnything(); // TODO: the pat helper needs to implement a description.
+  iDesc.addOptional("userData", userDataPSet);
+
+  edm::ParameterSetDescription isolationPSet;
+  isolationPSet.setAllowAnything(); // TODO: the pat helper needs to implement a description.
+  iDesc.add("isolation", isolationPSet);
+
+  descriptions.add("PATMuonProducer", iDesc);
 
 }
 
