@@ -1076,8 +1076,8 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
   run = e.id().run();
   evt = e.id().event();
 
-  if ( evt%1000 == 0 ) 
-    cout << "evt = " << evt << endl;
+  //  if ( evt%1000 == 0 ) 
+    //cout << "evt = " << evt << endl;
   
   float math_pi = 3.14159265;
   float radtodeg = 180.0 / math_pi;
@@ -1159,7 +1159,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 			  mePosxZmPanel2_all_hits->Fill( rechitx );
 			  mePosyZmPanel2_all_hits->Fill( rechity );
 			}
-		      else std::cout << "..............................................Wrong panel number !" << std::endl; 
+		      else LogWarning("SiPixelTrackingRecHitsValid") << "..............................................Wrong panel number !"; 
 		    } // if ( side==1 ) 
 		  else if ( side==2 )
 		    {
@@ -1173,12 +1173,12 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 			   mePosxZpPanel2_all_hits->Fill( rechitx );
 			   mePosyZpPanel2_all_hits->Fill( rechity );
 			 }
-		       else std::cout << "..............................................Wrong panel number !" << std::endl; 
+		       else  LogWarning("SiPixelTrackingRecHitsValid")<< "..............................................Wrong panel number !";
 		    } //else if ( side==2 )
-		  else std::cout << ".......................................................Wrong side !" << std::endl;
+		  else LogWarning("SiPixelTrackingRecHitsValid") << ".......................................................Wrong side !" ;
 		  
 		} // else if ( detId.subdetId()==PixelSubdetector::PixelEndcap )
-	      else std::cout << "We are not in the pixel detector" << (int)detId.subdetId() << endl;
+	      else LogWarning("SiPixelTrackingRecHitsValid") << "Pixel rechit collection but we are not in the pixel detector" << (int)detId.subdetId() ;
 	      
 	    }
 	}
@@ -1311,8 +1311,8 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 			  
 			  if ( n_assoc_muon > 1 )
 			    {
-			      cout << " ----- This is not good: n_assoc_muon = " << n_assoc_muon << endl;
-			      cout << "evt = " << evt << endl;
+			      LogWarning("SiPixelTrackingRecHitsValid") << " ----- This is not good: n_assoc_muon = " << n_assoc_muon ;
+			      LogWarning("SiPixelTrackingRecHitsValid") << "evt = " << evt ;
 			    }
 
 			  pidhit = (*closestit).particleType();
@@ -1386,7 +1386,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 				  half = 0;
 				}
 			      else 
-				cout << "-------------------------------------------------- Wrong module size !!!" << endl;
+				LogWarning("SiPixelTrackingRecHitsValid") << "-------------------------------------------------- Wrong module size !!!";
 
 			      float tmp1 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
 			      float tmp2 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
@@ -1618,7 +1618,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 				      mePullYvsEtaZmPanel2DiskPlaq[disk-1][plaq-1]->Fill( eta, rechitpully );
 
 				    }
-				  else std::cout << "..............................................Wrong panel number !" << std::endl; 
+				  else LogWarning("SiPixelTrackingRecHitsValid") << "..............................................Wrong panel number !"; 
 				} // if ( side==1 ) 
 			      else if ( side==2 )
 				{
@@ -1738,12 +1738,12 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 				      mePullYvsEtaZpPanel2DiskPlaq[disk-1][plaq-1]->Fill( eta, rechitpully );
 
 				    }
-				  else std::cout << "..............................................Wrong panel number !" << std::endl; 
+				  else LogWarning("SiPixelTrackingRecHitsValid") << "..............................................Wrong panel number !"; 
 				} //else if ( side==2 )
-			      else std::cout << ".......................................................Wrong side !" << std::endl;
+			      else LogWarning("SiPixelTrackingRecHitsValid") << ".......................................................Wrong side !" ;
 			      
 			    } // else if ( detId.subdetId()==PixelSubdetector::PixelEndcap )
-			  else std::cout << "We are not in the pixel detector" << (int)detId.subdetId() << endl;
+			  else LogWarning("SiPixelTrackingRecHitsValid") << "Pixel rechit but we are not in the pixel detector" << (int)detId.subdetId() ;
 			  
 			  if(debugNtuple_.size()!=0)t_->Fill();
 
