@@ -44,7 +44,7 @@ DirName=( #These need to match the candle directory names ending (depending on t
           "PU_Memcheck"
           )
 #Defining Steps as a union of Step and ProductionSteps:
-Steps=set(Step+ProductionSteps+"GEN,FASTSIM") #Adding GEN,FASTSIM too by hand.
+Steps=set(Step+ProductionSteps+["GEN,FASTSIM"]) #Adding GEN,FASTSIM too by hand.
 print Steps
 
 ##################
