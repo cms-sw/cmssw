@@ -44,7 +44,7 @@ DirName=( #These need to match the candle directory names ending (depending on t
           "PU_Memcheck"
           )
 #Defining Steps as a union of Step and ProductionSteps:
-Steps=set(Step+ProductionSteps+["GEN,FASTSIM"]) #Adding GEN,FASTSIM too by hand.
+Steps=set(Step+ProductionSteps+["GEN,FASTSIM","GEN,FASTSIM_PILEUP"]) #Adding GEN,FASTSIM too by hand.
 print Steps
 
 ##################
@@ -824,6 +824,36 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                 INDEX.write("<li><a href=\"%s\">%s %s %s (%s events)</a></li>\n" % (ProfileReportLink,CurrentProfile,Profiler,step,"5"))
             else:
                 INDEX.write("<li><a href=\"%s\">%s %s %s (%s events)</a></li>\n" % (ProfileReportLink,CurrentProfile,Profiler,step,NumOfEvents))
+    def IgProfDumpsTable(INDEX,ProfileLinks,step):
+        #See if the end of job profiles IgProfMemTotal.res or IgProfMemLive.res are in the list as they should:
+        EndOfJobProfileLink=filter(lambda x: "IgProfMemTotal.res" in x or "IgProfMemLive.res" in x, ProfileLinks)[0] #Assume only one of the two is there, as it should.
+        #Remove it from the list so we can order it:
+        ProfileLinks.remove(EndOfJobProfileLink)
+        #Sort the list in numerical order:
+        ProfileLinks.sort(key=lambda x: int(x.split(".")[-2]))
+        #Prepare regexp to find and replace MemTotal with MemLive for .gz links
+        IgProfMemLive_regexp=re.compile("IgProfMemLive")
+        if IgProfMemLive_regexp.search(EndOfJobProfileLink):
+            MemProfile="IgProf MEM LIVE"
+        else:
+            MemProfile="IgProf MEM TOTAL"
+        #Prepare the table header:
+        INDEX.write("<li>%s"%MemProfile)
+        INDEX.write("<table><tr><td>Profile after event</td><td>Total Memory Size (bytes)</td><td>Total Calls (number)</td><td>Link to gzipped IgProf profile</td></tr>")
+        for link in ProfileLinks:
+            #Build and check the link to the .gz profile that is always called IgProfMemTotal also for MemLive:
+            gzProfile=os.path.join(link.split("/")[-3],link.split("/")[-1])[:-3]+"gz"
+            if IgProfMemLive_regexp.search(gzProfile):
+                gzProfile=IgProfMemLive_regexp.sub(r"IgProfMemTotal",gzProfile)
+            INDEX.write("<tr><td>%s</td><td>%s</td><td>%s</td><td><a href=%s>%s</a></td></tr>"%(link.split(".")[-2],open(link,"r").readlines()[6].split()[1],open(link,"r").readlines()[6].split()[2],gzProfile,os.path.basename(gzProfile)))
+        #Put in the end of job one by hand:
+        gzEndOfJobProfileLink=os.path.join(EndOfJobProfileLink.split("/")[-3],EndOfJobProfileLink.split("/")[-1])[:-3]+"gz"
+        if IgProfMemLive_regexp.search(gzEndOfJobProfileLink):
+            gzEndOfJobProfileLink=IgProfMemLive_regexp.sub(r"IgProfMemTotal",gzEndOfJobProfileLink)
+        INDEX.write("<tr><td>%s</td><td>%s</td><td>%s</td><td><a href=%s>%s</a></td></tr>"%("End of job",open(EndOfJobProfileLink,"r").readlines()[6].split()[1],open(EndOfJobProfileLink,"r").readlines()[6].split()[2],gzEndOfJobProfileLink,os.path.basename(gzEndOfJobProfileLink)))
+        #Closing the table and the list item tags
+        INDEX.write("</table>")
+        INDEX.write("</li>")
     #FIXME:
     #These numbers are used in the index.html they are not automatically matched to the actual
     #ones (one should automate this, by looking into the cmsCreateSimPerfTestPyRelVal.log logfile)    
@@ -1037,7 +1067,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                         #print Steps
                         for step in Steps: #Using Steps here that is Step+ProductionSteps!
                             #print step
-                            
+                            #print "DEBUG:%s,%s,%s,%s,%s,%s"%(repdir,CurrentCandle,CurDir,step,CurrentProfile,OutputHtml[CurrentProfile])
                             ProfileReportLink = _getProfileReportLink(repdir,CurrentCandle,
                                                                      CurDir,
                                                                      step,
@@ -1059,8 +1089,27 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                                     CAND.write("<p><strong>%s</strong></p>\n" % CurDir)
                                     CAND.write("<ul>\n")
                                     PrintedOnce=True
+                                
                                 #Special cases first (IgProf MemAnalyse and Valgrind MemCheck)
-                                if (CurrentProfile == Profile[7]):
+                                #Add among the special cases any IgProfMem (5,6,7) since now we added the dumping:
+                                if (CurrentProfile == Profile[5] or CurrentProfile == Profile[6]):
+                                    for prolink in ProfileReportLink:
+                                        _writeReportLink(CAND,prolink,CurrentProfile,step,NumOfEvents[CurDir])
+                                    for igprofmem in ["*IgProfMemTotal*.res","*IgProfMemLive*.res"]:
+                                        ProfileReportLink = _getProfileReportLink(repdir,CurrentCandle,
+                                                                                 CurDir,
+                                                                                 step,
+                                                                                 CurrentProfile,
+                                                                                 igprofmem)
+                                        isProfinLink = False
+                                        if len (ProfileReportLink) > 0:
+                                            isProfinLink = reduce(lambda x,y: x or y,map(lambda x: CurrentProfile in x,ProfileReportLink))                                        
+                                        if isProfinLink :#It could also not be there
+                                            #for prolink in ProfileReportLink:
+                                            IgProfDumpsTable(CAND,ProfileReportLink,step)
+                                            #    _writeReportLink(CAND,prolink,CurrentProfile,step,NumOfEvents[CurDir],Profiler=os.path.basename(prolink))
+                                    
+                                elif (CurrentProfile == Profile[7]):
                                     for igprof in IgProfMemAnalyseOut:
                                         ProfileReportLink = _getProfileReportLink(repdir,CurrentCandle,
                                                                                  CurDir,
