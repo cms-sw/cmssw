@@ -54,7 +54,15 @@ class EtaPhiHists{
 
     };
   // special fill call based on detid -- eventually will need special treatment
-  void Fill_d3(HcalDetId& id, double val=0){};
+  void Fill(HcalDetId& id, double val=1)
+    { 
+      // If in HF, need to shift by 1 bin (-1 bin lower in -HF, +1 bin higher in +HF)
+      if (id.subdet()==HcalForward)
+	depth[id.depth()-1]->Fill(id.ieta()<0 ? id.ieta()-1 ? id.ieta()+1, id.iphi(), val);
+      else 
+	depth[id.depth()-1]->Fill(id.ieta(),id.iphi(),val);
+
+      };
   std::vector<MonitorElement*> depth;
   
   
