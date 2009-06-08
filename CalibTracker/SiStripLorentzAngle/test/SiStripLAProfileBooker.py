@@ -1,28 +1,60 @@
 import FWCore.ParameterSet.Config as cms
 
+from CondCore.DBCommon.CondDBSetup_cfi import *
+
+import CalibTracker.Configuration.Common.PoolDBESSource_cfi
+
 process = cms.Process("analyze")
+
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+
+process.load("Configuration.StandardSequences.GeometryIdeal_cff")
+
+process.load("Configuration.StandardSequences.Services_cff")
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
-process.load("Configuration.StandardSequences.FakeConditions_cff")
-
-process.load("RecoTracker.TrackProducer.TrackRefitter_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = 'CRAFT_31X::All'
 
 process.load("DQMServices.Core.DQM_cfg")
+process.DQM.collectorHost = ''
+
+process.Timing = cms.Service("Timing")
+
+<<<<<<< SiStripLAProfileBooker.py
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
+    
+#process.SiStripLorentzAngle = cms.ESSource("PoolDBESSource",
+#    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+#    DBParameters = cms.PSet(messageLevel = cms.untracked.int32(2),
+#                            authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+#                            ),
+#    toGet = cms.VPSet(cms.PSet(record = cms.string('SiStripLorentzAngleRcd'),
+#                               tag = cms.string('SiStripLA_TEST_Layers')
+#    )),
+#    connect = cms.string('sqlite_file:DB_LA_TEST_Layers.db')
+#)
+#                                      
+#process.es_prefer_SiStripLorentzAngle   = cms.ESPrefer("PoolDBESSource","SiStripLorentzAngle")
+=======
+process.load("RecoTracker.TrackProducer.TrackRefitter_cff")
+>>>>>>> 1.2
+
+process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 
 process.load("CalibTracker.SiStripLorentzAngle.SiStripLAProfileBooker_cfi")
 
-process.load("CalibTracker.SiStripLorentzAngle.ALCARECOSiStripCalMinBias_cff")
+process.load("Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0T_cff")
+process.ALCARECOTkAlCosmicsCTF0T.src='ALCARECOTkAlCosmicsCTF0T'
+process.ALCARECOTkAlCosmicsCTF0T.ptMin=5.
+
+process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
+
+process.load("DQMServices.Components.MEtoEDMConverter_cfi")
  
-process.load("CalibTracker.SiStripLorentzAngle.ALCARECOSiStripCalMinBias_Output_cff")
-
-
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
-)
 process.MessageLogger = cms.Service("MessageLogger",
     debug = cms.untracked.PSet(
         threshold = cms.untracked.string('DEBUG')
@@ -32,28 +64,23 @@ process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('DEBUG')
     ),
-    destinations = cms.untracked.vstring('debug_test_210')
+    destinations = cms.untracked.vstring('LA_debug_NEWAL')
 )
 
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(#'rfio:/castor/cern.ch/cms/store/relval/CMSSW_2_1_0/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V4_v1/0000/66CA0076-5060-DD11-8E3A-000423D99BF2.root',
-                                      #'rfio:/castor/cern.ch/cms/store/relval/CMSSW_2_1_0/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V4_v1/0000/468FB321-2060-DD11-8359-000423D6CAF2.root',
-                                      #'rfio:/castor/cern.ch/cms/store/relval/CMSSW_2_1_0/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V4_v1/0000/5C2AE0AE-7D60-DD11-948C-001617DF785A.root',
-                                      #'rfio:/castor/cern.ch/cms/store/relval/CMSSW_2_1_0/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V4_v1/0000/66CA0076-5060-DD11-8E3A-000423D99BF2.root',
-                                      #'rfio:/castor/cern.ch/cms/store/relval/CMSSW_2_1_0/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V4_v1/0000/A00242A0-4F60-DD11-9D54-000423D98EC4.root',
-                                      #'rfio:/castor/cern.ch/cms/store/relval/CMSSW_2_1_0/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V4_v1/0000/C4355E5F-1D60-DD11-82A7-000423D98B6C.root',
-                                      #'rfio:/castor/cern.ch/cms/store/relval/CMSSW_2_1_0/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V4_v1/0000/FE4027D7-5060-DD11-87CE-000423D94E1C.root',
-                                      #'rfio:/castor/cern.ch/cms/store/relval/CMSSW_2_1_0/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V4_v1/0001/0024DAA6-2461-DD11-8E6D-001731AF68B3.root',
-                                      'rfio:/castor/cern.ch/cms/store/relval/CMSSW_2_1_0/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V4_v1/0001/007C02BF-2761-DD11-9E31-0018F3D09616.root',
-                                      'rfio:/castor/cern.ch/cms/store/relval/CMSSW_2_1_0/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V4_v1/0001/00C7F564-2561-DD11-8FAE-001731AF698D.root',
-                                      'rfio:/castor/cern.ch/cms/store/relval/CMSSW_2_1_0/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V4_v1/0001/025870A4-2861-DD11-A5B5-001A92971B54.root')
-)
+import FWCore.Python.FileUtils as FileUtils
+
+#readFiles = cms.untracked.vstring( FileUtils.loadListFromFile ('source_list_test.txt') )
+#process.source = cms.Source("PoolSource",fileNames = readFiles)
+
+process.source = cms.Source ("PoolSource",fileNames=cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V4_StreamALCARECOTkAlCosmics0T_step3_AlcaReco-v2/0052/529AA4E7-08CC-DD11-A489-001D0967D21A.root'),)
+
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 process.trackrefitter = cms.EDFilter("TrackRefitter",
-    #src = cms.InputTag("generalTracks"),
-    src = cms.InputTag("ALCARECOSiStripCalMinBias"),
+    src = cms.InputTag("ALCARECOTkAlCosmicsCTF0T"),
     beamSpot = cms.InputTag("offlineBeamSpot"),
     constraint = cms.string(''),
+    srcConstr  = cms.InputTag(''),
     Fitter = cms.string('RKFittingSmoother'),
     useHitsSplitting = cms.bool(False),
     TrajectoryInEvent = cms.bool(True),
@@ -62,20 +89,25 @@ process.trackrefitter = cms.EDFilter("TrackRefitter",
     Propagator = cms.string('RungeKuttaTrackerPropagator')
 )
 
-process.recotracks = cms.Path(process.trackrefitter)
-process.LorentzAngle = cms.Path(process.sistripLAProfile)
-#process.ep = cms.EndPath(process.print)
-#process.schedule = cms.Schedule(process.recotracks, process.LorentzAngle)
-process.schedule = cms.Schedule(process.pathALCARECOSiStripCalMinBias, process.recotracks, process.LorentzAngle)
+process.LA_analysis = cms.Sequence(process.offlineBeamSpot*process.trackrefitter*process.sistripLAProfile*process.MEtoEDMConverter)
 
-process.DQM.collectorHost = ''
+process.myOut = cms.OutputModule("PoolOutputModule",
+fileName = cms.untracked.string('file:LA_Histos_Harv_NEWAL.root'),
+outputCommands = cms.untracked.vstring('drop *','keep *_MEtoEDMConverter_*_*')
+)
+
+process.Schedule = cms.Path(process.seqALCARECOTkAlCosmicsCTF0T*process.LA_analysis)
+
+process.outpath = cms.EndPath(process.myOut)
+
+process.sistripLAProfile.UseStripCablingDB = cms.bool(False)
 process.sistripLAProfile.Tracks = 'trackrefitter'
 process.sistripLAProfile.TIB_bin = 120
 process.sistripLAProfile.TOB_bin = 120
 process.sistripLAProfile.SUM_bin = 120
-process.sistripLAProfile.Fit_Result = cms.bool(True)
-process.sistripLAProfile.fileName = 'file:~/scratch0/CMSSW_2_1_6/src/CalibTracker/SiStripLorentzAngle/test/TEST_ALCARECO/histo_test_RelVal_210.root'
-process.sistripLAProfile.treeName = 'file:~/scratch0/CMSSW_2_1_6/src/CalibTracker/SiStripLorentzAngle/test/TEST_ALCARECO/LATrees_test_RelVal_210.root'
-process.sistripLAProfile.fitName = 'file:~/scratch0/CMSSW_2_1_6/src/CalibTracker/SiStripLorentzAngle/test/TEST_ALCARECO/fit_test_RelVal_210'
+process.sistripLAProfile.fileName = "file:LA_Histos_NEWAL.root"
+process.sistripLAProfile.treeName = "file:LA_Trees_NEWAL.root"
+
+
 
 

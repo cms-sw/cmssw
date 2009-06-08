@@ -4,18 +4,42 @@ process = cms.Process("analyze")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = 'CRAFT_31X::All'
+
+process.load("Configuration.StandardSequences.GeometryIdeal_cff")
+
+from CondCore.DBCommon.CondDBSetup_cfi import *
+
+import CalibTracker.Configuration.Common.PoolDBESSource_cfi
+
+#Uncomment to change input LA.db file
+
+#process.SiStripLorentzAngle = cms.ESSource("PoolDBESSource",
+#    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+#    DBParameters = cms.PSet(messageLevel = cms.untracked.int32(2),
+#                            authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+#                            ),
+#    toGet = cms.VPSet(cms.PSet(record = cms.string('SiStripLorentzAngleRcd'),
+#                               tag = cms.string('SiStripLA_TEST_Layers')
+#    )),
+#    connect = cms.string('sqlite_file:DB_LA_TEST_Layers.db')
+#)
+#                                      
+#process.es_prefer_SiStripLorentzAngle = cms.ESPrefer("PoolDBESSource","SiStripLorentzAngle")
 
 process.load("DQMServices.Core.DQM_cfg")
+process.DQM.collectorHost = ''
 
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-
 process.load("CalibTracker.SiStripLorentzAngle.SiStripCalibLorentzAngle_cfi")
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
-)
+process.TrackerGeometricDetESModule = cms.ESProducer("TrackerGeometricDetESModule",fromDDD = cms.bool(True))
+
+process.Timing = cms.Service("Timing")
+
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
+
 process.source = cms.Source("EmptySource",
     numberEventsInRun = cms.untracked.uint32(1),
     firstRun = cms.untracked.uint32(1)
@@ -23,44 +47,48 @@ process.source = cms.Source("EmptySource",
 
 process.MessageLogger = cms.Service("MessageLogger",
     debug = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
+        threshold = cms.untracked.string('DEBUG')
     ),
-    destinations = cms.untracked.vstring('write_langle_geom_ideal_blob')
+    destinations = cms.untracked.vstring('debug_TEST')
 )
 
-process.TrackerGeometricDetESModule = cms.ESProducer("TrackerGeometricDetESModule",
-    fromDDD = cms.bool(True)
-)
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
-process.Timing = cms.Service("Timing")
+process.CondDBCommon.connect = 'sqlite_file:DB_LA_TEST_Modules.db'
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-    DBParameters = cms.PSet(
-        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-    ),
+    connect = cms.string('sqlite_file:DB_LA_TEST_Modules.db'),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:dbfile.db'),
+    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+    DBParameters = cms.PSet(authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')),
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('SiStripBadStrip'),
-        tag = cms.string('SiStripBadModule_CRAFT_21X_byHandFlagFromRun69636_v1')
+	record = cms.string('SiStripLorentzAngleRcd'),
+        tag = cms.string('SiStripLA_TEST_Modules')
     ))
 )
 
-process.print = cms.OutputModule("AsciiOutputModule")
-
 process.p = cms.Path(process.sistripLACalib)
-process.ep = cms.EndPath(process.print)
-process.GlobalTag.globaltag = '1PB_V2_RECO::All'
-process.DQM.collectorHost = ''
-process.CondDBCommon.connect = 'sqlite_file:LA_CRAFT.db'
+
+process.sistripLACalib.LayerDB = False
+
+process.sistripLACalib.ModuleFitXMin = -0.5
+process.sistripLACalib.ModuleFitXMax = 0.3
 process.sistripLACalib.ModuleFit2ITXMin = -0.4
-process.sistripLACalib.ModuleFit2ITXMax = 0.1
+process.sistripLACalib.ModuleFit2ITXMax = 0.2
+process.sistripLACalib.p0_guess = -0.1
+process.sistripLACalib.p1_guess = 0.5
+process.sistripLACalib.p2_guess = 1
 process.sistripLACalib.FitCuts_Entries = 1000
-process.sistripLACalib.FitCuts_p0 = 0
-process.sistripLACalib.FitCuts_p1 = 0.1
+process.sistripLACalib.FitCuts_p0 = 10
+process.sistripLACalib.FitCuts_p1 = 0.3
 process.sistripLACalib.FitCuts_p2 = 1
-process.sistripLACalib.FitCuts_chi2 = 30
-process.sistripLACalib.fileName = 'Summary_new_bin.root'
+process.sistripLACalib.FitCuts_chi2 = 10
+process.sistripLACalib.FitCuts_ParErr_p0 = 0.001
+process.sistripLACalib.GaussFitRange = 0.1
+
+process.sistripLACalib.fileName = 'Summary_CRAFTREPRO_NEWAL.root'
+process.sistripLACalib.out_fileName = 'LA_TEST.root'
+process.sistripLACalib.LA_Report = 'LA_Report_TEST.txt'
+
 
 
