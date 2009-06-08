@@ -420,6 +420,9 @@ namespace edm {
     }
 
     if(range.first == range.second) {
+      if (toBeCached) {
+        cachedOffset = typeLookup.end() - typeLookup.begin();
+      }
       return false;
     }
 
