@@ -1,8 +1,18 @@
 2009-06-08  Kurt Biery <biery@fnal.gov>
 
+	* tag V04-02-07
+	* Script changes from Constantin.
+
+2009-??-??  ?? <??>
+
+	* tag V04-02-06
+	* Include file changes from Peter Elmer for gcc4.4.
+
+2009-??-??  ?? <??>
+
 	* tag V04-02-05
-	* Script changes from Constantin and include file changes from
-	  Peter Elmer for gcc4.4.
+	* From Bill Tanenbaum:  changed @trigger_paths parameter from
+	  untracked to tracked in ServiceManager.
 
 2009-03-??  Kurt Biery <biery@fnal.gov>
 
