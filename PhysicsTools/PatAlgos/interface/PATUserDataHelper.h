@@ -1,5 +1,5 @@
 //
-// $Id: PATUserDataHelper.h,v 1.4 2008/10/07 17:44:16 gpetrucc Exp $
+// $Id: PATUserDataHelper.h,v 1.5 2009/03/26 20:44:37 vadler Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATUserDataHelper_h
@@ -22,7 +22,7 @@
 	    This also can add "in situ" string-parser-based methods directly. 
 
   \author   Salvatore Rappoccio
-  \version  $Id: PATUserDataHelper.h,v 1.4 2008/10/07 17:44:16 gpetrucc Exp $
+  \version  $Id: PATUserDataHelper.h,v 1.5 2009/03/26 20:44:37 vadler Exp $
 */
 
 
@@ -58,6 +58,7 @@ namespace pat {
     PATUserDataHelper(const edm::ParameterSet & iConfig);
     ~PATUserDataHelper() {}
 
+    static void fillDescription(edm::ParameterSetDescription & iDesc);
 
     // Adds information from user data to patObject,
     // using recoObject as the key
@@ -141,6 +142,19 @@ void PATUserDataHelper<ObjectType>::add(ObjectType & patObject,
   
 }
 
+
+template<class ObjectType>
+void PATUserDataHelper<ObjectType>::fillDescription(edm::ParameterSetDescription & iDesc)
+{
+  edm::ParameterSetDescription dataMergerPSet;
+  pat::PATUserDataMerger<ObjectType, pat::helper::AddUserPtr>::fillDescription(dataMergerPSet);
+  iDesc.add("userClasses", dataMergerPSet);
+  iDesc.add("userFloats", dataMergerPSet);
+  iDesc.add("userInts", dataMergerPSet);
+  std::vector<std::string> emptyVectorOfStrings;
+  iDesc.add<std::vector<std::string> >("userFunctions",emptyVectorOfStrings);
+  iDesc.add<std::vector<std::string> >("userFunctionLabels",emptyVectorOfStrings);
+}
 
 }
 #endif

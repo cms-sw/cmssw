@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.cc,v 1.22 2009/04/20 19:49:14 vadler Exp $
+// $Id: PATPhotonProducer.cc,v 1.23 2009/06/08 13:51:35 hegner Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
@@ -243,7 +243,7 @@ void PATPhotonProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
 
   // Check to see if the user wants to add user data
   edm::ParameterSetDescription userDataPSet;
-  userDataPSet.setAllowAnything(); // TODO: the pat helper needs to implement a description.
+  PATUserDataHelper<Photon>::fillDescription(userDataPSet);
   iDesc.addOptional("userData", userDataPSet);
 
   edm::ParameterSetDescription isolationPSet;

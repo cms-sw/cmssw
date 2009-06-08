@@ -1,5 +1,5 @@
 //
-// $Id: PATUserDataMerger.h,v 1.5 2009/03/26 05:02:41 hegner Exp $
+// $Id: PATUserDataMerger.h,v 1.6 2009/04/01 10:38:43 vadler Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATUserDataMerger_h
@@ -18,7 +18,7 @@
 		cases. 
 
   \author   Salvatore Rappoccio
-  \version  $Id: PATUserDataMerger.h,v 1.5 2009/03/26 05:02:41 hegner Exp $
+  \version  $Id: PATUserDataMerger.h,v 1.6 2009/04/01 10:38:43 vadler Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -30,6 +30,9 @@
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/PatCandidates/interface/PATObject.h"
+
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <iostream>
 
@@ -66,6 +69,8 @@ namespace pat {
     PATUserDataMerger() {}
     PATUserDataMerger(const edm::ParameterSet & iConfig);
     ~PATUserDataMerger() {}
+
+    static void fillDescription(edm::ParameterSetDescription & iDesc);
     
     // Method to call from PATUserDataHelper to add information to the PATObject in question. 
     void add(ObjectType & patObject,
@@ -134,6 +139,13 @@ pat::PATUserDataMerger<ObjectType, Operation>::add(ObjectType & patObject,
 
   }
   
+}
+
+template<class ObjectType, typename Operation>
+void
+pat::PATUserDataMerger<ObjectType, Operation>::fillDescription(edm::ParameterSetDescription & iDesc)
+{
+  iDesc.add<std::vector<edm::InputTag> >("src"); 
 }
 
 #endif

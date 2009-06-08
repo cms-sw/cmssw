@@ -1,5 +1,5 @@
 //
-// $Id: PATMETProducer.cc,v 1.11 2009/04/20 19:49:14 vadler Exp $
+// $Id: PATMETProducer.cc,v 1.12 2009/06/08 13:51:35 hegner Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMETProducer.h"
@@ -119,7 +119,7 @@ void PATMETProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
 
   // Check to see if the user wants to add user data
   edm::ParameterSetDescription userDataPSet;
-  userDataPSet.setAllowAnything(); // TODO: the pat helper needs to implement a description.
+  PATUserDataHelper<MET>::fillDescription(userDataPSet);
   iDesc.addOptional("userData", userDataPSet);
 
   // muon correction

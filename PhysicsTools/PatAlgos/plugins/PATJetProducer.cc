@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.35 2009/04/20 19:49:14 vadler Exp $
+// $Id: PATJetProducer.cc,v 1.36 2009/06/08 13:51:35 hegner Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -346,7 +346,7 @@ void PATJetProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
 
   // Check to see if the user wants to add user data
   edm::ParameterSetDescription userDataPSet;
-  userDataPSet.setAllowAnything(); // TODO: the pat helper needs to implement a description.
+  PATUserDataHelper<Jet>::fillDescription(userDataPSet);
   iDesc.addOptional("userData", userDataPSet);
 
   descriptions.add("PATJetProducer", iDesc);
