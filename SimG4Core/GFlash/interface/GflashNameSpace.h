@@ -12,31 +12,24 @@ namespace Gflash {
     kHB,                // HCAL Barrel - HB
     kENCA,              // ECAL Endcap - ENCA
     kHE,                // HCAL Endcap - HE
+    kHO,                // HCAL Outer  - HO
     kHF,                // HCAL Forward - HF
     kNumberCalorimeter
   };
   
   CalorimeterNumber getCalorimeterNumber(const G4ThreeVector position);
 
-  //                                            EB     HB     EE     HE      HF
-  const G4double Zmin[kNumberCalorimeter]   = {0.000, 0.000, 304.5, 391.95, 1110.0}; // in cm
-  const G4double Zmax[kNumberCalorimeter]   = {317.0, 433.2, 390.0, 554.10, 1275.0};
-  const G4double Rmin[kNumberCalorimeter]   = {123.8, 177.5,  31.6,  31.6,    12.5};
-  const G4double Rmax[kNumberCalorimeter]   = {177.5, 287.7, 171.1, 263.9,   140.0};
+  //                                            EB     HB     EE     HE      HO,     HF
+  const G4double Zmin[kNumberCalorimeter]   = {0.000, 0.000, 304.5, 391.95, 0.000, 1110.0}; // in cm
+  const G4double Zmax[kNumberCalorimeter]   = {317.0, 433.2, 390.0, 554.10, 6.610, 1275.0};
+  const G4double Rmin[kNumberCalorimeter]   = {123.8, 177.5,  31.6,  31.6,  382.0,  12.5};
+  const G4double Rmax[kNumberCalorimeter]   = {177.5, 287.7, 171.1, 263.9,  407.0, 140.0};
 
-  const G4double EtaMin[kNumberCalorimeter] = {0.000, 0.000, 1.570,  1.570, 3.000};
-  const G4double EtaMax[kNumberCalorimeter] = {1.300, 1.300, 3.000,  3.000, 5.000};
+  const G4double EtaMin[kNumberCalorimeter] = {0.000, 0.000, 1.570,  1.570, 0.000, 3.000};
+  const G4double EtaMax[kNumberCalorimeter] = {1.300, 1.300, 3.000,  3.000, 1.262, 5.000};
 
   //constants needed for GflashHadronShowerModel
   const G4double energyCutOff                 = 1.0*GeV;
-    
-  //constants needed for GflashHadronShowerProfile
-
-  const G4double rMoliere[kNumberCalorimeter]  = { 2.19, 2.19, 2.19, 2.19, 1.72}; // in cm
-  const G4double radLength[kNumberCalorimeter] = { 0.89, 1.49, 0.89, 1.49, 1.76}; // in cm
-  const G4double intLength[kNumberCalorimeter] = { 22.4,16.42, 22.4, 16.42, 16.77}; // in cm
-  const G4double Z[kNumberCalorimeter]         = { 68.36, 68.36, 68.36, 68.36, 55.845}; // mass of molicule
-  const G4double criticalEnergy                = 8.6155 / GeV;
 
   //cut value for quasi-elastic like interactions on the secondary energy, 
   //ratio = (Leading Energy of Secondaries)/(Total Energy)
@@ -44,15 +37,34 @@ namespace Gflash {
 
   //minimum distance to the back of parameterized envelopes in [cm]
   const G4double MinDistanceToOut = 10.0;
+    
+  //constants needed for GflashHadronShowerProfile
+
+  const G4double rMoliere[kNumberCalorimeter]  = { 2.19, 2.19, 2.19, 2.19, 2.19, 1.72}; // in cm
+  const G4double radLength[kNumberCalorimeter] = { 0.89, 1.49, 0.89, 1.49, 1.49, 1.76}; // in cm
+  const G4double intLength[kNumberCalorimeter] = { 22.4,16.42, 22.4, 16.42, 16.42, 16.77}; // in cm
+  const G4double Z[kNumberCalorimeter]         = { 68.36, 68.36, 68.36, 68.36, 68.36, 55.845}; // mass of molicule
+  const G4double criticalEnergy                = 8.6155 / GeV;
+
+  // The step size of showino along the helix trajectory in cm unit
+  const G4double divisionStep = 1.0;
+
+  //maximum shower depth for hadronic lateral in interaction length unit
+  const G4double maxShowerDepthforR50 = 10.0;
+
+  //minimum particle energy to trigger HO parameterization in [GeV]
+  const G4double MinEnergyCutOffForHO = 2.5;
 
   //additional energy scale for the Hcal sensitive detector
-  const G4double ScaleSensitive = 0.167;
+  const G4double scaleSensitive = 0.167;
 
   // properties for different sub-detectors (calorimeters)
-  const G4double SAMHAD[3][kNumberCalorimeter] = {{0.0,0.89,0.0,0.89,0.0},
-                                                  {0.0,0.00,0.0,0.00,0.0},
-                                                  {0.0,0.00,0.0,0.00,0.0}};
-  const G4double RLTHAD[kNumberCalorimeter] = {32.7,23.7,32.7,23.7,23.7};
+
+  const G4double SAMHAD[3][kNumberCalorimeter] = {{0.0,0.89,0.0,0.89,0.89,0.0},
+                                                  {0.0,0.00,0.0,0.00,0.00,0.0},
+                                                  {0.0,0.00,0.0,0.00,0.00,0.0}};
+  const G4double RLTHAD[kNumberCalorimeter] = {32.7,23.7,32.7,23.7,23.7,23.7};
+
 
   //parameters for logitudinal parameterizations and energy responses
 
@@ -208,6 +220,159 @@ namespace Gflash {
     { -2.5633e-01,  5.7796e-02}
   };
 
+  //Anti-proton paramters
+
+  const G4double pbar_emscale[2][4] = {
+    {  5.6058e-01, -2.5201e-01,  7.3427e-01,  2.7537e+00 },
+    { -1.3248e-01,  5.9250e-01,  1.4204e-02, -3.9921e+01 }
+  };
+
+  const G4double pbar_hadscale[7][4] = {
+    //based on LogNormal of Had Energy 
+    { -5.0239e+00,  1.2308e+01,  1.9628e-01,  0.0000e+00 },
+    {  1.8135e+00,  1.3818e+00, -5.6838e-01,  1.9306e+00 },
+    {  9.9975e-01,  6.0775e-01, -9.2005e-01,  2.8056e+00 },
+    { -6.2579e-01,  2.9609e-01,  2.0549e+00,  3.7047e+00 },
+    //LogNormal of Had Energy for mip-like response based on 2006 H2 test beam data
+    //    {  4.4527e+00,  5.7913e+00,  1.6584e-01,  4.6872e+00 },
+    //    {  2.4081e-01,  1.6057e-01, -6.1439e-01,  1.9368e+00 },
+    //00
+    //    {  3.4320e+00,  3.9837e+00,  2.6104e-01,  3.5677e+00 },
+    //    {  3.9622e-01,  2.6984e-01, -1.1775e+00,  1.5219e+00 },
+    //    {  3.3135e+00,  3.9849e+00,  2.5124e-01,  3.4296e+00 },
+    //    {  8.1115e+00,  8.0098e+00, -7.7129e-01, -1.0883e+00 },
+    //    {  3.4993e+00,  3.0534e+00,  3.3056e-01,  3.6079e+00 },
+    //    {  4.6082e+00,  4.5404e+00, -6.6109e-01, -1.1066e+00 },
+    {  3.4519e+00,  2.9611e+00,  3.4592e-01,  3.5619e+00 },
+    {  4.0909e-01,  3.6049e-01, -8.1641e-01,  1.0249e+00 },
+
+    //correction of response if ssp is between Ecal and Hcal
+    //    {  1.8736e-01,  1.7391e-01,  1.0991e+00,  3.3557e+00 }
+    {  0.9800e-01,  0.8400e-01,  1.6000e+00,  4.2000e+00 }
+    //Gaussian of Had Energy for mip-like pbar response based on Geant4
+    //    {  8.1252e-01,  1.4076e-02,  8.8000e+00,  3.2000e+00 },
+    //    {  7.5440e-02,  2.8322e-02, -9.3557e-01,  2.0069e+00 },
+    //correction of response if ssp is between Ecal and Hcal
+    //    {  1.8736e-01,  1.7391e-01,  1.0991e+00,  3.3557e+00 }
+  };
+
+  const G4double pbar_par[8*NPar][4] = {
+    {  1.4815e+00,  3.5510e+00,  1.5773e-02,  1.8235e+01 }, //Mean Ecal ShowerType1
+    {  1.0727e+00,  4.7796e-01,  5.0331e-01,  3.2954e+00 },
+    { -1.0941e+00,  2.3135e-01,  4.8154e-01,  3.8732e+00 },
+    { -1.2430e-01,  1.5000e+00,  3.9037e-01,  7.8237e-01 },
+    { -1.3253e+00,  3.6674e+00,  1.0286e-01, -9.7204e+00 },
+
+    {  5.6542e-01, -5.0471e-02, -1.1991e+00,  4.8874e+00 }, //Mean Hcal ShowerType1
+    {  9.3080e-01, -8.0336e-02,  6.0412e+00,  1.5598e+00 },
+    { -1.5000e+00, -1.0766e+00,  2.3959e-01,  1.9593e+00 },
+    {  1.4521e+00, -6.2515e-01,  1.2788e+00,  1.6684e+00 },
+    {  2.0452e+00, -2.1115e+00,  4.4611e-01,  1.3040e+00 },
+
+    {  6.0078e-01,  6.8636e-02,  8.6106e-01,  4.8556e+00 }, //Mean Hcal ShowerType2
+    {  7.8057e-01,  0.0000e+00,  1.0000e+00,  1.0000e+00 },
+    { -1.4680e+00,  1.3644e+00, -1.8247e-01,  1.5390e+00 },
+    {  1.3517e+00,  4.7462e-01, -1.9144e+00,  1.5090e+00 },
+    {  2.0000e+00, -2.0000e+00,  4.8238e-01,  1.1081e+00 },
+
+    {  6.6993e-01,  6.9898e-02,  9.8165e-01,  5.0369e+00 }, //Mean Hcal ShowerType3
+    {  8.0659e-01,  0.0000e+00,  1.0000e+00,  1.0000e+00 },
+    { -1.7897e+00,  5.7671e-01, -5.0421e-01,  2.8906e+00 },
+    {  9.9329e-01,  0.0000e+00,  1.0000e+00,  1.0000e+00 },
+    {  1.5000e+00, -1.5000e+00,  4.2544e-01,  1.1097e+00 },
+
+    {  4.7782e-02,  1.1050e+00, -1.2951e-02,  1.0204e+01 }, //Sigma Ecal ShowerType1
+    {  4.5173e-01,  4.0025e-02, -6.2352e+00,  1.7565e+00 },
+    {  2.3372e-01,  7.2348e-01, -1.3646e-02,  1.2775e+01 },
+    {  7.0000e-01,  3.5000e-01, -2.8551e-01,  3.2593e-01 },
+    {  4.8372e-01,  2.0000e-01, -7.1584e-01,  1.0953e+00 },
+
+    {  1.9193e-01,  1.2269e-01, -5.2125e-01,  2.4453e+00 }, //Sigma Hcal ShowerType1
+    {  5.5009e-01, -6.2468e-02,  1.8419e+00,  4.7151e+00 },
+    {  5.0000e-01,  3.0000e-01, -3.4911e-01,  3.8876e+00 },
+    {  1.7835e+00,  1.4497e+00, -4.7752e-01,  8.1104e-01 },
+    {  1.8000e+00, -1.6000e+00,  3.9842e-01,  7.3509e-01 },
+
+    {  2.5000e-01,  1.7633e-01, -4.5662e-01,  1.4590e+00 }, //Sigma Hcal ShowerType2
+    {  5.4673e-01,  7.1990e-02, -1.5031e+00,  4.4666e+00 },
+    {  2.3564e+00, -2.3653e+00,  9.5422e-02, -7.6442e+00 },
+    {  1.5848e+01,  1.5517e+01, -3.9489e-01, -3.0760e+00 },
+    {  2.7839e+00,  2.5688e+00, -4.0084e-01, -2.1336e-01 },
+
+    {  2.5000e-01,  1.9134e-01, -3.4221e-01,  1.0576e+00 }, //Sigma Hcal ShowerType3
+    {  1.3747e-01,  1.5399e+00, -2.2446e-02,  1.4971e+01 },
+    {  7.8008e-01, -2.4582e+00,  2.8835e-02, -7.0443e-01 },
+    {  2.5066e+01,  2.4727e+01, -3.6163e-01, -4.6946e+00 },
+    {  1.8343e+00,  1.6107e+00, -3.9030e-01,  1.9760e-02 }
+  };
+
+  const G4double pbar_rho[8*NPar][4] = {
+    {  2.3079e-01,  0.0000e+00,  1.0000e+00,  1.0000e+00 }, //Ecal ShowerType1
+    {  4.3290e-01,  6.7327e-02, -4.5756e+01,  3.2191e+00 },
+    {  8.4086e-01,  4.8027e-02,  4.0865e+01,  3.1625e+00 },
+    { -5.6374e-02,  1.0346e-01,  6.3263e+00,  3.1695e+00 },
+    { -4.4616e+00, -5.0152e+00, -2.1702e-01, -5.4528e+00 },
+    {  1.4026e-01,  1.3193e-01,  8.6221e+01,  3.2452e+00 },
+    {  1.1522e-01, -7.5725e-02,  2.1818e+00,  1.8879e+00 },
+    { -8.2358e+00,  8.7201e+00,  2.7548e-01, -5.6808e+00 },
+    {  1.0653e+00, -1.8383e+00, -2.0251e-02,  2.5977e+01 },
+    {  8.0521e-02,  8.8452e-01,  4.5910e-01,  1.1158e-02 },
+
+    {  1.5216e-01,  1.4560e-01,  1.9375e+00,  2.7285e+00 }, //Hcal ShowerType1
+    {  2.6865e-01,  1.0966e-01,  3.0722e+00,  2.2432e+00 },
+    {  7.4470e-01,  0.0000e+00,  0.0000e+00,  0.0000e+00 },
+    {  1.7389e-01,  1.6479e-01,  8.6705e-01,  4.2026e+00 },
+    {  5.0000e-01,  2.7037e-01,  7.2902e-01,  2.7075e+00 },
+    {  3.0480e-01,  1.5000e-01,  1.3249e+00,  1.4761e+00 },
+    {  7.2012e-02,  0.0000e+00,  1.0000e+00,  1.0000e+00 },
+    {  4.6644e-01,  1.8000e-01,  4.1184e-01,  5.2569e+00 },
+    {  4.7765e-01,  1.5000e-01,  1.1606e+00,  1.0662e+00 },
+    {  7.3257e-01,  1.1639e-01, -1.7675e+00,  2.8941e+00 },
+
+    {  9.0554e-02,  8.2545e-02,  4.6059e+00,  2.2499e+00 }, //Hcal ShowerType2
+    {  2.6407e-01,  6.4073e-02,  2.7583e+00,  1.6532e+00 },
+    {  7.3779e-01, -8.2733e-03,  2.7742e+01,  2.6352e+00 },
+    {  1.3900e-01,  1.0000e-01,  1.1953e+00,  4.2759e+00 },
+    {  4.8511e-01,  2.1766e-01,  9.5147e-01,  2.7201e+00 },
+    {  3.6706e-01,  0.0000e+00,  1.0000e+00,  1.0000e+00 },
+    {  2.0711e+01, -2.0659e+01,  7.2447e-02, -3.9754e+01 },
+    {  2.0000e-01,  5.0335e+00,  1.0157e-02, -7.1268e-02 },
+    {  5.9565e-01,  0.0000e+00,  1.0000e+00,  1.0000e+00 },
+    {  7.4264e-01, -9.7084e-02,  1.9748e+00,  2.5358e+00 },
+
+    { -2.2297e+00,  4.4590e+00, -2.1916e-02,  3.0011e+01 }, //Hcal ShowerType3
+    {  2.8783e-01,  1.7653e-01, -3.5284e+00,  3.3965e+00 },
+    {  7.4446e-01,  0.0000e+00,  1.0000e+00,  1.0000e+00 },
+    {  1.4560e-01, -1.0000e-01,  1.2909e+00,  1.2426e+00 },
+    {  4.9473e-01,  1.1084e-01,  1.7734e+01,  3.3464e+00 },
+    {  2.0462e+00, -1.8330e+00,  1.1470e+00,  1.0094e-01 },
+    {  1.6943e-01, -1.1284e-01,  1.8951e+01,  3.3884e+00 },
+    {  2.0000e-01,  4.2824e+00,  7.5278e-03, -4.3992e+00 },
+    {  5.2574e-01, -7.5330e-02,  6.4920e-01,  5.0040e+00 },
+    {  7.7100e-01, -7.6616e-02,  1.6244e+00,  1.9033e+00 }
+  };
+
+  const G4double pbar_rpar[4*Nrpar][2] = {
+    {  1.3206e+00, -2.0591e-02}, //Ecal for showerType = 1
+    {  8.7262e+00, -1.2565e+00},
+    {  4.8914e-01,  3.1070e-02},
+    {  2.8581e-03, -3.7858e-02},
+    {  2.1375e+01, -2.9364e+00}, //Hcal for showerType = 1
+    { -1.2541e+00,  1.2558e-01},
+    {  4.9430e-01, -1.9658e-02},
+    { -7.1026e-03,  6.7101e-03},
+    {  1.2999e+01, -1.8209e+00}, //Hcal for showerType = 2
+    { -1.5361e+00,  1.8317e-01},
+    {  5.1010e-01, -2.6852e-02},
+    { -2.1509e-02,  8.9109e-03},
+    {  1.9082e+00, -1.1602e-02}, //Hcal for showerType = 3
+    {  6.3817e+00, -1.1000e+00},
+    {  6.0838e-01, -2.8689e-02},
+    { -8.5457e-02, -1.7099e-03}
+  };
+
+  //HcalOuter parameters
+  const G4double ho_nonzero[4] = {4.79943e-01,4.61158e-01,7.09011e-01,4.86440e+00};   
 }
 
 #endif
