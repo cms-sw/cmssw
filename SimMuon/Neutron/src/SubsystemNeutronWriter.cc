@@ -22,7 +22,8 @@ SubsystemNeutronWriter::SubsystemNeutronWriter(edm::ParameterSet const& pset)
   theNeutronTimeCut(pset.getParameter<double>("neutronTimeCut")),
   theTimeWindow(pset.getParameter<double>("timeWindow")),
   theNEvents(0),
-  initialized(false)
+  initialized(false),
+  useLocalDetId_(true)
 {
   string writer = pset.getParameter<string>("writer");
   string output = pset.getParameter<string>("output");
@@ -36,8 +37,10 @@ SubsystemNeutronWriter::SubsystemNeutronWriter(edm::ParameterSet const& pset)
   }
   else if (writer == "EDM")
   {
-    produces<edm::PSimHitContainer>("MuonCSCHits");
+    produces<edm::PSimHitContainer>();
     theHitWriter = new EDMNeutronWriter();
+    // write out the real DetId, not the local one
+    useLocalDetId_ = false;
   }
   else 
   {
@@ -149,11 +152,11 @@ void SubsystemNeutronWriter::writeCluster(int chamberType, const edm::PSimHitCon
 
 
 void SubsystemNeutronWriter::adjust(PSimHit & h, float timeOffset) {
-  
+  unsigned int detId = useLocalDetId_ ? localDetId(h.detUnitId()) : h.detUnitId();
   h = PSimHit( h.entryPoint(), h.exitPoint(), h.pabs(), 
                h.timeOfFlight() + timeOffset,
                h.energyLoss(), h.particleType(), 
-               localDetId(h.detUnitId()), h.trackId(),
+               detId, h.trackId(),
                h.momentumAtEntry().theta(),
                h.momentumAtEntry().phi() );
 }

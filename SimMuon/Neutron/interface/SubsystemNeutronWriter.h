@@ -65,6 +65,8 @@ private:
   double theTimeWindow;
   int theNEvents;
   bool initialized;
+  // true means to translate DetId into just layer number, e.g., 1-6 in CSC
+  bool useLocalDetId_;
   std::map<int, int> theCountPerChamberType;
 };
 
