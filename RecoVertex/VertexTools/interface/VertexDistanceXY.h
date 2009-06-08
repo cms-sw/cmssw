@@ -33,6 +33,7 @@ public:
 
 
   using VertexDistance::distance;
+  using VertexDistance::compatibility;
 
 private:
 
