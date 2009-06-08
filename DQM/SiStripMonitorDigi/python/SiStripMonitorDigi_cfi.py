@@ -71,7 +71,7 @@ SiStripMonitorDigi = cms.EDFilter("SiStripMonitorDigi",
         xmin = cms.double(0.0),
         xmax = cms.double(1.0*60*60),
         ymin = cms.double(0.0),
-        ymax = cms.double(1000000.0),
+        ymax = cms.double(0.0),
         subdetswitchon = cms.bool(False)
     ),
 
@@ -86,15 +86,6 @@ SiStripMonitorDigi = cms.EDFilter("SiStripMonitorDigi",
         ymax = cms.double(10000.0)        
     ),
 
-    TH2DigiApvCycle = cms.PSet(
-        Nbins = cms.int32(70),
-        xmin = cms.double(-0.5),
-        xmax = cms.double(69.5),
-        Nbinsy = cms.int32(200),
-        ymin = cms.double(0.0),
-        ymax = cms.double(1000.0),
-        subdetswitchon = cms.bool(False)
-    ),
 
     TProfDigiApvCycle = cms.PSet(
         Nbins = cms.int32(70),
@@ -102,7 +93,7 @@ SiStripMonitorDigi = cms.EDFilter("SiStripMonitorDigi",
         xmax = cms.double(69.5),
         Nbinsy = cms.int32(200),
         ymin = cms.double(0.0),
-        ymax = cms.double(10000.0),
+        ymax = cms.double(0.0),
         subdetswitchon = cms.bool(False)
         ),
 

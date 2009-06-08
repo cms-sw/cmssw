@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.43 2009/04/02 12:08:10 borrell Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.44 2009/04/15 15:49:32 dutta Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -580,7 +580,7 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
     if(subdetswitchapvcycleprofon){
       edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TProfDigiApvCycle");
       dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
-      HistoName = "Digi_vs_Bx_" + label;
+      HistoName = "Digi_vs_ApvCycle_" + label;
       subdetMEs.SubDetDigiApvProf=dqmStore_->bookProfile(HistoName,HistoName,
 					      Parameters.getParameter<int32_t>("Nbins"),
 					      Parameters.getParameter<double>("xmin"),
