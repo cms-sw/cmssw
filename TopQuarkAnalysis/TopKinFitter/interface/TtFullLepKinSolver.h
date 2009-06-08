@@ -3,9 +3,9 @@
 #define TtFullLepKinSolver_h
 
 #include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 
 #include "TLorentzVector.h"
-#include "TMatrixD.h"
 #include "TMath.h"
 
 class TF2;
@@ -13,14 +13,25 @@ class TF2;
 class TtFullLepKinSolver {
 
  public:
-  
+ 
   TtFullLepKinSolver();
   TtFullLepKinSolver(double,double,double, double xx = 0, double yy = 0);
   ~TtFullLepKinSolver();
   
   inline void useWeightFromMC(bool useMC) { useMCforBest_ = useMC; }
-  TtDilepEvtSolution addKinSolInfo(TtDilepEvtSolution * asol);
+  TtDilepEvtSolution addKinSolInfo(TtDilepEvtSolution * asol); 
   
+  struct NeutrinoSolution {
+    double weight;
+    reco::LeafCandidate neutrino;
+    reco::LeafCandidate neutrinoBar; 
+  };
+  
+  NeutrinoSolution getNuSolution(TLorentzVector LV_l, 
+                                 TLorentzVector LV_l_, 
+			         TLorentzVector LV_b, 
+			         TLorentzVector LV_b_); 			  
+			     
  private:
   void FindCoeff(const TLorentzVector al, 
 		 const TLorentzVector l,
@@ -34,6 +45,7 @@ class TtFullLepKinSolver {
 	      const TLorentzVector b_l, double sol);
   double WeightSolfromMC();
   double WeightSolfromShape();
+    
   int quartic(double* q_coeff, double* q_sol);
   int cubic(double* c_coeff, double* c_sol);
   
@@ -67,14 +79,14 @@ class TtFullLepKinSolver {
   double n2;
   double n3;
   
-  TLorentzVector LV_n, LV_n_, LV_t, LV_t_, LV_tt_t, LV_tt_t_;
-  
+  TLorentzVector LV_n, LV_n_, LV_t, LV_t_, LV_tt_t, LV_tt_t_;  
   //provisional
-  TLorentzVector genLV_n, genLV_n_;
+  TLorentzVector genLV_n, genLV_n_;  
+    
   // flag to swith from WeightSolfromMC() to WeightSolfromShape()
   bool useMCforBest_;
   // Event shape
-  TF2* EventShape_;
+  TF2* EventShape_;  
 };
 
 

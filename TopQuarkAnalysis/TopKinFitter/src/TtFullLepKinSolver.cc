@@ -125,12 +125,50 @@ TtDilepEvtSolution TtFullLepKinSolver::addKinSolInfo(TtDilepEvtSolution * asol)
   return fitsol;
 }
 
+TtFullLepKinSolver::NeutrinoSolution TtFullLepKinSolver::getNuSolution(TLorentzVector LV_l, 
+                                                                       TLorentzVector LV_l_, 
+			                                               TLorentzVector LV_b, 
+			                                               TLorentzVector LV_b_) {					    					    					    
+    
+  math::XYZTLorentzVector maxLV_n  = math::XYZTLorentzVector(0,0,0,0); 
+  math::XYZTLorentzVector maxLV_n_ = math::XYZTLorentzVector(0,0,0,0);   
+
+  //loop on top mass parameter
+  double weightmax = -1;
+  for(double mt = topmass_begin; 
+             mt < topmass_end + 0.5*topmass_step; 
+             mt += topmass_step) {
+    double q_coeff[5], q_sol[4];
+    FindCoeff(LV_l, LV_l_, LV_b, LV_b_, mt, mt, pxmiss_, pymiss_, q_coeff);
+    int NSol = quartic(q_coeff, q_sol);
+    
+    //loop on all solutions
+    for (int isol = 0; isol < NSol; isol++) {
+      TopRec(LV_l, LV_l_, LV_b, LV_b_, q_sol[isol]);
+      double weight = WeightSolfromShape();
+      if (weight > weightmax) {
+        weightmax =weight;
+	maxLV_n.SetPxPyPzE(LV_n.Px(), LV_n.Py(), LV_n.Pz(), LV_n.E());
+	maxLV_n_.SetPxPyPzE(LV_n_.Px(), LV_n_.Py(), LV_n_.Pz(), LV_n_.E());
+      }
+    }
+  }
+  TtFullLepKinSolver::NeutrinoSolution nuSol;
+  nuSol.neutrino    = reco::LeafCandidate(0, maxLV_n  );
+  nuSol.neutrinoBar = reco::LeafCandidate(0, maxLV_n_ ); 
+  nuSol.weight = weightmax; 
+  return nuSol;
+}
+
 void TtFullLepKinSolver::FindCoeff(const TLorentzVector al, 
-                               const TLorentzVector l,
-	                       const TLorentzVector b_al,
-	                       const TLorentzVector b_l,
-	                       double mt, double mat, double px_miss, double py_miss,
-	                       double* koeficienty) {
+                                   const TLorentzVector l,
+	                           const TLorentzVector b_al,
+	                           const TLorentzVector b_l,
+	                           double mt, 
+				   double mat, 
+				   double px_miss, 
+				   double py_miss,
+	                           double* koeficienty) {
 
 double E, apom1, apom2, apom3;
 double k11, k21, k31, k41,  cpom1, cpom2, cpom3, l11, l21, l31, l41, l51, l61, k1, k2, k3, k4, k5,k6;
@@ -219,9 +257,10 @@ double l1, l2, l3, l4, l5, l6, k15, k25, k35, k45;
 }
 
 void TtFullLepKinSolver::TopRec(const TLorentzVector al, 
-                            const TLorentzVector l,
-	                    const TLorentzVector b_al,
-	                    const TLorentzVector b_l, double sol) {
+                                const TLorentzVector l,
+	                        const TLorentzVector b_al,
+	                        const TLorentzVector b_l, 
+				double sol) {
 
   TVector3 t_ttboost;
   TLorentzVector aux;
