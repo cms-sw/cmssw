@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_1_0/pre8/8E29_V8/V2 (CMSSW_3_1_X_2009-05-25-1900)
+# /dev/CMSSW_3_1_0/pre8/8E29_V11/V2 (CMSSW_3_1_X_2009-06-05-0700_HLT1)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -28,7 +28,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/8E29_V8/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/8E29_V11/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -70,7 +70,7 @@ AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProduc
 ESUnpackerWorkerESProducer = cms.ESProducer( "ESUnpackerWorkerESProducer",
   ComponentName = cms.string( "esRawToRecHit" ),
   appendToDataLabel = cms.string( "" ),
-  DCCDataUnpacker = cms.PSet(  LookupTable = cms.untracked.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ) ),
+  DCCDataUnpacker = cms.PSet(  LookupTable = cms.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ) ),
   RHAlgo = cms.PSet(  Type = cms.string( "ESRecHitWorker" ) )
 )
 EcalRegionCablingESProducer = cms.ESProducer( "EcalRegionCablingESProducer",
@@ -99,7 +99,8 @@ EcalUnpackerWorkerESProducer = cms.ESProducer( "EcalUnpackerWorkerESProducer",
   CalibRHAlgo = cms.PSet( 
     Type = cms.string( "EcalRecHitWorkerSimple" ),
     ChannelStatusToBeExcluded = cms.vint32(  ),
-    flagsMapDBReco = cms.vint32( 0, 0, 0, 0, 4, -1, -1, -1, 4, 4, 6, 6, 6, 7, 8 )
+    flagsMapDBReco = cms.vint32( 0, 0, 0, 0, 4, -1, -1, -1, 4, 4, 6, 6, 6, 7, 8 ),
+    killDeadChannels = cms.bool( True )
   )
 )
 FastSteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorESProducer",
@@ -997,8 +998,8 @@ hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     readBadChambers = cms.bool( False ),
     UseAverageTime = cms.bool( False ),
     UseParabolaFit = cms.bool( False ),
-    UseFivePoleFit = cms.bool( True ),
-    UseFourPoleFit = cms.bool( True )
+    UseFourPoleFit = cms.bool( True ),
+    UseFivePoleFit = cms.bool( True )
 )
 hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
     inputObjects = cms.InputTag( "hltCsc2DRecHits" ),
