@@ -10,3 +10,6 @@ typedef TtSemiLepKinFitProducer< std::vector<pat::Electron> > TtSemiLepKinFitPro
 
 DEFINE_FWK_MODULE(TtSemiLepKinFitProducerMuon);
 DEFINE_FWK_MODULE(TtSemiLepKinFitProducerElectron);
+
+#include "TopQuarkAnalysis/TopKinFitter/plugins/TtFullLepKinSolutionProducer.h"
+DEFINE_FWK_MODULE(TtFullLepKinSolutionProducer);
