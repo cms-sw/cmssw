@@ -321,7 +321,11 @@ void L1GctHardwareJetFinder::findFinalClusters()
 		  unsigned neighbourEt=m_cluster00.at(1-localPhi0).et();
 		  isolated &= et0 >= neighbourEt;
 		}
-		for (unsigned k=0; k<MAX_JETS_OUT; ++k) {
+		// If the jet is NOT vetoed, look at the jets found locally (m_keptProtoJets).
+		// We accept the jet if there are no local jets nearby, or if the local jet
+		// (there should be no more than one) has lower Et.
+		if (isolated) {
+		  for (unsigned k=0; k<MAX_JETS_OUT; ++k) {
 			unsigned et1       = m_keptProtoJets.at(k).et();
 			unsigned localEta1 = m_keptProtoJets.at(k).rctEta();
 			unsigned localPhi1 = m_keptProtoJets.at(k).rctPhi();
@@ -332,12 +336,12 @@ void L1GctHardwareJetFinder::findFinalClusters()
 			  isolated &=  distantJet;
 			  storeJet |= !distantJet && ((et0 > et1) || ((et0 == et1) && localPhi0==1));
 			}
+		  }
 		}
 
 		storeJet |= isolated;
 
 		if (storeJet) { 
-
 			// Start with the et sum, tau veto and overflow flags of the protoJet (2x3 regions)
 			unsigned etCluster = et0;
 			bool ovrFlowOr = m_rcvdProtoJets.at(j).overFlow();
