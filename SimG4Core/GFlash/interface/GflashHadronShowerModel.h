@@ -5,6 +5,9 @@
 #include "G4VFastSimulationModel.hh"
 
 class GflashHadronShowerProfile;
+class GflashPiKShowerProfile;
+class GflashProtonShowerProfile;
+class GflashAntiProtonShowerProfile;
 class GflashHistogram;
 
 class GflashHadronShowerModel : public G4VFastSimulationModel 
@@ -32,6 +35,9 @@ private:
 
   edm::ParameterSet theParSet;
   GflashHadronShowerProfile *theProfile;
+  GflashPiKShowerProfile *thePiKProfile;
+  GflashProtonShowerProfile *theProtonProfile;
+  GflashAntiProtonShowerProfile *theAntiProtonProfile;
 
   //debugging histograms
   GflashHistogram* theHisto;
