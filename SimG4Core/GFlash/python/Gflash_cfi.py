@@ -11,6 +11,7 @@ g4SimHits.Physics.GFlash = cms.PSet(
     GflashHadronPhysics = cms.string('QGSP_BERT'),
     GflashEMShowerModel = cms.bool(True),
     GflashHadronShowerModel = cms.bool(True),
+    GflashHcalOuter = cms.bool(True),
     GflashHistogram = cms.bool(True),
     GflashHistogramName = cms.string('gflash_histogram.root'),
     bField = cms.double(3.8),
