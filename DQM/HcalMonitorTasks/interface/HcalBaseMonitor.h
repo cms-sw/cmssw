@@ -27,6 +27,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "DQM/HcalMonitorTasks/interface/HcalEtaPhiHists.h"
+
 #include <iostream>
 
 // Temporary fix:  Add this into base class until I figure why multiple inclusions are a problem -- Jeff, 23 May 2008
@@ -35,8 +37,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2009/04/13 14:20:29 $
-  * $Revision: 1.19.6.1 $
+  * $Date: 2009/05/01 14:06:09 $
+  * $Revision: 1.20 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -61,6 +63,9 @@ public:
   // 2-D histograms with eta-phi binning assumed
   void setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units);
   void setupDepthHists2D(std::vector<MonitorElement*> &hh, char* Name, char* Units);
+  void SetupEtaPhiHists(MonitorElement* &h, EtaPhiHists& hh, char* Name, char* Units);
+  void SetupEtaPhiHists(EtaPhiHists &hh, char* Name, char* Units);
+
   // Generic 2-D histograms
   void setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units,
 			 int nbinsx, int lowboundx, int highboundx,
