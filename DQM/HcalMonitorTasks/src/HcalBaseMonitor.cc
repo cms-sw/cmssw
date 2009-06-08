@@ -224,26 +224,26 @@ void HcalBaseMonitor::SetupEtaPhiHists(EtaPhiHists & hh, char* Name, char* Units
     }
 
   // Push back depth plots
-  hh.d1=m_dbe->book2D(("HB HE HF Depth 1 "+name.str()+unitname.str()).c_str(),
+  hh.depth.push_back(m_dbe->book2D(("HB HE HF Depth 1 "+name.str()+unitname.str()).c_str(),
 		      (name.str()+" Depth 1 -- HB HE HF ("+unittitle.str().c_str()+")"),
 		      85,-42.5,42.5,
-		      72,0.5,72.5);
-  hh.d2=m_dbe->book2D(("HB HE HF Depth 2 "+name.str()+unitname.str()).c_str(),
+		      72,0.5,72.5));
+  hh.depth.push_back(m_dbe->book2D(("HB HE HF Depth 2 "+name.str()+unitname.str()).c_str(),
 		      (name.str()+" Depth 2 -- HB HE HF ("+unittitle.str().c_str()+")"),
 		      85,-42.5,42.5,
-		      72,0.5,72.5);
+		      72,0.5,72.5));
   // Revise these bins at some point
-  hh.d3=m_dbe->book2D(("HE Depth 3 "+name.str()+unitname.str()).c_str(),
-		      (name.str()+" Depth 3 -- HE ("+unittitle.str().c_str()+")"),
-		      // rebin into variable-sized eta bins later
-		      85,-42.5,42.5,
-		      72,0.5,72.5);
-  hh.d3=m_dbe->book2D(("HO Depth 4 "+name.str()+unitname.str()).c_str(),
-		      (name.str()+" Depth 4 -- HO ("+unittitle.str().c_str()+")"),
-		      // rebin to this smaller number of bins later:
-		      //31,-15.5,15.5,
-		      85, -42.5,42.5,
-		      72,0.5,72.5);
+  hh.depth.push_back(m_dbe->book2D(("HE Depth 3 "+name.str()+unitname.str()).c_str(),
+				   (name.str()+" Depth 3 -- HE ("+unittitle.str().c_str()+")"),
+				   // rebin into variable-sized eta bins later
+				   85,-42.5,42.5,
+				   72,0.5,72.5));
+  hh.depth.push_back(m_dbe->book2D(("HO Depth 4 "+name.str()+unitname.str()).c_str(),
+				   (name.str()+" Depth 4 -- HO ("+unittitle.str().c_str()+")"),
+				   // rebin to this smaller number of bins later:
+				   //31,-15.5,15.5,
+				   85, -42.5,42.5,
+				   72,0.5,72.5));
   hh.setBinLabels(); // set axis titles, special bins
 }
 
