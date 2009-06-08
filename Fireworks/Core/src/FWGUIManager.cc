@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.125 2009/05/20 16:33:40 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.126 2009/05/22 20:28:23 amraktad Exp $
 //
 
 // system include files
@@ -756,6 +756,7 @@ void
 addWindowInfoTo(const TGFrame* iMain,
                 FWConfiguration& oTo)
 {
+   WindowAttributes_t attr;
    Window_t wdummy;
    Int_t ax,ay;
    gVirtualX->TranslateCoordinates(iMain->GetId(),
@@ -763,6 +764,8 @@ addWindowInfoTo(const TGFrame* iMain,
                                    0,0, //0,0 in local coordinates
                                    ax,ay, //coordinates of screen
                                    wdummy);
+   gVirtualX->GetWindowAttributes(iMain->GetId(), attr);
+   ay -=  attr.fY; // move up for decoration height
    {
       std::stringstream s;
       s<<ax;
@@ -789,38 +792,8 @@ void
 FWGUIManager::addTo(FWConfiguration& oTo) const
 {
    FWConfiguration mainWindow(1);
-   {
-      std::stringstream s;
-      s << static_cast<int>(m_cmsShowMainFrame->GetWidth());
-      mainWindow.addKeyValue("width",FWConfiguration(s.str()));
-   }
-   {
-      std::stringstream s;
-      s << static_cast<int>(m_cmsShowMainFrame->GetHeight());
-      mainWindow.addKeyValue("height",FWConfiguration(s.str()));
-   }
-   Window_t wdummy;
-   Int_t ax,ay;
-   gVirtualX->TranslateCoordinates(m_cmsShowMainFrame->GetId(),
-                                   gClient->GetDefaultRoot()->GetId(),
-                                   0,0, //0,0 in local coordinates
-                                   ax,ay, //coordinates of screen
-                                   wdummy);
-   {
-      std::stringstream s;
-      s<<ax;
-      mainWindow.addKeyValue("x",FWConfiguration(s.str()));
-   }
-   {
-      std::stringstream s;
-      s<<ay;
-      mainWindow.addKeyValue("y",FWConfiguration(s.str()));
-   }
-
+   addWindowInfoTo(m_cmsShowMainFrame , mainWindow);
    oTo.addKeyValue(kMainWindow,mainWindow,true);
-
-
-
 
    // sort list of TEveWindows reading frame list from TGCompositeFrame
    // becuse TEveElement list is not ordered
@@ -851,18 +824,17 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
          }
       }
 
-      // docked
+      // un-docked
       for(std::vector<TEveWindow*>::const_iterator it = m_viewWindows.begin(); it != m_viewWindows.end(); ++it)
       {
          TEveWindow* ew = (*it);
          TEveCompositeFrameInMainFrame* mainFrame = dynamic_cast<TEveCompositeFrameInMainFrame*>(ew->GetEveFrame());
          if (mainFrame)
             wpacked.push_back(ew); 
-      
       }
    }
 
-   // use sorted list to weite view area and FW-views configuration
+   // use sorted list to write view area and FW-views configuration
    FWConfiguration views(1);
    FWConfiguration viewArea(1);
    for(std::vector<TEveWindow*>::const_iterator it = wpacked.begin(); it != wpacked.end(); ++it)
@@ -872,7 +844,6 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       FWViewBase* wb = (FWViewBase*)((*it)->GetUserData());
       wb->addTo(tempWiew);
       views.addKeyValue(wb->typeName(), tempWiew, true);
-      // printf("AddTo viewes @@@ wpacked view %s \n", wb->typeName().c_str());
 
       // view area
       std::stringstream s;
@@ -884,7 +855,6 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
          dim = frame->GetHeight();
       s<< static_cast<int>(dim);
       viewArea.addValue(s.str());
-      // printf("AddTo varea @@@ wpacked view %d \n", dim);
    }
    oTo.addKeyValue(kViews, views, true);
    oTo.addKeyValue(kViewArea, viewArea, true);
@@ -907,7 +877,6 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       }
    }
    oTo.addKeyValue(kUndocked,undocked,true);
-
 
    //Remember where controllers were placed if they are open
    FWConfiguration controllers(1);
@@ -944,7 +913,6 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       FWConfiguration cbr(1);
       std::stringstream s;
       s << static_cast<int>(m_colorManager->brightness());
-      //      printf("save %d brightness \n", m_colorManager->brightness());
       colorControl.addKeyValue(kBrightness,FWConfiguration(s.str()));
    }
    oTo.addKeyValue(kColorControl,colorControl,true);
@@ -953,49 +921,23 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
 static
 void
 setWindowInfoFrom(const FWConfiguration& iFrom,
-                  TGFrame* iFrame)
+                  TGMainFrame* iFrame)
 {
    int x = atoi(iFrom.valueForKey("x")->value().c_str());
    int y = atoi(iFrom.valueForKey("y")->value().c_str());
    int width = atoi(iFrom.valueForKey("width")->value().c_str());
    int height = atoi(iFrom.valueForKey("height")->value().c_str());
    iFrame->MoveResize(x,y,width,height);
+    iFrame->SetWMPosition(x, y);
 }
 
 void
 FWGUIManager::setFrom(const FWConfiguration& iFrom)
 {
    // main window
-   {
-      const FWConfiguration* mw = iFrom.valueForKey(kMainWindow);
-      assert(mw != 0);
-      int width,height;
-      int x=0;
-      int y=0;
-
-      const FWConfiguration* cWidth = mw->valueForKey("width");
-      assert(0 != cWidth);
-      std::stringstream sw(cWidth->value());
-      sw >> width;
-      const FWConfiguration* c = mw->valueForKey("height");
-      assert(0 != c);
-      std::stringstream sh(c->value());
-      sh >> height;
-
-      const FWConfiguration* cX = mw->valueForKey("x");
-      if( 0!=cX ) {
-         std::stringstream sx(cX->value());
-         sx >> x;
-      }  
-      const FWConfiguration* cY = mw->valueForKey("y");
-      if(0 != cY) {
-         std::stringstream sy(cY->value());
-         sy >> y;
-      }
-
-      m_cmsShowMainFrame->MoveResize(x, y, width, height);
-      m_cmsShowMainFrame->SetWMPosition(x, y);
-   }
+   const FWConfiguration* mw = iFrom.valueForKey(kMainWindow);
+   assert(mw != 0);
+   setWindowInfoFrom(*mw, m_cmsShowMainFrame);
 
    // !! when position and size is clear map window
    m_viewPrimPack->GetGUIFrame()->Layout();
@@ -1010,7 +952,6 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
    {
       size_t n = m_viewBases.size();
       createView(it->first);
-      // printf("SetFrom @@@  view %s \n", (it->first).c_str());
       assert(n+1 == m_viewBases.size());
       m_viewBases.back()->setFrom(it->second);
    }
@@ -1030,7 +971,6 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
          { 
             std::stringstream s(*it);
             s >> dim;
-            // printf("setFrom [%d] dim %d \n", idx, dim);
             idx ++;
          }
       }
@@ -1045,11 +985,6 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
          int idx = m_viewBases.size() -keyVals->size();
          for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it != keyVals->end(); ++it)
          {
-            int x = atoi(it->second.valueForKey("x")->value().c_str());
-            int y = atoi(it->second.valueForKey("y")->value().c_str());
-            int width = atoi(it->second.valueForKey("width")->value().c_str());
-            int height = atoi(it->second.valueForKey("height")->value().c_str());
-
             // get pointer to the undocked viewer
             TEveWindow* myw = m_viewWindows[idx];
             idx++;
@@ -1058,10 +993,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
             TEveCompositeFrameInMainFrame* emf = dynamic_cast<TEveCompositeFrameInMainFrame*>(myw->GetEveFrame());
             const TGMainFrame* mf =  dynamic_cast<const TGMainFrame*>(emf->GetParent());
             TGMainFrame* mfp = (TGMainFrame*)mf;
-            mfp->MoveResize(x, y, width, height);
-
-            // printf("setFrom (%d, %d)  (%d, %d) \n", x, y, width, height);
-            // printf("SetFrom @@@ undock %s %p\n", myw->GetElementName(), mf);
+            setWindowInfoFrom(it->second, mfp);
          }
       }
    }
