@@ -68,8 +68,8 @@ HiggsToTauTauLeptonTauSkim::HiggsToTauTauLeptonTauSkim(const edm::ParameterSet& 
 
 
 HiggsToTauTauLeptonTauSkim::~HiggsToTauTauLeptonTauSkim(){
-  //edm::LogVerbatim("HiggsToTauTauLeptonTauSkim") 
-  std::cout 
+  edm::LogVerbatim("HiggsToTauTauLeptonTauSkim") 
+  //std::cout 
   << " Number_events_read " << nEvents
   << " Number_events_kept " << nSelectedEvents
   << " Efficiency         " << ((double)nSelectedEvents)/((double) nEvents + 0.01) << std::endl;
