@@ -58,7 +58,7 @@ class EtaPhiHists{
     { 
       // If in HF, need to shift by 1 bin (-1 bin lower in -HF, +1 bin higher in +HF)
       if (id.subdet()==HcalForward)
-	depth[id.depth()-1]->Fill(id.ieta()<0 ? id.ieta()-1 ? id.ieta()+1, id.iphi(), val);
+	depth[id.depth()-1]->Fill(id.ieta()<0 ? id.ieta()-1 : id.ieta()+1, id.iphi(), val);
       else 
 	depth[id.depth()-1]->Fill(id.ieta(),id.iphi(),val);
 
