@@ -63,7 +63,10 @@ class HiggsToTauTauLeptonTauSkim : public edm::EDFilter {
         InputTag        hltEventLabel;
         std::vector<std::string>  hltFilterLabels;
 	InputTag	jetLabel;
+	InputTag	electronLabel;
+	InputTag	electronIdLabel;
         int 		minNumberOfjets;
+        int             minNumberOfelectrons;
         double 		jetEtMin;
         double 		jetEtaMin;
         double 		jetEtaMax;

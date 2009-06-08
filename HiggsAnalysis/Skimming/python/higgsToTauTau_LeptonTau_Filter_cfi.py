@@ -12,8 +12,11 @@ higgsToTauTauLeptonTauFilter = cms.EDFilter("HiggsToTauTauLeptonTauSkim",
     jetEtaMin = cms.double(-2.6),
     jetEtaMax = cms.double(2.6),
     minNumberOfJets = cms.int32(1),
+    minNumberOfElectrons = cms.int32(1),
     jetEtMin = cms.double(20.0),
-    JetTagCollection = cms.InputTag("iterativeCone5CaloJets")
+    JetTagCollection = cms.InputTag("iterativeCone5CaloJets"),
+    ElectronTagCollection = cms.InputTag("pixelMatchGsfElectrons"),
+    ElectronIdTagCollection = cms.InputTag("eidRobustTight") 
 )
 
 

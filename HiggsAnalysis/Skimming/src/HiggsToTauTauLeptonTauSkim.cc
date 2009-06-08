@@ -18,6 +18,11 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
+// Electrons
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
@@ -26,6 +31,7 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h" 
+
 
 #include <TLorentzVector.h>
 
@@ -47,7 +53,10 @@ HiggsToTauTauLeptonTauSkim::HiggsToTauTauLeptonTauSkim(const edm::ParameterSet& 
         hltEventLabel    = iConfig.getParameter<InputTag>("HLTEventCollection");
         hltFilterLabels  = iConfig.getParameter<std::vector<std::string> >("HLTFilterCollections");
 	jetLabel         = iConfig.getParameter<InputTag>("JetTagCollection");
+	electronLabel    = iConfig.getParameter<InputTag>("ElectronTagCollection");
+	electronIdLabel  = iConfig.getParameter<InputTag>("ElectronIdTagCollection");
 	minNumberOfjets  = iConfig.getParameter<int>("minNumberOfJets");
+	minNumberOfelectrons  = iConfig.getParameter<int>("minNumberOfElectrons");
 	jetEtMin         = iConfig.getParameter<double>("jetEtMin");
 	jetEtaMin        = iConfig.getParameter<double>("jetEtaMin");
 	jetEtaMax        = iConfig.getParameter<double>("jetEtaMax");
@@ -59,8 +68,8 @@ HiggsToTauTauLeptonTauSkim::HiggsToTauTauLeptonTauSkim(const edm::ParameterSet& 
 
 
 HiggsToTauTauLeptonTauSkim::~HiggsToTauTauLeptonTauSkim(){
-  edm::LogVerbatim("HiggsToTauTauLeptonTauSkim") 
-  //std::cout 
+  //edm::LogVerbatim("HiggsToTauTauLeptonTauSkim") 
+  std::cout 
   << " Number_events_read " << nEvents
   << " Number_events_kept " << nSelectedEvents
   << " Efficiency         " << ((double)nSelectedEvents)/((double) nEvents + 0.01) << std::endl;
@@ -73,22 +82,6 @@ bool HiggsToTauTauLeptonTauSkim::filter(edm::Event& iEvent, const edm::EventSetu
   using namespace trigger;
 
   nEvents++;
-
-  /*
-  //VERIFY HLT BITS
-  edm::Handle<edm::TriggerResults> HLTResults;
-  iEvent.getByLabel(hltResultsLabel,HLTResults);
-  if (HLTResults.isValid()) {
-    edm::TriggerNames triggerNames;
-    triggerNames.init(*HLTResults);
-    for (unsigned int iHLT = 0; iHLT < HLTResults->size(); iHLT++) {
-      if(triggerNames.triggerName(iHLT) == "HLT_IsoEle15_L1I" ||  
-	 triggerNames.triggerName(iHLT)=="HLT_Mu15" ||
-	 triggerNames.triggerName(iHLT) =="HLT_IsoMu11") 
-	std::cout << "TRIGGER " << triggerNames.triggerName(iHLT) << " " << HLTResults->accept(iHLT) << std::endl;
-    }
-  }
-  */
 
 
  //FIND HLT Filter objects
@@ -143,10 +136,10 @@ bool HiggsToTauTauLeptonTauSkim::filter(edm::Event& iEvent, const edm::EventSetu
   // LOOP over jets which pass cuts and are DeltaR separated to highest pt trigger lepton
   Handle<CaloJetCollection> jetHandle;	
   iEvent.getByLabel(jetLabel,jetHandle);
+  int nJets = 0;
   if ( !jetHandle.isValid() ) return false;
   bool accepted = false;	
   if (jetHandle.isValid() ) {
-    int nJets = 0;
     const reco::CaloJetCollection & jets = *(jetHandle.product());
     CaloJetCollection::const_iterator iJet;
     for (iJet = jets.begin(); iJet!= jets.end(); iJet++ ) {
@@ -157,13 +150,74 @@ bool HiggsToTauTauLeptonTauSkim::filter(edm::Event& iEvent, const edm::EventSetu
         if (DR > minDRFromLepton) nJets++;		
       }
     }
+  }
+
+  edm::Handle<edm::TriggerResults> HLTResults;
+  iEvent.getByLabel(hltResultsLabel,HLTResults);
+  
+  //MUON TRIGGER SPECIFIC
+  //if (HLTResults.isValid()) {
+  //  edm::TriggerNames triggerNames;
+  //  triggerNames.init(*HLTResults);
+  //  for (unsigned int iHLT = 0; iHLT < HLTResults->size(); iHLT++) {
+  //	if(triggerNames.triggerName(iHLT)=="HLT_Mu15" ||
+  //	   triggerNames.triggerName(iHLT) =="HLT_IsoMu11") 
+  //	std::cout << "TRIGGER " << triggerNames.triggerName(iHLT) << " " << HLTResults->accept(iHLT) << std::endl;
+  //  }
+  //}
+  
+  //ELECTRON SPECIFIC
+  //VERIFY HLT BITS
+  bool ElectronTrigger = false;
+  int nElectrons = 0;
+  
+  if (HLTResults.isValid()) {
+    edm::TriggerNames triggerNames;
+    triggerNames.init(*HLTResults);
+    for (unsigned int iHLT = 0; iHLT < HLTResults->size(); iHLT++) {
+      if(triggerNames.triggerName(iHLT) == "HLT_IsoEle15_L1I" ) {
+	//std::cout << "TRIGGER " << triggerNames.triggerName(iHLT) << " " << HLTResults->accept(iHLT) << std::endl;
+	ElectronTrigger = true;
+      }
+    }
+  }
+  
+  if(ElectronTrigger) {
+    Handle<GsfElectronCollection> electronHandle;	
+    iEvent.getByLabel(electronLabel,electronHandle);
+
+
+    if (electronHandle.isValid() ) {
+
+      // Loop over electrons
+      for (unsigned int i = 0; i < electronHandle->size(); i++){
+	edm::Ref<reco::GsfElectronCollection> electronRef(electronHandle,i);
+	//Read eID results
+	std::vector<edm::Handle<edm::ValueMap<float> > > eIDValueMap(4); 
+	iEvent.getByLabel( electronIdLabel , eIDValueMap[3] ); 
+	const edm::ValueMap<float> & eIDmap = * eIDValueMap[3] ;
+	if (eIDmap[electronRef] ) {
+	  nElectrons++;
+	}
+      }
+    }
+  }
+  
+  
+  if(ElectronTrigger) {
+    if(nElectrons >=   minNumberOfelectrons && nJets >= minNumberOfjets) {
+      accepted = true;
+      nSelectedEvents++;
+    }
+  }
+  else{
     if (nJets >= minNumberOfjets) {
       accepted = true;
       nSelectedEvents++;
     }	
   }
-
-
-
+  
+  
+  
   return accepted;
 }
