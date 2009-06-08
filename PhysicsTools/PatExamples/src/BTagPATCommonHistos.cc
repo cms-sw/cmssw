@@ -75,7 +75,7 @@ if(
 	//tagged using auxiliar function (Loose)
 	//
 	if(BTagger.IsbTag(*jet_iter,BTagpurity_,BTagdiscriminator_)){
-		histocontainer_["jet_pt_uncorr_"+flavor+"_tagged"]->Fill(jet_iter->noCorrJet().pt());
+		histocontainer_["jet_pt_uncorr_"+flavor+"_tagged"]->Fill(jet_iter->correctedJet("raw").pt());
 		histocontainer_["jet_pt_"+flavor+"_tagged"]->Fill(jet_iter->pt());
 		histocontainer_["jet_eta_"+flavor+"_tagged"]->Fill(jet_iter->eta());
 	}
@@ -84,7 +84,7 @@ if(
 	//    tagged minimum discriminant cut criteria
 	//
 	if( isb > float(BTagdisccut_) ){
-		histocontainer_["jet_pt_uncorr_"+flavor+"_taggedmincut"]->Fill(jet_iter->noCorrJet().pt());
+		histocontainer_["jet_pt_uncorr_"+flavor+"_taggedmincut"]->Fill(jet_iter->correctedJet("raw").pt());
 		histocontainer_["jet_pt_"+flavor+"_taggedmincut"]->Fill(jet_iter->pt());
 		histocontainer_["jet_eta_"+flavor+"_taggedmincut"]->Fill(jet_iter->eta());
 	}
@@ -94,7 +94,7 @@ if(
         tagbl[0]="0";tagbl[1]="1";tagbl[2]="2";
 	for (size_t i=0; i < tagbl.size(); i++)
 		if( jet_iter->associatedTracks().size() > i ){
-			histocontainer_["jet_pt_uncorr_"+flavor+"_taggable"+tagbl[i]]->Fill(jet_iter->noCorrJet().pt());
+			histocontainer_["jet_pt_uncorr_"+flavor+"_taggable"+tagbl[i]]->Fill(jet_iter->correctedJet("raw").pt());
 			histocontainer_["jet_pt_"+flavor+"_taggable"+tagbl[i]]->Fill(jet_iter->pt());
 			histocontainer_["jet_eta_"+flavor+"_taggable"+tagbl[i]]->Fill(jet_iter->eta());
 			if (jet_iter->pt() <  30 ){
@@ -113,11 +113,11 @@ if(
 	// corrected pt distributions
 	// eta distributions
 	// scatter plots for pts 
-	histocontainer_["jet_pt_uncorr_"+flavor]->Fill(jet_iter->noCorrJet().pt());
+	histocontainer_["jet_pt_uncorr_"+flavor]->Fill(jet_iter->correctedJet("raw").pt());
 	histocontainer_["jet_pt_"+flavor]->Fill(jet_iter->pt());
 	histocontainer_["jet_eta_"+flavor]->Fill(jet_iter->eta());
 	histocontainer_["tracks_in_jet_"+flavor]->Fill(jet_iter->associatedTracks().size());
-	h2_["jet_scatter_pt_"+flavor]->Fill(jet_iter->pt(),jet_iter->noCorrJet().pt());
+	h2_["jet_scatter_pt_"+flavor]->Fill(jet_iter->pt(),jet_iter->correctedJet("raw").pt());
 	for(size_t itrack=0;itrack < jet_iter->associatedTracks().size() ;++itrack){
 		histocontainer_["pt_tracks_in_jet_"+flavor]->Fill(jet_iter->associatedTracks()[itrack]->pt());
 	}

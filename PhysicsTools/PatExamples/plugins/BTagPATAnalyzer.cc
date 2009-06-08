@@ -1,116 +1,84 @@
-// -*- C++ -*-
-//
-// Package:    PatAlgos
-// Class:      BTagPATAnalyzer
-// 
-/**\class BTagPATAnalyzer BTagPATAnalyzer.cc PhysicsTools/PatAlgos/test/BTagPATAnalyzer.cc
-
- Description: 
-*/
-//
-// Original Author: J.E. Ramirez, F. Yumiceva
-//
-// $Id: BTagPATAnalyzer.cc,v 1.4 2008/07/16 16:26:24 jramirez Exp $
-//
-//
-
-// system include files
-#include <memory>
-
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
-
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
-#include "DataFormats/PatCandidates/interface/Tau.h"
-#include "DataFormats/PatCandidates/interface/Photon.h"
-#include "DataFormats/PatCandidates/interface/MET.h"
+#include <map>
+#include <string>
 
 #include "TH1D.h"
 #include "TH2D.h"
-#include <map>
+#include "TGraphErrors.h"
 
-#include "DataFormats/Common/interface/View.h"
-#include <string>
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
-//
-#include "PhysicsTools/PatExamples/interface/BTagPerformance.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "PhysicsTools/PatUtils/interface/bJetSelector.h"
+#include "PhysicsTools/PatExamples/interface/BTagPerformance.h"
 #include "PhysicsTools/PatExamples/interface/BTagPATCommonHistos.h"
 
-#include "TGraphErrors.h"
-//
-//
-// class declaration
-//
 
 class BTagPATAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit BTagPATAnalyzer(const edm::ParameterSet&);
-      ~BTagPATAnalyzer();
 
+public:
 
-   private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+  explicit BTagPATAnalyzer(const edm::ParameterSet&);
+  ~BTagPATAnalyzer();
+    
+private:
 
-      // ----------member data ---------------------------
-
+  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
   
-  std::map<std::string,TH1D*> histocontainer_;   // simple map to contain all histograms. Histograms are booked in the beginJob() method
   
   edm::InputTag jetLabel_;
-//ed++
   edm::ParameterSet PatBjet_;
-  std::string  BTagmethod_;
+
   std::string  BTagpurity_;
+  std::string  BTagmethod_;
   std::string  BTagdiscriminator_;
+
+  bool    BTagverbose;
   double  BTagdisccut_;
   double  BTagdiscmax_;
-  bool    BTagverbose;
+
+
+  std::string  discname[10];   
+  std::string  bname   [10];   
+  std::string  cname   [10];   
   BTagPerformance BTagPerf[10];
-  std::string    discname[10];   
-  std::string    bname[10];   
-  std::string    cname[10];   
   std::map<int,std::string> udsgname;   
-  
-  std::map<std::string,TH2D*> h2_; // simple map to contain 2D  histograms. Histograms are booked in the beginJob() method
-  std::map<std::string,TGraph*> graphcontainer_; // simple map to contain all graphs. Graphs are booked in the beginJob() method
-  std::map<std::string,TGraphErrors*> grapherrorscontainer_; // simple map to contain all graphs. Graphs are booked in the beginJob() method
+
+  /// simple map to contain all histograms; histograms are booked in 
+  /// beginJob()
+  std::map<std::string,TH1D*> histocontainer_;   
+  /// simple map to contain 2D  histograms; histograms are booked in 
+  /// beginJob()
+  std::map<std::string,TH2D*> h2_; 
+  /// simple map to contain all graphs; graphs are booked in 
+  /// beginJob()
+  std::map<std::string,TGraph*> graphcontainer_; 
+  /// simple map to contain all graphs; graphs are booked in 
+  /// beginJob()
+  std::map<std::string,TGraphErrors*> grapherrorscontainer_; 
+
   bJetSelector BTagger;
   BTagPATCommonHistos BTagHistograms;
-//ed--
 };
 
-//
-// constructors and destructor
-//
 BTagPATAnalyzer::BTagPATAnalyzer(const edm::ParameterSet& iConfig):
-  histocontainer_(),
-  jetLabel_(iConfig.getUntrackedParameter<edm::InputTag>("jetTag"))
-//ed++
-  ,graphcontainer_()
-  ,BTagger(iConfig.getParameter< edm::ParameterSet >("BJetOperatingPoints"))
-  ,PatBjet_(iConfig.getParameter< edm::ParameterSet >("BjetTag"))
-  ,BTagmethod_(PatBjet_.getUntrackedParameter<std::string>("tagger","TC2")),
-  BTagHistograms(iConfig),
+  jetLabel_(iConfig.getUntrackedParameter<edm::InputTag>("jetTag")),
+  PatBjet_(iConfig.getParameter< edm::ParameterSet >("BjetTag")),
   BTagpurity_(PatBjet_.getParameter<std::string>("purity")),
+  BTagmethod_(PatBjet_.getUntrackedParameter<std::string>("tagger","TC2")),
   BTagdiscriminator_(PatBjet_.getParameter<std::string>("discriminator")),
+  BTagverbose(PatBjet_.getUntrackedParameter<bool>("verbose",false)),
   BTagdisccut_(PatBjet_.getUntrackedParameter<double>("mindiscriminatorcut",5.0)),
   BTagdiscmax_(PatBjet_.getUntrackedParameter<double>("maxdiscriminatorcut",15.0)),
-  BTagverbose(PatBjet_.getUntrackedParameter<bool>("verbose",false))
-//ed--
+  BTagger(iConfig.getParameter< edm::ParameterSet >("BJetOperatingPoints")),
+  BTagHistograms(iConfig)
 {
    //now do what ever initialization is needed
 }
@@ -144,7 +112,7 @@ BTagPATAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
        int flavor           = jet_iter->partonFlavour();
        //
        // Fill in for performance standard pt(uncorrected) >10 and abs(eta)<2.4 
-       if( jet_iter->noCorrJet().pt() > 10  &&
+       if( jet_iter->correctedJet("raw").pt() > 10  &&
 		   fabs(jet_iter->eta()) < 2.4 ) {
 		   
 		   BTagPerf[0].Add(bdiscriminator,abs(flavor));
