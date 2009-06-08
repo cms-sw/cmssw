@@ -4,7 +4,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.h,v 1.10 2009/03/28 04:57:58 hatake Exp $
+// $Id: CaloJetTester.h,v 1.14 2009/06/04 00:25:24 chjeong Exp $
 
 #include <string>
 
@@ -160,16 +160,31 @@ private:
   MonitorElement* mpTScaleE_d;
   MonitorElement* mpTScaleF_d;
 
+  MonitorElement* mpTScale_60_120_s;
+  MonitorElement* mpTScale_200_300_s;
+  MonitorElement* mpTScale_600_900_s;
+  MonitorElement* mpTScale_2700_3500_s;
 
-  MonitorElement* mpTScale_60_120;
-  MonitorElement* mpTScale_2700_3500;
+  MonitorElement* mpTScale_60_120_d;
+  MonitorElement* mpTScale_200_300_d;
+  MonitorElement* mpTScale_600_900_d;
+  MonitorElement* mpTScale_2700_3500_d;
+
   MonitorElement* mpTScale1DB_60_120;
   MonitorElement* mpTScale1DE_60_120;
   MonitorElement* mpTScale1DF_60_120;
+  MonitorElement* mpTScale1DB_200_300;
+  MonitorElement* mpTScale1DE_200_300;
+  MonitorElement* mpTScale1DF_200_300;
+  MonitorElement* mpTScale1DB_600_900;
+  MonitorElement* mpTScale1DE_600_900;
+  MonitorElement* mpTScale1DF_600_900;
   MonitorElement* mpTScale1DB_2700_3500;
   MonitorElement* mpTScale1DE_2700_3500;
   MonitorElement* mpTScale1DF_2700_3500;
   MonitorElement* mpTScale1D_60_120;
+  MonitorElement* mpTScale1D_200_300;
+  MonitorElement* mpTScale1D_600_900;
   MonitorElement* mpTScale1D_2700_3500;
 
   MonitorElement* mDelEta;
