@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/06/04 16:27:10 $
-//  $Revision: 1.45 $
+//  $Date: 2009/06/05 09:49:03 $
+//  $Revision: 1.46 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -255,12 +255,12 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset )
   // -----------------------------------------------------------
   if (MuScleFitUtils::SmearType>0) {
     cout << "[MuScleFit-Constructor]: Generating random values for smearing" << endl;
-    TF1 * G = new TF1 ("G", "[0]*exp(-0.5*pow(x,2))", -5., 5.);
+    TF1 G("G", "[0]*exp(-0.5*pow(x,2))", -5., 5.);
     double norm = 1/sqrt(2*TMath::Pi());
-    G->SetParameter (0,norm);
+    G.SetParameter (0,norm);
     for (int i=0; i<10000; i++) {
       for (int j=0; j<7; j++) {
-	MuScleFitUtils::x[j][i] = G->GetRandom();
+	MuScleFitUtils::x[j][i] = G.GetRandom();
       }
     }
   }
@@ -362,7 +362,6 @@ void MuScleFit::startingNewLoop (unsigned int iLoop) {
 
   // Create the root file
   // --------------------
-  // theFiles_[iLoop]->cd();
   fillHistoMap(theFiles_[iLoop], iLoop);
 
   loopCounter = iLoop;
@@ -371,7 +370,6 @@ void MuScleFit::startingNewLoop (unsigned int iLoop) {
   iev = 0;
 
   MuScleFitUtils::cleanEstimator();
-
 }
 
 // End of loop routine
@@ -385,12 +383,6 @@ edm::EDLooper::Status MuScleFit::endOfLoop (const edm::EventSetup& eventSetup, u
   // theFiles_[iLoop]->cd();
   writeHistoMap(iLoop);
 
-  // Mass probability histograms
-  // ---------------------------
-  theFiles_[iLoop]->cd();
-  Mass_P->Write();
-  Mass_fine_P->Write();
-
   // Likelihood minimization to compute corrections
   // ----------------------------------------------
   theFiles_[iLoop]->cd();
@@ -398,6 +390,8 @@ edm::EDLooper::Status MuScleFit::endOfLoop (const edm::EventSetup& eventSetup, u
 
   // ATTENTION, this was put BEFORE the minimizeLikelihood. Check for problems.
   theFiles_[iLoop]->Close();
+  // ATTENTION: Check that this delete does not give any problem
+  delete theFiles_[iLoop];
 
   // Clear the histos
   // ----------------
@@ -700,8 +694,8 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
             double eta2 = recMu2.eta();
             // This is to avoid nan
             if( diffMass == diffMass ) {
-              massResolutionVsPtEta_->Fill(pt1, eta1, diffMass, diffMass);
-              massResolutionVsPtEta_->Fill(pt2, eta2, diffMass, diffMass);
+              mapHisto_["hMassResolutionVsPtEta"]->Fill(pt1, eta1, diffMass, diffMass);
+              mapHisto_["hMassResolutionVsPtEta"]->Fill(pt2, eta2, diffMass, diffMass);
             }
             else {
               cout << "Error, there is a nan: recoMass = " << recoMass << ", genMass = " << genMass << endl;
@@ -714,9 +708,10 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
           mapHisto_["hFunctionResolMass"]->Fill( recMu2, pow(massRes,2), +1 );
         }
 
-
-	Mass_P->Fill(bestRecRes.mass(), prob);
-	Mass_fine_P->Fill(bestRecRes.mass(), prob);
+        mapHisto_["hMass_P"]->Fill(bestRecRes.mass(), prob);
+        mapHisto_["hMass_fine_P"]->Fill(bestRecRes.mass(), prob);
+	// Mass_P->Fill(bestRecRes.mass(), prob);
+	// Mass_fine_P->Fill(bestRecRes.mass(), prob);
       }
     }
 

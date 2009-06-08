@@ -14,8 +14,11 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
   if( MuScleFitUtils::resfind[0] != 1 ) {
     maxMass = 20.;
   }
+
+  LogDebug("MuScleFitBase") << "Creating new histograms" << endl;
+
   mapHisto_["hRecBestMu"]      = new HParticle ("hRecBestMu", minMass, maxMass);
-  mapHisto_["hRecBestMuVSEta"]      = new HPartVSEta ("hRecBestMuVSEta");
+  mapHisto_["hRecBestMuVSEta"] = new HPartVSEta ("hRecBestMuVSEta");
   //mapHisto_["hRecBestMu_Acc"]  = new HParticle ("hRecBestMu_Acc", minMass, maxMass); 
   mapHisto_["hDeltaRecBestMu"] = new HDelta ("hDeltaRecBestMu");
 
@@ -23,7 +26,7 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
   //mapHisto_["hRecBestRes_Acc"] = new HParticle   ("hRecBestRes_Acc", minMass, maxMass); 
   // If not finding Z, use a smaller mass window
   mapHisto_["hRecBestResVSMu"] = new HMassVSPart ("hRecBestResVSMu", minMass, maxMass);
-  
+
   // Likelihood values VS muon variables
   // -------------------------------------
   mapHisto_["hLikeVSMu"]       = new HLikelihoodVSPart ("hLikeVSMu");
@@ -32,17 +35,17 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
 
   //Resolution VS muon kinematic
   //----------------------------
-  mapHisto_["hResolMassVSMu"]         = new HResolutionVSPart (outputFile, "hResolMassVSMu");
-  mapHisto_["hResolPtGenVSMu"]        = new HResolutionVSPart (outputFile, "hResolPtGenVSMu");
-  mapHisto_["hResolPtSimVSMu"]        = new HResolutionVSPart (outputFile, "hResolPtSimVSMu");
-  mapHisto_["hResolEtaGenVSMu"]       = new HResolutionVSPart (outputFile, "hResolEtaGenVSMu");
-  mapHisto_["hResolEtaSimVSMu"]       = new HResolutionVSPart (outputFile, "hResolEtaSimVSMu");
-  mapHisto_["hResolThetaGenVSMu"]     = new HResolutionVSPart (outputFile, "hResolThetaGenVSMu");
-  mapHisto_["hResolThetaSimVSMu"]     = new HResolutionVSPart (outputFile, "hResolThetaSimVSMu");
-  mapHisto_["hResolCotgThetaGenVSMu"] = new HResolutionVSPart (outputFile, "hResolCotgThetaGenVSMu");
-  mapHisto_["hResolCotgThetaSimVSMu"] = new HResolutionVSPart (outputFile, "hResolCotgThetaSimVSMu");
-  mapHisto_["hResolPhiGenVSMu"]       = new HResolutionVSPart (outputFile, "hResolPhiGenVSMu");
-  mapHisto_["hResolPhiSimVSMu"]       = new HResolutionVSPart (outputFile, "hResolPhiSimVSMu");
+  mapHisto_["hResolMassVSMu"]         = new HResolutionVSPart( outputFile, "hResolMassVSMu" );
+  mapHisto_["hResolPtGenVSMu"]        = new HResolutionVSPart( outputFile, "hResolPtGenVSMu" );
+  mapHisto_["hResolPtSimVSMu"]        = new HResolutionVSPart( outputFile, "hResolPtSimVSMu" );
+  mapHisto_["hResolEtaGenVSMu"]       = new HResolutionVSPart( outputFile, "hResolEtaGenVSMu" );
+  mapHisto_["hResolEtaSimVSMu"]       = new HResolutionVSPart( outputFile, "hResolEtaSimVSMu" );
+  mapHisto_["hResolThetaGenVSMu"]     = new HResolutionVSPart( outputFile, "hResolThetaGenVSMu" );
+  mapHisto_["hResolThetaSimVSMu"]     = new HResolutionVSPart( outputFile, "hResolThetaSimVSMu" );
+  mapHisto_["hResolCotgThetaGenVSMu"] = new HResolutionVSPart( outputFile, "hResolCotgThetaGenVSMu" );
+  mapHisto_["hResolCotgThetaSimVSMu"] = new HResolutionVSPart( outputFile, "hResolCotgThetaSimVSMu" );
+  mapHisto_["hResolPhiGenVSMu"]       = new HResolutionVSPart( outputFile, "hResolPhiGenVSMu" );
+  mapHisto_["hResolPhiSimVSMu"]       = new HResolutionVSPart( outputFile, "hResolPhiSimVSMu" );
 
   HTH2D * recoGenHisto = new HTH2D(outputFile, "hPtRecoVsPtGen", "Pt reco vs Pt gen", 120, 0., 120., 120, 0, 120.);
   (*recoGenHisto)->SetXTitle("Pt gen (GeV)");
@@ -54,21 +57,20 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
   mapHisto_["hPtRecoVsPtSim"] = recoSimHisto;
   // Resolutions from resolution functions
   // -------------------------------------
-  mapHisto_["hFunctionResolPt"]        = new HFunctionResolution (outputFile, "hFunctionResolPt");
-  mapHisto_["hFunctionResolCotgTheta"] = new HFunctionResolution (outputFile, "hFunctionResolCotgTheta");
-  mapHisto_["hFunctionResolPhi"]       = new HFunctionResolution (outputFile, "hFunctionResolPhi");
+  mapHisto_["hFunctionResolPt"]        = new HFunctionResolution( outputFile, "hFunctionResolPt" );
+  mapHisto_["hFunctionResolCotgTheta"] = new HFunctionResolution( outputFile, "hFunctionResolCotgTheta" );
+  mapHisto_["hFunctionResolPhi"]       = new HFunctionResolution( outputFile, "hFunctionResolPhi" );
 
   // Mass probability histograms
   // ---------------------------
-  Mass_P = new TProfile ("Mass_P", "Mass probability", 4000, 0., 200., 0., 1.);
-  Mass_fine_P = new TProfile ("Mass_fine_P", "Mass probability", 4000, 0., 20., 0., 1.);
-
+  mapHisto_["hMass_P"]      = new HTProfile( outputFile, "Mass_P", "Mass probability", 4000, 0., 200., 0., 1. );
+  mapHisto_["hMass_fine_P"] = new HTProfile( outputFile, "Mass_fine_P", "Mass probability", 4000, 0., 20., 0., 1. );
 
   double ptMax = 40.;
   // Mass resolution vs (pt, eta) of the muons from MC
-  massResolutionVsPtEta_ = new HCovarianceVSxy ( "Mass", "Mass", 100, 0., ptMax, 60, -3, 3, outputFile->mkdir("MassCovariance") );
+  mapHisto_["hMassResolutionVsPtEta"] = new HCovarianceVSxy( "Mass", "Mass", 100, 0., ptMax, 60, -3, 3, outputFile->mkdir("MassCovariance") );
   // Mass resolution vs (pt, eta) from resolution function
-  mapHisto_["hFunctionResolMass"] = new HFunctionResolution (outputFile, "hFunctionResolMass", ptMax);
+  mapHisto_["hFunctionResolMass"] = new HFunctionResolution( outputFile, "hFunctionResolMass", ptMax );
 }
 
 void MuScleFitBase::clearHistoMap() {
@@ -76,8 +78,6 @@ void MuScleFitBase::clearHistoMap() {
        histo!=mapHisto_.end(); histo++) {
     delete (*histo).second;
   }
-  massResolutionVsPtEta_->Clear();
-  delete massResolutionVsPtEta_;
 }
 
 void MuScleFitBase::writeHistoMap( const unsigned int iLoop ) {
@@ -87,7 +87,6 @@ void MuScleFitBase::writeHistoMap( const unsigned int iLoop ) {
     theFiles_[iLoop]->cd();
     (*histo).second->Write();
   }
-  massResolutionVsPtEta_->Write();
 }
 
 void MuScleFitBase::readProbabilityDistributionsFromFile()
@@ -189,6 +188,19 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
                         << MuScleFitUtils::GLNorm[ires][iy] << endl;
     }
   }
+  // Free all the memory for the probability histograms.
+
+  for ( int i=0; i<24; i++ ) {
+    delete GLZ[i];
+  }
+  delete GL[0];
+  delete GL[1];
+  delete GL[2];
+  delete GL[3];
+  delete GL[4];
+  delete GL[5];
+//  ProbsFile->Close();
+  delete ProbsFile;
 }
 
 // void MuScleFitBase::readProbabilityDistributions( const edm::EventSetup & eventSetup )

@@ -320,10 +320,11 @@ process.looper = cms.Looper(
     FitStrategy = cms.int32(2),
 
     speedup = cms.bool(False),
+    OutputGenInfoFileName = cms.untracked.string("genSimRecoPlots.root"),
     # Set this to false if you do not want to use simTracks.
     # (Note that this is skipped anyway if speedup == True).
     compareToSimTracks = cms.bool(True),
-    
+
     # This line is only necessary when running on fastSim
     # SimTracksCollection = cms.untracked.InputTag("famosSimHits"),
     # This must be set to true when using events generated with Sherpa

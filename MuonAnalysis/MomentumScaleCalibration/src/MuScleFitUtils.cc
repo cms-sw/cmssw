@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/06/04 10:42:31 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/06/05 10:07:40 $
+ *  $Revision: 1.13 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -1434,12 +1434,14 @@ void MuScleFitUtils::minimizeLikelihood()
       minuitLoop_ = 0;
       char name[50];
       sprintf(name, "likelihoodInLoop_%d_%d", loopCounter, iorder);
-      likelihoodInLoop_ = new TH1F(name, "likelihood value in minuit loop", 10000, 0, 10000);
-      // cout << "likelihoodInLoop_ created = " << likelihoodInLoop_ << endl;
+      TH1F * tempLikelihoodInLoop = new TH1F(name, "likelihood value in minuit loop", 10000, 0, 10000);
+      likelihoodInLoop_ = tempLikelihoodInLoop;
 // #endif
       rmin.mnexcm ("mini", arglis, 0, ierror);
 // #ifdef DEBUG
       likelihoodInLoop_->Write();
+      delete tempLikelihoodInLoop;
+      likelihoodInLoop_ = 0;
 // #endif
     }
     //if (ierror==0) {
@@ -1639,7 +1641,7 @@ vector<TGraphErrors*> MuScleFitUtils::fitMass (TH2F* histo) {
   fitFcn->SetParameters (100, 3, 91);
   fitFcn->SetParNames ("Ftop", "Fwidth", "Fmass");
   fitFcn->SetLineWidth (2);
-  
+
   // Fit slices projected along Y from bins in X 
   // -------------------------------------------
   double cont_min = 20;    // Minimum number of entries
@@ -1718,9 +1720,9 @@ vector<TGraphErrors*> MuScleFitUtils::fitMass (TH2F* histo) {
   delete e;
   delete fitFcn;
 
-  results.push_back (grM);
-  results.push_back (grW);
-  results.push_back (grC);
+  results.push_back(grM);
+  results.push_back(grW);
+  results.push_back(grC);
   return results;
 }
 
@@ -1928,8 +1930,8 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
   GL->SetParameters (ResGamma[ires], ResMass[ires], mass, massResol);
   GL->CalcGaussLegendreSamplingPoints (np, x, w, 0.1e-15);
   P = GL->IntegralFast (np, x, w, ResMass[ires]-10*ResGamma[ires], ResMass[ires]+10*ResGamma[ires]);
-  delete x;
-  delete w;
+  delete[] x;
+  delete[] w;
 
   // If we are too far away we set P to epsilon and forget about this event
   // ----------------------------------------------------------------------
