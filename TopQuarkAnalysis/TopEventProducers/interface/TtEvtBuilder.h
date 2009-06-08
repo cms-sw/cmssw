@@ -57,6 +57,11 @@ class TtEvtBuilder : public edm::EDProducer {
   edm::ParameterSet kinFit_;
   edm::InputTag fitChi2_;
   edm::InputTag fitProb_;
+  /// input parameters for the kKinSolution
+  /// hypothesis class extras
+  edm::ParameterSet kinSolution_;
+  edm::InputTag solWeight_;  
+  edm::InputTag wrongCharge_;   
   /// input parameters for the kGenMatch
   /// hypothesis class extras 
   edm::ParameterSet genMatch_;
@@ -83,6 +88,12 @@ TtEvtBuilder<C>::TtEvtBuilder(const edm::ParameterSet& cfg) :
     fitChi2_ = kinFit_.getParameter<edm::InputTag>("chi2");
     fitProb_ = kinFit_.getParameter<edm::InputTag>("prob");
   }
+  // parameter subsets for kKinSolution
+  if( cfg.exists("kinSolution") ) {
+    kinSolution_  = cfg.getParameter<edm::ParameterSet>("kinSolution");
+    solWeight_    = kinSolution_.getParameter<edm::InputTag>("solWeight");
+    wrongCharge_  = kinSolution_.getParameter<edm::InputTag>("wrongCharge");
+  }  
   // parameter subsets for kGenMatch
   if( cfg.exists("genMatch") ) {
     genMatch_ = cfg.getParameter<edm::ParameterSet>("genMatch");
@@ -143,6 +154,17 @@ TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
     evt.getByLabel(fitProb_, fitProb);
     event.setFitProb( *fitProb );
   }
+
+  // set kKinSolution extras  
+  if( event.isHypoAvailable(TtEvent::kKinSolution) ) {
+    edm::Handle<std::vector<double> > solWeight;
+    evt.getByLabel(solWeight_, solWeight);
+    event.setSolWeight( *solWeight );
+    
+    edm::Handle<bool> wrongCharge;
+    evt.getByLabel(wrongCharge_, wrongCharge);
+    event.setWrongCharge( *wrongCharge );   
+  } 
 
   // set kGenMatch extras
   if( event.isHypoAvailable(TtEvent::kGenMatch) ) {
