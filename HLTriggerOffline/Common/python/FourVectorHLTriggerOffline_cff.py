@@ -7,4 +7,4 @@ from HLTriggerOffline.Common.FourVectorHLTriggerOffline_cfi import *
 #from L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff import *
 #from Configuration.StandardSequences.L1TriggerDefaultMenu_cff import *
 
-HLTFourVector = cms.Sequence(hltResults)
+HLTFourVector = cms.Sequence(hltriggerResults)

@@ -18,7 +18,7 @@
 //         Created:  June 2008
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
-// $Id: FourVectorHLTriggerOffline.h,v 1.12 2009/06/03 23:38:10 rekovic Exp $
+// $Id: FourVectorHLTriggerOffline.h,v 1.13 2009/06/04 22:47:48 rekovic Exp $
 //
 //
 
@@ -53,7 +53,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-//#include "HLTriggerOffline/Common/interface/FourVectorHLTriggerOffline.h"
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
@@ -90,64 +89,6 @@
 #include <fstream>
 #include <vector>
 
-// $Id: FourVectorHLTriggerOffline.h,v 1.12 2009/06/03 23:38:10 rekovic Exp $
-// See header file for information. 
-/*
-#include "TMath.h"
-
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-*/
-
-/*
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/TauReco/interface/CaloTauFwd.h"
-#include "DataFormats/TauReco/interface/CaloTau.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
-*/
-/*
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
-*/
-/*
-#include "DataFormats/METReco/interface/GenMETCollection.h"
-*/
-/*
-#include "DataFormats/METReco/interface/GenMET.h"
-*/
-
-/*
-#include "DataFormats/Math/interface/deltaR.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-
-#include <map>
-#include <utility>
-*/
 
 using namespace std;
 using namespace edm;
