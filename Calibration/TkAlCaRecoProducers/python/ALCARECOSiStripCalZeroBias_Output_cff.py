@@ -7,6 +7,6 @@ OutALCARECOSiStripCalZeroBias = cms.PSet(
     ),
     outputCommands = cms.untracked.vstring('drop *', 
         'keep *_ALCARECOSiStripCalZeroBias_*_*',
-        'keep *_siStripClusters_*_*',
+        'keep *_calZeroBiasClusters_*_*',
         'keep *_MEtoEDMConverter_*_*')
 )
