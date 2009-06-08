@@ -881,7 +881,7 @@ void DrawProcMatrix(TDirectory *dir)
 	              matrix->GetNbinsX(), matrix->GetNbinsX() - 1);
 
 	pad->RedrawAxis();
-	Save(pad, dir);
+	Save(pad, dir, "corrMatrix");
 
 	pad = pads.Next();
 	TH1 *rank = dynamic_cast<TH1*>(dir->Get("Ranking"));
@@ -919,6 +919,7 @@ void DrawProcMatrix(TDirectory *dir)
 		}
 		std::cout << "====================================================" << std::endl;
 		delete[] labels;
+		Save(pad, dir, "ranking");
 	}
 
 	Save(pads);
