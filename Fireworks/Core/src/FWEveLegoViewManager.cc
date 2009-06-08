@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.28 2009/05/13 20:26:05 amraktad Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.29 2009/05/28 19:01:45 amraktad Exp $
 //
 
 // system include files
@@ -284,11 +284,12 @@ FWEveLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
                // add calorimeter boundaries
                m_boundaries = new TEveStraightLineSet("boundaries");
                m_boundaries->SetPickable(kFALSE);
-               // m_boundaries->SetLineWidth(2);
+               m_boundaries->SetLineWidth(2);
+	       m_boundaries->SetLineStyle(7);
                m_boundaries->AddLine(-1.479,-3.1416,0.001,-1.479,3.1416,0.001);
                m_boundaries->AddLine(1.479,-3.1416,0.001,1.479,3.1416,0.001);
-               m_boundaries->AddLine(-3.0,-3.1416,0.001,-3.0,3.1416,0.001);
-               m_boundaries->AddLine(3.0,-3.1416,0.001,3.0,3.1416,0.001);
+               m_boundaries->AddLine(-2.964,-3.1416,0.001,-2.964,3.1416,0.001);
+               m_boundaries->AddLine(2.964,-3.1416,0.001,2.964,3.1416,0.001);
                m_lego->AddElement(m_boundaries);
                m_elements->AddElement(m_lego.get());
                setGridColors();
