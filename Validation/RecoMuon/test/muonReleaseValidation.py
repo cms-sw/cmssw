@@ -19,8 +19,6 @@ startupsamples= []
 #idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
 idealsamples= ['RelValSingleMuPt100']
 
-
-
 # track algorithm name and quality. Can be a list.
 Algos= ['']
 Qualities=['']
@@ -30,16 +28,11 @@ Qualities=['']
 Tracksname=''
 
 # Sequence. Possible values:
-#   -only_validation
-#   -re_tracking
-#   -digi2track
-#   -only_validation_and_TP
-#   -re_tracking_and_TP
-#   -digi2track_and_TP
 #   -harvesting
+#   -reco_and_val
+#   -only_val
 
-#Sequence='only_validation_and_TP'
-Sequence='only_val'
+Sequence='harvestin'
 
 SearchContent="*GEN-SIM-RECO*"
 DriverSteps="HARVESTING:validationHarvesting"
@@ -56,7 +49,7 @@ if(Sequence=="only_val"):
 print Sequence+' '+SearchContent
 
 Submit=False
-DBS=False
+DBS=True
 OneAtATime=False
 
 # Ideal and Statup tags
@@ -66,18 +59,16 @@ StartupTag='STARTUP_31X_v1'
 # Default label is GlobalTag_noPU__Quality_Algo. Change this variable if you want to append an additional string.
 NewSelectionLabel=''
 
-#WorkDirBase = '/tmp/'
+WorkDirBase = '/tmp/'
 #WorkDirBase = '/tmp/aperrott'
-WorkDirBase = '/uscms/home/aeverett/scratch0'
+#WorkDirBase = '/afs/cern.ch/user/a/aeverett/scratch0'
 
 #Default Nevents
-defaultNevents ='100'
+defaultNevents ='-1'
 
 #Put here the number of event to be processed for specific samples (numbers must be strings) if not specified is -1:
 Events={} #{ 'RelValZMM':'5000', 'RelValTTbar':'5000'}
 
-# template file names. Usually should not be changed.
-cfg='muonReleaseValidation_cfg.py'
 
 
 #########################################################################
@@ -100,7 +91,7 @@ def replace(map, filein, fileout):
     
 def do_validation(samples, GlobalTagUse, trackquality, trackalgorithm):
     global Sequence, NewSelection, defaultNevents, Events
-    global cfg, Tracksname,SearchContent,DriverSteps
+    global Tracksname,SearchContent,DriverSteps
     splitResult = GlobalTagUse.split('_')
     GlobalTag = splitResult[0]
     print 'Search Tag: ' + GlobalTag
@@ -128,8 +119,6 @@ def do_validation(samples, GlobalTagUse, trackquality, trackalgorithm):
     for sample in samples :
         print 'Get information from DBS for sample', sample
 
-#        newdir=NewRepository+'/'+NewRelease+'/'+NewSelection+'/'+sample 
-
         WorkDir = WorkDirBase+'/'+NewRelease+'/'+NewSelection+'/'+sample
 
         if(os.path.exists(WorkDir)==False):
@@ -137,7 +126,7 @@ def do_validation(samples, GlobalTagUse, trackquality, trackalgorithm):
 
         
         #chech if the sample is already done
-        #if(os.path.isfile(newdir+'/val.'+sample+'.rootytootie' )!=True):    
+
         if(True):
             ## start new
             cmd='dbsql "find  dataset.createdate, dataset where dataset like *'
@@ -163,7 +152,6 @@ def do_validation(samples, GlobalTagUse, trackquality, trackalgorithm):
                 print cmd2
                 for line in os.popen(cmd2).readlines():
                     filename=line.strip()
-                    templatecfgFile = open(cfg, 'r')
                     thisFile=thisFile+1
                     if first==True:
                         filenames+="'"
@@ -174,10 +162,10 @@ def do_validation(samples, GlobalTagUse, trackquality, trackalgorithm):
                         filenames+=",\n'"
                         filenames+=filename
                         filenames+="'"
-                filenames+=']);\n'
+                filenames+='\n]);\n'
 				
                 # if not harvesting find secondary file names
-                if(Sequence!="harvesting" or Sequence!="reco_and_val"):
+                if(Sequence!="harvesting" and Sequence!="reco_and_val"):
                         cmd3='dbsql  "find dataset.parent where dataset like '+ dataset +'"|grep ' + sample
                         parentdataset=os.popen(cmd3).readline()
                         print 'Parent DataSet:  ', parentdataset, '\n'
@@ -199,39 +187,35 @@ def do_validation(samples, GlobalTagUse, trackquality, trackalgorithm):
                                     filenames+=",\n'"
                                     filenames+=secfilename
                                     filenames+="'"
-                            filenames+=']);\n'
+                            filenames+='\n]);\n'
                         else :
-                            print "No primary dataset found skipping sample: ", sample
-                            filenames+='secFiles.extend( (               ) )'
+                            print "No parent dataset found skipping sample: ", sample
+                            filenames+='secFiles.extend( (               ) )\n'
 
                             #continue
                 else :
-                        filenames+='secFiles.extend( (               ) )'
+                        filenames+='secFiles.extend( (               ) )\n'
 
             ## end new
 
 
                 cfgFileName=('%s_%d') % (sample,thisFile)
                 print 'cfgFileName ' + cfgFileName
-                cfgFile = open(cfgFileName+'.py' , 'w' )
-                cfgFile.write(filenames)
-                print 'line 220'
+                
                 #sampleFileName=('sample_%s_%d') % (sample,thisFile)
                 sampleFileName='sample'
                 sampleFile = open(sampleFileName+'.py','w' )
                 sampleFile.write(filenames)
-                print 'line 225'
+                sampleFile.close()
+                #print filenames
+                
                 if (Events.has_key(sample)!=True):
                     Nevents=defaultNevents
                 else:
                     Nevents=Events[sample]
-                print 'line 230'
+                
                 symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTagUse, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':trackalgorithm, 'QUALITY':trackquality, 'TRACKS':Tracks}
 
-                print 'line 233'
-                cfgFile = open(cfgFileName+'.py' , 'a' )
-                replace(symbol_map, templatecfgFile, cfgFile)
-                print 'line 236'
                 cmdrun='cmsRun ' + WorkDir +'/'+cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
 
                 print cmdrun
@@ -239,6 +223,7 @@ def do_validation(samples, GlobalTagUse, trackquality, trackalgorithm):
                 lancialines='#!/usr/local/bin/bash \n'
                 lancialines+='cd '+ProjectBase+'/src \n'
                 lancialines+='eval `scramv1 run -sh` \n\n'
+                lancialines+='export PYTHONPATH=.:$PYTHONPATH \n'
                 lancialines+='cd '+WorkDir+'\n'
                 lancialines+='cmsRun '+cfgFileName+'.py  >&  ' + cfgFileName + '.log < /dev/zero \n'
                 lancialines+='mv  DQM_V0001_R000000001__' + GlobalTagUse+ '__' + sample + '__Validation.root' + ' ' + 'val.' +sample+'.root \n'
@@ -247,32 +232,34 @@ def do_validation(samples, GlobalTagUse, trackquality, trackalgorithm):
                 lanciaFile = open(lanciaName,'w')
                 lanciaFile.write(lancialines)
                 lanciaFile.close()
-                print 'line 252'
-                if(Sequence=="harvesting"):
-                    print 'line 254'
-                    print 'NOTE: a harvesting configuration can also be accomplished by executng this command'
-                    driverCmd='cmsDriver.py harvest -s '+DriverSteps+' --mc  --conditions FrontierConditions_GlobalTag,'+GlobalTagUse+'::All --harvesting AtJobEnd --filein file:step2_VALIDATION.root --fileout harvest_out.root --customise=Validation/RecoMuon/customise.py --python_filename=new_'+cfgFileName+'.py --no_exec'
-                    print driverCmd
-                if(Sequence=="reco_and_val"):
-                    print 'line 259'
-                    driverCmd='cmsDriver.py step2 -s '+DriverSteps+' --mc -n100 --conditions FrontierConditions_GlobalTag,'+GlobalTagUse+'::All --filein file:step1.root --fileout step2_RECO_VALIDATION.root --eventcontent RECOSIM  --datatier GEN-SIM-RECO   --customise=Validation/RecoMuon/customise.py --python_filename=new_'+cfgFileName+'.py --no_exec'
-                    print driverCmd
-                if(Sequence=="only_val"):
-                    print 'line 263'
-                    driverCmd='cmsDriver.py step2 -s '+DriverSteps+' --mc -n100 --conditions FrontierConditions_GlobalTag,'+GlobalTagUse+'::All --filein file:step2.root --fileout step2_VALIDATION.root --eventcontent RECOSIM  --datatier GEN-SIM-RECO   --customise=Validation/RecoMuon/customise.py --python_filename=new_'+cfgFileName+'.py --no_exec'
-                    print driverCmd
 
-                iii=os.system(driverCmd)
+                previousFileOut=''
+                if(Sequence=="reco_and_val"):
+                    previousFileOut+='step2_RECO_VALIDATION.root'
+                    driverCmd='cmsDriver.py step2 -s '+DriverSteps+' --mc -n100 --conditions FrontierConditions_GlobalTag,'+GlobalTagUse+'::All --filein file:step1.root --fileout '+previousFileOut+' --eventcontent RECOSIM  --datatier GEN-SIM-RECO   --customise=Validation/RecoMuon/customise.py --python_filename='+cfgFileName+'.py --no_exec'
+                    print driverCmd
+                    iii=os.system(driverCmd)
+                if(Sequence=="only_val"):
+                    previousFileOut+='step2_VALIDATION.root'
+                    driverCmd='cmsDriver.py step2 -s '+DriverSteps+' --mc -n100 --conditions FrontierConditions_GlobalTag,'+GlobalTagUse+'::All --filein file:step2.root --fileout '+previousFileOut+' --eventcontent RECOSIM  --datatier GEN-SIM-RECO   --customise=Validation/RecoMuon/customise.py --python_filename='+cfgFileName+'.py --no_exec'
+                    print driverCmd
+                    iii=os.system(driverCmd)
+                if(Sequence=="harvesting" or Sequence=="reco_and_val" or Sequence=="only_val"):
+                    if(previousFileOut==''):
+                        previousFileOut+='step2.root'
+                    driverCmd='cmsDriver.py harvest -s '+DriverSteps+' --mc  --conditions FrontierConditions_GlobalTag,'+GlobalTagUse+'::All --harvesting AtJobEnd --filein file:'+previousFileOut+' --fileout harvest_out.root --customise=Validation/RecoMuon/customise.py --python_filename=harvest_'+cfgFileName+'.py --no_exec'
+                    print driverCmd
+                    iii=os.system(driverCmd)
+
                     
                 print ("copying py file for sample: %s %s") % (sample,lanciaName)
                 iii = os.system('mv '+lanciaName+' '+WorkDir+'/.')
                 print iii
-                iii = os.system('mv '+cfgFileName+'.py '+WorkDir)
-                print iii
                 iii = os.system('mv '+sampleFileName+'.py '+WorkDir)
-                iii = os.system('mv new_'+cfgFileName+'.py '+WorkDir)
-                if(OneAtATime==False):
-                    break
+                iii = os.system('mv '+cfgFileName+'.py '+WorkDir)
+                iii = os.system('mv harvest_'+cfgFileName+'.py '+WorkDir)
+                #if(OneAtATime==False):
+                #    break
                 
                 retcode=0
 
