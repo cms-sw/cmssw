@@ -31,16 +31,21 @@ void ShowMassComparison(const TString & resonance = "Z")
   TProfile * histo4 = 0;
   getHistograms(canvasName+"2", histo3, histo4, resonance);
 
-//   TString option("width");
-//   double integral = histo1->Integral(option);
-//   histo2->Scale(integral/histo2->Integral(option));
-//   histo3->Scale(integral/histo3->Integral(option));
-//   histo4->Scale(integral/histo4->Integral(option));
+  //TString option("width");
+  //double integral = histo1->Integral(option);
+  //histo2->Scale(integral/histo2->Integral(option));
+  //histo3->Scale(integral/histo3->Integral(option));
+  //histo4->Scale(integral/histo4->Integral(option));
 
-  histo1->Scale(1./histo1->GetEntries());
-  histo2->Scale(1./histo2->GetEntries());
-  histo3->Scale(1./histo3->GetEntries());
-  histo4->Scale(1./histo4->GetEntries());
+//   histo1->Scale(1./histo1->GetEntries());
+//   histo2->Scale(1./histo2->GetEntries());
+//   histo3->Scale(1./histo3->GetEntries());
+//   histo4->Scale(1./histo4->GetEntries());
+
+  histo1->Scale(1./histo1->Integral());
+  histo2->Scale(1./histo2->Integral());
+  histo3->Scale(1./histo3->Integral());
+  histo4->Scale(1./histo4->Integral());
 
   map<double, TH1*, greater<double> > histoMap;
   histoMap.insert(make_pair(histo1->GetMaximum(), histo1));
