@@ -285,10 +285,10 @@ void PFJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetu
 	for (unsigned iPFJet = 0; iPFJet < pfJets->size(); ++iPFJet) {
 	  double dR = deltaR (genJet.eta(), genJet.phi(), (*pfJets) [iPFJet].eta(), (*pfJets) [iPFJet].phi());
 	  if (deltaRBest < mRThreshold && dR < mRThreshold && genJet.pt() > 5.) {
-	    std::cout << "Yet another matched jet for GenJet pt=" << genJet.pt()
-		      << " previous PFJet pt/dr: " << (*pfJets) [iPFJetBest].pt() << '/' << deltaRBest
-		      << " new PFJet pt/dr: " << (*pfJets) [iPFJet].pt() << '/' << dR
-		      << std::endl;
+// 	    std::cout << "Yet another matched jet for GenJet pt=" << genJet.pt()
+// 		      << " previous PFJet pt/dr: " << (*pfJets) [iPFJetBest].pt() << '/' << deltaRBest
+// 		      << " new PFJet pt/dr: " << (*pfJets) [iPFJet].pt() << '/' << dR
+// 		      << std::endl;
 	  }
 	  if (dR < deltaRBest) {
 	    iPFJetBest = iPFJet;
@@ -337,7 +337,7 @@ void PFJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetu
 
 void PFJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::PFJet& fPFJet) {
   double logPtGen = log10 (fGenJet.pt());
-  std::cout << "Filling matchingn" << std::cout;
+  //std::cout << "Filling matchingn" << std::cout;
   mMatchedGenJetsPt->Fill (logPtGen);
   mMatchedGenJetsEta->Fill (logPtGen, fGenJet.eta());
   if (mTurnOnEverything.compare("yes")==0) {
