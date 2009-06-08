@@ -8,7 +8,7 @@
 //
 
 #include "RecoMET/METAnalyzers/interface/HcalNoiseInfoAnalyzer.h"
-#include "RecoMET/METProducers/interface/HcalNoiseRBXArray.h"
+#include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include "TFile.h"
