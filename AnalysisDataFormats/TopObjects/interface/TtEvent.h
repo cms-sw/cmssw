@@ -27,7 +27,7 @@ class TtEvent {
  public:
 
   /// supported classes of event hypotheses
-  enum HypoClassKey {kGeom, kWMassMaxSumPt, kMaxSumPtWMass, kGenMatch, kMVADisc, kKinFit};
+  enum HypoClassKey {kGeom, kWMassMaxSumPt, kMaxSumPtWMass, kGenMatch, kMVADisc, kKinFit, kKinSolution};
   /// pair of hypothesis and lepton jet combinatorics for a given hypothesis
   typedef std::pair<reco::CompositeCandidate, std::vector<int> > HypoCombPair;
   
@@ -72,6 +72,10 @@ class TtEvent {
   double fitChi2(const unsigned& cmb=0) const { return (cmb<fitChi2_.size() ? fitChi2_[cmb] : -1.); }
   /// return the fit probability of hypothesis 'cmb' if available; -1 else
   double fitProb(const unsigned& cmb=0) const { return (cmb<fitProb_.size() ? fitProb_[cmb] : -1.); }
+  /// return the weight of the kinematic solution of hypothesis 'cmb' if available; -1 else
+  double solWeight(const unsigned& cmb=0) const { return (cmb<solWeight_.size() ? solWeight_[cmb] : -1.); }    
+  /// return if the kinematic solution of hypothesis 'cmb' is right or wrong charge if available; -1 else
+  bool isWrongCharge() const { return wrongCharge_; }  
   /// return the hypothesis in hypothesis class 'key2', which 
   /// corresponds to hypothesis 'hyp1' in hypothesis class 'key1'
   int correspondingHypo(const HypoClassKey& key1, const unsigned& hyp1, const HypoClassKey& key2) const;
@@ -94,7 +98,11 @@ class TtEvent {
   void setFitChi2(const std::vector<double>& val) { fitChi2_=val; };
   /// set fit probability of kKinFit hypothesis
   void setFitProb(const std::vector<double>& val) { fitProb_=val; };
-
+  /// set weight of kKinSolution hypothesis
+  void setSolWeight(const std::vector<double>& val) { solWeight_=val; }; 
+  /// set right or wrong charge combination of kKinSolution hypothesis
+  void setWrongCharge(const bool& val) { wrongCharge_=val; }; 
+  
  protected:
 
   /// leptonic decay channels
@@ -108,7 +116,11 @@ class TtEvent {
   /// result of kinematic fit
   std::vector<double> fitChi2_;        
   /// result of kinematic fit
-  std::vector<double> fitProb_;        
+  std::vector<double> fitProb_; 
+  /// result of kinematic solution
+  std::vector<double> solWeight_; 
+  /// right/wrong charge booleans
+  bool wrongCharge_;           
   /// result of gen match
   std::vector<double> genMatchSumPt_;  
   /// result of gen match
