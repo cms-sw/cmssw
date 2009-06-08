@@ -21,3 +21,10 @@ DEFINE_FWK_MODULE(TtSemiLepHypMaxSumPtWMass);
 DEFINE_FWK_MODULE(TtSemiLepHypGenMatch);
 DEFINE_FWK_MODULE(TtSemiLepHypMVADisc);
 DEFINE_FWK_MODULE(TtSemiLepHypKinFit);
+
+// define fully leptonic event hypotheses
+#include "TopQuarkAnalysis/TopJetCombination/plugins/TtFullLepHypGenMatch.h"
+#include "TopQuarkAnalysis/TopJetCombination/plugins/TtFullLepHypKinSolution.h"
+
+DEFINE_FWK_MODULE(TtFullLepHypGenMatch);
+DEFINE_FWK_MODULE(TtFullLepHypKinSolution);
