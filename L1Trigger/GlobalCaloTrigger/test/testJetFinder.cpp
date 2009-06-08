@@ -49,12 +49,12 @@ const string resultsFile = "testJetFinderOutputMismatch.txt";
 
 // Global constants to tell the program how many things to read in from file
 // THESE ARE TOTAL GUESSES!
-const int numInputRegions = 48;  //Num. calorimeter regions given as input
-const int numOutputJets = 6;     //Num. jets expected out
+const int numInputRegions = 52;  //Num. calorimeter regions given as input
+const int numOutputJets = 18;     //Num. jets expected out
 //There will be Jet Counts to be added here at some point
 
 // Test any jetFinder between 0 and 17
-const unsigned jfNumber=4;
+const unsigned jfNumber=5;
 
 //  FUNCTION PROTOTYPES
 /// Runs the test on the L1GctJetFinder instance passed into it.
@@ -68,7 +68,7 @@ void safeOpenOutputFile(ofstream &fout, const string name);
 /// Reads regions from file and pushes the specified number into a vector of regions
 void putRegionsInVector(ifstream &fin, RegionsVector &regions, const int numRegions);
 /// Gets the data of a single region from the testDataFile (reasonably safely). 
-L1CaloRegion readSingleRegion(ifstream &fin);
+L1GctRegion readSingleRegion(ifstream &fin);
 /// Reads jets from file and pushes the specified number into a vector of jets
 void putJetsInVector(ifstream &fin, RawJetsVector &jets, const int numJets);
 /// Gets the data of a single jet from the testDataFile (reasonably safely).  
@@ -382,7 +382,7 @@ void putRegionsInVector(ifstream &fin, RegionsVector &regions, const int numRegi
 }
 
 //Gets the data of a single region from the testDataFile (reasonably safely). 
-L1CaloRegion readSingleRegion(ifstream &fin)
+L1GctRegion readSingleRegion(ifstream &fin)
 {   
   //Represents how many numbers there are per line for a region in the input file
   const int numRegionComponents = 6; //the id, et, overFlow, tauVeto, mip, quiet, tauVeto.
@@ -423,7 +423,7 @@ L1CaloRegion readSingleRegion(ifstream &fin)
 			  static_cast<bool>(regionComponents[5]),
 			  ieta, iphi);
   
-  return L1GctRegion(tempRegion);
+  return L1GctRegion::makeJfInputRegion(tempRegion);
 }
 
 //Reads jets from file and pushes the specified number into a vector of jets
@@ -524,12 +524,12 @@ bool compareJetsVectors(RawJetsVector &vector1, RawJetsVector &vector2, const st
       //compare the vectors
       for(unsigned int i = 0; i < vector1.size(); ++i)
       {
-        if(vector1[i].rawsum() != vector2[i].rawsum()) {  cout << "Failed rawsum comparison\n"; 
+        if(vector1[i].rawsum() != vector2[i].rawsum()) {  cout << "Jet " << i << " Failed rawsum comparison -- "; 
           cout << "first " << vector1[i].rawsum() << " second " << vector2[i].rawsum() << "\n";
-          testPass = false; break; }
-        if(vector1[i].rctEta() != vector2[i].rctEta()) {  cout << "Failed rctEta comparison\n"; testPass = false; break; }
-        if(vector1[i].rctPhi() != vector2[i].rctPhi()) {  cout << "Failed rctPhi comparison\n"; testPass = false; break; }
-        if(vector1[i].tauVeto() != vector2[i].tauVeto()) {  cout << "Failed tauV comparison\n"; testPass = false; break; }
+          testPass = false; }
+        if(vector1[i].rctEta() != vector2[i].rctEta()) {  cout << "Jet " << i << " Failed rctEta comparison\n"; testPass = false; }
+        if(vector1[i].rctPhi() != vector2[i].rctPhi()) {  cout << "Jet " << i << " Failed rctPhi comparison\n"; testPass = false; }
+        if(vector1[i].tauVeto() != vector2[i].tauVeto()) {  cout << "Jet " << i << " Failed tauV comparison\n"; testPass = false; }
       }
     }
   }
