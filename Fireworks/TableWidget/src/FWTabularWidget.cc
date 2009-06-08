@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:21 EST 2009
-// $Id: FWTabularWidget.cc,v 1.8 2009/04/10 23:58:41 chrjones Exp $
+// $Id: FWTabularWidget.cc,v 1.9 2009/05/05 08:36:09 elmer Exp $
 //
 
 // system include files
@@ -67,6 +67,8 @@ m_backgroundGC(ULONG_MAX)
 
 FWTabularWidget::~FWTabularWidget()
 {
+   m_table->Disconnect("dataChanged()", this, "dataChanged()");
+   m_table->Disconnect("visualPropertiesChanged()", this, "needToRedraw()");
 }
 
 //
