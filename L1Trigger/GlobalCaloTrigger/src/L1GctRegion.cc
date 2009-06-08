@@ -2,17 +2,18 @@
 
 L1GctRegion::L1GctRegion() : L1CaloRegion() {}
 
-L1GctRegion::L1GctRegion(const L1CaloRegion& r) :
-  L1CaloRegion( L1CaloRegion::makeGctJetRegion( (r.overFlow() ? kGctRegionMaxValue : r.et()),
-						r.overFlow(), r.fineGrain(), r.gctEta(), r.gctPhi(), r.bx()) ) {}
-
 L1GctRegion::~L1GctRegion() {}
+
+L1GctRegion L1GctRegion::makeJfInputRegion(const L1CaloRegion& r_in)
+{
+  L1GctRegion r( r_in.et(), r_in.overFlow(), r_in.fineGrain(), r_in.gctEta(), r_in.gctPhi(), r_in.bx() );
+  return r;
+}
 
 L1GctRegion L1GctRegion::makeProtoJetRegion(const unsigned et, const bool overFlow, const bool fineGrain, const bool tauIsolationVeto,
                                             const unsigned ieta, const unsigned iphi, const int16_t bx)
 {
-  L1GctRegion r( L1CaloRegion::makeGctJetRegion( (((et>kGctRegionMaxValue) || overFlow) ? kGctRegionMaxValue : et),
-						 ((et>kGctRegionMaxValue) || overFlow), fineGrain, ieta, iphi, bx) );
+  L1GctRegion r( et, overFlow, fineGrain, ieta, iphi, bx );
   if (tauIsolationVeto) {
     r.setFeatureBit0();
   } else {
@@ -24,10 +25,19 @@ L1GctRegion L1GctRegion::makeProtoJetRegion(const unsigned et, const bool overFl
 L1GctRegion L1GctRegion::makeFinalJetRegion(const unsigned et, const bool overFlow, const bool fineGrain,
                                             const unsigned ieta, const unsigned iphi, const int16_t bx)
 {
-  L1GctRegion r( L1CaloRegion::makeGctJetRegion( (((et>kGctRegionMaxValue) || overFlow) ? kGctRegionMaxValue : et),
-						 ((et>kGctRegionMaxValue) || overFlow), fineGrain, ieta, iphi, bx) );
+  L1GctRegion r( et, overFlow, fineGrain, ieta, iphi, bx );
   return r;
 }
+
+// constructor for internal use
+L1GctRegion::L1GctRegion(const unsigned et,
+	      const bool overFlow, 
+	      const bool fineGrain,
+	      const unsigned ieta, 
+	      const unsigned iphi,
+	      const int16_t bx) :
+  L1CaloRegion( L1CaloRegion::makeGctJetRegion( (overFlow ? kGctRegionMaxValue : (et & kGctRegionMaxValue) ),
+						overFlow, fineGrain, ieta, iphi, bx) ) { }
 
 void L1GctRegion::setBit(const unsigned bitNum, const bool onOff)
 {

@@ -26,11 +26,11 @@ class L1GctRegion : public L1CaloRegion
 
   // Constructors and destructor
   L1GctRegion();
-  L1GctRegion(const L1CaloRegion&);
 
   ~L1GctRegion();
 
   // Named constructors
+  static L1GctRegion makeJfInputRegion(const L1CaloRegion&);
   static L1GctRegion makeProtoJetRegion(const unsigned et,   const bool overFlow, const bool fineGrain, const bool tauIsolationVeto,
                                         const unsigned ieta, const unsigned iphi, const int16_t bx);
   static L1GctRegion makeFinalJetRegion(const unsigned et,   const bool overFlow, const bool fineGrain,
@@ -52,6 +52,15 @@ class L1GctRegion : public L1CaloRegion
   void clrFeatureBit1() { setBit(15, false); }
 
  private:
+
+  // constructor for internal use
+  L1GctRegion(const unsigned et,
+	      const bool overFlow, 
+	      const bool fineGrain,
+	      const unsigned ieta, 
+	      const unsigned iphi,
+	      const int16_t bx);
+
 
   void setBit(const unsigned bitNum, const bool onOff);
 
