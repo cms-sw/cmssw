@@ -185,8 +185,6 @@ void L1RCT::digiInput(const EcalTrigPrimDigiCollection& ecalCollection,
     }
     tower = rctLookupTables_->rctParameters()->calcTower(iphi, absIeta);
 
-    if(card ==999 &&hcalCollection[i].SOI_compressedEt()>0 ) printf("HCAL ALARM!!!!!!!!!!!!!!!!!!!!!!!!  %d %d %d\n ",iphi,ieta,hcalCollection[i].SOI_compressedEt() );
-
 
     unsigned short energy = hcalCollection[i].SOI_compressedEt();     // access only sample of interest
     unsigned short fineGrain = (unsigned short) hcalCollection[i].SOI_fineGrain();
