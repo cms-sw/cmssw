@@ -277,6 +277,7 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix, ed
 	    theBuffer.set_adc( newpix, 1);
 	    pixel_stack.push( newpix);
 	  }
+		/* //Commenting out the addition of dead pixels to the cluster until further testing -- dfehling 06/09
 	  //Check on the bounds of the module; this is to keep the isDead and isNoisy modules from returning errors 
 	  else if(r>= 0 && c >= 0 && (r <= (theNumOfRows-1.)) && (c <= (theNumOfCols-1.))){ 
 	    //Check for dead/noisy pixels check that the buffer is not -1 (already considered).  Check whether we want to split clusters separated by dead pixels or not.
@@ -298,6 +299,7 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix, ed
 	    } 
 
 	  }
+		*/
 	}
       }
     
