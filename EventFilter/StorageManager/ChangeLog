@@ -1,3 +1,26 @@
+2009-06-08  Kurt Biery <biery@fnal.gov>
+
+	* tag V04-02-05
+	* Script changes from Constantin and include file changes from
+	  Peter Elmer for gcc4.4.
+
+2009-03-??  Kurt Biery <biery@fnal.gov>
+
+	* tag V04-02-04
+	* From David Dagenhard:  Added option that causes the Framework
+	  statemachine to behave as if there is one event per input file
+	  and go through new input file transitions before each event.
+	  The purpose is to allow the output module to close output files
+	  at any point. There is a restriction that output modules are allowed
+	  to close output files and open new ones only when a new input file
+	  is encountered.  This option is available to all streamer sources,
+	  but is by default off except for the EventStreamHttpReader source.
+	  This code change has no effect when the option turned off.  The
+	  overhead introduced by the Framework itself is small, although it
+	  will emit signals for the respondToOpenInputFile and
+	  respondToCloseInputFile to modules which could potentially use
+	  CPU or have other side effects.
+
 2009-01-27  Kurt Biery <biery@fnal.gov>
 
 	* tag V04-02-03
