@@ -13,7 +13,7 @@
 //
 // Original Author:  pts/91
 //         Created:  Wed Sep 26 17:08:29 CEST 2007
-// $Id: RPCGEO.cc,v 1.1 2008/11/25 14:10:46 carrillo Exp $
+// $Id: RPCGEO.cc,v 1.2 2008/12/17 15:44:50 carrillo Exp $
 //
 //
 
@@ -223,10 +223,13 @@ RPCGEO::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	 if (rpcId.region()==0){ 
 	   //std::cout<<"Getting the RPC Topolgy"<<std::endl;
-	   //const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&((*r)->topology()));
-	   //float stripl = top_->stripLength();
-	   //float stripw = top_->pitch();
-	   //std::cout<<rpcsrv.name()<<" strips lenght="<<stripl<<std::endl;
+	   
+	   const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&((*r)->topology()));
+
+	   float stripl = top_->stripLength();
+	   float stripw = top_->pitch();
+
+	   std::cout<<" AllInfo"<<rpcsrv.name()<<" stripl="<<stripl<<" stripw="<<stripw<<" stripsinthisroll="<<stripsinthisroll<<std::endl;
 
 	   
 	   counterRollsBarrel++; 
@@ -257,6 +260,10 @@ RPCGEO::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   float s1 = static_cast<float>(1)-0.5;
 	   float sLast = static_cast<float>(stripsinthisroll)-0.5;
 
+	   float stripl = top_->stripLength();
+	   float stripw = top_->pitch();
+
+	   std::cout<<" AllInfo"<<rpcsrv.name()<<" stripl="<<stripl<<" stripw="<<stripw<<" stripsinthisroll="<<stripsinthisroll<<std::endl;
 
 	   const BoundPlane & RPCSurface = (*r)->surface();
 	   GlobalPoint FirstStripCenterPointInGlobal = RPCSurface.toGlobal(top_->localPosition(s1));
