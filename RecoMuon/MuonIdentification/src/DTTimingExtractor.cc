@@ -11,7 +11,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: DTTimingExtractor.cc,v 1.1 2009/03/26 23:23:10 ptraczyk Exp $
+// $Id: DTTimingExtractor.cc,v 1.1 2009/03/27 02:27:33 ptraczyk Exp $
 //
 //
 
@@ -278,6 +278,8 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
       }
 
     invbeta=0;
+    
+    if (totalWeight==0) break;        
 
     // calculate the value and error of 1/beta from the complete set of 1D hits
     if (debug)
@@ -302,7 +304,7 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
       }
     }
     
-    invbetaerr=sqrt(invbetaerr/totalWeight);
+    invbetaerr=sqrt(invbetaerr/totalWeight); 
  
     // cut away the outliers
     if (chimax>thePruneCut_) {
