@@ -1,6 +1,3 @@
-// to be run with this thing:
-// /Zee_M20/Summer08_IDEAL_V11_redigi_v1/GEN-SIM-RECO
-
 #include "TH1.h"
 #include "TH2.h"
 
