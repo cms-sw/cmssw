@@ -23,7 +23,10 @@ class EcalTPGCrystalStatusCode {
 
     EcalTPGCrystalStatusCode& operator=(const EcalTPGCrystalStatusCode& rhs);
     uint16_t getStatusCode() const { return status_; }
-
+    
+    // for testing the L1 trigger emulator
+    void setStatusCode(const uint16_t  & val) { status_=val; }
+    
   private:
     uint16_t status_;
 };
