@@ -366,13 +366,11 @@ void HcalDeadCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
 		    {
 		      subdetname="HF";
 		      subdet=4;
-		      ieta=ieta+1;
 		    }
 		  else if (hist_eta>72) // shift positive HF ieta values by -1
 		    {
 		      subdetname="HF";
 		      subdet=4;
-		      ieta=ieta-1;
 		    }
 		  else if (abs(ieta)<=16) // HB extends to |ieta|=16 in depth 1, 15 in depth 2
 		    {
@@ -1146,7 +1144,6 @@ void HcalDeadCellMonitor::fillNevents_problemCells(void)
       NumberOfBelowEnergyCells->Fill(belowenergyHB+belowenergyHE+belowenergyHO+belowenergyHF+belowenergyZDC,deadmon_checkNevents_);
     }
 
-  cout <<"FILLING:  ievt = "<<ievt_<<"  Fill value = "<<deadmon_checkNevents_/deadmon_neverpresent_prescale_<<endl;
   // Neverpresent cell algorithm gets called more often; fill with smaller value
   NumberOfNeverPresentCellsHB->Fill(neverpresentHB,deadmon_checkNevents_/deadmon_neverpresent_prescale_);
   NumberOfNeverPresentCellsHE->Fill(neverpresentHE,deadmon_checkNevents_/deadmon_neverpresent_prescale_);
@@ -1160,12 +1157,12 @@ void HcalDeadCellMonitor::fillNevents_problemCells(void)
     {
       for (int phi=1;phi<=ProblemDeadCellsByDepth.depth[0]->getNbinsY();++phi)
 	{
-	  iphi=phi;
+	  //iphi=phi;
 	  sumproblemvalue=0;
 
 	  for (unsigned int d=1;d<=ProblemDeadCellsByDepth.depth.size();++d)
 	    {
-	      ieta=ProblemDeadCellsByDepth.CalcIeta(eta,d);
+	      //ieta=ProblemDeadCellsByDepth.CalcIeta(eta,d);
 	      // problem value is sum of problems over all tests for a given depth
 	      problemvalue=0;
 	      if (deadmon_test_neverpresent_)
