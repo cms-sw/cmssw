@@ -19,7 +19,7 @@ ROOT.gROOT.SetBatch()
 # regex for reducing 'warn()' filenames
 filenameRE = re.compile (r'.+/Validation/Tools/')
 
-def warn (*args):
+def warn (*args, **kwargs):
     """print out warning with line number and rest of arguments"""
     frame = inspect.stack()[1]
     filename = frame[1]
@@ -27,13 +27,16 @@ def warn (*args):
     #print filename, filenameRE
     filename = filenameRE.sub ('', filename)
     #print "after '%s'" % filename
+    blankLines = kwargs.get('blankLines', 0)
+    if blankLines:
+        print '\n' * blankLines
     if len (args):
-        print "%s (%s)" % (filename, lineNum),
+        print "%s (%s): " % (filename, lineNum),
         for arg in args:
             print arg,
         print
     else:
-        print "%s (%s)" % (filename, lineNum)
+        print "%s (%s):" % (filename, lineNum)
 
 
 class GenObject (object):
@@ -353,7 +356,7 @@ class GenObject (object):
             config = open (configFile, 'r')
         except:
             raise RuntimeError, "Can't open configuration '%s'" % configFile
-        for fullLine in config:
+        for lineNum, fullLine in enumerate (config):
             fullLine = fullLine.strip()
             # get rid of comments
             line = GenObject._commentRE.sub ('', fullLine)
@@ -367,16 +370,16 @@ class GenObject (object):
                 section = bracketMatch.group(1)
                 words = GenObject._spacesRE.split( section )
                 if len (words) < 1:
-                    raise RuntimeError, "Don't understand line '%s'" \
-                          % fullLine                
+                    raise RuntimeError, "Don't understand line '%s'(%d)" \
+                          % (fullLine, lineNum)
                 # The first word is the object name
                 # reset the rest of the list
                 objName = words[0]
                 words = words[1:]
                 colonWords = GenObject._colonRE.split (objName)
                 if len (colonWords) > 3:
-                    raise RuntimeError, "Don't understand line '%s'" \
-                          % fullLine
+                    raise RuntimeError, "Don't understand line '%s'(%d)" \
+                          % (fullLine, lineNum)
                 if len (colonWords) == 1:
                     ##########################
                     ## GenObject Definition ##
@@ -393,7 +396,9 @@ class GenObject (object):
                         # option.  Complain vociferously
                         print "I don't understand '%s' in section '%s' : %s" \
                               % (word, section, mode)
-                        raise RuntimeError, "Config file parsing error"
+                        raise RuntimeError, \
+                              "Config file parser error '%s'(%d)" \
+                              % (fullLine, lineNum)
                 elif len (colonWords) == 2:
                     #######################
                     ## Ntuple Definition ##
@@ -426,18 +431,24 @@ class GenObject (object):
                         # option.  Complain vociferously
                         print "I don't understand '%s' in section '%s' : %s" \
                               % (word, section, mode)
-                        raise RuntimeError, "Config file parsing error"
+                        raise RuntimeError, \
+                              "Config file parser error '%s'(%d)" \
+                              % (fullLine, lineNum)
             else:
                 # a variable
                 if modeEnum.none == mode:
                     # Poorly formatted 'section' tag
                     print "I don't understand line '%s'." % fullLine
-                    raise RuntimeError, "Config file parsing error"
-                colonWords = GenObject._colonRE.split (line, 2)
+                    raise RuntimeError, \
+                          "Config file parser error '%s'(%d)" \
+                          % (fullLine, lineNum)
+                colonWords = GenObject._colonRE.split (line, 1)
                 if len (colonWords) < 2:
                     # Poorly formatted 'section' tag
                     print "I don't understand line '%s'." % fullLine
-                    raise RuntimeError, "Config file parsing error"
+                    raise RuntimeError, \
+                          "Config file parser error '%s'(%d)" \
+                          % (fullLine, lineNum)
                 varName = colonWords[0]
                 option  = colonWords[1]
                 if option:
@@ -458,7 +469,8 @@ class GenObject (object):
                                     print "Problem with -equiv '%s' in '%s'" % \
                                           (part, section)
                                     raise RuntimeError, \
-                                          "Config file parsing error"
+                                          "Config file parser error '%s'(%d)" \
+                                          % (fullLine, lineNum)
                                 if halves[1]:
                                     halves[1] = float (halves[1])
                                     if not halves[1] > 0:
@@ -466,7 +478,8 @@ class GenObject (object):
                                               "'%s' in '%s'" % \
                                               (part, section)
                                         raise RuntimeError, \
-                                              "Config file parsing error"
+                                              "Config file parser error '%s'(%d)" \
+                                              % (fullLine, lineNum)
                                 GenObject.setEquivExpression (section,
                                                               halves[0],
                                                               halves[1])
@@ -498,7 +511,9 @@ class GenObject (object):
                         # option.  Complain vociferously
                         print "I don't understand '%s' in section '%s'." \
                               % (word, option)
-                        raise RuntimeError, "Config file parsing error"
+                        raise RuntimeError, \
+                              "Config file parser error '%s'(%d)" \
+                              % (fullLine, lineNum)
                     GenObject.addObjectVariable (objName, varName, \
                                                  **optionsDict)
                 else: # if modeEnum.define != mode
@@ -529,7 +544,9 @@ class GenObject (object):
                         # option.  Complain vociferously
                         print "I don't understand '%s' in section '%s'." \
                               % (word, option)
-                        raise RuntimeError, "Config file parsing error"
+                        raise RuntimeError, \
+                              "Config file parser error '%s'(%d)" \
+                              % (fullLine, lineNum)
                     tofillDict = GenObject._tofillDict.\
                                  setdefault (tupleName, {}).\
                                  setdefault (objName, {})
@@ -744,6 +761,9 @@ class GenObject (object):
     @staticmethod
     def _genObjectClone (objName, tupleName, obj, index = -1):
         """Creates a GenObject copy of Root object"""
+        debug         = GenObject._kitchenSinkDict.get ('debug', False)
+        if objName == 'runevent':
+            debug = False
         tofillObjDict = GenObject._tofillDict.get(tupleName, {})\
                         .get(objName, {})
         genObj = GenObject (objName)
@@ -753,6 +773,8 @@ class GenObject (object):
             obj = origObj
             # lets work our way down the list
             partsList = ntDict[0]
+            if debug:
+                warn (ntDict, "pL", partsList)
             for part in partsList:
                 obj = getattr (obj, part[0])
                 # if this is a function instead of a data member, make
@@ -760,7 +782,9 @@ class GenObject (object):
                 if GenObject._objFunc.func == part[1]:
                     # Arguments are stored as a list in part[2]
                     obj = obj (*part[2])
+                if debug: warn (obj)
             setattr (genObj, genVar, obj)
+            #if debug: warn (genObj, genVar, obj)
         # Do I need to store the index of this object?
         if index >= 0:
             setattr (genObj, 'index', index)
@@ -924,6 +948,7 @@ class GenObject (object):
         'event' containing lists of objects or singleton object.  If
         'onlyRunEvent' is et to True, then only run and event number
         is read in from the tree."""
+        debug     = GenObject._kitchenSinkDict.get ('debug', False)
         tupleName = GenObject._kitchenSinkDict[eventTree]['tupleName']
         event = {}
         # is this a cint tree
@@ -934,6 +959,7 @@ class GenObject (object):
         else:
             # This means that 'evenTree' is a cmstools.EventTree
             rootEvent = eventTree[eventIndex]
+            if debug: warn ('cmsEventTree')
         tofillDict = GenObject._tofillDict.get (tupleName)
         ntupleDict = GenObject._ntupleDict.get (tupleName)
         if not tofillDict:
@@ -1026,14 +1052,18 @@ class GenObject (object):
             files = [files]
         ntupleDict = GenObject._ntupleDict[tupleName]
         treeName = ntupleDict["_tree"]
-        chain = ROOT.TChain (treeName)
-        for filename in files:
-            chain.AddFile (filename)
-        numEntries = chain.GetEntries()
+        if ntupleDict.get('_useChain'):
+            chain = ROOT.TChain (treeName)
+            for filename in files:
+                chain.AddFile (filename)
+                numEntries = chain.GetEntries()
         # Are we using a chain or EventTree here?
-        if not ntupleDict.get('_useChain'):
+        else:
+            numEntries = 0
+            #if not ntupleDict.get('_useChain'):
             # cmstools.EventTree
-            chain = cmstools.EventTree (chain)
+            # chain = cmstools.EventTree (chain)
+            chain = cmstools.EventTree (files[0])
             GenObject.setAliases (chain, tupleName)
         chainDict = GenObject._kitchenSinkDict.setdefault (chain, {})
         if numEventsWanted and numEventsWanted < numEntries:
@@ -1277,11 +1307,13 @@ class GenObject (object):
         numEntries1 = GenObject._kitchenSinkDict[chain1]['numEntries']
         tupleName2  = GenObject._kitchenSinkDict[chain2]['tupleName']
         numEntries2 = GenObject._kitchenSinkDict[chain2]['numEntries']
+        debug       = GenObject._kitchenSinkDict.get ('debug', False)
         ree1 = GenObject.getRunEventEntryDict (chain1, tupleName1, numEntries1)
         ree2 = GenObject.getRunEventEntryDict (chain2, tupleName2, numEntries2)
         overlap, firstOnly, secondOnly = \
                  GenObject.compareRunEventDicts (ree1, ree2)
-        #print "overlap   ", overlap
+        if debug:
+            print "overlap   ", overlap
         if diffOutputName:
             rootfile, diffTree, missingTree = \
                       GenObject.setupDiffOutputTree (diffOutputName,
@@ -1300,15 +1332,19 @@ class GenObject (object):
             missingTree.Fill()
         problemDict = {}
         if firstOnly:
-            #print "firstOnly ", firstOnly
+            if debug:
+                print "firstOnly ", firstOnly
             problemDict.setdefault ('_runevent', {})['firstOnly'] = \
                                    len (firstOnly)
         if secondOnly:
-            #print "secondOnly", secondOnly
+            if debug:
+                print "secondOnly", secondOnly
             problemDict.setdefault ('_runevent', {})['secondOnly'] = \
                                    len (secondOnly)
-        for reTuple in overlap:
+        for reTuple in sorted(overlap):
+            if debug: warn ('event1', blankLines = 3)
             event1 = GenObject.loadEventFromTree (chain1, ree1 [reTuple])
+            if debug: warn ('event2', blankLines = 3)
             event2 = GenObject.loadEventFromTree (chain2, ree2 [reTuple])
             if GenObject._kitchenSinkDict.get('printEvent'):
                 print "event1:"
@@ -1374,7 +1410,7 @@ class GenObject (object):
                         rootObj.diff.push_back ( GenObject._rootDiffObject \
                                                  ( vec1[ pair[1 - 1] ],
                                                    vec2[ pair[2 - 1] ] ) )
-                        problems = GenObject.\
+                    problems = GenObject.\
                                compareTwoItems (vec1[ pair[1 - 1] ],
                                                 vec2[ pair[2 - 1] ])
                     if problems.keys():

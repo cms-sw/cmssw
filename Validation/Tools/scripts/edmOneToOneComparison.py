@@ -70,6 +70,9 @@ if __name__ == "__main__":
                              help="Write out root file for file comparisons")
     optionsGroup.add_option ('--oldLoad', dest='oldLoad', action='store_true',
                              help="Use old loading routine (DEBUGGING ONLY)")
+    optionsGroup.add_option ('--debug', dest='debug', action='store_true',
+                             help="Print debugging information")
+    optionsGroup.add_option 
     parser.add_option_group (modeGroup)
     parser.add_option_group (tupleGroup)
     parser.add_option_group (optionsGroup)
@@ -114,6 +117,8 @@ if __name__ == "__main__":
     if options.blur:
         GenObject.setGlobalFlag ('blur', options.blur)
         GenObject.setGlobalFlag ('blurRate', options.blurRate)
+    if options.debug:
+        GenObject.setGlobalFlag ('debug', True)
     if options.compare:
         # Compare two files
         chain1 = GenObject.prepareTuple (options.tuple1, options.file1,
