@@ -197,8 +197,9 @@ void HcalBaseMonitor::SetupEtaPhiHists(MonitorElement* &h, EtaPhiHists & hh, cha
 
   h=m_dbe->book2D(("All "+name.str()+unitname.str()).c_str(),
 		  (name.str() + " for all HCAL ("+unittitle.str().c_str()+")"),
-		  etaBins_, etaMin_, etaMax_,
-		  phiBins_, phiMin_, phiMax_);
+		  85,-42.5,42.5,
+		  72,0.5,72.5);
+
   h->setAxisTitle("i#eta",1);
   h->setAxisTitle("i#phi",2);
   
@@ -245,6 +246,7 @@ void HcalBaseMonitor::SetupEtaPhiHists(EtaPhiHists & hh, char* Name, char* Units
 				   85, -42.5,42.5,
 				   72,0.5,72.5));
   hh.setBinLabels(); // set axis titles, special bins
+  
 }
 
 
@@ -616,13 +618,14 @@ void HcalBaseMonitor::FillUnphysicalHEHFBins(std::vector<MonitorElement*> &hh)
 
   int ieta=0;
   int iphi=0;
+
   for (int eta=0;eta<(etaBins_-2);++eta)
     {
       ieta=eta-int((etaBins_-2)/2);
       if (abs(ieta)<21)
 	continue;
       for (int phi=0;phi<72;++phi)
-        {
+	{
 	  iphi=phi+1;
 	  if (iphi%2==1 && abs(ieta)<40 && iphi<75 && iphi>0)
 	    {
@@ -640,16 +643,46 @@ void HcalBaseMonitor::FillUnphysicalHEHFBins(std::vector<MonitorElement*> &hh)
 	      hh[0]->setBinContent(eta+2,phi+1,hh[0]->getBinContent(eta+2,phi+2));
 	      hh[0]->setBinContent(eta+2,phi,hh[0]->getBinContent(eta+2,phi+2));
 	      hh[1]->setBinContent(eta+2,phi+3,hh[1]->getBinContent(eta+2,phi+2));
-              hh[1]->setBinContent(eta+2,phi+1,hh[1]->getBinContent(eta+2,phi+2));
-              hh[1]->setBinContent(eta+2,phi,hh[1]->getBinContent(eta+2,phi+2));
-
+	      hh[1]->setBinContent(eta+2,phi+1,hh[1]->getBinContent(eta+2,phi+2));
+	      hh[1]->setBinContent(eta+2,phi,hh[1]->getBinContent(eta+2,phi+2));
+	      
 	    } // else if (abs(ieta)>39 ...)
 	} // for (int phi=0;phi<72;++phi)
-
+      
     } // for (int eta=0; eta< (etaBins_-2);++eta)
-
   return;
-} // HcalBaseMonitor::FillUnphysicalHEHFBins(std::vector<MonitorElement*> &hh)
+} // void HcalBaseMonitor::FillUnphysicalHEHFBins(std::vector<MonitorElement*> &hh)
+
+void HcalBaseMonitor::FillUnphysicalHEHFBins(EtaPhiHists &hh)
+{
+  int ieta=0;
+  int iphi=0;
+  for (unsigned int d=0;d<hh.depth.size();++d)
+    {
+      for (int hist_eta=1;hist_eta<=hh.depth[d]->getNbinsX();++hist_eta)
+	{
+	  for (int hist_phi=1;hist_phi<=hh.depth[d]->getNbinsY();++hist_phi)
+	    {
+	      ieta=hh.CalcIeta(hist_eta,d);
+	      if (abs(ieta)<21) continue;
+	      iphi=hist_phi;
+	      if (iphi%2==1 && abs(ieta)<40 && iphi<73)
+		{
+		  hh.depth[d]->setBinContent(hist_eta,hist_phi+1,hh.depth[d]->getBinContent(hist_eta,hist_phi));
+		}
+	      // last two eta strips span 20 degrees in phi
+	      // Fill the phi cell above iphi, and the 2 below it
+	      else  if (abs(ieta)>39 && iphi%4==3 && iphi<73)
+		{
+		  hh.depth[d]->setBinContent(hist_eta,hist_phi+1,hh.depth[d]->getBinContent(hist_eta,hist_phi));
+		  hh.depth[d]->setBinContent(hist_eta,hist_phi-1,hh.depth[d]->getBinContent(hist_eta,hist_phi));
+		  hh.depth[d]->setBinContent(hist_eta,hist_phi-2,hh.depth[d]->getBinContent(hist_eta,hist_phi));
+		}
+	    } // for (int hist_phi...)
+	} // for (int hist_eta...)
+    } // for (int d=0;...)
+  return;
+} // HcalBaseMonitor::HcalBaseMonitor::FillUnphysicalHEHFBins(MonitorElement* hh)
 
 
 

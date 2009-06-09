@@ -14,8 +14,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2009/04/28 06:54:32 $
-  * $Revision: 1.26.2.2 $
+  * $Date: 2009/05/01 14:06:09 $
+  * $Revision: 1.27 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -98,11 +98,10 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
 
   // Problem Histograms
   MonitorElement* ProblemDeadCells;
-  std::vector<MonitorElement*> ProblemDeadCellsByDepth;
-
-  std::vector<MonitorElement*>UnoccupiedDeadCellsByDepth;
-  std::vector<MonitorElement*>DigisNeverPresentByDepth;
-  std::vector<MonitorElement*>BelowEnergyThresholdCellsByDepth;
+  EtaPhiHists  ProblemDeadCellsByDepth;
+  EtaPhiHists  UnoccupiedDeadCellsByDepth;
+  EtaPhiHists  DigisNeverPresentByDepth;
+  EtaPhiHists  BelowEnergyThresholdCellsByDepth;
 
   MonitorElement* NumberOfDeadCells;
   MonitorElement* NumberOfDeadCellsHB;
@@ -132,9 +131,13 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   MonitorElement* NumberOfBelowEnergyCellsHF;
   MonitorElement* NumberOfBelowEnergyCellsZDC;
 
-  bool present[ETABINS][PHIBINS][6]; // filled when a digi is present
-  unsigned int occupancy[ETABINS][PHIBINS][6]; // will get filled when an occupied digi is found; resent on checkNevents
-  unsigned int aboveenergy[ETABINS][PHIBINS][6];
+  //bool present[ETABINS][PHIBINS][6]; // filled when a digi is present
+  //unsigned int occupancy[ETABINS][PHIBINS][6]; // will get filled when an occupied digi is found; resent on checkNevents
+  //unsigned int aboveenergy[ETABINS][PHIBINS][6];
+
+  bool present[86][72][4];
+  unsigned int occupancy[86][72][4];
+  unsigned int aboveenergy[86][72][4];
 
   bool HBpresent_, HEpresent_, HOpresent_, HFpresent_, ZDCpresent_;
 

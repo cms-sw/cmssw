@@ -37,8 +37,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2009/05/01 14:06:09 $
-  * $Revision: 1.20 $
+  * $Date: 2009/06/08 12:16:01 $
+  * $Revision: 1.21 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -83,6 +83,7 @@ public:
   void setMinMaxHists1D(std::vector<MonitorElement*> &hh, double min, double max);
   void FillUnphysicalHEHFBins(std::vector<MonitorElement*> &hh);
   void FillUnphysicalHEHFBins(MonitorElement* hh);
+  void FillUnphysicalHEHFBins(EtaPhiHists &hh);
 
 protected:
   
