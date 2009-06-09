@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.37 2009/01/27 23:15:45 drell Exp $
+// $Id: V0Fitter.cc,v 1.38 2009/02/05 00:38:10 drell Exp $
 //
 //
 
@@ -241,6 +241,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       //cout << "Check 1" << endl;
       FreeTrajectoryState posState = posTransTkPtr->impactPointTSCP().theState();
       FreeTrajectoryState negState = negTransTkPtr->impactPointTSCP().theState();
+
+      if( !posTransTkPtr->impactPointTSCP().isValid() || !negTransTkPtr->impactPointTSCP().isValid() ) continue;
       //cout << "Check 2" << endl;
 
       // Measure distance between tracks at their closest approach
@@ -264,6 +266,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	posTransTkPtr->trajectoryStateClosestToPoint( cxPt );
       TrajectoryStateClosestToPoint negTSCP =
 	negTransTkPtr->trajectoryStateClosestToPoint( cxPt );
+
+      if( !posTSCP.isValid() || !negTSCP.isValid() ) continue;
       //}
       //catch(...) {
       //cout << "Caught one." << endl;
@@ -348,6 +352,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       typedef ROOT::Math::SVector<double, 3> SVector3;
 
       GlobalPoint vtxPos(theVtx.x(), theVtx.y(), theVtx.z());
+
+      //      double dummy = findV0MassError(vtxPos, transTracks);
       //double x_ = vtxPos.x();
       //double y_ = vtxPos.y();
       //double rVtxMag = sqrt( x_*x_ + y_*y_);
@@ -426,6 +432,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 			 negTransTkPtr->trajectoryStateClosestToPoint(vtxPos));
 
       }
+
+      if( !trajPlus->isValid() || !trajMins->isValid() ) continue;
 
       posTransTkPtr = negTransTkPtr = 0;
 
@@ -587,6 +595,47 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
   }
 }
+
+double V0Fitter::findV0MassError(const GlobalPoint &vtxPos, std::vector<reco::TransientTrack> dauTracks) { 
+  return -1.;
+}
+
+/*
+double V0Fitter::findV0MassError(const GlobalPoint &vtxPos, std::vector<reco::TransientTrack> dauTracks) {
+  // Returns -99999. if trajectory states fail at vertex position
+
+  // Load positive track trajectory at vertex into vector, then negative track
+  std::vector<TrajectoryStateClosestToPoint> sortedTrajStatesAtVtx;
+  for( unsigned int ndx = 0; ndx < dauTracks.size(); ndx++ ) {
+    if( dauTracks[ndx].trajectoryStateClosestToPoint(vtxPos).isValid() ) {
+      std::cout << "From TSCP: " 
+		<< dauTracks[ndx].trajectoryStateClosestToPoint(vtxPos).perigeeParameters().transverseCurvature()
+		<< "; From Track: " << dauTracks[ndx].track().qoverp() << std::endl;
+    }
+    if( sortedTrajStatesAtVtx.size() == 0 ) {
+      if( dauTracks[ndx].charge() > 0 ) {
+	sortedTrajStatesAtVtx.push_back( dauTracks[ndx].trajectoryStateClosestToPoint(vtxPos) );
+      }
+      else {
+	sortedTrajStatesAtVtx.push_back( dauTracks[ndx].trajectoryStateClosestToPoint(vtxPos) );
+      }
+    }
+  }
+  std::vector<PerigeeTrajectoryParameters> param;
+  std::vector<PerigeeTrajectoryError> paramError;
+  std::vector<GlobalVector> momenta;
+
+  for( unsigned int ndx2 = 0; ndx2 < sortedTrajStatesAtVtx.size(); ndx2++ ) {
+    if( sortedTrajStatesAtVtx[ndx2].isValid() ) {
+      param.push_back( sortedTrajStatesAtVtx[ndx2].perigeeParameters() );
+      paramError.push_back( sortedTrajStatesAtVtx[ndx2].perigeeError() );
+      momenta.push_back( sortedTrajStatesAtVtx[ndx2].momentum() );
+    }
+    else return -99999.;
+  }
+  return 0;
+}
+*/
 
 
 // Get methods
