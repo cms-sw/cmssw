@@ -544,10 +544,12 @@ BaseParticlePropagator::propagateToVFcalEntrance(bool first) {
   // TODO: include proper geometry
   // Geometry taken from DAQ TDR Chapter 13
 
-  setPropagationConditions(200.0 , 1110.0, first);
+  setPropagationConditions(130.0 , 1110.0, first);
   propDir = 0;
   bool done = propagate();
   propDir = 1;
+
+  if (!done) success = 0;
 
   // We are not in the VFCAL acceptance
   // eta = 3.0 -> cos^2(theta) = 0.99014
