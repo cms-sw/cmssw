@@ -197,8 +197,6 @@ if __name__ == "__main__":
 
     print "get %s attributes" % goName
     mylist = getObjectList (obj, goName)
-    #sys.exit()
-    #pprint.pprint (mylist)
     targetFile = open (outputFile, 'w')
     genDef, tupleDef = genObjectDef (mylist, options.tupleName, alias,
                                      branchName)
