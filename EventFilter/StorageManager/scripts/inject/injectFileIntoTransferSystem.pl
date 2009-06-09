@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: injectFileIntoTransferSystem.pl,v 1.41 2009/02/10 09:18:52 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.42 2009/06/09 16:32:59 loizides Exp $
 
 use strict;
 use DBI;
@@ -342,7 +342,7 @@ unless($hostname eq 'srv-C2D05-03'      ||
        $hostname eq 'csc-C2D07-08'      || #csc
        $hostname eq 'vmepcS2B18-39'     || #tracker
        $hostname eq 'srv-C2D05-19'      || #dqm
-       $hostname =~ 'srv-C2C06-') { 
+       $hostname =~ 'srv-C2C06-'        || 
        $hostname =~ 'srv-C2C07-') { 
     print "Error: Hostname not valid. Must be one of cms-tier0-stage, cmsdisk1, csc-daq00, srv-C2D05-19 or vmepcS2B18-39.\n";
     usageShort();
