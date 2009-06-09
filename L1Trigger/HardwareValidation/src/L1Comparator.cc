@@ -709,7 +709,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_forjets_data, gct_forjets_emul, GCT,GCTforjets);
   if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_taujets_data, gct_taujets_emul, GCT,GCTtaujets);
   if(m_doSys[DTP]&&isValid[DTP]) process<L1MuDTChambPhDigiCollection>    (     dtp_ph_data,      dtp_ph_emul, DTP,DTtpPh);
-  //if(m_doSys[DTP]&&isValid[DTP]) process<L1MuDTChambThDigiCollection>    (     dtp_th_data,      dtp_th_emul, DTP,DTtpTh);
+  if(m_doSys[DTP]&&isValid[DTP]) process<L1MuDTChambThDigiCollection>    (     dtp_th_data,      dtp_th_emul, DTP,DTtpTh);
   if(m_doSys[DTF]&&isValid[DTF]) process<L1MuRegionalCandCollection>     (        dtf_data,         dtf_emul, DTF,DTtf);
   if(m_doSys[DTF]&&isValid[DTF]) process<L1MuRegionalCandCollection>     (    dtf_trk_data,     dtf_trk_emul, DTF,DTtftrk);
   if(m_DEsource[CTP][0].label().find("tf") == std::string::npos) {
@@ -980,7 +980,8 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerReadoutRecord> data,
 
   if(m_dumpMode==0 && match)
     return match;    
-  
+
+  /*
   //expand to check mismatching  stage
 
   //need to create new objects due to lack of suitable accessors
@@ -1173,6 +1174,7 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerReadoutRecord> data,
     m_dumpFile << "---debug: print full gt record Done.---\n\n";
   }
 
+  */
   char ok[10];
   if(match) sprintf(ok,"successful");
   else      sprintf(ok,"failed");
