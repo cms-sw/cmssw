@@ -17,6 +17,8 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
+#include "RecoJets/JetAlgorithms/interface/JetMaker.h"
+
 using namespace std;
 using namespace reco;
 using namespace edm;
