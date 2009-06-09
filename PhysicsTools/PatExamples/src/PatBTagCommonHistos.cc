@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    BTagPAT
-// Class:      BTagPATCommonHistos
+// Package:    PatBTag
+// Class:      PatBTagCommonHistos
 // 
-/**\class BTagPATCommonHistos BTagPATCommonHistos.cc
+/**\class PatBTagCommonHistos PatBTagCommonHistos.cc
 
  Description: <Define and Fill common set of histograms depending on flavor>
 
@@ -24,7 +24,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
-#include "PhysicsTools/PatExamples/interface/BTagPATCommonHistos.h"
+#include "PhysicsTools/PatExamples/interface/PatBTagCommonHistos.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
@@ -32,7 +32,7 @@
 //
 // constructors and destructor
 //
-BTagPATCommonHistos::BTagPATCommonHistos(const edm::ParameterSet& iConfig):
+PatBTagCommonHistos::PatBTagCommonHistos(const edm::ParameterSet& iConfig):
   histocontainer_()
 ,BTagger(iConfig.getParameter< edm::ParameterSet >("BJetOperatingPoints"))
    //now do what ever initialization is needed
@@ -44,7 +44,7 @@ BTagPATCommonHistos::BTagPATCommonHistos(const edm::ParameterSet& iConfig):
 }
 
 
-BTagPATCommonHistos::~BTagPATCommonHistos()
+PatBTagCommonHistos::~PatBTagCommonHistos()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -59,7 +59,7 @@ BTagPATCommonHistos::~BTagPATCommonHistos()
 
 // ------------ method called to for each event  ------------
 void
-BTagPATCommonHistos::Fill( edm::View<pat::Jet>::const_iterator& jet_iter, std::string flavor)
+PatBTagCommonHistos::Fill( edm::View<pat::Jet>::const_iterator& jet_iter, std::string flavor)
 {
 
 float isb    =jet_iter->bDiscriminator(BTagdiscriminator_);
@@ -188,7 +188,7 @@ if(
 // ------------ method called once each job just before starting event loop  ------------
 // ------------  This function is needed to set a group of histogram  -------------------
 void 
-BTagPATCommonHistos::Set(std::string flavor)
+PatBTagCommonHistos::Set(std::string flavor)
 {
 
   const int ntptarray = 23;
@@ -296,7 +296,7 @@ BTagPATCommonHistos::Set(std::string flavor)
 // ------------              after setting histograms                --------------------
 // ------------  This function is needed to save histogram errors -----------------------
 void 
-BTagPATCommonHistos::Sumw2()
+PatBTagCommonHistos::Sumw2()
 {
   for (std::map<std::string,TH1D*>::const_iterator ih=histocontainer_.begin();
          ih!= histocontainer_.end(); ++ih) {

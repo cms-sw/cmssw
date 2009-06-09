@@ -1,12 +1,12 @@
-#ifndef BTagPATCommonHistos_H_
-#define BTagPATCommonHistos_H_
+#ifndef PatBTagCommonHistos_H_
+#define PatBTagCommonHistos_H_
 
 // -*- C++ -*-
 //
-// Package:    BTagPAT
-// Class:      BTagPATCommonHistos
+// Package:    PatBTag
+// Class:      PatBTagCommonHistos
 // 
-/**\class BTagPATCommonHistos BTagPATCommonHistos.h
+/**\class PatBTagCommonHistos PatBTagCommonHistos.h
 
  Description: <Define and Fill common set of histograms depending on flavor and tagger>
 
@@ -38,10 +38,10 @@
 // class declaration
 //
 
-class BTagPATCommonHistos {
+class PatBTagCommonHistos {
    public:
-      explicit BTagPATCommonHistos(const edm::ParameterSet&);
-      ~BTagPATCommonHistos();
+      explicit PatBTagCommonHistos(const edm::ParameterSet&);
+      ~PatBTagCommonHistos();
 
       void Set(std::string);
       void Sumw2();

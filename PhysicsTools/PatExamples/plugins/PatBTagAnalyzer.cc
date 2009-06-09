@@ -16,15 +16,15 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "PhysicsTools/PatUtils/interface/bJetSelector.h"
 #include "PhysicsTools/PatExamples/interface/BTagPerformance.h"
-#include "PhysicsTools/PatExamples/interface/BTagPATCommonHistos.h"
+#include "PhysicsTools/PatExamples/interface/PatBTagCommonHistos.h"
 
 
-class BTagPATAnalyzer : public edm::EDAnalyzer {
+class PatBTagAnalyzer : public edm::EDAnalyzer {
 
 public:
 
-  explicit BTagPATAnalyzer(const edm::ParameterSet&);
-  ~BTagPATAnalyzer();
+  explicit PatBTagAnalyzer(const edm::ParameterSet&);
+  ~PatBTagAnalyzer();
     
 private:
 
@@ -65,10 +65,10 @@ private:
   std::map<std::string,TGraphErrors*> grapherrorscontainer_; 
 
   bJetSelector BTagger;
-  BTagPATCommonHistos BTagHistograms;
+  PatBTagCommonHistos BTagHistograms;
 };
 
-BTagPATAnalyzer::BTagPATAnalyzer(const edm::ParameterSet& iConfig):
+PatBTagAnalyzer::PatBTagAnalyzer(const edm::ParameterSet& iConfig):
   jetLabel_(iConfig.getUntrackedParameter<edm::InputTag>("jetTag")),
   PatBjet_(iConfig.getParameter< edm::ParameterSet >("BjetTag")),
   BTagpurity_(PatBjet_.getParameter<std::string>("purity")),
@@ -84,7 +84,7 @@ BTagPATAnalyzer::BTagPATAnalyzer(const edm::ParameterSet& iConfig):
 }
 
 
-BTagPATAnalyzer::~BTagPATAnalyzer()
+PatBTagAnalyzer::~PatBTagAnalyzer()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -94,7 +94,7 @@ BTagPATAnalyzer::~BTagPATAnalyzer()
 
 // ------------ method called to for each event  ------------
 void
-BTagPATAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+PatBTagAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
@@ -133,7 +133,7 @@ BTagPATAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 }
 // ------------ method called once each job just before starting event loop  ------------
 void 
-BTagPATAnalyzer::beginJob(const edm::EventSetup&)
+PatBTagAnalyzer::beginJob(const edm::EventSetup&)
 {
   //
   // define some histograms using the framework tfileservice. Define the output file name in your .cfg.
@@ -218,7 +218,7 @@ BTagPATAnalyzer::beginJob(const edm::EventSetup&)
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-BTagPATAnalyzer::endJob() {
+PatBTagAnalyzer::endJob() {
 //ed++
    edm::Service<TFileService> fs;
 
@@ -290,4 +290,4 @@ BTagPATAnalyzer::endJob() {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(BTagPATAnalyzer);
+DEFINE_FWK_MODULE(PatBTagAnalyzer);
