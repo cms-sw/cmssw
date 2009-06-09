@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2009/05/15 09:11:53 $ 
+ **  $Date: 2009/05/20 08:30:59 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -39,6 +39,10 @@ PhotonOfflineClient::PhotonOfflineClient(const edm::ParameterSet& pset)
   etaMin_ = pset.getParameter<double>("etaMin");
   etaMax_ = pset.getParameter<double>("etaMax");
   etaBin_ = pset.getParameter<int>("etaBin");
+  standAlone_ = pset.getParameter<bool>("standAlone");
+
+  outputFileName_ = pset.getParameter<string>("OutputFileName");
+
 
 }
 
@@ -57,13 +61,9 @@ void PhotonOfflineClient::analyze(const edm::Event& e, const edm::EventSetup& es
 
 
 void PhotonOfflineClient::endJob()
-{}
-
-
-void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup)
 {
 
-  vector<string> types;
+ vector<string> types;
   types.push_back("All");
   types.push_back("GoodCandidate");
   types.push_back("Background");
@@ -163,6 +163,20 @@ void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
       
       doProfileX( dbe_->get(currentFolder_.str()+"ecalSumVsEta2D"), dbe_->get(currentFolder_.str()+"ecalSumVsEta"));
       doProfileX( dbe_->get(currentFolder_.str()+"hcalSumVsEta2D"), dbe_->get(currentFolder_.str()+"hcalSumVsEta"));
+
+
+
+      doProfileX( dbe_->get(currentFolder_.str()+"nIsoTracksSolidVsEt2D"),dbe_->get(currentFolder_.str()+"nIsoTracksSolidVsEt"));
+      doProfileX( dbe_->get(currentFolder_.str()+"nIsoTracksHollowVsEt2D"), dbe_->get(currentFolder_.str()+"nIsoTracksHollowVsEt"));
+      
+      doProfileX( dbe_->get(currentFolder_.str()+"isoPtSumSolidVsEt2D"), dbe_->get(currentFolder_.str()+"isoPtSumSolidVsEt"));
+      doProfileX( dbe_->get(currentFolder_.str()+"isoPtSumHollowVsEt2D"), dbe_->get(currentFolder_.str()+"isoPtSumHollowVsEt"));
+      
+      doProfileX( dbe_->get(currentFolder_.str()+"ecalSumVsEt2D"), dbe_->get(currentFolder_.str()+"ecalSumVsEt"));
+      doProfileX( dbe_->get(currentFolder_.str()+"hcalSumVsEt2D"), dbe_->get(currentFolder_.str()+"hcalSumVsEt"));
+
+
+
       
       doProfileX( dbe_->get(currentFolder_.str()+"r9VsEt2D"),dbe_->get(currentFolder_.str()+"r9VsEt"));
       doProfileX( dbe_->get(currentFolder_.str()+"r9VsEta2D"),dbe_->get(currentFolder_.str()+"r9VsEta"));
@@ -184,24 +198,30 @@ void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
       
       dbe_->setCurrentFolder(currentFolder_.str());
       
-      dbe_->removeElement("nIsoTracksSolidVsEta2D");
-      dbe_->removeElement("nIsoTracksHollowVsEta2D");
-      dbe_->removeElement("isoPtSumSolidVsEta2D");
-      dbe_->removeElement("isoPtSumHollowVsEta2D");
-      dbe_->removeElement("ecalSumVsEta2D");
-      dbe_->removeElement("hcalSumVsEta2D");
-      dbe_->removeElement("r9VsEt2D");	
-      dbe_->removeElement("r9VsEta2D");
-      dbe_->removeElement("e1x5VsEt2D");	
-      dbe_->removeElement("e1x5VsEta2D");
-      dbe_->removeElement("e2x5VsEt2D");	
-      dbe_->removeElement("e2x5VsEta2D");
-      dbe_->removeElement("r1x5VsEt2D");	
-      dbe_->removeElement("r1x5VsEta2D");
-      dbe_->removeElement("r2x5VsEt2D");	
-      dbe_->removeElement("r2x5VsEta2D");	
-      dbe_->removeElement("sigmaIetaIetaVsEta2D");	
-      dbe_->removeElement("sigmaEtaEtaVsEta2D");
+//       dbe_->removeElement("nIsoTracksSolidVsEta2D");
+//       dbe_->removeElement("nIsoTracksHollowVsEta2D");
+//       dbe_->removeElement("isoPtSumSolidVsEta2D");
+//       dbe_->removeElement("isoPtSumHollowVsEta2D");
+//       dbe_->removeElement("ecalSumVsEta2D");
+//       dbe_->removeElement("hcalSumVsEta2D");
+//       dbe_->removeElement("nIsoTracksSolidVsEt2D");
+//       dbe_->removeElement("nIsoTracksHollowVsEt2D");
+//       dbe_->removeElement("isoPtSumSolidVsEt2D");
+//       dbe_->removeElement("isoPtSumHollowVsEt2D");
+//       dbe_->removeElement("ecalSumVsEt2D");
+//       dbe_->removeElement("hcalSumVsEt2D");
+//       dbe_->removeElement("r9VsEt2D");	
+//       dbe_->removeElement("r9VsEta2D");
+//       dbe_->removeElement("e1x5VsEt2D");	
+//       dbe_->removeElement("e1x5VsEta2D");
+//       dbe_->removeElement("e2x5VsEt2D");	
+//       dbe_->removeElement("e2x5VsEta2D");
+//       dbe_->removeElement("r1x5VsEt2D");	
+//       dbe_->removeElement("r1x5VsEta2D");
+//       dbe_->removeElement("r2x5VsEt2D");	
+//       dbe_->removeElement("r2x5VsEta2D");	
+//       dbe_->removeElement("sigmaIetaIetaVsEta2D");	
+//       dbe_->removeElement("sigmaEtaEtaVsEta2D");
       
       //other plots
       
@@ -210,9 +230,9 @@ void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
       doProfileX( dbe_->get(currentFolder_.str()+"tkChi2VsEta2D"),dbe_->get(currentFolder_.str()+"tkChi2VsEta"));
       doProfileX( dbe_->get(currentFolder_.str()+"dCotTracksVsEta2D"),dbe_->get(currentFolder_.str()+"dCotTracksVsEta"));
       dbe_->setCurrentFolder(currentFolder_.str());
-      dbe_->removeElement("nHitsVsEta2D");
-      dbe_->removeElement("tkChi2VsEta2D");
-      dbe_->removeElement("dCotTracksVsEta2D");
+//       dbe_->removeElement("nHitsVsEta2D");
+//       dbe_->removeElement("tkChi2VsEta2D");
+//       dbe_->removeElement("dCotTracksVsEta2D");
       
     }
     
@@ -220,6 +240,17 @@ void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
   }
   
 
+  if(standAlone_){
+    dbe_->save(outputFileName_);
+  }
+
+}
+
+
+void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup)
+{
+
+ 
 }
 
 
