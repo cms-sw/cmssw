@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/04/09 11:42:33 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/04/09 15:45:24 $
+ *  $Revision: 1.11 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -182,7 +182,7 @@ string DTLocalTriggerBaseTest::getMEName(string histoTag, string subfolder, cons
 // }
 
 
-void DTLocalTriggerBaseTest::bookSectorHistos(int wheel,int sector,string folder, string hTag) {
+void DTLocalTriggerBaseTest::bookSectorHistos(int wheel,int sector,string hTag,string folder) {
   
   stringstream wh; wh << wheel;
   stringstream sc; sc << sector;
@@ -244,24 +244,27 @@ void DTLocalTriggerBaseTest::bookSectorHistos(int wheel,int sector,string folder
   
 }
 
-void DTLocalTriggerBaseTest::bookCmsHistos( string hTag ) {
+void DTLocalTriggerBaseTest::bookCmsHistos(string hTag,string folder) {
 
   bool isDCC = hwSource == "DCC"; 
   string basedir = topFolder(isDCC);
+  if (folder != "") {
+    basedir += folder +"/" ;
+  }
   dbe->setCurrentFolder(basedir);
 
   string hname = fullName(hTag);
   LogTrace(category()) << "[" << testName << "Test]: booking " << basedir << hname;
 
 
-    MonitorElement* me = dbe->book2D(hname.c_str(),hname.c_str(),12,1,13,5,-2,3);
-    me->setAxisTitle("Sector",1);
-    me->setAxisTitle("Wheel",2);
-    cmsME[hname] = me;
+  MonitorElement* me = dbe->book2D(hname.c_str(),hname.c_str(),12,1,13,5,-2,3);
+  me->setAxisTitle("Sector",1);
+  me->setAxisTitle("Wheel",2);
+  cmsME[hname] = me;
 
 }
 
-void DTLocalTriggerBaseTest::bookWheelHistos(int wheel, string folder, string hTag) {
+void DTLocalTriggerBaseTest::bookWheelHistos(int wheel,string hTag,string folder) {
   
   stringstream wh; wh << wheel;
   string basedir;  
@@ -270,9 +273,10 @@ void DTLocalTriggerBaseTest::bookWheelHistos(int wheel, string folder, string hT
     basedir = topFolder(isDCC);   //Book summary histo outside wheel directories
   } else {
     basedir = topFolder(isDCC) + "Wheel" + wh.str() + "/" ;
-    if (folder != "") {
-      basedir += folder +"/" ;
-    }
+    
+  }
+  if (folder != "") {
+    basedir += folder +"/" ;
   }
   dbe->setCurrentFolder(basedir);
 

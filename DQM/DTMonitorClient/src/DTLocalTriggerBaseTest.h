@@ -6,8 +6,8 @@
  * *
  *  DQM Base for TriggerTests
  *
- *  $Date: 2008/11/05 11:39:46 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/04/09 15:45:24 $
+ *  $Revision: 1.5 $
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
  */
@@ -64,13 +64,13 @@ protected:
   virtual void runClientDiagnostic() = 0;
 
   /// Book the new MEs (for each sector)
-  void bookSectorHistos( int wheel, int sector, std::string folder, std::string hTag );
+  void bookSectorHistos( int wheel, int sector, std::string hTag, std::string folder="" );
 
   /// Book the new MEs (for each wheel)
-  void bookWheelHistos( int wheel, std::string folder, std::string hTag );
+  void bookWheelHistos( int wheel, std::string hTag, std::string folder="" );
 
   /// Book the new MEs (CMS summary)
-  void bookCmsHistos( std::string hTag );
+  void bookCmsHistos( std::string hTag, std::string folder="" );
 
   /// Calculate phi range for histograms
   std::pair<float,float> phiRange(const DTChamberId& id);
@@ -91,7 +91,7 @@ protected:
   std::string fullName(std::string htype);
 
   /// Get the ME name
-  std::string getMEName(std::string histoTag, std::string subfolder, const DTChamberId & chambid);
+  std::string getMEName(std::string histoTag, std::string subfolder, const DTChamberId& chambid);
 
   /// Perform begin lumiblock operations
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;

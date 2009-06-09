@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/05 11:39:46 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/04/09 15:45:24 $
+ *  $Revision: 1.7 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -82,13 +82,13 @@ void DTLocalTriggerEfficiencyTest::beginJob(const edm::EventSetup& c){
 	      bookChambHistos(chId,"TrigEffAngleTheta");
 	      bookChambHistos(chId,"TrigEffAngleHTheta");
 	    }
-	    bookSectorHistos(wh,sect,"","TrigEffPhi");  
-	    bookSectorHistos(wh,sect,"","TrigEffTheta");  
+	    bookSectorHistos(wh,sect,"TrigEffPhi");  
+	    bookSectorHistos(wh,sect,"TrigEffTheta");  
 	  }
-	  bookWheelHistos(wh,"","TrigEffPhi");  
-	  bookWheelHistos(wh,"","TrigEffHHHLPhi");  
-	  bookWheelHistos(wh,"","TrigEffTheta");  
-	  bookWheelHistos(wh,"","TrigEffHTheta");  
+	  bookWheelHistos(wh,"TrigEffPhi");  
+	  bookWheelHistos(wh,"TrigEffHHHLPhi");  
+	  bookWheelHistos(wh,"TrigEffTheta");  
+	  bookWheelHistos(wh,"TrigEffHTheta");  
 	}
       }
     }
@@ -128,11 +128,11 @@ void DTLocalTriggerEfficiencyTest::runClientDiagnostic() {
 		bookChambHistos(chId,"TrigEffAngleHHHLPhi");
 	      }
 	      if( secME[sector_id].find(fullName("TrigEffPhi")) == secME[sector_id].end() ){
-		bookSectorHistos(wh,sect,"","TrigEffPhi");  
+		bookSectorHistos(wh,sect,"TrigEffPhi");  
 	      }
 	      if( whME[wh].find(fullName("TrigEffPhi")) == whME[wh].end() ){
-		bookWheelHistos(wh,"","TrigEffPhi");  
-		bookWheelHistos(wh,"","TrigEffHHHLPhi");  
+		bookWheelHistos(wh,"TrigEffPhi");  
+		bookWheelHistos(wh,"TrigEffHHHLPhi");  
 	      }
 
 	      std::map<std::string,MonitorElement*> *innerME = &(secME[sector_id]);
@@ -170,7 +170,7 @@ void DTLocalTriggerEfficiencyTest::runClientDiagnostic() {
 	     
 	    }
 	
-	    // Perform Efficiency analysis (Theta+Segments)
+	    // Perform Efficiency analysis (Theta+Segments)  CB FIXME -> no DCC theta qual info
 	    TH2F * TrackThetaPosvsAngle            = getHisto<TH2F>(dbe->get(getMEName("TrackThetaPosvsAngle","Segment", chId)));
 	    TH2F * TrackThetaPosvsAngleandTrig     = getHisto<TH2F>(dbe->get(getMEName("TrackThetaPosvsAngleandTrig","Segment", chId)));
 	    TH2F * TrackThetaPosvsAngleandTrigH    = getHisto<TH2F>(dbe->get(getMEName("TrackThetaPosvsAngleandTrigH","Segment", chId)));
@@ -186,11 +186,11 @@ void DTLocalTriggerEfficiencyTest::runClientDiagnostic() {
 		bookChambHistos(chId,"TrigEffAngleHTheta");
 	      }
 	      if( secME[sector_id].find(fullName("TrigEffTheta")) == secME[sector_id].end() ){
-		bookSectorHistos(wh,sect,"","TrigEffTheta");  
+		bookSectorHistos(wh,sect,"TrigEffTheta");  
 	      }
 	      if( whME[wh].find(fullName("TrigEffTheta")) == whME[wh].end() ){
-		bookWheelHistos(wh,"","TrigEffTheta");  
-		bookWheelHistos(wh,"","TrigEffHTheta");  
+		bookWheelHistos(wh,"TrigEffTheta");  
+		bookWheelHistos(wh,"TrigEffHTheta");  
 	      }
 
 	      std::map<std::string,MonitorElement*> *innerME = &(secME[sector_id]);
@@ -307,59 +307,47 @@ void DTLocalTriggerEfficiencyTest::bookChambHistos(DTChamberId chambId, string h
   uint32_t indexChId = chambId.rawId();
   if (htype.find("TrigEffAnglePhi") == 0){
     chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency vs angle of incidence (Phi)",16,-40.,40.);
-    return;
   }
-  if (htype.find("TrigEffAngleHHHLPhi") == 0){
+  else if (htype.find("TrigEffAngleHHHLPhi") == 0){
     chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency (HH/HL) vs angle of incidence (Phi)",16,-40.,40.);
-    return;
   }
-  if (htype.find("TrigEffAngleTheta") == 0){
+  else if (htype.find("TrigEffAngleTheta") == 0){
     chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency vs angle of incidence (Theta)",16,-40.,40.);
-    return;
   }
-  if (htype.find("TrigEffAngleHTheta") == 0){
+  else if (htype.find("TrigEffAngleHTheta") == 0){
     chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency (H) vs angle of incidence (Theta)",16,-40.,40.);
-    return;
   }
-  if (htype.find("TrigEffPosPhi") == 0 ){
+  else if (htype.find("TrigEffPosPhi") == 0 ){
     pair<float,float> range = phiRange(chambId);
     int nbins = int((range.second - range.first)/15);
     chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency vs position (Phi)",nbins,range.first,range.second);
-    return;
   }
-  if (htype.find("TrigEffPosvsAnglePhi") == 0 ){
+  else if (htype.find("TrigEffPosvsAnglePhi") == 0 ){
     pair<float,float> range = phiRange(chambId);
     int nbins = int((range.second - range.first)/15);
     chambME[indexChId][fullType] = dbe->book2D(HistoName.c_str(),"Trigger efficiency position vs angle (Phi)",16,-40.,40.,nbins,range.first,range.second);
-    return;
   }
-  if (htype.find("TrigEffPosvsAngleHHHLPhi") == 0 ){
+  else if (htype.find("TrigEffPosvsAngleHHHLPhi") == 0 ){
     pair<float,float> range = phiRange(chambId);
     int nbins = int((range.second - range.first)/15);
     chambME[indexChId][fullType] = dbe->book2D(HistoName.c_str(),"Trigger efficiency (HH/HL) pos vs angle (Phi)",16,-40.,40.,nbins,range.first,range.second);
-    return;
   }
-  if (htype.find("TrigEffPosHHHLPhi") == 0 ){
+  else if (htype.find("TrigEffPosHHHLPhi") == 0 ){
     pair<float,float> range = phiRange(chambId);
     int nbins = int((range.second - range.first)/15);
     chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency (HH/HL) vs position (Phi)",nbins,range.first,range.second);
-    return;
   }
-  if (htype.find("TrigEffPosTheta") == 0){
+  else if (htype.find("TrigEffPosTheta") == 0){
     chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency vs position (Theta)",20,-117.5,117.5);
-    return;
   }
-  if (htype.find("TrigEffPosHTheta") == 0){
+  else if (htype.find("TrigEffPosHTheta") == 0){
     chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency (H) vs position (Theta)",20,-117.5,117.5);
-    return;
   }
-  if (htype.find("TrigEffPosvsAngleTheta") == 0 ){
+  else if (htype.find("TrigEffPosvsAngleTheta") == 0 ){
     chambME[indexChId][fullType] = dbe->book2D(HistoName.c_str(),"Trigger efficiency pos vs angle (Theta)",16,-40.,40.,20,-117.5,117.5);
-    return;
   }
-  if (htype.find("TrigEffPosvsAngleHTheta") == 0 ){
+  else if (htype.find("TrigEffPosvsAngleHTheta") == 0 ){
     chambME[indexChId][fullType] = dbe->book2D(HistoName.c_str(),"Trigger efficiency (H) pos vs angle (Theta)",16,-40.,40.,20,-117.5,117.5);
-    return;
   }
 
 }

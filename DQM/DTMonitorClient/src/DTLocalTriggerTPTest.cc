@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/05 11:49:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/04/09 15:45:24 $
+ *  $Revision: 1.2 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -66,8 +66,8 @@ void DTLocalTriggerTPTest::beginJob(const edm::EventSetup& c){
 	hwSource = (*iHw);
 	// Loop over the TriggerUnits
 	for (int wh=-2; wh<=2; ++wh){
-	  bookWheelHistos(wh,"","CorrectBXPhi");
-	  bookWheelHistos(wh,"","ResidualBXPhi");
+	  bookWheelHistos(wh,"CorrectBXPhi");
+	  bookWheelHistos(wh,"ResidualBXPhi");
 	}
       }
     }
@@ -104,8 +104,8 @@ void DTLocalTriggerTPTest::runClientDiagnostic() {
 		delete BX;
 
 		if( whME[wh].find(fullName("CorrectBXPhi")) == whME[wh].end() ){
-		  bookWheelHistos(wh,"","ResidualBXPhi");
-		  bookWheelHistos(wh,"","CorrectBXPhi");
+		  bookWheelHistos(wh,"ResidualBXPhi");
+		  bookWheelHistos(wh,"CorrectBXPhi");
 		}
 	   
 		std::map<std::string,MonitorElement*> *innerME = &(whME[wh]);

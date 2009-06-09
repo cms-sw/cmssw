@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/04/09 11:42:33 $
- *  $Revision: 1.28 $
+ *  $Date: 2009/04/09 15:45:24 $
+ *  $Revision: 1.29 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -66,21 +66,21 @@ void DTLocalTriggerTest::beginJob(const edm::EventSetup& c){
 	// Loop over the TriggerUnits
 	for (int wh=-2; wh<=2; ++wh){
 	  if (hwSource=="COM") {
-	    bookWheelHistos(wh,"","MatchingPhi");
+	    bookWheelHistos(wh,"MatchingPhi");
 	  } 
 	  else { 
 	    for (int sect=1; sect<=12; ++sect){
-	      bookSectorHistos(wh,sect,"","BXDistribPhi");
-	      bookSectorHistos(wh,sect,"","QualDistribPhi");
+	      bookSectorHistos(wh,sect,"BXDistribPhi");
+	      bookSectorHistos(wh,sect,"QualDistribPhi");
 	    }
-	    bookWheelHistos(wh,"","CorrectBXPhi");
-	    bookWheelHistos(wh,"","ResidualBXPhi");
-	    bookWheelHistos(wh,"","CorrFractionPhi");
-	    bookWheelHistos(wh,"","2ndFractionPhi");
-	    bookWheelHistos(wh,"","TriggerInclusivePhi");
+	    bookWheelHistos(wh,"CorrectBXPhi");
+	    bookWheelHistos(wh,"ResidualBXPhi");
+	    bookWheelHistos(wh,"CorrFractionPhi");
+	    bookWheelHistos(wh,"2ndFractionPhi");
+	    bookWheelHistos(wh,"TriggerInclusivePhi");
+	    bookWheelHistos(wh,"CorrectBXTheta");
 	    if (hwSource=="DDU") {
-	      bookWheelHistos(wh,"","CorrectBXTheta");
-	      bookWheelHistos(wh,"","HFractionTheta");
+	      bookWheelHistos(wh,"HFractionTheta");
 	    }
 	  }
 	}
@@ -95,15 +95,15 @@ void DTLocalTriggerTest::beginJob(const edm::EventSetup& c){
       // Loop over the TriggerUnits
       for (int wh=-2; wh<=2; ++wh){
 	if (hwSource=="COM") {
-	  bookWheelHistos(wh,"","MatchingSummary");
+	  bookWheelHistos(wh,"MatchingSummary","Matching");
 	}
 	else {
-	  bookWheelHistos(wh,"","CorrFractionSummary");
-	  bookWheelHistos(wh,"","2ndFractionSummary");
+	  bookWheelHistos(wh,"CorrFractionSummary");
+	  bookWheelHistos(wh,"2ndFractionSummary");
 	}
       }
       if (hwSource=="COM") {
-	bookCmsHistos("MatchingSummary");
+	bookCmsHistos("MatchingSummary","Matching");
       }
       else {
 	bookCmsHistos("CorrFractionSummary");
@@ -156,7 +156,7 @@ void DTLocalTriggerTest::runClientDiagnostic() {
 		  }
 		  
 		  if( whME[wh].find(fullName("MatchingPhi")) == whME[wh].end() ){
-		    bookWheelHistos(wh,"","MatchingPhi");
+		    bookWheelHistos(wh,"MatchingPhi");
 		  }
 		  
 		  whME[wh].find(fullName("MatchingPhi"))->second->setBinContent(sect,stat,corrRatio);
@@ -213,8 +213,8 @@ void DTLocalTriggerTest::runClientDiagnostic() {
 		  }
 		  
 		  if( secME[sector_id].find(fullName("BXDistribPhi")) == secME[sector_id].end() ){
-		    bookSectorHistos(wh,sect,"","QualDistribPhi");
-		    bookSectorHistos(wh,sect,"","BXDistribPhi");
+		    bookSectorHistos(wh,sect,"QualDistribPhi");
+		    bookSectorHistos(wh,sect,"BXDistribPhi");
 		  }
 
 		  TH1D* BXDistr   = BXvsQual->ProjectionY();
@@ -237,11 +237,11 @@ void DTLocalTriggerTest::runClientDiagnostic() {
 		  delete QualDistr;
 
 		  if( whME[wh].find(fullName("CorrectBXPhi")) == whME[wh].end() ){
-		    bookWheelHistos(wh,"","ResidualBXPhi");
-		    bookWheelHistos(wh,"","CorrectBXPhi");
-		    bookWheelHistos(wh,"","CorrFractionPhi");
-		    bookWheelHistos(wh,"","2ndFractionPhi");
-		    bookWheelHistos(wh,"","TriggerInclusivePhi");
+		    bookWheelHistos(wh,"ResidualBXPhi");
+		    bookWheelHistos(wh,"CorrectBXPhi");
+		    bookWheelHistos(wh,"CorrFractionPhi");
+		    bookWheelHistos(wh,"2ndFractionPhi");
+		    bookWheelHistos(wh,"TriggerInclusivePhi");
 		  }
 		  
 		  innerME = &(whME[wh]);
@@ -258,38 +258,59 @@ void DTLocalTriggerTest::runClientDiagnostic() {
 
 	      }
 
-	      // Perform DCC/DDU common plot analysis (Theta ones)	    
-	      TH2F * ThetaBXvsQual = getHisto<TH2F>(dbe->get(getMEName("ThetaBXvsQual","LocalTriggerTheta", chId)));
-	      TH1F * ThetaBestQual = getHisto<TH1F>(dbe->get(getMEName("ThetaBestQual","LocalTriggerTheta", chId)));
+	      if (hwSource=="DDU") {
+		// Perform DDU plot analysis (Theta ones)	    
+		TH2F * ThetaBXvsQual = getHisto<TH2F>(dbe->get(getMEName("ThetaBXvsQual","LocalTriggerTheta", chId)));
+		TH1F * ThetaBestQual = getHisto<TH1F>(dbe->get(getMEName("ThetaBestQual","LocalTriggerTheta", chId)));
 	
-	      // no theta triggers in stat 4!
-	      if (ThetaBXvsQual && ThetaBestQual && stat<4 && ThetaBestQual->GetEntries()>1) {
-		TH1D* BXH       = ThetaBXvsQual->ProjectionY("",4,4,"");
-		int    BXOK_bin = BXH->GetEffectiveEntries()>=1 ? BXH->GetMaximumBin(): 10;
-		double BX_OK    = ThetaBXvsQual->GetYaxis()->GetBinCenter(BXOK_bin);
-		double trigs    = ThetaBestQual->GetEntries(); 
-		double trigsH   = ThetaBestQual->GetBinContent(4);
-		delete BXH; 
+		// no theta triggers in stat 4!
+		if (ThetaBXvsQual && ThetaBestQual && stat<4 && ThetaBestQual->GetEntries()>1) {
+		  TH1D* BXH       = ThetaBXvsQual->ProjectionY("",4,4,"");
+		  int    BXOK_bin = BXH->GetEffectiveEntries()>=1 ? BXH->GetMaximumBin(): 10;
+		  double BX_OK    = ThetaBXvsQual->GetYaxis()->GetBinCenter(BXOK_bin);
+		  double trigs    = ThetaBestQual->GetEntries(); 
+		  double trigsH   = ThetaBestQual->GetBinContent(4);
+		  delete BXH; 
 		
-		// if( secME[sector_id].find(fullName("HFractionTheta")) == secME[sector_id].end() ){
-		// 		// bookSectorHistos(wh,sect,"","CorrectBXTheta");
-		// 		bookSectorHistos(wh,sect,"","HFractionTheta");
-		// 	      }
-		//std::map<std::string,MonitorElement*> *innerME = &(secME.find(sector_id)->second);
-		// innerME->find(fullName("CorrectBXTheta"))->second->setBinContent(stat,BX_OK);
-		//innerME->find(fullName("HFractionTheta"))->second->setBinContent(stat,trigsH/trigs);
+		  // if( secME[sector_id].find(fullName("HFractionTheta")) == secME[sector_id].end() ){
+		  // 		// bookSectorHistos(wh,sect,"CorrectBXTheta");
+		  // 		bookSectorHistos(wh,sect,"HFractionTheta");
+		  // 	      }
+		  //std::map<std::string,MonitorElement*> *innerME = &(secME.find(sector_id)->second);
+		  // innerME->find(fullName("CorrectBXTheta"))->second->setBinContent(stat,BX_OK);
+		  //innerME->find(fullName("HFractionTheta"))->second->setBinContent(stat,trigsH/trigs);
 		
-		if( whME[wh].find(fullName("HFractionTheta")) == whME[wh].end() ){
-		  bookWheelHistos(wh,"","CorrectBXTheta");
-		  bookWheelHistos(wh,"","HFractionTheta");
+		  if( whME[wh].find(fullName("HFractionTheta")) == whME[wh].end() ){
+		    bookWheelHistos(wh,"CorrectBXTheta");
+		    bookWheelHistos(wh,"HFractionTheta");
+		  }
+		  std::map<std::string,MonitorElement*> *innerME = &(whME.find(wh)->second);
+		  innerME->find(fullName("CorrectBXTheta"))->second->setBinContent(sect,stat,BX_OK+0.00001);
+		  innerME->find(fullName("HFractionTheta"))->second->setBinContent(sect,stat,trigsH/trigs);
+		
 		}
-		std::map<std::string,MonitorElement*> *innerME = &(whME.find(wh)->second);
-		innerME->find(fullName("CorrectBXTheta"))->second->setBinContent(sect,stat,BX_OK);
-		innerME->find(fullName("HFractionTheta"))->second->setBinContent(sect,stat,trigsH/trigs);
+	      }
+	      else if (hwSource=="DCC") {
+		// Perform DCC plot analysis (Theta ones)	    
+		TH2F * ThetaPosvsBX = getHisto<TH2F>(dbe->get(getMEName("PositionvsBX","LocalTriggerTheta", chId)));
+	      
+		// no theta triggers in stat 4!
+		if (ThetaPosvsBX && stat<4 && ThetaPosvsBX->GetEntries()>1) {
+		  TH1D* BX        = ThetaPosvsBX->ProjectionX();
+		  int    BXOK_bin = BX->GetEffectiveEntries()>=1 ? BX->GetMaximumBin(): 10;
+		  double BX_OK    = ThetaPosvsBX->GetXaxis()->GetBinCenter(BXOK_bin);
+		  delete BX; 
 		
+		  if( whME[wh].find(fullName("CorrectBXTheta")) == whME[wh].end() ){
+		    bookWheelHistos(wh,"CorrectBXTheta");
+		  }
+		  std::map<std::string,MonitorElement*> *innerME = &(whME.find(wh)->second);
+		  innerME->find(fullName("CorrectBXTheta"))->second->setBinContent(sect,stat,BX_OK+0.00001);
+		
+		}
 	      }
 	    }
-	    
+
 	  }
 	}
       }
