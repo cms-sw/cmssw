@@ -84,8 +84,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
    rdir->GetObject(collname1+"/efficPt",rh3);
    sdir->GetObject(collname2+"/efficPt",sh3);
-   rh3->GetXaxis()->SetRangeUser(0,30);
-   sh3->GetXaxis()->SetRangeUser(0,30);
+   rh3->GetXaxis()->SetRangeUser(0,300);
+   sh3->GetXaxis()->SetRangeUser(0,300);
    rh3->GetYaxis()->SetTitle("efficiency vs p_{t}");
    rh3->GetYaxis()->SetTitleSize(0.05);
    rh3->GetYaxis()->SetTitleOffset(1.2);
@@ -98,8 +98,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rh4->GetYaxis()->SetTitleOffset(1.2);
    rh4->GetYaxis()->SetRangeUser(0.,.80);
    sh4->GetYaxis()->SetRangeUser(0.,.80);
-   rh4->GetXaxis()->SetRangeUser(0.2,50);
-   sh4->GetXaxis()->SetRangeUser(0.2,50);
+   rh4->GetXaxis()->SetRangeUser(0.2,300);
+   sh4->GetXaxis()->SetRangeUser(0.2,300);
 
 
    rdir->GetObject(collname1+"/effic_vs_hit",rh5);
