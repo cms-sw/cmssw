@@ -135,20 +135,21 @@ def genObjectDef (mylist, tuple, alias, full):
 if __name__ == "__main__":
     # Setup options parser
     parser = optparse.OptionParser \
-             ("usage: %prog [options] output.txt edmFile.root fullBranchName alias\n" \
+             ("usage: %prog [options] output.txt edmFile.root goName fullBranchName alias\n" \
               "Creates control file for GenObject.")
     parser.add_option ('--tupleName', dest='tupleName', type='string',
                        default = 'reco',
                        help="Tuple name (default '%default')")
     options, args = parser.parse_args()
-    if len (args) < 4:
+    if len (args) < 5:
         print "Need to provide root file and branch name. Aborting."
         sys.exit(1)
     #
     outputFile = args[0]
     rootFile   = args[1]
-    branchName = args[2]
-    alias      = args[3]
+    goName     = args[2]
+    branchName = args[3]
+    alias      = args[4]
     ROOT.gROOT.SetBatch()
     # load the right libraries, etc.
     print "Loading autoloader"
@@ -194,8 +195,8 @@ if __name__ == "__main__":
         print "Can't find any '%s'.  Aborting." % alias
         sys.exit()
 
-    print "get muon attributes"
-    mylist = getObjectList (obj, "muon")
+    print "get %s attributes" % goName
+    mylist = getObjectList (obj, goName)
     #sys.exit()
     #pprint.pprint (mylist)
     targetFile = open (outputFile, 'w')
