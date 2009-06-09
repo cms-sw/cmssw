@@ -35,7 +35,7 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf, const HFDataFrame
 
   for (int i=0;i<digi.size();++i)
     {
-      if (digi.sample(i).adc()>maxval) // need to make pedestal subtraction at some point
+      if (digi.sample(i).adc()-3>maxval) // need to make pedestal subtraction at some point
 	{
 	  maxtime=i;
 	  maxval=digi.sample(i).adc()-3;  // assume all pedestal means are 3 ADC counts;  some day we can be more clever about pedestal subtraction
