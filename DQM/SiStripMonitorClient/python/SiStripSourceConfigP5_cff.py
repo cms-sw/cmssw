@@ -6,6 +6,7 @@ from DQM.SiStripMonitorHardware.siStripFEDMonitor_P5_cff import *
 from DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi import *
 SiStripMonitorDigi.SelectAllDetectors = True
 SiStripMonitorDigi.TProfTotalNumberOfDigis.subdetswitchon = True
+SiStripMonitorDigi.TProfDigiApvCycle.subdetswitchon = True
 
 # SiStripMonitorCluster ####
 import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
@@ -13,6 +14,7 @@ SiStripMonitorClusterReal = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.
 SiStripMonitorClusterReal.OutputMEsInRootFile = False
 SiStripMonitorClusterReal.SelectAllDetectors = True
 SiStripMonitorClusterReal.TProfTotalNumberOfClusters.subdetswitchon = True
+SiStripMonitorClusterReal.TProfClustersApvCycle.subdetswitchon = True
 
 # SiStripMonitorTrack ####
 # Clone for Cosmic Track Finder
