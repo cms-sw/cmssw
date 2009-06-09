@@ -35,7 +35,7 @@ hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
                                             'HSCP_ExpFit','ADCSaturationBit'),
                   ChannelStatus = cms.vstring('')
                 ),
-        cms.PSet( Level = cms.int32(20),
+        cms.PSet( Level = cms.int32(8),
                   RecHitFlags = cms.vstring('HBHEHpdHitMultiplicity', 'HBHEPulseShape', 'HOBit',
                                             'HFDigiTime', 'HFLongShort', 'ZDCBit', 'CalibrationBit',
                                             'TimingErrorBit'),
