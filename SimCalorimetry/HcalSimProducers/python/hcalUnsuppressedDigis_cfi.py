@@ -18,7 +18,8 @@ hcalSimBlock = cms.PSet(
     #),
     doTimeSlew = cms.bool(True),
     doHFWindow = cms.bool(True),
-    hitsProducer = cms.string('g4SimHits')
+    hitsProducer = cms.string('g4SimHits'),
+    injectTestHits = cms.bool(False)
 )
 
 

@@ -1,4 +1,5 @@
 #include "SimCalorimetry/HcalSimProducers/interface/HcalDigitizer.h"
+#include "SimCalorimetry/HcalSimProducers/src/HcalTestHitGenerator.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShape.h"
@@ -60,6 +61,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   theZDCHitFilter(),
   theHitCorrection(0),
   theNoiseGenerator(0),
+  theNoiseHitGenerator(0),
   theHBHEDigitizer(0),
   theHODigitizer(0),
   theHFDigitizer(0),
@@ -103,6 +105,14 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
     //edm::ParameterSet hpdNoisePset = ps.getParameter<edm::ParameterSet>("HPDNoiseLibrary");
     theNoiseGenerator = new HPDNoiseGenerator(ps, theParameterMap); 
     theHBHEDigitizer->setNoiseSignalGenerator(theNoiseGenerator);
+  }
+
+  if(ps.getParameter<bool>("injectTestHits") ){
+    theNoiseHitGenerator = new HcalTestHitGenerator(ps);
+    theHBHEDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
+    theHODigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
+    theHFDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
+    theZDCDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
   }
 
   edm::Service<edm::RandomNumberGenerator> rng;

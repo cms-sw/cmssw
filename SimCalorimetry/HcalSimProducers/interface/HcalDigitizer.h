@@ -82,6 +82,7 @@ private:
 
   HcalHitCorrection * theHitCorrection;
   CaloVNoiseSignalGenerator * theNoiseGenerator;
+  CaloVNoiseHitGenerator * theNoiseHitGenerator;
 
   HBHEDigitizer * theHBHEDigitizer;
   HODigitizer* theHODigitizer;
