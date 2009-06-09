@@ -64,7 +64,7 @@ void EcalFenixTcp::process(const edm::EventSetup& setup,
 			   std::vector< EcalTriggerPrimitiveSample> & tptow2,
 			   bool isInInnerRing, EcalTrigTowerDetId towid) 
 {
-  int bitMask=10;
+  int bitMask=12; // Pascal: endcap has 12 bits as in EB (bug in FENIX!!!!) {was 10 before]
   process_part1(tpframetow,nStr,bitMask);
  
   process_part2_endcap(tpframetow,nStr,bitMask,ecaltpgLutGroup_,ecaltpgLut_,ecaltpgFineGrainTowerEE_,ecaltpgBadTT_,tptow,tptow2,isInInnerRing, towid);
@@ -176,7 +176,7 @@ void EcalFenixTcp::process_part2_endcap(std::vector<std::vector<int> > & bypassl
   fgvbEE_->process(bypasslinout,nStr,bitMask,fgvb_out_);
 
   //call formatter
-  int eTTotShift=0;
+  int eTTotShift=2; // Pascal: endcap has 12 bits as in EB (bug in FENIX!!!!) so shift must be applied to just keep [11:2]
 
   this->getFormatter()->setParameters(towid.rawId(),ecaltpgLutGroup,ecaltpgLut,ecaltpgbadTT);
 

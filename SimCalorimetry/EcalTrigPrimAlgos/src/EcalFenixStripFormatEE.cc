@@ -33,8 +33,9 @@ int EcalFenixStripFormatEE::process(){
   //  int output=buffer_;
   int output=input_>>shift_;
 //barrel saturates at 12 bits, endcap at 10!
-  if(output>0X3FF) output=0X3FF; 
-  output=output|(fgvb_<<10); //FIXME
+// Pascal: finally no,endcap has 12 bits as in EB (bug in FENIX!!!!)
+  if(output>0XFFF) output=0XFFF; 
+  output=output|(fgvb_<<12); //Pascal (was 10)
 
   return output;    
 } 
