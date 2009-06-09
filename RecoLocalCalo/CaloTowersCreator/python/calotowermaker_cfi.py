@@ -100,11 +100,15 @@ calotowermaker = cms.EDFilter("CaloTowersCreator",
     # acceptable severity level
     HcalAcceptSeverityLevel = cms.uint32(9),
     EcalAcceptSeverityLevel = cms.uint32(1),
-
+       
     # use of recovered hits
     UseHcalRecoveredHits = cms.bool(True),
-    UseEcalRecoveredHits = cms.bool(True),
-
+      # The CaloTower code treats recovered cells as a separate category.
+      # The flag to use (or not use) them should be explicitly set
+      # regardless of the specified severity level in EcalAcceptSeverityLevel.                       
+    UseEcalRecoveredHits = cms.bool(False),
+                        
+                              
 
 # flag to allow/disallow missing inputs
     AllowMissingInputs = cms.bool(False)
