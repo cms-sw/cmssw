@@ -110,7 +110,6 @@ void SubsystemNeutronWriter::writeHits(int chamberType, edm::PSimHitContainer & 
   float startTime = -1000.;
   for(size_t i = 0; i < chamberHits.size(); ++i) {
     PSimHit hit = chamberHits[i];
-std::cout << hit << std::endl;
     float tof = hit.tof();
     LogDebug("SubsystemNeutronWriter") << "found hit from part type " << hit.particleType()
                    << " at tof " << tof << " p " << hit.pabs() 
@@ -128,13 +127,11 @@ std::cout << hit << std::endl;
           << " on detType " << chamberType;
       }
       // set the time to be 0 at start of event
-std::cout << "ADJUST " << startTime << std::endl;
       adjust(hit, -1.*startTime);
       cluster.push_back( hit );
-std::cout << "NEXT HIT" << std::endl;
     }
   }
-std::cout << "LOOPED OVER HITS " << theHitWriter << std::endl;
+  // get any leftover cluster
   if(!cluster.empty()) {
     writeCluster(chamberType, cluster);
   }
