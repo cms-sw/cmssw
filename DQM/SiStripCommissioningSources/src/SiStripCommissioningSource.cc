@@ -964,7 +964,7 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type, const e
 
         // define the view in which to work and paths for histograms
         //   currently FecView (control view) and FedView (readout view)
-        //   planned DetView (detector view)
+        //   DetView (detector view) implementation has started
         std::stringstream dir;
         if (view_ == "FecView") { // default
           // Create FEC key
@@ -977,12 +977,21 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type, const e
           dir << base_;
           if ( run_type == sistrip::FAST_CABLING ) { dir << fed_key.path(); }
           else { dir << fec_key.path(); }
-          dqm()->setCurrentFolder( dir.str() );
         } else if (view_ == "FedView") {
           // Set working directory prior to booking histograms 
           dir << base_ << fed_key.path();
-          dqm()->setCurrentFolder( dir.str() );
+        } else if (view_ == "DetView") {
+          // currently just by detid from the connection, which is empty...
+          dir << sistrip::root_ << sistrip::dir_
+              << sistrip::detectorView_ << sistrip::dir_
+              << iconn->detId();
+        } else {
+          edm::LogWarning(mlDqmSource_)
+            << "[SiStripCommissioningSource::" << __func__ << "]"
+            << " Invalid view " << view_ << std::endl
+            << " Histograms will end up all in the top directory.";
         } // end if view_ == ...
+        dqm()->setCurrentFolder( dir.str() );
 
         // Create commissioning task objects
         if ( !tasks_[iconn->fedId()][iconn->fedCh()] ) { 
