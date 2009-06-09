@@ -8,8 +8,8 @@
 
 /** \class HcalTriggerPrimitiveDigi
     
-$Date: 2006/07/17 16:51:59 $
-$Revision: 1.8 $
+$Date: 2009/02/10 15:46:37 $
+$Revision: 1.9 $
 \author J. Mans - Minnesota
 */
 class HcalTriggerPrimitiveDigi {
@@ -34,7 +34,7 @@ public:
   const HcalTriggerPrimitiveSample& sample(int i) const { return data_[i]; }
 
   /// Full "Sample of Interest"
-  const HcalTriggerPrimitiveSample& t0() const { return data_[hcalPresamples_]; }  
+  const HcalTriggerPrimitiveSample& t0() const { return data_[presamples()]; }  
   /// Fine-grain bit for the "Sample of Interest"
   bool SOI_fineGrain() const { return t0().fineGrain(); }
   /// Compressed ET for the "Sample of Interest"
