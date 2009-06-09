@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.36 2009/03/09 16:17:19 jserrano Exp $
+# $Id: setup_sm.sh,v 1.37 2009/05/12 07:58:25 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -77,7 +77,7 @@ startcopyworker () {
     fi
     
     su - cmsprod -c "$t0control stop" >/dev/null 2>&1
-    su - cmsprod -c "NCOPYWORKER=2 $t0control start"
+    su - cmsprod -c "NCOPYWORKER=4 $t0control start"
 }
 
 startinjectworker () {
@@ -319,6 +319,18 @@ case "$1" in
 	RETVAL=$?
 	;;
     status)
+	status
+	RETVAL=$?
+	;;
+    startall)
+	start
+	RETVAL=$?
+	;;
+    stopall)
+	stop
+	RETVAL=$?
+	;;
+    statusall)
 	status
 	RETVAL=$?
 	;;
