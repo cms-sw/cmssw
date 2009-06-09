@@ -30,6 +30,8 @@
 #include <time.h>
 
 #include <TF1.h>
+#include <TH2F.h>
+#include <TFile.h>
 #include <iomanip>
 #include <fstream>
 
@@ -186,6 +188,38 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   evtSetup.get< EcalMappingRcd >().get(ecalmapping);
   theMapping_ = ecalmapping.product();
 
+  
+  // histo
+  TFile saving ("EcalTPGParam.root","recreate") ;
+  saving.cd () ;
+  TH2F * ICEB = new TH2F("ICEB", "IC: Barrel", 360, 1, 361, 172, -86, 86) ;
+  ICEB->GetYaxis()->SetTitle("eta index") ;
+  ICEB->GetXaxis()->SetTitle("phi index") ;  
+  TH2F * tpgFactorEB = new TH2F("tpgFactorEB", "tpgFactor: Barrel", 360, 1, 361, 172, -86, 86) ;
+  tpgFactorEB->GetYaxis()->SetTitle("eta index") ;
+  tpgFactorEB->GetXaxis()->SetTitle("phi index") ;  
+
+  TH2F * ICEEPlus = new TH2F("ICEEPlus", "IC: Plus Endcap", 120, -9, 111, 120, -9, 111) ;
+  ICEEPlus->GetYaxis()->SetTitle("y index") ;
+  ICEEPlus->GetXaxis()->SetTitle("x index") ;
+  TH2F * tpgFactorEEPlus = new TH2F("tpgFactorEEPlus", "tpgFactor: Plus Endcap", 120, -9, 111, 120, -9, 111) ;
+  tpgFactorEEPlus->GetYaxis()->SetTitle("y index") ;
+  tpgFactorEEPlus->GetXaxis()->SetTitle("x index") ;
+  TH2F * ICEEMinus = new TH2F("ICEEMinus", "IC: Minus Endcap", 120, -9, 111, 120, -9, 111) ;
+  ICEEMinus->GetYaxis()->SetTitle("y index") ;
+  ICEEMinus->GetXaxis()->SetTitle("x index") ;
+  TH2F * tpgFactorEEMinus = new TH2F("tpgFactorEEMinus", "tpgFactor: Minus Endcap", 120, -9, 111, 120, -9, 111) ;
+  tpgFactorEEMinus->GetYaxis()->SetTitle("y index") ;
+  tpgFactorEEMinus->GetXaxis()->SetTitle("x index") ;
+
+  TH2F * IC = new TH2F("IC", "IC", 720, -acos(-1.), acos(-1.), 600, -3., 3.) ;
+  IC->GetYaxis()->SetTitle("eta") ;
+  IC->GetXaxis()->SetTitle("phi") ;  
+  TH2F * tpgFactor = new TH2F("tpgFactor", "tpgFactor", 720, -acos(-1.), acos(-1.), 600, -3., 3.) ;
+  tpgFactor->GetYaxis()->SetTitle("eta") ;
+  tpgFactor->GetXaxis()->SetTitle("phi") ;  
+
+
 
   ////////////////////////////
   // Initialization section //
@@ -198,15 +232,13 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
 
   std::cout <<"we get the pedestals from offline DB"<<endl;
-
   // Pedestals
   ESHandle<EcalPedestals> pedHandle;
   evtSetup.get<EcalPedestalsRcd>().get( pedHandle );
   const EcalPedestalsMap & pedMap = pedHandle.product()->getMap() ;
 
-   
-
   // we copy the last valid record to a temporary object peds
+  // PASCAL: only in EB ?????
   EcalPedestals* peds = new EcalPedestals();
   for(int iEta=-EBDetId::MAX_IETA; iEta<=EBDetId::MAX_IETA ;++iEta) {
     if(iEta==0) continue;
@@ -215,9 +247,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       if (EBDetId::validDetId(iEta,iPhi))
 	{
 	  EBDetId ebdetid(iEta,iPhi);
-
 	  EcalPedestals::Item aped= *(pedMap.find(ebdetid));
-
 	  // here I copy the last valid value in the peds object
 	  EcalPedestals::Item item;
 	  item.mean_x1  = aped.mean_x1;
@@ -226,53 +256,10 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	  item.rms_x6   = aped.rms_x6;
 	  item.mean_x12 = aped.mean_x12;
 	  item.rms_x12  = aped.rms_x12;
-
 	  peds->insert(std::make_pair(ebdetid.rawId(),item));
 	}
     }
   }
-
-// I comment this one 
-// because the best pedestals are already in the offline DB
- 
-/*  
-std::cout <<"we get the pedestals from online DB"<<endl;
-  map<EcalLogicID, MonPedestalsDat> pedMapDB ;
-  int iovId = 0 ;
-  std::cout << "DB RUN NB="<< DBrunNb_<< endl;
-
-  if (readFromDB_) {
-    iovId = db_->readFromCondDB_Pedestals(pedMapDB, DBrunNb_) ;
-
-    typedef map<EcalLogicID, MonPedestalsDat>::const_iterator CImon;
-    EcalLogicID ecid_xt;
-    MonPedestalsDat  rd_ped;
-          
-    for (CImon p = pedMapDB.begin(); p != pedMapDB.end(); p++) {
-      ecid_xt = p->first;
-      rd_ped  = p->second;
-      int sm_num=ecid_xt.getID1();
-      int xt_num=ecid_xt.getID2(); 
-      
-      EcalPedestals::Item item;
-      item.mean_x1  =rd_ped.getPedMeanG1() ;
-      item.rms_x1   =rd_ped.getPedRMSG1();
-      item.mean_x6  =rd_ped.getPedMeanG6();
-      item.rms_x6   =rd_ped.getPedRMSG6() ;
-      item.mean_x12 =rd_ped.getPedMeanG12();
-      item.rms_x12  =rd_ped.getPedRMSG12();
-      
-      EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);
-      // here we change in the peds object only the values that are available in the online DB 
-      // otherwise we keep the old value
-      if(checkIfOK(item)) peds->insert(std::make_pair(ebdetid.rawId(),item));
-    }
-  }
-  // now peds is complete 
-
-  */
-
-
   const EcalPedestalsMap & pedMapNew = peds->getMap() ;
 
 
@@ -427,8 +414,8 @@ std::cout <<"we get the pedestals from online DB"<<endl;
     int xtalWithinCCUid = 5*(VFEid-1) + xtalInVFE ;
     int etaSlice = towid.ietaAbs() ;
 
-    FEConfigPedDat ped ;
-    FEConfigLinDat lin ;
+    FEConfigPedDat pedDB ;
+    FEConfigLinDat linDB ;
     if (writeToFiles_) (*out_file_)<<"CRYSTAL "<<dec<<id.rawId()<<std::endl ;
     //  if (writeToDB_) logicId = db_->getEcalLogicID ("EB_crystal_number", id.ism(), id.ic()) ;
 
@@ -436,24 +423,35 @@ std::cout <<"we get the pedestals from online DB"<<endl;
     getCoeff(coeff, calibMap, id.rawId()) ;
     getCoeff(coeff, gainMap, id.rawId()) ;
     getCoeff(coeff, pedMapNew, id.rawId()) ;
+    ICEB->Fill(id.iphi(), id.ieta(), coeff.calibCoeff_) ;  
+    IC->Fill(theBarrelGeometry_->getGeometry(id)->getPosition().phi(), theBarrelGeometry_->getGeometry(id)->getPosition().eta(), coeff.calibCoeff_) ;  
+
+    vector<int> xtalCCU ;
+    xtalCCU.push_back(dccNb+600) ; 
+    xtalCCU.push_back(CCUid) ; 
+    xtalCCU.push_back(xtalWithinCCUid) ;
     
     // compute and fill linearization parameters
-
     // case of eta slice
     if (forceEtaSlice_) {
       map<int, linStruc>::const_iterator itLin = linEtaSlice.find(etaSlice);
       if (itLin != linEtaSlice.end()) {
+	linMap[xtalCCU] = itLin->second ;
 	if (writeToFiles_) {
 	  for (int i=0 ; i<3 ; i++) 
 	    (*out_file_) << hex <<" 0x"<<itLin->second.pedestal_[i]<<" 0x"<<itLin->second.mult_[i]<<" 0x"<<itLin->second.shift_[i]<<std::endl;
 	}
 	if (writeToDB_) {
 	  for (int i=0 ; i<3 ; i++) {
-	    if (i==0)  {ped.setPedMeanG12(itLin->second.pedestal_[i]) ; lin.setMultX12(itLin->second.mult_[i]) ; lin.setShift12(itLin->second.shift_[i]) ; } 
-	    if (i==1)  {ped.setPedMeanG6(itLin->second.pedestal_[i]) ; lin.setMultX6(itLin->second.mult_[i]) ; lin.setShift6(itLin->second.shift_[i]) ; } 
-	    if (i==2)  {ped.setPedMeanG1(itLin->second.pedestal_[i]) ; lin.setMultX1(itLin->second.mult_[i]) ; lin.setShift1(itLin->second.shift_[i]) ; } 
+	    if (i==0)  {pedDB.setPedMeanG12(itLin->second.pedestal_[i]) ; linDB.setMultX12(itLin->second.mult_[i]) ; linDB.setShift12(itLin->second.shift_[i]) ; } 
+	    if (i==1)  {pedDB.setPedMeanG6(itLin->second.pedestal_[i]) ; linDB.setMultX6(itLin->second.mult_[i]) ; linDB.setShift6(itLin->second.shift_[i]) ; } 
+	    if (i==2)  {pedDB.setPedMeanG1(itLin->second.pedestal_[i]) ; linDB.setMultX1(itLin->second.mult_[i]) ; linDB.setShift1(itLin->second.shift_[i]) ; } 
 	  }
 	}
+	float factor = float(itLin->second.mult_[0])*pow(2.,-itLin->second.shift_[0])/xtal_LSB_EB_ ;
+	tpgFactorEB->Fill(id.iphi(), id.ieta(), factor) ;
+	tpgFactor->Fill(theBarrelGeometry_->getGeometry(id)->getPosition().phi(), 
+			theBarrelGeometry_->getGeometry(id)->getPosition().eta(), factor) ;
       }
       else std::cout<<"current EtaSlice = "<<etaSlice<<" not found in the EtaSlice map"<<std::endl ;
     }
@@ -466,9 +464,21 @@ std::cout <<"we get the pedestals from online DB"<<endl;
 	else {
 	  if (writeToFiles_) (*out_file_) << hex <<" 0x"<<coeff.pedestals_[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
 	  if (writeToDB_) {
-	    if (i==0)  {ped.setPedMeanG12(coeff.pedestals_[i]) ; lin.setMultX12(mult) ; lin.setShift12(shift) ; } 
-	    if (i==1)  {ped.setPedMeanG6(coeff.pedestals_[i]) ; lin.setMultX6(mult) ; lin.setShift6(shift) ; } 
-	    if (i==2)  {ped.setPedMeanG1(coeff.pedestals_[i]) ; lin.setMultX1(mult) ; lin.setShift1(shift) ; }
+	    if (i==0)  {pedDB.setPedMeanG12(coeff.pedestals_[i]) ; linDB.setMultX12(mult) ; linDB.setShift12(shift) ; } 
+	    if (i==1)  {pedDB.setPedMeanG6(coeff.pedestals_[i]) ; linDB.setMultX6(mult) ; linDB.setShift6(shift) ; } 
+	    if (i==2)  {pedDB.setPedMeanG1(coeff.pedestals_[i]) ; linDB.setMultX1(mult) ; linDB.setShift1(shift) ; }
+	  }
+	  linStruc lin ;
+	  lin.pedestal_[i] = coeff.pedestals_[i] ;
+	  lin.mult_[i] = mult ;
+	  lin.shift_[i] = shift ;
+	  linMap[xtalCCU] = lin ;
+	  if (i==0) {
+	    float factor = float(mult)*pow(2.,-shift)/xtal_LSB_EB_ ;
+	    tpgFactorEB->Fill(id.iphi(), id.ieta(), factor) ;
+	    tpgFactor->Fill(theBarrelGeometry_->getGeometry(id)->getPosition().phi(), 
+			    theBarrelGeometry_->getGeometry(id)->getPosition().eta(), factor) ;
+			    
 	  }
 	}
       }
@@ -476,8 +486,8 @@ std::cout <<"we get the pedestals from online DB"<<endl;
     if (writeToDB_) {
       int ixtal=(id.ism()-1)*1700+(id.ic()-1);
       EcalLogicID logicId =my_EcalLogicId[ixtal];
-      pedset[logicId] = ped ;
-      linset[logicId] = lin ;	
+      pedset[logicId] = pedDB ;
+      linset[logicId] = linDB ;	
     }
   } //ebCells
 
@@ -525,7 +535,7 @@ std::cout <<"we get the pedestals from online DB"<<endl;
       coeffStruc coeff ;
       getCoeff(coeff, calibMap, id.rawId()) ;
       getCoeff(coeff, gainMap, id.rawId()) ;
-      getCoeff(coeff, pedMapNew, id.rawId()) ;
+      getCoeff(coeff, pedMap, id.rawId()) ;
       linStruc lin ;
       for (int i=0 ; i<3 ; i++) {
 	int mult, shift ;
@@ -535,7 +545,6 @@ std::cout <<"we get the pedestals from online DB"<<endl;
 	  lin.pedestal_[i] = coeff.pedestals_[i] ;
 	  lin.mult_[i] = mult ;
 	  lin.shift_[i] = shift ;
-	  std::cout<<i<<" "<<lin.pedestal_[i]<<" "<<lin.mult_[i]<<" "<<lin.shift_[i]<<std::endl ;
 	}
       }
       linEtaSlice[etaSlice] = lin ;
@@ -569,8 +578,8 @@ std::cout <<"we get the pedestals from online DB"<<endl;
     int etaSlice = towid.ietaAbs() ;
 
     EcalLogicID logicId ;
-    FEConfigPedDat ped ;
-    FEConfigLinDat lin ;
+    FEConfigPedDat pedDB ;
+    FEConfigLinDat linDB ;
     if (writeToFiles_) (*out_file_)<<"CRYSTAL "<<dec<<id.rawId()<<std::endl ;
     if (writeToDB_ && DBEE_) {
       int iz = id.positiveZ() ;
@@ -582,30 +591,37 @@ std::cout <<"we get the pedestals from online DB"<<endl;
     getCoeff(coeff, calibMap, id.rawId()) ;
     getCoeff(coeff, gainMap, id.rawId()) ;
     getCoeff(coeff, pedMap, id.rawId()) ;
+    if (id.zside()>0) ICEEPlus->Fill(id.ix(), id.iy(), coeff.calibCoeff_) ;  
+    else ICEEMinus->Fill(id.ix(), id.iy(), coeff.calibCoeff_) ;  
+    IC->Fill(theEndcapGeometry_->getGeometry(id)->getPosition().phi(), theEndcapGeometry_->getGeometry(id)->getPosition().eta(), coeff.calibCoeff_) ;  
   
-    // compute and fill linearization parameters
+    vector<int> xtalCCU ;
+    xtalCCU.push_back(dccNb+600) ; 
+    xtalCCU.push_back(CCUid) ; 
+    xtalCCU.push_back(xtalWithinCCUid) ;
 
+    // compute and fill linearization parameters
     // case of eta slice
     if (forceEtaSlice_) {
       map<int, linStruc>::const_iterator itLin = linEtaSlice.find(etaSlice);
       if (itLin != linEtaSlice.end()) {
+	linMap[xtalCCU] = itLin->second ;
 	if (writeToFiles_) {
 	  for (int i=0 ; i<3 ; i++) 
 	    (*out_file_) << hex <<" 0x"<<itLin->second.pedestal_[i]<<" 0x"<<itLin->second.mult_[i]<<" 0x"<<itLin->second.shift_[i]<<std::endl;
-
-	  vector<int> xtalCCU ;
-	  xtalCCU.push_back(dccNb+600) ; 
-	  xtalCCU.push_back(CCUid) ; 
-	  xtalCCU.push_back(xtalWithinCCUid) ;
-	  linMap[xtalCCU] = itLin->second ;
 	}
 	if (writeToDB_ && DBEE_) {
 	  for (int i=0 ; i<3 ; i++) {
-	    if (i==0)  {ped.setPedMeanG12(itLin->second.pedestal_[i]) ; lin.setMultX12(itLin->second.mult_[i]) ; lin.setShift12(itLin->second.shift_[i]) ; } 
-	    if (i==1)  {ped.setPedMeanG6(itLin->second.pedestal_[i]) ; lin.setMultX6(itLin->second.mult_[i]) ; lin.setShift6(itLin->second.shift_[i]) ; } 
-	    if (i==2)  {ped.setPedMeanG1(itLin->second.pedestal_[i]) ; lin.setMultX1(itLin->second.mult_[i]) ; lin.setShift1(itLin->second.shift_[i]) ; } 
+	    if (i==0)  {pedDB.setPedMeanG12(itLin->second.pedestal_[i]) ; linDB.setMultX12(itLin->second.mult_[i]) ; linDB.setShift12(itLin->second.shift_[i]) ; } 
+	    if (i==1)  {pedDB.setPedMeanG6(itLin->second.pedestal_[i]) ; linDB.setMultX6(itLin->second.mult_[i]) ; linDB.setShift6(itLin->second.shift_[i]) ; } 
+	    if (i==2)  {pedDB.setPedMeanG1(itLin->second.pedestal_[i]) ; linDB.setMultX1(itLin->second.mult_[i]) ; linDB.setShift1(itLin->second.shift_[i]) ; } 
 	  }
 	}
+	float factor = float(itLin->second.mult_[0])*pow(2.,-itLin->second.shift_[0])/xtal_LSB_EE_ ;
+	if (id.zside()>0) tpgFactorEEPlus->Fill(id.ix(), id.iy(), factor) ;
+	else tpgFactorEEMinus->Fill(id.ix(), id.iy(), factor) ;
+	tpgFactor->Fill(theEndcapGeometry_->getGeometry(id)->getPosition().phi(), 
+			theEndcapGeometry_->getGeometry(id)->getPosition().eta(), factor) ;
       }
       else std::cout<<"current EtaSlice = "<<etaSlice<<" not found in the EtaSlice map"<<std::endl ;      
     }
@@ -618,31 +634,30 @@ std::cout <<"we get the pedestals from online DB"<<endl;
 	else {
 	  if (writeToFiles_) (*out_file_) << hex <<" 0x"<<coeff.pedestals_[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
 	  if (writeToDB_ && DBEE_) {
-	    if (i==0)  {ped.setPedMeanG12(coeff.pedestals_[i]) ; lin.setMultX12(mult) ; lin.setShift12(shift) ; } 
-	    if (i==1)  {ped.setPedMeanG6(coeff.pedestals_[i]) ; lin.setMultX6(mult) ; lin.setShift6(shift) ; } 
-	    if (i==2)  {ped.setPedMeanG1(coeff.pedestals_[i]) ; lin.setMultX1(mult) ; lin.setShift1(shift) ; } 
-	  }	
+	    if (i==0)  {pedDB.setPedMeanG12(coeff.pedestals_[i]) ; linDB.setMultX12(mult) ; linDB.setShift12(shift) ; } 
+	    if (i==1)  {pedDB.setPedMeanG6(coeff.pedestals_[i]) ; linDB.setMultX6(mult) ; linDB.setShift6(shift) ; } 
+	    if (i==2)  {pedDB.setPedMeanG1(coeff.pedestals_[i]) ; linDB.setMultX1(mult) ; linDB.setShift1(shift) ; } 
+	  }
+	  linStruc lin ;
+	  lin.pedestal_[i] = coeff.pedestals_[i] ;
+	  lin.mult_[i] = mult ;
+	  lin.shift_[i] = shift ;
+	  linMap[xtalCCU] = lin ;
+	  if (i==0) {
+	    float factor = float(mult)*pow(2.,-shift)/xtal_LSB_EE_ ;
+	    if (id.zside()>0) tpgFactorEEPlus->Fill(id.ix(), id.iy(), factor) ;
+	    else tpgFactorEEMinus->Fill(id.ix(), id.iy(), factor) ;	    
+	    tpgFactor->Fill(theEndcapGeometry_->getGeometry(id)->getPosition().phi(), 
+			    theEndcapGeometry_->getGeometry(id)->getPosition().eta(), factor) ;				    
+	  }
 	}
       }
       if (writeToDB_ && DBEE_) {
-	pedset[logicId] = ped ;
-	linset[logicId] = lin ;
+	pedset[logicId] = pedDB ;
+	linset[logicId] = linDB ;
       }
     }
   } //eeCells
-
-  std::cout<<std::endl ;
-  std::cout<<"debugging etaslice:"<<std::endl ; 
-  map<int, linStruc>::const_iterator itLin = linEtaSlice.begin() ;
-  while (itLin != linEtaSlice.end())
-    {
-      float lsb = xtal_LSB_EE_ ;
-      if (itLin->first<18) lsb = xtal_LSB_EB_ ;  
-      std::cout<<dec<<itLin->first<<" "<< hex <<" 0x"<<itLin->second.mult_[0]<<" 0x"<<itLin->second.shift_[0]<<" "<<
-	float(itLin->second.mult_[0])*pow(2., -itLin->second.shift_[0])/lsb<<std::endl;
-      itLin++ ;
-    }
-
 
   if (writeToDB_ ) {
     // EcalLogicID  of the whole barrel is: my_EcalLogicId_EB
@@ -655,9 +670,6 @@ std::cout <<"we get the pedestals from online DB"<<endl;
     linparamset[my_EcalLogicId_EE] = linparam ;
   }
 
-  std::cout<< "we are in analyze 2"<< endl; 
-
-
   if (writeToDB_) {
     ped_conf_id_=db_->writeToConfDB_TPGPedestals(pedset, 1, "from_OfflineDB") ;
     lin_conf_id_=db_->writeToConfDB_TPGLinearCoef(linset,linparamset, 1, "from_CondDB") ;
@@ -666,8 +678,8 @@ std::cout <<"we get the pedestals from online DB"<<endl;
   /////////////////////
   // Evgueni interface
   ////////////////////
-  std::ofstream evgueni("EE_hardcoded.hh", std::ios::out) ;  
-  evgueni<<"void getLinParamEE_hardcoded(int fed, int ccu, int xtal,"<<endl ;
+  std::ofstream evgueni("TPG_hardcoded.hh", std::ios::out) ;  
+  evgueni<<"void getLinParamTPG_hardcoded(int fed, int ccu, int xtal,"<<endl ;
   evgueni<<"                        int & mult12, int & shift12,"<<endl ;
   evgueni<<"                        int & mult6, int & shift6,"<<endl ;
   evgueni<<"                        int & mult1, int & shift1)"<<endl ;
@@ -683,6 +695,7 @@ std::cout <<"we get the pedestals from online DB"<<endl;
   }
   evgueni<<"}" <<endl ;
   evgueni.close() ;
+
 
   /////////////////////////////
   // Compute weights section //
@@ -958,7 +971,7 @@ std::cout <<"we get the pedestals from online DB"<<endl;
   // Barrel
   stripListEB.sort() ;
   stripListEB.unique() ;
-  cout<<"Number of EB strips="<<stripListEB.size()<<endl ;
+  cout<<"Number of EB strips="<<dec<<stripListEB.size()<<endl ;
   if (writeToFiles_) {
     (*out_file_) <<std::endl ;
     for (itList = stripListEB.begin(); itList != stripListEB.end(); itList++ ) {
@@ -971,7 +984,7 @@ std::cout <<"we get the pedestals from online DB"<<endl;
   // Endcap
   stripListEE.sort() ;
   stripListEE.unique() ;
-  cout<<"Number of EE strips="<<stripListEE.size()<<endl ;
+  cout<<"Number of EE strips="<<dec<<stripListEE.size()<<endl ;
   if (writeToFiles_) {
     (*out_file_) <<std::endl ;
     for (itList = stripListEE.begin(); itList != stripListEE.end(); itList++ ) {
@@ -990,7 +1003,7 @@ std::cout <<"we get the pedestals from online DB"<<endl;
   // Barrel
   towerListEB.sort() ;
   towerListEB.unique() ;
-  cout<<"Number of EB towers="<<towerListEB.size()<<endl ;
+  cout<<"Number of EB towers="<<dec<<towerListEB.size()<<endl ;
   if (writeToFiles_) {
     (*out_file_) <<std::endl ;
     (*geomFile_)<<"BARREL"<<endl ;
@@ -1009,7 +1022,7 @@ std::cout <<"we get the pedestals from online DB"<<endl;
   // Endcap
   towerListEE.sort() ;
   towerListEE.unique() ;
-  cout<<"Number of EE towers="<<towerListEE.size()<<endl ;
+  cout<<"Number of EE towers="<<dec<<towerListEE.size()<<endl ;
   if (writeToFiles_) {
     (*out_file_) <<std::endl ;
     (*geomFile_)<<"ENDCAP"<<endl ;
@@ -1028,6 +1041,20 @@ std::cout <<"we get the pedestals from online DB"<<endl;
       //(*geomFile2_)<<hashedIndex<<" "<<towerId.ix()<<" "<<towerId.iy()<<endl ;
     }
   }
+
+
+  //////////////////////////
+  // store control histos //
+  //////////////////////////
+  ICEB->Write() ;
+  tpgFactorEB->Write() ;
+  ICEEPlus->Write() ;
+  tpgFactorEEPlus->Write() ;  
+  ICEEMinus->Write() ;
+  tpgFactorEEMinus->Write() ;
+  IC->Write() ;
+  tpgFactor->Write() ;
+  saving.Close () ;
 
 }
 

@@ -86,7 +86,7 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
 
     LUT_option = cms.string('Linear'),      ## compressed LUT option can be: "Identity", "Linear", "EcalResolution"
     LUT_threshold_EB = cms.double(0.750),   ## All Trigger Primitives <= threshold (in GeV) will be set to 0 
-    LUT_threshold_EE = cms.double(0.750),   ## All Trigger Primitives <= threshold (in GeV) will be set to 0 
+    LUT_threshold_EE = cms.double(1.0625),  ## All Trigger Primitives <= threshold (in GeV) will be set to 0 
     LUT_stochastic_EB = cms.double(0.03),   ## Stochastic term of the ECAL-EB ET resolution (used only if LUT_option="EcalResolution")
     LUT_noise_EB = cms.double(0.2),         ## noise term (GeV) of the ECAL-EB ET resolution (used only if LUT_option="EcalResolution")
     LUT_constant_EB = cms.double(0.005),    ## constant term of the ECAL-EB ET resolution (used only if LUT_option="EcalResolution")
@@ -94,10 +94,10 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
     LUT_noise_EE = cms.double(0.2),         ## noise term (GeV) of the ECAL-EE ET resolution (used only if LUT_option="EcalResolution")
     LUT_constant_EE = cms.double(0.005),    ## constant term of the ECAL-EE ET resolution (used only if LUT_option="EcalResolution")
 
-    TTF_lowThreshold_EB = cms.double(0.6875),  ## EB Trigger Tower Flag low threshold in GeV
-    TTF_highThreshold_EB = cms.double(0.6875), ## EB Trigger Tower Flag high threshold in GeV
-    TTF_lowThreshold_EE = cms.double(0.6875),  ## EE Trigger Tower Flag low threshold in GeV
-    TTF_highThreshold_EE = cms.double(0.6875), ## EE Trigger Tower Flag high threshold in GeV
+    TTF_lowThreshold_EB = cms.double(0.250),   ## EB Trigger Tower Flag low threshold in GeV
+    TTF_highThreshold_EB = cms.double(0.250),  ## EB Trigger Tower Flag high threshold in GeV
+    TTF_lowThreshold_EE = cms.double(1.0625),  ## EE Trigger Tower Flag low threshold in GeV
+    TTF_highThreshold_EE = cms.double(1.0625), ## EE Trigger Tower Flag high threshold in GeV
 
     FG_lowThreshold_EB = cms.double(0.3125),   ## EB Fine Grain Et low threshold in GeV
     FG_highThreshold_EB = cms.double(0.3125),  ## EB Fine Grain Et high threshold in GeV
