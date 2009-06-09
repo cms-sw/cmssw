@@ -40,7 +40,7 @@ bool CSCNeutronWriter::accept(const edm::PSimHitContainer & cluster) const
 {
   return true;
   // if you want to require at least two layers, to satisfy pretrigger
-  if(cluster.size() < 2) 
+  if(cluster.size() > 1) 
   {
     unsigned int firstHitDetUnitId = cluster[0].detUnitId();
     for(edm::PSimHitContainer::const_iterator hitItr = cluster.begin()+1;
