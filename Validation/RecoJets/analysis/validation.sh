@@ -78,6 +78,8 @@ fi
 
 if [ -d $title ]; then
     cp html/index.html $title
+    cp $new       $title/new.root
+    cp $reference $title/ref.root
 else
     echo ".html files not copied!"
 fi
