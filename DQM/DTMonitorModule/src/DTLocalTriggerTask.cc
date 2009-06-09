@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerTask.cc
  * 
- * $Date: 2008/11/18 17:45:31 $
- * $Revision: 1.31 $
+ * $Date: 2009/04/09 15:44:49 $
+ * $Revision: 1.32 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -129,12 +129,12 @@ void DTLocalTriggerTask::beginJob(const edm::EventSetup& context){
 		bookHistos(dtChId,"LocalTriggerPhi","DCC_Flag1stvsQual"+(*trigSrcIt));
 		bookHistos(dtChId,"LocalTriggerPhi","DCC_BestQual"+(*trigSrcIt));
 		if (stat!=4 && doDCCTheta){                                                   // theta view
-		  if (detailedAnalysis) {
-		    bookHistos(dtChId,"LocalTriggerTheta","DCC_PositionvsBX"+(*trigSrcIt));
-		    bookHistos(dtChId,"LocalTriggerTheta","DCC_PositionvsQual"+(*trigSrcIt));
-		  }
-		  bookHistos(dtChId,"LocalTriggerTheta","DCC_ThetaBXvsQual"+(*trigSrcIt));
-		  bookHistos(dtChId,"LocalTriggerTheta","DCC_ThetaBestQual"+(*trigSrcIt));
+		  bookHistos(dtChId,"LocalTriggerTheta","DCC_PositionvsBX"+(*trigSrcIt));     // DCC theta qual info not available
+// 		  if (detailedAnalysis) {
+// 		    bookHistos(dtChId,"LocalTriggerTheta","DCC_PositionvsQual"+(*trigSrcIt));
+// 		  }
+// 		  bookHistos(dtChId,"LocalTriggerTheta","DCC_ThetaBXvsQual"+(*trigSrcIt));
+// 		  bookHistos(dtChId,"LocalTriggerTheta","DCC_ThetaBestQual"+(*trigSrcIt));
 		}
 	      
 		if (parameters.getUntrackedParameter<bool>("process_seg", true)){ // DCC + Segemnt
@@ -149,7 +149,7 @@ void DTLocalTriggerTask::beginJob(const edm::EventSetup& context){
 		  if(stat!=4){
 		    bookHistos(dtChId,"Segment","DCC_TrackThetaPosvsAngle"+(*trigSrcIt)); // theta view
 		    bookHistos(dtChId,"Segment","DCC_TrackThetaPosvsAngleandTrig"+(*trigSrcIt));
-		    bookHistos(dtChId,"Segment","DCC_TrackThetaPosvsAngleandTrigH"+(*trigSrcIt));
+// 		    bookHistos(dtChId,"Segment","DCC_TrackThetaPosvsAngleandTrigH"+(*trigSrcIt));  // DCC theta qual info not available
 		  }
 		}
 	      
@@ -554,22 +554,22 @@ void DTLocalTriggerTask::runDCCAnalysis( std::vector<L1MuDTChambPhDigi>* phTrigs
       uint32_t indexCh = dtChId.rawId();   
 
       map<string, MonitorElement*> &innerME = digiHistos[indexCh];
-      if (innerME.find("DCC_ThetaBXvsQual"+trigsrc) == innerME.end()){
-	bookHistos(dtChId,"LocalTriggerTheta","DCC_ThetaBXvsQual"+trigsrc);
-	if (detailedAnalysis) {
-	  bookHistos(dtChId,"LocalTriggerTheta","DCC_PositionvsBX"+trigsrc);
-	  bookHistos(dtChId,"LocalTriggerTheta","DCC_PositionvsQual"+trigsrc);
-	}
+      if (innerME.find("DCC_PositionvsBX"+trigsrc) == innerME.end()){
+	bookHistos(dtChId,"LocalTriggerTheta","DCC_PositionvsBX"+trigsrc);
+// 	bookHistos(dtChId,"LocalTriggerTheta","DCC_ThetaBXvsQual"+trigsrc);          // no DCC theta qual info
+// 	if (detailedAnalysis) {
+// 	  bookHistos(dtChId,"LocalTriggerTheta","DCC_PositionvsQual"+trigsrc);
+// 	}
       }
 
       for (int pos=0; pos<7; pos++) { //SM fill position for non zero position bit in theta view
 	if(thcode[pos]>0){
-	  int thqual = (thcode[pos]/2)*2+1;
-	  innerME.find("DCC_ThetaBXvsQual"+trigsrc)->second->Fill(thqual,thbx);      // SM BX vs Code Theta view
-	  if (detailedAnalysis) {
-	    innerME.find("DCC_PositionvsBX"+trigsrc)->second->Fill(thbx,pos);          // SM BX vs Position Theta view
-	    innerME.find("DCC_PositionvsQual"+trigsrc)->second->Fill(thqual,pos);      // SM Code vs Position Theta view
-	  }
+	  innerME.find("DCC_PositionvsBX"+trigsrc)->second->Fill(thbx,pos);          // SM BX vs Position Theta view
+//        int thqual = (thcode[pos]/2)*2+1;                                          // no DCC theta qual info
+// 	  innerME.find("DCC_ThetaBXvsQual"+trigsrc)->second->Fill(thqual,thbx);      // SM BX vs Code Theta view
+// 	  if (detailedAnalysis) {
+// 	    innerME.find("DCC_PositionvsQual"+trigsrc)->second->Fill(thqual,pos);    // SM Code vs Position Theta view
+// 	  }
 	}
       }
     }
@@ -589,14 +589,14 @@ void DTLocalTriggerTask::runDCCAnalysis( std::vector<L1MuDTChambPhDigi>* phTrigs
 	      bookHistos(id,"LocalTriggerPhi","DCC_BestQual"+trigsrc);
 	    innerME.find("DCC_BestQual"+trigsrc)->second->Fill(phcode_best[wh+3][st][sc]);  // CB Best Qual Trigger Phi view
 	  }
-	  if (thcode_best[wh+3][st][sc]>0){
-	    DTChamberId id(wh,st,sc);
-	    uint32_t indexCh = id.rawId();
-	    map<string, MonitorElement*> &innerME = digiHistos[indexCh];
-	    if (innerME.find("DCC_ThetaBestQual"+trigsrc) == innerME.end())
-	      bookHistos(id,"LocalTriggerTheta","DCC_ThetaBestQual"+trigsrc);
-	    innerME.find("DCC_ThetaBestQual"+trigsrc)->second->Fill(thcode_best[wh+3][st][sc]); // CB Best Qual Trigger Theta view
-	  }
+// 	  if (thcode_best[wh+3][st][sc]>0){          // no DCC theta data
+// 	    DTChamberId id(wh,st,sc);
+// 	    uint32_t indexCh = id.rawId();
+// 	    map<string, MonitorElement*> &innerME = digiHistos[indexCh];
+// 	    if (innerME.find("DCC_ThetaBestQual"+trigsrc) == innerME.end())
+// 	      bookHistos(id,"LocalTriggerTheta","DCC_ThetaBestQual"+trigsrc);
+// 	    innerME.find("DCC_ThetaBestQual"+trigsrc)->second->Fill(thcode_best[wh+3][st][sc]); // CB Best Qual Trigger Theta view
+// 	  }
 	}
       }
     }
@@ -831,16 +831,16 @@ void DTLocalTriggerTask::runSegmentAnalysis(Handle<DTRecSegment4DCollection>& se
 	  if (innerME.find("DCC_TrackThetaPosvsAngle"+trigsrc) == innerME.end()){
 	    bookHistos(dtChId,"Segment","DCC_TrackThetaPosvsAngle"+trigsrc);
 	    bookHistos(dtChId,"Segment","DCC_TrackThetaPosvsAngleandTrig"+trigsrc);
-	    bookHistos(dtChId,"Segment","DCC_TrackThetaPosvsAngleandTrigH"+trigsrc);
+// 	    bookHistos(dtChId,"Segment","DCC_TrackThetaPosvsAngleandTrigH"+trigsrc);             no DCC theta qual info
 	  }
 
 	  // position va angle of track for reconstruced tracks (denom. for trigger efficiency) along theta direction
 	  innerME.find("DCC_TrackThetaPosvsAngle"+trigsrc)->second->Fill(y_angle,y_track);
 	  if (thcode_best[wheel+3][station][scsector] > 0) {		
 	    innerME.find("DCC_TrackThetaPosvsAngleandTrig"+trigsrc)->second->Fill(y_angle,y_track);
-	    if (thcode_best[wheel+3][station][scsector] == 3) {
-	      innerME.find("DCC_TrackThetaPosvsAngleH"+trigsrc)->second->Fill(y_angle,y_track);
-	    }		 
+// 	    if (thcode_best[wheel+3][station][scsector] == 3) {                                   no DCC theta qual thcode is at most 1
+// 	      innerME.find("DCC_TrackThetaPosvsAngleH"+trigsrc)->second->Fill(y_angle,y_track);
+// 	    }		 
 	  }
 
 	}  
