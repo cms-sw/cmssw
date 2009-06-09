@@ -89,19 +89,21 @@ float EcalClusterEnergyCorrection::fEtEta(float et, float eta, int algorithm) co
   int offset;
   if ( algorithm == 0 ) offset = 0;
   else if ( algorithm == 1 ) offset = 20;
+  else if ( algorithm == 10 ) offset = 28;
+  else if ( algorithm == 11 ) offset = 39;
   else {
     // not supported, produce no correction
     return et;
   }
 
   // Barrel 
-  if ( algorithm == 0 ) { 
-    float p0 = (params_->params())[ 9]  + (params_->params())[10]/ (et + (params_->params())[11]) + (params_->params())[12]/(et*et);  
-    float p1 = (params_->params())[13]  + (params_->params())[14]/ (et + (params_->params())[15]) + (params_->params())[16]/(et*et);  
+  if ( algorithm == 0 || algorithm == 10 ) { 
+    float p0 = (params_->params())[ 9 + offset]  + (params_->params())[10 + offset]/ (et + (params_->params())[11 + offset]) + (params_->params())[12 + offset]/(et*et);  
+    float p1 = (params_->params())[13 + offset]  + (params_->params())[14 + offset]/ (et + (params_->params())[15 + offset]) + (params_->params())[16 + offset]/(et*et);  
  
-    fCorr = p0 +  p1 * atan((params_->params())[17]*((params_->params())[18]-fabs(eta))) + (params_->params())[19] * fabs(eta); 
+    fCorr = p0 +  p1 * atan((params_->params())[17 + offset]*((params_->params())[18 + offset]-fabs(eta))) + (params_->params())[19 + offset] * fabs(eta); 
  
-  } else if ( algorithm == 1 ) { // Endcap 
+  } else if ( algorithm == 1 || algorithm == 11 ) { // Endcap 
     float p0 = (params_->params())[ 9 + offset] + (params_->params())[10 + offset]/sqrt(et); 
     float p1 = (params_->params())[11 + offset] + (params_->params())[12 + offset]/sqrt(et); 
     float p2 = (params_->params())[13 + offset] + (params_->params())[14 + offset]/sqrt(et); 
@@ -128,17 +130,24 @@ float EcalClusterEnergyCorrection::getValue( const reco::SuperCluster & superClu
   // multi5x5:     4 - return f(brem) correction
   //               5 - return f(brem) + f(et, eta) correction
 
+  // special cases: mode = 10 -- return f(et, eta) correction with respect to already corrected SC in barrel
+  //                mode = 11 -- return f(et, eta) correction with respect to already corrected SC in endcap
+
   checkInit();
   
   float eta = fabs(superCluster.eta()); 
   float brem = superCluster.phiWidth()/superCluster.etaWidth(); 
   int algorithm = -1;
 
-  if ( mode <= 3 ) {
+  if ( mode <= 3  || mode == 10 ) {
     // algorithm: hybrid
     algorithm = 0;
 
-    float energy = superCluster.rawEnergy(); 
+    float energy = superCluster.rawEnergy();
+    if ( mode == 10 ) {
+      algorithm = 10;
+      energy = superCluster.energy();
+    }
     float correctedEnergy = fEta(energy, eta, algorithm);
 
     if ( mode == 1 ) {
@@ -156,11 +165,15 @@ float EcalClusterEnergyCorrection::getValue( const reco::SuperCluster & superClu
       correctedEnergy = correctedEt*cosh(eta);
       return correctedEnergy - energy;
     }
-  } else if ( mode == 4 || mode == 5 ) {
+  } else if ( mode == 4 || mode == 5 || mode == 11 ) {
     algorithm = 1;
-    
+
     float energy = superCluster.rawEnergy() + superCluster.preshowerEnergy(); 
-    
+    if ( mode == 11 ) {
+      algorithm = 11;    
+      energy = superCluster.energy();
+    }
+
     float correctedEnergy = fBrem(energy, brem, algorithm);
     if ( mode == 4 ) {
       return correctedEnergy - energy;
