@@ -309,15 +309,15 @@ HepMC::GenEvent* EvtGenInterface::decay( HepMC::GenEvent* evt )
   EvtId idEvt;
 
   nPythia = evt->particles_size();
-  HepMC::GenEvent* newEvt = new HepMC::GenEvent( *evt );
-
+  // FIX A MEMORY LEAK (RC)
+  // HepMC::GenEvent* newEvt = new HepMC::GenEvent( *evt );
 
   // First pass through undecayed Pythia particles to decay particles known to EvtGen left stable by Pythia
   // except candidates to be forced which will be searched later to include EvtGen decay products 
   nlist = 0;
 
-  // Notice dynamical use of newEvt
-  for (HepMC::GenEvent::particle_const_iterator p= newEvt->particles_begin(); p != newEvt->particles_end(); ++p)
+  // Notice dynamical use of evt
+  for (HepMC::GenEvent::particle_const_iterator p= evt->particles_begin(); p != evt->particles_end(); ++p)
     {
       status = (*p)->status();
  
@@ -340,7 +340,7 @@ HepMC::GenEvent* EvtGenInterface::decay( HepMC::GenEvent* evt )
 	      ipart = idEvt.getId();
 	      if (ipart==-1) continue;                          // particle not known to EvtGen       
 	      if (EvtDecayTable::getNMode(ipart)==0) continue;  // particles stable for EvtGen
-	      addToHepMC(*p,idEvt,newEvt,true);                      // generate decay
+	      addToHepMC(*p,idEvt,evt,true);                      // generate decay
 	    }
 	}
     }
@@ -354,18 +354,18 @@ HepMC::GenEvent* EvtGenInterface::decay( HepMC::GenEvent* evt )
 	  for(int k=0;k < nlist; k++)
 	    {
 	      if(k == which) {		
-		addToHepMC(listp[k],forced_Evt[index[k]],newEvt,false);  // decay as alias
+		addToHepMC(listp[k],forced_Evt[index[k]],evt,false);  // decay as alias
 	      }	
 	      else
 		{
 		  int id_non_alias = forced_Evt[index[k]].getId();
 		  EvtId non_alias(id_non_alias,id_non_alias); // create new EvtId with id = alias
-		  addToHepMC(listp[k],non_alias,newEvt,false);     // decay as standard (non alias)
+		  addToHepMC(listp[k],non_alias,evt,false);     // decay as standard (non alias)
 		}
 	    }
      }
 
-  return newEvt;
+  return evt;
   
 }
 

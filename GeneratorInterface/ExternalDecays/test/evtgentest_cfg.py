@@ -11,7 +11,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:TestEvtGen.root')
+    fileNames = cms.untracked.vstring('file:/tmp/TestEvtGen.root')
 )
 
 process.Test = cms.EDAnalyzer("EvtGenTestAnalyzer",
