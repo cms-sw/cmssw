@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/10/10 16:51:52 $
- * $Revision: 1.91 $
+ * $Date: 2009/02/27 13:54:08 $
+ * $Revision: 1.92 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1582,7 +1582,7 @@ void EELedClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean01 - meanAmplL1A) > fabs(percentVariation_ * meanAmplL1A) || mean01 < amplitudeThreshold_ )
+          if ( fabs(mean01 - meanAmplL1A) > fabs(percentVariation_ * meanAmplL1A) || mean01 < amplitudeThreshold_ || rms01 > rmsThresholdRelative_ * mean01 )
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
 
@@ -1606,7 +1606,7 @@ void EELedClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean13 - meanAmplL1B) > fabs(percentVariation_ * meanAmplL1B) || mean13 < amplitudeThreshold_ )
+          if ( fabs(mean13 - meanAmplL1B) > fabs(percentVariation_ * meanAmplL1B) || mean13 < amplitudeThreshold_ || rms13 > rmsThresholdRelative_ * mean13 )
            val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
 
@@ -1630,7 +1630,7 @@ void EELedClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean03 - meanAmplL2A) > fabs(percentVariation_ * meanAmplL2A) || mean03 < amplitudeThreshold_ )
+          if ( fabs(mean03 - meanAmplL2A) > fabs(percentVariation_ * meanAmplL2A) || mean03 < amplitudeThreshold_ || rms03 > rmsThresholdRelative_ * mean03 )
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
 
@@ -1654,7 +1654,7 @@ void EELedClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean15 - meanAmplL2B) > fabs(percentVariation_ * meanAmplL2B) || mean15 < amplitudeThreshold_ )
+          if ( fabs(mean15 - meanAmplL2B) > fabs(percentVariation_ * meanAmplL2B) || mean15 < amplitudeThreshold_ || rms15 > rmsThresholdRelative_ * mean15 )
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
 

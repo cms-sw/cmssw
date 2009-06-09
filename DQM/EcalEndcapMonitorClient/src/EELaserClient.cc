@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2008/10/07 18:34:23 $
- * $Revision: 1.106 $
+ * $Date: 2009/02/27 13:54:08 $
+ * $Revision: 1.107 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -217,6 +217,8 @@ EELaserClient::EELaserClient(const ParameterSet& ps) {
   percentVariation_ = 0.4;
 
   amplitudeThreshold_ = 10.;
+
+  rmsThresholdRelative_ = 0.3;
 
   amplitudeThresholdPnG01_ = 50.;
   amplitudeThresholdPnG16_ = 50.;
@@ -2521,7 +2523,7 @@ void EELaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean01 - meanAmplL1A) > fabs(percentVariation_ * meanAmplL1A) || mean01 < amplitudeThreshold_ )
+          if ( fabs(mean01 - meanAmplL1A) > fabs(percentVariation_ * meanAmplL1A) || mean01 < amplitudeThreshold_ || rms01 > rmsThresholdRelative_ * mean01 )
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
 
@@ -2545,7 +2547,7 @@ void EELaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean13 - meanAmplL1B) > fabs(percentVariation_ * meanAmplL1B) || mean13 < amplitudeThreshold_ )
+          if ( fabs(mean13 - meanAmplL1B) > fabs(percentVariation_ * meanAmplL1B) || mean13 < amplitudeThreshold_ || rms13 > rmsThresholdRelative_ * mean13 )
            val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
 
@@ -2569,7 +2571,7 @@ void EELaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean03 - meanAmplL2A) > fabs(percentVariation_ * meanAmplL2A) || mean03 < amplitudeThreshold_ )
+          if ( fabs(mean03 - meanAmplL2A) > fabs(percentVariation_ * meanAmplL2A) || mean03 < amplitudeThreshold_ || rms03 > rmsThresholdRelative_ * mean03 )
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
 
@@ -2593,7 +2595,7 @@ void EELaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean15 - meanAmplL2B) > fabs(percentVariation_ * meanAmplL2B) || mean15 < amplitudeThreshold_ )
+          if ( fabs(mean15 - meanAmplL2B) > fabs(percentVariation_ * meanAmplL2B) || mean15 < amplitudeThreshold_ || rms15 > rmsThresholdRelative_ * mean15 )
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
 
@@ -2617,7 +2619,7 @@ void EELaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean05 - meanAmplL3A) > fabs(percentVariation_ * meanAmplL3A) || mean05 < amplitudeThreshold_ )
+          if ( fabs(mean05 - meanAmplL3A) > fabs(percentVariation_ * meanAmplL3A) || mean05 < amplitudeThreshold_ || rms05 > rmsThresholdRelative_ * mean05 )
             val = 0.;
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, val );
 
@@ -2641,7 +2643,7 @@ void EELaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean17 - meanAmplL3B) > fabs(percentVariation_ * meanAmplL3B) || mean17 < amplitudeThreshold_ )
+          if ( fabs(mean17 - meanAmplL3B) > fabs(percentVariation_ * meanAmplL3B) || mean17 < amplitudeThreshold_ || rms17 > rmsThresholdRelative_ * mean17 )
             val = 0.;
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, val );
 
@@ -2665,7 +2667,7 @@ void EELaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean07 - meanAmplL4A) > fabs(percentVariation_ * meanAmplL4A) || mean07 < amplitudeThreshold_ )
+          if ( fabs(mean07 - meanAmplL4A) > fabs(percentVariation_ * meanAmplL4A) || mean07 < amplitudeThreshold_ || rms07 > rmsThresholdRelative_ * mean07 )
             val = 0.;
           if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ix, iy, val );
 
@@ -2689,7 +2691,7 @@ void EELaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean19 - meanAmplL4B) > fabs(percentVariation_ * meanAmplL4B) || mean19 < amplitudeThreshold_ )
+          if ( fabs(mean19 - meanAmplL4B) > fabs(percentVariation_ * meanAmplL4B) || mean19 < amplitudeThreshold_ || rms19 > rmsThresholdRelative_ * mean19 )
             val = 0.;
           if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ix, iy, val );
 

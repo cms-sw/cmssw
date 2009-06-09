@@ -4,8 +4,8 @@
 /*
  * \file EELedClient.h
  *
- * $Date: 2008/10/10 16:51:52 $
- * $Revision: 1.27 $
+ * $Date: 2009/02/27 13:54:07 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  *
 */
@@ -177,6 +177,7 @@ TProfile* i14_[18];
 
 float percentVariation_;
 float amplitudeThreshold_; 
+float rmsThresholdRelative_;
 
 // Quality check on PNs
 
