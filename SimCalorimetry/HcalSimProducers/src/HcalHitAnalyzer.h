@@ -28,7 +28,6 @@ public:
 
 
 private:
-  std::string hitReadoutName_;
   HcalSimParameterMap simParameterMap_;
   HBHEHitFilter hbheFilter_;
   HOHitFilter hoFilter_;
