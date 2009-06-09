@@ -39,7 +39,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2008/11/28 12:51:56 $ 
+ **  $Date: 2009/05/13 14:48:22 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -109,7 +109,8 @@ class PhotonOfflineClient : public edm::EDAnalyzer
   double etaMin_;
   double etaMax_;
   int etaBin_;
-
+  bool standAlone_;
+  std::string outputFileName_;
 
   std::stringstream currentFolder_;
    

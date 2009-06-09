@@ -77,7 +77,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/05/13 14:48:06 $ 
+ **  $Date: 2009/05/20 08:31:08 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -124,12 +124,6 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   void fill1DHistoVector();
 
 
-  void doProfileX(TH2 * th2, MonitorElement* me);
-  void doProfileX(MonitorElement * th2m, MonitorElement* me);
-  void dividePlots(MonitorElement* dividend, MonitorElement* numerator, MonitorElement* denominator);
-  void dividePlots(MonitorElement* dividend, MonitorElement* numerator, double denominator); 
-      
-
   //////////
 
   std::string fName_;
@@ -151,7 +145,7 @@ class PhotonAnalyzer : public edm::EDAnalyzer
 
   bool useBinning_;
   bool useTriggerFiltering_;
-  bool standAlone_;
+
 
   int isolationStrength_; 
 
@@ -225,6 +219,34 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<MonitorElement*> > p_trackPtSumHollowVsEta_;
   std::vector<std::vector<MonitorElement*> > p_ecalSumVsEta_;
   std::vector<std::vector<MonitorElement*> > p_hcalSumVsEta_;
+
+  std::vector<MonitorElement*> h_nTrackIsolSolidVsEt_isol_;
+  std::vector<MonitorElement*> h_trackPtSumSolidVsEt_isol_;
+  std::vector<MonitorElement*> h_nTrackIsolHollowVsEt_isol_;
+  std::vector<MonitorElement*> h_trackPtSumHollowVsEt_isol_;
+  std::vector<MonitorElement*> h_ecalSumVsEt_isol_;
+  std::vector<MonitorElement*> h_hcalSumVsEt_isol_;
+
+  std::vector<MonitorElement*> p_nTrackIsolSolidVsEt_isol_;
+  std::vector<MonitorElement*> p_trackPtSumSolidVsEt_isol_;
+  std::vector<MonitorElement*> p_nTrackIsolHollowVsEt_isol_;
+  std::vector<MonitorElement*> p_trackPtSumHollowVsEt_isol_;
+  std::vector<MonitorElement*> p_ecalSumVsEt_isol_;
+  std::vector<MonitorElement*> p_hcalSumVsEt_isol_;
+
+  std::vector<std::vector<MonitorElement*> > h_nTrackIsolSolidVsEt_;
+  std::vector<std::vector<MonitorElement*> > h_trackPtSumSolidVsEt_;
+  std::vector<std::vector<MonitorElement*> > h_nTrackIsolHollowVsEt_;
+  std::vector<std::vector<MonitorElement*> > h_trackPtSumHollowVsEt_;
+  std::vector<std::vector<MonitorElement*> > h_ecalSumVsEt_;
+  std::vector<std::vector<MonitorElement*> > h_hcalSumVsEt_;
+
+  std::vector<std::vector<MonitorElement*> > p_nTrackIsolSolidVsEt_;
+  std::vector<std::vector<MonitorElement*> > p_trackPtSumSolidVsEt_;
+  std::vector<std::vector<MonitorElement*> > p_nTrackIsolHollowVsEt_;
+  std::vector<std::vector<MonitorElement*> > p_trackPtSumHollowVsEt_;
+  std::vector<std::vector<MonitorElement*> > p_ecalSumVsEt_;
+  std::vector<std::vector<MonitorElement*> > p_hcalSumVsEt_;
 
   std::vector<MonitorElement*> h_nTrackIsolSolid_isol_;
   std::vector<MonitorElement*> h_trackPtSumSolid_isol_;
