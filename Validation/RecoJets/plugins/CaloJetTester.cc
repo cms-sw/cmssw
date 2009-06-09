@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.cc,v 1.14 2009/06/04 00:01:29 chjeong Exp $
+// $Id: CaloJetTester.cc,v 1.15 2009/06/06 20:05:34 hatake Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -568,8 +568,8 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
       if (mEFirst_80) mEFirst_80->Fill (jet->energy());
       if (mEFirst_3000) mEFirst_3000->Fill (jet->energy());
       if (mPtFirst) mPtFirst->Fill (jet->pt());
-      if (mPtFirst_80) mPtFirst->Fill (jet->pt());
-      if (mPtFirst_3000) mPtFirst->Fill (jet->pt());
+      if (mPtFirst_80) mPtFirst_80->Fill (jet->pt());
+      if (mPtFirst_3000) mPtFirst_3000->Fill (jet->pt());
     }
     if (jetIndex == 0) {
       nJet++;
