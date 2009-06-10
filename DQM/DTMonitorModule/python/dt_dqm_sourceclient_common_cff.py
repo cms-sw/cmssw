@@ -42,6 +42,8 @@ from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
 # Data integrity
 from DQM.DTMonitorModule.dtDataIntegrityTask_cfi import *
 from DQM.DTMonitorClient.dtDataIntegrityTest_cfi import *
+from DQM.DTMonitorClient.dtBlockedROChannelsTest_cfi import *
+
 
 # Digi task
 from DQM.DTMonitorModule.dtDigiTask_cfi import *
@@ -92,6 +94,6 @@ reco = cms.Sequence(dt1DRecHits + dt4DSegments)
 
 dtDQMTask = cms.Sequence(dtDigiMonitor + dtSegmentAnalysisMonitor + dtTriggerMonitor + dtNoiseMonitor + dtResolutionAnalysisMonitor)
 
-dtDQMTest = cms.Sequence(dataIntegrityTest + triggerTest + dtOccupancyTest + segmentTest + dtNoiseAnalysisMonitor + dtSummaryClients + dtqTester)
+dtDQMTest = cms.Sequence(dataIntegrityTest + blockedROChannelTest + triggerTest + dtOccupancyTest + segmentTest + dtNoiseAnalysisMonitor + dtSummaryClients + dtqTester)
 
 dtDQMCalib = cms.Sequence(dtTPmonitor + dtTPTriggerMonitor + dtTPmonitorTest + dtTPTriggerTest)
