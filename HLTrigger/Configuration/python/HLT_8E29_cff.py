@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre8/8E29_V11/V2 (CMSSW_3_1_X_2009-06-05-0700_HLT1)
+# /dev/CMSSW_3_1_0/pre8/8E29_V25/V2 (CMSSW_3_1_X_2009-06-05-0700_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/8E29_V11/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/8E29_V25/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -1429,7 +1429,7 @@ hltPreL1MET20 = cms.EDFilter( "HLTPrescaler" )
 hltL1sMET35 = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_ETM30" ),
+    L1SeedsLogicalExpression = cms.string( "L1_ETM20" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
@@ -1972,12 +1972,7 @@ hltEcalRegionalMuonsFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
     type = cms.string( "candidate" ),
     doES = cms.bool( False ),
     sourceTag_es = cms.InputTag( "NotNeededoESfalse" ),
-    MuJobPSet = cms.PSet( 
-      regionEtaMargin = cms.double( 1.0 ),
-      regionPhiMargin = cms.double( 1.0 ),
-      Ptmin = cms.double( 0.0 ),
-      Source = cms.InputTag( "hltL1extraParticles" )
-    ),
+    MuJobPSet = cms.PSet(  ),
     JetJobPSet = cms.VPSet( 
     ),
     EmJobPSet = cms.VPSet( 
@@ -5716,7 +5711,7 @@ HLTRecoJetMETSequence = cms.Sequence( HLTDoCaloSequence + HLTDoJetRecoSequence +
 HLTDoJet30HTRecoSequence = cms.Sequence( hltJet30Ht )
 HLTL2muonrecoNocandSequence = cms.Sequence( hltMuonDTDigis + hltDt1DRecHits + hltDt4DSegments + hltMuonCSCDigis + hltCsc2DRecHits + hltCscSegments + hltMuonRPCDigis + hltRpcRecHits + hltL2MuonSeeds + hltL2Muons )
 HLTL2muonrecoSequence = cms.Sequence( HLTL2muonrecoNocandSequence + hltL2MuonCandidates )
-HLTL2muonisorecoSequence = cms.Sequence( hltEcalPreshowerDigis + hltEcalRawToRecHitFacility + hltEcalRegionalMuonsFEDs + hltEcalRegionalMuonsRecHit + hltEcalPreshowerRecHit + HLTDoLocalHcalSequence + hltTowerMakerForMuons + hltL2MuonIsolations )
+HLTL2muonisorecoSequence = cms.Sequence( hltEcalRawToRecHitFacility + hltEcalRegionalMuonsFEDs + hltEcalRegionalMuonsRecHit + HLTDoLocalHcalSequence + hltTowerMakerForMuons + hltL2MuonIsolations )
 HLTDoLocalPixelSequence = cms.Sequence( hltSiPixelDigis + hltSiPixelClusters + hltSiPixelRecHits )
 HLTDoLocalStripSequence = cms.Sequence( hltSiStripRawToClustersFacility + hltSiStripClusters )
 HLTL3muonTkCandidateSequence = cms.Sequence( HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltL3TrajectorySeed + hltL3TrackCandidateFromL2 )

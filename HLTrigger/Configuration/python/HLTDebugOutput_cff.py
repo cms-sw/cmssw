@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre8/HLT/V8 (CMSSW_3_1_X_2009-05-25-1900)
+# /dev/CMSSW_3_1_0/pre8/HLT/V25 (CMSSW_3_1_X_2009-06-05-0700_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/HLT/V8')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/HLT/V25')
 )
 
 block_hltDebugOutput = cms.PSet(
