@@ -2,8 +2,8 @@
 /*
  * \file DTBlockedROChannelsTest.cc
  * 
- * $Date: 2009/06/10 10:03:41 $
- * $Revision: 1.1 $
+ * $Date: 2009/06/10 10:33:46 $
+ * $Revision: 1.2 $
  * \author G. Cerminara - University and INFN Torino
  *
  */
@@ -62,7 +62,7 @@ void DTBlockedROChannelsTest::beginJob(const EventSetup& context) {
   summaryHisto->setAxisTitle("Wheel",2);
 
   for(int wheel = -2; wheel != 3; ++wheel) {
-    stringstream namestream;  namestream << "ROChannel_W" << wheel;
+    stringstream namestream;  namestream << "ROChannelSummary_W" << wheel;
     stringstream titlestream; titlestream << "Blocked RO Channels (Wh " << wheel << ")";
     wheelHitos[wheel] = dbe->book2D(namestream.str().c_str(),titlestream.str().c_str(),12,1,13,4,1,5);
     wheelHitos[wheel]->setAxisTitle("Sector",1);
