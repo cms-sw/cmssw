@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.h,v 1.7 2009/03/25 10:07:27 charlot Exp $
+// $Id: GsfElectronDataAnalyzer.h,v 1.8 2009/03/28 22:29:08 charlot Exp $
 //
 //
 
@@ -73,8 +73,16 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   TH1F *h_ele_matchingObjectPhi_matched;
   TH1F *h_ele_matchingObjectZ_matched;
 
-  TH1F *h_ele_TIP_all;
   TH1F *h_ele_EoverP_all;
+  TH1F *h_ele_EseedOP_all;
+  TH1F *h_ele_EoPout_all;
+  TH1F *h_ele_EeleOPout_all;
+  TH1F *h_ele_dEtaSc_propVtx_all;
+  TH1F *h_ele_dPhiSc_propVtx_all;
+  TH1F *h_ele_dEtaCl_propOut_all;
+  TH1F *h_ele_dPhiCl_propOut_all;
+  TH1F *h_ele_TIP_all;
+  TH1F *h_ele_HoE_all;
   TH1F *h_ele_vertexEta_all;
   TH1F *h_ele_vertexPt_all;
   TH1F *h_ele_mee_all;
@@ -117,10 +125,6 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   TH1F *histSclE1x5_ ;
   TH1F *histSclE2x5max_ ;
   TH1F *histSclE5x5_ ;
-
-  TH1F *h_ctf_foundHits;
-  TH2F *h_ctf_foundHitsVsEta;
-  TH2F *h_ctf_lostHitsVsEta;
 
   TH1F *h_ele_ambiguousTracks;
   TH2F *h_ele_ambiguousTracksVsEta;
@@ -228,6 +232,7 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   TH1F *h_ele_eta_shower;
 
   TH1F *h_ele_HoE;
+  TH1F *h_ele_HoE_fiducial;
   TH2F *h_ele_HoEVsEta;
   TH2F *h_ele_HoEVsPhi;
   TH2F *h_ele_HoEVsE;
@@ -237,23 +242,17 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   TProfile *h_ele_fbremVsEta_mean;
 
   TH2F *h_ele_PinVsPoutGolden_mode;
-  TH2F *h_ele_PinVsPoutShowering0_mode;
-  TH2F *h_ele_PinVsPoutShowering1234_mode;
+  TH2F *h_ele_PinVsPoutShowering_mode;
   TH2F *h_ele_PinVsPoutGolden_mean;
-  TH2F *h_ele_PinVsPoutShowering0_mean;
-  TH2F *h_ele_PinVsPoutShowering1234_mean;
+  TH2F *h_ele_PinVsPoutShowering_mean;
   TH2F *h_ele_PtinVsPtoutGolden_mode;
-  TH2F *h_ele_PtinVsPtoutShowering0_mode;
-  TH2F *h_ele_PtinVsPtoutShowering1234_mode;
+  TH2F *h_ele_PtinVsPtoutShowering_mode;
   TH2F *h_ele_PtinVsPtoutGolden_mean;
-  TH2F *h_ele_PtinVsPtoutShowering0_mean;
-  TH2F *h_ele_PtinVsPtoutShowering1234_mean;
+  TH2F *h_ele_PtinVsPtoutShowering_mean;
   TH1F *histSclEoEmatchingObjectGolden_barrel;
   TH1F *histSclEoEmatchingObjectGolden_endcaps;
-  TH1F *histSclEoEmatchingObjectShowering0_barrel;
-  TH1F *histSclEoEmatchingObjectShowering0_endcaps;
-  TH1F *histSclEoEmatchingObjectShowering1234_barrel;
-  TH1F *histSclEoEmatchingObjectShowering1234_endcaps;
+  TH1F *histSclEoEmatchingObjectShowering_barrel;
+  TH1F *histSclEoEmatchingObjectShowering_endcaps;
   
   TH1F *h_ele_mva; 
   TH1F *h_ele_provenance; 
