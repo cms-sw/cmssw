@@ -18,6 +18,10 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripFedCablingManipulator);
 typedef DummyCondDBWriter<SiStripFedCabling,SiStripFedCabling,SiStripFedCablingRcd> SiStripFedCablingDummyDBWriter;
 DEFINE_ANOTHER_FWK_MODULE(SiStripFedCablingDummyDBWriter);
 
+// #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+// struct DetCabRcdName{ static const char* name(){return "SiStripDetCablingRcd";}};
+// typedef DummyCondDBWriter<SiStripDetCabling,SiStripDetCabling,SiStripDetCablingRcd,DetCabRcdName> SiStripDetCablingDummyDBWriter;
+// DEFINE_ANOTHER_FWK_MODULE(SiStripDetCablingDummyDBWriter);
 
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 typedef DummyCondDBWriter<SiStripPedestals,SiStripPedestals,SiStripPedestalsRcd> SiStripPedestalsDummyDBWriter;
@@ -101,3 +105,8 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripGainSimDummyPrinter);
 
 typedef DummyCondObjPrinter<SiStripDetVOff,SiStripDetVOffRcd> SiStripDetVOffDummyPrinter;
 DEFINE_ANOTHER_FWK_MODULE(SiStripDetVOffDummyPrinter);
+
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+typedef DummyCondObjPrinter<SiStripDetCabling,SiStripDetCablingRcd> SiStripDetCablingDummyPrinter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripDetCablingDummyPrinter);
+
