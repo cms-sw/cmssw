@@ -13,6 +13,7 @@
 
 // SimDataFormats headers
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
 #include <iostream>
 #include <memory>
@@ -31,6 +32,7 @@ HectorProducer::HectorProducer(edm::ParameterSet const & parameters): eventsAnal
   m_ZDCTransport   = parameters.getParameter<bool>("ZDCTransport");
   
   produces<edm::HepMCProduct>();
+  produces<edm::LHCTransportLinkContainer>();
 
   hector = new Hector(parameters, 
 		      m_verbosity,
@@ -99,7 +101,7 @@ void HectorProducer::produce(edm::Event & iEvent, const edm::EventSetup & es){
       throw cms::Exception("LogicError")
         << "HectorTrasported HepMCProduce already exists\n";
     }
-  
+
   evt_ = new HepMC::GenEvent( *HepMCEvt->GetEvent() );
   hector->clearApertureFlags();
   if(m_FP420Transport) {
@@ -118,7 +120,7 @@ void HectorProducer::produce(edm::Event & iEvent, const edm::EventSetup & es){
   }
   evt_ = hector->addPartToHepMC( evt_ );
   if (m_verbosity) {
-    cout << "HECTOR transported event: " << endl;
+    cout << "=== Hector transported event: " << endl;
     evt_->print();
   }
   
@@ -126,5 +128,18 @@ void HectorProducer::produce(edm::Event & iEvent, const edm::EventSetup & es){
   NewProduct->addHepMCData( evt_ ) ;
   
   iEvent.put( NewProduct ) ;
+
+  auto_ptr<LHCTransportLinkContainer> NewCorrespondenceMap(new edm::LHCTransportLinkContainer() );
+  edm::LHCTransportLinkContainer thisLink(hector->getCorrespondenceMap());
+  (*NewCorrespondenceMap).swap(thisLink);
+
+  if ( m_verbosity ) {
+    cout << "=== Hector correspondence table: " << endl;
+    for ( unsigned int i = 0; i < (*NewCorrespondenceMap).size(); i++) 
+      std::cout << (*NewCorrespondenceMap)[i] << std::endl;
+  }
+
+  iEvent.put( NewCorrespondenceMap );
+
 }
 

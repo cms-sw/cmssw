@@ -1,6 +1,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=SimDataFormats/GeneratorProducts>
+<use name=SimDataFormats/Forward>
 <use name=SimGeneral/HepPDTRecord>
 <use name=hector>
 <use name=hepmc>

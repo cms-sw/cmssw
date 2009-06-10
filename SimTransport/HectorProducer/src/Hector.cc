@@ -61,7 +61,9 @@ Hector::Hector(const edm::ParameterSet & param, bool verbosity, bool FP420Transp
     edm::LogError("Hector") << "The TRandom3 engine must be used, Random Number Generator Service not correctly initialized!"; 
     rootEngine_ = new TRandom3();
   }
-  
+
+  theCorrespondenceMap.clear();
+
   edm::LogInfo ("Hector") << "Hector parameters: \n" 
                           << "   lengthfp420:    " << lengthfp420 << "\n"
                           << "   m_rpp420_f:    " << m_rpp420_f << "\n"
@@ -504,6 +506,8 @@ void Hector::print() const {
 
 
 HepMC::GenEvent * Hector::addPartToHepMC( HepMC::GenEvent * evt ){
+
+  theCorrespondenceMap.clear();
   
   unsigned int line;
 
@@ -570,7 +574,13 @@ HepMC::GenEvent * Hector::addPartToHepMC( HepMC::GenEvent * evt ){
                                                                             energy ),
                                                           gpart->pdg_id(), 1, gpart->flow() ) );
           evt->add_vertex( vert );
-	  
+
+          int ingoing = (*vert->particles_in_const_begin())->barcode();
+          int outgoing = (*vert->particles_out_const_begin())->barcode();
+          LHCTransportLink theLink(ingoing,outgoing);
+          if (m_verbosity) std::cout << "=== Hector:addPartToHepMC: LHCTransportLink " << theLink << std::endl;
+          theCorrespondenceMap.push_back(theLink);
+
           if(m_verbosity) std::cout << "=== Hector::TRANSPORTED pz= " << gpart->momentum().pz()  
                                     << " eta= "<< gpart->momentum().eta()  
                                     << " status= "<< gpart->status()  <<std::endl;
