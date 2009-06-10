@@ -19,22 +19,24 @@
 #=============BEGIN CONFIGURATION=================
 
 #Input root trees for the two cases to be compared 
-setenv NEWFILE ~/scratch0/CMSSW_3_1_0_pre9/src/RecoEgamma/Examples/test/gsfElectronHistos_data_RelVal310pre9SingleElectronPt35.root 
-setenv OLDFILE ~/scratch0/CMSSW_3_1_0_pre9/src/RecoEgamma/Examples/test/gsfElectronHistos_data_RelVal310pre9SingleElectronPt35.root 
+setenv NEWFILE ~/scratch0/CMSSW_3_1_0_pre9/src/RecoEgamma/Examples/test/gsfElectronHistos_fake_RelVal310pre9QCD_Pt_80_120.root 
+setenv OLDFILE ~/scratch0/CMSSW_3_1_0_pre9/src/RecoEgamma/Examples/test/gsfElectronHistos_fake_RelVal310pre9QCD_Pt_80_120.root 
+#setenv NEWFILE ~/scratch0/CMSSW_3_1_0_pre9/src/RecoEgamma/Examples/test/gsfElectronHistos_data_RelVal310pre9SingleElectronPt35.root 
+#setenv OLDFILE ~/scratch0/CMSSW_3_1_0_pre9/src/RecoEgamma/Examples/test/gsfElectronHistos_data_RelVal310pre9SingleElectronPt35.root 
 #setenv NEWFILE ~/scratch0/CMSSW_3_1_0_pre9/src/RecoEgamma/Examples/test/gsfElectronHistos_RelVal310pre9SingleElectronPt35.root 
 #setenv OLDFILE ~/scratch0/CMSSW_3_1_0_pre9/src/RecoEgamma/Examples/test/gsfElectronHistos_RelVal310pre9SingleElectronPt35.root 
 #setenv OLDFILE ~/scratch0/CMSSW_2_1_7/src/RecoEgamma/Examples/test/gsfElectronHistos_RelVal210SingleElectronPt5To100.root 
 
 #Release versions to be compared (affects output directory name and html description only)
-setenv NEWRELEASE 310pre9_data
-setenv OLDRELEASE 310pre9_data
+setenv NEWRELEASE 310pre9
+setenv OLDRELEASE 310pre9
 #setenv OLDRELEASE 210_startup
 
 #Name of sample (affects output directory name and html description only)
-setenv SAMPLE SingleElectronPt35
+setenv SAMPLE QCD_Pt_80_120
 
 #TYPE must be one of GsfElectron, GsfElectronData, GsfElectronFake, Photon or ConvertedPhoton
-setenv TYPE GsfElectronData
+setenv TYPE GsfElectronFake
 
 #==============END BASIC CONFIGURATION==================
 
@@ -160,6 +162,7 @@ cat > unscaledhistos <<EOF
   h_ele_HoEVsEta_pfx 
   h_ele_chi2VsEta_pfx 
   h_ele_foundHitsVsEta_pfx 
+  h_ele_ambiguousTracksVsEta_pfx 
   h_ele_seedDphi2VsEta_pfx
   h_ele_seedDphi2VsPt_pfx
   h_ele_seedDrz2VsEta_pfx
@@ -260,6 +263,7 @@ cat > unscaledhistos <<EOF
   h_ele_HoEVsEta_pfx 
   h_ele_chi2VsEta_pfx 
   h_ele_foundHitsVsEta_pfx 
+  h_ele_ambiguousTracksVsEta_pfx 
   h_ele_seedDphi2VsEta_pfx
   h_ele_seedDphi2VsPt_pfx
   h_ele_seedDrz2VsEta_pfx
