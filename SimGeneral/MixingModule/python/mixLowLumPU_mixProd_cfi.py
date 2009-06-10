@@ -27,7 +27,7 @@ mix = cms.EDProducer("MixingModule",
         averageNumber = cms.double(1.0)
     	),
 	
-       fileNames = cms.untracked.vstring('file:/tmp/ebecheva/PCFwriter22.root')
+       fileNames = cms.untracked.vstring('file:/tmp/ebecheva/PCFwriterNew.root')
     ),
     
     mixObjects = cms.PSet(
