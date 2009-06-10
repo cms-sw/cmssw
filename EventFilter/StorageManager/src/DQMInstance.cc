@@ -198,9 +198,9 @@ bool DQMInstance::isStale(int currentTime)
   return( ( currentTime - lastUpdate_->GetSec() ) > purgeTime_);
 }
 
-int DQMInstance::writeFile(std::string filePrefix, bool endRunFlag)
+double DQMInstance::writeFile(std::string filePrefix, bool endRunFlag)
 {
-  int reply = 0;
+  double size = 0;
   char fileName[1024];
   TTimeStamp now;
   now.Set();
@@ -224,6 +224,7 @@ int DQMInstance::writeFile(std::string filePrefix, bool endRunFlag)
     if (( file != NULL ) && file->IsOpen())
     {
       int ctr=0;
+      double originalFileSize = file->GetSize();
 
       // First create directories inside the root file
       TString token("/");
@@ -292,19 +293,19 @@ int DQMInstance::writeFile(std::string filePrefix, bool endRunFlag)
 	  if ( object != NULL ) 
 	  {
 	    object->Write();
-	    reply++;
 	    ctr++;
 	  }
 	}
       }
       file->Close();
+      size += file->GetSize() - originalFileSize;
       delete(file);
       chmod(fileName,S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH );
       FDEBUG(1) << "Wrote file " << fileName << " " << ctr << " objects"
 		<< std::endl; 
     }
   }
-  return(reply);
+  return(size);
 }
 
 DQMGroup * DQMInstance::getDQMGroup(std::string groupName)

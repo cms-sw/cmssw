@@ -1,162 +1,65 @@
-// $Id: StorageManager.cc,v 1.94 2008/12/29 16:50:51 biery Exp $
+// $Id: StorageManager.cc,v 1.92.4.127 2009/05/29 13:59:02 mommsen Exp $
 
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <vector>
-#include <sys/stat.h>
-
+#include "EventFilter/StorageManager/interface/ConsumerUtils.h"
+#include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
+#include "EventFilter/StorageManager/interface/Exception.h"
+#include "EventFilter/StorageManager/interface/FragmentMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/StorageManager.h"
-#include "EventFilter/StorageManager/interface/ConsumerPipe.h"
-#include "EventFilter/StorageManager/interface/ProgressMarker.h"
-#include "EventFilter/StorageManager/interface/Configurator.h"
-#include "EventFilter/StorageManager/interface/Parameter.h"
-#include "EventFilter/StorageManager/interface/FUProxy.h"
+#include "EventFilter/StorageManager/interface/StateMachine.h"
 
-#include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
-#include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
-#include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
-#include "EventFilter/Utilities/interface/ParameterSetRetriever.h"
-
-#include "FWCore/Utilities/interface/DebugMacros.h"
-#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
-#include "FWCore/ParameterSet/interface/PythonProcessDesc.h"
 
 #include "IOPool/Streamer/interface/MsgHeader.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
-#include "IOPool/Streamer/interface/OtherMessage.h"
 #include "IOPool/Streamer/interface/ConsRegMessage.h"
 #include "IOPool/Streamer/interface/HLTInfo.h"
 #include "IOPool/Streamer/interface/Utilities.h"
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
 
-#include "xcept/tools.h"
-
 #include "i2o/Method.h"
-#include "i2o/utils/AddressMap.h"
-
-#include "toolbox/mem/Pool.h"
-
+#include "toolbox/task/WorkLoopFactory.h"
 #include "xcept/tools.h"
-
-#include "xgi/Method.h"
-
-#include "xoap/SOAPEnvelope.h"
-#include "xoap/SOAPBody.h"
-#include "xoap/domutils.h"
-
+#include "xdaq/NamespaceURI.h"
 #include "xdata/InfoSpaceFactory.h"
+#include "xgi/Method.h"
+#include "xoap/MessageReference.h"
+#include "xoap/Method.h"
 
-#include "boost/lexical_cast.hpp"
-#include "boost/algorithm/string/case_conv.hpp"
-#include "cgicc/Cgicc.h"
+#include <boost/lexical_cast.hpp>
+#include <boost/shared_ptr.hpp>
 
-#include <sys/statfs.h>
-#include "zlib.h"
-
-namespace stor {
-  extern bool getSMFC_exceptionStatus();
-  extern std::string getSMFC_reason4Exception();
-}
-
-using namespace edm;
 using namespace std;
 using namespace stor;
 
 
-static void deleteSMBuffer(void* Ref)
-{
-  // release the memory pool buffer
-  // once the fragment collector is done with it
-  stor::FragEntry* entry = (stor::FragEntry*)Ref;
-  toolbox::mem::Reference *ref=(toolbox::mem::Reference*)entry->buffer_object_;
-  ref->release();
-}
-
-std::string smutil_itos(int i)	// convert int to string
-{
-  std::stringstream s;
-  s << i;
-  return s.str();
-}
-
-
-StorageManager::StorageManager(xdaq::ApplicationStub * s)
-  throw (xdaq::exception::Exception) :
+StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
-  fsm_(this), 
   reasonForFailedState_(),
-  ah_(0), 
-  exactFileSizeTest_(false),
-  fileClosingTestInterval_(5),
-  pushMode_(false), 
-  reconfigurationRequested_(false),
-  collateDQM_(false),
-  archiveDQM_(false),
-  archiveIntervalDQM_(0),
-  filePrefixDQM_("/tmp/DQM"),
-  purgeTimeDQM_(DEFAULT_PURGE_TIME),
-  readyTimeDQM_(DEFAULT_READY_TIME),
-  useCompressionDQM_(true),
-  compressionLevelDQM_(1),
-  mybuffer_(7000000),
-  fairShareES_(false),
-  connectedRBs_(0), 
-  storedEvents_(0), 
-  receivedEvents_(0), 
-  receivedErrorEvents_(0), 
-  dqmRecords_(0), 
-  closedFiles_(0), 
-  openFiles_(0), 
-  receivedVolume_(0.),
-  storedVolume_(0.),
-  progressMarker_(ProgressMarker::instance()->idle()),
-  lastEventSeen_(0),
-  lastErrorEventSeen_(0),
-  sm_cvs_version_("$Id: StorageManager.cc,v 1.94 2008/12/29 16:50:51 biery Exp $ $Name:  $")
+  _webPageHelper( getApplicationDescriptor(),
+    "$Id: StorageManager.cc,v 1.92.4.127 2009/05/29 13:59:02 mommsen Exp $ $Name: V05-00-00 $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
-  ah_   = new edm::AssertHandler();
-  fsm_.initialize<StorageManager>(this);
+  // bind all callback functions
+  bindI2OCallbacks();
+  bindStateMachineCallbacks();
+  bindWebInterfaceCallbacks();
+  bindConsumerCallbacks();
 
-  // Careful with next line: state machine fsm_ has to be setup first
-  setupFlashList();
+  // need the line below so that deserializeRegistry can run
+  // in order to compare two registries (cannot compare byte-for-byte) (if we keep this)
+  // need line below anyway in case we deserialize DQMEvents for collation
+  edm::RootAutoLibraryLoader::enable();
 
-  xdata::InfoSpace *ispace = getApplicationInfoSpace();
+  initializeSharedResources();
+  startWorkerThreads();
+}
 
-  ispace->fireItemAvailable("STparameterSet",&offConfig_);
-  ispace->fireItemAvailable("runNumber",     &runNumber_);
-  ispace->fireItemAvailable("stateName",     fsm_.stateName());
-  ispace->fireItemAvailable("connectedRBs",  &connectedRBs_);
-  ispace->fireItemAvailable("storedEvents",  &storedEvents_);
-  ispace->fireItemAvailable("receivedEvents",&receivedEvents_);
-  ispace->fireItemAvailable("receivedErrorEvents",&receivedErrorEvents_);
-  ispace->fireItemAvailable("dqmRecords",    &dqmRecords_);
-  ispace->fireItemAvailable("closedFiles",   &closedFiles_);
-  ispace->fireItemAvailable("openFiles",     &openFiles_);
-  ispace->fireItemAvailable("fileList",      &fileList_);
-  ispace->fireItemAvailable("eventsInFile",  &eventsInFile_);
-  ispace->fireItemAvailable("storedEventsInStream",  &storedEventsInStream_);
-  ispace->fireItemAvailable("receivedEventsForOutMod",  &receivedEventsFromOutMod_);
-  ispace->fireItemAvailable("fileSize",      &fileSize_);
-  ispace->fireItemAvailable("namesOfStream",      &namesOfStream_);
-  ispace->fireItemAvailable("namesOfOutMod",      &namesOfOutMod_);
 
-  ispace->fireItemAvailable("rcmsStateListener", fsm_.rcmsStateListener());
-  ispace->fireItemAvailable("foundRcmsStateListener", fsm_.foundRcmsStateListener());
-  // 21-Nov-2008, KAB: the findRcmsStateListener call needs to go after the
-  // calls to add the RCMS vars to the application infospace.
-  fsm_.findRcmsStateListener();
-
-  ispace->addItemRetrieveListener("closedFiles", this);
-  ispace->addItemChangedListener("STparameterSet", this);
-
-  // Bind specific messages to functions
+void StorageManager::bindI2OCallbacks()
+{
   i2o::bind(this,
             &StorageManager::receiveRegistryMessage,
             I2O_SM_PREAMBLE,
@@ -169,5191 +72,957 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
             &StorageManager::receiveErrorDataMessage,
             I2O_SM_ERROR,
             XDAQ_ORGANIZATION_ID);
-  /* no longer used it seems? Don't delete yet
-  i2o::bind(this,
-            &StorageManager::receiveOtherMessage,
-            I2O_SM_OTHER,
-            XDAQ_ORGANIZATION_ID);
-  */
   i2o::bind(this,
             &StorageManager::receiveDQMMessage,
             I2O_SM_DQM,
             XDAQ_ORGANIZATION_ID);
-
-  // Bind web interface
-  xgi::bind(this,&StorageManager::defaultWebPage,       "Default");
-  xgi::bind(this,&StorageManager::css,                  "styles.css");
-  xgi::bind(this,&StorageManager::rbsenderWebPage,      "rbsenderlist");
-  xgi::bind(this,&StorageManager::streamerOutputWebPage,"streameroutput");
-  xgi::bind(this,&StorageManager::eventdataWebPage,     "geteventdata");
-  xgi::bind(this,&StorageManager::headerdataWebPage,    "getregdata");
-  xgi::bind(this,&StorageManager::consumerWebPage,      "registerConsumer");
-  xgi::bind(this,&StorageManager::consumerListWebPage,  "consumerList");
-  xgi::bind(this,&StorageManager::DQMeventdataWebPage,  "getDQMeventdata");
-  xgi::bind(this,&StorageManager::DQMconsumerWebPage,   "registerDQMConsumer");
-  xgi::bind(this,&StorageManager::eventServerWebPage,   "EventServerStats");
-  receivedFrames_ = 0;
-  pool_is_set_    = 0;
-  pool_           = 0;
-  nLogicalDisk_   = 0;
-  pushmode2proxy_ = false;
-
-  // Variables needed for streamer file writing
-  ispace->fireItemAvailable("pushMode2Proxy", &pushmode2proxy_);
-  ispace->fireItemAvailable("collateDQM",     &collateDQM_);
-  ispace->fireItemAvailable("archiveDQM",     &archiveDQM_);
-  ispace->fireItemAvailable("archiveIntervalDQM",  &archiveIntervalDQM_);
-  ispace->fireItemAvailable("purgeTimeDQM",   &purgeTimeDQM_);
-  ispace->fireItemAvailable("readyTimeDQM",   &readyTimeDQM_);
-  ispace->fireItemAvailable("filePrefixDQM",       &filePrefixDQM_);
-  ispace->fireItemAvailable("useCompressionDQM",   &useCompressionDQM_);
-  ispace->fireItemAvailable("compressionLevelDQM", &compressionLevelDQM_);
-  ispace->fireItemAvailable("nLogicalDisk",        &nLogicalDisk_);
-
-  boost::shared_ptr<stor::Parameter> smParameter_ = stor::Configurator::instance()->getParameter();
-  fileCatalog_        = smParameter_ -> fileCatalog(); 
-  fileName_           = smParameter_ -> fileName();
-  filePath_           = smParameter_ -> filePath();
-  maxFileSize_        = smParameter_ -> maxFileSize();
-  setupLabel_         = smParameter_ -> setupLabel();
-  highWaterMark_      = smParameter_ -> highWaterMark();
-  lumiSectionTimeOut_ = smParameter_ -> lumiSectionTimeOut();
-  exactFileSizeTest_  = smParameter_ -> exactFileSizeTest();
-
-  ispace->fireItemAvailable("fileCatalog",        &fileCatalog_);
-  ispace->fireItemAvailable("fileName",           &fileName_);
-  ispace->fireItemAvailable("filePath",           &filePath_);
-  ispace->fireItemAvailable("maxFileSize",        &maxFileSize_);
-  ispace->fireItemAvailable("setupLabel",         &setupLabel_);
-  ispace->fireItemAvailable("highWaterMark",      &highWaterMark_);
-  ispace->fireItemAvailable("lumiSectionTimeOut", &lumiSectionTimeOut_);
-  ispace->fireItemAvailable("exactFileSizeTest",  &exactFileSizeTest_);
-  ispace->fireItemAvailable("fileClosingTestInterval",&fileClosingTestInterval_);
-
-  // added for Event Server
-  maxESEventRate_ = 100.0;  // hertz
-  ispace->fireItemAvailable("maxESEventRate",&maxESEventRate_);
-  maxESDataRate_ = 1024.0;  // MB/sec
-  ispace->fireItemAvailable("maxESDataRate",&maxESDataRate_);
-  activeConsumerTimeout_ = 60;  // seconds
-  ispace->fireItemAvailable("activeConsumerTimeout",&activeConsumerTimeout_);
-  idleConsumerTimeout_ = 120;  // seconds
-  ispace->fireItemAvailable("idleConsumerTimeout",&idleConsumerTimeout_);
-  consumerQueueSize_ = 5;
-  ispace->fireItemAvailable("consumerQueueSize",&consumerQueueSize_);
-  //ispace->fireItemAvailable("fairShareES",&fairShareES_);
-  DQMmaxESEventRate_ = 1.0;  // hertz
-  ispace->fireItemAvailable("DQMmaxESEventRate",&DQMmaxESEventRate_);
-  DQMactiveConsumerTimeout_ = 60;  // seconds
-  ispace->fireItemAvailable("DQMactiveConsumerTimeout",&DQMactiveConsumerTimeout_);
-  DQMidleConsumerTimeout_ = 120;  // seconds
-  ispace->fireItemAvailable("DQMidleConsumerTimeout",&DQMidleConsumerTimeout_);
-  DQMconsumerQueueSize_ = 15;
-  ispace->fireItemAvailable("DQMconsumerQueueSize",&DQMconsumerQueueSize_);
-  esSelectedHLTOutputModule_ = "out4DQM";
-  ispace->fireItemAvailable("esSelectedHLTOutputModule",&esSelectedHLTOutputModule_);
-
-  // for performance measurements
-  ispace->fireItemAvailable("receivedSamples4Stats",&samples_);
-  ispace->fireItemAvailable("receivedPeriod4Stats",&period4samples_);
-  samples_          = 1000; // measurements every 60MB (about) is the default
-  period4samples_   = 5;
-  instantBandwidth_ = 0.;
-  instantRate_      = 0.;
-  instantLatency_   = 0.;
-  totalSamples_     = 0;
-  duration_         = 0.;
-  meanBandwidth_    = 0.;
-  meanRate_         = 0.;
-  meanLatency_      = 0.;
-
-  instantBandwidth2_= 0.;
-  instantRate2_     = 0.;
-  instantLatency2_  = 0.;
-  totalSamples2_    = 0;
-  duration2_        = 0.;
-  meanBandwidth2_   = 0.;
-  meanRate2_        = 0.;
-  meanLatency2_     = 0.;
-
-  maxBandwidth_     = 0.;
-  minBandwidth_     = 999999.;
-
-  maxBandwidth2_    = 0.;
-  minBandwidth2_    = 999999.; 
-
-  ispace->fireItemAvailable("receivedDQMSamples4Stats",&DQMsamples_);
-  ispace->fireItemAvailable("receivedDQMPeriod4Stats",&DQMperiod4samples_);
-  DQMsamples_          = 20;
-  DQMperiod4samples_   = 300;
-  DQMinstantBandwidth_ = 0.;
-  DQMinstantRate_      = 0.;
-  DQMinstantLatency_   = 0.;
-  DQMtotalSamples_     = 0;
-  DQMduration_         = 0.;
-  DQMmeanBandwidth_    = 0.;
-  DQMmeanRate_         = 0.;
-  DQMmeanLatency_      = 0.;
-
-  DQMinstantBandwidth2_= 0.;
-  DQMinstantRate2_     = 0.;
-  DQMinstantLatency2_  = 0.;
-  DQMtotalSamples2_    = 0;
-  DQMduration2_        = 0.;
-  DQMmeanBandwidth2_   = 0.;
-  DQMmeanRate2_        = 0.;
-  DQMmeanLatency2_     = 0.;
-
-  DQMmaxBandwidth_     = 0.;
-  DQMminBandwidth_     = 999999.;
-
-  DQMmaxBandwidth2_    = 0.;
-  DQMminBandwidth2_    = 999999.; 
-
-  pmeter_ = new stor::SMPerformanceMeter();
-  pmeter_->init(samples_, period4samples_);
-  DQMpmeter_ = new stor::SMPerformanceMeter();
-  DQMpmeter_->init(DQMsamples_, DQMperiod4samples_);
-
-  string        xmlClass = getApplicationDescriptor()->getClassName();
-  unsigned long instance = getApplicationDescriptor()->getInstance();
-  ostringstream sourcename;
-  // sourcename << xmlClass << "_" << instance;
-  sourcename << instance;
-  sourceId_ = sourcename.str();
-  smParameter_ -> setSmInstance(sourceId_);
-
-  storedEventsInStream_.reserve(20);
-  storedEventsInStream_.clear();
-  receivedEventsFromOutMod_.reserve(10);
-  receivedEventsFromOutMod_.clear();
-  receivedEventsMap_.clear();
-  avEventSizeMap_.clear();
-  avCompressRatioMap_.clear();
-  modId2ModOutMap_.clear();
-  storedEventsMap_.clear();
-
-  // need the line below so that deserializeRegistry can run
-  // in order to compare two registries (cannot compare byte-for-byte) (if we keep this)
-  // need line below anyway in case we deserialize DQMEvents for collation
-  edm::RootAutoLibraryLoader::enable();
-
-  // set application icon for hyperdaq
-  getApplicationDescriptor()->setAttribute("icon", "/evf/images/smicon.jpg");
 }
+
+
+void StorageManager::bindStateMachineCallbacks()
+{
+  xoap::bind( this,
+              &StorageManager::configuring,
+              "Configure",
+              XDAQ_NS_URI );
+  xoap::bind( this,
+              &StorageManager::enabling,
+              "Enable",
+              XDAQ_NS_URI );
+  xoap::bind( this,
+              &StorageManager::stopping,
+              "Stop",
+              XDAQ_NS_URI );
+  xoap::bind( this,
+              &StorageManager::halting,
+              "Halt",
+              XDAQ_NS_URI );
+}
+
+
+void StorageManager::bindWebInterfaceCallbacks()
+{
+  xgi::bind(this,&StorageManager::css,                      "styles.css");
+  xgi::bind(this,&StorageManager::defaultWebPage,           "Default");
+  xgi::bind(this,&StorageManager::storedDataWebPage,        "storedData");
+  xgi::bind(this,&StorageManager::rbsenderWebPage,          "rbsenderlist");
+  xgi::bind(this,&StorageManager::rbsenderDetailWebPage,    "rbsenderdetail");
+  xgi::bind(this,&StorageManager::fileStatisticsWebPage,    "fileStatistics");
+  xgi::bind(this,&StorageManager::dqmEventStatisticsWebPage,"dqmEventStatistics");
+  xgi::bind(this,&StorageManager::consumerStatisticsPage,   "consumerStatistics" );
+  xgi::bind(this,&StorageManager::consumerListWebPage,      "consumerList");
+  xgi::bind(this,&StorageManager::throughputWebPage,"throughputStatistics");
+}
+
+
+void StorageManager::bindConsumerCallbacks()
+{
+  // event consumers
+  xgi::bind( this, &StorageManager::processConsumerRegistrationRequest, "registerConsumer" );
+  xgi::bind( this, &StorageManager::processConsumerHeaderRequest, "getregdata" );
+  xgi::bind( this, &StorageManager::processConsumerEventRequest, "geteventdata" );
+
+  // dqm event consumers
+  xgi::bind(this,&StorageManager::processDQMConsumerRegistrationRequest, "registerDQMConsumer");
+  xgi::bind(this,&StorageManager::processDQMConsumerEventRequest, "getDQMeventdata");
+}
+
+
+void StorageManager::initializeSharedResources()
+{
+  _sharedResources.reset(new SharedResources());
+
+  xdata::InfoSpace *ispace = getApplicationInfoSpace();
+  unsigned long instance = getApplicationDescriptor()->getInstance();
+  _sharedResources->_configuration.reset(new Configuration(ispace, instance));
+
+  QueueConfigurationParams queueParams =
+    _sharedResources->_configuration->getQueueConfigurationParams();
+  _sharedResources->_commandQueue.
+    reset(new CommandQueue(queueParams._commandQueueSize));
+  _sharedResources->_fragmentQueue.
+    reset(new FragmentQueue(queueParams._fragmentQueueSize));
+  _sharedResources->_registrationQueue.
+    reset(new RegistrationQueue(queueParams._registrationQueueSize));
+  _sharedResources->_streamQueue.
+    reset(new StreamQueue(queueParams._streamQueueSize));
+  _sharedResources->_dqmEventQueue.
+    reset(new DQMEventQueue(queueParams._dqmEventQueueSize));
+
+  _sharedResources->_statisticsReporter.reset(new StatisticsReporter(this));
+  _sharedResources->_initMsgCollection.reset(new InitMsgCollection());
+  _sharedResources->_diskWriterResources.reset(new DiskWriterResources());
+  _sharedResources->_dqmEventProcessorResources.reset(new DQMEventProcessorResources());
+
+  _sharedResources->_statisticsReporter->getThroughputMonitorCollection().setFragmentQueue(_sharedResources->_fragmentQueue);
+  _sharedResources->_statisticsReporter->getThroughputMonitorCollection().setStreamQueue(_sharedResources->_streamQueue);
+  _sharedResources->_statisticsReporter->getThroughputMonitorCollection().setDQMEventQueue(_sharedResources->_dqmEventQueue);
+
+  _sharedResources->
+    _discardManager.reset(new DiscardManager(getApplicationContext(),
+                                             getApplicationDescriptor()));
+
+  _sharedResources->_registrationCollection.reset( new RegistrationCollection() );
+  boost::shared_ptr<ConsumerMonitorCollection>
+    cmcptr( _sharedResources->_statisticsReporter->getEventConsumerMonitorCollection() );
+  _sharedResources->_eventConsumerQueueCollection.reset( new EventQueueCollection( cmcptr ) );
+  cmcptr = _sharedResources->_statisticsReporter->getDQMConsumerMonitorCollection();
+  _sharedResources->_dqmEventConsumerQueueCollection.reset( new DQMEventQueueCollection( cmcptr ) );
+}
+
+
+void StorageManager::startWorkerThreads()
+{
+  _fragmentProcessor = new FragmentProcessor( this, _sharedResources );
+  _diskWriter = new DiskWriter(this, _sharedResources);
+  _dqmEventProcessor = new DQMEventProcessor(this, _sharedResources);
+
+  // Start the workloops
+  try
+  {
+    _sharedResources->_statisticsReporter->startWorkLoop("theStatisticsReporter");
+    _fragmentProcessor->startWorkLoop("theFragmentProcessor");
+    _diskWriter->startWorkLoop("theDiskWriter");
+    _dqmEventProcessor->startWorkLoop("theDQMEventProcessor");
+  }
+  catch(xcept::Exception &e)
+  {
+    LOG4CPLUS_FATAL(getApplicationLogger(),
+      e.what() << xcept::stdformat_exception_history(e));
+
+    #ifndef STOR_BYPASS_SENTINEL
+    notifyQualified("fatal", e);
+    #endif
+
+    _sharedResources->moveToFailedState();
+  }
+  catch(std::exception &e)
+  {
+    LOG4CPLUS_FATAL(getApplicationLogger(),
+      e.what());
+    
+    #ifndef STOR_BYPASS_SENTINEL
+    XCEPT_DECLARE(stor::exception::Exception,
+      sentinelException, e.what());
+    notifyQualified("fatal", sentinelException);
+    #endif
+
+    _sharedResources->moveToFailedState();
+  }
+  catch(...)
+  {
+    std::string errorMsg = "Unknown exception when starting the workloops.";
+    LOG4CPLUS_FATAL(getApplicationLogger(),
+      errorMsg);
+    
+    #ifndef STOR_BYPASS_SENTINEL
+    XCEPT_DECLARE(stor::exception::Exception,
+      sentinelException, errorMsg);
+    notifyQualified("fatal", sentinelException);
+    #endif
+
+    _sharedResources->moveToFailedState();
+  }
+}
+
 
 StorageManager::~StorageManager()
 {
-  delete ah_;
-  delete pmeter_;
-  delete DQMpmeter_;
-}
-
-xoap::MessageReference
-StorageManager::ParameterGet(xoap::MessageReference message)
-  throw (xoap::exception::Exception)
-{
-  connectedRBs_.value_ = smrbsenders_.size();
-  return Application::ParameterGet(message);
+  delete _fragmentProcessor;
+  delete _diskWriter;
+  delete _dqmEventProcessor;
 }
 
 
-////////// *** I2O frame call back functions /////////////////////////////////////////////
+/////////////////////////////
+// I2O call back functions //
+/////////////////////////////
+
 void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
 {
-  // get the memory pool pointer for statistics if not already set
-  if(pool_is_set_ == 0)
-  {
-    pool_ = ref->getBuffer()->getPool();
-    pool_is_set_ = 1;
-  }
+  I2OChain i2oChain(ref);
 
-  I2O_MESSAGE_FRAME         *stdMsg  = (I2O_MESSAGE_FRAME*) ref->getDataLocation();
-  I2O_SM_PREAMBLE_MESSAGE_FRAME *msg = (I2O_SM_PREAMBLE_MESSAGE_FRAME*) stdMsg;
+  // Set the I2O message pool pointer. Only done for init messages.
+  ResourceMonitorCollection& resourceMonCollection =
+    _sharedResources->_statisticsReporter->getResourceMonitorCollection();
+  resourceMonCollection.setMemoryPoolPointer( ref->getBuffer()->getPool() );
 
-  FDEBUG(10) << "StorageManager: Received registry message from HLT " << msg->hltURL
-             << " application " << msg->hltClassName << " id " << msg->hltLocalId
-             << " instance " << msg->hltInstance << " tid " << msg->hltTid
-             << " rbBufferID " << msg->rbBufferID << " outModID " << msg->outModID
-             << " fuProcID " << msg->fuProcID  << " fuGUID 0x" << std::hex
-             << msg->fuGUID << std::dec << std::endl;
-  FDEBUG(10) << "StorageManager: registry size " << msg->dataSize << "\n";
+  FragmentMonitorCollection& fragMonCollection =
+    _sharedResources->_statisticsReporter->getFragmentMonitorCollection();
+  fragMonCollection.getAllFragmentSizeMQ().addSample( 
+    static_cast<double>( i2oChain.totalDataSize() ) / 0x100000
+  );
 
-  int len = msg->dataSize;
-
-  // *** check the Storage Manager is in the Ready or Enabled state first!
-  if(fsm_.stateName()->toString() != "Enabled" && fsm_.stateName()->toString() != "Ready" )
-  {
-    LOG4CPLUS_ERROR(this->getApplicationLogger(),
-                       "Received INIT message but not in Ready/Enabled state! Current state = "
-                       << fsm_.stateName()->toString() << " INIT from " << msg->hltURL
-                       << " application " << msg->hltClassName);
-    // just release the memory at least - is that what we want to do?
-    ref->release();
-    return;
-  }
-
-  // 04-Nov-2008, HWKC and KAB - make local copy of I2O message header so
-  // that we can use that information even after the Reference is released.
-  // Do *NOT* use the dataPtr() method of the localMsgCopy because this
-  // copy operation doesn't include the data, only the header!
-  I2O_SM_PREAMBLE_MESSAGE_FRAME localMsgCopy;
-  const char* from = static_cast<const char*>(ref->getDataLocation());
-  unsigned int msize = sizeof(I2O_SM_PREAMBLE_MESSAGE_FRAME);
-  char* dest = (char*) &localMsgCopy;
-  std::copy(from, from+msize, dest);
-  localMsgCopy.dataSize = msize;
-
-  // If running with local transfers, a chain of I2O frames when posted only has the
-  // head frame sent. So a single frame can complete a chain for local transfers.
-  // We need to test for this. Must be head frame, more than one frame
-  // and next pointer must exist.
-  int is_local_chain = 0;
-  if(msg->frameCount == 0 && msg->numFrames > 1 && ref->getNextReference())
-  {
-    // this looks like a chain of frames (local transfer)
-    toolbox::mem::Reference *head = ref;
-    toolbox::mem::Reference *next = 0;
-    // best to check the complete chain just in case!
-    unsigned int tested_frames = 1;
-    next = head;
-    while((next=next->getNextReference())!=0) ++tested_frames;
-    FDEBUG(10) << "StorageManager: INIT Head frame has " << tested_frames-1
-               << " linked frames out of " << msg->numFrames-1 << std::endl;
-    if(msg->numFrames == tested_frames)
-    {
-      // found a complete linked chain from the leading frame
-      is_local_chain = 1;
-      FDEBUG(10) << "StorageManager: Leading frame contains a complete linked chain"
-                 << " - must be local transfer" << std::endl;
-      FDEBUG(10) << "StorageManager: Breaking the chain" << std::endl;
-      // break the chain and feed them to the fragment collector
-      next = head;
-
-      for(int iframe=0; iframe <(int)localMsgCopy.numFrames; ++iframe)
-      {
-         toolbox::mem::Reference *thisref=next;
-         next = thisref->getNextReference();
-         thisref->setNextReference(0);
-         I2O_MESSAGE_FRAME          *thisstdMsg = (I2O_MESSAGE_FRAME*)thisref->getDataLocation();
-         I2O_SM_PREAMBLE_MESSAGE_FRAME *thismsg = (I2O_SM_PREAMBLE_MESSAGE_FRAME*)thisstdMsg;
-
-         // 04-Nov-2008, need to make a local copy of I2O header information.
-         // Do *NOT* use the dataPtr() method of the thisMsgCopy because this
-         // copy operation doesn't include the data, only the header!
-         I2O_SM_PREAMBLE_MESSAGE_FRAME thisMsgCopy;
-         from = static_cast<const char*>(thisref->getDataLocation());
-         msize = sizeof(I2O_SM_PREAMBLE_MESSAGE_FRAME);
-         dest = (char*) &thisMsgCopy;
-         std::copy(from, from+msize, dest);
-         thisMsgCopy.dataSize = msize;
-
-         EventBuffer::ProducerBuffer b(jc_->getFragmentQueue());
-         int thislen = thismsg->dataSize;
-         // ***  must give it the 1 of N for this fragment (starts from 0 in i2o header)
-         new (b.buffer()) stor::FragEntry(thisref, (char*)(thismsg->dataPtr()), thislen,
-                                          thismsg->frameCount+1, thismsg->numFrames, Header::INIT, 
-                                          0, thismsg->hltTid, thismsg->outModID,
-                                          thismsg->fuProcID, thismsg->fuGUID);
-         std::copy(thismsg->hltURL, thismsg->hltURL+MAX_I2O_SM_URLCHARS,
-                   static_cast<stor::FragEntry*>(b.buffer())->hltURL_);
-         std::copy(thismsg->hltClassName, thismsg->hltClassName+MAX_I2O_SM_URLCHARS,
-                   static_cast<stor::FragEntry*>(b.buffer())->hltClassName_);
-         static_cast<stor::FragEntry*>(b.buffer())->hltLocalId_ = thismsg->hltLocalId;
-         static_cast<stor::FragEntry*>(b.buffer())->hltInstance_ = thismsg->hltInstance;
-         static_cast<stor::FragEntry*>(b.buffer())->hltTid_ = thismsg->hltTid;
-         static_cast<stor::FragEntry*>(b.buffer())->rbBufferID_ = thismsg->rbBufferID;
-         b.commit(sizeof(stor::FragEntry));
-
-         ++receivedFrames_;
-         // for bandwidth performance measurements
-         // Following is wrong for the last frame because frame sent is
-         // is actually larger than the size taken by actual data
-         unsigned long actualFrameSize = (unsigned long)sizeof(I2O_SM_PREAMBLE_MESSAGE_FRAME)
-                                         +thislen;
-         addMeasurement(actualFrameSize);
-
-         // add this output module to the monitoring
-         bool alreadyStoredOutMod = false;
-         uint32 moduleId = thisMsgCopy.outModID;
-         std::string dmoduleLabel("ID_" + smutil_itos(thisMsgCopy.outModID));
-         if(modId2ModOutMap_.find(moduleId) != modId2ModOutMap_.end()) alreadyStoredOutMod = true;
-         if(!alreadyStoredOutMod) {
-           modId2ModOutMap_.insert(std::make_pair(moduleId,dmoduleLabel));
-           receivedEventsMap_.insert(std::make_pair(dmoduleLabel,0));
-           avEventSizeMap_.insert(std::make_pair(dmoduleLabel,
-                   boost::shared_ptr<ForeverAverageCounter>(new ForeverAverageCounter()) ));
-           avCompressRatioMap_.insert(std::make_pair(dmoduleLabel,
-                   boost::shared_ptr<ForeverAverageCounter>(new ForeverAverageCounter()) ));
-         }
-      }
-
-    } else {
-      // should never get here!
-      FDEBUG(10) << "StorageManager: INIT Head frame has fewer linked frames "
-                 << "than expected: abnormal error! " << std::endl;
-      LOG4CPLUS_ERROR(this->getApplicationLogger(),"INIT Head frame has fewer linked frames" 
-                      << " than expected: abnormal error! ");
-    }
-  }
-
-  if (is_local_chain == 0) 
-  {
-    // put pointers into fragment collector queue
-    EventBuffer::ProducerBuffer b(jc_->getFragmentQueue());
-    // must give it the 1 of N for this fragment (starts from 0 in i2o header)
-    new (b.buffer()) stor::FragEntry(ref, (char*)(msg->dataPtr()), len,
-                                     msg->frameCount+1, msg->numFrames, Header::INIT,
-                                     0, msg->hltTid, msg->outModID,
-                                     msg->fuProcID, msg->fuGUID);
-    std::copy(msg->hltURL, msg->hltURL+MAX_I2O_SM_URLCHARS,
-              static_cast<stor::FragEntry*>(b.buffer())->hltURL_);
-    std::copy(msg->hltClassName, msg->hltClassName+MAX_I2O_SM_URLCHARS,
-              static_cast<stor::FragEntry*>(b.buffer())->hltClassName_);
-    static_cast<stor::FragEntry*>(b.buffer())->hltLocalId_ = msg->hltLocalId;
-    static_cast<stor::FragEntry*>(b.buffer())->hltInstance_ = msg->hltInstance;
-    static_cast<stor::FragEntry*>(b.buffer())->hltTid_ = msg->hltTid;
-    static_cast<stor::FragEntry*>(b.buffer())->rbBufferID_ = msg->rbBufferID;
-    b.commit(sizeof(stor::FragEntry));
-    // Frame release is done in the deleter.
-    ++receivedFrames_;
-    // for bandwidth performance measurements
-    unsigned long actualFrameSize = (unsigned long)sizeof(I2O_SM_PREAMBLE_MESSAGE_FRAME)
-                                    + len;
-    addMeasurement(actualFrameSize);
-
-    // add this output module to the monitoring
-    bool alreadyStoredOutMod = false;
-    uint32 moduleId = localMsgCopy.outModID;
-    std::string dmoduleLabel("ID_" + smutil_itos(localMsgCopy.outModID));
-    if(modId2ModOutMap_.find(moduleId) != modId2ModOutMap_.end()) alreadyStoredOutMod = true;
-    if(!alreadyStoredOutMod) {
-      modId2ModOutMap_.insert(std::make_pair(moduleId,dmoduleLabel));
-      receivedEventsMap_.insert(std::make_pair(dmoduleLabel,0));
-      avEventSizeMap_.insert(std::make_pair(dmoduleLabel,
-          boost::shared_ptr<ForeverAverageCounter>(new ForeverAverageCounter()) ));
-      avCompressRatioMap_.insert(std::make_pair(dmoduleLabel,
-          boost::shared_ptr<ForeverAverageCounter>(new ForeverAverageCounter()) ));
-    }
-  }
-
-  if (  localMsgCopy.frameCount == localMsgCopy.numFrames-1 )
-  {
-    string hltClassName(localMsgCopy.hltClassName);
-    sendDiscardMessage(localMsgCopy.rbBufferID, 
-                       localMsgCopy.hltInstance, 
-                       I2O_FU_DATA_DISCARD,
-                       hltClassName);
-  }
+  _sharedResources->_fragmentQueue->enq_wait(i2oChain);
 }
+
 
 void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
 {
-  // get the memory pool pointer for statistics if not already set
-  if(pool_is_set_ == 0)
-  {
-    pool_ = ref->getBuffer()->getPool();
-    pool_is_set_ = 1;
-  }
+  I2OChain i2oChain(ref);
 
-  I2O_MESSAGE_FRAME         *stdMsg =
-    (I2O_MESSAGE_FRAME*)ref->getDataLocation();
-  I2O_SM_DATA_MESSAGE_FRAME *msg    =
-    (I2O_SM_DATA_MESSAGE_FRAME*)stdMsg;
-  FDEBUG(10)   << "StorageManager: Received data message from HLT at " << msg->hltURL 
-	       << " application " << msg->hltClassName << " id " << msg->hltLocalId
-	       << " instance " << msg->hltInstance << " tid " << msg->hltTid
-	       << " rbBufferID " << msg->rbBufferID << " outModID " << msg->outModID
-               << " fuProcID " << msg->fuProcID  << " fuGUID 0x" << std::hex
-               << msg->fuGUID << std::dec << std::endl;
-  FDEBUG(10)   << "                 for run " << msg->runID << " event " << msg->eventID
-	       << " total frames = " << msg->numFrames << std::endl;
-  FDEBUG(10)   << "StorageManager: Frame " << msg->frameCount << " of " 
-	       << msg->numFrames-1 << std::endl;
-  
-  int len = msg->dataSize;
+  FragmentMonitorCollection& fragMonCollection =
+    _sharedResources->_statisticsReporter->getFragmentMonitorCollection();
+  fragMonCollection.addEventFragmentSample( i2oChain.totalDataSize() );
 
-  // check the storage Manager is in the Ready state first!
-  if(fsm_.stateName()->toString() != "Enabled")
-  {
-    LOG4CPLUS_ERROR(this->getApplicationLogger(),
-                       "Received EVENT message but not in Enabled state! Current state = "
-                       << fsm_.stateName()->toString() << " EVENT from" << msg->hltURL
-                       << " application " << msg->hltClassName);
-    // just release the memory at least - is that what we want to do?
-    ref->release();
-    return;
-  }
-
-  // 04-Nov-2008, HWKC and KAB - make local copy of I2O message header so
-  // that we can use that information even after the Reference is released.
-  // Do *NOT* use the dataPtr() method of the localMsgCopy because this
-  // copy operation doesn't include the data, only the header!
-  I2O_SM_DATA_MESSAGE_FRAME localMsgCopy;
-  const char* from = static_cast<const char*>(ref->getDataLocation());
-  unsigned int msize = sizeof(I2O_SM_DATA_MESSAGE_FRAME);
-  char* dest = (char*) &localMsgCopy;
-  std::copy(from, from+msize, dest);
-  localMsgCopy.dataSize = msize;
-
-  // If running with local transfers, a chain of I2O frames when posted only has the
-  // head frame sent. So a single frame can complete a chain for local transfers.
-  // We need to test for this. Must be head frame, more than one frame
-  // and next pointer must exist.
-  int is_local_chain = 0;
-  if(msg->frameCount == 0 && msg->numFrames > 1 && ref->getNextReference())
-  {
-    // this looks like a chain of frames (local transfer)
-    toolbox::mem::Reference *head = ref;
-    toolbox::mem::Reference *next = 0;
-    // best to check the complete chain just in case!
-    unsigned int tested_frames = 1;
-    next = head;
-    while((next=next->getNextReference())!=0) ++tested_frames;
-    FDEBUG(10) << "StorageManager: Head frame has " << tested_frames-1
-               << " linked frames out of " << msg->numFrames-1 << std::endl;
-    if(msg->numFrames == tested_frames)
-    {
-      // found a complete linked chain from the leading frame
-      is_local_chain = 1;
-      FDEBUG(10) << "StorageManager: Leading frame contains a complete linked chain"
-                 << " - must be local transfer" << std::endl;
-      FDEBUG(10) << "StorageManager: Breaking the chain" << std::endl;
-      // break the chain and feed them to the fragment collector
-      next = head;
-
-      for(int iframe=0; iframe <(int)localMsgCopy.numFrames; ++iframe)
-      {
-         toolbox::mem::Reference *thisref=next;
-         next = thisref->getNextReference();
-         thisref->setNextReference(0);
-         I2O_MESSAGE_FRAME         *thisstdMsg = (I2O_MESSAGE_FRAME*)thisref->getDataLocation();
-         I2O_SM_DATA_MESSAGE_FRAME *thismsg    = (I2O_SM_DATA_MESSAGE_FRAME*)thisstdMsg;
-
-         // 04-Nov-2008, need to make a local copy of I2O header information.
-         // Do *NOT* use the dataPtr() method of the thisMsgCopy because this
-         // copy operation doesn't include the data, only the header!
-         I2O_SM_DATA_MESSAGE_FRAME thisMsgCopy;
-         from = static_cast<const char*>(thisref->getDataLocation());
-         msize = sizeof(I2O_SM_DATA_MESSAGE_FRAME);
-         dest = (char*) &thisMsgCopy;
-         std::copy(from, from+msize, dest);
-         thisMsgCopy.dataSize = msize;
-
-         EventBuffer::ProducerBuffer b(jc_->getFragmentQueue());
-         int thislen = thismsg->dataSize;
-         // ***  must give it the 1 of N for this fragment (starts from 0 in i2o header)
-         new (b.buffer()) stor::FragEntry(thisref, (char*)(thismsg->dataPtr()), thislen,
-                                          thismsg->frameCount+1, thismsg->numFrames, Header::EVENT, 
-                                          thismsg->runID, thismsg->eventID, thismsg->outModID,
-                                          thismsg->fuProcID, thismsg->fuGUID);
-         b.commit(sizeof(stor::FragEntry));
-
-         ++receivedFrames_;
-         // for bandwidth performance measurements
-         // Following is wrong for the last frame because frame sent is
-         // is actually larger than the size taken by actual data
-         unsigned long actualFrameSize = (unsigned long)sizeof(I2O_SM_DATA_MESSAGE_FRAME)
-                                         +thislen;
-         addMeasurement(actualFrameSize);
-
-         // should only do this test if the first data frame from each FU?
-         // check if run number is the same as that in Run configuration, complain otherwise !!!
-         // this->runNumber_ comes from the RunBase class that StorageManager inherits from
-         if(thisMsgCopy.runID != runNumber_)
-         {
-           LOG4CPLUS_ERROR(this->getApplicationLogger(),"Run Number from event stream = " << thisMsgCopy.runID
-                           << " From " << thisMsgCopy.hltURL
-                           << " Different from Run Number from configuration = " << runNumber_);
-         }
-         // for data sender list update
-         // thisMsgCopy.frameCount start from 0, but in EventMsg header it starts from 1!
-         bool isLocal = true;
-
-         //update last event seen
-         lastEventSeen_ = thisMsgCopy.eventID;
-
-         int status = 
-	   smrbsenders_.updateSender4data(&thisMsgCopy.hltURL[0], &thisMsgCopy.hltClassName[0],
-					  thisMsgCopy.hltLocalId, thisMsgCopy.hltInstance, thisMsgCopy.hltTid,
-					  thisMsgCopy.runID, thisMsgCopy.eventID, thisMsgCopy.frameCount+1, thisMsgCopy.numFrames,
-					  thisMsgCopy.originalSize, isLocal, thisMsgCopy.outModID);
-
-         //if(status == 1) ++(storedEvents_.value_);
-         if(status == 1) {
-           ++(receivedEvents_.value_);
-           uint32 moduleId = thisMsgCopy.outModID;
-           if (modId2ModOutMap_.find(moduleId) != modId2ModOutMap_.end()) {
-             std::string moduleLabel = modId2ModOutMap_[moduleId];
-             ++(receivedEventsMap_[moduleLabel]);
-             avEventSizeMap_[moduleLabel]->addSample((double)thisMsgCopy.originalSize);
-             // TODO: get the uncompressed size to find compression ratio for stats
-           }
-           else {
-             LOG4CPLUS_WARN(this->getApplicationLogger(),
-                            "StorageManager::receiveDataMessage: "
-                            << "Unable to find output module label when "
-                            << "accumulating statistics for event "
-                            << thisMsgCopy.eventID << ", output module "
-                            << thisMsgCopy.outModID << ".");
-           }
-         }
-
-         if(status == -1) {
-           LOG4CPLUS_ERROR(this->getApplicationLogger(),
-                    "updateSender4data: Cannot find RB in Data Sender list!"
-                    << " With URL "
-                    << thisMsgCopy.hltURL << " class " << thisMsgCopy.hltClassName  << " instance "
-                    << thisMsgCopy.hltInstance << " Tid " << thisMsgCopy.hltTid);
-         }
-      }
-
-    } else {
-      // should never get here!
-      FDEBUG(10) << "StorageManager: Head frame has fewer linked frames "
-                 << "than expected: abnormal error! " << std::endl;
-      LOG4CPLUS_ERROR(this->getApplicationLogger(),"Head frame has fewer linked frames" 
-                      << " than expected: abnormal error! ");
-    }
-  }
-
-  if (is_local_chain == 0) 
-  {
-    // put pointers into fragment collector queue
-    EventBuffer::ProducerBuffer b(jc_->getFragmentQueue());
-    // must give it the 1 of N for this fragment (starts from 0 in i2o header)
-    new (b.buffer()) stor::FragEntry(ref, (char*)(msg->dataPtr()), len,
-                                     msg->frameCount+1, msg->numFrames, Header::EVENT, 
-                                     msg->runID, msg->eventID, msg->outModID,
-                                     msg->fuProcID, msg->fuGUID);
-    b.commit(sizeof(stor::FragEntry));
-    // Frame release is done in the deleter.
-    ++receivedFrames_;
-    // for bandwidth performance measurements
-    unsigned long actualFrameSize = (unsigned long)sizeof(I2O_SM_DATA_MESSAGE_FRAME)
-                                    + len;
-    addMeasurement(actualFrameSize);
-
-    // should only do this test if the first data frame from each FU?
-    // check if run number is the same as that in Run configuration, complain otherwise !!!
-    // this->runNumber_ comes from the RunBase class that StorageManager inherits from
-    if(localMsgCopy.runID != runNumber_)
-    {
-      LOG4CPLUS_ERROR(this->getApplicationLogger(),"Run Number from event stream = "
-		      << localMsgCopy.runID << " From " << localMsgCopy.hltURL
-                      << " Different from Run Number from configuration = " << runNumber_);
-    }
-
-    //update last event seen
-    lastEventSeen_ = localMsgCopy.eventID;
-
-    // for data sender list update
-    // localMsgCopy.frameCount start from 0, but in EventMsg header it starts from 1!
-    bool isLocal = false;
-    int status = 
-      smrbsenders_.updateSender4data(&localMsgCopy.hltURL[0], &localMsgCopy.hltClassName[0],
-                                     localMsgCopy.hltLocalId, localMsgCopy.hltInstance, localMsgCopy.hltTid,
-                                     localMsgCopy.runID, localMsgCopy.eventID, localMsgCopy.frameCount+1, localMsgCopy.numFrames,
-                                     localMsgCopy.originalSize, isLocal, localMsgCopy.outModID);
-
-    //if(status == 1) ++(storedEvents_.value_);
-    if(status == 1) {
-      ++(receivedEvents_.value_);
-      uint32 moduleId = localMsgCopy.outModID;
-      if (modId2ModOutMap_.find(moduleId) != modId2ModOutMap_.end()) {
-        std::string moduleLabel = modId2ModOutMap_[moduleId];
-        ++(receivedEventsMap_[moduleLabel]);
-        avEventSizeMap_[moduleLabel]->addSample((double)localMsgCopy.originalSize);
-        // TODO: get the uncompressed size to find compression ratio for stats
-      }
-      else {
-        LOG4CPLUS_WARN(this->getApplicationLogger(),
-                       "StorageManager::receiveDataMessage: "
-                       << "Unable to find output module label when "
-                       << "accumulating statistics for event "
-                       << localMsgCopy.eventID << ", output module "
-                       << localMsgCopy.outModID << ".");
-      }
-    }
-    if(status == -1) {
-      LOG4CPLUS_ERROR(this->getApplicationLogger(),
-		      "updateSender4data: Cannot find RB in Data Sender list!"
-		      << " With URL "
-		      << localMsgCopy.hltURL << " class " << localMsgCopy.hltClassName  << " instance "
-		      << localMsgCopy.hltInstance << " Tid " << localMsgCopy.hltTid);
-    }
-  }
-
-  if (  localMsgCopy.frameCount == localMsgCopy.numFrames-1 )
-    {
-      string hltClassName(localMsgCopy.hltClassName);
-      sendDiscardMessage(localMsgCopy.rbBufferID, 
-			 localMsgCopy.hltInstance, 
-			 I2O_FU_DATA_DISCARD,
-			 hltClassName);
-    }
+  _sharedResources->_fragmentQueue->enq_wait(i2oChain);
 }
+
 
 void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
 {
-  // get the memory pool pointer for statistics if not already set
-  if(pool_is_set_ == 0)
-  {
-    pool_ = ref->getBuffer()->getPool();
-    pool_is_set_ = 1;
-  }
+  I2OChain i2oChain(ref);
 
-  I2O_MESSAGE_FRAME         *stdMsg =
-    (I2O_MESSAGE_FRAME*)ref->getDataLocation();
-  I2O_SM_DATA_MESSAGE_FRAME *msg    =
-    (I2O_SM_DATA_MESSAGE_FRAME*)stdMsg;
-  FDEBUG(10)   << "StorageManager: Received error data message from HLT at " << msg->hltURL 
-	       << " application " << msg->hltClassName << " id " << msg->hltLocalId
-	       << " instance " << msg->hltInstance << " tid " << msg->hltTid
-               << " rbBufferID " << msg->rbBufferID << " outModID " << msg->outModID
-               << " fuProcID " << msg->fuProcID  << " fuGUID 0x" << std::hex
-               << msg->fuGUID << std::dec << std::endl;
-  FDEBUG(10)   << "                 for run " << msg->runID << " event " << msg->eventID
-	       << " total frames = " << msg->numFrames << std::endl;
-  FDEBUG(10)   << "StorageManager: Frame " << msg->frameCount << " of " 
-	       << msg->numFrames-1 << std::endl;
-  
-  int len = msg->dataSize;
+  FragmentMonitorCollection& fragMonCollection =
+    _sharedResources->_statisticsReporter->getFragmentMonitorCollection();
+  fragMonCollection.addEventFragmentSample( i2oChain.totalDataSize() );
 
-  // check the storage Manager is in the Ready state first!
-  if(fsm_.stateName()->toString() != "Enabled")
-  {
-    LOG4CPLUS_ERROR(this->getApplicationLogger(),
-                       "Received ERROR message but not in Enabled state! Current state = "
-                       << fsm_.stateName()->toString() << " ERROR from" << msg->hltURL
-                       << " application " << msg->hltClassName);
-    // just release the memory at least - is that what we want to do?
-    ref->release();
-    return;
-  }
-
-  // 04-Nov-2008, HWKC and KAB - make local copy of I2O message header so
-  // that we can use that information even after the Reference is released.
-  // Do *NOT* use the dataPtr() method of the localMsgCopy because this
-  // copy operation doesn't include the data, only the header!
-  I2O_SM_DATA_MESSAGE_FRAME localMsgCopy;
-  const char* from = static_cast<const char*>(ref->getDataLocation());
-  unsigned int msize = sizeof(I2O_SM_DATA_MESSAGE_FRAME);
-  char* dest = (char*) &localMsgCopy;
-  std::copy(from, from+msize, dest);
-  localMsgCopy.dataSize = msize;
-
-  // If running with local transfers, a chain of I2O frames when posted only has the
-  // head frame sent. So a single frame can complete a chain for local transfers.
-  // We need to test for this. Must be head frame, more than one frame
-  // and next pointer must exist.
-  int is_local_chain = 0;
-  if(msg->frameCount == 0 && msg->numFrames > 1 && ref->getNextReference())
-  {
-    // this looks like a chain of frames (local transfer)
-    toolbox::mem::Reference *head = ref;
-    toolbox::mem::Reference *next = 0;
-    // best to check the complete chain just in case!
-    unsigned int tested_frames = 1;
-    next = head;
-    while((next=next->getNextReference())!=0) ++tested_frames;
-    FDEBUG(10) << "StorageManager: Head frame has " << tested_frames-1
-               << " linked frames out of " << msg->numFrames-1 << std::endl;
-    if(msg->numFrames == tested_frames)
-    {
-      // found a complete linked chain from the leading frame
-      is_local_chain = 1;
-      FDEBUG(10) << "StorageManager: Leading frame contains a complete linked chain"
-                 << " - must be local transfer" << std::endl;
-      FDEBUG(10) << "StorageManager: Breaking the chain" << std::endl;
-      // break the chain and feed them to the fragment collector
-      next = head;
-
-      for(int iframe=0; iframe <(int)localMsgCopy.numFrames; ++iframe)
-      {
-         toolbox::mem::Reference *thisref=next;
-         next = thisref->getNextReference();
-         thisref->setNextReference(0);
-         I2O_MESSAGE_FRAME         *thisstdMsg = (I2O_MESSAGE_FRAME*)thisref->getDataLocation();
-         I2O_SM_DATA_MESSAGE_FRAME *thismsg    = (I2O_SM_DATA_MESSAGE_FRAME*)thisstdMsg;
-
-         // 04-Nov-2008, need to make a local copy of I2O header information.
-         // Do *NOT* use the dataPtr() method of the thisMsgCopy because this
-         // copy operation doesn't include the data, only the header!
-         I2O_SM_DATA_MESSAGE_FRAME thisMsgCopy;
-         from = static_cast<const char*>(thisref->getDataLocation());
-         msize = sizeof(I2O_SM_DATA_MESSAGE_FRAME);
-         dest = (char*) &thisMsgCopy;
-         std::copy(from, from+msize, dest);
-         thisMsgCopy.dataSize = msize;
-
-         EventBuffer::ProducerBuffer b(jc_->getFragmentQueue());
-         int thislen = thismsg->dataSize;
-         // ***  must give it the 1 of N for this fragment (starts from 0 in i2o header)
-         new (b.buffer()) stor::FragEntry(thisref, (char*)(thismsg->dataPtr()), thislen,
-                                          thismsg->frameCount+1, thismsg->numFrames, Header::ERROR_EVENT, 
-                                          thismsg->runID, thismsg->eventID, thismsg->outModID,
-                                          thismsg->fuProcID, thismsg->fuGUID);
-         b.commit(sizeof(stor::FragEntry));
-
-         ++receivedFrames_;
-         // for bandwidth performance measurements
-         // Following is wrong for the last frame because frame sent is
-         // is actually larger than the size taken by actual data
-         unsigned long actualFrameSize = (unsigned long)sizeof(I2O_SM_DATA_MESSAGE_FRAME)
-                                         +thislen;
-         addMeasurement(actualFrameSize);
-
-         // should only do this test if the first data frame from each FU?
-         // check if run number is the same as that in Run configuration, complain otherwise !!!
-         // this->runNumber_ comes from the RunBase class that StorageManager inherits from
-         if(thisMsgCopy.runID != runNumber_)
-         {
-           LOG4CPLUS_ERROR(this->getApplicationLogger(),"Run Number from error event stream = "
-			   << thisMsgCopy.runID << " From " << thisMsgCopy.hltURL
-                           << " Different from Run Number from configuration = " << runNumber_);
-         }
-         // for data sender list update
-         // thisMsgCopy.frameCount start from 0, but in EventMsg header it starts from 1!
-         //bool isLocal = true;
-
-         //update last error event seen
-         lastErrorEventSeen_ = thisMsgCopy.eventID;
-
-         // TODO need to fix this as the outModId is not valid for error events
-         /*
-         int status = 
-	   smrbsenders_.updateSender4data(&thisMsgCopy.hltURL[0], &thisMsgCopy.hltClassName[0],
-	   thisMsgCopy.hltLocalId, thisMsgCopy.hltInstance, thisMsgCopy.hltTid,
-	   thisMsgCopy.runID, thisMsgCopy.eventID, thisMsgCopy.frameCount+1, thisMsgCopy.numFrames,
-	   thisMsgCopy.originalSize, isLocal, thisMsgCopy.outModID);
-         */
-
-         // 13-Aug-2008, KAB - for now, increment the receivedErrorEvent counter
-         // independent of the result of the updateFUSender4data() call since we
-         // know that the result is unlikely to be "success"
-         //if(status == 1) {
-           ++(receivedErrorEvents_.value_);
-         //}
-
-         /*
-         if(status == -1) {
-           LOG4CPLUS_ERROR(this->getApplicationLogger(),
-                    "updateSender4data: Cannot find RB in Data Sender list!"
-                    << " For Error Event With URL "
-                    << thisMsgCopy.hltURL << " class " << thisMsgCopy.hltClassName  << " instance "
-                    << thisMsgCopy.hltInstance << " Tid " << thisMsgCopy.hltTid);
-         }
-         */
-      }
-
-    } else {
-      // should never get here!
-      FDEBUG(10) << "StorageManager: Head frame has fewer linked frames "
-                 << "than expected: abnormal error! " << std::endl;
-    }
-  }
-
-  if (is_local_chain == 0) 
-  {
-    // put pointers into fragment collector queue
-    EventBuffer::ProducerBuffer b(jc_->getFragmentQueue());
-    // must give it the 1 of N for this fragment (starts from 0 in i2o header)
-    new (b.buffer()) stor::FragEntry(ref, (char*)(msg->dataPtr()), len,
-                                     msg->frameCount+1, msg->numFrames, Header::ERROR_EVENT, 
-                                     msg->runID, msg->eventID, msg->outModID,
-                                     msg->fuProcID, msg->fuGUID);
-    b.commit(sizeof(stor::FragEntry));
-    // Frame release is done in the deleter.
-    ++receivedFrames_;
-    // for bandwidth performance measurements
-    unsigned long actualFrameSize = (unsigned long)sizeof(I2O_SM_DATA_MESSAGE_FRAME)
-                                    + len;
-    addMeasurement(actualFrameSize);
-
-    // should only do this test if the first data frame from each FU?
-    // check if run number is the same as that in Run configuration, complain otherwise !!!
-    // this->runNumber_ comes from the RunBase class that StorageManager inherits from
-    if(localMsgCopy.runID != runNumber_)
-    {
-      LOG4CPLUS_ERROR(this->getApplicationLogger(),"Run Number from error event stream = "
-		      << localMsgCopy.runID << " From " << localMsgCopy.hltURL
-                      << " Different from Run Number from configuration = " << runNumber_);
-    }
-
-    //update last error event seen
-    lastErrorEventSeen_ = localMsgCopy.eventID;
-
-    // for data sender list update
-    // localMsgCopy.frameCount start from 0, but in EventMsg header it starts from 1!
-    //bool isLocal = false;
-    // TODO need to fix this as the outModId is not valid for error events
-    /*
-    int status = 
-      smrbsenders_.updateSender4data(&localMsgCopy.hltURL[0], &localMsgCopy.hltClassName[0],
-      localMsgCopy.hltLocalId, localMsgCopy.hltInstance, localMsgCopy.hltTid,
-      localMsgCopy.runID, localMsgCopy.eventID, localMsgCopy.frameCount+1, localMsgCopy.numFrames,
-      localMsgCopy.originalSize, isLocal, localMsgCopy.outModID);
-    */
-    
-    // 13-Aug-2008, KAB - for now, increment the receivedErrorEvent counter
-    // independent of the result of the updateFUSender4data() call since we
-    // know that the result is unlikely to be "success"
-    //if(status == 1) {
-      ++(receivedErrorEvents_.value_);
-    //}
-    /*
-    if(status == -1) {
-      LOG4CPLUS_ERROR(this->getApplicationLogger(),
-		      "updateSender4data: Cannot find RB in Data Sender list!"
-		      << " For Error Event With URL "
-		      << localMsgCopy.hltURL << " class " << localMsgCopy.hltClassName  << " instance "
-		      << localMsgCopy.hltInstance << " Tid " << localMsgCopy.hltTid);
-    }
-    */
-  }
-
-  if (  localMsgCopy.frameCount == localMsgCopy.numFrames-1 )
-    {
-      string hltClassName(localMsgCopy.hltClassName);
-      sendDiscardMessage(localMsgCopy.rbBufferID, 
-			 localMsgCopy.hltInstance, 
-			 I2O_FU_DATA_DISCARD,
-			 hltClassName);
-    }
+  _sharedResources->_fragmentQueue->enq_wait(i2oChain);
 }
+
 
 void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref)
 {
-  // get the memory pool pointer for statistics if not already set
-  if(pool_is_set_ == 0)
-  {
-    pool_ = ref->getBuffer()->getPool();
-    pool_is_set_ = 1;
-  }
+  I2OChain i2oChain(ref);
 
-  I2O_MESSAGE_FRAME         *stdMsg =
-    (I2O_MESSAGE_FRAME*)ref->getDataLocation();
-  I2O_SM_DQM_MESSAGE_FRAME *msg    =
-    (I2O_SM_DQM_MESSAGE_FRAME*)stdMsg;
-  FDEBUG(10) << "StorageManager: Received DQM message from HLT at " << msg->hltURL 
-             << " application " << msg->hltClassName << " id " << msg->hltLocalId
-             << " instance " << msg->hltInstance << " tid " << msg->hltTid
-             << " rbBufferID " << msg->rbBufferID << " folderID " << msg->folderID
-             << " fuProcID " << msg->fuProcID  << " fuGUID 0x" << std::hex
-            << msg->fuGUID << std::dec << std::endl;
-  FDEBUG(10) << "                 for run " << msg->runID << " eventATUpdate = " << msg->eventAtUpdateID
-             << " total frames = " << msg->numFrames << std::endl;
-  FDEBUG(10) << "StorageManager: Frame " << msg->frameCount << " of " 
-             << msg->numFrames-1 << std::endl;
-  int len = msg->dataSize;
-  FDEBUG(10) << "StorageManager: received DQM frame size = " << len << std::endl;
+  FragmentMonitorCollection& fragMonCollection =
+    _sharedResources->_statisticsReporter->getFragmentMonitorCollection();
+  fragMonCollection.addDQMEventFragmentSample( i2oChain.totalDataSize() );
 
-  // check the storage Manager is in the Ready state first!
-  if(fsm_.stateName()->toString() != "Enabled")
-  {
-    LOG4CPLUS_ERROR(this->getApplicationLogger(),
-                       "Received DQM message but not in Enabled state! Current state = "
-                       << fsm_.stateName()->toString() << " DQMMessage from" << msg->hltURL
-                       << " application " << msg->hltClassName);
-    // just release the memory at least - is that what we want to do?
-    ref->release();
-    return;
-  }
-  ++(dqmRecords_.value_);
-
-  // 04-Nov-2008, HWKC and KAB - make local copy of I2O message header so
-  // that we can use that information even after the Reference is released.
-  // Do *NOT* use the dataPtr() method of the localMsgCopy because this
-  // copy operation doesn't include the data, only the header!
-  I2O_SM_DQM_MESSAGE_FRAME localMsgCopy;
-  const char* from = static_cast<const char*>(ref->getDataLocation());
-  unsigned int msize = sizeof(I2O_SM_DQM_MESSAGE_FRAME);
-  char* dest = (char*) &localMsgCopy;
-  std::copy(from, from+msize, dest);
-  localMsgCopy.dataSize = msize;
-
-  // If running with local transfers, a chain of I2O frames when posted only has the
-  // head frame sent. So a single frame can complete a chain for local transfers.
-  // We need to test for this. Must be head frame, more than one frame
-  // and next pointer must exist.
-  // -- we have to break chains due to the way the FragmentCollector frees memory
-  //    for each frame after processing each as the freeing a chain frees all memory
-  //    in the chain
-  int is_local_chain = 0;
-  if(msg->frameCount == 0 && msg->numFrames > 1 && ref->getNextReference())
-  {
-    // this looks like a chain of frames (local transfer)
-    toolbox::mem::Reference *head = ref;
-    toolbox::mem::Reference *next = 0;
-    // best to check the complete chain just in case!
-    unsigned int tested_frames = 1;
-    next = head;
-    while((next=next->getNextReference())!=0) ++tested_frames;
-    FDEBUG(10) << "StorageManager: DQM Head frame has " << tested_frames-1
-               << " linked frames out of " << msg->numFrames-1 << std::endl;
-    if(msg->numFrames == tested_frames)
-    {
-      // found a complete linked chain from the leading frame
-      is_local_chain = 1;
-      FDEBUG(10) << "StorageManager: Leading frame contains a complete linked chain"
-                 << " - must be local transfer" << std::endl;
-      FDEBUG(10) << "StorageManager: Breaking the chain" << std::endl;
-      // break the chain and feed them to the fragment collector
-      next = head;
-
-      for(int iframe=0; iframe <(int)localMsgCopy.numFrames; ++iframe)
-      {
-         toolbox::mem::Reference *thisref=next;
-         next = thisref->getNextReference();
-         thisref->setNextReference(0);
-         I2O_MESSAGE_FRAME         *thisstdMsg = (I2O_MESSAGE_FRAME*)thisref->getDataLocation();
-         I2O_SM_DQM_MESSAGE_FRAME *thismsg    = (I2O_SM_DQM_MESSAGE_FRAME*)thisstdMsg;
-         EventBuffer::ProducerBuffer b(jc_->getFragmentQueue());
-         int thislen = thismsg->dataSize;
-         // ***  must give it the 1 of N for this fragment (starts from 0 in i2o header)
-         new (b.buffer()) stor::FragEntry(thisref, (char*)(thismsg->dataPtr()), thislen,
-                                          thismsg->frameCount+1, thismsg->numFrames, Header::DQM_EVENT, 
-                                          thismsg->runID, thismsg->eventAtUpdateID, thismsg->folderID,
-                                          thismsg->fuProcID, thismsg->fuGUID);
-         b.commit(sizeof(stor::FragEntry));
-
-         // BE CAREFUL not to use thismsg after this point because it
-         // may have been released already by the FragmentCollector!
-         // If it needs to be used, make a copy.
-
-         ++receivedFrames_;
-         // for bandwidth performance measurements
-         // Following is wrong for the last frame because frame sent is
-         // is actually larger than the size taken by actual data
-         unsigned long actualFrameSize = (unsigned long)sizeof(I2O_SM_DQM_MESSAGE_FRAME)
-                                         +thislen;
-         addMeasurement(actualFrameSize);
-         addDQMMeasurement(actualFrameSize);
-
-         // no data sender list update yet for DQM data, should add it here
-      }
-
-    } else {
-      // should never get here!
-      FDEBUG(10) << "StorageManager: DQM Head frame has fewer linked frames "
-                 << "than expected: abnormal error! " << std::endl;
-      LOG4CPLUS_ERROR(this->getApplicationLogger(),"DQM Head frame has fewer linked frames" 
-                      << " than expected: abnormal error! ");
-    }
-  }
-
-  if (is_local_chain == 0) 
-  {
-    // put pointers into fragment collector queue
-    EventBuffer::ProducerBuffer b(jc_->getFragmentQueue());
-    // must give it the 1 of N for this fragment (starts from 0 in i2o header)
-    new (b.buffer()) stor::FragEntry(ref, (char*)(msg->dataPtr()), len,
-                                     msg->frameCount+1, msg->numFrames, Header::DQM_EVENT, 
-                                     msg->runID, msg->eventAtUpdateID, msg->folderID,
-                                     msg->fuProcID, msg->fuGUID);
-    b.commit(sizeof(stor::FragEntry));
-    // Frame release is done in the deleter.
-    ++receivedFrames_;
-    // for bandwidth performance measurements
-    unsigned long actualFrameSize = (unsigned long)sizeof(I2O_SM_DQM_MESSAGE_FRAME)
-                                    + len;
-    addMeasurement(actualFrameSize);
-    addDQMMeasurement(actualFrameSize);
-
-    // no data sender list update yet for DQM data, should add it here
-  }
-
-  if (  localMsgCopy.frameCount == localMsgCopy.numFrames-1 )
-    {
-      string hltClassName(localMsgCopy.hltClassName);
-      sendDiscardMessage(localMsgCopy.rbBufferID, 
-			 localMsgCopy.hltInstance, 
-			 I2O_FU_DQM_DISCARD,
-			 hltClassName);
-    }
+  _sharedResources->_fragmentQueue->enq_wait(i2oChain);
 }
 
-//////////// ***  Performance //////////////////////////////////////////////////////////
-void StorageManager::addMeasurement(unsigned long size)
+
+
+///////////////////////////////////////
+// Web interface call back functions //
+///////////////////////////////////////
+
+void StorageManager::css(xgi::Input *in, xgi::Output *out)
+throw (xgi::exception::Exception)
 {
-  // for bandwidth performance measurements, first sample based
-  if ( pmeter_->addSample(size) )
-  {
-    // Copy measurements for our record
-    stor::SMPerfStats stats = pmeter_->getStats();
-
-    instantBandwidth_= stats.shortTermCounter_->getValueRate();
-    instantRate_     = stats.shortTermCounter_->getSampleRate();
-    instantLatency_  = 1000000.0 / instantRate_;
-
-    double now = ForeverCounter::getCurrentTime();
-    totalSamples_    = stats.longTermCounter_->getSampleCount();
-    duration_        = stats.longTermCounter_->getDuration(now);
-    meanBandwidth_   = stats.longTermCounter_->getValueRate(now);
-    meanRate_        = stats.longTermCounter_->getSampleRate(now);
-    meanLatency_     = 1000000.0 / meanRate_;
-
-    maxBandwidth_    = stats.maxBandwidth_;
-    minBandwidth_    = stats.minBandwidth_;
-  }
-
-  // for time period bandwidth performance measurements
-  if ( pmeter_->getStats().shortPeriodCounter_->hasValidResult() )
-  {
-    // Copy measurements for our record
-    stor::SMPerfStats stats = pmeter_->getStats();
-
-    instantBandwidth2_= stats.shortPeriodCounter_->getValueRate();
-    instantRate2_     = stats.shortPeriodCounter_->getSampleRate();
-    instantLatency2_  = 1000000.0 / instantRate2_;
-
-    double now = ForeverCounter::getCurrentTime();
-    totalSamples2_    = stats.longTermCounter_->getSampleCount();
-    duration2_        = stats.longTermCounter_->getDuration(now);
-    meanBandwidth2_   = stats.longTermCounter_->getValueRate(now);
-    meanRate2_        = stats.longTermCounter_->getSampleRate(now);
-    meanLatency2_     = 1000000.0 / meanRate2_;
-
-    maxBandwidth2_    = stats.maxBandwidth2_;
-    minBandwidth2_    = stats.minBandwidth2_;
-  }
-  receivedVolume_ = pmeter_->totalvolumemb();
-
-  // TODO fixme: Find a better place to put this testing of the Fragment Collector thread status!
-  // leave this for now until we have the transition available and have clean up code
-  if(stor::getSMFC_exceptionStatus()) {
-    // there was a fatal exception in the Fragmentation Collector and
-    // we want to go to a fail state
-    //reasonForFailedState_  = stor::getSMFC_reason4Exception();
-    //fsm_.fireFailed(reasonForFailedState_,this);
-    edm::LogError("StorageManager") << "Fatal problem in FragmentCollector thread detected! \n"
-       << stor::getSMFC_reason4Exception();
-    //@@EM added state transition to failed
-    reasonForFailedState_ = stor::getSMFC_reason4Exception();
-    fsm_.fireFailed(reasonForFailedState_,this);
-
-  }
+  _webPageHelper.css(in,out);
 }
 
-void StorageManager::addDQMMeasurement(unsigned long size)
-{
-  // for bandwidth performance measurements, first sample based
-  if ( DQMpmeter_->addSample(size) )
-  {
-    // Copy measurements for our record
-    stor::SMPerfStats stats = DQMpmeter_->getStats();
 
-    DQMinstantBandwidth_= stats.shortTermCounter_->getValueRate();
-    DQMinstantRate_     = stats.shortTermCounter_->getSampleRate();
-    DQMinstantLatency_  = 1000000.0 / DQMinstantRate_;
-
-    double now = ForeverCounter::getCurrentTime();
-    DQMtotalSamples_    = stats.longTermCounter_->getSampleCount();
-    DQMduration_        = stats.longTermCounter_->getDuration(now);
-    DQMmeanBandwidth_   = stats.longTermCounter_->getValueRate(now);
-    DQMmeanRate_        = stats.longTermCounter_->getSampleRate(now);
-    DQMmeanLatency_     = 1000000.0 / DQMmeanRate_;
-
-    DQMmaxBandwidth_    = stats.maxBandwidth_;
-    DQMminBandwidth_    = stats.minBandwidth_;
-  }
-
-  // for time period bandwidth performance measurements
-  if ( DQMpmeter_->getStats().shortPeriodCounter_->hasValidResult() )
-  {
-    // Copy measurements for our record
-    stor::SMPerfStats stats = DQMpmeter_->getStats();
-
-    DQMinstantBandwidth2_= stats.shortPeriodCounter_->getValueRate();
-    DQMinstantRate2_     = stats.shortPeriodCounter_->getSampleRate();
-    DQMinstantLatency2_  = 1000000.0 / DQMinstantRate2_;
-
-    double now = ForeverCounter::getCurrentTime();
-    DQMtotalSamples2_    = stats.longTermCounter_->getSampleCount();
-    DQMduration2_        = stats.longTermCounter_->getDuration(now);
-    DQMmeanBandwidth2_   = stats.longTermCounter_->getValueRate(now);
-    DQMmeanRate2_        = stats.longTermCounter_->getSampleRate(now);
-    DQMmeanLatency2_     = 1000000.0 / DQMmeanRate2_;
-
-    DQMmaxBandwidth2_    = stats.maxBandwidth2_;
-    DQMminBandwidth2_    = stats.minBandwidth2_;
-  }
-  DQMreceivedVolume_ = DQMpmeter_->totalvolumemb();
-}
-
-//////////// *** Default web page //////////////////////////////////////////////////////////
 void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
+throw (xgi::exception::Exception)
+{
+  std::string errorMsg = "Failed to create the default webpage";
+  
+  try
+  {
+    _webPageHelper.defaultWebPage(
+      out,
+      _sharedResources
+    );
+  }
+  catch(std::exception &e)
+  {
+    errorMsg += ": ";
+    errorMsg += e.what();
+    
+    LOG4CPLUS_ERROR(getApplicationLogger(), errorMsg);
+    XCEPT_RAISE(xgi::exception::Exception, errorMsg);
+  }
+  catch(...)
+  {
+    errorMsg += ": Unknown exception";
+    
+    LOG4CPLUS_ERROR(getApplicationLogger(), errorMsg);
+    XCEPT_RAISE(xgi::exception::Exception, errorMsg);
+  }
+}
+
+
+void StorageManager::storedDataWebPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  *out << "<html>"                                                   << endl;
-  *out << "<head>"                                                   << endl;
-  *out << "<link type=\"text/css\" rel=\"stylesheet\"";
-  *out << " href=\"/" <<  getApplicationDescriptor()->getURN()
-       << "/styles.css\"/>"                   << endl;
-  *out << "<title>" << getApplicationDescriptor()->getClassName() << " instance "
-       << getApplicationDescriptor()->getInstance()
-       << "</title>"     << endl;
-  *out << "</head><body>"                                            << endl;
-    *out << "<table border=\"0\" width=\"100%\">"                      << endl;
-    *out << "<tr>"                                                     << endl;
-    *out << "  <td align=\"left\">"                                    << endl;
-    *out << "    <img"                                                 << endl;
-    *out << "     align=\"middle\""                                    << endl;
-    *out << "     src=\"/evf/images/smicon.jpg\""		       << endl;
-    *out << "     alt=\"main\""                                        << endl;
-    *out << "     width=\"64\""                                        << endl;
-    *out << "     height=\"64\""                                       << endl;
-    *out << "     border=\"\"/>"                                       << endl;
-    *out << "    <b>"                                                  << endl;
-    *out << getApplicationDescriptor()->getClassName() << " instance "
-         << getApplicationDescriptor()->getInstance()                  << endl;
-    *out << "      " << fsm_.stateName()->toString()                   << endl;
-    *out << "    </b>"                                                 << endl;
-    *out << "  </td>"                                                  << endl;
-    *out << "  <td width=\"32\">"                                      << endl;
-    *out << "    <a href=\"/urn:xdaq-application:lid=3\">"             << endl;
-    *out << "      <img"                                               << endl;
-    *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/hyperdaq/images/HyperDAQ.jpg\""    << endl;
-    *out << "       alt=\"HyperDAQ\""                                  << endl;
-    *out << "       width=\"32\""                                      << endl;
-    *out << "       height=\"32\""                                      << endl;
-    *out << "       border=\"\"/>"                                     << endl;
-    *out << "    </a>"                                                 << endl;
-    *out << "  </td>"                                                  << endl;
-    *out << "  <td width=\"32\">"                                      << endl;
-    *out << "  </td>"                                                  << endl;
-    /* @@EM commented out till there is something to link to
-    *out << "  <td width=\"32\">"                                      << endl;
-    *out << "    <a href=\"/" << getApplicationDescriptor()->getURN()
-         << "/debug\">"                   << endl;
-    *out << "      <img"                                               << endl;
-    *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/evf/images/bugicon.jpg\""		       << endl;
-    *out << "       alt=\"debug\""                                     << endl;
-    *out << "       width=\"32\""                                      << endl;
-    *out << "       height=\"32\""                                     << endl;
-    *out << "       border=\"\"/>"                                     << endl;
-    *out << "    </a>"                                                 << endl;
-    *out << "  </td>"                                                  << endl;
-    */
-    *out << "</tr>"                                                    << endl;
-    if(fsm_.stateName()->value_ == "Failed")
-    {
-      *out << "<tr>"					     << endl;
-      *out << " <td>"					     << endl;
-      *out << "<textarea rows=" << 5 << " cols=60 scroll=yes";
-      *out << " readonly title=\"Reason For Failed\">"		     << endl;
-      *out << reasonForFailedState_                                  << endl;
-      *out << "</textarea>"                                          << endl;
-      *out << " </td>"					     << endl;
-      *out << "</tr>"					     << endl;
-    }
-    *out << "</table>"                                                 << endl;
+  std::string errorMsg = "Failed to create the stored data webpage";
 
-  *out << "<hr/>"                                                    << endl;
-  *out << "<table>"                                                  << endl;
-  *out << "<tr valign=\"top\">"                                      << endl;
-  *out << "  <td>"                                                   << endl;
-
-  *out << "<table frame=\"void\" rules=\"groups\" class=\"states\""	 << endl;
-  *out << " readonly title=\"Note: parts of this info updates every 10 sec !!!\">"<< endl;
-  *out << "<colgroup> <colgroup align=\"right\">"			 << endl;
-    *out << "  <tr>"						 	 << endl;
-    *out << "    <th colspan=7>"					 << endl;
-    *out << "      " << "Storage Manager Statistics"			 << endl;
-    *out << "    </th>"							 << endl;
-    *out << "  </tr>"							 << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Run Number" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << runNumber_ << endl;
-          *out << "</td>" << endl;
-          *out << "<td colspan=5>" << endl;
-          *out << "</td>" << endl;
-        *out << "</tr>" << endl;
-        *out << "<tr class=\"special\">" << endl;
-          *out << "<td >" << endl;
-          *out << "Total (Non-unique) Events Received" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << receivedEvents_ << endl;
-          *out << "</td>" << endl;
-          *out << "<td colspan=5>" << endl;
-          *out << "</td>" << endl;
-        *out << "</tr>" << endl;
-        *out << "<tr class=\"special\">" << endl;
-          *out << "<td >" << endl;
-          *out << "Output Module" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=center>" << endl;
-          *out << "Events" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=center>" << endl;
-          *out << "Size (MB)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=center>" << endl;
-          *out << "Size/Evt (KB)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=center>" << endl;
-          *out << "RMS (KB)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=center>" << endl;
-          *out << "Min (KB)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=center>" << endl;
-          *out << "Max (KB)" << endl;
-          *out << "</td>" << endl;
-        *out << "</tr>" << endl;
-        boost::shared_ptr<InitMsgCollection> initMsgCollection;
-        if(jc_.get() != NULL && jc_->getInitMsgCollection().get() != NULL) {
-          initMsgCollection = jc_->getInitMsgCollection();
-        }
-        idMap_iter oi(modId2ModOutMap_.begin()), oe(modId2ModOutMap_.end());
-        for( ; oi != oe; ++oi) {
-          std::string outputModuleLabel = oi->second;
-          if (initMsgCollection.get() != NULL &&
-              initMsgCollection->getOutputModuleName(oi->first) != "") {
-            outputModuleLabel = initMsgCollection->getOutputModuleName(oi->first);
-          }
-          *out << "<tr>" << endl;
-            *out << "<td >" << endl;
-            *out << outputModuleLabel << endl;
-            *out << "</td>" << endl;
-            *out << "<td align=right>" << endl;
-            //*out << receivedEventsMap_[oi->second] << endl;
-            *out << receivedEventsMap_[oi->second] << " (" << avEventSizeMap_[oi->second]->getSampleCount() << ") "<< endl;
-            *out << "</td>" << endl;
-            *out << "<td align=right>" << endl;
-            *out << avEventSizeMap_[oi->second]->getValueSum()/(double)0x100000 << endl;
-            *out << "</td>" << endl;
-            *out << "<td align=right>" << endl;
-            *out << avEventSizeMap_[oi->second]->getValueAverage()/(double)0x400 << endl;
-            *out << "</td>" << endl;
-            *out << "<td align=right>" << endl;
-            *out << avEventSizeMap_[oi->second]->getValueRMS()/(double)0x400 << endl;
-            *out << "</td>" << endl;
-            *out << "<td align=right>" << endl;
-            *out << avEventSizeMap_[oi->second]->getValueMin()/(double)0x400 << endl;
-            *out << "</td>" << endl;
-            *out << "<td align=right>" << endl;
-            *out << avEventSizeMap_[oi->second]->getValueMax()/(double)0x400 << endl;
-            *out << "</td>" << endl;
-          *out << "</tr>" << endl;
-        }
-        *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"7\"></td></tr>" << endl;
-
-        *out << "<tr class=\"special\">" << endl;
-          *out << "<td >" << endl;
-          *out << "Events Stored (updated every 10s)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << storedEvents_ << endl;
-          *out << "</td>" << endl;
-          *out << "<td colspan=5>" << endl;
-          *out << "</td>" << endl;
-        *out << "</tr>" << endl;
-        xdata::Vector<xdata::String>::iterator ni(namesOfStream_.begin());
-        xdata::Vector<xdata::UnsignedInteger32>::iterator si(storedEventsInStream_.begin()), 
-          se(storedEventsInStream_.end());
-        for( ; si != se; ++si) {
-          *out << "<tr>" << endl;
-            *out << "<td >" << endl;
-            *out << "Events Stored for Stream " << ni->value_ << endl;
-            *out << "</td>" << endl;
-            *out << "<td align=right>" << endl;
-            *out << si->value_ << endl;
-            *out << "</td>" << endl;
-            *out << "<td colspan=5>" << endl;
-            *out << "</td>" << endl;
-            ++ni;
-          *out << "</tr>" << endl;
-        }
-        *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"7\"></td></tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Last Event ID" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << lastEventSeen_ << endl;
-          *out << "</td>" << endl;
-          *out << "<td colspan=5>" << endl;
-          *out << "</td>" << endl;
-        *out << "</tr>" << endl;
-        *out << "<tr class=\"special\">" << endl;
-          *out << "<td >" << endl;
-          *out << "Error Events Received" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << receivedErrorEvents_ << endl;
-          *out << "</td>" << endl;
-          *out << "<td colspan=5>" << endl;
-          *out << "</td>" << endl;
-        *out << "</tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Last Error Event ID" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << lastErrorEventSeen_ << endl;
-          *out << "</td>" << endl;
-          *out << "<td colspan=5>" << endl;
-          *out << "</td>" << endl;
-        *out << "</tr>" << endl;
-        *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"7\"></td></tr>" << endl;
-        int nD = nLogicalDisk_;
-        if (nD == 0) nD=1;
-        for(int i=0;i<nD;++i) {
-           string path(filePath_);
-           if(nLogicalDisk_>0) {
-              std::ostringstream oss;
-              oss << "/" << setfill('0') << std::setw(2) << i; 
-              path += oss.str();
-           }
-           struct statfs64 buf;
-           int retVal = statfs64(path.c_str(), &buf);
-           double btotal = 0;
-           double bfree = 0;
-           unsigned int used = 0;
-           if(retVal==0) {
-              unsigned int blksize = buf.f_bsize;
-              btotal = buf.f_blocks * blksize / 1024 / 1024 /1024;
-              bfree  = buf.f_bavail  * blksize / 1024 / 1024 /1024;
-              used   = (int)(100 * (1. - bfree / btotal)); 
-           }
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Disk " << i << " usage " << endl;
-          *out << "</td>" << endl;
-          if(used>89)
-             *out << "<td align=right bgcolor=\"#EF5A10\">" << endl;
-          else 
-             *out << "<td align=right>" << endl;
-          *out << used << "% (" << btotal-bfree << " of " << btotal << " GB)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td colspan=5>" << endl;
-          *out << "</td>" << endl;
-        *out << "</tr>" << endl;
-        }
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "# CopyWorker" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          int ps1 = system("exit `ps ax | grep CopyWorker | grep perl | grep -v grep | wc -l`") / 256;
-          *out << ps1 << endl;
-          *out << "</td>" << endl;
-          *out << "<td colspan=5>" << endl;
-          *out << "</td>" << endl;
-        *out << "</tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "# InjectWorker" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          int ps2 = system("exit `ps ax | grep InjectWorker | grep perl | grep -v grep | wc -l`") / 256;
-          *out << ps2 << endl;
-          *out << "</td>" << endl;
-          *out << "<td colspan=5>" << endl;
-          *out << "</td>" << endl;
-        *out << "</tr>" << endl;
-    *out << "  <tr>"                                                   << endl;
-    *out << "    <th colspan=7>"                                       << endl;
-    *out << "      " << "Output Streams (updated only every 10 sec)"          << endl;
-    *out << "    </th>"                                                << endl;
-    *out << "  </tr>"                                                  << endl;
-        *out << "<tr class=\"special\">"			       << endl;
-	*out << "<td >" << endl;
-	*out << "name" << endl;
-	*out << "</td>" << endl;
-	*out << "<td align=right>" << endl;
-	*out << "nfiles" << endl;
-	*out << "</td>" << endl;
-	*out << "<td align=right>" << endl;
-	*out << "nevents" << endl;
-	*out << "</td>" << endl;
-	*out << "<td align=right>" << endl;
-	*out << "size (kB)" << endl;
-	*out << "</td>" << endl;
-        *out << "<td colspan=3>" << endl;
-        *out << "</td>" << endl;
-        *out << "</tr>" << endl;
-
-    for(ismap it = streams_.begin(); it != streams_.end(); ++it)
-      {
-        *out << "<tr>" << endl;
-	*out << "<td >" << endl;
-	*out << (*it).first << endl;
-	*out << "</td>" << endl;
-	*out << "<td align=right>" << endl;
-	*out << (*it).second.nclosedfiles_ << endl;
-	*out << "</td>" << endl;
-	*out << "<td align=right>" << endl;
-	*out << (*it).second.nevents_ << endl;
-	*out << "</td>" << endl;
-	*out << "<td align=right>" << endl;
-	*out << (*it).second.totSizeInkBytes_ << endl;
-	*out << "</td>" << endl;
-        *out << "<td colspan=3>" << endl;
-        *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-      }
-    *out << "</table>" << endl;
-
-  *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << endl;
-  *out << "<colgroup> <colgroup align=\"rigth\">"                    << endl;
-    *out << "  <tr>"                                                   << endl;
-    *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "Received Data Statistics "                    << endl;
-    *out << "    </th>"                                                << endl;
-    *out << "  </tr>"                                                  << endl;
-
-        *out << "<tr>" << endl;
-        *out << "<th >" << endl;
-        *out << "Parameter" << endl;
-        *out << "</th>" << endl;
-        *out << "<th>" << endl;
-        *out << "Value" << endl;
-        *out << "</th>" << endl;
-        *out << "</tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Frames Received" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << receivedFrames_ << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "DQM Records Received" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << dqmRecords_ << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        if(pool_is_set_ == 1) 
-        {
-          *out << "<tr>" << endl;
-            *out << "<td >" << endl;
-            *out << "Memory Used (Bytes)" << endl;
-            *out << "</td>" << endl;
-            *out << "<td align=right>" << endl;
-            *out << pool_->getMemoryUsage().getUsed() << endl;
-            *out << "</td>" << endl;
-          *out << "  </tr>" << endl;
-        } else {
-          *out << "<tr>" << endl;
-            *out << "<td >" << endl;
-            *out << "Memory Pool pointer not yet available" << endl;
-            *out << "</td>" << endl;
-          *out << "  </tr>" << endl;
-        }
-// performance statistics
-    *out << "  <tr>"                                                   << endl;
-    *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "Statistics for last " << samples_ << " frames" << " (and last " << period4samples_ << " sec)" << endl;
-    *out << "    </th>"                                                << endl;
-    *out << "  </tr>"                                                  << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Bandwidth (MB/s)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << instantBandwidth_ << " (" << instantBandwidth2_ << ")" << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Rate (Frames/s)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << instantRate_ << " (" << instantRate2_ << ")" << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Latency (us/frame)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << instantLatency_ << " (" << instantLatency2_ << ")" << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Maximum Bandwidth (MB/s)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << maxBandwidth_ << " (" << maxBandwidth2_ << ")" << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Minimum Bandwidth (MB/s)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << minBandwidth_ << " (" << minBandwidth2_ << ")" << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-// mean performance statistics for whole run
-    *out << "  <tr>"                                                   << endl;
-    *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "Mean Performance for " << totalSamples_ << " (" << totalSamples2_ << ")" << " frames, duration "
-         << duration_ << " (" << duration2_ << ")" << " seconds" << endl;
-    *out << "    </th>"                                                << endl;
-    *out << "  </tr>"                                                  << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Bandwidth (MB/s)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << meanBandwidth_ << " (" << meanBandwidth2_ << ")" << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Rate (Frames/s)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << meanRate_ << " (" << meanRate2_ << ")" << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Latency (us/frame)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << meanLatency_ << " (" << meanLatency2_ << ")" << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Total Volume Received (MB)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << receivedVolume_ << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-
-  *out << "</table>" << endl;
-
-// statistics for stored data
-
-  *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << endl;
-  *out << "<colgroup> <colgroup align=\"rigth\">"                    << endl;
-    *out << "  <tr>"                                                   << endl;
-    *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "Stored Data Statistics (updated every 10s) "                    << endl;
-    *out << "    </th>"                                                << endl;
-    *out << "  </tr>"                                                  << endl;
-
-        *out << "<tr>" << endl;
-        *out << "<th >" << endl;
-        *out << "Parameter" << endl;
-        *out << "</th>" << endl;
-        *out << "<th>" << endl;
-        *out << "Value" << endl;
-        *out << "</th>" << endl;
-        *out << "</tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "(Non-unique) Events Stored" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << store_totalSamples_ << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-// performance statistics
-    *out << "  <tr>"                                                   << endl;
-    *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "Statistics for last " << store_samples_ << " events" << " (and last " << store_period4samples_ << " sec)" << endl;
-    *out << "    </th>"                                                << endl;
-    *out << "  </tr>"                                                  << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Bandwidth (MB/s)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << store_instantBandwidth_ << " (" << store_instantBandwidth2_ << ")" << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Rate (Frames/s)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << store_instantRate_ << " (" << store_instantRate2_ << ")" << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Latency (us/frame)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << store_instantLatency_ << " (" << store_instantLatency2_ << ")" << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Maximum Bandwidth (MB/s)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << store_maxBandwidth_ << " (" << store_maxBandwidth2_ << ")" << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Minimum Bandwidth (MB/s)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << store_minBandwidth_ << " (" << store_minBandwidth2_ << ")" << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-// mean performance statistics for whole run
-    *out << "  <tr>"                                                   << endl;
-    *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "Mean Performance for " << store_totalSamples_ << " (" << store_totalSamples2_ << ")" << " events, duration "
-         << store_duration_ << " (" << store_duration2_ << ")" << " seconds" << endl;
-    *out << "    </th>"                                                << endl;
-    *out << "  </tr>"                                                  << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Bandwidth (MB/s)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << store_meanBandwidth_ << " (" << store_meanBandwidth2_ << ")" << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Rate (Frames/s)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << store_meanRate_ << " (" << store_meanRate2_ << ")" << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Latency (us/frame)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << store_meanLatency_ << " (" << store_meanLatency2_ << ")" << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Total Volume Received (MB)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << store_receivedVolume_ << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-
-  *out << "</table>" << endl;
-
-// statistics for received DQM data only
-
-  *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << endl;
-  *out << "<colgroup> <colgroup align=\"rigth\">"                    << endl;
-    *out << "  <tr>"                                                   << endl;
-    *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "Received DQM Data Statistics "                    << endl;
-    *out << "    </th>"                                                << endl;
-    *out << "  </tr>"                                                  << endl;
-
-        *out << "<tr>" << endl;
-        *out << "<th >" << endl;
-        *out << "Parameter" << endl;
-        *out << "</th>" << endl;
-        *out << "<th>" << endl;
-        *out << "Value" << endl;
-        *out << "</th>" << endl;
-        *out << "</tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "DQM Folder Updates Received" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << DQMtotalSamples_ << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-// performance statistics
-    *out << "  <tr>"                                                   << endl;
-    *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "Statistics for last " << DQMsamples_ << " folder updates" << " (and last " << DQMperiod4samples_ << " sec)" << endl;
-    *out << "    </th>"                                                << endl;
-    *out << "  </tr>"                                                  << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Bandwidth (MB/s)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << DQMinstantBandwidth_ << " (" << DQMinstantBandwidth2_ << ")" << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Rate (Updates/s)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << DQMinstantRate_ << " (" << DQMinstantRate2_ << ")" << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Latency (us/update)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << DQMinstantLatency_ << " (" << DQMinstantLatency2_ << ")" << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Maximum Bandwidth (MB/s)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << DQMmaxBandwidth_ << " (" << DQMmaxBandwidth2_ << ")" << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Minimum Bandwidth (MB/s)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << DQMminBandwidth_ << " (" << DQMminBandwidth2_ << ")" << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-// mean performance statistics for whole run
-    *out << "  <tr>"                                                   << endl;
-    *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "Mean Performance for " << DQMtotalSamples_ << " (" << DQMtotalSamples2_ << ")" << " events, duration "
-         << DQMduration_ << " (" << DQMduration2_ << ")" << " seconds" << endl;
-    *out << "    </th>"                                                << endl;
-    *out << "  </tr>"                                                  << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Bandwidth (MB/s)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << DQMmeanBandwidth_ << " (" << DQMmeanBandwidth2_ << ")" << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Rate (Updates/s)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << DQMmeanRate_ << " (" << DQMmeanRate2_ << ")" << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Latency (us/update)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << DQMmeanLatency_ << " (" << DQMmeanLatency2_ << ")" << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Total DQM Data Volume Stored (MB)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << DQMreceivedVolume_ << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-
-  *out << "</table>" << endl;
-
-  *out << "  </td>"                                                  << endl;
-  *out << "</table>"                                                 << endl;
-// now for RB sender list statistics
-  *out << "<hr/>"                                                    << endl;
-  *out << "<table>"                                                  << endl;
-  *out << "<tr valign=\"top\">"                                      << endl;
-  *out << "  <td>"                                                   << endl;
-
-  *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << endl;
-  *out << "<colgroup> <colgroup align=\"rigth\">"                    << endl;
-    *out << "  <tr>"                                                   << endl;
-    *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "RB Sender Information"                            << endl;
-    *out << "    </th>"                                                << endl;
-    *out << "  </tr>"                                                  << endl;
-
-    *out << "<tr>" << endl;
-    *out << "<th >" << endl;
-    *out << "Parameter" << endl;
-    *out << "</th>" << endl;
-    *out << "<th>" << endl;
-    *out << "Value" << endl;
-    *out << "</th>" << endl;
-    *out << "</tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Number of RB Senders" << endl;
-          *out << "</td>" << endl;
-          *out << "<td>" << endl;
-          *out << smrbsenders_.numberOfRB() << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Number of OM per FU" << endl;
-          *out << "</td>" << endl;
-          *out << "<td>" << endl;
-          *out << smrbsenders_.numberOfOM() << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Sanity check number in sender list" << endl;
-          *out << "</td>" << endl;
-          *out << "<td>" << endl;
-          *out << smrbsenders_.size() << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-
-  *out << "</table>" << endl;
-
-  *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << endl;
-  *out << "<colgroup> <colgroup align=\"rigth\">"                    << endl;
-    *out << "  <tr>"                                                   << endl;
-    *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "SM Configuration Information "                << endl;
-    *out << "    </th>"                                                << endl;
-    *out << "  </tr>"                                                  << endl;
-
-    *out << "<tr>" << endl;
-    *out << "<th >" << endl;
-    *out << "Parameter" << endl;
-    *out << "</th>" << endl;
-    *out << "<th>" << endl;
-    *out << "Value" << endl;
-    *out << "</th>" << endl;
-    *out << "</tr>" << endl;
-    *out << "<tr>" << endl;
-      *out << "<td >" << endl;
-      *out << "SM CVS Version" << endl;
-      *out << "</td>" << endl;
-      *out << "<td>" << endl;
-      *out << sm_cvs_version_ << endl;
-      *out << "</td>" << endl;
-    *out << "  </tr>" << endl;
-    *out << "<tr class=\"special\">" << endl;
-      *out << "<td colspan=2>" << endl;
-      *out << "SM cfg string" << endl;
-      *out << "</td>" << endl;
-    *out << "  </tr>" << endl;
-    *out << "<tr>"					     << endl;
-      *out << " <td colspan=2>"					     << endl;
-      *out << "<textarea rows=" << 10 << " cols=100 scroll=yes";
-      *out << " readonly title=\"SM config\">"		     << endl;
-      *out << smConfigString_                                  << endl;
-      *out << "</textarea>"                                          << endl;
-      *out << " </td>"					     << endl;
-    *out << "</tr>"					     << endl;
-
-  *out << "</table>" << endl;
-
-  *out << "  </td>"                                                  << endl;
-  *out << "</table>"                                                 << endl;
-  //---- separate pages for RB senders and Streamer Output
-  *out << "<hr/>"                                                 << endl;
-  std::string url = getApplicationDescriptor()->getContextDescriptor()->getURL();
-  std::string urn = getApplicationDescriptor()->getURN();
-  *out << "<a href=\"" << url << "/" << urn << "/rbsenderlist" << "\">" 
-       << "RB Sender list web page" << "</a>" << endl;
-  *out << "<hr/>"                                                 << endl;
-  *out << "<a href=\"" << url << "/" << urn << "/streameroutput" << "\">" 
-       << "Streamer Output Status web page" << "</a>" << endl;
-  *out << "<hr/>"                                                 << endl;
-  *out << "<a href=\"" << url << "/" << urn << "/EventServerStats?update=off"
-       << "\">Event Server Statistics" << "</a>" << endl;
-  /* --- leave these here to debug event server problems
-  *out << "<a href=\"" << url << "/" << urn << "/geteventdata" << "\">" 
-       << "Get an event via a web page" << "</a>" << endl;
-  *out << "<hr/>"                                                 << endl;
-  *out << "<a href=\"" << url << "/" << urn << "/getregdata" << "\">" 
-       << "Get a header via a web page" << "</a>" << endl;
-  */
-
-  *out << "</body>"                                                  << endl;
-  *out << "</html>"                                                  << endl;
+  try
+  {
+    _webPageHelper.storedDataWebPage(
+      out,
+      _sharedResources
+    );
+  }
+  catch(std::exception &e)
+  {
+    errorMsg += ": ";
+    errorMsg += e.what();
+    
+    LOG4CPLUS_ERROR(getApplicationLogger(), errorMsg);
+    XCEPT_RAISE(xgi::exception::Exception, errorMsg);
+  }
+  catch(...)
+  {
+    errorMsg += ": Unknown exception";
+    
+    LOG4CPLUS_ERROR(getApplicationLogger(), errorMsg);
+    XCEPT_RAISE(xgi::exception::Exception, errorMsg);
+  }
 }
 
 
-//////////// *** rbsender web page //////////////////////////////////////////////////////////
+void StorageManager::consumerStatisticsPage( xgi::Input* in,
+                                             xgi::Output* out )
+  throw( xgi::exception::Exception )
+{
+
+  std::string err_msg =
+    "Failed to create consumer statistics page";
+
+  try
+  {
+    _webPageHelper.consumerStatistics( out,
+                                       _sharedResources );
+  }
+  catch( std::exception &e )
+  {
+    err_msg += ": ";
+    err_msg += e.what();
+    LOG4CPLUS_ERROR( getApplicationLogger(), err_msg );
+    XCEPT_RAISE( xgi::exception::Exception, err_msg );
+  }
+  catch(...)
+  {
+    err_msg += ": Unknown exception";
+    LOG4CPLUS_ERROR( getApplicationLogger(), err_msg );
+    XCEPT_RAISE( xgi::exception::Exception, err_msg );
+  }
+
+}
+
+
 void StorageManager::rbsenderWebPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  *out << "<html>"                                                   << endl;
-  *out << "<head>"                                                   << endl;
-  *out << "<link type=\"text/css\" rel=\"stylesheet\"";
-  *out << " href=\"/" <<  getApplicationDescriptor()->getURN()
-       << "/styles.css\"/>"                   << endl;
-  *out << "<title>" << getApplicationDescriptor()->getClassName() << " instance "
-       << getApplicationDescriptor()->getInstance()
-       << "</title>"     << endl;
-  *out << "</head><body>"                                            << endl;
-    *out << "<table border=\"0\" width=\"100%\">"                      << endl;
-    *out << "<tr>"                                                     << endl;
-    *out << "  <td align=\"left\">"                                    << endl;
-    *out << "    <img"                                                 << endl;
-    *out << "     align=\"middle\""                                    << endl;
-    *out << "     src=\"/rubuilder/fu/images/fu64x64.gif\""     << endl;
-    *out << "     alt=\"main\""                                        << endl;
-    *out << "     width=\"64\""                                        << endl;
-    *out << "     height=\"64\""                                       << endl;
-    *out << "     border=\"\"/>"                                       << endl;
-    *out << "    <b>"                                                  << endl;
-    *out << getApplicationDescriptor()->getClassName() << " instance "
-         << getApplicationDescriptor()->getInstance()                  << endl;
-    *out << "      " << fsm_.stateName()->toString()                   << endl;
-    *out << "    </b>"                                                 << endl;
-    *out << "  </td>"                                                  << endl;
-    *out << "  <td width=\"32\">"                                      << endl;
-    *out << "    <a href=\"/urn:xdaq-application:lid=3\">"             << endl;
-    *out << "      <img"                                               << endl;
-    *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/hyperdaq/images/HyperDAQ.jpg\""    << endl;
-    *out << "       alt=\"HyperDAQ\""                                  << endl;
-    *out << "       width=\"32\""                                      << endl;
-    *out << "       height=\"32\""                                      << endl;
-    *out << "       border=\"\"/>"                                     << endl;
-    *out << "    </a>"                                                 << endl;
-    *out << "  </td>"                                                  << endl;
-    *out << "  <td width=\"32\">"                                      << endl;
-    *out << "  </td>"                                                  << endl;
-    *out << "  <td width=\"32\">"                                      << endl;
-    *out << "    <a href=\"/" << getApplicationDescriptor()->getURN()
-         << "/debug\">"                   << endl;
-    *out << "      <img"                                               << endl;
-    *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/rubuilder/fu/images/debug32x32.gif\""         << endl;
-    *out << "       alt=\"debug\""                                     << endl;
-    *out << "       width=\"32\""                                      << endl;
-    *out << "       height=\"32\""                                     << endl;
-    *out << "       border=\"\"/>"                                     << endl;
-    *out << "    </a>"                                                 << endl;
-    *out << "  </td>"                                                  << endl;
-    *out << "</tr>"                                                    << endl;
-    if(fsm_.stateName()->value_ == "Failed")
-    {
-      *out << "<tr>"					     << endl;
-      *out << " <td>"					     << endl;
-      *out << "<textarea rows=" << 5 << " cols=60 scroll=yes";
-      *out << " readonly title=\"Reason For Failed\">"		     << endl;
-      *out << reasonForFailedState_                                  << endl;
-      *out << "</textarea>"                                          << endl;
-      *out << " </td>"					     << endl;
-      *out << "</tr>"					     << endl;
-    }
-    *out << "</table>"                                                 << endl;
+  std::string errorMsg = "Failed to create the data sender webpage";
 
-  *out << "<hr/>"                                                    << endl;
-
-// now for RB sender list statistics
-  *out << "<table>"                                                  << endl;
-  *out << "<tr valign=\"top\">"                                      << endl;
-  *out << "  <td>"                                                   << endl;
-
-  *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << endl;
-  *out << "<colgroup> <colgroup align=\"rigth\">"                    << endl;
-    *out << "  <tr>"                                                   << endl;
-    *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "RBxFUxOM Sender List"                            << endl;
-    *out << "    </th>"                                                << endl;
-    *out << "  </tr>"                                                  << endl;
-
-    *out << "<tr>" << endl;
-    *out << "<th >" << endl;
-    *out << "Parameter" << endl;
-    *out << "</th>" << endl;
-    *out << "<th>" << endl;
-    *out << "Value" << endl;
-    *out << "</th>" << endl;
-    *out << "</tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Number of RB Senders" << endl;
-          *out << "</td>" << endl;
-          *out << "<td>" << endl;
-          *out << smrbsenders_.numberOfRB() << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Number of OM per FU" << endl;
-          *out << "</td>" << endl;
-          *out << "<td>" << endl;
-          *out << smrbsenders_.numberOfOM() << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Number in list of senders" << endl;
-          *out << "</td>" << endl;
-          *out << "<td>" << endl;
-          *out << smrbsenders_.size() << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-    std::vector<boost::shared_ptr<SMFUSenderStats> > vrbstats = smrbsenders_.getSenderStats();
-    if(!vrbstats.empty()) {
-      for(vector<boost::shared_ptr<SMFUSenderStats> >::iterator pos = vrbstats.begin();
-          pos != vrbstats.end(); ++pos)
-      {
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "RB Sender URL" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          char hlturl[MAX_I2O_SM_URLCHARS];
-          copy(&(((*pos)->hltURL_)->at(0)), 
-               &(((*pos)->hltURL_)->at(0)) + ((*pos)->hltURL_)->size(),
-               hlturl);
-          hlturl[((*pos)->hltURL_)->size()] = '\0';
-          *out << hlturl << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "RB Sender Class Name" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          char hltclass[MAX_I2O_SM_URLCHARS];
-          copy(&(((*pos)->hltClassName_)->at(0)), 
-               &(((*pos)->hltClassName_)->at(0)) + ((*pos)->hltClassName_)->size(),
-               hltclass);
-          hltclass[((*pos)->hltClassName_)->size()] = '\0';
-          *out << hltclass << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "RB Sender Instance" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << (*pos)->hltInstance_ << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "RB Sender Local ID" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << (*pos)->hltLocalId_ << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "RB Sender Tid" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << (*pos)->hltTid_ << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "FU Sender id (shared memory id!)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << (*pos)->rbBufferID_ << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Number of registries received (output modules)" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << (*pos)->registryCollection_.outModName_.size() << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"2\"></td></tr>" << endl;
-        // Loop over number of registries
-        if(!(*pos)->registryCollection_.outModName_.empty()) {
-          for(vector<std::string>::iterator idx = (*pos)->registryCollection_.outModName_.begin();
-              idx != (*pos)->registryCollection_.outModName_.end(); ++idx)
-          {
-            *out << "<tr>" << endl;
-              *out << "<td >" << endl;
-              *out << "Output Module Name" << endl;
-              *out << "</td>" << endl;
-              *out << "<td align=right>" << endl;
-              *out << (*idx) << endl;
-              *out << "</td>" << endl;
-            *out << "  </tr>" << endl;
-            *out << "<tr>" << endl;
-              *out << "<td >" << endl;
-              *out << "Output Module Id" << endl;
-              *out << "</td>" << endl;
-              *out << "<td align=right>" << endl;
-              *out << (*pos)->registryCollection_.outModName2ModId_[*idx] << endl;
-              *out << "</td>" << endl;
-            *out << "  </tr>" << endl;
-            *out << "<tr>" << endl;
-              *out << "<td >" << endl;
-              *out << "Product registry size (bytes)" << endl;
-              *out << "</td>" << endl;
-              *out << "<td align=right>" << endl;
-              *out << (*pos)->registryCollection_.registrySizeMap_[*idx] << endl;
-              *out << "</td>" << endl;
-            *out << "  </tr>" << endl;
-            *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"2\"></td></tr>" << endl;
-          }
-        }
-        *out << "<tr>" << endl;
-          *out << "<td>" << endl;
-          *out << "Connection Status" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << (*pos)->connectStatus_ << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        if((*pos)->connectStatus_ > 1) {
-          *out << "<tr>" << endl;
-            *out << "<td >" << endl;
-            *out << "Time since last data frame (ms)" << endl;
-            *out << "</td>" << endl;
-            *out << "<td align=right>" << endl;
-            *out << (*pos)->timeWaited_ << endl;
-            *out << "</td>" << endl;
-          *out << "  </tr>" << endl;
-          *out << "<tr>" << endl;
-            *out << "<td >" << endl;
-            *out << "Run number" << endl;
-            *out << "</td>" << endl;
-            *out << "<td align=right>" << endl;
-            *out << (*pos)->runNumber_ << endl;
-            *out << "</td>" << endl;
-          *out << "  </tr>" << endl;
-          *out << "<tr>" << endl;
-            *out << "<td >" << endl;
-            *out << "Running locally" << endl;
-            *out << "</td>" << endl;
-            *out << "<td align=right>" << endl;
-            if((*pos)->isLocal_) {
-              *out << "Yes" << endl;
-            } else {
-              *out << "No" << endl;
-            }
-            *out << "</td>" << endl;
-          *out << "  </tr>" << endl;
-          *out << "<tr>" << endl;
-            *out << "<td >" << endl;
-            *out << "Frames received" << endl;
-            *out << "</td>" << endl;
-            *out << "<td align=right>" << endl;
-            *out << (*pos)->framesReceived_ << endl;
-            *out << "</td>" << endl;
-          *out << "  </tr>" << endl;
-          *out << "<tr>" << endl;
-            *out << "<td >" << endl;
-            *out << "Events received" << endl;
-            *out << "</td>" << endl;
-            *out << "<td align=right>" << endl;
-            *out << (*pos)->eventsReceived_ << endl;
-            *out << "</td>" << endl;
-          *out << "  </tr>" << endl;
-          *out << "<tr>" << endl;
-            *out << "<td >" << endl;
-            *out << "Total Bytes received" << endl;
-            *out << "</td>" << endl;
-            *out << "<td align=right>" << endl;
-            *out << (*pos)->totalSizeReceived_ << endl;
-            *out << "</td>" << endl;
-          *out << "  </tr>" << endl;
-          *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"2\"></td></tr>" << endl;
-          // Loop over number of output modules
-          if(!(*pos)->registryCollection_.outModName_.empty()) {
-            for(vector<std::string>::iterator idx = (*pos)->registryCollection_.outModName_.begin();
-                idx != (*pos)->registryCollection_.outModName_.end(); ++idx)
-            {
-              *out << "<tr>" << endl;
-                *out << "<td >" << endl;
-                *out << "Output Module Name" << endl;
-                *out << "</td>" << endl;
-                *out << "<td align=right>" << endl;
-                *out << (*idx) << endl;
-                *out << "</td>" << endl;
-              *out << "  </tr>" << endl;
-              *out << "<tr>" << endl;
-                *out << "<td >" << endl;
-                *out << "Frames received" << endl;
-                *out << "</td>" << endl;
-                *out << "<td align=right>" << endl;
-                *out << (*pos)->datCollection_.framesReceivedMap_[*idx] << endl;
-                *out << "</td>" << endl;
-              *out << "  </tr>" << endl;
-              *out << "<tr>" << endl;
-                *out << "<td >" << endl;
-                *out << "Events received" << endl;
-                *out << "</td>" << endl;
-                *out << "<td align=right>" << endl;
-                *out << (*pos)->datCollection_.eventsReceivedMap_[*idx] << endl;
-                *out << "</td>" << endl;
-              *out << "  </tr>" << endl;
-              *out << "<tr>" << endl;
-                *out << "<td >" << endl;
-                *out << "Total Bytes received" << endl;
-                *out << "</td>" << endl;
-                *out << "<td align=right>" << endl;
-                *out << (*pos)->datCollection_.totalSizeReceivedMap_[*idx] << endl;
-                *out << "</td>" << endl;
-              *out << "  </tr>" << endl;
-              *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"2\"></td></tr>" << endl;
-            }
-          }
-          if((*pos)->eventsReceived_ > 0) {
-            *out << "<tr>" << endl;
-              *out << "<td >" << endl;
-              *out << "Last frame latency (us)" << endl;
-              *out << "</td>" << endl;
-              *out << "<td align=right>" << endl;
-              *out << (*pos)->lastLatency_ << endl;
-              *out << "</td>" << endl;
-            *out << "  </tr>" << endl;
-            *out << "<tr>" << endl;
-              *out << "<td >" << endl;
-              *out << "Average event size (Bytes)" << endl;
-              *out << "</td>" << endl;
-              *out << "<td align=right>" << endl;
-              *out << (*pos)->totalSizeReceived_/(*pos)->eventsReceived_ << endl;
-              *out << "</td>" << endl;
-              *out << "<tr>" << endl;
-                *out << "<td >" << endl;
-                *out << "Last Run Number" << endl;
-                *out << "</td>" << endl;
-                *out << "<td align=right>" << endl;
-                *out << (*pos)->lastRunID_ << endl;
-                *out << "</td>" << endl;
-              *out << "  </tr>" << endl;
-              *out << "<tr>" << endl;
-                *out << "<td >" << endl;
-                *out << "Last Event Number" << endl;
-                *out << "</td>" << endl;
-                *out << "<td align=right>" << endl;
-                *out << (*pos)->lastEventID_ << endl;
-                *out << "</td>" << endl;
-              *out << "  </tr>" << endl;
-            } // events received endif
-          *out << "  </tr>" << endl;
-          *out << "<tr>" << endl;
-            *out << "<td >" << endl;
-            *out << "Total out of order frames" << endl;
-            *out << "</td>" << endl;
-            *out << "<td align=right>" << endl;
-            *out << (*pos)->totalOutOfOrder_ << endl;
-            *out << "</td>" << endl;
-          *out << "  </tr>" << endl;
-          *out << "<tr>" << endl;
-            *out << "<td >" << endl;
-            *out << "Total Bad Events" << endl;
-            *out << "</td>" << endl;
-            *out << "<td align=right>" << endl;
-            *out << (*pos)->totalBadEvents_ << endl;
-            *out << "</td>" << endl;
-          *out << "  </tr>" << endl;
-        } // connect status endif
-      } // Sender list loop
-    } //sender size test endif
-
-  *out << "</table>" << endl;
-
-  *out << "  </td>"                                                  << endl;
-  *out << "</table>"                                                 << endl;
-
-  *out << "</body>"                                                  << endl;
-  *out << "</html>"                                                  << endl;
-}
-
-
-//////////// *** streamer file output web page //////////////////////////////////////////////////////////
-void StorageManager::streamerOutputWebPage(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
-{
-  *out << "<html>"                                                   << endl;
-  *out << "<head>"                                                   << endl;
-  *out << "<link type=\"text/css\" rel=\"stylesheet\"";
-  *out << " href=\"/" <<  getApplicationDescriptor()->getURN()
-       << "/styles.css\"/>"                   << endl;
-  *out << "<title>" << getApplicationDescriptor()->getClassName() << " instance "
-       << getApplicationDescriptor()->getInstance()
-       << "</title>"     << endl;
-  *out << "</head><body>"                                            << endl;
-    *out << "<table border=\"0\" width=\"100%\">"                      << endl;
-    *out << "<tr>"                                                     << endl;
-    *out << "  <td align=\"left\">"                                    << endl;
-    *out << "    <img"                                                 << endl;
-    *out << "     align=\"middle\""                                    << endl;
-    *out << "     src=\"/rubuilder/fu/images/fu64x64.gif\""     << endl;
-    *out << "     alt=\"main\""                                        << endl;
-    *out << "     width=\"64\""                                        << endl;
-    *out << "     height=\"64\""                                       << endl;
-    *out << "     border=\"\"/>"                                       << endl;
-    *out << "    <b>"                                                  << endl;
-    *out << getApplicationDescriptor()->getClassName() << " instance "
-         << getApplicationDescriptor()->getInstance()                  << endl;
-    *out << "      " << fsm_.stateName()->toString()                   << endl;
-    *out << "    </b>"                                                 << endl;
-    *out << "  </td>"                                                  << endl;
-    *out << "  <td width=\"32\">"                                      << endl;
-    *out << "    <a href=\"/urn:xdaq-application:lid=3\">"             << endl;
-    *out << "      <img"                                               << endl;
-    *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/hyperdaq/images/HyperDAQ.jpg\""    << endl;
-    *out << "       alt=\"HyperDAQ\""                                  << endl;
-    *out << "       width=\"32\""                                      << endl;
-    *out << "       height=\"32\""                                      << endl;
-    *out << "       border=\"\"/>"                                     << endl;
-    *out << "    </a>"                                                 << endl;
-    *out << "  </td>"                                                  << endl;
-    *out << "  <td width=\"32\">"                                      << endl;
-    *out << "  </td>"                                                  << endl;
-    *out << "  <td width=\"32\">"                                      << endl;
-    *out << "    <a href=\"/" << getApplicationDescriptor()->getURN()
-         << "/debug\">"                   << endl;
-    *out << "      <img"                                               << endl;
-    *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/rubuilder/fu/images/debug32x32.gif\""       << endl;
-    *out << "       alt=\"debug\""                                     << endl;
-    *out << "       width=\"32\""                                      << endl;
-    *out << "       height=\"32\""                                     << endl;
-    *out << "       border=\"\"/>"                                     << endl;
-    *out << "    </a>"                                                 << endl;
-    *out << "  </td>"                                                  << endl;
-    *out << "</tr>"                                                    << endl;
-    if(fsm_.stateName()->value_ == "Failed")
-    {
-      *out << "<tr>"					     << endl;
-      *out << " <td>"					     << endl;
-      *out << "<textarea rows=" << 5 << " cols=60 scroll=yes";
-      *out << " readonly title=\"Reason For Failed\">"		     << endl;
-      *out << reasonForFailedState_                                  << endl;
-      *out << "</textarea>"                                          << endl;
-      *out << " </td>"					     << endl;
-      *out << "</tr>"					     << endl;
-    }
-    *out << "</table>"                                                 << endl;
-
-    *out << "<hr/>"                                                    << endl;
-
-    // should first test if jc_ is valid
-    if(jc_.get() != NULL && jc_->getInitMsgCollection().get() != NULL &&
-       jc_->getInitMsgCollection()->size() > 0) {
-      boost::mutex::scoped_lock sl(halt_lock_);
-      if(jc_.use_count() != 0) {
-        std::list<std::string>& files = jc_->get_filelist();
-        if(files.size() > 0 )
-          {
-            if(files.size() > 249 )
-              *out << "<P>250 last files (most recent first):</P>\n" << endl;
-            else 
-              *out << "<P>Files (most recent first):</P>\n" << endl;
-            *out << "<pre># pathname nevts size" << endl;
-            int c=0;
-            for(list<string>::reverse_iterator it = files.rbegin(); it != files.rend(); ++it) {
-              *out <<*it << endl;
-              ++c;
-              if(c>249) break;
-            }
-          }
-      }
-    }
-
-  *out << "</body>"                                                  << endl;
-  *out << "</html>"                                                  << endl;
-}
-
-
-//////////// *** get event data web page //////////////////////////////////////////////////////////
-void StorageManager::eventdataWebPage(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
-{
-  // default the message length to zero
-  int len=0;
-
-  // determine the consumer ID from the event request
-  // message, if it is available.
-  unsigned int consumerId = 0;
-  int consumerInitMsgCount = -1;
-  std::string lengthString = in->getenv("CONTENT_LENGTH");
-  unsigned long contentLength = std::atol(lengthString.c_str());
-  if (contentLength > 0) 
-    {
-      auto_ptr< vector<char> > bufPtr(new vector<char>(contentLength));
-      in->read(&(*bufPtr)[0], contentLength);
-      OtherMessageView requestMessage(&(*bufPtr)[0]);
-      if (requestMessage.code() == Header::EVENT_REQUEST)
-	{
-	  uint8 *bodyPtr = requestMessage.msgBody();
-	  consumerId = convert32(bodyPtr);
-          if (requestMessage.bodySize() >= (2 * sizeof(char_uint32)))
-            {
-              bodyPtr += sizeof(char_uint32);
-              consumerInitMsgCount = convert32(bodyPtr);
-            }
-	}
-    }
-
-  // first test if StorageManager is in Enabled state and registry is filled
-  // this must be the case for valid data to be present
-  if(fsm_.stateName()->toString() == "Enabled" && jc_.get() != NULL &&
-     jc_->getInitMsgCollection().get() != NULL &&
-     jc_->getInitMsgCollection()->size() > 0)
+  try
   {
-    boost::shared_ptr<EventServer> eventServer = jc_->getEventServer();
-    if (eventServer.get() != NULL)
-    {
-      // if we've stored a "registry warning" in the consumer pipe, send
-      // that instead of an event so that the consumer can react to
-      // the warning
-      boost::shared_ptr<ConsumerPipe> consPtr =
-        eventServer->getConsumer(consumerId);
-      if (consPtr.get() != NULL && consPtr->hasRegistryWarning())
-      {
-        std::vector<char> registryWarning = consPtr->getRegistryWarning();
-        const char* from = &registryWarning[0];
-        unsigned int msize = registryWarning.size();
-        if(mybuffer_.capacity() < msize) mybuffer_.resize(msize);
-        unsigned char* pos = (unsigned char*) &mybuffer_[0];
-
-        copy(from,from+msize,pos);
-        len = msize;
-        consPtr->clearRegistryWarning();
-      }
-      // if the consumer is an instance of the proxy server and
-      // it knows about fewer INIT messages than we do, tell it
-      // that new INIT message(s) are available
-      else if (consPtr.get() != NULL && consPtr->isProxyServer() &&
-               consumerInitMsgCount >= 0 &&
-               jc_->getInitMsgCollection()->size() > consumerInitMsgCount)
-      {
-        OtherMessageBuilder othermsg(&mybuffer_[0],
-                                     Header::NEW_INIT_AVAILABLE);
-        len = othermsg.size();
-      }
-      // otherwise try to send an event
-      else
-      {
-        boost::shared_ptr< std::vector<char> > bufPtr =
-          eventServer->getEvent(consumerId);
-        if (bufPtr.get() != NULL)
-        {
-          EventMsgView msgView(&(*bufPtr)[0]);
-
-          unsigned char* from = msgView.startAddress();
-          unsigned int dsize = msgView.size();
-          if(mybuffer_.capacity() < dsize) mybuffer_.resize(dsize);
-          unsigned char* pos = (unsigned char*) &mybuffer_[0];
-
-          copy(from,from+dsize,pos);
-          len = dsize;
-          FDEBUG(10) << "sending event " << msgView.event() << std::endl;
-        }
-      }
-    }
+    _webPageHelper.resourceBrokerOverview(out, _sharedResources);
+  }
+  catch(std::exception &e)
+  {
+    errorMsg += ": ";
+    errorMsg += e.what();
     
-    out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
-    out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-    out->write((char*) &mybuffer_[0],len);
-  } // else send end of run as reponse
-  else
-    {
-      OtherMessageBuilder othermsg(&mybuffer_[0],Header::DONE);
-      len = othermsg.size();
-      //std::cout << "making other message code = " << othermsg.code()
-      //          << " and size = " << othermsg.size() << std::endl;
-      
-      out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
-      out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-      out->write((char*) &mybuffer_[0],len);
-    }
-  
-  // How to block if there is no data
-  // How to signal if end, and there will be no more data?
-  
-}
-
-
-//////////// *** get header (registry) web page ////////////////////////////////////////
-void StorageManager::headerdataWebPage(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
-{
-  unsigned int len = 0;
-
-  // determine the consumer ID from the header request
-  // message, if it is available.
-  auto_ptr< vector<char> > httpPostData;
-  unsigned int consumerId = 0;
-  std::string lengthString = in->getenv("CONTENT_LENGTH");
-  unsigned long contentLength = std::atol(lengthString.c_str());
-  if (contentLength > 0) {
-    auto_ptr< vector<char> > bufPtr(new vector<char>(contentLength));
-    in->read(&(*bufPtr)[0], contentLength);
-    OtherMessageView requestMessage(&(*bufPtr)[0]);
-    if (requestMessage.code() == Header::HEADER_REQUEST)
-    {
-      uint8 *bodyPtr = requestMessage.msgBody();
-      consumerId = convert32(bodyPtr);
-    }
-
-    // save the post data for use outside the "if" block scope in case it is
-    // useful later (it will still get deleted at the end of the method)
-    httpPostData = bufPtr;
+    LOG4CPLUS_ERROR(getApplicationLogger(), errorMsg);
+    XCEPT_RAISE(xgi::exception::Exception, errorMsg);
+  }
+  catch(...)
+  {
+    errorMsg += ": Unknown exception";
+    
+    LOG4CPLUS_ERROR(getApplicationLogger(), errorMsg);
+    XCEPT_RAISE(xgi::exception::Exception, errorMsg);
   }
 
-  // first test if StorageManager is in Enabled state and registry is filled
-  // this must be the case for valid data to be present
-  if(fsm_.stateName()->toString() == "Enabled" && jc_.get() != NULL &&
-     jc_->getInitMsgCollection().get() != NULL &&
-     jc_->getInitMsgCollection()->size() > 0)
-    {
-      std::string errorString;
-      InitMsgSharedPtr serializedProds;
-      boost::shared_ptr<EventServer> eventServer = jc_->getEventServer();
-      if (eventServer.get() != NULL)
-      {
-        boost::shared_ptr<ConsumerPipe> consPtr =
-          eventServer->getConsumer(consumerId);
-        if (consPtr.get() != NULL)
-        {
-          // limit this (and other) interaction with the InitMsgCollection
-          // to a single thread so that we can present a coherent
-          // picture to consumers
-          boost::mutex::scoped_lock sl(consumerInitMsgLock_);
-          boost::shared_ptr<InitMsgCollection> initMsgCollection =
-            jc_->getInitMsgCollection();
-
-          try
-          {
-            if (consPtr->isProxyServer())
-            {
-              // If the INIT message collection has more than one element,
-              // we build up a special response message that contains all
-              // of the INIT messages in the collection (code = INIT_SET).
-              // We can use an InitMsgBuffer to do this (and assign it
-              // to the serializedProds local variable) because it
-              // is really just a vector of char (it doesn't have any
-              // internal structure that limits it to being used just for
-              // single INIT messages).
-              if (initMsgCollection->size() > 1)
-              {
-                serializedProds = initMsgCollection->getFullCollection();
-              }
-              else
-              {
-                serializedProds = initMsgCollection->getLastElement();
-              }
-            }
-            else
-            {
-              std::string hltOMLabel = consPtr->getHLTOutputSelection();
-              serializedProds =
-                initMsgCollection->getElementForOutputModule(hltOMLabel);
-            }
-            if (serializedProds.get() != NULL)
-            {
-              uint8* regPtr = &(*serializedProds)[0];
-              HeaderView hdrView(regPtr);
-
-              // if the response that we're sending is an INIT_SET rather
-              // than a single INIT message, we simply use the first INIT
-              // message in the collection to initialize the local 
-              // ConsumerPipe.  Since all we need is the
-              // full trigger list, any of the INIT messages should be fine
-              // (because all of them should have the same full trigger list).
-              if (hdrView.code() == Header::INIT_SET) {
-                OtherMessageView otherView(&(*serializedProds)[0]);
-                regPtr = otherView.msgBody();
-              }
-
-              Strings triggerNameList;
-              InitMsgView initView(regPtr);
-              initView.hltTriggerNames(triggerNameList);
-
-              uint32 outputModuleId;
-              if (initView.protocolVersion() >= 6) {
-                outputModuleId = initView.outputModuleId();
-              }
-              else {
-                std::string moduleLabel = initView.outputModuleLabel();
-                uLong crc = crc32(0L, Z_NULL, 0);
-                Bytef* crcbuf = (Bytef*) moduleLabel.data();
-                crc = crc32(crc, crcbuf, moduleLabel.length());
-                outputModuleId = static_cast<uint32>(crc);
-              }
-              consPtr->initializeSelection(triggerNameList,
-                                           outputModuleId);
-            }
-          }
-          catch (const edm::Exception& excpt)
-          {
-            errorString = excpt.what();
-          }
-          catch (const cms::Exception& excpt)
-          {
-            //errorString.append(excpt.what());
-            errorString.append("ERROR: The configuration for this ");
-            errorString.append("consumer does not specify an HLT output ");
-            errorString.append("module.\nPlease specify one of the HLT ");
-            errorString.append("output modules listed below as the ");
-            errorString.append("SelectHLTOutput parameter ");
-            errorString.append("in the InputSource configuration.\n");
-            errorString.append(initMsgCollection->getSelectionHelpString());
-            errorString.append("\n");
-          }
-        }
-      }
-      if (errorString.length() > 0) {
-        len = errorString.length();
-      }
-      else if (serializedProds.get() != NULL) {
-        len = serializedProds->size();
-      }
-      else {
-        len = 0;
-      }
-      if (mybuffer_.capacity() < len) mybuffer_.resize(len);
-      if (errorString.length() > 0) {
-        const char *errorBytes = errorString.c_str();
-        for (unsigned int i=0; i<len; ++i) mybuffer_[i]=errorBytes[i];
-      }
-      else if (serializedProds.get() != NULL) {
-        for (unsigned int i=0; i<len; ++i) mybuffer_[i]=(*serializedProds)[i];
-      }
-    }
-
-  out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
-  out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-  out->write((char*) &mybuffer_[0],len);
-  
-  // How to block if there is no header data
-  // How to signal if not yet started, so there is no registry yet?
 }
 
+
+void StorageManager::rbsenderDetailWebPage(xgi::Input *in, xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+  std::string errorMsg = "Failed to create the data sender webpage";
+
+  try
+  {
+    long long localRBID = 0;
+    cgicc::Cgicc cgiWrapper(in);
+    cgicc::const_form_iterator updateRef = cgiWrapper.getElement("id");
+    if (updateRef != cgiWrapper.getElements().end())
+    {
+      std::string idString = updateRef->getValue();
+      localRBID = boost::lexical_cast<long long>(idString);
+    }
+
+    _webPageHelper.resourceBrokerDetail(out, _sharedResources, localRBID);
+  }
+  catch(std::exception &e)
+  {
+    errorMsg += ": ";
+    errorMsg += e.what();
+    
+    LOG4CPLUS_ERROR(getApplicationLogger(), errorMsg);
+    XCEPT_RAISE(xgi::exception::Exception, errorMsg);
+  }
+  catch(...)
+  {
+    errorMsg += ": Unknown exception";
+    
+    LOG4CPLUS_ERROR(getApplicationLogger(), errorMsg);
+    XCEPT_RAISE(xgi::exception::Exception, errorMsg);
+  }
+
+}
+
+
+void StorageManager::fileStatisticsWebPage(xgi::Input *in, xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+  std::string errorMsg = "Failed to create the file statistics webpage";
+
+  try
+  {
+    _webPageHelper.filesWebPage(
+      out,
+      _sharedResources
+    );
+  }
+  catch(std::exception &e)
+  {
+    errorMsg += ": ";
+    errorMsg += e.what();
+    
+    LOG4CPLUS_ERROR(getApplicationLogger(), errorMsg);
+    XCEPT_RAISE(xgi::exception::Exception, errorMsg);
+  }
+  catch(...)
+  {
+    errorMsg += ": Unknown exception";
+    
+    LOG4CPLUS_ERROR(getApplicationLogger(), errorMsg);
+    XCEPT_RAISE(xgi::exception::Exception, errorMsg);
+  }
+
+}
+
+
+void StorageManager::dqmEventStatisticsWebPage(xgi::Input *in, xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+  std::string errorMsg = "Failed to create the DQM event statistics webpage";
+
+  try
+  {
+    _webPageHelper.dqmEventWebPage(
+      out,
+      _sharedResources
+    );
+  }
+  catch(std::exception &e)
+  {
+    errorMsg += ": ";
+    errorMsg += e.what();
+    
+    LOG4CPLUS_ERROR(getApplicationLogger(), errorMsg);
+    XCEPT_RAISE(xgi::exception::Exception, errorMsg);
+  }
+  catch(...)
+  {
+    errorMsg += ": Unknown exception";
+    
+    LOG4CPLUS_ERROR(getApplicationLogger(), errorMsg);
+    XCEPT_RAISE(xgi::exception::Exception, errorMsg);
+  }
+}
+
+
+void StorageManager::throughputWebPage(xgi::Input *in, xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+  std::string errorMsg = "Failed to create the throughput statistics webpage";
+
+  try
+  {
+    _webPageHelper.throughputWebPage(
+      out,
+      _sharedResources
+    );
+  }
+  catch(std::exception &e)
+  {
+    errorMsg += ": ";
+    errorMsg += e.what();
+    
+    LOG4CPLUS_ERROR(getApplicationLogger(), errorMsg);
+    XCEPT_RAISE(xgi::exception::Exception, errorMsg);
+  }
+  catch(...)
+  {
+    errorMsg += ": Unknown exception";
+    
+    LOG4CPLUS_ERROR(getApplicationLogger(), errorMsg);
+    XCEPT_RAISE(xgi::exception::Exception, errorMsg);
+  }
+
+}
+
+
+// Leaving in for now but making it return an empty buffer:
 void StorageManager::consumerListWebPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  char buffer[65536];
-
-  out->getHTTPResponseHeader().addHeader("Content-Type", "application/xml");
-  sprintf(buffer,
-	  "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n<Monitor>\n");
-  out->write(buffer,strlen(buffer));
-
-  if(fsm_.stateName()->toString() == "Enabled")
-  {
-    sprintf(buffer, "<ConsumerList>\n");
-    out->write(buffer,strlen(buffer));
-
-    boost::shared_ptr<EventServer> eventServer;
-    if (jc_.get() != NULL)
-    {
-      eventServer = jc_->getEventServer();
-    }
-    if (eventServer.get() != NULL)
-    {
-      std::map< uint32, boost::shared_ptr<ConsumerPipe> > consumerTable = 
-	eventServer->getConsumerTable();
-      std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator 
-	consumerIter;
-      for (consumerIter = consumerTable.begin();
-	   consumerIter != consumerTable.end();
-	   ++consumerIter)
-      {
-	boost::shared_ptr<ConsumerPipe> consumerPipe = consumerIter->second;
-	sprintf(buffer, "<Consumer>\n");
-	out->write(buffer,strlen(buffer));
-
-	if (consumerPipe->isProxyServer()) {
-	  sprintf(buffer, "<Name>Proxy Server</Name>\n");
-	}
-	else {
-	  sprintf(buffer, "<Name>%s</Name>\n",
-	          consumerPipe->getConsumerName().c_str());
-	}
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<ID>%d</ID>\n", consumerPipe->getConsumerId());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Time>%d</Time>\n", 
-		(int)consumerPipe->getLastEventRequestTime());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Host>%s</Host>\n", 
-		consumerPipe->getHostName().c_str());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Events>%d</Events>\n", consumerPipe->getEvents());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Failed>%d</Failed>\n", 
-		consumerPipe->getPushEventFailures());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Idle>%d</Idle>\n", consumerPipe->isIdle());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Disconnected>%d</Disconnected>\n", 
-		consumerPipe->isDisconnected());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Ready>%d</Ready>\n", consumerPipe->isReadyForEvent());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "</Consumer>\n");
-	out->write(buffer,strlen(buffer));
-      }
-    }
-    boost::shared_ptr<DQMEventServer> dqmServer;
-    if (jc_.get() != NULL)
-    {
-      dqmServer = jc_->getDQMEventServer();
-    }
-    if (dqmServer.get() != NULL)
-    {
-      std::map< uint32, boost::shared_ptr<DQMConsumerPipe> > dqmTable = 
-	dqmServer->getConsumerTable();
-      std::map< uint32, boost::shared_ptr<DQMConsumerPipe> >::const_iterator 
-	dqmIter;
-      for (dqmIter = dqmTable.begin();
-	   dqmIter != dqmTable.end();
-	   ++dqmIter)
-      {
-	boost::shared_ptr<DQMConsumerPipe> dqmPipe = dqmIter->second;
-	sprintf(buffer, "<DQMConsumer>\n");
-	out->write(buffer,strlen(buffer));
-
-	if (dqmPipe->isProxyServer()) {
-	  sprintf(buffer, "<Name>Proxy Server</Name>\n");
-	}
-	else {
-	  sprintf(buffer, "<Name>%s</Name>\n",
-	          dqmPipe->getConsumerName().c_str());
-	}
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<ID>%d</ID>\n", dqmPipe->getConsumerId());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Time>%d</Time>\n", 
-		(int)dqmPipe->getLastEventRequestTime());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Host>%s</Host>\n", 
-		dqmPipe->getHostName().c_str());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Events>%d</Events>\n", dqmPipe->getEvents());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Failed>%d</Failed>\n", 
-		dqmPipe->getPushEventFailures());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Idle>%d</Idle>\n", dqmPipe->isIdle());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Disconnected>%d</Disconnected>\n", 
-		dqmPipe->isDisconnected());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Ready>%d</Ready>\n", dqmPipe->isReadyForEvent());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "</DQMConsumer>\n");
-	out->write(buffer,strlen(buffer));
-      }
-    }
-    sprintf(buffer, "</ConsumerList>\n");
-    out->write(buffer,strlen(buffer));
-  }
-  sprintf(buffer, "</Monitor>");
-  out->write(buffer,strlen(buffer));
-}
-
-//////////////////// event server statistics web page //////////////////
-void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
-{
-  // We should make the HTML header and the page banner common
-  std::string url =
-    getApplicationDescriptor()->getContextDescriptor()->getURL();
-  std::string urn = getApplicationDescriptor()->getURN();
-
-  // determine whether we're automatically updating the page
-  // --> if the SM is not enabled, assume that users want updating turned
-  // --> ON so that they don't A) think that is is ON (when it's not) and
-  // --> B) wait forever thinking that something is wrong.
-  //bool autoUpdate = true;
-  // 11-Jun-2008, KAB - changed auto update default to OFF
-  bool autoUpdate = false;
-  if(fsm_.stateName()->toString() == "Enabled") {
-    cgicc::Cgicc cgiWrapper(in);
-    cgicc::const_form_iterator updateRef = cgiWrapper.getElement("update");
-    if (updateRef != cgiWrapper.getElements().end()) {
-      std::string updateString =
-        boost::algorithm::to_lower_copy(updateRef->getValue());
-      if (updateString == "off") {
-        autoUpdate = false;
-      }
-      else {
-        autoUpdate = true;
-      }
-    }
-  }
-
-  *out << "<html>" << std::endl;
-  *out << "<head>" << std::endl;
-  if (autoUpdate) {
-    *out << "<meta http-equiv=\"refresh\" content=\"10\">" << std::endl;
-  }
-  *out << "<link type=\"text/css\" rel=\"stylesheet\"";
-  *out << " href=\"/" << urn << "/styles.css\"/>" << std::endl;
-  *out << "<title>" << getApplicationDescriptor()->getClassName()
-       << " Instance " << getApplicationDescriptor()->getInstance()
-       << "</title>" << std::endl;
-  *out << "<style type=\"text/css\">" << std::endl;
-  *out << "  .noBotMarg {margin-bottom:0px;}" << std::endl;
-  *out << "</style>" << std::endl;
-  *out << "</head><body>" << std::endl;
-
-  *out << "<table border=\"1\" width=\"100%\">"                      << endl;
-  *out << "<tr>"                                                     << endl;
-  *out << "  <td align=\"left\">"                                    << endl;
-  *out << "    <img"                                                 << endl;
-  *out << "     align=\"middle\""                                    << endl;
-  *out << "     src=\"/evf/images/smicon.jpg\""                      << endl;
-  *out << "     alt=\"main\""                                        << endl;
-  *out << "     width=\"64\""                                        << endl;
-  *out << "     height=\"64\""                                       << endl;
-  *out << "     border=\"\"/>"                                       << endl;
-  *out << "    <b>"                                                  << endl;
-  *out << getApplicationDescriptor()->getClassName() << " Instance "
-       << getApplicationDescriptor()->getInstance();
-  *out << ", State is " << fsm_.stateName()->toString()              << endl;
-  *out << "    </b>"                                                 << endl;
-  *out << "  </td>"                                                  << endl;
-  *out << "  <td width=\"32\">"                                      << endl;
-  *out << "    <a href=\"/urn:xdaq-application:lid=3\">"             << endl;
-  *out << "      <img"                                               << endl;
-  *out << "       align=\"middle\""                                  << endl;
-  *out << "       src=\"/hyperdaq/images/HyperDAQ.jpg\""             << endl;
-  *out << "       alt=\"HyperDAQ\""                                  << endl;
-  *out << "       width=\"32\""                                      << endl;
-  *out << "       height=\"32\""                                     << endl;
-  *out << "       border=\"\"/>"                                     << endl;
-  *out << "    </a>"                                                 << endl;
-  *out << "  </td>"                                                  << endl;
-  *out << "</tr>"                                                    << endl;
-  if(fsm_.stateName()->value_ == "Failed")
-  {
-    *out << "<tr>"                                                   << endl;
-    *out << " <td>"                                                  << endl;
-    *out << "<textarea rows=" << 5 << " cols=60 scroll=yes";
-    *out << " readonly title=\"Reason For Failed\">"                 << endl;
-    *out << reasonForFailedState_                                    << endl;
-    *out << "</textarea>"                                            << endl;
-    *out << " </td>"                                                 << endl;
-    *out << "</tr>"                                                  << endl;
-  }
-  *out << "</table>"                                                 << endl;
-
-  if(fsm_.stateName()->toString() == "Enabled")
-  {
-    boost::shared_ptr<EventServer> eventServer;
-    boost::shared_ptr<InitMsgCollection> initMsgCollection;
-    if (jc_.get() != NULL)
-    {
-      eventServer = jc_->getEventServer();
-      initMsgCollection = jc_->getInitMsgCollection();
-    }
-    if (eventServer.get() != NULL && initMsgCollection.get() != NULL)
-    {
-      if (initMsgCollection->size() > 0)
-      {
-        int displayedConsumerCount = 0;
-        double eventSum = 0.0;
-        double eventRateSum = 0.0;
-        double dataRateSum = 0.0;
-
-        double now = ForeverCounter::getCurrentTime();
-        *out << "<table border=\"0\" width=\"100%\">" << std::endl;
-        *out << "<tr>" << std::endl;
-        *out << "  <td width=\"25%\" align=\"center\">" << std::endl;
-        *out << "  </td>" << std::endl;
-        *out << "    &nbsp;" << std::endl;
-        *out << "  <td width=\"50%\" align=\"center\">" << std::endl;
-        *out << "    <font size=\"+2\"><b>Event Server Statistics</b></font>"
-             << std::endl;
-        *out << "    <br/>" << std::endl;
-        *out << "    Data rates are reported in MB/sec." << std::endl;
-        *out << "    <br/>" << std::endl;
-        *out << "    Maximum input event rate is "
-             << eventServer->getMaxEventRate() << " Hz." << std::endl;
-        *out << "    <br/>" << std::endl;
-        *out << "    Maximum input data rate is "
-             << eventServer->getMaxDataRate() << " MB/sec." << std::endl;
-        *out << "    <br/>" << std::endl;
-        *out << "    Consumer queue size is " << consumerQueueSize_
-             << "." << std::endl;
-        *out << "    <br/>" << std::endl;
-        *out << "    Selected HLT output module is "
-             << eventServer->getHLTOutputSelection()
-             << "." << std::endl;
-        //*out << "    Fair-share event serving is ";
-        //if (fairShareES_) {
-        //  *out << "ON." << std::endl;
-        //}
-        //else {
-        //  *out << "OFF." << std::endl;
-        //}
-        *out << "  </td>" << std::endl;
-        *out << "  <td width=\"25%\" align=\"center\">" << std::endl;
-        if (autoUpdate) {
-          *out << "    <a href=\"" << url << "/" << urn
-               << "/EventServerStats?update=off\">Turn updating OFF</a>"
-               << std::endl;
-        }
-        else {
-          *out << "    <a href=\"" << url << "/" << urn
-               << "/EventServerStats?update=on\">Turn updating ON</a>"
-               << std::endl;
-        }
-        *out << "    <br/><br/>" << std::endl;
-        *out << "    <a href=\"" << url << "/" << urn
-             << "\">Back to SM Status</a>"
-             << std::endl;
-        *out << "  </td>" << std::endl;
-        *out << "</tr>" << std::endl;
-        *out << "</table>" << std::endl;
-
-        *out << "<h3>Event Server:</h3>" << std::endl;
-        *out << "<h4 class=\"noBotMarg\">Input Events, Recent Results:</h4>" << std::endl;
-        *out << "<font size=\"-1\">(Events can be double-counted if they are sent by multiple output modules.)</font><br/><br/>" << std::endl;
-        *out << "<table border=\"1\" width=\"100%\">" << std::endl;
-        *out << "<tr>" << std::endl;
-        *out << "  <th>HLT Output Module</th>" << std::endl;
-        *out << "  <th>Event Count</th>" << std::endl;
-        *out << "  <th>Event Rate</th>" << std::endl;
-        *out << "  <th>Data Rate</th>" << std::endl;
-        *out << "  <th>Duration (sec)</th>" << std::endl;
-        *out << "</tr>" << std::endl;
-
-        eventSum = 0.0;
-        eventRateSum = 0.0;
-        dataRateSum = 0.0;
-        for (int idx = 0; idx < initMsgCollection->size(); ++idx) {
-          InitMsgSharedPtr serializedProds = initMsgCollection->getElementAt(idx);
-          InitMsgView initView(&(*serializedProds)[0]);
-          uint32 outputModuleId = initView.outputModuleId();
-
-          eventSum += eventServer->getEventCount(EventServer::SHORT_TERM_STATS,
-                                                 EventServer::INPUT_STATS,
-                                                 outputModuleId, now);
-          eventRateSum += eventServer->getEventRate(EventServer::SHORT_TERM_STATS,
-                                                    EventServer::INPUT_STATS,
-                                                    outputModuleId, now);
-          dataRateSum += eventServer->getDataRate(EventServer::SHORT_TERM_STATS,
-                                                  EventServer::INPUT_STATS,
-                                                  outputModuleId, now);
-
-          *out << "<tr>" << std::endl;
-          *out << "  <td align=\"center\">" << initView.outputModuleLabel()
-               << "</td>" << std::endl;
-          *out << "  <td align=\"center\">"
-               << eventServer->getEventCount(EventServer::SHORT_TERM_STATS,
-                                             EventServer::INPUT_STATS,
-                                             outputModuleId, now)
-               << "</td>" << std::endl;
-          *out << "  <td align=\"center\">"
-               << eventServer->getEventRate(EventServer::SHORT_TERM_STATS,
-                                            EventServer::INPUT_STATS,
-                                            outputModuleId, now)
-               << "</td>" << std::endl;
-          *out << "  <td align=\"center\">"
-               << eventServer->getDataRate(EventServer::SHORT_TERM_STATS,
-                                           EventServer::INPUT_STATS,
-                                           outputModuleId, now)
-               << "</td>" << std::endl;
-          *out << "  <td align=\"center\">"
-               << eventServer->getDuration(EventServer::SHORT_TERM_STATS,
-                                           EventServer::INPUT_STATS,
-                                           outputModuleId, now)
-               << "</td>" << std::endl;
-          *out << "</tr>" << std::endl;
-        }
-
-        // add a row with the totals
-        if (initMsgCollection->size() > 1) {
-          *out << "<tr>" << std::endl;
-          *out << "  <td align=\"center\">Totals</td>" << std::endl;
-          *out << "  <td align=\"center\">" << eventSum << "</td>" << std::endl;
-          *out << "  <td align=\"center\">" << eventRateSum << "</td>" << std::endl;
-          *out << "  <td align=\"center\">" << dataRateSum << "</td>" << std::endl;
-          *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
-          *out << "</tr>" << std::endl;
-        }
-        *out << "</table>" << std::endl;
-
-        *out << "<h4 class=\"noBotMarg\">Accepted Unique Events, Recent Results:</h4>" << std::endl;
-        *out << "<font size=\"-1\">(Events can be double-counted if they are sent by multiple output modules.)</font><br/><br/>" << std::endl;
-        *out << "<table border=\"1\" width=\"100%\">" << std::endl;
-        *out << "<tr>" << std::endl;
-        *out << "  <th>HLT Output Module</th>" << std::endl;
-        *out << "  <th>Event Count</th>" << std::endl;
-        *out << "  <th>Event Rate</th>" << std::endl;
-        *out << "  <th>Data Rate</th>" << std::endl;
-        *out << "  <th>Duration (sec)</th>" << std::endl;
-        *out << "</tr>" << std::endl;
-
-        eventSum = 0.0;
-        eventRateSum = 0.0;
-        dataRateSum = 0.0;
-        for (int idx = 0; idx < initMsgCollection->size(); ++idx) {
-          InitMsgSharedPtr serializedProds = initMsgCollection->getElementAt(idx);
-          InitMsgView initView(&(*serializedProds)[0]);
-          uint32 outputModuleId = initView.outputModuleId();
-
-          eventSum += eventServer->getEventCount(EventServer::SHORT_TERM_STATS,
-                                                 EventServer::UNIQUE_ACCEPT_STATS,
-                                                 outputModuleId, now);
-          eventRateSum += eventServer->getEventRate(EventServer::SHORT_TERM_STATS,
-                                                    EventServer::UNIQUE_ACCEPT_STATS,
-                                                    outputModuleId, now);
-          dataRateSum += eventServer->getDataRate(EventServer::SHORT_TERM_STATS,
-                                                  EventServer::UNIQUE_ACCEPT_STATS,
-                                                  outputModuleId, now);
-
-          *out << "<tr>" << std::endl;
-          *out << "  <td align=\"center\">" << initView.outputModuleLabel()
-               << "</td>" << std::endl;
-          *out << "  <td align=\"center\">"
-               << eventServer->getEventCount(EventServer::SHORT_TERM_STATS,
-                                             EventServer::UNIQUE_ACCEPT_STATS,
-                                             outputModuleId, now)
-               << "</td>" << std::endl;
-          *out << "  <td align=\"center\">"
-               << eventServer->getEventRate(EventServer::SHORT_TERM_STATS,
-                                            EventServer::UNIQUE_ACCEPT_STATS,
-                                            outputModuleId, now)
-               << "</td>" << std::endl;
-          *out << "  <td align=\"center\">"
-               << eventServer->getDataRate(EventServer::SHORT_TERM_STATS,
-                                           EventServer::UNIQUE_ACCEPT_STATS,
-                                           outputModuleId, now)
-               << "</td>" << std::endl;
-          *out << "  <td align=\"center\">"
-               << eventServer->getDuration(EventServer::SHORT_TERM_STATS,
-                                           EventServer::UNIQUE_ACCEPT_STATS,
-                                           outputModuleId, now)
-               << "</td>" << std::endl;
-          *out << "</tr>" << std::endl;
-        }
-
-        // add a row with the totals
-        if (initMsgCollection->size() > 1) {
-          *out << "<tr>" << std::endl;
-          *out << "  <td align=\"center\">Totals</td>" << std::endl;
-          *out << "  <td align=\"center\">" << eventSum << "</td>" << std::endl;
-          *out << "  <td align=\"center\">" << eventRateSum << "</td>" << std::endl;
-          *out << "  <td align=\"center\">" << dataRateSum << "</td>" << std::endl;
-          *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
-          *out << "</tr>" << std::endl;
-        }
-        *out << "</table>" << std::endl;
-
-        *out << "<h4 class=\"noBotMarg\">Accepted Events To All Consumers, Recent Results:</h4>" << std::endl;
-        *out << "<font size=\"-1\">(Events can be double-counted if they are sent by multiple output modules or if they are sent to multiple consumers.)</font><br/><br/>" << std::endl;
-        *out << "<table border=\"1\" width=\"100%\">" << std::endl;
-        *out << "<tr>" << std::endl;
-        *out << "  <th>HLT Output Module</th>" << std::endl;
-        *out << "  <th>Event Count</th>" << std::endl;
-        *out << "  <th>Event Rate</th>" << std::endl;
-        *out << "  <th>Data Rate</th>" << std::endl;
-        *out << "  <th>Duration (sec)</th>" << std::endl;
-        *out << "</tr>" << std::endl;
-
-        eventSum = 0.0;
-        eventRateSum = 0.0;
-        dataRateSum = 0.0;
-        for (int idx = 0; idx < initMsgCollection->size(); ++idx) {
-          InitMsgSharedPtr serializedProds = initMsgCollection->getElementAt(idx);
-          InitMsgView initView(&(*serializedProds)[0]);
-          uint32 outputModuleId = initView.outputModuleId();
-
-          eventSum += eventServer->getEventCount(EventServer::SHORT_TERM_STATS,
-                                                 EventServer::OUTPUT_STATS,
-                                                 outputModuleId, now);
-          eventRateSum += eventServer->getEventRate(EventServer::SHORT_TERM_STATS,
-                                                    EventServer::OUTPUT_STATS,
-                                                    outputModuleId, now);
-          dataRateSum += eventServer->getDataRate(EventServer::SHORT_TERM_STATS,
-                                                  EventServer::OUTPUT_STATS,
-                                                  outputModuleId, now);
-
-          *out << "<tr>" << std::endl;
-          *out << "  <td align=\"center\">" << initView.outputModuleLabel()
-               << "</td>" << std::endl;
-          *out << "  <td align=\"center\">"
-               << eventServer->getEventCount(EventServer::SHORT_TERM_STATS,
-                                             EventServer::OUTPUT_STATS,
-                                             outputModuleId, now)
-               << "</td>" << std::endl;
-          *out << "  <td align=\"center\">"
-               << eventServer->getEventRate(EventServer::SHORT_TERM_STATS,
-                                            EventServer::OUTPUT_STATS,
-                                            outputModuleId, now)
-               << "</td>" << std::endl;
-          *out << "  <td align=\"center\">"
-               << eventServer->getDataRate(EventServer::SHORT_TERM_STATS,
-                                           EventServer::OUTPUT_STATS,
-                                           outputModuleId, now)
-               << "</td>" << std::endl;
-          *out << "  <td align=\"center\">"
-               << eventServer->getDuration(EventServer::SHORT_TERM_STATS,
-                                           EventServer::OUTPUT_STATS,
-                                           outputModuleId, now)
-               << "</td>" << std::endl;
-          *out << "</tr>" << std::endl;
-        }
-
-        // add a row with the totals
-        if (initMsgCollection->size() > 1) {
-          *out << "<tr>" << std::endl;
-          *out << "  <td align=\"center\">Totals</td>" << std::endl;
-          *out << "  <td align=\"center\">" << eventSum << "</td>" << std::endl;
-          *out << "  <td align=\"center\">" << eventRateSum << "</td>" << std::endl;
-          *out << "  <td align=\"center\">" << dataRateSum << "</td>" << std::endl;
-          *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
-          *out << "</tr>" << std::endl;
-        }
-        *out << "</table>" << std::endl;
-
-        *out << "<h4 class=\"noBotMarg\">Input Events, Full Results:</h4>" << std::endl;
-        *out << "<font size=\"-1\">(Events can be double-counted if they are sent by multiple output modules.)</font><br/><br/>" << std::endl;
-        *out << "<table border=\"1\" width=\"100%\">" << std::endl;
-        *out << "<tr>" << std::endl;
-        *out << "  <th>HLT Output Module</th>" << std::endl;
-        *out << "  <th>Event Count</th>" << std::endl;
-        *out << "  <th>Event Rate</th>" << std::endl;
-        *out << "  <th>Data Rate</th>" << std::endl;
-        *out << "  <th>Duration (sec)</th>" << std::endl;
-        *out << "</tr>" << std::endl;
-
-        eventSum = 0.0;
-        eventRateSum = 0.0;
-        dataRateSum = 0.0;
-        for (int idx = 0; idx < initMsgCollection->size(); ++idx) {
-          InitMsgSharedPtr serializedProds = initMsgCollection->getElementAt(idx);
-          InitMsgView initView(&(*serializedProds)[0]);
-          uint32 outputModuleId = initView.outputModuleId();
-
-          eventSum += eventServer->getEventCount(EventServer::LONG_TERM_STATS,
-                                                 EventServer::INPUT_STATS,
-                                                 outputModuleId, now);
-          eventRateSum += eventServer->getEventRate(EventServer::LONG_TERM_STATS,
-                                                    EventServer::INPUT_STATS,
-                                                    outputModuleId, now);
-          dataRateSum += eventServer->getDataRate(EventServer::LONG_TERM_STATS,
-                                                  EventServer::INPUT_STATS,
-                                                  outputModuleId, now);
-
-          *out << "<tr>" << std::endl;
-          *out << "  <td align=\"center\">" << initView.outputModuleLabel()
-               << "</td>" << std::endl;
-          *out << "  <td align=\"center\">"
-               << eventServer->getEventCount(EventServer::LONG_TERM_STATS,
-                                             EventServer::INPUT_STATS,
-                                             outputModuleId, now)
-               << "</td>" << std::endl;
-          *out << "  <td align=\"center\">"
-               << eventServer->getEventRate(EventServer::LONG_TERM_STATS,
-                                            EventServer::INPUT_STATS,
-                                            outputModuleId, now)
-               << "</td>" << std::endl;
-          *out << "  <td align=\"center\">"
-               << eventServer->getDataRate(EventServer::LONG_TERM_STATS,
-                                           EventServer::INPUT_STATS,
-                                           outputModuleId, now)
-               << "</td>" << std::endl;
-          *out << "  <td align=\"center\">"
-               << eventServer->getDuration(EventServer::LONG_TERM_STATS,
-                                           EventServer::INPUT_STATS,
-                                           outputModuleId, now)
-               << "</td>" << std::endl;
-          *out << "</tr>" << std::endl;
-        }
-
-        // add a row with the totals
-        if (initMsgCollection->size() > 1) {
-          *out << "<tr>" << std::endl;
-          *out << "  <td align=\"center\">Totals</td>" << std::endl;
-          *out << "  <td align=\"center\">" << eventSum << "</td>" << std::endl;
-          *out << "  <td align=\"center\">" << eventRateSum << "</td>" << std::endl;
-          *out << "  <td align=\"center\">" << dataRateSum << "</td>" << std::endl;
-          *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
-          *out << "</tr>" << std::endl;
-        }
-        *out << "</table>" << std::endl;
-
-        *out << "<h4 class=\"noBotMarg\">Accepted Unique Events, Full Results:</h4>" << std::endl;
-        *out << "<font size=\"-1\">(Events can be double-counted if they are sent by multiple output modules.)</font><br/><br/>" << std::endl;
-        *out << "<table border=\"1\" width=\"100%\">" << std::endl;
-        *out << "<tr>" << std::endl;
-        *out << "  <th>HLT Output Module</th>" << std::endl;
-        *out << "  <th>Event Count</th>" << std::endl;
-        *out << "  <th>Event Rate</th>" << std::endl;
-        *out << "  <th>Data Rate</th>" << std::endl;
-        *out << "  <th>Duration (sec)</th>" << std::endl;
-        *out << "</tr>" << std::endl;
-
-        eventSum = 0.0;
-        eventRateSum = 0.0;
-        dataRateSum = 0.0;
-        for (int idx = 0; idx < initMsgCollection->size(); ++idx) {
-          InitMsgSharedPtr serializedProds = initMsgCollection->getElementAt(idx);
-          InitMsgView initView(&(*serializedProds)[0]);
-          uint32 outputModuleId = initView.outputModuleId();
-
-          eventSum += eventServer->getEventCount(EventServer::LONG_TERM_STATS,
-                                                 EventServer::UNIQUE_ACCEPT_STATS,
-                                                 outputModuleId, now);
-          eventRateSum += eventServer->getEventRate(EventServer::LONG_TERM_STATS,
-                                                    EventServer::UNIQUE_ACCEPT_STATS,
-                                                    outputModuleId, now);
-          dataRateSum += eventServer->getDataRate(EventServer::LONG_TERM_STATS,
-                                                  EventServer::UNIQUE_ACCEPT_STATS,
-                                                  outputModuleId, now);
-
-          *out << "<tr>" << std::endl;
-          *out << "  <td align=\"center\">" << initView.outputModuleLabel()
-               << "</td>" << std::endl;
-          *out << "  <td align=\"center\">"
-               << eventServer->getEventCount(EventServer::LONG_TERM_STATS,
-                                             EventServer::UNIQUE_ACCEPT_STATS,
-                                             outputModuleId, now)
-               << "</td>" << std::endl;
-          *out << "  <td align=\"center\">"
-               << eventServer->getEventRate(EventServer::LONG_TERM_STATS,
-                                            EventServer::UNIQUE_ACCEPT_STATS,
-                                            outputModuleId, now)
-               << "</td>" << std::endl;
-          *out << "  <td align=\"center\">"
-               << eventServer->getDataRate(EventServer::LONG_TERM_STATS,
-                                           EventServer::UNIQUE_ACCEPT_STATS,
-                                           outputModuleId, now)
-               << "</td>" << std::endl;
-          *out << "  <td align=\"center\">"
-               << eventServer->getDuration(EventServer::LONG_TERM_STATS,
-                                           EventServer::UNIQUE_ACCEPT_STATS,
-                                           outputModuleId, now)
-               << "</td>" << std::endl;
-          *out << "</tr>" << std::endl;
-        }
-
-        // add a row with the totals
-        if (initMsgCollection->size() > 1) {
-          *out << "<tr>" << std::endl;
-          *out << "  <td align=\"center\">Totals</td>" << std::endl;
-          *out << "  <td align=\"center\">" << eventSum << "</td>" << std::endl;
-          *out << "  <td align=\"center\">" << eventRateSum << "</td>" << std::endl;
-          *out << "  <td align=\"center\">" << dataRateSum << "</td>" << std::endl;
-          *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
-          *out << "</tr>" << std::endl;
-        }
-        *out << "</table>" << std::endl;
-
-        *out << "<h4 class=\"noBotMarg\">Accepted Events To All Consumers, Full Results:</h4>" << std::endl;
-        *out << "<font size=\"-1\">(Events can be double-counted if they are sent by multiple output modules or if they are sent to multiple consumers.)</font><br/><br/>" << std::endl;
-        *out << "<table border=\"1\" width=\"100%\">" << std::endl;
-        *out << "<tr>" << std::endl;
-        *out << "  <th>HLT Output Module</th>" << std::endl;
-        *out << "  <th>Event Count</th>" << std::endl;
-        *out << "  <th>Event Rate</th>" << std::endl;
-        *out << "  <th>Data Rate</th>" << std::endl;
-        *out << "  <th>Duration (sec)</th>" << std::endl;
-        *out << "</tr>" << std::endl;
-
-        eventSum = 0.0;
-        eventRateSum = 0.0;
-        dataRateSum = 0.0;
-        for (int idx = 0; idx < initMsgCollection->size(); ++idx) {
-          InitMsgSharedPtr serializedProds = initMsgCollection->getElementAt(idx);
-          InitMsgView initView(&(*serializedProds)[0]);
-          uint32 outputModuleId = initView.outputModuleId();
-
-          eventSum += eventServer->getEventCount(EventServer::LONG_TERM_STATS,
-                                                 EventServer::OUTPUT_STATS,
-                                                 outputModuleId, now);
-          eventRateSum += eventServer->getEventRate(EventServer::LONG_TERM_STATS,
-                                                    EventServer::OUTPUT_STATS,
-                                                    outputModuleId, now);
-          dataRateSum += eventServer->getDataRate(EventServer::LONG_TERM_STATS,
-                                                  EventServer::OUTPUT_STATS,
-                                                  outputModuleId, now);
-
-          *out << "<tr>" << std::endl;
-          *out << "  <td align=\"center\">" << initView.outputModuleLabel()
-               << "</td>" << std::endl;
-          *out << "  <td align=\"center\">"
-               << eventServer->getEventCount(EventServer::LONG_TERM_STATS,
-                                             EventServer::OUTPUT_STATS,
-                                             outputModuleId, now)
-               << "</td>" << std::endl;
-          *out << "  <td align=\"center\">"
-               << eventServer->getEventRate(EventServer::LONG_TERM_STATS,
-                                            EventServer::OUTPUT_STATS,
-                                            outputModuleId, now)
-               << "</td>" << std::endl;
-          *out << "  <td align=\"center\">"
-               << eventServer->getDataRate(EventServer::LONG_TERM_STATS,
-                                           EventServer::OUTPUT_STATS,
-                                           outputModuleId, now)
-               << "</td>" << std::endl;
-          *out << "  <td align=\"center\">"
-               << eventServer->getDuration(EventServer::LONG_TERM_STATS,
-                                           EventServer::OUTPUT_STATS,
-                                           outputModuleId, now)
-               << "</td>" << std::endl;
-          *out << "</tr>" << std::endl;
-        }
-
-        // add a row with the totals
-        if (initMsgCollection->size() > 1) {
-          *out << "<tr>" << std::endl;
-          *out << "  <td align=\"center\">Totals</td>" << std::endl;
-          *out << "  <td align=\"center\">" << eventSum << "</td>" << std::endl;
-          *out << "  <td align=\"center\">" << eventRateSum << "</td>" << std::endl;
-          *out << "  <td align=\"center\">" << dataRateSum << "</td>" << std::endl;
-          *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
-          *out << "</tr>" << std::endl;
-        }
-        *out << "</table>" << std::endl;
-
-        *out << "<h4>Timing:</h4>" << std::endl;
-        *out << "<table border=\"1\" width=\"100%\">" << std::endl;
-        *out << "<tr>" << std::endl;
-        *out << "  <th>&nbsp;</th>" << std::endl;
-        *out << "  <th>CPU Time<br/>(sec)</th>" << std::endl;
-        *out << "  <th>CPU Time<br/>Percent</th>" << std::endl;
-        *out << "  <th>Real Time<br/>(sec)</th>" << std::endl;
-        *out << "  <th>Real Time<br/>Percent</th>" << std::endl;
-        *out << "  <th>Duration (sec)</th>" << std::endl;
-        *out << "</tr>" << std::endl;
-        *out << "<tr>" << std::endl;
-        *out << "  <td align=\"center\">Recent Results</td>" << std::endl;
-        *out << "  <td align=\"center\">"
-             << eventServer->getInternalTime(EventServer::SHORT_TERM_STATS,
-                                             EventServer::CPUTIME,
-                                             now)
-             << "</td>" << std::endl;
-        *out << "  <td align=\"center\">"
-             << 100 * eventServer->getTimeFraction(EventServer::SHORT_TERM_STATS,
-                                                   EventServer::CPUTIME,
-                                                   now)
-             << "</td>" << std::endl;
-        *out << "  <td align=\"center\">"
-             << eventServer->getInternalTime(EventServer::SHORT_TERM_STATS,
-                                             EventServer::REALTIME,
-                                             now)
-             << "</td>" << std::endl;
-        *out << "  <td align=\"center\">"
-             << 100 * eventServer->getTimeFraction(EventServer::SHORT_TERM_STATS,
-                                                   EventServer::REALTIME,
-                                                   now)
-             << "</td>" << std::endl;
-        *out << "  <td align=\"center\">"
-             << eventServer->getTotalTime(EventServer::SHORT_TERM_STATS,
-                                          EventServer::REALTIME,
-                                          now)
-             << "</td>" << std::endl;
-        *out << "</tr>" << std::endl;
-        *out << "<tr>" << std::endl;
-        *out << "  <td align=\"center\">Full Results</td>" << std::endl;
-        *out << "  <td align=\"center\">"
-             << eventServer->getInternalTime(EventServer::LONG_TERM_STATS,
-                                             EventServer::CPUTIME,
-                                             now)
-             << "</td>" << std::endl;
-        *out << "  <td align=\"center\">"
-             << 100 * eventServer->getTimeFraction(EventServer::LONG_TERM_STATS,
-                                                   EventServer::CPUTIME,
-                                                   now)
-             << "</td>" << std::endl;
-        *out << "  <td align=\"center\">"
-             << eventServer->getInternalTime(EventServer::LONG_TERM_STATS,
-                                             EventServer::REALTIME,
-                                             now)
-             << "</td>" << std::endl;
-        *out << "  <td align=\"center\">"
-             << 100 * eventServer->getTimeFraction(EventServer::LONG_TERM_STATS,
-                                                   EventServer::REALTIME,
-                                                   now)
-             << "</td>" << std::endl;
-        *out << "  <td align=\"center\">"
-             << eventServer->getTotalTime(EventServer::LONG_TERM_STATS,
-                                          EventServer::REALTIME,
-                                          now)
-             << "</td>" << std::endl;
-        *out << "</tr>" << std::endl;
-        *out << "</table>" << std::endl;
-
-        *out << "<h3>Consumers:</h3>" << std::endl;
-        std::map< uint32, boost::shared_ptr<ConsumerPipe> > consumerTable = 
-          eventServer->getConsumerTable();
-        if (consumerTable.size() == 0)
-        {
-          *out << "No consumers are currently registered with "
-               << "this Storage Manager instance.<br/>" << std::endl;
-        }
-        else
-        {
-          std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator 
-            consumerIter;
-
-          // ************************************************************
-          // * Consumer summary table
-          // ************************************************************
-          *out << "<h4>Summary:</h4>" << std::endl;
-          *out << "<table border=\"1\" width=\"100%\">" << std::endl;
-          *out << "<tr>" << std::endl;
-          *out << "  <th>ID</th>" << std::endl;
-          *out << "  <th>Name</th>" << std::endl;
-          *out << "  <th>State</th>" << std::endl;
-          *out << "  <th>Requested<br/>Rate</th>" << std::endl;
-          *out << "  <th>Requested HLT<br/>Output Module</th>" << std::endl;
-          *out << "  <th>Trigger<br/>Request</th>" << std::endl;
-          *out << "</tr>" << std::endl;
-
-          for (consumerIter = consumerTable.begin();
-               consumerIter != consumerTable.end();
-               ++consumerIter)
-          {
-            boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
-            *out << "<tr>" << std::endl;
-            *out << "  <td align=\"center\">" << consPtr->getConsumerId()
-                 << "</td>" << std::endl;
-
-            *out << "  <td align=\"center\">";
-            if (consPtr->isProxyServer()) {
-              *out << "Proxy Server";
-            }
-            else {
-              *out << consPtr->getConsumerName();
-            }
-            *out << "</td>" << std::endl;
-
-            *out << "  <td align=\"center\">";
-            if (consPtr->isDisconnected()) {
-              *out << "Disconnected";
-            }
-            else if (consPtr->isIdle()) {
-              *out << "Idle";
-            }
-            else {
-              *out << "Active";
-            }
-            *out << "</td>" << std::endl;
-
-            *out << "  <td align=\"center\">" << consPtr->getRateRequest()
-                 << " Hz</td>" << std::endl;
-            if (consPtr->isProxyServer()) {
-              *out << "  <td align=\"center\">&lt;all&gt;</td>" << std::endl;
-            }
-            else {
-              std::string hltOut = consPtr->getHLTOutputSelection();
-              if (hltOut.empty()) {
-                *out << "  <td align=\"center\">&lt;none&gt;</td>" << std::endl;
-              }
-              else {
-                *out << "  <td align=\"center\">" << hltOut
-                     << "</td>" << std::endl;
-              }
-            }
-            *out << "  <td align=\"center\">"
-                 << InitMsgCollection::stringsToText(consPtr->getTriggerSelection(), 5)
-                 << "</td>" << std::endl;
-
-            *out << "</tr>" << std::endl;
-          }
-          *out << "</table>" << std::endl;
-
-          // ************************************************************
-          // * Recent results for queued events
-          // ************************************************************
-          *out << "<h4>Queued Events, Recent Results:</h4>" << std::endl;
-          *out << "<table border=\"1\" width=\"100%\">" << std::endl;
-          *out << "<tr>" << std::endl;
-          *out << "  <th>ID</th>" << std::endl;
-          *out << "  <th>Name</th>" << std::endl;
-          *out << "  <th>Event Count</th>" << std::endl;
-          *out << "  <th>Event Rate</th>" << std::endl;
-          *out << "  <th>Data Rate</th>" << std::endl;
-          *out << "  <th>Duration<br/>(sec)</th>" << std::endl;
-          *out << "  <th>Average<br/>Queue Size</th>" << std::endl;
-          *out << "</tr>" << std::endl;
-
-          displayedConsumerCount = 0;
-          eventSum = 0.0;
-          eventRateSum = 0.0;
-          dataRateSum = 0.0;
-          for (consumerIter = consumerTable.begin();
-               consumerIter != consumerTable.end();
-               ++consumerIter)
-          {
-            boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
-            if (consPtr->isDisconnected()) {continue;}
-
-            ++displayedConsumerCount;
-            eventSum += consPtr->getEventCount(ConsumerPipe::SHORT_TERM,
-                                               ConsumerPipe::QUEUED_EVENTS,
-                                               now);
-            eventRateSum += consPtr->getEventRate(ConsumerPipe::SHORT_TERM,
-                                                  ConsumerPipe::QUEUED_EVENTS,
-                                                  now);
-            dataRateSum += consPtr->getDataRate(ConsumerPipe::SHORT_TERM,
-                                                ConsumerPipe::QUEUED_EVENTS,
-                                                now);
-
-            *out << "<tr>" << std::endl;
-            *out << "  <td align=\"center\">" << consPtr->getConsumerId()
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">";
-            if (consPtr->isProxyServer()) {
-              *out << "Proxy Server";
-            }
-            else {
-              *out << consPtr->getConsumerName();
-            }
-            *out << "</td>" << std::endl;
-
-            *out << "  <td align=\"center\">"
-                 << consPtr->getEventCount(ConsumerPipe::SHORT_TERM,
-                                           ConsumerPipe::QUEUED_EVENTS,
-                                           now)
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">"
-                 << consPtr->getEventRate(ConsumerPipe::SHORT_TERM,
-                                          ConsumerPipe::QUEUED_EVENTS,
-                                          now)
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">"
-                 << consPtr->getDataRate(ConsumerPipe::SHORT_TERM,
-                                         ConsumerPipe::QUEUED_EVENTS,
-                                         now)
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">"
-                 << consPtr->getDuration(ConsumerPipe::SHORT_TERM,
-                                         ConsumerPipe::QUEUED_EVENTS,
-                                         now)
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">"
-                 << consPtr->getAverageQueueSize(ConsumerPipe::SHORT_TERM,
-                                                 ConsumerPipe::QUEUED_EVENTS,
-                                                 now)
-                 << "</td>" << std::endl;
-            *out << "</tr>" << std::endl;
-          }
-
-          // add a row with the totals
-          if (displayedConsumerCount > 1) {
-            *out << "<tr>" << std::endl;
-            *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
-            *out << "  <td align=\"center\">Totals</td>" << std::endl;
-            *out << "  <td align=\"center\">" << eventSum << "</td>" << std::endl;
-            *out << "  <td align=\"center\">" << eventRateSum << "</td>" << std::endl;
-            *out << "  <td align=\"center\">" << dataRateSum << "</td>" << std::endl;
-            *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
-            *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
-            *out << "</tr>" << std::endl;
-          }
-          *out << "</table>" << std::endl;
-
-          // ************************************************************
-          // * Recent results for served events
-          // ************************************************************
-          *out << "<h4>Served Events, Recent Results:</h4>" << std::endl;
-          *out << "<table border=\"1\" width=\"100%\">" << std::endl;
-          *out << "<tr>" << std::endl;
-          *out << "  <th>ID</th>" << std::endl;
-          *out << "  <th>Name</th>" << std::endl;
-          *out << "  <th>Event Count</th>" << std::endl;
-          *out << "  <th>Event Rate</th>" << std::endl;
-          *out << "  <th>Data Rate</th>" << std::endl;
-          *out << "  <th>Duration (sec)</th>" << std::endl;
-          *out << "</tr>" << std::endl;
-
-          displayedConsumerCount = 0;
-          eventSum = 0.0;
-          eventRateSum = 0.0;
-          dataRateSum = 0.0;
-          for (consumerIter = consumerTable.begin();
-               consumerIter != consumerTable.end();
-               ++consumerIter)
-          {
-            boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
-            if (consPtr->isDisconnected()) {continue;}
-
-            ++displayedConsumerCount;
-            eventSum += consPtr->getEventCount(ConsumerPipe::SHORT_TERM,
-                                               ConsumerPipe::SERVED_EVENTS,
-                                               now);
-            eventRateSum += consPtr->getEventRate(ConsumerPipe::SHORT_TERM,
-                                                  ConsumerPipe::SERVED_EVENTS,
-                                                  now);
-            dataRateSum += consPtr->getDataRate(ConsumerPipe::SHORT_TERM,
-                                                ConsumerPipe::SERVED_EVENTS,
-                                                now);
-
-            *out << "<tr>" << std::endl;
-            *out << "  <td align=\"center\">" << consPtr->getConsumerId()
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">";
-            if (consPtr->isProxyServer()) {
-              *out << "Proxy Server";
-            }
-            else {
-              *out << consPtr->getConsumerName();
-            }
-            *out << "</td>" << std::endl;
-
-            *out << "  <td align=\"center\">"
-                 << consPtr->getEventCount(ConsumerPipe::SHORT_TERM,
-                                           ConsumerPipe::SERVED_EVENTS,
-                                           now)
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">"
-                 << consPtr->getEventRate(ConsumerPipe::SHORT_TERM,
-                                          ConsumerPipe::SERVED_EVENTS,
-                                          now)
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">"
-                 << consPtr->getDataRate(ConsumerPipe::SHORT_TERM,
-                                         ConsumerPipe::SERVED_EVENTS,
-                                         now)
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">"
-                 << consPtr->getDuration(ConsumerPipe::SHORT_TERM,
-                                         ConsumerPipe::SERVED_EVENTS,
-                                         now)
-                 << "</td>" << std::endl;
-            *out << "</tr>" << std::endl;
-          }
-
-          // add a row with the totals
-          if (displayedConsumerCount > 1) {
-            *out << "<tr>" << std::endl;
-            *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
-            *out << "  <td align=\"center\">Totals</td>" << std::endl;
-            *out << "  <td align=\"center\">" << eventSum << "</td>" << std::endl;
-            *out << "  <td align=\"center\">" << eventRateSum << "</td>" << std::endl;
-            *out << "  <td align=\"center\">" << dataRateSum << "</td>" << std::endl;
-            *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
-            *out << "</tr>" << std::endl;
-          }
-          *out << "</table>" << std::endl;
-
-          // ************************************************************
-          // * Full results for queued events
-          // ************************************************************
-          *out << "<h4>Queued Events, Full Results:</h4>" << std::endl;
-          *out << "<table border=\"1\" width=\"100%\">" << std::endl;
-          *out << "<tr>" << std::endl;
-          *out << "  <th>ID</th>" << std::endl;
-          *out << "  <th>Name</th>" << std::endl;
-          *out << "  <th>Event Count</th>" << std::endl;
-          *out << "  <th>Event Rate</th>" << std::endl;
-          *out << "  <th>Data Rate</th>" << std::endl;
-          *out << "  <th>Duration<br/>(sec)</th>" << std::endl;
-          *out << "  <th>Average<br/>Queue Size</th>" << std::endl;
-          *out << "</tr>" << std::endl;
-
-          displayedConsumerCount = 0;
-          eventSum = 0.0;
-          eventRateSum = 0.0;
-          dataRateSum = 0.0;
-          for (consumerIter = consumerTable.begin();
-               consumerIter != consumerTable.end();
-               ++consumerIter)
-          {
-            boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
-            if (consPtr->isDisconnected()) {continue;}
-
-            ++displayedConsumerCount;
-            eventSum += consPtr->getEventCount(ConsumerPipe::LONG_TERM,
-                                               ConsumerPipe::QUEUED_EVENTS,
-                                               now);
-            eventRateSum += consPtr->getEventRate(ConsumerPipe::LONG_TERM,
-                                                  ConsumerPipe::QUEUED_EVENTS,
-                                                  now);
-            dataRateSum += consPtr->getDataRate(ConsumerPipe::LONG_TERM,
-                                                ConsumerPipe::QUEUED_EVENTS,
-                                                now);
-
-            *out << "<tr>" << std::endl;
-            *out << "  <td align=\"center\">" << consPtr->getConsumerId()
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">";
-            if (consPtr->isProxyServer()) {
-              *out << "Proxy Server";
-            }
-            else {
-              *out << consPtr->getConsumerName();
-            }
-            *out << "</td>" << std::endl;
-
-            *out << "  <td align=\"center\">"
-                 << consPtr->getEventCount(ConsumerPipe::LONG_TERM,
-                                           ConsumerPipe::QUEUED_EVENTS,
-                                           now)
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">"
-                 << consPtr->getEventRate(ConsumerPipe::LONG_TERM,
-                                          ConsumerPipe::QUEUED_EVENTS,
-                                          now)
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">"
-                 << consPtr->getDataRate(ConsumerPipe::LONG_TERM,
-                                         ConsumerPipe::QUEUED_EVENTS,
-                                         now)
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">"
-                 << consPtr->getDuration(ConsumerPipe::LONG_TERM,
-                                         ConsumerPipe::QUEUED_EVENTS,
-                                         now)
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">"
-                 << consPtr->getAverageQueueSize(ConsumerPipe::LONG_TERM,
-                                                 ConsumerPipe::QUEUED_EVENTS,
-                                                 now)
-                 << "</td>" << std::endl;
-            *out << "</tr>" << std::endl;
-          }
-
-          // add a row with the totals
-          if (displayedConsumerCount > 1) {
-            *out << "<tr>" << std::endl;
-            *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
-            *out << "  <td align=\"center\">Totals</td>" << std::endl;
-            *out << "  <td align=\"center\">" << eventSum << "</td>" << std::endl;
-            *out << "  <td align=\"center\">" << eventRateSum << "</td>" << std::endl;
-            *out << "  <td align=\"center\">" << dataRateSum << "</td>" << std::endl;
-            *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
-            *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
-            *out << "</tr>" << std::endl;
-          }
-          *out << "</table>" << std::endl;
-
-          // ************************************************************
-          // * Full results for served events
-          // ************************************************************
-          *out << "<h4>Served Events, Full Results:</h4>" << std::endl;
-          *out << "<table border=\"1\" width=\"100%\">" << std::endl;
-          *out << "<tr>" << std::endl;
-          *out << "  <th>ID</th>" << std::endl;
-          *out << "  <th>Name</th>" << std::endl;
-          *out << "  <th>Event Count</th>" << std::endl;
-          *out << "  <th>Event Rate</th>" << std::endl;
-          *out << "  <th>Data Rate</th>" << std::endl;
-          *out << "  <th>Duration (sec)</th>" << std::endl;
-          *out << "</tr>" << std::endl;
-
-          displayedConsumerCount = 0;
-          eventSum = 0.0;
-          eventRateSum = 0.0;
-          dataRateSum = 0.0;
-          for (consumerIter = consumerTable.begin();
-               consumerIter != consumerTable.end();
-               ++consumerIter)
-          {
-            boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
-            if (consPtr->isDisconnected ()) {continue;}
-
-            ++displayedConsumerCount;
-            eventSum += consPtr->getEventCount(ConsumerPipe::LONG_TERM,
-                                               ConsumerPipe::SERVED_EVENTS,
-                                               now);
-            eventRateSum += consPtr->getEventRate(ConsumerPipe::LONG_TERM,
-                                                  ConsumerPipe::SERVED_EVENTS,
-                                                  now);
-            dataRateSum += consPtr->getDataRate(ConsumerPipe::LONG_TERM,
-                                                ConsumerPipe::SERVED_EVENTS,
-                                                now);
-
-            *out << "<tr>" << std::endl;
-            *out << "  <td align=\"center\">" << consPtr->getConsumerId()
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">";
-            if (consPtr->isProxyServer()) {
-              *out << "Proxy Server";
-            }
-            else {
-              *out << consPtr->getConsumerName();
-            }
-            *out << "</td>" << std::endl;
-
-            *out << "  <td align=\"center\">"
-                 << consPtr->getEventCount(ConsumerPipe::LONG_TERM,
-                                           ConsumerPipe::SERVED_EVENTS,
-                                           now)
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">"
-                 << consPtr->getEventRate(ConsumerPipe::LONG_TERM,
-                                          ConsumerPipe::SERVED_EVENTS,
-                                          now)
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">"
-                 << consPtr->getDataRate(ConsumerPipe::LONG_TERM,
-                                         ConsumerPipe::SERVED_EVENTS,
-                                         now)
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">"
-                 << consPtr->getDuration(ConsumerPipe::LONG_TERM,
-                                         ConsumerPipe::SERVED_EVENTS,
-                                         now)
-                 << "</td>" << std::endl;
-            *out << "</tr>" << std::endl;
-          }
-
-          // add a row with the totals
-          if (displayedConsumerCount > 1) {
-            *out << "<tr>" << std::endl;
-            *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
-            *out << "  <td align=\"center\">Totals</td>" << std::endl;
-            *out << "  <td align=\"center\">" << eventSum << "</td>" << std::endl;
-            *out << "  <td align=\"center\">" << eventRateSum << "</td>" << std::endl;
-            *out << "  <td align=\"center\">" << dataRateSum << "</td>" << std::endl;
-            *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
-            *out << "</tr>" << std::endl;
-          }
-          *out << "</table>" << std::endl;
-        }
-      }
-      else
-      {
-        *out << "<br/>Waiting for INIT messages from the filter units...<br/>"
-             << std::endl;
-      }
-    }
-    else
-    {
-      *out << "<br/>The system is unable to fetch the Event Server "
-           << "instance or the Init Message Collection instance. "
-           << "This is a (very) unexpected error and could "
-           << "be caused by an uninitialized JobController.<br/>"
-           << std::endl;
-    }
-
-    if(jc_->getInitMsgCollection().get() != NULL &&
-       jc_->getInitMsgCollection()->size() > 0)
-    {
-      boost::shared_ptr<InitMsgCollection> initMsgCollection =
-        jc_->getInitMsgCollection();
-      *out << "<h3>HLT Trigger Paths:</h3>" << std::endl;
-      *out << "<table border=\"1\" width=\"100%\">" << std::endl;
-
-      {
-        InitMsgSharedPtr serializedProds = initMsgCollection->getLastElement();
-        InitMsgView initView(&(*serializedProds)[0]);
-        Strings triggerNameList;
-        initView.hltTriggerNames(triggerNameList);
-
-        *out << "<tr>" << std::endl;
-        *out << "  <td align=\"left\" valign=\"top\">"
-             << "Full Trigger List</td>" << std::endl;
-        *out << "  <td align=\"left\" valign=\"top\">"
-             << InitMsgCollection::stringsToText(triggerNameList, 0)
-             << "</td>" << std::endl;
-        *out << "</tr>" << std::endl;
-      }
-
-      for (int idx = 0; idx < initMsgCollection->size(); ++idx) {
-        InitMsgSharedPtr serializedProds = initMsgCollection->getElementAt(idx);
-        InitMsgView initView(&(*serializedProds)[0]);
-        Strings triggerSelectionList;
-        initView.hltTriggerSelections(triggerSelectionList);
-
-        *out << "<tr>" << std::endl;
-        *out << "  <td align=\"left\" valign=\"top\">"
-             << initView.outputModuleLabel()
-             << " Output Module</td>" << std::endl;
-        *out << "  <td align=\"left\" valign=\"top\">"
-             << InitMsgCollection::stringsToText(triggerSelectionList, 0)
-             << "</td>" << std::endl;
-        *out << "</tr>" << std::endl;
-      }
-
-      *out << "</table>" << std::endl;
-    }
-  }
-  else
-  {
-    *out << "<br/>Event server statistics are only available when the "
-         << "Storage Manager is in the Enabled state.<br/>" << std::endl;
-  }
-
-  *out << "<br/><hr/>" << std::endl;
-  char timeString[64];
-  time_t now = time(0);
-  strftime(timeString, 60, "%d-%b-%Y %H:%M:%S %Z", localtime(&now));
-  *out << "Last updated: " << timeString << std::endl;;
-  *out << "</body>" << std::endl;
-  *out << "</html>" << std::endl;
-}
-
-////////////////////////////// consumer registration web page ////////////////////////////
-void StorageManager::consumerWebPage(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
-{
-  if(fsm_.stateName()->toString() == "Enabled")
-  { // what is the right place for this?
-
-  std::string consumerName = "None provided";
-  std::string consumerPriority = "normal";
-  std::string consumerRequest = "<>";
-  std::string consumerHost = in->getenv("REMOTE_HOST");
-
-  // read the consumer registration message from the http input stream
-  std::string lengthString = in->getenv("CONTENT_LENGTH");
-  unsigned long contentLength = std::atol(lengthString.c_str());
-  if (contentLength > 0)
-  {
-    auto_ptr< vector<char> > bufPtr(new vector<char>(contentLength));
-    in->read(&(*bufPtr)[0], contentLength);
-    ConsRegRequestView requestMessage(&(*bufPtr)[0]);
-    consumerName = requestMessage.getConsumerName();
-    consumerPriority = requestMessage.getConsumerPriority();
-    std::string reqString = requestMessage.getRequestParameterSet();
-    if (reqString.size() >= 2) consumerRequest = reqString;
-  }
-
-  // resize the local buffer, if needed, to handle a minimal response message
-  unsigned int responseSize = 200;
-  if (mybuffer_.capacity() < responseSize) mybuffer_.resize(responseSize);
-
-  // fetch the event server
-  // (it and/or the job controller may not have been created yet)
-  boost::shared_ptr<EventServer> eventServer;
-  if (jc_.get() != NULL)
-  {
-    eventServer = jc_->getEventServer();
-  }
-
-  // if no event server, tell the consumer that we're not ready
-  if (eventServer.get() == NULL)
-  {
-    // build the registration response into the message buffer
-    ConsRegResponseBuilder respMsg(&mybuffer_[0], mybuffer_.capacity(),
-                                   ConsRegResponseBuilder::ES_NOT_READY, 0);
-    // debug message so that compiler thinks respMsg is used
-    FDEBUG(20) << "Registration response size =  " <<
-      respMsg.size() << std::endl;
-  }
-  else
-  {
-    // resize the local buffer, if needed, to handle a full response message
-    int mapStringSize = eventServer->getSelectionTableStringSize();
-    responseSize += (int) (2.5 * mapStringSize);
-    if (mybuffer_.capacity() < responseSize) mybuffer_.resize(responseSize);
-
-    // fetch the event selection request from the consumer request
-    edm::ParameterSet requestParamSet(consumerRequest);
-
-    // 26-Jan-2009, KAB: an ugly hack to get ParameterSet to serialize
-    // the parameters that we need.  A better solution is in the works.
-    try {
-      double rate =
-        requestParamSet.getUntrackedParameter<double>("maxEventRequestRate",
-                                                      -999.0);
-      if (rate == -999.0) {
-        rate = requestParamSet.getParameter<double>("TrackedMaxRate");
-        requestParamSet.addUntrackedParameter<double>("maxEventRequestRate",
-                                                      rate);
-      }
-    }
-    catch (...) {}
-    try {
-      std::string hltOMLabel =
-        requestParamSet.getUntrackedParameter<std::string>("SelectHLTOutput",
-                                                           "NoneFound");
-      if (hltOMLabel == "NoneFound") {
-        hltOMLabel =
-          requestParamSet.getParameter<std::string>("TrackedHLTOutMod");
-        requestParamSet.addUntrackedParameter<std::string>("SelectHLTOutput",
-                                                           hltOMLabel);
-      }
-    }
-    catch (...) {}
-    try {
-      edm::ParameterSet tmpPSet1 =
-        requestParamSet.getUntrackedParameter<edm::ParameterSet>("SelectEvents",
-                                                                 edm::ParameterSet());
-      if (tmpPSet1.empty()) {
-        Strings path_specs = 
-          requestParamSet.getParameter<Strings>("TrackedEventSelection");
-        if (! path_specs.empty()) {
-          edm::ParameterSet tmpPSet2;
-          tmpPSet2.addParameter<Strings>("SelectEvents", path_specs);
-          requestParamSet.addUntrackedParameter<edm::ParameterSet>("SelectEvents",
-                                                                   tmpPSet2);
-        }
-      }
-    }
-    catch (...) {}
-
-    Strings selectionRequest =
-      EventSelector::getEventSelectionVString(requestParamSet);
-    Strings modifiedRequest =
-      eventServer->updateTriggerSelectionForStreams(selectionRequest);
-
-    // pull the rate request out of the consumer parameter set, too
-    double maxEventRequestRate =
-      requestParamSet.getUntrackedParameter<double>("maxEventRequestRate", 1.0);
-
-    // pull the HLT output module selection out of the PSet
-    // (default is empty string)
-    std::string hltOMLabel =
-      requestParamSet.getUntrackedParameter<std::string>("SelectHLTOutput",
-                                                         std::string());
-
-    // create the local consumer interface and add it to the event server
-    boost::shared_ptr<ConsumerPipe>
-      consPtr(new ConsumerPipe(consumerName, consumerPriority,
-                               activeConsumerTimeout_.value_,
-                               idleConsumerTimeout_.value_,
-                               modifiedRequest, maxEventRequestRate,
-                               hltOMLabel,
-                               consumerHost, consumerQueueSize_));
-    eventServer->addConsumer(consPtr);
-    // over-ride pushmode if not set in StorageManager
-    if((consumerPriority.compare("PushMode") == 0) && !pushMode_)
-        consPtr->setPushMode(false);
-
-    // build the registration response into the message buffer
-    ConsRegResponseBuilder respMsg(&mybuffer_[0], mybuffer_.capacity(),
-                                   0, consPtr->getConsumerId());
-
-    // add the stream selection table to the proxy server response
-    if (consPtr->isProxyServer()) {
-      respMsg.setStreamSelectionTable(eventServer->getStreamSelectionTable());
-    }
-
-    // debug message so that compiler thinks respMsg is used
-    FDEBUG(20) << "Registration response size =  " <<
-      respMsg.size() << std::endl;
-  }
-
-  // send the response
-  ConsRegResponseView responseMessage(&mybuffer_[0]);
-  unsigned int len = responseMessage.size();
-
-  out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
-  out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-  out->write((char*) &mybuffer_[0],len);
-
-  } else { // is this the right thing to send?
-   // In wrong state for this message - return zero length stream, should return Msg NOTREADY
-   int len = 0;
-   out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
-   out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-   out->write((char*) &mybuffer_[0],len);
-  }
-
-}
-
-//////////// *** get DQMevent data web page //////////////////////////////////////////////////////////
-void StorageManager::DQMeventdataWebPage(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
-{
-  // default the message length to zero
-  int len=0;
-
-  // determine the consumer ID from the event request
-  // message, if it is available.
-  unsigned int consumerId = 0;
-  std::string lengthString = in->getenv("CONTENT_LENGTH");
-  unsigned int contentLength = std::atol(lengthString.c_str());
-  if (contentLength > 0) 
-  {
-    auto_ptr< vector<char> > bufPtr(new vector<char>(contentLength));
-    in->read(&(*bufPtr)[0], contentLength);
-    OtherMessageView requestMessage(&(*bufPtr)[0]);
-    if (requestMessage.code() == Header::DQMEVENT_REQUEST)
-    {
-      uint8 *bodyPtr = requestMessage.msgBody();
-      consumerId = convert32(bodyPtr);
-    }
-  }
-  
-  // first test if StorageManager is in Enabled state and this is a valid request
-  // there must also be DQM data available
-  if(fsm_.stateName()->toString() == "Enabled" && consumerId != 0)
-  {
-    boost::shared_ptr<DQMEventServer> eventServer;
-    if (jc_.get() != NULL)
-    {
-      eventServer = jc_->getDQMEventServer();
-    }
-    if (eventServer.get() != NULL)
-    {
-      boost::shared_ptr< std::vector<char> > bufPtr =
-        eventServer->getDQMEvent(consumerId);
-      if (bufPtr.get() != NULL)
-      {
-        DQMEventMsgView msgView(&(*bufPtr)[0]);
-
-        // what if mybuffer_ is used in multiple threads? Can it happen?
-        unsigned char* from = msgView.startAddress();
-        unsigned int dsize = msgView.size();
-        if(mybuffer_.capacity() < dsize) mybuffer_.resize(dsize);
-        unsigned char* pos = (unsigned char*) &mybuffer_[0];
-
-        copy(from,from+dsize,pos);
-        len = dsize;
-        FDEBUG(10) << "sending update at event " << msgView.eventNumberAtUpdate() << std::endl;
-      }
-    }
-    
-    // check if zero length is sent when there is no valid data
-    // i.e. on getDQMEvent, can already send zero length if request is invalid
-    out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
-    out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-    out->write((char*) &mybuffer_[0],len);
-  } // else send DONE as reponse (could be end of a run)
-  else
-  {
-    // not an event request or not in enabled state, just send DONE message
-    OtherMessageBuilder othermsg(&mybuffer_[0],Header::DONE);
-    len = othermsg.size();
-      
-    out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
-    out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-    out->write((char*) &mybuffer_[0],len);
-  }
-  
-}
-
-////////////////////////////// DQM consumer registration web page ////////////////////////////
-void StorageManager::DQMconsumerWebPage(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
-{
-  if(fsm_.stateName()->toString() == "Enabled")
-  { // We need to be in the enabled state
-
-    std::string consumerName = "None provided";
-    std::string consumerPriority = "normal";
-    std::string consumerRequest = "*";
-    std::string consumerHost = in->getenv("REMOTE_HOST");
-
-    // read the consumer registration message from the http input stream
-    std::string lengthString = in->getenv("CONTENT_LENGTH");
-    unsigned int contentLength = std::atol(lengthString.c_str());
-    if (contentLength > 0)
-    {
-      auto_ptr< vector<char> > bufPtr(new vector<char>(contentLength));
-      in->read(&(*bufPtr)[0], contentLength);
-      ConsRegRequestView requestMessage(&(*bufPtr)[0]);
-      consumerName = requestMessage.getConsumerName();
-      consumerPriority = requestMessage.getConsumerPriority();
-      // for DQM consumers top folder name is stored in the "parameteSet"
-      std::string reqFolder = requestMessage.getRequestParameterSet();
-      if (reqFolder.size() >= 1) consumerRequest = reqFolder;
-    }
-
-    // create the buffer to hold the registration reply message
-    const int BUFFER_SIZE = 100;
-    char msgBuff[BUFFER_SIZE];
-
-    // fetch the DQMevent server
-    // (it and/or the job controller may not have been created yet
-    //  if not in the enabled state)
-    boost::shared_ptr<DQMEventServer> eventServer;
-    if (jc_.get() != NULL)
-    {
-      eventServer = jc_->getDQMEventServer();
-    }
-
-    // if no event server, tell the consumer that we're not ready
-    if (eventServer.get() == NULL)
-    {
-      // build the registration response into the message buffer
-      ConsRegResponseBuilder respMsg(msgBuff, BUFFER_SIZE,
-                                     ConsRegResponseBuilder::ES_NOT_READY, 0);
-      // debug message so that compiler thinks respMsg is used
-      FDEBUG(20) << "Registration response size =  " <<
-        respMsg.size() << std::endl;
-    }
-    else
-    {
-      // create the local consumer interface and add it to the event server
-      boost::shared_ptr<DQMConsumerPipe>
-        consPtr(new DQMConsumerPipe(consumerName, consumerPriority,
-                                    DQMactiveConsumerTimeout_.value_,
-                                    DQMidleConsumerTimeout_.value_,
-                                    consumerRequest, consumerHost,
-                                    DQMconsumerQueueSize_));
-      eventServer->addConsumer(consPtr);
-      // over-ride pushmode if not set in StorageManager
-      if((consumerPriority.compare("PushMode") == 0) && !pushMode_)
-          consPtr->setPushMode(false);
-
-      // initialize it straight away (should later pass in the folder name to
-      // optionally change the selection on a register?
-      consPtr->initializeSelection();
-
-      // build the registration response into the message buffer
-      ConsRegResponseBuilder respMsg(msgBuff, BUFFER_SIZE,
-                                     0, consPtr->getConsumerId());
-      // debug message so that compiler thinks respMsg is used
-      FDEBUG(20) << "Registration response size =  " <<
-        respMsg.size() << std::endl;
-    }
-
-    // send the response
-    ConsRegResponseView responseMessage(msgBuff);
-    unsigned int len = responseMessage.size();
-    if(mybuffer_.capacity() < len) mybuffer_.resize(len);
-    for (unsigned int i=0; i<len; ++i) mybuffer_[i]=msgBuff[i];
-
-    out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
-    out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-    out->write((char*) &mybuffer_[0],len);
-
-  } else { // is this the right thing to send?
-   // In wrong state for this message - return zero length stream, should return Msg NOTREADY
-   int len = 0;
-   out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
-   out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-   out->write((char*) &mybuffer_[0],len);
-  }
-
-}
-
-//------------------------------------------------------------------------------
-// Everything that has to do with the flash list goes here
-// 
-// - setupFlashList()                  - setup variables and initialize them
-// - actionPerformed(xdata::Event &e)  - update values in flash list
-//------------------------------------------------------------------------------
-void StorageManager::setupFlashList()
-{
-  //----------------------------------------------------------------------------
-  // Setup the header variables
-  //----------------------------------------------------------------------------
-  class_    = getApplicationDescriptor()->getClassName();
-  instance_ = getApplicationDescriptor()->getInstance();
-  std::string url;
-  url       = getApplicationDescriptor()->getContextDescriptor()->getURL();
-  url      += "/";
-  url      += getApplicationDescriptor()->getURN();
-  url_      = url;
-
-  //----------------------------------------------------------------------------
-  // Create/Retrieve an infospace which can be monitored
-  //----------------------------------------------------------------------------
-  std::ostringstream oss;
-  oss << "urn:xdaq-monitorable-" << class_.value_;
-  toolbox::net::URN urn = this->createQualifiedInfoSpace(oss.str());
-  xdata::InfoSpace *is = xdata::getInfoSpaceFactory()->get(urn.toString());
-
-  //----------------------------------------------------------------------------
-  // Publish monitor data in monitorable info space -- Head
-  //----------------------------------------------------------------------------
-  is->fireItemAvailable("class",                &class_);
-  is->fireItemAvailable("instance",             &instance_);
-  is->fireItemAvailable("runNumber",            &runNumber_);
-  is->fireItemAvailable("url",                  &url_);
-  // Body
-  is->fireItemAvailable("receivedFrames",       &receivedFrames_);
-  // should this be here also??
-  is->fireItemAvailable("storedEvents",         &storedEvents_);
-  is->fireItemAvailable("closedFiles",          &closedFiles_);
-  is->fireItemAvailable("receivedEvents",       &receivedEvents_);
-  is->fireItemAvailable("receivedErrorEvents",  &receivedErrorEvents_);
-  is->fireItemAvailable("namesOfStream",      &namesOfStream_);
-  is->fireItemAvailable("namesOfOutMod",      &namesOfOutMod_);
-  is->fireItemAvailable("dqmRecords",           &dqmRecords_);
-  is->fireItemAvailable("receivedVolume",       &receivedVolume_);
-  is->fireItemAvailable("storedVolume",         &storedVolume_);
-  is->fireItemAvailable("memoryUsed",           &memoryUsed_);
-  is->fireItemAvailable("instantBandwidth",     &instantBandwidth_);
-  is->fireItemAvailable("instantRate",          &instantRate_);
-  is->fireItemAvailable("instantLatency",       &instantLatency_);
-  is->fireItemAvailable("maxBandwidth",         &maxBandwidth_);
-  is->fireItemAvailable("minBandwidth",         &minBandwidth_);
-  is->fireItemAvailable("duration",             &duration_);
-  is->fireItemAvailable("totalSamples",         &totalSamples_);
-  is->fireItemAvailable("meanBandwidth",        &meanBandwidth_);
-  is->fireItemAvailable("meanRate",             &meanRate_);
-  is->fireItemAvailable("meanLatency",          &meanLatency_);
-  is->fireItemAvailable("STparameterSet",       &offConfig_);
-  is->fireItemAvailable("stateName",            fsm_.stateName());
-  is->fireItemAvailable("progressMarker",       &progressMarker_);
-  is->fireItemAvailable("connectedRBs",         &connectedRBs_);
-  is->fireItemAvailable("pushMode2Proxy",       &pushmode2proxy_);
-  is->fireItemAvailable("collateDQM",           &collateDQM_);
-  is->fireItemAvailable("archiveDQM",           &archiveDQM_);
-  is->fireItemAvailable("archiveIntervalDQM",   &archiveIntervalDQM_);
-  is->fireItemAvailable("purgeTimeDQM",         &purgeTimeDQM_);
-  is->fireItemAvailable("readyTimeDQM",         &readyTimeDQM_);
-  is->fireItemAvailable("filePrefixDQM",        &filePrefixDQM_);
-  is->fireItemAvailable("useCompressionDQM",    &useCompressionDQM_);
-  is->fireItemAvailable("compressionLevelDQM",  &compressionLevelDQM_);
-  is->fireItemAvailable("nLogicalDisk",         &nLogicalDisk_);
-  is->fireItemAvailable("fileCatalog",          &fileCatalog_);
-  is->fireItemAvailable("fileName",             &fileName_);
-  is->fireItemAvailable("filePath",             &filePath_);
-  is->fireItemAvailable("setupLabel",           &setupLabel_);
-  is->fireItemAvailable("highWaterMark",        &highWaterMark_);
-  is->fireItemAvailable("lumiSectionTimeOut",   &lumiSectionTimeOut_);
-  is->fireItemAvailable("exactFileSizeTest",    &exactFileSizeTest_);
-  is->fireItemAvailable("fileClosingTestInterval",&fileClosingTestInterval_);
-  is->fireItemAvailable("maxESEventRate",       &maxESEventRate_);
-  is->fireItemAvailable("maxESDataRate",        &maxESDataRate_);
-  is->fireItemAvailable("activeConsumerTimeout",&activeConsumerTimeout_);
-  is->fireItemAvailable("idleConsumerTimeout",  &idleConsumerTimeout_);
-  is->fireItemAvailable("consumerQueueSize",    &consumerQueueSize_);
-  is->fireItemAvailable("esSelectedHLTOutputModule",&esSelectedHLTOutputModule_);
-  //is->fireItemAvailable("fairShareES",          &fairShareES_);
-
-  //----------------------------------------------------------------------------
-  // Attach listener to myCounter_ to detect retrieval event
-  //----------------------------------------------------------------------------
-  is->addItemRetrieveListener("class",                this);
-  is->addItemRetrieveListener("instance",             this);
-  is->addItemRetrieveListener("runNumber",            this);
-  is->addItemRetrieveListener("url",                  this);
-  // Body
-  is->addItemRetrieveListener("receivedFrames",       this);
-  // should this be here also??
-  //is->addItemRetrieveListener("storedEvents",         this);
-  is->addItemRetrieveListener("receivedEvents",       this);
-  is->addItemRetrieveListener("namesOfStream", this);
-  is->addItemRetrieveListener("namesOfOutMod", this);
-  is->addItemRetrieveListener("dqmRecords",           this);
-  is->addItemRetrieveListener("receivedVolume",       this);
-  is->addItemRetrieveListener("storedVolume",         this);
-  is->addItemRetrieveListener("memoryUsed",           this);
-  is->addItemRetrieveListener("instantBandwidth",     this);
-  is->addItemRetrieveListener("instantRate",          this);
-  is->addItemRetrieveListener("instantLatency",       this);
-  is->addItemRetrieveListener("maxBandwidth",         this);
-  is->addItemRetrieveListener("minBandwidth",         this);
-  is->addItemRetrieveListener("duration",             this);
-  is->addItemRetrieveListener("totalSamples",         this);
-  is->addItemRetrieveListener("meanBandwidth",        this);
-  is->addItemRetrieveListener("meanRate",             this);
-  is->addItemRetrieveListener("meanLatency",          this);
-  is->addItemRetrieveListener("STparameterSet",       this);
-  is->addItemRetrieveListener("stateName",            this);
-  is->addItemRetrieveListener("progressMarker",       this);
-  is->addItemRetrieveListener("connectedRBs",         this);
-  is->addItemRetrieveListener("pushMode2Proxy",       this);
-  is->addItemRetrieveListener("collateDQM",           this);
-  is->addItemRetrieveListener("archiveDQM",           this);
-  is->addItemRetrieveListener("archiveIntervalDQM",   this);
-  is->addItemRetrieveListener("purgeTimeDQM",         this);
-  is->addItemRetrieveListener("readyTimeDQM",         this);
-  is->addItemRetrieveListener("filePrefixDQM",        this);
-  is->addItemRetrieveListener("useCompressionDQM",    this);
-  is->addItemRetrieveListener("compressionLevelDQM",  this);
-  is->addItemRetrieveListener("nLogicalDisk",         this);
-  is->addItemRetrieveListener("fileCatalog",          this);
-  is->addItemRetrieveListener("fileName",             this);
-  is->addItemRetrieveListener("filePath",             this);
-  is->addItemRetrieveListener("setupLabel",           this);
-  is->addItemRetrieveListener("highWaterMark",        this);
-  is->addItemRetrieveListener("lumiSectionTimeOut",   this);
-  is->addItemRetrieveListener("exactFileSizeTest",    this);
-  is->addItemRetrieveListener("fileClosingTestInterval",this);
-  is->addItemRetrieveListener("maxESEventRate",       this);
-  is->addItemRetrieveListener("maxESDataRate",        this);
-  is->addItemRetrieveListener("activeConsumerTimeout",this);
-  is->addItemRetrieveListener("idleConsumerTimeout",  this);
-  is->addItemRetrieveListener("consumerQueueSize",    this);
-  is->addItemRetrieveListener("esSelectedHLTOutputModule",this);
-  //is->addItemRetrieveListener("fairShareES",          this);
-  //----------------------------------------------------------------------------
+  out->getHTTPResponseHeader().addHeader( "Content-Type",
+                                          "application/octet-stream" );
+  out->getHTTPResponseHeader().addHeader( "Content-Transfer-Encoding",
+                                          "binary" );
+  char buff;
+  out->write( &buff, 0 );
 }
 
 
-void StorageManager::actionPerformed(xdata::Event& e)  
-{
-  // 14-Oct-2008, KAB - skip all processing in this method, for now,
-  // when the SM state is halted.  This will protect against the use
-  // of un-initialized variables (like jc_).
-  if (fsm_.stateName()->toString()=="Halted") {return;}
-  if (fsm_.stateName()->toString()=="halting") {return;}
-  // paranoia - also return if jc_.get() is null.  Although, to do this
-  // right, we would need a lock
-  if (jc_.get() == 0) {return;}
+///////////////////////////////////////
+// State Machine call back functions //
+///////////////////////////////////////
 
-  if (e.type() == "ItemRetrieveEvent") {
-    std::ostringstream oss;
-    oss << "urn:xdaq-monitorable:" << class_.value_ << ":" << instance_.value_;
-    xdata::InfoSpace *is = xdata::InfoSpace::get(oss.str());
-
-    is->lock();
-    std::string item = dynamic_cast<xdata::ItemRetrieveEvent&>(e).itemName();
-    // Only update those locations which are not always up to date
-    if      (item == "connectedRBs")
-      connectedRBs_   = smrbsenders_.size();
-    else if (item == "memoryUsed")
-      memoryUsed_     = pool_->getMemoryUsage().getUsed();
-    else if (item == "receivedVolume")
-      receivedVolume_   = pmeter_->totalvolumemb();
-    else if (item == "storedVolume")
-      //storedVolume_   = pmeter_->totalvolumemb();
-      storedVolume_   = store_receivedVolume_;
-    else if (item == "closedFiles") {
-        std::list<std::string>& files = jc_->get_filelist();
-        std::list<std::string>& currfiles= jc_->get_currfiles();
-        closedFiles_ = files.size() - currfiles.size();
-    } else if (item == "openFiles") {
-        std::list<std::string>& currfiles= jc_->get_currfiles();
-        openFiles_ = currfiles.size();
-    } else if (item == "receivedEventsFromOutMod" || item == "namesOfOutMod") {
-      receivedEventsFromOutMod_.clear();
-      namesOfOutMod_.clear();
-
-      boost::shared_ptr<InitMsgCollection> initMsgCollection;
-      if(jc_.get() != NULL && jc_->getInitMsgCollection().get() != NULL) {
-        initMsgCollection = jc_->getInitMsgCollection();
-      }
-      idMap_iter oi(modId2ModOutMap_.begin()), oe(modId2ModOutMap_.end());
-      for( ; oi != oe; ++oi) {
-        std::string outputModuleLabel = oi->second;
-        if (initMsgCollection.get() != NULL &&
-            initMsgCollection->getOutputModuleName(oi->first) != "") {
-          outputModuleLabel = initMsgCollection->getOutputModuleName(oi->first);
-        }
-        receivedEventsFromOutMod_.push_back(receivedEventsMap_[oi->second]);
-        namesOfOutMod_.push_back(outputModuleLabel);
-      }
-/* removed for temporary solution of using the monitoring loop
-
-    } else if (item == "storedEvents" || item == "storedEventsInStream" || item == "namesOfStream") {
-      // only clear and get values if in enabled state so latest values available if fail/stop
-      if(jc_.get() != NULL) {
-        storedEvents_ = 0;
-        storedEventsInStream_.clear();
-        namesOfStream_.clear();
-        // following is thread safe as size of all_storedEvents is fixed (number of streams)
-        std::vector<uint32> all_storedEvents = jc_->get_storedEvents();
-        std::vector<std::string> all_storedNames = jc_->get_storedNames();
-        for(std::vector<uint32>::iterator it = all_storedEvents.begin(), itEnd = all_storedEvents.end();
-            it != itEnd; ++it) {
-              storedEvents_ = storedEvents_ + (*it);
-              storedEventsInStream_.push_back(*it);
-        }
-        for(std::vector<std::string>::iterator it = all_storedNames.begin(), itEnd = all_storedNames.end();
-            it != itEnd; ++it) {
-              namesOfStream_.push_back(*it);
-        }
-      }
-*/
-    } else if (item == "progressMarker")
-      progressMarker_ = ProgressMarker::instance()->status();
-    is->unlock();
-  }
-
-  if (e.type()=="ItemChangedEvent" && !(fsm_.stateName()->toString()=="Halted")) {
-    string item = dynamic_cast<xdata::ItemChangedEvent&>(e).itemName();
-    if ( item == "STparameterSet") {
-      reconfigurationRequested_ = true;
-    }
-  }
-}
-
-void StorageManager::parseFileEntry(const std::string &in, std::string &out, 
-                                    unsigned int &nev, unsigned long long &sz) const
-{
-  unsigned int no;
-  stringstream pippo;
-  pippo << in;
-  pippo >> no >> out >> nev >> sz;
-}
-
-std::string StorageManager::findStreamName(const std::string &in) const
-{
-  //cout << "in findStreamName with string " << in << endl;
-  string::size_type t = in.find("storageManager");
-
-  string::size_type b;
-  if(t != string::npos)
-    {
-      //cout << " storageManager is at " << t << endl;
-      b = in.rfind(".",t-2);
-      if(b!=string::npos) 
-	{
-	  //cout << "looking for substring " << t-b-2 << "long" <<endl;
-	  //cout << " stream name should be at " << b+1 << endl;
-	  //cout << " will return name " << string(in.substr(b+1,t-b-2)) << endl;
-	  return string(in.substr(b+1,t-b-2));
-	}
-      else
-	cout << " stream name is lost " << endl;
-    }
-  else
-    cout << " storageManager is not found " << endl;
-  return in;
-}
-
-
-bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
+xoap::MessageReference StorageManager::configuring( xoap::MessageReference msg )
+  throw( xoap::exception::Exception )
 {
   try {
-    LOG4CPLUS_INFO(getApplicationLogger(),"Start configuring ...");
+    if(!edmplugin::PluginManager::isAvailable()) {
+      edmplugin::PluginManager::configure(edmplugin::standard::config());
+    }
 
-    configureAction();
-
-    LOG4CPLUS_INFO(getApplicationLogger(),"Finished configuring!");
-
-    fsm_.fireEvent("ConfigureDone",this);
+    _sharedResources->_commandQueue->enq_wait( stor::event_ptr( new stor::Configure() ) );
   }
   catch (cms::Exception& e) {
     reasonForFailedState_ = e.explainSelf();
-    fsm_.fireFailed(reasonForFailedState_,this);
-    return false;
+    LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
+    return msg;
   }
   catch (xcept::Exception &e) {
     reasonForFailedState_ = "configuring FAILED: " + (string)e.what();
-    fsm_.fireFailed(reasonForFailedState_,this);
-    return false;
+    LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
+    return msg;
   }
   catch (std::exception& e) {
     reasonForFailedState_  = e.what();
-    fsm_.fireFailed(reasonForFailedState_,this);
-    return false;
+    LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
+    return msg;
   }
   catch (...) {
     reasonForFailedState_  = "Unknown Exception while configuring";
-    fsm_.fireFailed(reasonForFailedState_,this);
-    return false;
+    LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
+    return msg;
   }
 
-  reconfigurationRequested_ = false;
-  return false;
+  return msg;
 }
 
 
-void StorageManager::configureAction()
+xoap::MessageReference StorageManager::enabling( xoap::MessageReference msg )
+  throw( xoap::exception::Exception )
 {
-  if(!edmplugin::PluginManager::isAvailable()) {
-    edmplugin::PluginManager::configure(edmplugin::standard::config());
-  }
-    
-  // give the JobController a configuration string and
-  // get the registry data coming over the network (the first one)
-  // Note that there is currently no run number check for the INIT
-  // message, just the first one received once in Enabled state is used
-  evf::ParameterSetRetriever smpset(offConfig_.value_);
-
-  string my_config = smpset.getAsString();
-
-  pushMode_ = (bool) pushmode2proxy_;
-  smConfigString_    = my_config;
-  smFileCatalog_     = fileCatalog_.toString();
-
-  boost::shared_ptr<stor::Parameter> smParameter_ = stor::Configurator::instance()->getParameter();
-  smParameter_ -> setFileCatalog(fileCatalog_.toString());
-  smParameter_ -> setfileName(fileName_.toString());
-  smParameter_ -> setfilePath(filePath_.toString());
-  smParameter_ -> setmaxFileSize(maxFileSize_.value_);
-  smParameter_ -> setsetupLabel(setupLabel_.toString());
-  smParameter_ -> sethighWaterMark(highWaterMark_.value_);
-  smParameter_ -> setlumiSectionTimeOut(lumiSectionTimeOut_.value_);
-  smParameter_ -> setExactFileSizeTest(exactFileSizeTest_.value_);
-
-  // check output locations and scripts before we continue
-  checkDirectoryOK(filePath_.toString());
-  if((bool)archiveDQM_) checkDirectoryOK(filePrefixDQM_.toString());
-
-  // check whether the maxSize parameter in an SM output stream
-  // is still specified in bytes (rather than MBytes).  (All we really
-  // check is if the maxSize is unreasonably large after converting
-  // it to bytes.)
-  //@@EM this is done on the xdaq parameter if it is set (i.e. if >0),
-  // otherwise on the cfg params
-  if(smParameter_ ->maxFileSize()>0) {
-    long long maxSize = 1048576 * (long long) smParameter_ -> maxFileSize();
-    if (maxSize > 2E+13) {
-      std::string errorString =  "The maxSize parameter (file size) ";
-      errorString.append("from xdaq configuration is too large(");
-      try {
-        errorString.append(boost::lexical_cast<std::string>(maxSize));
-      }
-      catch (boost::bad_lexical_cast& blcExcpt) {
-        errorString.append("???");
-      }
-      errorString.append(" bytes). ");
-      errorString.append("Please check that this parameter is ");
-      errorString.append("specified as the number of MBytes, not bytes. ");
-      errorString.append("(The units for maxSize was changed from ");
-      errorString.append("bytes to MBytes, and it is possible that ");
-      errorString.append("your storage manager configuration ");
-      errorString.append("needs to be updated to reflect this.)");
-
-      throw cms::Exception("StorageManager","configureAction")
-        << errorString;
-    }
-  } else {
+  if (_sharedResources->_configuration->streamConfigurationHasChanged()) {
     try {
-      // create a parameter set from the configuration string
-      PythonProcessDesc py_pdesc(smConfigString_);
-      boost::shared_ptr<ProcessDesc> pdesc = py_pdesc.processDesc();
-      boost::shared_ptr<edm::ParameterSet> smPSet = pdesc->getProcessPSet();
-
-      // loop over each end path
-      std::vector<std::string> allEndPaths = 
-        smPSet->getParameter<std::vector<std::string> >("@end_paths");
-      for(std::vector<std::string>::iterator endPathIter = allEndPaths.begin();
-          endPathIter != allEndPaths.end(); ++endPathIter) {
-
-        // loop over each element in the end path list (not sure why...)
-        std::vector<std::string> anEndPath =
-          smPSet->getParameter<std::vector<std::string> >((*endPathIter));
-        for(std::vector<std::string>::iterator ep2Iter = anEndPath.begin();
-            ep2Iter != anEndPath.end(); ++ep2Iter) {
-
-          // fetch the end path parameter set
-          edm::ParameterSet endPathPSet =
-            smPSet->getParameter<edm::ParameterSet>((*ep2Iter));
-          if (! endPathPSet.empty()) {
-            std::string mod_type =
-              endPathPSet.getParameter<std::string> ("@module_type");
-            if (mod_type == "EventStreamFileWriter") {
-              // convert the maxSize parameter value from MB to bytes
-              long long maxSize = 1048576 *
-                (long long) endPathPSet.getParameter<int> ("maxSize");
-
-              // test the maxSize value.  2E13 is somewhat arbitrary,
-              // but ~18 TeraBytes seems larger than we would realistically
-              // want, and it will catch stale (byte-based) values greater
-              // than ~18 MBytes.)
-              if (maxSize > 2E+13) {
-                std::string streamLabel =  endPathPSet.getParameter<std::string> ("streamLabel");
-                std::string errorString =  "The maxSize parameter (file size) ";
-                errorString.append("for stream ");
-                errorString.append(streamLabel);
-                errorString.append(" is too large (");
-                try {
-                  errorString.append(boost::lexical_cast<std::string>(maxSize));
-                }
-                catch (boost::bad_lexical_cast& blcExcpt) {
-                  errorString.append("???");
-                }
-                errorString.append(" bytes). ");
-                errorString.append("Please check that this parameter is ");
-                errorString.append("specified as the number of MBytes, not bytes. ");
-                errorString.append("(The units for maxSize was changed from ");
-                errorString.append("bytes to MBytes, and it is possible that ");
-                errorString.append("your storage manager configuration file ");
-                errorString.append("needs to be updated to reflect this.)");
-                
-                throw cms::Exception("StorageManager","configureAction")
-                  << errorString;
-              }
-            }
-          }
-        }
-      }
-    }
-    catch (...) {
-      // since the maxSize test is just a convenience, we'll ignore
-      // exceptions and continue normally, for now.
-    }
-  }
-
-  if (maxESEventRate_ < 0.0)
-    maxESEventRate_ = 0.0;
-  if (maxESDataRate_ < 0.0)
-    maxESDataRate_ = 0.0;
-  if (DQMmaxESEventRate_ < 0.0)
-    DQMmaxESEventRate_ = 0.0;
-    
-  xdata::Integer cutoff(1);
-  if (consumerQueueSize_ < cutoff)
-    consumerQueueSize_ = cutoff;
-  if (DQMconsumerQueueSize_ < cutoff)
-    DQMconsumerQueueSize_ = cutoff;
-
-  // if samples_ is given in the XML config we need to set it
-  pmeter_->init(samples_, period4samples_);
-  DQMpmeter_->init(DQMsamples_, DQMperiod4samples_);
-
-  jc_.reset(new stor::JobController(my_config, getApplicationLogger(), &deleteSMBuffer));
-
-  int disks(nLogicalDisk_);
-
-  jc_->setNumberOfFileSystems(disks);
-  jc_->setFileCatalog(smFileCatalog_);
-  jc_->setSourceId(sourceId_);
-
-  jc_->setCollateDQM(collateDQM_);
-  jc_->setArchiveDQM(archiveDQM_);
-  jc_->setArchiveIntervalDQM(archiveIntervalDQM_);
-  jc_->setPurgeTimeDQM(purgeTimeDQM_);
-  jc_->setReadyTimeDQM(readyTimeDQM_);
-  jc_->setFilePrefixDQM(filePrefixDQM_);
-  jc_->setUseCompressionDQM(useCompressionDQM_);
-  jc_->setCompressionLevelDQM(compressionLevelDQM_);
-  jc_->setFileClosingTestInterval(fileClosingTestInterval_);
-
-  boost::shared_ptr<EventServer>
-    eventServer(new EventServer(maxESEventRate_, maxESDataRate_,
-                                esSelectedHLTOutputModule_,
-                                fairShareES_));
-  jc_->setEventServer(eventServer);
-  boost::shared_ptr<DQMEventServer> DQMeventServer(new DQMEventServer(DQMmaxESEventRate_));
-  jc_->setDQMEventServer(DQMeventServer);
-  boost::shared_ptr<InitMsgCollection> initMsgCollection(new InitMsgCollection());
-  jc_->setInitMsgCollection(initMsgCollection);
-  jc_->setSMRBSenderList(&smrbsenders_);
-}
-
-
-bool StorageManager::enabling(toolbox::task::WorkLoop* wl)
-{
-  if (reconfigurationRequested_) {
-    reconfigurationRequested_ = false;
-
-    try {
-      LOG4CPLUS_INFO(getApplicationLogger(),"Start re-configuring ...");
-      this->haltAction();
-      this->configureAction();
-      LOG4CPLUS_INFO(getApplicationLogger(),"Finished re-configuring!");
+      _sharedResources->_commandQueue->enq_wait( stor::event_ptr( new stor::Reconfigure() ) );
     }
     catch (cms::Exception& e) {
       reasonForFailedState_ = e.explainSelf();
-      fsm_.fireFailed(reasonForFailedState_,this);
-      return false;
+      LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
+      return msg;
     }
     catch (xcept::Exception &e) {
       reasonForFailedState_ = "re-configuring FAILED: " + (string)e.what();
-      fsm_.fireFailed(reasonForFailedState_,this);
-      return false;
+      LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
+      return msg;
     }
     catch (std::exception& e) {
       reasonForFailedState_  = e.what();
-      fsm_.fireFailed(reasonForFailedState_,this);
-      return false;
+      LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
+      return msg;
     }
     catch (...) {
       reasonForFailedState_  = "Unknown Exception while re-configuring";
-      fsm_.fireFailed(reasonForFailedState_,this);
-      return false;
+      LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
+      return msg;
     }
   }
 
   try {
-    LOG4CPLUS_INFO(getApplicationLogger(),"Start enabling ...");
-
-    smrbsenders_.clear();
-    
-    fileList_.clear();
-    eventsInFile_.clear();
-    storedEventsInStream_.clear();
-    fileSize_.clear();
-    storedEvents_ = 0;
-    receivedEvents_ = 0;
-    receivedErrorEvents_ = 0;
-    storedVolume_ = 0;
-    receivedVolume_ = 0;
-    DQMreceivedVolume_ = 0;
-    receivedEventsFromOutMod_.clear();
-    namesOfStream_.clear();
-    namesOfOutMod_.clear();
-    receivedEventsMap_.clear();
-    avEventSizeMap_.clear();
-    avCompressRatioMap_.clear();
-    modId2ModOutMap_.clear();
-    storedEventsMap_.clear();
-    dqmRecords_   = 0;
-    closedFiles_  = 0;
-    openFiles_  = 0;
-    lastEventSeen_ = 0;
-    lastErrorEventSeen_ = 0;
-    pmeter_->init(samples_, period4samples_);
-    DQMpmeter_->init(DQMsamples_, DQMperiod4samples_);
-    jc_->start();
-
-    boost::shared_ptr<InitMsgCollection> initMsgCollection = jc_->getInitMsgCollection();
-    if (initMsgCollection.get() != 0) {
-      initMsgCollection->clear();
-    }
-
-    LOG4CPLUS_INFO(getApplicationLogger(),"Finished enabling!");
-    
-    fsm_.fireEvent("EnableDone",this);
+    _sharedResources->_commandQueue->enq_wait( stor::event_ptr( new stor::Enable() ) );
   }
   catch (xcept::Exception &e) {
     reasonForFailedState_ = "enabling FAILED: " + (string)e.what();
-    fsm_.fireFailed(reasonForFailedState_,this);
-    return false;
+    LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
+    return msg;
   }
   catch(...)
   {
     reasonForFailedState_  = "Unknown Exception while enabling";
-    fsm_.fireFailed(reasonForFailedState_,this);
-    return false;
+    LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
+    return msg;
   }
-  startMonitoringWorkLoop();
-  return false;
+  return msg;
 }
 
 
-bool StorageManager::stopping(toolbox::task::WorkLoop* wl)
+xoap::MessageReference StorageManager::stopping( xoap::MessageReference msg )
+  throw( xoap::exception::Exception )
 {
   try {
-    LOG4CPLUS_INFO(getApplicationLogger(),"Start stopping ...");
-
-    stopAction();
-
-    LOG4CPLUS_INFO(getApplicationLogger(),"Finished stopping!");
-    
-    fsm_.fireEvent("StopDone",this);
+    _sharedResources->_commandQueue->enq_wait( stor::event_ptr( new stor::Stop() ) );
   }
   catch (xcept::Exception &e) {
     reasonForFailedState_ = "stopping FAILED: " + (string)e.what();
-    fsm_.fireFailed(reasonForFailedState_,this);
-    return false;
+    LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
+    return msg;
   }
   catch(...)
   {
     reasonForFailedState_  = "Unknown Exception while stopping";
-    fsm_.fireFailed(reasonForFailedState_,this);
-    return false;
+    LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
+    return msg;
   }
   
-  return false;
+  return msg;
 }
 
 
-bool StorageManager::halting(toolbox::task::WorkLoop* wl)
+xoap::MessageReference StorageManager::halting( xoap::MessageReference msg )
+  throw( xoap::exception::Exception )
 {
   try {
-    LOG4CPLUS_INFO(getApplicationLogger(),"Start halting ...");
-
-    haltAction();
-    
-    LOG4CPLUS_INFO(getApplicationLogger(),"Finished halting!");
-    
-    fsm_.fireEvent("HaltDone",this);
+    _sharedResources->_commandQueue->enq_wait( stor::event_ptr( new stor::Halt() ) );
   }
   catch (xcept::Exception &e) {
     reasonForFailedState_ = "halting FAILED: " + (string)e.what();
-    fsm_.fireFailed(reasonForFailedState_,this);
-    return false;
+    LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
+    return msg;
   }
   catch(...)
   {
     reasonForFailedState_  = "Unknown Exception while halting";
-    fsm_.fireFailed(reasonForFailedState_,this);
-    return false;
+    LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
+    return msg;
   }
   
-  return false;
-}
-
-void StorageManager::stopAction()
-{
-  jc_->stop();
-  jc_->join();
-
-  // 08-Oct-2008, KAB
-  // The file statistics need to be determined after we close
-  // the files, n'est pas?  And since the file closing is
-  // done underneath jc.stop(), the following code needs
-  // to come after jc_->stop(), I believe.
-  std::list<std::string>& files = jc_->get_filelist();
-  std::list<std::string>& currfiles= jc_->get_currfiles();
-  closedFiles_ = files.size() - currfiles.size();
-  openFiles_ = currfiles.size();
-
-  unsigned int totInFile = 0;
-  for(list<string>::const_iterator it = files.begin();
-      it != files.end(); ++it)
-  {
-      string name;
-      unsigned int nev;
-      unsigned long long size;
-      parseFileEntry((*it),name,nev,size);
-      fileList_.push_back(name);
-      eventsInFile_.push_back(nev);
-      totInFile += nev;
-      fileSize_.push_back((unsigned int) (size / 1048576));
-      FDEBUG(5) << name << " " << nev << " " << size << std::endl;
-  }
-  receivedEventsFromOutMod_.clear();
-  namesOfOutMod_.clear();
-
-  boost::shared_ptr<InitMsgCollection> initMsgCollection;
-  if(jc_.get() != NULL && jc_->getInitMsgCollection().get() != NULL) {
-    initMsgCollection = jc_->getInitMsgCollection();
-  }
-  idMap_iter oi(modId2ModOutMap_.begin()), oe(modId2ModOutMap_.end());
-  for( ; oi != oe; ++oi) {
-      std::string outputModuleLabel = oi->second;
-      if (initMsgCollection.get() != NULL &&
-          initMsgCollection->getOutputModuleName(oi->first) != "") {
-        outputModuleLabel = initMsgCollection->getOutputModuleName(oi->first);
-      }
-      receivedEventsFromOutMod_.push_back(receivedEventsMap_[oi->second]);
-      namesOfOutMod_.push_back(outputModuleLabel);
-  }
-  storedEvents_ = 0;
-  storedEventsInStream_.clear();
-  // following is thread safe as size of all_storedEvents is fixed (number of streams)
-  std::vector<uint32> all_storedEvents = jc_->get_storedEvents();
-  for(std::vector<uint32>::iterator it = all_storedEvents.begin(), itEnd = all_storedEvents.end();
-      it != itEnd; ++it) {
-      storedEvents_ = storedEvents_ + (*it);
-      storedEventsInStream_.push_back(*it);
-  }
-  
-  // should clear the event server(s) last event/queue
-  boost::shared_ptr<EventServer> eventServer;
-  boost::shared_ptr<DQMEventServer> dqmeventServer;
-  if (jc_.get() != NULL)
-  {
-    eventServer = jc_->getEventServer();
-    dqmeventServer = jc_->getDQMEventServer();
-  }
-  if (eventServer.get() != NULL) eventServer->clearQueue();
-  if (dqmeventServer.get() != NULL) dqmeventServer->clearQueue();
-}
-
-void StorageManager::haltAction()
-{
-  stopAction();
-
-  // make sure serialized product registry is cleared also as its used
-  // to check state readiness for web transactions
-  pushMode_ = false;
-
-  {
-    boost::mutex::scoped_lock sl(halt_lock_);
-    jc_.reset();
-  }
-}
-
-void StorageManager::checkDirectoryOK(const std::string path) const
-{
-  struct stat64 buf;
-
-  int retVal = stat64(path.c_str(), &buf);
-  if(retVal !=0 )
-  {
-    edm::LogError("StorageManager") << "Directory or file " << path
-                                    << " does not exist. Error=" << errno ;
-    throw cms::Exception("StorageManager","checkDirectoryOK")
-            << "Directory or file " << path << " does not exist. Error=" << errno << std::endl;
-  }
+  return msg;
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
-xoap::MessageReference StorageManager::fsmCallback(xoap::MessageReference msg)
-  throw (xoap::exception::Exception)
-{
-  return fsm_.commandCallback(msg);
-}
+////////////////////////////
+//// Consumer callbacks ////
+////////////////////////////
 
-
-////////////////////////////////////////////////////////////////////////////////
-void StorageManager::sendDiscardMessage(unsigned int    rbBufferID, 
-					unsigned int    hltInstance,
-					unsigned int    msgType,
-					string          hltClassName)
+void
+StorageManager::processConsumerRegistrationRequest( xgi::Input* in, xgi::Output* out )
+  throw( xgi::exception::Exception )
 {
-  /*
-  std::cout << "sendDiscardMessage ... " 
-	    << rbBufferID     << "  "
-	    << hltInstance    << "  "
-	    << msgType        << "  "
-	    << hltClassName   << std::endl;
-  */
-    
-  set<xdaq::ApplicationDescriptor*> setOfRBs=
-    getApplicationContext()->getDefaultZone()->
-    getApplicationDescriptors(hltClassName.c_str());
-  
-  for (set<xdaq::ApplicationDescriptor*>::iterator 
-	 it=setOfRBs.begin();it!=setOfRBs.end();++it)
+
+  // Get consumer ID if registration is allowed:
+  ConsumerID cid = _sharedResources->_registrationCollection->getConsumerID();
+  if( !cid.isValid() )
     {
-      if ((*it)->getInstance()==hltInstance)
-	{
-	  
-	  stor::FUProxy* proxy =  new stor::FUProxy(getApplicationDescriptor(),
-						    *it,
-						    getApplicationContext(),
-						    pool_);
-	  if ( msgType == I2O_FU_DATA_DISCARD )
-	    proxy -> sendDataDiscard(rbBufferID);	
-	  else if ( msgType == I2O_FU_DQM_DISCARD )
-	    proxy -> sendDQMDiscard(rbBufferID);
-	  else assert("Unknown discard message type" == 0);
-	  delete proxy;
-	}
+      writeNotReady( out );
+      return;
     }
-}
 
-void StorageManager::startMonitoringWorkLoop() throw (evf::Exception)
-{
-  try {
-    wlMonitoring_=
-      toolbox::task::getWorkLoopFactory()->getWorkLoop(sourceId_+"Monitoring",
-						       "waiting");
-    if (!wlMonitoring_->isActive()) wlMonitoring_->activate();
-    asMonitoring_ = toolbox::task::bind(this,&StorageManager::monitoring,
-				      sourceId_+"Monitoring");
-    wlMonitoring_->submit(asMonitoring_);
-  }
-  catch (xcept::Exception& e) {
-    string msg = "Failed to start workloop 'Monitoring'.";
-    XCEPT_RETHROW(evf::Exception,msg,e);
-  }
-}
+  const utils::duration_t secs2stale =
+    _sharedResources->_configuration->getEventServingParams()._activeConsumerTimeout;
+  const enquing_policy::PolicyTag policy = enquing_policy::DiscardOld;
+  const size_t qsize =
+    _sharedResources->_configuration->getEventServingParams()._consumerQueueSize;
 
-
-bool StorageManager::monitoring(toolbox::task::WorkLoop* wl)
-{
-  // @@EM if state is already "failed" then no reason to firefailed again 
-  //      (in fact it will cause problems) so bail out !
-  if(fsm_.stateName()->toString() == "Failed") return false;
-  // @@EM Look for exceptions in the FragmentCollector thread, do a state transition if present
-  if(stor::getSMFC_exceptionStatus()) {
-    edm::LogError("StorageManager") << "Fatal BURP in FragmentCollector thread detected! \n"
-       << stor::getSMFC_reason4Exception();
-
-    reasonForFailedState_ = stor::getSMFC_reason4Exception();
-    fsm_.fireFailed(reasonForFailedState_,this);
-    return false; // stop monitoring workloop after going to failed state
-  }
-
-  ::sleep(10);
-  if(jc_.get() != NULL && jc_->getInitMsgCollection().get() != NULL &&
-     jc_->getInitMsgCollection()->size() > 0) {
-    boost::mutex::scoped_lock sl(halt_lock_);
-    if(jc_.use_count() != 0) {
-      // this is needed only if using flashlist infospace (not for the moment)
-      std::ostringstream oss;
-      oss << "urn:xdaq-monitorable:" << class_.value_ << ":" << instance_.value_;
-      xdata::InfoSpace *is = xdata::InfoSpace::get(oss.str());  
-      is->lock();
-
-      // now for separate stored events via monitoring loop (temporary solution?)
-      // following is thread safe as size of all_storedEvents is fixed (number of streams)
-      std::vector<uint32> all_storedEvents = jc_->get_storedEvents();
-      if(all_storedEvents.begin() != all_storedEvents.end())
-      {
-        // only reset if there are stored events otherwise on stop stats are reset to zero
-        // we want to keep them for retrieval
-        storedEvents_ = 0;
-        storedEventsInStream_.clear();
-        namesOfStream_.clear();
-        std::vector<std::string> all_storedNames = jc_->get_storedNames();
-        for(std::vector<uint32>::iterator it = all_storedEvents.begin(), itEnd = all_storedEvents.end();
-            it != itEnd; ++it) {
-              storedEvents_ = storedEvents_ + (*it);
-              storedEventsInStream_.push_back(*it);
-        }
-        for(std::vector<std::string>::iterator it = all_storedNames.begin(), itEnd = all_storedNames.end();
-            it != itEnd; ++it) {
-              namesOfStream_.push_back(*it);
-        }
-      }
-      boost::shared_ptr<stor::SMOnlyStats> stored_stats = jc_->get_stats();
-      store_samples_ = stored_stats->samples_;
-      store_period4samples_ = stored_stats->period4samples_;
-      store_instantBandwidth_ = stored_stats->instantBandwidth_;
-      store_instantRate_ = stored_stats->instantRate_;
-      store_instantLatency_ = stored_stats->instantLatency_;
-      store_totalSamples_ = (unsigned long)stored_stats->totalSamples_;
-      store_duration_ = stored_stats->duration_;
-      store_meanBandwidth_ = stored_stats->meanBandwidth_;
-      store_meanRate_ = stored_stats->meanRate_;
-      store_meanLatency_ = stored_stats->meanLatency_;
-      store_maxBandwidth_ = stored_stats->maxBandwidth_;
-      store_minBandwidth_ = stored_stats->minBandwidth_;
-      store_instantBandwidth2_ = stored_stats->instantBandwidth2_;
-      store_instantRate2_ = stored_stats->instantRate2_;
-      store_instantLatency2_ = stored_stats->instantLatency2_;
-      store_totalSamples2_ = (unsigned long)stored_stats->totalSamples2_;
-      store_duration2_ = stored_stats->duration2_;
-      store_meanBandwidth2_ = stored_stats->meanBandwidth2_;
-      store_meanRate2_ = stored_stats->meanRate2_;
-      store_meanLatency2_ = stored_stats->meanLatency2_;
-      store_maxBandwidth2_ = stored_stats->maxBandwidth2_;
-      store_minBandwidth2_ = stored_stats->minBandwidth2_;
-      store_receivedVolume_ = stored_stats->receivedVolume_;
-      storedVolume_   = store_receivedVolume_;
-
-      // end temporary solution
-      
-      std::list<std::string>& files = jc_->get_filelist();
-
-      if(files.size()==0){is->unlock(); return true;}
-      if(streams_.size()==0) {
-	for(list<string>::const_iterator it = files.begin();
-	    it != files.end(); ++it)
-	  {
-	    string name;
-	    unsigned int nev;
-	    unsigned long long size;
-	    parseFileEntry((*it),name,nev,size);
-	    string sname = findStreamName(name);
-	    if(sname=="" || sname==name) continue;
-	    if(streams_.find(sname) == streams_.end())
-	      streams_.insert(pair<string,streammon>(sname,streammon()));
-	  }
-	
-      }
-      for(ismap it = streams_.begin(); it != streams_.end(); ++it)
-	{
-	  (*it).second.nclosedfiles_=0;
-	  (*it).second.nevents_ =0;
-	  (*it).second.totSizeInkBytes_=0;
-	}
-      
-      for(list<string>::const_iterator it = files.begin();
-	  it != files.end(); ++it)
-	{
-	  string name;
-	  unsigned int nev;
-	  unsigned long long size;
-	  parseFileEntry((*it),name,nev,size);
-	  string sname = findStreamName(name);
-	  if(sname=="" || sname==name) continue;
-	  if(streams_.find(sname) == streams_.end())
-	    streams_.insert(pair<string,streammon>(sname,streammon()));
-	  streams_[sname].nclosedfiles_++;
-	  streams_[sname].nevents_ += nev;
-	  streams_[sname].totSizeInkBytes_ += size >> 10;
-	}
-      is->unlock();
+  // Create registration info and set consumer ID:
+  stor::ConsRegPtr reginfo;
+  std::string errorMsg = "Error parsing an event consumer registration request";
+  try
+    {
+      reginfo = parseEventConsumerRegistration( in, qsize, policy, secs2stale );
     }
-    
-      
-  }
-    
-  return true;
+  catch ( edm::Exception& excpt )
+    {
+      errorMsg.append( ": " );
+      errorMsg.append( excpt.what() );
+
+      LOG4CPLUS_ERROR(this->getApplicationLogger(), errorMsg);
+
+      #ifndef STOR_BYPASS_SENTINEL
+      XCEPT_DECLARE(stor::exception::ConsumerRegistration,
+      sentinelException, errorMsg);
+      notifyQualified("error", sentinelException);
+      #endif
+
+      writeErrorString( out, errorMsg );
+      return;
+    }
+  catch ( xcept::Exception& excpt )
+    {
+      LOG4CPLUS_ERROR(this->getApplicationLogger(),
+        errorMsg << xcept::stdformat_exception_history(excpt));
+
+      #ifndef STOR_BYPASS_SENTINEL
+      XCEPT_DECLARE_NESTED(stor::exception::ConsumerRegistration,
+      sentinelException, errorMsg, excpt);
+      notifyQualified("error", sentinelException);
+      #endif
+
+      writeErrorString( out, errorMsg );
+      return;
+    }
+  catch ( ... )
+    {
+      errorMsg.append( ": unknown exception" );
+
+      LOG4CPLUS_ERROR(this->getApplicationLogger(), errorMsg);
+
+      #ifndef STOR_BYPASS_SENTINEL
+      XCEPT_DECLARE(stor::exception::ConsumerRegistration,
+      sentinelException, errorMsg);
+      notifyQualified("error", sentinelException);
+      #endif
+
+      writeErrorString( out, errorMsg );
+      return;
+    }
+  reginfo->setConsumerID( cid );
+
+  // Create queue and set queue ID:
+  QueueID qid =
+    _sharedResources->_eventConsumerQueueCollection->createQueue( cid,
+                                                                  policy,
+                                                                  qsize,
+                                                                  secs2stale );
+  if( !qid.isValid() )
+    {
+      writeNotReady( out );
+      return;
+    }
+
+  reginfo->setQueueID( qid );
+
+  // Register consumer with InitMsgCollection:
+  bool reg_ok =
+    _sharedResources->_initMsgCollection->registerConsumer( cid,
+                                                            reginfo->selHLTOut() );
+  if( !reg_ok )
+    {
+      writeNotReady( out );
+      return;
+    }
+
+  // Add registration to collection:
+  bool add_ok = 
+    _sharedResources->_registrationCollection->addRegistrationInfo( cid,
+                                                                    reginfo );
+  if( !add_ok )
+    {
+      writeNotReady( out );
+      return;
+    }
+
+  // Put registration on the queue:
+  _sharedResources->_registrationQueue->enq_wait( reginfo );
+
+  // Reply to consumer:
+  writeConsumerRegistration( out, cid );
+
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// *** Provides factory method for the instantiation of SM applications
-// should probably use the MACRO? Could a XDAQ version change cause problems?
-extern "C" xdaq::Application
-*instantiate_StorageManager(xdaq::ApplicationStub * stub)
+
+void
+StorageManager::processConsumerHeaderRequest( xgi::Input* in, xgi::Output* out )
+  throw( xgi::exception::Exception )
 {
-  std::cout << "Going to construct a StorageManager instance "
-	    << std::endl;
-  return new stor::StorageManager(stub);
+
+  ConsumerID cid = getConsumerID( in );
+  if( !cid.isValid() )
+    {
+      writeEmptyBuffer( out );
+      return;
+    }
+
+  // 20-Apr-2009, KAB - treat the proxy server like any other consumer. If
+  // and when we need to support multiple HLT output modules with the proxy
+  // server, then we can go back to sending the full InitMsgCollection.
+  InitMsgSharedPtr payload =
+    _sharedResources->_initMsgCollection->getElementForConsumer( cid );
+
+  if( payload.get() == NULL )
+    {
+      writeEmptyBuffer( out );
+      return;
+    }
+
+  writeConsumerHeader( out, payload );
+
 }
+
+
+void
+StorageManager::processConsumerEventRequest( xgi::Input* in, xgi::Output* out )
+  throw( xgi::exception::Exception )
+{
+
+  ConsumerID cid = getConsumerID( in );
+  if( !cid.isValid() )
+    {
+      writeEmptyBuffer( out );
+      return;
+    }
+
+  if ( !_sharedResources->_registrationCollection->registrationIsAllowed() )
+    {
+      writeDone( out );
+      return;
+    }
+
+  I2OChain evt =
+    _sharedResources->_eventConsumerQueueCollection->popEvent( cid );
+  if( evt.faulty() )
+    {
+      writeEmptyBuffer( out );
+      return;
+    }
+
+  writeConsumerEvent( out, evt );
+}
+
+
+void
+StorageManager::processDQMConsumerRegistrationRequest( xgi::Input* in, xgi::Output* out )
+  throw( xgi::exception::Exception )
+{
+
+  // Get consumer ID if registration is allowed:
+  ConsumerID cid = _sharedResources->_registrationCollection->getConsumerID();
+  if( !cid.isValid() )
+    {
+      writeNotReady( out );
+      return;
+    }
+
+  const utils::duration_t secs2stale =
+    _sharedResources->_configuration->getEventServingParams()._DQMactiveConsumerTimeout;
+  const enquing_policy::PolicyTag policy = enquing_policy::DiscardOld;
+  const size_t qsize =
+    _sharedResources->_configuration->getEventServingParams()._consumerQueueSize;
+
+  // Create registration info and set consumer ID:
+  stor::DQMEventConsRegPtr dqmreginfo;
+  std::string errorMsg = "Error parsing a DQM event consumer registration request";
+  try
+    {
+      dqmreginfo = parseDQMEventConsumerRegistration( in, qsize, policy, secs2stale );
+    }
+  catch ( edm::Exception& excpt )
+    {
+      errorMsg.append( ": " );
+      errorMsg.append( excpt.what() );
+
+      LOG4CPLUS_ERROR(this->getApplicationLogger(), errorMsg);
+
+      #ifndef STOR_BYPASS_SENTINEL
+      XCEPT_DECLARE(stor::exception::DQMConsumerRegistration,
+      sentinelException, errorMsg);
+      notifyQualified("error", sentinelException);
+      #endif
+
+      writeErrorString( out, errorMsg );
+      return;
+    }
+  catch ( xcept::Exception& excpt )
+    {
+      LOG4CPLUS_ERROR(this->getApplicationLogger(),
+        errorMsg << xcept::stdformat_exception_history(excpt));
+
+      #ifndef STOR_BYPASS_SENTINEL
+      XCEPT_DECLARE_NESTED(stor::exception::DQMConsumerRegistration,
+      sentinelException, errorMsg, excpt);
+      notifyQualified("error", sentinelException);
+      #endif
+
+      writeErrorString( out, errorMsg );
+      return;
+    }
+  catch ( ... )
+    {
+      errorMsg.append( ": unknown exception" );
+
+      LOG4CPLUS_ERROR(this->getApplicationLogger(), errorMsg);
+
+      #ifndef STOR_BYPASS_SENTINEL
+      XCEPT_DECLARE(stor::exception::DQMConsumerRegistration,
+      sentinelException, errorMsg);
+      notifyQualified("error", sentinelException);
+      #endif
+
+      writeErrorString( out, errorMsg );
+      return;
+    }
+  dqmreginfo->setConsumerID( cid );
+
+  // Create queue and set queue ID:
+  QueueID qid =
+    _sharedResources->_dqmEventConsumerQueueCollection->createQueue( cid,
+                                                                     policy,
+                                                                     qsize,
+                                                                     secs2stale );
+  if( !qid.isValid() )
+    {
+      writeNotReady( out );
+      return;
+    }
+
+  dqmreginfo->setQueueID( qid );
+
+  // Add registration to collection:
+  bool add_ok = 
+    _sharedResources->_registrationCollection->addRegistrationInfo( cid,
+                                                                    dqmreginfo );
+  if( !add_ok )
+    {
+      writeNotReady( out );
+      return;
+    }
+
+  // Put registration on the queue:
+  _sharedResources->_registrationQueue->enq_wait( dqmreginfo );
+
+  // Reply to consumer:
+  writeConsumerRegistration( out, cid );
+}
+
+
+void
+StorageManager::processDQMConsumerEventRequest( xgi::Input* in, xgi::Output* out )
+  throw( xgi::exception::Exception )
+{
+
+  ConsumerID cid = getConsumerID( in );
+  if( !cid.isValid() )
+    {
+      writeEmptyBuffer( out );
+      return;
+    }
+
+  if ( !_sharedResources->_registrationCollection->registrationIsAllowed() )
+    {
+      writeDone( out );
+      return;
+    }
+
+  DQMEventRecord::GroupRecord dqmGroupRecord =
+    _sharedResources->_dqmEventConsumerQueueCollection->popEvent( cid );
+
+  if ( !dqmGroupRecord.empty() )
+    writeDQMConsumerEvent( out, dqmGroupRecord.getDQMEventMsgView() );
+  else
+    writeEmptyBuffer( out );
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// *** Provides factory method for the instantiation of SM applications //
+//////////////////////////////////////////////////////////////////////////
+// This macro is depreciated:
+XDAQ_INSTANTIATE(StorageManager)
+
+// One should use the XDAQ_INSTANTIATOR() in the header file
+// and this one here. But this breaks the backward compatibility,
+// as all xml configuration files would have to be changed to use
+// 'stor::StorageManager' instead of 'StorageManager'.
+// XDAQ_INSTANTIATOR_IMPL(stor::StorageManager)
+
+
+/// emacs configuration
+/// Local Variables: -
+/// mode: c++ -
+/// c-basic-offset: 2 -
+/// indent-tabs-mode: nil -
+/// End: -

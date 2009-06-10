@@ -2,7 +2,7 @@
  * This class manages the distribution of events to consumers from within
  * the storage manager.
  *
- * $Id: EventServer.cc,v 1.11 2008/05/14 16:00:00 biery Exp $
+ * $Id$
  */
 
 #include "EventFilter/StorageManager/interface/EventServer.h"
@@ -26,8 +26,6 @@ EventServer::EventServer(double maxEventRate, double maxDataRate,
 {
   // initialize counters
   disconnectedConsumerTestCounter_ = 0;
-
-  selTableStringSize_ = 0;
 
   ltInputCounters_.clear();
   stInputCounters_.clear();
@@ -427,51 +425,6 @@ void EventServer::clearQueue()
     boost::shared_ptr<ConsumerPipe> consPipe = consIter->second;
     consPipe->clearQueue();
   }
-}
-
-void EventServer::setStreamSelectionTable(std::map<std::string, Strings> const& selTable)
-{
-  streamSelectionTable_ = selTable;
-  selTableStringSize_ = 0;
-  std::map<std::string, Strings>::const_iterator mapIter;
-  for (mapIter = selTable.begin(); mapIter != selTable.end(); mapIter++)
-  {
-    std::string streamLabel = mapIter->first;
-    selTableStringSize_ += streamLabel.size();
-    Strings selectionList = mapIter->second;
-    for (unsigned int idx = 0; idx < selectionList.size(); idx++)
-    {
-      std::string selection = selectionList[idx];
-      selTableStringSize_ += selection.size();
-    }
-  }
-}
-
-Strings EventServer::updateTriggerSelectionForStreams(Strings const& selectionList)
-{
-  Strings modifiedList;
-  for (unsigned int idx = 0; idx < selectionList.size(); idx++) {
-    std::string selection = selectionList[idx];
-    std::string lcSelection = boost::algorithm::to_lower_copy(selection);
-    if (lcSelection.find("stream", 0) == 0) {
-      std::string streamLabel = selection.substr(6);
-      std::map<std::string, Strings>::const_iterator mapIter =
-        streamSelectionTable_.find(streamLabel);
-      if (mapIter != streamSelectionTable_.end()) {
-        Strings streamSelectionList = mapIter->second;
-        for (unsigned int jdx = 0; jdx < streamSelectionList.size(); jdx++) {
-          modifiedList.push_back(streamSelectionList.at(jdx));
-        }
-      }
-      else {
-        modifiedList.push_back(selection);
-      }
-    }
-    else {
-      modifiedList.push_back(selection);
-    }
-  }
-  return modifiedList;
 }
 
 /**

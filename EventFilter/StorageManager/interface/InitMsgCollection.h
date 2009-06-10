@@ -6,14 +6,18 @@
  * been received by the storage manager and will be sent to event
  * consumers and written to output streams.
  *
- * $Id: InitMsgCollection.h,v 1.4.4.1 2008/11/16 12:20:38 biery Exp $
+ * $Id$
  */
 
+#include "EventFilter/StorageManager/interface/ConsumerID.h"
+
 #include "IOPool/Streamer/interface/InitMessage.h"
+
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
 #include <vector>
 #include <map>
+#include <string>
 
 namespace stor
 {
@@ -28,22 +32,14 @@ namespace stor
     InitMsgCollection();
     ~InitMsgCollection();
 
-#if 0
-    // 29-Apr-2008 KAB - replaced the following methods as part of the switch
-    // to the newer HLT output module selection scheme (in which the HLT
-    // output module needs to be explicitly specified)
-    //
-    // testAndAddIfUnique() replaced by addIfUnique()
-    // getElementForSelection() replaced by getElementForOutputModule()
-    //
-    bool testAndAddIfUnique(InitMsgView const& initMsgView);
-    InitMsgSharedPtr getElementForSelection(Strings const& triggerSelection);
-#endif
     bool addIfUnique(InitMsgView const& initMsgView);
     InitMsgSharedPtr getElementForOutputModule(std::string requestedOMLabel);
     InitMsgSharedPtr getLastElement();
     InitMsgSharedPtr getElementAt(unsigned int index);
     InitMsgSharedPtr getFullCollection() { return serializedFullSet_; }
+
+    bool registerConsumer( ConsumerID cid, const std::string& hltModule );
+    InitMsgSharedPtr getElementForConsumer( ConsumerID cid );
 
     void clear();
     int size();
@@ -61,9 +57,10 @@ namespace stor
     InitMsgSharedPtr serializedFullSet_;
 
     std::map<uint32, std::string> outModNameTable_;
-
     boost::mutex listLock_;
 
+    std::map<ConsumerID, std::string> consumerOutputModuleMap_;
+    boost::mutex consumerMapLock_;
   };
 }
 

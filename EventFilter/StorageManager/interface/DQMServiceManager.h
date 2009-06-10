@@ -1,7 +1,10 @@
 #ifndef _DQMSERVICEMANAGER_H_
 #define _DQMSERVICEMANAGER_H_
 
-// $Id: DQMServiceManager.h,v 1.4 2008/06/27 14:48:44 biery Exp $
+// Note: this class is no longer used in the StorageManager, but is still
+// required by the SMProxyServer (Remi Mommsen, May 5, 2009)
+//
+// $Id$
 
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
@@ -10,6 +13,7 @@
 #include "xdata/Boolean.h"
 #include "xdata/String.h"
 
+#include <EventFilter/StorageManager/interface/Configuration.h>
 #include "EventFilter/StorageManager/interface/DQMInstance.h"
 #include "EventFilter/StorageManager/interface/DQMEventServer.h"
 #include <IOPool/Streamer/interface/DQMEventMessage.h>
@@ -52,6 +56,7 @@ namespace stor
       { useCompression_ = useCompression;}
       void setCompressionLevel(int compressionLevel) 
       { compressionLevel_ = compressionLevel;}
+      void setParameters(DQMProcessingParams const& dqmParams);
 
     protected:
 

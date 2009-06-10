@@ -3,7 +3,7 @@
  * been received by the storage manager and will be sent to event
  * consumers and written to output disk files.
  *
- * $Id: InitMsgCollection.cc,v 1.5.4.1 2008/11/16 12:20:38 biery Exp $
+ * $Id$
  */
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
@@ -30,7 +30,7 @@ InitMsgCollection::InitMsgCollection()
   FDEBUG(5) << "Executing constructor for InitMsgCollection" << std::endl;
   initMsgList_.clear();
   outModNameTable_.clear();
-
+  consumerOutputModuleMap_.clear();
   serializedFullSet_.reset(new InitMsgBuffer(2 * sizeof(Header)));
   OtherMessageBuilder fullSetMsg(&(*serializedFullSet_)[0], Header::INIT_SET);
 }
@@ -42,254 +42,6 @@ InitMsgCollection::~InitMsgCollection()
 {
   FDEBUG(5) << "Executing destructor for InitMsgCollection" << std::endl;
 }
-
-#if 0
-    // 29-Apr-2008 KAB - replaced the following methods as part of the switch
-    // to the newer HLT output module selection scheme (in which the HLT
-    // output module needs to be explicitly specified)
-    //
-    // testAndAddIfUnique() replaced by addIfUnique()
-    // getElementForSelection() replaced by getElementForOutputModule()
-    //
-    bool testAndAddIfUnique(InitMsgView const& initMsgView);
-    InitMsgSharedPtr getElementForSelection(Strings const& triggerSelection);
-
-/**
- * Adds the specified INIT message to the collection if it is unique and
- * if it passes a number of consistency checks.  The consistency checks
- * include tests like requiring that all INIT messages have the same
- * HLT full trigger list and requiring that the trigger selections from
- * multiple messages do not overlap.
- *
- * If the message fails a consistency check, an exception is thrown.  If
- * the consistency checks pass, but we already have a copy of the input INIT
- * message (from a different filter unit, presumably), the duplicate
- * message is *not* added to the collection, and this method returns false.
- * If the consistency checks pass and the message is unique, it is added
- * to the collection, and the method returns true;
- *
- * @param initMsgView The INIT message to be added to the collection.
- * @return true if the message was added to the collection, false otherwise.
- * @throws cms::Exception if one of the consistency checks fails.
- */
-bool InitMsgCollection::testAndAddIfUnique(InitMsgView const& initMsgView)
-{
-  boost::mutex::scoped_lock sl(listLock_);
-
-  // initially, assume that we will want to include the new message
-  bool addToList = true;
-
-  // test the message to verify that its full trigger list is not empty
-  std::string inputOMLabel = initMsgView.outputModuleLabel();
-  Strings inputTriggerList;
-  initMsgView.hltTriggerNames(inputTriggerList);
-  if (inputTriggerList.size() == 0) {
-    addToList = false; // useless unless we remove the exception...
-    throw cms::Exception("InitMsgCollection", "testAndAddIfUnique:")
-      << "The full trigger list specified for the \"" << inputOMLabel
-      << "\" output module is empty!" << std::endl;
-  }
-
-  // test the message to verify that its trigger selection is valid
-  // in the context of its full trigger list
-  Strings inputSelectionList;
-  initMsgView.hltTriggerSelections(inputSelectionList);
-  if (! EventSelector::selectionIsValid(inputSelectionList,
-                                        inputTriggerList)) {
-    addToList = false; // useless unless we remove the exception...
-    throw cms::Exception("InitMsgCollection", "testAndAddIfUnique:")
-      << "The trigger selection specified for the \"" << inputOMLabel
-      << "\" output module is not valid for the full trigger list!"
-      << std::endl;
-  }
-
-  // if this is the first INIT message that we've seen, we just add it
-  if (initMsgList_.size() == 0) {
-    this->add(initMsgView);
-  }
-
-  // if this is a subsequent INIT message, we have to run some tests
-  else {
-
-    // loop over the existing messages
-    std::vector<InitMsgSharedPtr>::const_iterator msgIter;
-    for (msgIter = initMsgList_.begin(); msgIter != initMsgList_.end(); msgIter++) {
-      InitMsgSharedPtr serializedProds = *msgIter;
-      InitMsgView existingInitMsg(&(*serializedProds)[0]);
-      std::string existingOMLabel = existingInitMsg.outputModuleLabel();
-
-      // independent of everything else that we check, the full trigger list
-      // in *every* INIT message must match the full trigger list in every
-      // other INIT message.  If the list of trigger paths are not the same,
-      // how could we ever hope to compare selection lists or trigger results?
-
-      // check that the full trigger lists are identical
-      Strings existingTriggerList;
-      existingInitMsg.hltTriggerNames(existingTriggerList);
-      if (inputTriggerList != existingTriggerList) {
-        addToList = false; // useless unless we remove the exception...
-        throw cms::Exception("InitMsgCollection", "testAndAddIfUnique:")
-          << "INIT messages from the \"" << inputOMLabel << "\" and \""
-          << existingOMLabel << "\" output modules have "
-          << "different HLT full trigger lists!" << std::endl;
-      }
-
-      // fetch the trigger selection list to be used in later tests
-      Strings existingSelectionList;
-      existingInitMsg.hltTriggerSelections(existingSelectionList);
-
-      // check if the output module labels match
-      if (inputOMLabel == existingOMLabel) {
-
-        // if the output module labels match, and everything else in the
-        // messages match, then we presume that the new message is just
-        // a duplicate sent from the Nth filter unit.  If something in
-        // the INIT messages do not match, we have the
-        // odd situation in which multiple filter units are sending us
-        // INIT messages from what they claim is same output module, but
-        // is not really.
-
-        // check that the trigger selections are identical
-        if (EventSelector::testSelectionOverlap(inputSelectionList,
-                                                existingSelectionList,
-                                                existingTriggerList) !=
-            evtSel::ExactMatch) {
-          addToList = false; // useless unless we remove the exception...
-          throw cms::Exception("InitMsgCollection", "testAndAddIfUnique:")
-            << "INIT messages from the \"" << inputOMLabel
-            << "\" output module in different filter units have "
-            << "different HLT trigger selections!" << std::endl;
-        }
-
-        // check that the product lists are identical
-        std::auto_ptr<SendJobHeader> header =
-          StreamerInputSource::deserializeRegistry(initMsgView);
-        std::auto_ptr<SendJobHeader> refheader =
-          StreamerInputSource::deserializeRegistry(existingInitMsg);
-        if (! registryIsSubset(*header, *refheader) ||
-            ! registryIsSubset(*refheader, *header)) {
-          addToList = false; // useless unless we remove the exception...
-          throw cms::Exception("InitMsgCollection", "testAndAddIfUnique:")
-            << "INIT messages from the \"" << inputOMLabel
-            << "\" output module in different filter units have "
-            << "different product lists!" << std::endl;
-        }
-
-        // at this point, do we return or continue with tests against
-        // the remaining INIT messages in the list?
-        // Let's return because A) the new message exactly matches an
-        // existing one in the list, and B) the messages in the list should
-        // have passed all of the remaining tests to get in the list.
-        addToList = false;  // not really needed since we return...
-        return addToList;
-      }
-      else {
-
-        // if the output module labels don't match, check if the trigger
-        // selection in the new INIT message overlaps with the selection
-        // in the existing message.  If it does, that is a problem because
-        // we need the trigger selection lists to be non-overlapping (so
-        // that masked TriggerResults can possibly only match one
-        // selection list)
-
-        // check that the trigger selections do not overlap
-        if (EventSelector::testSelectionOverlap(inputSelectionList,
-                                                existingSelectionList,
-                                                existingTriggerList) !=
-            evtSel::NoOverlap) {
-          addToList = false; // useless unless we remove the exception...
-          throw cms::Exception("InitMsgCollection", "testAndAddIfUnique:")
-            << "INIT messages from the \"" << inputOMLabel << "\" and \""
-            << existingOMLabel << "\" output modules have "
-            << "overlapping HLT trigger selections: ("
-            << stringsToText(inputSelectionList, 10) << ") and ("
-            << stringsToText(existingSelectionList, 10) << ")."
-            << std::endl;
-        }
-      }
-    }
-
-    // if we've found no problems, add the new message to the collection
-    if (addToList) {
-      this->add(initMsgView);
-    }
-  }
-
-  // indicate whether the message was added or not
-  return addToList;
-}
-
-/**
- * Fetches the single INIT message that matches the input trigger selection.
- * If the trigger selection is not valid for the full trigger list contained
- * in the INIT messages in this collection or if multiple INIT messages
- * match the selection, an exception is thrown.  If no messages match
- * the selection, an empty pointer is returned.
- *
- * @param triggerSelection The trigger selection list to use when
- *        searching for the appropriate INIT message (vector of strings).
- * @return a pointer to the INIT message that matches.  If no
- *         matching INIT message is found, and empty pointer is returned.
- * @throws cms::Exception if the input selection is not valid in the
- *         context of the full trigger list referenced by the INIT
- *         messages in the collection OR if multiple INIT messages match
- *         the selection.
- */
-InitMsgSharedPtr
-InitMsgCollection::getElementForSelection(Strings const& triggerSelection)
-{
-  boost::mutex::scoped_lock sl(listLock_);
-
-  InitMsgSharedPtr serializedProds;
-  if (initMsgList_.size() > 0) {
-
-    // check that the input trigger selection is valid
-    InitMsgSharedPtr workingMessage = initMsgList_[0];
-    InitMsgView existingInitMsg(&(*workingMessage)[0]);
-    Strings fullTriggerList;
-    existingInitMsg.hltTriggerNames(fullTriggerList);
-    if (! EventSelector::selectionIsValid(triggerSelection,
-                                          fullTriggerList)) {
-      std::string msg = "The specified trigger selection list (";
-      msg.append(stringsToText(triggerSelection, 10));
-      msg.append(") contains paths not in the full trigger list!");
-      throw cms::Exception("InitMsgCollection", "getElementForSelection:")
-        << msg << std::endl;
-    }
-
-    // loop over the existing messages
-    std::vector<InitMsgSharedPtr>::const_iterator msgIter;
-    for (msgIter = initMsgList_.begin(); msgIter != initMsgList_.end(); msgIter++) {
-      workingMessage = *msgIter;
-      InitMsgView workingInitMsg(&(*workingMessage)[0]);
-
-      Strings workingSelectionList;
-      workingInitMsg.hltTriggerSelections(workingSelectionList);
-
-      evtSel::OverlapResult overlapResult =
-        EventSelector::testSelectionOverlap(triggerSelection,
-                                            workingSelectionList,
-                                            fullTriggerList);
-      if (overlapResult == evtSel::ExactMatch ||
-          overlapResult == evtSel::PartialOverlap) {
-        if (serializedProds.get() == NULL) {
-          serializedProds = workingMessage;
-        }
-        else {
-          std::string msg = "The specified trigger selection list (";
-          msg.append(stringsToText(triggerSelection, 10));
-          msg.append(") matches triggers from more than one HLT output module!");
-          throw cms::Exception("InitMsgCollection", "getElementForSelection:")
-            << msg << std::endl;
-        }
-      }
-    }
-  }
-
-  return serializedProds;
-}
-
-#endif
 
 /**
  * Adds the specified INIT message to the collection if it has a unique
@@ -456,9 +208,15 @@ InitMsgSharedPtr InitMsgCollection::getElementAt(unsigned int index)
  */
 void InitMsgCollection::clear()
 {
-  boost::mutex::scoped_lock sl(listLock_);
-  initMsgList_.clear();
-  outModNameTable_.clear();
+  {
+    boost::mutex::scoped_lock sl(consumerMapLock_);
+    consumerOutputModuleMap_.clear();
+  }
+  {
+    boost::mutex::scoped_lock sl(listLock_);
+    initMsgList_.clear();
+    outModNameTable_.clear();
+  }
 }
 
 /**
@@ -603,4 +361,45 @@ void InitMsgCollection::add(InitMsgView const& initMsgView)
   std::copy(initMsgView.startAddress(),
             initMsgView.startAddress()+initMsgView.size(),
             copyPtr);
+}
+
+////////////////////////////
+//// Register consumer: ////
+////////////////////////////
+bool InitMsgCollection::registerConsumer( ConsumerID cid, const std::string& hltModule )
+{
+  if ( ! cid.isValid() ) { return false; }
+  if ( hltModule == "" ) { return false; }
+
+  boost::mutex::scoped_lock sl( consumerMapLock_ );
+  consumerOutputModuleMap_[ cid ] = hltModule;
+  return true;
+}
+
+/**
+ * Fetches the single INIT message that matches the requested consumer ID.
+ * If no messages match the request, an empty pointer is returned.
+ */
+InitMsgSharedPtr InitMsgCollection::getElementForConsumer( ConsumerID cid )
+{
+  std::string outputModuleLabel;
+  {
+    boost::mutex::scoped_lock sl( consumerMapLock_ );
+
+    std::map< ConsumerID, std::string >::const_iterator mapIter;
+    mapIter = consumerOutputModuleMap_.find( cid );
+
+    if ( mapIter != consumerOutputModuleMap_.end() &&
+         mapIter->second != "" )
+      {
+        outputModuleLabel = mapIter->second;
+      }
+    else
+      {
+        InitMsgSharedPtr serializedProds;
+        return serializedProds;
+      }
+  }
+
+  return getElementForOutputModule(outputModuleLabel);
 }

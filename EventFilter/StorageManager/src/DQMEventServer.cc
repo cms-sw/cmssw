@@ -5,7 +5,10 @@
  * Initial Implementation based on Kurt's EventServer
  * make a common class later when all this works
  *
- * $Id: DQMEventServer.cc,v 1.3 2007/05/16 22:55:03 hcheung Exp $
+ * $Id$
+ *
+ * Note: this class is no longer used in the StorageManager, but is still
+ * required by the SMProxyServer (Remi Mommsen, May 5, 2009)
  */
 
 #include "EventFilter/StorageManager/interface/DQMEventServer.h"

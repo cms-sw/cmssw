@@ -1,352 +1,257 @@
-#ifndef _StorageManager_h
-#define _StorageManager_h
+// $Id$
 
-/*
-   Author: Harry Cheung, FNAL
-
-   Description:
-     Storage Manager XDAQ application. It can receive and collect
-     I2O frames to remake event data. 
-
-     See CMS EventFilter wiki page for further notes.
-
-   $Id: StorageManager.h,v 1.45.14.1 2008/12/22 19:25:04 biery Exp $
-*/
+#ifndef StorageManager_StorageManager_h
+#define StorageManager_StorageManager_h
 
 #include <string>
-#include <list>
-#include <map>
 
-#include "FWCore/PluginManager/interface/ProblemTracker.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/MessageService/interface/MessageServicePresence.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+//#include "FWCore/MessageService/interface/MessageServicePresence.h"
 
-#include "EventFilter/Utilities/interface/Exception.h"
-#include "EventFilter/Utilities/interface/Css.h"
-#include "EventFilter/Utilities/interface/RunBase.h"
-#include "EventFilter/Utilities/interface/StateMachine.h"
-
-#include "EventFilter/StorageManager/interface/JobController.h"
-#include "EventFilter/StorageManager/interface/SMPerformanceMeter.h"
-#include "EventFilter/StorageManager/interface/ForeverAverageCounter.h"
-#include "EventFilter/StorageManager/interface/SMFUSenderList.h"
-
-#include "FWCore/PluginManager/interface/PluginManager.h"
-
-#include "toolbox/mem/Reference.h"
+#include "EventFilter/StorageManager/interface/DiskWriter.h"
+#include "EventFilter/StorageManager/interface/DQMEventProcessor.h"
+#include "EventFilter/StorageManager/interface/FragmentProcessor.h"
+#include "EventFilter/StorageManager/interface/SharedResources.h"
+#include "EventFilter/StorageManager/interface/WebPageHelper.h"
 
 #include "xdaq/Application.h"
-#include "xdaq/ApplicationContext.h"
-
-#include "xdata/String.h"
-#include "xdata/UnsignedInteger32.h"
-#include "xdata/Integer.h"
-#include "xdata/Double.h"
-#include "xdata/Boolean.h"
-#include "xdata/Vector.h"
-
-#include "xgi/Input.h"
-#include "xgi/Output.h"
 #include "xgi/exception/Exception.h"
 
-#include "boost/shared_ptr.hpp"
-#include "boost/thread/thread.hpp"
 
+namespace toolbox { 
+  namespace mem {
+    class Reference;
+  }
+}
+
+namespace xgi {
+  class Input;
+  class Output;
+}
 
 namespace stor {
 
-  class StorageManager: public xdaq::Application, 
-                        public xdata::ActionListener,
-                        public evf::RunBase
+  /**
+   * Main class of the StorageManager XDAQ application
+   *
+   * $Author$
+   * $Revision$
+   * $Date$
+   */
+
+  class StorageManager: public xdaq::Application
   {
-   public:
-    StorageManager(xdaq::ApplicationStub* s) throw (xdaq::exception::Exception);
+
+  public:
+  
+    StorageManager(xdaq::ApplicationStub* s);
   
     ~StorageManager();
 
-    // *** Updates the exported parameters
-    xoap::MessageReference ParameterGet(xoap::MessageReference message)
-    throw (xoap::exception::Exception);
 
-    // *** Anything to do with the flash list
-    void setupFlashList();
-    void actionPerformed(xdata::Event& e);
+  private:  
+  
+    StorageManager(StorageManager const&); // not implemented
+    StorageManager& operator=(StorageManager const&); // not implemented
 
-    // *** Callbacks to be executed during transitional states
-    bool configuring(toolbox::task::WorkLoop* wl);
-    bool enabling(toolbox::task::WorkLoop* wl);
-    bool stopping(toolbox::task::WorkLoop* wl);
-    bool halting(toolbox::task::WorkLoop* wl);
+    /**
+     * Bind callbacks for I2O message
+     */
+    void bindI2OCallbacks();
 
-    // *** FSM soap command callback
-    xoap::MessageReference fsmCallback(xoap::MessageReference msg)
-      throw (xoap::exception::Exception);
-    // @@EM added monitoring workloop
-    void startMonitoringWorkLoop() throw (evf::Exception);
-    bool monitoring(toolbox::task::WorkLoop* wl);
-    
-////////////////////////////////////////////////////////////////////////////////
-   private:  
+    /**
+     * Callback for I2O message containing an init message
+     */
     void receiveRegistryMessage(toolbox::mem::Reference *ref);
+
+    /**
+     * Callback for I2O message containing an event
+     */
     void receiveDataMessage(toolbox::mem::Reference *ref);
+
+    /**
+     * Callback for I2O message containing an error event
+     */
     void receiveErrorDataMessage(toolbox::mem::Reference *ref);
+
+    /**
+     * Callback for I2O message containing a DQM event (histogramms)
+     */
     void receiveDQMMessage(toolbox::mem::Reference *ref);
 
-    void sendDiscardMessage(unsigned int, 
-			    unsigned int, 
-			    unsigned int, 
-			    std::string);
+    /**
+     * Bind callbacks for state machine SOAP messages
+     */
+    void bindStateMachineCallbacks();
 
-    void configureAction();
-    void stopAction();
-    void haltAction();
+    /**
+     * Callback for SOAP message requesting a Configure state machine event
+     */
+    xoap::MessageReference configuring( xoap::MessageReference )
+      throw( xoap::exception::Exception );
 
-    void checkDirectoryOK(const std::string dir) const;
+    /**
+     * Callback for SOAP message requesting an Enable state machine event
+     */
+    xoap::MessageReference enabling( xoap::MessageReference )
+      throw( xoap::exception::Exception );
 
-    void defaultWebPage
-      (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
-    void css(xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception)
-      {css_.css(in,out);}
-    void rbsenderWebPage
-      (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
-    void streamerOutputWebPage
-      (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
-    void eventdataWebPage
-      (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
-    void headerdataWebPage
-      (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
-    void consumerWebPage
-      (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
-    void consumerListWebPage
-      (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
-    void eventServerWebPage
-      (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
-    void DQMeventdataWebPage
-      (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
-    void DQMconsumerWebPage
-      (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
+    /**
+     * Callback for SOAP message requesting a Stop state machine event
+     */
+    xoap::MessageReference stopping( xoap::MessageReference )
+      throw( xoap::exception::Exception );
+
+    /**
+     * Callback for SOAP message requesting a Halt state machine event
+     */
+    xoap::MessageReference halting( xoap::MessageReference )
+      throw( xoap::exception::Exception );
 
 
-    void parseFileEntry(const std::string &in, std::string &out, unsigned int &nev, unsigned long long &sz) const;
+    /**
+     * Bind callbacks for web interface
+     */
+    void bindWebInterfaceCallbacks();
 
-    std::string findStreamName(const std::string &in) const;
-	
-    // *** state machine related
-    evf::StateMachine fsm_;
-    std::string       reasonForFailedState_;
+    /**
+     * Webinterface callback for style sheet
+     */
+    void css(xgi::Input *in, xgi::Output *out)
+      throw (xgi::exception::Exception);
 
-    edm::AssertHandler *ah_;
-    edm::service::MessageServicePresence theMessageServicePresence;
-    xdata::String offConfig_;
-  
-    boost::shared_ptr<stor::JobController> jc_;
-    boost::mutex                           halt_lock_;
+    /**
+     * Webinterface callback creating default web page
+     */
+    void defaultWebPage(xgi::Input *in, xgi::Output *out)
+      throw (xgi::exception::Exception);
 
-    xdata::Boolean pushmode2proxy_;
-    xdata::Integer nLogicalDisk_;
-    xdata::String  fileName_;
-    xdata::String  filePath_;
-    xdata::Integer maxFileSize_;
-    xdata::String  setupLabel_;
-    xdata::Double  highWaterMark_;
-    xdata::Double  lumiSectionTimeOut_;
-    xdata::String  fileCatalog_;
-    xdata::Boolean exactFileSizeTest_;
-    xdata::Integer fileClosingTestInterval_;
+    /**
+     * Webinterface callback creating web page showing the stored data information
+     */
+    void storedDataWebPage(xgi::Input *in, xgi::Output *out)
+      throw (xgi::exception::Exception);
 
-    bool pushMode_;
-    std::string smConfigString_;
-    std::string smFileCatalog_;
-    bool reconfigurationRequested_;
+    /**
+     * Webinterface callback creating web page showing information about
+     * recently written files
+     */
+    void fileStatisticsWebPage(xgi::Input *in, xgi::Output *out)
+      throw (xgi::exception::Exception);
 
-    xdata::Boolean collateDQM_;
-    xdata::Boolean archiveDQM_;
-    xdata::Integer archiveIntervalDQM_;
-    xdata::String  filePrefixDQM_;
-    xdata::Integer purgeTimeDQM_;
-    xdata::Integer readyTimeDQM_;
-    xdata::Boolean useCompressionDQM_;
-    xdata::Integer compressionLevelDQM_;
+    /**
+     * Webinterface callback creating web page showing summary information
+     * about the resource broker sending data.
+     */
+    void rbsenderWebPage(xgi::Input *in, xgi::Output *out)
+      throw (xgi::exception::Exception);
 
-    evf::Css css_;
-    xdata::UnsignedInteger32 receivedFrames_;
-    int pool_is_set_;
-    toolbox::mem::Pool *pool_;
+    /**
+     * Webinterface callback creating web page showing detailed information
+     * about the resource broker sending data.
+     */
+    void rbsenderDetailWebPage(xgi::Input *in, xgi::Output *out)
+      throw (xgi::exception::Exception);
 
-    // added for Event Server
-    std::vector<unsigned char> mybuffer_; //temporary buffer instead of using stack
-    xdata::Double maxESEventRate_;  // hertz
-    xdata::Double maxESDataRate_;  // MB/sec
-    xdata::Integer activeConsumerTimeout_;  // seconds
-    xdata::Integer idleConsumerTimeout_;  // seconds
-    xdata::Integer consumerQueueSize_;
-    xdata::Boolean fairShareES_;
-    xdata::Double DQMmaxESEventRate_;  // hertz
-    xdata::Integer DQMactiveConsumerTimeout_;  // seconds
-    xdata::Integer DQMidleConsumerTimeout_;  // seconds
-    xdata::Integer DQMconsumerQueueSize_;
-    boost::mutex consumerInitMsgLock_;
-    xdata::String esSelectedHLTOutputModule_;
+    /**
+     * Webinterface callback creating web page showing the connected consumers
+     */
+    void consumerStatisticsPage( xgi::Input* in, xgi::Output* out )
+      throw( xgi::exception::Exception );
 
-    SMFUSenderList smrbsenders_;
-    xdata::UnsignedInteger32 connectedRBs_;
+    /**
+     * Webinterface callback creating web page showing statistics about the
+     * processed DQM events.
+     */
+    void dqmEventStatisticsWebPage(xgi::Input *in, xgi::Output *out)
+      throw (xgi::exception::Exception);
 
-    xdata::UnsignedInteger32 storedEvents_;
-    xdata::UnsignedInteger32 receivedEvents_;
-    xdata::UnsignedInteger32 receivedErrorEvents_;
-    xdata::UnsignedInteger32 dqmRecords_;
-    xdata::UnsignedInteger32 closedFiles_;
-    xdata::UnsignedInteger32 openFiles_;
-    xdata::Vector<xdata::String> fileList_;
-    xdata::Vector<xdata::UnsignedInteger32> eventsInFile_;
-    xdata::Vector<xdata::UnsignedInteger32> storedEventsInStream_;
-    xdata::Vector<xdata::UnsignedInteger32> receivedEventsFromOutMod_;
-    typedef std::map<std::string,uint32> countMap;
-    typedef std::map<std::string, boost::shared_ptr<ForeverAverageCounter> > valueMap;
-    typedef std::map<uint32,std::string> idMap;
-    typedef std::map<uint32,std::string>::iterator idMap_iter;
-    countMap receivedEventsMap_;
-    valueMap avEventSizeMap_;
-    valueMap avCompressRatioMap_;
-    idMap modId2ModOutMap_;
-    countMap storedEventsMap_;
-    xdata::Vector<xdata::UnsignedInteger32> fileSize_;
-    xdata::Vector<xdata::String> namesOfStream_;
-    xdata::Vector<xdata::String> namesOfOutMod_;
+    /**
+     * Webinterface callback creating web page showing statistics about the
+     * data throughput in the SM.
+     */
+    void throughputWebPage(xgi::Input *in, xgi::Output *out)
+      throw (xgi::exception::Exception);
 
-    // *** for received data performance measurements
-    void addMeasurement(unsigned long size);
-    stor::SMPerformanceMeter *pmeter_;
-    void addDQMMeasurement(unsigned long size);
-    stor::SMPerformanceMeter *DQMpmeter_;
+    /**
+     * Callback returning a XML list of consumer information.
+     * The current implementation just returns an empty document.
+     */
+    void consumerListWebPage(xgi::Input *in, xgi::Output *out)
+      throw (xgi::exception::Exception);
 
-    // *** measurements for last set of samples
-    xdata::UnsignedInteger32 samples_; // number of samples/frames per measurement
-    xdata::UnsignedInteger32 period4samples_; // time period per measurement
-    xdata::Double instantBandwidth_; // bandwidth in MB/s
-    xdata::Double instantRate_;      // number of frames/s
-    xdata::Double instantLatency_;   // micro-seconds/frame
-    xdata::Double maxBandwidth_;     // maximum bandwidth in MB/s
-    xdata::Double minBandwidth_;     // minimum bandwidth in MB/s
-    // *** measurements for last time period
-    xdata::Double instantBandwidth2_;// bandwidth in MB/s
-    xdata::Double instantRate2_;     // number of frames/s
-    xdata::Double instantLatency2_;  // micro-seconds/frame
-    xdata::Double maxBandwidth2_;    // maximum bandwidth in MB/s
-    xdata::Double minBandwidth2_;    // minimum bandwidth in MB/s
+    /**
+     * Bind callbacks for consumers
+     */
+    void bindConsumerCallbacks();
 
-    // *** measurements for all samples
-    xdata::Double duration_;         // time for run in seconds
-    xdata::UnsignedInteger32 totalSamples_; //number of samples/frames per measurement
-    xdata::Double meanBandwidth_;    // bandwidth in MB/s
-    xdata::Double meanRate_;         // number of frames/s
-    xdata::Double meanLatency_;      // micro-seconds/frame
-    xdata::Double receivedVolume_;   // total received data in MB
+    /**
+     * Callback handling event consumer registration request
+     */
+    void processConsumerRegistrationRequest( xgi::Input* in, xgi::Output* out )
+      throw( xgi::exception::Exception );
 
-    xdata::Double duration2_;         // time for run in seconds
-    xdata::UnsignedInteger32 totalSamples2_; //number of samples/frames per measurement
-    xdata::Double meanBandwidth2_;    // bandwidth in MB/s
-    xdata::Double meanRate2_;         // number of frames/s
-    xdata::Double meanLatency2_;      // micro-seconds/frame
+    /**
+     * Callback handling event consumer init message request
+     */
+    void processConsumerHeaderRequest( xgi::Input* in, xgi::Output* out )
+      throw( xgi::exception::Exception );
 
-    // *** for stored data performance measurements
-    // *** measurements for last set of samples
-    xdata::UnsignedInteger32 store_samples_; // number of samples/frames per measurement
-    xdata::UnsignedInteger32 store_period4samples_; // time period per measurement
-    xdata::Double store_instantBandwidth_; // bandwidth in MB/s
-    xdata::Double store_instantRate_;      // number of frames/s
-    xdata::Double store_instantLatency_;   // micro-seconds/frame
-    xdata::Double store_maxBandwidth_;     // maximum bandwidth in MB/s
-    xdata::Double store_minBandwidth_;     // minimum bandwidth in MB/s
-    // *** measurements for last time period
-    xdata::Double store_instantBandwidth2_;// bandwidth in MB/s
-    xdata::Double store_instantRate2_;     // number of frames/s
-    xdata::Double store_instantLatency2_;  // micro-seconds/frame
-    xdata::Double store_maxBandwidth2_;    // maximum bandwidth in MB/s
-    xdata::Double store_minBandwidth2_;    // minimum bandwidth in MB/s
+    /**
+     * Callback handling event consumer event request
+     */
+    void processConsumerEventRequest( xgi::Input* in, xgi::Output* out )
+      throw( xgi::exception::Exception );
+ 
+    /**
+     * Callback handling DQM event consumer registration request
+     */
+    void processDQMConsumerRegistrationRequest( xgi::Input* in, xgi::Output* out )
+      throw( xgi::exception::Exception );
 
-    // *** measurements for all samples
-    xdata::Double store_duration_;         // time for run in seconds
-    xdata::UnsignedInteger32 store_totalSamples_; //number of samples/frames per measurement
-    xdata::Double store_meanBandwidth_;    // bandwidth in MB/s
-    xdata::Double store_meanRate_;         // number of frames/s
-    xdata::Double store_meanLatency_;      // micro-seconds/frame
-    xdata::Double store_receivedVolume_;   // total received data in MB
+    /**
+     * Callback handling DQM event consumer DQM event request
+     */
+    void processDQMConsumerEventRequest( xgi::Input* in, xgi::Output* out )
+      throw( xgi::exception::Exception );
 
-    xdata::Double store_duration2_;         // time for run in seconds
-    xdata::UnsignedInteger32 store_totalSamples2_; //number of samples/frames per measurement
-    xdata::Double store_meanBandwidth2_;    // bandwidth in MB/s
-    xdata::Double store_meanRate2_;         // number of frames/s
-    xdata::Double store_meanLatency2_;      // micro-seconds/frame
 
-    // Statistics for received DQM data
-    // *** measurements for last set of samples
-    xdata::UnsignedInteger32 DQMsamples_; // number of samples/frames per measurement
-    xdata::UnsignedInteger32 DQMperiod4samples_; // time period per measurement
-    xdata::Double DQMinstantBandwidth_; // bandwidth in MB/s
-    xdata::Double DQMinstantRate_;      // number of frames/s
-    xdata::Double DQMinstantLatency_;   // micro-seconds/frame
-    xdata::Double DQMmaxBandwidth_;     // maximum bandwidth in MB/s
-    xdata::Double DQMminBandwidth_;     // minimum bandwidth in MB/s
-    // *** measurements for last time period
-    xdata::Double DQMinstantBandwidth2_;// bandwidth in MB/s
-    xdata::Double DQMinstantRate2_;     // number of frames/s
-    xdata::Double DQMinstantLatency2_;  // micro-seconds/frame
-    xdata::Double DQMmaxBandwidth2_;    // maximum bandwidth in MB/s
-    xdata::Double DQMminBandwidth2_;    // minimum bandwidth in MB/s
+    /**
+     * Initialize the shared resources
+     */
+    void initializeSharedResources();
 
-    // *** measurements for all samples
-    xdata::Double DQMduration_;         // time for run in seconds
-    xdata::UnsignedInteger32 DQMtotalSamples_; //number of samples/frames per measurement
-    xdata::Double DQMmeanBandwidth_;    // bandwidth in MB/s
-    xdata::Double DQMmeanRate_;         // number of frames/s
-    xdata::Double DQMmeanLatency_;      // micro-seconds/frame
-    xdata::Double DQMreceivedVolume_;   // total received data in MB
+    /**
+     * Create and start all worker threads
+     */
+    void startWorkerThreads();
 
-    xdata::Double DQMduration2_;         // time for run in seconds
-    xdata::UnsignedInteger32 DQMtotalSamples2_; //number of samples/frames per measurement
-    xdata::Double DQMmeanBandwidth2_;    // bandwidth in MB/s
-    xdata::Double DQMmeanRate2_;         // number of frames/s
-    xdata::Double DQMmeanLatency2_;      // micro-seconds/frame
 
-    // *** additional flashlist contents (rest was already there)
-    xdata::String            class_;
-    xdata::UnsignedInteger32 instance_;
-    xdata::String            url_;       
+    // Do we need this here?
+    unsigned int getRunNumber() const;
+    std::string reasonForFailedState_;
 
-    xdata::Double            storedVolume_;
-    xdata::UnsignedInteger32 memoryUsed_;
-    xdata::String            progressMarker_;
 
-    // @@EM workloop / action signature for monitoring
-    toolbox::task::WorkLoop         *wlMonitoring_;      
-    toolbox::task::ActionSignature  *asMonitoring_;
+    // instantiate the plugin manager, not referenced here after!
+    edm::AssertHandler _ah;
 
-    // @@EM parameters monitored by workloop (not in flashlist just yet) 
-    struct streammon{
-      int		nclosedfiles_;
-      int		nevents_;
-      int		totSizeInkBytes_;
-    };
+    SharedResourcesPtr _sharedResources;
 
-    typedef std::map<std::string,streammon> smap;
-    typedef std::map<std::string,streammon>::iterator ismap;
-    smap	 streams_;
+    FragmentProcessor *_fragmentProcessor;
+    DiskWriter *_diskWriter;
+    DQMEventProcessor *_dqmEventProcessor;
 
-    unsigned int lastEventSeen_; // report last seen event id
-    unsigned int lastErrorEventSeen_; // report last error event id seen
-    boost::mutex rblist_lock_;  // quick (temporary) fix for registration problem
+    WebPageHelper _webPageHelper;
 
-    std::string sm_cvs_version_;
+  };
 
-    enum
-    {
-      DEFAULT_PURGE_TIME = 120,
-      DEFAULT_READY_TIME = 30
-    };
+}
 
-  }; 
-} 
+#endif // StorageManager_StorageManager_h
 
-#endif
+
+/// emacs configuration
+/// Local Variables: -
+/// mode: c++ -
+/// c-basic-offset: 2 -
+/// indent-tabs-mode: nil -
+/// End: -

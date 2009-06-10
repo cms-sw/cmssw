@@ -12,7 +12,7 @@
  * prescale is in effect.
  *
  * 16-Aug-2006 - KAB  - Initial Implementation
- * $Id: EventServer.h,v 1.10 2008/05/14 16:00:00 biery Exp $
+ * $Id$
  */
 
 #include <sys/time.h>
@@ -52,17 +52,6 @@ namespace stor
     void processEvent(const EventMsgView &eventView);
     boost::shared_ptr< std::vector<char> > getEvent(uint32 consumerId);
     void clearQueue();
-
-    void setStreamSelectionTable(std::map<std::string, Strings> const& selTable);
-    std::map<std::string, Strings> getStreamSelectionTable()
-    {
-      return streamSelectionTable_;
-    }
-    int getSelectionTableStringSize()
-    {
-      return selTableStringSize_;
-    }
-    Strings updateTriggerSelectionForStreams(Strings const& selectionList);
 
     double getMaxEventRate() const { return maxEventRate_; }
     double getMaxDataRate() const { return maxDataRate_; }
@@ -112,9 +101,6 @@ namespace stor
     // consumer lists
     std::map< uint32, boost::shared_ptr<ConsumerPipe> > consumerTable_;
     //std::vector<boost::shared_ptr<ConsumerPipe>> vipConsumerList;
-
-    std::map<std::string, Strings> streamSelectionTable_;
-    int selTableStringSize_;
 
     // statistics
     std::map<uint32, boost::shared_ptr<ForeverCounter> > ltInputCounters_;
