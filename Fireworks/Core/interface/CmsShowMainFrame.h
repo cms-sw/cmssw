@@ -1,4 +1,4 @@
-#ifndef Fireworks_Core_CmsShowsMainFrame_h
+#ifndef Fireworks_Core_CmsShowMainFrame_h
 #define Fireworks_Core_CmsShowMainFrame_h
 // -*- C++ -*-
 //
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.20 2009/01/23 21:35:40 amraktad Exp $
+// $Id: CmsShowMainFrame.h,v 1.21 2009/05/11 10:10:35 amraktad Exp $
 //
 
 // system include files
