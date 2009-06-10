@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.72 2009/06/04 12:52:01 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.73 2009/06/05 08:33:06 chamont Exp $
 //
 //
 
@@ -703,7 +703,7 @@ void GsfElectronAlgo::createElectron
   // brems fraction
   //====================================================
 
-  float fbrem = (outMom.mag()>0.)?((innMom.mag()-outMom.mag())/outMom.mag()):1.e30 ;
+  float fbrem = (outMom.mag()>0.)?((innMom.mag()-outMom.mag())/innMom.mag()):1.e30 ;
 
 
   //====================================================
