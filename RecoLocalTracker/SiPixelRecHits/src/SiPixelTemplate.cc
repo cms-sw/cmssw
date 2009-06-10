@@ -57,10 +57,17 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #define LOGERROR(x) LogError(x)
 #define LOGINFO(x) LogInfo(x)
 #define ENDL " "
 using namespace edm;
+#ifdef assert
+#undef assert
+#endif
+#define _QUOTEME(X) #X
+#define QUOTEME(X) _QUOTEME(X)
+#define assert(X) do {	if (!(X))throw cms::Exception("EventCorruption", "At " __FILE__ ":" QUOTEME(__LINE__)  ", assert " #X " failed."); } while(0)
 #else
 #include "SiPixelTemplate.h"
 #define LOGERROR(x) std::cout << x << ": "
@@ -2602,6 +2609,7 @@ int SiPixelTemplate::qbin(int id, bool fpix, float cotalpha, float cotbeta, floa
                           float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2)
 		 
 {
+	
     // Interpolate for a new set of track angles 
     
     // Local variables 
@@ -2910,8 +2918,7 @@ int SiPixelTemplate::qbin(int id, bool fpix, float cotalpha, float cotbeta, floa
 	   }
 	
 	}
-	
-	assert(qavg > 0. && qmin > 0.);
+		assert(qavg > 0. && qmin > 0.);
 	
 //  Scale the input charge to account for differences between pixelav and CMSSW simulation or data	
 	
