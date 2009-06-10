@@ -32,6 +32,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
 #include "G4StateManager.hh"
 #include "G4ApplicationState.hh"
@@ -304,41 +305,46 @@ void RunManager::produce(edm::Event& inpevt, const edm::EventSetup & es)
  
 G4Event * RunManager::generateEvent(edm::Event & inpevt)
 {                       
-
-    if (m_currentEvent!=0) delete m_currentEvent;
-    m_currentEvent = 0;
-    if (m_simEvent!=0) delete m_simEvent;
-    m_simEvent = 0;
-    G4Event * e = new G4Event(inpevt.id().event());
-   
-       // std::vector< edm::Handle<edm::HepMCProduct> > AllHepMCEvt;
-    edm::Handle<edm::HepMCProduct> HepMCEvt;
-
-       // inpevt.getByType(HepMCEvt);       
-       // inpevt.getManyByType(AllHepMCEvt);
-    inpevt.getByLabel( m_InTag, HepMCEvt ) ;
-        
-    // actually, it's a double protection - it's not even necessary 
-    // because getByLabel will throw if the correct product isn't there         
-    if (!HepMCEvt.isValid())
+  
+  if (m_currentEvent!=0) delete m_currentEvent;
+  m_currentEvent = 0;
+  if (m_simEvent!=0) delete m_simEvent;
+  m_simEvent = 0;
+  G4Event * e = new G4Event(inpevt.id().event());
+  
+  // std::vector< edm::Handle<edm::HepMCProduct> > AllHepMCEvt;
+  edm::Handle<edm::HepMCProduct> HepMCEvt;
+  
+  // inpevt.getByType(HepMCEvt);       
+  // inpevt.getManyByType(AllHepMCEvt);
+  inpevt.getByLabel( m_InTag, HepMCEvt ) ;
+  
+  // actually, it's a double protection - it's not even necessary 
+  // because getByLabel will throw if the correct product isn't there         
+  if (!HepMCEvt.isValid())
     {
-       throw SimG4Exception("Unable to find HepMCProduct(HepMC::GenEvent) in edm::Event  ");
+      throw SimG4Exception("Unable to find HepMCProduct(HepMC::GenEvent) in edm::Event  ");
     }
-    else
+  else
     {
-       m_generator->setGenEvent(HepMCEvt->GetEvent());
-       if (!m_nonBeam) 
-       {
-	  m_generator->HepMC2G4(HepMCEvt->GetEvent(),e);
-       }
-       else 
-       {
+      m_generator->setGenEvent(HepMCEvt->GetEvent());
+
+      // required to reset the GenParticle Id for particles transported along the beam pipe
+      // to their original value for SimTrack creation
+      resetGenParticleId( inpevt );
+
+      if (!m_nonBeam) 
+        {
+          m_generator->HepMC2G4(HepMCEvt->GetEvent(),e);
+        }
+      else 
+        {
           m_generator->nonBeamEvent2G4(HepMCEvt->GetEvent(),e);
-       }
+        }
     }
-    
-    return e;
-
+  
+  return e;
+  
 }
 
 void RunManager::abortEvent()
@@ -463,3 +469,12 @@ void RunManager::abortRun(bool softAbort)
     
 }
 
+void RunManager::resetGenParticleId( edm::Event& inpevt ) {
+
+  edm::Handle<edm::LHCTransportLinkContainer> theLHCTlink;
+  inpevt.getByType( theLHCTlink );
+  if ( theLHCTlink.isValid() ) {
+    m_trackManager->setLHCTransportLink( theLHCTlink.product() );
+  }
+
+}

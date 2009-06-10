@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:44:19 EST 2005
-// $Id: SimTrackManager.cc,v 1.17 2009/03/11 15:16:59 fabiocos Exp $
+// $Id: SimTrackManager.cc,v 1.18 2009/03/12 10:14:16 fabiocos Exp $
 //
 
 // system include files
@@ -37,7 +37,7 @@
 SimTrackManager::SimTrackManager(bool iCollapsePrimaryVertices) :
   m_trksForThisEvent(0),m_nVertices(0),
   m_collapsePrimaryVertices(iCollapsePrimaryVertices),
-  lastTrack(0),lastHist(0){}
+  lastTrack(0),lastHist(0),theLHCTlink(0){}
 
 
 SimTrackManager::~SimTrackManager()
@@ -124,6 +124,9 @@ void SimTrackManager::storeTracks(G4SimEvent* simEvent)
 
   // to get a backward compatible order
   stable_sort(m_trksForThisEvent->begin(),m_trksForThisEvent->end(),trkIDLess());
+
+  // to reset the GenParticle ID of a SimTrack to its pre-LHCTransport value
+  resetGenID();
 
   reallyStoreTracks(simEvent);
 }
@@ -305,5 +308,28 @@ void SimTrackManager::cleanTracksWithHistory(){
   fillMotherList();
 
   lastTrack = (*m_trksForThisEvent).size();
+
+}
+
+void SimTrackManager::resetGenID() {
+
+  if ( theLHCTlink == 0 ) return;
+
+  for  (unsigned int it = 0; it < m_trksForThisEvent->size(); it++)
+    {
+      TrackWithHistory * trkH = (*m_trksForThisEvent)[it];
+      int genParticleID_ = trkH->genParticleID();
+      if ( genParticleID_ == -1 ) { continue; }
+      else {
+        for ( unsigned int itrlink = 0; itrlink < (*theLHCTlink).size(); itrlink++ ) {
+          if ( (*theLHCTlink)[itrlink].afterHector() == genParticleID_ ) {
+            trkH->setGenParticleID( (*theLHCTlink)[itrlink].beforeHector() );
+            continue;
+          }
+        }
+      }
+    }
+
+  theLHCTlink = 0;
 
 }

@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:36:41 EST 2005
-// $Id: SimTrackManager.h,v 1.10 2009/03/11 15:16:59 fabiocos Exp $
+// $Id: SimTrackManager.h,v 1.11 2009/03/12 10:14:15 fabiocos Exp $
 //
 
 // system include files
@@ -27,6 +27,8 @@
 #include "SimG4Core/Application/interface/G4SimEvent.h"
 #include "SimG4Core/Notification/interface/TrackWithHistory.h"
 #include "SimG4Core/Notification/interface/TrackContainer.h" 
+
+#include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
 // forward declarations
 
@@ -85,6 +87,7 @@ public:
     for (unsigned int itr=0; itr<idsave.size(); itr++) { if ((idsave[itr]).first == i) { theResult = (idsave[itr]).second; break; } }
     return theResult ; }
   void cleanTracksWithHistory();
+  void setLHCTransportLink( const edm::LHCTransportLinkContainer * thisLHCTlink ) { theLHCTlink = thisLHCTlink; }
 
 private:
   SimTrackManager(const SimTrackManager&); // stop default
@@ -97,6 +100,9 @@ private:
   void reallyStoreTracks(G4SimEvent * simEvent);
   void fillMotherList();
   int idSavedTrack (int) const;
+
+  // to restore the pre-LHCTransport GenParticle id link to a SimTrack
+  void resetGenID();
 
   // ---------- member data --------------------------------
   TrackContainer * m_trksForThisEvent;
@@ -111,6 +117,8 @@ private:
 
   unsigned int lastTrack;
   unsigned int lastHist;
+
+  const edm::LHCTransportLinkContainer * theLHCTlink;
 
 };
 
