@@ -6,7 +6,8 @@ L1GctRegion::~L1GctRegion() {}
 
 L1GctRegion L1GctRegion::makeJfInputRegion(const L1CaloRegion& r_in)
 {
-  L1GctRegion r( r_in.et(), r_in.overFlow(), r_in.fineGrain(), r_in.gctEta(), r_in.gctPhi(), r_in.bx() );
+  bool of = ( r_in.isHf() ? (r_in.et() == 0xff) : r_in.overFlow() );
+  L1GctRegion r( r_in.et(), of, r_in.fineGrain(), r_in.gctEta(), r_in.gctPhi(), r_in.bx() );
   return r;
 }
 
