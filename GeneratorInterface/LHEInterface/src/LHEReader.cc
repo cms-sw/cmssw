@@ -198,11 +198,11 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
 
 				std::string type;
 				const char *p, *q;
+				DOMElement *elem;
 
 				switch(node->getNodeType()) {
 				    case DOMNode::ELEMENT_NODE:
-					DOMElement *elem =
-						static_cast<DOMElement*>(node);
+					elem = static_cast<DOMElement*>(node);
 					type = (const char*)XMLSimpleStr(
 							elem->getTagName());
 					p = std::strchr((const char*)buffer,
