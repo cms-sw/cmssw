@@ -208,6 +208,16 @@ void JetMETHLTOfflineSource::analyze(const edm::Event& iEvent,const edm::EventSe
   //---------- triggerResults ----------
   if (debug_) std::cout << ">>>now triggerResults" << std::endl;
   iEvent.getByLabel(triggerResultsLabel_, triggerResults_);
+  if(!triggerResults_.isValid()) {
+    edm::InputTag triggerResultsLabelFU(triggerResultsLabel_.label(),triggerResultsLabel_.instance(), "FU");
+   iEvent.getByLabel(triggerResultsLabelFU,triggerResults_);
+  if(!triggerResults_.isValid()) {
+    edm::LogInfo("FourVectorHLTOffline") << "TriggerResults not found, "
+      "skipping event";
+    return;
+   }
+  }
+
   int npath;
   if(&triggerResults_) {
 
@@ -242,12 +252,17 @@ void JetMETHLTOfflineSource::analyze(const edm::Event& iEvent,const edm::EventSe
 
   //---------- triggerSummary ----------
   if (debug_) std::cout << ">>>now triggerSummary" << std::endl;
-  iEvent.getByLabel(triggerSummaryLabel_,triggerObj_);
+  iEvent.getByLabel(triggerSummaryLabel_,triggerObj_); 
   if(!triggerObj_.isValid()) {
-    edm::LogInfo("JetMETHLTOfflineSource") << "TriggerSummary not found, "
-      "skipping event";
+    edm::InputTag triggerSummaryLabelFU(triggerSummaryLabel_.label(),triggerSummaryLabel_.instance(), "FU");
+   iEvent.getByLabel(triggerSummaryLabelFU,triggerObj_);
+  if(!triggerObj_.isValid()) {
+    edm::LogInfo("FourVectorHLTOffline") << "TriggerEvent not found, "
+      "skipping event"; 
     return;
+   }
   }
+
   const trigger::TriggerObjectCollection & toc(triggerObj_->getObjects());
 
   //--- Show everything
