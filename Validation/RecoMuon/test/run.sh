@@ -8,7 +8,7 @@ echo " pwd ->"
 pwd
 
 
-cmsRun $PKGDIR/${1}/${1}_1.py >& ${1}_1.log
+cmsRun $PKGDIR/$RELDIR/${1}/${1}_1.py >& ${1}_1.log
 RETVAL=$?
 
 #if [ $RETVAL != 0 ]; then
