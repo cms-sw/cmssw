@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.21 2009/06/10 15:22:00 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.22 2009/06/10 16:21:37 charlot Exp $
 //
 //
 
@@ -124,10 +124,10 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_ele_EseedOP_all            = new TH1F( "h_ele_EseedOP_all",            "ele E_{seed}/P_{vertex}, all reco electrons",        nbineop,0.,eopmax);
   h_ele_EoPout_all         = new TH1F( "h_ele_EoPout_all",         "ele E_{seed}/P_{out}, all reco electrons",           nbineop,0.,eopmax);
   h_ele_EeleOPout_all         = new TH1F( "h_ele_EeleOPout_all",         "ele E_{ele}/P_{out}, all reco electrons",           nbineop,0.,eopmax);
-  h_ele_dEtaSc_propVtx_all = new TH1F( "h_ele_dEtaSc_propVtx_all", "ele #eta_{sc} - #eta_{tr} - prop from vertex, all reco electrons",      nbindetamatch,detamatchmin,detamatchmax);
-  h_ele_dPhiSc_propVtx_all = new TH1F( "h_ele_dPhiSc_propVtx_all", "ele #phi_{sc} - #phi_{tr} - prop from vertex, all reco electrons",      nbindphimatch,dphimatchmin,dphimatchmax);
-  h_ele_dEtaCl_propOut_all = new TH1F( "h_ele_dEtaCl_propOut_all", "ele #eta_{cl} - #eta_{tr} - prop from outermost, all reco electrons",   nbindetamatch,detamatchmin,detamatchmax);
-  h_ele_dPhiCl_propOut_all = new TH1F( "h_ele_dPhiCl_propOut_all", "ele #phi_{cl} - #phi_{tr} - prop from outermost, all reco electrons",   nbindphimatch,dphimatchmin,dphimatchmax);
+  h_ele_dEtaSc_propVtx_all = new TH1F( "h_ele_dEtaSc_propVtx_all", "ele #eta_{sc} - #eta_{tr}, prop from vertex, all reco electrons",      nbindetamatch,detamatchmin,detamatchmax);
+  h_ele_dPhiSc_propVtx_all = new TH1F( "h_ele_dPhiSc_propVtx_all", "ele #phi_{sc} - #phi_{tr}, prop from vertex, all reco electrons",      nbindphimatch,dphimatchmin,dphimatchmax);
+  h_ele_dEtaCl_propOut_all = new TH1F( "h_ele_dEtaCl_propOut_all", "ele #eta_{cl} - #eta_{tr}, prop from outermost, all reco electrons",   nbindetamatch,detamatchmin,detamatchmax);
+  h_ele_dPhiCl_propOut_all = new TH1F( "h_ele_dPhiCl_propOut_all", "ele #phi_{cl} - #phi_{tr}, prop from outermost, all reco electrons",   nbindphimatch,dphimatchmin,dphimatchmax);
   h_ele_HoE_all = new TH1F("h_ele_HoE_all", "ele hadronic energy / em energy, all reco electrons", 55,-0.05,0.5) ;
   h_ele_vertexPt_all       = new TH1F( "h_ele_vertexPt_all",       "ele p_{T}, all reco electrons",  nbinpteff,5.,ptmax);
   h_ele_vertexEta_all      = new TH1F( "h_ele_vertexEta_all",      "ele eta, all reco electrons",    nbineta,etamin,etamax);
@@ -269,33 +269,33 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_ele_EeleOPoutVsEta         = new TH2F( "h_ele_EeleOPoutVsEta",         "ele E_{ele}/P_{out} vs eta",    nbineta2D,etamin,etamax,nbineop2D,0.,eopmaxsht);
   h_ele_EeleOPoutVsPhi         = new TH2F( "h_ele_EeleOPoutVsPhi",         "ele E_{ele}/P_{out} vs phi",    nbinphi2D,phimin,phimax,nbineop2D,0.,eopmaxsht);
   h_ele_EeleOPoutVsE         = new TH2F( "h_ele_EeleOPoutVsE",         "ele E_{ele}/P_{out} vs E",    nbinp2D,0.,pmax,nbineop2D,0.,eopmaxsht);
-  h_ele_dEtaSc_propVtx = new TH1F( "h_ele_dEtaSc_propVtx", "ele #eta_{sc} - #eta_{tr} - prop from vertex",      nbindetamatch,detamatchmin,detamatchmax);
-  h_ele_dEtaSc_propVtx_eg = new TH1F( "h_ele_dEtaSc_propVtx_eg", "ele #eta_{sc} - #eta_{tr} - prop from vertex, ecal driven",      nbindetamatch,detamatchmin,detamatchmax);
+  h_ele_dEtaSc_propVtx = new TH1F( "h_ele_dEtaSc_propVtx", "ele #eta_{sc} - #eta_{tr}, prop from vertex",      nbindetamatch,detamatchmin,detamatchmax);
+  h_ele_dEtaSc_propVtx_eg = new TH1F( "h_ele_dEtaSc_propVtx_eg", "ele #eta_{sc} - #eta_{tr}, prop from vertex, ecal driven",      nbindetamatch,detamatchmin,detamatchmax);
   h_ele_dEtaScVsEta_propVtx = new TH2F( "h_ele_dEtaScVsEta_propVtx", "ele #eta_{sc} - #eta_{tr} vs eta, prop from vertex", nbineta2D,etamin,etamax,nbindetamatch2D,detamatchmin,detamatchmax);
   h_ele_dEtaScVsPhi_propVtx = new TH2F( "h_ele_dEtaScVsPhi_propVtx", "ele #eta_{sc} - #eta_{tr} vs phi, prop from vertex", nbinphi2D,phimin,phimax,nbindetamatch2D,detamatchmin,detamatchmax);
   h_ele_dEtaScVsPt_propVtx = new TH2F( "h_ele_dEtaScVsPt_propVtx", "ele #eta_{sc} - #eta_{tr} vs pt, prop from vertex", nbinpt2D,0.,ptmax,nbindetamatch2D,detamatchmin,detamatchmax);
-  h_ele_dPhiSc_propVtx = new TH1F( "h_ele_dPhiSc_propVtx", "ele #phi_{sc} - #phi_{tr} - prop from vertex",      nbindphimatch,dphimatchmin,dphimatchmax);
-  h_ele_dPhiSc_propVtx_eg = new TH1F( "h_ele_dPhiSc_propVtx_eg", "ele #phi_{sc} - #phi_{tr} - prop from vertex, ecal driven",      nbindphimatch,dphimatchmin,dphimatchmax);
+  h_ele_dPhiSc_propVtx = new TH1F( "h_ele_dPhiSc_propVtx", "ele #phi_{sc} - #phi_{tr}, prop from vertex",      nbindphimatch,dphimatchmin,dphimatchmax);
+  h_ele_dPhiSc_propVtx_eg = new TH1F( "h_ele_dPhiSc_propVtx_eg", "ele #phi_{sc} - #phi_{tr}, prop from vertex, ecal driven",      nbindphimatch,dphimatchmin,dphimatchmax);
   h_ele_dPhiScVsEta_propVtx = new TH2F( "h_ele_dPhiScVsEta_propVtx", "ele #phi_{sc} - #phi_{tr} vs eta, prop from vertex", nbineta2D,etamin,etamax,nbindphimatch2D,dphimatchmin,dphimatchmax);
   h_ele_dPhiScVsPhi_propVtx = new TH2F( "h_ele_dPhiScVsPhi_propVtx", "ele #phi_{sc} - #phi_{tr} vs phi, prop from vertex", nbinphi2D,phimin,phimax,nbindphimatch2D,dphimatchmin,dphimatchmax);
   h_ele_dPhiScVsPt_propVtx = new TH2F( "h_ele_dPhiScVsPt_propVtx", "ele #phi_{sc} - #phi_{tr} vs pt, prop from vertex", nbinpt2D,0.,ptmax,nbindphimatch2D,dphimatchmin,dphimatchmax);
-  h_ele_dEtaCl_propOut = new TH1F( "h_ele_dEtaCl_propOut", "ele #eta_{cl} - #eta_{tr} - prop from outermost",   nbindetamatch,detamatchmin,detamatchmax);
-  h_ele_dEtaCl_propOut_eg = new TH1F( "h_ele_dEtaCl_propOut_eg", "ele #eta_{cl} - #eta_{tr} - prop from outermost, ecal driven",   nbindetamatch,detamatchmin,detamatchmax);
+  h_ele_dEtaCl_propOut = new TH1F( "h_ele_dEtaCl_propOut", "ele #eta_{cl} - #eta_{tr}, prop from outermost",   nbindetamatch,detamatchmin,detamatchmax);
+  h_ele_dEtaCl_propOut_eg = new TH1F( "h_ele_dEtaCl_propOut_eg", "ele #eta_{cl} - #eta_{tr}, prop from outermost, ecal driven",   nbindetamatch,detamatchmin,detamatchmax);
   h_ele_dEtaClVsEta_propOut = new TH2F( "h_ele_dEtaClVsEta_propOut", "ele #eta_{cl} - #eta_{tr} vs eta, prop from out", nbineta2D,etamin,etamax,nbindetamatch2D,detamatchmin,detamatchmax);
   h_ele_dEtaClVsPhi_propOut = new TH2F( "h_ele_dEtaClVsPhi_propOut", "ele #eta_{cl} - #eta_{tr} vs phi, prop from out", nbinphi2D,phimin,phimax,nbindetamatch2D,detamatchmin,detamatchmax);
   h_ele_dEtaClVsPt_propOut = new TH2F( "h_ele_dEtaScVsPt_propOut", "ele #eta_{cl} - #eta_{tr} vs pt, prop from out", nbinpt2D,0.,ptmax,nbindetamatch2D,detamatchmin,detamatchmax);
-  h_ele_dPhiCl_propOut = new TH1F( "h_ele_dPhiCl_propOut", "ele #phi_{cl} - #phi_{tr} - prop from outermost",   nbindphimatch,dphimatchmin,dphimatchmax);
-  h_ele_dPhiCl_propOut_eg = new TH1F( "h_ele_dPhiCl_propOut_eg", "ele #phi_{cl} - #phi_{tr} - prop from outermost, ecal driven",   nbindphimatch,dphimatchmin,dphimatchmax);
+  h_ele_dPhiCl_propOut = new TH1F( "h_ele_dPhiCl_propOut", "ele #phi_{cl} - #phi_{tr}, prop from outermost",   nbindphimatch,dphimatchmin,dphimatchmax);
+  h_ele_dPhiCl_propOut_eg = new TH1F( "h_ele_dPhiCl_propOut_eg", "ele #phi_{cl} - #phi_{tr}, prop from outermost, ecal driven",   nbindphimatch,dphimatchmin,dphimatchmax);
   h_ele_dPhiClVsEta_propOut = new TH2F( "h_ele_dPhiClVsEta_propOut", "ele #phi_{cl} - #phi_{tr} vs eta, prop from out", nbineta2D,etamin,etamax,nbindphimatch2D,dphimatchmin,dphimatchmax);
   h_ele_dPhiClVsPhi_propOut = new TH2F( "h_ele_dPhiClVsPhi_propOut", "ele #phi_{cl} - #phi_{tr} vs phi, prop from out", nbinphi2D,phimin,phimax,nbindphimatch2D,dphimatchmin,dphimatchmax);
   h_ele_dPhiClVsPt_propOut = new TH2F( "h_ele_dPhiSClsPt_propOut", "ele #phi_{cl} - #phi_{tr} vs pt, prop from out", nbinpt2D,0.,ptmax,nbindphimatch2D,dphimatchmin,dphimatchmax);
-  h_ele_dEtaEleCl_propOut = new TH1F( "h_ele_dEtaEleCl_propOut", "ele #eta_{EleCl} - #eta_{tr} - prop from outermost",   nbindetamatch,detamatchmin,detamatchmax);
-  h_ele_dEtaEleCl_propOut_eg = new TH1F( "h_ele_dEtaEleCl_propOut_eg", "ele #eta_{EleCl} - #eta_{tr} - prop from outermost, ecal driven",   nbindetamatch,detamatchmin,detamatchmax);
+  h_ele_dEtaEleCl_propOut = new TH1F( "h_ele_dEtaEleCl_propOut", "ele #eta_{EleCl} - #eta_{tr}, prop from outermost",   nbindetamatch,detamatchmin,detamatchmax);
+  h_ele_dEtaEleCl_propOut_eg = new TH1F( "h_ele_dEtaEleCl_propOut_eg", "ele #eta_{EleCl} - #eta_{tr}, prop from outermost, ecal driven",   nbindetamatch,detamatchmin,detamatchmax);
   h_ele_dEtaEleClVsEta_propOut = new TH2F( "h_ele_dEtaEleClVsEta_propOut", "ele #eta_{EleCl} - #eta_{tr} vs eta, prop from out", nbineta2D,etamin,etamax,nbindetamatch2D,detamatchmin,detamatchmax);
   h_ele_dEtaEleClVsPhi_propOut = new TH2F( "h_ele_dEtaEleClVsPhi_propOut", "ele #eta_{EleCl} - #eta_{tr} vs phi, prop from out", nbinphi2D,phimin,phimax,nbindetamatch2D,detamatchmin,detamatchmax);
   h_ele_dEtaEleClVsPt_propOut = new TH2F( "h_ele_dEtaScVsPt_propOut", "ele #eta_{EleCl} - #eta_{tr} vs pt, prop from out", nbinpt2D,0.,ptmax,nbindetamatch2D,detamatchmin,detamatchmax);
-  h_ele_dPhiEleCl_propOut = new TH1F( "h_ele_dPhiEleCl_propOut", "ele #phi_{EleCl} - #phi_{tr} - prop from outermost",   nbindphimatch,dphimatchmin,dphimatchmax);
-  h_ele_dPhiEleCl_propOut_eg = new TH1F( "h_ele_dPhiEleCl_propOut_eg", "ele #phi_{EleCl} - #phi_{tr} - prop from outermost, ecal driven",   nbindphimatch,dphimatchmin,dphimatchmax);
+  h_ele_dPhiEleCl_propOut = new TH1F( "h_ele_dPhiEleCl_propOut", "ele #phi_{EleCl} - #phi_{tr}, prop from outermost",   nbindphimatch,dphimatchmin,dphimatchmax);
+  h_ele_dPhiEleCl_propOut_eg = new TH1F( "h_ele_dPhiEleCl_propOut_eg", "ele #phi_{EleCl} - #phi_{tr}, prop from outermost, ecal driven",   nbindphimatch,dphimatchmin,dphimatchmax);
   h_ele_dPhiEleClVsEta_propOut = new TH2F( "h_ele_dPhiEleClVsEta_propOut", "ele #phi_{EleCl} - #phi_{tr} vs eta, prop from out", nbineta2D,etamin,etamax,nbindphimatch2D,dphimatchmin,dphimatchmax);
   h_ele_dPhiEleClVsPhi_propOut = new TH2F( "h_ele_dPhiEleClVsPhi_propOut", "ele #phi_{EleCl} - #phi_{tr} vs phi, prop from out", nbinphi2D,phimin,phimax,nbindphimatch2D,dphimatchmin,dphimatchmax);
   h_ele_dPhiEleClVsPt_propOut = new TH2F( "h_ele_dPhiSEleClsPt_propOut", "ele #phi_{EleCl} - #phi_{tr} vs pt, prop from out", nbinpt2D,0.,ptmax,nbindphimatch2D,dphimatchmin,dphimatchmax);
@@ -317,11 +317,11 @@ void GsfElectronMCAnalyzer::beginJob(){
 
   // classes
   h_ele_classes = new TH1F( "h_ele_classes", "ele classes",      20,0.0,20.);
-  h_ele_eta = new TH1F( "h_ele_eta", "electron eta",  nbineta/2,0.0,etamax);
-  h_ele_eta_golden = new TH1F( "h_ele_eta_golden", "electron eta golden",  nbineta/2,0.0,etamax);
-  h_ele_eta_bbrem = new TH1F( "h_ele_eta_bbrem", "electron eta bbrem",  nbineta/2,0.0,etamax);
-  h_ele_eta_narrow = new TH1F( "h_ele_eta_narrow", "electron eta narrow",  nbineta/2,0.0,etamax);
-  h_ele_eta_shower = new TH1F( "h_ele_eta_show", "electron eta showering",  nbineta/2,0.0,etamax);
+  h_ele_eta = new TH1F( "h_ele_eta", "ele electron eta",  nbineta/2,0.0,etamax);
+  h_ele_eta_golden = new TH1F( "h_ele_eta_golden", "ele electron eta golden",  nbineta/2,0.0,etamax);
+  h_ele_eta_bbrem = new TH1F( "h_ele_eta_bbrem", "ele electron eta bbrem",  nbineta/2,0.0,etamax);
+  h_ele_eta_narrow = new TH1F( "h_ele_eta_narrow", "ele electron eta narrow",  nbineta/2,0.0,etamax);
+  h_ele_eta_shower = new TH1F( "h_ele_eta_show", "ele electron eta showering",  nbineta/2,0.0,etamax);
   h_ele_PinVsPoutGolden_mode = new TH2F( "h_ele_PinVsPoutGolden_mode",      "ele track inner p vs outer p vs eta, golden, mode" ,nbinp2D,0.,pmax,50,0.,pmax);
   h_ele_PinVsPoutShowering_mode = new TH2F( "h_ele_PinVsPoutShowering_mode",      "ele track inner p vs outer p vs eta, showering, mode" ,nbinp2D,0.,pmax,50,0.,pmax);
   h_ele_PinVsPoutGolden_mean = new TH2F( "h_ele_PinVsPoutGolden_mean",      "ele track inner p vs outer p vs eta, golden, mean" ,nbinp2D,0.,pmax,50,0.,pmax);
