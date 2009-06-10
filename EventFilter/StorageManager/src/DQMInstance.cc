@@ -18,6 +18,7 @@
 #include "sys/stat.h"
 #include "classlib/utils/Regexp.h"
 #include "boost/lexical_cast.hpp"
+#include <cstdio>
 
 // 15-Jul-2008, KAB: copied from DQMStore
 static const lat::Regexp s_rxmeval ("^<(.*)>(i|f|s|qr)=(.*)</\\1>$");

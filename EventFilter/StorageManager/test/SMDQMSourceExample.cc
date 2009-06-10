@@ -10,7 +10,7 @@
   file in DQMServices/Daemon/test, but modified to include another top level
   folder, to remove the 1 sec wait, and to do the fitting without printout.
 
-  $Id: SMDQMSourceExample.cc,v 1.12 2008/07/01 17:40:12 biery Exp $
+  $Id: SMDQMSourceExample.cc,v 1.13 2008/07/15 20:14:45 biery Exp $
 
 */
 
@@ -19,6 +19,7 @@
 #include <memory>
 #include <iostream>
 #include <math.h>
+#include <cstdio>
 
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
