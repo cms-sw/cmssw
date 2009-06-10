@@ -29,7 +29,9 @@ SiStripQualityChecker::SiStripQualityChecker(edm::ParameterSet const& ps):pSet_(
   edm::LogInfo("SiStripQualityChecker") << 
     " Creating SiStripQualityChecker " << "\n" ;
 
-  bookedStatus_ = false;
+  bookedStripStatus_ = false;
+  bookedTrackingStatus_ = false;
+
   SubDetFolderMap.insert(pair<string, string>("TIB",  "TIB"));
   SubDetFolderMap.insert(pair<string, string>("TOB",  "TOB"));
   SubDetFolderMap.insert(pair<string, string>("TECF", "TEC/side_2"));
@@ -60,72 +62,88 @@ SiStripQualityChecker::~SiStripQualityChecker() {
 //
 void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
 
-  if (!bookedStatus_) {
+  if (!bookedStripStatus_) {
     dqm_store->cd();
-    dqm_store->setCurrentFolder("SiStrip/EventInfo"); 
+    string mdir = "MechanicalView";
+    if (SiStripUtility::goToDir(dqm_store, mdir)) {
+      
+      string strip_dir = dqm_store->pwd(); 
+      strip_dir = strip_dir.substr(0, strip_dir.find(mdir)-1);
+      
+      dqm_store->setCurrentFolder(strip_dir+"/EventInfo"); 
+      
+      string hname, htitle;
+      hname  = "detFractionReportMap";
+      htitle = "SiStrip Report for Good Detector Fraction";
+      DetFractionReportMap  = dqm_store->book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);
+      DetFractionReportMap->setAxisTitle("Sub Detector Type", 1);
+      DetFractionReportMap->setAxisTitle("Layer/Disc Number", 2);
+      hname  = "sToNReportMap";
+      htitle = "SiStrip Report for Signal-to-Noise";
+      SToNReportMap         = dqm_store->book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);
+      SToNReportMap->setAxisTitle("Sub Detector Type", 1);
+      SToNReportMap->setAxisTitle("Layer/Disc Number", 2);
+      
+      hname  = "reportSummaryMap";
+      htitle = "SiStrip Report Summary Map";
+      SummaryReportMap      = dqm_store->book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);
+      SummaryReportMap->setAxisTitle("Sub Detector Type", 1);
+      SummaryReportMap->setAxisTitle("Layer/Disc Number", 2);
+      
+      SummaryReportGlobal = dqm_store->bookFloat("reportSummary");
+      int ibin = 0;
 
-    string hname, htitle;
-    hname  = "detFractionReportMap";
-    htitle = "SiStrip Report for Good Detector Fraction";
-    DetFractionReportMap  = dqm_store->book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);
-    DetFractionReportMap->setAxisTitle("Sub Detector Type", 1);
-    DetFractionReportMap->setAxisTitle("Layer/Disc Number", 2);
-    hname  = "sToNReportMap";
-    htitle = "SiStrip Report for Signal-to-Noise";
-    SToNReportMap         = dqm_store->book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);
-    SToNReportMap->setAxisTitle("Sub Detector Type", 1);
-    SToNReportMap->setAxisTitle("Layer/Disc Number", 2);
-
-    hname  = "reportSummaryMap";
-    htitle = "SiStrip Report Summary Map";
-    SummaryReportMap      = dqm_store->book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);
-    SummaryReportMap->setAxisTitle("Sub Detector Type", 1);
-    SummaryReportMap->setAxisTitle("Layer/Disc Number", 2);
-
-    SummaryReportGlobal = dqm_store->bookFloat("reportSummary");
-    int ibin = 0;
-    dqm_store->setCurrentFolder("SiStrip/EventInfo/reportSummaryContents");      
-    for (map<string, string>::const_iterator it = SubDetFolderMap.begin(); 
-	 it != SubDetFolderMap.end(); it++) {
-      ibin++;
-      string det = it->first;
-      DetFractionReportMap->setBinLabel(ibin,det);
-      SToNReportMap->setBinLabel(ibin,det);
-      SummaryReportMap->setBinLabel(ibin,det);
-
-      SubDetMEs local_mes;
-      string me_name;
-      dqm_store->setCurrentFolder("SiStrip/EventInfo/reportSummaryContents");
-      me_name = "SiStrip_" + det;
-      local_mes.SummaryFlag = dqm_store->bookFloat(me_name);
-
-      dqm_store->setCurrentFolder("SiStrip/EventInfo/reportSummaryContents");  
-      me_name = "SiStrip_DetFraction_" + det;
-     local_mes.DetFraction = dqm_store->bookFloat(me_name);
-
-
-      dqm_store->setCurrentFolder("SiStrip/EventInfo/reportSummaryContents");  
-      me_name = "SiStrip_SToNFlag_" + det;
-      local_mes.SToNFlag    = dqm_store->bookFloat(me_name);
-      SubDetMEsMap.insert(pair<string, SubDetMEs>(det, local_mes));
+      for (map<string, string>::const_iterator it = SubDetFolderMap.begin(); 
+	   it != SubDetFolderMap.end(); it++) {
+	ibin++;
+	string det = it->first;
+	DetFractionReportMap->setBinLabel(ibin,det);
+	SToNReportMap->setBinLabel(ibin,det);
+	SummaryReportMap->setBinLabel(ibin,det);
+	
+	dqm_store->setCurrentFolder(strip_dir+"/EventInfo/reportSummaryContents");      
+	
+	SubDetMEs local_mes;
+	
+	string me_name;
+	me_name = "SiStrip_" + det;
+	local_mes.SummaryFlag = dqm_store->bookFloat(me_name);
+	
+	me_name = "SiStrip_DetFraction_" + det;
+	local_mes.DetFraction = dqm_store->bookFloat(me_name);
+	
+	me_name = "SiStrip_SToNFlag_" + det;
+	local_mes.SToNFlag    = dqm_store->bookFloat(me_name);
+	SubDetMEsMap.insert(pair<string, SubDetMEs>(det, local_mes));
+      }
+      bookedStripStatus_ = true;
     }
-
+  }  
+  if (!bookedTrackingStatus_) {
     dqm_store->cd();
-    dqm_store->setCurrentFolder("Tracking/EventInfo"); 
-    TrackSummaryReportGlobal = dqm_store->bookFloat("reportSummary");
+    string tkpdir = "TrackParameters";
+    if (SiStripUtility::goToDir(dqm_store, tkpdir)) {
+      
+      string tk_dir = dqm_store->pwd();
+      tk_dir = tk_dir.substr(0, tk_dir.find(tkpdir)-1);
+      
+      
+      dqm_store->setCurrentFolder(tk_dir+"/EventInfo"); 
+      TrackSummaryReportGlobal = dqm_store->bookFloat("reportSummary");
 
-    dqm_store->setCurrentFolder("Tracking/EventInfo/reportSummaryContents");  
-    ReportTrackRate = dqm_store->bookFloat("TrackRate");     
+      dqm_store->setCurrentFolder(tk_dir+"/EventInfo/reportSummaryContents");  
+      ReportTrackRate = dqm_store->bookFloat("TrackRate");     
 
-    bookedStatus_ = true;
+      bookedTrackingStatus_ = true;
+    }
   }
 }
 //
 // -- Fill Dummy  Status
 //
 void SiStripQualityChecker::fillDummyStatus(){
-  if (bookedStatus_) {
-    resetStatus();  
+  if (bookedStripStatus_) {
+    resetStatus();
     for (map<string, SubDetMEs>::const_iterator it = SubDetMEsMap.begin(); 
 	 it != SubDetMEsMap.end(); it++) {
       SubDetMEs local_mes = it->second;
@@ -142,7 +160,8 @@ void SiStripQualityChecker::fillDummyStatus(){
       }
     }
     SummaryReportGlobal->Fill(-1.0);
-    
+  }
+  if (bookedTrackingStatus_) {  
     TrackSummaryReportGlobal->Fill(-1.0);
     ReportTrackRate->Fill(-1.0);
   }
@@ -151,10 +170,7 @@ void SiStripQualityChecker::fillDummyStatus(){
 // -- Reset Status
 //
 void SiStripQualityChecker::resetStatus() {
-  if (bookedStatus_) {
-    DetFractionReportMap->Reset();
-    SToNReportMap->Reset();
-    SummaryReportMap->Reset();
+  if (bookedStripStatus_) {
     for (map<string, SubDetMEs>::const_iterator it = SubDetMEsMap.begin(); 
 	 it != SubDetMEsMap.end(); it++) {
       SubDetMEs local_mes = it->second;
@@ -162,8 +178,14 @@ void SiStripQualityChecker::resetStatus() {
       local_mes.SToNFlag->Reset();
       local_mes.SummaryFlag->Reset();
     }
-    SummaryReportGlobal->Reset();
 
+    DetFractionReportMap->Reset();
+    SToNReportMap->Reset();
+    SummaryReportMap->Reset();
+
+    SummaryReportGlobal->Reset();
+  }
+  if (bookedTrackingStatus_) {  
     TrackSummaryReportGlobal->Reset();
     ReportTrackRate->Reset();
   }
@@ -172,9 +194,8 @@ void SiStripQualityChecker::resetStatus() {
 // -- Fill Status
 //
 void SiStripQualityChecker::fillStatus(DQMStore* dqm_store) {
-  if (bookedStatus_) bookStatus(dqm_store);
+  if (!bookedStripStatus_ || !bookedTrackingStatus_) bookStatus(dqm_store);
 
-  resetStatus(); 
   fillDummyStatus();
   fillDetectorStatus(dqm_store);
   fillTrackingStatus(dqm_store);
@@ -207,7 +228,7 @@ void SiStripQualityChecker::fillDetectorStatus(DQMStore* dqm_store) {
     global_flag += flag; 
   }
   global_flag = global_flag/xbin*1.0;
-  SummaryReportGlobal->Fill(global_flag);
+  if (SummaryReportGlobal) SummaryReportGlobal->Fill(global_flag);
   dqm_store->cd();
 }
 //
@@ -293,6 +314,8 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
 
   for (vector<string>::const_iterator ic = subDirVec.begin();
        ic != subDirVec.end(); ic++) {
+    string dname = (*ic);
+    if (dname.find("BadModuleList") != string::npos) continue;
     vector<MonitorElement*> meVec;
     ybin++;
     dqm_store->cd((*ic));
@@ -303,7 +326,7 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
     int ston_stat = 1;
 
 
-
+    
     if (status_flag == 1) getModuleStatus(dqm_store, ndet, errdet);
     else if (status_flag == 2) getModuleStatus(meVec, ndet, errdet);
 
@@ -457,12 +480,19 @@ const std::map<uint32_t,uint16_t> & SiStripQualityChecker::getBadModuleList(DQMS
 void SiStripQualityChecker::fillFaultyModuleStatus(DQMStore* dqm_store) {
   if (badModuleList.size() == 0) return;
   dqm_store->cd();
+  string mdir = "MechanicalView";
+  if (!SiStripUtility::goToDir(dqm_store, mdir)) return;
+  string mechanical_dir = dqm_store->pwd();
+
   SiStripFolderOrganizer folder_organizer;
   for (map<uint32_t,uint16_t>::const_iterator it =  badModuleList.begin() ; it != badModuleList.end(); it++) {
     uint32_t detId =  it->first;
-    string subdet_folder;
+    string subdet_folder ;
     folder_organizer.getSubDetFolder(detId,subdet_folder);
-    if (!dqm_store->dirExists(subdet_folder)) continue;
+    if (!dqm_store->dirExists(subdet_folder)) {
+      subdet_folder = mechanical_dir + subdet_folder.substr(subdet_folder.find("MechanicalView")+14);
+      if (!dqm_store->dirExists(subdet_folder)) continue;
+    }
     string bad_module_folder = subdet_folder + "/" + "BadModuleList";
     dqm_store->setCurrentFolder(bad_module_folder);
 
@@ -473,7 +503,7 @@ void SiStripQualityChecker::fillFaultyModuleStatus(DQMStore* dqm_store) {
     if (me) me->Reset();
     else me = dqm_store->bookInt(detid_str.str());
     me->Fill(it->second);
-    
+
   }
   dqm_store->cd();
 }

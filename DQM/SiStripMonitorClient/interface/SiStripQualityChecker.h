@@ -66,7 +66,9 @@ class SiStripQualityChecker {
   std::map<uint32_t,uint16_t> badModuleList;
  
   edm::ParameterSet pSet_;
-  bool bookedStatus_;
+
+  bool bookedStripStatus_;
+  bool bookedTrackingStatus_;
   int globalStatusFilling_;
 
   TkDetMap* tkDetMap_;
