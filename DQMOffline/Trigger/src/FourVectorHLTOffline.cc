@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.32 2009/04/15 22:39:13 berryhil Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.33 2009/06/04 22:28:48 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -253,7 +253,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   // electron Monitor
 	// ------------
-  objMon<reco::GsfElectronCollection> eleMon;
+  objMonData<reco::GsfElectronCollection> eleMon;
   eleMon.setReco(gsfElectrons);
   eleMon.setLimits(electronEtaMax_, electronEtMin_, electronDRMatch_);
   
@@ -266,7 +266,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   // muon Monitor
 	// ------------
-  objMon<reco::MuonCollection>  muoMon;
+  objMonData<reco::MuonCollection>  muoMon;
   muoMon.setReco(muonHandle);
   muoMon.setLimits(muonEtaMax_, muonEtMin_, muonDRMatch_);
   
@@ -277,7 +277,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	
   // tau Monitor
 	// ------------
-  objMon<reco::CaloTauCollection>  tauMon;
+  objMonData<reco::CaloTauCollection>  tauMon;
   tauMon.setReco(tauHandle);
   tauMon.setLimits(tauEtaMax_, tauEtMin_, tauDRMatch_);
   
@@ -289,7 +289,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	
   // photon Monitor
 	// ------------
-  objMon<reco::PhotonCollection> phoMon;
+  objMonData<reco::PhotonCollection> phoMon;
   phoMon.setReco(photonHandle);
   phoMon.setLimits(photonEtaMax_, photonEtMin_, photonDRMatch_);
   
@@ -300,7 +300,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   // jet Monitor - NOTICE: we use genJets for MC
 	// -------------------------------------------
-  objMon<reco::CaloJetCollection> jetMon;
+  objMonData<reco::CaloJetCollection> jetMon;
   jetMon.setReco(jetHandle);
   jetMon.setLimits(jetEtaMax_, jetEtMin_, jetDRMatch_);
 
@@ -314,8 +314,8 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   // bjet Monitor - NOTICE: we use genJets for MC
 	// -------------------------------------------
-  //objMon<reco::JetTagCollection> bjetMon;
-  objMon<reco::CaloJetCollection> bjetMon;
+  //objMonData<reco::JetTagCollection> bjetMon;
+  objMonData<reco::CaloJetCollection> bjetMon;
   //bjetMon.setReco(bTagIPHandle);
   bjetMon.setBJetsFlag(true);
 
@@ -1985,7 +1985,6 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       bjetMon.fillOnlineMatch(this, l1k, toc);
 
 
-			/*
   		eleMon.monitorOffline(this);
 
   		muoMon.monitorOffline(this);
@@ -1997,7 +1996,6 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   		jetMon.monitorOffline(this);
 
   		bjetMon.monitorOffline(this);
-			*/
 
 
   		eleMon.fillOffMatch(this);

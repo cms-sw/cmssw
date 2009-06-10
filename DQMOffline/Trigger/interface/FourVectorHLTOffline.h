@@ -5,7 +5,7 @@
 // Package:    FourVectorHLTOffline
 // Class:      FourVectorHLTOffline
 // 
-/**\class FourVectorHLTOffline FourVectorHLTOffline.cc DQM/FourVectorHLTOffline/src/FourVectorHLTOffline.cc
+/**\class FourVectorHLTOffline FourVectorHLTOffline.cc 
 
  Description: This is a DQM source meant to plot high-level HLT trigger
  quantities as stored in the HLT results object TriggerResults
@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.18 2009/03/27 03:13:58 berryhil Exp $
+// $Id: FourVectorHLTOffline.h,v 1.19 2009/06/04 22:28:47 rekovic Exp $
 //
 //
 
@@ -54,7 +54,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-//#include "HLTriggerOffline/Common/interface/FourVectorHLTOffline.h"
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
@@ -96,64 +95,6 @@
 #include <fstream>
 #include <vector>
 
-// $Id: FourVectorHLTOffline.h,v 1.12 2009/06/03 23:38:10 rekovic Exp $
-// See header file for information. 
-/*
-#include "TMath.h"
-
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-*/
-
-/*
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/TauReco/interface/CaloTauFwd.h"
-#include "DataFormats/TauReco/interface/CaloTau.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
-*/
-/*
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
-*/
-/*
-#include "DataFormats/METReco/interface/GenMETCollection.h"
-*/
-/*
-#include "DataFormats/METReco/interface/GenMET.h"
-*/
-
-/*
-#include "DataFormats/Math/interface/deltaR.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-
-#include <map>
-#include <utility>
-*/
 
 using namespace std;
 using namespace edm;
@@ -712,9 +653,9 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 };
 
 template <class T> 
-class objMon {
+class objMonData {
 public:
-    objMon() { EtaMax_= 2.5; EtMin_=3.0; GenJetsFlag_ = false; BJetsFlag_ = false; }
+    objMonData() { EtaMax_= 2.5; EtMin_=3.0; GenJetsFlag_ = false; BJetsFlag_ = false; }
 		void setLimits(float etaMax, float etMin, float drMatch) 
 		{
 		 EtaMax_= etaMax; 
@@ -752,7 +693,7 @@ public:
 		}
 
 		void monitorOnline(const Vids & idtype, const Keys & l1k, Keys::const_iterator ki, const TriggerObjectCollection & toc, int & NOn);
-    //void monitorOffline(FourVectorHLTOffline* fv);
+    void monitorOffline(FourVectorHLTOffline* fv);
 		void fillOnOffMatch(FourVectorHLTOffline* fv);
 		//void fillOnMCMatch(FourVectorHLTOffline* fv);
 		void fillOnL1Match(FourVectorHLTOffline* fv, const Keys & l1k,  const TriggerObjectCollection & toc);
@@ -822,7 +763,7 @@ private:
 };
 
 template <class T> 
-bool objMon<T>::isTriggerType(int t)
+bool objMonData<T>::isTriggerType(int t)
 {
   bool rc = false;
 
@@ -840,7 +781,7 @@ bool objMon<T>::isTriggerType(int t)
 
 
 template <class T> 
-bool objMon<T>::isL1TriggerType(int t)
+bool objMonData<T>::isL1TriggerType(int t)
 {
   bool rc = false;
 
@@ -856,7 +797,7 @@ bool objMon<T>::isL1TriggerType(int t)
 }
 
 template <class T> 
-void objMon<T>::monitorDenominator(FourVectorHLTOffline::PathInfoCollection::iterator v, bool l1accept, const Vids & idtype, const Keys & l1k, const TriggerObjectCollection& toc)
+void objMonData<T>::monitorDenominator(FourVectorHLTOffline::PathInfoCollection::iterator v, bool l1accept, const Vids & idtype, const Keys & l1k, const TriggerObjectCollection& toc)
 {
         //LogTrace("FourVectorHLTOffline") << " monitorDenominator()  "  << endl;
 
@@ -878,7 +819,7 @@ void objMon<T>::monitorDenominator(FourVectorHLTOffline::PathInfoCollection::ite
 }
 
 template <class T> 
-void objMon<T>::fillOff()
+void objMonData<T>::fillOff()
 {
 
  int NOff = 0;
@@ -907,7 +848,7 @@ void objMon<T>::fillOff()
 
 /*
 template <class T> 
-void objMon<T>::fillMC()
+void objMonData<T>::fillMC()
 {
 
  if(GenJetsFlag_)
@@ -964,7 +905,7 @@ void objMon<T>::fillMC()
 */
 
 template <class T> 
-void objMon<T>::monitorL1(const Vids & idtype, const Keys & l1k, const TriggerObjectCollection& toc)
+void objMonData<T>::monitorL1(const Vids & idtype, const Keys & l1k, const TriggerObjectCollection& toc)
 {
 
  int NL1=0;
@@ -1131,7 +1072,7 @@ void objMon<T>::monitorL1(const Vids & idtype, const Keys & l1k, const TriggerOb
 }
 
 template <class T> 
-void objMon<T>::monitorOnline(const Vids & idtype, const Keys & l1k, Keys::const_iterator ki, const TriggerObjectCollection & toc, int & NOn)
+void objMonData<T>::monitorOnline(const Vids & idtype, const Keys & l1k, Keys::const_iterator ki, const TriggerObjectCollection & toc, int & NOn)
 {
 
 		 if(! isTriggerType(v_->getObjectType()) ) return;
@@ -1342,13 +1283,13 @@ void objMon<T>::monitorOnline(const Vids & idtype, const Keys & l1k, Keys::const
 
 }
 
-/*
 template <class T> 
-void objMon<T>::monitorOffline(FourVectorHLTOffline* fv)
+void objMonData<T>::monitorOffline(FourVectorHLTOffline* fv)
 {
 
  if(! isTriggerType(v_->getObjectType()) ) return;
 
+/*
  int numNOff = 0;
  if(! offColl_.isValid()) return;
 
@@ -1445,12 +1386,12 @@ void objMon<T>::monitorOffline(FourVectorHLTOffline* fv)
           } // end if genParticle_
 
  } // end for offline objects
-
-}
 */
 
+}
+
 template <class T> 
-void objMon<T>::fillL1OffMatch(FourVectorHLTOffline* fv)
+void objMonData<T>::fillL1OffMatch(FourVectorHLTOffline* fv)
 {
 
  if(! offColl_.isValid()) return;
@@ -1487,7 +1428,7 @@ void objMon<T>::fillL1OffMatch(FourVectorHLTOffline* fv)
 
 /*
 template <class T> 
-void objMon<T>::fillL1MCMatch(FourVectorHLTOffline* fv)
+void objMonData<T>::fillL1MCMatch(FourVectorHLTOffline* fv)
 {
 
   if(GenJetsFlag_)
@@ -1557,7 +1498,7 @@ void objMon<T>::fillL1MCMatch(FourVectorHLTOffline* fv)
 */
 
 template <class T> 
-void objMon<T>::fillOnOffMatch(FourVectorHLTOffline* fv)
+void objMonData<T>::fillOnOffMatch(FourVectorHLTOffline* fv)
 {
 
  if(! offColl_.isValid()) return;
@@ -1594,7 +1535,7 @@ void objMon<T>::fillOnOffMatch(FourVectorHLTOffline* fv)
 
 /*
 template <class T> 
-void objMon<T>::fillOnMCMatch(FourVectorHLTOffline* fv)
+void objMonData<T>::fillOnMCMatch(FourVectorHLTOffline* fv)
 {
   if(GenJetsFlag_)
   {
@@ -1662,7 +1603,7 @@ void objMon<T>::fillOnMCMatch(FourVectorHLTOffline* fv)
 
 /*
 template <class T> 
-void objMon<T>::fillOffMCMatch(FourVectorHLTOffline* fv)
+void objMonData<T>::fillOffMCMatch(FourVectorHLTOffline* fv)
 {
 
   if(GenJetsFlag_)
@@ -1732,7 +1673,7 @@ void objMon<T>::fillOffMCMatch(FourVectorHLTOffline* fv)
 */
 
 template <class T> 
-void objMon<T>::fillOnL1Match(FourVectorHLTOffline* fv, const Keys & l1k,  const TriggerObjectCollection & toc)
+void objMonData<T>::fillOnL1Match(FourVectorHLTOffline* fv, const Keys & l1k,  const TriggerObjectCollection & toc)
 {
 
 	// clean the set On-L1
@@ -1764,7 +1705,7 @@ void objMon<T>::fillOnL1Match(FourVectorHLTOffline* fv, const Keys & l1k,  const
 
 /*
 template <class T> 
-bool objMon<T>::hasBPartonInCone(GenJetCollection::const_iterator gjet, float coneSize)
+bool objMonData<T>::hasBPartonInCone(GenJetCollection::const_iterator gjet, float coneSize)
 {
 
   bool rc = false;
@@ -1792,7 +1733,7 @@ bool objMon<T>::hasBPartonInCone(GenJetCollection::const_iterator gjet, float co
 */
 
 template <class T> 
-void objMon<T>::clearSets()
+void objMonData<T>::clearSets()
 {
 
      L1OffDRMatchSet.clear();
