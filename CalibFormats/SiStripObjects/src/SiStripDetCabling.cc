@@ -3,10 +3,16 @@
 // Class  :     SiStripDetCabling
 // Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripDetCabling.cc,v 1.17 2008/11/28 14:17:43 bainbrid Exp $
+// $Id: SiStripDetCabling.cc,v 1.18 2008/12/02 16:15:19 giordano Exp $
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+
 using namespace std;
 
 //---- default constructor / destructor
@@ -46,7 +52,7 @@ SiStripDetCabling::SiStripDetCabling(const SiStripFedCabling& fedcabling) : full
       if(vector_of_connected_apvs.size() != 0){ // add only is smth. there, obviously
         map<uint32_t, vector<int> > map_of_connected_apvs;
         map_of_connected_apvs.insert(std::make_pair(iconn->detId(),vector_of_connected_apvs));
-        addFromSpecificConnection(connected_, map_of_connected_apvs);
+        addFromSpecificConnection(connected_, map_of_connected_apvs, 0);
       }
     }
   }
@@ -64,7 +70,7 @@ SiStripDetCabling::SiStripDetCabling(const SiStripFedCabling& fedcabling) : full
     if(vector_of_detected_apvs.size() != 0){ // add only is smth. there, obviously
       map<uint32_t,vector<int> > map_of_detected_apvs;
       map_of_detected_apvs.insert(std::make_pair(idtct->detId(),vector_of_detected_apvs));
-      addFromSpecificConnection(detected_, map_of_detected_apvs);
+      addFromSpecificConnection(detected_, map_of_detected_apvs, 1);
     }
   }
   // --- UNDETECTED = have neither fedid nor i2caddr
@@ -81,7 +87,7 @@ SiStripDetCabling::SiStripDetCabling(const SiStripFedCabling& fedcabling) : full
     if(vector_of_undetected_apvs.size() != 0){ // add only is smth. there, obviously
       map<uint32_t, vector<int> > map_of_undetected_apvs;
       map_of_undetected_apvs.insert(std::make_pair(iudtct->detId(),vector_of_undetected_apvs));
-      addFromSpecificConnection(undetected_, map_of_undetected_apvs);
+      addFromSpecificConnection(undetected_, map_of_undetected_apvs, 2);
     }
   }
 }
@@ -202,7 +208,9 @@ void SiStripDetCabling::addNotConnectedAPVs( std::map<uint32_t, std::vector<int>
 }
 
 //----
-void SiStripDetCabling::addFromSpecificConnection( std::map<uint32_t, std::vector<int> > & map_to_add_to, const std::map< uint32_t, vector<int> > & specific_connection) const{
+void SiStripDetCabling::addFromSpecificConnection( std::map<uint32_t, std::vector<int> > & map_to_add_to,
+                                                   const std::map< uint32_t, vector<int> > & specific_connection,
+                                                   const int connectionType ) const {
   for(map< uint32_t, vector<int> >::const_iterator conn_it = specific_connection.begin(); conn_it!=specific_connection.end(); conn_it++){
     uint32_t new_detid = conn_it->first;
     vector<int> new_apv_vector = conn_it->second;
@@ -221,14 +229,51 @@ void SiStripDetCabling::addFromSpecificConnection( std::map<uint32_t, std::vecto
 	  }
         }
         if( ! there_already ){
-          existing_apv_vector.push_back(*inew);   
+          existing_apv_vector.push_back(*inew);
           std::sort(existing_apv_vector.begin(),existing_apv_vector.end()); // not very efficient sort, time consuming?
         }else{
           //edm::LogWarning("Logical") << "apv "<<*inew<<" already exists in the detector module "<<new_detid;
         }
       }
     }
+    // Count the number of detIds per layer
+    // ATTENTION: consider changeing the loop content to avoid this if
+    if( connectionType != -1 ) {
+      connectionCount[connectionType][layerSearch(new_detid)]++;
+    }
   }
+}
+
+int16_t SiStripDetCabling::layerSearch( const uint32_t detId ) const
+{
+  if(SiStripDetId(detId).subDetector()==SiStripDetId::TIB){
+    TIBDetId D(detId);
+    return D.layerNumber();
+  } else if (SiStripDetId(detId).subDetector()==SiStripDetId::TID){
+    TIDDetId D(detId);
+    return 10+(D.side() -1)*3 + D.wheel();
+  } else if (SiStripDetId(detId).subDetector()==SiStripDetId::TOB){
+    TOBDetId D(detId);
+    return 100+D.layerNumber();
+  } else if (SiStripDetId(detId).subDetector()==SiStripDetId::TEC){
+    TECDetId D(detId);
+    return 1000+(D.side() -1)*9 + D.wheel();
+  }
+  return 0;
+}
+
+/// Return the number of modules for the specified subDet, layer and connectionType.
+uint32_t SiStripDetCabling::detNumber(const string & subDet, const uint16_t layer, const int connectionType) const {
+  uint16_t subDetLayer = layer;
+  // TIB = 1, TID = 2, TOB = 3, TEC = 4
+  if( subDet == "TID" ) subDetLayer += 10;
+  else if( subDet == "TOB" ) subDetLayer += 100;
+  else if( subDet == "TEC" ) subDetLayer += 1000;
+  else if( subDet != "TIB" ) {
+    LogDebug("SiStripDetCabling") << "Error: Wrong subDet. Please use one of TIB, TID, TOB, TEC." << endl;
+    return 0;
+  }
+  return connectionCount[connectionType][subDetLayer];
 }
 
 //---- map of all connected, detected, undetected to contiguous Ids - map reset first!
@@ -295,4 +340,37 @@ void SiStripDetCabling::print( std::stringstream& ss ) const {
   }
   ss << "Number of connected:   " << valid << std::endl
      << "Number of connections: " << total << std::endl;
+}
+
+void SiStripDetCabling::printSummary(std::stringstream& ss) const {
+  for( int connectionType = 0; connectionType < 3; ++connectionType ) {
+    if( connectionType == 0 ) ss << "Connected modules:" << std::endl;
+    else if( connectionType == 1 ) ss << "Detected modules:" << std::endl;
+    else ss << "Undetected modules:" << std::endl;
+    ss << "SubDet and layer\t modules" << std::endl;
+    std::map< int16_t, uint32_t >::const_iterator iter = connectionCount[connectionType].begin();
+    for( ; iter != connectionCount[connectionType].end(); ++iter ) {
+      uint32_t subDetLayer = iter->first;
+      uint32_t modules = iter->second;
+      if( int(subDetLayer/10) == 0 ) {
+        ss << "TIB \t layer " << subDetLayer << " \t" << modules << std::endl;
+      }
+      else if( int(subDetLayer/100) == 0 ) {
+        int layer = subDetLayer%10;
+        ss << "TID \t layer " << layer << "\t" << modules << std::endl;
+      }
+      else if( int(subDetLayer/1000) == 0 ) {
+        int layer = subDetLayer%100;
+        ss << "TOB \t layer " << layer << " \t" << modules << std::endl;
+      }
+      else {
+        int layer = subDetLayer%100;
+        ss << "TEC \t layer " << layer << " \t" << modules << std::endl;
+      }
+    }
+  }
+}
+
+void SiStripDetCabling::printDebug(std::stringstream& ss) const {
+  print(ss);
 }
