@@ -8,6 +8,8 @@ higgsToTauTauLeptonTauFilter = cms.EDFilter("HiggsToTauTauLeptonTauSkim",
     HLTFilterCollections = cms.vstring('hltSingleMuIsoL3IsoFiltered15',
 	                               'hltSingleMuNoIsoL3PreFiltered11',
                                        'hltL1IsoSingleElectronTrackIsolFilter'),
+    HLTElectronBits =  cms.vstring('HLT_IsoEle15_L1I'),
+    HLTMuonBits =  cms.vstring('HLT_Mu15','HLT_IsoMu11'),     
     minDRFromLepton = cms.double(0.5),
     jetEtaMin = cms.double(-2.6),
     jetEtaMax = cms.double(2.6),
@@ -18,5 +20,3 @@ higgsToTauTauLeptonTauFilter = cms.EDFilter("HiggsToTauTauLeptonTauSkim",
     ElectronTagCollection = cms.InputTag("pixelMatchGsfElectrons"),
     ElectronIdTagCollection = cms.InputTag("eidRobustTight") 
 )
-
-

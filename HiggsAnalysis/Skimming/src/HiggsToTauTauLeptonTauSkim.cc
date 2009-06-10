@@ -51,6 +51,8 @@ HiggsToTauTauLeptonTauSkim::HiggsToTauTauLeptonTauSkim(const edm::ParameterSet& 
 	debug            = iConfig.getParameter<bool>("DebugHiggsToTauTauLeptonTauSkim");
         hltResultsLabel  = iConfig.getParameter<InputTag>("HLTResultsCollection");
         hltEventLabel    = iConfig.getParameter<InputTag>("HLTEventCollection");
+        hltElectronBits  = iConfig.getParameter<std::vector<std::string> >("HLTElectronBits");
+        hltMuonBits      = iConfig.getParameter<std::vector<std::string> >("HLTMuonBits");
         hltFilterLabels  = iConfig.getParameter<std::vector<std::string> >("HLTFilterCollections");
 	jetLabel         = iConfig.getParameter<InputTag>("JetTagCollection");
 	electronLabel    = iConfig.getParameter<InputTag>("ElectronTagCollection");
@@ -68,8 +70,8 @@ HiggsToTauTauLeptonTauSkim::HiggsToTauTauLeptonTauSkim(const edm::ParameterSet& 
 
 
 HiggsToTauTauLeptonTauSkim::~HiggsToTauTauLeptonTauSkim(){
-  edm::LogVerbatim("HiggsToTauTauLeptonTauSkim") 
-  //std::cout 
+  //edm::LogVerbatim("HiggsToTauTauLeptonTauSkim") 
+  std::cout 
   << " Number_events_read " << nEvents
   << " Number_events_kept " << nSelectedEvents
   << " Efficiency         " << ((double)nSelectedEvents)/((double) nEvents + 0.01) << std::endl;
@@ -154,35 +156,37 @@ bool HiggsToTauTauLeptonTauSkim::filter(edm::Event& iEvent, const edm::EventSetu
 
   edm::Handle<edm::TriggerResults> HLTResults;
   iEvent.getByLabel(hltResultsLabel,HLTResults);
-  
-  //MUON TRIGGER SPECIFIC
-  //if (HLTResults.isValid()) {
-  //  edm::TriggerNames triggerNames;
-  //  triggerNames.init(*HLTResults);
-  //  for (unsigned int iHLT = 0; iHLT < HLTResults->size(); iHLT++) {
-  //	if(triggerNames.triggerName(iHLT)=="HLT_Mu15" ||
-  //	   triggerNames.triggerName(iHLT) =="HLT_IsoMu11") 
-  //	std::cout << "TRIGGER " << triggerNames.triggerName(iHLT) << " " << HLTResults->accept(iHLT) << std::endl;
-  //  }
-  //}
-  
-  //ELECTRON SPECIFIC
+
   //VERIFY HLT BITS
   bool ElectronTrigger = false;
-  int nElectrons = 0;
+  bool MuonTrigger = false;
   
   if (HLTResults.isValid()) {
     edm::TriggerNames triggerNames;
     triggerNames.init(*HLTResults);
     for (unsigned int iHLT = 0; iHLT < HLTResults->size(); iHLT++) {
-      if(triggerNames.triggerName(iHLT) == "HLT_IsoEle15_L1I" ) {
-	//std::cout << "TRIGGER " << triggerNames.triggerName(iHLT) << " " << HLTResults->accept(iHLT) << std::endl;
-	ElectronTrigger = true;
+      
+      for (std::vector<std::string>::const_iterator iLEl = hltElectronBits.begin(); iLEl != hltElectronBits.end(); ++iLEl) {
+	std::string filterElectronBit = (*iLEl);
+	if(triggerNames.triggerName(iHLT) == filterElectronBit ) {
+	  if ( HLTResults->accept(iHLT) ) ElectronTrigger = true;
+	}
+      }
+      
+      for (std::vector<std::string>::const_iterator iLMu = hltMuonBits.begin(); iLMu != hltMuonBits.end(); ++iLMu) {
+	std::string filterMuonBit = (*iLMu);
+	if(triggerNames.triggerName(iHLT) == filterMuonBit ) {
+	  if ( HLTResults->accept(iHLT) ) MuonTrigger = true;
+	}
       }
     }
   }
-  
-  if(ElectronTrigger) {
+
+  //ELECTRON SPECIFIC  
+
+  int nElectrons = 0;
+
+  if(ElectronTrigger && !MuonTrigger) {
     Handle<GsfElectronCollection> electronHandle;	
     iEvent.getByLabel(electronLabel,electronHandle);
 
@@ -204,7 +208,7 @@ bool HiggsToTauTauLeptonTauSkim::filter(edm::Event& iEvent, const edm::EventSetu
   }
   
   
-  if(ElectronTrigger) {
+  if(ElectronTrigger && !MuonTrigger) {
     if(nElectrons >=   minNumberOfelectrons && nJets >= minNumberOfjets) {
       accepted = true;
       nSelectedEvents++;
@@ -216,8 +220,6 @@ bool HiggsToTauTauLeptonTauSkim::filter(edm::Event& iEvent, const edm::EventSetu
       nSelectedEvents++;
     }	
   }
-  
-  
   
   return accepted;
 }

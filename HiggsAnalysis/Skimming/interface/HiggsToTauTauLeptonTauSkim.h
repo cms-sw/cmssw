@@ -61,6 +61,8 @@ class HiggsToTauTauLeptonTauSkim : public edm::EDFilter {
 	bool 		debug;
         InputTag        hltResultsLabel;
         InputTag        hltEventLabel;
+        std::vector<std::string>  hltElectronBits;
+        std::vector<std::string>  hltMuonBits;
         std::vector<std::string>  hltFilterLabels;
 	InputTag	jetLabel;
 	InputTag	electronLabel;
