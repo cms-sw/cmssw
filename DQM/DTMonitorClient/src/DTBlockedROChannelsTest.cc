@@ -2,8 +2,8 @@
 /*
  * \file DTBlockedROChannelsTest.cc
  * 
- * $Date: 2009/06/10 10:33:46 $
- * $Revision: 1.2 $
+ * $Date: 2009/06/10 10:53:26 $
+ * $Revision: 1.3 $
  * \author G. Cerminara - University and INFN Torino
  *
  */
@@ -163,10 +163,10 @@ void DTBlockedROChannelsTest::endLuminosityBlock(LuminosityBlock const& lumiSeg,
     DTChamberId chId = (*chAndRobs).first;
     double scale = 1.;
     int sectorForPlot = chId.sector();
-    if(sectorForPlot == 13 || sectorForPlot == 4) {
+    if(sectorForPlot == 13 || (sectorForPlot == 4 && chId.station() ==4)) {
       sectorForPlot = 4;
       scale = 0.5;
-    } else if(sectorForPlot == 14 || sectorForPlot == 10) {
+    } else if(sectorForPlot == 14 || (sectorForPlot == 10 && chId.station() ==4)) {
       sectorForPlot = 10;
       scale = 0.5;
     }
