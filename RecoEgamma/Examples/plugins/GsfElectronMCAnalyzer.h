@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.h,v 1.9 2009/03/28 22:29:09 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.h,v 1.10 2009/06/10 15:22:00 charlot Exp $
 //
 //
 
@@ -150,10 +150,6 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH1F *histSclE2x5max_eg_;
   TH1F *histSclE5x5_eg_ ;
 
-  TH1F *h_ctf_foundHits;
-  TH2F *h_ctf_foundHitsVsEta;
-  TH2F *h_ctf_lostHitsVsEta;
-
   TH1F *h_ele_ambiguousTracks;
   TH2F *h_ele_ambiguousTracksVsEta;
   TH2F *h_ele_ambiguousTracksVsPhi;
@@ -177,11 +173,11 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH2F *h_ele_PoPtrueVsPt;
   TH1F *h_ele_PoPtrue_barrel;
   TH1F *h_ele_PoPtrue_endcaps;
+  TH1F *h_ele_ChargeMnChargeTrue;
   TH1F *h_ele_EtaMnEtaTrue;
   TH2F *h_ele_EtaMnEtaTrueVsEta;
   TH2F *h_ele_EtaMnEtaTrueVsPhi;
   TH2F *h_ele_EtaMnEtaTrueVsPt;
-  TH1F *h_ele_ChargeMnChargeTrue;
   TH1F *h_ele_PhiMnPhiTrue;
   TH1F *h_ele_PhiMnPhiTrue2;
   TH2F *h_ele_PhiMnPhiTrueVsEta;

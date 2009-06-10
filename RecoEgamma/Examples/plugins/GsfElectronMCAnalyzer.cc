@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.20 2009/05/27 09:37:51 fabiocos Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.21 2009/06/10 15:22:00 charlot Exp $
 //
 //
 
@@ -336,14 +336,14 @@ void GsfElectronMCAnalyzer::beginJob(){
   histSclEoEtrueShowering_endcaps = new TH1F("h_scl_EoEtrue showering, endcaps","ele supercluster energy / gen energy, showering, endcaps",100,0.2,1.2);
     
   // isolation  
-  h_ele_tkSumPt_dr03 = new TH1F("h_ele_tkSumPt_dr03","tk isolation deposit, dR=0.3",100,0.0,20.);
-  h_ele_ecalRecHitSumEt_dr03= new TH1F("h_ele_ecalRecHitSumEt_dr03","ecal isolation deposit, dR=0.3",100,0.0,20.);
-  h_ele_hcalDepth1TowerSumEt_dr03= new TH1F("h_ele_hcalDepth1TowerSumEt_dr03","hcal depth1 isolation deposit, dR=0.3",100,0.0,20.);
-  h_ele_hcalDepth2TowerSumEt_dr03= new TH1F("h_ele_hcalDepth2TowerSumEt_dr03","hcal depth2 isolation deposit, dR=0.3",100,0.0,20.);
-  h_ele_tkSumPt_dr04= new TH1F("h_ele_tkSumPt_dr04","tk isolation deposit, dR=0.4",100,0.0,20.);
-  h_ele_ecalRecHitSumEt_dr04= new TH1F("h_ele_ecalRecHitSumEt_dr04","ecal isolation deposit, dR=0.4",100,0.0,20.);
-  h_ele_hcalDepth1TowerSumEt_dr04= new TH1F("h_ele_hcalDepth1TowerSumEt_dr04","hcal depth1 isolation deposit, dR=0.4",100,0.0,20.);
-  h_ele_hcalDepth2TowerSumEt_dr04= new TH1F("h_ele_hcalDepth2TowerSumEt_dr04","hcal depth2 isolation deposit, dR=0.4",100,0.0,20.);
+  h_ele_tkSumPt_dr03 = new TH1F("h_ele_tkSumPt_dr03","tk isolation sum, dR=0.3",100,0.0,20.);
+  h_ele_ecalRecHitSumEt_dr03= new TH1F("h_ele_ecalRecHitSumEt_dr03","ecal isolation sum, dR=0.3",100,0.0,20.);
+  h_ele_hcalDepth1TowerSumEt_dr03= new TH1F("h_ele_hcalDepth1TowerSumEt_dr03","hcal depth1 isolation sum, dR=0.3",100,0.0,20.);
+  h_ele_hcalDepth2TowerSumEt_dr03= new TH1F("h_ele_hcalDepth2TowerSumEt_dr03","hcal depth2 isolation sum, dR=0.3",100,0.0,20.);
+  h_ele_tkSumPt_dr04= new TH1F("h_ele_tkSumPt_dr04","tk isolation sum, dR=0.4",100,0.0,20.);
+  h_ele_ecalRecHitSumEt_dr04= new TH1F("h_ele_ecalRecHitSumEt_dr04","ecal isolation sum, dR=0.4",100,0.0,20.);
+  h_ele_hcalDepth1TowerSumEt_dr04= new TH1F("h_ele_hcalDepth1TowerSumEt_dr04","hcal depth1 isolation sum, dR=0.4",100,0.0,20.);
+  h_ele_hcalDepth2TowerSumEt_dr04= new TH1F("h_ele_hcalDepth2TowerSumEt_dr04","hcal depth2 isolation sum, dR=0.4",100,0.0,20.);
   
   // fbrem
   h_ele_fbrem = new TH1F( "h_ele_fbrem","ele brem fraction, mode",50,0.,1.);
