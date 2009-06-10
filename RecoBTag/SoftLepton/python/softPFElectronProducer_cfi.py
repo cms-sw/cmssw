@@ -4,5 +4,5 @@ from RecoBTag.SoftLepton.softPFElectronCleaner_cfi import *
 softPFElectrons = cms.EDProducer("SoftPFElectronProducer",
   looseSoftPFElectronCleanerBarrelCuts,
   looseSoftPFElectronCleanerForwardCuts,
-  PFElectrons = cms.InputTag("particleFlow", "electrons")
+  Electrons = cms.InputTag("gsfElectrons")
 )

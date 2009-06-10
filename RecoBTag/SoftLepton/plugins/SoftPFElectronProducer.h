@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 // SoftPFElectronProducer:  the SoftPFElectronProducer takes
 // a PFCandidateCollection as input and produces a RefVector
@@ -25,10 +25,9 @@ class SoftPFElectronProducer : public edm::EDProducer
   private:
 
     virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
-    bool isClean(const reco::PFCandidate& pfcandidate);
-    void findSeedClusterEnergy(const reco::PFCandidate& pfcandidate, double& energy);
+    bool isClean(const reco::GsfElectron& gsfcandidate);
 
-    edm::InputTag pfElectronTag_;
+    edm::InputTag gsfElectronTag_;
 
     std::vector<double> barrelPtCuts_;
     std::vector<double> barreldRGsfTrackElectronCuts_;

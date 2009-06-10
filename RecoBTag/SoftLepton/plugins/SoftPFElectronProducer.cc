@@ -1,17 +1,10 @@
 #include "RecoBTag/SoftLepton/plugins/SoftPFElectronProducer.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -19,7 +12,7 @@
 
 SoftPFElectronProducer::SoftPFElectronProducer (const edm::ParameterSet& conf)
 {
-    pfElectronTag_ = conf.getParameter<edm::InputTag>("PFElectrons");
+    gsfElectronTag_ = conf.getParameter<edm::InputTag>("Electrons");
 
     std::vector<double> dummy;
     dummy.push_back(-9999.0);
@@ -40,7 +33,7 @@ SoftPFElectronProducer::SoftPFElectronProducer (const edm::ParameterSet& conf)
     forwardZFirstHitCuts_            = conf.getUntrackedParameter<std::vector<double> >("ForwardZFirstHitCuts", dummy);
     forwardMVACuts_                  = conf.getUntrackedParameter<std::vector<double> >("ForwardMVACuts", dummy);
 
-    produces<reco::PFCandidateCollection>();
+    produces<reco::GsfElectronCollection>();
 }
 
 SoftPFElectronProducer::~SoftPFElectronProducer()
@@ -50,41 +43,39 @@ SoftPFElectronProducer::~SoftPFElectronProducer()
 
 void SoftPFElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::auto_ptr<reco::PFCandidateCollection> output(new reco::PFCandidateCollection);
+  std::auto_ptr<reco::GsfElectronCollection> output(new reco::GsfElectronCollection);
 
-  edm::Handle<reco::PFCandidateCollection> pfCandidates;
-  iEvent.getByLabel(pfElectronTag_, pfCandidates); 
-  if(!pfCandidates.isValid())
-    throw edm::Exception(edm::errors::NotFound) << "PFCandidates with InputTag" << pfElectronTag_ << " not found!";
+  edm::Handle<reco::GsfElectronCollection> gsfCandidates;
+  iEvent.getByLabel(gsfElectronTag_, gsfCandidates); 
+  if(!gsfCandidates.isValid())
+    throw edm::Exception(edm::errors::NotFound) << "PFCandidates with InputTag" << gsfElectronTag_ << " not found!";
 
-  reco::PFCandidateCollection pfCollection = (*(pfCandidates.product()));
+  reco::GsfElectronCollection gsfCollection = (*(gsfCandidates.product()));
 
-  for(unsigned int i = 0 ; i != pfCollection.size(); ++i)
+  for(unsigned int i = 0 ; i != gsfCollection.size(); ++i)
   {
-    if(!isClean(pfCollection[i]))
+    if(!isClean(gsfCollection[i]))
       continue;
 
-    output->push_back(pfCollection[i]);
+    output->push_back(gsfCollection[i]);
   }
 
   iEvent.put(output);
 }
 
-bool SoftPFElectronProducer::isClean(const reco::PFCandidate& pfcandidate)
+bool SoftPFElectronProducer::isClean(const reco::GsfElectron& gsfcandidate)
 {
-  if(pfcandidate.particleId() != reco::PFCandidate::e) return false;
-
-  const double ecalEnergy            = pfcandidate.ecalEnergy();
-  const double pIn                   = pfcandidate.gsfTrackRef()->innerMomentum().R();
-  const double pOut                  = pfcandidate.gsfTrackRef()->outerMomentum().R();
+  const double ecalEnergy            = gsfcandidate.superCluster()->energy();
+  const double pIn                   = gsfcandidate.gsfTrack()->innerMomentum().R();
+  const double pOut                  = gsfcandidate.gsfTrack()->outerMomentum().R();
   const double EemPinRatio           = (ecalEnergy - pIn)/(ecalEnergy + pIn);
   //const double EemPoutRatio          = (ecalEnergy - pOut)/(ecalEnergy + pOut);
-  const double pt                    = pfcandidate.pt();
+  const double pt                    = gsfcandidate.pt();
   const double fbrem                 = (pIn - pOut)/pIn;
-  const double dRGsfTrackElectron    = deltaR(pfcandidate.gsfTrackRef()->eta(), pfcandidate.gsfTrackRef()->phi(), pfcandidate.eta(), pfcandidate.phi());
-  const double mva                   = pfcandidate.mva_e_pi();
-  const math::XYZPoint firstHit      = pfcandidate.gsfTrackRef()->innerPosition();
-  const math::XYZPoint lastHit       = pfcandidate.gsfTrackRef()->outerPosition();
+  const double dRGsfTrackElectron    = deltaR(gsfcandidate.gsfTrack()->eta(), gsfcandidate.gsfTrack()->phi(), gsfcandidate.eta(), gsfcandidate.phi());
+  const double mva                   = gsfcandidate.mva();
+  const math::XYZPoint firstHit      = gsfcandidate.gsfTrack()->innerPosition();
+  const math::XYZPoint lastHit       = gsfcandidate.gsfTrack()->outerPosition();
   const double inversedRFirstLastHit = 1.0/deltaR(firstHit.eta(), firstHit.phi(), lastHit.eta(), lastHit.phi());
   const double radiusFirstHit        = firstHit.Rho();
   const double zFirstHit             = firstHit.Z();
@@ -93,7 +84,7 @@ bool SoftPFElectronProducer::isClean(const reco::PFCandidate& pfcandidate)
                                     << dRGsfTrackElectron << " "
                                     << EemPoutRatio << " "
                                     << mva << std::endl;*/
-  if(fabs(pfcandidate.eta()) < 1.5)
+  if(fabs(gsfcandidate.eta()) < 1.5)
   {
     if( barrelPtCuts_.front()                    > pt                    || barrelPtCuts_.back()                    < pt) return false;
     if( barreldRGsfTrackElectronCuts_.front()    > dRGsfTrackElectron    || barreldRGsfTrackElectronCuts_.back()    < dRGsfTrackElectron)    return false;
@@ -117,23 +108,3 @@ bool SoftPFElectronProducer::isClean(const reco::PFCandidate& pfcandidate)
   return true;
 }
 
-void SoftPFElectronProducer::findSeedClusterEnergy(const reco::PFCandidate& pfcandidate, double& energy)
-{
-  for(unsigned int i = 0; i != pfcandidate.elementsInBlocks().size(); ++i)
-  {
-    reco::PFBlockRef blockRef = pfcandidate.elementsInBlocks()[i].first;
-    unsigned int elementIndex = pfcandidate.elementsInBlocks()[i].second;
-    if(blockRef.isNull())
-      continue;
-    const edm::OwnVector< reco::PFBlockElement >&  elements = (*blockRef).elements();
-    const reco::PFBlockElement & pfbe(elements[elementIndex]);
-    if(pfbe.type()==reco::PFBlockElement::ECAL)
-    {
-       reco::PFClusterRef pfSeed = pfbe.clusterRef();
-       if(pfSeed.isNull())
-         continue;
-       energy = pfSeed->energy();
-       break;   
-    }
-  }
-}
