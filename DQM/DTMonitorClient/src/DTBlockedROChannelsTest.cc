@@ -2,8 +2,8 @@
 /*
  * \file DTBlockedROChannelsTest.cc
  * 
- * $Date: 2009/05/20 14:17:28 $
- * $Revision: 1.30 $
+ * $Date: 2009/06/10 10:03:41 $
+ * $Revision: 1.1 $
  * \author G. Cerminara - University and INFN Torino
  *
  */
@@ -268,3 +268,8 @@ double DTBlockedROChannelsTest::DTRobBinsMap::getChamberPercentage() {
   }
   return 1.-((double)nChangedROBs/(double)robsAndValues.size());
 }
+
+
+// FIXME: move to SealModule
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_ANOTHER_FWK_MODULE(DTBlockedROChannelsTest);
