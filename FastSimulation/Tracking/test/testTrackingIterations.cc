@@ -66,6 +66,7 @@ private:
   DQMStore * dbe;
   std::vector<MonitorElement*> h0;
   MonitorElement* genTracksvsEtaP;
+  std::vector<MonitorElement*> zeroTracksvsEtaP;
   std::vector<MonitorElement*> firstTracksvsEtaP;
   std::vector<MonitorElement*> first1TracksvsEtaP;
   std::vector<MonitorElement*> first2TracksvsEtaP;
@@ -73,27 +74,32 @@ private:
   std::vector<MonitorElement*> thirdTracksvsEtaP;
   std::vector<MonitorElement*> fourthTracksvsEtaP;
   std::vector<MonitorElement*> fifthTracksvsEtaP;
+  std::vector<MonitorElement*> zeroHitsvsP;
   std::vector<MonitorElement*> firstHitsvsP;
   std::vector<MonitorElement*> secondHitsvsP;
   std::vector<MonitorElement*> thirdHitsvsP;
   std::vector<MonitorElement*> fourthHitsvsP;
   std::vector<MonitorElement*> fifthHitsvsP;
+  std::vector<MonitorElement*> zeroHitsvsEta;
   std::vector<MonitorElement*> firstHitsvsEta;
   std::vector<MonitorElement*> secondHitsvsEta;
   std::vector<MonitorElement*> thirdHitsvsEta;
   std::vector<MonitorElement*> fourthHitsvsEta;
   std::vector<MonitorElement*> fifthHitsvsEta;
+  std::vector<MonitorElement*> zeroLayersvsP;
   std::vector<MonitorElement*> firstLayersvsP;
   std::vector<MonitorElement*> secondLayersvsP;
   std::vector<MonitorElement*> thirdLayersvsP;
   std::vector<MonitorElement*> fourthLayersvsP;
   std::vector<MonitorElement*> fifthLayersvsP;
+  std::vector<MonitorElement*> zeroLayersvsEta;
   std::vector<MonitorElement*> firstLayersvsEta;
   std::vector<MonitorElement*> secondLayersvsEta;
   std::vector<MonitorElement*> thirdLayersvsEta;
   std::vector<MonitorElement*> fourthLayersvsEta;
   std::vector<MonitorElement*> fifthLayersvsEta;
 
+  std::vector<MonitorElement*> zeroNum;
   std::vector<MonitorElement*> firstNum;
   std::vector<MonitorElement*> secondNum;
   std::vector<MonitorElement*> thirdNum;
@@ -115,6 +121,7 @@ private:
 testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
   mySimEvent(2, static_cast<FSimEvent*>(0)),
   h0(2,static_cast<MonitorElement*>(0)),
+  zeroTracksvsEtaP(2,static_cast<MonitorElement*>(0)),
   firstTracksvsEtaP(2,static_cast<MonitorElement*>(0)),
   first1TracksvsEtaP(2,static_cast<MonitorElement*>(0)),
   first2TracksvsEtaP(2,static_cast<MonitorElement*>(0)),
@@ -122,27 +129,32 @@ testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
   thirdTracksvsEtaP(2,static_cast<MonitorElement*>(0)),
   fourthTracksvsEtaP(2,static_cast<MonitorElement*>(0)),
   fifthTracksvsEtaP(2,static_cast<MonitorElement*>(0)),
+  zeroHitsvsP(2,static_cast<MonitorElement*>(0)),
   firstHitsvsP(2,static_cast<MonitorElement*>(0)),
   secondHitsvsP(2,static_cast<MonitorElement*>(0)),
   thirdHitsvsP(2,static_cast<MonitorElement*>(0)),
   fourthHitsvsP(2,static_cast<MonitorElement*>(0)),
   fifthHitsvsP(2,static_cast<MonitorElement*>(0)),
+  zeroHitsvsEta(2,static_cast<MonitorElement*>(0)),
   firstHitsvsEta(2,static_cast<MonitorElement*>(0)),
   secondHitsvsEta(2,static_cast<MonitorElement*>(0)),
   thirdHitsvsEta(2,static_cast<MonitorElement*>(0)),
   fourthHitsvsEta(2,static_cast<MonitorElement*>(0)),
   fifthHitsvsEta(2,static_cast<MonitorElement*>(0)),
+  zeroLayersvsP(2,static_cast<MonitorElement*>(0)),
   firstLayersvsP(2,static_cast<MonitorElement*>(0)),
   secondLayersvsP(2,static_cast<MonitorElement*>(0)),
   thirdLayersvsP(2,static_cast<MonitorElement*>(0)),
   fourthLayersvsP(2,static_cast<MonitorElement*>(0)),
   fifthLayersvsP(2,static_cast<MonitorElement*>(0)),
+  zeroLayersvsEta(2,static_cast<MonitorElement*>(0)),
   firstLayersvsEta(2,static_cast<MonitorElement*>(0)),
   secondLayersvsEta(2,static_cast<MonitorElement*>(0)),
   thirdLayersvsEta(2,static_cast<MonitorElement*>(0)),
   fourthLayersvsEta(2,static_cast<MonitorElement*>(0)),
   fifthLayersvsEta(2,static_cast<MonitorElement*>(0)),
 
+  zeroNum(2,static_cast<MonitorElement*>(0)),
   firstNum(2,static_cast<MonitorElement*>(0)),
   secondNum(2,static_cast<MonitorElement*>(0)),
   thirdNum(2,static_cast<MonitorElement*>(0)),
@@ -186,6 +198,8 @@ testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
   h0[1] = dbe->book1D("generatedMom", "Generated momentum", 100, 0., 10. );
 
   genTracksvsEtaP = dbe->book2D("genEtaP","Generated eta vs p",28,-2.8,2.8,100,0,10.);
+  zeroTracksvsEtaP[0] = dbe->book2D("eff0Full","Efficiency 0th Full",28,-2.8,2.8,100,0,10.);
+  zeroTracksvsEtaP[1] = dbe->book2D("eff0Fast","Efficiency 0th Fast",28,-2.8,2.8,100,0,10.);
   firstTracksvsEtaP[0] = dbe->book2D("eff1Full","Efficiency 1st Full",28,-2.8,2.8,100,0,10.);
   firstTracksvsEtaP[1] = dbe->book2D("eff1Fast","Efficiency 1st Fast",28,-2.8,2.8,100,0,10.);
   first1TracksvsEtaP[0] = dbe->book2D("eff1Full1","Efficiency 1st Full 1",28,-2.8,2.8,100,0,10.);
@@ -200,6 +214,8 @@ testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
   fourthTracksvsEtaP[1] = dbe->book2D("eff4Fast","Efficiency 4th Fast",28,-2.8,2.8,100,0,10.);
   fifthTracksvsEtaP[0] = dbe->book2D("eff5Full","Efficiency 5th Full",28,-2.8,2.8,100,0,10.);
   fifthTracksvsEtaP[1] = dbe->book2D("eff5Fast","Efficiency 5th Fast",28,-2.8,2.8,100,0,10.);
+  zeroHitsvsP[0] = dbe->book2D("Hits0PFull","Hits vs P 0th Full",100,0.,10.,30,0,30.);
+  zeroHitsvsP[1] = dbe->book2D("Hits0PFast","Hits vs P 0th Fast",100,0.,10.,30,0,30.);
   firstHitsvsP[0] = dbe->book2D("Hits1PFull","Hits vs P 1st Full",100,0.,10.,30,0,30.);
   firstHitsvsP[1] = dbe->book2D("Hits1PFast","Hits vs P 1st Fast",100,0.,10.,30,0,30.);
   secondHitsvsP[0] = dbe->book2D("Hits2PFull","Hits vs P 2nd Full",100,0.,10.,30,0,30.);
@@ -210,6 +226,8 @@ testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
   fourthHitsvsP[1] = dbe->book2D("Hits4PFast","Hits vs P 4th Fast",100,0.,10.,30,0,30.);
   fifthHitsvsP[0] = dbe->book2D("Hits5PFull","Hits vs P 5th Full",100,0.,10.,30,0,30.);
   fifthHitsvsP[1] = dbe->book2D("Hits5PFast","Hits vs P 5th Fast",100,0.,10.,30,0,30.);
+  zeroHitsvsEta[0] = dbe->book2D("Hits0EtaFull","Hits vs Eta 0th Full",28,-2.8,2.8,30,0,30.);
+  zeroHitsvsEta[1] = dbe->book2D("Hits0EtaFast","Hits vs Eta 0th Fast",28,-2.8,2.8,30,0,30.);
   firstHitsvsEta[0] = dbe->book2D("Hits1EtaFull","Hits vs Eta 1st Full",28,-2.8,2.8,30,0,30.);
   firstHitsvsEta[1] = dbe->book2D("Hits1EtaFast","Hits vs Eta 1st Fast",28,-2.8,2.8,30,0,30.);
   secondHitsvsEta[0] = dbe->book2D("Hits2EtaFull","Hits vs Eta 2nd Full",28,-2.8,2.8,30,0,30.);
@@ -220,6 +238,8 @@ testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
   fourthHitsvsEta[1] = dbe->book2D("Hits4EtaFast","Hits vs Eta 4th Fast",28,-2.8,2.8,30,0,30.);
   fifthHitsvsEta[0] = dbe->book2D("Hits5EtaFull","Hits vs Eta 5th Full",28,-2.8,2.8,30,0,30.);
   fifthHitsvsEta[1] = dbe->book2D("Hits5EtaFast","Hits vs Eta 5th Fast",28,-2.8,2.8,30,0,30.);
+  zeroLayersvsP[0] = dbe->book2D("Layers0PFull","Layers vs P 0th Full",100,0.,10.,30,0,30.);
+  zeroLayersvsP[1] = dbe->book2D("Layers0PFast","Layers vs P 0th Fast",100,0.,10.,30,0,30.);
   firstLayersvsP[0] = dbe->book2D("Layers1PFull","Layers vs P 1st Full",100,0.,10.,30,0,30.);
   firstLayersvsP[1] = dbe->book2D("Layers1PFast","Layers vs P 1st Fast",100,0.,10.,30,0,30.);
   secondLayersvsP[0] = dbe->book2D("Layers2PFull","Layers vs P 2nd Full",100,0.,10.,30,0,30.);
@@ -230,6 +250,8 @@ testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
   fourthLayersvsP[1] = dbe->book2D("Layers4PFast","Layers vs P 4th Fast",100,0.,10.,30,0,30.);
   fifthLayersvsP[0] = dbe->book2D("Layers5PFull","Layers vs P 5th Full",100,0.,10.,30,0,30.);
   fifthLayersvsP[1] = dbe->book2D("Layers5PFast","Layers vs P 5th Fast",100,0.,10.,30,0,30.);
+  zeroLayersvsEta[0] = dbe->book2D("Layers0EtaFull","Layers vs Eta 0th Full",28,-2.8,2.8,30,0,30.);
+  zeroLayersvsEta[1] = dbe->book2D("Layers0EtaFast","Layers vs Eta 0th Fast",28,-2.8,2.8,30,0,30.);
   firstLayersvsEta[0] = dbe->book2D("Layers1EtaFull","Layers vs Eta 1st Full",28,-2.8,2.8,30,0,30.);
   firstLayersvsEta[1] = dbe->book2D("Layers1EtaFast","Layers vs Eta 1st Fast",28,-2.8,2.8,30,0,30.);
   secondLayersvsEta[0] = dbe->book2D("Layers2EtaFull","Layers vs Eta 2nd Full",28,-2.8,2.8,30,0,30.);
@@ -241,6 +263,8 @@ testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
   fifthLayersvsEta[0] = dbe->book2D("Layers5EtaFull","Layers vs Eta 5th Full",28,-2.8,2.8,30,0,30.);
   fifthLayersvsEta[1] = dbe->book2D("Layers5EtaFast","Layers vs Eta 5th Fast",28,-2.8,2.8,30,0,30.);
 
+  zeroNum[0]  = dbe->book1D("Num0Full","Num 0th Full",10, 0., 10.);
+  zeroNum[1]  = dbe->book1D("Num0Fast","Num 0th Fast",10, 0., 10.);
   firstNum[0]  = dbe->book1D("Num1Full","Num 1st Full",10, 0., 10.);
   firstNum[1]  = dbe->book1D("Num1Fast","Num 1st Fast",10, 0., 10.);
   secondNum[0] = dbe->book1D("Num2Full","Num 2nd Full",10, 0., 10.);
@@ -257,7 +281,7 @@ testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
 testTrackingIterations::~testTrackingIterations()
 {
 
-  std::cout << "\t\t \tZERO \tFIRST \tSECOND \tTHIRD\t FOURTH\tFIFTH " << std::endl;
+  std::cout << "\t\t ZERO \tFIRST \tSECOND \tTHIRD\t FOURTH\tFIFTH " << std::endl;
   std::cout << "\tFULL\t" <<  num0full << "\t"<< num1full << "\t" << num2full <<"\t" << num3full << "\t" << num4full <<  "\t" << num5full << std::endl;
   std::cout << "\tFAST\t" <<  num0fast <<"\t"<< num1fast << "\t" << num2fast << "\t" << num3fast << "\t" << num4fast << "\t" << num5fast << std::endl;
 
@@ -332,16 +356,19 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   for ( unsigned ievt=0; ievt<2; ++ievt ) {
 
     edm::Handle<reco::TrackCollection> tkRef1;
+    edm::Handle<reco::TrackCollection> tkRef0;
     edm::Handle<reco::TrackCollection> tkRef2;
     edm::Handle<reco::TrackCollection> tkRef3;
     edm::Handle<reco::TrackCollection> tkRef4;
     edm::Handle<reco::TrackCollection> tkRef5;
+    iEvent.getByLabel(zeroTracks[ievt],tkRef0);    
     iEvent.getByLabel(firstTracks[ievt],tkRef1);    
     iEvent.getByLabel(secondTracks[ievt],tkRef2);    
     iEvent.getByLabel(thirdTracks[ievt],tkRef3);   
     iEvent.getByLabel(fourthTracks[ievt],tkRef4);   
     iEvent.getByLabel(fifthTracks[ievt],tkRef5);   
     std::vector<const reco::TrackCollection*> tkColl;
+    tkColl.push_back(tkRef0.product());
     tkColl.push_back(tkRef1.product());
     tkColl.push_back(tkRef2.product());
     tkColl.push_back(tkRef3.product());
@@ -351,29 +378,42 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
     if(ievt ==0){
       num0full +=  tkColl[0]->size();       
-      num1full +=  tkColl[0]->size();       
-      num2full +=  tkColl[1]->size();
-      num3full +=  tkColl[2]->size();
-      num4full +=  tkColl[3]->size();
-      num5full +=  tkColl[4]->size();
+      num1full +=  tkColl[1]->size();       
+      num2full +=  tkColl[2]->size();
+      num3full +=  tkColl[3]->size();
+      num4full +=  tkColl[4]->size();
+      num5full +=  tkColl[5]->size();
     } else if (ievt ==1){
       num0fast +=  tkColl[0]->size();
-      num1fast +=  tkColl[0]->size();
-      num2fast +=  tkColl[1]->size();
-      num3fast +=  tkColl[2]->size();
-      num4fast +=  tkColl[3]->size();
-      num5fast +=  tkColl[4]->size();
+      num1fast +=  tkColl[1]->size();
+      num2fast +=  tkColl[2]->size();
+      num3fast +=  tkColl[3]->size();
+      num4fast +=  tkColl[4]->size();
+      num5fast +=  tkColl[5]->size();
     }
      
-    firstNum[ievt]->Fill(tkColl[0]->size());
-    secondNum[ievt]->Fill(tkColl[1]->size());
-    thirdNum[ievt]->Fill(tkColl[2]->size());
-    fourthNum[ievt]->Fill(tkColl[3]->size());
-    fifthNum[ievt]->Fill(tkColl[4]->size());
+    zeroNum[ievt]->Fill(tkColl[0]->size());
+    firstNum[ievt]->Fill(tkColl[1]->size());
+    secondNum[ievt]->Fill(tkColl[2]->size());
+    thirdNum[ievt]->Fill(tkColl[3]->size());
+    fourthNum[ievt]->Fill(tkColl[4]->size());
+    fifthNum[ievt]->Fill(tkColl[5]->size());
 
     //    if ( tkColl[0]->size() == 1 ) { 
-    reco::TrackCollection::const_iterator itk1 = tkColl[0]->begin();
-    reco::TrackCollection::const_iterator itk1_e = tkColl[0]->end();
+    reco::TrackCollection::const_iterator itk0 = tkColl[0]->begin();
+    reco::TrackCollection::const_iterator itk0_e = tkColl[0]->end();
+    for(;itk0!=itk0_e;++itk0){
+      //      firstTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[0]->size());
+      zeroTracksvsEtaP[ievt]->Fill(etaGen,pGen,1.);
+      //      reco::TrackCollection::const_iterator itk = tkColl[0]->begin();
+      zeroHitsvsEta[ievt]->Fill(etaGen,itk0->found(),1.);
+      zeroHitsvsP[ievt]->Fill(pGen,itk0->found(),1.);
+      zeroLayersvsEta[ievt]->Fill(etaGen,itk0->hitPattern().trackerLayersWithMeasurement(),1.);
+      zeroLayersvsP[ievt]->Fill(pGen,itk0->hitPattern().trackerLayersWithMeasurement(),1.);
+    }
+    //    if ( tkColl[1]->size() == 1 ) { 
+    reco::TrackCollection::const_iterator itk1 = tkColl[1]->begin();
+    reco::TrackCollection::const_iterator itk1_e = tkColl[1]->end();
     for(;itk1!=itk1_e;++itk1){
       //      firstTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[0]->size());
       firstTracksvsEtaP[ievt]->Fill(etaGen,pGen,1.);
@@ -383,9 +423,9 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       firstLayersvsEta[ievt]->Fill(etaGen,itk1->hitPattern().trackerLayersWithMeasurement(),1.);
       firstLayersvsP[ievt]->Fill(pGen,itk1->hitPattern().trackerLayersWithMeasurement(),1.);
     }
-    //    if ( tkColl[1]->size() == 1 ) { 
-    reco::TrackCollection::const_iterator itk2 = tkColl[1]->begin();
-    reco::TrackCollection::const_iterator itk2_e = tkColl[1]->end();
+    //    if ( tkColl[2]->size() == 1 ) { 
+    reco::TrackCollection::const_iterator itk2 = tkColl[2]->begin();
+    reco::TrackCollection::const_iterator itk2_e = tkColl[2]->end();
     for(;itk2!=itk2_e;++itk2){
       secondTracksvsEtaP[ievt]->Fill(etaGen,pGen,1.);
       //      secondTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[1]->size());
@@ -395,9 +435,9 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       secondLayersvsEta[ievt]->Fill(etaGen,itk2->hitPattern().trackerLayersWithMeasurement(),1.);    
       secondLayersvsP[ievt]->Fill(pGen,itk2->hitPattern().trackerLayersWithMeasurement(),1.);
     }
-    //    if ( tkColl[2]->size() == 1 ) { 
-    reco::TrackCollection::const_iterator itk3 = tkColl[2]->begin();
-    reco::TrackCollection::const_iterator itk3_e = tkColl[2]->end();
+    //    if ( tkColl[3]->size() == 1 ) { 
+    reco::TrackCollection::const_iterator itk3 = tkColl[3]->begin();
+    reco::TrackCollection::const_iterator itk3_e = tkColl[3]->end();
     for(;itk3!=itk3_e;++itk3){
       thirdTracksvsEtaP[ievt]->Fill(etaGen,pGen,1.);
       //      thirdTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[2]->size());
@@ -407,9 +447,9 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       thirdLayersvsEta[ievt]->Fill(etaGen,itk3->hitPattern().trackerLayersWithMeasurement(),1.);
       thirdLayersvsP[ievt]->Fill(pGen,itk3->hitPattern().trackerLayersWithMeasurement(),1.);
     }
-    //    if ( tkColl[3]->size() == 1 ) { 
-    reco::TrackCollection::const_iterator itk4 = tkColl[3]->begin();
-    reco::TrackCollection::const_iterator itk4_e = tkColl[3]->end();
+    //    if ( tkColl[4]->size() == 1 ) { 
+    reco::TrackCollection::const_iterator itk4 = tkColl[4]->begin();
+    reco::TrackCollection::const_iterator itk4_e = tkColl[4]->end();
     for(;itk4!=itk4_e;++itk4){
       fourthTracksvsEtaP[ievt]->Fill(etaGen,pGen,1.);
       //      fourthTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[3]->size());
@@ -419,9 +459,9 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       fourthLayersvsEta[ievt]->Fill(etaGen,itk4->hitPattern().trackerLayersWithMeasurement(),1.);
       fourthLayersvsP[ievt]->Fill(pGen,itk4->hitPattern().trackerLayersWithMeasurement(),1.);
     }
-    //    if ( tkColl[4]->size() == 1 ) { 
-    reco::TrackCollection::const_iterator itk5 = tkColl[4]->begin();
-    reco::TrackCollection::const_iterator itk5_e = tkColl[4]->end();
+    //    if ( tkColl[5]->size() == 1 ) { 
+    reco::TrackCollection::const_iterator itk5 = tkColl[5]->begin();
+    reco::TrackCollection::const_iterator itk5_e = tkColl[5]->end();
     for(;itk5!=itk5_e;++itk5){
       fifthTracksvsEtaP[ievt]->Fill(etaGen,pGen,1.);
       //      fourthTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[3]->size());
@@ -432,6 +472,7 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       fifthLayersvsP[ievt]->Fill(pGen,itk5->hitPattern().trackerLayersWithMeasurement(),1.);
     }
 
+    /*
     // Split 1st collection in two (triplets, then pairs)
     if ( tkColl[0]->size()>=1 ) {
       reco::TrackCollection::const_iterator itk = tkColl[0]->begin();
@@ -447,6 +488,7 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	secondSeed[ievt] = true;
       }
     }
+    */
 
   }
 

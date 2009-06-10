@@ -37,7 +37,7 @@ process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)
 process.Early10TeVCollisionVtxSmearingParameters.type = cms.string("BetaFunc")
 process.famosSimHits.VertexGenerator = process.Early10TeVCollisionVtxSmearingParameters
 process.famosPileUp.VertexGenerator = process.Early10TeVCollisionVtxSmearingParameters
-process.GlobalTag.globaltag = 'IDEAL_30X::All'
+process.GlobalTag.globaltag = 'IDEAL_31X::All'
 
 # Include the RandomNumberGeneratorService definition
 process.load("FastSimulation/Configuration/RandomServiceInitialization_cff")
@@ -166,10 +166,15 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 ##from Kevin
+process.zeroStepHighPurity = cms.EDFilter("QualityFilter",
+                                           TrackQuality = cms.string('highPurity'),
+                                           recTracks = cms.InputTag("zeroStepTracksWithQuality")
+                                           )
 process.firstStepHighPurity = cms.EDFilter("QualityFilter",
                                            TrackQuality = cms.string('highPurity'),
-                                           recTracks = cms.InputTag("firstStepTracksWithQuality")
+                                           recTracks = cms.InputTag("preMergingFirstStepTracksWithQuality")
                                            )
+
 process.fevt = cms.OutputModule(
     "PoolOutputModule",
     fileName = cms.untracked.string("fevt.root"),
@@ -215,7 +220,7 @@ process.fevt = cms.OutputModule(
 process.generation_step = cms.Path(cms.SequencePlaceholder("randomEngineStateProducer")+process.GeneInfo)
 process.reconstruction = cms.Path(process.famosWithTrackerHits+process.siClusterTranslator+process.siPixelRecHits+
                                   process.siStripMatchedRecHits+process.recopixelvertexing+process.iterTracking+process.trackCollectionMerging+
-                                  process.firstStepHighPurity)
+                                  process.zeroStepHighPurity+process.firstStepHighPurity)
 
 process.out_step = cms.EndPath(process.fevt)
 

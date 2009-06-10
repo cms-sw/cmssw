@@ -73,7 +73,7 @@ process.testTK = cms.EDFilter(
         EProton = cms.double(99999.0)
     ),
 ##    firstFull = cms.InputTag("firstStepTracksWithQuality","","PROD"),
-    zeroFull = cms.InputTag("firstStepHighPurity","","PROD"),
+    zeroFull = cms.InputTag("zeroStepHighPurity","","PROD"),
     zeroFast = cms.InputTag("iterativeZeroTrackMerging","","TKAN"),
     firstFull = cms.InputTag("firstStepHighPurity","","PROD"),
     firstFast = cms.InputTag("iterativeFirstTrackMerging","","TKAN"),

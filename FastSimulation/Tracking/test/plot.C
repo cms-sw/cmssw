@@ -1,4 +1,3 @@
-
 #include <vector>
 
 void PlotGraphs( TH1F* full, TH1F* fast) {
@@ -26,9 +25,9 @@ void Efficiency(unsigned int iter) {
   if(f->IsZombie() ) return;
   f->cd("DQMData"); 
 
-  std::vector<const char *> titleFull;
-  std::vector<const char *> titleFast;
-  std::vector<const char *> titleGen;
+  std::vector<char *> titleFull;
+  std::vector<char *> titleFast;
+  std::vector<char *> titleGen;
   titleFull.push_back("eff1Full_p_0_1");
   titleFull.push_back("eff1Full_p_1_2");
   titleFull.push_back("eff1Full_p_2_3");
@@ -66,7 +65,10 @@ void Efficiency(unsigned int iter) {
   TH2F* effFast;
   TH2F* genPlot;
   genPlot = (TH2F*) gDirectory->Get("genEtaP");
-  if ( iter == 1 ) { 
+  if ( iter == 0 ) { 
+    effFull = (TH2F*) gDirectory->Get("eff0Full");
+    effFast = (TH2F*) gDirectory->Get("eff0Fast");
+  } else if ( iter == 1 ) { 
     effFull = (TH2F*) gDirectory->Get("eff1Full");
     effFast = (TH2F*) gDirectory->Get("eff1Fast");
   } else if ( iter == 2 ) { 
@@ -114,7 +116,12 @@ void Efficiency(unsigned int iter) {
   genPlot->ProjectionY();
   effFull->ProjectionY();
   effFast->ProjectionY();
-  if ( iter == 1 ) { 
+  if ( iter == 0 ) { 
+    fast = (TH1F*) gDirectory->Get("eff0Fast_px");
+    full = (TH1F*) gDirectory->Get("eff0Full_px");
+    fastp = (TH1F*) gDirectory->Get("eff0Fast_py");
+    fullp = (TH1F*) gDirectory->Get("eff0Full_py");
+  }else if ( iter == 1 ) { 
     fast = (TH1F*) gDirectory->Get("eff1Fast_px");
     full = (TH1F*) gDirectory->Get("eff1Full_px");
     fastp = (TH1F*) gDirectory->Get("eff1Fast_py");
@@ -171,8 +178,8 @@ void Hits(unsigned int iter) {
   if(f->IsZombie() ) return;
   f->cd("DQMData"); 
 
-  std::vector<const char *> titleFull;
-  std::vector<const char *> titleFast;
+  std::vector<char *> titleFull;
+  std::vector<char *> titleFast;
   titleFull.push_back("HitsFull_p_0_2");
   titleFull.push_back("HitsFull_p_2_4");
   titleFull.push_back("HitsFull_p_4_6");
@@ -200,7 +207,12 @@ void Hits(unsigned int iter) {
   TH2F* hitsFastP;
   TH2F* hitsFullEta;
   TH2F* hitsFastEta;
-  if ( iter == 1 ) { 
+  if ( iter == 0 ) { 
+    hitsFullP = (TH2F*) gDirectory->Get("Hits0PFull");
+    hitsFastP = (TH2F*) gDirectory->Get("Hits0PFast");
+    hitsFullEta = (TH2F*) gDirectory->Get("Hits0EtaFull");
+    hitsFastEta = (TH2F*) gDirectory->Get("Hits0EtaFast");
+  }else if ( iter == 1 ) { 
     hitsFullP = (TH2F*) gDirectory->Get("Hits1PFull");
     hitsFastP = (TH2F*) gDirectory->Get("Hits1PFast");
     hitsFullEta = (TH2F*) gDirectory->Get("Hits1EtaFull");
@@ -287,7 +299,12 @@ void Layers(unsigned int iter) {
   TH2F* layersFastP;
   TH2F* layersFullEta;
   TH2F* layersFastEta;
-  if ( iter == 1 ) { 
+  if ( iter == 0 ) { 
+    layersFullP = (TH2F*) gDirectory->Get("Layers0PFull");
+    layersFastP = (TH2F*) gDirectory->Get("Layers0PFast");
+    layersFullEta = (TH2F*) gDirectory->Get("Layers0EtaFull");
+    layersFastEta = (TH2F*) gDirectory->Get("Layers0EtaFast");
+  } else if ( iter == 1 ) { 
     layersFullP = (TH2F*) gDirectory->Get("Layers1PFull");
     layersFastP = (TH2F*) gDirectory->Get("Layers1PFast");
     layersFullEta = (TH2F*) gDirectory->Get("Layers1EtaFull");
@@ -369,6 +386,8 @@ void totalEfficiency(unsigned int iter) {
   iter5Full = (TH2F*) gDirectory->Get("eff5Full");
   iter5Fast = (TH2F*) gDirectory->Get("eff5Fast");
   
+  TH1F* fast0;
+  TH1F* full0;
   TH1F* fast1;
   TH1F* full1;
   TH1F* fast2;
@@ -380,6 +399,8 @@ void totalEfficiency(unsigned int iter) {
   TH1F* fast5;
   TH1F* full5;
   TH1F* gen;
+  TH1F* fastp0;
+  TH1F* fullp0;
   TH1F* fastp1;
   TH1F* fullp1;
   TH1F* fastp2;
@@ -392,6 +413,8 @@ void totalEfficiency(unsigned int iter) {
   TH1F* fullp5;
   TH1F* genp;
   genPlot->ProjectionX();
+  iter0Full->ProjectionX("iter0Full_px");
+  iter0Fast->ProjectionX("iter0Fast_px");
   iter1Full->ProjectionX("iter1Full_px");
   iter1Fast->ProjectionX("iter1Fast_px");
   iter2Full->ProjectionX("iter2Full_px");
@@ -403,6 +426,8 @@ void totalEfficiency(unsigned int iter) {
   iter5Full->ProjectionX("iter5Full_px");
   iter5Fast->ProjectionX("iter5Fast_px");
   genPlot->ProjectionY();
+  iter0Full->ProjectionY("iter0Full_py");
+  iter0Fast->ProjectionY("iter0Fast_py");
   iter1Full->ProjectionY("iter1Full_py");
   iter1Fast->ProjectionY("iter1Fast_py");
   iter2Full->ProjectionY("iter2Full_py");
@@ -413,6 +438,10 @@ void totalEfficiency(unsigned int iter) {
   iter4Fast->ProjectionY("iter4Fast_py");
   iter5Full->ProjectionY("iter5Full_py");
   iter5Fast->ProjectionY("iter5Fast_py");
+  fast0  = (TH1F*) gDirectory->Get("iter0Fast_px");
+  full0  = (TH1F*) gDirectory->Get("iter0Full_px");
+  fastp0 = (TH1F*) gDirectory->Get("iter0Fast_py");
+  fullp0 = (TH1F*) gDirectory->Get("iter0Full_py");
   fast1  = (TH1F*) gDirectory->Get("iter1Fast_px");
   full1  = (TH1F*) gDirectory->Get("iter1Full_px");
   fastp1 = (TH1F*) gDirectory->Get("iter1Fast_py");
@@ -436,6 +465,7 @@ void totalEfficiency(unsigned int iter) {
   gen = (TH1F*) gDirectory->Get("genEtaP_px");
   genp = (TH1F*) gDirectory->Get("genEtaP_py");
 
+  if ( iter == 0 ) fast1 = fast0;
   if ( iter == 2 ) fast1 = fast2;
   if ( iter == 3 ) fast1 = fast3;
   if ( iter == 4 ) fast1 = fast4;
@@ -443,6 +473,7 @@ void totalEfficiency(unsigned int iter) {
   if ( iter > 11 ) fast1->Add(fast2);
   if ( iter > 12 ) fast1->Add(fast3);
   fast1->Divide(gen);
+  if ( iter == 0 ) full1 = full0;
   if ( iter == 2 ) full1 = full2;
   if ( iter == 3 ) full1 = full3;
   if ( iter == 4 ) full1 = full4;
@@ -453,6 +484,7 @@ void totalEfficiency(unsigned int iter) {
   c->cd(1);
   PlotGraphs(full1,fast1);
 
+  if ( iter == 0 ) fastp1 = fastp0;
   if ( iter == 2 ) fastp1 = fastp2;
   if ( iter == 3 ) fastp1 = fastp3;
   if ( iter == 4 ) fastp1 = fastp4;
@@ -460,6 +492,7 @@ void totalEfficiency(unsigned int iter) {
   if ( iter > 11 ) fastp1->Add(fastp2);
   if ( iter > 12 ) fastp1->Add(fastp3);
   fastp1->Divide(genp);
+  if ( iter == 0 ) fullp1 = fullp0;
   if ( iter == 2 ) fullp1 = fullp2;
   if ( iter == 3 ) fullp1 = fullp3;
   if ( iter == 4 ) fullp1 = fullp4;

@@ -1,7 +1,7 @@
 #!/bin/sh
 
-castorDir=/castor/cern.ch/user/a/azzi/CMSSW310pre2/
-cmsswDir=/afs/cern.ch/user/a/azzi/scratch0/CMSSW_3_1_0_pre2/src/
+castorDir=/castor/cern.ch/user/a/azzi/CMSSW310pre9/
+cmsswDir=/afs/cern.ch/user/a/azzi/scratch0/CMSSW_3_1_0_pre9/src/
 
 njobs=0
 nevt=0
@@ -187,13 +187,15 @@ cat tmp_cfg >> job_${name}.sh
 # On poursuit le script
 echo "EOF" >> job_${name}.sh
 cat >> job_${name}.sh << EOF
+
+
 cmsRun TEST_cfg.py >& log
 
 rfcp fevt.root $castorDir$filename
 
 EOF
-###chmod 755 job_${name}.sh
-###bsub -q cmst3 -R "mem>2000" -J $name $PWD/job_${name}.sh
+chmod 755 job_${name}.sh
+bsub -q cmst3 -R "mem>2000" -J $name $PWD/job_${name}.sh
 
 
   done

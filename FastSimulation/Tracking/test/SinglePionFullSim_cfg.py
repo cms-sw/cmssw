@@ -43,7 +43,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "IDEAL_30X::All"
+process.GlobalTag.globaltag = "IDEAL_31X::All"
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
@@ -101,10 +101,16 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 ##from Kevin
+##from Kevin
+process.zeroStepHighPurity = cms.EDFilter("QualityFilter",
+                                           TrackQuality = cms.string('highPurity'),
+                                           recTracks = cms.InputTag("zeroStepTracksWithQuality")
+                                           )
 process.firstStepHighPurity = cms.EDFilter("QualityFilter",
                                            TrackQuality = cms.string('highPurity'),
-                                           recTracks = cms.InputTag("firstStepTracksWithQuality")
+                                           recTracks = cms.InputTag("preMergingFirstStepTracksWithQuality")
                                            )
+
 process.fevt = cms.OutputModule(
     "PoolOutputModule",
     fileName = cms.untracked.string("fevt.root"),
@@ -152,7 +158,8 @@ process.p3 = cms.Path(process.L1Emulator)
 process.p4 = cms.Path(process.DigiToRaw)
 process.p5= cms.Path(process.RawToDigi)
 process.p6= cms.Path(process.reconstruction+
-  #select only High purity step 1 fullsim tracks
+  #select only High purity step 0/1 fullsim tracks
+                     process.zeroStepHighPurity+
                      process.firstStepHighPurity)
 process.outpath = cms.EndPath(process.fevt)
 process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.p3,process.p4,process.p5,process.p6,process.outpath)
