@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.cc,v 1.17 2009/05/27 09:37:51 fabiocos Exp $
+// $Id: GsfElectronDataAnalyzer.cc,v 1.18 2009/06/10 20:31:29 charlot Exp $
 //
 //
 
@@ -180,9 +180,9 @@ void GsfElectronDataAnalyzer::beginJob(){
   h_ele_vertexZ      = new TH1F( "h_ele_vertexZ",      "ele vertex z",    nbinxyz,-25, 25 );
   h_ele_matchingObjectZ_matched      = new TH1F( "h_ele_matchingObjectZ_matched",      "Efficiency vs matching SC z",    nbinxyz,-25,25);
   h_ele_vertexTIP      = new TH1F( "h_ele_vertexTIP",      "ele transverse impact parameter (wrt bs)",    90,0.,0.15);
-  h_ele_vertexTIPVsEta      = new TH2F( "h_ele_vertexTIPVsEta",      "ele transverse impact parameter (wrt gen vtx) vs eta", nbineta2D,etamin,etamax,45,0.,0.15);
-  h_ele_vertexTIPVsPhi      = new TH2F( "h_ele_vertexTIPVsPhi",      "ele transverse impact parameter (wrt gen vtx) vs phi", nbinphi2D,phimin,phimax,45,0.,0.15);
-  h_ele_vertexTIPVsPt      = new TH2F( "h_ele_vertexTIPVsPt",      "ele transverse impact parameter (wrt gen vtx) vs transverse momentum", nbinpt2D,0.,ptmax,45,0.,0.15);
+  h_ele_vertexTIPVsEta      = new TH2F( "h_ele_vertexTIPVsEta",      "ele transverse impact parameter (wrt bs) vs eta", nbineta2D,etamin,etamax,45,0.,0.15);
+  h_ele_vertexTIPVsPhi      = new TH2F( "h_ele_vertexTIPVsPhi",      "ele transverse impact parameter (wrt bs) vs phi", nbinphi2D,phimin,phimax,45,0.,0.15);
+  h_ele_vertexTIPVsPt      = new TH2F( "h_ele_vertexTIPVsPt",      "ele transverse impact parameter (wrt bs) vs transverse momentum", nbinpt2D,0.,ptmax,45,0.,0.15);
   h_ele_PoPmatchingObject        = new TH1F( "h_ele_PoPmatchingObject",        "ele momentum / matching SC energy", 75,0.,1.5);
   h_ele_PoPmatchingObjectVsEta   = new TH2F( "h_ele_PoPmatchingObjectVsEta",        "ele momentum / matching SC energy vs eta", nbineta2D,etamin,etamax,50,0.,1.5);
   h_ele_PoPmatchingObjectVsPhi   = new TH2F( "h_ele_PoPmatchingObjectVsPhi",        "ele momentum / matching SC energy vs phi", nbinphi2D,phimin,phimax,50,0.,1.5);
@@ -197,7 +197,7 @@ void GsfElectronDataAnalyzer::beginJob(){
   h_ele_PhiMnPhimatchingObject2   = new TH1F( "h_ele_PhiMnPhimatchingObject2",   "ele momentum phi - matching SC phi",nbindphimatch2D,dphimatchmin,dphimatchmax);
   h_ele_PhiMnPhimatchingObjectVsEta   = new TH2F( "h_ele_PhiMnPhimatchingObjectVsEta",   "ele momentum phi - matching SC phi vs eta",nbineta2D,etamin,etamax,nbindphi/2,dphimin,dphimax);
   h_ele_PhiMnPhimatchingObjectVsPhi   = new TH2F( "h_ele_PhiMnPhimatchingObjectVsPhi",   "ele momentum phi - matching SC phi vs phi",nbinphi2D,phimin,phimax,nbindphi/2,dphimin,dphimax);
-  h_ele_PhiMnPhimatchingObjectVsPt   = new TH2F( "h_ele_PhiMnPhimatchingObjectVsPt",   "ele #phi_{rec} - #phi_{matching SC} @ vertex vs pt",nbinpt2D,0.,ptmax,nbindphi/2,dphimin,dphimax);
+  h_ele_PhiMnPhimatchingObjectVsPt   = new TH2F( "h_ele_PhiMnPhimatchingObjectVsPt",   "ele momentum phi - matching SC phi vs pt",nbinpt2D,0.,ptmax,nbindphi/2,dphimin,dphimax);
 
   // matched electron, superclusters
   histSclEn_ = new TH1F("h_scl_energy","ele supercluster energy",nbinp,0.,pmax);
@@ -318,13 +318,13 @@ void GsfElectronDataAnalyzer::beginJob(){
   h_ele_PinVsPoutGolden_mean = new TH2F( "h_ele_PinVsPoutGolden_mean",      "ele track inner p vs outer p vs eta, golden, mean" ,nbinp2D,0.,pmax,50,0.,pmax);
   h_ele_PinVsPoutShowering_mean = new TH2F( "h_ele_PinVsPoutShowering_mean",      "ele track inner p vs outer p vs eta, Showering, mean" ,nbinp2D,0.,pmax,50,0.,pmax);
   h_ele_PtinVsPtoutGolden_mode = new TH2F( "h_ele_PtinVsPtoutGolden_mode",      "ele track inner pt vs outer pt vs eta, golden, mode" ,nbinpt2D,0.,ptmax,50,0.,ptmax);
-  h_ele_PtinVsPtoutShowering_mode = new TH2F( "h_ele_PtinVsPtoutShowering_mode",      "ele track inner pt vs outer pt vs eta, Showering, mode" ,nbinpt2D,0.,ptmax,50,0.,ptmax);
+  h_ele_PtinVsPtoutShowering_mode = new TH2F( "h_ele_PtinVsPtoutShowering_mode",      "ele track inner pt vs outer pt vs eta, showering, mode" ,nbinpt2D,0.,ptmax,50,0.,ptmax);
   h_ele_PtinVsPtoutGolden_mean = new TH2F( "h_ele_PtinVsPtoutGolden_mean",      "ele track inner pt vs outer pt vs eta, golden, mean" ,nbinpt2D,0.,ptmax,50,0.,ptmax);
-  h_ele_PtinVsPtoutShowering_mean = new TH2F( "h_ele_PtinVsPtoutShowering_mean",      "ele track inner pt vs outer pt vs eta, Showering, mean" ,nbinpt2D,0.,ptmax,50,0.,ptmax);
+  h_ele_PtinVsPtoutShowering_mean = new TH2F( "h_ele_PtinVsPtoutShowering_mean",      "ele track inner pt vs outer pt vs eta, showering, mean" ,nbinpt2D,0.,ptmax,50,0.,ptmax);
   histSclEoEmatchingObjectGolden_barrel = new TH1F("h_scl_EoEmatchingObject golden, barrel","ele supercluster energy over matchingObject energy, golden, barrel",100,0.2,1.2);
   histSclEoEmatchingObjectGolden_endcaps = new TH1F("h_scl_EoEmatchingObject golden, endcaps","ele supercluster energy over matchingObject energy, golden, endcaps",100,0.2,1.2);
-  histSclEoEmatchingObjectShowering_barrel = new TH1F("h_scl_EoEmatchingObject Showering, barrel","ele supercluster energy over matchingObject energy, Showering, barrel",100,0.2,1.2);
-  histSclEoEmatchingObjectShowering_endcaps = new TH1F("h_scl_EoEmatchingObject Showering, endcaps","ele supercluster energy over matchingObject energy, Showering, endcaps",100,0.2,1.2);
+  histSclEoEmatchingObjectShowering_barrel = new TH1F("h_scl_EoEmatchingObject Showering, barrel","ele supercluster energy over matchingObject energy, showering, barrel",100,0.2,1.2);
+  histSclEoEmatchingObjectShowering_endcaps = new TH1F("h_scl_EoEmatchingObject Showering, endcaps","ele supercluster energy over matchingObject energy, showering, endcaps",100,0.2,1.2);
 
   // isolation  
   h_ele_tkSumPt_dr03 = new TH1F("h_ele_tkSumPt_dr03","tk isolation sum, dR=0.3",100,0.0,20.);
@@ -909,6 +909,8 @@ GsfElectronDataAnalyzer::endJob(){
   // e/g et pflow electrons 
   h_ele_mva->Write();
   h_ele_provenance->Write();
+  
+  // isolation
   h_ele_tkSumPt_dr03->GetXaxis()->SetTitle("TkIsoSum, cone 0.3 (GeV/c)");
   h_ele_tkSumPt_dr03->GetYaxis()->SetTitle("Events");
   h_ele_tkSumPt_dr03->Write();
