@@ -14,7 +14,6 @@
  ************************************************************/
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-//#include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
@@ -299,7 +298,6 @@ template <class T>
 void CrossingFrame<T>::addSignals(const std::vector<T> * vec,edm::EventID id){
   // valid (called) for all except HepMCProduct
   id_=id;
-  std::cout << " id_ = " << id_ << std::endl;
   for (unsigned int i=0;i<vec->size();++i) {
     signals_.push_back(&((*vec)[i]));
   }
