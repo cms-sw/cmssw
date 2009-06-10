@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.31 2009/05/05 12:31:58 elmer Exp $
+// $Id: FWDetailViewManager.cc,v 1.32 2009/06/05 19:59:24 amraktad Exp $
 //
 
 // system include files
@@ -47,7 +47,6 @@ public:
 
   virtual void CloseWindow()
   {
-    printf("UnmapWindow \n");
     UnmapWindow();
   }
 };
