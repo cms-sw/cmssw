@@ -1,10 +1,10 @@
-# $Id$
+# $Id: FourVectorHLTriggerOfflineClient_cfi.py,v 1.8 2009/06/04 22:47:48 rekovic Exp $
 
 import FWCore.ParameterSet.Config as cms
 
-HLTriggerOfflineFourVectorClient = cms.EDFilter("FourVectorHLTClient",
-    hltClientDir = cms.untracked.string('HLT/FourVector/client/'),
-    hltSourceDir = cms.untracked.string('HLT/FourVector/source/'),
+hltriggerFourVectorClient = cms.EDFilter("FourVectorHLTClient",
+    hltClientDir = cms.untracked.string('HLT/FourVector_Val/client/'),
+    hltSourceDir = cms.untracked.string('HLT/FourVector_Val/source/'),
     prescaleLS = cms.untracked.int32(-1),
     prescaleEvt = cms.untracked.int32(1),
     customEffDir = cms.untracked.string('custom-eff'),

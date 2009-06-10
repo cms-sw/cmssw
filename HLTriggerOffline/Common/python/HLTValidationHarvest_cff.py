@@ -14,7 +14,7 @@ hltpostvalidation = cms.Sequence(
     +HLTTauPostVal
     +EgammaPostVal
     +HLTTopPostVal
-    +HLTriggerOfflineFourVectorClient
+    +hltriggerFourVectorClient
     +heavyFlavorValidationHarvestingSequence
     +JetMETPostVal
     +HLTAlCaPostVal
@@ -26,7 +26,7 @@ hltpostvalidation_fastsim = cms.Sequence(
      HLTMuonPostVal_FastSim
     +HLTTauPostVal
     +EgammaPostVal
-    +HLTriggerOfflineFourVectorClient
+    +hltriggerFourVectorClient
     +HLTTopPostVal
     +heavyFlavorValidationHarvestingSequence
     +JetMETPostVal
@@ -38,7 +38,7 @@ hltpostvalidation_pu = cms.Sequence(
      HLTMuonPostVal
     +HLTTauPostVal
     +EgammaPostVal
-    +HLTriggerOfflineFourVectorClient
+    +hltriggerFourVectorClient
     +HLTTopPostVal
     +heavyFlavorValidationHarvestingSequence
     +JetMETPostVal
