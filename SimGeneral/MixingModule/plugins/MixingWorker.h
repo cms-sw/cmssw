@@ -40,8 +40,8 @@ namespace edm
       explicit MixingWorker() {;}
 
       /*Normal constructor*/ 
-      MixingWorker(int minBunch,int maxBunch, int bunchSpace,std::string subdet,std::string label, std::string labelCF,int maxNbSources, InputTag& tag, bool checktof, bool mixProdStep2, bool isTracker=false):
-	MixingWorkerBase(minBunch,maxBunch,bunchSpace,subdet,label,labelCF,maxNbSources,tag,checktof,mixProdStep2,isTracker)
+      MixingWorker(int minBunch,int maxBunch, int bunchSpace,std::string subdet,std::string label, std::string labelCF,int maxNbSources, InputTag& tag, InputTag& tagCF, bool checktof, bool mixProdStep2, bool isTracker=false):
+	MixingWorkerBase(minBunch,maxBunch,bunchSpace,subdet,label,labelCF,maxNbSources,tag,tagCF,checktof,mixProdStep2,isTracker)
 	{
           
           trackerHigh_=false;
@@ -78,7 +78,6 @@ namespace edm
 
 
       virtual void addSignals(const edm::Event &e){
-	
 	if (mixProdStep2_){	  
           edm::Handle<std::vector<T> >  result_t;
 	  bool got = e.getByLabel(tagSignal_,result_t);
