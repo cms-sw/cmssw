@@ -64,6 +64,7 @@ namespace edm
 
       std::string labelPlayback_;
       bool mixProdStep2_;
+      bool mixProdStep1_;
       CrossingFramePlaybackInfo *playbackInfo_;
 
       Selector * sel_;

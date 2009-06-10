@@ -159,7 +159,7 @@ namespace edm {
     if (!mixProdStep2_){ 
       // default version changed to transmit vertexoffset
       boost::shared_ptr<Wrapper<std::vector<SimTrack> > const> shPtr = getProductByTag<std::vector<SimTrack> >(*ep, tag_);
-
+      
       if (shPtr) {
         LogDebug("MixingModule") <<shPtr->product()->size()<<"  pileup objects  added, eventNr "<<eventNr;
         crFrame_->setPileupPtr(shPtr);
@@ -169,7 +169,7 @@ namespace edm {
     else
     { // In case mixProdStep2_=true	
 	boost::shared_ptr<Wrapper<PCrossingFrame<SimTrack> > const> shPtr = getProductByTag<PCrossingFrame<SimTrack> >(*ep, tag_);
-	
+
 	if (shPtr){
 	  secSourceCF_ = const_cast<PCrossingFrame<SimTrack> * >(shPtr->product());
           LogDebug("MixingModule") << "Add PCrossingFrame<SimTrack>,  eventNr " << secSourceCF_->getEventID();
@@ -189,8 +189,7 @@ namespace edm {
   
     if (!mixProdStep2_){ 
       // default version changed to take care of vertexoffset
-      boost::shared_ptr<Wrapper<std::vector<SimVertex> > const> shPtr = 
-        getProductByTag<std::vector<SimVertex> >(*ep, tag_);
+      boost::shared_ptr<Wrapper<std::vector<SimVertex> > const> shPtr = getProductByTag<std::vector<SimVertex> >(*ep, tag_);
         
       if (shPtr) {
         LogDebug("MixingModule") <<shPtr->product()->size()<<"  pileup objects  added, eventNr "<<eventNr;
@@ -246,7 +245,7 @@ namespace edm {
 
   template <>
   void MixingWorker<HepMCProduct>::addSignals(const Event &e)
-  {
+  { 
     if (mixProdStep2_){
       //HepMC - here the interface is different!!!
       Handle<HepMCProduct>  result_t;

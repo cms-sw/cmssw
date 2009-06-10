@@ -27,8 +27,13 @@ namespace edm
   MixingModule::MixingModule(const edm::ParameterSet& ps_mix) : 
   BMixingModule(ps_mix),
   labelPlayback_(ps_mix.getParameter<std::string>("LabelPlayback")),
-  mixProdStep2_(ps_mix.getParameter<bool>("mixProdStep2"))
+  mixProdStep2_(ps_mix.getParameter<bool>("mixProdStep2")),
+  mixProdStep1_(ps_mix.getParameter<bool>("mixProdStep1"))
   {
+    if (!mixProdStep1_ && !mixProdStep2_) LogInfo("MixingModule") << " The MixingModule was run in the Standard mode.";
+    if (mixProdStep1_) LogInfo("MixingModule") << " The MixingModule was run in the Step1 mode. It produces a mixed secondary source.";
+    if (mixProdStep2_) LogInfo("MixingModule") << " The MixingModule was run in the Step2 mode. It uses a mixed secondary source.";
+     
     useCurrentProcessOnly_=false;
     if (ps_mix.exists("useCurrentProcessOnly")) {
       useCurrentProcessOnly_=ps_mix.getParameter<bool>("useCurrentProcessOnly");
@@ -57,7 +62,7 @@ namespace edm
 	    if (tags.size()>0) tag=tags[0];
             std::string label;
             branchesActivate(TypeID(typeid(PCrossingFrame<SimTrack>)).friendlyClassName(),std::string(""),tag,label);
-            
+           
 	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
 
 	    //---------------------------------
@@ -74,11 +79,10 @@ namespace edm
                std::string labelCF;
 	   
 	       branchesActivate(TypeID(typeid(std::vector<SimTrack>)).friendlyClassName(),std::string(""),tagCF,labelCF);
-	       workers_.push_back(new MixingWorker<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,checktof_,mixProdStep2_));  
-	     
+	       workers_.push_back(new MixingWorker<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
+	       
 	       produces<CrossingFrame<SimTrack> >(labelCF);
-	    }
-	    
+	    }	    
 	    //--------------------------------	    
 
           }else if (object=="SimVertexPCrossingFrame") {
@@ -102,8 +106,8 @@ namespace edm
 	       if (tags.size()>0) tagCF=tags[0];
                std::string labelCF;
            
-               branchesActivate(TypeID(typeid(CrossingFrame<SimVertex>)).friendlyClassName(),std::string(""),tagCF,labelCF);
-	       workers_.push_back(new MixingWorker<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,checktof_,mixProdStep2_));  
+               branchesActivate(TypeID(typeid(std::vector<SimVertex>)).friendlyClassName(),std::string(""),tagCF,labelCF);
+	       workers_.push_back(new MixingWorker<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
 
 	       produces<CrossingFrame<SimVertex> >(labelCF);
 	    }
@@ -131,8 +135,8 @@ namespace edm
 	       if (tags.size()>0) tagCF=tags[0];
                std::string labelCF;
 	       	      
-	       branchesActivate(TypeID(typeid(CrossingFrame<HepMCProduct>)).friendlyClassName(),std::string(""),tagCF,labelCF);
-	       workers_.push_back(new MixingWorker<HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,checktof_,mixProdStep2_));  
+	       branchesActivate(TypeID(typeid(HepMCProduct)).friendlyClassName(),std::string(""),tagCF,labelCF);
+	       workers_.push_back(new MixingWorker<HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
 
 	       produces<CrossingFrame<HepMCProduct> >(labelCF);
 	    }
@@ -162,8 +166,8 @@ namespace edm
 		 else if(tags.size()>1) tagCF=tags[ii];
                  std::string labelCF;
         
-	         branchesActivate(TypeID(typeid(CrossingFrame<PCaloHit>)).friendlyClassName(),subdets[ii],tagCF,labelCF);
-	         workers_.push_back(new MixingWorker<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,checktof_,mixProdStep2_));  
+	         branchesActivate(TypeID(typeid(std::vector<PCaloHit>)).friendlyClassName(),subdets[ii],tagCF,labelCF);
+	         workers_.push_back(new MixingWorker<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
 
 		 produces<CrossingFrame<PCaloHit> > (labelCF);
 	      }
@@ -182,15 +186,6 @@ namespace edm
 	      if ((subdets[ii].find("HighTof")==std::string::npos) && (subdets[ii].find("LowTof")==std::string::npos)) {
 		LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be"<<label;
 	      }else {
-		// here we have to give the opposite selector too (low for high, high for low)
-		int slow=(subdets[ii]).find("LowTof");
-		int iend=(subdets[ii]).size();
-		std::string productInstanceNameOpp;
-		if (slow>0) {
-		  productInstanceNameOpp=tag.instance().substr(0,iend-6)+"HighTof";
-		}else{
-		  productInstanceNameOpp=tag.instance().substr(0,iend-7)+"LowTof";
-		}
 		LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
 	      }
 	      
@@ -208,25 +203,25 @@ namespace edm
 	         if (tags.size()==1) tagCF=tags[0];
 		 else if(tags.size()>1) tagCF=tags[ii];
                  std::string labelCF;
-	         branchesActivate(TypeID(typeid(CrossingFrame<PSimHit>)).friendlyClassName(),subdets[ii],tagCF,labelCF);
+	         branchesActivate(TypeID(typeid(std::vector<PSimHit>)).friendlyClassName(),subdets[ii],tagCF,labelCF);
  		 
 	         if ((subdets[ii].find("HighTof")==std::string::npos) && (subdets[ii].find("LowTof")==std::string::npos)) {		   
-		    workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tagCF,checktof_,mixProdStep2_));  	            
+		    workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  	            
 		 }
 		 else 
 		 {
-		    workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,checktof_,mixProdStep2_,true));  
+		    workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_,true));  
 
 		    // here we have to give the opposite selector too (low for high, high for low)
 		    int slow=(subdets[ii]).find("LowTof");
 		    int iend=(subdets[ii]).size();
 		    std::string productInstanceNameOpp;
 		    if (slow>0) {
-		       productInstanceNameOpp=tagCF.instance().substr(0,iend-6)+"HighTof";
+		       productInstanceNameOpp=tag.instance().substr(0,iend-6)+"HighTof";
 		    }else{
-		       productInstanceNameOpp=tagCF.instance().substr(0,iend-7)+"LowTof";
+		       productInstanceNameOpp=tag.instance().substr(0,iend-7)+"LowTof";
 		    }
-		    InputTag tagOpp(tagCF.label(),productInstanceNameOpp,tagCF.process());
+		    InputTag tagOpp(tag.label(),productInstanceNameOpp,tag.process());
 	         }
 
 	         produces<CrossingFrame<PSimHit> > (labelCF);
@@ -239,17 +234,18 @@ namespace edm
 	 
 	  
 	  if (!mixProdStep2_){
-	  	  
+	  	
+	  InputTag tagCF = InputTag();
+	  std::string labelCF = " ";	  
+	  
 	  //SimTracks
           if (object=="SimTrack") {
             InputTag tag;
 	    if (tags.size()>0) tag=tags[0];
             std::string label;
 
-	    std::string labelCF = " ";
             branchesActivate(TypeID(typeid(std::vector<SimTrack>)).friendlyClassName(),std::string(""),tag,label);
-	   
-	    workers_.push_back(new MixingWorker<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,checktof_,mixProdStep2_));  
+	    workers_.push_back(new MixingWorker<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
 
 	    produces<CrossingFrame<SimTrack> >(label);
 	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
@@ -260,10 +256,9 @@ namespace edm
 	    if (tags.size()>0) tag=tags[0];
             std::string label;
 
-	    std::string labelCF = " ";
             branchesActivate(TypeID(typeid(std::vector<SimVertex>)).friendlyClassName(),std::string(""),tag,label);
 	    
-	    workers_.push_back(new MixingWorker<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,checktof_,mixProdStep2_));  
+	    workers_.push_back(new MixingWorker<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
 	    produces<CrossingFrame<SimVertex> >(label);
 	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag "<<tag.encode()<<", label will be "<<label;
 	    
@@ -274,9 +269,8 @@ namespace edm
 	    if (tags.size()>0) tag=tags[0];
             std::string label;
 
-	    std::string labelCF = " ";
             branchesActivate(TypeID(typeid(HepMCProduct)).friendlyClassName(),std::string(""),tag,label);
-	    workers_.push_back(new MixingWorker<HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,checktof_,mixProdStep2_));  
+	    workers_.push_back(new MixingWorker<HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
 
 	    produces<CrossingFrame<HepMCProduct> >(label);
 	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
@@ -290,9 +284,8 @@ namespace edm
               else if(tags.size()>1) tag=tags[ii];
 	      std::string label;
 
-	      std::string labelCF = " ";
 	      branchesActivate(TypeID(typeid(std::vector<PCaloHit>)).friendlyClassName(),subdets[ii],tag,label);
-	      workers_.push_back(new MixingWorker<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,checktof_,mixProdStep2_));  
+	      workers_.push_back(new MixingWorker<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
 
 	      produces<CrossingFrame<PCaloHit> > (label);
 	      LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
@@ -307,14 +300,13 @@ namespace edm
               else if(tags.size()>1) tag=tags[ii];
 	      std::string label;
 
-	      std::string labelCF = " ";
               branchesActivate(TypeID(typeid(std::vector<PSimHit>)).friendlyClassName(),subdets[ii],tag,label);
 
 	      if ((subdets[ii].find("HighTof")==std::string::npos) && (subdets[ii].find("LowTof")==std::string::npos)) {
-		workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,checktof_,mixProdStep2_));  
+		workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
 		LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
 	      }else {
-		workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,checktof_,mixProdStep2_,true));  
+		workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_,true));  
 		// here we have to give the opposite selector too (low for high, high for low)
 		int slow=(subdets[ii]).find("LowTof");
 		int iend=(subdets[ii]).size();

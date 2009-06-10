@@ -40,12 +40,12 @@ namespace edm
  	isTracker_(false)
 	{
 	  tag_=InputTag();
-	  tagSignal_=InputTag("g4SimHits");
+	  tagSignal_=InputTag();
 	  opp_=InputTag();
 	}
   
       /*Normal constructor*/ 
-      MixingWorkerBase(int minBunch,int maxBunch,int bunchSpace,std::string &subdet, std::string& label,std::string& labelCF,unsigned int maxNbSources,InputTag &tag,bool checktof,bool mixProdStep2, bool isTracker);
+      MixingWorkerBase(int minBunch,int maxBunch,int bunchSpace,std::string &subdet, std::string& label,std::string& labelCF, unsigned int maxNbSources, InputTag &tag, InputTag &tagCF, bool checktof,bool mixProdStep2, bool isTracker);
 
       /**Default destructor*/
       virtual ~MixingWorkerBase();
