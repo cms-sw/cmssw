@@ -856,13 +856,84 @@ void DrawProcMatrix(TDirectory *dir)
 	                "\"" + name + "\" correlation matrix", 2);
 
 	TVirtualPad *pad = pads.Next();
+	pad->SetLeftMargin(0.05);
+
+	const unsigned int showNbins = 10;
+	TH1 *rank = dynamic_cast<TH1*>(dir->Get("Ranking"));
+	TString *labels;
+	if (rank) {
+		labels = new TString[rank->GetNbinsX()];
+		for(unsigned int i = 1; i <= rank->GetNbinsX(); i++) {
+			labels[i - 1] = rank->GetXaxis()->GetBinLabel(i);
+			rank->GetXaxis()->SetBinLabel(i,
+				Form("%d.", rank->GetNbinsX() - i + 1));
+		}
+		rank->SetStats(0);
+		rank->SetFillColor(kGreen);
+		if (rank->GetNbinsX() > showNbins)
+		        rank->GetXaxis()->SetRange(rank->GetNbinsX() - showNbins + 1, rank->GetNbinsX());
+		rank->Draw("hbar2");
+		std::cout << std::endl
+			  << "====================================================" << std::endl
+			  << "             Result of Variable Ranking             " << std::endl
+			  << "----------------------------------------------------" << std::endl;
+		for(unsigned int i = rank->GetNbinsX(); i >= 1; i--) {
+			double v = fabs(rank->GetBinContent(i + 1) -
+			                rank->GetBinContent(i));
+			TString text = labels[i - 1] +
+			               Form(": %+1.2f%%", v * 100.0);
+			double off = rank->GetMaximum() * 0.1;
+			TText *t = new TText(off, i - 0.5, text);
+			if ((int) i >= rank->GetNbinsX() - (int) showNbins + 1)
+			        t->Draw();
+			std::cout << std::setw(4) << rank->GetXaxis()->GetBinLabel(i) << " "
+				  << std::setw(38) << std::setiosflags(ios::left) << labels[i - 1]
+				  << std::setiosflags(ios::right) << " +" 
+				  << std::setw(5) << std::setprecision(2) << std::setiosflags(ios::fixed)
+				  << (v * 100.0) << "%" << std::endl;
+		}
+		std::cout << "====================================================" << std::endl;
+		Save(pad, dir, "ranking");
+		pad = pads.Next();
+	}
 
 	pad->SetLeftMargin(0.15);
 	pad->SetRightMargin(0.13);
 	pad->SetTopMargin(0.13);
 
-	TH2 *matrix = dynamic_cast<TH2*>(dir->Get("CorrMatrix"));
-	matrix = (TH2*)matrix->Clone(name + "_tmpPM");
+	TH2 *matrixTmp = dynamic_cast<TH2*>(dir->Get("CorrMatrix"));
+	matrixTmp = (TH2*)matrixTmp->Clone(name + "_tmpPM");
+
+	TH2 *matrix = matrixTmp;
+	if (rank && rank->GetNbinsX() > showNbins) {
+		unsigned int iSave[showNbins];
+		for(unsigned int i = 0; i < showNbins; i++) {
+		        unsigned int iS = 1;
+		        for(; iS <= matrixTmp->GetNbinsX(); iS++) {
+		                if (matrixTmp->GetXaxis()->GetBinLabel(iS) == labels[rank->GetNbinsX() - i - 1]) {
+		                        iSave[i] = iS;
+		                        break;
+		                }
+		        }
+		}
+	        matrix = new TH2F(matrixTmp->GetName(), matrixTmp->GetTitle(),
+				  showNbins + 1, 0., showNbins + 1., showNbins + 1, 0., showNbins + 1.);
+		matrix->SetMinimum(-1.0);
+		matrix->SetMaximum(+1.0);
+		for(unsigned int i = 1; i <= showNbins; i++) {
+		        matrix->GetXaxis()->SetBinLabel(i, Form("%d.", i));
+		        matrix->GetYaxis()->SetBinLabel(i, Form("%d.", i));
+		        for(unsigned int j = i + 1; j <= showNbins; j++) {
+		                matrix->SetBinContent(i, j, matrixTmp->GetBinContent(iSave[i-1], iSave[j-1]));
+		                matrix->SetBinContent(j, i, matrixTmp->GetBinContent(iSave[i-1], iSave[j-1]));
+		        }
+		        matrix->SetBinContent(i, showNbins + 1, matrixTmp->GetBinContent(iSave[i-1], matrixTmp->GetNbinsX()));
+		        matrix->SetBinContent(showNbins + 1, i, matrixTmp->GetBinContent(iSave[i-1], matrixTmp->GetNbinsX()));
+		}
+		matrix->GetXaxis()->SetBinLabel(showNbins + 1, "target");
+		matrix->GetYaxis()->SetBinLabel(showNbins + 1, "target");
+	}
+
 	matrix->SetStats(0);
 	matrix->SetLabelOffset(0.011);
 	matrix->LabelsOption("d");
@@ -883,46 +954,9 @@ void DrawProcMatrix(TDirectory *dir)
 	pad->RedrawAxis();
 	Save(pad, dir, "corrMatrix");
 
-	pad = pads.Next();
-	TH1 *rank = dynamic_cast<TH1*>(dir->Get("Ranking"));
-	if (rank) {
-		TString *labels = new TString[rank->GetNbinsX()];
-		for(unsigned int i = 1; i <= rank->GetNbinsX(); i++) {
-			labels[i - 1] = rank->GetXaxis()->GetBinLabel(i);
-			rank->GetXaxis()->SetBinLabel(i,
-				Form("%d.", rank->GetNbinsX() - i + 1));
-		}
-		rank->SetStats(0);
-		rank->SetFillColor(kGreen);
-		int showNbins = 10;
-		if (rank->GetNbinsX() > showNbins)
-		        rank->GetXaxis()->SetRange(rank->GetNbinsX() - showNbins + 1, rank->GetNbinsX());
-		rank->Draw("hbar2");
-		std::cout << std::endl
-			  << "====================================================" << std::endl
-			  << "             Result of Variable Ranking             " << std::endl
-			  << "----------------------------------------------------" << std::endl;
-		for(unsigned int i = rank->GetNbinsX(); i >= 1; i--) {
-			double v = fabs(rank->GetBinContent(i + 1) -
-			                rank->GetBinContent(i));
-			TString text = labels[i - 1] +
-			               Form(": %+1.2f%%", v * 100.0);
-			double off = rank->GetMaximum() * 0.1;
-			TText *t = new TText(off, i - 0.5, text);
-			if ((int) i >= rank->GetNbinsX() - showNbins + 1)
-			        t->Draw();
-			std::cout << std::setw(4) << rank->GetXaxis()->GetBinLabel(i) << " "
-				  << std::setw(38) << std::setiosflags(ios::left) << labels[i - 1]
-				  << std::setiosflags(ios::right) << " +" 
-				  << std::setw(5) << std::setprecision(2) << std::setiosflags(ios::fixed)
-				  << (v * 100.0) << "%" << std::endl;
-		}
-		std::cout << "====================================================" << std::endl;
-		delete[] labels;
-		Save(pad, dir, "ranking");
-	}
-
 	Save(pads);
+
+	delete[] labels;
 }
 
 void DrawAll()
