@@ -87,10 +87,10 @@ process.digitoraw =cms.Sequence(process.siPixelRawData+process.SiStripDigiToRaw)
 process.rawtodigi =cms.Sequence(process.siPixelDigis+process.SiStripRawToDigis)
 process.digis = cms.Sequence(process.trDigi*process.trackerDigisValidation)
 process.rechits = cms.Sequence(process.trackerlocalreco*process.trackerRecHitsValidation)
-process.tracks = cms.Sequence(process.offlineBeamSpot*process.recopixelvertexing*process.trackingParticles*process.trackingTruthValid*process.ckftracks*process.trackerRecHitsValidation)
-process.trackinghits = cms.Sequence(process.TrackRefitter*process.trackingRecHitsValid)
+process.tracks = cms.Sequence(process.offlineBeamSpot*process.recopixelvertexing*process.trackingParticles*process.trackingTruthValid*process.ckftracks*process.trackingRecHitsValid)
+#process.trackinghits = cms.Sequence(process.TrackRefitter*process.trackingRecHitsValid)
 process.p1 = cms.Path(process.simhits*process.mix*process.digis*process.rechits*process.tracks*process.trackinghits)
-process.p1 = cms.Path(process.simhits*process.mix*process.digitoraw*process.rawtodigi*process.digis*process.rechits*process.tracks*process.trackinghits)
+process.p1 = cms.Path(process.simhits*process.mix*process.digis*process.digitoraw*process.rawtodigi*process.rechits*process.tracks*process.trackinghits)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.Generator.HepMCProductLabel = 'source'
 
