@@ -23,10 +23,12 @@ usage() if ( $opts{'help'} || $Getopt::Long::error );
 #time after which to inject the data file
 my $inject_timeout = 10 * 60; #10 minutes in secs
 
+$inject_timeout = 0 if ( $opts{'now'} );
+
 #time after which to remove a 'failed' run
 my $remove_timeout = 24 * 60 * 60; #24 hours in secs
 
-$inject_timeout = 0 if ( $opts{'now'} );
+$remove_timeout = 0 if ( $opts{'now'} );
 
 my $path = "/dropbox/ecal/matacq-data";
 
