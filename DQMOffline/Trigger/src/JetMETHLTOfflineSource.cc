@@ -901,7 +901,7 @@ void JetMETHLTOfflineSource::fillMEforMonSingleJet(){
 	    
 	    // numerator L1s passed
 	    edm::InputTag l1sTag(v->getPathNameL1s(),"",processname_);
-	    const int indexl1s = triggerObj_->filterIndex(l1sTag);
+	    //const int indexl1s = triggerObj_->filterIndex(l1sTag);
 	    //if ( indexl1s >= triggerObj_->sizeFilters() ) break;
 
 	    // njets>=1
@@ -1062,7 +1062,7 @@ void JetMETHLTOfflineSource::fillMEforMonMET(){
 	    
 	    // numerator L1s passed
 	    edm::InputTag l1sTag(v->getPathNameL1s(),"",processname_);
-	    const int indexl1s = triggerObj_->filterIndex(l1sTag);
+	    //const int indexl1s = triggerObj_->filterIndex(l1sTag);
 	    //if ( indexl1s >= triggerObj_->sizeFilters() ) break;
 
 	    // calomet valid?
@@ -1623,7 +1623,7 @@ bool JetMETHLTOfflineSource::isHLTPathAccepted(std::string pathName){
   // triggerResults_, triggerNames_ has to be defined first before calling this method
   bool output=false;
   if(&triggerResults_) {
-    unsigned int npath = triggerResults_->size();
+    int npath = triggerResults_->size();
     for(int i = 0; i < npath; ++i) {
       if (triggerNames_.triggerName(i).find(pathName) != std::string::npos 
 	  && triggerResults_->accept(i))
