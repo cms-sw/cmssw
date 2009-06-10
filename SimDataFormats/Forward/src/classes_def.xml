@@ -3,4 +3,8 @@
   <class name="TotemTestHistoClass::Hit"/>
   <class name="std::vector<TotemTestHistoClass::Hit>"/>
   <class name="edm::Wrapper<TotemTestHistoClass>"/>
- </lcgdict>
+
+  <class name="LHCTransportLink"/>
+  <class name="std::vector<LHCTransportLink>"/>
+  <class name="edm::Wrapper<std::vector<LHCTransportLink>>" splitLevel="0" />
+</lcgdict>
