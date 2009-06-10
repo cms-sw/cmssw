@@ -82,12 +82,18 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
  bool ctf=1;
  bool rs=0;
  
- TIter iter( sl );
- TKey * myKey;
- while ( (myKey = (TKey*)iter()) ) {
-   TString myName = myKey->GetName();
+ TIter iter_r( rl );
+ TIter iter_s( sl );
+ TKey * myKey1, *myKey2;
+ while ( (myKey1 = (TKey*)iter_r()) ) {
+   TString myName = myKey1->GetName();
    collname1 = myName;
-   collname2 = myName;
+   myKey2 = (TKey*)iter_s();
+   collname2 = myKey2->GetName();
+   if ( (collname1 != collname2) && (collname1+"FS" != collname2) && (collname1 != collname2+"FS") ) {
+     cout << " Different collection names, please check: " << collname1 << " : " << collname2 << endl;
+     continue;
+   }
 
    TString newDir("NEW_RELEASE/NEWSELECTION/NEW_LABEL/");
    newDir+=myName;
