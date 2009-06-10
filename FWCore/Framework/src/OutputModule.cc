@@ -356,6 +356,16 @@ namespace edm {
     respondToCloseOutputFiles(fb);
   }
 
+  void 
+  OutputModule::doPreForkReleaseResources() {
+    preForkReleaseResources();
+  }
+  
+  void 
+  OutputModule::doPostForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
+    postForkReaquireResources(iChildIndex,iNumberOfChildren);
+  }
+  
   void OutputModule::maybeOpenFile() {
     if (!isFileOpen()) doOpenFile();
   }

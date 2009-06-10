@@ -165,6 +165,9 @@ namespace edm {
     // Call shouldWeCloseFile() on all OutputModules.
     bool shouldWeCloseOutput() const;
 
+    void preForkReleaseResources();
+    void postForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
+     
     std::pair<double,double> timeCpuReal() const {
       return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
     }
@@ -335,9 +338,9 @@ namespace edm {
       std::map<std::string, Worker*>::const_iterator itFound =
         labelToWorkers_.find(moduleLabel);
       if(itFound != labelToWorkers_.end()) {
-	  // Unscheduled reconstruction has no accepted definition
-	  // (yet) of the "current path". We indicate this by passing
-	  // a null pointer as the CurrentProcessingContext.
+        // Unscheduled reconstruction has no accepted definition
+        // (yet) of the "current path". We indicate this by passing
+        // a null pointer as the CurrentProcessingContext.
 	  itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(event, eventSetup, 0);
 	  return true;
       }

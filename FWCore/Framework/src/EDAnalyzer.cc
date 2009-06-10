@@ -92,6 +92,16 @@ namespace edm
     respondToCloseOutputFiles(fb);
   }
 
+  void 
+  EDAnalyzer::doPreForkReleaseResources() {
+    preForkReleaseResources();
+  }
+  
+  void 
+  EDAnalyzer::doPostForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
+    postForkReaquireResources(iChildIndex,iNumberOfChildren);
+  }
+   
   CurrentProcessingContext const*
   EDAnalyzer::currentContext() const {
     return current_context_;

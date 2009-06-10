@@ -2,7 +2,7 @@
 #define Framework_ConfigurableInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.h,v 1.32 2008/06/18 22:37:58 wmtan Exp $
+$Id: ConfigurableInputSource.h,v 1.33 2008/07/31 23:17:14 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "boost/shared_ptr.hpp"
@@ -58,7 +58,10 @@ namespace edm {
     virtual void setRun(RunNumber_t r);
     virtual void setLumi(LuminosityBlockNumber_t lb);
     virtual void rewind_();
-    
+
+    virtual void postForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren);
+    void advanceToNext(EventID&, LuminosityBlockNumber_t&) const;
+
     unsigned int numberEventsInRun_;
     unsigned int numberEventsInLumi_;
     TimeValue_t presentTime_;
@@ -80,6 +83,12 @@ namespace edm {
     std::auto_ptr<EventPrincipal> ep_;
     bool isRealData_;
     EventAuxiliary::ExperimentType eType_;
+     
+    //used when process has been forked
+    unsigned int numberOfEventsBeforeBigSkip_;
+    unsigned int numberOfEventsInBigSkip_;
+    unsigned int numberOfSequentialEvents_;
+    unsigned int forkedChildIndex_;
   };
 }
 #endif

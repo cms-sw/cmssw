@@ -151,7 +151,7 @@ int main(int argc, char* argv[])
   defaultServices.push_back("AdaptorConfig");
   defaultServices.push_back("EnableFloatingPointExceptions");
   defaultServices.push_back("UnixSignalService");
-  
+
   // These cannot be overridden from the configuration files.
   // An exception will be thrown if any of these is specified there.
   std::vector<std::string> forcedServices;
@@ -306,6 +306,9 @@ int main(int argc, char* argv[])
     EventProcessorWithSentry procTmp(procP);
     proc = procTmp;
     proc->beginJob();
+    if(!proc->forkProcess()) {
+      return 0;
+    }
     proc.on();
     bool onlineStateTransitions = false;
     proc->runToCompletion(onlineStateTransitions);

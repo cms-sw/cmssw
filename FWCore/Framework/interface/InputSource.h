@@ -182,6 +182,10 @@ namespace edm {
     void doEndLumi(LuminosityBlockPrincipal& lbp);
     void doEndRun(RunPrincipal& rp);
 
+    /// Called by the framework before forking the process
+    void doPreForkReleaseResources();
+    void doPostForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren);
+     
     /// Accessor for the current time, as seen by the input source
     Timestamp const& timestamp() const {return time_;}
 
@@ -284,7 +288,10 @@ namespace edm {
     virtual void endRun(Run &);
     virtual void beginJob(EventSetup const&);
     virtual void endJob();
+    virtual void preForkReleaseResources();
+    virtual void postForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren);
 
+     
   private:
 
     boost::shared_ptr<ActivityRegistry> actReg_;

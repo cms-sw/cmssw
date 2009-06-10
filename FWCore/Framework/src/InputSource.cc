@@ -388,6 +388,24 @@ namespace edm {
   }
 
   void 
+  InputSource::doPreForkReleaseResources() {
+    preForkReleaseResources();
+  }
+  
+  void 
+  InputSource::doPostForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren) {
+    if(maxEvents_ > 0) {
+      int maxEvents = maxEvents_/iNumberOfChildren;
+      //if there are any extra events distribute them to the first few children
+      if(maxEvents_ % iNumberOfChildren > iChildIndex) {
+        maxEvents++;
+      }
+      maxEvents_=maxEvents;
+    }
+    postForkReaquireResources(iChildIndex, iNumberOfChildren, iNumberOfSequentialChildren);
+  }
+  
+  void 
   InputSource::wakeUp_() {}
 
   void
@@ -402,6 +420,12 @@ namespace edm {
   void
   InputSource::endJob() {}
 
+  void 
+  InputSource::preForkReleaseResources() {}
+  void 
+  InputSource::postForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren) {}
+
+   
   RunNumber_t
   InputSource::run() const {
     assert(runPrincipal());

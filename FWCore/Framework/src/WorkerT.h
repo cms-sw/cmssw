@@ -60,6 +60,9 @@ namespace edm {
     virtual void implRespondToCloseInputFile(FileBlock const& fb);
     virtual void implRespondToOpenOutputFiles(FileBlock const& fb);
     virtual void implRespondToCloseOutputFiles(FileBlock const& fb);
+    virtual void implPreForkReleaseResources();
+    virtual void implPostForkReaquireResources(unsigned int iChildIndex, 
+                                               unsigned int iNumberOfChildren);
     virtual std::string workerType() const;
 
     boost::shared_ptr<T> module_;
@@ -164,6 +167,19 @@ namespace edm {
   WorkerT<T>::implRespondToCloseOutputFiles(FileBlock const& fb) {
     module_->doRespondToCloseOutputFiles(fb);
   }
+  
+  template <typename T>
+  void 
+  WorkerT<T>::implPreForkReleaseResources() {
+    module_->doPreForkReleaseResources();
+  }
+  
+  template <typename T>
+  void 
+  WorkerT<T>::implPostForkReaquireResources(unsigned int iChildIndex, 
+                                            unsigned int iNumberOfChildren) {
+    module_->doPostForkReaquireResources(iChildIndex,iNumberOfChildren);
+  }  
 }
 
 #endif

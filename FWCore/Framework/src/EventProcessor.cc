@@ -6,6 +6,11 @@
 #include <iostream>
 #include <iomanip>
 
+//Used for forking
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
 #include "boost/bind.hpp"
 #include "boost/thread/xtime.hpp"
 
@@ -47,6 +52,8 @@
 #include "FWCore/Framework/interface/EDLooper.h"
 
 #include "FWCore/Framework/src/EPStates.h"
+
+#include "FWCore/Framework/interface/EventSetupRecord.h"
 
 using edm::serviceregistry::ServiceLegacy; 
 using edm::serviceregistry::kOverlapIsError;
@@ -423,7 +430,9 @@ namespace edm {
     looper_(),
     shouldWeStop_(false),
     alreadyHandlingException_(false),
-    forceLooperToEnd_(false) {
+    forceLooperToEnd_(false),
+    numberOfForkedChildren_(0),
+    numberOfSequentialEventsPerChild_(1) {
     boost::shared_ptr<edm::ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, iToken, iLegacy);
@@ -460,7 +469,9 @@ namespace edm {
     looper_(),
     shouldWeStop_(false),
     alreadyHandlingException_(false),
-    forceLooperToEnd_(false) {
+    forceLooperToEnd_(false),
+    numberOfForkedChildren_(0),
+    numberOfSequentialEventsPerChild_(1) {
     boost::shared_ptr<edm::ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
@@ -558,6 +569,9 @@ namespace edm {
     fileMode_ = optionsPset.getUntrackedParameter<std::string>("fileMode", "");
     handleEmptyRuns_ = optionsPset.getUntrackedParameter<bool>("handleEmptyRuns", true);
     handleEmptyLumis_ = optionsPset.getUntrackedParameter<bool>("handleEmptyLumis", true);
+    ParameterSet forking = optionsPset.getUntrackedParameter<ParameterSet>("multiProcesses",ParameterSet());
+    numberOfForkedChildren_ = forking.getUntrackedParameter<int>("maxChildProcesses",0);
+    numberOfSequentialEventsPerChild_ = forking.getUntrackedParameter<unsigned int>("maxSequentialEventsPerChild",1);
 
     maxEventsPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet());
     maxLumisPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxLuminosityBlocks", ParameterSet());
@@ -829,7 +843,172 @@ namespace edm {
   EventProcessor::getToken() {
     return serviceToken_;
   }
+  
+  //Setup signal handler to listen for when forked children stop
+  namespace {
+    volatile bool child_failed = false;
+    volatile unsigned int num_children_done = 0;
+    
+    extern "C" {
+      void ep_sigchld(int,siginfo_t*,void*)
+      {
+        //printf("in sigchld\n");
+        //FDEBUG(1) << "in sigchld handler\n";
+        int stat_loc;
+        pid_t p = waitpid(-1,&stat_loc,WNOHANG); 
+        while(0<p) {
+          //printf("  looping\n");
+          if(WIFEXITED(stat_loc)) {
+            ++num_children_done;
+            if(0!=WEXITSTATUS(stat_loc) ) {
+              child_failed=true;
+            }
+          }
+          if(WIFSIGNALED(stat_loc)) {
+            ++num_children_done;
+            child_failed=true;
+          }
+          p = waitpid(-1,&stat_loc,WNOHANG); 
+        }
+      }
+    }
+    
+  }
+  
+  enum {
+    kChildSucceed,
+    kChildExitBadly,
+    kChildSegv,
+    kMaxChildAction
+  };
+  
+  bool 
+  EventProcessor::forkProcess()
+  {
+    if(0==numberOfForkedChildren_) {return true;}
+    assert(0<numberOfForkedChildren_);
+    //do what we want done in common
+    {
+      beginJob(); //make sure this was run
+      // make the services available
+      ServiceRegistry::Operate operate(serviceToken_);
+      
+      InputSource::ItemType itemType;
+      itemType = input_->nextItemType();
 
+      assert(itemType == InputSource::IsFile);
+      {
+        readFile();
+      }
+      itemType = input_->nextItemType();
+     assert(itemType == InputSource::IsRun);
+      
+      int run = readAndCacheRun();
+      
+      RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
+      IOVSyncValue ts(EventID(runPrincipal.run(),0),
+                      0,
+                      runPrincipal.beginTime());
+      EventSetup const& es = esp_->eventSetupForInstance(ts);
+
+      //now get all the data available in the EventSetup
+      std::vector<eventsetup::EventSetupRecordKey> recordKeys;
+      es.fillAvailableRecordKeys(recordKeys);
+      std::vector<eventsetup::DataKey> dataKeys;
+      for(std::vector<eventsetup::EventSetupRecordKey>::const_iterator itKey=recordKeys.begin(),itEnd=recordKeys.end();
+          itKey != itEnd;
+          ++itKey) {
+        const eventsetup::EventSetupRecord* recordPtr = es.find(*itKey);
+        if(0!=recordPtr) {
+          recordPtr->fillRegisteredDataKeys(dataKeys);
+          for(std::vector<eventsetup::DataKey>::const_iterator itDataKey = dataKeys.begin(),itDataKeyEnd=dataKeys.end();
+              itDataKey!=itDataKeyEnd;
+              ++itDataKey) {
+            recordPtr->doGet(*itDataKey);
+          }
+        }
+      }
+    }
+    
+    //Now actually do the forking
+    actReg_->preForkReleaseResourcesSignal_();
+    input_->doPreForkReleaseResources();
+    schedule_->preForkReleaseResources();
+
+    edm::installCustomHandler(SIGCHLD, ep_sigchld);
+    unsigned int childIndex=0;
+    const unsigned int kMaxChildren = numberOfForkedChildren_;
+    std::vector<pid_t> childrenIds;
+    childrenIds.reserve(kMaxChildren);
+    for(; childIndex <kMaxChildren; ++childIndex) {
+      pid_t value = fork();
+      if(value == 0) {
+        std::cout <<"I am child "<<childIndex<<" with pgid "<<getpgrp()<<std::endl;
+        break;
+      }
+      if(value<0) {
+        std::cout<<"failed to create a child"<<std::endl;
+        exit(-1);
+      }
+      childrenIds.push_back(value);
+    }
+
+    if(childIndex<kMaxChildren) {
+      actReg_->postForkReaquireResourcesSignal_(childIndex,kMaxChildren);
+      input_->doPostForkReaquireResources(childIndex,kMaxChildren,numberOfSequentialEventsPerChild_);
+      schedule_->postForkReaquireResources(childIndex,kMaxChildren);
+      rewindInput();
+      return true;
+    }
+    
+    //this is the original which is now the master for all the children
+    
+    //Need to wait for signals from the children or externally
+    // To wait we must
+    // 1) block the signals we want to wait on so we do not have a race condition
+    // 2) check that we haven't already meet our ending criteria
+    // 3) call sigsuspend which unblocks the signals and waits until a signal is caught
+    sigset_t blockingSigSet;
+    sigset_t unblockingSigSet;
+    sigset_t oldSigSet;
+    pthread_sigmask(SIG_SETMASK,NULL,&unblockingSigSet);
+    pthread_sigmask(SIG_SETMASK,NULL,&blockingSigSet);
+    sigaddset(&blockingSigSet, SIGCHLD);
+    sigaddset(&blockingSigSet, SIGUSR2);
+    sigaddset(&blockingSigSet, SIGINT);
+    sigdelset(&unblockingSigSet, SIGCHLD);
+    sigdelset(&unblockingSigSet, SIGUSR2);
+    sigdelset(&unblockingSigSet, SIGINT);
+    pthread_sigmask(SIG_BLOCK, &blockingSigSet, &oldSigSet);
+    while(!edm::shutdown_flag && !child_failed && (childrenIds.size()!=num_children_done)) {
+      sigsuspend(&unblockingSigSet);
+      std::cout <<"woke from sigwait"<<std::endl;
+    }
+    pthread_sigmask(SIG_SETMASK,&oldSigSet,NULL);
+    
+    std::cout <<"num children who have already stopped "<<num_children_done<<std::endl;
+    if(child_failed) {
+      std::cout <<"child failed"<<std::endl;
+    }
+    if(edm::shutdown_flag) {
+      std::cout <<"asked to shutdown"<<std::endl;
+    }
+    if(edm::shutdown_flag || child_failed && (num_children_done != childrenIds.size())) {
+      std::cout <<"must stop children"<<std::endl;
+      for(std::vector<pid_t>::iterator it=childrenIds.begin(),itEnd=childrenIds.end();
+	  it != itEnd; ++it) {
+	int result = kill(*it,SIGUSR2);
+      }
+      pthread_sigmask(SIG_BLOCK, &blockingSigSet, &oldSigSet);
+      while(num_children_done != kMaxChildren) {
+	sigsuspend(&unblockingSigSet);
+      } 
+      pthread_sigmask(SIG_SETMASK,&oldSigSet,NULL);
+    }  
+    return false;
+  }
+
+   
   void
   EventProcessor::connectSigs(EventProcessor* ep) {
     // When the FwkImpl signals are given, pass them to the

@@ -156,6 +156,8 @@ namespace edm {
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doRespondToOpenOutputFiles(FileBlock const& fb);
     void doRespondToCloseOutputFiles(FileBlock const& fb);
+    void doPreForkReleaseResources();
+    void doPostForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 
     std::string workerType() const {return "OutputWorker";}
 
@@ -192,6 +194,8 @@ namespace edm {
     virtual void respondToCloseInputFile(FileBlock const& fb) {}
     virtual void respondToOpenOutputFiles(FileBlock const& fb) {}
     virtual void respondToCloseOutputFiles(FileBlock const& fb) {}
+    virtual void preForkReleaseResources() {}
+    virtual void postForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {}
 
     virtual bool isFileOpen() const { return true; }
 

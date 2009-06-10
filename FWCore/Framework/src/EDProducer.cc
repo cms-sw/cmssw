@@ -102,6 +102,16 @@ namespace edm {
     respondToCloseOutputFiles(fb);
   }
 
+  void 
+  EDProducer::doPreForkReleaseResources() {
+    preForkReleaseResources();
+  }
+  
+  void 
+  EDProducer::doPostForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
+    postForkReaquireResources(iChildIndex,iNumberOfChildren);
+  }
+  
   CurrentProcessingContext const*
   EDProducer::currentContext() const {
     return current_context_;

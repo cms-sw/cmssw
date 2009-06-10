@@ -55,6 +55,9 @@ namespace edm {
     void respondToOpenOutputFiles(FileBlock const& fb) {implRespondToOpenOutputFiles(fb);}
     void respondToCloseOutputFiles(FileBlock const& fb) {implRespondToCloseOutputFiles(fb);}
 
+    void preForkReleaseResources() {implPreForkReleaseResources();}
+    void postForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {implPostForkReaquireResources(iChildIndex,iNumberOfChildren);}
+
     void reset() { state_ = Ready; }
     
     ModuleDescription const& description() const {return md_;}
@@ -103,6 +106,10 @@ namespace edm {
     virtual void implRespondToOpenOutputFiles(FileBlock const& fb) = 0;
     virtual void implRespondToCloseOutputFiles(FileBlock const& fb) = 0;
 
+    virtual void implPreForkReleaseResources() =0;
+    virtual void implPostForkReaquireResources(unsigned int iChildIndex, 
+                                               unsigned int iNumberOfChildren) = 0;
+    
     RunStopwatch::StopwatchPointer stopwatch_;
 
     int timesRun_;

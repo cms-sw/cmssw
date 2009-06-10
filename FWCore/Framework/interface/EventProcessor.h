@@ -338,6 +338,9 @@ namespace edm {
 
     virtual bool alreadyHandlingException() const;
 
+     //returns 'true' if this was a child and we should continue processing
+     bool forkProcess();
+
   private:
     //------------------------------------------------------------------
     //
@@ -346,9 +349,7 @@ namespace edm {
     void init(boost::shared_ptr<edm::ProcessDesc> & processDesc,
               ServiceToken const& token,
               serviceregistry::ServiceLegacy);
-  
-
-                       
+                         
     StatusCode runCommon(bool onlineStateTransitions, int numberOfEventsToProcess);
     void terminateMachine();
 
@@ -418,6 +419,8 @@ namespace edm {
     bool                                          alreadyHandlingException_;
     bool                                          forceLooperToEnd_;
 
+    int                                           numberOfForkedChildren_;
+    unsigned int                                  numberOfSequentialEventsPerChild_;
     friend class event_processor::StateSentry;
   }; // class EventProcessor
 

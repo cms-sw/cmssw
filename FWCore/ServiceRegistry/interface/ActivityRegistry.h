@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:53:09 EDT 2005
-// $Id: ActivityRegistry.h,v 1.17 2008/10/16 23:05:32 wmtan Exp $
+// $Id: ActivityRegistry.h,v 1.18 2008/10/20 19:38:21 wmtan Exp $
 //
 
 // system include files
@@ -485,8 +485,27 @@ namespace edm {
          sl.push_front(iSlot);
       }
       AR_WATCH_USING_METHOD_1(watchPostSourceConstruction)
-        // ---------- member functions ---------------------------
 
+      /// signal is emitted before we fork the processes
+      typedef sigc::signal<void> PreForkReleaseResources;
+      PreForkReleaseResources preForkReleaseResourcesSignal_;
+      void watchPreForkReleaseResources(PreForkReleaseResources::slot_type const& iSlot) {
+         PreForkReleaseResources::slot_list_type sl = preForkReleaseResourcesSignal_.slots();
+         sl.push_front(iSlot);
+      }
+      AR_WATCH_USING_METHOD_0(watchPreForkReleaseResources)
+      
+      /// signal is emitted after we forked the processes
+      typedef sigc::signal<void, unsigned int, unsigned int> PostForkReaquireResources;
+      PostForkReaquireResources postForkReaquireResourcesSignal_;
+      void watchPostForkReaquireResources(PostForkReaquireResources::slot_type const& iSlot) {
+         PostForkReaquireResources::slot_list_type sl = postForkReaquireResourcesSignal_.slots();
+         sl.push_front(iSlot);
+      }
+      AR_WATCH_USING_METHOD_2(watchPostForkReaquireResources)
+      
+      // ---------- member functions ---------------------------
+      
       ///forwards our signals to slots connected to iOther
       void connect(ActivityRegistry& iOther);
       

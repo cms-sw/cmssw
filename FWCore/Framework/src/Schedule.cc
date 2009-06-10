@@ -806,6 +806,14 @@ namespace edm {
     for_all(all_workers_, boost::bind(&Worker::beginJob, _1, boost::cref(es)));
   }
 
+  void Schedule::preForkReleaseResources() {
+    for_all(all_workers_, boost::bind(&Worker::preForkReleaseResources, _1));
+  }
+  void Schedule::postForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
+    for_all(all_workers_, boost::bind(&Worker::postForkReaquireResources, _1, iChildIndex,iNumberOfChildren));
+  }
+
+   
   std::vector<ModuleDescription const*>
   Schedule::getAllModuleDescriptions() const {
     AllWorkers::const_iterator i(workersBegin());
