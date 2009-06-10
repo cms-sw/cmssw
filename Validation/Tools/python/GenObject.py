@@ -1423,6 +1423,10 @@ class GenObject (object):
                                 countDict[varName] += 1
                             else:
                                 countDict[varName] = 1
+                key = 'count_%s' % objName
+                if not problemDict.has_key (key):
+                    problemDict[key] = 0
+                problemDict[key] += len (matchedSet)
             # end for objName
             if diffOutputName:
                 diffTree.Fill()
