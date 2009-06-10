@@ -77,7 +77,10 @@ for sample in samples :
      if(os.path.exists(RefRelease+'/'+RefTag+'/'+sample)==False):
          os.makedirs(RefRelease+'/'+RefTag+'/'+sample)
 
-     if(os.path.isfile(NewRelease+'/'+NewTag+'/'+sample+'/globalMuons_tpToGlbAssociation.pdf')!=True):
+     checkFile = NewRelease+'/'+NewTag+'/'+sample+'/globalMuons_tpToGlbAssociation.pdf'
+     if (NewFastSim):
+         checkFile = NewRelease+'/'+NewTag+'/'+sample+'/globalMuons_tpToGlbAssociationFS.pdf'
+     if(os.path.isfile(checkFile)!=True):
          newSample=NewRepository+'/'+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root'
          refSample=RefRepository+'/'+RefRelease+'/'+RefTag+'/'+sample+'/'+'val.'+sample+'.root'
 
