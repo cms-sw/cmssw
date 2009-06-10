@@ -3,11 +3,11 @@ import FWCore.ParameterSet.Config as cms
 jetMETHLTOfflineSource = cms.EDFilter("JetMETHLTOfflineSource",
  
                                  #triggerTriggerEvent_hltTriggerSummaryAOD_HLT
-                                 triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","FU"),
+                                 triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
                                  #
                                  # edmTriggerResults_TriggerResults_RECO
-                                 triggerResultsLabel = cms.InputTag("TriggerResults::FU"),
-                                 processname = cms.string("FU"),
+                                 triggerResultsLabel = cms.InputTag("TriggerResults::HLT"),
+                                 processname = cms.string("HLT"),
 
                                  L1Taus  = cms.InputTag("hltL1extraParticles","Tau"),
                                  L1CJets = cms.InputTag("hltL1extraParticles","Central"),
