@@ -2,15 +2,15 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/09/19 07:26:03 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/11/15 21:28:16 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include <cassert>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 bool HLTConfigProvider::init(const std::string& processName)
@@ -18,7 +18,7 @@ bool HLTConfigProvider::init(const std::string& processName)
    using namespace std;
    using namespace edm;
 
-   // clear and initialise
+   // clear data members
 
    processName_ = processName;
    registry_    = pset::Registry::instance();
@@ -35,6 +35,12 @@ bool HLTConfigProvider::init(const std::string& processName)
    pathNames_.clear();
    endpathNames_.clear();
 
+   // initialise
+
+   LogInfo("HLTConfigProvider") << " called with processName '"
+				<< processName_
+				<< "'." << endl;
+
    // Obtain ParameterSetID for requested process (with name
    // processName) from pset registry
    ParameterSetID ProcessPSetID;
@@ -42,19 +48,31 @@ bool HLTConfigProvider::init(const std::string& processName)
      if (i->second.exists("@process_name") and i->second.getParameter<string>("@process_name") == processName_)
        ProcessPSetID = i->first;
    }
-   if (ProcessPSetID==ParameterSetID()) return false;
+   if (ProcessPSetID==ParameterSetID()) {
+     LogError("HLTConfigProvider") << " Process name '"
+				   << processName_
+				   << "' not found in registry!" << endl;
+     return false;
+   }
 
    // Obtain ParameterSet from ParameterSetID
-   if (!(registry_->getMapped(ProcessPSetID,ProcessPSet_))) return false;
+   if (!(registry_->getMapped(ProcessPSetID,ProcessPSet_))) {
+     LogError("HLTConfigProvider") << " ProcessPSet for ProcessPSetID '"
+				   << ProcessPSetID
+				   << "' not found in registry!" << endl;
+     return false;
+   }
 
-   // Obtain HLT PSet containing table name (available only in 2_1_10++ files)
+   // Obtain PSet containing table name (available only in 2_1_10++ files)
    if (ProcessPSet_.exists("HLTConfigVersion")) {
      const ParameterSet HLTPSet(ProcessPSet_.getParameter<ParameterSet>("HLTConfigVersion"));
      if (HLTPSet.exists("tableName")) {
        tableName_=HLTPSet.getParameter<string>("tableName");
      }
    }
-   //cout << "HLTConfigProvider::init() HLT-ConfDB TableName = " << tableName_ << endl;
+   LogInfo("HLTConfigProvider") << " HLT-ConfDB TableName = '"
+				<< tableName_
+				<< "'." << endl;
 
    // Extract trigger paths, which are paths but with endpaths to be
    // removed, from ParameterSet
@@ -108,17 +126,17 @@ void HLTConfigProvider::dump (const std::string& what) const {
    } else if (what=="TableName") {
      cout << "HLTConfigProvider::dump: TableName = " << tableName_ << endl;
    } else if (what=="Triggers") {
-     cout << "HLTConfigProvider::dump: Triggers: " << endl;
      const unsigned int n(size());
+     cout << "HLTConfigProvider::dump: Triggers: " << n << endl;
      for (unsigned int i=0; i!=n; ++i) {
        cout << "  " << i << " " << triggerNames_[i] << endl;
      }
    } else if (what=="Modules") {
-     cout << "HLTConfigProvider::dump Triggers and Modules: " << endl;
      const unsigned int n(size());
+     cout << "HLTConfigProvider::dump Triggers and Modules: " << n << endl;
      for (unsigned int i=0; i!=n; ++i) {
-       cout << i << " " << triggerNames_[i] << endl;
        const unsigned int m(size(i));
+       cout << i << " " << triggerNames_[i] << " " << m << endl;
        cout << " - Modules: ";
        unsigned int nHLTPrescalers(0);
        unsigned int nHLTLevel1GTSeed(0);

@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2008/09/06 12:01:51 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/09/19 07:18:44 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -67,7 +67,15 @@ class HLTConfigProvider {
   const edm::ParameterSet modulePSet(const std::string& module) const;
 
 
+  /// c'tor
+  HLTConfigProvider():
+    processName_(""), registry_(), ProcessPSet_(),
+    tableName_(), triggerNames_(), moduleLabels_(),
+    triggerIndex_(), moduleIndex_(),
+    pathNames_(), endpathNames_() { }
+
  private:
+
   std::string processName_;
 
   const edm::pset::Registry * registry_;
