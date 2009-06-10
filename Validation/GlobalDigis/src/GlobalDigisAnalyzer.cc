@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/07/22 17:12:28 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/07/23 19:47:46 $
+ *  $Revision: 1.15 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -707,8 +707,15 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
 	mehEcalMaxPos[0]->Fill(Pmax);
 	mehEcalSHE[0]->Fill(ebSimMap[ebid.rawId()]);
 	mehEcalAEE[0]->Fill(Erec);
-	mehEcalSHEvAEESHE[0]->Fill(Erec/ebSimMap[ebid.rawId()],
-				   ebSimMap[ebid.rawId()]);
+	//Adding protection against FPE
+	if (ebSimMap[ebid.rawId()]!=0) {
+	  mehEcalSHEvAEESHE[0]->Fill(Erec/ebSimMap[ebid.rawId()],
+				     ebSimMap[ebid.rawId()]);
+	}
+	//else {
+	//  std::cout<<"Would have been an FPE! with ebSimMap[ebid.rawId()]==0\n";
+	//}
+
 	mehEcalMultvAEE[0]->Fill(Pmax,(float)i);
       }
       
@@ -830,8 +837,14 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
 	mehEcalMaxPos[1]->Fill(Pmax);
 	mehEcalSHE[1]->Fill(eeSimMap[eeid.rawId()]);
 	mehEcalAEE[1]->Fill(Erec);
-	mehEcalSHEvAEESHE[1]->Fill(Erec/eeSimMap[eeid.rawId()],
-				   eeSimMap[eeid.rawId()]);
+	//Adding protection against FPE
+        if (eeSimMap[eeid.rawId()]!=0){
+	  mehEcalSHEvAEESHE[1]->Fill(Erec/eeSimMap[eeid.rawId()],
+				     eeSimMap[eeid.rawId()]);
+	}
+	//else{
+	//  std::cout<<"Would have been an FPE! with eeSimMap[eeid.rawId()]==0\n"; 
+	//}
 	mehEcalMultvAEE[1]->Fill(Pmax,(float)inc);
 	
       }
@@ -1048,7 +1061,13 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event& iEvent,
 	  
 	  mehHcalSHE[0]->Fill(fHFEnergySimHits[cell.rawId()]);
 	  mehHcalAEE[0]->Fill(fDigiSum);
-	  mehHcalAEESHE[0]->Fill(fDigiSum/fHFEnergySimHits[cell.rawId()]);
+	  //Adding protection against FPE
+	  if (fHFEnergySimHits[cell.rawId()]!=0){
+	    mehHcalAEESHE[0]->Fill(fDigiSum/fHFEnergySimHits[cell.rawId()]);
+	  }
+	  //else {
+	  //  std::cout<<"It would have been an FPE! with fHFEnergySimHits[cell.rawId()]==0!\n";
+	  //}
 	  mehHcalSHEvAEE[0]->Fill(fDigiSum, fHFEnergySimHits[cell.rawId()]);
 	}
 	
@@ -1064,7 +1083,13 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event& iEvent,
 	  
 	  mehHcalSHE[1]->Fill(fHFEnergySimHits[cell.rawId()]);
 	  mehHcalAEE[1]->Fill(fDigiSum);
-	  mehHcalAEESHE[1]->Fill(fDigiSum/fHFEnergySimHits[cell.rawId()]);
+	  //Adding protection against FPE
+	  if (fHFEnergySimHits[cell.rawId()]!=0){
+	    mehHcalAEESHE[1]->Fill(fDigiSum/fHFEnergySimHits[cell.rawId()]);
+	  }
+	  //else{
+	  //  std::cout<<"It would have been an FPE! with fHFEnergySimHits[cell.rawId()]==0!\n";
+	  //}
 	  mehHcalSHEvAEE[1]->Fill(fDigiSum, fHFEnergySimHits[cell.rawId()]);
 	}
       }
@@ -1120,7 +1145,13 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event& iEvent,
 	
 	mehHcalSHE[2]->Fill(fHFEnergySimHits[cell.rawId()]);
 	mehHcalAEE[2]->Fill(fDigiSum);
-	mehHcalAEESHE[2]->Fill(fDigiSum/fHFEnergySimHits[cell.rawId()]);
+	//Adding protection against FPE
+	if (fHFEnergySimHits[cell.rawId()]!=0){
+	  mehHcalAEESHE[2]->Fill(fDigiSum/fHFEnergySimHits[cell.rawId()]);
+	}
+	//else{
+	//  std::cout<<"It would have been an FPE! with fHFEnergySimHits[cell.rawId()]==0!\n";
+	//}
 	mehHcalSHEvAEE[2]->Fill(fDigiSum, fHFEnergySimHits[cell.rawId()]);
       }
     }
@@ -1169,7 +1200,13 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event& iEvent,
 	
 	mehHcalSHE[3]->Fill(fHFEnergySimHits[cell.rawId()]);
 	mehHcalAEE[3]->Fill(fDigiSum);
-	mehHcalAEESHE[3]->Fill(fDigiSum/fHFEnergySimHits[cell.rawId()]);
+	//Adding protection against FPE
+	if (fHFEnergySimHits[cell.rawId()]!=0){
+	  mehHcalAEESHE[3]->Fill(fDigiSum/fHFEnergySimHits[cell.rawId()]);
+	}
+	//else{
+	//  std::cout<<"It would have been an FPE! with fHFEnergySimHits[cell.rawId()]==0!\n";
+	//}
 	mehHcalSHEvAEE[3]->Fill(fDigiSum, fHFEnergySimHits[cell.rawId()]);
       }
     }
