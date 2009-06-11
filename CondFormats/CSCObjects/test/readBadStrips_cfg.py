@@ -10,9 +10,9 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     # For testing, sqlite database file expected to be in local directory 
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('CSCBadStripsRcd'),
-        tag = cms.string('CSCBadStrips_new_popcon')
+        tag = cms.string('CSCBadStrips')
     )),
-    connect = cms.string('sqlite_file:BadStrips.db')
+    connect = cms.string('sqlite_file:BadStrips_11June2009.db')
 )
 
 process.maxEvents = cms.untracked.PSet(
