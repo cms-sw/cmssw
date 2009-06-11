@@ -23,9 +23,9 @@ process.source = cms.Source (
        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre4/aod_QCDForPF_Fast_9.root',
        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre4/aod_QCDForPF_Fast_10.root'
     # Full
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre4/aod_QCDForPF_Full_001.root',
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre4/aod_QCDForPF_Full_002.root',
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre4/aod_QCDForPF_Full_003.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre8/aod_QCDForPF_Full_001.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre8/aod_QCDForPF_Full_002.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre8/aod_QCDForPF_Full_003.root',
        #'file:aod.root'
        ),
     secondaryFileNames = cms.untracked.vstring(),
@@ -56,9 +56,9 @@ process.iterativeCone5PFJets.inputEtMin = 0.0
 # process.pfJetBenchmarkGeneric.minEta = cms.double(1.6)
 # process.caloJetBenchmarkGeneric.minEta = cms.double(1.6)
 # process.jptJetBenchmarkGeneric.minEta = cms.double(1.6)
-# process.pfJetBenchmarkGeneric.maxEta = cms.double(2.4)
-# process.caloJetBenchmarkGeneric.maxEta = cms.double(2.4)
-# process.jptJetBenchmarkGeneric.maxEta = cms.double(2.4)
+process.pfJetBenchmarkGeneric.maxEta = cms.double(5.0)
+process.caloJetBenchmarkGeneric.maxEta = cms.double(5.0)
+process.jptJetBenchmarkGeneric.maxEta = cms.double(5.0)
 
 # should do a cloning
 process.genParticlesForJets.ignoreParticleIDs.append(14)
@@ -74,12 +74,12 @@ process.jptJetBenchmarkGeneric.OutputFile = cms.untracked.string('JetBenchmarkGe
 process.p =cms.Path(
     process.genJetParticles+
     process.iterativeCone5GenJets+
-    process.iterativeCone5PFJets+
+    #process.iterativeCone5PFJets+
     process.pfJetBenchmarkGeneric+
-    process.caloJetBenchmarkGeneric+
-    process.ZSPJetCorrections+
-    process.JetPlusTrackCorrections+
-    process.jptJetBenchmarkGeneric
+    process.caloJetBenchmarkGeneric
+    #process.ZSPJetCorrections+
+    #process.JetPlusTrackCorrections+
+    #process.jptJetBenchmarkGeneric
     )
 
 
