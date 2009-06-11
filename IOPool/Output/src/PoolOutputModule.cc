@@ -10,6 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include "TTree.h"
@@ -35,15 +36,17 @@ namespace edm {
     fastCloning_(pset.getUntrackedParameter<bool>("fastCloning", true) && wantAllEvents()),
     dropMetaData_(DropNone),
     moduleLabel_(pset.getParameter<std::string>("@module_label")),
+    initializedFromInput_(false),
     outputFileCount_(0),
     inputFileCount_(0),
+    overrideInputFileSplitLevels_(pset.getUntrackedParameter<bool>("overrideInputFileSplitLevels", false)),
     rootOutputFile_() {
       std::string dropMetaData(pset.getUntrackedParameter<std::string>("dropMetaData", std::string()));
-      if (dropMetaData.empty()) dropMetaData_ = DropNone;
-      else if (dropMetaData == std::string("NONE")) dropMetaData_ = DropNone;
-      else if (dropMetaData == std::string("DROPPED")) dropMetaData_ = DropDroppedPrior;
-      else if (dropMetaData == std::string("PRIOR")) dropMetaData_ = DropPrior;
-      else if (dropMetaData == std::string("ALL")) dropMetaData_ = DropAll;
+      if(dropMetaData.empty()) dropMetaData_ = DropNone;
+      else if(dropMetaData == std::string("NONE")) dropMetaData_ = DropNone;
+      else if(dropMetaData == std::string("DROPPED")) dropMetaData_ = DropDroppedPrior;
+      else if(dropMetaData == std::string("PRIOR")) dropMetaData_ = DropPrior;
+      else if(dropMetaData == std::string("ALL")) dropMetaData_ = DropAll;
       else {
         throw edm::Exception(errors::Configuration, "Illegal dropMetaData parameter value: ")
             << dropMetaData << ".\n"
@@ -56,12 +59,25 @@ namespace edm {
     pset.getUntrackedParameter<ParameterSet>("dataset", ParameterSet());
   }
 
-  PoolOutputModule::OutputItem::Sorter::Sorter(TTree * tree) {
+  PoolOutputModule::OutputItem::OutputItem() :
+	branchDescription_(0),
+	product_(0),
+	splitLevel_(BranchDescription::invalidSplitLevel),
+	basketSize_(BranchDescription::invalidBasketSize) {}
+
+  PoolOutputModule::OutputItem::OutputItem(BranchDescription const* bd, int splitLevel, int basketSize) :
+	branchDescription_(bd),
+	product_(0),
+	splitLevel_(splitLevel),
+	basketSize_(basketSize) {}
+
+
+  PoolOutputModule::OutputItem::Sorter::Sorter(TTree* tree) {
     // Fill a map mapping branch names to an index specifying the order in the tree.
-    if (tree != 0) {
-      TObjArray * branches = tree->GetListOfBranches();
-      for (int i = 0; i < branches->GetEntries(); ++i) {
-        TBranchElement * br = (TBranchElement *)branches->At(i);
+    if(tree != 0) {
+      TObjArray* branches = tree->GetListOfBranches();
+      for(int i = 0; i < branches->GetEntries(); ++i) {
+        TBranchElement* br = (TBranchElement*)branches->At(i);
         treeMap_.insert(std::make_pair(std::string(br->GetName()), i));
       }
     }
@@ -71,32 +87,44 @@ namespace edm {
   PoolOutputModule::OutputItem::Sorter::operator()(OutputItem const& lh, OutputItem const& rh) const {
     // Provides a comparison for sorting branches according to the index values in treeMap_.
     // Branches not found are always put at the end (i.e. not found > found).
-    if (treeMap_.empty()) return lh < rh;
+    if(treeMap_.empty()) return lh < rh;
     std::string const& lstring = lh.branchDescription_->branchName();
     std::string const& rstring = rh.branchDescription_->branchName();
     std::map<std::string, int>::const_iterator lit = treeMap_.find(lstring);
     std::map<std::string, int>::const_iterator rit = treeMap_.find(rstring);
     bool lfound = (lit != treeMap_.end());
     bool rfound = (rit != treeMap_.end());
-    if (lfound && rfound) {
+    if(lfound && rfound) {
       return lit->second < rit->second;
-    } else if (lfound) {
+    } else if(lfound) {
       return true;
-    } else if (rfound) {
+    } else if(rfound) {
       return false;
     }
     return lh < rh;
   }
 
-  void PoolOutputModule::fillSelectedItemList(BranchType branchType, TTree * theTree) {
+  void PoolOutputModule::fillSelectedItemList(BranchType branchType, TTree* theTree) {
 
     Selections const& keptVector =    keptProducts()[branchType];
     OutputItemList&   outputItemList = selectedOutputItemList_[branchType];
 
     // Fill outputItemList with an entry for each branch.
-    for (Selections::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
+    for(Selections::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
+      int splitLevel = BranchDescription::invalidSplitLevel;
+      int basketSize = BranchDescription::invalidBasketSize;
+
       BranchDescription const& prod = **it;
-      outputItemList.push_back(OutputItem(&prod));
+      TBranch* theBranch = ((!prod.produced() && theTree != 0 && !overrideInputFileSplitLevels_) ? theTree->GetBranch(prod.branchName().c_str()) : 0);
+
+      if(theBranch != 0) {
+	splitLevel = theBranch->GetSplitLevel();
+	basketSize = theBranch->GetBasketSize();
+      } else {
+	splitLevel = (prod.splitLevel() == BranchDescription::invalidSplitLevel ? splitLevel_ : prod.splitLevel());
+	basketSize = (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize());
+      }
+      outputItemList.push_back(OutputItem(&prod, splitLevel, basketSize));
     }
 
     // Sort outputItemList to allow fast copying.
@@ -104,55 +132,57 @@ namespace edm {
     sort_all(outputItemList, OutputItem::Sorter(theTree));
   }
 
+  void PoolOutputModule::beginInputFile(FileBlock const& fb) {
+    if(isFileOpen()) {
+      bool fastCloneThisOne = fastCloning_ && fb.tree() != 0 &&
+                            (remainingEvents() < 0 || remainingEvents() >= fb.tree()->GetEntries());
+      rootOutputFile_->beginInputFile(fb, fastCloneThisOne);
+    }
+  }
+
   void PoolOutputModule::openFile(FileBlock const& fb) {
-    if (!isFileOpen()) {
-      if (fb.tree() == 0) {
-	fastCloning_ = false;
-      }
+    if(!isFileOpen()) {
       doOpenFile();
-      respondToOpenInputFile(fb);
+      beginInputFile(fb);
     }
   }
 
   void PoolOutputModule::respondToOpenInputFile(FileBlock const& fb) {
-    for (int i = InEvent; i < NumBranchTypes; ++i) {
-      BranchType branchType = static_cast<BranchType>(i);
-      if (inputFileCount_ == 0) {
-        TTree * theTree = (branchType == InEvent ? fb.tree() : 
+    if(!initializedFromInput_) {
+      for(int i = InEvent; i < NumBranchTypes; ++i) {
+        BranchType branchType = static_cast<BranchType>(i);
+        TTree* theTree = (branchType == InEvent ? fb.tree() : 
 		          (branchType == InLumi ? fb.lumiTree() :
                           fb.runTree()));
         fillSelectedItemList(branchType, theTree);
       }
+      initializedFromInput_ = true;
     }
     ++inputFileCount_;
-    if (isFileOpen()) {
-      bool fastCloneThisOne = fb.tree() != 0 &&
-                            (remainingEvents() < 0 || remainingEvents() >= fb.tree()->GetEntries());
-      rootOutputFile_->beginInputFile(fb, fastCloneThisOne && fastCloning_);
-    }
+    beginInputFile(fb);
   }
 
   void PoolOutputModule::respondToCloseInputFile(FileBlock const& fb) {
-    if (rootOutputFile_) rootOutputFile_->respondToCloseInputFile(fb);
+    if(rootOutputFile_) rootOutputFile_->respondToCloseInputFile(fb);
   }
 
   PoolOutputModule::~PoolOutputModule() {
   }
 
   void PoolOutputModule::write(EventPrincipal const& e) {
-      if (hasNewlyDroppedBranch()[InEvent]) e.addToProcessHistory();
+      if(hasNewlyDroppedBranch()[InEvent]) e.addToProcessHistory();
       rootOutputFile_->writeOne(e);
   }
 
   void PoolOutputModule::writeLuminosityBlock(LuminosityBlockPrincipal const& lb) {
-      if (hasNewlyDroppedBranch()[InLumi]) lb.addToProcessHistory();
+      if(hasNewlyDroppedBranch()[InLumi]) lb.addToProcessHistory();
       rootOutputFile_->writeLuminosityBlock(lb);
       Service<JobReport> reportSvc;
       reportSvc->reportLumiSection(lb.id().run(), lb.id().luminosityBlock());
   }
 
   void PoolOutputModule::writeRun(RunPrincipal const& r) {
-      if (hasNewlyDroppedBranch()[InRun]) r.addToProcessHistory();
+      if(hasNewlyDroppedBranch()[InRun]) r.addToProcessHistory();
       rootOutputFile_->writeRun(r);
       Service<JobReport> reportSvc;
       reportSvc->reportRunNumber(r.run());
@@ -178,23 +208,23 @@ namespace edm {
   bool PoolOutputModule::shouldWeCloseFile() const { return rootOutputFile_->shouldWeCloseFile(); }
 
   void PoolOutputModule::doOpenFile() {
-      if (inputFileCount_ == 0) {
-        throw edm::Exception(edm::errors::LogicError)
+      if(inputFileCount_ == 0) {
+        throw edm::Exception(errors::LogicError)
           << "Attempt to open output file before input file. "
           << "Please report this to the core framework developers.\n";
       }
       std::string suffix(".root");
       std::string::size_type offset = fileName().rfind(suffix);
       bool ext = (offset == fileName().size() - suffix.size());
-      if (!ext) suffix.clear();
+      if(!ext) suffix.clear();
       std::string fileBase(ext ? fileName().substr(0, offset) : fileName());
       std::ostringstream ofilename;
       std::ostringstream lfilename;
       ofilename << fileBase;
       lfilename << logicalFileName();
-      if (outputFileCount_) {
+      if(outputFileCount_) {
         ofilename << std::setw(3) << std::setfill('0') << outputFileCount_;
-	if (!logicalFileName().empty()) {
+	if(!logicalFileName().empty()) {
 	  lfilename << std::setw(3) << std::setfill('0') << outputFileCount_;
 	}
       }

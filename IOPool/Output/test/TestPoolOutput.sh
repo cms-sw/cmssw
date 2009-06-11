@@ -16,7 +16,7 @@ cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolMissingRead_cfg.py || die 'Failure 
 
 cmsRun ${LOCAL_TEST_DIR}/PoolOutputEmptyEventsTest_cfg.py || die 'Failure using PoolOutputEmptyEventsTest_cfg.py' $?
 #reads file from above and from PoolOutputTest_cfg.py
-cmsRun ${LOCAL_TEST_DIR}/PoolOutputMergeWithEmpytFile_cfg.py || die 'Failure using PoolOutputMergeWithEmpytFile_cfg.py' $? 
+cmsRun ${LOCAL_TEST_DIR}/PoolOutputMergeWithEmptyFile_cfg.py || die 'Failure using PoolOutputMergeWithEmptyFile_cfg.py' $? 
 
 cmsRun ${LOCAL_TEST_DIR}/TestProvA_cfg.py || die 'Failure using TestProvA_cfg.py' $?
 #reads file from above

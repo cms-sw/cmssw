@@ -64,7 +64,7 @@ namespace edm {
     }
   }
 
-  RootOutputFile::RootOutputFile(PoolOutputModule *om, std::string const& fileName, std::string const& logicalFileName) :
+  RootOutputFile::RootOutputFile(PoolOutputModule* om, std::string const& fileName, std::string const& logicalFileName) :
       file_(fileName),
       logicalFile_(logicalFileName),
       reportToken_(0),
@@ -89,13 +89,13 @@ namespace edm {
       pLumiEntryInfoVector_(&lumiEntryInfoVector_),
       pRunEntryInfoVector_(&runEntryInfoVector_),
       pHistory_(0),
-      eventTree_(static_cast<EventPrincipal *>(0),
+      eventTree_(static_cast<EventPrincipal*>(0),
                  filePtr_, InEvent, pEventAux_, pEventEntryInfoVector_,
                  om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
-      lumiTree_(static_cast<LuminosityBlockPrincipal *>(0),
+      lumiTree_(static_cast<LuminosityBlockPrincipal*>(0),
                 filePtr_, InLumi, pLumiAux_, pLumiEntryInfoVector_,
                 om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
-      runTree_(static_cast<RunPrincipal *>(0),
+      runTree_(static_cast<RunPrincipal*>(0),
                filePtr_, InRun, pRunAux_, pRunEntryInfoVector_,
                om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
       treePointers_(),
@@ -107,13 +107,15 @@ namespace edm {
     treePointers_[InLumi]  = &lumiTree_;
     treePointers_[InRun]   = &runTree_;
 
-    for (int i = InEvent; i < NumBranchTypes; ++i) {
+    for(int i = InEvent; i < NumBranchTypes; ++i) {
       BranchType branchType = static_cast<BranchType>(i);
-      for (OutputItemList::const_iterator it = om_->selectedOutputItemList()[branchType].begin(),
+      for(OutputItemList::const_iterator it = om_->selectedOutputItemList()[branchType].begin(),
 	  itEnd = om_->selectedOutputItemList()[branchType].end();
 	  it != itEnd; ++it) {
 	treePointers_[branchType]->addBranch(*it->branchDescription_,
 					      it->product_,
+					      it->splitLevel_,
+					      it->basketSize_,
 					      it->branchDescription_->produced());
 	//make sure we always store product registry info for all branches we create
 	branchesWithStoredHistory_.insert(it->branchID());
@@ -125,13 +127,13 @@ namespace edm {
 
     // Create the tree that will carry (event) History objects.
     eventHistoryTree_     = RootOutputTree::makeTTree(filePtr_.get(), poolNames::eventHistoryTreeName(), om_->splitLevel());
-    if (!eventHistoryTree_)
-      throw edm::Exception(edm::errors::FatalRootError) 
+    if(!eventHistoryTree_)
+      throw edm::Exception(errors::FatalRootError) 
 	<< "Failed to create the tree for History objects\n";
 
-    if (! eventHistoryTree_->Branch(poolNames::eventHistoryBranchName().c_str(), &pHistory_, om_->basketSize(), 0))
-      throw edm::Exception(edm::errors::FatalRootError) 
-	<< "Failed to create a branch for Historys in the output file\n";
+    if(! eventHistoryTree_->Branch(poolNames::eventHistoryBranchName().c_str(), &pHistory_, om_->basketSize(), 0))
+      throw edm::Exception(errors::FatalRootError) 
+	<< "Failed to create a branch for Histories in the output file\n";
 
     fid_ = FileID(createGlobalIdentifier());
 
@@ -144,7 +146,7 @@ namespace edm {
     std::vector<BranchDescription const*> branches;
     branchNames.reserve(om_->selectedOutputItemList()[InEvent].size());
     branches.reserve(om->selectedOutputItemList()[InEvent].size());
-    for (OutputItemList::const_iterator it = om_->selectedOutputItemList()[InEvent].begin(),
+    for(OutputItemList::const_iterator it = om_->selectedOutputItemList()[InEvent].begin(),
 	  itEnd = om_->selectedOutputItemList()[InEvent].end();
 	  it != itEnd; ++it) {
       branchNames.push_back(it->branchDescription_->branchName());
@@ -155,7 +157,7 @@ namespace edm {
     // Now, make a concatenated string.
     std::ostringstream oss;
     char const underscore = '_';
-    for (std::vector<BranchDescription const*>::const_iterator it = branches.begin(), itEnd = branches.end(); it != itEnd; ++it) {
+    for(std::vector<BranchDescription const*>::const_iterator it = branches.begin(), itEnd = branches.end(); it != itEnd; ++it) {
       BranchDescription const& bd = **it;
       oss <<  bd.fullClassName() << underscore
 	  << bd.moduleLabel() << underscore
@@ -171,9 +173,9 @@ namespace edm {
     Service<JobReport> reportSvc;
     reportToken_ = reportSvc->outputFileOpened(
 		      file_, logicalFile_,  // PFN and LFN
-		      om_->catalog_,  // catalog
+		      om_->catalog(),  // catalog
 		      moduleName,   // module class name
-		      om_->moduleLabel_,  // module label
+		      om_->moduleLabel(),  // module label
 		      fid_.fid(), // file id (guid)
 		      std::string(), // data type (not yet known, so string is empty).
 		      md5alg.digest().toString(), // branch hash
@@ -182,11 +184,44 @@ namespace edm {
 
   void RootOutputFile::beginInputFile(FileBlock const& fb, bool fastClone) {
 
-    currentlyFastCloning_ = om_->fastCloning() && fb.fastClonable() && fastClone;
-    if (currentlyFastCloning_) currentlyFastCloning_ = eventTree_.checkIfFastClonable(fb.tree());
+    if(fb.tree() != 0) {
+      // There are two different reasons (not mutually exclusive) that we might need
+      // to compare the split levels and basket sizes of the input and output branches.
+      // We do it up front so that we do it at most once.
+      //
+      // 1) We are using the input split levels and basket sizes from the first input file
+      // for copied output branches.  In this case, we throw an exception if any branches
+      // have different split levels or basket sizes in a subsequent input file.
+      //
+      // 2) We may be fast copying.  We must disable fast copying if the split levels
+      // or basket sizes do not match.
+
+      bool throwIfDifferentSplitLevels = !om_->overrideInputFileSplitLevels() && om_->inputFileCount() > 1;
+      currentlyFastCloning_ = om_->fastCloning() && fb.fastClonable() && fastClone;
+
+      if(throwIfDifferentSplitLevels || currentlyFastCloning_) {
+        bool match = eventTree_.checkSplitLevelsAndBasketSizes(fb.tree());
+        if(!match) {
+          if(throwIfDifferentSplitLevels) {
+            throw edm::Exception(errors::MismatchedInputFiles, "RootOutputFile::beginInputFile()") <<
+              "Merge failure because input file " << file_ << " has different ROOT split levels or basket sizes\n" <<
+              "than previous files.  To allow merging in splite of this, use the configuration parameter\n" <<
+              "overrideInputFileSplitLevels=cms.untracked.bool(True)\n" <<
+	      "in every PoolOutputModule.\n";
+          } else {
+            currentlyFastCloning_ = false;
+            LogInfo("FastCloning")
+              << "Fast Cloning disabled because split levels or basket sizes do not match";
+          }
+        }
+      } 
+      if(currentlyFastCloning_) currentlyFastCloning_ = eventTree_.checkIfFastClonable(fb.tree());
+    } else {
+      currentlyFastCloning_ = false;
+    }
 
     eventTree_.beginInputFile(currentlyFastCloning_);
-    eventTree_.fastCloneTree(fb.tree());
+    eventTree_.maybeFastCloneTree(fb.tree());
   }
 
   void RootOutputFile::respondToCloseInputFile(FileBlock const&) {
@@ -198,7 +233,7 @@ namespace edm {
   bool RootOutputFile::shouldWeCloseFile() const {
     unsigned int const oneK = 1024;
     Long64_t size = filePtr_->GetSize()/oneK;
-    return(size >= om_->maxFileSize_);
+    return(size >= om_->maxFileSize());
   }
 
   void RootOutputFile::writeOne(EventPrincipal const& e) {
@@ -219,8 +254,8 @@ namespace edm {
     historyForOutput.addEventSelectionEntry(om_->selectorConfig());
     pHistory_ = &historyForOutput;
     int sz = eventHistoryTree_->Fill();
-    if ( sz <= 0)
-      throw edm::Exception(edm::errors::FatalRootError) 
+    if(sz <= 0)
+      throw edm::Exception(errors::FatalRootError) 
 	<< "Failed to fill the History tree for event: " << e.id()
 	<< "\nTTree::Fill() returned " << sz << " bytes written." << std::endl;
 
@@ -229,11 +264,11 @@ namespace edm {
       Service<JobReport> reportSvc;
       std::string dataType("MC");
       if(pEventAux_->isRealData())  dataType = "Data";
-      reportSvc->reportDataType(reportToken_,dataType);
+      reportSvc->reportDataType(reportToken_, dataType);
       dataTypeReported_ = true;
     }
 
-    pHistory_ = & e.history();
+    pHistory_ = &e.history();
 
     // Add event to index
     fileIndex_.addEntry(pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
@@ -265,15 +300,15 @@ namespace edm {
   void RootOutputFile::writeParentageRegistry() {
     Parentage const*   desc(0);
     
-    if (!parentageTree_->Branch(poolNames::parentageBranchName().c_str(), 
+    if(!parentageTree_->Branch(poolNames::parentageBranchName().c_str(), 
 					&desc, om_->basketSize(), 0))
-      throw edm::Exception(edm::errors::FatalRootError) 
+      throw edm::Exception(errors::FatalRootError) 
 	<< "Failed to create a branch for Parentages in the output file";
 
     ParentageRegistry& ptReg = *ParentageRegistry::instance();
     std::set<ParentageID>::const_iterator pidend = parentageIDs_.end();
-    for (ParentageRegistry::const_iterator i = ptReg.begin(), e = ptReg.end(); i != e; ++i) {
-      if (parentageIDs_.find(i->first) != pidend) {
+    for(ParentageRegistry::const_iterator i = ptReg.begin(), e = ptReg.end(); i != e; ++i) {
+      if(parentageIDs_.find(i->first) != pidend) {
         desc = &(i->second);
         parentageTree_->Fill();
       }
@@ -282,14 +317,14 @@ namespace edm {
 
   void RootOutputFile::writeFileFormatVersion() {
     FileFormatVersion fileFormatVersion(getFileFormatVersion());
-    FileFormatVersion * pFileFmtVsn = &fileFormatVersion;
+    FileFormatVersion* pFileFmtVsn = &fileFormatVersion;
     TBranch* b = metaDataTree_->Branch(poolNames::fileFormatVersionBranchName().c_str(), &pFileFmtVsn, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }
 
   void RootOutputFile::writeFileIdentifier() {
-    FileID *fidPtr = &fid_;
+    FileID* fidPtr = &fid_;
     TBranch* b = metaDataTree_->Branch(poolNames::fileIdentifierBranchName().c_str(), &fidPtr, om_->basketSize(), 0);
     assert(b);
     b->Fill();
@@ -297,7 +332,7 @@ namespace edm {
 
   void RootOutputFile::writeFileIndex() {
     fileIndex_.sortBy_Run_Lumi_Event();
-    FileIndex *findexPtr = &fileIndex_;
+    FileIndex* findexPtr = &fileIndex_;
     TBranch* b = metaDataTree_->Branch(poolNames::fileIndexBranchName().c_str(), &findexPtr, om_->basketSize(), 0);
     assert(b);
     b->Fill();
@@ -311,7 +346,7 @@ namespace edm {
     typedef ProcessConfigurationRegistry::collection_type Map;
     Map const& procConfigMap = ProcessConfigurationRegistry::instance()->data();
     ProcessConfigurationVector procConfigVector;
-    for (Map::const_iterator i = procConfigMap.begin(), e = procConfigMap.end(); i != e; ++i) {
+    for(Map::const_iterator i = procConfigMap.begin(), e = procConfigMap.end(); i != e; ++i) {
       procConfigVector.push_back(i->second);
     }
     sort_all(procConfigVector);
@@ -325,17 +360,17 @@ namespace edm {
     typedef ProcessHistoryRegistry::collection_type Map;
     Map const& procHistoryMap = ProcessHistoryRegistry::instance()->data();
     ProcessHistoryVector procHistoryVector;
-    for (Map::const_iterator i = procHistoryMap.begin(), e = procHistoryMap.end(); i != e; ++i) {
+    for(Map::const_iterator i = procHistoryMap.begin(), e = procHistoryMap.end(); i != e; ++i) {
       procHistoryVector.push_back(i->second);
     }
-    ProcessHistoryVector *p = &procHistoryVector;
+    ProcessHistoryVector* p = &procHistoryVector;
     TBranch* b = metaDataTree_->Branch(poolNames::processHistoryBranchName().c_str(), &p, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }
 
   void RootOutputFile::writeBranchIDListRegistry() { 
-    BranchIDListRegistry::collection_type *p = &BranchIDListRegistry::instance()->data();
+    BranchIDListRegistry::collection_type* p = &BranchIDListRegistry::instance()->data();
     TBranch* b = metaDataTree_->Branch(poolNames::branchIDListBranchName().c_str(), &p, om_->basketSize(), 0);
     assert(b);
     b->Fill();
@@ -345,7 +380,7 @@ namespace edm {
     typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
     ParameterSetMap psetMap;
     pset::fillMap(pset::Registry::instance(), psetMap);
-    ParameterSetMap *pPsetMap = &psetMap;
+    ParameterSetMap* pPsetMap = &psetMap;
     TBranch* b = metaDataTree_->Branch(poolNames::parameterSetMapBranchName().c_str(), &pPsetMap, om_->basketSize(), 0);
     assert(b);
     b->Fill();
@@ -354,12 +389,12 @@ namespace edm {
   void RootOutputFile::writeProductDescriptionRegistry() { 
     // Make a local copy of the ProductRegistry, removing any transient or pruned products.
     typedef ProductRegistry::ProductList ProductList;
-    edm::Service<edm::ConstProductRegistry> reg;
+    Service<ConstProductRegistry> reg;
     ProductRegistry pReg(reg->productList());
-    ProductList & pList  = const_cast<ProductList &>(pReg.productList());
+    ProductList& pList  = const_cast<ProductList &>(pReg.productList());
     std::set<BranchID>::iterator end = branchesWithStoredHistory_.end();
-    for (ProductList::iterator it = pList.begin(); it != pList.end(); ) {
-      if (branchesWithStoredHistory_.find(it->second.branchID()) == end) {
+    for(ProductList::iterator it = pList.begin(); it != pList.end();) {
+      if(branchesWithStoredHistory_.find(it->second.branchID()) == end) {
 	// avoid invalidating iterator on deletion
 	ProductList::iterator itCopy = it;
 	++it;
@@ -370,14 +405,14 @@ namespace edm {
       }
     }
 
-    ProductRegistry * ppReg = &pReg;
+    ProductRegistry* ppReg = &pReg;
     TBranch* b = metaDataTree_->Branch(poolNames::productDescriptionBranchName().c_str(), &ppReg, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   } 
   void RootOutputFile::writeProductDependencies() { 
     BranchChildren& pDeps = const_cast<BranchChildren&>(om_->branchChildren());
-    BranchChildren * ppDeps = &pDeps;
+    BranchChildren* ppDeps = &pDeps;
     TBranch* b = metaDataTree_->Branch(poolNames::productDependenciesBranchName().c_str(), &ppDeps, om_->basketSize(), 0);
     assert(b);
     b->Fill();
@@ -392,7 +427,7 @@ namespace edm {
     // Create branch aliases for all the branches in the
     // events/lumis/runs trees. The loop is over all types of data
     // products.
-    for (int i = InEvent; i < NumBranchTypes; ++i) {
+    for(int i = InEvent; i < NumBranchTypes; ++i) {
       BranchType branchType = static_cast<BranchType>(i);
       setBranchAliases(treePointers_[branchType]->tree(), om_->keptProducts()[branchType]);
       treePointers_[branchType]->writeTree();
@@ -401,7 +436,7 @@ namespace edm {
     // close the file -- mfp
     // Just to play it safe, zero all pointers to objects in the TFile to be closed.
     metaDataTree_ = parentageTree_ = eventHistoryTree_ = 0;
-    for (RootOutputTreePtrArray::iterator it = treePointers_.begin(), itEnd = treePointers_.end(); it != itEnd; ++it) {
+    for(RootOutputTreePtrArray::iterator it = treePointers_.begin(), itEnd = treePointers_.end(); it != itEnd; ++it) {
       (*it)->close();
       (*it) = 0;
     }
@@ -415,19 +450,19 @@ namespace edm {
   }
 
   void
-  RootOutputFile::setBranchAliases(TTree *tree, Selections const& branches) const {
-    if (tree && tree->GetNbranches() != 0) {
-      for (Selections::const_iterator i = branches.begin(), iEnd = branches.end();
+  RootOutputFile::setBranchAliases(TTree* tree, Selections const& branches) const {
+    if(tree && tree->GetNbranches() != 0) {
+      for(Selections::const_iterator i = branches.begin(), iEnd = branches.end();
 	  i != iEnd; ++i) {
 	BranchDescription const& pd = **i;
 	std::string const& full = pd.branchName() + "obj";
-	if (pd.branchAliases().empty()) {
+	if(pd.branchAliases().empty()) {
 	  std::string const& alias =
 	      (pd.productInstanceName().empty() ? pd.moduleLabel() : pd.productInstanceName());
 	  tree->SetAlias(alias.c_str(), full.c_str());
 	} else {
 	  std::set<std::string>::const_iterator it = pd.branchAliases().begin(), itEnd = pd.branchAliases().end();
-	  for (; it != itEnd; ++it) {
+	  for(; it != itEnd; ++it) {
 	    tree->SetAlias((*it).c_str(), full.c_str());
 	  }
 	}
@@ -445,7 +480,7 @@ namespace edm {
     if(om_->dropMetaData() == PoolOutputModule::DropDroppedPrior && !produced) return;
     BranchMapper const& iMapper = *principal.branchMapperPtr();
     std::vector<BranchID> const& parentIDs = iGetParents.parentage().parents();
-    for(std::vector<BranchID>::const_iterator it=parentIDs.begin(), itEnd = parentIDs.end();
+    for(std::vector<BranchID>::const_iterator it = parentIDs.begin(), itEnd = parentIDs.end();
           it != itEnd; ++it) {
       branchesWithStoredHistory_.insert(*it);
       boost::shared_ptr<ProductProvenance> info = iMapper.branchIDToProvenance(*it);
@@ -475,7 +510,7 @@ namespace edm {
     std::set<ProductProvenance> provenanceToKeep;
 
     // Loop over EDProduct branches, fill the provenance, and write the branch.
-    for (OutputItemList::const_iterator i = items.begin(), iEnd = items.end(); i != iEnd; ++i) {
+    for(OutputItemList::const_iterator i = items.begin(), iEnd = items.end(); i != iEnd; ++i) {
 
       BranchID const& id = i->branchDescription_->branchID();
       branchesWithStoredHistory_.insert(id);
@@ -489,11 +524,11 @@ namespace edm {
 
       EDProduct const* product = 0;
       OutputHandle const oh = principal.getForOutput(id, getProd);
-      if (!oh.productProvenance()) {
+      if(!oh.productProvenance()) {
 	// No product with this ID is in the event.
 	// Create and write the provenance.
-	if (keepProvenance) {
-	  if (produced) {
+	if(keepProvenance) {
+	  if(produced) {
             provenanceToKeep.insert(ProductProvenance(i->branchDescription_->branchID(),
 		        productstatus::neverCreated()));
 	  } else {
@@ -503,19 +538,19 @@ namespace edm {
 	}
       } else {
 	product = oh.wrapper();
-	if (keepProvenance) {
+	if(keepProvenance) {
 	  provenanceToKeep.insert(*oh.productProvenance());
 	  assert(principal.branchMapperPtr());
 	  insertAncestors(*oh.productProvenance(), principal, produced, provenanceToKeep);
 	  parentageIDs_.insert(oh.productProvenance()->parentageID());
 	}
       }
-      if (getProd) {
-	if (product == 0) {
+      if(getProd) {
+	if(product == 0) {
 	  // No product with this ID is in the event.
 	  // Add a null product.
-	  TClass *cp = gROOT->GetClass(i->branchDescription_->wrappedName().c_str());
-	  boost::shared_ptr<EDProduct> dummy(static_cast<EDProduct *>(cp->New()));
+	  TClass* cp = gROOT->GetClass(i->branchDescription_->wrappedName().c_str());
+	  boost::shared_ptr<EDProduct> dummy(static_cast<EDProduct*>(cp->New()));
 	  dummies.push_back(dummy);
 	  product = dummy.get();
 	}
