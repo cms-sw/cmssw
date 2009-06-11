@@ -10,7 +10,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackingMonitor.h,v 1.5 2008/11/25 01:30:15 mwlebour Exp $
+// $Id: TrackingMonitor.h,v 1.1 2008/12/11 11:57:23 giorgia Exp $
 
 #include <memory>
 #include <fstream>
@@ -21,9 +21,11 @@ Monitoring source for general quantities related to tracks.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
 class DQMStore;
 class TrackAnalyzer;
+class TProfile;
 
 class TrackingMonitor : public edm::EDAnalyzer {
    public:
@@ -35,6 +37,9 @@ class TrackingMonitor : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
    private:
+  void doProfileX(TH2 * th2, MonitorElement* me);
+  void doProfileX(MonitorElement * th2m, MonitorElement* me);
+  
 
       // ----------member data ---------------------------
 
@@ -47,10 +52,17 @@ class TrackingMonitor : public edm::EDAnalyzer {
 
   // the track analyzer
   TrackAnalyzer * theTrackAnalyzer;
-
+  edm::InputTag bsSrc;
   MonitorElement * NumberOfTracks;
+  MonitorElement * NumberOfSeeds;
+  MonitorElement * SeedEta;
+  MonitorElement * SeedPhi;
+  MonitorElement * SeedTheta;
+  MonitorElement * NumberOfTrackCandidates;
   MonitorElement * NumberOfMeanRecHitsPerTrack;
-  MonitorElement * NumberOfMeanLayersPerTrack;
+  MonitorElement * NumberOfMeanLayersPerTrack;  
 
+  std::string builderName;
+  edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder;
 };
 #endif

@@ -1,13 +1,15 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/25 01:30:15 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/12/11 11:57:11 $
+ *  $Revision: 1.1 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h" 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -19,14 +21,23 @@
 #include "DQM/TrackingMonitor/interface/TrackAnalyzer.h"
 #include "DQM/TrackingMonitor/plugins/TrackingMonitor.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
+
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
+#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include <string>
 
 TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig) {
   dqmStore_ = edm::Service<DQMStore>().operator->();
   conf_ = iConfig;
-
+  builderName = conf_.getParameter<std::string>("TTRHBuilder");
   // the track analyzer
   theTrackAnalyzer = new TrackAnalyzer(conf_);
+  
 }
 
 TrackingMonitor::~TrackingMonitor() { 
@@ -46,6 +57,10 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
   double TKNoMin = conf_.getParameter<double>("TkSizeMin");
   double TKNoMax = conf_.getParameter<double>("TkSizeMax");
 
+  int    TKNoSeedBin = conf_.getParameter<int>("TkSeedSizeBin");
+  double TKNoSeedMin = conf_.getParameter<double>("TkSeedSizeMin");
+  double TKNoSeedMax = conf_.getParameter<double>("TkSeedSizeMax");
+
   int    TKHitBin = conf_.getParameter<int>("RecHitBin");
   double TKHitMin = conf_.getParameter<double>("RecHitMin");
   double TKHitMax = conf_.getParameter<double>("RecHitMax");
@@ -54,8 +69,40 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
   double TKLayMin = conf_.getParameter<double>("RecLayMin");
   double TKLayMax = conf_.getParameter<double>("RecLayMax");
 
+  int    EtaBin   = conf_.getParameter<int>("EtaBin");
+  double EtaMin   = conf_.getParameter<double>("EtaMin");
+  double EtaMax   = conf_.getParameter<double>("EtaMax");
+
+  int    PhiBin   = conf_.getParameter<int>("PhiBin");
+  double PhiMin   = conf_.getParameter<double>("PhiMin");
+  double PhiMax   = conf_.getParameter<double>("PhiMax");
+
+
+  int    ThetaBin   = conf_.getParameter<int>("ThetaBin");
+  double ThetaMin   = conf_.getParameter<double>("ThetaMin");
+  double ThetaMax   = conf_.getParameter<double>("ThetaMax");
+ 
   histname = "NumberOfTracks_";
   NumberOfTracks = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKNoBin, TKNoMin, TKNoMax);
+
+  histname = "NumberOfSeeds_";
+  NumberOfSeeds = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKNoSeedBin, TKNoSeedMin, TKNoSeedMax);
+
+  histname = "SeedEta_";
+  SeedEta = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, EtaBin, EtaMin, EtaMax);
+  SeedEta->setAxisTitle("Seed pseudorapidity");
+  
+  histname = "SeedPhi_";
+  SeedPhi = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, PhiBin, PhiMin, PhiMax);
+  SeedPhi->setAxisTitle("Seed azimuthal angle");
+  
+  histname = "SeedTheta_";
+  SeedTheta = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, ThetaBin, ThetaMin, ThetaMax);
+  SeedTheta->setAxisTitle("Seed polar angle");
+  
+  histname = "NumberOfTrackCandidates_";
+  NumberOfTrackCandidates = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKNoBin, TKNoMin, TKNoMax);
+
 
   histname = "NumberOfMeanRecHitsPerTrack_";
   NumberOfMeanRecHitsPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKHitBin, TKHitMin, TKHitMax);
@@ -65,6 +112,11 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
   NumberOfMeanLayersPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKLayBin, TKLayMin, TKLayMax);
   NumberOfMeanLayersPerTrack->setAxisTitle("Mean number of Layers per track");
 
+/*  histname = "NumberOfRecHitsPerTrackVsPhiProfile_";
+  NumberOfRecHitsPerTrackVsPhiProfile = dqmStore_->bookProfile(histname+AlgoName, histname+AlgoName, PhiBin, PhiMin, PhiMax, TKHitBin, TKHitMin, TKHitMax);
+  NumberOfRecHitsPerTrackVsPhiProfile->setAxisTitle("Track azimuthal angle",1);
+  NumberOfRecHitsPerTrackVsPhiProfile->setAxisTitle("Number of RecHits of each track",2);
+*/
   theTrackAnalyzer->beginJob(iSetup, dqmStore_);
  
 }
@@ -75,15 +127,53 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
 void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   using namespace edm;
-  
+  edm::ESHandle<MagneticField> theMF;
+  iSetup.get<IdealMagneticFieldRecord>().get(theMF);  
+  iSetup.get<TransientRecHitRecord>().get(builderName,theTTRHBuilder);
+
   InputTag trackProducer = conf_.getParameter<edm::InputTag>("TrackProducer");
-  
+  InputTag seedProducer = conf_.getParameter<edm::InputTag>("SeedProducer");
+  InputTag tcProducer = conf_.getParameter<edm::InputTag>("TCProducer");
+  InputTag bsSrc = conf_.getParameter< edm::InputTag >("beamSpot");
   Handle<reco::TrackCollection> trackCollection;
   iEvent.getByLabel(trackProducer, trackCollection);
   if (!trackCollection.isValid()) return;
 
-  NumberOfTracks->Fill(trackCollection->size());
+   Handle<edm::View<TrajectorySeed> > seedCollection;
+   iEvent.getByLabel(seedProducer, seedCollection);
+  if (!seedCollection.isValid()) return;
+
+    Handle<TrackCandidateCollection> theTCCollection;
+    iEvent.getByLabel(tcProducer, theTCCollection ); 
+   if (!theTCCollection.isValid()) return;
+
+  Handle<reco::BeamSpot> recoBeamSpotHandle;
+  iEvent.getByLabel(bsSrc,recoBeamSpotHandle);
+  reco::BeamSpot bs = *recoBeamSpotHandle;      
   
+  
+  NumberOfTracks->Fill(trackCollection->size());
+  NumberOfSeeds->Fill(seedCollection->size());
+  NumberOfTrackCandidates->Fill(theTCCollection->size());
+      
+TrajectoryStateTransform tsTransform;
+TSCBLBuilderNoMaterial tscblBuilder;
+
+for(TrajectorySeedCollection::size_type i=0; i<seedCollection->size(); ++i){
+edm::RefToBase<TrajectorySeed> seed(seedCollection, i);
+TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&*(seed->recHits().second-1));
+TrajectoryStateOnSurface state = tsTransform.transientState( seed->startingState(), recHit->surface(), theMF.product());
+TrajectoryStateClosestToBeamLine tsAtClosestApproachSeed = tscblBuilder(*state.freeState(),bs);
+GlobalVector pSeed = tsAtClosestApproachSeed.trackStateAtPCA().momentum();
+
+double etaSeed = state.globalMomentum().eta();
+SeedEta->Fill(etaSeed);
+double phiSeed  = pSeed.phi();
+SeedPhi->Fill(phiSeed);
+double thetaSeed  = pSeed.theta();
+SeedTheta->Fill(thetaSeed);
+
+}
   int totalRecHits = 0, totalLayers = 0;
   for (reco::TrackCollection::const_iterator track = trackCollection->begin(); track!=trackCollection->end(); ++track) {
   

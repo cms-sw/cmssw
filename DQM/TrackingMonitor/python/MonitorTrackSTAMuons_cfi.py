@@ -8,7 +8,11 @@ import FWCore.ParameterSet.Config as cms
 # MonitorTrackGlobal
 MonitorTrackSTAMuons = cms.EDFilter("TrackingMonitor",
     OutputMEsInRootFile = cms.bool(False),
+    beamSpot = cms.InputTag("offlineBeamSpot"),                
     doTrackerSpecific = cms.bool(False),
+    doAllPlots = cms.bool(False),                    
+    SeedProducer = cms.InputTag("combinedP5SeedsForCTF"),
+    TCProducer = cms.InputTag("ckfTrackCandidatesP5"),
     phiErrMax = cms.double(1.0),
     MeasurementState = cms.string('default'),
     etaErrMax = cms.double(0.5),
@@ -73,7 +77,7 @@ MonitorTrackSTAMuons = cms.EDFilter("TrackingMonitor",
     phiErrMin = cms.double(0.0),
     pyErrBin = cms.int32(100),
     pxErrMin = cms.double(0.0),
-    PhiBin = cms.int32(100),
+    PhiBin = cms.int32(36),
     ptErrMax = cms.double(10.0),
     PhiMax = cms.double(3.2),
     TrackPtMin = cms.double(0),
@@ -83,8 +87,20 @@ MonitorTrackSTAMuons = cms.EDFilter("TrackingMonitor",
     RecLayMin = cms.double(0.0),
     RecLostBin = cms.int32(120),
     RecLostMin = cms.double(0.0),
-    RecLostMax = cms.double(20)
-    
+    RecLostMax = cms.double(20),
+    TTRHBuilder = cms.string('WithTrackAngle'),
+    TkSeedSizeBin = cms.int32(20),
+    TkSeedSizeMin = cms.double(-0.5),
+    TkSeedSizeMax = cms.double(19.5),
+    TrackPBin = cms.int32(1000),
+    TrackPMin = cms.double(0),
+    TrackPMax = cms.double(1000),
+    Chi2ProbMax = cms.double(1.0),
+    Chi2ProbBin = cms.int32(100),
+    Chi2ProbMin = cms.double(0.0)
+
+
+  
 )
 
 

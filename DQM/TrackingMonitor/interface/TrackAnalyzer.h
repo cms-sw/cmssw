@@ -8,7 +8,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackingMonitor.h,v 1.5 2008/11/25 01:30:15 mwlebour Exp $
+// $Id: TrackAnalyzer.h,v 1.1 2008/12/11 11:54:10 giorgia Exp $
 
 #include <memory>
 #include <fstream>
@@ -63,6 +63,7 @@ class TrackAnalyzer {
   MonitorElement * NumberOfPixBarrelLayersPerTrack;
   MonitorElement * NumberOfPixEndcapLayersPerTrack;
   MonitorElement * Chi2;
+  MonitorElement * nChi2Prob;
   MonitorElement * Chi2overDoF;
   MonitorElement * DistanceOfClosestApproach;
   MonitorElement * DistanceOfClosestApproachVsTheta;
@@ -71,9 +72,10 @@ class TrackAnalyzer {
   MonitorElement * xPointOfClosestApproach;
   MonitorElement * yPointOfClosestApproach;
   MonitorElement * zPointOfClosestApproach;
-  
+ 
   
   struct TkParameterMEs {
+    MonitorElement * TrackP;
     MonitorElement * TrackPx;
     MonitorElement * TrackPy;
     MonitorElement * TrackPz;
@@ -96,7 +98,10 @@ class TrackAnalyzer {
     MonitorElement * NumberOfRecHitsPerTrackVsPhi;
     MonitorElement * NumberOfRecHitsPerTrackVsTheta;
     MonitorElement * NumberOfRecHitsPerTrackVsEta;
-    
+    MonitorElement * NumberOfRecHitsPerTrackVsPhiProfile;
+    MonitorElement * NumberOfRecHitsPerTrackVsThetaProfile;
+    MonitorElement * NumberOfRecHitsPerTrackVsEtaProfile;
+  
     MonitorElement * Chi2overDoFVsTheta;
     MonitorElement * Chi2overDoFVsPhi;
     MonitorElement * Chi2overDoFVsEta;
@@ -107,6 +112,7 @@ class TrackAnalyzer {
   
  bool createHistosForState_;
  bool doTrackerSpecific_;
+ bool doAllPlots_;
  
 };
 #endif

@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/11 11:53:06 $
+ *  $Date: 2008/12/11 12:05:14 $
  *  $Revision: 1.1 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
@@ -18,6 +18,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/TrackingMonitor/interface/TrackAnalyzer.h"
 #include <string>
+#include "TMath.h"
 
 TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig) {
   conf_ = iConfig;
@@ -34,6 +35,7 @@ void TrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dqmStore_)
   dqmStore_->setCurrentFolder(MEFolderName);
 
   doTrackerSpecific_ = conf_.getParameter<bool>("doTrackerSpecific");
+  doAllPlots_ = conf_.getParameter<bool>("doAllPlots");
 
   int    TKHitBin = conf_.getParameter<int>("RecHitBin");
   double TKHitMin = conf_.getParameter<double>("RecHitMin");
@@ -50,6 +52,10 @@ void TrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dqmStore_)
   int    Chi2Bin  = conf_.getParameter<int>("Chi2Bin");
   double Chi2Min  = conf_.getParameter<double>("Chi2Min");
   double Chi2Max  = conf_.getParameter<double>("Chi2Max");
+
+  int    Chi2ProbBin  = conf_.getParameter<int>("Chi2ProbBin");
+  double Chi2ProbMin  = conf_.getParameter<double>("Chi2ProbMin");
+  double Chi2ProbMax  = conf_.getParameter<double>("Chi2ProbMax");
 
   int    PhiBin   = conf_.getParameter<int>("PhiBin");
   double PhiMin   = conf_.getParameter<double>("PhiMin");
@@ -99,6 +105,11 @@ void TrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dqmStore_)
   Chi2 = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, Chi2Bin, Chi2Min, Chi2Max);
   Chi2->setAxisTitle("Chi2 of each track");
 
+  histname = "nChi2Prob_";
+  nChi2Prob = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, Chi2ProbBin, Chi2ProbMin, Chi2ProbMax);
+  nChi2Prob->setAxisTitle("normalized Chi2 probability");
+  
+
   histname = "Chi2overDoF_";
   Chi2overDoF = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, Chi2Bin, Chi2Min, Chi2Max/10);
   Chi2overDoF->setAxisTitle("Chi2 over nr. of degrees of freedom of each track");
@@ -106,7 +117,8 @@ void TrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dqmStore_)
   histname = "DistanceOfClosestApproach_";
   DistanceOfClosestApproach = dqmStore_->book1D(histname+AlgoName,histname+AlgoName,D0Bin,D0Min,D0Max);
   DistanceOfClosestApproach->setAxisTitle("Track distance of closest approach");
-
+if(doAllPlots_)
+{
   histname = "DistanceOfClosestApproachVsTheta_";
   DistanceOfClosestApproachVsTheta = dqmStore_->book2D(histname+AlgoName,histname+AlgoName, ThetaBin, ThetaMin, ThetaMax, D0Bin,D0Min,D0Max);
   DistanceOfClosestApproachVsTheta->setAxisTitle("Track polar angle",1);
@@ -120,7 +132,7 @@ void TrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dqmStore_)
   DistanceOfClosestApproachVsEta = dqmStore_->book2D(histname+AlgoName,histname+AlgoName, EtaBin, EtaMin, EtaMax, D0Bin,D0Min,D0Max);
   DistanceOfClosestApproachVsEta->setAxisTitle("Track pseudorapidity",1);
   DistanceOfClosestApproachVsEta->setAxisTitle("Track distance of closest approach",2);
-
+}
   histname = "xPointOfClosestApproach_";
   xPointOfClosestApproach = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, VXBin, VXMin, VXMax);
   xPointOfClosestApproach->setAxisTitle("Track distance of closest approach on the x-axis");
@@ -157,13 +169,16 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   NumberOfLayersPerTrack->Fill(track.hitPattern().trackerLayersWithMeasurement());
   
   Chi2->Fill(track.chi2());
+  nChi2Prob->Fill(TMath::Prob(track.chi2(),(int)track.ndof()));
   Chi2overDoF->Fill(track.normalizedChi2());
   
   DistanceOfClosestApproach->Fill(track.d0());
+if(doAllPlots_)
+{
   DistanceOfClosestApproachVsTheta->Fill(track.theta(), track.d0());
   DistanceOfClosestApproachVsPhi->Fill(track.phi(), track.d0());
   DistanceOfClosestApproachVsEta->Fill(track.eta(), track.d0());
-  
+}  
   xPointOfClosestApproach->Fill(track.vertex().x());
   yPointOfClosestApproach->Fill(track.vertex().y());
   zPointOfClosestApproach->Fill(track.vertex().z());
@@ -216,6 +231,10 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore * dqmStore_) 
   double TrackPtMin = conf_.getParameter<double>("TrackPtMin");
   double TrackPtMax = conf_.getParameter<double>("TrackPtMax");
 
+  int    TrackPBin = conf_.getParameter<int>("TrackPBin");
+  double TrackPMin = conf_.getParameter<double>("TrackPMin");
+  double TrackPMax = conf_.getParameter<double>("TrackPMax");
+
   int    TrackPxBin = conf_.getParameter<int>("TrackPxBin");
   double TrackPxMin = conf_.getParameter<double>("TrackPxMin");
   double TrackPxMax = conf_.getParameter<double>("TrackPxMax");
@@ -263,7 +282,8 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore * dqmStore_) 
   dqmStore_->setCurrentFolder(MEFolderName);
 
   TkParameterMEs tkmes;
-
+if(doAllPlots_)
+{
   histname = "NumberOfRecHitsPerTrackVsPhi_" + htag;
   tkmes.NumberOfRecHitsPerTrackVsPhi = dqmStore_->book2D(histname, histname, PhiBin, PhiMin, PhiMax, TKHitBin, TKHitMin, TKHitMax);
   tkmes.NumberOfRecHitsPerTrackVsPhi->setAxisTitle("Track azimuthal angle",1);
@@ -293,6 +313,10 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore * dqmStore_) 
   tkmes.Chi2overDoFVsEta   = dqmStore_->book2D(histname, histname, EtaBin, EtaMin, EtaMax, Chi2Bin, Chi2Min, Chi2Max);
   tkmes.Chi2overDoFVsEta->setAxisTitle("Track pseudorapidity",1);
   tkmes.Chi2overDoFVsEta->setAxisTitle("Chi2 over nr. of degrees of freedom of each track",2);
+}
+  histname = "TrackP_" + htag;
+  tkmes.TrackP = dqmStore_->book1D(histname, histname, TrackPBin, TrackPMin, TrackPMax);
+  tkmes.TrackP->setAxisTitle("Track momentum");
 
   histname = "TrackPt_" + htag;
   tkmes.TrackPt = dqmStore_->book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
@@ -350,6 +374,21 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore * dqmStore_) 
   tkmes.TrackEtaErr = dqmStore_->book1D(histname, histname, etaErrBin, etaErrMin, etaErrMax);
   tkmes.TrackEtaErr->setAxisTitle("etaErr");
 
+  histname = "NumberOfRecHitsPerTrackVsPhiProfile_" + htag;
+  tkmes.NumberOfRecHitsPerTrackVsPhiProfile = dqmStore_->bookProfile(histname, histname, PhiBin, PhiMin, PhiMax, TKHitBin, TKHitMin, TKHitMax);
+  tkmes.NumberOfRecHitsPerTrackVsPhiProfile->setAxisTitle("Track azimuthal angle",1);
+  tkmes.NumberOfRecHitsPerTrackVsPhiProfile->setAxisTitle("Number of RecHits of each track",2);
+
+  histname = "NumberOfRecHitsPerTrackVsThetaProfile_" + htag;
+  tkmes.NumberOfRecHitsPerTrackVsThetaProfile = dqmStore_->bookProfile(histname, histname, ThetaBin, ThetaMin, ThetaMax, TKHitBin, TKHitMin, TKHitMax);
+  tkmes.NumberOfRecHitsPerTrackVsThetaProfile->setAxisTitle("Track polar angle",1);
+  tkmes.NumberOfRecHitsPerTrackVsThetaProfile->setAxisTitle("Number of RecHits of each track",2);
+
+  histname = "NumberOfRecHitsPerTrackVsEtaProfile_" + htag;
+  tkmes.NumberOfRecHitsPerTrackVsEtaProfile = dqmStore_->bookProfile(histname, histname, EtaBin, EtaMin, EtaMax, TKHitBin, TKHitMin, TKHitMax);
+  tkmes.NumberOfRecHitsPerTrackVsEtaProfile->setAxisTitle("Pseudorapidity",1);
+  tkmes.NumberOfRecHitsPerTrackVsEtaProfile->setAxisTitle("Number of RecHits of each track",2);
+
   // now put the MEs in the map
   TkParameterMEMap.insert(std::make_pair(sname, tkmes));
 
@@ -361,11 +400,12 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
 
 
   //get the kinematic parameters
-  double px, py, pz, pt, theta, phi, eta;
+  double p, px, py, pz, pt, theta, phi, eta;
   double pxerror, pyerror, pzerror, pterror, perror, phierror, etaerror;
 
   if (sname == "default") {
 
+    p     = track.p();
     px    = track.px();
     py    = track.py();
     pz    = track.pz();
@@ -391,8 +431,9 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
 
     if      (sname == "OuterSurface")  TSOS = TransTrack.outermostMeasurementState();
     else if (sname == "InnerSurface")  TSOS = TransTrack.innermostMeasurementState();
-    else if (sname == "ImpactPoint")   TSOS = TransTrack.impactPointState();;
+    else if (sname == "ImpactPoint")   TSOS = TransTrack.impactPointState();
 
+    p     = TSOS.globalMomentum().mag();
     px    = TSOS.globalMomentum().x();
     py    = TSOS.globalMomentum().y();
     pz    = TSOS.globalMomentum().z();
@@ -416,6 +457,7 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
   if (iPos != TkParameterMEMap.end()) {
     TkParameterMEs tkmes = iPos->second;
     
+    tkmes.TrackP->Fill(p);
     tkmes.TrackPx->Fill(px);
     tkmes.TrackPy->Fill(py);
     tkmes.TrackPz->Fill(pz);
@@ -424,14 +466,22 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
     tkmes.TrackPhi->Fill(phi);
     tkmes.TrackEta->Fill(eta);
     tkmes.TrackTheta->Fill(theta);
+if(doAllPlots_)
+{
     tkmes.NumberOfRecHitsPerTrackVsPhi->Fill(phi, track.found());
     tkmes.NumberOfRecHitsPerTrackVsTheta->Fill(theta, track.found());
     tkmes.NumberOfRecHitsPerTrackVsEta->Fill(eta, track.found());
-    
+}
+    tkmes.NumberOfRecHitsPerTrackVsPhiProfile->Fill(phi, track.found());
+    tkmes.NumberOfRecHitsPerTrackVsThetaProfile->Fill(theta, track.found());
+    tkmes.NumberOfRecHitsPerTrackVsEtaProfile->Fill(eta, track.found());
+ if(doAllPlots_)
+{
+   
     tkmes.Chi2overDoFVsTheta->Fill(theta, track.normalizedChi2());
     tkmes.Chi2overDoFVsPhi->Fill(phi, track.normalizedChi2());
     tkmes.Chi2overDoFVsEta->Fill(eta, track.normalizedChi2());
-
+}
     tkmes.TrackPtErr->Fill(pterror);
     tkmes.TrackPxErr->Fill(pxerror);
     tkmes.TrackPyErr->Fill(pyerror);

@@ -6,9 +6,11 @@
 import FWCore.ParameterSet.Config as cms
 
 TrackMon = cms.EDFilter("TrackingMonitor",
-    TrackProducer = cms.InputTag("generalTracks"),
+    TrackProducer = cms.InputTag("cosmictrackfinderP5"),
+    SeedProducer = cms.InputTag("combinedP5SeedsForCTF"),
+    TCProducer = cms.InputTag("ckfTrackCandidatesP5"),
     AlgoName = cms.string('GenTk'),
-                        
+    beamSpot = cms.InputTag("offlineBeamSpot"),                
     OutputMEsInRootFile = cms.bool(False),
     OutputFileName = cms.string('MonitorTrack.root'),
 
@@ -16,15 +18,23 @@ TrackMon = cms.EDFilter("TrackingMonitor",
 
     MeasurementState = cms.string('default'),
 
-    doTrackerSpecific = cms.bool(False),
-                        
+    doTrackerSpecific = cms.bool(True),
+    doAllPlots = cms.bool(False),                    
     TkSizeBin = cms.int32(500),
     TkSizeMin = cms.double(-0.5),
     TkSizeMax = cms.double(499.5),
 
+    TkSeedSizeBin = cms.int32(20),
+    TkSeedSizeMin = cms.double(-0.5),
+    TkSeedSizeMax = cms.double(19.5),
+
     TrackPtBin = cms.int32(1000),
     TrackPtMin = cms.double(0),
     TrackPtMax = cms.double(1000),
+
+    TrackPBin = cms.int32(1000),
+    TrackPMin = cms.double(0),
+    TrackPMax = cms.double(1000),
 
     ptErrBin = cms.int32(100),
     ptErrMin = cms.double(0.0),
@@ -58,6 +68,10 @@ TrackMon = cms.EDFilter("TrackingMonitor",
     Chi2Bin = cms.int32(100),
     Chi2Min = cms.double(-0.5),
 
+    Chi2ProbMax = cms.double(1.0),
+    Chi2ProbBin = cms.int32(100),
+    Chi2ProbMin = cms.double(0.0),
+
     VYBin = cms.int32(20),
     VYMin = cms.double(-20.0),
     VYMax = cms.double(20.0),
@@ -78,7 +92,7 @@ TrackMon = cms.EDFilter("TrackingMonitor",
     EtaMin = cms.double(-4.0),
     EtaMax = cms.double(4.0),
 
-    PhiBin = cms.int32(100),
+    PhiBin = cms.int32(36),
     PhiMin = cms.double(-3.2),
     PhiMax = cms.double(3.2),
 
@@ -108,8 +122,9 @@ TrackMon = cms.EDFilter("TrackingMonitor",
 
     pzErrBin = cms.int32(100),
     pzErrMin = cms.double(0.0),
-    pzErrMax = cms.double(10.0)
-
+    pzErrMax = cms.double(10.0),
+    
+    TTRHBuilder = cms.string('WithTrackAngle')
 )
 
 
