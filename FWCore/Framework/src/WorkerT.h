@@ -2,7 +2,7 @@
 #define FWCore_Framework_WorkerT_h
 
 /*----------------------------------------------------------------------
-  
+
 WorkerT: Code common to all workers.
 
 ----------------------------------------------------------------------*/
@@ -90,7 +90,7 @@ namespace edm {
   bool 
   WorkerT<T>::implDoBegin(EventPrincipal& ep, EventSetup const& c,
 			   CurrentProcessingContext const* cpc) {
-    UnscheduledHandlerSentry s(ep.unscheduledHandler().get(),cpc);
+    UnscheduledHandlerSentry s(ep.unscheduledHandler().get(), cpc);
     return module_->doEvent(ep, c, cpc);
   }
 
@@ -134,7 +134,7 @@ namespace edm {
   WorkerT<T>::workerType() const {
     return module_->workerType();
   }
-  
+
   template <typename T>
   void
   WorkerT<T>::implBeginJob(EventSetup const& es) {
@@ -146,7 +146,7 @@ namespace edm {
   WorkerT<T>::implEndJob() {
     module_->doEndJob();
   }
-  
+
   template <typename T>
   void
   WorkerT<T>::implRespondToOpenInputFile(FileBlock const& fb) {
@@ -170,13 +170,13 @@ namespace edm {
   WorkerT<T>::implRespondToCloseOutputFiles(FileBlock const& fb) {
     module_->doRespondToCloseOutputFiles(fb);
   }
-   
+
   template <typename T>
   void 
   WorkerT<T>::implPreForkReleaseResources() {
     module_->doPreForkReleaseResources();
   }
-  
+
   template <typename T>
   void 
   WorkerT<T>::implPostForkReacquireResources(unsigned int iChildIndex, 

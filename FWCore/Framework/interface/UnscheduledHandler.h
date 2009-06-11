@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     UnscheduledHandler
-// 
+//
 /**\class UnscheduledHandler UnscheduledHandler.h FWCore/Framework/interface/UnscheduledHandler.h
 
  Description: Interface to allow handling unscheduled processing
@@ -17,7 +17,6 @@ to keep the EventPrincipal class from having too much 'physical' coupling with t
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 13 16:26:33 IST 2006
-// $Id: UnscheduledHandler.h,v 1.6 2008/05/12 18:14:08 wmtan Exp $
 //
 
 // system include files
@@ -30,12 +29,12 @@ to keep the EventPrincipal class from having too much 'physical' coupling with t
 namespace edm {
    class CurrentProcessingContext;
    class UnscheduledHandlerSentry;
-   
+
    class UnscheduledHandler {
 
    public:
       friend class UnscheduledHandlerSentry;
-      UnscheduledHandler(): m_setup(0),m_context(0) {}
+      UnscheduledHandler(): m_setup(0), m_context(0) {}
       virtual ~UnscheduledHandler();
 
       // ---------- const member functions ---------------------
@@ -46,42 +45,40 @@ namespace edm {
       ///returns true if found an EDProducer and ran it
       bool tryToFill(std::string const& label,
                      EventPrincipal& iEvent);
-      
+
       void setEventSetup(EventSetup const& iSetup) {
          m_setup = &iSetup;
       }
    private:
-      const CurrentProcessingContext* setCurrentProcessingContext(const CurrentProcessingContext* iContext);
+      CurrentProcessingContext const* setCurrentProcessingContext(CurrentProcessingContext const* iContext);
       //void popCurrentProcessingContext();
-      
+
       UnscheduledHandler(UnscheduledHandler const&); // stop default
 
-      const UnscheduledHandler& operator=(UnscheduledHandler const&); // stop default
+      UnscheduledHandler const& operator=(UnscheduledHandler const&); // stop default
 
       virtual bool tryToFillImpl(std::string const&,
                                  EventPrincipal&,
                                  EventSetup const&,
                                  CurrentProcessingContext const*) = 0;
       // ---------- member data --------------------------------
-      const EventSetup* m_setup;
-      const CurrentProcessingContext* m_context;
+      EventSetup const* m_setup;
+      CurrentProcessingContext const* m_context;
 };
    class UnscheduledHandlerSentry {
    public:
       UnscheduledHandlerSentry(UnscheduledHandler* iHandler,
-                               CurrentProcessingContext const* iContext):
+                               CurrentProcessingContext const* iContext) :
       m_handler(iHandler),
-      m_old(0)
-      {
+      m_old(0) {
          if(m_handler) {m_old = iHandler->setCurrentProcessingContext(iContext);}
       }
-      ~UnscheduledHandlerSentry()
-      {
+      ~UnscheduledHandlerSentry() {
          if(m_handler) { m_handler->setCurrentProcessingContext(m_old); }
       }
    private:
       UnscheduledHandler* m_handler;
-      const CurrentProcessingContext* m_old;
+      CurrentProcessingContext const* m_old;
    };
 }
 

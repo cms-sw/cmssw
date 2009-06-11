@@ -19,10 +19,8 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-namespace edm
-{
-  class CurrentProcessingContext
-  {
+namespace edm {
+  class CurrentProcessingContext {
   public:
 
     /// Default-constructed objects reflect the inactive state.
@@ -36,7 +34,7 @@ namespace edm
     /// The compiler-generated copy c'tor and d'tor are correct,
     /// because all our resources are contained by value. We do not
     /// own the resources to which we point; we own only the pointers.
-    
+
     /// Return the address of the moduleLabel if the module is active,
     /// and null otherwise.
     std::string const* moduleLabel() const;
@@ -64,13 +62,13 @@ namespace edm
 
     /// Returns 0 if module is on the path and >0 when the module executing is unscheduled
     unsigned int unscheduledDepth() const;
-    
+
     /// Returns true if the module is being called via unscheduled execution
     bool isUnscheduled() const;
-     
+
     /// Set the depth in a series of unscheduled callbacks
     void setUnscheduledDepth(unsigned int);
-     
+
     /// Set the context to reflect the active state.
     void activate(std::size_t theSlotInPath,
 		  ModuleDescription const* mod);

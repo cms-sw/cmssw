@@ -2,7 +2,7 @@
 #define FWCore_Framework_Worker_h
 
 /*----------------------------------------------------------------------
-  
+
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
@@ -59,7 +59,7 @@ namespace edm {
     void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {implPostForkReacquireResources(iChildIndex, iNumberOfChildren);}
 
     void reset() { state_ = Ready; }
-    
+
     ModuleDescription const& description() const {return md_;}
     ModuleDescription const* descPtr() const {return &md_; }
     ///The signals are required to live longer than the last call to 'doWork'
@@ -80,7 +80,7 @@ namespace edm {
     int timesFailed() const { return timesFailed_; }
     int timesExcept() const { return timesExcept_; }
     State state() const { return state_; }
-   
+
     int timesPass() const { return timesPassed(); } // for backward compatibility only - to be removed soon
 
   protected:
@@ -209,7 +209,7 @@ namespace edm {
     }
 
     catch(cms::Exception& e) {
-      
+
 	// NOTE: the warning printed as a result of ignoring or failing
 	// a module will only be printed during the full true processing
 	// pass of this module
@@ -222,8 +222,8 @@ namespace edm {
 	// as FailModule, so any subsequent OutputModules are still run.
         // For unscheduled modules only treat FailPath as a FailModule but still allow SkipEvent to throw
 	if (cpc && cpc->isEndPath()) {
-	  if ((action == actions::SkipEvent && not cpc->isUnscheduled()) || 
-              action == actions::FailPath) action = actions::FailModule;
+	  if ((action == actions::SkipEvent && !cpc->isUnscheduled()) || 
+               action == actions::FailPath) action = actions::FailModule;
 	}
 	switch(action) {
 	  case actions::IgnoreCompletely: {
@@ -272,7 +272,7 @@ namespace edm {
 	  }
 	}
       }
-    
+
     catch(std::bad_alloc& bda) {
 	if (T::isEvent_) ++timesExcept_;
 	state_ = Exception;
