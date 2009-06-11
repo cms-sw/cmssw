@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.5 2009/05/21 13:27:11 slaunwhj Exp $
+// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.6 2009/05/22 09:07:41 slaunwhj Exp $
 //
 //
 
@@ -128,18 +128,20 @@ OfflineDQMMuonTrigAnalyzer::OfflineDQMMuonTrigAnalyzer(const ParameterSet& pset)
 
   
   
-  
+  LogTrace ("HLTMuonVal") << "Initializing HLTConfigProvider with HLT process name: " << theHltProcessName << endl;
   HLTConfigProvider hltConfig;
   hltConfig.init(theHltProcessName);
   vector<string> validTriggerNames = hltConfig.triggerNames();
 
   if (validTriggerNames.size() < 1) {
-    LogTrace ("HLTMuonVal") << endl << endl << endl
-                            << "---> WARNING: The HLT Config Provider gave you an empty list of valid trigger names" << endl
-                            << "Could be a problem with the HLT Process Name (you provided  " << theHltProcessName <<")" << endl
-                            << "W/o valid triggers we can't produce plots, exiting..."
-                            << endl << endl << endl;
-    return;
+    LogInfo ("HLTMuonVal") << endl << endl << endl
+                           << "---> WARNING: The HLT Config Provider gave you an empty list of valid trigger names" << endl
+                           << "Could be a problem with the HLT Process Name (you provided  " << theHltProcessName <<")" << endl
+                           << "W/o valid triggers we can't produce plots, exiting..."
+                           << endl << endl << endl;
+    
+    // don't return... you'll automatically skip the rest
+    //return;
   }
 
   vector<string>::const_iterator iDumpName;
@@ -177,7 +179,10 @@ OfflineDQMMuonTrigAnalyzer::OfflineDQMMuonTrigAnalyzer(const ParameterSet& pset)
   }
   theOverlapAnalyzer = new HLTMuonOverlap( pset );    
 
-  theNumberOfTriggers = theTriggerAnalyzers.size();  
+  theNumberOfTriggers = theTriggerAnalyzers.size();
+
+  LogTrace ("HLTMuonVal") << "You have created " << theNumberOfTriggers
+                          << " trigger analyzers" << endl;
 }
 
 
