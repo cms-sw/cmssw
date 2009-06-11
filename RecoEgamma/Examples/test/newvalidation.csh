@@ -129,195 +129,352 @@ cp -f $CURRENTDIR/newvalidation.C .
 
 #============== Prepare the list of histograms ==================
 # The second argument is 1 if the histogram is scaled, 0 otherwise
+# The third argument is 1 if the histogram is in log scale, 0 otherwise
+# The fourth argument is 1 if the histogram is drawn with errors, 0 otherwise
 
 if ( $VAL_ANALYZER == GsfElectronMCAnalyzer ) then
 
 cat >! histos.txt <<EOF
-h_ele_PoPtrue   1
-h_ele_PoPtrue_barrel   1
-h_ele_PoPtrue_endcaps   1
-h_scl_EoEtrue_barrel   1
-h_scl_EoEtrue_endcaps   1
-h_scl_EoEtrue_barrel_etagap   1   
-h_scl_EoEtrue_barrel_phigap   1   
-h_scl_EoEtrue_ebeegap   1      
-h_scl_EoEtrue_endcaps_deegap   1
-h_scl_EoEtrue_endcaps_ringgap   1
-h_scl_sigetaeta 1
-h_scl_sigietaieta_barrel 1
-h_scl_sigietaieta_endcaps 1
-h_scl_E1x5 1
-h_scl_E2x5max 1
-h_scl_E5x5 1
-h_ele_EtaMnEtaTrue   1
-h_ele_PhiMnPhiTrue 1
-h_ele_vertexP 1
-h_ele_vertexPt 1
-h_ele_outerP_mode 1
-h_ele_outerPt_mode 1
-h_ele_vertexX 1
-h_ele_vertexY 1
-h_ele_vertexZ 1
-h_ele_EoP 1
-h_ele_EoPout 1
-h_ele_EeleOPout 1
-h_ele_EseedOP 1
-h_ele_dEtaCl_propOut 1
-h_ele_dEtaEleCl_propOut 1
-h_ele_dEtaSc_propVtx 1
-h_ele_dPhiCl_propOut 1
-h_ele_dPhiEleCl_propOut 1
-h_ele_dPhiSc_propVtx 1
-h_ele_HoE 1
-h_ele_HoE_fiducial 1
-h_ele_chi2 1
-h_ele_foundHits 1
-h_ele_lostHits 1
-h_ele_ambiguousTracks 1
-h_ele_PinMnPout_mode 1
-h_ele_fbrem 1
-h_ele_seedDphi2 1
-h_ele_seedDrz2 1
-h_ele_seedSubdet2 1
-h_ele_classes 1
-h_ele_charge 1
-h_ele_EoverP_all 1
-h_ele_mee_all 1
-h_recEleNum 1
+h_ele_charge 1 0 1
+h_ele_vertexX 1 0 1
+h_ele_vertexY 1	0 1	
+h_ele_vertexZ 1	0 1
+h_ele_vertexTIP 1 1 1 
+h_ele_vertexP 1	0 1
+h_ele_vertexPt 1 0 1
+h_ele_outerP_mode 1 0 1
+h_ele_outerPt_mode 1 0 1
+h_ele_ChargeMnChargeTrue 1 0 1 
+h_ele_PoPtrue 1 0 1
+h_ele_PoPtrue_barrel 1 0 1
+h_ele_PoPtrue_endcaps 1	0 1
+h_ele_EtaMnEtaTrue 1 0 1
+h_ele_PhiMnPhiTrue 1 0 1
+h_ele_EoP 1 1 1
+h_ele_EoPout 1 1 1
+h_ele_EeleOPout 1 1 1
+h_ele_EseedOP 1 1 1
+h_ele_dEtaCl_propOut 1 1 1
+h_ele_dEtaEleCl_propOut 1 1 1
+h_ele_dEtaSc_propVtx 1 1 1
+h_ele_dPhiCl_propOut 1 1 1
+h_ele_dPhiEleCl_propOut 1 1 1
+h_ele_dPhiSc_propVtx 1 1 1
+h_ele_HoE 1 1 1
+h_ele_HoE_fiducial 1 1 1
+h_scl_EoEtrue_barrel 1 0 1
+h_scl_EoEtrue_endcaps 1	0 1
+h_scl_EoEtrue_barrel_etagap 1 0 1 
+h_scl_EoEtrue_barrel_phigap 1 0 1  
+h_scl_EoEtrue_ebeegap 1	0 1    
+h_scl_EoEtrue_endcaps_deegap 1 0 1
+h_scl_EoEtrue_endcaps_ringgap 1	0 1
+h_scl_sigetaeta 1 1 1
+h_scl_sigietaieta_barrel 1 1 1
+h_scl_sigietaieta_endcaps 1 1 1 
+h_scl_E1x5 1 1 1
+h_scl_E2x5max 1 1 1
+h_scl_E5x5 1 1 1
+h_ele_chi2 1 1 1
+h_ele_foundHits 1 0 1
+h_ele_lostHits 1 0 1
+h_ele_ambiguousTracks 1 1 1
+h_ele_seedDphi2 1 0 1
+h_ele_seedDrz2 1 0 1
+h_ele_seedSubdet2 1 0 1
+h_ele_PinMnPout_mode 1 0 1
+h_ele_fbrem 1 0 1
+h_ele_classes 1	0 1
+h_ele_mva 1 0 1
+h_ele_tkSumPt_dr03 1 1 1
+h_ele_ecalRecHitSumEt_dr03 1 1 1 
+h_ele_hcalDepth1TowerSumEt_dr03 1 1 1 
+h_ele_hcalDepth2TowerSumEt_dr03 1 1 1 
+h_ele_tkSumPt_dr04 1 1 1 
+h_ele_ecalRecHitSumEt_dr04 1 1 1 
+h_ele_hcalDepth1TowerSumEt_dr04 1 1 1 
+h_ele_hcalDepth2TowerSumEt_dr04 1 1 1 
+h_recEleNum 1 0 1
+h_ele_EoverP_all 1 1 1 
+h_ele_EseedOP_all 1 1 1 
+h_ele_EoPout_all 1 1 1 
+h_ele_EeleOPout_all 1 1 1 
+h_ele_TIP_all 1 1 1 
+h_ele_dEtaSc_propVtx_all 1 1 1 
+h_ele_dPhiSc_propVtx_all 1 1 1 
+h_ele_dEtaCl_propOut_all 1 1 1 
+h_ele_dPhiCl_propOut_all 1 1 1 
+h_ele_HoE_all 1 1 1 
+h_ele_mee_all 1 1 1 
 EOF
 
 cat >> histos.txt <<EOF
-h_ele_absetaEff	0
-h_ele_etaEff	0
-h_ele_ptEff	0
-h_ele_phiEff	0
-h_ele_zEff	0
-h_ele_etaEff_all	0
-h_ele_ptEff_all	0
-h_ele_PoPtrueVsEta_pfx 	0  
-h_ele_PoPtrueVsPhi_pfx   	0
-h_ele_EtaMnEtaTrueVsEta_pfx  	0
-h_ele_PhiMnPhiTrueVsEta_pfx 	0
-h_ele_vertexPtVsEta_pfx 	0
-h_ele_EoPVsEta_pfx 	0
-h_ele_EoPoutVsEta_pfx 	0
-h_ele_EeleOPoutVsEta_pfx 	0
-h_ele_HoEVsEta_pfx 	0
-h_ele_chi2VsEta_pfx 	0
-h_ele_foundHitsVsEta_pfx 	0
-h_ele_ambiguousTracksVsEta_pfx 0
-h_ele_seedDphi2VsEta_pfx 0
-h_ele_seedDphi2VsPt_pfx 0
-h_ele_seedDrz2VsEta_pfx 0
-h_ele_seedDrz2VsPt_pfx 0
-h_ele_fbremvsEtamean	0
-h_ele_fbremvsEtamode	0
-h_ele_eta_bbremFrac 	0
-h_ele_eta_goldenFrac 	0
-h_ele_eta_narrowFrac 	0
-h_ele_eta_showerFrac 	0
+h_ele_absetaEff	0 0 1
+h_ele_etaEff 0 0 1
+h_ele_ptEff 0 0 1
+h_ele_phiEff 0 0 1
+h_ele_zEff 0 0 1
+h_ele_etaEff_all 0 0 1
+h_ele_ptEff_all	0 0 1
+h_ele_absetaQmisid 0 0 1
+h_ele_etaQmisid	0 0 1
+h_ele_ptQmisid 0 0 1
+h_ele_zQmisid 0 0 1
+h_ele_vertexPtVsEta_pfx 0 0 0
+h_ele_PoPtrueVsEta_pfx 0 0 0 
+h_ele_PoPtrueVsPhi_pfx 0 0 0
+h_scl_EoEtruePfVseg_pfy 0 0 0  
+h_ele_EtaMnEtaTrueVsEta_pfx 0 0 0
+h_ele_PhiMnPhiTrueVsEta_pfx 0 0 0
+h_ele_EoPVsEta_pfx 0 0 0
+h_ele_EoPoutVsEta_pfx 0 0 0
+h_ele_EeleOPoutVsEta_pfx 0 0 0
+h_ele_HoEVsEta_pfx 0 0 0
+h_ele_chi2VsEta_pfx 0 0 0
+h_ele_foundHitsVsEta_pfx 0 0 0
+h_ele_ambiguousTracksVsEta_pfx 0 0 0
+h_ele_seedDphi2VsEta_pfx 0 0 0
+h_ele_seedDphi2VsPt_pfx 0 0 0
+h_ele_seedDrz2VsEta_pfx 0 0 0
+h_ele_seedDrz2VsPt_pfx 0 0 0
+h_ele_fbremvsEtamean 0 0 0
+h_ele_fbremvsEtamode 0 0 0
+h_ele_eta_bbremFrac 0 0 0
+h_ele_eta_goldenFrac 0 0 0
+h_ele_eta_narrowFrac 0 0 0
+h_ele_eta_showerFrac 0 0 0
+EOF
+
+else if ($VAL_ANALYZER == GsfElectronDataAnalyzer ) then
+
+cat >! histos.txt <<EOF
+h_ele_charge 1 0 1
+h_ele_vertexX 1 0 1
+h_ele_vertexY 1 0 1
+h_ele_vertexZ 1 0 1
+h_ele_vertexTIP 1 1 1
+h_ele_vertexP 1 0 1
+h_ele_vertexPt 1 0 1
+h_ele_outerP_mode 1 0 1
+h_ele_outerPt_mode 1 0 1
+h_ele_PoPmatchingObject 1 0 1  
+h_ele_PoPmatchingObject_barrel 1 0 1   
+h_ele_PoPmatchingObject_endcaps 1 0 1   
+h_ele_EtaMnEtamatchingObject 1 0 1  
+h_ele_PhiMnPhimatchingObject 1 0 1
+h_ele_EoP 1 1 1  	
+h_ele_EoPout 1 1 1
+h_ele_EeleOPout 1 1 1
+h_ele_EseedOP 1 1 1
+h_ele_dEtaCl_propOut 1 1 1
+h_ele_dEtaEleCl_propOut 1 1 1
+h_ele_dEtaSc_propVtx 1 1 1
+h_ele_dPhiCl_propOut 1 1 1
+h_ele_dPhiEleCl_propOut 1 1 1
+h_ele_dPhiSc_propVtx 1 1 1
+h_ele_HoE 1 1 1
+h_scl_EoEmatchingObject_barrel 1 0 1
+h_scl_EoEmatchingObject_endcaps 1 0 1   
+h_scl_sigetaeta 1 1 1 
+h_scl_sigietaieta_barrel 1 1 1 
+h_scl_sigietaieta_endcaps 1 1 1
+h_scl_E1x5 1 1 1 
+h_scl_E2x5max 1 1 1   
+h_scl_E5x5 1 1 1   
+h_ele_chi2 1 1 1
+h_ele_foundHits 1 0 1
+h_ele_lostHits 1 0 1
+h_ele_ambiguousTracks 1 1 1
+h_ele_PinMnPout_mode 1 0 1 
+h_ele_fbrem 1 0 1
+h_ele_classes 1 0 1
+h_ele_mva 1 0 1
+h_ele_tkSumPt_dr03 1 1 1
+h_ele_ecalRecHitSumEt_dr03 1 1 1
+h_ele_hcalDepth1TowerSumEt_dr03 1 1
+h_ele_hcalDepth2TowerSumEt_dr03 1 1 1
+h_ele_tkSumPt_dr04 1 1 1
+h_ele_ecalRecHitSumEt_dr04 1 1 1
+h_ele_hcalDepth1TowerSumEt_dr04 1 1 1
+h_ele_hcalDepth2TowerSumEt_dr04 1 1 1
+h_recEleNum 1 0 1
+h_ele_EoverP_all 1 1 1
+h_ele_EseedOP_all 1 1 1
+h_ele_EoPout_all 1 1 1
+h_ele_EeleOPout_all 1 1 1
+h_ele_TIP_all 1 1 1
+h_ele_dEtaSc_propVtx_all 1 1 1
+h_ele_dPhiSc_propVtx_all 1 1 1
+h_ele_dEtaCl_propOut_all 1 1 1
+h_ele_dPhiCl_propOut_all 1 1 1
+h_ele_HoE_all 1 1 1
+h_ele_mee_all 1 1 1
+EOF
+
+cat >> histos.txt <<EOF
+h_ele_absetaEff 0 0 1
+h_ele_etaEff 0 0 1
+h_ele_ptEff 0 0 1
+h_ele_phiEff 0 0 1
+h_ele_zEff 0 0 1
+h_ele_etaEff_all 0 0 1
+h_ele_ptEff_all 0 0 1
+h_ele_vertexPtVsEta_pfx 0 0 0
+h_ele_PoPmatchingObjectVsEta_pfx 0 0 0  
+h_ele_PoPmatchingObjectVsPhi_pfx 0 0 0   
+h_ele_EtaMnEtamatchingObjectVsEta_pfx 0 0 0 
+h_ele_PhiMnPhimatchingObjectVsEta_pfx 0 0 0 
+h_ele_EoPVsEta_pfx 0 0 0
+h_ele_EoPoutVsEta_pfx 0 0 0
+h_ele_EeleOPoutVsEta_pfx 0 0 0
+h_ele_HoEVsEta_pfx 0 0 0
+h_ele_chi2VsEta_pfx 0 0 0
+h_ele_foundHitsVsEta_pfx 0 0 0
+h_ele_ambiguousTracksVsEta_pfx 0 0 0
+h_ele_seedDphi2VsEta_pfx 0 0 0
+h_ele_seedDphi2VsPt_pfx 0 0 0
+h_ele_seedDrz2VsEta_pfx 0 0 0
+h_ele_seedDrz2VsPt_pfx 0 0 0
+h_ele_fbremvsEtamean 0 0 0
+h_ele_fbremvsEtamode 0 0 0
+h_ele_eta_bbremFrac 0 0 0
+h_ele_eta_goldenFrac 0 0 0
+h_ele_eta_narrowFrac 0 0 0
+h_ele_eta_showerFrac 0 0 0
 EOF
 
 else if ($VAL_ANALYZER == GsfElectronFakeAnalyzer ) then
 
 cat >! histos.txt <<EOF
-h_ele_vertexP  	1
-h_ele_vertexPt  	1
-h_ele_outerP_mode  	1
-h_ele_outerPt_mode  	1
-h_ele_vertexX 	1
-h_ele_vertexY 	1
-h_ele_vertexZ 	1
-h_ele_EoP 	1
-h_ele_EoPout 	1
-h_ele_EeleOPout 1
-h_ele_EseedOP 1
-h_ele_dEtaCl_propOut 	1
-h_ele_dEtaEleCl_propOut 	1
-h_ele_dEtaSc_propVtx 	1
-h_ele_dPhiCl_propOut 	1
-h_ele_dPhiEleCl_propOut 	1
-h_ele_dPhiSc_propVtx 	1
-h_ele_HoE 	1
-h_ele_chi2 	1
-h_ele_foundHits 	1
-h_ele_lostHits 	1
-h_ele_ambiguousTracks 1
-h_ele_fbrem 1
-h_ele_classes 	1
-h_ele_charge	1
-h_ele_mee_all	1
-h_recEleNum	1
+h_ele_charge 1 0 1
+h_ele_vertexX 1	0 1
+h_ele_vertexY 1	0 1
+h_ele_vertexZ 1	0 1
+h_ele_vertexTIP 1 1 1
+h_ele_vertexP 1	0 1
+h_ele_vertexPt 1 0 1
+h_ele_outerP_mode 1 0 1
+h_ele_outerPt_mode 1 0 1
+h_ele_EoP 1 1 1
+h_ele_EoPout 1 1 1
+h_ele_EeleOPout 1 1 1
+h_ele_EseedOP 1 1 1
+h_ele_dEtaCl_propOut 1 1 1
+h_ele_dEtaEleCl_propOut 1 1 1
+h_ele_dEtaSc_propVtx 1 1 1
+h_ele_dPhiCl_propOut 1 1 1
+h_ele_dPhiEleCl_propOut 1 1 1
+h_ele_dPhiSc_propVtx 1 1 1
+h_ele_HoE 1 1 1
+h_scl_sigetaeta 1 1 1 
+h_scl_sigietaieta_barrel 1 1 1
+h_scl_sigietaieta_endcaps 1 1 1
+h_scl_E1x5 1 1 1
+h_scl_E2x5max 1 1 1
+h_scl_E5x5 1 1 1
+h_ele_chi2 1 1 1
+h_ele_foundHits 1 0 1
+h_ele_lostHits 1 0 1
+h_ele_ambiguousTracks 1 1 1
+h_ele_seedDphi2 1 0 1
+h_ele_seedDrz2 1 0 1
+h_ele_seedSubdet2 1 0 1
+h_ele_fbrem 1 0 1
+h_ele_classes 1	0 1
+h_ele_mva 1 0 1
+h_ele_tkSumPt_dr03 1 1 1
+h_ele_ecalRecHitSumEt_dr03 1 1 1
+h_ele_hcalDepth1TowerSumEt_dr03 1 1 1
+h_ele_hcalDepth2TowerSumEt_dr03 1 1 1
+h_ele_tkSumPt_dr04 1 1 1
+h_ele_ecalRecHitSumEt_dr04 1 1 1
+h_ele_hcalDepth1TowerSumEt_dr04 1 1 1
+h_ele_hcalDepth2TowerSumEt_dr04	1 1 1
+h_recEleNum 1 0 1
+h_ele_EoverP_all 1 1 1
+h_ele_EseedOP_all 1 1 1
+h_ele_EoPout_all 1 1 1
+h_ele_EeleOPout_all 1 1 1
+h_ele_TIP_all 1	1 1
+h_ele_dEtaSc_propVtx_all 1 1 1
+h_ele_dPhiSc_propVtx_all 1 1 1
+h_ele_dEtaCl_propOut_all 1 1 1
+h_ele_dPhiCl_propOut_all 1 1 1
+h_ele_HoE_all 1	1 1
+h_ele_mee_all 1	0 1
 EOF
 
 cat >> histos.txt <<EOF
-h_ele_absetaEff 	0
-h_ele_etaEff 	0
-h_ele_ptEff 	0
-h_ele_phiEff 	0
-h_ele_zEff 	0
-h_ele_etaEff_all 	0
-h_ele_ptEff_all 	0
-h_ele_vertexPtVsEta_pfx  	0
-h_ele_EoPVsEta_pfx  	0
-h_ele_EoPoutVsEta_pfx  	0
-h_ele_EeleOPoutVsEta_pfx 0
-h_ele_HoEVsEta_pfx  	0
-h_ele_chi2VsEta_pfx  	0
-h_ele_foundHitsVsEta_pfx  	0
-h_ele_ambiguousTracksVsEta_pfx 0
-h_ele_fbremvsEtamean 	0
-h_ele_fbremvsEtamode 	0
-h_ele_eta_bbremFrac  	0
-h_ele_eta_goldenFrac  	0
-h_ele_eta_narrowFrac  	0
-h_ele_eta_showerFrac  	0
+h_ele_absetaEff 0 0 1
+h_ele_etaEff 0 0 1
+h_ele_ptEff 0 0 1
+h_ele_phiEff 0 0 1
+h_ele_zEff 0 0 1
+h_ele_etaEff_all 0 0 1
+h_ele_ptEff_all 0 0 1
+h_ele_vertexPtVsEta_pfx 0 0 0
+h_ele_EoPVsEta_pfx 0 0 0
+h_ele_EoPoutVsEta_pfx 0	0 0
+h_ele_EeleOPoutVsEta_pfx 0 0 0
+h_ele_HoEVsEta_pfx 0 0 0
+h_ele_chi2VsEta_pfx 0 0 0
+h_ele_foundHitsVsEta_pfx 0 0 0
+h_ele_seedDphi2VsEta_pfx 0 0 0	
+h_ele_seedDphi2VsPt_pfx 0 0 0
+h_ele_seedDrz2VsEta_pfx 0 0 0
+h_ele_seedDrz2VsPt_pfx 0 0 0
+h_ele_fbremvsEtamean 0 0 0
+h_ele_fbremvsEtamode 0 0 0
+h_ele_eta_bbremFrac 0 0 0
+h_ele_eta_goldenFrac 0 0 0
+h_ele_eta_narrowFrac 0 0 0	
+h_ele_eta_showerFrac 0 0 0
 EOF
 
 else if ( $VAL_ANALYZER == SimplePhotonAnalyzer ) then
 
 cat >! histos.txt <<EOF
-scE 1
-scEt 1
-scEta 1
-scPhi 1
-deltaEtaSC 1
-deltaPhiSC 1
-phoE 1
-phoEta 1
-phoPhi 1
-phoR9Barrel 1
-phoR9Endcap 1
-recEoverTrueEBarrel 1
-recEoverTrueEEndcap 1
-recESCoverTrueEBarrel 1
-recESCoverTrueEEndcap 1
-e5x5_unconvBarrelOverEtrue 1
-e5x5_unconvEndcapOverEtrue 1
-ePho_convBarrelOverEtrue 1
-ePho_convEndcapOverEtrue 1
-deltaEta 1
-deltaPhi 1
+scE 1 0 0
+scEt 1 0 0
+scEta 1 0 0
+scPhi 1 0 0
+deltaEtaSC 1 0 0
+deltaPhiSC 1 0 0
+phoE 1 0 0
+phoEta 1 0 0
+phoPhi 1 0 0
+phoR9Barrel 1 0 0
+phoR9Endcap 1 0 0
+recEoverTrueEBarrel 1 0 0
+recEoverTrueEEndcap 1 0 0
+recESCoverTrueEBarrel 1 0 0
+recESCoverTrueEEndcap 1 0 0
+e5x5_unconvBarrelOverEtrue 1 0 0
+e5x5_unconvEndcapOverEtrue 1 0 0
+ePho_convBarrelOverEtrue 1 0 0
+ePho_convEndcapOverEtrue 1 0 0
+deltaEta 1 0 0
+deltaPhi 1 0 0
 EOF
 
 else if ( $VAL_ANALYZER == SimpleConvertedPhotonAnalyzer ) then
 
 cat >! histos.txt <<EOF
-deltaE 1
-deltaPhi 1
-deltaEta 1
-MCphoE 1
-MCphoPhi 1
-MCphoEta 1
-MCConvE 1
-MCConvPt 1
-MCConvEta 1
-scE 1
-scEta 1
-scPhi 1
-phoE 1
-phoEta 1
-phoPhi 1
+deltaE 1 0 0
+deltaPhi 1 0 0
+deltaEta 1 0 0
+MCphoE 1 0 0
+MCphoPhi 1 0 0
+MCphoEta 1 0 0
+MCConvE 1 0 0
+MCConvPt 1 0 0
+MCConvEta 1 0 0
+scE 1 0 0
+scEta 1 0 0
+scPhi 1 0 0
+phoE 1 0 0
+phoEta 1 0 0
+phoPhi 1 0 0
 EOF
 
 endif

@@ -8,6 +8,48 @@ TString val_ref_release = gSystem->Getenv("VAL_REF_RELEASE") ;
 TString val_new_release = gSystem->Getenv("VAL_NEW_RELEASE") ;
 TString val_analyzer = gSystem->Getenv("VAL_ANALYZER") ;
 
+// style:
+TStyle *eleStyle = new TStyle("eleStyle","Style for electron validation");
+eleStyle->SetCanvasBorderMode(0); 
+eleStyle->SetCanvasColor(kWhite);
+eleStyle->SetCanvasDefH(600); 
+eleStyle->SetCanvasDefW(800); 
+eleStyle->SetCanvasDefX(0);  
+eleStyle->SetCanvasDefY(0);
+eleStyle->SetPadBorderMode(0); 
+eleStyle->SetPadColor(kWhite);
+eleStyle->SetPadGridX(false);
+eleStyle->SetPadGridY(false);
+eleStyle->SetGridColor(0);
+eleStyle->SetGridStyle(3);
+eleStyle->SetGridWidth(1);
+eleStyle->SetOptStat(1);
+eleStyle->SetPadTickX(1); 
+eleStyle->SetPadTickY(1);
+eleStyle->SetHistLineColor(1);
+eleStyle->SetHistLineStyle(0);
+eleStyle->SetHistLineWidth(2);
+eleStyle->SetEndErrorSize(2);
+eleStyle->SetErrorX(0.);
+eleStyle->SetOptStat(1);
+eleStyle->SetTitleColor(1, "XYZ");
+eleStyle->SetTitleFont(42, "XYZ");
+eleStyle->SetTitleXOffset(1.0);
+eleStyle->SetTitleYOffset(1.0);
+eleStyle->SetLabelOffset(0.005, "XYZ");
+eleStyle->SetTitleSize(0.05, "XYZ");
+eleStyle->SetTitleFont(22,"X");
+eleStyle->SetTitleFont(22,"Y");
+eleStyle->SetHistLineWidth(2);
+eleStyle->SetPadBottomMargin(0.13);
+eleStyle->SetPadLeftMargin(0.15);
+eleStyle->SetMarkerStyle(21);
+eleStyle->SetMarkerSize(0.8);
+
+eleStyle->cd(); 
+  
+gROOT->ForceStyle();
+
 TFile * file_old = 0 ;
 if ( val_ref_file_name != "" )
  { file_old = TFile::Open(val_ref_file_name) ; }
@@ -58,8 +100,8 @@ else
 web_page<<"<br><br><hr>" ;
 std::ifstream histo_file("histos.txt") ;
 std::string histo_name, gif_name, canvas_name ;
-int scaled ;
-while (histo_file>>histo_name>>scaled)
+int scaled, log, err ;
+while (histo_file>>histo_name>>scaled>>log>>err)
  {
   gif_name = std::string("gifs/")+histo_name+".gif" ;
   canvas_name = std::string("c")+histo_name ;
@@ -74,7 +116,7 @@ while (histo_file>>histo_name>>scaled)
      {
       histo_old->SetLineColor(4) ;
       histo_old->SetLineWidth(3) ;
-      histo_old->Draw() ;
+      histo_old->Draw("hist") ;
      }
     else
      {
@@ -85,11 +127,14 @@ while (histo_file>>histo_name>>scaled)
   histo_new = (TH1 *)file_new->Get(histo_name.c_str()) ;
   if (histo_new!=0)
    {
+    if (log==1)canvas->SetLogy(1);
     histo_new->SetLineColor(2) ;
+    histo_new->SetMarkerColor(2) ;
     histo_new->SetLineWidth(3) ;
     if ((scaled==1)&&(file_old!=0)&&(histo_old!=0)&&(histo_new->GetEntries()!=0))
-     { histo_new->Scale(histo_old->GetEntries()/histo_new->GetEntries()) ; }
-    histo_new->Draw("same") ;
+     { histo_new->Scale(histo_old->GetEntries()/histo_new->GetEntries()) ; }   
+    if (err==1) histo_new->Draw("same E1 P") ;
+    else histo_new->Draw("same hist") ;
     std::cout<<histo_name
       <<" has "<<histo_new->GetEffectiveEntries()<<" entries"
       <<" of mean value "<<histo_new->GetMean()

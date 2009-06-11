@@ -67,18 +67,18 @@ if ( $TYPE == GsfElectron ) then
 
 cat > scaledhistos <<EOF
   h_ele_charge
-  h_ele_vertexP 
-  h_ele_vertexPt 
   h_ele_vertexX 
   h_ele_vertexY 
   h_ele_vertexZ 
   h_ele_vertexTIP 
+  h_ele_vertexP 
+  h_ele_vertexPt 
   h_ele_outerP_mode 
   h_ele_outerPt_mode   
+  h_ele_ChargeMnChargeTrue   
   h_ele_PoPtrue   
   h_ele_PoPtrue_barrel   
   h_ele_PoPtrue_endcaps   
-  h_ele_ChargeMnChargeTrue   
   h_ele_EtaMnEtaTrue   
   h_ele_PhiMnPhiTrue 
   h_ele_EoP 
@@ -179,12 +179,12 @@ else if ($TYPE == GsfElectronData ) then
 
 cat > scaledhistos <<EOF
   h_ele_charge
-  h_ele_vertexP 
-  h_ele_vertexPt 
   h_ele_vertexX 
   h_ele_vertexY 
   h_ele_vertexZ 
   h_ele_vertexTIP 
+  h_ele_vertexP 
+  h_ele_vertexPt 
   h_ele_outerP_mode 
   h_ele_outerPt_mode   
   h_ele_PoPmatchingObject   
@@ -280,12 +280,12 @@ else if ($TYPE == GsfElectronFake ) then
 
 cat > scaledhistos <<EOF
   h_ele_charge 
-  h_ele_vertexP 
-  h_ele_vertexPt 
   h_ele_vertexX 
   h_ele_vertexY 
   h_ele_vertexZ 
   h_ele_vertexTIP 
+  h_ele_vertexP 
+  h_ele_vertexPt 
   h_ele_outerP_mode 
   h_ele_outerPt_mode 
   h_ele_EoP 
