@@ -99,7 +99,7 @@ GamIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
 
         } //end candidates
 
-        //delete doubleConeSel_;
+        delete doubleConeSel_;
     } //end if cone selector was created
     
     iEvent.put( detIdCollection, interestingDetIdCollection_ );
