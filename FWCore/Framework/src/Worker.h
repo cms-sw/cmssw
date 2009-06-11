@@ -109,7 +109,6 @@ namespace edm {
     virtual void implPreForkReleaseResources() = 0;
     virtual void implPostForkReacquireResources(unsigned int iChildIndex, 
                                                unsigned int iNumberOfChildren) = 0;
-    
     RunStopwatch::StopwatchPointer stopwatch_;
 
     int timesRun_;
@@ -219,10 +218,12 @@ namespace edm {
 	// something other than an event (e.g. run, lumi) always rethrow.
 	actions::ActionCodes action = (T::isEvent_ ? actions_->find(e.rootCause()) : actions::Rethrow);
 
-	// If we are processing an endpath, treat SkipEvent or FailPath
+	// If we are processing an endpath and the module was scheduled, treat SkipEvent or FailPath
 	// as FailModule, so any subsequent OutputModules are still run.
+        // For unscheduled modules only treat FailPath as a FailModule but still allow SkipEvent to throw
 	if (cpc && cpc->isEndPath()) {
-	  if (action == actions::SkipEvent || action == actions::FailPath) action = actions::FailModule;
+	  if ((action == actions::SkipEvent && not cpc->isUnscheduled()) || 
+              action == actions::FailPath) action = actions::FailModule;
 	}
 	switch(action) {
 	  case actions::IgnoreCompletely: {
