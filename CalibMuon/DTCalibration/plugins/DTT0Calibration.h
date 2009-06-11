@@ -8,8 +8,8 @@
  *  The t0 of wires in odd layers are corrected for the relative difference between 
  *  odd and even layers 
  *
- *  $Date: 2007/12/18 15:40:15 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/02/19 15:13:01 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -69,6 +69,9 @@ private:
   //Number of events to be used for the t0 reference per wire
   unsigned int eventsForWireT0;
 
+  //Reject digis if far from TP peak
+  unsigned int rejectDigiFromPeak;
+
   //Acceptance of t0 w.r.t. reference peak
   double tpPeakWidth;
 
@@ -98,6 +101,7 @@ private:
   std::map<DTWireId,double> qK;
   //Map with histo per wire for the chosen layer
   std::map<DTWireId,TH1I*> theHistoWireMap;
+  std::map<DTWireId,TH1I*> theHistoWireMap_ref;
   //Map with mean and RMS of t0 per layer
   std::map<std::string,double> theT0LayerMap;
   std::map<std::string,double> theSigmaT0LayerMap;

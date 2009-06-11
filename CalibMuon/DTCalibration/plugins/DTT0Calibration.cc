@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/02/19 15:13:21 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/10/03 08:34:49 $
+ *  $Revision: 1.10 $
  *  \author S. Bolognesi - INFN Torino
  */
 #include "CalibMuon/DTCalibration/plugins/DTT0Calibration.h"
@@ -76,6 +76,7 @@ DTT0Calibration::DTT0Calibration(const edm::ParameterSet& pset) {
   nevents=0;
   eventsForLayerT0 = pset.getParameter<unsigned int>("eventsForLayerT0");
   eventsForWireT0 = pset.getParameter<unsigned int>("eventsForWireT0");
+  rejectDigiFromPeak = pset.getParameter<unsigned int>("rejectDigiFromPeak");
   tpPeakWidth = pset.getParameter<double>("tpPeakWidth");
 }
 
@@ -161,31 +162,25 @@ void DTT0Calibration::analyze(const edm::Event & event, const edm::EventSetup& e
 	}   
 
 	//Fill the histos per wire for the chosen cells
-	vector<DTWireId>::iterator it = find(wireIdWithHistos.begin(),wireIdWithHistos.end(),wireId);
-	if (it!=wireIdWithHistos.end()){
- 	  //Get the per-wire histo from the map
-	  TH1I *hT0WireHisto = theHistoWireMap[wireId];	
-	  //If it doesn't exist, book it
-	  if(hT0WireHisto == 0){
-	    theFile->cd(); 
-	    hT0WireHisto = new TH1I(getHistoName(wireId).c_str(),"T0 from pulses by wire (TDC counts, 1 TDC count = 0.781 ns)",7000,0,7000);
-	    //hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin())-100,
-	    //hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin())+100);
-	    if(debug)
-	      cout << "  New T0 per wire Histo: " << hT0WireHisto->GetName() << endl;
-	    theHistoWireMap[wireId] = hT0WireHisto;
-	  }
+	vector<DTWireId>::iterator it_wire = find(wireIdWithHistos.begin(),wireIdWithHistos.end(),wireId);
+	if(it_wire != wireIdWithHistos.end()){
+          if(theHistoWireMap.find(wireId) == theHistoWireMap.end()){
+            theHistoWireMap[wireId] = new TH1I(getHistoName(wireId).c_str(),"T0 from pulses by wire (TDC counts, 1 TDC count = 0.781 ns)",7000,0,7000);
+            if(debug) cout << "  New T0 per wire Histo: " << (theHistoWireMap[wireId])->GetName() << endl;
+          }
+          if(theHistoWireMap_ref.find(wireId) == theHistoWireMap_ref.end()){
+            theHistoWireMap_ref[wireId] = new TH1I((getHistoName(wireId) + "_ref").c_str(),"T0 from pulses by wire (TDC counts, 1 TDC count = 0.781 ns)",7000,0,7000);
+            if(debug) cout << "  New T0 per wire Histo: " << (theHistoWireMap_ref[wireId])->GetName() << endl;
+          }
+
+          TH1I* hT0WireHisto = theHistoWireMap[wireId];
 	  //Fill the histos
 	  theFile->cd();
-	  if(hT0WireHisto != 0) {
-	    //if(debug)
-	    // cout<<"Filling histo "<<hT0WireHisto->GetName()<<" with digi "<<t0<<" TDC counts"<<endl;
-	    hT0WireHisto->Fill(t0);
-	  }
+	  if(hT0WireHisto) hT0WireHisto->Fill(t0);
 	}
 
 	//Check the tzero has reasonable value
-	if(abs(hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin()) - t0) > 100){
+	if(abs(hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin()) - t0) > rejectDigiFromPeak){
 	  if(debug)
 	    cout<<"digi skipped because t0 per sector "<<hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin())<<endl;
 	  continue;
@@ -193,6 +188,12 @@ void DTT0Calibration::analyze(const edm::Event & event, const edm::EventSetup& e
 
 	//Use second bunch of events to compute a t0 reference per wire
 	if(nevents< (eventsForLayerT0 + eventsForWireT0)){
+          //Fill reference wire histos
+          if(it_wire != wireIdWithHistos.end()){
+            TH1I* hT0WireHisto_ref = theHistoWireMap_ref[wireId];
+            theFile->cd();
+            if(hT0WireHisto_ref) hT0WireHisto_ref->Fill(t0); 
+          } 
 	  if(!nDigiPerWire_ref[wireId]){
 	    mK_ref[wireId] = 0;
 	  }
@@ -281,6 +282,11 @@ void DTT0Calibration::endJob() {
       wHisto != theHistoWireMap.end();
       wHisto++) {
     (*wHisto).second->Write(); 
+  }
+  for(map<DTWireId, TH1I*>::const_iterator wHisto = theHistoWireMap_ref.begin();
+      wHisto != theHistoWireMap_ref.end();
+      wHisto++) {
+    (*wHisto).second->Write();
   }
   for(map<DTLayerId, TH1I*>::const_iterator lHisto = theHistoLayerMap.begin();
       lHisto != theHistoLayerMap.end();
