@@ -27,6 +27,5 @@ from DQMOffline.Trigger.HLTTauDQMOffline_cff import *
 from DQMOffline.Trigger.JetMETHLTOfflineSource_cfi import *
 l1temumonitor = cms.Sequence(l1demon) 
 
-#triggerOfflineDQMSource = cms.Sequence(l1temumonitor*l1tmonitor*hltResults*egHLTOffDQMSource*offlineDQMMuonTrig*HLTTauDQMOffline*jetMETHLTOfflineSource )
-triggerOfflineDQMSource = cms.Sequence(l1temumonitor*l1tmonitor*hltResults*egHLTOffDQMSource*HLTTauDQMOffline*jetMETHLTOfflineSource )
+triggerOfflineDQMSource = cms.Sequence(l1temumonitor*l1tmonitor*hltResults*egHLTOffDQMSource*offlineDQMMuonTrig*HLTTauDQMOffline*jetMETHLTOfflineSource )
 
