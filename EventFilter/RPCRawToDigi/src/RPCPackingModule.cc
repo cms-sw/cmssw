@@ -31,10 +31,11 @@ using namespace rpcrawtodigi;
 
 typedef uint64_t Word64;
 
-RPCPackingModule::RPCPackingModule( const ParameterSet& pset ) :
-  eventCounter_(0)
+RPCPackingModule::RPCPackingModule( const ParameterSet& pset ) 
+  : dataLabel_(pset.getParameter<edm::InputTag>("InputLabel")),
+    eventCounter_(0)
 {
-
+  
   theCabling = new RPCReadOutMapping("");
   produces<FEDRawDataCollection>();
 
@@ -54,7 +55,7 @@ void RPCPackingModule::produce( edm::Event& ev,
                               << "event counter: " << eventCounter_;
 
   Handle< RPCDigiCollection > digiCollection;
-  ev.getByType(digiCollection);
+  ev.getByLabel(dataLabel_,digiCollection);
   LogDebug("") << DebugDigisPrintout()(digiCollection.product());
 
   static edm::ESWatcher<RPCEMapRcd> recordWatcher; 

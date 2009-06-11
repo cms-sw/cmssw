@@ -7,6 +7,7 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
 #include <vector> 
@@ -38,6 +39,7 @@ private:
   FEDRawData * rawData( int fedId, unsigned int lvl1_ID, const RPCDigiCollection* , const RPCRecordFormatter& );
 
 private:
+  edm::InputTag dataLabel_;
   unsigned long eventCounter_;
   const RPCReadOutMapping * theCabling; 
 
