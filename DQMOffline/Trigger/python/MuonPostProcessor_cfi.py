@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-HLTMuonPostVal = cms.EDAnalyzer("DQMGenericClient",
+hLTMuonPostVal = cms.EDAnalyzer("DQMGenericClient",
+
     #subDirs        = cms.untracked.vstring('HLT/Muon/Distributions/HLT_Mu15/*',
 	#									   'HLT/Muon/Distributions/HLT_L1Mu/*'),
 								
