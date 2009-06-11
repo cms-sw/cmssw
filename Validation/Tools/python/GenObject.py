@@ -18,9 +18,16 @@ ROOT.gROOT.SetBatch()
 
 # regex for reducing 'warn()' filenames
 filenameRE = re.compile (r'.+/Validation/Tools/')
+# Whether warn() should print anythingg
+quietWarn = False
+
+def setQuietWarn (quiet = True):
+    global quietWarn
+    quietWarn = quiet
 
 def warn (*args, **kwargs):
     """print out warning with line number and rest of arguments"""
+    if quietWarn: return
     frame = inspect.stack()[1]
     filename = frame[1]
     lineNum  = frame[2]
@@ -959,7 +966,6 @@ class GenObject (object):
         else:
             # This means that 'evenTree' is a cmstools.EventTree
             rootEvent = eventTree[eventIndex]
-            if debug: warn ('cmsEventTree')
         tofillDict = GenObject._tofillDict.get (tupleName)
         ntupleDict = GenObject._ntupleDict.get (tupleName)
         if not tofillDict:
@@ -994,7 +1000,10 @@ class GenObject (object):
                                                         tupleName,
                                                         obj,
                                                         index) )
-            # end for obj
+            del objects
+            # end for obj        
+        if not isChain:
+            del rootEvent
         # end for objName
         return event
 
@@ -1059,12 +1068,9 @@ class GenObject (object):
                 numEntries = chain.GetEntries()
         # Are we using a chain or EventTree here?
         else:
-            numEntries = 0
-            #if not ntupleDict.get('_useChain'):
-            # cmstools.EventTree
-            # chain = cmstools.EventTree (chain)
             chain = cmstools.EventTree (files[0])
             GenObject.setAliases (chain, tupleName)
+            numEntries = chain.tree().GetEntries()
         chainDict = GenObject._kitchenSinkDict.setdefault (chain, {})
         if numEventsWanted and numEventsWanted < numEntries:
             numEntries = numEventsWanted
@@ -1084,6 +1090,7 @@ class GenObject (object):
             runevent = event['runevent']
             reeDict[ GenObject._re2key (runevent) ] = entryIndex
             #reeDict[ "one two three" ] = entryIndex
+            del event
         return reeDict
 
 
@@ -1330,17 +1337,18 @@ class GenObject (object):
                     runevent = GenObject._key2re (key)
                     vec.push_back( GenObject._rootObjectClone( runevent ) )
             missingTree.Fill()
-        problemDict = {}
+        resultsDict = {}
         if firstOnly:
             if debug:
                 print "firstOnly ", firstOnly
-            problemDict.setdefault ('_runevent', {})['firstOnly'] = \
+            resultsDict.setdefault ('_runevent', {})['firstOnly'] = \
                                    len (firstOnly)
         if secondOnly:
             if debug:
                 print "secondOnly", secondOnly
-            problemDict.setdefault ('_runevent', {})['secondOnly'] = \
+            resultsDict.setdefault ('_runevent', {})['secondOnly'] = \
                                    len (secondOnly)
+        resultsDict['eventsCompared'] = len (overlap)
         for reTuple in sorted(overlap):
             if debug: warn ('event1', blankLines = 3)
             event1 = GenObject.loadEventFromTree (chain1, ree1 [reTuple])
@@ -1382,7 +1390,7 @@ class GenObject (object):
                     count1 = len (noMatch1Set)
                     count2 = len (noMatch2Set)
                     key = (count1, count2)
-                    countDict = problemDict.\
+                    countDict = resultsDict.\
                                 setdefault (objName, {}).\
                                 setdefault ('_missing', {})
                     if countDict.has_key (key):
@@ -1416,7 +1424,7 @@ class GenObject (object):
                     if problems.keys():
                         # pprint.pprint (problems)
                         for varName in problems.keys():
-                            countDict = problemDict.\
+                            countDict = resultsDict.\
                                         setdefault (objName, {}).\
                                         setdefault ('_var', {})
                             if countDict.has_key (varName):
@@ -1424,18 +1432,23 @@ class GenObject (object):
                             else:
                                 countDict[varName] = 1
                 key = 'count_%s' % objName
-                if not problemDict.has_key (key):
-                    problemDict[key] = 0
-                problemDict[key] += len (matchedSet)
-            # end for objName
+                if not resultsDict.has_key (key):
+                    resultsDict[key] = 0
+                resultsDict[key] += len (matchedSet)
+                # try cleaning up
+                del vec1
+                del vec2
+            # end for objName        
             if diffOutputName:
                 diffTree.Fill()
+            del event1
+            del event2
         # end for overlap
         if diffOutputName:
             diffTree.Write()
             missingTree.Write()
             rootfile.Close()
-        return problemDict
+        return resultsDict
 
 
     @staticmethod
