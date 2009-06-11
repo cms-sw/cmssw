@@ -238,7 +238,6 @@ void CastorTestAnalysis::update(const EndOfEvent * evt) {
 	//math::XYZPoint hitPoint = aHit->getEntry();
 
 	themap[volumeID] += aHit->getEnergyDeposit();
-    int det, zside, sector, zmodule;
 
     //    theCastorNumScheme->unpackIndex(volumeID, det, zside, sector,zmodule);
 
