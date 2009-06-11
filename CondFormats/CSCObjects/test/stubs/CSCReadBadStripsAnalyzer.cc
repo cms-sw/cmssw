@@ -26,7 +26,7 @@ namespace edmtest
     explicit  CSCReadBadStripsAnalyzer(edm::ParameterSet const& ps ) 
       : outputToFile( ps.getParameter<bool>("outputToFile") ),
       readBadChannels_(ps.getParameter<bool>("readBadChannels") ) {
-      badStripWords.resize( 2808, 0 );
+      badStripWords.resize( 3240, 0 );
     }
 
     explicit  CSCReadBadStripsAnalyzer(int i) 
@@ -141,14 +141,14 @@ namespace edmtest
   void CSCReadBadStripsAnalyzer::fillBadStripWords() {
 
       // reset existing values
-      badStripWords.assign( 2808, 0 );
+      badStripWords.assign( 3240, 0 );
       if ( readBadChannels() ) {
 	// unpack what we read from theBadStrips
 
 	// chambers is a vector<BadChamber>
 	// channels is a vector<BadChannel>
-	// Each BadChamber contains its index (1-468), the no. of bad channels, 
-	// and the index within vector<BadChannel> where this chamber
+	// Each BadChamber contains its index (1-468 or 540 w. ME42), the no. of bad channels, 
+	// and the index within vector<BadChannel> where this chamber's bad channels start.
  
     CSCIndexer indexer;
 
@@ -157,7 +157,7 @@ namespace edmtest
     for ( size_t i=0; i<theBadStrips->chambers.size(); ++i ) { // loop over bad chambers
       int indexc = theBadStrips->chambers[i].chamber_index;
 
-      // The following is not in standard CSCConditions version but requirede for our prototype bad strip db
+      // The following is not in standard CSCConditions version but was required for our prototype bad strip db
       if ( indexc == 0 ) {
 	std::cout << "WARNING: chamber index = 0. Quitting. " << std::endl;       
         break; // prototype db has zero line at end
@@ -166,12 +166,12 @@ namespace edmtest
       int start =  theBadStrips->chambers[i].pointer;  // where this chamber's bad channels start in vector<BadChannel>
       int nbad  =  theBadStrips->chambers[i].bad_channels;
 
-      CSCDetId id = indexer.detIdFromChamberIndex( indexc ); // We need this to build layer index (1-2808)
+      CSCDetId id = indexer.detIdFromChamberIndex( indexc ); // We need this to build layer index (1-3240)
       
       for ( int j=start-1; j<start+nbad-1; ++j ) { // bad channels in this chamber
         short lay  = theBadStrips->channels[j].layer;    // value 1-6
 
-      // The following is not in standard CSCConditions version but requirede for our prototype bad strip db
+      // The following is not in standard CSCConditions version but was required for our prototype bad strip db
 	if ( lay == 0 ) {
 	  std::cout << "WARNING: layer index = 0. Quitting. " << std::endl;
           break;
