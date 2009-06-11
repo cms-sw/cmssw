@@ -32,12 +32,21 @@ class PatElectronAnalyzer : public edm::EDAnalyzer {
   // supported depending on the line comments
   unsigned int mode_;
 
+  // choose a given electronID for the electron
+  // in consideration; the following types are 
+  // available: 
+  // * eidRobustLoose
+  // * eidRobustTight
+  // * eidLoose
+  // * eidTight
+  // * eidRobustHighEnergy
+  std::string electronID_;
+
   // source of electrons
   edm::InputTag electronSrc_;
   // source of generator particles
   edm::InputTag particleSrc_;
 
-  std::string electronID_;
   edm::ParameterSet genMatchMode_;
   edm::ParameterSet tagAndProbeMode_;
 
@@ -69,6 +78,7 @@ PatElectronAnalyzer::PatElectronAnalyzer(const edm::ParameterSet& cfg):
   minPt_ (cfg.getParameter<double>("minPt")),
   maxEta_ (cfg.getParameter<double>("maxEta")),
   mode_ (cfg.getParameter<unsigned int>("mode")),
+  electronID_  (cfg.getParameter<std::string>("electronID")), 
   electronSrc_ (cfg.getParameter<edm::InputTag>("electronSrc")),
   particleSrc_ (cfg.getParameter<edm::InputTag>("particleSrc")),
   genMatchMode_(cfg.getParameter<edm::ParameterSet>("genMatchMode")),
@@ -78,7 +88,7 @@ PatElectronAnalyzer::PatElectronAnalyzer(const edm::ParameterSet& cfg):
   maxDeltaR_ = genMatchMode_   .getParameter<double>("maxDeltaR"); 
   maxDeltaM_ = tagAndProbeMode_.getParameter<double>("maxDeltaM"); 
   maxTagIso_ = tagAndProbeMode_.getParameter<double>("maxTagIso"); 
-  electronID_= tagAndProbeMode_.getParameter<std::string>("electronID"); 
+
 
   // register histograms to the TFileService
   edm::Service<TFileService> fs;
@@ -111,9 +121,11 @@ PatElectronAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
 
   nr_->Fill( electrons->size() );
 
+  // ----------------------------------------------------------------------
   //
-  // uncomment the following lines to enable >> Mode 0: genMatch
+  // First Part Mode 0: genMatch
   //
+  // ----------------------------------------------------------------------
   if( mode_==0 ){
     // loop generator particles 
     for(reco::GenParticleCollection::const_iterator part=particles->begin(); 
@@ -134,14 +146,6 @@ PatElectronAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
 	float deltaR = ROOT::Math::VectorUtil::DeltaR(elec->genLepton()->p4(), elec->p4());
 	deltaR_->Fill(TMath::Log10(deltaR));	
 	if( deltaR<maxDeltaR_ ){
-	  // uncomment the following line and choose a type
-	  // to require a certain electronID; the following 
-	  // types are available:
-	  // * eidRobustLoose
-	  // * eidRobustTight
-	  // * eidLoose
-	  // * eidTight
-	  // * eidRobustHighEnergy
 	  if( electronID_.compare("none")!=0 ){
 	    if( elec->electronID(electronID_)<0.5 ) 
 	      continue;
@@ -155,9 +159,12 @@ PatElectronAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
       }
     }
   }
+
+  // ----------------------------------------------------------------------
   //
-  // uncomment the following lines to enable >> Mode 1: tagAndProbe
+  // Second Part Mode 1: tagAndProbe
   //
+  // ----------------------------------------------------------------------
   if( mode_==1 ){
     // loop tag electron
     for( std::vector<pat::Electron>::const_iterator elec=electrons->begin(); elec!=electrons->end(); ++elec ){
@@ -175,14 +182,6 @@ PatElectronAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
 	  
 	  // check for the Z mass
 	  if( fabs( zMass-90. )<maxDeltaM_ ){
-	    // uncomment the following line and choose a type
-	    // to require a certain electronID; the following 
-	    // types are available:
-	    // * eidRobustLoose
-	    // * eidRobustTight
-	    // * eidLoose
-	    // * eidTight
-	    // * eidRobustHighEnergy
 	    if( electronID_.compare("none")!=0 ){
 	      if( probe->electronID(electronID_)<0.5 ) 
 		continue;

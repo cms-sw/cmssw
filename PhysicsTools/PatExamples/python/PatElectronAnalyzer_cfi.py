@@ -9,7 +9,16 @@ analyzePatElectron = cms.EDAnalyzer("PatElectronAnalyzer",
     ## maximal pt  for the electron to be considered
     minPt = cms.double(10.),
     ## maximal eta for the electron to be considered
-    maxEta= cms.double(1.4),
+    maxEta= cms.double(1.4),                                    
+    ## electronId to be used for probe the following
+    ## types are  available:
+    ##  * none
+    ##  * eidRobustLoose
+    ##  * eidRobustTight
+    ##  * eidLoose
+    ##  * eidTight
+    ##  * eidRobustHighEnergy
+    electronID = cms.string('none'),                                    
                                     
     ## input collection for electrons
     electronSrc  = cms.InputTag("selectedLayer1Electrons"),
@@ -24,8 +33,6 @@ analyzePatElectron = cms.EDAnalyzer("PatElectronAnalyzer",
 
     ## parameters for tagAndProbe mode
     tagAndProbeMode = cms.PSet(
-      ## electronId to be used for probe
-      electronID= cms.string('none'),
       ## maximal allowed value of deltaM
       maxDeltaM = cms.double(10.),
       ## maximal allowed value of isolation
