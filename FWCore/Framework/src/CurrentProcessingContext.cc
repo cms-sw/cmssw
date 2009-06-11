@@ -9,7 +9,8 @@ namespace edm
     slotInPath_(0),
     moduleDescription_(0),
     pathName_(0),
-    isEndPath_(false)
+    isEndPath_(false),
+    unscheduledDepth_(0)
   { }
 
   CurrentProcessingContext::CurrentProcessingContext(std::string const* name,
@@ -19,7 +20,8 @@ namespace edm
     slotInPath_(0),
     moduleDescription_(0),
     pathName_(name),
-    isEndPath_(isEndPth)
+    isEndPath_(isEndPth),
+    unscheduledDepth_(0)
   { }
 
   std::string const*
@@ -65,6 +67,25 @@ namespace edm
     return isEndPath_;
   }
 
+   unsigned int 
+   CurrentProcessingContext::unscheduledDepth() const
+   {
+      return unscheduledDepth_;
+   }
+   
+   bool 
+   CurrentProcessingContext::isUnscheduled() const
+   {
+      return 0 != unscheduledDepth();
+   }
+   
+   void
+   CurrentProcessingContext::setUnscheduledDepth(unsigned int iDepth)
+   {
+      unscheduledDepth_ = iDepth;
+   }
+   
+   
   void
   CurrentProcessingContext::activate(size_t theSlotInPath, 
 				     ModuleDescription const* mod)

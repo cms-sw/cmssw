@@ -62,6 +62,15 @@ namespace edm
     /// Return true if the path is an end path, and false otherwise.
     bool isEndPath() const;
 
+    /// Returns 0 if module is on the path and >0 when the module executing is unscheduled
+    unsigned int unscheduledDepth() const;
+    
+    /// Returns true if the module is being called via unscheduled execution
+    bool isUnscheduled() const;
+     
+    /// Set the depth in a series of unscheduled callbacks
+    void setUnscheduledDepth(unsigned int);
+     
     /// Set the context to reflect the active state.
     void activate(std::size_t theSlotInPath,
 		  ModuleDescription const* mod);
@@ -77,6 +86,7 @@ namespace edm
     ModuleDescription const* moduleDescription_;
     std::string const*       pathName_;
     bool		     isEndPath_;
+    unsigned int             unscheduledDepth_;
 
     bool is_active() const { return moduleDescription_ != 0; }
   };
