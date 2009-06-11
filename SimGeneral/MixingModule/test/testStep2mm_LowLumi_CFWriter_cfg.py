@@ -32,21 +32,21 @@ process.CFWriter = cms.EDProducer("CFWriter",
     minBunch = cms.int32(-5),
     
     mixObjects = cms.PSet(
-    #mixCH = cms.PSet(
-    #  mixCaloHits
-    #),
-    #mixTracks = cms.PSet(
-    #  mixSimTracks
-    #),
-    #mixVertices = cms.PSet(
-    #  mixSimVertices
-    #),
+    mixCH = cms.PSet(
+      mixCaloHits
+    ),
+    mixTracks = cms.PSet(
+      mixSimTracks
+    ),
+    mixVertices = cms.PSet(
+      mixSimVertices
+    ),
     mixSH = cms.PSet(
       mixSimHits
+    ),
+    mixHepMC = cms.PSet(
+      mixHepMCProducts
     )
-    #mixHepMC = cms.PSet(
-    #  mixHepMCProducts
-    #)
     )
 )
 
