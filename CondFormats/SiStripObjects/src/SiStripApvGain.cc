@@ -91,7 +91,6 @@ void SiStripApvGain::printSummary(std::stringstream & ss) const
   std::vector<uint32_t>::const_iterator detid = v_detids.begin();
   for( ; detid != v_detids.end(); ++detid ) {
     Range range = getRange(*detid);
-    int apv=0;
     for( int it=0; it < range.second - range.first; ++it ) {
       summaryGain.add(*detid, getApvGain(it, range));
     } 
