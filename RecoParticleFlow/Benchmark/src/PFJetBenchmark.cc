@@ -224,6 +224,7 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
     double rec_pt = pfj.pt();
     double rec_eta = pfj.eta();
     double rec_phi = pfj.phi();
+
     // skip PFjets with pt < recPt_cut GeV
     if (rec_pt<recPt_cut and recPt_cut != -1.) continue;
     // skip PFjets with eta > maxEta_cut
@@ -260,6 +261,7 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
       double true_pt = truth->pt();
       double true_eta = truth->eta();
       double true_phi = truth->phi();
+
       if (plotAgainstReco_) {pt_denom = rec_pt;}
       else {pt_denom = true_pt;}
       // get true specific quantities
@@ -333,7 +335,7 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
       //double deltaPhi = algo_->deltaPhi(&pfj, truth);
 
       // Print outliers for further debugging
-      if ( resPt > 0.2 && true_pt > 100. ) 
+      if ( resPt > 0.2 && true_pt > 100. ) {
 	std::cout << "Entry " << entry_ 
 		  << " resPt = " << resPt
 		  <<" resCharged  " << resChargedHadEnergy
@@ -341,7 +343,40 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
 		  << " resNeutralEm  " << resNeutralEmEnergy
 		  << " pT (T/R) " << true_pt << "/" << rec_pt 
 		  << " Eta (T/R) " << truth->eta() << "/" << rec_eta 
+		  << " Phi (T/R) " << truth->phi() << "/" << rec_phi 
 		  << std::endl;
+
+	// check overlapping PF jets
+	const reco::PFJet* pfoj = 0; 
+	double dRo = 1E9;
+	for(unsigned j=0; j<pfJets.size(); j++) { 
+	  const reco::PFJet& pfo = pfJets[j];
+	  if ( j != i &&  algo_->deltaR(&pfj,&pfo) < dRo && pfo.pt() > 0.25*pfj.pt()) { 
+	    dRo = algo_->deltaR(&pfj,&pfo);	
+	    pfoj = &pfo;
+	  }
+	}
+	
+	// Check overlapping Gen Jet 
+	math::XYZTLorentzVector overlappinGenJet(0.,0.,0.,0.);
+	const reco::GenJet* genoj = 0;
+	double dRgo = 1E9;
+	for(unsigned j=0; j<genJets.size(); j++) { 
+	  const reco::GenJet* gjo = &(genJets[j]);
+	  if ( gjo != truth && algo_->deltaR(truth,gjo) < dRgo && gjo->pt() > 0.25*truth->pt() ) { 
+	    dRgo = algo_->deltaR(truth,gjo);
+	    genoj = gjo;
+	  }
+	}
+	
+	if ( dRo < 0.8 && dRgo < 0.8 && algo_->deltaR(genoj,pfoj) < 2.*deltaRMax_ ) 
+	  std::cout << "Excess probably due to overlapping jets (DR = " <<   algo_->deltaR(genoj,pfoj) << "),"
+		    << " at DeltaR(T/R) = " << dRgo << "/" << dRo  
+		    << " with pT(T/R) " << genoj->pt() << "/" << pfoj->pt()
+		    << " and Eta (T/R) " << genoj->eta() << "/" << pfoj->eta()
+		    << " and Phi (T/R) " << genoj->phi() << "/" << pfoj->phi()
+		    << std::endl;
+      }
 
       if(abs(resPt) > abs(resPtMax_)) resPtMax_ = resPt;
       if(abs(resChargedHadEnergy) > abs(resChargedHadEnergyMax_) ) resChargedHadEnergyMax_ = resChargedHadEnergy;
