@@ -37,6 +37,9 @@ def warn (*args, **kwargs):
     blankLines = kwargs.get('blankLines', 0)
     if blankLines:
         print '\n' * blankLines
+    spaces = kwargs.get('spaces', 0)
+    if spaces:
+        print ' ' * spaces,
     if len (args):
         print "%s (%s): " % (filename, lineNum),
         for arg in args:
@@ -775,23 +778,25 @@ class GenObject (object):
                         .get(objName, {})
         genObj = GenObject (objName)
         origObj = obj
+        if debug: warn (objName, spaces = 9)
         for genVar, ntDict in tofillObjDict.iteritems():
+            if debug: warn (genVar, spaces = 12)
             # start off with the original object
             obj = origObj
             # lets work our way down the list
             partsList = ntDict[0]
-            if debug:
-                warn (ntDict, "pL", partsList)
             for part in partsList:
+                if debug: warn (part, spaces=15)
                 obj = getattr (obj, part[0])
+                if debug: warn (obj, spaces=15)
                 # if this is a function instead of a data member, make
                 # sure you call it with its arguments:
                 if GenObject._objFunc.func == part[1]:
                     # Arguments are stored as a list in part[2]
                     obj = obj (*part[2])
-                if debug: warn (obj)
+                    if debug: warn (obj, spaces=18)
+            if debug: warn (obj, spaces=12)
             setattr (genObj, genVar, obj)
-            #if debug: warn (genObj, genVar, obj)
         # Do I need to store the index of this object?
         if index >= 0:
             setattr (genObj, 'index', index)
@@ -993,6 +998,7 @@ class GenObject (object):
                                                   objects)
                 continue
             # if we're here then we have a vector of items
+            if debug: warn (objName, spaces = 3)
             event[objName] = []
             for index, obj in enumerate (objects):
                 event[objName].append( GenObject.\
@@ -1319,8 +1325,6 @@ class GenObject (object):
         ree2 = GenObject.getRunEventEntryDict (chain2, tupleName2, numEntries2)
         overlap, firstOnly, secondOnly = \
                  GenObject.compareRunEventDicts (ree1, ree2)
-        if debug:
-            print "overlap   ", overlap
         if diffOutputName:
             rootfile, diffTree, missingTree = \
                       GenObject.setupDiffOutputTree (diffOutputName,
@@ -1339,13 +1343,9 @@ class GenObject (object):
             missingTree.Fill()
         resultsDict = {}
         if firstOnly:
-            if debug:
-                print "firstOnly ", firstOnly
             resultsDict.setdefault ('_runevent', {})['firstOnly'] = \
                                    len (firstOnly)
         if secondOnly:
-            if debug:
-                print "secondOnly", secondOnly
             resultsDict.setdefault ('_runevent', {})['secondOnly'] = \
                                    len (secondOnly)
         resultsDict['eventsCompared'] = len (overlap)
