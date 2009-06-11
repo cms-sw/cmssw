@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/03/10 10:10:36 $
- * $Revision: 1.178 $
+ * $Date: 2009/04/09 13:13:52 $
+ * $Revision: 1.179 $
  * \author G. Della Ricca
  *
 */
@@ -71,8 +71,9 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps) {
   mePedestalOnlineRMS_    = 0;
   meLaserL1_              = 0;
   meLaserL1PN_            = 0;
-  meLaserL1AmplOverPN_    = 0;
+  meLaserL1Ampl_          = 0;
   meLaserL1Timing_        = 0;
+  meLaserL1AmplOverPN_    = 0;
   mePedestal_             = 0;
   mePedestalG01_          = 0;
   mePedestalG06_          = 0;
@@ -274,11 +275,17 @@ void EBSummaryClient::setup(void) {
 
   if ( mePedestalOnlineMean_ ) dqmStore_->removeElement( mePedestalOnlineMean_->getName() );
   sprintf(histo, "EBPOT pedestal G12 mean");
-  mePedestalOnlineMean_ = dqmStore_->book1D(histo, histo, 100, 150., 250.);
+  mePedestalOnlineMean_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 150., 250.);
+  for (int i = 0; i < 36; i++) {
+    mePedestalOnlineMean_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+  }
 
   if ( mePedestalOnlineRMS_ ) dqmStore_->removeElement( mePedestalOnlineRMS_->getName() );
   sprintf(histo, "EBPOT pedestal G12 rms");
-  mePedestalOnlineRMS_ = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+  mePedestalOnlineRMS_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 10.);
+  for (int i = 0; i < 36; i++) {
+    mePedestalOnlineRMS_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+  }
 
   if ( meLaserL1_ ) dqmStore_->removeElement( meLaserL1_->getName() );
   sprintf(histo, "EBLT laser quality summary L1");
@@ -306,13 +313,26 @@ void EBSummaryClient::setup(void) {
     meLaserL1PNErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
   }
 
-  if ( meLaserL1AmplOverPN_ ) dqmStore_->removeElement( meLaserL1AmplOverPN_->getName() );
-  sprintf(histo, "EBLT laser L1 amplitude over PN");
-  meLaserL1AmplOverPN_ = dqmStore_->book1D(histo, histo, 100, 0., 20.);
+  if ( meLaserL1Ampl_ ) dqmStore_->removeElement( meLaserL1Ampl_->getName() );
+  sprintf(histo, "EBLT laser L1 amplitude summary");
+  meLaserL1Ampl_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 2000., "s");
+  for (int i = 0; i < 36; i++) {
+    meLaserL1Ampl_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+  }
 
   if ( meLaserL1Timing_ ) dqmStore_->removeElement( meLaserL1Timing_->getName() );
-  sprintf(histo, "EBLT laser L1 timing");
-  meLaserL1Timing_ = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+  sprintf(histo, "EBLT laser L1 timing summary");
+  meLaserL1Timing_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 10., "s");
+  for (int i = 0; i < 36; i++) {
+    meLaserL1Timing_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+  }
+
+  if ( meLaserL1AmplOverPN_ ) dqmStore_->removeElement( meLaserL1AmplOverPN_->getName() );
+  sprintf(histo, "EBLT laser L1 amplitude over PN summary");
+  meLaserL1AmplOverPN_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 20., "s");
+  for (int i = 0; i < 36; i++) {
+    meLaserL1AmplOverPN_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+  }
 
   if( mePedestal_ ) dqmStore_->removeElement( mePedestal_->getName() );
   sprintf(histo, "EBPT pedestal quality summary");
@@ -428,15 +448,24 @@ void EBSummaryClient::setup(void) {
 
   if( meTestPulseAmplG01_ ) dqmStore_->removeElement( meTestPulseAmplG01_->getName() );
   sprintf(histo, "EBTPT test pulse amplitude G01 summary");
-  meTestPulseAmplG01_ = dqmStore_->book1D(histo, histo, 100, 2000, 4000);
+  meTestPulseAmplG01_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 2000., 4000., "s");
+  for (int i = 0; i < 36; i++) {
+    meTestPulseAmplG01_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+  }
 
   if( meTestPulseAmplG06_ ) dqmStore_->removeElement( meTestPulseAmplG06_->getName() );
   sprintf(histo, "EBTPT test pulse amplitude G06 summary");
-  meTestPulseAmplG06_ = dqmStore_->book1D(histo, histo, 100, 2000, 4000);
+  meTestPulseAmplG06_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 2000., 4000., "s");
+  for (int i = 0; i < 36; i++) {
+    meTestPulseAmplG06_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+  }
 
   if( meTestPulseAmplG12_ ) dqmStore_->removeElement( meTestPulseAmplG12_->getName() );
   sprintf(histo, "EBTPT test pulse amplitude G12 summary");
-  meTestPulseAmplG12_ = dqmStore_->book1D(histo, histo, 100, 2000, 4000);
+  meTestPulseAmplG12_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 2000., 4000., "s");
+  for (int i = 0; i < 36; i++) {
+    meTestPulseAmplG12_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+  }
 
   if( meCosmic_ ) dqmStore_->removeElement( meCosmic_->getName() );
   sprintf(histo, "EBCT cosmic summary");
@@ -540,11 +569,14 @@ void EBSummaryClient::cleanup(void) {
   if ( meLaserL1Err_ ) dqmStore_->removeElement( meLaserL1Err_->getName() );
   meLaserL1Err_ = 0;
 
-  if ( meLaserL1AmplOverPN_ ) dqmStore_->removeElement( meLaserL1AmplOverPN_->getName() );
-  meLaserL1AmplOverPN_ = 0;
+  if ( meLaserL1Ampl_ ) dqmStore_->removeElement( meLaserL1Ampl_->getName() );
+  meLaserL1Ampl_ = 0;
 
   if ( meLaserL1Timing_ ) dqmStore_->removeElement( meLaserL1Timing_->getName() );
   meLaserL1Timing_ = 0;
+
+  if ( meLaserL1AmplOverPN_ ) dqmStore_->removeElement( meLaserL1AmplOverPN_->getName() );
+  meLaserL1AmplOverPN_ = 0;
 
   if ( meLaserL1PN_ ) dqmStore_->removeElement( meLaserL1PN_->getName() );
   meLaserL1PN_ = 0;
@@ -710,8 +742,9 @@ void EBSummaryClient::analyze(void) {
 
   meLaserL1_->setEntries( 0 );
   meLaserL1Err_->Reset();
-  meLaserL1AmplOverPN_->Reset();
+  meLaserL1Ampl_->Reset();
   meLaserL1Timing_->Reset();
+  meLaserL1AmplOverPN_->Reset();
   meLaserL1PN_->setEntries( 0 );
   meLaserL1PNErr_->Reset();
   mePedestal_->setEntries( 0 );
@@ -885,9 +918,9 @@ void EBSummaryClient::analyze(void) {
             
             mePedestalOnlineRMSMap_->setBinContent( ipx, iex, rms01 );
             
-            mePedestalOnlineRMS_->Fill( rms01 );
+            mePedestalOnlineRMS_->Fill( ism, rms01 );
             
-            mePedestalOnlineMean_->Fill( mean01 );
+            mePedestalOnlineMean_->Fill( ism, mean01 );
             
           }
           
@@ -1356,36 +1389,28 @@ void EBSummaryClient::analyze(void) {
             int RtHalf = 0;
             if( ie > 5 && ip < 11 ) RtHalf = 1;
           
-            //! Ampl / PN
             // L1A (L-shaped)
-            me = eblc->meaopn01_[ism-1];
+            MonitorElement *mea01 = eblc->mea01_[ism-1];
+            MonitorElement *met01 = eblc->met01_[ism-1];
+            MonitorElement *meaopn01 = eblc->meaopn01_[ism-1];
             
             if( me && RtHalf == 0 ) {
-              meLaserL1AmplOverPN_->Fill( me->getBinContent( chan+1 ) );
+              meLaserL1Ampl_->Fill( ism, mea01->getBinContent( chan+1 ) );
+              meLaserL1Timing_->Fill( ism, met01->getBinContent( chan+1 ) );
+              meLaserL1AmplOverPN_->Fill( ism, meaopn01->getBinContent( chan+1 ) );
             }
             
             // L1B (rectangular)
-            me = eblc->meaopn05_[ism-1];
-            
-            if ( me && RtHalf == 1 ) {
-              meLaserL1AmplOverPN_->Fill( me->getBinContent( chan+1 ) );
-            }
-            
-            //! timing
-            // L1A (L-shaped)
-            me = eblc->met01_[ism-1];
-            
-            if( me && RtHalf == 0 ) {
-              meLaserL1Timing_->Fill( me->getBinContent( chan+1 ) );
-            }
-            
-            // L1B (rectangular)
-            me = eblc->met05_[ism-1];
-            
-            if ( me && RtHalf == 1 ) {
-              meLaserL1Timing_->Fill( me->getBinContent( chan+1 ) );
-            }
+            MonitorElement *mea05 = eblc->mea05_[ism-1];
+            MonitorElement *met05 = eblc->met05_[ism-1];
+            MonitorElement *meaopn05 = eblc->meaopn05_[ism-1];
 
+            if ( me && RtHalf == 1 ) {
+              meLaserL1Ampl_->Fill( ism, mea05->getBinContent( chan+1 ) );
+              meLaserL1Timing_->Fill( ism, met05->getBinContent( chan+1 ) );
+              meLaserL1AmplOverPN_->Fill( ism, meaopn05->getBinContent( chan+1 ) );
+            }
+            
           }      
 
         }
@@ -1406,7 +1431,7 @@ void EBSummaryClient::analyze(void) {
               
               if ( me ) {
                 
-                meTestPulseAmplG01_->Fill( me->getBinContent( chan+1 ) );
+                meTestPulseAmplG01_->Fill( ism, me->getBinContent( chan+1 ) );
 
               }
 
@@ -1424,7 +1449,7 @@ void EBSummaryClient::analyze(void) {
               
               if ( me ) {
                 
-                meTestPulseAmplG06_->Fill( me->getBinContent( chan+1 ) );
+                meTestPulseAmplG06_->Fill( ism, me->getBinContent( chan+1 ) );
 
               }
 
@@ -1442,7 +1467,7 @@ void EBSummaryClient::analyze(void) {
               
               if ( me ) {
                 
-                meTestPulseAmplG12_->Fill( me->getBinContent( chan+1 ) );
+                meTestPulseAmplG12_->Fill( ism, me->getBinContent( chan+1 ) );
 
               }
 

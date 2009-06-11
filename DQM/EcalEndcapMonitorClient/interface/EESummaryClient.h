@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2009/02/27 19:13:43 $
- * $Revision: 1.35 $
+ * $Date: 2009/03/05 10:41:43 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  *
 */
@@ -99,21 +99,23 @@ MonitorElement* meOccupancy_[2];
 MonitorElement* meOccupancy1D_;
 MonitorElement* mePedestalOnline_[2];
 MonitorElement* mePedestalOnlineErr_;
-MonitorElement* mePedestalOnlineMean_[2];
-MonitorElement* mePedestalOnlineRMS_[2];
+MonitorElement* mePedestalOnlineMean_;
+MonitorElement* mePedestalOnlineRMS_;
 MonitorElement* mePedestalOnlineRMSMap_[2];
 MonitorElement* meLaserL1_[2];
 MonitorElement* meLaserL1Err_;
 MonitorElement* meLaserL1PN_[2];
 MonitorElement* meLaserL1PNErr_;
-MonitorElement* meLaserL1AmplOverPN_[2];
-MonitorElement* meLaserL1Timing_[2];
+MonitorElement* meLaserL1Ampl_; 
+MonitorElement* meLaserL1Timing_;
+MonitorElement* meLaserL1AmplOverPN_;
 MonitorElement* meLedL1_[2];
 MonitorElement* meLedL1Err_;
 MonitorElement* meLedL1PN_[2];
 MonitorElement* meLedL1PNErr_;
-MonitorElement* meLedL1AmplOverPN_[2];
-MonitorElement* meLedL1Timing_[2];
+MonitorElement* meLedL1Ampl_;
+MonitorElement* meLedL1Timing_;
+MonitorElement* meLedL1AmplOverPN_;
 MonitorElement* mePedestal_[2];
 MonitorElement* mePedestalG01_[2];
 MonitorElement* mePedestalG06_[2];
@@ -132,9 +134,9 @@ MonitorElement* meTestPulsePN_[2];
 MonitorElement* meTestPulsePNG01_[2];
 MonitorElement* meTestPulsePNG16_[2];
 MonitorElement* meTestPulsePNErr_;
-MonitorElement* meTestPulseAmplG01_[2];
-MonitorElement* meTestPulseAmplG06_[2];
-MonitorElement* meTestPulseAmplG12_[2];
+MonitorElement* meTestPulseAmplG01_;
+MonitorElement* meTestPulseAmplG06_;
+MonitorElement* meTestPulseAmplG12_;
 
 MonitorElement* meCosmic_[2];
 MonitorElement* meTiming_[2];

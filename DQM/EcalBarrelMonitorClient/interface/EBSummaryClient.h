@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2009/02/27 19:13:42 $
- * $Revision: 1.44 $
+ * $Date: 2009/03/05 10:40:01 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  *
 */
@@ -104,8 +104,9 @@ MonitorElement* mePedestalOnlineRMS_;
 MonitorElement* mePedestalOnlineRMSMap_;
 MonitorElement* meLaserL1_;
 MonitorElement* meLaserL1Err_;
-MonitorElement* meLaserL1AmplOverPN_;
+MonitorElement* meLaserL1Ampl_;
 MonitorElement* meLaserL1Timing_;
+MonitorElement* meLaserL1AmplOverPN_;
 MonitorElement* meLaserL1PN_;
 MonitorElement* meLaserL1PNErr_;
 MonitorElement* mePedestal_;
