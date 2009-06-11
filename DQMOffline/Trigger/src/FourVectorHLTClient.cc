@@ -5,7 +5,7 @@
    date of first version: Sept 2008
 
 */
-//$Id: FourVectorHLTClient.cc,v 1.11 2009/03/27 22:19:34 rekovic Exp $
+//$Id: FourVectorHLTClient.cc,v 1.12 2009/06/04 00:25:04 rekovic Exp $
 
 #include "DQMOffline/Trigger/interface/FourVectorHLTClient.h"
 
@@ -217,8 +217,13 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
      for (std::vector<std::pair<std::string, std::string> >::iterator custompathnamepair = custompathnamepairs_.begin(); custompathnamepair != custompathnamepairs_.end(); ++custompathnamepair)
      {
  
-       TString numPathName=TString(custompathnamepair->first);
-       if(!hltPath.Contains(numPathName,TString::kExact)) continue;
+       //TString numPathName=TString(custompathnamepair->first);
+       //if(!hltPath.Contains(numPathName,TString::kExact)) continue;
+       //TString numPathName=hltPath;
+       //if(!hltPath.Contains(numPathName,TString::kExact)) continue;
+       TString numPathName=hltPath;
+       //if(!hltPath.Contains(TString(custompathnamepair->first),TString::kExact)) continue;
+       if(!hltPath.Contains(TString(custompathnamepair->first))) continue;
  
  			TString denPathName=TString(custompathnamepair->second);
  
