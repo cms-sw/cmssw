@@ -732,7 +732,16 @@ class PerfSuite:
                 else:
                     if userInputRootFiles:
                        print "Variable userInputRootFiles is %s"%userInputRootFiles
-                       userInputFile=userInputRootFiles[candles.index(candle)]
+                       #Need to use regexp, cannot rely on the order... since for different tests there are different candles...
+                       #userInputFile=userInputRootFiles[candles.index(candle)]
+                       userInputFile=""
+                       candleregexp=re.compile(candle)
+                       for file in userInputRootFiles:
+                          if candleregexp.search(file):
+                             userInputFile=file
+                             print "For these tests will use user input file %s"%userInputFile
+                       if userInputFile=="":
+                          print "***No input file matching the candle being processed was found: will try to do without it!!!!!"
                     else:
                        userInputFile=""
                     self.runCmsInput(cpu,adir,NumEvents,candle,cmsdriverOptions,stepOptions,profiles,bypasshlt,userInputFile)            
