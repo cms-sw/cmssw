@@ -110,7 +110,7 @@ uint16_t FedChannelConnection::lldChannel() const {
 	<< " Apv1: " << apv1_;
     }
   }
-  return 0; //@@ sistrip::invalid_
+  return sistrip::invalid_;
 }
 
 // -----------------------------------------------------------------------------
@@ -152,7 +152,7 @@ uint16_t FedChannelConnection::apvPairNumber() const {
 	<< " Unexpected number of APV pairs: " << nApvPairs_;
     }
   }
-  return 0; //@@ sistrip::invalid_;
+  return sistrip::invalid_;
 }
 
 // -----------------------------------------------------------------------------
