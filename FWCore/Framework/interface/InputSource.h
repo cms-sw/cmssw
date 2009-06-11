@@ -84,7 +84,7 @@ namespace edm {
     /// Destructor
     virtual ~InputSource();
 
-    static void fillDescriptions(ConfigurationDescriptions & descriptions);
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
     static std::string baseType();
 
     ItemType nextItemType();
@@ -184,7 +184,7 @@ namespace edm {
 
     /// Called by the framework before forking the process
     void doPreForkReleaseResources();
-    void doPostForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren);
+    void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren);
      
     /// Accessor for the current time, as seen by the input source
     Timestamp const& timestamp() const {return time_;}
@@ -252,7 +252,7 @@ namespace edm {
     /// To set the current time, as seen by the input source
     void setTimestamp(Timestamp const& theTime) {time_ = theTime;}
 
-    ProductRegistry & productRegistryUpdate() const {return const_cast<ProductRegistry &>(*productRegistry_);}
+    ProductRegistry& productRegistryUpdate() const {return const_cast<ProductRegistry&>(*productRegistry_);}
     ItemType state() const{return state_;}
     boost::shared_ptr<RunPrincipal> runPrincipal() const {return runPrincipal_;}
     boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal() const {return lumiPrincipal_;}
@@ -284,12 +284,12 @@ namespace edm {
     virtual void wakeUp_();
     void preRead();
     void postRead(Event& event);
-    virtual void endLuminosityBlock(LuminosityBlock &);
-    virtual void endRun(Run &);
+    virtual void endLuminosityBlock(LuminosityBlock&);
+    virtual void endRun(Run&);
     virtual void beginJob(EventSetup const&);
     virtual void endJob();
     virtual void preForkReleaseResources();
-    virtual void postForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren);
+    virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren);
 
      
   private:

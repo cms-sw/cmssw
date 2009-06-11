@@ -28,11 +28,11 @@ namespace edm {
     typedef WorkerT<EDFilter> WorkerType;
     
      EDFilter() : ProducerBase() , moduleDescription_(), current_context_(0), 
-     previousParentage_(), previousParentageId_()
- {}
+     previousParentage_(), previousParentageId_() {
+    }
     virtual ~EDFilter();
 
-    static void fillDescriptions(ConfigurationDescriptions & descriptions);
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
     static std::string baseType();
 
   protected:
@@ -45,22 +45,22 @@ namespace edm {
 		  CurrentProcessingContext const* cpc);
     void doBeginJob(EventSetup const&);
     void doEndJob();
-    bool doBeginRun(RunPrincipal & rp, EventSetup const& c,
+    bool doBeginRun(RunPrincipal& rp, EventSetup const& c,
 		   CurrentProcessingContext const* cpc);
-    bool doEndRun(RunPrincipal & rp, EventSetup const& c,
+    bool doEndRun(RunPrincipal& rp, EventSetup const& c,
 		   CurrentProcessingContext const* cpc);
-    bool doBeginLuminosityBlock(LuminosityBlockPrincipal & lbp, EventSetup const& c,
+    bool doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
 		   CurrentProcessingContext const* cpc);
-    bool doEndLuminosityBlock(LuminosityBlockPrincipal & lbp, EventSetup const& c,
+    bool doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
 		   CurrentProcessingContext const* cpc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doRespondToOpenOutputFiles(FileBlock const& fb);
     void doRespondToCloseOutputFiles(FileBlock const& fb);
     void doPreForkReleaseResources();
-    void doPostForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
+    void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 
-    void registerAnyProducts(boost::shared_ptr<EDFilter>&module, ProductRegistry *reg) {
+    void registerAnyProducts(boost::shared_ptr<EDFilter>&module, ProductRegistry* reg) {
       registerProducts(module, reg, moduleDescription_);
     }
 
@@ -71,16 +71,16 @@ namespace edm {
     virtual void beginJob(EventSetup const&){beginJob();}
     virtual void beginJob(){}
     virtual void endJob(){}
-    virtual bool beginRun(Run &, EventSetup const&){return true;}
-    virtual bool endRun(Run &, EventSetup const&){return true;}
-    virtual bool beginLuminosityBlock(LuminosityBlock &, EventSetup const&){return true;}
-    virtual bool endLuminosityBlock(LuminosityBlock &, EventSetup const&){return true;}
+    virtual bool beginRun(Run&, EventSetup const&){return true;}
+    virtual bool endRun(Run&, EventSetup const&){return true;}
+    virtual bool beginLuminosityBlock(LuminosityBlock&, EventSetup const&){return true;}
+    virtual bool endLuminosityBlock(LuminosityBlock&, EventSetup const&){return true;}
     virtual void respondToOpenInputFile(FileBlock const& fb) {}
     virtual void respondToCloseInputFile(FileBlock const& fb) {}
     virtual void respondToOpenOutputFiles(FileBlock const& fb) {}
     virtual void respondToCloseOutputFiles(FileBlock const& fb) {}
     virtual void preForkReleaseResources() {}
-    virtual void postForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {}
+    virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {}
      
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;

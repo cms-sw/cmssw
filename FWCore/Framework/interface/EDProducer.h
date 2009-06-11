@@ -27,7 +27,7 @@ namespace edm {
     EDProducer ();
     virtual ~EDProducer();
 
-    static void fillDescriptions(ConfigurationDescriptions & descriptions);
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
     static std::string baseType();
 
   protected:
@@ -40,41 +40,41 @@ namespace edm {
 		   CurrentProcessingContext const* cpcp);
     void doBeginJob(EventSetup const&);
     void doEndJob();
-    bool doBeginRun(RunPrincipal & rp, EventSetup const& c,
+    bool doBeginRun(RunPrincipal& rp, EventSetup const& c,
 		   CurrentProcessingContext const* cpc);
-    bool doEndRun(RunPrincipal & rp, EventSetup const& c,
+    bool doEndRun(RunPrincipal& rp, EventSetup const& c,
 		   CurrentProcessingContext const* cpc);
-    bool doBeginLuminosityBlock(LuminosityBlockPrincipal & lbp, EventSetup const& c,
+    bool doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
 		   CurrentProcessingContext const* cpc);
-    bool doEndLuminosityBlock(LuminosityBlockPrincipal & lbp, EventSetup const& c,
+    bool doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
 		   CurrentProcessingContext const* cpc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doRespondToOpenOutputFiles(FileBlock const& fb);
     void doRespondToCloseOutputFiles(FileBlock const& fb);
     void doPreForkReleaseResources();
-    void doPostForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
-    void registerAnyProducts(boost::shared_ptr<EDProducer>& module, ProductRegistry *reg) {
+    void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
+    void registerAnyProducts(boost::shared_ptr<EDProducer>& module, ProductRegistry* reg) {
       registerProducts(module, reg, moduleDescription_);
     }
 
     std::string workerType() const {return "WorkerT<EDProducer>";}
 
-    virtual void produce(Event &, EventSetup const&) = 0;
+    virtual void produce(Event&, EventSetup const&) = 0;
     //This interface is deprecated
     virtual void beginJob(EventSetup const&){beginJob();}
     virtual void beginJob() {}
     virtual void endJob(){}
-    virtual void beginRun(Run &, EventSetup const&){}
-    virtual void endRun(Run &, EventSetup const&){}
-    virtual void beginLuminosityBlock(LuminosityBlock &, EventSetup const&){}
-    virtual void endLuminosityBlock(LuminosityBlock &, EventSetup const&){}
+    virtual void beginRun(Run&, EventSetup const&){}
+    virtual void endRun(Run&, EventSetup const&){}
+    virtual void beginLuminosityBlock(LuminosityBlock&, EventSetup const&){}
+    virtual void endLuminosityBlock(LuminosityBlock&, EventSetup const&){}
     virtual void respondToOpenInputFile(FileBlock const& fb) {}
     virtual void respondToCloseInputFile(FileBlock const& fb) {}
     virtual void respondToOpenOutputFiles(FileBlock const& fb) {}
     virtual void respondToCloseOutputFiles(FileBlock const& fb) {}
     virtual void preForkReleaseResources() {}
-    virtual void postForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {}
+    virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {}
 
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;

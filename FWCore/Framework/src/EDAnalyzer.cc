@@ -12,16 +12,15 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-namespace edm
-{
-  EDAnalyzer::~EDAnalyzer()
-  { }
+namespace edm {
+  EDAnalyzer::~EDAnalyzer() {
+  }
 
   bool
   EDAnalyzer::doEvent(EventPrincipal const& ep, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    Event e(const_cast<EventPrincipal &>(ep), moduleDescription_);
+    Event e(const_cast<EventPrincipal&>(ep), moduleDescription_);
     this->analyze(e, c);
     return true;
   }
@@ -40,7 +39,7 @@ namespace edm
   EDAnalyzer::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    Run r(const_cast<RunPrincipal &>(rp), moduleDescription_);
+    Run r(const_cast<RunPrincipal&>(rp), moduleDescription_);
     this->beginRun(r, c);
     return true;
   }
@@ -49,7 +48,7 @@ namespace edm
   EDAnalyzer::doEndRun(RunPrincipal const& rp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    Run r(const_cast<RunPrincipal &>(rp), moduleDescription_);
+    Run r(const_cast<RunPrincipal&>(rp), moduleDescription_);
     this->endRun(r, c);
     return true;
   }
@@ -58,7 +57,7 @@ namespace edm
   EDAnalyzer::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    LuminosityBlock lb(const_cast<LuminosityBlockPrincipal &>(lbp), moduleDescription_);
+    LuminosityBlock lb(const_cast<LuminosityBlockPrincipal&>(lbp), moduleDescription_);
     this->beginLuminosityBlock(lb, c);
     return true;
   }
@@ -67,7 +66,7 @@ namespace edm
   EDAnalyzer::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    LuminosityBlock lb(const_cast<LuminosityBlockPrincipal &>(lbp), moduleDescription_);
+    LuminosityBlock lb(const_cast<LuminosityBlockPrincipal&>(lbp), moduleDescription_);
     this->endLuminosityBlock(lb, c);
     return true;
   }
@@ -98,8 +97,8 @@ namespace edm
   }
   
   void 
-  EDAnalyzer::doPostForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-    postForkReaquireResources(iChildIndex,iNumberOfChildren);
+  EDAnalyzer::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
+    postForkReacquireResources(iChildIndex, iNumberOfChildren);
   }
    
   CurrentProcessingContext const*
@@ -108,7 +107,7 @@ namespace edm
   }
 
   void
-  EDAnalyzer::fillDescriptions(ConfigurationDescriptions & descriptions) {
+  EDAnalyzer::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
     desc.setUnknown();
     descriptions.addUnknownLabel(desc);

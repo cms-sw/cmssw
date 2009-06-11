@@ -71,7 +71,7 @@ namespace edm {
     }
     int maxEventsOldStyle = pset.getUntrackedParameter<int>("maxEvents", improbable);
     if (maxEventsOldStyle != improbable) {
-      throw edm::Exception(edm::errors::Configuration)
+      throw edm::Exception(errors::Configuration)
         << "InputSource::InputSource()\n"
 	<< "The 'maxEvents' parameter for sources is no longer supported.\n"
         << "Please use instead the process level parameter set\n"
@@ -86,7 +86,7 @@ namespace edm {
     } else if (processingMode == runLumiMode) {
       processingMode_ = RunsAndLumis;
     } else if (processingMode != defaultMode) {
-      throw edm::Exception(edm::errors::Configuration)
+      throw edm::Exception(errors::Configuration)
         << "InputSource::InputSource()\n"
 	<< "The 'processingMode' parameter for sources has an illegal value '" << processingMode << "'\n"
         << "Legal values are '" << defaultMode << "', '" << runLumiMode << "', or '" << runMode << "'.\n";
@@ -96,7 +96,7 @@ namespace edm {
   InputSource::~InputSource() {}
 
   void
-  InputSource::fillDescriptions(ConfigurationDescriptions & descriptions) {
+  InputSource::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
     desc.setUnknown();
     descriptions.addUnknownLabel(desc);
@@ -301,7 +301,7 @@ namespace edm {
   InputSource::issueReports(EventID const& eventID, LuminosityBlockNumber_t const& lumi) {
     time_t t = time(0);
     char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
-    strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
+    strftime(ts, strlen(ts) + 1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t));
     LogVerbatim("FwkReport") << "Begin processing the " << readCount_
 			 << suffix(readCount_) << " record. Run " << eventID.run()
 			 << ", Event " << eventID.event()
@@ -311,7 +311,7 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   InputSource::readIt(EventID const&) {
-      throw edm::Exception(edm::errors::LogicError)
+      throw edm::Exception(errors::LogicError)
         << "InputSource::readIt()\n"
         << "Random access is not implemented for this type of Input Source\n"
         << "Contact a Framework Developer\n";
@@ -319,7 +319,7 @@ namespace edm {
 
   void
   InputSource::setRun(RunNumber_t) {
-      throw edm::Exception(edm::errors::LogicError)
+      throw edm::Exception(errors::LogicError)
         << "InputSource::setRun()\n"
         << "Run number cannot be modified for this type of Input Source\n"
         << "Contact a Framework Developer\n";
@@ -327,7 +327,7 @@ namespace edm {
 
   void
   InputSource::setLumi(LuminosityBlockNumber_t) {
-      throw edm::Exception(edm::errors::LogicError)
+      throw edm::Exception(errors::LogicError)
         << "InputSource::setLumi()\n"
         << "Luminosity Block ID  cannot be modified for this type of Input Source\n"
         << "Contact a Framework Developer\n";
@@ -335,7 +335,7 @@ namespace edm {
 
   void
   InputSource::skip(int) {
-      throw edm::Exception(edm::errors::LogicError)
+      throw edm::Exception(errors::LogicError)
         << "InputSource::skip()\n"
         << "Random access is not implemented for this type of Input Source\n"
         << "Contact a Framework Developer\n";
@@ -343,7 +343,7 @@ namespace edm {
 
   void
   InputSource::rewind_() {
-      throw edm::Exception(edm::errors::LogicError)
+      throw edm::Exception(errors::LogicError)
         << "InputSource::rewind()\n"
         << "Rewind is not implemented for this type of Input Source\n"
         << "Contact a Framework Developer\n";
@@ -380,7 +380,7 @@ namespace edm {
   }
 
   void
-  InputSource::doEndLumi(LuminosityBlockPrincipal & lbp) {
+  InputSource::doEndLumi(LuminosityBlockPrincipal& lbp) {
     lbp.setEndTime(time_);
     LuminosityBlock lb(lbp, moduleDescription());
     endLuminosityBlock(lb);
@@ -393,26 +393,26 @@ namespace edm {
   }
   
   void 
-  InputSource::doPostForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren) {
+  InputSource::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren) {
     if(maxEvents_ > 0) {
       int maxEvents = maxEvents_/iNumberOfChildren;
       //if there are any extra events distribute them to the first few children
       if(maxEvents_ % iNumberOfChildren > iChildIndex) {
-        maxEvents++;
+        ++maxEvents;
       }
-      maxEvents_=maxEvents;
+      maxEvents_ = maxEvents;
     }
-    postForkReaquireResources(iChildIndex, iNumberOfChildren, iNumberOfSequentialChildren);
+    postForkReacquireResources(iChildIndex, iNumberOfChildren, iNumberOfSequentialChildren);
   }
   
   void 
   InputSource::wakeUp_() {}
 
   void
-  InputSource::endLuminosityBlock(LuminosityBlock &) {}
+  InputSource::endLuminosityBlock(LuminosityBlock&) {}
 
   void
-  InputSource::endRun(Run &) {}
+  InputSource::endRun(Run&) {}
 
   void
   InputSource::beginJob(EventSetup const&) {}
@@ -423,7 +423,7 @@ namespace edm {
   void 
   InputSource::preForkReleaseResources() {}
   void 
-  InputSource::postForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren) {}
+  InputSource::postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren) {}
 
    
   RunNumber_t

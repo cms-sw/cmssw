@@ -56,7 +56,7 @@ namespace edm {
     void respondToCloseOutputFiles(FileBlock const& fb) {implRespondToCloseOutputFiles(fb);}
 
     void preForkReleaseResources() {implPreForkReleaseResources();}
-    void postForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {implPostForkReaquireResources(iChildIndex,iNumberOfChildren);}
+    void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {implPostForkReacquireResources(iChildIndex, iNumberOfChildren);}
 
     void reset() { state_ = Ready; }
     
@@ -66,8 +66,8 @@ namespace edm {
     /// this was done to improve performance based on profiling
     void setActivityRegistry(boost::shared_ptr<ActivityRegistry> areg);
 
-    std::pair<double,double> timeCpuReal() const {
-      return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
+    std::pair<double, double> timeCpuReal() const {
+      return std::pair<double, double>(stopwatch_->cpuTime(), stopwatch_->realTime());
     }
 
     void clearCounters() {
@@ -106,8 +106,8 @@ namespace edm {
     virtual void implRespondToOpenOutputFiles(FileBlock const& fb) = 0;
     virtual void implRespondToCloseOutputFiles(FileBlock const& fb) = 0;
 
-    virtual void implPreForkReleaseResources() =0;
-    virtual void implPostForkReaquireResources(unsigned int iChildIndex, 
+    virtual void implPreForkReleaseResources() = 0;
+    virtual void implPostForkReacquireResources(unsigned int iChildIndex, 
                                                unsigned int iNumberOfChildren) = 0;
     
     RunStopwatch::StopwatchPointer stopwatch_;
@@ -226,17 +226,17 @@ namespace edm {
 	}
 	switch(action) {
 	  case actions::IgnoreCompletely: {
-	      rc=true;
+	      rc = true;
 	      ++timesPassed_;
 	      state_ = Pass;
 	      LogWarning("IgnoreCompletely")
 		<< "Module ignored an exception\n"
-                <<e.what()<<"\n";
+                << e.what() << "\n";
 	      break;
 	  }
 
 	  case actions::FailModule: {
-	      rc=true;
+	      rc = true;
 	      LogWarning("FailModule")
                 << "Module failed due to an exception\n"
                 << e.what() << "\n";

@@ -214,7 +214,7 @@ namespace edm {
 
   // ---------------------------------------------------------------
   boost::shared_ptr<InputSource> 
-  makeInput(ParameterSet & params,
+  makeInput(ParameterSet& params,
 	    EventProcessor::CommonParams const& common,
 	    ProductRegistry& preg,
             boost::shared_ptr<ActivityRegistry> areg,
@@ -227,7 +227,7 @@ namespace edm {
     main_input->registerIt();
  
     // Fill in "ModuleDescription", in case the input source produces
-    // any EDproducts,which would be registered in the ProductRegistry.
+    // any EDproducts, which would be registered in the ProductRegistry.
     // Also fill in the process history item for this process.
     // There is no module label for the unnamed input source, so 
     // just use "source".
@@ -261,8 +261,8 @@ namespace edm {
     EventSetupProvider::RecordToDataMap recordToData;
 
     //recordToData.insert(std::make_pair(std::string("DummyRecord"),
-    //      std::make_pair(std::string("DummyData"),std::string())));
-    //preferInfo[ComponentDescription("DummyProxyProvider","",false)]=
+    //      std::make_pair(std::string("DummyData"), std::string())));
+    //preferInfo[ComponentDescription("DummyProxyProvider", "", false)]=
     //      recordToData;
 
     for(std::vector<std::string>::iterator itName = prefers.begin(), itNameEnd = prefers.end();
@@ -328,8 +328,8 @@ namespace edm {
   
   // ---------------------------------------------------------------
   void 
-  fillEventSetupProvider(edm::eventsetup::EventSetupProvider& cp,
-			 ParameterSet & params,
+  fillEventSetupProvider(eventsetup::EventSetupProvider& cp,
+			 ParameterSet& params,
 			 EventProcessor::CommonParams const& common) {
     using namespace edm::eventsetup;
     std::vector<std::string> providers =
@@ -364,12 +364,12 @@ namespace edm {
   }
 
   // ---------------------------------------------------------------
-  boost::shared_ptr<edm::EDLooper> 
-  fillLooper(edm::eventsetup::EventSetupProvider& cp,
-			 ParameterSet & params,
+  boost::shared_ptr<EDLooper> 
+  fillLooper(eventsetup::EventSetupProvider& cp,
+			 ParameterSet& params,
 			 EventProcessor::CommonParams const& common) {
     using namespace edm::eventsetup;
-    boost::shared_ptr<edm::EDLooper> vLooper;
+    boost::shared_ptr<EDLooper> vLooper;
     
     std::vector<std::string> loopers =
       params.getParameter<std::vector<std::string> >("@all_loopers");
@@ -433,7 +433,7 @@ namespace edm {
     forceLooperToEnd_(false),
     numberOfForkedChildren_(0),
     numberOfSequentialEventsPerChild_(1) {
-    boost::shared_ptr<edm::ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
+    boost::shared_ptr<ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, iToken, iLegacy);
   }
@@ -472,12 +472,12 @@ namespace edm {
     forceLooperToEnd_(false),
     numberOfForkedChildren_(0),
     numberOfSequentialEventsPerChild_(1) {
-    boost::shared_ptr<edm::ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
+    boost::shared_ptr<ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
   }
 
-  EventProcessor::EventProcessor(boost::shared_ptr<edm::ProcessDesc> & processDesc,
+  EventProcessor::EventProcessor(boost::shared_ptr<ProcessDesc>& processDesc,
                  ServiceToken const& token,
                  serviceregistry::ServiceLegacy legacy) :
     preProcessEventSignal_(),
@@ -544,17 +544,17 @@ namespace edm {
     alreadyHandlingException_(false),
     forceLooperToEnd_(false) {
     if(isPython) {
-      boost::shared_ptr<edm::ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
+      boost::shared_ptr<ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
       init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
     }
     else {
-      boost::shared_ptr<edm::ProcessDesc> processDesc(new edm::ProcessDesc(config));
+      boost::shared_ptr<ProcessDesc> processDesc(new ProcessDesc(config));
       init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
     }
   }
 
   void
-  EventProcessor::init(boost::shared_ptr<edm::ProcessDesc> & processDesc,
+  EventProcessor::init(boost::shared_ptr<ProcessDesc>& processDesc,
 			ServiceToken const& iToken, 
 			serviceregistry::ServiceLegacy iLegacy) {
 
@@ -569,9 +569,9 @@ namespace edm {
     fileMode_ = optionsPset.getUntrackedParameter<std::string>("fileMode", "");
     handleEmptyRuns_ = optionsPset.getUntrackedParameter<bool>("handleEmptyRuns", true);
     handleEmptyLumis_ = optionsPset.getUntrackedParameter<bool>("handleEmptyLumis", true);
-    ParameterSet forking = optionsPset.getUntrackedParameter<ParameterSet>("multiProcesses",ParameterSet());
-    numberOfForkedChildren_ = forking.getUntrackedParameter<int>("maxChildProcesses",0);
-    numberOfSequentialEventsPerChild_ = forking.getUntrackedParameter<unsigned int>("maxSequentialEventsPerChild",1);
+    ParameterSet forking = optionsPset.getUntrackedParameter<ParameterSet>("multiProcesses", ParameterSet());
+    numberOfForkedChildren_ = forking.getUntrackedParameter<int>("maxChildProcesses", 0);
+    numberOfSequentialEventsPerChild_ = forking.getUntrackedParameter<unsigned int>("maxSequentialEventsPerChild", 1);
 
     maxEventsPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet());
     maxLumisPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxLuminosityBlocks", ParameterSet());
@@ -598,7 +598,7 @@ namespace edm {
     // create a service and extra token for it
     std::string processName = parameterSet->getParameter<std::string>("@process_name");
 
-    typedef edm::service::TriggerNamesService TNS;
+    typedef service::TriggerNamesService TNS;
     typedef serviceregistry::ServiceWrapper<TNS> w_TNS;
 
     boost::shared_ptr<w_TNS> tnsptr
@@ -626,7 +626,7 @@ namespace edm {
     if (looper_) looper_->setActionTable(&act_table_);
     
     processConfiguration_.reset(new ProcessConfiguration(processName, getReleaseVersion(), getPassID()));
-    input_= makeInput(*parameterSet, common, preg_, actReg_, processConfiguration_);
+    input_ = makeInput(*parameterSet, common, preg_, actReg_, processConfiguration_);
     schedule_ = std::auto_ptr<Schedule>
       (new Schedule(parameterSet,
 		    ServiceRegistry::instance().get<TNS>(),
@@ -636,7 +636,7 @@ namespace edm {
 		    actReg_,
 		    processConfiguration_));
 
-    //   initialize(iToken,iLegacy);
+    //   initialize(iToken, iLegacy);
     FDEBUG(2) << parameterSet << std::endl;
     connectSigs(this);
     ProcessConfigurationRegistry::instance()->insertMapped(*processConfiguration_);
@@ -774,8 +774,7 @@ namespace edm {
   }
 
   void
-  EventProcessor::beginJob() 
-  {
+  EventProcessor::beginJob() {
     if(state_ != sInit) return;
     bk::beginJob();
     // can only be run if in the initial state
@@ -821,7 +820,7 @@ namespace edm {
     // Collects exceptions, so we don't throw before all operations are performed.
     ExceptionCollector c;
 
-    // only allowed to run if state is sIdle,sJobReady,sRunGiven
+    // only allowed to run if state is sIdle, sJobReady, sRunGiven
     c.call(boost::bind(&EventProcessor::changeState, this, mEndJob));
 
     //make the services available
@@ -850,25 +849,24 @@ namespace edm {
     volatile unsigned int num_children_done = 0;
     
     extern "C" {
-      void ep_sigchld(int,siginfo_t*,void*)
-      {
+      void ep_sigchld(int, siginfo_t*, void*) {
         //printf("in sigchld\n");
         //FDEBUG(1) << "in sigchld handler\n";
         int stat_loc;
-        pid_t p = waitpid(-1,&stat_loc,WNOHANG); 
+        pid_t p = waitpid(-1, &stat_loc, WNOHANG); 
         while(0<p) {
           //printf("  looping\n");
           if(WIFEXITED(stat_loc)) {
             ++num_children_done;
-            if(0!=WEXITSTATUS(stat_loc) ) {
-              child_failed=true;
+            if(0 != WEXITSTATUS(stat_loc)) {
+              child_failed = true;
             }
           }
           if(WIFSIGNALED(stat_loc)) {
             ++num_children_done;
-            child_failed=true;
+            child_failed = true;
           }
-          p = waitpid(-1,&stat_loc,WNOHANG); 
+          p = waitpid(-1, &stat_loc, WNOHANG); 
         }
       }
     }
@@ -883,9 +881,9 @@ namespace edm {
   };
   
   bool 
-  EventProcessor::forkProcess()
-  {
-    if(0==numberOfForkedChildren_) {return true;}
+  EventProcessor::forkProcess() {
+
+    if(0 == numberOfForkedChildren_) {return true;}
     assert(0<numberOfForkedChildren_);
     //do what we want done in common
     {
@@ -901,12 +899,12 @@ namespace edm {
         readFile();
       }
       itemType = input_->nextItemType();
-     assert(itemType == InputSource::IsRun);
+      assert(itemType == InputSource::IsRun);
       
       int run = readAndCacheRun();
       
       RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
-      IOVSyncValue ts(EventID(runPrincipal.run(),0),
+      IOVSyncValue ts(EventID(runPrincipal.run(), 0),
                       0,
                       runPrincipal.beginTime());
       EventSetup const& es = esp_->eventSetupForInstance(ts);
@@ -915,14 +913,14 @@ namespace edm {
       std::vector<eventsetup::EventSetupRecordKey> recordKeys;
       es.fillAvailableRecordKeys(recordKeys);
       std::vector<eventsetup::DataKey> dataKeys;
-      for(std::vector<eventsetup::EventSetupRecordKey>::const_iterator itKey=recordKeys.begin(),itEnd=recordKeys.end();
+      for(std::vector<eventsetup::EventSetupRecordKey>::const_iterator itKey = recordKeys.begin(), itEnd = recordKeys.end();
           itKey != itEnd;
           ++itKey) {
-        const eventsetup::EventSetupRecord* recordPtr = es.find(*itKey);
-        if(0!=recordPtr) {
+        eventsetup::EventSetupRecord const* recordPtr = es.find(*itKey);
+        if(0 != recordPtr) {
           recordPtr->fillRegisteredDataKeys(dataKeys);
-          for(std::vector<eventsetup::DataKey>::const_iterator itDataKey = dataKeys.begin(),itDataKeyEnd=dataKeys.end();
-              itDataKey!=itDataKeyEnd;
+          for(std::vector<eventsetup::DataKey>::const_iterator itDataKey = dataKeys.begin(), itDataKeyEnd = dataKeys.end();
+              itDataKey != itDataKeyEnd;
               ++itDataKey) {
             recordPtr->doGet(*itDataKey);
           }
@@ -935,28 +933,28 @@ namespace edm {
     input_->doPreForkReleaseResources();
     schedule_->preForkReleaseResources();
 
-    edm::installCustomHandler(SIGCHLD, ep_sigchld);
-    unsigned int childIndex=0;
-    const unsigned int kMaxChildren = numberOfForkedChildren_;
+    installCustomHandler(SIGCHLD, ep_sigchld);
+    unsigned int childIndex = 0;
+    unsigned int const kMaxChildren = numberOfForkedChildren_;
     std::vector<pid_t> childrenIds;
     childrenIds.reserve(kMaxChildren);
-    for(; childIndex <kMaxChildren; ++childIndex) {
+    for(; childIndex < kMaxChildren; ++childIndex) {
       pid_t value = fork();
       if(value == 0) {
-        std::cout <<"I am child "<<childIndex<<" with pgid "<<getpgrp()<<std::endl;
+        std::cout << "I am child " << childIndex << " with pgid " << getpgrp() << std::endl;
         break;
       }
-      if(value<0) {
-        std::cout<<"failed to create a child"<<std::endl;
+      if(value < 0) {
+        std::cout << "failed to create a child" << std::endl;
         exit(-1);
       }
       childrenIds.push_back(value);
     }
 
-    if(childIndex<kMaxChildren) {
-      actReg_->postForkReaquireResourcesSignal_(childIndex,kMaxChildren);
-      input_->doPostForkReaquireResources(childIndex,kMaxChildren,numberOfSequentialEventsPerChild_);
-      schedule_->postForkReaquireResources(childIndex,kMaxChildren);
+    if(childIndex < kMaxChildren) {
+      actReg_->postForkReacquireResourcesSignal_(childIndex, kMaxChildren);
+      input_->doPostForkReacquireResources(childIndex, kMaxChildren, numberOfSequentialEventsPerChild_);
+      schedule_->postForkReacquireResources(childIndex, kMaxChildren);
       rewindInput();
       return true;
     }
@@ -971,8 +969,8 @@ namespace edm {
     sigset_t blockingSigSet;
     sigset_t unblockingSigSet;
     sigset_t oldSigSet;
-    pthread_sigmask(SIG_SETMASK,NULL,&unblockingSigSet);
-    pthread_sigmask(SIG_SETMASK,NULL,&blockingSigSet);
+    pthread_sigmask(SIG_SETMASK, NULL, &unblockingSigSet);
+    pthread_sigmask(SIG_SETMASK, NULL, &blockingSigSet);
     sigaddset(&blockingSigSet, SIGCHLD);
     sigaddset(&blockingSigSet, SIGUSR2);
     sigaddset(&blockingSigSet, SIGINT);
@@ -980,30 +978,30 @@ namespace edm {
     sigdelset(&unblockingSigSet, SIGUSR2);
     sigdelset(&unblockingSigSet, SIGINT);
     pthread_sigmask(SIG_BLOCK, &blockingSigSet, &oldSigSet);
-    while(!edm::shutdown_flag && !child_failed && (childrenIds.size()!=num_children_done)) {
+    while(!shutdown_flag && !child_failed && (childrenIds.size() != num_children_done)) {
       sigsuspend(&unblockingSigSet);
-      std::cout <<"woke from sigwait"<<std::endl;
+      std::cout << "woke from sigwait" << std::endl;
     }
-    pthread_sigmask(SIG_SETMASK,&oldSigSet,NULL);
+    pthread_sigmask(SIG_SETMASK, &oldSigSet, NULL);
     
-    std::cout <<"num children who have already stopped "<<num_children_done<<std::endl;
+    std::cout << "num children who have already stopped " << num_children_done << std::endl;
     if(child_failed) {
-      std::cout <<"child failed"<<std::endl;
+      std::cout << "child failed" << std::endl;
     }
-    if(edm::shutdown_flag) {
-      std::cout <<"asked to shutdown"<<std::endl;
+    if(shutdown_flag) {
+      std::cout << "asked to shutdown" << std::endl;
     }
-    if(edm::shutdown_flag || child_failed && (num_children_done != childrenIds.size())) {
-      std::cout <<"must stop children"<<std::endl;
-      for(std::vector<pid_t>::iterator it=childrenIds.begin(),itEnd=childrenIds.end();
+    if(shutdown_flag || child_failed && (num_children_done != childrenIds.size())) {
+      std::cout << "must stop children" << std::endl;
+      for(std::vector<pid_t>::iterator it = childrenIds.begin(), itEnd = childrenIds.end();
 	  it != itEnd; ++it) {
-	int result = kill(*it,SIGUSR2);
+	/* int result = */ kill(*it, SIGUSR2);
       }
       pthread_sigmask(SIG_BLOCK, &blockingSigSet, &oldSigSet);
       while(num_children_done != kMaxChildren) {
 	sigsuspend(&unblockingSigSet);
       } 
-      pthread_sigmask(SIG_SETMASK,&oldSigSet,NULL);
+      pthread_sigmask(SIG_SETMASK, &oldSigSet, NULL);
     }  
     return false;
   }
@@ -1117,23 +1115,23 @@ namespace edm {
 
     // make sure to include a timeout here so we don't wait forever
     // I suspect there are still timing issues with thread startup
-    // and the setting of the various control variables (stop_count,id_set)
+    // and the setting of the various control variables (stop_count, id_set)
     {
       boost::mutex::scoped_lock sl(stop_lock_);
 
       // look here - if runAsync not active, just return the last return code
       if(stop_count_ < 0) return last_rc_;
 
-      if(timeout_seconds==0)
-	while(stop_count_==0) stopper_.wait(sl);
+      if(timeout_seconds == 0)
+	while(stop_count_ == 0) stopper_.wait(sl);
       else
-	while(stop_count_==0 &&
-	      (rc = stopper_.timed_wait(sl,timeout)) == true);
+	while(stop_count_ == 0 &&
+	      (rc = stopper_.timed_wait(sl, timeout)) == true);
       
       if(rc == false)
 	{
 	  // timeout occurred
-	  // if(id_set_) pthread_kill(event_loop_id_,my_sig_num_);
+	  // if(id_set_) pthread_kill(event_loop_id_, my_sig_num_);
 	  // this is a temporary hack until we get the input source
 	  // upgraded to allow blocking input sources to be unblocked
 
@@ -1155,13 +1153,13 @@ namespace edm {
 	  stop_count_ = -1;
 	}
     }
-    return rc==false?epTimedOut:last_rc_;
+    return rc == false ? epTimedOut : last_rc_;
   }
 
   EventProcessor::StatusCode 
   EventProcessor::waitTillDoneAsync(unsigned int timeout_value_secs) {
     StatusCode rc = waitForAsyncCompletion(timeout_value_secs);
-    if(rc!=epTimedOut) changeState(mCountComplete);
+    if(rc != epTimedOut) changeState(mCountComplete);
     else errorState();
     return rc;
   }
@@ -1170,7 +1168,7 @@ namespace edm {
   EventProcessor::StatusCode EventProcessor::stopAsync(unsigned int secs) {
     changeState(mStopAsync);
     StatusCode rc = waitForAsyncCompletion(secs);
-    if(rc!=epTimedOut) changeState(mFinished);
+    if(rc != epTimedOut) changeState(mFinished);
     else errorState();
     return rc;
   }
@@ -1178,7 +1176,7 @@ namespace edm {
   EventProcessor::StatusCode EventProcessor::shutdownAsync(unsigned int secs) {
     changeState(mShutdownAsync);
     StatusCode rc = waitForAsyncCompletion(secs);
-    if(rc!=epTimedOut) changeState(mFinished);
+    if(rc != epTimedOut) changeState(mFinished);
     else errorState();
     return rc;
   }
@@ -1191,7 +1189,7 @@ namespace edm {
   EventProcessor::StatusCode EventProcessor::doneAsync(Msg m) {
     // make sure to include a timeout here so we don't wait forever
     // I suspect there are still timing issues with thread startup
-    // and the setting of the various control variables (stop_count,id_set)
+    // and the setting of the various control variables (stop_count, id_set)
     changeState(m);
     return waitForAsyncCompletion(60*2);
   }
@@ -1231,21 +1229,21 @@ namespace edm {
     beginJob();
     {
       boost::mutex::scoped_lock sl(stop_lock_);
-      if(id_set_==true) {
+      if(id_set_ == true) {
 	  std::string err("runAsync called while async event loop already running\n");
-	  edm::LogError("FwkJob") << err;
+	  LogError("FwkJob") << err;
 	  throw cms::Exception("BadState") << err;
       }
 
       changeState(mRunAsync);
 
-      stop_count_=0;
-      last_rc_=epSuccess; // forget the last value!
-      event_loop_.reset(new thread(boost::bind(EventProcessor::asyncRun,this)));
+      stop_count_ = 0;
+      last_rc_ = epSuccess; // forget the last value!
+      event_loop_.reset(new thread(boost::bind(EventProcessor::asyncRun, this)));
       boost::xtime timeout;
       boost::xtime_get(&timeout, boost::TIME_UTC); 
       timeout.sec += 60; // 60 seconds to start!!!!
-      if(starter_.timed_wait(sl,timeout)==false) {
+      if(starter_.timed_wait(sl, timeout) == false) {
 	  // yikes - the thread did not start
 	  throw cms::Exception("BadState")
 	    << "Async run thread did not start in 60 seconds\n";
@@ -1263,10 +1261,10 @@ namespace edm {
     // in EventFilter/Processor, which I do not like.
     // allowing cancels means that the thread just disappears at
     // certain points.  This is bad for C++ stack variables.
-    pthread_setcancelstate(PTHREAD_CANCEL_DISABLE,0);
-    //pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,0);
-    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,0);
-    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,0);
+    pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
+    //pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, 0);
+    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, 0);
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
 
     {
       boost::mutex::scoped_lock(me->stop_lock_);
@@ -1283,21 +1281,21 @@ namespace edm {
       rc = me->runToCompletion(onlineStateTransitions);
     }
     catch (cms::Exception& e) {
-      edm::LogError("FwkJob") << "cms::Exception caught in "
+      LogError("FwkJob") << "cms::Exception caught in "
 			      << "EventProcessor::asyncRun" 
 			      << "\n"
 			      << e.explainSelf();
       me->last_error_text_ = e.explainSelf();
     }
     catch (std::exception& e) {
-      edm::LogError("FwkJob") << "Standard library exception caught in " 
+      LogError("FwkJob") << "Standard library exception caught in " 
 			      << "EventProcessor::asyncRun" 
 			      << "\n"
 			      << e.what();
       me->last_error_text_ = e.what();
     }
     catch (...) {
-      edm::LogError("FwkJob") << "Unknown exception caught in "
+      LogError("FwkJob") << "Unknown exception caught in "
 			      << "EventProcessor::asyncRun" 
 			      << "\n";
       me->last_error_text_ = "Unknown exception caught";
@@ -1316,7 +1314,7 @@ namespace edm {
   }
 
 
-  edm::EventProcessor::StatusCode
+  EventProcessor::StatusCode
   EventProcessor::runToCompletion(bool onlineStateTransitions) {
 
     StateSentry toerror(this);
@@ -1335,7 +1333,7 @@ namespace edm {
     return returnCode;
   }
 
-  edm::EventProcessor::StatusCode
+  EventProcessor::StatusCode
   EventProcessor::runEventCount(int numberOfEventsToProcess) {
 
     StateSentry toerror(this);
@@ -1348,7 +1346,7 @@ namespace edm {
     return returnCode;
   }
 
-  edm::EventProcessor::StatusCode
+  EventProcessor::StatusCode
   EventProcessor::runCommon(bool onlineStateTransitions, int numberOfEventsToProcess) {
 
     beginJob(); //make sure this was called
@@ -1420,7 +1418,7 @@ namespace edm {
         // Look for a shutdown signal
         {
           boost::mutex::scoped_lock sl(usr2_lock);
-          if (edm::shutdown_flag) {
+          if (shutdown_flag) {
             changeState(mShutdownSignal);
             returnCode = epSignal;
             forceLooperToEnd_ = true;
@@ -1662,7 +1660,7 @@ namespace edm {
 
   void EventProcessor::doErrorStuff() {
     FDEBUG(1) << "\tdoErrorStuff\n";
-    edm::LogError("StateMachine")
+    LogError("StateMachine")
       << "The EventProcessor state machine encountered an unexpected event\n"
       << "and went to the error state\n"
       << "Will attempt to terminate processing normally\n"
@@ -1673,7 +1671,7 @@ namespace edm {
 
   void EventProcessor::beginRun(int run) {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
-    IOVSyncValue ts(EventID(runPrincipal.run(),0),
+    IOVSyncValue ts(EventID(runPrincipal.run(), 0),
                     0,
                     runPrincipal.beginTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
@@ -1687,7 +1685,7 @@ namespace edm {
   void EventProcessor::endRun(int run) {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
     input_->doEndRun(runPrincipal);
-    IOVSyncValue ts(EventID(runPrincipal.run(),EventID::maxEventNumber()),
+    IOVSyncValue ts(EventID(runPrincipal.run(), EventID::maxEventNumber()),
                     LuminosityBlockID::maxLuminosityBlockNumber(),
                     runPrincipal.endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
@@ -1702,7 +1700,7 @@ namespace edm {
     LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(run, lumi);
     // NOTE: Using 0 as the event number for the begin of a lumi block is a bad idea
     // lumi blocks know their start and end times why not also start and end events?
-    IOVSyncValue ts(EventID(lumiPrincipal.run(),0), lumiPrincipal.luminosityBlock(), lumiPrincipal.beginTime());
+    IOVSyncValue ts(EventID(lumiPrincipal.run(), 0), lumiPrincipal.luminosityBlock(), lumiPrincipal.beginTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionBegin> >(lumiPrincipal, es);
     FDEBUG(1) << "\tbeginLumi " << run << "/" << lumi << "\n";
@@ -1716,7 +1714,7 @@ namespace edm {
     input_->doEndLumi(lumiPrincipal);
     //NOTE: Using the max event number for the end of a lumi block is a bad idea
     // lumi blocks know their start and end times why not also start and end events?
-    IOVSyncValue ts(EventID(lumiPrincipal.run(),EventID::maxEventNumber()),
+    IOVSyncValue ts(EventID(lumiPrincipal.run(), EventID::maxEventNumber()),
                     lumiPrincipal.luminosityBlock(),
                     lumiPrincipal.endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);

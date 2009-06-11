@@ -28,7 +28,7 @@ namespace edm {
     detail::CPCSentry sentry(current_context_, cpc);
     Event e(ep, moduleDescription_);
     this->produce(e, c);
-    e.commit_(&previousParentage_,&previousParentageId_);
+    e.commit_(&previousParentage_, &previousParentageId_);
     return true;
   }
 
@@ -43,7 +43,7 @@ namespace edm {
   }
 
   bool
-  EDProducer::doBeginRun(RunPrincipal & rp, EventSetup const& c,
+  EDProducer::doBeginRun(RunPrincipal& rp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Run r(rp, moduleDescription_);
@@ -53,7 +53,7 @@ namespace edm {
   }
 
   bool
-  EDProducer::doEndRun(RunPrincipal & rp, EventSetup const& c,
+  EDProducer::doEndRun(RunPrincipal& rp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Run r(rp, moduleDescription_);
@@ -63,7 +63,7 @@ namespace edm {
   }
 
   bool
-  EDProducer::doBeginLuminosityBlock(LuminosityBlockPrincipal & lbp, EventSetup const& c,
+  EDProducer::doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     LuminosityBlock lb(lbp, moduleDescription_);
@@ -73,7 +73,7 @@ namespace edm {
   }
 
   bool
-  EDProducer::doEndLuminosityBlock(LuminosityBlockPrincipal & lbp, EventSetup const& c,
+  EDProducer::doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     LuminosityBlock lb(lbp, moduleDescription_);
@@ -108,8 +108,8 @@ namespace edm {
   }
   
   void 
-  EDProducer::doPostForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-    postForkReaquireResources(iChildIndex,iNumberOfChildren);
+  EDProducer::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
+    postForkReacquireResources(iChildIndex, iNumberOfChildren);
   }
   
   CurrentProcessingContext const*
@@ -118,7 +118,7 @@ namespace edm {
   }
 
   void
-  EDProducer::fillDescriptions(ConfigurationDescriptions & descriptions) {
+  EDProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
     desc.setUnknown();
     descriptions.addUnknownLabel(desc);

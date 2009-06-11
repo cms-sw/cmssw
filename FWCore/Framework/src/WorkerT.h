@@ -38,7 +38,7 @@ namespace edm {
 
 
   protected:
-    T & module() {return *module_;}
+    T& module() {return *module_;}
     T const& module() const {return *module_;}
 
   private:
@@ -61,7 +61,7 @@ namespace edm {
     virtual void implRespondToOpenOutputFiles(FileBlock const& fb);
     virtual void implRespondToCloseOutputFiles(FileBlock const& fb);
     virtual void implPreForkReleaseResources();
-    virtual void implPostForkReaquireResources(unsigned int iChildIndex, 
+    virtual void implPostForkReacquireResources(unsigned int iChildIndex, 
                                                unsigned int iNumberOfChildren);
     virtual std::string workerType() const;
 
@@ -176,9 +176,9 @@ namespace edm {
   
   template <typename T>
   void 
-  WorkerT<T>::implPostForkReaquireResources(unsigned int iChildIndex, 
+  WorkerT<T>::implPostForkReacquireResources(unsigned int iChildIndex, 
                                             unsigned int iNumberOfChildren) {
-    module_->doPostForkReaquireResources(iChildIndex,iNumberOfChildren);
+    module_->doPostForkReacquireResources(iChildIndex, iNumberOfChildren);
   }  
 }
 

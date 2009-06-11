@@ -32,7 +32,7 @@ output stream.
 
 namespace edm {
 
-  typedef edm::detail::CachedProducts::handle_t Trig;
+  typedef detail::CachedProducts::handle_t Trig;
    
   std::vector<std::string> const& getAllTriggerNames();
 
@@ -61,13 +61,13 @@ namespace edm {
     SelectionsArray const& keptProducts() const {return keptProducts_;}
     boost::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
 
-    static void fillDescriptions(ConfigurationDescriptions & descriptions);
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
     static std::string baseType();
 
     BranchChildren const& branchChildren() const {return branchChildren_;}
 
   protected:
-    //const Trig& getTriggerResults(Event const& ep) const;
+    //Trig const& getTriggerResults(Event const& ep) const;
     Trig getTriggerResults(Event const& ep) const;
 
     // This function is needed for compatibility with older code. We
@@ -157,7 +157,7 @@ namespace edm {
     void doRespondToOpenOutputFiles(FileBlock const& fb);
     void doRespondToCloseOutputFiles(FileBlock const& fb);
     void doPreForkReleaseResources();
-    void doPostForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
+    void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 
     std::string workerType() const {return "OutputWorker";}
 
@@ -195,7 +195,7 @@ namespace edm {
     virtual void respondToOpenOutputFiles(FileBlock const& fb) {}
     virtual void respondToCloseOutputFiles(FileBlock const& fb) {}
     virtual void preForkReleaseResources() {}
-    virtual void postForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {}
+    virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {}
 
     virtual bool isFileOpen() const { return true; }
 

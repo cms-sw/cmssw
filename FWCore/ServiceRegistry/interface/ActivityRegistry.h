@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:53:09 EDT 2005
-// $Id: ActivityRegistry.h,v 1.18 2008/10/20 19:38:21 wmtan Exp $
 //
 
 // system include files
@@ -30,7 +29,7 @@
 
 #define AR_WATCH_USING_METHOD_0(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (boost::bind(boost::mem_fn(iMethod), iObject)); }
 #define AR_WATCH_USING_METHOD_1(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (boost::bind(boost::mem_fn(iMethod), iObject, _1)); }
-#define AR_WATCH_USING_METHOD_2(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (boost::bind(boost::mem_fn(iMethod), iObject, _1,_2)); }
+#define AR_WATCH_USING_METHOD_2(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (boost::bind(boost::mem_fn(iMethod), iObject, _1, _2)); }
 // forward declarations
 namespace edm {
    class EventID;
@@ -44,8 +43,7 @@ namespace edm {
    class EventSetup;
    class HLTPathStatus;
    
-   struct ActivityRegistry : private boost::noncopyable
-   {
+   struct ActivityRegistry : private boost::noncopyable {
       ActivityRegistry() {}
 
       // ---------- signals ------------------------------------
@@ -163,7 +161,7 @@ namespace edm {
       }
       AR_WATCH_USING_METHOD_0(watchPostCloseFile)
         
-      typedef sigc::signal<void, edm::EventID const&, edm::Timestamp const&> PreProcessEvent;
+      typedef sigc::signal<void, EventID const&, Timestamp const&> PreProcessEvent;
       /// signal is emitted after the Event has been created by the InputSource but before any modules have seen the Event
       PreProcessEvent preProcessEventSignal_;
       void watchPreProcessEvent(PreProcessEvent::slot_type const& iSlot) {
@@ -180,7 +178,7 @@ namespace edm {
       }
       AR_WATCH_USING_METHOD_2(watchPostProcessEvent)
 
-      typedef sigc::signal<void, edm::RunID const&, edm::Timestamp const&> PreBeginRun;
+      typedef sigc::signal<void, RunID const&, Timestamp const&> PreBeginRun;
       /// signal is emitted after the Run has been created by the InputSource but before any modules have seen the Run
       PreBeginRun preBeginRunSignal_;
       void watchPreBeginRun(PreBeginRun::slot_type const& iSlot) {
@@ -197,7 +195,7 @@ namespace edm {
       }
       AR_WATCH_USING_METHOD_2(watchPostBeginRun)
 
-      typedef sigc::signal<void, edm::RunID const&, edm::Timestamp const&> PreEndRun;
+      typedef sigc::signal<void, RunID const&, Timestamp const&> PreEndRun;
       /// signal is emitted before the endRun is processed
       PreEndRun preEndRunSignal_;
       void watchPreEndRun(PreEndRun::slot_type const& iSlot) {
@@ -214,7 +212,7 @@ namespace edm {
       }
       AR_WATCH_USING_METHOD_2(watchPostEndRun)
 
-      typedef sigc::signal<void, edm::LuminosityBlockID const&, edm::Timestamp const&> PreBeginLumi;
+      typedef sigc::signal<void, LuminosityBlockID const&, Timestamp const&> PreBeginLumi;
       /// signal is emitted after the Lumi has been created by the InputSource but before any modules have seen the Lumi
       PreBeginLumi preBeginLumiSignal_;
       void watchPreBeginLumi(PreBeginLumi::slot_type const& iSlot) {
@@ -231,7 +229,7 @@ namespace edm {
       }
       AR_WATCH_USING_METHOD_2(watchPostBeginLumi)
 
-      typedef sigc::signal<void, edm::LuminosityBlockID const&, edm::Timestamp const&> PreEndLumi;
+      typedef sigc::signal<void, LuminosityBlockID const&, Timestamp const&> PreEndLumi;
       /// signal is emitted before the endLumi is processed
       PreEndLumi preEndLumiSignal_;
       void watchPreEndLumi(PreEndLumi::slot_type const& iSlot) {
@@ -496,13 +494,13 @@ namespace edm {
       AR_WATCH_USING_METHOD_0(watchPreForkReleaseResources)
       
       /// signal is emitted after we forked the processes
-      typedef sigc::signal<void, unsigned int, unsigned int> PostForkReaquireResources;
-      PostForkReaquireResources postForkReaquireResourcesSignal_;
-      void watchPostForkReaquireResources(PostForkReaquireResources::slot_type const& iSlot) {
-         PostForkReaquireResources::slot_list_type sl = postForkReaquireResourcesSignal_.slots();
+      typedef sigc::signal<void, unsigned int, unsigned int> PostForkReacquireResources;
+      PostForkReacquireResources postForkReacquireResourcesSignal_;
+      void watchPostForkReacquireResources(PostForkReacquireResources::slot_type const& iSlot) {
+         PostForkReacquireResources::slot_list_type sl = postForkReacquireResourcesSignal_.slots();
          sl.push_front(iSlot);
       }
-      AR_WATCH_USING_METHOD_2(watchPostForkReaquireResources)
+      AR_WATCH_USING_METHOD_2(watchPostForkReacquireResources)
       
       // ---------- member functions ---------------------------
       

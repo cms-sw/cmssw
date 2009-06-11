@@ -25,14 +25,14 @@ namespace edm {
   // OutputModule's initialization list, rather than in the body of
   // the constructor.
 
-  std::vector<edm::BranchDescription const*>
+  std::vector<BranchDescription const*>
   getAllBranchDescriptions() {
-    edm::Service<edm::ConstProductRegistry> reg;
+    Service<ConstProductRegistry> reg;
     return reg->allBranchDescriptions();
   }
 
   std::vector<std::string> const& getAllTriggerNames() {
-    edm::Service<edm::service::TriggerNamesService> tns;
+    Service<service::TriggerNamesService> tns;
     return tns->getTrigPaths();
   }
 }
@@ -128,7 +128,7 @@ namespace edm {
 
     hasNewlyDroppedBranch_.assign(false);
 
-    edm::Service<edm::service::TriggerNamesService> tns;
+    Service<service::TriggerNamesService> tns;
     process_name_ = tns->getProcessName();
 
     ParameterSet selectevents =
@@ -256,7 +256,7 @@ namespace edm {
     if (!wantAllEvents_) {
       // use module description and const_cast unless interface to
       // event is changed to just take a const EventPrincipal
-      Event e(const_cast<EventPrincipal &>(ep), moduleDescription_);
+      Event e(const_cast<EventPrincipal&>(ep), moduleDescription_);
       if (!selectors_.wantEvent(e)) {
 	return true;
       }
@@ -362,8 +362,8 @@ namespace edm {
   }
   
   void 
-  OutputModule::doPostForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-    postForkReaquireResources(iChildIndex,iNumberOfChildren);
+  OutputModule::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
+    postForkReacquireResources(iChildIndex, iNumberOfChildren);
   }
   
   void OutputModule::maybeOpenFile() {
@@ -409,7 +409,7 @@ namespace edm {
   }
 
   void
-  OutputModule::fillDescriptions(ConfigurationDescriptions & descriptions) {
+  OutputModule::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
     desc.setUnknown();
     descriptions.addUnknownLabel(desc);

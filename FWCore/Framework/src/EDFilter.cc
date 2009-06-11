@@ -12,10 +12,9 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-namespace edm
-{
-  EDFilter::~EDFilter()
-  { }
+namespace edm {
+  EDFilter::~EDFilter() {
+  }
 
   bool
   EDFilter::doEvent(EventPrincipal& ep, EventSetup const& c,
@@ -24,7 +23,7 @@ namespace edm
     bool rc = false;
     Event e(ep, moduleDescription_);
     rc = this->filter(e, c);
-    e.commit_(&previousParentage_,&previousParentageId_);
+    e.commit_(&previousParentage_, &previousParentageId_);
     return rc;
   }
 
@@ -38,7 +37,7 @@ namespace edm
   }
 
   bool
-  EDFilter::doBeginRun(RunPrincipal & rp, EventSetup const& c,
+  EDFilter::doBeginRun(RunPrincipal& rp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
@@ -49,7 +48,7 @@ namespace edm
   }
 
   bool
-  EDFilter::doEndRun(RunPrincipal & rp, EventSetup const& c,
+  EDFilter::doEndRun(RunPrincipal& rp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
@@ -60,7 +59,7 @@ namespace edm
   }
 
   bool
-  EDFilter::doBeginLuminosityBlock(LuminosityBlockPrincipal & lbp, EventSetup const& c,
+  EDFilter::doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
@@ -71,7 +70,7 @@ namespace edm
   }
 
   bool
-  EDFilter::doEndLuminosityBlock(LuminosityBlockPrincipal & lbp, EventSetup const& c,
+  EDFilter::doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
@@ -107,8 +106,8 @@ namespace edm
   }
   
   void 
-  EDFilter::doPostForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-    postForkReaquireResources(iChildIndex,iNumberOfChildren);
+  EDFilter::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
+    postForkReacquireResources(iChildIndex, iNumberOfChildren);
   }
   
   CurrentProcessingContext const*
@@ -117,7 +116,7 @@ namespace edm
   }
   
   void
-  EDFilter::fillDescriptions(ConfigurationDescriptions & descriptions) {
+  EDFilter::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
     desc.setUnknown();
     descriptions.addUnknownLabel(desc);

@@ -23,7 +23,7 @@ namespace edm {
     
     std::string workerType() const {return "WorkerT<EDAnalyzer>";}
 
-    static void fillDescriptions(ConfigurationDescriptions & descriptions);
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
     static std::string baseType();
 
   protected:
@@ -49,7 +49,7 @@ namespace edm {
     void doRespondToOpenOutputFiles(FileBlock const& fb);
     void doRespondToCloseOutputFiles(FileBlock const& fb);
     void doPreForkReleaseResources();
-    void doPostForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
+    void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
     void registerAnyProducts(boost::shared_ptr<EDAnalyzer>const&, ProductRegistry const*) {}
 
     virtual void analyze(Event const&, EventSetup const&) = 0;
@@ -66,7 +66,7 @@ namespace edm {
     virtual void respondToOpenOutputFiles(FileBlock const& fb) {}
     virtual void respondToCloseOutputFiles(FileBlock const& fb) {}
     virtual void preForkReleaseResources() {}
-    virtual void postForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {}
+    virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {}
 
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;

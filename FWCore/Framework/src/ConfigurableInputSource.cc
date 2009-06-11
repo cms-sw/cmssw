@@ -1,5 +1,4 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.41 2009/02/11 16:44:57 wdd Exp $
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
@@ -15,8 +14,8 @@ $Id: ConfigurableInputSource.cc,v 1.41 2009/02/11 16:44:57 wdd Exp $
 
 namespace edm {
   //used for defaults
-  static const unsigned int kNanoSecPerSec = 1000000000U;
-  static const unsigned int kAveEventPerSec = 200U;
+  static unsigned int const kNanoSecPerSec = 1000000000U;
+  static unsigned int const kAveEventPerSec = 200U;
   
   ConfigurableInputSource::ConfigurableInputSource(ParameterSet const& pset,
 				       InputSourceDescription const& desc, bool realData) :
@@ -44,8 +43,8 @@ namespace edm {
     numberOfEventsBeforeBigSkip_(0),
     numberOfEventsInBigSkip_(0),
     numberOfSequentialEvents_(0),
-    forkedChildIndex_(0)
-  { 
+    forkedChildIndex_(0) { 
+
     setTimestamp(Timestamp(presentTime_));
     // We need to map this string to the EventAuxiliary::ExperimentType enumeration
     // std::string eType = pset.getUntrackedParameter<std::string>("experimentType", std::string("Any"))),
@@ -60,8 +59,8 @@ namespace edm {
     RunAuxiliary runAux(eventID_.run(), ts, Timestamp::invalidTimestamp());
     boost::shared_ptr<RunPrincipal> runPrincipal(
         new RunPrincipal(runAux, productRegistry(), processConfiguration()));
-    RunPrincipal & rp =
-       const_cast<RunPrincipal &>(*runPrincipal);
+    RunPrincipal& rp =
+       const_cast<RunPrincipal&>(*runPrincipal);
     Run run(rp, moduleDescription());
     beginRun(run);
     run.commit_();
@@ -135,20 +134,20 @@ namespace edm {
   }
 
   void
-  ConfigurableInputSource::beginRun(Run&)
-  { }
+  ConfigurableInputSource::beginRun(Run&) {
+  }
 
   void
-  ConfigurableInputSource::endRun(Run&)
-  { }
+  ConfigurableInputSource::endRun(Run&) {
+  }
 
   void
-  ConfigurableInputSource::beginLuminosityBlock(LuminosityBlock &)
-  { }
+  ConfigurableInputSource::beginLuminosityBlock(LuminosityBlock&) {
+  }
 
   void
-  ConfigurableInputSource::endLuminosityBlock(LuminosityBlock &)
-  { }
+  ConfigurableInputSource::endLuminosityBlock(LuminosityBlock&) {
+  }
 
   void
   ConfigurableInputSource::setLumi(LuminosityBlockNumber_t lb) {
@@ -167,11 +166,11 @@ namespace edm {
   }
 
   void 
-  ConfigurableInputSource::postForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialEvents) {
+  ConfigurableInputSource::postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialEvents) {
     numberOfEventsInBigSkip_ = iNumberOfSequentialEvents*(iNumberOfChildren-1);
-    numberOfEventsBeforeBigSkip_ = iNumberOfSequentialEvents+1;
-    forkedChildIndex_ =iChildIndex;
-    numberOfSequentialEvents_=iNumberOfSequentialEvents;
+    numberOfEventsBeforeBigSkip_ = iNumberOfSequentialEvents + 1;
+    forkedChildIndex_ = iChildIndex;
+    numberOfSequentialEvents_ = iNumberOfSequentialEvents;
   }
 
   void
@@ -183,20 +182,20 @@ namespace edm {
     numberEventsInThisLumi_ = 0;
 
     unsigned int numberToSkip = numberOfSequentialEvents_*forkedChildIndex_;
-    numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_+1;
+    numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_ + 1;
     RunNumber_t oldRun = eventID_.run();
     LuminosityBlockNumber_t oldLumi = luminosityBlock_;
     for(unsigned int skipped = 0; skipped < numberToSkip; ++skipped) {
       advanceToNext(eventID_, luminosityBlock_);
-      if(oldRun==eventID_.run()) {
+      if(oldRun == eventID_.run()) {
         ++numberEventsInThisRun_;
-        if(oldLumi==luminosityBlock_) {
+        if(oldLumi == luminosityBlock_) {
           ++numberEventsInThisLumi_;
         } else {
           numberEventsInThisLumi_ = 0;
         }
       } else {
-        numberEventsInThisRun_=0;
+        numberEventsInThisRun_ = 0;
         numberEventsInThisLumi_ = 0;
       }
     }
@@ -294,9 +293,9 @@ namespace edm {
       } else {
         --countDownSkip;
       }
-    }while(0 == numberOfEventsBeforeBigSkip_ && countDownSkip>0);
-    if(0==numberOfEventsBeforeBigSkip_) {
-      numberOfEventsBeforeBigSkip_= numberOfSequentialEvents_;
+    }while(0 == numberOfEventsBeforeBigSkip_ && countDownSkip > 0);
+    if(0 == numberOfEventsBeforeBigSkip_) {
+      numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_;
     }
     if (eventCreationDelay_ > 0) {usleep(eventCreationDelay_);}
   }

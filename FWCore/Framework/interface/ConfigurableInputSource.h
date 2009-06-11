@@ -2,7 +2,6 @@
 #define Framework_ConfigurableInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.h,v 1.33 2008/07/31 23:17:14 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "boost/shared_ptr.hpp"
@@ -46,11 +45,11 @@ namespace edm {
   private:
     virtual ItemType getNextItemType();
     virtual void setRunAndEventInfo();
-    virtual bool produce(Event & e) = 0;
-    virtual void beginRun(Run &);
-    virtual void endRun(Run &);
-    virtual void beginLuminosityBlock(LuminosityBlock &);
-    virtual void endLuminosityBlock(LuminosityBlock &);
+    virtual bool produce(Event& e) = 0;
+    virtual void beginRun(Run&);
+    virtual void endRun(Run&);
+    virtual void beginLuminosityBlock(LuminosityBlock&);
+    virtual void endLuminosityBlock(LuminosityBlock&);
     virtual std::auto_ptr<EventPrincipal> readEvent_();
     virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_();
     virtual boost::shared_ptr<RunPrincipal> readRun_();
@@ -59,7 +58,7 @@ namespace edm {
     virtual void setLumi(LuminosityBlockNumber_t lb);
     virtual void rewind_();
 
-    virtual void postForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren);
+    virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren);
     void advanceToNext(EventID&, LuminosityBlockNumber_t&) const;
 
     unsigned int numberEventsInRun_;

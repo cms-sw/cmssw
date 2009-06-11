@@ -119,14 +119,14 @@ namespace edm {
     typedef std::vector<WorkerInPath> PathWorkers;
 
     Schedule(boost::shared_ptr<ParameterSet> proc_pset,
-	     edm::service::TriggerNamesService& tns,
+	     service::TriggerNamesService& tns,
 	     WorkerRegistry& wregistry,
 	     ProductRegistry& pregistry,
 	     ActionTable& actions,
 	     boost::shared_ptr<ActivityRegistry> areg,
 	     boost::shared_ptr<ProcessConfiguration> processConfiguration);
 
-    enum State { Ready=0, Running, Latched };
+    enum State { Ready = 0, Running, Latched };
 
     template <typename T>
     void processOneOccurrence(typename T::MyPrincipal& principal, 
@@ -148,7 +148,7 @@ namespace edm {
     void openNewOutputFilesIfNeeded();
 
     // Call openFiles() on all OutputModules
-    void openOutputFiles(FileBlock & fb);
+    void openOutputFiles(FileBlock& fb);
 
     // Call respondToOpenInputFile() on all Modules
     void respondToOpenInputFile(FileBlock const& fb);
@@ -166,10 +166,10 @@ namespace edm {
     bool shouldWeCloseOutput() const;
 
     void preForkReleaseResources();
-    void postForkReaquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
+    void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
      
-    std::pair<double,double> timeCpuReal() const {
-      return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
+    std::pair<double, double> timeCpuReal() const {
+      return std::pair<double, double>(stopwatch_->cpuTime(), stopwatch_->realTime());
     }
 
     /// Return a vector allowing const access to all the
@@ -220,25 +220,29 @@ namespace edm {
   private:
     std::string const& processName() const;
 
-    AllWorkers::const_iterator workersBegin() const 
-    { return all_workers_.begin(); }
+    AllWorkers::const_iterator workersBegin() const {
+      return all_workers_.begin();
+    }
 
-    AllWorkers::const_iterator workersEnd() const 
-    { return all_workers_.end(); }
+    AllWorkers::const_iterator workersEnd() const {
+      return all_workers_.end();
+    }
 
-    AllWorkers::iterator workersBegin() 
-    { return  all_workers_.begin(); }
+    AllWorkers::iterator workersBegin() {
+      return  all_workers_.begin();
+    }
 
-    AllWorkers::iterator workersEnd() 
-    { return all_workers_.end(); }
+    AllWorkers::iterator workersEnd() {
+      return all_workers_.end();
+    }
 
     void resetAll();
 
     template <typename T>
-    bool runTriggerPaths(typename T::MyPrincipal &, EventSetup const&);
+    bool runTriggerPaths(typename T::MyPrincipal&, EventSetup const&);
 
     template <typename T>
-    void runEndPaths(typename T::MyPrincipal &, EventSetup const&);
+    void runEndPaths(typename T::MyPrincipal&, EventSetup const&);
 
     void setupOnDemandSystem(EventPrincipal& principal, EventSetup const& es);
 
@@ -290,7 +294,7 @@ namespace edm {
     class ScheduleSignalSentry {
     public:
       ScheduleSignalSentry(ActivityRegistry* a, typename T::MyPrincipal* ep, EventSetup const* es) :
-           a_(a),ep_(ep),es_(es) {
+           a_(a), ep_(ep), es_(es) {
         if (a_) T::preScheduleSignal(a_, ep_);
       }
       ~ScheduleSignalSentry() {
@@ -329,12 +333,12 @@ namespace edm {
     UnscheduledCallProducer() : UnscheduledHandler(), labelToWorkers_() {}
     void addWorker(Worker* aWorker) {
       assert(0 != aWorker);
-      labelToWorkers_[aWorker->description().moduleLabel()]=aWorker;
+      labelToWorkers_[aWorker->description().moduleLabel()] = aWorker;
     }
   private:
     virtual bool tryToFillImpl(std::string const& moduleLabel,
 			       EventPrincipal& event,
-			       const EventSetup& eventSetup) {
+			       EventSetup const& eventSetup) {
       std::map<std::string, Worker*>::const_iterator itFound =
         labelToWorkers_.find(moduleLabel);
       if(itFound != labelToWorkers_.end()) {
@@ -367,7 +371,7 @@ namespace edm {
 
     if (T::isEvent_) {
       ++total_events_;
-      setupOnDemandSystem(dynamic_cast<EventPrincipal &>(ep), es);
+      setupOnDemandSystem(dynamic_cast<EventPrincipal&>(ep), es);
     }
     try {
       //If the ScheduleSignalSentry object is used, it must live for the entire time the event is
@@ -413,7 +417,7 @@ namespace edm {
       default: {
         state_ = Ready;
         throw edm::Exception(errors::EventProcessorFailure,
-			     "EventProcessingStopped",ex)
+			     "EventProcessingStopped", ex)
 	  << "an exception occurred during current event processing\n";
       }
       }
