@@ -27,6 +27,7 @@ class LASEndcapAlgorithm {
  public:
   LASEndcapAlgorithm();
   LASEndcapAlignmentParameterSet CalculateParameters( LASGlobalData<LASCoordinateSet>&, LASGlobalData<LASCoordinateSet>& );
+  double GetAlignmentParameterCorrection( int, int, int, int, LASGlobalData<LASCoordinateSet>&, LASEndcapAlignmentParameterSet& );
 
 };
 

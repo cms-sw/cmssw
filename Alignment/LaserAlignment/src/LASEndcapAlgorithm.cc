@@ -300,3 +300,58 @@ LASEndcapAlignmentParameterSet LASEndcapAlgorithm::CalculateParameters( LASGloba
 
 }
 
+
+
+
+
+///
+/// for a given set of endcap alignment parameters "endcapParameters",
+/// this function returns the global phi offset from nominalPosition
+/// for a module specified by (det,ring,beam,disk)
+///
+double LASEndcapAlgorithm::GetAlignmentParameterCorrection( int det, int ring, int beam, int disk, LASGlobalData<LASCoordinateSet>& nominalCoordinates, LASEndcapAlignmentParameterSet& endcapParameters ) {
+  
+  // ring dependent radius, to be softcoded...
+  const double radius = ring==0 ? 564. : 840.;
+  const double endcapLength = 1345.; // mm
+  
+  // the correction to phi from the endcap algorithm;
+  // it is defined such that the correction is to be subtracted
+  double phiCorrection = 0.;
+  
+  // plain disk phi
+  phiCorrection += endcapParameters.GetDiskParameter( det, disk, 0 ).first;
+  
+  // phi component from x deviation
+  phiCorrection -= sin( nominalCoordinates.GetTECEntry( det, ring, beam, disk ).GetPhi() ) / radius * endcapParameters.GetDiskParameter( det, disk, 1 ).first;
+  
+  // phi component from y deviation
+  phiCorrection += cos( nominalCoordinates.GetTECEntry( det, ring, beam, disk ).GetPhi() ) / radius * endcapParameters.GetDiskParameter( det, disk, 2 ).first;
+  
+  // phi correction from global phi
+  phiCorrection += endcapParameters.GetGlobalParameter( det, 0 ).first;
+  
+  // correction from global x deviation
+  phiCorrection -= sin( nominalCoordinates.GetTECEntry( det, ring, beam, disk ).GetPhi() ) / radius * endcapParameters.GetGlobalParameter( det, 2 ).first;
+  
+  // correction from global y deviation
+  phiCorrection += cos( nominalCoordinates.GetTECEntry( det, ring, beam, disk ).GetPhi() ) / radius * endcapParameters.GetGlobalParameter( det, 4 ).first;
+  
+  // correction from global torsion
+  phiCorrection += nominalCoordinates.GetTECEntry( det, ring, beam, disk ).GetZ() / endcapLength * endcapParameters.GetGlobalParameter( det, 1 ).first;
+  
+  // correction from global x shear
+  phiCorrection -= nominalCoordinates.GetTECEntry( det, ring, beam, disk ).GetZ() / endcapLength / radius *
+    sin( nominalCoordinates.GetTECEntry( det, ring, beam, disk ).GetPhi() ) * endcapParameters.GetGlobalParameter( det, 3 ).first;
+  
+  // correction from global y shear
+  phiCorrection += nominalCoordinates.GetTECEntry( det, ring, beam, disk ).GetZ() / endcapLength / radius *
+    cos( nominalCoordinates.GetTECEntry( det, ring, beam, disk ).GetPhi() ) * endcapParameters.GetGlobalParameter( det, 5 ).first;
+  
+  // correction from beam parameters
+  phiCorrection += ( nominalCoordinates.GetTECEntry( det, ring, beam, disk ).GetZ() / endcapLength - 1. ) * endcapParameters.GetBeamParameter( det, 1, beam, 0 ).first;
+  phiCorrection += nominalCoordinates.GetTECEntry( det, ring, beam, disk ).GetZ() / endcapLength * endcapParameters.GetBeamParameter( det, 1, beam, 1 ).first;
+  
+  return phiCorrection;
+
+}

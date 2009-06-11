@@ -6,8 +6,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2009/05/11 14:31:16 $
- *  $Revision: 1.23 $
+ *  $Date: 2009/06/04 15:26:11 $
+ *  $Revision: 1.24 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -132,10 +132,10 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   void DumpHitmaps( LASGlobalData<int> );
 
   /// apply endcap correction to masked modules in TEC
-    void ApplyEndcapMaskingCorrections( LASGlobalData<LASCoordinateSet>&, LASGlobalData<LASCoordinateSet>&, LASEndcapAlignmentParameterSet& );
-
-  /// get global phi correction from alignment parameters for a tec module
-  double GetAlignmentParameterCorrection( int, int, int, int, LASGlobalData<LASCoordinateSet>&, LASEndcapAlignmentParameterSet& );
+  void ApplyEndcapMaskingCorrections( LASGlobalData<LASCoordinateSet>&, LASGlobalData<LASCoordinateSet>&, LASEndcapAlignmentParameterSet& );
+  
+  /// same for alignment tube modules
+  void ApplyATMaskingCorrections( LASGlobalData<LASCoordinateSet>&, LASGlobalData<LASCoordinateSet>&, LASBarrelAlignmentParameterSet& ); 
 
   /// counter for the total number of events processed
   int theEvents;
@@ -162,6 +162,9 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   bool updateFromInputGeometry;
 
   /// config switch
+  bool misalignedByRefGeometry;
+
+  /// config switch
   bool theStoreToDB;
 
   // digi producer
@@ -176,9 +179,10 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   /// config parameter (histograms file output name)
   std::string theFileName;
 
-  /// config parameter
+  /// config parameters
   std::vector<unsigned int> theMaskTecModules;
- 
+  std::vector<unsigned int> theMaskAtModules;
+
   /// config switch
   bool theSetNominalStrips;
 

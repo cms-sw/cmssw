@@ -39,6 +39,11 @@ LaserAlignment = cms.EDFilter( "LaserAlignment",
     # should be set false only for geometry comparison purposes with MC (see TkLasCMSSW Twiki for more details)
     UpdateFromInputGeometry = cms.untracked.bool( False ),
 
+    # if this is set to True, the LASGeometryUpdater object will assume that any misalignment is introduced
+    # by the input geometry, rather than by (real) deviations of the local laser hits.
+    # this is e.g. the case for simulated data where digis are always created at their nominal positions.
+    MisalignedByRefGeometry = cms.untracked.bool( False ),
+
     # whether to create an sqlite file with a TrackerAlignmentRcd + error
     SaveToDbase = cms.untracked.bool( True ),
 
@@ -55,6 +60,9 @@ LaserAlignment = cms.EDFilter( "LaserAlignment",
     # by the TEC algorithm can be specified here
     MaskTECModules = cms.untracked.vuint32(),
 
+    # detIDs of modules along the alignment tube beams which should not be considered
+    # by the AT algorithm can be specified here
+    MaskATModules = cms.untracked.vuint32(),
 
     ### TESTING OPTIONS (EXPERTS ONLY):
 

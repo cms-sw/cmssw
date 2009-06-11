@@ -22,6 +22,8 @@ class LASAlignmentTubeAlgorithm {
  public:
   LASAlignmentTubeAlgorithm();
   LASBarrelAlignmentParameterSet CalculateParameters( LASGlobalData<LASCoordinateSet>&, LASGlobalData<LASCoordinateSet>& );
+  double GetTIBTOBAlignmentParameterCorrection( int, int, int, LASGlobalData<LASCoordinateSet>&, LASBarrelAlignmentParameterSet& );
+  double GetTEC2TECAlignmentParameterCorrection( int, int, int, LASGlobalData<LASCoordinateSet>&, LASBarrelAlignmentParameterSet& );
   void ReadMisalignmentFromFile( const char*, LASGlobalData<LASCoordinateSet>&, LASGlobalData<LASCoordinateSet>& );
 
  private:

@@ -22,11 +22,13 @@ class LASGeometryUpdater {
   void EndcapUpdate( LASEndcapAlignmentParameterSet&, LASGlobalData<LASCoordinateSet>& );
   void TrackerUpdate( LASEndcapAlignmentParameterSet&, LASBarrelAlignmentParameterSet&, AlignableTracker& );
   void SetReverseDirection( bool );
+  void SetMisalignmentFromRefGeometry( bool );
 
  private:
   LASGlobalData<LASCoordinateSet> nominalCoordinates;
   LASConstants lasConstants;
   bool isReverseDirection;
+  bool isMisalignmentFromRefGeometry;
 
 };
 

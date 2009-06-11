@@ -224,9 +224,6 @@ LASBarrelAlignmentParameterSet LASAlignmentTubeAlgorithm::CalculateParameters( L
 
 
 
-
-
-
   // more "simplification" terms...
   // these here are functions of theta and can be calculated directly
   double sumOverSinTheta = 0.;
@@ -250,13 +247,12 @@ LASBarrelAlignmentParameterSet LASAlignmentTubeAlgorithm::CalculateParameters( L
     + 2. * sumOverCosTheta * sumOverSinTheta * sumOverCosThetaSinTheta;
   
   
-  // even more shortcuts before we can calculate the parameters
-  // this one will be enabled later for the errors calculation
-  //  double beamDenominator = ( pow( sumOverZTPrimeZTPrimePrime, 2 ) - sumOverZTPrimeSquared * sumOverZTPrimePrimeSquared ) * beamRadii.at( 0 ); // latter is the TEC at beam radius (R4) ############ ????? 
 
+  // even more shortcuts before we can calculate the parameters
+  double beamDenominator = ( pow( sumOverZTPrimeZTPrimePrime, 2 ) - sumOverZTPrimeSquared * sumOverZTPrimePrimeSquared ) * beamRadii.at( 0 );
   std::vector<double> alignmentDenominator( 6, 0. );
   std::vector<double> termA( 6, 0. ), termB( 6, 0. ), termC( 6, 0. ), termD( 6, 0. );
-  for( int aHalfbarrel = 0; aHalfbarrel < 6; ++aHalfbarrel ) {
+  for( unsigned int aHalfbarrel = 0; aHalfbarrel < 6; ++aHalfbarrel ) {
     alignmentDenominator.at ( aHalfbarrel ) = ( pow( sumOverZPrimeZPrimePrime.at( aHalfbarrel ), 2 ) - sumOverZPrimeSquared.at( aHalfbarrel ) * sumOverZPrimePrimeSquared.at( aHalfbarrel ) ) * mixedTrigonometricTerm;
     termA.at( aHalfbarrel ) = sumOverZPrimeZTPrime.at( aHalfbarrel ) * sumOverZTPrimeZTPrimePrime - sumOverZPrimeZTPrimePrime.at( aHalfbarrel ) * sumOverZTPrimeSquared;
     termB.at( aHalfbarrel ) = sumOverZPrimePrimeZTPrime.at( aHalfbarrel ) * sumOverZTPrimeZTPrimePrime - sumOverZPrimePrimeZTPrimePrime.at( aHalfbarrel ) * sumOverZTPrimeSquared;
@@ -369,11 +365,273 @@ LASBarrelAlignmentParameterSet LASAlignmentTubeAlgorithm::CalculateParameters( L
 							  - sumOverPhiZPrimeSinTheta.at( aHalfbarrel ) * sumOverZPrimePrimeSquared.at( aHalfbarrel ) * numberOfBeams * sumOverCosThetaSinTheta )
                                                         / alignmentDenominator.at ( aHalfbarrel ) * beamRadii.at( aHalfbarrel );
 
+  }
+
+
+
+
+  // another loop is needed here to calculate some terms for the beam parameters
+  double vsumA = 0., vsumB = 0., vsumC = 0., vsumD = 0., vsumE = 0., vsumF = 0.;
+  for( unsigned int aHalfbarrel = 0; aHalfbarrel < 6; ++aHalfbarrel ) {
+    vsumA += theResult.GetParameter( aHalfbarrel, 1, 2 ).first * termA.at( aHalfbarrel ) + theResult.GetParameter( aHalfbarrel, 0, 2 ).first * termB.at( aHalfbarrel );
+    vsumB += theResult.GetParameter( aHalfbarrel, 1, 1 ).first * termA.at( aHalfbarrel ) + theResult.GetParameter( aHalfbarrel, 0, 1 ).first * termB.at( aHalfbarrel );
+    vsumC += beamRadii.at( aHalfbarrel ) * ( theResult.GetParameter( aHalfbarrel, 1, 0 ).first * termA.at( aHalfbarrel ) + theResult.GetParameter( aHalfbarrel, 0, 0 ).first * termB.at( aHalfbarrel ) );
+    vsumD += theResult.GetParameter( aHalfbarrel, 1, 2 ).first * termC.at( aHalfbarrel ) + theResult.GetParameter( aHalfbarrel, 0, 2 ).first * termD.at( aHalfbarrel );
+    vsumE += theResult.GetParameter( aHalfbarrel, 1, 1 ).first * termC.at( aHalfbarrel ) + theResult.GetParameter( aHalfbarrel, 0, 1 ).first * termD.at( aHalfbarrel );
+    vsumF += beamRadii.at( aHalfbarrel ) * ( theResult.GetParameter( aHalfbarrel, 1, 0 ).first * termC.at( aHalfbarrel ) + theResult.GetParameter( aHalfbarrel, 0, 0 ).first * termD.at( aHalfbarrel ) );
+  }
+
+
+
+  // calculate the beam parameters
+  for( unsigned int beam = 0; beam < 8; ++beam ) {
+
+    // parameter A, defined at lower z
+    theResult.GetBeamParameter( beam, 0 ).first = ( cos( beamPhiPositions.at( beam ) ) * vsumA
+						    - sin( beamPhiPositions.at( beam ) ) * vsumB
+						    - vsumC
+						    + sumOverPhiZTPrime.at( beam ) * sumOverZTPrimeZTPrimePrime - sumOverPhiZTPrimePrime.at( beam ) * sumOverZTPrimeSquared )
+                                                  / beamDenominator;
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+    std::cout << "BBBBBBBB: " << cos( beamPhiPositions.at( beam ) ) * vsumA << "  "
+	      << -1. * sin( beamPhiPositions.at( beam ) ) * vsumB << "  "
+	      << -1. * vsumC << "  "
+	      << sumOverPhiZTPrime.at( beam ) * sumOverZTPrimeZTPrimePrime - sumOverPhiZTPrimePrime.at( beam ) * sumOverZTPrimeSquared << "  "
+	      << beamDenominator
+	      << std::endl;
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    // parameter B, defined at upper z
+    theResult.GetBeamParameter( beam, 1 ).first = ( cos( beamPhiPositions.at( beam ) ) * vsumD
+						    - sin( beamPhiPositions.at( beam ) ) * vsumE
+						    - vsumF
+						    + sumOverPhiZTPrimePrime.at( beam ) * sumOverZTPrimeZTPrimePrime - sumOverPhiZTPrime.at( beam ) * sumOverZTPrimePrimeSquared )
+                                                  / beamDenominator;
 
   }
 
 
   return theResult;
+
+}
+
+
+
+
+
+///
+/// get global phi correction from alignment parameters
+/// for an alignment tube module in TIB/TOB
+///
+double LASAlignmentTubeAlgorithm::GetTIBTOBAlignmentParameterCorrection( int det, int beam, int pos, LASGlobalData<LASCoordinateSet>& nominalCoordinates, LASBarrelAlignmentParameterSet& alignmentParameters ) {
+
+  // INITIALIZATION;
+  // ALL THIS IS DUPLICATED FOR THE MOMENT, SHOULD FINALLY BE CALCULATED ONLY ONCE
+  // AND HARD CODED NUMBERS SHOULD CENTRALLY BE IMPORTED FROM src/LASConstants.h
+
+
+  // the z positions of the halfbarrel_end_faces / outer_TEC_disks (in mm);
+  // parameters are: det, side(0=+/1=-), z(0=lowerZ/1=higherZ). TECs have no side (use side = 0)
+  std::vector<std::vector<std::vector<double> > > endFaceZPositions( 4, std::vector<std::vector<double> >( 2, std::vector<double>( 2, 0. ) ) );
+  endFaceZPositions.at( 0 ).at( 0 ).at( 0 ) = 1322.5;  // TEC+, *, disk1 ///
+  endFaceZPositions.at( 0 ).at( 0 ).at( 1 ) = 2667.5;  // TEC+, *, disk9 /// SIDE INFORMATION
+  endFaceZPositions.at( 1 ).at( 0 ).at( 0 ) = -2667.5; // TEC-, *, disk9 /// MEANINGLESS FOR TEC -> USE .at(0)!
+  endFaceZPositions.at( 1 ).at( 0 ).at( 1 ) = -1322.5; // TEC-, *, disk1 ///
+  endFaceZPositions.at( 2 ).at( 1 ).at( 0 ) = -700.;   // TIB,  -, outer
+  endFaceZPositions.at( 2 ).at( 1 ).at( 1 ) = -300.;   // TIB,  -, inner
+  endFaceZPositions.at( 2 ).at( 0 ).at( 0 ) = 300.;    // TIB,  +, inner
+  endFaceZPositions.at( 2 ).at( 0 ).at( 1 ) = 700.;    // TIB,  +, outer
+  endFaceZPositions.at( 3 ).at( 1 ).at( 0 ) = -1090.;  // TOB,  -, outer
+  endFaceZPositions.at( 3 ).at( 1 ).at( 1 ) = -300.;   // TOB,  -, inner
+  endFaceZPositions.at( 3 ).at( 0 ).at( 0 ) = 300.;    // TOB,  +, inner
+  endFaceZPositions.at( 3 ).at( 0 ).at( 1 ) = 1090.;   // TOB,  +, outer
+
+  // the z positions of the virtual planes at which the beam parameters are measured
+  std::vector<double> disk9EndFaceZPositions( 2, 0. );
+  disk9EndFaceZPositions.at( 0 ) = -2667.5; // TEC- disk9
+  disk9EndFaceZPositions.at( 1 ) =  2667.5; // TEC+ disk9
+
+  // define the side: 0 for TIB+/TOB+ and 1 for TIB-/TOB-
+  const int theSide = pos<3 ? 0 : 1;
+  
+  // define the halfbarrel number from det/side
+  const int halfbarrel = det==2 ? det+theSide : det+1+theSide; // TIB:TOB
+  
+  // this is the path the beam has to travel radially after being reflected 
+  // by the AT mirrors (TIB:50mm, TOB:36mm) -> used for beam parameters
+  const double radialOffset = det==2 ? 50. : 36.;
+
+  // phi positions of the AT beams in rad
+  const double phiPositions[8] = { 0.392699, 1.289799, 1.851794, 2.748894, 3.645995, 4.319690, 5.216791, 5.778784 };
+  std::vector<double> beamPhiPositions( 8, 0. );
+  for( unsigned int aBeam = 0; aBeam < 8; ++aBeam ) beamPhiPositions.at( aBeam ) = phiPositions[aBeam];
+
+  // the radii of the alignment tube beams for each halfbarrel.
+  // the halfbarrels 1-6 are (see TkLasATModel TWiki): TEC+, TEC-, TIB+, TIB-. TOB+, TOB-
+  // in TIB/TOB modules these radii differ from the beam radius..
+  // ..due to the radial offsets (after the semitransparent mirrors)
+  const double radii[6] = { 564., 564., 514., 514., 600., 600. };
+  std::vector<double> beamRadii( 6, 0. );
+  for( int aHalfbarrel = 0; aHalfbarrel < 6; ++aHalfbarrel ) beamRadii.at( aHalfbarrel ) =  radii[aHalfbarrel];
+
+  // reduced z positions of the beam spots ( z'_{k,j}, z"_{k,j} )
+  double detReducedZ[2] = { 0., 0. };
+  // reduced beam splitter positions ( zt'_{k,j}, zt"_{k,j} )
+  double beamReducedZ[2] = { 0., 0. };
+
+  // reduced module's z position with respect to the subdetector endfaces (zPrime, zPrimePrime)
+  detReducedZ[0] = nominalCoordinates.GetTIBTOBEntry( det, beam, pos ).GetZ() - endFaceZPositions.at( det ).at( theSide ).at( 0 ); // = zPrime
+  detReducedZ[0] /= ( endFaceZPositions.at( det ).at( theSide ).at( 1 ) - endFaceZPositions.at( det ).at( theSide ).at( 0 ) );
+  detReducedZ[1] = endFaceZPositions.at( det ).at( theSide ).at( 1 ) - nominalCoordinates.GetTIBTOBEntry( det, beam, pos ).GetZ(); // = zPrimePrime
+  detReducedZ[1] /= ( endFaceZPositions.at( det ).at( theSide ).at( 1 ) - endFaceZPositions.at( det ).at( theSide ).at( 0 ) );
+  
+  // reduced module's z position with respect to the tec disks +-9 (for the beam parameters)
+  beamReducedZ[0] = ( nominalCoordinates.GetTIBTOBEntry( det, beam, pos ).GetZ() - radialOffset ) - disk9EndFaceZPositions.at( 0 ); // = ZTPrime
+  beamReducedZ[0] /= ( disk9EndFaceZPositions.at( 1 ) - disk9EndFaceZPositions.at( 0 ) );
+  beamReducedZ[1] = disk9EndFaceZPositions.at( 1 ) - ( nominalCoordinates.GetTIBTOBEntry( det, beam, pos ).GetZ() - radialOffset ); // ZTPrimePrime
+  beamReducedZ[1] /= ( disk9EndFaceZPositions.at( 1 ) - disk9EndFaceZPositions.at( 0 ) );
+
+  // the correction to phi from the endcap algorithm;
+  // it is defined such that the correction is to be subtracted ///////////////////////////////// ???
+  double phiCorrection = 0.;
+  
+  // contribution from phi rotation of first end face
+  phiCorrection += detReducedZ[1] * alignmentParameters.GetParameter( halfbarrel, 0, 0 ).first;
+
+  // contribution from phi rotation of second end face
+  phiCorrection += detReducedZ[0] * alignmentParameters.GetParameter( halfbarrel, 1, 0 ).first;
+  
+  // contribution from translation along x of first endface
+  phiCorrection += detReducedZ[1] * sin( beamPhiPositions.at( beam ) ) * alignmentParameters.GetParameter( halfbarrel, 0, 1 ).first / beamRadii.at( halfbarrel );
+
+  // contribution from translation along x of second endface
+  phiCorrection += detReducedZ[0] * sin( beamPhiPositions.at( beam ) ) * alignmentParameters.GetParameter( halfbarrel, 1, 1 ).first / beamRadii.at( halfbarrel );
+
+  // contribution from translation along y of first endface
+  phiCorrection -= detReducedZ[1] * cos( beamPhiPositions.at( beam ) ) * alignmentParameters.GetParameter( halfbarrel, 0, 2 ).first / beamRadii.at( halfbarrel );
+
+  // contribution from translation along y of second endface
+  phiCorrection -= detReducedZ[0] * cos( beamPhiPositions.at( beam ) ) * alignmentParameters.GetParameter( halfbarrel, 1, 2 ).first / beamRadii.at( halfbarrel );
+  
+  // contribution from beam parameters;
+  // originally, the contribution in meter is proportional to the radius of the beams: beamRadii.at( 0 )
+  // the additional factor: beamRadii.at( halfbarrel ) converts from meter to radian on the module
+  phiCorrection += beamReducedZ[1] * alignmentParameters.GetBeamParameter( beam, 0 ).first * beamRadii.at( 0 ) / beamRadii.at( halfbarrel );
+  phiCorrection += beamReducedZ[0] * alignmentParameters.GetBeamParameter( beam, 1 ).first * beamRadii.at( 0 ) / beamRadii.at( halfbarrel );
+
+
+  return phiCorrection;
+
+}
+
+
+
+
+
+///
+/// get global phi correction from alignment parameters
+/// for an alignment tube module in TEC(AT)
+///
+double LASAlignmentTubeAlgorithm::GetTEC2TECAlignmentParameterCorrection( int det, int beam, int disk, LASGlobalData<LASCoordinateSet>& nominalCoordinates, LASBarrelAlignmentParameterSet& alignmentParameters ) {
+
+  // INITIALIZATION;
+  // ALL THIS IS DUPLICATED FOR THE MOMENT, SHOULD FINALLY BE CALCULATED ONLY ONCE
+  // AND HARD CODED NUMBERS SHOULD CENTRALLY BE IMPORTED FROM src/LASConstants.h
+
+
+  // the z positions of the halfbarrel_end_faces / outer_TEC_disks (in mm);
+  // parameters are: det, side(0=+/1=-), z(0=lowerZ/1=higherZ). TECs have no side (use side = 0)
+  std::vector<std::vector<std::vector<double> > > endFaceZPositions( 4, std::vector<std::vector<double> >( 2, std::vector<double>( 2, 0. ) ) );
+  endFaceZPositions.at( 0 ).at( 0 ).at( 0 ) = 1322.5;  // TEC+, *, disk1 ///
+  endFaceZPositions.at( 0 ).at( 0 ).at( 1 ) = 2667.5;  // TEC+, *, disk9 /// SIDE INFORMATION
+  endFaceZPositions.at( 1 ).at( 0 ).at( 0 ) = -2667.5; // TEC-, *, disk9 /// MEANINGLESS FOR TEC -> USE .at(0)!
+  endFaceZPositions.at( 1 ).at( 0 ).at( 1 ) = -1322.5; // TEC-, *, disk1 ///
+  endFaceZPositions.at( 2 ).at( 1 ).at( 0 ) = -700.;   // TIB,  -, outer
+  endFaceZPositions.at( 2 ).at( 1 ).at( 1 ) = -300.;   // TIB,  -, inner
+  endFaceZPositions.at( 2 ).at( 0 ).at( 0 ) = 300.;    // TIB,  +, inner
+  endFaceZPositions.at( 2 ).at( 0 ).at( 1 ) = 700.;    // TIB,  +, outer
+  endFaceZPositions.at( 3 ).at( 1 ).at( 0 ) = -1090.;  // TOB,  -, outer
+  endFaceZPositions.at( 3 ).at( 1 ).at( 1 ) = -300.;   // TOB,  -, inner
+  endFaceZPositions.at( 3 ).at( 0 ).at( 0 ) = 300.;    // TOB,  +, inner
+  endFaceZPositions.at( 3 ).at( 0 ).at( 1 ) = 1090.;   // TOB,  +, outer
+
+  // the z positions of the virtual planes at which the beam parameters are measured
+  std::vector<double> disk9EndFaceZPositions( 2, 0. );
+  disk9EndFaceZPositions.at( 0 ) = -2667.5; // TEC- disk9
+  disk9EndFaceZPositions.at( 1 ) =  2667.5; // TEC+ disk9
+
+  // for the tec, the halfbarrel numbers are equal to the det numbers...
+  const int halfbarrel = det;
+  
+  // ...so there's no side distinction for the TEC
+  const int theSide = 0;
+  
+  // also, there's no radial offset for the TEC
+  const double radialOffset = 0.;
+  
+  // phi positions of the AT beams in rad
+  const double phiPositions[8] = { 0.392699, 1.289799, 1.851794, 2.748894, 3.645995, 4.319690, 5.216791, 5.778784 };
+  std::vector<double> beamPhiPositions( 8, 0. );
+  for( unsigned int aBeam = 0; aBeam < 8; ++aBeam ) beamPhiPositions.at( aBeam ) = phiPositions[aBeam];
+
+  // the radii of the alignment tube beams for each halfbarrel.
+  // the halfbarrels 1-6 are (see TkLasATModel TWiki): TEC+, TEC-, TIB+, TIB-. TOB+, TOB-
+  // in TIB/TOB modules these radii differ from the beam radius..
+  // ..due to the radial offsets (after the semitransparent mirrors)
+  const double radii[6] = { 564., 564., 514., 514., 600., 600. };
+  std::vector<double> beamRadii( 6, 0. );
+  for( int aHalfbarrel = 0; aHalfbarrel < 6; ++aHalfbarrel ) beamRadii.at( aHalfbarrel ) =  radii[aHalfbarrel];
+
+  // reduced z positions of the beam spots ( z'_{k,j}, z"_{k,j} )
+  double detReducedZ[2] = { 0., 0. };
+  // reduced beam splitter positions ( zt'_{k,j}, zt"_{k,j} )
+  double beamReducedZ[2] = { 0., 0. };
+
+  // reduced module's z position with respect to the subdetector endfaces (zPrime, zPrimePrime)
+  detReducedZ[0] = nominalCoordinates.GetTEC2TECEntry( det, beam, disk ).GetZ() - endFaceZPositions.at( det ).at( theSide ).at( 0 ); // = zPrime
+  detReducedZ[0] /= ( endFaceZPositions.at( det ).at( theSide ).at( 1 ) - endFaceZPositions.at( det ).at( theSide ).at( 0 ) );
+  detReducedZ[1] = endFaceZPositions.at( det ).at( theSide ).at( 1 ) - nominalCoordinates.GetTEC2TECEntry( det, beam, disk ).GetZ(); // = zPrimePrime
+  detReducedZ[1] /= ( endFaceZPositions.at( det ).at( theSide ).at( 1 ) - endFaceZPositions.at( det ).at( theSide ).at( 0 ) );
+  
+  // reduced module's z position with respect to the tec disks +-9 (for the beam parameters)
+  beamReducedZ[0] = ( nominalCoordinates.GetTEC2TECEntry( det, beam, disk ).GetZ() - radialOffset ) - disk9EndFaceZPositions.at( 0 ); // = ZTPrime
+  beamReducedZ[0] /= ( disk9EndFaceZPositions.at( 1 ) - disk9EndFaceZPositions.at( 0 ) );
+  beamReducedZ[1] = disk9EndFaceZPositions.at( 1 ) - ( nominalCoordinates.GetTEC2TECEntry( det, beam, disk ).GetZ() - radialOffset ); // ZTPrimePrime
+  beamReducedZ[1] /= ( disk9EndFaceZPositions.at( 1 ) - disk9EndFaceZPositions.at( 0 ) );
+
+
+  // the correction to phi from the endcap algorithm;
+  // it is defined such that the correction is to be subtracted ///////////////////////////////// ???
+  double phiCorrection = 0.;
+  
+  // contribution from phi rotation of first end face
+  phiCorrection += detReducedZ[1] * alignmentParameters.GetParameter( halfbarrel, 0, 0 ).first;
+
+  // contribution from phi rotation of second end face
+  phiCorrection += detReducedZ[0] * alignmentParameters.GetParameter( halfbarrel, 1, 0 ).first;
+  
+  // contribution from translation along x of first endface
+  phiCorrection += detReducedZ[1] * sin( beamPhiPositions.at( beam ) ) * alignmentParameters.GetParameter( halfbarrel, 0, 1 ).first / beamRadii.at( halfbarrel );
+
+  // contribution from translation along x of second endface
+  phiCorrection += detReducedZ[0] * sin( beamPhiPositions.at( beam ) ) * alignmentParameters.GetParameter( halfbarrel, 1, 1 ).first / beamRadii.at( halfbarrel );
+
+  // contribution from translation along y of first endface
+  phiCorrection -= detReducedZ[1] * cos( beamPhiPositions.at( beam ) ) * alignmentParameters.GetParameter( halfbarrel, 0, 2 ).first / beamRadii.at( halfbarrel );
+
+  // contribution from translation along y of second endface
+  phiCorrection -= detReducedZ[0] * cos( beamPhiPositions.at( beam ) ) * alignmentParameters.GetParameter( halfbarrel, 1, 2 ).first / beamRadii.at( halfbarrel );
+  
+  // contribution from beam parameters;
+  // originally, the contribution in meter is proportional to the radius of the beams: beamRadii.at( 0 )
+  // the additional factor: beamRadii.at( halfbarrel ) converts from meter to radian on the module
+  phiCorrection += beamReducedZ[1] * alignmentParameters.GetBeamParameter( beam, 0 ).first * beamRadii.at( 0 ) / beamRadii.at( halfbarrel );
+  phiCorrection += beamReducedZ[0] * alignmentParameters.GetBeamParameter( beam, 1 ).first * beamRadii.at( 0 ) / beamRadii.at( halfbarrel );
+
+
+  return phiCorrection;
 
 }
 
