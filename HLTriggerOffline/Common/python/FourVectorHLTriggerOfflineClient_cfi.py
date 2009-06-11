@@ -1,4 +1,4 @@
-# $Id: FourVectorHLTriggerOfflineClient_cfi.py,v 1.8 2009/06/04 22:47:48 rekovic Exp $
+# $Id: FourVectorHLTriggerOfflineClient_cfi.py,v 1.9 2009/06/10 13:19:10 rekovic Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -10,72 +10,76 @@ hltriggerFourVectorClient = cms.EDFilter("FourVectorHLTClient",
     customEffDir = cms.untracked.string('custom-eff'),
     effpaths = cms.VPSet(
              cms.PSet(
-              pathname = cms.string("HLT_Mu5"),
+              pathname = cms.string("HLT_"),
               denompathname = cms.string(""),  
              ),
+#             cms.PSet(
+#              pathname = cms.string("HLT_Mu5"),
+#              denompathname = cms.string(""),  
+#             ),
+#             cms.PSet(
+#              pathname = cms.string("HLT_Mu9"),
+#              denompathname = cms.string(""),  
+#             ),
+#             cms.PSet(
+#              pathname = cms.string("HLT_Mu11"),
+#              denompathname = cms.string(""),  
+#             ),
+#             cms.PSet(
+#              pathname = cms.string("HLT_Ele10_SW_L1R"),
+#              denompathname = cms.string(""),  
+#             ),
+#             cms.PSet(
+#              pathname = cms.string("HLT_Photon15_L1R"),
+#              denompathname = cms.string(""),  
+#             ),
+#             cms.PSet(
+#              pathname = cms.string("HLT_MET25"),
+#              denompathname = cms.string(""),  
+#             ),
+#             cms.PSet(
+#              pathname = cms.string("HLT_HT250"),
+#              denompathname = cms.string(""),  
+#             ),
+#             cms.PSet(
+#              pathname = cms.string("HLT_BTagMu_Jet20"),
+#              denompathname = cms.string(""),  
+#             ),
+#             cms.PSet(
+#              pathname = cms.string("HLT_Jet10U"),
+#              denompathname = cms.string(""),  
+#             ),
+#             cms.PSet(
+#              pathname = cms.string("HLT_Jet15U"),
+#              denompathname = cms.string(""),  
+#             ),
+#             cms.PSet(
+#              pathname = cms.string("HLT_Jet30U"),
+#              denompathname = cms.string(""),  
+#             ),
+#             cms.PSet(
+#              pathname = cms.string("HLT_Jet50U"),
+#              denompathname = cms.string(""),  
+#             ),
+#             cms.PSet(
+#              pathname = cms.string("HLT_Jet30"),
+#              denompathname = cms.string(""),  
+#             ),
+#             cms.PSet(
+#              pathname = cms.string("HLT_Jet50"),
+#              denompathname = cms.string(""),  
+#             ),
+#             cms.PSet(
+#              pathname = cms.string("HLT_Jet80"),
+#              denompathname = cms.string(""),  
+#             ),
+#             cms.PSet(
+#              pathname = cms.string("HLT_Jet110"),
+#              denompathname = cms.string(""),  
+#             ),
              cms.PSet(
               pathname = cms.string("HLT_Mu9"),
-              denompathname = cms.string(""),  
-             ),
-             cms.PSet(
-              pathname = cms.string("HLT_Mu11"),
-              denompathname = cms.string(""),  
-             ),
-             cms.PSet(
-              pathname = cms.string("HLT_Ele10_SW_L1R"),
-              denompathname = cms.string(""),  
-             ),
-             cms.PSet(
-              pathname = cms.string("HLT_Photon15_L1R"),
-              denompathname = cms.string(""),  
-             ),
-             cms.PSet(
-              pathname = cms.string("HLT_MET25"),
-              denompathname = cms.string(""),  
-             ),
-             cms.PSet(
-              pathname = cms.string("HLT_HT250"),
-              denompathname = cms.string(""),  
-             ),
-             cms.PSet(
-              pathname = cms.string("HLT_BTagMu_Jet20"),
-              denompathname = cms.string(""),  
-             ),
-             cms.PSet(
-              pathname = cms.string("HLT_Jet10U"),
-              denompathname = cms.string(""),  
-             ),
-             cms.PSet(
-              pathname = cms.string("HLT_Jet15U"),
-              denompathname = cms.string(""),  
-             ),
-             cms.PSet(
-              pathname = cms.string("HLT_Jet30U"),
-              denompathname = cms.string(""),  
-             ),
-             cms.PSet(
-              pathname = cms.string("HLT_Jet50U"),
-              denompathname = cms.string(""),  
-             ),
-             cms.PSet(
-              pathname = cms.string("HLT_Jet30"),
-              denompathname = cms.string(""),  
-             ),
-             cms.PSet(
-              pathname = cms.string("HLT_Jet50"),
-              denompathname = cms.string(""),  
-             ),
-             cms.PSet(
-              pathname = cms.string("HLT_Jet80"),
-              denompathname = cms.string(""),  
-             ),
-             cms.PSet(
-              pathname = cms.string("HLT_Jet110"),
-              denompathname = cms.string(""),  
-             ),
-             cms.PSet(
-              pathname = cms.string("HLT_Mu11"),
-              denompathname = cms.string("HLT_L1Jet15"),  
+              denompathname = cms.string("HLT_Jet30"),  
              ),
              cms.PSet(
               pathname = cms.string("HLT_Jet30"),
