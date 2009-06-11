@@ -89,7 +89,7 @@ uint32_t CastorNumberingScheme::getUnitID(const G4Step* aStep) const {
 
     intindex = packIndex(zside, sector, module);
 
-    bool true_for_positive_eta;
+    bool true_for_positive_eta = false;
     if(zside == 1)true_for_positive_eta = true;
     if(zside == -1)true_for_positive_eta = false;
 

@@ -320,7 +320,7 @@ void CastorShowerLibrary::select(int type, double pin) {
 	      edm::LogWarning("CastorShower") << "CastorShowerLibrary:: Illegal irec = "
 				              << irec << " now set to 0";
 	      irec = 0;
-	   } else if (irec > totEvents) {
+	   } else if (irec > (int)totEvents) {
 	      edm::LogWarning("CastorShower") << "CastorShowerLibrary:: Illegal irec = "
 				              << irec << " now set to "<< totEvents;
 	      irec = totEvents;
