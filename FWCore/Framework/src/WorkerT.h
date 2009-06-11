@@ -14,6 +14,8 @@ WorkerT: Code common to all workers.
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerParams.h"
+#include "FWCore/Framework/interface/UnscheduledHandler.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
 
 namespace edm {
 
@@ -63,7 +65,7 @@ namespace edm {
     virtual void implPreForkReleaseResources();
     virtual void implPostForkReacquireResources(unsigned int iChildIndex, 
                                                unsigned int iNumberOfChildren);
-    virtual std::string workerType() const;
+     virtual std::string workerType() const;
 
     boost::shared_ptr<T> module_;
   };
@@ -88,6 +90,7 @@ namespace edm {
   bool 
   WorkerT<T>::implDoBegin(EventPrincipal& ep, EventSetup const& c,
 			   CurrentProcessingContext const* cpc) {
+    UnscheduledHandlerSentry s(ep.unscheduledHandler().get(),cpc);
     return module_->doEvent(ep, c, cpc);
   }
 
@@ -167,7 +170,7 @@ namespace edm {
   WorkerT<T>::implRespondToCloseOutputFiles(FileBlock const& fb) {
     module_->doRespondToCloseOutputFiles(fb);
   }
-  
+   
   template <typename T>
   void 
   WorkerT<T>::implPreForkReleaseResources() {

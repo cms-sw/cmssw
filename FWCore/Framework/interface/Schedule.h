@@ -338,14 +338,12 @@ namespace edm {
   private:
     virtual bool tryToFillImpl(std::string const& moduleLabel,
 			       EventPrincipal& event,
-			       EventSetup const& eventSetup) {
+			       EventSetup const& eventSetup,
+                               CurrentProcessingContext const* iContext) {
       std::map<std::string, Worker*>::const_iterator itFound =
         labelToWorkers_.find(moduleLabel);
       if(itFound != labelToWorkers_.end()) {
-        // Unscheduled reconstruction has no accepted definition
-        // (yet) of the "current path". We indicate this by passing
-        // a null pointer as the CurrentProcessingContext.
-	  itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(event, eventSetup, 0);
+	  itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(event, eventSetup, iContext);
 	  return true;
       }
       return false;
