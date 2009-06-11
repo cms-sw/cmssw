@@ -67,7 +67,7 @@ process.load(\"Configuration.StandardSequences.MagneticField_cff\")
 
 process.load(\"Configuration.StandardSequences.FrontierConditions_GlobalTag_cff\")
 
-process.GlobalTag.globaltag = cms.string(\"STARTUP_31X::All\")
+process.GlobalTag.globaltag = cms.string(\"IDEAL_31X::All\")
 
 process.load(\"RecoLocalCalo.Configuration.hcalLocalReco_cff\")
 
