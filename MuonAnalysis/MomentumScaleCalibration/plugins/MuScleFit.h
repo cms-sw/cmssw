@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2009/06/04 10:30:52 $
- *  $Revision: 1.17 $
+ *  $Date: 2009/06/04 16:04:14 $
+ *  $Revision: 1.18 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -24,6 +24,7 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/CaloMuon.h"
 // The following is required in CMSSW v2.0.x (was contained in Muon.h in 1.6.7)
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"

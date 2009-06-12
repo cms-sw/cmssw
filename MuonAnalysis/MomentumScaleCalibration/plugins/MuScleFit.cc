@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/06/08 09:49:02 $
-//  $Revision: 1.47 $
+//  $Date: 2009/06/12 08:01:25 $
+//  $Revision: 1.48 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -476,7 +476,7 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     recMu1 = reco::Particle::LorentzVector(0,0,0,0);
     recMu2 = reco::Particle::LorentzVector(0,0,0,0);
     vector<reco::LeafCandidate> muons;
-    if (theMuonType_<5 || theMuonType_==10) { // Muons
+    if (theMuonType_<4 || theMuonType_==10) { // Muons (glb,sta,trk)
       Handle<reco::MuonCollection> allMuons;
       event.getByLabel (theMuonLabel_, allMuons);
       vector<reco::Track> tracks;
@@ -493,17 +493,26 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 	  tracks.push_back(*(muon->outerTrack()));
 	else if(muon->isTrackerMuon() && theMuonType_==3)
 	  tracks.push_back(*(muon->innerTrack()));
-	else if(muon->isCaloMuon() && theMuonType_==4)
-	  tracks.push_back(*(muon->innerTrack()));
       }
       muons = fillMuonCollection(tracks);
     }
+
+    else if(theMuonType_==4){  //CaloMuons
+      Handle<reco::CaloMuonCollection> caloMuons;
+      event.getByLabel (theMuonLabel_, caloMuons);
+      vector<reco::Track> tracks;
+      for (vector<reco::CaloMuon>::const_iterator muon = caloMuons->begin(); muon != caloMuons->end(); ++muon){
+	tracks.push_back(*(muon->track()));  
+      }
+      muons = fillMuonCollection(tracks);
+    }
+
     else if (theMuonType_==5) { // Inner tracker tracks
       Handle<reco::TrackCollection> tracks;
       event.getByLabel (theMuonLabel_, tracks);
       muons = fillMuonCollection(*tracks);
     }
-
+    
     plotter->fillRec(muons);
     // Compare reco with mc
     // if( loopCounter == 0 && !MuScleFitUtils::speedup ) plotter->fillRecoVsGen(muons, evtMC);
@@ -595,6 +604,7 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     // Fill histogram of Res mass vs muon variable
     mapHisto_["hRecBestResVSMu"]->Fill (recMu1, bestRecRes, -1);
     mapHisto_["hRecBestResVSMu"]->Fill (recMu2, bestRecRes, +1);
+    mapHisto_["hRecBestResVSRes"]->Fill (bestRecRes, bestRecRes, +1);
 
     vector<double> * parval;
     vector<double> initpar;
