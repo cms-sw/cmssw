@@ -1,15 +1,9 @@
 <flags LCGDICT_ARGS="--deep">
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
-<use name=FWCore/PluginManager>
 <use name=DataFormats/Common>
 <use name=boost>
 <use name=rootrflx>
 <export>
   <use name=boost>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
-  <use name=FWCore/PluginManager>
   <use name=DataFormats/Common>
   <lib name=DataFormatsScalers>
 </export>
