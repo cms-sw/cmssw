@@ -18,7 +18,7 @@
 //         Created:  June 2008
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
-// $Id: FourVectorHLTriggerOffline.h,v 1.13 2009/06/04 22:47:48 rekovic Exp $
+// $Id: FourVectorHLTriggerOffline.h,v 1.14 2009/06/08 12:48:49 rekovic Exp $
 //
 //
 
@@ -26,7 +26,6 @@
 // system include files
 #include <memory>
 #include <unistd.h>
-#include <vector>
 
 
 // user include files
@@ -90,12 +89,12 @@
 #include <vector>
 
 
-using namespace std;
-using namespace edm;
+//using namespace std;
+//using namespace edm;
 using namespace trigger;
 
-typedef multimap<float,int> fimmap ;
-typedef set<fimmap , less<fimmap> > mmset;
+typedef std::multimap<float,int> fimmap ;
+typedef std::set<fimmap , less<fimmap> > mmset;
 
 
 class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
@@ -656,13 +655,13 @@ public:
 		 EtMin_= etMin; 
 		 DRMatch_= drMatch;
 		}
-		void setTriggerType(vector<int> trigType) { triggerType_ = trigType; }
+		void setTriggerType(std::vector<int> trigType) { triggerType_ = trigType; }
 		void pushTriggerType(int trigType) { triggerType_.push_back(trigType); }
-		void setL1TriggerType(vector<int> trigType) { l1triggerType_ = trigType; }
+		void setL1TriggerType(std::vector<int> trigType) { l1triggerType_ = trigType; }
 		void pushL1TriggerType(int trigType) { l1triggerType_.push_back(trigType); }
 		void setPath(FourVectorHLTriggerOffline::PathInfoCollection::iterator v) { v_ = v; }
-		void setReco(Handle<T> offColl) { offColl_ = offColl; }
-		void setMC(Handle<GenParticleCollection> genParticles, int pdgId, int status)
+		void setReco(edm::Handle<T> offColl) { offColl_ = offColl; }
+		void setMC(edm::Handle<GenParticleCollection> genParticles, int pdgId, int status)
 		{
 
       genParticles_ = genParticles;
@@ -717,7 +716,7 @@ public:
     mmset OffMCDRMatchSet;
 
 
-		void setGenJets(bool flag, Handle<GenJetCollection> genJets ) 
+		void setGenJets(bool flag, edm::Handle<GenJetCollection> genJets ) 
 		{ 
 		  GenJetsFlag_ = flag;  
 			genJets_ = genJets; 
@@ -741,13 +740,13 @@ private:
 		bool GenJetsFlag_;
 		bool BJetsFlag_;
 
-		vector<int> triggerType_;
-		vector<int> l1triggerType_;
+		std::vector<int> triggerType_;
+		std::vector<int> l1triggerType_;
 
-    Handle<T> offColl_;
+    edm::Handle<T> offColl_;
 
-    Handle<GenParticleCollection> genParticles_;
-    Handle<GenJetCollection> genJets_;
+    edm::Handle<GenParticleCollection> genParticles_;
+    edm::Handle<GenJetCollection> genJets_;
     FourVectorHLTriggerOffline::PathInfoCollection::iterator v_;
 
 };
@@ -757,7 +756,7 @@ bool objMon<T>::isTriggerType(int t)
 {
   bool rc = false;
 
-  for(vector<int>::const_iterator it = triggerType_.begin(); it != triggerType_.end(); ++it)
+  for(std::vector<int>::const_iterator it = triggerType_.begin(); it != triggerType_.end(); ++it)
 	{
         //LogTrace("FourVectorHLTriggerOffline") << " monitorDenominator()::isTriggerTypeC()::  path type = " << t << "  trigger type = " << *it  << endl;
 
@@ -775,7 +774,7 @@ bool objMon<T>::isL1TriggerType(int t)
 {
   bool rc = false;
 
-  for(vector<int>::const_iterator it = l1triggerType_.begin(); it != l1triggerType_.end(); ++it)
+  for(std::vector<int>::const_iterator it = l1triggerType_.begin(); it != l1triggerType_.end(); ++it)
 	{
 
 	 if(t == *it) { rc = true; break; }
