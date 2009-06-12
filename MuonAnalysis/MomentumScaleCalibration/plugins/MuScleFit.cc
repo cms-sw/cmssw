@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/06/05 09:49:03 $
-//  $Revision: 1.46 $
+//  $Date: 2009/06/08 09:49:02 $
+//  $Revision: 1.47 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -154,7 +154,7 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset )
   ParameterSet serviceParameters = pset.getParameter<ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
 
-  if ((theMuonType_<1 || theMuonType_>3) && theMuonType_!=10) {
+  if ((theMuonType_<1 || theMuonType_>4) && theMuonType_!=10) {
     cout << "[MuScleFit]: Unknown muon type! Aborting." << endl;
     abort();
   }
@@ -307,6 +307,7 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset )
 // ----------
 MuScleFit::~MuScleFit () {
   if (debug_>0) cout << "[MuScleFit]: Destructor" << endl;
+  plotter->writeHistoMap();
 }
 
 // Begin job
@@ -343,7 +344,7 @@ void MuScleFit::beginOfJob (const EventSetup& eventSetup) {
 // -----------------
 void MuScleFit::endOfJob () {
   if (debug_>0) cout << "[MuScleFit]: endOfJob" << endl;
-  delete plotter;
+  //delete plotter;
 }
 
 // New loop
