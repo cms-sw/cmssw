@@ -20,7 +20,8 @@ cat DummyCondDBWriter_SiStripApvGain_cfg.py | sed -e "s@$oldDest@$newDest@" -e "
 run
 cat DummyCondDBWriter_SiStripApvGain_cfg.py | sed -e "s@$oldDest@$newDest@" -e "s@$oldTag@$newTag@" -e "s@SiStripApvGain_Ideal@SiStripApvGain_IdealSim@" > DummyCondDBWriter_tmp_cfg.py
 run
-cat DummyCondDBWriter_SiStripApvGain_cfg.py | sed -e "s@$oldDest@$newDest@" -e "s@$oldTag@$newTag@" -e "s@SiStripApvGain_Ideal@SiStripApvGain_StartUp@" -e "s@MeanSigma=0.0@MeanSigma=0.10@" > DummyCondDBWriter_tmp_cfg.py
+# Need to change also default to gaussian. default = value fixed to 1, gaussian = gaussian smearing with mean = MeanGain and sigma = SigmaGain
+cat DummyCondDBWriter_SiStripApvGain_cfg.py | sed -e "s@$oldDest@$newDest@" -e "s@$oldTag@$newTag@" -e "s@SiStripApvGain_Ideal@SiStripApvGain_StartUp@" -e "s@SigmaGain=0.0@SigmaGain=0.10@" -e "s@default@gaussian@" > DummyCondDBWriter_tmp_cfg.py
 run
 # #
 cat DummyCondDBWriter_SiStripBadChannel_cfg.py | sed -e "s@$oldDest@$newDest@" -e "s@$oldTag@$newTag@" > DummyCondDBWriter_tmp_cfg.py
