@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/04/09 13:13:52 $
- * $Revision: 1.165 $
+ * $Date: 2009/06/11 20:54:52 $
+ * $Revision: 1.166 $
  * \author G. Della Ricca
  *
 */
@@ -1731,8 +1731,6 @@ void EESummaryClient::analyze(void) {
           int ic = Numbers::icEE(ism, jx, jy);
 
           if( ic != -1 ) {
-
-            int side = ( ism >= 1 && ism <= 9 ) ? 0 : 1;
 
             if ( eelc ) {
 
