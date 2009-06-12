@@ -3,7 +3,7 @@
 // Class  :     SiStripDetCabling
 // Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripDetCabling.cc,v 1.18 2008/12/02 16:15:19 giordano Exp $
+// $Id: SiStripDetCabling.cc,v 1.19 2009/06/10 16:30:54 demattia Exp $
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -211,13 +211,26 @@ void SiStripDetCabling::addNotConnectedAPVs( std::map<uint32_t, std::vector<int>
 void SiStripDetCabling::addFromSpecificConnection( std::map<uint32_t, std::vector<int> > & map_to_add_to,
                                                    const std::map< uint32_t, vector<int> > & specific_connection,
                                                    const int connectionType ) const {
-  for(map< uint32_t, vector<int> >::const_iterator conn_it = specific_connection.begin(); conn_it!=specific_connection.end(); conn_it++){
+  for(map< uint32_t, vector<int> >::const_iterator conn_it = specific_connection.begin(); conn_it!=specific_connection.end(); ++conn_it){
     uint32_t new_detid = conn_it->first;
     vector<int> new_apv_vector = conn_it->second;
     std::map<uint32_t, std::vector<int> >::iterator it = map_to_add_to.find(new_detid);
     if( it == map_to_add_to.end() ){ // detid does not exist in map, add new entry
       std::sort(new_apv_vector.begin(),new_apv_vector.end()); // not very efficient sort, time consuming?
       map_to_add_to.insert(std::make_pair(new_detid,new_apv_vector));
+
+      // Count the number of detIds per layer. Doing it in this "if" we count each detId only once
+      // (otherwise it would be counted once per APV pair)
+      // ATTENTION: consider changing the loop content to avoid this
+      // This is the expected full number of modules (double sided are counted twice because the two
+      // sides have different detId).
+      // TIB1 : 336, TIB2 : 432, TIB3 : 540, TIB4 : 648
+      // TID : each disk has 48+48+40 (ring1+ring2+ring3)
+      // TOB1 : 504, TOB2 : 576, TOB3 : 648, TOB4 : 720, TOB5 : 792, TOB6 : 888
+      // TEC1 : Total number of modules = 6400.
+      if( connectionType != -1 ) {
+        connectionCount[connectionType][layerSearch(new_detid)]++;
+      }
     }else{                    // detid exists already, add to its vector - if its not there already . . .
       vector<int> existing_apv_vector = it->second;
       for(std::vector<int>::iterator inew = new_apv_vector.begin(); inew != new_apv_vector.end(); inew++ ){
@@ -236,11 +249,6 @@ void SiStripDetCabling::addFromSpecificConnection( std::map<uint32_t, std::vecto
         }
       }
     }
-    // Count the number of detIds per layer
-    // ATTENTION: consider changeing the loop content to avoid this if
-    if( connectionType != -1 ) {
-      connectionCount[connectionType][layerSearch(new_detid)]++;
-    }
   }
 }
 
@@ -251,12 +259,14 @@ int16_t SiStripDetCabling::layerSearch( const uint32_t detId ) const
     return D.layerNumber();
   } else if (SiStripDetId(detId).subDetector()==SiStripDetId::TID){
     TIDDetId D(detId);
+    // side: 1 = negative, 2 = positive
     return 10+(D.side() -1)*3 + D.wheel();
   } else if (SiStripDetId(detId).subDetector()==SiStripDetId::TOB){
     TOBDetId D(detId);
     return 100+D.layerNumber();
   } else if (SiStripDetId(detId).subDetector()==SiStripDetId::TEC){
     TECDetId D(detId);
+    // side: 1 = negative, 2 = positive
     return 1000+(D.side() -1)*9 + D.wheel();
   }
   return 0;
@@ -266,9 +276,11 @@ int16_t SiStripDetCabling::layerSearch( const uint32_t detId ) const
 uint32_t SiStripDetCabling::detNumber(const string & subDet, const uint16_t layer, const int connectionType) const {
   uint16_t subDetLayer = layer;
   // TIB = 1, TID = 2, TOB = 3, TEC = 4
-  if( subDet == "TID" ) subDetLayer += 10;
+  if( subDet == "TID-" ) subDetLayer += 10;
+  else if( subDet == "TID+" ) subDetLayer += 10 + 3;
   else if( subDet == "TOB" ) subDetLayer += 100;
-  else if( subDet == "TEC" ) subDetLayer += 1000;
+  else if( subDet == "TEC-" ) subDetLayer += 1000;
+  else if( subDet == "TEC+" ) subDetLayer += 1000 + 9;
   else if( subDet != "TIB" ) {
     LogDebug("SiStripDetCabling") << "Error: Wrong subDet. Please use one of TIB, TID, TOB, TEC." << endl;
     return 0;
@@ -357,7 +369,8 @@ void SiStripDetCabling::printSummary(std::stringstream& ss) const {
       }
       else if( int(subDetLayer/100) == 0 ) {
         int layer = subDetLayer%10;
-        ss << "TID \t layer " << layer << "\t" << modules << std::endl;
+        if( layer <= 3 ) ss << "TID- \t disk  " << layer << "\t" << modules << std::endl;
+        else ss << "TID+ \t disk  " << layer-3 << "\t" << modules << std::endl;
       }
       else if( int(subDetLayer/1000) == 0 ) {
         int layer = subDetLayer%100;
@@ -365,7 +378,8 @@ void SiStripDetCabling::printSummary(std::stringstream& ss) const {
       }
       else {
         int layer = subDetLayer%100;
-        ss << "TEC \t layer " << layer << " \t" << modules << std::endl;
+        if( layer <= 9 ) ss << "TEC- \t disk  " << layer << " \t" << modules << std::endl;
+        else ss << "TEC+ \t disk  " << layer-9 << " \t" << modules << std::endl;
       }
     }
   }
