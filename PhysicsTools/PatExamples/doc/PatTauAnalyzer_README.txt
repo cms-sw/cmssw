@@ -17,7 +17,7 @@
  *       you can produce the pat::Tau plots by executing:
  *
  *         cmsRun analyzePatTau_fromAOD_cfg.py
- *         root plotPatTauEff.C
+ *         root patTau_idEfficiency.C
  *         .q
  *
  *       This will produce .eps file showing the tau id. efficiency as function of Pt, Eta and Phi.
