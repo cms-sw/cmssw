@@ -54,6 +54,8 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   mapProcesses["tInelastic"] = "Hadronic";
   mapProcesses["nCapture"] = "Hadronic";
   mapProcesses["alphaInelastic"] = "Hadronic";
+  mapProcesses["CHIPSElasticScattering"] = "Hadronic";
+  mapProcesses["MixedProtonInelasticProcess"] = "Hadronic";
 
   // for GFlash Hadron process
   mapProcesses["WrappedPionMinusInelastic"] = "Hadronic";
@@ -134,6 +136,8 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   map2Process["tInelastic"] = 38;
   map2Process["alphaInelastic"] = 39;
   map2Process["nCapture"] = 40;
+  map2Process["CHIPSElasticScattering"] = 17;
+  map2Process["MixedProtonInelasticProcess"] = 7;
 
   // for GFlash hadron process
   map2Process["WrappedPionMinusInelastic"] = 68;
