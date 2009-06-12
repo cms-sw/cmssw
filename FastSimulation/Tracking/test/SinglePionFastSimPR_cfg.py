@@ -174,13 +174,24 @@ process.firstStepHighPurity = cms.EDFilter("QualityFilter",
                                            TrackQuality = cms.string('highPurity'),
                                            recTracks = cms.InputTag("preMergingFirstStepTracksWithQuality")
                                            )
-
+process.fifthStepHighPurity = cms.EDFilter("QualityFilter",
+                                           TrackQuality = cms.string('highPurity'),
+                                           recTracks = cms.InputTag("tobtecStep")
+                                           )
 process.fevt = cms.OutputModule(
     "PoolOutputModule",
     fileName = cms.untracked.string("fevt.root"),
     outputCommands = cms.untracked.vstring(
       'drop *',
       ###---these are the collection used in input to the "general tracks"
+      'keep *_zeroStepHighPurity*_*_*',
+      'keep *_firstStepHighPurity*_*_*',
+      'keep *_firstfilter*_*_*',
+      'keep *_secfilter*_*_*',
+      'keep *_thfilter*_*_*',
+      'keep *_fourthfilter*_*_*',
+      'keep *_thfilter*_*_*',
+      'keep *_fifthStepHighPurity*_*_*',
       # zero step 
       'keep *_zeroStep*_*_*',
       # step one
@@ -219,8 +230,14 @@ process.fevt = cms.OutputModule(
 # Produce Tracks and Clusters
 process.generation_step = cms.Path(cms.SequencePlaceholder("randomEngineStateProducer")+process.GeneInfo)
 process.reconstruction = cms.Path(process.famosWithTrackerHits+process.siClusterTranslator+process.siPixelRecHits+
-                                  process.siStripMatchedRecHits+process.recopixelvertexing+process.iterTracking+process.trackCollectionMerging+
-                                  process.zeroStepHighPurity+process.firstStepHighPurity)
+                                  process.siStripMatchedRecHits+process.recopixelvertexing+
+                                  process.iterTracking+
+                                  process.trackCollectionMerging+
+                                  process.zeroStepHighPurity+
+                                  process.firstStepHighPurity+
+                                  process.fifthStepHighPurity
+                                  )
+
 
 process.out_step = cms.EndPath(process.fevt)
 

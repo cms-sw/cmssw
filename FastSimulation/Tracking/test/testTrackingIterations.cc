@@ -355,8 +355,8 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   
   for ( unsigned ievt=0; ievt<2; ++ievt ) {
 
-    edm::Handle<reco::TrackCollection> tkRef1;
     edm::Handle<reco::TrackCollection> tkRef0;
+    edm::Handle<reco::TrackCollection> tkRef1;
     edm::Handle<reco::TrackCollection> tkRef2;
     edm::Handle<reco::TrackCollection> tkRef3;
     edm::Handle<reco::TrackCollection> tkRef4;
@@ -376,6 +376,7 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     tkColl.push_back(tkRef5.product());
     // if ( tkColl[0]+tkColl[1]+tkColl[2] != 1 ) continue;
 
+    std::cout << "\t\t ZERO \tFIRST \tSECOND \tTHIRD\t FOURTH\tFIFTH " << std::endl;
     if(ievt ==0){
       num0full +=  tkColl[0]->size();       
       num1full +=  tkColl[1]->size();       
@@ -383,6 +384,7 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       num3full +=  tkColl[3]->size();
       num4full +=  tkColl[4]->size();
       num5full +=  tkColl[5]->size();
+      std::cout << "\tFULL\t" <<"\t"<< tkColl[0]->size() <<"\t"<< tkColl[1]->size() <<"\t"<< tkColl[2]->size() <<"\t"<< tkColl[3]->size() <<"\t"<< tkColl[4]->size() <<"\t"<< tkColl[5]->size() << std::endl;
     } else if (ievt ==1){
       num0fast +=  tkColl[0]->size();
       num1fast +=  tkColl[1]->size();
@@ -390,8 +392,9 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       num3fast +=  tkColl[3]->size();
       num4fast +=  tkColl[4]->size();
       num5fast +=  tkColl[5]->size();
+      std::cout << "\tFAST\t" <<"\t"<< tkColl[0]->size() <<"\t"<< tkColl[1]->size() <<"\t"<< tkColl[2]->size() <<"\t"<< tkColl[3]->size() <<"\t"<< tkColl[4]->size() <<"\t"<< tkColl[5]->size() << std::endl;
     }
-     
+    
     zeroNum[ievt]->Fill(tkColl[0]->size());
     firstNum[ievt]->Fill(tkColl[1]->size());
     secondNum[ievt]->Fill(tkColl[2]->size());

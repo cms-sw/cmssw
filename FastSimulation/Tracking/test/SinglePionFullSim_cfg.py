@@ -110,6 +110,11 @@ process.firstStepHighPurity = cms.EDFilter("QualityFilter",
                                            TrackQuality = cms.string('highPurity'),
                                            recTracks = cms.InputTag("preMergingFirstStepTracksWithQuality")
                                            )
+process.fifthStepHighPurity = cms.EDFilter("QualityFilter",
+                                           TrackQuality = cms.string('highPurity'),
+                                           recTracks = cms.InputTag("tobtecStep")
+                                           )
+
 
 process.fevt = cms.OutputModule(
     "PoolOutputModule",
@@ -117,6 +122,14 @@ process.fevt = cms.OutputModule(
     outputCommands = cms.untracked.vstring(
       'drop *',
       ###---these are the collection used in input to the "general tracks"
+      'keep *_zeroStepHighPurity*_*_*',
+      'keep *_firstStepHighPurity*_*_*',
+      'keep *_firstfilter*_*_*',
+      'keep *_secfilter*_*_*',
+      'keep *_thfilter*_*_*',
+      'keep *_fourthfilter*_*_*',
+      'keep *_thfilter*_*_*',
+      'keep *_fifthStepHighPurity*_*_*',
       # zero step 
       'keep *_zeroStep*_*_*',
       # step one
@@ -160,7 +173,9 @@ process.p5= cms.Path(process.RawToDigi)
 process.p6= cms.Path(process.reconstruction+
   #select only High purity step 0/1 fullsim tracks
                      process.zeroStepHighPurity+
-                     process.firstStepHighPurity)
+                     process.firstStepHighPurity+
+                     process.fifthStepHighPurity
+                     )
 process.outpath = cms.EndPath(process.fevt)
 process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.p3,process.p4,process.p5,process.p6,process.outpath)
 
