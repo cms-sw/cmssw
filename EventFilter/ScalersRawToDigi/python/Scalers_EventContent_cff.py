@@ -25,14 +25,3 @@ EvtScalersAOD = cms.PSet(
        'keep L1TriggerScalersCollection_*_*_*',
        'keep LumiScalersCollection_*_*_*')
 )
-# FEVTDEBUG content
-EvtScalersFEVTDEBUG = cms.PSet(
-   outputCommands = cms.untracked.vstring(
-       'keep L1AcceptBunchCrossing_*_*_*',
-       'keep L1TriggerScalers_*_*_*',
-       'keep LumiScalers_*_*_*',
-       'keep L1AcceptBunchCrossingCollection_*_*_*',
-       'keep L1TriggerScalersCollection_*_*_*',
-       'keep LumiScalersCollection_*_*_*')
-)
-
