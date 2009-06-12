@@ -46,7 +46,8 @@ pathlumi = { 'HLT_Ele10_LW_L1RDQM':'8e29',
              'HLT_Photon10_L1R_DQM':'8e29',
              'HLT_Photon15_TrackIso_L1R_DQM':'8e29',
              'HLT_Photon15_LooseEcalIso_L1R_DQM':'8e29',
-             'HLT_DoublePhoton10_L1R_DQM':'8e29'
+             'HLT_DoublePhoton10_L1R_DQM':'8e29',
+             'HLT_Photon25_L1R_DQM':'1e31'
              }
 
 lumiprocess = { '8e29':'HLT8E29',
