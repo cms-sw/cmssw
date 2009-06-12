@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.20 2009/06/10 13:30:59 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.21 2009/06/12 12:56:47 rekovic Exp $
 //
 //
 
@@ -91,13 +91,12 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
+
+
 #include <iostream>
 #include <fstream>
 
-
-//using namespace std;
-//using namespace edm;
-using namespace trigger;
 
 typedef multimap<float,int> fimmap ;
 typedef set<fimmap , less<fimmap> > mmset;
@@ -680,8 +679,8 @@ public:
 
     //void fillMC();
     void fillOff();
-		void monitorL1(const Vids & idtype, const Keys & l1k, const TriggerObjectCollection & toc);
-    void monitorDenominator(FourVectorHLTOffline::PathInfoCollection::iterator v, bool l1accept, const Vids & idtype, const Keys & l1k, const TriggerObjectCollection& toc);
+		void monitorL1(const trigger::Vids & idtype, const trigger::Keys & l1k, const trigger::TriggerObjectCollection & toc);
+    void monitorDenominator(FourVectorHLTOffline::PathInfoCollection::iterator v, bool l1accept, const trigger::Vids & idtype, const trigger::Keys & l1k, const trigger::TriggerObjectCollection& toc);
 
 		void fillL1OffMatch(FourVectorHLTOffline* fv);
 		//void fillL1MCMatch(FourVectorHLTOffline* fv);
@@ -691,12 +690,12 @@ public:
 		  //fillL1MCMatch(fv);
 		}
 
-		void monitorOnline(const Vids & idtype, const Keys & l1k, Keys::const_iterator ki, const TriggerObjectCollection & toc, int & NOn);
+		void monitorOnline(const trigger::Vids & idtype, const trigger::Keys & l1k, trigger::Keys::const_iterator ki, const trigger::TriggerObjectCollection & toc, int & NOn);
     void monitorOffline(FourVectorHLTOffline* fv);
 		void fillOnOffMatch(FourVectorHLTOffline* fv);
 		//void fillOnMCMatch(FourVectorHLTOffline* fv);
-		void fillOnL1Match(FourVectorHLTOffline* fv, const Keys & l1k,  const TriggerObjectCollection & toc);
-		void fillOnlineMatch(FourVectorHLTOffline* fv, const Keys & l1k,  const TriggerObjectCollection & toc)
+		void fillOnL1Match(FourVectorHLTOffline* fv, const trigger::Keys & l1k,  const trigger::TriggerObjectCollection & toc);
+		void fillOnlineMatch(FourVectorHLTOffline* fv, const trigger::Keys & l1k,  const trigger::TriggerObjectCollection & toc)
 		{
       if(! isTriggerType(v_->getObjectType()) ) return;
 	    fillOnOffMatch(fv);
@@ -796,7 +795,7 @@ bool objMonData<T>::isL1TriggerType(int t)
 }
 
 template <class T> 
-void objMonData<T>::monitorDenominator(FourVectorHLTOffline::PathInfoCollection::iterator v, bool l1accept, const Vids & idtype, const Keys & l1k, const TriggerObjectCollection& toc)
+void objMonData<T>::monitorDenominator(FourVectorHLTOffline::PathInfoCollection::iterator v, bool l1accept, const trigger::Vids & idtype, const trigger::Keys & l1k, const trigger::TriggerObjectCollection& toc)
 {
         //LogTrace("FourVectorHLTOffline") << " monitorDenominator()  "  << endl;
 
@@ -904,16 +903,16 @@ void objMonData<T>::fillMC()
 */
 
 template <class T> 
-void objMonData<T>::monitorL1(const Vids & idtype, const Keys & l1k, const TriggerObjectCollection& toc)
+void objMonData<T>::monitorL1(const trigger::Vids & idtype, const trigger::Keys & l1k, const trigger::TriggerObjectCollection& toc)
 {
 
  int NL1=0;
  //LogTrace("FourVectorHLTOffline") << " fillL1()  "  << endl;
- Vids::const_iterator idtypeiter = idtype.begin(); 
- for (Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
+ trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
+ for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
    //LogTrace("FourVectorHLTOffline") << "fillL1(): idtype = " << *idtypeiter << " TriggerL1Mu = " <<  TriggerL1Mu << endl;
 
-	 TriggerObject l1FV = toc[*l1ki];
+	 trigger::TriggerObject l1FV = toc[*l1ki];
 	 if(isL1TriggerType(*idtypeiter))
 	 {
 
@@ -1071,12 +1070,12 @@ void objMonData<T>::monitorL1(const Vids & idtype, const Keys & l1k, const Trigg
 }
 
 template <class T> 
-void objMonData<T>::monitorOnline(const Vids & idtype, const Keys & l1k, Keys::const_iterator ki, const TriggerObjectCollection & toc, int & NOn)
+void objMonData<T>::monitorOnline(const trigger::Vids & idtype, const trigger::Keys & l1k, trigger::Keys::const_iterator ki, const trigger::TriggerObjectCollection & toc, int & NOn)
 {
 
 		 if(! isTriggerType(v_->getObjectType()) ) return;
 
-		 TriggerObject onlineFV = toc[*ki];
+		 trigger::TriggerObject onlineFV = toc[*ki];
 
 	   NOn++;    
 
@@ -1148,8 +1147,8 @@ void objMonData<T>::monitorOnline(const Vids & idtype, const Keys & l1k, Keys::c
 
        fimmap OnL1DRMatchMap;
 	     int j=0;
-       Vids::const_iterator idtypeiter = idtype.begin(); 
-       for (Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) 
+       trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
+       for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) 
 			 {
 
 			   
@@ -1157,7 +1156,7 @@ void objMonData<T>::monitorOnline(const Vids & idtype, const Keys & l1k, Keys::c
 	       if(isL1TriggerType(*idtypeiter))
 	       {
 
-		       TriggerObject l1FV = toc[*l1ki];
+		       trigger::TriggerObject l1FV = toc[*l1ki];
 
 	         if ( fabs(l1FV.eta()) <= EtaMax_ && l1FV.pt() >= EtMin_ )
            {
@@ -1672,7 +1671,7 @@ void objMonData<T>::fillOffMCMatch(FourVectorHLTOffline* fv)
 */
 
 template <class T> 
-void objMonData<T>::fillOnL1Match(FourVectorHLTOffline* fv, const Keys & l1k,  const TriggerObjectCollection & toc)
+void objMonData<T>::fillOnL1Match(FourVectorHLTOffline* fv, const trigger::Keys & l1k,  const trigger::TriggerObjectCollection & toc)
 {
 
 	// clean the set On-L1
@@ -1743,6 +1742,5 @@ void objMonData<T>::clearSets()
      OffMCDRMatchSet.clear();
 
 }
-
 
 #endif
