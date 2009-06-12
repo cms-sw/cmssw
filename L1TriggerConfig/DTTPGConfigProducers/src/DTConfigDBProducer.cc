@@ -9,7 +9,8 @@
 
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
 
-#include "CondTools/DT/interface/DTPosNeg.h"
+//#include "CondTools/DT/interface/DTPosNeg.h"
+#include "L1TriggerConfig/DTTPGConfigProducers/src/DTPosNegType.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -50,15 +51,15 @@ DTConfigDBProducer::DTConfigDBProducer(const edm::ParameterSet& p)
   else         catalog = p.getParameter< std::string >("catalog");
 
   // create DB session
-  session = new DTDBSession( contact, catalog, auth_path, local );
+  session = new DTDB1Session( contact, catalog, auth_path, local );
   session->connect( false );
 
   // create an interface to handle configurations list
-  DTConfigHandler::maxBrickNumber  = 100;
-  DTConfigHandler::maxStringNumber = 10000;
-  DTConfigHandler::maxByteNumber   = 1000000;
+  DTConfig1Handler::maxBrickNumber  = 100;
+  DTConfig1Handler::maxStringNumber = 10000;
+  DTConfig1Handler::maxByteNumber   = 1000000;
   rs = 0;
-  ri = DTConfigHandler::create( session, token );
+  ri = DTConfig1Handler::create( session, token );
   rs = ri->getContainer();  
     
   // get and store parameter set and config manager pointer
@@ -86,7 +87,7 @@ DTConfigDBProducer::DTConfigDBProducer(const edm::ParameterSet& p)
 DTConfigDBProducer::~DTConfigDBProducer()
 {
   // destruction time
-  DTConfigHandler::remove( session );
+  DTConfig1Handler::remove( session );
   session->disconnect();
   delete session;
 }
@@ -177,8 +178,8 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
                 	<< ccbId.sectorId  << " -> " << endl;
 
 	// get chamber type and id from ccbId
-      	int mbtype = DTPosNeg::getCT( ccbId.wheelId, ccbId.sectorId, ccbId.stationId );
-      	int posneg = DTPosNeg::getPN( ccbId.wheelId, ccbId.sectorId, ccbId.stationId );
+      	int mbtype = DTPosNegType::getCT( ccbId.wheelId, ccbId.sectorId, ccbId.stationId );
+      	int posneg = DTPosNegType::getPN( ccbId.wheelId, ccbId.sectorId, ccbId.stationId );
 	if(m_debugDB)
       		cout << "Chamber type : " <<  mbtype
       			<< " posneg : " << posneg << endl; 
