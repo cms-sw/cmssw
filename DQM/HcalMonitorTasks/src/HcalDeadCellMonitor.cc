@@ -102,8 +102,8 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
       // Overall plot gets an initial " " in its name
       ProblemDeadCells=m_dbe->book2D(" ProblemDeadCells",
                                      " Problem Dead Cell Rate for all HCAL",
-                                     etaBins_,etaMin_,etaMax_,
-                                     phiBins_,phiMin_,phiMax_);
+				     85,-42.5,42.5,
+				     72,0.5,72.5);
       ProblemDeadCells->setAxisTitle("i#eta",1);
       ProblemDeadCells->setAxisTitle("i#phi",2);
 
@@ -342,7 +342,7 @@ void HcalDeadCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
   int subdet;
   char* subdetname;
   if (fVerbosity>1)
-    {
+    { 
       std::cout <<"<HcalDeadCellMonitor>  Summary of Dead Cells in Run: "<<std::endl;
       std::cout <<"(Error rate must be >= "<<deadmon_minErrorFlag_*100.<<"% )"<<std::endl;  
     }
@@ -353,7 +353,8 @@ void HcalDeadCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
 	{
 	  for (int hist_phi=1;hist_phi<=ProblemDeadCellsByDepth.depth[d]->getNbinsY();++hist_phi)
 	    {
-	      ieta=ProblemDeadCellsByDepth.CalcIeta(hist_eta,d+1);
+	      ieta=CalcIeta(hist_eta,d+1);
+	      if (ieta==-9999) continue;
 	      iphi=hist_phi;
 
 	      binval=ProblemDeadCellsByDepth.depth[d]->getBinContent(hist_eta,hist_phi);
@@ -424,10 +425,10 @@ void HcalDeadCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
 		fOutput<<buffer;
 	      */
 	  
-	    } // for (int hist_phi=1;hist_phi<=phiBins_;++hist_phi)
-	} // for (int hist_eta=1;ieta<=etaBins_;++ieta)
+	    } // for (int hist_phi=1;...)
+	} // for (int hist_eta=1;...)
     } // for (int d=0;d<4;++d)
-      //fOutput.close();
+  //fOutput.close();
   
   return;
 
@@ -543,7 +544,7 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	{
 	  cpu_timer.stop();  std::cout <<"TIMER:: HcalDeadCellMonitor PROCESSEVENT_DIGI -> "<<cpu_timer.cpuTime()<<std::endl;
 	}
-    }
+    } // if (deadmon_test_neverpresent || ...)
   
   // Search for "dead" cells below a certain energy
   if (deadmon_test_energy_) 
@@ -672,8 +673,8 @@ void HcalDeadCellMonitor::processEvent_HBHEdigi(HBHEDigiCollection::const_iterat
       if (!checkHE_)
 	return;
     }
-  ++occupancy[ieta+42][iphi-1][depth-1];
-  present[ieta+42][iphi-1][depth-1]=true;
+  ++occupancy[CalcEtaBin(digi.id().subdet(),ieta,depth)][iphi-1][depth-1];
+  present[CalcEtaBin(digi.id().subdet(),ieta,depth)][iphi-1][depth-1]=true;
   return;
 } //void HcalDeadCellMonitor::processEvent_HBHEdigi(HBHEDigiCollection::const_iterator j)
 
@@ -689,8 +690,9 @@ void HcalDeadCellMonitor::processEvent_HOdigi(HODigiCollection::const_iterator j
   iphi=digi.id().iphi();
   depth=digi.id().depth();
   if (!digi.id().validDetId(digi.id().subdet(),ieta,iphi,depth)) return;
-  ++occupancy[ieta+42][iphi-1][depth-1];
-  present[ieta+42][iphi-1][depth-1]=true;
+  ++occupancy[CalcEtaBin(digi.id().subdet(),ieta,depth)][iphi-1][depth-1];
+  //cout <<"HO "<<ieta<<", "<<iphi<<", "<<depth<<":  bin = "<<CalcEtaBin(digi.id().subdet(),ieta,depth)<<endl;
+  present[CalcEtaBin(digi.id().subdet(),ieta,depth)][iphi-1][depth-1]=true;
   return;
 } //void HcalDeadCellMonitor::processEvent_HOdigi(HODigiCollection::const_iterator j)
 
@@ -706,16 +708,8 @@ void HcalDeadCellMonitor::processEvent_HFdigi(HFDigiCollection::const_iterator j
   iphi=digi.id().iphi();
   depth=digi.id().depth();
   if (!digi.id().validDetId(digi.id().subdet(),ieta,iphi,depth)) return;
-  if (ieta<0)
-    {
-      ++occupancy[ieta+41][iphi-1][depth-1];
-      present[ieta+41][iphi-1][depth-1]=true;
-    }
-  else
-    {
-      ++occupancy[ieta+43][iphi-1][depth-1];
-      present[ieta+43][iphi-1][depth-1]=true;
-    }
+  ++occupancy[CalcEtaBin(digi.id().subdet(),ieta,depth)][iphi-1][depth-1];
+  present[CalcEtaBin(digi.id().subdet(),ieta,depth)][iphi-1][depth-1]=true;
   return;
 } //void HcalDeadCellMonitor::processEvent_HFdigi(HFDigiCollection::const_iterator j)
 
@@ -743,14 +737,14 @@ void HcalDeadCellMonitor::processEvent_HBHERecHit(HBHERecHitCollection::const_it
       HBpresent_=true;
       if (!checkHB_) return;
       if (en>=HBenergyThreshold_)
-	++aboveenergy[ieta+42][iphi-1][depth-1];
+	++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
     }
   else
     {
       HEpresent_=true;
       if (!checkHE_)return;
       if (en>=HEenergyThreshold_)
-	++aboveenergy[ieta+42][iphi-1][depth-1];
+	++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
     }
   return;
 } //void HcalDeadCellMonitor::processEvent_HBHERecHit(HBHERecHitCollection::const_iterator HOiter)
@@ -764,7 +758,7 @@ void HcalDeadCellMonitor::processEvent_HORecHit(HORecHitCollection::const_iterat
   int iphi = id.iphi();
   int depth = id.depth();
   if (en>=HOenergyThreshold_)
-    ++aboveenergy[ieta+42][iphi-1][depth-1];
+    ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
   return;
 } //void HcalDeadCellMonitor::processEvent_HORecHit(HORecHitCollection::const_iterator HOiter)
 
@@ -776,10 +770,7 @@ void HcalDeadCellMonitor::processEvent_HFRecHit(HFRecHitCollection::const_iterat
   int iphi = id.iphi();
   int depth = id.depth();
   if (en>=HFenergyThreshold_)
-    { 
-      if (ieta<0) 	++aboveenergy[ieta+41][iphi-1][depth-1];
-      else              ++aboveenergy[ieta+43][iphi-1][depth-1];
-    }
+    ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
   return;
 } //void HcalDeadCellMonitor::processEvent_HFRecHit(HFRecHitCollection::const_iterator HFiter)
 
@@ -812,47 +803,54 @@ void HcalDeadCellMonitor::fillNevents_neverpresent(void)
    int ieta=0;
    int iphi=0;
 
-   // bin used for normalization
-   for (unsigned int h=0;h<DigisNeverPresentByDepth.depth.size();++h)
-     {
-       if (DigisNeverPresentByDepth.depth[h]) DigisNeverPresentByDepth.depth[h]->setBinContent(0,0,ievt_);
-     }
-   for (unsigned int depth=1;depth<=DigisNeverPresentByDepth.depth.size();++depth)
+   int etabins=0;
+   int phibins=0;
+
+   for (unsigned int depth=0;depth<DigisNeverPresentByDepth.depth.size();++depth)
      { 
-       for (int eta=1;eta<=DigisNeverPresentByDepth.depth[depth-1]->getNbinsX();++eta)
+       etabins=DigisNeverPresentByDepth.depth[depth]->getNbinsX();
+       phibins=DigisNeverPresentByDepth.depth[depth]->getNbinsY();
+
+       for (int eta=0;eta<etabins;++eta)
 	 {
-	   for (int phi=1;phi<=DigisNeverPresentByDepth.depth[depth-1]->getNbinsY();++phi)
+	   for (int phi=0;phi<phibins;++phi)
 	     {
-	       iphi=phi;
-	       //cout <<"iphi = "<<iphi<<"\t";
+	       iphi=phi+1;
 	       for (int subdet=1;subdet<=4;++subdet)
 		 {
-		   ieta=DigisNeverPresentByDepth.CalcIeta((HcalSubdetector)subdet,eta,depth); //converts bin to ieta
-		   if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth))
+		   ieta=CalcIeta((HcalSubdetector)subdet,eta,depth+1); //converts bin to ieta
+		   if (ieta==-9999) continue;
+		   if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1))
 		     continue;
-
 		   // Ignore subdetectors that weren't in run
-		   if ((subdet==1 && !HBpresent_) || (subdet==2 &&!HEpresent_)||(subdet==3 &&!HOpresent_) || (subdet==4 &&!HFpresent_)) continue;
+		   if ((subdet==HcalBarrel && !HBpresent_) || 
+		       (subdet==HcalEndcap &&!HEpresent_)  ||
+		       (subdet==HcalOuter &&!HOpresent_)  || 
+		       (subdet==HcalForward &&!HFpresent_))   continue;
 		   // ignore subdetectors we explicitly mask off 
-		   if ((!checkHB_ && subdet==1) ||
-		       (!checkHE_ && subdet==2) ||
-		       (!checkHO_ && subdet==3) ||
-		       (!checkHF_ && subdet==4)) continue;
-
-		   if (subdet==HcalForward) // shift HcalForward ieta
+		   if ((!checkHB_ && subdet==HcalBarrel) ||
+		       (!checkHE_ && subdet==HcalEndcap) ||
+		       (!checkHO_ && subdet==HcalOuter) ||
+		       (!checkHF_ && subdet==HcalForward))  continue;
+		   if (subdet==HcalForward) // shift HcalForward ieta by 1 for filling purposes
 		     ieta<0 ? ieta-- : ieta++;
-		   if (present[eta-1][phi-1][depth-1]==0)
+		   		   
+		   if (present[eta][phi][depth]==false)
 		     {
 		       if (fVerbosity>0) 
-			 //if (ieta==29)
-			 std::cout <<"DEAD CELL; NEVER PRESENT: subdet = "<<subdet<<", eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth<<"  filling with "<<deadmon_checkNevents_/deadmon_neverpresent_prescale_<<std::endl;
+			 std::cout <<"DEAD CELL; NEVER PRESENT: subdet = "<<subdet<<", ieta = "<<ieta<<", iphi = "<<iphi<<" depth = "<<depth+1<<"  filling with "<<deadmon_checkNevents_/deadmon_neverpresent_prescale_<<std::endl;
 		       // no digi was found for the N events; Fill cell as bad for all N events (N = deadmon_checkNevents_/prescale);
-		       if (DigisNeverPresentByDepth.depth[depth-1]) DigisNeverPresentByDepth.depth[depth-1]->Fill(ieta,iphi,deadmon_checkNevents_/deadmon_neverpresent_prescale_);
+		       if (DigisNeverPresentByDepth.depth[depth])
+			 {
+			   DigisNeverPresentByDepth.depth[depth]->Fill(ieta,1.*iphi,deadmon_checkNevents_/deadmon_neverpresent_prescale_);
+			 }
 		     }
 		   else  // digi found; this is no longer a dead cell -- erase it
-		     if (DigisNeverPresentByDepth.depth[depth-1] && 
-			 DigisNeverPresentByDepth.depth[depth-1]->getBinContent(eta,phi)!=0) 
-		       DigisNeverPresentByDepth.depth[depth-1]->setBinContent(eta,phi,0);
+		     if (DigisNeverPresentByDepth.depth[depth] && 
+			 DigisNeverPresentByDepth.depth[depth]->getBinContent(eta+1,phi+1)!=0) 
+		       {
+			 DigisNeverPresentByDepth.depth[depth]->setBinContent(eta+1,phi+1,0);
+		       }
 		 } // subdet loop
 	     } //phi loop
 	 } // eta loop
@@ -879,48 +877,43 @@ void HcalDeadCellMonitor::fillNevents_occupancy(void)
   int ieta=0;
   int iphi=0;
 
-  // Always fill ievt_ counter with every call, so that we know histogram is being filled
-  for (unsigned int h=0;h<UnoccupiedDeadCellsByDepth.depth.size();++h)
-    {
-      if (UnoccupiedDeadCellsByDepth.depth[h]) UnoccupiedDeadCellsByDepth.depth[h]->setBinContent(0,0,ievt_);
-    }
-
   // Only run fills of histogram when ievt%checkNevents=0
   if ((ievt_%deadmon_checkNevents_)!=0)
     return;
 
-  for (unsigned int depth=1;depth<=UnoccupiedDeadCellsByDepth.depth.size();++depth)
+  for (unsigned int depth=0;depth<UnoccupiedDeadCellsByDepth.depth.size();++depth)
     { 
-      for (int eta=1;eta<=UnoccupiedDeadCellsByDepth.depth[depth-1]->getNbinsX();++eta)
+      for (int eta=0;eta<UnoccupiedDeadCellsByDepth.depth[depth]->getNbinsX();++eta)
 	{
-	  for (int phi=1;phi<=UnoccupiedDeadCellsByDepth.depth[depth-1]->getNbinsY();++phi)
+	  for (int phi=0;phi<UnoccupiedDeadCellsByDepth.depth[depth]->getNbinsY();++phi)
 	    {
-	      iphi=phi;
+	      iphi=phi+1;
 	      for (int subdet=1;subdet<=4;++subdet)
 		{
-		  ieta=UnoccupiedDeadCellsByDepth.CalcIeta((HcalSubdetector)subdet,eta,depth);
-		  if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth))
+		  ieta=CalcIeta((HcalSubdetector)subdet,eta,depth+1);
+		  if (ieta==-9999) continue;
+		  if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1))
 		    continue;
 
 		  // Ignore subdetectors that weren't in run
-		  if ((subdet==1 && !HBpresent_) || 
-		      (subdet==2 &&!HEpresent_)  ||
-		      (subdet==3 &&!HOpresent_)  || 
-		      (subdet==4 &&!HFpresent_))   continue;
+		  if ((subdet==HcalBarrel && !HBpresent_) || 
+		      (subdet==HcalEndcap &&!HEpresent_)  ||
+		      (subdet==HcalOuter &&!HOpresent_)  || 
+		      (subdet==HcalForward &&!HFpresent_))   continue;
 		  // ignore subdetectors we explicitly mask off 
-		  if ((!checkHB_ && subdet==1) ||
-		      (!checkHE_ && subdet==2) ||
-		      (!checkHO_ && subdet==3) ||
-		      (!checkHF_ && subdet==4))  continue;
+		  if ((!checkHB_ && subdet==HcalBarrel) ||
+		      (!checkHE_ && subdet==HcalEndcap) ||
+		      (!checkHO_ && subdet==HcalOuter) ||
+		      (!checkHF_ && subdet==HcalForward))  continue;
 		  if (subdet==HcalForward) // shift HcalForward ieta
 		    ieta<0 ? ieta-- : ieta++;
-		  if (occupancy[eta-1][phi-1][depth-1]==0)
+		  if (occupancy[eta][phi][depth]==0)
 		    {
 		      if (fVerbosity>0) 
 			std::cout <<"DEAD CELL; NO OCCUPANCY: subdet = "<<subdet<<", eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth<<std::endl;
 		      
 		      // no digi was found for the N events; Fill cell as bad for all N events (N = deadmon_checkNevents_);
-		      if (UnoccupiedDeadCellsByDepth.depth[depth-1]) UnoccupiedDeadCellsByDepth.depth[depth-1]->Fill(ieta,iphi,deadmon_checkNevents_);
+		      if (UnoccupiedDeadCellsByDepth.depth[depth]) UnoccupiedDeadCellsByDepth.depth[depth]->Fill(ieta,iphi,deadmon_checkNevents_);
 		      
 		    }
 		} // for (int subdet=1;subdet<=4;++subdet)
@@ -964,40 +957,41 @@ void HcalDeadCellMonitor::fillNevents_energy(void)
   if ((ievt_%deadmon_checkNevents_)!=0)
     return;
 
-  for (unsigned int depth=1;depth<=BelowEnergyThresholdCellsByDepth.depth.size();++depth)
+  for (unsigned int depth=0;depth<BelowEnergyThresholdCellsByDepth.depth.size();++depth)
     { 
-      for (int eta=1;eta<=BelowEnergyThresholdCellsByDepth.depth[depth-1]->getNbinsX();++eta)
+      for (int eta=0;eta<BelowEnergyThresholdCellsByDepth.depth[depth]->getNbinsX();++eta)
 	{
-	  for (int phi=1;phi<=BelowEnergyThresholdCellsByDepth.depth[depth-1]->getNbinsY();++phi)
+	  for (int phi=0;phi<BelowEnergyThresholdCellsByDepth.depth[depth]->getNbinsY();++phi)
 	    {
-	      iphi=phi;
+	      iphi=phi+1;
 	      for (int subdet=1;subdet<=4;++subdet)
 		{
-		  ieta=BelowEnergyThresholdCellsByDepth.CalcIeta((HcalSubdetector)subdet,eta,depth);
-		  if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth))
+		  ieta=CalcIeta((HcalSubdetector)subdet,eta,depth+1);
+		  if (ieta==-9999) continue;
+		  if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1))
 		    continue;
 		  // Ignore subdetectors that weren't in run
-                  if ((subdet==1 && !HBpresent_) || 
-		      (subdet==2 &&!HEpresent_)  ||
-		      (subdet==3 &&!HOpresent_)  ||
-		      (subdet==4 &&!HFpresent_))   continue;
+                  if ((subdet==HcalBarrel && !HBpresent_) || 
+		      (subdet==HcalEndcap &&!HEpresent_)  ||
+		      (subdet==HcalOuter &&!HOpresent_)  ||
+		      (subdet==HcalForward &&!HFpresent_))   continue;
 
-		  if ((!checkHB_ && subdet==1) ||
-		      (!checkHE_ && subdet==2) ||
-		      (!checkHO_ && subdet==3) ||
-		      (!checkHF_ && subdet==4))  continue;
+		  if ((!checkHB_ && subdet==HcalBarrel) ||
+		      (!checkHE_ && subdet==HcalEndcap) ||
+		      (!checkHO_ && subdet==HcalOuter) ||
+		      (!checkHF_ && subdet==HcalForward))  continue;
 		  
 		  if (subdet==HcalForward) // shift HcalForward ieta
 		    {
 		      ieta<0 ? ieta-- : ieta++;
 		    }
-		  if (aboveenergy[eta-1][phi-1][depth-1]>0) continue; // cell exceeded energy at least once, so it's not dead
+		  if (aboveenergy[eta][phi][depth]>0) continue; // cell exceeded energy at least once, so it's not dead
 
 		  if (fVerbosity>2) 
-		    std::cout <<"DEAD CELL; BELOW ENERGY THRESHOLD = "<<subdet<<" eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth<<std::endl;
+		    std::cout <<"DEAD CELL; BELOW ENERGY THRESHOLD = "<<subdet<<" eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth+1<<std::endl;
 		  // Cell is below energy for all 'checkNevents_' consecutive events; update histogram
 		  
-		  if (BelowEnergyThresholdCellsByDepth.depth[depth-1]) BelowEnergyThresholdCellsByDepth.depth[depth-1]->Fill(ieta,iphi,deadmon_checkNevents_);
+		  if (BelowEnergyThresholdCellsByDepth.depth[depth]) BelowEnergyThresholdCellsByDepth.depth[depth]->Fill(ieta,iphi,deadmon_checkNevents_);
 		} // for (int subdet=1;subdet<=4;++subdet)
 	    } // for (unsigned int depth=1;depth<=4;++depth)
 	} // for (int phi=0;...)
@@ -1028,8 +1022,6 @@ void HcalDeadCellMonitor::fillNevents_problemCells(void)
   int iphi=0;
 
   double problemvalue=0;
-  double sumproblemvalue=0; // summed over all depths
-
 
   // Count problem cells in each subdetector
   unsigned int deadHB=0;
@@ -1056,61 +1048,61 @@ void HcalDeadCellMonitor::fillNevents_problemCells(void)
   unsigned int belowenergyHF=0;
   unsigned int belowenergyZDC=0;
 
-  for (int depth=1;depth<=4;++depth)
+  for (int depth=0;depth<4;++depth)
     {
-      for (int eta=1;eta<=ProblemDeadCellsByDepth.depth[depth-1]->getNbinsX();++eta)
+      for (int eta=0;eta<ProblemDeadCellsByDepth.depth[depth]->getNbinsX();++eta)
 	{
-	  for (int phi=1;phi<=ProblemDeadCellsByDepth.depth[depth-1]->getNbinsY();++phi)
+	  for (int phi=0;phi<ProblemDeadCellsByDepth.depth[depth]->getNbinsY();++phi)
 	    {
 	      iphi=phi;
 
 	      for (int subdet=1;subdet<=4;++subdet)
 		{
-		  ieta=ProblemDeadCellsByDepth.CalcIeta((HcalSubdetector)subdet,eta,depth);
-		  if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth))
+		  ieta=CalcIeta((HcalSubdetector)subdet,eta,depth+1);
+		  if (ieta==-9999) continue;
+		  if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1))
 		    continue;
 		  // Ignore subdetectors that weren't in run
-                  if ((subdet==1 && !HBpresent_) || 
-		      (subdet==2 &&!HEpresent_) ||
-		      (subdet==3 &&!HOpresent_) ||
-		      (subdet==4 &&!HFpresent_)) continue;
+                  if ((subdet==HcalBarrel && !HBpresent_) || 
+		      (subdet==HcalEndcap &&!HEpresent_)  ||
+		      (subdet==HcalOuter &&!HOpresent_)  ||
+		      (subdet==HcalForward &&!HFpresent_))   continue;
 
-		  if ((!checkHB_ && subdet==1) ||
-		      (!checkHE_ && subdet==2) ||
-		      (!checkHO_ && subdet==3) ||
-		      (!checkHF_ && subdet==4)) continue;
-		  
-		  //cout <<"HB eta = "<<eta<<"  ieta = "<<ieta<<" phi = "<<phi<<"  iphi = "<<iphi<<" depth = "<<depth<<endl;
+		  if ((!checkHB_ && subdet==HcalBarrel) ||
+		      (!checkHE_ && subdet==HcalEndcap) ||
+		      (!checkHO_ && subdet==HcalOuter) ||
+		      (!checkHF_ && subdet==HcalForward))  continue;
+
 		  // now check which dead cell tests failed; increment counter if any failed
-		  if ((deadmon_test_neverpresent_ && present[eta-1][phi-1][depth-1]==0) ||
-		      (deadmon_test_occupancy_ && occupancy[eta-1][phi-1][depth-1]==0 && (ievt_%deadmon_checkNevents_)==0) ||
-		      (deadmon_test_energy_ && aboveenergy[eta-1][phi-1][depth-1]==0  && (ievt_%deadmon_checkNevents_)==0))
+		  if ((deadmon_test_neverpresent_ && present[eta][phi][depth]==0) ||
+		      (deadmon_test_occupancy_ && occupancy[eta][phi][depth]==0 && (ievt_%deadmon_checkNevents_)==0) ||
+		      (deadmon_test_energy_ && aboveenergy[eta][phi][depth]==0  && (ievt_%deadmon_checkNevents_)==0))
 		    {
-		      if (subdet==1)      ++deadHB;
-		      else if (subdet==2) ++deadHE;
-		      else if (subdet==3) ++deadHO;
-		      else if (subdet==4) ++deadHF;
+		      if (subdet==HcalBarrel)      ++deadHB;
+		      else if (subdet==HcalEndcap) ++deadHE;
+		      else if (subdet==HcalOuter) ++deadHO;
+		      else if (subdet==HcalForward) ++deadHF;
 		    }
-		  if ((deadmon_test_neverpresent_ && present[eta-1][phi-1][depth-1]==0))
+		  if ((deadmon_test_neverpresent_ && present[eta][phi][depth]==0))
 		    {
-		      if (subdet==1) ++neverpresentHB;
-		      else if (subdet==2) ++neverpresentHE;
-		      else if (subdet==3) ++neverpresentHO;
-		      else if (subdet==4) ++neverpresentHF;
+		      if (subdet==HcalBarrel) ++neverpresentHB;
+		      else if (subdet==HcalEndcap) ++neverpresentHE;
+		      else if (subdet==HcalOuter) ++neverpresentHO;
+		      else if (subdet==HcalForward) ++neverpresentHF;
 		    }
-		  if ((deadmon_test_occupancy_ && occupancy[eta-1][phi-1][depth-1]==0 && (ievt_%deadmon_checkNevents_)==0))
+		  if ((deadmon_test_occupancy_ && occupancy[eta][phi][depth]==0 && (ievt_%deadmon_checkNevents_)==0))
 		    {
-		      if (subdet==1) ++unoccupiedHB;
-		      else if (subdet==2) ++unoccupiedHE;
-		      else if (subdet==3) ++unoccupiedHO;
-		      else if (subdet==4) ++unoccupiedHF;
+		      if (subdet==HcalBarrel) ++unoccupiedHB;
+		      else if (subdet==HcalEndcap) ++unoccupiedHE;
+		      else if (subdet==HcalOuter) ++unoccupiedHO;
+		      else if (subdet==HcalForward) ++unoccupiedHF;
 		    }
-		  if ((deadmon_test_energy_ & aboveenergy[eta-1][phi-1][depth-1]==0 && (ievt_%deadmon_checkNevents_)==0))
+		  if ((deadmon_test_energy_ & aboveenergy[eta][phi][depth]==0 && (ievt_%deadmon_checkNevents_)==0))
 		    {
-		      if (subdet==1) ++belowenergyHB;
-		      else if (subdet==2) ++belowenergyHE;
-		      else if (subdet==3) ++belowenergyHO;
-		      else if (subdet==4) ++belowenergyHF;
+		      if (subdet==HcalBarrel) ++belowenergyHB;
+		      else if (subdet==HcalEndcap) ++belowenergyHE;
+		      else if (subdet==HcalOuter) ++belowenergyHO;
+		      else if (subdet==HcalForward) ++belowenergyHF;
 		      // handle ZDC elsewhere -- in its own loop?
 		    }
 		} // subdet loop
@@ -1152,44 +1144,50 @@ void HcalDeadCellMonitor::fillNevents_problemCells(void)
   NumberOfNeverPresentCellsZDC->Fill(neverpresentZDC,deadmon_checkNevents_/deadmon_neverpresent_prescale_);
   NumberOfNeverPresentCells->Fill(neverpresentHB+neverpresentHE+neverpresentHO+neverpresentHF+neverpresentZDC,deadmon_checkNevents_/deadmon_neverpresent_prescale_);
 
+  ProblemDeadCells->Reset();
+  for (unsigned int i=0;i<ProblemDeadCellsByDepth.depth.size();++i)  ProblemDeadCellsByDepth.depth[i]->Reset();
 
-  for (int eta=1;eta<=ProblemDeadCellsByDepth.depth[0]->getNbinsX();++eta)
+  for (unsigned int d=0;d<ProblemDeadCellsByDepth.depth.size();++d)
     {
-      for (int phi=1;phi<=ProblemDeadCellsByDepth.depth[0]->getNbinsY();++phi)
+      for (int eta=0;eta<ProblemDeadCellsByDepth.depth[d]->getNbinsX();++eta)
 	{
-	  //iphi=phi;
-	  sumproblemvalue=0;
-
-	  for (unsigned int d=1;d<=ProblemDeadCellsByDepth.depth.size();++d)
+	  for (int phi=0;phi<ProblemDeadCellsByDepth.depth[d]->getNbinsY();++phi)
 	    {
-	      //ieta=ProblemDeadCellsByDepth.CalcIeta(eta,d);
-	      // problem value is sum of problems over all tests for a given depth
+	      iphi=phi+1;
+	      
+	      ieta=CalcIeta(eta,d+1);
+	      if (ieta==-9999) continue;
 	      problemvalue=0;
 	      if (deadmon_test_neverpresent_)
 		{
-		  problemvalue+=DigisNeverPresentByDepth.depth[d-1]->getBinContent(eta,phi);
+		  problemvalue+=DigisNeverPresentByDepth.depth[d]->getBinContent(eta+1,phi+1);
 		}
 	      if (deadmon_test_occupancy_)
 		{
-		  problemvalue+=UnoccupiedDeadCellsByDepth.depth[d-1]->getBinContent(eta,phi);
+		  problemvalue+=UnoccupiedDeadCellsByDepth.depth[d]->getBinContent(eta+1,phi+1);
 		}
 	      if (deadmon_test_energy_)
 		{
-		  problemvalue+=BelowEnergyThresholdCellsByDepth.depth[d-1]->getBinContent(eta,phi);
+		  problemvalue+=BelowEnergyThresholdCellsByDepth.depth[d]->getBinContent(eta+1,phi+1);
 		}
 	      problemvalue = min((double)ievt_,problemvalue);
-	      
-	      sumproblemvalue+=problemvalue; // sumproblemvalue is sum of problems over all depths
-	      ProblemDeadCellsByDepth.depth[d-1]->setBinContent(eta,phi,problemvalue);
-	      ProblemDeadCellsByDepth.depth[d-1]->setBinContent(0,0,ievt_);
-	      // verified that maximum = ievt_ here
-	    } // for (int d=1;...)
-	  sumproblemvalue = min((double)ievt_,sumproblemvalue);
-	  ProblemDeadCells->setBinContent(eta,phi,sumproblemvalue);
-	  ProblemDeadCells->setBinContent(0,0,ievt_);
-	} // loop on phi
-    } // loop on eta
-
+	      if (ieta!=-9999)
+		{
+		  ProblemDeadCellsByDepth.depth[d]->Fill(ieta,iphi,problemvalue);
+		  ProblemDeadCells->Fill(ieta,iphi,problemvalue);
+		}
+	    } // loop on phi
+	} // loop on eta
+      ProblemDeadCellsByDepth.depth[d]->setBinContent(0,0,ievt_);
+    } // loop on depth
+  for (int eta=0;eta<ProblemDeadCells->getNbinsX();++eta)
+    {
+      for (int phi=0;phi<ProblemDeadCells->getNbinsY();++phi)
+	{
+	  if (ProblemDeadCells->getBinContent(eta+1,phi+1)>(double)ievt_)
+	    ProblemDeadCells->setBinContent(eta+1,phi+1,(double)ievt_);
+	}
+    }
   if (showTiming)
     {
       cpu_timer.stop();  std::cout <<"TIMER:: HcalDeadCellMonitor FILLNEVENTS_PROBLEMCELLS -> "<<cpu_timer.cpuTime()<<std::endl;

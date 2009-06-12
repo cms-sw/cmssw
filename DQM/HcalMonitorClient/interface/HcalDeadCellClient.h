@@ -73,11 +73,12 @@ private:
   int deadclient_checkNevents_;
 
   // Histograms
+
   TH2F* ProblemDeadCells;
-  TH2F* ProblemDeadCellsByDepth[6];
-  TH2F* UnoccupiedDeadCellsByDepth[6];
-  TH2F* DigiNeverPresentByDepth[6];
-  TH2F* BelowEnergyThresholdCellsByDepth[6];
+  TH2F* ProblemDeadCellsByDepth[4];
+  TH2F* UnoccupiedDeadCellsByDepth[4];
+  TH2F* DigiNeverPresentByDepth[4];
+  TH2F* BelowEnergyThresholdCellsByDepth[4];
 
   TH1F* NumberOfDeadCells;
   TH1F* NumberOfDeadCellsHB;

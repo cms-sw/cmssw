@@ -180,6 +180,41 @@ bool HcalBaseClient::validDetId(HcalSubdetector sd, int ies, int ip, int dp)
 
 
 
+void HcalBaseClient::getEtaPhiHists(char* dir, char* name, TH2F* h[4], char* units)
+{
+  if (debug_>2) std::cout <<"HcalBaseClient::getting EtaPhiHists (2D)"<<std::endl;
+  TH2F* dummy = new TH2F();
+  ostringstream hname;
+
+  hname <<process_.c_str()<<dir<<"HB HE HF Depth 1 "<<name;
+  if (units!="") hname<<" "<<units;
+  if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
+  h[0]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  hname.str("");
+
+  hname <<process_.c_str()<<dir<<"HB HE HF Depth 2 "<<name;
+  if (units!="") hname<<" "<<units;
+  h[1]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
+  hname.str("");
+
+  hname <<process_.c_str()<<dir<<"HE Depth 3 "<<name;
+  if (units!="") hname<<" "<<units;
+  h[2]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
+  hname.str("");
+
+  hname <<process_.c_str()<<dir<<"HO Depth 4 "<<name;
+  if (units!="") hname<<" "<<units;
+  h[3]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
+  hname.str("");
+
+  if (debug_>2) std::cout <<"Finished with getEtaPhiHists(2D)"<<std::endl;
+  return;
+} // void HcalBaseClient::getEtaPhiHists(...)
+
+
 
 void HcalBaseClient::getSJ6histos(char* dir, char* name, TH2F* h[6], char* units)
 {
@@ -226,7 +261,6 @@ void HcalBaseClient::getSJ6histos(char* dir, char* name, TH2F* h[6], char* units
   if (debug_>2) std::cout <<"Finished with getSJ6histos(2D)"<<std::endl;
   return;
 } // void HcalBaseClient::getSJ6histos(2D)
-
 
 
 

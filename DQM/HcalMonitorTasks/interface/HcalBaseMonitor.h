@@ -37,8 +37,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2009/06/08 12:16:01 $
-  * $Revision: 1.21 $
+  * $Date: 2009/06/09 19:10:30 $
+  * $Revision: 1.22 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -65,6 +65,11 @@ public:
   void setupDepthHists2D(std::vector<MonitorElement*> &hh, char* Name, char* Units);
   void SetupEtaPhiHists(MonitorElement* &h, EtaPhiHists& hh, char* Name, char* Units);
   void SetupEtaPhiHists(EtaPhiHists &hh, char* Name, char* Units);
+
+  int CalcEtaBin(int subdet, int ieta, int depth);
+  int CalcIeta(int subdet, int eta, int depth);  
+  int CalcIeta(int eta, int depth);
+  
 
   // Generic 2-D histograms
   void setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units,

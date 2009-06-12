@@ -316,21 +316,22 @@ void HcalDeadCellClient::getHistograms()
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
     if ( debug_>1 ) std::cout << "Found '" << name.str().c_str() << "'" << std::endl;
   }
-  
-  // dummy histograms
+
+  // dummy histograms -- used for checking histogram types
   TH2F* dummy2D = new TH2F();
   TH1F* dummy1D = new TH1F();
 
+  
   // Grab individual histograms
   name.str("");
   name<<"DeadCellMonitor_Hcal/ ProblemDeadCells";
   ProblemDeadCells = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
   name.str("");
-
-  getSJ6histos("DeadCellMonitor_Hcal/problem_deadcells/", " Problem Dead Cell Rate", ProblemDeadCellsByDepth);
-  if (deadclient_test_neverpresent_) getSJ6histos("DeadCellMonitor_Hcal/dead_digi_never_present/",   "Dead Cells with No Digis Ever", DigiNeverPresentByDepth);
-  if (deadclient_test_occupancy_) getSJ6histos("DeadCellMonitor_Hcal/dead_digi_often_missing/",   "Dead Cells with No Digis", UnoccupiedDeadCellsByDepth);
-  if (deadclient_test_energy_)    getSJ6histos("DeadCellMonitor_Hcal/dead_energytest/",   "Dead Cells Failing Energy Threshold Test", BelowEnergyThresholdCellsByDepth);
+  
+  getEtaPhiHists("DeadCellMonitor_Hcal/problem_deadcells/", " Problem Dead Cell Rate", ProblemDeadCellsByDepth);
+  if (deadclient_test_neverpresent_) getEtaPhiHists("DeadCellMonitor_Hcal/dead_digi_never_present/",   "Dead Cells with No Digis Ever", DigiNeverPresentByDepth);
+  if (deadclient_test_occupancy_) getEtaPhiHists("DeadCellMonitor_Hcal/dead_digi_often_missing/",   "Dead Cells with No Digis", UnoccupiedDeadCellsByDepth);
+  if (deadclient_test_energy_)    getEtaPhiHists("DeadCellMonitor_Hcal/dead_energytest/",   "Dead Cells Failing Energy Threshold Test", BelowEnergyThresholdCellsByDepth);
 
   NumberOfDeadCells=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/Problem_TotalDeadCells_HCAL",
 				process_,dbe_,debug_,cloneME_);
@@ -394,6 +395,8 @@ void HcalDeadCellClient::getHistograms()
       ProblemDeadCellsByDepth[i]->SetMinimum(0);
     }
 
+  delete dummy1D;
+  delete dummy2D;
   return;
 } //void HcalDeadCellClient::getHistograms()
 

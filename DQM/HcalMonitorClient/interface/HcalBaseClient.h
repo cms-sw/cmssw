@@ -68,6 +68,8 @@ class HcalBaseClient{
   void getSJ6histos( char* dir, char* name, TH2F* h[6], char* units="");
   void getSJ6histos( char* dir, char* name, TH1F* h[6], char* units="");
 
+  void getEtaPhiHists( char* dir, char* name, TH2F* h[4], char* units="");
+
  protected:
 
   int ievt_;

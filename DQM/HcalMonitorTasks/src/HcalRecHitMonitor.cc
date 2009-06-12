@@ -19,7 +19,7 @@ HcalRecHitMonitor::~HcalRecHitMonitor()
 /* ------------------------------------ */ 
 
 void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
-				DQMStore* dbe)
+			      DQMStore* dbe)
 {
   HcalBaseMonitor::setup(ps,dbe);
 

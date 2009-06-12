@@ -233,17 +233,19 @@ void HcalBaseMonitor::SetupEtaPhiHists(EtaPhiHists & hh, char* Name, char* Units
 		      (name.str()+" Depth 2 -- HB HE HF ("+unittitle.str().c_str()+")"),
 		      85,-42.5,42.5,
 		      72,0.5,72.5));
-  // Revise these bins at some point
+  // Set up variable-sized bins for HE depth 3 (MonitorElement also requires phi bins to be entered in array format)
+  float xbins[]={(float)-28.5,(float)-27.5,(float)-26.5,(float)-16.5,(float)-15.5,
+		 (float)15.5,(float)16.5,(float)26.5,(float)27.5,(float)28.5};
+  float ybins[73];
+  for (int i=0;i<=72;i++) ybins[i]=(float)(i+0.5);
   hh.depth.push_back(m_dbe->book2D(("HE Depth 3 "+name.str()+unitname.str()).c_str(),
 				   (name.str()+" Depth 3 -- HE ("+unittitle.str().c_str()+")"),
-				   // rebin into variable-sized eta bins later
-				   85,-42.5,42.5,
-				   72,0.5,72.5));
+				   // Use variable-sized eta bins 
+				   9, xbins, 72, ybins));
+  // HO bins are fixed width, but cover a smaller eta range (-15 -> 15)
   hh.depth.push_back(m_dbe->book2D(("HO Depth 4 "+name.str()+unitname.str()).c_str(),
 				   (name.str()+" Depth 4 -- HO ("+unittitle.str().c_str()+")"),
-				   // rebin to this smaller number of bins later:
-				   //31,-15.5,15.5,
-				   85, -42.5,42.5,
+				   31,-15.5,15.5,
 				   72,0.5,72.5));
   hh.setBinLabels(); // set axis titles, special bins
   
@@ -657,30 +659,32 @@ void HcalBaseMonitor::FillUnphysicalHEHFBins(EtaPhiHists &hh)
 {
   int ieta=0;
   int iphi=0;
-  for (unsigned int d=0;d<hh.depth.size();++d)
+  // First 2 depths have 5-10-20 degree corrections
+  for (unsigned int d=0;d<3;++d)
     {
-      for (int hist_eta=1;hist_eta<=hh.depth[d]->getNbinsX();++hist_eta)
+      for (int eta=0;eta<hh.depth[d]->getNbinsX();++eta)
 	{
-	  for (int hist_phi=1;hist_phi<=hh.depth[d]->getNbinsY();++hist_phi)
+	  for (int phi=0;phi<hh.depth[d]->getNbinsY();++phi)
 	    {
-	      ieta=hh.CalcIeta(hist_eta,d);
-	      if (abs(ieta)<21) continue;
-	      iphi=hist_phi;
+	      ieta=CalcIeta(eta,d);
+	      if (ieta==-9999 || abs(ieta)<21) continue;
+	      iphi=phi+1;
 	      if (iphi%2==1 && abs(ieta)<40 && iphi<73)
 		{
-		  hh.depth[d]->setBinContent(hist_eta,hist_phi+1,hh.depth[d]->getBinContent(hist_eta,hist_phi));
+		  hh.depth[d]->setBinContent(eta+1,iphi+1,hh.depth[d]->getBinContent(eta+1,iphi));
 		}
 	      // last two eta strips span 20 degrees in phi
 	      // Fill the phi cell above iphi, and the 2 below it
 	      else  if (abs(ieta)>39 && iphi%4==3 && iphi<73)
 		{
-		  hh.depth[d]->setBinContent(hist_eta,hist_phi+1,hh.depth[d]->getBinContent(hist_eta,hist_phi));
-		  hh.depth[d]->setBinContent(hist_eta,hist_phi-1,hh.depth[d]->getBinContent(hist_eta,hist_phi));
-		  hh.depth[d]->setBinContent(hist_eta,hist_phi-2,hh.depth[d]->getBinContent(hist_eta,hist_phi));
+		  hh.depth[d]->setBinContent(eta+1,iphi+1, hh.depth[d]->getBinContent(eta+1,iphi));
+		  hh.depth[d]->setBinContent(eta+1,iphi-1, hh.depth[d]->getBinContent(eta+1,iphi));
+		  hh.depth[d]->setBinContent(eta+1,iphi-2, hh.depth[d]->getBinContent(eta+1,iphi));
 		}
-	    } // for (int hist_phi...)
-	} // for (int hist_eta...)
+	    } // for (int phi...)
+	} // for (int eta...)
     } // for (int d=0;...)
+  // no corrections needed for HO (depth 4)
   return;
 } // HcalBaseMonitor::HcalBaseMonitor::FillUnphysicalHEHFBins(MonitorElement* hh)
 
@@ -719,4 +723,110 @@ void HcalBaseMonitor::FillUnphysicalHEHFBins(MonitorElement* hh)
   return;
 } // HcalBaseMonitor::FillUnphysicalHEHFBins(std::vector<MonitorElement*> &hh)
 
+
+int HcalBaseMonitor::CalcEtaBin(int subdet, int ieta, int depth)
+{
+  // This takes the eta value from a subdetector and return an eta counter value as used by eta-phi histograms
+  // (ieta=-41 corresponds to bin 0, +41 to bin 85 -- there are two offsets to deal with the overlap at |ieta|=29).
+  // For HO, ieta = -15 corresponds to bin 0, and ieta=15 is bin 30
+  // For HE depth 3, things are more complicated, but feeding the ieta value will give back the corresponding counter eta value
+  int etabin=-9999; 
+  if (depth<=2)
+    {
+      etabin=ieta+42;
+      if (subdet==HcalForward)
+	{
+	  ieta < 0 ? etabin-- : etabin++;
+	}
+    }
+  else if (subdet==HcalOuter && abs(ieta)<16)
+    etabin=ieta+15;
+  else if (subdet==HcalEndcap)
+    {
+      if (depth==3)
+	{
+	  if (ieta==-28) etabin=0;
+	  else if (ieta==-27) etabin=1;
+	  else if (ieta==-16) etabin=3;
+	  else if (ieta==16)  etabin=5;
+	  else if (ieta==27)  etabin=7;
+	  else if (ieta==28)  etabin=8;
+	}
+    }
+  return etabin;
+}
+
+int HcalBaseMonitor::CalcIeta(int subdet, int eta, int depth)
+{
+  int ieta;
+  ieta=eta-42; // default shift: bin 0 corresponds to a histogram ieta of -42 (which is offset by 1 from true HF value of -41)
+  if (subdet==HcalBarrel)
+    {
+      if (depth>2) 
+	ieta=-9999; // non-physical value
+    }
+  else if (subdet==HcalForward)
+    {
+      if (depth>2)
+	ieta=-9999;
+      else
+	{
+	  if (eta<14) ieta++;
+	  else if (eta>72) ieta--;
+	  else ieta=-9999; // if outside forward range, return dummy
+	}
+    }
+  // add in HE depth 3, HO later
+  else if (subdet==HcalEndcap)
+    {
+      if (depth==3)
+	{
+	  if (eta<0 || eta>8) ieta=-9999;
+	  else
+	    {
+	      int binmap[]={-28,-27,-9999,-16,-9999,16,9999,27,28};
+	      ieta=binmap[eta];
+	    }
+	}
+      else if (depth==4)
+	ieta=-9999;
+    } // HcalEndcap
+  else if ( subdet==HcalOuter)
+    {
+      if (depth<4)
+	ieta=-9999;
+      else
+	{
+	  ieta= eta-15;  // bin 0 is ieta=-15, all bins increment normally from there
+	  if (abs(ieta)>15) ieta=-9999;
+	}
+    } // HcalOuter
+  return ieta;
+}
+  
+int HcalBaseMonitor::CalcIeta(int eta, int depth)
+{
+  int ieta;
+  ieta=eta-42; // default shift: bin 0 corresponds to a histogram ieta of -42 (which is offset by 1 from true HF value of -41)
+  if (depth<=2)
+    {
+      if (eta<14) ieta++;
+      else if (eta>72) ieta--;
+    }
+  else if (depth==3)
+    {
+      if (eta<0 || eta>8) ieta=-9999;
+      else
+	{
+	  int binmap[]={-28,-27,-9999,-16,-9999,16,-9999,27,28};
+	  ieta=binmap[eta];
+	}
+    }
+  else if (depth==4)
+    {
+      ieta= eta-15;  // bin 0 is ieta=-15, all bins increment normally from there
+      if (abs(ieta)>15) ieta=-9999;
+    }
+  return ieta;
+}
 

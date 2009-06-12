@@ -55,6 +55,16 @@ class EtaPhiHists{
 	  label.str("");
 	}
 
+      // HE depth 3 labels;
+      depth[2]->setBinLabel(1,"-28");
+      depth[2]->setBinLabel(2,"-27");
+      depth[2]->setBinLabel(3,"Null");
+      depth[2]->setBinLabel(4,"-16");
+      depth[2]->setBinLabel(5,"Null");
+      depth[2]->setBinLabel(6,"16");
+      depth[2]->setBinLabel(7,"Null");
+      depth[2]->setBinLabel(8,"27");
+      depth[2]->setBinLabel(9,"28");
     };
   // special fill call based on detid -- eventually will need special treatment
   void Fill(HcalDetId& id, double val=1)
@@ -66,39 +76,8 @@ class EtaPhiHists{
 	depth[id.depth()-1]->Fill(id.ieta(),id.iphi(),val);
     };
 
-  int CalcIeta(HcalSubdetector subdet, int eta, int depth)
-    {
-      int ieta;
-      ieta=eta-43; // default shift: bin 1 corresponds to a histogram ieta of -42 (which is offset by 1 from true HF value of -41)
-      if (subdet==HcalBarrel)
-	{
-	  if (depth>2) 
-	    ieta=-9999; // non-physical value
-	}
-      else if (subdet==HcalForward)
-	{
-	  if (depth>2)
-	    ieta=-9999;
-	  if (eta<14) ieta++;
-	  else if (eta>72) ieta--;
-	  else ieta=-9999; // if outside forward range, return dummy
-	}
-      // add in HE depth 3, HO later
-      return ieta;
-    };
-  
-  int CalcIeta(int eta, int depth)
-    {
-      int ieta;
-      ieta=eta-43; // default shift: bin 1 corresponds to a histogram ieta of -42 (which is offset by 1 from true HF value of -41)
-      if (depth<=2)
-	{
-	  if (eta<14) ieta++;
-	  else if (eta>72) ieta--;
-	}
-      // add in HE depth 3, HO later
-      return ieta;
-    };
+
+  //******************************************************************************************
 
   // elements -- should we make a base Eta/Phi class that would contain a histo, nbinsx, nbinsy, etc.?
   std::vector<MonitorElement*> depth;
