@@ -91,6 +91,7 @@ void make1DPlot(std::string histoname, TFile* f1, std::string histotitle, int st
     c->Update();
     c->Print(savename.c_str(),"png");
   }
+  delete c;
 
 }
 
@@ -132,6 +133,8 @@ void makeCSCOccupancy(std::string histoname, TFile* f1, std::string histotitle, 
     c->Update();
     c->Print(savename.c_str(),"png");
   }
+
+  delete c;
 
 }
 
@@ -184,18 +187,41 @@ void make1DPlot2(std::string histoname1, std::string histoname2, int statoption,
 
   c->Update();
   c->Print(savename.c_str(),"png");
+  delete c;
 
 }
 
 void makeEffGif(std::string histoname, TFile* f1, std::string histotitle, std::string savename){
 
 
-  TH1F *h1 = (TH1F*)f1->Get(histoname.c_str());
+  TH1F *ho = (TH1F*)f1->Get(histoname.c_str());
 
   TCanvas *c = new TCanvas("c","my canvas",1);
 
+  TH1F *hn = new TH1F("tmp",histotitle.c_str(),20,0.5,20.5);
 
-  if (h1){
+
+  if (ho){
+
+    float Num = 1;
+    float Den = 1;
+    for (int i=0;i<20;i++){
+      Num = ho->GetBinContent(i+1);
+      Den = ho->GetBinContent(i+21);
+      //getEfficiency(Num, Den, eff);
+      float Eff = 0.;
+      float EffE = 0.;
+      if(fabs(Den)>0.000000001){
+        Eff = Num/Den;
+        if(Num<Den){
+          EffE = sqrt( (1.-Eff)*Eff/Den );
+        }
+      }
+      hn->SetBinContent(i+1, Eff);
+      hn->SetBinError(i+1, EffE);
+    }
+
+
     gStyle->SetOptStat(kFALSE);
     gStyle->SetHistFillColor(92);
     gStyle->SetFrameFillColor(4000);
@@ -205,40 +231,42 @@ void makeEffGif(std::string histoname, TFile* f1, std::string histotitle, std::s
     gStyle->SetStatColor(0);
     gStyle->SetTitleFillColor(0);
     c->SetFillStyle(4000);
-    h1->UseCurrentStyle();
+    hn->UseCurrentStyle();
 
-    h1->SetTitle(histotitle.c_str());
-    h1->GetXaxis()->SetLabelSize(0.04);
-    h1->GetYaxis()->SetLabelSize(0.04);
-    h1->GetXaxis()->SetTitleOffset(0.7);
-    h1->GetXaxis()->SetTitleSize(0.06);
-    h1->GetXaxis()->SetNdivisions(208,kTRUE);
-    h1->GetYaxis()->SetRangeUser(0.5,1.1);
-    h1->SetMarkerStyle(6);
-    h1->GetXaxis()->SetBinLabel(1,"ME +1/1b");
-    h1->GetXaxis()->SetBinLabel(2,"ME +1/2");
-    h1->GetXaxis()->SetBinLabel(3,"ME +1/3");
-    h1->GetXaxis()->SetBinLabel(4,"ME +1/1a");
-    h1->GetXaxis()->SetBinLabel(5,"ME +2/1");
-    h1->GetXaxis()->SetBinLabel(6,"ME +2/2");
-    h1->GetXaxis()->SetBinLabel(7,"ME +3/1");
-    h1->GetXaxis()->SetBinLabel(8,"ME +3/2");
-    h1->GetXaxis()->SetBinLabel(9,"ME +4/1");
-    h1->GetXaxis()->SetBinLabel(10,"ME +4/2");
-    h1->GetXaxis()->SetBinLabel(11,"ME -1/1b");
-    h1->GetXaxis()->SetBinLabel(12,"ME -1/2");
-    h1->GetXaxis()->SetBinLabel(13,"ME -1/3");
-    h1->GetXaxis()->SetBinLabel(14,"ME -1/1a");
-    h1->GetXaxis()->SetBinLabel(15,"ME -2/1");
-    h1->GetXaxis()->SetBinLabel(16,"ME -2/2");
-    h1->GetXaxis()->SetBinLabel(17,"ME -3/1");
-    h1->GetXaxis()->SetBinLabel(18,"ME -3/2");
-    h1->GetXaxis()->SetBinLabel(19,"ME -4/1");
-    h1->GetXaxis()->SetBinLabel(20,"ME -4/2");
-    h1->Draw();
+    hn->SetTitle(histotitle.c_str());
+    hn->GetXaxis()->SetLabelSize(0.04);
+    hn->GetYaxis()->SetLabelSize(0.04);
+    hn->GetXaxis()->SetTitleOffset(0.7);
+    hn->GetXaxis()->SetTitleSize(0.06);
+    hn->GetXaxis()->SetNdivisions(208,kTRUE);
+    hn->GetYaxis()->SetRangeUser(0.5,1.1);
+    hn->SetMarkerStyle(6);
+    hn->GetXaxis()->SetBinLabel(1,"ME +1/1b");
+    hn->GetXaxis()->SetBinLabel(2,"ME +1/2");
+    hn->GetXaxis()->SetBinLabel(3,"ME +1/3");
+    hn->GetXaxis()->SetBinLabel(4,"ME +1/1a");
+    hn->GetXaxis()->SetBinLabel(5,"ME +2/1");
+    hn->GetXaxis()->SetBinLabel(6,"ME +2/2");
+    hn->GetXaxis()->SetBinLabel(7,"ME +3/1");
+    hn->GetXaxis()->SetBinLabel(8,"ME +3/2");
+    hn->GetXaxis()->SetBinLabel(9,"ME +4/1");
+    hn->GetXaxis()->SetBinLabel(10,"ME +4/2");
+    hn->GetXaxis()->SetBinLabel(11,"ME -1/1b");
+    hn->GetXaxis()->SetBinLabel(12,"ME -1/2");
+    hn->GetXaxis()->SetBinLabel(13,"ME -1/3");
+    hn->GetXaxis()->SetBinLabel(14,"ME -1/1a");
+    hn->GetXaxis()->SetBinLabel(15,"ME -2/1");
+    hn->GetXaxis()->SetBinLabel(16,"ME -2/2");
+    hn->GetXaxis()->SetBinLabel(17,"ME -3/1");
+    hn->GetXaxis()->SetBinLabel(18,"ME -3/2");
+    hn->GetXaxis()->SetBinLabel(19,"ME -4/1");
+    hn->GetXaxis()->SetBinLabel(20,"ME -4/2");
+    hn->Draw();
     c->Update();
     c->Print(savename.c_str(),"png");
   }
+  delete c;
+  delete hn;
 }
 
 void Draw2DProfile(std::string histoname, TFile* f1, std::string title, std::string option, std::string savename){
@@ -291,7 +319,70 @@ void Draw2DProfile(std::string histoname, TFile* f1, std::string title, std::str
     plot->Draw("colz");
     c->Update();
     c->Print(savename.c_str(),"png");
+    delete c;
   }
+
+}
+
+void Draw2DEfficiency(std::string histo, TFile* f1, std::string title, std::string savename){
+
+  TCanvas *c = new TCanvas("c","my canvas",1);
+  gStyle->SetPalette(1,0);
+  gPad->SetFillColor(4000);
+  c->SetFillStyle(4000);
+  gStyle->SetStatColor(0);
+  gStyle->SetTitleFillColor(0);
+
+  TH2F *num  = (TH2F*)f1->Get(histo.c_str());
+  TH2F *denom = (TH2F*)f1->Get("Efficiency/hEffDenominator");
+
+  TH2F *plot = new TH2F("plot",title.c_str(),36,0.5,36.5,18,0.5,18.5);
+
+  plot->Divide(num,denom,1.,1.,"B");
+
+  plot->SetStats(kFALSE);
+
+  plot->GetYaxis()->SetBinLabel(1,"ME- 4/1");
+  plot->GetYaxis()->SetBinLabel(2,"ME- 3/2");
+  plot->GetYaxis()->SetBinLabel(3,"ME- 3/1");
+  plot->GetYaxis()->SetBinLabel(4,"ME- 2/2");
+  plot->GetYaxis()->SetBinLabel(5,"ME- 2/1");
+  plot->GetYaxis()->SetBinLabel(9,"ME- 1/1a");
+  plot->GetYaxis()->SetBinLabel(6,"ME- 1/3");
+  plot->GetYaxis()->SetBinLabel(7,"ME- 1/2");
+  plot->GetYaxis()->SetBinLabel(8,"ME- 1/1b");
+  plot->GetYaxis()->SetBinLabel(11,"ME+ 1/1b");
+  plot->GetYaxis()->SetBinLabel(12,"ME+ 1/2");
+  plot->GetYaxis()->SetBinLabel(13,"ME+ 1/3");
+  plot->GetYaxis()->SetBinLabel(10,"ME+ 1/1a");
+  plot->GetYaxis()->SetBinLabel(14,"ME+ 2/1");
+  plot->GetYaxis()->SetBinLabel(15,"ME+ 2/2");
+  plot->GetYaxis()->SetBinLabel(16,"ME+ 3/1");
+  plot->GetYaxis()->SetBinLabel(17,"ME+ 3/2");
+  plot->GetYaxis()->SetBinLabel(18,"ME+ 4/1");
+
+  for (int i = 1; i < 37; i++){
+    ostringstream oss1;
+    oss1 << i;
+    string ch = oss1.str();
+    plot->GetXaxis()->SetBinLabel(i,ch.c_str());
+  }
+
+  c->SetRightMargin(0.12);
+
+  plot->GetYaxis()->SetNdivisions(20,kFALSE);
+  plot->GetXaxis()->SetNdivisions(36,kFALSE);
+
+  plot->GetXaxis()->SetTitle("Chamber #");
+
+  c->SetGrid();
+
+  plot->Draw("COLZ");
+
+  c->Update();
+  c->Print(savename.c_str(),"png");
+  delete c;
+  delete plot;
 
 }
 
@@ -372,7 +463,7 @@ void Draw2DTempPlot(std::string histo, TFile* f1, bool includeME11, std::string 
 
   c->Update();
   c->Print(savename.c_str(),"png");
-
+  delete c;
 
 }
 
@@ -458,6 +549,8 @@ void GlobalPosfromTree(std::string graphname, TFile* f1, int endcap, int station
  drawColoredChamberLines(station,nchamber1);
 
  c->Print(savename.c_str(),"png");
+ delete c;
+
 
 } // end GlobalPosfromTree
 
@@ -816,6 +909,7 @@ void compare1DPlot(std::string histoname, TFile* f1, TFile* f2, std::string hist
 
   c->Update();
   c->Print(savename.c_str(),"png");
+  delete c;
 
 }
 
@@ -882,6 +976,8 @@ void compareEffGif(std::string histoname, TFile* f1, TFile* f2, std::string hist
     c->Update();
     c->Print(savename.c_str(),"png");
   }
+  delete c;
+
 }
 
 
@@ -980,6 +1076,7 @@ void GlobalPosfromTreeCompare(std::string graphname, TFile* f1, TFile* f2, int e
 
   //c->Update();
   c->Print(savename.c_str(),"png");
+  delete c;
 
 }
 
@@ -1242,6 +1339,7 @@ for(Int_t jesr=0;jesr<18;jesr++) {
    delete h;
    delete hentr;
    if(flag==2) delete ha;
+
 }
    if(flag==2) {
    hb->Draw();      
@@ -1250,8 +1348,10 @@ for(Int_t jesr=0;jesr<18;jesr++) {
    c1->Print(ss.str().c_str(),"png");
 
    c1->Update();
-   delete hb;    
+   //delete hb;
    }
+   delete hb;
+   delete c1;
 }
 
 
