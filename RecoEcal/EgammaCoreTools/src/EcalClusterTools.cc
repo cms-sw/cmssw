@@ -1,3 +1,5 @@
+//Version history: Tia Miceli edited from original: CVS Tags: CMSSW_3_1_0_pre5, CMSSW_3_1_0_pre6, V00-05-33, V00-05-32, V00-05-31, V00-05-30, V00-05-29, HEAD
+// Add Roundness and Angle functions
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
@@ -347,7 +349,7 @@ std::vector<EcalClusterTools::EcalClusterEnergyDeposition> EcalClusterTools::get
         // in the transverse plane, axis perpendicular to clusterDir
         CLHEP::Hep3Vector theta_axis(clDir.y(),-clDir.x(),0.0);
         theta_axis *= 1.0/theta_axis.mag();
-        CLHEP::Hep3Vector phi_axis = theta_axis.cross(clDir);
+        Hep3Vector phi_axis = theta_axis.cross(clDir);
 
         std::vector< std::pair<DetId, float> > clusterDetIds = cluster.hitsAndFractions();
 
@@ -873,3 +875,173 @@ std::vector<float> EcalClusterTools::scLocalCovariances(const reco::SuperCluster
  
   return v;
 }
+
+//compute shower shapes: roundness and angle
+//description:
+std::vector<float> EcalClusterTools::ShowerShapes( const reco::SuperCluster &superCluster ,const EcalRecHitCollection *recHits){
+	
+	std::vector<float> shapes;
+	
+	//std::vector<DetId> usedCrystals = superCluster->getHitsByDetId();
+	/*>> Compiling /uscms/home/miceli/work/photon/halo/showershape/CMSSW_3_1_0_pre6/src/RecoEcal/EgammaCoreTools/src/EcalClusterTools.cc 
+/uscms/home/miceli/work/photon/halo/showershape/CMSSW_3_1_0_pre6/src/RecoEcal/EgammaCoreTools/src/EcalClusterTools.cc: In static member function `static std::vector<float, std::allocator<float> > EcalClusterTools::ShowerShapes(const reco::SuperCluster&, const EcalRecHitCollection*)':
+/uscms/home/miceli/work/photon/halo/showershape/CMSSW_3_1_0_pre6/src/RecoEcal/EgammaCoreTools/src/EcalClusterTools.cc:886: error: base operand of `->' has non-pointer type `const reco::SuperCluster'
+gmake: *** [tmp/slc4_ia32_gcc345/src/RecoEcal/EgammaCoreTools/src/RecoEcalEgammaCoreTools/EcalClusterTools.o] Error 1*/
+	
+	//std::vector<DetId> usedCrystals = superCluster.getHitsByDetId();
+	/*This above line gives this error:
+	>> Compiling /uscms/home/miceli/work/photon/halo/showershape/CMSSW_3_1_0_pre6/src/RecoEcal/EgammaCoreTools/src/EcalClusterTools.cc 
+/uscms/home/miceli/work/photon/halo/showershape/CMSSW_3_1_0_pre6/src/RecoEcal/EgammaCoreTools/src/EcalClusterTools.cc: In static member function `static std::vector<float, std::allocator<float> > EcalClusterTools::ShowerShapes(const reco::SuperCluster&, const EcalRecHitCollection*)':
+/uscms/home/miceli/work/photon/halo/showershape/CMSSW_3_1_0_pre6/src/RecoEcal/EgammaCoreTools/src/EcalClusterTools.cc:886: error: 'const class reco::SuperCluster' has no member named 'getHitsByDetId'
+gmake: *** [tmp/slc4_ia32_gcc345/src/RecoEcal/EgammaCoreTools/src/RecoEcalEgammaCoreTools/EcalClusterTools.o] Error 1
+	*/
+	
+	std::vector< std::pair<DetId, float> > myHitsPair = superCluster.hitsAndFractions();
+	std::vector<DetId> usedCrystals; 
+	for(int i=0; i< static_cast<int>(myHitsPair.size()); i++){
+		usedCrystals.push_back(myHitsPair[i].first);
+	}
+	//make sure photon has more than one crystal; else roundness and angle suck
+	if(usedCrystals.size()<2){
+		shapes.push_back( -1 );
+		shapes.push_back( -1 );
+		return shapes;
+	}
+	
+	int positionCorrection = 0;//0 linear weighting, 1 log energy weighting
+	int ietaEcalRH[3000];
+	int iphiEcalRH[3000];
+	float eEcalRH[3000];
+	float eEcalRHtotal = 0;
+	int highestRH = 0;
+	int nEcalRH=0;
+	
+	//1nd loop over rechits==========================================
+	for(unsigned int i=0; i<usedCrystals.size() && (nEcalRH<3000); i++){
+		//detIdEcalRH[i]=static_cast<UInt_t>(usedCrystals[i]);
+		
+		//get iEta, iPhi
+		EBDetId EBdetIdi=static_cast<EBDetId>(usedCrystals[i]);
+		ietaEcalRH[i]=EBdetIdi.ieta();
+		//get rid of the no ieta=0 "feature" from standard geometry
+		if(ietaEcalRH[i]<0) ietaEcalRH[i]=ietaEcalRH[i]+1; 
+		iphiEcalRH[i]=EBdetIdi.iphi();
+		
+		//get pointer to recHit object
+		EcalRecHitCollection::const_iterator myRH = recHits->find(usedCrystals[i]);
+		eEcalRH[i] = myRH->energy();
+		eEcalRHtotal += eEcalRH[i];//compute energy in SC
+		if(eEcalRH[highestRH]<eEcalRH[i]) highestRH = i;
+		nEcalRH++;
+	}
+	if(nEcalRH>=3000) std::cout<<"ShowerShapes: nEcalRH 3000 or greater, past end of array!"<<std::endl;
+	
+	//stuff to compute for each photon
+	
+	//2nd loop over rechits==========================================
+	//int iRELATIVEeta[nEcalRH];
+	//int iRELATIVEphi[nEcalRH];
+	std::vector<int> iRELATIVEeta;
+	std::vector<int> iRELATIVEphi;
+	
+	Float_t ietaLINEARsc=0;
+	Float_t iphiLINEARsc=0;
+	Float_t denomLINEAR=0;
+	
+	Float_t ietaLOGsc=0;
+	Float_t iphiLOGsc=0;
+	Float_t denomLOG=0;
+	
+	//compute my own photon position
+	for(int j=0; j<nEcalRH; j++){
+		
+		//define local coordinates for photon object:
+		//iRELATIVEeta[j] = ietaEcalRH[j] - ietaEcalRH[highestRH];
+		iRELATIVEeta.push_back(ietaEcalRH[j] - ietaEcalRH[highestRH]);
+		int deltaphi = iphiEcalRH[j] - iphiEcalRH[highestRH];
+		if(-360 < deltaphi && deltaphi<-180) deltaphi = 360 + deltaphi;  // - sign means phiEcalRH is cw  from phiSC  AND |deltaphi| <= PI
+		if( 180 < deltaphi && deltaphi< 360) deltaphi = deltaphi - 360;  // + sign means phiEcalRH is ccw from phiSC  AND |deltaphi| <= PI
+		iRELATIVEphi.push_back(deltaphi);
+		
+		//compute sums for new SC postion
+		float LINw = eEcalRH[j]/eEcalRHtotal;
+		denomLINEAR += LINw; 
+		ietaLINEARsc   += LINw * iRELATIVEeta[j];
+		iphiLINEARsc   += LINw * iRELATIVEphi[j];
+		
+		float LOGw =std::max(0.0, 4.2 + log(eEcalRH[j]/eEcalRHtotal));
+		denomLOG += LOGw;
+		ietaLOGsc   += LOGw * iRELATIVEeta[j];
+		iphiLOGsc   += LOGw * iRELATIVEphi[j];
+		
+	}
+	
+	//finish computing new SC positions using different weighting schemes
+	iphiLINEARsc=iphiLINEARsc/denomLINEAR;
+	ietaLINEARsc=ietaLINEARsc/denomLINEAR;
+	
+	iphiLOGsc=iphiLOGsc/denomLOG;
+	ietaLOGsc=ietaLOGsc/denomLOG;
+	
+	//3rd loop over rechits==========================================
+	TMatrixD inertia(2,2); //initialize 2d inertia tensor
+	inertia[0][0]=0;
+	inertia[0][1]=0;
+	inertia[1][0]=0;
+	inertia[1][1]=0;
+	
+	for(int j=0; j<nEcalRH; j++){// 3rd loop over rechits
+		
+		if(positionCorrection==0){// use linear weighting for SC position
+			EcalClusterTools::ShowerShapesInertiaTensorAddHit(inertia, eEcalRH[j]/eEcalRHtotal, iRELATIVEeta[j]-ietaLINEARsc, iRELATIVEphi[j]-iphiLINEARsc);
+		}
+		else if(positionCorrection==1){// use log weighting for SC position (not fully tested yet, should be ok)
+			EcalClusterTools::ShowerShapesInertiaTensorAddHit(inertia, eEcalRH[j]/eEcalRHtotal, iRELATIVEeta[j]-ietaLOGsc, iRELATIVEphi[j]-iphiLOGsc);
+		}
+		
+	}//loop over rechits specified by the supercluster
+	
+	//step 1 find principal axes of inertia
+	TMatrixD eVectors(2,2);
+	TVectorD eValues(2);
+	eVectors=inertia.EigenVectors(eValues); //ordered highest eV to lowest eV (I checked!)
+	//and eVectors are in columns of matrix! I checked!
+	//and they are normalized to 1
+	
+	
+	
+	//step 2 select eta component of smaller eVal's eVector
+	TVectorD smallerAxis(2);//easiest to spin SC on this axis (smallest eVal)
+	smallerAxis[0]=eVectors[0][1];//row,col  //eta component
+	smallerAxis[1]=eVectors[1][1];           //phi component
+	
+	//step 3 compute interesting quatities
+	Double_t temp = fabs(smallerAxis[0]);// closer to 1 ->beamhalo, closer to 0 something else
+	float Roundness = eValues[1]/eValues[0];
+	float Angle=acos(temp);// may need to be Double_t???
+	
+	shapes.push_back( Roundness );
+	shapes.push_back( Angle );
+	return shapes;
+
+}
+//private function
+//adds entry to 2d inertia tensor, see wikipedia, for shower shapes function
+	void EcalClusterTools::ShowerShapesInertiaTensorAddHit(TMatrixD & myinertia,Float_t w,Float_t ieta,Float_t iphi){
+		Float_t weight = w;
+		Float_t I_ieta_ieta_i = 0; Float_t I_ieta_iphi_i = 0; Float_t I_iphi_ieta_i = 0; Float_t I_iphi_iphi_i = 0;
+		I_ieta_ieta_i = weight*(iphi*iphi);
+		I_iphi_iphi_i = weight*(ieta*ieta);
+		I_ieta_iphi_i = weight*(-1*ieta*iphi);
+		I_iphi_ieta_i = weight*(-1*iphi*ieta);
+		//tensor has [row][column]
+		// Iee  Iep
+		// Ipe  Ipp
+		myinertia[0][0]+=I_ieta_ieta_i;
+		myinertia[1][1]+=I_iphi_iphi_i;
+		myinertia[0][1]+=I_ieta_iphi_i;
+		myinertia[1][0]+=I_iphi_ieta_i;
+		
+		return;
+	}//add to inertia tensor
+

@@ -19,6 +19,15 @@
 
 //#include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
+//includes for ShowerShape function to work
+#include <vector>
+#include <math.h>
+#include <TMath.h>
+#include <TMatrixT.h>
+#include <TMatrixD.h>
+#include <TVectorT.h>
+#include <TVectorD.h>
+
 
 class DetId;
 class CaloTopology;
@@ -106,6 +115,8 @@ class EcalClusterTools {
                 // get the energy of a DetId, return 0 if the DetId is not in the collection
                 static float recHitEnergy(DetId id, const EcalRecHitCollection *recHits);
 
+		//Shower shape variables return vector <Roundness, Angle> of a photon
+		static std::vector<float> ShowerShapes( const reco::SuperCluster &superCluster ,const EcalRecHitCollection *recHits);
         private:
                 struct EcalClusterEnergyDeposition
                 { 
@@ -148,7 +159,8 @@ class EcalClusterTools {
                 static float getIPhi(const DetId& id);
                 static float getNrCrysDiffInEta(const DetId& crysId,const DetId& orginId);
                 static float getNrCrysDiffInPhi(const DetId& crysId,const DetId& orginId);
- 
+
+		static void ShowerShapesInertiaTensorAddHit(TMatrixD & myinertia,Float_t w,Float_t ieta,Float_t iphi);
 };
 
 #endif
