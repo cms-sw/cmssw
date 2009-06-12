@@ -100,8 +100,23 @@ void PatTauAnalyzer::beginJob(const edm::EventSetup& es)
 //    for tau-jet Energy, Pt, Eta, Phi
   hTauJetEnergy_ = fs->make<TH1F>("TauJetEnergy", "TauJetEnergy", 30, 0., 150.);
   hTauJetPt_ = fs->make<TH1F>("TauJetPt", "TauJetPt", 30, 0., 150.);
-  hTauJetEta_ = fs->make<TH1F>("TauJetEta", "TauJetEta", 24, -3., +3.);
-  hTauJetPhi_ = fs->make<TH1F>("TauJetPhi", "TauJetPhi", 18, -TMath::Pi(), +TMath::Pi());
+// 
+// TO-DO: add histograms for eta and phi of the tau-jet candidate
+//      
+// NOTE:
+//  1.) please use 
+//       "TauJetEta" and "TauJetPhi" 
+//      for the names of the histograms and choose the exact same binning 
+//      as is used for the histograms 
+//       "TauJetEtaIsoPassed" and "TauJetPhiIsoPassed" 
+//      below
+//
+//  2.) please check the histograms
+//       hTauJetEta_ and hTauJetPt_
+//      have already been defined in PatTauAnalyzer.h
+// 
+//hTauJetEta_ =...
+//hTauJetPt_ =...
 
 //... for number of tau-jet candidates
   hNumTauJets_ = fs->make<TH1F>("NumTauJets", "NumTauJets", 10, -0.5, 9.5);
@@ -163,10 +178,33 @@ void PatTauAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es)
 //    for Pt of highest Pt track within signal cone tau-jet...
     hTauJetEnergy_->Fill(patTau->energy());
     hTauJetPt_->Fill(patTau->pt());
-    hTauJetEta_->Fill(patTau->eta());
-    hTauJetPhi_->Fill(patTau->phi());
-
-    if ( patTau->leadTrack().isAvailable() ) hTauLeadTrackPt_->Fill(patTau->leadTrack()->pt());
+// 
+// TO-DO: 
+//  1.) fill histograms 
+//       hTauJetEta_ and hTauJetPhi_
+//      with the pseudo-rapidity and azimuthal angle
+//      of the tau-jet candidate respectively
+//  hTauJetEta_->...
+//  hTauJetPhi_->...
+//
+//  2.) fill histogram
+//       hTauLeadTrackPt_
+//      with the transverse momentum of the highest Pt ("leading") track within the tau-jet
+//       
+// NOTE: 
+//  1.) please have a look at
+//       http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DataFormats/Candidate/interface/Particle.h?revision=1.27&view=markup
+//      to find the methods for accessing eta and phi of the tau-jet
+//
+//  2.) please have a look at
+//       http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DataFormats/PatCandidates/interface/Tau.h?revision=1.20.2.2&view=markup
+//      to find the method for accessing the leading track
+//
+//  3.) the method pat::Tau::leadTrack returns a reference (reco::TrackRef) to a reco::Track object
+//      this reference can be null (in case no high Pt track has been reconstructed within the tau-jet),
+//      so a check if the leadTrack exists is needed before dereferencing the reco::TrackRef via operator->
+//
+//  if ( patTau->leadTrack().isAvailable() ) hTauLeadTrackPt_->Fill(patTau->leadTrack()->pt());
   
 //... for total number of tracks within signal/isolation cones
     hTauNumSigConeTracks_->Fill(patTau->signalTracks().size());
@@ -182,7 +220,22 @@ void PatTauAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es)
     hTauDiscrByTaNC_->Fill(discrByTaNC);
 
 //... for values of tau id. discriminators against (unidentified) electrons and muons
-    hTauDiscrAgainstElectrons_->Fill(patTau->tauID("againstElectron"));
+//
+// TO-DO: fill histogram
+//         hTauDiscrAgainstElectrons_
+//        with the value of the discriminatorAgainstElectrons
+//
+// NOTE:
+//  1.) please have a look at
+//       http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DataFormats/PatCandidates/interface/Tau.h?revision=1.20.2.2&view=markup
+//      to find the method for accessing the tau id. information
+//  
+//  2.) please have a look at
+//       http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/PatAlgos/python/tools/tauTools.py?revision=1.2.2.6&view=markup
+//      and convince yourself that the string "againstElectron" needs to be passed as argument 
+//      of the pat::Tau::tauID method
+//
+//  hTauDiscrAgainstElectrons_->Fill...
     hTauDiscrAgainstMuons_->Fill(patTau->tauID("againstMuon"));
 
 //... for Energy, Pt, Eta, Phi of tau-jets passing the discriminatorByIsolation selection
