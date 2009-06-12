@@ -8,7 +8,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.icc,v 1.4 2007/05/26 19:01:12 saout Exp $
+// $Id: MVAComputer.icc,v 1.5 2009/06/03 09:50:14 saout Exp $
 //
 
 
@@ -58,7 +58,7 @@ double MVAComputer::eval(Iterator_t first, Iterator_t last) const
 	for(Iterator_t cur = first; cur < last; ++cur) {
 		int id = getVariableId(cur->getName());
 		conf[id + 1]++;
-		max += inputVariables[id].multiplicity;
+		max += inputVariables[id].multiplicity + 1;
 		n++;
 	}
 
@@ -71,7 +71,7 @@ double MVAComputer::eval(Iterator_t first, Iterator_t last) const
 	}
 
 	// allocate value array and fill input variables
-	double *values = __TMP_ALLOC(max + 1, double);
+	double *values = __TMP_ALLOC(max - size + 1, double);
 	values[0] = 0.0;
 	for(Iterator_t cur = first; cur < last; ++cur) {
 		int id = getVariableId(cur->getName());
@@ -101,7 +101,7 @@ double MVAComputer::deriv(Iterator_t first, Iterator_t last) const
 	for(Iterator_t cur = first; cur < last; ++cur) {
 		int id = getVariableId(cur->getName());
 		ctx.conf_[id + 1]++;
-		max += inputVariables[id].multiplicity;
+		max += inputVariables[id].multiplicity + 1;
 		ctx.n_++;
 	}
 
@@ -114,8 +114,8 @@ double MVAComputer::deriv(Iterator_t first, Iterator_t last) const
 	}
 
 	// allocate value array and fill input variables
-	ctx.values_.resize(max + 1);
-	ctx.deriv_.reserve((max + 1) * ctx.n_);
+	ctx.values_.resize(max - size + 1);
+	ctx.deriv_.reserve((max - size + 1) * ctx.n_);
 	for(Iterator_t cur = first; cur < last; ++cur) {
 		int id = getVariableId(cur->getName());
 		ctx.values_[ctx.conf_[id + 1]++] = cur->getValue();
