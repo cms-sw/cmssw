@@ -7,5 +7,6 @@ DEFINE_SEAL_MODULE ();
 DEFINE_SIMWATCHER (SimG4HcalValidation);
 
 #include "Validation/HcalHits/interface/HcalSimHitStudy.h"
+#include "Validation/HcalHits/interface/ZdcSimHitStudy.h"
 
-DEFINE_ANOTHER_FWK_MODULE (HcalSimHitStudy);
+DEFINE_ANOTHER_FWK_MODULE (ZdcSimHitStudy);
