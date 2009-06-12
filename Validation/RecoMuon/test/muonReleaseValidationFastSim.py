@@ -60,7 +60,10 @@ ReferenceSelection='IDEAL_31X_noPU'
 StartupReferenceSelection='STARTUP_31X_noPU'
 
 # Default label is GlobalTag_noPU__Quality_Algo. Change this variable if you want to append an additional string.
-NewSelectionLabel='_FSIM'
+if (FastSimUse=="True"):
+    NewSelectionLabel='_FSIM'
+else:
+    NewSelectionLabel=''
 
 WorkDirBase = '/tmp/aperrott'
 #WorkDirBase = '/afs/cern.ch/user/a/aeverett/scratch0'
