@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/11 11:57:11 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/06/11 18:15:03 $
+ *  $Revision: 1.2 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -112,11 +112,6 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
   NumberOfMeanLayersPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKLayBin, TKLayMin, TKLayMax);
   NumberOfMeanLayersPerTrack->setAxisTitle("Mean number of Layers per track");
 
-/*  histname = "NumberOfRecHitsPerTrackVsPhiProfile_";
-  NumberOfRecHitsPerTrackVsPhiProfile = dqmStore_->bookProfile(histname+AlgoName, histname+AlgoName, PhiBin, PhiMin, PhiMax, TKHitBin, TKHitMin, TKHitMax);
-  NumberOfRecHitsPerTrackVsPhiProfile->setAxisTitle("Track azimuthal angle",1);
-  NumberOfRecHitsPerTrackVsPhiProfile->setAxisTitle("Number of RecHits of each track",2);
-*/
   theTrackAnalyzer->beginJob(iSetup, dqmStore_);
  
 }
@@ -163,7 +158,10 @@ for(TrajectorySeedCollection::size_type i=0; i<seedCollection->size(); ++i){
 edm::RefToBase<TrajectorySeed> seed(seedCollection, i);
 TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&*(seed->recHits().second-1));
 TrajectoryStateOnSurface state = tsTransform.transientState( seed->startingState(), recHit->surface(), theMF.product());
+if (!state.isValid()) continue;
 TrajectoryStateClosestToBeamLine tsAtClosestApproachSeed = tscblBuilder(*state.freeState(),bs);
+if (!tsAtClosestApproachSeed.isValid()) continue;
+
 GlobalVector pSeed = tsAtClosestApproachSeed.trackStateAtPCA().momentum();
 
 double etaSeed = state.globalMomentum().eta();
