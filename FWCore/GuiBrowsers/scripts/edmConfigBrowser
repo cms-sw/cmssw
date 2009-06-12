@@ -13,7 +13,11 @@ import unittest
 import time
 
 distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(__file__),"../python"))
-if not "Vispa" in os.listdir(distBaseDirectory):
+if not os.path.exists(distBaseDirectory) or not "Vispa" in os.listdir(distBaseDirectory):
+    distBaseDirectory=os.path.abspath(os.path.expandvars("$CMSSW_BASE/python/FWCore/GuiBrowsers"))
+if not os.path.exists(distBaseDirectory) or not "Vispa" in os.listdir(distBaseDirectory):
+    distBaseDirectory=os.path.abspath(os.path.expandvars("$CMSSW_RELEASE_BASE/python/FWCore/GuiBrowsers"))
+if not os.path.exists(distBaseDirectory) or  not "Vispa" in os.listdir(distBaseDirectory):
     try:
         distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
     except Exception:
