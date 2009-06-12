@@ -75,7 +75,6 @@ namespace edm {
 	  
 	  shPtrHigh=getProductByTag<PCrossingFrame<PSimHit> >(*ep, tag_);           	  	  
           shPtrLow=getProductByTag<PCrossingFrame<PSimHit> >(*ep, opp_);
-
         //--------------------------------------------------------------------------
 	  // add HighTof simhits to high and low signals
         float tof = bcr*crFrame_->getBunchSpace();

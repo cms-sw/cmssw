@@ -184,7 +184,7 @@ namespace edm
               branchesActivate(TypeID(typeid(PCrossingFrame<PSimHit>)).friendlyClassName(),subdets[ii],tag,label);
 	   
 	      if ((subdets[ii].find("HighTof")==std::string::npos) && (subdets[ii].find("LowTof")==std::string::npos)) {
-		LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be"<<label;
+		LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
 	      }else {
 		LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
 	      }
@@ -213,8 +213,8 @@ namespace edm
 		    workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_,true));  
 
 		    // here we have to give the opposite selector too (low for high, high for low)
-		    int slow=(subdets[ii]).find("LowTof");
-		    int iend=(subdets[ii]).size();
+		    int slow=(tag.instance()).find("LowTof");
+		    int iend=(tag.instance()).size();
 		    std::string productInstanceNameOpp;
 		    if (slow>0) {
 		       productInstanceNameOpp=tag.instance().substr(0,iend-6)+"HighTof";
@@ -222,8 +222,8 @@ namespace edm
 		       productInstanceNameOpp=tag.instance().substr(0,iend-7)+"LowTof";
 		    }
 		    InputTag tagOpp(tag.label(),productInstanceNameOpp,tag.process());
+                    workers_[workers_.size()-1]->setOppositeTag(tagOpp);
 	         }
-
 	         produces<CrossingFrame<PSimHit> > (labelCF);
 	      }
 	      //-------------------------------
@@ -308,8 +308,8 @@ namespace edm
 	      }else {
 		workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_,true));  
 		// here we have to give the opposite selector too (low for high, high for low)
-		int slow=(subdets[ii]).find("LowTof");
-		int iend=(subdets[ii]).size();
+		int slow=(tag.instance()).find("LowTof");
+		int iend=(tag.instance()).size();
 		std::string productInstanceNameOpp;
 		if (slow>0) {
 		  productInstanceNameOpp=tag.instance().substr(0,iend-6)+"HighTof";
