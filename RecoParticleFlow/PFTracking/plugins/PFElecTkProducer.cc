@@ -529,6 +529,7 @@ PFElecTkProducer::resolveGsfTracks(const reco::GsfTrackCollection  & GsfCol, uns
 	    unsigned int den = ihits;
 	    if(nhits < ihits)
 	      den = nhits;
+	    if (den == 0) den = 1;	    
 	    float fracMod = sharedMod*1./den*1.;
 	    
 	    TrajectoryStateOnSurface i_outTSOS = mtsTransform_.outerStateOnSurface(GsfCol[igsf]);

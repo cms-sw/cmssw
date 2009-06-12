@@ -1554,7 +1554,8 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	momentum=momentum_gsf;
 	dpt=1/(dpt_gsf*dpt_gsf);
 	
-	dene= 1/dene;
+	if(dene > 0.)
+	  dene= 1./dene;
 	
 	float Fe = 0.;
 	if(Eene > 0.0001) {
