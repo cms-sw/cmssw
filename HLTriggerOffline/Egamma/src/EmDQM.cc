@@ -300,7 +300,7 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
   edm::Handle<trigger::TriggerEventWithRefs> triggerObj;
   event.getByLabel(triggerobjwithrefs,triggerObj); 
   if(!triggerObj.isValid()) { 
-    edm::LogWarning("EmDQM") << "RAW-type HLT results not found, skipping event";
+    edm::LogWarning("EmDQM") << "triggerobjwithrefs=" << triggerobjwithrefs;
     return;
   }
 
