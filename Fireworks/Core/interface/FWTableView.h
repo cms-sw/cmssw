@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWTableView.h,v 1.4.2.9 2009/04/27 20:47:05 jmuelmen Exp $
+// $Id: FWTableView.h,v 1.5 2009/05/01 22:30:41 jmuelmen Exp $
 //
 
 // system include files
@@ -88,7 +88,7 @@ private:
 
 protected:
      // ---------- member data --------------------------------
-     TEveWindowFrame *m_frame;
+     TEveWindowFrame *m_eveWindow;
      TGComboBox *m_collection;
      TGCompositeFrame *m_vert, *m_column_control;
      int m_iColl;

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.10 2009/05/29 10:02:12 amraktad Exp $
+// $Id: FWTableView.cc,v 1.11 2009/06/03 14:24:19 jmuelmen Exp $
 //
 
 // system include files
@@ -247,8 +247,8 @@ FWTableView::FWTableView (TEveWindowSlot* iParent, FWTableViewManager *manager)
        m_useColumnsFromConfig(false)
 
 {
-     m_frame = iParent->MakeFrame(0);
-     TGCompositeFrame *frame = m_frame->GetGUICompositeFrame();
+     m_eveWindow = iParent->MakeFrame(0);
+     TGCompositeFrame *frame = m_eveWindow->GetGUICompositeFrame();
 //      TGHorizontalFrame *buttons = new TGHorizontalFrame(frame);
 //      frame->AddFrame(buttons, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
 
@@ -325,7 +325,12 @@ FWTableView::FWTableView (TEveWindowSlot* iParent, FWTableViewManager *manager)
 
 FWTableView::~FWTableView()
 {
-     m_frame->DestroyWindowAndSlot();
+     // take out composite frame and delete it directly ( without the timeout) 
+     TGCompositeFrame *frame = m_eveWindow->GetGUICompositeFrame();
+     frame->RemoveFrame(m_vert);
+     delete m_vert;
+
+     m_eveWindow->DestroyWindowAndSlot();
      delete m_tableManager;
      delete m_validator;
 }
@@ -444,7 +449,7 @@ FWTableView::setFrom(const FWConfiguration& iFrom)
 	  if (sortColumn != 0 && descendingSort != 0) {
 	       unsigned int sort = sortColumn->version();
 	       bool descending = descendingSort->version();
-	       if (sort < m_tableManager->numberOfColumns())
+	       if (sort < (( unsigned int) m_tableManager->numberOfColumns()))
 		    m_tableWidget->sort(sort, descending);
 	  }
      } catch (...) {
