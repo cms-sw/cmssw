@@ -354,7 +354,11 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 			                       vertexPt2) + std::sqrt(vertexPt2);
 		}
 		vars.insert(btau::vertexMass, vertexMass, true);
-		vars.insert(btau::vertexEnergyRatio, vertexSum.E() / allSum.E(), true);
+		if (allKinematics.numberOfTracks())
+			vars.insert(btau::vertexEnergyRatio,
+			            vertexSum.E() / allSum.E(), true);
+		else
+			vars.insert(btau::vertexEnergyRatio, 1, true);
 	}
 
 	vars.finalize();
