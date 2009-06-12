@@ -37,23 +37,29 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
-process.source = cms.Source("FlatRandomEGunSource",
-    PGunParameters = cms.untracked.PSet(
-        PartID = cms.untracked.vint32(211),
-        MaxEta = cms.untracked.double(1.5),
-        MaxPhi = cms.untracked.double(3.14159265359),
-        MinEta = cms.untracked.double(-1.5),
-        MinE = cms.untracked.double(9.99),
-        MinPhi = cms.untracked.double(-3.14159265359),
-        MaxE = cms.untracked.double(10.01)
+
+process.source = cms.Source("EmptySource")
+
+process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    PGunParameters = cms.PSet(
+        MinEta = cms.double(0.0),
+        MaxEta = cms.double(0.0),
+        MinPhi = cms.double(1.57079632679),
+        MaxPhi = cms.double(1.57079632679),
+        PartID = cms.vint32(211),
+        MinE   = cms.double(10.00),
+        MaxE   = cms.double(10.00)
     ),
-    Verbosity = cms.untracked.int32(0)
+    Verbosity = cms.untracked.int32(0),
+    AddAntiParticle = cms.bool(False),
+    firstRun        = cms.untracked.uint32(1)
 )
 
 process.Timing = cms.Service("Timing")
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
+        generator = cms.untracked.uint32(456789),
         g4SimHits = cms.untracked.uint32(9876),
         VtxSmeared = cms.untracked.uint32(123456789)
     ),
@@ -64,7 +70,7 @@ process.op = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('simevent.root')
 )
 
-process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.op)
 process.common_maximum_timex = cms.PSet(
     MaxTrackTime  = cms.double(1000.0),
@@ -75,7 +81,7 @@ process.VtxSmeared.SigmaX = 0.00001
 process.VtxSmeared.SigmaY = 0.00001
 process.VtxSmeared.SigmaZ = 0.00001
 process.g4SimHits.UseMagneticField = False
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_EMV'
+process.g4SimHits.Physics.type     = 'SimG4Core/Physics/QGSP_EMV'
 process.g4SimHits.StackingAction = cms.PSet(
     process.common_maximum_timex,
     TrackNeutrino    = cms.bool(False),

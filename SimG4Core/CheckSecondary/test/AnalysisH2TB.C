@@ -508,9 +508,9 @@ void AnalyseH2TB(char element[6], char list[20], char ene[6], char part[4], int 
       std::cout << "Total     " << sigma << " +- " << dsigma 
 		<< " mb (" << ninter << " events)\n"
 		<< "Elastic   " << sigmaEl<< " +- " << dsigmaEl
-		<< " mb (" << ninter << " events)\n"
+		<< " mb (" << elastic << " events)\n"
 		<< "Inelasric " << sigmaInel << " +- " << dsigmaInel
-		<< " mb (" << ninter << " events)\n";
+		<< " mb (" << inelastic << " events)\n";
     }
 
   } // if tree is found

@@ -10,84 +10,62 @@ process.load("SimG4Core.CheckSecondary.DTarget_cfi")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
+    destinations = cms.untracked.vstring('cout'),
+    categories = cms.untracked.vstring('SimG4CoreApplication', 'CheckSecondary'),
     cout = cms.untracked.PSet(
-        CheckSecondary = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        SimG4CoreGeometry = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        G4cerr = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
+        threshold = cms.untracked.string('INFO'),
         default = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        CheckSecondary = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        threshold = cms.untracked.string('INFO'),
-        G4cout = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+        SimG4CoreApplication = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
         )
-    ),
-    categories = cms.untracked.vstring('SimG4CoreGeometry', 
-        'CheckSecondary', 
-        'G4cout', 
-        'G4cerr'),
-    destinations = cms.untracked.vstring('cout')
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10000)
 )
-process.source = cms.Source("FlatRandomEGunSource",
-    PGunParameters = cms.untracked.PSet(
-        PartID = cms.untracked.vint32(-211),
-        MaxEta = cms.untracked.double(0.0),
-        MaxPhi = cms.untracked.double(1.57079632679),
-        MinEta = cms.untracked.double(0.0),
-        MinE = cms.untracked.double(2.0049),
-        MinPhi = cms.untracked.double(1.57079632679),
-        MaxE = cms.untracked.double(2.0049)
+
+process.source = cms.Source("EmptySource")
+
+process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    PGunParameters = cms.PSet(
+        MinEta = cms.double(0.0),
+        MaxEta = cms.double(0.0),
+        MinPhi = cms.double(1.57079632679),
+        MaxPhi = cms.double(1.57079632679),
+        PartID = cms.vint32(-211),
+        MinE   = cms.double(2.0049),
+        MaxE   = cms.double(2.0049)
     ),
-    Verbosity = cms.untracked.int32(0)
+    Verbosity = cms.untracked.int32(0),
+    AddAntiParticle = cms.bool(False),
+    firstRun        = cms.untracked.uint32(1)
 )
 
 process.Timing = cms.Service("Timing")
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
+        generator = cms.untracked.uint32(456789),
         g4SimHits = cms.untracked.uint32(9876),
         VtxSmeared = cms.untracked.uint32(123456789)
     ),
     sourceSeed = cms.untracked.uint32(135799753)
 )
 
-process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
 process.VtxSmeared.SigmaX = 0.00001
 process.VtxSmeared.SigmaY = 0.00001
 process.VtxSmeared.SigmaZ = 0.00001
+process.g4SimHits.UseMagneticField     = False
+process.g4SimHits.Physics.type         = 'SimG4Core/Physics/QGSP'
+process.g4SimHits.Physics.EMPhysics    = False
 process.g4SimHits.UseMagneticField = False
-process.g4SimHits.Physics = cms.PSet(
-    GFlash          = cms.PSet(
-      GflashHistogram = cms.bool(False),
-      GflashEMShowerModel = cms.bool(False),
-      GflashHadronPhysics = cms.string('QGSP_BERT_EMV'),
-      GflashHadronShowerModel = cms.bool(False)
-    ),
-    G4BremsstrahlungThreshold = cms.double(0.5),
-    DefaultCutValue = cms.double(1.0),
-    CutsPerRegion   = cms.bool(True),
-    Verbosity       = cms.untracked.int32(0),
-    EMPhysics       = cms.untracked.bool(False),
-    HadPhysics      = cms.untracked.bool(True),
-    QuasiElastic    = cms.untracked.bool(True),
-    FlagBERT        = cms.untracked.bool(False),
-    FlagCHIPS       = cms.untracked.bool(False),
-    FlagFTF         = cms.untracked.bool(False),
-    FlagGlauber     = cms.untracked.bool(False),
-    Model           = cms.untracked.string('Bertini'),
-    type            = cms.string('SimG4Core/Physics/QGSP'),
-    DummyEMPhysics  = cms.bool(False)
-)
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     CheckSecondary = cms.PSet(
         SaveInFile = cms.untracked.string('DQGSP2.0GeV.root'),
