@@ -168,7 +168,7 @@ class Application(QApplication):
         """
         logging.debug('Application: _loadPlugins()')
         dirs = ["Vispa.Plugins." + str(f) for f in os.listdir(pluginDirectory)
-                if os.path.isdir(os.path.join(pluginDirectory, f)) and not f.startswith(".")]
+                if os.path.isdir(os.path.join(pluginDirectory, f)) and not f.startswith(".") and not f.startswith("CVS")]
         failedToLoad = []
         for di in dirs:
             try:

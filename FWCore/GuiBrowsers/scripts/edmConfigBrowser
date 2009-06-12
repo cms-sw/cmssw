@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-import os.path
+import os
 import sys
 import logging
 
@@ -12,10 +12,12 @@ import math
 import unittest
 import time
 
-try:
-    distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
-except Exception:
-    distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]),".."))
+distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(__file__),"../python"))
+if not "Vispa" in os.listdir(distBaseDirectory):
+    try:
+        distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
+    except Exception:
+        distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]),".."))
 
 sys.path.append(distBaseDirectory)
 from Vispa.Main.Directories import *
@@ -30,7 +32,7 @@ try:
     from PyQt4.QtSvg import *
     from PyQt4.QtXml import *
 except Exception,e:
-    raise ImportError("Please run edmConfigBrowser, not edmConfigBrowser.py : "+str(e))
+    raise ImportError("Could not import PyQt4 : "+str(e))
 
 setWebsiteUrl('http://twiki.cern.ch/twiki/bin/view/CMS/SWGuideConfigBrowser')
 
@@ -42,5 +44,5 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     app.mainWindow().setWindowTitle("ConfigBrowser")
     app.mainWindow().setWindowIcon(QIcon())
-    app.setVersion("Version 08.05.2009")
+    app.setVersion("Version 12.06.2009")
     app.run()
