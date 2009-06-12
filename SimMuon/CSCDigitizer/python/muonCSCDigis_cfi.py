@@ -20,8 +20,7 @@ simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
         scaPeakBin = cms.int32(5),
         pedestalSigma = cms.double(1.5),
         signalStopTime = cms.double(500.0),
-        readBadChannels = cms.bool(False),
-        readBadChambers = cms.bool(True),
+        doBadChannels = cms.bool(False),
         gain = cms.double(2.0), ## counts per fC
 
         capacativeCrosstalk = cms.double(35.0),
@@ -50,7 +49,6 @@ simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
         peakTimeSigma = cms.double(0.0),
         shapingTime = cms.int32(30),
         readBadChannels = cms.bool(False),
-        readBadChambers = cms.bool(True),        
         timeBitForBxZero = cms.int32(6),
         samplingTime = cms.double(5.0),
         bunchTimingOffsets = cms.vdouble(0.0, 13.0, 13.0, 28.0, 28.0, 
@@ -61,7 +59,8 @@ simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
     ),
     InputCollection = cms.string('g4SimHitsMuonCSCHits'),
     stripConditions = cms.string('Database'),
-    GeometryType = cms.string('idealForDigi')                             
+    GeometryType = cms.string('idealForDigi'),                            
+    doBadChambers = cms.bool(False)
 )
 
 
