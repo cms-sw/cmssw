@@ -4,10 +4,10 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 from Vispa.Main.VispaWidget import *
-from Vispa.Main.VispaWidgetOwner import *
+from Vispa.Main.ConnectableWidgetOwner import *
 from Vispa.Main.PortConnection import *
 
-class WidgetContainer(VispaWidget, VispaWidgetOwner):
+class WidgetContainer(VispaWidget, ConnectableWidgetOwner):
     
     BACKGROUND_SHAPE = 'ROUNDRECT'
     #PEN_COLOR = QColor('blue')
@@ -109,9 +109,9 @@ class WidgetContainer(VispaWidget, VispaWidgetOwner):
     def widgetMoved(self, widget):
         """ Call autosize().
         
-        Overwritten function of VispaWidgetOwner.
+        Overwritten function of ConnectableWidgetOwner.
         """
-        VispaWidgetOwner.widgetMoved(self, widget)
+        ConnectableWidgetOwner.widgetMoved(self, widget)
         self.autosize()
         for connection in [child for child in self.children() if isinstance(child, PortConnection)]:
             connection.updateConnection()
@@ -124,7 +124,7 @@ class WidgetContainer(VispaWidget, VispaWidgetOwner):
     def mousePressEvent(self, event):
         """ Makes sure event is forwarded to both base classes.
         """
-        VispaWidgetOwner.mousePressEvent(self, event)
+        ConnectableWidgetOwner.mousePressEvent(self, event)
         VispaWidget.mousePressEvent(self, event)
         
     def toggleCollapse(self):

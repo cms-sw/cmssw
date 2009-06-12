@@ -1,5 +1,7 @@
 import os
 import sys
+import commands
+import platform
 import logging
 import logging.handlers
 import ConfigParser
@@ -15,6 +17,8 @@ from MainWindow import *
 from AbstractTab import *
 from Filetype import *
 from Exceptions import *
+#from PreferencesEditor import PreferencesEditor
+
 
 import Resources
 
@@ -135,6 +139,7 @@ class Application(QApplication):
         logging.root.handlers = []
         logging.root.addHandler(handler1)
         logging.root.addHandler(handler2)
+        #logging.root.setLevel(logging.INFO)
 
         self._infologger = logging.getLogger("info")
         self._infologger.setLevel(logging.INFO)
@@ -203,6 +208,11 @@ class Application(QApplication):
     def mainWindow(self):
         return self._window
 
+    #def editPreferences(self):
+    #    self.preferencesEditor = PreferencesEditor()
+    #    self.preferencesEditor.show()
+
+
     def _fillFileMenu(self):
         """Called for the first time this function creates the file menu and fill it.
 
@@ -246,6 +256,8 @@ class Application(QApplication):
                 self._recentFilesMenu.addAction(action)                
                 self._recentFilesMenuActions.append(action)
             self._recentFilesMenu.addSeparator()
+            self._fileMenuItems['clearMissingRecentFilesAction'] = self.createAction("Clear missing files", self.clearMissingRecentFiles)
+            self._recentFilesMenu.addAction(self._fileMenuItems['clearMissingRecentFilesAction'])
             self._fileMenuItems['clearRecentFilesAction'] = self.createAction("Clear list", self.clearRecentFiles)
             self._recentFilesMenu.addAction(self._fileMenuItems['clearRecentFilesAction'])
                 
@@ -278,6 +290,8 @@ class Application(QApplication):
        
         self._window.fileMenu().addSeparator()
         
+        #editPreferencesAction = self.createAction('Preferences',self.editPreferences)
+        #self._window.fileMenu().addAction(editPreferencesAction)
         # Exit
         exit = self.createAction('&Exit', self.exit, "Ctrl+Q", "exit")      
         self._window.fileMenu().addAction(exit)
@@ -382,9 +396,9 @@ class Application(QApplication):
         See TabController's documentation of zoomUser(), zoomHundred() and zoomAll() to find out more on the different zoom levels.
         """
         self._zoomToolBar = self.createPluginToolBar('Zoom ToolBar')
-        self._zoomToolBar.addAction(self.createAction('User', self.zoomUserEvent, image='zoomuser'))
-        self._zoomToolBar.addAction(self.createAction('100 %', self.zoomHundredEvent, image='zoom100'))
-        self._zoomToolBar.addAction(self.createAction('All', self.zoomAllEvent, image='zoomall'))
+        self._zoomToolBar.addAction(self.createAction('Revert Zoom', self.zoomUserEvent, image='zoomuser'))
+        self._zoomToolBar.addAction(self.createAction('Zoom to 100 %', self.zoomHundredEvent, image='zoom100'))
+        self._zoomToolBar.addAction(self.createAction('Zoom to all', self.zoomAllEvent, image='zoomall'))
     
     def showZoomToolBar(self):
         """ Makes zoom tool bar visible.
@@ -404,6 +418,17 @@ class Application(QApplication):
         self._recentFiles = []
         self._saveIni()
         self.updateMenu()
+        
+    def clearMissingRecentFiles(self):
+        """ Removes entries from recent files menu if file does no longer exist.
+        """
+        newList = []
+        for file in self._recentFiles:
+            if os.path.exists(file):
+                newList.append(file)
+        self._recentFiles = newList
+        self._saveIni()
+        self.updateMenu()
 
     def addRecentFile(self, filename):
         """ Adds given filename to list of recent files.
@@ -417,20 +442,20 @@ class Application(QApplication):
         self._recentFiles = [filename] + self._recentFiles[:leftCount]
         self._saveIni()
        
+    def recentFiles(self):
+        """ Returns list of recently opened files.
+        """
+        return self._recentFiles    
+    
     def getLastOpenLocation(self):
         """ Returns directory name of first entry of recent files list.
         """
         if len(self._recentFiles) > 0:
             return os.path.dirname(self._recentFiles[0])
-        elif sys.platform == "darwin":
+        elif platform.system() == "Darwin":
             # Mac OS X
             return homeDirectory + "/Documents"
         return homeDirectory
-    
-    def recentFiles(self):
-        """ Returns list of recently opened files.
-        """
-        return self._recentFiles    
     
     def updateMenu(self):
         """ Update recent files and enable disable menu entries in file and edit menu.
@@ -488,7 +513,7 @@ class Application(QApplication):
             except NoCurrentTabControllerException:
                 pass
             
-    def createAction(self, name, slot=None, shortcut=None, image=None):
+    def createAction(self, name, slot=None, shortcut=None, image=None, enabled=True):
         """ create an action with name and icon and connect it to a slot.
         """
         logging.debug('Application: createAction() - ' + name)
@@ -499,6 +524,7 @@ class Application(QApplication):
             action = QAction(QIcon(image0), name, self._window)
         else:
             action = QAction(name, self._window)
+        action.setEnabled(enabled)
         if slot:
             self.connect(action, SIGNAL("triggered()"), slot)
         if shortcut:
@@ -825,6 +851,8 @@ class Application(QApplication):
         except IOError:
             configfile = open(os.path.abspath("Vispa.ini"), "w")
         self._ini.write(configfile)
+        configfile.close()
+        self._ini=None
         
     def _loadIni(self):
         """ Save the list of recent files.
@@ -876,26 +904,26 @@ class Application(QApplication):
                 return self.openFile(filename)
         
         # open file in default application
-        try:
-            if hasattr(os, "startfile"):
-                # Win32
+        if os.access(filename, os.X_OK):
+          logging.warning("Won't run programs by double-click.")
+        else:
+          try:
+            if platform.system() == "Windows":
                 os.startfile(filename)
-            elif sys.platform == "darwin":
-                # OS X
+            elif platform.system() == "Darwin":
                 subprocess.call(("open", filename))
-            elif sys.platform.find('linux') > - 1:
-                # Linux
+            elif platform.system() == "Linux":
+            # Linux comes with many Desktop Enviroments
                 try:
-                  subprocess.call(("xdg-open", filename))
+                    #Freedesktop Standard
+                    subprocess.call(("xdg-open", filename))
                 except:
                   try:
-                    subprocess.call(("gnome-open", filename))
+                     subprocess.call(("gnome-open", filename))
                   except:
-                    logging.error(self.__class__.__name__ + ": doubleClickOnFile() - Platform '" + sys.platform + "'. Cannot open file. I Don't know how!")
-            else:
-                logging.error(self.__class__.__name__ + ": doubleClickOnFile() - Unknown platform '" + sys.platform + "'. Cannot open file.")
-        except:
-            logging.error(self.__class__.__name__ + ": doubleClickOnFile() - Platform '" + sys.platform + "'. Error while opening file: " + str(filename))
+                     logging.error(self.__class__.__name__ + ": doubleClickOnFile() - Platform '" + platform.platform() + "'. Cannot open file. I Don't know how!")
+          except:
+            logging.error(self.__class__.__name__ + ": doubleClickOnFile() - Platform '" + platform.platform() + "'. Error while opening file: " + str(filename))
 
     def createStatusBar(self):
         self._workingMessages = {}

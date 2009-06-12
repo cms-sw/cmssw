@@ -5,7 +5,7 @@ from PyQt4.QtCore import SIGNAL
 from Vispa.Main.SplitterTab import SplitterTab
 from Vispa.Main.TreeView import TreeView
 from Vispa.Main.ZoomableScrollArea import ZoomableScrollArea
-from Vispa.Main.Workspace import Workspace
+from Vispa.Main.WidgetView import WidgetView
 from ConfigBrowserBoxView import ConfigBrowserBoxView
 
 class ConfigBrowserTab(SplitterTab):
@@ -30,7 +30,7 @@ class ConfigBrowserTab(SplitterTab):
         """ Create the center view.
         """
         self._scrollArea = ZoomableScrollArea(self)
-        self._centerView = Workspace() 
+        self._centerView = WidgetView() 
         self._scrollArea.setWidget(self._centerView)
 
     def setCenterView(self, view):

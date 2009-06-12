@@ -679,7 +679,7 @@ class PointToPointConnection(ZoomableWidget):
         """ Recalculates route and then positions and sizes the widget accordingly.
         """
         #logging.debug(self.__class__.__name__ +": updateConnection()")
-        #print "          sourcePoint, targetPoint", self._sourcePoint, self._targetPoint
+        #print "          sourcePoint, targetPoint", self.sourcePoint(), self.targetPoint()
         if self.calculateRoute():
             tl = self.topLeft()
             br = self.bottomRight()

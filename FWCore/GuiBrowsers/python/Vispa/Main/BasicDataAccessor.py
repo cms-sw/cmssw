@@ -33,9 +33,9 @@ class BasicDataAccessor(object):
     def allChildren(self, object):
         """ Collect all children of children of an object.
         """
-        children = list(self.children(object))
+        children = []
         for child in self.children(object):
-            children += list(self.allChildren(child)) 
+            children += [child]+list(self.allChildren(child))
         return tuple(children)
 
 class BasicDataAccessorInterface(object):

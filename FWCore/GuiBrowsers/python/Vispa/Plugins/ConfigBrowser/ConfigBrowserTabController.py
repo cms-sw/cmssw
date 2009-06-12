@@ -11,8 +11,8 @@ from PyQt4.QtGui import QFileDialog
 from Vispa.Main.Exceptions import exception_traceback
 from Vispa.Main.Exceptions import PluginIgnoredException
 from Vispa.Main.Thread import RunThread
-from Vispa.Main.TripleTabController import TripleTabController
-from Vispa.Main.Workspace import Workspace
+from Vispa.Main.BrowserController import BrowserController
+from Vispa.Main.WidgetView import WidgetView
 from ConfigBrowserBoxView import ConfigBrowserBoxView
 
 try:
@@ -21,12 +21,12 @@ except Exception:
     raise PluginIgnoredException("cannot import DOTExport: " + exception_traceback())
     pass
 
-class ConfigBrowserTabController(TripleTabController):
+class ConfigBrowserTabController(BrowserController):
     """
     """
     def __init__(self, plugin):
         logging.debug(__name__ + ": __init__")
-        TripleTabController.__init__(self, plugin)
+        BrowserController.__init__(self, plugin)
 
         self._editorName = ""
         self._thread = None
@@ -128,7 +128,7 @@ class ConfigBrowserTabController(TripleTabController):
         """ Shows plugin menus when user selects tab.
         """
         logging.debug(__name__ + ": selected()")
-        TripleTabController.selected(self)
+        BrowserController.selected(self)
         self.plugin().application().showPluginMenu(self._configMenu)
         self.tab().mainWindow().application().showZoomToolBar()
 
@@ -162,9 +162,9 @@ class ConfigBrowserTabController(TripleTabController):
         if configName == self.dataAccessor().configName():
             self.plugin().application().errorMessage("Cannot overwrite original configuration file.")
         elif self.dataAccessor().isReplaceConfig():
-            return TripleTabController.save(self, filename)
+            return BrowserController.save(self, filename)
         elif filename != "":
-            if TripleTabController.save(self, filename):
+            if BrowserController.save(self, filename):
                 self.dataAccessor().setIsReplaceConfig()
                 return True
             return False
@@ -205,7 +205,7 @@ class ConfigBrowserTabController(TripleTabController):
         """ read options from ini """
         ini = self.plugin().application().ini()
         if ini.has_option("config", "editor"):
-            self._editorName = str(ini.get("editor", "filename"))
+            self._editorName = str(ini.get("config", "editor"))
         else:
             self._editorName = "emacs"
         if ini.has_option("config", "CurrentView"):
@@ -221,7 +221,7 @@ class ConfigBrowserTabController(TripleTabController):
             self._boxContentDialog.setScript(str(ini.get("config", "box content script")))
 
     def scriptChanged(self, script):
-        TripleTabController.scriptChanged(self, script)
+        BrowserController.scriptChanged(self, script)
         self._saveIni()
 
     def _saveIni(self):
@@ -263,7 +263,7 @@ class ConfigBrowserTabController(TripleTabController):
                 self.plugin().application().errorMessage("Could not export dot graphic: " + exception_traceback())
 
     def setTab(self, tab):
-        TripleTabController.setTab(self, tab)
+        BrowserController.setTab(self, tab)
         self._loadIni()
 
     def readFile(self, filename):

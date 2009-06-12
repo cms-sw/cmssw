@@ -79,10 +79,20 @@ class PortWidget(VispaWidget):
         """
         return self.PORT_TYPE
 
-    def connectionPoint(self):
+    def connectionPoint(self, frame="workspace"):
         """ Returns point within this port from which attached connections should start.
+        
+        Possible values for the optional frame argument are 'workspace' (default or invalid value), 'widget' and 'port'.
+        This value of this argument decides in which frame the coordinates of the returned point are measured.
         """
-        return self.parent().mapToParent(self.pos() + QPoint(self.CONNECTIONPOINT_X, self.CONNECTIONPOINT_Y) * self.scale())
+        point = QPoint(self.CONNECTIONPOINT_X, self.CONNECTIONPOINT_Y) * self.scale()
+        
+        if frame == "port":
+            return point
+        if frame == "widget":
+            return self.pos() + point
+        
+        return self.parent().mapToParent(self.pos() + point)
     
     def connectionDirection(self):
         """ Returns the direction in which an attached connection should start.

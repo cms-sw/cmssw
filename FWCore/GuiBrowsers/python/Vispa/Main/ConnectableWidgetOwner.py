@@ -4,6 +4,7 @@ from PyQt4.QtGui import QMouseEvent
 
 from Vispa.Main.VispaWidgetOwner import *
 from Vispa.Main.PortConnection import *
+from Vispa.Main.ConnectableWidget import ConnectableWidget
 
 class ConnectableWidgetOwner(VispaWidgetOwner):
     """ Interface for classes containing ConnectableWidgets
@@ -15,8 +16,10 @@ class ConnectableWidgetOwner(VispaWidgetOwner):
         """ Updates connections attached to one of the widget's ports.
         """
         VispaWidgetOwner.widgetMoved(self, widget)
+        if not isinstance(widget, ConnectableWidget):
+            return
         
-        # update attached connection
+        # update attached connections
         for connection in [child for child in self.children() if isinstance(child, PortConnection)]:
             if connection.sourcePort() in widget.ports() or connection.sinkPort() in widget.ports():
                 connection.updateConnection()
@@ -44,8 +47,12 @@ class ConnectableWidgetOwner(VispaWidgetOwner):
     def updateConnections(self):
         """ Updates all connection.
         """
-        for connection in [child for child in self.children() if isinstance(child, PortConnection)]:
-            connection.updateConnection()
+        #logging.debug(self.__class__.__name__ +": updateConnections()")
+        for child in self.children():
+            if isinstance(child, ConnectableWidgetOwner):
+                child.updateConnections()
+            if isinstance(child, PortConnection):
+                child.updateConnection()
             
     def deleteSelectedConnections(self):
         """ Deletes all selected connections.
@@ -86,7 +93,7 @@ class ConnectableWidgetOwner(VispaWidgetOwner):
         If it finds such a widget a new event with correct position in the new widget's own frame is created and sent to the widget.
         This function calls grabMouse() on the found child. The child should make sure releaseMouse() will be called e.g. in mouseReleaseEvent().
 
-        Currently supported events: QEvent.MouseButtonPress.
+        Currently supported events: QEvent.MouseButtonPress, QEvent.MouseButtonDblClick.
         """
         # Currently supported events: QEvent.MouseButtonDblClick, QEvent.MouseButtonPress, QEvent.MouseButtonRelease, QEvent.MouseMove.
         workspacePos = connection.mapToParent(event.pos())
@@ -109,6 +116,16 @@ class ConnectableWidgetOwner(VispaWidgetOwner):
                         childPos = child.mapFromParent(childPos)
                     child.grabMouse()
                     child.setFocus()
+                    newEvent = QMouseEvent(event.type(), childPos, event.button(), event.buttons(), event.modifiers())
+                    QCoreApplication.instance().sendEvent(child, newEvent)
+                    return True
+                
+                if event.type() == QEvent.MouseButtonDblClick:
+                    childPos = child.mapFromParent(workspacePos)
+                    grandChild = child.childAt(childPos)
+                    if grandChild:
+                        child = grandChild
+                        childPos = child.mapFromParent(childPos)
                     newEvent = QMouseEvent(event.type(), childPos, event.button(), event.buttons(), event.modifiers())
                     QCoreApplication.instance().sendEvent(child, newEvent)
                     return True

@@ -13,13 +13,13 @@ class RelativeDataAccessor(object):
         raise NotImplementedError
 
     def allDaughterRelations(self,object):
-        daughterRelations=list(self.daughterRelations(object))
+        daughterRelations=[]
         for child in self.daughterRelations(object):
-            daughterRelations+=list(self.allDaughterRelations(child)) 
+            daughterRelations+=[child]+list(self.allDaughterRelations(child)) 
         return tuple(daughterRelations)
 
     def allMotherRelations(self,object):
-        motherRelations=list(self.motherRelations(object))
+        motherRelations=[]
         for child in self.motherRelations(object):
-            motherRelations+=list(self.allMotherRelations(child)) 
+            motherRelations+=[child]+list(self.allMotherRelations(child)) 
         return tuple(motherRelations)

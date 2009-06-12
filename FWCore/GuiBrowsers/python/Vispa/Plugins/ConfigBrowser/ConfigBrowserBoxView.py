@@ -26,20 +26,19 @@ class ConfigBrowserBoxView(BoxDecayTree):
         self._colorIndex = 0
         self._connections = connections
         
-    def createConnections(self, operationId, widget, widgetParent):
-        widget.setShowPortNames(True)
-        if widgetParent:
-            children = [w for w in widgetParent.children()
-                        if isinstance(w, PortConnection)]
-        else:
-            children = []
+    def createConnections(self, operationId, widgetParent):
         for connection in self._connections:
             if operationId != self._operationId:
                 break
             w1 = self._widgetByObject(connection[0])
             w2 = self._widgetByObject(connection[2])
-            if w1 and w2 and w2 == widget:
+            if w1 and w2:
                 col = - 1
+                if widgetParent:
+                    children = [w for w in widgetParent.children()
+                                if isinstance(w, PortConnection)]
+                else:
+                    children = []
                 for w in children:
                     if w.sourcePort() == self.createSourcePort(w1, connection[1]):
                         col = w.colorIndex
@@ -53,3 +52,4 @@ class ConfigBrowserBoxView(BoxDecayTree):
                     col = self._colorIndex
                 connectionWidget = self.createConnection(w1, connection[1], w2, connection[3], self._colors[col])
                 connectionWidget.colorIndex = self._colorIndex
+                connectionWidget.show()

@@ -334,11 +334,11 @@ class BooleanProperty(Property, QCheckBox):
     def setReadOnly(self, readOnly):
         """ Disables editing functionality.
         """
-        if readOnly and self.isCheckable():
-            self.setCheckable(False)
+        if readOnly:
+            self.setEnabled(False)
             self.disconnect(self, SIGNAL('stateChanged(int)'), self.valueChanged)
-        elif not readOnly and not self.isCheckable():
-            self.setCheckable(True)
+        else:
+            self.setEnabled(True)
             self.connect(self, SIGNAL('stateChanged(int)'), self.valueChanged)
         
     def value(self):
@@ -498,7 +498,7 @@ class TextEditWithButtonProperty(Property, QWidget):
         This function is called if the button was clicked. For information on the checked argument see documentation of QPushButton::clicked().
         This function should be overwritten by sub-classes.
         """ 
-        True
+        pass
         
     def enterEvent(self, event):
         """ If autohideButtonFlag is set this function makes the button visible. See setAutohideButton(). 

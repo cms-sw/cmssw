@@ -13,6 +13,7 @@ class TreeView(AbstractView, QTreeWidget):
         logging.debug(__name__ + ": __init__")
         AbstractView.__init__(self)
         QTreeWidget.__init__(self, parent)
+        self._firstItem = None
         self._itemDict = {}
         self._maxDepth = maxDepth
         self._selection = None
@@ -45,6 +46,7 @@ class TreeView(AbstractView, QTreeWidget):
         """
         logging.debug(__name__ + ": clear")
         self._itemDict = {}
+        self._firstItem = None
         QTreeWidget.clear(self)
 
     def updateContent(self):
@@ -61,18 +63,20 @@ class TreeView(AbstractView, QTreeWidget):
         self.expandToDepth(0)
         self._updatingFlag = False
         
-    def _createNode(self, object=None, itemParent=None, id="0"):
+    def _createNode(self, object=None, itemParent=None, positionName="0"):
         """ Create daughter items of an object recursively.
         """
         item = QTreeWidgetItem(itemParent)
         item.setText(0, self._dataAccessor.label(object))
         item.object = object
-        item.itemId = str(id)+"("+self._dataAccessor.label(object)+")"
-        self._itemDict[item.itemId] = item
+        item.positionName = str(positionName)+"("+self._dataAccessor.label(object)+")"
+        self._itemDict[item.positionName] = item
+        if self._firstItem==None:
+            self._firstItem=item
         i = 0
-        if len(id.split("-")) < self._maxDepth:
+        if len(positionName.split("-")) < self._maxDepth:
             for daughter in self._filter(self._dataAccessor.children(object)):
-                self._createNode(daughter, item, id + "-" + str(i))
+                self._createNode(daughter, item, positionName + "-" + str(i))
                 i += 1
 
     def itemSelectionChanged(self):
@@ -80,7 +84,7 @@ class TreeView(AbstractView, QTreeWidget):
         """
         logging.debug(__name__ + ": itemSelectionChanged")
         if not self._updatingFlag:
-            self._selection = self.currentItem().itemId
+            self._selection = self.currentItem().positionName
             self.emit(SIGNAL("selected"), self.currentItem().object)
         
     def select(self, object):
@@ -88,12 +92,12 @@ class TreeView(AbstractView, QTreeWidget):
         """
         logging.debug(__name__ + ": select")
         items = []
-        for id, item in self._itemDict.items():
+        for positionName, item in self._itemDict.items():
             if item.object == object:
-                items += [(id, item)]
+                items += [(positionName, item)]
         if len(items) > 0:
             item = sorted(items)[0][1]
-            self._selection = item.itemId
+            self._selection = item.positionName
             self._updatingFlag = True
             self.setCurrentItem(item)
             self._updatingFlag = False
@@ -101,8 +105,8 @@ class TreeView(AbstractView, QTreeWidget):
     def _selectedItem(self):
         if self._selection in self._itemDict.keys():
             return self._itemDict[self._selection]
-        elif len(self._itemDict.items()) > 0:
-            return sorted(self._itemDict.items())[0][1]
+        elif self._firstItem!=None:
+            return self._firstItem
         else:
             return None
 

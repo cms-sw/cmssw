@@ -34,6 +34,8 @@ class MainWindow(QMainWindow):
         self._tabWidget = QTabWidget(self)
         self._tabWidget.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
         self.setCentralWidget(self._tabWidget)
+        if hasattr(self._tabWidget,"setTabsClosable"):
+            self._tabWidget.setTabsClosable(True)
        
         self.setWindowIcon(QIcon(":/resources/vispabutton.png"))
         

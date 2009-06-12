@@ -24,6 +24,7 @@ class TextField(object):
         self._textShort = ''
         self._font = None             #needed for autosizeFont()
         self._fontSize = self.FONT_SIZE
+        self._fontSizeHasChanged = True
         self._penColor = QColor(Qt.black)
         self._minFontSize = 1
         self._maxFontSize = 30
@@ -81,10 +82,9 @@ class TextField(object):
     def setFont(self, qfont):
         """ Sets font and if default height is not yet set default height will be set to font height.
         """
-        self._font = QFont(qfont)
-        self._font.setPointSize(self.getFontSize())
-        if self._defaultHeight == 0:
-            self.setDefaultHeight(self.getFontHeight())
+        #self._font = QFont(qfont)
+        self._font = qfont
+        self._fontSizeHasChanged = True
             
     def font(self):
         return self._font
@@ -103,9 +103,6 @@ class TextField(object):
         if fm == None:
             fm = QFontMetrics(self._font)
         height = fm.height()
-        #height = fm.leading() + fm.height()
-        #height = fm.boundingRect('H').height()
-        
         return height
     
     def setDefaultFontSize(self, fontSize):
@@ -150,6 +147,12 @@ class TextField(object):
         """
         self._width = self._defaultWidth
         self._height = self._defaultHeight
+        
+        if self._fontSizeHasChanged and (not self._autosizeFontFlag or self._autoscaleFlag):
+            self._font.setPointSize(self.getFontSize())
+            if self._defaultHeight == 0:
+                self.setDefaultHeight(self.getFontHeight())
+            self._fontSizeHasChanged = False
         
         if self._autoscaleFlag:
             self.autoscale()
@@ -356,6 +359,7 @@ class VispaWidget(ZoomableWidget):
     LEFT_MARGIN = 5
     BOTTOM_MARGIN = 5
     RIGHT_MARGIN = 5
+    SMALL_MARGIN = 2
     
     #PEN_COLOR = QColor('darkolivegreen')
     #FILL_COLOR1 = QColor('yellowgreen')
@@ -794,19 +798,16 @@ class VispaWidget(ZoomableWidget):
         """
         return self._distances
 
-    def defineDistances(self, scale=None, keepDefaultRatio=False):
+    def defineDistances(self, keepDefaultRatio=False):
         """ Defines supported distances.
         
         The distances are needed for drawing widget content and are scaled according to current scale / zoom factors.
         The distances are stored in an dictionary (see distances()).
         """
-        if self._rearangeContentFlag:
+        if self._rearangeContentFlag: # and self.isVisible():
             self.rearangeContent()
             
-        if scale == None:
-            scale = self._scale
-        elif scale == 1:
-            scale = 1.0
+        scale = 1.0     # remove if works without
         if keepDefaultRatio:
             scaleWidth = 1.0
             scaleHeight = 1.0
@@ -815,7 +816,6 @@ class VispaWidget(ZoomableWidget):
             scaleHeight = self._scaleHeight
             
         if not self._distancesHaveToBeRecalculatedFlag and \
-            scale == self._distancesLastScale and \
             scaleWidth == self._distancesLastScaleWidth and \
             scaleHeight == self._distancesLastScaleHeight:
             return False
@@ -835,6 +835,7 @@ class VispaWidget(ZoomableWidget):
         self._distances['leftMargin'] = self.LEFT_MARGIN * scale
         self._distances['bottomMargin'] = self.BOTTOM_MARGIN * scale
         self._distances['rightMargin'] = self.RIGHT_MARGIN * scale
+        self._distances['smallMargin'] = self.SMALL_MARGIN * scale
         
         self._distances['titleFieldX'] = self._distances['leftMargin']
         self._distances['titleFieldY'] = self._distances['topMargin']
@@ -862,11 +863,15 @@ class VispaWidget(ZoomableWidget):
     def getDistance(self, name, scale=None, keepDefaultRatio=False):
         """ Gets the length of the element called 'name'.
         """
-        self.defineDistances(scale, keepDefaultRatio)
+        self.defineDistances(keepDefaultRatio)
+        if scale == None:
+            scale = self._scale
+        elif scale == 1:
+            scale = 1.0
         
         if name in self._distances:
             #logging.debug(self.__class__.__name__ +": getdistance() - name = '"+ name +"' - "+ str(self._distances[name]))
-            return self._distances[name]
+            return self._distances[name] * scale
         else:
             logging.warning(self.__class__.__name__ +": getdistance() - Unknown distance '"+ name +"'")
             return 0

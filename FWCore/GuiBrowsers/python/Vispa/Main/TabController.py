@@ -249,26 +249,45 @@ class TabController(QObject):
         This function is called by Application when the tab associated with this controller was selected.
         If modification timestamps differ the refresh() method is called.
         """
-        if self._filename and self._fileModifcationTimestamp != os.path.getmtime(self._filename):
-            self.setModified()
+        if not self._filename or self._fileModifcationTimestamp == 0:
+            return
+        
+        msgBox = None
+        if not os.path.exists(self._filename):
+            logging.debug(self.__class__.__name__ + ": checkModificationTimestamp() - File was removed.")
+            self._fileModifcationTimestamp = 0
+            msgBox = QMessageBox()
+            msgBox.setText("The file was removed.")
+            if self.isEditable():
+                msgBox.setInformativeText("Do you want to save the file with your version?")
+                saveButton = msgBox.addButton("Save", QMessageBox.ActionRole)
+                ignoreButton = msgBox.addButton("Ignore", QMessageBox.RejectRole)
+            else:
+                ignoreButton = msgBox.addButton("OK", QMessageBox.RejectRole)
+            reloadButton = None
+            
+        elif self._fileModifcationTimestamp != os.path.getmtime(self._filename):
             logging.debug(self.__class__.__name__ + ": checkModificationTimestamp() - File was modified.")
             msgBox = QMessageBox()
             msgBox.setText("The file has been modified.")
             if self.isEditable():
                 msgBox.setInformativeText("Do you want to overwrite the file with your version or reload the file?")
-                overwriteButton = msgBox.addButton("Overwrite", QMessageBox.ActionRole)
+                saveButton = msgBox.addButton("Overwrite", QMessageBox.ActionRole)
             else:
                 msgBox.setInformativeText("Do you want to reload the file?")
             reloadButton = msgBox.addButton("Reload", QMessageBox.DestructiveRole)
             ignoreButton = msgBox.addButton("Ignore", QMessageBox.RejectRole)
+        
+        if msgBox:
+            self.setModified()
             msgBox.exec_()
             
-            if self.isEditable() and msgBox.clickedButton() == overwriteButton:
+            if self.isEditable() and msgBox.clickedButton() == saveButton:
                 self.save()
             elif msgBox.clickedButton() == reloadButton:            
                 self.refresh()
                 self.setModified(False)
-            elif msgBox.clickedButton() == ignoreButton:
+            elif msgBox.clickedButton() == ignoreButton and os.path.exists(self._filename):
                 self._fileModifcationTimestamp = os.path.getmtime(self._filename)
                 
         else:

@@ -560,14 +560,16 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
     def inputEventContent(self):
         content = []
         allLabels = [self.label(object) for object in self._allObjects]
-        for entry in self._allObjects:
-            for uses in self.uses(entry):
-                if not uses in allLabels and not uses in content:
-                    content += [uses]
+        for object in self._allObjects:
+            for key, value in self.inputTags(object):
+                module = str(value).split(":")[0]
+                product = ".".join(str(value).split(":")[1:])
+                if not module in allLabels and not ("*",module,product,"*") in content:
+                    content += [("*",module,product,"*")]
         return content
 
     def outputEventContent(self):
-        content = [self.label(object) for object in self._allObjects\
+        content = [("*",self.label(object),"*","*") for object in self._allObjects\
                  if self.type(object) in ["EDProducer", "EDFilter", "EDAnalyzer"]]
         return content
     
@@ -586,22 +588,3 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             return outputModules[0].outputCommands
         else:
             return []
-
-    def applyCommands(self, content, outputCommands):
-        keep = {}
-        for object in content:
-            keep[object] = True
-        for o in outputCommands:
-            command, filter = o.split(" ")
-            if len(filter.split("_")) > 1:
-                module = filter.split("_")[1]
-            else:
-                module = filter
-            for object in content:
-                if "*" in module:
-                    match = module.strip("*") in object
-                else:
-                    match = module == object
-                if match:
-                    keep[object] = command == "keep"
-        return [object for object in content if keep[object]]

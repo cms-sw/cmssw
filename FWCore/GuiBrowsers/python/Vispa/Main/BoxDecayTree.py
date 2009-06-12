@@ -6,21 +6,22 @@ from PyQt4.QtGui import QPalette
 
 from ConnectableWidget import *
 from WidgetContainer import *
+from VispaWidget import *
 from BasicDataAccessor import *
 from RelativeDataAccessor import *
 from ParticleDataAccessor import *
 from PortConnection import *
-from Workspace import *
+from WidgetView import *
 from Exceptions import *
 
-class BoxDecayTree(Workspace):
+class BoxDecayTree(WidgetView):
     """Visualizes a decay tree using boxes to represent containers as well as their contents.
     
     Mother/daughter relations are represented by connection lines. The BoxDecayTree is automatically filled using a DataAccessor.
     """
     def __init__(self, parent=None):
         logging.debug(__name__ + ": __init__")
-        Workspace.__init__(self, parent)
+        WidgetView.__init__(self, parent)
 
         self._operationId = 0
         self._boxContentScript = ""
@@ -54,7 +55,7 @@ class BoxDecayTree(Workspace):
             raise TypeError(__name__ + " requires data accessor of type BasicDataAccessor.")
         if not isinstance(accessor, RelativeDataAccessor):
             raise TypeError(__name__ + " requires data accessor of type RelativeDataAccessor.")
-        Workspace.setDataAccessor(self, accessor)
+        WidgetView.setDataAccessor(self, accessor)
     
     def clear(self):
         """ Deletes all boxes in the BoxDecayTree
@@ -62,7 +63,7 @@ class BoxDecayTree(Workspace):
         logging.debug(__name__ + ": clear")
         # Abort currently ongoing drawing operations
         self._operationId += 1
-        Workspace.clear(self)
+        WidgetView.clear(self)
         self._subViews = []
 
     def updateContent(self):
@@ -76,12 +77,7 @@ class BoxDecayTree(Workspace):
             objects = self._filter(self._dataObjects)
             if self._sortBeforeArranging:
                 objects = self._sortByRelations(operationId, objects)
-            i = 0
-            for object in objects:
-                if operationId != self._operationId:
-                    break
-                self.createBoxRecursive(operationId, object, self, str(i))
-                i += 1
+            self.createBoxesRecursive(operationId, objects, self)
         self._updatingFlag = False
         return operationId == self._operationId
 
@@ -94,6 +90,7 @@ class BoxDecayTree(Workspace):
             widget = ConnectableWidget(widgetParent)
             widget.TEXTFIELD_FLAGS = 0
             widget.setText(text)
+            widget.setShowPortNames(True)
         widget.setDragable(False)
         widget.setDeletable(False)
         widget.setAutoresizeEnabled(True, False)
@@ -140,30 +137,27 @@ class BoxDecayTree(Workspace):
         if color:
             connection.FILL_COLOR2 = color
         connection.move(2 * w1.getDistance('leftMargin'), 2 * w1.getDistance('topMargin'))
-        connection.show()
         return connection
 
-    def createConnections(self, operationId, widget, widgetParent):
+    def createConnections(self, operationId, widgetParent):
         """ Create connection lines between objects.
         
         In BoxDecayTree default mother-daughter relations are vizualized by the connections.
         """
-        widget.setShowPortNames(False)
-        # create port for daughters
-        if self._dataAccessor.daughterRelations(widget.object):
-            self.createSourcePort(widget, "daughterRelations", False)
-        # create connections to mothers
         if widgetParent:
-            children = [w for w in widgetParent.children()[: - 1]
-                        if isinstance(w, VispaWidget)]
+            children = [w for w in widgetParent.children()
+                        if isinstance(w, ConnectableWidget)]
         else:
             children = []
-        for w in children:
-            if operationId != self._operationId:
-                break
-            if w.object in self._dataAccessor.motherRelations(widget.object):
-                self.createConnection(w, 'daughterRelations', widget, 'motherRelations', None, False)
-        widget.raise_()
+        for w1 in children:
+            w1.setShowPortNames(False)
+            for w2 in children:
+                if operationId != self._operationId:
+                    break
+                if w1.object in self._dataAccessor.motherRelations(w2.object):
+                    connectionWidget=self.createConnection(w1, 'daughterRelations', w2, 'motherRelations', None, False)
+                    connectionWidget.stackUnder(w2)
+                    connectionWidget.show()
         
     def arrangeBoxPosition(self, widget):
         """ Arrange box position according to mother relations.
@@ -213,7 +207,7 @@ class BoxDecayTree(Workspace):
         for w in children:
             self.arrangeBoxPosition(w)
 
-    def createBoxRecursive(self, operationId, object=None, widgetParent=None, id="0"):
+    def createBoxesRecursive(self, operationId, objects, widgetParent, positionName="0"):
         """ Creates a box from an object.
         
         All children of this object are created recursively.
@@ -223,61 +217,75 @@ class BoxDecayTree(Workspace):
         # Abort drawing if operationId out of date
         if operationId != self._operationId:
             return None
-        # create box
-        text = ""
-        if self._boxContentScript != "":
-            dataAccessorObject = BasicDataAccessorInterface(object, self._dataAccessor)
-            try:
-                text = dataAccessorObject.runScript(self._boxContentScript).replace("None", "")
-            except Exception, e:
-                logging.info("Error in script: " + exception_traceback())
-                text = "Error in script: " + str(e)
-        widget = self.createBox(widgetParent, len(self._dataAccessor.children(object)) > 0, self._dataAccessor.label(object), text)
-        self.addWidget(widget, object, id)
 
-        # create Connections
-        if isinstance(widget, ConnectableWidget):
-            self.createConnections(operationId, widget, widgetParent)
-
-        # create children objects
-        if isinstance(widget, WidgetContainer):
-            decayTreeChildren = []
-            otherChildren = []
-            for daughter in self._filter(self._dataAccessor.children(object)):
-                if len(self._dataAccessor.children(daughter)) == 0 and isinstance(self._dataAccessor, ParticleDataAccessor) and self._dataAccessor.id(daughter) != None:
-                    decayTreeChildren += [daughter]
-                else:
-                    otherChildren += [daughter]
-            if self._subView != None and len(decayTreeChildren) > 0:
-                subView = self._subView(widget)
-                subView.setDataAccessor(self._dataAccessor)
-                subView.setDataObjects(decayTreeChildren)
-                subView.updateContent()
-                subView.move(widget.getDistance('leftMargin'), widget.getDistance('topMargin'))
-                self._subViews += [subView]
-                self.connect(subView, SIGNAL("selected"), self.onSubViewSelected)
+        decayTreeChildren = []
+        otherChildren = []
+        for daughter in objects:
+            if len(self._dataAccessor.children(daughter)) == 0 and isinstance(self._dataAccessor, ParticleDataAccessor) and self._dataAccessor.id(daughter) != None:
+                decayTreeChildren += [daughter]
             else:
-                otherChildren += decayTreeChildren
-            if self._sortBeforeArranging:
-                otherChildren = self._sortByRelations(operationId, otherChildren)
-            i = 0
-            for daughter in otherChildren:
-                self.createBoxRecursive(operationId, daughter, widget, id + "-" + str(i))
-                i += 1
+                otherChildren += [daughter]
+        if self._subView != None and len(decayTreeChildren) > 0:
+            subView = self._subView(widgetParent)
+            subView.setDataAccessor(self._dataAccessor)
+            subView.setDataObjects(decayTreeChildren)
+            subView.updateContent()
+            if isinstance(widgetParent, WidgetContainer):
+                subView.move(widgetParent.getDistance('leftMargin'), widgetParent.getDistance('topMargin'))
+            self._subViews += [subView]
+            self.connect(subView, SIGNAL("selected"), self.onSubViewSelected)
+        else:
+            otherChildren += decayTreeChildren
+        if self._sortBeforeArranging:
+            otherChildren = self._sortByRelations(operationId, otherChildren)
 
-        # resize box
-        if operationId == self._operationId and isinstance(widget, WidgetContainer):
-            widget.autosize()
-            self.connect(widget, SIGNAL("sizeChanged"), self.updateBoxPositions)
+        i = 0
+        for object in otherChildren:
+            # create box
+            text = ""
+            if self._boxContentScript != "":
+                dataAccessorObject = BasicDataAccessorInterface(object, self._dataAccessor)
+                try:
+                    text = dataAccessorObject.runScript(self._boxContentScript).replace("None", "")
+                except Exception, e:
+                    logging.info("Error in script: " + exception_traceback())
+                    text = "Error in script: " + str(e)
+            widget = self.createBox(widgetParent, len(self._dataAccessor.children(object)) > 0, self._dataAccessor.label(object), text)
+            child_positionName = positionName + "-" + str(i)
+            self.addWidget(widget, object, child_positionName)
+            i += 1
+            
+        if operationId != self._operationId:
+            return None
+        # create Connections
+        self.createConnections(operationId, widgetParent)
 
-        # calculate box position
-        if operationId == self._operationId:
-            self.arrangeBoxPosition(widget)
+        for widget in widgetParent.children():
+            # create children objects
+            if isinstance(widget, WidgetContainer):
+                self.createBoxesRecursive(operationId, self._filter(self._dataAccessor.children(widget.object)), widget, positionName)
 
-        # draw box
-        if operationId == self._operationId:
-            widget.show()
-            self.autosizeScrollArea() 
+            if operationId != self._operationId:
+                return None
+            # resize box
+            if isinstance(widget, WidgetContainer):
+                widget.autosize()
+                self.connect(widget, SIGNAL("sizeChanged"), self.updateBoxPositions)
+
+            if operationId != self._operationId:
+                return None
+            # calculate box position
+            if isinstance(widget, VispaWidget):
+                self.arrangeBoxPosition(widget)
+
+            if operationId != self._operationId:
+                return None
+            # draw box
+            if isinstance(widget, VispaWidget):
+                widget.show()
+        if operationId != self._operationId:
+            return None
+        self.autosizeScrollArea() 
 
     def _sortByRelations(self, operationId, objects):
         """ Sort a list of objects by their mother/daughter relations.
@@ -290,43 +298,22 @@ class BoxDecayTree(Workspace):
             return ()
         unsortedObjects = list(objects)
         sortedObjects = []
-        currentObject = unsortedObjects[0]
-        while len(unsortedObjects) > 0:
-            # Process application event loop in order to accept user input during time consuming drawing operation
-            QCoreApplication.instance().processEvents()
-            # Abort drawing if operationId out of date
-            if operationId != self._operationId:
-                break
-            if currentObject in unsortedObjects:
-                motherFound = False
-                if len(self._dataAccessor.motherRelations(currentObject)) > 0:
-                    for mother in reversed(self._dataAccessor.motherRelations(currentObject)):
-                        if mother in unsortedObjects:
-                            motherFound = True
-                            unsortedObjects.remove(mother)
-                            unsortedObjects.insert(0, mother)
-                if motherFound:
-                    currentObject = unsortedObjects[0]
-                else:
-                    unsortedObjects.remove(currentObject)
-                    sortedObjects += [currentObject]
-            else:
-                if len(self._dataAccessor.daughterRelations(currentObject)) > 0:
-                    for daughter in reversed(self._dataAccessor.daughterRelations(currentObject)):
-                        if daughter in unsortedObjects:
-                            if len(self._dataAccessor.motherRelations(daughter)) == 1 and len(self._dataAccessor.daughterRelations(daughter)) == 0:
-                                unsortedObjects.remove(daughter)
-                                sortedObjects += [daughter]
-                            else:
-                                unsortedObjects.remove(daughter)
-                                unsortedObjects.insert(0, daughter)
-                if len(unsortedObjects) > 0:
-                    currentObject = unsortedObjects[0]
+        for object in reversed(list(objects)):
+            if len(self._dataAccessor.motherRelations(object))==0:
+                unsortedObjects.remove(object)
+                sortedObjects.insert(0,object)
+                i=0
+                for child in self._dataAccessor.allDaughterRelations(object):
+                    i+=1
+                    if child in unsortedObjects:
+                        unsortedObjects.remove(child)
+                        sortedObjects.insert(i,child)
+        sortedObjects+=unsortedObjects
         return tuple(sortedObjects)
-
+        
     def closeEvent(self, event):
         self.clear()
-        Workspace.closeEvent(self, event)
+        WidgetView.closeEvent(self, event)
 
     def onSubViewSelected(self, object):
         """ When item is selected in SubView forward signal.
@@ -341,7 +328,7 @@ class BoxDecayTree(Workspace):
         """ Mark an object as selected. Also in subviews.
         """
         logging.debug(self.__class__.__name__ + ": select")
-        Workspace.select(self, object)
+        WidgetView.select(self, object)
         for sv in self._subViews:
             if object in sv.dataObjects():
                 sv.select(object)
@@ -349,7 +336,7 @@ class BoxDecayTree(Workspace):
     def selection(self):
         """ Return the selected object. Also in subviews.
         """
-        selection = Workspace.selection(self)
+        selection = WidgetView.selection(self)
         for sv in self._subViews:
             if sv.selection() != None:
                 selection = sv.selection()
@@ -359,7 +346,7 @@ class BoxDecayTree(Workspace):
         """ Restore selection. Also in subviews.
         """
         logging.debug(self.__class__.__name__ + ": restoreSelection")
-        Workspace.restoreSelection(self)
+        WidgetView.restoreSelection(self)
         if self._selection != None and self._selection.startswith("subview"):
             split = self._selection.split("-")
             if len(self._subViews) > int(split[1]):
