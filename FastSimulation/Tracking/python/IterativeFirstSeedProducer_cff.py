@@ -14,9 +14,11 @@ iterativeFirstSeeds.pTMin = [0.35, 0.35]
 iterativeFirstSeeds.maxD0 = [1., 1.]
 iterativeFirstSeeds.maxZ0 = [30., 30.]
 iterativeFirstSeeds.numberOfHits = [3, 2]
-iterativeFirstSeeds.originRadius = [0.2, 0.2]
+###iterativeFirstSeeds.originRadius = [0.2, 0.2] FirstStep rev 1.12!!!!
+iterativeFirstSeeds.originRadius = [0.2, 0.05]
 iterativeFirstSeeds.originHalfLength = [15.9, 15.9]
-iterativeFirstSeeds.originpTMin = [0.5, 0.9]
+###iterativeFirstSeeds.originpTMin = [0.5, 0.9]
+iterativeFirstSeeds.originpTMin = [0.8, 0.9]
 iterativeFirstSeeds.zVertexConstraint = [-1.0, 0.4]
 iterativeFirstSeeds.primaryVertices = ['none', 'pixelVertices']
 
