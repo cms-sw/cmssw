@@ -9,16 +9,18 @@ import string
 ##########################################################################
 ######### User variables
 
+#Run on FastSim events if true
+FastSimUse="True"
+
 #Reference release
-NewRelease='CMSSW_3_1_0_pre6'
+NewRelease='CMSSW_3_1_0_pre9'
 
 # startup and ideal sample list
-#startupsamples= ['RelValTTbar', 'RelValZMM']
 #startupsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
-startupsamples= ['']
+startupsamples= ['RelValTTbar']
 
-idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
-#idealsamples= ['RelValSingleMuPt10']
+#idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
+idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValTTbar']
 
 
 
@@ -50,12 +52,12 @@ OneAtATime=False
 IdealTag='IDEAL'
 StartupTag='STARTUP'
 
-IdealTagUse='IDEAL_30X'
-StartupTagUse='STARTUP_30X'
+IdealTagUse='IDEAL_31X'
+StartupTagUse='STARTUP_31X'
 
 # Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
-ReferenceSelection='IDEAL_30X_noPU'
-StartupReferenceSelection='STARTUP_30X_noPU'
+ReferenceSelection='IDEAL_31X_noPU'
+StartupReferenceSelection='STARTUP_31X_noPU'
 
 # Default label is GlobalTag_noPU__Quality_Algo. Change this variable if you want to append an additional string.
 NewSelectionLabel='_FSIM'
@@ -139,11 +141,13 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
             #search the primary dataset
             cmd='python $DBSCMD_HOME/dbsCommandLine.py "find dataset where dataset like *'
             #search for correct EventContent (and site)
-#            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* AND site like *cern* "'
-#            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* AND site like *cern* "'
-#            cmd+='|grep '+sample+'|grep -v FastSim |sort| tail -1 | cut -d "," -f2 '
-            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RECO* AND site like *cern* "'
-            cmd+='|grep '+sample+'|grep FastSim |sort| tail -1 | cut -d "," -f2 '
+            if (FastSimUse=="True"):
+                cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RECO* AND site like *cern* "'
+                cmd+='|grep '+sample+'|grep FastSim |sort| tail -1 | cut -d "," -f2 '
+            else:
+#                cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* AND site like *cern* "'
+                cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* AND site like *cern* "'
+                cmd+='|grep '+sample+'|grep -v FastSim |sort| tail -1 | cut -d "," -f2 '
             print cmd
             dataset= os.popen(cmd).readline()
             print 'DataSet:  ', dataset, '\n'
@@ -203,7 +207,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                     else:
                         Nevents=Events[sample]
                     print 'line 199'
-                    symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTagUse, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':trackalgorithm, 'QUALITY':trackquality, 'TRACKS':Tracks}
+                    symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTagUse, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':trackalgorithm, 'QUALITY':trackquality, 'TRACKS':Tracks, 'FASTSIM':FastSimUse}
 
 
                     cfgFile = open(cfgFileName+'.py' , 'a' )
