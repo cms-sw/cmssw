@@ -10,7 +10,7 @@ source rpms/slc4_ia32_gcc345/cms/dqmgui/4.6.0/etc/profile.d/env.sh
 
 if [ -e /tmp/updateRunDb.lock ]; then
   echo "Lock file is present, exit"
-  exit 1;
+  exit 1
 fi
 
 touch /tmp/updateRunDb.lock
