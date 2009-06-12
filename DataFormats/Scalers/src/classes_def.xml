@@ -3,6 +3,7 @@
   <class name="L1TriggerScalers"/>
   <class name="L1TriggerRates"/>
   <class name="LumiScalers"/>
+  <class name="TimeSpec"/>
   <class name="std::vector<L1AcceptBunchCrossing>"/>
   <class name="std::vector<L1TriggerScalers>"/>
   <class name="std::vector<L1TriggerRates>"/>

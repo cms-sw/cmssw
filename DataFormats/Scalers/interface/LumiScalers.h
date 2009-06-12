@@ -8,8 +8,12 @@
 #ifndef DATAFORMATS_SCALERS_LUMISCALERS_H
 #define DATAFORMATS_SCALERS_LUMISCALERS_H
 
-#include <ostream>
+#include "DataFormats/Scalers/interface/TimeSpec.h"
+
+#include <ctime>
+#include <iosfwd>
 #include <vector>
+#include <string>
 
 /*! \file LumiScalers.h
  * \Header file for HF Lumi Scalers
@@ -47,8 +51,7 @@ class LumiScalers
   unsigned int bunchNumber() const         { return(bunchNumber_);}
 
   int version() const                      { return(version_);}
-  unsigned int collectionTime_sec() const  { return(collectionTime_sec_);}
-  unsigned int collectionTime_nsec() const { return(collectionTime_nsec_);}
+  timespec collectionTime() const          { return(collectionTime_.get_timespec());}
   float normalization() const              { return(normalization_);}
   float deadTimeNormalization() const  
   { return(deadTimeNormalization_);}
@@ -104,8 +107,7 @@ protected:
 
   int version_;
 
-  unsigned int collectionTime_sec_;
-  unsigned int collectionTime_nsec_;
+  TimeSpec collectionTime_;
 
   float normalization_;
   float deadTimeNormalization_;

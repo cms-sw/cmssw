@@ -6,6 +6,7 @@
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/Scalers/interface/ScalersRaw.h"
 #include <cstdio>
+#include <ostream>
 
 LumiScalers::LumiScalers() : 
    trigType_(0),
@@ -57,8 +58,8 @@ LumiScalers::LumiScalers(const unsigned char * rawData)
   version_ = raw->version;
   if ( version_ >= 1 )
   {
-    collectionTime_sec_     = raw->lumi.collectionTime_sec;
-    collectionTime_nsec_    = raw->lumi.collectionTime_nsec;
+    collectionTime_.set_tv_sec(static_cast<long>(raw->lumi.collectionTime_sec));
+    collectionTime_.set_tv_nsec(raw->lumi.collectionTime_nsec);
     deadTimeNormalization_  = raw->lumi.DeadtimeNormalization;
     normalization_          = raw->lumi.Normalization;
     lumiFill_               = raw->lumi.LumiFill;
@@ -105,11 +106,11 @@ std::ostream& operator<<(std::ostream& s, const LumiScalers& c)
   s << "LumiScalers    Version: " << c.version() << 
     "   SourceID: "<< c.sourceID() << std::endl;
 
-  unsigned int collectionTimeSec = c.collectionTime_sec();
-  hora = gmtime((const time_t *)&collectionTimeSec);
+  timespec ts = c.collectionTime();
+  hora = gmtime(&ts.tv_sec);
   strftime(zeit, sizeof(zeit), "%Y.%m.%d %H:%M:%S", hora);
   sprintf(line, " CollectionTime: %s.%9.9d", zeit, 
-	  (int)c.collectionTime_nsec());
+	  (int)ts.tv_nsec);
   s << line << std::endl;
 
   sprintf(line, " TrigType: %d   EventID: %d    BunchNumber: %d", 

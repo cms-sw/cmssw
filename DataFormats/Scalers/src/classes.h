@@ -5,6 +5,7 @@
 #include "DataFormats/Scalers/interface/L1TriggerScalers.h"
 #include "DataFormats/Scalers/interface/L1TriggerRates.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/Scalers/interface/TimeSpec.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"

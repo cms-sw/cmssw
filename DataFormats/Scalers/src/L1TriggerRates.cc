@@ -2,16 +2,15 @@
  *   File: DataFormats/Scalers/src/L1TriggerRates.cc   (W.Badgett)
  */
 
-#include "DataFormats/Scalers/interface/L1TriggerScalers.h"
 #include "DataFormats/Scalers/interface/L1TriggerRates.h"
+#include "DataFormats/Scalers/interface/L1TriggerScalers.h"
 
 #include <iostream>
 #include <cstdio>
 
 L1TriggerRates::L1TriggerRates():
   version_(0),
-  collectionTimeSummary_sec_(0),
-  collectionTimeSummary_nsec_(0),
+  collectionTimeSummary_(0,0),
   deltaT_(0),
   deltaTActive_(0),
   triggerNumberRate_(0.0),
@@ -54,21 +53,20 @@ L1TriggerRates::L1TriggerRates():
   finalTriggersInvalidBCRunPercent_(0.0),
   lostFinalTriggersRunPercent_(0.0),
   lostFinalTriggersActiveRunPercent_(0.0),
-  collectionTimeDetails_sec_(0),
-  collectionTimeDetails_nsec_(0),
+  collectionTimeDetails_(0,0),
   triggersRunRate_(L1TriggerScalers::nL1Triggers),
   testTriggersRunRate_(L1TriggerScalers::nL1TestTriggers)
 { 
 }
 
-L1TriggerRates::L1TriggerRates(const L1TriggerScalers s)
+L1TriggerRates::L1TriggerRates(L1TriggerScalers const& s)
 { 
   L1TriggerRates();
   computeRunRates(s);
 }
 
-L1TriggerRates::L1TriggerRates(const L1TriggerScalers s1,
-			       const L1TriggerScalers s2)
+L1TriggerRates::L1TriggerRates(L1TriggerScalers const& s1,
+			       L1TriggerScalers const& s2)
 {  
   L1TriggerRates();
 
@@ -89,8 +87,8 @@ L1TriggerRates::L1TriggerRates(const L1TriggerScalers s1,
 L1TriggerRates::~L1TriggerRates() { } 
 
 
-void L1TriggerRates::computeRates(const L1TriggerScalers t1,
-				  const L1TriggerScalers t2)
+void L1TriggerRates::computeRates(L1TriggerScalers const& t1,
+				  L1TriggerScalers const& t2)
 {
   double deltaOrbit = (double)t2.orbitNumber() - (double)t1.orbitNumber();
   if ( deltaOrbit > 0 )
@@ -169,15 +167,15 @@ void L1TriggerRates::computeRates(const L1TriggerScalers t1,
   }
 }
 
-void L1TriggerRates::computeRunRates(const L1TriggerScalers t)
+void L1TriggerRates::computeRunRates(L1TriggerScalers const& t)
 {
   version_ = t.version();
 
-  collectionTimeSummary_sec_  = t.collectionTimeSummary_sec();
-  collectionTimeSummary_nsec_ = t.collectionTimeSummary_nsec();
+  collectionTimeSummary_.set_tv_sec(static_cast<long>(t.collectionTimeSummary().tv_sec));
+  collectionTimeSummary_.set_tv_nsec(t.collectionTimeSummary().tv_nsec);
 
-  collectionTimeDetails_sec_  = t.collectionTimeDetails_sec();
-  collectionTimeDetails_nsec_ = t.collectionTimeDetails_nsec();
+  collectionTimeDetails_.set_tv_sec(static_cast<long>(t.collectionTimeDetails().tv_sec));
+  collectionTimeDetails_.set_tv_nsec(t.collectionTimeDetails().tv_nsec);
 
   double deltaOrbit = (double)t.orbitNumber();
   if ( deltaOrbit > 0 )

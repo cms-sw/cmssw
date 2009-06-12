@@ -7,18 +7,15 @@
 #include "DataFormats/Scalers/interface/ScalersRaw.h"
 
 #include <iostream>
-#include <time.h>
 #include <cstdio>
 
 L1TriggerScalers::L1TriggerScalers():
   version_(0),
-  collectionTimeSpecial_sec_(0),
-  collectionTimeSpecial_nsec_(0),
+  collectionTimeSpecial_(0,0),
   orbitNumber_(0),
   luminositySection_(0),
   bunchCrossingErrors_(0),
-  collectionTimeSummary_sec_(0),
-  collectionTimeSummary_nsec_(0),
+  collectionTimeSummary_(0,0),
   triggerNumber_(0),
   eventNumber_(0),
   finalTriggersDistributed_(0),
@@ -37,8 +34,7 @@ L1TriggerScalers::L1TriggerScalers():
   deadTimeActiveCalibration_(0),
   deadTimeActiveTimeSlot_(0),
   numberResets_(0),
-  collectionTimeDetails_sec_(0),
-  collectionTimeDetails_nsec_(0),
+  collectionTimeDetails_(0,0),
   triggers_(nL1Triggers),
   testTriggers_(nL1TestTriggers)
 { 
@@ -59,14 +55,18 @@ L1TriggerScalers::L1TriggerScalers(const unsigned char * rawData)
   version_ = raw->version;
   if ( version_ >= 1 )
   {
-    collectionTimeSpecial_sec_  = raw->trig.collectionTimeSpecial_sec;
-    collectionTimeSpecial_nsec_ = raw->trig.collectionTimeSpecial_nsec;
-    orbitNumber_                = raw->trig.ORBIT_NUMBER;
-    luminositySection_          = raw->trig.LUMINOSITY_SEGMENT;
-    bunchCrossingErrors_        = raw->trig.BC_ERRORS;
+    collectionTimeSpecial_.set_tv_sec( static_cast<long>(
+      raw->trig.collectionTimeSpecial_sec));
+    collectionTimeSpecial_.set_tv_nsec( 
+      raw->trig.collectionTimeSpecial_nsec);
+    orbitNumber_               = raw->trig.ORBIT_NUMBER;
+    luminositySection_         = raw->trig.LUMINOSITY_SEGMENT;
+    bunchCrossingErrors_       = raw->trig.BC_ERRORS;
 
-    collectionTimeSummary_sec_  = raw->trig.collectionTimeSummary_sec;
-    collectionTimeSummary_nsec_ = raw->trig.collectionTimeSummary_nsec;
+    collectionTimeSummary_.set_tv_sec( static_cast<long>(
+      raw->trig.collectionTimeSummary_sec));
+    collectionTimeSummary_.set_tv_nsec( 
+      raw->trig.collectionTimeSummary_nsec);
 
     triggerNumber_             = raw->trig.TRIGGER_NR;
     eventNumber_               = raw->trig.EVENT_NR;
@@ -89,8 +89,10 @@ L1TriggerScalers::L1TriggerScalers(const unsigned char * rawData)
     deadTimeActiveTimeSlot_    = raw->trig.TIMESLOT_DEADTIMEA;
     numberResets_              = raw->trig.NR_OF_RESETS;
 
-    collectionTimeDetails_sec_ = raw->trig.collectionTimeDetails_sec;
-    collectionTimeDetails_nsec_ = raw->trig.collectionTimeDetails_nsec;
+    collectionTimeDetails_.set_tv_sec( static_cast<long>(
+      raw->trig.collectionTimeDetails_sec));
+    collectionTimeDetails_.set_tv_nsec(
+      raw->trig.collectionTimeDetails_nsec);
 
     for ( int i=0; i<ScalersRaw::N_L1_TRIGGERS_v1; i++)
     { triggers_.push_back( raw->trig.ALGO_RATE[i]);}
@@ -120,25 +122,25 @@ std::ostream& operator<<(std::ostream& s,L1TriggerScalers const &c)
 	  c.trigType(), c.eventID(), c.bunchNumber());
   s << line << std::endl;
 
-  unsigned int secondsToHeaven = c.collectionTimeSummary_sec();
-  horaHeaven = gmtime((const time_t *)&secondsToHeaven);
+  timespec secondsToHeaven = c.collectionTimeSummary();
+  horaHeaven = gmtime(&secondsToHeaven.tv_sec);
   strftime(zeitHeaven, sizeof(zeitHeaven), "%Y.%m.%d %H:%M:%S", horaHeaven);
   sprintf(line, " CollectionTimeSummary: %s.%9.9d" , 
-	  zeitHeaven, c.collectionTimeSummary_nsec());
+	  zeitHeaven, (int)secondsToHeaven.tv_nsec);
   s << line << std::endl;
 
-  unsigned int secondsToHell= c.collectionTimeSpecial_sec();
-  horaHell = gmtime((const time_t *)&secondsToHell);
+  timespec secondsToHell= c.collectionTimeSpecial();
+  horaHell = gmtime(&secondsToHell.tv_sec);
   strftime(zeitHell, sizeof(zeitHell), "%Y.%m.%d %H:%M:%S", horaHell);
   sprintf(line, " CollectionTimeSpecial: %s.%9.9d" , 
-	  zeitHell, c.collectionTimeSpecial_nsec());
+	  zeitHell, (int)secondsToHell.tv_nsec);
   s << line << std::endl;
 
-  unsigned int secondsToLimbo= c.collectionTimeDetails_sec();
-  horaLimbo = gmtime((const time_t *)&secondsToLimbo);
+  timespec secondsToLimbo= c.collectionTimeDetails();
+  horaLimbo = gmtime(&secondsToLimbo.tv_sec);
   strftime(zeitLimbo, sizeof(zeitLimbo), "%Y.%m.%d %H:%M:%S", horaLimbo);
   sprintf(line, " CollectionTimeDetails: %s.%9.9d" , 
-	  zeitLimbo, c.collectionTimeDetails_nsec());
+	  zeitLimbo, (int)secondsToLimbo.tv_nsec);
   s << line << std::endl;
 
   sprintf(line,

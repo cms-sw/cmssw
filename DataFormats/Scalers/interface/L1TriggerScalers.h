@@ -8,7 +8,11 @@
 #ifndef DATAFORMATS_SCALERS_L1TRIGGERSCALERS_H
 #define DATAFORMATS_SCALERS_L1TRIGGERSCALERS_H
 
-#include <ostream>
+#include "DataFormats/Scalers/interface/TimeSpec.h"
+
+#include <ctime>
+#include <iosfwd>
+#include <string>
 #include <vector>
 
 /*! \file L1TriggerScalers.h
@@ -50,10 +54,8 @@ class L1TriggerScalers
   unsigned int sourceID() const            { return(sourceID_);}
   unsigned int bunchNumber() const         { return(bunchNumber_);}
 
-  unsigned int collectionTimeSpecial_sec() const
-  { return(collectionTimeSpecial_sec_);}
-  unsigned int collectionTimeSpecial_nsec() const
-  { return(collectionTimeSpecial_nsec_);}
+  timespec collectionTimeSpecial() const
+  { return(collectionTimeSpecial_.get_timespec());}
 
   unsigned int orbitNumber() const           
   { return(orbitNumber_);}
@@ -62,10 +64,8 @@ class L1TriggerScalers
   unsigned int bunchCrossingErrors() const           
   { return(bunchCrossingErrors_);}
 
-  unsigned int collectionTimeSummary_sec() const 
-  { return(collectionTimeSummary_sec_);}
-  unsigned int collectionTimeSummary_nsec() const 
-  { return(collectionTimeSummary_nsec_);}
+  timespec collectionTimeSummary() const 
+  { return(collectionTimeSummary_.get_timespec());}
 
   unsigned int triggerNumber() const         
   { return(triggerNumber_);}
@@ -106,10 +106,8 @@ class L1TriggerScalers
   unsigned int numberResets() const          
   { return(numberResets_);}
 
-  unsigned int collectionTimeDetails_sec() const
-  { return(collectionTimeDetails_sec_);}
-  unsigned int collectionTimeDetails_nsec() const
-  { return(collectionTimeDetails_sec_);}
+  timespec collectionTimeDetails() const
+  { return(collectionTimeDetails_.get_timespec());}
 
   std::vector<unsigned int> triggers() const 
   { return(triggers_);}
@@ -131,14 +129,12 @@ protected:
   unsigned int sourceID_;
   unsigned int bunchNumber_;
 
-  unsigned int       collectionTimeSpecial_sec_;
-  unsigned int       collectionTimeSpecial_nsec_;
+  TimeSpec           collectionTimeSpecial_;
   unsigned int       orbitNumber_;
   unsigned int       luminositySection_;
   unsigned short     bunchCrossingErrors_;
 
-  unsigned int       collectionTimeSummary_sec_;
-  unsigned int       collectionTimeSummary_nsec_;
+  TimeSpec           collectionTimeSummary_;
   unsigned int       triggerNumber_;
   unsigned int       eventNumber_;
   unsigned int       finalTriggersDistributed_;
@@ -158,8 +154,7 @@ protected:
   unsigned long long deadTimeActiveTimeSlot_;
   unsigned int       numberResets_;
 
-  unsigned int collectionTimeDetails_sec_;
-  unsigned int collectionTimeDetails_nsec_;
+  TimeSpec collectionTimeDetails_;
   std::vector<unsigned int> triggers_;
   std::vector<unsigned int> testTriggers_;
 };

@@ -8,7 +8,11 @@
 #ifndef DATAFORMATS_SCALERS_L1TRIGGERRATES_H
 #define DATAFORMATS_SCALERS_L1TRIGGERRATES_H
 
-#include <ostream>
+#include "DataFormats/Scalers/interface/TimeSpec.h"
+
+#include <ctime>
+#include <iosfwd>
+#include <string>
 #include <vector>
 
 /*! \file L1TriggerRates.h
@@ -21,6 +25,8 @@
 
 /// \class L1TriggerRates.h
 /// \brief Persistable copy of L1 Trigger Rates
+
+class L1TriggerScalers;
 
 class L1TriggerRates
 {
@@ -35,13 +41,13 @@ class L1TriggerRates
 #define BX_SPACING (double)25E-9
 
   L1TriggerRates();
-  L1TriggerRates(const L1TriggerScalers s);
-  L1TriggerRates(const L1TriggerScalers s1, const L1TriggerScalers s2);
+  L1TriggerRates(L1TriggerScalers const& s);
+  L1TriggerRates(L1TriggerScalers const& s1, L1TriggerScalers const& s2);
   virtual ~L1TriggerRates();
 
-  void computeRunRates(const L1TriggerScalers t);
-  void computeRates(const L1TriggerScalers t1,
-		    const L1TriggerScalers t2);
+  void computeRunRates(L1TriggerScalers const& t);
+  void computeRates(L1TriggerScalers const& t1,
+		    L1TriggerScalers const& t2);
 
   /// name method
   std::string name() const { return "L1TriggerRates"; }
@@ -52,10 +58,7 @@ class L1TriggerRates
   /// get the data
 
   int version() const { return(version_);}
-  unsigned int collectionTimeSummary_sec() 
-  { return(collectionTimeSummary_sec_);}
-  unsigned int collectionTimeSummary_nsec() 
-  { return(collectionTimeSummary_nsec_);}
+  timespec collectionTimeSummary() { return(collectionTimeSummary_.get_timespec());}
 
   double deltaT()       const { return(deltaT_);}
   double deltaTActive() const { return(deltaTActive_);}
@@ -119,10 +122,8 @@ class L1TriggerRates
   double lostFinalTriggersActivePercent() const       
   { return(lostFinalTriggersActivePercent_);}
 
-  unsigned int collectionTimeDetails_sec() const 
-  { return(collectionTimeDetails_sec_);}
-  unsigned int collectionTimeDetails_nsec() const 
-  { return(collectionTimeDetails_nsec_);}
+  timespec collectionTimeDetails() const 
+  { return(collectionTimeDetails_.get_timespec());}
 
   std::vector<double> triggersRate() const    { return(triggersRate_);}
   std::vector<double> testTriggersRate() const
@@ -201,8 +202,7 @@ class L1TriggerRates
 protected:
 
   int version_;
-  unsigned int collectionTimeSummary_sec_;
-  unsigned int collectionTimeSummary_nsec_;
+  TimeSpec collectionTimeSummary_;
 
   double deltaT_;
   double deltaTActive_;
@@ -253,8 +253,7 @@ protected:
   double lostFinalTriggersRunPercent_;
   double lostFinalTriggersActiveRunPercent_;
 
-  unsigned int collectionTimeDetails_sec_;
-  unsigned int collectionTimeDetails_nsec_;
+  TimeSpec collectionTimeDetails_;
   std::vector<double> triggersRunRate_;
   std::vector<double> testTriggersRunRate_;
 };
