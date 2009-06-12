@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 // FEDRawData 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -37,14 +38,22 @@ class ScalersRawToDigi : public edm::EDProducer
     ~ScalersRawToDigi();
 
     virtual void produce(edm::Event&, const edm::EventSetup&);
+
+  private:
+    edm::InputTag inputTag_;
 };
 
 // Constructor
-ScalersRawToDigi::ScalersRawToDigi(const edm::ParameterSet& iConfig)
+ScalersRawToDigi::ScalersRawToDigi(const edm::ParameterSet& iConfig):
+  inputTag_((char const *)"source")
 {
   produces<L1AcceptBunchCrossingCollection>();
   produces<L1TriggerScalersCollection>();
   produces<LumiScalersCollection>();
+  if ( iConfig.exists("scalersInputTag") )
+  {
+    inputTag_ = iConfig.getParameter<edm::InputTag>("scalersInputTag");
+  }
 }
 
 // Destructor
@@ -58,7 +67,7 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
 
   // Get a handle to the FED data collection
   edm::Handle<FEDRawDataCollection> rawdata;
-  iEvent.getByLabel("source" , rawdata);
+  iEvent.getByLabel(inputTag_, rawdata);
 
   std::auto_ptr<LumiScalersCollection> pLumi(new LumiScalersCollection());
 
