@@ -7,7 +7,7 @@
    version: 01
    date:  28 Oct 2008
 */
-//$Id: FourVectorHLTClient.h,v 1.4 2009/01/31 18:11:09 rekovic Exp $
+//$Id: FourVectorHLTClient.h,v 1.5 2009/03/27 22:19:33 rekovic Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -26,7 +26,6 @@
 #include <TH2F.h>
 #include <TProfile2D.h>
 
-using namespace std;
 
 class FourVectorHLTClient: public edm::EDAnalyzer {
 
@@ -66,10 +65,10 @@ private:
 
   void initialize();
   void calculateRatio(TH1F* effHist, TH1F* denHist); 
-  TH1F * get1DHisto(string meName, DQMStore * dbi);
-  TH2F * get2DHisto(string meName, DQMStore * dbi);
-  TProfile2D * get2DProfile(string meName, DQMStore * dbi);
-  TProfile * get1DProfile(string meName, DQMStore * dbi);
+  TH1F * get1DHisto(std::string meName, DQMStore * dbi);
+  TH2F * get2DHisto(std::string meName, DQMStore * dbi);
+  TProfile2D * get2DProfile(std::string meName, DQMStore * dbi);
+  TProfile * get1DProfile(std::string meName, DQMStore * dbi);
   edm::ParameterSet parameters_;
 
   DQMStore* dbe_;  
@@ -77,10 +76,10 @@ private:
   TString clientDir_;
   TString customEffDir_;
 
-  vector<TString> hltMEName; // names of all MEs (histos)
-  vector<TString> hltPathName; // names of hlt paths from MEs (histos)
+  std::vector<TString> hltMEName; // names of all MEs (histos)
+  std::vector<TString> hltPathName; // names of hlt paths from MEs (histos)
   //TObjArray* hltPathNameColl; // duplicate of the above, more robust
-  vector<MonitorElement*> hltMEs;
+  std::vector<MonitorElement*> hltMEs;
 	std::vector<std::pair<std::string, std::string> > custompathnamepairs_;
 
   int counterLS_;      ///counter

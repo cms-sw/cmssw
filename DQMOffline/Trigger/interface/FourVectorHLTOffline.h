@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.19 2009/06/04 22:28:47 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.20 2009/06/10 13:30:59 rekovic Exp $
 //
 //
 
@@ -93,11 +93,10 @@
 
 #include <iostream>
 #include <fstream>
-#include <vector>
 
 
-using namespace std;
-using namespace edm;
+//using namespace std;
+//using namespace edm;
 using namespace trigger;
 
 typedef multimap<float,int> fimmap ;
@@ -662,14 +661,14 @@ public:
 		 EtMin_= etMin; 
 		 DRMatch_= drMatch;
 		}
-		void setTriggerType(vector<int> trigType) { triggerType_ = trigType; }
+		void setTriggerType(std::vector<int> trigType) { triggerType_ = trigType; }
 		void pushTriggerType(int trigType) { triggerType_.push_back(trigType); }
-		void setL1TriggerType(vector<int> trigType) { l1triggerType_ = trigType; }
+		void setL1TriggerType(std::vector<int> trigType) { l1triggerType_ = trigType; }
 		void pushL1TriggerType(int trigType) { l1triggerType_.push_back(trigType); }
 		void setPath(FourVectorHLTOffline::PathInfoCollection::iterator v) { v_ = v; }
-		void setReco(Handle<T> offColl) { offColl_ = offColl; }
+		void setReco(edm::Handle<T> offColl) { offColl_ = offColl; }
 		/*
-		void setMC(Handle<GenParticleCollection> genParticles, int pdgId, int status)
+		void setMC(edm::Handle<GenParticleCollection> genParticles, int pdgId, int status)
 		{
 
       genParticles_ = genParticles;
@@ -726,7 +725,7 @@ public:
 
 
 		/*
-		void setGenJets(bool flag, Handle<GenJetCollection> genJets ) 
+		void setGenJets(bool flag, edm::Handle<GenJetCollection> genJets ) 
 		{ 
 		  GenJetsFlag_ = flag;  
 			genJets_ = genJets; 
@@ -751,13 +750,13 @@ private:
 		bool GenJetsFlag_;
 		bool BJetsFlag_;
 
-		vector<int> triggerType_;
-		vector<int> l1triggerType_;
+		std::vector<int> triggerType_;
+		std::vector<int> l1triggerType_;
 
-    Handle<T> offColl_;
+    edm::Handle<T> offColl_;
 
-    //Handle<GenParticleCollection> genParticles_;
-    //Handle<GenJetCollection> genJets_;
+    //edm::Handle<GenParticleCollection> genParticles_;
+    //edm::Handle<GenJetCollection> genJets_;
     FourVectorHLTOffline::PathInfoCollection::iterator v_;
 
 };
@@ -767,7 +766,7 @@ bool objMonData<T>::isTriggerType(int t)
 {
   bool rc = false;
 
-  for(vector<int>::const_iterator it = triggerType_.begin(); it != triggerType_.end(); ++it)
+  for(std::vector<int>::const_iterator it = triggerType_.begin(); it != triggerType_.end(); ++it)
 	{
         //LogTrace("FourVectorHLTOffline") << " monitorDenominator()::isTriggerTypeC()::  path type = " << t << "  trigger type = " << *it  << endl;
 
@@ -785,7 +784,7 @@ bool objMonData<T>::isL1TriggerType(int t)
 {
   bool rc = false;
 
-  for(vector<int>::const_iterator it = l1triggerType_.begin(); it != l1triggerType_.end(); ++it)
+  for(std::vector<int>::const_iterator it = l1triggerType_.begin(); it != l1triggerType_.end(); ++it)
 	{
 
 	 if(t == *it) { rc = true; break; }
