@@ -8,16 +8,35 @@ import FWCore.ParameterSet.Config as cms
 # here. (People will use generalTracks, eventually.)
 ###from RecoTracker.IterativeTracking.FirstFilter_cfi import *
 
-firstfilter = cms.EDFilter("QualityFilter",
-    TrackQuality = cms.string('highPurity'),
-    recTracks = cms.InputTag("firstStepTracksWithQuality")
-)
 
 import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
+
+
+zeroStepTracksWithQuality = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
+zeroStepTracksWithQuality.src = 'iterativeZeroTrackMerging'
+zeroStepTracksWithQuality.keepAllTracks = True
+zeroStepTracksWithQuality.copyExtras = True
+zeroStepTracksWithQuality.copyTrajectories = True
+
+
 firstStepTracksWithQuality = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
-iterativeFirstTrackFiltering = cms.Sequence(firstStepTracksWithQuality+firstfilter)
 firstStepTracksWithQuality.src = 'iterativeFirstTrackMerging'
 firstStepTracksWithQuality.keepAllTracks = True
 firstStepTracksWithQuality.copyExtras = True
 firstStepTracksWithQuality.copyTrajectories = True
 
+zeroStepFilter = cms.EDFilter("QualityFilter",
+     TrackQuality = cms.string('highPurity'),
+     recTracks = cms.InputTag("zeroStepTracksWithQuality:")
+)
+
+
+firstfilter = cms.EDFilter("QualityFilter",
+    TrackQuality = cms.string('highPurity'),
+    recTracks = cms.InputTag("firstStepTracksWithQuality")
+)
+
+
+iterativeZeroTrackFiltering = cms.Sequence(zeroStepTracksWithQuality+zeroStepFilter)
+
+iterativeFirstTrackFiltering = cms.Sequence(firstStepTracksWithQuality+firstfilter)
