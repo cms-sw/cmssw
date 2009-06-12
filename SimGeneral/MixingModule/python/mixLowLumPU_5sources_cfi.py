@@ -47,6 +47,9 @@ mix = cms.EDProducer("MixingModule",
 
     bunchspace = cms.int32(25), ## nsec
     checktof = cms.bool(False),
+    mixProdStep1 = cms.bool(True),
+    mixProdStep2 = cms.bool(False),
+
     beamhalo_plus = cms.SecSource("PoolSource",
         nbPileupEvents = cms.PSet(
             averageNumber = cms.double(5.0)
