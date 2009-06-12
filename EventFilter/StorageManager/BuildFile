@@ -19,6 +19,7 @@
 <use name=EventFilter/Utilities>
 <use name=root>
 <use name=curl>
+<lib name=sentinelutils>
 <export>
  <lib name=EventFilterStorageManager>
  <use name=xdaq>
