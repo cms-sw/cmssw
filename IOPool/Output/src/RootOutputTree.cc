@@ -76,7 +76,7 @@ namespace edm {
       }
       TIter iter(outputArray);
       TObject* obj = 0;
-      while(obj = iter.Next()) {
+      while((obj = iter.Next()) != 0) {
         TBranchElement* outBranch = dynamic_cast<TBranchElement*>(obj);
         if(outBranch) {
 	  TBranchElement* inBranch = dynamic_cast<TBranchElement*>(inputBranch->FindBranch(outBranch->GetName()));
