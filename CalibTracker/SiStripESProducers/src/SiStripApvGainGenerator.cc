@@ -44,10 +44,14 @@ void SiStripApvGainGenerator::createObject(){
   
       if(genMode=="default")
 	gainValue=1.;
-      else{
+      else if ("gaussian") {
 	gainValue = CLHEP::RandGauss::shoot(meanGain_, sigmaGain_);
 	if(gainValue<=minimumPosValue_) gainValue=minimumPosValue_;
-      } 
+      }
+      else {
+        LogDebug("SiStripApvGain") << "ERROR: wrong genMode specifier : " << genMode << ", please select one of \"default\" or \"gaussian\"" << std::endl;
+        exit(1);
+      }
 	
       if (count<printdebug_) {
 	edm::LogInfo("SiStripApvGainGenerator") << "detid: " << it->first  << " Apv: " << j <<  " gain: " << gainValue  << std::endl; 	    
