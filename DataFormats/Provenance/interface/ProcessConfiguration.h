@@ -17,6 +17,7 @@ namespace edm {
     ProcessConfiguration(std::string const& procName,
 			 ReleaseVersion const& relVersion,
 			 PassID const& pass);
+
     ProcessConfiguration(std::string const& procName,
 			 ParameterSetID const& pSetID,
 			 ReleaseVersion const& relVersion,
@@ -32,12 +33,14 @@ namespace edm {
     void setParameterSetID(ParameterSetID const& pSetID);
 
     struct Transients {
-      Transients() : pcid_() {}
+      Transients() : pcid_(), isCurrentProcess_(false) {}
       ProcessConfigurationID pcid_;
+      bool isCurrentProcess_;
     };
 
   private:
-    ProcessConfigurationID & pcid() const {return transients_.get().pcid_;}
+    ProcessConfigurationID& pcid() const {return transients_.get().pcid_;}
+    bool& isCurrentProcess() const {return transients_.get().isCurrentProcess_;}
 
     std::string processName_;
     ParameterSetID parameterSetID_;
