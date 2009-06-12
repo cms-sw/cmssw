@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2009/03/27 23:08:39 $
- *  $Revision: 1.61 $
+ *  $Date: 2009/06/03 15:01:15 $
+ *  $Revision: 1.62 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.61 2009/03/27 23:08:39 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.62 2009/06/03 15:01:15 slava77 Exp $
 //
 //
 
@@ -427,7 +427,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
       if (tanDistMagNextCheck < 0){
 	resultToMag = refToMagVolume((*svCurrent), dir, distMag, tanDistMag, fabs(fastSkipDist), expectNewMagVolume);
 	// constrain allowed path for a tangential approach
-	if (fabs(tanDistMag/distMag) > 4) tanDistMag *= fabs(distMag/tanDistMag*4.);
+	if (fabs(tanDistMag/(1e-32+fabs(distMag))) > 4) tanDistMag *= tanDistMag == 0 ? 0 : fabs(distMag/tanDistMag*4.);
 
 	tanDistMagNextCheck = fabs(tanDistMag)*0.5-0.5; //need a better guess (to-do)
 	//reasonable limit; "turn off" checking if bounds are further than the destination
@@ -449,7 +449,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
       if (tanDistMatNextCheck < 0){
 	resultToMat = refToMatVolume((*svCurrent), dir, distMat, tanDistMat, fabs(fastSkipDist));
 	// constrain allowed path for a tangential approach
-	if (fabs(tanDistMat/distMat) > 4) tanDistMat *= fabs(distMat/tanDistMat*4.);
+	if (fabs(tanDistMat/(1e-32+fabs(distMat))) > 4) tanDistMat *= tanDistMat == 0 ? 0 : fabs(distMat/tanDistMat*4.);
 
 	tanDistMatNextCheck = fabs(tanDistMat)*0.5-0.5; //need a better guess (to-do)
 	//reasonable limit; "turn off" checking if bounds are further than the destination
@@ -1833,8 +1833,8 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
       
     //keep those in right direction for later use
     if (resultToFace[iFace] == SteppingHelixStateInfo::OK){
-      bool isNearParallel = fabs(distToFace[iFace]/tanDistToFace[iFace]/tanDistToFace[iFace]) < 0.1/sv.p3.mag()
-	&& fabs(distToFace[iFace]/tanDistToFace[iFace]) < 0.05;
+      bool isNearParallel = fabs(distToFace[iFace]/(1e-32+fabs(tanDistToFace[iFace]))/(1-32+fabs(tanDistToFace[iFace]))) < 0.1/sv.p3.mag()
+	&& fabs(distToFace[iFace]/(1e-32+fabs(tanDistToFace[iFace]))) < 0.05;
       if (refDirectionToFace[iFace] == dir || isNearParallel){
 	if (isNearParallel) nearParallels++;
 	iFDestSorted[nDestSorted] = iFace;
@@ -2014,7 +2014,7 @@ SteppingHelixPropagator::refToMatVolume(const SteppingHelixPropagator::StateInfo
       if (resultToFace[iFace] == SteppingHelixStateInfo::INACC) result = SteppingHelixStateInfo::INACC;
       continue;
     }
-    if (refDirectionToFace[iFace] == dir || fabs(distToFace[iFace]/tanDistToFace[iFace]) < 2e-2){
+    if (refDirectionToFace[iFace] == dir || fabs(distToFace[iFace]/(1e-32+fabs(tanDistToFace[iFace]))) < 2e-2){
       double sign = dir == alongMomentum ? 1. : -1.;
       Point gPointEst(sv.r3);
       Vector lDelta(sv.p3); lDelta *= sign*fabs(distToFace[iFace])/sv.p3.mag();

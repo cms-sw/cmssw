@@ -6,7 +6,7 @@
 //
 // Original Author:  Alan Tua
 //         Created:  Wed Jul  9 21:40:17 CEST 2008
-// $Id: MuonSegmentMatcher.cc,v 1.3 2008/12/18 14:03:31 bellan Exp $
+// $Id: MuonSegmentMatcher.cc,v 1.4 2009/01/06 13:12:53 ptraczyk Exp $
 //
 //
 
@@ -165,7 +165,7 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
 	} // End Segment Hit Iteration
       } // End Muon Hit Iteration
 
-      matchRatioPhi = countAgreeingHits/countMuonDTHits;
+      matchRatioPhi = countMuonDTHits != 0 ? countAgreeingHits/countMuonDTHits : 0;
     } // End HasPhi Check
 
 //    DTChamberId chamberSegId2((rechit->geographicalId()).rawId());
