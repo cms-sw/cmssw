@@ -37,12 +37,14 @@ class ScalersRaw
 
 struct TriggerScalersRaw_v1
 {
-  struct timespec    collectionTimeSpecial;
+  unsigned int       collectionTimeSpecial_sec;
+  unsigned int       collectionTimeSpecial_nsec;
   unsigned int       ORBIT_NUMBER;          /* ORBITNR          */
   unsigned int       LUMINOSITY_SEGMENT;
   unsigned short     BC_ERRORS;            
 
-  struct timespec    collectionTimeSummary;
+  unsigned int       collectionTimeSummary_sec;
+  unsigned int       collectionTimeSummary_nsec;
   unsigned int       TRIGGER_NR;            /* TRIGNR_          */
   unsigned int       EVENT_NR;              /* EVNR             */
   unsigned int       FINOR_DISTRIBUTED;     /* PHYS_L1A      ?? */
@@ -62,14 +64,16 @@ struct TriggerScalersRaw_v1
   unsigned long long TIMESLOT_DEADTIMEA;    /*                  */
   unsigned int       NR_OF_RESETS;          /* NR_RESETS_       */
 
-  struct timespec    collectionTimeDetails;
+  unsigned int       collectionTimeDetails_sec;
+  unsigned int       collectionTimeDetails_nsec;
   unsigned int       ALGO_RATE[ScalersRaw::N_L1_TRIGGERS_v1];
   unsigned int       TEST_RATE[ScalersRaw::N_L1_TEST_TRIGGERS_v1];
 };
 
 struct LumiScalersRaw_v1
 {
-  struct timespec collectionTime;
+  unsigned int collectionTime_sec;
+  unsigned int collectionTime_nsec;
   float DeadtimeNormalization;
   float Normalization;
 

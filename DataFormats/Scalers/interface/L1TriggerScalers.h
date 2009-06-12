@@ -50,8 +50,10 @@ class L1TriggerScalers
   unsigned int sourceID() const            { return(sourceID_);}
   unsigned int bunchNumber() const         { return(bunchNumber_);}
 
-  struct timespec collectionTimeSpecial() const
-  { return(collectionTimeSpecial_);}
+  unsigned int collectionTimeSpecial_sec() const
+  { return(collectionTimeSpecial_sec_);}
+  unsigned int collectionTimeSpecial_nsec() const
+  { return(collectionTimeSpecial_nsec_);}
 
   unsigned int orbitNumber() const           
   { return(orbitNumber_);}
@@ -60,8 +62,10 @@ class L1TriggerScalers
   unsigned int bunchCrossingErrors() const           
   { return(bunchCrossingErrors_);}
 
-  struct timespec collectionTimeSummary() const 
-  { return(collectionTimeSummary_);}
+  unsigned int collectionTimeSummary_sec() const 
+  { return(collectionTimeSummary_sec_);}
+  unsigned int collectionTimeSummary_nsec() const 
+  { return(collectionTimeSummary_nsec_);}
 
   unsigned int triggerNumber() const         
   { return(triggerNumber_);}
@@ -102,8 +106,10 @@ class L1TriggerScalers
   unsigned int numberResets() const          
   { return(numberResets_);}
 
-  struct timespec collectionTimeDetails() const
-  { return(collectionTimeDetails_);}
+  unsigned int collectionTimeDetails_sec() const
+  { return(collectionTimeDetails_sec_);}
+  unsigned int collectionTimeDetails_nsec() const
+  { return(collectionTimeDetails_sec_);}
 
   std::vector<unsigned int> triggers() const 
   { return(triggers_);}
@@ -125,12 +131,14 @@ protected:
   unsigned int sourceID_;
   unsigned int bunchNumber_;
 
-  struct timespec    collectionTimeSpecial_;
+  unsigned int       collectionTimeSpecial_sec_;
+  unsigned int       collectionTimeSpecial_nsec_;
   unsigned int       orbitNumber_;
   unsigned int       luminositySection_;
   unsigned short     bunchCrossingErrors_;
 
-  struct timespec    collectionTimeSummary_;
+  unsigned int       collectionTimeSummary_sec_;
+  unsigned int       collectionTimeSummary_nsec_;
   unsigned int       triggerNumber_;
   unsigned int       eventNumber_;
   unsigned int       finalTriggersDistributed_;
@@ -150,7 +158,8 @@ protected:
   unsigned long long deadTimeActiveTimeSlot_;
   unsigned int       numberResets_;
 
-  struct timespec collectionTimeDetails_;
+  unsigned int collectionTimeDetails_sec_;
+  unsigned int collectionTimeDetails_nsec_;
   std::vector<unsigned int> triggers_;
   std::vector<unsigned int> testTriggers_;
 };

@@ -47,7 +47,8 @@ class LumiScalers
   unsigned int bunchNumber() const         { return(bunchNumber_);}
 
   int version() const                      { return(version_);}
-  struct timespec collectionTime() const   { return(collectionTime_);}
+  unsigned int collectionTime_sec() const  { return(collectionTime_sec_);}
+  unsigned int collectionTime_nsec() const { return(collectionTime_nsec_);}
   float normalization() const              { return(normalization_);}
   float deadTimeNormalization() const  
   { return(deadTimeNormalization_);}
@@ -103,7 +104,8 @@ protected:
 
   int version_;
 
-  struct timespec collectionTime_;
+  unsigned int collectionTime_sec_;
+  unsigned int collectionTime_nsec_;
 
   float normalization_;
   float deadTimeNormalization_;

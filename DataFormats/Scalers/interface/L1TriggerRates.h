@@ -52,7 +52,10 @@ class L1TriggerRates
   /// get the data
 
   int version() const { return(version_);}
-  struct timespec collectionTimeSummary() { return(collectionTimeSummary_);}
+  unsigned int collectionTimeSummary_sec() 
+  { return(collectionTimeSummary_sec_);}
+  unsigned int collectionTimeSummary_nsec() 
+  { return(collectionTimeSummary_nsec_);}
 
   double deltaT()       const { return(deltaT_);}
   double deltaTActive() const { return(deltaTActive_);}
@@ -116,8 +119,10 @@ class L1TriggerRates
   double lostFinalTriggersActivePercent() const       
   { return(lostFinalTriggersActivePercent_);}
 
-  struct timespec collectionTimeDetails() const 
-  { return(collectionTimeDetails_);}
+  unsigned int collectionTimeDetails_sec() const 
+  { return(collectionTimeDetails_sec_);}
+  unsigned int collectionTimeDetails_nsec() const 
+  { return(collectionTimeDetails_nsec_);}
 
   std::vector<double> triggersRate() const    { return(triggersRate_);}
   std::vector<double> testTriggersRate() const
@@ -196,7 +201,8 @@ class L1TriggerRates
 protected:
 
   int version_;
-  struct timespec collectionTimeSummary_;
+  unsigned int collectionTimeSummary_sec_;
+  unsigned int collectionTimeSummary_nsec_;
 
   double deltaT_;
   double deltaTActive_;
@@ -247,7 +253,8 @@ protected:
   double lostFinalTriggersRunPercent_;
   double lostFinalTriggersActiveRunPercent_;
 
-  struct timespec collectionTimeDetails_;
+  unsigned int collectionTimeDetails_sec_;
+  unsigned int collectionTimeDetails_nsec_;
   std::vector<double> triggersRunRate_;
   std::vector<double> testTriggersRunRate_;
 };

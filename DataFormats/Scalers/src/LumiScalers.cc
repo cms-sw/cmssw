@@ -57,8 +57,8 @@ LumiScalers::LumiScalers(const unsigned char * rawData)
   version_ = raw->version;
   if ( version_ >= 1 )
   {
-    collectionTime_.tv_sec  = raw->lumi.collectionTime.tv_sec;
-    collectionTime_.tv_nsec = raw->lumi.collectionTime.tv_nsec;
+    collectionTime_sec_     = raw->lumi.collectionTime_sec;
+    collectionTime_nsec_    = raw->lumi.collectionTime_nsec;
     deadTimeNormalization_  = raw->lumi.DeadtimeNormalization;
     normalization_          = raw->lumi.Normalization;
     lumiFill_               = raw->lumi.LumiFill;
@@ -105,10 +105,11 @@ std::ostream& operator<<(std::ostream& s, const LumiScalers& c)
   s << "LumiScalers    Version: " << c.version() << 
     "   SourceID: "<< c.sourceID() << std::endl;
 
-  hora = gmtime(&c.collectionTime().tv_sec);
+  unsigned int collectionTimeSec = c.collectionTime_sec();
+  hora = gmtime((const time_t *)&collectionTimeSec);
   strftime(zeit, sizeof(zeit), "%Y.%m.%d %H:%M:%S", hora);
   sprintf(line, " CollectionTime: %s.%9.9d", zeit, 
-	  (int)c.collectionTime().tv_nsec);
+	  (int)c.collectionTime_nsec());
   s << line << std::endl;
 
   sprintf(line, " TrigType: %d   EventID: %d    BunchNumber: %d", 
