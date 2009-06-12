@@ -1,8 +1,8 @@
 /**
  *  A selector for muon tracks
  *
- *  $Date: 2009/04/23 15:36:30 $
- *  $Revision: 1.23.2.1 $
+ *  $Date: 2009/05/11 10:12:53 $
+ *  $Revision: 1.24 $
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
@@ -57,8 +57,8 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
       
 
       // FIXME Set Boff/on via cfg!
-      double chi2_dof_i = (*iter)->chiSquared()/(*iter)->ndof();
-      double chi2_dof_j = (*jter)->chiSquared()/(*jter)->ndof();
+      double chi2_dof_i = (*iter)->ndof() > 0 ? (*iter)->chiSquared()/(*iter)->ndof() : (*iter)->chiSquared()/1e-10;
+      double chi2_dof_j = (*jter)->ndof() > 0 ? (*jter)->chiSquared()/(*jter)->ndof() : (*jter)->chiSquared()/1e-10;
 
       LogTrace(metname) 
 	<< " MuonTrajectoryCleaner: trajC " 
