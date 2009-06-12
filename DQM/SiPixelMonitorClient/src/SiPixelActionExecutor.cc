@@ -369,7 +369,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
     }
     vector<string> subdirs = bei->getSubdirs();
 //Blade
-  if(dir_name.find("Blade") == 0) GetBladeSubdirs(bei, subdirs);
+  if(dir_name.find("Blade_") == 0) GetBladeSubdirs(bei, subdirs);
 	
     int ndet = 0;
     for (vector<string>::const_iterator it = subdirs.begin();
@@ -986,9 +986,9 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	    else if(prefix=="SUMOFF" && dir_name.find("Disk")!=string::npos) nbin=12;
 	    else if(dir_name.find("Disk")!=string::npos) nbin=84;
 	    else if(dir_name.find("Blade")!=string::npos) nbin=7;
-	    else if(dir_name.find("Panel_1")!=string::npos) nbin=4;
-	    else if(dir_name.find("Panel_2")!=string::npos) nbin=3;
-
+	    //else if(dir_name.find("Panel_1")!=string::npos) nbin=4;
+	    //else if(dir_name.find("Panel_2")!=string::npos) nbin=3;
+		//cout << dir_name.c_str() << "\t" << nbin << endl;
 		getGrandSummaryME(bei, nbin, me_name, gsum_mes);
 	  }
 	  /*
@@ -1024,10 +1024,12 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 		nbin_subdir=256;
 	      }else if((*igm)->getName().find("ALLMODS_chargeCOMB_")!=string::npos){
 		nbin_subdir=500;
-	      }else if((*igm)->getName().find("Panel_1") != string::npos){
-		nbin_subdir=4;
-	      }else if((*igm)->getName().find("Panel_2") != string::npos){
-		nbin_subdir=3;
+	      }else if((*igm)->getName().find("Panel_") != string::npos){
+		nbin_subdir=7;
+//	      }else if((*igm)->getName().find("Panel_1") != string::npos){
+//		nbin_subdir=4;
+//	      }else if((*igm)->getName().find("Panel_2") != string::npos){
+//		nbin_subdir=3;
 	      }else if((*igm)->getName().find("Blade") != string::npos){
 		if((*im).find("_1") != string::npos) nbin_subdir=4;
 		if((*im).find("_2") != string::npos) {nbin_i=4; nbin_subdir=3;}
@@ -1156,9 +1158,17 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore* bei,
     }
   }
   contents.clear();
-	
+//	cout << me_name.c_str() 
+//		<< "\t" << ((me_name.find("SUMOFF")==string::npos)?"true":"false")
+//		<< "\t" << ((me_name.find("Blade_")!= string::npos)?"true":"false")
+//		<< "\t" << ((me_name.find("Layer1_")!=string::npos)?"true":"false")
+//		<< "\t" << ((me_name.find("Layer2_")!=string::npos)?"true":"false")
+//		<< "\t" << ((me_name.find("Layer3_")!=string::npos)?"true":"false")
+//		<< "\t" << ((me_name.find("Disk_")!=string::npos)?"true":"false")
+//		<< endl;
   if(me_name.find("SUMOFF")==string::npos){
-	me = bei->book1D(me_name.c_str(), me_name.c_str(),4,1.,5.);
+  	if(me_name.find("Blade_")!=string::npos)me = bei->book1D(me_name.c_str(), me_name.c_str(),7,1.,8.);
+	else me = bei->book1D(me_name.c_str(), me_name.c_str(),4,1.,5.);
 //    if(me_name.find("Panel_2")!=string::npos)  me = bei->book1D(me_name.c_str(), me_name.c_str(),3,1.,4.);
 //    else me = bei->book1D(me_name.c_str(), me_name.c_str(),4,1.,5.);
   }else if(me_name.find("Layer_1")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),10,1.,11.);
