@@ -64,3 +64,11 @@ hltvalidation_pu = cms.Sequence(
     +HLTAlCaVal
     +HLTSusyExoValSeq
     )
+hltvalidation_prod = cms.Sequence(
+  HLTTauVal
+  +HLTTopVal
+  +HLTFourVector
+  +heavyFlavorValidationSequence
+  +HLTSusyExoValSeq
+  )
+
