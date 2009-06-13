@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateReco.cc (Version 5.20)
+//  SiPixelTemplateReco.cc (Version 5.25)
 //
 //  Add goodness-of-fit to algorithm, include single pixel clusters in chi2 calculation
 //  Try "decapitation" of large single pixels
@@ -23,6 +23,8 @@
 //  Change to allow template sizes to be changed at compile time
 //  Move interpolation range error to LogDebug
 //  Add qbin = 5 and change 1-pixel probability to use new template info
+//  Add floor for probabilities (no exact zeros)
+//  Replace asserts with exceptions in CMSSW
 //
 //  Created by Morris Swartz on 10/27/06.
 //  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -45,8 +47,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #define LOGERROR(x) edm::LogError(x)
 #define LOGDEBUG(x) LogDebug(x)
-#define ENDL " "
 static int theVerboseLevel = 2;
+#define ENDL " "
+#include "FWCore/Utilities/interface/Exception.h"
 #else
 #include "SiPixelTemplateReco.h"
 //static int theVerboseLevel = {2};
@@ -105,6 +108,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	static float chi2ybin[41], chi2xbin[41], ysig2[BYSIZE], xsig2[BXSIZE];
 	static bool yd[BYSIZE], xd[BXSIZE], anyyd, anyxd;
 	const float ysize={150.}, xsize={100.};
+	const float probmin={1.110223e-16};
 	
 // The minimum chi2 for a valid one pixel cluster = pseudopixel contribution only
 
@@ -486,7 +490,13 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
    
 // First, decide on chi^2 min search parameters
     
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+    if(speed < 0 || speed > 3) {
+		throw cms::Exception("DataCorrupt") << "SiPixelTemplateReco::PixelTempReco2D called with illegal speed = " << speed << std::endl;
+	}
+#else
     assert(speed >= 0 && speed < 4);
+#endif
 	fybin = 0; lybin = 40; fxbin = 0; lxbin = 40; djy = 1; djx = 1;
     if(speed > 0) {
        fybin = 8; lybin = 32;
@@ -869,6 +879,11 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
        hchi2 = chi2x/2.; hndof = meanx/2.;
 	   probx = 1. - TMath::Gamma(hndof, hchi2);
 	}
+	
+//  Don't return exact zeros for the probability
+	
+	if(proby < probmin) {proby = probmin;}
+	if(probx < probmin) {probx = probmin;}
 	
     return 0;
 } // PixelTempReco2D 

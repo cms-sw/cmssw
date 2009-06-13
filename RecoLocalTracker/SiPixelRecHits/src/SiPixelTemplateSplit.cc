@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateSplit.cc (Version 1.00)
+//  SiPixelTemplateSplit.cc (Version 1.05)
 //
 //  Procedure to fit two templates (same angle hypotheses) to a single cluster
 //  Return two x- and two y-coordinates for the cluster
@@ -12,6 +12,7 @@
 //  Change to allow template sizes to be changed at compile time
 //  Move interpolation range error to LogDebug
 //  Add qbin = 5 and change 1-pixel probability to use new template info
+//  Add floor for probabilities (no exact zeros)
 //
 
 #include <math.h>
@@ -87,6 +88,7 @@ int SiPixelTemplateReco::PixelTempSplit(int id, bool fpix, float cotalpha, float
 	static float ysig2[BYSIZE], xsig2[BXSIZE];
 	static bool yd[BYSIZE], xd[BXSIZE], anyyd, anyxd;
 	const float ysize={150.}, xsize={100.}, sqrt2={2.};
+	const float probmin={1.110223e-16};
 //  const float sqrt2={1.41421356};
 	
 // The minimum chi2 for a valid one pixel cluster = pseudopixel contribution only
@@ -761,6 +763,11 @@ int SiPixelTemplateReco::PixelTempSplit(int id, bool fpix, float cotalpha, float
        hchi2 = chi2xmin/2.; hndof = meanx/2.;
 	   probx = 1. - TMath::Gamma(hndof, hchi2);
 	}
+	
+	//  Don't return exact zeros for the probability
+	
+	if(proby < probmin) {proby = probmin;}
+	if(probx < probmin) {probx = probmin;}
 	
     return 0;
 } // PixelTempSplit 
