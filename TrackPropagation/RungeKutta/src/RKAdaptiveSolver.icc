@@ -35,7 +35,9 @@ RKAdaptiveSolver<T,StepWithPrec,N>::operator()( Scalar startPar, const Vector& s
 		remainigStep -= stepSize;
 		currentPar += stepSize;
                 // increase step size
-		double factor =  std::min( Safety * pow( std::fabs(eps/tryStep.second),0.2), 4.);
+                // double factor =  std::min( Safety * pow( std::fabs(eps/tryStep.second),0.2), 4.); // gives division by 0 FPE
+		double factor =  tryStep.second == 0 ? 4. : std::min( Safety * pow( std::fabs(eps/tryStep.second),0.2), 4.);
+
 		// stepSize = std::min( stepSize*factor, remainigStep);
 		double absSize =  std::min( std::abs(stepSize*factor), std::abs(remainigStep));
 		stepSize = absSize * signum(stepSize);
