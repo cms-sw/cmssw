@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DViewManager.cc,v 1.9 2009/04/07 14:05:46 chrjones Exp $
+// $Id: FW3DViewManager.cc,v 1.10 2009/05/13 20:26:05 amraktad Exp $
 //
 
 // system include files
@@ -173,9 +173,13 @@ FW3DViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
             builder->setItem(iItem);
             builder->setHaveAWindow(!m_views.empty());
             builder->addToScene(*m_elements,&m_caloData);
-            m_calo3d =  dynamic_cast<TEveCalo3D*>( m_elements->FirstChild());
-            m_calo3d->SetMainColor(colorManager().geomColor(kFWCalo3DFrameColorIndex));
-          
+            //NOTE: this is a very bad design, we should pass in TEveCalo3D*& to addToScene or handle the construction
+            // of m_calo3d ourselves
+            TEveCalo3D* calo3d =  dynamic_cast<TEveCalo3D*>(m_elements->LastChild());
+            if(0!=calo3d) {
+               m_calo3d = calo3d;
+               m_calo3d->SetMainColor(colorManager().geomColor(kFWCalo3DFrameColorIndex));
+            }
             m_builders.push_back(pB);
          }
       }
