@@ -57,14 +57,6 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
   DoCosmics_ = conf.getParameter<bool>("DoCosmics");
   LoadTemplatesFromDB_ = conf.getParameter<bool>("LoadTemplatesFromDB");
 
-  /*
-    ID  BPix V  FPix V  Temp B-field Angle Coverage  Vers
-     1   150V    150V   263K   3.8T  Collision-only  11,12
-     4   150V    150V   263K   4.0T  Collision-only  11,12
-    11   100V    300V   293K   3.8T  Coll+Cosmic     11,12
-    12   150V    150V   263K   0.0T  Coll+Cosmic     11,12
-  */
-
   if ( field_magnitude > 3.9 ) 
     {
       templID_ = 4;
@@ -73,15 +65,21 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
     {
       if ( field_magnitude > 1.0 ) 
 	{
-	  if ( DoCosmics_ )
-	    templID_ = 11;
-	  else 
-	    templID_ = 1;
+	  if ( DoCosmics_ ) 
+	    { 
+	      // This is for existing COSMIC MC 
+	      templID_ = 15;
+	    }
+	  else
+	    {
+	      // this is for CRAFT09 and collisions
+	      templID_ = 13;
+	    }
 	} 
       else 
 	{	 
-	  //--- allow for zero field operation with new template ID=12
-	  templID_ = 12;
+	  //--- allow for zero field operation with new template ID=14
+	  templID_ = 14;
 	}
     }
   

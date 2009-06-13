@@ -69,6 +69,7 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
       float field_magnitude = magfield_->inTesla( center ).mag();
       
       templID_ = -999;
+     
       if ( field_magnitude > 3.9 ) 
 	{
 	  templID_ = 4;
@@ -77,15 +78,21 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
 	{
 	  if ( field_magnitude > 1.0 ) 
 	    {
-	      if ( DoCosmics_ )
-		templID_ = 11;
-	      else 
-		templID_ = 1;
+	      if ( DoCosmics_ ) 
+		{ 
+		  // This is for existing COSMIC MC 
+		  templID_ = 15;
+		}
+	      else
+		{
+		  // this is for CRAFT09 and collisions
+		  templID_ = 13;
+		}
 	    } 
 	  else 
 	    {	 
-	      //--- allow for zero field operation with new template ID=12
-	      templID_ = 12;
+	      //--- allow for zero field operation with new template ID=14
+	      templID_ = 14;
 	    }
 	}
       
