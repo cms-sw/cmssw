@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.cc  Version 5.26 
+//  SiPixelTemplate.cc  Version 5.30 
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -35,6 +35,8 @@
 //  Use interpolated chi^2 info for one-pixel clusters
 //  Separate BPix and FPix charge scales and thresholds
 //  Fix DB pushfile version number checking bug.
+//  Remove assert from qbin method
+//  Replace asserts with exceptions in CMSSW
 //
 //  Created by Morris Swartz on 10/27/06.
 //  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -57,17 +59,11 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #define LOGERROR(x) LogError(x)
 #define LOGINFO(x) LogInfo(x)
 #define ENDL " "
+#include "FWCore/Utilities/interface/Exception.h"
 using namespace edm;
-#ifdef assert
-#undef assert
-#endif
-#define _QUOTEME(X) #X
-#define QUOTEME(X) _QUOTEME(X)
-#define assert(X) do {	if (!(X))throw cms::Exception("EventCorruption", "At " __FILE__ ":" QUOTEME(__LINE__)  ", assert " #X " failed."); } while(0)
 #else
 #include "SiPixelTemplate.h"
 #define LOGERROR(x) std::cout << x << ": "
@@ -744,7 +740,7 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
     
 	// Local variables 
 	int i, j, k, l;
-	//const char *tempfile;
+//	const char *tempfile;
 	const int code_version={13};
 
 	// We must create a new object because dbobject must be a const and our stream must not be
@@ -1412,7 +1408,13 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	    }
      }
 	 
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+    if(index_id < 0 || index_id >= (int)thePixelTemp.size()) {
+		throw cms::Exception("DataCorrupt") << "SiPixelTemplate::interpolate can't find needed template ID = " << id << std::endl;
+	}
+#else
 	assert(index_id >= 0 && index_id < (int)thePixelTemp.size());
+#endif
 	 
 // Interpolate the absolute value of cot(beta)     
     
@@ -2045,8 +2047,20 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	
     // Make sure that input is OK
     
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+    if(fypix < 2 || fypix >= BYM2) {
+		throw cms::Exception("DataCorrupt") << "SiPixelTemplate::ysigma2 called with fypix = " << fypix << std::endl;
+	}
+#else
 	assert(fypix > 1 && fypix < BYM2);
-	assert(lypix >= fypix && lypix < BYM2);
+#endif
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	   if(lypix < fypix || lypix >= BYM2) {
+		  throw cms::Exception("DataCorrupt") << "SiPixelTemplate::ysigma2 called with lypix/fypix = " << lypix << "/" << fypix << std::endl;
+		}
+#else
+		assert(lypix >= fypix && lypix < BYM2);
+#endif
 	   	     
 // Define the maximum signal to use in the parameterization 
 
@@ -2118,9 +2132,24 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	
     // Make sure that input is OK
     
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	if (fxpix < 2 || fxpix >= BXM2) 
+	  {
+	    throw cms::Exception("DataCorrupt") << "SiPixelTemplate::xsigma2 called with fxpix = " << fxpix << std::endl;
+	  }
+#else
 	assert(fxpix > 1 && fxpix < BXM2);
+#endif
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	if (lxpix < fxpix || lxpix >= BXM2) 
+	  {
+	    throw cms::Exception("DataCorrupt") << "SiPixelTemplate::xsigma2 called with lxpix/fxpix = " 
+						<< lxpix << "/" << fxpix << std::endl;
+	  }
+#else
 	assert(lxpix >= fxpix && lxpix < BXM2);
-	   	     
+#endif
+	
 // Define the maximum signal to use in the parameterization 
 
        sxmax = psxmax;
@@ -2214,9 +2243,22 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	
     // Make sure that input is OK
     
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	if (binq < 0 || binq > 3) 
+	  {
+	    throw cms::Exception("DataCorrupt") << "SiPixelTemplate::yflcorr called with binq = " << binq << std::endl;
+	  }
+#else
 	assert(binq >= 0 && binq < 4);
+#endif
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	if (fabs((double)qfly) > 1.) {
+	  throw cms::Exception("DataCorrupt") << "SiPixelTemplate::yflcorr called with qfly = " << qfly << std::endl;
+	}
+#else
 	assert(fabs((double)qfly) <= 1.);
-	   	     
+#endif
+	
 // Define the maximum signal to allow before de-weighting a pixel 
 
        qfl = qfly;
@@ -2254,9 +2296,22 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	
     // Make sure that input is OK
     
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	if (binq < 0 || binq > 3) 
+	  {
+	    throw cms::Exception("DataCorrupt") << "SiPixelTemplate::xflcorr called with binq = " << binq << std::endl;
+	  }
+#else
 	assert(binq >= 0 && binq < 4);
+#endif
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	if(fabs((double)qflx) > 1.) {
+	  throw cms::Exception("DataCorrupt") << "SiPixelTemplate::xflcorr called with qflx = " << qflx << std::endl;
+	}
+#else
 	assert(fabs((double)qflx) <= 1.);
-	   	     
+#endif
+	
 // Define the maximum signal to allow before de-weighting a pixel 
 
        qfl = qflx;
@@ -2294,8 +2349,20 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 
    // Verify that input parameters are in valid range
 
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	if(fybin < 0 || fybin > 40) {
+		throw cms::Exception("DataCorrupt") << "SiPixelTemplate::ytemp called with fybin = " << fybin << std::endl;
+	}
+#else
 	assert(fybin >= 0 && fybin < 41);
+#endif
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	if(lybin < 0 || lybin > 40) {
+		throw cms::Exception("DataCorrupt") << "SiPixelTemplate::ytemp called with lybin = " << lybin << std::endl;
+	}
+#else
 	assert(lybin >= 0 && lybin < 41);
+#endif
 
 // Build the y-template, the central 25 bins are here in all cases
 	
@@ -2360,8 +2427,20 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 
    // Verify that input parameters are in valid range
 
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	if(fxbin < 0 || fxbin > 40) {
+		throw cms::Exception("DataCorrupt") << "SiPixelTemplate::xtemp called with fxbin = " << fxbin << std::endl;
+	}
+#else
 	assert(fxbin >= 0 && fxbin < 41);
+#endif
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	if(lxbin < 0 || lxbin > 40) {
+		throw cms::Exception("DataCorrupt") << "SiPixelTemplate::xtemp called with lxbin = " << lxbin << std::endl;
+	}
+#else
 	assert(lxbin >= 0 && lxbin < 41);
+#endif
 
 // Build the x-template, the central 25 bins are here in all cases
 	
@@ -2427,7 +2506,13 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 
    // Verify that input parameters are in valid range
 
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	if(nypix < 1 || nypix >= BYM3) {
+		throw cms::Exception("DataCorrupt") << "SiPixelTemplate::ytemp3d called with nypix = " << nypix << std::endl;
+	}
+#else
 	assert(nypix > 0 && nypix < BYM3);
+#endif
 	
 // Calculate the size of the shift in pixels needed to span the entire cluster
 
@@ -2513,7 +2598,13 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 
    // Verify that input parameters are in valid range
 
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	if(nxpix < 1 || nxpix >= BXM3) {
+	   throw cms::Exception("DataCorrupt") << "SiPixelTemplate::xtemp3d called with nxpix = " << nxpix << std::endl;
+	}
+#else
 	assert(nxpix > 0 && nxpix < BXM3);
+#endif
 	
 // Calculate the size of the shift in pixels needed to span the entire cluster
 
@@ -2609,7 +2700,6 @@ int SiPixelTemplate::qbin(int id, bool fpix, float cotalpha, float cotbeta, floa
                           float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2)
 		 
 {
-	
     // Interpolate for a new set of track angles 
     
     // Local variables 
@@ -2635,7 +2725,13 @@ int SiPixelTemplate::qbin(int id, bool fpix, float cotalpha, float cotbeta, floa
 	    }
      }
 	 
-	 assert(index_id >= 0 && index_id < (int)thePixelTemp.size());
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	   if(index_id < 0 || index_id >= (int)thePixelTemp.size()) {
+	      throw cms::Exception("DataCorrupt") << "SiPixelTemplate::qbin can't find needed template ID = " << id << std::endl;
+	   }
+#else
+	   assert(index_id >= 0 && index_id < (int)thePixelTemp.size());
+#endif
 	 
 //		
 
@@ -2918,7 +3014,16 @@ int SiPixelTemplate::qbin(int id, bool fpix, float cotalpha, float cotbeta, floa
 	   }
 	
 	}
-		assert(qavg > 0. && qmin > 0.);
+	
+	
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	if(qavg <= 0. || qmin <= 0.) {
+		throw cms::Exception("DataCorrupt") << "SiPixelTemplate::qbin, qavg or qmin <= 0," 
+		<< " Probably someone called the generic pixel reconstruction with an illegal trajectory state" << std::endl;
+	}
+#else
+	assert(qavg > 0. && qmin > 0.);
+#endif
 	
 //  Scale the input charge to account for differences between pixelav and CMSSW simulation or data	
 	

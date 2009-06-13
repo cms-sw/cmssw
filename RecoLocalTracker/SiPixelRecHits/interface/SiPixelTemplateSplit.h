@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateSplit.cc (Version 1.00)
+//  SiPixelTemplateSplit.cc (Version 1.05)
 //
 //  Procedure to fit two templates (same angle hypotheses) to a single cluster
 //  Return two x- and two y-coordinates for the cluster
@@ -12,6 +12,7 @@
 //  Change to allow template sizes to be changed at compile time
 //  Move interpolation range error to LogDebug
 //  Add qbin = 5 and change 1-pixel probability to use new template info
+//  Add floor for probabilities (no exact zeros)
 //
  
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE

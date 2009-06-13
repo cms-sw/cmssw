@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.h (v5.26)
+//  SiPixelTemplate.h (v5.30)
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -33,6 +33,8 @@
 //  Use interpolated chi^2 info for one-pixel clusters
 //  Separate BPix and FPix charge scales and thresholds
 //  Fix DB pushfile version number checking bug.
+//  Remove assert from qbin method
+//  Replace asserts with exceptions in CMSSW
 //
 // Created by Morris Swartz on 10/27/06.
 // Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -64,6 +66,7 @@
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #endif
 
 typedef boost::multi_array<float, 3> array_3d;
@@ -248,32 +251,158 @@ class SiPixelTemplate {
   float dxtwo() {return pdxtwo;}             //!< mean offset/correction for one double-pixel x-clusters 
   float sxtwo() {return psxtwo;}             //!< rms for one double-pixel x-clusters 
   float qmin() {return pqmin;}               //!< minimum cluster charge for valid hit (keeps 99.9% of simulated hits)
-  float qmin(int i) {assert(i>=0 && i<2); if(i==0){return pqmin;}else{return pqmin2;}} //!< minimum cluster charge for valid hit (keeps 99.9% or 99.8% of simulated hits)
+  float qmin(int i) {
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	  if(i < 0 || i > 1) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate::qmin called with illegal index = " << i << std::endl;}
+#else
+	  assert(i>=0 && i<2); 
+#endif
+     if(i==0){return pqmin;}else{return pqmin2;}} //!< minimum cluster charge for valid hit (keeps 99.9% or 99.8% of simulated hits)
   float clsleny() {return pclsleny;}         //!< y-size of smaller interpolated template in pixels
   float clslenx() {return pclslenx;}         //!< x-size of smaller interpolated template in pixels
   float yratio() {return pyratio;}            //!< fractional distance in y between cotbeta templates 
   float yxratio() {return pyxratio;}           //!< fractional distance in y between cotalpha templates slices
   float xxratio() {return pxxratio;}           //!< fractional distance in x between cotalpha templates 
-  float yavg(int i) {assert(i>=0 && i<4); return pyavg[i];}         //!< average y-bias of reconstruction binned in 4 charge bins 
-  float yrms(int i) {assert(i>=0 && i<4); return pyrms[i];}         //!< average y-rms of reconstruction binned in 4 charge bins 
-  float ygx0(int i) {assert(i>=0 && i<4); return pygx0[i];}         //!< average y0 from Gaussian fit binned in 4 charge bins 
-  float ygsig(int i) {assert(i>=0 && i<4); return pygsig[i];}       //!< average sigma_y from Gaussian fit binned in 4 charge bins 
-  float xavg(int i) {assert(i>=0 && i<4); return pxavg[i];}         //!< average x-bias of reconstruction binned in 4 charge bins 
-  float xrms(int i) {assert(i>=0 && i<4); return pxrms[i];}         //!< average x-rms of reconstruction binned in 4 charge bins 
-  float xgx0(int i) {assert(i>=0 && i<4); return pxgx0[i];}         //!< average x0 from Gaussian fit binned in 4 charge bins 
-  float xgsig(int i) {assert(i>=0 && i<4); return pxgsig[i];}       //!< average sigma_x from Gaussian fit binned in 4 charge bins 
-  float chi2yavg(int i) {assert(i>=0 && i<4); return pchi2yavg[i];} //!< average y chi^2 in 4 charge bins 
-  float chi2ymin(int i) {assert(i>=0 && i<4); return pchi2ymin[i];} //!< minimum y chi^2 in 4 charge bins 
-  float chi2xavg(int i) {assert(i>=0 && i<4); return pchi2xavg[i];} //!< averaage x chi^2 in 4 charge bins
-  float chi2xmin(int i) {assert(i>=0 && i<4); return pchi2xmin[i];} //!< minimum y chi^2 in 4 charge bins
-  float yavgc2m(int i) {assert(i>=0 && i<4); return pyavgc2m[i];}   //!< 1st pass chi2 min search: average y-bias of reconstruction binned in 4 charge bins 
-  float yrmsc2m(int i) {assert(i>=0 && i<4); return pyrmsc2m[i];}   //!< 1st pass chi2 min search: average y-rms of reconstruction binned in 4 charge bins 
-  float ygx0c2m(int i) {assert(i>=0 && i<4); return pygx0c2m[i];}   //!< 1st pass chi2 min search: average y0 from Gaussian fit binned in 4 charge bins 
-  float ygsigc2m(int i) {assert(i>=0 && i<4); return pygsigc2m[i];} //!< 1st pass chi2 min search: average sigma_y from Gaussian fit binned in 4 charge bins 
-  float xavgc2m(int i) {assert(i>=0 && i<4); return pxavgc2m[i];}   //!< 1st pass chi2 min search: average x-bias of reconstruction binned in 4 charge bins 
-  float xrmsc2m(int i) {assert(i>=0 && i<4); return pxrmsc2m[i];}   //!< 1st pass chi2 min search: average x-rms of reconstruction binned in 4 charge bins 
-  float xgx0c2m(int i) {assert(i>=0 && i<4); return pxgx0c2m[i];}   //!< 1st pass chi2 min search: average x0 from Gaussian fit binned in 4 charge bins 
-  float xgsigc2m(int i) {assert(i>=0 && i<4); return pxgsigc2m[i];} //!< 1st pass chi2 min search: average sigma_x from Gaussian fit binned in 4 charge bins 
+  float yavg(int i) {
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	  if(i < 0 || i > 3) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate::yavg called with illegal index = " << i << std::endl;}
+#else
+	  assert(i>=0 && i<4); 
+#endif
+     return pyavg[i];}         //!< average y-bias of reconstruction binned in 4 charge bins 
+  float yrms(int i) {
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	  if(i < 0 || i > 3) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate::yrms called with illegal index = " << i << std::endl;}
+#else
+	  assert(i>=0 && i<4); 
+#endif
+     return pyrms[i];}         //!< average y-rms of reconstruction binned in 4 charge bins 
+  float ygx0(int i) {
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	  if(i < 0 || i > 3) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate::ygx0 called with illegal index = " << i << std::endl;}
+#else
+	  assert(i>=0 && i<4); 
+#endif
+     return pygx0[i];}         //!< average y0 from Gaussian fit binned in 4 charge bins 
+  float ygsig(int i) {
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	  if(i < 0 || i > 3) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate::ygsig called with illegal index = " << i << std::endl;}
+#else	  
+     assert(i>=0 && i<4); 
+#endif
+     return pygsig[i];}       //!< average sigma_y from Gaussian fit binned in 4 charge bins 
+  float xavg(int i) {
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	  if(i < 0 || i > 3) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate::xavg called with illegal index = " << i << std::endl;}
+#else	  
+	  assert(i>=0 && i<4); 
+#endif
+     return pxavg[i];}         //!< average x-bias of reconstruction binned in 4 charge bins 
+  float xrms(int i) {
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	  if(i < 0 || i > 3) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate::xrms called with illegal index = " << i << std::endl;}
+#else	  
+	  assert(i>=0 && i<4); 
+#endif
+     return pxrms[i];}         //!< average x-rms of reconstruction binned in 4 charge bins 
+  float xgx0(int i) {
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	  if(i < 0 || i > 3) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate::xgx0 called with illegal index = " << i << std::endl;}
+#else	  
+	  assert(i>=0 && i<4); 
+#endif
+     return pxgx0[i];}         //!< average x0 from Gaussian fit binned in 4 charge bins 
+  float xgsig(int i) {
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	  if(i < 0 || i > 3) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate::xgsig called with illegal index = " << i << std::endl;}
+#else	  
+	  assert(i>=0 && i<4); 
+#endif
+     return pxgsig[i];}       //!< average sigma_x from Gaussian fit binned in 4 charge bins 
+  float chi2yavg(int i) {
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	  if(i < 0 || i > 3) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate::chi2yavg called with illegal index = " << i << std::endl;}
+#else	  
+	  assert(i>=0 && i<4); 
+#endif
+     return pchi2yavg[i];} //!< average y chi^2 in 4 charge bins 
+  float chi2ymin(int i) {
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	  if(i < 0 || i > 3) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate::chi2ymin called with illegal index = " << i << std::endl;}
+#else	  	  
+     assert(i>=0 && i<4); 
+#endif
+     return pchi2ymin[i];} //!< minimum y chi^2 in 4 charge bins 
+  float chi2xavg(int i) {
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	  if(i < 0 || i > 3) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate::chi2xavg called with illegal index = " << i << std::endl;}
+#else	  
+	  assert(i>=0 && i<4); 
+#endif
+     return pchi2xavg[i];} //!< averaage x chi^2 in 4 charge bins
+  float chi2xmin(int i) {
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	  if(i < 0 || i > 3) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate::chi2xmin called with illegal index = " << i << std::endl;}
+#else	  
+	  assert(i>=0 && i<4);
+#endif
+     return pchi2xmin[i];} //!< minimum y chi^2 in 4 charge bins
+  float yavgc2m(int i) {
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	  if(i < 0 || i > 3) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate::yavgc2m called with illegal index = " << i << std::endl;}
+#else	  
+	  assert(i>=0 && i<4); 
+#endif
+     return pyavgc2m[i];}   //!< 1st pass chi2 min search: average y-bias of reconstruction binned in 4 charge bins 
+  float yrmsc2m(int i) {
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	  if(i < 0 || i > 3) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate::yrmsc2m called with illegal index = " << i << std::endl;}
+#else	  	  
+     assert(i>=0 && i<4); 
+#endif
+     return pyrmsc2m[i];}   //!< 1st pass chi2 min search: average y-rms of reconstruction binned in 4 charge bins 
+  float ygx0c2m(int i) {
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	  if(i < 0 || i > 3) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate::ygx0c2m called with illegal index = " << i << std::endl;}
+#else	  
+	  assert(i>=0 && i<4); 
+#endif
+     return pygx0c2m[i];}   //!< 1st pass chi2 min search: average y0 from Gaussian fit binned in 4 charge bins 
+  float ygsigc2m(int i) {
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	  if(i < 0 || i > 3) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate::ygsigc2m called with illegal index = " << i << std::endl;}
+#else	  
+	  assert(i>=0 && i<4); 
+#endif
+     return pygsigc2m[i];} //!< 1st pass chi2 min search: average sigma_y from Gaussian fit binned in 4 charge bins 
+  float xavgc2m(int i) {
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	  if(i < 0 || i > 3) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate::xavgc2m called with illegal index = " << i << std::endl;}
+#else	  
+	  assert(i>=0 && i<4); 
+#endif
+     return pxavgc2m[i];}   //!< 1st pass chi2 min search: average x-bias of reconstruction binned in 4 charge bins 
+  float xrmsc2m(int i) {
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	  if(i < 0 || i > 3) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate::xrmsc2m called with illegal index = " << i << std::endl;}
+#else	  
+	  assert(i>=0 && i<4); 
+#endif
+     return pxrmsc2m[i];}   //!< 1st pass chi2 min search: average x-rms of reconstruction binned in 4 charge bins 
+  float xgx0c2m(int i) {
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	  if(i < 0 || i > 3) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate::xgx0cm2 called with illegal index = " << i << std::endl;}
+#else	  
+	  assert(i>=0 && i<4); 
+#endif
+     return pxgx0c2m[i];}   //!< 1st pass chi2 min search: average x0 from Gaussian fit binned in 4 charge bins 
+  float xgsigc2m(int i) {
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	  if(i < 0 || i > 3) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate::xgsigc2m called with illegal index = " << i << std::endl;}
+#else	  
+	  assert(i>=0 && i<4); 
+#endif
+     return pxgsigc2m[i];} //!< 1st pass chi2 min search: average sigma_x from Gaussian fit binned in 4 charge bins 
   float chi2yavgone() {return pchi2yavgone;}                        //!< //!< average y chi^2 for 1 pixel clusters 
   float chi2yminone() {return pchi2yminone;}                        //!< //!< minimum of y chi^2 for 1 pixel clusters 
   float chi2xavgone() {return pchi2xavgone;}                        //!< //!< average x chi^2 for 1 pixel clusters 

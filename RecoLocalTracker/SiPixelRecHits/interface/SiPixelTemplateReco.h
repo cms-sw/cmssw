@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateReco.cc (Version 5.20)
+//  SiPixelTemplateReco.cc (Version 5.25)
 //
 //  Add goodness-of-fit to algorithm, include single pixel clusters in chi2 calculation
 //  Try "decapitation" of large single pixels
@@ -23,6 +23,8 @@
 //  Change to allow template sizes to be changed at compile time
 //  Move interpolation range error to LogDebug
 //  Add qbin = 5 and change 1-pixel probability to use new template info
+//  Add floor for probabilities (no exact zeros)
+//  Replace asserts with exceptions in CMSSW
 //
 //  Created by Morris Swartz on 10/27/06.
 //  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
