@@ -5,8 +5,8 @@
  * \file HcalSummaryClient.h
  *
  * Code ported from DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h
- * $Date: 2009/03/28 14:03:24 $
- * $Revision: 1.15.2.2 $
+ * $Date: 2009/03/31 14:02:30 $
+ * $Revision: 1.17 $
  * \author Jeff Temple
  *
 */
@@ -79,6 +79,7 @@ class HcalSummaryClient : public HcalBaseClient {
   // Analyze
   void analyze(void);
   void analyze_subtask(SubTaskSummaryStatus& s);
+  void New_analyze_subtask(SubTaskSummaryStatus& s);
   void resetSummaryPlot(int Subdet);
   void incrementCounters(void);
 
@@ -132,7 +133,6 @@ class HcalSummaryClient : public HcalBaseClient {
 
   double etaMin_, etaMax_, phiMin_, phiMax_;
   int etaBins_, phiBins_;
-
 }; // end of class declaration
 
 #endif

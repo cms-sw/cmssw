@@ -651,13 +651,10 @@ void HcalDeadCellMonitor::processEvent_HBHEdigi(HBHEDigiCollection::const_iterat
 {
   // Simply check whether a digi is present.  If so, increment occupancy counter.
 
-  int ieta=0;
-  int iphi=0;
-  int depth=0;
   const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
-  ieta=digi.id().ieta();
-  iphi=digi.id().iphi();
-  depth=digi.id().depth();
+  int ieta=digi.id().ieta();
+  int iphi=digi.id().iphi();
+  int depth=digi.id().depth();
   if (!digi.id().validDetId(digi.id().subdet(),ieta,iphi,depth)) return;
 
   
@@ -682,13 +679,10 @@ void HcalDeadCellMonitor::processEvent_HBHEdigi(HBHEDigiCollection::const_iterat
 void HcalDeadCellMonitor::processEvent_HOdigi(HODigiCollection::const_iterator j)
 {
   if (!checkHO_) return;
-  int ieta=0;
-  int iphi=0;
-  int depth=0;
   const HODataFrame digi = (const HODataFrame)(*j);
-  ieta=digi.id().ieta();
-  iphi=digi.id().iphi();
-  depth=digi.id().depth();
+  int ieta=digi.id().ieta();
+  int iphi=digi.id().iphi();
+  int depth=digi.id().depth();
   if (!digi.id().validDetId(digi.id().subdet(),ieta,iphi,depth)) return;
   ++occupancy[CalcEtaBin(digi.id().subdet(),ieta,depth)][iphi-1][depth-1];
   //cout <<"HO "<<ieta<<", "<<iphi<<", "<<depth<<":  bin = "<<CalcEtaBin(digi.id().subdet(),ieta,depth)<<endl;
@@ -700,13 +694,10 @@ void HcalDeadCellMonitor::processEvent_HOdigi(HODigiCollection::const_iterator j
 void HcalDeadCellMonitor::processEvent_HFdigi(HFDigiCollection::const_iterator j)
 {
   if (!checkHF_) return;
-  int ieta=0;
-  int iphi=0;
-  int depth=0;
   const HFDataFrame digi = (const HFDataFrame)(*j);
-  ieta=digi.id().ieta();
-  iphi=digi.id().iphi();
-  depth=digi.id().depth();
+  int ieta=digi.id().ieta();
+  int iphi=digi.id().iphi();
+  int depth=digi.id().depth();
   if (!digi.id().validDetId(digi.id().subdet(),ieta,iphi,depth)) return;
   ++occupancy[CalcEtaBin(digi.id().subdet(),ieta,depth)][iphi-1][depth-1];
   present[CalcEtaBin(digi.id().subdet(),ieta,depth)][iphi-1][depth-1]=true;
@@ -1054,7 +1045,7 @@ void HcalDeadCellMonitor::fillNevents_problemCells(void)
 	{
 	  for (int phi=0;phi<ProblemDeadCellsByDepth.depth[depth]->getNbinsY();++phi)
 	    {
-	      iphi=phi;
+	      iphi=phi+1;
 
 	      for (int subdet=1;subdet<=4;++subdet)
 		{
@@ -1078,9 +1069,9 @@ void HcalDeadCellMonitor::fillNevents_problemCells(void)
 		      (deadmon_test_occupancy_ && occupancy[eta][phi][depth]==0 && (ievt_%deadmon_checkNevents_)==0) ||
 		      (deadmon_test_energy_ && aboveenergy[eta][phi][depth]==0  && (ievt_%deadmon_checkNevents_)==0))
 		    {
-		      if (subdet==HcalBarrel)      ++deadHB;
-		      else if (subdet==HcalEndcap) ++deadHE;
-		      else if (subdet==HcalOuter) ++deadHO;
+		      if (subdet==HcalBarrel)       ++deadHB;
+		      else if (subdet==HcalEndcap)  ++deadHE;
+		      else if (subdet==HcalOuter)   ++deadHO;
 		      else if (subdet==HcalForward) ++deadHF;
 		    }
 		  if ((deadmon_test_neverpresent_ && present[eta][phi][depth]==0))
