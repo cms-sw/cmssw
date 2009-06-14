@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.11 2009/06/03 14:24:19 jmuelmen Exp $
+// $Id: FWTableView.cc,v 1.12 2009/06/12 13:40:00 amraktad Exp $
 //
 
 // system include files
@@ -81,10 +81,16 @@
 #include "Fireworks/Core/src/FWExpressionValidator.h"
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
 
-static const TString& coreIcondir() {
-   static TString s = Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE"));
-   return s;
+static const TString& coreIcondir() 
+{
+   static TString path = Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE"));
+   if ( gSystem->AccessPathName(path.Data()) ){ // cannot find directory
+	assert(gSystem->Getenv("CMSSW_RELEASE_BASE"));
+	path = Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_RELEASE_BASE"));
+   }
+   return path;
 }
+
 /*
 static 
 const TGPicture* filtered(bool iBackgroundIsBlack)
