@@ -81,7 +81,13 @@ namespace edm {
         if(outBranch) {
 	  TBranchElement* inBranch = dynamic_cast<TBranchElement*>(inputBranch->FindBranch(outBranch->GetName()));
 	  if(!inBranch) {
-	    return false;
+	    // Arrays need special treatment due to a peculiarity of ROOT.  The size in square brackets must be stripped.
+	    std::string name(outBranch->GetName());
+	    size_t pos = name.find('[');
+	    if(pos == std::string::npos) {
+	      return false;
+	    }
+            return (dynamic_cast<TBranchElement*>(inputBranch->FindBranch(name.substr(0, pos).c_str())) != 0);
 	  }
 	  if(!checkMatchingBranches(inBranch, outBranch)) {
 	    return false;
@@ -106,7 +112,6 @@ namespace edm {
 	  if(!checkMatchingBranches(inputBranch, outputBranch)) {
             LogInfo("FastCloning")
               << "Fast Cloning disabled because a data member has been added to  split branch: " << inputBranch->GetName() << "\n.";
-	    return false;
 	  }
 	}
       }
