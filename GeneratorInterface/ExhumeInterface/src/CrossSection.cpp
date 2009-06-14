@@ -561,7 +561,7 @@ void Exhume::CrossSection::Hadronise(){
     ijoin[i] = nn;
   }
 
-  if(njoin > 1){
+  if((njoin > 1)&&(Name != "di-photon")){
     pyjoin(njoin, ijoin);
     int ip1 =3; 
     int ip2 =4;
