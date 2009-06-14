@@ -10,9 +10,10 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
 )
 
-#  PYTHIA6 Generator 
+# PYTHIA6 Generator 
 process.load("Configuration.Generator.TTbar_cfi")
 
+# Parton Correction
 process.load("JetMETCorrections.Configuration.L7PartonCorrections_cff")
 
 process.myPartons = cms.EDFilter("PartonSelector",
@@ -27,10 +28,10 @@ process.matchParton = cms.EDFilter("JetPartonMatcher",
 
 process.doTopMass = cms.EDFilter("calcTopMass",
     srcByReference = cms.InputTag("matchParton"),
-    qTopCorrector = cms.string('L7PartonJetCorrectorIC5qTop'),
-    cTopCorrector = cms.string('L7PartonJetCorrectorIC5cTop'),
-    bTopCorrector = cms.string('L7PartonJetCorrectorIC5bTop'),
-    tTopCorrector = cms.string('L7PartonJetCorrectorIC5tTop')
+    qTopCorrector = cms.string('L7PartonJetCorrectorSC5qTop'),
+    cTopCorrector = cms.string('L7PartonJetCorrectorSC5cTop'),
+    bTopCorrector = cms.string('L7PartonJetCorrectorSC5bTop'),
+    tTopCorrector = cms.string('L7PartonJetCorrectorSC5tTop')
 )
 
 process.printEventNumber = cms.OutputModule("AsciiOutputModule")
