@@ -72,6 +72,10 @@ namespace service {
 //	 derivation from AbstractMLscribe to allow for single-thread calling
 //	 from MessageLoggerQ without introducing coupling to MessageService
 //
+//  11 - 5/26/09 mf
+//	 restore getAparameter behavior to NOT throw for tracked, since
+//       now this will be caught when validating the PSet.
+//
 // -----------------------------------------------------------------------
 
 class MessageLoggerScribe : public AbstractMLscribe
@@ -116,6 +120,8 @@ private:
   void  configure_default_fwkJobReport( ELdestControl & dest_ctrl); //ChangeLog 4
   void  configure_external_dests( );
 
+#define VALIDATE_ELSEWHERE					// ChangeLog 11
+
 #ifdef OLDSTYLE
   template <class T>
   T getAparameter ( PSet const& p, std::string const & id, T const & def ) 
@@ -143,6 +149,25 @@ private:
     return t;
   }								// changelog 2
 #else
+#ifdef VALIDATE_ELSEWHERE
+  template <class T>						// ChangeLog 11
+  T getAparameter ( PSet const& p, std::string const & id, T const & def ) 
+  {
+    T t = def;
+    try { 
+      t = p.template getUntrackedParameter<T>(id, def);
+    } catch (...) {
+      try {
+        t = p.template getParameter<T>(id);
+      } catch (...) {
+        // Since PSetValidation will catch such errors, we simply proceed as
+	// best we can in case we are setting up the logger just to contain the 
+	// validation-caught error messages. 
+      }
+    }
+    return t;
+  }
+#else  // Do not tolerate errors
   template <class T>
   T  getAparameter ( PSet const& p, std::string const & id, T const & def ) 
   {								// changelog 7
@@ -168,12 +193,11 @@ private:
       throw;
     }
     return t;
-  }
+     }
 
-
-
-#endif
-#endif
+#endif // VALIDATE_ELSEWHERE
+#endif // SIMPLESTYLE
+#endif // OLD_STYLE and the else Do not tolerate errors
 
 #ifdef REMOVE
   template <class T>

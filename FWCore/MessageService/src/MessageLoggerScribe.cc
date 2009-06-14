@@ -162,6 +162,12 @@
 //  33 - 10/22/08 mf
 //	 implementation of singleThread
 //
+//  34 - 5/13/09 mf
+//	 Allowing threshold to be set for default destination in default PSet
+//  35 - 5/29/09 mf
+//       Avoiding throw when duplicate destination names are used, to let the
+//	 validation report that and abort instead.
+//
 // ----------------------------------------------------------------------
 
 #include "FWCore/MessageService/interface/ELadministrator.h"
@@ -575,6 +581,9 @@ void
     = getAparameter<int>(default_pset, "timespan", COMMON_DEFAULT_TIMESPAN);
 						// change log 2a
     						// change log 3a
+  String default_pset_threshold				
+     = getAparameter<String>(default_pset, "threshold", default_threshold);
+     						// change log 34
 					
   // grab all of this destination's parameters:
   PSet  dest_pset = getAparameter<PSet>(*job_pset_p, filename, empty_PSet);
@@ -610,6 +619,12 @@ void
   // establish this destination's threshold:
   String dest_threshold
      = getAparameter<String>(dest_pset, "threshold", default_threshold);
+  if (dest_threshold == empty_String) {  
+    dest_threshold = default_threshold;
+  }
+  if (dest_threshold == empty_String) {			// change log 34
+      dest_threshold = default_pset_threshold;
+  }
   if (dest_threshold == empty_String) {
     dest_threshold = messageLoggerDefaults->threshold(filename);
   }
@@ -956,7 +971,8 @@ void
      // Check that this is not a duplicate name			// change log 18
     if ( stream_ps.find(actual_filename)!=stream_ps.end() ) {        
       if (clean_slate_configuration) {				// change log 22
-        throw edm::Exception ( edm::errors::Configuration ) 
+//        throw edm::Exception ( edm::errors::Configuration )   
+        LogError("duplicateDestination")			// change log 35
         <<"Duplicate name for a MessageLogger Destination: " 
         << actual_filename
         << "\n";

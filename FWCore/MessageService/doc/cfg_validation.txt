@@ -11,57 +11,41 @@ At the main level, only the following PSets are allowed:
   A category, as listed in the vstring categories or messageIDs
   One of the following keywords, which are valid as PSets at the main level
 	default  
-    	ERROR
-    	WARNING
-   	INFO
-    	DEBUG
 
-At the main level, only the following non-PSets are allowed:
-    statistics		vstring
-    destinations	vstring
+At the main level, only the following vstrings are allowed:
     categories		vstring
-    threshold		string	only certain values
-
-
-	threshold
-
-
-
-    limit		int
-    reportEvery		int
-    timespan		int
-
-
-    placeholder		bool
-    noTimeStamps	bool
-    generate_preconfiguration_message		bool
-    noLineBreaks	bool
-    lineLength   	int
-    fwkJobReports	string
-    filename		string
-    extension		string
-    output		string
-    reset		bool
-    statistics		vstring
+    messageIDs		vstring
+    fwkJobReports	vstring
     destinations	vstring
-    categories		vstring
-suppressInfo     
- suppressDebug    
-  suppressWarning
-    debugModules
+    statistics		vstring
+
+    The following are errors:
+    In the destinations vstring, duplicate names.
+    In the statistics vstring, duplicate names. 
+    In the fwkJobReports vstring, duplicate names.
+    In the categories vstring, duplicate names or names matching one of the
+    destinations or statistics or fwkJobReports or a keyword.  
+    Any destination or category is used as anything other than a PSet
+
+    debugModules	vstring
+    suppressInfo     	vstring
+    suppressDebug    	vstring
+    suppressWarning	vstring
+
+    The following are errors:
+    Use of wildcards with suppressInfo or suppressWarning or suppressDebug.
+    suppressDebug unless debugModules = "*"
+    More than one debugModules if one is "*"
     
 
-default (destination) should not have threshold -- OR BETTER, I shoudl allow it
-to!  (But that is a feature change and I have to decide about clashes with
-overall threshold) AHA: overall threshold is prefered if PSet is not used,
-otherwise default threshold is prefered.   
-Better:  Overall threshold is prefered always. 
-
-
-
-Within a destination PSet, a PSet is declared which is none of the following:
+At the main level, only the following non-PSets non-vstrings are allowed:
+    messageSummaryToJobReport    		bool
+    generate_preconfiguration_message		string
+    threshold					string	only certain values
+    
+Within a destination PSet, only the following PSets are allowed:
   A category, as listed in the vstring categories or messageIDs
-  One of the following keywords, which are valid as PSets at the main level
+  One of the following keywords, which are valid as PSets at this level
 	default  
     	ERROR
     	WARNING
@@ -69,77 +53,146 @@ Within a destination PSet, a PSet is declared which is none of the following:
     	DEBUG
  
 Within a destination PSet, only the following non-PSets are allowed:
-	(list here)
+    placeholder		bool	forbids others (because it will just return)!
+    threshold		string	only certain values
+    noLineBreaks	bool
+    lineLength   	int
+    noTimeStamps	bool
+    output		string
+    filename		string
+    extension		string
 
-The same rules apply for the default PSet at main level as for destination PSet.
+Within a statistics PSet, only the following (all non-PSets) are allowed:
+    placeholder		bool
+    filename		output
+    filename		string
+    extension		string
+    reset		bool
+    
+Within the fwkJobReport PSet only the following non-PSets are allowed:
+    placeholder		bool
+    output		string
+    filename		string
+    extension		string
 
-Within a category PSet, only the following are allowed:
-	(list here)
 
-Within a severity pset, only the following are allowed:
+Within a severity PSet, whether or not it is in the main or nested in a 
+destination PSet,only the following are allowed:
+    limit		int
+    reportEvery		int
+    timespan		int
+
+Within a category PSet, whether or not this is the default category PSet,
+and whether or not it is in the main or nested in a destination PSet,  
+only the following are allowed:
     limit		int
     reportEvery		int
     timespan		int
 
 
+Not allowed:
+
+Use of filename or extension of cerr or cout.
+
 In the destinations vstring, duplicate names.
 
-In the destinations vstring, presence of both cerr and cout.
-
-Use of filename or extension on cerr or cout.
-
 In the statistics vstring, duplicate names, or cerr when destinations has
-coout or vice-versa. 
+cout or vice-versa. 
+
+In the fwkJobReports vstring, duplicate names.
 
 In the categories vstring, duplicate names or names matching one of the
 destinations or statistics or a keyword.  
 
-
-
-
- (which are valid in both the main level
-  and the destination levle PSets):    
-    limit		int
-    reportEvery		int
-    timespan		int
-    placeholder		bool
-    threshold		string	only certain values
-    noTimeStamps	bool
-    generate_preconfiguration_message		bool
-    noLineBreaks	bool
-    lineLength   	int
-    fwkJobReports	string
-    filename		string
-    extension		string
-    output		string
-    reset		bool
-    statistics		vstring
-    destinations	vstring
-    categories		vstring
-suppressInfo     
- suppressDebug    
-  suppressWarning
-    debugModules
-    
-    
-    
 Any destination or category is used as anything other than a PSet
 
+Use of wildcards with suppressInfo or suppressWarning or suppressDebug not
+allowed.
 
-Use of wildcards with suppressInfo or suppressWarnig or suppressDebug not
-allowed
+Anything tracked is not allowed.
+
+The followoing is strongly discouraged unless the intent is to redirect
+cout and cerr into different files:
+In the destinations vstring, presence of both cerr and cout.
 
 
 
 
-=========================================================================
+
+==========================================================================
+
+Where does this validation get done?
+
+Don't want all the modules to have been created (significant work into the job)
+but do want the services, particularly Message service and Job Report, to have
+started.
+
+Partial Answer:  The validation should be done before or during
+preModuleConstruction and preSourceConstruction, which should 
+(possibly issue a message and) throw if there is a problem.
+
+However, the PSet supplied to the ctor is no longer trivially available at
+that point.  Although it could be saved, there would be potential snags:
+* Saving by reference suffers a tiny risk of the PSet goign away.
+* Saving by copying begs the question of what can and can't be asked of a copy.
+* Saving the PSet ID should be airtight, but it may be a bit convoluted 
+  (according to jbk) to re-obtain the PSet from the ID.
+
+The solution is to do the validation -- and store the results -- in the
+MessageService::MessageLogger ctor.  But we don't throw in that ctor, because 
+that would squelch operation of the logger, which assumedly is "good enough"
+despite the unintended behavior due to errors in the configuration.
+Instead, we **check** the result in preModuleConstruction or 
+preSourceConstruction, whichever happens first.
+
+============================================================================
+
+Working with a PSet:
+
+The following (in addition to getParameter and getUntrackedParameter<T>) are 
+potentially useful for validation:
+
+    template <typename T>
+    std::vector<std::string> getParameterNamesForType(bool trackiness = 
+						      true) const ;
+    ParameterSet trackedPart() const;
+    bool empty() const;
+    
+    (the above two in tandem give us a way to check that everything is
+    untracked)
+						      
+
+    // Return the names of all parameters of type ParameterSet,
+    // pushing the names into the argument 'output'. Return the number
+    // of names pushed into the vector. If 'trackiness' is true, we
+    // return tracked parameters; if 'trackiness' is false, w return
+    // untracked parameters.
+    size_t getParameterSetNames(std::vector<std::string>& output,
+				bool trackiness = true) const;
+						      
 
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-edm::service::MessageLogger::
-MessageLogger( ParameterSet const & iPS
-             , ActivityRegistry   & iRegistry
-                            )
+    /// checks if a parameter exists
+    bool exists(std::string const& parameterName) const;
 
-Look at configure_errorlog to see how to send a message before configuration.
-But that might not be best for this sort of message.
+    /// checks if a parameter exists as a given type
+    template <typename T>
+    bool existsAs(std::string const& parameterName, bool trackiness=true) const {
+       std::vector<std::string> names = getParameterNamesForType<T>(trackiness);
+       return std::find(names.begin(), names.end(), parameterName) != names.end();
+    }
+
+
+
+
+============================================================================
+
+Code plan:
+
+Each type of PSet and collection can be validated separately.  So for
+example, we have validateDestinationPSet().  And the various overall lists
+can be validated in context of the other lists.
+
+We ask whether a parameter exists as the expected type before looking at 
+its value; that way, we can see if it is there but with the wrong type.
+

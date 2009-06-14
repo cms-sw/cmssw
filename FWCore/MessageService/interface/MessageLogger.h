@@ -19,7 +19,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 15:00:00 CST 2006
 //			See FWCore/MessageLogger/MessageLogger.h
-// $Id: MessageLogger.h,v 1.9 2007/07/23 23:42:34 wmtan Exp $
+// $Id: MessageLogger.h,v 1.10 2008/06/20 20:55:47 fischler Exp $
 //
 
 // system include files
@@ -91,7 +91,9 @@ private:
   static bool everyDebugEnabled_;
 
   static bool fjrSummaryRequested_;
-  
+  bool messageServicePSetHasBeenValidated_;
+  std::string  messageServicePSetValidatationResults_;
+   
 };  // MessageLogger
 
 

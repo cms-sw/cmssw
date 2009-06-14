@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.28 2008/12/20 17:39:55 wmtan Exp $
+// $Id: MessageLogger.cc,v 1.29 2009/03/24 20:17:38 fischler Exp $
 //
 // Change log
 //
@@ -40,6 +40,11 @@
 //10 mf   6/18/07	Insert into the PostEndJob a possible SummarizeInJobReport
 //
 //11 mf   3/18/09	Fix wrong-sense test establishing anyDebugEnabled_
+//
+//12 mf   5/19/09	MessageService PSet Validation
+//
+//13 mf   5/26/09	Get parameters without throwing since validation 
+//			will point out any problems and throw at that point
 
 // system include files
 // user include files
@@ -47,6 +52,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/MessageService/interface/MessageLogger.h"
+#include "FWCore/MessageService/interface/MessageServicePSetValidation.h"
 
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
@@ -54,6 +60,7 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 #include "FWCore/MessageLogger/interface/JobReport.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <sstream>
@@ -69,9 +76,9 @@ using namespace edm::service;
 namespace edm {
 namespace service {
 
-bool edm::service::MessageLogger::anyDebugEnabled_     = false;
-bool edm::service::MessageLogger::everyDebugEnabled_   = false;
-bool edm::service::MessageLogger::fjrSummaryRequested_ = false;
+bool edm::service::MessageLogger::anyDebugEnabled_                    = false;
+bool edm::service::MessageLogger::everyDebugEnabled_                  = false;
+bool edm::service::MessageLogger::fjrSummaryRequested_                = false;
   
 //
 // constructors and destructor
@@ -82,35 +89,44 @@ MessageLogger( ParameterSet const & iPS
                             )
 	: curr_module_("BeginningJob")
         , debugEnabled_(false)
+	, messageServicePSetHasBeenValidated_(false)
+	, messageServicePSetValidatationResults_() 
 {
-  // decide whether a summary should be placed in job report
-  fjrSummaryRequested_ = 
-    	iPS.getUntrackedParameter<bool>("messageSummaryToJobReport", false);
-
-  typedef std::vector<std::string>  vString;
-   vString  empty_vString;
+  // prepare cfg validation string for later use
+  MessageServicePSetValidation validator;
+  messageServicePSetValidatationResults_ = validator(iPS);	// change log 12
   
-  // grab list of debug-enabled modules
+  typedef std::vector<std::string>  vString;
+  vString  empty_vString;
   vString  debugModules;
-  debugModules = 
-    	iPS.getUntrackedParameter<vString>("debugModules", empty_vString);
-
-  // grab lists of suppressLEVEL modules
   vString suppressDebug;
-  suppressDebug = 
-    	iPS.getUntrackedParameter<vString>("suppressDebug", empty_vString);
-
-  vString suppressInfo;
-  suppressInfo = 
-    	iPS.getUntrackedParameter<vString>("suppressInfo", empty_vString);
-
   vString suppressWarning;
-  suppressWarning = 
-    	iPS.getUntrackedParameter<vString>("suppressWarning", empty_vString);
+  vString suppressInfo;
 
+  try {								// change log 13
+    // decide whether a summary should be placed in job report
+    fjrSummaryRequested_ = 
+    	  iPS.getUntrackedParameter<bool>("messageSummaryToJobReport", false);
+
+    // grab list of debug-enabled modules
+    debugModules = 
+    	  iPS.getUntrackedParameter<vString>("debugModules", empty_vString);
+
+    // grab lists of suppressLEVEL modules
+    suppressDebug = 
+    	  iPS.getUntrackedParameter<vString>("suppressDebug", empty_vString);
+
+    suppressInfo = 
+    	  iPS.getUntrackedParameter<vString>("suppressInfo", empty_vString);
+
+    suppressWarning = 
+    	  iPS.getUntrackedParameter<vString>("suppressWarning", empty_vString);
+  } catch (cms::Exception& e) {					// change log 13
+  }
+  
   // Use these lists to prepare a map to use in tracking suppression 
 
-// Do suppressDebug first and suppressWarning last to get proper order
+  // Do suppressDebug first and suppressWarning last to get proper order
   for( vString::const_iterator it  = suppressDebug.begin();
                                it != suppressDebug.end(); ++it ) {
     suppression_levels_[*it] = ELseverityLevel::ELsev_success;
@@ -151,15 +167,15 @@ MessageLogger( ParameterSet const & iPS
   std::string jr_name = edm::MessageDrop::instance()->jobreport_name; 
   if (!jr_name.empty()) {			
     std::string * jr_name_p = new std::string(jr_name);
-    MessageLoggerQ::MLqJOB( jr_name_p ); 			// change log 8
+    MessageLoggerQ::MLqJOB( jr_name_p ); 			// change log 9
   }
   
   								// change log 7
   std::string jm = edm::MessageDrop::instance()->jobMode; 
   std::string * jm_p = new std::string(jm);
-  MessageLoggerQ::MLqMOD( jm_p ); 				// change log 8
+  MessageLoggerQ::MLqMOD( jm_p ); 				// change log 9
   
-  MessageLoggerQ::MLqCFG( new ParameterSet(iPS) );		// change log 8
+  MessageLoggerQ::MLqCFG( new ParameterSet(iPS) );		// change log 9
 
   iRegistry.watchPostBeginJob(this,&MessageLogger::postBeginJob);
   iRegistry.watchPostEndJob(this,&MessageLogger::postEndJob);
@@ -221,7 +237,7 @@ void
 MessageLogger::postEndJob()
 {
   SummarizeInJobReport();     // Put summary info into Job Rep  // change log 10
-  MessageLoggerQ::MLqSUM ( ); // trigger summary info.		// change log 8
+  MessageLoggerQ::MLqSUM ( ); // trigger summary info.		// change log 9
 }
 
 void
@@ -244,6 +260,17 @@ MessageLogger::postEventProcessing(const Event&, const EventSetup&)
 void
 MessageLogger::preSourceConstruction(const ModuleDescription& desc)
 {
+  if (!messageServicePSetHasBeenValidated_) {			// change log 12
+    if (!messageServicePSetValidatationResults_.empty() ) {
+      // LogSystem ("configuration") << messageServicePSetValidatationResults_;     
+      //std::cerr << "Flaw noted in preSourceConstruction\n";   // TODO - remove
+      throw ( edm::Exception 
+                   ( edm::errors::Configuration
+                   , messageServicePSetValidatationResults_ 
+	           )                                         );
+    }
+    messageServicePSetHasBeenValidated_ = true;
+  } 
   curr_module_ = desc.moduleName();
   curr_module_ += ":";
   curr_module_ += desc.moduleLabel();
@@ -272,10 +299,10 @@ MessageLogger::preSource()
     messageDrop->debugEnabled = true;
   } else {
     messageDrop->debugEnabled = 
-    		debugEnabledModules_.count("source");
+    		debugEnabledModules_.count("source");	// change log 8
   }
   std::map<const std::string,ELseverityLevel>::const_iterator it =
-       suppression_levels_.find("source");
+       suppression_levels_.find("source");		// change log 8
   if ( it != suppression_levels_.end() ) {
     messageDrop->debugEnabled  = messageDrop->debugEnabled
                                            && (it->second < ELseverityLevel::ELsev_success );
@@ -292,6 +319,17 @@ MessageLogger::preSource()
 void
 MessageLogger::preModuleConstruction(const ModuleDescription& desc)
 {
+  if (!messageServicePSetHasBeenValidated_) {			// change log 12
+    if (!messageServicePSetValidatationResults_.empty() ) {
+      // LogSystem ("configuration") << messageServicePSetValidatationResults_;     
+      //std::cerr << "Flaw noted in preModuleConstruction\n";  // TODO - remove
+      throw ( edm::Exception 
+                   ( edm::errors::Configuration
+                   , messageServicePSetValidatationResults_ 
+	           )                                         );
+    }
+    messageServicePSetHasBeenValidated_ = true;
+  } 
   // LogInfo("preModule") << "Module:" << desc.moduleLabel();
   curr_module_ = desc.moduleName();
   curr_module_ += ":";
