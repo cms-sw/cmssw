@@ -12,21 +12,20 @@ import math
 import unittest
 import time
 
-distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(__file__),"../python"))
-if not os.path.exists(distBaseDirectory) or not "Vispa" in os.listdir(distBaseDirectory):
-    distBaseDirectory=os.path.abspath(os.path.expandvars("$CMSSW_BASE/python/FWCore/GuiBrowsers"))
-if not os.path.exists(distBaseDirectory) or not "Vispa" in os.listdir(distBaseDirectory):
-    distBaseDirectory=os.path.abspath(os.path.expandvars("$CMSSW_RELEASE_BASE/python/FWCore/GuiBrowsers"))
-if not os.path.exists(distBaseDirectory) or  not "Vispa" in os.listdir(distBaseDirectory):
-    try:
-        distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
-    except Exception:
-        distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]),".."))
+try:
+    distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
+    if not os.path.exists(distBaseDirectory) or not "Vispa" in os.listdir(distBaseDirectory):
+        distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(__file__),"../python"))
+    if not os.path.exists(distBaseDirectory) or not "Vispa" in os.listdir(distBaseDirectory):
+        distBaseDirectory=os.path.abspath(os.path.expandvars("$CMSSW_BASE/python/FWCore/GuiBrowsers"))
+    if not os.path.exists(distBaseDirectory) or not "Vispa" in os.listdir(distBaseDirectory):
+        distBaseDirectory=os.path.abspath(os.path.expandvars("$CMSSW_RELEASE_BASE/python/FWCore/GuiBrowsers"))
+except Exception:
+    distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]),".."))
 
 sys.path.append(distBaseDirectory)
 from Vispa.Main.Directories import *
-setBaseDirectory(distBaseDirectory)
-distBinaryBaseDirectory=os.path.join(distBaseDirectory,"dist")
+distBinaryBaseDirectory=os.path.join(baseDirectory,"dist")
 sys.path.append(distBinaryBaseDirectory)
 
 try:
@@ -48,5 +47,5 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     app.mainWindow().setWindowTitle("ConfigBrowser")
     app.mainWindow().setWindowIcon(QIcon())
-    app.setVersion("Version 12.06.2009")
+    app.setVersion("Version 14.06.2009")
     app.run()
