@@ -48,17 +48,17 @@ class DotProducer(object):
             all_toplevel['sequences']+=[tlo]
           else:
             all_toplevel['sequences']=[tlo]
-        if data.type(tlo)=='Path':
+        if self.data.type(tlo)=='Path':
           if 'paths' in all_toplevel:
             all_toplevel['paths']+=[tlo]
           else:
             all_toplevel['paths']=[tlo]
-        if data.type(tlo) in ('EDAnalyzer','EDFilter','EDProducer','OutputModule'):
-          self.nodes[self.data.label(tlo)]={'obj':tlo,'n_label':self.nodeLabel(tlo),'n_shape':self.shapes.get(data.type(tlo),'plaintext'),'inpath':True} 
+        if self.data.type(tlo) in ('EDAnalyzer','EDFilter','EDProducer','OutputModule'):
+          self.nodes[self.data.label(tlo)]={'obj':tlo,'n_label':self.nodeLabel(tlo),'n_shape':self.shapes.get(self.data.type(tlo),'plaintext'),'inpath':True} 
         if self.options['services'] and self.data.type(tlo)=='Service':
-          self.nodes[self.data.label(tlo)]={'obj':tlo,'n_label':self.nodeLabel(tlo),'n_shape':self.shapes.get(data.type(tlo),'plaintext'),'inpath':False}
+          self.nodes[self.data.label(tlo)]={'obj':tlo,'n_label':self.nodeLabel(tlo),'n_shape':self.shapes.get(self.data.type(tlo),'plaintext'),'inpath':False}
         if self.options['es'] and self.data.type(tlo) in ('ESSource','ESProducer'):
-          self.nodes[self.data.label(tlo)]={'obj':tlo,'n_label':self.nodeLabel(tlo),'n_shape':self.shapes.get(data.type(tlo),'plaintext'),'inpath':False}
+          self.nodes[self.data.label(tlo)]={'obj':tlo,'n_label':self.nodeLabel(tlo),'n_shape':self.shapes.get(self.data.type(tlo),'plaintext'),'inpath':False}
     return all_toplevel      
 
   def seqRecurseChildren(self,obj):
@@ -245,7 +245,7 @@ class DotProducer(object):
     if self.options['legend']:
       blocks += [self.produceLegend()]
     blocks += [self.producePaths()]
-    if self.data.process:
+    if self.data.process():
       if self.options['seqconnect']:
         blocks += [self.connectPaths()]
       if self.options['tagconnect']:
