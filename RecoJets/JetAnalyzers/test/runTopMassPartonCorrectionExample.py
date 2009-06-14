@@ -7,28 +7,38 @@ process.load("Configuration.StandardSequences.Generator_cff")
 process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(1000)
 )
 
 #  PYTHIA6 Generator 
 process.load("Configuration.Generator.TTbar_cfi")
+
+process.load("JetMETCorrections.Configuration.L7PartonCorrections_cff")
 
 process.myPartons = cms.EDFilter("PartonSelector",
     withLeptons = cms.bool(False)
 )
 
 process.matchParton = cms.EDFilter("JetPartonMatcher",
-    jets = cms.InputTag("iterativeCone5GenJets"),
-    coneSizeToAssociate = cms.double(0.3),
+    jets = cms.InputTag("sisCone5GenJets"),
+    coneSizeToAssociate = cms.double(0.10),
     partons = cms.InputTag("myPartons")
 )
 
 process.doTopMass = cms.EDFilter("calcTopMass",
-    srcSelectedPartons = cms.InputTag("myPartons"),
     srcByReference = cms.InputTag("matchParton"),
+    qTopCorrector = cms.string('L7PartonJetCorrectorIC5qTop'),
+    cTopCorrector = cms.string('L7PartonJetCorrectorIC5cTop'),
+    bTopCorrector = cms.string('L7PartonJetCorrectorIC5bTop'),
+    tTopCorrector = cms.string('L7PartonJetCorrectorIC5tTop')
 )
 
 process.printEventNumber = cms.OutputModule("AsciiOutputModule")
+
+process.TFileService = cms.Service(
+    "TFileService",
+    fileName = cms.string("histoMass.root")
+ )
 
 process.p = cms.Path(process.generator*process.pgen*process.myPartons*process.matchParton*process.printEventNumber)
 process.outpath = cms.EndPath(process.doTopMass)
