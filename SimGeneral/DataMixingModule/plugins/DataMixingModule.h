@@ -87,6 +87,7 @@ namespace edm
       std::string RPCDigiCollectionDM_;      // secondary name to be given to new RPC digis
       std::string CSCStripDigiCollectionDM_; // secondary name given to new collection of CSC Strip digis
       std::string CSCWireDigiCollectionDM_;  // secondary name given to new collection of CSC wire digis
+      std::string CSCComparatorDigiCollectionDM_; // "     "                              CSC Comparator digis
 
       // SiStrips
       std::string SiStripDigiCollectionDM_  ; // secondary name to be given to new SiStrip digis

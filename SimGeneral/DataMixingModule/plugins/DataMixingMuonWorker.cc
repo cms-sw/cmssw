@@ -199,11 +199,13 @@ namespace edm
     // Get the digis from the event
     Handle<CSCComparatorDigiCollection> pCSCComparatordigis; 
 
+    cout << "CSCComp label: " << CSCDigiTagSig_.label() << " " << CSCCompdigi_collectionSig_.label() << endl;
+
     if( e.getByLabel(CSCDigiTagSig_.label(),CSCCompdigi_collectionSig_.label(), pCSCComparatordigis) ) {
    
 
-    //if(pCSCWiredigis.isValid() ) { cout << "Signal: have CSCWireDigis" << endl;}
-    //else { cout << "Signal: NO CSCWireDigis" << endl;}
+    if(pCSCComparatordigis.isValid() ) { cout << "Signal: have CSCComparatorDigis" << endl;}
+    else { cout << "Signal: NO CSCComparatorDigis" << endl;}
     
     // Loop over digis, copying them to our own local storage
 
@@ -364,6 +366,7 @@ namespace edm
     std::auto_ptr< RPCDigiCollection > RPCDigiMerge( new RPCDigiCollection );
     std::auto_ptr< CSCStripDigiCollection > CSCStripDigiMerge( new CSCStripDigiCollection );
     std::auto_ptr< CSCWireDigiCollection > CSCWireDigiMerge( new CSCWireDigiCollection );
+    std::auto_ptr< CSCComparatorDigiCollection > CSCComparatorDigiMerge( new CSCComparatorDigiCollection );
 
     // Loop over DT digis, copying them from our own local storage
 
@@ -419,6 +422,20 @@ namespace edm
       
     }
 
+    // Loop over CSCComparator digis, copying them from our own local storage
+
+    CSCComparatorDigiCollection::DigiRangeIterator CCLayerIt;
+    for (CCLayerIt = OurCSCComparatorDigis_->begin(); CCLayerIt != OurCSCComparatorDigis_->end(); ++CCLayerIt) {
+      // The layerId
+      const CSCDetId& layerId = (*CCLayerIt).first;
+
+      // Get the iterators over the digis associated with this LayerId
+      const CSCComparatorDigiCollection::Range& range = (*CCLayerIt).second;
+
+      CSCComparatorDigiMerge->put(range, layerId);
+      
+    }
+
 
     // put the collection of recunstructed hits in the event   
     //    LogDebug("DataMixingMuonWorker") << "total # DT Merged Digis: " << DTDigiMerge->size() ;
@@ -426,17 +443,18 @@ namespace edm
     //    LogDebug("DataMixingMuonWorker") << "total # CSCStrip Merged Digis: " << CSCStripDigiMerge->size() ;
     //    LogDebug("DataMixingMuonWorker") << "total # CSCWire Merged Digis: " << CSCWireDigiMerge->size() ;
 
-    e.put( DTDigiMerge, DTDigiCollectionDM_ );
-    e.put( RPCDigiMerge, RPCDigiCollectionDM_ );
+    e.put( DTDigiMerge );
+    e.put( RPCDigiMerge );
     e.put( CSCStripDigiMerge, CSCStripDigiCollectionDM_ );
     e.put( CSCWireDigiMerge, CSCWireDigiCollectionDM_ );
+    e.put( CSCComparatorDigiMerge, CSCComparatorDigiCollectionDM_ );
 
     // clear local storage for this event
     delete OurDTDigis_;
     delete OurRPCDigis_;
     delete OurCSCStripDigis_;
     delete OurCSCWireDigis_;
-
+    delete OurCSCComparatorDigis_;
 
   }
 

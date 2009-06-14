@@ -116,11 +116,14 @@ namespace edm
     RPCDigiCollectionDM_ = ps.getParameter<std::string>("RPCDigiCollectionDM");
     CSCStripDigiCollectionDM_ = ps.getParameter<std::string>("CSCStripDigiCollectionDM");
     CSCWireDigiCollectionDM_  = ps.getParameter<std::string>("CSCWireDigiCollectionDM");
+    CSCComparatorDigiCollectionDM_  = ps.getParameter<std::string>("CSCComparatorDigiCollectionDM");
 
-    produces< DTDigiCollection >(DTDigiCollectionDM_);
-    produces< RPCDigiCollection >(RPCDigiCollectionDM_);
+
+    produces< DTDigiCollection >();
+    produces< RPCDigiCollection >();
     produces< CSCStripDigiCollection >(CSCStripDigiCollectionDM_);
     produces< CSCWireDigiCollection >(CSCWireDigiCollectionDM_);
+    produces< CSCComparatorDigiCollection >(CSCComparatorDigiCollectionDM_);
 
     MuonWorker_ = new DataMixingMuonWorker(ps);
 
@@ -314,7 +317,6 @@ namespace edm
     SiPixelWorker_->putSiPixel(e);
 
   }
-
 
   void DataMixingModule::setBcrOffset() {
   }
