@@ -335,7 +335,8 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
       //double deltaPhi = algo_->deltaPhi(&pfj, truth);
 
       // Print outliers for further debugging
-      if ( resPt > 0.2 && true_pt > 100. ) {
+      if ( ( resPt > 0.2 && true_pt > 100. ) || 
+	   ( resPt < -0.5 && true_pt > 100. ) ) {
 	std::cout << "Entry " << entry_ 
 		  << " resPt = " << resPt
 		  <<" resCharged  " << resChargedHadEnergy
