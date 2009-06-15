@@ -162,6 +162,19 @@
     <xc:Endpoint protocol="tcp" service="i2o"
       hostname="STMGR_DEV_SM_HOST" port="SM_ENDPOINT_PORT" network="tcp1"/>
 
+    <!-- Declare a Sentinel application -->
+    <xc:Application class="sentinel::Application" id="21" network="local" group="exception-l0" service="sentinel">
+      <properties xmlns="urn:xdaq-application:Sentinel" xsi:type="soapenc:Struct">
+        <useDiscovery xsi:type="xsd:boolean">true</useDiscovery>
+        <publish xsi:type="xsd:string">exception-l0</publish>
+        <watchdog xsi:type="xsd:string">PT5S</watchdog>
+      </properties>
+    </xc:Application>
+    <xc:Module>${XDAQ_ROOT}/lib/libwsaddressing.so</xc:Module>
+    <xc:Module>${XDAQ_ROOT}/lib/libwseventing.so</xc:Module>
+    <xc:Module>${XDAQ_ROOT}/lib/libsentinelutils.so</xc:Module>     
+    <xc:Module>${XDAQ_ROOT}/lib/libsentinel.so</xc:Module>
+
     <!-- Declare a StorageManager application -->
     <xc:Application class="StorageManager" id="29" instance="0" network="tcp1">
       <properties xmlns="urn:xdaq-application:StorageManager" xsi:type="soapenc:Struct">
