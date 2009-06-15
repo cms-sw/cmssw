@@ -27,11 +27,18 @@ def unpackFromString(i):
     return unpack(int(i))
 
 def timeStamptoDate(i):
-    """convert 64bit timestamp to a date in string format
+    """convert 64bit timestamp to local date in string format
     """
     import time
     return time.ctime(unpack(i)[0])
 
+def timeStamptoUTC(i):
+    """convert 64bit timestamp to Universal Time in string format
+    """
+    t=unpack(i)[0]
+    import time
+    return time.strftime("%a, %d %b %Y %H:%M:%S +0000",time.gmtime(t))
+                         
 def unpackLumiid(i):
     """unpack 64bit lumiid to dictionary {'run','lumisection'}
     """
