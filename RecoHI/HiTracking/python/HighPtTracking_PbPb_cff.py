@@ -17,7 +17,7 @@ pixel3ProtoTracks.RegionFactoryPSet.RegionPSet.originRadius = 0.1
 from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
 #from RecoPixelVertexing.PixelVertexFinding.PixelVertexes_cfi import *  #divisive vertex finder
 from RecoHI.HiTracking.PixelVertices_cfi import *  #median vertex producer
-pixelVertices.TrackCollection = 'pixel3ProtoTracks'
+pixel3Vertices.TrackCollection = 'pixel3ProtoTracks'
 
 ### pixel triplets with vertex
 import RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi
@@ -30,8 +30,9 @@ pixel3PrimTracks.OrderedHitsFactoryPSet.GeneratorPSet.checkClusterShape = False 
 
 ### pixel seeds
 import RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi
+from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 primSeeds = RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi.pixelTrackSeeds.clone()
-primSeeds.tripletList = ['pixel3PrimTracks']
+primSeeds.InputCollection = 'pixel3PrimTracks'
 
 ### base trajectory filter
 from RecoTracker.CkfPattern.CkfTrackCandidates_cff import * #also includes both trajectory builders
@@ -69,7 +70,7 @@ globalPrimTracks.useHitsSplitting = True #Vasu's modification
 globalPrimTracks.Fitter = 'KFFittingSmoother' #Vasu's modification
 
 ### paths
-heavyIonTracking = cms.Sequence(pixel3ProtoTracks*pixelVertices*pixel3PrimTracks*primSeeds*primTrackCandidates*globalPrimTracks)
+heavyIonTracking = cms.Sequence(pixel3ProtoTracks*pixel3Vertices*pixel3PrimTracks*primSeeds*primTrackCandidates*globalPrimTracks)
 
 
 
