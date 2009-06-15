@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.12 2009/06/12 13:40:00 amraktad Exp $
+// $Id: FWTableView.cc,v 1.13 2009/06/14 10:28:05 jmuelmen Exp $
 //
 
 // system include files
@@ -517,12 +517,15 @@ FWTableView::toggleShowHide ()
 
 void FWTableView::updateItems ()
 {
+     int selected = m_collection->GetSelected();
      m_collection->RemoveAll();
      for (std::vector<const FWEventItem *>::const_iterator it = m_manager->items().begin(), 
 	       itEnd = m_manager->items().end();
 	  it != itEnd; ++it) {
 	  m_collection->AddEntry((*it)->name().c_str(), it - m_manager->items().begin());
      }
+     if (selected < m_collection->GetNumberOfEntries())
+	  m_collection->Select(selected, false);
 }
 
 void FWTableView::updateEvaluators ()
