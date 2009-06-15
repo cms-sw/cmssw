@@ -17,7 +17,7 @@ ROOTLDFLAGS   = $(shell root-config --ldflags)
 
 
 CPPFLAGS      = -I${INCL}/
-CXX 		= /usr/bin/g++ -g  -D STANDALONE
+CXX 		= /usr/bin/g++ -g  -D STANDALONE -Wall
 CXXFLAGS      = -O -fPIC $(ROOTCFLAGS) 
 LD			= /usr/bin/g++
 LDFLAGS       = $(ROOTLDFLAGS) -rdynamic -D STANDALONE
@@ -90,7 +90,16 @@ ${OBJ}/%.o : %.C %.h
 
 LINKDEF		= $(wildcard ${INCL}/*LinkDef.h)
 #Put the LinkDef.h at the end of the list.
-DICTHDRS        = $(patsubst $(LINKDEF),,$(HDRS)) $(LINKDEF)
+#DICTHDRS        = $(patsubst $(LINKDEF),,$(HDRS)) $(LINKDEF)
+
+DICTHDRS = "interface/ConstrBlock3.h interface/LikelihoodCalculator.h interface/PdfCombiner.h"
+#       interface/RatioFinderResults.h  interface/RscConstrArrayFiller.h  interface/StatisticalPlot.h
+# interface/binomial_intervals.h             interface/ConstrBlockArray.h   interface/LimitCalculator.h       interface/PLScan.h           interface/RscAbsPdfBuilder.h    interface/Rsc.h
+# interface/binomial_noncentral_interval.h   interface/ExclusionBandPlot.h  interface/LimitPlot.h             interface/PLScanPlot.h       interface/RscBaseModel.h        interface/RscMultiModel.h
+# interface/binomial_noncentral_intervals.h  interface/FCCalculator.h       interface/LimitResults.h          interface/PLScanResults.h    interface/RscCatModel.h         interface/RscTool.h
+# interface/Constraint.h                     interface/FCResults.h          interface/Minus2LnQCalculator.h   interface/RatioFinder.h      interface/RscCombinedModel.h    interface/RscTotModel.h
+# interface/ConstrBlock2.h                   interface/LEPBandPlot.h        interface/NLLPenalty.h            interface/RatioFinderPlot.h  interface/RscCompModel.h        interface/StatisticalMethod.h
+
 
 cintdict.cc: $(DICTHDRS)
 	    @echo "Generating dictionary for  ..."
