@@ -14,6 +14,7 @@ g4SimHits.Physics.GFlash = cms.PSet(
     GflashHcalOuter = cms.bool(True),
     GflashHistogram = cms.bool(True),
     GflashHistogramName = cms.string('gflash_histogram.root'),
+    Verbosity = cms.untracked.int32(0),
     bField = cms.double(3.8),
     watcherOn = cms.bool(False),
     tuning_pList = cms.vdouble()

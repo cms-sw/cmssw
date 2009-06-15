@@ -157,12 +157,14 @@ G4bool GflashHadronShowerModel::isFirstInelasticInteraction(const G4FastTrack& f
 G4bool GflashHadronShowerModel::excludeDetectorRegion(const G4FastTrack& fastTrack)
 {
   G4bool isExcluded=false;
+  int verbosity = theParSet.getUntrackedParameter<int>("Verbosity");
   
   //exclude regions where geometry are complicated 
   G4double eta =   fastTrack.GetPrimaryTrack()->GetPosition().pseudoRapidity() ;
   if(fabs(eta) > Gflash::EtaMax[Gflash::kESPM] && fabs(eta) < Gflash::EtaMin[Gflash::kENCA]) {
-    //@@@remove this print statement later
-    std::cout << "GflashHadronShowerModel: excluding region of eta = " << eta << std::endl;
+    if(verbosity>0) {
+      std::cout << "GflashHadronShowerModel: excluding region of eta = " << eta << std::endl;
+    }
     return true;  
   }
   else {
@@ -187,7 +189,7 @@ G4bool GflashHadronShowerModel::excludeDetectorRegion(const G4FastTrack& fastTra
     }
 
     //@@@remove this print statement later
-    if(isExcluded) {
+    if(isExcluded && verbosity > 0) {
       std::cout << "GflashHadronShowerModel: skipping kCalor = " << kCalor << 
 	" DistanceToOut " << distOut << " from (" <<  (postStep->GetPosition()).getRho()/cm << 
 	":" << (postStep->GetPosition()).getZ()/cm << ") of KE = " << fastTrack.GetPrimaryTrack()->GetKineticEnergy()/GeV << std::endl;
