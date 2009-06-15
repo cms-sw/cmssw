@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.74 2009/04/23 07:30:42 mangano Exp $
+ * \version $Id: TrackBase.h,v 1.75 2009/05/18 12:51:14 vlimant Exp $
  *
  */
 
@@ -105,8 +105,8 @@ namespace reco {
     double chi2() const { return chi2_; }
     /// number of degrees of freedom of the fit
     double ndof() const { return ndof_; }
-    /// chi-squared divided by n.d.o.f.
-    double normalizedChi2() const { return chi2_ / ndof_; }
+    /// chi-squared divided by n.d.o.f. (or chi-squared * 1e6 if n.d.o.f. is zero)
+    double normalizedChi2() const { return ndof_ != 0 ? chi2_ / ndof_ : chi2_ * 1e6; }
     /// track electric charge
     int charge() const { return charge_; }
     /// q/p 
