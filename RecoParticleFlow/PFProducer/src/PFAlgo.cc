@@ -1062,7 +1062,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 			      sortedTracks,
 			      reco::PFBlockElement::TRACK,
 			      reco::PFBlock::LINKTEST_ALL );
-   
+
     std::map< unsigned, std::pair<double, unsigned> > associatedEcals;
 
     std::map< unsigned, std::pair<double, double> > associatedPSs;
@@ -1429,7 +1429,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
     /* */
     ////////////////////// TRACKER MUCH LARGER THAN CALO /////////////////////////
-    if ( totalChargedMomentum - caloEnergy > nSigmaTRACK_*Caloresolution ) { 
+    if ( totalChargedMomentum - caloEnergy > nSigmaTRACK_*Caloresolution ) {    
+
       /* 
       cout<<"\tCompare Calo Energy to total charged momentum "<<endl;
       cout<<"\t\tsum p    = "<<totalChargedMomentum<<" +- "<<sqrt(sumpError2)<<endl;
@@ -1560,6 +1561,37 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       }
     }
 
+    // New determination of the calo and track resolution avec track deletion/rescaling.
+    Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta());    
+    Caloresolution *= totalChargedMomentum;
+    Caloresolution = std::sqrt(Caloresolution*Caloresolution + muonHCALError + muonECALError);
+
+    // Check if the charged momentum is still very inconsistent with the calo measurement.
+    // In this case, just drop all tracks from 4th and 5th iteration linked to this block
+    if ( sortedTracks.size() > 1 && 
+	 totalChargedMomentum - caloEnergy > nSigmaTRACK_*Caloresolution ) { 
+      for ( IT it = associatedTracks.begin(); it != associatedTracks.end(); ++it ) { 
+	unsigned iTrack = it->second.first;
+	reco::TrackRef trackref = elements[iTrack].trackRef();
+	if ( !active[iTrack] ) continue;
+	//
+	switch (trackref->algo()) {
+	case TrackBase::ctf:
+	case TrackBase::iter0:
+	case TrackBase::iter1:
+	case TrackBase::iter2:
+	case TrackBase::iter3:
+	  break;
+	case TrackBase::iter4:
+	case TrackBase::iter5:
+	  active[iTrack] = false;	
+	  totalChargedMomentum -= trackref->p();
+	  break;
+	default:
+	  break;
+	}
+      }
+    }
 
     // New determination of the calo and track resolution avec track deletion/rescaling.
     Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta());    

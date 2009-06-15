@@ -275,8 +275,8 @@ PFAlgo debug 0
 
 // Track Quality Cut: Tracks are kept if DPt/Pt < Cut * sigma(Had) 
 // and if nHit >= nHitCut
-particle_flow DPtoverPt_Cut  1.0 1.0 0.8 0.5 0.0
-particle_flow NHit_Cut 3 3 3 6 100
+particle_flow DPtoverPt_Cut  1.0 1.0 0.8 0.5 0.5
+particle_flow NHit_Cut 3 3 3 6 6
 
 // Treatment of muons : 
 // Expected energy in ECAL and HCAL, and RMS

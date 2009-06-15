@@ -34,8 +34,8 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
 
     # Track Quality Cut: Tracks are kept if DPt/Pt < sigma * Cut
     # and if nHit >= cut
-    pf_DPtoverPt_Cut = cms.vdouble(1.0,1.0,0.80,0.50,0.00),
-    pf_NHit_Cut = cms.vuint32(3,3,3,6,100),
+    pf_DPtoverPt_Cut = cms.vdouble(1.0,1.0,0.80,0.50,0.50),
+    pf_NHit_Cut = cms.vuint32(3,3,3,6,6),
                                    
     # Run particle flow at HLT (hence no RecMuons, no GSF tracks)
     usePFatHLT = cms.bool(False),
