@@ -49,6 +49,25 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
   emean_vs_ieta_EH = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
   
 
+  sprintf  (histo, "emean_vs_ieta_E1" );
+  emean_vs_ieta_E1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
+  sprintf  (histo, "emean_vs_ieta_H1" );
+  emean_vs_ieta_H1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
+  sprintf  (histo, "emean_vs_ieta_EH1" );
+  emean_vs_ieta_EH1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
+  
+
+  sprintf  (histo, "CaloTowersTask_map_energy_E" );
+  mapEnergy_E = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+  sprintf  (histo, "CaloTowersTask_map_energy_H");
+  mapEnergy_H = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+  sprintf  (histo, "CaloTowersTask_map_energy_EH" );
+  mapEnergy_EH = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+
+  sprintf  (histo, "CaloTowersTask_map_Nentries" );
+  mapEnergy_N = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+
+
   if( isub == 1 || isub == 0) {
     sprintf (histo, "CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HB") ;
     meEnergyHcalvsEcal_HB    = dbe_->book2D(histo, histo, 500, 0., 500., 500, 0., 500.);
@@ -181,6 +200,35 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
 
 
 CaloTowersValidation::~CaloTowersValidation() {
+
+
+  // mean energies evaluation
+
+    int nx = mapEnergy_N->getNbinsX();    
+    int ny = mapEnergy_N->getNbinsY();
+    float cnorm;
+    float cont;
+
+    for (int i = 1; i <= nx; i++) {
+      for (int j = 1; j <= ny; j++) {
+
+	cnorm   = mapEnergy_N -> getBinContent(i,j);
+        if(cnorm > 0.000001) {
+
+	  // Emean
+	  cont = mapEnergy_E -> getBinContent(i,j) / cnorm ;
+          mapEnergy_E -> setBinContent(i,j,cont);	      
+
+	  cont = mapEnergy_H -> getBinContent(i,j) / cnorm ;
+          mapEnergy_H -> setBinContent(i,j,cont);	      
+
+	  cont = mapEnergy_EH -> getBinContent(i,j) / cnorm ;
+          mapEnergy_EH -> setBinContent(i,j,cont);	      
+
+	}
+      }
+    }
+
    
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
   
@@ -231,11 +279,16 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
   double phimet;
 
   // ieta scan 
-  double partR = 0.3;
+  double partR  = 0.3;
+  double Rmin   = 9999.;
   double Econe  = 0.;
   double Hcone  = 0.;
+  double Ee1    = 0.;
+  double Eh1    = 0.;
   double ieta_MC = 9999;
+  double iphi_MC = 9999;
   double  etaM   = 9999.;
+
 
   // HB   
   double sumEnergyHcal_HB = 0.;
@@ -284,19 +337,25 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
     int iphi = idT.iphi();
 
 
-    // alternative: ietamax -> closest to MC eta  !!!
-    float eta_diff = fabs(eta_MC - etaT);
-    if(eta_diff < etaM) {
-      etaM  = eta_diff; 
-      ieta_MC = ieta; 
-    }
-
-
     double r    = dR(eta_MC, phi_MC, etaT, phiT);
+
     if( r < partR ){
       Econe += eE; 
       Hcone += eH; 
+
+      // closest to MC
+      if(r < Rmin) { 
+        if( fabs(eta_MC) < 3.0 && (ieta > 29 || ieta < -29)) {;}
+	else {    
+	  Rmin = r;
+	  ieta_MC = ieta; 
+	  iphi_MC = iphi; 
+	  Ee1     = eE;
+	  Eh1     = eH;
+	}
+      }
     }
+      
 
     if((isub == 0 || isub == 1) 
        && (fabs(etaT) <  etaMax[0] && fabs(etaT) >= etaMin[0] )) {
@@ -381,8 +440,16 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
   emean_vs_ieta_H  -> Fill(double(ieta_MC), Hcone); 
   emean_vs_ieta_EH -> Fill(double(ieta_MC), Econe+Hcone); 
   
+  emean_vs_ieta_E1  -> Fill(double(ieta_MC), Ee1); 
+  emean_vs_ieta_H1  -> Fill(double(ieta_MC), Eh1); 
+  emean_vs_ieta_EH1 -> Fill(double(ieta_MC), Ee1+Eh1); 
 
- 
+  mapEnergy_E -> Fill(double(ieta_MC), double(iphi_MC), Ee1); 
+  mapEnergy_H -> Fill(double(ieta_MC), double(iphi_MC), Eh1); 
+  mapEnergy_EH -> Fill(double(ieta_MC), double(iphi_MC), Ee1+Eh1); 
+  mapEnergy_N  -> Fill(double(ieta_MC), double(iphi_MC), 1.); 
+
+
   if(isub == 0 || isub == 1) {
     met    = sqrt(metx_HB*metx_HB + mety_HB*mety_HB);
     Vector metv(metx_HB,mety_HB,metz_HB);

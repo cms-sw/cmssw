@@ -57,6 +57,16 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   MonitorElement*  emean_vs_ieta_H;
   MonitorElement*  emean_vs_ieta_EH;
 
+  MonitorElement*  emean_vs_ieta_E1;
+  MonitorElement*  emean_vs_ieta_H1;
+  MonitorElement*  emean_vs_ieta_EH1;
+
+  // Global maps
+  MonitorElement*  mapEnergy_E;
+  MonitorElement*  mapEnergy_H;
+  MonitorElement*  mapEnergy_EH;
+  MonitorElement*  mapEnergy_N;
+
   // HB
   MonitorElement* meEnergyHcalvsEcal_HB;
   MonitorElement* meEnergyHO_HB; 
