@@ -170,7 +170,7 @@ int ZdcShowerLibrary::getEnergyFromLibrary(G4ThreeVector hitPoint, G4ThreeVector
   energy =energy/GeV;
 
   LogDebug("ZdcShower") 
-    //std::cout
+  //std::cout
     <<"\n ZdcShowerLibrary::getEnergyFromLibrary input/output variables:"
     <<" phi: "<<59.2956*momDir.phi()
     <<" theta: "<<59.2956*momDir.theta()
@@ -184,7 +184,7 @@ int ZdcShowerLibrary::getEnergyFromLibrary(G4ThreeVector hitPoint, G4ThreeVector
     <<" partID: "<<parCode;
   //std::cout<<std::endl;
     
-
+  // these varables are not used for now
   //float phi   = 59.2956*momDir.phi();
   //float theta = 59.2956*momDir.theta();
   //float zin = hitPoint.z();
@@ -192,6 +192,9 @@ int ZdcShowerLibrary::getEnergyFromLibrary(G4ThreeVector hitPoint, G4ThreeVector
   //int iside = (side)? 1 : 2;
      
   int iparCode  = encodePartID(parCode);
+  
+  energy = 100;
+  iparCode = 1;
 
   double eav = 0.;
   double esig = 0.;
@@ -201,22 +204,29 @@ int ZdcShowerLibrary::getEnergyFromLibrary(G4ThreeVector hitPoint, G4ThreeVector
   float yin = hitPoint.y(); 
   float fact = 0.;
 
-  if(section == 2){    
-    if(channel == 1)fact = 0.40;
-    if(channel == 2)fact = 0.28;
-    if(channel == 3)fact = 0.24;
-    if(channel == 4)fact = 0.08;
+  if(section == 1 && iparCode !=0){
+    if(channel < 5 )
+      if(((theXChannelBoundaries[channel-1])< (xin + X0)) && ((xin + X0)<= theXChannelBoundaries[channel]))fact= 0.18;
+    if(channel ==5 )
+      if(theXChannelBoundaries[channel-1]< xin + X0)fact = 0.18;
   }
- 
-  if(section == 1){							
+
+  if(section == 2 && iparCode !=0){    
+    if(channel == 1)fact = 0.34;
+    if(channel == 2)fact = 0.24;
+    if(channel == 3)fact = 0.17;
+    if(channel == 4)fact = 0.07;
+  }
+  if(section == 1 && iparCode ==0){							
     if(channel < 5 )
       if(((theXChannelBoundaries[channel-1])< (xin + X0)) && ((xin + X0)<= theXChannelBoundaries[channel]))fact= 1.;
     if(channel ==5 )
       if(theXChannelBoundaries[channel-1]< xin + X0)fact = 1.0;
   }
+
   //change to cm for parametrization
-  yin = fabs(yin/cm);
-  xin = fabs(xin/cm);
+  yin = yin/cm;
+  xin = xin/cm;
 
   if (iparCode==0){          
     eav = ((((((-0.0002*xin-2.0e-13)*xin+0.0022)*xin+1.0e-11)*xin-0.0217)*xin-3.0e-10)*xin+1.0028)*
