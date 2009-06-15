@@ -21,9 +21,9 @@
 #include <DataFormats/EgammaCandidates/interface/Photon.h>
 #include <DataFormats/EgammaCandidates/interface/PhotonFwd.h>
 
-#include "DataFormats/EgammaCandidates/interface/PhotonIDFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonID.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonIDAssociation.h"
+// not for 3_1 //#include "DataFormats/EgammaCandidates/interface/PhotonIDFwd.h"
+// not for 3_1 //#include "DataFormats/EgammaCandidates/interface/PhotonID.h"
+// not for 3_1 //#include "DataFormats/EgammaCandidates/interface/PhotonIDAssociation.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -154,12 +154,12 @@ bool HiggsTo2GammaSkim::filter(edm::Event& event, const edm::EventSetup& setup )
 
   //ADDED
   // grab PhotonId objects  
-  edm::Handle<reco::PhotonIDAssociationCollection> photonIDMapColl;
-  event.getByLabel("PhotonIDProd", "PhotonAssociatedID", photonIDMapColl);
+  // not for 3_1 //edm::Handle<reco::PhotonIDAssociationCollection> photonIDMapColl;
+  // not for 3_1 //event.getByLabel("PhotonIDProd", "PhotonAssociatedID", photonIDMapColl);
 
   const reco::PhotonCollection* phoCollection = photonHandle.product();
   //reco::PhotonCollection::const_iterator photons;
-  const reco::PhotonIDAssociationCollection *phoMap = photonIDMapColl.product();
+  // not for 3_1 //const reco::PhotonIDAssociationCollection *phoMap = photonIDMapColl.product();
 
   if ( photonHandle.isValid() ) {
   
@@ -175,9 +175,9 @@ bool HiggsTo2GammaSkim::filter(edm::Event& event, const edm::EventSetup& setup )
       
       edm::Ref<reco::PhotonCollection> photon(photonHandle, i);
       
-      reco::PhotonIDAssociationCollection::const_iterator photonIter = phoMap->find(photon);
+      // not for 3_1 //reco::PhotonIDAssociationCollection::const_iterator photonIter = phoMap->find(photon);
       //const reco::PhotonRef &pho = photonIter->key;
-      const reco::PhotonIDRef &photonId = photonIter->val;
+      // not for 3_1 //const reco::PhotonIDRef &photonId = photonIter->val;
 
       float photonEt       = photon->et();
       //float superClusterEt = (photon->superCluster()->energy())/(cosh(photon->superCluster()->position().eta()));
@@ -186,17 +186,24 @@ bool HiggsTo2GammaSkim::filter(edm::Event& event, const edm::EventSetup& setup )
       bool passCutsLoose = ( photonEt >photonLooseMinPt ) && 
 	( fabs(photon->eta()) < photonLooseMaxEta ) &&
 	( photon->hadronicOverEm() < photonLooseMaxHoE  || photonLooseMaxHoE < 0. )  &&
-	((photonId)->isolationEcalRecHit() < photonLooseMaxEIsol || photonLooseMaxEIsol<0.) &&
-	((photonId)->isolationHcalRecHit() < photonLooseMaxHIsol || photonLooseMaxHIsol<0.) &&
-	((photonId)->isolationHollowTrkCone() < photonLooseMaxTIsol || photonLooseMaxTIsol<0.) 
+
+	//Change for 3_1 //((photonId)->isolationEcalRecHit() < photonLooseMaxEIsol || photonLooseMaxEIsol<0.) &&
+	//Change for 3_1 //((photonId)->isolationHcalRecHit() < photonLooseMaxHIsol || photonLooseMaxHIsol<0.) &&
+	//Change for 3_1 //((photonId)->isolationHollowTrkCone() < photonLooseMaxTIsol || photonLooseMaxTIsol<0.) 
+	(photon->ecalRecHitSumEtConeDR03() < photonLooseMaxEIsol || photonLooseMaxEIsol<0.) &&
+	(photon->hcalTowerSumEtConeDR03() < photonLooseMaxHIsol || photonLooseMaxHIsol<0.) &&
+	(photon->trkSumPtHollowConeDR03() < photonLooseMaxTIsol || photonLooseMaxTIsol<0.) 
 	;
 
       bool passCutsTight = ( photonEt >photonTightMinPt ) && 
 	( fabs(photon->eta()) < photonTightMaxEta ) &&
 	( photon->hadronicOverEm() < photonTightMaxHoE  || photonTightMaxHoE < 0. )  &&
-	((photonId)->isolationEcalRecHit() < photonTightMaxEIsol || photonTightMaxEIsol<0.) &&
-	((photonId)->isolationHcalRecHit() < photonTightMaxHIsol || photonTightMaxHIsol<0.) &&
-	((photonId)->isolationHollowTrkCone() < photonTightMaxTIsol || photonTightMaxTIsol<0.) 
+	//Change for 3_1 //((photonId)->isolationEcalRecHit() < photonTightMaxEIsol || photonTightMaxEIsol<0.) &&
+	//Change for 3_1 //((photonId)->isolationHcalRecHit() < photonTightMaxHIsol || photonTightMaxHIsol<0.) &&
+	//Change for 3_1 //((photonId)->isolationHollowTrkCone() < photonTightMaxTIsol || photonTightMaxTIsol<0.) 
+	(photon->ecalRecHitSumEtConeDR03() < photonTightMaxEIsol || photonTightMaxEIsol<0.) &&
+	(photon->hcalTowerSumEtConeDR03() < photonTightMaxHIsol || photonTightMaxHIsol<0.) &&
+	(photon->trkSumPtHollowConeDR03() < photonTightMaxTIsol || photonTightMaxTIsol<0.) 
 	;
 
 
@@ -210,12 +217,16 @@ bool HiggsTo2GammaSkim::filter(edm::Event& event, const edm::EventSetup& setup )
       if(debug) {
 	if ( passCutsTight ) {
 	  cout<<"Tight ";
-	  cout<<"photon: et, eta, hoe, isoe, isoh, isot "<<photon->et()<<" "<<photon->eta()<<" "<< photon->hadronicOverEm()<<" "<<(photonId)->isolationEcalRecHit()<<" "<<(photonId)->isolationHcalRecHit()<<" "<<(photonId)->isolationHollowTrkCone()<<endl;
+	  cout<<"photon: et, eta, hoe, isoe, isoh, isot "<<photon->et()<<" "<<photon->eta()<<" "<< photon->hadronicOverEm()<<" "
+	    //Change for 3_1 //<<(photonId)->isolationEcalRecHit()<<" "<<(photonId)->isolationHcalRecHit()<<" "<<(photonId)->isolationHollowTrkCone()<<endl;
+	      <<photon->ecalRecHitSumEtConeDR03()<<" "<<photon->hcalTowerSumEtConeDR03()<<" "<<photon->trkSumPtHollowConeDR03()<<endl;
 	}
 	else {
 	  if ( passCutsLoose ) {
 	    cout<<"Loose ";
-	    cout<<"photon: et, eta, hoe, isoe, isoh, isot "<<photon->et()<<" "<<photon->eta()<<" "<< photon->hadronicOverEm()<<" "<<(photonId)->isolationEcalRecHit()<<" "<<(photonId)->isolationHcalRecHit()<<" "<<(photonId)->isolationHollowTrkCone()<<endl;
+	    cout<<"photon: et, eta, hoe, isoe, isoh, isot "<<photon->et()<<" "<<photon->eta()<<" "<< photon->hadronicOverEm()<<" "
+	      //Change for 3_1 //<<(photonId)->isolationEcalRecHit()<<" "<<(photonId)->isolationHcalRecHit()<<" "<<(photonId)->isolationHollowTrkCone()<<endl;
+		<<photon->ecalRecHitSumEtConeDR03()<<" "<<photon->hcalTowerSumEtConeDR03()<<" "<<photon->trkSumPtHollowConeDR03()<<endl;
 	  }
 	}
       }

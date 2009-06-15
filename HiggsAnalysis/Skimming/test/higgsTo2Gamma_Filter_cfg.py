@@ -9,51 +9,14 @@ process.load('FWCore/MessageService/MessageLogger_cfi')
 
 process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-
-#new for photonid
-process.load("RecoEgamma.PhotonIdentification.photonId_cff")
-process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
-
-process.GlobalTag.globaltag = 'STARTUP_V11::All'
+process.GlobalTag.globaltag = 'IDEAL_31X::All'
 
 # Complete Skim analysis
 process.load('HiggsAnalysis/Skimming/higgsTo2Gamma_Sequences_cff')
 
 process.eca = cms.EDAnalyzer("EventContentAnalyzer")
 
-process.photonIDAna = cms.EDAnalyzer("PhotonIDSimpleAnalyzer",
-                                         outputFile  = cms.string('PhoIDHists.root'),
-
-                                         # Variables that must be passed before a photon candidate (a SuperCluster)
-                                         #  gets placed into the histograms.  Basic, simple cuts.
-                                         # Minimum Et
-                                         minPhotonEt     = cms.double(10.0),
-                                         # Minimum and max abs(eta)
-                                         minPhotonAbsEta = cms.double(0.0),
-                                         maxPhotonAbsEta = cms.double(3.0),
-                                         # Minimum R9 = E(3x3) / E(SuperCluster)
-                                         minPhotonR9     = cms.double(0.3),
-                                         # Maximum HCAL / ECAL Energy
-                                         maxPhotonHoverE = cms.double(0.2),
-
-                                         # Optionally produce a TTree of photons (set to False or True).
-                                         # This slows down the analyzer, and if running
-                                         # over 100,000+ events, this can create a large ROOT file
-                                         createPhotonTTree  = cms.bool(True)
-                                     )
-
-process.PhotonIDProd.EcalRecHitInnerRadius = cms.double(0.08)
-process.PhotonIDProd.EcalRecHitEtaSlice = cms.double(0.05)
-process.PhotonIDProd.EcalRecThresh = cms.double(0.1)
-process.PhotonIDProd.isolationtrackThreshold = cms.double(1.5)
-
-#process.p = cms.Path(process.photonIDSequence*process.photonIDAna)
-
-#process.hTo2GammaSkimPath = cms.Path(process.higgsTo2GammaSequence+process.eca)
-process.hTo2GammaSkimPath = cms.Path(process.photonIDSequence*process.photonIDAna+process.higgsTo2GammaSequence)
-
+process.hTo2GammaSkimPath = cms.Path(process.higgsTo2GammaSequence)
 
 # Output definition
 process.output = cms.OutputModule("PoolOutputModule",
@@ -72,12 +35,11 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(500) )
 process.source = cms.Source("PoolSource",
                             debugFlag = cms.untracked.bool(True),
                             debugVebosity = cms.untracked.uint32(10),
-
                             fileNames = cms.untracked.vstring(
-     '/store/relval/CMSSW_2_2_10/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP_V11_v1/0003/4A892733-043E-DE11-B7A6-001D09F24448.root',
-     '/store/relval/CMSSW_2_2_10/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP_V11_v1/0002/98518B50-903D-DE11-A8C6-001D09F24024.root',
-     '/store/relval/CMSSW_2_2_10/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP_V11_v1/0002/34DB16FC-8D3D-DE11-A97C-001D09F2A465.root',
-     '/store/relval/CMSSW_2_2_10/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP_V11_v1/0002/1AF6C5B2-8B3D-DE11-BC0D-001D09F291D2.root'
+    '/store/relval/CMSSW_3_1_0_pre7/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP_31X_v1/0004/1411F38E-E641-DE11-A3FB-001D09F2B2CF.root',
+    '/store/relval/CMSSW_3_1_0_pre7/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP_31X_v1/0003/B252A5A3-7741-DE11-B4A2-001D09F2983F.root',
+    '/store/relval/CMSSW_3_1_0_pre7/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP_31X_v1/0003/40359B99-7541-DE11-B614-001D09F28C1E.root',
+    '/store/relval/CMSSW_3_1_0_pre7/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP_31X_v1/0003/0CC3E01B-7741-DE11-8A5F-001D09F2841C.root'
                     )
                             
                             )
@@ -116,14 +78,12 @@ process.source = cms.Source("PoolSource",
 #process.higgsTo2GammaFilter.nPhotonTightMin = cms.int32(1)
 #process.higgsTo2GammaFilter.DebugHiggsTo2GammaSkim = cms.bool(False)
 
-process.higgsTo2GammaFilter.DebugHiggsTo2GammaSkim = cms.bool(True)
-
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
 )
 
-# Endpath, Uncomment to store the output
-# process.o = cms.EndPath ( process.output )
+# Endpath
+process.o = cms.EndPath ( process.output )
 
 
 
