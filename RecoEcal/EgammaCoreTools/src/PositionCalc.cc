@@ -144,9 +144,16 @@ PositionCalc::Calculate_Location( const std::vector< std::pair<DetId, float> >& 
 	    EcalRecHitCollection::const_iterator iR ( iRecHits->find( dId ) ) ;
 	    const double e_j ( iR->energy() ) ;
 
-	    const double weight ( param_LogWeighted_ ? 
-				  std::max( 0., param_W0_ + log( e_j/eTot) ) :
-				  e_j/eTot ) ;
+	    double weight = 0;
+            if ( param_LogWeighted_ ) {
+                    if ( e_j > 0 ) {
+                            weight = std::max( 0., param_W0_ + log(e_j/eTot) );
+                    } else {
+                            weight = 0;
+                    }
+            } else {
+                    weight = e_j/eTot;
+            }
     
 	    const CaloCellGeometry* cell ( iSubGeom->getGeometry( dId ) ) ;
 
