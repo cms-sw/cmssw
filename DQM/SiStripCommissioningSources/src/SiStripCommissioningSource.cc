@@ -989,8 +989,6 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type, const e
           dir << sistrip::root_ << sistrip::dir_
               << sistrip::detectorView_ << sistrip::dir_
               << iconn->detId();
-SiStripDetId myId(iconn->detId());
-std::cout << myId.det() << std::endl;
         } else {
           edm::LogWarning(mlDqmSource_)
             << "[SiStripCommissioningSource::" << __func__ << "]"
