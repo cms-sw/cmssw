@@ -730,7 +730,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 }
 
 void MultiTrackValidator::endRun(Run const&, EventSetup const&) {
-
+  if(!skipHistoFit){
   int w=0;
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
@@ -877,6 +877,7 @@ void MultiTrackValidator::endRun(Run const&, EventSetup const&) {
       fillPlotFromVector(h_assoc2dz[w],totASS2_dz[w]);
       w++;
     }
+  }
   }
   if ( out.size() != 0 && dbe_ ) dbe_->save(out);
 }

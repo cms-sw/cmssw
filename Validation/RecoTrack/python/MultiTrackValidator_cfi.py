@@ -15,7 +15,13 @@ multiTrackValidator = cms.EDFilter("MultiTrackValidator",
     beamSpot = cms.InputTag("offlineBeamSpot"),
     sim = cms.string('g4SimHits'),
     outputFile = cms.string(''),
+    # set true if you do not want that MTV launch an exception
+    # if the track collectio is missing (e.g. HLT):
     ignoremissingtrackcollection=cms.untracked.bool(False),
+    #
+    # set true if you do not want efficiency fakes and resolution fit
+    # to be calculated in the end run (for automated validation):
+    skipHistoFit=cms.untracked.bool(False),
     associators = cms.vstring('TrackAssociatorByHitsRecoDenom'),
     useInvPt = cms.bool(False),
     dirName = cms.string('RecoTrackV/Track/'),
@@ -63,5 +69,3 @@ multiTrackValidator = cms.EDFilter("MultiTrackValidator",
     # if *not* uses associators, the TP-RecoTrack maps has to be specified 
     UseAssociators = cms.bool(True)
 )
-
-

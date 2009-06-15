@@ -73,7 +73,7 @@ multiTrackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                         cms.InputTag("cutsRecoTracksFifth"),
                                         cms.InputTag("cutsRecoTracksFifthHp")
                                         )
-
+multiTrackValidator.skipHistoFit=cms.untracked.bool(True)
 
 tracksValidation = cms.Sequence(cutsRecoTracksHp*
                                 cutsRecoTracksZero*
