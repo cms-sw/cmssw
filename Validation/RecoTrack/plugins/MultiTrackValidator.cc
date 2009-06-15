@@ -730,12 +730,13 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 }
 
 void MultiTrackValidator::endRun(Run const&, EventSetup const&) {
-  if(!skipHistoFit){
+
   int w=0;
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
 
       //resolution of track params: get sigma from 2D histos
+      if(!skipHistoFit){
       FitSlicesYTool fsyt_dxy(dxyres_vs_eta[w]);
       fsyt_dxy.getFittedSigmaWithError(h_dxyrmsh[w]);
       fsyt_dxy.getFittedMeanWithError(h_dxymeanh[w]);
@@ -844,7 +845,7 @@ void MultiTrackValidator::endRun(Run const&, EventSetup const&) {
       fillPlotFromVectors(h_fake_vs_dxy[w],totASS2_dxy[w],totREC_dxy[w],"fakerate");
       fillPlotFromVectors(h_effic_vs_dz[w],totASS_dz[w],totSIM_dz[w],"effic");
       fillPlotFromVectors(h_fake_vs_dz[w],totASS2_dz[w],totREC_dz[w],"fakerate");
-
+      }
 
       fillPlotFromVector(h_recoeta[w],totRECeta[w]);
       fillPlotFromVector(h_simuleta[w],totSIMeta[w]);
@@ -878,7 +879,7 @@ void MultiTrackValidator::endRun(Run const&, EventSetup const&) {
       w++;
     }
   }
-  }
+  
   if ( out.size() != 0 && dbe_ ) dbe_->save(out);
 }
 
