@@ -74,7 +74,16 @@ class Iov :
            for elem in self.__me.elements :
                ret.append( (elem.payloadToken(), elem.since(), elem.till(),0))
            return ret
-
+    
+       def payloadSummaries(self):
+           ret = []
+           for elem in self.__me.elements:
+              payloadtoken=elem.payloadToken()
+              exec('import '+self.__db.moduleName(payloadtoken)+' as Plug')
+              payload = Plug.Object(self.__db.payLoad(payloadtoken))
+              ret.append(payload.summary())
+           return ret
+           
        def summaries(self) :
            if (self.__modName==0) : return ["no plugin for "  + self.__tag+" no summaries"]
            exec('import '+self.__modName+' as Plug')
@@ -105,6 +114,7 @@ class Iov :
            return self.__me.revision()
        def payloadContainerName(self):
            return self.__me.payloadContainerName()
+    
 class PayLoad :
     def __init__(self, db, token) :
         self.__db = db
