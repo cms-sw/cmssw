@@ -3,10 +3,6 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
-#include <cmath>
-
-const double pi = M_PI, pi2 = 2 * M_PI;
-
 using namespace reco;
 
 GsfElectron::GsfElectron()

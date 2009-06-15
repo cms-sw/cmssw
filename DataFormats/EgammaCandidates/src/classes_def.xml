@@ -1,4 +1,5 @@
 <lcgdict>
+
   <class name="reco::PhotonCore"/>
   <class name="reco::Photon"/>
   <class name="reco::Conversion"/>
@@ -47,12 +48,15 @@
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::Electron>,reco::Electron,edm::refhelper::FindUsingAdvance<std::vector<reco::Electron>,reco::Electron> > >"/>
 
 
- <class name="edm::RefToBase<reco::Electron>" />
-<class name="edm::reftobase::IndirectHolder<reco::Electron>" />
-<class name="edm::RefToBaseProd<reco::Electron>" />
-<class name="edm::RefToBaseVector<reco::Electron>" />
-<class name="edm::Wrapper<edm::RefToBaseVector<reco::Electron> >" />
-<class name="edm::reftobase::BaseVectorHolder<reco::Electron>" />
+  <class name="edm::RefToBase<reco::Electron>" />
+  <class name="edm::reftobase::IndirectHolder<reco::Electron>" />
+  <class name="edm::RefToBaseProd<reco::Electron>" />
+  <class name="edm::RefToBaseVector<reco::Electron>" />
+  <class name="edm::Wrapper<edm::RefToBaseVector<reco::Electron> >" />
+  <class name="edm::reftobase::BaseVectorHolder<reco::Electron>" />
+
+
+
 
 
   <class name="reco::GsfElectronCore"/>
@@ -91,6 +95,13 @@
   <class name="edm::RefVector<std::vector<reco::GsfElectron>,reco::GsfElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectron>,reco::GsfElectron> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::GsfElectron>,reco::GsfElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectron>,reco::GsfElectron> > >"/>
 
+  <class name="edm::Ptr<reco::GsfElectron>" />
+  <class name="edm::Wrapper<edm::Ptr<reco::GsfElectron> >" />
+  <class name="edm::PtrVector<reco::GsfElectron>" />
+  <class name="edm::Wrapper<edm::PtrVector<reco::GsfElectron> >" />
+
+
+
 
 
   <class name="std::vector<reco::Conversion>"/>
@@ -99,10 +110,6 @@
   <class name="edm::RefProd<std::vector<reco::Conversion> >"/>
   <class name="edm::RefVector<std::vector<reco::Conversion>,reco::Conversion,edm::refhelper::FindUsingAdvance<std::vector<reco::Conversion>,reco::Conversion> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::Conversion>,reco::Conversion,edm::refhelper::FindUsingAdvance<std::vector<reco::Conversion>,reco::Conversion> > >"/>
- 
-  
- 
-  
 
 
   <class name="std::vector<reco::SiStripElectron>"/>
@@ -161,15 +168,11 @@
   <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::PhotonRefVector>" />
   <class name="edm::reftobase::RefVectorHolder<reco::PhotonRefVector>" />
 
-
-
   <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::Photon>,edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,unsigned int> >">
      <field name="transientMap_" transient="true" />
   </class>
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Photon> >,edm::RefProd<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > > >" />
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<reco::Photon>,edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,unsigned int> > >" />
-
-  
  
 </lcgdict>
 

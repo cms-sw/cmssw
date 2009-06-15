@@ -1,52 +1,54 @@
 //
-// $Id: classes.h,v 1.31 2009/03/20 22:59:17 chamont Exp $
+// $Id: classes.h,v 1.32 2009/03/24 18:04:00 nancy Exp $
 //
-#include "DataFormats/Common/interface/Wrapper.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "Rtypes.h" 
-#include "Math/Cartesian3D.h" 
-#include "Math/Polar3D.h" 
-#include "Math/CylindricalEta3D.h" 
-#include "Math/PxPyPzE4D.h" 
-#include <boost/cstdint.hpp> 
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h" 
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/Common/interface/RefProd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Conversion.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
-#include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
-#include "DataFormats/CLHEP/interface/Migration.h"
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonIsolationAssociation.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronIsoCollection.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronIsoNumCollection.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonPi0DiscriminatorAssociation.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonCandidateAssociation.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
+#include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/CLHEP/interface/Migration.h"
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/Common/interface/Ptr.h"
+#include "DataFormats/Common/interface/PtrVector.h"
+#include "Rtypes.h"
+#include "Math/Cartesian3D.h"
+#include "Math/Polar3D.h"
+#include "Math/CylindricalEta3D.h"
+#include "Math/PxPyPzE4D.h"
+#include <boost/cstdint.hpp>
 
 
 namespace {
+
   struct dictionary {
 
-
-    reco::PhotonCoreCollection v0;
+	reco::PhotonCoreCollection v0;
     edm::Wrapper<reco::PhotonCoreCollection> w0;
     edm::Ref<reco::PhotonCoreCollection> r0;
     edm::RefProd<reco::PhotonCoreCollection> rp0;
@@ -117,15 +119,11 @@ namespace {
     edm::RefProd<reco::GsfElectronCollection> rp4;
     edm::Wrapper<edm::RefVector<reco::GsfElectronCollection> > rv4;
 
-
-
-
     reco::SiStripElectronCollection v5;
     edm::Wrapper<reco::SiStripElectronCollection> w5;
     edm::Ref<reco::SiStripElectronCollection> r5;
     edm::RefProd<reco::SiStripElectronCollection> rp5;
     edm::Wrapper<edm::RefVector<reco::SiStripElectronCollection> > rv5;
-
 
     reco::ConversionCollection v6;
     edm::Wrapper<reco::ConversionCollection> w6;
@@ -175,5 +173,15 @@ namespace {
 
     edm::Wrapper<reco::PhotonCandidateAssociation> pca1;
 
-  };
-}
+   } ;
+
+  struct ptr
+   {
+    edm::Ptr<reco::GsfElectron>                         p_gsfElectron ;
+    edm::Wrapper<edm::Ptr<reco::GsfElectron> >          w_p_gsfElectron ;
+
+    edm::PtrVector<reco::GsfElectron>                   pv_gsfElectron ;
+    edm::Wrapper<edm::PtrVector<reco::GsfElectron> >    w_pv_gsfElectron ;
+   } ;
+
+ }
