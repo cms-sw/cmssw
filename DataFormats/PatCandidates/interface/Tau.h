@@ -1,5 +1,5 @@
 //
-// $Id: Tau.h,v 1.22 2009/03/26 10:54:35 veelken Exp $
+// $Id: Tau.h,v 1.23 2009/04/09 12:01:40 veelken Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -17,7 +17,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Christophe Delaere, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Tau.h,v 1.22 2009/03/26 10:54:35 veelken Exp $
+  \version  $Id: Tau.h,v 1.23 2009/04/09 12:01:40 veelken Exp $
 */
 
 
@@ -209,6 +209,8 @@ namespace pat {
       // ---- methods for tau ID ----
       /// Returns a specific tau ID associated to the pat::Tau given its name
       /// For cut-based IDs, the value is 1.0 for good, 0.0 for bad.
+      /// The names are defined within the configuration parameterset "tauIDSources"
+      /// in PhysicsTools/PatAlgos/python/producersLayer1/tauProducer_cfi.py .
       /// Note: an exception is thrown if the specified ID is not available
       float tauID(const std::string & name) const;
       /// Returns true if a specific ID is available in this pat::Tau
