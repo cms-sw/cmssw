@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.2 2008/07/07 15:04:55 yilmaz Exp $
+// $Id: CentralityProducer.cc,v 1.4 2009/01/09 10:23:20 saout Exp $
 //
 //
 
@@ -46,7 +46,7 @@
 using namespace std;
 
 //
-// class decleration
+// class declaration
 //
 
 class CentralityProducer : public edm::EDProducer {
@@ -142,7 +142,7 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    if(genLevel_){
      Handle<HepMCProduct> mc;
-     iEvent.getByLabel("source",mc);   
+     iEvent.getByLabel("generator",mc);   
      evt=mc->GetEvent();
      
      HepMC::GenEvent::particle_const_iterator begin = evt->particles_begin();
