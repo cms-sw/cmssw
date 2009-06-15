@@ -188,13 +188,15 @@ std::vector<DetId> EcalTrigTowerConstituentsMap::constituentsOf(const EcalTrigTo
       //--------------------
       // Ecal Endcap
       //--------------------
-      DetId myId=wrapEcalTrigTowerDetId(id);  
+      //DetId myId=wrapEcalTrigTowerDetId(id);  
       EcalTowerMap_by_towerDetId::const_iterator lb,ub;
-      boost::tuples::tie(lb,ub)=get<1>(m_items).equal_range(myId);
+      //boost::tuples::tie(lb,ub)=get<1>(m_items).equal_range(myId);
+      boost::tuples::tie(lb,ub)=get<1>(m_items).equal_range(id);
       while (lb!=ub)
 	{
-	  EEDetId mappedId((*lb).cell);
-	  items.push_back(changeEEDetIdQuadrantAndZ(mappedId,id.iquadrant(),id.zside()));
+	  //EEDetId mappedId((*lb).cell);
+	  //items.push_back(changeEEDetIdQuadrantAndZ(mappedId,id.iquadrant(),id.zside()));
+	  items.push_back((*lb).cell);
 	  ++lb;
 	}
     }
