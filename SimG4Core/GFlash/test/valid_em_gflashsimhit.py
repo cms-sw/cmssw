@@ -1,67 +1,76 @@
 import FWCore.ParameterSet.Config as cms
 
+from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
+
 process = cms.Process("PROD")
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
+
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
-process.MessageLogger = cms.Service("MessageLogger",
-    cout = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
-    ),
-    destinations = cms.untracked.vstring('cout')
-)
-
-process.Timing = cms.Service("Timing")
-
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        g4SimHits = cms.untracked.uint32(9876),
-        VtxSmeared = cms.untracked.uint32(12345)
+    saveFileName = cms.untracked.string(''),
+    theSource = cms.PSet(
+        initialSeed = cms.untracked.uint32(7824367),
+        engineName = cms.untracked.string('HepJamesRandom')
     ),
-    sourceSeed = cms.untracked.uint32(98765)
+    generator = cms.PSet(
+        initialSeed = cms.untracked.uint32(123456789),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    VtxSmeared = cms.PSet(
+        initialSeed = cms.untracked.uint32(98765432),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    g4SimHits = cms.PSet(
+        initialSeed = cms.untracked.uint32(11),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    SimEcalTBG4Object = cms.PSet(
+        initialSeed = cms.untracked.uint32(12),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    mix = cms.PSet(
+        initialSeed = cms.untracked.uint32(12345),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    simEcalUnsuppressedDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
 )
 
-process.source = cms.Source("FlatRandomEGunSource",
-    PGunParameters = cms.untracked.PSet(
-        PartID = cms.untracked.vint32(11),
-        MinEta = cms.untracked.double(-1.0),
-        MaxEta = cms.untracked.double(1.0),
-        MinPhi = cms.untracked.double(-3.14159265359),
-        MaxPhi = cms.untracked.double(3.14159265359),
-        MinE = cms.untracked.double(20.0),
-        MaxE = cms.untracked.double(20.0)
+process.randomEngineStateProducer = cms.EDProducer("RandomEngineStateProducer")
+process.source = cms.Source("EmptySource")
+
+process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    PGunParameters = cms.PSet(
+        PartID = cms.vint32(11),
+        MinE = cms.double(50.001),
+        MaxE = cms.double(49.999),
+        MinEta = cms.double(-1.0),
+        MaxEta = cms.double(1.0),
+        MinPhi = cms.double(-3.14159265359),
+        MaxPhi = cms.double(3.14159265359)
     ),
-    Verbosity = cms.untracked.int32(0),
-    AddAntiParticle = cms.untracked.bool(False)                        
+    Verbosity = cms.untracked.int32(0), ## set to 1 (or greater)  for printouts
+    psethack = cms.string('single electron'),
+    AddAntiParticle = cms.bool(False),
 )
 
 process.load("SimG4Core.GFlash.cmsGflashGeometryXML_cfi")
+process.load("SimG4Core.GFlash.Gflash_cfi")
 
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/GFlash'
-process.g4SimHits.Physics.GFlash = cms.PSet(
-    GflashHadronPhysics = cms.string('QGSP_BERT'),
-    GflashEMShowerModel = cms.bool(True),
-    GflashHadronShowerModel = cms.bool(True),
-    GflashHistogram = cms.bool(True),
-    GflashHistogramName = cms.string('gflash_em.root'),
-    bField = cms.double(3.8),
-    watcherOn = cms.bool(False),
-    tuning_pList = cms.vdouble()
-)
-
+process.Timing = cms.Service("Timing")
 
 process.o1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('sim_gflash_em.root')
 )
 
-process.p1 = cms.Path(process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
-
-
