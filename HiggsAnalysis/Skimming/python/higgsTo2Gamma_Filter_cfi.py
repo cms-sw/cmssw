@@ -13,20 +13,36 @@ higgsTo2GammaFilter = cms.EDFilter("HiggsTo2GammaSkim",
     # Pt threshold for photons
     #photon1MinimumPt = cms.double(10.0)
 
+   #old
+   #nPhotonLooseMin = cms.int32(2),
+   #nPhotonTightMin = cms.int32(0),
+   #photonLooseMinPt = cms.double(10.0),
+   #photonTightMinPt = cms.double(15.0),
+   #photonLooseMaxEta = cms.double(3.1),
+   #photonTightMaxEta = cms.double(2.6),
+   #photonLooseMaxHoE = cms.double(-1.0),
+   #photonTightMaxHoE = cms.double(0.2),
+   #photonLooseMaxHIsol = cms.double(-1.0),
+   #photonTightMaxHIsol = cms.double(15.0),
+   #photonLooseMaxEIsol = cms.double(-1.0),
+   #photonTightMaxEIsol = cms.double(10.0),
+   #photonLooseMaxTIsol = cms.double(-1.0),
+   #photonTightMaxTIsol = cms.double(5.0)
+   
    nPhotonLooseMin = cms.int32(2),
-   nPhotonTightMin = cms.int32(0),
-   photonLooseMinPt = cms.double(10.0),
-   photonTightMinPt = cms.double(15.0),
+   nPhotonTightMin = cms.int32(1),
+   photonLooseMinPt = cms.double(15.0),
+   photonTightMinPt = cms.double(20.0),
    photonLooseMaxEta = cms.double(3.1),
    photonTightMaxEta = cms.double(2.6),
    photonLooseMaxHoE = cms.double(-1.0),
-   photonTightMaxHoE = cms.double(0.2),
+   photonTightMaxHoE = cms.double(-1.0),
    photonLooseMaxHIsol = cms.double(-1.0),
-   photonTightMaxHIsol = cms.double(15.0),
+   photonTightMaxHIsol = cms.double(20.0),
    photonLooseMaxEIsol = cms.double(-1.0),
-   photonTightMaxEIsol = cms.double(10.0),
+   photonTightMaxEIsol = cms.double(20.0),
    photonLooseMaxTIsol = cms.double(-1.0),
-   photonTightMaxTIsol = cms.double(5.0)
+   photonTightMaxTIsol = cms.double(10.0)
        
 )
 

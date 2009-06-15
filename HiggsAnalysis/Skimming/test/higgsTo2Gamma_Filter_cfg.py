@@ -69,7 +69,7 @@ process.output = cms.OutputModule("PoolOutputModule",
                                
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(500) )
 
 process.source = cms.Source("PoolSource",
                             debugFlag = cms.untracked.bool(True),
@@ -87,21 +87,39 @@ process.source = cms.Source("PoolSource",
                             
                             )
 
-process.higgsTo2GammaFilter.photonLooseMinPt = cms.double(15.0)
-process.higgsTo2GammaFilter.photonTightMinPt = cms.double(25.0)
-#process.higgsTo2GammaFilter.photonLooseMaxEta = cms.double(3.0)
-process.higgsTo2GammaFilter.photonTightMaxEta = cms.double(2.6)
+#Loose cuts (this is the default)
+#process.higgsTo2GammaFilter.photonLooseMinPt = cms.double(15.0)
+#process.higgsTo2GammaFilter.photonTightMinPt = cms.double(25.0)
+#process.higgsTo2GammaFilter.photonLooseMaxEta = cms.double(3.1)
+#process.higgsTo2GammaFilter.photonTightMaxEta = cms.double(2.6)
 #process.higgsTo2GammaFilter.photonLooseMaxHoE = cms.double(-1.0)
-process.higgsTo2GammaFilter.photonTightMaxHoE = cms.double(0.1)
+#process.higgsTo2GammaFilter.photonTightMaxHoE = cms.double(-1.0)
 #process.higgsTo2GammaFilter.photonLooseMaxHIsol = cms.double(-1.0)
-process.higgsTo2GammaFilter.photonTightMaxHIsol = cms.double(15.)
+#process.higgsTo2GammaFilter.photonTightMaxHIsol = cms.double(20.)
 #process.higgsTo2GammaFilter.photonLooseMaxEIsol = cms.double(-1.0)
-process.higgsTo2GammaFilter.photonTightMaxEIsol = cms.double(10.)
+#process.higgsTo2GammaFilter.photonTightMaxEIsol = cms.double(20.)
 #process.higgsTo2GammaFilter.photonLooseMaxTIsol = cms.double(-1.0)
-process.higgsTo2GammaFilter.photonTightMaxTIsol = cms.double(5.)
-
+#process.higgsTo2GammaFilter.photonTightMaxTIsol = cms.double(10.)
 #process.higgsTo2GammaFilter.nPhotonLooseMin = cms.int32(2)
-process.higgsTo2GammaFilter.nPhotonTightMin = cms.int32(1)
+#process.higgsTo2GammaFilter.nPhotonTightMin = cms.int32(1)
+#process.higgsTo2GammaFilter.DebugHiggsTo2GammaSkim = cms.bool(False)
+
+#Tight cuts (uncomment the following) 
+#process.higgsTo2GammaFilter.photonLooseMinPt = cms.double(20.0)
+#process.higgsTo2GammaFilter.photonTightMinPt = cms.double(30.0)
+#process.higgsTo2GammaFilter.photonLooseMaxEta = cms.double(3.1)
+#process.higgsTo2GammaFilter.photonTightMaxEta = cms.double(2.6)
+#process.higgsTo2GammaFilter.photonLooseMaxHoE = cms.double(-1.0)
+#process.higgsTo2GammaFilter.photonTightMaxHoE = cms.double(0.2)
+#process.higgsTo2GammaFilter.photonLooseMaxHIsol = cms.double(-1.0)
+#process.higgsTo2GammaFilter.photonTightMaxHIsol = cms.double(15.)
+#process.higgsTo2GammaFilter.photonLooseMaxEIsol = cms.double(-1.0)
+#process.higgsTo2GammaFilter.photonTightMaxEIsol = cms.double(10.)
+#process.higgsTo2GammaFilter.photonLooseMaxTIsol = cms.double(-1.0)
+#process.higgsTo2GammaFilter.photonTightMaxTIsol = cms.double(5.)
+#process.higgsTo2GammaFilter.nPhotonLooseMin = cms.int32(2)
+#process.higgsTo2GammaFilter.nPhotonTightMin = cms.int32(1)
+#process.higgsTo2GammaFilter.DebugHiggsTo2GammaSkim = cms.bool(False)
 
 process.higgsTo2GammaFilter.DebugHiggsTo2GammaSkim = cms.bool(True)
 
@@ -112,7 +130,7 @@ process.options = cms.untracked.PSet(
 
 
 # Endpath
-process.o = cms.EndPath ( process.output )
+# process.o = cms.EndPath ( process.output )
 
 
 

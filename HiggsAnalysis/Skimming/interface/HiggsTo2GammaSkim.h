@@ -41,6 +41,7 @@ class HiggsTo2GammaSkim : public edm::EDFilter {
 
  private:
   int nEvents, nSelectedEvents;
+  int n1loose, n1tight, n2loose, n2tight, n1loose1tight, n0loosetight; 
 
   bool debug;
 

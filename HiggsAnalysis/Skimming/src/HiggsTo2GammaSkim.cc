@@ -90,6 +90,12 @@ HiggsTo2GammaSkim::HiggsTo2GammaSkim(const edm::ParameterSet& pset) {
 
    nEvents         = 0;
    nSelectedEvents = 0;
+   n1loose = 0;
+   n1tight = 0;
+   n2loose = 0;
+   n2tight = 0;
+   n1loose1tight = 0;
+   n0loosetight = 0;
 
 }
 
@@ -98,9 +104,29 @@ HiggsTo2GammaSkim::HiggsTo2GammaSkim(const edm::ParameterSet& pset) {
 HiggsTo2GammaSkim::~HiggsTo2GammaSkim() {
 
   edm::LogVerbatim("HiggsTo2GammaSkim") 
-  << " Number_events_read " << nEvents          
-  << " Number_events_kept " << nSelectedEvents 
-  << " Efficiency         " << ((double)nSelectedEvents)/((double) nEvents + 0.01) << std::endl;
+    << " Number_events_read " << nEvents          
+    << " Number_events_kept " << nSelectedEvents 
+    << " Efficiency         " << ((double)nSelectedEvents)/((double) nEvents + 0.01) 
+    << " Number_events_two_photon_tight " <<  n2tight         
+    << " Number_events_one_photon_tight_one_photon_loose " <<  n1loose1tight         
+    << " Number_events_two_photon_loose " <<  n2loose         
+    << " Number_events_one_photon_tight " <<  n1tight         
+    << " Number_events_one_photon_loose " <<  n1loose         
+    << " Number_events_no_photon " <<  n0loosetight         
+    << std::endl;
+
+  if(debug) {
+      std::cout << " Number_events_read                              " << nEvents   << std::endl;       
+      std::cout << " Number_events_kept                              " << nSelectedEvents << std::endl;
+      std::cout << " Efficiency                                      " << ((double)nSelectedEvents)/((double) nEvents + 0.01) << std::endl;
+      std::cout << " Number_events_two_photon_tight                  " <<  n2tight   << std::endl;      
+      std::cout << " Number_events_one_photon_tight_one_photon_loose " <<  n1loose1tight << std::endl;        
+      std::cout << " Number_events_two_photon_loose                  " <<  n2loose   << std::endl;      
+      std::cout << " Number_events_one_photon_tight                  " <<  n1tight    << std::endl;     
+      std::cout << " Number_events_one_photon_loose                  " <<  n1loose   << std::endl;      
+      std::cout << " Number_events_no_photon                         " <<  n0loosetight   << std::endl;      
+  }
+
 }
 
 
@@ -200,8 +226,30 @@ bool HiggsTo2GammaSkim::filter(edm::Event& event, const edm::EventSetup& setup )
   if ( nPhotonsLoose >= nPhotonLooseMin && nPhotonsTight >= nPhotonTightMin) keepEvent = true;
 
   if (keepEvent) nSelectedEvents++;
-  if(debug) 
+  if(debug) {
     cout<<"selection: nPhotonLooseMin nPhotonTightMin photonLooseMinPt photonTightMinPt nLoose, nTight "<<nPhotonLooseMin<<" "<<photonLooseMinPt<<" "<<nPhotonTightMin<<" "<<photonTightMinPt<<" "<<nPhotonsLoose<<" "<<nPhotonsTight<<" keep "<<keepEvent<<" nSelected "<<nSelectedEvents<<endl;
+  }
 
+  if(nPhotonsTight>=2) {
+    n2tight++;
+  }
+  else if(nPhotonsTight==1) {
+    if(nPhotonsLoose>=2) {
+      n1loose1tight++;
+    }
+    else {
+      n1tight++;
+    }
+  }
+  else if(nPhotonsLoose>=2) {
+    n2loose++;
+  }
+  else if(nPhotonsLoose=1) {
+    n1loose++;
+  }
+  else {
+    n0loosetight++;
+  }
+  
   return keepEvent;
 }
