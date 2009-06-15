@@ -17,7 +17,7 @@ import FWCore.ParameterSet.Config as cms
 #    include reconstruction, simulation and analysis
 #  FEVTSIMDIGIHLTDEBUG FEVTSIMHLTDEBUG
 #
-#  $Id: EventContentCosmics_cff.py,v 1.8 2008/11/03 13:53:43 arizzi Exp $
+#  $Id: EventContentCosmics_cff.py,v 1.9 2009/05/13 09:31:15 arizzi Exp $
 #
 #
 #
@@ -47,6 +47,9 @@ from IOMC.RandomEngine.IOMC_EventContent_cff import *
 from EventFilter.Configuration.DigiToRaw_EventContent_cff import *
 from RecoEgamma.Configuration.RecoEgamma_EventContent_cff import *
 from RecoVertex.Configuration.RecoVertex_EventContent_cff import *
+# raw2digi that are already the final RECO/AOD products
+from EventFilter.ScalersRawToDigi.Scalers_EventContent_cff import *
+
 
 #not in Cosmics 
 #include "TrackingTools/Configuration/data/TrackingTools_EventContent.cff"
@@ -146,6 +149,7 @@ FEVTEventContent.outputCommands.extend(RecoVertexRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(L1TriggerRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(HLTriggerRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
 
 RECOEventContent.outputCommands.extend(RecoLocalTrackerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(RecoLocalMuonRECO.outputCommands)
@@ -161,6 +165,7 @@ RECOEventContent.outputCommands.extend(RecoVertexRECO.outputCommands)
 RECOEventContent.outputCommands.extend(L1TriggerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(HLTriggerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
+RECOEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
 
 AODEventContent.outputCommands.extend(RecoLocalTrackerAOD.outputCommands)
 AODEventContent.outputCommands.extend(RecoLocalMuonAOD.outputCommands)
@@ -174,6 +179,7 @@ AODEventContent.outputCommands.extend(RecoMuonAOD.outputCommands)
 AODEventContent.outputCommands.extend(BeamSpotAOD.outputCommands)
 AODEventContent.outputCommands.extend(RecoVertexAOD.outputCommands)
 AODEventContent.outputCommands.extend(MEtoEDMConverterAOD.outputCommands)
+AODEventContent.outputCommands.extend(EvtScalersAOD.outputCommands)
 
 RAWSIMEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 RAWSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
@@ -245,3 +251,5 @@ FEVTSIMEventContent.outputCommands.extend(SimMuonRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
+

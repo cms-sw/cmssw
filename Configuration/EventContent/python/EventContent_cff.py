@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.10 2009/05/28 08:56:15 fambrogl Exp $
+#  $Id: EventContent_cff.py,v 1.11 2009/05/28 17:18:04 futyand Exp $
 #
 #
 #
@@ -56,6 +56,10 @@ from RecoEgamma.Configuration.RecoEgamma_EventContent_cff import *
 from RecoParticleFlow.Configuration.RecoParticleFlow_EventContent_cff import *
 from L1Trigger.Configuration.L1Trigger_EventContent_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_EventContent_cff import *
+
+# raw2digi that are already the final RECO/AOD products
+from EventFilter.ScalersRawToDigi.Scalers_EventContent_cff import * 
+
 #DigiToRaw content
 from EventFilter.Configuration.DigiToRaw_EventContent_cff import *
 #
@@ -252,6 +256,8 @@ RECOEventContent.outputCommands.extend(BeamSpotRECO.outputCommands)
 RECOEventContent.outputCommands.extend(L1TriggerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(HLTriggerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
+RECOEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
+
 AODEventContent.outputCommands.extend(RecoLocalTrackerAOD.outputCommands)
 AODEventContent.outputCommands.extend(RecoLocalMuonAOD.outputCommands)
 AODEventContent.outputCommands.extend(RecoLocalCaloAOD.outputCommands)
@@ -271,6 +277,8 @@ AODEventContent.outputCommands.extend(BeamSpotAOD.outputCommands)
 AODEventContent.outputCommands.extend(L1TriggerAOD.outputCommands)
 AODEventContent.outputCommands.extend(HLTriggerAOD.outputCommands)
 AODEventContent.outputCommands.extend(MEtoEDMConverterAOD.outputCommands)
+AODEventContent.outputCommands.extend(EvtScalersAOD.outputCommands)
+
 RAWSIMEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 RAWSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
 RAWSIMEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
@@ -324,6 +332,8 @@ FEVTEventContent.outputCommands.extend(BeamSpotRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(L1TriggerRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(HLTriggerRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
+
 FEVTSIMEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
@@ -365,6 +375,7 @@ FEVTSIMEventContent.outputCommands.extend(SimMuonRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
 RAWDEBUGEventContent.outputCommands.extend(RAWSIMEventContent.outputCommands)
 RAWDEBUGEventContent.outputCommands.extend(SimTrackerDEBUG.outputCommands)
 RAWDEBUGEventContent.outputCommands.extend(SimGeneralFEVTDEBUG.outputCommands)
