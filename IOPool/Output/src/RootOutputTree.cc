@@ -79,15 +79,9 @@ namespace edm {
       while((obj = iter.Next()) != 0) {
         TBranchElement* outBranch = dynamic_cast<TBranchElement*>(obj);
         if(outBranch) {
-	  TBranchElement* inBranch = dynamic_cast<TBranchElement*>(inputBranch->FindBranch(outBranch->GetName()));
+	  TBranchElement* inBranch = dynamic_cast<TBranchElement*>(inputArray->FindObject(outBranch->GetName()));
 	  if(!inBranch) {
-	    // Arrays need special treatment due to a peculiarity of ROOT.  The size in square brackets must be stripped.
-	    std::string name(outBranch->GetName());
-	    size_t pos = name.find('[');
-	    if(pos == std::string::npos) {
-	      return false;
-	    }
-            return (dynamic_cast<TBranchElement*>(inputBranch->FindBranch(name.substr(0, pos).c_str())) != 0);
+	    return false;
 	  }
 	  if(!checkMatchingBranches(inBranch, outBranch)) {
 	    return false;
