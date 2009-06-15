@@ -2,6 +2,7 @@
 // ----------------------------------------------------------------------
 
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 
@@ -9,7 +10,16 @@ namespace edm {
   namespace pset {
     ParameterSetID
     getProcessParameterSetID(Registry const* reg) {
-      return reg->extra().id();
+      ParameterSetID const& psetID = reg->extra().id();
+      if (!psetID.isValid()) {
+        throw edm::Exception(errors::LogicError)
+          << "Illegal attempt to access the process top level parameter set ID\n"
+          << "before that parameter set has been frozen and registered.\n"
+          << "The parameter set can be changed during module validation,\n"
+	  << "which occurs concurrently with module construction.\n"
+          << "It is illegal to access the parameter set before it is frozen.\n";
+      }
+      return psetID;
     }
 
     void fillMap(Registry* reg, regmap_type& fillme) {
@@ -27,12 +37,12 @@ namespace edm {
     ParameterSetID id = pset::getProcessParameterSetID(reg);
 
     ParameterSet result;
-    if (!reg->getMapped(id, result))
+    if (!reg->getMapped(id, result)) {
       throw edm::Exception(errors::EventCorruption, "Unknown ParameterSetID")
 	<< "Unable to find the ParameterSet for id: "
 	<< id
 	<< ";\nthis was supposed to be the process ParameterSet\n";
-
+    }
     return result;
   }
 
