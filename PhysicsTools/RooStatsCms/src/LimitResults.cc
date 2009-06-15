@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: LimitResults.cc,v 1.5 2009/05/15 09:55:59 dpiparo Exp $
+// @(#)root/hist:$Id: LimitResults.cc,v 1.6 2009/06/02 11:37:58 matze Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
@@ -42,10 +42,12 @@ LimitResults::LimitResults(const char* name,
 /*----------------------------------------------------------------------------*/
 
 LimitResults::LimitResults(LimitResults& other) :
-	StatisticalMethod(other),
-	m_m2lnQ_sb(other.getM2lnQValues_sb()),
-	m_m2lnQ_b(other.getM2lnQValues_b()),
-	m_m2lnQ_data(other.getM2lnQValue_data()) {}
+    StatisticalMethod(other),
+    m_m2lnQ_data(other.getM2lnQValue_data()),
+    m_m2lnQ_sb(other.getM2lnQValues_sb()),
+    m_m2lnQ_b(other.getM2lnQValues_b()){}
+
+/*----------------------------------------------------------------------------*/
 
 LimitResults::LimitResults():
     StatisticalMethod("Defaultname","Default title",true),
