@@ -773,7 +773,7 @@ void MultiTrackValidator::endRun(Run const&, EventSetup const&) {
       FitSlicesYTool fsyt_cotThetaPt(cotThetares_vs_pt[w]);
       fsyt_cotThetaPt.getFittedSigmaWithError(h_cotThetarmshPt[w]);
       fsyt_cotThetaPt.getFittedMeanWithError(h_cotThetameanhPt[w]);
-
+      }
       //chi2 and #hit vs eta: get mean from 2D histos
       doProfileX(chi2_vs_eta[w],h_chi2meanh[w]);
       doProfileX(nhits_vs_eta[w],h_hits_eta[w]);    
@@ -804,7 +804,7 @@ void MultiTrackValidator::endRun(Run const&, EventSetup const&) {
       doProfileX(nhits_vs_phi[w],h_hits_phi[w]);
 //       doProfileX(ptres_vs_phi[w],h_ptresmean_vs_phi[w]);
 //       doProfileX(phires_vs_phi[w],h_phiresmean_vs_phi[w]);
-   
+      if(!skipHistoFit){
       //pulls of track params vs eta: get sigma from 2D histos
       FitSlicesYTool fsyt_dxyp(dxypull_vs_eta[w]);
       fsyt_dxyp.getFittedSigmaWithError(h_dxypulleta[w]);
