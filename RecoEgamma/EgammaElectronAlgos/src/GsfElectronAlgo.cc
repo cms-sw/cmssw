@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.73 2009/06/05 08:33:06 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.74 2009/06/10 10:58:14 chamont Exp $
 //
 //
 
@@ -68,6 +68,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
+
 #include <TMath.h>
 #include <Math/VectorUtil.h>
 #include <Math/Point3D.h>
@@ -537,7 +538,7 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
 // utilities for constructor
 float normalized_dphi( float dphi )
  {
-  if (fabs(dphi)>pi) return (dphi<0?pi2+dphi:dphi-pi2) ;
+  if (fabs(dphi)>CLHEP::pi) return (dphi<0?CLHEP::twopi+dphi:dphi-CLHEP::twopi) ;
   else return dphi ;
  }
 
