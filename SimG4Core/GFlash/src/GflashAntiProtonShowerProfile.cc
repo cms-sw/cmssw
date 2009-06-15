@@ -9,7 +9,6 @@ void GflashAntiProtonShowerProfile::loadParameters(const G4FastTrack& fastTrack)
   G4int showerType = getShowerType();
 
   // energy scale
-  //@@@ need additional parameterization for forward detectors
 
   double energyMeanHcal = 0.0;
   double energySigmaHcal = 0.0;
@@ -19,15 +18,12 @@ void GflashAntiProtonShowerProfile::loadParameters(const G4FastTrack& fastTrack)
     G4double r1 = 0.0;
     G4double r2 = 0.0;
 
-    //@@@ need energy dependent parameterization and put relevant parameters into GflashNameSpace
-    //@@@ put energy dependent energyRho based on tuning with testbeam data
+    //energy dependent energyRho based on tuning with testbeam data
 
     const double correl_hadem[4] = { -7.8255e-01,  1.7976e-01, -8.8001e-01,  2.3474e+00 };
     G4double energyRho =  fTanh(einc,correl_hadem); 
 
     r1 = theRandGauss->fire();
-    //    energyScale[Gflash::kESPM] = einc*(fTanh(einc,Gflash::pbar_emscale[0]) + fTanh(einc,Gflash::pbar_emscale[1])*r1);
-    //tune1 scale 1.3 for average EM response (at low energy only?) 
     if(einc<25) {
       energyScale[Gflash::kESPM] = einc*(1.27*fTanh(einc,Gflash::pbar_emscale[0]) + fTanh(einc,Gflash::pbar_emscale[1])*r1);
     }
@@ -35,11 +31,6 @@ void GflashAntiProtonShowerProfile::loadParameters(const G4FastTrack& fastTrack)
       energyScale[Gflash::kESPM] = einc*(1.0*fTanh(einc,Gflash::pbar_emscale[0]) + 1.4*fTanh(einc,Gflash::pbar_emscale[1])*r1);
     }
 
-    //      }
-    //      while (energyScale[Gflash::kESPM] < 0.0);
-    
-    //@@@extend depthScale for HE
-    //      do {
     r2 = theRandGauss->fire();
     if(einc<25) {
       energyMeanHcal  = (fTanh(einc,Gflash::pbar_hadscale[0]) +
@@ -55,13 +46,9 @@ void GflashAntiProtonShowerProfile::loadParameters(const G4FastTrack& fastTrack)
     }
     energyScale[Gflash::kHB] = 
       exp(energyMeanHcal+energySigmaHcal*(energyRho*r1 + sqrt(1.0- energyRho*energyRho)*r2 ));
-    
-    //      }
-    //      while (energyScale[Gflash::kHB] < 0.0);
   }
   else if(showerType == 2 || showerType == 6 || showerType == 3 || showerType == 7) { 
     //Hcal response for mip-like pions (mip)
-    //@@@ test based on test beam scale
     double gap_corr = 1.0;
     
     energyMeanHcal  = fTanh(einc,Gflash::pbar_hadscale[4]);
@@ -69,19 +56,12 @@ void GflashAntiProtonShowerProfile::loadParameters(const G4FastTrack& fastTrack)
     gap_corr = fTanh(einc,Gflash::pbar_hadscale[6]);
          
     if(showerType == 2 || showerType == 6) {
-      //      do {
       energyScale[Gflash::kHB] = 
 	exp(energyMeanHcal+energySigmaHcal*theRandGauss->fire())*(1.0- gap_corr*depthScale(position.getRho(),179.,28.));
-      //      }
-      //      while (energyScale[Gflash::kHB] < 0.0 );
     }
     else {
-      //      do {
       energyScale[Gflash::kHB] = 
 	exp(energyMeanHcal+energySigmaHcal*theRandGauss->fire());
-      std::cout << "energyScale[Gflash::kHB] = " << energyScale[Gflash::kHB] << std::endl;
-      //      }
-      //      while (energyScale[Gflash::kHB] < 0.0 );
     }
   }
 
@@ -89,19 +69,18 @@ void GflashAntiProtonShowerProfile::loadParameters(const G4FastTrack& fastTrack)
   energyScale[Gflash::kHE] = energyScale[Gflash::kHB];
 
   // parameters for the longitudinal profiles
-  //@@@check longitudinal profiles of endcaps for possible varitations
-  //correlation and fluctuation matrix of longitudinal parameters
 
   G4double *rhoHcal = new G4double [2*Gflash::NPar];
   G4double *correlationVectorHcal = new G4double [Gflash::NPar*(Gflash::NPar+1)/2];
 
-  //for now, until we have a separate parameterization for Endcap 
+  //@@@until we have a separate parameterization for Endcap 
   bool isEndcap = false;
   if(showerType>3) {
     showerType -= 4;
     isEndcap = true;
   }
-  if(showerType==0) showerType = 1; //no separate parameterization before crystal
+  //no separate parameterization before crystal
+  if(showerType==0) showerType = 1; 
 
   //Hcal parameters are always needed regardless of showerType
 
@@ -161,20 +140,5 @@ void GflashAntiProtonShowerProfile::loadParameters(const G4FastTrack& fastTrack)
     delete [] rhoEcal;
     delete [] correlationVectorEcal;
 
-    // lateral parameters for Ecal
-
-    for (G4int i = 0 ; i < Gflash::Nrpar ; i++) {
-      lateralPar[Gflash::kESPM][i] = fLnE1(einc,Gflash::pbar_rpar[i]);
-      lateralPar[Gflash::kENCA][i] = lateralPar[Gflash::kESPM][i];
-    }
   }
-
-  // parameters for the sampling fluctuation
-
-   for(G4int i = 0 ; i < Gflash::kNumberCalorimeter ; i++) {
-    averageSpotEnergy[i] = std::pow(Gflash::SAMHAD[0][i],2) // resolution 
-      + std::pow(Gflash::SAMHAD[1][i],2)/einc               // noisy
-      + std::pow(Gflash::SAMHAD[2][i],2)*einc;              // constant 
-  }
-
 }

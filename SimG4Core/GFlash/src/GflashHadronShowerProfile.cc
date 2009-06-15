@@ -115,17 +115,9 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
 
     theShowino->addEnergyDeposited(deltaEnergy);
 
-    //@@@ When depthShower is inside Hcal, the sampling fluctuation for deposited
-    //    energy will be treated in SD.  However we should put some scale factor 
-    //    to relate the spot energy to the energy deposited in each geant4 step. 
-
-    double hadronicFraction = 1.0;
-
-    G4double fluctuatedEnergy = deltaEnergy;
-
     //apply sampling fluctuation if showino is inside the sampling calorimeter
-    //according to averageSpotEnergy = c*c*(energyToDeposit/einc) where
-    //sigma/energyToDeposit = c/sqrt(einc)
+    double hadronicFraction = 1.0;
+    G4double fluctuatedEnergy = deltaEnergy;
 
     G4int nSpotsInStep = std::max(1,static_cast<int>(getNumberOfSpots(whichCalor)*(deltaEnergy/energyScale[whichCalor]) ));
     G4double sampleSpotEnergy = hadronicFraction*fluctuatedEnergy/nSpotsInStep;
@@ -251,8 +243,6 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
 	
       	double hoFraction = 1.00;
 	G4double poissonProb = theRandPoissonQ->fire(1.0);
-	//@@@ may need an additional rejection here
-	//	if(poissonProb > 0.0) {
 	
 	G4double fluctuatedEnergy = deltaEnergy*poissonProb;
 	G4double sampleSpotEnergy = hoFraction*fluctuatedEnergy/nSpotsInStep;
@@ -309,7 +299,6 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
 	  aSensitive->Hit(theGflashStep);
 	  
 	} // end of for HO spot iteration
-	  //	}
       } // end of while for HO longitudinal integration
     }
   }
