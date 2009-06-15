@@ -376,7 +376,7 @@ void OptoScanAlgorithm::analyse() {
   } // gain loop
 
   // Iterate through four gain settings and identify optimum gain setting
-  const float target_gain = 0.8;
+  const float target_gain = 0.863; // changed from 0.8 to avoid choice of low tickheights (Xtof, SL, 15/6/2009)
   float diff_in_gain = sistrip::invalid_;
   for ( uint16_t igain = 0; igain < 4; igain++ ) {
     
