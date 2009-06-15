@@ -11,7 +11,7 @@ process.load("Configuration.StandardSequences.DigiToRaw_cff")
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'IDEAL_V12::All'
+process.GlobalTag.globaltag = 'IDEAL_31X::All'
 
 # For including Standard Reco + Heavy Ion Objects
 process.load("RecoHI.Configuration.Reconstruction_HI_cff")
@@ -23,7 +23,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
 #    fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/cmshi/mc/sim/pgun_jpsi2muons_d20080423/pgun_jpsi2muons_d20080423_r000001.root')
 fileNames = cms.untracked.vstring(           "rfio:/castor/cern.ch/cms/store/cmshi/mc/sim/hydjet_sim_x2_c5_d20080425/hydjet_sim_x2_c5_d20080425_r000002.root")
-
+#fileNames = cms.untracked.vstring("dcache:/pnfs/cmsaf.mit.edu/hibat/cms/users/davidlw/HYDJET_Minbias_4TeV_31X/sim/HYDJET_Minbias_4TeV_seq11_31X.root")
 )
 
 process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
