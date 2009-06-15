@@ -192,9 +192,6 @@ int ZdcShowerLibrary::getEnergyFromLibrary(G4ThreeVector hitPoint, G4ThreeVector
   //int iside = (side)? 1 : 2;
      
   int iparCode  = encodePartID(parCode);
-  
-  energy = 100;
-  iparCode = 1;
 
   double eav = 0.;
   double esig = 0.;
