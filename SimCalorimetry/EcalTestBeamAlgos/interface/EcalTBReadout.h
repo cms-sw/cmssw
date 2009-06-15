@@ -3,7 +3,7 @@
 
 /*
  *
- * $Id:$
+ * $Id: EcalTBReadout.h,v 1.1 2006/06/15 12:45:35 fabiocos Exp $
  *
  */
 
@@ -36,8 +36,14 @@ public:
   /// read only the digis from the selected TT
   void readOut(EBDigiCollection & input, EBDigiCollection & output, const EcalTrigTowerConstituentsMap& etmap);
 
+  /// read only the digis from the selected TT
+  void readOut(EEDigiCollection & input, EEDigiCollection & output, const EcalTrigTowerConstituentsMap& etmap);
+
   /// master function to be called once per event
   void performReadout(edm::Event& event, const EcalTrigTowerConstituentsMap & theTTmap, EBDigiCollection & input, EBDigiCollection & output);
+
+  /// master function to be called once per event
+  void performReadout(edm::Event& event, const EcalTrigTowerConstituentsMap & theTTmap, EEDigiCollection & input, EEDigiCollection & output);
 
 private:
 

@@ -127,14 +127,63 @@ void EcalTBReadout::readOut(EBDigiCollection & input, EBDigiCollection & output,
     std::vector<EcalTrigTowerDetId>::iterator ttFound = find(theTTlist_.begin(), theTTlist_.end(), thisTTdetId);
 
     if ((ttFound != theTTlist_.end()) || *(theTTlist_.end()) == thisTTdetId) {      
-      output.push_back(ebdf.id());
-      EBDataFrame ebdf2(output.back() );
-      std::copy( ebdf.frame().begin(), ebdf.frame().end(), ebdf2.frame().begin() );
+      output.push_back( ebdf.id() ) ;
+      EBDataFrame ebdf2( output.back() );
+      std::copy( ebdf.frame().begin(),
+		 ebdf.frame().end(),
+		 ebdf2.frame().begin() );
+    }
+  }
+}
+
+void 
+EcalTBReadout::readOut( EEDigiCollection & input, 
+			EEDigiCollection & output, 
+			const EcalTrigTowerConstituentsMap& etmap) 
+{
+   for (unsigned int digis=0; digis<input.size(); ++digis)
+   { 
+      EEDataFrame eedf ( input[digis] ) ;
+
+      EcalTrigTowerDetId thisTTdetId ( etmap.towerOf( eedf.id() ) ) ;
+
+      std::vector<EcalTrigTowerDetId>::iterator ttFound 
+	 ( find(theTTlist_.begin(), theTTlist_.end(), thisTTdetId ) ) ;
+
+      if( ( ttFound != theTTlist_.end() ) ||
+	  *(theTTlist_.end()) == thisTTdetId ) 
+      {      
+	 output.push_back( eedf.id() ) ;
+	 EEDataFrame eedf2( output.back() ) ;
+	 std::copy( eedf.frame().begin(), 
+		    eedf.frame().end(),
+		    eedf2.frame().begin() );
     }
   }
 }
 
 void EcalTBReadout::performReadout(edm::Event& event, const EcalTrigTowerConstituentsMap & theTTmap, EBDigiCollection & input, EBDigiCollection & output) {
+
+  // TB readout
+  // step 1: get the target crystal index
+
+  edm::Handle<PEcalTBInfo> theEcalTBInfo;
+  event.getByLabel(ecalTBInfoLabel_,theEcalTBInfo);
+
+  int crysId = theEcalTBInfo->nCrystal();
+
+  // step 2: update (if needed) the TT list to be read
+
+  findTTlist(crysId, theTTmap);
+
+  // step 3: perform the readout
+
+  readOut(input, output, theTTmap);
+
+}
+
+
+void EcalTBReadout::performReadout(edm::Event& event, const EcalTrigTowerConstituentsMap & theTTmap, EEDigiCollection & input, EEDigiCollection & output) {
 
   // TB readout
   // step 1: get the target crystal index
