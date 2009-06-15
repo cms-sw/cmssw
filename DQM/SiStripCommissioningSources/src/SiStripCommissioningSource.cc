@@ -70,7 +70,7 @@ SiStripCommissioningSource::SiStripCommissioningSource( const edm::ParameterSet&
   cablingTask_(false),
   updateFreq_( pset.getUntrackedParameter<int>("HistoUpdateFreq",1) ),
   base_(""),
-  view_( pset.getUntrackedParameter<std::string>("View", "FecView") )
+  view_( pset.getUntrackedParameter<std::string>("View", "Default") )
 {
   LogTrace(mlDqmSource_)
     << "[SiStripCommissioningSource::" << __func__ << "]"
@@ -956,6 +956,12 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type, const e
       std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
       for ( ; iconn != conns.end(); iconn++ ) {
 
+        // Create FEC key
+        SiStripFecKey fec_key( iconn->fecCrate(), 
+                               iconn->fecSlot(), 
+                               iconn->fecRing(), 
+                               iconn->ccuAddr(), 
+                               iconn->ccuChan() );
         // Create FED key and check if non-zero
         SiStripFedKey fed_key( iconn->fedId(), 
                                SiStripFedKey::feUnit(iconn->fedCh()),
@@ -965,26 +971,26 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type, const e
         // define the view in which to work and paths for histograms
         //   currently FecView (control view) and FedView (readout view)
         //   DetView (detector view) implementation has started
+        // Set working directory prior to booking histograms 
         std::stringstream dir;
-        if (view_ == "FecView") { // default
-          // Create FEC key
-          SiStripFecKey fec_key( iconn->fecCrate(), 
-                                 iconn->fecSlot(), 
-                                 iconn->fecRing(), 
-                                 iconn->ccuAddr(), 
-                                 iconn->ccuChan() );
-          // Set working directory prior to booking histograms 
-          dir << base_;
-          if ( run_type == sistrip::FAST_CABLING ) { dir << fed_key.path(); }
-          else { dir << fec_key.path(); }
+        dir << base_;
+        if (view_ == "Default") { // default
+          if ( run_type == sistrip::FAST_CABLING ) {
+	    dir << fed_key.path(); // cabling in fed view
+	  } else {
+	    dir << fec_key.path(); // all other runs in control view
+	  }
+        } else if (view_ == "FecView") {
+          dir << fec_key.path();
         } else if (view_ == "FedView") {
-          // Set working directory prior to booking histograms 
-          dir << base_ << fed_key.path();
+          dir << fed_key.path();
         } else if (view_ == "DetView") {
           // currently just by detid from the connection, which is empty...
           dir << sistrip::root_ << sistrip::dir_
               << sistrip::detectorView_ << sistrip::dir_
               << iconn->detId();
+SiStripDetId myId(iconn->detId());
+std::cout << myId.det() << std::endl;
         } else {
           edm::LogWarning(mlDqmSource_)
             << "[SiStripCommissioningSource::" << __func__ << "]"
