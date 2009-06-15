@@ -47,9 +47,13 @@ from EventFilter.DTRawToDigi.dtunpacker_cfi import *
 import EventFilter.RPCRawToDigi.rpcUnpacker_cfi
 #--- RPC ---#
 muonRPCDigis = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone()
-RawToDigi = cms.Sequence(csctfDigis+dttfDigis+gctDigis+gtDigis+gtEvmDigis+siPixelDigis+siStripDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis)
+#--- Scalers ---#
+from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *
 
-RawToDigi_woGCT = cms.Sequence(csctfDigis+dttfDigis+gtDigis+gtEvmDigis+siPixelDigis+siStripDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis)
+
+RawToDigi = cms.Sequence(csctfDigis+dttfDigis+gctDigis+gtDigis+gtEvmDigis+siPixelDigis+siStripDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis+scalersRawToDigi)
+
+RawToDigi_woGCT = cms.Sequence(csctfDigis+dttfDigis+gtDigis+gtEvmDigis+siPixelDigis+siStripDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis+scalersRawToDigi)
 
 gtDigis.DaqGtInputTag = 'source'
 gtEvmDigis.EvmGtInputTag = 'source'

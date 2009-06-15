@@ -33,7 +33,12 @@ import EventFilter.DTRawToDigi.dtunpacker_cfi
 muonDTDigis = EventFilter.DTRawToDigi.dtunpacker_cfi.muonDTDigis.clone()
 import EventFilter.RPCRawToDigi.rpcUnpacker_cfi
 muonRPCDigis = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone()
-RawToDigi = cms.Sequence(csctfDigis+dttfDigis+gctDigis+gtDigis+gtEvmDigis+siPixelDigis+SiStripRawToDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis)
+
+from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *
+
+RawToDigi = cms.Sequence(csctfDigis+dttfDigis+gctDigis+gtDigis+gtEvmDigis+siPixelDigis+SiStripRawToDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis+scalersRawToDigi)
+
+scalersRawToDigi.scalersInputTag = 'rawDataCollector'
 csctfDigis.producer = 'rawDataCollector'
 dttfDigis.DTTF_FED_Source = 'rawDataCollector'
 gctDigis.inputLabel = 'rawDataCollector'
