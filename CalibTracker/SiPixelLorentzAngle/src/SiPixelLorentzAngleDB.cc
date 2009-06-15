@@ -29,24 +29,31 @@ SiPixelLorentzAngleDB::SiPixelLorentzAngleDB(edm::ParameterSet const& conf) :
 	fPixLorentzAnglePerTesla_ = (float)conf_.getParameter<double>("fPixLorentzAnglePerTesla");
 	useFile_ = conf_.getParameter<bool>("useFile");		
 	fileName_ = conf_.getParameter<string>("fileName");
+
 }
 
   //BeginJob
 
 void SiPixelLorentzAngleDB::beginJob(const edm::EventSetup& c){
   
+}
+// Virtual destructor needed.
+
+SiPixelLorentzAngleDB::~SiPixelLorentzAngleDB() {  
+
+}  
+
+// Analyzer: Functions that gets called by framework every event
+
+void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& es)
+{
+
 	SiPixelLorentzAngle* LorentzAngle = new SiPixelLorentzAngle();
 	   
 	
 	edm::ESHandle<TrackerGeometry> pDD;
-	c.get<TrackerDigiGeometryRecord>().get( pDD );
+	es.get<TrackerDigiGeometryRecord>().get( pDD );
 	edm::LogInfo("SiPixelLorentzAngle") <<" There are "<<pDD->detUnits().size() <<" detectors"<<std::endl;
-	
-// 	float langle;
-	
-// 	if(magneticField_ != 0) langle = (0.106*4) / magneticField_;
-	
-// 	else langle = 0.;
 	
 	for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
     
@@ -102,18 +109,6 @@ void SiPixelLorentzAngleDB::beginJob(const edm::EventSetup& c){
 		edm::LogError("SiPixelLorentzAngleDB")<<"Service is unavailable"<<std::endl;
 	}
    
-}
-// Virtual destructor needed.
-
-SiPixelLorentzAngleDB::~SiPixelLorentzAngleDB() {  
-
-}  
-
-// Analyzer: Functions that gets called by framework every event
-
-void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& es)
-{
-
 
 }
 
