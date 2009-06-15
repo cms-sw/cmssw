@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: RscCombinedModel.cc,v 1.4 2009/04/15 12:22:20 dpiparo Exp $
+// @(#)root/hist:$Id: RscCombinedModel.cc,v 1.5 2009/05/15 09:55:59 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch, Gregory.Schott@cern.ch   05/04/2008
 
 #include <assert.h>
@@ -156,7 +156,61 @@ RscCombinedModel::RscCombinedModel(const char* combined_model_name)
         m_add(model);
         }
     }
+/*----------------------------------------------------------------------------*/
 
+RscCombinedModel::RscCombinedModel(const char* combined_model_card,
+                                   const char* combined_model_name)
+    :TNamed(combined_model_name,combined_model_name),
+     m_models_number(0),
+     m_verbose(false),
+     m_own_contents(true),
+     m_constraints(0){
+
+    RscAbsPdfBuilder::setDataCard(combined_model_card);
+
+    m_pdf_buf=NULL;
+    m_sigPdf_buf=NULL;
+    m_bkgPdf_buf=NULL;
+
+    m_workspace = new RooWorkspace("Combined_model_workspace");
+
+    // The combiner istances
+
+    TString combiner_basename=GetName();
+
+    m_pdf_combiner=new PdfCombiner ((combiner_basename+"_combiner").Data());
+    m_sigPdf_combiner=new PdfCombiner 
+                                   ((combiner_basename+"_sig_combiner").Data(),
+                                    m_pdf_combiner->getCategory());
+    m_bkgPdf_combiner=new PdfCombiner 
+                                   ((combiner_basename+"_bkg_combiner").Data(),
+                                    m_pdf_combiner->getCategory());
+
+    // access the card
+    if (not m_is_combined(combined_model_name)){
+        std::cerr << "The model does not seem to be a combined one. Aborting.\n";
+        abort();
+        }
+
+    /*
+    Now we parse the content of the list of models to combine. In this case the 
+    RscTotModels will be owned by the RscCombined model.
+    */
+    TString model_components_str(m_expand_components(combined_model_name));
+
+    std::cout << "model components: " << model_components_str.Data() << std::endl;
+
+    // Loop on the models, allocate them and add them to the combination
+    TObjArray* arr = model_components_str.Tokenize(",");
+    TIterator* iter = arr->MakeIterator();
+    TObjString* ostr;
+    RscTotModel* model;
+    while ((ostr = (TObjString*) (iter->Next()))!=NULL){
+        std::cout << "Tot model: " << (ostr->GetString()).Data() << std::endl;
+        model= new RscTotModel((ostr->GetString()).Data());
+        m_add(model);
+        }
+    }
 /*----------------------------------------------------------------------------*/
 TString RscCombinedModel::m_expand_components(TString combined_model_name_s){
     RooStringVar model_components("components","components","");

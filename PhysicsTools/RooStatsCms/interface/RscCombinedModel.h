@@ -1,12 +1,12 @@
-// @(#)root/hist:$Id: RscCombinedModel.h,v 1.4 2009/04/15 12:24:15 dpiparo Exp $
+// @(#)root/hist:$Id: RscCombinedModel.h,v 1.5 2009/05/15 09:55:43 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch, Gregory.Schott@cern.ch   05/04/2008
 
 /// RscCombinedModel : a class to combine models described by RscTotModel instances.
 
 /**
 \class RscCombinedModel
-$Revision: 1.4 $
-$Date: 2009/04/15 12:24:15 $
+$Revision: 1.5 $
+$Date: 2009/05/15 09:55:43 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott (grgory.schott<at>cern.ch) - Universitaet Karlsruhe 
 
 This class is meant to represent the combination of models.
@@ -210,27 +210,24 @@ correlation_value1 = 0.99 C
 #include "TString.h"
 #include "TList.h"
 
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "RscTotModel.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/RscTotModel.h"
-#endif
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "ConstrBlockArray.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/ConstrBlockArray.h"
-#endif
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "PdfCombiner.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/PdfCombiner.h"
-#endif
-
 #include "RooAbsPdf.h"
 #include "RooCategory.h"
 #include "RooRealVar.h"
 #include "RooArgList.h"
 #include "RooWorkspace.h"
+
+#if (defined (STANDALONE) or defined (__CINT__) )
+   #include "RscTotModel.h"
+   #include "ConstrBlockArray.h"
+   #include "PdfCombiner.h"
+#else
+   #include "PhysicsTools/RooStatsCms/interface/RscTotModel.h"
+   #include "PhysicsTools/RooStatsCms/interface/ConstrBlockArray.h"
+   #include "PhysicsTools/RooStatsCms/interface/PdfCombiner.h"
+#endif
+
+
+
 
 /// Enumerator for SB or B
 enum ComponentCode {kBKG, kSIGBKG, kSIG};
@@ -257,6 +254,9 @@ class RscCombinedModel : public TNamed  {
     /// Constructor from datacard
     RscCombinedModel(const char* combined_model_name);
 
+    /// Constructor from datacard
+    RscCombinedModel(const char* combined_model_card,
+                     const char* combined_model_name);
 
     /// Destructor
     ~RscCombinedModel();
