@@ -1,4 +1,4 @@
-// $Id$
+// $Id: ResourceMonitorCollection.cc,v 1.2 2009/06/10 08:15:27 dshpakov Exp $
 
 #include <string>
 #include <sstream>
@@ -170,7 +170,7 @@ void ResourceMonitorCollection::emitDiskUsageAlarm(DiskUsagePtr diskUsage)
 
 #if SENTINELUTILS_VERSION_MAJOR>1
   MonitoredQuantity::Stats relUsageStats, absUsageStats;
-  diskUsage->absDiskUsage.getStats(relUsageStats);
+  diskUsage->relDiskUsage.getStats(relUsageStats);
   diskUsage->absDiskUsage.getStats(absUsageStats);
 
   xdata::InfoSpace *is =
@@ -202,8 +202,16 @@ void ResourceMonitorCollection::revokeDiskUsageAlarm(DiskUsagePtr diskUsage)
   xdata::InfoSpace *is =
     xdata::getInfoSpaceFactory()->get("urn:xdaq-sentinel:alarms");
 
-  sentinel::utils::Alarm *alarm =
-    dynamic_cast<sentinel::utils::Alarm*>(is->find( diskUsage->alarmName ));                     
+  sentinel::utils::Alarm *alarm;
+  try
+  {
+    alarm = dynamic_cast<sentinel::utils::Alarm*>(is->find( diskUsage->alarmName ));
+  }
+  catch(xdata::exception::Exception)
+  {
+    // Alarm has not been set
+    return;
+  }
 
   is->fireItemRevoked(diskUsage->alarmName, _app);
   delete alarm;
