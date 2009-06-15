@@ -1,8 +1,8 @@
 /** \class MuonDTDigis
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2008/10/29 09:23:59 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/10/29 11:13:47 $
+ *  $Revision: 1.8 $
  *  \authors: R. Bellan
  */
 
@@ -402,8 +402,11 @@ void  MuonDTDigis::analyze(const Event & event, const EventSetup& eventSetup){
 
  //cout << "num_digis " << num_digis << "mu digis " << num_mudigis << endl;
 
-  meDigiEfficiencyMu_->Fill( (float)num_mudigis/(float)num_musimhits );
-  meDigiEfficiency_->Fill( (float)num_digis/(float)num_musimhits );
+  if (num_musimhits != 0) {
+   meDigiEfficiencyMu_->Fill( (float)num_mudigis/(float)num_musimhits );
+   meDigiEfficiency_->Fill( (float)num_digis/(float)num_musimhits );
+  }
+  
   meSimvsDigi_->Fill( (float)num_musimhits, (float)num_digis ) ;
  //  cout<<"--------------"<<endl;
 

@@ -6,7 +6,9 @@ process = cms.Process("DTDigiAnalyzerFromDigi")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Geometry.DTGeometryBuilder.dtGeometry_cfi")
-process.load("Configuration.StandardSequences.FakeConditions_cff")
+#process.load("Configuration.StandardSequences.FakeConditions_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = "IDEAL_31X::All"
 
 # initialize  MessageLogger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -20,8 +22,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
- #  fileNames = cms.untracked.vstring('/store/mc/2006/12/21/mc-physval-120-SingleMuPlus-Pt100/0000/04B074BD-B496-DB11-B4BF-00096BB5BFD2.root')
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_2_1_4/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V6_v1/0004/400B03E1-2A6C-DD11-A78C-001617E30D4A.root')
+#    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre9/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/0C6D25CB-524F-DE11-B3AA-0030487A1FEC.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_31X_v1/0006/F20698E4-834E-DE11-AD06-001D09F2441B.root')
 )
 
 # Now this piece of code is in Validation/MuonDTDigis/python/dtDigiValidation_cfi.py
