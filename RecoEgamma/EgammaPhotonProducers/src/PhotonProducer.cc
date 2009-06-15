@@ -265,13 +265,11 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     float e1x5    =   EcalClusterTools::e1x5(  *(scRef->seed()), &(*hits), &(*topology)); 
     float e2x5    =   EcalClusterTools::e2x5Max(  *(scRef->seed()), &(*hits), &(*topology)); 
     float e3x3    =   EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology)); 
-    float e5x5uncor    =   EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology)); 
-    double e5x5=0;
+    float e5x5    =   EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology)); 
     std::vector<float> cov =  EcalClusterTools::covariances( *(scRef->seed()), &(*hits), &(*topology), geometry); 
     float sigmaEtaEta = sqrt(cov[0]);
     std::vector<float> locCov =  EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology)); 
     float sigmaIetaIeta = sqrt(locCov[0]);
-
 
     float r9 =e3x3/(scRef->rawEnergy());
     // compute position of ECAL shower
@@ -281,8 +279,8 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
       caloPosition = unconvPos;
       // f(eta) correction to e5x5
       double deltaE = energyCorrectionF->getValue(*pClus, 1);
-      e5x5 = e5x5uncor * (1.0 +  deltaE/scRef->rawEnergy() );
-      photonEnergy=e5x5 + scRef->preshowerEnergy() ;
+      if (subdet==EcalBarrel) e5x5 = e5x5 * (1.0 +  deltaE/scRef->rawEnergy() );
+      photonEnergy=  e5x5    + scRef->preshowerEnergy() ;
     } else {
       caloPosition = scRef->position();
       photonEnergy=scRef->energy();
