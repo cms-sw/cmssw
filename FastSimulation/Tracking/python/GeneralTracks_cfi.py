@@ -8,10 +8,10 @@ generalTracks = cms.EDFilter("FastTrackMerger",
     TrackProducers = cms.VInputTag(
        cms.InputTag("zeroStepFilter"),
        cms.InputTag("firstfilter"),
-       cms.InputTag("secStep"),
-       cms.InputTag("thStep"),
-       cms.InputTag("fouStep"),
-       cms.InputTag("fifthStep"),
+       cms.InputTag("secfilter"),
+       cms.InputTag("thfilter"),
+       cms.InputTag("foufilter"),
+       cms.InputTag("fifthfilter"),
     )
 )
 

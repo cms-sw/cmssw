@@ -10,6 +10,7 @@ iterativeZeroTrackMerging = cms.EDFilter("FastTrackMerger",
 iterativeFirstTrackMerging = cms.EDFilter("FastTrackMerger",
     TrackProducers = cms.VInputTag(cms.InputTag("iterativeFirstTrackCandidatesWithPairs"),
                                    cms.InputTag("iterativeFirstTracksWithPairs")),
+    RemoveTrackProducers =  cms.untracked.VInputTag(cms.InputTag("iterativeZeroTrackMerging")), #prova
     trackAlgo = cms.untracked.uint32(5)
 )
 

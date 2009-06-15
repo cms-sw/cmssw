@@ -16,6 +16,13 @@ dz_par1 = ( 1.1, 4.0 ),
 d0_par2 = ( 1.2, 4.0 ),
 dz_par2 = ( 1.1, 4.0 )
 )
-iterativeFifthTrackFiltering = cms.Sequence(fifthStep)
+
+fifthfilter = cms.EDFilter("QualityFilter",
+    TrackQuality = cms.string('highPurity'),
+    recTracks = cms.InputTag("fifthStep")
+)
+
+
+iterativeFifthTrackFiltering = cms.Sequence(fifthStep*fifthfilter)
 
 

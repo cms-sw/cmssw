@@ -49,4 +49,9 @@ thStep = cms.EDFilter("FastTrackMerger",
                                                      cms.InputTag("thStepTrk"))
 )
 
-iterativeThirdTrackFiltering = cms.Sequence(thStepVtx*thStepTrk*thStep)
+thfilter = cms.EDFilter("QualityFilter",
+    TrackQuality = cms.string('highPurity'),
+    recTracks = cms.InputTag("thStep")
+)
+
+iterativeThirdTrackFiltering = cms.Sequence(thStepVtx*thStepTrk*thStep*thfilter)

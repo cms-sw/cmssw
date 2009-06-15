@@ -17,6 +17,12 @@ d0_par2 = ( 1.0, 4.0 ),
 dz_par2 = ( 1.0, 4.0 )
 )
 
-iterativeFourthTrackFiltering = cms.Sequence(fouStep)
+foufilter = cms.EDFilter("QualityFilter",
+    TrackQuality = cms.string('highPurity'),
+    recTracks = cms.InputTag("fouStep")
+)
+
+
+iterativeFourthTrackFiltering = cms.Sequence(fouStep*foufilter)
 
 
