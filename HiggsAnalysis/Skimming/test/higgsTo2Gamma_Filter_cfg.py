@@ -16,8 +16,6 @@ process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 
-
-#process.GlobalTag.globaltag = 'IDEAL_V11::All'
 process.GlobalTag.globaltag = 'STARTUP_V11::All'
 
 # Complete Skim analysis
@@ -59,7 +57,7 @@ process.hTo2GammaSkimPath = cms.Path(process.photonIDSequence*process.photonIDAn
 
 # Output definition
 process.output = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('hTo2Gamma_Skim_isol.root'),
+    fileName = cms.untracked.string('hTo2Gamma_Skim.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('higgsTo2Gamma_Sequence')
     ),
@@ -74,15 +72,12 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(500) )
 process.source = cms.Source("PoolSource",
                             debugFlag = cms.untracked.bool(True),
                             debugVebosity = cms.untracked.uint32(10),
-                            # fileNames = cms.untracked.vstring('file:/home/llr/cms/ndefilip/RAW2DIGI_RECO_IDEAL_21_2e2mu.root'                            
-                            #fileNames = cms.untracked.vstring('/store/user/ndefilip/comphep-bbll/CMSSW_2_2_3-bkg_RAW2DIGI_RECO_IDEAL/6e3420323cbcc78f83bfe627dc999a04/RAW2DIGI_RECO_IDEAL_998.root'
-                            # )
 
                             fileNames = cms.untracked.vstring(
-                    '/store/relval/CMSSW_2_2_10/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP_V11_v1/0003/4A892733-043E-DE11-B7A6-001D09F24448.root',
-                                    '/store/relval/CMSSW_2_2_10/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP_V11_v1/0002/98518B50-903D-DE11-A8C6-001D09F24024.root',
-                                    '/store/relval/CMSSW_2_2_10/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP_V11_v1/0002/34DB16FC-8D3D-DE11-A97C-001D09F2A465.root',
-                                    '/store/relval/CMSSW_2_2_10/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP_V11_v1/0002/1AF6C5B2-8B3D-DE11-BC0D-001D09F291D2.root'
+     '/store/relval/CMSSW_2_2_10/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP_V11_v1/0003/4A892733-043E-DE11-B7A6-001D09F24448.root',
+     '/store/relval/CMSSW_2_2_10/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP_V11_v1/0002/98518B50-903D-DE11-A8C6-001D09F24024.root',
+     '/store/relval/CMSSW_2_2_10/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP_V11_v1/0002/34DB16FC-8D3D-DE11-A97C-001D09F2A465.root',
+     '/store/relval/CMSSW_2_2_10/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP_V11_v1/0002/1AF6C5B2-8B3D-DE11-BC0D-001D09F291D2.root'
                     )
                             
                             )
@@ -127,9 +122,7 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
 )
 
-
-
-# Endpath
+# Endpath, Uncomment to store the output
 # process.o = cms.EndPath ( process.output )
 
 
