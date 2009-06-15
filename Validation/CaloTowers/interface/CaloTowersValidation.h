@@ -48,11 +48,12 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   std::string theCaloTowerCollectionLabel;
 
   int isub;
+  int nevent;
   // eta limits to calcualte MET, SET (not to include HF if not needed)
   double etaMax[3];
   double etaMin[3];
 
-  // scan
+  // ieta scan
   MonitorElement*  emean_vs_ieta_E;
   MonitorElement*  emean_vs_ieta_H;
   MonitorElement*  emean_vs_ieta_EH;
@@ -60,6 +61,8 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   MonitorElement*  emean_vs_ieta_E1;
   MonitorElement*  emean_vs_ieta_H1;
   MonitorElement*  emean_vs_ieta_EH1;
+
+  MonitorElement* Ntowers_vs_ieta;
 
   // Global maps
   MonitorElement*  mapEnergy_E;

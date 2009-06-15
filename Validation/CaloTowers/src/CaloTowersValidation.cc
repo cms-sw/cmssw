@@ -41,6 +41,9 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
   }
 
 
+  sprintf  (histo, "Ntowers_pre_event_vs_ieta" );
+  Ntowers_vs_ieta = dbe_->book1D(histo, histo, 82, -41., 41.);
+
   sprintf  (histo, "emean_vs_ieta_E" );
   emean_vs_ieta_E = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
   sprintf  (histo, "emean_vs_ieta_H" );
@@ -201,45 +204,54 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
 
 CaloTowersValidation::~CaloTowersValidation() {
 
+  // mean number of towers per ieta
+  int nx = Ntowers_vs_ieta->getNbinsX();
+  float cont;
+  float fev = float(nevent);
+
+  for (int i = 1; i <= nx; i++) {
+    cont = Ntowers_vs_ieta -> getBinContent(i) / fev ;
+    Ntowers_vs_ieta -> setBinContent(i,cont);
+  }
 
   // mean energies evaluation
+  
+  nx = mapEnergy_N->getNbinsX();    
+  int ny = mapEnergy_N->getNbinsY();
+  float cnorm;
+  
+  for (int i = 1; i <= nx; i++) {
+    for (int j = 1; j <= ny; j++) {
+      
+      cnorm   = mapEnergy_N -> getBinContent(i,j);
+      if(cnorm > 0.000001) {
+	
+	// Emean
+	cont = mapEnergy_E -> getBinContent(i,j) / cnorm ;
+	mapEnergy_E -> setBinContent(i,j,cont);	      
+	
+	cont = mapEnergy_H -> getBinContent(i,j) / cnorm ;
+	mapEnergy_H -> setBinContent(i,j,cont);	      
+	
+	cont = mapEnergy_EH -> getBinContent(i,j) / cnorm ;
+	mapEnergy_EH -> setBinContent(i,j,cont);	      
 
-    int nx = mapEnergy_N->getNbinsX();    
-    int ny = mapEnergy_N->getNbinsY();
-    float cnorm;
-    float cont;
-
-    for (int i = 1; i <= nx; i++) {
-      for (int j = 1; j <= ny; j++) {
-
-	cnorm   = mapEnergy_N -> getBinContent(i,j);
-        if(cnorm > 0.000001) {
-
-	  // Emean
-	  cont = mapEnergy_E -> getBinContent(i,j) / cnorm ;
-          mapEnergy_E -> setBinContent(i,j,cont);	      
-
-	  cont = mapEnergy_H -> getBinContent(i,j) / cnorm ;
-          mapEnergy_H -> setBinContent(i,j,cont);	      
-
-	  cont = mapEnergy_EH -> getBinContent(i,j) / cnorm ;
-          mapEnergy_EH -> setBinContent(i,j,cont);	      
-
-	}
       }
     }
-
-   
+  }
+  
+  
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
   
 }
 
 void CaloTowersValidation::endJob() { }
 
-void CaloTowersValidation::beginJob(){
+void CaloTowersValidation::beginJob(){ nevent = 0; }
 
-}
 void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup const& c) {
+
+  nevent++;
 
   bool     MC = false;
   double   phi_MC = 9999.;
@@ -287,7 +299,7 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
   double Eh1    = 0.;
   double ieta_MC = 9999;
   double iphi_MC = 9999;
-  double  etaM   = 9999.;
+  //  double  etaM   = 9999.;
 
 
   // HB   
@@ -356,6 +368,8 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
       }
     }
       
+
+    Ntowers_vs_ieta -> Fill(double(ieta),1.);
 
     if((isub == 0 || isub == 1) 
        && (fabs(etaT) <  etaMax[0] && fabs(etaT) >= etaMin[0] )) {
