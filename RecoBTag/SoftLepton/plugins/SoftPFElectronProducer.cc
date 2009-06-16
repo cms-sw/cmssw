@@ -14,24 +14,20 @@ SoftPFElectronProducer::SoftPFElectronProducer (const edm::ParameterSet& conf)
 {
     gsfElectronTag_ = conf.getParameter<edm::InputTag>("Electrons");
 
-    std::vector<double> dummy;
-    dummy.push_back(-9999.0);
-    dummy.push_back(9999.0);
+    barrelPtCuts_                    = conf.getParameter<std::vector<double> >("BarrelPtCuts");
+    barreldRGsfTrackElectronCuts_    = conf.getParameter<std::vector<double> >("BarreldRGsfTrackElectronCuts");
+    barrelEemPinRatioCuts_           = conf.getParameter<std::vector<double> >("BarrelEemPinRatioCuts");
+    barrelMVACuts_                   = conf.getParameter<std::vector<double> >("BarrelMVACuts");
+    barrelInversedRFirstLastHitCuts_ = conf.getParameter<std::vector<double> >("BarrelInversedRFirstLastHitCuts");
+    barrelRadiusFirstHitCuts_        = conf.getParameter<std::vector<double> >("BarrelRadiusFirstHitCuts");
+    barrelZFirstHitCuts_             = conf.getParameter<std::vector<double> >("BarrelZFirstHitCuts");
 
-    barrelPtCuts_                    = conf.getUntrackedParameter<std::vector<double> >("BarrelPtCuts", dummy);
-    barreldRGsfTrackElectronCuts_    = conf.getUntrackedParameter<std::vector<double> >("BarreldRGsfTrackElectronCuts", dummy);
-    barrelEemPinRatioCuts_           = conf.getUntrackedParameter<std::vector<double> >("BarrelEemPinRatioCuts", dummy);
-    barrelMVACuts_                   = conf.getUntrackedParameter<std::vector<double> >("BarrelMVACuts", dummy);
-    barrelInversedRFirstLastHitCuts_ = conf.getUntrackedParameter<std::vector<double> >("BarrelInversedRFirstLastHitCuts", dummy);
-    barrelRadiusFirstHitCuts_        = conf.getUntrackedParameter<std::vector<double> >("BarrelRadiusFirstHitCuts", dummy);
-    barrelZFirstHitCuts_             = conf.getUntrackedParameter<std::vector<double> >("BarrelZFirstHitCuts", dummy);
-
-    forwardPtCuts_                   = conf.getUntrackedParameter<std::vector<double> >("ForwardPtCuts", dummy);
-    forwardInverseFBremCuts_         = conf.getUntrackedParameter<std::vector<double> >("ForwardInverseFBremCuts", dummy);
-    forwarddRGsfTrackElectronCuts_   = conf.getUntrackedParameter<std::vector<double> >("ForwarddRGsfTrackElectronCuts", dummy);
-    forwardRadiusFirstHitCuts_       = conf.getUntrackedParameter<std::vector<double> >("ForwardRadiusFirstHitCuts", dummy);
-    forwardZFirstHitCuts_            = conf.getUntrackedParameter<std::vector<double> >("ForwardZFirstHitCuts", dummy);
-    forwardMVACuts_                  = conf.getUntrackedParameter<std::vector<double> >("ForwardMVACuts", dummy);
+    forwardPtCuts_                   = conf.getParameter<std::vector<double> >("ForwardPtCuts");
+    forwardInverseFBremCuts_         = conf.getParameter<std::vector<double> >("ForwardInverseFBremCuts");
+    forwarddRGsfTrackElectronCuts_   = conf.getParameter<std::vector<double> >("ForwarddRGsfTrackElectronCuts");
+    forwardRadiusFirstHitCuts_       = conf.getParameter<std::vector<double> >("ForwardRadiusFirstHitCuts");
+    forwardZFirstHitCuts_            = conf.getParameter<std::vector<double> >("ForwardZFirstHitCuts");
+    forwardMVACuts_                  = conf.getParameter<std::vector<double> >("ForwardMVACuts");
 
     produces<reco::GsfElectronCollection>();
 }
@@ -46,15 +42,14 @@ void SoftPFElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   std::auto_ptr<reco::GsfElectronCollection> output(new reco::GsfElectronCollection);
 
   edm::Handle<reco::GsfElectronCollection> gsfCandidates;
-  iEvent.getByLabel(gsfElectronTag_, gsfCandidates); 
-  if(!gsfCandidates.isValid())
-    throw edm::Exception(edm::errors::NotFound) << "PFCandidates with InputTag" << gsfElectronTag_ << " not found!";
+  iEvent.getByLabel(gsfElectronTag_, gsfCandidates);
 
+  // this will throw if the input collection is not present
   reco::GsfElectronCollection gsfCollection = (*(gsfCandidates.product()));
 
-  for(unsigned int i = 0 ; i != gsfCollection.size(); ++i)
+  for (unsigned int i = 0 ; i != gsfCollection.size(); ++i)
   {
-    if(!isClean(gsfCollection[i]))
+    if (not isClean(gsfCollection[i]))
       continue;
 
     output->push_back(gsfCollection[i]);
@@ -86,7 +81,8 @@ bool SoftPFElectronProducer::isClean(const reco::GsfElectron& gsfcandidate)
                                     << mva << std::endl;*/
   if(fabs(gsfcandidate.eta()) < 1.5)
   {
-    if( barrelPtCuts_.front()                    > pt                    || barrelPtCuts_.back()                    < pt) return false;
+    // use barrel cuts
+    if( barrelPtCuts_.front()                    > pt                    || barrelPtCuts_.back()                    < pt)                    return false;
     if( barreldRGsfTrackElectronCuts_.front()    > dRGsfTrackElectron    || barreldRGsfTrackElectronCuts_.back()    < dRGsfTrackElectron)    return false;
     if( barrelEemPinRatioCuts_.front()           > EemPinRatio           || barrelEemPinRatioCuts_.back()           < EemPinRatio)           return false;
     if( barrelMVACuts_.front()                   > mva                   || barrelMVACuts_.back()                   < mva)                   return false;
@@ -96,6 +92,7 @@ bool SoftPFElectronProducer::isClean(const reco::GsfElectron& gsfcandidate)
   }
   else
   {
+    // use endcap cuts
     if( forwardPtCuts_.front()                 > pt                 || forwardPtCuts_.back()                 < pt)                 return false;
     if( forwardInverseFBremCuts_.front()       > 1.0/fbrem          || forwardInverseFBremCuts_.back()       < 1.0/fbrem)          return false;
     if( forwarddRGsfTrackElectronCuts_.front() > dRGsfTrackElectron || forwarddRGsfTrackElectronCuts_.back() < dRGsfTrackElectron) return false;
@@ -104,7 +101,6 @@ bool SoftPFElectronProducer::isClean(const reco::GsfElectron& gsfcandidate)
     if( forwardMVACuts_.front()                > mva                || forwardMVACuts_.back()                < mva)                return false;
   }
 
-  //std::cout << "It passed!" << std::endl;
   return true;
 }
 
