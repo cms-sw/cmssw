@@ -203,16 +203,18 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    
    canvas = new TCanvas("Tracks2","Tracks: efficiency & fakerate",1000,1050);
    
-   rh1->GetYaxis()->SetRangeUser(8,74);
-   sh1->GetYaxis()->SetRangeUser(8,74);
+   rh1->GetYaxis()->SetRangeUser(0,74);
+   sh1->GetYaxis()->SetRangeUser(0,74);
    rh2->GetXaxis()->SetRangeUser(0,74);
    sh2->GetXaxis()->SetRangeUser(0,74);
    
-   rh3->GetXaxis()->SetRangeUser(0,10);
-   sh3->GetXaxis()->SetRangeUser(0,10);
-   rh4->GetXaxis()->SetRangeUser(0,10);
-   sh4->GetXaxis()->SetRangeUser(0,10);
+   //  rh3->GetXaxis()->SetRangeUser(0,10);
+   //  sh3->GetXaxis()->SetRangeUser(0,10);
+   //  rh4->GetXaxis()->SetRangeUser(0,10);
+   //  sh4->GetXaxis()->SetRangeUser(0,10);
    NormalizeHistograms(rh2,sh2);
+   NormalizeHistograms(rh3,sh3);
+   NormalizeHistograms(rh4,sh4);
    
    plot4histos(canvas,
 	      sh1,rh1,sh2,rh2,
