@@ -301,55 +301,6 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaa(3);
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("std::vector<reco::GenParticle>");
-  topaa.addKeyValue("type", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("genParticles");
-  topaa.addKeyValue("moduleLabel", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("");
-  topaa.addKeyValue("productInstanceLabel", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("");
-  topaa.addKeyValue("processName", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("abs($.pdgId())==11 || abs($.pdgId())==13");
-  topaa.addKeyValue("filterExpression", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("1");
-  topaa.addKeyValue("color", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("t");
-  topaa.addKeyValue("isVisible", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("6");
-  topaa.addKeyValue("layer", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("GenParticles");
-  topaa.addKeyValue("purpose", topaaa);
-}
-  topa.addKeyValue("GenParticles", topaa);
-}
-{
-  FWConfiguration topaa(3);
-{
-  FWConfiguration topaaa(0);
   topaaa.addValue("std::vector<reco::Vertex>");
   topaa.addKeyValue("type", topaaa);
 }
@@ -599,6 +550,16 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaa(1);
 {
   FWConfiguration topaaa(0);
+  topaaa.addValue("14");
+  topaa.addKeyValue("x", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("56");
+  topaa.addKeyValue("y", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
   topaaa.addValue("1024");
   topaa.addKeyValue("width", topaaa);
 }
@@ -607,229 +568,10 @@ FWConfiguration* fwConfig() {
   topaaa.addValue("768");
   topaa.addKeyValue("height", topaaa);
 }
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("344");
-  topaa.addKeyValue("x", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("82");
-  topaa.addKeyValue("y", topaaa);
-}
   topa.addKeyValue("main window", topaa);
 }
 {
   FWConfiguration topaa(1);
-{
-  FWConfiguration topaaa(1);
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("Show Muon Barrel", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("Show Muon Endcap", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("Show Pixel Barrel", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("Show Pixel Endcap", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("Show Tracker Barrel", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("Show Tracker Endcap", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("1");
-  topaaa.addKeyValue("Show Wire Frame", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("95");
-  topaaa.addKeyValue("Detector Transparency", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.533418");
-  topaaa.addKeyValue("cameraMatrix0Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.805281");
-  topaaa.addKeyValue("cameraMatrix1Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.258819");
-  topaaa.addKeyValue("cameraMatrix2Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrix3Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("-0.833688");
-  topaaa.addKeyValue("cameraMatrix4Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.552235");
-  topaaa.addKeyValue("cameraMatrix5Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrix6Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrix7Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("-0.142929");
-  topaaa.addKeyValue("cameraMatrix8Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("-0.215774");
-  topaaa.addKeyValue("cameraMatrix9Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.965926");
-  topaaa.addKeyValue("cameraMatrix10Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrix11Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("2609.29");
-  topaaa.addKeyValue("cameraMatrix12Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("3939.15");
-  topaaa.addKeyValue("cameraMatrix13Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("1266.05");
-  topaaa.addKeyValue("cameraMatrix14Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("1");
-  topaaa.addKeyValue("cameraMatrix15Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("-1");
-  topaaa.addKeyValue("cameraMatrixBase0Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrixBase1Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrixBase2Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrixBase3Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrixBase4Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrixBase5Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("1");
-  topaaa.addKeyValue("cameraMatrixBase6Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrixBase7Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrixBase8Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("1");
-  topaaa.addKeyValue("cameraMatrixBase9Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrixBase10Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrixBase11Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrixBase12Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrixBase13Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrixBase14Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("1");
-  topaaa.addKeyValue("cameraMatrixBase15Plain3D", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("11.8506");
-  topaaa.addKeyValue("Plain3D FOV", topaaaa);
-}
-  topaa.addKeyValue("3D", topaaa);
-}
 {
   FWConfiguration topaaa(1);
 {
@@ -874,7 +616,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("1.61741");
+  topaaaa.addValue("0.953987");
   topaaa.addKeyValue("cameraZoomRho Phi", topaaaa);
 }
 {
@@ -1128,7 +870,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("1.07827");
+  topaaaa.addValue("0.78");
   topaaa.addKeyValue("orthoCameraZoom3D Lego", topaaaa);
 }
 {
@@ -1252,7 +994,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("1.86325");
+  topaaaa.addValue("0.953984");
   topaaa.addKeyValue("cameraZoomRho Z", topaaaa);
 }
 {
@@ -1340,6 +1082,215 @@ FWConfiguration* fwConfig() {
 {
   FWConfiguration topaaa(1);
 {
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("Show Muon Barrel", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("Show Muon Endcap", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("Show Pixel Barrel", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("Show Pixel Endcap", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("Show Tracker Barrel", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("Show Tracker Endcap", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("Show Wire Frame", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("95");
+  topaaa.addKeyValue("Detector Transparency", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.388726");
+  topaaa.addKeyValue("cameraMatrix0Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.875171");
+  topaaa.addKeyValue("cameraMatrix1Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.288039");
+  topaaa.addKeyValue("cameraMatrix2Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrix3Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("-0.913904");
+  topaaa.addKeyValue("cameraMatrix4Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.40593");
+  topaaa.addKeyValue("cameraMatrix5Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrix6Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrix7Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("-0.116924");
+  topaaa.addKeyValue("cameraMatrix8Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("-0.263239");
+  topaaa.addKeyValue("cameraMatrix9Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.957619");
+  topaaa.addKeyValue("cameraMatrix10Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrix11Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1901.51");
+  topaaa.addKeyValue("cameraMatrix12Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("4281.03");
+  topaaa.addKeyValue("cameraMatrix13Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1408.98");
+  topaaa.addKeyValue("cameraMatrix14Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("cameraMatrix15Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("-1");
+  topaaa.addKeyValue("cameraMatrixBase0Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrixBase1Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrixBase2Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrixBase3Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrixBase4Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrixBase5Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("cameraMatrixBase6Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrixBase7Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrixBase8Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("cameraMatrixBase9Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrixBase10Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrixBase11Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrixBase12Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrixBase13Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrixBase14Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("cameraMatrixBase15Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("5.55531");
+  topaaa.addKeyValue("Plain3D FOV", topaaaa);
+}
+  topaa.addKeyValue("3D", topaaa);
+}
+{
+  FWConfiguration topaaa(1);
+{
   FWConfiguration topaaaa(1);
   topaaaa.addValue("emEt");
   topaaaa.addValue("emEt");
@@ -1360,7 +1311,21 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(1);
-  topaaaa.addValue("pT");
+  topaaaa.addValue("number of segments");
+  topaaaa.addValue("size");
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> >", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("number of segments");
+  topaaaa.addValue("size");
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("edm::RangeMap<DTChamberId,edm::OwnVector<DTRecSegment4D,edm::ClonePolicy<DTRecSegment4D> >,edm::ClonePolicy<DTRecSegment4D> >", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("Pt");
   topaaaa.addValue("pt");
   topaaaa.addValue("1");
   topaaaa.addValue("eta");
@@ -1377,6 +1342,12 @@ FWConfiguration* fwConfig() {
   topaaaa.addValue("1");
   topaaaa.addValue("emf");
   topaaaa.addValue("emEnergyFraction()");
+  topaaaa.addValue("3");
+  topaaaa.addValue("size_eta");
+  topaaaa.addValue("sqrt(etaetaMoment)");
+  topaaaa.addValue("3");
+  topaaaa.addValue("size_phi");
+  topaaaa.addValue("sqrt(phiphiMoment)");
   topaaaa.addValue("3");
   topaaa.addKeyValue("reco::CaloJet", topaaaa);
 }
@@ -1401,9 +1372,6 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(1);
-  topaaaa.addValue("charge");
-  topaaaa.addValue("charge");
-  topaaaa.addValue("0");
   topaaaa.addValue("pT");
   topaaaa.addValue("pt");
   topaaaa.addValue("1");
@@ -1428,6 +1396,9 @@ FWConfiguration* fwConfig() {
   topaaaa.addValue("dpi");
   topaaaa.addValue("deltaPhiSuperClusterTrackAtVtx()");
   topaaaa.addValue("3");
+  topaaaa.addValue("charge");
+  topaaaa.addValue("charge");
+  topaaaa.addValue("0");
   topaaa.addKeyValue("reco::GsfElectron", topaaaa);
 }
 {
@@ -1461,9 +1432,6 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(1);
-  topaaaa.addValue("charge");
-  topaaaa.addValue("charge");
-  topaaaa.addValue("0");
   topaaaa.addValue("pT");
   topaaaa.addValue("pt");
   topaaaa.addValue("1");
@@ -1497,6 +1465,9 @@ FWConfiguration* fwConfig() {
   topaaaa.addValue("d0 / d0Err");
   topaaaa.addValue("track().d0() / track().d0Error()");
   topaaaa.addValue("3");
+  topaaaa.addValue("charge");
+  topaaaa.addValue("charge");
+  topaaaa.addValue("0");
   topaaa.addKeyValue("reco::Muon", topaaaa);
 }
 {
@@ -1517,9 +1488,6 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(1);
-  topaaaa.addValue("charge");
-  topaaaa.addValue("charge");
-  topaaaa.addValue("0");
   topaaaa.addValue("pT");
   topaaaa.addValue("pt");
   topaaaa.addValue("1");
@@ -1562,6 +1530,9 @@ FWConfiguration* fwConfig() {
   topaaaa.addValue("ndof");
   topaaaa.addValue("ndof");
   topaaaa.addValue("0");
+  topaaaa.addValue("charge");
+  topaaaa.addValue("charge");
+  topaaaa.addValue("0");
   topaaa.addKeyValue("reco::Track", topaaaa);
 }
 {
@@ -1598,6 +1569,8 @@ FWConfiguration* fwConfig() {
 {
   FWConfiguration topaaaa(1);
   topaaaa.addValue("CaloTower");
+  topaaaa.addValue("edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> >");
+  topaaaa.addValue("edm::RangeMap<DTChamberId,edm::OwnVector<DTRecSegment4D,edm::ClonePolicy<DTRecSegment4D> >,edm::ClonePolicy<DTRecSegment4D> >");
   topaaaa.addValue("reco::CaloJet");
   topaaaa.addValue("reco::GenParticle");
   topaaaa.addValue("reco::GsfElectron");
@@ -1616,6 +1589,14 @@ FWConfiguration* fwConfig() {
   topaaaaa.addValue("Jets");
   topaaaa.addKeyValue("collection", topaaaaa);
 }
+{
+  FWConfiguration topaaaaa(0);
+  topaaaa.addKeyValue("sortColumn", topaaaaa);
+}
+{
+  FWConfiguration topaaaaa(1);
+  topaaaa.addKeyValue("descendingSort", topaaaaa);
+}
   topaaa.addKeyValue("TableView", topaaaa);
 }
   topaa.addKeyValue("Table", topaaa);
@@ -1625,14 +1606,62 @@ FWConfiguration* fwConfig() {
 {
   FWConfiguration topaa(1);
   topaa.addValue("407");
-  topaa.addValue("136");
-  topaa.addValue("133");
-  topaa.addValue("130");
-  topaa.addValue("127");
+  topaa.addValue("291");
+  topaa.addValue("287");
+  topaa.addValue("269");
+  topaa.addValue("411");
   topa.addKeyValue("view area", topaa);
 }
 {
   FWConfiguration topaa(1);
+{
+  FWConfiguration topaaa(1);
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1041");
+  topaaa.addKeyValue("x", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("57");
+  topaaa.addKeyValue("y", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("353");
+  topaaa.addKeyValue("width", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("291");
+  topaaa.addKeyValue("height", topaaaa);
+}
+  topaa.addKeyValue("3D", topaaa);
+}
+{
+  FWConfiguration topaaa(1);
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1040");
+  topaaa.addKeyValue("x", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("378");
+  topaaa.addKeyValue("y", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("351");
+  topaaa.addKeyValue("width", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("433");
+  topaaa.addKeyValue("height", topaaaa);
+}
+  topaa.addKeyValue("Table", topaaa);
+}
   topa.addKeyValue("undocked views", topaa);
 }
 {
