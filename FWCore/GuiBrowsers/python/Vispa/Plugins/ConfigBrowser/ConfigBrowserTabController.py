@@ -109,9 +109,11 @@ class ConfigBrowserTabController(BrowserController):
                 QCoreApplication.instance().processEvents()
             if thread.returnValue:
                 if isinstance(self.tab().centerView(), ConfigBrowserBoxView):
+                    self.tab().centerView().setArrangeUsingRelations(True)
                     self.tab().centerView().setConnections(self.dataAccessor().connections())
         else:
             if isinstance(self.tab().centerView(), ConfigBrowserBoxView):
+                self.tab().centerView().setArrangeUsingRelations(False)
                 self.tab().centerView().setConnections([])
         result = self.tab().centerView().updateContent()
         if result:
@@ -260,7 +262,11 @@ class ConfigBrowserTabController(BrowserController):
             try:
                 dot.export(self.dataAccessor(), name + "." + ext, ext)
             except Exception:
-                self.plugin().application().errorMessage("Could not export dot graphic: " + exception_traceback())
+                try:
+                    dot.export(self.dataAccessor(), name + ".dot", "dot")
+                    self.plugin().application().errorMessage("'dot' executable not found which is needed for conversion to '*." + ext + "'. Created '*.dot' file instead.")
+                except Exception:
+                    self.plugin().application().errorMessage("Could not export dot graphic: " + exception_traceback())
 
     def setTab(self, tab):
         BrowserController.setTab(self, tab)

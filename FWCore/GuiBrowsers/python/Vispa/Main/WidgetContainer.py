@@ -94,7 +94,8 @@ class WidgetContainer(VispaWidget, ConnectableWidgetOwner):
                 
         self.move(self.x() - xOffset , self.y() - yOffset)
         for child in self.children():
-            child.move(child.x() + xOffset, child.y() + yOffset)
+            if isinstance(child,QWidget): # needed for PyQt4.5
+                child.move(child.x() + xOffset, child.y() + yOffset)
         
         #self.scheduleRearangeContent()
         #self.scaleChanged()
@@ -136,7 +137,8 @@ class WidgetContainer(VispaWidget, ConnectableWidgetOwner):
             self._childrenVisible = True
             
         for child in self.children():
-            child.setVisible(self._childrenVisible)
+            if isinstance(child,QWidget): # needed for PyQt4.5
+                child.setVisible(self._childrenVisible)
         
         self.setTitleBackgroundColorEnabled(self._childrenVisible)
         self.autosize()

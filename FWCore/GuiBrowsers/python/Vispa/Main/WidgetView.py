@@ -83,8 +83,9 @@ class WidgetView(AbstractView, ZoomableScrollableWidgetOwner):
         logging.debug(__name__ + ": clear")
         self._widgetDict = {}
         for w in self.children():
-            w.setParent(None)
-            w.deleteLater()
+            if isinstance(w,QWidget):
+                w.setParent(None)
+                w.deleteLater()
             
     def addWidget(self, widget, object=None, positionName=0):
         """ Add widget to the view and map it to an id.

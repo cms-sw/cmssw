@@ -98,7 +98,7 @@ class ConnectableWidgetOwner(VispaWidgetOwner):
         # Currently supported events: QEvent.MouseButtonDblClick, QEvent.MouseButtonPress, QEvent.MouseButtonRelease, QEvent.MouseMove.
         workspacePos = connection.mapToParent(event.pos())
         for child in reversed(self.children()):
-            if not child==connection and child.geometry().contains(workspacePos):
+            if not child==connection and isinstance(child,QWidget) and child.geometry().contains(workspacePos):
                 # do not forward event to connections which do not cross the mouse click point, this is important to prevent infinite loop error
                 if isinstance(child,PortConnection) and not child.belongsToRoute(workspacePos):
                     continue

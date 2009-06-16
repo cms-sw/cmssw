@@ -168,7 +168,7 @@ class PortWidget(VispaWidget):
             #widget = self.moduleParent().childAt(moduleParentPosition)
             widget = None
             for child in reversed(self.moduleParent().children()):
-                if child.isVisible() and child.geometry().contains(moduleParentPosition) and not isinstance(child, PortConnection):
+                if isinstance(child,QWidget) and child.isVisible() and child.geometry().contains(moduleParentPosition) and not isinstance(child, PortConnection):
                     widget = child
                     break
         

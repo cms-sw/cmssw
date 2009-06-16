@@ -161,6 +161,7 @@ class Application(QApplication):
         """
         logging.debug('Application: _connectSignals()')
         self.connect(self._window.tabWidget(), SIGNAL("currentChanged(int)"), self.tabChanged)
+        self.connect(self._window.tabWidget(), SIGNAL("tabCloseRequested(int)"), self.tabClosed)
         self.connect(self._window, SIGNAL("activated()"), self.tabChanged)
         
     def _loadPlugins(self):
@@ -852,7 +853,7 @@ class Application(QApplication):
             configfile = open(os.path.abspath("Vispa.ini"), "w")
         self._ini.write(configfile)
         configfile.close()
-        self._ini=None
+        self._ini = None
         
     def _loadIni(self):
         """ Save the list of recent files.
@@ -862,6 +863,8 @@ class Application(QApplication):
         if ini.has_option("history", "recentfiles"):
             text = str(ini.get("history", "recentfiles"))
             self._recentFiles = text.strip("[']").replace("', '", ",").split(",")
+            for f in self._recentFiles:
+                f.rstrip("\/")
             if self._recentFiles == [""]:
                 self._recentFiles = []
                
@@ -963,3 +966,7 @@ class Application(QApplication):
         del self._workingMessages[id]
         if len(self._workingMessages.keys()) == 0:
             self._progressTimeLine.stop()
+
+    def tabClosed(self, i):
+        self.mainWindow().tabWidget().setCurrentIndex(i)
+        self.closeFile()

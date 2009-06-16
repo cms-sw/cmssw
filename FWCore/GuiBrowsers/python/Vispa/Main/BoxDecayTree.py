@@ -28,8 +28,12 @@ class BoxDecayTree(WidgetView):
         self._sortBeforeArranging = True
         self._subView = None
         self._subViews = []
+        self._arrangeUsingRelations = True
 
         self.setPalette(QPalette(Qt.black, Qt.white))
+
+    def setArrangeUsingRelations(self, rel):
+        self._arrangeUsingRelations = rel
 
     def setSubView(self, view):
         self._subView = view
@@ -155,7 +159,7 @@ class BoxDecayTree(WidgetView):
                 if operationId != self._operationId:
                     break
                 if w1.object in self._dataAccessor.motherRelations(w2.object):
-                    connectionWidget=self.createConnection(w1, 'daughterRelations', w2, 'motherRelations', None, False)
+                    connectionWidget = self.createConnection(w1, 'daughterRelations', w2, 'motherRelations', None, False)
                     connectionWidget.stackUnder(w2)
                     connectionWidget.show()
         
@@ -172,13 +176,14 @@ class BoxDecayTree(WidgetView):
             children = vispaWidgets[:vispaWidgets.index(widget)]
         else:
             children = []
-        for w in children:
-            if w.object in motherRelations:
-                # place daughter box on the right of the mother box
-                if x < w.x() + w.width():
-                    x = w.x() + w.width() + leftMargin
-                if y < w.y():
-                    y = w.y()
+        if self._arrangeUsingRelations:
+            for w in children:
+                if w.object in motherRelations:
+                    # place daughter box on the right of the mother box
+                    if x < w.x() + w.width():
+                        x = w.x() + w.width() + leftMargin
+                    if y < w.y():
+                        y = w.y()
         # resolve remaining overlaps by moving the box downwards
         for w in children:
             if not w.object in motherRelations and\
@@ -299,16 +304,16 @@ class BoxDecayTree(WidgetView):
         unsortedObjects = list(objects)
         sortedObjects = []
         for object in reversed(list(objects)):
-            if len(self._dataAccessor.motherRelations(object))==0:
+            if len(self._dataAccessor.motherRelations(object)) == 0:
                 unsortedObjects.remove(object)
-                sortedObjects.insert(0,object)
-                i=0
+                sortedObjects.insert(0, object)
+                i = 0
                 for child in self._dataAccessor.allDaughterRelations(object):
-                    i+=1
+                    i += 1
                     if child in unsortedObjects:
                         unsortedObjects.remove(child)
-                        sortedObjects.insert(i,child)
-        sortedObjects+=unsortedObjects
+                        sortedObjects.insert(i, child)
+        sortedObjects += unsortedObjects
         return tuple(sortedObjects)
         
     def closeEvent(self, event):
