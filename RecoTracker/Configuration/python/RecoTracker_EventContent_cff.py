@@ -33,7 +33,6 @@ RecoTrackerAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoTracks_generalTracks_*_*', 
         'keep recoTracks_rsWithMaterialTracks_*_*',
         'keep *_dedxTruncated40_*_*',
-        'keep *_dedxMedian_*_*',
         'keep *_dedxHarmonic2_*_*',
     )
 )
