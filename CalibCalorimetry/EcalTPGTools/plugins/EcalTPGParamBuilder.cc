@@ -297,7 +297,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   EcalLogicID my_EcalLogicId_EE;
   vector<EcalLogicID> my_TTEcalLogicId_EE;
   vector<EcalLogicID> my_StripEcalLogicId_EE;
-  
+  vector<EcalLogicID> my_CrystalEcalLogicId_EE;
+
   if (writeToDB_){
     std::cout<<"going to get the ecal logic id set"<< endl;
 
@@ -317,6 +318,14 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     my_StripEcalLogicId = db_->getEcalLogicIDSetOrdered( "EB_VFE",   1, 36,   1, 68,   1,5 ,  "EB_VFE",12 );
     std::cout<<"got the 3 ecal barrel logic id set"<< endl;
 
+    // EE crystals identifiers
+    // TTC = 108 Crystal number per TTC = min is 135
+    my_CrystalEcalLogicId_EE = db_->getEcalLogicIDSetOrdered("EE_crystal_number",
+    						    1, 110,
+						    1, 160,
+						    EcalLogicID::NULLID,EcalLogicID::NULLID,
+						    "EE_crystal_number",12 );
+						    
     // EE Strip identifiers
     // TTC=72 TT = 1440 EEstrip = 5
     my_StripEcalLogicId_EE = db_->getEcalLogicIDSetOrdered( "EE_trigger_strip",   
@@ -484,6 +493,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       }
     }
     if (writeToDB_) {
+    // 1700 crystals/SM in the ECAL barrel
       int ixtal=(id.ism()-1)*1700+(id.ic()-1);
       EcalLogicID logicId =my_EcalLogicId[ixtal];
       pedset[logicId] = pedDB ;
@@ -577,16 +587,10 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     int xtalWithinCCUid = 5*(VFEid-1) + xtalInVFE ;
     int etaSlice = towid.ietaAbs() ;
 
-    EcalLogicID logicId ;
     FEConfigPedDat pedDB ;
     FEConfigLinDat linDB ;
     if (writeToFiles_) (*out_file_)<<"CRYSTAL "<<dec<<id.rawId()<<std::endl ;
-    if (writeToDB_ && DBEE_) {
-      int iz = id.positiveZ() ;
-      if (iz ==0) iz = -1 ;
-      logicId = db_->getEcalLogicID ("EE_crystal_number", iz, id.ix(), id.iy()) ;
-    }
-
+    
     coeffStruc coeff ;
     getCoeff(coeff, calibMap, id.rawId()) ;
     getCoeff(coeff, gainMap, id.rawId()) ;
@@ -653,6 +657,9 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	}
       }
       if (writeToDB_ && DBEE_) {
+      // 25 crystals per SuperCrystal in the ECAL EndCap
+        int ixtal=(id.isc()-1)*25+(id.ic()-1);
+        EcalLogicID logicId = my_CrystalEcalLogicId_EE[ixtal];
 	pedset[logicId] = pedDB ;
 	linset[logicId] = linDB ;
       }
