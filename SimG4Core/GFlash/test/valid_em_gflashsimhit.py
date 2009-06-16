@@ -64,7 +64,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 )
 
 process.load("SimG4Core.GFlash.cmsGflashGeometryXML_cfi")
-process.load("SimG4Core.GFlash.Gflash_cfi")
+process.load("SimG4Core.GFlash.GflashSim_cfi")
 
 process.Timing = cms.Service("Timing")
 
