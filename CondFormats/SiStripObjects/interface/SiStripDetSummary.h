@@ -21,6 +21,9 @@ using namespace std;
  * @date 26/3/2009
  * Class to compute and print summary information.
  *
+ * It computes the mean value and rms of a given quantity and is able to print a summary divided by
+ * layer/disk for each subdetector. Optionally it can also print the count insteand of mean+-rms.
+ *
  * Note: consider the possibility to move this class inside SiStripBaseObject as a protected member class.
  *
  */

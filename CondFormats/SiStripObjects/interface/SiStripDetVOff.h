@@ -16,6 +16,11 @@
  * It has three methods to extract the information: <br>
  * - IsModuleVOff returning the true if any of HV or LV is off
  * - IsModuleHVOff/IsModuleLVOff returning true if the corresponding value is off.
+ *
+ * The printSummary method uses SiStripDetSummary to print both LV off and HV off summaries.
+ * See description of the SiStripDetSummary class therein. <br>
+ * The printDebug method prints the status of HV and LV for all DetIds that have at least
+ * one of the two off.
  */
 
 class SiStripDetVOff

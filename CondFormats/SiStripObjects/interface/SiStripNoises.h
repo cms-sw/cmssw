@@ -6,9 +6,17 @@
 #include<iostream>
 #include<boost/cstdint.hpp>
 
+/**
+ * Stores the noise value for all the strips. <br>
+ * The values are encoded from a vector<uint16_t> to a vector<unsigned char> <br>
+ *
+ * The printSummary method prints: Nstrips, mean, rms, min and max noise for each detId.
+ * The print Debug method prints the noise for every strip.
+ *
+ */
 
-class SiStripNoises {
-
+class SiStripNoises
+{
  public:
 
   struct DetRegistry{
@@ -17,11 +25,11 @@ class SiStripNoises {
     uint32_t iend;
   };
 
-  class StrictWeakOrdering{
-  public:
+  class StrictWeakOrdering
+  {
+   public:
     bool operator() (const DetRegistry& p,const uint32_t& i) const {return p.detid < i;}
   };
-
 
   typedef std::vector<unsigned char>                       Container;  
   typedef std::vector<unsigned char>::const_iterator       ContainerIterator;  

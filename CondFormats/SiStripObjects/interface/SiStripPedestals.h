@@ -9,6 +9,18 @@
 // #include "CondFormats/SiStripObjects/interface/SiStripBaseObject.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 
+/**
+ * Stores the pedestal of every strip. <br>
+ * Encodes the information in a vector<char> and uses a vector<DetRegistry> to
+ * connect each range of values to the corresponding detId. <br>
+ * The DetRegistry struct contains the detId and two uint32_t giving the index
+ * of begin and end of the corresponding range in the vector<char>. <br>
+ * Has methods to return the pedestal of a given strip of of all the strips. <br>
+ *
+ * The printSummary method uses SiStripDetSummary. See description therein. <br>
+ * The printDebug method prints the pedestal value for every strip of every detId. <br>
+ */
+
 // class SiStripPedestals : public SiStripBaseObject
 class SiStripPedestals
 {
@@ -60,7 +72,7 @@ public:
   /// Prints all pedestals.
   void printDebug(std::stringstream& ss) const;
 
-private:
+ private:
 
   void     encode(InputVector& Vi, std::vector<unsigned char>& Vo_CHAR);
   uint16_t decode (const uint16_t& strip, const Range& range) const;

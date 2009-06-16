@@ -95,6 +95,6 @@ void SiStripApvGain::printSummary(std::stringstream & ss) const
       summaryGain.add(*detid, getApvGain(it, range));
     } 
   }
-  ss << "Summary of detectors with HV off:" << endl;
+  ss << "Summary of gain values:" << endl;
   summaryGain.print(ss, true);
 }
