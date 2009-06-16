@@ -11,23 +11,27 @@ namespace cond {
     std::string const pythonIDCategory("CondPythonID");
   }
 
+
+
+  char const * className(const std::type_info& t);
+
   class ClassIDRegistry;
 
-    class ClassInfo {
-    public:
-      virtual ~ClassInfo(){}
-      inline ClassInfo(const std::type_info& t) : tinfo(t) {}
-      inline ClassInfo(const std::type_info& t, int);
-      inline const std::type_info& type() const { return tinfo;}
-      std::string pluginName(std::string const & prefix) const;
-      virtual std::string resource() const=0;
-    private:
-      ClassIDRegistry * registry;
-      const char * registerMe(const std::type_info& t);
-      const std::type_info& tinfo;
-    };
- 
-
+  class ClassInfo {
+  public:
+    virtual ~ClassInfo(){}
+    inline ClassInfo(const std::type_info& t) : tinfo(t) {}
+    inline ClassInfo(const std::type_info& t, int);
+    inline const std::type_info& type() const { return tinfo;}
+    std::string pluginName(std::string const & prefix) const;
+    virtual std::string resource() const=0;
+  private:
+    ClassIDRegistry * registry;
+    const char * registerMe(const std::type_info& t);
+    const std::type_info& tinfo;
+  };
+  
+  
   class ClassIDRegistry {
   public:
     typedef ClassInfo Elem;
@@ -35,7 +39,7 @@ namespace cond {
     std::vector<const char*> csids;
     ClassIDRegistry(std::string const & pfix);
     
-   const char * registerMe(const std::type_info& t);
+    const char * registerMe(const std::type_info& t);
     
   private:
     std::string prefix;

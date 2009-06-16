@@ -14,6 +14,12 @@ namespace pool {  void genMD5(const std::string& s, void* code);  }
 
 namespace cond {
 
+  char const * className(const std::type_info& t) {
+    int status=0;
+    return __cxxabiv1::__cxa_demangle(t.name(), 0, 0, &status); 
+  }
+
+
   namespace {
     std::string id(const std::type_info& t) {
       const Reflex::Type type=Reflex::Type::ByTypeInfo(t);
@@ -34,7 +40,7 @@ namespace cond {
       else {
 	// only for test
 	int status=0;
-	std::string name = __cxxabiv1::__cxa_demangle(t.name(), 0, 0, &status);
+	std::string name = className(t);
 //	std::cout << "CondCore::ClassID: Warning no Reflex type for " << name << std::endl;
 	char buff[20];
 	pool::genMD5(name,buff);
@@ -43,6 +49,9 @@ namespace cond {
       return s;
     }
   }
+
+
+
 
   ClassIDRegistry::ClassIDRegistry(std::string const & pfix) : prefix(pfix+"/"){}
 

@@ -39,6 +39,8 @@ echo "test Keyed sequence"
 cmsRun $runbasedir/src/CondCore/DBOutputService/test/python/writeKeyed_cfg.py
 cmscond_list_iov -c sqlite:keys.db -t KeyTest -s
 cmscond_list_iov -c sqlite:keys.db -t ConfTest
+pool_list_object_relational_mapping -c sqlite_file:keys.db
+
 
 cd ..
 exit 0
