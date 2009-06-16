@@ -50,11 +50,9 @@ localParameters( const SiStripCluster& cluster, const LocalTrajectoryParameters&
 std::pair<float,float> StripCPEgeometric::
 strip_stripErrorSquared( const SiStripCluster& cluster, const float& projection) const {
   WrappedCluster wc(cluster);
-  if( isMultiPeaked( cluster, projection ) )
-    return std::make_pair( wc.middle(), wc.N*invsqrt12 ) ;
-  
-  while( useNMinusOne( wc, projection) ) 
-    wc.dropSmallerEdgeStrip();
+  if( isMultiPeaked( cluster, projection ) ) return std::make_pair( wc.middle(), wc.N*wc.N/12. ) ;
+  while( useNMinusOne( wc, projection) )  wc.dropSmallerEdgeStrip();
+  if( wc.deformed() ) return std::make_pair( wc.centroid(), 1/12.);
 
   const float eta = wc.eta(crosstalk);
   float sigma;
@@ -92,7 +90,7 @@ useNMinusOne(const WrappedCluster& wc, const float& projection) const {
   if( wc.N == 1 ) return false;
   if( projection < wc.N-2) return true;
   if( projection >= wcTest.maxProjection(crosstalk) ) return false;
-
+  if( wc.eta(crosstalk) > 1./(wc.N-1) ) return true;
   if( wc.N==2 || wc.N==3)  
     return wc.smallEdgeRatio() < edgeRatioCut[wc.type];
   return fabs(  wcTest.dedxRatio(projection)-1 )   <   fabs(  wc.dedxRatio(projection)-1 ); 
@@ -163,4 +161,10 @@ dropSmallerEdgeStrip() {
                           sumQ-=  *last;  last--;                N-=2; } 
   else if(*first<*last) { sumQ-= *first; first++; firstStrip++;  N-=1; }
   else                  { sumQ-=  *last;  last--;                N-=1; }
+}
+
+inline
+bool StripCPEgeometric::WrappedCluster::
+deformed() const {  
+  return   N>2  &&  std::max(*first,*last) > (sumQ-*first-*last)/(N-2);
 }

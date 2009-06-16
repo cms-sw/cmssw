@@ -31,6 +31,7 @@ class StripCPEgeometric : public StripCPE
     float dedxRatio(const float&) const;
     float smallEdgeRatio() const;
     float centroid() const;
+    bool deformed() const;
     void dropSmallerEdgeStrip();
    private:
     vector<uint8_t>::const_iterator first, last;
