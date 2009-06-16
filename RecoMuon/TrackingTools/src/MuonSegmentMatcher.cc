@@ -6,7 +6,7 @@
 //
 // Original Author:  Alan Tua
 //         Created:  Wed Jul  9 21:40:17 CEST 2008
-// $Id: MuonSegmentMatcher.cc,v 1.4 2009/01/06 13:12:53 ptraczyk Exp $
+// $Id: MuonSegmentMatcher.cc,v 1.5 2009/06/12 14:59:40 slava77 Exp $
 //
 //
 
@@ -123,7 +123,7 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
 	} //End Segment Hit Iteration
       } //End Muon Hit Iteration
 		
-      matchRatioZ = countAgreeingHits/countMuonDTHits;
+      matchRatioZ = countMuonDTHits == 0 ? 0 : countAgreeingHits/countMuonDTHits;
     } //End HasZed Check
 			
     if(rechit->hasPhi()) {
@@ -249,7 +249,7 @@ vector<const CSCSegment*> MuonSegmentMatcher::matchCSC(const reco::Track& muon, 
       }//End 2D rechit iteration
     }//End muon hit iteration
     
-    matchRatioCSC = CSCcountAgreeingHits/countMuonCSCHits;
+    matchRatioCSC = countMuonCSCHits == 0 ? 0 : CSCcountAgreeingHits/countMuonCSCHits;
 		
     //    cout<<"Matching Ratio(CSC): "<<matchRatioCSC<<"     and Num of Hits in Muon "<<countMuonCSCHits<<endl;
     //    cout<<"Num of Hits in Segment = "<<CSCnhits<<endl;
