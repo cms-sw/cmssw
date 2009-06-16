@@ -11,7 +11,8 @@ namespace edm {
     branchType_(NumBranchTypes),
     typeID_(),
     cachedOffset_(0U),
-    fillCount_(0) {
+    fillCount_(0),
+    productRegistry_(0) {
   }
 
 
@@ -22,7 +23,8 @@ namespace edm {
     branchType_(NumBranchTypes),
     typeID_(),
     cachedOffset_(0U),
-    fillCount_(0) {
+    fillCount_(0),
+    productRegistry_(0) {
   }
 
   InputTag::InputTag(char const* label, char const* instance, char const* processName)
@@ -32,7 +34,8 @@ namespace edm {
     branchType_(NumBranchTypes),
     typeID_(),
     cachedOffset_(0U),
-    fillCount_(0) {
+    fillCount_(0),
+    productRegistry_(0) {
   }
 
 
@@ -41,7 +44,8 @@ namespace edm {
     instance_(""),
     process_(),
     cachedOffset_(0U),
-    fillCount_(0) {
+    fillCount_(0),
+    productRegistry_(0) {
 
     // string is delimited by colons
     std::vector<std::string> tokens = tokenize(s, ":");

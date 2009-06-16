@@ -585,6 +585,19 @@ namespace edm {
   }
 
   void
+  Principal::maybeFlushCache(TypeID const& tid, InputTag const& tag) const {
+    if (tag.typeID() != tid ||
+	tag.branchType() != branchType() ||
+	tag.productRegistry() != &productRegistry()) {
+      tag.fillCount() = 0;
+      tag.cachedOffset() = 0U;
+      tag.typeID() = tid;
+      tag.branchType() = branchType();
+      tag.productRegistry() = &productRegistry();
+    }
+  }
+
+  void
   Principal::swapBase(Principal& iOther) {
     std::swap(processHistoryPtr_, iOther.processHistoryPtr_);
     std::swap(processConfiguration_,iOther.processConfiguration_);

@@ -137,6 +137,8 @@ namespace edm {
 
     BranchType const& branchType() const {return branchType_;}
 
+    void maybeFlushCache(TypeID const& tid, InputTag const& tag) const;
+
   protected:
     // ----- Add a new Group
     // *this takes ownership of the Group, which in turn owns its
@@ -229,7 +231,9 @@ namespace edm {
   inline
   boost::shared_ptr<Wrapper<PROD> const> 	 
   getProductByTag(Principal const& ep, InputTag const& tag) {
-    return boost::dynamic_pointer_cast<Wrapper<PROD> const>(ep.getByLabel(TypeID(typeid(PROD)), tag.label(), tag.instance(), tag.process(), tag.cachedOffset(), tag.fillCount()).product());
+    TypeID tid = TypeID(typeid(PROD));
+    ep.maybeFlushCache(tid, tag);
+    return boost::dynamic_pointer_cast<Wrapper<PROD> const>(ep.getByLabel(tid, tag.label(), tag.instance(), tag.process(), tag.cachedOffset(), tag.fillCount()).product());
   }
 }
 #endif

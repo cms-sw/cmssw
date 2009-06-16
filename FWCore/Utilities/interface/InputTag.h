@@ -38,6 +38,8 @@ namespace edm {
 
     int& fillCount() const {return fillCount_;}
 
+    void const*& productRegistry() const {return productRegistry_;}
+
   private:
     std::string label_;
     std::string instance_;
@@ -46,6 +48,7 @@ namespace edm {
     mutable TypeID typeID_;
     mutable size_t cachedOffset_;
     mutable int fillCount_;
+    mutable void const* productRegistry_;
   };
 
   std::ostream& operator<<(std::ostream& ost, InputTag const& tag);

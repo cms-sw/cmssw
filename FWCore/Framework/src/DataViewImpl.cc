@@ -59,12 +59,7 @@ namespace edm {
   DataViewImpl::getByLabel_(TypeID const& tid,
                      InputTag const& tag) const {
 
-    if (tag.typeID() != tid || tag.branchType() != branchType()) {
-      tag.fillCount() = 0;
-      tag.cachedOffset() = 0U;
-      tag.typeID() = tid;
-      tag.branchType() = branchType();
-    }
+    principal_.maybeFlushCache(tid, tag);
     return principal_.getByLabel(tid, tag.label(), tag.instance(), tag.process(), tag.cachedOffset(), tag.fillCount());
   }
 
