@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.36 2009/04/07 17:49:50 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.37 2009/04/08 16:34:36 dmytro Exp $
 //
 //
 
@@ -559,14 +559,14 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  hit!=info.ecalRecHits.end(); ++hit) {
 	 if ((*hit)->id() != emMaxId) continue;
 	 muonEnergy.emMax   = (*hit)->energy();
-	 muonEnergy.ecal_time = (*hit)->energy();
+	 muonEnergy.ecal_time = (*hit)->time();
       }
       DetId hadMaxId     = info.findMaxDeposition(TrackDetMatchInfo::HcalRecHits,1); // max energy deposit in 3x3 shape
       for(std::vector<const HBHERecHit*>::const_iterator hit=info.hcalRecHits.begin(); 
 	  hit!=info.hcalRecHits.end(); ++hit) {
 	 if ((*hit)->id() != hadMaxId) continue;
 	 muonEnergy.hadMax   = (*hit)->energy();
-	 muonEnergy.hcal_time = (*hit)->energy();
+	 muonEnergy.hcal_time = (*hit)->time();
       }
       aMuon.setCalEnergy( muonEnergy );
    }
