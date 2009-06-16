@@ -13,7 +13,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/05/20 08:30:52 $ 
+ **  $Date: 2009/06/09 12:27:45 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -941,7 +941,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 	  if ( conversions[iConv]->conversionVertex().isValid() ) {
 
-	    h_phoEta_Vertex_->Fill(conversions[iConv]->caloCluster()[0]->eta());
+	    if(cut==0) h_phoEta_Vertex_->Fill(conversions[iConv]->caloCluster()[0]->eta());
 
 	    float chi2Prob = ChiSquaredProbability( conversions[iConv]->conversionVertex().normalizedChi2(), conversions[iConv]->conversionVertex().ndof() );
 	    fill2DHistoVector(h_vertexChi2_,chi2Prob,cut,type);
