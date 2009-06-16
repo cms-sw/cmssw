@@ -10,6 +10,7 @@
 #include "OHltMenu.h"
 #include "OHltConfig.h"
 #include "OHltRatePrinter.h"
+#include "OHltEffPrinter.h"
 
 using namespace std;
 
@@ -20,6 +21,8 @@ using namespace std;
 void fillProcesses(OHltConfig *cfg,vector<OHltTree*> &procs,vector<TChain*> &chains,OHltMenu *menu);
 void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
 	       vector<OHltRateCounter*> &rcs,OHltRatePrinter* rprint);
+void calcEff(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
+             vector<OHltRateCounter*> &ecs,OHltEffPrinter* eprint, float &DenEff);
 
 /* ********************************************** */
 // Print out usage and example
@@ -73,7 +76,17 @@ int main(int argc, char *argv[]){
     rprint->writeHistos(ocfg,omenu);    
   }
   /* **** */
-
+  // Calculate Efficiencies
+  vector<OHltRateCounter*> ecs; ecs.clear();
+  for (unsigned int i=0;i<procs.size();i++) {
+    ecs.push_back(new OHltRateCounter(omenu->GetTriggerSize()));
+  }
+  OHltEffPrinter* eprint = new OHltEffPrinter();
+  float DenEff=0;
+  calcEff(ocfg,omenu,procs,ecs,eprint,DenEff);
+  if(DenEff != 0)
+    eprint->printEffASCII(ocfg,omenu);
+  
   //
   return 0;
 }
@@ -102,6 +115,14 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
   vector<float> RateErr,pureRateErr,spureRateErr;
   vector< vector<float> >coMa;
   vector<float> coDen;
+  float DenEff=0.;
+  Int_t nbinpt = 150; Float_t ptmin = 0.0; Float_t ptmax = 150.0;
+  Int_t nbineta = 15; Float_t etamin = -5.0; Float_t etamax = 5.0;
+  TH1F *h1 = new TH1F("h1","pTnum",nbinpt,ptmin,ptmax);
+  TH1F *h2 = new TH1F("h2","pTden",nbinpt,ptmin,ptmax);
+  TH1F *h3 = new TH1F("h3","etanum",nbineta,etamin,etamax);
+  TH1F *h4 = new TH1F("h4","etaden",nbineta,etamin,etamax);
+
   
   vector<float> ftmp;
   for (int i=0;i<ntrig;i++) { // Init
@@ -112,7 +133,7 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
   for (int j=0;j<ntrig;j++) { coMa.push_back(ftmp); }
 
   for (unsigned int i=0;i<procs.size();i++) {
-    procs[i]->Loop(rcs[i],cfg,menu,i);
+    procs[i]->Loop(rcs[i],cfg,menu,i,DenEff,h1,h2,h3,h4);
 
     float deno = (float)cfg->nEntries;
 
@@ -182,6 +203,100 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
   
   rprint->SetupAll(Rate,RateErr,spureRate,spureRateErr,pureRate,pureRateErr,coMa);
   
+}
+void calcEff(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
+             vector<OHltRateCounter*> &rcs,OHltEffPrinter* eprint, float &DenEff) {
+
+  const int ntrig = (int)menu->GetTriggerSize();
+  vector<float> Rate,pureRate,spureRate;
+  vector<float> Eff,pureEff,spureEff;
+  vector<float> EffErr,pureEffErr,spureEffErr;
+  vector< vector<float> >coMa;
+  vector<float> coDen;
+  //  float DenEff=0.;
+  Int_t nbinpt = 150; Float_t ptmin = 0.0; Float_t ptmax = 150.0;
+  Int_t nbineta = 60; Float_t etamin = -5.0; Float_t etamax = 5.0;
+
+  vector<float> ftmp;
+  for (int i=0;i<ntrig;i++) { // Init
+    Eff.push_back(0.);pureEff.push_back(0.);spureEff.push_back(0.);
+    ftmp.push_back(0.);
+    EffErr.push_back(0.);pureEffErr.push_back(0.);spureEffErr.push_back(0.);
+    coDen.push_back(0.);
+  }
+  for (int j=0;j<ntrig;j++) { coMa.push_back(ftmp); }
+
+  for (unsigned int i=0;i<procs.size();i++) {
+    if(cfg->pnames[i]=="zee"||cfg->pnames[i]=="zmumu"){
+
+      char filename[256];
+      snprintf(filename,255,"MyEffHist_%d.root",i);
+      TFile*   theFile = new TFile(filename, "RECREATE");
+      theFile->cd();
+      cout<< "Efficiency root file created: "<<filename <<endl;
+
+      TH1F *h1 = new TH1F("pTnum","pTnum",nbinpt,ptmin,ptmax);
+      TH1F *h2 = new TH1F("pTden","pTden",nbinpt,ptmin,ptmax);
+      TH1F *h3 = new TH1F("etanum","etanum",nbineta,etamin,etamax);
+      TH1F *h4 = new TH1F("etaden","etaden",nbineta,etamin,etamax);
+      TH1F *Eff_pt = new TH1F("eff_pt","eff_pt",nbinpt,ptmin,ptmax);
+      TH1F *Eff_eta = new TH1F("eff_eta","eff_eta",nbineta,etamin,etamax);
+
+      procs[i]->Loop(rcs[i],cfg,menu,i,DenEff,h1,h2,h3,h4);
+      
+      for (int j=0;j<ntrig;j++) {
+	Eff[j]    += OHltRateCounter::eff((float)rcs[i]->iCount[j],DenEff);
+	EffErr[j] += OHltRateCounter::effErrb((float)rcs[i]->iCount[j],DenEff);
+	//cout<<j<<" Counts: "<<rcs[i]->iCount[j]<<endl;
+	spureEff[j]    += OHltRateCounter::eff((float)rcs[i]->sPureCount[j],DenEff);
+	spureEffErr[j] += OHltRateCounter::effErrb((float)rcs[i]->sPureCount[j],DenEff);
+	pureEff[j]    += OHltRateCounter::eff((float)rcs[i]->pureCount[j],DenEff);
+	pureEffErr[j] += OHltRateCounter::effErrb((float)rcs[i]->pureCount[j],DenEff);
+	
+	for (int k=0;k<ntrig;k++){
+	  coMa[j][k] += ((float)rcs[i]->overlapCount[j][k]) * cfg->psigmas[i];
+	}
+	coDen[j] += ((float)rcs[i]->iCount[j] * cfg->psigmas[i]); // ovelap denominator
+      }
+
+      Eff_pt->Divide(h1,h2,1.,1.);
+      Eff_eta->Divide(h3,h4,1.,1.);
+      int nbins_pt=h1->GetNbinsX();
+      for ( int i=1; i<=nbins_pt; i++ ) {
+	double a = h1->GetBinContent( i );
+	double n = h2->GetBinContent( i );
+	if ( n != 0. )
+	  Eff_pt->SetBinError( i, sqrt( 1./n * a/n * ( 1. - a/n ) ) );
+      }
+      int nbins_eta=h3->GetNbinsX();
+      for ( int i=1; i<=nbins_eta; i++ ) {
+	double a = h3->GetBinContent( i );
+	double n = h4->GetBinContent( i );
+	if ( n != 0. )
+	  Eff_eta->SetBinError( i, sqrt( 1./n * a/n * ( 1. - a/n ) ) );
+      }
+
+
+      h1->Write(); 
+      h2->Write(); 
+      h3->Write(); 
+      h4->Write(); 
+      Eff_pt->Write();
+      Eff_eta->Write();
+
+      theFile->Close();
+
+    }
+  }
+
+  for (int i=0;i<ntrig;i++) {
+    for (int j=0;j<ntrig;j++){
+      coMa[i][j] = coMa[i][j]/coDen[i];
+    }
+  }
+  
+
+  if(DenEff!=0) eprint->SetupAll(Eff,EffErr,spureEff,spureEffErr,pureEff,pureEffErr,coMa, DenEff);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

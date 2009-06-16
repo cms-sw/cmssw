@@ -32,6 +32,12 @@ class OHltRateCounter {
     float unc = sqrt(af + (r*r*bf) )/bf;
     return unc;
   }
+  static inline float effErrb(int a, int b){
+    if (b==0.){return -1.;}
+    float af = float(a),bf = float(b),r = af/bf;
+    float unc = sqrt(af - (r*r*bf) )/bf;
+    return unc;
+  }
   static inline float eff(float a, float b){ 
     if (b==0.){return -1.;}
     float af = float(a),bf = float(b),effi = af/bf;
@@ -41,6 +47,12 @@ class OHltRateCounter {
     if (b==0.){return -1.;}
     float af = float(a),bf = float(b),r = af/bf;
     float unc = sqrt(af + (r*r*bf) )/bf;
+    return unc;
+  }
+  static inline float effErrb(float a, float b){
+    if (b==0.){return -1.;}
+    float af = float(a),bf = float(b),r = af/bf;
+    float unc = sqrt(af - (r*r*bf) )/bf;
     return unc;
   }
   

@@ -24,6 +24,9 @@
 
 #include "L1GtLogicParser.h"
 
+#include "TH1.h"
+#include "TH2.h"
+
 class OHltTree {
 public :
   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
@@ -1768,8 +1771,9 @@ public :
   inline void SetL1MuonQuality();
   inline void SetOpenL1Bits();
 
-  void Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int pID);
+  void Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int pID,float &Den,TH1F* &h1,TH1F* &h2,TH1F* &h3,TH1F* &h4);
 
+  void PlotOHltEffCurves(TString hlteffmode,TString ohltobject,TH1F* &h1,TH1F* &h2,TH1F* &h3,TH1F* &h4);
   void CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it);
   void PrintOhltVariables(int level, int type);
   int OpenHltTauPassed(float Et,float Eiso, float L25Tpt, int L25Tiso,float L3Tpt, int L3Tiso);
