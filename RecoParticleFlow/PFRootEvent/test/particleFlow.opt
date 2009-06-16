@@ -258,9 +258,9 @@ clustering posCalc_p1_HFHAD		0
 // ------------ clustering PS ----------------------------
 
 // threshold on preshower rechits
-clustering thresh_PS			0.0001
+clustering thresh_PS			0.00006
 // seed threshold for preshower rechits
-clustering thresh_Seed_PS		0.0003
+clustering thresh_Seed_PS		0.00012
 
 clustering posCalc_p1_PS                0
 
