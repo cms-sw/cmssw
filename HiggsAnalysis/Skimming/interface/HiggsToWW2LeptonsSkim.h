@@ -7,10 +7,11 @@
  *  This class is an EDFilter choosing reconstructed di-tracks
  *  Allows extended requirements for tighter skim options (bool beTight=true)
  *
- *  $Date: 2007/12/12 16:08:48 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/05/22 07:49:29 $
+ *  $Revision: 1.4 $
  *
- *  \author J. Fernandez  -  Univ. Oviedo
+ *  \author Ezio Torassa  -  INFN Padova
+ *  \revised J. Fernandez  -  Univ. Oviedo
  *
  */
 
@@ -52,7 +53,6 @@ class HiggsToWW2LeptonsSkim : public edm::EDFilter {
       unsigned int nAccepted_;
 
   // Reco samples
-  edm::InputTag recTrackLabel;
   edm::InputTag theGLBMuonLabel;
   edm::InputTag theGsfELabel;
 

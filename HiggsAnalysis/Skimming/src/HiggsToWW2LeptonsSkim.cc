@@ -3,10 +3,11 @@
  *  
  *  This class is an EDFilter for HWW events
  *
- *  $Date: 2009/05/22 07:49:30 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/05/22 07:58:26 $
+ *  $Revision: 1.15 $
  *
  *  \author Ezio Torassa  -  INFN Padova
+ *  \revised Javier Fernandez - Univ. Oviedo	
  *
  */
 
@@ -38,7 +39,6 @@ HiggsToWW2LeptonsSkim::HiggsToWW2LeptonsSkim(const edm::ParameterSet& iConfig) :
 {
 
   // Reconstructed objects
-  recTrackLabel     = iConfig.getParameter<edm::InputTag>("RecoTrackLabel");
   theGLBMuonLabel   = iConfig.getParameter<edm::InputTag>("GlobalMuonCollectionLabel");
   theGsfELabel      = iConfig.getParameter<edm::InputTag>("ElectronCollectionLabel");
 
