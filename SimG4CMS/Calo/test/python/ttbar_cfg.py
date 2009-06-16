@@ -22,37 +22,63 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
+    destinations = cms.untracked.vstring('cout'),
+    categories = cms.untracked.vstring('SimG4CoreSensitiveDetector', 
+        'SimG4CoreGeometry', 'SimG4CoreApplication', 'MagneticField',
+        'VolumeBasedMagneticFieldESProducer', 'TrackerSimInfo',
+        'TrackerSimInfoNumbering', 'TrackerMapDDDtoID',
+        'CaloSim', 'EcalGeom', 'EcalSim',
+        'HCalGeom', 'HcalSim', 'HFShower', 'BscSim'),
     cout = cms.untracked.PSet(
-        noTimeStamps = cms.untracked.bool(False),
-        G4cerr = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        PhysicsList = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
         default = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        SimG4CoreSensitiveDetector = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        MemoryCheck = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+        SimG4CoreApplication = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
         ),
-        HitStudy = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+        SimG4CoreGeometry = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
         ),
-        FwkJob = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+        MagneticField = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
         ),
-        G4cout = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+        VolumeBasedMagneticFieldESProducer = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        TrackerSimInfo = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        TrackerSimInfoNumbering = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        TrackerMapDDDtoID = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        CaloSim = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        EcalGeom = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        EcalSim = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        HCalGeom = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        HcalSim = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        HFShower = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        BscSim = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
         )
-    ),
-    categories = cms.untracked.vstring('FwkJob', 
-        'PhysicsList', 
-        'G4cout', 
-        'G4cerr', 
-        'HitStudy', 
-        'MemoryCheck'),
-    destinations = cms.untracked.vstring('cout')
+    )
 )
 
 process.Timing = cms.Service("Timing")
