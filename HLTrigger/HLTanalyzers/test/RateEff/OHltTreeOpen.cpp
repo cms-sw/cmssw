@@ -19,7 +19,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
     } 
   } 
-  if (menu->GetTriggerName(it).CompareTo("OpenL1_EG5_HTT100") == 0) { 
+  else if (menu->GetTriggerName(it).CompareTo("OpenL1_EG5_HTT100") == 0) { 
     if(map_BitOfStandardHLTPath.find("OpenL1_EG5_HTT100")->second == 1) {   
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
     }   
@@ -112,20 +112,41 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   } 
  
   /* DiJetAve */
-  if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve15") == 0) {   
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve15") == 0) {   
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(OpenHltDiJetAvePassed(15.)>=1) {   
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
       }   
     }   
   }
-  if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve30") == 0) {   
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve30") == 0) {   
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(OpenHltDiJetAvePassed(30.)>=1) {   
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
       }   
     }   
   }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve50") == 0) {    
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if(OpenHltDiJetAvePassed(30.)>=1) {    
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
+      }    
+    }    
+  } 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve70") == 0) {    
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if(OpenHltDiJetAvePassed(30.)>=1) {    
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
+      }    
+    }    
+  } 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve130") == 0) {    
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if(OpenHltDiJetAvePassed(30.)>=1) {    
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
+      }    
+    }    
+  } 
 
   /* Forward & MultiJet */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_FwdJet20U") == 0) {      
@@ -888,6 +909,13 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       }      
     }      
   }       
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Photon70_L1R") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if(OpenHlt1PhotonPassed(70.,0,999.,999.,999.,999.)>=1) {       
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }       
+      }       
+    }       
+  }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoPhoton10_L1R") == 0) {     
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(OpenHlt1PhotonPassed(10.,0,1.,1.5,6.,4.)>=1) {      
@@ -1024,6 +1052,13 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       }        
     }        
   }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleIsoTau30_Trk5") == 0) {         
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {  
+      if(OpenHltTauL2SCPassed(30.,5.,0,0.,1)>=1) { 
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }       
+      }         
+    }         
+  } 
 
   // 1 Leg L3 isolation - prototype version from Chi-Nhan
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleLooseIsoTau15_Trk5") == 0) { 
@@ -1459,6 +1494,11 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       if(njetswithe >= 3) // Require >= 3 jets above threshold 
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
     } 
+  }
+  else {
+    if(nMissingTriggerWarnings < 10)
+      cout << "Warning: the requested trigger " << menu->GetTriggerName(it) << " is not implemented in OHltTreeOpen. No rate will be calculated." << endl;
+    nMissingTriggerWarnings++;
   }
 }
     

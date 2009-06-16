@@ -1821,6 +1821,8 @@ private:
   TRandom3 random; // for random prescale method
   inline int GetIntRandom() { return (int)(9999999.*random.Rndm()); }
 
+  int nMissingTriggerWarnings;
+
   enum e_objType {muon,electron,tau,photon,jet};
 
 };
@@ -1840,6 +1842,8 @@ OHltTree::OHltTree(TTree *tree, OHltMenu *menu)
     return;
   }
   Init(tree);
+
+  nMissingTriggerWarnings = 0;
   
   nTrig = menu->GetTriggerSize();
   nL1Trig = menu->GetL1TriggerSize();
