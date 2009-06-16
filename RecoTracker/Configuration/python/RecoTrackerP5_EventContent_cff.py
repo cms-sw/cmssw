@@ -127,16 +127,12 @@ RecoTrackerAOD = cms.PSet(
         'keep recoTracks_rsWithMaterialTracksP5Bottom_*_*',
         'keep recoTracks_cosmictrackfinderP5Bottom_*_*',
         'keep *_dedxTruncated40_*_*',
-        'keep *_dedxMedian_*_*',
         'keep *_dedxHarmonic2_*_*',
         'keep *_dedxTruncated40CTF_*_*',
-        'keep *_dedxMedianCTF_*_*',
         'keep *_dedxHarmonic2CTF_*_*',
         'keep *_dedxTruncated40RS_*_*',
-        'keep *_dedxMedianRS_*_*',
         'keep *_dedxHarmonic2RS_*_*',
         'keep *_dedxTruncated40CosmicTF_*_*',
-        'keep *_dedxMedianCosmicTF_*_*',
         'keep *_dedxHarmonic2CosmicTF_*_*',
     )
 )
