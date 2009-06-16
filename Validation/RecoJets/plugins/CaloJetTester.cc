@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.cc,v 1.15 2009/06/06 20:05:34 hatake Exp $
+// $Id: CaloJetTester.cc,v 1.16 2009/06/09 14:48:04 hatake Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -200,8 +200,8 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mCaloSumET        = dbe->book1D("CaloSumET","CaloSumET",100,0,500);
     mCaloSumET_3000   = dbe->book1D("CaloSumET_3000","CaloSumET_3000",100,3000,8000);
     //
-    mHadTiming        = dbe->book1D("HadTiming", "HadTiming", 25, 0, 25);
-    mEmTiming         = dbe->book1D("EMTiming", "EMTiming", 15, 0 , 15);
+    mHadTiming        = dbe->book1D("HadTiming", "HadTiming", 75, -50, 100);
+    mEmTiming         = dbe->book1D("EMTiming", "EMTiming", 75, -50, 100);
     //
     mNJetsEtaC        = dbe->book1D("NJetsEtaC_Pt10", "NJetsEtaC_Pt10", 15, 0, 15);
     mNJetsEtaF        = dbe->book1D("NJetsEtaF_Pt10", "NJetsEtaF_Pt10", 15, 0, 15);
