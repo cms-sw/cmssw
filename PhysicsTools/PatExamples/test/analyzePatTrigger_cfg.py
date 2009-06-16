@@ -21,16 +21,10 @@ process.TFileService = cms.Service( "TFileService",
 )
 
 process.triggerAnalysis = cms.EDAnalyzer( "PatTriggerAnalyzer",
-    hltProcessName = cms.string( 'HLT' ),
-    processName    = cms.string( 'PAT' ),
-    trigger        = cms.InputTag( "patTrigger" ),
-    triggerEvent   = cms.InputTag( "patTriggerEvent" ),
-    photons        = cms.InputTag( "selectedLayer1Photons" ),
-    electrons      = cms.InputTag( "selectedLayer1Electrons" ),
-    muons          = cms.InputTag( "selectedLayer1Muons" ),
-    taus           = cms.InputTag( "selectedLayer1Taus" ),
-    jets           = cms.InputTag( "selectedLayer1Jets" ),
-    mets           = cms.InputTag( "layer1METs" )
+    trigger      = cms.InputTag( "patTrigger" ),
+    triggerEvent = cms.InputTag( "patTriggerEvent" ),
+    muons        = cms.InputTag( "selectedLayer1Muons" ),
+    muonMatch    = cms.string( 'muonTriggerMatchHLTMuons' )
 )
 
 process.p = cms.Path(
