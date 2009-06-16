@@ -10,6 +10,8 @@ process.load("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
 process.load("Configuration.StandardSequences.DigiToRaw_cff")
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+
+#global tags for conditions data: https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions#31X_pre_releases_and_integration
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = 'IDEAL_31X::All'
 
