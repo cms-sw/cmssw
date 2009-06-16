@@ -6,7 +6,7 @@
 //
 // Original Author:  Alan Tua
 //         Created:  Wed Jul  9 21:40:17 CEST 2008
-// $Id: MuonSegmentMatcher.cc,v 1.5 2009/06/12 14:59:40 slava77 Exp $
+// $Id: MuonSegmentMatcher.cc,v 1.6 2009/06/16 06:51:38 slava77 Exp $
 //
 //
 
@@ -46,8 +46,8 @@ using namespace std;
 MuonSegmentMatcher::MuonSegmentMatcher(const edm::ParameterSet& matchParameters, MuonServiceProxy* service)
   :
   theService(service),
-  DTSegmentTags_(matchParameters.getUntrackedParameter<edm::InputTag>("DTsegments")),
-  CSCSegmentTags_(matchParameters.getUntrackedParameter<edm::InputTag>("CSCsegments")),
+  DTSegmentTags_(matchParameters.getParameter<edm::InputTag>("DTsegments")),
+  CSCSegmentTags_(matchParameters.getParameter<edm::InputTag>("CSCsegments")),
   dtTightMatch(matchParameters.getParameter<bool>("TightMatchDT")),
   cscTightMatch(matchParameters.getParameter<bool>("TightMatchCSC"))
 {
