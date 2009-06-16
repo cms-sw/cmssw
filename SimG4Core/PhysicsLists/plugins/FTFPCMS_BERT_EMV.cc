@@ -21,7 +21,7 @@ FTFPCMS_BERT_EMV::FTFPCMS_BERT_EMV(G4LogicalVolumeToDDLogicalPartMap& map,
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "FTFP_BERT_EMV 4.2 with Flags for EM Physics "
+			      << "FTFP_BERT_EMV 1.0 with Flags for EM Physics "
 			      << emPhys << " and for Hadronic Physics "
 			      << hadPhys << "\n";
 

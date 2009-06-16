@@ -21,7 +21,7 @@ FTFPCMS::FTFPCMS(G4LogicalVolumeToDDLogicalPartMap& map,
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "FTFP 4.2 with Flags for EM Physics "
+			      << "FTFP 4.4 with Flags for EM Physics "
 			      << emPhys << " and for Hadronic Physics "
 			      << hadPhys << "\n";
 

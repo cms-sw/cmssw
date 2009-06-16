@@ -168,32 +168,38 @@ void CMSEmStandardPhysics71::ConstructProcess() {
       pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
       pmanager->AddProcess(new G4ionIonisation,       -1, 2, 2);
 
-    } else if (particleName == "anti_omega-" ||
+    } else if (particleName == "B+" ||
+               particleName == "B-" ||
+               particleName == "D+" ||
+               particleName == "D-" ||
+               particleName == "Ds+" ||
+               particleName == "Ds-" ||
+               particleName == "anti_lambda_c+" ||
+               particleName == "anti_omega-" ||
                particleName == "anti_proton" ||
+               particleName == "anti_sigma_c+" ||
+               particleName == "anti_sigma_c++" ||
                particleName == "anti_sigma+" ||
                particleName == "anti_sigma-" ||
+               particleName == "anti_xi_c+" ||
                particleName == "anti_xi-" ||
                particleName == "deuteron" ||
                particleName == "kaon+" ||
                particleName == "kaon-" ||
+               particleName == "lambda_c+" ||
                particleName == "omega-" ||
                particleName == "pi+" ||
                particleName == "pi-" ||
                particleName == "proton" ||
+               particleName == "sigma_c+" ||
+               particleName == "sigma_c++" ||
                particleName == "sigma+" ||
                particleName == "sigma-" ||
                particleName == "tau+" ||
                particleName == "tau-" ||
                particleName == "triton" ||
-               particleName == "xi-" ||
-               particleName == "B-" ||
-               particleName == "B+" ||
-               particleName == "D-" ||
-               particleName == "D+" ||
-               particleName == "anti_lambda_c+" ||
-               particleName == "anti_xi_c+" ||
-               particleName == "lambda_c+" ||
-               particleName == "xi_c+" ) {
+               particleName == "xi_c+" ||
+               particleName == "xi-" ) {
 
       pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
       pmanager->AddProcess(new G4hIonisation,         -1, 2, 2);

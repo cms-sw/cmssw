@@ -188,6 +188,8 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
                particleName == "anti_lambda_c+" ||
                particleName == "anti_omega-" ||
                particleName == "anti_proton" ||
+               particleName == "anti_sigma_c+" ||
+               particleName == "anti_sigma_c++" ||
                particleName == "anti_sigma+" ||
                particleName == "anti_sigma-" ||
                particleName == "anti_xi_c+" ||
@@ -200,6 +202,8 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
                particleName == "pi+" ||
                particleName == "pi-" ||
                particleName == "proton" ||
+               particleName == "sigma_c+" ||
+               particleName == "sigma_c++" ||
                particleName == "sigma+" ||
                particleName == "sigma-" ||
                particleName == "tau+" ||

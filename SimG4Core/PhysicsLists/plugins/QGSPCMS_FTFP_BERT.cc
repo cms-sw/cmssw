@@ -1,5 +1,5 @@
-#include "LHEPCMS_EMV.hh"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics71.h"
+#include "QGSPCMS_FTFP_BERT.hh"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4DecayPhysics.hh"
@@ -7,12 +7,13 @@
 #include "G4IonPhysics.hh"
 #include "G4QStoppingPhysics.hh"
 #include "G4HadronElasticPhysics.hh"
+#include "G4NeutronTrackingCut.hh"
 
 #include "G4DataQuestionaire.hh"
-#include "HadronPhysicsLHEP_EMV.hh"
+#include "SimG4Core/PhysicsLists/interface/HadronPhysicsQGSPCMS_FTFP_BERT.h"
 
-LHEPCMS_EMV::LHEPCMS_EMV(G4LogicalVolumeToDDLogicalPartMap& map, 
-			 const edm::ParameterSet & p) : PhysicsList(map, p) {
+QGSPCMS_FTFP_BERT::QGSPCMS_FTFP_BERT(G4LogicalVolumeToDDLogicalPartMap& map,
+				     const edm::ParameterSet & p) : PhysicsList(map, p) {
 
   G4DataQuestionaire it(photon);
   
@@ -20,33 +21,36 @@ LHEPCMS_EMV::LHEPCMS_EMV(G4LogicalVolumeToDDLogicalPartMap& map,
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "LHEP_EMV 3.2 with Flags for EM Physics "
+			      << "QGSP_FTFP_BERT 3.3 with Flags for EM Physics "
 			      << emPhys << " and for Hadronic Physics "
 			      << hadPhys << "\n";
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics71("standard EM v71",ver));
+    RegisterPhysics( new CMSEmStandardPhysics("standard EM",ver));
 
     // Synchroton Radiation & GN Physics
     RegisterPhysics( new G4EmExtraPhysics("extra EM"));
   }
 
-  // General Physics - i.e. decay
-  RegisterPhysics( new G4DecayPhysics("decay"));
+  // Decays
+  RegisterPhysics( new G4DecayPhysics("decay",ver) );
 
   if (hadPhys) {
     // Hadron Elastic scattering
-    RegisterPhysics( new G4HadronElasticPhysics("LElastic",ver,false));
+    RegisterPhysics( new G4HadronElasticPhysics("elastic",ver,false));
 
     // Hadron Physics
-    RegisterPhysics(  new HadronPhysicsLHEP_EMV("hadron"));
-
+    G4bool quasiElastic=true;
+    RegisterPhysics( new HadronPhysicsQGSPCMS_FTFP_BERT("hadron",quasiElastic));
+  
     // Stopping Physics
-    RegisterPhysics(new G4QStoppingPhysics("stopping"));
+    RegisterPhysics( new G4QStoppingPhysics("stopping"));
 
     // Ion Physics
     RegisterPhysics( new G4IonPhysics("ion"));
+
+    // Neutron tracking cut
+    RegisterPhysics( new G4NeutronTrackingCut("Neutron tracking cut", ver));
   }
 }
-
