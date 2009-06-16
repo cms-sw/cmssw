@@ -5,8 +5,8 @@ import sys
 import fileinput
 import string
 
-NewRelease='CMSSW_3_1_0_pre9'
-RefRelease='CMSSW_3_1_0_pre7'
+NewRelease='CMSSW_3_1_0_pre10'
+RefRelease='CMSSW_3_1_0_pre9'
 
 samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar']
 #samples= ['RelValTTbar','RelValZMM']
@@ -17,7 +17,7 @@ Publish=False
 NewFastSim=False
 RefFastSim=False
 
-GetFilesFromCastor=True
+GetFilesFromCastor=False
 CastorRepository = '/castor/cern.ch/user/n/nuno/relval/harvest'
 
 NewCondition='IDEAL'
@@ -85,7 +85,8 @@ for sample in samples :
          refSample=RefRepository+'/'+RefRelease+'/'+RefTag+'/'+sample+'/'+'val.'+sample+'.root'
 
          if (os.path.isfile(NewRelease+'/'+NewTag+'/'+sample+'/val'+sample+'.root')==False and os.path.isfile(newSample)) :
-             os.system('cp '+newSample+' '+NewRelease+'/'+NewTag+'/'+sample)
+#             os.system('cp '+newSample+' '+NewRelease+'/'+NewTag+'/'+sample)
+             os.system('ln -s '+newSample+' '+NewRelease+'/'+NewTag+'/'+sample)
          else:
              if (os.path.isfile(NewRelease+'/'+NewTag+'/'+sample+'/val'+sample+'.root')==False and (GetFilesFromCastor)):
                  os.system('rfcp '+CastorRepository+'/'+NewRelease+'/DQM_V0001_R000000001__'+sample+'__'+NewRelease+'_'+NewLabel+'__'+NewFormat+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')                     
