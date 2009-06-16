@@ -11,7 +11,7 @@ DTTimingExtractorBlock = cms.PSet(
             'PropagatorWithMaterialOpposite'),
         RPCLayers = cms.bool(True)
     ),
-    DTsegments = cms.untracked.InputTag("dt4DSegments"),
+    DTsegments = cms.InputTag("dt4DSegments"),
     PruneCut = cms.double(1000.),
     HitsMin = cms.int32(3),
     UseSegmentT0 = cms.bool(False),

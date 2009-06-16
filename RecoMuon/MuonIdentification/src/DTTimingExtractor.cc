@@ -11,7 +11,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: DTTimingExtractor.cc,v 1.1 2009/03/27 02:27:33 ptraczyk Exp $
+// $Id: DTTimingExtractor.cc,v 1.2 2009/06/08 08:37:07 ptraczyk Exp $
 //
 //
 
@@ -79,7 +79,7 @@ using namespace reco;
 //
 DTTimingExtractor::DTTimingExtractor(const edm::ParameterSet& iConfig)
   :
-  DTSegmentTags_(iConfig.getUntrackedParameter<edm::InputTag>("DTsegments")),
+  DTSegmentTags_(iConfig.getParameter<edm::InputTag>("DTsegments")),
   theHitsMin_(iConfig.getParameter<int>("HitsMin")),
   thePruneCut_(iConfig.getParameter<double>("PruneCut")),
   useSegmentT0_(iConfig.getParameter<bool>("UseSegmentT0")),
