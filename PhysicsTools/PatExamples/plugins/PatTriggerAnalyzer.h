@@ -37,23 +37,12 @@ namespace pat {
     private:
   
       virtual void beginJob( const edm::EventSetup & iSetup ) ;
-      virtual void beginRun( edm::Run & iRun, const edm::EventSetup & iSetup );
       virtual void analyze( const edm::Event & iEvent, const edm::EventSetup & iSetup );
-      virtual void endRun();
-      virtual void endJob();
-  
-      HLTConfigProvider hltConfig_;
-      std::string       hltProcessName_;
       
-      std::string   processName_;
       edm::InputTag trigger_;
       edm::InputTag triggerEvent_;
-      edm::InputTag photons_;
-      edm::InputTag electrons_;
       edm::InputTag muons_;
-      edm::InputTag taus_;
-      edm::InputTag jets_;
-      edm::InputTag mets_;
+      srd::string   muonMatch_;
 
       std::map< std::string, TH1D* > histos1D_;
       std::map< std::string, TH2D* > histos2D_;
