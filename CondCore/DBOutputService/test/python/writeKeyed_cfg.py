@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TEST")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.CondDBCommon.connect = 'sqlite_file:keys.db'
+# process.CondDBCommon.DBParameters.messageLevel = cms.untracked.int32(3)
 
 process.source = cms.Source("EmptyIOVSource",
     lastValue = cms.uint64(1),
@@ -14,7 +15,7 @@ process.source = cms.Source("EmptyIOVSource",
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
     timetype = cms.untracked.string('runnumber'),
-    withWrapper = cms.untracked.bool(True),
+    withWrapper = cms.untracked.bool(False),
     outOfOrder = cms.untracked.bool(True),
     toPut = cms.VPSet(
     cms.PSet(
@@ -28,7 +29,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     record = cms.string('names'),
     tag = cms.string('ConfTest'),
     timetype = cms.untracked.string('runnumber'),
-    withWrapper = cms.untracked.bool(False),
+    withWrapper = cms.untracked.bool(True),
     outOfOrder = cms.untracked.bool(False)
     )
     )
