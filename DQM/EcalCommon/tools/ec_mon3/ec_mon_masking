@@ -23,7 +23,7 @@ my $location = $opts{'location'};
 my $run = $opts{'run'};
 my $type = $opts{'type'};
 
-usage() if ( ! $location || ! $run || ! $type );
+usage() if ( ! $location || ! $run );
 
 usage() if ( ! $opts{'read'} && ! $opts{'verify'} && ! $opts{'write'} );
 
