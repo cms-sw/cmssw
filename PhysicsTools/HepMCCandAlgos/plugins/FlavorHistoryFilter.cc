@@ -8,6 +8,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
+#include "PhysicsTools/HepMCCandAlgos/interface/FlavorHistorySelectorUtil.h"
+
 #include <vector>
 
 using namespace edm;
@@ -27,165 +29,218 @@ using namespace std;
 // constructors and destructor
 //
 FlavorHistoryFilter::FlavorHistoryFilter(const edm::ParameterSet& iConfig) :
-  src_           ( iConfig.getParameter<edm::InputTag>("src" ) ),
-  schemeName_    ( iConfig.getParameter<string> ("scheme") ),
-  flavor_        ( iConfig.getParameter<int>    ("flavor") ),
-  noutput_       ( iConfig.getParameter<int>    ("noutput") ),
-  flavorSource_  ( iConfig.getParameter<std::vector<int> >    ("flavorSource") ),
-  minPt_         ( iConfig.getParameter<double> ("minPt") ),
-  minDR_         ( iConfig.getParameter<double> ("minDR") ),
-  maxDR_         ( iConfig.getParameter<double> ("maxDR") ),
-  verbose_       ( iConfig.getParameter<bool>   ("verbose") )
+  bsrc_           ( iConfig.getParameter<edm::InputTag>("bsrc" ) ),
+  csrc_           ( iConfig.getParameter<edm::InputTag>("csrc" ) )
 {
-  if ( schemeName_ != "deltaR" ) {
-    throw cms::Exception("FatalError") << "Incorrect scheme for flavor history filter\n"
-				       << "Curent available options are: \n" 
-				       << "        deltaR\n";
-  }
+  if ( iConfig.exists("pathToSelect") )
+    pathToSelect_ =        iConfig.getParameter<int>    ("pathToSelect");
+  else
+    pathToSelect_ = -1;
+
+  // This is the "interface" delta R with which to decide
+  // where to take the event from
+  dr_                =  iConfig.getParameter<double> ("dr" ) ;
+  bool verbose        ( iConfig.getParameter<bool>   ("verbose") );
+
+  // Set up the boundaries.
+  // dr0 = 0.0
+  // dr1 = set by user
+  // dr2 = infinity
+  double dr0 = 0.0;
+  double dr1 = dr_;
+  double dr2 = 99999.0;
   
-  // Deal with the case if minDR == maxDR, just increment maxDR by epsilon
-  if ( minDR_ == maxDR_ ) maxDR_ += 0.001;
+
+  // These are the processes that can come from the matrix element calculation
+  std::vector<int> me_ids;
+  me_ids.push_back(2);   // flavor excitation
+  me_ids.push_back(3);   // flavor creation
+  
+  // These are the processes that can come from the parton shower calculation
+  std::vector<int> ps_ids;
+  ps_ids.push_back(1);   // gluon splitting
+
+
+  // To select bb->2 events from matrix element... Path 1 
+  bb_me_ = new FlavorHistorySelectorUtil( 5,
+					  2,
+					  me_ids,
+					  dr1,
+					  dr2,
+					  verbose );
+
+  // To select  b->1 events from matrix element... Path 2 
+  b_me_  = new FlavorHistorySelectorUtil( 5,
+					  1,
+					  me_ids,
+					  dr0,
+					  dr0,
+					  verbose );
+
+
+  // To select cc->2 events from matrix element... Path 3
+  cc_me_ = new FlavorHistorySelectorUtil( 4,
+					  2,
+					  me_ids,
+					  dr1,
+					  dr2,
+					  verbose );
+
+  // To select  c->1 events from matrix element... Path 4
+  c_me_  = new FlavorHistorySelectorUtil( 4,
+					  1,
+					  me_ids,
+					  dr0,
+					  dr0,
+					  verbose );
+
+  // To select bb->2 events from parton shower ... Path 5 
+  b_ps_  = new FlavorHistorySelectorUtil( 5,
+					  1,
+					  ps_ids,
+					  dr0,
+					  dr1,
+					  verbose );
+
+  
+  // To select cc->2 events from parton shower ... Path 6 
+  c_ps_  = new FlavorHistorySelectorUtil( 4,
+					  1,
+					  ps_ids,
+					  dr0,
+					  dr1,
+					  verbose );  
+
+  // To select bb->1 events from matrix element... Path 7
+  bb_me_comp_ = new FlavorHistorySelectorUtil( 5,
+					       1,
+					       me_ids,
+					       dr0,
+					       dr1,
+					       verbose );
+
+  // To select cc->1 events from matrix element... Path 8 
+  cc_me_comp_ = new FlavorHistorySelectorUtil( 4,
+					       1,
+					       me_ids,
+					       dr0,
+					       dr1,
+					       verbose );
+
+  // To select bb->2 events from parton shower ... Path 9 
+  b_ps_comp_  = new FlavorHistorySelectorUtil( 5,
+					       2,
+					       ps_ids,
+					       dr1,
+					       dr2,
+					       verbose );
+
+  // To select cc->1 events from parton shower ... Path 10
+  c_ps_comp_  = new FlavorHistorySelectorUtil( 4,
+					       2,
+					       ps_ids,
+					       dr1,
+					       dr2,
+					       verbose );
+
+  // The veto of all of these is               ... Path 11
+  
+
+  // This will write 1-11 (the path number), or 0 if error. 
+  produces<unsigned int>();
 }
 
 
 FlavorHistoryFilter::~FlavorHistoryFilter()
 {
  
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+  if ( bb_me_ ) delete bb_me_; 
+  if (  b_me_ ) delete b_me_;
+  if ( cc_me_ ) delete cc_me_; 
+  if (  c_me_ ) delete c_me_;  
+  if (  b_ps_ ) delete b_ps_; 
+  if (  c_ps_ ) delete c_ps_; 
 
+  if ( bb_me_comp_ ) delete bb_me_comp_; 
+  if ( cc_me_comp_ ) delete cc_me_comp_; 
+  if (  b_ps_comp_ ) delete b_ps_comp_; 
+  if (  c_ps_comp_ ) delete c_ps_comp_;
+
+
+
+ 
 }
 
 
-//---------------------------------------------------------------------------
-//   FlavorHistoryFilter
-//   This will filter events as follows:
-//   - Inputs vector<FlavorHistory> from FlavorHistoryProducer
-//   - Inputs GenJetCollection
-//   - If there are no FlavorHistory's that have flavorSource of "type",
-//     then the event is rejected.
-//   - If there is at least one FlavorHistory that has flavorSource of "type",
-//     then we examine the kinematic criteria:
-//        - For delta R method, if there is a sister of the parton
-//          that is within "minDR" of "this" parton, the event is rejected,
-//          otherwise it is passed.
-//        - For the pt method, if the parton itself is less than a pt
-//          threshold, it is rejected, and if it is above, it is passed
-//---------------------------------------------------------------------------
+
 bool
 FlavorHistoryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  if ( verbose_ ) cout << "---------- Hello from FlavorHistoryFilter! -----" << endl;
-
   // Get the flavor history
-  Handle<FlavorHistoryEvent > pFlavorHistoryEvent;
-  iEvent.getByLabel(src_,pFlavorHistoryEvent);
+  Handle<FlavorHistoryEvent > bFlavorHistoryEvent;
+  iEvent.getByLabel(bsrc_,bFlavorHistoryEvent);
+
+  Handle<FlavorHistoryEvent > cFlavorHistoryEvent;
+  iEvent.getByLabel(csrc_,cFlavorHistoryEvent);
+
+  std::auto_ptr<unsigned int> selection ( new unsigned int() );
 
   // Get the number of matched b-jets in the event
-  unsigned int nb = pFlavorHistoryEvent->nb();
+  unsigned int nb = bFlavorHistoryEvent->nb();
   // Get the number of matched c-jets in the event
-  unsigned int nc = pFlavorHistoryEvent->nc();
+  unsigned int nc = cFlavorHistoryEvent->nc();
+  // Get the two flavor sources. The highest takes precedence
+  // over the rest. 
+  FlavorHistory::FLAVOR_T bFlavorSource = bFlavorHistoryEvent->flavorSource();
+  FlavorHistory::FLAVOR_T cFlavorSource = cFlavorHistoryEvent->flavorSource();
+  FlavorHistory::FLAVOR_T flavorSource = FlavorHistory::FLAVOR_NULL;
   // Get the highest flavor in the event
-  unsigned int highestFlavor = pFlavorHistoryEvent->highestFlavor();
-  // Get the flavor source
-  FlavorHistory::FLAVOR_T flavorSource = pFlavorHistoryEvent->flavorSource();
-  // Get the maximum delta R between two jets of the highest flavor
-  // in the event
-  double dr = pFlavorHistoryEvent->deltaR();
+  unsigned int highestFlavor = 0;  
+  // Get the delta r between the two heavy flavor matched jets.
+  double dr = -1;
 
-
-  // Now get types present
-  FlavorHistoryEvent::const_iterator iBegin = pFlavorHistoryEvent->begin(),
-    iEnd = pFlavorHistoryEvent->end(), i = iBegin;
-
-  if ( verbose_ ) {
-    cout << "Looking at flavor history event: " << endl;
-    cout << "source   = " << flavorSource << endl;
-    cout << "npartons = " << pFlavorHistoryEvent->size() << endl;
-    cout << "nbjet    = " << nb << endl;
-    cout << "ncjet    = " << nc << endl;
-    cout << "flavor   = " << highestFlavor << endl;
-    cout << "dr       = " << dr << endl;
+  // Preference is in increasing priority:
+  //  1: gluon splitting
+  //  2: flavor excitation
+  //  3: flavor creation (matrix element)
+  //  4: flavor decay
+  if ( bFlavorSource >= cFlavorSource ) {    
+    flavorSource = bFlavorHistoryEvent->flavorSource();
+    highestFlavor = bFlavorHistoryEvent->highestFlavor();
+    dr = bFlavorHistoryEvent->deltaR();    
   }
-
-  // First check that the highest flavor in the event is what this
-  // filter is checking. Otherwise we need to fail the event,
-  // since it should be handled by another filter
-  if ( highestFlavor > static_cast<unsigned int>(flavor_) ) {
-    if ( verbose_ ) cout << "Rejecting event, highest flavor is " << highestFlavor << endl;
-    return false;
-  }
-
-  // Next check that the flavor source is one of the desired ones
-  vector<int>::const_iterator iflavorSource = find( flavorSource_.begin(), flavorSource_.end(), static_cast<int>(flavorSource) );
-  if ( iflavorSource == flavorSource_.end() ) {
-    if ( verbose_ ) cout << "Rejecting event, didn't find flavor source " << static_cast<int>(flavorSource) << endl;
-    return false;
-  }
-  
-  // If we are examining b quarks
-  if ( flavor_ == reco::FlavorHistory::bQuarkId ) {
-    // if we have no b quarks, return false
-    if ( nb <= 0 ) {
-      if ( verbose_ ) cout << "Rejecting event, nb = " << nb << endl;
-      return false;
-    }
-    // here, nb > 0
-    else {
-      // if we want 1 b, require nb == 1
-      if ( noutput_ == 1 && nb == 1 ) {
-	if ( verbose_ ) cout << "Accepting event" << endl;
-	return true;
-      }
-      // if we want 2 b, then look at delta R
-      else if ( noutput_ > 1 && nb > 1 ) {
-	// If dr is within the range we want, pass.
-	// Otherwise, fail.
-	if ( verbose_ ) cout << "Want multiples, dr = " << dr << endl;
-	return ( dr >= minDR_ && dr < maxDR_ );
-      }
-      // otherwise return false
-      else {
-	if ( verbose_ ) cout << "Rejecting event, isn't output = 1 + nb = 1, or output > 0 and delta R in proper range" << endl;
-	return false;
-      }
-    }// end if nb > 0
-    
-  } // end if flavor is b quark
-
-  // If we are examining c quarks
-  else if ( flavor_ == reco::FlavorHistory::cQuarkId ) {
-    // make sure there are no b quarks in the event.
-    // If there are, another filter should handle it.
-    if ( nb > 0 ) return false;
-    
-    // if we have no c quarks, return false
-    if ( nc <= 0 ) return false;
-    // here, nc > 0
-    else {
-      // if we want 1 c, require nc == 1
-      if ( noutput_ == 1 && nc == 1 ) {
-	return true;
-      }
-      // if we want 2 c, then look at delta R
-      else if ( noutput_ > 1 && nc > 1 ) {
-	// If dr is within the range we want, pass.
-	// Otherwise, fail.
-	return ( dr >= minDR_ && dr < maxDR_ );
-      }
-      // otherwise return false
-      else {
-	return false;
-      }
-    }// end if nc > 0
-    
-  }
-  // Otherwise return false
   else {
-    if ( verbose_ ) cout << "Something is weird, flavor is " << flavor_ << endl;
-    return false;
+    flavorSource = cFlavorHistoryEvent->flavorSource();
+    highestFlavor = cFlavorHistoryEvent->highestFlavor();
+    dr = cFlavorHistoryEvent->deltaR();
   }
+
+  
+  *selection = 0;
+  // Now make hierarchical determination
+  if      ( bb_me_     ->select( nb, nc, highestFlavor, flavorSource, dr ) ) *selection = 1;
+  else if (  b_me_     ->select( nb, nc, highestFlavor, flavorSource, dr ) ) *selection = 2;
+  else if ( cc_me_     ->select( nb, nc, highestFlavor, flavorSource, dr ) ) *selection = 3;
+  else if (  c_me_     ->select( nb, nc, highestFlavor, flavorSource, dr ) ) *selection = 4;
+  else if (  b_ps_     ->select( nb, nc, highestFlavor, flavorSource, dr ) ) *selection = 5;
+  else if (  c_ps_     ->select( nb, nc, highestFlavor, flavorSource, dr ) ) *selection = 6;
+  else if ( bb_me_comp_->select( nb, nc, highestFlavor, flavorSource, dr ) ) *selection = 7;
+  else if ( cc_me_comp_->select( nb, nc, highestFlavor, flavorSource, dr ) ) *selection = 8;
+  else if (  b_ps_comp_->select( nb, nc, highestFlavor, flavorSource, dr ) ) *selection = 9;
+  else if (  c_ps_comp_->select( nb, nc, highestFlavor, flavorSource, dr ) ) *selection = 10;
+  else *selection = 11;
+
+  bool pass = false;
+  if ( pathToSelect_ > 0 ) {
+    pass = (*selection > 0 && *selection == static_cast<unsigned int>(pathToSelect_ ) );
+  } else {
+    pass = true;
+  }
+
+  iEvent.put( selection );
+
+  return pass; 
 
 }
 

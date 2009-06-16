@@ -1,334 +1,114 @@
-from FWCore.ParameterSet.Config import *
+# Import configurations
+import FWCore.ParameterSet.Config as cms
 
-process = Process("testGenParticles")
 
+process = cms.Process("testFlavorHistoryProducer")
 
-# request a summary at the end of the file
-process.options = untracked.PSet(
-    wantSummary = untracked.bool(True)
+        
+# set the number of events
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(100)
 )
 
-process.load( "FWCore.MessageLogger.MessageLogger_cfi" )
+
+
+
+# initialize MessageLogger and output report
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cerr.threshold = 'INFO'
+process.MessageLogger.categories.append('PATLayer0Summary')
+process.MessageLogger.cerr.INFO = cms.untracked.PSet(
+    default          = cms.untracked.PSet( limit = cms.untracked.int32(0)  )
+)
+process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+
+# Load geometry
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = cms.string('IDEAL_V9::All')
+process.load("Configuration.StandardSequences.MagneticField_cff")
+
+# input MC stuff
 process.load( "SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load( "PhysicsTools.HepMCCandAlgos.genParticles_cfi")
 process.load( "PhysicsTools.HepMCCandAlgos.genEventWeight_cfi")
 process.load( "PhysicsTools.HepMCCandAlgos.genEventScale_cfi")
 
-process.load("PhysicsTools.HepMCCandAlgos.flavorHistoryProducer_cfi")
-process.load("PhysicsTools.HepMCCandAlgos.flavorHistoryFilter_cfi")
+process.load( "RecoJets.Configuration.GenJetParticles_cff")
+process.load( "RecoJets.JetProducers.SISConeJetParameters_cfi" )
+process.load( "RecoJets.JetProducers.GenJetParameters_cfi" )
+process.load( "RecoJets.JetProducers.FastjetParameters_cfi" )
+process.load( "RecoJets.JetProducers.sisCone5GenJets_cff")
 
-process.printList = EDAnalyzer( "ParticleListDrawer",
-                                src = InputTag( "genParticles" ),
-                                maxEventsToPrint = untracked.int32( 10 )
+
+# input flavor history stuff
+process.load("PhysicsTools.HepMCCandAlgos.flavorHistoryPaths_cfi")
+
+process.printList = cms.EDAnalyzer( "ParticleListDrawer",
+                                    src =  cms.InputTag( "genParticles" ),
+                                    maxEventsToPrint = cms.untracked.int32( 10 )
+#                                    printOnlyHardInteraction = cms.untracked.bool( True )
 )
 
 
-process.printTree = EDAnalyzer( "ParticleTreeDrawer",
-  src = InputTag( "genParticles" ),
-#    printP4 = cms.untracked.bool( True ),
-#    printPtEtaPhi = cms.untracked.bool( True ),
-#    printStatus = cms.untracked.bool( True ),
-  status = untracked.vint32( 2, 3 ),
-  printIndex = untracked.bool(True )
+
+
+# request a summary at the end of the file
+process.options = cms.untracked.PSet(
+    wantSummary = cms.untracked.bool(True)
 )
 
+# define the source, from reco input
 
-process.printDecay = EDAnalyzer( "ParticleDecayDrawer",
-  src = InputTag( "genParticles" ),
-#    untracked bool printP4 = true
-#    untracked bool printPtEtaPhi = true
-  status = untracked.vint32( 2, 3 )
-)
-
-
-process.add_( Service("RandomNumberGeneratorService",
-              sourceSeed= untracked.uint32( 123456789 ) ) )
-
-process.maxEvents = untracked.PSet( input = untracked.int32(-1) )
-
-
-
-process.source = Source("PoolSource",
-                        debugVerbosity = untracked.uint32(200),
-                        debugFlag = untracked.bool(True),
+process.source = cms.Source("PoolSource",
+                        debugVerbosity = cms.untracked.uint32(200),
+                        debugFlag = cms.untracked.bool(True),
                         
-                        fileNames = untracked.vstring(
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_100.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_101.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_102.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_103.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_104.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_105.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_106.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_107.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_108.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_109.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_10.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_110.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_111.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_112.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_113.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_114.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_115.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_116.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_117.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_118.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_119.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_11.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_120.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_121.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_122.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_123.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_124.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_125.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_126.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_128.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_129.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_12.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_130.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_131.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_132.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_133.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_134.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_135.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_136.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_137.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_138.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_139.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_13.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_140.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_141.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_142.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_143.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_144.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_145.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_146.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_147.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_148.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_149.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_14.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_150.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_151.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_152.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_153.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_154.root',
-#    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_155.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_156.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_157.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_158.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_159.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_15.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_160.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_161.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_162.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_163.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_164.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_165.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_166.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_167.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_168.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_169.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_16.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_170.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_171.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_172.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_173.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_174.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_175.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_176.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_177.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_178.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_179.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_17.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_180.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_181.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_182.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_183.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_184.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_185.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_186.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_187.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_188.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_189.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_18.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_190.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_191.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_192.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_193.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_194.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_195.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_196.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_197.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_198.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_199.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_19.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_1.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_200.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_201.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_202.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_203.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_204.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_205.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_206.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_207.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_208.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_209.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_210.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_211.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_212.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_213.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_214.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_215.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_216.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_217.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_218.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_21.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_220.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_221.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_222.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_223.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_224.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_225.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_226.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_227.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_228.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_229.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_22.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_230.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_231.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_232.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_233.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_234.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_235.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_236.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_237.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_238.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_239.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_23.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_240.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_241.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_242.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_243.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_244.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_245.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_246.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_247.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_248.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_249.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_24.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_250.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_25.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_26.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_27.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_28.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_29.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_2.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_30.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_31.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_32.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_33.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_34.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_36.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_37.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_38.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_39.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_3.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_40.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_41.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_42.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_43.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_44.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_45.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_46.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_47.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_48.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_49.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_4.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_50.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_51.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_52.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_53.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_54.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_55.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_56.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_57.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_58.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_59.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_5.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_60.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_61.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_62.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_63.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_64.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_65.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_66.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_67.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_68.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_69.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_6.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_70.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_71.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_72.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_73.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_74.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_75.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_76.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_77.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_78.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_79.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_7.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_80.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_81.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_82.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_83.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_84.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_85.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_86.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_87.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_88.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_89.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_8.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_90.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_91.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_92.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_93.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_94.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_95.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_96.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_97.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_98.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_99.root',
-    'dcache:/pnfs/cms/WAX/resilient/rappocc/wjets/wbb_10TeV_9.root'
-    
-    )
+                        fileNames = cms.untracked.vstring(
+        '/store/mc/Summer08/WJets-madgraph/USER/IDEAL_V9_PAT_v4/0015/D8AE36D9-F6EC-DD11-B688-001A92971AA8.root'
+        )
                         )
 
 
-#from PhysicsTools.HepMCCandAlgos.data.h4l_cff import pythiaSource
-#process.source = pythiaSource
+# define event selection to be that which satisfies 'p'
+process.eventSel = cms.PSet(
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('p')
+    )
+)
 
-  
-process.out = OutputModule( "PoolOutputModule",
-  fileName = untracked.string( "/uscms_data/d1/rappocc/wbb_hffilterstudies_genevents.root" ),
-  outputCommands= untracked.vstring(
+
+
+# load the different paths to make the different HF selections
+
+
+import PhysicsTools.HepMCCandAlgos.flavorHistoryPaths_cfi as flavortools
+
+
+process.p         = cms.Path( flavortools.flavorHistorySeq )
+
+
+# Set the threshold for output logging to 'info'
+process.MessageLogger.cerr.threshold = 'INFO'
+
+
+# talk to output module
+
+
+process.out = cms.OutputModule( "PoolOutputModule",
+  process.eventSel,
+  fileName = cms.untracked.string( "testFlavorHistoryProducer.root" ),
+  outputCommands= cms.untracked.vstring(
     "drop *",
     "keep *_sisCone5GenJets_*_*",
     "keep *_genParticles_*_*",
     "keep *_genEventWeight_*_*",
-    "keep *_flavorHistoryProducer_*_*"
-  )
-)
-  
-process.p = Path( 
-  process.genParticles *
-  process.genEventWeight *
-#  process.printDecay *
-#  process.printList *
-#  process.printTree *
-  process.flavorHistoryProducer*
-  process.flavorHistoryFilter
-)
+    "keep *_bFlavorHistoryProducer_*_*",
+    "keep *_cFlavorHistoryProducer_*_*",
+    "keep *_flavorHistoryFilter_*_*"
+    )
+                                )
 
-process.o = EndPath( 
-  process.out 
-)
+
+# define output path
+process.outpath = cms.EndPath(process.out)
