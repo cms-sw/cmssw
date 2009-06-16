@@ -5,6 +5,7 @@ from TrackingTools.Configuration.TrackingTools_cff import *
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import * #also includes global tracking geometry
 from RecoTracker.TkSeedingLayers.TTRHBuilderWithoutAngle4PixelTriplets_cfi import * #StripCPE = 'Fake'
 from RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff import * #cluster parameter estimator producer
+from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 
 ### pixel triplets
 import RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi
@@ -30,7 +31,6 @@ pixel3PrimTracks.OrderedHitsFactoryPSet.GeneratorPSet.checkClusterShape = False 
 
 ### pixel seeds
 import RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 primSeeds = RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi.pixelTrackSeeds.clone()
 primSeeds.InputCollection = 'pixel3PrimTracks'
 
