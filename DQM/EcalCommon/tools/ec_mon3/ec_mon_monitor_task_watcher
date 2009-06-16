@@ -27,7 +27,7 @@ my $timeout = 1 * 60 * 60; #1 hour in secs
 
 my @mon_runs;
 
-if ( $ARGV ) {
+if ( @ARGV ) {
   @mon_runs = split('\n', `$config{'ec_mon_path'}/ec_mon_check --nocolor --short --mon_run --conf $config{'$ec_mon_conf'} @ARGV`);
 } else {
   @mon_runs = split('\n', `$config{'ec_mon_path'}/ec_mon_check --nocolor --short --mon_run --conf $config{'$ec_mon_conf'}`);
