@@ -4,9 +4,11 @@
   <use name=FWCore/ParameterSet>
   <use name=FWCore/MessageLogger>
   <use name=FWCore/MessageService>
+  <use name=FWCore/ServiceRegistry>
   <use name=FWCore/Utilities>
   <use name=DataFormats/Common>
   <use name=DataFormats/PatCandidates>
+  <use name=HLTrigger/HLTcore>
   <use name=PhysicsTools/PatExamples>
   <use name=PhysicsTools/PatAlgos>
   <use name=PhysicsTools/PatUtils>
