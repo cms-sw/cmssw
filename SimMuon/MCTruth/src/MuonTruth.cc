@@ -31,6 +31,11 @@ MuonTruth::MuonTruth(const edm::Event& event, const edm::EventSetup& setup, cons
   setup.get<MuonGeometryRecord>().get( mugeom );
   cscgeom = &*mugeom;
 
+  // get CSC Bad Chambers (ME4/2)
+  edm::ESHandle<CSCBadChambers> badChambers;
+  setup.get<CSCBadChambersRcd>().get(badChambers);
+  cscBadChambers = badChambers.product();
+
   theSimHitMap.clear();
 
   if (crossingframe) {

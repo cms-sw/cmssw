@@ -17,6 +17,8 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
+#include "CondFormats/CSCObjects/interface/CSCBadChambers.h"
+#include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
 
 class MuonTruth
 {
@@ -40,6 +42,8 @@ public:
   std::vector<PSimHit> muonHits();
 
   std::vector<PSimHit> simHits();
+
+  const CSCBadChambers* cscBadChambers;
 
 private:
 
