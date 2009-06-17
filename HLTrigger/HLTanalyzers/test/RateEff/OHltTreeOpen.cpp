@@ -339,6 +339,18 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }          
     }           
   }          
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu20HQ") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {   
+      int rc = 0;   
+      for(int i=0;i<NL1Mu;i++) {   
+        if(L1MuPt[i] > 20.0)  
+          if(L1MuQal[i] == 7) 
+            rc++;   
+      }   
+      if(rc > 0)   
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }           
+    }            
+  } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu9") == 0) {          
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       int rc = 0;
