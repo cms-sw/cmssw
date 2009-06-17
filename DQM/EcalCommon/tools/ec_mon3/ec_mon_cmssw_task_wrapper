@@ -350,6 +350,7 @@ process.ecalBarrelMonitorClient.dbHostPort = dbHostPort
 process.ecalBarrelMonitorClient.dbUserName = dbUserName
 process.ecalBarrelMonitorClient.dbPassword = dbPassword
 process.ecalBarrelMonitorClient.dbTagName = 'CMSSW'
+process.ecalBarrelMonitorClient.maskFile = ''
 process.ecalBarrelMonitorClient.location = 'P5_Co'
 
 process.ecalEndcapMonitorClient.dbName = dbName
@@ -358,6 +359,7 @@ process.ecalEndcapMonitorClient.dbHostPort = dbHostPort
 process.ecalEndcapMonitorClient.dbUserName = dbUserName
 process.ecalEndcapMonitorClient.dbPassword = dbPassword
 process.ecalEndcapMonitorClient.dbTagName = 'CMSSW'
+process.ecalEndcapMonitorClient.maskFile = ''
 process.ecalEndcapMonitorClient.location = 'P5_Co'
 
 process.ecalBarrelMonitorClient.enabledClients = ['Integrity', 'Occupancy', 'StatusFlags', 'PedestalOnline', 'Pedestal', 'TestPulse', 'Laser', 'Timing', 'Cosmic', 'TriggerTower', 'Cluster', 'Summary']
