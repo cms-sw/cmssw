@@ -1,3 +1,6 @@
+# Test read of bad channels db for CSC strips
+# This version 17.06.2009 Tim Cox
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
@@ -12,7 +15,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
         record = cms.string('CSCBadStripsRcd'),
         tag = cms.string('CSCBadStrips')
     )),
-    connect = cms.string('sqlite_file:BadStrips_11June2009.db')
+    connect = cms.string('sqlite_file:BadStrips_17June2009.db')
 )
 
 process.maxEvents = cms.untracked.PSet(
