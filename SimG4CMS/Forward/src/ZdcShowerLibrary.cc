@@ -165,7 +165,7 @@ std::vector<ZdcShowerLibrary::Hit> & ZdcShowerLibrary::getHits(G4Step * aStep, b
 
 int ZdcShowerLibrary::getEnergyFromLibrary(G4ThreeVector hitPoint, G4ThreeVector momDir, double energy,
 					   G4int parCode,HcalZDCDetId::Section section, bool side, int channel){
-  int nphotons = 0;
+  int nphotons = -1;
   
   energy =energy/GeV;
 
@@ -255,7 +255,9 @@ int ZdcShowerLibrary::getEnergyFromLibrary(G4ThreeVector hitPoint, G4ThreeVector
   // Convert from GeV to MeV for the code
   eav = eav*GeV;
   esig= esig*GeV;
-  nphotons = (int)(fact*photonFluctuation(eav, esig, edis));
+
+  while(nphotons == -1 || nphotons > int(eav + 5.*esig))
+    nphotons = (int)(fact*photonFluctuation(eav, esig, edis));
   
   LogDebug("ZdcShower") 
     //std::cout
