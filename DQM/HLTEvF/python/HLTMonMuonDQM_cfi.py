@@ -10,7 +10,7 @@ hltMonMuDQM = cms.EDAnalyzer("HLTMuonDQMSource",
     	# L1 muon
 	cms.PSet(
 		level = cms.string('L1'),
-		directoryName = cms.string('L1PassTrhough'),
+		directoryName = cms.string('L1PassThrough'),
 		triggerBits = cms.vstring('HLT_L1MuOpen','HLT_L1Mu','HLT_L1Mu20')
 	),
     	# L2 muon
