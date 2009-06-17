@@ -41,8 +41,8 @@ my $dbHostPort = 1521;
 my $dbUserName = '';
 my $dbPassword = '';
 
-if ( -e "$config{'ec_mon_path'}/.cms_tstore.py" ) {
-  open FILE, "<$config{'ec_mon_path'}/.cms_tstore.py";
+if ( -e "$config{'ec_mon_path'}/.cms_tstore.conf" ) {
+  open FILE, "<$config{'ec_mon_path'}/.cms_tstore.conf";
   while ( my $line = <FILE> ) {
     $dbName = (split(' ', $line))[2] if ( $line =~ /^dbName/ );
     $dbHostName = (split(' ', $line))[2] if ( $line =~ /^dbHostName/ );
