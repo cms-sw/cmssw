@@ -394,16 +394,26 @@ namespace edm {
   }
   
   void 
-  InputSource::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren) {
+  InputSource::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialEvents) {
     if(maxEvents_ > 0) {
-      int maxEvents = maxEvents_/iNumberOfChildren;
-      //if there are any extra events distribute them to the first few children
-      if(maxEvents_ % iNumberOfChildren > iChildIndex) {
-        ++maxEvents;
+      unsigned int numberOfSequences = maxEvents_/iNumberOfSequentialEvents;
+      if(numberOfSequences > iChildIndex) {
+        unsigned int numberOfSequencesPerChild = numberOfSequences/iNumberOfChildren;
+        unsigned int maxEventsPerChild = numberOfSequencesPerChild*iNumberOfSequentialEvents;
+        //if there are any extra events distribute them to the first few children
+        unsigned int remainder = numberOfSequences % iNumberOfChildren;
+        if( remainder > iChildIndex) {
+          maxEventsPerChild += iNumberOfSequentialEvents;
+        } if (remainder == iChildIndex) {
+          //if we have any extra that do not quite fit in a sequence, use them here
+          maxEventsPerChild += maxEvents_ % iNumberOfSequentialEvents;
+        }
+        maxEvents_ = maxEventsPerChild;
+      } else {
+        maxEvents_ = 0;
       }
-      maxEvents_ = maxEvents;
     }
-    postForkReacquireResources(iChildIndex, iNumberOfChildren, iNumberOfSequentialChildren);
+    postForkReacquireResources(iChildIndex, iNumberOfChildren, iNumberOfSequentialEvents);
   }
   
   void 
