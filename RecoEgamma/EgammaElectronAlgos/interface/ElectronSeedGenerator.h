@@ -66,6 +66,7 @@ class ElectronSeedGenerator
   
   float lowPtThreshold_;
   float highPtThreshold_;
+  float nSigmasDeltaZ1_;   
   float sizeWindowENeg_;   
   float phimin2_,phimax2_;
   float deltaPhi1Low_, deltaPhi1High_;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedGenerator.cc,v 1.1 2009/01/12 16:18:30 chamont Exp $
+// $Id: ElectronSeedGenerator.cc,v 1.2 2009/06/17 08:08:13 charlot Exp $
 //
 //
 
@@ -58,9 +58,9 @@
 ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset)
   :   dynamicphiroad_(pset.getParameter<bool>("dynamicPhiRoad")),
       fromTrackerSeeds_(pset.getParameter<bool>("fromTrackerSeeds")),
-      //      initialSeeds_(pset.getParameter<edm::InputTag>("initialSeeds")),
       lowPtThreshold_(pset.getParameter<double>("LowPtThreshold")),
       highPtThreshold_(pset.getParameter<double>("HighPtThreshold")),
+      nSigmasDeltaZ1_(pset.getParameter<double>("nSigmasDeltaZ1")),
       sizeWindowENeg_(pset.getParameter<double>("SizeWindowENeg")),
       phimin2_(pset.getParameter<double>("PhiMin2")),
       phimax2_(pset.getParameter<double>("PhiMax2")),
@@ -173,8 +173,8 @@ void  ElectronSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, co
   double sigmaZ=theBeamSpot->sigmaZ();
   double sigmaZ0Error=theBeamSpot->sigmaZ0Error();
   double sq=sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
-  zmin1_=theBeamSpot->position().z()-5*sq;
-  zmax1_=theBeamSpot->position().z()+5*sq;
+  zmin1_=theBeamSpot->position().z()-nSigmasDeltaZ1_*sq;
+  zmax1_=theBeamSpot->position().z()+nSigmasDeltaZ1_*sq;
 
   theMeasurementTracker->update(e);
 

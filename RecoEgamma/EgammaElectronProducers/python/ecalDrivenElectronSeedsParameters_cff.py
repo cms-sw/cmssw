@@ -19,6 +19,7 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
     hOverEHFMinE = cms.double(1.4),
     
     # r/z windows
+    nSigmasDeltaZ1 = cms.double(5.),
     z2MinB = cms.double(-0.09),
     z2MaxB = cms.double(0.09),
     r2MinF = cms.double(-0.15),
