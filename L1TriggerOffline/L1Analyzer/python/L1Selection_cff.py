@@ -107,7 +107,7 @@ SelectL1Jets = cms.EDFilter("PtMinCandSelector",
 # Missing Et
 # Clone L1 Met
 CloneL1ExtraMet = cms.EDProducer("L1EtMissParticleShallowCloneProducer",
-    src = cms.InputTag("hltL1extraParticles")
+    src = cms.InputTag("hltL1extraParticles", "MET")
 )
 
 # Select L1 MET
@@ -116,14 +116,30 @@ SelectL1Met = cms.EDFilter("PtMinCandSelector",
     ptMin = cms.double(10.0)
 )
 
+# Clone L1 MHt
+CloneL1ExtraMHt = cms.EDProducer("L1EtMissParticleShallowCloneProducer",
+    src = cms.InputTag("hltL1extraParticles", "MHT")
+)
+
+# Select L1 MHt
+SelectL1MHt = cms.EDFilter("PtMinCandSelector",
+    src = cms.InputTag("CloneL1ExtraMHt"),
+    ptMin = cms.double(10.0)
+)
+
+
 L1MuonSelection = cms.Sequence(CloneL1ExtraMuons*SelectL1Muons)
+
 L1IsoEmSelection = cms.Sequence(CloneL1ExtraIsoEm*SelectL1IsoEm)
 L1NonIsoEmSelection = cms.Sequence(CloneL1ExtraNonIsoEm*SelectL1NonIsoEm)
+L1EmSelection = cms.Sequence(CloneL1ExtraIsoEm*CloneL1ExtraNonIsoEm*MergeL1Em*SelectL1Em)
+
 L1CenJetSelection = cms.Sequence(CloneL1ExtraCenJets*SelectL1CenJets)
 L1ForJetSelection = cms.Sequence(CloneL1ExtraForJets*SelectL1ForJets)
 L1TauJetSelection = cms.Sequence(CloneL1ExtraTauJets*SelectL1TauJets)
 L1MergedJetSelection = cms.Sequence(CloneL1ExtraTauJets*CloneL1ExtraCenJets*CloneL1ExtraForJets*MergeL1ExtraJets*SelectMergedL1ExtraJets)
-L1MetSelection = cms.Sequence(CloneL1ExtraMet*SelectL1Met)
 
-L1EmSelection = cms.Sequence(CloneL1ExtraIsoEm*CloneL1ExtraNonIsoEm*MergeL1Em*SelectL1Em)
+L1MetSelection = cms.Sequence(CloneL1ExtraMet*SelectL1Met)
+L1MHtSelection = cms.Sequence(CloneL1ExtraMHt*SelectL1MHt)
+
 L1JetSelection = cms.Sequence(CloneL1ExtraTauJets*CloneL1ExtraCenJets*CloneL1ExtraForJets*MergeL1Jets*SelectL1Jets)
