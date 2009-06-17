@@ -212,8 +212,8 @@ process.MessageLogger.G4msg =  cms.untracked.PSet(
     #
     #Then add the wanted ones:
     ,PhysicsList = cms.untracked.PSet(limit = cms.untracked.int32(-1))
-    ,G4cout = cms.untracked.PSet(limit = cms.untracked.int32(-1))
-    ,G4cerr = cms.untracked.PSet(limit = cms.untracked.int32(-1))
+    ,G4cout = cms.untracked.PSet(limit = cms.untracked.int32(99999))
+    ,G4cerr = cms.untracked.PSet(limit = cms.untracked.int32(99999))
     ,BeamProfileVtxGenerator = cms.untracked.PSet(limit = cms.untracked.int32(-1))
     )
 
@@ -223,4 +223,13 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
 )
 
-process.g4SimHits.G4Commands = cms.vstring('/tracking/verbose 1')
+#process.load("FWCore.MessageLogger.MessageLogger_cfi")
+#process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
+#process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
+#process.MessageLogger.debugModules = cms.untracked.vstring('*')
+
+
+#process.load("Validation.Performance.TimeMemoryG4Info")
+
+
+#process.g4SimHits.G4Commands = cms.vstring('/tracking/verbose 1')
