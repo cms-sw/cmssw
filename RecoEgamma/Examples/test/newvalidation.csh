@@ -88,7 +88,8 @@ echo "VAL_REF_FILE = ${VAL_REF_FILE}"
 #http://cmsdoc.cern.ch/Physics/egamma/www/validation/
 
 setenv CURRENTDIR $cwd
-cd /afs/cern.ch/cms/Physics/egamma/www/validation
+#cd /afs/cern.ch/cms/Physics/egamma/www/validation
+cd /afs/cern.ch/user/c/charlot/scratch0/CMSSW_3_1_0_pre10/src/RecoEgamma/Examples/test/validation
 
 if (! -d $VAL_NEW_RELEASE) then
   mkdir $VAL_NEW_RELEASE
@@ -220,25 +221,25 @@ h_ele_absetaQmisid 0 0 1
 h_ele_etaQmisid	0 0 1
 h_ele_ptQmisid 0 0 1
 h_ele_zQmisid 0 0 1
-h_ele_vertexPtVsEta_pfx 0 0 0
-h_ele_PoPtrueVsEta_pfx 0 0 0 
-h_ele_PoPtrueVsPhi_pfx 0 0 0
-h_scl_EoEtruePfVseg_pfy 0 0 0  
-h_ele_EtaMnEtaTrueVsEta_pfx 0 0 0
-h_ele_PhiMnPhiTrueVsEta_pfx 0 0 0
-h_ele_EoPVsEta_pfx 0 0 0
-h_ele_EoPoutVsEta_pfx 0 0 0
-h_ele_EeleOPoutVsEta_pfx 0 0 0
-h_ele_HoEVsEta_pfx 0 0 0
-h_ele_chi2VsEta_pfx 0 0 0
-h_ele_foundHitsVsEta_pfx 0 0 0
-h_ele_ambiguousTracksVsEta_pfx 0 0 0
-h_ele_seedDphi2VsEta_pfx 0 0 0
-h_ele_seedDphi2VsPt_pfx 0 0 0
-h_ele_seedDrz2VsEta_pfx 0 0 0
-h_ele_seedDrz2VsPt_pfx 0 0 0
-h_ele_fbremvsEtamean 0 0 0
-h_ele_fbremvsEtamode 0 0 0
+h_ele_vertexPtVsEta_pfx 0 0 1
+h_ele_PoPtrueVsEta_pfx 0 0 1 
+h_ele_PoPtrueVsPhi_pfx 0 0 1
+h_scl_EoEtruePfVseg_pfy 0 0 1
+h_ele_EtaMnEtaTrueVsEta_pfx 0 0 1
+h_ele_PhiMnPhiTrueVsEta_pfx 0 0 1
+h_ele_EoPVsEta_pfx 0 0 1
+h_ele_EoPoutVsEta_pfx 0 0 1
+h_ele_EeleOPoutVsEta_pfx 0 0 1
+h_ele_HoEVsEta_pfx 0 0 1
+h_ele_chi2VsEta_pfx 0 0 1
+h_ele_foundHitsVsEta_pfx 0 0 1
+h_ele_ambiguousTracksVsEta_pfx 0 0 1
+h_ele_seedDphi2VsEta_pfx 0 0 1
+h_ele_seedDphi2VsPt_pfx 0 0 1
+h_ele_seedDrz2VsEta_pfx 0 0 1
+h_ele_seedDrz2VsPt_pfx 0 0 1
+h_ele_fbremvsEtamean 0 0 1
+h_ele_fbremvsEtamode 0 0 1
 h_ele_eta_bbremFrac 0 0 0
 h_ele_eta_goldenFrac 0 0 0
 h_ele_eta_narrowFrac 0 0 0
@@ -319,24 +320,24 @@ h_ele_phiEff 0 0 1
 h_ele_zEff 0 0 1
 h_ele_etaEff_all 0 0 1
 h_ele_ptEff_all 0 0 1
-h_ele_vertexPtVsEta_pfx 0 0 0
-h_ele_PoPmatchingObjectVsEta_pfx 0 0 0  
-h_ele_PoPmatchingObjectVsPhi_pfx 0 0 0   
-h_ele_EtaMnEtamatchingObjectVsEta_pfx 0 0 0 
-h_ele_PhiMnPhimatchingObjectVsEta_pfx 0 0 0 
-h_ele_EoPVsEta_pfx 0 0 0
-h_ele_EoPoutVsEta_pfx 0 0 0
-h_ele_EeleOPoutVsEta_pfx 0 0 0
-h_ele_HoEVsEta_pfx 0 0 0
-h_ele_chi2VsEta_pfx 0 0 0
-h_ele_foundHitsVsEta_pfx 0 0 0
-h_ele_ambiguousTracksVsEta_pfx 0 0 0
-h_ele_seedDphi2VsEta_pfx 0 0 0
-h_ele_seedDphi2VsPt_pfx 0 0 0
-h_ele_seedDrz2VsEta_pfx 0 0 0
-h_ele_seedDrz2VsPt_pfx 0 0 0
-h_ele_fbremvsEtamean 0 0 0
-h_ele_fbremvsEtamode 0 0 0
+h_ele_vertexPtVsEta_pfx 0 0 1
+h_ele_PoPmatchingObjectVsEta_pfx 0 0 1
+h_ele_PoPmatchingObjectVsPhi_pfx 0 0 1   
+h_ele_EtaMnEtamatchingObjectVsEta_pfx 0 0 1 
+h_ele_PhiMnPhimatchingObjectVsEta_pfx 0 0 1 
+h_ele_EoPVsEta_pfx 0 0 1
+h_ele_EoPoutVsEta_pfx 0 0 1
+h_ele_EeleOPoutVsEta_pfx 0 0 1
+h_ele_HoEVsEta_pfx 0 0 1
+h_ele_chi2VsEta_pfx 0 0 1
+h_ele_foundHitsVsEta_pfx 0 0 1
+h_ele_ambiguousTracksVsEta_pfx 0 0 1
+h_ele_seedDphi2VsEta_pfx 0 0 1
+h_ele_seedDphi2VsPt_pfx 0 0 1
+h_ele_seedDrz2VsEta_pfx 0 0 1
+h_ele_seedDrz2VsPt_pfx 0 0 1
+h_ele_fbremvsEtamean 0 0 1
+h_ele_fbremvsEtamode 0 0 1
 h_ele_eta_bbremFrac 0 0 0
 h_ele_eta_goldenFrac 0 0 0
 h_ele_eta_narrowFrac 0 0 0
@@ -412,19 +413,19 @@ h_ele_phiEff 0 0 1
 h_ele_zEff 0 0 1
 h_ele_etaEff_all 0 0 1
 h_ele_ptEff_all 0 0 1
-h_ele_vertexPtVsEta_pfx 0 0 0
-h_ele_EoPVsEta_pfx 0 0 0
-h_ele_EoPoutVsEta_pfx 0	0 0
-h_ele_EeleOPoutVsEta_pfx 0 0 0
-h_ele_HoEVsEta_pfx 0 0 0
-h_ele_chi2VsEta_pfx 0 0 0
-h_ele_foundHitsVsEta_pfx 0 0 0
-h_ele_seedDphi2VsEta_pfx 0 0 0	
-h_ele_seedDphi2VsPt_pfx 0 0 0
-h_ele_seedDrz2VsEta_pfx 0 0 0
-h_ele_seedDrz2VsPt_pfx 0 0 0
-h_ele_fbremvsEtamean 0 0 0
-h_ele_fbremvsEtamode 0 0 0
+h_ele_vertexPtVsEta_pfx 0 0 1
+h_ele_EoPVsEta_pfx 0 0 1
+h_ele_EoPoutVsEta_pfx 0	0 1
+h_ele_EeleOPoutVsEta_pfx 0 0 1
+h_ele_HoEVsEta_pfx 0 0 1
+h_ele_chi2VsEta_pfx 0 0 1
+h_ele_foundHitsVsEta_pfx 0 0 1
+h_ele_seedDphi2VsEta_pfx 0 0 1	
+h_ele_seedDphi2VsPt_pfx 0 0 1
+h_ele_seedDrz2VsEta_pfx 0 0 1
+h_ele_seedDrz2VsPt_pfx 0 0 1
+h_ele_fbremvsEtamean 0 0 1
+h_ele_fbremvsEtamode 0 0 1
 h_ele_eta_bbremFrac 0 0 0
 h_ele_eta_goldenFrac 0 0 0
 h_ele_eta_narrowFrac 0 0 0	

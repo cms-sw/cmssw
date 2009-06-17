@@ -132,9 +132,14 @@ while (histo_file>>histo_name>>scaled>>log>>err)
     histo_new->SetMarkerColor(2) ;
     histo_new->SetLineWidth(3) ;
     if ((scaled==1)&&(file_old!=0)&&(histo_old!=0)&&(histo_new->GetEntries()!=0))
-     { histo_new->Scale(histo_old->GetEntries()/histo_new->GetEntries()) ; }   
-    if (err==1) histo_new->Draw("same E1 P") ;
-    else histo_new->Draw("same hist") ;
+     { if (histo_old!=0) histo_new->Scale(histo_old->GetEntries()/histo_new->GetEntries()) ; }   
+    if (err==1) {
+      if (histo_old!=0) histo_new->Draw("same E1 P") ;
+      else histo_new->Draw("E1 P") ; 
+    } else {
+      if (histo_old!=0) histo_new->Draw("same hist") ;
+      else histo_new->Draw("hist") ;
+    }  
     std::cout<<histo_name
       <<" has "<<histo_new->GetEffectiveEntries()<<" entries"
       <<" of mean value "<<histo_new->GetMean()
