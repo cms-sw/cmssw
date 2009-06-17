@@ -3,8 +3,8 @@
  *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
  *  the vertex reconstruction.
  *
- *  $Date: 2009/03/05 18:21:13 $
- *  $Revision: 1.38 $
+ *  $Date: 2009/03/28 15:28:54 $
+ *  $Revision: 1.39 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -119,8 +119,24 @@ MuonUpdatorAtVertex::update(const reco::TransientTrack & track, const reco::Beam
   pair<bool,FreeTrajectoryState> result(false,FreeTrajectoryState());
 
   GlobalPoint spotPos(beamSpot.x0(),beamSpot.y0(),beamSpot.z0());
-  SingleTrackVertexConstraint::BTFtuple constrainedTransientTrack = theConstrictor.constrain(track, spotPos, thePositionErrors);
-  
+
+  SingleTrackVertexConstraint::BTFtuple constrainedTransientTrack;
+
+  // Temporary hack here. A fix in the SingleTrackVertexConstraint code
+  // is needed. Once available try&catch will be removed 
+  try{
+    constrainedTransientTrack = theConstrictor.constrain(track, 
+							 spotPos, 
+							 thePositionErrors);
+  }
+  catch(cms::Exception& e) {
+    edm::LogWarning(metname) << "cms::Exception caught in MuonUpdatorAtVertex::update\n"
+			     << "Exception from SingleTrackVertexConstraint\n"
+			     << e.explainSelf();
+    return result;
+  }
+
+
   if(constrainedTransientTrack.get<0>())
     if(constrainedTransientTrack.get<2>() <= theChi2Cut) {
       result.first = true;
