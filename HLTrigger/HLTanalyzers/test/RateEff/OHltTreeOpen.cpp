@@ -128,21 +128,21 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve50") == 0) {    
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
-      if(OpenHltDiJetAvePassed(30.)>=1) {    
+      if(OpenHltDiJetAvePassed(50.)>=1) {    
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
       }    
     }    
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve70") == 0) {    
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
-      if(OpenHltDiJetAvePassed(30.)>=1) {    
+      if(OpenHltDiJetAvePassed(70.)>=1) {    
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
       }    
     }    
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve130") == 0) {    
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
-      if(OpenHltDiJetAvePassed(30.)>=1) {    
+      if(OpenHltDiJetAvePassed(130.)>=1) {    
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
       }    
     }    
