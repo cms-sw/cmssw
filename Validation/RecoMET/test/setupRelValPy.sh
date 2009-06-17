@@ -61,6 +61,8 @@ process.load(\"Validation.RecoMET.PFMET_cff\")
 
 process.load(\"Validation.RecoMET.TCMET_cff\")
 
+process.load(\"Validation.RecoMET.MuonCorrectedCaloMET_cff\")
+
 process.load(\"Configuration.StandardSequences.Geometry_cff\")
 
 process.load(\"Configuration.StandardSequences.MagneticField_cff\")
@@ -101,7 +103,9 @@ process.p = cms.Path(process.fileSaver*
                      process.analyzeHTMET*
                      process.analyzeCaloMET*
                      process.analyzePFMET*
-                     process.analyzeTCMET)
+                     process.analyzeTCMET*
+                     process.analyzeMuonCorrectedCaloMET
+)
 process.schedule = cms.Schedule(process.p)
 
 " > ${FullSimRootFileDirectory}/RunAnalyzers-${i}_cfg.py
