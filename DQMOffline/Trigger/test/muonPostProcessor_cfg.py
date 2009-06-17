@@ -32,7 +32,7 @@ process.source = cms.Source("PoolSource",
 
 #process.HLTMuonPostVal.outputFileName = cms.untracked.string('/afs/cern.ch/user/s/slaunwhj/scratch0/MuonTrigPostProcessor_histos_vMoreTrigs_newAna.root')
 #process.HLTMuonPostVal.outputFileName = cms.untracked.string('/afs/cern.ch/user/s/slaunwhj/scratch0/Histos_cosmic_vMoreTrigs_newAna.root')
-process.HLTMuonPostVal.outputFileName = cms.untracked.string('/afs/cern.ch/user/s/slaunwhj/scratch0/Histos_cosmics_n10_vNewConfig.root')
+process.hLTMuonPostVal.outputFileName = cms.untracked.string('/afs/cern.ch/user/s/slaunwhj/scratch0/Histos_cosmics_n10_vNewConfig.root')
 
-process.path1 = cms.Path(process.EDMtoMEConverter*process.HLTMuonPostVal)
+process.path1 = cms.Path(process.EDMtoMEConverter*process.hLTMuonPostVal)
 process.DQMStore.referenceFileName = ''
