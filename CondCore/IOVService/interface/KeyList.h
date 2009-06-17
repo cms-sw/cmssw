@@ -53,6 +53,8 @@ namespace cond {
 
     BaseKeyed const * elem(std::string const & iname) const;
 
+    int size() const { return m_data.size();}
+
   private:
     // tag and dict
     IOVKeysDescription const * m_description;

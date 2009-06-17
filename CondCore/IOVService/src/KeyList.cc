@@ -13,15 +13,21 @@ namespace cond {
     m_sequence.db().start(true);
     m_data.resize(keys.size());
     for (int i=0; i<keys.size(); i++) {
-      IOVSequence::const_iterator p = m_sequence.iov().find(keys[i]);
-      pool::Ref<Wrapper> ref(&(m_sequence.db().poolDataSvc()),(*p).wrapperToken());
-      m_data[i].copyShallow(ref);
+      if (keys[i]!=0) {
+	IOVSequence::const_iterator p = m_sequence.iov().find(keys[i]);
+	pool::Ref<Wrapper> ref(&(m_sequence.db().poolDataSvc()),(*p).wrapperToken());
+	m_data[i].copyShallow(ref);
+      } else m_data[i].clear();
     }
     m_sequence.db().commit();
   }
 
 
-
+  BaseKeyed const * KeyList::elem(int n) const {
+    if (!m_data[n].isValid()) return 0;
+    return &(*m_data[n]).data();
+  }
+  
 
 
 
