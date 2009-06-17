@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSC Segments.
  *
- *  $Date: 2008/12/13 17:57:10 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/04/14 15:06:07 $
+ *  $Revision: 1.11 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -329,6 +329,13 @@ class RPCEfficiencySecond : public edm::EDAnalyzer {
   MonitorElement * Wheel0Summary; 
   MonitorElement * Wheel1Summary; 
   MonitorElement * Wheel2Summary; 
+
+  MonitorElement * Diskm3Summary;
+  MonitorElement * Diskm2Summary;
+  MonitorElement * Diskm1Summary;
+  MonitorElement * Disk1Summary;
+  MonitorElement * Disk2Summary;
+  MonitorElement * Disk3Summary;
 
   //Azimultal Plots
 
