@@ -5,6 +5,8 @@
    <PartSelector path="//EFRY"/>
    <Parameter name="SensitiveDetector" value="EcalSensitiveDetector" eval="false"/>
    <Parameter name="ReadOutName" value="EcalHitsEE" eval="false" />
+   <Parameter name="ncrys"      value="25.0"/>
+   <Parameter name="nmods"      value="316.0"/>
  </SpecPar>  
 <SpecPar name="ecalbeam">
   <PartSelector path="//FIBR" /> 
