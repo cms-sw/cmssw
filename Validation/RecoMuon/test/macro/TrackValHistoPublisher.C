@@ -904,7 +904,7 @@ void plotBuilding(TCanvas *canvas,
 
   canvas->cd(3);
   gPad->SetLogx();
-  setStats(r3,s3, -1, 0, false);
+  setStats(s3,r3, -1, 0, false);
   r3->Draw();
   s3->Draw("sames");
 
@@ -915,7 +915,7 @@ void plotBuilding(TCanvas *canvas,
   s4->Draw("sames");
 
   canvas->cd(5);
-  setStats(r5,s5, -1, 0, false);
+  setStats(s5,r5, -1, 0, false);
   r5->Draw();
   s5->Draw("sames");
 
@@ -1110,31 +1110,31 @@ void plotResolutions(TCanvas *canvas,
   //setStats(r1,s1, startingY, startingX, fit);
   canvas->cd(1);
   gPad->SetLogy(); 
-  setStats(r1,s1, -1, 0, false);
+  setStats(s1,r1, -1, 0, false);
   r1->Draw();
   s1->Draw("sames");
 
   canvas->cd(2);
   gPad->SetLogy(); 
-  setStats(r2,s2, -1, 0, false);
+  setStats(s2,r2, -1, 0, false);
   r2->Draw();
   s2->Draw("sames");
 
   canvas->cd(3);
   gPad->SetLogy(); 
-  setStats(r3,s3, -1, 0, false);
+  setStats(s3,r3, -1, 0, false);
   r3->Draw();
   s3->Draw("sames");
 
   canvas->cd(4);
   gPad->SetLogy(); 
-  setStats(r4,s4, -1, 0, false);
+  setStats(s4,r4, -1, 0, false);
   r4->Draw();
   s4->Draw("sames");
 
   canvas->cd(5);
   gPad->SetLogy(); 
-  setStats(r5,s5, -1, 0, false);
+  setStats(s5,r5, -1, 0, false);
   r5->Draw();
   s5->Draw("sames");
 
@@ -1212,27 +1212,27 @@ void plotMeanValues(TCanvas *canvas,
 
   //setStats(r1,s1, startingY, startingX, fit);
   canvas->cd(1);
-  setStats(r1,s1, -1, 0, false);
+  setStats(s1,r1, -1, 0, false);
   r1->Draw();
   s1->Draw("sames");
 
   canvas->cd(2);
-  setStats(r2,s2, -1, 0, false);
+  setStats(s2,r2, -1, 0, false);
   r2->Draw();
   s2->Draw("sames");
 
   canvas->cd(3);
-  setStats(r3,s3, -1, 0, false);
+  setStats(s3,r3, -1, 0, false);
   r3->Draw();
   s3->Draw("sames");
 
   canvas->cd(4);
-  setStats(r4,s4, -1, 0, false);
+  setStats(s4,r4, -1, 0, false);
   r4->Draw();
   s4->Draw("sames");
 
   canvas->cd(5);
-  setStats(r5,s5, -1, 0, false);
+  setStats(s5,r5, -1, 0, false);
   r5->Draw();
   s5->Draw("sames");
 
