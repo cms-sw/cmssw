@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1TriggerOffline.L1Analyzer.GtToGctCands_cff import *
-
 #Muons
 # Clone L1 muons
 CloneL1ExtraMuons = cms.EDProducer("L1MuonParticleShallowCloneProducer",
@@ -76,7 +74,7 @@ SelectL1ForJets = cms.EDFilter("PtMinCandSelector",
 # Tau Jets
 # Clone L1 tau jets
 CloneL1ExtraTauJets = cms.EDProducer("L1JetParticleShallowCloneProducer",
-    src = cms.InputTag("l1extraParticles","Tau")
+    src = cms.InputTag("hltL1extraParticles","Tau")
 )
 
 # Select L1 tau jets
