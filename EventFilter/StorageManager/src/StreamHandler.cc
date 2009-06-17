@@ -1,4 +1,4 @@
-// $Id$
+// $Id: StreamHandler.cc,v 1.2 2009/06/10 08:15:28 dshpakov Exp $
 
 #include <sstream>
 #include <iomanip>
@@ -33,8 +33,8 @@ void StreamHandler::closeAllFiles()
 void StreamHandler::closeTimedOutFiles(utils::time_point_t currentTime)
 {
   for (
-    FileHandlers::iterator it = _fileHandlers.begin(), itEnd = _fileHandlers.end();
-    it != itEnd;
+    FileHandlers::iterator it = _fileHandlers.begin();
+    it != _fileHandlers.end();
     ++it
   ) 
   {
