@@ -369,6 +369,14 @@ c       urf=vradf*rrf/reff**2                  !square transverse profile
        phj(nhj,4)=dsqrt(phj(nhj,1)**2+phj(nhj,2)**2+phj(nhj,3)**2
      >             +phj(nhj,5)**2) 
 
+* skip if too energetic forward particle - YY
+
+       if(abs(phj(nhj,3)).gt.500) then
+          nhj = nhj-1
+          np = np-1
+          goto 5
+       end if
+       
 * treat hadron decay (if it switched on) with pyexec routine   
         if(mdcy(pycomp(kf),1).eq.1) then                    
          nhi=1
