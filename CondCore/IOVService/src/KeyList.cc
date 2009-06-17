@@ -30,8 +30,4 @@ namespace cond {
   }
   
 
-
-
-
-
 }
