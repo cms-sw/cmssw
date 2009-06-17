@@ -294,6 +294,7 @@ namespace edm {
 
   void
   InputSource::skipEvents(int offset) {
+    doneReadAhead_ = false;
     this->skip(offset);
   }
 
