@@ -15,7 +15,7 @@ my $dbHostName = '';
 my $dbUserName = '';
 my $dbPassword = '';
 
-my $cfg = dirname($0) . "/.omds_r.conf";
+my $cfg = dirname($0) . "/.cms_tstore_r.pl";
 if ( -e "$cfg" ) {
   eval `cat $cfg`;
 }
