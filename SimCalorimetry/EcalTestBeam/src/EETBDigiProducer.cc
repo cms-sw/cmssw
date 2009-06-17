@@ -285,11 +285,15 @@ void  EETBDigiProducer::checkCalibrations(const edm::EventSetup & eventSetup)
 
 void EETBDigiProducer::checkGeometry(const edm::EventSetup & eventSetup) 
 {
+   std::cout<<"**in checkGeometry 1**"<<std::endl;
+
   // TODO find a way to avoid doing this every event
   edm::ESHandle<CaloGeometry> hGeometry;
   eventSetup.get<CaloGeometryRecord>().get(hGeometry);
 
   const CaloGeometry * pGeometry = &*hGeometry;
+
+  std::cout<<"**in checkGeometry 2**"<<std::endl;
   
   // see if we need to update
   if(pGeometry != theGeometry) {
@@ -301,15 +305,19 @@ void EETBDigiProducer::checkGeometry(const edm::EventSetup & eventSetup)
 
 void EETBDigiProducer::updateGeometry() {
   theEcalResponse->setGeometry(theGeometry);
+   std::cout<<"**in update Geometry 1**"<<std::endl;
 
-  const std::vector<DetId>& theBarrelDets =  theGeometry->getValidDetIds(DetId::Ecal, EcalBarrel);
+  const std::vector<DetId>& theBarrelDets =  theGeometry->getValidDetIds(DetId::Ecal, EcalEndcap);
 
   edm::LogInfo("EcalDigi") << "deb geometry: " << "\n" 
-                       << "\t barrel: " << theBarrelDets.size ();
+                       << "\t endcap: " << theBarrelDets.size ();
 
+   std::cout<<"**in updateGeometry  2**"<<std::endl;
   theDigitizer->setDetIds(theBarrelDets);
+   std::cout<<"**in updateGeometry 3**"<<std::endl;
 
   theTBReadout->setDetIds(theBarrelDets);
+   std::cout<<"**in updateGeometry 4**"<<std::endl;
 }
 
 

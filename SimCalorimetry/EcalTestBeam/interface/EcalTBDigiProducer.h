@@ -1,5 +1,5 @@
-#ifndef ECALTBDDIGIPRODUCER_H
-#define ECALTBDDIGIPRODUCER_H
+#ifndef ECALTBDIGIPRODUCER_H
+#define ECALTBDIGIPRODUCER_H
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -10,22 +10,20 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalTDigitizer.h"
 #include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/EcalCorrelatedNoiseMatrix.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalCorrelatedNoiseMatrix.h"
+//TB#include "SimCalorimetry/EcalSimAlgos/interface/ESShape.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalCoder.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalElectronicsSim.h"
+//TB#include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSimFast.h"
+//TB#include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSim.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalDigitizerTraits.h"
+//TB#include "SimCalorimetry/EcalSimAlgos/interface/ESFastTDigitizer.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 
-#include "SimCalorimetry/EcalTestBeamAlgos/interface/EcalTBReadout.h"
-
-#include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCSample.h"
-#include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCRawInfo.h"
-#include "RecoTBCalo/EcalTBTDCReconstructor/interface/EcalTBTDCRecInfoAlgo.h"
-
-#include <string>
+#include "DataFormats/Math/interface/Error.h"
+#include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 
 class EcalTBDigiProducer : public edm::EDProducer
 {
@@ -38,7 +36,7 @@ public:
   virtual ~EcalTBDigiProducer();
 
   /**Produces the EDM products,*/
-  void produce(edm::Event& event, const edm::EventSetup& eventSetup);
+  virtual void produce(edm::Event& event, const edm::EventSetup& eventSetup);
 
 private:
 
@@ -48,50 +46,46 @@ private:
 
   void checkCalibrations(const edm::EventSetup & eventSetup);
 
-  void setPhaseShift(const DetId & detId);
-
-  void fillTBTDCRawInfo(EcalTBTDCRawInfo & theTBTDCRawInfo);
-
   /** Reconstruction algorithm*/
   typedef EcalTDigitizer<EBDigitizerTraits> EBDigitizer;
-  //typedef CaloTDigitizer<EBDigitizerTraits> EBDigitizer;
+  typedef EcalTDigitizer<EEDigitizerTraits> EEDigitizer;
+//TB  typedef CaloTDigitizer<ESDigitizerTraits> ESDigitizer;
 
   EBDigitizer * theBarrelDigitizer;
+  EEDigitizer * theEndcapDigitizer;
+//TB  ESDigitizer * theESDigitizer;
+//TB  ESFastTDigitizer * theESDigitizerFast;
 
   const EcalSimParameterMap * theParameterMap;
   const CaloVShape * theEcalShape;
+//TB  const ESShape * theESShape;
 
   CaloHitResponse * theEcalResponse;
+//TB  CaloHitResponse * theESResponse;
 
   CorrelatedNoisifier<EcalCorrMatrix> * theCorrNoise;
   EcalCorrelatedNoiseMatrix * theNoiseMatrix;
 
   EcalElectronicsSim * theElectronicsSim;
+//TB  ESElectronicsSim * theESElectronicsSim;
+//TB  ESElectronicsSimFast * theESElectronicsSimFast;
   EcalCoder * theCoder;
 
   const CaloGeometry * theGeometry;
 
-  const EcalTrigTowerConstituentsMap * theTTmap;
-
-  EcalTBReadout * theTBReadout;
-
-  std::string ecalTBInfoLabel;
-
-  bool doPhaseShift;
-  double thisPhaseShift;
-
-  bool doReadout;
-
-  std::vector<EcalTBTDCRecInfoAlgo::EcalTBTDCRanges> tdcRanges;
-  bool use2004OffsetConvention_;
-
-  double tunePhaseShift;
-
   std::string EBdigiCollection_;
+  std::string EEdigiCollection_;
+//TB  std::string ESdigiCollection_;
+
   std::string hitsProducer_;
 
   double EBs25notCont;
-  double EEs25notCont;  
+  double EEs25notCont;
+
+  bool cosmicsPhase;
+  double cosmicsShift;
+
+  bool doFast; 
 };
 
 #endif 
