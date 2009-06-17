@@ -7,6 +7,7 @@ import FWCore.ParameterSet.Config as cms
 import FastSimulation.HighLevelTrigger.DummyModule_cfi
 hltEcalPreshowerDigis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltEcalRawToRecHitFacility = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltESRawToRecHitFacility = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltEcalRegionalEtaFEDs = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltEcalRegionalEtaRecHit = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltEcalRegionalJetsFEDs = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
