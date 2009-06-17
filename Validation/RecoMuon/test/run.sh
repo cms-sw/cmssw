@@ -16,7 +16,7 @@ RETVAL=$?
 #  mv -f *.tgz  $OUTDIR/
 #fi
 
-mv  DQM_V0001_R000000001__IDEAL_30X__${1}__Validation.root val.{1}.root
+mv  DQM_V0001_R000000001__IDEAL_31X__${1}__Validation.root val.${1}.root
 
 mv -f ${1}_1.log $OUTDIR/
 mv -f *.root $OUTDIR/
