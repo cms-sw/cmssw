@@ -57,6 +57,7 @@ parser.add_option("--mc",
                   action="store_true",
                   default=False,
                   dest="isMC")
+
 parser.add_option("--data",
                   help="Specify that data is to be processed (default = guess based on options",
                   action="store_true",
@@ -145,6 +146,17 @@ expertSettings.add_option("--pileup",
                   default=defaultOptions.pileup,
                   dest="pileup")
 
+expertSettings.add_option("--datamix",
+                  help="What datamix config to use. Default=DataOnSim.",
+                  default=defaultOptions.datamix,
+                  dest="datamix")
+
+expertSettings.add_option("--gflash",
+                  help="Run the FULL SIM using the GFlash parameterization.",
+                  action="store_true",
+                  default=False,
+                  dest="gflash")
+
                                                     
 expertSettings.add_option("--python_filename",
                           help="Change the name of the created config file ",
@@ -212,6 +224,8 @@ prec_step = {"ALL":"",
              "ANA":"RECO",
              "DIGI2RAW":"DIGI",
              "RAW2DIGI":"DIGI2RAW",
+             "DATAMIX":"DIGI",
+             "DIGI2RAW":"DATAMIX",
              "HARVESTING":"RECO"}
 
 trimmedEvtType=options.evt_type.split('/')[-1]
