@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedGenerator.cc,v 1.55 2008/10/27 11:15:24 chamont Exp $
+// $Id: ElectronSeedGenerator.cc,v 1.1 2009/01/12 16:18:30 chamont Exp $
 //
 //
 
@@ -169,12 +169,12 @@ void  ElectronSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, co
   // get the beamspot from the Event:
   e.getByType(theBeamSpot);
 
-  // get its position
+  // define 1st z window 
   double sigmaZ=theBeamSpot->sigmaZ();
   double sigmaZ0Error=theBeamSpot->sigmaZ0Error();
   double sq=sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
-  zmin1_=theBeamSpot->position().z()-3*sq;
-  zmax1_=theBeamSpot->position().z()+3*sq;
+  zmin1_=theBeamSpot->position().z()-5*sq;
+  zmax1_=theBeamSpot->position().z()+5*sq;
 
   theMeasurementTracker->update(e);
 
