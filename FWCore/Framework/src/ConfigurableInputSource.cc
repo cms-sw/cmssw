@@ -109,10 +109,10 @@ namespace edm {
   void
   ConfigurableInputSource::skip(int offset) {
     for (; offset < 0; ++offset) {
-       eventID_ = eventID_.previous();
+      retreatToPrevious();
     }
     for (; offset > 0; --offset) {
-       eventID_ = eventID_.next();
+      advanceToNext();
     }
   }
 
@@ -183,22 +183,11 @@ namespace edm {
 
     unsigned int numberToSkip = numberOfSequentialEvents_*forkedChildIndex_;
     numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_ + 1;
-    RunNumber_t oldRun = eventID_.run();
-    LuminosityBlockNumber_t oldLumi = luminosityBlock_;
-    for(unsigned int skipped = 0; skipped < numberToSkip; ++skipped) {
-      advanceToNext(eventID_, luminosityBlock_);
-      if(oldRun == eventID_.run()) {
-        ++numberEventsInThisRun_;
-        if(oldLumi == luminosityBlock_) {
-          ++numberEventsInThisLumi_;
-        } else {
-          numberEventsInThisLumi_ = 0;
-        }
-      } else {
-        numberEventsInThisRun_ = 0;
-        numberEventsInThisLumi_ = 0;
-      }
+    if(numberOfEventsBeforeBigSkip_ < numberToSkip) {
+      numberOfEventsBeforeBigSkip_ = numberToSkip+1;
     }
+    skip(numberToSkip);
+    numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_ + 1;
     newRun_ = newLumi_ = true;
     resetLuminosityBlockPrincipal();
     resetRunPrincipal();
@@ -232,9 +221,6 @@ namespace edm {
     }
     if (oldEventID.run() != eventID_.run()) {
       //  New Run
-      // reset these since this event is in the new run
-      numberEventsInThisRun_ = 0;
-      numberEventsInThisLumi_ = 0;
       // If the user did not explicitly set the luminosity block number,
       // reset it back to the beginning.
       if (!lumiSet_) {
@@ -248,15 +234,12 @@ namespace edm {
       // Same Run
     if (oldLumi != luminosityBlock_) {
       // New Lumi
-      numberEventsInThisLumi_ = 0;
       newLumi_ = true;
       resetLuminosityBlockPrincipal();
       if (processingMode() != Runs) {
         return IsLumi;
       }
     }
-    ++numberEventsInThisRun_;
-    ++numberEventsInThisLumi_;
     reallyReadEvent(luminosityBlock_);
     if (ep_.get() == 0) {
       return IsStop;
@@ -266,37 +249,59 @@ namespace edm {
   }
 
   void 
-  ConfigurableInputSource::advanceToNext(EventID& ioEvent, LuminosityBlockNumber_t& ioLumi) const {
+  ConfigurableInputSource::advanceToNext()  {
     if (numberEventsInRun_ < 1 || numberEventsInThisRun_ < numberEventsInRun_) {
       // same run
-      ioEvent = ioEvent.next();
+      eventID_ = eventID_.next();
+      ++numberEventsInThisRun_;
       if (!(numberEventsInLumi_ < 1 || numberEventsInThisLumi_ < numberEventsInLumi_)) {
         // new lumi
-        ++ioLumi;
+        ++luminosityBlock_;
+        numberEventsInThisLumi_=0;
+      } else {
+        ++numberEventsInThisLumi_;
       }
     } else {
       // new run
-      ioEvent = ioEvent.nextRunFirstEvent();
-      ioLumi = origLuminosityBlockNumber_t_;
+      eventID_ = eventID_.nextRunFirstEvent();
+      numberEventsInThisLumi_=1;
+      numberEventsInThisRun_=1;
+      luminosityBlock_ = origLuminosityBlockNumber_t_;
     }
-    
+    presentTime_ += timeBetweenEvents_;
   }
 
+  void 
+  ConfigurableInputSource::retreatToPrevious()  {
+    if (numberEventsInRun_ < 1 || numberEventsInThisRun_ > 0) {
+      // same run
+      eventID_ = eventID_.previous();
+      --numberEventsInThisRun_;
+      if (!(numberEventsInLumi_ < 1 || numberEventsInThisLumi_ > 0)) {
+        // new lumi
+        --luminosityBlock_;
+        numberEventsInThisLumi_=numberEventsInLumi_;
+      } else {
+        --numberEventsInThisLumi_;
+      }
+    } else {
+      // new run
+      eventID_ = eventID_.previousRunLastEvent();
+      eventID_ = EventID(numberEventsInRun_,eventID_.run());
+      numberEventsInThisLumi_=numberEventsInLumi_;
+      numberEventsInThisRun_=numberEventsInRun_;
+      luminosityBlock_ = origLuminosityBlockNumber_t_+numberEventsInRun_/numberEventsInLumi_;
+    }
+    presentTime_ -= timeBetweenEvents_;
+  }
+  
   void
   ConfigurableInputSource::setRunAndEventInfo() {
-    int countDownSkip = numberOfEventsInBigSkip_;
-    do {
-      advanceToNext(eventID_, luminosityBlock_);
-      presentTime_ += timeBetweenEvents_;
-      if(numberOfEventsBeforeBigSkip_ > 0) {
-        --numberOfEventsBeforeBigSkip_;
-      } else {
-        --countDownSkip;
-      }
-    }while(0 == numberOfEventsBeforeBigSkip_ && countDownSkip > 0);
-    if(0 == numberOfEventsBeforeBigSkip_) {
-      numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_;
+    if(0 != numberOfEventsInBigSkip_ && 0==--numberOfEventsBeforeBigSkip_) {
+      skip(numberOfEventsInBigSkip_);
+      numberOfEventsBeforeBigSkip_=numberOfSequentialEvents_;
     }
+    advanceToNext();
     if (eventCreationDelay_ > 0) {usleep(eventCreationDelay_);}
   }
 

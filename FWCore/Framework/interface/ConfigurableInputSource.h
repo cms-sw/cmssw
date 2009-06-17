@@ -59,7 +59,8 @@ namespace edm {
     virtual void rewind_();
 
     virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren);
-    void advanceToNext(EventID&, LuminosityBlockNumber_t&) const;
+    void advanceToNext() ;
+    void retreatToPrevious();
 
     unsigned int numberEventsInRun_;
     unsigned int numberEventsInLumi_;
