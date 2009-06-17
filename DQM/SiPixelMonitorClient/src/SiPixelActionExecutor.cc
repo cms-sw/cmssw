@@ -24,8 +24,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
-#include <qstring.h>
-#include <qregexp.h>
 #include <math.h>
 
 #include <iostream>
@@ -1278,11 +1276,10 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore* bei, bool isbarrel)
   //occupancyprinting cout<<"entering SiPixelActionExecutor::fillOccupancy..."<<std::endl;
   if(Tier0Flag_) return;
   string currDir = bei->pwd();
-  QString dname = QString::fromStdString(currDir.substr(currDir.find_last_of("/")+1));
-  QRegExp rx("Module_");
+  string dname = currDir.substr(currDir.find_last_of("/")+1);
   //occupancyprinting cout<<"currDir= "<<currDir<< " , dname= "<<dname<<std::endl;
 	
-  if(rx.search(dname)!=-1 && currDir.find("Pixel/Endcap/HalfCylinder_mI/Disk_1/Blade_01/Panel_2/Module_2")==string::npos){ // Skipping noisy module/ROC
+  if(dname.find("Module_")!=string::npos && currDir.find("Pixel/Endcap/HalfCylinder_mI/Disk_1/Blade_01/Panel_2/Module_2")==string::npos){ // Skipping noisy module/ROC
     vector<string> meVec = bei->getMEs();
     for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
       string full_path = currDir + "/" + (*it);
@@ -1575,9 +1572,11 @@ void SiPixelActionExecutor::dumpBarrelModIds(DQMStore * bei, edm::EventSetup con
       for (vector<string>::const_iterator im = contents.begin();
 	   im != contents.end(); im++) {
 	if(first_me) break;
-	QRegExp rx("(\\w+)_(\\w+)_(\\d+)") ;
-	QString mEName = QString::fromStdString(*im);
-	if(rx.search(mEName) != -1 ) detId = rx.cap(3).toInt() ;
+	string mEName = (*im);
+	string detIdString = mEName.substr((mEName.find_last_of("_"))+1,9);
+	std::istringstream isst;
+	isst.str(detIdString);
+	if(mEName.find("_3")!=string::npos) isst>>detId;
       }
       bei->goUp();
       // long version:
@@ -1638,9 +1637,11 @@ void SiPixelActionExecutor::dumpEndcapModIds(DQMStore * bei, edm::EventSetup con
       for (vector<string>::const_iterator im = contents.begin();
 	   im != contents.end(); im++) {
 	if(first_me) break;
-	QRegExp rx("(\\w+)_(\\w+)_(\\d+)") ;
-	QString mEName = QString::fromStdString(*im);
-	if(rx.search(mEName) != -1 ) detId = rx.cap(3).toInt() ;
+	string mEName = (*im);
+	string detIdString = mEName.substr((mEName.find_last_of("_"))+1,9);
+	std::istringstream isst;
+	isst.str(detIdString);
+	if(mEName.find("_3")!=string::npos) isst>>detId;
       }
       bei->goUp();
       // long version:

@@ -28,7 +28,6 @@
 #include "TF1.h"
 #include "TH2F.h"
 #include "TGaxis.h"
-#include "qstring.h"
 
 #include <fstream>
 #include <sstream>
@@ -79,11 +78,11 @@ class SiPixelInformationExtractor {
 				std::pair<double,double>                & norm) ;
   void getNormalization(        MonitorElement                          * mE,
                                 std::pair<double,double>                & norm,
-				QString                                   theMEType) ;
+				std::string                               theMEType) ;
   void getNormalization2D(      MonitorElement                          * mE,
                                 std::pair<double,double>                & normX,
                                 std::pair<double,double>                & normY,
-				QString                                   theMEType) ;
+				std::string                               theMEType) ;
   void sendTkUpdatedStatus(     DQMStore				* bei,
                               	xgi::Output                             * out,
 				std::string                             & meName,

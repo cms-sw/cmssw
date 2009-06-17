@@ -52,9 +52,6 @@
 #include "TH2F.h"
 #include "TProfile.h"
 
-#include <qstring.h>
-#include <qregexp.h>
-
 #include <iostream>
 #include <math.h>
 #include <map>
@@ -95,14 +92,16 @@ SiPixelDataQuality::~SiPixelDataQuality() {
  */
 int SiPixelDataQuality::getDetId(MonitorElement * mE) 
 {
- QRegExp rx("(\\w+)_(\\w+)_(\\d+)") ;
- QString mEName = QString::fromStdString(mE->getName()) ;
+ string mEName = mE->getName() ;
 
  int detId = 0;
  
- if( rx.search(mEName) != -1 )
+ if( mEName.find("_3") != string::npos )
  {
-  detId = rx.cap(3).toInt() ;
+  string detIdString = mEName.substr((mEName.find_last_of("_"))+1,9);
+  std::istringstream isst;
+  isst.str(detIdString);
+  isst>>detId;
 // } else {
 //  cout << ACYellow << ACBold
 //       << "[SiPixelInformationExtractor::getDetId()] "
@@ -273,19 +272,15 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   if(nFEDs==0) return;  
   
   string currDir = bei->pwd();
-  QString dname = QString::fromStdString(currDir.substr(currDir.find_last_of("/")+1));
+  string dname = currDir.substr(currDir.find_last_of("/")+1);
 
-  QRegExp rx, rxb, rxe;
-  if(!Tier0Flag) rx = QRegExp("Module_");
-  else { rxb = QRegExp("Ladder_"); rxe = QRegExp("Blade_"); }
- 
   bool digiStatsBarrel = false, clusterOntrackStatsBarrel = false, clusterOfftrackStatsBarrel = false, rechitStatsBarrel = false, trackStatsBarrel = false;
   int digiCounterBarrel = 0, clusterOntrackCounterBarrel = 0, clusterOfftrackCounterBarrel = 0, rechitCounterBarrel = 0, trackCounterBarrel = 0;
   bool digiStatsEndcap = false, clusterOntrackStatsEndcap = false, clusterOfftrackStatsEndcap = false, rechitStatsEndcap = false, trackStatsEndcap = false;
   int digiCounterEndcap = 0, clusterOntrackCounterEndcap = 0, clusterOfftrackCounterEndcap = 0, rechitCounterEndcap = 0, trackCounterEndcap = 0;
   
-  if((!Tier0Flag && rx.search(dname)!=-1) || 
-     (Tier0Flag && (rxb.search(dname)!=-1 || rxe.search(dname)!=-1))){
+  if((!Tier0Flag && dname.find("Module_")!=string::npos) || 
+     (Tier0Flag && (dname.find("Ladder_")!=string::npos || dname.find("Blade_")!=string::npos))){
 
     objectCount_++;
 
@@ -856,10 +851,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
   if(nFEDs==0) return;
   eSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
   string currDir = bei->pwd();
-  QString dname = QString::fromStdString(currDir.substr(currDir.find_last_of("/")+1));
-  QRegExp rx, rxb, rxe;
-  if(!Tier0Flag) rx = QRegExp("Module_");
-  else { rxb = QRegExp("Ladder_"); rxe = QRegExp("Blade_"); }
+  string dname = currDir.substr(currDir.find_last_of("/")+1);
   // find a detId for Blades and Barrels (first of the contained Modules!):
   ifstream infile(edm::FileInPath("DQM/SiPixelMonitorClient/test/detId.dat").fullPath().c_str(),ios::in);
   string I_name[1440];
@@ -874,8 +866,8 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
     infile.close();
     nModsInFile++;
   }
-  if((!Tier0Flag && rx.search(dname)!=-1) || 
-     (Tier0Flag && (rxb.search(dname)!=-1 || rxe.search(dname)!=-1))){
+  if((!Tier0Flag && dname.find("Module_")!=string::npos) || 
+     (Tier0Flag && (dname.find("Ladder_")!=string::npos || dname.find("Blade_")!=string::npos))){
     vector<string> meVec = bei->getMEs();
     int detId=-1; int fedId=-1; int linkId=-1;
     for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {

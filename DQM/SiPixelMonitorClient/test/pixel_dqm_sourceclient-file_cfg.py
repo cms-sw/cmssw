@@ -16,31 +16,31 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 #process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
 
-#process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
-#process.siPixelDigis.InputLabel = 'source'
-#process.siPixelDigis.IncludeErrors = True
-process.load("Configuration.StandardSequences.RawToDigi_cff")
+process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
+process.siPixelDigis.InputLabel = 'source'
+process.siPixelDigis.IncludeErrors = True
+#process.load("Configuration.StandardSequences.RawToDigi_cff")
 
 #process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
 
 #process.load("RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi")
 #process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff")
 
-process.load("EventFilter.SiStripRawToDigi.SiStripRawToDigis_standard_cff")
-process.siStripDigis.ProductLabel = 'source'
+#process.load("EventFilter.SiStripRawToDigi.SiStripRawToDigis_standard_cff")
+#process.siStripDigis.ProductLabel = 'source'
 
-process.load("RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi")
-process.load("RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi")
-process.load("RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi")
-process.load("RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi")
-process.load("RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi")
+#process.load("RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi")
+#process.load("RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi")
+#process.load("RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi")
+#process.load("RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi")
+#process.load("RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi")
 
-process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
-process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
-process.load("RecoTracker.Configuration.RecoTrackerP5_cff")
+#process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
+#process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
+#process.load("RecoTracker.Configuration.RecoTrackerP5_cff")
 
 ##new##
-process.load("Configuration.StandardSequences.Simulation_cff")
+#process.load("Configuration.StandardSequences.Simulation_cff")
 
 
 
@@ -103,7 +103,7 @@ process.LockService = cms.Service("LockService",
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect ="sqlite_file:/afs/cern.ch/user/m/malgeri/public/globtag/CRZT210_V1.db"
 #process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRAFT_ALL_V12::All"
+process.GlobalTag.globaltag = "CRAFT_31X::All"
 ## this next line is needed for xdaq running outside P5 network:
 #process.SiteLocalConfigService = cms.Service("SiteLocalConfigService")
 
@@ -165,27 +165,27 @@ process.maxEvents = cms.untracked.PSet(
 ##----## Sequences and Paths:
 #process.Reco = cms.Sequence(process.siPixelRecHits)
 process.Reco = cms.Sequence(process.siPixelDigis*process.siPixelClusters*process.siPixelRecHits)
-process.RecoStrips = cms.Sequence(process.siStripDigis*process.siStripClusters)
+#process.RecoStrips = cms.Sequence(process.siStripDigis*process.siStripClusters)
 process.RAWmonitor = cms.Sequence(process.SiPixelRawDataErrorSource)
 process.DIGImonitor = cms.Sequence(process.SiPixelDigiSource)
 process.CLUmonitor = cms.Sequence(process.SiPixelClusterSource)
 process.HITmonitor = cms.Sequence(process.SiPixelRecHitSource)
 process.DQMmodules = cms.Sequence(process.qTester*process.dqmEnv*process.dqmSaver)
 process.CERTmodules = cms.Sequence(process.sipixelDaqInfo*process.sipixelDcsInfo*process.sipixelCertification)
-process.siPixelLocalReco = cms.Sequence(process.siPixelRecHits) 
-process.siStripLocalReco = cms.Sequence(process.siStripMatchedRecHits)
-process.trackerLocalReco = cms.Sequence(process.siPixelLocalReco*process.siStripLocalReco)
-process.trackReconstruction = cms.Sequence(process.trackerLocalReco*process.offlineBeamSpot*process.recopixelvertexing*process.tracksP5) #*process.rstracks 
+#process.siPixelLocalReco = cms.Sequence(process.siPixelRecHits) 
+#process.siStripLocalReco = cms.Sequence(process.siStripMatchedRecHits)
+#process.trackerLocalReco = cms.Sequence(process.siPixelLocalReco*process.siStripLocalReco)
+#process.trackReconstruction = cms.Sequence(process.trackerLocalReco*process.offlineBeamSpot*process.recopixelvertexing*process.tracksP5) #*process.rstracks 
 #process.monitorTrack = cms.Sequence(process.SiPixelTrackResidualSource)
 #process.monitors = cms.Sequence(process.SiPixelRawDataErrorSource*process.SiPixelDigiSource*process.SiPixelClusterSource*process.SiPixelRecHitSource*process.SiPixelTrackResidualSource)
 
 #put proces.dump in the path where you want to print all event content
 #process.dump=cms.EDAnalyzer('EventContentAnalyzer')
 
-process.p = cms.Path(process.Reco*process.RecoStrips*process.trackReconstruction*process.dqmEnv*process.siPixelP5DQM_cosmics_source*process.qTester*process.PixelP5DQMClientWithDataCertification*process.dqmSaver)
+#process.p = cms.Path(process.Reco*process.RecoStrips*process.trackReconstruction*process.dqmEnv*process.siPixelP5DQM_cosmics_source*process.qTester*process.PixelP5DQMClientWithDataCertification*process.dqmSaver)
 #process.pathTrack = cms.Path(process.trackReconstruction*process.DQMmodules*process.monitors*process.sipixelEDAClient) 
 #process.p = cms.Path(process.Reco*process.dqmEnv*process.siPixelOfflineDQM_source_woTrack*process.PixelOfflineDQMClientWithDataCertification*process.dqmSaver)
 #process.p = cms.Path(process.Reco*process.dqmEnv*process.siPixelOfflineDQM_source_woTrack*process.qTester*process.PixelOfflineDQMClientWithDataCertification*process.dqmSaver)
 #process.p = cms.Path(process.siPixelDigis*process.siPixelClusters*process.trackReconstruction*process.dqmEnv*process.siPixelP5DQM_cosmics_source*process.PixelP5DQMClient*process.dqmSaver)
 
-process.p = cms.Path( process.RawToDigi * process.reconstruction * process.dqmEnv*process.siPixelP5DQM_source*process.PixelP5DQMClient*process.dqmSaver)
+process.p = cms.Path( process.siPixelDigis * process.dqmEnv*process.SiPixelDigiSource*process.PixelP5DQMClient*process.dqmSaver)

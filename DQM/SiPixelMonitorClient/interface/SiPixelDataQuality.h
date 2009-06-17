@@ -28,7 +28,6 @@
 #include "TF1.h"
 #include "TH2F.h"
 #include "TGaxis.h"
-#include "qstring.h"
 
 #include <fstream>
 #include <sstream>

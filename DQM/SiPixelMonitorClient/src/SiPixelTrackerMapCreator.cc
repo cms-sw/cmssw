@@ -10,8 +10,6 @@
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include <qstring.h>
-#include <qregexp.h>
 #include <iostream>
 #include <sstream>
 #include "TText.h"

@@ -67,14 +67,14 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
   summaryFrequency_      = ps.getUntrackedParameter<int>("SummaryCreationFrequency",20);
   tkMapFrequency_        = ps.getUntrackedParameter<int>("TkMapCreationFrequency",50); 
   staticUpdateFrequency_ = ps.getUntrackedParameter<int>("StaticUpdateFrequency",10);
-  actionOnLumiSec_       = ps.getUntrackedParameter<bool>("ActionOnLumiSection",false);
-  actionOnRunEnd_        = ps.getUntrackedParameter<bool>("ActionOnRunEnd",true);
-  evtOffsetForInit_      = ps.getUntrackedParameter<int>("EventOffsetForInit",10);
-  offlineXMLfile_        = ps.getUntrackedParameter<bool>("UseOfflineXMLFile",false);
-  hiRes_                 = ps.getUntrackedParameter<bool>("HighResolutionOccupancy",false);
-  noiseRate_             = ps.getUntrackedParameter<double>("NoiseRateCutValue",0.001);
-  noiseRateDenominator_  = ps.getUntrackedParameter<int>("NEventsForNoiseCalculation",100000);
-  Tier0Flag_             = ps.getUntrackedParameter<bool>("Tier0Flag",false);
+  actionOnLumiSec_       = ps.getUntrackedParameter<bool>("ActionOnLumiSection",false); //client
+  actionOnRunEnd_        = ps.getUntrackedParameter<bool>("ActionOnRunEnd",true); //client
+  evtOffsetForInit_      = ps.getUntrackedParameter<int>("EventOffsetForInit",10); //client
+  offlineXMLfile_        = ps.getUntrackedParameter<bool>("UseOfflineXMLFile",false); //client
+  hiRes_                 = ps.getUntrackedParameter<bool>("HighResolutionOccupancy",false); //client
+  noiseRate_             = ps.getUntrackedParameter<double>("NoiseRateCutValue",0.001); //client
+  noiseRateDenominator_  = ps.getUntrackedParameter<int>("NEventsForNoiseCalculation",100000); //client
+  Tier0Flag_             = ps.getUntrackedParameter<bool>("Tier0Flag",false); //client
   
   if(!Tier0Flag_){
     string localPath = string("DQM/SiPixelMonitorClient/test/loader.html");

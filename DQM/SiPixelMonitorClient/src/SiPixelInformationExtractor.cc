@@ -52,9 +52,6 @@
 #include "TH2F.h"
 #include "TProfile.h"
 
-#include <qstring.h>
-#include <qregexp.h>
-
 #include <iostream>
 #include <math.h>
 #include <map>
@@ -100,7 +97,7 @@ void SiPixelInformationExtractor::readConfiguration() { }
 void SiPixelInformationExtractor::getSingleModuleHistos(DQMStore * bei, 
                                                         const multimap<string, string>& req_map, 
 							xgi::Output * out){
-
+cout<<"In SiPixelInformationExtractor::getSingleModuleHistos: "<<endl;
   vector<string> hlist;
   getItemList(req_map,"histo", hlist);
 
@@ -125,18 +122,17 @@ void SiPixelInformationExtractor::getSingleModuleHistos(DQMStore * bei,
   setHTMLHeader(out);
   *out << path << " ";
 
-  QRegExp rx("(\\w+)_(siPixel|ctfWithMaterialTracks)") ;
-  QString theME ;
-
+  string theME ;
   for (vector<string>::const_iterator ih = hlist.begin();
        ih != hlist.end(); ih++) {
     for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
 	 it!= all_mes.end(); it++) {
       MonitorElement * me = (*it);
       if (!me) continue;
-      theME = QString::fromStdString(me->getName());
+      theME = me->getName();
       string temp_s ; 
-      if( rx.search(theME) != -1 ) { temp_s = rx.cap(1).latin1() ; }
+      if(theME.find("siPixel")!=string::npos || theME.find("ctfWithMaterialTracks")!=string::npos) { temp_s = theME.substr(0,theME.find_first_of("_")); }
+      cout<<"should be the variable name: temp_s= "<<temp_s<<endl;
       if (temp_s == (*ih)) {
 	string full_path = path + "/" + me->getName();
 	histoPlotter_->setNewPlot(full_path, opt, width, height);
@@ -221,9 +217,7 @@ void SiPixelInformationExtractor::getTrackerMapHistos(DQMStore* bei,
        << " [SiPixelInformationExtractor::getTrackerMapHistos()] all_mes.size() "
        << ACPlain << all_mes.size() << endl ; 
 */
-  QRegExp rx("(\\w+)_(siPixel|ctfWithMaterialTracks)") ;
-  QString theME ;
-
+  string theME ;
   *out << "<pathList>" << endl ;
   for (vector<string>::iterator ih = hlist.begin();
        ih != hlist.end(); ih++) {
@@ -238,10 +232,10 @@ void SiPixelInformationExtractor::getTrackerMapHistos(DQMStore* bei,
         	       << ACPlain << *ih << endl ; 
        continue;
       }
-      theME = QString::fromStdString(me->getName());
+      theME = me->getName();
       //cout<<"ME iterator (all_mes): "<<theME<<endl; 
       string temp_s ; 
-      if( rx.search(theME) != -1 ) { temp_s = rx.cap(1).latin1() ; }
+      if(theME.find("siPixel")!=string::npos || theME.find("ctfWithMaterialTracks")!=string::npos) { temp_s = theME.substr(0,theME.find_first_of("_")); }
       //cout << __LINE__ << ACCyan << ACBold 
       //     << " [SiPixelInformationExtractor::getTrackerMapHistos()] temp_s "
       //     << ACPlain << temp_s << " <--> " << *ih << " |" << theME << "|" << endl ; 
@@ -264,13 +258,13 @@ void SiPixelInformationExtractor::getTrackerMapHistos(DQMStore* bei,
 //
 std::string  SiPixelInformationExtractor::getMEType(MonitorElement * theMe)
 {
-  QString qtype = theMe->getRootObject()->IsA()->GetName() ;
-  if(         qtype.contains("TH1") > 0 )
+  string qtype = theMe->getRootObject()->IsA()->GetName() ;
+  if(         qtype.find("TH1") != string::npos )
   {
     return "TH1" ;
-  } else if ( qtype.contains("TH2") > 0  ) {
+  } else if ( qtype.find("TH2") != string::npos  ) {
     return "TH2" ;
-  } else if ( qtype.contains("TH3") > 0 ) {
+  } else if ( qtype.find("TH3") != string::npos ) {
     return "TH3" ;
   }
   return "TH1" ;
@@ -438,9 +432,9 @@ void SiPixelInformationExtractor::printModuleHistoList(DQMStore * bei,
                                       it != meVec.end(); it++) {
     if ((*it).find("_siPixel")!=string::npos || 
         (*it).find("_ctfWithMaterialTracks")!=string::npos) {
-      QString qit = QString::fromStdString(*it) ;
-      QRegExp rx("(\\w+)_(siPixel|ctfWithMaterialTracks)") ;
-      if( rx.search(qit) > -1 ) {qit = rx.cap(1);} 
+      string qit = (*it) ;
+      string temp_s;
+      if(qit.find("siPixel")!=string::npos || qit.find("ctfWithMaterialTracks")!=string::npos) { temp_s = qit.substr(0,qit.find_first_of("_")); }
       str_val << "    <li class=\"dhtmlgoodies_sheet.gif\">\n"
 	      << "     <input id      = \"selectedME\""
 	      << "            folder  = \"" << currDir << "\""
@@ -451,7 +445,7 @@ void SiPixelInformationExtractor::printModuleHistoList(DQMStore * bei,
 	      << "            onclick = \"javascript:IMGC.selectedIMGCItems()\" />\n"
 //	      << "     <a href=\"javascript:IMGC.updateIMGC('" << currDir << "')\">\n       " 
 	      << "     <a href=\"javascript:IMGC.plotFromPath('" << currDir << "')\">\n       " 
-//	      <<        qit << "\n"
+//	      <<        temp_s << "\n"
 	      <<        (*it) << "\n"
 	      << "     </a>\n"
 	      << "    </li>" 
@@ -531,9 +525,6 @@ void SiPixelInformationExtractor::printSummaryHistoList(DQMStore * bei,
   for (vector<string>::const_iterator it = meVec.begin();
        it != meVec.end(); it++) {
     if ((*it).find("SUM") == 0) {
-      QString qit = QString::fromStdString(*it) ;
-      QRegExp rx("(\\w+)_(siPixel|ctfWithMaterialTracks)");
-      if( rx.search(qit) > -1 ) {qit = rx.cap(1);} 
       str_val << "    <li class=\"dhtmlgoodies_sheet.gif\">\n"
 	      << "     <input id      = \"selectedME\""
 	      << "            folder  = \"" << currDir << "\""
@@ -651,9 +642,6 @@ void SiPixelInformationExtractor::printAlarmList(DQMStore * bei,
       selectImage(image_name1,my_map);
       if(image_name1!="images/LI_green.gif") {
         alarmCounter_++;
-        QString qit = QString::fromStdString(*it) ;
-        QRegExp rx("(\\w+)_(siPixel|ctfWithMaterialTracks)") ;
-        if( rx.search(qit) > -1 ) {qit = rx.cap(1);} 
         str_val << "	<li class=\"dhtmlgoodies_sheet.gif\">\n"
         	<< "	 <input id	= \"selectedME\""
         	<< "		folder  = \"" << currDir << "\""
@@ -933,7 +921,7 @@ void SiPixelInformationExtractor::computeStatus(MonitorElement      * theME,
   pair<double,double> normX ;
   pair<double,double> normY ;
 
-  QString theMEType = QString::fromStdString(getMEType(theME)) ;
+  string theMEType = getMEType(theME) ;
 
 //   cout << ACRed << ACReverse
 //        << "[SiPixelInformationExtractor::computeStatus()]"
@@ -942,7 +930,7 @@ void SiPixelInformationExtractor::computeStatus(MonitorElement      * theME,
 //        << theME->getName()
 //        << endl ;
 
-  if( theMEType.contains("TH1") > 0 )
+  if( theMEType.find("TH1") != string::npos)
   {
    meanX = (double)theME->getMean();
    getNormalization(theME, normX, "TH1") ;
@@ -953,7 +941,7 @@ void SiPixelInformationExtractor::computeStatus(MonitorElement      * theME,
    norm.second = normX.second ;
   }
   
-  if( theMEType.contains("TH2") > 0 )
+  if( theMEType.find("TH2") != string::npos)
   {
    meanX = (double)theME->getMean(1);
    meanY = (double)theME->getMean(2);
@@ -993,12 +981,12 @@ void SiPixelInformationExtractor::computeStatus(MonitorElement      * theME,
  */
 void SiPixelInformationExtractor::getNormalization(MonitorElement     * theME, 
                                                    pair<double,double>& norm,
-						   QString              theMEType) 
+						   std::string          theMEType) 
 {
   double normLow  = 0 ;
   double normHigh = 0 ;
 
-  if( theMEType.contains("TH1") > 0 )
+  if( theMEType.find("TH1") != string::npos)
   {
    normHigh    = (double)theME->getNbinsX() ;
    norm.first  = normLow  ;
@@ -1013,12 +1001,12 @@ void SiPixelInformationExtractor::getNormalization(MonitorElement     * theME,
 void SiPixelInformationExtractor::getNormalization2D(MonitorElement     * theME, 
                                                      pair<double,double>& normX,
                                                      pair<double,double>& normY,
-						     QString              theMEType) 
+						     std::string          theMEType) 
 {
   double normLow  = 0 ;
   double normHigh = 0 ;
 
-  if( theMEType.contains("TH2") > 0 )
+  if( theMEType.find("TH2") != string::npos )
   {
    normHigh    = (double)theME->getNbinsX() ;
    normX.first  = normLow  ;
@@ -1047,10 +1035,10 @@ void SiPixelInformationExtractor::selectMEList(DQMStore   * bei,
 					       string	               & theMEName,
 					       vector<MonitorElement*> & mes) 
 {  
+  cout<<"In SiPixelInformationExtractor::selectMEList: "<<endl;
   string currDir = bei->pwd();
    
-  QRegExp rx("(\\w+)_(siPixel|ctfWithMaterialTracks)") ;
-  QString theME ;
+  string theME ;
    
   // Get ME from Collector/FU0/Tracker/PixelEndcap/HalfCylinder_pX/Disk_X/Blade_XX/Panel_XX/Module_XX
   if (currDir.find("Module_") != string::npos ||
@@ -1060,9 +1048,11 @@ void SiPixelInformationExtractor::selectMEList(DQMStore   * bei,
        
     for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) 
     {
-      theME = QString::fromStdString(*it) ;
-      if( rx.search(theME) == -1 ) {continue ;} // If the ME is not a siPixel or ctfWithMaterialTrack one, skip
-      if (rx.cap(1).latin1() == theMEName)  
+      theME = (*it) ;
+      if(theME.find("siPixel")==string::npos || theME.find("ctfWithMaterialTracks")==string::npos) {continue ;} // If the ME is not a siPixel or ctfWithMaterialTrack one, skip
+      string temp_s = theME.substr(0,theME.find_first_of("_"));
+      cout<<"should be the variable name: temp_s= "<<temp_s<<endl;
+      if (temp_s == theMEName)  
       {
         string full_path = currDir + "/" + (*it);
 
@@ -1092,6 +1082,7 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(DQMStore  * bei,
 						      std::string            & theMEName,
 						      std::string            & theTKType) 
 {
+  cout<<"In SiPixelInformationExtractor::sendTkUpdatedStatus: "<<endl;
   int rval, gval, bval;
   vector<string>          colorMap ;
   vector<MonitorElement*> me_list;
@@ -1104,8 +1095,6 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(DQMStore  * bei,
 
   string detId = "undefined";
 
-  QRegExp rx("\\w+_\\w+_(\\d+)");
-  
 /*   cout << ACYellow << ACBold
 	<< "[SiPixelInformationExtractor::sendTkUpdatedStatus()] "
 	<< ACPlain
@@ -1131,11 +1120,12 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(DQMStore  * bei,
   stringstream jsSnippet ;
   for(vector<MonitorElement*>::iterator it=me_list.begin(); it!=me_list.end(); it++)
   {
-    QString meName    = QString::fromStdString((*it)->getName() );
-    QString theMEType = QString::fromStdString(getMEType(*it) );
-    if( rx.search(meName) != -1 ) 
+    string meName    = (*it)->getName();
+    string theMEType = getMEType(*it);
+    if( meName.find("_3") != string::npos ) 
     {
-     detId = rx.cap(1).latin1() ;
+     detId = meName.substr(0,meName.find_first_of("_"));
+     cout<<"should be a variable name: detId= "<<detId<<endl;
      entries = (int)(*it)->getEntries() ;
      if( theTKType == "Averages") 
      {
@@ -1228,14 +1218,18 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(DQMStore  * bei,
  */
 int SiPixelInformationExtractor::getDetId(MonitorElement * mE) 
 {
- QRegExp rx("(\\w+)_(\\w+)_(\\d+)") ;
- QString mEName = QString::fromStdString(mE->getName() );
+//cout<<"In SiPixelInformationExtractor::getDetId: for ME= "<<mE->getName()<<endl;
+ string mEName = mE->getName();
 
  int detId = 0;
  
- if( rx.search(mEName) != -1 )
+ if( mEName.find("_3") != string::npos )
  {
-  detId = rx.cap(3).toInt() ;
+  string detIdString = mEName.substr((mEName.find_last_of("_"))+1,9);
+  //cout<<"string: "<<detIdString<<endl;
+  std::istringstream isst;
+  isst.str(detIdString);
+  isst>>detId;
 // } else {
 //  cout << ACYellow << ACBold
 //       << "[SiPixelInformationExtractor::getDetId()] "
@@ -1244,7 +1238,7 @@ int SiPixelInformationExtractor::getDetId(MonitorElement * mE)
 //       << mEName
 //       << endl ;
  }
-      
+  //cout<<"returning with: "<<detId<<endl;
   return detId ;
   
 }
@@ -1265,8 +1259,7 @@ void SiPixelInformationExtractor::getMEList(DQMStore    * bei,
 //        << currDir
 //        << endl ;
        
-  QRegExp rx("(\\w+)_(siPixel|ctfWithMaterialTracks)") ;
-  QString theME ;
+  string theME ;
    
   // Get ME from Collector/FU0/Tracker/PixelEndcap/HalfCylinder_pX/Disk_X/Blade_XX/Panel_XX/Module_XX
   if (currDir.find("Module_") != string::npos ||
@@ -1276,14 +1269,14 @@ void SiPixelInformationExtractor::getMEList(DQMStore    * bei,
        
     for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) 
     {
-      theME = QString::fromStdString(*it) ;
+      theME = (*it) ;
 //       cout << ACRed << ACReverse
 //            << "[SiPixelInformationExtractor::getMEList()]"
 //            << ACPlain
 //            << " ME: " 
 //            << (*it)
 //            << endl ;
-      if( rx.search(theME) == -1 ) 
+      if(theME.find("siPixel")==string::npos && theME.find("ctfWithMaterialTracks")==string::npos) 
       {
        cout << ACRed << ACBold
             << "[SiPixelInformationExtractor::getMEList()]"
@@ -1294,7 +1287,7 @@ void SiPixelInformationExtractor::getMEList(DQMStore    * bei,
        continue ;
       } // If the ME is not a Pixel one, skip
       string full_path = currDir + "/" + (*it);
-      string mEName = rx.cap(1).latin1() ;
+      string mEName = theME.substr(0,theME.find_first_of("_"));
       mEHash[mEName]++ ;
     }
     
@@ -1381,33 +1374,33 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
     myfile_ << "Noise summary, ran over " << nevents_ << " events, threshold was set to " << noiseRate_ <<  std::endl;
   }
   string currDir = bei->pwd();
-  QString dname = QString::fromStdString(currDir.substr(currDir.find_last_of("/")+1));
-  QRegExp rx("Module_");
-  if(rx.search(dname)!=-1){
+  string dname = currDir.substr(currDir.find_last_of("/")+1);
+  if(dname.find("Module_")!=string::npos){
     vector<string> meVec = bei->getMEs();
     for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
       string full_path = currDir + "/" + (*it);
       if(full_path.find("hitmap_siPixelDigis")!=string::npos){
         //broken HV bond:
-	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_01/Panel_2/Module_2")!=string::npos) continue;
+	//if(currDir.find("HalfCylinder_mI/Disk_1/Blade_01/Panel_2/Module_2")!=string::npos) continue;
         //?noisy?
 	//if(currDir.find("HalfCylinder_mI/Disk_1/Blade_12/Panel_1/Module_4")!=string::npos) continue;
         //ROG with HV problem (short?):
-	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_10/Panel_1/Module_3")!=string::npos) continue;
-	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_10/Panel_1/Module_4")!=string::npos) continue;
-	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_10/Panel_2/Module_2")!=string::npos) continue;
-	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_10/Panel_2/Module_3")!=string::npos) continue;
-	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_11/Panel_1/Module_3")!=string::npos) continue;
-	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_11/Panel_1/Module_4")!=string::npos) continue;
-	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_11/Panel_2/Module_2")!=string::npos) continue;
-	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_11/Panel_2/Module_3")!=string::npos) continue;
-	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_12/Panel_1/Module_3")!=string::npos) continue;
-	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_12/Panel_1/Module_4")!=string::npos) continue;
-	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_12/Panel_2/Module_2")!=string::npos) continue;
-	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_12/Panel_2/Module_3")!=string::npos) continue;
+	//if(currDir.find("HalfCylinder_mI/Disk_1/Blade_10/Panel_1/Module_3")!=string::npos) continue;
+	//if(currDir.find("HalfCylinder_mI/Disk_1/Blade_10/Panel_1/Module_4")!=string::npos) continue;
+	//if(currDir.find("HalfCylinder_mI/Disk_1/Blade_10/Panel_2/Module_2")!=string::npos) continue;
+	//if(currDir.find("HalfCylinder_mI/Disk_1/Blade_10/Panel_2/Module_3")!=string::npos) continue;
+	//if(currDir.find("HalfCylinder_mI/Disk_1/Blade_11/Panel_1/Module_3")!=string::npos) continue;
+	//if(currDir.find("HalfCylinder_mI/Disk_1/Blade_11/Panel_1/Module_4")!=string::npos) continue;
+	//if(currDir.find("HalfCylinder_mI/Disk_1/Blade_11/Panel_2/Module_2")!=string::npos) continue;
+	//if(currDir.find("HalfCylinder_mI/Disk_1/Blade_11/Panel_2/Module_3")!=string::npos) continue;
+	//if(currDir.find("HalfCylinder_mI/Disk_1/Blade_12/Panel_1/Module_3")!=string::npos) continue;
+	//if(currDir.find("HalfCylinder_mI/Disk_1/Blade_12/Panel_1/Module_4")!=string::npos) continue;
+	//if(currDir.find("HalfCylinder_mI/Disk_1/Blade_12/Panel_2/Module_2")!=string::npos) continue;
+	//if(currDir.find("HalfCylinder_mI/Disk_1/Blade_12/Panel_2/Module_3")!=string::npos) continue;
         MonitorElement * me = bei->get(full_path);
         if (!me) continue;
 	int detid=getDetId(me); int pixcol=-1; int pixrow=-1; 
+	//cout<<"detid= "<<detid<<endl;
 	std::vector<std::pair<std::pair<int, int>, float> > noisyPixelsInModule;
 	TH2F * hothisto = me->getTH2F();
 	if(hothisto){
@@ -1424,7 +1417,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
 	      if(value > noiseRate_){
 	        pixcol = i-1;
 	        pixrow = j-1;
-		//cout<<"pixcol= "<<pixcol<<" , pixrow= "<<pixrow<<endl;
+		//cout<<"pixcol= "<<pixcol<<" , pixrow= "<<pixrow<<" , value= "<<value<<endl;
  
 	        std::pair<int, int> address(pixcol, pixrow);
 	        std::pair<std::pair<int, int>, float>  PixelStats(address, value);
@@ -1451,7 +1444,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
   if(bei->pwd().find("EventInfo")!=string::npos) endOfModules_ = true;
   
   if(!endOfModules_) return;
-  
+  //cout<<"am in "<<bei->pwd()<<" now!"<<endl;
   if(currDir == "Pixel/EventInfo/reportSummaryContents"){
     eSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
     std::vector<std::pair<sipixelobjects::DetectorIndex,double> > pixelvec;
@@ -1471,7 +1464,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
         it != noisyDetIds_.end(); it++){
       uint32_t detid = (*it).first;
       std::vector< std::pair<std::pair<int, int>, float> > noisyPixels = (*it).second;
-      //cout<<noisyPixels.size()<<" noisy pixels in a module "<< bei->pwd()<<endl;
+      //cout<<noisyPixels.size()<<" noisy pixels in a module: "<<detid<<endl;
       // now convert into online conventions:
       for(int fedid=0; fedid<=40; ++fedid){
 	SiPixelFrameConverter converter(theCablingMap.product(),fedid);
@@ -1481,6 +1474,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
 	  break;   
 	}
       }
+      //cout<<"FED ID is = "<<realfedID<<endl;
       if(realfedID==-1) continue; 
       DetId detId(detid);
       uint32_t detSubId = detId.subdetId();
@@ -1506,7 +1500,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
 	int offlineColumn = offlineaddress.first;
         int offlineRow = offlineaddress.second;
         counter++;
-        
+        //cout<<"noisy pixel counter: "<<counter<<endl;
 
         sipixelobjects::ElectronicIndex cabling; 
         SiPixelFrameConverter formatter(theCablingMap.product(),realfedID);
@@ -1539,7 +1533,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
         int onlineRow= locpixel.rocRow();
 	myrocmap[(theRoc->idInDetUnit())]++;
         //cout<<counter<<" : \t detid= "<<detid<<" , OFF col,row= "<<offlineColumn<<","<<offlineRow<<" , ON roc,col,row= "<<theRoc->idInDetUnit()<<","<<onlineColumn<<","<<onlineRow<<endl;
-        myfile_<<"NAME: "<<outputname<<" , DETID: "<<detid<<" , OFFLINE: col,row: "<<offlineColumn<<","<<offlineRow<<"  \t , ONLINE: roc,col,row: "<<theRoc->idInDetUnit()<<","<<onlineColumn<<","<<onlineRow<< "  \t , fed,dcol,pixid,link: "<<realfedID<<","<<loc.dcol<<","<<loc.pxid<<","<<cabling.link << ", Noise fraction: " << Noise_frac << std::endl;;
+        myfile_<<"NAME: "<<outputname<<" , DETID: "<<detid<<" , OFFLINE: col,row: "<<offlineColumn<<","<<offlineRow<<"  \t , ONLINE: roc,col,row: "<<theRoc->idInDetUnit()<<","<<onlineColumn<<","<<onlineRow<< "  \t , fed,dcol,pixid,link: "<<realfedID<<","<<loc.dcol<<","<<loc.pxid<<","<<cabling.link << ", Noise fraction: " << Noise_frac << std::endl;
       }
       for(std::map<int, int>::const_iterator nrc = myrocmap.begin(); nrc != myrocmap.end(); nrc++){
 	if((*nrc).second > 0){
