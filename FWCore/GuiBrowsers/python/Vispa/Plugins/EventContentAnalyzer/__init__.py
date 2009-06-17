@@ -1,2 +1,2 @@
-#from EventContentAnalyzerPlugin import *
-#plugin = EventContentAnalyzerPlugin
+from EventContentAnalyzerPlugin import *
+plugin = EventContentAnalyzerPlugin

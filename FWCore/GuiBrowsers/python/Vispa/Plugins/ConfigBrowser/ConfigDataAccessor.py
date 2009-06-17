@@ -562,10 +562,18 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         allLabels = [self.label(object) for object in self._allObjects]
         for object in self._allObjects:
             for key, value in self.inputTags(object):
-                module = str(value).split(":")[0]
-                product = ".".join(str(value).split(":")[1:])
-                if not module in allLabels and not ("*",module,product,"*") in content:
-                    content += [("*",module,product,"*")]
+                elements=str(value).split(":")
+                module = elements[0]
+                if len(elements)>1 and elements[1]!="":
+                    product = elements[1]
+                else:
+                    product = "*"
+                if len(elements)>2 and elements[2]!="":
+                    process = elements[2]
+                else:
+                    process = "*"
+                if not module in allLabels and not ("*",module,product,process) in content:
+                    content += [("*",module,product,process)]
         return content
 
     def outputEventContent(self):

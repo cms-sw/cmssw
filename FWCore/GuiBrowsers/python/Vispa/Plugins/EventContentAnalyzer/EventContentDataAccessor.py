@@ -112,7 +112,11 @@ class EventContentDataAccessor(BasicDataAccessor):
                 type = self.branchType(branch)
                 module = name.split("_")[1]
                 product = name.split("_")[2]
-                process = name.split("_")[3]
+                if product=="":
+                    product="*"
+                process = name.split("_")[3].rstrip(".")
+                if process=="":
+                    process="*"
                 cpp = events.cppCode(name)
                 content += [(type,module,product,process)]
         name = os.path.splitext(os.path.basename(filename))[0]
@@ -123,7 +127,15 @@ class EventContentDataAccessor(BasicDataAccessor):
         content = []
         for line in file.readlines():
             linecontent=[l.strip(" \n") for l in line.split("\"")]
-            content += [(linecontent[0],linecontent[1],linecontent[3],linecontent[5])]
+            type = linecontent[0]
+            module = linecontent[1]
+            product = linecontent[3]
+            if product=="":
+                product="*"
+            process = linecontent[5].rstrip(".")
+            if process=="":
+                process="*"
+            content += [(type,module,product,process)]
         name = os.path.splitext(os.path.basename(filename))[0]
         self._eventContents += [(name, content, False)]
 

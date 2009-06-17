@@ -29,7 +29,7 @@ class ConfigBrowserTab(SplitterTab):
     def _createCenterView(self):
         """ Create the center view.
         """
-        self._scrollArea = ZoomableScrollArea(self)
+        self.createScrollArea()
         self._centerView = WidgetView() 
         self._scrollArea.setWidget(self._centerView)
 
@@ -46,11 +46,6 @@ class ConfigBrowserTab(SplitterTab):
         SplitterTab.setController(self, controller)
 
         self.connect(self.propertyView(), SIGNAL('valueChanged()'), controller.setModified)
-        self.connect(self._scrollArea, SIGNAL('wheelZoom()'), controller.resetZoomButtonPressedBefore)
-        self.connect(self._scrollArea, SIGNAL("zoomChanged(float)"), controller.zoomChanged)
-                
-    def scrollArea(self):
-        return self._scrollArea
         
     def treeView(self):
         return self._treeView

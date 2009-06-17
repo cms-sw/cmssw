@@ -52,7 +52,6 @@ class EventContentAnalyzerTabController(TabController):
         """
         logging.debug(__name__ + ": select : " + str(object))
         item = self.tab().centerView().itemByObject(object)
-        print object,item
         self.tab().centerView().select(item)
 
     def closeEvent(self, event):
