@@ -64,11 +64,14 @@ EcalTBDigiProducer::EcalTBDigiProducer(const edm::ParameterSet& params)
 //TB  theESResponse = new CaloHitResponse(theParameterMap, theESShape);
 
   // further phase for cosmics studies
+
+/* //TB
   cosmicsPhase = params.getParameter<bool>("cosmicsPhase");
   cosmicsShift = params.getParameter<double>("cosmicsShift");
   if (cosmicsPhase) {
     theEcalResponse->setPhaseShift(1.+cosmicsShift);
   }
+*/
 
   EcalCorrMatrix thisMatrix;
 
@@ -90,7 +93,7 @@ EcalTBDigiProducer::EcalTBDigiProducer(const edm::ParameterSet& params)
   double rmsConstantTerm = params.getParameter<double> ("ConstantTerm");
   theElectronicsSim = new EcalElectronicsSim(theParameterMap, theCoder, applyConstantTerm, rmsConstantTerm);
 
-  doFast = params.getParameter<bool>("doFast");
+//TB  doFast = params.getParameter<bool>("doFast");
 //TB  bool addESNoise = params.getParameter<bool>("doESNoise");
 //TB  double ESNoiseSigma = params.getParameter<double> ("ESNoiseSigma");
 //TB  int ESBaseline  = params.getParameter<int>("ESBaseline");

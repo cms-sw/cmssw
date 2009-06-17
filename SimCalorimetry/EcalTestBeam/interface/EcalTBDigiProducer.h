@@ -25,6 +25,14 @@
 #include "DataFormats/Math/interface/Error.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 
+//For TB ----------------------------
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "SimCalorimetry/EcalTestBeamAlgos/interface/EcalTBReadout.h"
+#include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCSample.h"
+#include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCRawInfo.h"
+#include "RecoTBCalo/EcalTBTDCReconstructor/interface/EcalTBTDCRecInfoAlgo.h"
+//For TB ----------------------------
+
 class EcalTBDigiProducer : public edm::EDProducer
 {
 public:
@@ -45,6 +53,10 @@ private:
   void updateGeometry();
 
   void checkCalibrations(const edm::EventSetup & eventSetup);
+
+  void setPhaseShift(const DetId & detId);
+
+  void fillTBTDCRawInfo(EcalTBTDCRawInfo & theTBTDCRawInfo);
 
   /** Reconstruction algorithm*/
   typedef EcalTDigitizer<EBDigitizerTraits> EBDigitizer;
@@ -82,10 +94,29 @@ private:
   double EBs25notCont;
   double EEs25notCont;
 
-  bool cosmicsPhase;
-  double cosmicsShift;
+//For TB -------------------------------------------
 
-  bool doFast; 
+  const EcalTrigTowerConstituentsMap * theTTmap;
+
+  EcalTBReadout * theTBReadout;
+
+  std::string ecalTBInfoLabel;
+
+  bool doPhaseShift;
+  double thisPhaseShift;
+
+  bool doReadout;
+
+  std::vector<EcalTBTDCRecInfoAlgo::EcalTBTDCRanges> tdcRanges;
+  bool use2004OffsetConvention_;
+
+  double tunePhaseShift;
+//For TB ---------------------
+
+//TB  bool cosmicsPhase;
+//TB  double cosmicsShift;
+
+//TB  bool doFast; 
 };
 
 #endif 
