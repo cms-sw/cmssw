@@ -45,6 +45,7 @@ localReco = cms.Sequence(offlineBeamSpot*trackerlocalreco*caloReco)
 
 #--------------------------------------------------------------------------
 # Main Sequence
+reconstruct_PbPb_CaloOnly = cms.Sequence(caloReco*hiEcalClusters*runjets*hiCentrality*hiEvtPlane)
 reconstruct_PbPb = cms.Sequence(localReco*heavyIonTracking*hiEcalClusters*runjets*hiCentrality*hiEvtPlane)
 
 #--------------------------------------------------------------------------
