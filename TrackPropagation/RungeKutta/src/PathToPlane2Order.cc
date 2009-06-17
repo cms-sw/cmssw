@@ -54,6 +54,10 @@ PathToPlane2Order::operator()( const Plane& plane,
 */
     double k = 2.99792458e-3;
     double transverseMomentum = localMom.perp();   // transverse to the field
+    if (!(transverseMomentum != 0) ) {  // if (!(x!=0)) will trap both 0 and NaN
+      //LogDebug("PathToPlane2Order_ZeroMomentum") << "Momentum transverse to the field is zero or Nan (" << transverseMomentum << ")\n";
+        return std::pair<bool,double>(false,0);
+    }
     double curvature = -k * charge * B.mag() / transverseMomentum;
 /*
      cout << "PathToPlane2Order curvature " << curvature << endl;
