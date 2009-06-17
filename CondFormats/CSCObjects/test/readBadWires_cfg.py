@@ -1,3 +1,6 @@
+# Test read of bad channel db for CSC wires
+# This version 17.06.2009 Tim Cox
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
@@ -12,13 +15,17 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
         record = cms.string('CSCBadWiresRcd'),
         tag = cms.string('CSCBadWires')
     )),
-    connect = cms.string('sqlite_file:BadWires_11June2009.db')
+    connect = cms.string('sqlite_file:BadWires_17June2009.db')
 )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
-process.source = cms.Source("EmptySource")
+
+## Set the run number > 100K
+process.source = cms.Source("EmptySource",
+ firstRun = cms.untracked.uint32(100001)
+)
 
 process.analyze = cms.EDAnalyzer("CSCReadBadWiresAnalyzer",
     outputToFile = cms.bool(False),
