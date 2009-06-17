@@ -1,4 +1,4 @@
-// $Id: RPCWheel.cc,v 1.6 2009/06/01 12:57:20 aosorio Exp $
+// $Id: RPCWheel.cc,v 1.7 2009/06/07 21:18:51 aosorio Exp $
 // Include files
 
 
@@ -234,21 +234,31 @@ bool RPCWheel::process( int bx, const std::map<int,TTUInput*> & data )
 void RPCWheel::createWheelMap()
 {
   
+  m_rbcDecision.reset();
+  
   std::bitset<6> layersignal;
   
   layersignal       = * m_RBCE[0]->getlayersignal( 0 );
   m_wheelmap[0]     = layersignal;
   
+  m_rbcDecision.set( 0 , m_RBCE[0]->getdecision( 0 ) );
+  
   for( int k=0; k < (m_maxrbc-1); ++k )
   {
-    layersignal       = * m_RBCE[k+1]->getlayersignal( 0 );
+    layersignal             = * m_RBCE[k+1]->getlayersignal( 0 );
     m_wheelmap[(k*2)+1]     = layersignal;
-    layersignal       = * m_RBCE[k+1]->getlayersignal( 1 );
-    m_wheelmap[(k*2)+2] = layersignal;
+    layersignal             = * m_RBCE[k+1]->getlayersignal( 1 );
+    m_wheelmap[(k*2)+2]     = layersignal;
+    
+    m_rbcDecision.set( (k*2)+1  , m_RBCE[k+1]->getdecision( 0 ) );
+    m_rbcDecision.set( (k*2)+2  , m_RBCE[k+1]->getdecision( 1 ) );
+    
   }
   
   layersignal       = * m_RBCE[0]->getlayersignal( 1 );
   m_wheelmap[11]     = layersignal;
+  
+  m_rbcDecision.set( 11 , m_RBCE[0]->getdecision( 1 ) );
   
   if( m_debug ) std::cout << "RPCWheel::createWheelMap done" << std::endl;
   
@@ -266,6 +276,8 @@ void RPCWheel::retrieveWheelMap( TTUInput & output )
       output.input_sec[i].set(j, m_wheelmap[i][j]);
     }
   }
+  
+  output.m_rbcDecision = m_rbcDecision;
   
   if( m_debug ) print_wheel( output );
   if( m_debug ) std::cout << "RPCWheel::retrieveWheelMap done" << std::endl;

@@ -1,4 +1,4 @@
-// $Id: LogicTool.h,v 1.1 2009/02/05 13:46:21 aosorio Exp $
+// $Id: LogicTool.h,v 1.1 2009/05/16 19:43:30 aosorio Exp $
 #ifndef LOGICTOOL_H 
 #define LOGICTOOL_H 1
 
@@ -66,7 +66,20 @@ public:
 
     m_logkeys.push_back( key );
     
+    key = std::string("SectorORLogic");
+    createlogic = (GenLogic * (*)()) &createSectorORLogic;
+    status = m_rbclogic.Register( key , createlogic );
+    
+    m_logkeys.push_back( key );
+
+    key = std::string("TwoORLogic");
+    createlogic = (GenLogic * (*)()) &createTwoORLogic;
+    status = m_rbclogic.Register( key , createlogic );
+    
+    m_logkeys.push_back( key );
+    
     return status;
+    
   };
   
   

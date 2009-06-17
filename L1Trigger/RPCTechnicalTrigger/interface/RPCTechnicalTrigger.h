@@ -94,10 +94,7 @@ private:
   edm::ESHandle<RPCGeometry> m_rpcGeometry;
   
   int m_verbosity;
-  int m_debugMode;
   int m_useDatabase;
-  int m_triggerMode;
-  std::string m_testFile;
   std::string m_configFile;
   std::vector<unsigned> m_ttBits;
   std::vector<std::string> m_ttNames;

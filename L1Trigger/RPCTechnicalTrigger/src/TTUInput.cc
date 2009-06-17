@@ -1,4 +1,4 @@
-// $Id: TTUInput.cc,v 1.4 2009/05/24 21:45:39 aosorio Exp $
+// $Id: TTUInput.cc,v 1.5 2009/06/01 12:57:20 aosorio Exp $
 // Include files 
 
 
@@ -21,6 +21,7 @@ TTUInput::TTUInput(  ) {
   m_bx = 0;
   m_hasHits = false;
   input_sec = new std::bitset<6>[12];
+  m_rbcDecision.reset();
   
   for(int i=0; i < 12; ++i)
     input_sec[i].reset();
@@ -47,7 +48,9 @@ void TTUInput::reset()
   
   for(int i=0; i < 12; ++i)
     input_sec[i].reset();
-  
+
+  m_rbcDecision.reset();
+    
 }
 
 void TTUInput::mask( const std::vector<int> & maskvec )

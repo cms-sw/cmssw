@@ -1,4 +1,4 @@
-// $Id: RBCEmulator.cc,v 1.8 2009/05/24 21:45:39 aosorio Exp $
+// $Id: RBCEmulator.cc,v 1.9 2009/06/07 21:18:50 aosorio Exp $
 // Include files 
 
 // local
@@ -160,18 +160,24 @@ void RBCEmulator::emulate( RBCInput * in )
   
   m_layersignal[0] = m_rbcconf->m_rbclogic->getlayersignal( 0 );
   m_layersignal[1] = m_rbcconf->m_rbclogic->getlayersignal( 1 );
-  
+
+  m_decision.set(0, decision[0] );
+  m_decision.set(1, decision[1] );
+    
   if( m_debug ) {
     printlayerinfo();
     std::cout << decision[0] << " " << decision[1] << std::endl;
     std::cout << "RBCEmulator> end emulation" << std::endl;
   }
-    
+  
+  decision.reset();  
+  
 }
 
 void RBCEmulator::reset()
 {
-  
+
+  m_decision.reset();
   m_layersignal[0]->reset();
   m_layersignal[1]->reset();
   

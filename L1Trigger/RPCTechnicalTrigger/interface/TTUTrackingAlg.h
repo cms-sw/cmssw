@@ -1,4 +1,4 @@
-// $Id: TTUTrackingAlg.h,v 1.1 2009/05/16 19:43:31 aosorio Exp $
+// $Id: TTUTrackingAlg.h,v 1.2 2009/06/04 11:52:58 aosorio Exp $
 #ifndef TTUTRACKINGALG_H 
 #define TTUTRACKINGALG_H 1
 
@@ -31,7 +31,7 @@ public:
   virtual ~TTUTrackingAlg( ); ///< Destructor
 
 
-  //... for the TTULogic interface:
+  //... from TTULogic interface:
   
   bool process( const TTUInput & );
   

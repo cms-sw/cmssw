@@ -9,7 +9,7 @@ if database == 'sqlite':
     dbconnection = 'sqlite_file:/afs/cern.ch/user/a/aosorio/public/rpcTechnicalTrigger/myrbconfig.db'
 else:
     dbconnection = 'oracle://devdb10/CMS_RPC_COMMISSIONING'
-
+    
 #...
 
 if usedatabase >= 1:
@@ -30,8 +30,8 @@ if usedatabase >= 1:
     CondDBCommon.connect = cms.string( dbconnection )
 
 #...
+
 rpcTechnicalTrigger  = cms.EDProducer('RPCTechnicalTrigger',
-                                      TriggerMode = cms.int32(trigmode),
                                       RPCDigiLabel = cms.InputTag("simMuonRPCDigis"),
                                       UseDatabase = cms.untracked.int32(usedatabase),
                                       BitNumbers=cms.vuint32(24,25,26,27,28),

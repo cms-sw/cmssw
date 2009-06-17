@@ -1,4 +1,4 @@
-// $Id: RBCEmulator.h,v 1.7 2009/05/16 19:43:30 aosorio Exp $
+// $Id: RBCEmulator.h,v 1.8 2009/06/07 21:18:50 aosorio Exp $
 #ifndef RBCEMULATOR_H 
 #define RBCEMULATOR_H 1
 
@@ -48,7 +48,9 @@ public:
   void reset();
   
   std::bitset<6> * getlayersignal( int idx ) { return m_layersignal[idx];};
-  
+
+  bool getdecision( int idx ) { return m_decision[idx];};
+    
   void printinfo();
   
   void printlayerinfo();
@@ -60,10 +62,14 @@ protected:
 private:
   
   ProcessInputSignal * m_signal;
+  
   RBCConfiguration   * m_rbcconf;
+  
   RBCInput           * m_input;
   
   std::bitset<6> * m_layersignal[2];
+  
+  std::bitset<2> m_decision;
   
   std::vector< std::bitset<6> *> m_layersignalVec;
   

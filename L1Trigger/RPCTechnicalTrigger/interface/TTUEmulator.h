@@ -1,4 +1,4 @@
-// $Id: TTUEmulator.h,v 1.2 2009/05/24 21:45:39 aosorio Exp $
+// $Id: TTUEmulator.h,v 1.3 2009/06/01 12:57:20 aosorio Exp $
 #ifndef TTUEMULATOR_H 
 #define TTUEMULATOR_H 1
 
@@ -52,11 +52,7 @@ public:
   
   void emulate();
   
-  void processtest( RPCInputSignal * );
-  
-  void processlocal( RPCInputSignal * );
-  
-  void processglobal( RPCInputSignal * );
+  void processTtu(  RPCInputSignal * );
   
   void printinfo();
   
@@ -68,13 +64,14 @@ public:
     return m_mode;
   };
   
-  void setmode(int _mode) {
-    m_mode = _mode;
+  void setmode(int mode) {
+    m_mode = mode;
   };
   
   void setSpecs();
   
   int m_maxWheels;
+
   RPCWheel * m_Wheels;
   std::bitset<2> m_trigger;
   std::map<int, std::bitset<2> > m_triggerBx;
@@ -110,7 +107,9 @@ private:
   int * m_wheelIds;
   
   std::string m_logtype;
+  
   TTUInput         * m_ttuin;
+  
   TTUConfiguration * m_ttuconf;
   
   bool m_debug;

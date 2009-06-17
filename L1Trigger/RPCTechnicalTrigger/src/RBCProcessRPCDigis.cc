@@ -1,14 +1,14 @@
-// $Id: ProcessDigiLocalSignal.cc,v 1.6 2009/06/01 12:57:20 aosorio Exp $
+// $Id: RBCProcessRPCDigis.cc,v 1.7 2009/06/07 21:18:50 aosorio Exp $
 // Include files 
 
 
 
 // local
-#include "L1Trigger/RPCTechnicalTrigger/interface/ProcessDigiLocalSignal.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCProcessRPCDigis.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCLinkBoardGLSignal.h"
 
 //-----------------------------------------------------------------------------
-// Implementation file for class : ProcessDigiLocalSignal
+// Implementation file for class : RBCProcessRPCDigis
 //
 // 2009-04-15 : Andres Felipe Osorio Oliveros
 //-----------------------------------------------------------------------------
@@ -16,7 +16,7 @@
 //=============================================================================
 // Standard constructor, initializes variables
 //=============================================================================
-ProcessDigiLocalSignal::ProcessDigiLocalSignal(  const edm::ESHandle<RPCGeometry> & rpcGeom, 
+RBCProcessRPCDigis::RBCProcessRPCDigis(  const edm::ESHandle<RPCGeometry> & rpcGeom, 
                                                  const edm::Handle<RPCDigiCollection> & digiColl ) 
 {
   
@@ -75,7 +75,7 @@ ProcessDigiLocalSignal::ProcessDigiLocalSignal(  const edm::ESHandle<RPCGeometry
 //=============================================================================
 // Destructor
 //=============================================================================
-ProcessDigiLocalSignal::~ProcessDigiLocalSignal() {
+RBCProcessRPCDigis::~RBCProcessRPCDigis() {
   
   if ( m_lbin ) delete m_lbin;
 
@@ -87,7 +87,7 @@ ProcessDigiLocalSignal::~ProcessDigiLocalSignal() {
 } 
 
 //=============================================================================
-int ProcessDigiLocalSignal::next() {
+int RBCProcessRPCDigis::next() {
   
   //...clean up previous data contents
   
@@ -104,7 +104,7 @@ int ProcessDigiLocalSignal::next() {
     int bx = (*m_digiItr).bx();
     
     if ( abs(bx) > m_maxBxWindow ) {
-      if ( m_debug )  std::cout << "ProcessDigiLocalSignal> found a bx bigger than max allowed: "
+      if ( m_debug )  std::cout << "RBCProcessRPCDigis> found a bx bigger than max allowed: "
                                 << bx << std::endl;
       continue;
     }
@@ -113,7 +113,7 @@ int ProcessDigiLocalSignal::next() {
     const RPCRoll * roll = dynamic_cast<const RPCRoll* >( (*m_ptr_rpcGeom)->roll(id));
     
     if((roll->isForward())) {
-      if( m_debug ) std::cout << "ProcessDigiGlobalSignal: roll is forward" << std::endl;
+      if( m_debug ) std::cout << "RBCProcessRPCDigis: roll is forward" << std::endl;
       continue;
     }
     
@@ -177,7 +177,7 @@ int ProcessDigiLocalSignal::next() {
     print_output();
   }
   
-  if ( m_debug ) std::cout << "ProcessDigiLocalSignal: DataSize: " << m_data.size() 
+  if ( m_debug ) std::cout << "RBCProcessRPCDigis: DataSize: " << m_data.size() 
                            << " ndigis " << ndigis << std::endl;
   
   if ( m_data.size() <= 0 ) return 0;
@@ -186,7 +186,7 @@ int ProcessDigiLocalSignal::next() {
   
 }
 
-void ProcessDigiLocalSignal::reset()
+void RBCProcessRPCDigis::reset()
 {
   
   std::map<int,std::vector<RPCData*> >::iterator itr1;
@@ -201,7 +201,7 @@ void ProcessDigiLocalSignal::reset()
 }
 
 
-void ProcessDigiLocalSignal::initialize( std::vector<RPCData*> & dataVec ) 
+void RBCProcessRPCDigis::initialize( std::vector<RPCData*> & dataVec ) 
 {
   
   if ( m_debug ) std::cout << "initialize" << std::endl;
@@ -232,7 +232,7 @@ void ProcessDigiLocalSignal::initialize( std::vector<RPCData*> & dataVec )
   
 }
 
-void ProcessDigiLocalSignal::builddata() 
+void RBCProcessRPCDigis::builddata() 
 {
   
   int bx(0);
@@ -278,7 +278,7 @@ void ProcessDigiLocalSignal::builddata()
   
 }
 
-int ProcessDigiLocalSignal::getBarrelLayer( const int & _layer, const int & _station )
+int RBCProcessRPCDigis::getBarrelLayer( const int & _layer, const int & _station )
 {
   
   //... Calculates the generic Barrel Layer (1 to 6)
@@ -296,7 +296,7 @@ int ProcessDigiLocalSignal::getBarrelLayer( const int & _layer, const int & _sta
 }
 
 
-void ProcessDigiLocalSignal::setDigiAt( int sector, int digipos )
+void RBCProcessRPCDigis::setDigiAt( int sector, int digipos )
 {
   
   int pos   = 0;
@@ -329,7 +329,7 @@ void ProcessDigiLocalSignal::setDigiAt( int sector, int digipos )
   
 }
 
-void ProcessDigiLocalSignal::setInputBit( std::bitset<15> & signals , int digipos ) 
+void RBCProcessRPCDigis::setInputBit( std::bitset<15> & signals , int digipos ) 
 {
   
   int bitpos = m_layermap[digipos];
@@ -338,16 +338,17 @@ void ProcessDigiLocalSignal::setInputBit( std::bitset<15> & signals , int digipo
   
 }
 
-void  ProcessDigiLocalSignal::print_output() 
+void  RBCProcessRPCDigis::print_output() 
 {
 
-  std::cout << "ProcessDigiLocalSignal> Output starts" << std::endl;
+  std::cout << "RBCProcessRPCDigis> Output starts" << std::endl;
   
   std::map<int,RBCInput*>::const_iterator itr;
   for( itr = m_data.begin(); itr != m_data.end(); ++itr) {
     std::cout << (*itr).first << '\t' << (* (*itr).second ) << '\n';
   }
 
-  std::cout << "ProcessDigiLocalSignal> Output ends" << std::endl;
+  std::cout << "RBCProcessRPCDigis> Output ends" << std::endl;
   
 }
+

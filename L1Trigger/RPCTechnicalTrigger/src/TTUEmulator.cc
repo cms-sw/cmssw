@@ -1,4 +1,4 @@
-// $Id: TTUEmulator.cc,v 1.8 2009/06/04 11:52:59 aosorio Exp $
+// $Id: TTUEmulator.cc,v 1.9 2009/06/07 21:18:51 aosorio Exp $
 // Include files 
 
 
@@ -149,47 +149,7 @@ void TTUEmulator::emulate()
   
 }
 
-void TTUEmulator::processtest( RPCInputSignal * signal ) 
-{
-  
-  //. 
-  bool trg(false); 
-  
-  m_trigger.reset();
-  
-  std::map<int,RBCInput*> * linkboardin;
-  linkboardin = dynamic_cast<RBCLinkBoardGLSignal*>( signal )->m_linkboardin;
-  
-  for( int k=0; k < m_maxWheels; ++k )
-  {
-    
-    if ( m_Wheels[k].process( 0 , (*linkboardin) ) ) {
-      
-      m_Wheels[k].createWheelMap();
-
-      m_Wheels[k].retrieveWheelMap( (m_ttuin[k]) );
-      
-      //.. execute here the Tracking Algorithm or any other selected logic
-      
-      m_ttuconf->m_ttulogic->run( (m_ttuin[k]) );
-      
-      //... and produce a Wheel level trigger
-      trg = m_ttuconf->m_ttulogic->isTriggered();
-      
-      m_trigger.set(k,trg);
-      
-      if( m_debug ) std::cout << "TTUEmulator::processtest> ttuid: " << m_id 
-                              << " wheel: "       << m_Wheels[k].getid()
-                              << " response: "    << trg << std::endl;
-    }
-    
-  }
-  
-  if( m_debug ) std::cout << "TTUEmulator::processtest> done with this TTU: " << m_id << std::endl;
-  
-}
-
-void TTUEmulator::processlocal( RPCInputSignal * signal ) 
+void TTUEmulator::processTtu( RPCInputSignal * signal ) 
 {
   
   //. 
@@ -231,7 +191,7 @@ void TTUEmulator::processlocal( RPCInputSignal * signal )
         
         m_Wheels[k].retrieveWheelMap( (m_ttuin[k]) );
         
-        //.. execute here the Tracking Algorithm or any other selected logic
+        //.. execute selected logic at Ttu level
         m_ttuconf->m_ttulogic->run( (m_ttuin[k]) );
         
         //... and produce a Wheel level trigger
@@ -239,7 +199,7 @@ void TTUEmulator::processlocal( RPCInputSignal * signal )
         
         m_trigger.set(k,trg);
         
-        if( m_debug ) std::cout << "TTUEmulator::processlocal ttuid: " << m_id 
+        if( m_debug ) std::cout << "TTUEmulator::processTtu ttuid: " << m_id 
                                 << " bx: "          << (*bxItr)
                                 << " wheel: "       << m_Wheels[k].getid()
                                 << " response: "    << trg << std::endl;
@@ -254,76 +214,14 @@ void TTUEmulator::processlocal( RPCInputSignal * signal )
     
   }
   
-  if( m_debug ) std::cout << "TTUEmulator::processlocal> size of trigger map " 
+  if( m_debug ) std::cout << "TTUEmulator::processTtu> size of trigger map " 
                           << m_triggerBx.size() << std::endl;
   
   
-  if( m_debug ) std::cout << "TTUEmulator::processlocal> done with this TTU: " << m_id << std::endl;
+  if( m_debug ) std::cout << "TTUEmulator::processTtu> done with this TTU: " << m_id << std::endl;
 
   bxVec.clear();
     
-}
-
-void TTUEmulator::processglobal( RPCInputSignal * signal ) 
-{
-  
-  //.
-  int bx(0);
-  bool trg(false);
-  
-  m_trigger.reset();
-  m_triggerBx.clear();
-  
-  std::map<int,TTUInput*> * wheelmapin;
-  std::map<int,TTUInput*>::iterator inItr;
-
-  wheelmapin = dynamic_cast<TTUGlobalSignal*>( signal )->m_wheelmap;
-  
-  for( inItr = (*wheelmapin).begin(); inItr != (*wheelmapin).end(); ++inItr) {
-    
-    if ( (*inItr).first < 0 ) bx = (int) ceil( (*inItr).first / 1000000.0 );
-    else bx = (int) floor( (*inItr).first / 1000000.0 );
-    
-    TriggerResponse * triggerResponse = new TriggerResponse();
-    
-    for( int k=0; k < m_maxWheels; ++k )
-    {
-      
-      if ( m_Wheels[k].process( bx , (*wheelmapin) ) ) {
-        
-        m_Wheels[k].retrieveWheelMap( (m_ttuin[k]) );
-        
-        //.. mask and force as specified in hardware configuration
-        m_ttuconf->preprocess( (m_ttuin[k]) );
-        
-        //.. execute here the Tracking Algorithm or any other selected logic
-        
-        m_ttuconf->m_ttulogic->run( (m_ttuin[k]) );
-        
-        //... and produce a Wheel level trigger
-        trg = m_ttuconf->m_ttulogic->isTriggered();
-        
-        m_trigger.set(k,trg);
-        
-        if( m_debug ) std::cout << "TTUEmulator::processglobal ttuid: " << m_id
-                                << " bx: "          << bx
-                                << " wheel: "       << m_Wheels[k].getid()
-                                << " response: "    << trg << std::endl;
-        
-      }
-      
-    }
-    
-    triggerResponse->setTriggerBits( bx , m_trigger );
-    m_triggerBxVec.push_back( triggerResponse );
-    
-    m_triggerBx[bx] = m_trigger;
-    
-  }
-  
-  if( m_debug ) std::cout << "TTUEmulator::processglobal> Done. Size of trigger map " 
-                          << m_triggerBx.size() << " TTU id " << m_id << std::endl;
-  
 }
 
 void TTUEmulator::clearTriggerResponse()

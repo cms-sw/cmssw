@@ -15,19 +15,10 @@
 // local
 #include "L1Trigger/RPCTechnicalTrigger/interface/RPCTechnicalTrigger.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/ProcessTestSignal.h"
-#include "L1Trigger/RPCTechnicalTrigger/interface/ProcessDigiGlobalSignal.h"
-#include "L1Trigger/RPCTechnicalTrigger/interface/ProcessDigiLocalSignal.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCProcessRPCDigis.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
-
-//Data Formats
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
-
-
 
 //=============================================================================
 // Standard constructor, initializes variables
@@ -36,43 +27,29 @@
 RPCTechnicalTrigger::RPCTechnicalTrigger(const edm::ParameterSet& iConfig) {
   
   //...........................................................................
-  m_debugMode = iConfig.getUntrackedParameter<int>("DebugMode", 0);
-  m_testFile = iConfig.getUntrackedParameter<std::string>("TestDatafile", std::string("testdata.txt"));
-  m_verbosity = iConfig.getUntrackedParameter<int>("Verbosity", 0);
-  m_triggerMode = iConfig.getParameter<int>("TriggerMode");
+  
+  m_configFile   = iConfig.getUntrackedParameter<std::string>("ConfigFile", std::string("hardware-pseudoconfig.txt"));
+  
+  m_verbosity    = iConfig.getUntrackedParameter<int>("Verbosity", 0);
   m_rpcDigiLabel = iConfig.getParameter<edm::InputTag>("RPCDigiLabel");
-  m_ttBits = iConfig.getParameter< std::vector<unsigned> >("BitNumbers");
-  m_ttNames = iConfig.getParameter< std::vector<std::string> >("BitNames");
-  m_useDatabase = iConfig.getUntrackedParameter<int>("UseDatabase", 1);
-  m_configFile = iConfig.getUntrackedParameter<std::string>("ConfigFile", std::string("hardware-pseudoconfig.txt"));
+  m_ttBits       = iConfig.getParameter< std::vector<unsigned> >("BitNumbers");
+  m_ttNames      = iConfig.getParameter< std::vector<std::string> >("BitNames");
+  m_useDatabase  = iConfig.getUntrackedParameter<int>("UseDatabase", 1);
   
   if ( m_verbosity ) {
     LogTrace("RPCTechnicalTrigger")
-      << m_triggerMode << '\n'
       << m_rpcDigiLabel << '\n'
       << std::endl;
   }
   
-  //... Debug mode:
-  // 0 - no debug
-  // 1 - use ascii file to test emulator
-  
-  //... Trigger mode:
-  // 1 - Global
-  // 2 - Local
-  // 3 - Local Or Global
-  
-  if ( m_debugMode != 1 ) m_debugMode = 0;
-  
   //...........................................................................
   //... There are three Technical Trigger Units Boards: 1 can handle 2 Wheels
-  //... nWheels sets the number of wheels attached to board with index boardIndex
-  //...
-
+  //... n_Wheels sets the number of wheels attached to board with index boardIndex
+  
   m_boardIndex[0] = 1;
   m_boardIndex[1] = 2;
   m_boardIndex[2] = 3;
-
+  
   m_nWheels[0]    = 2;
   m_nWheels[1]    = 1;
   m_nWheels[2]    = 2;
@@ -110,16 +87,15 @@ RPCTechnicalTrigger::~RPCTechnicalTrigger()
     
   }
   
-  if ( m_debugMode == 1) {
-    if (m_signal) delete m_signal;
-  }
-  
   LogDebug("RPCTechnicalTrigger") << "RPCTechnicalTrigger: object deleted" << '\n';
-    
+  
 }
 
 //=============================================================================
 void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
+
+  bool status(false);
   
   edm::Handle<RPCDigiCollection> pIn;
   
@@ -140,46 +116,23 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     return;
   }
   
-  if ( m_debugMode == 1 )
-    //... Reading data from an ascii file 
-    LogDebug("RPCTechnicalTrigger") << "Reading data from ascii file. Only for testing purposes." << '\n';
   
-  else {
-    
-    switch( m_triggerMode ) {
-      
-    case 1:
-      //... Extracting signal from Digi: Global approach
-      LogDebug("RPCTechnicalTrigger") << "Setting up a new signal object: global" << '\n';
-      m_signal  = dynamic_cast<ProcessInputSignal*>(new ProcessDigiGlobalSignal( m_rpcGeometry, pIn ));
-      LogDebug("RPCTechnicalTrigger") << "signal object created" << '\n';
-      break;
-      
-    case 2:
-      //... Extracting signal from Digi: Local approach
-      LogDebug("RPCTechnicalTrigger") << "Setting up a new signal object: local" << '\n';
-      m_signal  = dynamic_cast<ProcessInputSignal*>(new ProcessDigiLocalSignal ( m_rpcGeometry, pIn ));
-      LogDebug("RPCTechnicalTrigger") << "signal object created" << '\n';
-      break;
-      
-    default:
-      edm::LogError("RPCTechnicalTrigger") << "Trigger mode not implemented: " << m_triggerMode << '\n';
-      iEvent.put(output);
-      return;
-      
-    }
-    
-  }
+  LogDebug("RPCTechnicalTrigger") << "Trigger mode 0: Ttu only" << '\n';
+
+  m_signal  = dynamic_cast<ProcessInputSignal*>(new RBCProcessRPCDigis( m_rpcGeometry, pIn ));
   
-  bool status(false);
+  LogDebug("RPCTechnicalTrigger") << "signal object created" << '\n';
+  
   status = m_signal->next();
+  
   if ( !status)  { 
-    if( m_debugMode == 0 ) delete m_signal;
+    delete m_signal;
     iEvent.put(output);
     return;
   }
-
+  
   RPCInputSignal * input = m_signal->retrievedata();
+  
   std::vector<L1GtTechnicalTrigger> ttVec( m_ttBits.size() );
   
   //. distribute data to different TTU emulators and process it
@@ -194,34 +147,11 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     
     indx=k*2;
     
-    if ( m_debugMode == 1 ) {
-      //... process test full chain using ascii data
-      //fix me: m_triggerbits size = 5 not 6 anymore
-      m_ttu[k]->processtest( input );
-      m_triggerbits.set( indx   , m_ttu[k]->m_trigger[0] );
-      if ( m_ttu[k]->m_maxWheels > 1 ) m_triggerbits.set( indx+1 , m_ttu[k]->m_trigger[1] );
-      continue;
-    }
+    m_ttu[k]->processTtu( input );
     
-    switch( m_triggerMode ) {
-      
-    case 1:
-      m_ttu[k]->processglobal( input );
-      for( outItr  = m_ttu[k]->m_triggerBxVec.begin(); outItr != m_ttu[k]->m_triggerBxVec.end(); ++outItr )
-        m_serializedInfo.push_back( new TTUResults( k, (*outItr)->m_bx, (*outItr)->m_trigger[0], (*outItr)->m_trigger[1] ) );
-      m_ttu[k]->clearTriggerResponse();
-      break;
-      
-    case 2:
-      m_ttu[k]->processlocal( input );
-      for( outItr  = m_ttu[k]->m_triggerBxVec.begin(); outItr != m_ttu[k]->m_triggerBxVec.end(); ++outItr )
-        m_serializedInfo.push_back( new TTUResults( k, (*outItr)->m_bx, (*outItr)->m_trigger[0], (*outItr)->m_trigger[1] ) );
-      m_ttu[k]->clearTriggerResponse();
-      break;
-      
-    default:
-      edm::LogError("RPCTechnicalTrigger") << "Case not implemented" << '\n';
-    }
+    for( outItr  = m_ttu[k]->m_triggerBxVec.begin(); outItr != m_ttu[k]->m_triggerBxVec.end(); ++outItr )
+      m_serializedInfo.push_back( new TTUResults( k, (*outItr)->m_bx, (*outItr)->m_trigger[0], (*outItr)->m_trigger[1] ) );
+    m_ttu[k]->clearTriggerResponse();
     
   }
   
@@ -256,17 +186,22 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   //... reset data map for next event
 
   input->clear();
+
   m_triggerbits.reset();
   
   std::vector<TTUResults*>::iterator itrRes;
+
   for( itrRes=m_serializedInfo.begin(); itrRes!=m_serializedInfo.end(); ++itrRes)
     delete (*itrRes);
+
   m_serializedInfo.clear();
-  if( m_debugMode == 0 ) delete m_signal;
+
+  delete m_signal;
   
   //.... all done
   
   ++m_ievt;
+
   LogDebug("RPCTechnicalTrigger") << "RPCTechnicalTrigger> end of event loop" << std::endl;
   
 }
@@ -277,7 +212,7 @@ void RPCTechnicalTrigger::beginRun(edm::Run& iRun, const edm::EventSetup& evtSet
   
   bool status(false);
   
-  LogDebug("RPCTechnicalTrigger") << "RPCTechnicalTrigger::beginJob> starts" << std::endl;
+  LogDebug("RPCTechnicalTrigger") << "RPCTechnicalTrigger::beginRun> starts" << std::endl;
   
   //.   Set up RPC geometry
   
@@ -324,22 +259,15 @@ void RPCTechnicalTrigger::beginRun(edm::Run& iRun, const edm::EventSetup& evtSet
 
     for (int k=0; k < m_maxTtuBoards; ++k )
       m_ttu[k]->setSpecifications( m_ttuspecs, m_rbcspecs );
-  
+    
     //... Initialize all
-  
+    
     for (int k=0; k < m_maxTtuBoards; ++k )
       status = m_ttu[k]->initialise();
     
   }
   
-  //..........
   
-  if ( m_debugMode == 1 ) {
-    //. Read RBC input for an ascii file
-    m_signal  = dynamic_cast<ProcessInputSignal*>(new ProcessTestSignal( m_testFile.c_str()) );
-  }
-  
-
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
