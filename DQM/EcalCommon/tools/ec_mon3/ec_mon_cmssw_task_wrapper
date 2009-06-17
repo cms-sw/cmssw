@@ -27,16 +27,6 @@ require "ec_mon_utils.pl";
 
 ec_mon_conf_file();
 
-my $dbName     = '';
-my $dbHostName = '';
-my $dbHostPort = 1521;
-my $dbUserName = '';
-my $dbPassword = '';
-
-if ( -e "$config{'ec_mon_path'}/.omds.conf" ) {
-  eval `cat $config{'ec_mon_path'}/.omds.conf`;
-}
-
 my ($loc, $num, $lun, $out, $fun, $fil, $ful) = split('\.', $runnum);
 
 my @filelist = split('\n', `find $config{'ec_mon_master_rundir'}/daq-data/ \\( -name 'ecal_local.$num.*.A.$fun.*.*.dat' -or -name 'Global*.$num.*.A.$fun.*.*.dat' -or -name 'MW*.$num.*.A.$fun.*.*.dat' -or -name 'PrivCal*.$num.*.A.$fun.*.*.dat' -or -name 'TransferTestWithSafety.$num.*.A.$fun.*.*.dat' -or -name 'CRUZET*.$num.*.A.$fun.*.*.dat' -or -name 'CRAFT.$num.*.A.$fun.*.*.dat' \\) -printf '%f\n' -maxdepth 1 | sort`);
@@ -57,8 +47,6 @@ if ( $filnam ) {
   }
 }
 
-my $maskfile = "/nfshome0/ecalpro/MASKING-DQM/maskfile-ECAL.dat";
-
 my $cmssw_setup = "/cmssrv0/nfshome0/cmssw2/scripts/setup.sh";
 
 my $cmssw_path = "/nfshome0/ecalpro/DQM/CMSSW_current";
@@ -75,6 +63,28 @@ open CONFIGFILE, ">>$config{'ec_mon_master_rundir'}/dqm-data/tmp/monitor-$runnum
 
 print CONFIGFILE <<EOF1;
 import FWCore.ParameterSet.Config as cms
+
+dbName = ''
+dbHostName = ''
+dbHostPort = 1521
+dbUserName = ''
+dbPassword = ''
+
+try:
+  file = open('$config{'ec_mon_path'}/.cms_tstore.py', 'r')
+  for line in file:
+    if line.find('dbName') >= 0:
+      dbName = line.split()[2]
+    if line.find('dbHostName') >= 0:
+      dbHostName = line.split()[2]
+    if line.find('dbHostPort') >= 0:
+      dbHostPort = int(line.split()[2])
+    if line.find('dbUserName') >= 0:
+      dbUserName = line.split()[2]
+    if line.find('dbPassword') >= 0:
+      dbPassword = line.split()[2]
+  file.close()
+except:  pass
 
 process = cms.Process("ECALDQM")
 
@@ -334,22 +344,20 @@ process.simEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
 
 process.EcalTrigPrimESProducer.DatabaseFile = 'TPG_startup.txt.gz'
 
-process.ecalBarrelMonitorClient.dbName = '$dbName'
-process.ecalBarrelMonitorClient.dbHostName = '$dbHostName'
-process.ecalBarrelMonitorClient.dbHostPort = $dbHostPort
-process.ecalBarrelMonitorClient.dbUserName = '$dbUserName'
-process.ecalBarrelMonitorClient.dbPassword = '$dbPassword'
+process.ecalBarrelMonitorClient.dbName = dbName
+process.ecalBarrelMonitorClient.dbHostName = dbHostName
+process.ecalBarrelMonitorClient.dbHostPort = dbHostPort
+process.ecalBarrelMonitorClient.dbUserName = dbUserName
+process.ecalBarrelMonitorClient.dbPassword = dbPassword
 process.ecalBarrelMonitorClient.dbTagName = 'CMSSW'
-process.ecalBarrelMonitorClient.maskFile = '$maskfile'
 process.ecalBarrelMonitorClient.location = 'P5_Co'
 
-process.ecalEndcapMonitorClient.dbName = '$dbName'
-process.ecalEndcapMonitorClient.dbHostName = '$dbHostName'
-process.ecalEndcapMonitorClient.dbHostPort = $dbHostPort
-process.ecalEndcapMonitorClient.dbUserName = '$dbUserName'
-process.ecalEndcapMonitorClient.dbPassword = '$dbPassword'
+process.ecalEndcapMonitorClient.dbName = dbName
+process.ecalEndcapMonitorClient.dbHostName = dbHostName
+process.ecalEndcapMonitorClient.dbHostPort = dbHostPort
+process.ecalEndcapMonitorClient.dbUserName = dbUserName
+process.ecalEndcapMonitorClient.dbPassword = dbPassword
 process.ecalEndcapMonitorClient.dbTagName = 'CMSSW'
-process.ecalEndcapMonitorClient.maskFile = '$maskfile'
 process.ecalEndcapMonitorClient.location = 'P5_Co'
 
 process.ecalBarrelMonitorClient.enabledClients = ['Integrity', 'Occupancy', 'StatusFlags', 'PedestalOnline', 'Pedestal', 'TestPulse', 'Laser', 'Timing', 'Cosmic', 'TriggerTower', 'Cluster', 'Summary']

@@ -27,16 +27,6 @@ require "ec_mon_utils.pl";
 
 ec_mon_conf_file();
 
-my $dbName     = '0';
-my $dbHostName = '0';
-my $dbHostPort = 1521;
-my $dbUserName = 'foo';
-my $dbPassword = 'foo';
-
-if ( -e "$config{'ec_mon_path'}/.omds.conf" ) {
-  eval `cat $config{'ec_mon_path'}/.omds.conf`;
-}
-
 my ($loc, $num, $lun, $out, $fun, $fil, $ful) = split('\.', $runnum);
 
 if ( $runnum ) {
@@ -83,6 +73,27 @@ open CONFIGFILE, ">>$config{'ec_mon_master_rundir'}/dqm-data/tmp/pedestal-offset
 print CONFIGFILE <<EOF1;
 import FWCore.ParameterSet.Config as cms
 
+dbName = ''
+dbHostName = ''
+dbHostPort = 1521
+dbUserName = ''
+dbPassword = ''
+
+try:
+  file = open('$config{'ec_mon_path'}/.cms_tstore.py', 'r')
+  for line in file:
+    if line.find('dbName') >= 0:
+      dbName = line.split()[2]
+    if line.find('dbHostName') >= 0:
+      dbHostName = line.split()[2]
+    if line.find('dbHostPort') >= 0:
+      dbHostPort = int(line.split()[2])
+    if line.find('dbUserName') >= 0:
+      dbUserName = line.split()[2]
+    if line.find('dbPassword') >= 0:
+      dbPassword = line.split()[2]
+  file.close()except:  pass
+
 process = cms.Process("ECALDQM")
 
 process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerMapping_cfi")
@@ -106,11 +117,11 @@ process.ecalPedOffset = cms.EDAnalyzer("EcalPedOffset",
     maxSlopeAllowed = cms.untracked.double(-29.0),
     maxChi2OverNDF = cms.untracked.double(5.25),
 
-    dbName = cms.untracked.string('$dbName'),
-    dbHostName = cms.untracked.string('$dbHostName'),
-    dbHostPort = cms.untracked.int32($dbHostPort),
-    dbUserName = cms.untracked.string('$dbUserName'),
-    dbPassword = cms.untracked.string('$dbPassword'),
+    dbName = cms.untracked.string(dbName),
+    dbHostName = cms.untracked.string(dbHostName),
+    dbHostPort = cms.untracked.int32(dbHostPort),
+    dbUserName = cms.untracked.string(dbUserName),
+    dbPassword = cms.untracked.string(dbPassword),
 
     createMonIOV = cms.untracked.bool(False),
     location = cms.untracked.string('P5_Co'),
