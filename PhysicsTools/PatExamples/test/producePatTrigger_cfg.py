@@ -43,7 +43,7 @@ process.load( "Configuration.StandardSequences.MagneticField_cff" )
 process.load( "PhysicsTools.PatAlgos.patSequences_cff" )
 
 process.p = cms.Path(
-    process.patDefaultSequence
+    process.patDefaultSequenceNoCleaning
 )
 from PhysicsTools.PatAlgos.tools.trigTools import *
 switchOffTriggerMatchingOld( process )
@@ -55,9 +55,31 @@ process.out = cms.OutputModule( "PoolOutputModule",
     SelectEvents   = cms.untracked.PSet(
         SelectEvents = cms.vstring( 'p' )
     ),
-    outputCommands = cms.untracked.vstring( 'drop *', *patEventContent )
+    outputCommands = cms.untracked.vstring( 'drop *', *patEventContentNoLayer1Cleaning )
 )
 
 process.outpath = cms.EndPath(
     process.out
 )
+
+# PAT trigger
+process.muonTriggerMatchHLTMuons = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
+    src     = cms.InputTag( "selectedLayer1Muons" ),
+    matched = cms.InputTag( "patTrigger" ),
+    andOr          = cms.bool( False ),
+    filterIdsEnum  = cms.vstring( 'TriggerMuon' ),
+    filterIds      = cms.vuint32( 93 ),
+    filterLabels   = cms.vstring( '*' ),
+    pathNames      = cms.vstring( '*' ),
+    collectionTags = cms.vstring( '*' ),
+    maxDPtRel = cms.double( 0.5 ),
+    maxDeltaR = cms.double( 0.5 ),
+    resolveAmbiguities    = cms.bool( True ),
+    resolveByMatchQuality = cms.bool( True )
+)
+process.patTriggerMatcher += process.muonTriggerMatchHLTMuons
+process.patTriggerMatcher.remove( process.patTriggerElectronMatcher )
+process.patTriggerMatcher.remove( process.patTriggerMuonMatcher )
+process.patTriggerMatcher.remove( process.patTriggerTauMatcher )
+process.patTriggerEvent.patTriggerMatches = [ "muonTriggerMatchHLTMuons" ]
+switchOnTrigger( process )

@@ -24,7 +24,9 @@ process.triggerAnalysis = cms.EDAnalyzer( "PatTriggerAnalyzer",
     trigger      = cms.InputTag( "patTrigger" ),
     triggerEvent = cms.InputTag( "patTriggerEvent" ),
     muons        = cms.InputTag( "selectedLayer1Muons" ),
-    muonMatch    = cms.string( 'muonTriggerMatchHLTMuons' )
+    muonMatch    = cms.string( 'muonTriggerMatchHLTMuons' ),
+    minID = cms.uint32( 81 ),
+    maxID = cms.uint32( 102 )
 )
 
 process.p = cms.Path(
