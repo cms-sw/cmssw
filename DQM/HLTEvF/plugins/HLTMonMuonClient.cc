@@ -13,39 +13,78 @@ using namespace edm;
 using namespace std;
 
 HLTMonMuonClient::HLTMonMuonClient(const edm::ParameterSet& ps){
-  parameters=ps;
-  initialize();
+ 
+  indir_   = ps.getUntrackedParameter<string>("input_dir","HLT/HLTMonMuon/Summary");
+  outdir_  = ps.getUntrackedParameter<string>("output_dir","HLT/HLTMonMuon/Client");    
+
+  dbe_ = NULL;
+  //if (ps.getUntrackedParameter < bool > ("DQMStore", false)) {
+  dbe_ = Service < DQMStore > ().operator->();
+  dbe_->setVerbose(0);
+    //}
+
+  if (dbe_ != NULL) {
+    dbe_->setCurrentFolder(outdir_);
+  }
+
 }
 
 HLTMonMuonClient::~HLTMonMuonClient(){}
 
 //--------------------------------------------------------
-void HLTMonMuonClient::initialize(){
-  //counterLS  = 0;
-  //counterEvt = 0;
-
-  // get back-end interface
-  //dbe = Service<DQMStore>().operator->();
-
-  //input_dir   = parameters.getUntrackedParameter<string>("input_dir","");
-  //output_dir  = parameters.getUntrackedParameter<string>("output_dir","");
-  //prescaleLS  = parameters.getUntrackedParameter<int>("prescaleLS",-1);
-  //prescaleEvt = parameters.getUntrackedParameter<int>("prescaleEvt",-1);
-}
-
-//--------------------------------------------------------
 void HLTMonMuonClient::beginJob(const EventSetup& context){
-  // get backendinterface
-  dbe = Service<DQMStore>().operator->();
-
-  // do your thing
-  dbe->setCurrentFolder(output_dir);
-  //hltmonmuonerrors_ = dbe->book1D("hltmonmuonerrors_","HLTMonMuon Errors",6,0,6);
-  dbe->setCurrentFolder(input_dir);
+  
 }
 
 //--------------------------------------------------------
-void HLTMonMuonClient::beginRun(const Run& r, const EventSetup& context) {}
+void HLTMonMuonClient::beginRun(const Run& r, const EventSetup& context) {
+ 
+  if (dbe_) {
+    dbe_->setCurrentFolder(indir_+"/CountHistos/");
+
+    //grab filter count histograms  
+    vector< string > filterCountMEs =  dbe_->getMEs();
+    nTriggers_ = (int) filterCountMEs.size();    
+    std::string tmpname = "";
+
+    for(int trig = 0; trig < nTriggers_; trig++){
+      tmpname = indir_ + "/CountHistos/" + filterCountMEs[trig];
+      hSubFilterCount[trig]=dbe_->get(tmpname);
+    }
+
+    tmpname = indir_ + "/PassingBits_Summary";
+    hCountSummary = dbe_->get(tmpname);
+
+    //book efficiency histograms
+    dbe_->setCurrentFolder(outdir_);
+    TH1F* refhisto;   
+    int nbin_sub;
+    
+    for(int trig = 0; trig < nTriggers_; trig++){
+      refhisto = hSubFilterCount[trig]->getTH1F();
+      nbin_sub = refhisto->GetNbinsX();
+      //cout << "nbin_sub = " << nbin_sub << endl;
+      //cout << "client: " << filterCountMEs[trig] << endl;
+      hSubFilterEfficiency[trig] = dbe_->book1D("Efficiency_"+filterCountMEs[trig], 
+						"Efficiency_"+filterCountMEs[trig], 
+						nbin_sub, 0.5, 0.5+(double)nbin_sub);
+      for(int i = 1; i <= nbin_sub; i++)
+	hSubFilterEfficiency[trig]->getTH1F()->GetXaxis()->SetBinLabel(i, refhisto->GetXaxis()->GetBinLabel(i));
+
+    }
+
+    refhisto = hCountSummary->getTH1F();
+    nbin_sub = refhisto->GetNbinsX();
+    hEffSummary = dbe_->book1D("Efficiency_PassingBits_Summary",
+			      "Efficiency_PassingBits_Summary",
+			      nbin_sub, 0.5, 0.5+(double)nbin_sub);
+    for(int i = 1; i <= nbin_sub; i++)
+      hEffSummary->getTH1F()->GetXaxis()->SetBinLabel(i, refhisto->GetXaxis()->GetBinLabel(i));
+
+
+  }
+
+}
 
 //--------------------------------------------------------
 void HLTMonMuonClient::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
@@ -53,56 +92,43 @@ void HLTMonMuonClient::beginLuminosityBlock(const LuminosityBlock& lumiSeg, cons
 }
 
 void HLTMonMuonClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c){
-/*
-   vector<string> meVec = dbe->getMEs();
-   for(vector<string>::const_iterator it=meVec.begin(); it!=meVec.end(); it++){
-     string full_path = input_dir + "/" + (*it);
-     MonitorElement *me =dbe->get(full_path);
-     if( !me ){
-        LogInfo("TriggerDQM")<<full_path<<" NOT FOUND.";
-        continue;
-     }
 
-     // The commented code below requires to be developed to support QT framework---------------------------
-
-     std::vector<QReport *> Qtest_map = me->getQReports();
-     for(std::vector<QReport *>::const_iterator it=Qtest_map.begin(); it!=Qtest_map.end(); it++){
-        string qt_name   = (*it)->getQRName();
-        int    qt_status = (*it)->getStatus();
-
-        switch(qt_status){
-           case dqm::qstatus::WARNING:    break;
-           case dqm::qstatus::ERROR:      break;
-           case dqm::qstatus::DISABLED:   break;
-           case dqm::qstatus::INVALID:    break;
-           case dqm::qstatus::INSUF_STAT: break;
-           default: break;
-        }
-
-//   get bad channel list
-        std::vector<dqm::me_util::Channel> badChannels=(*it)->getBadChannels();
-        for(vector<dqm::me_util::Channel>::iterator badchsit=badChannels.begin(); badchsit!=badChannels.end(); badchsit++){
-           int ix = badchsit->getBinX();
-           int iy = badchsit->getBinY();
-           (*badchsit).getContents();
-        }
-
-     }
-  //------------------------------------------------------------
-     //  But for now we only do a simple workaround
-     if( (*it) != "CSCTF_errors" ) continue;
-     TH1F *errors = me->getTH1F();
-     csctferrors_->getTH1F()->Reset();
-     if(!errors) continue;
-     for(int bin=1; bin<=errors->GetXaxis()->GetNbins(); bin++)
-        csctferrors_->Fill(bin-0.5,errors->GetBinContent(bin));
-   }
-*/
 }
 
 //--------------------------------------------------------
 void HLTMonMuonClient::analyze(const Event& e, const EventSetup& context){
-/* 
+
+  TH1F * refhisto;
+  int nbin_sub;
+  for( int n = 0; n < nTriggers_; n++) {
+    if(hSubFilterCount[n]){
+      refhisto = hSubFilterCount[n]->getTH1F();
+      nbin_sub = refhisto->GetNbinsX();
+      for( int i = 0; i < nbin_sub; i++ ) {
+	double denominator = refhisto->GetBinContent(1); 
+	double numerator = refhisto->GetBinContent(i+1);
+	double eff = 1.0;
+	if( denominator != 0 ) eff = numerator/denominator;
+	hSubFilterEfficiency[n]->setBinContent(i+1, eff);
+	//hSubFilterEfficiency[n]->Fill(i, eff);
+      }
+    }
+  }
+  
+  if(hCountSummary ){                                                                                                                               
+    refhisto = hCountSummary->getTH1F();
+    nbin_sub = refhisto->GetNbinsX();
+    for( int i = 0; i < nbin_sub; i++ ) {
+      double denominator = refhisto->GetBinContent(1); // HLT_L1MuOpen usually. If not , the lowest threshold HLT_L1Mu*
+      double numerator = refhisto->GetBinContent(i+1);
+      double eff = 1.0;
+      if( denominator != 0 ) eff = numerator/denominator;
+      hEffSummary->setBinContent(i+1, eff);
+    }
+  }
+  
+
+/*------------- 
    counterEvt++;
    if (prescaleEvt<1) return;
    if (prescaleEvt>0 && counterEvt%prescaleEvt!=0) return;
@@ -124,7 +150,7 @@ void HLTMonMuonClient::analyze(const Event& e, const EventSetup& context){
      for(int bin=1; bin<=errors->GetXaxis()->GetNbins(); bin++)
         csctferrors_->Fill(bin-0.5,errors->GetBinContent(bin));
    }
-*/
+-----------------*/
 }
 
 //--------------------------------------------------------
