@@ -41,8 +41,18 @@ my $dbHostPort = 1521;
 my $dbUserName = '';
 my $dbPassword = '';
 
-if ( -e "$config{'ec_mon_path'}/.omds.conf" ) {
-  eval `cat $config{'ec_mon_path'}/.omds.conf`;
+if ( -e "$config{'ec_mon_path'}/.cms_tstore.py" ) {
+  open FILE, "<$config{'ec_mon_path'}/.cms_tstore.py";
+  while ( my $line = <FILE> ) {
+    $dbName = (split(' ', $line))[2] if ( $line =~ /^dbName/ );
+    $dbHostName = (split(' ', $line))[2] if ( $line =~ /^dbHostName/ );
+    $dbHostPort = (split(' ', $line))[2] if ( $line =~ /^dbHostPort/ );
+    $dbUserName = (split(' ', $line))[2] if ( $line =~ /^dbUserName/ );
+    $dbPassword = (split(' ', $line))[2] if ( $line =~ /^dbPassword/ );
+  }
+  close FILE;
+} else {
+  print "DB config file not found, exit\n"
 }
 
 my $cmssw_setup = "/cmssrv0/nfshome0/cmssw2/scripts/setup.sh";

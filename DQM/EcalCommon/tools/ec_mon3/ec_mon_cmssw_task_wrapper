@@ -71,7 +71,7 @@ dbUserName = ''
 dbPassword = ''
 
 try:
-  file = open('$config{'ec_mon_path'}/.cms_tstore.py', 'r')
+  file = open('$config{'ec_mon_path'}/.cms_tstore.conf', 'r')
   for line in file:
     if line.find('dbName') >= 0:
       dbName = line.split()[2]
