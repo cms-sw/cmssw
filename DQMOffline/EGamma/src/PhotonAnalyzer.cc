@@ -13,7 +13,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/06/09 12:27:45 $ 
+ **  $Date: 2009/06/16 08:51:58 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -46,6 +46,9 @@ PhotonAnalyzer::PhotonAnalyzer( const edm::ParameterSet& pset )
 
     useBinning_         = pset.getParameter<bool>("useBinning");
     useTriggerFiltering_= pset.getParameter<bool>("useTriggerFiltering");
+
+    standAlone_         = pset.getParameter<bool>("standAlone");
+    outputFileName_ = pset.getParameter<string>("OutputFileName");
 
 
     isolationStrength_  = pset.getParameter<int>("isolationStrength");
@@ -190,6 +193,11 @@ void PhotonAnalyzer::beginJob()
     h_phoEt_Tight_ = dbe_->book1D("phoEtTight"," Tight Photon Transverse Energy ", etBin,etMin, etMax);
     h_phoEt_HLT_ = dbe_->book1D("phoEtHLT"," Unfiltered Photon Transverse Energy ", etBin,etMin, etMax);
 
+    h_convEta_Loose_ = dbe_->book1D("convEtaLoose"," Converted Loose Photon Eta ",etaBin,etaMin, etaMax) ;
+    h_convEta_Tight_ = dbe_->book1D("convEtaTight"," Converted Tight Photon Eta ",etaBin,etaMin, etaMax) ;
+    h_convEt_Loose_ = dbe_->book1D("convEtLoose"," Converted Loose Photon Transverse Energy ", etBin,etMin, etMax);
+    h_convEt_Tight_ = dbe_->book1D("convEtTight"," Converted Tight Photon Transverse Energy ", etBin,etMin, etMax);
+
     h_phoEta_Vertex_ = dbe_->book1D("phoEtaVertex"," Converted Photon with valid vertex Eta ",etaBin,etaMin, etaMax) ;
 
     //Triggers passed
@@ -251,42 +259,32 @@ void PhotonAnalyzer::beginJob()
 	h_scEta_isol_.push_back(dbe_->book1D("scEta",types[type]+" SuperCluster Eta;#eta ",etaBin,etaMin, etaMax)) ;
 	h_scPhi_isol_.push_back(dbe_->book1D("scPhi",types[type]+" SuperCluster Phi;#phi ",phiBin,phiMin,phiMax)) ;
 	h_r9VsEt_isol_.push_back(dbe_->book2D("r9VsEt2D",types[type]+" Photon r9 vs. Transverse Energy;Et (GeV);R9",etBin,etMin,etMax,r9Bin,r9Min,r9Max));
-	p_r9VsEt_isol_.push_back(dbe_->book1D("r9VsEt",types[type]+" Photon r9 vs. Transverse Energy;Et (GeV);R9",etBin,etMin,etMax));
 	h_r9VsEta_isol_.push_back(dbe_->book2D("r9VsEta2D",types[type]+" Photon r9 vs. #eta;#eta;R9",etaBin,etaMin,etaMax,r9Bin,r9Min,r9Max));
-	p_r9VsEta_isol_.push_back(dbe_->book1D("r9VsEta",types[type]+" Photon r9 vs. #eta;#eta;R9",etaBin,etaMin,etaMax));
+
+	//h_profiler9VsEt_isol_.push_back(dbe_->bookProfile("profiler9VsEt",types[type]+" Photon r9 vs. Transverse Energy;Et (GeV);R9",etBin,etMin,etMax,r9Bin,r9Min,r9Max,""));
+	//h_profiler9VsEta_isol_.push_back(dbe_->bookProfile("profiler9VsEta",types[type]+" Photon r9 vs. #eta;#eta;R9",etaBin,etaMin,etaMax,r9Bin,r9Min,r9Max,""));
+
 
 
 	h_e1x5VsEt_isol_.push_back(dbe_->book2D("e1x5VsEt2D",types[type]+" Photon e1x5 vs. Transverse Energy;Et (GeV);E1X5",etBin,etMin,etMax,etBin,etMin,etMax));
-	p_e1x5VsEt_isol_.push_back(dbe_->book1D("e1x5VsEt",types[type]+" Photon e1x5 vs. Transverse Energy;Et (GeV);E1X5",etBin,etMin,etMax));
 	h_e1x5VsEta_isol_.push_back(dbe_->book2D("e1x5VsEta2D",types[type]+" Photon e1x5 vs. #eta;#eta;E1X5",etaBin,etaMin,etaMax,etBin,etMin,etMax));
-	p_e1x5VsEta_isol_.push_back(dbe_->book1D("e1x5VsEta",types[type]+" Photon e1x5 vs. #eta;#eta;E1X5",etaBin,etaMin,etaMax));
 
 	h_e2x5VsEt_isol_.push_back(dbe_->book2D("e2x5VsEt2D",types[type]+" Photon e2x5 vs. Transverse Energy;Et (GeV);E2X5",etBin,etMin,etMax,etBin,etMin,etMax));
-	p_e2x5VsEt_isol_.push_back(dbe_->book1D("e2x5VsEt",types[type]+" Photon e2x5 vs. Transverse Energy;Et (GeV);E2X5",etBin,etMin,etMax));
 	h_e2x5VsEta_isol_.push_back(dbe_->book2D("e2x5VsEta2D",types[type]+" Photon e2x5 vs. #eta;#eta;E2X5",etaBin,etaMin,etaMax,etBin,etMin,etMax));
-	p_e2x5VsEta_isol_.push_back(dbe_->book1D("e2x5VsEta",types[type]+" Photon e2x5 vs. #eta;#eta;E2X5",etaBin,etaMin,etaMax));
 
 	h_r1x5VsEt_isol_.push_back(dbe_->book2D("r1x5VsEt2D",types[type]+" Photon r1x5 vs. Transverse Energy;Et (GeV);R1X5",etBin,etMin,etMax,r9Bin,r9Min,r9Max));
-	p_r1x5VsEt_isol_.push_back(dbe_->book1D("r1x5VsEt",types[type]+" Photon r1x5 vs. Transverse Energy;Et (GeV);R1X5",etBin,etMin,etMax));
 	h_r1x5VsEta_isol_.push_back(dbe_->book2D("r1x5VsEta2D",types[type]+" Photon r1x5 vs. #eta;#eta;R1X5",etaBin,etaMin,etaMax,r9Bin,r9Min,r9Max));
-	p_r1x5VsEta_isol_.push_back(dbe_->book1D("r1x5VsEta",types[type]+" Photon r1x5 vs. #eta;#eta;R1X5",etaBin,etaMin,etaMax));
 
 	h_r2x5VsEt_isol_.push_back(dbe_->book2D("r2x5VsEt2D",types[type]+" Photon r2x5 vs. Transverse Energy;Et (GeV);R2X5",etBin,etMin,etMax,r9Bin,r9Min,r9Max));
-	p_r2x5VsEt_isol_.push_back(dbe_->book1D("r2x5VsEt",types[type]+" Photon r2x5 vs. Transverse Energy;Et (GeV);R2X5",etBin,etMin,etMax));
 	h_r2x5VsEta_isol_.push_back(dbe_->book2D("r2x5VsEta2D",types[type]+" Photon r2x5 vs. #eta;#eta;R2X5",etaBin,etaMin,etaMax,r9Bin,r9Min,r9Max));
-	p_r2x5VsEta_isol_.push_back(dbe_->book1D("r2x5VsEta",types[type]+" Photon r2x5 vs. #eta;#eta;R2X5",etaBin,etaMin,etaMax));
-
-
-
 
 
 	h_phoSigmaIetaIeta_isol_.push_back(dbe_->book1D("phoSigmaIetaIeta",types[type]+" Photon #sigmai#etai#eta;#sigmai#etai#eta ",sigmaIetaBin,sigmaIetaMin,sigmaIetaMax)) ;
 	h_sigmaIetaIetaVsEta_isol_.push_back(dbe_->book2D("sigmaIetaIetaVsEta2D",types[type]+" Photon #sigmai#etai#eta vs. #eta;#eta;#sigmai#etai#eta",etaBin,etaMin,etaMax,sigmaIetaBin,sigmaIetaMin,sigmaIetaMax));
-	p_sigmaIetaIetaVsEta_isol_.push_back(dbe_->book1D("sigmaIetaIetaVsEta",types[type]+" Photon #sigmai#etai#eta vs. #eta;#eta;#sigmai#etai#eta",etaBin,etaMin,etaMax));
 
 	h_phoSigmaEtaEta_isol_.push_back(dbe_->book1D("phoSigmaEtaEta",types[type]+" Photon #sigma#eta#eta;#sigma#eta#eta ",sigmaIetaBin,sigmaIetaMin,sigmaIetaMax)) ;
 	h_sigmaEtaEtaVsEta_isol_.push_back(dbe_->book2D("sigmaEtaEtaVsEta2D",types[type]+" Photon #sigma#eta#eta vs. #eta;#eta;#sigma#eta#eta",etaBin,etaMin,etaMax,sigmaIetaBin,sigmaIetaMin,sigmaIetaMax));
-	p_sigmaEtaEtaVsEta_isol_.push_back(dbe_->book1D("sigmaEtaEtaVsEta",types[type]+" Photon #sigma#eta#eta vs. #eta;#eta;#sigma#eta#eta",etaBin,etaMin,etaMax));
+
 
 	// Isolation Variable infos
 
@@ -296,12 +294,6 @@ void PhotonAnalyzer::beginJob()
 	h_trackPtSumHollowVsEta_isol_.push_back(dbe_->book2D("isoPtSumHollowVsEta2D","Avg Tracks Pt Sum in the Hollow Iso Cone",etaBin,etaMin, etaMax,sumBin,sumMin,sumMax));
 	h_ecalSumVsEta_isol_.push_back(dbe_->book2D("ecalSumVsEta2D","Avg Ecal Sum in the Iso Cone",etaBin,etaMin, etaMax,sumBin,sumMin,sumMax));
 	h_hcalSumVsEta_isol_.push_back(dbe_->book2D("hcalSumVsEta2D","Avg Hcal Sum in the Iso Cone",etaBin,etaMin, etaMax,sumBin,sumMin,sumMax));
-	p_nTrackIsolSolidVsEta_isol_.push_back(dbe_->book1D("nIsoTracksSolidVsEta","Avg Number Of Tracks in the Solid Iso Cone vs.  #eta;#eta;# tracks",etaBin,etaMin, etaMax));
-	p_trackPtSumSolidVsEta_isol_.push_back(dbe_->book1D("isoPtSumSolidVsEta","Avg Tracks Pt Sum in the Solid Iso Cone vs.  #eta;#eta;Pt (GeV)",etaBin,etaMin, etaMax));
-	p_nTrackIsolHollowVsEta_isol_.push_back(dbe_->book1D("nIsoTracksHollowVsEta","Avg Number Of Tracks in the Hollow Iso Cone vs.  #eta;#eta;# tracks",etaBin,etaMin, etaMax));
-	p_trackPtSumHollowVsEta_isol_.push_back(dbe_->book1D("isoPtSumHollowVsEta","Avg Tracks Pt Sum in the Hollow Iso Cone vs.  #eta;#eta;Pt (GeV)",etaBin,etaMin, etaMax));
-	p_ecalSumVsEta_isol_.push_back(dbe_->book1D("ecalSumVsEta","Avg Ecal Sum in the Iso Cone vs.  #eta;#eta;E (GeV)",etaBin,etaMin, etaMax));
-	p_hcalSumVsEta_isol_.push_back(dbe_->book1D("hcalSumVsEta","Avg Hcal Sum in the Iso Cone vs.  #eta;#eta;E (GeV)",etaBin,etaMin, etaMax));
 
     // Ted adding histos
     
@@ -312,13 +304,6 @@ void PhotonAnalyzer::beginJob()
 	h_trackPtSumHollowVsEt_isol_.push_back(dbe_->book2D("isoPtSumHollowVsEt2D","Avg Tracks Pt Sum in the Hollow Iso Cone",etBin,etMin, etMax,sumBin,sumMin,sumMax));
 	h_ecalSumVsEt_isol_.push_back(dbe_->book2D("ecalSumVsEt2D","Avg Ecal Sum in the Iso Cone",etBin,etMin, etMax,sumBin,sumMin,sumMax));
 	h_hcalSumVsEt_isol_.push_back(dbe_->book2D("hcalSumVsEt2D","Avg Hcal Sum in the Iso Cone",etBin,etMin, etMax,sumBin,sumMin,sumMax));
-	p_nTrackIsolSolidVsEt_isol_.push_back(dbe_->book1D("nIsoTracksSolidVsEt","Avg Number Of Tracks in the Solid Iso Cone vs.  E_{T};E_{T};# tracks",etBin,etMin, etMax));
-	p_trackPtSumSolidVsEt_isol_.push_back(dbe_->book1D("isoPtSumSolidVsEt","Avg Tracks Pt Sum in the Solid Iso Cone vs.  E_{T};E_{T};Pt (GeV)",etBin,etMin, etMax));
-	p_nTrackIsolHollowVsEt_isol_.push_back(dbe_->book1D("nIsoTracksHollowVsEt","Avg Number Of Tracks in the Hollow Iso Cone vs.  E_{T};E_{T};# tracks",etBin,etMin, etMax));
-	p_trackPtSumHollowVsEt_isol_.push_back(dbe_->book1D("isoPtSumHollowVsEt","Avg Tracks Pt Sum in the Hollow Iso Cone vs.  E_{T};E_{T};Pt (GeV)",etBin,etMin, etMax));
-	p_ecalSumVsEt_isol_.push_back(dbe_->book1D("ecalSumVsEt","Avg Ecal Sum in the Iso Cone vs.  E_{T};E_{T};E (GeV)",etBin,etMin, etMax));
-	p_hcalSumVsEt_isol_.push_back(dbe_->book1D("hcalSumVsEt","Avg Hcal Sum in the Iso Cone vs.  E_{T};E_{T};E (GeV)",etBin,etMin, etMax));
-
 
     // end Ted adding histos
     
@@ -363,48 +348,48 @@ void PhotonAnalyzer::beginJob()
 
       h_r9VsEt_.push_back(h_r9VsEt_isol_);
       h_r9VsEt_isol_.clear();
-      p_r9VsEt_.push_back(p_r9VsEt_isol_);
-      p_r9VsEt_isol_.clear();
+
       h_r9VsEta_.push_back(h_r9VsEta_isol_);
       h_r9VsEta_isol_.clear();
-      p_r9VsEta_.push_back(p_r9VsEta_isol_);
-      p_r9VsEta_isol_.clear();
+
+
+//       h_profiler9VsEt_.push_back(h_profiler9VsEt_isol_);
+//       h_profiler9VsEt_isol_.clear();
+
+//       h_profiler9VsEta_.push_back(h_profiler9VsEta_isol_);
+//       h_profiler9VsEta_isol_.clear();
+
+
+
+
 
       h_e1x5VsEt_.push_back(h_e1x5VsEt_isol_);
       h_e1x5VsEt_isol_.clear();
-      p_e1x5VsEt_.push_back(p_e1x5VsEt_isol_);
-      p_e1x5VsEt_isol_.clear();
+
       h_e1x5VsEta_.push_back(h_e1x5VsEta_isol_);
       h_e1x5VsEta_isol_.clear();
-      p_e1x5VsEta_.push_back(p_e1x5VsEta_isol_);
-      p_e1x5VsEta_isol_.clear();
+
 
       h_e2x5VsEt_.push_back(h_e2x5VsEt_isol_);
       h_e2x5VsEt_isol_.clear();
-      p_e2x5VsEt_.push_back(p_e2x5VsEt_isol_);
-      p_e2x5VsEt_isol_.clear();
+
       h_e2x5VsEta_.push_back(h_e2x5VsEta_isol_);
       h_e2x5VsEta_isol_.clear();
-      p_e2x5VsEta_.push_back(p_e2x5VsEta_isol_);
-      p_e2x5VsEta_isol_.clear();
+
 
       h_r1x5VsEt_.push_back(h_r1x5VsEt_isol_);
       h_r1x5VsEt_isol_.clear();
-      p_r1x5VsEt_.push_back(p_r1x5VsEt_isol_);
-      p_r1x5VsEt_isol_.clear();
+
       h_r1x5VsEta_.push_back(h_r1x5VsEta_isol_);
       h_r1x5VsEta_isol_.clear();
-      p_r1x5VsEta_.push_back(p_r1x5VsEta_isol_);
-      p_r1x5VsEta_isol_.clear();
+
 
       h_r2x5VsEt_.push_back(h_r2x5VsEt_isol_);
       h_r2x5VsEt_isol_.clear();
-      p_r2x5VsEt_.push_back(p_r2x5VsEt_isol_);
-      p_r2x5VsEt_isol_.clear();
+
       h_r2x5VsEta_.push_back(h_r2x5VsEta_isol_);
       h_r2x5VsEta_isol_.clear();
-      p_r2x5VsEta_.push_back(p_r2x5VsEta_isol_);
-      p_r2x5VsEta_isol_.clear();
+
 
  
       h_phoSigmaIetaIeta_.push_back(h_phoSigmaIetaIeta_isol_);
@@ -412,16 +397,14 @@ void PhotonAnalyzer::beginJob()
   
       h_sigmaIetaIetaVsEta_.push_back(h_sigmaIetaIetaVsEta_isol_);
       h_sigmaIetaIetaVsEta_isol_.clear();
-      p_sigmaIetaIetaVsEta_.push_back(p_sigmaIetaIetaVsEta_isol_);
-      p_sigmaIetaIetaVsEta_isol_.clear();
+
 
       h_phoSigmaEtaEta_.push_back(h_phoSigmaEtaEta_isol_);
       h_phoSigmaEtaEta_isol_.clear();
   
       h_sigmaEtaEtaVsEta_.push_back(h_sigmaEtaEtaVsEta_isol_);
       h_sigmaEtaEtaVsEta_isol_.clear();
-      p_sigmaEtaEtaVsEta_.push_back(p_sigmaEtaEtaVsEta_isol_);
-      p_sigmaEtaEtaVsEta_isol_.clear();
+
  
       h_nTrackIsolSolidVsEta_.push_back(h_nTrackIsolSolidVsEta_isol_);
       h_trackPtSumSolidVsEta_.push_back(h_trackPtSumSolidVsEta_isol_);
@@ -429,12 +412,7 @@ void PhotonAnalyzer::beginJob()
       h_trackPtSumHollowVsEta_.push_back(h_trackPtSumHollowVsEta_isol_);
       h_ecalSumVsEta_.push_back(h_ecalSumVsEta_isol_);
       h_hcalSumVsEta_.push_back(h_hcalSumVsEta_isol_);
-      p_nTrackIsolSolidVsEta_.push_back(p_nTrackIsolSolidVsEta_isol_);
-      p_trackPtSumSolidVsEta_.push_back(p_trackPtSumSolidVsEta_isol_);
-      p_nTrackIsolHollowVsEta_.push_back(p_nTrackIsolHollowVsEta_isol_);
-      p_trackPtSumHollowVsEta_.push_back(p_trackPtSumHollowVsEta_isol_);
-      p_ecalSumVsEta_.push_back(p_ecalSumVsEta_isol_);
-      p_hcalSumVsEta_.push_back(p_hcalSumVsEta_isol_);
+
     
       h_nTrackIsolSolidVsEta_isol_.clear();
       h_trackPtSumSolidVsEta_isol_.clear();
@@ -442,12 +420,7 @@ void PhotonAnalyzer::beginJob()
       h_trackPtSumHollowVsEta_isol_.clear();
       h_ecalSumVsEta_isol_.clear();
       h_hcalSumVsEta_isol_.clear();
-      p_nTrackIsolSolidVsEta_isol_.clear();
-      p_trackPtSumSolidVsEta_isol_.clear();
-      p_nTrackIsolHollowVsEta_isol_.clear();
-      p_trackPtSumHollowVsEta_isol_.clear();
-      p_ecalSumVsEta_isol_.clear();
-      p_hcalSumVsEta_isol_.clear();
+
 
       h_nTrackIsolSolidVsEt_.push_back(h_nTrackIsolSolidVsEt_isol_);
       h_trackPtSumSolidVsEt_.push_back(h_trackPtSumSolidVsEt_isol_);
@@ -455,12 +428,7 @@ void PhotonAnalyzer::beginJob()
       h_trackPtSumHollowVsEt_.push_back(h_trackPtSumHollowVsEt_isol_);
       h_ecalSumVsEt_.push_back(h_ecalSumVsEt_isol_);
       h_hcalSumVsEt_.push_back(h_hcalSumVsEt_isol_);
-      p_nTrackIsolSolidVsEt_.push_back(p_nTrackIsolSolidVsEt_isol_);
-      p_trackPtSumSolidVsEt_.push_back(p_trackPtSumSolidVsEt_isol_);
-      p_nTrackIsolHollowVsEt_.push_back(p_nTrackIsolHollowVsEt_isol_);
-      p_trackPtSumHollowVsEt_.push_back(p_trackPtSumHollowVsEt_isol_);
-      p_ecalSumVsEt_.push_back(p_ecalSumVsEt_isol_);
-      p_hcalSumVsEt_.push_back(p_hcalSumVsEt_isol_);
+
     
       h_nTrackIsolSolidVsEt_isol_.clear();
       h_trackPtSumSolidVsEt_isol_.clear();
@@ -468,12 +436,7 @@ void PhotonAnalyzer::beginJob()
       h_trackPtSumHollowVsEt_isol_.clear();
       h_ecalSumVsEt_isol_.clear();
       h_hcalSumVsEt_isol_.clear();
-      p_nTrackIsolSolidVsEt_isol_.clear();
-      p_trackPtSumSolidVsEt_isol_.clear();
-      p_nTrackIsolHollowVsEt_isol_.clear();
-      p_trackPtSumHollowVsEt_isol_.clear();
-      p_ecalSumVsEt_isol_.clear();
-      p_hcalSumVsEt_isol_.clear();
+
 
       h_nTrackIsolSolid_.push_back(h_nTrackIsolSolid_isol_);
       h_trackPtSumSolid_.push_back(h_trackPtSumSolid_isol_);
@@ -552,12 +515,8 @@ void PhotonAnalyzer::beginJob()
 
 
 	h_nHitsVsEta_isol_.push_back(dbe_->book2D("nHitsVsEta2D",types[type]+" Photons: Tracks from conversions: Mean Number of  Hits vs Eta;#eta;# hits",etaBin,etaMin, etaMax,etaBin,0, 16));
-	p_nHitsVsEta_isol_.push_back(dbe_->book1D("nHitsVsEta",types[type]+" Photons: Tracks from conversions: Mean Number of  Hits vs Eta;#eta;# hits",etaBin,etaMin, etaMax));
 	h_tkChi2VsEta_isol_.push_back(dbe_->book2D("tkChi2VsEta2D",types[type]+" Photons: Tracks from conversions: #chi^{2} vs Eta;#eta;#chi^{2}",etaBin,etaMin, etaMax,100, 0., 20.0));
-	p_tkChi2VsEta_isol_.push_back(dbe_->book1D("tkChi2VsEta",types[type]+" Photons: Tracks from conversions: #chi^{2} vs Eta;#eta;#chi^{2}",etaBin,etaMin, etaMax));
 	h_dCotTracksVsEta_isol_.push_back(dbe_->book2D("dCotTracksVsEta2D",types[type]+" #delta cotg(#Theta) of Conversion Tracks vs Eta;#eta;#delta cotg(#Theta)",etaBin,etaMin, etaMax,dEtaTracksBin,dEtaTracksMin,dEtaTracksMax));
-	p_dCotTracksVsEta_isol_.push_back(dbe_->book1D("dCotTracksVsEta",types[type]+" #delta cotg(#Theta) of Conversion Tracks  vs Eta;#eta;#delta cotg(#Theta)",etaBin,etaMin, etaMax));
-
 	h_tkChi2_isol_.push_back(dbe_->book1D("tkChi2",types[type]+" Photons: Tracks from conversions: #chi^{2} of all tracks;#chi^{2}", 100, 0., 20.0));
 	h_vertexChi2_isol_.push_back(dbe_->book1D("vertexChi2",types[type]+" Photons: Tracks from conversions: Vertex fitting #chi^{2};#chi^{2}", 100, 0., 1.0));
 
@@ -605,22 +564,20 @@ void PhotonAnalyzer::beginJob()
 
       h_nHitsVsEta_.push_back(h_nHitsVsEta_isol_);
       h_nHitsVsEta_isol_.clear(); 
-      p_nHitsVsEta_.push_back(p_nHitsVsEta_isol_);
-      p_nHitsVsEta_isol_.clear();
+
       h_tkChi2VsEta_.push_back(h_tkChi2VsEta_isol_);
       h_tkChi2VsEta_isol_.clear(); 
-      p_tkChi2VsEta_.push_back(p_tkChi2VsEta_isol_);
-      p_tkChi2VsEta_isol_.clear();
+
       h_dCotTracksVsEta_.push_back(h_dCotTracksVsEta_isol_);
       h_dCotTracksVsEta_isol_.clear(); 
-      p_dCotTracksVsEta_.push_back(p_dCotTracksVsEta_isol_);
-      p_dCotTracksVsEta_isol_.clear();
+
 
 
     }
 
 
-  } 
+  }
+
 
 }
  
@@ -805,6 +762,10 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
     if ( !isIsolated ) type=2;
 
 
+
+    if ((*iPho).isEBEEGap()) continue;  //cut out gap photons
+
+
     //filling histograms to make isolation efficiencies
     if (isLoosePhoton){
 	h_phoEta_Loose_->Fill( (*iPho).eta() );
@@ -814,9 +775,6 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	h_phoEta_Tight_->Fill( (*iPho).eta() );
 	h_phoEt_Tight_->Fill( (*iPho).et() );
     }
-
-
-    if ((*iPho).isEBEEGap()) continue;  //cut out gap photons
 
 
 
@@ -882,6 +840,13 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 	fill2DHistoVector(h_r9VsEt_,(*iPho).et(),(*iPho).r9(),cut,type);
 	fill2DHistoVector(h_r9VsEta_,(*iPho).eta(),(*iPho).r9(),cut,type);
+	
+	
+// 	h_profiler9VsEt_[cut][0]->Fill((*iPho).et(),(*iPho).r9());
+// 	h_profiler9VsEta_[cut][0]->Fill((*iPho).eta(),(*iPho).r9());
+// 	h_profiler9VsEt_[cut][type]->Fill((*iPho).et(),(*iPho).r9());
+// 	h_profiler9VsEta_[cut][type]->Fill((*iPho).eta(),(*iPho).r9());
+
 
 	fill2DHistoVector(h_e1x5VsEt_,(*iPho).et(),(*iPho).e1x5(),cut,type);
 	fill2DHistoVector(h_e1x5VsEta_,(*iPho).eta(),(*iPho).e1x5(),cut,type);
@@ -920,24 +885,39 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 	fill3DHistoVector(h_nConv_,float( (*iPho).conversions().size() ),cut,type,part);
 
-	if((*iPho).hasConversionTracks()){
-	  fill3DHistoVector(h_phoConvE_,(*iPho).energy(),cut,type,part);
-	  fill3DHistoVector(h_phoConvEt_,(*iPho).et(),cut,type,part);
-	  fill3DHistoVector(h_phoConvR9_,(*iPho).r9(),cut,type,part);
-	}
+
 
  
 	//loop over conversions
 
 	reco::ConversionRefVector conversions = (*iPho).conversions();
+
 	for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
 
 	  reco::ConversionRef aConv=conversions[iConv];
 
 	  if ( conversions[iConv]->nTracks() <2 ) continue; 
 
+	  fill3DHistoVector(h_phoConvE_,(*iPho).energy(),cut,type,part);
+	  fill3DHistoVector(h_phoConvEt_,(*iPho).et(),cut,type,part);
+	  fill3DHistoVector(h_phoConvR9_,(*iPho).r9(),cut,type,part);
+	  
+
+	  if (cut==0 && isLoosePhoton){
+	    h_convEta_Loose_->Fill( (*iPho).eta() );
+	    h_convEt_Loose_->Fill( (*iPho).et() );
+	  }
+	  if (cut==0 && isTightPhoton){
+	    h_convEta_Tight_->Fill( (*iPho).eta() );
+	    h_convEt_Tight_->Fill( (*iPho).et() );
+	  }
+
+	
+
+
 	  fill2DHistoVector(h_phoConvEta_,conversions[iConv]->caloCluster()[0]->eta(),cut,type);
 	  fill2DHistoVector(h_phoConvPhi_,conversions[iConv]->caloCluster()[0]->phi(),cut,type);
+
 
 	  if ( conversions[iConv]->conversionVertex().isValid() ) {
 
@@ -1070,9 +1050,15 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 
 void PhotonAnalyzer::endJob()
-{}
+{
+  //dbe_->showDirStructure();
+
+  if(standAlone_){
+    dbe_->save(outputFileName_);
+  }
 
 
+}
 
 float PhotonAnalyzer::phiNormalization(float & phi)
 {
