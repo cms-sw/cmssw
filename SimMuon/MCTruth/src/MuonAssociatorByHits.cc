@@ -539,6 +539,15 @@ MuonAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
 	  }
 	  else if (detector == DetId::Muon) {
 	    n_muon_simhits++;
+	    
+	    // discard BAD CSC chambers (ME4/2) from hit counting
+	    if (dId.subdetId() == MuonSubdetId::CSC) {
+              if (csctruth.cscBadChambers->isInBadChamber(CSCDetId(dId))) {
+		// edm::LogVerbatim("MuonAssociatorByHits")<<"This PSimHit is in a BAD CSC chamber, CSCDetId = "<<CSCDetId(dId);
+		n_muon_simhits--;
+	      }
+	    }
+	    
 	  }
 	}
 	
