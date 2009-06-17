@@ -21,6 +21,7 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
               
     cutStep = cms.double(50.0),
     numberOfSteps = cms.int32(2),
+
                                 
     # DBE verbosity
     Verbosity = cms.untracked.int32(0),
@@ -36,18 +37,22 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
 
     ##### Histogram Ranges and Bins                               
 
-    eBin = cms.int32(200),
+    eBin = cms.int32(600),
     eMin = cms.double(0.0),
-    eMax = cms.double(500.0),
-                                
-    etBin = cms.int32(200),
-    etMin = cms.double(0.0),
-    etMax = cms.double(200.0),
+    eMax = cms.double(3000.0),
 
+
+    #etBin = cms.int32(300),                                
+    etBin = cms.int32(600),
+    etMin = cms.double(0.0),
+    etMax = cms.double(3000.0),
+
+    #sumBin = cms.int32(100),
     sumBin = cms.int32(200),
     sumMin = cms.double(0.0),
     sumMax = cms.double(20.0),
-                                
+
+    #etaBin = cms.int32(100),                                  
     etaBin = cms.int32(200),                               
     etaMin = cms.double(-2.5),
     etaMax = cms.double(2.5),
@@ -60,6 +65,7 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     phiMin = cms.double(-3.14),
     phiMax = cms.double(3.14),
                                 
+    #r9Bin = cms.int32(55),
     r9Bin = cms.int32(110),
     r9Min = cms.double(0.0),
     r9Max = cms.double(1.1),
@@ -104,6 +110,7 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     dRMin = cms.double(0.0),
     dRMax = cms.double(0.1),
 
+    #sigmaIetaBin = cms.int32(100),
     sigmaIetaBin = cms.int32(200),
     sigmaIetaMin = cms.double(0.0),
     sigmaIetaMax = cms.double(0.05),
@@ -112,11 +119,7 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     eOverPMin = cms.double(0.0),
     eOverPMax = cms.double(5.0),                                
 
-    ######
                                 
-                
-    OutputMEsInRootFile = cms.bool(False),
- 
     OutputFileName = cms.string('DQMOfflinePhotons.root'),
 
 
