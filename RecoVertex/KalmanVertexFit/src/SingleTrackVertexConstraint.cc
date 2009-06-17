@@ -37,9 +37,9 @@ SingleTrackVertexConstraint::BTFtuple SingleTrackVertexConstraint::constrain(
   typedef VertexTrack<5>::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
 
   double field  = track.field()->inInverseGeV(track.impactPointState().globalPosition()).z();
-  if (field==0.) {
+  if (field < 1e-4) {
       LogDebug("RecoVertex/SingleTrackVertexConstraint") 
-	 << "Initial state is very far, field is 0.\n";
+	 << "Initial state is very far, field is close to zero (<1e-4): " << field << "\n";
       return BTFtuple(false, TransientTrack(), 0.);
   }
 
