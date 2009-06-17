@@ -210,7 +210,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(
       }
 
       typedef RecHitsSortedInPhi::Hit Hit;
-      vector<Hit> thirdHits = thirdHitMap[il]->hits(phiRange.min(),phiRange.max());
+      vector<Hit> thirdHits = thirdHitMap[il]->hits(phiRange.min(), phiRange.max());
 
       typedef vector<Hit>::const_iterator IH;
       for (IH th=thirdHits.begin(), eh=thirdHits.end(); th < eh; ++th) {
@@ -221,7 +221,9 @@ void PixelTripletLargeTipGenerator::hitTriplets(
 
          Range rangeRPhi = predictionRPhi(curvature, p3_r);
          correction.correctRPhiRange(rangeRPhi);
-         if (!checkPhiInRange(p3_phi, rangeRPhi.first/p3_r, rangeRPhi.second/p3_r))
+
+         double phiErr = nSigmaPhi * sqrt((*th)->globalPositionError().phierr((*th)->globalPosition()));
+         if (!checkPhiInRange(p3_phi, rangeRPhi.first/p3_r - phiErr, rangeRPhi.second/p3_r + phiErr))
            continue;
 
          const TransientTrackingRecHit::ConstRecHitPointer& hit = *th;
