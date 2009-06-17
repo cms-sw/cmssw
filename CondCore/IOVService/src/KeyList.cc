@@ -17,6 +17,7 @@ namespace cond {
 	IOVSequence::const_iterator p = m_sequence.iov().find(keys[i]);
 	pool::Ref<Wrapper> ref(&(m_sequence.db().poolDataSvc()),(*p).wrapperToken());
 	m_data[i].copyShallow(ref);
+	m_data[i]->loadAll();
       } else m_data[i].clear();
     }
     m_sequence.db().commit();
