@@ -24,7 +24,7 @@ namespace cond {
 
 
   BaseKeyed const * KeyList::elem(int n) const {
-    if (!m_data[n].isValid()) return 0;
+    if (!m_data[n]) return 0;
     return &(*m_data[n]).data();
   }
   
