@@ -65,7 +65,7 @@ namespace cond {
   public:
     RDBMS();
     ~RDBMS();
-    explicit RDBMS(std::string const & authPath);
+    explicit RDBMS(std::string const & authPath, bool debug=false);
     RDBMS(std::string const & user,std::string const & pass);
     void setLogger(std::string const & connstr);
 

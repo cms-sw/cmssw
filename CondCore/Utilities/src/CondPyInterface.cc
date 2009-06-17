@@ -205,11 +205,13 @@ namespace cond {
   }
   RDBMS::~RDBMS() {}
 
-  RDBMS::RDBMS(std::string const & authPath) : session(new DBSession) {
+  RDBMS::RDBMS(std::string const & authPath,  bool debug) : session(new DBSession) {
     //topinit();
     session->configuration().setAuthenticationPath(authPath);
     session->configuration().setAuthenticationMethod( cond::XML );
-    session->configuration().setMessageLevel( cond::Error );
+    if (debug) session->configuration().setMessageLevel( cond::Debug );
+    else
+      session->configuration().setMessageLevel( cond::Error );
     session->configuration().setBlobStreamer( "COND/Services/TBufferBlobStreamingService" );
     session->open();
   }
