@@ -1,4 +1,4 @@
-// $Id$
+// $Id: Ready.cc,v 1.2 2009/06/10 08:15:27 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
@@ -20,7 +20,16 @@ Ready::Ready( my_context c ): my_base(c)
     outermost_context().getSharedResources();
 
   // update all configuration parameters
-  sharedResources->_configuration->updateAllParams();
+  try
+    {
+      sharedResources->_configuration->updateAllParams();
+    }
+  catch(...)
+    {
+      // To do: add logging:
+      sharedResources->moveToFailedState();
+      return;
+    }
 
   // configure the various queue sizes
   QueueConfigurationParams queueParams =
