@@ -782,7 +782,7 @@ PFBlockAlgo::testTrackAndClusterByRecHit( const PFRecTrack& track,
     = track.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax );
 
 
-  //track
+  //track at calo's
   double tracketa = 999999.9;
   double trackphi = 999999.9;
   double track_X  = 999999.9;
@@ -791,9 +791,9 @@ PFBlockAlgo::testTrackAndClusterByRecHit( const PFRecTrack& track,
   double dHEta = 0.;
   double dHPhi = 0.;
 
-  double trackPt = sqrt(atVertex.momentum().Vect().Perp2());
-  if(isBrem == true) 
-    trackPt = 2.;
+  // Quantities at vertex
+  double trackPt = isBrem ? 999. : sqrt(atVertex.momentum().Vect().Perp2());
+  // double trackEta = isBrem ? 999. : atVertex.momentum().Vect().Eta();
 
 
   switch (cluster.layer()) {
@@ -873,18 +873,23 @@ PFBlockAlgo::testTrackAndClusterByRecHit( const PFRecTrack& track,
 
 
   // Check that, if the cluster is in the endcap, 
-  // 1) the track is in the endcap too !
+  // 0) the track indeed points to the endcap at vertex (DISABLED)
+  // 1) the track extrapolation is in the endcap too !
   // 2) the track is in the same end-cap !
   // PJ - 10-May-09
   if ( !barrel ) { 
+    // if ( fabs(trackEta) < 1.0 ) return -1; 
     if ( !hcal && fabs(track_Z) < 300. ) return -1.;
-    // if ( hcal && track_Z < 359. ) return std::pair<double,double>(-1,-1);
     if ( track_Z * clusterZ < 0. ) return -1.;
   }
   // Check that, if the cluster is in the barrel, 
   // 1) the track is in the barrel too !
   if ( barrel ) 
     if ( !hcal && fabs(track_Z) > 300. ) return -1.;
+
+  // Finally check that, if the track points to the central barrel (|eta| < 1), 
+  // it cannot be linked to a cluster in Endcaps (avoid low pt loopers)
+
 
   double dist = computeDist( clustereta, clusterphi, 
 			     tracketa, trackphi);
@@ -1059,6 +1064,14 @@ PFBlockAlgo::testTrackAndClusterByRecHit( const PFRecTrack& track,
     << ", Barrel/Hcal/Brem ? " << barrel << " " << hcal << " " << isBrem << std::endl
     << " Cluster " << clusterr << " " << clusterZ << " " << clusterphi << " " << clustereta << std::endl
     << " Track   " << trackr << " " << track_Z << " " << trackphi << " " << tracketa << std::endl;
+    if ( !barrel && fabs(trackEta) < 1.0 ) { 
+      double clusterr = std::sqrt(clusterX*clusterX+clusterY*clusterY);
+      double trackr = std::sqrt(track_X*track_X+track_Y*track_Y);
+      std::cout << "TrackEta/Pt = " << trackEta << " " << trackPt << ", distance = " << distance << std::endl 
+		<< ", Barrel/Hcal/Brem ? " << barrel << " " << hcal << " " << isBrem << std::endl
+		<< " Cluster " << clusterr << " " << clusterZ << " " << clusterphi << " " << clustereta << std::endl
+		<< " Track   " << trackr << " " << track_Z << " " << trackphi << " " << tracketa << " " << trackEta << " " << trackPt << std::endl;
+    } 
     */
     return dist;
   } else {
@@ -1369,6 +1382,9 @@ PFBlockAlgo::goodPtResolution( const reco::TrackRef& trackref) {
     Algo = 5;
     break;
   }
+
+  // Protection against 0 momentum tracks
+  if ( P < 0.05 ) return false;
 
   // Temporary : Reject all tracking iteration beyond 5th step. 
   if ( Algo > 4 ) return false;
