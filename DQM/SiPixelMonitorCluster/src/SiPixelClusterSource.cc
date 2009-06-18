@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.14 2008/08/12 11:25:53 merkelp Exp $
+// $Id: SiPixelClusterSource.cc,v 1.15 2008/09/02 13:52:17 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -100,8 +100,7 @@ void SiPixelClusterSource::endJob(void){
 //------------------------------------------------------------------
 // Method called for every event
 //------------------------------------------------------------------
-void
-SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   eventNo++;
 
