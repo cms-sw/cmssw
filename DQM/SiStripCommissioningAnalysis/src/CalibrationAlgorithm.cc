@@ -17,7 +17,7 @@ using namespace sistrip;
 
 // ----------------------------------------------------------------------------
 // 
-CalibrationAlgorithm::CalibrationAlgorithm( CalibrationAnalysis* const anal ) 
+CalibrationAlgorithm::CalibrationAlgorithm( const edm::ParameterSet & pset, CalibrationAnalysis* const anal ) 
   : CommissioningAlgorithm(anal),
     deconv_fitter_(0),
     peak_fitter_(0),

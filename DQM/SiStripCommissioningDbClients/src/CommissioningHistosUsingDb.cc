@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.16 2009/05/29 12:58:18 bainbrid Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.17 2009/05/29 13:28:21 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
@@ -64,7 +64,7 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
 CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const db,
 							DQMOldReceiver* const mui,
 							sistrip::RunType type )
-  : CommissioningHistograms( mui, type ),
+  : CommissioningHistograms( edm::ParameterSet(), mui, type ),
     runType_(type),
     db_(db),
     cabling_(0),
@@ -107,7 +107,7 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
 // -----------------------------------------------------------------------------
 /** */
 CommissioningHistosUsingDb::CommissioningHistosUsingDb()
-  : CommissioningHistograms( reinterpret_cast<DQMOldReceiver*>(0), sistrip::UNDEFINED_RUN_TYPE ),
+  : CommissioningHistograms( edm::ParameterSet(), reinterpret_cast<DQMOldReceiver*>(0), sistrip::UNDEFINED_RUN_TYPE ),
     runType_(sistrip::UNDEFINED_RUN_TYPE),
     db_(0),
     cabling_(0),

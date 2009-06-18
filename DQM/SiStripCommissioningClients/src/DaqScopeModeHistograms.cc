@@ -14,8 +14,11 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-DaqScopeModeHistograms::DaqScopeModeHistograms( DQMOldReceiver* mui ) 
-  : CommissioningHistograms( mui, sistrip::DAQ_SCOPE_MODE ),
+DaqScopeModeHistograms::DaqScopeModeHistograms( const edm::ParameterSet& pset,
+                                                DQMOldReceiver* mui ) 
+  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("DaqScopeModeParameters"),
+                             mui,
+                             sistrip::DAQ_SCOPE_MODE ),
     factory_( new Factory )
 {
   cout << endl // LogTrace(mlDqmClient_) 

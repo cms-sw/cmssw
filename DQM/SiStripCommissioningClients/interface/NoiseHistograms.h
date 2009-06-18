@@ -10,8 +10,8 @@ class NoiseHistograms : public virtual CommissioningHistograms {
 
  public:
   
-  NoiseHistograms( DQMOldReceiver* );
-  NoiseHistograms( DQMStore* );
+  NoiseHistograms( const edm::ParameterSet& pset, DQMOldReceiver* );
+  NoiseHistograms( const edm::ParameterSet& pset, DQMStore* );
   virtual ~NoiseHistograms();
   
   void histoAnalysis( bool debug );

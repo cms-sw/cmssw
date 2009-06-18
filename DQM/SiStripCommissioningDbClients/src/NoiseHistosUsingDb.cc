@@ -1,4 +1,4 @@
-// Last commit: $Id: NoiseHistosUsingDb.cc,v 1.2 2008/05/06 12:38:07 bainbrid Exp $
+// Last commit: $Id: NoiseHistosUsingDb.cc,v 1.3 2009/04/06 16:52:42 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/NoiseHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/NoiseAnalysis.h"
@@ -12,11 +12,17 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-NoiseHistosUsingDb::NoiseHistosUsingDb( DQMOldReceiver* mui,
+NoiseHistosUsingDb::NoiseHistosUsingDb( const edm::ParameterSet & pset,
+                                        DQMOldReceiver* mui,
 					SiStripConfigDb* const db )
-  : CommissioningHistograms( mui, sistrip::NOISE ),
-    CommissioningHistosUsingDb( db, mui, sistrip::NOISE ),
-    NoiseHistograms( mui )
+  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("NoiseParameters"),
+                             mui,
+                             sistrip::NOISE ),
+    CommissioningHistosUsingDb( db,
+                                mui,
+                                sistrip::NOISE ),
+    NoiseHistograms( pset.getParameter<edm::ParameterSet>("NoiseParameters"),
+                     mui )
 {
   LogTrace(mlDqmClient_) 
     << "[NoiseHistosUsingDb::" << __func__ << "]"
@@ -25,10 +31,13 @@ NoiseHistosUsingDb::NoiseHistosUsingDb( DQMOldReceiver* mui,
 
 // -----------------------------------------------------------------------------
 /** */
-NoiseHistosUsingDb::NoiseHistosUsingDb( DQMStore* bei,
+NoiseHistosUsingDb::NoiseHistosUsingDb( const edm::ParameterSet & pset,
+                                        DQMStore* bei,
 					SiStripConfigDb* const db ) 
-  : CommissioningHistosUsingDb( db, sistrip::NOISE ),
-    NoiseHistograms( bei )
+  : CommissioningHistosUsingDb( db,
+                                sistrip::NOISE ),
+    NoiseHistograms( pset.getParameter<edm::ParameterSet>("NoiseParameters"),
+                     bei )
 {
   LogTrace(mlDqmClient_) 
     << "[NoiseHistosUsingDb::" << __func__ << "]"

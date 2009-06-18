@@ -11,8 +11,11 @@ using namespace std;
 
 // -----------------------------------------------------------------------------
 /** */
-FedTimingHistograms::FedTimingHistograms( DQMOldReceiver* mui ) 
-  : CommissioningHistograms( mui, sistrip::FED_TIMING ),
+FedTimingHistograms::FedTimingHistograms( const edm::ParameterSet& pset,
+                                          DQMOldReceiver* mui )
+  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("FedTimingParameters"),
+                             mui,
+                             sistrip::FED_TIMING ),
     factory_( new Factory ),
     optimumSamplingPoint_(15.),
     minDelay_(sistrip::invalid_),

@@ -14,7 +14,7 @@ using namespace sistrip;
 
 // ----------------------------------------------------------------------------
 // 
-FastFedCablingAlgorithm::FastFedCablingAlgorithm( FastFedCablingAnalysis* const anal ) 
+FastFedCablingAlgorithm::FastFedCablingAlgorithm( const edm::ParameterSet & pset, FastFedCablingAnalysis* const anal ) 
   : CommissioningAlgorithm(anal),
     histo_(0,"")
 {;}

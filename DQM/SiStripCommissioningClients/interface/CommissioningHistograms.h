@@ -34,11 +34,13 @@ class CommissioningHistograms {
 
   // ---------- con(de)structors ----------
   
-  CommissioningHistograms( DQMOldReceiver* const,
+  CommissioningHistograms( const edm::ParameterSet& pset,
+                           DQMOldReceiver* const,
 			   const sistrip::RunType& );
   
   // DEPRECACTE
-  CommissioningHistograms( DQMStore* const,
+  CommissioningHistograms( const edm::ParameterSet& pset,
+                           DQMStore* const,
 			   const sistrip::RunType& );
 
   // MAKE PRIVATE
@@ -143,6 +145,8 @@ class CommissioningHistograms {
   
   inline const FedToFecMap& mapping() const;
   
+  inline const edm::ParameterSet& pset() const;
+
   TH1* histogram( const sistrip::Monitorable&, 
 		  const sistrip::Presentation&, 
 		  const sistrip::View&,
@@ -174,6 +178,8 @@ class CommissioningHistograms {
   HistosMap histos_;
   
   FedToFecMap mapping_;
+
+  edm::ParameterSet pset_;
   
 };
 
@@ -186,5 +192,6 @@ CommissioningHistograms::Analyses& CommissioningHistograms::data() { return data
 CommissioningHistograms::Factory* const CommissioningHistograms::factory() { return factory_.get(); }
 const CommissioningHistograms::HistosMap& CommissioningHistograms::histos() const { return histos_; }
 const CommissioningHistograms::FedToFecMap& CommissioningHistograms::mapping() const { return mapping_; }
+const edm::ParameterSet& CommissioningHistograms::pset() const { return pset_; }
 
 #endif // DQM_SiStripCommissioningClients_CommissioningHistograms_H

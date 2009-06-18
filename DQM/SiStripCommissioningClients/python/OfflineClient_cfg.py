@@ -9,13 +9,11 @@ process.load("DQM.SiStripCommon.DaqMonitorROOTBackEnd_cfi")
 process.load("IORawData.SiStripInputSources.EmptySource_cff")
 process.maxEvents.input = 2
 
-process.client = cms.EDAnalyzer("SiStripCommissioningOfflineClient",
-    FilePath       = cms.untracked.string('/tmp')
-    RunNumber      = cms.untracked.uint32(0),
-    UseClientFile  = cms.untracked.bool(False),
-    SummaryXmlFile = cms.untracked.FileInPath('DQM/SiStripCommissioningClients/data/summary.xml'),
-    SaveClientFile = cms.untracked.bool(True),
-)
+process.load("DQM.SiStripCommissioningClients.OfflineClient_cff")
+process.client.FilePath       = cms.untracked.string('DATALOCATION')
+process.client.RunNumber      = cms.untracked.uint32(RUNNUMBER)
+process.client.UseClientFile  = cms.untracked.bool(CLIENTFLAG)
+process.client.SaveClientFile = cms.untracked.bool(SAVECLIENTFILE)
 
 process.p = cms.Path(process.client)
 

@@ -1,6 +1,7 @@
 #ifndef DQM_SiStripCommissioningAnalysis_FedCablingAlgorithm_H
 #define DQM_SiStripCommissioningAnalysis_FedCablingAlgorithm_H
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAlgorithm.h"
 #include <vector>
 
@@ -18,7 +19,7 @@ class FedCablingAlgorithm : public CommissioningAlgorithm {
 
   // ---------- Con(de)structors and typedefs ----------
 
-  FedCablingAlgorithm( FedCablingAnalysis* const );
+  FedCablingAlgorithm( const edm::ParameterSet & pset, FedCablingAnalysis* const );
 
   virtual ~FedCablingAlgorithm() {;}
   

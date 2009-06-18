@@ -1,4 +1,4 @@
-// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.17 2008/07/01 14:36:41 bainbrid Exp $
+// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.18 2009/04/06 16:52:42 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/VpspScanHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/VpspScanAnalysis.h"
@@ -11,11 +11,16 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-VpspScanHistosUsingDb::VpspScanHistosUsingDb( DQMOldReceiver* mui,
+VpspScanHistosUsingDb::VpspScanHistosUsingDb( const edm::ParameterSet & pset,
+                                              DQMOldReceiver* mui,
 					      SiStripConfigDb* const db ) 
-  : CommissioningHistograms( mui, sistrip::VPSP_SCAN ),
-    CommissioningHistosUsingDb( db, sistrip::VPSP_SCAN ),
-    VpspScanHistograms( mui )
+  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("VpspScanParameters"),
+                             mui,
+                             sistrip::VPSP_SCAN ),
+    CommissioningHistosUsingDb( db,
+                                sistrip::VPSP_SCAN ),
+    VpspScanHistograms( pset.getParameter<edm::ParameterSet>("VpspScanParameters"),
+                        mui )
 {
   LogTrace(mlDqmClient_) 
     << "[VpspScanHistosUsingDb::" << __func__ << "]"
@@ -24,10 +29,12 @@ VpspScanHistosUsingDb::VpspScanHistosUsingDb( DQMOldReceiver* mui,
 
 // -----------------------------------------------------------------------------
 /** */
-VpspScanHistosUsingDb::VpspScanHistosUsingDb( DQMStore* bei,
+VpspScanHistosUsingDb::VpspScanHistosUsingDb( const edm::ParameterSet & pset,
+                                              DQMStore* bei,
 					      SiStripConfigDb* const db ) 
   : CommissioningHistosUsingDb( db, sistrip::VPSP_SCAN ),
-    VpspScanHistograms( bei )
+    VpspScanHistograms( pset.getParameter<edm::ParameterSet>("VpspScanParameters"),
+                        bei )
 {
   LogTrace(mlDqmClient_) 
     << "[VpspScanHistosUsingDb::" << __func__ << "]"

@@ -11,7 +11,7 @@ using namespace sistrip;
 
 // ----------------------------------------------------------------------------
 // 
-ApvLatencyAlgorithm::ApvLatencyAlgorithm( ApvLatencyAnalysis* const anal ) 
+ApvLatencyAlgorithm::ApvLatencyAlgorithm( const edm::ParameterSet & pset, ApvLatencyAnalysis* const anal ) 
   : CommissioningAlgorithm(anal),
     histo_(0,"")
 {;}

@@ -11,8 +11,8 @@ class SamplingHistograms : virtual public CommissioningHistograms {
 
  public:
   
-  SamplingHistograms( DQMStore*, const sistrip::RunType& task = sistrip::APV_LATENCY );
-  SamplingHistograms( DQMOldReceiver*, const sistrip::RunType& task = sistrip::APV_LATENCY );
+  SamplingHistograms( const edm::ParameterSet& pset, DQMStore*, const sistrip::RunType& task = sistrip::APV_LATENCY );
+  SamplingHistograms( const edm::ParameterSet& pset, DQMOldReceiver*, const sistrip::RunType& task = sistrip::APV_LATENCY );
   virtual ~SamplingHistograms();
   
   void histoAnalysis( bool debug );

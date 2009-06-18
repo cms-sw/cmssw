@@ -13,7 +13,7 @@ using namespace sistrip;
 
 // ----------------------------------------------------------------------------
 // 
-FedTimingAlgorithm::FedTimingAlgorithm( FedTimingAnalysis* const anal ) 
+FedTimingAlgorithm::FedTimingAlgorithm( const edm::ParameterSet & pset, FedTimingAnalysis* const anal ) 
   : CommissioningAlgorithm(anal),
     histo_(0,"")
 {;}

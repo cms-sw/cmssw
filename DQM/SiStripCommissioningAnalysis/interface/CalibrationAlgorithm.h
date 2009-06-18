@@ -1,6 +1,7 @@
 #ifndef DQM_SiStripCommissioningAnalysis_CalibrationAlgorithm_H
 #define DQM_SiStripCommissioningAnalysis_CalibrationAlgorithm_H
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAlgorithm.h"
 #include <vector>
 
@@ -18,7 +19,7 @@ class CalibrationAlgorithm : public CommissioningAlgorithm {
   
  public:
   
-  CalibrationAlgorithm( CalibrationAnalysis* const );
+  CalibrationAlgorithm( const edm::ParameterSet & pset, CalibrationAnalysis* const );
   
   virtual ~CalibrationAlgorithm() {;}
   

@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.24 2009/04/06 16:52:42 lowette Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.25 2009/05/29 12:34:49 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
@@ -12,11 +12,17 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( DQMOldReceiver* mui,
+ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( const edm::ParameterSet & pset,
+                                                DQMOldReceiver* mui,
 						SiStripConfigDb* const db ) 
-  : CommissioningHistograms( mui, sistrip::APV_TIMING ),
-    CommissioningHistosUsingDb( db, mui, sistrip::APV_TIMING ),
-    ApvTimingHistograms( mui ),
+  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("ApvTimingParameters"),
+                             mui,
+                             sistrip::APV_TIMING ),
+    CommissioningHistosUsingDb( db,
+                                mui,
+                                sistrip::APV_TIMING ),
+    ApvTimingHistograms( pset.getParameter<edm::ParameterSet>("ApvTimingParameters"),
+                         mui ),
     uploadFecSettings_(true),
     uploadFedSettings_(true)
 {
@@ -27,10 +33,13 @@ ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( DQMOldReceiver* mui,
 
 // -----------------------------------------------------------------------------
 /** */
-ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( DQMStore* bei,
+ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( const edm::ParameterSet & pset,
+                                                DQMStore* bei,
 						SiStripConfigDb* const db ) 
-  : CommissioningHistosUsingDb( db, sistrip::APV_TIMING ),
-    ApvTimingHistograms( bei ),
+  : CommissioningHistosUsingDb( db,
+                                sistrip::APV_TIMING ),
+    ApvTimingHistograms( pset.getParameter<edm::ParameterSet>("ApvTimingParameters"),
+                         bei ),
     uploadFecSettings_(true),
     uploadFedSettings_(true)
 {

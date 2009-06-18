@@ -15,8 +15,11 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-ApvTimingHistograms::ApvTimingHistograms( DQMOldReceiver* mui ) 
-  : CommissioningHistograms( mui, sistrip::APV_TIMING )
+ApvTimingHistograms::ApvTimingHistograms( const edm::ParameterSet& pset,
+                                          DQMOldReceiver* mui ) 
+  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("ApvTimingParameters"),
+                             mui,
+                             sistrip::APV_TIMING )
 {
   factory_ = auto_ptr<ApvTimingSummaryFactory>( new ApvTimingSummaryFactory );
   LogTrace(mlDqmClient_) 
@@ -26,8 +29,11 @@ ApvTimingHistograms::ApvTimingHistograms( DQMOldReceiver* mui )
 
 // -----------------------------------------------------------------------------
 /** */
-ApvTimingHistograms::ApvTimingHistograms( DQMStore* bei ) 
-  : CommissioningHistograms( bei, sistrip::APV_TIMING )
+ApvTimingHistograms::ApvTimingHistograms( const edm::ParameterSet& pset,
+                                          DQMStore* bei ) 
+  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("ApvTimingParameters"),
+                             bei,
+                             sistrip::APV_TIMING )
 {
   LogTrace(mlDqmClient_) 
     << "[ApvTimingHistograms::" << __func__ << "]"
@@ -88,7 +94,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     
     // Perform histo analysis
     ApvTimingAnalysis* anal = new ApvTimingAnalysis( iter->first );
-    ApvTimingAlgorithm algo( anal );
+    ApvTimingAlgorithm algo( this->pset(), anal );
     algo.analysis( profs );
     data()[iter->first] = anal; 
 

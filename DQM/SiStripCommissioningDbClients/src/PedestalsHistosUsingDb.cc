@@ -1,4 +1,4 @@
-// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.21 2009/05/29 12:59:24 bainbrid Exp $
+// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.22 2009/05/29 13:28:21 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedestalsAnalysis.h"
@@ -12,23 +12,38 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-PedestalsHistosUsingDb::PedestalsHistosUsingDb( DQMOldReceiver* mui,
+PedestalsHistosUsingDb::PedestalsHistosUsingDb( const edm::ParameterSet & pset,
+                                                DQMOldReceiver* mui,
 						SiStripConfigDb* const db )
-  : CommissioningHistograms( mui, sistrip::PEDESTALS ),
-    CommissioningHistosUsingDb( db, mui, sistrip::PEDESTALS ),
-    PedestalsHistograms( mui )
+  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("PedestalsParameters"),
+                             mui,
+                             sistrip::PEDESTALS ),
+    CommissioningHistosUsingDb( db,
+                                mui,
+                                sistrip::PEDESTALS ),
+    PedestalsHistograms( pset.getParameter<edm::ParameterSet>("PedestalsParameters"),
+                         mui )
 {
   LogTrace(mlDqmClient_) 
     << "[PedestalsHistosUsingDb::" << __func__ << "]"
     << " Constructing object...";
+  highThreshold_ = this->pset().getParameter<double>("HighThreshold");
+  lowThreshold_ = this->pset().getParameter<double>("LowThreshold");
+  edm::LogInfo(mlDqmClient_)
+    << "[PedestalsHistosUsingDb::" << __func__ << "]"
+    << " Set FED zero suppression high/low threshold to "
+    << highThreshold_ << "/" << lowThreshold_;
 }
 
 // -----------------------------------------------------------------------------
 /** */
-PedestalsHistosUsingDb::PedestalsHistosUsingDb( DQMStore* bei,
+PedestalsHistosUsingDb::PedestalsHistosUsingDb( const edm::ParameterSet & pset,
+                                                DQMStore* bei,
 						SiStripConfigDb* const db ) 
-  : CommissioningHistosUsingDb( db, sistrip::PEDESTALS ),
-    PedestalsHistograms( bei )
+  : CommissioningHistosUsingDb( db,
+                                sistrip::PEDESTALS ),
+    PedestalsHistograms( pset.getParameter<edm::ParameterSet>("PedestalsParameters"),
+                         bei )
 {
   LogTrace(mlDqmClient_) 
     << "[PedestalsHistosUsingDb::" << __func__ << "]"
@@ -135,18 +150,15 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
 	for ( uint16_t iapv = 0; iapv < sistrip::APVS_PER_FEDCH; iapv++ ) {
 	  for ( uint16_t istr = 0; istr < anal->peds()[iapv].size(); istr++ ) { 
 	    
-	    static float high_threshold = 5.;
-	    static float low_threshold  = 2.;
-
 	    bool disable_strip = false;
 	    PedestalsAnalysis::VInt dead = anal->dead()[iapv];
 	    if ( find( dead.begin(), dead.end(), istr ) != dead.end() ) { disable_strip = true; }
 	    PedestalsAnalysis::VInt noisy = anal->noisy()[iapv];
 	    if ( find( noisy.begin(), noisy.end(), istr ) != noisy.end() ) { disable_strip = true; }
-	    
-	    Fed9U::Fed9UStripDescription data( static_cast<uint32_t>( anal->peds()[iapv][istr]-pedshift ), 
-					       high_threshold, 
-					       low_threshold, 
+
+	    Fed9U::Fed9UStripDescription data( static_cast<uint32_t>( anal->peds()[iapv][istr]-pedshift ),
+					       highThreshold_,
+					       lowThreshold_,
 					       anal->noise()[iapv][istr],
 					       disableBadStrips() && disable_strip );
 	    Fed9U::Fed9UAddress addr( ichan, iapv, istr );

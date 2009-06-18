@@ -10,8 +10,8 @@ class OptoScanHistograms : public virtual CommissioningHistograms {
 
  public:
 
-  OptoScanHistograms( DQMOldReceiver* );
-  OptoScanHistograms( DQMStore* );
+  OptoScanHistograms( const edm::ParameterSet& pset, DQMOldReceiver* );
+  OptoScanHistograms( const edm::ParameterSet& pset, DQMStore* );
   virtual ~OptoScanHistograms();
   
   void histoAnalysis( bool debug );

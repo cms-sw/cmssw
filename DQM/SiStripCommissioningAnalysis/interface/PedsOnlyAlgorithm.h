@@ -1,6 +1,7 @@
 #ifndef DQM_SiStripCommissioningAnalysis_PedsOnlyAlgorithm_H
 #define DQM_SiStripCommissioningAnalysis_PedsOnlyAlgorithm_H
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAlgorithm.h"
 #include <vector>
 
@@ -16,7 +17,7 @@ class PedsOnlyAlgorithm : public CommissioningAlgorithm {
   
  public:
 
-  PedsOnlyAlgorithm( PedsOnlyAnalysis* const );
+  PedsOnlyAlgorithm( const edm::ParameterSet & pset, PedsOnlyAnalysis* const );
 
   virtual ~PedsOnlyAlgorithm() {;}
 

@@ -1,4 +1,4 @@
-// Last commit: $Id: LatencyHistosUsingDb.h,v 1.7 2008/05/06 12:38:06 bainbrid Exp $
+// Last commit: $Id: LatencyHistosUsingDb.h,v 1.8 2008/11/10 14:33:58 delaer Exp $
 
 #ifndef DQM_SiStripCommissioningClients_LatencyHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_LatencyHistosUsingDb_H
@@ -14,10 +14,12 @@ class LatencyHistosUsingDb : public CommissioningHistosUsingDb, public SamplingH
   
  public:
   
-  LatencyHistosUsingDb( DQMOldReceiver*,
+  LatencyHistosUsingDb( const edm::ParameterSet & pset,
+                        DQMOldReceiver*,
 			SiStripConfigDb* const );
   
-  LatencyHistosUsingDb( DQMStore*,
+  LatencyHistosUsingDb( const edm::ParameterSet & pset,
+                        DQMStore*,
 			SiStripConfigDb* const );
   
   virtual ~LatencyHistosUsingDb();

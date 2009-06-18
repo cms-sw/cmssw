@@ -1,4 +1,4 @@
-// Last commit: $Id: PedsOnlyHistosUsingDb.cc,v 1.4 2009/02/23 15:17:47 lowette Exp $
+// Last commit: $Id: PedsOnlyHistosUsingDb.cc,v 1.5 2009/04/06 16:52:42 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedsOnlyHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedsOnlyAnalysis.h"
@@ -12,11 +12,17 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-PedsOnlyHistosUsingDb::PedsOnlyHistosUsingDb( DQMOldReceiver* mui,
+PedsOnlyHistosUsingDb::PedsOnlyHistosUsingDb( const edm::ParameterSet & pset,
+                                              DQMOldReceiver* mui,
 					      SiStripConfigDb* const db )
-  : CommissioningHistograms( mui, sistrip::PEDS_ONLY ),
-    CommissioningHistosUsingDb( db, mui, sistrip::PEDS_ONLY ),
-    PedsOnlyHistograms( mui )
+  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("PedsOnlyParameters"),
+                             mui,
+                             sistrip::PEDS_ONLY ),
+    CommissioningHistosUsingDb( db,
+                                mui,
+                                sistrip::PEDS_ONLY ),
+    PedsOnlyHistograms( pset.getParameter<edm::ParameterSet>("PedsOnlyParameters"),
+                        mui )
 {
   LogTrace(mlDqmClient_) 
     << "[PedsOnlyHistosUsingDb::" << __func__ << "]"
@@ -25,10 +31,13 @@ PedsOnlyHistosUsingDb::PedsOnlyHistosUsingDb( DQMOldReceiver* mui,
 
 // -----------------------------------------------------------------------------
 /** */
-PedsOnlyHistosUsingDb::PedsOnlyHistosUsingDb( DQMStore* bei,
+PedsOnlyHistosUsingDb::PedsOnlyHistosUsingDb( const edm::ParameterSet & pset,
+                                              DQMStore* bei,
 					      SiStripConfigDb* const db ) 
-  : CommissioningHistosUsingDb( db, sistrip::PEDS_ONLY ),
-    PedsOnlyHistograms( bei )
+  : CommissioningHistosUsingDb( db,
+                                sistrip::PEDS_ONLY ),
+    PedsOnlyHistograms( pset.getParameter<edm::ParameterSet>("PedsOnlyParameters"),
+                        bei )
 {
   LogTrace(mlDqmClient_) 
     << "[PedsOnlyHistosUsingDb::" << __func__ << "]"

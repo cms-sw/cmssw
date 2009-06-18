@@ -13,7 +13,7 @@ using namespace sistrip;
 
 // ----------------------------------------------------------------------------
 // 
-NoiseAlgorithm::NoiseAlgorithm( NoiseAnalysis* const anal ) 
+NoiseAlgorithm::NoiseAlgorithm( const edm::ParameterSet & pset, NoiseAnalysis* const anal ) 
   : CommissioningAlgorithm(anal),
     hPeds_(0,""),
     hNoise_(0,"")

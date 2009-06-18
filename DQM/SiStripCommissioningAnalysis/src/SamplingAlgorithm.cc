@@ -15,7 +15,7 @@ using namespace sistrip;
 
 // ----------------------------------------------------------------------------
 // 
-SamplingAlgorithm::SamplingAlgorithm( SamplingAnalysis* const anal, uint32_t latencyCode ) 
+SamplingAlgorithm::SamplingAlgorithm( const edm::ParameterSet & pset, SamplingAnalysis* const anal, uint32_t latencyCode ) 
   : CommissioningAlgorithm(anal),
     histo_(0,""),
     deconv_fitter_(0),

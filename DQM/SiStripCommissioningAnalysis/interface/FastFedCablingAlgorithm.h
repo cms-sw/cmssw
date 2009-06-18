@@ -1,6 +1,7 @@
 #ifndef DQM_SiStripCommissioningAnalysis_FastFedCablingAlgorithm_H
 #define DQM_SiStripCommissioningAnalysis_FastFedCablingAlgorithm_H
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAlgorithm.h"
 #include <vector>
 
@@ -16,7 +17,7 @@ class FastFedCablingAlgorithm : public CommissioningAlgorithm {
   
  public:
 
-  FastFedCablingAlgorithm( FastFedCablingAnalysis* const );
+  FastFedCablingAlgorithm( const edm::ParameterSet & pset, FastFedCablingAnalysis* const );
   
   virtual ~FastFedCablingAlgorithm() {;}
   

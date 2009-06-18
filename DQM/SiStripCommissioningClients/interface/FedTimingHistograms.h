@@ -11,7 +11,7 @@ class FedTimingHistograms : public CommissioningHistograms {
 
  public:
   
-  FedTimingHistograms( DQMOldReceiver* );
+  FedTimingHistograms( const edm::ParameterSet& pset, DQMOldReceiver* );
   virtual ~FedTimingHistograms();
 
   typedef SummaryHistogramFactory<FedTimingAnalysis> Factory;

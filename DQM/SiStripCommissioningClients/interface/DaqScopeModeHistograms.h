@@ -11,7 +11,7 @@ class DaqScopeModeHistograms : public CommissioningHistograms {
 
  public:
   
-  DaqScopeModeHistograms( DQMOldReceiver* );
+  DaqScopeModeHistograms( const edm::ParameterSet& pset, DQMOldReceiver* );
   virtual ~DaqScopeModeHistograms();
   
   typedef SummaryHistogramFactory<DaqScopeModeAnalysis> Factory;

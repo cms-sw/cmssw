@@ -15,8 +15,11 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-VpspScanHistograms::VpspScanHistograms( DQMOldReceiver* mui ) 
-  : CommissioningHistograms( mui, sistrip::VPSP_SCAN )
+VpspScanHistograms::VpspScanHistograms( const edm::ParameterSet& pset,
+                                        DQMOldReceiver* mui ) 
+  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("VpspScanParameters"),
+                             mui,
+                             sistrip::VPSP_SCAN )
 {
   factory_ = auto_ptr<VpspScanSummaryFactory>( new VpspScanSummaryFactory );
   LogTrace(mlDqmClient_) 
@@ -26,8 +29,11 @@ VpspScanHistograms::VpspScanHistograms( DQMOldReceiver* mui )
 
 // -----------------------------------------------------------------------------
 /** */
-VpspScanHistograms::VpspScanHistograms( DQMStore* bei ) 
-  : CommissioningHistograms( bei, sistrip::VPSP_SCAN )
+VpspScanHistograms::VpspScanHistograms( const edm::ParameterSet& pset,
+                                        DQMStore* bei ) 
+  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("VpspScanParameters"),
+                             bei,
+                             sistrip::VPSP_SCAN )
 {
   LogTrace(mlDqmClient_) 
     << "[VpspScanHistograms::" << __func__ << "]"
@@ -82,7 +88,7 @@ void VpspScanHistograms::histoAnalysis( bool debug ) {
 
     // Perform histo analysis
     VpspScanAnalysis* anal = new VpspScanAnalysis( iter->first );
-    VpspScanAlgorithm algo( anal );
+    VpspScanAlgorithm algo( this->pset(), anal );
     algo.analysis( profs );
     data()[iter->first] = anal; 
     if ( anal->isValid() ) { valid++; }

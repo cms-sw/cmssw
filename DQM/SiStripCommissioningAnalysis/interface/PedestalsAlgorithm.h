@@ -1,6 +1,7 @@
 #ifndef DQM_SiStripCommissioningAnalysis_PedestalsAlgorithm_H
 #define DQM_SiStripCommissioningAnalysis_PedestalsAlgorithm_H
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAlgorithm.h"
 #include <vector>
 
@@ -16,7 +17,7 @@ class PedestalsAlgorithm : public CommissioningAlgorithm {
   
  public:
 
-  PedestalsAlgorithm( PedestalsAnalysis* const );
+  PedestalsAlgorithm( const edm::ParameterSet & pset, PedestalsAnalysis* const );
 
   virtual ~PedestalsAlgorithm() {;}
 
@@ -41,6 +42,10 @@ class PedestalsAlgorithm : public CommissioningAlgorithm {
 
   /** Residuals and noise */
   Histo hNoise_;
+  
+  /** Analysis parameters */
+  float deadStripMax_;
+  float noisyStripMin_;
   
 };
 

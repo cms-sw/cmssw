@@ -15,8 +15,11 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-PedsOnlyHistograms::PedsOnlyHistograms( DQMOldReceiver* mui ) 
-  : CommissioningHistograms( mui, sistrip::PEDS_ONLY )
+PedsOnlyHistograms::PedsOnlyHistograms( const edm::ParameterSet& pset,
+                                        DQMOldReceiver* mui ) 
+  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("PedsOnlyParameters"),
+                             mui,
+                             sistrip::PEDS_ONLY )
 {
   factory_ = auto_ptr<PedsOnlySummaryFactory>( new PedsOnlySummaryFactory );
   LogTrace(mlDqmClient_) 
@@ -26,8 +29,11 @@ PedsOnlyHistograms::PedsOnlyHistograms( DQMOldReceiver* mui )
 
 // -----------------------------------------------------------------------------
 /** */
-PedsOnlyHistograms::PedsOnlyHistograms( DQMStore* bei ) 
-  : CommissioningHistograms( bei, sistrip::PEDS_ONLY )
+PedsOnlyHistograms::PedsOnlyHistograms( const edm::ParameterSet& pset,
+                                        DQMStore* bei ) 
+  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("PedsOnlyParameters"),
+                             bei,
+                             sistrip::PEDS_ONLY )
 {
   LogTrace(mlDqmClient_) 
     << "[PedsOnlyHistograms::" << __func__ << "]"
@@ -85,7 +91,7 @@ void PedsOnlyHistograms::histoAnalysis( bool debug ) {
     
     // Perform histo analysis
     PedsOnlyAnalysis* anal = new PedsOnlyAnalysis( iter->first );
-    PedsOnlyAlgorithm algo( anal );
+    PedsOnlyAlgorithm algo( this->pset(), anal );
     algo.analysis( profs );
     data()[iter->first] = anal; 
     if ( anal->isValid() ) { valid++; }

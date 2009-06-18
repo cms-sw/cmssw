@@ -10,8 +10,8 @@ class PedsOnlyHistograms : public virtual CommissioningHistograms {
 
  public:
   
-  PedsOnlyHistograms( DQMOldReceiver* );
-  PedsOnlyHistograms( DQMStore* );
+  PedsOnlyHistograms( const edm::ParameterSet& pset, DQMOldReceiver* );
+  PedsOnlyHistograms( const edm::ParameterSet& pset, DQMStore* );
   virtual ~PedsOnlyHistograms();
   
   void histoAnalysis( bool debug );

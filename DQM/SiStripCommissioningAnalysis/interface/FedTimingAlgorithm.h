@@ -1,6 +1,7 @@
 #ifndef DQM_SiStripCommissioningAnalysis_FedTimingAlgorithm_H
 #define DQM_SiStripCommissioningAnalysis_FedTimingAlgorithm_H
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAlgorithm.h"
 #include <vector>
 
@@ -17,7 +18,7 @@ class FedTimingAlgorithm : public CommissioningAlgorithm {
   
  public:
   
-  FedTimingAlgorithm( FedTimingAnalysis* const );
+  FedTimingAlgorithm( const edm::ParameterSet & pset, FedTimingAnalysis* const );
 
   virtual ~FedTimingAlgorithm() {;}
   

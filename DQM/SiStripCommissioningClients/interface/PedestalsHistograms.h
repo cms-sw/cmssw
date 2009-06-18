@@ -10,8 +10,8 @@ class PedestalsHistograms : public virtual CommissioningHistograms {
 
  public:
   
-  PedestalsHistograms( DQMOldReceiver* );
-  PedestalsHistograms( DQMStore* );
+  PedestalsHistograms( const edm::ParameterSet& pset, DQMOldReceiver* );
+  PedestalsHistograms( const edm::ParameterSet& pset, DQMStore* );
   virtual ~PedestalsHistograms();
   
   void histoAnalysis( bool debug );

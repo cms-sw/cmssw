@@ -12,14 +12,16 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-CommissioningHistograms::CommissioningHistograms( DQMOldReceiver* mui,
+CommissioningHistograms::CommissioningHistograms( const edm::ParameterSet& pset,
+                                                  DQMOldReceiver* mui,
 						  const sistrip::RunType& task ) 
   : factory_(0),
     task_(task),
     mui_(mui),
     bei_(0),
     data_(),
-    histos_()
+    histos_(),
+    pset_(pset)
 {
   LogTrace(mlDqmClient_)
     << "[" << __PRETTY_FUNCTION__ << "]"
@@ -45,14 +47,16 @@ CommissioningHistograms::CommissioningHistograms( DQMOldReceiver* mui,
 
 // -----------------------------------------------------------------------------
 /** */
-CommissioningHistograms::CommissioningHistograms( DQMStore* bei,
+CommissioningHistograms::CommissioningHistograms( const edm::ParameterSet& pset,
+                                                  DQMStore* bei,
 						  const sistrip::RunType& task ) 
   : factory_(0),
     task_(task),
     mui_(0),
     bei_(bei),
     data_(),
-    histos_()
+    histos_(),
+    pset_(pset)
 {
   LogTrace(mlDqmClient_)
     << "[" << __PRETTY_FUNCTION__ << "]"

@@ -1,6 +1,7 @@
 #ifndef DQM_SiStripCommissioningAnalysis_NoiseAlgorithm_H
 #define DQM_SiStripCommissioningAnalysis_NoiseAlgorithm_H
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAlgorithm.h"
 #include <vector>
 
@@ -16,7 +17,7 @@ class NoiseAlgorithm : public CommissioningAlgorithm {
   
  public:
 
-  NoiseAlgorithm( NoiseAnalysis* const );
+  NoiseAlgorithm( const edm::ParameterSet & pset, NoiseAnalysis* const );
 
   virtual ~NoiseAlgorithm() {;}
 
