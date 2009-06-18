@@ -20,7 +20,7 @@ multiTrackValidator.maxPhi = cms.double(3.15)
 
 multiTrackValidator.nintpT = cms.int32(25)
 multiTrackValidator.minpT = cms.double(0.0)
-multiTrackValidator.maxpT = cms.double(3100.0)
+multiTrackValidator.maxpT = cms.double(1100.0)
 
 multiTrackValidator.nintHit = cms.int32(75)
 multiTrackValidator.minHit = cms.double(-0.5)
