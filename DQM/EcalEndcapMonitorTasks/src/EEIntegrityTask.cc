@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2008/12/03 12:55:50 $
- * $Revision: 1.41 $
+ * $Date: 2009/06/18 09:48:16 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  *
  */
@@ -219,8 +219,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT MemSize %s", Numbers::sEE(i+1).c_str());
       meIntegrityMemTTBlockSize[i] = dqmStore_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
-      meIntegrityMemTTId[i]->setAxisTitle("pseudo-strip", 1);
-      meIntegrityMemTTId[i]->setAxisTitle("channel", 2);
+      meIntegrityMemTTBlockSize[i]->setAxisTitle("pseudo-strip", 1);
+      meIntegrityMemTTBlockSize[i]->setAxisTitle("channel", 2);
       dqmStore_->tag(meIntegrityMemTTBlockSize[i], i+1);
     }
 

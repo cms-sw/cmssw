@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2008/12/03 12:55:49 $
- * $Revision: 1.74 $
+ * $Date: 2009/06/18 09:48:15 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  *
  */
@@ -220,8 +220,8 @@ void EBIntegrityTask::setup(void){
       sprintf(histo, "EBIT MemSize %s", Numbers::sEB(i+1).c_str());
       meIntegrityMemTTBlockSize[i] = dqmStore_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
       meIntegrityMemTTBlockSize[i]->setAxisTitle("pseudo-strip", 1);
-      meIntegrityMemTTId[i]->setAxisTitle("pseudo-strip", 1);
-      meIntegrityMemTTId[i]->setAxisTitle("channel", 2);
+      meIntegrityMemTTBlockSize[i]->setAxisTitle("pseudo-strip", 1);
+      meIntegrityMemTTBlockSize[i]->setAxisTitle("channel", 2);
       dqmStore_->tag(meIntegrityMemTTBlockSize[i], i+1);
     }
 
