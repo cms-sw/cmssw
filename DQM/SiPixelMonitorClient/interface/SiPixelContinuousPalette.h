@@ -5,8 +5,8 @@
  * *
  *  Class that handles the SiPixel color codes
  * 
- *  $Date: 2007/02/01 16:44:06 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/29 14:22:41 $
+ *  $Revision: 1.1 $
  *  \author Dario Menasce
  *
  *  This namespace defines a color space to produce 
@@ -16,7 +16,7 @@
 
 namespace SiPixelContinuousPalette 
 {
-  static int r[] = {146 ,134 ,122 ,110 , 98 , 86 , 74 , 63 , 51 , 39 ,
+  static int r[] = {255 ,134 ,122 ,110 , 98 , 86 , 74 , 63 , 51 , 39 ,
              	     27 , 15 ,  3 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,
              	      0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,
              	      0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,
@@ -27,7 +27,7 @@ namespace SiPixelContinuousPalette
              	    255 ,255 ,255 ,255 ,255 ,255 ,255 ,255 ,255 ,255 ,
              	    255 ,255 ,255 ,255 ,255 ,255 ,255 ,255 ,255 ,255 } ;
 	
-  static int g[] = {  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,
+  static int g[] = {  255 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,
              	      0 ,  0 ,  0 ,  0 , 20 , 32 , 44 , 56 , 68 , 80 ,
              	     91 ,103 ,115 ,127 ,139 ,151 ,163 ,175 ,187 ,199 ,
 		    210 ,222 ,234 ,246 ,255 ,255 ,255 ,255 ,255 ,255 ,
