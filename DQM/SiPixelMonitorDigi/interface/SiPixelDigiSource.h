@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.h,v 1.10 2008/08/08 13:33:17 merkelp Exp $
+// $Id: SiPixelDigiSource.h,v 1.11 2008/09/02 12:13:13 merkelp Exp $
 //
 
 #include <memory>
@@ -69,6 +69,7 @@
        bool modOn; 
        bool twoDimOn;
        bool hiRes;
+	   bool reducedSet;
        //barrel:
        bool ladOn, layOn, phiOn;
        //forward:
