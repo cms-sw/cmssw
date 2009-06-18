@@ -17,16 +17,17 @@ from Validation.MuonIsolation.MuIsoVal_cff import *
 
 from Validation.RecoMuon.muonValidationHLTFastSim_cff import *
 
-from PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi import * 
-from Validation.RecoB.bTagAnalysis_cfi import *
-bTagValidation.jetMCSrc = 'IC5byValAlgo'
-bTagValidation.etaRanges = cms.vdouble(0.0, 1.1, 2.4)
+#from PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi import * 
+#from Validation.RecoB.bTagAnalysis_cfi import *
+#bTagValidation.jetMCSrc = 'IC5byValAlgo'
+#bTagValidation.etaRanges = cms.vdouble(0.0, 1.1, 2.4)
 
 globalValidation = cms.Sequence(trackingParticles+trackingTruthValid
                                 +tracksValidation
                                 +METRelValSequence
                                 +recoMuonValidationFastSim+muIsoVal_seq
                                 +recoMuonValidationHLTFastSim_seq
-                                +myPartons
-                                +iterativeCone5Flavour
-                                +bTagValidation)
+                               # +myPartons
+                               # +iterativeCone5Flavour
+                               # +bTagValidation
+                                )
