@@ -59,8 +59,8 @@ private:
   // Isolation
   TH1F *hMuIso03SumPt;
   TH1F *hMuIso03CaloComb;
-  TH1F *TEST;
 
+  TH1F *h4MuInvMass;
 
 };
 #endif

@@ -60,7 +60,10 @@ void MuonAnalyzer::beginJob(const EventSetup& eventSetup){
   // Isolation
   hMuIso03SumPt = fileService->make<TH1F>("MuIso03SumPt","Isolation #Delta(R)=0.3: SumPt",200,0,10);
   hMuIso03CaloComb = fileService->make<TH1F>("MuIso03CaloComb","Isolation #Delta(R)=0.3: 1.2*ECAL+0.8HCAL",200,0,10);
-  TEST = fileService->make<TH1F>("TEST","TEST",200,0,10);
+
+  // 4Mu invariant mass
+  h4MuInvMass = fileService->make<TH1F>("InvMass4MuSystem","Invariant mass of the 4 muons system",200,0,500);
+
 }
 
 void MuonAnalyzer::endJob(){
@@ -170,8 +173,6 @@ void MuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
       hMuIso03SumPt->Fill(muon->isolationR03().sumPt);
     }
 
-    TEST->Fill(muon->trackerIsoDeposit()->depositWithin(0.3));
-
     // OK, let see if we understood everything.
     // Suppose we are searching for H->ZZ->4mu. 
     // In mean the 4 muons have/are:
@@ -186,17 +187,14 @@ void MuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
     }
   }
 
-  if(selectedMuons.size()< 4) return;
+  /// simple selection... Do not want to write here my super-secret Higgs analysis ;-)
   if(selectedMuons.size() == 4){
     reco::Candidate::LorentzVector p4CM;
     for (pat::MuonCollection::const_iterator muon = selectedMuons.begin();  muon != selectedMuons.end(); ++muon){
       p4CM = p4CM + muon->p4();
     }
-    cout<<"Mass "<<p4CM.mass();
+    h4MuInvMass->Fill(p4CM.mass());
   }
-
-
-
 }
 DEFINE_FWK_MODULE(MuonAnalyzer);
 
