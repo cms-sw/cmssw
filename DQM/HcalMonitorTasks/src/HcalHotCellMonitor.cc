@@ -83,7 +83,8 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
   HFpersistentThreshold_     = ps.getUntrackedParameter<double>("HotCellMonitor_HF_persistentThreshold",persistentThreshold_);
   ZDCpersistentThreshold_    = ps.getUntrackedParameter<double>("HotCellMonitor_HF_persistentThreshold",-999);
 
-  // neighboring-cell tests
+  SiPMscale_                 = ps.getUntrackedParameter<double>("HotCellMonitor_HO_SiPMscalefactor",4.); // default scale factor of 4
+// neighboring-cell tests
   defaultNeighborParams_.DeltaIphi = ps.getUntrackedParameter<int>("HotCellMonitor_neighbor_deltaIphi", 1);
   defaultNeighborParams_.DeltaIeta = ps.getUntrackedParameter<int>("HotCellMonitor_neighbor_deltaIeta", 1);
   defaultNeighborParams_.DeltaDepth = ps.getUntrackedParameter<int>("HotCellMonitor_neighbor_deltaDepth", 0);
@@ -99,6 +100,7 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
   setupNeighborParams(ps,ZDCNeighborParams_,"ZDC");
   HFNeighborParams_.DeltaIphi*=2; // HF cell segmentation is 10 degrees, not 5 (mostly).  Need to multiply by 2 to convert from cell range to degree format
 
+  
   // Set initial event # to 0
   ievt_=0;
 
@@ -119,108 +121,92 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
       // Overall plot gets an initial " " in its name
       ProblemHotCells=m_dbe->book2D(" ProblemHotCells",
                                      " Problem Hot Cell Rate for all HCAL",
-                                     etaBins_,etaMin_,etaMax_,
-                                     phiBins_,phiMin_,phiMax_);
+				    85,-42,42,
+				    72,1,72);
       ProblemHotCells->setAxisTitle("i#eta",1);
       ProblemHotCells->setAxisTitle("i#phi",2);
       
       // Overall Problem plot appears in main directory; plots by depth appear \in subdirectory
       m_dbe->setCurrentFolder(baseFolder_+"/problem_hotcells");
-      setupDepthHists2D(ProblemHotCellsByDepth, " Problem Hot Cell Rate","");
+      SetupEtaPhiHists(ProblemHotCellsByDepth, " Problem Hot Cell Rate","");
       
       //setMinMaxHists2D(ProblemHotCellsByDepth,0,1.); // set minimum to hotmon_minErrorFlag_?
 
       // Set up plots for each failure mode of hot cells
-      stringstream units; // We'll need to set the titles individually, rather than passing units to setupDepthHists2D (since this also would affect the name of the histograms)
+      stringstream units; // We'll need to set the titles individually, rather than passing units to SetupEtaPhiHists (since this also would affect the name of the histograms)
 
       if (hotmon_test_energy_)
 	{
 	  m_dbe->setCurrentFolder(baseFolder_+"/hot_rechit_above_threshold");
-	  setupDepthHists2D(AboveEnergyThresholdCellsByDepth,
+	  SetupEtaPhiHists(AboveEnergyThresholdCellsByDepth,
 			    "Hot Cells Above Energy Threshold","");
 	  //setMinMaxHists2D(AboveEnergyThresholdCellsByDepth,0.,1.);
 	  
 	  // set more descriptive titles for plots
 	  units.str("");
-	  units<<"Hot Cells: Depth 1 -- HB > "<<HBenergyThreshold_<<" GeV, HF > "<<HFenergyThreshold_<<" GeV";
-	  AboveEnergyThresholdCellsByDepth[0]->setTitle(units.str().c_str());
+	  units<<"Hot Cells: Depth 1 -- HB > "<<HBenergyThreshold_<<" GeV, HE > "<<HEenergyThreshold_<<", HF > "<<HFenergyThreshold_<<" GeV";
+	  AboveEnergyThresholdCellsByDepth.depth[0]->setTitle(units.str().c_str());
 	  units.str("");
-	  units<<"Hot Cells: Depth 2 -- HB > "<<HBenergyThreshold_<<" GeV, HF > "<<HFenergyThreshold_<<" GeV";
-	  AboveEnergyThresholdCellsByDepth[1]->setTitle(units.str().c_str());
+	  units<<"Hot Cells: Depth 2 -- HB > "<<HBenergyThreshold_<<" GeV, HE > "<<HEenergyThreshold_<<", HF > "<<HFenergyThreshold_<<" GeV";
+	  AboveEnergyThresholdCellsByDepth.depth[1]->setTitle(units.str().c_str());
 	  units.str("");
 	  units<<"Hot Cells: Depth 3 -- HE > "<<HEenergyThreshold_<<" GeV";
-	  AboveEnergyThresholdCellsByDepth[2]->setTitle(units.str().c_str());
+	  AboveEnergyThresholdCellsByDepth.depth[2]->setTitle(units.str().c_str());
 	  units.str("");
-	  units<<"Hot Cells: HO > "<<HOenergyThreshold_<<" GeV, ZDC TBD";
-	  AboveEnergyThresholdCellsByDepth[3]->setTitle(units.str().c_str());
+	  units<<"Hot Cells: HO > "<<HOenergyThreshold_<<" GeV";
+	  AboveEnergyThresholdCellsByDepth.depth[3]->setTitle(units.str().c_str());
 	  units.str("");
-	  units<<"Hot Cells: Depth 1 -- HE > "<<HEenergyThreshold_<<" GeV";
-	  AboveEnergyThresholdCellsByDepth[4]->setTitle(units.str().c_str());
-	  units.str("");
-	  units<<"Hot Cells: Depth 2 -- HE > "<<HEenergyThreshold_<<" GeV";
-	  AboveEnergyThresholdCellsByDepth[5]->setTitle(units.str().c_str());
 	}
 
       if (hotmon_test_persistent_)
 	{
 	  m_dbe->setCurrentFolder(baseFolder_+"/hot_rechit_always_above_threshold");
-	  setupDepthHists2D(AbovePersistentThresholdCellsByDepth,
+	  SetupEtaPhiHists(AbovePersistentThresholdCellsByDepth,
 			    "Hot Cells Persistently Above Energy Threshold","");
 	  //setMinMaxHists2D(AbovePersistentThresholdCellsByDepth,0.,1.);
 	  
 	  // set more descriptive titles for plots
 	  units.str("");
-	  units<<"Hot Cells: Depth 1 -- HB > "<<HBpersistentThreshold_<<" GeV, HF > "<<HFpersistentThreshold_<<" GeV for "<< hotmon_checkNevents_<<" consec. events";
-	  AbovePersistentThresholdCellsByDepth[0]->setTitle(units.str().c_str());
+	  units<<"Hot Cells: Depth 1 -- HB > "<<HBpersistentThreshold_<<" GeV, HE > "<<HEpersistentThreshold_<<", HF > "<<HFpersistentThreshold_<<" GeV for "<< hotmon_checkNevents_<<" consec. events";
+	  AbovePersistentThresholdCellsByDepth.depth[0]->setTitle(units.str().c_str());
 	  units.str("");
-	  units<<"Hot Cells: Depth 2 -- HB > "<<HBpersistentThreshold_<<" GeV, HF > "<<HFpersistentThreshold_<<" GeV for "<<hotmon_checkNevents_<<" consec. events";
-	  AbovePersistentThresholdCellsByDepth[1]->setTitle(units.str().c_str());
+	  units<<"Hot Cells: Depth 2 -- HB > "<<HBpersistentThreshold_<<" GeV, HE > "<<HEpersistentThreshold_<<", HF > "<<HFpersistentThreshold_<<" GeV for "<<hotmon_checkNevents_<<" consec. events";
+	  AbovePersistentThresholdCellsByDepth.depth[1]->setTitle(units.str().c_str());
 	  units.str("");
 	  units<<"Hot Cells: Depth 3 -- HE > "<<HEpersistentThreshold_<<" GeV for "<<hotmon_checkNevents_<<" consec. events";
-	  AbovePersistentThresholdCellsByDepth[2]->setTitle(units.str().c_str());
+	  AbovePersistentThresholdCellsByDepth.depth[2]->setTitle(units.str().c_str());
 	  units.str("");
-	  units<<"Hot Cells:  HO > "<<HOpersistentThreshold_<<" GeV, ZDC TBD for "<<hotmon_checkNevents_<<" consec. events";
-	  AbovePersistentThresholdCellsByDepth[3]->setTitle(units.str().c_str());
+	  units<<"Hot Cells:  HO > "<<HOpersistentThreshold_<<" GeV for "<<hotmon_checkNevents_<<" consec. events";
+	  AbovePersistentThresholdCellsByDepth.depth[3]->setTitle(units.str().c_str());
 	  units.str("");
-	  units<<"Hot Cells: Depth 1 -- HE > "<<HEpersistentThreshold_<<" GeV for "<<hotmon_checkNevents_<<" consec. events";
-	  AbovePersistentThresholdCellsByDepth[4]->setTitle(units.str().c_str());
-	  units.str("");
-	  units<<"Hot Cells: Depth 2 -- HE > "<<HEpersistentThreshold_<<" GeV for "<<hotmon_checkNevents_<<" consec. events";
-	  AbovePersistentThresholdCellsByDepth[5]->setTitle(units.str().c_str());
 	}
 
       if (hotmon_test_pedestal_)
 	{
 	  m_dbe->setCurrentFolder(baseFolder_+"/hot_pedestaltest");
-	  setupDepthHists2D(AbovePedestalHotCellsByDepth,"Hot Cells Above Pedestal","");
+	  SetupEtaPhiHists(AbovePedestalHotCellsByDepth,"Hot Cells Above Pedestal","");
 	  //setMinMaxHists2D(AbovePedestalHotCellsByDepth,0.,1.);
 
 	  // set more descriptive titles for pedestal plots
 	  units.str("");
 	  units<<"Hot Cells Above Pedestal Depth 1 -- HB > ped + "<<HBnsigma_<<" #sigma, HF > ped + "<<HFnsigma_<<" #sigma";
-	  AbovePedestalHotCellsByDepth[0]->setTitle(units.str().c_str());
+	  AbovePedestalHotCellsByDepth.depth[0]->setTitle(units.str().c_str());
 	  units.str("");
 	  units<<"Hot Cells Above Pedestal Depth 2 -- HB > ped + "<<HBnsigma_<<" #sigma, HF > ped + "<<HFnsigma_<<" #sigma";
-	  AbovePedestalHotCellsByDepth[1]->setTitle(units.str().c_str());
+	  AbovePedestalHotCellsByDepth.depth[1]->setTitle(units.str().c_str());
 	  units.str("");
 	  units<<"Hot Cells Above Pedestal Depth 3 -- HE > ped + "<<HEnsigma_<<" #sigma";
-	  AbovePedestalHotCellsByDepth[2]->setTitle(units.str().c_str());
+	  AbovePedestalHotCellsByDepth.depth[2]->setTitle(units.str().c_str());
 	  units.str("");
 	  units<<"Hot Cells Above Pedestal Depth 4 -- HO > ped + "<<HOnsigma_<<" #sigma, ZDC TBD";
-	  AbovePedestalHotCellsByDepth[3]->setTitle(units.str().c_str());
-	  units.str("");
-	  units<<"Hot Cells Above Pedestal Depth 1 -- HE > ped + "<<HEnsigma_<<" #sigma";
-	  AbovePedestalHotCellsByDepth[4]->setTitle(units.str().c_str());
-	  units.str("");
-	  units<<"Hot Cells Above Pedestal Depth 2 -- HE > ped + "<<HEnsigma_<<" #sigma";
-	  AbovePedestalHotCellsByDepth[5]->setTitle(units.str().c_str());
+	  AbovePedestalHotCellsByDepth.depth[3]->setTitle(units.str().c_str());
 	  units.str("");
 	}
 
       if (hotmon_test_neighbor_)
 	{
 	  m_dbe->setCurrentFolder(baseFolder_+"/hot_neighbortest");
-	  setupDepthHists2D(AboveNeighborsHotCellsByDepth,"Hot Cells Failing Neighbor Test","");
+	  SetupEtaPhiHists(AboveNeighborsHotCellsByDepth,"Hot Cells Failing Neighbor Test","");
 	  //setMinMaxHists2D(AboveNeighborsHotCellsByDepth,0.,1.);
 	}
 
@@ -249,9 +235,9 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
 	      d_HErechitenergy=m_dbe->book1D("HE_rechitenergy","HE rechit energy",1500,-10,140);
 	      d_HOrechitenergy=m_dbe->book1D("HO_rechitenergy","HO rechit energy",1500,-10,140);
 	      d_HFrechitenergy=m_dbe->book1D("HF_rechitenergy","HF rechit energy",1500,-10,140);
-	      setupDepthHists2D(d_avgrechitenergymap,
+	      SetupEtaPhiHists(d_avgrechitenergymap,
 				"Rec hit energy per cell","");
-	      setupDepthHists2D(d_avgrechitoccupancymap,"Rec hit occupancy per cell","");
+	      SetupEtaPhiHists(d_avgrechitoccupancymap,"Rec hit occupancy per cell","");
 	    }
 	  if (hotmon_test_neighbor_)
 	    {
@@ -417,9 +403,9 @@ void HcalHotCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
   fOutput << buffer;
   */
 
-  int eta,phi;
+  int ieta=0;
+  int iphi=0;
   float binval;
-  int mydepth;
 
   int subdet;
   char* subdetname;
@@ -428,59 +414,60 @@ void HcalHotCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
       std::cout <<"<HcalHotCellMonitor>  Summary of Hot Cells in Run: "<<std::endl;
       std::cout <<"(Error rate must be >= "<<hotmon_minErrorFlag_*100.<<"% )"<<std::endl;  
     }
-  for (int ieta=1;ieta<=etaBins_;++ieta)
+
+  for (unsigned int d=0;d<ProblemHotCellsByDepth.depth.size();++d)
     {
-      for (int iphi=1;iphi<=phiBins_;++iphi)
-        {
-          eta=ieta+int(etaMin_)-1;
-          phi=iphi+int(phiMin_)-1;
-	  
-          for (int d=0;d<6;++d)
-            {
-	      binval=ProblemHotCellsByDepth[d]->getBinContent(ieta,iphi)/ievt_;
+      for (int hist_eta=1;hist_eta<=ProblemHotCellsByDepth.depth[d]->getNbinsX();++hist_eta)
+	{
+	  for (int hist_phi=1;hist_phi<=ProblemHotCellsByDepth.depth[d]->getNbinsY();++hist_phi)
+	    {
+	      ieta=CalcIeta(hist_eta,d+1);
+	      if (ieta==-9999) continue;
+	      iphi=hist_phi;
+
+	      binval=ProblemHotCellsByDepth.depth[d]->getBinContent(ieta,iphi)/ievt_;
 	     
-	      // Set subdetector labels for output
-	      if (d<2) // HB/HF
+	        // Set subdetector labels for output
+	      if (d<2) // HB/HE/HF
 		{
-		  if (abs(eta)<29)
-		    {
-		      subdetname="HB";
-		      subdet=1;
-		    }
-		  else
+		  // correct for HF offset 
+		  if (hist_eta< 14) // shift negative HF ieta values by +1
 		    {
 		      subdetname="HF";
 		      subdet=4;
 		    }
-		}
-	      else if (d==3)
-		{
-		  if (abs(eta)==43)
+		  else if (hist_eta>72) // shift positive HF ieta values by -1
 		    {
-		      subdetname="ZDC";
-		      subdet=7; // correct value??
+		      subdetname="HF";
+		      subdet=4;
 		    }
-		  else
+		  else if (abs(ieta)<=16) // HB extends to |ieta|=16 in depth 1, 15 in depth 2
 		    {
-		      subdetname="HO";
-		      subdet=3;
+		      subdetname="HB";
+		      subdet=1;
+		    }
+		  else // HE at |ieta|=16 is in depth 3; don't worry about it here
+		    {
+		      subdetname="HE";
+		      subdet=2;
 		    }
 		}
-	      else
+	      else if (d==2) // depth 3 is HE only
 		{
 		  subdetname="HE";
 		  subdet=2;
 		}
-	      // Set correct depth label
-	      if (d>3)
-		mydepth=d-3;
-	      else
-		mydepth=d+1;
-	      HcalDetId myid((HcalSubdetector)(subdet), eta, phi, mydepth);
-	      if (!validDetId((HcalSubdetector)(subdet), eta, phi, mydepth))
+	      else // depth 4 is HO only
+		{
+		  subdetname="HO";
+		  subdet=3;
+		}
+
+	      HcalDetId myid((HcalSubdetector)(subdet), ieta, iphi, d+1);
+	      if (!validDetId((HcalSubdetector)(subdet), ieta, iphi, d+1))
 		continue;
 	      if (fVerbosity>0 && binval>hotmon_minErrorFlag_)
-		std::cout <<"Hot Cell "<<subdet<<"("<<eta<<", "<<phi<<", "<<mydepth<<"):  "<<binval*100.<<"%"<<std::endl;
+		std::cout <<"Hot Cell "<<subdet<<"("<<ieta<<", "<<iphi<<", "<<d+1<<"):  "<<binval*100.<<"%"<<std::endl;
 	      
 	      if (binval<=hotmon_minErrorFlag_)
 		continue;
@@ -500,14 +487,10 @@ void HcalHotCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
 		  else
 		    myqual[myid] &=~mask;
 		}
-	      /*
-	      sprintf(buffer, "  %15i %15i %15i %15s %8X %10X \n",eta,phi,mydepth,subdetname,int(value<<BITSHIFT),int(myid.rawId()));
-	      fOutput<<buffer;
-	      */
-	    } // for (int d=0;d<6;++d) // loop over depth histograms
-	} // for (int iphi=1;iphi<=phiBins_;++iphi)
-    } // for (int ieta=1;ieta<=etaBins_;++ieta)
-  //fOutput.close();
+
+	    } // for (int hist_phi=1;...)
+	} // for (int hist_eta=1;...)
+    } // for (int d=0;d<ProblemHotCellsByDepth.depth.size();d++)
 
   return;
 
@@ -599,22 +582,22 @@ void HcalHotCellMonitor::fillHotHistosAtEndRun()
   
   if (hotmon_test_persistent_) 
     {
-      for (unsigned int i=0;i<AbovePersistentThresholdCellsByDepth.size();++i)
-	AbovePersistentThresholdCellsByDepth[i]->setBinContent(0,0,ievt_);
+      for (unsigned int i=0;i<AbovePersistentThresholdCellsByDepth.depth.size();++i)
+	AbovePersistentThresholdCellsByDepth.depth[i]->setBinContent(0,0,ievt_);
       if (ievt_%hotmon_checkNevents_>0)
 	fillNevents_persistentenergy();
     }
   if (hotmon_test_pedestal_)
     {
-      for (unsigned int i=0;i<AbovePedestalHotCellsByDepth.size();++i)
-	AbovePedestalHotCellsByDepth[i]->setBinContent(0,0,ievt_);
+      for (unsigned int i=0;i<AbovePedestalHotCellsByDepth.depth.size();++i)
+	AbovePedestalHotCellsByDepth.depth[i]->setBinContent(0,0,ievt_);
       if (ievt_%hotmon_checkNevents_ >0)
 	fillNevents_pedestal();
     }
   if (hotmon_test_neighbor_)
     {
-      for (unsigned int i=0;i<AboveNeighborsHotCellsByDepth.size();++i)
-	AboveNeighborsHotCellsByDepth[i]->setBinContent(0,0,ievt_);
+      for (unsigned int i=0;i<AboveNeighborsHotCellsByDepth.depth.size();++i)
+	AboveNeighborsHotCellsByDepth.depth[i]->setBinContent(0,0,ievt_);
       if (ievt_%hotmon_checkNevents_ >0) fillNevents_neighbor();
     }
   if (hotmon_test_energy_    && ievt_%hotmon_checkNevents_   >0) fillNevents_energy();
@@ -655,8 +638,8 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
 
      if (hotmon_makeDiagnostics_)
        {
-	 ++rechit_occupancy_sum[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
-	 rechit_energy_sum[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]+=en;
+	 ++rechit_occupancy_sum[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	 rechit_energy_sum[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]+=en;
        }
      if (id.subdet()==HcalBarrel)
        {
@@ -664,21 +647,19 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
 	 if (hotmon_makeDiagnostics_) d_HBrechitenergy->Fill(en);
 	 if (en>=HBenergyThreshold_)
 	   {
-	   ++aboveenergy[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
+	     ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
 	   }
 	 if (en>=HBpersistentThreshold_)
-	   ++abovepersistent[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
+	   ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
        }
      else if (id.subdet()==HcalEndcap)
        {
 	 if (!checkHE_) continue;
-	 if (depth<=2) // HE depths 1 and 2 get shifted up by 4
-	   depth=depth+4; 
 	 if (hotmon_makeDiagnostics_) d_HErechitenergy->Fill(en);
 	 if (en>=HEenergyThreshold_)
-	   ++aboveenergy[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
+	   ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
 	 if (en>=HEpersistentThreshold_)
-	   ++abovepersistent[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
+	   ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
        }
      if (hotmon_test_neighbor_) rechitEnergies_[id]=en;
    } //for (HBHERecHitCollection::const_iterator HBHEiter=...)
@@ -697,14 +678,25 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
 	 
 	 if (hotmon_makeDiagnostics_)
 	   {
-	     ++rechit_occupancy_sum[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
-	     rechit_energy_sum[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]+=en;
+	     ++rechit_occupancy_sum[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	     rechit_energy_sum[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]+=en;
 	   }
 	 if (hotmon_makeDiagnostics_) d_HOrechitenergy->Fill(en);
-	 if (en>=HOenergyThreshold_)
-	   ++aboveenergy[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
-	 if (en>=HOpersistentThreshold_)
-	   ++abovepersistent[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
+	 if (isSiPM(ieta,iphi,depth))
+	   {
+	    if (en>=HOenergyThreshold_*SiPMscale_)
+	      ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]; 
+	    if (en>=HOpersistentThreshold_*SiPMscale_)
+	      ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	   }
+	 else
+	   {
+	     if (en>=HOenergyThreshold_)
+	      ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]; 
+	    if (en>=HOpersistentThreshold_)
+	      ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	   }
+
 	 if (hotmon_test_neighbor_) rechitEnergies_[id]=en;
        }
    } // if (checkHO_)
@@ -723,25 +715,25 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
 
 	 if (hotmon_makeDiagnostics_)
 	   {
-	     ++rechit_occupancy_sum[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
-	     rechit_energy_sum[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]+=en;
+	     ++rechit_occupancy_sum[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	     rechit_energy_sum[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]=en;
 	   }
 	 if (hotmon_makeDiagnostics_) d_HFrechitenergy->Fill(en);
 	 if (en>=HFenergyThreshold_)
 	   {
-	     ++aboveenergy[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]; 
+	     ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
 	   }
 	 if (en>=HFpersistentThreshold_)
-	   ++abovepersistent[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
+	   ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
 	 if (hotmon_test_neighbor_) rechitEnergies_[id]=en;
        }
    } // if (checkHF_)
 
  // Fill Dummy histogram value each event
- for (unsigned int i=0;i<AboveEnergyThresholdCellsByDepth.size();++i)
-   AboveEnergyThresholdCellsByDepth[i]->setBinContent(0,0,ievt_);
- for (unsigned int i=0;i<AbovePersistentThresholdCellsByDepth.size();++i)
-   AbovePersistentThresholdCellsByDepth[i]->setBinContent(0,0,ievt_);
+ for (unsigned int i=0;i<AboveEnergyThresholdCellsByDepth.depth.size();++i)
+   AboveEnergyThresholdCellsByDepth.depth[i]->setBinContent(0,0,ievt_);
+ for (unsigned int i=0;i<AbovePersistentThresholdCellsByDepth.depth.size();++i)
+   AbovePersistentThresholdCellsByDepth.depth[i]->setBinContent(0,0,ievt_);
 
  
  // Fill histograms 
@@ -774,6 +766,8 @@ void HcalHotCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollectio
 {
   // Compares energy to energy of neighboring cells.
   // This is a slightly simplified version of D0's NADA algorithm
+  // 17 June 2009 -- this needs major work.  I'm not sure I have the [eta][phi][depth] array mapping correct everywhere. 
+  // Maybe even tear it apart and start again?
 
   if (showTiming)
     {
@@ -845,7 +839,7 @@ void HcalHotCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollectio
 	 // Case 0:  energy > max value; it's marked as hot regardless of neighbors
 	 if (en>HBNeighborParams_.maxEnergy)
 	   {
-	     aboveneighbors[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
+	     aboveneighbors[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
 	     continue;
 	   }
 
@@ -887,19 +881,16 @@ void HcalHotCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollectio
 	 if ((1.*enNeighbor/en)>HBNeighborParams_.HotEnergyFrac && en>0 && enNeighbor>0)
 	   continue;
 	 // Case 3:  Tests passed; cell marked as hot
-	 aboveneighbors[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
+	 aboveneighbors[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]++;
        }
 
      else if (id.subdet()==HcalEndcap)
        {
 	 if (!checkHE_) continue;
-
-	 if (depth<=2) // HE depths 1 and 2 get shifted up by 4
-	   depth+=4;
 	 // Case 0:  energy > max value; it's marked as hot regardless of neighbors
 	 if (en>HENeighborParams_.maxEnergy)
 	   {
-	     aboveneighbors[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
+	     aboveneighbors[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]++;
 	     continue;
 	   }
 	 if (en<HENeighborParams_.minCellEnergy)
@@ -945,7 +936,7 @@ void HcalHotCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollectio
 	 if ((1.*enNeighbor/en)>HENeighborParams_.HotEnergyFrac && en>0 && enNeighbor>0)
 	   continue;
 	 // Case 3:  Tests passed; cell marked as hot
-	 aboveneighbors[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
+	 aboveneighbors[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]++;
        }
 } //for (HBHERecHitCollection::const_iterator HBHEiter=...)
 
@@ -963,7 +954,7 @@ void HcalHotCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollectio
 	 // Case 0:  energy > max value; it's marked as hot regardless of neighbors
 	 if (en>HONeighborParams_.maxEnergy)
 	   {
-	     aboveneighbors[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
+	     aboveneighbors[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]++;
 	     continue;
 	   }
 	 if (en<HONeighborParams_.minCellEnergy)
@@ -998,6 +989,7 @@ void HcalHotCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollectio
 	 if (hotmon_makeDiagnostics_)
 	   d_HOenergyVsNeighbor->Fill(en,enNeighbor);
 
+	 // We'll need to revisit this to deal with SiPMs?
 	 // Case 1:  Not enough good neighbors found
 	 if (neighborsfound==0)
 	   continue;
@@ -1005,7 +997,7 @@ void HcalHotCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollectio
 	 if ((1.*enNeighbor/en)>HONeighborParams_.HotEnergyFrac && en>0 && enNeighbor>0)
 	   continue;
 	 // Case 3:  Tests passed; cell marked as hot
-	 aboveneighbors[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
+	 aboveneighbors[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]++;
        } // loop over hits
    } // if (checkHO_)
  
@@ -1023,7 +1015,7 @@ void HcalHotCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollectio
 	 // Case 0:  energy > max value; it's marked as hot regardless of neighbors
 	 if (en>HFNeighborParams_.maxEnergy)
 	   {
-	     aboveneighbors[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
+	     aboveneighbors[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]++;
 	     continue;
 	   }
 	 if (en<HFNeighborParams_.minCellEnergy)
@@ -1067,13 +1059,13 @@ void HcalHotCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollectio
 	 if ((1.*enNeighbor/en)>HFNeighborParams_.HotEnergyFrac && en>0 && enNeighbor>0)
 	   continue;
 	 // Case 3:  Tests passed; cell marked as hot
-	 aboveneighbors[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
+	 aboveneighbors[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]++;
        } // loop over all hits
    } // if (checkHF_)
  
  // Fill Dummy histogram value each event
- for (unsigned int i=0;i<AboveNeighborsHotCellsByDepth.size();++i)
-   AboveNeighborsHotCellsByDepth[i]->setBinContent(0,0,ievt_);
+ for (unsigned int i=0;i<AboveNeighborsHotCellsByDepth.depth.size();++i)
+   AboveNeighborsHotCellsByDepth.depth[i]->setBinContent(0,0,ievt_);
 
  // Fill histograms 
   if (ievt_%hotmon_checkNevents_==0)
@@ -1143,8 +1135,7 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
       ieta=digi.id().ieta();
       iphi=digi.id().iphi();
       depth=digi.id().depth();
-      if ((HcalSubdetector)(digi.id().subdet())==HcalEndcap && depth<=2) // shift HE depths 1 and 2 up by 4
-	depth=depth+4;
+
       HcalDetId myid = digi.id();
       cond.makeHcalCalibrationWidth(digi.id(),&widths); // use in CMSSW_2_X
       //const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id()); // use in CMSSW_3_X
@@ -1188,7 +1179,7 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
       if (pedestal_thresholds_.find(myid)!=pedestal_thresholds_.end())
 	{
 	  if (ADCsum > pedestal_thresholds_[myid])
-	    abovepedestal[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
+	    abovepedestal[CalcEtaBin(myid.subdet(),ieta,depth)][iphi-1][depth-1]++;
 	  if (hotmon_makeDiagnostics_)
 	    {
 	      if (widths_[myid]==0) continue;
@@ -1263,7 +1254,7 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
 	  if (pedestal_thresholds_.find(myid)!=pedestal_thresholds_.end())
 	    {
 	      if (ADCsum > pedestal_thresholds_[myid])
-		abovepedestal[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
+		abovepedestal[CalcEtaBin(myid.subdet(),ieta,depth)][iphi-1][depth-1]++;
 	      if (hotmon_makeDiagnostics_)
 		{
 		  if (widths_[myid]==0) continue;
@@ -1336,7 +1327,7 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
 	  if (pedestal_thresholds_.find(myid)!=pedestal_thresholds_.end())
 	    {
 	      if (ADCsum > pedestal_thresholds_[myid])
-		abovepedestal[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
+		abovepedestal[CalcEtaBin(myid.subdet(),ieta,depth)][iphi-1][depth-1]++;
 	      if (hotmon_makeDiagnostics_)
 		{
 		  if (widths_[myid]==0) continue;
@@ -1351,8 +1342,8 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
     } // if (checkHF_)
 
   // Fill Dummy histogram value each event
-  for (unsigned int i=0;i<AbovePedestalHotCellsByDepth.size();++i)
-    AbovePedestalHotCellsByDepth[i]->setBinContent(0,0,ievt_);
+  for (unsigned int i=0;i<AbovePedestalHotCellsByDepth.depth.size();++i)
+    AbovePedestalHotCellsByDepth.depth[i]->setBinContent(0,0,ievt_);
 
   // Fill histograms 
   if (ievt_%hotmon_checkNevents_==0)
@@ -1361,7 +1352,7 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
       if (hotmon_test_pedestal_) fillNevents_pedestal();
     }
 
-   if (showTiming)
+  if (showTiming)
     {
       cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellMonitor PROCESSEVENT_PEDESTAL -> "<<cpu_timer.cpuTime()<<std::endl;
     }
@@ -1386,43 +1377,58 @@ void HcalHotCellMonitor::fillNevents_persistentenergy(void)
     std::cout <<"<HcalHotCellMonitor::fillNevents_persistentenergy> FILLING PERSISTENT ENERGY PLOTS"<<std::endl;
   
 
-  for (unsigned int h=0;h<AbovePersistentThresholdCellsByDepth.size();++h)
-    AbovePersistentThresholdCellsByDepth[h]->setBinContent(0,0,ievt_);
+  for (unsigned int h=0;h<AbovePersistentThresholdCellsByDepth.depth.size();++h)
+    AbovePersistentThresholdCellsByDepth.depth[h]->setBinContent(0,0,ievt_);
 
   int ieta=0;
   int iphi=0;
-  for (int eta=0;eta<(etaBins_-2);++eta)
-    {
-      ieta=eta-int((etaBins_-2)/2);
-      for (int phi=0;phi<72;++phi)
-        {
-	  iphi=phi+1;
-	  for (int depth=0;depth<6;++depth) // this is one unit less "true" depth (for indexing purposes)
-            {
-	      if (hotmon_makeDiagnostics_ && rechit_occupancy_sum[eta][phi][depth]>0)
-		{
-		  // Fill average energy plots
-		  
-		  d_avgrechitenergymap[depth]->Fill(ieta,iphi,rechit_energy_sum[eta][phi][depth]);
-		  d_avgrechitoccupancymap[depth]->Fill(ieta,iphi,rechit_occupancy_sum[eta][phi][depth]);
-		  rechit_energy_sum[eta][phi][depth]=0;
-		  rechit_occupancy_sum[eta][phi][depth]=0;
-		}
-	      
-	      // MUST BE ABOVE ENERGY THRESHOLD FOR ALL N EVENTS
-	      if (abovepersistent[eta][phi][depth]<hotmon_checkNevents_)
-		{
-		  abovepersistent[eta][phi][depth]=0;
-		  continue;  		
-		}
-	      if (fVerbosity>0) std::cout <<"HOT CELL; PERSISTENT ENERGY at eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<(depth<5 ? depth+1 : depth -3)<<std::endl;
-	      AbovePersistentThresholdCellsByDepth[depth]->Fill(ieta,iphi,abovepersistent[eta][phi][depth]);
-	      AbovePersistentThresholdCellsByDepth[depth]->setBinContent(0,0,ievt_);
-	      //ProblemHotCellsByDepth[depth]->Fill(ieta,iphi,abovepersistent[eta][phi][depth]);
-	      abovepersistent[eta][phi][depth]=0; // reset counter
-	    } // for (int depth=0;depth<6;++depth)
-	} // for (int phi=0;...)
-    } // for (int eta=0;...)
+  int etabins=0;
+  int phibins=0;
+
+   for (unsigned int depth=0;depth<AbovePersistentThresholdCellsByDepth.depth.size();++depth)
+     { 
+       etabins=AbovePersistentThresholdCellsByDepth.depth[depth]->getNbinsX();
+       phibins=AbovePersistentThresholdCellsByDepth.depth[depth]->getNbinsY();
+
+       for (int eta=0;eta<etabins;++eta)
+	 {
+	   for (int phi=0;phi<phibins;++phi)
+	     {
+	       iphi=phi+1;
+	       for (int subdet=1;subdet<=4;++subdet)
+		 {
+		   ieta=CalcIeta((HcalSubdetector)subdet,eta,depth+1); //converts bin to ieta
+		   if (ieta==-9999) continue;
+		   if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1))
+		     continue;
+		   if (subdet==HcalForward) // shift HcalForward ieta by 1 for filling purposes
+		      ieta<0 ? ieta-- : ieta++;
+	
+		   if (hotmon_makeDiagnostics_ && rechit_occupancy_sum[eta][phi][depth]>0)
+		     {
+		       // Fill average energy plots
+		       
+		       d_avgrechitenergymap.depth[depth]->Fill(ieta,iphi,rechit_energy_sum[eta][phi][depth]);
+		       d_avgrechitoccupancymap.depth[depth]->Fill(ieta,iphi,rechit_occupancy_sum[eta][phi][depth]);
+		       rechit_energy_sum[eta][phi][depth]=0;
+		       rechit_occupancy_sum[eta][phi][depth]=0;
+		     }
+		   
+		   // MUST BE ABOVE ENERGY THRESHOLD FOR ALL N EVENTS
+		   if (abovepersistent[eta][phi][depth]<hotmon_checkNevents_)
+		     {
+		       abovepersistent[eta][phi][depth]=0;
+		       continue;  		
+		     }
+		   if (fVerbosity>0) std::cout <<"HOT CELL; PERSISTENT ENERGY at subdet = "<<subdet<<", eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth<<std::endl;
+		   AbovePersistentThresholdCellsByDepth.depth[depth]->Fill(ieta,iphi,abovepersistent[eta][phi][depth]);
+		   AbovePersistentThresholdCellsByDepth.depth[depth]->setBinContent(0,0,ievt_);
+		   //ProblemHotCellsByDepth.depth[depth]->Fill(ieta,iphi,abovepersistent[eta][phi][depth]);
+		   abovepersistent[eta][phi][depth]=0; // reset counter
+		 } // for (int subdet=1; subdet<=4;++subdet)
+	     } // for (int phi=0;...)
+	 } // for (int eta=0;...)
+     } // for (unsigned int depth=0;...)
   FillUnphysicalHEHFBins(AbovePersistentThresholdCellsByDepth);
 
   if (showTiming)
@@ -1449,8 +1455,8 @@ void HcalHotCellMonitor::fillNevents_pedestal(void)
   if (fVerbosity>0)
     std::cout <<"<HcalHotCellMonitor::fillNevents_pedestal> FILLING HOT CELL PEDESTAL PLOTS"<<std::endl;
 
-  for (unsigned int h=0;h<AbovePedestalHotCellsByDepth.size();++h)
-    AbovePedestalHotCellsByDepth[h]->setBinContent(0,0,ievt_);
+  for (unsigned int h=0;h<AbovePedestalHotCellsByDepth.depth.size();++h)
+    AbovePedestalHotCellsByDepth.depth[h]->setBinContent(0,0,ievt_);
 
   if (hotmon_makeDiagnostics_)
     {
@@ -1471,37 +1477,52 @@ void HcalHotCellMonitor::fillNevents_pedestal(void)
 	}
     }
 
+  
   int ieta=0;
   int iphi=0;
-  for (int eta=0;eta<(etaBins_-2);++eta)
-    {
-      ieta=eta-int((etaBins_-2)/2);
-      for (int phi=0;phi<72;++phi)
-        {
-	  iphi=phi+1;
-	  for (int depth=0;depth<6;++depth) // this is one unit less "true" depth (for indexing purposes)
-            {
-	      if (abovepedestal[eta][phi][depth]==0)
-		continue;
-	      // Require that event above pedestal for all N events?
+  int etabins=0;
+  int phibins=0;
 
-	      if (abovepedestal[eta][phi][depth]<hotmon_checkNevents_)
-		{
-		  abovepedestal[eta][phi][depth]=0;
-		  continue; // cell was above pedestal threshold at least once; ignore it
-		}
+   for (unsigned int depth=0;depth<AbovePedestalHotCellsByDepth.depth.size();++depth)
+     { 
+       etabins=AbovePedestalHotCellsByDepth.depth[depth]->getNbinsX();
+       phibins=AbovePedestalHotCellsByDepth.depth[depth]->getNbinsY();
 
-	      if (fVerbosity>0) 
-		std::cout <<"HOT CELL; ABOVE PEDESTAL THRESHOLD at eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<(depth<5 ? depth+1 : depth -3)<<std::endl;
+       for (int eta=0;eta<etabins;++eta)
+	 {
+	   for (int phi=0;phi<phibins;++phi)
+	     {
+	       iphi=phi+1;
+	       for (int subdet=1;subdet<=4;++subdet)
+		 {
+		   ieta=CalcIeta((HcalSubdetector)subdet,eta,depth+1); //converts bin to ieta
+		   if (ieta==-9999) continue;
+		   if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1))
+		     continue;
+		   if (subdet==HcalForward) // shift HcalForward ieta by 1 for filling purposes
+		      ieta<0 ? ieta-- : ieta++;
 
-	      AbovePedestalHotCellsByDepth[depth]->Fill(ieta,iphi,abovepedestal[eta][phi][depth]);
-	      AbovePedestalHotCellsByDepth[depth]->setBinContent(0,0,ievt_);
-	      //ProblemHotCellsByDepth[depth]->Fill(ieta,iphi,abovepedestal[eta][phi][depth]);
-	      abovepedestal[eta][phi][depth]=0;
-	  	  
-	    } // for (int depth=0;depth<6;++depth)
-	} // for (int phi=0;...)
-    } // for (int eta=0;...)
+		   if (abovepedestal[eta][phi][depth]==0)
+		     continue;
+		   // Require that event above pedestal for all N events?
+		   
+		   if (abovepedestal[eta][phi][depth]<hotmon_checkNevents_)
+		     {
+		       abovepedestal[eta][phi][depth]=0;
+		       continue; // cell was above pedestal threshold at least once; ignore it
+		     }
+
+		   if (fVerbosity>0) 
+		     std::cout <<"HOT CELL; ABOVE PEDESTAL THRESHOLD at subdet = "<<subdet<<", eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth+1<<std::endl;
+
+		   AbovePedestalHotCellsByDepth.depth[depth]->Fill(ieta,iphi,abovepedestal[eta][phi][depth]);
+		   AbovePedestalHotCellsByDepth.depth[depth]->setBinContent(0,0,ievt_);
+		   //ProblemHotCellsByDepth.depth[depth]->Fill(ieta,iphi,abovepedestal[eta][phi][depth]);
+		   abovepedestal[eta][phi][depth]=0;
+		 }
+	     } // for (int phi=0;...)
+	 } // for (int eta=0;...)
+     } // for (unsigned int depth=0;...)
   FillUnphysicalHEHFBins(AbovePedestalHotCellsByDepth);
 
   if (showTiming)
@@ -1530,32 +1551,45 @@ void HcalHotCellMonitor::fillNevents_energy(void)
   if (fVerbosity>0)
     std::cout <<"<HcalHotCellMonitor::fillNevents_energy> ABOVE-ENERGY-THRESHOLD PLOTS"<<std::endl;
 
-  for (unsigned int h=0;h<AboveEnergyThresholdCellsByDepth.size();++h)
-    AboveEnergyThresholdCellsByDepth[h]->setBinContent(0,0,ievt_);
+  for (unsigned int h=0;h<AboveEnergyThresholdCellsByDepth.depth.size();++h)
+    AboveEnergyThresholdCellsByDepth.depth[h]->setBinContent(0,0,ievt_);
 
   int ieta=0;
   int iphi=0;
-  for (int eta=0;eta<(etaBins_-2);++eta)
-    {
-      ieta=eta-int((etaBins_-2)/2);
-      for (int phi=0;phi<72;++phi)
-        {
-	  iphi=phi+1;
-	  for (int depth=0;depth<6;++depth) 
-            {
-	      if (aboveenergy[eta][phi][depth]>0)
-		{
-		  if (fVerbosity>2) 
-		    std::cout <<"HOT CELL; ABOVE ENERGY THRESHOLD at eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<(depth>4 ? depth -1 : depth -3)<<std::endl;
-		  AboveEnergyThresholdCellsByDepth[depth]->Fill(ieta,iphi, aboveenergy[eta][phi][depth]);
-		  AboveEnergyThresholdCellsByDepth[depth]->setBinContent(0,0,ievt_);
-		  //ProblemHotCellsByDepth[depth]->Fill(ieta,iphi,aboveenergy[eta][phi][depth]);
-		  aboveenergy[eta][phi][depth]=0;
-		} // if (aboveenergy[eta][phi][depth])
+  int etabins=0;
+  int phibins=0;
+  
+  for (unsigned int depth=0;depth<AboveEnergyThresholdCellsByDepth.depth.size();++depth)
+    { 
+      etabins=AboveEnergyThresholdCellsByDepth.depth[depth]->getNbinsX();
+      phibins=AboveEnergyThresholdCellsByDepth.depth[depth]->getNbinsY();
+      
+       for (int eta=0;eta<etabins;++eta)
+	 {
+	   for (int phi=0;phi<phibins;++phi)
+	     {
+	       iphi=phi+1;
+	       for (int subdet=1;subdet<=4;++subdet)
+		 {
+		   ieta=CalcIeta((HcalSubdetector)subdet,eta,depth+1); //converts bin to ieta
+		   if (ieta==-9999) continue;
+		   if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1))
+		     continue;
+		   if (subdet==HcalForward) // shift HcalForward ieta by 1 for filling purposes
+		      ieta<0 ? ieta-- : ieta++;
 
-	    } // for (int depth=0;depth<6;++depth)
-	} // for (int phi=0;...)
-    } // for (int eta=0;...)
+		   if (aboveenergy[eta][phi][depth]>0)
+		     {
+		       if (fVerbosity>2) 
+			 std::cout <<"HOT CELL; ABOVE ENERGY THRESHOLD at subdet = "<<subdet<<", eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth+1<<std::endl;
+		       AboveEnergyThresholdCellsByDepth.depth[depth]->Fill(ieta,iphi, aboveenergy[eta][phi][depth]);
+		       AboveEnergyThresholdCellsByDepth.depth[depth]->setBinContent(0,0,ievt_);
+		       aboveenergy[eta][phi][depth]=0;
+		     } // if (aboveenergy[eta][phi][depth])
+		 } // for (int subdet=0)
+	     } // for (int phi=0;...)
+	 } // for (int eta=0;...)
+    } // for (int depth=0;...)
   FillUnphysicalHEHFBins(AboveEnergyThresholdCellsByDepth);
   if (showTiming)
     {
@@ -1583,32 +1617,46 @@ void HcalHotCellMonitor::fillNevents_neighbor(void)
   if (fVerbosity>0)
     std::cout <<"<HcalHotCellMonitor::fillNevents_neighbor> FILLING ABOVE-NEIGHBOR-ENERGY PLOTS"<<std::endl;
 
-  for (unsigned int h=0;h<AboveNeighborsHotCellsByDepth.size();++h)
-    AboveNeighborsHotCellsByDepth[h]->setBinContent(0,0,ievt_);
+  for (unsigned int h=0;h<AboveNeighborsHotCellsByDepth.depth.size();++h)
+    AboveNeighborsHotCellsByDepth.depth[h]->setBinContent(0,0,ievt_);
 
   int ieta=0;
   int iphi=0;
-  for (int eta=0;eta<(etaBins_-2);++eta)
-    {
-      ieta=eta-int((etaBins_-2)/2);
-      for (int phi=0;phi<72;++phi)
-        {
-	  iphi=phi+1;
-	  for (int depth=0;depth<6;++depth) // this is one unit less "true" depth (for indexing purposes)
-            {
-	      if (aboveneighbors[eta][phi][depth]>0)
+  int etabins=0;
+  int phibins=0;
+  
+  for (unsigned int depth=0;depth<AboveNeighborsHotCellsByDepth.depth.size();++depth)
+    { 
+      etabins=AboveNeighborsHotCellsByDepth.depth[depth]->getNbinsX();
+      phibins=AboveNeighborsHotCellsByDepth.depth[depth]->getNbinsY();
+      
+      for (int eta=0;eta<etabins;++eta)
+	{
+	  for (int phi=0;phi<phibins;++phi)
+	    {
+	      iphi=phi+1;
+	      for (int subdet=1;subdet<=4;++subdet)
 		{
-		  if (fVerbosity>2) std::cout <<"HOT CELL; ABOVE NEIGHBORS at eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<(depth>4 ? depth+1 : depth-3)<<std::endl;
-		      AboveNeighborsHotCellsByDepth[depth]->Fill(ieta,iphi,aboveneighbors[eta][phi][depth]);
-		      AboveNeighborsHotCellsByDepth[depth]->setBinContent(0,0,ievt_);
-		      //ProblemHotCellsByDepth[depth]->Fill(ieta,iphi,aboveneighbors[eta][phi][depth]);
+		  ieta=CalcIeta((HcalSubdetector)subdet,eta,depth+1); //converts bin to ieta
+		  if (ieta==-9999) continue;
+		  if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1))
+		    continue;
+		  if (subdet==HcalForward) // shift HcalForward ieta by 1 for filling purposes
+		    ieta<0 ? ieta-- : ieta++;
+		  
+		  if (aboveneighbors[eta][phi][depth]>0)
+		    {
+		      if (fVerbosity>2) std::cout <<"HOT CELL; ABOVE NEIGHBORS at eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<(depth>4 ? depth+1 : depth-3)<<std::endl;
+		      AboveNeighborsHotCellsByDepth.depth[depth]->Fill(ieta,iphi,aboveneighbors[eta][phi][depth]);
+		      AboveNeighborsHotCellsByDepth.depth[depth]->setBinContent(0,0,ievt_);
+		      //ProblemHotCellsByDepth.depth[depth]->Fill(ieta,iphi,aboveneighbors[eta][phi][depth]);
 		      //reset counter
 		      aboveneighbors[eta][phi][depth]=0;
-		} // if (aboveneighbors[eta][phi][mydepth]>0)
-
-	    } // for (int depth=0;depth<4;++depth)
-	} // for (int phi=0;...)
-    } // for (int eta=0;...)
+		    } // if (aboveneighbors[eta][phi][mydepth]>0)
+		} // for (int subdet=1;...)
+	    } // for (int phi=0;...)
+	} // for (int eta=0;...)
+    } // for (unsigned int depth=0;...)
   FillUnphysicalHEHFBins(AboveNeighborsHotCellsByDepth);
 
   if (showTiming)
@@ -1640,56 +1688,59 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
   int iphi=0;
 
   double problemvalue=0;
-  double sumproblemvalue=0; // summed over all depths
-  for (int eta=0;eta<(etaBins_-2);++eta)
+
+  ProblemHotCells->Reset();
+  ProblemHotCells->setBinContent(0,0,ievt_); // set underflow bin to total number of events (used for normalization)
+  for (unsigned int depth=0;depth<ProblemHotCellsByDepth.depth.size();++depth)
     {
-      ieta=eta-int((etaBins_-2)/2);
-      for (int phi=0;phi<72;++phi)
-        {
-	  iphi=phi+1;
-	  sumproblemvalue=0;
-	  for (int mydepth=0;mydepth<6;++mydepth)
+      ProblemHotCellsByDepth.depth[depth]->Reset();
+      ProblemHotCellsByDepth.depth[depth]->setBinContent(0,0,ievt_); // set underflow bin to total number of events (used for normalization)
+      for (int eta=0;eta<ProblemHotCellsByDepth.depth[depth]->getNbinsX();++eta)
+	{
+	  for (int phi=0;phi<ProblemHotCellsByDepth.depth[depth]->getNbinsY();++phi)
 	    {
+	      iphi=phi+1;
+	      
+	      ieta=CalcIeta(eta,depth+1);
+	      if (ieta==-9999) continue;
+	      		  
 	      // Get bad number of events from each problem type
 	      problemvalue=0;
 	      if (hotmon_test_persistent_)
 		{
-		  problemvalue+=AbovePersistentThresholdCellsByDepth[mydepth]->getBinContent(eta+2,phi+2);
-		  sumproblemvalue+=AbovePersistentThresholdCellsByDepth[mydepth]->getBinContent(eta+2,phi+2);
+		  problemvalue+=AbovePersistentThresholdCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1);
 		}
 	      if (hotmon_test_pedestal_)
 		{
-		  problemvalue+=AbovePedestalHotCellsByDepth[mydepth]->getBinContent(eta+2,phi+2);
-		  sumproblemvalue+=AbovePedestalHotCellsByDepth[mydepth]->getBinContent(eta+2,phi+2);
+		  problemvalue+=AbovePedestalHotCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1);
 		}
 	      if (hotmon_test_neighbor_)
 		{
-		  problemvalue+=AboveNeighborsHotCellsByDepth[mydepth]->getBinContent(eta+2,phi+2);
-		  sumproblemvalue+=AboveNeighborsHotCellsByDepth[mydepth]->getBinContent(eta+2,phi+2);
+		  problemvalue+=AboveNeighborsHotCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1);
 		}
 	      if (hotmon_test_energy_)
 		{
-		  problemvalue+=AboveEnergyThresholdCellsByDepth[mydepth]->getBinContent(eta+2,phi+2);
-		  sumproblemvalue+=AboveEnergyThresholdCellsByDepth[mydepth]->getBinContent(eta+2,phi+2);
+		  problemvalue+=AboveEnergyThresholdCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1);
 		}
-	      // do we want to force the problemvalue to be <= hotmon_checkNevents, to minimize double counting?
-	      // Or does the double-counting tell us something useful?
-
-	      // Need to use setbincontent, rather than Fill, for problem cells, since problemvalue is
-	      // the total number of bad cells found so far, not just the number of bad cells in the
-	      // last checkNevents.
-	      
 	      problemvalue = min((double)ievt_, problemvalue);
 	      if (problemvalue>hotmon_minErrorFlag_*ievt_)
-		ProblemHotCellsByDepth[mydepth]->setBinContent(eta+2,phi+2,problemvalue);
-	      ProblemHotCellsByDepth[mydepth]->setBinContent(0,0,ievt_); // set underflow bin to total number of events (used for normalization)
-	    } // for (int mydepth=0;mydepth<6;...)
-	  sumproblemvalue=min((double)ievt_,sumproblemvalue);
-	  if (sumproblemvalue>hotmon_minErrorFlag_*ievt_)
-	    ProblemHotCells->setBinContent(eta+2,phi+2,sumproblemvalue);
-	  ProblemHotCells->setBinContent(0,0,ievt_);
-	} // loop on phi=0;phi<72
-    } // loop on eta=0; eta<(etaBins_-2)
+		{
+		  ProblemHotCellsByDepth.depth[depth]->Fill(ieta,iphi,problemvalue);
+		  ProblemHotCells->Fill(ieta,iphi,problemvalue);
+		}
+	    } // for (int phi=0;...)
+	} //for (int eta=0;...)
+    } // for (int depth=0;...)
+  
+  // Make sure summary over depth doesn't include more than ievt_ entries per bin
+  for (int eta=0;eta<ProblemHotCells->getNbinsX();++eta)
+    {
+      for (int phi=0;phi<ProblemHotCells->getNbinsY();++phi)
+	{
+	  if (ProblemHotCells->getBinContent(eta+1,phi+1)>ievt_)
+	    ProblemHotCells->setBinContent(eta+1,phi+1,ievt_);
+	}
+    }
   
   FillUnphysicalHEHFBins(ProblemHotCells);
   FillUnphysicalHEHFBins(ProblemHotCellsByDepth);
@@ -1706,9 +1757,9 @@ void HcalHotCellMonitor::zeroCounters(void)
 {
 
   // zero all counters
-  for (int i=0;i<ETABINS;++i)
+  for (int i=0;i<85;++i)
     {
-      for (int j=0;j<PHIBINS;++j)
+      for (int j=0;j<72;++j)
         {
           for (int k=0;k<4;++k)
             {

@@ -79,12 +79,12 @@ private:
 
   // Histograms
   TH2F* ProblemHotCells;
-  TH2F* ProblemHotCellsByDepth[6];
+  TH2F* ProblemHotCellsByDepth[4];
 
-  TH2F* AboveNeighborsHotCellsByDepth[6];
-  TH2F* AboveEnergyThresholdCellsByDepth[6];
-  TH2F* AbovePersistentThresholdCellsByDepth[6];
-  TH2F* AbovePedestalHotCellsByDepth[6];
+  TH2F* AboveNeighborsHotCellsByDepth[4];
+  TH2F* AboveEnergyThresholdCellsByDepth[4];
+  TH2F* AbovePersistentThresholdCellsByDepth[4];
+  TH2F* AbovePedestalHotCellsByDepth[4];
 
   // diagnostic histograms
   TH1F* d_HBnormped;
@@ -105,8 +105,8 @@ private:
   TH2F* d_HFenergyVsNeighbor;
   TH2F* d_ZDCenergyVsNeighbor;
 
-  TH2F* d_avgrechitenergymap[6];
-  TH2F* d_avgrechitoccupancymap[6];
+  TH2F* d_avgrechitenergymap[4];
+  TH2F* d_avgrechitoccupancymap[4];
 };
 
 #endif

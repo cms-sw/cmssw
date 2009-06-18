@@ -302,5 +302,28 @@ void HcalBaseClient::getSJ6histos(char* dir, char* name, TH1F* h[6], char* units
 } // void HcalBaseClient::getSJ6histos(1D)
 
 
-
-
+int HcalBaseClient::CalcIeta(int eta, int depth)
+{
+  int ieta;
+  ieta=eta-42; // default shift: bin 0 corresponds to a histogram ieta of -42 (which is offset by 1 from true HF value of -41)
+  if (depth<=2)
+    {
+      if (eta<14) ieta++;
+      else if (eta>72) ieta--;
+    }
+  else if (depth==3)
+    {
+      if (eta<0 || eta>8) ieta=-9999;
+      else
+        {
+          int binmap[]={-28,-27,-9999,-16,-9999,16,-9999,27,28};
+          ieta=binmap[eta];
+        }
+    }
+  else if (depth==4)
+    {
+      ieta= eta-15;  // bin 0 is ieta=-15, all bins increment normally from there
+      if (abs(ieta)>15) ieta=-9999;
+    }
+  return ieta;
+}

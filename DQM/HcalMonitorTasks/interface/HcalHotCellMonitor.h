@@ -14,8 +14,8 @@
 
 /** \class HcalHotCellMonitor
   *
-  * $Date: 2009/03/28 13:58:18 $
-  * $Revision: 1.23.4.2 $
+  * $Date: 2009/03/31 14:03:00 $
+  * $Revision: 1.26 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -47,28 +47,28 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
   void processEvent(const HBHERecHitCollection& hbHits,
                     const HORecHitCollection& hoHits,
                     const HFRecHitCollection& hfHits,
-		    //const ZDCRecHitCollection& zdcHits,
-		    const HBHEDigiCollection& hbhedigi,
+                    //const ZDCRecHitCollection& zdcHits,
+                    const HBHEDigiCollection& hbhedigi,
                     const HODigiCollection& hodigi,
                     const HFDigiCollection& hfdigi,
-		    //const ZDCDigiCollection& zdcdigi, 
-		    const HcalDbService& cond
-		    );
+                    //const ZDCDigiCollection& zdcdigi, 
+                    const HcalDbService& cond
+                    );
 
   void processEvent_pedestal(const HBHEDigiCollection& hbhedigi,
-			     const HODigiCollection& hodigi,
-			     const HFDigiCollection& hfdigi,
-			     //const ZDCDigiCollection& zdcdigi, 
-			     const HcalDbService& cond
-			     );
+                             const HODigiCollection& hodigi,
+                             const HFDigiCollection& hfdigi,
+                             //const ZDCDigiCollection& zdcdigi, 
+                             const HcalDbService& cond
+                             );
 
   void processEvent_rechitenergy( const HBHERecHitCollection& hbheHits,
-				  const HORecHitCollection& hoHits,
-				  const HFRecHitCollection& hfHits);
+                                  const HORecHitCollection& hoHits,
+                                  const HFRecHitCollection& hfHits);
 
   void processEvent_rechitneighbors( const HBHERecHitCollection& hbheHits,
-				     const HORecHitCollection& hoHits,
-				     const HFRecHitCollection& hfHits);
+                                     const HORecHitCollection& hoHits,
+                                     const HFRecHitCollection& hfHits);
   void fillHotHistosAtEndRun();
 
  private:
@@ -101,28 +101,28 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
 
   // Problem Histograms
   MonitorElement* ProblemHotCells;
-  std::vector<MonitorElement*> ProblemHotCellsByDepth;
+  EtaPhiHists ProblemHotCellsByDepth;
   
   double nsigma_;
   double HBnsigma_, HEnsigma_, HOnsigma_, HFnsigma_, ZDCnsigma_;
-  std::vector<MonitorElement*>AboveNeighborsHotCellsByDepth;
-  std::vector<MonitorElement*>AboveEnergyThresholdCellsByDepth;
-  std::vector<MonitorElement*>AbovePersistentThresholdCellsByDepth; 
-  std::vector<MonitorElement*>AbovePedestalHotCellsByDepth;
- 
+  EtaPhiHists   AboveNeighborsHotCellsByDepth;
+  EtaPhiHists   AboveEnergyThresholdCellsByDepth;
+  EtaPhiHists   AbovePersistentThresholdCellsByDepth; 
+  EtaPhiHists   AbovePedestalHotCellsByDepth;
+
   // map of pedestals from database (in ADC)
   std::map<HcalDetId, float> pedestals_;
   std::map<HcalDetId, float> widths_;
   std::map<HcalDetId, float> pedestal_thresholds_;
   std::map<HcalDetId, double> rechitEnergies_;
-  
 
-  int abovepedestal[ETABINS][PHIBINS][6]; // filled when digi is above pedestal+nsigma
-  int aboveneighbors[ETABINS][PHIBINS][6];
-  int aboveenergy[ETABINS][PHIBINS][6]; // when rechit is above threshold energy
-  int abovepersistent[ETABINS][PHIBINS][6]; // when rechit is consistently above some threshold
-  int rechit_occupancy_sum[ETABINS][PHIBINS][6];
-  float rechit_energy_sum[ETABINS][PHIBINS][6];
+  double SiPMscale_;
+  int abovepedestal[ETABINS][PHIBINS][4]; // filled when digi is above pedestal+nsigma
+  int aboveneighbors[ETABINS][PHIBINS][4];
+  int aboveenergy[ETABINS][PHIBINS][4]; // when rechit is above threshold energy
+  int abovepersistent[ETABINS][PHIBINS][4]; // when rechit is consistently above some threshold
+  int rechit_occupancy_sum[ETABINS][PHIBINS][4];
+  float rechit_energy_sum[ETABINS][PHIBINS][4];
   
   // counters for diagnostic plots
   int diagADC_HB[300];
@@ -151,8 +151,8 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
   MonitorElement* d_HFenergyVsNeighbor;
   MonitorElement* d_ZDCenergyVsNeighbor;
 
-  std::vector<MonitorElement*> d_avgrechitenergymap;
-  std::vector<MonitorElement*> d_avgrechitoccupancymap;
+  EtaPhiHists  d_avgrechitenergymap;
+  EtaPhiHists  d_avgrechitoccupancymap;
 
   hotNeighborParams defaultNeighborParams_, HBNeighborParams_, HENeighborParams_, HONeighborParams_, HFNeighborParams_, ZDCNeighborParams_;
 };

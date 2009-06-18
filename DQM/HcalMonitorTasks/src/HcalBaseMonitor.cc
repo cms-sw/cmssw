@@ -830,3 +830,13 @@ int HcalBaseMonitor::CalcIeta(int eta, int depth)
   return ieta;
 }
 
+
+bool HcalBaseMonitor::isSiPM(int ieta, int iphi, int depth)
+{
+  if (depth!=4) return false;
+  // HOP1
+  if (ieta>=5 && ieta <=10 && iphi>=47 && iphi<=58) return true;  
+  // HOP2
+  if (ieta>=11 && ieta<=15 && iphi>=59 && iphi<=70) return true;
+  return false;
+} 

@@ -1136,10 +1136,11 @@ void HcalDeadCellMonitor::fillNevents_problemCells(void)
   NumberOfNeverPresentCells->Fill(neverpresentHB+neverpresentHE+neverpresentHO+neverpresentHF+neverpresentZDC,deadmon_checkNevents_/deadmon_neverpresent_prescale_);
 
   ProblemDeadCells->Reset();
-  for (unsigned int i=0;i<ProblemDeadCellsByDepth.depth.size();++i)  ProblemDeadCellsByDepth.depth[i]->Reset();
 
   for (unsigned int d=0;d<ProblemDeadCellsByDepth.depth.size();++d)
     {
+      ProblemDeadCellsByDepth.depth[d]->Reset();
+      ProblemDeadCellsByDepth.depth[d]->setBinContent(0,0,ievt_);
       for (int eta=0;eta<ProblemDeadCellsByDepth.depth[d]->getNbinsX();++eta)
 	{
 	  for (int phi=0;phi<ProblemDeadCellsByDepth.depth[d]->getNbinsY();++phi)
@@ -1162,14 +1163,10 @@ void HcalDeadCellMonitor::fillNevents_problemCells(void)
 		  problemvalue+=BelowEnergyThresholdCellsByDepth.depth[d]->getBinContent(eta+1,phi+1);
 		}
 	      problemvalue = min((double)ievt_,problemvalue);
-	      if (ieta!=-9999)
-		{
-		  ProblemDeadCellsByDepth.depth[d]->Fill(ieta,iphi,problemvalue);
-		  ProblemDeadCells->Fill(ieta,iphi,problemvalue);
-		}
+	      ProblemDeadCellsByDepth.depth[d]->Fill(ieta,iphi,problemvalue);
+	      ProblemDeadCells->Fill(ieta,iphi,problemvalue);
 	    } // loop on phi
 	} // loop on eta
-      ProblemDeadCellsByDepth.depth[d]->setBinContent(0,0,ievt_);
     } // loop on depth
   for (int eta=0;eta<ProblemDeadCells->getNbinsX();++eta)
     {
