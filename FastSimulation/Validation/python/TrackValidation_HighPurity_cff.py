@@ -25,7 +25,7 @@ TrackAssociatorByHits.associatePixel = False
 TrackAssociatorByHits.ROUList = ['famosSimHitsTrackerHits']
 
 #use cutsRecoTracks
-cutsRecoTracks.quality = 'highPurity'
+cutsRecoTracks.quality = ['highPurity']
 
 # pass only high purity tracks
 multiTrackValidator.label = ['cutsRecoTracks']
