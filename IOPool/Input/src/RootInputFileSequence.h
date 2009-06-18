@@ -19,6 +19,7 @@ RootInputFileSequence: This is an InputSource
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/EventRange.h"
+#include "DataFormats/Provenance/interface/FileIndex.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
 #include "DataFormats/Provenance/interface/RunID.h"
@@ -98,7 +99,13 @@ namespace edm {
     RunNumber_t startAtRun_;
     LuminosityBlockNumber_t startAtLumi_;
     EventNumber_t startAtEvent_;
-    unsigned int eventsToSkip_;
+    RunNumber_t currentRun_;
+    LuminosityBlockNumber_t currentLumi_;
+    RunNumber_t skippedToRun_;
+    LuminosityBlockNumber_t skippedToLumi_;
+    EventNumber_t skippedToEvent_;
+    FileIndex::EntryNumber_t skippedToEntry_;
+    int skipEvents_;
     std::vector<LuminosityBlockRange> whichLumisToSkip_;
     std::vector<LuminosityBlockRange> whichLumisToProcess_;
     std::vector<EventRange> whichEventsToSkip_;

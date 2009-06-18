@@ -9,6 +9,8 @@
 #include "FWCore/Catalog/interface/FileCatalog.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -46,7 +48,13 @@ namespace edm {
     startAtRun_(pset.getUntrackedParameter<unsigned int>("firstRun", 1U)),
     startAtLumi_(pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 1U)),
     startAtEvent_(pset.getUntrackedParameter<unsigned int>("firstEvent", 1U)),
-    eventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents", 0U)),
+    currentRun_(0U),
+    currentLumi_(0U),
+    skippedToRun_(0U),
+    skippedToLumi_(0U),
+    skippedToEvent_(0U),
+    skippedToEntry_(-1LL),
+    skipEvents_(pset.getUntrackedParameter<unsigned int>("skipEvents", 0U)),
     whichLumisToSkip_(pset.getUntrackedParameter<std::vector<LuminosityBlockRange> >("lumisToSkip", std::vector<LuminosityBlockRange>())),
     whichLumisToProcess_(pset.getUntrackedParameter<std::vector<LuminosityBlockRange> >("lumisToProcess", std::vector<LuminosityBlockRange>())),
     whichEventsToSkip_(pset.getUntrackedParameter<std::vector<EventRange> >("eventsToSkip",std::vector<EventRange>())),
@@ -63,37 +71,37 @@ namespace edm {
     duplicateChecker_(),
     dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", primary())) {
 
-    if (!primarySequence_) noEventSort_ = false;
-    if (!whichLumisToProcess_.empty() && !whichEventsToProcess_.empty()) {
+    if(!primarySequence_) noEventSort_ = false;
+    if(!whichLumisToProcess_.empty() && !whichEventsToProcess_.empty()) {
       throw edm::Exception(errors::Configuration)
         << "Illegal configuration options passed to PoolSource\n"
         << "You cannot request both \"luminosityBlocksToProcess\" and \"eventsToProcess\".\n";
     }
 
-    if (primarySequence_ && primary()) duplicateChecker_.reset(new DuplicateChecker(pset));
+    if(primarySequence_ && primary()) duplicateChecker_.reset(new DuplicateChecker(pset));
 
     StorageFactory *factory = StorageFactory::get();
     for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_)
       factory->stagein(fileIter_->fileName());
 
     std::string parametersMustMatch = pset.getUntrackedParameter<std::string>("parametersMustMatch", std::string("permissive"));
-    if (parametersMustMatch == std::string("strict")) parametersMustMatch_ = BranchDescription::Strict;
+    if(parametersMustMatch == std::string("strict")) parametersMustMatch_ = BranchDescription::Strict;
 
     // "fileMatchMode" is for backward compatibility.
     parametersMustMatch = pset.getUntrackedParameter<std::string>("fileMatchMode", std::string("permissive"));
-    if (parametersMustMatch == std::string("strict")) parametersMustMatch_ = BranchDescription::Strict;
+    if(parametersMustMatch == std::string("strict")) parametersMustMatch_ = BranchDescription::Strict;
 
     std::string branchesMustMatch = pset.getUntrackedParameter<std::string>("branchesMustMatch", std::string("permissive"));
-    if (branchesMustMatch == std::string("strict")) branchesMustMatch_ = BranchDescription::Strict;
+    if(branchesMustMatch == std::string("strict")) branchesMustMatch_ = BranchDescription::Strict;
 
-    if (primary()) {
+    if(primary()) {
       for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_) {
         initFile(skipBadFiles_);
-        if (rootFile_) break;
+        if(rootFile_) break;
       }
-      if (rootFile_) {
+      if(rootFile_) {
         forcedRunOffset_ = rootFile_->setForcedRunOffset(setRun_);
-        if (forcedRunOffset_ < 0) {
+        if(forcedRunOffset_ < 0) {
           throw edm::Exception(errors::Configuration)
             << "The value of the 'setRunNumber' parameter must not be\n"
             << "less than the first run number in the first input file.\n"
@@ -101,13 +109,16 @@ namespace edm {
             << setRun_ - forcedRunOffset_ << ".\n";
         }
         productRegistryUpdate().updateFromInput(rootFile_->productRegistry()->productList());
-	if (primarySequence_) {
+	if(primarySequence_) {
           BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
+	  if(skipEvents_ != 0) {
+	    skip(skipEvents_);
+	  }
 	}
       }
     } else {
       Service<RandomNumberGenerator> rng;
-      if (!rng.isAvailable()) {
+      if(!rng.isAvailable()) {
         throw edm::Exception(errors::Configuration)
           << "A secondary input source requires the RandomNumberGeneratorService\n"
           << "which is not present in the configuration file.  You must add the service\n"
@@ -125,10 +136,10 @@ namespace edm {
 
   void
   RootInputFileSequence::endJob() {
-    if (primary()) {
+    if(primary()) {
       closeFile_();
     } else {
-      if (rootFile_) {
+      if(rootFile_) {
         rootFile_->close(true);
         logFileAction("  Closed file ", rootFile_->file());
         rootFile_.reset();
@@ -138,27 +149,26 @@ namespace edm {
 
   boost::shared_ptr<FileBlock>
   RootInputFileSequence::readFile_() {
-    if (firstFile_) {
+    if(firstFile_) {
       // The first input file has already been opened, or a rewind has occurred.
       firstFile_ = false;
-      if (!rootFile_) {
+      if(!rootFile_) {
 	initFile(skipBadFiles_);
       }
     } else {
-      if (!nextFile()) {
+      if(!nextFile()) {
         assert(0);
       }
     }
-    if (!rootFile_) {
+    if(!rootFile_) {
       return boost::shared_ptr<FileBlock>(new FileBlock);
     }
     return rootFile_->createFileBlock();
   }
 
   void RootInputFileSequence::closeFile_() {
-    if (rootFile_) {
+    if(rootFile_) {
     // Account for events skipped in the file.
-      eventsToSkip_ = rootFile_->eventsToSkip();
       {
         std::auto_ptr<InputSource::FileCloseSentry> 
 	  sentry((primarySequence_ && primary()) ? new InputSource::FileCloseSentry(input_) : 0);
@@ -166,9 +176,9 @@ namespace edm {
       }
       logFileAction("  Closed file ", rootFile_->file());
       // The next step is necessary for the duplicate checking to work properly
-      if (noEventSort_) rootFile_->fileIndexSharedPtr()->sortBy_Run_Lumi_Event();
+      if(noEventSort_) rootFile_->fileIndexSharedPtr()->sortBy_Run_Lumi_Event();
       rootFile_.reset();
-      if (duplicateChecker_) duplicateChecker_->inputFileClosed();
+      if(duplicateChecker_) duplicateChecker_->inputFileClosed();
     }
   }
 
@@ -183,17 +193,17 @@ namespace edm {
       filePtr.reset(TFile::Open(gSystem->ExpandPathName(fileIter_->fileName().c_str())));
     }
     catch (cms::Exception e) {
-      if (!skipBadFiles) {
+      if(!skipBadFiles) {
 	throw edm::Exception(edm::errors::FileOpenError) << e.explainSelf() << "\n" <<
 	   "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
       }
     }
-    if (filePtr && !filePtr->IsZombie()) {
+    if(filePtr && !filePtr->IsZombie()) {
       logFileAction("  Successfully opened file ", fileIter_->fileName());
       std::vector<boost::shared_ptr<FileIndex> >::size_type currentFileIndex = fileIter_ - fileIterBegin_;
       rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(), catalog_.url(),
 	  processConfiguration(), fileIter_->logicalFileName(), filePtr,
-	  startAtRun_, startAtLumi_, startAtEvent_, eventsToSkip_,
+	  startAtRun_, startAtLumi_, startAtEvent_, skipEvents_ != 0,
 	  whichLumisToSkip_, whichEventsToSkip_,
 	  remainingEvents(), remainingLuminosityBlocks(), treeCacheSize_, treeMaxVirtualSize_,
 	  input_.processingMode(),
@@ -204,7 +214,7 @@ namespace edm {
           fileIndexes_, currentFileIndex));
           fileIndexes_[currentFileIndex] = rootFile_->fileIndexSharedPtr();
     } else {
-      if (!skipBadFiles) {
+      if(!skipBadFiles) {
 	throw edm::Exception(edm::errors::FileOpenError) <<
 	   "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
       }
@@ -220,7 +230,7 @@ namespace edm {
   bool RootInputFileSequence::nextFile() {
     if(fileIter_ != fileIterEnd_) ++fileIter_;
     if(fileIter_ == fileIterEnd_) {
-      if (primarySequence_) {
+      if(primarySequence_) {
 	return false;
       } else {
 	fileIter_ = fileIterBegin_;
@@ -229,13 +239,13 @@ namespace edm {
 
     initFile(skipBadFiles_);
 
-    if (primarySequence_ && rootFile_) {
+    if(primarySequence_ && rootFile_) {
       // make sure the new product registry is compatible with the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
 							    fileIter_->fileName(),
 							    parametersMustMatch_,
 							    branchesMustMatch_);
-      if (!mergeInfo.empty()) {
+      if(!mergeInfo.empty()) {
         throw edm::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::nextFile()") << mergeInfo;
       }
       BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
@@ -245,7 +255,7 @@ namespace edm {
 
   bool RootInputFileSequence::previousFile() {
     if(fileIter_ == fileIterBegin_) {
-      if (primarySequence_) {
+      if(primarySequence_) {
 	return false;
       } else {
 	fileIter_ = fileIterEnd_;
@@ -255,18 +265,18 @@ namespace edm {
 
     initFile(false);
 
-    if (primarySequence_ && rootFile_) {
+    if(primarySequence_ && rootFile_) {
       // make sure the new product registry is compatible to the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
 							    fileIter_->fileName(),
 							    parametersMustMatch_,
 							    branchesMustMatch_);
-      if (!mergeInfo.empty()) {
+      if(!mergeInfo.empty()) {
         throw edm::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::previousEvent()") << mergeInfo;
       }
       BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
     }
-    if (rootFile_) rootFile_->setToLastEntry();
+    if(rootFile_) rootFile_->setToLastEntry();
     return true;
   }
 
@@ -275,12 +285,17 @@ namespace edm {
 
   boost::shared_ptr<RunPrincipal>
   RootInputFileSequence::readRun_() {
-    return rootFile_->readRun(primarySequence_ ? productRegistry() : rootFile_->productRegistry()); 
+    boost::shared_ptr<RunPrincipal> rp = rootFile_->readRun(primarySequence_ ? productRegistry() : rootFile_->productRegistry()); 
+    currentRun_ = (rp ? rp->run() : 0U);
+    currentLumi_ = 0U;
+    return rp;
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
   RootInputFileSequence::readLuminosityBlock_() {
-    return rootFile_->readLumi(primarySequence_ ? productRegistry() : rootFile_->productRegistry(), runPrincipal()); 
+    boost::shared_ptr<LuminosityBlockPrincipal> lbp = rootFile_->readLumi(primarySequence_ ? productRegistry() : rootFile_->productRegistry(), runPrincipal()); 
+    currentLumi_ = (lbp ? lbp->luminosityBlock() : 0U);
+    return lbp;
   }
 
   // readEvent_() is responsible for creating, and setting up, the
@@ -314,15 +329,15 @@ namespace edm {
     randomAccess_ = true;
     // Attempt to find event in currently open input file.
     bool found = rootFile_->setEntryAtEvent(id.run(), lumi, id.event(), exact);
-    if (!found) {
+    if(!found) {
       // If only one input file, give up now, to save time.
-      if (fileIndexes_.size() == 1) {
+      if(fileIndexes_.size() == 1) {
 	return std::auto_ptr<EventPrincipal>(0);
       }
       // Look for event in files previously opened without reopening unnecessary files.
       typedef std::vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
-      for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
-	if (*it && (*it)->containsEvent(id.run(), lumi, id.event(), exact)) {
+      for(Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
+	if(*it && (*it)->containsEvent(id.run(), lumi, id.event(), exact)) {
           // We found it. Close the currently open file, and open the correct one.
 	  fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
 	  initFile(false);
@@ -335,12 +350,12 @@ namespace edm {
 	}
       }
       // Look for event in files not yet opened.
-      for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
-	if (!*it) {
+      for(Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
+	if(!*it) {
 	  fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
 	  initFile(false);
           found = rootFile_->setEntryAtEvent(id.run(), lumi, id.event(), exact);
-	  if (found) {
+	  if(found) {
 	    std::auto_ptr<EventPrincipal> ep = readCurrentEvent();
             skip(1);
 	    return ep;
@@ -360,15 +375,15 @@ namespace edm {
 
     // Attempt to find lumi in currently open input file.
     bool found = rootFile_->setEntryAtLumi(id);
-    if (found) {
+    if(found) {
       return readLuminosityBlock_();
     }
 
-    if (fileIndexes_.size() > 1) {
+    if(fileIndexes_.size() > 1) {
       // Look for lumi in files previously opened without reopening unnecessary files.
       typedef std::vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
-      for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
-	if (*it && (*it)->containsLumi(id.run(), id.luminosityBlock(), true)) {
+      for(Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
+	if(*it && (*it)->containsLumi(id.run(), id.luminosityBlock(), true)) {
           // We found it. Close the currently open file, and open the correct one.
           fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
 	  initFile(false);
@@ -379,12 +394,12 @@ namespace edm {
 	}
       }
       // Look for lumi in files not yet opened.
-      for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
-	if (!*it) {
+      for(Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
+	if(!*it) {
           fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
 	  initFile(false);
           found = rootFile_->setEntryAtLumi(id);
-	  if (found) {
+	  if(found) {
             return readLuminosityBlock_();
 	  }
 	}
@@ -398,14 +413,14 @@ namespace edm {
 
     // Attempt to find run in currently open input file.
     bool found = rootFile_->setEntryAtRun(id);
-    if (found) {
+    if(found) {
       return readRun_();
     }
-    if (fileIndexes_.size() > 1) {
+    if(fileIndexes_.size() > 1) {
       // Look for run in files previously opened without reopening unnecessary files.
       typedef std::vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
-      for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
-	if (*it && (*it)->containsRun(id.run(), true)) {
+      for(Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
+	if(*it && (*it)->containsRun(id.run(), true)) {
           // We found it. Close the currently open file, and open the correct one.
           fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
 	  initFile(false);
@@ -416,12 +431,12 @@ namespace edm {
 	}
       }
       // Look for run in files not yet opened.
-      for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
-	if (!*it) {
+      for(Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
+	if(!*it) {
           fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
 	  initFile(false);
           found = rootFile_->setEntryAtRun(id);
-	  if (found) {
+	  if(found) {
             return readRun_();
 	  }
 	}
@@ -432,30 +447,41 @@ namespace edm {
 
   InputSource::ItemType
   RootInputFileSequence::getNextItemType() {
-    if (fileIter_ == fileIterEnd_) {
+    if(fileIter_ == fileIterEnd_) {
       return InputSource::IsStop;
     }
-    if (firstFile_) {
+    if(firstFile_) {
       return InputSource::IsFile;
     }
-    if (rootFile_) {
-      if (randomAccess_) {
+    if(rootFile_) {
+      if(randomAccess_) {
         skip(0);
-        if (fileIter_== fileIterEnd_) {
+        if(fileIter_== fileIterEnd_) {
           return InputSource::IsStop;
         }
       }
+      if(skippedToRun_) {
+	rootFile_->setEntryAtRun(RunID(skippedToRun_));
+	skippedToRun_ = 0;
+      } else if(skippedToLumi_) {
+	rootFile_->setEntryAtLumi(LuminosityBlockID(rootFile_->runNumber(), skippedToLumi_));
+	skippedToLumi_ = 0;
+      } else if(skippedToEvent_) {
+	rootFile_->setEntryAtEventEntry(rootFile_->runNumber(), rootFile_->luminosityBlockNumber(), skippedToEvent_, skippedToEntry_, true);
+	skippedToEvent_ = 0U;
+	skippedToEntry_ = -1LL;
+      }
       FileIndex::EntryType entryType = rootFile_->getNextEntryTypeWanted();
-      if (entryType == FileIndex::kEvent) {
+      if(entryType == FileIndex::kEvent) {
         return InputSource::IsEvent;
-      } else if (entryType == FileIndex::kLumi) {
+      } else if(entryType == FileIndex::kLumi) {
         return InputSource::IsLumi;
-      } else if (entryType == FileIndex::kRun) {
+      } else if(entryType == FileIndex::kRun) {
         return InputSource::IsRun;
       }
       assert(entryType == FileIndex::kEnd);
     }
-    if (fileIter_ + 1 == fileIterEnd_) {
+    if(fileIter_ + 1 == fileIterEnd_) {
       return InputSource::IsStop;
     }
     return InputSource::IsFile;
@@ -467,6 +493,10 @@ namespace edm {
     randomAccess_ = false;
     firstFile_ = true;
     fileIter_ = fileIterBegin_;
+    currentRun_ = skippedToRun_ = 0U;
+    currentLumi_ = skippedToLumi_ = 0U;
+    skippedToEvent_ = 0U;
+    skippedToEntry_ = -1LL;
   }
 
   // Rewind to the beginning of the current file
@@ -478,13 +508,38 @@ namespace edm {
   // Advance "offset" events.  Offset can be positive or negative (or zero).
   void
   RootInputFileSequence::skip(int offset) {
-    randomAccess_ = true;
-    while (offset != 0) {
-      offset = rootFile_->skipEvents(offset);
-      if (offset > 0 && !nextFile()) return;
-      if (offset < 0 && !previousFile()) return;
+    assert (skipEvents_ == 0 || skipEvents_ == offset);
+    skipEvents_ = offset;
+    while(skipEvents_ != 0) {
+      skipEvents_ = rootFile_->skipEvents(skipEvents_);
+      if(skipEvents_ > 0 && !nextFile()) {
+	skipEvents_ = 0;
+	return;
+      }
+      if(skipEvents_ < 0 && !previousFile()) {
+	skipEvents_ = 0;
+        return;
+      }
     }
     rootFile_->skipEvents(0);
+    RunNumber_t skippedToRun = rootFile_->runNumber();
+    LuminosityBlockNumber_t skippedToLumi = rootFile_->luminosityBlockNumber();
+    if(skippedToRun != currentRun_) {
+      skippedToRun_ = skippedToRun;
+      skippedToLumi_ = skippedToLumi;
+      skippedToEvent_ = rootFile_->eventNumber();
+      skippedToEntry_ = rootFile_->entryNumber();
+    } else if(skippedToLumi != currentLumi_) {
+      skippedToRun_ = 0U;
+      skippedToLumi_ = skippedToLumi;
+      skippedToEvent_ = rootFile_->eventNumber();
+      skippedToEntry_ = rootFile_->entryNumber();
+    } else {
+      skippedToRun_ = 0U;
+      skippedToLumi_ = 0U;
+      skippedToEvent_ = 0U;
+      skippedToEntry_ = -1LL;
+    }
   }
 
   bool const
@@ -527,7 +582,7 @@ namespace edm {
     std::vector<std::string> rules;
     rules.reserve(wantedBranches.size() + 1);
     rules.push_back(std::string("drop *")); 
-    for (std::vector<std::string>::const_iterator it = wantedBranches.begin(), itEnd = wantedBranches.end();
+    for(std::vector<std::string>::const_iterator it = wantedBranches.begin(), itEnd = wantedBranches.end();
 	it != itEnd; ++it) {
       rules.push_back("keep " + *it + "_*");
     }
@@ -538,9 +593,9 @@ namespace edm {
 
   void
   RootInputFileSequence::readMany_(int number, EventPrincipalVector& result) {
-    for (int i = 0; i < number; ++i) {
+    for(int i = 0; i < number; ++i) {
       std::auto_ptr<EventPrincipal> ev = readCurrentEvent();
-      if (ev.get() == 0) {
+      if(ev.get() == 0) {
 	return;
       }
       VectorInputSource::EventPrincipalVectorElement e(ev.release());
@@ -552,14 +607,14 @@ namespace edm {
   void
   RootInputFileSequence::readMany_(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber) {
     unsigned int currentSeqNumber = fileIter_ - fileIterBegin_;
-    if (currentSeqNumber != fileSeqNumber) {
+    if(currentSeqNumber != fileSeqNumber) {
       fileIter_ = fileIterBegin_ + fileSeqNumber;
       initFile(false);
     }
     rootFile_->setEntryAtEvent(id.run(), 0U, id.event(), false);
-    for (int i = 0; i < number; ++i) {
+    for(int i = 0; i < number; ++i) {
       std::auto_ptr<EventPrincipal> ev = readCurrentEvent();
-      if (ev.get() == 0) {
+      if(ev.get() == 0) {
         rewindFile();
 	ev = readCurrentEvent();
 	assert(ev.get() != 0);
@@ -574,23 +629,23 @@ namespace edm {
   RootInputFileSequence::readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
     skipBadFiles_ = false;
     unsigned int currentSeqNumber = fileIter_ - fileIterBegin_;
-    while (eventsRemainingInFile_ < number) {
+    while(eventsRemainingInFile_ < number) {
       fileIter_ = fileIterBegin_ + flatDistribution_->fireInt(fileCatalogItems().size());
       unsigned int newSeqNumber = fileIter_ - fileIterBegin_;
-      if (newSeqNumber != currentSeqNumber) {
+      if(newSeqNumber != currentSeqNumber) {
         initFile(false);
       }
       eventsRemainingInFile_ = rootFile_->eventTree().entries();
-      if (eventsRemainingInFile_ == 0) {
+      if(eventsRemainingInFile_ == 0) {
 	throw edm::Exception(edm::errors::NotFound) <<
 	   "RootInputFileSequence::readManyRandom_(): Secondary Input file " << fileIter_->fileName() << " contains no events.\n";
       }
       rootFile_->setAtEventEntry(flatDistribution_->fireInt(eventsRemainingInFile_));
     }
     fileSeqNumber = fileIter_ - fileIterBegin_;
-    for (int i = 0; i < number; ++i) {
+    for(int i = 0; i < number; ++i) {
       std::auto_ptr<EventPrincipal> ev = readCurrentEvent();
-      if (ev.get() == 0) {
+      if(ev.get() == 0) {
         rewindFile();
 	ev = readCurrentEvent();
 	assert(ev.get() != 0);
@@ -603,7 +658,7 @@ namespace edm {
   }
 
   void RootInputFileSequence::logFileAction(const char* msg, std::string const& file) {
-    if (primarySequence_) {
+    if(primarySequence_) {
       time_t t = time(0);
       char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
       strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );

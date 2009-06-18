@@ -63,7 +63,7 @@ namespace edm {
 	     RunNumber_t const& startAtRun,
 	     LuminosityBlockNumber_t const& startAtLumi,
 	     EventNumber_t const& startAtEvent,
-	     unsigned int eventsToSkip,
+	     bool skipAnyEvents,
 	     std::vector<LuminosityBlockRange> const& whichLumisToSkip,
 	     std::vector<EventRange> const& whichEventsToSkip,
 	     int remainingEvents,
@@ -96,8 +96,12 @@ namespace edm {
     boost::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
     BranchIDListRegistry::collection_type const& branchIDLists() {return *branchIDLists_;}
     EventAuxiliary const& eventAux() const {return eventAux_;}
-    LuminosityBlockAuxiliary const& luminosityBlockAux() {return lumiAux_;}
+    EventNumber_t const& eventNumber() const {return fileIndexIter_->event_;}
+    FileIndex::EntryNumber_t const& entryNumber() const {return fileIndexIter_->entry_;}
+    LuminosityBlockAuxiliary const& luminosityBlockAux() const {return lumiAux_;}
+    LuminosityBlockNumber_t const& luminosityBlockNumber() const {return fileIndexIter_->lumi_;}
     RunAuxiliary const& runAux() const {return runAux_;}
+    RunNumber_t const& runNumber() const {return fileIndexIter_->run_;}
     EventID const& eventID() const {return eventAux().id();}
     RootTreePtrArray & treePointers() {return treePointers_;}
     RootTree const& eventTree() const {return eventTree_;}
@@ -107,6 +111,7 @@ namespace edm {
     bool fastClonable() const {return fastClonable_;}
     boost::shared_ptr<FileBlock> createFileBlock() const;
     bool setEntryAtEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact);
+    bool setEntryAtEventEntry(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, FileIndex::EntryNumber_t entry, bool exact);
     bool setEntryAtLumi(LuminosityBlockID const& lumi);
     bool setEntryAtRun(RunID const& run);
     void setAtEventEntry(FileIndex::EntryNumber_t entry);
@@ -120,7 +125,6 @@ namespace edm {
       fileIndexIter_ = fileIndexEnd_;
     }
 
-    unsigned int eventsToSkip() const {return eventsToSkip_;}
     int skipEvents(int offset);
     int setForcedRunOffset(RunNumber_t const& forcedRunNumber);
     bool nextEventEntry() {return eventTree_.next();}
@@ -147,6 +151,7 @@ namespace edm {
     void readParentageTree();
     void readEntryDescriptionTree();
     void readEventHistoryTree();
+    bool isDuplicateEvent() const;
 
     void initializeDuplicateChecker(std::vector<boost::shared_ptr<FileIndex> > const& fileIndexes,
                                     std::vector<boost::shared_ptr<FileIndex> >::size_type currentFileIndex);
@@ -167,7 +172,7 @@ namespace edm {
     FileIndex::const_iterator fileIndexIter_;
     std::vector<EventProcessHistoryID> eventProcessHistoryIDs_;  // backward compatibility
     std::vector<EventProcessHistoryID>::const_iterator eventProcessHistoryIter_; // backward compatibility
-    unsigned int eventsToSkip_;
+    bool skipAnyEvents_;
     bool noEventSort_;
     bool fastClonable_;
     JobReport::Token reportToken_;
