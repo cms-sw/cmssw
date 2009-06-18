@@ -9,8 +9,9 @@ import FWCore.ParameterSet.Config as cms
 
 l1RCTParametersTest = cms.EDAnalyzer('L1RCTParametersTester')
 l1RCTChannelMaskTest = cms.EDAnalyzer('L1RCTChannelMaskTester')
+l1RCTOutputScalesTest = cms.EDAnalyzer('L1ScalesTester')
 
-printGlobalTagL1Rct = cms.Sequence(l1RCTParametersTest*l1RCTChannelMaskTest)
+printGlobalTagL1Rct = cms.Sequence(l1RCTParametersTest*l1RCTChannelMaskTest*l1RCTOutputScalesTest)
 
 # Global Calorimeter Trigger
 #
