@@ -57,8 +57,12 @@ inline CSCBadWires *  CSCBadWiresConditions::prefillBadWires()
   std::vector<int> new_cham_id;
   std::vector<int> new_point;
 
-  int new_nrlines1=0;
-  int new_nrlines2=0;
+  //when bad channels exist use the following
+   int new_nrlines1=0;
+   int new_nrlines2=0;
+  //when empty
+  //int new_nrlines1=-1;
+  //int new_nrlines2=-1;
  
   std::ifstream newdata1;
   std::ifstream newdata2;
@@ -94,18 +98,21 @@ inline CSCBadWires *  CSCBadWiresConditions::prefillBadWires()
   }
   newdata2.close();
 
+ 
   CSCBadWires::BadChamberContainer & itemvector1 = cndbbadwires->chambers;
   itemvector1.resize(new_nrlines1);
+  
 
   CSCBadWires::BadChannelContainer & itemvector2 = cndbbadwires->channels;
   itemvector2.resize(new_nrlines2);
-
+  
   cndbbadwires->numberOfBadChannels = new_nrlines2;
 
   for(int i=0; i<new_nrlines1;i++){
     itemvector1[i].chamber_index = new_index_id[i];
     itemvector1[i].pointer = new_point[i];
     itemvector1[i].bad_channels = new_badchannels[i];
+    
   }
 
   for(int j=0; j<new_nrlines2;++j){
