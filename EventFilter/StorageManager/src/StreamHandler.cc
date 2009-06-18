@@ -1,4 +1,4 @@
-// $Id: StreamHandler.cc,v 1.2 2009/06/10 08:15:28 dshpakov Exp $
+// $Id: StreamHandler.cc,v 1.3 2009/06/17 16:14:43 mommsen Exp $
 
 #include <sstream>
 #include <iomanip>
@@ -6,6 +6,8 @@
 #include "EventFilter/StorageManager/interface/StreamHandler.h"
 #include "EventFilter/StorageManager/interface/FilesMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/StreamsMonitorCollection.h"
+
+#include "boost/bind.hpp"
 
 
 using namespace stor;
@@ -32,15 +34,11 @@ void StreamHandler::closeAllFiles()
 
 void StreamHandler::closeTimedOutFiles(utils::time_point_t currentTime)
 {
-  for (
-    FileHandlers::iterator it = _fileHandlers.begin();
-    it != _fileHandlers.end();
-    ++it
-  ) 
-  {
-    if ( (*it)->tooOld(currentTime) )
-      it = _fileHandlers.erase(it);
-  }
+  _fileHandlers.erase(std::remove_if(_fileHandlers.begin(),
+                                     _fileHandlers.end(),
+                                     boost::bind(&FileHandler::tooOld,
+                                                 _1, currentTime)),
+                      _fileHandlers.end());
 }
 
 
