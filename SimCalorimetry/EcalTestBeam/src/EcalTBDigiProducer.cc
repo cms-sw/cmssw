@@ -234,11 +234,6 @@ void EcalTBDigiProducer::produce(edm::Event& event, const edm::EventSetup& event
   if ( ! ESHits->inRegistry() || theESDets.size() == 0 ) isES = false;
 */
 
-//For TB -----------
-  std::auto_ptr<EcalTBTDCRawInfo> TDCproduct(new EcalTBTDCRawInfo(1));
-//For TB -----------
-
-
   // Step B: Create empty output
   std::auto_ptr<EBDigiCollection> barrelResult(new EBDigiCollection());
   std::auto_ptr<EEDigiCollection> endcapResult(new EEDigiCollection());
@@ -249,6 +244,7 @@ void EcalTBDigiProducer::produce(edm::Event& event, const edm::EventSetup& event
   CaloDigiCollectionSorter sorter(5);
 
 //For TB ----------------------------------------  
+  std::auto_ptr<EcalTBTDCRawInfo> TDCproduct(new EcalTBTDCRawInfo(1));
   if (doPhaseShift) {
     
     edm::Handle<PEcalTBInfo> theEcalTBInfo;
@@ -322,7 +318,8 @@ void EcalTBDigiProducer::produce(edm::Event& event, const edm::EventSetup& event
 
   std::auto_ptr<EBDigiCollection> barrelReadout(new EBDigiCollection());
   if ( doReadout ) {
-    theTBReadout->performReadout(event, *theTTmap, *barrelResult, *barrelReadout);
+
+     theTBReadout->performReadout(event, *theTTmap, *barrelResult, *barrelReadout);
   }
   else {
     barrelResult->swap(*barrelReadout);
@@ -422,6 +419,8 @@ void EcalTBDigiProducer::updateGeometry() {
   theEndcapDigitizer->setDetIds(theEndcapDets);
 //TB  if (!doFast) { theESDigitizer->setDetIds(theESDets); }
 //TB  if ( doFast) { theESDigitizerFast->setDetIds(theESDets); }
+
+  theTBReadout->setDetIds(theBarrelDets);
 }
 
 //For TB --------------------------------------------------------
