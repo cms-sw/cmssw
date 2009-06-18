@@ -487,6 +487,8 @@ public :
   // Here we declare any emulated L1 bits 
   Int_t           OpenL1_ZeroBias;
   Int_t           OpenL1_Mu3EG5; 
+  Int_t           OpenL1_EG5_HTT100; 
+  Int_t           OpenL1_SingleMu30;  
 
   // JH - 1E31 MC menu
   Int_t           HLTriggerFirstPath; 
@@ -3553,6 +3555,21 @@ void OHltTree::SetOpenL1Bits()
     OpenL1_Mu3EG5 = 1; 
   else 
     OpenL1_Mu3EG5 = 0; 
+
+  if((map_BitOfStandardHLTPath.find("L1_SingleEG5")->second == 1) && 
+     (map_BitOfStandardHLTPath.find("L1_HTT100")->second == 1))  
+    OpenL1_EG5_HTT100 = 1; 
+  else 
+    OpenL1_EG5_HTT100 = 0; 
+ 
+  map_BitOfStandardHLTPath["OpenL1_EG5_HTT100"] = OpenL1_EG5_HTT100;  
+ 
+  if(L1OpenMuPt[0] > 30.0)  
+    OpenL1_SingleMu30 = 1; 
+  else 
+    OpenL1_SingleMu30 = 0;  
+   
+  map_BitOfStandardHLTPath["OpenL1_SingleMu30"] = OpenL1_SingleMu30;   
 
 }
 
