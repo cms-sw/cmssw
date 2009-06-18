@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:43 EST 2008
-// $Id: FWDetailViewManager.h,v 1.13 2009/03/31 10:45:25 amraktad Exp $
+// $Id: FWDetailViewManager.h,v 1.14 2009/06/05 19:59:24 amraktad Exp $
 //
 
 // system include files
@@ -26,11 +26,12 @@
 
 // forward declarations
 class TGLEmbeddedViewer;
+class TGPack;
 class TEveScene;
 class TEveViewer;
 class TGMainFrame;
 class TCanvas;
-
+class TRootEmbeddedCanvas;
 class FWDetailViewBase;
 class FWModelId;
 
@@ -47,7 +48,6 @@ public:
 
    // ---------- member functions ---------------------------
    void openDetailViewFor(const FWModelId& );
-   void close_button ();
 
 private:
    FWDetailViewManager(const FWDetailViewManager&);    // stop default
@@ -59,16 +59,22 @@ private:
 
 protected:
    // ---------- member data --------------------------------
-   FWDetailViewBase *m_detailView;
+   FWDetailViewBase     *m_detailView;
 
-   TEveScene          *m_scene;
-   TGLEmbeddedViewer   *m_viewer;
+   Bool_t                m_modeGL;
 
-   TGMainFrame      *m_frame;
-   TCanvas              *m_latexCanvas; 
+   TGMainFrame          *m_mainFrame;
+   TGPack               *m_pack;
+
+   TRootEmbeddedCanvas  *m_textCanvas;
+   TRootEmbeddedCanvas  *m_viewCanvas;
+   TEveScene            *m_sceneGL;
+   TGLEmbeddedViewer    *m_viewerGL;
+
+
 
    std::map<std::string, FWDetailViewBase *>  m_detailViews;
-   mutable std::map<std::string, std::string>    m_typeToViewers;
+   mutable std::map<std::string, std::string> m_typeToViewers;
 };
 
 

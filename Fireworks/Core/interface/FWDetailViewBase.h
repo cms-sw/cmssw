@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan  9 13:35:52 EST 2009
-// $Id: FWDetailViewBase.h,v 1.3 2009/03/29 14:13:38 amraktad Exp $
+// $Id: FWDetailViewBase.h,v 1.4 2009/06/05 20:00:32 amraktad Exp $
 //
 
 // system include files
@@ -30,6 +30,7 @@ class TEveElement;
 class TLatex;
 class TGLViewer;
 class FWModelId;
+class TCanvas;
 
 class FWDetailViewBase
 {
@@ -38,7 +39,7 @@ public:
 
    ///the calling code takes ownership of the returned object
    TEveElement* build (const FWModelId &);
-  virtual void  clearOverlayElements() {}
+   virtual void  clearOverlayElements() {}
 
    void         setLatex (TLatex *v) {
       m_latex = v;
@@ -47,8 +48,22 @@ public:
       m_viewer = v;
    }
 
+   void         setCanvas (TCanvas *c) {
+      m_canvas = c;
+   }
+
+
+   void  setUseGL (Bool_t x) {
+      m_useGL = x;
+   }
+
+   Bool_t useGL() const {
+      return m_useGL;
+   }
+
 protected:
    FWDetailViewBase(const std::type_info&);
+
    TLatex*      latex() const {
       return m_latex;
    }
@@ -56,6 +71,11 @@ protected:
    TGLViewer*       viewer () const {
       return m_viewer;
    }
+
+   TCanvas*       canvas () const {
+      return m_canvas;
+   }
+
    const Double_t*  rotationCenter() const {
       return m_rotationCenter;
    }
@@ -83,8 +103,11 @@ private:
 
    virtual TEveElement* build(const FWModelId&, const void*) = 0;
 
+   Bool_t           m_useGL;
+
+   TGLViewer       *m_viewer;
+   TCanvas         *m_canvas;
    TLatex          *m_latex;
-   TGLViewer    *m_viewer;
    Double_t         m_rotationCenter[3];
 
 
