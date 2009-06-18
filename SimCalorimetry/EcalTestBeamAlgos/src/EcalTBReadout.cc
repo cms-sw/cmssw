@@ -28,11 +28,11 @@ void EcalTBReadout::findTTlist(const int & crysId, const EcalTrigTowerConstituen
   /// assuming only 1 SM present
   
   EBDetId theTargetId;
-  std::vector<DetId>::const_iterator idItr = theDetIds.begin();
+  std::vector<DetId>::const_iterator idItr = theDetIds->begin();
   unsigned int ncount = 0;
   bool found = false;
   
-  while  ( (ncount < theDetIds.size()) && !found ) 
+  while  ( (ncount < theDetIds->size()) && !found ) 
   {
     EBDetId thisEBdetid(idItr->rawId());
     if (thisEBdetid.ic() == crysId) {
@@ -62,11 +62,11 @@ void EcalTBReadout::findTTlist(const int & crysId, const EcalTrigTowerConstituen
 
       EBDetId thisEBdetid;
 
-      idItr = theDetIds.begin();
+      idItr = theDetIds->begin();
       ncount = 0;
       found = false;
   
-      while  ( (ncount < theDetIds.size()) && !found ) 
+      while  ( (ncount < theDetIds->size()) && !found ) 
         {
           EBDetId myEBdetid(idItr->rawId());
           if ( (myEBdetid.ieta() == icrysEta) && (myEBdetid.iphi() == icrysPhi) ) {

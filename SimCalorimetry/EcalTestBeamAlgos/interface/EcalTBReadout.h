@@ -3,7 +3,7 @@
 
 /*
  *
- * $Id: EcalTBReadout.h,v 1.1 2006/06/15 12:45:35 fabiocos Exp $
+ * $Id: EcalTBReadout.h,v 1.2 2009/06/15 19:46:00 heltsley Exp $
  *
  */
 
@@ -28,7 +28,7 @@ public:
   ~EcalTBReadout(){};
 
   /// tell the readout which cells exist
-  void setDetIds(const std::vector<DetId> & detIds) {theDetIds = detIds;}
+  void setDetIds(const std::vector<DetId> & detIds) {theDetIds = &detIds;}
 
   /// search for the TT to be read
   void findTTlist(const int & crysId, const EcalTrigTowerConstituentsMap& etmap);
@@ -53,7 +53,7 @@ private:
 
   static const int NCRYMATRIX = 7;
   
-  std::vector<DetId> theDetIds;
+      const std::vector<DetId>* theDetIds;
 
   std::string ecalTBInfoLabel_;
 
