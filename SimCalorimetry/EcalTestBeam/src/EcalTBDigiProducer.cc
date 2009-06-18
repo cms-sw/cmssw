@@ -135,19 +135,13 @@ EcalTBDigiProducer::~EcalTBDigiProducer()
 {
   if (theParameterMap)  { delete theParameterMap; }
   if (theEcalShape)     { delete theEcalShape; }
-//TB  if (theESShape)       { delete theESShape; }
   if (theEcalResponse)  { delete theEcalResponse; }
-//TB  if (theESResponse)    { delete theESResponse; }
   if (theCorrNoise)     { delete theCorrNoise; }
   if (theNoiseMatrix)   { delete theNoiseMatrix; }
   if (theCoder)         { delete theCoder; }
   if (theElectronicsSim){ delete theElectronicsSim; }
-//TB  if (theESElectronicsSim)    { delete theESElectronicsSim; }
-//TB  if (theESElectronicsSimFast){ delete theESElectronicsSimFast; }
   if (theBarrelDigitizer){ delete theBarrelDigitizer; }
   if (theEndcapDigitizer){ delete theEndcapDigitizer; }
-//TB  if (theESDigitizer)    { delete theESDigitizer; }
-//TB  if (theESDigitizerFast){ delete theESDigitizerFast; }
 }
 
 void EcalTBDigiProducer::produce( edm::Event&            event      ,
@@ -166,15 +160,12 @@ void EcalTBDigiProducer::produce( edm::Event&            event      ,
    const std::vector<DetId>& theEndcapDets (
       hGeometry->getValidDetIds(DetId::Ecal, EcalEndcap) ) ;
 
-//TB  const std::vector<DetId>& theESDets     =  theGeometry->getValidDetIds(DetId::Ecal, EcalPreshower);
-
    theBarrelDigitizer->setDetIds( theBarrelDets ) ;
    theEndcapDigitizer->setDetIds( theEndcapDets ) ;
    theTBReadout      ->setDetIds( theBarrelDets ) ;
 
 //For TB ----------------
 
-//TB  checkGeometry(eventSetup);
    checkCalibrations(eventSetup);
 
    // Get input

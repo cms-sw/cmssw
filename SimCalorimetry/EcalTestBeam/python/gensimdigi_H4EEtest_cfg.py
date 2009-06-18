@@ -38,7 +38,7 @@ process.randomEngineStateProducer = cms.EDProducer("RandomEngineStateProducer")
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(10)
 )
 
 #Geometry
@@ -109,12 +109,12 @@ process.g4SimHits.SteppingAction.MaxTrackTime = cms.double(10000.)
 process.g4SimHits.CaloSD.TmaxHit = cms.double(10000.)
 process.g4SimHits.CaloSD.TmaxHits = cms.vdouble(10000.,10000.,10000.,10000.,10000.)
 
-#process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
-#    type = cms.string('EcalTBH4Trigger'),
-#    verbose = cms.untracked.bool(False),
-#    #IMPORTANT    #    #    #    #    #    #    #    # NUMBER OF EVENTS TO BE TRIGGERED 
-#    trigEvents = cms.untracked.int32(5)
-#))
+process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
+    type = cms.string('EcalTBH4Trigger'),
+    verbose = cms.untracked.bool(False),
+    #IMPORTANT    #    #    #    #    #    #    #    # NUMBER OF EVENTS TO BE TRIGGERED 
+    trigEvents = cms.untracked.int32(5)
+))
 
 
 # Test Beam ECAL specific MC info
