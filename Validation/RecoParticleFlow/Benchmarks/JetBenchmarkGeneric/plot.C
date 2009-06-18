@@ -17,4 +17,10 @@ Compare(1,"JetBenchmark_Fast_310pre10.root","JetBenchmark_Full_310pre10.root","B
 Compare(2,"JetBenchmark_Fast_310pre10.root","JetBenchmark_Full_310pre10.root","EndcapComparison_FastFull_310pre10.png","Endcap Fast-Full comparison");
 Compare(3,"JetBenchmark_Fast_310pre10.root","JetBenchmark_Full_310pre10.root","ForwardComparison_FastFull_310pre10.png","Forward Fast-Full comparison");
 
+gROOT->ProcessLine(".L ResolutionDirection.C");
+ResolutionDirection(1,"JetBenchmark_Fast_310pre10.root","AngularResolution_Fast_Barrel_310pre10.png");
+ResolutionDirection(0,"JetBenchmark_Fast_310pre10.root","AngularResolution_Fast_Endcap_310pre10.png");
+ResolutionDirection(1,"JetBenchmark_Full_310pre10.root","AngularResolution_Full_Barrel_310pre10.png");
+ResolutionDirection(0,"JetBenchmark_Full_310pre10.root","AngularResolution_Full_Endcap_310pre10.png");
+
 }
