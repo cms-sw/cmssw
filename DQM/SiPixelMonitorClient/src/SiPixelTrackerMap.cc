@@ -16,7 +16,7 @@
 //
 // Original Author:  Dario Menasce
 //         Created:  
-// $Id: SiPixelTrackerMap.cc,v 1.12 2009/06/04 16:24:45 merkelp Exp $
+// $Id: SiPixelTrackerMap.cc,v 1.13 2009/06/17 14:03:12 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorClient/interface/SiPixelTrackerMap.h"
@@ -148,6 +148,13 @@ void SiPixelTrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_
   bool BPIX_L_3 = false ;
   string moduleName = mod->name;
   if(moduleName.find("PixelEndcap")!=string::npos || moduleName.find("PixelBarrel")!=string::npos) {
+    FPIX_M_1 = false ;
+    FPIX_M_2 = false ;
+    FPIX_P_1 = false ;
+    FPIX_P_2 = false ;
+    BPIX_L_1 = false ;
+    BPIX_L_2 = false ;
+    BPIX_L_3 = false ;
     if( moduleName.find("PixelEndcap 3")!=string::npos ) {FPIX_M_1 = true;}
     if( moduleName.find("PixelEndcap 4")!=string::npos ) {FPIX_M_2 = true;}
     if( moduleName.find("PixelEndcap 1")!=string::npos ) {FPIX_P_1 = true;}

@@ -1035,7 +1035,7 @@ void SiPixelInformationExtractor::selectMEList(DQMStore   * bei,
 					       string	               & theMEName,
 					       vector<MonitorElement*> & mes) 
 {  
-  cout<<"In SiPixelInformationExtractor::selectMEList: "<<endl;
+//  cout<<"In SiPixelInformationExtractor::selectMEList: "<<endl;
   string currDir = bei->pwd();
    
   string theME ;
@@ -1049,9 +1049,9 @@ void SiPixelInformationExtractor::selectMEList(DQMStore   * bei,
     for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) 
     {
       theME = (*it) ;
-      if(theME.find("siPixel")==string::npos || theME.find("ctfWithMaterialTracks")==string::npos) {continue ;} // If the ME is not a siPixel or ctfWithMaterialTrack one, skip
+      if(theME.find("siPixel")==string::npos && theME.find("ctfWithMaterialTracks")==string::npos) {continue ;} // If the ME is not a siPixel or ctfWithMaterialTrack one, skip
       string temp_s = theME.substr(0,theME.find_first_of("_"));
-      cout<<"should be the variable name: temp_s= "<<temp_s<<endl;
+      //cout<<"should be the variable name: temp_s= "<<temp_s<<endl;
       if (temp_s == theMEName)  
       {
         string full_path = currDir + "/" + (*it);
@@ -1082,7 +1082,7 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(DQMStore  * bei,
 						      std::string            & theMEName,
 						      std::string            & theTKType) 
 {
-  cout<<"In SiPixelInformationExtractor::sendTkUpdatedStatus: "<<endl;
+//  cout<<"In SiPixelInformationExtractor::sendTkUpdatedStatus: "<<endl;
   int rval, gval, bval;
   vector<string>          colorMap ;
   vector<MonitorElement*> me_list;
@@ -1124,8 +1124,10 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(DQMStore  * bei,
     string theMEType = getMEType(*it);
     if( meName.find("_3") != string::npos ) 
     {
-     detId = meName.substr(0,meName.find_first_of("_"));
-     cout<<"should be a variable name: detId= "<<detId<<endl;
+     string detIdString = meName.substr(meName.find_last_of("_")+1,9);
+     std::istringstream isst;
+     isst.str(detIdString);
+     isst>>detId;
      entries = (int)(*it)->getEntries() ;
      if( theTKType == "Averages") 
      {
