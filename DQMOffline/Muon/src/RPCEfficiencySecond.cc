@@ -553,9 +553,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   for(int ri=2;ri<=3;ri++){
     for(int roll=1;roll<=3;roll++){
       binLabel.str("");
-      if(roll==1) binLabel<<"Ring "<<ri<<" A";
+      if(roll==3) binLabel<<"Ring "<<ri<<" A";
       else if(roll==2) binLabel<<"Ring "<<ri<<" B";
-      else if(roll==3) binLabel<<"Ring "<<ri<<" C";
+      else if(roll==1) binLabel<<"Ring "<<ri<<" C";
       //if(debug) std::cout<<"Labeling EndCaps "<<binLabel.str()<<std::endl;
       Diskm3Summary->setBinLabel((ri-2)*3+roll,binLabel.str(),2);
       Diskm2Summary->setBinLabel((ri-2)*3+roll,binLabel.str(),2);
@@ -578,9 +578,6 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
       Disk3Summary->setBinContent(x,y,-1);
     }
   }
-
-   
-
 
   binLabel.str("");
 
@@ -1203,7 +1200,10 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 
 
 	  if(p > 100){ //We need at least 100 predictions to fill the summary plot
-	    int Y=((*r)->id().ring()-2)*3+(*r)->id().roll();
+	    int rollY = (*r)->id().roll();
+	    if(rollY==1) rollY=3;
+	    else if(rollY==3) rollY ==1;
+	    int Y=((*r)->id().ring()-2)*3+rollY;
 	    if(Disk==-3) Diskm3Summary->setBinContent(rpcsrv.segment(),Y,averageeff);
 	    else if(Disk==-2) Diskm2Summary->setBinContent(rpcsrv.segment(),Y,averageeff);
 	    else if(Disk==-1) Diskm1Summary->setBinContent(rpcsrv.segment(),Y,averageeff);
