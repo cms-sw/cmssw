@@ -44,6 +44,6 @@ namespace {
 namespace { typedef cond::PayLoadInspector< _class > PythonWrapper;} \
  BOOST_PYTHON_MODULE(plugin ## _name ## PyInterface) { define<PythonWrapper>(); } \
 namespace { const char * pluginName_="plugin"  #_name "PyInterface"; }\
-PYTHON_ID(PythonWrapper::Class, pluginName_)
+ PYTHON_ID(PythonWrapper::Class, pluginName_, _class)
 
 
