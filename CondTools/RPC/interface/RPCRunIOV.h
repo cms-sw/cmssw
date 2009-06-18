@@ -5,8 +5,8 @@
  * \class RPCRunIOV
  *  Reads data from ORCOFF and sqlite file
  *
- *  $Date: 2009/05/26 15:18:43 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/05/26 18:43:18 $
+ *  $Revision: 1.8 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -30,8 +30,17 @@
 #include "CondTools/RPC/interface/RPCFw.h"
 
 class  RPCRunIOV {
-public:
-
+ public:
+  
+  struct chRAW {
+    int region;
+    int ring;
+    int station;
+    int sector; 
+    int layer; 
+    int subsector;
+  };
+  
   RPCRunIOV();
   RPCRunIOV(const edm::EventSetup& evtSetup);
   ~RPCRunIOV();
@@ -43,6 +52,7 @@ public:
   unsigned long long toDAQ(unsigned long long);
   unsigned long long toUNIX(int, int);
   std::vector<RPCObImon::I_Item> filterIMON(std::vector<RPCObImon::I_Item>, unsigned long long, unsigned long long);
+  std::string chamberName(chRAW);
   unsigned long long min_I;
   unsigned long long max_I;
   unsigned long long min_V;

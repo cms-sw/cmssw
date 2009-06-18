@@ -1,4 +1,19 @@
 #include "CondTools/RPC/interface/RPCRunIOV.h"
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+
+
+namespace 
+{
+  std::string toString (int i)
+  {
+    char temp[20];
+    sprintf (temp, "%d", i);
+    return ((std::string) temp);
+  }
+}
+
 
 
 RPCRunIOV::RPCRunIOV()
@@ -188,13 +203,10 @@ RPCRunIOV::toUNIX(int date, int time)
   int min = sec_ - min_*100;
   int hou = (int)sec_/100;
   int nan = 0;
-  
   coral::TimeStamp TS;  
   TS = coral::TimeStamp(yea, mon, day, hou, min, sec, nan);
-  
-  RPCFw* conv = new RPCFw ("","","");
-  unsigned long long UT = conv->TtoUT(TS);
-  
+  RPCFw conv ("","","");
+  unsigned long long UT = conv.TtoUT(TS);
   return UT;
 }
 
@@ -229,3 +241,54 @@ RPCRunIOV::filterIMON(std::vector<RPCObImon::I_Item> imon, unsigned long long si
 
 
 
+//-----------chamber Name -------------------------------------
+std::string
+RPCRunIOV::chamberName(chRAW ch){
+
+  using namespace std;
+  string chambername, sector, station, DP, ring;
+
+  // BARREL
+  if (ch.region == 0) {
+    switch(ch.ring) {
+    case 2:  chambername = "WP2";
+    case 1:  chambername = "WP1";
+    case 0:  chambername = "W00";
+    case -1: chambername = "WM1";
+    case -2: chambername = "WM2";
+    }
+    sector  = toString (ch.sector);
+    station = toString (ch.station);
+    chambername  += "_S"+sector+"_RB"+station;
+        
+    switch(ch.station) {
+    case 1:; case 2:  
+      if (ch.subsector == 1) chambername += "minus";
+      if (ch.subsector == 2) chambername += "minus";
+    case 3:    
+      if(ch.layer == 1)chambername += "in";
+      if(ch.layer == 2)chambername += "out";
+    case 4:
+      if(ch.sector != 9 && ch.sector != 11) {
+	if (ch.subsector == 1) chambername += "minusminus";
+	if (ch.subsector == 2) chambername += "minus";
+	if (ch.subsector == 3) chambername += "plus";
+	if (ch.subsector == 4) chambername += "plusplus";
+      } else {
+	if (ch.subsector == 1) chambername += "minus";
+	if (ch.subsector == 2) chambername += "minus";
+      }
+    }
+  }
+  // ENDCAP
+  else{
+    int DP_ = 6*(ch.sector-1)+ch.subsector;
+    DP      = toString (DP_);
+    ring    = toString (ch.ring);
+    station = toString (ch.station);
+    if (ch.region == 1) chambername += "DP";
+    if (ch.region == -1)chambername += "DM";
+    chambername += station+"_R"+ring+"_C"+DP;
+  }
+  return chambername;
+}
