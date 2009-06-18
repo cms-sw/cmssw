@@ -101,6 +101,14 @@ void SiStripActionExecutor::createTkMap(const edm::ParameterSet & tkmapPset,
   if (tkMapCreator_) tkMapCreator_->create(tkmapPset, fedcabling, dqm_store, map_type);
 }
 //
+// -- create tracker map for offline
+//
+void SiStripActionExecutor::createOfflineTkMap(const edm::ParameterSet & tkmapPset,
+					DQMStore* dqm_store, string& map_type) {
+  if (tkMapCreator_) tkMapCreator_->createForOffline(tkmapPset, dqm_store, map_type);
+}
+
+//
 // -- Create Status Monitor Elements
 //
 void SiStripActionExecutor::createStatus(DQMStore* dqm_store){
@@ -286,7 +294,10 @@ void SiStripActionExecutor::printFaultyModuleList(DQMStore * dqm_store, ostrings
       for (std::vector<MonitorElement *>::const_iterator it = meVec.begin();
 	   it != meVec.end(); it++) {
         nDetsWithError++; 
-	str_val << (*it)->getName() <<  " " << (*it)->getIntValue() << endl;
+        uint16_t flag = (*it)->getIntValue();
+        string message;
+	SiStripUtility::getBadModuleStatus(flag, message);
+	str_val << (*it)->getName() <<  " flag : " << (*it)->getIntValue() << "  " << message << endl;
       } 
     }
     str_val << "--------------------------------------------------------------------"<< endl;

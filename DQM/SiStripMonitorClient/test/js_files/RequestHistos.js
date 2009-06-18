@@ -568,7 +568,6 @@ RequestHistos.RequestNonGeomeHistoList = function()
 RequestHistos.FillNonGeomHistoList = function(response, status) {
     try {
         $('#non_geo_hlist').html(response);
-        alert('here') ;
         $('#non_geo_tree').treeview({animated: "fast",
                                      collapsed: true,
                                      unique: true});

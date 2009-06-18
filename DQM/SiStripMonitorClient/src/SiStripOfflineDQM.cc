@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.25 2009/05/04 22:27:44 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.26 2009/05/12 12:09:38 dutta Exp $
 //
 //
 
@@ -46,6 +46,8 @@
 #include <sstream>
 #include <math.h>
 
+using namespace std;
+
 /** 
 * @brief 
 *   Construct object
@@ -53,7 +55,7 @@
 * @param roPARAMETER_SET 
 *   Regular Parameter Set that represent read configuration file
 */
-SiStripOfflineDQM::SiStripOfflineDQM(edm::ParameterSet const& pSet) {
+SiStripOfflineDQM::SiStripOfflineDQM(edm::ParameterSet const& pSet) : configPar_(pSet) {
   // Create MessageSender
   edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::Deleting SiStripOfflineDQM ";
 
@@ -63,12 +65,12 @@ SiStripOfflineDQM::SiStripOfflineDQM(edm::ParameterSet const& pSet) {
   // get back-end interface
   dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  usedWithEDMtoMEConverter_= pSet.getUntrackedParameter<bool>("UsedWithEDMtoMEConverter",false); 
-  createSummary_           = pSet.getUntrackedParameter<bool>("CreateSummary",true);
-  inputFileName_           = pSet.getUntrackedParameter<std::string>("InputFileName","");
-  outputFileName_          = pSet.getUntrackedParameter<std::string>("OutputFileName","");
-  globalStatusFilling_     = pSet.getUntrackedParameter<int>("GlobalStatusFilling", 1);
-  printFaultyModuleList_   = pSet.getUntrackedParameter<bool>("PrintFaultyModuleList", false);
+  usedWithEDMtoMEConverter_= configPar_.getUntrackedParameter<bool>("UsedWithEDMtoMEConverter",false); 
+  createSummary_           = configPar_.getUntrackedParameter<bool>("CreateSummary",false);
+  inputFileName_           = configPar_.getUntrackedParameter<string>("InputFileName","");
+  outputFileName_          = configPar_.getUntrackedParameter<string>("OutputFileName","");
+  globalStatusFilling_     = configPar_.getUntrackedParameter<int>("GlobalStatusFilling", 1);
+  printFaultyModuleList_   = configPar_.getUntrackedParameter<bool>("PrintFaultyModuleList", false);
 
   nEvents_  = 0;
 }
@@ -127,7 +129,7 @@ void SiStripOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSe
       const int siStripFedIdMax = numbering.getSiStripFEDIds().second; 
       
 
-      std::vector<int> FedsInIds= sumFED->m_fed_in;   
+      vector<int> FedsInIds= sumFED->m_fed_in;   
       for(unsigned int it = 0; it < FedsInIds.size(); ++it) {
 	int fedID = FedsInIds[it];     
 	
@@ -165,7 +167,6 @@ void SiStripOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
   edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::endLuminosityBlock";
   // create Summary Plots
   if (createSummary_)  actionExecutor_->createSummaryOffline(dqmStore_);
-
   // Fill Global Status
   if (globalStatusFilling_ > 0) {
     if (usedWithEDMtoMEConverter_) {
@@ -175,6 +176,20 @@ void SiStripOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
       actionExecutor_->fillStatus(dqmStore_);
     }
   }
+  bool create_tkmap    = configPar_.getUntrackedParameter<bool>("CreateTkMap",false); 
+  // Create TrackerMap
+  if (!usedWithEDMtoMEConverter_ && create_tkmap) {
+    edm::ParameterSet tkMapPSet = configPar_.getUntrackedParameter<edm::ParameterSet>("TkmapParameters");
+
+    vector<string> tkMapOptions = configPar_.getUntrackedParameter< vector<string> >("TkMapOptions" );
+    if (actionExecutor_->readTkMapConfiguration()) {
+
+      for(vector<string>::iterator it = tkMapOptions.begin(); it != tkMapOptions.end(); ++it) {
+	string map_type = (*it);
+	actionExecutor_->createOfflineTkMap(tkMapPSet, dqmStore_, map_type); 
+      }
+    }
+  } 
 }
 /** 
 * @brief 
@@ -187,9 +202,9 @@ void SiStripOfflineDQM::endJob() {
   edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::endJob";
   if (!usedWithEDMtoMEConverter_) {
     if (printFaultyModuleList_) {
-      std::ostringstream str_val;
+      ostringstream str_val;
       actionExecutor_->printFaultyModuleList(dqmStore_, str_val);
-      std::cout << str_val.str() << std::endl;
+      cout << str_val.str() << endl;
     }  
     // Save Output file
     dqmStore_->cd();

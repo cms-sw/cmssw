@@ -119,24 +119,25 @@ void SiStripUtility::getDetectorStatusColor(int status, int& rval, int&gval, int
     bval = 0;
     return;
   }
-  rval = 255;
-  if (status%2 == 1) {
+
+  if (status%2 == 1) { // FED Error is there
     if (status == 1) {
-      gval = 0;   bval = 0;
+      rval = 205; gval = 0; bval = 20;
     } else if (status == 3) { 
-      gval = 50;   bval = 0;
+      rval = 190; gval = 0; bval = 15;
     } else if (status == 5) {
-      gval = 50;   bval = 25; 
+      rval = 175; gval = 0; bval = 10;
     } else if (status == 7) {
-      gval = 50;   bval = 50; 
+      rval = 160; gval = 0; bval = 5;
     }
-  } else {
+  } else {        // No FED error
     if (status == 2) {
-      gval = 100;   bval = 0;
+      rval = 255; gval = 100; bval = 0;
     } else if (status == 4) {
+      rval = 240; gval = 90; bval = 0;
       gval = 100;   bval = 50;
     } else if (status == 6) {
-      gval = 100;   bval = 50;
+      rval = 225; gval = 80; bval = 0;
     }
   }
 }

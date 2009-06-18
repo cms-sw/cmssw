@@ -74,7 +74,6 @@ private:
 
   SiStripActionExecutor* actionExecutor_;
 
-  unsigned long long m_cacheID_;
   bool createSummary_;
   std::string inputFileName_;
   std::string outputFileName_;
@@ -83,5 +82,7 @@ private:
   int nEvents_;
   bool trackerFEDsFound_;
   bool printFaultyModuleList_;
+
+  edm::ParameterSet configPar_;
 };
 #endif
