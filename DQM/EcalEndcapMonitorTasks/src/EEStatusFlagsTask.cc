@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2008/12/03 10:28:11 $
- * $Revision: 1.17 $
+ * $Date: 2008/12/03 12:55:50 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -208,65 +208,71 @@ void EEStatusFlagsTask::endJob(void){
 
 void EEStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
 
-  if ( ! init_ ) this->setup();
-
-  ievt_++;
+  bool enable = false;
 
   Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
-    for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
-
-      if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
-
-      int ism = Numbers::iSM( *dcchItr, EcalEndcap );
-
-      if ( meEvtType_[ism-1] ) meEvtType_[ism-1]->Fill(dcchItr->getRunType()+0.5);
-
-      const vector<short> status = dcchItr->getFEStatus();
-
-      for ( unsigned int itt=1; itt<=status.size(); itt++ ) {
-
-        if ( itt > 41 ) continue;
-
-        if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
-
-        vector<DetId> crystals = Numbers::crystals( EcalElectronicsId(dcchItr->id(), itt, 1, 1) );
-
-        for ( unsigned int i=0; i<crystals.size(); i++ ) {
-
-        EEDetId id = crystals[i];
-
-        int ix = id.ix();
-        int iy = id.iy();
-
-        if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
-
-        float xix = ix - 0.5;
-        float xiy = iy - 0.5;
-
-        if ( meFEchErrors_[ism-1][0] ) {
-          if ( meFEchErrors_[ism-1][0]->getBinContent(ix-Numbers::ix0EE(ism), iy-Numbers::iy0EE(ism)) == -1 ) {
-            meFEchErrors_[ism-1][0]->setBinContent(ix-Numbers::ix0EE(ism), iy-Numbers::iy0EE(ism), 0);
-          }
-        }
-
-        if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 ) ) {
-          if ( meFEchErrors_[ism-1][0] ) meFEchErrors_[ism-1][0]->Fill(xix, xiy);
-        }
-
-        }
-
-        if ( meFEchErrors_[ism-1][1] ) meFEchErrors_[ism-1][1]->Fill(status[itt-1]+0.5);
-
-      }
-
-    }
+    enable = true;
 
   } else {
 
     LogWarning("EEStatusFlagsTask") << EcalRawDataCollection_ << " not available";
+
+  }
+
+  if ( ! enable ) return;
+
+  if ( ! init_ ) this->setup();
+
+  ievt_++;
+
+  for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+
+    if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
+
+    int ism = Numbers::iSM( *dcchItr, EcalEndcap );
+
+    if ( meEvtType_[ism-1] ) meEvtType_[ism-1]->Fill(dcchItr->getRunType()+0.5);
+
+    const vector<short> status = dcchItr->getFEStatus();
+
+    for ( unsigned int itt=1; itt<=status.size(); itt++ ) {
+
+      if ( itt > 41 ) continue;
+
+      if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
+
+      vector<DetId> crystals = Numbers::crystals( EcalElectronicsId(dcchItr->id(), itt, 1, 1) );
+
+      for ( unsigned int i=0; i<crystals.size(); i++ ) {
+
+      EEDetId id = crystals[i];
+
+      int ix = id.ix();
+      int iy = id.iy();
+
+      if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
+
+      float xix = ix - 0.5;
+      float xiy = iy - 0.5;
+
+      if ( meFEchErrors_[ism-1][0] ) {
+        if ( meFEchErrors_[ism-1][0]->getBinContent(ix-Numbers::ix0EE(ism), iy-Numbers::iy0EE(ism)) == -1 ) {
+          meFEchErrors_[ism-1][0]->setBinContent(ix-Numbers::ix0EE(ism), iy-Numbers::iy0EE(ism), 0);
+        }
+      }
+
+      if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 ) ) {
+        if ( meFEchErrors_[ism-1][0] ) meFEchErrors_[ism-1][0]->Fill(xix, xiy);
+      }
+
+      }
+
+      if ( meFEchErrors_[ism-1][1] ) meFEchErrors_[ism-1][1]->Fill(status[itt-1]+0.5);
+
+    }
 
   }
 

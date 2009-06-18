@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityTask.h
  *
- * $Date: 2008/04/08 15:32:08 $
- * $Revision: 1.25 $
+ * $Date: 2008/05/11 09:35:08 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  *
  */
@@ -66,6 +66,7 @@ bool enableCleanup_;
 
 bool mergeRuns_;
 
+edm::InputTag EcalRawDataCollection_;
 edm::InputTag EBDetIdCollection0_;
 edm::InputTag EBDetIdCollection1_;
 edm::InputTag EBDetIdCollection2_;

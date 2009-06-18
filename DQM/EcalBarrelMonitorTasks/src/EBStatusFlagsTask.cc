@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsTask.cc
  *
- * $Date: 2008/12/03 10:28:10 $
- * $Revision: 1.15 $
+ * $Date: 2008/12/03 12:55:49 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -206,53 +206,59 @@ void EBStatusFlagsTask::endJob(void){
 
 void EBStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
 
-  if ( ! init_ ) this->setup();
-
-  ievt_++;
+  bool enable = false;
 
   Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
-    for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
-
-      if ( Numbers::subDet( *dcchItr ) != EcalBarrel ) continue;
-
-      int ism = Numbers::iSM( *dcchItr, EcalBarrel );
-
-      if ( meEvtType_[ism-1] ) meEvtType_[ism-1]->Fill(dcchItr->getRunType()+0.5);
-
-      const vector<short> status = dcchItr->getFEStatus();
-
-      for ( unsigned int itt=1; itt<=status.size(); itt++ ) {
-
-        if ( itt > 68 ) continue;
-
-        int iet = (itt-1)/4 + 1;
-        int ipt = (itt-1)%4 + 1;
-
-        float xiet = iet - 0.5;
-        float xipt = ipt - 0.5;
-
-        if ( meFEchErrors_[ism-1][0] ) {
-          if ( meFEchErrors_[ism-1][0]->getBinContent(iet, ipt) == -1 ) {
-            meFEchErrors_[ism-1][0]->setBinContent(iet, ipt, 0);
-          }
-        }
-
-        if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 ) ) {
-          if ( meFEchErrors_[ism-1][0] ) meFEchErrors_[ism-1][0]->Fill(xiet, xipt);
-        }
-
-        if ( meFEchErrors_[ism-1][1] ) meFEchErrors_[ism-1][1]->Fill(status[itt-1]+0.5); 
-
-      }
-
-    }
+    enable = true;
 
   } else {
 
     LogWarning("EBStatusFlagsTask") << EcalRawDataCollection_ << " not available";
+
+  }
+
+  if ( ! enable ) return;
+
+  if ( ! init_ ) this->setup();
+
+  ievt_++;
+
+  for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+
+    if ( Numbers::subDet( *dcchItr ) != EcalBarrel ) continue;
+
+    int ism = Numbers::iSM( *dcchItr, EcalBarrel );
+
+    if ( meEvtType_[ism-1] ) meEvtType_[ism-1]->Fill(dcchItr->getRunType()+0.5);
+
+    const vector<short> status = dcchItr->getFEStatus();
+
+    for ( unsigned int itt=1; itt<=status.size(); itt++ ) {
+
+      if ( itt > 68 ) continue;
+
+      int iet = (itt-1)/4 + 1;
+      int ipt = (itt-1)%4 + 1;
+
+      float xiet = iet - 0.5;
+      float xipt = ipt - 0.5;
+
+      if ( meFEchErrors_[ism-1][0] ) {
+        if ( meFEchErrors_[ism-1][0]->getBinContent(iet, ipt) == -1 ) {
+          meFEchErrors_[ism-1][0]->setBinContent(iet, ipt, 0);
+        }
+      }
+
+      if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 ) ) {
+        if ( meFEchErrors_[ism-1][0] ) meFEchErrors_[ism-1][0]->Fill(xiet, xipt);
+      }
+
+      if ( meFEchErrors_[ism-1][1] ) meFEchErrors_[ism-1][1]->Fill(status[itt-1]+0.5); 
+
+    }
 
   }
 

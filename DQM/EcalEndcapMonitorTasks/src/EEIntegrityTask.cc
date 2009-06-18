@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2008/12/03 10:28:11 $
- * $Revision: 1.40 $
+ * $Date: 2008/12/03 12:55:50 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  *
  */
@@ -42,6 +42,8 @@ EEIntegrityTask::EEIntegrityTask(const ParameterSet& ps){
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
+  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
 
   EEDetIdCollection0_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection0");
   EEDetIdCollection1_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection1");
@@ -305,6 +307,22 @@ void EEIntegrityTask::endJob(void){
 }
 
 void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
+
+  bool enable = false;
+
+  Handle<EcalRawDataCollection> dcchs;
+
+  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
+
+    enable = true;
+
+  } else {
+
+    LogWarning("EEIntegrityTask") << EcalRawDataCollection_ << " not available";
+
+  }
+
+  if ( ! enable ) return;
 
   if ( ! init_ ) this->setup();
 

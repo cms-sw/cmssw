@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2008/12/03 10:28:10 $
- * $Revision: 1.73 $
+ * $Date: 2008/12/03 12:55:49 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  *
  */
@@ -42,6 +42,8 @@ EBIntegrityTask::EBIntegrityTask(const ParameterSet& ps){
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
+  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
 
   EBDetIdCollection0_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection0");
   EBDetIdCollection1_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection1");
@@ -306,6 +308,22 @@ void EBIntegrityTask::endJob(void){
 }
 
 void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
+
+  bool enable = false;
+
+  Handle<EcalRawDataCollection> dcchs;
+
+  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
+
+    enable = true;
+
+  } else {
+
+    LogWarning("EBIntegrityTask") << EcalRawDataCollection_ << " not available";
+
+  }
+
+  if ( ! enable ) return;
 
   if ( ! init_ ) this->setup();
 
