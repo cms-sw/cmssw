@@ -38,23 +38,23 @@ public:
   ~EcalTDigitizer() {}
 
   /// tell the digitizer which cells exist
-  void setDetIds(const std::vector<DetId> & detIds) {theDetIds = detIds;}
+  void setDetIds(const std::vector<DetId>& detIds) {theDetIds = &detIds;}
 
   /// turns hits into digis
   void run(MixCollection<PCaloHit> & input, DigiCollection & output) {
-    assert(theDetIds.size() != 0);
+    assert(theDetIds->size() != 0);
 
     theHitResponse->run(input);
 
     theElectronicsSim->newEvent();
 
     // reserve space for how many digis we expect
-    int nDigisExpected = addNoise_ ? theDetIds.size() : theHitResponse->nSignals();
+    int nDigisExpected = addNoise_ ? theDetIds->size() : theHitResponse->nSignals();
     output.reserve(nDigisExpected);
 
     // make a raw digi for evey cell
-    for(std::vector<DetId>::const_iterator idItr = theDetIds.begin();
-        idItr != theDetIds.end(); ++idItr)
+    for(std::vector<DetId>::const_iterator idItr = theDetIds->begin();
+        idItr != theDetIds->end(); ++idItr)
     {
        CaloSamples * analogSignal = theHitResponse->findSignal(*idItr);
        bool needToDeleteSignal = false;
@@ -81,7 +81,7 @@ public:
 private:
   CaloHitResponse * theHitResponse;
   ElectronicsSim * theElectronicsSim;
-  std::vector<DetId> theDetIds;
+      const std::vector<DetId>* theDetIds;
   bool addNoise_;
 };
 
