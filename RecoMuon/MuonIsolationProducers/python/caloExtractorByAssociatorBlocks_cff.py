@@ -15,6 +15,11 @@ MIsoCaloExtractorByAssociatorTowersBlock = cms.PSet(
     CenterConeOnCalIntersection = cms.bool(False),
     DR_Max = cms.double(1.0),
     PropagatorName = cms.string('SteppingHelixPropagatorAny'),
+    ServiceParameters = cms.PSet(
+        Propagators = cms.untracked.vstring( 'SteppingHelixPropagatorAny' ),
+        RPCLayers = cms.bool( False ),
+        UseMuonNavigation = cms.untracked.bool( False )
+    ),
     Threshold_E = cms.double(0.2),
     Noise_HB = cms.double(0.2),
     PrintTimeReport = cms.untracked.bool(False),
@@ -41,6 +46,11 @@ MIsoCaloExtractorByAssociatorHitsBlock = cms.PSet(
     CenterConeOnCalIntersection = cms.bool(False),
     DR_Max = cms.double(1.0),
     PropagatorName = cms.string('SteppingHelixPropagatorAny'),
+    ServiceParameters = cms.PSet(
+        Propagators = cms.untracked.vstring( 'SteppingHelixPropagatorAny' ),
+        RPCLayers = cms.bool( False ),
+        UseMuonNavigation = cms.untracked.bool( False )
+    ),
     Threshold_E = cms.double(0.025),
     Noise_HB = cms.double(0.2),
     NoiseTow_EB = cms.double(0.04),

@@ -8,9 +8,9 @@
  *  All work is done by TrackDetectorAssociator. Because of the heavy
  *  weight of the tool, all extractions can (should?) be placed in a single place.
  *  
- *  $Date: 2008/03/02 21:13:13 $
- *  $Revision: 1.4 $
- *  $Id: CaloExtractorByAssociator.h,v 1.4 2008/03/02 21:13:13 slava77 Exp $
+ *  $Date: 2009/05/12 10:13:53 $
+ *  $Revision: 1.5 $
+ *  $Id: CaloExtractorByAssociator.h,v 1.5 2009/05/12 10:13:53 slava77 Exp $
  *  \author S. Krutelyov
  */
 
@@ -29,7 +29,7 @@
 
 class TrackAssociatorParameters;
 class TrackDetectorAssociator;
-class Propagator;
+class MuonServiceProxy;
 
 namespace muonisolation {
   
@@ -96,10 +96,13 @@ namespace muonisolation {
     //! Vector of calo Ids to veto -- not used
     std::vector<DetId> theVetoCollection;
 
+    //! the event setup proxy, it takes care the services update
+    MuonServiceProxy* theService;
+
+
     //! associator, its' parameters and the propagator
     TrackAssociatorParameters* theAssociatorParameters;
     TrackDetectorAssociator* theAssociator;  
-    mutable Propagator* thePropagator; 
 
     //! flag to turn on/off printing of a time report
     bool thePrintTimeReport;

@@ -4,6 +4,7 @@
 <use name="FWCore/MessageLogger">
 <use name="FWCore/ParameterSet">
 <use name="PhysicsTools/IsolationAlgos">
+<use name="RecoMuon/TrackingTools">
 <export>
   <use name="DataFormats/Candidate">
   <use name="DataFormats/RecoCandidate">
@@ -11,5 +12,6 @@
   <use name="FWCore/MessageLogger">
   <use name="FWCore/ParameterSet">
   <use name="PhysicsTools/IsolationAlgos">
+  <use name="RecoMuon/TrackingTools">
   <lib name="RecoMuonMuonIsolation">
 </export>

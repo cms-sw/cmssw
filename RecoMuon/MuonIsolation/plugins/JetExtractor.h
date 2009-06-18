@@ -8,9 +8,9 @@
  *  All work is done by TrackDetectorAssociator. Because of the heavy
  *  weight of the tool, all extractions can (should?) be placed in a single place.
  *  
- *  $Date: 2007/11/30 06:23:08 $
- *  $Revision: 1.3 $
- *  $Id: JetExtractor.h,v 1.3 2007/11/30 06:23:08 slava77 Exp $
+ *  $Date: 2008/03/02 21:13:13 $
+ *  $Revision: 1.4 $
+ *  $Id: JetExtractor.h,v 1.4 2008/03/02 21:13:13 slava77 Exp $
  *  \author S. Krutelyov
  */
 
@@ -29,7 +29,7 @@
 
 class TrackAssociatorParameters;
 class TrackDetectorAssociator;
-class Propagator;
+class MuonServiceProxy;
 
 namespace muonisolation {
 
@@ -59,9 +59,11 @@ private:
   //excludes sumEt of towers that are inside muon veto cone
   bool theExcludeMuonVeto;
 
+  //! the event setup proxy, it takes care the services update
+  MuonServiceProxy* theService;
+  
   TrackAssociatorParameters* theAssociatorParameters;
   TrackDetectorAssociator* theAssociator;  
-  mutable Propagator* thePropagator; 
 
   bool thePrintTimeReport;
 

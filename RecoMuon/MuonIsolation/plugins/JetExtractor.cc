@@ -19,6 +19,8 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
@@ -39,10 +41,13 @@ JetExtractor::JetExtractor(const ParameterSet& par) :
   theDR_Veto(par.getParameter<double>("DR_Veto")),
   theDR_Max(par.getParameter<double>("DR_Max")),
   theExcludeMuonVeto(par.getParameter<bool>("ExcludeMuonVeto")),
+  theService(0),
   theAssociator(0),
-  thePropagator(0),
   thePrintTimeReport(par.getUntrackedParameter<bool>("PrintTimeReport"))
 {
+  ParameterSet serviceParameters = par.getParameter<ParameterSet>("ServiceParameters");
+  theService = new MuonServiceProxy(serviceParameters);
+
   theAssociatorParameters = new TrackAssociatorParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"));
   theAssociator = new TrackDetectorAssociator();
 }
@@ -50,8 +55,8 @@ JetExtractor::JetExtractor(const ParameterSet& par) :
 JetExtractor::~JetExtractor(){
   if (thePrintTimeReport) TimingReport::current()->dump(std::cout);
   if (theAssociatorParameters) delete theAssociatorParameters;
+  if (theService) delete theService;
   if (theAssociator) delete theAssociator;
-  if (thePropagator) delete thePropagator;
 }
 
 void JetExtractor::fillVetos(const edm::Event& event, const edm::EventSetup& eventSetup, const TrackCollection& muons)
@@ -64,13 +69,10 @@ void JetExtractor::fillVetos(const edm::Event& event, const edm::EventSetup& eve
 
 IsoDeposit JetExtractor::deposit( const Event & event, const EventSetup& eventSetup, const Track & muon) const
 {
-  if (thePropagator == 0){
-    ESHandle<Propagator> prop;
-    eventSetup.get<TrackingComponentsRecord>().get(thePropagatorName, prop);
-    thePropagator = prop->clone();
-    theAssociator->setPropagator(thePropagator);
-  }
 
+  theService->update(eventSetup);
+  theAssociator->setPropagator(&*(theService->propagator(thePropagatorName)));
+ 
   typedef IsoDeposit::Veto Veto;
   IsoDeposit::Direction muonDir(muon.eta(), muon.phi());
   

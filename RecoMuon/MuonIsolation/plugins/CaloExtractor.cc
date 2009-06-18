@@ -16,7 +16,8 @@
 #include "DataFormats/Math/interface/deltaR.h"
 //#include "CommonTools/Utils/interface/deltaR.h"
 //#include "PhysicsTools/Utilities/interface/deltaR.h"
-#include "PhysicsTools/Utilities/interface/normalizedPhi.h"
+#include "CommonTools/Utils/interface/normalizedPhi.h"
+//#include "PhysicsTools/Utilities/interface/normalizedPhi.h"
 
 using namespace edm;
 using namespace std;

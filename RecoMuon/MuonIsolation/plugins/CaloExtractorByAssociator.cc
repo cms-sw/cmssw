@@ -18,6 +18,8 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
@@ -52,10 +54,13 @@ CaloExtractorByAssociator::CaloExtractorByAssociator(const ParameterSet& par) :
   theNoise_HO(par.getParameter<double>("Noise_HO")),	
   theNoiseTow_EB(par.getParameter<double>("NoiseTow_EB")),
   theNoiseTow_EE(par.getParameter<double>("NoiseTow_EE")),
+  theService(0),
   theAssociator(0),
-  thePropagator(0),
   thePrintTimeReport(par.getUntrackedParameter<bool>("PrintTimeReport"))
 {
+  ParameterSet serviceParameters = par.getParameter<ParameterSet>("ServiceParameters");
+  theService = new MuonServiceProxy(serviceParameters);
+
   theAssociatorParameters = new TrackAssociatorParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"));
   theAssociator = new TrackDetectorAssociator();
 }
@@ -63,8 +68,8 @@ CaloExtractorByAssociator::CaloExtractorByAssociator(const ParameterSet& par) :
 CaloExtractorByAssociator::~CaloExtractorByAssociator(){
   if (thePrintTimeReport) TimingReport::current()->dump(std::cout);
   if (theAssociatorParameters) delete theAssociatorParameters;
+  if (theService) delete theService;
   if (theAssociator) delete theAssociator;
-  if (thePropagator) delete thePropagator;
 }
 
 void CaloExtractorByAssociator::fillVetos(const edm::Event& event, const edm::EventSetup& eventSetup, const TrackCollection& muons)
@@ -92,14 +97,8 @@ IsoDeposit CaloExtractorByAssociator::deposit( const Event & event, const EventS
 //! Make separate deposits: for ECAL, HCAL, HO
 std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event, const EventSetup& eventSetup, const Track & muon) const
 {
-
-  if (thePropagator == 0){
-    //! get the propagator form ES if it's not picked up yet
-    ESHandle<Propagator> prop;
-    eventSetup.get<TrackingComponentsRecord>().get(thePropagatorName, prop);
-    thePropagator = prop->clone();
-    theAssociator->setPropagator(thePropagator);
-  }
+  theService->update(eventSetup);
+  theAssociator->setPropagator(&*(theService->propagator(thePropagatorName)));
 
   //! check configuration consistency
   //! could've been made at construction stage (fix later?)
