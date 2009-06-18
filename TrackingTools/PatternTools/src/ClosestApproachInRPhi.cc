@@ -276,6 +276,7 @@ ClosestApproachInRPhi::zCoord(const GlobalVector& mom,
   }
   else {
     double cosPhi = ((x-xc)*(xg-xc) + (y-yc)*(yg-yc))/(r*r);
+    if (std::abs(cosPhi) > 1) cosPhi = (cosPhi > 0 ? 1 : -1);
     phi = abs(acos(cosPhi));
   }
   // -- sign of phi
