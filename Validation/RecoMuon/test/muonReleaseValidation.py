@@ -10,7 +10,7 @@ import string
 ######### User variables
 
 #Reference release
-NewRelease='CMSSW_3_1_0_pre9'
+NewRelease='CMSSW_3_1_0_pre10'
 
 # startup and ideal sample list
 #startupsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
@@ -32,7 +32,7 @@ Tracksname=''
 #   -reco_and_val
 #   -only_val
 
-Sequence='harvestin'
+Sequence='only_val'
 
 SearchContent="*GEN-SIM-RECO*"
 DriverSteps="HARVESTING:validationHarvesting"
@@ -131,8 +131,6 @@ def do_validation(samples, GlobalTagUse, trackquality, trackalgorithm):
             ## start new
             cmd='dbsql "find  dataset.createdate, dataset where dataset like *'
             cmd+=sample+'/'+NewRelease+'_'+GlobalTag+SearchContent+' "'
-            #cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM*HLTDEBUG* "'
-            #cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* "'
             cmd+='|grep '+sample+'|grep -v test|sort|tail -1|cut -f2 '
             print cmd
             dataset= os.popen(cmd).readline().strip()
@@ -234,30 +232,50 @@ def do_validation(samples, GlobalTagUse, trackquality, trackalgorithm):
                 lanciaFile.close()
 
                 previousFileOut=''
+                command=''
+                nextFileOut=''
+                specialCommand=''
+                processName=''
                 if(Sequence=="reco_and_val"):
-                    previousFileOut+='step2_RECO_VALIDATION.root'
-                    driverCmd='cmsDriver.py step2 -s '+DriverSteps+' --mc -n100 --conditions FrontierConditions_GlobalTag,'+GlobalTagUse+'::All --filein file:step1.root --fileout '+previousFileOut+' --eventcontent RECOSIM  --datatier GEN-SIM-RECO   --customise=Validation/RecoMuon/customise.py --python_filename='+cfgFileName+'.py --no_exec'
-                    print driverCmd
-                    iii=os.system(driverCmd)
+                    nextFileOut+='step2_RECO_VALIDATION.root'
+                    command+='step2'
+                    previousFileOut+='step1.root'
+                    processName+='RecVal'
                 if(Sequence=="only_val"):
-                    previousFileOut+='step2_VALIDATION.root'
-                    driverCmd='cmsDriver.py step2 -s '+DriverSteps+' --mc -n100 --conditions FrontierConditions_GlobalTag,'+GlobalTagUse+'::All --filein file:step2.root --fileout '+previousFileOut+' --eventcontent RECOSIM  --datatier GEN-SIM-RECO   --customise=Validation/RecoMuon/customise.py --python_filename='+cfgFileName+'.py --no_exec'
-                    print driverCmd
-                    iii=os.system(driverCmd)
-                if(Sequence=="harvesting" or Sequence=="reco_and_val" or Sequence=="only_val"):
+                    nextFileOut+='step2_VALIDATION.root'
+                    command+='step2'
+                    previousFileOut+='step2.root'
+                    processName+='VAL'
+                if(Sequence=="harvesting"):
                     if(previousFileOut==''):
                         previousFileOut+='step2.root'
-                    driverCmd='cmsDriver.py harvest -s '+DriverSteps+' --mc  --conditions FrontierConditions_GlobalTag,'+GlobalTagUse+'::All --harvesting AtJobEnd --filein file:'+previousFileOut+' --fileout harvest_out.root --customise=Validation/RecoMuon/customise.py --python_filename=harvest_'+cfgFileName+'.py --no_exec'
-                    print driverCmd
-                    iii=os.system(driverCmd)
+                    command+='harvest'
+                    nextFileOut+='harvest_out.root'
+                    specialCommand+=' --harvesting AtJobEnd'
+                    processName+='HARV'
 
+                driverCmdNew='cmsDriver.py '+ command
+                driverCmdNew+=' -s '+DriverSteps
+                driverCmdNew+=' '+processName+' '
+                driverCmdNew+=' --mc '
+                driverCmdNew+=' -n'+Nevents
+                driverCmdNew+=' --conditions FrontierConditions_GlobalTag,'+GlobalTagUse+'::All'
+                driverCmdNew+=' --filein file:'+previousFileOut
+                driverCmdNew+=' --fileout '+nextFileOut
+                driverCmdNew+=' --python_filename='+cfgFileName+'.py '
+                driverCmdNew+=' --no_exec '
+                driverCmdNew+=' --customise=Validation/RecoMuon/customise.py '
+                driverCmdNew+=' '+specialCommand+' ' 
+
+                print driverCmdNew
+                iii=os.system(driverCmdNew)
                     
                 print ("copying py file for sample: %s %s") % (sample,lanciaName)
                 iii = os.system('mv '+lanciaName+' '+WorkDir+'/.')
                 print iii
                 iii = os.system('mv '+sampleFileName+'.py '+WorkDir)
                 iii = os.system('mv '+cfgFileName+'.py '+WorkDir)
-                iii = os.system('mv harvest_'+cfgFileName+'.py '+WorkDir)
+                #iii = os.system('mv harvest_'+cfgFileName+'.py '+WorkDir)
                 #if(OneAtATime==False):
                 #    break
                 
