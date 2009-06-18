@@ -80,9 +80,6 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   preselCutValuesEndcap_.push_back(conf_.getParameter<double>("trackPtSumHollowConeEndcap"));     
   preselCutValuesEndcap_.push_back(conf_.getParameter<double>("sigmaIetaIetaCutEndcap"));     
   //
-  thePhotonIsolationCalculator_ = new PhotonIsolationCalculator();
-  edm::ParameterSet isolationSumsCalculatorSet = conf_.getParameter<edm::ParameterSet>("isolationSumsCalculatorSet"); 
-  thePhotonIsolationCalculator_->setup(isolationSumsCalculatorSet);
   energyCorrectionF = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection", conf_);
 
   // Register the product
@@ -95,6 +92,10 @@ PhotonProducer::~PhotonProducer() {}
 
 
 void  PhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
+
+    thePhotonIsolationCalculator_ = new PhotonIsolationCalculator();
+    edm::ParameterSet isolationSumsCalculatorSet = conf_.getParameter<edm::ParameterSet>("isolationSumsCalculatorSet"); 
+    thePhotonIsolationCalculator_->setup(isolationSumsCalculatorSet);
 
 }
 
