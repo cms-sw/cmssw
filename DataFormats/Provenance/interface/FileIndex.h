@@ -5,8 +5,6 @@
 
 FileIndex.h 
 
-$Id: FileIndex.h,v 1.12 2009/02/17 22:21:18 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
 #include <vector>
@@ -15,6 +13,8 @@ $Id: FileIndex.h,v 1.12 2009/02/17 22:21:18 wmtan Exp $
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Transient.h"
+
+#include "boost/shared_ptr.hpp"
 
 #include <iosfwd>
 
@@ -67,6 +67,9 @@ namespace edm {
       findEventPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact) const;
 
       const_iterator
+      findEventEntryPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, EntryNumber_t entry, bool exact) const;
+
+      const_iterator
       findLumiPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, bool exact) const;
 
       const_iterator
@@ -108,7 +111,7 @@ namespace edm {
 
       bool allEventsInEntryOrder() const;
 
-      enum SortState { kNotSorted, kSorted_Run_Lumi_Event, kSorted_Run_Lumi_EventEntry};
+      enum SortState {kNotSorted, kSorted_Run_Lumi_Event, kSorted_Run_Lumi_EventEntry};
 
       struct Transients {
 	Transients();
@@ -150,7 +153,7 @@ namespace edm {
   };
 
   std::ostream&
-  operator<< (std::ostream& os, FileIndex const& fileIndex);
+  operator<<(std::ostream& os, FileIndex const& fileIndex);
 }
 
 #endif
