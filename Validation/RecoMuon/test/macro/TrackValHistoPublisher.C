@@ -5,6 +5,9 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
  gROOT ->SetBatch();
 
  //=========  settings ====================
+
+ char* dataType = "DATATYPE";
+
  gROOT->SetStyle("Plain");
  gStyle->SetPadGridX(kTRUE);
  gStyle->SetPadGridY(kTRUE);
@@ -17,6 +20,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
  //gStyle->SetTextSize(0.5);
  char* refLabel("REF_LABEL, REF_RELEASE REFSELECTION");
  char* newLabel("NEW_LABEL, NEW_RELEASE NEWSELECTION");
+
+ Float_t maxPT=1025.;
 
 
  //=============================================
@@ -31,8 +36,18 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
  TFile * rfile = new TFile(refFile);
  TDirectory * rdir=gDirectory;
 
- if(sfile->cd("DQMData/Run 1/RecoMuonV")) {sfile->cd("DQMData/Run 1/RecoMuonV/Run summary/MultiTrack");}
- else {sfile->cd("DQMData/RecoMuonV/MultiTrack");}
+ if (dataType == "HLT") {
+   if(sfile->cd("DQMData/Run 1/HLT")) {sfile->cd("DQMData/Run 1/HLT/Run summary/Muon/MultiTrack");}
+   else {sfile->cd("DQMData/HLT/Muon/MultiTrack");}
+ }
+ else if (dataType == "RECO") {
+   if(sfile->cd("DQMData/Run 1/RecoMuonV")) {sfile->cd("DQMData/Run 1/RecoMuonV/Run summary/MultiTrack");}
+   else {sfile->cd("DQMData/RecoMuonV/MultiTrack");}
+ }
+ else {
+   cout << " Data type " << dataType << " not allowed: only RECO and HLT are considered" << endl;
+   return;
+ }
  sdir=gDirectory;
  //TList *sl= sdir->GetListOfKeys();
  TIter nextkey( sdir->GetListOfKeys() );
@@ -47,8 +62,14 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
  }
  TString collname2 =sl->At(0)->GetName(); 
  
- if(rfile->cd("DQMData/Run 1/RecoMuonV")) rfile->cd("DQMData/Run 1/RecoMuonV/Run summary/MultiTrack");
- else rfile->cd("DQMData/RecoMuonV/MultiTrack");
+ if (dataType == "HLT") {
+   if(rfile->cd("DQMData/Run 1/HLT")) rfile->cd("DQMData/Run 1/HLT/Run summary/Muon/MultiTrack");
+   else rfile->cd("DQMData/HLT/Muon/MultiTrack");
+ }
+ else if (dataType == "RECO") {
+   if(rfile->cd("DQMData/Run 1/RecoMuonV")) rfile->cd("DQMData/Run 1/RecoMuonV/Run summary/MultiTrack");
+   else rfile->cd("DQMData/RecoMuonV/MultiTrack");
+ }
  rdir=gDirectory;
  //TList *rl= rdir->GetListOfKeys();
  TIter nextkeyr( rdir->GetListOfKeys() );
@@ -82,7 +103,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
  bool ctf=1;
  bool rs=0;
  
- TIter iter_r( rl );
+  TIter iter_r( rl );
  TIter iter_s( sl );
  TKey * myKey1, *myKey2;
  while ( (myKey1 = (TKey*)iter_r()) ) {
@@ -120,8 +141,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
    rdir->GetObject(collname1+"/efficPt",rh3);
    sdir->GetObject(collname2+"/efficPt",sh3);
-   //   rh3->GetXaxis()->SetRangeUser(0,30);
-   //   sh3->GetXaxis()->SetRangeUser(0,30);
+   rh3->GetXaxis()->SetRangeUser(0,maxPT);
+   sh3->GetXaxis()->SetRangeUser(0,maxPT);
    rh3->GetYaxis()->SetRangeUser(0.,1.025);
    sh3->GetYaxis()->SetRangeUser(0.,1.025);
    rh3->GetYaxis()->SetTitle("efficiency vs p_{t}");
@@ -136,8 +157,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rh4->GetYaxis()->SetTitleOffset(1.2);
    //   rh4->GetYaxis()->SetRangeUser(0.,.80);
    //   sh4->GetYaxis()->SetRangeUser(0.,.80);
-   //   rh4->GetXaxis()->SetRangeUser(0.2,50);
-   //   sh4->GetXaxis()->SetRangeUser(0.2,50);
+   rh4->GetXaxis()->SetRangeUser(0.2,maxPT);
+   sh4->GetXaxis()->SetRangeUser(0.2,maxPT);
 
 
    rdir->GetObject(collname1+"/effic_vs_hit",rh5);
@@ -191,7 +212,6 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    delete l;
    delete canvas;
 
-
    // ====== hits and pt
    rdir->GetObject(collname1+"/nhits_vs_eta_pfx",(TProfile*)rh1);
    sdir->GetObject(collname2+"/nhits_vs_eta_pfx",(TProfile*)sh1);
@@ -210,10 +230,10 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rh2->GetXaxis()->SetRangeUser(0,74);
    sh2->GetXaxis()->SetRangeUser(0,74);
    
-   //  rh3->GetXaxis()->SetRangeUser(0,10);
-   //  sh3->GetXaxis()->SetRangeUser(0,10);
-   //  rh4->GetXaxis()->SetRangeUser(0,10);
-   //  sh4->GetXaxis()->SetRangeUser(0,10);
+   rh3->GetXaxis()->SetRangeUser(0,maxPT);
+   sh3->GetXaxis()->SetRangeUser(0,maxPT);
+   rh4->GetXaxis()->SetRangeUser(0,maxPT);
+   sh4->GetXaxis()->SetRangeUser(0,maxPT);
    NormalizeHistograms(rh2,sh2);
    NormalizeHistograms(rh3,sh3);
    NormalizeHistograms(rh4,sh4);
@@ -301,7 +321,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    canvas->Print(newDir+"/tuning.pdf");
    delete l;
    delete canvas;
-  
+   
 
    //===== pulls
    rdir->GetObject(collname1+"/pullPt",rh1);
@@ -370,9 +390,11 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    delete l;
    delete canvas;
 
-   //
+
+
+   
+
    //===== resolutions vs eta
-   //
    rdir->GetObject(collname1+"/phires_vs_eta_Sigma",rh1);
    sdir->GetObject(collname2+"/phires_vs_eta_Sigma",sh1);
 
@@ -401,8 +423,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 		   te,"UU",-1);
    
    // new general range
-   //rh1->GetYaxis()->SetRangeUser(0.000009,0.1);
-   //sh1->GetYaxis()->SetRangeUser(0.000009,0.1);
+   //rh1->GetYaxis()->SetRangeUser(0.000009,0.01);
+   //sh1->GetYaxis()->SetRangeUser(0.000009,0.01);
    // for multi-track samples
    //rh1->GetYaxis()->SetRangeUser(0.0008,0.005);
    //sh1->GetYaxis()->SetRangeUser(0.0008,0.005);
@@ -426,8 +448,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
 
    // new general range
-   //rh2->GetYaxis()->SetRangeUser(0.00009,0.1);
-   //sh2->GetYaxis()->SetRangeUser(0.00009,0.1);
+   //rh2->GetYaxis()->SetRangeUser(0.00009,0.03);
+   //sh2->GetYaxis()->SetRangeUser(0.00009,0.03);
    // for multi-track samples
    //rh2->GetYaxis()->SetRangeUser(0.0009,0.01);
    //sh2->GetYaxis()->SetRangeUser(0.0009,0.01);
@@ -597,7 +619,10 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    delete l;
    delete canvas;
 
+
+   //
    //===== resolutions vs pt
+   //
    rdir->GetObject(collname1+"/phires_vs_pt_Sigma",rh1);
    sdir->GetObject(collname2+"/phires_vs_pt_Sigma",sh1);
 
@@ -615,9 +640,6 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
    rdir->GetObject(collname1+"/ptres_vs_pt_Sigma",rh5);
    sdir->GetObject(collname2+"/ptres_vs_pt_Sigma",sh5);
-
-
-   Float_t maxPT=1025.;
 
    rh1->SetTitle("");
    rh1->GetYaxis()->SetTitleSize(0.05);
@@ -1136,11 +1158,11 @@ void plotResolutions(TCanvas *canvas,
   r5->Draw();
   s5->Draw("sames");
 
+
   //canvas->cd(6);
   //r6->Draw();
   //s6->Draw("sames");
 }
-
 
 void plotMeanValues(TCanvas *canvas, 
 		     TH1F *s1,TH1F *r1, TH1F *s2,TH1F *r2, 

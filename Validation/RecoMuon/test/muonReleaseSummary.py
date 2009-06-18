@@ -8,8 +8,9 @@ import string
 NewRelease='CMSSW_3_1_0_pre10'
 RefRelease='CMSSW_3_1_0_pre9'
 
-samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar']
-#samples= ['RelValTTbar','RelValZMM']
+#samples= ['RelValSingleMuPt10','RelValSingleMuPt100']
+#samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar']
+samples= ['RelValTTbar','RelValZMM']
 
 Submit=True
 Publish=False
@@ -20,10 +21,10 @@ RefFastSim=False
 GetFilesFromCastor=False
 CastorRepository = '/castor/cern.ch/user/n/nuno/relval/harvest'
 
-NewCondition='IDEAL'
-RefCondition='IDEAL'
-#NewCondition='STARTUP'
-#RefCondition='STARTUP'
+#NewCondition='IDEAL'
+#RefCondition='IDEAL'
+NewCondition='STARTUP'
+RefCondition='STARTUP'
 
 if (NewFastSim):
     NewTag = NewCondition+'_noPU_ootb_FSIM'
@@ -49,7 +50,6 @@ NewRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Valida
 
 
 macro='macro/TrackValHistoPublisher.C'
-hltmacro='macro/HLTTrackValHistoPublisher.C'
 
 def replace(map, filein, fileout):
     replace_items = map.items()
@@ -65,8 +65,6 @@ def replace(map, filein, fileout):
 ###############################
 
 for sample in samples :
-     templatemacroFile = open(macro, 'r')
-     templatehltmacroFile = open(hltmacro, 'r')
 
      newdir=NewRepository+'/'+NewRelease+'/'+NewTag+'/'+sample 
 
@@ -85,8 +83,8 @@ for sample in samples :
          refSample=RefRepository+'/'+RefRelease+'/'+RefTag+'/'+sample+'/'+'val.'+sample+'.root'
 
          if (os.path.isfile(NewRelease+'/'+NewTag+'/'+sample+'/val'+sample+'.root')==False and os.path.isfile(newSample)) :
-#             os.system('cp '+newSample+' '+NewRelease+'/'+NewTag+'/'+sample)
-             os.system('ln -s '+newSample+' '+NewRelease+'/'+NewTag+'/'+sample)
+             os.system('cp '+newSample+' '+NewRelease+'/'+NewTag+'/'+sample)
+#             os.system('ln -s '+newSample+' '+NewRelease+'/'+NewTag+'/'+sample)
          else:
              if (os.path.isfile(NewRelease+'/'+NewTag+'/'+sample+'/val'+sample+'.root')==False and (GetFilesFromCastor)):
                  os.system('rfcp '+CastorRepository+'/'+NewRelease+'/DQM_V0001_R000000001__'+sample+'__'+NewRelease+'_'+NewLabel+'__'+NewFormat+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')                     
@@ -98,16 +96,20 @@ for sample in samples :
          hltcfgFileName='HLT'+sample+'_'+NewRelease+'_'+RefRelease
 
          if os.path.isfile(refSample ):
-             replace_map = { 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': cfgFileName}
+             replace_map_RECO = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': cfgFileName}
+             replace_map_HLT = { 'DATATYPE': 'HLT', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': hltcfgFileName}
          else:
              print "No reference file found at: ", RefRelease+'/'+RefTag
-             replace_map = { 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': cfgFileName}
+             replace_map_RECO = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': cfgFileName}
+             replace_map_HLT = { 'DATATYPE': 'HLT', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': hltcfgFileName}
 
+         templatemacroFile = open(macro, 'r')
          macroFile = open(cfgFileName+'.C' , 'w' )
-         replace(replace_map, templatemacroFile, macroFile)
+         replace(replace_map_RECO, templatemacroFile, macroFile)
 
+         templatemacroFile = open(macro, 'r')
          hltmacroFile = open(hltcfgFileName+'.C' , 'w' )
-         replace(replace_map, templatehltmacroFile, hltmacroFile)
+         replace(replace_map_HLT, templatemacroFile, hltmacroFile)
 
          if(Submit):
              os.system('root -b -q -l '+ cfgFileName+'.C'+ '>  macro.'+cfgFileName+'.log')
