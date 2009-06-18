@@ -20,7 +20,7 @@
 //TB#include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSim.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalDigitizerTraits.h"
 //TB#include "SimCalorimetry/EcalSimAlgos/interface/ESFastTDigitizer.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+//TB#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include "DataFormats/Math/interface/Error.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
@@ -48,9 +48,9 @@ public:
 
 private:
 
-  void checkGeometry(const edm::EventSetup & eventSetup);
+//TB  void checkGeometry(const edm::EventSetup & eventSetup);
 
-  void updateGeometry();
+//TB  void updateGeometry();
 
   void checkCalibrations(const edm::EventSetup & eventSetup);
 
@@ -83,18 +83,19 @@ private:
 //TB  ESElectronicsSimFast * theESElectronicsSimFast;
   EcalCoder * theCoder;
 
-  const CaloGeometry * theGeometry;
-
   std::string EBdigiCollection_;
   std::string EEdigiCollection_;
 //TB  std::string ESdigiCollection_;
 
-  std::string hitsProducer_;
+//TB  std::string hitsProducer_;
 
   double EBs25notCont;
   double EEs25notCont;
 
 //For TB -------------------------------------------
+
+      std::string m_barrelHitsName ;
+      std::string m_endcapHitsName ;
 
   const EcalTrigTowerConstituentsMap * theTTmap;
 
