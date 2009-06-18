@@ -15,7 +15,7 @@ PerigeeTrajectoryParameters PerigeeConversions::ftsToPerigeeParameters
   double theta = originalFTS.momentum().theta();
   double phi = originalFTS.momentum().phi();
   double field  = originalFTS.parameters().magneticField().inInverseGeV(originalFTS.position()).z();
-  if (field==0.) throw cms::Exception("PerigeeConversions", "Field is 0");
+  if (field==0.) throw cms::Exception("PerigeeConversions", "Field is 0") << " at " << originalFTS.position() << "\n" ;
 
   double positiveMomentumPhi = ( (phi>0) ? phi : (2*M_PI+phi) );
   double positionPhi = impactDistance.phi();

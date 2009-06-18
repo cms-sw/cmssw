@@ -1,4 +1,5 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Private constructor
 
@@ -6,15 +7,21 @@ TrajectoryStateClosestToPoint::
 TrajectoryStateClosestToPoint(const FTS& originalFTS, const GlobalPoint& referencePoint) :
   valid(true), theFTS(originalFTS), theFTSavailable(true), theRefPoint(referencePoint)
 {
-  theParameters = perigeeConversions.ftsToPerigeeParameters(originalFTS, referencePoint, thePt);
-  if (theFTS.hasError()) {
-    thePerigeeError = perigeeConversions.ftsToPerigeeError(originalFTS);
-    errorIsAvailable = true;
-  } 
-  else {
-    errorIsAvailable = false;
+  try {
+      theParameters = perigeeConversions.ftsToPerigeeParameters(originalFTS, referencePoint, thePt);
+      if (theFTS.hasError()) {
+        thePerigeeError = perigeeConversions.ftsToPerigeeError(originalFTS);
+        errorIsAvailable = true;
+      } 
+      else {
+        errorIsAvailable = false;
+      }
+      theField = &(originalFTS.parameters().magneticField());
+  } catch (const cms::Exception &ex) {
+      if (ex.category() != "PerigeeConversions") throw;
+      edm::LogWarning("TrajectoryStateClosestToPoint_PerigeeConversions") << "Caught exception " << ex.explainSelf() << ".\n";
+      valid = false;
   }
-  theField = &(originalFTS.parameters().magneticField());
 }
 
 
