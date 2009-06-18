@@ -65,7 +65,7 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   makeADCTimingPlots   = pset.getUntrackedParameter<bool>("makeADCTimingPlots",true);
   makeRHNoisePlots     = pset.getUntrackedParameter<bool>("makeRHNoisePlots",false);
   makeCalibPlots       = pset.getUntrackedParameter<bool>("makeCalibPlots",false);
-  makeStandalonePlots  = pset.getUntrackedParameter<bool>("makeStandalonePlots",true);
+  makeStandalonePlots  = pset.getUntrackedParameter<bool>("makeStandalonePlots",false);
 
   // set counters to zero
   nEventsAnalyzed = 0;
