@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2008/12/03 12:55:50 $
- * $Revision: 1.18 $
+ * $Date: 2009/06/18 09:48:16 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -49,6 +49,7 @@ EEStatusFlagsTask::EEStatusFlagsTask(const ParameterSet& ps){
 
     meFEchErrors_[i][0] = 0;
     meFEchErrors_[i][1] = 0;
+    meFEchErrors_[i][2] = 0;
   }
 
 }
@@ -87,6 +88,7 @@ void EEStatusFlagsTask::reset(void) {
 
     if ( meFEchErrors_[i][0] ) meFEchErrors_[i][0]->Reset();
     if ( meFEchErrors_[i][1] ) meFEchErrors_[i][1]->Reset();
+    if ( meFEchErrors_[i][2] ) meFEchErrors_[i][2]->Reset();
   }
 
 }
@@ -146,25 +148,35 @@ void EEStatusFlagsTask::setup(void){
       }
       meFEchErrors_[i][0]->setEntries( 0 );
 
-      sprintf(histo, "EESFT front-end status bits %s", Numbers::sEE(i+1).c_str());
-      meFEchErrors_[i][1] = dqmStore_->book1D(histo, histo, 16, 0., 16.);
-      meFEchErrors_[i][1]->setBinLabel(1+0, "ACTIVE", 1);
-      meFEchErrors_[i][1]->setBinLabel(1+1, "DISABLED", 1);
-      meFEchErrors_[i][1]->setBinLabel(1+2, "TIMEOUT", 1);
-      meFEchErrors_[i][1]->setBinLabel(1+3, "HEADER", 1);
-      meFEchErrors_[i][1]->setBinLabel(1+4, "CHANNEL ID", 1);
-      meFEchErrors_[i][1]->setBinLabel(1+5, "LINK", 1);
-      meFEchErrors_[i][1]->setBinLabel(1+6, "BLOCKSIZE", 1);
-      meFEchErrors_[i][1]->setBinLabel(1+7, "SUPPRESSED", 1);
-      meFEchErrors_[i][1]->setBinLabel(1+8, "FIFO FULL", 1);
-      meFEchErrors_[i][1]->setBinLabel(1+9, "L1A SYNC", 1);
-      meFEchErrors_[i][1]->setBinLabel(1+10, "BX SYNC", 1);
-      meFEchErrors_[i][1]->setBinLabel(1+11, "L1A+BX SYNC", 1);
-      meFEchErrors_[i][1]->setBinLabel(1+12, "FIFO+L1A", 1);
-      meFEchErrors_[i][1]->setBinLabel(1+13, "H PARITY", 1);
-      meFEchErrors_[i][1]->setBinLabel(1+14, "V PARITY", 1);
-      meFEchErrors_[i][1]->setBinLabel(1+15, "H+V PARITY", 1);
+      sprintf(histo, "EESFT MEM front-end status %s", Numbers::sEE(i+1).c_str());
+      meFEchErrors_[i][1] = dqmStore_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      meFEchErrors_[i][1]->setAxisTitle("pseudo-strip", 1);
+      meFEchErrors_[i][1]->setAxisTitle("channel", 2);
       dqmStore_->tag(meFEchErrors_[i][1], i+1);
+
+      meFEchErrors_[i][1]->setBinContent( 1, 1, -1. );
+      meFEchErrors_[i][1]->setBinContent( 2, 1, -1. );
+      meFEchErrors_[i][1]->setEntries( 0 );
+
+      sprintf(histo, "EESFT front-end status bits %s", Numbers::sEE(i+1).c_str());
+      meFEchErrors_[i][2] = dqmStore_->book1D(histo, histo, 16, 0., 16.);
+      meFEchErrors_[i][2]->setBinLabel(1+0, "ACTIVE", 1);
+      meFEchErrors_[i][2]->setBinLabel(1+1, "DISABLED", 1);
+      meFEchErrors_[i][2]->setBinLabel(1+2, "TIMEOUT", 1);
+      meFEchErrors_[i][2]->setBinLabel(1+3, "HEADER", 1);
+      meFEchErrors_[i][2]->setBinLabel(1+4, "CHANNEL ID", 1);
+      meFEchErrors_[i][2]->setBinLabel(1+5, "LINK", 1);
+      meFEchErrors_[i][2]->setBinLabel(1+6, "BLOCKSIZE", 1);
+      meFEchErrors_[i][2]->setBinLabel(1+7, "SUPPRESSED", 1);
+      meFEchErrors_[i][2]->setBinLabel(1+8, "FIFO FULL", 1);
+      meFEchErrors_[i][2]->setBinLabel(1+9, "L1A SYNC", 1);
+      meFEchErrors_[i][2]->setBinLabel(1+10, "BX SYNC", 1);
+      meFEchErrors_[i][2]->setBinLabel(1+11, "L1A+BX SYNC", 1);
+      meFEchErrors_[i][2]->setBinLabel(1+12, "FIFO+L1A", 1);
+      meFEchErrors_[i][2]->setBinLabel(1+13, "H PARITY", 1);
+      meFEchErrors_[i][2]->setBinLabel(1+14, "V PARITY", 1);
+      meFEchErrors_[i][2]->setBinLabel(1+15, "H+V PARITY", 1);
+      dqmStore_->tag(meFEchErrors_[i][2], i+1);
     }
 
   }
@@ -190,6 +202,8 @@ void EEStatusFlagsTask::cleanup(void){
       meFEchErrors_[i][0] = 0;
       if ( meFEchErrors_[i][1] ) dqmStore_->removeElement( meFEchErrors_[i][1]->getName() );
       meFEchErrors_[i][1] = 0;
+      if ( meFEchErrors_[i][2] ) dqmStore_->removeElement( meFEchErrors_[i][2]->getName() );
+      meFEchErrors_[i][2] = 0;
     }
 
   }
@@ -240,37 +254,55 @@ void EEStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
 
     for ( unsigned int itt=1; itt<=status.size(); itt++ ) {
 
-      if ( itt > 41 ) continue;
+      if ( itt > 70 ) continue;
+
+      if ( itt >= 42 && itt <= 68 ) continue;
 
       if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
 
-      vector<DetId> crystals = Numbers::crystals( EcalElectronicsId(dcchItr->id(), itt, 1, 1) );
+      if ( itt >= 1 && itt <= 41 ) {
 
-      for ( unsigned int i=0; i<crystals.size(); i++ ) {
+        vector<DetId> crystals = Numbers::crystals( EcalElectronicsId(dcchItr->id(), itt, 1, 1) );
 
-      EEDetId id = crystals[i];
+        for ( unsigned int i=0; i<crystals.size(); i++ ) {
 
-      int ix = id.ix();
-      int iy = id.iy();
+        EEDetId id = crystals[i];
 
-      if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
+        int ix = id.ix();
+        int iy = id.iy();
 
-      float xix = ix - 0.5;
-      float xiy = iy - 0.5;
+        if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
-      if ( meFEchErrors_[ism-1][0] ) {
-        if ( meFEchErrors_[ism-1][0]->getBinContent(ix-Numbers::ix0EE(ism), iy-Numbers::iy0EE(ism)) == -1 ) {
-          meFEchErrors_[ism-1][0]->setBinContent(ix-Numbers::ix0EE(ism), iy-Numbers::iy0EE(ism), 0);
+        float xix = ix - 0.5;
+        float xiy = iy - 0.5;
+
+        if ( meFEchErrors_[ism-1][0] ) {
+          if ( meFEchErrors_[ism-1][0]->getBinContent(ix-Numbers::ix0EE(ism), iy-Numbers::iy0EE(ism)) == -1 ) {
+            meFEchErrors_[ism-1][0]->setBinContent(ix-Numbers::ix0EE(ism), iy-Numbers::iy0EE(ism), 0);
+          }
         }
+
+        if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 ) ) {
+          if ( meFEchErrors_[ism-1][0] ) meFEchErrors_[ism-1][0]->Fill(xix, xiy);
+        }
+
+        }
+
+      } else if ( itt == 69 || itt == 70 ) {
+
+        if ( meFEchErrors_[ism-1][1] ) {
+          if ( meFEchErrors_[ism-1][1]->getBinContent(itt-68, 1) == -1 ) {
+            meFEchErrors_[ism-1][1]->setBinContent(itt-68, 1, 0);
+          }
+        }
+
+        if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 ) ) {
+          if ( meFEchErrors_[ism-1][1] ) meFEchErrors_[ism-1][1]->Fill(itt-68-0.5, 0);
+        }
+
       }
 
-      if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 ) ) {
-        if ( meFEchErrors_[ism-1][0] ) meFEchErrors_[ism-1][0]->Fill(xix, xiy);
-      }
-
-      }
-
-      if ( meFEchErrors_[ism-1][1] ) meFEchErrors_[ism-1][1]->Fill(status[itt-1]+0.5);
+      if ( meFEchErrors_[ism-1][2] ) meFEchErrors_[ism-1][2]->Fill(status[itt-1]+0.5);
 
     }
 

@@ -4,8 +4,8 @@
 /*
  * \file EBStatusFlagsTask.h
  *
- * $Date: 2008/04/08 15:32:08 $
- * $Revision: 1.5 $
+ * $Date: 2008/05/11 09:35:08 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -69,7 +69,7 @@ edm::InputTag EcalRawDataCollection_;
 
 MonitorElement* meEvtType_[36];
 
-MonitorElement* meFEchErrors_[36][2];
+MonitorElement* meFEchErrors_[36][3];
 
 bool init_;
 
