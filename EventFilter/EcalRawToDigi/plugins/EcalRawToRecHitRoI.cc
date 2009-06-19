@@ -201,6 +201,12 @@ void EcalRawToRecHitRoI::produce(edm::Event & e, const edm::EventSetup& iSetup){
  //get the lazy gettters
  edm::Handle<EcalRecHitLazyGetter> lgetter;
  e.getByLabel(sourceTag_, lgetter);
+ if (lgetter.failedToGet())
+   {
+     edm::LogError(category)<<" could not retrieve the lazy getter from: "<<sourceTag_;
+     return;
+   }
+
  LogDebug(category)<<"Ecal lazy getter retrieved from: "<<sourceTag_
 		   <<watcher.lap();
  
@@ -242,6 +248,12 @@ void EcalRawToRecHitRoI::produce(edm::Event & e, const edm::EventSetup& iSetup){
    
    edm::Handle<EcalRecHitLazyGetter> lgetter_es;
    e.getByLabel(sourceTag_es_, lgetter_es);
+   if (lgetter_es.failedToGet())
+     {
+       edm::LogError(category)<<" could not retrieve the lazy getter from: "<<sourceTag_es_;
+       return;
+     }
+
    LogDebug(category)<<"ES lazy getter retrieved from: "<<sourceTag_es_
 		     <<watcher.lap();
 
@@ -352,6 +364,11 @@ void EcalRawToRecHitRoI::Muon(edm::Event& e, const edm::EventSetup& es, std::vec
 
   edm::Handle<L1MuonParticleCollection> muColl;
   e.getByLabel(MuonSource_.Source, muColl);
+  if (muColl.failedToGet())
+   {
+     edm::LogError(category)<<" could not retrieve the l1 muon collection from: "<<MuonSource_.Source;
+     return;
+   }
 
   for (L1MuonParticleCollection::const_iterator it=muColl->begin(); it != muColl->end(); it++) {
 
