@@ -285,12 +285,12 @@ EcalTrigTowerDetId EcalElectronicsMapping::getTrigTowerDetId(int TCCid, int iTT)
                 "EcalElectronicsMapping:  Cannot create EcalTrigTowerDetId object. " ;
         int iz = 0;
 	int tcc = TCCid;
-        if (tcc <= TCCID_PHI0_EEM_OUT+kTCCinPhi) iz = -1;
+        if (tcc < TCCID_PHI0_EEM_OUT+kTCCinPhi) iz = -1;
         else if (tcc >= TCCID_PHI0_EEP_OUT) iz = +1;
 
         bool inner = false;
-        if (iz < 0 && tcc >= TCCID_PHI0_EEM_IN && tcc <= TCCID_PHI0_EEM_IN+kTCCinPhi) inner=true;
-        if (iz > 0 && tcc >= TCCID_PHI0_EEP_IN && tcc <= TCCID_PHI0_EEP_IN+kTCCinPhi) inner=true;
+        if (iz < 0 && tcc >= TCCID_PHI0_EEM_IN && tcc < TCCID_PHI0_EEM_IN+kTCCinPhi) inner=true;
+        if (iz > 0 && tcc >= TCCID_PHI0_EEP_IN && tcc < TCCID_PHI0_EEP_IN+kTCCinPhi) inner=true;
         bool outer = !inner;
 
         int ieta = (iTT-1) / kEETowersInPhiPerTCC;
