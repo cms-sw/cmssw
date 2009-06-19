@@ -44,11 +44,12 @@ namespace edmtest
       //record not found
       std::cout <<"Record \"ExDwarfListRcd "<<"\" does not exist "<<std::endl;
     }
-    edm::ESHandle<conde::KeyList> klh;
+    edm::ESHandle<cond::KeyList> klh;
     std::cout<<"got eshandle"<<std::endl;
     context.get<ExDwarfListRcd>().get(klh);
     std::cout<<"got context"<<std::endl;
-    condex::KeyList const &  kl= *klh.product();
+    cond::KeyList const &  kl= *klh.product();
+    int n=0;
     for (int i=0; i<kl.size(); i++)
       if (kl.elem(i)) n++; 
     std::cout << "found " << n << " valid keyed confs" << std::endl;
