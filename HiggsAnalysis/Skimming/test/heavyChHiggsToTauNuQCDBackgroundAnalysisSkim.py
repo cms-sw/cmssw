@@ -1,11 +1,11 @@
-# Skim for heavy H+->taunu background analysis with muon events
-# Filter events with HLT single muon + three jets Et > 20, abs(eta) < 2.5
+# Skim for heavy H+->taunu QCD background analysis
+# Filter events with HLT_Jet80 + four jets Et > 20, abs(eta) < 2.5
 # then produces AODSIM selected events
 # Created by S.Lehti
-# Tested on 28 May 2009
+# Tested on 19 June 2009
 
 import FWCore.ParameterSet.Config as cms
-process = cms.Process("HChBSkim")
+process = cms.Process("HChQCDSkim")
 
 process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(100)
@@ -30,7 +30,6 @@ configurationMetadata = cms.untracked.PSet(
     annotation = cms.untracked.string('Skim for heavy H+->tau nu QCD background analysis')
 )
 process.heavyChHiggsToTauNuHLTFilter.HLTPaths = ['HLT_Jet80']
-process.heavyChHiggsToTauNuFilter.minNumberOfJets = cms.int32(3)
 
 process.outpath = cms.EndPath(process.heavyChHiggsToTauNuOutputModuleRECOSIM)
 

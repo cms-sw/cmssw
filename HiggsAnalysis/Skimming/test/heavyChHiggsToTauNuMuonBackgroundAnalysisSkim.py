@@ -5,7 +5,7 @@
 # Tested on 28 May 2009
 
 import FWCore.ParameterSet.Config as cms
-process = cms.Process("HChBSkim")
+process = cms.Process("HChMuonSkim")
 
 process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(100)
