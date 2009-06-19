@@ -131,13 +131,13 @@ void PFTopProjector< Top, Bottom >::produce(edm::Event& iEvent,
   iEvent.getByLabel(  inputTagTop_, tops );
 
 
-  if( !tops.isValid() ) {
-    std::ostringstream  err;
-    err<<"The top collection must be supplied."<<endl
-       <<"It is now set to : "<<inputTagTop_<<endl;
-    edm::LogError("PFPAT")<<err.str();
-    throw cms::Exception( "MissingProduct", err.str());
-  }
+/*   if( !tops.isValid() ) { */
+/*     std::ostringstream  err; */
+/*     err<<"The top collection must be supplied."<<endl */
+/*        <<"It is now set to : "<<inputTagTop_<<endl; */
+/*     edm::LogError("PFPAT")<<err.str(); */
+/*     throw cms::Exception( "MissingProduct", err.str()); */
+/*   } */
 
   edm::ProductID topsID = tops.id();
 
@@ -148,13 +148,13 @@ void PFTopProjector< Top, Bottom >::produce(edm::Event& iEvent,
   BottomHandle bottoms;
   iEvent.getByLabel(  inputTagBottom_, bottoms );
 
-  if( !bottoms.isValid() ) {
-    std::ostringstream  err;
-    err<<"The bottom collection must be supplied."<<endl
-       <<"It is now set to : "<<inputTagBottom_<<endl;
-    edm::LogError("PFPAT")<<err.str();
-    throw cms::Exception( "MissingProduct", err.str());
-  }
+/*   if( !bottoms.isValid() ) { */
+/*     std::ostringstream  err; */
+/*     err<<"The bottom collection must be supplied."<<endl */
+/*        <<"It is now set to : "<<inputTagBottom_<<endl; */
+/*     edm::LogError("PFPAT")<<err.str(); */
+/*     throw cms::Exception( "MissingProduct", err.str()); */
+/*   } */
 
   edm::ProductID bottomsID = bottoms.id();
 
@@ -185,7 +185,7 @@ void PFTopProjector< Top, Bottom >::produce(edm::Event& iEvent,
   const BottomCollection& inCands = *bottoms;
 
   if(verbose_)
-    cout<<" Remaining PFCandidates ------ "<<endl;
+    cout<<" Remaining candidates in the bottom collection ------ "<<endl;
   
   for(unsigned i=0; i<inCands.size(); i++) {
     

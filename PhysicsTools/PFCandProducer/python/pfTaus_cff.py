@@ -18,9 +18,10 @@ pfRecoTauTagInfoProducer.PFCandidateProducer = 'muonsOnNoPileUp'
 pfTauSequence = cms.Sequence(
     ic5PFJetTracksAssociatorAtVertex + 
     pfRecoTauTagInfoProducer + 
-    pfRecoTauProducerHighEfficiency + 
-    pfRecoTauDiscriminationByIsolationHighEfficiency + 
+    shrinkingConePFTauProducer + 
+    shrinkingConePFTauDiscriminationByIsolation + 
     allLayer0Taus 
+
     )
 
 

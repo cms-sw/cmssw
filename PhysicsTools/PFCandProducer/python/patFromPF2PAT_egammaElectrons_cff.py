@@ -8,7 +8,7 @@ from PhysicsTools.PatAlgos.producersLayer1.pfParticleProducer_cfi import *
 from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import * 
 from PhysicsTools.PatAlgos.cleaningLayer0.pfJetCleaner_cfi import allLayer0PFJets
 
-myJets = cms.InputTag("pfTopProjection:PFJets")
+myJets = cms.InputTag("tausOnJets")
 allLayer0PFJets.jetSource = myJets
 allLayer0PFJets.removeOverlaps = cms.PSet(
     electrons = cms.PSet( 
@@ -80,6 +80,7 @@ allLayer1Jets.jetSource = myL0Jets
 myMET = "pfMET"
 allLayer1METs.metSource = cms.InputTag( myMET )
 metTrigMatchHLT1MET65.src = cms.InputTag( myMET )
+allLayer1METs.genMETSource = 'genMetTrue'
 
 # replaces for Taus --------------------------------------------------
 
@@ -105,6 +106,7 @@ cleanLayer0Taus =  cms.EDFilter("PATPFTauCleaner",
         saveAll      = cms.string(''),
     )
 )
+
 
 tauMatch.src = cms.InputTag( taus )
 tauGenJetMatch.src = cms.InputTag( taus )
@@ -138,7 +140,9 @@ allLayer1Muons.embedPFCandidate = True
 muonTrigMatchHLT1MuonNonIso.src = cms.InputTag( muons )
 muonTrigMatchHLT1MET65.src =  cms.InputTag( muons )
 
+# remaining PFCandidates ---------------------------------------------
 
+allLayer1PFParticles.pfCandidateSource = 'jetsOnNoMuonsNoPileUp'
 
 # Stuff to incorporate e-gamma electrons (w/ std PAT cfgs) -----------
 # Confing for layer0 electrons already included,
