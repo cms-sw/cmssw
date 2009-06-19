@@ -36,7 +36,7 @@ typedef DataProxyWrapper<record_, type_> EDM_PLUGIN_SYM(Proxy , __LINE__ ); \
 DEFINE_EDM_PLUGIN( cond::ProxyFactory, EDM_PLUGIN_SYM(Proxy , __LINE__ ), #record_ "@NewProxy")
 
 
-// chhose one of the two
+// choose one of the two
 //DEFINE_EDM_PLUGIN( oldcond::ProxyFactory, EDM_PLUGIN_SYM(OldProxy , __LINE__ ), #record_ "@" #type_ "@Proxy")
 
 // DEFINE_EDM_PLUGIN( cond::ProxyFactory, EDM_PLUGIN_SYM(Proxy , __LINE__ ), #record_ "@NewProxy")
@@ -48,7 +48,7 @@ ONLY_REGISTER_PLUGIN(record_, type_ )
 
 // source_ is the record name of the keyed objects
 #define REGISTER_KEYLIST_PLUGIN(record_, type_, source_) \
-  namespace { const char * sourceRecordName_ = #_source;} \
+  namespace { const char * sourceRecordName_ = #source_;} \
   REGISTER_PLUGIN(record_, type_)
 
 #endif /* PLUGINSYSTEM_REGISTRATION_MACROS_H */
