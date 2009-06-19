@@ -65,7 +65,7 @@ namespace edmtest
     for (int i=0; i<kl.size(); i++)
       if (kl.elem(i)) { 
 	n++;
-	if (0==j%2) 
+	if (0==i%2) 
 	  print(*kl.get<condex::ConfI>(i));
 	else
 	  print(*kl.get<condex::ConfF>(i));
