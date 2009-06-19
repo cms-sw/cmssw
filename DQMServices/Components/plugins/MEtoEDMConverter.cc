@@ -3,8 +3,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2009/05/04 16:37:57 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/05/12 11:39:51 $
+ *  $Revision: 1.14 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -286,6 +286,7 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
   int run = iRun.run();
   std::string release = edm::getReleaseVersion();
 
+  /*
   mestorage<TH1F> TH1FME;
   mestorage<TH1S> TH1SME;
   mestorage<TH2F> TH2FME;
@@ -295,7 +296,7 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
   mestorage<TProfile2D> TProfile2DME;
   mestorage<double> FloatME;
   mestorage<int> IntME;
-  mestorage<TString> StringME;
+  mestorage<TString> StringME; */
 
   std::string MsgLoggerCat = "MEtoEDMConverter_endRun";
   
@@ -305,100 +306,166 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
   // extract ME information into vectors
   std::vector<MonitorElement *>::iterator mmi, mme;
   std::vector<MonitorElement *> items(dbe->getAllContents(path));
+  unsigned int n1F=0;
+  unsigned int n1S=0;
+  unsigned int n2F=0;
+  unsigned int n2S=0;
+  unsigned int n3F=0;
+  unsigned int nProf=0;
+  unsigned int nProf2=0;
+  unsigned int nFloat=0;
+  unsigned int nInt=0;
+  unsigned int nString=0;
   for (mmi = items.begin (), mme = items.end (); mmi != mme; ++mmi) {
+    MonitorElement *me = *mmi;
+    switch (me->kind())
+    {
+    case MonitorElement::DQM_KIND_INT:
+      ++nInt;
+      break;
+
+    case MonitorElement::DQM_KIND_REAL:
+      ++nFloat;
+      break;
+
+    case MonitorElement::DQM_KIND_STRING:
+      ++nString;
+      break;
+
+    case MonitorElement::DQM_KIND_TH1F:
+      ++n1F;
+      break;
+
+    case MonitorElement::DQM_KIND_TH1S:
+      ++n1S;
+      break;
+
+    case MonitorElement::DQM_KIND_TH2F:
+      ++n2F;
+      break;
+
+    case MonitorElement::DQM_KIND_TH2S:
+      ++n2S;
+      break;
+
+    case MonitorElement::DQM_KIND_TH3F:
+      ++n3F;
+      break;
+
+    case MonitorElement::DQM_KIND_TPROFILE:
+      ++nProf;
+      break;
+
+    case MonitorElement::DQM_KIND_TPROFILE2D:
+      ++nProf2;
+      break;
+
+    default:
+      edm::LogError(MsgLoggerCat)
+	<< "ERROR: The DQM object '" << me->getFullname()
+	<< "' is neither a ROOT object nor a recognised "
+	<< "simple object.\n";
+      continue;
+    }
+  }
+
+  std::auto_ptr<MEtoEDM<TH1F> > pOut1;
+  std::auto_ptr<MEtoEDM<TH1S> > pOut1s;
+  std::auto_ptr<MEtoEDM<TH2F> > pOut2;
+  std::auto_ptr<MEtoEDM<TH2S> > pOut2s;
+  std::auto_ptr<MEtoEDM<TH3F> > pOut3;
+  std::auto_ptr<MEtoEDM<TProfile> > pOutProf;
+  std::auto_ptr<MEtoEDM<TProfile2D> > pOutProf2;
+  std::auto_ptr<MEtoEDM<double> > pOutFloat;
+  std::auto_ptr<MEtoEDM<int> > pOutInt;
+  std::auto_ptr<MEtoEDM<TString> > pOutString; 
+
+
+  for (mmi = items.begin (), mme = items.end (); mmi != mme; ++mmi) {
+
     MonitorElement *me = *mmi;
 
     // get monitor elements
     switch (me->kind())
     {
     case MonitorElement::DQM_KIND_INT:
-      IntME.object.push_back(me->getIntValue());
-      IntME.name.push_back(me->getFullname());
-      IntME.tags.push_back(me->getTags());
-      IntME.release.push_back(release);
-      IntME.run.push_back(run);
-      IntME.datatier.push_back(datatier);
+      if(0==pOutInt.get()) {
+	pOutInt.reset(new MEtoEDM<int>(nInt));
+      }
+      pOutInt->putMEtoEdmObject(me->getFullname(),me->getTags(),me->getIntValue(),
+				release,run,datatier);
       break;
 
     case MonitorElement::DQM_KIND_REAL:
-      FloatME.object.push_back(me->getFloatValue());
-      FloatME.name.push_back(me->getFullname());
-      FloatME.tags.push_back(me->getTags());
-      FloatME.release.push_back(release);
-      FloatME.run.push_back(run);
-      FloatME.datatier.push_back(datatier);
+      if(0==pOutFloat.get()) {
+	pOutFloat.reset(new MEtoEDM<double>(nFloat));
+      }
+      pOutFloat->putMEtoEdmObject(me->getFullname(),me->getTags(),me->getFloatValue(),
+				  release,run,datatier);
       break;
 
     case MonitorElement::DQM_KIND_STRING:
-      StringME.object.push_back(me->getStringValue());
-      StringME.name.push_back(me->getFullname());
-      StringME.tags.push_back(me->getTags());
-      StringME.release.push_back(release);
-      StringME.run.push_back(run);
-      StringME.datatier.push_back(datatier);
+      if(0==pOutString.get()) {
+	pOutString.reset(new MEtoEDM<TString>(nString));
+      }
+      pOutString->putMEtoEdmObject(me->getFullname(),me->getTags(),me->getStringValue(),
+				   release,run,datatier);
       break;
 
     case MonitorElement::DQM_KIND_TH1F:
-      TH1FME.object.push_back(*me->getTH1F());
-      TH1FME.name.push_back(me->getFullname());
-      TH1FME.tags.push_back(me->getTags());
-      TH1FME.release.push_back(release);
-      TH1FME.run.push_back(run);
-      TH1FME.datatier.push_back(datatier);
+      if(0==pOut1.get()) {
+	pOut1.reset(new MEtoEDM<TH1F>(n1F));
+      }
+      pOut1->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH1F(),
+			      release,run,datatier);
       break;
 
     case MonitorElement::DQM_KIND_TH1S:
-      TH1SME.object.push_back(*me->getTH1S());
-      TH1SME.name.push_back(me->getFullname());
-      TH1SME.tags.push_back(me->getTags());
-      TH1SME.release.push_back(release);
-      TH1SME.run.push_back(run);
-      TH1SME.datatier.push_back(datatier);
+      if(0==pOut1s.get()) {
+	pOut1s.reset(new MEtoEDM<TH1S>(n1S));
+      }
+      pOut1s->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH1S(),
+			       release,run,datatier);
       break;
 
     case MonitorElement::DQM_KIND_TH2F:
-      TH2FME.object.push_back(*me->getTH2F());
-      TH2FME.name.push_back(me->getFullname());
-      TH2FME.tags.push_back(me->getTags());
-      TH2FME.release.push_back(release);
-      TH2FME.run.push_back(run);
-      TH2FME.datatier.push_back(datatier);
+      if(0==pOut2.get()) {
+	pOut2.reset(new MEtoEDM<TH2F>(n2F));
+      }
+      pOut2->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH2F(),
+			      release,run,datatier);
       break;
 
     case MonitorElement::DQM_KIND_TH2S:
-      TH2SME.object.push_back(*me->getTH2S());
-      TH2SME.name.push_back(me->getFullname());
-      TH2SME.tags.push_back(me->getTags());
-      TH2SME.release.push_back(release);
-      TH2SME.run.push_back(run);
-      TH2SME.datatier.push_back(datatier);
+      if(0==pOut2s.get()) {
+	pOut2s.reset(new MEtoEDM<TH2S>(n2S));
+      }
+      pOut2s->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH2S(),
+			       release,run,datatier);
       break;
 
     case MonitorElement::DQM_KIND_TH3F:
-      TH3FME.object.push_back(*me->getTH3F());
-      TH3FME.name.push_back(me->getFullname());
-      TH3FME.tags.push_back(me->getTags());
-      TH3FME.release.push_back(release);
-      TH3FME.run.push_back(run);
-      TH3FME.datatier.push_back(datatier);
+      if(0==pOut3.get()) {
+	pOut3.reset(new MEtoEDM<TH3F>(n3F));
+      }
+      pOut3->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH3F(),
+			      release,run,datatier);
       break;
 
     case MonitorElement::DQM_KIND_TPROFILE:
-      TProfileME.object.push_back(*me->getTProfile());
-      TProfileME.name.push_back(me->getFullname());
-      TProfileME.tags.push_back(me->getTags());
-      TProfileME.release.push_back(release);
-      TProfileME.run.push_back(run);
-      TProfileME.datatier.push_back(datatier);
+      if(0==pOutProf.get()) {
+	pOutProf.reset(new MEtoEDM<TProfile>(nProf));
+      }
+      pOutProf->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTProfile(),
+			      release,run,datatier);
       break;
 
     case MonitorElement::DQM_KIND_TPROFILE2D:
-      TProfile2DME.object.push_back(*me->getTProfile2D());
-      TProfile2DME.name.push_back(me->getFullname());
-      TProfile2DME.tags.push_back(me->getTags());
-      TProfile2DME.release.push_back(release);
-      TProfile2DME.run.push_back(run);
-      TProfile2DME.datatier.push_back(datatier);
+      if(0==pOutProf2.get()) {
+	pOutProf2.reset(new MEtoEDM<TProfile2D>(nProf2));
+      }
+      pOutProf2->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTProfile2D(),
+				  release,run,datatier);
       break;
 
     default:
@@ -411,68 +478,35 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
   } // end loop through monitor elements
 
   // produce objects to put in events
-  if (! TH1FME.object.empty()) {
-    std::auto_ptr<MEtoEDM<TH1F> > pOut1(new MEtoEDM<TH1F>);
-    pOut1->putMEtoEdmObject(TH1FME.name,TH1FME.tags,TH1FME.object,
-			    TH1FME.release,TH1FME.run,TH1FME.datatier);
+  if (0 != pOut1.get()) {
     iRun.put(pOut1,fName);
   }
-  if (! TH1SME.object.empty()) {
-    std::auto_ptr<MEtoEDM<TH1S> > pOut1s(new MEtoEDM<TH1S>);
-    pOut1s->putMEtoEdmObject(TH1SME.name,TH1SME.tags,TH1SME.object,
-			    TH1SME.release,TH1SME.run,TH1SME.datatier);
+  if ( 0 != pOut1s.get()) {
     iRun.put(pOut1s,fName);
   }
-  if (! TH2FME.object.empty()) {
-    std::auto_ptr<MEtoEDM<TH2F> > pOut2(new MEtoEDM<TH2F>);
-    pOut2->putMEtoEdmObject(TH2FME.name,TH2FME.tags,TH2FME.object,
-			    TH2FME.release,TH2FME.run,TH2FME.datatier);
+  if ( 0 != pOut2.get() ) {
     iRun.put(pOut2,fName);
   }
-  if (! TH2SME.object.empty()) {
-    std::auto_ptr<MEtoEDM<TH2S> > pOut2s(new MEtoEDM<TH2S>);
-    pOut2s->putMEtoEdmObject(TH2SME.name,TH2SME.tags,TH2SME.object,
-			    TH2SME.release,TH2SME.run,TH2SME.datatier);
+  if ( 0 != pOut2s.get() ) {
     iRun.put(pOut2s,fName);
   }
-  if (! TH3FME.object.empty()) {
-    std::auto_ptr<MEtoEDM<TH3F> > pOut3(new MEtoEDM<TH3F>);
-    pOut3->putMEtoEdmObject(TH3FME.name,TH3FME.tags,TH3FME.object,
-			    TH3FME.release,TH3FME.run,TH3FME.datatier);
+  if ( 0 != pOut3.get() ) {
     iRun.put(pOut3,fName);
   }
-  if (! TProfileME.object.empty()) {
-    std::auto_ptr<MEtoEDM<TProfile> > pOut4(new MEtoEDM<TProfile>);
-    pOut4->putMEtoEdmObject(TProfileME.name,TProfileME.tags,TProfileME.object,
-			    TProfileME.release,TProfileME.run,
-			    TProfileME.datatier);
-    iRun.put(pOut4,fName);
+  if ( 0 != pOutProf.get() ) {
+    iRun.put(pOutProf,fName);
   }
-  if (! TProfile2DME.object.empty()) {
-    std::auto_ptr<MEtoEDM<TProfile2D> > pOut5(new MEtoEDM<TProfile2D>);
-    pOut5->putMEtoEdmObject(TProfile2DME.name,TProfile2DME.tags, 
-			    TProfile2DME.object,TProfile2DME.release,
-			    TProfile2DME.run,TProfile2DME.datatier);
-    iRun.put(pOut5,fName);
+  if ( 0 != pOutProf2.get() ) {
+    iRun.put(pOutProf2,fName);
   }
-  if (! FloatME.object.empty()) {
-    std::auto_ptr<MEtoEDM<double> > pOut6(new MEtoEDM<double>);
-    pOut6->putMEtoEdmObject(FloatME.name,FloatME.tags,FloatME.object,
-			    FloatME.release,FloatME.run,FloatME.datatier);
-    iRun.put(pOut6,fName);
+  if ( 0 != pOutFloat.get() ) {
+    iRun.put(pOutFloat,fName);
   }
-  if (! IntME.object.empty()) {
-    std::auto_ptr<MEtoEDM<int> > pOut7(new MEtoEDM<int>);
-    pOut7->putMEtoEdmObject(IntME.name,IntME.tags,IntME.object,
-			    IntME.release,IntME.run,IntME.datatier);
-    iRun.put(pOut7,fName);
+  if ( 0 != pOutInt.get() ) {
+    iRun.put(pOutInt,fName);
   }
-  if (! StringME.object.empty()) {
-    std::auto_ptr<MEtoEDM<TString> > 
-      pOut8(new MEtoEDM<TString>);
-    pOut8->putMEtoEdmObject(StringME.name,StringME.tags,StringME.object,
-			    StringME.release,StringME.run,StringME.datatier);
-    iRun.put(pOut8,fName);
+  if ( 0 != pOutString.get() ) {
+    iRun.put(pOutString,fName);
   }
 }
 
