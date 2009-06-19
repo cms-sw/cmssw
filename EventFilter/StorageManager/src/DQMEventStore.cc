@@ -1,4 +1,4 @@
-// $Id$
+// $Id: DQMEventStore.cc,v 1.2 2009/06/10 08:15:25 dshpakov Exp $
 
 #include "TROOT.h"
 #include "TTimeStamp.h"
@@ -164,9 +164,10 @@ void DQMEventStore::writeAndPurgeStaleDQMInstances()
   TTimeStamp now;
   now.Set();
   
-  for (DQMEventRecordMap::iterator it = _store.begin(),
-         itEnd = _store.end();
-       it != itEnd; )
+  for (
+    DQMEventRecordMap::iterator it = _store.begin();
+    it != _store.end();
+  )
   {
     if ( it->second->isStale( now.GetSec() ) )
     {
