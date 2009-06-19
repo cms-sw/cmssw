@@ -9,8 +9,8 @@ StripCPEgeometric::StripCPEgeometric( edm::ParameterSet& conf,
   : StripCPE(conf, mag, geom, LorentzAngle ),
     invsqrt12(1/sqrt(12)),
     tandriftangle(conf.getParameter<double>("TanDriftAngle")),    
-    thickness_RelErr2(0.05),
-    noise_threshold(5),
+    thickness_RelErr2(pow(conf.getParameter<double>("ThicknessRelativeUncertainty"), 2)),
+    noise_threshold(conf.getParameter<double>("NoiseThreshold")),
     crossoverRate(15)
 {
   std::string mode = conf.getParameter<bool>("APVpeakmode") ? "Peak" : "Dec";
