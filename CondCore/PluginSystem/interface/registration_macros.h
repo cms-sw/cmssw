@@ -45,4 +45,10 @@ DEFINE_EDM_PLUGIN( cond::ProxyFactory, EDM_PLUGIN_SYM(Proxy , __LINE__ ), #recor
 INSTANTIATE_PROXY(record_, type_ ) \
 ONLY_REGISTER_PLUGIN(record_, type_ )
 
+
+// source_ is the record name of the keyed objects
+#define REGISTER_KEYLIST_PLUGIN(record_, type_, source_) \
+  namespace { const char * sourceRecordName_ = #_source;} \
+  REGISTER_PLUGIN(record_, type_)
+
 #endif /* PLUGINSYSTEM_REGISTRATION_MACROS_H */

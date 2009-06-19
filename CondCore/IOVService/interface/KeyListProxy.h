@@ -15,7 +15,9 @@ namespace cond {
 
     PayloadProxy(cond::Connection& conn,
 		 const std::string & token, bool errorPolicy) :
-      super(conn, token, errorPolicy) {}
+      super(conn, token, errorPolicy) {
+      m_name = sourceRecordName_;
+    }
     
     virtual ~PayloadProxy(){}
 
