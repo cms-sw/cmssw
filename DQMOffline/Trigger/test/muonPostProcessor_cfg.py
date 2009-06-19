@@ -16,9 +16,10 @@ process.MessageLogger = cms.Service("MessageLogger",
 									debugModules = cms.untracked.vstring('*'),
 									MuonTrigPostLog = cms.untracked.PSet(
 	                                threshold = cms.untracked.string('DEBUG'),
-									  MuonTrigPostLog = cms.untracked.PSet(
-	                                   limit = cms.untracked.int32(100000))
-									  ),																	 									
+									MuonTrigPostLog = cms.untracked.PSet(
+	                                  threshold = cms.untracked.string('DEBUG'),
+	                                  limit = cms.untracked.int32(100000))
+									),																	 									
 									)
 
 process.source = cms.Source("PoolSource",
