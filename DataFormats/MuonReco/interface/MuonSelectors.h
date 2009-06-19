@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Jake Ribnik, Dmytro Kovalskyi
-// $Id: MuonSelectors.h,v 1.4 2009/03/27 15:45:23 dmytro Exp $
+// $Id: MuonSelectors.h,v 1.5 2009/05/28 12:27:16 jribnik Exp $
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "TMath.h"
@@ -33,7 +33,7 @@ namespace muon {
 
    /// a lightweight "map" for selection type string label and enum value
    struct SelectionTypeStringToEnum { const char *label; SelectionType value; };
-   SelectionType selectionTypeFromString( std::string &label );
+   SelectionType selectionTypeFromString( const std::string &label );
      
    /// main GoodMuon wrapper call
    bool isGoodMuon( const reco::Muon& muon, SelectionType type );
