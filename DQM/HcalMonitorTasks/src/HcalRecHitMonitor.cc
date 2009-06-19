@@ -312,20 +312,21 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
       int iphi = id.iphi();
       int depth = id.depth();
       HcalSubdetector subdet = id.subdet();
+      int calcEta = CalcEtaBin(subdet,ieta,depth);
 
       if (subdet==HcalBarrel)
 	{
 	  HBpresent_=true;
 	  if (!checkHB_) continue;
 	
-	  ++occupancy_[CalcEtaBin(subdet,ieta,depth)][iphi-1][depth-1];
-	  energy_[CalcEtaBin(subdet,ieta,depth)][iphi-1][depth-1]+=en;
-	  time_[CalcEtaBin(subdet,ieta,depth)][iphi-1][depth-1]+=ti;
+	  ++occupancy_[calcEta][iphi-1][depth-1];
+	  energy_[calcEta][iphi-1][depth-1]+=en;
+	  time_[calcEta][iphi-1][depth-1]+=ti;
 	  if (en>=HBenergyThreshold_)
 	    {
-	      ++occupancy_thresh_[CalcEtaBin(subdet,ieta,depth)][iphi-1][depth-1];
-	      energy_thresh_[CalcEtaBin(subdet,ieta,depth)][iphi-1][depth-1]+=en;
-	      time_thresh_[CalcEtaBin(subdet,ieta,depth)][iphi-1][depth-1]+=ti;
+	      ++occupancy_thresh_[calcEta][iphi-1][depth-1];
+	      energy_thresh_[calcEta][iphi-1][depth-1]+=en;
+	      time_thresh_[calcEta][iphi-1][depth-1]+=ti;
 	    }
 	  if (rechit_makeDiagnostics_)
 	    {
@@ -360,14 +361,14 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	  HEpresent_=true;
 	  if (!checkHE_) continue;
 	  
-	  ++occupancy_[CalcEtaBin(subdet,ieta,depth)][iphi-1][depth-1];
-	  energy_[CalcEtaBin(subdet,ieta,depth)][iphi-1][depth-1]+=en;
-	  time_[CalcEtaBin(subdet,ieta,depth)][iphi-1][depth-1]+=ti;
+	  ++occupancy_[calcEta][iphi-1][depth-1];
+	  energy_[calcEta][iphi-1][depth-1]+=en;
+	  time_[calcEta][iphi-1][depth-1]+=ti;
 	  if (en>=HEenergyThreshold_)
 	    {
-	      ++occupancy_thresh_[CalcEtaBin(subdet,ieta,depth)][iphi-1][depth-1];
-	      energy_thresh_[CalcEtaBin(subdet,ieta,depth)][iphi-1][depth-1]+=en;
-	      time_thresh_[CalcEtaBin(subdet,ieta,depth)][iphi-1][depth-1]+=ti;
+	      ++occupancy_thresh_[calcEta][iphi-1][depth-1];
+	      energy_thresh_[calcEta][iphi-1][depth-1]+=en;
+	      time_thresh_[calcEta][iphi-1][depth-1]+=ti;
 	    }
 	  if (rechit_makeDiagnostics_)
 	    {
@@ -430,17 +431,17 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	 int ieta = id.ieta();
 	 int iphi = id.iphi();
 	 int depth = id.depth();
-         HcalSubdetector subdet = id.subdet();
+         int calcEta = CalcEtaBin(HcalOuter,ieta,depth);
 
-	 ++occupancy_[CalcEtaBin(subdet,ieta,depth)][iphi-1][depth-1];
-	 energy_[CalcEtaBin(subdet,ieta,depth)][iphi-1][depth-1]+=en;
-	 time_[CalcEtaBin(subdet,ieta,depth)][iphi-1][depth-1]+=ti;
+	 ++occupancy_[calcEta][iphi-1][depth-1];
+	 energy_[calcEta][iphi-1][depth-1]+=en;
+	 time_[calcEta][iphi-1][depth-1]+=ti;
 
 	 if (en>=HOenergyThreshold_)
 	   {
-	     ++occupancy_thresh_[CalcEtaBin(subdet,ieta,depth)][iphi-1][depth-1];
-	     energy_thresh_[CalcEtaBin(subdet,ieta,depth)][iphi-1][depth-1]+=en;
-	     time_thresh_[CalcEtaBin(subdet,ieta,depth)][iphi-1][depth-1]+=ti;
+	     ++occupancy_thresh_[calcEta][iphi-1][depth-1];
+	     energy_thresh_[calcEta][iphi-1][depth-1]+=en;
+	     time_thresh_[calcEta][iphi-1][depth-1]+=ti;
 	   }
 	 if (rechit_makeDiagnostics_)
 	   {
@@ -495,17 +496,17 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	 int ieta = id.ieta();
 	 int iphi = id.iphi();
 	 int depth = id.depth();
-         HcalSubdetector subdet = id.subdet();
+         int calcEta = CalcEtaBin(HcalForward,ieta,depth);
 
-	 ++occupancy_[CalcEtaBin(subdet,ieta,depth)][iphi-1][depth-1];
-	 energy_[CalcEtaBin(subdet,ieta,depth)][iphi-1][depth-1]+=en;
-	 time_[CalcEtaBin(subdet,ieta,depth)][iphi-1][depth-1]+=ti;
+	 ++occupancy_[calcEta][iphi-1][depth-1];
+	 energy_[calcEta][iphi-1][depth-1]+=en;
+	 time_[calcEta][iphi-1][depth-1]+=ti;
 
 	 if (en>=HFenergyThreshold_)
 	   {
-	     ++occupancy_thresh_[CalcEtaBin(subdet,ieta,depth)][iphi-1][depth-1];
-	     energy_thresh_[CalcEtaBin(subdet,ieta,depth)][iphi-1][depth-1]+=en;
-	     time_thresh_[CalcEtaBin(subdet,ieta,depth)][iphi-1][depth-1]+=ti;
+	     ++occupancy_thresh_[calcEta][iphi-1][depth-1];
+	     energy_thresh_[calcEta][iphi-1][depth-1]+=en;
+	     time_thresh_[calcEta][iphi-1][depth-1]+=ti;
 	   }
 	 if (rechit_makeDiagnostics_)
 	   {
@@ -590,10 +591,8 @@ void HcalRecHitMonitor::fillNevents(void)
     {
       for (int eta=0;eta<(etaBins_-2);++eta)
 	{
-	  ieta=eta-int((etaBins_-2)/2);
 	  for (int phi=0;phi<72;++phi)
 	    {
-	      iphi=phi+1;
 	      for (int mydepth=0;mydepth<4;++mydepth)
 		{
 		  OccupancyByDepth.depth[mydepth]->setBinContent(eta+1,phi+1,occupancy_[eta][phi][mydepth]);
@@ -612,7 +611,9 @@ void HcalRecHitMonitor::fillNevents(void)
 			{
 			  if (abs(ieta)<17)
 			    h_HBEnergy_1D->Fill(energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
-			  else
+			  else if (abs(ieta)>=17 && abs(ieta)<30)
+                            h_HEEnergy_1D->Fill(energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
+                          else
 			    h_HFEnergy_1D->Fill(energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
 			}
 		      else if (mydepth==3)
