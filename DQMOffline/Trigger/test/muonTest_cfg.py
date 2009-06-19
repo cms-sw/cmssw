@@ -7,7 +7,7 @@ process.load("DQMOffline.Trigger.MuonTrigRateAnalyzer_cfi")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(-1)
 )
 
 process.source = cms.Source("PoolSource",
@@ -21,7 +21,15 @@ process.source = cms.Source("PoolSource",
 							#  --- one relval
 
 							#fileNames = cms.untracked.vstring ( '/store/relval/CMSSW_3_1_0_pre7/RelValZMM/GEN-SIM-RECO/STARTUP_31X_v1/0004/F40BA55C-E641-DE11-858D-001D09F28E80.root'),
-							fileNames = cms.untracked.vstring ( '/store/relval/CMSSW_3_1_0_pre7/RelValTTbar/GEN-SIM-RECO/STARTUP_31X_v1/0004/F69E8351-CE41-DE11-84E4-001D09F23944.root'),
+							#fileNames = cms.untracked.vstring ( '/store/relval/CMSSW_3_1_0_pre7/RelValTTbar/GEN-SIM-RECO/STARTUP_31X_v1/0004/F69E8351-CE41-DE11-84E4-001D09F23944.root'),
+
+							fileNames = cms.untracked.vstring ('/store/relval/CMSSW_3_1_0_pre9/RelValZMM/GEN-SIM-RECO/STARTUP_31X_v1/0007/90691004-D050-DE11-BC8D-000423D9939C.root',
+															   '/store/relval/CMSSW_3_1_0_pre9/RelValZMM/GEN-SIM-RECO/STARTUP_31X_v1/0007/426B56FE-9A50-DE11-87C5-0019B9F72D71.root',
+															   '/store/relval/CMSSW_3_1_0_pre9/RelValZMM/GEN-SIM-RECO/STARTUP_31X_v1/0007/04788C19-9950-DE11-A698-001D09F24024.root',
+															   '/store/relval/CMSSW_3_1_0_pre9/RelValZMM/GEN-SIM-RECO/STARTUP_31X_v1/0006/A2B552C3-BD4E-DE11-9A64-001D09F251BD.root',
+															   '/store/relval/CMSSW_3_1_0_pre9/RelValZMM/GEN-SIM-RECO/STARTUP_31X_v1/0006/025E9766-BE4E-DE11-BB1C-001D09F2A465.root'),
+
+
 )
 
 process.DQMStore = cms.Service("DQMStore")
@@ -39,8 +47,8 @@ process.MessageLogger = cms.Service("MessageLogger",
     debugModules   = cms.untracked.vstring('*'),
     cout           = cms.untracked.PSet(
 	# Be careful - this can print a lot of debug info
-            threshold = cms.untracked.string('DEBUG')
-	#        threshold = cms.untracked.string('WARNING')
+    #        threshold = cms.untracked.string('DEBUG')
+	        threshold = cms.untracked.string('WARNING')
     ),
     categories     = cms.untracked.vstring('HLTMuonVal'),
     destinations   = cms.untracked.vstring('cout', 'HLTMuonVal.log')
