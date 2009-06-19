@@ -61,27 +61,28 @@ void HLTMonMuonClient::beginRun(const Run& r, const EventSetup& context) {
     int nbin_sub;
     
     for(int trig = 0; trig < nTriggers_; trig++){
-      refhisto = hSubFilterCount[trig]->getTH1F();
-      nbin_sub = refhisto->GetNbinsX();
-      //cout << "nbin_sub = " << nbin_sub << endl;
-      //cout << "client: " << filterCountMEs[trig] << endl;
-      hSubFilterEfficiency[trig] = dbe_->book1D("Efficiency_"+filterCountMEs[trig], 
-						"Efficiency_"+filterCountMEs[trig], 
+      if(hSubFilterCount[trig]){
+	refhisto = hSubFilterCount[trig]->getTH1F();
+	nbin_sub = refhisto->GetNbinsX();
+	//cout << "nbin_sub = " << nbin_sub << endl;
+	//cout << "client: " << filterCountMEs[trig] << endl;
+	hSubFilterEfficiency[trig] = dbe_->book1D("Efficiency_"+filterCountMEs[trig], 
+						  "Efficiency_"+filterCountMEs[trig], 
 						nbin_sub, 0.5, 0.5+(double)nbin_sub);
-      for(int i = 1; i <= nbin_sub; i++)
-	hSubFilterEfficiency[trig]->getTH1F()->GetXaxis()->SetBinLabel(i, refhisto->GetXaxis()->GetBinLabel(i));
-
+	for(int i = 1; i <= nbin_sub; i++)
+	  hSubFilterEfficiency[trig]->getTH1F()->GetXaxis()->SetBinLabel(i, refhisto->GetXaxis()->GetBinLabel(i));
+      }
     }
-
-    refhisto = hCountSummary->getTH1F();
-    nbin_sub = refhisto->GetNbinsX();
-    hEffSummary = dbe_->book1D("Efficiency_PassingBits_Summary",
-			      "Efficiency_PassingBits_Summary",
-			      nbin_sub, 0.5, 0.5+(double)nbin_sub);
-    for(int i = 1; i <= nbin_sub; i++)
-      hEffSummary->getTH1F()->GetXaxis()->SetBinLabel(i, refhisto->GetXaxis()->GetBinLabel(i));
-
-
+    if(hCountSummary){
+      refhisto = hCountSummary->getTH1F();
+      nbin_sub = refhisto->GetNbinsX();
+      hEffSummary = dbe_->book1D("Efficiency_PassingBits_Summary",
+				 "Efficiency_PassingBits_Summary",
+				 nbin_sub, 0.5, 0.5+(double)nbin_sub);
+      for(int i = 1; i <= nbin_sub; i++)
+	hEffSummary->getTH1F()->GetXaxis()->SetBinLabel(i, refhisto->GetXaxis()->GetBinLabel(i));
+    }
+    
   }
 
 }
