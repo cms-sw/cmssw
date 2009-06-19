@@ -24,7 +24,7 @@ void HcalRecHitClient::init(const ParameterSet& ps, DQMStore* dbe,string clientN
   h_HOEnergy_1D=0;
   h_HFEnergy_1D=0;
 
-  for (int i=0;i<6;++i)
+  for (int i=0;i<4;++i)
     {
       // Set each array's pointers to NULL
       ProblemRecHitsByDepth[i]    =0;
@@ -79,12 +79,10 @@ void HcalRecHitClient::init(const ParameterSet& ps, DQMStore* dbe,string clientN
       d_HFThreshOccupancy         =0;
     } // if (rechitclient_makeDiagnostics_)
 
-  subdets_.push_back("HB HF Depth 1 ");
-  subdets_.push_back("HB HF Depth 2 ");
+  subdets_.push_back("HB HE HF Depth 1 ");
+  subdets_.push_back("HB HE HF Depth 2 ");
   subdets_.push_back("HE Depth 3 ");
-  subdets_.push_back("HO ZDC ");
-  subdets_.push_back("HE Depth 1 ");
-  subdets_.push_back("HE Depth 2 ");
+  subdets_.push_back("HO Depth 4 ");
 
   return;
 } // void HcalRecHitClient::init(...)
@@ -154,7 +152,7 @@ void HcalRecHitClient::cleanup(void)
       if (h_HOEnergy_1D) delete h_HOEnergy_1D;
       if (h_HFEnergy_1D) delete h_HFEnergy_1D;
 
-      for (int i=0;i<6;++i)
+      for (int i=0;i<4;++i)
 	{
 	  // delete pointers within arrays of histograms
 	  if (ProblemRecHitsByDepth[i])           delete ProblemRecHitsByDepth[i];
@@ -346,7 +344,7 @@ name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HF_energy_1D";
   getSJ6histos("RecHitMonitor_Hcal/rechit_info_threshold/","Above Threshold Rec Hit Average Time", TimeThreshByDepth, "nS");
   if (ievt_>0)
     {
-      for (int i=0;i<6;++i)
+      for (int i=0;i<4;++i)
 	{
 	  ProblemRecHitsByDepth[i]->Scale(1./ievt_);
 	  OccupancyByDepth[i]->Scale(1./ievt_);
@@ -466,7 +464,7 @@ name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HF_energy_1D";
 
 
   // Force min/max on problemcells
-  for (int i=0;i<6;++i)
+  for (int i=0;i<4;++i)
     {
       if (ProblemRecHitsByDepth[i])
 	{
@@ -523,7 +521,7 @@ void HcalRecHitClient::resetAllME()
   resetME(name.str().c_str(),dbe_);
   name.str("");
 
-  for (int i=0;i<6;++i)
+  for (int i=0;i<4;++i)
     {
       // Reset arrays of histograms
       name<<process_.c_str()<<"RecHitMonitor_Hcal/problem_rechits/"<<subdets_[i]<<" Problem RecHit Rate";
@@ -733,7 +731,7 @@ void HcalRecHitClient::htmlOutput(int runNo, string htmlDir, string htmlName)
   int eta,phi;
 
   ostringstream name;
-  for (int depth=0;depth<6; ++depth)
+  for (int depth=0;depth<4; ++depth)
     {
       for (int ieta=1;ieta<=etabins;++ieta)
         {
@@ -863,7 +861,7 @@ void HcalRecHitClient::htmlExpertOutput(int runNo, string htmlDir, string htmlNa
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
   htmlFile << "cellpadding=\"10\"> " << std::endl;
   gStyle->SetPalette(1);
-  for (int i=0;i<6;++i)
+  for (int i=0;i<4;++i)
     {
       htmlFile << "<tr align=\"left\">" << std::endl;
       htmlAnyHisto(runNo,OccupancyByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
@@ -903,7 +901,7 @@ void HcalRecHitClient::htmlExpertOutput(int runNo, string htmlDir, string htmlNa
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
   htmlFile << "cellpadding=\"10\"> " << std::endl;
   gStyle->SetPalette(1);
-  for (int i=0;i<6;++i)
+  for (int i=0;i<4;++i)
     {
       htmlFile << "<tr align=\"left\">" << std::endl;
       htmlAnyHisto(runNo,EnergyByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
@@ -963,7 +961,7 @@ void HcalRecHitClient::htmlExpertOutput(int runNo, string htmlDir, string htmlNa
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
   htmlFile << "cellpadding=\"10\"> " << std::endl;
   gStyle->SetPalette(1);
-  for (int i=0;i<6;++i)
+  for (int i=0;i<4;++i)
     {
       htmlFile << "<tr align=\"left\">" << std::endl;
       htmlAnyHisto(runNo,TimeByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
@@ -1045,7 +1043,7 @@ void HcalRecHitClient::loadHistograms(TFile* infile)
   h_HFEnergy_1D=(TH1F*)infile->Get(name.str().c_str());
   name.str("");
 
-  for (int i=0;i<6;++i)
+  for (int i=0;i<4;++i)
     {
       // Grab arrays of histograms
       name<<process_.c_str()<<"RecHitMonitor_Hcal/problem_rechits/"<<subdets_[i]<<" Problem RecHit Rate";
@@ -1208,7 +1206,7 @@ bool HcalRecHitClient::hasErrors_Temp()
   float phiMin = ProblemRecHits->GetYaxis()->GetXmin();
   int eta,phi;
 
-  for (int depth=0;depth<6; ++depth)
+  for (int depth=0;depth<4; ++depth)
     {
       for (int ieta=1;ieta<=etabins;++ieta)
         {
@@ -1245,7 +1243,7 @@ bool HcalRecHitClient::hasWarnings_Temp()
   float phiMin = ProblemRecHits->GetYaxis()->GetXmin();
   int eta,phi;
  
-  for (int depth=0;depth<6; ++depth)
+  for (int depth=0;depth<4; ++depth)
     {
       for (int ieta=1;ieta<=etabins;++ieta)
         {

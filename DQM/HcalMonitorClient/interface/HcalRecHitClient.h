@@ -70,17 +70,17 @@ private:
   
   // Histograms
   TH2F* ProblemRecHits;
-  TH2F* ProblemRecHitsByDepth[6];
-  TH2F* OccupancyByDepth[6];
-  TH2F* OccupancyThreshByDepth[6];
-  TH2F* EnergyByDepth[6];
-  TH2F* EnergyThreshByDepth[6];
-  TH2F* TimeByDepth[6];
-  TH2F* TimeThreshByDepth[6];
-  TH2F* SumEnergyByDepth[6];
-  TH2F* SumEnergyThreshByDepth[6];
-  TH2F* SumTimeByDepth[6];
-  TH2F* SumTimeThreshByDepth[6];
+  TH2F* ProblemRecHitsByDepth[4];
+  TH2F* OccupancyByDepth[4];
+  TH2F* OccupancyThreshByDepth[4];
+  TH2F* EnergyByDepth[4];
+  TH2F* EnergyThreshByDepth[4];
+  TH2F* TimeByDepth[4];
+  TH2F* TimeThreshByDepth[4];
+  TH2F* SumEnergyByDepth[4];
+  TH2F* SumEnergyThreshByDepth[4];
+  TH2F* SumTimeByDepth[4];
+  TH2F* SumTimeThreshByDepth[4];
 
   // diagnostic histograms
   TH1F* d_HBEnergy;

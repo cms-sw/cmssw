@@ -13,8 +13,8 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2009/03/30 17:54:26 $
-  * $Revision: 1.20.2.2 $
+  * $Date: 2009/03/31 14:03:00 $
+  * $Revision: 1.23 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -65,30 +65,30 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   double rechit_minErrorFlag_; // minimum error rate needed to dump out bad bin info 
   // Problem Histograms
   MonitorElement* ProblemRecHits;
-  std::vector<MonitorElement*> ProblemRecHitsByDepth;
+  EtaPhiHists ProblemRecHitsByDepth;
 
   // Basic Histograms
-  std::vector<MonitorElement*> OccupancyByDepth;
-  std::vector<MonitorElement*> OccupancyThreshByDepth;
-  std::vector<MonitorElement*> EnergyByDepth;
-  std::vector<MonitorElement*> EnergyThreshByDepth;
-  std::vector<MonitorElement*> TimeByDepth;
-  std::vector<MonitorElement*> TimeThreshByDepth;
+  EtaPhiHists OccupancyByDepth;
+  EtaPhiHists OccupancyThreshByDepth;
+  EtaPhiHists EnergyByDepth;
+  EtaPhiHists EnergyThreshByDepth;
+  EtaPhiHists TimeByDepth;
+  EtaPhiHists TimeThreshByDepth;
   
-  //std::vector<MonitorElement*> SumOccupancyByDepth;
-  //std::vector<MonitorElement*> SumOccupancyThreshByDepth;
-  std::vector<MonitorElement*> SumEnergyByDepth;
-  std::vector<MonitorElement*> SumEnergyThreshByDepth;
-  std::vector<MonitorElement*> SumTimeByDepth;
-  std::vector<MonitorElement*> SumTimeThreshByDepth;
+  //EtaPhiHists SumOccupancyByDepth;
+  //EtaPhiHists SumOccupancyThreshByDepth;
+  EtaPhiHists SumEnergyByDepth;
+  EtaPhiHists SumEnergyThreshByDepth;
+  EtaPhiHists SumTimeByDepth;
+  EtaPhiHists SumTimeThreshByDepth;
 
 
-  unsigned int occupancy_[ETABINS][PHIBINS][6]; // will get filled when rechit found
-  unsigned int occupancy_thresh_[ETABINS][PHIBINS][6]; // filled when above given energy
-  double energy_[ETABINS][PHIBINS][6]; // will get filled when rechit found
-  double energy_thresh_[ETABINS][PHIBINS][6]; // filled when above given  
-  double time_[ETABINS][PHIBINS][6]; // will get filled when rechit found
-  double time_thresh_[ETABINS][PHIBINS][6]; // filled when above given energy
+  unsigned int occupancy_[ETABINS][PHIBINS][4]; // will get filled when rechit found
+  unsigned int occupancy_thresh_[ETABINS][PHIBINS][4]; // filled when above given energy
+  double energy_[ETABINS][PHIBINS][4]; // will get filled when rechit found
+  double energy_thresh_[ETABINS][PHIBINS][4]; // filled when above given  
+  double time_[ETABINS][PHIBINS][4]; // will get filled when rechit found
+  double time_thresh_[ETABINS][PHIBINS][4]; // filled when above given energy
 
   double HBenergy_[200];
   double HBenergy_thresh_[200];
