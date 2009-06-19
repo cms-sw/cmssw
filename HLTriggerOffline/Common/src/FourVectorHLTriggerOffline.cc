@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTriggerOffline.cc,v 1.24 2009/06/04 00:02:55 rekovic Exp $
+// $Id: FourVectorHLTriggerOffline.cc,v 1.25 2009/06/04 22:47:48 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "HLTriggerOffline/Common/interface/FourVectorHLTriggerOffline.h"
@@ -324,13 +324,14 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	// ------------
   objMon<reco::CaloTauCollection>  tauMon;
   tauMon.setReco(tauHandle);
-  tauMon.setMC(genParticles, 15, 1);
+  tauMon.setMC(genParticles, 15, 3);
   tauMon.setLimits(tauEtaMax_, tauEtMin_, tauDRMatch_);
   
   tauMon.pushTriggerType(TriggerTau);
   tauMon.pushTriggerType(TriggerL1TauJet);
 
   tauMon.pushL1TriggerType(TriggerL1TauJet);
+  tauMon.pushL1TriggerType(TriggerL1CenJet);
   tauMon.pushL1TriggerType(TriggerL1ForJet);
 	
   // photon Monitor
