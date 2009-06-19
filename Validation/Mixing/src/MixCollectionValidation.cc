@@ -51,77 +51,6 @@ MixCollectionValidation::MixCollectionValidation(const edm::ParameterSet& iConfi
     if ( verbose_ ) dbe_->showDirStructure();
   }
 
-  // define maps of MonitorElements
-
-  SimHitNrmap_["BSCHits"]                       =  nrSimHitBSCHitsH_;
-  SimHitNrmap_["FP420SI"]                       =  nrSimHitFP420SIH_;
-  SimHitNrmap_["MuonCSCHits"]                   =  nrSimHitMuonCSCHitsH_; 
-  SimHitNrmap_["MuonDTHits"]                    =  nrSimHitMuonDTHitsH_; 
-  SimHitNrmap_["MuonRPCHits"]                   =  nrSimHitMuonRPCHitsH_;   
-  SimHitNrmap_["TotemHitsRP"]                   =  nrSimHitTotemHitsRPH_; 
-  SimHitNrmap_["TotemHitsT1"]                   =  nrSimHitTotemHitsT1H_; 
-  SimHitNrmap_["TotemHitsT2Gem"]                =  nrSimHitTotemHitsT2GemH_; 
-  SimHitNrmap_["TrackerHitsPixelBarrelHighTof"] =  nrSimHitTrackerHitsPixelBarrelHighTofH_; 
-  SimHitNrmap_["TrackerHitsPixelBarrelLowTof"]  =  nrSimHitTrackerHitsPixelBarrelLowTofH_; 
-  SimHitNrmap_["TrackerHitsPixelEndcapHighTof"] =  nrSimHitTrackerHitsPixelEndcapHighTofH_; 
-  SimHitNrmap_["TrackerHitsPixelEndcapLowTof"]  =  nrSimHitTrackerHitsPixelEndcapLowTofH_; 
-  SimHitNrmap_["TrackerHitsTECHighTof"]         =  nrSimHitTrackerHitsTECHighTofH_; 
-  SimHitNrmap_["TrackerHitsTECLowTof"]          =  nrSimHitTrackerHitsTECLowTofH_; 
-  SimHitNrmap_["TrackerHitsTIBHighTof"]         =  nrSimHitTrackerHitsTIBHighTofH_; 
-  SimHitNrmap_["TrackerHitsTIBLowTof"]          =  nrSimHitTrackerHitsTIBLowTofH_; 
-  SimHitNrmap_["TrackerHitsTIDHighTof"]         =  nrSimHitTrackerHitsTIDHighTofH_; 
-  SimHitNrmap_["TrackerHitsTIDLowTof"]          =  nrSimHitTrackerHitsTIDLowTofH_; 
-  SimHitNrmap_["TrackerHitsTOBHighTof"]         =  nrSimHitTrackerHitsTOBHighTofH_; 
-  SimHitNrmap_["TrackerHitsTOBLowTof"]          =  nrSimHitTrackerHitsTOBLowTofH_;
-
-  SimHitTimemap_["BSCHits"]                       =  timeSimHitBSCHitsH_;
-  SimHitTimemap_["FP420SI"]                       =  timeSimHitFP420SIH_;
-  SimHitTimemap_["MuonCSCHits"]                   =  timeSimHitMuonCSCHitsH_; 
-  SimHitTimemap_["MuonDTHits"]                    =  timeSimHitMuonDTHitsH_; 
-  SimHitTimemap_["MuonRPCHits"]                   =  timeSimHitMuonRPCHitsH_; 
-  SimHitTimemap_["TotemHitsRP"]                   =  timeSimHitTotemHitsRPH_; 
-  SimHitTimemap_["TotemHitsT1"]                   =  timeSimHitTotemHitsT1H_; 
-  SimHitTimemap_["TotemHitsT2Gem"]                =  timeSimHitTotemHitsT2GemH_; 
-  SimHitTimemap_["TrackerHitsPixelBarrelHighTof"] =  timeSimHitTrackerHitsPixelBarrelHighTofH_; 
-  SimHitTimemap_["TrackerHitsPixelBarrelLowTof"]  =  timeSimHitTrackerHitsPixelBarrelLowTofH_; 
-  SimHitTimemap_["TrackerHitsPixelEndcapHighTof"] =  timeSimHitTrackerHitsPixelEndcapHighTofH_; 
-  SimHitTimemap_["TrackerHitsPixelEndcapLowTof"]  =  timeSimHitTrackerHitsPixelEndcapLowTofH_; 
-  SimHitTimemap_["TrackerHitsTECHighTof"]         =  timeSimHitTrackerHitsTECHighTofH_; 
-  SimHitTimemap_["TrackerHitsTECLowTof"]          =  timeSimHitTrackerHitsTECLowTofH_; 
-  SimHitTimemap_["TrackerHitsTIBHighTof"]         =  timeSimHitTrackerHitsTIBHighTofH_; 
-  SimHitTimemap_["TrackerHitsTIBLowTof"]          =  timeSimHitTrackerHitsTIBLowTofH_; 
-  SimHitTimemap_["TrackerHitsTIDHighTof"]         =  timeSimHitTrackerHitsTIDHighTofH_; 
-  SimHitTimemap_["TrackerHitsTIDLowTof"]          =  timeSimHitTrackerHitsTIDLowTofH_; 
-  SimHitTimemap_["TrackerHitsTOBHighTof"]         =  timeSimHitTrackerHitsTOBHighTofH_; 
-  SimHitTimemap_["TrackerHitsTOBLowTof"]          =  timeSimHitTrackerHitsTOBLowTofH_;
-
-  CaloHitNrmap_["CaloHitsTk"]       =  nrCaloHitCaloHitsTkH_;  
-  CaloHitNrmap_["CastorBU"]         =  nrCaloHitCastorBUH_;  
-  CaloHitNrmap_["CastorFI"]         =  nrCaloHitCastorFIH_;  
-  CaloHitNrmap_["CastorPL"]         =  nrCaloHitCastorPLH_;  
-  CaloHitNrmap_["CastorTU"]         =  nrCaloHitCastorTUH_;  
-  CaloHitNrmap_["EcalHitsEB"]       =  nrCaloHitEcalHitsEBH_;  
-  CaloHitNrmap_["EcalHitsEE"]       =  nrCaloHitEcalHitsEEH_;  
-  CaloHitNrmap_["EcalHitsES"]       =  nrCaloHitEcalHitsESH_;  
-  CaloHitNrmap_["EcalTBH4BeamHits"] =  nrCaloHitEcalTBH4BeamHitsH_;  
-  CaloHitNrmap_["HcalHits"]         =  nrCaloHitHcalHitsH_;  
-  CaloHitNrmap_["HcalTB06BeamHits"] =  nrCaloHitHcalTB06BeamHitsH_;  
-  CaloHitNrmap_["ZDCHITS"]          =  nrCaloHitZDCHITSH_; 
-
-  CaloHitTimemap_["CaloHitsTk"]       =  timeCaloHitCaloHitsTkH_;
-  CaloHitTimemap_["CastorBU"]         =  timeCaloHitCastorBUH_;  
-  CaloHitTimemap_["CastorFI"]         =  timeCaloHitCastorFIH_;  
-  CaloHitTimemap_["CastorPL"]         =  timeCaloHitCastorPLH_;  
-  CaloHitTimemap_["CastorTU"]         =  timeCaloHitCastorTUH_;  
-  CaloHitTimemap_["EcalHitsEB"]       =  timeCaloHitEcalHitsEBH_;  
-  CaloHitTimemap_["EcalHitsEE"]       =  timeCaloHitEcalHitsEEH_;  
-  CaloHitTimemap_["EcalHitsES"]       =  timeCaloHitEcalHitsESH_;  
-  CaloHitTimemap_["EcalTBH4BeamHits"] =  timeCaloHitEcalTBH4BeamHitsH_;  
-  CaloHitTimemap_["HcalHits"]         =  timeCaloHitHcalHitsH_;  
-  CaloHitTimemap_["HcalTB06BeamHits"] =  timeCaloHitHcalTB06BeamHitsH_;  
-  CaloHitTimemap_["ZDCHITS"]          =  timeCaloHitZDCHITSH_; 
-
-
   // get hold of back-end interface
   dbe_ = Service<DQMStore>().operator->(); 
   dbe_->showDirStructure();
@@ -166,30 +95,28 @@ MixCollectionValidation::MixCollectionValidation(const edm::ParameterSet& iConfi
       else if ( object == "PSimHit" ) {
         std::vector<std::string> subdets=pset.getParameter<std::vector<std::string> >("subdets");
         for (unsigned int ii=0;ii<subdets.size();ii++) {
-          if ( SimHitNrmap_[subdets[ii]] != 0 ) { 
-            std::string title = "Log10 Number of " + subdets[ii];
-            SimHitNrmap_[subdets[ii]] = dbe_->bookProfile(title,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
-          }
-          if ( SimHitTimemap_[subdets[ii]] != 0 ) { 
-            std::string title = "Time of " + subdets[ii];
-            SimHitTimemap_[subdets[ii]] = dbe_->bookProfile(title,title,nbin_,minbunch_,maxbunch_+1,40,-125.,375.);
-          }
+
+          std::string title = "Log10 Number of " + subdets[ii];
+          SimHitNrmap_[subdets[ii]] = dbe_->bookProfile(title,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
+
+          title = "Time of " + subdets[ii];
+          SimHitTimemap_[subdets[ii]] = dbe_->bookProfile(title,title,nbin_,minbunch_,maxbunch_+1,40,-125.,375.);
+
         }
 
         PSimHitTags_ = tags;
-
+        
       }
       else if ( object == "PCaloHit" ) {
         std::vector<std::string> subdets=pset.getParameter<std::vector<std::string> >("subdets");
         for (unsigned int ii=0;ii<subdets.size();ii++) {
-          if ( CaloHitNrmap_[subdets[ii]] != 0 ) { 
-            std::string title = "Log10 Number of " + subdets[ii];
-            CaloHitNrmap_[subdets[ii]] = dbe_->bookProfile(title,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
-          }
-          if ( CaloHitTimemap_[subdets[ii]] != 0 ) { 
-            std::string title = "Time of " + subdets[ii];
-            CaloHitTimemap_[subdets[ii]] = dbe_->bookProfile(title,title,nbin_,minbunch_,maxbunch_+1,40,-125.,375.);
-          }
+
+          std::string title = "Log10 Number of " + subdets[ii];
+          CaloHitNrmap_[subdets[ii]] = dbe_->bookProfile(title,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
+        
+          title = "Time of " + subdets[ii];
+          CaloHitTimemap_[subdets[ii]] = dbe_->bookProfile(title,title,nbin_,minbunch_,maxbunch_+1,40,-125.,375.);
+
         }
 
         PCaloHitTags_ = tags;

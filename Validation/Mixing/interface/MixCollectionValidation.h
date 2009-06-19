@@ -52,80 +52,10 @@ private:
   MonitorElement * nrSimTrackH_;
   MonitorElement * nrSimVertexH_;
 
-  MonitorElement * nrSimHitBSCHitsH_;
-  MonitorElement * nrSimHitFP420SIH_;
-  MonitorElement * nrSimHitMuonCSCHitsH_; 
-  MonitorElement * nrSimHitMuonDTHitsH_; 
-  MonitorElement * nrSimHitMuonRPCHitsH_; 
-  MonitorElement * nrSimHitTotemHitsRPH_; 
-  MonitorElement * nrSimHitTotemHitsT1H_; 
-  MonitorElement * nrSimHitTotemHitsT2GemH_; 
-  MonitorElement * nrSimHitTrackerHitsPixelBarrelHighTofH_; 
-  MonitorElement * nrSimHitTrackerHitsPixelBarrelLowTofH_; 
-  MonitorElement * nrSimHitTrackerHitsPixelEndcapHighTofH_; 
-  MonitorElement * nrSimHitTrackerHitsPixelEndcapLowTofH_; 
-  MonitorElement * nrSimHitTrackerHitsTECHighTofH_; 
-  MonitorElement * nrSimHitTrackerHitsTECLowTofH_; 
-  MonitorElement * nrSimHitTrackerHitsTIBHighTofH_; 
-  MonitorElement * nrSimHitTrackerHitsTIBLowTofH_; 
-  MonitorElement * nrSimHitTrackerHitsTIDHighTofH_; 
-  MonitorElement * nrSimHitTrackerHitsTIDLowTofH_; 
-  MonitorElement * nrSimHitTrackerHitsTOBHighTofH_; 
-  MonitorElement * nrSimHitTrackerHitsTOBLowTofH_;
-
   std::map<std::string,MonitorElement *> SimHitNrmap_;
-
-  MonitorElement * timeSimHitBSCHitsH_;
-  MonitorElement * timeSimHitFP420SIH_;
-  MonitorElement * timeSimHitMuonCSCHitsH_; 
-  MonitorElement * timeSimHitMuonDTHitsH_; 
-  MonitorElement * timeSimHitMuonRPCHitsH_; 
-  MonitorElement * timeSimHitTotemHitsRPH_; 
-  MonitorElement * timeSimHitTotemHitsT1H_; 
-  MonitorElement * timeSimHitTotemHitsT2GemH_; 
-  MonitorElement * timeSimHitTrackerHitsPixelBarrelHighTofH_; 
-  MonitorElement * timeSimHitTrackerHitsPixelBarrelLowTofH_; 
-  MonitorElement * timeSimHitTrackerHitsPixelEndcapHighTofH_; 
-  MonitorElement * timeSimHitTrackerHitsPixelEndcapLowTofH_; 
-  MonitorElement * timeSimHitTrackerHitsTECHighTofH_; 
-  MonitorElement * timeSimHitTrackerHitsTECLowTofH_; 
-  MonitorElement * timeSimHitTrackerHitsTIBHighTofH_; 
-  MonitorElement * timeSimHitTrackerHitsTIBLowTofH_; 
-  MonitorElement * timeSimHitTrackerHitsTIDHighTofH_; 
-  MonitorElement * timeSimHitTrackerHitsTIDLowTofH_; 
-  MonitorElement * timeSimHitTrackerHitsTOBHighTofH_; 
-  MonitorElement * timeSimHitTrackerHitsTOBLowTofH_;
-
   std::map<std::string,MonitorElement *> SimHitTimemap_;
 
-  MonitorElement * nrCaloHitCaloHitsTkH_;
-  MonitorElement * nrCaloHitCastorBUH_; 
-  MonitorElement * nrCaloHitCastorFIH_;  
-  MonitorElement * nrCaloHitCastorPLH_;  
-  MonitorElement * nrCaloHitCastorTUH_;  
-  MonitorElement * nrCaloHitEcalHitsEBH_;  
-  MonitorElement * nrCaloHitEcalHitsEEH_;  
-  MonitorElement * nrCaloHitEcalHitsESH_;  
-  MonitorElement * nrCaloHitEcalTBH4BeamHitsH_;  
-  MonitorElement * nrCaloHitHcalHitsH_;  
-  MonitorElement * nrCaloHitHcalTB06BeamHitsH_;  
-  MonitorElement * nrCaloHitZDCHITSH_; 
-
   std::map<std::string,MonitorElement *> CaloHitNrmap_;
-
-  MonitorElement * timeCaloHitCaloHitsTkH_;
-  MonitorElement * timeCaloHitCastorBUH_; 
-  MonitorElement * timeCaloHitCastorFIH_;  
-  MonitorElement * timeCaloHitCastorPLH_;  
-  MonitorElement * timeCaloHitCastorTUH_;  
-  MonitorElement * timeCaloHitEcalHitsEBH_;  
-  MonitorElement * timeCaloHitEcalHitsEEH_;  
-  MonitorElement * timeCaloHitEcalHitsESH_;  
-  MonitorElement * timeCaloHitEcalTBH4BeamHitsH_;  
-  MonitorElement * timeCaloHitHcalHitsH_;  
-  MonitorElement * timeCaloHitHcalTB06BeamHitsH_;  
-  MonitorElement * timeCaloHitZDCHITSH_; 
-
   std::map<std::string,MonitorElement *> CaloHitTimemap_;
 
   DQMStore* dbe_;
