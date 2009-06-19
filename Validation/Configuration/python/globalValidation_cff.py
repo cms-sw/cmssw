@@ -22,8 +22,10 @@ from Validation.MuonRPCDigis.validationMuonRPCDigis_cfi import *
 from Validation.RecoMuon.muonValidation_cff import *
 from Validation.MuonIsolation.MuIsoVal_cff import *
 from Validation.MuonIdentification.muonIdVal_cff import *
+from Validation.Mixing.mixCollectionValidation_cfi import *
 
 globalValidation = cms.Sequence(trackerHitsValidation+trackerDigisValidation+trackerRecHitsValidation+trackingTruthValid+trackingRecHitsValid+tracksValidation+
                                 ecalSimHitsValidationSequence+ecalDigisValidationSequence+ecalRecHitsValidationSequence+ecalClustersValidationSequence+
                                 hcalSimHitStudy+hcalRecHitsValidationSequence+calotowersValidationSequence+
-                                validSimHit+muondtdigianalyzer+cscDigiValidation+validationMuonRPCDigis+recoMuonValidation+muIsoVal_seq+muonIdValDQMSeq)
+                                validSimHit+muondtdigianalyzer+cscDigiValidation+validationMuonRPCDigis+recoMuonValidation+muIsoVal_seq+muonIdValDQMSeq
+                                +mixCollectionValidation)
