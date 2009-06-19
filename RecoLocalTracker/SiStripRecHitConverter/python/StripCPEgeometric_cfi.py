@@ -4,7 +4,7 @@ StripCPEgeometricESProducer =cms.ESProducer("StripCPEESProducer",
                ComponentName = cms.string('StripCPEgeometric'),
                TanDriftAngle                = cms.double(0.01),
                NoiseThreshold               = cms.double(10),
-               ThicknessRelativeUncertainty = cms.double(0.01),
+               ThicknessRelativeUncertainty = cms.double(0.05),
                #---Crosstalk
                APVpeakmode             = cms.bool(False),
                # Deconvolution Mode
