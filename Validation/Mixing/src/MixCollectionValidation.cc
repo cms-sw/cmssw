@@ -324,7 +324,7 @@ template<class T1, class T2> void MixCollectionValidation::fillMultiplicity(T1 &
   }
   
   for ( int i = 0; i < nbin_; i++ ) {
-    theProfile_->Fill(double(i+minbunch_)+0.5,std::log10(std::max(1.e-1,double(theMult[i]))));
+    theProfile_->Fill(float(i+minbunch_+0.5),std::log10(std::max(float(0.1),float(theMult[i]))));
   }
 }
 
@@ -343,7 +343,7 @@ template<class T1, class T2> void MixCollectionValidation::fillGenParticleMulti(
   }
   
   for ( int i = 0; i < nbin_; i++ ) {
-    theProfile_->Fill(double(i+minbunch_)+0.5,std::log10(std::max(1.e-1,double(theMult[i]))));
+    theProfile_->Fill(float(i+minbunch_+0.5),std::log10(std::max(float(0.1),float(theMult[i]))));
   }
 }
 
@@ -352,9 +352,9 @@ template<class T1, class T2> void MixCollectionValidation::fillSimHitTime(T1 & t
   for ( theItr_ = theColl_->begin() ; theItr_ != theColl_->end() ; ++theItr_) {
 
     int bunch = (*theItr_).eventId().bunchCrossing();
-    double time = (*theItr_).timeOfFlight();
+    float time = (*theItr_).timeOfFlight();
     int index = bunch - minbunch_;
-    if ( index >= 0 && index < nbin_ ) { theProfile_->Fill(bunch+0.5,time); }
+    if ( index >= 0 && index < nbin_ ) { theProfile_->Fill(float(bunch+0.5),time); }
     else { edm::LogWarning("MixCollectionValidation") << "fillSimHitTime: bunch number " << bunch << " out of range"; }
 
   }
@@ -366,9 +366,9 @@ template<class T1, class T2> void MixCollectionValidation::fillCaloHitTime(T1 & 
   for ( theItr_ = theColl_->begin() ; theItr_ != theColl_->end() ; ++theItr_) {
 
     int bunch = (*theItr_).eventId().bunchCrossing();
-    double time = (*theItr_).time();
+    float time = (*theItr_).time();
     int index = bunch - minbunch_;
-    if ( index >= 0 && index < nbin_ ) { theProfile_->Fill(bunch+0.5,time); }
+    if ( index >= 0 && index < nbin_ ) { theProfile_->Fill(float(bunch+0.5),time); }
     else { edm::LogWarning("MixCollectionValidation") << "fillCaloHitTime: bunch number " << bunch << " out of range"; }
 
   }
