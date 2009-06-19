@@ -34,8 +34,8 @@
     </xc:Application>
     <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterResourceBroker.so</xc:Module>
 
-    <xc:Application class="pt::atcp::PeerTransportTCP" id="26" network="tcp1">
-      <properties xmlns="urn:xdaq-application:pt::atcp::PeerTransportTCP" xsi:type="soapenc:Struct">
+    <xc:Application class="pt::tcp::PeerTransportTCP" id="26" network="tcp1">
+      <properties xmlns="urn:xdaq-application:pt::tcp::PeerTransportTCP" xsi:type="soapenc:Struct">
         <autoSize xsi:type="xsd:boolean">true</autoSize>
         <maxPacketSize xsi:type="xsd:unsignedInt">262144</maxPacketSize>
       </properties>
@@ -201,8 +201,8 @@
     </xc:Application>
     <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterStorageManager.so</xc:Module>
 
-    <xc:Application class="pt::atcp::PeerTransportTCP" id="31" network="tcp1">
-      <properties xmlns="urn:xdaq-application:pt::atcp::PeerTransportTCP" xsi:type="soapenc:Struct">
+    <xc:Application class="pt::tcp::PeerTransportTCP" id="31" network="tcp1">
+      <properties xmlns="urn:xdaq-application:pt::tcp::PeerTransportTCP" xsi:type="soapenc:Struct">
         <autoSize xsi:type="xsd:boolean">true</autoSize>
         <maxPacketSize xsi:type="xsd:unsignedInt">262144</maxPacketSize>
       </properties>
