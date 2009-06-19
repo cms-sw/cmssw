@@ -10,7 +10,7 @@ process.eff = cms.ESSource("PoolDBESSource",
     cms.PSet(
     record = cms.string('ExDwarfListRcd'),
     tag = cms.string('ConfTest')
-    )
+    ),
     cms.PSet(
     record = cms.string('ExDwarfRcd'),
     tag = cms.string('KeyTest')
