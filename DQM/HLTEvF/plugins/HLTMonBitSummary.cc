@@ -38,6 +38,15 @@ HLTMonBitSummary::HLTMonBitSummary(const edm::ParameterSet& iConfig) :
   total_(0),
   nValidTriggers_(0)
 {
+  denominator_ = iConfig.getUntrackedParameter<std::string>("denominator");
+  directory_ = iConfig.getUntrackedParameter<std::string>("directory","HLT/HLTMonMuon");
+  //label_ = iConfig.getParameter<std::string>("label");
+  //  out_ = iConfig.getUntrackedParameter<std::string>("out","");
+
+  dbe_ = NULL;
+  dbe_ = Service < DQMStore > ().operator->();
+  dbe_->setVerbose(0);
+  
   //initialize the hlt configuration from the process name if not blank
   std::string processName = inputTag_.process();
   if (processName != ""){
@@ -46,112 +55,101 @@ HLTMonBitSummary::HLTMonBitSummary(const edm::ParameterSet& iConfig) :
     HLTConfigProvider hltConfig;
     hltConfig.init(processName);
     std::vector<std::string> validTriggerNames = hltConfig.triggerNames();
+  
+    if (validTriggerNames.size() < 1) {
+      LogDebug ("HLTMonBitSummary") << endl << endl << endl
+				    << "---> WARNING: HLTConfigProvider has empty list of valid trigger names" << endl
+				    << "Check the HLT Process Name (you provided  " << processName <<")" << endl
+				    << "W/o valid triggers we can't produce plots, exiting..."
+				    << endl << endl << endl;
+      return;
+    }
+  
+          
     if (validTriggerNames.size()!=0){
-      bool goodToGo=false;
+      bool goodToGo = false;
       //remove all path names that are not valid
       while(!goodToGo && HLTPathsByName_.size()!=0){
 	goodToGo=true;
 	for (std::vector<std::string>::iterator j=HLTPathsByName_.begin();j!=HLTPathsByName_.end();++j){
-	  bool goodOne=false;
-	  for (uint i=0;i!=validTriggerNames.size();++i){if (validTriggerNames[i]==(*j)) {goodOne=true;break;}}
-	  if (!goodOne){goodToGo=false;
-	  buffer<<(*j)<<" is not a valid trigger in process: "<<processName<<std::endl;
-	  HLTPathsByName_.erase(j);break;}
-	}
-      }
-      LogDebug("BitPlotting|BitStatus")<<buffer.str();
-    }
-  }
-
-  count_.resize(HLTPathsByName_.size());
-  HLTPathsByIndex_.resize(HLTPathsByName_.size());
-  //  out_ = iConfig.getUntrackedParameter<std::string>("out","");
-
-  denominator_ = iConfig.getUntrackedParameter<std::string>("denominator");
-  directory_ = iConfig.getUntrackedParameter<std::string>("directory","HLT/HLTMonMuon");
-  //label_ = iConfig.getParameter<std::string>("label");
-
-  dbe_ = NULL;
-  dbe_ = Service < DQMStore > ().operator->();
-  dbe_->setVerbose(0);
-  
-  //try automatic config reader
-  HLTConfigProvider hltConfig;
-  hltConfig.init(processName);
-  vector<string> validTriggerNames = hltConfig.triggerNames();
-  
-  if (validTriggerNames.size() < 1) {
-    LogTrace ("HLTMuonVal") << endl << endl << endl
-                            << "---> WARNING: The HLT Config Provider gave you an empty list of valid trigger names" << endl
-                            << "Could be a problem with the HLT Process Name (you provided  " << processName <<")" << endl
-                            << "W/o valid triggers we can't produce plots, exiting..."
-                            << endl << endl << endl;
-    return;
-  }
-
-  vector<string>::const_iterator iDumpName;
-  unsigned int numTriggers = 0;
-  for (iDumpName = validTriggerNames.begin();
-       iDumpName != validTriggerNames.end();
-       iDumpName++) {
-    LogTrace ("HLTMuonVal") << "Trigger " << numTriggers   
-      //cout << "Trigger " << numTriggers
-			    << " is called " << (*iDumpName)
-			    << endl;
-    numTriggers++;
-  }
-
-
-
- 
-  for( size_t i = 0; i < HLTPathsByName_.size(); i++) {
-    bool isValidTriggerName = false;
-    for ( size_t j = 0; j < validTriggerNames.size(); j++ )
-      if ( HLTPathsByName_[i] == validTriggerNames[j] ) {
-	isValidTriggerName = true;
-	nValidTriggers_++;
-	triggerFilters_.push_back(vector <string>()); // the trigger is good, create a row 
-      }
-    if ( isValidTriggerName ) {
-      vector<string> moduleNames = hltConfig.moduleLabels( HLTPathsByName_[i] );
- 
-      triggerFilters_[nValidTriggers_-1].push_back(HLTPathsByName_[i]);//first entry is trigger NAME
-      //cout << "triggerFilters_[" << nValidTriggers-1 << "][" << 0 << "] = " 
-      //     << triggerFilters_[nValidTriggers-1][0] << endl;
-
-      int numModule = 0;
-      int numFilters = 0;
-      //spit out module name
-      //cout << "Trigger name: " << HLTPathsByName_[i] << endl;
-      vector<string>::const_iterator iDumpModName;
-      for (iDumpModName = moduleNames.begin();iDumpModName != moduleNames.end();iDumpModName++) {
-	LogTrace ("HLTMuonVal") << "Module" << numModule
-	  //cout << "Module " << numModule
-				<< " is called " << (*iDumpModName)
-				<< " , type = " << hltConfig.moduleType(*iDumpModName)
-				<< " , index = " << hltConfig.moduleIndex(HLTPathsByName_[i], (*iDumpModName))
-				<< endl;
-	numModule++;
-	string moduleType = hltConfig.moduleType(*iDumpModName);
-	string moduleName = *iDumpModName;
-	for(size_t k = 0; k < filterTypes_.size(); k++) {
-	  //cout << "moduleType = " << moduleType << " , filterTypes_[" << k << "] = " << filterTypes_[k] << endl;
-	  if(moduleType == filterTypes_[k]) {
-	    numFilters++;
-	    triggerFilters_[nValidTriggers_-1].push_back(moduleName);
-	    //cout << "triggerFilters_[" << nValidTriggers-1 << "][" << numFilters << "] = " 
-	    // << triggerFilters_[nValidTriggers-1][numFilters] << endl;
+	  bool goodOne = false;
+	  //check if trigger name is valid
+	  for (unsigned int i = 0; i != validTriggerNames.size(); ++i){
+	    if (validTriggerNames[i]==(*j)){ goodOne = true; break; }
+	  }
+	  if (!goodOne){
+	    goodToGo = false;
+	    buffer << (*j) << " is not a valid trigger in process: " << processName << std::endl;
+	    HLTPathsByName_.erase(j);
+	    break;
 	  }
 	}
-      }//end spit
-
-      //nFilters_.push_back(numFilters);
-    }   
-  }
-  //cout << "number of valid triggers = " << nValidTriggers_ << endl;
-
-  // end try
-  	
+      }
+      LogDebug("HLTMonBitSummary|BitStatus")<<buffer.str();
+    }
+    
+    
+    count_.resize(HLTPathsByName_.size());
+    HLTPathsByIndex_.resize(HLTPathsByName_.size());
+    
+    vector<string>::const_iterator iDumpName;
+    unsigned int numTriggers = 0;
+    for (iDumpName = validTriggerNames.begin(); iDumpName != validTriggerNames.end(); iDumpName++) {
+      LogDebug ("HLTMonBitSummary") << "Trigger " << numTriggers   
+				    << " is called " << (*iDumpName)
+				    << endl;
+      numTriggers++;
+    }
+    
+        
+    nValidTriggers_ = HLTPathsByName_.size();
+    
+    for( size_t i = 0; i < nValidTriggers_; i++) {
+      // create a row [triggername,filter1name, filter2name, etc.] 
+      triggerFilters_.push_back(vector <string>());  
+      // create a row [0, filter1index, filter2index, etc.]
+      triggerFilterIndices_.push_back(vector <uint>()); 
+      
+      vector<string> moduleNames = hltConfig.moduleLabels( HLTPathsByName_[i] ); 
+            
+      //triggerFilters_[nValidTriggers_-1].push_back(HLTPathsByName_[i]);//first entry is trigger name 
+      triggerFilters_[i].push_back(HLTPathsByName_[i]);//first entry is trigger name
+	      
+      //triggerFilterIndices_[nValidTriggers_-1].push_back(0);
+      triggerFilterIndices_[i].push_back(0);
+      
+      int numModule = 0, numFilters = 0;
+      string moduleName, moduleType;
+      unsigned int moduleIndex;
+      
+      //print module name
+      
+      vector<string>::const_iterator iDumpModName;
+      for (iDumpModName = moduleNames.begin();iDumpModName != moduleNames.end();iDumpModName++) {
+	moduleName = *iDumpModName;
+	moduleType = hltConfig.moduleType(moduleName);
+	moduleIndex = hltConfig.moduleIndex(HLTPathsByName_[i], moduleName);
+	LogDebug ("HLTMonBitSummary") << "Module"      << numModule
+				      << " is called " << moduleName
+				      << " , type = "  << moduleType
+				      << " , index = " << moduleIndex
+				      << endl;
+	numModule++;
+	for(size_t k = 0; k < filterTypes_.size(); k++) {
+	  if(moduleType == filterTypes_[k]) {
+	    numFilters++;
+	    //triggerFilters_[nValidTriggers_-1].push_back(moduleName);
+	    triggerFilters_[i].push_back(moduleName);
+	    //triggerFilterIndices_[nValidTriggers_-1].push_back(moduleIndex);
+	    triggerFilterIndices_[i].push_back(moduleIndex);
+	  }
+	}
+      }//end for modulesName
+      
+    }//end for nValidTriggers_
+    
+  }//end if processName
+    
 }
 
 
@@ -162,7 +160,7 @@ HLTMonBitSummary::~HLTMonBitSummary(){}
 //
 
 void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &){
-  
+    
   if(dbe_){
     if (directory_ != "" ) directory_ = directory_+"/" ;
 
@@ -176,7 +174,6 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &){
     // Count histos for efficiency plots
     dbe_->setCurrentFolder(directory_ + "Summary/CountHistos/");
     //hCountSummary = dbe_->book1D("hCountSummary", "Count Summary", nbin+1, -0.5, 0.5+(double)nbin);
-
     
     for( int trig = 0; trig < nbin; trig++ ) {
       // count plots for subfilter
@@ -201,8 +198,7 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &){
     float max = HLTPathsByName_.size()-0.5;
     uint nBin = HLTPathsByName_.size();
   
-    LogDebug("BitPlotting")<<"this is the beginning of a NEW run: "<< r.run();
-
+    LogDebug("HLTMonBitSummary")<<"this is the beginning of a NEW run: "<< r.run();
  
     dbe_->setCurrentFolder(directory_+"Summary");
 
@@ -229,6 +225,7 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &){
 
     //------------------------End Of BitPlotting section -------------------------//
   }
+  
 }
 
 
@@ -236,58 +233,7 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &){
 void
 HLTMonBitSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  
-  
-  edm::Handle<trigger::TriggerEventWithRefs> triggerObj;
-  iEvent.getByLabel("hltTriggerSummaryRAW",triggerObj);
-  
-  if(triggerObj.isValid()) {
-
-     //for each trigger
-     for(int trig = 0; trig < nValidTriggers_; trig++){
-       std::vector<edm::Ref<l1extra::L1MuonParticleCollection> > l1particlecands;                                                                  
-       std::vector<edm::Ref<reco::RecoChargedCandidateCollection> > hltparticlecands;
-
-       //go through the list of filters
-       for(int filt = 0; filt < (int)triggerFilters_[trig].size()-1; filt++){
-	 //cout << "filterIndex =  " << triggerObj->filterIndex(edm::InputTag(triggerFilters_[trig][filt+1],"",inputTag_.process())) << endl;
-	 //cout << "triggerObj size = " << triggerObj->size() << endl;
-	 if( triggerObj->filterIndex(edm::InputTag(triggerFilters_[trig][filt+1],"",inputTag_.process())) 
-	     < triggerObj->size() ) {
-	   triggerObj->getObjects(triggerObj->filterIndex(edm::InputTag(triggerFilters_[trig][filt+1],"",inputTag_.process()))
-				  , trigger::TriggerL1Mu, l1particlecands);
-	   triggerObj->getObjects(triggerObj->filterIndex(edm::InputTag(triggerFilters_[trig][filt+1],"",inputTag_.process()))
-				  , trigger::TriggerMuon, hltparticlecands);
-
-	   //cout << "filter name = " <<  triggerFilters_[trig][filt+1] << endl;
-	 }
-	 
-	 if (l1particlecands.size() > 0 ){ 
-	   //cout << "l1particlecands.size() = " << l1particlecands.size() << endl;
-	   int binNumber = hSubFilterCount[trig]->getTH1F()->GetXaxis()->FindBin(triggerFilters_[trig][filt+1].c_str());
-	   //cout << "triggerFilters_[" << trig << "][" << filt+1 << "] = " << triggerFilters_[trig][filt+1] << endl;
-	   //cout << "binNumber = " << binNumber << endl;
-	   hSubFilterCount[trig]->Fill(binNumber-1);
-	 }
-	 
-	 else if (hltparticlecands.size() > 0 ) {
-	   //cout << "hltparticlecands.size() = " << hltparticlecands.size() << endl;
-	   int binNumber = hSubFilterCount[trig]->getTH1F()->GetXaxis()->FindBin(triggerFilters_[trig][filt+1].c_str());
-	   hSubFilterCount[trig]->Fill(binNumber-1);
-	 }
-	 
-	 l1particlecands.clear();
-	 hltparticlecands.clear();
-       } //end for      
-
-     }
-
-  }
-   
-  
-  //---------------------B i t   P l o t t i n g   S e c t i o n --------------------//
-  //---------------------------------------------------------------------------------//
-
+    
   const string invalid("@@invalid@@");
 
   // get hold of TriggerResults Object
@@ -295,23 +241,46 @@ HLTMonBitSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByLabel(inputTag_,trh);
   
   if (trh.failedToGet()) {
-     edm::LogError("BitPlotting")<<" could not get: "<<inputTag_;
+     edm::LogError("HLTMonBitSummary")<<" could not get: "<<inputTag_;
      return;
   }
-  
+
   // get hold of trigger names - based on TriggerResults object!
   triggerNames_.init(*trh);
   
-  unsigned int n = HLTPathsByName_.size();
+  unsigned int lastModule = 0;
+  //unsigned int n = HLTPathsByName_.size();
   //convert trigger names to trigger index properly
-  for (unsigned int i=0; i!=n; i++) {
-     HLTPathsByIndex_[i]=triggerNames_.triggerIndex(HLTPathsByName_[i]);
+  for (unsigned int trig=0; trig < nValidTriggers_; trig++) {
+    HLTPathsByIndex_[trig]=triggerNames_.triggerIndex(HLTPathsByName_[trig]);
+    lastModule = trh->index(HLTPathsByIndex_[trig]);
+    //cout << "Trigger Name = " << HLTPathsByName_[trig] << ", HLTPathsByIndex_ = " << HLTPathsByIndex_[trig] << endl; 
+    //cout << "Trigger Name = " << HLTPathsByName_[trig] << ", trh->index = " << lastModule << endl; 
+ 
+    //go through the list of filters
+    for(unsigned int filt = 0; filt < triggerFilters_[trig].size()-1; filt++){
+      if(triggerFilterIndices_[trig][filt+1] <= lastModule){//check if filter passed
+	//cout << "triggerFilters_["<<trig<<"]["<<filt+1<<"] = " << triggerFilters_[trig][filt+1] 
+	//     << " , triggerFilterIndices = " << triggerFilterIndices_[trig][filt+1]
+	//     << " , lastModule = " << lastModule << endl;
+	if(hSubFilterCount[trig]){
+	  int binNumber = hSubFilterCount[trig]->getTH1F()->GetXaxis()->FindBin(triggerFilters_[trig][filt+1].c_str());
+	  hSubFilterCount[trig]->Fill(binNumber-1);
+	}
+      }
+    }
+
   }
+
   //and check validity name (should not be necessary)
-  std::vector<bool> validity(n);
-  for (unsigned int i=0; i!=n; i++) {
-     validity[i]=( (HLTPathsByIndex_[i]<trh->size()) && (HLTPathsByName_[i]!=invalid) );
+  std::vector<bool> validity(nValidTriggers_);
+  for (unsigned int i=0; i!=nValidTriggers_; i++) {
+    validity[i]=( (HLTPathsByIndex_[i]<trh->size()) && (HLTPathsByName_[i]!=invalid) );
   }
+   
+  
+  //---------------------B i t   P l o t t i n g   S e c t i o n --------------------//
+  //---------------------------------------------------------------------------------//
   
   //convert also for the denominator and check validity
   uint denominatorIndex = 0;
@@ -320,7 +289,6 @@ HLTMonBitSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     denominatorIndex=triggerNames_.triggerIndex(denominator_);
     denominatorValidity= (denominatorIndex <trh->size());
   }
-
   
   std::stringstream report;
   std::string sep=" ";
@@ -330,7 +298,7 @@ HLTMonBitSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   bool denomAccept=false;
   if (ratio_ && denominatorValidity) denomAccept=trh->accept(denominatorIndex);
   
-  for (unsigned int i=0; i!=n; i++) {
+  for (unsigned int i=0; i!=nValidTriggers_; i++) {
     if (!validity[i]) continue;
     bool iAccept=trh->accept(HLTPathsByIndex_[i]);
     if (iAccept) {
@@ -342,7 +310,7 @@ HLTMonBitSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       h1_->Fill(i);
       pf_->Fill(i,1);
       //make the entry in the 2D plot : UPPER diagonal terms = AND of the two triggers
-      for (unsigned int j=i; j!=n; j++) {
+      for (unsigned int j=i; j!=nValidTriggers_; j++) {
 	if (!validity[j]) continue;
 	if (trh->accept(HLTPathsByIndex_[j]))
 	  h2_->Fill(i,j);    
@@ -383,8 +351,7 @@ HLTMonBitSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
 // ------------ method called once each job just after ending the event loop  ------------
-void HLTMonBitSummary::endJob() {
-
+void HLTMonBitSummary::endJob() {  
  
   std::stringstream report;
   report <<" out of: "<<total_<<" events.\n";
@@ -393,9 +360,10 @@ void HLTMonBitSummary::endJob() {
     count_[i]=0;
   }
   
-  edm::LogInfo("BitPlotting|BitSummary")<<report.str();
-  LogDebug("BitPlotting|BitSummary")<<report.str();
+  edm::LogInfo("HLTMonBitSummary|BitSummary")<<report.str();
+  LogDebug("HLTMonBitSummary|BitSummary")<<report.str();
   total_=0;
   //  if( out_.size() != 0 ) edm::Service<DQMStore>()->save(out_);
+  
 }
 
