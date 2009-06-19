@@ -82,9 +82,9 @@ namespace edmtest
 
       CSCDetId id = indexer.detIdFromChamberIndex( indexc ); 
       bool bbad = theBadChambers->isInBadChamber( id );
-      std::string bbads = "no";
+      std::string bbads = "LIVE";
       if ( bbad ) {
-        bbads = "yes";
+        bbads = "DEAD";
         ++countbad;
       }
       else {
