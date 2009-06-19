@@ -329,19 +329,19 @@ void HcalRecHitClient::getHistograms()
   name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HE_energy_1D";
   h_HEEnergy_1D=getAnyHisto(dummy1D, name.str(),process_, dbe_, debug_, cloneME_);
   name.str("");
-name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HO_energy_1D";
+  name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HO_energy_1D";
   h_HOEnergy_1D=getAnyHisto(dummy1D, name.str(),process_, dbe_, debug_, cloneME_);
   name.str("");
-name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HF_energy_1D";
+  name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HF_energy_1D";
   h_HFEnergy_1D=getAnyHisto(dummy1D, name.str(),process_, dbe_, debug_, cloneME_);
   name.str("");
-  getSJ6histos("RecHitMonitor_Hcal/problem_rechits/", " Problem RecHit Rate", ProblemRecHitsByDepth);
-  getSJ6histos("RecHitMonitor_Hcal/rechit_info/","Rec Hit Occupancy", OccupancyByDepth);
-  getSJ6histos("RecHitMonitor_Hcal/rechit_info_threshold/","Above Threshold Rec Hit Occupancy", OccupancyThreshByDepth);
-  getSJ6histos("RecHitMonitor_Hcal/rechit_info/","Rec Hit Average Energy", EnergyByDepth, "GeV");
-  getSJ6histos("RecHitMonitor_Hcal/rechit_info_threshold/","Above Threshold Rec Hit Average Energy", EnergyThreshByDepth, "GeV");
-  getSJ6histos("RecHitMonitor_Hcal/rechit_info/","Rec Hit Average Time", TimeByDepth, "nS");
-  getSJ6histos("RecHitMonitor_Hcal/rechit_info_threshold/","Above Threshold Rec Hit Average Time", TimeThreshByDepth, "nS");
+  getEtaPhiHists("RecHitMonitor_Hcal/problem_rechits/", " Problem RecHit Rate", ProblemRecHitsByDepth);
+  getEtaPhiHists("RecHitMonitor_Hcal/rechit_info/","Rec Hit Occupancy", OccupancyByDepth);
+  getEtaPhiHists("RecHitMonitor_Hcal/rechit_info_threshold/","Above Threshold Rec Hit Occupancy", OccupancyThreshByDepth);
+  getEtaPhiHists("RecHitMonitor_Hcal/rechit_info/","Rec Hit Average Energy", EnergyByDepth, "GeV");
+  getEtaPhiHists("RecHitMonitor_Hcal/rechit_info_threshold/","Above Threshold Rec Hit Average Energy", EnergyThreshByDepth, "GeV");
+  getEtaPhiHists("RecHitMonitor_Hcal/rechit_info/","Rec Hit Average Time", TimeByDepth, "nS");
+  getEtaPhiHists("RecHitMonitor_Hcal/rechit_info_threshold/","Above Threshold Rec Hit Average Time", TimeThreshByDepth, "nS");
   if (ievt_>0)
     {
       for (int i=0;i<4;++i)
@@ -354,10 +354,10 @@ name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HF_energy_1D";
 	  TimeThreshByDepth[i]->Scale(1./ievt_);
 	}
     }
-  getSJ6histos("RecHitMonitor_Hcal/rechit_info/sumplots/","Rec Hit Summed Energy", SumEnergyByDepth, "GeV");
-  getSJ6histos("RecHitMonitor_Hcal/rechit_info_threshold/sumplots/","Above Threshold Rec Hit Summed Energy", SumEnergyThreshByDepth, "GeV");
-  getSJ6histos("RecHitMonitor_Hcal/rechit_info/sumplots/","Rec Hit Summed Time", SumTimeByDepth, "nS");
-  getSJ6histos("RecHitMonitor_Hcal/rechit_info_threshold/sumplots/","Above Threshold Rec Hit Summed Time", SumTimeThreshByDepth, "nS");
+  getEtaPhiHists("RecHitMonitor_Hcal/rechit_info/sumplots/","Rec Hit Summed Energy", SumEnergyByDepth, "GeV");
+  getEtaPhiHists("RecHitMonitor_Hcal/rechit_info_threshold/sumplots/","Above Threshold Rec Hit Summed Energy", SumEnergyThreshByDepth, "GeV");
+  getEtaPhiHists("RecHitMonitor_Hcal/rechit_info/sumplots/","Rec Hit Summed Time", SumTimeByDepth, "nS");
+  getEtaPhiHists("RecHitMonitor_Hcal/rechit_info_threshold/sumplots/","Above Threshold Rec Hit Summed Time", SumTimeThreshByDepth, "nS");
 
   if (rechitclient_makeDiagnostics_)
     {
@@ -840,14 +840,13 @@ void HcalRecHitClient::htmlExpertOutput(int runNo, string htmlDir, string htmlNa
   htmlFile << "cellpadding=\"10\"> " << std::endl;
   gStyle->SetPalette(20,pcol_error_); // set palette to standard error color scheme
   
-  // Depths are stored as:  0:  HB/HF depth 1, 1:  HB/HF 2, 2:  HE 3, 3:  HO/ZDC, 4: HE 1, 5:  HE2
-  // remap so that HE depths are plotted consecutively
-  int mydepth[6]={0,1,4,5,2,3};
-  for (int i=0;i<3;++i)
+  // Depths are stored as:  0:  HB/HE/HF depth 1, 1:  HB/HE/HF depth 2, 2:  HE depth 3, 3:  HO
+  int mydepth[4]={0,1,2,3};
+  for (int i=0;i<2;++i)
     {
       htmlFile << "<tr align=\"left\">" << std::endl;
-      htmlAnyHisto(runNo,ProblemRecHitsByDepth[mydepth[2*i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,ProblemRecHitsByDepth[mydepth[2*i]+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,ProblemRecHitsByDepth[2*i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,ProblemRecHitsByDepth[2*i+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<std::endl;
     }
 
