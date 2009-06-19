@@ -7,7 +7,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 
-process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(10))
+process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(100))
 
 process.load("Configuration.EventContent.EventContentCosmics_cff")
 
@@ -57,7 +57,7 @@ process.FEVT.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_muonR
 
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.1 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/rereco38T_ToscaMap_090322_cfg.py,v $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/rereco38T_ToscaMap_090322_2pi_scaled_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with DQM with Mag field at 3.8T')
 )
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) ) ## default is false
@@ -65,7 +65,7 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) ) #
 
 # Conditions (Global Tag is used here):
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "CRAFT_ALL_V12::All"
+process.GlobalTag.globaltag = "CRAFT_ALL_V13::All"
 process.prefer("GlobalTag")
 
 # Use new-new Magnetic field: 3.8T, radius 30m, z 35m (produced 090322) with scaling factors and 
