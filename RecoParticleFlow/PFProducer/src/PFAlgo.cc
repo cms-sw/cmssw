@@ -1553,7 +1553,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	} else {	
 	  corrTrack = iTrack;
 	  corrFact = (caloEnergy - wouldBeTotalChargedMomentum)/elements[it->second.first].trackRef()->p();
-	  if ( trackref->p() < 0.05 ) { 
+	  if ( trackref->p()*corrFact < 0.05 ) { 
 	    corrFact = 0.;
 	    active[iTrack] = false;
 	  }
