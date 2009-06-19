@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
+
 photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
 
     Name = cms.untracked.string('photonAnalysis'),
@@ -20,7 +21,7 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     invMassEtCut = cms.double(20.0),                             
               
     cutStep = cms.double(50.0),
-    numberOfSteps = cms.int32(2),
+    numberOfSteps = cms.int32(1),
 
                                 
     # DBE verbosity
@@ -42,17 +43,16 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     eMax = cms.double(3000.0),
 
 
-    #etBin = cms.int32(300),                                
+                                
     etBin = cms.int32(600),
     etMin = cms.double(0.0),
     etMax = cms.double(3000.0),
 
-    #sumBin = cms.int32(100),
+
     sumBin = cms.int32(200),
     sumMin = cms.double(0.0),
     sumMax = cms.double(20.0),
 
-    #etaBin = cms.int32(100),                                  
     etaBin = cms.int32(200),                               
     etaMin = cms.double(-2.5),
     etaMax = cms.double(2.5),
@@ -65,7 +65,7 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     phiMin = cms.double(-3.14),
     phiMax = cms.double(3.14),
                                 
-    #r9Bin = cms.int32(55),
+    
     r9Bin = cms.int32(110),
     r9Min = cms.double(0.0),
     r9Max = cms.double(1.1),
@@ -106,11 +106,7 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     dPhiTracksMin = cms.double(-0.5),
     dPhiTracksMax = cms.double(0.5),
 
-    dRBin = cms.int32(300),
-    dRMin = cms.double(0.0),
-    dRMax = cms.double(0.1),
-
-    #sigmaIetaBin = cms.int32(100),
+    
     sigmaIetaBin = cms.int32(200),
     sigmaIetaMin = cms.double(0.0),
     sigmaIetaMax = cms.double(0.05),
