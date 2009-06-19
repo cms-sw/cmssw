@@ -13,8 +13,8 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2009/03/31 14:03:00 $
-  * $Revision: 1.23 $
+  * $Date: 2009/06/19 12:54:07 $
+  * $Revision: 1.24 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -83,12 +83,12 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   EtaPhiHists SumTimeThreshByDepth;
 
 
-  unsigned int occupancy_[ETABINS][PHIBINS][4]; // will get filled when rechit found
-  unsigned int occupancy_thresh_[ETABINS][PHIBINS][4]; // filled when above given energy
-  double energy_[ETABINS][PHIBINS][4]; // will get filled when rechit found
-  double energy_thresh_[ETABINS][PHIBINS][4]; // filled when above given  
-  double time_[ETABINS][PHIBINS][4]; // will get filled when rechit found
-  double time_thresh_[ETABINS][PHIBINS][4]; // filled when above given energy
+  unsigned int occupancy_[85][72][4]; // will get filled when rechit found
+  unsigned int occupancy_thresh_[85][72][4]; // filled when above given energy
+  double energy_[85][72][4]; // will get filled when rechit found
+  double energy_thresh_[85][72][4]; // filled when above given  
+  double time_[85][72][4]; // will get filled when rechit found
+  double time_thresh_[85][72][4]; // filled when above given energy
 
   double HBenergy_[200];
   double HBenergy_thresh_[200];
