@@ -5,8 +5,8 @@
  * \class RPCFw
  *  Reads data from OMDS and creates conditioning objects
  *
- *  $Date: 2009/04/13 20:39:53 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/06/05 15:58:06 $
+ *  $Revision: 1.16 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -47,7 +47,7 @@ public:
 
   std::vector<RPCObImon::I_Item> createIMON(long long since, long long till);
   std::vector<RPCObVmon::V_Item> createVMON(long long from, long long till); 
-  std::vector<RPCObStatus::S_Item> createSTATUS(long long from); 
+  std::vector<RPCObStatus::S_Item> createSTATUS(long long since, long long till); 
   std::vector<RPCObGas::Item> createGAS(long long since, long long till);
   std::vector<RPCObTemp::T_Item> createT(long long since, long long till);
   std::vector<RPCObPVSSmap::Item> createIDMAP();

@@ -2,8 +2,8 @@
  /* 
  *  See header file for a description of this class.
  *
- *  $Date: 2009/04/13 20:40:38 $
- *  $Revision: 1.16 $
+ *  $Date: 2009/06/05 15:56:50 $
+ *  $Revision: 1.21 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -213,11 +213,11 @@ std::vector<RPCObVmon::V_Item> RPCFw::createVMON(long long since, long long till
 
 
 //------------------------------ S T A T U S ---------------------------------------------------------------------
-std::vector<RPCObStatus::S_Item> RPCFw::createSTATUS(long long from)
+std::vector<RPCObStatus::S_Item> RPCFw::createSTATUS(long long since, long long till)
 {
-  tMIN = UTtoT(from);
+  tMIN = UTtoT(since);
   std::cout <<">> Processing since: "<<tMIN.day()<<"/"<<tMIN.month()<<"/"<<tMIN.year()<<" "<<tMIN.hour()<<":"<<tMIN.minute()<<"."<<tMIN.second()<< std::endl;
-
+  
   coral::ISession* session = this->connect( m_connectionString,
                                             m_userName, m_password );
   session->transaction().start( true );
@@ -229,42 +229,68 @@ std::vector<RPCObStatus::S_Item> RPCFw::createSTATUS(long long from)
   queryS->addToOutputList( "FWCAENCHANNEL.DPID", "DPID" );
   queryS->addToOutputList( "FWCAENCHANNEL.CHANGE_DATE", "TSTAMP" );
   queryS->addToOutputList( "FWCAENCHANNEL.ACTUAL_STATUS", "STATUS" );
-  std::string condS = "FWCAENCHANNEL.ACTUAL_STATUS is not NULL";
-
-  std::string condition = "FWCAENCHANNEL.ACTUAL_STATUS is not NULL AND FWCAENCHANNEL.CHANGE_DATE >:tmax";
-  coral::AttributeList conditionData;
-  conditionData.extend<coral::TimeStamp>( "tmax" );
-  queryS->setCondition( condition, conditionData );
-  conditionData[0].data<coral::TimeStamp>() = tMIN;
-  coral::ICursor& cursorS = queryS->execute();
-
   RPCObStatus::S_Item Stemp;
   std::vector<RPCObStatus::S_Item> statusarray;
-  while ( cursorS.next() ) {
-    const coral::AttributeList& row = cursorS.currentRow();
-    float idoub = row["DPID"].data<float>();
-    int id = static_cast<int>(idoub);
-    float val = row["STATUS"].data<float>();
-    coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-    int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
-    int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
-
-    Stemp.dpid = id;
-    Stemp.value = val;
-    Stemp.day = ndate;
-    Stemp.time = ntime;
-    statusarray.push_back(Stemp);
-
-    ++nRows;
+  coral::TimeStamp tlast = tMIN;
+  if (till > since) {
+    tMAX = UTtoT(till);
+    std::cout <<">> Processing till: "<<tMAX.day()<<"/"<<tMAX.month()<<"/"<<tMAX.year()<<" "<<tMAX.hour()<<":"<<tMAX.minute()<<"."<<tMAX.second()<< std::endl;
+    std::cout << ">> creating STATUS object..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData.extend<coral::TimeStamp>( "tmax" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    conditionData["tmax"].data<coral::TimeStamp>() = tMAX;
+    std::string condition = " NOT FWCAENCHANNEL.ACTUAL_STATUS IS NULL AND FWCAENCHANNEL.CHANGE_DATE >:tmin AND FWCAENCHANNEL.CHANGE_DATE <:tmax";
+    queryS->setCondition( condition , conditionData );
+    coral::ICursor& cursorS = queryS->execute();
+    while ( cursorS.next() ) {
+      const coral::AttributeList& row = cursorS.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float val = row["STATUS"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Stemp.dpid = id;
+      Stemp.value = val;
+      Stemp.day = ndate;
+      Stemp.time = ntime;
+      statusarray.push_back(Stemp);
+      ++nRows;
+    } 
+  }else {
+    std::cout << ">> creating STATUS object..." << std::endl;
+    coral::AttributeList conditionData;
+    conditionData.extend<coral::TimeStamp>( "tmin" );
+    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
+    std::string condition = " NOT FWCAENCHANNEL.ACTUAL_STATUS IS NULL AND FWCAENCHANNEL.CHANGE_DATE >:tmin";
+    queryS->setCondition( condition , conditionData );
+    coral::ICursor& cursorS = queryS->execute();
+    while ( cursorS.next() ) {
+      const coral::AttributeList& row = cursorS.currentRow();
+      float idoub = row["DPID"].data<float>();
+      int id = static_cast<int>(idoub);
+      float val = row["STATUS"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Stemp.dpid = id;
+      Stemp.value = val;
+      Stemp.day = ndate;
+      Stemp.time = ntime;
+      statusarray.push_back(Stemp);
+      ++nRows;
+    }
   }
   std::cout << ">> Staus array --> size: " << statusarray.size() << " >> done." << std::endl << std::endl << std::endl;
   
   delete queryS;
   session->transaction().commit();
   delete session;
-
+  
   return statusarray;
-
+  
 }
 
 
