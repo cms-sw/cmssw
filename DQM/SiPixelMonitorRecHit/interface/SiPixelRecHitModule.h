@@ -18,7 +18,7 @@ detector segment (detID)
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitModule.h,v 1.6 2009/03/16 08:14:27 wehrlilu Exp $
+// $Id: SiPixelRecHitModule.h,v 1.7 2009/06/02 10:09:13 merkelp Exp $
 //
 //  Adapted by: Keith Rose
 //  for use in SiPixelMonitorRecHit package
@@ -45,12 +45,17 @@ class SiPixelRecHitModule {
   // typedef edm::DetSet<PixelRecHit>::const_iterator  RecHitsIterator;
 
   /// Book histograms
-  void book(const edm::ParameterSet& iConfig, int type=0, bool twoD=true);
+  void book(const edm::ParameterSet& iConfig, int type=0, bool twoD=true, 
+            bool reducedSet=false);
   /// Fill histograms
-  void fill(const float& rechit_x, const float& rechit_y, const int& sizeX, const int& sizeY, 
-            const float& lerr_x, const float& lerr_y, bool modon=true, bool ladon=false, bool layon=false, 
-	    bool phion=false, bool bladeon=false, bool diskon=false, bool ringon=false, bool twoD=true);
-  void nfill(const int& nrec, bool modon=true, bool ladon=false, bool layon=false, bool phion=false, bool bladeon=false, bool diskon=false, bool ringon=false);  
+  void fill(const float& rechit_x, const float& rechit_y, const int& sizeX, 
+            const int& sizeY, const float& lerr_x, const float& lerr_y, 
+	    bool modon=true, bool ladon=false, bool layon=false, 
+	    bool phion=false, bool bladeon=false, bool diskon=false, 
+	    bool ringon=false, bool twoD=true, bool reducedSet=false);
+  void nfill(const int& nrec, bool modon=true, bool ladon=false, 
+             bool layon=false, bool phion=false, bool bladeon=false, 
+	     bool diskon=false, bool ringon=false);  
 
  private:
 
